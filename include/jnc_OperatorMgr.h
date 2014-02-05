@@ -713,6 +713,18 @@ public:
 		return MemberOperator (*pValue, pName, pValue);
 	}
 
+	bool
+	GetOffsetOf (
+		const CValue& Value,
+		CValue* pResultValue
+		);
+
+	bool
+	GetOffsetOf (CValue* pValue)
+	{
+		return GetOffsetOf (*pValue, pValue);
+	}
+
 	// call operators
 
 	void
@@ -1375,11 +1387,12 @@ protected:
 		CValue* pResultValue
 		);
 
-	CType*
+	bool
 	GetNamedTypeMemberType (
 		const CValue& OpValue,
 		CNamedType* pNamedType,
-		const char* pName
+		const char* pName,
+		CValue* pResultValue
 		);
 
 	bool

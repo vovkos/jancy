@@ -395,6 +395,31 @@ CValue::SetProperty (CProperty* pProperty)
 }
 
 void
+CValue::SetField (
+	CStructField* pField,
+	CType* pType,
+	size_t BaseOffset
+	)
+{
+	Clear ();
+
+	m_ValueKind = EValue_Field;
+	m_pField = pField;
+	m_pType = pType;
+	m_Const.GetBuffer (sizeof (TBufHdr) + sizeof (size_t));
+	*(size_t*) GetConstData () = BaseOffset + pField->GetOffset ();
+}
+
+void
+CValue::SetField (
+	CStructField* pField,
+	size_t BaseOffset
+	)
+{
+	SetField (pField, pField->GetType (), BaseOffset);
+}
+
+void
 CValue::SetLlvmValue (
 	llvm::Value* pLlvmValue,
 	CType* pType,

@@ -1,157 +1,25 @@
 //.............................................................................
 
-class CTest
+struct Point
 {
-	mutable int m_Value;
-
-	Foo (int x) const
-	{
-		printf ("CTest.Foo (int x = %d)\n", x);
-		m_Value = x;
-	}
-
-	Bar (int a)
-	{
-		printf ("CTest.Bar () { m_v = %d }\n", m_Value);
-	}
-
-	int
-	operator ~ ()
-	{
-		printf ("CTest.operator ~ () { m_v = %d }\n", m_Value);
-		return 123;
-	}
-
-	int 
-	operator - ()
-	{
-		printf ("CTest.operator - () { m_v = %d }\n", m_Value);
-		return 456;
-	}
-
-	int 
-	operator - (int x)
-	{
-		printf ("CTest.operator - (int x = %d) { m_v = %d }\n", x, m_Value);
-		return m_Value - x;
-	}
-
-};
-
-
-class CBase
-{
-public:
-	BaseMethod ();
+	int m_x;
+	int m_y;
 }
 
-
-class CSerial: Base
+struct Line
 {
-        delegate OnComplete (int Status);
-
-	event OnComplete m_OnComplete;
-
-protected:
-	public HANDLE Handle
-	{
-		get;		
-		protected set;
-	};
-
-	readonly HANDLE Handle;	
-
-	event multicast OnClick ();	
-
-	bool
-	Write (Buffer, Size, OnComplete fn)
-	{
-		m_OnComplete += fn;
-
-		// start
-	}
-
-	void
-	Thread ()
-	{
-		// start
-
-		m_OnComplte (status);
-	}		
-
-};
-
-class CClient
-{
-	int Member;
-	
-	OnComplete (int Status)
-	{
-		Member = Status;
-	}
-
-	Main ()
-	{
-		CSerial s;
-
-		s.BaseMethod ();
-		s.OnComplete += OnComplete;
-		s.OnComplete (10);
-		
-		
-		s.Write (,, OnComplete);
-	}
+	Point m_a;
+	Point m_b;
 }
 
-class CSerial: ISerial
+int main ()
 {
-	virtual bool Open ()
-	{
-		ISerial.Opend ();
-	}
-};
+	printf ("main ()\n");
 
-extend CTest
-{
-	enum EN
-	{
-	};
-
-	Yahoo ()
-	{
-		printf ("CTest.extension.Yahoo () { m_v = %d }\n", m_Value);
-	}		
-
-	Bar (char x);
-}
-
-int
-main ()
-{
-	printf ("hui govno i muravei\n");
-
-	CTest t = stack new CTest;
-	t.Foo (100);
-	t.Bar ();
-
-	
-t.EN e;	
-t.Yahoo ();
+	Point p;
+	printf ("offset = %d\n", offsetof (Line.m_b.m_x));
 
 	return 0;
 }
 
 //.............................................................................
-
-int
-printf (
-	unsafe char* pFormat,
-	unsafe ...
-	);
-
-//.............................................................................
-
-class IScheduler
-{
-	abstract bool Schedule (function* pf ());
-};

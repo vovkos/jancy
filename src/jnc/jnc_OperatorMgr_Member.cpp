@@ -13,7 +13,8 @@ COperatorMgr::GetNamespaceMemberType (
 	CValue* pResultValue
 	)
 {
-	CModuleItem* pItem = pNamespace->FindItemTraverse (pName, NULL, ETraverse_NoParentNamespace);
+	CMemberCoord Coord;
+	CModuleItem* pItem = pNamespace->FindItemTraverse (pName, &Coord, ETraverse_NoParentNamespace);
 	if (!pItem)
 	{
 		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamespace->GetQualifiedName ().cc ());
@@ -79,6 +80,10 @@ COperatorMgr::GetNamespaceMemberType (
 
 	case EModuleItem_EnumConst:
 		pResultValue->SetType (((CEnumConst*) pItem)->GetParentEnumType ());
+		break;
+
+	case EModuleItem_StructField:
+		pResultValue->SetField ((CStructField*) pItem, Coord.m_Offset);
 		break;
 
 	default:
@@ -192,55 +197,71 @@ COperatorMgr::GetNamespaceMember (
 	return true;
 }
 
-CType*
+bool
 COperatorMgr::GetNamedTypeMemberType (
 	const CValue& OpValue,
 	CNamedType* pNamedType,
-	const char* pName
+	const char* pName,
+	CValue* pResultValue
 	)
 {
-	CModuleItem* pMember = pNamedType->FindItemTraverse (pName, NULL, ETraverse_NoParentNamespace);
+	CMemberCoord Coord;
+	CModuleItem* pMember = pNamedType->FindItemTraverse (pName, &Coord, ETraverse_NoParentNamespace);
 	if (!pMember)
 	{
 		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamedType->GetTypeString ().cc ());
-		return NULL;
+		return false;
 	}
 
 	EModuleItem MemberKind = pMember->GetItemKind ();
 	switch (MemberKind)
 	{
 	case EModuleItem_StructField:
-		if (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_DataPtr)
 		{
-			CDataPtrType* pPtrType = (CDataPtrType*) OpValue.GetType ();
-			EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
-			return ((CStructField*) pMember)->GetType ()->GetDataPtrType (
-				EType_DataRef,
-				PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-				OpValue.GetType ()->GetFlags ()
-				);
+		CStructField* pField = (CStructField*) pMember;
+		size_t BaseOffset = 0;
+		if (OpValue.GetValueKind () == EValue_Field)
+			BaseOffset = OpValue.GetFieldOffset ();
+
+		if (!(OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_DataPtr))
+		{
+			pResultValue->SetField (pField, BaseOffset); 
+			break;
 		}
-		else
-		{
-			return ((CStructField*) pMember)->GetType ();
+
+		CDataPtrType* pPtrType = (CDataPtrType*) OpValue.GetType ();
+		EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
+
+		CType* pResultType = pField->GetType ()->GetDataPtrType (
+			EType_DataRef,
+			PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
+			OpValue.GetType ()->GetFlags ()
+			);
+
+		pResultValue->SetField (pField, pResultType, BaseOffset); 
+		break;
 		}
 
 	case EModuleItem_Function:
-		return ((CFunction*) pMember)->GetType ()->GetShortType ()->GetFunctionPtrType (
+		pResultValue->SetType (((CFunction*) pMember)->GetType ()->GetShortType ()->GetFunctionPtrType (
 			EType_FunctionRef,
 			EFunctionPtrType_Thin
-			);
+			));
+		break;
 
 	case EModuleItem_Property:
-		return ((CProperty*) pMember)->GetType ()->GetShortType ()->GetPropertyPtrType (
+		pResultValue->SetType (((CProperty*) pMember)->GetType ()->GetShortType ()->GetPropertyPtrType (
 			EType_PropertyRef,
 			EPropertyPtrType_Thin
-			);
+			));
+		break;
 
 	default:
 		err::SetFormatStringError ("invalid member kind '%s'", GetModuleItemKindString (MemberKind));
-		return NULL;
+		return false;
 	}
+
+	return true;
 }
 
 bool
@@ -343,26 +364,20 @@ COperatorMgr::GetMemberOperatorResultType (
 	}
 
 	EType TypeKind = pType->GetTypeKind ();
-	CType* pResultType;
 	switch (TypeKind)
 	{
 	case EType_Struct:
 	case EType_Union:
-		pResultType = GetNamedTypeMemberType (OpValue, (CNamedType*) pType, pName);
-		break;
+		return GetNamedTypeMemberType (OpValue, (CNamedType*) pType, pName, pResultValue);
 
 	case EType_ClassPtr:
 		PrepareOperandType (&OpValue);
-		pResultType = GetNamedTypeMemberType (OpValue, ((CClassPtrType*) pType)->GetTargetType (), pName);
-		break;
+		return GetNamedTypeMemberType (OpValue, ((CClassPtrType*) pType)->GetTargetType (), pName, pResultValue);
 
 	default:
 		err::SetFormatStringError ("member operator cannot be applied to '%s'", pType->GetTypeString ().cc ());
 		return false;
 	}
-
-	pResultValue->SetType (pResultType);
-	return true;
 }
 
 bool
@@ -511,6 +526,22 @@ COperatorMgr::WeakenOperator (
 
 	CClassPtrType* pResultType = ((CClassPtrType*) pOpType)->GetWeakPtrType ();
 	pResultValue->OverrideType (OpValue, pResultType);
+	return true;
+}
+
+bool
+COperatorMgr::GetOffsetOf (
+	const CValue& Value,
+	CValue* pResultValue
+	)
+{
+	if (Value.GetValueKind () != EValue_Field)
+	{
+		err::SetFormatStringError ("'offsetof' can only be applied to fields");
+		return false;
+	}
+
+	pResultValue->SetConstSizeT (Value.GetFieldOffset ());
 	return true;
 }
 

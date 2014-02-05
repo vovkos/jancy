@@ -309,8 +309,9 @@ unary_operator_expr_0 <CValue* $pValue>
 				CType* pType = $t.m_pType->GetTypeKind () == EType_DataRef ? ((CDataPtrType*) $t.m_pType)->GetTargetType () : $t.m_pType;
 				$pValue->SetType ($t.m_pType);
 			}
-	|	EToken_OffsetOf '(' type_name $t ',' EToken_Identifier $n ')' 
+	|	EToken_OffsetOf '(' expression_0 ')'
 			{
+				$pValue->SetType (EType_SizeT);
 			}
 	|	EToken_BindingOf '(' conditional_expr_0 <$pValue> ')' 
 			{

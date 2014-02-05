@@ -33,6 +33,7 @@ enum EValue
 	EValue_Function,
 	EValue_FunctionTypeOverload,
 	EValue_Property,
+	EValue_Field,
 	EValue_LlvmRegister,
 	EValue_BoolNot,
 	EValue_BoolAnd,
@@ -79,6 +80,7 @@ protected:
 		CFunction* m_pFunction;
 		CFunctionTypeOverload* m_pFunctionTypeOverload;
 		CProperty* m_pProperty;
+		CStructField* m_pField;
 	};
 
 	mutable llvm::Value* m_pLlvmValue;
@@ -251,10 +253,17 @@ public:
 		return m_pProperty;
 	}
 
+	CStructField*
+	GetField () const
+	{
+		ASSERT (m_ValueKind == EValue_Field);
+		return m_pField;
+	}
+
 	void*
 	GetConstData () const
 	{
-		ASSERT (m_ValueKind == EValue_Const);
+		ASSERT (m_ValueKind == EValue_Const || m_ValueKind == EValue_Field);
 		return (void*) (m_Const + 1);
 	}
 
@@ -290,6 +299,13 @@ public:
 	GetSizeT () const
 	{
 		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (size_t));
+		return *(size_t*) GetConstData ();
+	}
+
+	size_t
+	GetFieldOffset () const
+	{
+		ASSERT (m_ValueKind == EValue_Field && m_pType->GetSize () >= sizeof (size_t));
 		return *(size_t*) GetConstData ();
 	}
 
@@ -415,6 +431,19 @@ public:
 
 	void
 	SetProperty (CProperty* pProperty);
+
+	void
+	SetField (
+		CStructField* pField,
+		CType* pType,
+		size_t BaseOffset
+		);
+
+	void
+	SetField (
+		CStructField* pField,
+		size_t BaseOffset
+		);
 
 	void
 	SetLlvmValue (

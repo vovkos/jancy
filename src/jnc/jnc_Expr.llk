@@ -775,8 +775,9 @@ primary_expr <CValue* $pValue>
 				CType* pType = $t.m_pType->GetTypeKind () == EType_DataRef ? ((CDataPtrType*) $t.m_pType)->GetTargetType () : $t.m_pType;
 				$pValue->SetType ($t.m_pType);
 			}
-	|	EToken_OffsetOf '(' type_name $t ',' EToken_Identifier $n ')'
+	|	EToken_OffsetOf '(' expression_0 $e ')'
 			{
+				return m_pModule->m_OperatorMgr.GetOffsetOf ($e.m_Value, $pValue);				
 			}
 	|	EToken_BindingOf '(' conditional_expr <$pValue> ')'
 			{
