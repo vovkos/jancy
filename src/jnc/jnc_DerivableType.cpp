@@ -195,6 +195,12 @@ CDerivableType::ResolveImportFields ()
 		}
 
 		pField->m_pType = pType;
+		
+		if (pField->m_BitCount)
+		{
+			ASSERT (pField->m_pBitFieldBaseType == pField->m_pType_i);
+			pField->m_pBitFieldBaseType = pType;
+		}
 	}
 
 	return true;
