@@ -1,0 +1,330 @@
+//.............................................................................
+
+pragma
+pragma_pack
+	:	'#' EToken_Pack '(' struct_pack_factor_value $v ')'
+		{
+			m_StructPackFactor = $v.m_Value;
+		}
+	;
+
+//.............................................................................
+
+// root declaration productions
+
+global_declaration
+	:	namespace_declaration
+	|	extend_declaration
+	|	using_declaration
+	|	friend_declaration
+	|	access_declaration
+	|	named_type_specifier
+	|	item_declaration_w_specifier
+	|	resolver (item_declaration_no_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_no_specifier
+	|	';'
+	;
+
+named_type_block_declaration
+	:	friend_declaration
+	|	access_declaration
+	|	named_type_specifier
+	|	item_declaration_w_specifier
+	|	resolver (item_declaration_no_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_no_specifier
+	|	';'
+	;
+
+local_declaration
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.ResetJumpFlag (); // 'stack new' is currently illegal in conditional expression
+		m_pModule->m_NamespaceMgr.SetSourcePos (m_CurrentToken.m_Pos);
+	}
+	:	statement
+	|	using_declaration
+	|	named_type_specifier
+	|	item_declaration_w_specifier
+	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_no_specifier
+	|	catch_label
+	|	finally_label
+	;
+
+//.............................................................................
+
+// namespace & using declarations
+
+namespace_declaration
+	:	EToken_Namespace qualified_name
+			{
+				return OpenGlobalNamespace ($2.m_Name, $2.m_FirstToken.m_Pos) != NULL;
+			}
+		'{' global_declaration* '}'
+			{
+				m_pModule->m_NamespaceMgr.CloseNamespace ();
+			}
+	;
+
+extend_declaration
+	:	EToken_Extend qualified_name
+			{
+				return OpenTypeExtension ($2.m_Name, $2.m_FirstToken.m_Pos);
+			}
+		'{' named_type_block_declaration* '}'
+			{
+				m_pModule->m_NamespaceMgr.CloseNamespace ();
+			}
+	;
+
+using_declaration
+	:	EToken_Using qualified_name (',' qualified_name)* ';'
+	;
+
+friend_declaration
+	:	EToken_Friend qualified_name (',' qualified_name)* ';'
+	;
+
+access_declaration
+	:	access_specifier ':'
+			{
+				m_pModule->m_NamespaceMgr.m_CurrentAccessKind = $1.m_AccessKind;
+			}
+	;
+
+//.............................................................................
+
+class
+{
+	CQualifiedName m_Name
+}
+qualified_name
+	:	qualified_name_impl <&$.m_Name>
+	;
+
+qualified_name_impl <CQualifiedName* $pName>
+	:	EToken_Identifier
+			{
+				$pName->AddName ($1.m_Data.m_String);
+			}
+		('.' EToken_Identifier $n2
+			{
+				$pName->AddName ($n2.m_Data.m_String);
+			}
+		)*
+	;
+
+//.............................................................................
+
+// item declarations
+
+item_declaration_w_specifier
+	enter
+	{
+		m_StorageKind = EStorage_Undefined;
+		m_AccessKind = EAccess_Undefined;
+	}
+	:	declaration_specifier_list $s
+		declarator_list <&$s.m_TypeSpecifier>?
+		declaration_terminator <&$s.m_TypeSpecifier>
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+item_declaration_no_specifier
+	local
+	{
+		CDeclarator $Declarator;
+	}
+	enter
+	{
+		m_StorageKind = EStorage_Undefined;
+		m_AccessKind = EAccess_Undefined;
+		$Declarator.SetTypeSpecifier (NULL);
+	}
+	:	declarator_prefix <&$Declarator>*
+		declarator_name <&$Declarator>
+		function_suffix <&$Declarator> declarator_suffix <&$Declarator>*
+		post_declarator_modifier <&$Declarator>*
+			{
+				return Declare (&$Declarator);
+			}
+		declaration_terminator <NULL>
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// conflict at EToken_Identifier in global scope and in named type block
+// between qualified_type_name and declarator_name
+// prefer declarator_name if and only if this is a function
+
+item_declaration_no_specifier_rslv
+	local
+	{
+		CDeclarator $Declarator;
+	}
+	:	declarator_name <&$Declarator> '(' // must be a function
+	;
+
+//.............................................................................
+
+declaration_terminator <CTypeSpecifier* $pTypeSpecifier>
+	leave
+	{
+		if (m_pAttributeBlock)
+		{
+			err::SetFormatStringError ("unused attribute block in declaration");
+			return false;
+		}
+
+		m_pLastDeclaredItem = NULL;
+	}
+	:	';'
+			{
+				return IsEmptyDeclarationTerminatorAllowed ($pTypeSpecifier);
+			}
+	|	declaration_body_pass1
+			{
+				return SetDeclarationBody (&$1.m_TokenList);
+			}
+	;
+
+class
+{
+	rtl::CBoxListT <CToken> m_TokenList;
+}
+declaration_body_pass1
+	:	compound_stmt_pass1 <&$.m_TokenList>
+	;
+
+class
+{
+	CToken* m_pAnchorToken;
+}
+compound_stmt_pass1 <rtl::CBoxListT <CToken>* $pTokenList>
+	:	'{' $l
+			{
+				$.m_pAnchorToken = &*$pTokenList->InsertTail ($l);
+				$.m_pAnchorToken->m_Data.m_Integer = 0; // tokens can be reused, ensure cleanup
+			}
+		statement_pass1 <$pTokenList, $.m_pAnchorToken>*
+		'}' $r
+			{
+				$pTokenList->InsertTail ($r);
+			}
+	;
+
+noast
+statement_pass1 <rtl::CBoxListT <CToken>* $pTokenList, CToken* $pAnchorToken>
+	:	compound_stmt_pass1 <$pTokenList>
+	|	EToken_Catch
+			{
+				$pTokenList->InsertTail ($1);
+				$pAnchorToken->m_Data.m_Integer |= ELandingPadFlag_Catch;
+			}
+	|	EToken_Finally
+			{
+				$pTokenList->InsertTail ($1);
+				$pAnchorToken->m_Data.m_Integer |= ELandingPadFlag_Finally;
+			}
+	|	any
+			{
+				$pTokenList->InsertTail ($1);
+			}
+	;
+
+//.............................................................................
+
+// type names
+
+type_name_impl <CType** $ppType, CValue* $pCountValue>
+	local
+	{
+		CDeclarator $Declarator;
+	}
+	:	type_specifier_modifier_list
+			{
+				$Declarator.SetTypeSpecifier (&$1.m_TypeSpecifier);
+			}
+		declarator_prefix <&$Declarator>*
+		declarator_suffix <&$Declarator>*
+			{
+				CType* pType = $Declarator.CalcType ($pCountValue);
+				if (!pType)
+					return false;
+
+				*$ppType = pType;
+			}
+	;
+
+class
+{
+	CType* m_pType;
+}
+type_name
+	: type_name_impl <&$.m_pType, NULL>
+	;
+
+class
+{
+	rtl::CBoxListT <CType*> m_TypeList;
+}
+type_name_list
+	:	type_name
+			{
+				$.m_TypeList.InsertTail ($1.m_pType);
+			}
+		(',' type_name $t2
+			{
+				$.m_TypeList.InsertTail ($t2.m_pType);
+			}
+		)*
+	;
+
+class
+{
+	CType* m_pType;
+}
+type_name_or_expr
+	:	type_name
+			{
+				$.m_pType = $1.m_pType;
+			}
+	|	expression_0
+			{
+				$.m_pType = $1.m_Value.GetType ();
+			}
+	;
+
+//.............................................................................
+
+// attributes
+
+attribute_block
+	:	'['
+			{
+				m_pAttributeBlock = m_pModule->m_AttributeMgr.CreateAttributeBlock ();
+			}
+		attribute_declarator_list
+		']'
+	;
+
+nullable
+attribute_declarator_list
+	:	attribute_declarator (',' attribute_declarator)*
+	;
+
+nullable
+attribute_declarator
+	:	EToken_Identifier ('=' expression_pass1)?
+			{
+				CAttribute* pAttribute = m_pAttributeBlock->CreateAttribute ($1.m_Data.m_String, NULL);
+				if (!pAttribute)
+					return false;
+
+				pAttribute->m_Pos = $1.m_Pos;
+			}
+	|	epsilon
+	;
+
+//.............................................................................

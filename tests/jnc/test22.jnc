@@ -1,0 +1,88 @@
+//.............................................................................
+
+typedef FMyFunc (int);
+
+int  
+main ()
+{
+	printf ("main ()\n");
+
+	stack thin FMyFunc* multicast SimpleMulticast;
+
+	SimpleMulticast.Add (foo);
+	SimpleMulticast.Add (bar);
+
+	FMyFunc* pfSnapshot = SimpleMulticast.GetSnapshot ();
+
+	SimpleMulticast.Clear ();	
+
+	printf ("calling multicast ()\n");
+	SimpleMulticast.Call (5);
+
+	printf ("calling snapshot ()\n");
+	pfSnapshot (6);
+
+	return 10;
+}
+
+foo (int x)
+{
+	printf ("foo (%d)\n");
+}
+
+bar (int x)
+{
+	printf ("bar (%d)\n");
+}
+
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................
+/*
+
+void
+foo (unsafe C1* p)
+{
+	int x = 1;
+
+//	printf ("foo (p { %d, %d })\n", p.m_x, p.m_y);
+}
+
+class C1
+{
+	int m_x;
+	int m_y;
+
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}
+
+	construct (int x)
+	{
+		printf ("C1.construct (%d)\n", x);
+		m_x = x;
+	}
+
+	construct (int x, int y)
+	{
+		printf ("C1.construct (%d, %d)\n", x, y);
+		m_x = x;
+		m_y = y;
+	}
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}	
+}
+
+
+//.............................................................................
+*/

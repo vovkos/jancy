@@ -1,0 +1,93 @@
+// jancy supports 'indexed' properties: properties with semantics of arrays
+
+//.............................................................................
+
+// simple indexed property declaration syntax
+
+int g_x [2];
+
+int indexed property g_simpleProp (unsigned i);
+
+// here index argument is really used as integer index into array; but both type and 
+// what index really means for the particular property is totally up to developer
+
+int g_simpleProp.get (unsigned i)
+{
+	printf ("g_simpleProp.get (%d)\n", i);
+	return g_x [i];
+}
+
+g_simpleProp.set (
+	unsigned i,
+	int x
+	)
+{
+	printf ("g_simpleProp.set (%d, %d)\n", i, x);
+	g_x [i] = x;
+}
+
+//.............................................................................
+
+// similar property declared using full syntax
+
+property g_prop
+{	
+	int m_x [2] [2];
+
+	// more than one index argument could be used
+
+	int get (
+		unsigned i,
+		unsigned j
+		)
+	{
+		printf ("g_prop.get (%d, %d)\n", i, j);
+		return m_x [i] [j];
+	}
+
+	set (
+		unsigned i,
+		unsigned j,
+		int x
+		)
+	{
+		printf ("g_prop.set (%d, %d, int %d)\n", i, j, x);
+		m_x [i] [j] = x;
+	}
+
+	// setters of indexed property can be overloaded too
+
+	set (
+		unsigned i,
+		unsigned j,
+		double x
+		)
+	{
+		printf ("g_prop.set (%d, %d, double %f)\n", i, j, x);
+		m_x [i] [j] = (int) x;
+	}
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	int x = g_simpleProp [0];
+
+	g_simpleProp [0] = 100;
+	g_simpleProp [1] = 200;
+	// g_simpleProp [2] = 300; // <-- runtime error: out-of-range store
+
+	// to access multi-indexed property, use the same syntax
+	// as for accessing multi-dimensional array
+
+	x = g_prop [1] [1];
+	g_prop [0] [1] = 500;
+	g_prop [1] [0] = 1.5;
+
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,38 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int 
+foo ()
+{
+	printf ("foo ()\n");
+	return 200;
+}
+
+int g_Global = foo ();
+
+int 
+main ()
+{
+	printf ("main ()\n");
+	printf ("g_Global = %d\n", g_Global);
+	return 0;
+}
+
+this ()
+{
+	printf ("module.this ()\n");
+}
+
+~this ()
+{
+	printf ("module.~this ()\n");
+}
+
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

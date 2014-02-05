@@ -1,0 +1,65 @@
+//.............................................................................
+
+thread int t_TlsTest;
+
+void
+ThreadProc ()
+{
+	int Tid = GetCurrentThreadId ();
+	unsafe thin int* p = &t_TlsTest;
+
+	printf ("+THREAD: TID = %x, t_TlsTest @%x = %x\n", Tid, p, t_TlsTest);
+
+	t_TlsTest = Tid;
+
+	printf ("-THREAD: TID = %x, t_TlsTest @%x = %x\n", Tid, p, t_TlsTest);
+}
+
+int  
+main ()
+{
+	printf ("main ()\n");	
+
+	int Tid = GetCurrentThreadId ();
+	unsafe thin int* p = &t_TlsTest;
+
+	printf ("+THREAD: TID = %x, t_TlsTest @%x = %x\n", Tid, p, t_TlsTest);
+	t_TlsTest = Tid;
+
+	CreateThread (ThreadProc);
+	Sleep (100);
+
+	CreateThread (ThreadProc);
+	Sleep (100);
+
+	CreateThread (ThreadProc);
+	Sleep (1000);
+
+	printf ("-THREAD: TID = %x, t_TlsTest @%x = %x\n", Tid, p, t_TlsTest);
+
+	return 10;
+}
+
+//.............................................................................
+
+// system functions
+
+int
+printf (
+	unsafe thin const char* pFormat,
+	unsafe ...
+	);
+
+void
+RunGc ();
+
+int
+GetCurrentThreadId ();
+
+bool
+CreateThread (function* pf ());
+
+void
+Sleep (unsigned int32 MsCount);
+
+//.............................................................................

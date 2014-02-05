@@ -1,0 +1,38 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int 
+main ()
+{
+	printf ("alias test\n");
+
+	int x = 10;
+	int y = 20;
+
+	alias jnc.exe.foo.foof.foo;
+
+	alias p = x + y++;
+
+	TPoint p;
+
+	int* p = &(p.x.y.z [i]);
+	*p = 10;
+
+	alias a = p.x.y.z [i];
+	a = 10;
+
+	once foo ();
+
+	printf ("%d, %d, %d\n", p, p, p);
+
+	return 0;
+}
+ 
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

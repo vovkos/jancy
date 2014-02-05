@@ -1,0 +1,259 @@
+//.............................................................................
+
+// root
+
+class
+{
+	CType* m_pType;
+}
+named_type_specifier
+	:	enum_specifier
+			{
+				$.m_pType = $1.m_pType;
+			}
+	|	struct_specifier
+			{
+				$.m_pType = $1.m_pType;
+			}
+	|	union_specifier
+			{
+				$.m_pType = $1.m_pType;
+			}
+	|	class_specifier
+			{
+				$.m_pType = $1.m_pType;
+			}
+	;
+
+//.............................................................................
+
+// enum
+
+class
+{
+	CEnumType* m_pType;
+}
+enum_specifier
+	leave
+	{
+		if ($.m_pType->GetName ().IsEmpty () || ($.m_pType->GetFlags () & EEnumTypeFlag_Exposed))
+			return m_pModule->m_NamespaceMgr.GetCurrentNamespace ()->ExposeEnumConsts ($.m_pType);
+	}
+	:	enum_type_kind $k
+		EToken_Identifier $n?
+		(':' type_name $b)?
+			{
+				$.m_pType = CreateEnumType (
+					$k.m_EnumTypeKind,
+					IsValidLocator ($n) ? $n.m_Data.m_String : rtl::CString (),
+					IsValidLocator ($b) ? $b.m_pType : NULL,
+					$k.m_Flags
+					);
+
+				if (!$.m_pType)
+					return false;
+			}
+		enum_block <$.m_pType>
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class
+{
+	EEnumType m_EnumTypeKind;
+	uint_t m_Flags;
+}
+enum_type_kind
+	:	EToken_Enum
+			{
+				$.m_EnumTypeKind = EEnumType_Normal;
+				$.m_Flags = 0;
+			}
+	|	EToken_FEnum
+			{
+				$.m_EnumTypeKind = EEnumType_Flag;
+				$.m_Flags = 0;
+			}
+	|	EToken_CEnum
+			{
+				$.m_EnumTypeKind = EEnumType_Normal;
+				$.m_Flags = EEnumTypeFlag_Exposed;
+			}
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum_block <CEnumType* $pType>
+	:	'{'
+			{
+				m_pModule->m_NamespaceMgr.OpenNamespace ($pType);
+			}
+		enum_member_list <$pType>
+		'}'
+			{
+				m_pModule->m_NamespaceMgr.CloseNamespace ();
+			}
+	;
+
+nullable
+enum_member_list <CEnumType* $pType>
+	:	enum_member <$pType> (',' enum_member <$pType>)*
+	;
+
+nullable
+enum_member <CEnumType* $pType>
+	:	EToken_Identifier ('=' expression_pass1 $i)?
+			{
+				CEnumConst* pMember = $pType->CreateConst (
+					$1.m_Data.m_String,
+					IsValidLocator ($i) ? &$i.m_TokenList : NULL
+					);
+
+				if (!pMember)
+					return false;
+
+				pMember->m_Pos = $1.m_Pos;
+			}
+	|	epsilon
+	;
+
+//.............................................................................
+
+// struct
+
+class
+{
+	CStructType* m_pType;
+}
+struct_specifier
+	leave
+	{
+		if ($.m_pType->GetName ().IsEmpty ())
+			return DeclareUnnamedStructOrUnion ($.m_pType);
+	}
+	:	EToken_Struct
+		struct_pack_factor $p?
+		EToken_Identifier $n?
+		(':' type_name_list $b)?
+			{
+				$.m_pType = CreateStructType (
+					IsValidLocator ($n) ? $n.m_Data.m_String : rtl::CString (),
+					IsValidLocator ($b) ? &$b.m_TypeList : NULL,
+					IsValidLocator ($p) ? $p.m_PackFactor : m_StructPackFactor
+					);
+
+				if (!$.m_pType)
+					return false;
+			}
+		named_type_block <$.m_pType>
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class
+{
+	size_t m_PackFactor;
+}
+struct_pack_factor
+	:	EToken_Pack '(' struct_pack_factor_value $v ')'
+			{
+				$.m_PackFactor = $v.m_Value;
+			}
+	;
+
+class
+{
+	size_t m_Value;
+}
+struct_pack_factor_value
+	:	EToken_Integer
+			{
+				$.m_Value = $1.m_Data.m_Integer;
+			}
+	|	EToken_Default
+			{
+				$.m_Value = m_DefaultStructPackFactor;
+			}
+	;
+
+//.............................................................................
+
+// union
+
+class
+{
+	CUnionType* m_pType;
+}
+union_specifier
+	leave
+	{
+		if ($.m_pType->GetName ().IsEmpty ())
+			return DeclareUnnamedStructOrUnion ($.m_pType);
+	}
+	:	EToken_Union
+		struct_pack_factor $p?
+		EToken_Identifier $n?
+			{
+				$.m_pType = CreateUnionType (
+					IsValidLocator ($n) ? $n.m_Data.m_String : rtl::CString (),
+					IsValidLocator ($p) ? $p.m_PackFactor : m_StructPackFactor
+					);
+
+				if (!$.m_pType)
+					return false;
+			}
+		named_type_block <$.m_pType>
+	;
+
+//.............................................................................
+
+// class
+
+// TODO: redesign class attributes (abstract, sealed, pack)
+
+class
+{
+	CClassType* m_pType;
+}
+class_specifier
+	:	EToken_Opaque $o?
+		EToken_Class
+		struct_pack_factor $p?
+		EToken_Identifier $n
+		(':' type_name_list $b)?
+			{
+				$.m_pType = CreateClassType (
+					$n.m_Data.m_String,
+					IsValidLocator ($b) ? &$b.m_TypeList : NULL,
+					IsValidLocator ($p) ? $p.m_PackFactor : m_StructPackFactor,
+					IsValidLocator ($o) ? EClassTypeFlag_Opaque : 0
+					);
+
+				if (!$.m_pType)
+					return false;
+			}
+		named_type_block <$.m_pType>
+	;
+
+//.............................................................................
+
+// struct, union, class, property
+
+named_type_block <CNamespace* $pNamespace>
+	enter
+	{
+		m_pModule->m_NamespaceMgr.OpenNamespace ($pNamespace);
+	}
+	leave
+	{
+		m_pModule->m_NamespaceMgr.CloseNamespace ();
+	}
+	:	named_type_block_impl
+	;
+
+start
+named_type_block_impl
+	:	'{' named_type_block_declaration* '}'
+	;
+
+//.............................................................................

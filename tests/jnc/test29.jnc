@@ -1,0 +1,42 @@
+//.............................................................................
+
+int g_x;
+
+class CMyScheduler: jnc.IScheduler
+{
+	override
+	Schedule (function* pf ())
+	{
+		printf ("before call\n");
+		pf ();
+		printf ("after call\n");
+	} 
+}
+
+int 
+main ()
+{
+	printf ("main ()\n");
+
+	CMyScheduler Scheduler;
+	(foo @ Scheduler) (100, 0x100);
+
+	return 10; 
+}
+
+foo (int x, int y)
+{
+	printf (0x"61 62 63 " "_" $"foo ($x, $(y, 010))" 0x" 20 64 65 66" "\n");
+}
+
+//.............................................................................
+
+// system functions
+
+int
+printf (
+	unsafe const thin char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

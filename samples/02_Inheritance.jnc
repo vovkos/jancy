@@ -1,0 +1,122 @@
+// jancy uses simple multiple inheritance model (multiple instances of shared bases -- if any)
+// virtual multiple inheritance model of C++ is not (and not planned to be) supported 
+// mulitple inheritance is an extremely useful tool which allows natural sharing of implementation
+// virtual methods are declared using keywords 'virtual', 'abstract' & 'override'
+
+//.............................................................................
+
+class I1
+{
+	abstract foo ();
+}
+
+class C1: I1
+{
+	construct (int a)
+	{
+		printf ("C1.construct (%d)\n", a);
+	}
+
+	override foo ()
+	{
+		printf ("C1.foo ()\n");
+	}
+}
+
+//.............................................................................
+
+class I2
+{
+	abstract bar ();
+
+	abstract baz (
+		int x,
+		int y
+		); 
+}
+
+class C2: I2
+{
+	construct (int a)
+	{
+		printf ("C2.construct (%d)\n", a);
+	}
+
+	override bar ()
+	{
+		printf ("C2.bar ()\n");		
+	}
+
+	override baz (
+		int x,
+		int y
+		)
+	{
+		printf ("C2.baz (%d, %d)\n", x, y);		
+	}
+}
+
+//.............................................................................
+
+struct Point
+{
+	int m_x;
+	int m_y;
+}
+
+class C3:
+	C1,
+	C2,
+	Point // ok to inherit from structs and even unions
+{
+	construct (int a)
+	{
+		// if base types require construction, it must be done in the beginning of constructor		
+		// keywords 'basetype1'..'basetype9' could be used to conveniently reference base types.
+		// 'basetype' is equivalent to 'basetype1', traditional referencing by a type name works also.
+
+		basetype1.construct (a * 10);  // <-- eqivalent to C1.construct ()
+		basetype2.construct (a * 100); // <-- eqivalent to C2.construct ()
+
+		printf ("C3.construct (%d)\n", a);
+	}
+
+	override baz (	
+		int x,
+		int y
+		);
+}
+
+// it's ok to use storage specifier in out-of-class definition 
+// (must match the original one, of course)
+
+override C3.baz (
+	int x,
+	int y
+	)
+{
+	printf ("C3.Baz (%d, %d)\n", x, y);
+	m_x = x;
+	m_y = y;
+}	
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	C3 c construct (7);
+
+	c.foo ();
+	c.bar ();
+	c.baz (20, 30);
+
+	printf ("c = { %d, %d }\n", c.m_x, c.m_y);
+
+	return 0;
+}
+
+//.............................................................................

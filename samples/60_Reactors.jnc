@@ -1,0 +1,90 @@
+// reactive programming support is a programming paradigm that significally simplifies UI programming.
+// the idea is to automate execution of certain 'update' actions when properties change.
+// imagine a complicated setting dialog with lots of relations between items, where values of 
+// certain settings control visibility, availability, color, etc of other dialog items / groups of items.
+// with 'reactor' approach it is possible to write a single 'constraints' block where all the 
+// relations and dependencies are described in declarative style, and allow jancy runtime to 
+// automatically bind and execute corresponding actions
+
+//.............................................................................
+
+// update functions that need to be called when bindable properties change
+
+updatePurple (
+	int red, 
+	int blue,
+	int alpha
+	)
+{
+	printf ("updatePurple (%x, %x, %x)\n", red, blue, alpha);
+}
+
+updateYellow (
+	int red, 
+	int green,
+	int alpha
+	)
+{
+	printf ("updateYellow (%x, %x, %x)\n", red, green, alpha);
+}
+
+updateCyan (
+	int green, 
+	int blue,
+	int alpha
+	)
+{
+	printf ("updateCyan (%x, %x, %x)\n", green, blue, alpha);
+}
+
+//.............................................................................
+
+// 3 bindable properties
+
+int bindable g_red;
+int bindable g_green;
+int bindable g_blue;
+
+int g_rgb; // this value will be automatically updated
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// inside 'reactor' block developer can write expressions which describe relations & constraints.
+// all the binding / unbinding to the bindable non-lvalue properties touched in the expressions 
+// will be done automatically. if the required logic cannot be expressed by simple expression,
+// 'onchanged' statement could be used (see the next demo)
+
+reactor g_colorReactor (int Alpha)
+{
+	updatePurple (g_red, g_blue, Alpha); 
+	updateYellow (g_red, g_green, Alpha);
+	updateCyan (g_green, g_blue, Alpha);
+
+	g_rgb = (g_red << 16) + (g_green << 8) + g_blue;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	// starting reactor executes all the expressions in reactor block
+
+	g_colorReactor.start (5); // equivalent to g_colorReactor (5);
+
+	printf ("changing g_red, g_green, g_blue results in automatic calls to updateXxx functions\n");	
+
+	g_red = 0xab; 
+	g_green = 0xcd;
+
+	// g_colorReactor.stop (); // <-- uncomment to unbind onchanged handlers
+
+	g_blue = 0xef; 
+
+	printf ("g_rgb = 0x%06x\n", g_rgb);
+
+	return 0;
+}
+
+//.............................................................................

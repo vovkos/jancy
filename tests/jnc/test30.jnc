@@ -1,0 +1,120 @@
+//.............................................................................
+
+/*
+namespace a {
+
+pubconst int property sx_MyProp;
+
+int 
+sx_MyProp.get ()
+{
+	printf ("s_MyProp.get ()\n");
+	return 0;
+}
+
+sx_MyProp.set (int x)
+{
+	printf ("s_MyProp.set (%d)\n", x);
+}
+
+foo ()
+{
+	sx_MyProp = 100;
+}
+
+pubconst int s_Int;
+
+}
+*/
+
+int g_a0 = 1000;
+int g_b0 = 2000;
+int g_c0 = 3000;
+
+struct TPoint
+{
+	int m_x;
+	int m_y;
+	int m_z;
+}
+
+int 
+main ()
+{
+	printf ("main ()\n");
+
+	char a [6] = "12345";
+	TPoint Point = { 100, 200, 300 };
+
+	int a0;
+	int b0;
+	int c0;
+
+	a0 = 1;
+	b0 = 2;
+	c0 = 3;
+
+	foo (-4, 5, -6);
+
+/*	a.s_Int = 100;
+	a.sx_MyProp = 200;
+
+	int thin property* px = &a.sx_MyProp;
+	*px = 100;
+*/
+	return 10; 
+}
+
+foo (
+	int x0, 
+	int y0, 
+	int z0
+	)
+{
+	printf ("foo ()\n");
+
+	int a1;
+	int b1;
+	int c1;
+
+	a1 = 10;
+	b1 = 20;
+	c1 = 30;
+
+
+
+	bar (-40, 50, -60);
+}
+
+bar (
+	int x0, 
+	int y0, 
+	int z0
+	)
+{
+	printf ("bar ()\n");
+
+	int a2;
+	int b2;
+	int c2;
+
+	a2 = 100;
+	b2 = 200;
+	c2 = 300;
+
+
+
+	jnc.Sleep (100);
+}
+
+//.............................................................................
+
+// system functions
+
+int
+printf (
+	unsafe const thin char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

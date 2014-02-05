@@ -1,0 +1,54 @@
+//.............................................................................
+
+foo (int n)
+{
+	printf ("foo (%d): TID = %08x\n", n, jnc.getCurrentThreadId ());
+
+	static int a [3];
+
+	once // 'once' block will be executed once per application run 
+	{
+		printf ("foo.static once\n");
+		for (int i = 0; i < countof (a); i++)
+			a [i] = i * 10;
+	}
+
+	thread int64 t;
+
+	thread once // 'thread once' block will be executed once per thread
+	{			
+		printf ("foo.thread once\n");
+		t = jnc.getCurrentThreadId ();
+	}
+
+	printf ("t = %08x\na = { ", t);
+
+	for (int i = 0; i < countof (a); i++)
+		printf ("%d, ", a [i]);
+	
+	printf ("}\n");
+}
+
+threadProc ()
+{
+	for (int i = 0; i < 3; i++)
+		foo (i);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	for (int i = 0; i < 3; i++)
+		foo (i);
+
+	jnc.createThread (threadProc);
+
+	// temp dirty solution. createThread () should probably return a waitable object
+	jnc.sleep (500); 
+	return 0;
+}
+
+//.............................................................................

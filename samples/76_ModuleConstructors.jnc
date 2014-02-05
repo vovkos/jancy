@@ -1,0 +1,54 @@
+// jancy provides module constructors/destructors as a convenient way to write 
+// initialize/cleanup code for compilation units
+
+//.............................................................................
+
+class C1
+{
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}
+}
+
+C1 g_c; // global static variable with constructor & destructor
+
+int g_x = foo (); // global static variable with initializer
+
+int foo ()
+{
+	printf ("foo ()\n");
+	return 100;
+}
+
+// module constructor will be called after all global static variables have been initialized
+
+construct ()
+{
+	printf ("module.construct ()\n");
+}
+
+// module destructor will be called before global static variables have been destructed
+
+destruct ()
+{
+	printf ("module.destruct ()\n");
+}
+
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,313 @@
+//.............................................................................
+
+start
+compound_stmt
+	:	'{'
+			{
+				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
+				PreCreateLandingPads ($1.m_Data.m_Integer);
+			}
+		local_declaration*
+		'}'
+			{
+				m_pModule->m_NamespaceMgr.CloseScope ();
+			}
+	;
+
+start
+constructor_compound_stmt
+	:	'{'
+			{
+				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
+				PreCreateLandingPads ($1.m_Data.m_Integer);
+			}
+		btm_construct_stmt*
+			{
+				return FinalizeBaseTypeMemberConstructBlock ();
+			}
+		local_declaration*
+		'}'
+			{
+				m_pModule->m_NamespaceMgr.CloseScope ();
+			}
+	;
+
+// conflict at qualified_name : '.' is a continue-vs-fold conflict, in which fold loses immediatly
+// this problem could be solved with double resolvers, but it looks really ugly
+// actually, LADFA should be modified to allow LL(k) lookup also in case of continue-vs-fold conflict
+
+btm_construct_stmt
+	:	resolver (btm_construct_stmt_rslv)
+		btm_construct_name $n '(' expression_or_empty_list $a ')'
+			{
+				return CallBaseTypeMemberConstructor ($n.m_Name, &$a.m_ValueList);
+			}
+	|	EToken_BaseType $b '.' EToken_Construct '(' expression_or_empty_list $a ')'
+			{
+				return CallBaseTypeConstructor ($b.m_Data.m_Integer - 1, &$a.m_ValueList);
+			}
+	|	';'
+	;
+
+btm_construct_stmt_rslv
+	: EToken_Identifier '.' (EToken_Identifier '.')* EToken_Construct
+	;
+
+class
+{
+	CQualifiedName m_Name;
+}
+btm_construct_name
+	:	EToken_Identifier '.'
+			{
+				$.m_Name.AddName ($1.m_Data.m_String);
+			}
+		(EToken_Identifier $n2 '.'
+			{
+				$.m_Name.AddName ($n2.m_Data.m_String);
+			}
+		)*
+		EToken_Construct
+	;
+
+statement
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.ResetJumpFlag (); // 'stack new' is currently illegal in conditional expression
+		m_pModule->m_NamespaceMgr.SetSourcePos (m_CurrentToken.m_Pos);
+	}
+	leave
+	{
+		m_pModule->m_OperatorMgr.NullifyTmpStackGcRootList ();
+	}
+	:	compound_stmt
+	|	expression_stmt
+	|	if_stmt
+	|	switch_stmt
+	|	while_stmt
+	|	do_stmt
+	|	for_stmt
+	|	break_stmt
+	|	continue_stmt
+	|	return_stmt
+	|	once_stmt
+	|	try_stmt
+	|	';'
+	;
+
+expression_stmt
+	:	expression ';'
+	;
+
+if_stmt
+	local
+	{
+		TIfStmt $Stmt;
+	}
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.IfStmt_Create (&$Stmt);
+	}
+	:	EToken_If '(' expression $e ')' $a
+			{
+				return m_pModule->m_ControlFlowMgr.IfStmt_Condition (&$Stmt, $e.m_Value, $a.m_Pos);
+			}
+		statement $t
+		(
+			EToken_Else $a2
+				{
+					m_pModule->m_ControlFlowMgr.IfStmt_Else (&$Stmt, $a2.m_Pos);
+				}
+			statement $f
+		)?
+			{
+				m_pModule->m_ControlFlowMgr.IfStmt_Follow (&$Stmt);
+			}
+	;
+
+switch_stmt
+	local
+	{
+		TSwitchStmt $Stmt;
+	}
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.SwitchStmt_Create (&$Stmt);
+	}
+	:	EToken_Switch '(' expression $e ')' '{' $l
+			{
+				return
+					m_pModule->m_ControlFlowMgr.SwitchStmt_Condition (&$Stmt, $e.m_Value, $l.m_Pos) &&
+					PreCreateLandingPads ($l.m_Data.m_Integer);
+			}
+		switch_block_stmt <&$Stmt>* '}'
+			{
+				m_pModule->m_ControlFlowMgr.SwitchStmt_Follow (&$Stmt);
+			}
+	;
+
+switch_block_stmt <TSwitchStmt* $pStmt>
+	:	EToken_Case constant_integer_expr $e ':'
+			{
+				return m_pModule->m_ControlFlowMgr.SwitchStmt_Case ($pStmt, $e.m_Value, $1.m_Pos);
+			}
+	|	EToken_Default ':'
+			{
+				return m_pModule->m_ControlFlowMgr.SwitchStmt_Default ($pStmt, $1.m_Pos);
+			}
+	|	local_declaration
+	;
+
+while_stmt
+	local
+	{
+		TWhileStmt $Stmt;
+	}
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.WhileStmt_Create (&$Stmt);
+	}
+	:	EToken_While '(' expression $e ')' $a
+			{
+				m_pModule->m_ControlFlowMgr.WhileStmt_Condition (&$Stmt, $e.m_Value, $a.m_Pos);
+			}
+		statement
+			{
+				m_pModule->m_ControlFlowMgr.WhileStmt_Follow (&$Stmt);
+			}
+	;
+
+do_stmt
+	local
+	{
+		TDoStmt $Stmt;
+	}
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.DoStmt_Create (&$Stmt);
+	}
+	:	EToken_Do
+			{
+				m_pModule->m_ControlFlowMgr.DoStmt_PreBody (&$Stmt, $1.m_Pos);
+			}
+		statement
+			{
+				m_pModule->m_ControlFlowMgr.DoStmt_PostBody (&$Stmt);
+			}
+		EToken_While '(' expression $e ')' ';'
+			{
+				return m_pModule->m_ControlFlowMgr.DoStmt_Condition (&$Stmt, $e.m_Value);
+			}
+	;
+
+for_stmt
+	local
+	{
+		TForStmt $Stmt;
+	}
+	enter
+	{
+		m_pModule->m_ControlFlowMgr.ForStmt_Create (&$Stmt);
+	}
+	:	EToken_For '('
+			{
+				m_pModule->m_ControlFlowMgr.ForStmt_PreInit (&$Stmt, $1.m_Pos);
+			}
+		(item_declaration_w_specifier | expression_or_empty_list ';')
+		(
+				{
+					m_pModule->m_ControlFlowMgr.ForStmt_PreCondition (&$Stmt);
+				}
+			expression $e
+				{
+					return m_pModule->m_ControlFlowMgr.ForStmt_PostCondition (&$Stmt, $e.m_Value);
+				}
+		)? ';'
+		(
+				{
+					m_pModule->m_ControlFlowMgr.ForStmt_PreLoop (&$Stmt);
+				}
+			expression_list
+				{
+					m_pModule->m_ControlFlowMgr.ForStmt_PostLoop (&$Stmt);
+				}
+		)? ')'
+			{
+				m_pModule->m_ControlFlowMgr.ForStmt_PreBody (&$Stmt);
+			}
+		statement
+			{
+				m_pModule->m_ControlFlowMgr.ForStmt_PostBody (&$Stmt);
+			}
+	;
+
+break_stmt
+	:	EToken_Break ';'
+			{
+				return m_pModule->m_ControlFlowMgr.Break ($1.m_Data.m_Integer);
+			}
+	;
+
+continue_stmt
+	:	EToken_Continue ';'
+			{
+				return m_pModule->m_ControlFlowMgr.Continue ($1.m_Data.m_Integer);
+			}
+	;
+
+return_stmt
+	:	EToken_Return expression $e? ';'
+			{
+				return m_pModule->m_ControlFlowMgr.Return (IsValidLocator ($e) ? $e.m_Value : CValue ());
+			}
+	;
+
+once_stmt
+	local
+	{
+		TOnceStmt $Stmt;
+	}
+	:	storage_specifier? EToken_Once
+			{
+				EStorage StorageKind = IsValidLocator ($1) ? $1.m_StorageKind : EStorage_Static;
+				return
+					m_pModule->m_ControlFlowMgr.OnceStmt_Create (&$Stmt, $2.m_Pos, StorageKind) &&
+					m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&$Stmt, $2.m_Pos);
+			}
+		statement $s
+			{
+				m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&$Stmt, $s.m_LastToken.m_Pos);
+			}
+	;
+
+try_stmt
+	:	EToken_Try
+		'{'
+			{
+				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
+				PreCreateLandingPads ($1.m_Data.m_Integer | ELandingPadFlag_Catch); // always catch
+			}
+		local_declaration*
+		'}'
+			{
+				m_pModule->m_ControlFlowMgr.EndTry ();
+				m_pModule->m_NamespaceMgr.CloseScope ();
+			}
+	;
+
+
+catch_label
+	:	EToken_Catch ':'
+			{
+				return m_pModule->m_ControlFlowMgr.Catch ();
+			}
+	;
+
+finally_label
+	:	EToken_Finally ':'
+			{
+				return m_pModule->m_ControlFlowMgr.Finally ();
+			}
+	;
+
+//.............................................................................

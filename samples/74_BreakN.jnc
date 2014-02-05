@@ -1,0 +1,39 @@
+// jancy provides multi-level loop jumps with 'break-n' and 'continue-n'
+// ever wanted to exit 2 loops at once in C++? well now you can.
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	int a [3] [4] = 
+	{
+		{ 1,  2,  3,  4 },
+		{ 5,  6, -7,  8 },
+		{ 9, 10, 11, 12 },
+	};
+
+	bool isFound = false;
+
+	int i, j;
+
+	for (i = 0; i < countof (a); i++)
+	for (j = 0; j < countof (a [0]); j++)
+		if (a [i] [j] < 0)
+		{
+			isFound = true;
+			break2; // exit 2 loops at once
+		}
+
+	if (isFound)
+		printf ("negative item found at [%d] [%d]: %d\n", i, j, a [i] [j]);
+	else
+		printf ("negative item not found\n");
+
+	return 0;
+}
+
+//.............................................................................

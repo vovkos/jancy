@@ -1,0 +1,95 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CBase
+{
+	preconstruct ()
+	{
+		printf ("CBase.preconstruct ()\n");
+		Foo ();
+	}
+
+	this ()
+	{
+		printf ("CBase.this ()\n");
+		Foo ();
+	} 
+
+	this (int x)
+	{
+		printf ("CBase.this (%d)\n", x);
+		Foo ();
+	}
+
+	~this ()
+	{
+		printf ("CBase.~this ()\n");
+		Foo ();
+	}
+
+	virtual
+	Foo ()
+	{
+		printf ("CBase.Foo ()\n");
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CTest: CBase
+{
+	preconstruct ()
+	{
+		printf ("CTest.preconstruct ()\n");
+		Foo ();
+	}
+
+	this ()
+	{
+		printf ("CTest.this ()\n");
+		Foo ();
+	}
+
+	this (int x)
+	{
+		CBase (x * 2);
+		printf ("CTest.this (%d)\n", x);
+		Foo ();
+	}
+
+	~this ()
+	{
+		printf ("CTest.~this ()\n");
+		Foo ();
+	}
+
+	override
+	Foo ()
+	{
+		printf ("CTest.Foo ()\n");
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int 
+main ()
+{
+	printf ("hui govno i muravei\n");
+
+	CTest t = uheap new CTest (10);
+	
+	delete t;
+
+
+	return 0;
+}
+
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

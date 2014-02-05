@@ -1,0 +1,89 @@
+// class in jancy is a special kind of data, preceded with header containing type, 
+// virtual table pointer and other ancilliary information
+// contrary to most modern languages though, default access is 'public'
+
+//.............................................................................
+
+class C1
+{
+protected: // member access could be specified using C++ style or Java style
+	static int m_table [10];		
+
+	public int m_x = 10; // in-place field initialization
+	public int m_y = 20;
+
+public:
+	static construct (); // static constructors / destructors
+
+	preconstruct () // preconstructor will be called before any of the overloaded constructors
+	{
+		printf ("C1.preconstruct ()\n");
+	}
+
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}	
+
+	construct (
+		int x,
+		int y
+		);
+
+	destruct () 
+	{
+		printf ("C1.destruct ()\n");
+	}
+
+	operator += (int d); // overloaded '+=' operator 
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// implementation of member methods can be out-of-class (like in C++)
+
+C1.static construct ()
+{
+	printf ("C1.static construct ()\n");
+
+	for (int i = 0; i < countof (m_table); i++)
+		m_table [i] = i;
+}
+
+C1.construct (
+	int x,
+	int y
+	)
+{
+	printf ("C1.construct (%d, %d)\n", x, y);
+	m_x = x;
+	m_y = y;
+}
+
+C1.operator += (int d) 
+{
+	printf ("C1.operator += (%d)\n", d);
+
+	m_x += d;
+	m_y += d;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// jancy does not implicitly convert class variables/field to pointer-to-class
+	// when programmer declares a class variable/field, he declares object, not a pointer-to-object
+
+	C1 c construct (100, 200); // equivalent to: C1* p = new C1 (100, 200);
+	c += 1;
+
+	printf ("C1 = { %d, %d }\n", c.m_x, c.m_y);
+	return 0;
+}
+
+//.............................................................................

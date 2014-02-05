@@ -1,0 +1,55 @@
+// jancy introduces dual modifiers, i.e. modifiers which have different meaning
+// for 'aliens' and 'friends' of a namespace. 
+// dual modifier 'dconst' allows declaring type of data which looks like 'const' for aliens, 
+// and 'non-const' for 'friends'.  designated to eliminate the routine of creating 
+// trivial properties whose only purpose is providing read-only access
+// dual modifier 'devent' allows declaring events or event pointers. aliens can only 
+// subscribe/unsubscribe ('event' semantics) while friends must be also able 
+// to fire event ('multicast' semantics)
+
+//.............................................................................
+
+class C1
+{
+	dconst int m_progress;
+	devent m_completeEvent ();
+
+	work ()
+	{
+		m_progress += 25; // insiders have write-access to m_progress
+	
+		if (m_progress >= 100)
+			m_completeEvent (); // insiders have multicast-access to m_completeEvent
+	}
+}
+
+onComplete ()
+{
+	printf ("onComplete () -- work is finished\n");
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	C1 c;
+	c.m_completeEvent += onComplete; // outsiders have event-access to C1.m_completeEvent
+
+	// c.m_completeEvent (); // <-- error: outsiders have no multicast-access to C1.m_completeEvent
+
+	while (c.m_progress < 100)
+	{
+		c.work ();
+		printf ("progress = %d%%\n", c.m_progress); // outsiders have read-access to C1.m_x
+	}
+
+	// c.m_progress = 100; // <-- error: outsiders have no write-access to C1.m_x
+
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,50 @@
+// jancy provides a natural syntax for declaring simple properties
+// obviously it is only possible if property has no overloaded setters
+
+//.............................................................................
+
+int property g_simpleProp;
+
+// accessor implementation
+
+int g_simpleProp.get ()
+{
+	printf ("g_simpleProp.get ()\n");
+	return rand () % 3;
+}
+
+g_simpleProp.set (int x)
+{
+	printf ("g_simpleProp.set (%d)\n", x);
+}
+
+//.............................................................................
+
+// read-only property also can use simple declaration syntax
+
+const int property g_simpleReadOnlyProp;
+
+int g_simpleReadOnlyProp.get ()
+{
+	printf ("g_simpleReadOnlyProp.get ()\n");
+	return rand () % 3;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	int x = g_simpleProp;
+
+	g_simpleProp = 100;
+
+	int y = g_simpleReadOnlyProp;
+
+	// g_simpleReadOnlyProp = 200; // <-- error: property is read-only
+
+	return 0;
+}
+
+//.............................................................................

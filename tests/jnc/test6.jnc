@@ -1,0 +1,90 @@
+// test for unions and unnamed structs
+
+//.............................................................................
+
+typedef unsigned int    uint_t;
+typedef unsigned intptr size_t;
+typedef unsigned intptr uintptr_t;
+typedef unsigned int8   uint8_t;
+typedef unsigned int16  uint16_t;
+typedef unsigned int32  uint32_t;
+typedef unsigned int64  uint64_t;
+
+//.............................................................................
+
+enum Protocol
+{
+	Tcp = 6,
+	Udp = 17,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum AddressFamily: uint16_t
+{
+	Ip4 = 2,
+	Ip6 = 23,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct pack (2) SocketAddress_Ip4
+{
+	bigendian uint16_t m_port;
+
+	union
+	{
+		bigendian uint32_t m_ip32;
+		uint8_t m_ip8 [4];
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct pack (2) SocketAddress_Ip6
+{
+	bigendian uint16_t m_port;
+	bigendian uint32_t m_flow;
+
+	union
+	{
+		bigendian uint16_t m_ip16 [8];
+		uint8_t m_ip8 [16];
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// layout matches berkely sockets sockaddr
+
+struct SocketAddress
+{
+	AddressFamily m_family;
+
+	union
+	{
+		SocketAddress_Ip4 m_ip4;
+		SocketAddress_Ip6 m_ip6;
+	}
+}
+
+//.............................................................................
+
+int main ()
+{
+	printf ("main ()\n");
+
+	SocketAddress address = { AddressFamily.Ip4, { { 1001, { 0x7f000001 } } } };
+	printf (
+		"addr = %d.%d.%d.%d:%d\n", 
+		address.m_ip4.m_ip8 [0], 
+		address.m_ip4.m_ip8 [1], 
+		address.m_ip4.m_ip8 [2], 
+		address.m_ip4.m_ip8 [3], 
+		address.m_ip4.m_port
+		);
+
+	return 0;
+}
+
+//.............................................................................

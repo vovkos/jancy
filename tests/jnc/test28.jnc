@@ -1,0 +1,39 @@
+//.............................................................................
+
+int 
+main ()
+{
+	printf ("main ()\n");
+
+	char Name [] = 0x"61 62 63" "_hui" ;
+	int Value1 = 0xdead;
+	int Value2 = 0xbeee;
+
+	printf ($"--> $Name = { $(Value1:06x) $(Value2 + 1:08x) }\n");
+
+	return 10; 
+}
+
+//.............................................................................
+
+// system functions
+
+int
+printf (
+	unsafe const thin char* pFormat,
+	unsafe ...
+	);
+
+void
+RunGc ();
+
+int
+GetCurrentThreadId ();
+
+bool
+CreateThread (function* pf ());
+
+void
+Sleep (unsigned int32 MsCount);
+
+//.............................................................................

@@ -1,0 +1,53 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CMyClass
+{
+	class CClassA
+	{
+		this ()
+		{
+			printf ("CClassA.this ()\n");
+		}
+
+		~this ()
+		{
+			printf ("CClassA.~this ()\n");
+		}
+	};
+	
+	CClassA m_x = member new CClassA;
+	CClassA m_x = member new CClassA;
+	CClassA m_x = member new CClassA;
+	
+	this ()
+	{
+		printf ("CMyClass.this ()\n");
+	}
+
+	~this ()
+	{
+		printf ("CMyClass.~this ()\n");
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int 
+main ()
+{
+	printf ("member new test\n");
+
+	stack new CMyClass;
+
+	return 0;
+}
+ 
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

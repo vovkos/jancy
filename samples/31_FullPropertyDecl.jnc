@@ -1,0 +1,60 @@
+// full property declaration syntax allows declaring properties with
+// overloaded setters, members fields, helper methods, constructors / destructors etc
+
+//.............................................................................
+
+property g_prop
+{
+	int m_x = 5; // member field with in-place initializer
+
+	int get ()
+	{
+		printf ("g_prop.get ()\n");
+		return m_x;
+	}
+
+	set (int x);
+		
+	set (double x); // overloaded setter
+
+	update () // helper method
+	{
+		printf ("g_prop.update ()\n");	
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// like in case of classes, implementation could be placed outside of property declaration
+
+g_prop.set (int x)
+{
+	printf ("g_prop.set (int %d)\n", x);
+	m_x = x;
+
+	update ();
+}	
+		
+g_prop.set (double x)
+{
+	printf ("g_prop.set (double %f)\n", x);
+	m_x = (int) x;
+
+	update ();
+}	
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	int x = g_prop;
+
+	g_prop = 100;
+	g_prop = 5.2;
+
+	return 0;
+}
+
+//.............................................................................

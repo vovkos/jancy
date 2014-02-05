@@ -1,0 +1,39 @@
+// jancy has 3 kinds of literals
+// good old c-style literal defines a const array of 'char's
+// hex literal is a nice and clean way of defining in-program const binary data blocks
+// formatting literal brings perl-style-formatting into a c-syntaxed language
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	// classic string literals produce const char array
+
+	char a [] = "hello world";
+	printf ("normal literal: %s\n", a);	
+
+	// hex literals produce const char array using char hexcodes
+	// same as: char b [] = { 0x61, 0x62, 0x63, 0x20, 0x64, 0x65, 0x66, 0x00  }
+
+	char b [] = 0x"61 62 63 20 64 65 66 00";  
+	printf ("hex literal: %s\n", b);	
+
+	// formatting literals produce dynamic char array in gcheap
+
+	int i = 100;	
+
+	char* p = $"i = $i; a [6] = $(a [6], c); b [2] = $(b [2], 02x)";
+	printf ("formatting literal: %s\n", p);	
+	
+	// all literals could be concatenated in any combinations 
+	// if there is no formatting literal, then the result is const char array
+	// otherwise it's dynamic char array in gcheap (like in this case)
+
+	printf (0x"61 62 63" " ...concatenated to... " $"i = $i; a = $a; " 0x"64 65 66" " ...end\n");	
+
+	return 0;
+}
+
+//.............................................................................

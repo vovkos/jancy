@@ -1,0 +1,481 @@
+//.............................................................................
+
+start
+expression_save_value_0
+	:	expression_0
+			{
+				m_ExpressionValue = $1.m_Value;
+			}
+	;
+
+class
+{
+	CValue m_Value;	
+}
+start
+expression_0
+	:	conditional_expr_0 <&$.m_Value>
+	;
+
+class 
+{
+	CValue m_Value;
+}
+nullable
+expression_or_empty_0
+	:	conditional_expr_0 <&$.m_Value>
+	|	epsilon
+	;
+
+class
+{
+	rtl::CBoxListT <CValue> m_ValueList;
+}
+expression_list_0
+	:	expression_0 
+			{
+				$.m_ValueList.InsertTail ($1.m_Value);
+			}
+		(',' expression_0 $e2
+			{
+				$.m_ValueList.InsertTail ($e2.m_Value);
+			}
+		)*
+	;
+
+// expression_or_empty_list might seem overcomplicated but
+// this is done to avoid having a singe EValue_Void in case of empty list
+
+class
+{
+	rtl::CBoxListT <CValue> m_ValueList;
+}
+nullable
+expression_or_empty_list_0
+	:	expression_0
+			{
+				$.m_ValueList.InsertTail ($1.m_Value);
+			}
+		(',' expression_or_empty_0 $e2
+			{
+				$.m_ValueList.InsertTail ($e2.m_Value);
+			}
+		)*
+	|		{
+				$.m_ValueList.InsertTail (CValue ());
+			}	
+		(',' expression_or_empty_0 $e2
+			{
+				$.m_ValueList.InsertTail ($e2.m_Value);
+			}
+		)+
+	|	epsilon 
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+conditional_expr_0 <CValue* $pValue>
+	local 
+	{
+		CValue $TrueValue;
+		CValue $FalseValue;
+	}
+	:	logical_or_expr_0 <$pValue> 
+		('?' conditional_expr_0 <&$TrueValue> ':' conditional_expr_0 <&$FalseValue>
+			{
+				return m_pModule->m_OperatorMgr.GetConditionalOperatorResultType ($TrueValue, $FalseValue, $pValue);
+			}
+		)?
+	;
+
+logical_or_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	logical_and_expr_0 <$pValue> 
+		(EToken_LogOr logical_and_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_LogAnd, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+logical_and_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	inclusive_or_expr_0 <$pValue> 
+		(EToken_LogAnd inclusive_or_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_LogOr, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+inclusive_or_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	exclusive_or_expr_0 <$pValue> 
+		('|' exclusive_or_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwOr, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+exclusive_or_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	and_expr_0 <$pValue> 
+		('^' and_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwXor, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+and_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	equality_expr_0 <$pValue> 
+		('&' equality_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwAnd, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+equality_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	relational_expr_0 <$pValue> 
+		(equality_operator $o relational_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+relational_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	shift_expr_0 <$pValue> 
+		(relational_operator $o shift_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+shift_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	additive_expr_0 <$pValue> 
+		(shift_operator $o additive_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+additive_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	multiplicative_expr_0 <$pValue> 
+		(additive_operator $o multiplicative_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+multiplicative_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	at_expr_0 <$pValue> 
+		(multiplicative_operator $o at_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+at_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	assignment_expr_0 <$pValue> 
+		('@' assignment_expr_0 <&$OpValue2>
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_At, $pValue, $OpValue2);
+			}
+		)*
+	;
+
+assignment_expr_0 <CValue* $pValue>
+	local
+	{
+		CValue $OpValue2;
+	}
+	:	unary_expr_0 <$pValue> 
+		(
+				{
+					if (IsReactor ())
+						m_ReactorBindableTypeCount = 0; // reset on assignment
+				}
+			assignment_operator $o conditional_expr_0 <&$OpValue2>
+				{
+					return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				}
+		)?
+	;
+
+unary_expr_0 <CValue* $pValue>
+	:	postfix_expr_0 <$pValue> 
+	|	unary_operator_expr_0 <$pValue> 
+	;
+
+unary_operator_expr_0 <CValue* $pValue>
+	leave 
+	{
+		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+			m_ReactorBindableTypeCount++;
+	}
+	:	'+' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Plus, $pValue);
+			}
+	|	'-' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Minus, $pValue);
+			}
+	|	'~' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_BwNot, $pValue);
+			}
+	|	'&' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Addr, $pValue);
+			}
+	|	'*' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Indir, $pValue);
+			}
+	|	'!' unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_LogNot, $pValue);
+			}
+	|	EToken_Inc unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PreInc, $pValue);
+			}
+	|	EToken_Dec unary_expr_0 <$pValue> 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PreDec, $pValue);
+			}
+	|	EToken_Try unary_expr_0 <$pValue> 
+			{
+				// try operator does not change type of value				
+			}
+	|	EToken_SizeOf '(' type_name_or_expr $t ')'
+			{
+				$pValue->SetType (EType_SizeT);
+			}
+	|	EToken_CountOf '(' type_name_or_expr $t ')'
+			{
+				$pValue->SetType (EType_SizeT);
+			}
+	|	EToken_TypeOf '(' type_name_or_expr $t ')'
+			{
+				CType* pType = $t.m_pType->GetTypeKind () == EType_DataRef ? ((CDataPtrType*) $t.m_pType)->GetTargetType () : $t.m_pType;
+				$pValue->SetType ($t.m_pType);
+			}
+	|	EToken_OffsetOf '(' type_name $t ',' EToken_Identifier $n ')' 
+			{
+			}
+	|	EToken_BindingOf '(' conditional_expr_0 <$pValue> ')' 
+			{
+				return m_pModule->m_OperatorMgr.GetPropertyOnChangedType ($pValue);
+			}
+	|	resolver (cast_operator_rslv) 
+		'(' storage_specifier? type_name $t ')' unary_expr_0 <$pValue> 
+			{
+				$pValue->SetType ($t.m_pType);
+			}
+	|	storage_specifier $s? EToken_New new_operator_sype_0 $t
+			{
+				EStorage StorageKind = IsValidLocator ($s) ? $s.m_StorageKind : EStorage_Heap;
+				return NewOperator_0 (StorageKind, $t.m_pType, $pValue);			
+			}
+	|	EToken_Delete unary_expr_0 <$pValue> 
+			{
+				$pValue->SetVoid ();
+			}
+	;
+
+class
+{
+	CType* m_pType;
+}
+new_operator_sype_0
+	:	type_name
+			{
+				$.m_pType = $1.m_pType;
+			}
+	|	resolver (type_name_w_constructor_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		qualified_type_name $t EToken_Construct? '(' expression_or_empty_list_0 ')'
+			{
+				$.m_pType = $t.m_pType;
+			}
+	;
+
+postfix_expr_0 <CValue* $pValue>
+	:	primary_expr_0 <$pValue>
+		postfix_operator_0 <$pValue>*
+	;
+
+postfix_operator_0 <CValue* $pValue>
+	leave 
+	{
+		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+			m_ReactorBindableTypeCount++;
+	}
+	:	'(' expression_or_empty_list_0 ')'
+			{
+				return m_pModule->m_OperatorMgr.GetCallOperatorResultType ($pValue, &$2.m_ValueList);
+			}		
+	|	'~' '(' expression_or_empty_list_0 ')'
+			{
+				return m_pModule->m_OperatorMgr.GetClosureOperatorResultType ($pValue, &$3.m_ValueList);
+			}		
+	|	'[' expression_or_empty_0 ']'
+			{
+				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_Idx, $pValue, $2.m_Value);
+			}	
+	|	EToken_Inc
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PostInc, $pValue);
+			}
+	|	EToken_Dec
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PostDec, $pValue);
+			}
+	|	'.'
+		(EToken_Weak
+			{
+				return m_pModule->m_OperatorMgr.GetWeakenOperatorResultType ($pValue);
+			}
+		)?
+		member_operator_0 <$pValue>
+	|	EToken_Ptr 
+			{
+				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Ptr, $pValue);
+			}
+		member_operator_0 <$pValue>
+	;
+
+member_operator_0 <CValue* $pValue>
+	:	EToken_Identifier $n
+			{
+				return m_pModule->m_OperatorMgr.GetMemberOperatorResultType ($pValue, $n.m_Data.m_String);
+			}
+	|	EToken_Get
+			{
+				return m_pModule->m_OperatorMgr.GetPropertyGetterType ($pValue);
+			}
+	|	EToken_Set
+			{
+				return m_pModule->m_OperatorMgr.GetPropertySetterType ($pValue);
+			}
+	;
+
+primary_expr_0 <CValue* $pValue>
+	leave 
+	{
+		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+			m_ReactorBindableTypeCount++;
+	}
+	:	EToken_Identifier
+			{
+				return LookupIdentifierType ($1.m_Data.m_String, $1.m_Pos, $pValue);
+			}
+	|	EToken_This
+			{
+				return GetThisValueType ($pValue);
+			}
+	|	EToken_RetVal
+			{
+				return GetThrowReturnValueType ($pValue);
+			}
+	|	EToken_Integer
+			{
+				$pValue->SetType (GetInt64TypeKind ($1.m_Data.m_Int64));
+			}
+	|	EToken_Fp
+			{
+				$pValue->SetType (EType_Double);
+			}
+	|	EToken_True
+			{
+				$pValue->SetType (EType_Bool);
+			}
+	|	EToken_False
+			{
+				$pValue->SetType (EType_Bool);
+			}
+	|	EToken_Null
+			{
+				$pValue->SetNull ();
+			}
+	|	literal_0 <$pValue> 
+	|	'(' conditional_expr_0 <$pValue> ')'
+	;
+
+literal_0 <CValue* $pValue>
+	local
+	{
+		TLiteral $Literal;
+	}
+	:	(	EToken_Literal 
+				{			
+					$Literal.m_BinData.Append ((const uchar_t*) $1.m_Data.m_String.cc (), $1.m_Data.m_String.GetLength ());
+					$Literal.m_LastToken = EToken_Literal;
+				}
+		|	EToken_HexLiteral
+				{			
+					$Literal.m_BinData.Append ($2.m_Data.m_BinData, $2.m_Data.m_BinData.GetCount ());
+					$Literal.m_LastToken = EToken_HexLiteral;
+				}
+		|	EToken_FmtLiteral expression $e EToken_FmtSpecifier $f?				
+				{
+					// mark we have a formatting literal from now on
+
+					if (!$Literal.m_FmtLiteralValue)
+						$Literal.m_FmtLiteralValue.SetConstBool (true); 
+				}
+		)+
+			{
+				return FinalizeLiteral_0 (&$Literal, $pValue);
+			}
+	;
+
+//.............................................................................

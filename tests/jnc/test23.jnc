@@ -1,0 +1,48 @@
+//.............................................................................
+
+class C1
+{
+	int m_Int;
+
+	autoev m_MyAutoEv ()
+	{
+		m_Int = gx_MyProp * 2;
+	}
+}
+
+int bindable gx_MyProp;
+
+int  
+main ()
+{
+	printf ("main ()\n");
+
+	C1 c;
+	c.m_MyAutoEv.Start ();
+
+	gx_MyProp = 12;
+
+	printf ("c.m_Int = %d\n", c.m_Int);
+
+	return 10;
+}
+
+foo ()
+{
+	printf ("foo ()\n");
+}
+
+bar ()
+{
+	printf ("bar ()\n");
+}
+
+//.............................................................................
+
+int
+printf (
+	unsafe thin const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

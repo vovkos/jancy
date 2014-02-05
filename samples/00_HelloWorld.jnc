@@ -1,0 +1,12 @@
+// the simpliest possible program in jancy
+// at this level jancy looks exactly like C/C++
+
+//.............................................................................
+
+int main ()
+{
+	printf ("hello world!\n");
+	return 0;
+}
+
+//.............................................................................

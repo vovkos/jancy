@@ -1,0 +1,63 @@
+//.............................................................................
+
+int 
+main ()
+{
+	printf ("main ()\n");
+
+	char a [] = "hui" 0x"61 62 63 00";
+	char b [] = "govno";
+
+	printf ("a = %s; b = %s\n", a, b);
+
+	int d [] = { ,, 5 };
+
+	printf ("sizeof (d) = %d\n", sizeof (d));
+
+	CreateThread (ThreadProc);
+	CreateThread (ThreadProc);
+	CreateThread (ThreadProc);
+
+	Sleep (100);
+
+	return 10; 
+}
+
+ThreadProc ()
+{
+	printf ("TID %x: ThreadProc ()\n", GetCurrentThreadId ());
+
+	foo (1);
+	foo (2);
+	foo (3);
+}
+
+foo (int n)
+{
+	thread int x = 5;
+	printf ("TID %x: foo (%d) x = %d\n", GetCurrentThreadId (), n, x++);
+}
+
+//.............................................................................
+
+// system functions
+
+int
+printf (
+	unsafe const thin char* pFormat,
+	unsafe ...
+	);
+
+void
+RunGc ();
+
+int
+GetCurrentThreadId ();
+
+bool
+CreateThread (function* pf ());
+
+void
+Sleep (unsigned int32 MsCount);
+
+//.............................................................................

@@ -1,0 +1,40 @@
+// jancy enclosed all the case blocks in switch statement into implicitly created scopes
+// this means freedom to create and use local variables in switch statement 
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	int result;
+
+	int x = rand () % 3;
+	switch (x)
+	{
+	case 0:
+		int i = 10;
+		result = i * i;
+		break;
+
+	case 1:
+		int i = 20; // no problem: we are in different scope
+		result = i * i;
+	
+	case 2:
+		int i = 30; // no problem even when we fall-through from previous case label
+		result = i * i;
+		break;
+
+	default: // true programmers expect the unexpected! j/k; this 'default' is utterly pointless
+		int i = 40; // still ok. you've got the idea
+		result = i * i;
+	}
+
+	printf ("x = %d, result = %d\n", x, result);
+	return 0;
+}
+
+//.............................................................................

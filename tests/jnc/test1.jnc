@@ -1,0 +1,37 @@
+// mcjit-dwarf line info test
+
+//.............................................................................
+
+struct Point
+{
+	int m_x;
+	int m_y;
+}
+
+class C
+{
+	bool foo (Point const* point) throws
+	{
+		printf ("foo ()\n");
+		return true;
+	}
+}
+
+int main ()
+{
+	printf ("hello world!\n");
+
+	stack Point point;
+
+	C c;
+	try c.foo (&point);
+	try c.foo (&point);
+	try c.foo (&point);
+	try c.foo (&point);
+	try c.foo (&point);
+	try c.foo (&point);
+
+	return 0;
+}
+
+//.............................................................................

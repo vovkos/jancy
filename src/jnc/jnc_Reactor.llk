@@ -1,0 +1,117 @@
+//.............................................................................
+
+start
+reactor_body
+	: '{' reactor_stmt+ '}'
+		{
+			return FinalizeReactor ();
+		}
+	;
+
+reactor_stmt
+	:	reactor_expression_stmt
+	|	reactor_onevent_stmt
+	|	';'
+	;
+
+reactor_expression_stmt
+	enter
+	{
+		m_ReactorBindableList.Clear ();
+	}
+	:	expression_pass1 ';'
+			{
+				return ReactorExpressionStmt ($1.m_TokenList);
+			}
+	;
+
+reactor_onevent_stmt
+	local
+	{
+		CDeclarator $Declarator;
+	}
+	:	EToken_OnEvent reactor_event_name function_suffix <&$Declarator>
+			{
+				return FinalizeReactorOnEventDeclaration (&$2.m_ValueList, &$Declarator);
+			}
+		compound_stmt
+			{
+				return FinalizeReactorOnEventBody ();
+			}
+	;
+
+class 
+{
+	rtl::CBoxListT <CValue> m_ValueList;
+}
+reactor_event_name
+	local 
+	{
+		rtl::CBoxListT <CToken> $TokenList;
+	}
+	:	'(' expression_list ')'
+			{
+				$.m_ValueList.TakeOver (&$2.m_ValueList)
+			}
+	|	(any // anything until '('
+			{
+				$TokenList.InsertTail ($1);
+			}
+		)+
+			{	
+				CValue Value;			
+				return 
+					m_pModule->m_OperatorMgr.ParseExpression (NULL, $TokenList, &Value) && 
+					$.m_ValueList.InsertTail (Value);
+			}
+	;
+
+//.............................................................................
+
+start
+reactor_body_0
+	:	'{' reactor_stmt_0+ '}'
+	;
+	
+reactor_stmt_0
+	:	reactor_expression_stmt_0
+	|	reactor_onevent_stmt_0
+	|	';'
+	;
+
+reactor_expression_stmt_0
+	:	expression_0 ';'
+			{
+				return CountReactorBindableTypes ();
+			}
+	;
+
+reactor_onevent_stmt_0
+	local
+	{
+		CDeclarator $Declarator;
+	}
+	enter
+	{
+		m_ReactorBindableList.Clear (); // clear bindsite list before processing expression list
+	}
+	:	EToken_OnEvent reactor_event_name_0 function_suffix <&$Declarator>
+		reactor_compound_stmt_0
+	;
+	
+reactor_compound_stmt_0
+	:	'{' (reactor_compound_stmt_0 | any)* '}'
+	;
+
+reactor_event_name_0
+	:	'(' expression_list_0 ')'
+		{
+			m_ReactorBindSiteTotalCount += $2.m_ValueList.GetCount ();
+		}
+	|	any+ // anythin until '('
+			{
+				m_ReactorBindSiteTotalCount++;
+			}
+	;
+
+//.............................................................................

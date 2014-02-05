@@ -1,0 +1,89 @@
+// jancy supports 2 flavors of function pointers: 'thin' and closure
+
+//.............................................................................
+
+// class with a method to be called through function pointer
+
+class C1
+{
+	int m_x = -1;
+
+	foo (
+		int a,
+		int b,
+		int c		
+		)
+	{
+		printf ("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
+	}
+}
+
+// simple global function to be called through function pointer
+
+bar (
+	int a,
+	int b
+	)
+{
+	printf ("bar (%d, %d)\n", a, b);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	// 'thin' function pointer is like a function pointer in C/C++:
+	// it is purely a pointer to code
+
+	thin function* pf1 (
+		int, 
+		int
+		) = bar;
+
+	pf1 (10, 20);
+
+	// unlike C/C++ however, argument conversion is automated (compiler generates thunks if needed)
+
+	typedef function FpFunc (
+		double, 
+		double
+		);
+
+	FpFunc thin* pf2 = (FpFunc thin*) bar;
+	pf2 (15.8, 7.1);
+
+	// the true power though comes with closure function pointers
+	// closure function pointers can capture values of arguments
+
+	C1 c;
+
+	function* pf3 (
+		int, 
+		int, 
+		int
+		) = c.foo; // in this case, pointer to 'c' was captured
+
+	pf3 (100, 200, 300);
+
+	// it is also allowed to capture arbitrary arguments in the closure
+	// using partial application operator '~()'
+
+	function* pf4 (int) = bar ~(,5);
+	pf4 (6);
+
+	// it is also ok to skip arguments during parital application, thus allowing any combinations
+	// like: args 1, 3, 4 come from closure, args 2 and 5 come from call
+	
+	function* pf5 (
+		int, 
+		int
+		) = c.foo ~(,, 3);
+
+	pf5 (1, 2);
+
+	return 0;
+}
+
+//.............................................................................

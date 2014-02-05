@@ -1,0 +1,58 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CMyClass
+{
+	this ()
+	{
+		printf ("CMyClass.this (%x)\n", this);
+	}
+
+	~this ()
+	{
+		printf ("CMyClass.~this ()\n");
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int
+bar ()
+{
+	printf ("bar ()\n");
+	return 10;
+}
+
+foo ()
+{
+	static int x = bar ();
+
+	printf ("foo () { x = %d; } \n", x);
+	CMyClass c = static new CMyClass;		
+}
+
+int 
+main ()
+{
+	printf ("once & static new test\n");
+
+	for (int i = 0; i < 5; i++)
+	{
+		printf ("i = %d\n", i);
+
+		once printf ("once stmt\n");
+
+		foo ();
+	}
+
+	return 0; 
+}
+ 
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................

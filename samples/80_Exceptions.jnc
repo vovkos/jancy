@@ -1,0 +1,76 @@
+// exceptions in Jancy is merely a syntactic sugar over old C-style error code model
+// as a result, it is compatible with anything, including legacy C exported to jancy namespace
+// catch and finally can be declared at any scope
+// when calling the same function, developer can use either error code check, 
+// or exception semantics – depending on what’s more appropriate or convenient in particular case
+
+//.............................................................................
+
+// function marked by 'throws' clause will have its return value interpreted as an error code
+// intuitive defaults are assumed ('false' for bools, '-1' for integers, 'null' for pointers)
+
+bool foo (int a) throws
+{
+	printf ("foo (%d)\n", a);
+	return a > 0;
+}
+
+// if something more complex or non-standard is required, custom throw conditions are supported
+
+int baz (int a) throws if (retval < 0)
+{
+	printf ("baz (%d)\n", a);
+	return a;
+}
+
+// if throw conditions match, error code can be automatically propagated
+
+int bar () throws if (retval < 0)
+{
+	printf ("bar ()\n");
+
+	foo (1);
+	baz (10);
+
+	int result = try baz (-5); // 'try' operator shields expression from 'throwing'
+	printf ("baz returned %d\n", result);
+
+	try
+	{
+		baz (20);
+		baz (-1); // 'try' block shields parent scope from 'throwing' even w/o 'catch'
+		baz (21); // never get here
+		
+	// catch: // <-- uncomment to handle error 
+	}
+
+	baz (-10); // error code will transfer control to 'catch' label
+	baz (30);  // never get here
+
+	return 0;
+
+catch: // 'catch' & 'finally' can be part of any scope
+	printf ("bar.catch\n");	
+	return -5;
+
+finally:
+	printf ("bar.finally\n");	
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("hello world!\n");
+
+	int result = try bar (); // try is a must here
+	printf ("bar returned %d\n", result);		
+
+	// result = bar (); // <-- error: main does not throw and there is no 'try' or 'catch'
+
+	return 0;
+}
+
+//.............................................................................

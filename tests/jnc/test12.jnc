@@ -1,0 +1,44 @@
+//.............................................................................
+
+struct TPoint
+{
+	int x;
+	int y;
+};
+
+TPoint g;
+
+int 
+main ()
+{
+	printf ("main ()\n");
+
+	g.x = 10;
+	g.y = 20;
+
+	int property* py = &g.y;
+
+	*py = 200;
+	printf ("g = { %d, %d }\n", g.x, g.y);
+
+	int x = *py;
+	printf ("x = %d\n", x);
+
+	return 0;
+}
+ 
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+int
+GetCurrentThreadId ();
+
+bool
+CreateThread (function* pf ());
+
+//.............................................................................

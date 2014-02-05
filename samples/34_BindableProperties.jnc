@@ -1,0 +1,92 @@
+// jancy supports 'bindable' properties which automatically notify subscribers 
+// when they change (after the return from setter). 
+// of course automatic notification can be suppressed, and replaced by manual notification
+
+//.............................................................................
+
+// simple bindable property declaration syntax
+
+int autoget bindable property g_simpleProp;
+
+g_simpleProp.set (int x)
+{
+	printf ("g_simpleProp.set (%d)\n", x);
+	m_value = x;
+
+	if (x > 150)
+		return;
+	
+	m_onChanged (); // by default, the name of compiler-generated event is 'm_onChanged'
+}
+
+//.............................................................................
+
+// similar property declared using full syntax
+
+property g_prop
+{	
+	autoget int m_x; // declaring an 'autoget' field implicitly makes property 'autoget'
+	bindable event m_e (); // declaring a 'bindable' event implicitly makes property 'bindable'
+
+	set (int x)
+	{
+		printf ("g_prop.set (int %d)\n", x);
+		m_x = x;
+	}
+
+	set (double x)
+	{
+		printf ("g_prop.set (double %f)\n", x);
+		m_x = (int) x;
+	}
+}
+
+//.............................................................................
+
+// bindable data: bindable property with compiler-generated getter & setter
+// since getter and setter are auto-generated, the purpose of
+// bindable data is purely to track data changes 
+
+int bindable g_data;
+
+//.............................................................................
+
+onSimplePropChange ()
+{
+	printf ("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
+}
+
+onPropChange ()
+{
+	printf ("g_prop has changed (new value = %d)\n", g_prop);
+}
+
+onDataChange ()
+{
+	printf ("g_data has changed (new value = %d)\n", g_data);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	// to access bindable event of a property, use 'bindingof'
+
+	bindingof (g_simpleProp) += onSimplePropChange;
+	bindingof (g_prop) += onPropChange;
+	bindingof (g_data) += onDataChange;
+
+	g_simpleProp = 100;
+	g_simpleProp = 200; // 'onchanged' event will not fire 
+
+	g_prop = 500;
+	g_prop = 5.5;
+
+	g_data = 1000;
+
+	return 0;
+}
+
+//.............................................................................

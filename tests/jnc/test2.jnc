@@ -1,0 +1,27 @@
+// new exception-handling syntax
+
+//.............................................................................
+
+bool foo (int x) throws
+{
+	printf ("foo ()\n");
+	return true;
+}
+
+int baz (int x) throws if (retval < 0)
+{
+	printf ("baz ()\n");
+	return 0;
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	foo (10);
+
+	return 0;
+}
+
+//.............................................................................
+

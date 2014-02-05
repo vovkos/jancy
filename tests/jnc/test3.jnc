@@ -1,0 +1,47 @@
+// new reactor syntax
+
+//.............................................................................
+
+multicast g_onMouseMove (
+	int x, 
+	int y
+	);
+
+int bindable g_a;
+int bindable g_b;
+int g_c;
+
+reactor g_reactor ()
+{
+	g_c = g_a + g_b;
+
+	onevent (bindingof (g_a)) ()
+	{
+		printf ("g_a changed to %d\n", g_a);
+	}
+
+	onevent g_onMouseMove (
+		int x, 
+		int y
+		)
+	{
+		printf ("g_reactor.g_onMouseMove (%d, %d)\n", x, y);
+	}
+}
+
+foo ()
+{
+	printf ("foo ()\n");
+}
+
+int main ()
+{
+	g_reactor.start ();
+	g_onMouseMove (10, 20);
+	g_a = 10;
+	g_b = 20;
+	printf ("g_c = %d\n", g_c);
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,70 @@
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TPoint
+{
+	int m_x = 1;
+	int m_y = 2;
+
+	preconstruct ()
+	{
+		printf ("TPoint.preconstruct ()\n");
+		m_y = 4;
+	}
+
+	property MyProp
+	{
+		int
+		get ()
+		{
+			printf ("TPoint.MyProp.get ()\n");
+			return m_x * 10 + m_y;
+		}
+		
+		set (int z)
+		{
+			printf ("TPoint.MyProp.set (%d)\n", z);
+			m_x = z / 10;
+			m_y = z % 10;
+		}
+	}
+
+	Setup (
+		int x,
+		int y
+		)
+	{
+		printf ("TPoint.Setup (%d, %d)\n", x, y);	
+
+		m_x = x;
+		m_y = y;
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int 
+main ()
+{
+	printf ("struct / union members\n");
+
+	TPoint p;
+	printf ("{ %d, %d }\n", p.m_x, p.m_y);
+
+	p.MyProp = 75;
+	printf ("{ %d, %d }\n", p.m_x, p.m_y);
+
+	p.Setup (10, 20);
+	printf ("{ %d, %d }\n", p.m_x, p.m_y);
+
+	return 0; 
+}
+ 
+//.............................................................................
+
+int
+printf (
+	unsafe const char* pFormat,
+	unsafe ...
+	);
+
+//.............................................................................
