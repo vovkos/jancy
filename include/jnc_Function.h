@@ -190,7 +190,7 @@ enum EStdFunc
 	EStdFunc_CreateThread,
 
 	// void
-	// jnc.Sleep (uint_t MsCount);
+	// jnc.sleep (uint_t MsCount);
 
 	EStdFunc_Sleep,
 
@@ -198,6 +198,11 @@ enum EStdFunc
 	// jnc.getTimestamp ();
 
 	EStdFunc_GetTimestamp,
+
+	// char const*
+	// jnc.format (char const* format, ...);
+
+	EStdFunc_Format,
 
 	// size_t
 	// strlen (nullable const char* p);
@@ -210,7 +215,7 @@ enum EStdFunc
 	EStdFunc_Rand,
 
 	// int
-	// printf ();
+	// printf (char const* format, ...);
 
 	EStdFunc_Printf,
 

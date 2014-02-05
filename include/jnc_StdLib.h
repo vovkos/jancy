@@ -33,6 +33,7 @@ public:
 		JNC_API_CONST_PROPERTY ("jnc.Error.m_description", GetErrorDescription)
 		JNC_API_STD_FUNCTION (EStdFunc_StrLen, StrLen)
 		JNC_API_STD_FUNCTION (EStdFunc_Rand, Rand)
+		JNC_API_STD_FUNCTION (EStdFunc_Format, Format)
 		JNC_API_STD_FUNCTION (EStdFunc_GetTls, GetTls)
 		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_a, AppendFmtLiteral_a)
 		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_p, AppendFmtLiteral_p)
@@ -126,6 +127,13 @@ public:
 	static
 	TDataPtr
 	GetErrorDescription (TDataPtr Error);
+
+	static
+	TDataPtr
+	Format (
+		TDataPtr FormatString,
+		...
+		);
 
 	static
 	size_t

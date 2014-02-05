@@ -239,6 +239,32 @@ CStdLib::GetErrorDescription (TDataPtr Error)
 	return Ptr;
 }
 
+TDataPtr
+CStdLib::Format (
+	TDataPtr FormatString,
+	...
+	)
+{
+	AXL_VA_DECL (va, FormatString);
+
+	char Buffer [256];
+	rtl::CString String (ref::EBuf_Stack, Buffer, sizeof (Buffer));
+	String.Format_va ((const char*) FormatString.m_p, va);
+	size_t Length = String.GetLength ();
+
+	char* pString = (char*) AXL_MEM_ALLOC (Length + 1);
+	memcpy (pString, String.cc (), Length);
+	pString [Length] = 0;
+
+	jnc::TDataPtr Ptr = { 0 };
+	Ptr.m_p = pString;
+	Ptr.m_pRangeBegin = Ptr.m_p;
+	Ptr.m_pRangeEnd = (char*) Ptr.m_p + Length + 1;
+	Ptr.m_pObject = jnc::GetStaticObjHdr ();
+
+	return Ptr;
+}
+
 void*
 CStdLib::GetTls ()
 {

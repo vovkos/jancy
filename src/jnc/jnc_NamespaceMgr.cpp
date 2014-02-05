@@ -52,7 +52,8 @@ CNamespaceMgr::AddStdItems ()
 		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Sleep)) &&
 		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetCurrentThreadId)) &&
 		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetTimestamp)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetLastError));
+		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetLastError)) &&
+		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Format));
 }
 
 CValue

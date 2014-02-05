@@ -16,8 +16,8 @@ int main ()
 {
 	printf ("main ()\n");
 
-	Point p;
-	printf ("offset = %d\n", offsetof (Line.m_b.m_x));
+	char const* p = jnc.format ("offset = %d\n", offsetof (Line.m_b.m_y));
+	printf ("s = %s\n", p);
 
 	return 0;
 }

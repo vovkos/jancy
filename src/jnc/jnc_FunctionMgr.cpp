@@ -963,6 +963,18 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 		pFunction = CreateFunction ("printf", "printf", pFunctionType);
 		break;
 
+	case EStdFunc_Format:
+		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Normal, EPtrTypeFlag_Const);
+		ArgTypeArray [0] = pReturnType;
+		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (
+			m_pModule->m_TypeMgr.GetCallConv (ECallConv_Cdecl),
+			pReturnType,
+			ArgTypeArray, 1,
+			EFunctionTypeFlag_VarArg
+			);
+		pFunction = CreateFunction ("format", "jnc.format", pFunctionType);
+		break;
+
 	case EStdFunc_AppendFmtLiteral_a:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
@@ -1068,6 +1080,7 @@ CFunctionMgr::GetLazyStdFunction (EStdFunc Func)
 		"createThread",       // EStdFunc_CreateThread,
 		"sleep",              // EStdFunc_Sleep,
 		"getTimestamp",       // EStdFunc_GetTimestamp,
+		"format",             // EStdFunc_Format,
 		"strlen",             // EStdFunc_StrLen,
 		"rand",               // EStdFunc_Rand,
 		"printf",             // EStdFunc_Printf,
