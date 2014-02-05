@@ -1,47 +1,17 @@
 //.............................................................................
 
-foo (
-	int x,
-	int y
-	)
+struct IpHdr
 {
-	printf ("foo (%d, %d)\n", x, y);
+	uint8_t m_a : 4;
+	uint8_t m_b : 4;
 }
 
-function bar (
-	int x,
-	int y
-	)
+typedef unsigned int8 uint8_t;
+
+int main ()
 {
-	printf ("bar (%d, %d)\n", x, y);
-}
-
-int 
-main ()
-{
-	printf ("hui govno i muravei\n");
-	
-	multicast mc (int);
-	mc += foo ~(10);
-	mc += foo ~(20);
-	mc += bar ~(30);
-	mc (123);
-
-	mc.Clear ();
-
-	mc.Add (bar ~(40));
-	mc.Add (foo ~(50));
-	mc.Call (456);
-
+	printf ("main ()\n");
 	return 0;
 }
-
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

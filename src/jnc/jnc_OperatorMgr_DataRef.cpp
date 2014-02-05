@@ -46,7 +46,7 @@ COperatorMgr::GetLeanDataPtrObjHdr (
 	}
 	else
 	{
-		ASSERT (pScopeValidatorType->GetTypeKind () == EType_DataPtr);
+		ASSERT (pScopeValidatorType->GetTypeKindFlags () & ETypeKindFlag_DataPtr);
 		ASSERT (((CDataPtrType*) pScopeValidatorType)->GetPtrTypeKind () == EDataPtrType_Normal);
 		m_pModule->m_LlvmIrBuilder.CreateExtractValue (ScopeValidatorValue, 3, pResultType, pResultValue);
 	}
