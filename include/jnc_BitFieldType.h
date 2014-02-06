@@ -54,28 +54,35 @@ public:
 		size_t BitOffset,
 		size_t BitCount
 		)
-	{ 
+	{
 		return rtl::CString::Format_s (
-			"B%s:%d:%d", 
+			"B%s:%d:%d",
 			pBaseType->GetSignature ().cc (), // thanks a lot gcc
 			BitOffset,
 			BitOffset + BitCount
-			); 
+			);
 	}
 
 protected:
-	virtual 
+	virtual
 	void
 	PrepareTypeString ();
 
-	virtual 
+	virtual
 	void
 	PrepareLlvmType ()
 	{
 		m_pLlvmType = m_pBaseType->GetLlvmType ();
 	}
 
-	virtual 
+	virtual
+	void
+	PrepareLlvmDiType ()
+	{
+		m_LlvmDiType = m_pBaseType->GetLlvmDiType ();
+	}
+
+	virtual
 	bool
 	CalcLayout ();
 };

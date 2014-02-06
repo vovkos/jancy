@@ -23,7 +23,7 @@ CBitFieldType::PrepareTypeString ()
 		m_pBaseType->GetTypeString ().cc (), // thanks a lot gcc
 		m_BitOffset,
 		m_BitOffset + m_BitCount
-		); 
+		);
 }
 
 bool
