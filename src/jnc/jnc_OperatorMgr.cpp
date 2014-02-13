@@ -265,6 +265,52 @@ COperatorMgr::GetBinaryOperatorResultType (
 	return true;
 }
 
+CFunction*
+COperatorMgr::GetOverloadedBinaryOperator (
+	EBinOp OpKind,
+	const CValue& RawOpValue1,
+	const CValue& RawOpValue2
+	)
+{
+	CValue OpValue1;
+	PrepareOperandType (RawOpValue1, &OpValue1);
+
+	if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr)
+	{
+		CClassPtrType* pPtrType = (CClassPtrType*) OpValue1.GetType ();
+		return pPtrType->GetTargetType ()->GetBinaryOperator (OpKind);
+	}
+
+	return NULL;
+}
+
+bool
+COperatorMgr::OverloadedBinaryOperator (
+	CFunction* pFunction,
+	const CValue& RawOpValue1,
+	const CValue& RawOpValue2,
+	CValue* pResultValue
+	)
+{
+	if (pFunction->GetFlags () & EMulticastMethodFlag_InaccessibleViaEventPtr)
+	{
+		CValue OpValue1;
+		PrepareOperandType (RawOpValue1, &OpValue1);
+
+		if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr &&
+			((CClassPtrType*) OpValue1.GetType ())->IsEventPtrType ())
+		{
+			err::SetFormatStringError ("'%s' is inaccessible via 'event' pointer", GetBinOpKindString (pFunction->GetBinOpKind ()));
+			return false;
+		}
+	}
+
+	rtl::CBoxListT <CValue> ArgList;
+	ArgList.InsertTail (RawOpValue1);
+	ArgList.InsertTail (RawOpValue2);
+	return CallOperator (pFunction, &ArgList, pResultValue);
+}
+
 bool
 COperatorMgr::BinaryOperator (
 	EBinOp OpKind,
@@ -275,33 +321,16 @@ COperatorMgr::BinaryOperator (
 {
 	ASSERT ((size_t) OpKind < EBinOp__Count);
 
+	CFunction* pFunction = GetOverloadedBinaryOperator (OpKind, RawOpValue1, RawOpValue2);
+	if (pFunction)
+		return OverloadedBinaryOperator (pFunction, RawOpValue1, RawOpValue2, pResultValue);
+
 	CValue OpValue1;
 	CValue OpValue2;
 	CValue UnusedResultValue;
 
 	if (!pResultValue)
 		pResultValue = &UnusedResultValue;
-
-	PrepareOperandType (RawOpValue1, &OpValue1);
-	if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr)
-	{
-		CClassPtrType* pPtrType = (CClassPtrType*) OpValue1.GetType ();
-		CFunction* pFunction = pPtrType->GetTargetType ()->GetBinaryOperator (OpKind);
-
-		if (pFunction)
-		{
-			if ((pFunction->GetFlags () & EMulticastMethodFlag_InaccessibleViaEventPtr) && pPtrType->IsEventPtrType ())
-			{
-				err::SetFormatStringError ("'%s' is inaccessible via 'event' pointer", GetBinOpKindString (OpKind));
-				return false;
-			}
-
-			rtl::CBoxListT <CValue> ArgList;
-			ArgList.InsertTail (RawOpValue1);
-			ArgList.InsertTail (RawOpValue2);
-			return CallOperator (pFunction, &ArgList, pResultValue);
-		}
-	}
 
 	CBinaryOperator* pOperator = m_BinaryOperatorTable [OpKind];
 	ASSERT (pOperator);

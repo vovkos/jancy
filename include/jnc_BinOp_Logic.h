@@ -31,7 +31,10 @@ public:
 		const CValue& RawOpValue1,
 		const CValue& RawOpValue2,
 		CValue* pResultValue
-		);
+		)
+	{
+		ASSERT (false); // special handling in COperator::LogicalOrOperator
+	}
 };
 
 //.............................................................................
@@ -57,7 +60,10 @@ public:
 		const CValue& RawOpValue1,
 		const CValue& RawOpValue2,
 		CValue* pResultValue
-		);
+		)
+	{
+		ASSERT (false); // special handling in COperator::LogicalOrOperator
+	}
 };
 
 //.............................................................................

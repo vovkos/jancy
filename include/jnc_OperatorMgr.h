@@ -322,6 +322,24 @@ public:
 		);
 
 	bool
+	LogicalOrOperator (
+		CBasicBlock* pOpBlock1,
+		CBasicBlock* pOpBlock2,
+		const CValue& OpValue1,
+		const CValue& OpValue2,
+		CValue* pResultValue = NULL
+		);
+
+	bool
+	LogicalAndOperator (
+		CBasicBlock* pOpBlock1,
+		CBasicBlock* pOpBlock2,
+		const CValue& OpValue1,
+		const CValue& OpValue2,
+		CValue* pResultValue = NULL
+		);
+
+	bool
 	BinaryOperator (
 		EBinOp OpKind,
 		CValue* pValue,
@@ -329,6 +347,28 @@ public:
 		)
 	{
 		return BinaryOperator (OpKind, *pValue, OpValue2, pValue);
+	}
+
+	bool
+	LogicalOrOperator (
+		CBasicBlock* pOpBlock1,
+		CBasicBlock* pOpBlock2,
+		CValue* pValue,
+		const CValue& OpValue2
+		)
+	{
+		return LogicalOrOperator (pOpBlock1, pOpBlock2, *pValue, OpValue2, pValue);
+	}
+
+	bool
+	LogicalAndOperator (
+		CBasicBlock* pOpBlock1,
+		CBasicBlock* pOpBlock2,
+		CValue* pValue,
+		const CValue& OpValue2
+		)
+	{
+		return LogicalAndOperator (pOpBlock1, pOpBlock2, *pValue, OpValue2, pValue);
 	}
 
 	// conditional operator
@@ -1354,6 +1394,23 @@ public:
 		);
 
 protected:
+	// overloaded operators
+
+	CFunction*
+	GetOverloadedBinaryOperator (
+		EBinOp OpKind,
+		const CValue& OpValue1,
+		const CValue& OpValue2
+		);
+
+	bool
+	OverloadedBinaryOperator (
+		CFunction* pFunction,
+		const CValue& RawOpValue1,
+		const CValue& RawOpValue2,
+		CValue* pResultValue
+		);
+
 	// bit fields
 
 	bool

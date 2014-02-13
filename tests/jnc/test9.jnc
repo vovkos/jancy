@@ -1,95 +1,32 @@
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
-class CBase
+bool foo ()
 {
-	preconstruct ()
-	{
-		printf ("CBase.preconstruct ()\n");
-		Foo ();
-	}
+	printf ("foo ()\n");
+	return false;
+}
 
-	this ()
-	{
-		printf ("CBase.this ()\n");
-		Foo ();
-	} 
-
-	this (int x)
-	{
-		printf ("CBase.this (%d)\n", x);
-		Foo ();
-	}
-
-	~this ()
-	{
-		printf ("CBase.~this ()\n");
-		Foo ();
-	}
-
-	virtual
-	Foo ()
-	{
-		printf ("CBase.Foo ()\n");
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class CTest: CBase
+bool bar ()
 {
-	preconstruct ()
-	{
-		printf ("CTest.preconstruct ()\n");
-		Foo ();
-	}
+	printf ("bar ()\n");
+	return true;
+}
 
-	this ()
-	{
-		printf ("CTest.this ()\n");
-		Foo ();
-	}
-
-	this (int x)
-	{
-		CBase (x * 2);
-		printf ("CTest.this (%d)\n", x);
-		Foo ();
-	}
-
-	~this ()
-	{
-		printf ("CTest.~this ()\n");
-		Foo ();
-	}
-
-	override
-	Foo ()
-	{
-		printf ("CTest.Foo ()\n");
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-int 
-main ()
+int main ()
 {
-	printf ("hui govno i muravei\n");
+	printf ("main ()\n");
 
-	CTest t = uheap new CTest (10);
-	
-	delete t;
+	if (foo () && bar ())
+		printf ("&& true\n");
+	else
+		printf ("&& false\n");
 
+	if (foo () || bar ())
+		printf ("|| true\n");
+	else
+		printf ("|| false\n");
 
 	return 0;
 }
-
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

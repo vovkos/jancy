@@ -218,6 +218,7 @@ set (
 	jnc_OperatorMgr_Closure.cpp
 	jnc_OperatorMgr_DataRef.cpp
 	jnc_OperatorMgr_Field.cpp
+	jnc_OperatorMgr_Logic.cpp
 	jnc_OperatorMgr_Member.cpp
 	jnc_OperatorMgr_New.cpp
 	jnc_OperatorMgr_Property.cpp

@@ -235,26 +235,44 @@ conditional_expr <CValue* $pValue>
 logical_or_expr <CValue* $pValue>
 	local
 	{
+		CBasicBlock* $pOpBlock1;
+		CBasicBlock* $pOpBlock2;
 		CValue $OpValue2;
 	}
 	:	logical_and_expr <$pValue>
-		(EToken_LogOr logical_and_expr <&$OpValue2>
-			{
-				return m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_LogOr, $pValue, $OpValue2);
-			}
+		(
+			EToken_LogOr
+				{
+					$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
+					$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_or_op2");
+					m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+				}
+			logical_and_expr <&$OpValue2>
+				{
+					return m_pModule->m_OperatorMgr.LogicalOrOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+				}
 		)*
 	;
 
 logical_and_expr <CValue* $pValue>
 	local
 	{
+		CBasicBlock* $pOpBlock1;
+		CBasicBlock* $pOpBlock2;
 		CValue $OpValue2;
 	}
 	:	inclusive_or_expr <$pValue>
-		(EToken_LogAnd inclusive_or_expr <&$OpValue2>
-			{
-				return m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_LogAnd, $pValue, $OpValue2);
-			}
+		(
+			EToken_LogAnd
+				{
+					$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
+					$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_and_op2");
+					m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+				}
+			inclusive_or_expr <&$OpValue2>
+				{
+					return m_pModule->m_OperatorMgr.LogicalAndOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+				}
 		)*
 	;
 
@@ -777,7 +795,7 @@ primary_expr <CValue* $pValue>
 			}
 	|	EToken_OffsetOf '(' expression_0 $e ')'
 			{
-				return m_pModule->m_OperatorMgr.GetOffsetOf ($e.m_Value, $pValue);				
+				return m_pModule->m_OperatorMgr.GetOffsetOf ($e.m_Value, $pValue);
 			}
 	|	EToken_BindingOf '(' conditional_expr <$pValue> ')'
 			{
