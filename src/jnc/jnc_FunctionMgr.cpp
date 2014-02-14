@@ -945,6 +945,25 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 		pFunction = CreateFunction ("strlen", "strlen", pFunctionType);
 		break;
 
+	case EStdFunc_MemCpy:
+		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal);
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
+		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
+		pFunction = CreateFunction ("memcpy", "memcpy", pFunctionType);
+		break;
+
+	case EStdFunc_MemCat:
+		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal);
+		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
+		ArgTypeArray [3] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 4);
+		pFunction = CreateFunction ("memcat", "memcat", pFunctionType);
+		break;
+
 	case EStdFunc_Rand:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
@@ -1082,6 +1101,8 @@ CFunctionMgr::GetLazyStdFunction (EStdFunc Func)
 		"getTimestamp",       // EStdFunc_GetTimestamp,
 		"format",             // EStdFunc_Format,
 		"strlen",             // EStdFunc_StrLen,
+		"memcpy",             // EStdFunc_MemCpy,
+		"memcat",             // EStdFunc_MemCat,
 		"rand",               // EStdFunc_Rand,
 		"printf",             // EStdFunc_Printf,
 		NULL, // EStdFunc_GetTls,

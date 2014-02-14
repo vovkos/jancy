@@ -209,6 +209,25 @@ enum EStdFunc
 
 	EStdFunc_StrLen,
 
+	// void
+	// jnc.memcpy (
+	//		void* pDst,
+	//		const void* pSrc,
+	//		size_t Size
+	//		);
+
+	EStdFunc_MemCpy,
+
+	// void*
+	// jnc.memcat (
+	//		const void* p1,
+	//		size_t Size1,
+	//		const void* p2,
+	//		size_t Size2
+	//		);
+
+	EStdFunc_MemCat,
+
 	// int
 	// rand ();
 

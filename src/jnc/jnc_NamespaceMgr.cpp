@@ -42,6 +42,8 @@ CNamespaceMgr::AddStdItems ()
 	return
 		m_GlobalNamespace.AddItem (pJnc) &&
 		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_StrLen)) &&
+		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_MemCpy)) &&
+		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_MemCat)) &&
 		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Rand)) &&
 		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Printf)) &&
 		pJnc->AddItem (m_pModule->m_TypeMgr.GetLazyStdType (EStdType_Scheduler)) &&

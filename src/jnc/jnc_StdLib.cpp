@@ -115,6 +115,51 @@ CStdLib::StrLen (TDataPtr Ptr)
 	return p - p0;
 }
 
+void
+CStdLib::MemCpy (
+	TDataPtr DstPtr,
+	TDataPtr SrcPtr,
+	size_t Size
+	)
+{
+	if (DstPtr.m_p && SrcPtr.m_p)
+		memcpy (DstPtr.m_p, SrcPtr.m_p, Size);
+}
+
+TDataPtr
+CStdLib::MemCat (
+	TDataPtr Ptr1,
+	size_t Size1,
+	TDataPtr Ptr2,
+	size_t Size2
+	)
+{
+	TDataPtr ResultPtr = { 0 };
+
+	size_t TotalSize = Size1 + Size2;
+	char* p = (char*) AXL_MEM_ALLOC (TotalSize + 1);
+	if (!p)
+		return ResultPtr;
+
+	p [TotalSize] = 0; // ensure zero-termination just in case
+
+	if (Ptr1.m_p)
+		memcpy (p, Ptr1.m_p, Size1);
+	else
+		memset (p, 0, Size1);
+
+	if (Ptr2.m_p)
+		memcpy (p + Size1, Ptr2.m_p, Size2);
+	else
+		memset (p + Size1, 0, Size2);
+
+	ResultPtr.m_p = p;
+	ResultPtr.m_pRangeBegin = p;
+	ResultPtr.m_pRangeEnd = p + TotalSize;
+	ResultPtr.m_pObject = jnc::GetStaticObjHdr ();
+	return ResultPtr;
+}
+
 #if (_AXL_ENV == AXL_ENV_WIN)
 
 intptr_t

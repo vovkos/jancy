@@ -32,6 +32,8 @@ public:
 		JNC_API_STD_FUNCTION (EStdFunc_GetLastError, GetLastError)
 		JNC_API_CONST_PROPERTY ("jnc.Error.m_description", GetErrorDescription)
 		JNC_API_STD_FUNCTION (EStdFunc_StrLen, StrLen)
+		JNC_API_STD_FUNCTION (EStdFunc_MemCpy, MemCpy)
+		JNC_API_STD_FUNCTION (EStdFunc_MemCat, MemCat)
 		JNC_API_STD_FUNCTION (EStdFunc_Rand, Rand)
 		JNC_API_STD_FUNCTION (EStdFunc_Format, Format)
 		JNC_API_STD_FUNCTION (EStdFunc_GetTls, GetTls)
@@ -138,6 +140,23 @@ public:
 	static
 	size_t
 	StrLen (TDataPtr Ptr);
+
+	static
+	void
+	MemCpy (
+		TDataPtr DstPtr,
+		TDataPtr SrcPtr,
+		size_t Size
+		);
+
+	static
+	TDataPtr
+	MemCat (
+		TDataPtr Ptr1,
+		size_t Size1,
+		TDataPtr Ptr2,
+		size_t Size2
+		);
 
 	static
 	int
