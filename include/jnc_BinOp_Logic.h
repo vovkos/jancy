@@ -34,6 +34,7 @@ public:
 		)
 	{
 		ASSERT (false); // special handling in COperator::LogicalOrOperator
+		return true;
 	}
 };
 
@@ -63,6 +64,7 @@ public:
 		)
 	{
 		ASSERT (false); // special handling in COperator::LogicalOrOperator
+		return true;
 	}
 };
 
