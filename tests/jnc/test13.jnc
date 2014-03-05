@@ -1,53 +1,30 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CMyClass
+class C
 {
-	class CClassA
+	enum State
 	{
-		this ()
-		{
-			printf ("CClassA.this ()\n");
-		}
-
-		~this ()
-		{
-			printf ("CClassA.~this ()\n");
-		}
-	};
-	
-	CClassA m_x = member new CClassA;
-	CClassA m_x = member new CClassA;
-	CClassA m_x = member new CClassA;
-	
-	this ()
-	{
-		printf ("CMyClass.this ()\n");
+		Closed,
+		Opened,
 	}
 
-	~this ()
-	{
-		printf ("CMyClass.~this ()\n");
-	}
-};
+	State bindable m_state;
+	int m_y;
+
+	reactor m_reactor ();
+}
+
+reactor C.m_reactor ()
+{
+	m_state;
+}
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int 
-main ()
+int main ()
 {
-	printf ("member new test\n");
-
-	stack new CMyClass;
-
+	printf ("main ()\n");
 	return 0;
 }
  
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
-
 //.............................................................................

@@ -997,7 +997,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_a:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_a", pFunctionType);
@@ -1006,8 +1006,8 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_p:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
+		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_p", pFunctionType);
 		break;
@@ -1015,7 +1015,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_i32:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_i32", pFunctionType);
@@ -1024,7 +1024,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_ui32:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32_u),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_ui32", pFunctionType);
@@ -1033,7 +1033,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_i64:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_i64", pFunctionType);
@@ -1042,7 +1042,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_ui64:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_ui64", pFunctionType);
@@ -1051,7 +1051,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 	case EStdFunc_AppendFmtLiteral_f:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
 		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (),
+		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
 		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Double),
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
 		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_f", pFunctionType);

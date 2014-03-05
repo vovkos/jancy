@@ -60,7 +60,7 @@ CUnionType::CreateFieldImpl (
 	{
 		m_UnnamedFieldArray.Append (pField);
 	}
-	else
+	else if (Name [0] != '!') // internal field
 	{
 		bool Result = AddItem (pField);
 		if (!Result)
