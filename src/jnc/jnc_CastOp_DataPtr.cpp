@@ -79,8 +79,11 @@ CCast_DataPtr_Base::GetCastKind (
 	if (pSrcType->IsConstPtrType () && !pDstType->IsConstPtrType ())
 		return ECast_None; // const vs non-const mismatch
 
+#pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
+#if 0
 	if ((pDstDataType->GetFlags () & ETypeFlag_Pod) != (pSrcDataType->GetFlags () & ETypeFlag_Pod))
 		return ECast_None; // pod vs non-pod mismatch
+#endif
 
 	if (pSrcDataType->Cmp (pDstDataType) == 0 || pDstDataType->GetTypeKind () == EType_Void)
 		return ECast_Implicit;
@@ -395,11 +398,17 @@ CCast_DataPtr::GetCastOperator (
 	CDataPtrType* pSrcPtrType = (CDataPtrType*) pSrcType;
 	EDataPtrType SrcPtrTypeKind = pSrcPtrType->GetPtrTypeKind ();
 
-	if (DstPtrTypeKind == EDataPtrType_Normal &&
-		(pSrcPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod) !=
-		(pDstPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod))
+	if (DstPtrTypeKind == EDataPtrType_Normal)
 	{
-		return NULL;
+#pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
+#if 0
+		if ((pSrcPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod) !=
+			(pDstPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod))
+			return NULL;
+#endif
+
+		if (pSrcPtrType->IsConstPtrType () && !pDstPtrType->IsConstPtrType ())
+			return NULL;
 	}
 
 	ASSERT ((size_t) SrcPtrTypeKind < EDataPtrType__Count);
