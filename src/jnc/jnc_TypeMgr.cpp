@@ -716,7 +716,7 @@ CTypeMgr::GetBoxClassType (CType* pBaseType)
 	CClassType* pType = CreateUnnamedClassType (EClassType_Box);
 	pType->m_Tag.Format ("object <%s>", pBaseType->GetTypeString ().cc ());
 	pType->m_Signature.Format ("CB%s", pBaseType->GetSignature ().cc ());
-	pType->CreateField ("!m_value", pBaseType);
+	pType->CreateField ("m_value", pBaseType);
 	pType->EnsureLayout ();
 
 	pBaseType->m_pBoxClassType = pType;
@@ -1493,7 +1493,7 @@ CTypeMgr::GetFunctionClosureClassType (
 
 	for (size_t i = 0; i < ArgCount; i++)
 	{
-		ArgFieldName.Format ("m_arg%d", i);
+		ArgFieldName.Format ("!m_arg%d", i);
 
 		CStructField* pField = pType->CreateField (ArgFieldName, ppArgTypeArray [i]);
 		if (WeakMask & (2 << i)) // account for field #0 function ptr
@@ -1893,7 +1893,7 @@ CTypeMgr::GetPropertyVTableStructType (CPropertyType* pPropertyType)
 	size_t SetterTypeOverloadCount = pPropertyType->m_SetterType.GetOverloadCount ();
 	for (size_t i = 0; i < SetterTypeOverloadCount; i++)
 	{
-		SetterFieldName.Format ("m_setter%d", i);
+		SetterFieldName.Format ("!m_setter%d", i);
 
 		CFunctionType* pSetterType = pPropertyType->m_SetterType.GetOverload (i);
 		pType->CreateField (SetterFieldName, pSetterType->GetFunctionPtrType (EFunctionPtrType_Thin));
@@ -2407,10 +2407,10 @@ CStructType*
 CTypeMgr::CreateGuidType ()
 {
 	CStructType* pType = CreateStructType ("Guid", "jnc.Guid");
-	pType->CreateField ("!m_data1", GetPrimitiveType (EType_Int32_u));
-	pType->CreateField ("!m_data2", GetPrimitiveType (EType_Int16_u));
-	pType->CreateField ("!m_data3", GetPrimitiveType (EType_Int16_u));
-	pType->CreateField ("!m_data4", GetPrimitiveType (EType_Int8_u)->GetArrayType (8));
+	pType->CreateField ("m_data1", GetPrimitiveType (EType_Int32_u));
+	pType->CreateField ("m_data2", GetPrimitiveType (EType_Int16_u));
+	pType->CreateField ("m_data3", GetPrimitiveType (EType_Int16_u));
+	pType->CreateField ("m_data4", GetPrimitiveType (EType_Int8_u)->GetArrayType (8));
 	pType->EnsureLayout ();
 	return pType;
 }
@@ -2419,9 +2419,9 @@ CStructType*
 CTypeMgr::CreateErrorType ()
 {
 	CStructType* pType = CreateStructType ("Error", "jnc.Error");
-	pType->CreateField ("!m_size", GetPrimitiveType (EType_Int32_u));
-	pType->CreateField ("!m_guid", GetStdType (EStdType_Guid));
-	pType->CreateField ("!m_code", GetPrimitiveType (EType_Int32_u));
+	pType->CreateField ("m_size", GetPrimitiveType (EType_Int32_u));
+	pType->CreateField ("m_guid", GetStdType (EStdType_Guid));
+	pType->CreateField ("m_code", GetPrimitiveType (EType_Int32_u));
 
 	CProperty* pDescription = m_pModule->m_FunctionMgr.CreateProperty ("m_description", "jnc.Error.m_description");
 	pType->AddProperty (pDescription);
