@@ -466,7 +466,7 @@ literal_0 <CValue* $pValue>
 					$Literal.m_BinData.Append ($2.m_Data.m_BinData, $2.m_Data.m_BinData.GetCount ());
 					$Literal.m_LastToken = EToken_HexLiteral;
 				}
-		|	EToken_FmtLiteral expression $e EToken_FmtSpecifier $f?				
+		|	EToken_FmtLiteral expression_0 EToken_FmtSpecifier?
 				{
 					// mark we have a formatting literal from now on
 
