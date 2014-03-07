@@ -1,29 +1,23 @@
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 class C
 {
-	enum State
-	{
-		Closed,
-		Opened,
-	}
-
-	State bindable m_state;
-	int m_y;
+	int bindable m_state;
+	char const* m_s;
+	int m_x;
 
 	reactor m_reactor ();
 }
 
 reactor C.m_reactor ()
 {
-	m_state;
+	m_s = $"state = $m_state";
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int main ()
 {
-	printf ("main ()\n");
 	return 0;
 }
  
