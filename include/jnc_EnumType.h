@@ -28,7 +28,9 @@ enum EEnumTypeFlag
 
 //.............................................................................
 
-class CEnumConst: public CUserModuleItem
+class CEnumConst: 
+	public CUserModuleItem,
+	public CModuleItemInitializer
 {
 	friend class CEnumType;
 	friend class CNamespace;
@@ -36,7 +38,6 @@ class CEnumConst: public CUserModuleItem
 protected:
 	CEnumType* m_pParentEnumType;
 	intptr_t m_Value;
-	rtl::CBoxListT <CToken> m_Initializer;
 
 public:
 	CEnumConst ()
@@ -56,12 +57,6 @@ public:
 	GetValue ()
 	{
 		return m_Value;
-	}
-
-	rtl::CConstBoxListT <CToken> 
-	GetInitializer ()
-	{
-		return m_Initializer;
 	}
 };
 

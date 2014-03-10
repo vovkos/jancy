@@ -21,7 +21,9 @@ enum EStructFieldFlag
 
 //.............................................................................
 
-class CStructField: public CUserModuleItem
+class CStructField: 
+	public CUserModuleItem,
+	public CModuleItemInitializer
 {
 	friend class CTypeMgr;
 	friend class CDerivableType;
@@ -35,7 +37,6 @@ protected:
 	CImportType* m_pType_i;
 	uint_t m_PtrTypeFlags;
 	rtl::CBoxListT <CToken> m_Constructor;
-	rtl::CBoxListT <CToken> m_Initializer;
 
 	CType* m_pBitFieldBaseType;
 	size_t m_BitCount;
@@ -67,12 +68,6 @@ public:
 	GetConstructor ()
 	{
 		return m_Constructor;
-	}
-
-	rtl::CConstBoxListT <CToken>
-	GetInitializer ()
-	{
-		return m_Initializer;
 	}
 
 	size_t

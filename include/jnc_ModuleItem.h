@@ -64,7 +64,6 @@ enum EStorage
 {
 	EStorage_Undefined = 0,
 	EStorage_Typedef,
-	EStorage_Alias,
 	EStorage_Static,
 	EStorage_Thread,
 	EStorage_Stack,
@@ -127,6 +126,27 @@ public:
 	{
 		return &m_Pos;
 	}
+};
+
+//.............................................................................
+
+class CModuleItemInitializer
+{
+	friend class CParser;
+
+protected:
+	rtl::CBoxListT <CToken> m_Initializer;
+	rtl::CString m_InitializerString;
+
+public:
+	rtl::CConstBoxListT <CToken>
+	GetInitializer ()
+	{
+		return m_Initializer;
+	}
+
+	rtl::CString
+	GetInitializerString ();
 };
 
 //.............................................................................

@@ -15,10 +15,17 @@ full_declarator <CTypeSpecifier* $pTypeSpecifier>
 				$d.m_Declarator.m_Constructor.TakeOver (&$c.m_TokenList);
 			}
 		)?
-		('=' expression_pass1 $i
-			{
-				$d.m_Declarator.m_Initializer.TakeOver (&$i.m_TokenList);
-			}
+		(
+			(	'=' 
+			|	EToken_Imply 
+					{
+						$d.m_Declarator.m_IsAlias = true;
+					}
+			)
+			expression_pass1 $e
+				{
+					$d.m_Declarator.m_Initializer.TakeOver (&$e.m_TokenList);
+				}
 		)?
 			{
 				return Declare (&$d.m_Declarator);

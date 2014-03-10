@@ -462,28 +462,24 @@ CParser::Declare (CDeclarator* pDeclarator)
 		return false;
 	}
 
-	switch (m_StorageKind)
-	{
-	case EStorage_Typedef:
+	if (pDeclarator->m_IsAlias)
+		return DeclareAlias (pDeclarator, pType, DeclFlags);
+
+	if (m_StorageKind == EStorage_Typedef)
 		return DeclareTypedef (pDeclarator, pType);
 
-	case EStorage_Alias:
-		return DeclareAlias (pDeclarator, pType);
+	switch (TypeKind)
+	{
+	case EType_Function:
+		return DeclareFunction (pDeclarator, (CFunctionType*) pType);
+
+	case EType_Property:
+		return DeclareProperty (pDeclarator, (CPropertyType*) pType, DeclFlags);
 
 	default:
-		switch (TypeKind)
-		{
-		case EType_Function:
-			return DeclareFunction (pDeclarator, (CFunctionType*) pType);
-
-		case EType_Property:
-			return DeclareProperty (pDeclarator, (CPropertyType*) pType, DeclFlags);
-
-		default:
-			return IsClassType (pType, EClassType_ReactorIface) ?
-				DeclareReactor (pDeclarator, (CClassType*) pType, DeclFlags) :
-				DeclareData (pDeclarator, pType, DeclFlags);
-		}
+		return IsClassType (pType, EClassType_ReactorIface) ?
+			DeclareReactor (pDeclarator, (CClassType*) pType, DeclFlags) :
+			DeclareData (pDeclarator, pType, DeclFlags);
 	}
 }
 
@@ -565,34 +561,23 @@ CParser::DeclareTypedef (
 bool
 CParser::DeclareAlias (
 	CDeclarator* pDeclarator,
-	CType* pType
+	CType* pType,
+	uint_t PtrTypeFlags
 	)
 {
-	ASSERT (m_StorageKind == EStorage_Alias);
+	ASSERT (pDeclarator->m_IsAlias && !pDeclarator->m_Initializer.IsEmpty ());
 
 	bool Result;
 
-	if (pType->GetTypeKind () != EType_Void)
-	{
-		err::SetFormatStringError ("'alias' cannot have type");
-		return false;
-	}
-
 	if (!pDeclarator->m_Constructor.IsEmpty ())
 	{
-		err::SetFormatStringError ("'alias' cannot have constructor");
+		err::SetFormatStringError ("alias cannot have constructor");
 		return false;
 	}
 
 	if (!pDeclarator->IsSimple ())
 	{
-		err::SetFormatStringError ("invalid 'alias' declarator");
-		return false;
-	}
-
-	if (pDeclarator->m_Initializer.IsEmpty ())
-	{
-		err::SetFormatStringError ("'alias' must have an initializer");
+		err::SetFormatStringError ("invalid alias declarator");
 		return false;
 	}
 
@@ -602,22 +587,30 @@ CParser::DeclareAlias (
 	rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
 	rtl::CBoxListT <CToken>* pInitializer = &pDeclarator->m_Initializer;
 
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = EStage_Pass2;
-
-	Result = Parser.ParseTokenList (ESymbol_expression_save_value_0, *pInitializer);
-	if (!Result)
-		return false;
-
-	pType = Parser.m_ExpressionValue.GetType ();
-
 	CAlias* pAlias = m_pModule->m_VariableMgr.CreateAlias (Name, QualifiedName, pType, pInitializer);
 	AssignDeclarationAttributes (pAlias, pDeclarator->GetPos ());
 
 	Result = pNamespace->AddItem (pAlias);
 	if (!Result)
 		return false;
+
+	if (pNamespace->GetNamespaceKind () == ENamespace_Property)
+	{
+		CProperty* pProperty = (CProperty*) pNamespace;
+
+		if (PtrTypeFlags & EPtrTypeFlag_Bindable)
+		{
+			Result = pProperty->SetOnChanged (pAlias);
+			if (!Result)
+				return false;
+		}
+		else if (PtrTypeFlags & EPtrTypeFlag_AutoGet)
+		{
+			Result = pProperty->SetAutoGetValue (pAlias);
+			if (!Result)
+				return false;
+		}
+	}
 
 	return true;
 }

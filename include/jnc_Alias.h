@@ -4,27 +4,24 @@
 
 #pragma once
 
-#include "jnc_Type.h"
+#include "jnc_ImportType.h"
 
 namespace jnc {
 
 //.............................................................................
 
-class CAlias: public CUserModuleItem
+class CAlias: 
+	public CUserModuleItem,
+	public CModuleItemInitializer
 {
 	friend class CVariableMgr;
 
 protected:
 	CType* m_pType;
-	rtl::CBoxListT <CToken> m_Initializer;
-	rtl::CString m_InitializerString;
+	CImportType* m_pType_i;
 
 public:
-	CAlias ()
-	{
-		m_ItemKind = EModuleItem_Alias;
-		m_pType = NULL;
-	}
+	CAlias ();
 	
 	CType* 
 	GetType ()
@@ -32,20 +29,16 @@ public:
 		return m_pType;
 	}
 
-	rtl::CConstBoxListT <CToken> 
-	GetInitializer ()
+	CImportType*
+	GetType_i ()
 	{
-		return m_Initializer;
+		return m_pType_i;
 	}
 
-	rtl::CString 
-	GetInitializerString ()
-	{
-		if (m_InitializerString.IsEmpty ())
-			m_InitializerString = CToken::GetTokenListString (m_Initializer);
-
-		return m_InitializerString;
-	}
+protected:
+	virtual
+	bool
+	CalcLayout ();
 };
 
 //.............................................................................

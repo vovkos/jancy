@@ -1,38 +1,32 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int 
-main ()
+int foo ()
 {
-	printf ("alias test\n");
+	printf ("foo ()\n");
+	return 0;
+}
 
-	int x = 10;
-	int y = 20;
+event g_onChanged ();
 
-	alias jnc.exe.foo.foof.foo;
+property g_prop
+{
+	bindable event m_onChanged () => g_onChanged;
+	int autoget m_value;
 
-	alias p = x + y++;
+	set (int x)
+	{
+		m_value = x;
+		m_onChanged ();
+	}
+}
 
-	TPoint p;
+int main ()
+{
+	bindingof (g_prop) += foo;	
 
-	int* p = &(p.x.y.z [i]);
-	*p = 10;
-
-	alias a = p.x.y.z [i];
-	a = 10;
-
-	once foo ();
-
-	printf ("%d, %d, %d\n", p, p, p);
+	g_onChanged ();
 
 	return 0;
 }
  
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
-
 //.............................................................................

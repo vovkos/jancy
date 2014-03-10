@@ -349,10 +349,26 @@ COperatorMgr::GetPropertyField (
 	CValue* pResultValue
 	)
 {
-	if (pMember->GetItemKind () == EModuleItem_Variable)
+	EModuleItem ItemKind = pMember->GetItemKind ();
+
+	switch (ItemKind)
 	{
+	case EModuleItem_StructField:
+		break;
+
+	case EModuleItem_Variable:
 		pResultValue->SetVariable ((CVariable*) pMember);
 		return true;
+
+	case EModuleItem_Alias:
+		return EvaluateAlias (
+			pMember->GetItemDecl ()->GetParentUnit (),
+			((CAlias*) pMember)->GetInitializer (),
+			pResultValue
+			);
+
+	default:
+		ASSERT (false);
 	}
 
 	ASSERT (pMember->GetItemKind () == EModuleItem_StructField);

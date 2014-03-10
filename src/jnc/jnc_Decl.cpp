@@ -187,6 +187,7 @@ CDeclarator::CDeclarator ()
 	m_BitCount = 0;
 	m_PostDeclaratorModifiers = 0;
 	m_pBaseType = NULL;
+	m_IsAlias = false;
 }
 
 void

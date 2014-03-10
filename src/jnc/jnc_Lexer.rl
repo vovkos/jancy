@@ -89,7 +89,6 @@ main := |*
 # storage specifiers
 
 'typedef'        { CreateToken (EToken_Typedef); };
-'alias'          { CreateToken (EToken_Alias); };
 'static'         { CreateToken (EToken_Static); };
 'thread'         { CreateToken (EToken_Thread); };
 'stack'          { CreateToken (EToken_Stack); };
@@ -234,6 +233,7 @@ main := |*
 '++'             { CreateToken (EToken_Inc); };
 '--'             { CreateToken (EToken_Dec); };
 '->'             { CreateToken (EToken_Ptr); };
+'=>'             { CreateToken (EToken_Imply); };
 '<<'             { CreateToken (EToken_Shl); };
 '>>'             { CreateToken (EToken_Shr); };
 '&&'             { CreateToken (EToken_LogAnd); };

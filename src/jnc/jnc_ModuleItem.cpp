@@ -44,7 +44,6 @@ GetStorageKindString (EStorage StorageKind)
 	{
 		"undefined-storage-class",  // EStorage_Undefined = 0,
 		"typedef",                  // EStorage_Typedef,
-		"alias",                    // EStorage_Alias,
 		"static",                   // EStorage_Static,
 		"thread",                   // EStorage_Thread,
 		"stack",                    // EStorage_Stack,
@@ -79,6 +78,20 @@ GetAccessKindString (EAccess AccessKind)
 	return (size_t) AccessKind < EAccess__Count ?
 		StringTable [AccessKind] :
 		StringTable [EAccess_Undefined];
+}
+
+//.............................................................................
+
+rtl::CString
+CModuleItemInitializer::GetInitializerString ()
+{
+	if (m_Initializer.IsEmpty ())
+		return rtl::CString ();
+
+	if (m_InitializerString.IsEmpty ())
+		m_InitializerString = CToken::GetTokenListString (m_Initializer);
+
+	return m_InitializerString;
 }
 
 //.............................................................................

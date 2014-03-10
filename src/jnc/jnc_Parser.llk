@@ -210,7 +210,8 @@ Members2
 	bool
 	DeclareAlias (
 		CDeclarator* pDeclarator,
-		CType* pType
+		CType* pType,
+		uint_t PtrTypeFlags
 		);
 
 	bool

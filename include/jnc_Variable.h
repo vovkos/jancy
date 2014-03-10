@@ -14,7 +14,9 @@ class CStructField;
 
 //.............................................................................
 
-class CVariable: public CUserModuleItem
+class CVariable: 
+	public CUserModuleItem,
+	public CModuleItemInitializer
 {
 	friend class CVariableMgr;
 	friend class CParser;
@@ -24,8 +26,6 @@ protected:
 	CImportType* m_pType_i;
 	uint_t m_PtrTypeFlags;
 	rtl::CBoxListT <CToken> m_Constructor;
-	rtl::CBoxListT <CToken> m_Initializer;
-	rtl::CString m_InitializerString;
 
 	CScope* m_pScope;
 	CStructField* m_pTlsField;
@@ -58,21 +58,6 @@ public:
 	GetConstructor ()
 	{
 		return m_Constructor;
-	}
-
-	rtl::CConstBoxListT <CToken>
-	GetInitializer ()
-	{
-		return m_Initializer;
-	}
-
-	rtl::CString
-	GetInitializerString ()
-	{
-		if (m_InitializerString.IsEmpty ())
-			m_InitializerString = CToken::GetTokenListString (m_Initializer);
-
-		return m_InitializerString;
 	}
 
 	CScope*

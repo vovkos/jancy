@@ -239,9 +239,16 @@ CVariableMgr::CreateAlias (
 	pAlias->m_Name = Name;
 	pAlias->m_QualifiedName = QualifiedName;
 	pAlias->m_Tag = QualifiedName;
+	pAlias->m_pType = pType;
 	pAlias->m_Initializer.TakeOver (pInitializer);
 
 	m_AliasList.InsertTail (pAlias);
+
+	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	{
+		pAlias->m_pType_i = (CImportType*) pType;
+		m_pModule->MarkForLayout (pAlias);
+	}
 
 	return pAlias;
 }

@@ -13,7 +13,9 @@ class CScope;
 
 //.............................................................................
 
-class CFunctionArg: public CUserModuleItem
+class CFunctionArg: 
+	public CUserModuleItem,
+	public CModuleItemInitializer
 {
 	friend class CTypeMgr;
 	friend class CFunction;
@@ -24,8 +26,6 @@ protected:
 	CType* m_pType;
 	CImportType* m_pType_i;
 	uint_t m_PtrTypeFlags;
-	rtl::CBoxListT <CToken> m_Initializer;
-	rtl::CString m_InitializerString;
 
 public:
 	CFunctionArg ();
@@ -46,21 +46,6 @@ public:
 	GetPtrTypeFlags ()
 	{
 		return m_PtrTypeFlags;
-	}
-
-	rtl::CConstBoxListT <CToken>
-	GetInitializer ()
-	{
-		return m_Initializer;
-	}
-
-	rtl::CString
-	GetInitializerString ()
-	{
-		if (m_InitializerString.IsEmpty ())
-			m_InitializerString = CToken::GetTokenListString (m_Initializer);
-
-		return m_InitializerString;
 	}
 
 protected:
