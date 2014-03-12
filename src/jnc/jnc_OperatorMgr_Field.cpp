@@ -362,7 +362,8 @@ COperatorMgr::GetPropertyField (
 
 	case EModuleItem_Alias:
 		return EvaluateAlias (
-			pMember->GetItemDecl ()->GetParentUnit (),
+			pMember->GetItemDecl (),
+			OpValue.GetClosure (),
 			((CAlias*) pMember)->GetInitializer (),
 			pResultValue
 			);

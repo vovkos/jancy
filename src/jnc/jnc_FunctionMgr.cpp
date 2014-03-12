@@ -45,6 +45,14 @@ CFunctionMgr::Clear ()
 	memset (m_LazyStdFunctionArray, 0, sizeof (m_LazyStdFunctionArray));
 }
 
+CValue
+CFunctionMgr::OverrideThisValue (const CValue& Value)
+{
+	CValue PrevThisValue = m_ThisValue;
+	m_ThisValue = Value;
+	return PrevThisValue;
+}
+
 CFunction*
 CFunctionMgr::CreateFunction (
 	EFunction FunctionKind,

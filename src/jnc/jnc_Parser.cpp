@@ -1996,7 +1996,7 @@ CParser::LookupIdentifier (
 
 	case EModuleItem_Alias:
 		return m_pModule->m_OperatorMgr.EvaluateAlias (
-			pItem->GetItemDecl ()->GetParentUnit (),
+			pItem->GetItemDecl (),
 			((CAlias*) pItem)->GetInitializer (),
 			pValue
 			);

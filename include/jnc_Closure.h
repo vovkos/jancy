@@ -38,6 +38,13 @@ public:
 			m_ArgValueList.GetHead ()->GetType ()->GetTypeKind () == EType_ClassPtr;
 	}
 
+	CValue
+	GetThisValue ()
+	{
+		ASSERT (IsMemberClosure ());
+		return *m_ArgValueList.GetHead ();
+	}
+
 	bool
 	IsSimpleClosure ()
 	{

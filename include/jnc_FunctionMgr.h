@@ -113,6 +113,9 @@ public:
 	}
 
 	CValue
+	OverrideThisValue (const CValue& Value);
+
+	CValue
 	GetScopeLevel ()
 	{
 		return m_ScopeLevelValue;

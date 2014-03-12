@@ -548,7 +548,21 @@ COperatorMgr::ParseAutoSizeArrayCurlyInitializer (const rtl::CConstBoxListT <CTo
 
 bool
 COperatorMgr::EvaluateAlias (
-	CUnit* pUnit,
+	CModuleItemDecl* pDecl,
+	const CValue& ThisValue,
+	const rtl::CConstBoxListT <CToken> TokenList,
+	CValue* pResultValue
+	)
+{
+	CValue PrevThisValue = m_pModule->m_FunctionMgr.OverrideThisValue (ThisValue);
+	bool Result = EvaluateAlias (pDecl, TokenList, pResultValue);
+	m_pModule->m_FunctionMgr.OverrideThisValue (PrevThisValue);
+	return true;
+}
+
+bool
+COperatorMgr::EvaluateAlias (
+	CModuleItemDecl* pDecl,
 	const rtl::CConstBoxListT <CToken> TokenList,
 	CValue* pResultValue
 	)
@@ -557,6 +571,7 @@ COperatorMgr::EvaluateAlias (
 	Parser.m_pModule = m_pModule;
 	Parser.m_Stage = CParser::EStage_Pass2;
 
+	m_pModule->m_NamespaceMgr.OpenNamespace (pDecl->GetParentNamespace ());
 	m_pModule->m_NamespaceMgr.LockSourcePos ();
 
 	bool Result = Parser.ParseTokenList (ESymbol_expression_save_value, TokenList);
@@ -564,6 +579,7 @@ COperatorMgr::EvaluateAlias (
 		return false;
 
 	m_pModule->m_NamespaceMgr.UnlockSourcePos ();
+	m_pModule->m_NamespaceMgr.CloseNamespace ();
 
 	*pResultValue = Parser.m_ExpressionValue;
 	return true;

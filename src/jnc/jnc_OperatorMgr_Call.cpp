@@ -342,6 +342,7 @@ COperatorMgr::CallOperator (
 bool
 COperatorMgr::CastArgValueList (
 	CFunctionType* pFunctionType,
+	CClosure* pClosure,
 	rtl::CBoxListT <CValue>* pArgValueList
 	)
 {
@@ -394,7 +395,7 @@ COperatorMgr::CastArgValueList (
 				return false;
 			}
 
-			Result = EvaluateAlias (pArg->GetItemDecl ()->GetParentUnit (), Initializer, &ArgValue);
+			Result = EvaluateAlias (pArg->GetItemDecl (), pClosure, Initializer, &ArgValue);
 			if (!Result)
 				return false;
 		}
@@ -427,7 +428,7 @@ COperatorMgr::CastArgValueList (
 			return false;
 		}
 
-		Result = EvaluateAlias (pArg->GetItemDecl ()->GetParentUnit (), Initializer, &ArgValue);
+		Result = EvaluateAlias (pArg->GetItemDecl (), pClosure, Initializer, &ArgValue);
 		if (!Result)
 			return false;
 
@@ -506,7 +507,7 @@ COperatorMgr::CallImpl (
 	CValue* pResultValue
 	)
 {
-	bool Result = CastArgValueList (pFunctionType, pArgValueList);
+	bool Result = CastArgValueList (pFunctionType, PfnValue.GetClosure (), pArgValueList);
 	if (!Result)
 		return false;
 

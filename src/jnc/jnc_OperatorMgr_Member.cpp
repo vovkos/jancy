@@ -148,7 +148,7 @@ COperatorMgr::GetNamespaceMember (
 
 	case EModuleItem_Alias:
 		return EvaluateAlias (
-			pItem->GetItemDecl ()->GetParentUnit (),
+			pItem->GetItemDecl (),
 			((CAlias*) pItem)->GetInitializer (),
 			pResultValue
 			);

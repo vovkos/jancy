@@ -698,10 +698,31 @@ public:
 
 	bool
 	EvaluateAlias (
-		CUnit* pUnit,
+		CModuleItemDecl* pDecl,
 		const rtl::CConstBoxListT <CToken> TokenList,
 		CValue* pResultValue
 		);
+
+	bool
+	EvaluateAlias (
+		CModuleItemDecl* pDecl,
+		const CValue& ThisValue,
+		const rtl::CConstBoxListT <CToken> TokenList,
+		CValue* pResultValue
+		);
+
+	bool
+	EvaluateAlias (
+		CModuleItemDecl* pDecl,
+		CClosure* pClosure,
+		const rtl::CConstBoxListT <CToken> TokenList,
+		CValue* pResultValue
+		)
+	{
+		return pClosure && pClosure->IsMemberClosure () ?			
+			EvaluateAlias (pDecl, pClosure->GetThisValue (), TokenList, pResultValue) :
+			EvaluateAlias (pDecl, CValue (), TokenList, pResultValue);
+	}
 
 	// member operators
 
@@ -1485,6 +1506,7 @@ protected:
 	bool
 	CastArgValueList (
 		CFunctionType* pFunctionType,
+		CClosure* pClosure,
 		rtl::CBoxListT <CValue>* pArgValueList
 		);
 

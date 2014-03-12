@@ -1,30 +1,62 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int foo ()
+class C1
 {
-	printf ("foo ()\n");
-	return 0;
+	enum Def
+	{
+		X = 10,
+		Y = 20
+	}
+
+	int m_member = 500;
+
+	foo (
+		int x = Def.X, 
+		int y = bar ()
+		)
+	{
+		printf ("C1.foo (%d, %d)\n", x, y);
+	}
+
+	int bar ()
+	{
+		return m_member;
+	}
 }
 
-event g_onChanged ();
-
-property g_prop
+class C2
 {
-	bindable event m_onChanged () => g_onChanged;
-	int autoget m_value;
+	int m_classValue;
+	event m_classOnChanged ();
 
-	set (int x)
+	property m_prop
 	{
-		m_value = x;
-		m_onChanged ();
+		int autoget m_value => m_classValue;
+		bindable event m_onChanged () => m_classOnChanged;
+
+		set (int x)
+		{
+			m_value = x;
+			m_onChanged ();
+		}
 	}
+}
+
+foo ()
+{
+	printf ("foo ()\n");
 }
 
 int main ()
 {
-	bindingof (g_prop) += foo;	
+	C1 c1;
+	c1.foo (1);
 
-	g_onChanged ();
+	C2 c2;
+	c2.m_classOnChanged += foo;
+	c2.m_prop = 555;
+
+	printf ("m_classValue = %d\n", c2.m_classValue);
 
 	return 0;
 }
