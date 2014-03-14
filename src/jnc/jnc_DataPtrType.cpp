@@ -130,5 +130,28 @@ CDataPtrType::GcMark (
 
 //.............................................................................
 
+TDataPtr
+StrDup (
+	const char* p,
+	size_t Length
+	)
+{
+	if (Length == -1)
+		Length = p ? strlen (p) : 0;
+
+	char* pDst = (char*) AXL_MEM_ALLOC (Length + 1);
+	memcpy (pDst, p, Length);
+	pDst [Length] = 0;
+
+	jnc::TDataPtr Ptr;
+	Ptr.m_p = pDst;
+	Ptr.m_pRangeBegin = pDst;
+	Ptr.m_pRangeEnd = pDst + Length + 1;
+	Ptr.m_pObject = jnc::GetStaticObjHdr ();
+	return Ptr;
+}
+
+//.............................................................................
+
 } // namespace jnc {
 

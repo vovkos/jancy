@@ -138,12 +138,20 @@ COperatorMgr::Prime (
 			return false;
 		}
 
+		CValue SizeValue (pType->GetSize (), EType_SizeT);
+		if (ElementCountValue)
+		{
+			bool Result = BinaryOperator (EBinOp_Mul, &SizeValue, ElementCountValue);
+			if (!Result)
+				return false;
+		}
+
 		pResultValue->SetLeanDataPtr (
 			PtrValue.GetLlvmValue (),
 			pType->GetDataPtrType (EDataPtrType_Lean),
 			ObjHdrValue,
 			PtrValue,
-			pType->GetSize ()
+			SizeValue
 			);
 
 		return true;

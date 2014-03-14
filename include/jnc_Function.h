@@ -238,6 +238,11 @@ enum EStdFunc
 
 	EStdFunc_Printf,
 
+	// int
+	// atoi (char const* format);
+
+	EStdFunc_Atoi,
+
 	// jnc.TTlsStruct*
 	// jnc.GetTls ();
 

@@ -35,6 +35,7 @@ public:
 		JNC_API_STD_FUNCTION (EStdFunc_MemCpy, MemCpy)
 		JNC_API_STD_FUNCTION (EStdFunc_MemCat, MemCat)
 		JNC_API_STD_FUNCTION (EStdFunc_Rand, Rand)
+		JNC_API_STD_FUNCTION (EStdFunc_Atoi, Atoi)
 		JNC_API_STD_FUNCTION (EStdFunc_Format, Format)
 		JNC_API_STD_FUNCTION (EStdFunc_GetTls, GetTls)
 		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_a, AppendFmtLiteral_a)
@@ -163,6 +164,13 @@ public:
 	Rand ()
 	{
 		return rand ();
+	}
+
+	static
+	int
+	Atoi (TDataPtr Ptr)
+	{
+		return Ptr.m_p ? atoi ((char*) Ptr.m_p) : 0;
 	}
 
 	static

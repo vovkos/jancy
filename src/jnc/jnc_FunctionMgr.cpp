@@ -990,6 +990,13 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 		pFunction = CreateFunction ("printf", "printf", pFunctionType);
 		break;
 
+	case EStdFunc_Atoi:
+		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
+		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Thin, EPtrTypeFlag_Const);
+		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
+		pFunction = CreateFunction ("atoi", "atoi", pFunctionType);
+		break;
+
 	case EStdFunc_Format:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Normal, EPtrTypeFlag_Const);
 		ArgTypeArray [0] = pReturnType;
@@ -1113,6 +1120,7 @@ CFunctionMgr::GetLazyStdFunction (EStdFunc Func)
 		"memcat",             // EStdFunc_MemCat,
 		"rand",               // EStdFunc_Rand,
 		"printf",             // EStdFunc_Printf,
+		"atoi",               // EStdFunc_Atoi,
 		NULL, // EStdFunc_GetTls,
 		NULL, // EStdFunc_AppendFmtLiteral_a,
 		NULL, // EStdFunc_AppendFmtLiteral_p,
