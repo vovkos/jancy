@@ -345,7 +345,7 @@ CRuntime::GcTryAllocate (
 	size_t PrevGcLevel = GcMakeThreadSafe ();
 	ASSERT (PrevGcLevel); // otherwise there is risk of losing return value
 
-	size_t Size = sizeof (TObjHdr) + pType->GetSize ();
+	size_t Size = sizeof (TObjHdr) + pType->GetSize () * ElementCount;
 	if (ElementCount > 1)
 		Size += sizeof (size_t);
 
