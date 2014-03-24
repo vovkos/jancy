@@ -1,9 +1,16 @@
 //.............................................................................
 
+foo (int* p)
+{
+}
+
 int main ()
 {
-	object <int> x construct (10);
-	printf ("x.m_value = %d\n", x.m_value);
+	int x;
+	int safe* p2 = &x;
+
+	foo (p2);
+
 	return 0; 
 }
  

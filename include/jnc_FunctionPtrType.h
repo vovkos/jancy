@@ -46,16 +46,16 @@ public:
 	CFunctionPtrType*
 	GetCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Checked) :
+		return !(m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
 			this;
 	}
 
 	CFunctionPtrType*
 	GetUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Checked) :
+		return (m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
 			this;
 	}
 

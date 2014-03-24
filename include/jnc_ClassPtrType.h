@@ -49,16 +49,16 @@ public:
 	CClassPtrType*
 	GetCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Checked) :
+		return !(m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
 			this;
 	}
 
 	CClassPtrType*
 	GetUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Checked) :
+		return (m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
 			this;
 	}
 

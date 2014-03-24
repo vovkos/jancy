@@ -72,7 +72,7 @@ COperatorMgr::CheckDataPtrRange (const CValue& Value)
 	CDataPtrType* pType = (CDataPtrType*) Value.GetType ();
 	EDataPtrType PtrTypeKind = pType->GetPtrTypeKind ();
 
-	if (pType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pType->GetFlags () & EPtrTypeFlag_Safe)
 		return;
 
 	CValue PtrValue;
@@ -192,7 +192,7 @@ COperatorMgr::CheckClassPtrNull (const CValue& Value)
 	CClassPtrType* pPtrType = (CClassPtrType*) Value.GetType ();
 	EClassPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
 
-	if (pPtrType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pPtrType->GetFlags () & EPtrTypeFlag_Safe)
 		return;
 
 	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "check null class pointer");
@@ -219,7 +219,7 @@ COperatorMgr::CheckFunctionPtrNull (const CValue& Value)
 	CFunctionPtrType* pPtrType = (CFunctionPtrType*) Value.GetType ();
 	EFunctionPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
 
-	if (pPtrType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pPtrType->GetFlags () & EPtrTypeFlag_Safe)
 		return;
 
 	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "check null function pointer");
@@ -269,7 +269,7 @@ COperatorMgr::CheckPropertyPtrNull (const CValue& Value)
 	CPropertyPtrType* pPtrType = (CPropertyPtrType*) Value.GetType ();
 	EPropertyPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
 
-	if (pPtrType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pPtrType->GetFlags () & EPtrTypeFlag_Safe)
 		return;
 
 	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "check null property pointer");

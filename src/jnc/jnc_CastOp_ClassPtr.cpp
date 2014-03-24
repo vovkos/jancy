@@ -102,7 +102,7 @@ CCast_ClassPtr::LlvmCast (
 	CClassType* pSrcClassType = pSrcType->GetTargetType ();
 	CClassType* pDstClassType = pDstType->GetTargetType ();
 
-	if (pDstType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pDstType->GetFlags () & EPtrTypeFlag_Safe)
 		m_pModule->m_OperatorMgr.CheckClassPtrNull (OpValue);
 
 	if (pDstClassType->GetClassTypeKind () == EClassType_StdObject ||

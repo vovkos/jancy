@@ -55,7 +55,6 @@ GetStorageKindString (EStorage StorageKind)
 		"virtual",                  // EStorage_Virtual,
 		"override",                 // EStorage_Override,
 		"mutable",                  // EStorage_Mutable,
-		"nullable",                 // EStorage_Nullable,
 		"this",                     // EStorage_This,
 	};
 

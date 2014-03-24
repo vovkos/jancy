@@ -307,7 +307,7 @@ CTypeMgr::ResolveImportTypes ()
 		if (!pType)
 			return false;
 
-		if (pImportType->GetFlags () & EPtrTypeFlag_Checked)
+		if (pImportType->GetFlags () & EPtrTypeFlag_Safe)
 			pType = GetCheckedPtrType (pType);
 
 		pImportType->m_pActualType = pType;
@@ -982,7 +982,7 @@ CTypeMgr::GetMemberMethodType (
 	)
 {
 	if (!IsClassType (pParentType, EClassType_StdObject)) // std object members are miscellaneous closures
-		ThisArgPtrTypeFlags |= EPtrTypeFlag_Checked;
+		ThisArgPtrTypeFlags |= EPtrTypeFlag_Safe;
 
 	CType* pThisArgType = pParentType->GetThisArgType (ThisArgPtrTypeFlags);
 	CFunctionArg* pThisArg = GetSimpleFunctionArg (EStorage_This, pThisArgType);
@@ -1641,7 +1641,7 @@ CTypeMgr::GetDataPtrType (
 	size_t i2 = PtrTypeKind;
 	size_t i3 = (Flags & EPtrTypeFlag_Const) ? 0 : 1;
 	size_t i4 = (Flags & EPtrTypeFlag_Volatile) ? 0 : 1;
-	size_t i5 = (Flags & EPtrTypeFlag_Markup) ? 2 : (Flags & EPtrTypeFlag_Checked) ? 1 : 0;
+	size_t i5 = (Flags & EPtrTypeFlag_Safe) ? 1 : 0;
 
 	if (pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5])
 		return pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5];
@@ -1726,7 +1726,7 @@ CTypeMgr::GetClassPtrType (
 	size_t i2 = PtrTypeKind;
 	size_t i3 = (Flags & EPtrTypeFlag_Const) ? 0 : 1;
 	size_t i4 = (Flags & EPtrTypeFlag_Volatile) ? 0 : 1;
-	size_t i5 = (Flags & EPtrTypeFlag_Checked) ? 0 : 1;
+	size_t i5 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
 
 	if (pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5])
 		return pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5];
@@ -1765,7 +1765,7 @@ CTypeMgr::GetFunctionPtrType (
 
 	size_t i1 = TypeKind == EType_FunctionRef;
 	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Checked) ? 0 : 1;
+	size_t i3 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
 
 	if (pTuple->m_PtrTypeArray [i1] [i2] [i3])
 		return pTuple->m_PtrTypeArray [i1] [i2] [i3];
@@ -1851,7 +1851,7 @@ CTypeMgr::GetPropertyPtrType (
 
 	size_t i1 = TypeKind == EType_PropertyRef;
 	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Checked) ? 0 : 1;
+	size_t i3 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
 
 	if (pTuple->m_PtrTypeArray [i1] [i2] [i3])
 		return pTuple->m_PtrTypeArray [i1] [i2] [i3];
@@ -2383,7 +2383,7 @@ CTypeMgr::CreateSchedulerType ()
 {
 	CFunctionType* pFunctionType = (CFunctionType*) GetStdType (EStdType_SimpleFunction);
 	CType* pReturnType = GetPrimitiveType (EType_Void);
-	CType* pArgType = pFunctionType->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Checked);
+	CType* pArgType = pFunctionType->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Safe);
 	CFunctionType* pScheduleType = GetFunctionType (pReturnType, &pArgType, 1);
 
 	CClassType* pType = CreateClassType ("Scheduler", "jnc.Scheduler");

@@ -439,7 +439,7 @@ COperatorMgr::CastOperator (
 
 	if (RawOpValue.GetValueKind () == EValue_Null)
 	{
-		if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && (pType->GetFlags () & EPtrTypeFlag_Checked))
+		if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && (pType->GetFlags () & EPtrTypeFlag_Safe))
 		{
 			SetCastError (RawOpValue, pType);
 			return false;

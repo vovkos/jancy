@@ -157,7 +157,7 @@ enum ETypeModifier
 	ETypeModifier_Volatile    = 0x00000010,
 	ETypeModifier_Weak        = 0x00000020,
 	ETypeModifier_Thin        = 0x00000040,
-	ETypeModifier_Unused      = 0x00000080,
+	ETypeModifier_Safe        = 0x00000080,
 	ETypeModifier_Cdecl       = 0x00000100,
 	ETypeModifier_Stdcall     = 0x00000200,
 	ETypeModifier_Array       = 0x00000400,
@@ -194,12 +194,14 @@ enum ETypeModifierMask
 		ETypeModifier_Indexed,
 
 	ETypeModifierMask_DataPtr =
+		ETypeModifier_Safe |
 		ETypeModifier_Const |
 		ETypeModifier_DConst |
 		ETypeModifier_Volatile |
 		ETypeModifier_Thin,
 
 	ETypeModifierMask_ClassPtr =
+		ETypeModifier_Safe |
 		ETypeModifier_Const |
 		ETypeModifier_DConst |
 		ETypeModifier_Volatile |
@@ -208,10 +210,12 @@ enum ETypeModifierMask
 		ETypeModifier_Weak,
 
 	ETypeModifierMask_FunctionPtr =
+		ETypeModifier_Safe |
 		ETypeModifier_Weak |
 		ETypeModifier_Thin,
 
 	ETypeModifierMask_PropertyPtr =
+		ETypeModifier_Safe |
 		ETypeModifier_Weak |
 		ETypeModifier_Thin,
 
@@ -295,8 +299,8 @@ enum ETypeFlag
 
 enum EPtrTypeFlag
 {
-	EPtrTypeFlag_Checked   = 0x0010000, // all ptr
-	EPtrTypeFlag_Markup    = 0x0020000, // data ptr only
+	EPtrTypeFlag_Safe      = 0x0010000, // all ptr
+	EPtrTypeFlag_Unused    = 0x0020000, // unused
 	EPtrTypeFlag_Const     = 0x0040000, // class & data ptr
 	EPtrTypeFlag_ConstD    = 0x0080000, // class & data ptr
 	EPtrTypeFlag_Volatile  = 0x0100000, // class & data ptr

@@ -118,10 +118,6 @@ storage_specifier
 			{
 				$.m_StorageKind = EStorage_Mutable;
 			}
-	|	EToken_Nullable
-			{
-				$.m_StorageKind = EStorage_Nullable;
-			}
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -312,6 +308,10 @@ type_modifier
 	|	EToken_Thin
 			{
 				$.m_TypeModifier = ETypeModifier_Thin;
+			}
+	|	EToken_Safe
+			{
+				$.m_TypeModifier = ETypeModifier_Safe;
 			}
 	|	EToken_Cdecl
 			{

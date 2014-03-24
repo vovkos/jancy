@@ -45,7 +45,7 @@ CProperty::GetDefaultConstructor ()
 
 	if (m_pParentType)
 	{
-		CType* pThisArgType = m_pParentType->GetThisArgType (EPtrTypeFlag_Checked);
+		CType* pThisArgType = m_pParentType->GetThisArgType (EPtrTypeFlag_Safe);
 		ThisArgValue.m_Value.SetType (pThisArgType);
 		ArgList.InsertTail (&ThisArgValue);
 	}

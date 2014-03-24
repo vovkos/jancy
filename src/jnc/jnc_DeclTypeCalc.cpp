@@ -709,7 +709,19 @@ CDeclTypeCalc::GetDataPtrType (CType* pDataType)
 			return NULL;
 	}
 
-	EDataPtrType PtrTypeKind = (m_TypeModifiers & ETypeModifier_Thin) ? EDataPtrType_Thin : EDataPtrType_Normal;
+	EDataPtrType PtrTypeKind = EDataPtrType_Normal;
+
+	if (m_TypeModifiers & ETypeModifier_Thin)
+	{
+		if (m_TypeModifiers & ETypeModifier_Safe)
+		{
+			err::SetFormatStringError ("'thin' data pointer cannot be 'safe'");
+			return NULL;
+		}
+
+		PtrTypeKind = EDataPtrType_Thin;
+	}
+	
 	uint_t TypeFlags = GetPtrTypeFlagsFromModifiers (m_TypeModifiers);
 
 	m_TypeModifiers &= ~ETypeModifierMask_DataPtr;

@@ -146,16 +146,16 @@ public:
 	CImportPtrType*
 	GetCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags | EPtrTypeFlag_Checked) :
+		return !(m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags | EPtrTypeFlag_Safe) :
 			this;
 	}
 
 	CImportPtrType*
 	GetUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags & ~EPtrTypeFlag_Checked) :
+		return (m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags & ~EPtrTypeFlag_Safe) :
 			this;
 	}
 

@@ -75,7 +75,6 @@ enum EStorage
 	EStorage_Virtual,
 	EStorage_Override,
 	EStorage_Mutable,
-	EStorage_Nullable,
 	EStorage_This,
 	EStorage__Count,
 };

@@ -126,7 +126,7 @@ COperatorMgr::PrepareDataPtr (
 	}
 	else if (PtrTypeKind == EDataPtrType_Lean)
 	{
-		if (pType->GetFlags () & EPtrTypeFlag_Checked)
+		if (pType->GetFlags () & EPtrTypeFlag_Safe)
 		{
 			pResultValue->OverrideType (Value, pResultType);
 			return true;
@@ -139,7 +139,7 @@ COperatorMgr::PrepareDataPtr (
 	{
 		m_pModule->m_LlvmIrBuilder.CreateExtractValue (Value, 0, pResultType, &PtrValue);
 
-		if (pType->GetFlags () & EPtrTypeFlag_Checked)
+		if (pType->GetFlags () & EPtrTypeFlag_Safe)
 		{
 			*pResultValue = PtrValue;
 			return true;

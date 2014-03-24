@@ -45,7 +45,6 @@ enum EToken
 	EToken_Virtual,
 	EToken_Override,
 	EToken_Mutable,
-	EToken_Nullable,
 
 	// access specifiers
 
@@ -63,6 +62,7 @@ enum EToken
 	EToken_Volatile,
 	EToken_Weak,
 	EToken_Thin,
+	EToken_Safe,
 	EToken_Throws,
 	EToken_Cdecl,
 	EToken_Stdcall,
@@ -219,7 +219,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
 	AXL_LEX_TOKEN_NAME (EToken_Virtual,      "virtual")
 	AXL_LEX_TOKEN_NAME (EToken_Override,     "override")
 	AXL_LEX_TOKEN_NAME (EToken_Mutable,      "mutable")
-	AXL_LEX_TOKEN_NAME (EToken_Nullable,     "nullable")
 
 	// access specifiers
 
@@ -237,6 +236,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
 	AXL_LEX_TOKEN_NAME (EToken_Volatile,     "volatile")
 	AXL_LEX_TOKEN_NAME (EToken_Weak,         "weak")
 	AXL_LEX_TOKEN_NAME (EToken_Thin,         "thin")
+	AXL_LEX_TOKEN_NAME (EToken_Safe,         "safe")
 	AXL_LEX_TOKEN_NAME (EToken_Throws,       "throws")
 	AXL_LEX_TOKEN_NAME (EToken_Cdecl,        "cdecl")
 	AXL_LEX_TOKEN_NAME (EToken_Stdcall,      "stdcall")

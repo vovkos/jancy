@@ -139,7 +139,7 @@ CBinOp_Idx::ArrayIndexOperator (
 
 	uint_t PtrTypeFlags = pOpType1->GetFlags ();
 
-	if (PtrTypeFlags & EPtrTypeFlag_Checked)
+	if (PtrTypeFlags & EPtrTypeFlag_Safe)
 	{
 		if (OpValue2.GetValueKind () == EValue_Const)
 		{			
@@ -157,7 +157,7 @@ CBinOp_Idx::ArrayIndexOperator (
 		}
 		else
 		{
-			PtrTypeFlags &= ~EPtrTypeFlag_Checked;
+			PtrTypeFlags &= ~EPtrTypeFlag_Safe;
 		}
 	}
 	

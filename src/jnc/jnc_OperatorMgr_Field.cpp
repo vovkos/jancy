@@ -303,7 +303,7 @@ COperatorMgr::GetClassField (
 		&PtrValue
 		);
 
-	uint_t PtrTypeFlags = pOpType->GetFlags () | pField->GetPtrTypeFlags () | EPtrTypeFlag_Checked;
+	uint_t PtrTypeFlags = pOpType->GetFlags () | pField->GetPtrTypeFlags () | EPtrTypeFlag_Safe;
 	if (pField->GetStorageKind () == EStorage_Mutable)
 		PtrTypeFlags &= ~EPtrTypeFlag_Const;
 

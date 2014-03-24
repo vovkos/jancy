@@ -331,7 +331,7 @@ CValue::SetVariable (CVariable* pVariable)
 	m_pLlvmValue = pVariable->GetLlvmValue ();
 	m_pVariable = pVariable;
 
-	uint_t PtrTypeFlags = pVariable->GetPtrTypeFlags () | EPtrTypeFlag_Checked;
+	uint_t PtrTypeFlags = pVariable->GetPtrTypeFlags () | EPtrTypeFlag_Safe;
 
 	CType* pType = pVariable->GetType ();
 	if (pType->GetTypeKind () == EType_Class)
@@ -360,7 +360,7 @@ CValue::SetFunction (CFunction* pFunction)
 	m_pType = pFunction->GetType ()->GetFunctionPtrType (
 		EType_FunctionRef,
 		EFunctionPtrType_Thin,
-		EPtrTypeFlag_Checked
+		EPtrTypeFlag_Safe
 		);
 
 	if (!pFunction->IsVirtual ())
@@ -388,7 +388,7 @@ CValue::SetProperty (CProperty* pProperty)
 		pProperty->GetParentNamespace (),
 		EType_PropertyRef,
 		EPropertyPtrType_Thin,
-		EPtrTypeFlag_Checked
+		EPtrTypeFlag_Safe
 		);
 
 	// don't assign LlvmValue yet cause property LlvmValue is only needed for pointers

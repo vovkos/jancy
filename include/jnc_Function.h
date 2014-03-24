@@ -205,7 +205,7 @@ enum EStdFunc
 	EStdFunc_Format,
 
 	// size_t
-	// strlen (nullable const char* p);
+	// strlen (const char* nullable p);
 
 	EStdFunc_StrLen,
 

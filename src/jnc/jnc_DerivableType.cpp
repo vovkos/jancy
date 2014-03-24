@@ -46,7 +46,7 @@ CDerivableType::GetDefaultConstructor ()
 	if (m_pDefaultConstructor)
 		return m_pDefaultConstructor;
 
-	CType* pThisArgType = GetThisArgType (EPtrTypeFlag_Checked);
+	CType* pThisArgType = GetThisArgType (EPtrTypeFlag_Safe);
 
 	// avoid allocations
 

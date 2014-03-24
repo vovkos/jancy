@@ -360,8 +360,22 @@ CVariableMgr::InitializeGlobalStaticVariables ()
 bool
 CVariableMgr::AllocatePrimeInitializeVariable (CVariable* pVariable)
 {
-	EStorage StorageKind = pVariable->m_StorageKind;
+	CType* pType = pVariable->GetType ();
 
+	if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && 
+		(pType->GetFlags () & EPtrTypeFlag_Safe) &&
+		pVariable->GetInitializer ().IsEmpty ())
+	{
+		err::SetFormatStringError (
+			"missing initalizer for '%s' variable '%s'", 
+			pType->GetTypeString ().cc (),
+			pVariable->GetQualifiedName ().cc ()
+			);
+
+		return false;
+	}
+
+	EStorage StorageKind = pVariable->m_StorageKind;
 	switch (StorageKind)
 	{
 	case EStorage_Static:

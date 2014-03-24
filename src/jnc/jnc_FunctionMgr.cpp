@@ -914,7 +914,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 
 	case EStdFunc_CreateThread:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u);
-		ArgTypeArray [0] = ((CFunctionType*) m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleFunction))->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Checked);
+		ArgTypeArray [0] = ((CFunctionType*) m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleFunction))->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Safe);
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
 		pFunction = CreateFunction ("createThread", "jnc.createThread", pFunctionType);
 		break;

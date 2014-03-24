@@ -51,7 +51,6 @@ main := |*
 'virtual'         |
 'override'        |
 'mutable'         |
-'nullable'        |
 
 'public'          |
 'protected'       |
@@ -63,6 +62,7 @@ main := |*
 'const'           |
 'dconst'          |
 'volatile'        |
+'safe'            |
 'weak'            |
 'thin'            |
 'throws'          |

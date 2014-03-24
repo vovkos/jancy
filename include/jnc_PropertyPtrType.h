@@ -55,16 +55,16 @@ public:
 	CPropertyPtrType*
 	GetCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Checked) :
+		return !(m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
 			this;
 	}
 
 	CPropertyPtrType*
 	GetUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Checked) ?
-			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Checked) :
+		return (m_Flags & EPtrTypeFlag_Safe) ?
+			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
 			this;
 	}
 

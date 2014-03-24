@@ -208,7 +208,7 @@ GetTypeModifierString (ETypeModifier Modifier)
 		"volatile",     // ETypeModifier_Volatile    = 0x00000010,
 		"weak",         // ETypeModifier_Weak        = 0x00000020,
 		"thin",         // ETypeModifier_Thin        = 0x00000040,
-		"unused-0",     // ETypeModifier_Unused      = 0x00000080,
+		"safe",         // ETypeModifier_Safe        = 0x00000080,
 		"cdecl",        // ETypeModifier_Cdecl       = 0x00000100,
 		"stdcall",      // ETypeModifier_Stdcall     = 0x00000200,
 		"array",        // ETypeModifier_Array       = 0x00000400,
@@ -259,8 +259,8 @@ GetPtrTypeFlagString (EPtrTypeFlag Flag)
 {
 	static const char* StringTable [] =
 	{
-		"checked",  // EPtrTypeFlag_Checked   = 0x0010000
-		"markup",   // EPtrTypeFlag_Markup    = 0x0020000
+		"safe",     // EPtrTypeFlag_Safe      = 0x0010000
+		"unused",   // EPtrTypeFlag_Unused    = 0x0020000
 		"const",    // EPtrTypeFlag_Const     = 0x0040000
 		"dconst",   // EPtrTypeFlag_ConstD    = 0x0080000
 		"volatile", // EPtrTypeFlag_Volatile  = 0x0100000
@@ -282,11 +282,8 @@ GetPtrTypeFlagString (uint_t Flags)
 {
 	rtl::CString String;
 
-	if (Flags & EPtrTypeFlag_Checked)
-		String = "checked ";
-
-	if (Flags & EPtrTypeFlag_Markup)
-		String = "markup ";
+	if (Flags & EPtrTypeFlag_Safe)
+		String = "safe ";
 
 	if (Flags & EPtrTypeFlag_Const)
 		String += "const ";
@@ -318,11 +315,8 @@ GetPtrTypeFlagSignature (uint_t Flags)
 {
 	rtl::CString Signature;
 
-	if (Flags & EPtrTypeFlag_Checked)
+	if (Flags & EPtrTypeFlag_Safe)
 		Signature = 's';
-
-	if (Flags & EPtrTypeFlag_Markup)
-		Signature = 'm';
 
 	if (Flags & EPtrTypeFlag_Const)
 		Signature += 'c';
@@ -345,9 +339,12 @@ GetPtrTypeFlagsFromModifiers (uint_t Modifiers)
 {
 	uint_t Flags = 0;
 
+	if (Modifiers & ETypeModifier_Safe)
+		Flags |= EPtrTypeFlag_Safe;
+
 	if (Modifiers & ETypeModifier_Volatile)
 		Flags |= EPtrTypeFlag_Volatile;
-
+	
 	if (Modifiers & ETypeModifier_Const)
 		Flags |= EPtrTypeFlag_Const;
 	else if (Modifiers & ETypeModifier_DConst)

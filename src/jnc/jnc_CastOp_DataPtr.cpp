@@ -200,7 +200,7 @@ CCast_DataPtr_Normal2Normal::LlvmCast (
 	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
 	ASSERT (pType->GetTypeKind () == EType_DataPtr);
 
-	if (pType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pType->GetFlags () & EPtrTypeFlag_Safe)
 		m_pModule->m_OperatorMgr.CheckDataPtrRange (OpValue);
 
 	CValue PtrValue;
@@ -277,7 +277,7 @@ CCast_DataPtr_Lean2Normal::LlvmCast (
 
 	m_pModule->m_OperatorMgr.GetLeanDataPtrRange (OpValue, &RangeBeginValue, &RangeEndValue);
 
-	if (pType->GetFlags () & EPtrTypeFlag_Checked)
+	if (pType->GetFlags () & EPtrTypeFlag_Safe)
 		m_pModule->m_OperatorMgr.CheckDataPtrRange (OpValue);
 
 	m_pModule->m_OperatorMgr.GetLeanDataPtrObjHdr (OpValue, &ObjHdrValue);

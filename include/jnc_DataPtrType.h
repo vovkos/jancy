@@ -48,16 +48,16 @@ public:
 	CDataPtrType*
 	GetCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Checked) ?  
-			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Checked) : 
+		return !(m_Flags & EPtrTypeFlag_Safe) ?  
+			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) : 
 			this;			
 	}
 
 	CDataPtrType*
 	GetUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Checked) ?  
-			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Checked) : 
+		return (m_Flags & EPtrTypeFlag_Safe) ?  
+			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) : 
 			this;			
 	}
 
@@ -107,7 +107,7 @@ protected:
 struct TDataPtrTypeTuple: rtl::TListLink
 {
 	CStructType* m_pPtrStructType;
-	CDataPtrType* m_PtrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x checked
+	CDataPtrType* m_PtrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x safe
 };
 
 //.............................................................................

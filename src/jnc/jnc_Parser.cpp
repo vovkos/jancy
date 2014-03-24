@@ -1415,40 +1415,13 @@ CParser::CreateFormalArg (
 	if (!pType)
 		return NULL;
 
-	bool IsThinDataPtr =
-		pType->GetTypeKind () == EType_DataPtr &&
-		((CDataPtrType*) pType)->GetPtrTypeKind () == EDataPtrType_Thin;
-
-	switch (m_StorageKind)
+	if (m_StorageKind)
 	{
-	case EStorage_Undefined:
-		m_StorageKind = EStorage_Stack;
-		// and fall through
-
-	case EStorage_Stack:
-		if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && !IsThinDataPtr)
-			pType = m_pModule->m_TypeMgr.GetCheckedPtrType (pType);
-
-		break;
-
-	case EStorage_Nullable:
-		if (IsThinDataPtr)
-		{
-			err::SetFormatStringError ("'nullable' is irrelevant when applied to '%s'", pType->GetTypeString ().cc ());
-			return NULL;
-		}
-		else if (!(pType->GetTypeKindFlags () & ETypeKindFlag_Ptr))
-		{
-			err::SetFormatStringError ("'nullable' can only be applied to pointers");
-			return NULL;
-		}
-
-		break;
-
-	default:
 		err::SetFormatStringError ("invalid storage '%s' for argument", GetStorageKindString (m_StorageKind));
 		return NULL;
 	}
+
+	m_StorageKind = EStorage_Stack;
 
 	rtl::CString Name;
 

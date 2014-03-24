@@ -12,7 +12,7 @@ foo (int* p) // pointers arguments are checked before passing
 	printf ("foo (0x%x) { *p = %d }\n", p, *p);
 }
 
-bar (nullable int* p) // unless they are marked as 'nullable'
+bar (int const* p) // unless they are marked as 'nullable'
 {
 	printf ("bar (0x%x)\n", p);
 }

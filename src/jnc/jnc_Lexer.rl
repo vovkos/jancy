@@ -99,7 +99,6 @@ main := |*
 'virtual'        { CreateToken (EToken_Virtual); };
 'override'       { CreateToken (EToken_Override); };
 'mutable'        { CreateToken (EToken_Mutable); };
-'nullable'       { CreateToken (EToken_Nullable); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -121,6 +120,7 @@ main := |*
 'volatile'       { CreateToken (EToken_Volatile); };
 'weak'           { CreateToken (EToken_Weak); };
 'thin'           { CreateToken (EToken_Thin); };
+'safe'           { CreateToken (EToken_Safe); };
 'throws'         { CreateToken (EToken_Throws); };
 'cdecl'          { CreateToken (EToken_Cdecl); };
 'stdcall'        { CreateToken (EToken_Stdcall); };
