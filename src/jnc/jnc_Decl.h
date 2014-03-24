@@ -263,7 +263,6 @@ protected:
 	rtl::CStdListT <CDeclSuffix> m_SuffixList;
 	rtl::CBoxListT <CToken> m_Constructor;
 	rtl::CBoxListT <CToken> m_Initializer;
-	bool m_IsAlias;
 
 public:
 	CDeclarator ();

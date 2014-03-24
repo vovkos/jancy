@@ -44,6 +44,7 @@ GetStorageKindString (EStorage StorageKind)
 	{
 		"undefined-storage-class",  // EStorage_Undefined = 0,
 		"typedef",                  // EStorage_Typedef,
+		"alias",                    // EStorage_Alias,
 		"static",                   // EStorage_Static,
 		"thread",                   // EStorage_Thread,
 		"stack",                    // EStorage_Stack,

@@ -76,6 +76,10 @@ storage_specifier
 			{
 				$.m_StorageKind = EStorage_Typedef;
 			}
+	|	EToken_Alias
+			{
+				$.m_StorageKind = EStorage_Alias;
+			}
 	|	EToken_Static
 			{
 				$.m_StorageKind = EStorage_Static;

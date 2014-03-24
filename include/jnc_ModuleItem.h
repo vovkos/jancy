@@ -63,6 +63,7 @@ enum EModuleItemFlag
 enum EStorage
 {
 	EStorage_Undefined = 0,
+	EStorage_Alias,
 	EStorage_Typedef,
 	EStorage_Static,
 	EStorage_Thread,

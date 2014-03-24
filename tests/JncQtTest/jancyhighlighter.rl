@@ -41,6 +41,7 @@ main := |*
 'pack'            |
 
 'typedef'         |
+'alias'           |
 'static'          |
 'thread'          |
 'stack'           |

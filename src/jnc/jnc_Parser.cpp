@@ -462,24 +462,28 @@ CParser::Declare (CDeclarator* pDeclarator)
 		return false;
 	}
 
-	if (pDeclarator->m_IsAlias)
-		return DeclareAlias (pDeclarator, pType, DeclFlags);
-
-	if (m_StorageKind == EStorage_Typedef)
+	switch (m_StorageKind)
+	{
+	case EStorage_Typedef:
 		return DeclareTypedef (pDeclarator, pType);
 
-	switch (TypeKind)
-	{
-	case EType_Function:
-		return DeclareFunction (pDeclarator, (CFunctionType*) pType);
-
-	case EType_Property:
-		return DeclareProperty (pDeclarator, (CPropertyType*) pType, DeclFlags);
+	case EStorage_Alias:
+		return DeclareAlias (pDeclarator, pType, DeclFlags);
 
 	default:
-		return IsClassType (pType, EClassType_ReactorIface) ?
-			DeclareReactor (pDeclarator, (CClassType*) pType, DeclFlags) :
-			DeclareData (pDeclarator, pType, DeclFlags);
+		switch (TypeKind)
+		{
+		case EType_Function:
+			return DeclareFunction (pDeclarator, (CFunctionType*) pType);
+
+		case EType_Property:
+			return DeclareProperty (pDeclarator, (CPropertyType*) pType, DeclFlags);
+
+		default:
+			return IsClassType (pType, EClassType_ReactorIface) ?
+				DeclareReactor (pDeclarator, (CClassType*) pType, DeclFlags) :
+				DeclareData (pDeclarator, pType, DeclFlags);
+		}
 	}
 }
 
@@ -565,13 +569,17 @@ CParser::DeclareAlias (
 	uint_t PtrTypeFlags
 	)
 {
-	ASSERT (pDeclarator->m_IsAlias && !pDeclarator->m_Initializer.IsEmpty ());
-
 	bool Result;
 
 	if (!pDeclarator->m_Constructor.IsEmpty ())
 	{
 		err::SetFormatStringError ("alias cannot have constructor");
+		return false;
+	}
+
+	if (pDeclarator->m_Initializer.IsEmpty ())
+	{
+		err::SetFormatStringError ("missing alias initializer");
 		return false;
 	}
 

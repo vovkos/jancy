@@ -31,8 +31,8 @@ class C2
 
 	property m_prop
 	{
-		int autoget m_value => m_classValue;
-		bindable event m_onChanged () => m_classOnChanged;
+		alias int autoget m_value = m_classValue;
+		alias bindable event m_onChanged () = m_classOnChanged;
 
 		set (int x)
 		{

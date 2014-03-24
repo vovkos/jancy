@@ -35,6 +35,7 @@ enum EToken
 	// storage specifiers
 
 	EToken_Typedef,
+	EToken_Alias,
 	EToken_Static,
 	EToken_Thread,
 	EToken_Stack,
@@ -208,6 +209,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
 	// storage specifiers
 
 	AXL_LEX_TOKEN_NAME (EToken_Typedef,      "typedef")
+	AXL_LEX_TOKEN_NAME (EToken_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (EToken_Static,       "static")
 	AXL_LEX_TOKEN_NAME (EToken_Thread,       "thread")
 	AXL_LEX_TOKEN_NAME (EToken_Stack,        "stack")
@@ -331,6 +333,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
 	AXL_LEX_TOKEN_NAME (EToken_Inc,          "++")
 	AXL_LEX_TOKEN_NAME (EToken_Dec,          "--")
 	AXL_LEX_TOKEN_NAME (EToken_Ptr,          "->")
+	AXL_LEX_TOKEN_NAME (EToken_Imply,        "=>")
 	AXL_LEX_TOKEN_NAME (EToken_Shl,          "<<")
 	AXL_LEX_TOKEN_NAME (EToken_Shr,          ">>")
 	AXL_LEX_TOKEN_NAME (EToken_LogAnd,       "&&")
