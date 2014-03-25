@@ -1613,6 +1613,29 @@ CParser::CountReactorBindableTypes ()
 	return true;
 }
 
+bool 
+CParser::AddReactorBindSite (const CValue& Value)
+{
+	ASSERT (m_Stage == EStage_ReactorStarter);
+
+	bool Result;
+
+	CValue OnChangedValue;
+	Result = m_pModule->m_OperatorMgr.GetPropertyOnChanged (Value, &OnChangedValue);
+	if (!Result)
+		return false;
+	
+	CType* pType = m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleEventPtr);
+	CVariable* pVariable = m_pModule->m_VariableMgr.CreateStackVariable ("onChanged", pType);
+	
+	Result = 
+		m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable) &&
+		m_pModule->m_OperatorMgr.StoreDataRef (pVariable, OnChangedValue);
+
+	m_ReactorBindSiteList.InsertTail (pVariable);
+	return true;
+}
+
 bool
 CParser::FinalizeReactor ()
 {
@@ -1658,34 +1681,22 @@ CParser::ReactorExpressionStmt (const rtl::CConstBoxListT <CToken>& TokenList)
 
 	CParser Parser;
 	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = EStage_Pass2;
+	Parser.m_Stage = EStage_ReactorStarter;
 	Parser.m_pReactorType = m_pReactorType;
 
 	Result = Parser.ParseTokenList (ESymbol_expression, TokenList);
 	if (!Result)
 		return false;
 
-	if (Parser.m_ReactorBindableList.IsEmpty ())
+	if (Parser.m_ReactorBindSiteList.IsEmpty ())
 	{
 		err::SetFormatStringError ("no bindable properties found");
 		return false;
 	}
 
-	rtl::CBoxListT <CValue> BindSiteList;
-	rtl::CBoxIteratorT <CValue> Value = Parser.m_ReactorBindableList.GetHead ();
-	for (; Value; Value++)
-	{
-		CValue OnChangedValue;
-		Result = m_pModule->m_OperatorMgr.GetPropertyOnChanged (*Value, &OnChangedValue);
-		if (!Result)
-			return false;
-
-		BindSiteList.InsertTail (OnChangedValue);
-	}
-
 	TReaction* pHandler = AXL_MEM_NEW (TReaction);
 	pHandler->m_pFunction = m_pReactorType->CreateHandler ();
-	pHandler->m_BindSiteList.TakeOver (&BindSiteList);
+	pHandler->m_BindSiteList.TakeOver (&Parser.m_ReactorBindSiteList);
 	m_ReactionList.InsertTail (pHandler);
 
 	Result = m_pModule->m_FunctionMgr.Prologue (pHandler->m_pFunction, TokenList.GetHead ()->m_Pos);

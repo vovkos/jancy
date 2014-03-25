@@ -491,8 +491,8 @@ assignment_operator_expr <CValue* $pValue>
 	}
 	enter
 	{
-		if (IsReactor ())  // reset on assignment
-			m_ReactorBindableList.Clear ();
+		if (m_Stage == EStage_ReactorStarter)  // reset on assignment
+			m_ReactorBindSiteList.Clear ();
 	}
 	:	assignment_operator $o conditional_expr <&$OpValue2>
 			{
@@ -568,8 +568,8 @@ unary_expr <CValue* $pValue>
 unary_operator_expr <CValue* $pValue>
 	leave
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableList.InsertTail (*$pValue);
+		if (m_Stage == EStage_ReactorStarter && IsBindableType ($pValue->GetType ()))
+			return AddReactorBindSite (*$pValue);
 	}
 	:	'+' unary_expr <$pValue>
 			{
@@ -683,8 +683,8 @@ postfix_expr <CValue* $pValue>
 postfix_operator <CValue* $pValue>
 	leave
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableList.InsertTail (*$pValue);
+		if (m_Stage == EStage_ReactorStarter && IsBindableType ($pValue->GetType ()))
+			AddReactorBindSite (*$pValue);
 	}
 	:	'(' expression_or_empty_list ')'
 			{
@@ -741,8 +741,8 @@ member_operator <CValue* $pValue>
 primary_expr <CValue* $pValue>
 	leave
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableList.InsertTail (*$pValue);
+		if (m_Stage == EStage_ReactorStarter && IsBindableType ($pValue->GetType ()))
+			return AddReactorBindSite (*$pValue);
 	}
 	:	'(' conditional_expr <$pValue> ')'
 	|	literal <$pValue>

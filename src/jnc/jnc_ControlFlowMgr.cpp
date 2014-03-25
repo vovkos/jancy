@@ -303,8 +303,8 @@ CControlFlowMgr::Return (const CValue& Value)
 		else
 		{
 			CVariable* pVariable = m_pModule->m_VariableMgr.CreateStackVariable ("savedReturnValue", pReturnType);
-
 			m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable);
+
 			m_pModule->m_OperatorMgr.StoreDataRef (pVariable, ReturnValue);
 			OnLeaveScope ();
 			m_pModule->m_OperatorMgr.LoadDataRef (pVariable, &ReturnValue);

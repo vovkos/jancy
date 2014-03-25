@@ -239,7 +239,7 @@ assignment_expr_0 <CValue* $pValue>
 	:	unary_expr_0 <$pValue> 
 		(
 				{
-					if (IsReactor ())
+					if (m_Stage == EStage_ReactorScan)
 						m_ReactorBindableTypeCount = 0; // reset on assignment
 				}
 			assignment_operator $o conditional_expr_0 <&$OpValue2>
@@ -257,7 +257,7 @@ unary_expr_0 <CValue* $pValue>
 unary_operator_expr_0 <CValue* $pValue>
 	leave 
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
 			m_ReactorBindableTypeCount++;
 	}
 	:	'+' unary_expr_0 <$pValue> 
@@ -357,7 +357,7 @@ postfix_expr_0 <CValue* $pValue>
 postfix_operator_0 <CValue* $pValue>
 	leave 
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
 			m_ReactorBindableTypeCount++;
 	}
 	:	'(' expression_or_empty_list_0 ')'
@@ -412,7 +412,7 @@ member_operator_0 <CValue* $pValue>
 primary_expr_0 <CValue* $pValue>
 	leave 
 	{
-		if (IsReactor () && IsBindableType ($pValue->GetType ()))
+		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
 			m_ReactorBindableTypeCount++;
 	}
 	:	EToken_Identifier

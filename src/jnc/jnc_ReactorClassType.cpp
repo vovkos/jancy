@@ -71,7 +71,7 @@ CReactorClassType::CalcLayout ()
 
 	CType* pBindSiteType = m_pModule->m_TypeMgr.GetStdType (EStdType_ReactorBindSite);
 	CArrayType* pBindSiteArrayType = pBindSiteType->GetArrayType (m_BindSiteCount);
-	m_FieldArray [EReactorField_BindSiteArray] = CreateField (pBindSiteArrayType);
+	m_FieldArray [EReactorField_BindSiteArray] = CreateField ("!m_bindSiteArray", pBindSiteArrayType);
 
 	Result = CClassType::CalcLayout ();
 	if (!Result)

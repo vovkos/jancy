@@ -1,12 +1,20 @@
 //.............................................................................
 
+class C1
+{
+	int bindable m_x;
+	int bindable m_y;
+
+	bool m_b;
+
+	reactor m_reactor ()
+	{
+		m_b = m_x != 0 && m_y != 0;
+	}
+}
+
 int main ()
 {
-	int x = 10;
-	int y = 10;
-
-	bool b = x < 10 || y < 10;
-
 	return 0; 
 }
  

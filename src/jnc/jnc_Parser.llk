@@ -38,7 +38,8 @@ Members
 	{
 		EStage_Pass1, // global declarations (before linkage)
 		EStage_Pass2, // statements and expressions (after linkage & calclayout)
-		EStage_ReactorScan, // scan reactor body to build bind site map (after linkage but before calclayout)
+		EStage_ReactorScan,    // scan reactor body to build bind site map (after linkage but before calclayout)
+		EStage_ReactorStarter, // evaluate expression and save bindable event pointers
 	};
 
 	enum EFlag
@@ -89,7 +90,7 @@ Members
 
 	CReactorClassType* m_pReactorType;
 	rtl::CStdListT <TReaction> m_ReactionList;
-	rtl::CBoxListT <CValue> m_ReactorBindableList;
+	rtl::CBoxListT <CValue> m_ReactorBindSiteList;
 	size_t m_ReactorBindableTypeCount;
 	size_t m_ReactorBindSiteTotalCount;
 
@@ -153,12 +154,6 @@ Members2
 	PopTypeSpecifier (CTypeSpecifier* pTypeSpecifier)
 	{
 		m_TypeSpecifierStack.Pop ();
-	}
-
-	bool
-	IsReactor ()
-	{
-		return m_pReactorType != NULL;
 	}
 
 	bool
@@ -300,6 +295,9 @@ Members2
 		CType* pType,
 		CValue* pResultValue
 		);
+
+	bool
+	AddReactorBindSite (const CValue& Value);
 
 	bool
 	FinalizeReactor ();

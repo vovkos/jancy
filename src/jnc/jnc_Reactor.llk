@@ -17,7 +17,7 @@ reactor_stmt
 reactor_expression_stmt
 	enter
 	{
-		m_ReactorBindableList.Clear ();
+		m_ReactorBindSiteList.Clear ();
 	}
 	:	expression_pass1 ';'
 			{
@@ -93,7 +93,7 @@ reactor_onevent_stmt_0
 	}
 	enter
 	{
-		m_ReactorBindableList.Clear (); // clear bindsite list before processing expression list
+		m_ReactorBindSiteList.Clear (); // clear bindsite list before processing expression list
 	}
 	:	EToken_OnEvent reactor_event_name_0 function_suffix <&$Declarator>
 		reactor_compound_stmt_0

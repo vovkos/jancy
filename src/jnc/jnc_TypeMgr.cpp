@@ -1429,7 +1429,7 @@ CTypeMgr::CreateReactorType (
 
 	if (pParentType)
 	{
-		CClassPtrType* pParentPtrType = pParentType->GetClassPtrType ();
+		CClassPtrType* pParentPtrType = pParentType->GetClassPtrType (EClassPtrType_Normal, EPtrTypeFlag_Safe);
 
 		pType->m_Flags |= ETypeFlag_Child;
 		pType->m_FieldArray [EReactorField_Parent] = pType->CreateField ("!m_parent", pParentPtrType);

@@ -272,8 +272,6 @@ void ModulePane::addEnumTypeMembers (QTreeWidgetItem *parent, jnc::CEnumType* ty
 
 void ModulePane::addStructTypeMembers (QTreeWidgetItem *parent, jnc::CStructType* pType)
 {
-//	AddStructClassTypeMembers (hParent, pType);
-
 	rtl::CIteratorT <jnc::CStructField> Member = pType->GetFieldList ().GetHead ();
 	for (; Member; Member++)
 		addStructField (parent, *Member);
@@ -283,8 +281,6 @@ void ModulePane::addStructTypeMembers (QTreeWidgetItem *parent, jnc::CStructType
 
 void ModulePane::addUnionTypeMembers (QTreeWidgetItem *parent, jnc::CUnionType* pType)
 {
-//	AddStructClassTypeMembers (hParent, pType);
-
 	rtl::CIteratorT <jnc::CStructField> Member = pType->GetFieldList ().GetHead ();
 	for (; Member; Member++)
 		addStructField (parent, *Member);
@@ -294,7 +290,9 @@ void ModulePane::addUnionTypeMembers (QTreeWidgetItem *parent, jnc::CUnionType* 
 
 void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::CClassType* pType)
 {
-//	AddStructClassTypeMembers (hParent, pType);
+	rtl::CIteratorT <jnc::CStructField> Member = pType->GetFieldList ().GetHead ();
+	for (; Member; Member++)
+		addStructField (parent, *Member);
 
 	if (pType->GetPreConstructor ())
 		addItem (parent, pType->GetPreConstructor ());
@@ -305,11 +303,20 @@ void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::CClassType* 
 	if (pType->GetDestructor ())
 		addItem (parent, pType->GetDestructor ());
 
-	size_t Count = pType->GetItemCount ();
+	rtl::CArrayT <jnc::CProperty*> PropertyArray = pType->GetMemberPropertyArray ();
+	size_t Count = PropertyArray.GetCount ();
 	for (size_t i = 0; i < Count; i++)
 	{
-		jnc::CModuleItem* pMember = pType->GetItem (i);
-		addItem (parent, pMember);
+		jnc::CProperty* pProperty = PropertyArray [i];
+		addProperty (parent, pProperty);
+	}
+
+	rtl::CArrayT <jnc::CFunction*> FunctionArray = pType->GetMemberMethodArray ();
+	Count = FunctionArray.GetCount ();
+	for (size_t i = 0; i < Count; i++)
+	{
+		jnc::CFunction* pFunction = FunctionArray [i];
+		addFunction (parent, pFunction);
 	}
 
 	expandItem (parent);
