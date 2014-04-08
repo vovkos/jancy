@@ -1,6 +1,4 @@
-#include "pch.h"
 #include "jancyhighlighter.h"
-#include "moc_jancyhighlighter.cpp"
 
 //.............................................................................
 

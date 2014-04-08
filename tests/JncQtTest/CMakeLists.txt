@@ -30,9 +30,9 @@ set (
 	disassembly.cpp
 	editor.cpp
 	highlighter.cpp
-	jancyhighlighter.rl.cpp
+	jancyhighlighter.cpp
 	llvmir.cpp
-	llvmirhighlighter.rl.cpp
+	llvmirhighlighter.cpp
 	main.cpp
 	mainwindow.cpp
 	mdichild.cpp
@@ -45,20 +45,6 @@ set (
 	jancyhighlighter.rl
 	llvmirhighlighter.rl
 	)
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_ragel_step (
-	jancyhighlighter.rl.cpp
-	jancyhighlighter.rl
-	)
-
-add_ragel_step (
-	llvmirhighlighter.rl.cpp
-	llvmirhighlighter.rl
-	)
-
-pop (CMAKE_CURRENT_BINARY_DIR)
 
 source_virtual_folder (
 	app
@@ -86,31 +72,21 @@ set (
 	jancyedit.qrc
 	)
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-qt5_add_resources (
-	QRC_CPP_LIST
-	${RES_QRC_LIST}
-	)
-
-pop (CMAKE_CURRENT_BINARY_DIR)
-
-exclude_from_build (${QRC_CPP_LIST}) # include "qrc_*.cpp" manually
-
 source_virtual_folder (
 	res
 	${RES_PNG_LIST}
 	${RES_QRC_LIST}
-	${QRC_CPP_LIST}
 	)
-
+ 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# moc folder
+# gen folder
 #
 
+set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+
 set (
-	MOC_SRC_H_LIST
+	MOC_H_LIST
 	disassembly.h
 	editor.h
 	highlighter.h
@@ -123,20 +99,45 @@ set (
 	output.h
 	)
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp (
-	MOC_CPP_LIST
-	${MOC_SRC_H_LIST}
+	GEN_MOC_CPP_LIST
+	${MOC_H_LIST}
+	)
+
+qt5_add_resources (
+	GEN_QRC_CPP_LIST
+	${RES_QRC_LIST}
+	)
+
+add_ragel_step (
+	jancyhighlighter.rl.cpp
+	jancyhighlighter.rl
+	)
+
+add_ragel_step (
+	llvmirhighlighter.rl.cpp
+	llvmirhighlighter.rl
 	)
 
 pop (CMAKE_CURRENT_BINARY_DIR)
 
-exclude_from_build (${MOC_CPP_LIST}) # include "moc_*.cpp" manually
+set (
+	GEN_RL_CPP_LIST
+	${GEN_DIR}/jancyhighlighter.rl.cpp
+	${GEN_DIR}/llvmirhighlighter.rl.cpp
+	)
+
+exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
+exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
 source_virtual_folder (
-	moc
-	${MOC_CPP_LIST}
+	gen
+	${GEN_RL_CPP_LIST}
+	${GEN_QRC_CPP_LIST}
+	${GEN_MOC_CPP_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -166,6 +167,7 @@ include_directories (
 	${PATH_AXL_INC_DIR}
 	${PATH_LLVM_INC_DIR}
 	${PATH_LLVM_INC_DIR_2}
+	${GEN_DIR}
 	)
 
 link_directories (
@@ -182,9 +184,10 @@ add_executable (
 	${APP_RL_LIST}
 	${RES_PNG_LIST}
 	${RES_QRC_LIST}
-	${QRC_CPP_LIST}
-	${MOC_CPP_LIST}
-	${UI_H_LIST}
+	${GEN_QRC_CPP_LIST}
+	${GEN_MOC_CPP_LIST}
+	${GEN_UI_H_LIST}
+	${GEN_RL_CPP_LIST}
 	)
 
 llvm_map_components_to_libraries (

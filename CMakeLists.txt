@@ -43,7 +43,7 @@ endif ()
 
 ensure_file_exists (
 	${CMAKE_MODULE_PATH}/CMakePaths.cmake
-	${CMAKE_MODULE_PATH}/CMakePaths.template
+	${CMAKE_MODULE_PATH}/CMakePaths-template.cmake
 	)
 
 include (CMakePaths)

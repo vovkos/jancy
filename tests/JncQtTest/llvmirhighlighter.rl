@@ -1,6 +1,4 @@
-#include "pch.h"
 #include "llvmirhighlighter.h"
-#include "moc_llvmirhighlighter.cpp"
 
 //.............................................................................
 

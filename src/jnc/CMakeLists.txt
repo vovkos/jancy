@@ -246,14 +246,13 @@ set (
 	${JNC_INC_DIR}/jnc_Lexer.h
 	jnc_Decl.h
 	jnc_DeclTypeCalc.h
-	jnc_Parser.llk.h
 	)
 
 set (
 	PARSER_CPP_LIST
 	jnc_Decl.cpp
 	jnc_DeclTypeCalc.cpp
-	jnc_Lexer.rl.cpp
+	jnc_Lexer.cpp
 	jnc_Parser.cpp
 	)
 
@@ -274,32 +273,6 @@ set (
 	jnc_Reactor.llk
 	jnc_Stmt.llk
 	)
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_ragel_step (
-	jnc_Lexer.rl.cpp
-	jnc_Lexer.rl
-	)
-
-add_gepard_step (
-	jnc_Parser.llk.h
-	jnc_Parser.llk
-	"${PATH_GEPARD_FRAME_DIR}/llk_ParserFrame.h.luaf"
-
-	# dependencies:
-
-	jnc_Decl.llk
-	jnc_DeclarationSpecifier.llk
-	jnc_Declarator.llk
-	jnc_Expr.llk
-	jnc_Expr_0.llk
-	jnc_NamedTypeSpecifier.llk
-	jnc_Reactor.llk
-	jnc_Stmt.llk
-	)
-
-pop (CMAKE_CURRENT_BINARY_DIR)
 
 source_virtual_folder (
 	parser
@@ -464,6 +437,57 @@ source_virtual_folder (
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# gen folder
+#
+
+set (JNC_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${JNC_GEN_DIR})
+
+add_ragel_step (
+	jnc_Lexer.rl.cpp
+	jnc_Lexer.rl
+	)
+
+add_gepard_step (
+	jnc_Parser.llk.h
+	jnc_Parser.llk
+	"${PATH_GEPARD_FRAME_DIR}/llk_Parser.h.frame"
+
+	# dependencies:
+
+	jnc_Decl.llk
+	jnc_DeclarationSpecifier.llk
+	jnc_Declarator.llk
+	jnc_Expr.llk
+	jnc_Expr_0.llk
+	jnc_NamedTypeSpecifier.llk
+	jnc_Reactor.llk
+	jnc_Stmt.llk
+	)
+
+pop (CMAKE_CURRENT_BINARY_DIR)
+
+set (
+	GEN_RL_CPP_LIST
+	${JNC_GEN_DIR}/jnc_Lexer.rl.cpp
+	)
+
+set (
+	GEN_LLK_H_LIST
+	${JNC_GEN_DIR}/jnc_Parser.llk.h
+	)
+
+exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+
+source_virtual_folder (
+	gen
+	${GEN_RL_CPP_LIST}
+	${GEN_LLK_H_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # pch folder
 #
 
@@ -488,6 +512,7 @@ include_directories (
 	${PATH_GEPARD_INC_DIR}
 	${PATH_LLVM_INC_DIR}
 	${PATH_LLVM_INC_DIR_2}
+	${JNC_GEN_DIR}
 	)
 
 add_library (
@@ -519,6 +544,8 @@ add_library (
 	${VARIABLE_CPP_LIST}
 	${RUNTIME_H_LIST}
 	${RUNTIME_CPP_LIST}
+	${GEN_RL_CPP_LIST}
+	${GEN_LLK_H_LIST}
 	)
 
 if (JNC_USE_PCH)
