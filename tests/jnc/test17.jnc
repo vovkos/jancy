@@ -1,70 +1,25 @@
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
-struct TPoint
+struct TestStruct
 {
-	int m_x = 1;
-	int m_y = 2;
-
-	preconstruct ()
-	{
-		printf ("TPoint.preconstruct ()\n");
-		m_y = 4;
-	}
-
-	property MyProp
-	{
-		int
-		get ()
-		{
-			printf ("TPoint.MyProp.get ()\n");
-			return m_x * 10 + m_y;
-		}
-		
-		set (int z)
-		{
-			printf ("TPoint.MyProp.set (%d)\n", z);
-			m_x = z / 10;
-			m_y = z % 10;
-		}
-	}
-
-	Setup (
-		int x,
-		int y
-		)
-	{
-		printf ("TPoint.Setup (%d, %d)\n", x, y);	
-
-		m_x = x;
-		m_y = y;
-	}
+	char m_a0:1;
+	char m_a1:1;
+	char m_a2:1;
+	char m_a3:1;
+	char m_a4:1;
+	char m_a5:1;
+	char m_a6:1;
+	char m_a7:1;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-int 
-main ()
+int main ()
 {
-	printf ("struct / union members\n");
+	TestStruct s;
+	s.m_a7 = 1;
 
-	TPoint p;
-	printf ("{ %d, %d }\n", p.m_x, p.m_y);
-
-	p.MyProp = 75;
-	printf ("{ %d, %d }\n", p.m_x, p.m_y);
-
-	p.Setup (10, 20);
-	printf ("{ %d, %d }\n", p.m_x, p.m_y);
+	printf ("s = 0x%02x\n", *(unsigned char*) &s);
 
 	return 0; 
 }
  
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
-
 //.............................................................................
