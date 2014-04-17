@@ -240,20 +240,11 @@ CModule::ParseFile (const char* pFilePath)
 }
 
 bool
-CModule::Compile ()
+CModule::CalcLayout ()
 {
-	bool Result;
-
-	// step 1: resolve imports & orphans
-
-	Result =
-		m_TypeMgr.ResolveImportTypes () &&
-		m_NamespaceMgr.ResolveOrphans ();
-
+	bool Result = m_TypeMgr.ResolveImportTypes ();
 	if (!Result)
 		return false;
-
-	// step 2: calc layouts
 
 	for (size_t i = 0; i < m_CalcLayoutArray.GetCount (); i++) // new items could be added in process
 	{
@@ -261,6 +252,26 @@ CModule::Compile ()
 		if (!Result)
 			return false;
 	}
+
+	return true;
+}
+
+bool
+CModule::Compile ()
+{
+	bool Result;
+
+	// step 1: resolve orphans
+	
+	Result = m_NamespaceMgr.ResolveOrphans ();
+	if (!Result)
+		return false;
+
+	// step 2: calc layout
+
+	Result = CalcLayout ();
+	if (!Result)
+		return false;
 
 	// step 3: ensure module constructor (always! cause static variable might appear during compilation)
 

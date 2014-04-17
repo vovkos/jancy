@@ -272,6 +272,9 @@ public:
 	Link (CModule* pModule);
 
 	bool
+	CalcLayout ();
+
+	bool
 	Compile ();
 
 	rtl::CString
