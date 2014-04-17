@@ -242,9 +242,7 @@ CModule::ParseFile (const char* pFilePath)
 bool
 CModule::CalcLayout ()
 {
-	bool Result = m_TypeMgr.ResolveImportTypes ();
-	if (!Result)
-		return false;
+	bool Result;
 
 	for (size_t i = 0; i < m_CalcLayoutArray.GetCount (); i++) // new items could be added in process
 	{
@@ -261,14 +259,17 @@ CModule::Compile ()
 {
 	bool Result;
 
-	// step 1: resolve orphans
-	
-	Result = m_NamespaceMgr.ResolveOrphans ();
+	// step 1: resolve imports & orphans
+
+	Result = 
+		m_TypeMgr.ResolveImportTypes () &&
+		m_NamespaceMgr.ResolveOrphans ();
+
 	if (!Result)
 		return false;
 
 	// step 2: calc layout
-
+	
 	Result = CalcLayout ();
 	if (!Result)
 		return false;
