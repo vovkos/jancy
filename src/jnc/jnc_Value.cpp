@@ -490,8 +490,9 @@ CValue::CreateConst (
 	Clear ();
 
 	size_t Size = pType->GetSize ();
+	size_t AllocSize = AXL_MAX (Size, sizeof (int64_t)); // ensure int64 for GetLlvmConst ()
 
-	bool Result = m_Const.GetBuffer (sizeof (TBufHdr) + Size) != NULL;
+	bool Result = m_Const.GetBuffer (sizeof (TBufHdr) + AllocSize) != NULL;
 	if (!Result)
 		return false;
 
