@@ -668,14 +668,6 @@ CDerivableType::FindItemTraverseImpl (
 						pCoord->m_Offset += pField->m_Offset;
 						pCoord->m_LlvmIndexArray [Level] = pField->m_LlvmIndex;
 
-						if (pType->GetTypeKind () == EType_Union)
-						{
-							TUnionCoord UnionCoord;
-							UnionCoord.m_pType = (CUnionType*) pType;
-							UnionCoord.m_Level = Level + 1; // union logic applied to the next level!
-							pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
-						}
-
 						if (m_TypeKind == EType_Union)
 						{
 							TUnionCoord UnionCoord;
