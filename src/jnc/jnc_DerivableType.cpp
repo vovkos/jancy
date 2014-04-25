@@ -648,6 +648,14 @@ CDerivableType::FindItemTraverseImpl (
 			{
 				pCoord->m_pType = this;
 				pCoord->m_LlvmIndexArray.SetCount (Level);
+
+				if (m_TypeKind == EType_Union)
+				{
+					TUnionCoord UnionCoord;
+					UnionCoord.m_pType = (CUnionType*) this;
+					UnionCoord.m_Level = Level;
+					pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
+				}
 			}
 
 			return pItem;

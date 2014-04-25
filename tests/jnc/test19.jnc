@@ -1,24 +1,38 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-union Params
+struct Params
 {
-	int32 m_a;
+	int8 m_a;
 
-	struct
+	union
 	{
 		int16 m_b;
-		int16 m_c;
+
+		struct
+		{
+			int32 m_c;
+			int64 m_d;
+		}
 	}
 }
+
+	union Xxx
+	{
+		int32 m_c;
+		int64 m_d;
+	}
 
 int main ()
 {
 	printf ("main ()\n");
 
 	Params params;	
-	params.m_a = 0x12345678;
+	int64 d = params.m_d;
 
-	printf ("m_b = 0x%x, m_c = 0x%x\n", params.m_b, params.m_c);
+	Xxx xxx;
+	int32 c = xxx.m_c;
+
+
 	
 	return 0;
 }
