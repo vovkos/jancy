@@ -98,9 +98,7 @@ CControlFlowMgr::DeleteUnreachableBlocks ()
 
 		// check if block was never added
 
-		if (pBlock->m_pFunction)
-			pBlock->m_pLlvmBlock->eraseFromParent ();
-		else
+		if (!pBlock->m_pFunction)
 			delete pBlock->m_pLlvmBlock;
 
 		m_BlockList.Delete (pBlock);
