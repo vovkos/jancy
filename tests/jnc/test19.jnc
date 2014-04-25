@@ -1,38 +1,26 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int 
-foo ()
+union Params
 {
-	printf ("foo ()\n");
-	return 200;
+	int32 m_a;
+
+	struct
+	{
+		int16 m_b;
+		int16 m_c;
+	}
 }
 
-int g_Global = foo ();
-
-int 
-main ()
+int main ()
 {
 	printf ("main ()\n");
-	printf ("g_Global = %d\n", g_Global);
+
+	Params params;	
+	params.m_a = 0x12345678;
+
+	printf ("m_b = 0x%x, m_c = 0x%x\n", params.m_b, params.m_c);
+	
 	return 0;
 }
-
-this ()
-{
-	printf ("module.this ()\n");
-}
-
-~this ()
-{
-	printf ("module.~this ()\n");
-}
-
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

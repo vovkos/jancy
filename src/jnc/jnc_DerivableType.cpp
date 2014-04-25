@@ -675,6 +675,14 @@ CDerivableType::FindItemTraverseImpl (
 							UnionCoord.m_Level = Level + 1; // union logic applied to the next level!
 							pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
 						}
+
+						if (m_TypeKind == EType_Union)
+						{
+							TUnionCoord UnionCoord;
+							UnionCoord.m_pType = (CUnionType*) this;
+							UnionCoord.m_Level = Level;
+							pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
+						}
 					}
 
 					return pItem;
@@ -713,10 +721,10 @@ CDerivableType::FindItemTraverseImpl (
 			{
 				pBaseType = pSlot->m_pType;
 			}
-			else if (pSlot->m_pType_i)
+			else if (pSlot->m_pType_i && pSlot->m_pType_i->IsResolved ())
 			{
 				CType* pActualType = pSlot->m_pType_i->GetActualType ();
-				if (pActualType && (pActualType->GetTypeKindFlags () & ETypeKindFlag_Derivable))
+				if (pActualType->GetTypeKindFlags () & ETypeKindFlag_Derivable)
 					pBaseType = (CDerivableType*) pActualType;
 			}
 

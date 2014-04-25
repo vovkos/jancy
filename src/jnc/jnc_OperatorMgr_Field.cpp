@@ -49,6 +49,8 @@ COperatorMgr::GetFieldPtrImpl (
 	CValue* pResultValue
 	)
 {
+	#pragma AXL_TODO ("double check multiple levels of nested unnamed structs/unions")
+
 	if (pCoord->m_UnionCoordArray.IsEmpty ())
 	{
 		m_pModule->m_LlvmIrBuilder.CreateGep (
@@ -99,6 +101,11 @@ COperatorMgr::GetFieldPtrImpl (
 
 	if (pLlvmIndexEnd > pLlvmIndex)
 	{
+		ASSERT (pLlvmIndex > pCoord->m_LlvmIndexArray);
+		
+		pLlvmIndex--;
+		*pLlvmIndex = 0; // create initial 0
+
 		m_pModule->m_LlvmIrBuilder.CreateGep (
 			OpValue,
 			pLlvmIndex,
