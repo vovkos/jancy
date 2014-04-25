@@ -126,10 +126,36 @@ Members2
 		const CToken::CPos& Pos
 		);
 
+	rtl::CString
+	GetQualifiedTypeNameString (
+		size_t BaseTypeIdx,
+		const CQualifiedName& Name
+		);
+
 	CType*
 	FindType (
+		size_t BaseTypeIdx,
 		const CQualifiedName& Name,
 		const CToken::CPos& Pos
+		);
+
+	CType*
+	GetType (
+		size_t BaseTypeIdx,
+		const CQualifiedName& Name,
+		const CToken::CPos& Pos
+		);
+
+	CDerivableType*
+	FindBaseType (size_t BaseTypeIdx);
+
+	CDerivableType*
+	GetBaseType (size_t BaseTypeIdx);
+
+	bool
+	GetBaseType (
+		size_t BaseTypeIdx,
+		CValue* pResultValue
 		);
 
 	bool

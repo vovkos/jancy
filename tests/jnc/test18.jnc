@@ -1,33 +1,31 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int
-main ()
+class C1
 {
-	int a [3] [3] = 
+	virtual foo ()
 	{
-		{ 1,  2,  3 },
-		{ 4, -5,  6 },
-		{ 7,  8,  9 },
-	};
+		printf ("C1.foo ()\n");
+	}
+}
 
-	int i, j;
+class C2: C1
+{
+	override foo ()
+	{
+		basetype1.foo ();
 
-	for (i = 0; i < 3; i++)
-	for (j = 0; j < 3; j++)
-		if (a [i] [j] < 0)
-			break 2;
+		printf ("C2.foo (), sizeof (basetype = %d)\n", sizeof (p));
+	}
+}
 
-	printf ("%d\n", a [i] [j]);  // -5
+int main ()
+{
+	printf ("main ()\n");
+
+	C2 c;
+	c.foo ();
 
 	return 0;
 }
-
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

@@ -220,14 +220,40 @@ type_specifier
 
 // expression vs item_declaration_w_specifier
 
+class 
+{
+	size_t m_BaseTypeIdx;
+	CQualifiedName m_Name;
+}
+basetype_qualified_name
+	:	EToken_BaseType	
+			{
+				$.m_BaseTypeIdx = $1.m_Data.m_Integer - 1;
+			}
+	|	EToken_BaseType '.' qualified_name_impl <&$.m_Name>
+			{
+				$.m_BaseTypeIdx = $1.m_Data.m_Integer - 1;
+			}
+	|	qualified_name_impl <&$.m_Name>
+			{
+				$.m_BaseTypeIdx = -1;
+			}
+	;
+
 qualified_type_name_rslv
 	:		{
 				if (IsTypeSpecified ())
 					return false;
 			}
-		qualified_name $n
+		basetype_qualified_name $n
 			{
-				return m_Stage == EStage_Pass1 || FindType ($n.m_Name, $n.m_FirstToken.m_Pos) != NULL;
+				return 
+					m_Stage == EStage_Pass1 || 
+					FindType (
+						$n.m_BaseTypeIdx,
+						$n.m_Name, 
+						$n.m_FirstToken.m_Pos
+						) != NULL;
 			}
 		('(' // we need this check if we are already in type_specifier_modifier_list
 			{
@@ -241,16 +267,15 @@ class
 	CType* m_pType;
 }
 qualified_type_name
-	:	qualified_name
+	:	basetype_qualified_name
 			{
-				CType* pType = FindType ($1.m_Name, $1.m_FirstToken.m_Pos);
-				if (!pType)
-				{
-					err::SetFormatStringError ("'%s' is not a type", $1.m_Name.GetFullName ().cc ());
-					return false;
-				}
+				$.m_pType = GetType (
+					$1.m_BaseTypeIdx,
+					$1.m_Name, 
+					$1.m_FirstToken.m_Pos
+					);
 
-				$.m_pType = pType;
+				return $.m_pType != NULL;
 			}
 	;
 

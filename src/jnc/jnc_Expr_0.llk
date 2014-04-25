@@ -419,6 +419,10 @@ primary_expr_0 <CValue* $pValue>
 			{
 				return LookupIdentifierType ($1.m_Data.m_String, $1.m_Pos, $pValue);
 			}
+	|	EToken_BaseType
+			{
+				return GetBaseType ($1.m_Data.m_Integer - 1, $pValue);
+			}
 	|	EToken_This
 			{
 				return GetThisValueType ($pValue);

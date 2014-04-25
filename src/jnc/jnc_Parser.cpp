@@ -147,6 +147,7 @@ CParser::GetNamedImportType (
 
 CType*
 CParser::FindType (
+	size_t BaseTypeIdx,
 	const CQualifiedName& Name,
 	const CToken::CPos& Pos
 	)
@@ -157,6 +158,9 @@ CParser::FindType (
 
 	if (m_Stage == EStage_Pass1)
 	{
+		if (BaseTypeIdx != -1)
+			return NULL;
+
 		if (!Name.IsSimple ())
 			return GetNamedImportType (Name, Pos);
 
@@ -167,6 +171,18 @@ CParser::FindType (
 	}
 	else
 	{
+		if (BaseTypeIdx != -1)
+		{
+			CDerivableType* pBaseType = FindBaseType (BaseTypeIdx);
+			if (!pBaseType)
+				return NULL;
+
+			pNamespace = pBaseType;
+
+			if (Name.IsEmpty ())
+				return pBaseType;
+		}
+
 		pItem = pNamespace->FindItemTraverse (Name);
 		if (!pItem)
 			return NULL;
@@ -184,6 +200,29 @@ CParser::FindType (
 	default:
 		return NULL;
 	}
+}
+
+CType*
+CParser::GetType (
+	size_t BaseTypeIdx,
+	const CQualifiedName& Name,
+	const CToken::CPos& Pos
+	)
+{
+	CType* pType = FindType (BaseTypeIdx, Name, Pos);
+	if (!pType)
+	{
+		if (BaseTypeIdx == -1)
+			err::SetFormatStringError ("'%s' is not found or not a type", Name.GetFullName ().cc ());
+		else if (Name.IsEmpty ())
+			err::SetFormatStringError ("'basetype%d' is not found", BaseTypeIdx + 1);
+		else
+			err::SetFormatStringError ("'basetype%d.%s' is not found or not a type", BaseTypeIdx + 1, Name.GetFullName ().cc ());
+
+		return NULL;
+	}
+
+	return pType;
 }
 
 bool
@@ -380,7 +419,7 @@ CParser::OpenTypeExtension (
 	const CToken::CPos& Pos
 	)
 {
-	CType* pType = FindType (Name, Pos);
+	CType* pType = FindType (-1, Name, Pos);
 	if (!pType)
 	{
 		err::SetFormatStringError ("'%s' is not a type", Name.GetFullName ().cc ());
@@ -1753,6 +1792,50 @@ CParser::CallBaseTypeMemberConstructor (
 		err::SetFormatStringError ("'%s' cannot be used in base-type-member construct list");
 		return false;
 	}
+}
+
+CDerivableType*
+CParser::FindBaseType (size_t BaseTypeIdx)
+{
+	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
+	ASSERT (pFunction); // should not be called at pass
+
+	CDerivableType* pParentType = pFunction->GetParentType ();
+	if (!pParentType)
+		return NULL;
+	
+	CBaseTypeSlot* pSlot = pParentType->GetBaseTypeByIndex (BaseTypeIdx);
+	if (!pSlot)
+		return NULL;
+
+	return pSlot->GetType ();
+}
+
+CDerivableType*
+CParser::GetBaseType (size_t BaseTypeIdx)
+{
+	CDerivableType* pType = FindBaseType (BaseTypeIdx);
+	if (!pType)
+	{
+		err::SetFormatStringError ("'basetype%d' is not found", BaseTypeIdx + 1);
+		return NULL;
+	}
+
+	return pType;
+}
+
+bool
+CParser::GetBaseType (
+	size_t BaseTypeIdx,
+	CValue* pResultValue
+	)
+{
+	CDerivableType* pType = GetBaseType (BaseTypeIdx);
+	if (!pType)
+		return false;
+
+	pResultValue->SetNamespace (pType);
+	return true;
 }
 
 bool

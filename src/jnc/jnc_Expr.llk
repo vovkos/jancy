@@ -746,6 +746,10 @@ primary_expr <CValue* $pValue>
 	}
 	:	'(' conditional_expr <$pValue> ')'
 	|	literal <$pValue>
+	|	EToken_BaseType
+			{
+				return GetBaseType ($1.m_Data.m_Integer - 1, $pValue);
+			}
 	|	EToken_Identifier
 			{
 				return LookupIdentifier ($1.m_Data.m_String, $1.m_Pos, $pValue);
