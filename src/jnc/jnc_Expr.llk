@@ -756,7 +756,7 @@ primary_expr <CValue* $pValue>
 			}
 	|	EToken_This
 			{
-				return GetThisValue ($pValue);
+				return m_pModule->m_OperatorMgr.GetThisValue ($pValue);
 			}
 	|	EToken_RetVal
 			{

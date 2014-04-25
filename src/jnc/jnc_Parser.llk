@@ -394,19 +394,10 @@ Members2
 		);
 
 	bool
-	CreateMemberClosure (CValue* pValue);
-
-	bool
 	GetCountOf (
 		CType* pType,
 		CValue* pValue
 		);
-
-	bool
-	GetThisValue (CValue* pValue);
-
-	bool
-	GetThisValueType (CValue* pValue);
 
 	bool
 	GetThrowReturnValue (CValue* pValue);

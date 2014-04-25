@@ -2097,7 +2097,7 @@ CParser::LookupIdentifier (
 
 		if (((CFunction*) pItem)->IsMember ())
 		{
-			Result = CreateMemberClosure (pValue);
+			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
 			if (!Result)
 				return false;
 		}
@@ -2115,7 +2115,7 @@ CParser::LookupIdentifier (
 
 		if (((CProperty*) pItem)->IsMember ())
 		{
-			Result = CreateMemberClosure (pValue);
+			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
 			if (!Result)
 				return false;
 		}
@@ -2141,7 +2141,7 @@ CParser::LookupIdentifier (
 		}
 
 		Result =
-			GetThisValue (&ThisValue) &&
+			m_pModule->m_OperatorMgr.GetThisValue (&ThisValue) &&
 			m_pModule->m_OperatorMgr.GetField (ThisValue, (CStructField*) pItem, &Coord, pValue);
 
 		if (!Result)
@@ -2217,7 +2217,7 @@ CParser::LookupIdentifierType (
 
 		if (((CFunction*) pItem)->IsMember ())
 		{
-			Result = CreateMemberClosure (pValue);
+			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
 			if (!Result)
 				return false;
 		}
@@ -2229,7 +2229,7 @@ CParser::LookupIdentifierType (
 
 		if (((CProperty*) pItem)->IsMember ())
 		{
-			Result = CreateMemberClosure (pValue);
+			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
 			if (!Result)
 				return false;
 		}
@@ -2253,22 +2253,6 @@ CParser::LookupIdentifierType (
 }
 
 bool
-CParser::CreateMemberClosure (CValue* pValue)
-{
-	CValue ThisValue;
-
-	bool Result = pValue->GetValueKind () == EValue_Type ?
-		GetThisValueType (&ThisValue) :
-		GetThisValue (&ThisValue);
-
-	if (!Result)
-		return false;
-
-	pValue->InsertToClosureHead (ThisValue);
-	return true;
-}
-
-bool
 CParser::GetCountOf (
 	CType* pType,
 	CValue* pValue
@@ -2281,62 +2265,6 @@ CParser::GetCountOf (
 	}
 
 	pValue->SetConstSizeT (((CArrayType*) pType)->GetElementCount ());
-	return true;
-}
-
-bool
-CParser::GetThisValue (CValue* pValue)
-{
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	if (!ThisValue)
-	{
-		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
-		return false;
-	}
-
-	if (IsClassPtrType (ThisValue.GetType (), EClassType_Reactor))
-	{
-		CClassType* pClassType = ((CClassPtrType*) ThisValue.GetType ())->GetTargetType ();
-		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
-		if (pReactorType->GetField (EReactorField_Parent))
-		{
-			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
-			bool Result =
-				m_pModule->m_OperatorMgr.GetField (&ThisValue, pParentField) &&
-				m_pModule->m_OperatorMgr.PrepareOperand (&ThisValue);
-
-			if (!Result)
-				return false;
-		}
-	}
-
-	*pValue = ThisValue;
-	return true;
-}
-
-bool
-CParser::GetThisValueType (CValue* pValue)
-{
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	if (!pFunction->IsMember ())
-	{
-		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
-		return false;
-	}
-
-	CType* pThisType = pFunction->GetThisType ();
-	if (IsClassPtrType (pThisType, EClassType_Reactor))
-	{
-		CClassType* pClassType = ((CClassPtrType*) pThisType)->GetTargetType ();
-		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
-		if (pReactorType->GetField (EReactorField_Parent))
-		{
-			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
-			pThisType = pParentField->GetType ();
-		}
-	}
-
-	pValue->SetType (pThisType);
 	return true;
 }
 

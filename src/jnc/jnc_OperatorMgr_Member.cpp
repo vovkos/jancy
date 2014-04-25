@@ -7,6 +7,78 @@ namespace jnc {
 //.............................................................................
 
 bool
+COperatorMgr::CreateMemberClosure (CValue* pValue)
+{
+	CValue ThisValue;
+
+	bool Result = pValue->GetValueKind () == EValue_Type ?
+		GetThisValueType (&ThisValue) :
+		GetThisValue (&ThisValue);
+
+	if (!Result)
+		return false;
+
+	pValue->InsertToClosureHead (ThisValue);
+	return true;
+}
+
+bool
+COperatorMgr::GetThisValue (CValue* pValue)
+{
+	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
+	if (!ThisValue)
+	{
+		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
+		return false;
+	}
+
+	if (IsClassPtrType (ThisValue.GetType (), EClassType_Reactor))
+	{
+		CClassType* pClassType = ((CClassPtrType*) ThisValue.GetType ())->GetTargetType ();
+		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
+		if (pReactorType->GetField (EReactorField_Parent))
+		{
+			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
+			bool Result =
+				m_pModule->m_OperatorMgr.GetField (&ThisValue, pParentField) &&
+				m_pModule->m_OperatorMgr.PrepareOperand (&ThisValue);
+
+			if (!Result)
+				return false;
+		}
+	}
+
+	*pValue = ThisValue;
+	return true;
+}
+
+bool
+COperatorMgr::GetThisValueType (CValue* pValue)
+{
+	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
+	if (!pFunction->IsMember ())
+	{
+		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
+		return false;
+	}
+
+	CType* pThisType = pFunction->GetThisType ();
+	if (IsClassPtrType (pThisType, EClassType_Reactor))
+	{
+		CClassType* pClassType = ((CClassPtrType*) pThisType)->GetTargetType ();
+		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
+		if (pReactorType->GetField (EReactorField_Parent))
+		{
+			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
+			pThisType = pParentField->GetType ();
+		}
+	}
+
+	pValue->SetType (pThisType);
+	return true;
+}
+
+bool
 COperatorMgr::GetNamespaceMemberType (
 	CNamespace* pNamespace,
 	const char* pName,
@@ -64,18 +136,14 @@ COperatorMgr::GetNamespaceMemberType (
 
 	case EModuleItem_Function:
 		pResultValue->SetFunctionTypeOverload (((CFunction*) pItem)->GetTypeOverload ());
-
 		if (((CFunction*) pItem)->IsMember ())
-			Result = false;
-
+			Result = CreateMemberClosure (pResultValue);
 		break;
 
 	case EModuleItem_Property:
 		pResultValue->SetType (((CProperty*) pItem)->GetType ()->GetPropertyPtrType (EType_PropertyRef, EPropertyPtrType_Thin));
-
 		if (((CProperty*) pItem)->IsMember ())
-			Result = false;
-
+			Result = CreateMemberClosure (pResultValue);
 		break;
 
 	case EModuleItem_EnumConst:
@@ -158,18 +226,40 @@ COperatorMgr::GetNamespaceMember (
 		break;
 
 	case EModuleItem_Function:
-		pResultValue->SetFunction ((CFunction*) pItem);
+		CFunction* pFunction;
+		pFunction = (CFunction*) pItem;
 
-		if (((CFunction*) pItem)->IsMember ())
-			Result = false;
+		if (pFunction->IsVirtual ())
+		{
+			if (pFunction->GetStorageKind () == EStorage_Abstract)
+			{
+				err::SetFormatStringError ("'%s' is abstract", pFunction->m_Tag.cc ());
+				return false;
+			}
+
+			pResultValue->SetLlvmValue (
+				pFunction->GetLlvmFunction (),
+				pFunction->GetType ()->GetFunctionPtrType (EFunctionPtrType_Thin)
+				);
+
+			Result = CreateMemberClosure (pResultValue);
+		}
+		else if (pFunction->IsMember ())
+		{
+			pResultValue->SetFunction (pFunction);
+			Result = CreateMemberClosure (pResultValue);
+		}
+		else
+		{
+			pResultValue->SetFunction (pFunction);
+		}
 
 		break;
 
 	case EModuleItem_Property:
 		pResultValue->SetProperty ((CProperty*) pItem);
-
 		if (((CProperty*) pItem)->IsMember ())
-			Result = false;
+			Result = false; 
 
 		break;
 

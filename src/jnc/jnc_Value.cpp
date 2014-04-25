@@ -224,7 +224,7 @@ CValue::InsertToClosureHead (const CValue& Value)
 {
 	if (!m_Closure)
 		m_Closure = AXL_REF_NEW (CClosure);
-
+	
 	m_Closure->GetArgValueList ()->InsertHead (Value);
 }
 

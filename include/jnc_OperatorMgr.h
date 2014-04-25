@@ -727,6 +727,15 @@ public:
 	// member operators
 
 	bool
+	CreateMemberClosure (CValue* pValue);
+
+	bool
+	GetThisValue (CValue* pValue);
+
+	bool
+	GetThisValueType (CValue* pValue);
+
+	bool
 	MemberOperator (
 		const CValue& OpValue,
 		size_t Index,

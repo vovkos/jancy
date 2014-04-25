@@ -47,7 +47,7 @@ COperatorMgr::GetVirtualMethod (
 
 	if (!pClosure || !pClosure->IsMemberClosure ())
 	{
-		err::SetFormatStringError ("virtual method requires an object pointer");
+		err::SetFormatStringError ("virtual function requires an object pointer");
 		return false;
 	}
 
@@ -102,7 +102,7 @@ COperatorMgr::GetVirtualProperty (
 
 	if (!pClosure || !pClosure->IsMemberClosure ())
 	{
-		err::SetFormatStringError ("virtual method requires an object pointer");
+		err::SetFormatStringError ("virtual property requires an object pointer");
 		return false;
 	}
 
