@@ -242,6 +242,12 @@ CControlFlowMgr::ForStmt_PreInit (
 }
 
 void
+CControlFlowMgr::ForStmt_NoCondition (TForStmt* pStmt)
+{
+	Follow (pStmt->m_pBodyBlock);
+}
+
+void
 CControlFlowMgr::ForStmt_PreCondition (TForStmt* pStmt)
 {
 	pStmt->m_pConditionBlock = CreateBlock ("for_condition");

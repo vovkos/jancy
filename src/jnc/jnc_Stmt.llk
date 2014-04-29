@@ -214,15 +214,7 @@ for_stmt
 				m_pModule->m_ControlFlowMgr.ForStmt_PreInit (&$Stmt, $1.m_Pos);
 			}
 		(item_declaration_w_specifier | expression_or_empty_list ';')
-		(
-				{
-					m_pModule->m_ControlFlowMgr.ForStmt_PreCondition (&$Stmt);
-				}
-			expression $e
-				{
-					return m_pModule->m_ControlFlowMgr.ForStmt_PostCondition (&$Stmt, $e.m_Value);
-				}
-		)? ';'
+		for_stmt_condition <&$Stmt> ';'
 		(
 				{
 					m_pModule->m_ControlFlowMgr.ForStmt_PreLoop (&$Stmt);
@@ -240,6 +232,22 @@ for_stmt
 				m_pModule->m_ControlFlowMgr.ForStmt_PostBody (&$Stmt);
 			}
 	;
+
+nullable
+for_stmt_condition <TForStmt* $pStmt>
+	:		{
+				m_pModule->m_ControlFlowMgr.ForStmt_PreCondition ($pStmt);
+			}
+		expression $e
+			{
+				return m_pModule->m_ControlFlowMgr.ForStmt_PostCondition ($pStmt, $e.m_Value);
+			}
+	|	epsilon
+			{
+				m_pModule->m_ControlFlowMgr.ForStmt_NoCondition ($pStmt);
+			}
+	;
+	
 
 break_stmt
 	:	EToken_Break ';'

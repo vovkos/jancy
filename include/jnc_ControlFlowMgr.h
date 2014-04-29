@@ -305,6 +305,9 @@ public:
 		);
 
 	void
+	ForStmt_NoCondition (TForStmt* pStmt);
+
+	void
 	ForStmt_PreCondition (TForStmt* pStmt);
 
 	bool
