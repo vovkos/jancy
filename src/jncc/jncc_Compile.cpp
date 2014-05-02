@@ -12,14 +12,14 @@ CJnc::Compile (
 {
 	bool Result;
 
-	llvm::LLVMContext* pLlvmContext = new llvm::LLVMContext;
-	llvm::Module* pLlvmModule = new llvm::Module ("jncc_module", *pLlvmContext);
-
 	uint_t ModuleFlags = 0;
 	if (m_pCmdLine->m_Flags & EJncFlag_DebugInfo)
 		ModuleFlags |= jnc::EModuleFlag_DebugInfo;
 
-	m_Module.Create ("jncc_module", pLlvmModule, ModuleFlags);
+	if (m_pCmdLine->m_Flags & EJncFlag_Jit_mc) 
+		ModuleFlags |= jnc::EModuleFlag_McJit;
+
+	m_Module.Create ("jncc_module", ModuleFlags);
 
 	jnc::CScopeThreadModule ScopeModule (&m_Module);
 
@@ -36,17 +36,12 @@ CJnc::Compile (
 bool
 CJnc::Jit ()
 {
-	jnc::EJit JitKind = (m_pCmdLine->m_Flags & EJncFlag_Jit_mc) ? jnc::EJit_McJit : jnc::EJit_Normal;
-
 	return
-		m_Runtime.Create (
-			&m_Module,
-			JitKind,
-			m_pCmdLine->m_GcHeapSize,
-			m_pCmdLine->m_StackSize
-			) &&
-		CStdLib::Export (&m_Runtime) &&
-		m_Module.m_FunctionMgr.JitFunctions (m_Runtime.GetLlvmExecutionEngine ());
+		m_Module.CreateLlvmExecutionEngine () &&
+		CStdLib::Export (&m_Module) &&
+		m_Module.Jit () && 
+		m_Runtime.Create (m_pCmdLine->m_GcHeapSize, m_pCmdLine->m_StackSize) &&
+		m_Runtime.AddModule (&m_Module);
 }
 
 void

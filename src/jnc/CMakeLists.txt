@@ -106,6 +106,7 @@ set (
 	MODULE_H_LIST
 	${JNC_INC_DIR}/jnc_AttributeBlock.h
 	${JNC_INC_DIR}/jnc_AttributeMgr.h
+	${JNC_INC_DIR}/jnc_JitMemoryMgr.h
 	${JNC_INC_DIR}/jnc_LlvmDiBuilder.h
 	${JNC_INC_DIR}/jnc_LlvmIrBuilder.h
 	${JNC_INC_DIR}/jnc_Module.h
@@ -117,6 +118,7 @@ set (
 	MODULE_CPP_LIST
 	jnc_AttributeBlock.cpp
 	jnc_AttributeMgr.cpp
+	jnc_JitMemoryMgr.cpp
 	jnc_LlvmDiBuilder.cpp
 	jnc_LlvmIrBuilder.cpp
 	jnc_Module.cpp

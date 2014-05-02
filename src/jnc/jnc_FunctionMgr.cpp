@@ -755,7 +755,7 @@ LlvmFatalErrorHandler (
 }
 
 bool
-CFunctionMgr::JitFunctions (llvm::ExecutionEngine* pExecutionEngine)
+CFunctionMgr::JitFunctions ()
 {
 #ifdef _JNC_NO_JIT
 	err::SetFormatStringError ("LLVM jitting is disabled");
@@ -766,7 +766,8 @@ CFunctionMgr::JitFunctions (llvm::ExecutionEngine* pExecutionEngine)
 	llvm::ScopedFatalErrorHandler ScopeErrorHandler (LlvmFatalErrorHandler);
 
 	CJitEventListener JitEventListener (this);
-	pExecutionEngine->RegisterJITEventListener (&JitEventListener);
+	llvm::ExecutionEngine* pLlvmExecutionEngine = m_pModule->GetLlvmExecutionEngine ();
+	pLlvmExecutionEngine->RegisterJITEventListener (&JitEventListener);
 
 	try
 	{
@@ -778,23 +779,23 @@ CFunctionMgr::JitFunctions (llvm::ExecutionEngine* pExecutionEngine)
 			if (!pFunction->GetEntryBlock ())
 				continue;
 
-				void* pf = pExecutionEngine->getPointerToFunction (pFunction->GetLlvmFunction ());
+				void* pf = pLlvmExecutionEngine->getPointerToFunction (pFunction->GetLlvmFunction ());
 				pFunction->m_pfMachineCode = pf;
 
 				// ASSERT (pFunction->m_pfMachineCode == pf && pFunction->m_MachineCodeSize != 0);
 		}
 
 		// for MC jitter this should do all the job
-		pExecutionEngine->finalizeObject ();
+		pLlvmExecutionEngine->finalizeObject ();
 	}
 	catch (err::CError Error)
 	{
 		err::SetFormatStringError ("LLVM jitting failed: %s", Error->GetDescription ().cc ());
-		pExecutionEngine->UnregisterJITEventListener (&JitEventListener);
+		pLlvmExecutionEngine->UnregisterJITEventListener (&JitEventListener);
 		return false;
 	}
 
-	pExecutionEngine->UnregisterJITEventListener (&JitEventListener);
+	pLlvmExecutionEngine->UnregisterJITEventListener (&JitEventListener);
 	return true;
 }
 

@@ -339,11 +339,14 @@ CStdLib::AppendFmtLiteral_a (
 
 	if (pFmtLiteral->m_MaxLength < NewLength)
 	{
+		CModule* pModule = pRuntime->GetFirstModule ();
+		ASSERT (pModule);
+
 		size_t NewMaxLength = rtl::GetMinPower2Ge (NewLength);
 		TObjHdr* pObjHdr = AXL_MEM_NEW_EXTRA (TObjHdr, NewMaxLength + 1);
 		pObjHdr->m_ScopeLevel = 0;
 		pObjHdr->m_pRoot = pObjHdr;
-		pObjHdr->m_pType = pRuntime->GetModule ()->m_TypeMgr.GetPrimitiveType (EType_Char);
+		pObjHdr->m_pType = pModule->m_TypeMgr.GetPrimitiveType (EType_Char);
 		pObjHdr->m_Flags = 0;
 
 		char* pNew = (char*) (pObjHdr + 1);

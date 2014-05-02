@@ -27,6 +27,7 @@ enum EModuleFlag
 {
 	EModuleFlag_DebugInfo  = 0x0001,
 	EModuleFlag_IrComments = 0x0002,
+	EModuleFlag_McJit      = 0x0004,
 };
 
 //.............................................................................
@@ -65,10 +66,11 @@ protected:
 	rtl::CArrayT <CModuleItem*> m_CalcLayoutArray;
 	rtl::CArrayT <CModuleItem*> m_CompileArray;
 	rtl::CArrayT <CModuleItem*> m_ApiItemArray;
-	
 	rtl::CBoxListT <rtl::CString> m_SourceList;
+	rtl::CStringHashTableMapT <void*> m_FunctionMap;
 
 	llvm::Module* m_pLlvmModule;
+	llvm::ExecutionEngine* m_pLlvmExecutionEngine;
 
 public:
 	CTypeMgr m_TypeMgr;
@@ -84,10 +86,7 @@ public:
 	CLlvmDiBuilder m_LlvmDiBuilder;
 
 public:
-	CModule ()
-	{
-		m_pLlvmModule = NULL;
-	}
+	CModule ();
 
 	~CModule ()
 	{
@@ -103,13 +102,22 @@ public:
 	llvm::LLVMContext*
 	GetLlvmContext ()
 	{
+		ASSERT (m_pLlvmModule);
 		return &m_pLlvmModule->getContext ();
 	}
 
 	llvm::Module*
 	GetLlvmModule ()
 	{
+		ASSERT (m_pLlvmModule);
 		return m_pLlvmModule;
+	}
+
+	llvm::ExecutionEngine*
+	GetLlvmExecutionEngine ()
+	{
+		ASSERT (m_pLlvmExecutionEngine);
+		return m_pLlvmExecutionEngine;
 	}
 
 	CType*
@@ -251,9 +259,11 @@ public:
 	bool
 	Create (
 		const rtl::CString& Name,
-		llvm::Module* pLlvmModule,
 		uint_t Flags = 0
 		);
+
+	bool
+	CreateLlvmExecutionEngine ();
 
 	void
 	Clear ();
@@ -270,12 +280,28 @@ public:
 
 	bool
 	Link (CModule* pModule);
-
+	
 	bool
 	CalcLayout ();
 
 	bool
 	Compile ();
+
+	bool
+	Jit ();
+
+	void
+	MapFunction (
+		llvm::Function* pLlvmFunction,
+		void* pf
+		);
+
+	void*
+	FindFunctionMapping (const char* pName)
+	{
+		rtl::CStringHashTableMapIteratorT <void*> It = m_FunctionMap.Find (pName);
+		return It ? It->m_Value : NULL;
+	}
 
 	rtl::CString
 	GetLlvmIrString ();
@@ -285,7 +311,7 @@ public:
 	{
 		return jnc::CallVoidFunction (m_pConstructor);
 	}
-
+	
 protected:
 	bool
 	CreateDefaultConstructor ();

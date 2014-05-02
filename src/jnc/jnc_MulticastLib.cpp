@@ -9,15 +9,12 @@ namespace jnc {
 //.............................................................................
 
 bool
-CMulticastLib::Export (CRuntime* pRuntime)
+CMulticastLib::Export (CModule* pModule)
 {
-	CModule* pModule = pRuntime->GetModule ();
-	EJit JitKind = pRuntime->GetJitKind ();
-
 	rtl::CConstListT <CMulticastClassType> McTypeList = pModule->m_TypeMgr.GetMulticastClassTypeList ();
 	rtl::CIteratorT <CMulticastClassType> McType = McTypeList.GetHead ();
 	for (; McType; McType++)
-		MapMulticastMethods (pRuntime, *McType);
+		MapMulticastMethods (pModule, *McType);
 
 	return true;
 }
@@ -118,7 +115,7 @@ CMulticastLib::m_MulticastMethodTable [EFunctionPtrType__Count] [EMulticastMetho
 
 void
 CMulticastLib::MapMulticastMethods (
-	CRuntime* pRuntime,
+	CModule* pModule,
 	CMulticastClassType* pMulticastType
 	)
 {
@@ -129,7 +126,7 @@ CMulticastLib::MapMulticastMethods (
 	{
 		CFunction* pFunction = pMulticastType->GetMethod ((EMulticastMethod) i);
 
-		pRuntime->MapFunction (
+		pModule->MapFunction (
 			pFunction->GetLlvmFunction (),
 			m_MulticastMethodTable [PtrTypeKind] [i]
 			);

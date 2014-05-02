@@ -253,7 +253,7 @@ public:
 	InjectTlsPrologues ();
 
 	bool
-	JitFunctions (llvm::ExecutionEngine* pExecutionEngine);
+	JitFunctions ();
 
 	// std functions
 

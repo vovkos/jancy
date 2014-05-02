@@ -21,7 +21,7 @@ protected:
 public:
 	static
 	bool
-	Export (CRuntime* pRuntime);
+	Export (CModule* pRuntime);
 
 	static
 	void
@@ -77,7 +77,7 @@ protected:
 	static
 	void
 	MapMulticastMethods (
-		CRuntime* pRuntime,
+		CModule* pModule,
 		CMulticastClassType* pMulticastType
 		);
 

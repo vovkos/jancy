@@ -1,10 +1,18 @@
 #include "pch.h"
 #include "jnc_Module.h"
+#include "jnc_JitMemoryMgr.h"
 #include "jnc_Parser.llk.h"
 
 namespace jnc {
 
 //.............................................................................
+
+CModule::CModule ()
+{
+	m_pLlvmModule = NULL;
+	m_pLlvmExecutionEngine = NULL;
+	m_Flags = 0;
+}
 
 void
 CModule::Clear ()
@@ -22,18 +30,24 @@ CModule::Clear ()
 	m_ApiItemArray.Clear ();
 	m_LlvmDiBuilder.Clear ();
 	m_SourceList.Clear ();
+	m_FunctionMap.Clear ();
 
-	m_Flags = 0;
+	if (m_pLlvmExecutionEngine)
+		delete m_pLlvmExecutionEngine;
+	else if (m_pLlvmModule)
+		delete m_pLlvmModule;
 
 	m_pConstructor = NULL;
 	m_pDestructor = NULL;
 	m_pLlvmModule = NULL;
+	m_pLlvmExecutionEngine = NULL;
+
+	m_Flags = 0;
 }
 
 bool
 CModule::Create (
 	const rtl::CString& Name,
-	llvm::Module* pLlvmModule,
 	uint_t Flags
 	)
 {
@@ -41,14 +55,82 @@ CModule::Create (
 
 	m_Flags = Flags;
 	m_Name = Name;
-	m_pLlvmModule = pLlvmModule;
+
+	llvm::LLVMContext* pLlvmContext = new llvm::LLVMContext;
+	m_pLlvmModule = new llvm::Module ("jncc_module", *pLlvmContext);
 
 	m_LlvmIrBuilder.Create ();
 
 	if (Flags & EModuleFlag_DebugInfo)
 		m_LlvmDiBuilder.Create ();
 
-	return m_NamespaceMgr.AddStdItems ();
+	bool Result = m_NamespaceMgr.AddStdItems ();
+	if (!Result)
+		return false;
+
+	return true;
+}
+
+bool
+CModule::CreateLlvmExecutionEngine ()
+{
+	ASSERT (!m_pLlvmExecutionEngine);
+
+	llvm::EngineBuilder EngineBuilder (m_pLlvmModule);
+
+	std::string errorString;
+	EngineBuilder.setErrorStr (&errorString);
+	EngineBuilder.setEngineKind(llvm::EngineKind::JIT);
+
+	llvm::TargetOptions TargetOptions;
+#if (LLVM_VERSION < 0x0304) // they removed JITExceptionHandling in 3.4
+	TargetOptions.JITExceptionHandling = true;
+#endif
+
+	if (m_Flags & EModuleFlag_McJit)
+	{
+		CJitMemoryMgr* pJitMemoryMgr = new CJitMemoryMgr (this);
+		EngineBuilder.setUseMCJIT (true);
+#if (LLVM_VERSION < 0x0304) // they distinguish between JIT & MCJIT memory managers in 3.4
+		EngineBuilder.setJITMemoryManager (pJitMemoryMgr);
+#else
+		EngineBuilder.setMCJITMemoryManager (pJitMemoryMgr);
+#endif
+
+		TargetOptions.JITEmitDebugInfo = true;
+	}
+
+	EngineBuilder.setTargetOptions (TargetOptions);
+
+#if (_AXL_CPU == AXL_CPU_X86)
+	EngineBuilder.setMArch ("x86");
+#endif
+
+	m_pLlvmExecutionEngine = EngineBuilder.create ();
+	if (!m_pLlvmExecutionEngine)
+	{
+		err::SetFormatStringError ("cannot create execution engine: %s\n", errorString.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+void
+CModule::MapFunction (
+	llvm::Function* pLlvmFunction,
+	void* pf
+	)
+{
+	if (m_Flags & EModuleFlag_McJit)
+	{
+		m_FunctionMap [pLlvmFunction->getName ().data ()] = pf;
+	}
+	else
+	{
+		ASSERT (m_pLlvmExecutionEngine);
+		m_pLlvmExecutionEngine->addGlobalMapping (pLlvmFunction, pf);
+	}
 }
 
 CModuleItem*
@@ -328,6 +410,13 @@ CModule::Compile ()
 		m_LlvmDiBuilder.Finalize ();
 
 	return true;
+}
+
+bool
+CModule::Jit ()
+{
+	#pragma AXL_TODO ("move JITting logic to CModule")
+	return m_FunctionMgr.JitFunctions ();
 }
 
 bool

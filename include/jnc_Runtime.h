@@ -15,21 +15,6 @@ class CModule;
 
 //.............................................................................
 
-enum EJit
-{
-	EJit_Normal = 0,
-	EJit_McJit,
-
-	EJit__Count
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-GetJitKindString (EJit JitKind);
-
-//.............................................................................
-
 enum ECreateObjectFlag
 {
 	ECreateObjectFlag_Prime     = 0x01,
@@ -64,12 +49,8 @@ protected:
 	};
 
 protected:
-	CModule* m_pModule;
-	EJit m_JitKind;
-	llvm::ExecutionEngine* m_pLlvmExecutionEngine;
-	rtl::CStringHashTableMapT <void*> m_FunctionMap;
-
 	mt::CLock m_Lock;
+	rtl::CArrayT <CModule*> m_ModuleArray;
 
 	// gc-heap
 
@@ -108,53 +89,35 @@ public:
 		Destroy ();
 	}
 
-	EJit
-	GetJitKind ()
-	{
-		return m_JitKind;
-	}
-
 	bool
 	Create (
-		CModule* pModule,
-		EJit JitKind,
 		size_t HeapLimit = -1,
 		size_t StackLimit = -1
 		);
 
+	rtl::CArrayT <CModule*> 
+	GetModuleArray ()
+	{
+		return m_ModuleArray;
+	}
+
+	CModule* 
+	GetFirstModule ()
+	{
+		return !m_ModuleArray.IsEmpty () ? m_ModuleArray [0] : NULL;
+	}
+
+	bool
+	AddModule (CModule* pModule);
+
 	void
 	Destroy ();
-
-	void
-	MapFunction (
-		llvm::Function* pLlvmFunction,
-		void* pf
-		);
-
-	void*
-	FindFunctionMapping (const char* pName)
-	{
-		rtl::CStringHashTableMapIteratorT <void*> It = m_FunctionMap.Find (pName);
-		return It ? It->m_Value : NULL;
-	}
 
 	bool
 	Startup ();
 
 	void
 	Shutdown ();
-
-	CModule*
-	GetModule ()
-	{
-		return m_pModule;
-	}
-
-	llvm::ExecutionEngine*
-	GetLlvmExecutionEngine ()
-	{
-		return m_pLlvmExecutionEngine;
-	}
 
 	static
 	void

@@ -6,82 +6,10 @@
 
 namespace jnc {
 
-using namespace llvm;
-
-//.............................................................................
-
-const char*
-GetJitKindString (EJit JitKind)
-{
-	static const char* StringTable [EJit__Count] =
-	{
-		"normal-jit", // EJit_Normal = 0,
-		"mc-jit",     // EJit_McJit,
-	};
-
-	return (size_t) JitKind < EJit__Count ?
-		StringTable [JitKind] :
-		"undefined-jit";
-}
-
-//.............................................................................
-
-class CJitMemoryManager: public llvm::SectionMemoryManager
-{
-public:
-	CRuntime* m_pRuntime;
-
-	CJitMemoryManager (CRuntime* pRuntime)
-	{
-		m_pRuntime = pRuntime;
-	}
-
-	virtual
-	void*
-	getPointerToNamedFunction (
-		const std::string &Name,
-		bool AbortOnFailure
-		);
-
-	virtual
-	uint64_t
-	getSymbolAddress (const std::string &Name);
-};
-
-void*
-CJitMemoryManager::getPointerToNamedFunction (
-	const std::string& Name,
-	bool AbortOnFailure
-	)
-{
-	void* pf = m_pRuntime->FindFunctionMapping (Name.c_str ());
-	if (pf)
-		return pf;
-
-	if (AbortOnFailure)
-		report_fatal_error ("CJitMemoryManager::getPointerToNamedFunction: unresolved external function '" + Name + "'");
-
-	return NULL;
-}
-
-uint64_t
-CJitMemoryManager::getSymbolAddress (const std::string &Name)
-{
-	void* pf = m_pRuntime->FindFunctionMapping (Name.c_str ());
-	if (pf)
-		return (uint64_t) pf;
-
-	return 0;
-}
-
 //.............................................................................
 
 CRuntime::CRuntime ()
 {
-	m_pModule = NULL;
-	m_pLlvmExecutionEngine = NULL;
-	m_JitKind = EJit_Normal;
-
 	m_GcState = EGcState_Idle;
 	m_GcHeapLimit = -1;
 	m_TotalGcAllocSize = 0;
@@ -98,77 +26,15 @@ CRuntime::CRuntime ()
 
 bool
 CRuntime::Create (
-	CModule* pModule,
-	EJit JitKind,
 	size_t HeapLimit,
 	size_t StackLimit
 	)
 {
 	Destroy ();
 
-	m_pModule = pModule;
-	m_JitKind = JitKind;
 	m_GcHeapLimit = HeapLimit;
 	m_StackLimit = StackLimit;
 
-	// execution engine
-
-	llvm::EngineBuilder EngineBuilder (pModule->GetLlvmModule ());
-
-	std::string errorString;
-	EngineBuilder.setErrorStr (&errorString);
-	EngineBuilder.setEngineKind(llvm::EngineKind::JIT);
-
-	llvm::TargetOptions TargetOptions;
-#if (LLVM_VERSION < 0x0304) // they removed JITExceptionHandling in 3.4
-	TargetOptions.JITExceptionHandling = true;
-#endif
-
-	if (JitKind == EJit_McJit)
-	{
-		CJitMemoryManager* pJitMemoryManager = new CJitMemoryManager (this);
-		EngineBuilder.setUseMCJIT (true);
-#if (LLVM_VERSION < 0x0304) // they distinguish between JIT & MCJIT memory managers in 3.4
-		EngineBuilder.setJITMemoryManager (pJitMemoryManager);
-#else
-		EngineBuilder.setMCJITMemoryManager (pJitMemoryManager);
-#endif
-
-		TargetOptions.JITEmitDebugInfo = true;
-	}
-
-	EngineBuilder.setTargetOptions (TargetOptions);
-
-#if (_AXL_CPU == AXL_CPU_X86)
-	EngineBuilder.setMArch ("x86");
-#endif
-
-	m_pLlvmExecutionEngine = EngineBuilder.create ();
-	if (!m_pLlvmExecutionEngine)
-	{
-		err::SetFormatStringError ("cannot create execution engine: %s\n", errorString.c_str());
-		return false;
-	}
-
-	// static gc roots
-
-	rtl::CArrayT <CVariable*> StaticRootArray = pModule->m_VariableMgr.GetStaticGcRootArray ();
-	size_t Count = StaticRootArray.GetCount ();
-
-	m_StaticGcRootArray.SetCount (Count);
-	for (size_t i = 0; i < Count; i++)
-	{
-		CVariable* pVariable = StaticRootArray [i];
-		void* p = m_pLlvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) pVariable->GetLlvmAllocValue ());
-		ASSERT (p);
-
-		m_StaticGcRootArray [i].m_p = p;
-		m_StaticGcRootArray [i].m_pType = pVariable->GetType ();
-	}
-
-	// tls
-
-	m_TlsSize = pModule->m_VariableMgr.GetTlsStructType ()->GetSize ();
 	m_TlsSlot = GetTlsMgr ()->CreateSlot ();
 	return true;
 }
@@ -176,19 +42,11 @@ CRuntime::Create (
 void
 CRuntime::Destroy ()
 {
-	if (!m_pModule)
-		return;
-
 	if (m_TlsSlot != -1)
 	{
 		GetTlsMgr ()->NullifyTls (this);
 		GetTlsMgr ()->DestroySlot (m_TlsSlot);
 	}
-
-	if (m_pLlvmExecutionEngine)
-		delete m_pLlvmExecutionEngine;
-
-	m_pLlvmExecutionEngine = NULL;
 
 	m_TlsSlot = -1;
 	m_TlsSize = 0;
@@ -199,34 +57,46 @@ CRuntime::Destroy ()
 		AXL_MEM_FREE (pTls);
 	}
 
-/*	m_GcHeap = NULL;
-	m_GcBlockSize = 0;
-	m_GcMap.Clear ();
-	m_GcObjectList.Clear ();
-	m_GcDestructList.Clear ();
-*/
-
 	m_StaticGcRootArray.Clear ();
-	m_FunctionMap.Clear ();
-
-	m_pModule = NULL;
+	m_ModuleArray.Clear ();
 }
 
-void
-CRuntime::MapFunction (
-	llvm::Function* pLlvmFunction,
-	void* pf
-	)
+bool
+CRuntime::AddModule (CModule* pModule)
 {
-	if (m_JitKind == EJit_McJit)
+	llvm::ExecutionEngine* pLlvmExecutionEngine = pModule->GetLlvmExecutionEngine ();
+
+	// static gc roots
+
+	rtl::CArrayT <CVariable*> StaticRootArray = pModule->m_VariableMgr.GetStaticGcRootArray ();
+	size_t Count = StaticRootArray.GetCount ();
+
+	m_StaticGcRootArray.SetCount (Count);
+	for (size_t i = 0; i < Count; i++)
 	{
-		m_FunctionMap [pLlvmFunction->getName ().data ()] = pf;
+		CVariable* pVariable = StaticRootArray [i];
+		void* p = pLlvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) pVariable->GetLlvmAllocValue ());
+		ASSERT (p);
+
+		m_StaticGcRootArray [i].m_p = p;
+		m_StaticGcRootArray [i].m_pType = pVariable->GetType ();
 	}
-	else
+
+	// tls
+	
+	size_t TlsSize = pModule->m_VariableMgr.GetTlsStructType ()->GetSize ();
+	if (!m_TlsSize)
 	{
-		ASSERT (m_pLlvmExecutionEngine);
-		m_pLlvmExecutionEngine->addGlobalMapping (pLlvmFunction, pf);
+		m_TlsSize = TlsSize >= 1024 ? TlsSize : 1024; // reserve at least 1K for TLS
 	}
+	else if (m_TlsSize < TlsSize)
+	{
+		err::SetFormatStringError ("dynamic grow of TLS is not yet supported");
+		return false;
+	}
+
+	m_ModuleArray.Append (pModule);
+	return true;
 }
 
 bool

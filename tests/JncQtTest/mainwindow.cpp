@@ -383,16 +383,14 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	jnc::EJit JitKind = jnc::EJit_McJit;
-	uint_t ModuleFlags = jnc::EModuleFlag_DebugInfo;
+	uint_t ModuleFlags = jnc::EModuleFlag_DebugInfo | jnc::EModuleFlag_McJit;
 #else
-	jnc::EJit JitKind = jnc::EJit_Normal;
 	uint_t ModuleFlags = 0;
 #endif
 
 	ModuleFlags |= jnc::EModuleFlag_IrComments;
 
-	module.Create (filePathBytes.data(), pLlvmModule, ModuleFlags);
+	module.Create (filePathBytes.data(), ModuleFlags);
 
 	jnc::CScopeThreadModule ScopeModule (&module);
 
@@ -429,18 +427,14 @@ bool MainWindow::compile ()
 	modulePane->build (&module, child);
 	llvmIr->build (&module);
 
-	writeOutput("JITting with '%s'...\n", jnc::GetJitKindString (JitKind));
-
-	result = runtime.Create (&module, JitKind, 16 * 1024, 16 * 1024); // 16K gc heap, 16K stack
-	if (!result)
-	{
-		writeOutput("%s\n", err::GetError ()->GetDescription ().cc ());
-		return false;
-	}
+	writeOutput("JITting...\n");
 
 	result =
-		StdLib::Export (&runtime) &&
-		module.m_FunctionMgr.JitFunctions (runtime.GetLlvmExecutionEngine ());
+		module.CreateLlvmExecutionEngine () &&
+		StdLib::Export (&module) && 
+		module.Jit () &&
+		runtime.Create (16 * 1024, 16 * 1024) && 
+		runtime.AddModule (&module); // 16K gc heap, 16K stack
 
 	if (!result)
 	{
@@ -449,6 +443,7 @@ bool MainWindow::compile ()
 	}
 
 	disassembly->build (&module);
+
 	writeOutput ("Done.\n");
 	child->setCompilationNeeded (false);
 	return true;

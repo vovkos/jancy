@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include "jnc_Value.h"
 #include "jnc_Module.h"
-#include "jnc_Runtime.h"
 
 namespace jnc {
 
@@ -39,12 +37,11 @@ GetApiClassType () \
 } \
 static \
 bool \
-Export (jnc::CRuntime* pRuntime) \
+Export (jnc::CModule* pModule) \
 { \
 	bool Result = true; \
 	jnc::CFunction* pFunction = NULL; \
 	jnc::CProperty* pProperty = NULL; \
-	jnc::CModule* pModule = pRuntime->GetModule (); \
 	jnc::CClassType* pType = pModule->GetApiClassType (GetApiClassSlot (), GetApiClassName ()); \
 	if (!pType) \
 		return false; \
@@ -85,12 +82,11 @@ GetApiClassVTable () \
 #define JNC_API_BEGIN_LIB() \
 static \
 bool \
-Export (jnc::CRuntime* pRuntime) \
+Export (jnc::CModule* pModule) \
 { \
 	bool Result = true; \
 	jnc::CFunction* pFunction = NULL; \
 	jnc::CProperty* pProperty = NULL; \
-	jnc::CModule* pModule = pRuntime->GetModule (); \
 	jnc::CNamespace* pNamespace = pModule->m_NamespaceMgr.GetGlobalNamespace ();
 
 #define JNC_API_END_LIB() \
@@ -100,12 +96,12 @@ Export (jnc::CRuntime* pRuntime) \
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_API_LIB(Lib) \
-	Result = Lib::Export (pRuntime); \
+	Result = Lib::Export (pModule); \
 	if (!Result) \
 		return false;
 
 #define JNC_API_CLASS(Class) \
-	Result = Class::Export (pRuntime); \
+	Result = Class::Export (pModule); \
 	if (!Result) \
 		return false;
 
@@ -113,12 +109,12 @@ Export (jnc::CRuntime* pRuntime) \
 	pFunction = pNamespace->GetFunctionByName (Name); \
 	if (!pFunction) \
 		return false; \
-	pRuntime->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
 
 #define JNC_API_STD_FUNCTION_FORCED(StdFunc, Function) \
 	pFunction = pModule->m_FunctionMgr.GetStdFunction (StdFunc); \
 	ASSERT (pFunction); \
-	pRuntime->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
 
 #define JNC_API_STD_FUNCTION(StdFunc, Function) \
 	if (pModule->m_FunctionMgr.IsStdFunctionUsed (StdFunc)) \
@@ -130,20 +126,20 @@ Export (jnc::CRuntime* pRuntime) \
 	pProperty = pNamespace->GetPropertyByName (Name); \
 	if (!pProperty) \
 		return false; \
-	pRuntime->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter)); \
-	pRuntime->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
+	pModule->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter)); \
+	pModule->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
 
 #define JNC_API_CONST_PROPERTY(Name, Getter) \
 	pProperty = pNamespace->GetPropertyByName (Name); \
 	if (!pProperty) \
 		return false; \
-	pRuntime->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter));
+	pModule->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter));
 
 #define JNC_API_AUTOGET_PROPERTY(Name, Setter) \
 	pProperty = pNamespace->GetPropertyByName (Name); \
 	if (!pProperty) \
 		return false; \
-	pRuntime->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
+	pModule->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
 
 //.............................................................................
 
