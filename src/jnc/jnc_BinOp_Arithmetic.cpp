@@ -66,15 +66,13 @@ DataPtrDifferenceOperator (
 
 	CType* pType = pModule->GetSimpleType (EType_Int_p);
 
-	CValue CastValue1;
-	CValue CastValue2;
 	CValue DiffValue;
 	CValue SizeValue;
 
 	SizeValue.SetConstSizeT (pOpType->GetTargetType ()->GetSize ());
 
-	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue1, pType, &CastValue1);
-	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue2, pType, &CastValue2);
+	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue1, pType, &OpValue1);
+	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue2, pType, &OpValue2);
 	pModule->m_LlvmIrBuilder.CreateSub_i (OpValue1, OpValue2, pType, &DiffValue);
 	pModule->m_LlvmIrBuilder.CreateDiv_i (DiffValue, SizeValue, pType, pResultValue);
 	return true;
