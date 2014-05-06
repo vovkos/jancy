@@ -52,14 +52,13 @@ COperatorMgr::Allocate (
 		pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 		m_pModule->m_VariableMgr.AllocatePrimeStaticVariable (pVariable);
 		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-
-		PtrValue.SetLlvmValue (pVariable->GetLlvmValue (), pPtrType);
-		break;
+		pResultValue->SetVariable (pVariable);
+		return true;
 
 	case EStorage_Thread:
 		pVariable = m_pModule->m_VariableMgr.CreateVariable (EStorage_Thread, pTag, pTag, pType);
-		PtrValue.SetLlvmValue (pVariable->GetLlvmValue (), pPtrType);
-		break;
+		pResultValue->SetVariable (pVariable);
+		return true;
 
 	case EStorage_Stack:
 		pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
@@ -635,15 +634,17 @@ COperatorMgr::NewOperator (
 	if (!Result)
 		return false;
 
-	Result =
-		Prime (StorageKind, PtrValue, pType, ElementCountValue, pResultValue) &&
-		Construct (*pResultValue, pArgList);
+	// no need to prime static or thread variables
 
+	ASSERT (PtrValue.GetValueKind () == EValue_Variable);
+
+	Result = Construct (PtrValue, pArgList);
 	if (!Result)
 		return false;
 
 	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
-
+	
+	*pResultValue = PtrValue;
 	return true;
 }
 

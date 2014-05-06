@@ -1,8 +1,18 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+class C
+{
+	construct ()
+	{
+		printf ("C.construct (%x)\n", this);
+	}
+}
+
 int main ()
 {
 	printf ("main ()\n");
+	static new C;
+	static new C;
 	return 0;
 }
 
