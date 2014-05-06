@@ -69,7 +69,8 @@ DataPtrDifferenceOperator (
 	CValue DiffValue;
 	CValue SizeValue;
 
-	SizeValue.SetConstSizeT (pOpType->GetTargetType ()->GetSize ());
+	size_t Size = pOpType->GetTargetType ()->GetSize ();
+	SizeValue.SetConstSizeT (Size ? Size : 1);
 
 	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue1, pType, &OpValue1);
 	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue2, pType, &OpValue2);

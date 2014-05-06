@@ -23,8 +23,9 @@ CCast_DataPtr_FromArray::GetCastKind (
 
 	return
 		pArrayElementType->Cmp (pPtrDataType) == 0 ? ECast_Implicit :
-		(pArrayElementType->GetFlags () & ETypeFlag_Pod) &&
-		(pPtrDataType->GetFlags () & ETypeFlag_Pod) ? ECast_Explicit : ECast_None;
+		(pArrayElementType->GetFlags () & ETypeFlag_Pod) ?
+			pPtrDataType->GetTypeKind () == EType_Void ? ECast_Implicit :
+			(pPtrDataType->GetFlags () & ETypeFlag_Pod) ? ECast_Explicit : ECast_None : ECast_None;
 }
 
 bool
