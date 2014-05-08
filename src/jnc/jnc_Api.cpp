@@ -73,6 +73,8 @@ Prime (
 	uintptr_t Flags
 	)
 {
+//	memset (pObject, 0, pType->GetSize ());
+
 	pObject->m_ScopeLevel = ScopeLevel;
 	pObject->m_pRoot = pRoot;
 	pObject->m_pType = pType;
