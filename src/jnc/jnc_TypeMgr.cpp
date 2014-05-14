@@ -2383,7 +2383,7 @@ CTypeMgr::CreateSchedulerType ()
 {
 	CFunctionType* pFunctionType = (CFunctionType*) GetStdType (EStdType_SimpleFunction);
 	CType* pReturnType = GetPrimitiveType (EType_Void);
-	CType* pArgType = pFunctionType->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Safe);
+	CType* pArgType = pFunctionType->GetFunctionPtrType ();
 	CFunctionType* pScheduleType = GetFunctionType (pReturnType, &pArgType, 1);
 
 	CClassType* pType = CreateClassType ("Scheduler", "jnc.Scheduler");
