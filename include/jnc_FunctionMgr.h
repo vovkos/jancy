@@ -115,6 +115,9 @@ public:
 	CValue
 	OverrideThisValue (const CValue& Value);
 
+	void
+	MarkCurrentFunctionGc ();
+
 	CValue
 	GetScopeLevel ()
 	{

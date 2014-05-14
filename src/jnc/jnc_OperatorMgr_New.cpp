@@ -85,6 +85,7 @@ COperatorMgr::Allocate (
 			&PtrValue
 			);
 
+		m_pModule->m_FunctionMgr.MarkCurrentFunctionGc ();
 		break;
 
 	case EStorage_UHeap:
@@ -691,6 +692,8 @@ COperatorMgr::MarkStackGcRoot (
 	bool IsTmpGcRoot
 	)
 {
+	m_pModule->m_FunctionMgr.MarkCurrentFunctionGc ();
+
 	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
 	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 
@@ -735,10 +738,6 @@ COperatorMgr::MarkStackGcRoot (
 	CValue BytePtrValue;
 	m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pBytePtrType, &BytePtrValue);
 	m_pModule->m_LlvmIrBuilder.CreateStore (BytePtrValue, GcRootValue);
-	
-	llvm::Function* pLlvmFunction = pFunction->GetLlvmFunction ();
-	if (!pLlvmFunction->hasGC ())
-		pLlvmFunction->setGC ("jnc-shadow-stack");
 }
 
 //.............................................................................

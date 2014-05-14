@@ -74,6 +74,9 @@ bool LlvmIr::build(jnc::CModule *module)
 {
 	clear ();
 
+	appendText (module->GetLlvmIrString ());
+
+/*
 	rtl::CIteratorT <jnc::CFunction> Function = module->m_FunctionMgr.GetFunctionList ().GetHead ();
 	for (; Function; Function++)
 	{
@@ -90,6 +93,7 @@ bool LlvmIr::build(jnc::CModule *module)
 		addFunction (*Function);
 		appendFormat ("\n;........................................\n\n");
 	}
+	*/
 
 	return true;
 }

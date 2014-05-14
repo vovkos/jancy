@@ -12,6 +12,8 @@ CLlvmIrBuilder::CLlvmIrBuilder ()
 	ASSERT (m_pModule);
 
 	m_pLlvmIrBuilder = NULL;
+
+	m_CommentMdKind = 0;
 }
 
 void
@@ -20,7 +22,9 @@ CLlvmIrBuilder::Create ()
 	Clear ();
 
 	m_pLlvmIrBuilder = new llvm::IRBuilder <> (*m_pModule->GetLlvmContext ());
-	m_CommentMdKind = m_pModule->GetLlvmContext ()->getMDKindID ("jnc.comment");
+
+	if (!(m_pModule->GetFlags () & EModuleFlag_IrComments))
+		m_CommentMdKind = m_pModule->GetLlvmContext ()->getMDKindID ("jnc.comment");
 }
 
 void

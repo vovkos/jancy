@@ -28,7 +28,6 @@ protected:
 	llvm::IRBuilder <>* m_pLlvmIrBuilder;
 
 	uint_t m_CommentMdKind;
-	uint_t m_EmptyLineMdKind;
 
 public:
 	CLlvmIrBuilder ();
