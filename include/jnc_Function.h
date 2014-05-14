@@ -543,6 +543,9 @@ public:
 	bool
 	SetBody (rtl::CBoxListT <CToken>* pTokenList);
 
+	void
+	MarkGc ();
+
 	CScope*
 	GetScope ()
 	{

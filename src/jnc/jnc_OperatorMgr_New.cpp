@@ -85,7 +85,7 @@ COperatorMgr::Allocate (
 			&PtrValue
 			);
 
-		m_pModule->m_FunctionMgr.MarkCurrentFunctionGc ();
+		CreateTmpStackGcRoot (PtrValue);
 		break;
 
 	case EStorage_UHeap:
@@ -673,7 +673,10 @@ void
 COperatorMgr::CreateTmpStackGcRoot (const CValue& Value)
 {
 	CType* pType = Value.GetType ();
-	ASSERT (pType->GetFlags () & ETypeFlag_GcRoot);
+	ASSERT (
+		(pType->GetFlags () & ETypeFlag_GcRoot) ||	
+		pType->GetTypeKind () == EType_DataPtr // heap new creates tmp stack root
+		);
 
 	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
 	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());	
@@ -692,9 +695,9 @@ COperatorMgr::MarkStackGcRoot (
 	bool IsTmpGcRoot
 	)
 {
-	m_pModule->m_FunctionMgr.MarkCurrentFunctionGc ();
-
 	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
+	pFunction->MarkGc ();
+
 	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 
 	CType* pBytePtrType = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);

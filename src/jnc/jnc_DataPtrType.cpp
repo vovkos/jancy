@@ -118,14 +118,19 @@ CDataPtrType::GcMark (
 	void* p
 	)
 {
-	ASSERT (m_PtrTypeKind == EDataPtrType_Normal);
+	if (m_PtrTypeKind == EDataPtrType_Normal)
+	{
+		TDataPtr* pPtr = (TDataPtr*) p;		
+		TObjHdr* pObject = pPtr->m_pObject;
+		if (!pObject || pObject->m_ScopeLevel)
+			return;
 
-	TDataPtr* pPtr = (TDataPtr*) p;		
-	TObjHdr* pObject = pPtr->m_pObject;
-	if (!pObject || pObject->m_ScopeLevel)
-		return;
-
-	pObject->GcMarkData (pRuntime);
+		pObject->GcMarkData (pRuntime);
+	}
+	else
+	{
+		#pragma AXL_TODO ("mark thin data pointer roots -- added by 'heap new'")
+	}
 }
 
 //.............................................................................

@@ -45,16 +45,6 @@ CFunctionMgr::Clear ()
 	memset (m_LazyStdFunctionArray, 0, sizeof (m_LazyStdFunctionArray));
 }
 
-void
-CFunctionMgr::MarkCurrentFunctionGc ()
-{
-	ASSERT (m_pCurrentFunction);
-
-	llvm::Function* pLlvmFunction = m_pCurrentFunction->GetLlvmFunction ();
-	if (!pLlvmFunction->hasGC ())
-		pLlvmFunction->setGC ("jnc-shadow-stack");
-}
-
 CValue
 CFunctionMgr::OverrideThisValue (const CValue& Value)
 {

@@ -112,6 +112,14 @@ CFunction::CFunction ()
 	m_MachineCodeSize = 0;
 }
 
+void
+CFunction::MarkGc ()
+{
+	llvm::Function* pLlvmFunction = GetLlvmFunction ();
+	if (!pLlvmFunction->hasGC ())
+		pLlvmFunction->setGC ("jnc-shadow-stack");
+}
+
 bool
 CFunction::SetBody (rtl::CBoxListT <CToken>* pTokenList)
 {

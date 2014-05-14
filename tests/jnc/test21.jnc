@@ -1,37 +1,27 @@
-//.............................................................................
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int 
-bar (int a, int b)
+class MyScheduler: jnc.Scheduler
 {
-	return a + b;
+	override schedule (function* f ())
+	{
+		printf ("MyScheduler.schedule ()\n");
+		f ();
+	}
 }
 
-foo (object o)
+foo (int x)
 {
-	object <int> a = o;
-	printf ("foo (%d)\n", a.value);
+	printf ("foo (%d)\n", x);
 }
 
-int  
-main ()
+int main ()
 {
-	printf ("main такие дела!! 你好 ()\n"); 
+	static MyScheduler scheduler;
 
-	object <int> a = new object <int>;
-	a.value = 200;
-
-	foo (a);
-
-	return 10;
+	printf ("main ()\n");
+	(foo @ scheduler) (10);
+	
+	return 0;
 }
- 
-//.............................................................................
-
-int
-printf (
-	unsafe const char* pFormat,
-	unsafe ...
-	); 
 
 //.............................................................................
- 

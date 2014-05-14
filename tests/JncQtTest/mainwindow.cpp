@@ -423,6 +423,7 @@ bool MainWindow::compile ()
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
 
 	modulePane->build (&module, child);
+	llvmIr->build (&module);
 
 	writeOutput("JITting...\n");
 
@@ -432,8 +433,6 @@ bool MainWindow::compile ()
 		module.Jit () &&
 		runtime.Create (16 * 1024, 16 * 1024) && 
 		runtime.AddModule (&module); // 16K gc heap, 16K stack
-
-	llvmIr->build (&module);
 
 	if (!result)
 	{

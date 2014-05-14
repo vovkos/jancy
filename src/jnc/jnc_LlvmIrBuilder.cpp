@@ -23,7 +23,7 @@ CLlvmIrBuilder::Create ()
 
 	m_pLlvmIrBuilder = new llvm::IRBuilder <> (*m_pModule->GetLlvmContext ());
 
-	if (!(m_pModule->GetFlags () & EModuleFlag_IrComments))
+	if (m_pModule->GetFlags () & EModuleFlag_IrComments)
 		m_CommentMdKind = m_pModule->GetLlvmContext ()->getMDKindID ("jnc.comment");
 }
 
