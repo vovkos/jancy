@@ -540,15 +540,21 @@ COperatorMgr::GetArgCastKind (
 	rtl::CArrayT <CFunctionArg*> FormalArgArray = pFunctionType->GetArgArray ();
 	size_t FormalArgCount = FormalArgArray.GetCount ();
 
-	if (ActualArgCount < FormalArgCount ||
-		ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
-	{
+	if (ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
 		return ECast_None;
+
+	size_t ArgCount = FormalArgCount;
+	while (ActualArgCount < ArgCount)
+	{
+		if (FormalArgArray [ArgCount - 1]->GetInitializer ().IsEmpty ())
+			return ECast_None;
+
+		ArgCount--;
 	}
 
 	ECast WorstCastKind = ECast_Identitiy;
 
-	for (size_t i = 0; i < FormalArgCount; i++)
+	for (size_t i = 0; i < ArgCount; i++)
 	{
 		CType* pFormalArgType = FormalArgArray [i]->GetType ();
 		CType* pActualArgType = pActualArgArray [i]->GetType ();
@@ -575,16 +581,22 @@ COperatorMgr::GetArgCastKind (
 	rtl::CArrayT <CFunctionArg*> FormalArgArray = pFunctionType->GetArgArray ();
 	size_t FormalArgCount = FormalArgArray.GetCount ();
 
-	if (ActualArgCount < FormalArgCount ||
-		ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
-	{
+	if (ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
 		return ECast_None;
+
+	size_t ArgCount = FormalArgCount;
+	while (ActualArgCount < ArgCount)
+	{
+		if (FormalArgArray [ArgCount - 1]->GetInitializer ().IsEmpty ())
+			return ECast_None;
+
+		ArgCount--;
 	}
 
 	ECast WorstCastKind = ECast_Identitiy;
 
 	rtl::CBoxIteratorT <CValue> Arg = ArgList.GetHead ();
-	for (size_t i = 0; i < FormalArgCount; i++, Arg++)
+	for (size_t i = 0; i < ArgCount; i++, Arg++)
 	{
 		CType* pFormalArgType = FormalArgArray [i]->GetType ();
 
