@@ -10,7 +10,7 @@ import "jnc_NamedTypeSpecifier.llk";
 
 //.............................................................................
 
-LL (2);
+lookahead = 2;
 
 start
 nullable
