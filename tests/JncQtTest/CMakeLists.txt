@@ -77,13 +77,16 @@ source_virtual_folder (
 	${RES_PNG_LIST}
 	${RES_QRC_LIST}
 	)
- 
+
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # gen folder
 #
 
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 set (
 	MOC_H_LIST
@@ -98,8 +101,6 @@ set (
 	modulepane.h
 	output.h
 	)
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp (
 	GEN_MOC_CPP_LIST
@@ -168,6 +169,7 @@ include_directories (
 	${PATH_LLVM_INC_DIR}
 	${PATH_LLVM_INC_DIR_2}
 	${GEN_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
 link_directories (

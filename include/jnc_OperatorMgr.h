@@ -175,11 +175,7 @@ public:
 	}
 
 	void
-	NullifyTmpStackGcRootList ()
-	{
-		NullifyGcRootList (m_TmpStackGcRootList);
-		m_TmpStackGcRootList.Clear ();
-	}
+	NullifyTmpStackGcRootList ();
 
 	void
 	CreateTmpStackGcRoot (const CValue& Value);
@@ -719,7 +715,7 @@ public:
 		CValue* pResultValue
 		)
 	{
-		return pClosure && pClosure->IsMemberClosure () ?			
+		return pClosure && pClosure->IsMemberClosure () ?
 			EvaluateAlias (pDecl, pClosure->GetThisValue (), TokenList, pResultValue) :
 			EvaluateAlias (pDecl, CValue (), TokenList, pResultValue);
 	}

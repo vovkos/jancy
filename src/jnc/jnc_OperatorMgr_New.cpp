@@ -74,13 +74,13 @@ COperatorMgr::Allocate (
 		pFunction = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_GcAllocate);
 
 		TypeValue.CreateConst (&pType, m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr));
-		
+
 		m_pModule->m_LlvmIrBuilder.CreateCall2 (
-			pFunction, 
-			pFunction->GetType (), 
+			pFunction,
+			pFunction->GetType (),
 			TypeValue,
-			IsNonConstSizeArray ? 
-				ElementCountValue : 
+			IsNonConstSizeArray ?
+				ElementCountValue :
 				CValue (1, m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT)),
 			&PtrValue
 			);
@@ -191,7 +191,7 @@ COperatorMgr::Prime (
 		ASSERT (pScope);
 		ScopeLevelValue = m_pModule->m_NamespaceMgr.GetScopeLevel (pScope);
 	}
-	else 
+	else
 	{
 		ScopeLevelValue.SetConstSizeT (0);
 	}
@@ -644,7 +644,7 @@ COperatorMgr::NewOperator (
 		return false;
 
 	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
-	
+
 	*pResultValue = PtrValue;
 	return true;
 }
@@ -674,18 +674,27 @@ COperatorMgr::CreateTmpStackGcRoot (const CValue& Value)
 {
 	CType* pType = Value.GetType ();
 	ASSERT (
-		(pType->GetFlags () & ETypeFlag_GcRoot) ||	
+		(pType->GetFlags () & ETypeFlag_GcRoot) ||
 		pType->GetTypeKind () == EType_DataPtr // heap new creates tmp stack root
 		);
 
 	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());	
+	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 	CValue PtrValue;
 	m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpGcRoot", NULL, &PtrValue);
 	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
 
 	m_pModule->m_LlvmIrBuilder.CreateStore (Value, PtrValue);
 	MarkStackGcRoot (PtrValue, pType, true);
+}
+
+void
+COperatorMgr::NullifyTmpStackGcRootList ()
+{
+	if (m_pModule->m_ControlFlowMgr.GetCurrentBlock ()->GetFlags () & EBasicBlockFlag_Reachable)
+		NullifyGcRootList (m_TmpStackGcRootList);
+
+	m_TmpStackGcRootList.Clear ();
 }
 
 void

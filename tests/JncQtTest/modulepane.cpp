@@ -82,20 +82,11 @@ bool ModulePane::addItemAttributes(QTreeWidgetItem *parent,
 
 	QTreeWidgetItem *attributes = insertItem("attributes", parent);
 
-	QString itemName;
-
 	rtl::CIteratorT<jnc::CAttribute> attribute = attributeBlock->GetAttributeList().GetHead();
 	for (; attribute; attribute++)
 	{
-		jnc::CValue* pValue = attribute->GetValue();
-
-		if (pValue)
-			itemName.sprintf("%s = %s");
-		else
-			itemName = (const char *)attribute->GetName();
-
-		QTreeWidgetItem *treeItem = insertItem(itemName, attributes);
-		treeItem->setData(0, Qt::UserRole, qVariantFromValue((void *)*attribute));
+		QTreeWidgetItem *treeItem = insertItem ((const char*) attribute->GetName (), attributes);
+		treeItem->setData(0, Qt::UserRole, qVariantFromValue ((void*) *attribute));
 	}
 
 	expandItem(attributes);
@@ -188,7 +179,7 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::CModuleItem *item)
 		break;
 
 	default:
-		name.sprintf("item %x of kind %d", item, itemKind);
+		name.sprintf("item %p of kind %d", item, itemKind);
 
 		treeItem = insertItem(name, parent);
 		treeItem->setText(0, name);

@@ -779,10 +779,10 @@ CFunctionMgr::JitFunctions ()
 			if (!pFunction->GetEntryBlock ())
 				continue;
 
-				void* pf = pLlvmExecutionEngine->getPointerToFunction (pFunction->GetLlvmFunction ());
-				pFunction->m_pfMachineCode = pf;
+			void* pf = pLlvmExecutionEngine->getPointerToFunction (pFunction->GetLlvmFunction ());
+			pFunction->m_pfMachineCode = pf;
 
-				// ASSERT (pFunction->m_pfMachineCode == pf && pFunction->m_MachineCodeSize != 0);
+			// ASSERT (pFunction->m_pfMachineCode == pf && pFunction->m_MachineCodeSize != 0);
 		}
 
 		// for MC jitter this should do all the job

@@ -445,6 +445,7 @@ source_virtual_folder (
 set (JNC_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${JNC_GEN_DIR})
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_ragel_step (
 	jnc_Lexer.rl.cpp
@@ -515,6 +516,7 @@ include_directories (
 	${PATH_LLVM_INC_DIR}
 	${PATH_LLVM_INC_DIR_2}
 	${JNC_GEN_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
 add_library (
