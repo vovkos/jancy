@@ -97,6 +97,10 @@ declarator_qualifier <CDeclarator* $pDeclarator>
 			{
 				return $pDeclarator->AddUnaryBinaryOperator ($2.m_UnOpKind, $2.m_BinOpKind);
 			}
+	|	EToken_Operator EToken_New
+			{
+				return $pDeclarator->AddOperatorNew ();
+			}
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

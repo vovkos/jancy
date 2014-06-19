@@ -204,7 +204,7 @@ public:
 
 enum EPostDeclaratorModifier
 {
-	EPostDeclaratorModifier_Const    = 0x01,
+	EPostDeclaratorModifier_Const = 0x01,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -237,7 +237,8 @@ enum EDeclarator
 	EDeclarator_Name,
 	EDeclarator_UnnamedMethod,
 	EDeclarator_UnaryBinaryOperator,
-	EDeclarator_CastOperator
+	EDeclarator_CastOperator,
+	EDeclarator_OperatorNew,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -396,6 +397,9 @@ public:
 		EUnOp UnOpKind, 
 		EBinOp BinOpKind
 		);
+
+	bool
+	AddOperatorNew ();
 
 	void
 	AddPointerPrefix ();

@@ -269,10 +269,24 @@ CDeclarator::AddUnaryBinaryOperator (
 		return false;
 	}
 
-	m_FunctionKind = EFunction_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
 	m_DeclaratorKind = EDeclarator_UnaryBinaryOperator;
+	m_FunctionKind = EFunction_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
 	m_UnOpKind = UnOpKind;
 	m_BinOpKind = BinOpKind;
+	return true;
+}
+
+bool
+CDeclarator::AddOperatorNew ()
+{
+	if (m_FunctionKind && m_FunctionKind != EFunction_Named)
+	{
+		err::SetFormatStringError ("cannot further qualify '%s' declarator", GetFunctionKindString (m_FunctionKind));
+		return false;
+	}
+
+	m_DeclaratorKind = EDeclarator_OperatorNew;
+	m_FunctionKind = EFunction_OperatorNew;
 	return true;
 }
 

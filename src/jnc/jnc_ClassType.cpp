@@ -15,6 +15,7 @@ CClassType::CClassType ()
 	m_pExtensionNamespace = NULL;
 	m_pPrimer = NULL;
 	m_pDestructor = NULL;
+	m_pOperatorNew = NULL;
 	m_pVTableStructType = NULL;
 	m_pClassPtrTypeTuple = NULL;
 }
@@ -85,6 +86,9 @@ CClassType::AddMethod (CFunction* pFunction)
 
 	pFunction->m_pParentNamespace = this;
 
+	if (StorageKind == EStorage_Undefined)
+		StorageKind = FunctionKind == EFunction_OperatorNew ? EStorage_Static : EStorage_Member;
+
 	switch (StorageKind)
 	{
 	case EStorage_Static:
@@ -95,11 +99,7 @@ CClassType::AddMethod (CFunction* pFunction)
 		}
 
 		break;
-
-	case EStorage_Undefined:
-		pFunction->m_StorageKind = EStorage_Member;
-		// and fall through
-
+			
 	case EStorage_Member:
 		pFunction->ConvertToMemberMethod (this);
 		break;
@@ -173,6 +173,20 @@ CClassType::AddMethod (CFunction* pFunction)
 		ppTarget = &m_pCallOperator;
 		break;
 
+	case EFunction_OperatorNew:
+		if (!(m_Flags & EClassTypeFlag_Opaque))
+		{
+			err::SetFormatStringError (
+				"'%s' is not opaque, 'operator new' is not needed",
+				GetTypeString ().cc ()
+				);
+			return false;
+		}
+
+		pFunction->m_Tag.Format ("%s.operator new", m_Tag.cc ());
+		ppTarget = &m_pOperatorNew;
+		break;
+
 	case EFunction_Reaction:
 		if (m_ClassTypeKind == EClassType_Reactor)
 			return true;
@@ -188,7 +202,8 @@ CClassType::AddMethod (CFunction* pFunction)
 		return false;
 	}
 
-	pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
+	if (pFunction->m_Tag.IsEmpty ())
+		pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
 
 	if (!*ppTarget)
 	{

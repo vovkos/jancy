@@ -105,6 +105,15 @@ Export (jnc::CModule* pModule) \
 	if (!Result) \
 		return false;
 
+#define JNC_API_OPERATOR_NEW(Function) \
+	pFunction = pType->GetOperatorNew (); \
+	if (!pFunction) \
+	{ \
+		err::SetFormatStringError ("'%s' has no operator new", pType->GetTypeString ().cc ()); \
+		return false; \
+	} \
+	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+
 #define JNC_API_FUNCTION(Name, Function) \
 	pFunction = pNamespace->GetFunctionByName (Name); \
 	if (!pFunction) \

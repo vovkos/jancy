@@ -10,21 +10,27 @@
 
 //.............................................................................
 
+OpaqueTest*
+OpaqueTest::operatorNew (int x, int y)
+{
+	jnc::CApiObjBoxT <OpaqueTest>* p = AXL_MEM_NEW (jnc::CApiObjBoxT <OpaqueTest>);
+	p->Prime ();
+	p->Construct (x, y);
+	return p;
+}
+
 void
 AXL_CDECL
-OpaqueTest::foo (int x, int y)
+OpaqueTest::foo ()
 {
-	printf ("OpaqueTest::foo (%d, %d)\n", x, y);
-
-	m_x = x;
-	m_y = y;
+	printf ("OpaqueTest::foo () { %d, %d }\n", m_x, m_y);
 }
 
 void
 AXL_CDECL
 OpaqueTest::bar ()
 {
-	printf ("OpaqueTest::bar ()\n");
+	printf ("OpaqueTest::bar () { %d, %d }\n", m_x, m_y);
 }
 
 //.............................................................................
@@ -43,13 +49,6 @@ StdLib::Printf (
 	WriteOutput (Text, Length);
 
 	return Length;
-}
-
-int
-StdLib::foo (jnc::TDataPtr addressPtr)
-{
-	sockaddr_in* p = (sockaddr_in*) addressPtr.m_p;
-	return 0;
 }
 
 //.............................................................................

@@ -607,6 +607,18 @@ COperatorMgr::NewOperator (
 	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
 	ASSERT (pScope);
 
+	if (IsOpaqueClassType (pType))
+	{
+		CFunction* pOperatorNew = ((CClassType*) pType)->GetOperatorNew ();
+		if (!pOperatorNew)
+		{
+			err::SetFormatStringError ("opaque '%s' has no operator new", pType->GetTypeString ().cc ());
+			return false;
+		}
+
+		return CallOperator (pOperatorNew, pArgList, pResultValue);
+	}
+
 	CValue ElementCountValue;
 	if (RawElementCountValue)
 	{

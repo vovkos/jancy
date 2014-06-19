@@ -45,6 +45,7 @@ enum EFunction
 	EFunction_CastOperator,
 	EFunction_UnaryOperator,
 	EFunction_BinaryOperator,
+	EFunction_OperatorNew,
 	EFunction_Internal,
 	EFunction_Thunk,
 	EFunction_Reaction,

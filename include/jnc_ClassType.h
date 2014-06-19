@@ -72,6 +72,7 @@ protected:
 
 	CFunction* m_pPrimer;
 	CFunction* m_pDestructor;
+	CFunction* m_pOperatorNew;
 
 	// prime arrays
 
@@ -171,6 +172,12 @@ public:
 	GetDestructor ()
 	{
 		return m_pDestructor;
+	}
+
+	CFunction*
+	GetOperatorNew ()
+	{
+		return m_pOperatorNew;
 	}
 
 	rtl::CConstListT <CStructField>
@@ -276,7 +283,7 @@ protected:
 	void
 	PrepareTypeString ()
 	{
-		m_TypeString.Format ("class %s", m_Tag.cc ()); // thanks a lot gcc
+		m_TypeString.Format ("class %s", m_Tag.cc ());
 	}
 
 	virtual
@@ -351,6 +358,15 @@ IsClassType (
 	return
 		pType->GetTypeKind () == EType_Class &&
 		((CClassType*) pType)->GetClassTypeKind () == ClassTypeKind;
+}
+
+inline
+bool
+IsOpaqueClassType (CType* pType)
+{
+	return
+		pType->GetTypeKind () == EType_Class &&
+		(pType->GetFlags () & EClassTypeFlag_Opaque);
 }
 
 //.............................................................................

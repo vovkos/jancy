@@ -20,6 +20,7 @@ class OpaqueTest: public jnc::TIfaceHdr
 {
 public:
 	JNC_API_BEGIN_CLASS ("OpaqueTest", EApiSlot_OpaqueTest)
+		JNC_API_OPERATOR_NEW (&OpaqueTest::operatorNew)
 		JNC_API_FUNCTION ("foo",  &OpaqueTest::foo)
 		JNC_API_FUNCTION ("bar",  &OpaqueTest::bar)
 	JNC_API_END_CLASS ()
@@ -30,8 +31,19 @@ protected:
 
 public:
 	void
+	Construct (int x, int y)
+	{
+		m_x = x;
+		m_y = y;
+	}
+
+	static
+	OpaqueTest*
+	operatorNew (int x, int y);
+
+	void
 	AXL_CDECL
-	foo (int x, int y);
+	foo ();
 
 	void
 	AXL_CDECL
@@ -45,8 +57,7 @@ class StdLib: public jnc::CStdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (jnc::EStdFunc_Printf,  &Printf)
-//		JNC_API_FUNCTION ("foo",  &foo)
-//		JNC_API_CLASS (OpaqueTest)
+		JNC_API_CLASS (OpaqueTest)
 		JNC_API_LIB (jnc::CStdLib)
 	JNC_API_END_LIB ()
 
@@ -56,10 +67,6 @@ public:
 		const char* pFormat,
 		...
 		);
-
-	static
-	int
-	foo (jnc::TDataPtr addressPtr);
 };
 
 //.............................................................................
