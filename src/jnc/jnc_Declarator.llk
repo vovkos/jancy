@@ -354,7 +354,7 @@ function_formal_argument_list <CDeclFunctionSuffix* $pFunctionSuffix>
 
 function_formal_argument <CDeclFunctionSuffix* $pFunctionSuffix>
 	:	function_formal_argument_w_specifier <$pFunctionSuffix>
-	|	function_formal_argument_no_specifier <$pFunctionSuffix>
+	|	function_formal_argument_wo_specifier <$pFunctionSuffix>
 	|	EToken_Ellipsis
 			{
 				$pFunctionSuffix->m_FunctionTypeFlags |= EFunctionTypeFlag_VarArg;
@@ -387,7 +387,7 @@ function_formal_argument_w_specifier <CDeclFunctionSuffix* $pFunctionSuffix>
 			}
 	;
 
-function_formal_argument_no_specifier <CDeclFunctionSuffix* $pFunctionSuffix>
+function_formal_argument_wo_specifier <CDeclFunctionSuffix* $pFunctionSuffix>
 	local
 	{
 		CDeclarator $Declarator;

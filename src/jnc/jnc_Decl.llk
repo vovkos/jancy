@@ -20,8 +20,8 @@ global_declaration
 	|	access_declaration
 	|	named_type_specifier
 	|	item_declaration_w_specifier
-	|	resolver (item_declaration_no_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_no_specifier
+	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_wo_specifier
 	|	';'
 	;
 
@@ -30,8 +30,8 @@ named_type_block_declaration
 	|	access_declaration
 	|	named_type_specifier
 	|	item_declaration_w_specifier
-	|	resolver (item_declaration_no_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_no_specifier
+	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_wo_specifier
 	|	';'
 	;
 
@@ -46,7 +46,7 @@ local_declaration
 	|	named_type_specifier
 	|	item_declaration_w_specifier
 	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_no_specifier
+		item_declaration_wo_specifier
 	|	catch_label
 	|	finally_label
 	;
@@ -131,7 +131,7 @@ item_declaration_w_specifier
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-item_declaration_no_specifier
+item_declaration_wo_specifier
 	local
 	{
 		CDeclarator $Declarator;
@@ -158,7 +158,7 @@ item_declaration_no_specifier
 // between qualified_type_name and declarator_name
 // prefer declarator_name if and only if this is a function
 
-item_declaration_no_specifier_rslv
+item_declaration_wo_specifier_rslv
 	local
 	{
 		CDeclarator $Declarator;
