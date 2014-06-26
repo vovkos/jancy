@@ -141,4 +141,15 @@ protected:
 
 //.............................................................................
 
+inline
+bool 
+IsFlagEnumType (CType* pType)
+{
+	return 
+		pType->GetTypeKind () == EType_Enum &&
+		((CEnumType*) pType)->GetEnumTypeKind () == EEnumType_Flag;
+}
+
+//.............................................................................
+
 } // namespace jnc {

@@ -269,6 +269,45 @@ CBinOp_Shr::LlvmOpInt (
 
 //.............................................................................
 
+CBinOp_BwAnd::CBinOp_BwAnd ()
+{
+	m_OpKind = EBinOp_BwAnd;
+	m_OpFlags1 = EOpFlag_KeepEnum;
+	m_OpFlags2 = EOpFlag_KeepEnum;
+}
+
+bool
+CBinOp_BwAnd::Operator (
+	const CValue& RawOpValue1,
+	const CValue& RawOpValue2,
+	CValue* pResultValue
+	)
+{
+	CValue OpValue1;
+	CValue OpValue2;
+	CValue TmpValue;
+
+	CEnumType* pEnumType = 
+		IsFlagEnumType (RawOpValue1.GetType ()) ? (CEnumType*) RawOpValue1.GetType () :
+		IsFlagEnumType (RawOpValue2.GetType ()) ? (CEnumType*) RawOpValue2.GetType () : NULL;
+
+	// prepare before calling Base::Operator cause we have EOpFlag_KeepEnum
+
+	if (!pEnumType)
+	{
+		return 
+			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue1, &OpValue1) &&
+			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue2, &OpValue2) &&
+			CBinOpT_IntegerOnly <CBinOp_BwAnd>::Operator (OpValue1, OpValue2, pResultValue);
+	}
+
+	return 
+		m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue1, &OpValue1) &&
+		m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue2, &OpValue2) &&
+		CBinOpT_IntegerOnly <CBinOp_BwAnd>::Operator (OpValue1, OpValue2, &TmpValue) &&
+		m_pModule->m_OperatorMgr.CastOperator (TmpValue, pEnumType, pResultValue);
+}
+
 llvm::Value*
 CBinOp_BwAnd::LlvmOpInt (
 	const CValue& OpValue1,
@@ -281,7 +320,7 @@ CBinOp_BwAnd::LlvmOpInt (
 	return m_pModule->m_LlvmIrBuilder.CreateAnd (OpValue1, OpValue2, pResultType, pResultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 CBinOp_BwOr::CBinOp_BwOr ()
 {
@@ -299,6 +338,9 @@ CBinOp_BwOr::Operator (
 {
 	CValue OpValue1;
 	CValue OpValue2;
+	CValue TmpValue;
+
+	// prepare before calling Base::Operator cause we have EOpFlag_KeepEnum
 
 	if (!IsFlagEnumOpType (RawOpValue1, RawOpValue2))
 	{
@@ -309,8 +351,6 @@ CBinOp_BwOr::Operator (
 	}
 
 	CEnumType* pEnumType = (CEnumType*) RawOpValue1.GetType ();
-
-	CValue TmpValue;
 
 	OpValue1.OverrideType (RawOpValue1, pEnumType->GetBaseType ());
 	OpValue2.OverrideType (RawOpValue2, pEnumType->GetBaseType ());
@@ -332,7 +372,7 @@ CBinOp_BwOr::LlvmOpInt (
 	return m_pModule->m_LlvmIrBuilder.CreateOr (OpValue1, OpValue2, pResultType, pResultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 llvm::Value*
 CBinOp_BwXor::LlvmOpInt (

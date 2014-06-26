@@ -627,10 +627,28 @@ public:
 class CBinOp_BwAnd: public CBinOpT_IntegerOnly <CBinOp_BwAnd>
 {	
 public:
-	CBinOp_BwAnd ()
+	CBinOp_BwAnd ();
+
+	virtual
+	CType*
+	GetResultType (
+		const CValue& OpValue1,
+		const CValue& OpValue2
+		)
 	{
-		m_OpKind = EBinOp_BwAnd;
+		return 
+			IsFlagEnumType (OpValue1.GetType ()) ? OpValue1.GetType () :
+			IsFlagEnumType (OpValue2.GetType ()) ? OpValue2.GetType () :
+			GetArithmeticResultType (OpValue1, OpValue2);
 	}
+
+	virtual
+	bool
+	Operator (
+		const CValue& RawOpValue1,
+		const CValue& RawOpValue2,
+		CValue* pResultValue
+		);
 
 	static
 	int32_t
@@ -680,7 +698,7 @@ public:
 	{
 		return IsFlagEnumOpType (OpValue1, OpValue2) ? 
 			OpValue1.GetType () : 
-			CBinOpT_IntegerOnly <CBinOp_BwOr>::GetResultType (OpValue1, OpValue2);
+			GetArithmeticResultType (OpValue1, OpValue2);
 	}
 
 	virtual
@@ -728,10 +746,7 @@ public:
 		const CValue& OpValue2
 		)
 	{
-		return 
-			OpValue1.GetType () == OpValue2.GetType () && 
-			OpValue1.GetType ()->GetTypeKind () == EType_Enum &&
-			((CEnumType*) OpValue1.GetType ())->GetEnumTypeKind () == EEnumType_Flag;
+		return OpValue1.GetType () == OpValue2.GetType () && IsFlagEnumType (OpValue1.GetType ());
 	}
 
 };
