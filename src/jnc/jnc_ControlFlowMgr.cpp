@@ -351,7 +351,21 @@ CControlFlowMgr::Throw (
 		if (!Result)
 			return false;
 	}
-	else if (pReturnType->GetTypeKindFlags () & ETypeKindFlag_Integer)
+	else if (!(pReturnType->GetTypeKindFlags () & ETypeKindFlag_Integer))
+	{
+		Result = m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_LogNot, ReturnValue, &IndicatorValue);
+		if (!Result)
+			return false;
+	}
+	else if (!(pReturnType->GetTypeKindFlags () & ETypeKindFlag_Unsigned))
+	{
+		CValue ZeroValue = pReturnType->GetZeroValue ();
+
+		Result = m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Lt, ReturnValue, ZeroValue, &IndicatorValue);
+		if (!Result)
+			return false;
+	}
+	else
 	{
 		uint64_t MinusOne = -1;
 
@@ -359,12 +373,6 @@ CControlFlowMgr::Throw (
 		MinusOneValue.CreateConst (&MinusOne, pReturnType);
 
 		Result = m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, ReturnValue, MinusOneValue, &IndicatorValue);
-		if (!Result)
-			return false;
-	}
-	else
-	{
-		Result = m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_LogNot, ReturnValue, &IndicatorValue);
 		if (!Result)
 			return false;
 	}

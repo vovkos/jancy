@@ -4,7 +4,7 @@ int main ()
 {
 	int x = 10;
 
-	char const* p = x < 5 ? "hui" : "gov";
+	char const* p = x < 5 ? "hui" : "govno";
 
 	printf ("p = %s\n", p);
 
