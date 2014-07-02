@@ -12,10 +12,16 @@ CCast_DataPtr_FromArray::GetCastKind (
 	CType* pType
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Array);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	if (IsArrayRefType (OpValue.GetType ()))
+	{
+		CValue PtrValue = m_pModule->m_OperatorMgr.PrepareOperandType (OpValue, EOpFlag_ArrayRefToPtr);
+		return m_pModule->m_OperatorMgr.GetCastKind (PtrValue, pType);
+	}
 
-	CArrayType* pSrcType = (CArrayType*) OpValue.GetType ();
+	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Array);
+
+	CArrayType* pSrcType = (CArrayType*) OpValue.GetType ();	
 	CDataPtrType* pDstType = (CDataPtrType*) pType;
 
 	CType* pArrayElementType = pSrcType->GetElementType ();
@@ -60,6 +66,27 @@ CCast_DataPtr_FromArray::ConstCast (
 	}
 
 	return true;
+}
+
+bool
+CCast_DataPtr_FromArray::LlvmCast (
+	EStorage StorageKind,
+	const CValue& OpValue,
+	CType* pType,
+	CValue* pResultValue
+	)
+{
+	if (IsArrayRefType (OpValue.GetType ()))
+	{
+		CValue PtrValue;
+
+		return 
+			m_pModule->m_OperatorMgr.PrepareOperand (OpValue, &PtrValue, EOpFlag_ArrayRefToPtr) &&
+			m_pModule->m_OperatorMgr.CastOperator (PtrValue, pType, pResultValue);
+	}
+
+	err::SetFormatStringError ("casting from array to pointer is currently only implemented for constants");
+	return false;
 }
 
 //.............................................................................
@@ -386,12 +413,13 @@ CCast_DataPtr::GetCastOperator (
 	EDataPtrType DstPtrTypeKind = pDstPtrType->GetPtrTypeKind ();
 
 	CType* pSrcType = OpValue.GetType ();
+	EType SrcTypeKind = pSrcType->GetTypeKind ();
 
-	if (pSrcType->GetTypeKind () == EType_Array)
+	if (IsArrayRefType (pSrcType) || SrcTypeKind == EType_Array)
 	{
 		return &m_FromArray;
 	}
-	else if (pSrcType->GetTypeKind () != EType_DataPtr)
+	else if (SrcTypeKind != EType_DataPtr)
 	{
 		return NULL;
 	}

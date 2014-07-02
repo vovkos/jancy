@@ -160,6 +160,9 @@ COperatorMgr::GetUnaryOperatorResultType (
 
 	CUnaryOperator* pOperator = m_UnaryOperatorTable [OpKind];
 	ASSERT (pOperator);
+
+	PrepareOperandType (RawOpValue, &OpValue, pOperator->GetOpFlags ());
+
 	return pOperator->GetResultType (OpValue);
 }
 
@@ -347,18 +350,45 @@ COperatorMgr::GetConditionalOperatorResultType (
 	const CValue& FalseValue
 	)
 {
-	CType* pTrueType = PrepareOperandType (TrueValue.GetType (), EOpFlag_KeepBool | EOpFlag_KeepEnum);
-	CType* pFalseType = PrepareOperandType (FalseValue.GetType (), EOpFlag_KeepBool | EOpFlag_KeepEnum);
+	CType* pResultType;
 
-	CType* pResultType =
-		pTrueType->Cmp (pFalseType) == 0 ? pTrueType :
-		(pTrueType->GetTypeKindFlags () & pFalseType->GetTypeKindFlags () & ETypeKindFlag_Numeric) ?
-			GetArithmeticOperatorResultType (pTrueType, pFalseType) :
-			m_pModule->m_OperatorMgr.PrepareOperandType (pTrueType);
+	CType* pTrueType = TrueValue.GetType ();
+	CType* pFalseType = FalseValue.GetType ();
+
+	if (pTrueType->GetTypeKind () == EType_Array)
+		pTrueType = ((CArrayType*) pTrueType)->GetElementType ()->GetDataPtrType ();
+
+	if (pFalseType->GetTypeKind () == EType_Array)
+		pFalseType = ((CArrayType*) pFalseType)->GetElementType ()->GetDataPtrType ();
+
+	if (pTrueType->Cmp (pFalseType) == 0)
+	{
+		pResultType = pTrueType;
+	}
+	else
+	{
+		uint_t TrueFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
+		uint_t FalseFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
+		
+		if (IsArrayRefType (pTrueType))
+			TrueFlags |= EOpFlag_ArrayRefToPtr;
+
+		if (IsArrayRefType (pFalseType))
+			FalseFlags |= EOpFlag_ArrayRefToPtr;
+
+		pTrueType = PrepareOperandType (pTrueType, TrueFlags);
+		pFalseType = PrepareOperandType (pFalseType, FalseFlags);
+
+		pResultType =
+			pTrueType->Cmp (pFalseType) == 0 ? pTrueType :
+			(pTrueType->GetTypeKindFlags () & pFalseType->GetTypeKindFlags () & ETypeKindFlag_Numeric) ?
+				GetArithmeticOperatorResultType (pTrueType, pFalseType) :
+				m_pModule->m_OperatorMgr.PrepareOperandType (pTrueType);
+	}
 
 	// if it's a lean data pointer, fatten it
 
-	if (pResultType->GetTypeKind () == EType_DataPtr &&
+	if ((pResultType->GetTypeKindFlags () & ETypeKindFlag_DataPtr) &&
 		((CDataPtrType*) pResultType)->GetPtrTypeKind () == EDataPtrType_Lean)
 	{
 		pResultType = ((CDataPtrType*) pResultType)->GetTargetType ()->GetDataPtrType (
@@ -726,7 +756,7 @@ COperatorMgr::PrepareOperandType (
 				{
 					Value = ((CDataPtrType*) pType)->GetTargetType ();
 				}
-				else if (!(OpFlags & EOpFlag_KeepArrayRef))
+				else if (OpFlags & EOpFlag_ArrayRefToPtr)
 				{
 					EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
 
@@ -848,7 +878,7 @@ COperatorMgr::PrepareOperand (
 					if (!Result)
 						return false;
 				}
-				else if (!(OpFlags & EOpFlag_KeepArrayRef))
+				else if (OpFlags & EOpFlag_ArrayRefToPtr)
 				{
 					EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
 

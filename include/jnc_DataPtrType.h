@@ -123,6 +123,17 @@ IsCharPtrType (CType* pType)
 
 //.............................................................................
 
+inline
+bool 
+IsArrayRefType (CType* pType)
+{
+	return 
+		pType->GetTypeKind () == EType_DataRef &&
+		((CDataPtrType*) pType)->GetTargetType ()->GetTypeKind () == EType_Array;
+}
+
+//.............................................................................
+
 // structure backing up fat data pointer, e.g.:
 // int* p;
 

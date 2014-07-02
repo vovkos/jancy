@@ -40,11 +40,7 @@ public:
 		const CValue& OpValue,
 		CType* pType,
 		CValue* pResultValue
-		)
-	{
-		SetCastError (OpValue, pType);
-		return false;
-	}
+		);
 };
 
 //.............................................................................

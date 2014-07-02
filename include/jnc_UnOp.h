@@ -40,9 +40,10 @@ enum EOpFlag
 	EOpFlag_KeepClassRef	 = 0x02,
 	EOpFlag_KeepFunctionRef  = 0x04,
 	EOpFlag_KeepPropertyRef  = 0x08,
-	EOpFlag_KeepArrayRef     = 0x10,
-	EOpFlag_KeepBool         = 0x20,
-	EOpFlag_KeepEnum         = 0x40,
+	EOpFlag_KeepBool         = 0x10,
+	EOpFlag_KeepEnum         = 0x20,
+	
+	EOpFlag_ArrayRefToPtr    = 0x40,
 	
 	EOpFlag_KeepRef          = 
 		EOpFlag_KeepDataRef | 

@@ -16,7 +16,7 @@ public:
 	CBinOp_Idx ()
 	{
 		m_OpKind = EBinOp_Idx;
-		m_OpFlags1 = EOpFlag_KeepPropertyRef | EOpFlag_KeepArrayRef;
+		m_OpFlags1 = EOpFlag_KeepPropertyRef;
 	}
 
 	virtual
