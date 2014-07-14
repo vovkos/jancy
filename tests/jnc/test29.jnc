@@ -1,42 +1,43 @@
 //.............................................................................
 
-int g_x;
-
-class CMyScheduler: jnc.IScheduler
+class C1
 {
-	override
-	Schedule (function* pf ())
+	static int m_table [] = 
 	{
-		printf ("before call\n");
-		pf ();
-		printf ("after call\n");
+		10,
+		20,
+		30,
+	};
+
+	static construct ()
+	{
+		printf ("C1.static construct ()\n");
 	} 
+
+	preconstruct ()
+	{
+		printf ("C1.preconstruct ()\n");
+	}
+
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}
+
+	foo ()
+	{
+		printf ("m_table [0] = %d\n", m_table [0]);
+	}
 }
 
-int 
-main ()
+int main ()
 {
 	printf ("main ()\n");
 
-	CMyScheduler Scheduler;
-	(foo @ Scheduler) (100, 0x100);
+	C1 c;
+	c.foo ();
 
-	return 10; 
+	return 0; 
 }
-
-foo (int x, int y)
-{
-	printf (0x"61 62 63 " "_" $"foo ($x, $(y, 010))" 0x" 20 64 65 66" "\n");
-}
-
-//.............................................................................
-
-// system functions
-
-int
-printf (
-	unsafe const thin char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

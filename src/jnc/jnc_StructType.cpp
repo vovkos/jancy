@@ -282,7 +282,7 @@ CStructType::CalcLayout ()
 
 	if (m_StructTypeKind == EStructType_Normal)
 	{
-		if (!m_pStaticConstructor && m_pStaticDestructor)
+		if (!m_pStaticConstructor && (m_pStaticDestructor || !m_InitializedStaticFieldArray.IsEmpty ()))
 		{
 			Result = CreateDefaultMethod (EFunction_StaticConstructor, EStorage_Static);
 			if (!Result)
@@ -357,6 +357,13 @@ CStructType::CompileDefaultPreConstructor ()
 
 	CValue ThisValue;
 	m_pModule->m_FunctionMgr.InternalPrologue (m_pPreConstructor, &ThisValue, 1);
+
+	if (m_pStaticConstructor)
+	{
+		Result = m_pModule->m_OperatorMgr.CallOperator (m_pStaticConstructor, ThisValue);
+		if (!Result)
+			return false;
+	}
 
 	Result = InitializeFields (ThisValue);
 	if (!Result)

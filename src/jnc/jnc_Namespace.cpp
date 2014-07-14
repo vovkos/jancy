@@ -83,8 +83,13 @@ CNamespace::CreateQualifiedName (const char* pName)
 		return pName;
 
 	rtl::CString QualifiedName = m_QualifiedName;
-	QualifiedName.Append ('.');
-	QualifiedName.Append (pName);
+
+	if (pName && *pName)
+	{
+		QualifiedName.Append ('.');
+		QualifiedName.Append (pName);
+	}
+
 	return QualifiedName;
 }
 

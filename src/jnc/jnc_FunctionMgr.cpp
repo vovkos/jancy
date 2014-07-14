@@ -311,6 +311,14 @@ CFunctionMgr::Prologue (
 	if (pFunction->IsMember ())
 		CreateThisValue ();
 
+	// static initializers
+
+	if (pFunction->m_FunctionKind == EFunction_StaticConstructor)
+	{
+		CDerivableType* pType = pFunction->GetParentType ();
+		pType->InitializeStaticFields ();
+	}
+
 	return true;
 }
 

@@ -439,6 +439,8 @@ CDerivableType::CompileDefaultStaticConstructor ()
 {
 	ASSERT (m_pStaticConstructor);
 
+	m_pModule->m_FunctionMgr.InternalPrologue (m_pStaticConstructor);
+
 	CToken::CPos Pos;
 
 	TOnceStmt Stmt;
@@ -448,7 +450,13 @@ CDerivableType::CompileDefaultStaticConstructor ()
 	if (!Result)
 		return false;
 
+	Result = InitializeStaticFields ();
+	if (!Result)
+		return false;
+
 	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
+
+	m_pModule->m_FunctionMgr.InternalEpilogue ();
 	return true;
 }
 
@@ -577,6 +585,30 @@ CDerivableType::CallMemberPropertyConstructors (const CValue& ThisValue)
 		ASSERT (pDestructor);
 
 		Result = m_pModule->m_OperatorMgr.CallOperator (pDestructor, ThisValue);
+		if (!Result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+CDerivableType::InitializeStaticFields ()
+{
+	bool Result;
+
+	size_t Count = m_InitializedStaticFieldArray.GetCount ();
+	for (size_t i = 0; i < Count; i++)
+	{
+		CVariable* pStaticField = m_InitializedStaticFieldArray [i];
+
+		Result = m_pModule->m_OperatorMgr.ParseInitializer (
+			pStaticField,
+			m_pParentUnit,
+			pStaticField->GetConstructor (),
+			pStaticField->GetInitializer ()
+			);
+
 		if (!Result)
 			return false;
 	}

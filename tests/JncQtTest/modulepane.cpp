@@ -285,6 +285,12 @@ void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::CClassType* 
 	for (; Member; Member++)
 		addStructField (parent, *Member);
 
+	if (pType->GetStaticConstructor ())
+		addItem (parent, pType->GetStaticConstructor ());
+
+	if (pType->GetStaticDestructor ())
+		addItem (parent, pType->GetStaticDestructor ());
+
 	if (pType->GetPreConstructor ())
 		addItem (parent, pType->GetPreConstructor ());
 

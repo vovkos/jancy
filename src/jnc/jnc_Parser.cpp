@@ -1394,12 +1394,36 @@ CParser::DeclareData (
 			if (!Result)
 				return false;
 		}
+
+		if (pNamespace->GetNamespaceKind () == ENamespace_Type && 
+			!pVariable->GetConstructor ().IsEmpty () ||
+			!pVariable->GetInitializer ().IsEmpty ())
+		{
+			CNamedType* pNamedType = (CNamedType*) pNamespace;
+			EType NamedTypeKind = pNamedType->GetTypeKind ();
+
+			switch (NamedTypeKind)
+			{
+			case EType_Class:
+			case EType_Struct:
+			case EType_Union:
+				((CDerivableType*) pNamedType)->m_InitializedStaticFieldArray.Append (pVariable);
+				break;
+
+			default:
+				err::SetFormatStringError ("field members are not allowed in '%s'", pNamedType->GetTypeString ().cc ());
+				return false;
+			}
+		}
 	}
 	else
 	{
-		CStructField* pField;
+		ASSERT (pNamespace->GetNamespaceKind () == ENamespace_Type);
+
 		CNamedType* pNamedType = (CNamedType*) pNamespace;
 		EType NamedTypeKind = pNamedType->GetTypeKind ();
+
+		CStructField* pField;
 
 		switch (NamedTypeKind)
 		{

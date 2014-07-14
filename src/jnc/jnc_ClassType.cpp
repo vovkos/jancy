@@ -461,7 +461,7 @@ CClassType::CalcLayout ()
 
 	CreateVTablePtr ();
 
-	if (!m_pStaticConstructor && m_pStaticDestructor)
+	if (!m_pStaticConstructor && (m_pStaticDestructor || !m_InitializedStaticFieldArray.IsEmpty ()))
 	{
 		Result = CreateDefaultMethod (EFunction_StaticConstructor, EStorage_Static);
 		if (!Result)
@@ -743,6 +743,13 @@ CClassType::CompileDefaultPreConstructor ()
 
 	CValue ThisValue;
 	m_pModule->m_FunctionMgr.InternalPrologue (m_pPreConstructor, &ThisValue, 1);
+	
+	if (m_pStaticConstructor)
+	{
+		Result = m_pModule->m_OperatorMgr.CallOperator (m_pStaticConstructor);
+		if (!Result)
+			return false;
+	}
 
 	Result = m_pIfaceStructType->InitializeFields (ThisValue);
 	if (!Result)

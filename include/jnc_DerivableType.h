@@ -123,6 +123,8 @@ public:
 
 class CDerivableType: public CNamedType
 {
+	friend class CParser;
+
 protected:
 	// base types
 
@@ -143,6 +145,7 @@ protected:
 	rtl::CArrayT <CProperty*> m_MemberPropertyArray;
 	rtl::CArrayT <CStructField*> m_ImportFieldArray;
 	rtl::CArrayT <CStructField*> m_UnnamedFieldArray;
+	rtl::CArrayT <CVariable*> m_InitializedStaticFieldArray;
 
 	// construction
 
@@ -227,6 +230,12 @@ public:
 		return m_MemberPropertyArray;
 	}
 
+	rtl::CArrayT <CVariable*>
+	GetInitializedStaticFieldArray ()
+	{
+		return m_InitializedStaticFieldArray;
+	}
+
 	bool
 	CallBaseTypeConstructors (const CValue& ThisValue);
 
@@ -235,6 +244,9 @@ public:
 
 	bool
 	CallMemberPropertyConstructors (const CValue& ThisValue);
+
+	bool
+	InitializeStaticFields ();
 
 	CFunction*
 	GetPreConstructor ()
@@ -374,6 +386,9 @@ protected:
 
 	bool
 	CompileDefaultStaticConstructor ();
+
+	bool
+	CompileDefaultPreConstructor ();
 
 	bool
 	CompileDefaultConstructor ();
