@@ -116,6 +116,13 @@ CReactorClassType::BindHandlers (const rtl::CConstListT <TReaction>& HandlerList
 			CValue HandlerValue = pFunction;
 			HandlerValue.InsertToClosureHead (ThisValue);
 
+			Result = 
+				m_pModule->m_OperatorMgr.PrepareOperand (&EventValue) &&
+				m_pModule->m_OperatorMgr.PrepareOperand (&HandlerValue);
+
+			if (!Result)
+				return false;
+
 			if (EventValue.GetType ()->GetTypeKind () == EType_ClassRef) 
 			{
 				Result = m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Addr, &EventValue); // turn into a pointer
