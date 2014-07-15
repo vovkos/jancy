@@ -1396,8 +1396,7 @@ CParser::DeclareData (
 		}
 
 		if (pNamespace->GetNamespaceKind () == ENamespace_Type && 
-			!pVariable->GetConstructor ().IsEmpty () ||
-			!pVariable->GetInitializer ().IsEmpty ())
+			(!pVariable->GetConstructor ().IsEmpty () || !pVariable->GetInitializer ().IsEmpty ()))
 		{
 			CNamedType* pNamedType = (CNamedType*) pNamespace;
 			EType NamedTypeKind = pNamedType->GetTypeKind ();
