@@ -232,6 +232,12 @@ conditional_expr <CValue* $pValue>
 		)?
 	;
 
+// important note: || and && operators are handled differently in reactor starter
+// this is done not to skip bind-sites due to short-circuit evaluation
+// however, this is a temporary solution: short circuit evaluation should be restored.
+// bind-sites which can be potentially skipped during reactor starter should be 'flagged' 
+// and if they are really skipped, then binding should be delayed until they are finally executed
+
 logical_or_expr <CValue* $pValue>
 	local
 	{
@@ -243,13 +249,22 @@ logical_or_expr <CValue* $pValue>
 		(
 			EToken_LogOr
 				{
-					$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-					$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_or_op2");
-					m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+					if (m_Stage != EStage_ReactorStarter)
+					{
+						$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
+						$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_or_op2");
+						m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+					}
 				}
 			logical_and_expr <&$OpValue2>
 				{
-					return m_pModule->m_OperatorMgr.LogicalOrOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+					if (m_Stage != EStage_ReactorStarter)
+						return m_pModule->m_OperatorMgr.LogicalOrOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+					else 
+						return 
+							m_pModule->m_OperatorMgr.CastOperator ($pValue, EType_Bool) &&
+							m_pModule->m_OperatorMgr.CastOperator (&$OpValue2, EType_Bool) &&
+							m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_BwOr, $pValue, $OpValue2);
 				}
 		)*
 	;
@@ -265,13 +280,22 @@ logical_and_expr <CValue* $pValue>
 		(
 			EToken_LogAnd
 				{
-					$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-					$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_and_op2");
-					m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+					if (m_Stage != EStage_ReactorStarter)
+					{
+						$pOpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
+						$pOpBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("log_and_op2");
+						m_pModule->m_ControlFlowMgr.SetCurrentBlock ($pOpBlock2); // don't follow yet
+					}
 				}
 			inclusive_or_expr <&$OpValue2>
 				{
-					return m_pModule->m_OperatorMgr.LogicalAndOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+					if (m_Stage != EStage_ReactorStarter)
+						return m_pModule->m_OperatorMgr.LogicalAndOperator ($pOpBlock1, $pOpBlock2, $pValue, $OpValue2);
+					else 
+						return 
+							m_pModule->m_OperatorMgr.CastOperator ($pValue, EType_Bool) &&
+							m_pModule->m_OperatorMgr.CastOperator (&$OpValue2, EType_Bool) &&
+							m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_BwAnd, $pValue, $OpValue2);
 				}
 		)*
 	;

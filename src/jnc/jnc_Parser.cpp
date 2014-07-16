@@ -1765,6 +1765,9 @@ CParser::ReactorExpressionStmt (const rtl::CConstBoxListT <CToken>& TokenList)
 	if (!Result)
 		return false;
 
+	Parser.m_Stage = EStage_Pass2;
+	Parser.m_pReactorType = NULL;
+
 	Result = Parser.ParseTokenList (ESymbol_expression, TokenList);
 	if (!Result)
 		return false;
