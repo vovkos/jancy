@@ -99,7 +99,7 @@ CClassType::AddMethod (CFunction* pFunction)
 		}
 
 		break;
-			
+
 	case EStorage_Member:
 		pFunction->ConvertToMemberMethod (this);
 		break;
@@ -151,8 +151,6 @@ CClassType::AddMethod (CFunction* pFunction)
 		return AddFunction (pFunction);
 
 	case EFunction_UnaryOperator:
-		pFunction->m_Tag.Format ("%s.operator %s", m_Tag.cc (), GetUnOpKindString (pFunction->GetUnOpKind ()));
-
 		if (m_UnaryOperatorTable.IsEmpty ())
 			m_UnaryOperatorTable.SetCount (EUnOp__Count);
 
@@ -160,8 +158,6 @@ CClassType::AddMethod (CFunction* pFunction)
 		break;
 
 	case EFunction_BinaryOperator:
-		pFunction->m_Tag.Format ("%s.operator %s", m_Tag.cc (), GetBinOpKindString (pFunction->GetBinOpKind ()));
-
 		if (m_BinaryOperatorTable.IsEmpty ())
 			m_BinaryOperatorTable.SetCount (EBinOp__Count);
 
@@ -169,7 +165,6 @@ CClassType::AddMethod (CFunction* pFunction)
 		break;
 
 	case EFunction_CallOperator:
-		pFunction->m_Tag.Format ("%s.operator ()", m_Tag.cc ());
 		ppTarget = &m_pCallOperator;
 		break;
 
@@ -183,7 +178,6 @@ CClassType::AddMethod (CFunction* pFunction)
 			return false;
 		}
 
-		pFunction->m_Tag.Format ("%s.operator new", m_Tag.cc ());
 		ppTarget = &m_pOperatorNew;
 		break;
 
@@ -743,7 +737,7 @@ CClassType::CompileDefaultPreConstructor ()
 
 	CValue ThisValue;
 	m_pModule->m_FunctionMgr.InternalPrologue (m_pPreConstructor, &ThisValue, 1);
-	
+
 	if (m_pStaticConstructor)
 	{
 		Result = m_pModule->m_OperatorMgr.CallOperator (m_pStaticConstructor);
