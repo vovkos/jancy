@@ -30,7 +30,7 @@ GetFunctionKindString (EFunction FunctionKind)
 		"cast-operator",            // EFunction_CastOperator,
 		"unary-operator",           // EFunction_UnaryOperator,
 		"binary-operator",          // EFunction_BinaryOperator,
-		"operator-new",             // EFunction_OperatorNew,
+		"operator_new",             // EFunction_OperatorNew,
 		"internal",                 // EFunction_Internal,
 		"thunk",                    // EFunction_Thunk,
 		"reaction",                 // EFunction_Reaction,
