@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_ImportType.h"
+#include "jnc_DataPtrType.h"
 
 namespace jnc {
 
@@ -124,6 +125,15 @@ IsCharArrayType (CType* pType)
 	return
 		pType->GetTypeKind () == EType_Array &&
 		((CArrayType*) pType)->GetElementType ()->GetTypeKind () == EType_Char;
+}
+
+inline
+bool
+IsCharArrayRefType (CType* pType)
+{
+	return
+		pType->GetTypeKind () == EType_DataRef &&
+		IsCharArrayType (((CDataPtrType*) pType)->GetTargetType ());
 }
 
 //.............................................................................

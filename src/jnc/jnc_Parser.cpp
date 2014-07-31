@@ -2468,7 +2468,7 @@ CParser::AppendFmtLiteralValue (
 	{
 		AppendFunc = EStdFunc_AppendFmtLiteral_f;
 	}
-	else if (IsCharArrayType (pType) || IsCharPtrType (pType))
+	else if (IsCharArrayType (pType) || IsCharArrayRefType (pType) || IsCharPtrType (pType))
 	{
 		AppendFunc = EStdFunc_AppendFmtLiteral_p;
 	}
