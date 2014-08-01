@@ -209,6 +209,7 @@ target_link_libraries (
 	)
 
 qt5_use_modules (JncQtTest Widgets)
+copy_qt_dll_files (JncQtTest Core Gui Widgets)
 
 if (JNC_USE_PCH)
 	set_pch (
