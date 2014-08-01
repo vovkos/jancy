@@ -14,6 +14,7 @@ class CNamedType;
 class CClassType;
 class CClassPtrType;
 class CReactorClassType;
+class CCdeclCallConv_msc64;
 class CFunction;
 
 struct TFunctionPtrTypeTuple;
@@ -22,8 +23,9 @@ struct TFunctionPtrTypeTuple;
 
 enum EFunctionTypeFlag
 {
-	EFunctionTypeFlag_VarArg   = 0x010000,
-	EFunctionTypeFlag_Throws   = 0x040000,
+	EFunctionTypeFlag_VarArg        = 0x010000,
+	EFunctionTypeFlag_Throws        = 0x040000,
+	EFunctionTypeFlag_StructRetArgs = 0x080000,
 };
 
 //.............................................................................
@@ -47,6 +49,7 @@ class CFunctionType: public CType
 {
 	friend class CTypeMgr;
 	friend class CClassType;
+	friend class CCdeclCallConv_msc64;
 
 protected:
 	CCallConv* m_pCallConv;

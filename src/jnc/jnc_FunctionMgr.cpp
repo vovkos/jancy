@@ -456,8 +456,10 @@ CFunctionMgr::InternalPrologue (
 		llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
 		rtl::CArrayT <CFunctionArg*> ArgArray = pFunction->GetType ()->GetArgArray ();
 
+		CCallConv* pCallConv = pFunction->GetType ()->GetCallConv ();
+
 		for (size_t i = 0; i < ArgCount; i++, LlvmArg++)
-			pArgValueArray [i] = CValue (LlvmArg, ArgArray [i]->GetType ());
+			pArgValueArray [i] = pCallConv->GetArgValue (ArgArray [i], LlvmArg);
 	}
 }
 

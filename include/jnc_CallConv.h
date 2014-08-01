@@ -7,6 +7,7 @@
 #define _JNC_CALLCONV
 
 #include "jnc_Value.h"
+#include "jnc_FunctionArg.h"
 
 namespace jnc {
 
@@ -175,6 +176,16 @@ public:
 	virtual
 	CValue
 	GetThisArgValue (CFunction* pFunction);
+
+	virtual
+	CValue
+	GetArgValue (
+		CFunctionArg* pArg,
+		llvm::Value* pLlvmValue
+		)
+	{
+		return CValue (pLlvmValue, pArg->GetType ());
+	}
 
 	virtual
 	void

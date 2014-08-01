@@ -817,9 +817,6 @@ CTypeMgr::GetFunctionType (
 		return pType;
 	}
 
-	if (pReturnType->m_Flags & ETypeFlag_StructRet)
-		Flags |= ETypeFlag_StructRet;
-
 	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
 	pType->m_pModule = m_pModule;
 	pType->m_Signature = Signature;
@@ -887,9 +884,6 @@ CTypeMgr::GetFunctionType (
 		return pType;
 	}
 
-	if (pReturnType->m_Flags & ETypeFlag_StructRet)
-		Flags |= ETypeFlag_StructRet;
-
 	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
 	pType->m_pModule = m_pModule;
 	pType->m_Signature = Signature;
@@ -937,9 +931,6 @@ CTypeMgr::CreateUserFunctionType (
 		ArgArray.GetCount (),
 		Flags
 		);
-
-	if (pReturnType->m_Flags & ETypeFlag_StructRet)
-		Flags |= ETypeFlag_StructRet;
 
 	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
 	pType->m_pModule = m_pModule;

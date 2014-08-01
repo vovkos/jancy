@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "jnc_CallConv_msc.h"
+#include "jnc_CallConv_msc32.h"
 
 namespace jnc {
 

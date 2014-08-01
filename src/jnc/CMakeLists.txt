@@ -13,8 +13,9 @@ set (
 	CALLCONV_H_LIST
 	${JNC_INC_DIR}/jnc_CallConv.h
 	${JNC_INC_DIR}/jnc_CallConv_gcc32.h
-	${JNC_INC_DIR}/jnc_CallConv_msc.h
+	${JNC_INC_DIR}/jnc_CallConv_msc32.h
 	${JNC_INC_DIR}/jnc_CdeclCallConv_gcc64.h
+	${JNC_INC_DIR}/jnc_CdeclCallConv_msc64.h
 	${JNC_INC_DIR}/jnc_JnccallCallConv.h
 	)
 
@@ -22,8 +23,9 @@ set (
 	CALLCONV_CPP_LIST
 	jnc_CallConv.cpp
 	jnc_CallConv_gcc32.cpp
-	jnc_CallConv_msc.cpp
+	jnc_CallConv_msc32.cpp
 	jnc_CdeclCallConv_gcc64.cpp
+	jnc_CdeclCallConv_msc64.cpp
 	jnc_JnccallCallConv.cpp
 	)
 

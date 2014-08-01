@@ -177,7 +177,7 @@ public:
 
 	CValue (
 		llvm::Value* pLlvmValue,
-		CType* pType,
+		CType* pType = NULL,
 		EValue ValueKind = EValue_LlvmRegister
 		)
 	{

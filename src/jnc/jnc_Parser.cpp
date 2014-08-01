@@ -2497,17 +2497,12 @@ CParser::AppendFmtLiteralValue (
 		FmtSpecifierValue = GetSimpleType (m_pModule, EType_Char)->GetDataPtrType_c ()->GetZeroValue ();
 	}
 
-	CValue ResultValue;
-	m_pModule->m_LlvmIrBuilder.CreateCall3 (
-		pAppend,
-		pAppend->GetType (),
+	return m_pModule->m_OperatorMgr.CallOperator (
+		pAppend, 
 		pLiteral->m_FmtLiteralValue,
 		FmtSpecifierValue,
-		ArgValue,
-		&ResultValue
+		ArgValue
 		);
-
-	return true;
 }
 
 bool

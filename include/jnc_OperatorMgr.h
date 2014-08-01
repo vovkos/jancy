@@ -860,7 +860,7 @@ public:
 	}
 
 	bool
-	CallOperator2 (
+	CallOperator (
 		const CValue& OpValue,
 		const CValue& ArgValue1,
 		const CValue& ArgValue2,
@@ -870,6 +870,22 @@ public:
 		rtl::CBoxListT <CValue> ArgValueList;
 		ArgValueList.InsertTail (ArgValue1);
 		ArgValueList.InsertTail (ArgValue2);
+		return CallOperator (OpValue, &ArgValueList, pResultValue);
+	}
+
+	bool
+	CallOperator (
+		const CValue& OpValue,
+		const CValue& ArgValue1,
+		const CValue& ArgValue2,
+		const CValue& ArgValue3,
+		CValue* pResultValue = NULL
+		)
+	{
+		rtl::CBoxListT <CValue> ArgValueList;
+		ArgValueList.InsertTail (ArgValue1);
+		ArgValueList.InsertTail (ArgValue2);
+		ArgValueList.InsertTail (ArgValue3);
 		return CallOperator (OpValue, &ArgValueList, pResultValue);
 	}
 

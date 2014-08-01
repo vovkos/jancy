@@ -25,17 +25,6 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCdeclCallConv_msc64: public CCallConv
-{
-public:
-	CCdeclCallConv_msc64 ()
-	{
-		m_CallConvKind = ECallConv_Cdecl_msc64;
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 class CStdcallCallConv_msc32: public CCallConv
 {
 public:

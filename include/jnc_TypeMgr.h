@@ -24,9 +24,10 @@
 #include "jnc_McSnapshotClassType.h"
 #include "jnc_MulticastClassType.h"
 #include "jnc_JnccallCallConv.h"
-#include "jnc_CallConv_msc.h"
+#include "jnc_CallConv_msc32.h"
 #include "jnc_CallConv_gcc32.h"
 #include "jnc_CdeclCallConv_gcc64.h"
+#include "jnc_CdeclCallConv_msc64.h"
 
 namespace jnc {
 

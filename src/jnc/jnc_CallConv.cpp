@@ -252,8 +252,6 @@ CCallConv::CreateArgVariablesImpl (
 	for (size_t i = 0; i < BaseLlvmArgIdx; i++)
 		LlvmArg++;
 
-	size_t x = pFunction->GetLlvmFunction ()->arg_size ();
-
 	size_t i = 0;
 	if (pFunction->IsMember ()) // skip this
 	{
