@@ -66,6 +66,8 @@ enum EToken
 	EToken_Throws,
 	EToken_Cdecl,
 	EToken_Stdcall,
+	EToken_Thiscall,
+	EToken_Jnccall,
 	EToken_Array,
 	EToken_Function,
 	EToken_Property,
@@ -240,6 +242,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
 	AXL_LEX_TOKEN_NAME (EToken_Throws,       "throws")
 	AXL_LEX_TOKEN_NAME (EToken_Cdecl,        "cdecl")
 	AXL_LEX_TOKEN_NAME (EToken_Stdcall,      "stdcall")
+	AXL_LEX_TOKEN_NAME (EToken_Thiscall,     "thiscall")
+	AXL_LEX_TOKEN_NAME (EToken_Jnccall,      "jnccall")
 	AXL_LEX_TOKEN_NAME (EToken_Array,        "array")
 	AXL_LEX_TOKEN_NAME (EToken_Function,     "function")
 	AXL_LEX_TOKEN_NAME (EToken_Property,     "property")

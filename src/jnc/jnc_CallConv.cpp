@@ -11,17 +11,18 @@ GetLlvmCallConv (ECallConv CallConvKind)
 {
 	llvm::CallingConv::ID LlvmCallConvTable [] =
 	{
-		llvm::CallingConv::C,           // ECallConv_Undefined = 0,
-		llvm::CallingConv::C,           // ECallConv_Jnccall_msc32,
-		llvm::CallingConv::C,           // ECallConv_Jnccall_msc64,
-		llvm::CallingConv::C,           // ECallConv_Jnccall_gcc32,
-		llvm::CallingConv::C,           // ECallConv_Jnccall_gcc64,
-		llvm::CallingConv::C,           // ECallConv_Cdecl_msc32,
-		llvm::CallingConv::C,           // ECallConv_Cdecl_msc64,
-		llvm::CallingConv::C,           // ECallConv_Cdecl_gcc32,
-		llvm::CallingConv::C,           // ECallConv_Cdecl_gcc64,
-		llvm::CallingConv::X86_StdCall, // ECallConv_Stdcall_msc32,
-		llvm::CallingConv::X86_StdCall, // ECallConv_Stdcall_gcc32,
+		llvm::CallingConv::C,            // ECallConv_Undefined = 0,
+		llvm::CallingConv::C,            // ECallConv_Jnccall_msc32,
+		llvm::CallingConv::C,            // ECallConv_Jnccall_msc64,
+		llvm::CallingConv::C,            // ECallConv_Jnccall_gcc32,
+		llvm::CallingConv::C,            // ECallConv_Jnccall_gcc64,
+		llvm::CallingConv::C,            // ECallConv_Cdecl_msc32,
+		llvm::CallingConv::C,            // ECallConv_Cdecl_msc64,
+		llvm::CallingConv::C,            // ECallConv_Cdecl_gcc32,
+		llvm::CallingConv::C,            // ECallConv_Cdecl_gcc64,
+		llvm::CallingConv::X86_StdCall,  // ECallConv_Stdcall_msc32,
+		llvm::CallingConv::X86_StdCall,  // ECallConv_Stdcall_gcc32,
+		llvm::CallingConv::X86_ThisCall, // ECallConv_Thiscall_msc32,
 	};
 
 	return (size_t) CallConvKind < countof (LlvmCallConvTable) ?
@@ -140,6 +141,7 @@ GetCallConvSignature (ECallConv CallConvKind)
 		"CG8",    // ECallConv_Cdecl_gcc64,
 		"SM4",    // ECallConv_Stdcall_msc32,
 		"SG4",    // ECallConv_Stdcall_gcc32,
+		"TM4",    // ECallConv_Thiscall_msc32,
 	};
 
 	return (size_t) CallConvKind < countof (StringTable) ?
@@ -154,6 +156,7 @@ GetCallConvKindFromModifiers (uint_t Modifiers)
 {
 #if (_AXL_CPU == AXL_CPU_X86)
 	return
+		(Modifiers & ETypeModifier_Thiscall) ? ECallConv_Thiscall :
 		(Modifiers & ETypeModifier_Stdcall) ? ECallConv_Stdcall :
 		(Modifiers & ETypeModifier_Cdecl) ? ECallConv_Cdecl : ECallConv_Default;
 #else

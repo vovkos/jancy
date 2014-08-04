@@ -170,6 +170,8 @@ enum ETypeModifier
 	ETypeModifier_Event       = 0x00020000,
 	ETypeModifier_DEvent      = 0x00040000,
 	ETypeModifier_Reactor     = 0x00080000,
+	ETypeModifier_Thiscall    = 0x00100000,
+	ETypeModifier_Jnccall     = 0x00200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -180,15 +182,19 @@ enum ETypeModifierMask
 		ETypeModifier_Unsigned |
 		ETypeModifier_BigEndian,
 
+	ETypeModifierMask_CallConv =
+		ETypeModifier_Cdecl |
+		ETypeModifier_Stdcall |
+		ETypeModifier_Thiscall |
+		ETypeModifier_Jnccall,
+
 	ETypeModifierMask_Function =
 		ETypeModifier_Function |
-		ETypeModifier_Cdecl |
-		ETypeModifier_Stdcall,
+		ETypeModifierMask_CallConv ,
 
 	ETypeModifierMask_Property =
 		ETypeModifier_Property |
-		ETypeModifier_Cdecl |
-		ETypeModifier_Stdcall |
+		ETypeModifierMask_CallConv |
 		ETypeModifier_Const |
 		ETypeModifier_Bindable |
 		ETypeModifier_Indexed,
@@ -233,10 +239,6 @@ enum ETypeModifierMask
 		ETypeModifier_DEvent |
 		ETypeModifier_Bindable |
 		ETypeModifier_AutoGet,
-
-	ETypeModifierMask_CallConv =
-		ETypeModifier_Cdecl |
-		ETypeModifier_Stdcall,
 
 	ETypeModifierMask_PtrKind =
 		ETypeModifier_Weak |

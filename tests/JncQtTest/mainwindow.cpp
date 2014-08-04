@@ -20,17 +20,18 @@ OpaqueTest::operatorNew (int x, int y)
 }
 
 void
-AXL_CDECL
 OpaqueTest::foo ()
 {
 	printf ("OpaqueTest::foo () { %d, %d }\n", m_x, m_y);
 }
 
-void
-AXL_CDECL
-OpaqueTest::bar ()
+Point
+OpaqueTest::bar (int x)
 {
-	printf ("OpaqueTest::bar () { %d, %d }\n", m_x, m_y);
+	printf ("OpaqueTest::bar (%d) { %d, %d }\n", x, m_x, m_y);
+
+	Point point = { x, 2 * x, 3 * x, 4 * x };
+	return point;
 }
 
 //.............................................................................

@@ -9,6 +9,16 @@ class MdiChild;
 
 //.............................................................................
 
+struct Point
+{
+	int m_x;
+	int m_y;
+	int m_z;
+	int m_w;
+};
+
+//.............................................................................
+
 enum EApiSlot
 {
 	EApiSlot_OpaqueTest = 0,
@@ -42,12 +52,10 @@ public:
 	operatorNew (int x, int y);
 
 	void
-	AXL_CDECL
 	foo ();
 
-	void
-	AXL_CDECL
-	bar ();
+	Point
+	bar (int x);
 };
 
 //.............................................................................
@@ -57,7 +65,7 @@ class StdLib: public jnc::CStdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (jnc::EStdFunc_Printf,  &Printf)
-//		JNC_API_CLASS (OpaqueTest)
+		JNC_API_CLASS (OpaqueTest)
 		JNC_API_LIB (jnc::CStdLib)
 	JNC_API_END_LIB ()
 

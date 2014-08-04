@@ -66,6 +66,8 @@ main := |*
 'throws'          |
 'cdecl'           |
 'stdcall'         |
+'thiscall'        |
+'jnccall'         |
 'array'           |
 'function'        |
 'property'        |

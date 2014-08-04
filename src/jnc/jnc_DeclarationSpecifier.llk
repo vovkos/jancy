@@ -346,6 +346,14 @@ type_modifier
 			{
 				$.m_TypeModifier = ETypeModifier_Stdcall;
 			}
+	|	EToken_Thiscall
+			{
+				$.m_TypeModifier = ETypeModifier_Thiscall;
+			}
+	|	EToken_Jnccall
+			{
+				$.m_TypeModifier = ETypeModifier_Jnccall;
+			}
 	|	EToken_Array
 			{
 				$.m_TypeModifier = ETypeModifier_Array;

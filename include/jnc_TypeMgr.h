@@ -71,12 +71,13 @@ protected:
 	CJnccallCallConv_msc64 m_JnccallCallConv_msc64;
 	CJnccallCallConv_gcc32 m_JnccallCallConv_gcc32;
 	CJnccallCallConv_gcc64 m_JnccallCallConv_gcc64;
-	CCdeclCallConv_msc32   m_CdeclCallConv_msc32;
-	CCdeclCallConv_msc64   m_CdeclCallConv_msc64;
-	CCdeclCallConv_gcc32   m_CdeclCallConv_gcc32;
-	CCdeclCallConv_gcc64   m_CdeclCallConv_gcc64;
+	CCdeclCallConv_msc32 m_CdeclCallConv_msc32;
+	CCdeclCallConv_msc64 m_CdeclCallConv_msc64;
+	CCdeclCallConv_gcc32 m_CdeclCallConv_gcc32;
+	CCdeclCallConv_gcc64 m_CdeclCallConv_gcc64;
 	CStdcallCallConv_msc32 m_StdcallCallConv_msc32;
 	CStdcallCallConv_gcc32 m_StdcallCallConv_gcc32;
+	CThiscallCallConv_msc32 m_ThiscallCallConv_msc32;
 
 	CCallConv* m_CallConvTable [ECallConv__Count];
 

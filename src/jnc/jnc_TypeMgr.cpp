@@ -2323,16 +2323,17 @@ CTypeMgr::SetupPrimitiveType (
 void
 CTypeMgr::SetupCallConvTable ()
 {
-	m_CallConvTable [ECallConv_Jnccall_msc32] = &m_JnccallCallConv_msc32;
-	m_CallConvTable [ECallConv_Jnccall_msc64] = &m_JnccallCallConv_msc64;
-	m_CallConvTable [ECallConv_Jnccall_gcc32] = &m_JnccallCallConv_gcc32;
-	m_CallConvTable [ECallConv_Jnccall_gcc64] = &m_JnccallCallConv_gcc64;
-	m_CallConvTable [ECallConv_Cdecl_msc32]   = &m_CdeclCallConv_msc32;
-	m_CallConvTable [ECallConv_Cdecl_msc64]   = &m_CdeclCallConv_msc64;
-	m_CallConvTable [ECallConv_Cdecl_gcc32]   = &m_CdeclCallConv_gcc32;
-	m_CallConvTable [ECallConv_Cdecl_gcc64]   = &m_CdeclCallConv_gcc64;
-	m_CallConvTable [ECallConv_Stdcall_msc32] = &m_StdcallCallConv_msc32;
-	m_CallConvTable [ECallConv_Stdcall_gcc32] = &m_StdcallCallConv_gcc32;
+	m_CallConvTable [ECallConv_Jnccall_msc32]  = &m_JnccallCallConv_msc32;
+	m_CallConvTable [ECallConv_Jnccall_msc64]  = &m_JnccallCallConv_msc64;
+	m_CallConvTable [ECallConv_Jnccall_gcc32]  = &m_JnccallCallConv_gcc32;
+	m_CallConvTable [ECallConv_Jnccall_gcc64]  = &m_JnccallCallConv_gcc64;
+	m_CallConvTable [ECallConv_Cdecl_msc32]    = &m_CdeclCallConv_msc32;
+	m_CallConvTable [ECallConv_Cdecl_msc64]    = &m_CdeclCallConv_msc64;
+	m_CallConvTable [ECallConv_Cdecl_gcc32]    = &m_CdeclCallConv_gcc32;
+	m_CallConvTable [ECallConv_Cdecl_gcc64]    = &m_CdeclCallConv_gcc64;
+	m_CallConvTable [ECallConv_Stdcall_msc32]  = &m_StdcallCallConv_msc32;
+	m_CallConvTable [ECallConv_Stdcall_gcc32]  = &m_StdcallCallConv_gcc32;
+	m_CallConvTable [ECallConv_Thiscall_msc32] = &m_ThiscallCallConv_msc32;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

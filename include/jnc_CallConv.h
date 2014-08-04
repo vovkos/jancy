@@ -32,26 +32,28 @@ enum ECallConv
 	ECallConv_Cdecl_gcc64,
 	ECallConv_Stdcall_msc32,
 	ECallConv_Stdcall_gcc32,
+	ECallConv_Thiscall_msc32,
 	ECallConv__Count,
 
 #if (_AXL_CPP == AXL_CPP_MSC)
 #	if (_AXL_CPU == AXL_CPU_AMD64)
-	ECallConv_Jnccall = ECallConv_Jnccall_msc64,
-	ECallConv_Cdecl   = ECallConv_Cdecl_msc64,
+	ECallConv_Jnccall  = ECallConv_Jnccall_msc64,
+	ECallConv_Cdecl    = ECallConv_Cdecl_msc64,
 #	else
-	ECallConv_Jnccall = ECallConv_Jnccall_msc32,
-	ECallConv_Cdecl   = ECallConv_Cdecl_msc32,
-	ECallConv_Stdcall = ECallConv_Stdcall_msc32,
-
+	ECallConv_Jnccall  = ECallConv_Jnccall_msc32,
+	ECallConv_Cdecl    = ECallConv_Cdecl_msc32,
+	ECallConv_Stdcall  = ECallConv_Stdcall_msc32,
+	ECallConv_Thiscall = ECallConv_Thiscall_msc32,
 #	endif
 #else
 #	if (_AXL_CPU == AXL_CPU_AMD64)
-	ECallConv_Jnccall = ECallConv_Jnccall_gcc64,
-	ECallConv_Cdecl   = ECallConv_Cdecl_gcc64,
+	ECallConv_Jnccall  = ECallConv_Jnccall_gcc64,
+	ECallConv_Cdecl    = ECallConv_Cdecl_gcc64,
 #	else
-	ECallConv_Jnccall = ECallConv_Jnccall_gcc32,
-	ECallConv_Cdecl   = ECallConv_Cdecl_gcc32,
-	ECallConv_Stdcall = ECallConv_Stdcall_gcc32,
+	ECallConv_Jnccall  = ECallConv_Jnccall_gcc32,
+	ECallConv_Cdecl    = ECallConv_Cdecl_gcc32,
+	ECallConv_Stdcall  = ECallConv_Stdcall_gcc32,
+	ECallConv_Thiscall = ECallConv_Cdecl_gcc32,
 #	endif
 #endif
 

@@ -123,6 +123,7 @@ main := |*
 'throws'         { CreateToken (EToken_Throws); };
 'cdecl'          { CreateToken (EToken_Cdecl); };
 'stdcall'        { CreateToken (EToken_Stdcall); };
+'thiscall'       { CreateToken (EToken_Thiscall); };
 'array'          { CreateToken (EToken_Array); };
 'function'       { CreateToken (EToken_Function); };
 'property'       { CreateToken (EToken_Property); };

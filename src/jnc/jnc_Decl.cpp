@@ -47,6 +47,8 @@ CTypeModifiers::SetTypeModifier (ETypeModifier Modifier)
 		ETypeModifierMask_Event,    // ETypeModifier_Event            = 0x00020000,
 		ETypeModifierMask_Event,    // ETypeModifier_DEvent           = 0x00040000,
 		ETypeModifierMask_TypeKind, // ETypeModifier_Reactor          = 0x00080000,
+		ETypeModifierMask_CallConv, // ETypeModifier_Thiscall         = 0x00100000,
+		ETypeModifierMask_CallConv, // ETypeModifier_Jnccall          = 0x00200000,
 	};
 
 	// check duplicates

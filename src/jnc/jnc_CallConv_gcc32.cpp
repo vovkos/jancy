@@ -41,10 +41,9 @@ CCallConv_gcc32::CreateLlvmFunction (
 	llvm::Function* pLlvmFunction = CCallConv::CreateLlvmFunction (pFunctionType, pTag);
 
 	CType* pReturnType = pFunctionType->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
-		return pLlvmFunction;
+	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
+		pLlvmFunction->addAttribute (1, llvm::Attribute::StructRet);
 
-	pLlvmFunction->addAttribute (1, llvm::Attribute::StructRet);
 	return pLlvmFunction;
 }
 

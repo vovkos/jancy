@@ -34,6 +34,17 @@ public:
 	}
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CThiscallCallConv_msc32: public CCallConv
+{
+public:
+	CThiscallCallConv_msc32 ()
+	{
+		m_CallConvKind = ECallConv_Thiscall_msc32;
+	}
+};
+
 //.............................................................................
 
 } // namespace jnc {
