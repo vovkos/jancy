@@ -67,23 +67,6 @@ CCdeclCallConv_msc64::GetLlvmFunctionType (CFunctionType* pFunctionType)
 		);
 }
 
-llvm::Function*
-CCdeclCallConv_msc64::CreateLlvmFunction (
-	CFunctionType* pFunctionType,
-	const char* pTag
-	)
-{
-	llvm::Function* pLlvmFunction = CCallConv::CreateLlvmFunction (pFunctionType, pTag);
-
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet) ||
-		pReturnType->GetSize () <= sizeof (uint64_t))
-		return pLlvmFunction;
-
-	pLlvmFunction->addAttribute (1, llvm::Attribute::StructRet);
-	return pLlvmFunction;
-}
-
 void
 CCdeclCallConv_msc64::Call (
 	const CValue& CalleeValue,
@@ -127,9 +110,6 @@ CCdeclCallConv_msc64::Call (
 
 			CValue TmpValue;
 			m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpArg", NULL, &TmpValue);
-
-			rtl::CString s1 = TmpValue.GetLlvmTypeString ();
-			rtl::CString s2 = It->GetLlvmTypeString ();
 
 			m_pModule->m_LlvmIrBuilder.CreateStore (*It, TmpValue);
 		

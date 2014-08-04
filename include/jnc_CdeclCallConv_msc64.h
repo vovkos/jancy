@@ -25,13 +25,6 @@ public:
 	GetLlvmFunctionType (CFunctionType* pFunctionType);
 
 	virtual
-	llvm::Function*
-	CreateLlvmFunction (
-		CFunctionType* pFunctionType,
-		const char* pTag
-		);
-
-	virtual
 	void
 	Call (
 		const CValue& CalleeValue,
