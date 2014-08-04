@@ -105,7 +105,12 @@ CCdeclCallConv_msc64::Call (
 
 	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (pReturnType, "tmpRetVal", NULL, &TmpReturnValue);
+		m_pModule->m_LlvmIrBuilder.CreateAlloca (
+			pReturnType, 
+			"tmpRetVal", 
+			pReturnType->GetDataPtrType_c (), 
+			&TmpReturnValue
+			);
 
 		if (pReturnType->GetSize () > sizeof (uint64_t))
 			pArgValueList->InsertHead (TmpReturnValue);
