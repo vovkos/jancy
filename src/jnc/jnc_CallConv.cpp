@@ -203,12 +203,18 @@ CCallConv::CreateLlvmFunction (
 	)
 {
 	llvm::FunctionType* pLlvmType = (llvm::FunctionType*) pFunctionType->GetLlvmType ();
-	return llvm::Function::Create (
+	llvm::Function* pLlvmFunction = llvm::Function::Create (
 		pLlvmType,
 		llvm::Function::ExternalLinkage,
 		pTag,
 		m_pModule->GetLlvmModule ()
 		);
+
+	llvm::CallingConv::ID LlvmCallConv = GetLlvmCallConv ();
+	if (LlvmCallConv)
+		pLlvmFunction->setCallingConv (LlvmCallConv);
+
+	return pLlvmFunction;
 }
 
 void

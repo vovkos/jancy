@@ -65,7 +65,7 @@ class StdLib: public jnc::CStdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (jnc::EStdFunc_Printf,  &Printf)
-		JNC_API_CLASS (OpaqueTest)
+//		JNC_API_CLASS (OpaqueTest)
 		JNC_API_LIB (jnc::CStdLib)
 	JNC_API_END_LIB ()
 
