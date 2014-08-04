@@ -511,7 +511,7 @@ CStructType::SetFieldActualSize (size_t Size)
 	m_FieldActualSize = Size;
 	m_FieldAlignedSize = Size;
 
-	size_t Mod = m_Size % m_AlignFactor;
+	size_t Mod = Size % m_AlignFactor;
 	if (Mod)
 		m_FieldAlignedSize += m_AlignFactor - Mod;
 
