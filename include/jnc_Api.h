@@ -58,7 +58,7 @@ GetApiClassVTable () \
 }
 
 //.............................................................................
-	
+
 #define JNC_API_END_CLASS_BEGIN_VTABLE() \
 	return true; \
 } \
@@ -189,6 +189,22 @@ public:
 	{
 		Prime (0, this, 0);
 	}
+};
+
+//.............................................................................
+
+// ensures no tail-padding (which might lead to ABI-incompatibility)
+
+template <typename T>
+class CApiBaseT: public T
+{
+private:
+	struct TTailPaddingCheck: T
+	{
+		char m_Field; // this filed might be allocated in T's tail-padding
+	};
+
+	char m_TailPadding [sizeof (T) - offsetof (TTailPaddingCheck, m_Field)];
 };
 
 //.............................................................................
