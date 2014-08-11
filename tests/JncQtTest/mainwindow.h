@@ -11,10 +11,10 @@ class MdiChild;
 
 struct Point
 {
-	int m_x;
-	int m_y;
-	int m_z;
-	int m_w;
+	int64_t m_x;
+	int64_t m_y;
+	int64_t m_z;
+	int64_t m_w;
 };
 
 //.............................................................................
@@ -67,6 +67,7 @@ public:
 		JNC_API_STD_FUNCTION (jnc::EStdFunc_Printf,  &Printf)
 //		JNC_API_CLASS (OpaqueTest)
 		JNC_API_LIB (jnc::CStdLib)
+//		JNC_API_FUNCTION ("testPtr",  &testPtr)
 	JNC_API_END_LIB ()
 
 	static
@@ -75,6 +76,10 @@ public:
 		const char* pFormat,
 		...
 		);
+
+	static
+	void
+	testPtr (int x, jnc::TDataPtr Ptr, int y);
 };
 
 //.............................................................................

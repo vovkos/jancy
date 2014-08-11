@@ -3,6 +3,8 @@
 #include "mdichild.h"
 #include "moc_modulepane.cpp"
 
+#include "axl_g_WarningSuppression.h" // gcc loses warning suppresion from pch
+
 ModulePane::ModulePane(QWidget *parent)
 	: QTreeWidget(parent)
 {
@@ -193,6 +195,9 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::CType *type)
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void *)type));
+
+	QString toolTip = QString ("%1 (sizeof = %2)").arg (type->GetTypeString ().cc ()).arg (type->GetSize ());
+	item->setToolTip (0, toolTip);
 
 	addItemAttributes(item, type);
 

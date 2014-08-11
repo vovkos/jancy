@@ -280,7 +280,7 @@ public:
 
 	bool
 	Link (CModule* pModule);
-	
+
 	bool
 	CalcLayout ();
 
@@ -311,7 +311,7 @@ public:
 	{
 		return jnc::CallVoidFunction (m_pConstructor);
 	}
-	
+
 protected:
 	bool
 	CreateDefaultConstructor ();

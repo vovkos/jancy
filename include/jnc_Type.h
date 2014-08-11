@@ -143,6 +143,10 @@ enum EStdType
 	EStdType_FmtLiteral,
 	EStdType_Guid,
 	EStdType_Error,
+	EStdType_Int64Int64, // for system V coercion
+	EStdType_Fp64Fp64,   // for system V coercion
+	EStdType_Int64Fp64,  // for system V coercion
+	EStdType_Fp64Int64,  // for system V coercion
 	EStdType__Count,
 };
 
@@ -290,11 +294,11 @@ GetFirstTypeModifierString (uint_t Modifiers)
 
 enum ETypeFlag
 {
-	ETypeFlag_Named        = 0x000100,
-	ETypeFlag_Child        = 0x000200, // constructor has an implicit 'parent' arg
-	ETypeFlag_Pod          = 0x000400, // plain-old-data
-	ETypeFlag_GcRoot       = 0x000800, // is or contains gc-traceable pointers
-	ETypeFlag_StructRet    = 0x001000, // return through hidden 1st arg (gcc32 callconv)
+	ETypeFlag_Named        = 0x0100,
+	ETypeFlag_Child        = 0x0200, // constructor has an implicit 'parent' arg
+	ETypeFlag_Pod          = 0x0400, // plain-old-data
+	ETypeFlag_GcRoot       = 0x0800, // is or contains gc-traceable pointers
+	ETypeFlag_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -462,6 +466,7 @@ GetLlvmTypeString (llvm::Type* pLlvmType);
 class CType: public CModuleItem
 {
 	friend class CTypeMgr;
+	friend class CCdeclCallConv_gcc64;
 
 protected:
 	EType m_TypeKind;

@@ -156,11 +156,11 @@ bool
 CCmdLineParser::Finalize ()
 {
 	if (!(m_pCmdLine->m_Flags & (
-			EJncFlag_Help | 
-			EJncFlag_Version | 
-			EJncFlag_Server | 
+			EJncFlag_Help |
+			EJncFlag_Version |
+			EJncFlag_Server |
 			EJncFlag_StdInSrc
-			)) && 
+			)) &&
 		m_pCmdLine->m_SrcFileName.IsEmpty ())
 	{
 		err::SetFormatStringError ("missing input (source-file-name or --stdin)");

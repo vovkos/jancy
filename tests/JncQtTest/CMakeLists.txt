@@ -208,8 +208,18 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
+if (UNIX)
+	target_link_libraries (
+		JncQtTest
+		rt
+		)
+endif ()
+
 qt5_use_modules (JncQtTest Widgets)
-copy_qt_dll_files (JncQtTest Core Gui Widgets)
+
+if (WIN32)
+	copy_qt_dll_files (JncQtTest Core Gui Widgets)
+endif ()
 
 if (JNC_USE_PCH)
 	set_pch (

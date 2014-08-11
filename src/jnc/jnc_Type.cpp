@@ -36,7 +36,7 @@ GetTypeKindFlags (EType TypeKind)
 		ETypeKindFlag_Unsigned |     // EType_Int32_u
 		ETypeKindFlag_Integer |
 		ETypeKindFlag_Numeric,
-				
+
 		ETypeKindFlag_Integer |      // EType_Int64
 		ETypeKindFlag_Numeric,
 
@@ -133,7 +133,7 @@ GetTypeKindFlags (EType TypeKind)
 		ETypeKindFlag_Ptr,
 
 		ETypeKindFlag_Import |       // EType_ImportIntMod
-		ETypeKindFlag_Integer | 
+		ETypeKindFlag_Integer |
 		ETypeKindFlag_Numeric,
 	};
 
@@ -346,7 +346,7 @@ GetPtrTypeFlagsFromModifiers (uint_t Modifiers)
 
 	if (Modifiers & ETypeModifier_Volatile)
 		Flags |= EPtrTypeFlag_Volatile;
-	
+
 	if (Modifiers & ETypeModifier_Const)
 		Flags |= EPtrTypeFlag_Const;
 	else if (Modifiers & ETypeModifier_DConst)
@@ -692,7 +692,7 @@ CType::PrepareLlvmDiType ()
 }
 
 //.............................................................................
-	
+
 CModuleItem*
 CLazyStdType::GetActualItem ()
 {

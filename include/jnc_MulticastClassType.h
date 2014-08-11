@@ -58,26 +58,26 @@ protected:
 public:
 	CMulticastClassType ();
 
-	CFunctionPtrType* 
+	CFunctionPtrType*
 	GetTargetType ()
 	{
 		return m_pTargetType;
 	}
 
-	CFunctionType* 
+	CFunctionType*
 	GetFunctionType ()
 	{
 		return m_pTargetType->GetTargetType ();
 	}
 
-	CStructField* 
+	CStructField*
 	GetField (EMulticastField Field)
 	{
 		ASSERT (Field < EMulticastField__Count);
 		return m_FieldArray [Field];
 	}
 
-	CFunction* 
+	CFunction*
 	GetMethod (EMulticastMethod Method)
 	{
 		ASSERT (Method < EMulticastMethod__Count);
@@ -90,28 +90,28 @@ public:
 		return m_pSnapshotType;
 	}
 
-	virtual 
+	virtual
 	bool
 	Compile ()
 	{
-		return 
+		return
 			CClassType::Compile () &&
 			CompileCallMethod ();
 	}
 
-	virtual 
+	virtual
 	void
 	GcMark (
 		CRuntime* pRuntime,
 		void* p
-		);	
+		);
 
 protected:
-	virtual 
+	virtual
 	void
 	PrepareTypeString ();
 
-	virtual 
+	virtual
 	bool
 	CalcLayout ()
 	{
@@ -136,13 +136,13 @@ struct TMulticast: TIfaceHdr
 	size_t m_Count;
 	void* m_pPtrArray; // array of function closure, weak or unsafe pointers
 	void* m_pHandleTable;
-	
-	CFunction* 
+
+	CFunction*
 	GetMethod (EMulticastMethod Method)
 	{
 		return ((CMulticastClassType*) m_pObject->m_pType)->GetMethod (Method);
 	}
-	
+
 	void
 	Call ();
 

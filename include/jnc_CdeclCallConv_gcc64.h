@@ -49,11 +49,22 @@ public:
 
 	virtual
 	CValue
+	GetArgValue (
+		CFunctionArg* pArg,
+		llvm::Value* pLlvmValue
+		);
+
+	virtual
+	CValue
 	GetThisArgValue (CFunction* pFunction);
 
 	virtual
 	void
 	CreateArgVariables (CFunction* pFunction);
+
+protected:
+	CType*
+	GetArgCoerceType (CType* pType);
 };
 
 //.............................................................................

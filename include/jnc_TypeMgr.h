@@ -1003,6 +1003,14 @@ protected:
 	CStructType*
 	CreateErrorType ();
 
+	CStructType*
+	CreatePairType (
+		const rtl::CString& Name,
+		const rtl::CString& QualifiedName,
+		CType* pType1,
+		CType* pType2
+		);
+
 	bool
 	CreateMulticastCallMethod (CClassType* pMulticastType);
 };

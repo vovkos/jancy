@@ -8,6 +8,8 @@
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
+#include "axl_g_WarningSuppression.h"
+
 //.............................................................................
 
 OpaqueTest*
@@ -30,7 +32,8 @@ OpaqueTest::bar (int x)
 {
 	printf ("OpaqueTest::bar (%d) { %d, %d }\n", x, m_x, m_y);
 
-	Point point = { x, 2 * x, 3 * x, 4 * x };
+	Point point = { x, 2 * x };
+//	Point point = { x, 2 * x, 3 * x , 4 * x };
 	return point;
 }
 
@@ -50,6 +53,12 @@ StdLib::Printf (
 	WriteOutput (Text, Length);
 
 	return Length;
+}
+
+void
+StdLib::testPtr (int x, jnc::TDataPtr ptr, int y)
+{
+	printf ("StdLib::testPtr\n");
 }
 
 //.............................................................................
@@ -429,9 +438,9 @@ bool MainWindow::compile ()
 
 	result =
 		module.CreateLlvmExecutionEngine () &&
-		StdLib::Export (&module) && 
+		StdLib::Export (&module) &&
 		module.Jit () &&
-		runtime.Create (16 * 1024, 16 * 1024) && 
+		runtime.Create (16 * 1024, 16 * 1024) &&
 		runtime.AddModule (&module); // 16K gc heap, 16K stack
 
 	if (!result)

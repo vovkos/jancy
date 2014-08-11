@@ -16,7 +16,7 @@ CJnc::Compile (
 	if (m_pCmdLine->m_Flags & EJncFlag_DebugInfo)
 		ModuleFlags |= jnc::EModuleFlag_DebugInfo;
 
-	if (m_pCmdLine->m_Flags & EJncFlag_Jit_mc) 
+	if (m_pCmdLine->m_Flags & EJncFlag_Jit_mc)
 		ModuleFlags |= jnc::EModuleFlag_McJit;
 
 	m_Module.Create ("jncc_module", ModuleFlags);
@@ -39,7 +39,7 @@ CJnc::Jit ()
 	return
 		m_Module.CreateLlvmExecutionEngine () &&
 		CStdLib::Export (&m_Module) &&
-		m_Module.Jit () && 
+		m_Module.Jit () &&
 		m_Runtime.Create (m_pCmdLine->m_GcHeapSize, m_pCmdLine->m_StackSize) &&
 		m_Runtime.AddModule (&m_Module);
 }

@@ -23,9 +23,9 @@ struct TFunctionPtrTypeTuple;
 
 enum EFunctionTypeFlag
 {
-	EFunctionTypeFlag_VarArg        = 0x010000,
-	EFunctionTypeFlag_Throws        = 0x040000,
-	EFunctionTypeFlag_StructRetArgs = 0x080000,
+	EFunctionTypeFlag_VarArg      = 0x010000,
+	EFunctionTypeFlag_Throws      = 0x040000,
+	EFunctionTypeFlag_CoercedArgs = 0x080000,
 };
 
 //.............................................................................
@@ -50,6 +50,7 @@ class CFunctionType: public CType
 	friend class CTypeMgr;
 	friend class CClassType;
 	friend class CCdeclCallConv_msc64;
+	friend class CCdeclCallConv_gcc64;
 
 protected:
 	CCallConv* m_pCallConv;

@@ -36,7 +36,7 @@ CCdeclCallConv_msc64::GetLlvmFunctionType (CFunctionType* pFunctionType)
 		}
 	}
 
-	bool HasStructRetArgs = false;
+	bool HasCoercedArgs = false;
 
 	for (size_t i = 0; j < ArgCount; i++, j++)
 	{
@@ -48,17 +48,17 @@ CCdeclCallConv_msc64::GetLlvmFunctionType (CFunctionType* pFunctionType)
 		else if (pType->GetSize () <= sizeof (uint64_t))
 		{
 			LlvmArgTypeArray [j] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64)->GetLlvmType ();
-			HasStructRetArgs = true;
+			HasCoercedArgs = true;
 		}
 		else
 		{
 			LlvmArgTypeArray [j] = pType->GetDataPtrType_c ()->GetLlvmType ();
-			HasStructRetArgs = true;
+			HasCoercedArgs = true;
 		}
 	}
 
-	if (HasStructRetArgs)
-		pFunctionType->m_Flags |= EFunctionTypeFlag_StructRetArgs;
+	if (HasCoercedArgs)
+		pFunctionType->m_Flags |= EFunctionTypeFlag_CoercedArgs;
 
 	return llvm::FunctionType::get (
 		pReturnType->GetLlvmType (),
@@ -77,7 +77,7 @@ CCdeclCallConv_msc64::Call (
 {
 	CType* pReturnType = pFunctionType->GetReturnType ();
 
-	if (!(pFunctionType->GetFlags () & EFunctionTypeFlag_StructRetArgs) &&
+	if (!(pFunctionType->GetFlags () & EFunctionTypeFlag_CoercedArgs) &&
 		!(pReturnType->GetFlags () & ETypeFlag_StructRet))
 	{
 		CCallConv::Call (CalleeValue, pFunctionType, pArgValueList, pResultValue);
@@ -89,9 +89,9 @@ CCdeclCallConv_msc64::Call (
 	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
 	{
 		m_pModule->m_LlvmIrBuilder.CreateAlloca (
-			pReturnType, 
-			"tmpRetVal", 
-			pReturnType->GetDataPtrType_c (), 
+			pReturnType,
+			"tmpRetVal",
+			pReturnType->GetDataPtrType_c (),
 			&TmpReturnValue
 			);
 
@@ -99,7 +99,7 @@ CCdeclCallConv_msc64::Call (
 			pArgValueList->InsertHead (TmpReturnValue);
 	}
 
-	if (pFunctionType->GetFlags () & EFunctionTypeFlag_StructRetArgs)
+	if (pFunctionType->GetFlags () & EFunctionTypeFlag_CoercedArgs)
 	{
 		rtl::CBoxIteratorT <CValue> It = pArgValueList->GetHead ();
 		for (; It; It++)
@@ -108,22 +108,24 @@ CCdeclCallConv_msc64::Call (
 			if (!(pType->GetFlags () & ETypeFlag_StructRet))
 				continue;
 
-			CValue TmpValue;
-			m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpArg", NULL, &TmpValue);
-
-			m_pModule->m_LlvmIrBuilder.CreateStore (*It, TmpValue);
-		
 			if (pType->GetSize () > sizeof (uint64_t))
 			{
+				CValue TmpValue;
+				m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpArg", NULL, &TmpValue);
+				m_pModule->m_LlvmIrBuilder.CreateStore (*It, TmpValue);
 				*It = TmpValue;
 			}
 			else
 			{
-				pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64)->GetDataPtrType_c ();
-				m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pType, &TmpValue);
+				CType* pCoerceType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64);
+
+				CValue TmpValue, TmpValue2;
+				m_pModule->m_LlvmIrBuilder.CreateAlloca (pCoerceType, "tmpArg", NULL, &TmpValue);
+				m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pType->GetDataPtrType_c (), &TmpValue2);
+				m_pModule->m_LlvmIrBuilder.CreateStore (*It, TmpValue2);
 				m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, NULL, &TmpValue);
 				*It = TmpValue;
-			}		
+			}
 		}
 	}
 
@@ -170,12 +172,12 @@ CCdeclCallConv_msc64::Return (
 	}
 	else
 	{
-		CValue TmpValue;
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (pReturnType, "tmpRetVal", NULL, &TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue);
-
 		CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64)->GetDataPtrType_c ();
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pType, &TmpValue);
+
+		CValue TmpValue, TmpValue2;
+		m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpRetVal", NULL, &TmpValue);
+		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pReturnType->GetDataPtrType_c (), &TmpValue2);
+		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue2);
 		m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, NULL, &TmpValue);
 		m_pModule->m_LlvmIrBuilder.CreateRet (TmpValue);
 	}
@@ -231,7 +233,7 @@ CCdeclCallConv_msc64::CreateArgVariables (CFunction* pFunction)
 	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
 
 	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
-	if ((pReturnType->GetFlags () & ETypeFlag_StructRet) && 
+	if ((pReturnType->GetFlags () & ETypeFlag_StructRet) &&
 		pReturnType->GetSize () > sizeof (uint64_t))
 		LlvmArg++;
 
@@ -284,7 +286,7 @@ CCdeclCallConv_msc64::CreateArgVariables (CFunction* pFunction)
 				m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pType->GetDataPtrType_c (), &TmpValue);
 				m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, NULL, &TmpValue);
 				m_pModule->m_LlvmIrBuilder.CreateStore (TmpValue, pArgVariable);
-			}		
+			}
 		}
 	}
 }

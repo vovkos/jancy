@@ -21,7 +21,7 @@ enum EStructFieldFlag
 
 //.............................................................................
 
-class CStructField: 
+class CStructField:
 	public CUserModuleItem,
 	public CModuleItemInitializer
 {

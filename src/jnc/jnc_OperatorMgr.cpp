@@ -369,7 +369,7 @@ COperatorMgr::GetConditionalOperatorResultType (
 	{
 		uint_t TrueFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
 		uint_t FalseFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
-		
+
 		if (IsArrayRefType (pTrueType))
 			TrueFlags |= EOpFlag_ArrayRefToPtr;
 
@@ -455,6 +455,33 @@ COperatorMgr::ConditionalOperator (
 	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
 	m_pModule->m_LlvmIrBuilder.CreatePhi (TrueValue, pThenBlock, FalseValue, pElseBlock, pResultValue);
 	return true;
+}
+
+void
+COperatorMgr::ForceCast (
+	const CValue& Value,
+	CType* pDstType,
+	CValue* pResultValue
+	)
+{
+	CType* pSrcType = Value.GetType ();
+
+	if (pSrcType->GetSize () >= pDstType->GetSize ())
+	{
+		CValue TmpValue;
+		m_pModule->m_LlvmIrBuilder.CreateAlloca (pSrcType, "tmp", NULL, &TmpValue);
+		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue);
+		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pDstType->GetDataPtrType_c (), &TmpValue);
+		m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, pDstType, pResultValue);
+	}
+	else
+	{
+		CValue TmpValue, TmpValue2;
+		m_pModule->m_LlvmIrBuilder.CreateAlloca (pDstType, "tmp", NULL, &TmpValue);
+		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pSrcType->GetDataPtrType_c (), &TmpValue2);
+		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue2);
+		m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, pDstType, pResultValue);
+	}
 }
 
 bool

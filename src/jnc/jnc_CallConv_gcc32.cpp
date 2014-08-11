@@ -62,29 +62,26 @@ CCallConv_gcc32::Call (
 		return;
 	}
 
-	CVariable* pReturnVariable = m_pModule->m_VariableMgr.CreateStackVariable ("returnValue", pReturnType);
-	m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pReturnVariable);
-
-	CValue ReturnPtrValue;
-	ReturnPtrValue.SetLlvmValue (
-		pReturnVariable->GetLlvmValue (),
+	CValue TmpReturnValue;
+	m_pModule->m_LlvmIrBuilder.CreateAlloca (
+		pReturnType,
+		"tmpRetVal",
 		pReturnType->GetDataPtrType_c (),
-		EValue_Variable
+		&TmpReturnValue
 		);
 
-	pArgValueList->InsertHead (ReturnPtrValue);
+	pArgValueList->InsertHead (TmpReturnValue);
 
 	llvm::CallInst* pInst = m_pModule->m_LlvmIrBuilder.CreateCall (
 		CalleeValue,
-		pFunctionType->GetCallConv (),
+		this,
 		*pArgValueList,
 		m_pModule->GetSimpleType (EType_Void),
 		NULL
 		);
 
 	pInst->addAttribute (1, llvm::Attribute::StructRet);
-
-	*pResultValue = pReturnVariable;
+	m_pModule->m_LlvmIrBuilder.CreateLoad (TmpReturnValue, pReturnType, pResultValue);
 }
 
 void

@@ -393,6 +393,22 @@ public:
 
 	// cast operators
 
+	void
+	ForceCast (
+		const CValue& Value,
+		CType* pType,
+		CValue* pResultValue
+		);
+
+	void
+	ForceCast (
+		CValue* pValue,
+		CType* pType
+		)
+	{
+		ForceCast (*pValue, pType, pValue);
+	}
+
 	CCastOperator*
 	GetStdCastOperator (EStdCast CastKind)
 	{

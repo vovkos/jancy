@@ -13,7 +13,7 @@ class CScope;
 
 //.............................................................................
 
-class CFunctionArg: 
+class CFunctionArg:
 	public CUserModuleItem,
 	public CModuleItemInitializer
 {

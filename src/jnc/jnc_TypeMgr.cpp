@@ -146,6 +146,42 @@ CTypeMgr::GetStdType (EStdType StdType)
 		pType = CreateErrorType ();
 		break;
 
+	case EStdType_Int64Int64:
+		pType = CreatePairType (
+			"Int64Int64",
+			"jnc.Int64Int64",
+			&m_PrimitiveTypeArray [EType_Int64],
+			&m_PrimitiveTypeArray [EType_Int64]
+			);
+		break;
+
+	case EStdType_Fp64Fp64:
+		pType = CreatePairType (
+			"Fp64Fp64",
+			"jnc.Fp64Fp64",
+			&m_PrimitiveTypeArray [EType_Double],
+			&m_PrimitiveTypeArray [EType_Double]
+			);
+		break;
+
+	case EStdType_Int64Fp64:
+		pType = CreatePairType (
+			"Int64Fp64",
+			"jnc.Int64Fp64",
+			&m_PrimitiveTypeArray [EType_Int64],
+			&m_PrimitiveTypeArray [EType_Double]
+			);
+		break;
+
+	case EStdType_Fp64Int64:
+		pType = CreatePairType (
+			"Fp64Int64",
+			"jnc.Fp64Int64",
+			&m_PrimitiveTypeArray [EType_Double],
+			&m_PrimitiveTypeArray [EType_Int64]
+			);
+		break;
+
 	default:
 		ASSERT (false);
 		return NULL;
@@ -2422,6 +2458,21 @@ CTypeMgr::CreateErrorType ()
 	CPropertyType* pPropertyType = GetSimplePropertyType (pReturnType, EPropertyTypeFlag_Const);
 	pDescription->Create (pPropertyType);
 
+	pType->EnsureLayout ();
+	return pType;
+}
+
+CStructType*
+CTypeMgr::CreatePairType (
+	const rtl::CString& Name,
+	const rtl::CString& QualifiedName,
+	CType* pType1,
+	CType* pType2
+	)
+{
+	CStructType* pType = CreateStructType (Name, QualifiedName);
+	pType->CreateField ("m_a", pType1);
+	pType->CreateField ("m_b", pType2);
 	pType->EnsureLayout ();
 	return pType;
 }
