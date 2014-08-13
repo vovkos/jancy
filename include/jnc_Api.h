@@ -195,6 +195,15 @@ public:
 
 // ensures no tail-padding (which might lead to ABI-incompatibility)
 
+#if (_AXL_CPP == AXL_CPP_MSC)
+
+template <typename T>
+class CApiBaseT: public T
+{
+};
+
+#else 
+
 template <typename T>
 class CApiBaseT: public T
 {
@@ -206,6 +215,8 @@ private:
 
 	char m_TailPadding [sizeof (T) - offsetof (TTailPaddingCheck, m_Field)];
 };
+
+#endif
 
 //.............................................................................
 
