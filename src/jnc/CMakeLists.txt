@@ -454,10 +454,10 @@ add_ragel_step (
 	jnc_Lexer.rl
 	)
 
-add_gepard_step (
+add_bulldozer_step (
 	jnc_Parser.llk.h
 	jnc_Parser.llk
-	"${PATH_GEPARD_FRAME_DIR}/llk_Parser.h.frame"
+	"${PATH_BULLDOZER_FRAME_DIR}/llk_Parser.h.frame"
 
 	# dependencies:
 
@@ -514,7 +514,7 @@ source_virtual_folder (
 
 include_directories (
 	${PATH_AXL_INC_DIR}
-	${PATH_GEPARD_INC_DIR}
+	${PATH_BULLDOZER_INC_DIR}
 	${PATH_LLVM_INC_DIR}
 	${PATH_LLVM_INC_DIR_2}
 	${JNC_GEN_DIR}

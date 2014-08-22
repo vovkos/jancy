@@ -2,8 +2,6 @@
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
-project_virtual_folder (jncc)
-
 #..............................................................................
 #
 # app folder
@@ -11,19 +9,17 @@ project_virtual_folder (jncc)
 
 set (
 	APP_H_LIST
-	jncc.h
-	jncc_CmdLine.h
-	jncc_OutStream.h
+	CmdLine.h
+	Jnc.h
+	OutStream.h
 	)
 
 set (
 	APP_CPP_LIST
-	jncc.cpp
-	jncc_CmdLine.cpp
-	jncc_Compile.cpp
-	jncc_RunFunction.cpp
-	jncc_Server.cpp
-	jncc_OutStream.cpp
+	main.cpp
+	CmdLine.cpp
+	Jnc.cpp
+	OutStream.cpp
 	)
 
 source_virtual_folder (
@@ -78,6 +74,12 @@ add_executable (
 	${APP_CPP_LIST}
 	)
 
+set_target_properties (
+	jncc
+	PROPERTIES
+	OUTPUT_NAME jancy
+	)
+
 target_link_libraries (
 	jncc
 	jnc
@@ -118,7 +120,7 @@ add_jncc_tests
 	# ...
 	)
 
-	set (_JNCC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/jncc)
+	set (_JNCC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/jancy)
 	set (_FILE_NAME_LIST ${ARGN})
 	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
 

@@ -48,15 +48,15 @@ ensure_file_exists (
 
 include (CMakePaths)
 
-message (STATUS "Path to RAGEL executable:   ${PATH_RAGEL_EXE}")
-message (STATUS "Path to LLVM cmake modules: ${PATH_LLVM_CMAKE_DIR}")
-message (STATUS "Path to LLVM includes:      ${PATH_LLVM_INC_DIR}")
-message (STATUS "Path to LLVM includes (2):  ${PATH_LLVM_INC_DIR_2}")
-message (STATUS "Path to LLVM libraries:     ${PATH_LLVM_LIB_DIR}")
-message (STATUS "Path to AXL includes:       ${PATH_AXL_INC_DIR}")
-message (STATUS "Path to AXL libraries:      ${PATH_AXL_LIB_DIR}")
-message (STATUS "Path to Gepard includes:    ${PATH_GEPARD_INC_DIR}")
-message (STATUS "Path to Gepard executable:  ${PATH_GEPARD_LLKC_EXE}")
+message (STATUS "Path to RAGEL executable:     ${PATH_RAGEL_EXE}")
+message (STATUS "Path to LLVM cmake modules:   ${PATH_LLVM_CMAKE_DIR}")
+message (STATUS "Path to LLVM includes:        ${PATH_LLVM_INC_DIR}")
+message (STATUS "Path to LLVM includes (2):    ${PATH_LLVM_INC_DIR_2}")
+message (STATUS "Path to LLVM libraries:       ${PATH_LLVM_LIB_DIR}")
+message (STATUS "Path to AXL includes:         ${PATH_AXL_INC_DIR}")
+message (STATUS "Path to AXL libraries:        ${PATH_AXL_LIB_DIR}")
+message (STATUS "Path to BULLDOZER includes:   ${PATH_BULLDOZER_INC_DIR}")
+message (STATUS "Path to BULLDOZER executable: ${PATH_BULLDOZER_EXE}")
 
 include ("${PATH_LLVM_CMAKE_DIR}/LLVMConfig.cmake")
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "jncc_CmdLine.h"
-#include "jncc_OutStream.h"
+#include "CmdLine.h"
+#include "OutStream.h"
 
 //.............................................................................
 
@@ -113,7 +113,6 @@ protected:
 		int* pReturnValue = NULL
 		);
 
-protected:
 	int
 	Server ();
 

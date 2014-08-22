@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "jncc_OutStream.h"
+#include "OutStream.h"
 
 //.............................................................................
 
