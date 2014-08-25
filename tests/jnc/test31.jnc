@@ -1,19 +1,12 @@
 //.............................................................................
 
-struct A
-{
-	void* m_p;
-	char m_a;
-}
-
-opaque class B
-{
-	int m_a;
-}
-
 int main ()
 {
 	printf ("main\n");
+
+	int x = atoi ("10");
+	printf ("x = %d\n", x);
+
 	return 10; 
 }
 

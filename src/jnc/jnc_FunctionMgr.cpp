@@ -1003,7 +1003,7 @@ CFunctionMgr::GetStdFunction (EStdFunc Func)
 
 	case EStdFunc_Atoi:
 		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Thin, EPtrTypeFlag_Const);
+		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Normal, EPtrTypeFlag_Const);
 		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
 		pFunction = CreateFunction ("atoi", "atoi", pFunctionType);
 		break;
