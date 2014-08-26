@@ -541,13 +541,6 @@ CVariableMgr::AllocatePrimeInitializeNonStaticVariable (CVariable* pVariable)
 void
 CVariableMgr::AllocateTlsVariable (CVariable* pVariable)
 {
-	ASSERT (m_pModule->m_FunctionMgr.GetCurrentFunction ());
-
-	// create alloca in function entry block
-
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CBasicBlock* pBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
-
 	CValue PtrValue;
 	llvm::AllocaInst* pLlvmAlloca = m_pModule->m_LlvmIrBuilder.CreateAlloca (
 		pVariable->m_pType,
@@ -556,10 +549,11 @@ CVariableMgr::AllocateTlsVariable (CVariable* pVariable)
 		&PtrValue
 		);
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pBlock);
-
 	pVariable->m_pLlvmAllocValue = pLlvmAlloca;
 	pVariable->m_pLlvmValue = pLlvmAlloca;
+
+	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
+	ASSERT (pFunction);
 
 	pFunction->AddTlsVariable (pVariable);
 }

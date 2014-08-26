@@ -203,6 +203,27 @@ CLlvmIrBuilder::CreatePhi (
 	return pPhiNode;
 }
 
+llvm::AllocaInst*
+CLlvmIrBuilder::CreateAlloca (
+	CType* pType,
+	const char* pName,
+	CType* pResultType,
+	CValue* pResultValue
+	)
+{
+	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
+	ASSERT (pFunction);
+
+	// always create alloca in entry block
+
+	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
+	llvm::AllocaInst* pInst = m_pLlvmIrBuilder->CreateAlloca (pType->GetLlvmType (), 0, pName);
+	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
+
+	pResultValue->SetLlvmValue (pInst, pResultType);
+	return pInst;
+}
+
 llvm::Value*
 CLlvmIrBuilder::CreateGep (
 	const CValue& Value,

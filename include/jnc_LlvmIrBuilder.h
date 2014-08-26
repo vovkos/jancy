@@ -208,12 +208,7 @@ public:
 		const char* pName,
 		CType* pResultType,
 		CValue* pResultValue
-		)
-	{
-		llvm::AllocaInst* pInst = m_pLlvmIrBuilder->CreateAlloca (pType->GetLlvmType (), 0, pName);
-		pResultValue->SetLlvmValue (pInst, pResultType);
-		return pInst;
-	}
+		);
 
 	llvm::LoadInst*
 	CreateLoad (

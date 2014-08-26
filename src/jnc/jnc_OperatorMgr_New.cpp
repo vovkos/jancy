@@ -61,10 +61,7 @@ COperatorMgr::Allocate (
 		return true;
 
 	case EStorage_Stack:
-		pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-		pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 		m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, pTag, pPtrType, &PtrValue);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
 
 		if (pType->GetFlags () & ETypeFlag_GcRoot)
 			MarkStackGcRoot (PtrValue, pType);
@@ -690,12 +687,8 @@ COperatorMgr::CreateTmpStackGcRoot (const CValue& Value)
 		pType->GetTypeKind () == EType_DataPtr // heap new creates tmp stack root
 		);
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
 	CValue PtrValue;
 	m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpGcRoot", NULL, &PtrValue);
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-
 	m_pModule->m_LlvmIrBuilder.CreateStore (Value, PtrValue);
 	MarkStackGcRoot (PtrValue, pType, true);
 }
