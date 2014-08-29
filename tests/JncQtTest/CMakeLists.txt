@@ -84,9 +84,9 @@ source_virtual_folder (
 #
 
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file (MAKE_DIRECTORY ${GEN_DIR})
 
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
-file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 set (
 	MOC_H_LIST
