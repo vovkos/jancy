@@ -1,10 +1,9 @@
-# This file is part of AXL (R) Library
-# Tibbo Technology Inc (C) 2004-2013. All rights reserved
+# This file is part of Jancy project
+# Tibbo Technology Inc (C) 2004-2014. All rights reserved
 # Author: Vladimir Gladkov
 
 #..............................................................................
 
-add_subdirectory (jnc)
-add_subdirectory (jncc)
+include ("${CMAKE_CURRENT_LIST_DIR}/jancy-${TARGET_CPU}.cmake")
 
 #..............................................................................

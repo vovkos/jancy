@@ -2,8 +2,6 @@
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
-project_virtual_folder (jnc)
-
 #..............................................................................
 #
 # callconv folder
@@ -11,12 +9,12 @@ project_virtual_folder (jnc)
 
 set (
 	CALLCONV_H_LIST
-	${JNC_INC_DIR}/jnc_CallConv.h
-	${JNC_INC_DIR}/jnc_CallConv_gcc32.h
-	${JNC_INC_DIR}/jnc_CallConv_msc32.h
-	${JNC_INC_DIR}/jnc_CdeclCallConv_gcc64.h
-	${JNC_INC_DIR}/jnc_CdeclCallConv_msc64.h
-	${JNC_INC_DIR}/jnc_JnccallCallConv.h
+	${JANCY_INC_DIR}/jnc_CallConv.h
+	${JANCY_INC_DIR}/jnc_CallConv_gcc32.h
+	${JANCY_INC_DIR}/jnc_CallConv_msc32.h
+	${JANCY_INC_DIR}/jnc_CdeclCallConv_gcc64.h
+	${JANCY_INC_DIR}/jnc_CdeclCallConv_msc64.h
+	${JANCY_INC_DIR}/jnc_JnccallCallConv.h
 	)
 
 set (
@@ -29,8 +27,9 @@ set (
 	jnc_JnccallCallConv.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	callconv
+	FILES
 	${CALLCONV_H_LIST}
 	${CALLCONV_CPP_LIST}
 	)
@@ -42,8 +41,8 @@ source_virtual_folder (
 
 set (
 	CONTROLFLOW_H_LIST
-	${JNC_INC_DIR}/jnc_BasicBlock.h
-	${JNC_INC_DIR}/jnc_ControlFlowMgr.h
+	${JANCY_INC_DIR}/jnc_BasicBlock.h
+	${JANCY_INC_DIR}/jnc_ControlFlowMgr.h
 	)
 
 set (
@@ -53,8 +52,9 @@ set (
 	jnc_ControlFlowMgr_Stmt.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	controlflow
+	FILES
 	${CONTROLFLOW_H_LIST}
 	${CONTROLFLOW_CPP_LIST}
 	)
@@ -66,16 +66,16 @@ source_virtual_folder (
 
 set (
 	FUNCTION_H_LIST
-	${JNC_INC_DIR}/jnc_CallFunction.h
-	${JNC_INC_DIR}/jnc_Disassembler.h
-	${JNC_INC_DIR}/jnc_Function.h
-	${JNC_INC_DIR}/jnc_FunctionMgr.h
-	${JNC_INC_DIR}/jnc_Property.h
-	${JNC_INC_DIR}/jnc_PropertyTemplate.h
-	${JNC_INC_DIR}/jnc_PropertyVerifier.h
-	${JNC_INC_DIR}/jnc_ScheduleLauncherFunction.h
-	${JNC_INC_DIR}/jnc_ThunkFunction.h
-	${JNC_INC_DIR}/jnc_ThunkProperty.h
+	${JANCY_INC_DIR}/jnc_CallFunction.h
+	${JANCY_INC_DIR}/jnc_Disassembler.h
+	${JANCY_INC_DIR}/jnc_Function.h
+	${JANCY_INC_DIR}/jnc_FunctionMgr.h
+	${JANCY_INC_DIR}/jnc_Property.h
+	${JANCY_INC_DIR}/jnc_PropertyTemplate.h
+	${JANCY_INC_DIR}/jnc_PropertyVerifier.h
+	${JANCY_INC_DIR}/jnc_ScheduleLauncherFunction.h
+	${JANCY_INC_DIR}/jnc_ThunkFunction.h
+	${JANCY_INC_DIR}/jnc_ThunkProperty.h
 	jnc_GcShadowStack.h
 	)
 
@@ -93,8 +93,9 @@ set (
 	jnc_GcShadowStack.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	function
+	FILES
 	${FUNCTION_H_LIST}
 	${FUNCTION_CPP_LIST}
 	)
@@ -106,14 +107,14 @@ source_virtual_folder (
 
 set (
 	MODULE_H_LIST
-	${JNC_INC_DIR}/jnc_AttributeBlock.h
-	${JNC_INC_DIR}/jnc_AttributeMgr.h
-	${JNC_INC_DIR}/jnc_JitMemoryMgr.h
-	${JNC_INC_DIR}/jnc_LlvmDiBuilder.h
-	${JNC_INC_DIR}/jnc_LlvmIrBuilder.h
-	${JNC_INC_DIR}/jnc_Module.h
-	${JNC_INC_DIR}/jnc_ModuleItem.h
-	${JNC_INC_DIR}/jnc_UnitMgr.h
+	${JANCY_INC_DIR}/jnc_AttributeBlock.h
+	${JANCY_INC_DIR}/jnc_AttributeMgr.h
+	${JANCY_INC_DIR}/jnc_JitMemoryMgr.h
+	${JANCY_INC_DIR}/jnc_LlvmDiBuilder.h
+	${JANCY_INC_DIR}/jnc_LlvmIrBuilder.h
+	${JANCY_INC_DIR}/jnc_Module.h
+	${JANCY_INC_DIR}/jnc_ModuleItem.h
+	${JANCY_INC_DIR}/jnc_UnitMgr.h
 	)
 
 set (
@@ -128,8 +129,9 @@ set (
 	jnc_UnitMgr.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	module
+	FILES
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
 	)
@@ -141,12 +143,12 @@ source_virtual_folder (
 
 set (
 	NAMESPACE_H_LIST
-	${JNC_INC_DIR}/jnc_Namespace.h
-	${JNC_INC_DIR}/jnc_NamespaceMgr.h
-	${JNC_INC_DIR}/jnc_Orphan.h
-	${JNC_INC_DIR}/jnc_QualifiedName.h
-	${JNC_INC_DIR}/jnc_Scope.h
-	${JNC_INC_DIR}/jnc_ScopeLevelStack.h
+	${JANCY_INC_DIR}/jnc_Namespace.h
+	${JANCY_INC_DIR}/jnc_NamespaceMgr.h
+	${JANCY_INC_DIR}/jnc_Orphan.h
+	${JANCY_INC_DIR}/jnc_QualifiedName.h
+	${JANCY_INC_DIR}/jnc_Scope.h
+	${JANCY_INC_DIR}/jnc_ScopeLevelStack.h
 	)
 
 set (
@@ -159,8 +161,9 @@ set (
 	jnc_ScopeLevelStack.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	namespace
+	FILES
 	${NAMESPACE_H_LIST}
 	${NAMESPACE_CPP_LIST}
 	)
@@ -172,29 +175,29 @@ source_virtual_folder (
 
 set (
 	OPERATOR_H_LIST
-	${JNC_INC_DIR}/jnc_BinOp.h
-	${JNC_INC_DIR}/jnc_BinOp_Arithmetic.h
-	${JNC_INC_DIR}/jnc_BinOp_Assign.h
-	${JNC_INC_DIR}/jnc_BinOp_At.h
-	${JNC_INC_DIR}/jnc_BinOp_Cmp.h
-	${JNC_INC_DIR}/jnc_BinOp_Idx.h
-	${JNC_INC_DIR}/jnc_BinOp_Logic.h
-	${JNC_INC_DIR}/jnc_CastOp.h
-	${JNC_INC_DIR}/jnc_CastOp_Array.h
-	${JNC_INC_DIR}/jnc_CastOp_Bool.h
-	${JNC_INC_DIR}/jnc_CastOp_ClassPtr.h
-	${JNC_INC_DIR}/jnc_CastOp_DataPtr.h
-	${JNC_INC_DIR}/jnc_CastOp_Fp.h
-	${JNC_INC_DIR}/jnc_CastOp_FunctionPtr.h
-	${JNC_INC_DIR}/jnc_CastOp_Int.h
-	${JNC_INC_DIR}/jnc_CastOp_PropertyPtr.h
-	${JNC_INC_DIR}/jnc_CastOp_Struct.h
-	${JNC_INC_DIR}/jnc_OperatorMgr.h
-	${JNC_INC_DIR}/jnc_UnOp.h
-	${JNC_INC_DIR}/jnc_UnOp_Arithmetic.h
-	${JNC_INC_DIR}/jnc_UnOp_Inc.h
-	${JNC_INC_DIR}/jnc_UnOp_LogNot.h
-	${JNC_INC_DIR}/jnc_UnOp_Ptr.h
+	${JANCY_INC_DIR}/jnc_BinOp.h
+	${JANCY_INC_DIR}/jnc_BinOp_Arithmetic.h
+	${JANCY_INC_DIR}/jnc_BinOp_Assign.h
+	${JANCY_INC_DIR}/jnc_BinOp_At.h
+	${JANCY_INC_DIR}/jnc_BinOp_Cmp.h
+	${JANCY_INC_DIR}/jnc_BinOp_Idx.h
+	${JANCY_INC_DIR}/jnc_BinOp_Logic.h
+	${JANCY_INC_DIR}/jnc_CastOp.h
+	${JANCY_INC_DIR}/jnc_CastOp_Array.h
+	${JANCY_INC_DIR}/jnc_CastOp_Bool.h
+	${JANCY_INC_DIR}/jnc_CastOp_ClassPtr.h
+	${JANCY_INC_DIR}/jnc_CastOp_DataPtr.h
+	${JANCY_INC_DIR}/jnc_CastOp_Fp.h
+	${JANCY_INC_DIR}/jnc_CastOp_FunctionPtr.h
+	${JANCY_INC_DIR}/jnc_CastOp_Int.h
+	${JANCY_INC_DIR}/jnc_CastOp_PropertyPtr.h
+	${JANCY_INC_DIR}/jnc_CastOp_Struct.h
+	${JANCY_INC_DIR}/jnc_OperatorMgr.h
+	${JANCY_INC_DIR}/jnc_UnOp.h
+	${JANCY_INC_DIR}/jnc_UnOp_Arithmetic.h
+	${JANCY_INC_DIR}/jnc_UnOp_Inc.h
+	${JANCY_INC_DIR}/jnc_UnOp_LogNot.h
+	${JANCY_INC_DIR}/jnc_UnOp_Ptr.h
 	)
 
 set (
@@ -234,8 +237,9 @@ set (
 	jnc_UnOp_Ptr.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	operator
+	FILES
 	${OPERATOR_H_LIST}
 	${OPERATOR_CPP_LIST}
 	)
@@ -247,7 +251,7 @@ source_virtual_folder (
 
 set (
 	PARSER_H_LIST
-	${JNC_INC_DIR}/jnc_Lexer.h
+	${JANCY_INC_DIR}/jnc_Lexer.h
 	jnc_Decl.h
 	jnc_DeclTypeCalc.h
 	)
@@ -278,8 +282,9 @@ set (
 	jnc_Stmt.llk
 	)
 
-source_virtual_folder (
+source_group (
 	parser
+	FILES
 	${PARSER_H_LIST}
 	${PARSER_CPP_LIST}
 	${PARSER_RL_LIST}
@@ -293,30 +298,30 @@ source_virtual_folder (
 
 set (
 	TYPE_H_LIST
-	${JNC_INC_DIR}/jnc_ArrayType.h
-	${JNC_INC_DIR}/jnc_BitFieldType.h
-	${JNC_INC_DIR}/jnc_ClassPtrType.h
-	${JNC_INC_DIR}/jnc_ClassType.h
-	${JNC_INC_DIR}/jnc_ClosureClassType.h
-	${JNC_INC_DIR}/jnc_DataPtrType.h
-	${JNC_INC_DIR}/jnc_DerivableType.h
-	${JNC_INC_DIR}/jnc_EnumType.h
-	${JNC_INC_DIR}/jnc_FunctionArg.h
-	${JNC_INC_DIR}/jnc_FunctionPtrType.h
-	${JNC_INC_DIR}/jnc_FunctionType.h
-	${JNC_INC_DIR}/jnc_FunctionTypeOverload.h
-	${JNC_INC_DIR}/jnc_ImportType.h
-	${JNC_INC_DIR}/jnc_McSnapshotClassType.h
-	${JNC_INC_DIR}/jnc_MulticastClassType.h
-	${JNC_INC_DIR}/jnc_NamedType.h
-	${JNC_INC_DIR}/jnc_PropertyPtrType.h
-	${JNC_INC_DIR}/jnc_PropertyType.h
-	${JNC_INC_DIR}/jnc_ReactorClassType.h
-	${JNC_INC_DIR}/jnc_StructType.h
-	${JNC_INC_DIR}/jnc_Type.h
-	${JNC_INC_DIR}/jnc_TypeMgr.h
-	${JNC_INC_DIR}/jnc_UnionType.h
-	${JNC_INC_DIR}/jnc_VariantType.h
+	${JANCY_INC_DIR}/jnc_ArrayType.h
+	${JANCY_INC_DIR}/jnc_BitFieldType.h
+	${JANCY_INC_DIR}/jnc_ClassPtrType.h
+	${JANCY_INC_DIR}/jnc_ClassType.h
+	${JANCY_INC_DIR}/jnc_ClosureClassType.h
+	${JANCY_INC_DIR}/jnc_DataPtrType.h
+	${JANCY_INC_DIR}/jnc_DerivableType.h
+	${JANCY_INC_DIR}/jnc_EnumType.h
+	${JANCY_INC_DIR}/jnc_FunctionArg.h
+	${JANCY_INC_DIR}/jnc_FunctionPtrType.h
+	${JANCY_INC_DIR}/jnc_FunctionType.h
+	${JANCY_INC_DIR}/jnc_FunctionTypeOverload.h
+	${JANCY_INC_DIR}/jnc_ImportType.h
+	${JANCY_INC_DIR}/jnc_McSnapshotClassType.h
+	${JANCY_INC_DIR}/jnc_MulticastClassType.h
+	${JANCY_INC_DIR}/jnc_NamedType.h
+	${JANCY_INC_DIR}/jnc_PropertyPtrType.h
+	${JANCY_INC_DIR}/jnc_PropertyType.h
+	${JANCY_INC_DIR}/jnc_ReactorClassType.h
+	${JANCY_INC_DIR}/jnc_StructType.h
+	${JANCY_INC_DIR}/jnc_Type.h
+	${JANCY_INC_DIR}/jnc_TypeMgr.h
+	${JANCY_INC_DIR}/jnc_UnionType.h
+	${JANCY_INC_DIR}/jnc_VariantType.h
 	)
 
 set (
@@ -346,8 +351,9 @@ set (
 	jnc_UnionType.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	type
+	FILES
 	${TYPE_H_LIST}
 	${TYPE_CPP_LIST}
 	)
@@ -359,11 +365,11 @@ source_virtual_folder (
 
 set (
 	VALUE_H_LIST
-	${JNC_INC_DIR}/jnc_Closure.h
-	${JNC_INC_DIR}/jnc_ConstMgr.h
-	${JNC_INC_DIR}/jnc_ObjHdr.h
-	${JNC_INC_DIR}/jnc_LeanDataPtrValidator.h
-	${JNC_INC_DIR}/jnc_Value.h
+	${JANCY_INC_DIR}/jnc_Closure.h
+	${JANCY_INC_DIR}/jnc_ConstMgr.h
+	${JANCY_INC_DIR}/jnc_ObjHdr.h
+	${JANCY_INC_DIR}/jnc_LeanDataPtrValidator.h
+	${JANCY_INC_DIR}/jnc_Value.h
 	)
 
 set (
@@ -375,8 +381,9 @@ set (
 	jnc_Value.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	value
+	FILES
 	${VALUE_H_LIST}
 	${VALUE_CPP_LIST}
 	)
@@ -388,10 +395,10 @@ source_virtual_folder (
 
 set (
 	VARIABLE_H_LIST
-	${JNC_INC_DIR}/jnc_Alias.h
-	${JNC_INC_DIR}/jnc_DestructList.h
-	${JNC_INC_DIR}/jnc_Variable.h
-	${JNC_INC_DIR}/jnc_VariableMgr.h
+	${JANCY_INC_DIR}/jnc_Alias.h
+	${JANCY_INC_DIR}/jnc_DestructList.h
+	${JANCY_INC_DIR}/jnc_Variable.h
+	${JANCY_INC_DIR}/jnc_VariableMgr.h
 	)
 
 set (
@@ -402,8 +409,9 @@ set (
 	jnc_VariableMgr.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	variable
+	FILES
 	${VARIABLE_H_LIST}
 	${VARIABLE_CPP_LIST}
 	)
@@ -415,11 +423,11 @@ source_virtual_folder (
 
 set (
 	RUNTIME_H_LIST
-	${JNC_INC_DIR}/jnc_Api.h
-	${JNC_INC_DIR}/jnc_MulticastLib.h
-	${JNC_INC_DIR}/jnc_Runtime.h
-	${JNC_INC_DIR}/jnc_StdLib.h
-	${JNC_INC_DIR}/jnc_TlsMgr.h
+	${JANCY_INC_DIR}/jnc_Api.h
+	${JANCY_INC_DIR}/jnc_MulticastLib.h
+	${JANCY_INC_DIR}/jnc_Runtime.h
+	${JANCY_INC_DIR}/jnc_StdLib.h
+	${JANCY_INC_DIR}/jnc_TlsMgr.h
 	jnc_Multicast.h
 	)
 
@@ -433,8 +441,9 @@ set (
 	jnc_Multicast.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	runtime
+	FILES
 	${RUNTIME_H_LIST}
 	${RUNTIME_CPP_LIST}
 	)
@@ -444,10 +453,10 @@ source_virtual_folder (
 # gen folder
 #
 
-set (JNC_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file (MAKE_DIRECTORY ${GEN_DIR})
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${JNC_GEN_DIR})
-file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_ragel_step (
 	jnc_Lexer.rl.cpp
@@ -457,7 +466,7 @@ add_ragel_step (
 add_bulldozer_step (
 	jnc_Parser.llk.h
 	jnc_Parser.llk
-	"${PATH_BULLDOZER_FRAME_DIR}/llk_Parser.h.frame"
+	"${BULLDOZER_FRAME_DIR}/llk_Parser.h.frame"
 
 	# dependencies:
 
@@ -475,18 +484,19 @@ pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_RL_CPP_LIST
-	${JNC_GEN_DIR}/jnc_Lexer.rl.cpp
+	${GEN_DIR}/jnc_Lexer.rl.cpp
 	)
 
 set (
 	GEN_LLK_H_LIST
-	${JNC_GEN_DIR}/jnc_Parser.llk.h
+	${GEN_DIR}/jnc_Parser.llk.h
 	)
 
 exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
-source_virtual_folder (
+source_group (
 	gen
+	FILES
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
 	)
@@ -498,10 +508,11 @@ source_virtual_folder (
 
 set (PCH_H     pch.h)
 set (PCH_CPP   pch.cpp)
-set (JNC_PCH_H ${JNC_INC_DIR}/jnc_Pch.h)
+set (JNC_PCH_H ${JANCY_INC_DIR}/jnc_Pch.h)
 
-source_virtual_folder (
+source_group (
 	pch
+	FILES
 	${PCH_H}
 	${PCH_CPP}
 	${JNC_PCH_H}
@@ -513,12 +524,11 @@ source_virtual_folder (
 #
 
 include_directories (
-	${PATH_AXL_INC_DIR}
-	${PATH_BULLDOZER_INC_DIR}
-	${PATH_LLVM_INC_DIR}
-	${PATH_LLVM_INC_DIR_2}
-	${JNC_GEN_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
+	${LLVM_INC_DIR}
+	${LLVM_INC_DIR_2}
+	${AXL_INC_DIR}
+	${BULLDOZER_INC_DIR}
+	${GEN_DIR}
 	)
 
 add_library (
@@ -554,13 +564,11 @@ add_library (
 	${GEN_LLK_H_LIST}
 	)
 
-if (JNC_USE_PCH)
-	set_pch (
-		jnc
-		${PCH_H}
-		${PCH_CPP}
-		)
-endif ()
+set_pch (
+	jnc
+	${PCH_H}
+	${PCH_CPP}
+	)
 
 #..............................................................................
 

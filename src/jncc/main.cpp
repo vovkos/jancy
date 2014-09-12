@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Jnc.h"
+#include "Version.h"
 
 #define _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 
@@ -9,11 +10,11 @@ void
 PrintVersion (COutStream* pOutStream)
 {
 	pOutStream->Printf (
-		"Jancy compiler (%s) v%d.%d.%d\n",
+		"Jancy (%s) v%d.%d.%d\n",
 		_AXL_CPU_STRING,
-		HIBYTE (HIWORD (EJnc_CompilerVersion)),
-		LOBYTE (HIWORD (EJnc_CompilerVersion)),
-		LOWORD (EJnc_CompilerVersion)
+		VERSION_MAJOR,
+		VERSION_MINOR,
+		VERSION_REVISION
 		);
 }
 

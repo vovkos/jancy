@@ -3,10 +3,6 @@
 # Author: Vladimir Gladkov
 
 #..............................................................................
-
-project_virtual_folder (JncQtTest)
-
-#..............................................................................
 #
 # app folder
 #
@@ -46,8 +42,9 @@ set (
 	llvmirhighlighter.rl
 	)
 
-source_virtual_folder (
+source_group (
 	app
+	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
 	${APP_RL_LIST}
@@ -72,8 +69,9 @@ set (
 	jancyedit.qrc
 	)
 
-source_virtual_folder (
+source_group (
 	res
+	FILES
 	${RES_PNG_LIST}
 	${RES_QRC_LIST}
 	)
@@ -85,8 +83,6 @@ source_virtual_folder (
 
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 set (
 	MOC_H_LIST
@@ -101,6 +97,8 @@ set (
 	modulepane.h
 	output.h
 	)
+
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp (
 	GEN_MOC_CPP_LIST
@@ -122,20 +120,21 @@ add_ragel_step (
 	llvmirhighlighter.rl
 	)
 
-pop (CMAKE_CURRENT_BINARY_DIR)
-
 set (
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jancyhighlighter.rl.cpp
 	${GEN_DIR}/llvmirhighlighter.rl.cpp
 	)
 
+pop (CMAKE_CURRENT_BINARY_DIR)
+
 exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
 exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
 exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
-source_virtual_folder (
+source_group (
 	gen
+	FILES
 	${GEN_RL_CPP_LIST}
 	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
@@ -149,8 +148,9 @@ source_virtual_folder (
 set (PCH_H   pch.h)
 set (PCH_CPP pch.cpp)
 
-source_virtual_folder (
+source_group (
 	pch
+	FILES
 	${PCH_H}
 	${PCH_CPP}
 	)
@@ -165,16 +165,16 @@ if (MSVC)
 endif ()
 
 include_directories (
-	${PATH_AXL_INC_DIR}
-	${PATH_LLVM_INC_DIR}
-	${PATH_LLVM_INC_DIR_2}
+	${AXL_INC_DIR}
+	${LLVM_INC_DIR}
+	${LLVM_INC_DIR_2}
 	${GEN_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
 link_directories (
-	${PATH_AXL_LIB_DIR}
-	${PATH_LLVM_LIB_DIR}
+	${AXL_LIB_DIR}
+	${LLVM_LIB_DIR}
 	)
 
 add_executable (
@@ -221,14 +221,12 @@ if (WIN32)
 	copy_qt_dll_files (JncQtTest Core Gui Widgets)
 endif ()
 
-if (JNC_USE_PCH)
-	set_pch (
-		JncQtTest
-		${PCH_H}
-		${PCH_CPP}
-		${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
-		)
-endif ()
+set_pch (
+	JncQtTest
+	${PCH_H}
+	${PCH_CPP}
+	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
+	)
 
 set_target_properties (
 	JncQtTest

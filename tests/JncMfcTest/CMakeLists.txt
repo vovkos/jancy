@@ -151,13 +151,11 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-if (JNC_USE_PCH)
-	set_pch (
-		JncMfcTest
-		${PCH_H}
-		${PCH_CPP}
-		)
-endif ()
+set_pch (
+	JncMfcTest
+	${PCH_H}
+	${PCH_CPP}
+	)
 
 set_target_properties (
 	JncMfcTest

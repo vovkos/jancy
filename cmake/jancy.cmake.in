@@ -1,0 +1,7 @@
+#..............................................................................
+
+set (JANCY_INC_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
+set (JANCY_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/${BUILD_DIR_SUFFIX}/lib/${CONFIGURATION_SUFFIX}")
+set (JANCY_EXE     "${CMAKE_CURRENT_BINARY_DIR}/${BUILD_DIR_SUFFIX}/bin/${CONFIGURATION_SUFFIX}/jancy")
+
+#..............................................................................

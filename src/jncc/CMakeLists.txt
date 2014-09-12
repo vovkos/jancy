@@ -22,10 +22,55 @@ set (
 	OutStream.cpp
 	)
 
-source_virtual_folder (
+source_group (
 	app
+	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# res folder
+#
+
+set (
+	RES_RC_LIST
+	res.rc
+	)
+
+source_group (
+	res
+	FILES
+	${RES_RC_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# gen folder
+#
+
+set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+
+configure_file (
+	Version.h.in
+	${GEN_DIR}/Version.h
+	)
+
+set (
+	GEN_H_LIST
+	${GEN_DIR}/Version.h
+	)
+
+pop (CMAKE_CURRENT_BINARY_DIR)
+
+source_group (
+	gen
+	FILES
+	${GEN_H_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -36,8 +81,9 @@ source_virtual_folder (
 set (PCH_H   pch.h)
 set (PCH_CPP pch.cpp)
 
-source_virtual_folder (
+source_group (
 	pch
+	FILES
 	${PCH_H}
 	${PCH_CPP}
 	)
@@ -48,14 +94,15 @@ source_virtual_folder (
 #
 
 include_directories (
-	${PATH_AXL_INC_DIR}
-	${PATH_LLVM_INC_DIR}
-	${PATH_LLVM_INC_DIR_2}
+	${LLVM_INC_DIR}
+	${LLVM_INC_DIR_2}
+	${AXL_INC_DIR}
+	${GEN_DIR}
 	)
 
 link_directories (
-	${PATH_AXL_LIB_DIR}
-	${PATH_LLVM_LIB_DIR}
+	${LLVM_LIB_DIR}
+	${AXL_LIB_DIR}
 	)
 
 llvm_map_components_to_libraries (
@@ -72,6 +119,8 @@ add_executable (
 	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
+	${RES_RC_LIST}
+	${GEN_H_LIST}
 	)
 
 set_target_properties (
@@ -101,13 +150,11 @@ elseif (UNIX)
 		)
 endif ()
 
-if (AXL_USE_PCH)
-	set_pch (
-		jncc
-		${PCH_H}
-		${PCH_CPP}
-		)
-endif ()
+set_pch (
+	jncc
+	${PCH_H}
+	${PCH_CPP}
+	)
 
 #..............................................................................
 
@@ -135,7 +182,7 @@ endmacro ()
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-# test against official demos
+# test against official samples
 
 if (UNIX)
 	set (_FLAGS "--mcjit --run")
@@ -145,8 +192,8 @@ endif ()
 
 add_jncc_tests (
 	${_FLAGS}
-	${AXL_JANCY_DEMOS_DIR}
-	${AXL_JANCY_DEMOS_FILE_NAME_LIST}
+	${JANCY_SAMPLE_DIR}
+	${JANCY_SAMPLE_LIST}
 	)
 
 # later add more test files

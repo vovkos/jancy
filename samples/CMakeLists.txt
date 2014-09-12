@@ -2,15 +2,13 @@
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
-project_virtual_folder (jnc_demos)
-
 #..............................................................................
 #
-# src folder
+# samples folder
 #
 
 set (
-	DEMOS_JNC_LIST
+	SAMPLE_JNC_LIST
 	00_HelloWorld.jnc
 	01_Classes.jnc
 	02_Inheritance.jnc
@@ -45,37 +43,38 @@ set (
 	80_Exceptions.jnc
 	)
 
-source_virtual_folder (
-	src
-	${DEMOS_JNC_LIST}
+source_group (
+	samples
+	FILES
+	${SAMPLE_JNC_LIST}
 	)
 
 #..............................................................................
 #
-# jnc_demos library
+# jnc_samples library
 #
 
 add_library (
-	jnc_demos
+	jnc_samples
 	EXCLUDE_FROM_ALL
-	${DEMOS_JNC_LIST}
+	${SAMPLE_JNC_LIST}
 	)
 
 set_target_properties (
-	jnc_demos
+	jnc_samples
 	PROPERTIES
 	FOLDER samples
 	LINKER_LANGUAGE C
 	)
 
 set (
-	AXL_JANCY_DEMOS_FILE_NAME_LIST
-	${DEMOS_JNC_LIST}
+	JANCY_SAMPLE_LIST
+	${SAMPLE_JNC_LIST}
 	PARENT_SCOPE
 	)
 
 set (
-	AXL_JANCY_DEMOS_DIR
+	JANCY_SAMPLE_DIR
 	${CMAKE_CURRENT_LIST_DIR}
 	PARENT_SCOPE
 	)
