@@ -529,6 +529,7 @@ include_directories (
 	${AXL_INC_DIR}
 	${BULLDOZER_INC_DIR}
 	${GEN_DIR}
+	${CMAKE_CURRENT_LIST_DIR}
 	)
 
 add_library (
