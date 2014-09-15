@@ -4,6 +4,6 @@
 
 #..............................................................................
 
-include (${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/cmake/latest/jancy-${TARGET_CPU}.cmake)
 
 #..............................................................................

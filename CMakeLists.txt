@@ -35,8 +35,13 @@ configure_file (
 	)
 
 configure_file (
-	cmake/latest/jancy-cpu.cmake.in
+	cmake/jancy.cmake.in
 	${CMAKE_CURRENT_LIST_DIR}/cmake/latest/jancy-${TARGET_CPU}.cmake
+	)
+
+configure_file (
+	cmake/jancy-latest.cmake.in
+	${CMAKE_CURRENT_LIST_DIR}/cmake/latest/jancy.cmake
 	)
 
 include (${LLVM_CMAKE_DIR}/LLVMConfig.cmake)
