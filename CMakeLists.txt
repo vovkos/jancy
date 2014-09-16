@@ -42,6 +42,7 @@ configure_file (
 configure_file (
 	cmake/jancy-latest.cmake.in
 	${CMAKE_CURRENT_LIST_DIR}/cmake/latest/jancy.cmake
+	@ONLY
 	)
 
 include (${LLVM_CMAKE_DIR}/LLVMConfig.cmake)
