@@ -32,11 +32,13 @@ endif ()
 configure_file (
 	cmake/jancy.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy.cmake
+	@ONLY
 	)
 
 configure_file (
 	cmake/jancy.cmake.in
 	${CMAKE_CURRENT_LIST_DIR}/cmake/latest/jancy-${TARGET_CPU}.cmake
+	@ONLY
 	)
 
 configure_file (
