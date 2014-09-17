@@ -71,7 +71,7 @@ CModule::Create (
 	return true;
 }
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_AXL_CPU == AXL_CPU_X86 && _AXL_ENV == AXL_ENV_POSIX)
 extern "C" int64_t __divdi3 (int64_t, int64_t);
 extern "C" int64_t __moddi3 (int64_t, int64_t);
 extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
@@ -106,7 +106,7 @@ CModule::CreateLlvmExecutionEngine ()
 
 		TargetOptions.JITEmitDebugInfo = true;
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_AXL_CPU == AXL_CPU_X86 && _AXL_ENV == AXL_ENV_POSIX)
 		m_FunctionMap ["__divdi3"]  = (void*) __divdi3;
 		m_FunctionMap ["__moddi3"]  = (void*) __moddi3;
 		m_FunctionMap ["__udivdi3"] = (void*) __udivdi3;

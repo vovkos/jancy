@@ -4,8 +4,9 @@ int main ()
 {
 	printf ("main\n");
 
-	int x = atoi ("10");
-	printf ("x = %d\n", x);
+	int64 x = 25, y = 10;
+	int64 z = x / y;
+	int64 w = x % y;
 
 	return 10; 
 }
