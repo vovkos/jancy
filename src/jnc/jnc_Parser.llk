@@ -32,6 +32,11 @@ Includes
 	#include "llk_Parser.h"
 }
 
+CppIncludes
+{
+	#include "jnc_Parser.llk.h"
+}
+
 Members
 {
 	enum EStage

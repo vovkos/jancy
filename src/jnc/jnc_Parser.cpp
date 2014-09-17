@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_Parser.llk.h"
+#include "jnc_Parser.llk.cpp"
 #include "jnc_Closure.h"
 #include "jnc_DeclTypeCalc.h"
 

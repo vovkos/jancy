@@ -463,12 +463,12 @@ add_ragel_step (
 	jnc_Lexer.rl
 	)
 
-add_bulldozer_step (
+add_bulldozer_double_step (
 	jnc_Parser.llk.h
+	jnc_Parser.llk.cpp
+	"${BULLDOZER_FRAME_DIR}/CppParser.h.in"
+	"${BULLDOZER_FRAME_DIR}/CppParser.cpp.in"
 	jnc_Parser.llk
-	"${BULLDOZER_FRAME_DIR}/llk_Parser.h.frame"
-
-	# dependencies:
 
 	jnc_Decl.llk
 	jnc_DeclarationSpecifier.llk
