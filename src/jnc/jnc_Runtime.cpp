@@ -752,7 +752,7 @@ Runtime::createObject (
 		pfPrime (object, 0, object, 0);
 	}
 
-	IfaceHdr* interface = (IfaceHdr*) (object + 1);
+	IfaceHdr* iface = (IfaceHdr*) (object + 1);
 
 	if ((flags & CreateObjectFlagKind_Construct) && type->getConstructor ())
 	{
@@ -761,15 +761,15 @@ Runtime::createObject (
 			return NULL;
 
 		FObject_Construct* pfConstruct = (FObject_Construct*) constructor->getMachineCode ();
-		pfConstruct (interface);
+		pfConstruct (iface);
 	}
 
 	if (flags & CreateObjectFlagKind_Pin)
-		pinObject (interface);
+		pinObject (iface);
 
 	gcLeave ();
 
-	return interface;
+	return iface;
 }
 
 void

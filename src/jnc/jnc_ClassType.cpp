@@ -1092,10 +1092,10 @@ ClassType::gcMark (
 void
 ClassType::enumGcRootsImpl (
 	Runtime* runtime,
-	IfaceHdr* interface
+	IfaceHdr* iface
 	)
 {
-	char* p = (char*) interface;
+	char* p = (char*) iface;
 
 	size_t count = m_gcRootBaseTypeArray.getCount ();
 	for (size_t i = 0; i < count; i++)

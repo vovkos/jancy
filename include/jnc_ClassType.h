@@ -265,7 +265,7 @@ protected:
 	void
 	enumGcRootsImpl (
 		Runtime* runtime,
-		IfaceHdr* interface
+		IfaceHdr* iface
 		);
 
 	virtual
@@ -371,14 +371,14 @@ isOpaqueClassType (Type* type)
 
 //.............................................................................
 
-// header of class interface
+// header of class iface
 
 struct IfaceHdr
 {
 	void* m_pVTable;
 	ObjHdr* m_object; // back pointer to master header
 
-	// followed by parents, then by interface data fields
+	// followed by parents, then by iface data fields
 };
 
 // TIfaceHdrTT is a simple trick for allowing multiple inheritance in implementation classes
@@ -390,7 +390,7 @@ struct IfaceHdrT: IfaceHdr
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// interface with master header
+// iface with master header
 
 template <typename T>
 class ObjBox:
@@ -412,11 +412,11 @@ FObject_Prime (
 
 typedef
 void
-FObject_Construct (IfaceHdr* interface);
+FObject_Construct (IfaceHdr* iface);
 
 typedef
 void
-FObject_Destruct (IfaceHdr* interface);
+FObject_Destruct (IfaceHdr* iface);
 
 //.............................................................................
 
