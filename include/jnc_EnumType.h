@@ -9,145 +9,145 @@
 
 namespace jnc {
 
-class CEnumType;
+class EnumType;
 
 //.............................................................................
 
-enum EEnumType
+enum EnumTypeKind
 {
-	EEnumType_Normal,
-	EEnumType_Flag,
+	EnumTypeKind_Normal,
+	EnumTypeKind_Flag,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EEnumTypeFlag
+enum EnumTypeFlagKind
 {
-	EEnumTypeFlag_Exposed = 0x010000,
+	EnumTypeFlagKind_Exposed = 0x010000,
 };
 
 //.............................................................................
 
-class CEnumConst: 
-	public CUserModuleItem,
-	public CModuleItemInitializer
+class EnumConst: 
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
-	friend class CEnumType;
-	friend class CNamespace;
+	friend class EnumType;
+	friend class Namespace;
 
 protected:
-	CEnumType* m_pParentEnumType;
-	intptr_t m_Value;
+	EnumType* m_parentEnumType;
+	intptr_t m_value;
 
 public:
-	CEnumConst ()
+	EnumConst ()
 	{
-		m_ItemKind = EModuleItem_EnumConst;
-		m_pParentEnumType = NULL;
-		m_Value = 0;
+		m_itemKind = ModuleItemKind_EnumConst;
+		m_parentEnumType = NULL;
+		m_value = 0;
 	}
 
-	CEnumType*
-	GetParentEnumType ()
+	EnumType*
+	getParentEnumType ()
 	{
-		return m_pParentEnumType;
+		return m_parentEnumType;
 	}
 
 	intptr_t
-	GetValue ()
+	getValue ()
 	{
-		return m_Value;
+		return m_value;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CEnumType: public CNamedType
+class EnumType: public NamedType
 {
-	friend class CTypeMgr;
-	friend class CParser;
+	friend class TypeMgr;
+	friend class Parser;
 	
 protected:
-	EEnumType m_EnumTypeKind;
+	EnumTypeKind m_enumTypeKind;
 
-	CType* m_pBaseType;
-	CImportType* m_pBaseType_i;
-	rtl::CStdListT <CEnumConst> m_ConstList;
+	Type* m_baseType;
+	ImportType* m_baseType_i;
+	rtl::StdList <EnumConst> m_constList;
 
 public:
-	CEnumType ();
+	EnumType ();
 
-	EEnumType 
-	GetEnumTypeKind ()
+	EnumTypeKind 
+	getEnumTypeKind ()
 	{
-		return m_EnumTypeKind;
+		return m_enumTypeKind;
 	}
 
-	CType*
-	GetBaseType ()
+	Type*
+	getBaseType ()
 	{
-		return m_pBaseType;
+		return m_baseType;
 	}
 
-	CImportType*
-	GetBaseType_i ()
+	ImportType*
+	getBaseType_i ()
 	{
-		return m_pBaseType_i;
+		return m_baseType_i;
 	}
 
-	rtl::CConstListT <CEnumConst>
-	GetConstList ()
+	rtl::ConstList <EnumConst>
+	getConstList ()
 	{
-		return m_ConstList;
+		return m_constList;
 	}
 
-	CEnumConst*
-	CreateConst (
-		const rtl::CString& Name,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	EnumConst*
+	createConst (
+		const rtl::String& name,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
 protected:
 	virtual 
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format (
-			(m_Flags & EEnumTypeFlag_Exposed) ? 
+		m_typeString.format (
+			(m_flags & EnumTypeFlagKind_Exposed) ? 
 				"cenum %s" : 
 				"enum %s", 
-			m_Tag.cc () // thanks a lot gcc
+			m_tag.cc () // thanks a lot gcc
 			);
 	}
 
 	virtual 
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
-		m_pLlvmType = m_pBaseType->GetLlvmType ();
+		m_llvmType = m_baseType->getLlvmType ();
 	}
 
 	virtual 
 	void
-	PrepareLlvmDiType ()
+	prepareLlvmDiType ()
 	{
-		m_LlvmDiType = m_pBaseType->GetLlvmDiType ();
+		m_llvmDiType = m_baseType->getLlvmDiType ();
 	}
 
 	virtual 
 	bool
-	CalcLayout ();
+	calcLayout ();
 };
 
 //.............................................................................
 
 inline
 bool 
-IsFlagEnumType (CType* pType)
+isFlagEnumType (Type* type)
 {
 	return 
-		pType->GetTypeKind () == EType_Enum &&
-		((CEnumType*) pType)->GetEnumTypeKind () == EEnumType_Flag;
+		type->getTypeKind () == TypeKind_Enum &&
+		((EnumType*) type)->getEnumTypeKind () == EnumTypeKind_Flag;
 }
 
 //.............................................................................

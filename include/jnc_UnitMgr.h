@@ -8,87 +8,87 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-class CUnit: public rtl::TListLink
+class Unit: public rtl::ListLink
 {
-	friend class CUnitMgr;
+	friend class UnitMgr;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CString m_FilePath;
-	rtl::CString m_FileName;
-	rtl::CString m_Dir;
+	rtl::String m_filePath;
+	rtl::String m_fileName;
+	rtl::String m_dir;
 
-	llvm::DIFile m_LlvmDiFile;
+	llvm::DIFile m_llvmDiFile;
 
 public:
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
-	rtl::CString
-	GetFilePath ()
+	rtl::String
+	getFilePath ()
 	{
-		return m_FilePath;
+		return m_filePath;
 	}
 
-	rtl::CString
-	GetFileName ()
+	rtl::String
+	getFileName ()
 	{
-		return m_FileName;
+		return m_fileName;
 	}
 
-	rtl::CString
-	GetDir ()
+	rtl::String
+	getDir ()
 	{
-		return m_Dir;
+		return m_dir;
 	}
 
 	llvm::DIFile
-	GetLlvmDiFile ()
+	getLlvmDiFile ()
 	{
-		return m_LlvmDiFile;
+		return m_llvmDiFile;
 	}
 };
 
 //.............................................................................
 
-class CUnitMgr
+class UnitMgr
 {
 protected:
-	CModule* m_pModule;
-	rtl::CStdListT <CUnit> m_UnitList;
-	CUnit* m_pCurrentUnit;
+	Module* m_module;
+	rtl::StdList <Unit> m_unitList;
+	Unit* m_currentUnit;
 
 public:
-	CUnitMgr ();
+	UnitMgr ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
-	CUnit*
-	GetCurrentUnit ()
+	Unit*
+	getCurrentUnit ()
 	{
-		return m_pCurrentUnit;
+		return m_currentUnit;
 	}
 
-	CUnit*
-	SetCurrentUnit (CUnit* pUnit);
+	Unit*
+	setCurrentUnit (Unit* unit);
 
-	CUnit*
-	CreateUnit (const rtl::CString& FilePath);
+	Unit*
+	createUnit (const rtl::String& filePath);
 };
 
 //.............................................................................

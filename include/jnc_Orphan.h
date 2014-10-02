@@ -8,76 +8,76 @@
 
 namespace jnc {
 
-class CFunctionType;
+class FunctionType;
 
 //.............................................................................
 
-enum EOrphan
+enum OrphanKind
 {
-	EOrphan_Undefined,
-	EOrphan_Function,
-	EOrphan_Reactor
+	OrphanKind_Undefined,
+	OrphanKind_Function,
+	OrphanKind_Reactor
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class COrphan:
-	public CUserModuleItem,
-	public CFunctionName
+class Orphan:
+	public UserModuleItem,
+	public FunctionName
 {
-	friend class CNamespaceMgr;
-	friend class CParser;
+	friend class NamespaceMgr;
+	friend class Parser;
 
 protected:
-	EOrphan m_OrphanKind;
-	CFunctionType* m_pFunctionType;
-	rtl::CBoxListT <CToken> m_Body;
+	OrphanKind m_orphanKind;
+	FunctionType* m_functionType;
+	rtl::BoxList <Token> m_body;
 
 public:
-	COrphan ();
+	Orphan ();
 
-	EOrphan
-	GetOrphanKind ()
+	OrphanKind
+	getOrphanKind ()
 	{
-		return m_OrphanKind;
+		return m_orphanKind;
 	}
 
-	CFunctionType*
-	GetFunctionType ()
+	FunctionType*
+	getFunctionType ()
 	{
-		return m_pFunctionType;
+		return m_functionType;
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetBody ()
+	rtl::ConstBoxList <Token>
+	getBody ()
 	{
-		return m_Body;
+		return m_body;
 	}
 
 	bool
-	SetBody (rtl::CBoxListT <CToken>* pTokenList);
+	setBody (rtl::BoxList <Token>* tokenList);
 
 	bool
-	ResolveOrphan ();
+	resolveOrphan ();
 
 protected:
 	bool
-	AdoptOrphanFunction (CModuleItem* pItem);
+	adoptOrphanFunction (ModuleItem* item);
 
 	bool
-	AdoptOrphanReactor (CModuleItem* pItem);
+	adoptOrphanReactor (ModuleItem* item);
 
 	bool
-	VerifyStorageKind (CModuleItemDecl* pTargetDecl);
+	verifyStorageKind (ModuleItemDecl* targetDecl);
 
 	void
-	CopySrcPos (CModuleItemDecl* pTargetDecl);
+	copySrcPos (ModuleItemDecl* targetDecl);
 
 	bool
-	CopyArgNames (CFunctionType* pTargetFunctionType);
+	copyArgNames (FunctionType* targetFunctionType);
 
-	CFunction*
-	GetItemUnnamedMethod (CModuleItem* pItem);
+	Function*
+	getItemUnnamedMethod (ModuleItem* item);
 };
 
 //.............................................................................

@@ -13,42 +13,42 @@ namespace jnc {
 // we need to keep namespaces for property templates cause other module items 
 // could potentially have pointers to them via m_pParentNamespace
 
-class CPropertyTemplate:	
-	public CModuleItem,
-	public CNamespace
+class PropertyTemplate:	
+	public ModuleItem,
+	public Namespace
 {
-	friend class CFunctionMgr;
-	friend class CParser;
+	friend class FunctionMgr;
+	friend class Parser;
 
 protected:
-	CFunctionType* m_pGetterType;
-	CFunctionTypeOverload m_SetterType;
-	CPropertyVerifier m_Verifier;
-	uint_t m_TypeFlags; // before the type is calculated
+	FunctionType* m_getterType;
+	FunctionTypeOverload m_setterType;
+	PropertyVerifier m_verifier;
+	uint_t m_typeFlags; // before the type is calculated
 
 public:
-	CPropertyTemplate ();
+	PropertyTemplate ();
 
-	CFunctionType* 
-	GetGetterType ()
+	FunctionType* 
+	getGetterType ()
 	{
-		return m_pGetterType;
+		return m_getterType;
 	}
 
-	CFunctionTypeOverload*
-	GetSetterType ()
+	FunctionTypeOverload*
+	getSetterType ()
 	{
-		return &m_SetterType;
+		return &m_setterType;
 	}
 
 	bool
-	AddMethod (
-		EFunction FunctionKind,
-		CFunctionType* pFunctionType
+	addMethod (
+		FunctionKind functionKind,
+		FunctionType* functionType
 		);
 
-	CPropertyType*
-	CalcType ();
+	PropertyType*
+	calcType ();
 };
 
 //.............................................................................

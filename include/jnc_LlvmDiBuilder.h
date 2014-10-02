@@ -9,13 +9,13 @@
 
 namespace jnc {
 
-class CModule;
-class CFunctionType;
-class CStructType;
-class CUnionType;
-class CArrayType;
-class CVariable;
-class CFunction;
+class Module;
+class FunctionType;
+class StructType;
+class UnionType;
+class ArrayType;
+class Variable;
+class Function;
 
 //.............................................................................
 
@@ -26,119 +26,119 @@ enum
 
 //.............................................................................
 
-class CLlvmDiBuilder
+class LlvmDiBuilder
 {
-	friend class CModule;
+	friend class Module;
 
 protected:
-	CModule* m_pModule;
-	llvm::DIBuilder* m_pLlvmDiBuilder;
+	Module* m_module;
+	llvm::DIBuilder* m_llvmDiBuilder;
 
 public:
-	CLlvmDiBuilder ();
+	LlvmDiBuilder ();
 
-	~CLlvmDiBuilder ()
+	~LlvmDiBuilder ()
 	{
-		Clear ();
+		clear ();
 	}
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	llvm::DIBuilder*
-	GetLlvmDiBuilder ()
+	getLlvmDiBuilder ()
 	{
-		return m_pLlvmDiBuilder;
+		return m_llvmDiBuilder;
 	}
 
 	void
-	Create ();
+	create ();
 
 	void
-	Clear ();
+	clear ();
 
 	void
-	Finalize ()
+	finalize ()
 	{
-		m_pLlvmDiBuilder->finalize ();
+		m_llvmDiBuilder->finalize ();
 	}
 
 	llvm::DebugLoc
-	GetDebugLoc (
-		CScope* pScope,
-		const CToken::CPos& Pos
+	getDebugLoc (
+		Scope* scope,
+		const Token::Pos& pos
 		)
 	{
-		return llvm::DebugLoc::get (Pos.m_Line + 1, 0, pScope->GetLlvmDiScope ());
+		return llvm::DebugLoc::get (pos.m_line + 1, 0, scope->getLlvmDiScope ());
 	}
 
 	llvm::DebugLoc
-	GetEmptyDebugLoc ();
+	getEmptyDebugLoc ();
 
 	llvm::DIFile
-	CreateFile (
-		const char* pFileName,
-		const char* pDir
+	createFile (
+		const char* fileName,
+		const char* dir
 		)
 	{
-		return m_pLlvmDiBuilder->createFile (pFileName, pDir);
+		return m_llvmDiBuilder->createFile (fileName, dir);
 	}
 
 	llvm::DIType
-	CreateBasicType (
-		const char* pName,
-		size_t Size,
-		size_t AlignFactor,
-		uint_t Code
+	createBasicType (
+		const char* name,
+		size_t size,
+		size_t alignFactor,
+		uint_t code
 		)
 	{
-		return m_pLlvmDiBuilder->createBasicType (pName, Size * 8, AlignFactor * 8, Code);
+		return m_llvmDiBuilder->createBasicType (name, size * 8, alignFactor * 8, code);
 	}
 
 	llvm::DIType
-	CreateSubroutineType (CFunctionType* pFunctionType);
+	createSubroutineType (FunctionType* functionType);
 
 	llvm::DIType
-	CreateEmptyStructType (CStructType* pStructType);
+	createEmptyStructType (StructType* structType);
 
 	void
-	SetStructTypeBody (CStructType* pStructType);
+	setStructTypeBody (StructType* structType);
 
 	llvm::DIType
-	CreateEmptyUnionType (CUnionType* pUnionType);
+	createEmptyUnionType (UnionType* unionType);
 
 	void
-	SetUnionTypeBody (CUnionType* pUnionType);
+	setUnionTypeBody (UnionType* unionType);
 
 	llvm::DIType
-	CreateArrayType (CArrayType* pArrayType);
+	createArrayType (ArrayType* arrayType);
 
 	llvm::DIType
-	CreatePointerType (CType* pType);
+	createPointerType (Type* type);
 
 	llvm::DIGlobalVariable
-	CreateGlobalVariable (CVariable* pVariable);
+	createGlobalVariable (Variable* variable);
 
 	llvm::DIVariable
-	CreateLocalVariable (
-		CVariable* pVariable,
-		uint_t Tag = llvm::dwarf::DW_TAG_auto_variable
+	createLocalVariable (
+		Variable* variable,
+		uint_t tag = llvm::dwarf::DW_TAG_auto_variable
 		);
 
 	llvm::DISubprogram
-	CreateFunction (CFunction* pFunction);
+	createFunction (Function* function);
 
 	llvm::DILexicalBlock
-	CreateLexicalBlock (
-		CScope* pParentScope,
-		const CToken::CPos& Pos
+	createLexicalBlock (
+		Scope* parentScope,
+		const Token::Pos& pos
 		);
 
 	llvm::Instruction*
-	CreateDeclare (CVariable* pVariable);
+	createDeclare (Variable* variable);
 };
 
 //.............................................................................

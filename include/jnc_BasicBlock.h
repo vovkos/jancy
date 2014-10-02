@@ -8,101 +8,101 @@
 
 namespace jnc {
 
-class CFunction;
+class Function;
 
 //.............................................................................
 
-enum EBasicBlockFlag
+enum BasicBlockFlagKind
 {
-	EBasicBlockFlag_Reachable = 0x01,
-	EBasicBlockFlag_Jumped    = 0x02,
-	EBasicBlockFlag_Entry     = 0x04,
-	EBasicBlockFlag_Return    = 0x08,
+	BasicBlockFlagKind_Reachable = 0x01,
+	BasicBlockFlagKind_Jumped    = 0x02,
+	BasicBlockFlagKind_Entry     = 0x04,
+	BasicBlockFlagKind_Return    = 0x08,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CBasicBlock: public rtl::TListLink
+class BasicBlock: public rtl::ListLink
 {
-	friend class CControlFlowMgr;
-	friend class CLlvmIrBuilder;
+	friend class ControlFlowMgr;
+	friend class LlvmIrBuilder;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CString m_Name;
-	rtl::CString m_LeadingComment;
-	CFunction* m_pFunction;
-	llvm::BasicBlock* m_pLlvmBlock;
-	llvm::DebugLoc m_LlvmDebugLoc;
+	rtl::String m_name;
+	rtl::String m_leadingComment;
+	Function* m_function;
+	llvm::BasicBlock* m_llvmBlock;
+	llvm::DebugLoc m_llvmDebugLoc;
 
-	uint_t m_Flags;
+	uint_t m_flags;
 
 public:
-	CBasicBlock ();
+	BasicBlock ();
 
 	int
-	GetFlags ()
+	getFlags ()
 	{
-		return m_Flags;
+		return m_flags;
 	}
 
 	bool
-	IsEmpty ()
+	isEmpty ()
 	{
-		return m_pLlvmBlock->getInstList ().empty ();
+		return m_llvmBlock->getInstList ().empty ();
 	}
 
 	size_t
-	GetInstructionCount ()
+	getInstructionCount ()
 	{
-		return m_pLlvmBlock->getInstList ().size ();
+		return m_llvmBlock->getInstList ().size ();
 	}
 
 	bool
-	HasTerminator ()
+	hasTerminator ()
 	{
-		return m_pLlvmBlock->getTerminator () != NULL;
+		return m_llvmBlock->getTerminator () != NULL;
 	}
 
 	bool
-	HasReturn ()
+	hasReturn ()
 	{
-		llvm::TerminatorInst* pInst = m_pLlvmBlock->getTerminator ();
-		return pInst && pInst->getOpcode () == llvm::Instruction::Ret;
+		llvm::TerminatorInst* inst = m_llvmBlock->getTerminator ();
+		return inst && inst->getOpcode () == llvm::Instruction::Ret;
 	}
 
-	rtl::CString
-	GetName ()
+	rtl::String
+	getName ()
 	{
-		return m_Name;
+		return m_name;
 	}
 
-	rtl::CString
-	GetLeadingComment ()
+	rtl::String
+	getLeadingComment ()
 	{
-		return m_LeadingComment;
+		return m_leadingComment;
 	}
 
-	CFunction*
-	GetFunction ()
+	Function*
+	getFunction ()
 	{
-		return m_pFunction;
+		return m_function;
 	}
 
 	llvm::BasicBlock*
-	GetLlvmBlock ()
+	getLlvmBlock ()
 	{
-		return m_pLlvmBlock;
+		return m_llvmBlock;
 	}
 
-	CValue
-	GetBlockAddressValue ();
+	Value
+	getBlockAddressValue ();
 
 	void
-	MarkEntry ()
+	markEntry ()
 	{
-		m_Flags |= (EBasicBlockFlag_Entry | EBasicBlockFlag_Reachable);
+		m_flags |= (BasicBlockFlagKind_Entry | BasicBlockFlagKind_Reachable);
 	}
 };
 

@@ -7,454 +7,454 @@ namespace jnc {
 //.............................................................................
 
 void
-CControlFlowMgr::IfStmt_Create (TIfStmt* pStmt)
+ControlFlowMgr::ifStmt_Create (IfStmt* stmt)
 {
-	pStmt->m_pThenBlock = CreateBlock ("if_then");
-	pStmt->m_pElseBlock = CreateBlock ("if_else");
-	pStmt->m_pFollowBlock = pStmt->m_pElseBlock;
+	stmt->m_thenBlock = createBlock ("if_then");
+	stmt->m_elseBlock = createBlock ("if_else");
+	stmt->m_followBlock = stmt->m_elseBlock;
 }
 
 bool
-CControlFlowMgr::IfStmt_Condition (
-	TIfStmt* pStmt,
-	const CValue& Value,
-	const CToken::CPos& Pos
+ControlFlowMgr::ifStmt_Condition (
+	IfStmt* stmt,
+	const Value& value,
+	const Token::Pos& pos
 	)
 {
-	bool Result = ConditionalJump (Value, pStmt->m_pThenBlock, pStmt->m_pElseBlock);
-	if (!Result)
+	bool result = conditionalJump (value, stmt->m_thenBlock, stmt->m_elseBlock);
+	if (!result)
 		return false;
 
-	m_pModule->m_NamespaceMgr.OpenScope (Pos);
+	m_module->m_namespaceMgr.openScope (pos);
 	return true;
 }
 
 void
-CControlFlowMgr::IfStmt_Else (
-	TIfStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::ifStmt_Else (
+	IfStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	pStmt->m_pFollowBlock = CreateBlock ("if_follow");
-	Jump (pStmt->m_pFollowBlock, pStmt->m_pElseBlock);
-	m_pModule->m_NamespaceMgr.OpenScope (Pos);
+	m_module->m_namespaceMgr.closeScope ();
+	stmt->m_followBlock = createBlock ("if_follow");
+	jump (stmt->m_followBlock, stmt->m_elseBlock);
+	m_module->m_namespaceMgr.openScope (pos);
 }
 
 void
-CControlFlowMgr::IfStmt_Follow (TIfStmt* pStmt)
+ControlFlowMgr::ifStmt_Follow (IfStmt* stmt)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	Follow (pStmt->m_pFollowBlock);
+	m_module->m_namespaceMgr.closeScope ();
+	follow (stmt->m_followBlock);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CControlFlowMgr::SwitchStmt_Create (TSwitchStmt* pStmt)
+ControlFlowMgr::switchStmt_Create (SwitchStmt* stmt)
 {
-	pStmt->m_pSwitchBlock = NULL;
-	pStmt->m_pDefaultBlock = NULL;
-	pStmt->m_pFollowBlock = CreateBlock ("switch_follow");
+	stmt->m_switchBlock = NULL;
+	stmt->m_defaultBlock = NULL;
+	stmt->m_followBlock = createBlock ("switch_follow");
 }
 
 bool
-CControlFlowMgr::SwitchStmt_Condition (
-	TSwitchStmt* pStmt,
-	const CValue& Value,
-	const CToken::CPos& Pos
+ControlFlowMgr::switchStmt_Condition (
+	SwitchStmt* stmt,
+	const Value& value,
+	const Token::Pos& pos
 	)
 {
-	bool Result = m_pModule->m_OperatorMgr.CastOperator (Value, EType_Int, &pStmt->m_Value);
-	if (!Result)
+	bool result = m_module->m_operatorMgr.castOperator (value, TypeKind_Int, &stmt->m_value);
+	if (!result)
 		return false;
 
-	pStmt->m_pSwitchBlock = GetCurrentBlock ();
+	stmt->m_switchBlock = getCurrentBlock ();
 
-	CBasicBlock* pBodyBlock = CreateBlock ("switch_body");
-	SetCurrentBlock (pBodyBlock);
-	MarkUnreachable (pBodyBlock);
+	BasicBlock* bodyBlock = createBlock ("switch_body");
+	setCurrentBlock (bodyBlock);
+	markUnreachable (bodyBlock);
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
-	pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
 	return true;
 }
 
 bool
-CControlFlowMgr::SwitchStmt_Case (
-	TSwitchStmt* pStmt,
-	intptr_t Value,
-	const CToken::CPos& Pos
+ControlFlowMgr::switchStmt_Case (
+	SwitchStmt* stmt,
+	intptr_t value,
+	const Token::Pos& pos
 	)
 {
-	rtl::CHashTableMapIteratorT <intptr_t, CBasicBlock*> It = pStmt->m_CaseMap.Goto (Value);
-	if (It->m_Value)
+	rtl::HashTableMapIterator <intptr_t, BasicBlock*> it = stmt->m_caseMap.visit (value);
+	if (it->m_value)
 	{
-		err::SetFormatStringError ("redefinition of label (%d) of switch statement", Value);
+		err::setFormatStringError ("redefinition of label (%d) of switch statement", value);
 		return false;
 	}
 
-	m_pModule->m_NamespaceMgr.CloseScope ();
+	m_module->m_namespaceMgr.closeScope ();
 
-	CBasicBlock* pBlock = CreateBlock ("switch_case");
-	pBlock->m_Flags |= (pStmt->m_pSwitchBlock->m_Flags & EBasicBlockFlag_Reachable);
-	Follow (pBlock);
-	It->m_Value = pBlock;
+	BasicBlock* block = createBlock ("switch_case");
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlagKind_Reachable);
+	follow (block);
+	it->m_value = block;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
-	pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
 	return true;
 }
 
 bool
-CControlFlowMgr::SwitchStmt_Default (
-	TSwitchStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::switchStmt_Default (
+	SwitchStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	if (pStmt->m_pDefaultBlock)
+	if (stmt->m_defaultBlock)
 	{
-		err::SetFormatStringError ("redefinition of 'default' label of switch statement");
+		err::setFormatStringError ("redefinition of 'default' label of switch statement");
 		return false;
 	}
 
-	CBasicBlock* pBlock = CreateBlock ("switch_default");
-	pBlock->m_Flags |= (pStmt->m_pSwitchBlock->m_Flags & EBasicBlockFlag_Reachable);
-	Follow (pBlock);
-	pStmt->m_pDefaultBlock = pBlock;
+	BasicBlock* block = createBlock ("switch_default");
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlagKind_Reachable);
+	follow (block);
+	stmt->m_defaultBlock = block;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
-	pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
 	return true;
 }
 
 void
-CControlFlowMgr::SwitchStmt_Follow (TSwitchStmt* pStmt)
+ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	Follow (pStmt->m_pFollowBlock);
+	m_module->m_namespaceMgr.closeScope ();
+	follow (stmt->m_followBlock);
 
-	SetCurrentBlock (pStmt->m_pSwitchBlock);
+	setCurrentBlock (stmt->m_switchBlock);
 
-	CBasicBlock* pDefaultBlock = pStmt->m_pDefaultBlock ? pStmt->m_pDefaultBlock : pStmt->m_pFollowBlock;
+	BasicBlock* defaultBlock = stmt->m_defaultBlock ? stmt->m_defaultBlock : stmt->m_followBlock;
 
-	m_pModule->m_LlvmIrBuilder.CreateSwitch (
-		pStmt->m_Value,
-		pDefaultBlock,
-		pStmt->m_CaseMap.GetHead (),
-		pStmt->m_CaseMap.GetCount ()
+	m_module->m_llvmIrBuilder.createSwitch (
+		stmt->m_value,
+		defaultBlock,
+		stmt->m_caseMap.getHead (),
+		stmt->m_caseMap.getCount ()
 		);
 
-	SetCurrentBlock (pStmt->m_pFollowBlock);
+	setCurrentBlock (stmt->m_followBlock);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CControlFlowMgr::WhileStmt_Create (TWhileStmt* pStmt)
+ControlFlowMgr::whileStmt_Create (WhileStmt* stmt)
 {
-	pStmt->m_pConditionBlock = CreateBlock ("while_condition");
-	pStmt->m_pBodyBlock = CreateBlock ("while_body");
-	pStmt->m_pFollowBlock = CreateBlock ("while_follow");
-	Follow (pStmt->m_pConditionBlock);
+	stmt->m_conditionBlock = createBlock ("while_condition");
+	stmt->m_bodyBlock = createBlock ("while_body");
+	stmt->m_followBlock = createBlock ("while_follow");
+	follow (stmt->m_conditionBlock);
 }
 
 bool
-CControlFlowMgr::WhileStmt_Condition (
-	TWhileStmt* pStmt,
-	const CValue& Value,
-	const CToken::CPos& Pos
+ControlFlowMgr::whileStmt_Condition (
+	WhileStmt* stmt,
+	const Value& value,
+	const Token::Pos& pos
 	)
 {
-	m_pModule->m_OperatorMgr.GcPulse ();
+	m_module->m_operatorMgr.gcPulse ();
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
-	pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
-	pScope->m_pContinueBlock = pStmt->m_pConditionBlock;
-	return ConditionalJump (Value, pStmt->m_pBodyBlock, pStmt->m_pFollowBlock);
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
+	scope->m_continueBlock = stmt->m_conditionBlock;
+	return conditionalJump (value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 
 void
-CControlFlowMgr::WhileStmt_Follow (TWhileStmt* pStmt)
+ControlFlowMgr::whileStmt_Follow (WhileStmt* stmt)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	Jump (pStmt->m_pConditionBlock, pStmt->m_pFollowBlock);
+	m_module->m_namespaceMgr.closeScope ();
+	jump (stmt->m_conditionBlock, stmt->m_followBlock);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CControlFlowMgr::DoStmt_Create (TDoStmt* pStmt)
+ControlFlowMgr::doStmt_Create (DoStmt* stmt)
 {
-	pStmt->m_pConditionBlock = CreateBlock ("do_condition");
-	pStmt->m_pBodyBlock = CreateBlock ("do_body");
-	pStmt->m_pFollowBlock = CreateBlock ("do_follow");
-	Follow (pStmt->m_pBodyBlock);
+	stmt->m_conditionBlock = createBlock ("do_condition");
+	stmt->m_bodyBlock = createBlock ("do_body");
+	stmt->m_followBlock = createBlock ("do_follow");
+	follow (stmt->m_bodyBlock);
 }
 
 void
-CControlFlowMgr::DoStmt_PreBody (
-	TDoStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::doStmt_PreBody (
+	DoStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	m_pModule->m_OperatorMgr.GcPulse ();
+	m_module->m_operatorMgr.gcPulse ();
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
-	pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
-	pScope->m_pContinueBlock = pStmt->m_pConditionBlock;
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
+	scope->m_continueBlock = stmt->m_conditionBlock;
 }
 
 void
-CControlFlowMgr::DoStmt_PostBody (TDoStmt* pStmt)
+ControlFlowMgr::doStmt_PostBody (DoStmt* stmt)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	Follow (pStmt->m_pConditionBlock);
+	m_module->m_namespaceMgr.closeScope ();
+	follow (stmt->m_conditionBlock);
 }
 
 bool
-CControlFlowMgr::DoStmt_Condition (
-	TDoStmt* pStmt,
-	const CValue& Value
+ControlFlowMgr::doStmt_Condition (
+	DoStmt* stmt,
+	const Value& value
 	)
 {
-	return ConditionalJump (Value, pStmt->m_pBodyBlock, pStmt->m_pFollowBlock, pStmt->m_pFollowBlock);
+	return conditionalJump (value, stmt->m_bodyBlock, stmt->m_followBlock, stmt->m_followBlock);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CControlFlowMgr::ForStmt_Create (TForStmt* pStmt)
+ControlFlowMgr::forStmt_Create (ForStmt* stmt)
 {
-	pStmt->m_pBodyBlock = CreateBlock ("for_body");
-	pStmt->m_pFollowBlock = CreateBlock ("for_follow");
-	pStmt->m_pConditionBlock = pStmt->m_pBodyBlock;
-	pStmt->m_pLoopBlock = pStmt->m_pBodyBlock;
+	stmt->m_bodyBlock = createBlock ("for_body");
+	stmt->m_followBlock = createBlock ("for_follow");
+	stmt->m_conditionBlock = stmt->m_bodyBlock;
+	stmt->m_loopBlock = stmt->m_bodyBlock;
 }
 
 void
-CControlFlowMgr::ForStmt_PreInit (
-	TForStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::forStmt_PreInit (
+	ForStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	pStmt->m_pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
+	stmt->m_scope = m_module->m_namespaceMgr.openScope (pos);
 }
 
 void
-CControlFlowMgr::ForStmt_NoCondition (TForStmt* pStmt)
+ControlFlowMgr::forStmt_NoCondition (ForStmt* stmt)
 {
-	Follow (pStmt->m_pBodyBlock);
+	follow (stmt->m_bodyBlock);
 }
 
 void
-CControlFlowMgr::ForStmt_PreCondition (TForStmt* pStmt)
+ControlFlowMgr::forStmt_PreCondition (ForStmt* stmt)
 {
-	pStmt->m_pConditionBlock = CreateBlock ("for_condition");
-	pStmt->m_pLoopBlock = pStmt->m_pConditionBlock;
-	Follow (pStmt->m_pConditionBlock);
+	stmt->m_conditionBlock = createBlock ("for_condition");
+	stmt->m_loopBlock = stmt->m_conditionBlock;
+	follow (stmt->m_conditionBlock);
 }
 
 bool
-CControlFlowMgr::ForStmt_PostCondition (
-	TForStmt* pStmt,
-	const CValue& Value
+ControlFlowMgr::forStmt_PostCondition (
+	ForStmt* stmt,
+	const Value& value
 	)
 {
-	return ConditionalJump (Value, pStmt->m_pBodyBlock, pStmt->m_pFollowBlock);
+	return conditionalJump (value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 
 void
-CControlFlowMgr::ForStmt_PreLoop (TForStmt* pStmt)
+ControlFlowMgr::forStmt_PreLoop (ForStmt* stmt)
 {
-	pStmt->m_pLoopBlock = CreateBlock ("for_loop");
-	SetCurrentBlock (pStmt->m_pLoopBlock);
+	stmt->m_loopBlock = createBlock ("for_loop");
+	setCurrentBlock (stmt->m_loopBlock);
 }
 
 void
-CControlFlowMgr::ForStmt_PostLoop (TForStmt* pStmt)
+ControlFlowMgr::forStmt_PostLoop (ForStmt* stmt)
 {
-	Jump (pStmt->m_pConditionBlock, pStmt->m_pBodyBlock);
+	jump (stmt->m_conditionBlock, stmt->m_bodyBlock);
 }
 
 void
-CControlFlowMgr::ForStmt_PreBody (TForStmt* pStmt)
+ControlFlowMgr::forStmt_PreBody (ForStmt* stmt)
 {
-	pStmt->m_pScope->m_pBreakBlock = pStmt->m_pFollowBlock;
-	pStmt->m_pScope->m_pContinueBlock = pStmt->m_pConditionBlock;
+	stmt->m_scope->m_breakBlock = stmt->m_followBlock;
+	stmt->m_scope->m_continueBlock = stmt->m_conditionBlock;
 
-	m_pModule->m_OperatorMgr.GcPulse ();
+	m_module->m_operatorMgr.gcPulse ();
 }
 
 void
-CControlFlowMgr::ForStmt_PostBody (TForStmt* pStmt)
+ControlFlowMgr::forStmt_PostBody (ForStmt* stmt)
 {
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	Jump (pStmt->m_pLoopBlock, pStmt->m_pFollowBlock);
+	m_module->m_namespaceMgr.closeScope ();
+	jump (stmt->m_loopBlock, stmt->m_followBlock);
 
-	if (!(pStmt->m_pFollowBlock->GetFlags () & EBasicBlockFlag_Jumped))
-		MarkUnreachable (pStmt->m_pFollowBlock);
+	if (!(stmt->m_followBlock->getFlags () & BasicBlockFlagKind_Jumped))
+		markUnreachable (stmt->m_followBlock);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CControlFlowMgr::OnceStmt_Create (
-	TOnceStmt* pStmt,
-	const CToken::CPos& Pos,
-	EStorage StorageKind
+ControlFlowMgr::onceStmt_Create (
+	OnceStmt* stmt,
+	const Token::Pos& pos,
+	StorageKind storageKind
 	)
 {
-	CVariable* pFlagVariable;
+	Variable* flagVariable;
 
-	if (StorageKind != EStorage_Static && StorageKind != EStorage_Thread)
+	if (storageKind != StorageKind_Static && storageKind != StorageKind_Thread)
 	{
-		err::SetFormatStringError ("'%s once' is illegal (only 'static' or 'thread' is allowed)", GetStorageKindString (StorageKind));
+		err::setFormatStringError ("'%s once' is illegal (only 'static' or 'thread' is allowed)", getStorageKindString (storageKind));
 		return false;
 	}
 
-	pFlagVariable = m_pModule->m_VariableMgr.CreateOnceFlagVariable (StorageKind);
-	pFlagVariable->GetItemDecl ()->m_Pos = Pos;
+	flagVariable = m_module->m_variableMgr.createOnceFlagVariable (storageKind);
+	flagVariable->getItemDecl ()->m_pos = pos;
 
-	if (StorageKind == EStorage_Static)
+	if (storageKind == StorageKind_Static)
 	{
-		CBasicBlock* pBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (m_pModule->GetConstructor ()->GetEntryBlock ());
-		m_pModule->m_VariableMgr.AllocatePrimeStaticVariable (pFlagVariable);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pBlock);
+		BasicBlock* block = m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
+		m_module->m_variableMgr.allocatePrimeStaticVariable (flagVariable);
+		m_module->m_controlFlowMgr.setCurrentBlock (block);
 	}
 
-	OnceStmt_Create (pStmt, pFlagVariable);
+	onceStmt_Create (stmt, flagVariable);
 	return true;
 }
 
 void
-CControlFlowMgr::OnceStmt_Create (
-	TOnceStmt* pStmt,
-	CVariable* pFlagVariable
+ControlFlowMgr::onceStmt_Create (
+	OnceStmt* stmt,
+	Variable* flagVariable
 	)
 {
-	pStmt->m_pFlagVariable = pFlagVariable;
-	pStmt->m_pFollowBlock = CreateBlock ("once_follow");
+	stmt->m_flagVariable = flagVariable;
+	stmt->m_followBlock = createBlock ("once_follow");
 }
 
 bool
-CControlFlowMgr::OnceStmt_PreBody (
-	TOnceStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::onceStmt_PreBody (
+	OnceStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	bool Result;
+	bool result;
 
-	EStorage StorageKind = pStmt->m_pFlagVariable->GetStorageKind ();
-	ASSERT (StorageKind == EStorage_Static || StorageKind == EStorage_Thread);
+	StorageKind storageKind = stmt->m_flagVariable->getStorageKind ();
+	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Thread);
 
-	m_pModule->m_NamespaceMgr.SetSourcePos (Pos);
+	m_module->m_namespaceMgr.setSourcePos (pos);
 
-	CType* pType = pStmt->m_pFlagVariable->GetType ();
+	Type* type = stmt->m_flagVariable->getType ();
 
-	CValue Value;
+	Value value;
 
-	if (StorageKind == EStorage_Thread)
+	if (storageKind == StorageKind_Thread)
 	{
-		CBasicBlock* pBodyBlock = CreateBlock ("once_body");
+		BasicBlock* bodyBlock = createBlock ("once_body");
 
-		Result =
-			m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, pStmt->m_pFlagVariable, CValue ((int64_t) 0, pType), &Value) &&
-			ConditionalJump (Value, pBodyBlock, pStmt->m_pFollowBlock);
+		result =
+			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, stmt->m_flagVariable, Value ((int64_t) 0, type), &value) &&
+			conditionalJump (value, bodyBlock, stmt->m_followBlock);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 	else
 	{
-		Result = m_pModule->m_OperatorMgr.LoadDataRef (pStmt->m_pFlagVariable, &Value);
-		if (!Result)
+		result = m_module->m_operatorMgr.loadDataRef (stmt->m_flagVariable, &value);
+		if (!result)
 			return false;
 
-		uint_t Flags = EBasicBlockFlag_Jumped | (m_pCurrentBlock->m_Flags & EBasicBlockFlag_Reachable);
+		uint_t flags = BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
 
-		CBasicBlock* pPreBodyBlock = CreateBlock ("once_prebody");
-		CBasicBlock* pBodyBlock = CreateBlock ("once_body");
-		CBasicBlock* pLoopBlock = CreateBlock ("once_loop");
+		BasicBlock* preBodyBlock = createBlock ("once_prebody");
+		BasicBlock* bodyBlock = createBlock ("once_body");
+		BasicBlock* loopBlock = createBlock ("once_loop");
 
-		pPreBodyBlock->m_Flags |= Flags;
-		pBodyBlock->m_Flags |= Flags;
-		pLoopBlock->m_Flags |= Flags;
+		preBodyBlock->m_flags |= flags;
+		bodyBlock->m_flags |= flags;
+		loopBlock->m_flags |= flags;
 
-		intptr_t ConstArray [2] = { 0, 1 };
-		CBasicBlock* BlockArray [2] = { pPreBodyBlock, pLoopBlock };
+		intptr_t constArray [2] = { 0, 1 };
+		BasicBlock* blockArray [2] = { preBodyBlock, loopBlock };
 
-		m_pModule->m_LlvmIrBuilder.CreateSwitch (Value, pStmt->m_pFollowBlock, ConstArray, BlockArray, 2);
+		m_module->m_llvmIrBuilder.createSwitch (value, stmt->m_followBlock, constArray, blockArray, 2);
 
 		// loop
 
-		SetCurrentBlock (pLoopBlock);
+		setCurrentBlock (loopBlock);
 
-		Result =
-			m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, pStmt->m_pFlagVariable, CValue (2, pType), &Value) &&
-			ConditionalJump (Value, pStmt->m_pFollowBlock, pLoopBlock, pPreBodyBlock);
+		result =
+			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, stmt->m_flagVariable, Value (2, type), &value) &&
+			conditionalJump (value, stmt->m_followBlock, loopBlock, preBodyBlock);
 
-		if (!Result)
+		if (!result)
 			return false;
 
 		// pre body
 
-		m_pModule->m_LlvmIrBuilder.CreateCmpXchg (
-			pStmt->m_pFlagVariable,
-			CValue ((int64_t) 0, pType),
-			CValue (1, pType),
+		m_module->m_llvmIrBuilder.createCmpXchg (
+			stmt->m_flagVariable,
+			Value ((int64_t) 0, type),
+			Value (1, type),
 			llvm::Acquire,
 			llvm::CrossThread,
-			&Value
+			&value
 			);
 
-		Result =
-			m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, Value, CValue ((int64_t) 0, pType), &Value) &&
-			ConditionalJump (Value, pBodyBlock, pLoopBlock);
+		result =
+			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, value, Value ((int64_t) 0, type), &value) &&
+			conditionalJump (value, bodyBlock, loopBlock);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_NamespaceMgr.OpenScope (Pos);
+	m_module->m_namespaceMgr.openScope (pos);
 	return true;
 }
 
 void
-CControlFlowMgr::OnceStmt_PostBody (
-	TOnceStmt* pStmt,
-	const CToken::CPos& Pos
+ControlFlowMgr::onceStmt_PostBody (
+	OnceStmt* stmt,
+	const Token::Pos& pos
 	)
 {
-	EStorage StorageKind = pStmt->m_pFlagVariable->GetStorageKind ();
-	ASSERT (StorageKind == EStorage_Static || StorageKind == EStorage_Thread);
+	StorageKind storageKind = stmt->m_flagVariable->getStorageKind ();
+	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Thread);
 
-	CType* pType = pStmt->m_pFlagVariable->GetType ();
+	Type* type = stmt->m_flagVariable->getType ();
 
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	m_pModule->m_NamespaceMgr.SetSourcePos (Pos);
+	m_module->m_namespaceMgr.closeScope ();
+	m_module->m_namespaceMgr.setSourcePos (pos);
 
-	if (StorageKind == EStorage_Thread)
+	if (storageKind == StorageKind_Thread)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateStore (
-			CValue ((int64_t) 2, pType),
-			pStmt->m_pFlagVariable
+		m_module->m_llvmIrBuilder.createStore (
+			Value ((int64_t) 2, type),
+			stmt->m_flagVariable
 			);
 	}
 	else
 	{
-		CValue TmpValue;
-		m_pModule->m_LlvmIrBuilder.CreateRmw (
+		Value tmpValue;
+		m_module->m_llvmIrBuilder.createRmw (
 			llvm::AtomicRMWInst::Xchg,
-			pStmt->m_pFlagVariable,
-			CValue ((int64_t) 2, pType),
+			stmt->m_flagVariable,
+			Value ((int64_t) 2, type),
 			llvm::Release,
 			llvm::CrossThread,
-			&TmpValue
+			&tmpValue
 			);
 	}
 
-	Follow (pStmt->m_pFollowBlock);
+	follow (stmt->m_followBlock);
 }
 
 //.............................................................................

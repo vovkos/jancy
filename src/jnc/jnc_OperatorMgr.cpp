@@ -6,738 +6,738 @@ namespace jnc {
 
 //.............................................................................
 
-COperatorMgr::COperatorMgr ()
+OperatorMgr::OperatorMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
 	// operator tables
 
-	memset (m_UnaryOperatorTable, 0, sizeof (m_UnaryOperatorTable));
-	memset (m_BinaryOperatorTable, 0, sizeof (m_BinaryOperatorTable));
-	memset (m_CastOperatorTable, 0, sizeof (m_CastOperatorTable));
+	memset (m_unaryOperatorTable, 0, sizeof (m_unaryOperatorTable));
+	memset (m_binaryOperatorTable, 0, sizeof (m_binaryOperatorTable));
+	memset (m_castOperatorTable, 0, sizeof (m_castOperatorTable));
 
 	// unary arithmetics
 
-	m_UnaryOperatorTable [EUnOp_Plus]     = &m_UnOp_Plus;
-	m_UnaryOperatorTable [EUnOp_Minus]    = &m_UnOp_Minus;
-	m_UnaryOperatorTable [EUnOp_BwNot]    = &m_UnOp_BwNot;
-	m_UnaryOperatorTable [EUnOp_LogNot]   = &m_UnOp_LogNot;
+	m_unaryOperatorTable [UnOpKind_Plus]     = &m_unOp_Plus;
+	m_unaryOperatorTable [UnOpKind_Minus]    = &m_unOp_Minus;
+	m_unaryOperatorTable [UnOpKind_BwNot]    = &m_unOp_BwNot;
+	m_unaryOperatorTable [UnOpKind_LogNot]   = &m_unOp_LogNot;
 
 	// pointer operators
 
-	m_UnaryOperatorTable [EUnOp_Addr]     = &m_UnOp_Addr;
-	m_UnaryOperatorTable [EUnOp_Indir]    = &m_UnOp_Indir;
-	m_UnaryOperatorTable [EUnOp_Ptr]      = &m_UnOp_Indir;
+	m_unaryOperatorTable [UnOpKind_Addr]     = &m_unOp_Addr;
+	m_unaryOperatorTable [UnOpKind_Indir]    = &m_unOp_Indir;
+	m_unaryOperatorTable [UnOpKind_Ptr]      = &m_unOp_Indir;
 
 	// increment operators
 
-	m_UnOp_PreInc.m_OpKind  = EUnOp_PreInc;
-	m_UnOp_PreDec.m_OpKind  = EUnOp_PreDec;
-	m_UnOp_PostInc.m_OpKind = EUnOp_PostInc;
-	m_UnOp_PostDec.m_OpKind = EUnOp_PostDec;
+	m_unOp_PreInc.m_opKind  = UnOpKind_PreInc;
+	m_unOp_PreDec.m_opKind  = UnOpKind_PreDec;
+	m_unOp_PostInc.m_opKind = UnOpKind_PostInc;
+	m_unOp_PostDec.m_opKind = UnOpKind_PostDec;
 
-	m_UnaryOperatorTable [EUnOp_PreInc]   = &m_UnOp_PreInc;
-	m_UnaryOperatorTable [EUnOp_PreDec]   = &m_UnOp_PreDec;
-	m_UnaryOperatorTable [EUnOp_PostInc]  = &m_UnOp_PostInc;
-	m_UnaryOperatorTable [EUnOp_PostDec]  = &m_UnOp_PostDec;
+	m_unaryOperatorTable [UnOpKind_PreInc]   = &m_unOp_PreInc;
+	m_unaryOperatorTable [UnOpKind_PreDec]   = &m_unOp_PreDec;
+	m_unaryOperatorTable [UnOpKind_PostInc]  = &m_unOp_PostInc;
+	m_unaryOperatorTable [UnOpKind_PostDec]  = &m_unOp_PostDec;
 
 	// binary arithmetics
 
-	m_BinaryOperatorTable [EBinOp_Add]    = &m_BinOp_Add;
-	m_BinaryOperatorTable [EBinOp_Sub]    = &m_BinOp_Sub;
-	m_BinaryOperatorTable [EBinOp_Mul]    = &m_BinOp_Mul;
-	m_BinaryOperatorTable [EBinOp_Div]    = &m_BinOp_Div;
-	m_BinaryOperatorTable [EBinOp_Mod]    = &m_BinOp_Mod;
-	m_BinaryOperatorTable [EBinOp_Shl]    = &m_BinOp_Shl;
-	m_BinaryOperatorTable [EBinOp_Shr]    = &m_BinOp_Shr;
-	m_BinaryOperatorTable [EBinOp_BwAnd]  = &m_BinOp_BwAnd;
-	m_BinaryOperatorTable [EBinOp_BwXor]  = &m_BinOp_BwXor;
-	m_BinaryOperatorTable [EBinOp_BwOr]   = &m_BinOp_BwOr;
+	m_binaryOperatorTable [BinOpKind_Add]    = &m_binOp_Add;
+	m_binaryOperatorTable [BinOpKind_Sub]    = &m_binOp_Sub;
+	m_binaryOperatorTable [BinOpKind_Mul]    = &m_binOp_Mul;
+	m_binaryOperatorTable [BinOpKind_Div]    = &m_binOp_Div;
+	m_binaryOperatorTable [BinOpKind_Mod]    = &m_binOp_Mod;
+	m_binaryOperatorTable [BinOpKind_Shl]    = &m_binOp_Shl;
+	m_binaryOperatorTable [BinOpKind_Shr]    = &m_binOp_Shr;
+	m_binaryOperatorTable [BinOpKind_BwAnd]  = &m_binOp_BwAnd;
+	m_binaryOperatorTable [BinOpKind_BwXor]  = &m_binOp_BwXor;
+	m_binaryOperatorTable [BinOpKind_BwOr]   = &m_binOp_BwOr;
 
 	// special operators
 
-	m_BinaryOperatorTable [EBinOp_At]     = &m_BinOp_At;
-	m_BinaryOperatorTable [EBinOp_Idx]    = &m_BinOp_Idx;
+	m_binaryOperatorTable [BinOpKind_At]     = &m_binOp_At;
+	m_binaryOperatorTable [BinOpKind_Idx]    = &m_binOp_Idx;
 
 	// binary logic operators
 
-	m_BinaryOperatorTable [EBinOp_LogAnd] = &m_BinOp_LogAnd;
-	m_BinaryOperatorTable [EBinOp_LogOr]  = &m_BinOp_LogOr;
+	m_binaryOperatorTable [BinOpKind_LogAnd] = &m_binOp_LogAnd;
+	m_binaryOperatorTable [BinOpKind_LogOr]  = &m_binOp_LogOr;
 
 	// comparison operators
 
-	m_BinaryOperatorTable [EBinOp_Eq]     = &m_BinOp_Eq;
-	m_BinaryOperatorTable [EBinOp_Ne]     = &m_BinOp_Ne;
-	m_BinaryOperatorTable [EBinOp_Lt]     = &m_BinOp_Lt;
-	m_BinaryOperatorTable [EBinOp_Le]     = &m_BinOp_Le;
-	m_BinaryOperatorTable [EBinOp_Gt]     = &m_BinOp_Gt;
-	m_BinaryOperatorTable [EBinOp_Ge]     = &m_BinOp_Ge;
+	m_binaryOperatorTable [BinOpKind_Eq]     = &m_binOp_Eq;
+	m_binaryOperatorTable [BinOpKind_Ne]     = &m_binOp_Ne;
+	m_binaryOperatorTable [BinOpKind_Lt]     = &m_binOp_Lt;
+	m_binaryOperatorTable [BinOpKind_Le]     = &m_binOp_Le;
+	m_binaryOperatorTable [BinOpKind_Gt]     = &m_binOp_Gt;
+	m_binaryOperatorTable [BinOpKind_Ge]     = &m_binOp_Ge;
 
 	// assignment operators
 
-	m_BinOp_AddAssign.m_OpKind = EBinOp_AddAssign;
-	m_BinOp_SubAssign.m_OpKind = EBinOp_SubAssign;
-	m_BinOp_MulAssign.m_OpKind = EBinOp_MulAssign;
-	m_BinOp_DivAssign.m_OpKind = EBinOp_DivAssign;
-	m_BinOp_ModAssign.m_OpKind = EBinOp_ModAssign;
-	m_BinOp_ShlAssign.m_OpKind = EBinOp_ShlAssign;
-	m_BinOp_ShrAssign.m_OpKind = EBinOp_ShrAssign;
-	m_BinOp_AndAssign.m_OpKind = EBinOp_AndAssign;
-	m_BinOp_XorAssign.m_OpKind = EBinOp_XorAssign;
-	m_BinOp_OrAssign.m_OpKind  = EBinOp_OrAssign;
-	m_BinOp_AtAssign.m_OpKind  = EBinOp_AtAssign;
+	m_binOp_AddAssign.m_opKind = BinOpKind_AddAssign;
+	m_binOp_SubAssign.m_opKind = BinOpKind_SubAssign;
+	m_binOp_MulAssign.m_opKind = BinOpKind_MulAssign;
+	m_binOp_DivAssign.m_opKind = BinOpKind_DivAssign;
+	m_binOp_ModAssign.m_opKind = BinOpKind_ModAssign;
+	m_binOp_ShlAssign.m_opKind = BinOpKind_ShlAssign;
+	m_binOp_ShrAssign.m_opKind = BinOpKind_ShrAssign;
+	m_binOp_AndAssign.m_opKind = BinOpKind_AndAssign;
+	m_binOp_XorAssign.m_opKind = BinOpKind_XorAssign;
+	m_binOp_OrAssign.m_opKind  = BinOpKind_OrAssign;
+	m_binOp_AtAssign.m_opKind  = BinOpKind_AtAssign;
 
-	m_BinaryOperatorTable [EBinOp_Assign]      = &m_BinOp_Assign;
-	m_BinaryOperatorTable [EBinOp_RefAssign]   = &m_BinOp_RefAssign;
-	m_BinaryOperatorTable [EBinOp_AddAssign]   = &m_BinOp_AddAssign;
-	m_BinaryOperatorTable [EBinOp_SubAssign]   = &m_BinOp_SubAssign;
-	m_BinaryOperatorTable [EBinOp_MulAssign]   = &m_BinOp_MulAssign;
-	m_BinaryOperatorTable [EBinOp_DivAssign]   = &m_BinOp_DivAssign;
-	m_BinaryOperatorTable [EBinOp_ModAssign]   = &m_BinOp_ModAssign;
-	m_BinaryOperatorTable [EBinOp_ShlAssign]   = &m_BinOp_ShlAssign;
-	m_BinaryOperatorTable [EBinOp_ShrAssign]   = &m_BinOp_ShrAssign;
-	m_BinaryOperatorTable [EBinOp_AndAssign]   = &m_BinOp_AndAssign;
-	m_BinaryOperatorTable [EBinOp_XorAssign]   = &m_BinOp_XorAssign;
-	m_BinaryOperatorTable [EBinOp_OrAssign]    = &m_BinOp_OrAssign;
-	m_BinaryOperatorTable [EBinOp_AtAssign]    = &m_BinOp_AtAssign;
+	m_binaryOperatorTable [BinOpKind_Assign]      = &m_binOp_Assign;
+	m_binaryOperatorTable [BinOpKind_RefAssign]   = &m_binOp_RefAssign;
+	m_binaryOperatorTable [BinOpKind_AddAssign]   = &m_binOp_AddAssign;
+	m_binaryOperatorTable [BinOpKind_SubAssign]   = &m_binOp_SubAssign;
+	m_binaryOperatorTable [BinOpKind_MulAssign]   = &m_binOp_MulAssign;
+	m_binaryOperatorTable [BinOpKind_DivAssign]   = &m_binOp_DivAssign;
+	m_binaryOperatorTable [BinOpKind_ModAssign]   = &m_binOp_ModAssign;
+	m_binaryOperatorTable [BinOpKind_ShlAssign]   = &m_binOp_ShlAssign;
+	m_binaryOperatorTable [BinOpKind_ShrAssign]   = &m_binOp_ShrAssign;
+	m_binaryOperatorTable [BinOpKind_AndAssign]   = &m_binOp_AndAssign;
+	m_binaryOperatorTable [BinOpKind_XorAssign]   = &m_binOp_XorAssign;
+	m_binaryOperatorTable [BinOpKind_OrAssign]    = &m_binOp_OrAssign;
+	m_binaryOperatorTable [BinOpKind_AtAssign]    = &m_binOp_AtAssign;
 
 	// cast operators
 
-	m_StdCastOperatorTable [EStdCast_Copy] = &m_Cast_Copy;
-	m_StdCastOperatorTable [EStdCast_SwapByteOrder] = &m_Cast_SwapByteOrder;
-	m_StdCastOperatorTable [EStdCast_PtrFromInt] = &m_Cast_PtrFromInt;
-	m_StdCastOperatorTable [EStdCast_Int] = &m_Cast_Int;
-	m_StdCastOperatorTable [EStdCast_Fp] = &m_Cast_Fp;
+	m_stdCastOperatorTable [StdCastKind_Copy] = &m_cast_Copy;
+	m_stdCastOperatorTable [StdCastKind_SwapByteOrder] = &m_cast_SwapByteOrder;
+	m_stdCastOperatorTable [StdCastKind_PtrFromInt] = &m_cast_PtrFromInt;
+	m_stdCastOperatorTable [StdCastKind_Int] = &m_cast_Int;
+	m_stdCastOperatorTable [StdCastKind_Fp] = &m_cast_Fp;
 
-	for (size_t i = 0; i < EType__Count; i++)
-		m_CastOperatorTable [i] = &m_Cast_Default;
+	for (size_t i = 0; i < TypeKind__Count; i++)
+		m_castOperatorTable [i] = &m_cast_Default;
 
-	m_CastOperatorTable [EType_Bool] = &m_Cast_Bool;
+	m_castOperatorTable [TypeKind_Bool] = &m_cast_Bool;
 
-	for (size_t i = EType_Int8; i <= EType_Int64_u; i++)
-		m_CastOperatorTable [i] = &m_Cast_Int;
+	for (size_t i = TypeKind_Int8; i <= TypeKind_Int64_u; i++)
+		m_castOperatorTable [i] = &m_cast_Int;
 
-	for (size_t i = EType_Int16_be; i <= EType_Int64_beu; i++)
-		m_CastOperatorTable [i] = &m_Cast_BeInt;
+	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_beu; i++)
+		m_castOperatorTable [i] = &m_cast_BeInt;
 
-	m_CastOperatorTable [EType_Float]       = &m_Cast_Fp;
-	m_CastOperatorTable [EType_Double]      = &m_Cast_Fp;
-	m_CastOperatorTable [EType_Array]       = &m_Cast_Array;
-	m_CastOperatorTable [EType_Enum]        = &m_Cast_Enum;
-	m_CastOperatorTable [EType_Struct]      = &m_Cast_Struct;
-	m_CastOperatorTable [EType_DataPtr]     = &m_Cast_DataPtr;
-	m_CastOperatorTable [EType_DataRef]     = &m_Cast_DataRef;
-	m_CastOperatorTable [EType_ClassPtr]    = &m_Cast_ClassPtr;
-	m_CastOperatorTable [EType_FunctionPtr] = &m_Cast_FunctionPtr;
-	m_CastOperatorTable [EType_FunctionRef] = &m_Cast_FunctionRef;
-	m_CastOperatorTable [EType_PropertyPtr] = &m_Cast_PropertyPtr;
-	m_CastOperatorTable [EType_PropertyRef] = &m_Cast_PropertyRef;
+	m_castOperatorTable [TypeKind_Float]       = &m_cast_Fp;
+	m_castOperatorTable [TypeKind_Double]      = &m_cast_Fp;
+	m_castOperatorTable [TypeKind_Array]       = &m_cast_Array;
+	m_castOperatorTable [TypeKind_Enum]        = &m_cast_Enum;
+	m_castOperatorTable [TypeKind_Struct]      = &m_cast_Struct;
+	m_castOperatorTable [TypeKind_DataPtr]     = &m_cast_DataPtr;
+	m_castOperatorTable [TypeKind_DataRef]     = &m_cast_DataRef;
+	m_castOperatorTable [TypeKind_ClassPtr]    = &m_cast_ClassPtr;
+	m_castOperatorTable [TypeKind_FunctionPtr] = &m_cast_FunctionPtr;
+	m_castOperatorTable [TypeKind_FunctionRef] = &m_cast_FunctionRef;
+	m_castOperatorTable [TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
+	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
 }
 
-CType*
-COperatorMgr::GetUnaryOperatorResultType (
-	EUnOp OpKind,
-	const CValue& RawOpValue
+Type*
+OperatorMgr::getUnaryOperatorResultType (
+	UnOpKind opKind,
+	const Value& rawOpValue
 	)
 {
-	ASSERT ((size_t) OpKind < EUnOp__Count);
+	ASSERT ((size_t) opKind < UnOpKind__Count);
 
-	CValue OpValue;
+	Value opValue;
 
-	PrepareOperandType (RawOpValue, &OpValue);
-	if (OpValue.GetType ()->GetTypeKind () == EType_ClassPtr)
+	prepareOperandType (rawOpValue, &opValue);
+	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CClassType* pClassType = ((CClassPtrType*) OpValue.GetType ())->GetTargetType ();
-		CFunction* pFunction = pClassType->GetUnaryOperator (OpKind);
-		if (pFunction)
+		ClassType* classType = ((ClassPtrType*) opValue.getType ())->getTargetType ();
+		Function* function = classType->getUnaryOperator (opKind);
+		if (function)
 		{
-			rtl::CBoxListT <CValue> ArgList;
-			ArgList.InsertTail (RawOpValue);
-			return GetCallOperatorResultType (pFunction->GetTypeOverload (), &ArgList);
+			rtl::BoxList <Value> argList;
+			argList.insertTail (rawOpValue);
+			return getCallOperatorResultType (function->getTypeOverload (), &argList);
 		}
 	}
 
-	CUnaryOperator* pOperator = m_UnaryOperatorTable [OpKind];
-	ASSERT (pOperator);
+	UnaryOperator* op = m_unaryOperatorTable [opKind];
+	ASSERT (op);
 
-	PrepareOperandType (RawOpValue, &OpValue, pOperator->GetOpFlags ());
+	prepareOperandType (rawOpValue, &opValue, op->getOpFlags ());
 
-	return pOperator->GetResultType (OpValue);
+	return op->getResultType (opValue);
 }
 
 bool
-COperatorMgr::GetUnaryOperatorResultType (
-	EUnOp OpKind,
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::getUnaryOperatorResultType (
+	UnOpKind opKind,
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetUnaryOperatorResultType (OpKind, RawOpValue);
-	if (!pResultType)
+	Type* resultType = getUnaryOperatorResultType (opKind, rawOpValue);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::UnaryOperator (
-	EUnOp OpKind,
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::unaryOperator (
+	UnOpKind opKind,
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	ASSERT ((size_t) OpKind < EUnOp__Count);
+	ASSERT ((size_t) opKind < UnOpKind__Count);
 
-	CValue OpValue;
-	CValue UnusedResultValue;
+	Value opValue;
+	Value unusedResultValue;
 
-	if (!pResultValue)
-		pResultValue = &UnusedResultValue;
+	if (!resultValue)
+		resultValue = &unusedResultValue;
 
-	PrepareOperandType (RawOpValue, &OpValue);
-	if (OpValue.GetType ()->GetTypeKind () == EType_ClassPtr)
+	prepareOperandType (rawOpValue, &opValue);
+	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CClassType* pClassType = ((CClassPtrType*) OpValue.GetType ())->GetTargetType ();
-		CFunction* pFunction = pClassType->GetUnaryOperator (OpKind);
-		if (pFunction)
+		ClassType* classType = ((ClassPtrType*) opValue.getType ())->getTargetType ();
+		Function* function = classType->getUnaryOperator (opKind);
+		if (function)
 		{
-			rtl::CBoxListT <CValue> ArgList;
-			ArgList.InsertTail (RawOpValue);
-			return CallOperator (pFunction, &ArgList, pResultValue);
+			rtl::BoxList <Value> argList;
+			argList.insertTail (rawOpValue);
+			return callOperator (function, &argList, resultValue);
 		}
 	}
 
-	CUnaryOperator* pOperator = m_UnaryOperatorTable [OpKind];
-	ASSERT (pOperator);
+	UnaryOperator* op = m_unaryOperatorTable [opKind];
+	ASSERT (op);
 
 	return
-		PrepareOperand (RawOpValue, &OpValue, pOperator->GetOpFlags ()) &&
-		pOperator->Operator (OpValue, pResultValue);
+		prepareOperand (rawOpValue, &opValue, op->getOpFlags ()) &&
+		op->op (opValue, resultValue);
 }
 
-CType*
-COperatorMgr::GetBinaryOperatorResultType (
-	EBinOp OpKind,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2
+Type*
+OperatorMgr::getBinaryOperatorResultType (
+	BinOpKind opKind,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2
 	)
 {
-	ASSERT ((size_t) OpKind < EBinOp__Count);
+	ASSERT ((size_t) opKind < BinOpKind__Count);
 
-	CValue OpValue1;
-	CValue OpValue2;
+	Value opValue1;
+	Value opValue2;
 
-	PrepareOperandType (RawOpValue1, &OpValue1);
-	if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr)
+	prepareOperandType (rawOpValue1, &opValue1);
+	if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CClassType* pClassType = ((CClassPtrType*) OpValue1.GetType ())->GetTargetType ();
-		CFunction* pFunction = pClassType->GetBinaryOperator (OpKind);
+		ClassType* classType = ((ClassPtrType*) opValue1.getType ())->getTargetType ();
+		Function* function = classType->getBinaryOperator (opKind);
 
-		if (pFunction)
+		if (function)
 		{
-			rtl::CBoxListT <CValue> ArgList;
-			ArgList.InsertTail (RawOpValue1);
-			ArgList.InsertTail (RawOpValue2);
-			return GetCallOperatorResultType (pFunction->GetTypeOverload (), &ArgList);
+			rtl::BoxList <Value> argList;
+			argList.insertTail (rawOpValue1);
+			argList.insertTail (rawOpValue2);
+			return getCallOperatorResultType (function->getTypeOverload (), &argList);
 		}
 	}
 
-	CBinaryOperator* pOperator = m_BinaryOperatorTable [OpKind];
-	ASSERT (pOperator);
+	BinaryOperator* op = m_binaryOperatorTable [opKind];
+	ASSERT (op);
 
-	PrepareOperandType (RawOpValue1, &OpValue1, pOperator->GetOpFlags1 ());
-	PrepareOperandType (RawOpValue2, &OpValue2, pOperator->GetOpFlags2 ());
-	return pOperator->GetResultType (OpValue1, OpValue2);
+	prepareOperandType (rawOpValue1, &opValue1, op->getOpFlags1 ());
+	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
+	return op->getResultType (opValue1, opValue2);
 }
 
 bool
-COperatorMgr::GetBinaryOperatorResultType (
-	EBinOp OpKind,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+OperatorMgr::getBinaryOperatorResultType (
+	BinOpKind opKind,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetBinaryOperatorResultType (OpKind, RawOpValue1, RawOpValue2);
-	if (!pResultType)
+	Type* resultType = getBinaryOperatorResultType (opKind, rawOpValue1, rawOpValue2);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
-CFunction*
-COperatorMgr::GetOverloadedBinaryOperator (
-	EBinOp OpKind,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2
+Function*
+OperatorMgr::getOverloadedBinaryOperator (
+	BinOpKind opKind,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2
 	)
 {
-	CValue OpValue1;
-	PrepareOperandType (RawOpValue1, &OpValue1);
+	Value opValue1;
+	prepareOperandType (rawOpValue1, &opValue1);
 
-	if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr)
+	if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CClassPtrType* pPtrType = (CClassPtrType*) OpValue1.GetType ();
-		return pPtrType->GetTargetType ()->GetBinaryOperator (OpKind);
+		ClassPtrType* ptrType = (ClassPtrType*) opValue1.getType ();
+		return ptrType->getTargetType ()->getBinaryOperator (opKind);
 	}
 
 	return NULL;
 }
 
 bool
-COperatorMgr::OverloadedBinaryOperator (
-	CFunction* pFunction,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+OperatorMgr::overloadedBinaryOperator (
+	Function* function,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	if (pFunction->GetFlags () & EMulticastMethodFlag_InaccessibleViaEventPtr)
+	if (function->getFlags () & MulticastMethodFlagKind_InaccessibleViaEventPtr)
 	{
-		CValue OpValue1;
-		PrepareOperandType (RawOpValue1, &OpValue1);
+		Value opValue1;
+		prepareOperandType (rawOpValue1, &opValue1);
 
-		if (OpValue1.GetType ()->GetTypeKind () == EType_ClassPtr &&
-			((CClassPtrType*) OpValue1.GetType ())->IsEventPtrType ())
+		if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr &&
+			((ClassPtrType*) opValue1.getType ())->isEventPtrType ())
 		{
-			err::SetFormatStringError ("'%s' is inaccessible via 'event' pointer", GetBinOpKindString (pFunction->GetBinOpKind ()));
+			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", getBinOpKindString (function->getBinOpKind ()));
 			return false;
 		}
 	}
 
-	rtl::CBoxListT <CValue> ArgList;
-	ArgList.InsertTail (RawOpValue1);
-	ArgList.InsertTail (RawOpValue2);
-	return CallOperator (pFunction, &ArgList, pResultValue);
+	rtl::BoxList <Value> argList;
+	argList.insertTail (rawOpValue1);
+	argList.insertTail (rawOpValue2);
+	return callOperator (function, &argList, resultValue);
 }
 
 bool
-COperatorMgr::BinaryOperator (
-	EBinOp OpKind,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+OperatorMgr::binaryOperator (
+	BinOpKind opKind,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	ASSERT ((size_t) OpKind < EBinOp__Count);
+	ASSERT ((size_t) opKind < BinOpKind__Count);
 
-	CFunction* pFunction = GetOverloadedBinaryOperator (OpKind, RawOpValue1, RawOpValue2);
-	if (pFunction)
-		return OverloadedBinaryOperator (pFunction, RawOpValue1, RawOpValue2, pResultValue);
+	Function* function = getOverloadedBinaryOperator (opKind, rawOpValue1, rawOpValue2);
+	if (function)
+		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
 
-	CValue OpValue1;
-	CValue OpValue2;
-	CValue UnusedResultValue;
+	Value opValue1;
+	Value opValue2;
+	Value unusedResultValue;
 
-	if (!pResultValue)
-		pResultValue = &UnusedResultValue;
+	if (!resultValue)
+		resultValue = &unusedResultValue;
 
-	CBinaryOperator* pOperator = m_BinaryOperatorTable [OpKind];
-	ASSERT (pOperator);
+	BinaryOperator* op = m_binaryOperatorTable [opKind];
+	ASSERT (op);
 
 	return
-		PrepareOperand (RawOpValue1, &OpValue1, pOperator->GetOpFlags1 ()) &&
-		PrepareOperand (RawOpValue2, &OpValue2, pOperator->GetOpFlags2 ()) &&
-		pOperator->Operator (OpValue1, OpValue2, pResultValue);
+		prepareOperand (rawOpValue1, &opValue1, op->getOpFlags1 ()) &&
+		prepareOperand (rawOpValue2, &opValue2, op->getOpFlags2 ()) &&
+		op->op (opValue1, opValue2, resultValue);
 }
 
-CType*
-COperatorMgr::GetConditionalOperatorResultType (
-	const CValue& TrueValue,
-	const CValue& FalseValue
+Type*
+OperatorMgr::getConditionalOperatorResultType (
+	const Value& trueValue,
+	const Value& falseValue
 	)
 {
-	CType* pResultType;
+	Type* resultType;
 
-	CType* pTrueType = TrueValue.GetType ();
-	CType* pFalseType = FalseValue.GetType ();
+	Type* trueType = trueValue.getType ();
+	Type* falseType = falseValue.getType ();
 
-	if (pTrueType->GetTypeKind () == EType_Array)
-		pTrueType = ((CArrayType*) pTrueType)->GetElementType ()->GetDataPtrType ();
+	if (trueType->getTypeKind () == TypeKind_Array)
+		trueType = ((ArrayType*) trueType)->getElementType ()->getDataPtrType ();
 
-	if (pFalseType->GetTypeKind () == EType_Array)
-		pFalseType = ((CArrayType*) pFalseType)->GetElementType ()->GetDataPtrType ();
+	if (falseType->getTypeKind () == TypeKind_Array)
+		falseType = ((ArrayType*) falseType)->getElementType ()->getDataPtrType ();
 
-	if (pTrueType->Cmp (pFalseType) == 0)
+	if (trueType->cmp (falseType) == 0)
 	{
-		pResultType = pTrueType;
+		resultType = trueType;
 	}
 	else
 	{
-		uint_t TrueFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
-		uint_t FalseFlags = EOpFlag_KeepBool | EOpFlag_KeepEnum;
+		uint_t trueFlags = OpFlagKind_KeepBool | OpFlagKind_KeepEnum;
+		uint_t falseFlags = OpFlagKind_KeepBool | OpFlagKind_KeepEnum;
 
-		if (IsArrayRefType (pTrueType))
-			TrueFlags |= EOpFlag_ArrayRefToPtr;
+		if (isArrayRefType (trueType))
+			trueFlags |= OpFlagKind_ArrayRefToPtr;
 
-		if (IsArrayRefType (pFalseType))
-			FalseFlags |= EOpFlag_ArrayRefToPtr;
+		if (isArrayRefType (falseType))
+			falseFlags |= OpFlagKind_ArrayRefToPtr;
 
-		pTrueType = PrepareOperandType (pTrueType, TrueFlags);
-		pFalseType = PrepareOperandType (pFalseType, FalseFlags);
+		trueType = prepareOperandType (trueType, trueFlags);
+		falseType = prepareOperandType (falseType, falseFlags);
 
-		pResultType =
-			pTrueType->Cmp (pFalseType) == 0 ? pTrueType :
-			(pTrueType->GetTypeKindFlags () & pFalseType->GetTypeKindFlags () & ETypeKindFlag_Numeric) ?
-				GetArithmeticOperatorResultType (pTrueType, pFalseType) :
-				m_pModule->m_OperatorMgr.PrepareOperandType (pTrueType);
+		resultType =
+			trueType->cmp (falseType) == 0 ? trueType :
+			(trueType->getTypeKindFlags () & falseType->getTypeKindFlags () & TypeKindFlagKind_Numeric) ?
+				getArithmeticOperatorResultType (trueType, falseType) :
+				m_module->m_operatorMgr.prepareOperandType (trueType);
 	}
 
 	// if it's a lean data pointer, fatten it
 
-	if ((pResultType->GetTypeKindFlags () & ETypeKindFlag_DataPtr) &&
-		((CDataPtrType*) pResultType)->GetPtrTypeKind () == EDataPtrType_Lean)
+	if ((resultType->getTypeKindFlags () & TypeKindFlagKind_DataPtr) &&
+		((DataPtrType*) resultType)->getPtrTypeKind () == DataPtrTypeKind_Lean)
 	{
-		pResultType = ((CDataPtrType*) pResultType)->GetTargetType ()->GetDataPtrType (
-			pResultType->GetTypeKind (),
-			EDataPtrType_Normal,
-			pResultType->GetFlags ()
+		resultType = ((DataPtrType*) resultType)->getTargetType ()->getDataPtrType (
+			resultType->getTypeKind (),
+			DataPtrTypeKind_Normal,
+			resultType->getFlags ()
 			);
 	}
 
-	bool Result =
-		CheckCastKind (TrueValue, pResultType) &&
-		CheckCastKind (FalseValue, pResultType);
+	bool result =
+		checkCastKind (trueValue, resultType) &&
+		checkCastKind (falseValue, resultType);
 
-	return Result ? pResultType : NULL;
+	return result ? resultType : NULL;
 }
 
 bool
-COperatorMgr::GetConditionalOperatorResultType (
-	const CValue& TrueValue,
-	const CValue& FalseValue,
-	CValue* pResultValue
+OperatorMgr::getConditionalOperatorResultType (
+	const Value& trueValue,
+	const Value& falseValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetConditionalOperatorResultType (TrueValue, FalseValue);
-	if (!pResultType)
+	Type* resultType = getConditionalOperatorResultType (trueValue, falseValue);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::ConditionalOperator (
-	const CValue& RawTrueValue,
-	const CValue& RawFalseValue,
-	CBasicBlock* pThenBlock,
-	CBasicBlock* pPhiBlock,
-	CValue* pResultValue
+OperatorMgr::conditionalOperator (
+	const Value& rawTrueValue,
+	const Value& rawFalseValue,
+	BasicBlock* thenBlock,
+	BasicBlock* phiBlock,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue TrueValue;
-	CValue FalseValue;
+	Value trueValue;
+	Value falseValue;
 
-	CType* pResultType = GetConditionalOperatorResultType (RawTrueValue, RawFalseValue);
-	if (!pResultType)
+	Type* resultType = getConditionalOperatorResultType (rawTrueValue, rawFalseValue);
+	if (!resultType)
 		return false;
 
-	Result = CastOperator (RawFalseValue, pResultType, &FalseValue);
-	if (!Result)
+	result = castOperator (rawFalseValue, resultType, &falseValue);
+	if (!result)
 		return false;
 
-	CBasicBlock* pElseBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock (); // might have changed
+	BasicBlock* elseBlock = m_module->m_controlFlowMgr.getCurrentBlock (); // might have changed
 
-	m_pModule->m_ControlFlowMgr.Jump (pPhiBlock, pThenBlock);
+	m_module->m_controlFlowMgr.jump (phiBlock, thenBlock);
 
-	Result = CastOperator (RawTrueValue, pResultType, &TrueValue);
-	if (!Result)
+	result = castOperator (rawTrueValue, resultType, &trueValue);
+	if (!result)
 		return false;
 
-	pThenBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock (); // might have changed
+	thenBlock = m_module->m_controlFlowMgr.getCurrentBlock (); // might have changed
 
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
-	m_pModule->m_LlvmIrBuilder.CreatePhi (TrueValue, pThenBlock, FalseValue, pElseBlock, pResultValue);
+	m_module->m_controlFlowMgr.follow (phiBlock);
+	m_module->m_llvmIrBuilder.createPhi (trueValue, thenBlock, falseValue, elseBlock, resultValue);
 	return true;
 }
 
 void
-COperatorMgr::ForceCast (
-	const CValue& Value,
-	CType* pDstType,
-	CValue* pResultValue
+OperatorMgr::forceCast (
+	const Value& value,
+	Type* dstType,
+	Value* resultValue
 	)
 {
-	CType* pSrcType = Value.GetType ();
+	Type* srcType = value.getType ();
 
-	if (pSrcType->GetSize () >= pDstType->GetSize ())
+	if (srcType->getSize () >= dstType->getSize ())
 	{
-		CValue TmpValue;
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (pSrcType, "tmp", NULL, &TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pDstType->GetDataPtrType_c (), &TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, pDstType, pResultValue);
+		Value tmpValue;
+		m_module->m_llvmIrBuilder.createAlloca (srcType, "tmp", NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createStore (value, tmpValue);
+		m_module->m_llvmIrBuilder.createBitCast (tmpValue, dstType->getDataPtrType_c (), &tmpValue);
+		m_module->m_llvmIrBuilder.createLoad (tmpValue, dstType, resultValue);
 	}
 	else
 	{
-		CValue TmpValue, TmpValue2;
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (pDstType, "tmp", NULL, &TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pSrcType->GetDataPtrType_c (), &TmpValue2);
-		m_pModule->m_LlvmIrBuilder.CreateStore (Value, TmpValue2);
-		m_pModule->m_LlvmIrBuilder.CreateLoad (TmpValue, pDstType, pResultValue);
+		Value tmpValue, tmpValue2;
+		m_module->m_llvmIrBuilder.createAlloca (dstType, "tmp", NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createBitCast (tmpValue, srcType->getDataPtrType_c (), &tmpValue2);
+		m_module->m_llvmIrBuilder.createStore (value, tmpValue2);
+		m_module->m_llvmIrBuilder.createLoad (tmpValue, dstType, resultValue);
 	}
 }
 
 bool
-COperatorMgr::CastOperator (
-	EStorage StorageKind,
-	const CValue& RawOpValue,
-	CType* pType,
-	CValue* pResultValue
+OperatorMgr::castOperator (
+	StorageKind storageKind,
+	const Value& rawOpValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	if (RawOpValue.GetValueKind () == EValue_Null)
+	if (rawOpValue.getValueKind () == ValueKind_Null)
 	{
-		if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && (pType->GetFlags () & EPtrTypeFlag_Safe))
+		if ((type->getTypeKindFlags () & TypeKindFlagKind_Ptr) && (type->getFlags () & PtrTypeFlagKind_Safe))
 		{
-			SetCastError (RawOpValue, pType);
+			setCastError (rawOpValue, type);
 			return false;
 		}
 
-		if (pType->GetTypeKind () == EType_Void)
-			pResultValue->SetNull ();
+		if (type->getTypeKind () == TypeKind_Void)
+			resultValue->setNull ();
 		else
-			*pResultValue = pType->GetZeroValue ();
+			*resultValue = type->getZeroValue ();
 		return true;
 	}
 
-	EType TypeKind = pType->GetTypeKind ();
-	ASSERT ((size_t) TypeKind < EType__Count);
+	TypeKind typeKind = type->getTypeKind ();
+	ASSERT ((size_t) typeKind < TypeKind__Count);
 
-	CCastOperator* pOperator = m_CastOperatorTable [TypeKind];
-	ASSERT (pOperator); // there is always a default
+	CastOperator* op = m_castOperatorTable [typeKind];
+	ASSERT (op); // there is always a default
 
-	CValue OpValue;
-	CValue UnusedResultValue;
+	Value opValue;
+	Value unusedResultValue;
 
-	if (!pResultValue)
-		pResultValue = &UnusedResultValue;
+	if (!resultValue)
+		resultValue = &unusedResultValue;
 
-	Result = PrepareOperand (RawOpValue, &OpValue, pOperator->GetOpFlags ());
-	if (!Result)
+	result = prepareOperand (rawOpValue, &opValue, op->getOpFlags ());
+	if (!result)
 		return false;
 
-	if (OpValue.GetType ()->Cmp (pType) == 0) // identity, try to shortcut
+	if (opValue.getType ()->cmp (type) == 0) // identity, try to shortcut
 	{
-		if (OpValue.HasLlvmValue ())
+		if (opValue.hasLlvmValue ())
 		{
-			*pResultValue = OpValue;
+			*resultValue = opValue;
 			return true;
 		}
 
-		if (OpValue.GetValueKind () == EValue_Property)
+		if (opValue.getValueKind () == ValueKind_Property)
 		{
-			ASSERT (pType->GetTypeKind () == EType_PropertyPtr);
-			return GetPropertyThinPtr (OpValue.GetProperty (), OpValue.GetClosure (), (CPropertyPtrType*) pType, pResultValue);
+			ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);
+			return getPropertyThinPtr (opValue.getProperty (), opValue.getClosure (), (PropertyPtrType*) type, resultValue);
 		}
 
 		// nope, need to go through full cast
 	}
 
-	return pOperator->Cast (StorageKind, OpValue, pType, pResultValue);
+	return op->cast (storageKind, opValue, type, resultValue);
 }
 
 bool
-COperatorMgr::CastOperator (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	EType TypeKind,
-	CValue* pResultValue
+OperatorMgr::castOperator (
+	StorageKind storageKind,
+	const Value& opValue,
+	TypeKind typeKind,
+	Value* resultValue
 	)
 {
-	CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (TypeKind);
-	return CastOperator (StorageKind, OpValue, pType, pResultValue);
+	Type* type = m_module->m_typeMgr.getPrimitiveType (typeKind);
+	return castOperator (storageKind, opValue, type, resultValue);
 }
 
-ECast
-COperatorMgr::GetCastKind (
-	const CValue& RawOpValue,
-	CType* pType
+CastKind
+OperatorMgr::getCastKind (
+	const Value& rawOpValue,
+	Type* type
 	)
 {
-	if (RawOpValue.GetValueKind () == EValue_Null)
+	if (rawOpValue.getValueKind () == ValueKind_Null)
 		return
-			(pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) ? ECast_Implicit :
-			(pType->GetTypeKindFlags () & ETypeKindFlag_Integer) ? ECast_Explicit : ECast_None;
+			(type->getTypeKindFlags () & TypeKindFlagKind_Ptr) ? CastKind_Implicit :
+			(type->getTypeKindFlags () & TypeKindFlagKind_Integer) ? CastKind_Explicit : CastKind_None;
 
-	EType TypeKind = pType->GetTypeKind ();
-	ASSERT ((size_t) TypeKind < EType__Count);
+	TypeKind typeKind = type->getTypeKind ();
+	ASSERT ((size_t) typeKind < TypeKind__Count);
 
-	CCastOperator* pOperator = m_CastOperatorTable [TypeKind];
-	ASSERT (pOperator); // there is always a default
+	CastOperator* op = m_castOperatorTable [typeKind];
+	ASSERT (op); // there is always a default
 
-	CValue OpValue;
-	PrepareOperandType (
-		RawOpValue,
-		&OpValue,
-		pOperator->GetOpFlags ()
+	Value opValue;
+	prepareOperandType (
+		rawOpValue,
+		&opValue,
+		op->getOpFlags ()
 		);
 
-	if (OpValue.GetType ()->Cmp (pType) == 0) // identity!
-		return ECast_Identitiy;
+	if (opValue.getType ()->cmp (type) == 0) // identity!
+		return CastKind_Identitiy;
 
-	return pOperator->GetCastKind (OpValue, pType);
+	return op->getCastKind (opValue, type);
 }
 
-ECast
-COperatorMgr::GetArgCastKind (
-	CFunctionType* pFunctionType,
-	CFunctionArg* const* pActualArgArray,
-	size_t ActualArgCount
+CastKind
+OperatorMgr::getArgCastKind (
+	FunctionType* functionType,
+	FunctionArg* const* actualArgArray,
+	size_t actualArgCount
 	)
 {
-	rtl::CArrayT <CFunctionArg*> FormalArgArray = pFunctionType->GetArgArray ();
-	size_t FormalArgCount = FormalArgArray.GetCount ();
+	rtl::Array <FunctionArg*> formalArgArray = functionType->getArgArray ();
+	size_t formalArgCount = formalArgArray.getCount ();
 
-	if (ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
-		return ECast_None;
+	if (actualArgCount > formalArgCount && !(functionType->getFlags () & FunctionTypeFlagKind_VarArg))
+		return CastKind_None;
 
-	size_t ArgCount = FormalArgCount;
-	while (ActualArgCount < ArgCount)
+	size_t argCount = formalArgCount;
+	while (actualArgCount < argCount)
 	{
-		if (FormalArgArray [ArgCount - 1]->GetInitializer ().IsEmpty ())
-			return ECast_None;
+		if (formalArgArray [argCount - 1]->getInitializer ().isEmpty ())
+			return CastKind_None;
 
-		ArgCount--;
+		argCount--;
 	}
 
-	ECast WorstCastKind = ECast_Identitiy;
+	CastKind worstCastKind = CastKind_Identitiy;
 
-	for (size_t i = 0; i < ArgCount; i++)
+	for (size_t i = 0; i < argCount; i++)
 	{
-		CType* pFormalArgType = FormalArgArray [i]->GetType ();
-		CType* pActualArgType = pActualArgArray [i]->GetType ();
+		Type* formalArgType = formalArgArray [i]->getType ();
+		Type* actualArgType = actualArgArray [i]->getType ();
 
-		ECast CastKind = GetCastKind (pActualArgType, pFormalArgType);
-		if (!CastKind)
-			return ECast_None;
+		CastKind castKind = getCastKind (actualArgType, formalArgType);
+		if (!castKind)
+			return CastKind_None;
 
-		if (CastKind < WorstCastKind)
-			WorstCastKind = CastKind;
+		if (castKind < worstCastKind)
+			worstCastKind = castKind;
 	}
 
-	return WorstCastKind;
+	return worstCastKind;
 }
 
-ECast
-COperatorMgr::GetArgCastKind (
-	CFunctionType* pFunctionType,
-	const rtl::CConstBoxListT <CValue>& ArgList
+CastKind
+OperatorMgr::getArgCastKind (
+	FunctionType* functionType,
+	const rtl::ConstBoxList <Value>& argList
 	)
 {
-	size_t ActualArgCount = ArgList.GetCount ();
+	size_t actualArgCount = argList.getCount ();
 
-	rtl::CArrayT <CFunctionArg*> FormalArgArray = pFunctionType->GetArgArray ();
-	size_t FormalArgCount = FormalArgArray.GetCount ();
+	rtl::Array <FunctionArg*> formalArgArray = functionType->getArgArray ();
+	size_t formalArgCount = formalArgArray.getCount ();
 
-	if (ActualArgCount > FormalArgCount && !(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg))
-		return ECast_None;
+	if (actualArgCount > formalArgCount && !(functionType->getFlags () & FunctionTypeFlagKind_VarArg))
+		return CastKind_None;
 
-	size_t ArgCount = FormalArgCount;
-	while (ActualArgCount < ArgCount)
+	size_t argCount = formalArgCount;
+	while (actualArgCount < argCount)
 	{
-		if (FormalArgArray [ArgCount - 1]->GetInitializer ().IsEmpty ())
-			return ECast_None;
+		if (formalArgArray [argCount - 1]->getInitializer ().isEmpty ())
+			return CastKind_None;
 
-		ArgCount--;
+		argCount--;
 	}
 
-	ECast WorstCastKind = ECast_Identitiy;
+	CastKind worstCastKind = CastKind_Identitiy;
 
-	rtl::CBoxIteratorT <CValue> Arg = ArgList.GetHead ();
-	for (size_t i = 0; i < ArgCount; i++, Arg++)
+	rtl::BoxIterator <Value> arg = argList.getHead ();
+	for (size_t i = 0; i < argCount; i++, arg++)
 	{
-		CType* pFormalArgType = FormalArgArray [i]->GetType ();
+		Type* formalArgType = formalArgArray [i]->getType ();
 
-		ECast CastKind = GetCastKind (*Arg, pFormalArgType);
-		if (!CastKind)
-			return ECast_None;
+		CastKind castKind = getCastKind (*arg, formalArgType);
+		if (!castKind)
+			return CastKind_None;
 
-		if (CastKind < WorstCastKind)
-			WorstCastKind = CastKind;
+		if (castKind < worstCastKind)
+			worstCastKind = castKind;
 	}
 
-	return WorstCastKind;
+	return worstCastKind;
 }
 
-ECast
-COperatorMgr::GetFunctionCastKind (
-	CFunctionType* pSrcType,
-	CFunctionType* pDstType
+CastKind
+OperatorMgr::getFunctionCastKind (
+	FunctionType* srcType,
+	FunctionType* dstType
 	)
 {
-	ECast ArgCastKind = GetArgCastKind (pSrcType, pDstType->GetArgArray ());
-	if (!ArgCastKind)
-		return ECast_None;
+	CastKind argCastKind = getArgCastKind (srcType, dstType->getArgArray ());
+	if (!argCastKind)
+		return CastKind_None;
 
-	CType* pSrcReturnType = pSrcType->GetReturnType ();
-	CType* pDstReturnType = pDstType->GetReturnType ();
+	Type* srcReturnType = srcType->getReturnType ();
+	Type* dstReturnType = dstType->getReturnType ();
 
-	if (pDstReturnType->GetTypeKind () == EType_Void)
-		return ArgCastKind;
+	if (dstReturnType->getTypeKind () == TypeKind_Void)
+		return argCastKind;
 
-	ECast ReturnCastKind = GetCastKind (pSrcReturnType, pDstReturnType);
-	return AXL_MIN (ArgCastKind, ReturnCastKind);
+	CastKind returnCastKind = getCastKind (srcReturnType, dstReturnType);
+	return AXL_MIN (argCastKind, returnCastKind);
 }
 
-ECast
-COperatorMgr::GetPropertyCastKind (
-	CPropertyType* pSrcType,
-	CPropertyType* pDstType
+CastKind
+OperatorMgr::getPropertyCastKind (
+	PropertyType* srcType,
+	PropertyType* dstType
 	)
 {
-	ECast CastKind = GetFunctionCastKind (pSrcType->GetGetterType (), pDstType->GetGetterType ());
-	if (!CastKind)
-		return ECast_None;
+	CastKind castKind = getFunctionCastKind (srcType->getGetterType (), dstType->getGetterType ());
+	if (!castKind)
+		return CastKind_None;
 
-	CFunctionTypeOverload* pSrcSetterType = pSrcType->GetSetterType ();
-	CFunctionTypeOverload* pDstSetterType = pDstType->GetSetterType ();
+	FunctionTypeOverload* srcSetterType = srcType->getSetterType ();
+	FunctionTypeOverload* dstSetterType = dstType->getSetterType ();
 
-	ECast WorstCastKind = CastKind;
+	CastKind worstCastKind = castKind;
 
-	size_t Count = pDstSetterType->GetOverloadCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = dstSetterType->getOverloadCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pDstOverload = pDstSetterType->GetOverload (i);
+		FunctionType* dstOverload = dstSetterType->getOverload (i);
 
-		size_t j = pSrcSetterType->ChooseOverload (pDstOverload->GetArgArray (), &CastKind);
+		size_t j = srcSetterType->chooseOverload (dstOverload->getArgArray (), &castKind);
 		if (j == -1)
-			return ECast_None;
+			return CastKind_None;
 
-		if (CastKind < WorstCastKind)
-			WorstCastKind = CastKind;
+		if (castKind < worstCastKind)
+			worstCastKind = castKind;
 	}
 
-	return WorstCastKind;
+	return worstCastKind;
 }
 
 bool
-COperatorMgr::CheckCastKind (
-	const CValue& OpValue,
-	CType* pType
+OperatorMgr::checkCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ECast CastKind = GetCastKind (OpValue, pType);
-	switch (CastKind)
+	CastKind castKind = getCastKind (opValue, type);
+	switch (castKind)
 	{
-	case ECast_Explicit:
-		err::SetFormatStringError (
+	case CastKind_Explicit:
+		err::setFormatStringError (
 			"conversion from '%s' to '%s' requires explicit cast",
-			OpValue.GetType ()->GetTypeString ().cc (), // thanks a lot gcc
-			pType->GetTypeString ().cc ()
+			opValue.getType ()->getTypeString ().cc (), // thanks a lot gcc
+			type->getTypeString ().cc ()
 			);
 		return false;
 
-	case ECast_None:
-		SetCastError (OpValue, pType);
+	case CastKind_None:
+		setCastError (opValue, type);
 		return false;
 	}
 
@@ -745,260 +745,260 @@ COperatorMgr::CheckCastKind (
 }
 
 void
-COperatorMgr::PrepareOperandType (
-	const CValue& OpValue,
-	CValue* pOpValue,
-	uint_t OpFlags
+OperatorMgr::prepareOperandType (
+	const Value& opValue,
+	Value* resultValue,
+	uint_t opFlags
 	)
 {
-	if (OpValue.IsEmpty ())
+	if (opValue.isEmpty ())
 	{
-		*pOpValue = OpValue;
+		*resultValue = opValue;
 		return;
 	}
 
-	CValue Value = OpValue;
+	Value value = opValue;
 
 	for (;;)
 	{
-		CType* pType = Value.GetType ();
-		CType* pPrevType = pType;
+		Type* type = value.getType ();
+		Type* prevType = type;
 
-		EType TypeKind = pType->GetTypeKind ();
-		switch (TypeKind)
+		TypeKind typeKind = type->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_DataRef:
-			if (!(OpFlags & EOpFlag_KeepDataRef))
+		case TypeKind_DataRef:
+			if (!(opFlags & OpFlagKind_KeepDataRef))
 			{
-				CDataPtrType* pPtrType = (CDataPtrType*) pType;
-				CType* pTargetType = pPtrType->GetTargetType ();
-				EType TargetTypeKind = pTargetType->GetTypeKind ();
+				DataPtrType* ptrType = (DataPtrType*) type;
+				Type* targetType = ptrType->getTargetType ();
+				TypeKind targetTypeKind = targetType->getTypeKind ();
 
-				if (TargetTypeKind == EType_BitField)
+				if (targetTypeKind == TypeKind_BitField)
 				{
-					CBitFieldType* pBitFieldType = (CBitFieldType*) pTargetType;
-					Value = pBitFieldType->GetBaseType ();
+					BitFieldType* bitFieldType = (BitFieldType*) targetType;
+					value = bitFieldType->getBaseType ();
 				}
-				else if (TargetTypeKind != EType_Array)
+				else if (targetTypeKind != TypeKind_Array)
 				{
-					Value = ((CDataPtrType*) pType)->GetTargetType ();
+					value = ((DataPtrType*) type)->getTargetType ();
 				}
-				else if (OpFlags & EOpFlag_ArrayRefToPtr)
+				else if (opFlags & OpFlagKind_ArrayRefToPtr)
 				{
-					EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
+					DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-					CArrayType* pArrayType = (CArrayType*) pTargetType;
-					Value = pArrayType->GetElementType ()->GetDataPtrType (
-						pPtrType->GetAnchorNamespace (),
-						EType_DataPtr,
-						PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-						pPtrType->GetFlags ()
+					ArrayType* arrayType = (ArrayType*) targetType;
+					value = arrayType->getElementType ()->getDataPtrType (
+						ptrType->getAnchorNamespace (),
+						TypeKind_DataPtr,
+						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+						ptrType->getFlags ()
 						);
 				}
 			}
 
 			break;
 
-		case EType_ClassRef:
-			if (!(OpFlags & EOpFlag_KeepClassRef))
+		case TypeKind_ClassRef:
+			if (!(opFlags & OpFlagKind_KeepClassRef))
 			{
-				CClassPtrType* pPtrType = (CClassPtrType*) pType;
-				CClassType* pTargetType = pPtrType->GetTargetType ();
-				Value = pTargetType->GetClassPtrType (
-					pPtrType->GetAnchorNamespace (),
-					EType_ClassPtr,
-					pPtrType->GetPtrTypeKind (),
-					pPtrType->GetFlags ()
+				ClassPtrType* ptrType = (ClassPtrType*) type;
+				ClassType* targetType = ptrType->getTargetType ();
+				value = targetType->getClassPtrType (
+					ptrType->getAnchorNamespace (),
+					TypeKind_ClassPtr,
+					ptrType->getPtrTypeKind (),
+					ptrType->getFlags ()
 					);
 			}
 
 			break;
 
-		case EType_FunctionRef:
-			if (!(OpFlags & EOpFlag_KeepFunctionRef))
+		case TypeKind_FunctionRef:
+			if (!(opFlags & OpFlagKind_KeepFunctionRef))
 			{
-				CFunctionPtrType* pPtrType = (CFunctionPtrType*) Value.GetClosureAwareType (); // important: take closure into account!
-				if (!pPtrType)
+				FunctionPtrType* ptrType = (FunctionPtrType*) value.getClosureAwareType (); // important: take closure into account!
+				if (!ptrType)
 					break;
 
-				CFunctionType* pTargetType = pPtrType->GetTargetType ();
-				Value = pTargetType->GetFunctionPtrType (pPtrType->GetPtrTypeKind (), pPtrType->GetFlags ());
+				FunctionType* targetType = ptrType->getTargetType ();
+				value = targetType->getFunctionPtrType (ptrType->getPtrTypeKind (), ptrType->getFlags ());
 			}
 
 			break;
 
-		case EType_PropertyRef:
-			if (!(OpFlags & EOpFlag_KeepPropertyRef))
+		case TypeKind_PropertyRef:
+			if (!(opFlags & OpFlagKind_KeepPropertyRef))
 			{
-				CPropertyPtrType* pPtrType = (CPropertyPtrType*) Value.GetClosureAwareType ();
-				if (!pPtrType)
+				PropertyPtrType* ptrType = (PropertyPtrType*) value.getClosureAwareType ();
+				if (!ptrType)
 					break;
 
-				CPropertyType* pTargetType = pPtrType->GetTargetType ();
-				if (!pTargetType->IsIndexed ())
-					Value = pTargetType->GetReturnType ();
+				PropertyType* targetType = ptrType->getTargetType ();
+				if (!targetType->isIndexed ())
+					value = targetType->getReturnType ();
 			}
 
 			break;
 
-		case EType_Bool:
-			if (!(OpFlags & EOpFlag_KeepBool))
-				Value = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int8);
+		case TypeKind_Bool:
+			if (!(opFlags & OpFlagKind_KeepBool))
+				value = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8);
 
 			break;
 
-		case EType_Enum:
-			if (!(OpFlags & EOpFlag_KeepEnum))
-				Value = ((CEnumType*) pType)->GetBaseType ();
+		case TypeKind_Enum:
+			if (!(opFlags & OpFlagKind_KeepEnum))
+				value = ((EnumType*) type)->getBaseType ();
 
 			break;
 		}
 
-		if (Value.GetType () == pType)
+		if (value.getType () == type)
 			break;
 	}
 
-	*pOpValue = Value;
+	*resultValue = value;
 }
 
-CType*
-COperatorMgr::PrepareOperandType (
-	const CValue& OpValue,
-	uint_t OpFlags
+Type*
+OperatorMgr::prepareOperandType (
+	const Value& opValue,
+	uint_t opFlags
 	)
 {
-	CValue ResultValue;
-	PrepareOperandType (OpValue, &ResultValue, OpFlags);
-	return ResultValue.GetType ();
+	Value resultValue;
+	prepareOperandType (opValue, &resultValue, opFlags);
+	return resultValue.getType ();
 }
 
 bool
-COperatorMgr::PrepareOperand (
-	const CValue& OpValue,
-	CValue* pOpValue,
-	uint_t OpFlags
+OperatorMgr::prepareOperand (
+	const Value& opValue,
+	Value* resultValue,
+	uint_t opFlags
 	)
 {
-	bool Result;
+	bool result;
 
-	if (OpValue.IsEmpty ())
+	if (opValue.isEmpty ())
 	{
-		*pOpValue = OpValue;
+		*resultValue = opValue;
 		return true;
 	}
 
-	CValue Value = OpValue;
+	Value value = opValue;
 	for (;;)
 	{
-		CType* pType = Value.GetType ();
+		Type* type = value.getType ();
 
-		EType TypeKind = pType->GetTypeKind ();
-		switch (TypeKind)
+		TypeKind typeKind = type->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_DataRef:
-			if (!(OpFlags & EOpFlag_KeepDataRef))
+		case TypeKind_DataRef:
+			if (!(opFlags & OpFlagKind_KeepDataRef))
 			{
-				CDataPtrType* pPtrType = (CDataPtrType*) pType;
-				if (pPtrType->GetTargetType ()->GetTypeKind () != EType_Array)
+				DataPtrType* ptrType = (DataPtrType*) type;
+				if (ptrType->getTargetType ()->getTypeKind () != TypeKind_Array)
 				{
-					Result = LoadDataRef (&Value);
-					if (!Result)
+					result = loadDataRef (&value);
+					if (!result)
 						return false;
 				}
-				else if (OpFlags & EOpFlag_ArrayRefToPtr)
+				else if (opFlags & OpFlagKind_ArrayRefToPtr)
 				{
-					EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
+					DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-					CArrayType* pArrayType = (CArrayType*) pPtrType->GetTargetType ();
-					pType = pArrayType->GetElementType ()->GetDataPtrType (
-						pPtrType->GetAnchorNamespace (),
-						EType_DataPtr,
-						PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-						pPtrType->GetFlags ()
+					ArrayType* arrayType = (ArrayType*) ptrType->getTargetType ();
+					type = arrayType->getElementType ()->getDataPtrType (
+						ptrType->getAnchorNamespace (),
+						TypeKind_DataPtr,
+						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+						ptrType->getFlags ()
 						);
 
-					CValue PrevValue = Value;
-					m_pModule->m_LlvmIrBuilder.CreateGep2 (Value, 0, pType, &Value);
+					Value prevValue = value;
+					m_module->m_llvmIrBuilder.createGep2 (value, 0, type, &value);
 
-					if (PtrTypeKind != EDataPtrType_Thin)
+					if (ptrTypeKind != DataPtrTypeKind_Thin)
 					{
-						if (PtrTypeKind == EDataPtrType_Normal)
-							Value.SetLeanDataPtrValidator (PrevValue);
-						else if (PrevValue.GetValueKind () == EValue_Variable) // EDataPtrType_Lean
-							Value.SetLeanDataPtrValidator (PrevValue);
+						if (ptrTypeKind == DataPtrTypeKind_Normal)
+							value.setLeanDataPtrValidator (prevValue);
+						else if (prevValue.getValueKind () == ValueKind_Variable) // EDataPtrType_Lean
+							value.setLeanDataPtrValidator (prevValue);
 						else
-							Value.SetLeanDataPtrValidator (PrevValue.GetLeanDataPtrValidator ());
+							value.setLeanDataPtrValidator (prevValue.getLeanDataPtrValidator ());
 					}
 				}
 			}
 
 			break;
 
-		case EType_ClassRef:
-			if (!(OpFlags & EOpFlag_KeepClassRef))
+		case TypeKind_ClassRef:
+			if (!(opFlags & OpFlagKind_KeepClassRef))
 			{
-				CClassPtrType* pPtrType = (CClassPtrType*) pType;
-				CClassType* pTargetType = pPtrType->GetTargetType ();
-				Value.OverrideType (pTargetType->GetClassPtrType (
-					pPtrType->GetAnchorNamespace (),
-					EType_ClassPtr,
-					pPtrType->GetPtrTypeKind (),
-					pPtrType->GetFlags ())
+				ClassPtrType* ptrType = (ClassPtrType*) type;
+				ClassType* targetType = ptrType->getTargetType ();
+				value.overrideType (targetType->getClassPtrType (
+					ptrType->getAnchorNamespace (),
+					TypeKind_ClassPtr,
+					ptrType->getPtrTypeKind (),
+					ptrType->getFlags ())
 					);
 			}
 
 			break;
 
-		case EType_FunctionRef:
-			if (!(OpFlags & EOpFlag_KeepFunctionRef))
+		case TypeKind_FunctionRef:
+			if (!(opFlags & OpFlagKind_KeepFunctionRef))
 			{
-				CFunctionPtrType* pPtrType = (CFunctionPtrType*) pType;
-				CFunctionType* pTargetType = pPtrType->GetTargetType ();
-				Value.OverrideType (pTargetType->GetFunctionPtrType (pPtrType->GetPtrTypeKind (), pPtrType->GetFlags ()));
+				FunctionPtrType* ptrType = (FunctionPtrType*) type;
+				FunctionType* targetType = ptrType->getTargetType ();
+				value.overrideType (targetType->getFunctionPtrType (ptrType->getPtrTypeKind (), ptrType->getFlags ()));
 			}
 
 			break;
 
-		case EType_PropertyRef:
-			if (!(OpFlags & EOpFlag_KeepPropertyRef))
+		case TypeKind_PropertyRef:
+			if (!(opFlags & OpFlagKind_KeepPropertyRef))
 			{
-				CPropertyPtrType* pPtrType = (CPropertyPtrType*) Value.GetClosureAwareType ();
-				if (!pPtrType)
+				PropertyPtrType* ptrType = (PropertyPtrType*) value.getClosureAwareType ();
+				if (!ptrType)
 					return false;
 
-				CPropertyType* pTargetType = pPtrType->GetTargetType ();
-				if (!pTargetType->IsIndexed ())
+				PropertyType* targetType = ptrType->getTargetType ();
+				if (!targetType->isIndexed ())
 				{
-					Result = GetProperty (Value, &Value);
-					if (!Result)
+					result = getProperty (value, &value);
+					if (!result)
 						return false;
 				}
 			}
 
 			break;
 
-		case EType_Bool:
-			if (!(OpFlags & EOpFlag_KeepBool))
+		case TypeKind_Bool:
+			if (!(opFlags & OpFlagKind_KeepBool))
 			{
-				Result = m_CastIntFromBool.Cast (EStorage_Heap, Value, m_pModule->GetSimpleType (EType_Int8), &Value);
-				if (!Result)
+				result = m_castIntFromBool.cast (StorageKind_Heap, value, m_module->getSimpleType (TypeKind_Int8), &value);
+				if (!result)
 					return false;
 			}
 
 			break;
 
-		case EType_Enum:
-			if (!(OpFlags & EOpFlag_KeepEnum))
-				Value.OverrideType (((CEnumType*) pType)->GetBaseType ());
+		case TypeKind_Enum:
+			if (!(opFlags & OpFlagKind_KeepEnum))
+				value.overrideType (((EnumType*) type)->getBaseType ());
 
 			break;
 		}
 
-		if (Value.GetType () == pType)
+		if (value.getType () == type)
 			break;
 	}
 
-	*pOpValue = Value;
+	*resultValue = value;
 	return true;
 }
 

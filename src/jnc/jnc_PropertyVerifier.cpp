@@ -6,60 +6,60 @@ namespace jnc {
 //.............................................................................
 
 bool
-CPropertyVerifier::CheckSetter (CFunctionType* pFunctionType)
+PropertyVerifier::checkSetter (FunctionType* functionType)
 {
-	if (pFunctionType->GetArgArray ().IsEmpty ())
+	if (functionType->getArgArray ().isEmpty ())
 	{
-		err::SetFormatStringError ("'set' must have at least one argument");
+		err::setFormatStringError ("'set' must have at least one argument");
 		return false;
 	}
 
-	return CheckIndexSignature (EFunction_Setter, pFunctionType);
+	return checkIndexSignature (FunctionKind_Setter, functionType);
 }
 
 bool
-CPropertyVerifier::CheckIndexSignature (
-	EFunction FunctionKind,
-	CFunctionType* pFunctionType
+PropertyVerifier::checkIndexSignature (
+	FunctionKind functionKind,
+	FunctionType* functionType
 	)
 {
-	ASSERT (FunctionKind == EFunction_Getter || FunctionKind == EFunction_Setter);
+	ASSERT (functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 	
-	rtl::CString IndexArgSignature = CreateIndexArgSignature (FunctionKind, pFunctionType);
-	if (m_IndexArgSignature.IsEmpty ())
+	rtl::String indexArgSignature = createIndexArgSignature (functionKind, functionType);
+	if (m_indexArgSignature.isEmpty ())
 	{
-		m_IndexArgSignature = IndexArgSignature;
+		m_indexArgSignature = indexArgSignature;
 	}
-	else if (m_IndexArgSignature != IndexArgSignature)
+	else if (m_indexArgSignature != indexArgSignature)
 	{
-		err::SetFormatStringError ("index arguments mismatch in property accessors");
+		err::setFormatStringError ("index arguments mismatch in property accessors");
 		return false;
 	}
 
 	return true;
 }
 
-rtl::CString
-CPropertyVerifier::CreateIndexArgSignature (
-	EFunction FunctionKind,
-	CFunctionType* pFunctionType
+rtl::String
+PropertyVerifier::createIndexArgSignature (
+	FunctionKind functionKind,
+	FunctionType* functionType
 	)
 {
-	ASSERT (FunctionKind == EFunction_Getter || FunctionKind == EFunction_Setter);
+	ASSERT (functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 
 	// refine!!!
 
-	if (pFunctionType->IsMemberMethodType ())
-		pFunctionType = pFunctionType->GetShortType ();
+	if (functionType->isMemberMethodType ())
+		functionType = functionType->getShortType ();
 
-	if (FunctionKind == EFunction_Getter)
-		return pFunctionType->CreateArgSignature ();
+	if (functionKind == FunctionKind_Getter)
+		return functionType->createArgSignature ();
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
-	ASSERT (ArgCount);
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+	size_t argCount = argArray.getCount ();
+	ASSERT (argCount);
 
-	return pFunctionType->CreateArgSignature (ArgArray, ArgCount - 1, 0);
+	return functionType->createArgSignature (argArray, argCount - 1, 0);
 }
 
 //.............................................................................

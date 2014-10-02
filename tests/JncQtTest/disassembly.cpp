@@ -10,18 +10,18 @@ Disassembly::Disassembly(QWidget *parent)
 	setLineWrapMode (QPlainTextEdit::NoWrap);
 }
 
-bool Disassembly::build(jnc::CModule *module)
+bool Disassembly::build(jnc::Module *module)
 {
 	clear();
 
-	rtl::CIteratorT <jnc::CFunction> Function = module->m_FunctionMgr.GetFunctionList ().GetHead ();
+	rtl::Iterator <jnc::Function> Function = module->m_functionMgr.getFunctionList ().getHead ();
 	for (; Function; Function++)
 	{
 		addFunction (*Function);
 		appendFormat ("\n;........................................\n\n");
 	}
 
-	Function = module->m_FunctionMgr.GetThunkFunctionList ().GetHead ();
+	Function = module->m_functionMgr.getThunkFunctionList ().getHead ();
 	if (Function)
 		appendFormat ("\n; THUNKS\n\n");
 
@@ -34,25 +34,25 @@ bool Disassembly::build(jnc::CModule *module)
 	return true;
 }
 
-void Disassembly::addFunction(jnc::CFunction* function)
+void Disassembly::addFunction(jnc::Function* function)
 {
-	jnc::CFunctionType* pFunctionType = function->GetType ();
+	jnc::FunctionType* pFunctionType = function->getType ();
 
 	appendFormat (
 		"%s %s %s %s\n",
-		pFunctionType->GetTypeModifierString ().cc (),
-		pFunctionType->GetReturnType ()->GetTypeString ().cc (),
-		function->m_Tag.cc (),
-		pFunctionType->GetArgString ().cc ()
+		pFunctionType->getTypeModifierString ().cc (),
+		pFunctionType->getReturnType ()->getTypeString ().cc (),
+		function->m_tag.cc (),
+		pFunctionType->getArgString ().cc ()
 		);
 
-	void* pf = function->GetMachineCode ();
-	size_t Size = function->GetMachineCodeSize ();
+	void* pf = function->getMachineCode ();
+	size_t Size = function->getMachineCodeSize ();
 
 	if (pf)
 	{
-		jnc::CDisassembler Dasm;
-		rtl::CString s = Dasm.Disassemble (pf, Size);
+		jnc::Disassembler Dasm;
+		rtl::String s = Dasm.disassemble (pf, Size);
 		appendFormat ("\n%s", s.cc ());
 	}
 }

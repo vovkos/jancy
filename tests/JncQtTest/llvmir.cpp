@@ -12,20 +12,20 @@ LlvmIr::LlvmIr(QWidget *parent)
 	setupHighlighter();
 }
 
-void LlvmIr::addFunction(jnc::CFunction* function)
+void LlvmIr::addFunction(jnc::Function* function)
 {
-	jnc::CFunctionType* pFunctionType = function->GetType ();
+	jnc::FunctionType* pFunctionType = function->getType ();
 
 	appendFormat ("%s%s %s %s\n",
-		pFunctionType->GetTypeModifierString ().cc (),
-		pFunctionType->GetReturnType ()->GetTypeString ().cc (),
-		function->m_Tag.cc (),
-		pFunctionType->GetArgString ().cc ()
+		pFunctionType->getTypeModifierString ().cc (),
+		pFunctionType->getReturnType ()->getTypeString ().cc (),
+		function->m_tag.cc (),
+		pFunctionType->getArgString ().cc ()
 		);
 
-	uint_t CommentMdKind = function->GetModule ()->m_LlvmIrBuilder.GetCommentMdKind ();
+	uint_t CommentMdKind = function->getModule ()->m_llvmIrBuilder.getCommentMdKind ();
 
-	llvm::Function* pLlvmFunction = function->GetLlvmFunction ();
+	llvm::Function* pLlvmFunction = function->getLlvmFunction ();
 	llvm::Function::BasicBlockListType& BlockList = pLlvmFunction->getBasicBlockList ();
 	llvm::Function::BasicBlockListType::iterator Block = BlockList.begin ();
 
@@ -70,21 +70,21 @@ void LlvmIr::addFunction(jnc::CFunction* function)
 	}
 }
 
-bool LlvmIr::build(jnc::CModule *module)
+bool LlvmIr::build(jnc::Module *module)
 {
 	clear ();
 
-	appendText (module->GetLlvmIrString ());
+	appendText (module->getLlvmIrString ());
 
 /*
-	rtl::CIteratorT <jnc::CFunction> Function = module->m_FunctionMgr.GetFunctionList ().GetHead ();
+	rtl::Iterator <jnc::Function> Function = module->m_functionMgr.getFunctionList ().getHead ();
 	for (; Function; Function++)
 	{
 		addFunction (*Function);
 		appendFormat ("\n;........................................\n\n");
 	}
 
-	Function = module->m_FunctionMgr.GetThunkFunctionList ().GetHead ();
+	Function = module->m_functionMgr.getThunkFunctionList ().getHead ();
 	if (Function)
 		appendFormat ("\n; THUNKS\n\n");
 

@@ -10,62 +10,62 @@ namespace jnc {
 
 //.............................................................................
 
-class CDestructList
+class DestructList
 {
 protected:
-	struct TEntry: rtl::TListLink 
+	struct Entry: rtl::ListLink 
 	{
-		CFunction* m_pDestructor;
-		CValue m_ArgValue; // could be null for static destructors
-		CVariable* m_pFlagVariable; // could be null for unconditional destructors
+		Function* m_destructor;
+		Value m_argValue; // could be null for static destructors
+		Variable* m_flagVariable; // could be null for unconditional destructors
 	};
 
 protected:
-	CModule* m_pModule;
-	rtl::CStdListT <TEntry> m_List;
+	Module* m_module;
+	rtl::StdList <Entry> m_list;
 
 public:
-	CDestructList ();
+	DestructList ();
 
 	void
-	Clear ()
+	clear ()
 	{
-		m_List.Clear ();
+		m_list.clear ();
 	}
 
 	bool
-	IsEmpty ()
+	isEmpty ()
 	{
-		return m_List.IsEmpty ();
+		return m_list.isEmpty ();
 	}
 
 	void 
-	AddDestructor (
-		CFunction* pDestructor,
-		const CValue& ArgValue
+	addDestructor (
+		Function* destructor,
+		const Value& argValue
 		)
 	{
-		AddDestructor (pDestructor, ArgValue, NULL);
+		addDestructor (destructor, argValue, NULL);
 	}
 
 	void 
-	AddDestructor (
-		CFunction* pDestructor,
-		const CValue& ArgValue,
-		CVariable* pFlagVariable
+	addDestructor (
+		Function* destructor,
+		const Value& argValue,
+		Variable* flagVariable
 		);
 
 	void 
-	AddStaticDestructor (
-		CFunction* pDestructor,
-		CVariable* pFlagVariable
+	addStaticDestructor (
+		Function* destructor,
+		Variable* flagVariable
 		)
 	{
-		AddDestructor (pDestructor, CValue (), pFlagVariable);
+		addDestructor (destructor, Value (), flagVariable);
 	}
 
 	void
-	RunDestructors ();
+	runDestructors ();
 };
 
 //.............................................................................

@@ -8,73 +8,73 @@
 
 namespace jnc {
 
-class CRuntime;
+class Runtime;
 
 //.............................................................................
 
-enum EObjHdrFlag
+enum ObjHdrFlagKind
 {
-	EObjHdrFlag_Dead         = 0x0001,
-	EObjHdrFlag_DynamicArray = 0x0002,	
-	EObjHdrFlag_Static       = 0x0010,
-	EObjHdrFlag_Stack        = 0x0020,
-	EObjHdrFlag_UHeap        = 0x0040,
-	EObjHdrFlag_GcMark       = 0x0100,
-	EObjHdrFlag_GcWeakMark   = 0x0200,
-	EObjHdrFlag_GcWeakMark_c = 0x0400,
-	EObjHdrFlag_GcRootsAdded = 0x0800,
-	EObjHdrFlag_GcMask       = 0x0f00,
+	ObjHdrFlagKind_Dead         = 0x0001,
+	ObjHdrFlagKind_DynamicArray = 0x0002,	
+	ObjHdrFlagKind_Static       = 0x0010,
+	ObjHdrFlagKind_Stack        = 0x0020,
+	ObjHdrFlagKind_UHeap        = 0x0040,
+	ObjHdrFlagKind_GcMark       = 0x0100,
+	ObjHdrFlagKind_GcWeakMark   = 0x0200,
+	ObjHdrFlagKind_GcWeakMark_c = 0x0400,
+	ObjHdrFlagKind_GcRootsAdded = 0x0800,
+	ObjHdrFlagKind_GcMask       = 0x0f00,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TObjHdr
+struct ObjHdr
 {
-	size_t m_ScopeLevel; // if scope level != 0 and the object is not of class-type, then the rest can be omitted
-	TObjHdr* m_pRoot;
+	size_t m_scopeLevel; // if scope level != 0 and the object is not of class-type, then the rest can be omitted
+	ObjHdr* m_root;
 
 	union
 	{
-		CType* m_pType;
-		CClassType* m_pClassType;
+		Type* m_type;
+		ClassType* m_classType;
 	};
 
-	uintptr_t m_Flags;
+	uintptr_t m_flags;
 	
 	void 
-	GcMarkData (CRuntime* pRuntime);
+	gcMarkData (Runtime* runtime);
 
 	void 
-	GcMarkObject (CRuntime* pRuntime);
+	gcMarkObject (Runtime* runtime);
 
 	void 
-	GcWeakMarkObject ()
+	gcWeakMarkObject ()
 	{
-		m_Flags |= EObjHdrFlag_GcWeakMark;
+		m_flags |= ObjHdrFlagKind_GcWeakMark;
 	}
 
 	void 
-	GcWeakMarkClosureObject (CRuntime* pRuntime);
+	gcWeakMarkClosureObject (Runtime* runtime);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-TObjHdr*
-GetStaticObjHdr ()
+ObjHdr*
+getStaticObjHdr ()
 {
-	static TObjHdr ObjHdr = 
+	static ObjHdr objHdr = 
 	{ 
 		0, 
-		&ObjHdr, 
+		&objHdr, 
 		NULL, 
-		EObjHdrFlag_Static | 
-		EObjHdrFlag_GcMark | 
-		EObjHdrFlag_GcWeakMark | 
-		EObjHdrFlag_GcRootsAdded
+		ObjHdrFlagKind_Static | 
+		ObjHdrFlagKind_GcMark | 
+		ObjHdrFlagKind_GcWeakMark | 
+		ObjHdrFlagKind_GcRootsAdded
 	};
 
-	return &ObjHdr;
+	return &objHdr;
 }
 
 //.............................................................................

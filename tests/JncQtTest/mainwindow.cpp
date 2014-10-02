@@ -15,9 +15,9 @@
 OpaqueTest*
 OpaqueTest::operatorNew (int x, int y)
 {
-	jnc::CApiObjBoxT <OpaqueTest>* p = AXL_MEM_NEW (jnc::CApiObjBoxT <OpaqueTest>);
-	p->Prime ();
-	p->Construct (x, y);
+	jnc::ApiObjBox <OpaqueTest>* p = AXL_MEM_NEW (jnc::ApiObjBox <OpaqueTest>);
+	p->prime ();
+	p->construct (x, y);
 	return p;
 }
 
@@ -47,8 +47,8 @@ StdLib::Printf (
 {
 	AXL_VA_DECL (va, pFormat);
 
-	rtl::CString Text;
-	size_t Length = Text.Format_va (pFormat, va);
+	rtl::String Text;
+	size_t Length = Text.format_va (pFormat, va);
 
 	WriteOutput (Text, Length);
 
@@ -56,7 +56,7 @@ StdLib::Printf (
 }
 
 void
-StdLib::testPtr (int x, jnc::TDataPtr ptr, int y)
+StdLib::testPtr (int x, jnc::DataPtr ptr, int y)
 {
 	printf ("StdLib::testPtr\n");
 }
@@ -273,9 +273,9 @@ void MainWindow::writeStatus(const QString &text, int timeout)
 
 void MainWindow::writeOutput_va(const char* format, va_list va)
 {
-	rtl::CString text;
-	text.Format_va (format, va);
-	QString string = QString::fromUtf8 (text, text.GetLength ());
+	rtl::String text;
+	text.format_va (format, va);
+	QString string = QString::fromUtf8 (text, text.getLength ());
 
 	if (QApplication::instance()->thread () == QThread::currentThread () && outputQueue.empty ())
 	{
@@ -350,19 +350,19 @@ void MainWindow::writeSettings()
 	s.setValue("filesOpened", files);
 }
 
-jnc::CFunction *MainWindow::findGlobalFunction(const QString &name)
+jnc::Function *MainWindow::findGlobalFunction(const QString &name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	jnc::CModuleItem *item =
-		module.m_NamespaceMgr.GetGlobalNamespace()->FindItem(nameBytes.data());
+	jnc::ModuleItem *item =
+		module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
 
 	if(!item)
 		return NULL;
 
-	if(item->GetItemKind() != jnc::EModuleItem_Function)
+	if(item->getItemKind() != jnc::ModuleItemKind_Function)
 		return NULL;
 
-	return (jnc::CFunction *)item;
+	return (jnc::Function *)item;
 }
 
 void MainWindow::clearOutput()
@@ -392,14 +392,14 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	uint_t ModuleFlags = jnc::EModuleFlag_DebugInfo | jnc::EModuleFlag_McJit;
+	uint_t ModuleFlags = jnc::ModuleFlagKind_DebugInfo | jnc::ModuleFlagKind_McJit;
 #else
 	uint_t ModuleFlags = 0;
 #endif
 
-	module.Create (filePathBytes.data(), ModuleFlags);
+	module.create (filePathBytes.data(), ModuleFlags);
 
-	jnc::CScopeThreadModule ScopeModule (&module);
+	jnc::ScopeThreadModule ScopeModule (&module);
 
 	writeOutput("Parsing...\n");
 
@@ -409,7 +409,7 @@ bool MainWindow::compile ()
 
 	QByteArray sourceBytes = child->toPlainText().toUtf8();
 
-	result = module.Parse (
+	result = module.parse (
 		filePathBytes.constData (),
 		sourceBytes.constData (),
 		sourceBytes.size ()
@@ -417,15 +417,15 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::GetError ()->GetDescription ().cc ());
+		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
 		return false;
 	}
 
 	writeOutput("Compiling...\n");
-	result = module.Compile ();
+	result = module.compile ();
 	if (!result)
 	{
-		writeOutput("%s\n", err::GetError ()->GetDescription ().cc ());
+		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -437,15 +437,15 @@ bool MainWindow::compile ()
 	writeOutput("JITting...\n");
 
 	result =
-		module.CreateLlvmExecutionEngine () &&
-		StdLib::Export (&module) &&
-		module.Jit () &&
-		runtime.Create (16 * 1024, 16 * 1024) &&
-		runtime.AddModule (&module); // 16K gc heap, 16K stack
+		module.createLlvmExecutionEngine () &&
+		StdLib::mapFunctions (&module) &&
+		module.jit () &&
+		runtime.create (16 * 1024, 16 * 1024) &&
+		runtime.addModule (&module); // 16K gc heap, 16K stack
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::GetError ()->GetDescription ().cc ());
+		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -456,10 +456,10 @@ bool MainWindow::compile ()
 	return true;
 }
 
-bool MainWindow::runFunction (jnc::CFunction* pFunction, int* pReturnValue)
+bool MainWindow::runFunction (jnc::Function* pFunction, int* pReturnValue)
 {
 	typedef int FFunction ();
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) pFunction->getMachineCode ();
 	ASSERT (pf);
 
 	bool Result = true;
@@ -471,9 +471,9 @@ bool MainWindow::runFunction (jnc::CFunction* pFunction, int* pReturnValue)
 			*pReturnValue = ReturnValue;
 
 	}
-	catch (err::CError Error)
+	catch (err::Error Error)
 	{
-		writeOutput ("ERROR: %s\n", Error.GetDescription ().cc ());
+		writeOutput ("ERROR: %s\n", Error.getDescription ().cc ());
 		Result = false;
 	}
 	catch (...)
@@ -501,7 +501,7 @@ MainWindow::run ()
 			return false;
 	}
 
-	jnc::CFunction* pMainFunction = findGlobalFunction ("main");
+	jnc::Function* pMainFunction = findGlobalFunction ("main");
 	if (!pMainFunction)
 	{
 		writeOutput ("'main' is not found or not a function\n");
@@ -510,13 +510,13 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-	jnc::CScopeThreadRuntime ScopeRuntime (&runtime);
+	jnc::ScopeThreadRuntime ScopeRuntime (&runtime);
 
-	runtime.Startup ();
+	runtime.startup ();
 
 	// constructor
 
-	jnc::CFunction* pConstructor = module.GetConstructor ();
+	jnc::Function* pConstructor = module.getConstructor ();
 	if (pConstructor)
 	{
 		Result = runFunction (pConstructor);
@@ -533,7 +533,7 @@ MainWindow::run ()
 
 	// destructor
 
-	jnc::CFunction* pDestructor = module.GetDestructor ();
+	jnc::Function* pDestructor = module.getDestructor ();
 	if (pDestructor)
 	{
 		Result = runFunction (pDestructor);
@@ -541,7 +541,7 @@ MainWindow::run ()
 			return false;
 	}
 
-	runtime.Shutdown ();
+	runtime.shutdown ();
 
 	writeOutput ("Done (retval = %d).\n", ReturnValue);
 	return true;

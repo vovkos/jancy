@@ -10,35 +10,35 @@ namespace jnc {
 
 //.............................................................................
 
-class CAlias: 
-	public CUserModuleItem,
-	public CModuleItemInitializer
+class Alias: 
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
-	friend class CVariableMgr;
+	friend class VariableMgr;
 
 protected:
-	CType* m_pType;
-	CImportType* m_pType_i;
+	Type* m_type;
+	ImportType* m_type_i;
 
 public:
-	CAlias ();
+	Alias ();
 	
-	CType* 
-	GetType ()
+	Type* 
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CImportType*
-	GetType_i ()
+	ImportType*
+	getType_i ()
 	{
-		return m_pType_i;
+		return m_type_i;
 	}
 
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 };
 
 //.............................................................................

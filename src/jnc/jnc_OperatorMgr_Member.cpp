@@ -7,160 +7,160 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::CreateMemberClosure (CValue* pValue)
+OperatorMgr::createMemberClosure (Value* value)
 {
-	CValue ThisValue;
+	Value thisValue;
 
-	bool Result = pValue->GetValueKind () == EValue_Type ?
-		GetThisValueType (&ThisValue) :
-		GetThisValue (&ThisValue);
+	bool result = value->getValueKind () == ValueKind_Type ?
+		getThisValueType (&thisValue) :
+		getThisValue (&thisValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	pValue->InsertToClosureHead (ThisValue);
+	value->insertToClosureHead (thisValue);
 	return true;
 }
 
 bool
-COperatorMgr::GetThisValue (CValue* pValue)
+OperatorMgr::getThisValue (Value* value)
 {
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	if (!ThisValue)
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	if (!thisValue)
 	{
-		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
+		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ());
 		return false;
 	}
 
-	if (IsClassPtrType (ThisValue.GetType (), EClassType_Reactor))
+	if (isClassPtrType (thisValue.getType (), ClassTypeKind_Reactor))
 	{
-		CClassType* pClassType = ((CClassPtrType*) ThisValue.GetType ())->GetTargetType ();
-		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
-		if (pReactorType->GetField (EReactorField_Parent))
+		ClassType* classType = ((ClassPtrType*) thisValue.getType ())->getTargetType ();
+		ReactorClassType* reactorType = (ReactorClassType*) classType;
+		if (reactorType->getField (ReactorFieldKind_Parent))
 		{
-			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
-			bool Result =
-				m_pModule->m_OperatorMgr.GetField (&ThisValue, pParentField) &&
-				m_pModule->m_OperatorMgr.PrepareOperand (&ThisValue);
+			StructField* parentField = reactorType->getField (ReactorFieldKind_Parent);
+			bool result =
+				m_module->m_operatorMgr.getField (&thisValue, parentField) &&
+				m_module->m_operatorMgr.prepareOperand (&thisValue);
 
-			if (!Result)
+			if (!result)
 				return false;
 		}
 	}
 
-	*pValue = ThisValue;
+	*value = thisValue;
 	return true;
 }
 
 bool
-COperatorMgr::GetThisValueType (CValue* pValue)
+OperatorMgr::getThisValueType (Value* value)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	if (!pFunction->IsMember ())
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	if (!function->isMember ())
 	{
-		err::SetFormatStringError ("function '%s' has no 'this' pointer", m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ());
+		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ());
 		return false;
 	}
 
-	CType* pThisType = pFunction->GetThisType ();
-	if (IsClassPtrType (pThisType, EClassType_Reactor))
+	Type* thisType = function->getThisType ();
+	if (isClassPtrType (thisType, ClassTypeKind_Reactor))
 	{
-		CClassType* pClassType = ((CClassPtrType*) pThisType)->GetTargetType ();
-		CReactorClassType* pReactorType = (CReactorClassType*) pClassType;
-		if (pReactorType->GetField (EReactorField_Parent))
+		ClassType* classType = ((ClassPtrType*) thisType)->getTargetType ();
+		ReactorClassType* reactorType = (ReactorClassType*) classType;
+		if (reactorType->getField (ReactorFieldKind_Parent))
 		{
-			CStructField* pParentField = pReactorType->GetField (EReactorField_Parent);
-			pThisType = pParentField->GetType ();
+			StructField* parentField = reactorType->getField (ReactorFieldKind_Parent);
+			thisType = parentField->getType ();
 		}
 	}
 
-	pValue->SetType (pThisType);
+	value->setType (thisType);
 	return true;
 }
 
 bool
-COperatorMgr::GetNamespaceMemberType (
-	CNamespace* pNamespace,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::getNamespaceMemberType (
+	Namespace* nspace,
+	const char* name,
+	Value* resultValue
 	)
 {
-	CMemberCoord Coord;
-	CModuleItem* pItem = pNamespace->FindItemTraverse (pName, &Coord, ETraverse_NoParentNamespace);
-	if (!pItem)
+	MemberCoord coord;
+	ModuleItem* item = nspace->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
+	if (!item)
 	{
-		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamespace->GetQualifiedName ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().cc ());
 		return false;
 	}
 
-	CModuleItemDecl* pDecl = pItem->GetItemDecl ();
-	ASSERT (pDecl);
+	ModuleItemDecl* decl = item->getItemDecl ();
+	ASSERT (decl);
 
-	if (pDecl->GetAccessKind () != EAccess_Public &&
-		m_pModule->m_NamespaceMgr.GetAccessKind (pNamespace) == EAccess_Public)
+	if (decl->getAccessKind () != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public)
 	{
-		err::SetFormatStringError ("'%s.%s' is protected", pNamespace->GetQualifiedName ().cc (), pName);
+		err::setFormatStringError ("'%s.%s' is protected", nspace->getQualifiedName ().cc (), name);
 		return false;
 	}
 
-	bool Result = true;
+	bool result = true;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Namespace:
-		pResultValue->SetNamespace ((CGlobalNamespace*) pItem);
+	case ModuleItemKind_Namespace:
+		resultValue->setNamespace ((GlobalNamespace*) item);
 		break;
 
-	case EModuleItem_Typedef:
-		pItem = ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*) item)->getType ();
 		// and fall through
 
-	case EModuleItem_Type:
-		if (!(((CType*) pItem)->GetTypeKindFlags () & ETypeKindFlag_Named))
+	case ModuleItemKind_Type:
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
 		{
-			err::SetFormatStringError ("'%s' cannot be used as expression", ((CType*) pItem)->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
 		}
 
-		pResultValue->SetNamespace ((CNamedType*) pItem);
+		resultValue->setNamespace ((NamedType*) item);
 		break;
 
-	case EModuleItem_Alias:
-		pResultValue->SetType (((CAlias*) pItem)->GetType ());
+	case ModuleItemKind_Alias:
+		resultValue->setType (((Alias*) item)->getType ());
 		break;
 
-	case EModuleItem_Variable:
-		pResultValue->SetType (((CVariable*) pItem)->GetType ()->GetDataPtrType (EType_DataRef, EDataPtrType_Lean));
+	case ModuleItemKind_Variable:
+		resultValue->setType (((Variable*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
 		break;
 
-	case EModuleItem_Function:
-		pResultValue->SetFunctionTypeOverload (((CFunction*) pItem)->GetTypeOverload ());
-		if (((CFunction*) pItem)->IsMember ())
-			Result = CreateMemberClosure (pResultValue);
+	case ModuleItemKind_Function:
+		resultValue->setFunctionTypeOverload (((Function*) item)->getTypeOverload ());
+		if (((Function*) item)->isMember ())
+			result = createMemberClosure (resultValue);
 		break;
 
-	case EModuleItem_Property:
-		pResultValue->SetType (((CProperty*) pItem)->GetType ()->GetPropertyPtrType (EType_PropertyRef, EPropertyPtrType_Thin));
-		if (((CProperty*) pItem)->IsMember ())
-			Result = CreateMemberClosure (pResultValue);
+	case ModuleItemKind_Property:
+		resultValue->setType (((Property*) item)->getType ()->getPropertyPtrType (TypeKind_PropertyRef, PropertyPtrTypeKind_Thin));
+		if (((Property*) item)->isMember ())
+			result = createMemberClosure (resultValue);
 		break;
 
-	case EModuleItem_EnumConst:
-		pResultValue->SetType (((CEnumConst*) pItem)->GetParentEnumType ());
+	case ModuleItemKind_EnumConst:
+		resultValue->setType (((EnumConst*) item)->getParentEnumType ());
 		break;
 
-	case EModuleItem_StructField:
-		pResultValue->SetField ((CStructField*) pItem, Coord.m_Offset);
+	case ModuleItemKind_StructField:
+		resultValue->setField ((StructField*) item, coord.m_offset);
 		break;
 
 	default:
-		Result = false;
+		result = false;
 	};
 
-	if (!Result)
+	if (!result)
 	{
-		err::SetFormatStringError ("'%s.%s' cannot be used as expression", pNamespace->GetQualifiedName ().cc (), pName);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
 		return false;
 	}
 
@@ -168,119 +168,119 @@ COperatorMgr::GetNamespaceMemberType (
 }
 
 bool
-COperatorMgr::GetNamespaceMember (
-	CNamespace* pNamespace,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::getNamespaceMember (
+	Namespace* nspace,
+	const char* name,
+	Value* resultValue
 	)
 {
-	CModuleItem* pItem = pNamespace->FindItemTraverse (pName, NULL, ETraverse_NoParentNamespace);
-	if (!pItem)
+	ModuleItem* item = nspace->findItemTraverse (name, NULL, TraverseKind_NoParentNamespace);
+	if (!item)
 	{
-		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamespace->GetQualifiedName ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().cc ());
 		return false;
 	}
 
-	CModuleItemDecl* pDecl = pItem->GetItemDecl ();
-	ASSERT (pDecl);
+	ModuleItemDecl* decl = item->getItemDecl ();
+	ASSERT (decl);
 
-	if (pDecl->GetAccessKind () != EAccess_Public &&
-		m_pModule->m_NamespaceMgr.GetAccessKind (pNamespace) == EAccess_Public)
+	if (decl->getAccessKind () != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public)
 	{
-		err::SetFormatStringError ("'%s.%s' is protected", pNamespace->GetQualifiedName ().cc (), pName);
+		err::setFormatStringError ("'%s.%s' is protected", nspace->getQualifiedName ().cc (), name);
 		return false;
 	}
 
-	bool Result = true;
+	bool result = true;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Namespace:
-		pResultValue->SetNamespace ((CGlobalNamespace*) pItem);
+	case ModuleItemKind_Namespace:
+		resultValue->setNamespace ((GlobalNamespace*) item);
 		break;
 
-	case EModuleItem_Typedef:
-		pItem = ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*) item)->getType ();
 		// and fall through
 
-	case EModuleItem_Type:
-		if (!(((CType*) pItem)->GetTypeKindFlags () & ETypeKindFlag_Named))
+	case ModuleItemKind_Type:
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
 		{
-			err::SetFormatStringError ("'%s' cannot be used as expression", ((CType*) pItem)->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
 		}
 
-		pResultValue->SetNamespace ((CNamedType*) pItem);
+		resultValue->setNamespace ((NamedType*) item);
 		break;
 
-	case EModuleItem_Alias:
-		return EvaluateAlias (
-			pItem->GetItemDecl (),
-			((CAlias*) pItem)->GetInitializer (),
-			pResultValue
+	case ModuleItemKind_Alias:
+		return evaluateAlias (
+			item->getItemDecl (),
+			((Alias*) item)->getInitializer (),
+			resultValue
 			);
 
-	case EModuleItem_Variable:
-		pResultValue->SetVariable ((CVariable*) pItem);
+	case ModuleItemKind_Variable:
+		resultValue->setVariable ((Variable*) item);
 		break;
 
-	case EModuleItem_Function:
-		CFunction* pFunction;
-		pFunction = (CFunction*) pItem;
+	case ModuleItemKind_Function:
+		Function* function;
+		function = (Function*) item;
 
-		if (pFunction->IsVirtual ())
+		if (function->isVirtual ())
 		{
-			if (pFunction->GetStorageKind () == EStorage_Abstract)
+			if (function->getStorageKind () == StorageKind_Abstract)
 			{
-				err::SetFormatStringError ("'%s' is abstract", pFunction->m_Tag.cc ());
+				err::setFormatStringError ("'%s' is abstract", function->m_tag.cc ());
 				return false;
 			}
 
-			pResultValue->SetLlvmValue (
-				pFunction->GetLlvmFunction (),
-				pFunction->GetType ()->GetFunctionPtrType (EFunctionPtrType_Thin)
+			resultValue->setLlvmValue (
+				function->getLlvmFunction (),
+				function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin)
 				);
 
-			Result = CreateMemberClosure (pResultValue);
+			result = createMemberClosure (resultValue);
 		}
-		else if (pFunction->IsMember ())
+		else if (function->isMember ())
 		{
-			pResultValue->SetFunction (pFunction);
-			Result = CreateMemberClosure (pResultValue);
+			resultValue->setFunction (function);
+			result = createMemberClosure (resultValue);
 		}
 		else
 		{
-			pResultValue->SetFunction (pFunction);
+			resultValue->setFunction (function);
 		}
 
 		break;
 
-	case EModuleItem_Property:
-		pResultValue->SetProperty ((CProperty*) pItem);
-		if (((CProperty*) pItem)->IsMember ())
-			Result = false; 
+	case ModuleItemKind_Property:
+		resultValue->setProperty ((Property*) item);
+		if (((Property*) item)->isMember ())
+			result = false; 
 
 		break;
 
-	case EModuleItem_EnumConst:
-		Result = ((CEnumConst*) pItem)->GetParentEnumType ()->EnsureLayout ();
-		if (!Result)
+	case ModuleItemKind_EnumConst:
+		result = ((EnumConst*) item)->getParentEnumType ()->ensureLayout ();
+		if (!result)
 			return false;
 
-		pResultValue->SetConstInt64 (
-			((CEnumConst*) pItem)->GetValue (),
-			((CEnumConst*) pItem)->GetParentEnumType ()
+		resultValue->setConstInt64 (
+			((EnumConst*) item)->getValue (),
+			((EnumConst*) item)->getParentEnumType ()
 			);
 		break;
 
 	default:
-		Result = false;
+		result = false;
 	};
 
-	if (!Result)
+	if (!result)
 	{
-		err::SetFormatStringError ("'%s.%s' cannot be used as expression", pNamespace->GetQualifiedName ().cc (), pName);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
 		return false;
 	}
 
@@ -288,66 +288,66 @@ COperatorMgr::GetNamespaceMember (
 }
 
 bool
-COperatorMgr::GetNamedTypeMemberType (
-	const CValue& OpValue,
-	CNamedType* pNamedType,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::getNamedTypeMemberType (
+	const Value& opValue,
+	NamedType* namedType,
+	const char* name,
+	Value* resultValue
 	)
 {
-	CMemberCoord Coord;
-	CModuleItem* pMember = pNamedType->FindItemTraverse (pName, &Coord, ETraverse_NoParentNamespace);
-	if (!pMember)
+	MemberCoord coord;
+	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
+	if (!member)
 	{
-		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamedType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().cc ());
 		return false;
 	}
 
-	EModuleItem MemberKind = pMember->GetItemKind ();
-	switch (MemberKind)
+	ModuleItemKind memberKind = member->getItemKind ();
+	switch (memberKind)
 	{
-	case EModuleItem_StructField:
+	case ModuleItemKind_StructField:
 		{
-		CStructField* pField = (CStructField*) pMember;
-		size_t BaseOffset = 0;
-		if (OpValue.GetValueKind () == EValue_Field)
-			BaseOffset = OpValue.GetFieldOffset ();
+		StructField* field = (StructField*) member;
+		size_t baseOffset = 0;
+		if (opValue.getValueKind () == ValueKind_Field)
+			baseOffset = opValue.getFieldOffset ();
 
-		if (!(OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_DataPtr))
+		if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr))
 		{
-			pResultValue->SetField (pField, BaseOffset); 
+			resultValue->setField (field, baseOffset); 
 			break;
 		}
 
-		CDataPtrType* pPtrType = (CDataPtrType*) OpValue.GetType ();
-		EDataPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
+		DataPtrType* ptrType = (DataPtrType*) opValue.getType ();
+		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-		CType* pResultType = pField->GetType ()->GetDataPtrType (
-			EType_DataRef,
-			PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-			OpValue.GetType ()->GetFlags ()
+		Type* resultType = field->getType ()->getDataPtrType (
+			TypeKind_DataRef,
+			ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+			opValue.getType ()->getFlags ()
 			);
 
-		pResultValue->SetField (pField, pResultType, BaseOffset); 
+		resultValue->setField (field, resultType, baseOffset); 
 		break;
 		}
 
-	case EModuleItem_Function:
-		pResultValue->SetType (((CFunction*) pMember)->GetType ()->GetShortType ()->GetFunctionPtrType (
-			EType_FunctionRef,
-			EFunctionPtrType_Thin
+	case ModuleItemKind_Function:
+		resultValue->setType (((Function*) member)->getType ()->getShortType ()->getFunctionPtrType (
+			TypeKind_FunctionRef,
+			FunctionPtrTypeKind_Thin
 			));
 		break;
 
-	case EModuleItem_Property:
-		pResultValue->SetType (((CProperty*) pMember)->GetType ()->GetShortType ()->GetPropertyPtrType (
-			EType_PropertyRef,
-			EPropertyPtrType_Thin
+	case ModuleItemKind_Property:
+		resultValue->setType (((Property*) member)->getType ()->getShortType ()->getPropertyPtrType (
+			TypeKind_PropertyRef,
+			PropertyPtrTypeKind_Thin
 			));
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid member kind '%s'", GetModuleItemKindString (MemberKind));
+		err::setFormatStringError ("invalid member kind '%s'", getModuleItemKindString (memberKind));
 		return false;
 	}
 
@@ -355,283 +355,283 @@ COperatorMgr::GetNamedTypeMemberType (
 }
 
 bool
-COperatorMgr::GetNamedTypeMember (
-	const CValue& OpValue,
-	CNamedType* pNamedType,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::getNamedTypeMember (
+	const Value& opValue,
+	NamedType* namedType,
+	const char* name,
+	Value* resultValue
 	)
 {
-	CMemberCoord Coord;
-	CModuleItem* pMember = pNamedType->FindItemTraverse (pName, &Coord, ETraverse_NoParentNamespace);
-	if (!pMember)
+	MemberCoord coord;
+	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
+	if (!member)
 	{
-		err::SetFormatStringError ("'%s' is not a member of '%s'", pName, pNamedType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().cc ());
 		return false;
 	}
 
-	CModuleItemDecl* pDecl = pMember->GetItemDecl ();
-	ASSERT (pDecl);
+	ModuleItemDecl* decl = member->getItemDecl ();
+	ASSERT (decl);
 
-	if (pDecl->GetAccessKind () != EAccess_Public &&
-		m_pModule->m_NamespaceMgr.GetAccessKind (Coord.m_pType) == EAccess_Public)
+	if (decl->getAccessKind () != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind (coord.m_type) == AccessKind_Public)
 	{
-		err::SetFormatStringError ("'%s.%s' is protected", Coord.m_pType->GetQualifiedName ().cc (), pName);
+		err::setFormatStringError ("'%s.%s' is protected", coord.m_type->getQualifiedName ().cc (), name);
 		return false;
 	}
 
-	EModuleItem MemberKind = pMember->GetItemKind ();
-	switch (MemberKind)
+	ModuleItemKind memberKind = member->getItemKind ();
+	switch (memberKind)
 	{
-	case EModuleItem_StructField:
-		return GetField (OpValue, (CStructField*) pMember, &Coord, pResultValue);
+	case ModuleItemKind_StructField:
+		return getField (opValue, (StructField*) member, &coord, resultValue);
 
-	case EModuleItem_Function:
-		pResultValue->SetFunction ((CFunction*) pMember);
+	case ModuleItemKind_Function:
+		resultValue->setFunction ((Function*) member);
 		break;
 
-	case EModuleItem_Property:
-		pResultValue->SetProperty ((CProperty*) pMember);
+	case ModuleItemKind_Property:
+		resultValue->setProperty ((Property*) member);
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid class member kind");
+		err::setFormatStringError ("invalid class member kind");
 		return false;
 	}
 
-	if (pDecl->GetStorageKind () == EStorage_Static)
+	if (decl->getStorageKind () == StorageKind_Static)
 		return true;
 
 	#pragma AXL_TODO ("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
 
-	CValue ThisArgValue = OpValue;
-	if (pNamedType->GetTypeKind () != EType_Class)
+	Value thisArgValue = opValue;
+	if (namedType->getTypeKind () != TypeKind_Class)
 	{
-		bool Result = UnaryOperator (EUnOp_Addr, &ThisArgValue);
-		if (!Result)
+		bool result = unaryOperator (UnOpKind_Addr, &thisArgValue);
+		if (!result)
 			return false;
 	}
 
-	if (IsClassType (pNamedType, EClassType_Multicast))
+	if (isClassType (namedType, ClassTypeKind_Multicast))
 	{
-		ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_ClassPtr);
-		if ((pMember->GetFlags () & EMulticastMethodFlag_InaccessibleViaEventPtr) &&
-			((CClassPtrType*) OpValue.GetType ())->IsEventPtrType ())
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
+		if ((member->getFlags () & MulticastMethodFlagKind_InaccessibleViaEventPtr) &&
+			((ClassPtrType*) opValue.getType ())->isEventPtrType ())
 		{
-			err::SetFormatStringError ("'%s' is inaccessible via 'event' pointer", pName);
+			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", name);
 			return false;
 		}
 	}
 
-	pResultValue->InsertToClosureHead (ThisArgValue);
+	resultValue->insertToClosureHead (thisArgValue);
 	return true;
 }
 
 bool
-COperatorMgr::GetMemberOperatorResultType (
-	const CValue& RawOpValue,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::getMemberOperatorResultType (
+	const Value& rawOpValue,
+	const char* name,
+	Value* resultValue
 	)
 {
-	if (RawOpValue.GetValueKind () == EValue_Namespace)
-		return GetNamespaceMemberType (RawOpValue.GetNamespace (), pName, pResultValue);
+	if (rawOpValue.getValueKind () == ValueKind_Namespace)
+		return getNamespaceMemberType (rawOpValue.getNamespace (), name, resultValue);
 
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue, EOpFlag_KeepDataRef);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepDataRef);
 
-	CType* pType = OpValue.GetType ();
-	if (pType->GetTypeKind () == EType_DataRef)
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
+	Type* type = opValue.getType ();
+	if (type->getTypeKind () == TypeKind_DataRef)
+		type = ((DataPtrType*) type)->getTargetType ();
 
-	if (pType->GetTypeKind () == EType_DataPtr)
+	if (type->getTypeKind () == TypeKind_DataPtr)
 	{
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
+		type = ((DataPtrType*) type)->getTargetType ();
 
-		bool Result = GetUnaryOperatorResultType (EUnOp_Indir, &OpValue);
-		if (!Result)
+		bool result = getUnaryOperatorResultType (UnOpKind_Indir, &opValue);
+		if (!result)
 			return false;
 	}
 
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Struct:
-	case EType_Union:
-		return GetNamedTypeMemberType (OpValue, (CNamedType*) pType, pName, pResultValue);
+	case TypeKind_Struct:
+	case TypeKind_Union:
+		return getNamedTypeMemberType (opValue, (NamedType*) type, name, resultValue);
 
-	case EType_ClassPtr:
-		PrepareOperandType (&OpValue);
-		return GetNamedTypeMemberType (OpValue, ((CClassPtrType*) pType)->GetTargetType (), pName, pResultValue);
+	case TypeKind_ClassPtr:
+		prepareOperandType (&opValue);
+		return getNamedTypeMemberType (opValue, ((ClassPtrType*) type)->getTargetType (), name, resultValue);
 
 	default:
-		err::SetFormatStringError ("member operator cannot be applied to '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 }
 
 bool
-COperatorMgr::MemberOperator (
-	const CValue& RawOpValue,
-	size_t Index,
-	CValue* pResultValue
+OperatorMgr::memberOperator (
+	const Value& rawOpValue,
+	size_t index,
+	Value* resultValue
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepDataRef | EOpFlag_KeepClassRef);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepDataRef | OpFlagKind_KeepClassRef);
+	if (!result)
 		return false;
 
-	CType* pType = OpValue.GetType ();
-	EType TypeKind = pType->GetTypeKind ();
+	Type* type = opValue.getType ();
+	TypeKind typeKind = type->getTypeKind ();
 
-	CStructField* pField;
+	StructField* field;
 
-	switch (TypeKind)
+	switch (typeKind)
 	{
-	case EType_DataRef:
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
-		TypeKind = pType->GetTypeKind ();
-		switch (TypeKind)
+	case TypeKind_DataRef:
+		type = ((DataPtrType*) type)->getTargetType ();
+		typeKind = type->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_Array:
-			return BinaryOperator (EBinOp_Idx, OpValue, CValue (Index, EType_SizeT), pResultValue);
+		case TypeKind_Array:
+			return binaryOperator (BinOpKind_Idx, opValue, Value (index, TypeKind_SizeT), resultValue);
 
-		case EType_Struct:
-			pField = ((CStructType*) pType)->GetFieldByIndex (Index);
-			return pField && GetStructField (OpValue, pField, NULL, pResultValue);
+		case TypeKind_Struct:
+			field = ((StructType*) type)->getFieldByIndex (index);
+			return field && getStructField (opValue, field, NULL, resultValue);
 
-		case EType_Union:
-			pField = ((CUnionType*) pType)->GetFieldByIndex (Index);
-			return pField && GetUnionField (OpValue, pField, pResultValue);
+		case TypeKind_Union:
+			field = ((UnionType*) type)->getFieldByIndex (index);
+			return field && getUnionField (opValue, field, resultValue);
 
 		default:
-			err::SetFormatStringError ("indexed member operator cannot be applied to '%s'", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().cc ());
 			return false;
 		}
 
-	case EType_ClassRef:
-		pType = ((CClassPtrType*) pType)->GetTargetType ();
-		pField = ((CClassType*) pType)->GetFieldByIndex (Index);
-		return pField && GetClassField (OpValue, pField, NULL, pResultValue);
+	case TypeKind_ClassRef:
+		type = ((ClassPtrType*) type)->getTargetType ();
+		field = ((ClassType*) type)->getFieldByIndex (index);
+		return field && getClassField (opValue, field, NULL, resultValue);
 
 	default:
-		err::SetFormatStringError ("indexed member operator cannot be applied to '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 }
 
 bool
-COperatorMgr::MemberOperator (
-	const CValue& RawOpValue,
-	const char* pName,
-	CValue* pResultValue
+OperatorMgr::memberOperator (
+	const Value& rawOpValue,
+	const char* name,
+	Value* resultValue
 	)
 {
-	if (RawOpValue.GetValueKind () == EValue_Namespace)
-		return GetNamespaceMember (RawOpValue.GetNamespace (), pName, pResultValue);
+	if (rawOpValue.getValueKind () == ValueKind_Namespace)
+		return getNamespaceMember (rawOpValue.getNamespace (), name, resultValue);
 
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepDataRef);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepDataRef);
+	if (!result)
 		return false;
 
-	CType* pType = OpValue.GetType ();
+	Type* type = opValue.getType ();
 
-	if (pType->GetTypeKind () == EType_DataRef)
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
+	if (type->getTypeKind () == TypeKind_DataRef)
+		type = ((DataPtrType*) type)->getTargetType ();
 
-	if (pType->GetTypeKind () == EType_DataPtr)
+	if (type->getTypeKind () == TypeKind_DataPtr)
 	{
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
+		type = ((DataPtrType*) type)->getTargetType ();
 
-		Result = UnaryOperator (EUnOp_Indir, &OpValue);
-		if (!Result)
+		result = unaryOperator (UnOpKind_Indir, &opValue);
+		if (!result)
 			return false;
 	}
 
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Struct:
-	case EType_Union:
-		return GetNamedTypeMember (OpValue, (CNamedType*) pType, pName, pResultValue);
+	case TypeKind_Struct:
+	case TypeKind_Union:
+		return getNamedTypeMember (opValue, (NamedType*) type, name, resultValue);
 
-	case EType_ClassPtr:
+	case TypeKind_ClassPtr:
 		return
-			PrepareOperand (&OpValue) &&
-			GetNamedTypeMember (OpValue, ((CClassPtrType*) pType)->GetTargetType (), pName, pResultValue);
+			prepareOperand (&opValue) &&
+			getNamedTypeMember (opValue, ((ClassPtrType*) type)->getTargetType (), name, resultValue);
 
 	default:
-		err::SetFormatStringError ("member operator cannot be applied to '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 }
 
-CClassPtrType*
-COperatorMgr::GetWeakenOperatorResultType (const CValue& OpValue)
+ClassPtrType*
+OperatorMgr::getWeakenOperatorResultType (const Value& opValue)
 {
-	CType* pOpType = PrepareOperandType (OpValue);
-	if (pOpType->GetTypeKind () != EType_ClassPtr)
+	Type* opType = prepareOperandType (opValue);
+	if (opType->getTypeKind () != TypeKind_ClassPtr)
 	{
-		err::SetFormatStringError ("'weak member' operator cannot be applied to '%s'", pOpType->GetTypeString ().cc ());
+		err::setFormatStringError ("'weak member' operator cannot be applied to '%s'", opType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	CClassPtrType* pResultType = ((CClassPtrType*) pOpType)->GetWeakPtrType ();
-	return pResultType;
+	ClassPtrType* resultType = ((ClassPtrType*) opType)->getWeakPtrType ();
+	return resultType;
 }
 
 bool
-COperatorMgr::GetWeakenOperatorResultType (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getWeakenOperatorResultType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pType = GetWeakenOperatorResultType (OpValue);
-	if (!pType)
+	Type* type = getWeakenOperatorResultType (opValue);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 
 bool
-COperatorMgr::WeakenOperator (
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::weakenOperator (
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue);
+	if (!result)
 		return false;
 
-	CType* pOpType = OpValue.GetType ();
-	if (pOpType->GetTypeKind () != EType_ClassPtr)
+	Type* opType = opValue.getType ();
+	if (opType->getTypeKind () != TypeKind_ClassPtr)
 	{
-		err::SetFormatStringError ("'weak member' operator cannot be applied to '%s'", pOpType->GetTypeString ().cc ());
+		err::setFormatStringError ("'weak member' operator cannot be applied to '%s'", opType->getTypeString ().cc ());
 		return false;
 	}
 
-	CClassPtrType* pResultType = ((CClassPtrType*) pOpType)->GetWeakPtrType ();
-	pResultValue->OverrideType (OpValue, pResultType);
+	ClassPtrType* resultType = ((ClassPtrType*) opType)->getWeakPtrType ();
+	resultValue->overrideType (opValue, resultType);
 	return true;
 }
 
 bool
-COperatorMgr::GetOffsetOf (
-	const CValue& Value,
-	CValue* pResultValue
+OperatorMgr::getOffsetOf (
+	const Value& value,
+	Value* resultValue
 	)
 {
-	if (Value.GetValueKind () != EValue_Field)
+	if (value.getValueKind () != ValueKind_Field)
 	{
-		err::SetFormatStringError ("'offsetof' can only be applied to fields");
+		err::setFormatStringError ("'offsetof' can only be applied to fields");
 		return false;
 	}
 
-	pResultValue->SetConstSizeT (Value.GetFieldOffset ());
+	resultValue->setConstSizeT (value.getFieldOffset ());
 	return true;
 }
 

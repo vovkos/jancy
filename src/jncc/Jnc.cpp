@@ -4,353 +4,353 @@
 //.............................................................................
 
 int
-CStdLib::Printf (
-	const char* pFormat,
+StdLib::printf (
+	const char* format,
 	...
 	)
 {
-	AXL_VA_DECL (va, pFormat);
+	AXL_VA_DECL (va, format);
 
-	CJnc* pJnc = CJnc::GetCurrentJnc ();
-	ASSERT (pJnc);
+	Jnc* jnc = Jnc::getCurrentJnc ();
+	ASSERT (jnc);
 
-	return pJnc->GetOutStream ()->Printf_va (pFormat, va);
+	return jnc->getOutStream ()->printf_va (format, va);
 }
 
 //.............................................................................
 
-CJnc* CJnc::m_pCurrentJnc = NULL;
+Jnc* Jnc::m_currentJnc = NULL;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int
-CJnc::Run (
-	TCmdLine* pCmdLine,
-	COutStream* pOutStream
+Jnc::run (
+	CmdLine* cmdLine,
+	OutStream* outStream
 	)
 {
-	bool Result;
+	bool result;
 
-	m_pCmdLine = pCmdLine;
-	m_pOutStream = pOutStream;
+	m_cmdLine = cmdLine;
+	m_outStream = outStream;
 
-	if (pCmdLine->m_Flags & EJncFlag_Help)
+	if (cmdLine->m_flags & JncFlagKind_Help)
 	{
-		PrintUsage (pOutStream);
-		return EJncError_Success;
+		printUsage (outStream);
+		return JncErrorKind_Success;
 	}
 
-	if (pCmdLine->m_Flags & EJncFlag_Version)
+	if (cmdLine->m_flags & JncFlagKind_Version)
 	{
-		PrintVersion (pOutStream);
-		return EJncError_Success;
+		printVersion (outStream);
+		return JncErrorKind_Success;
 	}
 
-	if (pCmdLine->m_Flags & EJncFlag_Server)
-		return Server ();
+	if (cmdLine->m_flags & JncFlagKind_Server)
+		return server ();
 
-	rtl::CArrayT <char> StdInBuffer;
-	io::CMappedFile SrcFile;
+	rtl::Array <char> stdInBuffer;
+	io::MappedFile srcFile;
 
-	rtl::CString SrcName;
-	const char* pSrc;
-	size_t SrcSize;
+	rtl::String srcName;
+	const char* src;
+	size_t srcSize;
 
-	if (pCmdLine->m_Flags & EJncFlag_StdInSrc)
+	if (cmdLine->m_flags & JncFlagKind_StdInSrc)
 	{
 #if (_AXL_ENV == AXL_ENV_WIN)
-		int StdInFile = _fileno (stdin);
+		int stdInFile = _fileno (stdin);
 #endif
 		for (;;)
 		{
-			char Buffer [1024];
+			char buffer [1024];
 #if (_AXL_ENV == AXL_ENV_WIN)
-			int Result = _read (StdInFile, Buffer, sizeof (Buffer));
+			int result = _read (stdInFile, buffer, sizeof (buffer));
 #else
-			int Result = read (STDIN_FILENO, Buffer, sizeof (Buffer));
+			int result = read (STDIN_FILENO, buffer, sizeof (buffer));
 #endif
-			if (Result <= 0)
+			if (result <= 0)
 				break;
 
-			StdInBuffer.Append (Buffer, Result);
+			stdInBuffer.append (buffer, result);
 		}
 
-		pSrc = StdInBuffer;
-		SrcSize = StdInBuffer.GetCount ();
-		SrcName = !m_pCmdLine->m_SrcNameOverride.IsEmpty () ?
-			m_pCmdLine->m_SrcNameOverride :
+		src = stdInBuffer;
+		srcSize = stdInBuffer.getCount ();
+		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
+			m_cmdLine->m_srcNameOverride :
 			"stdin";
 	}
-	else if (!pCmdLine->m_SrcFileName.IsEmpty ())
+	else if (!cmdLine->m_srcFileName.isEmpty ())
 	{
-		Result = SrcFile.Open (pCmdLine->m_SrcFileName, io::EFileFlag_ReadOnly);
-		if (!Result)
+		result = srcFile.open (cmdLine->m_srcFileName, io::FileFlagKind_ReadOnly);
+		if (!result)
 		{
-			pOutStream->Printf (
+			outStream->printf (
 				"cannot open '%s': %s\n",
-				pCmdLine->m_SrcFileName.cc (), // thanks a lot gcc
-				err::GetError ()->GetDescription ().cc ()
+				cmdLine->m_srcFileName.cc (), // thanks a lot gcc
+				err::getError ()->getDescription ().cc ()
 				);
-			return EJncError_IoFailure;
+			return JncErrorKind_IoFailure;
 		}
 
-		pSrc = (const char*) SrcFile.View ();
-		SrcSize = (size_t) SrcFile.GetSize ();
-		SrcName = !m_pCmdLine->m_SrcNameOverride.IsEmpty () ?
-			m_pCmdLine->m_SrcNameOverride :
-			io::GetFullFilePath (pCmdLine->m_SrcFileName);
+		src = (const char*) srcFile.view ();
+		srcSize = (size_t) srcFile.getSize ();
+		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
+			m_cmdLine->m_srcNameOverride :
+			io::getFullFilePath (cmdLine->m_srcFileName);
 	}
 	else
 	{
-		pOutStream->Printf ("missing input (required source-file-name or --stdin)\n");
-		return EJncError_InvalidCmdLine;
+		outStream->printf ("missing input (required source-file-name or --stdin)\n");
+		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (pCmdLine->m_Flags & (EJncFlag_RunFunction | EJncFlag_Disassembly))
-		pCmdLine->m_Flags |= EJncFlag_Jit;
+	if (cmdLine->m_flags & (JncFlagKind_RunFunction | JncFlagKind_Disassembly))
+		cmdLine->m_flags |= JncFlagKind_Jit;
 
-	Result = Compile (SrcName, pSrc, SrcSize);
-	if (!Result)
+	result = compile (srcName, src, srcSize);
+	if (!result)
 	{
-		pOutStream->Printf ("%s\n", err::GetError ()->GetDescription ().cc ());
-		return EJncError_CompileFailure;
+		outStream->printf ("%s\n", err::getError ()->getDescription ().cc ());
+		return JncErrorKind_CompileFailure;
 	}
 
-	if (pCmdLine->m_Flags & EJncFlag_LlvmIr)
-		PrintLlvmIr ();
+	if (cmdLine->m_flags & JncFlagKind_LlvmIr)
+		printLlvmIr ();
 
-	if (m_pCmdLine->m_Flags & EJncFlag_Jit)
+	if (m_cmdLine->m_flags & JncFlagKind_Jit)
 	{
-		Result = Jit ();
-		if (!Result)
+		result = jit ();
+		if (!result)
 		{
-			pOutStream->Printf ("%s\n", err::GetError ()->GetDescription ().cc ());
-			return EJncError_CompileFailure;
+			outStream->printf ("%s\n", err::getError ()->getDescription ().cc ());
+			return JncErrorKind_CompileFailure;
 		}
 	}
 
-	if (pCmdLine->m_Flags & EJncFlag_Disassembly)
-		PrintDisassembly ();
+	if (cmdLine->m_flags & JncFlagKind_Disassembly)
+		printDisassembly ();
 
-	if (pCmdLine->m_Flags & EJncFlag_RunFunction)
+	if (cmdLine->m_flags & JncFlagKind_RunFunction)
 	{
-		int ReturnValue;
-		Result = RunFunction (&ReturnValue);
-		if (!Result)
+		int returnValue;
+		result = runFunction (&returnValue);
+		if (!result)
 		{
-			pOutStream->Printf ("%s\n", err::GetError ()->GetDescription ().cc ());
-			return EJncError_RunFailure;
+			outStream->printf ("%s\n", err::getError ()->getDescription ().cc ());
+			return JncErrorKind_RunFailure;
 		}
 
-		pOutStream->Printf ("'%s' returned (%d).\n", pCmdLine->m_FunctionName.cc (), ReturnValue);
+		outStream->printf ("'%s' returned (%d).\n", cmdLine->m_functionName.cc (), returnValue);
 	}
 
-	return EJncError_Success;
+	return JncErrorKind_Success;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CJnc::Compile (
-	const char* pFileName,
-	const char* pSource,
-	size_t Length
+Jnc::compile (
+	const char* fileName,
+	const char* source,
+	size_t length
 	)
 {
-	bool Result;
+	bool result;
 
-	uint_t ModuleFlags = 0;
-	if (m_pCmdLine->m_Flags & EJncFlag_DebugInfo)
-		ModuleFlags |= jnc::EModuleFlag_DebugInfo;
+	uint_t moduleFlags = 0;
+	if (m_cmdLine->m_flags & JncFlagKind_DebugInfo)
+		moduleFlags |= jnc::ModuleFlagKind_DebugInfo;
 
-	if (m_pCmdLine->m_Flags & EJncFlag_Jit_mc)
-		ModuleFlags |= jnc::EModuleFlag_McJit;
+	if (m_cmdLine->m_flags & JncFlagKind_Jit_mc)
+		moduleFlags |= jnc::ModuleFlagKind_McJit;
 
-	m_Module.Create ("jncc_module", ModuleFlags);
+	m_module.create ("jncc_module", moduleFlags);
 
-	jnc::CScopeThreadModule ScopeModule (&m_Module);
+	jnc::ScopeThreadModule scopeModule (&m_module);
 
-	Result =
-		m_Module.Parse (pFileName, pSource, Length) &&
-		m_Module.Compile ();
+	result =
+		m_module.parse (fileName, source, length) &&
+		m_module.compile ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	return true;
 }
 
 bool
-CJnc::Jit ()
+Jnc::jit ()
 {
 	return
-		m_Module.CreateLlvmExecutionEngine () &&
-		CStdLib::Export (&m_Module) &&
-		m_Module.Jit () &&
-		m_Runtime.Create (m_pCmdLine->m_GcHeapSize, m_pCmdLine->m_StackSize) &&
-		m_Runtime.AddModule (&m_Module);
+		m_module.createLlvmExecutionEngine () &&
+		StdLib::mapFunctions (&m_module) &&
+		m_module.jit () &&
+		m_runtime.create (m_cmdLine->m_gcHeapSize, m_cmdLine->m_stackSize) &&
+		m_runtime.addModule (&m_module);
 }
 
 void
-CJnc::PrintLlvmIr ()
+Jnc::printLlvmIr ()
 {
-	if (!(m_pCmdLine->m_Flags & EJncFlag_LlvmIr_c))
+	if (!(m_cmdLine->m_flags & JncFlagKind_LlvmIr_c))
 	{
-		m_pOutStream->Printf ("%s", m_Module.GetLlvmIrString ().cc ());
+		m_outStream->printf ("%s", m_module.getLlvmIrString ().cc ());
 		return;
 	}
 
-	uint_t CommentMdKind = m_Module.m_LlvmIrBuilder.GetCommentMdKind ();
+	uint_t commentMdKind = m_module.m_llvmIrBuilder.getCommentMdKind ();
 
-	rtl::CIteratorT <jnc::CFunction> Function = m_Module.m_FunctionMgr.GetFunctionList ().GetHead ();
-	for (; Function; Function++)
+	rtl::Iterator <jnc::Function> function = m_module.m_functionMgr.getFunctionList ().getHead ();
+	for (; function; function++)
 	{
-		jnc::CFunctionType* pFunctionType = Function->GetType ();
+		jnc::FunctionType* functionType = function->getType ();
 
-		m_pOutStream->Printf ("%s %s %s %s\n",
-			pFunctionType->GetReturnType ()->GetTypeString ().cc (),
-			pFunctionType->GetCallConv ()->GetCallConvString (),
-			Function->m_Tag.cc (),
-			pFunctionType->GetArgString ().cc ()
+		m_outStream->printf ("%s %s %s %s\n",
+			functionType->getReturnType ()->getTypeString ().cc (),
+			functionType->getCallConv ()->getCallConvString (),
+			function->m_tag.cc (),
+			functionType->getArgString ().cc ()
 			);
 
-		llvm::Function* pLlvmFunction = Function->GetLlvmFunction ();
-		llvm::Function::BasicBlockListType& BlockList = pLlvmFunction->getBasicBlockList ();
-		llvm::Function::BasicBlockListType::iterator Block = BlockList.begin ();
+		llvm::Function* llvmFunction = function->getLlvmFunction ();
+		llvm::Function::BasicBlockListType& blockList = llvmFunction->getBasicBlockList ();
+		llvm::Function::BasicBlockListType::iterator block = blockList.begin ();
 
-		for (; Block != BlockList.end (); Block++)
+		for (; block != blockList.end (); block++)
 		{
-			std::string Name = Block->getName ();
-			m_pOutStream->Printf ("%s:\n", Name.c_str ());
+			std::string name = block->getName ();
+			m_outStream->printf ("%s:\n", name.c_str ());
 
-			llvm::BasicBlock::InstListType& InstList = Block->getInstList ();
-			llvm::BasicBlock::InstListType::iterator Inst = InstList.begin ();
-			for (; Inst != InstList.end (); Inst++)
+			llvm::BasicBlock::InstListType& instList = block->getInstList ();
+			llvm::BasicBlock::InstListType::iterator inst = instList.begin ();
+			for (; inst != instList.end (); inst++)
 			{
-				std::string String;
-				llvm::raw_string_ostream Stream (String);
+				std::string string;
+				llvm::raw_string_ostream stream (string);
 
-				llvm::MDNode* pMdComment = Inst->getMetadata (CommentMdKind);
-				if (pMdComment)
-					Inst->setMetadata (CommentMdKind, NULL); // remove before print
+				llvm::MDNode* mdComment = inst->getMetadata (commentMdKind);
+				if (mdComment)
+					inst->setMetadata (commentMdKind, NULL); // remove before print
 
-				Inst->print (Stream);
+				inst->print (stream);
 
-				m_pOutStream->Printf ("%s\n", String.c_str ());
+				m_outStream->printf ("%s\n", string.c_str ());
 
-				if (pMdComment)
+				if (mdComment)
 				{
-					Inst->setMetadata (CommentMdKind, pMdComment); // restore
-					llvm::MDString* pMdString = (llvm::MDString*) pMdComment->getOperand (0);
-					m_pOutStream->Printf ("\n  ; %s\n", pMdString->getString ().data ());
+					inst->setMetadata (commentMdKind, mdComment); // restore
+					llvm::MDString* mdString = (llvm::MDString*) mdComment->getOperand (0);
+					m_outStream->printf ("\n  ; %s\n", mdString->getString ().data ());
 				}
 			}
 		}
 
-		m_pOutStream->Printf ("\n........................................\n\n");
+		m_outStream->printf ("\n........................................\n\n");
 	}
 }
 
 void
-CJnc::PrintDisassembly ()
+Jnc::printDisassembly ()
 {
-	jnc::CDisassembler Dasm;
+	jnc::Disassembler dasm;
 
-	rtl::CIteratorT <jnc::CFunction> Function = m_Module.m_FunctionMgr.GetFunctionList ().GetHead ();
-	for (; Function; Function++)
+	rtl::Iterator <jnc::Function> function = m_module.m_functionMgr.getFunctionList ().getHead ();
+	for (; function; function++)
 	{
-		jnc::CFunctionType* pFunctionType = Function->GetType ();
+		jnc::FunctionType* functionType = function->getType ();
 
-		m_pOutStream->Printf (
+		m_outStream->printf (
 			"%s %s %s %s\n",
-			pFunctionType->GetReturnType ()->GetTypeString ().cc (),
-			pFunctionType->GetCallConv ()->GetCallConvString (),
-			Function->m_Tag.cc (),
-			pFunctionType->GetArgString ().cc ()
+			functionType->getReturnType ()->getTypeString ().cc (),
+			functionType->getCallConv ()->getCallConvString (),
+			function->m_tag.cc (),
+			functionType->getArgString ().cc ()
 			);
 
-		void* pf = Function->GetMachineCode ();
-		size_t Size = Function->GetMachineCodeSize ();
+		void* pf = function->getMachineCode ();
+		size_t size = function->getMachineCodeSize ();
 
 		if (pf)
 		{
-			rtl::CString s = Dasm.Disassemble (pf, Size);
-			m_pOutStream->Printf ("\n%s", s.cc ());
+			rtl::String s = dasm.disassemble (pf, size);
+			m_outStream->printf ("\n%s", s.cc ());
 		}
 
-		m_pOutStream->Printf ("\n........................................\n\n");
+		m_outStream->printf ("\n........................................\n\n");
 	}
 }
 
 bool
-CJnc::RunFunction (
-	jnc::CFunction* pFunction,
-	int* pReturnValue
+Jnc::runFunction (
+	jnc::Function* function,
+	int* returnValue_o
 	)
 {
 	typedef
 	int
 	FFunction ();
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		int ReturnValue = pf ();
-		if (pReturnValue)
-			*pReturnValue = ReturnValue;
+		int returnValue = pf ();
+		if (returnValue_o)
+			*returnValue_o = returnValue;
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 bool
-CJnc::RunFunction (int* pReturnValue)
+Jnc::runFunction (int* returnValue)
 {
-	bool Result;
+	bool result;
 
-	jnc::CModuleItem* pFunctionItem = m_Module.m_NamespaceMgr.GetGlobalNamespace ()->FindItem (m_pCmdLine->m_FunctionName);
-	if (!pFunctionItem || pFunctionItem->GetItemKind () != jnc::EModuleItem_Function)
+	jnc::ModuleItem* functionItem = m_module.m_namespaceMgr.getGlobalNamespace ()->findItem (m_cmdLine->m_functionName);
+	if (!functionItem || functionItem->getItemKind () != jnc::ModuleItemKind_Function)
 	{
-		err::SetFormatStringError ("'%s' is not found or not a function\n", m_pCmdLine->m_FunctionName.cc ());
+		err::setFormatStringError ("'%s' is not found or not a function\n", m_cmdLine->m_functionName.cc ());
 		return false;
 	}
 
-	jnc::CFunction* pFunction = (jnc::CFunction*) pFunctionItem;
+	jnc::Function* function = (jnc::Function*) functionItem;
 
-	jnc::CScopeThreadRuntime ScopeRuntime (&m_Runtime);
+	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
 
-	m_Runtime.Startup ();
+	m_runtime.startup ();
 
-	jnc::CFunction* pConstructor = m_Module.GetConstructor ();
-	if (pConstructor)
+	jnc::Function* constructor = m_module.getConstructor ();
+	if (constructor)
 	{
-		Result = RunFunction (pConstructor);
-		if (!Result)
+		result = runFunction (constructor);
+		if (!result)
 			return false;
 	}
 
-	Result = RunFunction (pFunction, pReturnValue);
-	if (!Result)
+	result = runFunction (function, returnValue);
+	if (!result)
 		return false;
 
-	jnc::CFunction* pDestructor = m_Module.GetDestructor ();
-	if (pDestructor)
+	jnc::Function* destructor = m_module.getDestructor ();
+	if (destructor)
 	{
-		Result = RunFunction (pDestructor);
-		if (!Result)
+		result = runFunction (destructor);
+		if (!result)
 			return false;
 	}
 
-	m_Runtime.Shutdown ();
+	m_runtime.shutdown ();
 
 	return true;
 }
@@ -358,122 +358,122 @@ CJnc::RunFunction (int* pReturnValue)
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int
-CJnc::Server ()
+Jnc::server ()
 {
-	int Result;
+	int result;
 
-	PrintVersion (m_pOutStream);
+	printVersion (m_outStream);
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-	WSADATA WsaData;
-	WSAStartup (0x0202, &WsaData);
+	WSADATA wsaData;
+	WSAStartup (0x0202, &wsaData);
 #endif
 
-	SOCKET ServerSock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	ASSERT (ServerSock != INVALID_SOCKET);
+	SOCKET serverSock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	ASSERT (serverSock != INVALID_SOCKET);
 
-	sockaddr_in SockAddr = { 0 };
-	SockAddr.sin_family = AF_INET;
-	SockAddr.sin_port = htons (m_pCmdLine->m_ServerPort);
+	sockaddr_in sockAddr = { 0 };
+	sockAddr.sin_family = AF_INET;
+	sockAddr.sin_port = htons (m_cmdLine->m_serverPort);
 
-	Result = bind (ServerSock, (sockaddr*) &SockAddr, sizeof (SockAddr));
-	if (Result == -1)
+	result = bind (serverSock, (sockaddr*) &sockAddr, sizeof (sockAddr));
+	if (result == -1)
 	{
-		m_pOutStream->Printf (
+		m_outStream->printf (
 			"cannot open TCP port %d (%s)\n",
-			m_pCmdLine->m_ServerPort,
-			err::CError (getsockerror ()).GetDescription ().cc ()
+			m_cmdLine->m_serverPort,
+			err::Error (getsockerror ()).getDescription ().cc ()
 			);
 
-		return EJncError_IoFailure;
+		return JncErrorKind_IoFailure;
 	}
 
-	listen (ServerSock, 1);
+	listen (serverSock, 1);
 
-	m_pOutStream->Printf ("listening on TCP port %d...\n", m_pCmdLine->m_ServerPort);
+	m_outStream->printf ("listening on TCP port %d...\n", m_cmdLine->m_serverPort);
 
 	for (;;)
 	{
-		socklen_t SockAddrSize = sizeof (SockAddr);
+		socklen_t sockAddrSize = sizeof (sockAddr);
 
-		SOCKET ConnSock = accept (ServerSock, (sockaddr*) &SockAddr, &SockAddrSize);
-		m_pOutStream->Printf (
+		SOCKET connSock = accept (serverSock, (sockaddr*) &sockAddr, &sockAddrSize);
+		m_outStream->printf (
 			"%s:%d: connection accepted\n",
-			inet_ntoa (SockAddr.sin_addr),
-			ntohs (SockAddr.sin_port)
+			inet_ntoa (sockAddr.sin_addr),
+			ntohs (sockAddr.sin_port)
 			);
 
-		Client (ConnSock, &SockAddr);
-		closesocket (ConnSock);
+		client (connSock, &sockAddr);
+		closesocket (connSock);
 	}
 
-	closesocket (ServerSock);
+	closesocket (serverSock);
 	return 0;
 }
 
 int
-CJnc::Client (
-	SOCKET Socket,
-	sockaddr_in* pSockAddr
+Jnc::client (
+	SOCKET socket,
+	sockaddr_in* sockAddr
 	)
 {
-	int Result;
+	int result;
 
-	rtl::CString CmdLineString;
+	rtl::String cmdLineString;
 
 	for (;;)
 	{
-		char Buffer [256];
-		Result = recv (Socket, Buffer, sizeof (Buffer), 0);
-		if (Result <= 0)
+		char buffer [256];
+		result = recv (socket, buffer, sizeof (buffer), 0);
+		if (result <= 0)
 		{
-			m_pOutStream->Printf (
+			m_outStream->printf (
 				"%s:%d: premature connection close\n",
-				inet_ntoa (pSockAddr->sin_addr),
-				ntohs (pSockAddr->sin_port)
+				inet_ntoa (sockAddr->sin_addr),
+				ntohs (sockAddr->sin_port)
 				);
-			return EJncError_IoFailure;
+			return JncErrorKind_IoFailure;
 		}
 
-		char* p = strnchr (Buffer, Result, '\n');
+		char* p = strnchr (buffer, result, '\n');
 		if (p)
 		{
 			*p = '\0';
-			CmdLineString.Append (Buffer, p - Buffer);
+			cmdLineString.append (buffer, p - buffer);
 			break;
 		}
 
-		CmdLineString.Append (Buffer, Result);
+		cmdLineString.append (buffer, result);
 	}
 
-	m_pOutStream->Printf (
+	m_outStream->printf (
 		"%s:%d: cmdline: %s\n",
-		inet_ntoa (pSockAddr->sin_addr),
-		ntohs (pSockAddr->sin_port),
-		CmdLineString.cc ()
+		inet_ntoa (sockAddr->sin_addr),
+		ntohs (sockAddr->sin_port),
+		cmdLineString.cc ()
 		);
 
-	CSocketOutStream SocketOut;
-	SocketOut.m_Socket = Socket;
+	SocketOutStream socketOut;
+	socketOut.m_socket = socket;
 
-	TCmdLine CmdLine;
-	CCmdLineParser Parser (&CmdLine);
+	CmdLine cmdLine;
+	CmdLineParser parser (&cmdLine);
 
-	Result = Parser.Parse (CmdLineString, CmdLineString.GetLength ());
-	if (!Result)
+	result = parser.parse (cmdLineString, cmdLineString.getLength ());
+	if (!result)
 	{
-		SocketOut.Printf ("error parsing command line: %s\n", err::GetError ()->GetDescription ().cc ());
-		return EJncError_InvalidCmdLine;
+		socketOut.printf ("error parsing command line: %s\n", err::getError ()->getDescription ().cc ());
+		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (CmdLine.m_Flags & EJncFlag_Server)
+	if (cmdLine.m_flags & JncFlagKind_Server)
 	{
-		SocketOut.Printf ("recursive server request\n");
-		return EJncError_InvalidCmdLine;
+		socketOut.printf ("recursive server request\n");
+		return JncErrorKind_InvalidCmdLine;
 	}
 
-	CJnc Jnc;
-	return Jnc.Run (&CmdLine, &SocketOut);
+	Jnc jnc;
+	return jnc.run (&cmdLine, &socketOut);
 }
 
 //.............................................................................

@@ -6,67 +6,67 @@ namespace jnc {
 //.............................................................................
 
 void
-CQualifiedName::AddName (const rtl::CString& Name)
+QualifiedName::addName (const rtl::String& name)
 {
-	if (m_First.IsEmpty ())
-		m_First = Name;
+	if (m_first.isEmpty ())
+		m_first = name;
 	else
-		m_List.InsertTail (Name);
+		m_list.insertTail (name);
 }
 
-rtl::CString
-CQualifiedName::GetFullName () const
+rtl::String
+QualifiedName::getFullName () const
 {
-	if (m_List.IsEmpty ())
-		return m_First;
+	if (m_list.isEmpty ())
+		return m_first;
 
-	rtl::CString Name = m_First;	
-	rtl::CBoxIteratorT <rtl::CString> It = m_List.GetHead ();
-	for (; It; It++)
+	rtl::String name = m_first;	
+	rtl::BoxIterator <rtl::String> it = m_list.getHead ();
+	for (; it; it++)
 	{
-		Name.Append ('.');
-		Name.Append (*It);
+		name.append ('.');
+		name.append (*it);
 	}
 
-	return Name;
+	return name;
 }
 
 void
-CQualifiedName::Parse (const char* pName)
+QualifiedName::parse (const char* name)
 {
-	Clear ();
+	clear ();
 
 	for (;;)
 	{
-		const char* pDot = strchr (pName, '.');
-		if (!pDot)
+		const char* dot = strchr (name, '.');
+		if (!dot)
 		{
-			AddName (pName);
+			addName (name);
 			break;
 		}
 
-		AddName (rtl::CString (pName, pDot - pName));
-		pName = pDot + 1;
+		addName (rtl::String (name, dot - name));
+		name = dot + 1;
 	}
 }
 
 void
-CQualifiedName::Copy (const CQualifiedName& Name)
+QualifiedName::copy (const QualifiedName& name)
 {
-	m_First = Name.m_First;
-	m_List.Clear ();
+	m_first = name.m_first;
+	m_list.clear ();
 
-	rtl::CBoxIteratorT <rtl::CString> It = Name.m_List.GetHead ();
-	for (; It; It++)
-		m_List.InsertTail (*It);
+	rtl::BoxIterator <rtl::String> it = name.m_list.getHead ();
+	for (; it; it++)
+		m_list.insertTail (*it);
 }
 
 void
-CQualifiedName::TakeOver (CQualifiedName* pName)
+QualifiedName::takeOver (QualifiedName* name)
 {
-	m_First = pName->m_First;
-	m_List.TakeOver (&pName->m_List);
-	pName->Clear ();
+	m_first = name->m_first;
+	m_list.takeOver (&name->m_list);
+	name->clear ();
 }
 
 //.............................................................................

@@ -11,97 +11,97 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-GetPtrCmpOperatorOperandType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+getPtrCmpOperatorOperandType (
+	const Value& opValue1,
+	const Value& opValue2
 	);
 
 //.............................................................................
 
 template <typename T>
-class CBinOpT_Cmp: public CBinaryOperator
+class BinOp_Cmp: public BinaryOperator
 {
 public:
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		)
 	{
-		return GetSimpleType (m_pModule, EType_Bool);
+		return getSimpleType (m_module, TypeKind_Bool);
 	}
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		)
 	{
-		CType* pType;
+		Type* type;
 
-		if ((RawOpValue1.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Ptr) ||
-			(RawOpValue2.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Ptr))
+		if ((rawOpValue1.getType ()->getTypeKindFlags () & TypeKindFlagKind_Ptr) ||
+			(rawOpValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Ptr))
 		{
-			pType = GetPtrCmpOperatorOperandType (RawOpValue1, RawOpValue2);
+			type = getPtrCmpOperatorOperandType (rawOpValue1, rawOpValue2);
 		}
 		else
 		{
-			pType = GetArithmeticOperatorResultType (RawOpValue1, RawOpValue2);
+			type = getArithmeticOperatorResultType (rawOpValue1, rawOpValue2);
 		}
 
-		if (!pType)
+		if (!type)
 		{
-			SetOperatorError (RawOpValue1, RawOpValue2);
+			setOperatorError (rawOpValue1, rawOpValue2);
 			return false;
 		}
 
-		CValue OpValue1;
-		CValue OpValue2;
+		Value opValue1;
+		Value opValue2;
 
-		bool Result = 
-			CastOperator (m_pModule, RawOpValue1, pType, &OpValue1) &&
-			CastOperator (m_pModule, RawOpValue2, pType, &OpValue2);
+		bool result = 
+			castOperator (m_module, rawOpValue1, type, &opValue1) &&
+			castOperator (m_module, rawOpValue2, type, &opValue2);
 		
-		if (!Result)
+		if (!result)
 			return false;
 
-		if (OpValue1.GetValueKind () == EValue_Const && OpValue2.GetValueKind () == EValue_Const)
+		if (opValue1.getValueKind () == ValueKind_Const && opValue2.getValueKind () == ValueKind_Const)
 		{
-			EType TypeKind = pType->GetTypeKind ();
-			switch (TypeKind)
+			TypeKind typeKind = type->getTypeKind ();
+			switch (typeKind)
 			{
-			case EType_Int32:
-			case EType_Int32_u:
-				pResultValue->SetConstBool (
-					T::ConstOpInt32 (
-						OpValue1.GetInt32 (), 
-						OpValue2.GetInt32 (), 
-						(pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned) != 0
+			case TypeKind_Int32:
+			case TypeKind_Int32_u:
+				resultValue->setConstBool (
+					T::constOpInt32 (
+						opValue1.getInt32 (), 
+						opValue2.getInt32 (), 
+						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
 						)
 					);
 				break;
 
-			case EType_Int64:
-			case EType_Int64_u:
-				pResultValue->SetConstBool (
-					T::ConstOpInt32 (
-						OpValue1.GetInt32 (), 
-						OpValue2.GetInt32 (), 
-						(pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned) != 0
+			case TypeKind_Int64:
+			case TypeKind_Int64_u:
+				resultValue->setConstBool (
+					T::constOpInt32 (
+						opValue1.getInt32 (), 
+						opValue2.getInt32 (), 
+						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
 						)
 					);
 				break;
 
-			case EType_Float:
-				pResultValue->SetConstBool (T::ConstOpFp32 (OpValue1.GetFloat (), OpValue2.GetFloat ()));
+			case TypeKind_Float:
+				resultValue->setConstBool (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()));
 				break;
 
-			case EType_Double:
-				pResultValue->SetConstBool (T::ConstOpFp64 (OpValue1.GetDouble (), OpValue2.GetDouble ()));
+			case TypeKind_Double:
+				resultValue->setConstBool (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()));
 				break;
 
 			default:
@@ -110,27 +110,27 @@ public:
 		}
 		else
 		{
-			EType TypeKind = pType->GetTypeKind ();
-			switch (TypeKind)
+			TypeKind typeKind = type->getTypeKind ();
+			switch (typeKind)
 			{
-			case EType_Int32:
-			case EType_Int32_u:
-			case EType_Int64:
-			case EType_Int64_u:
-				static_cast <T*> (this)->LlvmOpInt (
-					OpValue1, 
-					OpValue2, 
-					pResultValue,
-					(pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned) != 0
+			case TypeKind_Int32:
+			case TypeKind_Int32_u:
+			case TypeKind_Int64:
+			case TypeKind_Int64_u:
+				static_cast <T*> (this)->llvmOpInt (
+					opValue1, 
+					opValue2, 
+					resultValue,
+					(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
 					);
 				break;
 
-			case EType_Float:
-			case EType_Double:
-				static_cast <T*> (this)->LlvmOpFp (
-					OpValue1, 
-					OpValue2,
-					pResultValue
+			case TypeKind_Float:
+			case TypeKind_Double:
+				static_cast <T*> (this)->llvmOpFp (
+					opValue1, 
+					opValue2,
+					resultValue
 					);
 				break;
 
@@ -145,409 +145,409 @@ public:
 
 //.............................................................................
 
-class CBinOp_Eq: public CBinOpT_Cmp <CBinOp_Eq>
+class BinOp_Eq: public BinOp_Cmp <BinOp_Eq>
 {	
 public:
-	CBinOp_Eq ()
+	BinOp_Eq ()
 	{
-		m_OpKind = EBinOp_Eq;
+		m_opKind = BinOpKind_Eq;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return OpValue1 == OpValue2;
+		return opValue1 == opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return OpValue1 == OpValue2;
+		return opValue1 == opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 == OpValue2;
+		return opValue1 == opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 == OpValue2;
+		return opValue1 == opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_Ne: public CBinOpT_Cmp <CBinOp_Ne>
+class BinOp_Ne: public BinOp_Cmp <BinOp_Ne>
 {	
 public:
-	CBinOp_Ne ()
+	BinOp_Ne ()
 	{
-		m_OpKind = EBinOp_Ne;
+		m_opKind = BinOpKind_Ne;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return OpValue1 != OpValue2;
+		return opValue1 != opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return OpValue1 != OpValue2;
+		return opValue1 != opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 != OpValue2;
+		return opValue1 != opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 != OpValue2;
+		return opValue1 != opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_Lt: public CBinOpT_Cmp <CBinOp_Lt>
+class BinOp_Lt: public BinOp_Cmp <BinOp_Lt>
 {	
 public:
-	CBinOp_Lt ()
+	BinOp_Lt ()
 	{
-		m_OpKind = EBinOp_Lt;
+		m_opKind = BinOpKind_Lt;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return IsUnsigned ? (uint32_t) OpValue1 < (uint32_t) OpValue2 : OpValue1 < OpValue2;
+		return isUnsigned ? (uint32_t) opValue1 < (uint32_t) opValue2 : opValue1 < opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return IsUnsigned ? (uint64_t) OpValue1 < (uint64_t) OpValue2 : OpValue1 < OpValue2;
+		return isUnsigned ? (uint64_t) opValue1 < (uint64_t) opValue2 : opValue1 < opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 < OpValue2;
+		return opValue1 < opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 < OpValue2;
+		return opValue1 < opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_Le: public CBinOpT_Cmp <CBinOp_Le>
+class BinOp_Le: public BinOp_Cmp <BinOp_Le>
 {	
 public:
-	CBinOp_Le ()
+	BinOp_Le ()
 	{
-		m_OpKind = EBinOp_Le;
+		m_opKind = BinOpKind_Le;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return IsUnsigned ? (uint32_t) OpValue1 <= (uint32_t) OpValue2 : OpValue1 <= OpValue2;
+		return isUnsigned ? (uint32_t) opValue1 <= (uint32_t) opValue2 : opValue1 <= opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return IsUnsigned ? (uint64_t) OpValue1 <= (uint64_t) OpValue2 : OpValue1 <= OpValue2;
+		return isUnsigned ? (uint64_t) opValue1 <= (uint64_t) opValue2 : opValue1 <= opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 <= OpValue2;
+		return opValue1 <= opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 <= OpValue2;
+		return opValue1 <= opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_Gt: public CBinOpT_Cmp <CBinOp_Gt>
+class BinOp_Gt: public BinOp_Cmp <BinOp_Gt>
 {	
 public:
-	CBinOp_Gt ()
+	BinOp_Gt ()
 	{
-		m_OpKind = EBinOp_Gt;
+		m_opKind = BinOpKind_Gt;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return IsUnsigned ? (uint32_t) OpValue1 > (uint32_t) OpValue2 : OpValue1 > OpValue2;
+		return isUnsigned ? (uint32_t) opValue1 > (uint32_t) opValue2 : opValue1 > opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return IsUnsigned ? (uint64_t) OpValue1 > (uint64_t) OpValue2 : OpValue1 > OpValue2;
+		return isUnsigned ? (uint64_t) opValue1 > (uint64_t) opValue2 : opValue1 > opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 > OpValue2;
+		return opValue1 > opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 > OpValue2;
+		return opValue1 > opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_Ge: public CBinOpT_Cmp <CBinOp_Ge>
+class BinOp_Ge: public BinOp_Cmp <BinOp_Ge>
 {	
 public:
-	CBinOp_Ge ()
+	BinOp_Ge ()
 	{
-		m_OpKind = EBinOp_Ge;
+		m_opKind = BinOpKind_Ge;
 	}
 
 	static
 	bool
-	ConstOpInt32 (
-		int32_t OpValue1,
-		int32_t OpValue2,
-		bool IsUnsigned
+	constOpInt32 (
+		int32_t opValue1,
+		int32_t opValue2,
+		bool isUnsigned
 		) 
 	{
-		return IsUnsigned ? (uint32_t) OpValue1 >= (uint32_t) OpValue2 : OpValue1 >= OpValue2;
+		return isUnsigned ? (uint32_t) opValue1 >= (uint32_t) opValue2 : opValue1 >= opValue2;
 	}
 
 	static
 	bool
-	ConstOpInt64 (
-		int64_t OpValue1,
-		int64_t OpValue2,
-		bool IsUnsigned
+	constOpInt64 (
+		int64_t opValue1,
+		int64_t opValue2,
+		bool isUnsigned
 		)
 	{
-		return IsUnsigned ? (uint64_t) OpValue1 >= (uint64_t) OpValue2 : OpValue1 >= OpValue2;
+		return isUnsigned ? (uint64_t) opValue1 >= (uint64_t) opValue2 : opValue1 >= opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp32 (
-		float OpValue1,
-		float OpValue2
+	constOpFp32 (
+		float opValue1,
+		float opValue2
 		)
 	{
-		return OpValue1 >= OpValue2;
+		return opValue1 >= opValue2;
 	}
 
 	static
 	bool
-	ConstOpFp64 (
-		double OpValue1,
-		double OpValue2
+	constOpFp64 (
+		double opValue1,
+		double opValue2
 		)
 	{
-		return OpValue1 >= OpValue2;
+		return opValue1 >= opValue2;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue,
-		bool IsUnsigned
+	llvmOpInt (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue,
+		bool isUnsigned
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 

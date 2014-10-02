@@ -8,125 +8,125 @@ namespace jnc {
 
 //.............................................................................
 
-rtl::CString
-CClosureClassType::CreateSignature (
-	CType* pTargetType, // function or property
-	CType* pThunkType, // function or property
-	CType* const* ppArgTypeArray,
-	const size_t* pClosureMap,
-	size_t ArgCount,
-	uint64_t WeakMask
+rtl::String
+ClosureClassType::createSignature (
+	Type* targetType, // function or property
+	Type* thunkType, // function or property
+	Type* const* argTypeArray,
+	const size_t* closureMap,
+	size_t argCount,
+	uint64_t weakMask
 	)
 {
-	rtl::CString Signature = "CF";
+	rtl::String signature = "CF";
 
-	if (WeakMask)
-		Signature.AppendFormat ("W%x-", WeakMask);
+	if (weakMask)
+		signature.appendFormat ("W%x-", weakMask);
 
-	Signature.AppendFormat (
+	signature.appendFormat (
 		"%s-%s(",
-		pTargetType->GetSignature ().cc (),
-		pThunkType->GetSignature ().cc ()
+		targetType->getSignature ().cc (),
+		thunkType->getSignature ().cc ()
 		);
 
-	for (size_t i = 0; i < ArgCount; i++)
-		Signature.AppendFormat ("%d:%s", pClosureMap [i], ppArgTypeArray [i]->GetSignature ().cc ());
+	for (size_t i = 0; i < argCount; i++)
+		signature.appendFormat ("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().cc ());
 
-	Signature.Append (')');
-	return Signature;
+	signature.append (')');
+	return signature;
 }
 
 void
-CClosureClassType::BuildArgValueList (
-	const CValue& ClosureValue,
-	const CValue* pThunkArgValueArray,
-	size_t ThunkArgCount,
-	rtl::CBoxListT <CValue>* pArgValueList
+ClosureClassType::buildArgValueList (
+	const Value& closureValue,
+	const Value* thunkArgValueArray,
+	size_t thunkArgCount,
+	rtl::BoxList <Value>* argValueList
 	)
 {
-	rtl::CIteratorT <CStructField> Field = GetFieldList ().GetHead ();
-	Field++; // skip function / property ptr
+	rtl::Iterator <StructField> field = getFieldList ().getHead ();
+	field++; // skip function / property ptr
 
 	size_t iClosure = 0;
 	size_t iThunk = 1; // skip 'this' arg
 
 	// part 1 -- arguments come both from closure and from thunk
 
-	for (size_t i = 0; Field; i++)
+	for (size_t i = 0; field; i++)
 	{
-		CValue ArgValue;
+		Value argValue;
 
-		if (i == m_ClosureMap [iClosure])
+		if (i == m_closureMap [iClosure])
 		{
-			m_pModule->m_OperatorMgr.GetClassField (ClosureValue, *Field, NULL, &ArgValue);
-			Field++;
+			m_module->m_operatorMgr.getClassField (closureValue, *field, NULL, &argValue);
+			field++;
 			iClosure++;
 		}
 		else
 		{
-			ArgValue = pThunkArgValueArray [iThunk];
+			argValue = thunkArgValueArray [iThunk];
 			iThunk++;
 		}
 
-		pArgValueList->InsertTail (ArgValue);
+		argValueList->insertTail (argValue);
 	}
 
 	// part 2 -- arguments come from thunk only
 
-	for (; iThunk < ThunkArgCount; iThunk++)
-		pArgValueList->InsertTail (pThunkArgValueArray [iThunk]);
+	for (; iThunk < thunkArgCount; iThunk++)
+		argValueList->insertTail (thunkArgValueArray [iThunk]);
 }
 
-jnc::TIfaceHdr*
-CClosureClassType::Strengthen (jnc::TIfaceHdr* p)
+jnc::IfaceHdr*
+ClosureClassType::strengthen (jnc::IfaceHdr* p)
 {
-	if (!m_WeakMask)
+	if (!m_weakMask)
 		return p;
 
-	size_t Count = m_pIfaceStructType->GetFieldList ().GetCount ();
+	size_t count = m_ifaceStructType->getFieldList ().getCount ();
 
-	uint64_t WeakMask = m_WeakMask;
-	while (WeakMask)
+	uint64_t weakMask = m_weakMask;
+	while (weakMask)
 	{
-		size_t Index = rtl::GetLoBitIdx64 (WeakMask);
+		size_t index = rtl::getLoBitIdx64 (weakMask);
 
-		CStructField* pField = GetFieldByIndex (Index);
-		ASSERT (pField && (pField->GetFlags () & EStructFieldFlag_WeakMasked));
+		StructField* field = getFieldByIndex (index);
+		ASSERT (field && (field->getFlags () & StructFieldFlagKind_WeakMasked));
 
 		// only strengthen if source arg is weak, but target arg is strong
 
-		jnc::TIfaceHdr* pWeakPtr = NULL;
+		jnc::IfaceHdr* weakPtr = NULL;
 
-		void* p2 = (char*) p + pField->GetOffset ();
+		void* p2 = (char*) p + field->getOffset ();
 
-		CType* pType = pField->GetType ();
-		EType TypeKind = pType->GetTypeKind ();
+		Type* type = field->getType ();
+		TypeKind typeKind = type->getTypeKind ();
 
-		switch (TypeKind)
+		switch (typeKind)
 		{
-		case EType_ClassPtr:
-			if (((CClassPtrType*) pType)->GetPtrTypeKind () == EClassPtrType_Normal)
-				pWeakPtr = *(jnc::TIfaceHdr**) p2;
+		case TypeKind_ClassPtr:
+			if (((ClassPtrType*) type)->getPtrTypeKind () == ClassPtrTypeKind_Normal)
+				weakPtr = *(jnc::IfaceHdr**) p2;
 
 			break;
 
-		case EType_FunctionPtr:
-			if (((CFunctionPtrType*) pType)->GetPtrTypeKind () == EFunctionPtrType_Normal)
-				pWeakPtr = ((jnc::TFunctionPtr*) p2)->m_pClosure;
+		case TypeKind_FunctionPtr:
+			if (((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Normal)
+				weakPtr = ((jnc::FunctionPtr*) p2)->m_closure;
 
 			break;
 
-		case EType_PropertyPtr:
-			if (((CPropertyPtrType*) pType)->GetPtrTypeKind () == EPropertyPtrType_Normal)
-				pWeakPtr = ((jnc::TPropertyPtr*) p2)->m_pClosure;
+		case TypeKind_PropertyPtr:
+			if (((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Normal)
+				weakPtr = ((jnc::PropertyPtr*) p2)->m_closure;
 
 			break;
 		}
 
-		if (pWeakPtr && !CStdLib::StrengthenClassPtr (pWeakPtr))
+		if (weakPtr && !StdLib::strengthenClassPtr (weakPtr))
 			return NULL;
 
-		WeakMask &= ~(1 << Index);
+		weakMask &= ~(1 << index);
 	}
 
 	return p;
@@ -134,96 +134,96 @@ CClosureClassType::Strengthen (jnc::TIfaceHdr* p)
 
 //.............................................................................
 
-CFunctionClosureClassType::CFunctionClosureClassType ()
+FunctionClosureClassType::FunctionClosureClassType ()
 {
-	m_ClassTypeKind = EClassType_FunctionClosure;
-	m_pThunkFunction = NULL;
+	m_classTypeKind = ClassTypeKind_FunctionClosure;
+	m_thunkFunction = NULL;
 }
 
 bool
-CFunctionClosureClassType::Compile ()
+FunctionClosureClassType::compile ()
 {
-	ASSERT (m_pThunkFunction);
+	ASSERT (m_thunkFunction);
 
-	bool Result = CClassType::Compile ();
-	if (!Result)
+	bool result = ClassType::compile ();
+	if (!result)
 		return false;
 
-	size_t ArgCount = m_pThunkFunction->GetType ()->GetArgArray ().GetCount ();
+	size_t argCount = m_thunkFunction->getType ()->getArgArray ().getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pThunkFunction, ArgValueArray, ArgCount);
+	m_module->m_functionMgr.internalPrologue (m_thunkFunction, argValueArray, argCount);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue PfnValue;
-	m_pModule->m_OperatorMgr.GetClassField (ThisValue, *GetFieldList ().GetHead (), NULL, &PfnValue);
+	Value pfnValue;
+	m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &pfnValue);
 
-	rtl::CBoxListT <CValue> ArgValueList;
-	BuildArgValueList (ThisValue, ArgValueArray, ArgCount, &ArgValueList);
+	rtl::BoxList <Value> argValueList;
+	buildArgValueList (thisValue, argValueArray, argCount, &argValueList);
 
-	CValue ReturnValue;
-	Result = m_pModule->m_OperatorMgr.CallOperator (PfnValue, &ArgValueList, &ReturnValue);
-	if (!Result)
+	Value returnValue;
+	result = m_module->m_operatorMgr.callOperator (pfnValue, &argValueList, &returnValue);
+	if (!result)
 		return false;
 
-	if (m_pThunkFunction->GetType ()->GetReturnType ()->GetTypeKind () != EType_Void)
+	if (m_thunkFunction->getType ()->getReturnType ()->getTypeKind () != TypeKind_Void)
 	{
-		Result = m_pModule->m_ControlFlowMgr.Return (ReturnValue);
-		if (!Result)
+		result = m_module->m_controlFlowMgr.ret (returnValue);
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 //.............................................................................
 
-CPropertyClosureClassType::CPropertyClosureClassType ()
+PropertyClosureClassType::PropertyClosureClassType ()
 {
-	m_ClassTypeKind = EClassType_PropertyClosure;
-	m_pThunkProperty = NULL;
+	m_classTypeKind = ClassTypeKind_PropertyClosure;
+	m_thunkProperty = NULL;
 }
 
 bool
-CPropertyClosureClassType::Compile ()
+PropertyClosureClassType::compile ()
 {
-	ASSERT (m_pThunkProperty);
+	ASSERT (m_thunkProperty);
 
-	bool Result = CClassType::Compile ();
-	if (!Result)
+	bool result = ClassType::compile ();
+	if (!result)
 		return false;
 
-	CFunction* pGetter = m_pThunkProperty->GetGetter ();
-	CFunction* pSetter = m_pThunkProperty->GetSetter ();
-	CFunction* pBinder = m_pThunkProperty->GetBinder ();
+	Function* getter = m_thunkProperty->getGetter ();
+	Function* setter = m_thunkProperty->getSetter ();
+	Function* binder = m_thunkProperty->getBinder ();
 
-	if (pBinder)
+	if (binder)
 	{
-		Result = CompileAccessor (pBinder);
-		if (!Result)
+		result = compileAccessor (binder);
+		if (!result)
 			return false;
 	}
 
-	Result = CompileAccessor (pGetter);
-	if (!Result)
+	result = compileAccessor (getter);
+	if (!result)
 		return false;
 
-	if (pSetter)
+	if (setter)
 	{
-		size_t OverloadCount = pSetter->GetOverloadCount ();
+		size_t overloadCount = setter->getOverloadCount ();
 
-		for (size_t i = 0; i < OverloadCount; i++)
+		for (size_t i = 0; i < overloadCount; i++)
 		{
-			CFunction* pOverload = pSetter->GetOverload (i);
+			Function* overload = setter->getOverload (i);
 
-			Result = CompileAccessor (pOverload);
-			if (!Result)
+			result = compileAccessor (overload);
+			if (!result)
 				return false;
 		}
 	}
@@ -232,122 +232,122 @@ CPropertyClosureClassType::Compile ()
 }
 
 bool
-CPropertyClosureClassType::CompileAccessor (CFunction* pAccessor)
+PropertyClosureClassType::compileAccessor (Function* accessor)
 {
-	ASSERT (pAccessor->GetProperty () == m_pThunkProperty);
+	ASSERT (accessor->getProperty () == m_thunkProperty);
 
-	bool Result;
+	bool result;
 
-	size_t ArgCount = pAccessor->GetType ()->GetArgArray ().GetCount ();
+	size_t argCount = accessor->getType ()->getArgArray ().getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (pAccessor, ArgValueArray, ArgCount);
+	m_module->m_functionMgr.internalPrologue (accessor, argValueArray, argCount);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue PropertyPtrValue;
-	Result = m_pModule->m_OperatorMgr.GetClassField (ThisValue, *GetFieldList ().GetHead (), NULL, &PropertyPtrValue);
-	ASSERT (Result);
+	Value propertyPtrValue;
+	result = m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &propertyPtrValue);
+	ASSERT (result);
 
-	CValue PfnValue;
+	Value pfnValue;
 
-	EFunction AccessorKind = pAccessor->GetFunctionKind ();
-	switch (AccessorKind)
+	FunctionKind accessorKind = accessor->getFunctionKind ();
+	switch (accessorKind)
 	{
-	case EFunction_Binder:
-		Result = m_pModule->m_OperatorMgr.GetPropertyBinder (PropertyPtrValue, &PfnValue);
+	case FunctionKind_Binder:
+		result = m_module->m_operatorMgr.getPropertyBinder (propertyPtrValue, &pfnValue);
 		break;
 
-	case EFunction_Getter:
-		Result = m_pModule->m_OperatorMgr.GetPropertyGetter (PropertyPtrValue, &PfnValue);
+	case FunctionKind_Getter:
+		result = m_module->m_operatorMgr.getPropertyGetter (propertyPtrValue, &pfnValue);
 		break;
 
-	case EFunction_Setter:
-		Result = m_pModule->m_OperatorMgr.GetPropertySetter (PropertyPtrValue, ArgValueArray [ArgCount - 1], &PfnValue);
+	case FunctionKind_Setter:
+		result = m_module->m_operatorMgr.getPropertySetter (propertyPtrValue, argValueArray [argCount - 1], &pfnValue);
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid property accessor '%s' in property closure", GetFunctionKindString (AccessorKind));
+		err::setFormatStringError ("invalid property accessor '%s' in property closure", getFunctionKindString (accessorKind));
 		return false;
 	}
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	rtl::CBoxListT <CValue> ArgValueList;
-	BuildArgValueList (ThisValue, ArgValueArray, ArgCount, &ArgValueList);
+	rtl::BoxList <Value> argValueList;
+	buildArgValueList (thisValue, argValueArray, argCount, &argValueList);
 
-	CValue ReturnValue;
-	Result = m_pModule->m_OperatorMgr.CallOperator (PfnValue, &ArgValueList, &ReturnValue);
-	if (!Result)
+	Value returnValue;
+	result = m_module->m_operatorMgr.callOperator (pfnValue, &argValueList, &returnValue);
+	if (!result)
 		return false;
 
-	if (pAccessor->GetType ()->GetReturnType ()->GetTypeKind () != EType_Void)
+	if (accessor->getType ()->getReturnType ()->getTypeKind () != TypeKind_Void)
 	{
-		Result = m_pModule->m_ControlFlowMgr.Return (ReturnValue);
-		if (!Result)
+		result = m_module->m_controlFlowMgr.ret (returnValue);
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 //.............................................................................
 
-CDataClosureClassType::CDataClosureClassType ()
+DataClosureClassType::DataClosureClassType ()
 {
-	m_ClassTypeKind = EClassType_DataClosure;
-	m_pThunkProperty = NULL;
+	m_classTypeKind = ClassTypeKind_DataClosure;
+	m_thunkProperty = NULL;
 }
 
-rtl::CString
-CDataClosureClassType::CreateSignature (
-	CType* pTargetType,
-	CPropertyType* pThunkType
+rtl::String
+DataClosureClassType::createSignature (
+	Type* targetType,
+	PropertyType* thunkType
 	)
 {
-	rtl::CString Signature = "CD";
+	rtl::String signature = "CD";
 
-	Signature.AppendFormat (
+	signature.appendFormat (
 		"%s-%s",
-		pTargetType->GetTypeString ().cc (),
-		pThunkType->GetTypeString ().cc ()
+		targetType->getTypeString ().cc (),
+		thunkType->getTypeString ().cc ()
 		);
 
-	return Signature;
+	return signature;
 }
 
 bool
-CDataClosureClassType::Compile ()
+DataClosureClassType::compile ()
 {
-	ASSERT (m_pThunkProperty);
+	ASSERT (m_thunkProperty);
 
-	bool Result = CClassType::Compile ();
-	if (!Result)
+	bool result = ClassType::compile ();
+	if (!result)
 		return false;
 
-	CFunction* pGetter = m_pThunkProperty->GetGetter ();
-	CFunction* pSetter = m_pThunkProperty->GetSetter ();
+	Function* getter = m_thunkProperty->getGetter ();
+	Function* setter = m_thunkProperty->getSetter ();
 
-	Result = CompileGetter (pGetter);
-	if (!Result)
+	result = compileGetter (getter);
+	if (!result)
 		return false;
 
-	if (pSetter)
+	if (setter)
 	{
-		size_t OverloadCount = pSetter->GetOverloadCount ();
+		size_t overloadCount = setter->getOverloadCount ();
 
-		for (size_t i = 0; i < OverloadCount; i++)
+		for (size_t i = 0; i < overloadCount; i++)
 		{
-			CFunction* pOverload = pSetter->GetOverload (i);
+			Function* overload = setter->getOverload (i);
 
-			Result = CompileSetter (pOverload);
-			if (!Result)
+			result = compileSetter (overload);
+			if (!result)
 				return false;
 		}
 	}
@@ -356,47 +356,47 @@ CDataClosureClassType::Compile ()
 }
 
 bool
-CDataClosureClassType::CompileGetter (CFunction* pGetter)
+DataClosureClassType::compileGetter (Function* getter)
 {
-	m_pModule->m_FunctionMgr.InternalPrologue (pGetter);
+	m_module->m_functionMgr.internalPrologue (getter);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue PtrValue;
+	Value ptrValue;
 
-	bool Result =
-		m_pModule->m_OperatorMgr.GetClassField (ThisValue, *GetFieldList ().GetHead (), NULL, &PtrValue) &&
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Indir, &PtrValue) &&
-		m_pModule->m_ControlFlowMgr.Return (PtrValue);
+	bool result =
+		m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &ptrValue) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &ptrValue) &&
+		m_module->m_controlFlowMgr.ret (ptrValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CDataClosureClassType::CompileSetter (CFunction* pSetter)
+DataClosureClassType::compileSetter (Function* setter)
 {
-	CValue ArgValue;
-	m_pModule->m_FunctionMgr.InternalPrologue (pSetter, &ArgValue, 1);
+	Value argValue;
+	m_module->m_functionMgr.internalPrologue (setter, &argValue, 1);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue PtrValue;
+	Value ptrValue;
 
-	bool Result =
-		m_pModule->m_OperatorMgr.GetClassField (ThisValue, *GetFieldList ().GetHead (), NULL, &PtrValue) &&
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Indir, &PtrValue) &&
-		m_pModule->m_OperatorMgr.StoreDataRef (PtrValue, ArgValue);
+	bool result =
+		m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &ptrValue) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &ptrValue) &&
+		m_module->m_operatorMgr.storeDataRef (ptrValue, argValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

@@ -6,74 +6,74 @@ namespace jnc {
 
 //.............................................................................
 
-CImportPtrType*
-CNamedImportType::GetImportPtrType (
-	uint_t TypeModifiers,
-	uint_t Flags
+ImportPtrType*
+NamedImportType::getImportPtrType (
+	uint_t typeModifiers,
+	uint_t flags
 	)
 {
-	return m_pModule->m_TypeMgr.GetImportPtrType (this, TypeModifiers, Flags);
+	return m_module->m_typeMgr.getImportPtrType (this, typeModifiers, flags);
 }
 
 //.............................................................................
 
-CImportPtrType::CImportPtrType ()
+ImportPtrType::ImportPtrType ()
 {
-	m_TypeKind = EType_ImportPtr;
-	m_pTargetType = NULL;
-	m_TypeModifiers = 0;
+	m_typeKind = TypeKind_ImportPtr;
+	m_targetType = NULL;
+	m_typeModifiers = 0;
 }
 
 void
-CImportPtrType::PrepareTypeString ()
+ImportPtrType::prepareTypeString ()
 {
-	ASSERT (m_pTargetType);
+	ASSERT (m_targetType);
 
-	if (m_pActualType)
+	if (m_actualType)
 	{
-		m_TypeString = m_pActualType->GetTypeString ();
+		m_typeString = m_actualType->getTypeString ();
 		return;
 	}
 
-	m_TypeString = "import ";
+	m_typeString = "import ";
 
-	if (m_TypeModifiers)
+	if (m_typeModifiers)
 	{
-		m_TypeString += GetTypeModifierString (m_TypeModifiers);
-		m_TypeString += ' ';
+		m_typeString += getTypeModifierString (m_typeModifiers);
+		m_typeString += ' ';
 	}
 
-	m_TypeString += m_pTargetType->GetQualifiedName ();
-	m_TypeString += '*';
+	m_typeString += m_targetType->getQualifiedName ();
+	m_typeString += '*';
 }
 
 //.............................................................................
 
-CImportIntModType::CImportIntModType ()
+ImportIntModType::ImportIntModType ()
 {
-	m_TypeKind = EType_ImportPtr;
-	m_pImportType = NULL;
-	m_TypeModifiers = 0;
+	m_typeKind = TypeKind_ImportPtr;
+	m_importType = NULL;
+	m_typeModifiers = 0;
 }
 
 void
-CImportIntModType::PrepareTypeString ()
+ImportIntModType::prepareTypeString ()
 {
-	if (m_pActualType)
+	if (m_actualType)
 	{
-		m_TypeString = m_pActualType->GetTypeString ();
+		m_typeString = m_actualType->getTypeString ();
 		return;
 	}
 
-	m_TypeString = "import ";
+	m_typeString = "import ";
 
-	if (m_TypeModifiers)
+	if (m_typeModifiers)
 	{
-		m_TypeString += GetTypeModifierString (m_TypeModifiers);
-		m_TypeString += ' ';
+		m_typeString += getTypeModifierString (m_typeModifiers);
+		m_typeString += ' ';
 	}
 
-	m_TypeString += m_pImportType->GetQualifiedName ();
+	m_typeString += m_importType->getQualifiedName ();
 }
 
 //.............................................................................

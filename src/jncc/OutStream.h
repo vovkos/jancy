@@ -2,73 +2,73 @@
 
 //.............................................................................
 
-class COutStream
+class OutStream
 {
 public:
 	virtual
 	size_t
-	Printf_va (
-		const char* pFormat,
+	printf_va (
+		const char* format,
 		axl_va_list va
 		) = 0;
 
 	size_t
-	Printf (
-		const char* pFormat,
+	printf (
+		const char* format,
 		...
 		)
 	{
-		AXL_VA_DECL (va, pFormat);
-		return Printf_va (pFormat, va);
+		AXL_VA_DECL (va, format);
+		return printf_va (format, va);
 	}
 };
 
 //.............................................................................
 
-class CFileOutStream: public COutStream
+class FileOutStream: public OutStream
 {
 public:
-	FILE* m_pFile;
+	FILE* m_file;
 
 public:
-	CFileOutStream ()
+	FileOutStream ()
 	{
-		m_pFile = stdout;
+		m_file = stdout;
 	}
 
 	virtual
 	size_t
-	Printf_va (
-		const char* pFormat,
+	printf_va (
+		const char* format,
 		axl_va_list va
 		);
 };
 
 //.............................................................................
 
-class CSocketOutStream: public COutStream
+class SocketOutStream: public OutStream
 {
 public:
-	SOCKET m_Socket;
+	SOCKET m_socket;
 
 public:
-	CSocketOutStream ()
+	SocketOutStream ()
 	{
-		m_Socket = INVALID_SOCKET;
+		m_socket = INVALID_SOCKET;
 	}
 
 	virtual
 	size_t
-	Printf_va (
-		const char* pFormat,
+	printf_va (
+		const char* format,
 		axl_va_list va
 		)
 	{
-		ASSERT (m_Socket != INVALID_SOCKET);
+		ASSERT (m_socket != INVALID_SOCKET);
 
-		rtl::CString String;
-		String.Format_va (pFormat, va);
-		return send (m_Socket, String, String.GetLength (), 0);
+		rtl::String string;
+		string.format_va (format, va);
+		return send (m_socket, string, string.getLength (), 0);
 	}
 };
 

@@ -8,124 +8,124 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetDataPtrTypeKindString (EDataPtrType PtrTypeKind)
+getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 {
-	static const char* StringTable [EDataPtrType__Count] = 
+	static const char* stringTable [DataPtrTypeKind__Count] = 
 	{
 		"normal", // EDataPtrType_Normal = 0,
 		"lean",   // EDataPtrType_Lean,
 		"thin",   // EDataPtrType_Thin,
 	};
 		
-	return (size_t) PtrTypeKind < EDataPtrType__Count ? 
-		StringTable [PtrTypeKind] : 
+	return (size_t) ptrTypeKind < DataPtrTypeKind__Count ? 
+		stringTable [ptrTypeKind] : 
 		"undefined-data-ptr-kind";
 }
 
 //.............................................................................
 
-CDataPtrType::CDataPtrType ()
+DataPtrType::DataPtrType ()
 {
-	m_TypeKind = EType_DataPtr;
-	m_PtrTypeKind = EDataPtrType_Normal;
-	m_pTargetType = NULL;
-	m_pAnchorNamespace = NULL;
-	m_Size = sizeof (TDataPtr);
+	m_typeKind = TypeKind_DataPtr;
+	m_ptrTypeKind = DataPtrTypeKind_Normal;
+	m_targetType = NULL;
+	m_anchorNamespace = NULL;
+	m_size = sizeof (DataPtr);
 }
 
 bool
-CDataPtrType::IsConstPtrType ()
+DataPtrType::isConstPtrType ()
 {
 	return 
-		(m_Flags & EPtrTypeFlag_Const) != 0 || 
-		(m_Flags & EPtrTypeFlag_ConstD) != 0 && 
-		m_pModule->m_NamespaceMgr.GetAccessKind (m_pAnchorNamespace) == EAccess_Public;
+		(m_flags & PtrTypeFlagKind_Const) != 0 || 
+		(m_flags & PtrTypeFlagKind_ConstD) != 0 && 
+		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
-CStructType* 
-CDataPtrType::GetDataPtrStructType ()
+StructType* 
+DataPtrType::getDataPtrStructType ()
 {
-	return m_pModule->m_TypeMgr.GetDataPtrStructType (m_pTargetType);
+	return m_module->m_typeMgr.getDataPtrStructType (m_targetType);
 }
 
-rtl::CString
-CDataPtrType::CreateSignature (
-	CType* pBaseType,
-	EType TypeKind,
-	EDataPtrType PtrTypeKind,
-	uint_t Flags
+rtl::String
+DataPtrType::createSignature (
+	Type* baseType,
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = TypeKind == EType_DataRef ? "RD" : "PD";
+	rtl::String signature = typeKind == TypeKind_DataRef ? "RD" : "PD";
 
-	switch (PtrTypeKind)
+	switch (ptrTypeKind)
 	{
-	case EDataPtrType_Lean:
-		Signature += 'l';
+	case DataPtrTypeKind_Lean:
+		signature += 'l';
 		break;
 
-	case EDataPtrType_Thin:
-		Signature += 't';
+	case DataPtrTypeKind_Thin:
+		signature += 't';
 		break;
 	}
 
-	Signature += GetPtrTypeFlagSignature (Flags);
-	Signature += pBaseType->GetSignature ();
-	return Signature;
+	signature += getPtrTypeFlagSignature (flags);
+	signature += baseType->getSignature ();
+	return signature;
 }
 
 void
-CDataPtrType::PrepareTypeString ()
+DataPtrType::prepareTypeString ()
 {
-	m_TypeString = m_pTargetType->GetTypeString ();
+	m_typeString = m_targetType->getTypeString ();
 
-	if (m_Flags & EPtrTypeFlag__AllMask)
+	if (m_flags & PtrTypeFlagKind__AllMask)
 	{
-		m_TypeString += ' ';
-		m_TypeString += GetPtrTypeFlagString (m_Flags);
+		m_typeString += ' ';
+		m_typeString += getPtrTypeFlagString (m_flags);
 	}
 
-	if (m_PtrTypeKind != EDataPtrType_Normal)
+	if (m_ptrTypeKind != DataPtrTypeKind_Normal)
 	{
-		m_TypeString += ' ';
-		m_TypeString += GetDataPtrTypeKindString (m_PtrTypeKind);
+		m_typeString += ' ';
+		m_typeString += getDataPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	m_TypeString += m_TypeKind == EType_DataRef ? "&" : "*";
+	m_typeString += m_typeKind == TypeKind_DataRef ? "&" : "*";
 }
 
 void
-CDataPtrType::PrepareLlvmType ()
+DataPtrType::prepareLlvmType ()
 {
-	m_pLlvmType = 
-		m_PtrTypeKind == EDataPtrType_Normal ? GetDataPtrStructType ()->GetLlvmType () :
-		m_pTargetType->GetTypeKind () != EType_Void ? llvm::PointerType::get (m_pTargetType->GetLlvmType (), 0) :
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetLlvmType ();
+	m_llvmType = 
+		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmType () :
+		m_targetType->getTypeKind () != TypeKind_Void ? llvm::PointerType::get (m_targetType->getLlvmType (), 0) :
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getLlvmType ();
 }
 
 void
-CDataPtrType::PrepareLlvmDiType ()
+DataPtrType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = 
-		m_PtrTypeKind == EDataPtrType_Normal ? GetDataPtrStructType ()->GetLlvmDiType () :
-		m_pTargetType->GetTypeKind () != EType_Void ? m_pModule->m_LlvmDiBuilder.CreatePointerType (m_pTargetType) :
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetLlvmDiType ();
+	m_llvmDiType = 
+		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmDiType () :
+		m_targetType->getTypeKind () != TypeKind_Void ? m_module->m_llvmDiBuilder.createPointerType (m_targetType) :
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getLlvmDiType ();
 }
 
 void
-CDataPtrType::GcMark (
-	CRuntime* pRuntime,
+DataPtrType::gcMark (
+	Runtime* runtime,
 	void* p
 	)
 {
-	if (m_PtrTypeKind == EDataPtrType_Normal)
+	if (m_ptrTypeKind == DataPtrTypeKind_Normal)
 	{
-		TDataPtr* pPtr = (TDataPtr*) p;		
-		TObjHdr* pObject = pPtr->m_pObject;
-		if (!pObject || pObject->m_ScopeLevel)
+		DataPtr* ptr = (DataPtr*) p;		
+		ObjHdr* object = ptr->m_object;
+		if (!object || object->m_scopeLevel)
 			return;
 
-		pObject->GcMarkData (pRuntime);
+		object->gcMarkData (runtime);
 	}
 	else
 	{
@@ -135,25 +135,25 @@ CDataPtrType::GcMark (
 
 //.............................................................................
 
-TDataPtr
-StrDup (
+DataPtr
+strDup (
 	const char* p,
-	size_t Length
+	size_t length
 	)
 {
-	if (Length == -1)
-		Length = p ? strlen (p) : 0;
+	if (length == -1)
+		length = p ? strlen (p) : 0;
 
-	char* pDst = (char*) AXL_MEM_ALLOC (Length + 1);
-	memcpy (pDst, p, Length);
-	pDst [Length] = 0;
+	char* dst = (char*) AXL_MEM_ALLOC (length + 1);
+	memcpy (dst, p, length);
+	dst [length] = 0;
 
-	jnc::TDataPtr Ptr;
-	Ptr.m_p = pDst;
-	Ptr.m_pRangeBegin = pDst;
-	Ptr.m_pRangeEnd = pDst + Length + 1;
-	Ptr.m_pObject = jnc::GetStaticObjHdr ();
-	return Ptr;
+	jnc::DataPtr ptr;
+	ptr.m_p = dst;
+	ptr.m_rangeBegin = dst;
+	ptr.m_rangeEnd = dst + length + 1;
+	ptr.m_object = jnc::getStaticObjHdr ();
+	return ptr;
 }
 
 //.............................................................................

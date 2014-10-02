@@ -9,266 +9,266 @@
 
 namespace jnc {
 
-class CStructType;
-class CUnionType;
+class StructType;
+class UnionType;
 
 //.............................................................................
 
-enum EStructFieldFlag
+enum StructFieldFlagKind
 {
-	EStructFieldFlag_WeakMasked = 0x010000,
+	StructFieldFlagKind_WeakMasked = 0x010000,
 };
 
 //.............................................................................
 
-class CStructField:
-	public CUserModuleItem,
-	public CModuleItemInitializer
+class StructField:
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
-	friend class CTypeMgr;
-	friend class CDerivableType;
-	friend class CProperty;
-	friend class CStructType;
-	friend class CUnionType;
-	friend class CClassType;
+	friend class TypeMgr;
+	friend class DerivableType;
+	friend class Property;
+	friend class StructType;
+	friend class UnionType;
+	friend class ClassType;
 
 protected:
-	CType* m_pType;
-	CImportType* m_pType_i;
-	uint_t m_PtrTypeFlags;
-	rtl::CBoxListT <CToken> m_Constructor;
+	Type* m_type;
+	ImportType* m_type_i;
+	uint_t m_ptrTypeFlags;
+	rtl::BoxList <Token> m_constructor;
 
-	CType* m_pBitFieldBaseType;
-	size_t m_BitCount;
-	size_t m_Offset;
-	uint_t m_LlvmIndex;
+	Type* m_bitFieldBaseType;
+	size_t m_bitCount;
+	size_t m_offset;
+	uint_t m_llvmIndex;
 
 public:
-	CStructField ();
+	StructField ();
 
-	CType*
-	GetType ()
+	Type*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CImportType*
-	GetType_i ()
+	ImportType*
+	getType_i ()
 	{
-		return m_pType_i;
+		return m_type_i;
 	}
 
 	int
-	GetPtrTypeFlags ()
+	getPtrTypeFlags ()
 	{
-		return m_PtrTypeFlags;
+		return m_ptrTypeFlags;
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetConstructor ()
+	rtl::ConstBoxList <Token>
+	getConstructor ()
 	{
-		return m_Constructor;
+		return m_constructor;
 	}
 
 	size_t
-	GetOffset ()
+	getOffset ()
 	{
-		return m_Offset;
+		return m_offset;
 	}
 
 	uint_t
-	GetLlvmIndex ()
+	getLlvmIndex ()
 	{
-		return m_LlvmIndex;
+		return m_llvmIndex;
 	}
 };
 
 //.............................................................................
 
-enum EStructType
+enum StructTypeKind
 {
-	EStructType_Normal,
-	EStructType_IfaceStruct,
-	EStructType_ClassStruct,
-	EStructType_UnionStruct,
+	StructTypeKind_Normal,
+	StructTypeKind_IfaceStruct,
+	StructTypeKind_ClassStruct,
+	StructTypeKind_UnionStruct,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CStructType: public CDerivableType
+class StructType: public DerivableType
 {
-	friend class CTypeMgr;
-	friend class CClassType;
-	friend class CUnionType;
-	friend class CProperty;
+	friend class TypeMgr;
+	friend class ClassType;
+	friend class UnionType;
+	friend class Property;
 
 protected:
-	EStructType m_StructTypeKind;
+	StructTypeKind m_structTypeKind;
 
-	size_t m_PackFactor;
-	size_t m_FieldActualSize;
-	size_t m_FieldAlignedSize;
+	size_t m_packFactor;
+	size_t m_fieldActualSize;
+	size_t m_fieldAlignedSize;
 
-	rtl::CStdListT <CStructField> m_FieldList;
-	rtl::CArrayT <CStructField*> m_FieldArray;
-	rtl::CArrayT <CStructField*> m_InitializedFieldArray;
-	rtl::CArrayT <llvm::Type*> m_LlvmFieldTypeArray;
-	CBitFieldType* m_pLastBitFieldType;
-	size_t m_LastBitFieldOffset;
+	rtl::StdList <StructField> m_fieldList;
+	rtl::Array <StructField*> m_fieldArray;
+	rtl::Array <StructField*> m_initializedFieldArray;
+	rtl::Array <llvm::Type*> m_llvmFieldTypeArray;
+	BitFieldType* m_lastBitFieldType;
+	size_t m_lastBitFieldOffset;
 
 public:
-	CStructType ();
+	StructType ();
 
-	EStructType
-	GetStructTypeKind ()
+	StructTypeKind
+	getStructTypeKind ()
 	{
-		return m_StructTypeKind;
+		return m_structTypeKind;
 	}
 
 	size_t
-	GetPackFactor ()
+	getPackFactor ()
 	{
-		return m_PackFactor;
+		return m_packFactor;
 	}
 
 	size_t
-	GetFieldActualSize ()
+	getFieldActualSize ()
 	{
-		return m_FieldActualSize;
+		return m_fieldActualSize;
 	}
 
 	size_t
-	GetFieldAlignedSize ()
+	getFieldAlignedSize ()
 	{
-		return m_FieldAlignedSize;
+		return m_fieldAlignedSize;
 	}
 
-	rtl::CConstListT <CStructField>
-	GetFieldList ()
+	rtl::ConstList <StructField>
+	getFieldList ()
 	{
-		return m_FieldList;
+		return m_fieldList;
 	}
 
 	virtual
-	CStructField*
-	GetFieldByIndex (size_t Index)
+	StructField*
+	getFieldByIndex (size_t index)
 	{
-		return GetFieldByIndexImpl (Index, false);
+		return getFieldByIndexImpl (index, false);
 	}
 
-	rtl::CArrayT <CStructField*>
-	GetInitializedFieldArray ()
+	rtl::Array <StructField*>
+	getInitializedFieldArray ()
 	{
-		return m_InitializedFieldArray;
+		return m_initializedFieldArray;
 	}
 
 	bool
-	Append (CStructType* pType);
+	append (StructType* type);
 
 	bool
-	InitializeFields (const CValue& ThisValue);
+	initializeFields (const Value& thisValue);
 
 	virtual
 	bool
-	Compile ();
+	compile ();
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual
-	CStructField*
-	CreateFieldImpl (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createFieldImpl (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
 	virtual
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format ("struct %s", m_Tag.cc ()); // thanks a lot gcc
+		m_typeString.format ("struct %s", m_tag.cc ()); // thanks a lot gcc
 	}
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	bool
-	CompileDefaultPreConstructor ();
+	compileDefaultPreConstructor ();
 
-	CStructField*
-	GetFieldByIndexImpl (
-		size_t Index,
-		bool IgnoreBaseTypes
+	StructField*
+	getFieldByIndexImpl (
+		size_t index,
+		bool ignoreBaseTypes
 		);
 
 	bool
-	LayoutField (
-		llvm::Type* pLlvmType,
-		size_t Size,
-		size_t AlignFactor,
-		size_t* pOffset,
-		uint_t* pLlvmIndex
+	layoutField (
+		llvm::Type* llvmType,
+		size_t size,
+		size_t alignFactor,
+		size_t* offset,
+		uint_t* llvmIndex
 		);
 
 	bool
-	LayoutField (
-		CType* pType,
-		size_t* pOffset,
-		uint_t* pLlvmIndex
+	layoutField (
+		Type* type,
+		size_t* offset,
+		uint_t* llvmIndex
 		)
 	{
 		return
-			pType->EnsureLayout () &&
-			LayoutField (
-				pType->GetLlvmType (),
-				pType->GetSize (),
-				pType->GetAlignFactor (),
-				pOffset,
-				pLlvmIndex
+			type->ensureLayout () &&
+			layoutField (
+				type->getLlvmType (),
+				type->getSize (),
+				type->getAlignFactor (),
+				offset,
+				llvmIndex
 				);
 	}
 
 	bool
-	LayoutBitField (
-		CType* pBaseType,
-		size_t BitCount,
-		CType** ppType,
-		size_t* pOffset,
-		uint_t* pLlvmIndex
+	layoutBitField (
+		Type* baseType,
+		size_t bitCount,
+		Type** type,
+		size_t* offset,
+		uint_t* llvmIndex
 		);
 
 	size_t
-	GetFieldOffset (size_t AlignFactor);
+	getFieldOffset (size_t alignFactor);
 
 	size_t
-	GetBitFieldBitOffset (
-		CType* pType,
-		size_t BitCount
+	getBitFieldBitOffset (
+		Type* type,
+		size_t bitCount
 		);
 
 	size_t
-	SetFieldActualSize (size_t Size);
+	setFieldActualSize (size_t size);
 
-	CArrayType*
-	InsertPadding (size_t Size);
+	ArrayType*
+	insertPadding (size_t size);
 };
 
 //.............................................................................

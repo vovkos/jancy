@@ -9,47 +9,47 @@
 
 namespace jnc {
 
-class CImportPtrType;
+class ImportPtrType;
 
 //.............................................................................
 
-enum EImportTypeFlag
+enum ImportTypeFlagKind
 {
-	EImportTypeFlag_ImportLoop = 0x010000, // used for detection of import loops
+	ImportTypeFlagKind_ImportLoop = 0x010000, // used for detection of import loops
 };
 
 //.............................................................................
 
-class CImportType: public CType
+class ImportType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CType* m_pActualType;
+	Type* m_actualType;
 
 public:
-	CImportType ()
+	ImportType ()
 	{
-		m_pActualType = NULL;
+		m_actualType = NULL;
 	}
 
 	bool
-	IsResolved ()
+	isResolved ()
 	{
-		return m_pActualType != NULL;
+		return m_actualType != NULL;
 	}
 
-	CType*
-	GetActualType ()
+	Type*
+	getActualType ()
 	{
-		ASSERT (m_pActualType);
-		return m_pActualType;
+		ASSERT (m_actualType);
+		return m_actualType;
 	}
 
 protected:
 	virtual
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
 		ASSERT (false);
 	}
@@ -57,175 +57,175 @@ protected:
 
 //.............................................................................
 
-class CNamedImportType:
-	public CImportType,
-	public CModuleItemPos
+class NamedImportType:
+	public ImportType,
+	public ModuleItemPos
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CNamespace* m_pAnchorNamespace;
-	CQualifiedName m_Name;
-	rtl::CString m_QualifiedName;
+	Namespace* m_anchorNamespace;
+	QualifiedName m_name;
+	rtl::String m_qualifiedName;
 
 public:
-	CNamedImportType ()
+	NamedImportType ()
 	{
-		m_TypeKind = EType_NamedImport;
-		m_pAnchorNamespace = NULL;
+		m_typeKind = TypeKind_NamedImport;
+		m_anchorNamespace = NULL;
 	}
 
-	CNamespace*
-	GetAnchorNamespace ()
+	Namespace*
+	getAnchorNamespace ()
 	{
-		return m_pAnchorNamespace;
+		return m_anchorNamespace;
 	}
 
-	const CQualifiedName&
-	GetName ()
+	const QualifiedName&
+	getName ()
 	{
-		return m_Name;
+		return m_name;
 	}
 
-	rtl::CString
-	GetQualifiedName ()
+	rtl::String
+	getQualifiedName ()
 	{
-		return m_QualifiedName;
+		return m_qualifiedName;
 	}
 
-	CImportPtrType*
-	GetImportPtrType (
-		uint_t TypeModifiers = 0,
-		uint_t Flags = 0
+	ImportPtrType*
+	getImportPtrType (
+		uint_t typeModifiers = 0,
+		uint_t flags = 0
 		);
 
 	static
-	rtl::CString
-	CreateSignature (
-		const CQualifiedName& Name,
-		CNamespace* pAnchorNamespace
+	rtl::String
+	createSignature (
+		const QualifiedName& name,
+		Namespace* anchorNamespace
 		)
 	{
-		return rtl::CString::Format_s ("ZN%s", pAnchorNamespace->CreateQualifiedName (Name).cc ());
+		return rtl::String::format_s ("ZN%s", anchorNamespace->createQualifiedName (name).cc ());
 	}
 
 protected:
 	virtual
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format ("import %s", GetQualifiedName ().cc ());
+		m_typeString.format ("import %s", getQualifiedName ().cc ());
 	}
 };
 
 //.............................................................................
 
-class CImportPtrType: public CImportType
+class ImportPtrType: public ImportType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CNamedImportType* m_pTargetType;
-	uint_t m_TypeModifiers;
+	NamedImportType* m_targetType;
+	uint_t m_typeModifiers;
 
 public:
-	CImportPtrType ();
+	ImportPtrType ();
 
-	CNamedImportType*
-	GetTargetType ()
+	NamedImportType*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
 	uint_t
-	GetTypeModifiers ()
+	getTypeModifiers ()
 	{
-		return m_TypeModifiers;
+		return m_typeModifiers;
 	}
 
-	CImportPtrType*
-	GetCheckedPtrType ()
+	ImportPtrType*
+	getCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags | EPtrTypeFlag_Safe) :
+		return !(m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getImportPtrType (m_typeModifiers, m_flags | PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CImportPtrType*
-	GetUnCheckedPtrType ()
+	ImportPtrType*
+	getUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetImportPtrType (m_TypeModifiers, m_Flags & ~EPtrTypeFlag_Safe) :
+		return (m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getImportPtrType (m_typeModifiers, m_flags & ~PtrTypeFlagKind_Safe) :
 			this;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CNamedImportType* pImportType,
-		uint_t TypeModifiers,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		NamedImportType* importType,
+		uint_t typeModifiers,
+		uint_t flags
 		)
 	{
-		return rtl::CString::Format_s (
+		return rtl::String::format_s (
 			"ZP%s:%d:%d",
-			pImportType->GetQualifiedName ().cc (),
-			TypeModifiers,
-			Flags
+			importType->getQualifiedName ().cc (),
+			typeModifiers,
+			flags
 			);
 	}
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 };
 
 //.............................................................................
 
-class CImportIntModType: public CImportType
+class ImportIntModType: public ImportType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CNamedImportType* m_pImportType;
-	uint_t m_TypeModifiers; // unsigned, bigendian
+	NamedImportType* m_importType;
+	uint_t m_typeModifiers; // unsigned, bigendian
 
 public:
-	CImportIntModType ();
+	ImportIntModType ();
 
-	CNamedImportType*
-	GetImportType ()
+	NamedImportType*
+	getImportType ()
 	{
-		return m_pImportType;
+		return m_importType;
 	}
 
 	uint_t
-	GetTypeModifiers ()
+	getTypeModifiers ()
 	{
-		return m_TypeModifiers;
+		return m_typeModifiers;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CNamedImportType* pImportType,
-		uint_t TypeModifiers,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		NamedImportType* importType,
+		uint_t typeModifiers,
+		uint_t flags
 		)
 	{
-		return rtl::CString::Format_s (
+		return rtl::String::format_s (
 			"ZI%s:%d:%d",
-			pImportType->GetQualifiedName ().cc (),
-			TypeModifiers,
-			Flags
+			importType->getQualifiedName ().cc (),
+			typeModifiers,
+			flags
 			);
 	}
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 };
 
 //.............................................................................

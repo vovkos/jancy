@@ -7,355 +7,355 @@ namespace jnc {
 
 //.............................................................................
 
-CReactorClassType::CReactorClassType ()
+ReactorClassType::ReactorClassType ()
 {
-	m_ClassTypeKind = EClassType_Reactor;
-	m_BindSiteCount = 0;
-	memset (m_FieldArray, 0, sizeof (m_FieldArray));
-	memset (m_MethodArray, 0, sizeof (m_MethodArray));
+	m_classTypeKind = ClassTypeKind_Reactor;
+	m_bindSiteCount = 0;
+	memset (m_fieldArray, 0, sizeof (m_fieldArray));
+	memset (m_methodArray, 0, sizeof (m_methodArray));
 }
 
-CFunction*
-CReactorClassType::CreateHandler (const rtl::CArrayT <CFunctionArg*>& ArgArray)
+Function*
+ReactorClassType::createHandler (const rtl::Array <FunctionArg*>& argArray)
 {
-	CFunctionType* pType = m_pModule->m_TypeMgr.GetFunctionType (ArgArray);
-	return CreateUnnamedMethod (EStorage_Member, EFunction_Reaction, pType);
+	FunctionType* type = m_module->m_typeMgr.getFunctionType (argArray);
+	return createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, type);
 }
 
 bool
-CReactorClassType::SetBody (rtl::CBoxListT <CToken>* pTokenList)
+ReactorClassType::setBody (rtl::BoxList <Token>* tokenList)
 {
-	if (!m_Body.IsEmpty ())
+	if (!m_body.isEmpty ())
 	{
-		err::SetFormatStringError ("'%s' already has a body", m_Tag.cc ());
+		err::setFormatStringError ("'%s' already has a body", m_tag.cc ());
 		return false;
 	}
 
-	m_Body.TakeOver (pTokenList);
-	m_pModule->MarkForCompile (this);
+	m_body.takeOver (tokenList);
+	m_module->markForCompile (this);
 	return true;
 }
 
 bool
-CReactorClassType::CalcLayout ()
+ReactorClassType::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_Body.IsEmpty ())
+	if (m_body.isEmpty ())
 	{
-		err::SetFormatStringError ("reactor '%s' has no body", m_Tag.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("reactor '%s' has no body", m_tag.cc ()); // thanks a lot gcc
 		return false;
 	}
 
 	// scan
 
-	CParser Parser;
-	Parser.m_Stage = CParser::EStage_ReactorScan;
-	Parser.m_pModule = m_pModule;
-	Parser.m_pReactorType = this;
+	Parser parser;
+	parser.m_stage = Parser::StageKind_ReactorScan;
+	parser.m_module = m_module;
+	parser.m_reactorType = this;
 
-	CFunction* pStart = m_MethodArray [EReactorMethod_Start];
-	CFunction* pPrevFunction = m_pModule->m_FunctionMgr.SetCurrentFunction (pStart);
+	Function* start = m_methodArray [ReactorMethodKind_Start];
+	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction (start);
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (this);
+	m_module->m_namespaceMgr.openNamespace (this);
 
-	Result = Parser.ParseTokenList (ESymbol_reactor_body_0, m_Body, false);
-	if (!Result)
+	result = parser.parseTokenList (SymbolKind_reactor_body_0, m_body, false);
+	if (!result)
 		return false;
 
-	m_pModule->m_NamespaceMgr.CloseNamespace ();
-	m_pModule->m_FunctionMgr.SetCurrentFunction (pPrevFunction);
+	m_module->m_namespaceMgr.closeNamespace ();
+	m_module->m_functionMgr.setCurrentFunction (prevFunction);
 
-	ASSERT (Parser.m_ReactorBindSiteTotalCount);
-	m_BindSiteCount = Parser.m_ReactorBindSiteTotalCount;
+	ASSERT (parser.m_reactorBindSiteTotalCount);
+	m_bindSiteCount = parser.m_reactorBindSiteTotalCount;
 
-	CType* pBindSiteType = m_pModule->m_TypeMgr.GetStdType (EStdType_ReactorBindSite);
-	CArrayType* pBindSiteArrayType = pBindSiteType->GetArrayType (m_BindSiteCount);
-	m_FieldArray [EReactorField_BindSiteArray] = CreateField ("!m_bindSiteArray", pBindSiteArrayType);
+	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	ArrayType* bindSiteArrayType = bindSiteType->getArrayType (m_bindSiteCount);
+	m_fieldArray [ReactorFieldKind_BindSiteArray] = createField ("!m_bindSiteArray", bindSiteArrayType);
 
-	Result = CClassType::CalcLayout ();
-	if (!Result)
+	result = ClassType::calcLayout ();
+	if (!result)
 		return false;
 
 	return true;
 }
 
 bool
-CReactorClassType::BindHandlers (const rtl::CConstListT <TReaction>& HandlerList)
+ReactorClassType::bindHandlers (const rtl::ConstList <Reaction>& handlerList)
 {
-	bool Result;
+	bool result;
 
-	CStructType* pBindSiteType = (CStructType*) m_pModule->m_TypeMgr.GetStdType (EStdType_ReactorBindSite);
-	CStructField* pEventPtrField = *pBindSiteType->GetFieldList ().GetHead ();
-	CStructField* pCookieField = *pBindSiteType->GetFieldList ().GetTail ();
+	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
+	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue BindSiteArrayValue;
-	Result = m_pModule->m_OperatorMgr.GetField (
-		ThisValue,
-		m_FieldArray [EReactorField_BindSiteArray],
+	Value bindSiteArrayValue;
+	result = m_module->m_operatorMgr.getField (
+		thisValue,
+		m_fieldArray [ReactorFieldKind_BindSiteArray],
 		NULL,
-		&BindSiteArrayValue
+		&bindSiteArrayValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	rtl::CIteratorT <TReaction> Handler = HandlerList.GetHead ();
+	rtl::Iterator <Reaction> handler = handlerList.getHead ();
 	size_t i = 0;
-	for (; Handler; Handler++)
+	for (; handler; handler++)
 	{
-		CFunction* pFunction = Handler->m_pFunction;
+		Function* function = handler->m_function;
 
-		rtl::CBoxIteratorT <CValue> Value = Handler->m_BindSiteList.GetHead ();
-		for (; Value; Value++, i++)
+		rtl::BoxIterator <Value> value = handler->m_bindSiteList.getHead ();
+		for (; value; value++, i++)
 		{
-			CValue EventValue = *Value;
-			CValue HandlerValue = pFunction;
-			HandlerValue.InsertToClosureHead (ThisValue);
+			Value eventValue = *value;
+			Value handlerValue = function;
+			handlerValue.insertToClosureHead (thisValue);
 
-			Result = 
-				m_pModule->m_OperatorMgr.PrepareOperand (&EventValue) &&
-				m_pModule->m_OperatorMgr.PrepareOperand (&HandlerValue);
+			result = 
+				m_module->m_operatorMgr.prepareOperand (&eventValue) &&
+				m_module->m_operatorMgr.prepareOperand (&handlerValue);
 
-			if (!Result)
+			if (!result)
 				return false;
 
-			if (EventValue.GetType ()->GetTypeKind () == EType_ClassRef) 
+			if (eventValue.getType ()->getTypeKind () == TypeKind_ClassRef) 
 			{
-				Result = m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Addr, &EventValue); // turn into a pointer
-				ASSERT (Result);
+				result = m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, &eventValue); // turn into a pointer
+				ASSERT (result);
 			}
 
-			CValue IdxValue (i, EType_SizeT);
-			CValue AddMethodValue;
-			CValue CookieValue;
-			CValue BindSiteValue;
-			CValue DstEventValue;
-			CValue DstCookieValue;
+			Value idxValue (i, TypeKind_SizeT);
+			Value addMethodValue;
+			Value cookieValue;
+			Value bindSiteValue;
+			Value dstEventValue;
+			Value dstCookieValue;
 
-			Result =
-				m_pModule->m_OperatorMgr.MemberOperator (EventValue, "add", &AddMethodValue) &&
-				m_pModule->m_OperatorMgr.CallOperator (AddMethodValue, HandlerValue, &CookieValue) &&
-				m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Idx, BindSiteArrayValue, IdxValue, &BindSiteValue) &&
-				m_pModule->m_OperatorMgr.GetStructField (BindSiteValue, pEventPtrField, NULL, &DstEventValue) &&
-				m_pModule->m_OperatorMgr.GetStructField (BindSiteValue, pCookieField, NULL, &DstCookieValue) &&
-				m_pModule->m_OperatorMgr.StoreDataRef (DstCookieValue, CookieValue);
+			result =
+				m_module->m_operatorMgr.memberOperator (eventValue, "add", &addMethodValue) &&
+				m_module->m_operatorMgr.callOperator (addMethodValue, handlerValue, &cookieValue) &&
+				m_module->m_operatorMgr.binaryOperator (BinOpKind_Idx, bindSiteArrayValue, idxValue, &bindSiteValue) &&
+				m_module->m_operatorMgr.getStructField (bindSiteValue, eventPtrField, NULL, &dstEventValue) &&
+				m_module->m_operatorMgr.getStructField (bindSiteValue, cookieField, NULL, &dstCookieValue) &&
+				m_module->m_operatorMgr.storeDataRef (dstCookieValue, cookieValue);
 
-			if (!Result)
+			if (!result)
 				return false;
 
 			// force-cast event pointers (normal cast would result in dynamic cast)
 
-			CType* pEventType = m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleEventPtr);
-			m_pModule->m_LlvmIrBuilder.CreateBitCast (EventValue, pEventType, &EventValue);
-			m_pModule->m_LlvmIrBuilder.CreateStore (EventValue, DstEventValue);
+			Type* eventType = m_module->m_typeMgr.getStdType (StdTypeKind_SimpleEventPtr);
+			m_module->m_llvmIrBuilder.createBitCast (eventValue, eventType, &eventValue);
+			m_module->m_llvmIrBuilder.createStore (eventValue, dstEventValue);
 		}
 	}
 
-	ASSERT (i == m_BindSiteCount);
+	ASSERT (i == m_bindSiteCount);
 	return true;
 }
 
 
 bool
-CReactorClassType::CallStopMethod ()
+ReactorClassType::callStopMethod ()
 {
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CValue StopMethodValue = m_MethodArray [EReactorMethod_Stop];
-	StopMethodValue.InsertToClosureHead (ThisValue);
-	return m_pModule->m_OperatorMgr.CallOperator (StopMethodValue);
+	Value stopMethodValue = m_methodArray [ReactorMethodKind_Stop];
+	stopMethodValue.insertToClosureHead (thisValue);
+	return m_module->m_operatorMgr.callOperator (stopMethodValue);
 }
 
 bool
-CReactorClassType::CompileConstructor ()
+ReactorClassType::compileConstructor ()
 {
-	ASSERT (m_pConstructor);
+	ASSERT (m_constructor);
 
-	bool Result;
+	bool result;
 
-	size_t ArgCount = m_pConstructor->GetType ()->GetArgArray ().GetCount ();
-	ASSERT (ArgCount == 1 || ArgCount == 2);
+	size_t argCount = m_constructor->getType ()->getArgArray ().getCount ();
+	ASSERT (argCount == 1 || argCount == 2);
 
-	CValue ArgValueArray [2];
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pConstructor, ArgValueArray, ArgCount);
+	Value argValueArray [2];
+	m_module->m_functionMgr.internalPrologue (m_constructor, argValueArray, argCount);
 
-	if (ArgCount == 2)
+	if (argCount == 2)
 	{
-		CStructField* pField = m_FieldArray [EReactorField_Parent];
-		ASSERT (pField);
+		StructField* field = m_fieldArray [ReactorFieldKind_Parent];
+		ASSERT (field);
 
-		CValue ParentFieldValue;
-		Result =
-			m_pModule->m_OperatorMgr.GetClassField (ArgValueArray [0], pField, NULL, &ParentFieldValue) &&
-			m_pModule->m_OperatorMgr.StoreDataRef (ParentFieldValue, ArgValueArray [1]);
+		Value parentFieldValue;
+		result =
+			m_module->m_operatorMgr.getClassField (argValueArray [0], field, NULL, &parentFieldValue) &&
+			m_module->m_operatorMgr.storeDataRef (parentFieldValue, argValueArray [1]);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CReactorClassType::CompileDestructor ()
+ReactorClassType::compileDestructor ()
 {
-	ASSERT (m_pDestructor);
+	ASSERT (m_destructor);
 
-	bool Result;
+	bool result;
 
-	CValue ArgValue;
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pDestructor, &ArgValue, 1);
+	Value argValue;
+	m_module->m_functionMgr.internalPrologue (m_destructor, &argValue, 1);
 
-	Result = CallStopMethod ();
-	if (!Result)
+	result = callStopMethod ();
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CReactorClassType::CompileStartMethod ()
+ReactorClassType::compileStartMethod ()
 {
-	bool Result;
+	bool result;
 
-	CFunction* pStartMethod = m_MethodArray [EReactorMethod_Start];
-	CFunction* pStopMethod = m_MethodArray [EReactorMethod_Stop];
+	Function* startMethod = m_methodArray [ReactorMethodKind_Start];
+	Function* stopMethod = m_methodArray [ReactorMethodKind_Stop];
 
-	Result = m_pModule->m_FunctionMgr.Prologue (pStartMethod, m_Body.GetHead ()->m_Pos);
-	if (!Result)
+	result = m_module->m_functionMgr.prologue (startMethod, m_body.getHead ()->m_pos);
+	if (!result)
 		return false;
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
 	// stop
 
-	Result = CallStopMethod ();
-	if (!Result)
+	result = callStopMethod ();
+	if (!result)
 		return false;
 
 	// save arguments
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pStartMethod->GetType ()->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
+	rtl::Array <FunctionArg*> argArray = startMethod->getType ()->getArgArray ();
+	size_t argCount = argArray.getCount ();
 	size_t i = 1;
 
-	rtl::CIteratorT <CStructField> ArgField = m_FirstArgField;
-	llvm::Function::arg_iterator LlvmArg = pStartMethod->GetLlvmFunction ()->arg_begin();
-	LlvmArg++;
+	rtl::Iterator <StructField> argFieldIt = m_firstArgField;
+	llvm::Function::arg_iterator llvmArgIt = startMethod->getLlvmFunction ()->arg_begin();
+	llvmArgIt++;
 
-	for (; i < ArgCount; i++, LlvmArg++, ArgField++)
+	for (; i < argCount; i++, llvmArgIt++, argFieldIt++)
 	{
-		CFunctionArg* pArg = ArgArray [i];
-		llvm::Value* pLlvmArg = LlvmArg;
-		CStructField* pArgField = *ArgField;
+		FunctionArg* arg = argArray [i];
+		llvm::Value* llvmArg = llvmArgIt;
+		StructField* argField = *argFieldIt;
 
-		if (!pArg->IsNamed ())
+		if (!arg->isNamed ())
 			continue;
 
-		CValue ArgValue (pLlvmArg, pArg->GetType ());
+		Value argValue (llvmArg, arg->getType ());
 
-		CValue StoreValue;
-		Result = m_pModule->m_OperatorMgr.GetField (ThisValue, pArgField, NULL, &StoreValue);
-		if (!Result)
+		Value storeValue;
+		result = m_module->m_operatorMgr.getField (thisValue, argField, NULL, &storeValue);
+		if (!result)
 			return false;
 
-		m_pModule->m_LlvmIrBuilder.CreateStore (ArgValue, StoreValue);
+		m_module->m_llvmIrBuilder.createStore (argValue, storeValue);
 	}
 
 	// compile start
 
-	CParser Parser;
-	Parser.m_Stage = CParser::EStage_Pass2;
-	Parser.m_pModule = m_pModule;
-	Parser.m_pReactorType = this;
+	Parser parser;
+	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_module = m_module;
+	parser.m_reactorType = this;
 
-	Result = Parser.ParseTokenList (ESymbol_reactor_body, m_Body, true);
-	if (!Result)
+	result = parser.parseTokenList (SymbolKind_reactor_body, m_body, true);
+	if (!result)
 		return false;
 
 	// modify state
 
-	CValue StateValue;
-	Result =
-		m_pModule->m_OperatorMgr.GetField (ThisValue, m_FieldArray [EReactorField_State], NULL, &StateValue) &&
-		m_pModule->m_OperatorMgr.StoreDataRef (StateValue, CValue ((int64_t) 1, EType_Int_p));
+	Value stateValue;
+	result =
+		m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_State], NULL, &stateValue) &&
+		m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 1, TypeKind_Int_p));
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	// done
 
-	Result = m_pModule->m_FunctionMgr.Epilogue ();
-	if (!Result)
+	result = m_module->m_functionMgr.epilogue ();
+	if (!result)
 		return false;
 
 	return true;
 }
 bool
-CReactorClassType::CompileStopMethod ()
+ReactorClassType::compileStopMethod ()
 {
-	bool Result;
+	bool result;
 
-	CStructType* pBindSiteType = (CStructType*) m_pModule->m_TypeMgr.GetStdType (EStdType_ReactorBindSite);
-	CStructField* pEventPtrField = *pBindSiteType->GetFieldList ().GetHead ();
-	CStructField* pCookieField = *pBindSiteType->GetFieldList ().GetTail ();
+	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
+	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_MethodArray [EReactorMethod_Stop]);
+	m_module->m_functionMgr.internalPrologue (m_methodArray [ReactorMethodKind_Stop]);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	CBasicBlock* pUnadviseBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("unadvise_block");
-	CBasicBlock* pFollowBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("follow_block");
+	BasicBlock* unadviseBlock = m_module->m_controlFlowMgr.createBlock ("unadvise_block");
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow_block");
 
-	CValue StateValue;
-	CValue StateCmpValue;
-	CValue BindSiteArrayValue;
+	Value stateValue;
+	Value stateCmpValue;
+	Value bindSiteArrayValue;
 
-	Result =
-		m_pModule->m_OperatorMgr.GetField (ThisValue, m_FieldArray [EReactorField_State], NULL, &StateValue) &&
-		m_pModule->m_ControlFlowMgr.ConditionalJump (StateValue, pUnadviseBlock, pFollowBlock);
+	result =
+		m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_State], NULL, &stateValue) &&
+		m_module->m_controlFlowMgr.conditionalJump (stateValue, unadviseBlock, followBlock);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	Result = m_pModule->m_OperatorMgr.GetField (ThisValue, m_FieldArray [EReactorField_BindSiteArray], NULL, &BindSiteArrayValue);
-	if (!Result)
+	result = m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_BindSiteArray], NULL, &bindSiteArrayValue);
+	if (!result)
 		return false;
 
-	for (size_t i = 0; i < m_BindSiteCount; i++)
+	for (size_t i = 0; i < m_bindSiteCount; i++)
 	{
-		CValue IdxValue (i, EType_SizeT);
-		CValue BindSiteValue;
-		CValue EventValue;
-		CValue CookieValue;
-		CValue RemoveMethodValue;
+		Value idxValue (i, TypeKind_SizeT);
+		Value bindSiteValue;
+		Value eventValue;
+		Value cookieValue;
+		Value removeMethodValue;
 
-		Result =
-			m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Idx, BindSiteArrayValue, IdxValue, &BindSiteValue) &&
-			m_pModule->m_OperatorMgr.GetStructField (BindSiteValue, pEventPtrField, NULL, &EventValue) &&
-			m_pModule->m_OperatorMgr.GetStructField (BindSiteValue, pCookieField, NULL, &CookieValue) &&
-			m_pModule->m_OperatorMgr.MemberOperator (EventValue, "remove", &RemoveMethodValue) &&
-			m_pModule->m_OperatorMgr.CallOperator (RemoveMethodValue, CookieValue);
+		result =
+			m_module->m_operatorMgr.binaryOperator (BinOpKind_Idx, bindSiteArrayValue, idxValue, &bindSiteValue) &&
+			m_module->m_operatorMgr.getStructField (bindSiteValue, eventPtrField, NULL, &eventValue) &&
+			m_module->m_operatorMgr.getStructField (bindSiteValue, cookieField, NULL, &cookieValue) &&
+			m_module->m_operatorMgr.memberOperator (eventValue, "remove", &removeMethodValue) &&
+			m_module->m_operatorMgr.callOperator (removeMethodValue, cookieValue);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	Result = m_pModule->m_OperatorMgr.StoreDataRef (StateValue, CValue ((int64_t) 0, EType_Int_p));
-	ASSERT (Result);
+	result = m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 0, TypeKind_Int_p));
+	ASSERT (result);
 
-	m_pModule->m_ControlFlowMgr.Follow (pFollowBlock);
+	m_module->m_controlFlowMgr.follow (followBlock);
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;
 }

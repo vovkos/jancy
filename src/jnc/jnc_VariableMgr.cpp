@@ -7,293 +7,293 @@ namespace jnc {
 
 //.............................................................................
 
-CVariableMgr::CVariableMgr ()
+VariableMgr::VariableMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	memset (m_StdVariableArray, 0, sizeof (m_StdVariableArray));
-	CreateStdVariables ();
+	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
+	createStdVariables ();
 }
 
 void
-CVariableMgr::Clear ()
+VariableMgr::clear ()
 {
-	m_VariableList.Clear ();
-	m_AliasList.Clear ();
+	m_variableList.clear ();
+	m_aliasList.clear ();
 
-	m_StaticVariableArray.Clear ();
-	m_StaticGcRootArray.Clear ();
-	m_GlobalStaticVariableArray.Clear ();
-	m_StaticDestructList.Clear ();
+	m_staticVariableArray.clear ();
+	m_staticGcRootArray.clear ();
+	m_globalStaticVariableArray.clear ();
+	m_staticDestructList.clear ();
 
-	m_TlsVariableArray.Clear ();
-	m_TlsGcRootArray.Clear ();
-	m_pTlsStructType = NULL;
+	m_tlsVariableArray.clear ();
+	m_tlsGcRootArray.clear ();
+	m_tlsStructType = NULL;
 
-	memset (m_StdVariableArray, 0, sizeof (m_StdVariableArray));
-	CreateStdVariables ();
+	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
+	createStdVariables ();
 }
 
 void
-CVariableMgr::CreateStdVariables ()
+VariableMgr::createStdVariables ()
 {
-	for (size_t i = 0; i < EStdVariable__Count; i++)
-		GetStdVariable ((EStdVariable) i);
+	for (size_t i = 0; i < StdVariableKind__Count; i++)
+		getStdVariable ((StdVariableKind) i);
 }
 
-CVariable*
-CVariableMgr::GetStdVariable (EStdVariable Variable)
+Variable*
+VariableMgr::getStdVariable (StdVariableKind variableKind)
 {
-	ASSERT ((size_t) Variable < EStdFunc__Count);
+	ASSERT ((size_t) variableKind < StdVariableKind__Count);
 
-	if (m_StdVariableArray [Variable])
-		return m_StdVariableArray [Variable];
+	if (m_stdVariableArray [variableKind])
+		return m_stdVariableArray [variableKind];
 
-	CVariable* pVariable;
+	Variable* variable;
 
-	switch (Variable)
+	switch (variableKind)
 	{
-	case EStdVariable_ScopeLevel:
-		pVariable = CreateVariable (
-			EStorage_Thread,
+	case StdVariableKind_ScopeLevel:
+		variable = createVariable (
+			StorageKind_Thread,
 			"g_scopeLevel",
 			"jnc.g_scopeLevel",
-			m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT)
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
 			);
 		break;
 
-	case EStdVariable_GcShadowStackTop:
-		pVariable = CreateVariable (
-			EStorage_Thread,
+	case StdVariableKind_GcShadowStackTop:
+		variable = createVariable (
+			StorageKind_Thread,
 			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
-			m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)
+			m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)
 			);
 		break;
 
 	default:
 		ASSERT (false);
-		pVariable = NULL;
+		variable = NULL;
 	}
 
-	m_StdVariableArray [Variable] = pVariable;
-	return pVariable;
+	m_stdVariableArray [variableKind] = variable;
+	return variable;
 }
 
-CVariable*
-CVariableMgr::CreateVariable (
-	EStorage StorageKind,
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CType* pType,
-	uint_t PtrTypeFlags,
-	rtl::CBoxListT <CToken>* pConstructor,
-	rtl::CBoxListT <CToken>* pInitializer
+Variable*
+VariableMgr::createVariable (
+	StorageKind storageKind,
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* type,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* constructor,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	CVariable* pVariable = AXL_MEM_NEW (CVariable);
-	pVariable->m_pModule = m_pModule;
-	pVariable->m_Name = Name;
-	pVariable->m_QualifiedName = QualifiedName;
-	pVariable->m_Tag = QualifiedName;
-	pVariable->m_pType = pType;
-	pVariable->m_StorageKind = StorageKind;
-	pVariable->m_PtrTypeFlags = PtrTypeFlags;
+	Variable* variable = AXL_MEM_NEW (Variable);
+	variable->m_module = m_module;
+	variable->m_name = name;
+	variable->m_qualifiedName = qualifiedName;
+	variable->m_tag = qualifiedName;
+	variable->m_type = type;
+	variable->m_storageKind = storageKind;
+	variable->m_ptrTypeFlags = ptrTypeFlags;
 
-	if (StorageKind == EStorage_Stack)
+	if (storageKind == StorageKind_Stack)
 	{
-		CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-		ASSERT (pScope);
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+		ASSERT (scope);
 
-		pVariable->m_pScope = pScope;
+		variable->m_scope = scope;
 	}
 
-	if (pConstructor)
-		pVariable->m_Constructor.TakeOver (pConstructor);
+	if (constructor)
+		variable->m_constructor.takeOver (constructor);
 
-	if (pInitializer)
-		pVariable->m_Initializer.TakeOver (pInitializer);
+	if (initializer)
+		variable->m_initializer.takeOver (initializer);
 
-	m_VariableList.InsertTail (pVariable);
+	m_variableList.insertTail (variable);
 
-	switch (StorageKind)
+	switch (storageKind)
 	{
-	case EStorage_Static:
-		m_StaticVariableArray.Append (pVariable);
+	case StorageKind_Static:
+		m_staticVariableArray.append (variable);
 
-		if (m_pModule->m_NamespaceMgr.GetCurrentNamespace ()->GetNamespaceKind () == ENamespace_Global)
-			m_GlobalStaticVariableArray.Append (pVariable);
+		if (m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Global)
+			m_globalStaticVariableArray.append (variable);
 
 		break;
 
-	case EStorage_Thread:
-		m_TlsVariableArray.Append (pVariable);
+	case StorageKind_Thread:
+		m_tlsVariableArray.append (variable);
 		break;
 
-	case EStorage_Stack:
-	case EStorage_Heap:
+	case StorageKind_Stack:
+	case StorageKind_Heap:
 		break;
 
 	default:
 		ASSERT (false);
 	}
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pVariable->m_pType_i = (CImportType*) pType;
-		m_pModule->MarkForLayout (pVariable);
+		variable->m_type_i = (ImportType*) type;
+		m_module->markForLayout (variable);
 	}
 
-	return pVariable;
+	return variable;
 }
 
-CVariable*
-CVariableMgr::CreateOnceFlagVariable (EStorage StorageKind)
+Variable*
+VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 {
-	return CreateVariable (
-		StorageKind,
+	return createVariable (
+		storageKind,
 		"once_flag",
 		"once_flag",
-		m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32),
-		StorageKind == EStorage_Static ? EPtrTypeFlag_Volatile : 0
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32),
+		storageKind == StorageKind_Static ? PtrTypeFlagKind_Volatile : 0
 		);
 }
 
-CVariable*
-CVariableMgr::CreateArgVariable (
-	CFunctionArg* pArg,
-	llvm::Value* pLlvmArgValue
+Variable*
+VariableMgr::createArgVariable (
+	FunctionArg* arg,
+	llvm::Value* llvmArgValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CVariable* pVariable = CreateStackVariable (
-		pArg->GetName (),
-		pArg->GetType (),
-		pArg->GetPtrTypeFlags ()
+	Variable* variable = createStackVariable (
+		arg->getName (),
+		arg->getType (),
+		arg->getPtrTypeFlags ()
 		);
 
-	pVariable->m_pParentUnit = pArg->GetParentUnit ();
-	pVariable->m_Pos = *pArg->GetPos ();
-	pVariable->m_Flags |= EModuleItemFlag_User;
+	variable->m_parentUnit = arg->getParentUnit ();
+	variable->m_pos = *arg->getPos ();
+	variable->m_flags |= ModuleItemFlagKind_User;
 
-	CValue PtrValue;
-	Result = m_pModule->m_OperatorMgr.Allocate (
-		EStorage_Stack,
-		pArg->GetType (),
-		pArg->GetName (),
-		&PtrValue
+	Value ptrValue;
+	result = m_module->m_operatorMgr.allocate (
+		StorageKind_Stack,
+		arg->getType (),
+		arg->getName (),
+		&ptrValue
 		);
 
-	if (!Result)
+	if (!result)
 		return NULL;
 
-	pVariable->m_pLlvmAllocValue = PtrValue.GetLlvmValue ();
-	pVariable->m_pLlvmValue = PtrValue.GetLlvmValue ();
+	variable->m_llvmAllocValue = ptrValue.getLlvmValue ();
+	variable->m_llvmValue = ptrValue.getLlvmValue ();
 
-	if ((m_pModule->GetFlags () & EModuleFlag_DebugInfo) &&
-		(pVariable->GetFlags () & EModuleItemFlag_User))
+	if ((m_module->getFlags () & ModuleFlagKind_DebugInfo) &&
+		(variable->getFlags () & ModuleItemFlagKind_User))
 	{
-		pVariable->m_LlvmDiDescriptor = m_pModule->m_LlvmDiBuilder.CreateLocalVariable (
-			pVariable,
+		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (
+			variable,
 			llvm::dwarf::DW_TAG_arg_variable
 			);
 
-		m_pModule->m_LlvmDiBuilder.CreateDeclare (pVariable);
+		m_module->m_llvmDiBuilder.createDeclare (variable);
 	}
 
-	return pVariable;
+	return variable;
 }
 
 llvm::GlobalVariable*
-CVariableMgr::CreateLlvmGlobalVariable (
-	CType* pType,
-	const char* pTag
+VariableMgr::createLlvmGlobalVariable (
+	Type* type,
+	const char* tag
 	)
 {
-	llvm::GlobalVariable* pLlvmValue = new llvm::GlobalVariable (
-		*m_pModule->GetLlvmModule (),
-		pType->GetLlvmType (),
+	llvm::GlobalVariable* llvmValue = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		type->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
-		(llvm::Constant*) pType->GetZeroValue ().GetLlvmValue (),
-		pTag
+		(llvm::Constant*) type->getZeroValue ().getLlvmValue (),
+		tag
 		);
 
-	m_LlvmGlobalVariableArray.Append (pLlvmValue);
-	return pLlvmValue;
+	m_llvmGlobalVariableArray.append (llvmValue);
+	return llvmValue;
 }
 
-CAlias*
-CVariableMgr::CreateAlias (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CType* pType,
-	rtl::CBoxListT <CToken>* pInitializer
+Alias*
+VariableMgr::createAlias (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* type,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	ASSERT (pInitializer);
+	ASSERT (initializer);
 
-	CAlias* pAlias = AXL_MEM_NEW (CAlias);
-	pAlias->m_Name = Name;
-	pAlias->m_QualifiedName = QualifiedName;
-	pAlias->m_Tag = QualifiedName;
-	pAlias->m_pType = pType;
-	pAlias->m_Initializer.TakeOver (pInitializer);
+	Alias* alias = AXL_MEM_NEW (Alias);
+	alias->m_name = name;
+	alias->m_qualifiedName = qualifiedName;
+	alias->m_tag = qualifiedName;
+	alias->m_type = type;
+	alias->m_initializer.takeOver (initializer);
 
-	m_AliasList.InsertTail (pAlias);
+	m_aliasList.insertTail (alias);
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pAlias->m_pType_i = (CImportType*) pType;
-		m_pModule->MarkForLayout (pAlias);
+		alias->m_type_i = (ImportType*) type;
+		m_module->markForLayout (alias);
 	}
 
-	return pAlias;
+	return alias;
 }
 
 bool
-CVariableMgr::CreateTlsStructType ()
+VariableMgr::createTlsStructType ()
 {
-	bool Result;
+	bool result;
 
-	CStructType* pType = m_pModule->m_TypeMgr.CreateStructType ("Tls", "jnc.Tls");
+	StructType* type = m_module->m_typeMgr.createStructType ("Tls", "jnc.Tls");
 
-	size_t Count = m_TlsVariableArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_tlsVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = m_TlsVariableArray [i];
+		Variable* variable = m_tlsVariableArray [i];
 
-		if (pVariable->m_pType->GetTypeKindFlags () & ETypeKindFlag_Aggregate)
+		if (variable->m_type->getTypeKindFlags () & TypeKindFlagKind_Aggregate)
 		{
-			err::SetFormatStringError ("'thread' variables cannot have aggregate type '%s'",  pVariable->m_pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'thread' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().cc ());
 			return false;
 		}
 
-		pVariable->m_pTlsField = pType->CreateField (pVariable->m_pType);
+		variable->m_tlsField = type->createField (variable->m_type);
 	}
 
-	Result = pType->EnsureLayout ();
-	if (!Result)
+	result = type->ensureLayout ();
+	if (!result)
 		return false;
 
-	m_pTlsStructType = pType;
+	m_tlsStructType = type;
 	return true;
 }
 
 bool
-CVariableMgr::AllocatePrimeStaticVariables ()
+VariableMgr::allocatePrimeStaticVariables ()
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_StaticVariableArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_staticVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = m_StaticVariableArray [i];
+		Variable* variable = m_staticVariableArray [i];
 
-		Result = AllocatePrimeStaticVariable (pVariable);
-		if (!Result)
+		result = allocatePrimeStaticVariable (variable);
+		if (!result)
 			return false;
 	}
 
@@ -301,56 +301,56 @@ CVariableMgr::AllocatePrimeStaticVariables ()
 }
 
 bool
-CVariableMgr::AllocatePrimeStaticVariable (CVariable* pVariable)
+VariableMgr::allocatePrimeStaticVariable (Variable* variable)
 {
-	ASSERT (pVariable->m_StorageKind == EStorage_Static);
-	ASSERT (m_pModule->m_ControlFlowMgr.GetCurrentBlock () == m_pModule->GetConstructor ()->GetEntryBlock ());
+	ASSERT (variable->m_storageKind == StorageKind_Static);
+	ASSERT (m_module->m_controlFlowMgr.getCurrentBlock () == m_module->getConstructor ()->getEntryBlock ());
 
-	CType* pType = pVariable->GetType ();
+	Type* type = variable->getType ();
 
-	pVariable->m_pLlvmAllocValue = CreateLlvmGlobalVariable (pType, pVariable->GetQualifiedName ());
+	variable->m_llvmAllocValue = createLlvmGlobalVariable (type, variable->getQualifiedName ());
 
-	CValue PtrValue (pVariable->m_pLlvmAllocValue, pType->GetDataPtrType_c ());
-	bool Result = m_pModule->m_OperatorMgr.Prime (EStorage_Static, PtrValue, pType, &PtrValue);
-	if (!Result)
+	Value ptrValue (variable->m_llvmAllocValue, type->getDataPtrType_c ());
+	bool result = m_module->m_operatorMgr.prime (StorageKind_Static, ptrValue, type, &ptrValue);
+	if (!result)
 		return false;
 
-	pVariable->m_pLlvmValue = PtrValue.GetLlvmValue ();
+	variable->m_llvmValue = ptrValue.getLlvmValue ();
 
-	if (pVariable->m_pType->GetFlags () & ETypeFlag_GcRoot)
-		m_StaticGcRootArray.Append (pVariable);
+	if (variable->m_type->getFlags () & TypeFlagKind_GcRoot)
+		m_staticGcRootArray.append (variable);
 
-	if (m_pModule->GetFlags () & EModuleFlag_DebugInfo)
-		pVariable->m_LlvmDiDescriptor = m_pModule->m_LlvmDiBuilder.CreateGlobalVariable (pVariable);
+	if (m_module->getFlags () & ModuleFlagKind_DebugInfo)
+		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createGlobalVariable (variable);
 
 	return true;
 }
 
 bool
-CVariableMgr::InitializeGlobalStaticVariables ()
+VariableMgr::initializeGlobalStaticVariables ()
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_GlobalStaticVariableArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_globalStaticVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = m_GlobalStaticVariableArray [i];
+		Variable* variable = m_globalStaticVariableArray [i];
 
-		Result = m_pModule->m_OperatorMgr.ParseInitializer (
-			pVariable,
-			pVariable->m_pItemDecl->GetParentUnit (),
-			pVariable->m_Constructor,
-			pVariable->m_Initializer
+		result = m_module->m_operatorMgr.parseInitializer (
+			variable,
+			variable->m_itemDecl->getParentUnit (),
+			variable->m_constructor,
+			variable->m_initializer
 			);
 
-		if (pVariable->m_pType->GetTypeKind () == EType_Class)
+		if (variable->m_type->getTypeKind () == TypeKind_Class)
 		{
-			CFunction* pDestructor = ((CClassType*) pVariable->m_pType)->GetDestructor ();
-			if (pDestructor)
-				m_StaticDestructList.AddDestructor (pDestructor, pVariable);
+			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
+			if (destructor)
+				m_staticDestructList.addDestructor (destructor, variable);
 		}
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
@@ -358,235 +358,235 @@ CVariableMgr::InitializeGlobalStaticVariables ()
 }
 
 bool
-CVariableMgr::AllocatePrimeInitializeVariable (CVariable* pVariable)
+VariableMgr::allocatePrimeInitializeVariable (Variable* variable)
 {
-	CType* pType = pVariable->GetType ();
+	Type* type = variable->getType ();
 
-	if ((pType->GetTypeKindFlags () & ETypeKindFlag_Ptr) && 
-		(pType->GetFlags () & EPtrTypeFlag_Safe) &&
-		pVariable->GetInitializer ().IsEmpty ())
+	if ((type->getTypeKindFlags () & TypeKindFlagKind_Ptr) && 
+		(type->getFlags () & PtrTypeFlagKind_Safe) &&
+		variable->getInitializer ().isEmpty ())
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"missing initalizer for '%s' variable '%s'", 
-			pType->GetTypeString ().cc (),
-			pVariable->GetQualifiedName ().cc ()
+			type->getTypeString ().cc (),
+			variable->getQualifiedName ().cc ()
 			);
 
 		return false;
 	}
 
-	EStorage StorageKind = pVariable->m_StorageKind;
-	switch (StorageKind)
+	StorageKind storageKind = variable->m_storageKind;
+	switch (storageKind)
 	{
-	case EStorage_Static:
-		return AllocatePrimeInitializeStaticVariable (pVariable);
+	case StorageKind_Static:
+		return allocatePrimeInitializeStaticVariable (variable);
 
-	case EStorage_Thread:
-		return AllocatePrimeInitializeTlsVariable (pVariable);
+	case StorageKind_Thread:
+		return allocatePrimeInitializeTlsVariable (variable);
 
 	default:
-		return AllocatePrimeInitializeNonStaticVariable (pVariable);
+		return allocatePrimeInitializeNonStaticVariable (variable);
 	}
 }
 
 bool
-CVariableMgr::AllocatePrimeInitializeStaticVariable (CVariable* pVariable)
+VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 {
-	bool Result;
+	bool result;
 
 	// allocate and prime in module constructor
 
-	CBasicBlock* pBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (m_pModule->GetConstructor ()->GetEntryBlock ());
+	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
+	m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
 
-	AllocatePrimeStaticVariable (pVariable);
+	allocatePrimeStaticVariable (variable);
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (block);
 
 	// initialize within 'once' block
 
-	CToken::CPos Pos = *pVariable->GetItemDecl ()->GetPos ();
+	Token::Pos pos = *variable->getItemDecl ()->getPos ();
 
-	TOnceStmt Stmt;
-	m_pModule->m_ControlFlowMgr.OnceStmt_Create (&Stmt, Pos);
+	OnceStmt stmt;
+	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos);
 
-	Result =
-		m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&Stmt, Pos) &&
-		m_pModule->m_OperatorMgr.ParseInitializer (
-			pVariable,
-			pVariable->m_pItemDecl->GetParentUnit (),
-			pVariable->m_Constructor,
-			pVariable->m_Initializer
+	result =
+		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos) &&
+		m_module->m_operatorMgr.parseInitializer (
+			variable,
+			variable->m_itemDecl->getParentUnit (),
+			variable->m_constructor,
+			variable->m_initializer
 			);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	if (pVariable->m_pType->GetTypeKind () == EType_Class)
+	if (variable->m_type->getTypeKind () == TypeKind_Class)
 	{
-		CFunction* pDestructor = ((CClassType*) pVariable->m_pType)->GetDestructor ();
-		if (pDestructor)
-			m_StaticDestructList.AddDestructor (pDestructor, pVariable, Stmt.m_pFlagVariable);
+		Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
+		if (destructor)
+			m_staticDestructList.addDestructor (destructor, variable, stmt.m_flagVariable);
 	}
 
-	if (!pVariable->m_Initializer.IsEmpty ())
-		Pos = pVariable->m_Initializer.GetTail ()->m_Pos;
-	else if (!pVariable->m_Constructor.IsEmpty ())
-		Pos = pVariable->m_Constructor.GetTail ()->m_Pos;
+	if (!variable->m_initializer.isEmpty ())
+		pos = variable->m_initializer.getTail ()->m_pos;
+	else if (!variable->m_constructor.isEmpty ())
+		pos = variable->m_constructor.getTail ()->m_pos;
 
-	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
+	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
 	return true;
 }
 
 bool
-CVariableMgr::AllocatePrimeInitializeTlsVariable (CVariable* pVariable)
+VariableMgr::allocatePrimeInitializeTlsVariable (Variable* variable)
 {
-	bool Result;
+	bool result;
 
-	AllocateTlsVariable (pVariable);
+	allocateTlsVariable (variable);
 
 	// initialize within 'once' block
 
-	CToken::CPos Pos = *pVariable->GetItemDecl ()->GetPos ();
+	Token::Pos pos = *variable->getItemDecl ()->getPos ();
 
-	TOnceStmt Stmt;
-	m_pModule->m_ControlFlowMgr.OnceStmt_Create (&Stmt, Pos, EStorage_Thread);
+	OnceStmt stmt;
+	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos, StorageKind_Thread);
 
-	Result =
-		m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&Stmt, Pos) &&
-		m_pModule->m_OperatorMgr.ParseInitializer (
-			pVariable,
-			pVariable->m_pItemDecl->GetParentUnit (),
-			pVariable->m_Constructor,
-			pVariable->m_Initializer
+	result =
+		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos) &&
+		m_module->m_operatorMgr.parseInitializer (
+			variable,
+			variable->m_itemDecl->getParentUnit (),
+			variable->m_constructor,
+			variable->m_initializer
 			);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	if (!pVariable->m_Initializer.IsEmpty ())
-		Pos = pVariable->m_Initializer.GetTail ()->m_Pos;
-	else if (!pVariable->m_Constructor.IsEmpty ())
-		Pos = pVariable->m_Constructor.GetTail ()->m_Pos;
+	if (!variable->m_initializer.isEmpty ())
+		pos = variable->m_initializer.getTail ()->m_pos;
+	else if (!variable->m_constructor.isEmpty ())
+		pos = variable->m_constructor.getTail ()->m_pos;
 
-	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
+	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
 	return true;
 }
 
 bool
-CVariableMgr::AllocatePrimeInitializeNonStaticVariable (CVariable* pVariable)
+VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 {
-	bool Result;
+	bool result;
 
-	CValue PtrValue;
-	Result = m_pModule->m_OperatorMgr.Allocate (
-		pVariable->m_StorageKind,
-		pVariable->m_pType,
-		pVariable->m_Tag,
-		&PtrValue
+	Value ptrValue;
+	result = m_module->m_operatorMgr.allocate (
+		variable->m_storageKind,
+		variable->m_type,
+		variable->m_tag,
+		&ptrValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 	
-	if (pVariable->m_StorageKind == EStorage_Heap) // local heap variable
-		m_pModule->m_OperatorMgr.MarkStackGcRoot (
-			PtrValue, 
-			pVariable->m_pType->GetDataPtrType_c ()
+	if (variable->m_storageKind == StorageKind_Heap) // local heap variable
+		m_module->m_operatorMgr.markStackGcRoot (
+			ptrValue, 
+			variable->m_type->getDataPtrType_c ()
 			);
 
-	pVariable->m_pLlvmAllocValue = PtrValue.GetLlvmValue ();
+	variable->m_llvmAllocValue = ptrValue.getLlvmValue ();
 
-	if (pVariable->m_pType->GetTypeKind () == EType_Class)
+	if (variable->m_type->getTypeKind () == TypeKind_Class)
 	{
-		Result = m_pModule->m_OperatorMgr.Prime (pVariable->m_StorageKind, PtrValue, pVariable->m_pType, &PtrValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.prime (variable->m_storageKind, ptrValue, variable->m_type, &ptrValue);
+		if (!result)
 			return false;
 
-		pVariable->m_pLlvmValue = PtrValue.GetLlvmValue ();
+		variable->m_llvmValue = ptrValue.getLlvmValue ();
 	}
 	else
 	{
-		pVariable->m_pLlvmValue = pVariable->m_pLlvmAllocValue;
+		variable->m_llvmValue = variable->m_llvmAllocValue;
 
-		if (pVariable->m_Initializer.IsEmpty () ||
-			pVariable->m_Initializer.GetHead ()->m_Token == '{')
+		if (variable->m_initializer.isEmpty () ||
+			variable->m_initializer.getHead ()->m_token == '{')
 		{
-			m_pModule->m_LlvmIrBuilder.CreateStore (pVariable->m_pType->GetZeroValue (), PtrValue);
+			m_module->m_llvmIrBuilder.createStore (variable->m_type->getZeroValue (), ptrValue);
 		}
 	}
 
-	if ((m_pModule->GetFlags () & EModuleFlag_DebugInfo) &&
-		(pVariable->GetFlags () & EModuleItemFlag_User))
+	if ((m_module->getFlags () & ModuleFlagKind_DebugInfo) &&
+		(variable->getFlags () & ModuleItemFlagKind_User))
 	{
-		pVariable->m_LlvmDiDescriptor = m_pModule->m_LlvmDiBuilder.CreateLocalVariable (pVariable);
-		m_pModule->m_LlvmDiBuilder.CreateDeclare (pVariable);
+		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (variable);
+		m_module->m_llvmDiBuilder.createDeclare (variable);
 	}
 
-	Result = m_pModule->m_OperatorMgr.ParseInitializer (
-		pVariable,
-		pVariable->m_pItemDecl->GetParentUnit (),
-		pVariable->m_Constructor,
-		pVariable->m_Initializer
+	result = m_module->m_operatorMgr.parseInitializer (
+		variable,
+		variable->m_itemDecl->getParentUnit (),
+		variable->m_constructor,
+		variable->m_initializer
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	return true;
 }
 
 void
-CVariableMgr::AllocateTlsVariable (CVariable* pVariable)
+VariableMgr::allocateTlsVariable (Variable* variable)
 {
-	CValue PtrValue;
-	llvm::AllocaInst* pLlvmAlloca = m_pModule->m_LlvmIrBuilder.CreateAlloca (
-		pVariable->m_pType,
-		pVariable->m_QualifiedName,
+	Value ptrValue;
+	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (
+		variable->m_type,
+		variable->m_qualifiedName,
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
-	pVariable->m_pLlvmAllocValue = pLlvmAlloca;
-	pVariable->m_pLlvmValue = pLlvmAlloca;
+	variable->m_llvmAllocValue = llvmAlloca;
+	variable->m_llvmValue = llvmAlloca;
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
 
-	pFunction->AddTlsVariable (pVariable);
+	function->addTlsVariable (variable);
 }
 
 void
-CVariableMgr::DeallocateTlsVariableArray (
-	const TTlsVariable* ppArray,
-	size_t Count
+VariableMgr::deallocateTlsVariableArray (
+	const TlsVariable* array,
+	size_t count
 	)
 {
-	for (size_t i = 0; i < Count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = ppArray [i].m_pVariable;
-		ASSERT (pVariable->m_pLlvmValue == ppArray [i].m_pLlvmAlloca);
+		Variable* variable = array [i].m_variable;
+		ASSERT (variable->m_llvmValue == array [i].m_llvmAlloca);
 
-		pVariable->m_pLlvmValue = NULL;
-		pVariable->m_pLlvmAllocValue = NULL;
+		variable->m_llvmValue = NULL;
+		variable->m_llvmAllocValue = NULL;
 	}
 }
 
 void
-CVariableMgr::RestoreTlsVariableArray (
-	const TTlsVariable* ppArray,
-	size_t Count
+VariableMgr::restoreTlsVariableArray (
+	const TlsVariable* array,
+	size_t count
 	)
 {
-	for (size_t i = 0; i < Count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = ppArray [i].m_pVariable;
-		llvm::AllocaInst* pLlvmAlloca = ppArray [i].m_pLlvmAlloca;
+		Variable* variable = array [i].m_variable;
+		llvm::AllocaInst* llvmAlloca = array [i].m_llvmAlloca;
 
-		pVariable->m_pLlvmValue = pLlvmAlloca;
-		pVariable->m_pLlvmAllocValue = pLlvmAlloca;
+		variable->m_llvmValue = llvmAlloca;
+		variable->m_llvmAllocValue = llvmAlloca;
 	}
 }
 

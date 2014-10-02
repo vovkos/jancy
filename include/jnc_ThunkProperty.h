@@ -10,48 +10,48 @@ namespace jnc {
 
 //.............................................................................
 
-class CThunkProperty: public CProperty
+class ThunkProperty: public Property
 {
-	friend class CFunctionMgr;
+	friend class FunctionMgr;
 
 protected:
-	rtl::CString m_Signature;
-	CProperty* m_pTargetProperty;
+	rtl::String m_signature;
+	Property* m_targetProperty;
 
 public:
-	CThunkProperty ();
+	ThunkProperty ();
 
 	bool
-	Create (
-		CProperty* pTargetProperty,
-		CPropertyType* pThunkPropertyType,
-		bool HasUnusedClosure
+	create (
+		Property* targetProperty,
+		PropertyType* thunkPropertyType,
+		bool hasUnusedClosure
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDataThunkProperty: public CProperty
+class DataThunkProperty: public Property
 {
-	friend class CFunctionMgr;
+	friend class FunctionMgr;
 
 protected:
-	rtl::CString m_Signature;
-	CVariable* m_pTargetVariable;
+	rtl::String m_signature;
+	Variable* m_targetVariable;
 
 public:
-	CDataThunkProperty ();
+	DataThunkProperty ();
 
 	virtual
 	bool 
-	Compile ();
+	compile ();
 
 protected:
 	bool 
-	CompileGetter ();
+	compileGetter ();
 
 	bool 
-	CompileSetter (CFunction* pSetter);
+	compileSetter (Function* setter);
 };
 
 //.............................................................................

@@ -8,28 +8,28 @@
 
 namespace jnc {
 
-class CFunctionType;
-class CFunctionPtrType;
+class FunctionType;
+class FunctionPtrType;
 
 //.............................................................................
 
 // ordered from the worst to the best
 
-enum ECast
+enum CastKind
 {
-	ECast_None,
-	ECast_Explicit,
-	ECast_ImplicitCrossFamily,
-	ECast_Implicit,
-	ECast_Identitiy,
+	CastKind_None,
+	CastKind_Explicit,
+	CastKind_ImplicitCrossFamily,
+	CastKind_Implicit,
+	CastKind_Identitiy,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-err::CError
-SetCastError (
-	const CValue& OpValue,
-	CType* pType
+err::Error
+setCastError (
+	const Value& opValue,
+	Type* type
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -37,79 +37,79 @@ SetCastError (
 // these are sometimes needed for inlining casts before jnc_Module.h is include
 
 bool
-CastOperator (
-	CModule* pModule,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pOpValue
+castOperator (
+	Module* module,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	);
 
 inline
 bool
-CastOperator (
-	CModule* pModule,
-	CValue* pOpValue,
-	CType* pType
+castOperator (
+	Module* module,
+	Value* opValue,
+	Type* type
 	)
 {
-	return CastOperator (pModule, *pOpValue, pType, pOpValue);
+	return castOperator (module, *opValue, type, opValue);
 }
 
 //.............................................................................
 
-class CCastOperator
+class CastOperator
 {	
-	friend class COperatorMgr;
+	friend class OperatorMgr;
 
 protected:
-	CModule* m_pModule;
-	uint_t m_OpFlags;
+	Module* m_module;
+	uint_t m_opFlags;
 
 public:
-	CCastOperator ();
+	CastOperator ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	int 
-	GetOpFlags ()
+	getOpFlags ()
 	{
-		return m_OpFlags;
+		return m_opFlags;
 	}
 
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		) = 0;
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		) = 0;
 
 	bool
-	Cast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	cast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -117,29 +117,29 @@ public:
 
 // fail by default
 
-class CCast_Default: public CCastOperator
+class Cast_Default: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_None;
+		return CastKind_None;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		)
 	{
-		SetCastError (OpValue, pType);
+		setCastError (opValue, type);
 		return false;
 	}
 };
@@ -148,34 +148,34 @@ public:
 
 // simple copy
 
-class CCast_Copy: public CCastOperator
+class Cast_Copy: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return OpValue.GetType ()->Cmp (pType) == 0 ? ECast_Identitiy : ECast_Implicit;
+		return opValue.getType ()->cmp (type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -183,38 +183,38 @@ public:
 
 // master cast chooses particular implementation
 
-class CCast_Master: public CCastOperator
+class Cast_Master: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		) = 0;
 };
 
@@ -222,41 +222,41 @@ public:
 
 // master cast capable of performing superposition of casts
 
-class CCast_SuperMaster: public CCastOperator
+class Cast_SuperMaster: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppOperator1,
-		CCastOperator** ppOperator2,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** operator1,
+		CastOperator** operator2,
+		Type** intermediateType
 		) = 0;
 };
 

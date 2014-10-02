@@ -10,50 +10,50 @@ namespace jnc {
 
 //.............................................................................
 
-class CBinOp_Idx: public CBinaryOperator
+class BinOp_Idx: public BinaryOperator
 {
 public:
-	CBinOp_Idx ()
+	BinOp_Idx ()
 	{
-		m_OpKind = EBinOp_Idx;
-		m_OpFlags1 = EOpFlag_KeepPropertyRef;
+		m_opKind = BinOpKind_Idx;
+		m_opFlags1 = OpFlagKind_KeepPropertyRef;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		);
 
 protected:
 	bool
-	ArrayIndexOperator (
-		const CValue& RawOpValue1,
-		CArrayType* pArrayType,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	arrayIndexOperator (
+		const Value& rawOpValue1,
+		ArrayType* arrayType,
+		const Value& rawOpValue2,
+		Value* resultValue
 		);
 
 	bool
-	PropertyIndexOperator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	propertyIndexOperator (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		);
 
-	CType*
-	GetPropertyIndexResultType (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2
+	Type*
+	getPropertyIndexResultType (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2
 		);
 };
 

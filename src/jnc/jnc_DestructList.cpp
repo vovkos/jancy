@@ -6,71 +6,71 @@ namespace jnc {
 
 //.............................................................................
 
-CDestructList::CDestructList ()
+DestructList::DestructList ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 }
 
 void 
-CDestructList::AddDestructor (
-	CFunction* pDestructor,
-	const CValue& ArgValue,
-	CVariable* pFlagVariable
+DestructList::addDestructor (
+	Function* destructor,
+	const Value& argValue,
+	Variable* flagVariable
 	)
 {
-	TEntry* pEntry = AXL_MEM_NEW (TEntry);
-	pEntry->m_pDestructor = pDestructor;
-	pEntry->m_ArgValue = ArgValue;
-	pEntry->m_pFlagVariable = pFlagVariable;
+	Entry* entry = AXL_MEM_NEW (Entry);
+	entry->m_destructor = destructor;
+	entry->m_argValue = argValue;
+	entry->m_flagVariable = flagVariable;
 
-	m_List.InsertTail (pEntry);
+	m_list.insertTail (entry);
 }
 
 void
-CDestructList::RunDestructors ()
+DestructList::runDestructors ()
 {
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "process destruct list");
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "process destruct list");
 
-	rtl::CIteratorT <TEntry> Entry = m_List.GetHead ();
-	for (; Entry; Entry++)
+	rtl::Iterator <Entry> entryIt = m_list.getHead ();
+	for (; entryIt; entryIt++)
 	{
-		TEntry* pEntry = *Entry;
-		if (!pEntry->m_pFlagVariable) // unconditional destructor
+		Entry* entry = *entryIt;
+		if (!entry->m_flagVariable) // unconditional destructor
 		{
-			m_pModule->m_LlvmIrBuilder.CreateCall (
-				pEntry->m_pDestructor, 
-				pEntry->m_pDestructor->GetType (), 
-				&pEntry->m_ArgValue, 
-				pEntry->m_ArgValue ? 1 : 0,
+			m_module->m_llvmIrBuilder.createCall (
+				entry->m_destructor, 
+				entry->m_destructor->getType (), 
+				&entry->m_argValue, 
+				entry->m_argValue ? 1 : 0,
 				NULL
 				);
 			continue;
 		}
 
-		CBasicBlock* pDestructBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("destruct_block");
-		CBasicBlock* pFollowBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("follow_block");
+		BasicBlock* destructBlock = m_module->m_controlFlowMgr.createBlock ("destruct_block");
+		BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow_block");
 
-		CValue CmpValue;
+		Value cmpValue;
 
-		m_pModule->m_OperatorMgr.BinaryOperator (
-			EBinOp_Ne, 
-			pEntry->m_pFlagVariable, 
-			pEntry->m_pFlagVariable->GetType ()->GetZeroValue (),
-			&CmpValue
+		m_module->m_operatorMgr.binaryOperator (
+			BinOpKind_Ne, 
+			entry->m_flagVariable, 
+			entry->m_flagVariable->getType ()->getZeroValue (),
+			&cmpValue
 			);
 
-		m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pDestructBlock, pFollowBlock);
+		m_module->m_controlFlowMgr.conditionalJump (cmpValue, destructBlock, followBlock);
 
-		m_pModule->m_LlvmIrBuilder.CreateCall (
-			pEntry->m_pDestructor, 
-			pEntry->m_pDestructor->GetType (), 
-			&pEntry->m_ArgValue, 
-			pEntry->m_ArgValue ? 1 : 0,
+		m_module->m_llvmIrBuilder.createCall (
+			entry->m_destructor, 
+			entry->m_destructor->getType (), 
+			&entry->m_argValue, 
+			entry->m_argValue ? 1 : 0,
 			NULL
 			);
 
-		m_pModule->m_ControlFlowMgr.Follow (pFollowBlock);
+		m_module->m_controlFlowMgr.follow (followBlock);
 	}
 }
 

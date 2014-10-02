@@ -6,24 +6,24 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CBinOp_LogAnd::GetResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+BinOp_LogAnd::getResultType (
+	const Value& opValue1,
+	const Value& opValue2
 	)
 {
-	return m_pModule->m_TypeMgr.GetPrimitiveType (EType_Bool);
+	return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 }
 
 //.............................................................................
 
-CType*
-CBinOp_LogOr::GetResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+BinOp_LogOr::getResultType (
+	const Value& opValue1,
+	const Value& opValue2
 	)
 {
-	return m_pModule->m_TypeMgr.GetPrimitiveType (EType_Bool);
+	return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 }
 
 //.............................................................................

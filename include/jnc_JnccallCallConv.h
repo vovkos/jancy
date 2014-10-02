@@ -18,45 +18,45 @@ namespace jnc {
 
 //.............................................................................
 
-class CJnccallCallConv_msc32: public CCdeclCallConv_msc32
+class JnccallCallConv_msc32: public CdeclCallConv_msc32
 {
 public:
-	CJnccallCallConv_msc32 ()
+	JnccallCallConv_msc32 ()
 	{
-		m_CallConvKind = ECallConv_Jnccall_msc32;
+		m_callConvKind = CallConvKind_Jnccall_msc32;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CJnccallCallConv_msc64: public CCdeclCallConv_msc64
+class JnccallCallConv_msc64: public CdeclCallConv_msc64
 {
 public:
-	CJnccallCallConv_msc64 ()
+	JnccallCallConv_msc64 ()
 	{
-		m_CallConvKind = ECallConv_Jnccall_msc64;
+		m_callConvKind = CallConvKind_Jnccall_msc64;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CJnccallCallConv_gcc32: public CCdeclCallConv_gcc32
+class JnccallCallConv_gcc32: public CdeclCallConv_gcc32
 {
 public:
-	CJnccallCallConv_gcc32 ()
+	JnccallCallConv_gcc32 ()
 	{
-		m_CallConvKind = ECallConv_Jnccall_gcc32;
+		m_callConvKind = CallConvKind_Jnccall_gcc32;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CJnccallCallConv_gcc64: public CCdeclCallConv_gcc64
+class JnccallCallConv_gcc64: public CdeclCallConv_gcc64
 {
 public:
-	CJnccallCallConv_gcc64 ()
+	JnccallCallConv_gcc64 ()
 	{
-		m_CallConvKind = ECallConv_Jnccall_gcc64;
+		m_callConvKind = CallConvKind_Jnccall_gcc64;
 	}
 };
 

@@ -12,64 +12,64 @@ namespace jnc {
 
 //.............................................................................
 
-class CCallConv_gcc32: public CCallConv
+class CallConv_gcc32: public CallConv
 {
 public:
 	virtual
 	llvm::FunctionType*
-	GetLlvmFunctionType (CFunctionType* pFunctionType);
+	getLlvmFunctionType (FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	CreateLlvmFunction (
-		CFunctionType* pFunctionType,
-		const char* pTag
+	createLlvmFunction (
+		FunctionType* functionType,
+		const char* tag
 		);
 
 	virtual
 	void
-	Call (
-		const CValue& CalleeValue,
-		CFunctionType* pFunctionType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	call (
+		const Value& calleeValue,
+		FunctionType* functionType,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	virtual
 	void
-	Return (
-		CFunction* pFunction,
-		const CValue& Value
+	ret (
+		Function* function,
+		const Value& value
 		);
 
 	virtual
-	CValue
-	GetThisArgValue (CFunction* pFunction);
+	Value
+	getThisArgValue (Function* function);
 
 	virtual
 	void
-	CreateArgVariables (CFunction* pFunction);
+	createArgVariables (Function* function);
 };
 
 //.............................................................................
 
-class CCdeclCallConv_gcc32: public CCallConv_gcc32
+class CdeclCallConv_gcc32: public CallConv_gcc32
 {
 public:
-	CCdeclCallConv_gcc32 ()
+	CdeclCallConv_gcc32 ()
 	{
-		m_CallConvKind = ECallConv_Cdecl_gcc32;
+		m_callConvKind = CallConvKind_Cdecl_gcc32;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CStdcallCallConv_gcc32: public CCallConv_gcc32
+class StdcallCallConv_gcc32: public CallConv_gcc32
 {
 public:
-	CStdcallCallConv_gcc32 ()
+	StdcallCallConv_gcc32 ()
 	{
-		m_CallConvKind = ECallConv_Stdcall_gcc32;
+		m_callConvKind = CallConvKind_Stdcall_gcc32;
 	}
 };
 

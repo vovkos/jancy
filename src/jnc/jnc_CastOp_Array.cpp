@@ -6,35 +6,35 @@ namespace jnc {
 
 //.............................................................................
 
-ECast
-CCast_Array::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_Array::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	return ECast_Explicit;
+	return CastKind_Explicit;
 }
 
 bool
-CCast_Array::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_Array::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	err::SetFormatStringError ("CCast_Array::ConstCast is not yet implemented");
+	err::setFormatStringError ("CCast_Array::ConstCast is not yet implemented");
 	return false;
 }
 
 bool
-CCast_Array::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_Array::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	err::SetFormatStringError ("CCast_Array::LlvmCast is not yet implemented");
+	err::setFormatStringError ("CCast_Array::LlvmCast is not yet implemented");
 	return false;
 }
 

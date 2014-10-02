@@ -6,121 +6,121 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CUnOp_Addr::GetResultType (const CValue& OpValue)
+Type*
+UnOp_Addr::getResultType (const Value& opValue)
 {
-	CType* pOpType = OpValue.GetType ();
-	EType OpTypeKind = pOpType->GetTypeKind ();
-	switch (OpTypeKind)
+	Type* opType = opValue.getType ();
+	TypeKind opTypeKind = opType->getTypeKind ();
+	switch (opTypeKind)
 	{
-	case EType_DataRef:
-		return ((CDataPtrType*) pOpType)->GetTargetType ()->GetDataPtrType (
-			((CDataPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_DataPtr, 
-			((CDataPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_DataRef:
+		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
+			((DataPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_DataPtr, 
+			((DataPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_ClassRef:
-		return ((CClassPtrType*) pOpType)->GetTargetType ()->GetClassPtrType (
-			((CClassPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_ClassPtr, 
-			((CClassPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_ClassRef:
+		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
+			((ClassPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_ClassPtr, 
+			((ClassPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_FunctionRef:
-		return ((CFunctionPtrType*) pOpType)->GetTargetType ()->GetFunctionPtrType (
-			EType_FunctionPtr, 
-			((CFunctionPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_FunctionRef:
+		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
+			TypeKind_FunctionPtr, 
+			((FunctionPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_PropertyRef:
-		return ((CPropertyPtrType*) pOpType)->GetTargetType ()->GetPropertyPtrType (
-			((CPropertyPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_PropertyPtr, 
-			((CPropertyPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_PropertyRef:
+		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
+			((PropertyPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_PropertyPtr, 
+			((PropertyPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
 	default:
-		err::SetFormatStringError ("can only apply unary '&' to a reference");
+		err::setFormatStringError ("can only apply unary '&' to a reference");
 		return NULL;
 	}
 }
 
 bool
-CUnOp_Addr::Operator (
-	const CValue& OpValue,
-	CValue* pResultValue
+UnOp_Addr::op (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetResultType (OpValue);
-	if (!pResultType)
+	Type* resultType = getResultType (opValue);
+	if (!resultType)
 		return false;
 	
-	pResultValue->OverrideType (OpValue, pResultType);
+	resultValue->overrideType (opValue, resultType);
 	return true;
 }
 
 //.............................................................................
 
-CType*
-CUnOp_Indir::GetResultType (const CValue& OpValue)
+Type*
+UnOp_Indir::getResultType (const Value& opValue)
 {
-	CType* pOpType = OpValue.GetType ();
-	EType OpTypeKind = pOpType->GetTypeKind ();
-	switch (OpTypeKind)
+	Type* opType = opValue.getType ();
+	TypeKind opTypeKind = opType->getTypeKind ();
+	switch (opTypeKind)
 	{
-	case EType_DataPtr:
-		return ((CDataPtrType*) pOpType)->GetTargetType ()->GetDataPtrType (
-			((CDataPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_DataRef, 
-			((CDataPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_DataPtr:
+		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
+			((DataPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_DataRef, 
+			((DataPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_ClassPtr:
-		return ((CClassPtrType*) pOpType)->GetTargetType ()->GetClassPtrType (
-			((CClassPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_ClassRef, 
-			((CClassPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_ClassPtr:
+		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
+			((ClassPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_ClassRef, 
+			((ClassPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_FunctionPtr:
-		return ((CFunctionPtrType*) pOpType)->GetTargetType ()->GetFunctionPtrType (
-			EType_FunctionRef, 
-			((CFunctionPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_FunctionPtr:
+		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
+			TypeKind_FunctionRef, 
+			((FunctionPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
-	case EType_PropertyPtr:
-		return ((CPropertyPtrType*) pOpType)->GetTargetType ()->GetPropertyPtrType (
-			((CPropertyPtrType*) pOpType)->GetAnchorNamespace (),
-			EType_PropertyRef, 
-			((CPropertyPtrType*) pOpType)->GetPtrTypeKind (),
-			pOpType->GetFlags ()
+	case TypeKind_PropertyPtr:
+		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
+			((PropertyPtrType*) opType)->getAnchorNamespace (),
+			TypeKind_PropertyRef, 
+			((PropertyPtrType*) opType)->getPtrTypeKind (),
+			opType->getFlags ()
 			);
 
 	default:
-		err::SetFormatStringError ("can only apply unary '*' to a pointer");
+		err::setFormatStringError ("can only apply unary '*' to a pointer");
 		return NULL;
 	}
 }
 
 bool
-CUnOp_Indir::Operator (
-	const CValue& OpValue,
-	CValue* pResultValue
+UnOp_Indir::op (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetResultType (OpValue);
-	if (!pResultType)
+	Type* resultType = getResultType (opValue);
+	if (!resultType)
 		return false;
 	
-	pResultValue->OverrideType (OpValue, pResultType);
+	resultValue->overrideType (opValue, resultType);
 	return true;
 }
 

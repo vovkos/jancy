@@ -17,315 +17,315 @@ namespace jnc {
 
 //.............................................................................
 
-class CFunctionMgr
+class FunctionMgr
 {
-	friend class CModule;
-	friend class CDerivableType;
-	friend class CClassType;
-	friend class CFunction;
-	friend class CParser;
+	friend class Module;
+	friend class DerivableType;
+	friend class ClassType;
+	friend class Function;
+	friend class Parser;
 
 protected:
-	struct TEmissionContext: rtl::TListLink
+	struct EmissionContext: rtl::ListLink
 	{
-		CFunction* m_pCurrentFunction;
+		Function* m_currentFunction;
 
-		CNamespace* m_pCurrentNamespace;
-		CScope* m_pCurrentScope;
-		CScopeLevelStack m_ScopeLevelStack;
+		Namespace* m_currentNamespace;
+		Scope* m_currentScope;
+		ScopeLevelStack m_scopeLevelStack;
 
-		rtl::CArrayT <CBasicBlock*> m_ReturnBlockArray;
-		CBasicBlock* m_pCurrentBlock;
-		CBasicBlock* m_pUnreachableBlock;
-		uint_t m_ControlFlowMgrFlags;
+		rtl::Array <BasicBlock*> m_returnBlockArray;
+		BasicBlock* m_currentBlock;
+		BasicBlock* m_unreachableBlock;
+		uint_t m_controlFlowMgrFlags;
 
-		CValue m_ThisValue;
-		CValue m_ScopeLevelValue;
-		rtl::CBoxListT <CValue> m_TmpStackGcRootList;
+		Value m_thisValue;
+		Value m_scopeLevelValue;
+		rtl::BoxList <Value> m_tmpStackGcRootList;
 
-		llvm::DebugLoc m_LlvmDebugLoc;
+		llvm::DebugLoc m_llvmDebugLoc;
 	};
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
 	// unfortunately LLVM does not provide a slot for back-pointer from llvm::Function, hence the map
 
-	rtl::CHashTableMapT <llvm::Function*, CFunction*, rtl::CHashIdT <llvm::Function*> > m_LlvmFunctionMap;
+	rtl::HashTableMap <llvm::Function*, Function*, rtl::HashId <llvm::Function*> > m_llvmFunctionMap;
 
-	rtl::CStdListT <CFunction> m_FunctionList;
-	rtl::CStdListT <CProperty> m_PropertyList;
-	rtl::CStdListT <CPropertyTemplate> m_PropertyTemplateList;
-	rtl::CStdListT <CScheduleLauncherFunction> m_ScheduleLauncherFunctionList;
-	rtl::CStdListT <CThunkFunction> m_ThunkFunctionList;
-	rtl::CStdListT <CThunkProperty> m_ThunkPropertyList;
-	rtl::CStdListT <CDataThunkProperty> m_DataThunkPropertyList;
-	rtl::CStdListT <CLazyStdFunction> m_LazyStdFunctionList;
-	rtl::CStringHashTableMapT <CFunction*> m_ThunkFunctionMap;
-	rtl::CStringHashTableMapT <CProperty*> m_ThunkPropertyMap;
-	rtl::CStringHashTableMapT <CFunction*> m_ScheduleLauncherFunctionMap;
+	rtl::StdList <Function> m_functionList;
+	rtl::StdList <Property> m_propertyList;
+	rtl::StdList <PropertyTemplate> m_propertyTemplateList;
+	rtl::StdList <ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
+	rtl::StdList <ThunkFunction> m_thunkFunctionList;
+	rtl::StdList <ThunkProperty> m_thunkPropertyList;
+	rtl::StdList <DataThunkProperty> m_dataThunkPropertyList;
+	rtl::StdList <LazyStdFunction> m_lazyStdFunctionList;
+	rtl::StringHashTableMap <Function*> m_thunkFunctionMap;
+	rtl::StringHashTableMap <Property*> m_thunkPropertyMap;
+	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
 
-	CFunction* m_pCurrentFunction;
+	Function* m_currentFunction;
 
-	CValue m_ThisValue;
-	CValue m_ScopeLevelValue;
+	Value m_thisValue;
+	Value m_scopeLevelValue;
 
-	rtl::CStdListT <TEmissionContext> m_EmissionContextStack;
+	rtl::StdList <EmissionContext> m_emissionContextStack;
 
-	CFunction* m_StdFunctionArray [EStdFunc__Count];
-	CLazyStdFunction* m_LazyStdFunctionArray [EStdFunc__Count];
+	Function* m_stdFunctionArray [StdFuncKind__Count];
+	LazyStdFunction* m_lazyStdFunctionArray [StdFuncKind__Count];
 
 public:
-	CFunctionMgr ();
+	FunctionMgr ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
-	CFunction*
-	GetCurrentFunction ()
+	Function*
+	getCurrentFunction ()
 	{
-		return m_pCurrentFunction;
+		return m_currentFunction;
 	}
 
-	CFunction*
-	SetCurrentFunction (CFunction* pFunction);
+	Function*
+	setCurrentFunction (Function* function);
 
-	CFunction*
-	FindFunctionByLlvmFunction (llvm::Function* pLlvmFunction)
+	Function*
+	findFunctionByLlvmFunction (llvm::Function* llvmFunction)
 	{
-		rtl::CHashTableMapIteratorT <llvm::Function*, CFunction*> It = m_LlvmFunctionMap.Find (pLlvmFunction);
-		return It ? It->m_Value : NULL;
+		rtl::HashTableMapIterator <llvm::Function*, Function*> it = m_llvmFunctionMap.find (llvmFunction);
+		return it ? it->m_value : NULL;
 	}
 
-	CProperty*
-	GetCurrentProperty ()
+	Property*
+	getCurrentProperty ()
 	{
-		return m_pCurrentFunction ? m_pCurrentFunction->GetProperty () : NULL;
+		return m_currentFunction ? m_currentFunction->getProperty () : NULL;
 	}
 
-	CValue
-	GetThisValue ()
+	Value
+	getThisValue ()
 	{
-		return m_ThisValue;
+		return m_thisValue;
 	}
 
-	CValue
-	OverrideThisValue (const CValue& Value);
+	Value
+	overrideThisValue (const Value& value);
 
-	CValue
-	GetScopeLevel ()
+	Value
+	getScopeLevel ()
 	{
-		return m_ScopeLevelValue;
+		return m_scopeLevelValue;
 	}
 
 	void
-	Clear ();
+	clear ();
 
-	rtl::CConstListT <CFunction>
-	GetFunctionList ()
+	rtl::ConstList <Function>
+	getFunctionList ()
 	{
-		return m_FunctionList;
+		return m_functionList;
 	}
 
-	rtl::CConstListT <CProperty>
-	GetPropertyList ()
+	rtl::ConstList <Property>
+	getPropertyList ()
 	{
-		return m_PropertyList;
+		return m_propertyList;
 	}
 
-	rtl::CConstListT <CThunkFunction>
-	GetThunkFunctionList ()
+	rtl::ConstList <ThunkFunction>
+	getThunkFunctionList ()
 	{
-		return m_ThunkFunctionList;
+		return m_thunkFunctionList;
 	}
 
-	rtl::CConstListT <CThunkProperty>
-	GetThunkPropertyList ()
+	rtl::ConstList <ThunkProperty>
+	getThunkPropertyList ()
 	{
-		return m_ThunkPropertyList;
+		return m_thunkPropertyList;
 	}
 
-	rtl::CConstListT <CDataThunkProperty>
-	GetDataThunkPropertyList ()
+	rtl::ConstList <DataThunkProperty>
+	getDataThunkPropertyList ()
 	{
-		return m_DataThunkPropertyList;
+		return m_dataThunkPropertyList;
 	}
 
-	CFunction*
-	CreateFunction (
-		EFunction FunctionKind,
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		const rtl::CString& Tag,
-		CFunctionType* pType
+	Function*
+	createFunction (
+		FunctionKind functionKind,
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		const rtl::String& tag,
+		FunctionType* type
 		);
 
-	CFunction*
-	CreateFunction (
-		EFunction FunctionKind,
-		CFunctionType* pType
+	Function*
+	createFunction (
+		FunctionKind functionKind,
+		FunctionType* type
 		)
 	{
-		return CreateFunction (FunctionKind, rtl::CString (), rtl::CString (), rtl::CString (), pType);
+		return createFunction (functionKind, rtl::String (), rtl::String (), rtl::String (), type);
 	}
 
-	CFunction*
-	CreateFunction (
-		EFunction FunctionKind,
-		const rtl::CString& Tag,
-		CFunctionType* pType
+	Function*
+	createFunction (
+		FunctionKind functionKind,
+		const rtl::String& tag,
+		FunctionType* type
 		)
 	{
-		return CreateFunction (FunctionKind, rtl::CString (), rtl::CString (), Tag, pType);
+		return createFunction (functionKind, rtl::String (), rtl::String (), tag, type);
 	}
 
-	CFunction*
-	CreateFunction (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CFunctionType* pType
+	Function*
+	createFunction (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		FunctionType* type
 		)
 	{
-		return CreateFunction (EFunction_Named, Name, QualifiedName, QualifiedName, pType);
+		return createFunction (FunctionKind_Named, name, qualifiedName, qualifiedName, type);
 	}
 
-	CProperty*
-	CreateProperty (
-		EProperty PropertyKind,
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		const rtl::CString& Tag
+	Property*
+	createProperty (
+		PropertyKind propertyKind,
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		const rtl::String& tag
 		);
 
-	CProperty*
-	CreateProperty (EProperty PropertyKind)
+	Property*
+	createProperty (PropertyKind propertyKind)
 	{
-		return CreateProperty (PropertyKind, rtl::CString (), rtl::CString (), rtl::CString ());
+		return createProperty (propertyKind, rtl::String (), rtl::String (), rtl::String ());
 	}
 
-	CProperty*
-	CreateProperty (
-		EProperty PropertyKind,
-		const rtl::CString& Tag
+	Property*
+	createProperty (
+		PropertyKind propertyKind,
+		const rtl::String& tag
 		)
 	{
-		return CreateProperty (PropertyKind, rtl::CString (), rtl::CString (), Tag);
+		return createProperty (propertyKind, rtl::String (), rtl::String (), tag);
 	}
 
-	CProperty*
-	CreateProperty (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName
+	Property*
+	createProperty (
+		const rtl::String& name,
+		const rtl::String& qualifiedName
 		)
 	{
-		return CreateProperty (EProperty_Normal, Name, QualifiedName, QualifiedName);
+		return createProperty (PropertyKind_Normal, name, qualifiedName, qualifiedName);
 	}
 
-	CPropertyTemplate*
-	CreatePropertyTemplate ();
+	PropertyTemplate*
+	createPropertyTemplate ();
 
 	bool
-	Prologue (
-		CFunction* pFunction,
-		const CToken::CPos& Pos
+	prologue (
+		Function* function,
+		const Token::Pos& pos
 		);
 
 	bool
-	Epilogue ();
+	epilogue ();
 
 	bool
-	FireOnChanged ();
+	fireOnChanged ();
 
 	void
-	InternalPrologue (
-		CFunction* pFunction,
-		CValue* pArgValueArray = NULL,
-		size_t ArgCount = 0
+	internalPrologue (
+		Function* function,
+		Value* argValueArray = NULL,
+		size_t argCount = 0
 		);
 
 	void
-	InternalEpilogue ();
+	internalEpilogue ();
 
 	bool
-	InjectTlsPrologues ();
+	injectTlsPrologues ();
 
 	bool
-	JitFunctions ();
+	jitFunctions ();
 
 	// std functions
 
 	bool
-	IsStdFunctionUsed (EStdFunc Func)
+	isStdFunctionUsed (StdFuncKind func)
 	{
-		ASSERT (Func < EStdFunc__Count);
-		return m_StdFunctionArray [Func] != NULL;
+		ASSERT (func < StdFuncKind__Count);
+		return m_stdFunctionArray [func] != NULL;
 	}
 
-	CFunction*
-	GetStdFunction (EStdFunc Func);
+	Function*
+	getStdFunction (StdFuncKind func);
 
-	CLazyStdFunction*
-	GetLazyStdFunction (EStdFunc Func);
+	LazyStdFunction*
+	getLazyStdFunction (StdFuncKind func);
 
-	CFunction*
-	GetDirectThunkFunction (
-		CFunction* pTargetFunction,
-		CFunctionType* pThunkFunctionType,
-		bool HasUnusedClosure = false
+	Function*
+	getDirectThunkFunction (
+		Function* targetFunction,
+		FunctionType* thunkFunctionType,
+		bool hasUnusedClosure = false
 		);
 
-	CProperty*
-	GetDirectThunkProperty (
-		CProperty* pTargetProperty,
-		CPropertyType* pThunkPropertyType,
-		bool HasUnusedClosure = false
+	Property*
+	getDirectThunkProperty (
+		Property* targetProperty,
+		PropertyType* thunkPropertyType,
+		bool hasUnusedClosure = false
 		);
 
-	CProperty*
-	GetDirectDataThunkProperty (
-		CVariable* pTargetVariable,
-		CPropertyType* pThunkPropertyType,
-		bool HasUnusedClosure = false
+	Property*
+	getDirectDataThunkProperty (
+		Variable* targetVariable,
+		PropertyType* thunkPropertyType,
+		bool hasUnusedClosure = false
 		);
 
-	CFunction*
-	GetScheduleLauncherFunction (
-		CFunctionPtrType* pTargetFunctionPtrType,
-		EClassPtrType SchedulerPtrTypeKind = EClassPtrType_Normal
+	Function*
+	getScheduleLauncherFunction (
+		FunctionPtrType* targetFunctionPtrType,
+		ClassPtrTypeKind schedulerPtrTypeKind = ClassPtrTypeKind_Normal
 		);
 
 protected:
 	void
-	CreateThisValue ();
+	createThisValue ();
 
 	void
-	PushEmissionContext ();
+	pushEmissionContext ();
 
 	void
-	PopEmissionContext ();
+	popEmissionContext ();
 
 	void
-	InjectTlsPrologue (CFunction* pFunction);
+	injectTlsPrologue (Function* function);
 
 	// LLVM code support functions
 
-	CFunction*
-	CreateCheckNullPtr ();
+	Function*
+	createCheckNullPtr ();
 
-	CFunction*
-	CreateCheckScopeLevel ();
+	Function*
+	createCheckScopeLevel ();
 
-	CFunction*
-	CreateCheckDataPtrRange ();
+	Function*
+	createCheckDataPtrRange ();
 
-	CFunction*
-	CreateCheckClassPtrScopeLevel ();
+	Function*
+	createCheckClassPtrScopeLevel ();
 
-	CFunction*
-	CreateGetDataPtrSpan ();
+	Function*
+	createGetDataPtrSpan ();
 };
 
 //.............................................................................

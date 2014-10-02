@@ -7,449 +7,450 @@ namespace jnc {
 
 //.............................................................................
 
-TIfaceHdr*
-CStdLib::DynamicCastClassPtr (
-	TIfaceHdr* p,
-	CClassType* pType
+IfaceHdr*
+StdLib::dynamicCastClassPtr (
+	IfaceHdr* p,
+	ClassType* type
 	)
 {
 	if (!p)
 		return NULL;
 
-	if (p->m_pObject->m_pType->Cmp (pType) == 0)
+	if (p->m_object->m_type->cmp (type) == 0)
 		return p;
 
-	CBaseTypeCoord Coord;
-	bool Result = p->m_pObject->m_pClassType->FindBaseTypeTraverse (pType, &Coord);
-	if (!Result)
+	BaseTypeCoord coord;
+	bool result = p->m_object->m_classType->findBaseTypeTraverse (type, &coord);
+	if (!result)
 		return NULL;
 
-	TIfaceHdr* p2 = (TIfaceHdr*) ((uchar_t*) (p->m_pObject + 1) + Coord.m_Offset);
-	ASSERT (p2->m_pObject == p->m_pObject);
+	IfaceHdr* p2 = (IfaceHdr*) ((uchar_t*) (p->m_object + 1) + coord.m_offset);
+	ASSERT (p2->m_object == p->m_object);
 	return p2;
 }
 
-TIfaceHdr*
-CStdLib::StrengthenClassPtr (TIfaceHdr* p)
+IfaceHdr*
+StdLib::strengthenClassPtr (IfaceHdr* p)
 {
 	if (!p)
 		return NULL;
 
-	EClassType ClassTypeKind = p->m_pObject->m_pClassType->GetClassTypeKind ();
-	return ClassTypeKind == EClassType_FunctionClosure || ClassTypeKind == EClassType_PropertyClosure ?
-		((CClosureClassType*) p->m_pObject->m_pType)->Strengthen (p) :
-		(!(p->m_pObject->m_Flags & EObjHdrFlag_Dead)) ? p : NULL;
+	ClassTypeKind classTypeKind = p->m_object->m_classType->getClassTypeKind ();
+	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
+		((ClosureClassType*) p->m_object->m_type)->strengthen (p) :
+		(!(p->m_object->m_flags & ObjHdrFlagKind_Dead)) ? p : NULL;
 }
 
 void*
-CStdLib::GcAllocate (
-	CType* pType,
-	size_t ElementCount
+StdLib::gcAllocate (
+	Type* type,
+	size_t elementCount
 	)
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	return pRuntime->GcAllocate (pType, ElementCount);
+	return runtime->gcAllocate (type, elementCount);
 }
 
 void*
-CStdLib::GcTryAllocate (
-	CType* pType,
-	size_t ElementCount
+StdLib::gcTryAllocate (
+	Type* type,
+	size_t elementCount
 	)
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	return pRuntime->GcTryAllocate (pType, ElementCount);
+	return runtime->gcTryAllocate (type, elementCount);
 }
 
 void
-CStdLib::GcEnter ()
+StdLib::gcEnter ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
-	pRuntime->GcEnter ();
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+	runtime->gcEnter ();
 }
 
 void
-CStdLib::GcLeave ()
+StdLib::gcLeave ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	pRuntime->GcLeave ();
+	runtime->gcLeave ();
 }
 
 void
-CStdLib::GcPulse ()
+StdLib::gcPulse ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	pRuntime->GcPulse ();
+	runtime->gcPulse ();
 }
 
 void
-CStdLib::RunGc ()
+StdLib::runGc ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	pRuntime->RunGc ();
+	runtime->runGc ();
 }
 
 size_t
-CStdLib::StrLen (TDataPtr Ptr)
+StdLib::strLen (DataPtr ptr)
 {
-	char* p = (char*) Ptr.m_p;
+	char* p = (char*) ptr.m_p;
 	if (!p)
 		return 0;
 
 	char* p0 = p;
-	char* pEnd = (char*) Ptr.m_pRangeEnd;
-	while (*p && p < pEnd)
+	char* end = (char*) ptr.m_rangeEnd;
+	while (*p && p < end)
 		p++;
 
 	return p - p0;
 }
 
 void
-CStdLib::MemCpy (
-	TDataPtr DstPtr,
-	TDataPtr SrcPtr,
-	size_t Size
+StdLib::memCpy (
+	DataPtr dstPtr,
+	DataPtr srcPtr,
+	size_t size
 	)
 {
-	if (DstPtr.m_p && SrcPtr.m_p)
-		memcpy (DstPtr.m_p, SrcPtr.m_p, Size);
+	if (dstPtr.m_p && srcPtr.m_p)
+		memcpy (dstPtr.m_p, srcPtr.m_p, size);
 }
 
-TDataPtr
-CStdLib::MemCat (
-	TDataPtr Ptr1,
-	size_t Size1,
-	TDataPtr Ptr2,
-	size_t Size2
+DataPtr
+StdLib::memCat (
+	DataPtr ptr1,
+	size_t size1,
+	DataPtr ptr2,
+	size_t size2
 	)
 {
-	TDataPtr ResultPtr = { 0 };
+	DataPtr resultPtr = { 0 };
 
-	size_t TotalSize = Size1 + Size2;
-	char* p = (char*) AXL_MEM_ALLOC (TotalSize + 1);
+	size_t totalSize = size1 + size2;
+	char* p = (char*) AXL_MEM_ALLOC (totalSize + 1);
 	if (!p)
-		return ResultPtr;
+		return resultPtr;
 
-	p [TotalSize] = 0; // ensure zero-termination just in case
+	p [totalSize] = 0; // ensure zero-termination just in case
 
-	if (Ptr1.m_p)
-		memcpy (p, Ptr1.m_p, Size1);
+	if (ptr1.m_p)
+		memcpy (p, ptr1.m_p, size1);
 	else
-		memset (p, 0, Size1);
+		memset (p, 0, size1);
 
-	if (Ptr2.m_p)
-		memcpy (p + Size1, Ptr2.m_p, Size2);
+	if (ptr2.m_p)
+		memcpy (p + size1, ptr2.m_p, size2);
 	else
-		memset (p + Size1, 0, Size2);
+		memset (p + size1, 0, size2);
 
-	ResultPtr.m_p = p;
-	ResultPtr.m_pRangeBegin = p;
-	ResultPtr.m_pRangeEnd = p + TotalSize;
-	ResultPtr.m_pObject = jnc::GetStaticObjHdr ();
-	return ResultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_rangeBegin = p;
+	resultPtr.m_rangeEnd = p + totalSize;
+	resultPtr.m_object = jnc::getStaticObjHdr ();
+	return resultPtr;
 }
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 
 intptr_t
-CStdLib::GetCurrentThreadId ()
+StdLib::getCurrentThreadId ()
 {
 	return ::GetCurrentThreadId ();
 }
 
-struct TThreadContext
+struct ThreadContext
 {
-	TFunctionPtr m_Ptr;
-	CRuntime* m_pRuntime;
+	FunctionPtr m_ptr;
+	Runtime* m_runtime;
 };
 
 DWORD
 WINAPI
-CStdLib::ThreadProc (PVOID pRawContext)
+StdLib::threadProc (PVOID rawContext)
 {
-	TThreadContext* pContext = (TThreadContext*) pRawContext;
-	TFunctionPtr Ptr = pContext->m_Ptr;
-	CRuntime* pRuntime = pContext->m_pRuntime;
-	AXL_MEM_DELETE (pContext);
+	ThreadContext* context = (ThreadContext*) rawContext;
+	FunctionPtr ptr = context->m_ptr;
+	Runtime* runtime = context->m_runtime;
+	AXL_MEM_DELETE (context);
 
-	CScopeThreadRuntime ScopeRuntime (pRuntime);
-	GetTlsMgr ()->GetTls (pRuntime); // register thread right away
+	ScopeThreadRuntime scopeRuntime (runtime);
+	getTlsMgr ()->getTls (runtime); // register thread right away
 
-	((void (__cdecl*) (TIfaceHdr*)) Ptr.m_pf) (Ptr.m_pClosure);
+	((void (__cdecl*) (IfaceHdr*)) ptr.m_pf) (ptr.m_closure);
 	return 0;
 }
 
 bool
-CStdLib::CreateThread (TFunctionPtr Ptr)
+StdLib::createThread (FunctionPtr ptr)
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	TThreadContext* pContext = AXL_MEM_NEW (TThreadContext);
-	pContext->m_Ptr = Ptr;
-	pContext->m_pRuntime = pRuntime;
+	ThreadContext* context = AXL_MEM_NEW (ThreadContext);
+	context->m_ptr = ptr;
+	context->m_runtime = runtime;
 
-	DWORD ThreadId;
-	HANDLE h = ::CreateThread (NULL, 0, CStdLib::ThreadProc, pContext, 0, &ThreadId);
+	DWORD threadId;
+	HANDLE h = ::CreateThread (NULL, 0, StdLib::threadProc, context, 0, &threadId);
 	return h != NULL;
 }
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 
 intptr_t
-CStdLib::GetCurrentThreadId ()
+StdLib::getCurrentThreadId ()
 {
 	return (intptr_t) pthread_self ();
 }
 
-struct TThreadContext
+struct ThreadContext
 {
-	TFunctionPtr m_Ptr;
-	CRuntime* m_pRuntime;
+	FunctionPtr m_ptr;
+	Runtime* m_runtime;
 };
 
 void*
-CStdLib::ThreadProc (void* pRawContext)
+StdLib::threadProc (void* rawContext)
 {
-	TThreadContext* pContext = (TThreadContext*) pRawContext;
-	TFunctionPtr Ptr = pContext->m_Ptr;
-	CRuntime* pRuntime = pContext->m_pRuntime;
-	AXL_MEM_DELETE (pContext);
+	ThreadContext* context = (ThreadContext*) rawContext;
+	FunctionPtr ptr = context->m_ptr;
+	Runtime* runtime = context->m_runtime;
+	AXL_MEM_DELETE (context);
 
-	CScopeThreadRuntime ScopeRuntime (pRuntime);
-	GetTlsMgr ()->GetTls (pRuntime); // register thread right away
+	ScopeThreadRuntime scopeRuntime (runtime);
+	getTlsMgr ()->getTls (runtime); // register thread right away
 
-	((void (*) (TIfaceHdr*)) Ptr.m_pf) (Ptr.m_pClosure);
+	((void (*) (IfaceHdr*)) ptr.m_pf) (ptr.m_closure);
 	return NULL;
 }
 
 bool
-CStdLib::CreateThread (TFunctionPtr Ptr)
+StdLib::createThread (FunctionPtr ptr)
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	TThreadContext* pContext = AXL_MEM_NEW (TThreadContext);
-	pContext->m_Ptr = Ptr;
-	pContext->m_pRuntime = pRuntime;
+	ThreadContext* context = AXL_MEM_NEW (ThreadContext);
+	context->m_ptr = ptr;
+	context->m_runtime = runtime;
 
-	pthread_t Thread;
-	int Result = pthread_create (&Thread, NULL, CStdLib::ThreadProc, pContext);
-	return Result == 0;
+	pthread_t thread;
+	int result = pthread_create (&thread, NULL, StdLib::threadProc, context);
+	return result == 0;
 }
 
 #endif
 
-TDataPtr
-CStdLib::GetLastError ()
+DataPtr
+StdLib::getLastError ()
 {
-	err::CError Error = err::GetError ();
-	size_t Size = Error->m_Size;
+	err::Error error = err::getError ();
+	size_t size = error->m_size;
 
-	void* p = AXL_MEM_ALLOC (Size);
-	memcpy (p , Error, Size);
+	void* p = AXL_MEM_ALLOC (size);
+	memcpy (p , error, size);
 
-	jnc::TDataPtr Ptr = { 0 };
-	Ptr.m_p = p;
-	Ptr.m_pRangeBegin = Ptr.m_p;
-	Ptr.m_pRangeEnd = (char*) Ptr.m_p + Size;
-	Ptr.m_pObject = jnc::GetStaticObjHdr ();
-	return Ptr;
+	jnc::DataPtr ptr = { 0 };
+	ptr.m_p = p;
+	ptr.m_rangeBegin = ptr.m_p;
+	ptr.m_rangeEnd = (char*) ptr.m_p + size;
+	ptr.m_object = jnc::getStaticObjHdr ();
+
+	return ptr;
 }
 
-TDataPtr
-CStdLib::GetErrorDescription (TDataPtr Error)
+DataPtr
+StdLib::getErrorDescription (DataPtr errorPtr)
 {
-	err::TError* pError = (err::TError*) Error.m_p;
-	rtl::CString String = pError->GetDescription ();
-	size_t Length = String.GetLength ();
+	err::Error* error = (err::Error*) errorPtr.m_p;
+	rtl::String string = error->getDescription ();
+	size_t length = string.getLength ();
 
-	char* pString = (char*) AXL_MEM_ALLOC (Length + 1);
-	memcpy (pString, String.cc (), Length);
-	pString [Length] = 0;
+	char* p = (char*) AXL_MEM_ALLOC (length + 1);
+	memcpy (p, string.cc (), length);
+	p [length] = 0;
 
-	jnc::TDataPtr Ptr = { 0 };
-	Ptr.m_p = pString;
-	Ptr.m_pRangeBegin = Ptr.m_p;
-	Ptr.m_pRangeEnd = (char*) Ptr.m_p + Length + 1;
-	Ptr.m_pObject = jnc::GetStaticObjHdr ();
+	jnc::DataPtr ptr = { 0 };
+	ptr.m_p = p;
+	ptr.m_rangeBegin = ptr.m_p;
+	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
+	ptr.m_object = jnc::getStaticObjHdr ();
 
-	return Ptr;
+	return ptr;
 }
 
-TDataPtr
-CStdLib::Format (
-	TDataPtr FormatString,
+DataPtr
+StdLib::format (
+	DataPtr formatStringPtr,
 	...
 	)
 {
-	AXL_VA_DECL (va, FormatString);
+	AXL_VA_DECL (va, formatStringPtr);
 
-	char Buffer [256];
-	rtl::CString String (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	String.Format_va ((const char*) FormatString.m_p, va);
-	size_t Length = String.GetLength ();
+	char buffer [256];
+	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.format_va ((const char*) formatStringPtr.m_p, va);
+	size_t length = string.getLength ();
 
-	char* pString = (char*) AXL_MEM_ALLOC (Length + 1);
-	memcpy (pString, String.cc (), Length);
-	pString [Length] = 0;
+	char* p = (char*) AXL_MEM_ALLOC (length + 1);
+	memcpy (p, string.cc (), length);
+	p [length] = 0;
 
-	jnc::TDataPtr Ptr = { 0 };
-	Ptr.m_p = pString;
-	Ptr.m_pRangeBegin = Ptr.m_p;
-	Ptr.m_pRangeEnd = (char*) Ptr.m_p + Length + 1;
-	Ptr.m_pObject = jnc::GetStaticObjHdr ();
+	jnc::DataPtr ptr = { 0 };
+	ptr.m_p = p;
+	ptr.m_rangeBegin = ptr.m_p;
+	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
+	ptr.m_object = jnc::getStaticObjHdr ();
 
-	return Ptr;
+	return ptr;
 }
 
 void*
-CStdLib::GetTls ()
+StdLib::getTls ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	return pRuntime->GetTls () + 1;
+	return runtime->getTls () + 1;
 }
 
 size_t
-CStdLib::AppendFmtLiteral_a (
-	TFmtLiteral* pFmtLiteral,
+StdLib::appendFmtLiteral_a (
+	FmtLiteral* fmtLiteral,
 	const char* p,
-	size_t Length
+	size_t length
 	)
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	size_t NewLength = pFmtLiteral->m_Length + Length;
-	if (NewLength < 64)
-		NewLength = 64;
+	size_t newLength = fmtLiteral->m_length + length;
+	if (newLength < 64)
+		newLength = 64;
 
-	if (pFmtLiteral->m_MaxLength < NewLength)
+	if (fmtLiteral->m_maxLength < newLength)
 	{
-		CModule* pModule = pRuntime->GetFirstModule ();
-		ASSERT (pModule);
+		Module* module = runtime->getFirstModule ();
+		ASSERT (module);
 
-		size_t NewMaxLength = rtl::GetMinPower2Ge (NewLength);
-		TObjHdr* pObjHdr = AXL_MEM_NEW_EXTRA (TObjHdr, NewMaxLength + 1);
-		pObjHdr->m_ScopeLevel = 0;
-		pObjHdr->m_pRoot = pObjHdr;
-		pObjHdr->m_pType = pModule->m_TypeMgr.GetPrimitiveType (EType_Char);
-		pObjHdr->m_Flags = 0;
+		size_t newMaxLength = rtl::getMinPower2Ge (newLength);
+		ObjHdr* objHdr = AXL_MEM_NEW_EXTRA (ObjHdr, newMaxLength + 1);
+		objHdr->m_scopeLevel = 0;
+		objHdr->m_root = objHdr;
+		objHdr->m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
+		objHdr->m_flags = 0;
 
-		char* pNew = (char*) (pObjHdr + 1);
-		memcpy (pNew, pFmtLiteral->m_p, pFmtLiteral->m_Length);
+		char* buffer = (char*) (objHdr + 1);
+		memcpy (buffer, fmtLiteral->m_p, fmtLiteral->m_length);
 
-		pFmtLiteral->m_p = pNew;
-		pFmtLiteral->m_MaxLength = NewMaxLength;
+		fmtLiteral->m_p = buffer;
+		fmtLiteral->m_maxLength = newMaxLength;
 	}
 
-	memcpy (pFmtLiteral->m_p + pFmtLiteral->m_Length, p, Length);
-	pFmtLiteral->m_Length += Length;
-	pFmtLiteral->m_p [pFmtLiteral->m_Length] = 0;
+	memcpy (fmtLiteral->m_p + fmtLiteral->m_length, p, length);
+	fmtLiteral->m_length += length;
+	fmtLiteral->m_p [fmtLiteral->m_length] = 0;
 
-	return pFmtLiteral->m_Length;
+	return fmtLiteral->m_length;
 }
 
 void
-CStdLib::PrepareFormatString (
-	rtl::CString* pFormatString,
-	const char* pFmtSpecifier,
-	char DefaultType
+StdLib::prepareFormatString (
+	rtl::String* formatString,
+	const char* fmtSpecifier,
+	char defaultType
 	)
 {
-	if (!pFmtSpecifier)
+	if (!fmtSpecifier)
 	{
-		char FormatBuffer [2] = { '%', DefaultType };
-		pFormatString->Copy (FormatBuffer, 2);
+		char formatBuffer [2] = { '%', defaultType };
+		formatString->copy (formatBuffer, 2);
 		return;
 	}
 
-	pFormatString->Clear ();
+	formatString->clear ();
 
-	if (pFmtSpecifier [0] != '%')
-		pFormatString->Copy ('%');
+	if (fmtSpecifier [0] != '%')
+		formatString->copy ('%');
 
-	pFormatString->Append (pFmtSpecifier);
+	formatString->append (fmtSpecifier);
 
-	size_t Length = pFormatString->GetLength ();
-	if (!isalpha (pFormatString->cc () [Length - 1]))
-		pFormatString->Append (DefaultType);
+	size_t length = formatString->getLength ();
+	if (!isalpha (formatString->cc () [length - 1]))
+		formatString->append (defaultType);
 }
 
 size_t
-CStdLib::AppendFmtLiteral_p (
-	TFmtLiteral* pFmtLiteral,
-	const char* pFmtSpecifier,
-	TDataPtr Ptr
+StdLib::appendFmtLiteral_p (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	DataPtr ptr
 	)
 {
-	if (!Ptr.m_p)
-		return AppendFmtLiteral_a (pFmtLiteral, "(null)", 6);
+	if (!ptr.m_p)
+		return appendFmtLiteral_a (fmtLiteral, "(null)", 6);
 
-	char* p = (char*) Ptr.m_p;
-	while (*p && p < Ptr.m_pRangeEnd)
+	char* p = (char*) ptr.m_p;
+	while (*p && p < ptr.m_rangeEnd)
 		p++;
 
-	if (!pFmtSpecifier || !*pFmtSpecifier)
+	if (!fmtSpecifier || !*fmtSpecifier)
 	{
-		size_t Length = p - (char*) Ptr.m_p;
-		return AppendFmtLiteral_a (pFmtLiteral, (char*) Ptr.m_p, Length);
+		size_t length = p - (char*) ptr.m_p;
+		return appendFmtLiteral_a (fmtLiteral, (char*) ptr.m_p, length);
 	}
 
-	char Buffer1 [256];
-	rtl::CString FormatString (ref::EBuf_Stack, Buffer1, sizeof (Buffer1));
-	PrepareFormatString (&FormatString, pFmtSpecifier, 's');
+	char buffer1 [256];
+	rtl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	prepareFormatString (&formatString, fmtSpecifier, 's');
 
-	char Buffer2 [256];
-	rtl::CString String (ref::EBuf_Stack, Buffer2, sizeof (Buffer2));
+	char buffer2 [256];
+	rtl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
 
-	if (p < Ptr.m_pRangeEnd) // null terminated
+	if (p < ptr.m_rangeEnd) // null terminated
 	{
 		ASSERT (!*p);
-		String.Format (FormatString, Ptr.m_p);
+		string.format (formatString, ptr.m_p);
 	}
 	else
 	{
-		char Buffer3 [256];
-		rtl::CString NullTermString (ref::EBuf_Stack, Buffer3, sizeof (Buffer3));
-		String.Format (FormatString, NullTermString.cc ());
+		char buffer3 [256];
+		rtl::String nullTermString (ref::BufKind_Stack, buffer3, sizeof (buffer3));
+		string.format (formatString, nullTermString.cc ());
 	}
 
-	return AppendFmtLiteral_a (pFmtLiteral, String, String.GetLength ());
+	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 }
 
 size_t
-CStdLib::AppendFmtLiteralImpl (
-	TFmtLiteral* pFmtLiteral,
-	const char* pFmtSpecifier,
-	char DefaultType,
+StdLib::appendFmtLiteralImpl (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	char defaultType,
 	...
 	)
 {
-	AXL_VA_DECL (va, DefaultType);
+	AXL_VA_DECL (va, defaultType);
 
-	char Buffer1 [256];
-	rtl::CString FormatString (ref::EBuf_Stack, Buffer1, sizeof (Buffer1));
-	PrepareFormatString (&FormatString, pFmtSpecifier,  DefaultType);
+	char buffer1 [256];
+	rtl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	prepareFormatString (&formatString, fmtSpecifier,  defaultType);
 
-	char Buffer2 [256];
-	rtl::CString String (ref::EBuf_Stack, Buffer2, sizeof (Buffer2));
-	String.Format_va (FormatString, va);
+	char buffer2 [256];
+	rtl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
+	string.format_va (formatString, va);
 
-	return AppendFmtLiteral_a (pFmtLiteral, String, String.GetLength ());
+	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 }
 
 //.............................................................................

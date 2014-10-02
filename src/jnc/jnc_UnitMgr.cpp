@@ -6,47 +6,47 @@ namespace jnc {
 
 //.............................................................................
 
-CUnitMgr::CUnitMgr ()
+UnitMgr::UnitMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_pCurrentUnit = NULL;
+	m_currentUnit = NULL;
 }
 
 void
-CUnitMgr::Clear ()
+UnitMgr::clear ()
 {
-	m_UnitList.Clear ();
-	m_pCurrentUnit = NULL;
+	m_unitList.clear ();
+	m_currentUnit = NULL;
 }
 
-CUnit*
-CUnitMgr::SetCurrentUnit (CUnit* pUnit)
+Unit*
+UnitMgr::setCurrentUnit (Unit* unit)
 {
-	ASSERT (pUnit);
+	ASSERT (unit);
 
-	CUnit* pPrevUnit = m_pCurrentUnit;
-	m_pCurrentUnit = pUnit;
-	return pPrevUnit;
+	Unit* prevUnit = m_currentUnit;
+	m_currentUnit = unit;
+	return prevUnit;
 }
 
-CUnit*
-CUnitMgr::CreateUnit (const rtl::CString& FilePath)
+Unit*
+UnitMgr::createUnit (const rtl::String& filePath)
 {
-	CUnit* pUnit = AXL_MEM_NEW (CUnit);
+	Unit* unit = AXL_MEM_NEW (Unit);
 
-	pUnit->m_FilePath = FilePath;
-	pUnit->m_FileName = io::GetFileName (FilePath);
-	pUnit->m_Dir = io::GetDir  (FilePath);
+	unit->m_filePath = filePath;
+	unit->m_fileName = io::getFileName (filePath);
+	unit->m_dir = io::getDir  (filePath);
 
-	if (m_pModule->GetFlags () & EModuleFlag_DebugInfo)
-		pUnit->m_LlvmDiFile = m_pModule->m_LlvmDiBuilder.CreateFile (pUnit->m_FileName, pUnit->m_Dir);
+	if (m_module->getFlags () & ModuleFlagKind_DebugInfo)
+		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile (unit->m_fileName, unit->m_dir);
 
-	m_UnitList.InsertTail (pUnit);
-	m_pCurrentUnit = pUnit;
+	m_unitList.insertTail (unit);
+	m_currentUnit = unit;
 
-	return pUnit;
+	return unit;
 }
 
 //.............................................................................

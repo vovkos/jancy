@@ -9,126 +9,126 @@ namespace jnc {
 //.............................................................................
 
 bool
-CMulticastLib::Export (CModule* pModule)
+MulticastLib::mapFunctions (Module* module)
 {
-	rtl::CConstListT <CMulticastClassType> McTypeList = pModule->m_TypeMgr.GetMulticastClassTypeList ();
-	rtl::CIteratorT <CMulticastClassType> McType = McTypeList.GetHead ();
-	for (; McType; McType++)
-		MapMulticastMethods (pModule, *McType);
+	rtl::ConstList <MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
+	rtl::Iterator <MulticastClassType> mcType = mcTypeList.getHead ();
+	for (; mcType; mcType++)
+		mapMulticastMethods (module, *mcType);
 
 	return true;
 }
 
 void
-CMulticastLib::MulticastClear (TMulticast* pMulticast)
+MulticastLib::multicastClear (Multicast* multicast)
 {
-	return ((CMulticast*) pMulticast)->Clear ();
+	return ((MulticastImpl*) multicast)->clear ();
 }
 
 handle_t
-CMulticastLib::MulticastSet (
-	TMulticast* pMulticast,
-	TFunctionPtr Ptr
+MulticastLib::multicastSet (
+	Multicast* multicast,
+	FunctionPtr ptr
 	)
 {
-	return ((CMulticast*) pMulticast)->SetHandler (Ptr);
+	return ((MulticastImpl*) multicast)->setHandler (ptr);
 }
 
 handle_t
-CMulticastLib::MulticastSet_t (
-	TMulticast* pMulticast,
+MulticastLib::multicastSet_t (
+	Multicast* multicast,
 	void* pf
 	)
 {
-	return ((CMulticast*) pMulticast)->SetHandler_t (pf);
+	return ((MulticastImpl*) multicast)->setHandler_t (pf);
 }
 
 handle_t
-CMulticastLib::MulticastAdd (
-	TMulticast* pMulticast,
-	TFunctionPtr Ptr
+MulticastLib::multicastAdd (
+	Multicast* multicast,
+	FunctionPtr ptr
 	)
 {
-	return ((CMulticast*) pMulticast)->AddHandler (Ptr);
+	return ((MulticastImpl*) multicast)->addHandler (ptr);
 }
 
 handle_t
-CMulticastLib::MulticastAdd_t (
-	TMulticast* pMulticast,
+MulticastLib::multicastAdd_t (
+	Multicast* multicast,
 	void* pf
 	)
 {
-	return ((CMulticast*) pMulticast)->AddHandler_t (pf);
+	return ((MulticastImpl*) multicast)->addHandler_t (pf);
 }
 
-TFunctionPtr
-CMulticastLib::MulticastRemove (
-	TMulticast* pMulticast,
-	handle_t Handle
+FunctionPtr
+MulticastLib::multicastRemove (
+	Multicast* multicast,
+	handle_t handle
 	)
 {
-	return ((CMulticast*) pMulticast)->RemoveHandler (Handle);
+	return ((MulticastImpl*) multicast)->removeHandler (handle);
 }
 
 void*
-CMulticastLib::MulticastRemove_t (
-	TMulticast* pMulticast,
-	handle_t Handle
+MulticastLib::multicastRemove_t (
+	Multicast* multicast,
+	handle_t handle
 	)
 {
-	return ((CMulticast*) pMulticast)->RemoveHandler_t (Handle);
+	return ((MulticastImpl*) multicast)->removeHandler_t (handle);
 }
 
-TFunctionPtr
-CMulticastLib::MulticastGetSnapshot (TMulticast* pMulticast)
+FunctionPtr
+MulticastLib::multicastGetSnapshot (Multicast* multicast)
 {
-	return ((CMulticast*) pMulticast)->GetSnapshot ();
+	return ((MulticastImpl*) multicast)->getSnapshot ();
 }
 
 void*
-CMulticastLib::m_MulticastMethodTable [EFunctionPtrType__Count] [EMulticastMethod__Count - 1] =
+MulticastLib::m_multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1] =
 {
 	{
-		(void*) MulticastClear,
-		(void*) MulticastSet,
-		(void*) MulticastAdd,
-		(void*) MulticastRemove,
-		(void*) MulticastGetSnapshot,
+		(void*) multicastClear,
+		(void*) multicastSet,
+		(void*) multicastAdd,
+		(void*) multicastRemove,
+		(void*) multicastGetSnapshot,
 	},
 
 	{
-		(void*) MulticastClear,
-		(void*) MulticastSet,
-		(void*) MulticastAdd,
-		(void*) MulticastRemove,
-		(void*) MulticastGetSnapshot,
+		(void*) multicastClear,
+		(void*) multicastSet,
+		(void*) multicastAdd,
+		(void*) multicastRemove,
+		(void*) multicastGetSnapshot,
 	},
 
 	{
-		(void*) MulticastClear,
-		(void*) MulticastSet_t,
-		(void*) MulticastAdd_t,
-		(void*) MulticastRemove_t,
-		(void*) MulticastGetSnapshot,
+		(void*) multicastClear,
+		(void*) multicastSet_t,
+		(void*) multicastAdd_t,
+		(void*) multicastRemove_t,
+		(void*) multicastGetSnapshot,
 	},
 };
 
 void
-CMulticastLib::MapMulticastMethods (
-	CModule* pModule,
-	CMulticastClassType* pMulticastType
+MulticastLib::mapMulticastMethods (
+	Module* module,
+	MulticastClassType* multicastType
 	)
 {
-	EFunctionPtrType PtrTypeKind = pMulticastType->GetTargetType ()->GetPtrTypeKind ();
-	ASSERT (PtrTypeKind < EFunctionPtrType__Count);
+	FunctionPtrTypeKind ptrTypeKind = multicastType->getTargetType ()->getPtrTypeKind ();
+	ASSERT (ptrTypeKind < FunctionPtrTypeKind__Count);
 
-	for (size_t i = 0; i < EMulticastMethod__Count - 1; i++)
+	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++)
 	{
-		CFunction* pFunction = pMulticastType->GetMethod ((EMulticastMethod) i);
+		Function* function = multicastType->getMethod ((MulticastMethodKind) i);
 
-		pModule->MapFunction (
-			pFunction->GetLlvmFunction (),
-			m_MulticastMethodTable [PtrTypeKind] [i]
+		module->mapFunction (
+			function->getLlvmFunction (),
+			m_multicastMethodTable [ptrTypeKind] [i]
 			);
 	}
 }

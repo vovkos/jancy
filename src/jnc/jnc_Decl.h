@@ -13,431 +13,431 @@ namespace jnc {
 
 //.............................................................................
 
-class CTypeModifiers
+class TypeModifiers
 {
 protected:
-	uint_t m_TypeModifiers;
+	uint_t m_typeModifiers;
 
 public:
-	CTypeModifiers ()
+	TypeModifiers ()
 	{
-		m_TypeModifiers = 0;
+		m_typeModifiers = 0;
 	}
 
 	void
-	Clear ();
+	clear ();
 
 	void
-	TakeOver (CTypeModifiers* pSrc);
+	takeOver (TypeModifiers* src);
 
 	int 
-	GetTypeModifiers ()
+	getTypeModifiers ()
 	{
-		return m_TypeModifiers;
+		return m_typeModifiers;
 	}
 
 	bool
-	SetTypeModifier (ETypeModifier Modifier);
+	setTypeModifier (TypeModifierKind modifier);
 
 	int
-	ClearTypeModifiers (int ModifierMask);
+	clearTypeModifiers (int modifierMask);
 
 protected:
 	bool
-	CheckAntiTypeModifiers (int ModifierMask);
+	checkAntiTypeModifiers (int modifierMask);
 };
 
 //.............................................................................
 
-class CTypeSpecifier: public CTypeModifiers
+class TypeSpecifier: public TypeModifiers
 {
 protected:
-	CType* m_pType;
+	Type* m_type;
 
 public:
-	CTypeSpecifier ()
+	TypeSpecifier ()
 	{
-		m_pType = NULL;
+		m_type = NULL;
 	}
 
-	CType* 
-	GetType ()
+	Type* 
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
 	bool
-	SetType (CType* pType);
+	setType (Type* type);
 };
 
 //.............................................................................
 
-class CDeclPointerPrefix:
-	public CTypeModifiers,
-	public rtl::TListLink
+class DeclPointerPrefix:
+	public TypeModifiers,
+	public rtl::ListLink
 {
-	friend class CDeclarator;
+	friend class Declarator;
 };
 
 //.............................................................................
 
-enum EDeclSuffix
+enum DeclSuffixKind
 {
-	EDeclSuffix_Undefined = 0,
-	EDeclSuffix_Array,
-	EDeclSuffix_Function,
-	EDeclSuffix_Throw,
+	DeclSuffixKind_Undefined = 0,
+	DeclSuffixKind_Array,
+	DeclSuffixKind_Function,
+	DeclSuffixKind_Throw,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDeclSuffix: public rtl::TListLink
+class DeclSuffix: public rtl::ListLink
 {
-	friend class CDeclarator;
+	friend class Declarator;
 
 protected:
-	EDeclSuffix m_SuffixKind;
+	DeclSuffixKind m_suffixKind;
 
 public:
-	CDeclSuffix ()
+	DeclSuffix ()
 	{
-		m_SuffixKind = EDeclSuffix_Undefined;
+		m_suffixKind = DeclSuffixKind_Undefined;
 	}
 
 	virtual
-	~CDeclSuffix ()
+	~DeclSuffix ()
 	{
 	}
 
-	EDeclSuffix
-	GetSuffixKind ()
+	DeclSuffixKind
+	getSuffixKind ()
 	{
-		return m_SuffixKind;
+		return m_suffixKind;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDeclArraySuffix: public CDeclSuffix
+class DeclArraySuffix: public DeclSuffix
 {
-	friend class CDeclarator;
+	friend class Declarator;
 
 protected:
-	size_t m_ElementCount;
-	rtl::CBoxListT <CToken> m_ElementCountInitializer;
+	size_t m_elementCount;
+	rtl::BoxList <Token> m_elementCountInitializer;
 
 public:
-	CDeclArraySuffix ()
+	DeclArraySuffix ()
 	{
-		m_SuffixKind = EDeclSuffix_Array;
-		m_ElementCount = 0;
+		m_suffixKind = DeclSuffixKind_Array;
+		m_elementCount = 0;
 	}
 
 	size_t
-	GetElementCount ()
+	getElementCount ()
 	{
-		return m_ElementCount;
+		return m_elementCount;
 	}
 
-	rtl::CBoxListT <CToken>*
-	GetElementCountInitializer ()
+	rtl::BoxList <Token>*
+	getElementCountInitializer ()
 	{
-		return &m_ElementCountInitializer;
+		return &m_elementCountInitializer;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDeclFunctionSuffix: public CDeclSuffix
+class DeclFunctionSuffix: public DeclSuffix
 {
-	friend class CDeclarator;
-	friend class CParser;
+	friend class Declarator;
+	friend class Parser;
 
 protected:
-	rtl::CArrayT <CFunctionArg*> m_ArgArray;
-	uint_t m_FunctionTypeFlags;
+	rtl::Array <FunctionArg*> m_argArray;
+	uint_t m_functionTypeFlags;
 
 public:
-	CDeclFunctionSuffix ()
+	DeclFunctionSuffix ()
 	{
-		m_SuffixKind = EDeclSuffix_Function;
-		m_FunctionTypeFlags = 0;
+		m_suffixKind = DeclSuffixKind_Function;
+		m_functionTypeFlags = 0;
 	}
 
-	rtl::CArrayT <CFunctionArg*>
-	GetArgArray ()
+	rtl::Array <FunctionArg*>
+	getArgArray ()
 	{
-		return m_ArgArray;
+		return m_argArray;
 	}
 
 	int 
-	GetFunctionTypeFlags ()
+	getFunctionTypeFlags ()
 	{
-		return m_FunctionTypeFlags;
+		return m_functionTypeFlags;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDeclThrowSuffix: public CDeclSuffix
+class DeclThrowSuffix: public DeclSuffix
 {
-	friend class CDeclarator;
-	friend class CParser;
+	friend class Declarator;
+	friend class Parser;
 
 protected:
-	rtl::CBoxListT <CToken> m_ThrowCondition;
+	rtl::BoxList <Token> m_throwCondition;
 
 public:
-	CDeclThrowSuffix ()
+	DeclThrowSuffix ()
 	{
-		m_SuffixKind = EDeclSuffix_Throw;
+		m_suffixKind = DeclSuffixKind_Throw;
 	}
 
-	rtl::CBoxListT <CToken>*
-	GetThrowCondition ()
+	rtl::BoxList <Token>*
+	getThrowCondition ()
 	{
-		return &m_ThrowCondition;
+		return &m_throwCondition;
 	}
 };
 
 //.............................................................................
 
-enum EPostDeclaratorModifier
+enum PostDeclaratorModifierKind
 {
-	EPostDeclaratorModifier_Const = 0x01,
+	PostDeclaratorModifierKind_Const = 0x01,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-EPostDeclaratorModifier
-GetFirstPostDeclaratorModifier (uint_t Modifiers)
+PostDeclaratorModifierKind
+getFirstPostDeclaratorModifier (uint_t modifiers)
 {
-	return (EPostDeclaratorModifier) (1 << rtl::GetLoBitIdx (Modifiers));
+	return (PostDeclaratorModifierKind) (1 << rtl::getLoBitIdx (modifiers));
 }
 
 const char* 
-GetPostDeclaratorModifierString (EPostDeclaratorModifier Modifier);
+getPostDeclaratorModifierString (PostDeclaratorModifierKind modifier);
 
-rtl::CString
-GetPostDeclaratorModifierString (uint_t Modifiers);
+rtl::String
+getPostDeclaratorModifierString (uint_t modifiers);
 
 inline
 const char* 
-GetFirstPostDeclaratorModifierString (uint_t Modifiers)
+getFirstPostDeclaratorModifierString (uint_t modifiers)
 {
-	return GetPostDeclaratorModifierString (GetFirstPostDeclaratorModifier (Modifiers));
+	return getPostDeclaratorModifierString (getFirstPostDeclaratorModifier (modifiers));
 }
 
 //.............................................................................
 
-enum EDeclarator
+enum DeclaratorKind
 {
-	EDeclarator_Undefined = 0,
-	EDeclarator_Name,
-	EDeclarator_UnnamedMethod,
-	EDeclarator_UnaryBinaryOperator,
-	EDeclarator_CastOperator,
-	EDeclarator_OperatorNew,
+	DeclaratorKind_Undefined = 0,
+	DeclaratorKind_Name,
+	DeclaratorKind_UnnamedMethod,
+	DeclaratorKind_UnaryBinaryOperator,
+	DeclaratorKind_CastOperator,
+	DeclaratorKind_OperatorNew,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CDeclarator: public CTypeModifiers
+class Declarator: public TypeModifiers
 {
-	friend class CParser;
-	friend class CDeclTypeCalc;
+	friend class Parser;
+	friend class DeclTypeCalc;
 
 protected:
-	EDeclarator m_DeclaratorKind;
-	EFunction m_FunctionKind;
-	EUnOp m_UnOpKind;
-	EBinOp m_BinOpKind;
-	CType* m_pCastOpType;
-	CQualifiedName m_Name;
-	CToken::CPos m_Pos;
-	size_t m_BitCount;
-	uint_t m_PostDeclaratorModifiers;
-	CType* m_pBaseType;
+	DeclaratorKind m_declaratorKind;
+	FunctionKind m_functionKind;
+	UnOpKind m_unOpKind;
+	BinOpKind m_binOpKind;
+	Type* m_castOpType;
+	QualifiedName m_name;
+	Token::Pos m_pos;
+	size_t m_bitCount;
+	uint_t m_postDeclaratorModifiers;
+	Type* m_baseType;
 
-	rtl::CStdListT <CDeclPointerPrefix> m_PointerPrefixList;
-	rtl::CStdListT <CDeclSuffix> m_SuffixList;
-	rtl::CBoxListT <CToken> m_Constructor;
-	rtl::CBoxListT <CToken> m_Initializer;
+	rtl::StdList <DeclPointerPrefix> m_pointerPrefixList;
+	rtl::StdList <DeclSuffix> m_suffixList;
+	rtl::BoxList <Token> m_constructor;
+	rtl::BoxList <Token> m_initializer;
 
 public:
-	CDeclarator ();
+	Declarator ();
 
 	bool
-	IsSimple ()
+	isSimple ()
 	{
-		return m_DeclaratorKind == EDeclarator_Name && m_Name.IsSimple ();
+		return m_declaratorKind == DeclaratorKind_Name && m_name.isSimple ();
 	}
 
 	bool
-	IsQualified ()
+	isQualified ()
 	{
-		return m_DeclaratorKind == EDeclarator_Name ? !m_Name.IsSimple () : !m_Name.IsEmpty ();
+		return m_declaratorKind == DeclaratorKind_Name ? !m_name.isSimple () : !m_name.isEmpty ();
 	}
 
-	EDeclarator
-	GetDeclaratorKind ()
+	DeclaratorKind
+	getDeclaratorKind ()
 	{
-		return m_DeclaratorKind;
+		return m_declaratorKind;
 	}
 
-	EFunction
-	GetFunctionKind ()
+	FunctionKind
+	getFunctionKind ()
 	{
-		return m_FunctionKind;
+		return m_functionKind;
 	}
 
-	EUnOp
-	GetUnOpKind ()
+	UnOpKind
+	getUnOpKind ()
 	{
-		return m_UnOpKind;
+		return m_unOpKind;
 	}
 
-	EBinOp
-	GetBinOpKind ()
+	BinOpKind
+	getBinOpKind ()
 	{
-		return m_BinOpKind;
+		return m_binOpKind;
 	}
 
-	CType*
-	GetCastOpType ()
+	Type*
+	getCastOpType ()
 	{
-		return m_pCastOpType;
+		return m_castOpType;
 	}
 
 	void
-	SetTypeSpecifier (CTypeSpecifier* pTypeSpecifier);
+	setTypeSpecifier (TypeSpecifier* typeSpecifier);
 
-	const CQualifiedName*
-	GetName ()
+	const QualifiedName*
+	getName ()
 	{
-		return &m_Name;
+		return &m_name;
 	}
 
-	const CToken::CPos&
-	GetPos ()
+	const Token::Pos&
+	getPos ()
 	{
-		return m_Pos;
+		return m_pos;
 	}
 
 	size_t 
-	GetBitCount ()
+	getBitCount ()
 	{
-		return m_BitCount;
+		return m_bitCount;
 	}
 
 	int 
-	GetPostDeclaratorModifiers ()
+	getPostDeclaratorModifiers ()
 	{
-		return m_PostDeclaratorModifiers;
+		return m_postDeclaratorModifiers;
 	}
 
-	CType* 
-	GetBaseType ()
+	Type* 
+	getBaseType ()
 	{
-		return m_pBaseType;
+		return m_baseType;
 	}
 
-	rtl::CConstListT <CDeclPointerPrefix> 
-	GetPointerPrefixList ()
+	rtl::ConstList <DeclPointerPrefix> 
+	getPointerPrefixList ()
 	{
-		return m_PointerPrefixList;
+		return m_pointerPrefixList;
 	}
 
-	rtl::CConstListT <CDeclSuffix> 
-	GetSuffixList ()
+	rtl::ConstList <DeclSuffix> 
+	getSuffixList ()
 	{
-		return m_SuffixList;
-	}
-
-	bool
-	SetPostDeclaratorModifier (EPostDeclaratorModifier Modifier);
-
-	CDeclFunctionSuffix*
-	GetFunctionSuffix ()
-	{
-		rtl::CIteratorT <CDeclSuffix> Suffix = m_SuffixList.GetHead ();
-		return Suffix && Suffix->GetSuffixKind () == EDeclSuffix_Function ? (CDeclFunctionSuffix*) *Suffix : NULL;
-	}
-
-	CType*
-	CalcType ()
-	{
-		return CalcTypeImpl (NULL, NULL);
-	}
-
-	CType*
-	CalcType (CValue* pElementCountValue)
-	{
-		return CalcTypeImpl (pElementCountValue, NULL);
-	}
-
-	CType*
-	CalcType (uint_t* pFlags)
-	{
-		return CalcTypeImpl (NULL, pFlags);
+		return m_suffixList;
 	}
 
 	bool
-	AddName (rtl::CString Name);
+	setPostDeclaratorModifier (PostDeclaratorModifierKind modifier);
+
+	DeclFunctionSuffix*
+	getFunctionSuffix ()
+	{
+		rtl::Iterator <DeclSuffix> suffix = m_suffixList.getHead ();
+		return suffix && suffix->getSuffixKind () == DeclSuffixKind_Function ? (DeclFunctionSuffix*) *suffix : NULL;
+	}
+
+	Type*
+	calcType ()
+	{
+		return calcTypeImpl (NULL, NULL);
+	}
+
+	Type*
+	calcType (Value* elementCountValue)
+	{
+		return calcTypeImpl (elementCountValue, NULL);
+	}
+
+	Type*
+	calcType (uint_t* flags)
+	{
+		return calcTypeImpl (NULL, flags);
+	}
 
 	bool
-	AddUnnamedMethod (EFunction FunctionKind);
+	addName (rtl::String name);
 
 	bool
-	AddCastOperator (CType* pType);
+	addUnnamedMethod (FunctionKind functionKind);
 
 	bool
-	AddUnaryBinaryOperator (
-		EUnOp UnOpKind, 
-		EBinOp BinOpKind
+	addCastOperator (Type* type);
+
+	bool
+	addUnaryBinaryOperator (
+		UnOpKind unOpKind, 
+		BinOpKind binOpKind
 		);
 
 	bool
-	AddOperatorNew ();
+	addOperatorNew ();
 
 	void
-	AddPointerPrefix ();
+	addPointerPrefix ();
 
-	CDeclArraySuffix*
-	AddArraySuffix (rtl::CBoxListT <CToken>* pElementCountInitializer);
+	DeclArraySuffix*
+	addArraySuffix (rtl::BoxList <Token>* elementCountInitializer);
 
-	CDeclArraySuffix*
-	AddArraySuffix (size_t ElementCount);
+	DeclArraySuffix*
+	addArraySuffix (size_t elementCount);
 
-	CDeclFunctionSuffix*
-	AddFunctionSuffix ();
+	DeclFunctionSuffix*
+	addFunctionSuffix ();
 
-	CDeclThrowSuffix*
-	AddThrowSuffix (rtl::CBoxListT <CToken>* pThrowCondition = NULL);
+	DeclThrowSuffix*
+	addThrowSuffix (rtl::BoxList <Token>* throwCondition = NULL);
 	
 	bool
-	AddBitFieldSuffix (size_t BitCount);
+	addBitFieldSuffix (size_t bitCount);
 
-	CDeclThrowSuffix*
-	GetThrowSuffix ()
+	DeclThrowSuffix*
+	getThrowSuffix ()
 	{
-		return !m_SuffixList.IsEmpty () && m_SuffixList.GetTail ()->GetSuffixKind () == EDeclSuffix_Throw ? 
-			(CDeclThrowSuffix*) *m_SuffixList.GetTail () : 
+		return !m_suffixList.isEmpty () && m_suffixList.getTail ()->getSuffixKind () == DeclSuffixKind_Throw ? 
+			(DeclThrowSuffix*) *m_suffixList.getTail () : 
 			NULL;
 	}
 
 	void
-	DeleteSuffix (CDeclSuffix* pSuffix)
+	deleteSuffix (DeclSuffix* suffix)
 	{
-		m_SuffixList.Delete (pSuffix);
+		m_suffixList.erase (suffix);
 	}
 
 protected:
-	CType*
-	CalcTypeImpl (
-		CValue* pElementCountValue,
-		uint_t* pFlags
+	Type*
+	calcTypeImpl (
+		Value* elementCountValue,
+		uint_t* flags
 		);
 };
 

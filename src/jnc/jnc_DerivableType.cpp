@@ -6,172 +6,172 @@ namespace jnc {
 
 //.............................................................................
 
-CBaseTypeSlot::CBaseTypeSlot ()
+BaseTypeSlot::BaseTypeSlot ()
 {
-	m_ItemKind = EModuleItem_BaseTypeSlot;
-	m_pType = NULL;
-	m_pType_i = NULL;
-	m_Offset = 0;
-	m_LlvmIndex = -1;
+	m_itemKind = ModuleItemKind_BaseTypeSlot;
+	m_type = NULL;
+	m_type_i = NULL;
+	m_offset = 0;
+	m_llvmIndex = -1;
 	m_VTableIndex = -1;
 }
 
 //.............................................................................
 
-CBaseTypeCoord::CBaseTypeCoord ():
-	m_LlvmIndexArray (ref::EBuf_Field, m_Buffer, sizeof (m_Buffer))
+BaseTypeCoord::BaseTypeCoord ():
+	m_llvmIndexArray (ref::BufKind_Field, m_buffer, sizeof (m_buffer))
 {
-	m_pType = NULL;
-	m_Offset = 0;
+	m_type = NULL;
+	m_offset = 0;
 	m_VTableIndex = 0;
 }
 
 //.............................................................................
 
-CDerivableType::CDerivableType ()
+DerivableType::DerivableType ()
 {
-	m_pPreConstructor = NULL;
-	m_pConstructor = NULL;
-	m_pDefaultConstructor = NULL;
-	m_pStaticConstructor = NULL;
-	m_pStaticDestructor = NULL;
-	m_pStaticOnceFlagVariable = NULL;
-	m_pCallOperator = NULL;
+	m_preConstructor = NULL;
+	m_constructor = NULL;
+	m_defaultConstructor = NULL;
+	m_staticConstructor = NULL;
+	m_staticDestructor = NULL;
+	m_staticOnceFlagVariable = NULL;
+	m_callOperator = NULL;
 }
 
-CFunction*
-CDerivableType::GetDefaultConstructor ()
+Function*
+DerivableType::getDefaultConstructor ()
 {
-	ASSERT (m_pConstructor);
-	if (m_pDefaultConstructor)
-		return m_pDefaultConstructor;
+	ASSERT (m_constructor);
+	if (m_defaultConstructor)
+		return m_defaultConstructor;
 
-	CType* pThisArgType = GetThisArgType (EPtrTypeFlag_Safe);
+	Type* thisArgType = getThisArgType (PtrTypeFlagKind_Safe);
 
 	// avoid allocations
 
-	rtl::CBoxListEntryT <CValue> ThisArgValue;
-	ThisArgValue.m_Value.SetType (pThisArgType);
+	rtl::BoxListEntry <Value> thisArgValue;
+	thisArgValue.m_value.setType (thisArgType);
 
-	rtl::CAuxListT <rtl::CBoxListEntryT <CValue> > ArgList;
-	ArgList.InsertTail (&ThisArgValue);
+	rtl::AuxList <rtl::BoxListEntry <Value> > argList;
+	argList.insertTail (&thisArgValue);
 
-	m_pDefaultConstructor = m_pConstructor->ChooseOverload (ArgList);
-	if (!m_pDefaultConstructor)
+	m_defaultConstructor = m_constructor->chooseOverload (argList);
+	if (!m_defaultConstructor)
 	{
-		err::SetFormatStringError ("'%s' has no default constructor", GetTypeString ().cc ()); // thanks a lot gcc
+		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().cc ()); // thanks a lot gcc
 		return NULL;
 	}
 
-	return m_pDefaultConstructor;
+	return m_defaultConstructor;
 }
 
-CBaseTypeSlot*
-CDerivableType::GetBaseTypeByIndex (size_t Index)
+BaseTypeSlot*
+DerivableType::getBaseTypeByIndex (size_t index)
 {
-	size_t Count = m_BaseTypeList.GetCount ();
-	if (Index >= Count)
+	size_t count = m_baseTypeList.getCount ();
+	if (index >= count)
 	{
-		err::SetFormatStringError ("index '%d' is out of bounds", Index);
+		err::setFormatStringError ("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	if (m_BaseTypeArray.GetCount () != Count)
+	if (m_baseTypeArray.getCount () != count)
 	{
-		m_BaseTypeArray.SetCount (Count);
-		rtl::CIteratorT <CBaseTypeSlot> Slot = m_BaseTypeList.GetHead ();
-		for (size_t i = 0; i < Count; i++, Slot++)
-			m_BaseTypeArray [i] = *Slot;
+		m_baseTypeArray.setCount (count);
+		rtl::Iterator <BaseTypeSlot> slot = m_baseTypeList.getHead ();
+		for (size_t i = 0; i < count; i++, slot++)
+			m_baseTypeArray [i] = *slot;
 	}
 
-	return m_BaseTypeArray [Index];
+	return m_baseTypeArray [index];
 }
 
-CBaseTypeSlot*
-CDerivableType::AddBaseType (CType* pType)
+BaseTypeSlot*
+DerivableType::addBaseType (Type* type)
 {
-	rtl::CStringHashTableMapIteratorT <CBaseTypeSlot*> It = m_BaseTypeMap.Goto (pType->GetSignature ());
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
+	if (it->m_value)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' is already a base type",
-			pType->GetTypeString ().cc () // thanks a lot gcc
+			type->getTypeString ().cc () // thanks a lot gcc
 			);
 		return NULL;
 	}
 
-	CBaseTypeSlot* pSlot = AXL_MEM_NEW (CBaseTypeSlot);
-	pSlot->m_pModule = m_pModule;
+	BaseTypeSlot* slot = AXL_MEM_NEW (BaseTypeSlot);
+	slot->m_module = m_module;
 
-	EType TypeKind = pType->GetTypeKind ();
-	if (TypeKind == EType_NamedImport)
+	TypeKind typeKind = type->getTypeKind ();
+	if (typeKind == TypeKind_NamedImport)
 	{
-		pSlot->m_pType_i = (CImportType*) pType;
-		m_ImportBaseTypeArray.Append (pSlot);
+		slot->m_type_i = (ImportType*) type;
+		m_importBaseTypeArray.append (slot);
 	}
 	else if (
-		(pType->GetTypeKindFlags () & ETypeKindFlag_Derivable) &&
-		(TypeKind != EType_Class || m_TypeKind == EType_Class))
+		(type->getTypeKindFlags () & TypeKindFlagKind_Derivable) &&
+		(typeKind != TypeKind_Class || m_typeKind == TypeKind_Class))
 	{
-		pSlot->m_pType = (CDerivableType*) pType;
+		slot->m_type = (DerivableType*) type;
 	}
 	else
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' cannot be inherited from '%s'",
-			GetTypeString ().cc (),
-			pType->GetTypeString ().cc ()
+			getTypeString ().cc (),
+			type->getTypeString ().cc ()
 			);
 		return NULL;
 	}
 
-	m_BaseTypeList.InsertTail (pSlot);
-	It->m_Value = pSlot;
-	return pSlot;
+	m_baseTypeList.insertTail (slot);
+	it->m_value = slot;
+	return slot;
 }
 
 bool
-CDerivableType::ResolveImportBaseType (CBaseTypeSlot* pSlot)
+DerivableType::resolveImportBaseType (BaseTypeSlot* slot)
 {
-	ASSERT (pSlot->m_pType_i);
+	ASSERT (slot->m_type_i);
 
-	CType* pType = pSlot->m_pType_i->GetActualType ();
-	rtl::CStringHashTableMapIteratorT <CBaseTypeSlot*> It = m_BaseTypeMap.Goto (pType->GetSignature ());
-	if (It->m_Value)
+	Type* type = slot->m_type_i->getActualType ();
+	rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
+	if (it->m_value)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' is already a base type",
-			pType->GetTypeString ().cc () // thanks a lot gcc
+			type->getTypeString ().cc () // thanks a lot gcc
 			);
 		return false;
 	}
 
-	if (!(pType->GetTypeKindFlags () & ETypeKindFlag_Derivable) ||
-		pType->GetTypeKind () == EType_Class && m_TypeKind != EType_Class)
+	if (!(type->getTypeKindFlags () & TypeKindFlagKind_Derivable) ||
+		type->getTypeKind () == TypeKind_Class && m_typeKind != TypeKind_Class)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' cannot be inherited from '%s'",
-			GetTypeString ().cc (),
-			pType->GetTypeString ().cc ()
+			getTypeString ().cc (),
+			type->getTypeString ().cc ()
 			);
 		return NULL;
 	}
 
-	pSlot->m_pType = (CDerivableType*) pType;
-	It->m_Value = pSlot;
+	slot->m_type = (DerivableType*) type;
+	it->m_value = slot;
 	return true;
 }
 
 bool
-CDerivableType::ResolveImportBaseTypes ()
+DerivableType::resolveImportBaseTypes ()
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_ImportBaseTypeArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_importBaseTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		Result = ResolveImportBaseType (m_ImportBaseTypeArray [i]);
-		if (!Result)
+		result = resolveImportBaseType (m_importBaseTypeArray [i]);
+		if (!result)
 			return false;
 	}
 
@@ -179,203 +179,203 @@ CDerivableType::ResolveImportBaseTypes ()
 }
 
 bool
-CDerivableType::ResolveImportFields ()
+DerivableType::resolveImportFields ()
 {
-	size_t Count = m_ImportFieldArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_importFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = m_ImportFieldArray [i];
-		ASSERT (pField->m_pType_i);
+		StructField* field = m_importFieldArray [i];
+		ASSERT (field->m_type_i);
 
-		CType* pType = pField->m_pType_i->GetActualType ();
-		if (pField->m_pType->GetTypeKindFlags () & ETypeKindFlag_Code)
+		Type* type = field->m_type_i->getActualType ();
+		if (field->m_type->getTypeKindFlags () & TypeKindFlagKind_Code)
 		{
-			err::SetFormatStringError ("'%s': illegal type for a field", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s': illegal type for a field", type->getTypeString ().cc ());
 			return false;
 		}
 
-		pField->m_pType = pType;
+		field->m_type = type;
 		
-		if (pField->m_BitCount)
+		if (field->m_bitCount)
 		{
-			ASSERT (pField->m_pBitFieldBaseType == pField->m_pType_i);
-			pField->m_pBitFieldBaseType = pType;
+			ASSERT (field->m_bitFieldBaseType == field->m_type_i);
+			field->m_bitFieldBaseType = type;
 		}
 	}
 
 	return true;
 }
 
-CFunction*
-CDerivableType::CreateMethod (
-	EStorage StorageKind,
-	const rtl::CString& Name,
-	CFunctionType* pShortType
+Function*
+DerivableType::createMethod (
+	StorageKind storageKind,
+	const rtl::String& name,
+	FunctionType* shortType
 	)
 {
-	rtl::CString QualifiedName = CreateQualifiedName (Name);
+	rtl::String qualifiedName = createQualifiedName (name);
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Named, pShortType);
-	pFunction->m_StorageKind = StorageKind;
-	pFunction->m_Name = Name;
-	pFunction->m_QualifiedName = QualifiedName;
-	pFunction->m_DeclaratorName = Name;
-	pFunction->m_Tag = QualifiedName;
+	Function* function = m_module->m_functionMgr.createFunction (FunctionKind_Named, shortType);
+	function->m_storageKind = storageKind;
+	function->m_name = name;
+	function->m_qualifiedName = qualifiedName;
+	function->m_declaratorName = name;
+	function->m_tag = qualifiedName;
 
-	bool Result = AddMethod (pFunction);
-	if (!Result)
+	bool result = addMethod (function);
+	if (!result)
 		return NULL;
 
-	return pFunction;
+	return function;
 }
 
-CFunction*
-CDerivableType::CreateUnnamedMethod (
-	EStorage StorageKind,
-	EFunction FunctionKind,
-	CFunctionType* pShortType
+Function*
+DerivableType::createUnnamedMethod (
+	StorageKind storageKind,
+	FunctionKind functionKind,
+	FunctionType* shortType
 	)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.CreateFunction (FunctionKind, pShortType);
-	pFunction->m_StorageKind = StorageKind;
-	pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
+	Function* function = m_module->m_functionMgr.createFunction (functionKind, shortType);
+	function->m_storageKind = storageKind;
+	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
 
-	bool Result = AddMethod (pFunction);
-	if (!Result)
+	bool result = addMethod (function);
+	if (!result)
 		return NULL;
 
-	return pFunction;
+	return function;
 }
 
-CProperty*
-CDerivableType::CreateProperty (
-	EStorage StorageKind,
-	const rtl::CString& Name,
-	CPropertyType* pShortType
+Property*
+DerivableType::createProperty (
+	StorageKind storageKind,
+	const rtl::String& name,
+	PropertyType* shortType
 	)
 {
-	rtl::CString QualifiedName = CreateQualifiedName (Name);
+	rtl::String qualifiedName = createQualifiedName (name);
 
-	CProperty* pProperty = m_pModule->m_FunctionMgr.CreateProperty (Name, QualifiedName);
+	Property* prop = m_module->m_functionMgr.createProperty (name, qualifiedName);
 
-	bool Result =
-		AddProperty (pProperty) &&
-		pProperty->Create (pShortType);
+	bool result =
+		addProperty (prop) &&
+		prop->create (shortType);
 
-	if (!Result)
+	if (!result)
 		return NULL;
 
-	return pProperty;
+	return prop;
 }
 
 bool
-CDerivableType::AddMethod (CFunction* pFunction)
+DerivableType::addMethod (Function* function)
 {
-	EStorage StorageKind = pFunction->GetStorageKind ();
-	EFunction FunctionKind = pFunction->GetFunctionKind ();
-	uint_t FunctionKindFlags = GetFunctionKindFlags (FunctionKind);
-	uint_t ThisArgTypeFlags = pFunction->m_ThisArgTypeFlags;
+	StorageKind storageKind = function->getStorageKind ();
+	FunctionKind functionKind = function->getFunctionKind ();
+	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
+	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
 
-	pFunction->m_pParentNamespace = this;
+	function->m_parentNamespace = this;
 
-	switch (StorageKind)
+	switch (storageKind)
 	{
-	case EStorage_Static:
-		if (ThisArgTypeFlags)
+	case StorageKind_Static:
+		if (thisArgTypeFlags)
 		{
-			err::SetFormatStringError ("static method cannot be '%s'", GetPtrTypeFlagString (ThisArgTypeFlags).cc ());
+			err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
 			return false;
 		}
 
 		break;
 
-	case EStorage_Undefined:
-		pFunction->m_StorageKind = EStorage_Member;
+	case StorageKind_Undefined:
+		function->m_storageKind = StorageKind_Member;
 		// and fall through
 
-	case EStorage_Member:
-		pFunction->ConvertToMemberMethod (this);
+	case StorageKind_Member:
+		function->convertToMemberMethod (this);
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid storage specifier '%s' for method member", GetStorageKindString (StorageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 		return false;
 	}
 
-	CFunction** ppTarget = NULL;
+	Function** target = NULL;
 
-	switch (FunctionKind)
+	switch (functionKind)
 	{
-	case EFunction_PreConstructor:
-		ppTarget = &m_pPreConstructor;
+	case FunctionKind_PreConstructor:
+		target = &m_preConstructor;
 		break;
 
-	case EFunction_Constructor:
-		ppTarget = &m_pConstructor;
+	case FunctionKind_Constructor:
+		target = &m_constructor;
 		break;
 
-	case EFunction_StaticConstructor:
-		ppTarget = &m_pStaticConstructor;
+	case FunctionKind_StaticConstructor:
+		target = &m_staticConstructor;
 		break;
 
-	case EFunction_StaticDestructor:
-		ppTarget = &m_pStaticDestructor;
+	case FunctionKind_StaticDestructor:
+		target = &m_staticDestructor;
 		break;
 
-	case EFunction_Named:
-		return AddFunction (pFunction);
+	case FunctionKind_Named:
+		return addFunction (function);
 
-	case EFunction_UnaryOperator:
-		pFunction->m_Tag.Format ("%s.operator %s", m_Tag.cc (), GetUnOpKindString (pFunction->GetUnOpKind ()));
+	case FunctionKind_UnaryOperator:
+		function->m_tag.format ("%s.operator %s", m_tag.cc (), getUnOpKindString (function->getUnOpKind ()));
 
-		if (m_UnaryOperatorTable.IsEmpty ())
-			m_UnaryOperatorTable.SetCount (EUnOp__Count);
+		if (m_unaryOperatorTable.isEmpty ())
+			m_unaryOperatorTable.setCount (UnOpKind__Count);
 
-		ppTarget = &m_UnaryOperatorTable [pFunction->GetUnOpKind ()];
+		target = &m_unaryOperatorTable [function->getUnOpKind ()];
 		break;
 
-	case EFunction_BinaryOperator:
-		pFunction->m_Tag.Format ("%s.operator %s", m_Tag.cc (), GetBinOpKindString (pFunction->GetBinOpKind ()));
+	case FunctionKind_BinaryOperator:
+		function->m_tag.format ("%s.operator %s", m_tag.cc (), getBinOpKindString (function->getBinOpKind ()));
 
-		if (m_BinaryOperatorTable.IsEmpty ())
-			m_BinaryOperatorTable.SetCount (EBinOp__Count);
+		if (m_binaryOperatorTable.isEmpty ())
+			m_binaryOperatorTable.setCount (BinOpKind__Count);
 
-		ppTarget = &m_BinaryOperatorTable [pFunction->GetBinOpKind ()];
+		target = &m_binaryOperatorTable [function->getBinOpKind ()];
 		break;
 
-	case EFunction_CallOperator:
-		pFunction->m_Tag.Format ("%s.operator ()", m_Tag.cc ());
-		ppTarget = &m_pCallOperator;
+	case FunctionKind_CallOperator:
+		function->m_tag.format ("%s.operator ()", m_tag.cc ());
+		target = &m_callOperator;
 		break;
 
 	default:
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"invalid %s in '%s'",
-			GetFunctionKindString (FunctionKind),
-			GetTypeString ().cc ()
+			getFunctionKindString (functionKind),
+			getTypeString ().cc ()
 			);
 		return false;
 	}
 
-	pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
+	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
 
-	if (!*ppTarget)
+	if (!*target)
 	{
-		*ppTarget = pFunction;
+		*target = function;
 	}
-	else if (FunctionKindFlags & EFunctionKindFlag_NoOverloads)
+	else if (functionKindFlags & FunctionKindFlagKind_NoOverloads)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' already has '%s' method",
-			GetTypeString ().cc (),
-			GetFunctionKindString (FunctionKind)
+			getTypeString ().cc (),
+			getFunctionKindString (functionKind)
 			);
 		return false;
 	}
 	else
 	{
-		bool Result = (*ppTarget)->AddOverload (pFunction);
-		if (!Result)
+		bool result = (*target)->addOverload (function);
+		if (!result)
 			return false;
 	}
 
@@ -383,133 +383,133 @@ CDerivableType::AddMethod (CFunction* pFunction)
 }
 
 bool
-CDerivableType::AddProperty (CProperty* pProperty)
+DerivableType::addProperty (Property* prop)
 {
-	ASSERT (pProperty->IsNamed ());
-	bool Result = AddItem (pProperty);
-	if (!Result)
+	ASSERT (prop->isNamed ());
+	bool result = addItem (prop);
+	if (!result)
 		return false;
 
-	pProperty->m_pParentNamespace = this;
+	prop->m_parentNamespace = this;
 
-	EStorage StorageKind = pProperty->GetStorageKind ();
-	switch (StorageKind)
+	StorageKind storageKind = prop->getStorageKind ();
+	switch (storageKind)
 	{
-	case EStorage_Static:
+	case StorageKind_Static:
 		break;
 
-	case EStorage_Undefined:
-		pProperty->m_StorageKind = EStorage_Member;
+	case StorageKind_Undefined:
+		prop->m_storageKind = StorageKind_Member;
 		//and fall through
 
-	case EStorage_Member:
-		pProperty->m_pParentType = this;
+	case StorageKind_Member:
+		prop->m_parentType = this;
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid storage specifier '%s' for method member", GetStorageKindString (StorageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 		return false;
 	}
 
-	m_MemberPropertyArray.Append (pProperty);
+	m_memberPropertyArray.append (prop);
 	return true;
 }
 
 bool
-CDerivableType::CreateDefaultMethod (
-	EFunction FunctionKind,
-	EStorage StorageKind
+DerivableType::createDefaultMethod (
+	FunctionKind functionKind,
+	StorageKind storageKind
 	)
 {
-	CFunctionType* pType = (CFunctionType*) m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleFunction);
-	CFunction* pFunction = m_pModule->m_FunctionMgr.CreateFunction (FunctionKind, pType);
-	pFunction->m_StorageKind = StorageKind;
-	pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
+	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleFunction);
+	Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
+	function->m_storageKind = storageKind;
+	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
 
-	bool Result = AddMethod (pFunction);
-	if (!Result)
+	bool result = addMethod (function);
+	if (!result)
 		return false;
 
-	m_pModule->MarkForCompile (this);
+	m_module->markForCompile (this);
 	return true;
 }
 
 bool
-CDerivableType::CompileDefaultStaticConstructor ()
+DerivableType::compileDefaultStaticConstructor ()
 {
-	ASSERT (m_pStaticConstructor);
+	ASSERT (m_staticConstructor);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pStaticConstructor);
+	m_module->m_functionMgr.internalPrologue (m_staticConstructor);
 
-	CToken::CPos Pos;
+	Token::Pos pos;
 
-	TOnceStmt Stmt;
-	m_pModule->m_ControlFlowMgr.OnceStmt_Create (&Stmt, Pos);
+	OnceStmt stmt;
+	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos);
 
-	bool Result = m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&Stmt, Pos);
-	if (!Result)
+	bool result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
+	if (!result)
 		return false;
 
-	Result = InitializeStaticFields ();
-	if (!Result)
+	result = initializeStaticFields ();
+	if (!result)
 		return false;
 
-	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
+	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CDerivableType::CompileDefaultConstructor ()
+DerivableType::compileDefaultConstructor ()
 {
-	ASSERT (m_pConstructor);
+	ASSERT (m_constructor);
 
-	bool Result;
+	bool result;
 
-	CValue ThisValue;
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pConstructor, &ThisValue, 1);
+	Value thisValue;
+	m_module->m_functionMgr.internalPrologue (m_constructor, &thisValue, 1);
 
-	Result =
-		CallBaseTypeConstructors (ThisValue) &&
-		CallMemberPropertyConstructors (ThisValue) &&
-		CallMemberFieldConstructors (ThisValue);
+	result =
+		callBaseTypeConstructors (thisValue) &&
+		callMemberPropertyConstructors (thisValue) &&
+		callMemberFieldConstructors (thisValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	if (m_pPreConstructor)
+	if (m_preConstructor)
 	{
-		Result = m_pModule->m_OperatorMgr.CallOperator (m_pPreConstructor, ThisValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (m_preConstructor, thisValue);
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CDerivableType::CallBaseTypeConstructors (const CValue& ThisValue)
+DerivableType::callBaseTypeConstructors (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_BaseTypeConstructArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_baseTypeConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CBaseTypeSlot* pSlot = m_BaseTypeConstructArray [i];
-		if (pSlot->m_Flags & EModuleItemFlag_Constructed)
+		BaseTypeSlot* slot = m_baseTypeConstructArray [i];
+		if (slot->m_flags & ModuleItemFlagKind_Constructed)
 		{
-			pSlot->m_Flags &= ~EModuleItemFlag_Constructed;
+			slot->m_flags &= ~ModuleItemFlagKind_Constructed;
 			continue;
 		}
 
-		CFunction* pConstructor = pSlot->m_pType->GetDefaultConstructor ();
-		if (!pConstructor)
+		Function* constructor = slot->m_type->getDefaultConstructor ();
+		if (!constructor)
 			return false;
 
-		Result = m_pModule->m_OperatorMgr.CallOperator (pConstructor, ThisValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
+		if (!result)
 			return false;
 	}
 
@@ -517,49 +517,49 @@ CDerivableType::CallBaseTypeConstructors (const CValue& ThisValue)
 }
 
 bool
-CDerivableType::CallMemberFieldConstructors (const CValue& ThisValue)
+DerivableType::callMemberFieldConstructors (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_MemberFieldConstructArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_memberFieldConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = m_MemberFieldConstructArray [i];
-		if (pField->m_Flags & EModuleItemFlag_Constructed)
+		StructField* field = m_memberFieldConstructArray [i];
+		if (field->m_flags & ModuleItemFlagKind_Constructed)
 		{
-			pField->m_Flags &= ~EModuleItemFlag_Constructed;
+			field->m_flags &= ~ModuleItemFlagKind_Constructed;
 			continue;
 		}
 
-		CValue FieldValue;
-		Result = m_pModule->m_OperatorMgr.GetClassField (ThisValue, pField, NULL, &FieldValue);
-		if (!Result)
+		Value fieldValue;
+		result = m_module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue);
+		if (!result)
 			return false;
 
-		ASSERT (pField->GetType ()->GetTypeKindFlags () & ETypeKindFlag_Derivable);
-		CDerivableType* pType = (CDerivableType*) pField->GetType ();
+		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable);
+		DerivableType* type = (DerivableType*) field->getType ();
 
-		CFunction* pConstructor;
+		Function* constructor;
 
-		rtl::CBoxListT <CValue> ArgList;
-		ArgList.InsertTail (FieldValue);
+		rtl::BoxList <Value> argList;
+		argList.insertTail (fieldValue);
 
-		if (!(pType->GetFlags () & ETypeFlag_Child))
+		if (!(type->getFlags () & TypeFlagKind_Child))
 		{
-			pConstructor = pType->GetDefaultConstructor ();
-			if (!pConstructor)
+			constructor = type->getDefaultConstructor ();
+			if (!constructor)
 				return false;
 		}
 		else
 		{
-			pConstructor = pType->GetConstructor ();
-			ASSERT (pConstructor && !pConstructor->IsOverloaded ());
+			constructor = type->getConstructor ();
+			ASSERT (constructor && !constructor->isOverloaded ());
 
-			ArgList.InsertTail (ThisValue);
+			argList.insertTail (thisValue);
 		}
 
-		Result = m_pModule->m_OperatorMgr.CallOperator (pConstructor, &ArgList);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (constructor, &argList);
+		if (!result)
 			return false;
 	}
 
@@ -567,25 +567,25 @@ CDerivableType::CallMemberFieldConstructors (const CValue& ThisValue)
 }
 
 bool
-CDerivableType::CallMemberPropertyConstructors (const CValue& ThisValue)
+DerivableType::callMemberPropertyConstructors (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_MemberPropertyConstructArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_memberPropertyConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CProperty* pProperty = m_MemberPropertyConstructArray [i];
-		if (pProperty->m_Flags & EModuleItemFlag_Constructed)
+		Property* prop = m_memberPropertyConstructArray [i];
+		if (prop->m_flags & ModuleItemFlagKind_Constructed)
 		{
-			pProperty->m_Flags &= ~EModuleItemFlag_Constructed;
+			prop->m_flags &= ~ModuleItemFlagKind_Constructed;
 			continue;
 		}
 
-		CFunction* pDestructor = pProperty->GetDefaultConstructor ();
-		ASSERT (pDestructor);
+		Function* destructor = prop->getDefaultConstructor ();
+		ASSERT (destructor);
 
-		Result = m_pModule->m_OperatorMgr.CallOperator (pDestructor, ThisValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
+		if (!result)
 			return false;
 	}
 
@@ -593,23 +593,23 @@ CDerivableType::CallMemberPropertyConstructors (const CValue& ThisValue)
 }
 
 bool
-CDerivableType::InitializeStaticFields ()
+DerivableType::initializeStaticFields ()
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_InitializedStaticFieldArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_initializedStaticFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pStaticField = m_InitializedStaticFieldArray [i];
+		Variable* staticField = m_initializedStaticFieldArray [i];
 
-		Result = m_pModule->m_OperatorMgr.ParseInitializer (
-			pStaticField,
-			m_pParentUnit,
-			pStaticField->GetConstructor (),
-			pStaticField->GetInitializer ()
+		result = m_module->m_operatorMgr.parseInitializer (
+			staticField,
+			m_parentUnit,
+			staticField->getConstructor (),
+			staticField->getInitializer ()
 			);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
@@ -617,41 +617,41 @@ CDerivableType::InitializeStaticFields ()
 }
 
 bool
-CDerivableType::FindBaseTypeTraverseImpl (
-	CType* pType,
-	CBaseTypeCoord* pCoord,
-	size_t Level
+DerivableType::findBaseTypeTraverseImpl (
+	Type* type,
+	BaseTypeCoord* coord,
+	size_t level
 	)
 {
-	rtl::CStringHashTableMapIteratorT <CBaseTypeSlot*> It = m_BaseTypeMap.Find (pType->GetSignature ());
-	if (It)
+	rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+	if (it)
 	{
-		if (!pCoord)
+		if (!coord)
 			return true;
 
-		CBaseTypeSlot* pSlot = It->m_Value;
-		pCoord->m_pType = pSlot->m_pType;
-		pCoord->m_Offset = pSlot->m_Offset;
-		pCoord->m_VTableIndex = pSlot->m_VTableIndex;
-		pCoord->m_LlvmIndexArray.SetCount (Level + 1);
-		pCoord->m_LlvmIndexArray [Level] = pSlot->m_LlvmIndex;
+		BaseTypeSlot* slot = it->m_value;
+		coord->m_type = slot->m_type;
+		coord->m_offset = slot->m_offset;
+		coord->m_VTableIndex = slot->m_VTableIndex;
+		coord->m_llvmIndexArray.setCount (level + 1);
+		coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
 		return true;
 	}
 
-	rtl::CIteratorT <CBaseTypeSlot> Slot = m_BaseTypeList.GetHead ();
-	for (; Slot; Slot++)
+	rtl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+	for (; slotIt; slotIt++)
 	{
-		CBaseTypeSlot* pSlot = *Slot;
-		ASSERT (pSlot->m_pType);
+		BaseTypeSlot* slot = *slotIt;
+		ASSERT (slot->m_type);
 
-		bool Result = pSlot->m_pType->FindBaseTypeTraverseImpl (pType, pCoord, Level + 1);
-		if (Result)
+		bool result = slot->m_type->findBaseTypeTraverseImpl (type, coord, level + 1);
+		if (result)
 		{
-			if (pCoord)
+			if (coord)
 			{
-				pCoord->m_Offset += pSlot->m_Offset;
-				pCoord->m_VTableIndex += pSlot->m_VTableIndex;
-				pCoord->m_LlvmIndexArray [Level] = pSlot->m_LlvmIndex;
+				coord->m_offset += slot->m_offset;
+				coord->m_VTableIndex += slot->m_VTableIndex;
+				coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
 			}
 
 			return true;
@@ -661,128 +661,128 @@ CDerivableType::FindBaseTypeTraverseImpl (
 	return false;
 }
 
-CModuleItem*
-CDerivableType::FindItemTraverseImpl (
-	const char* pName,
-	CMemberCoord* pCoord,
-	uint_t Flags,
-	size_t Level
+ModuleItem*
+DerivableType::findItemTraverseImpl (
+	const char* name,
+	MemberCoord* coord,
+	uint_t flags,
+	size_t level
 	)
 {
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (!(Flags & ETraverse_NoThis))
+	if (!(flags & TraverseKind_NoThis))
 	{
-		pItem = FindItem (pName);
-		if (pItem)
+		item = findItem (name);
+		if (item)
 		{
-			if (pCoord)
+			if (coord)
 			{
-				pCoord->m_pType = this;
-				pCoord->m_LlvmIndexArray.SetCount (Level);
+				coord->m_type = this;
+				coord->m_llvmIndexArray.setCount (level);
 
-				if (m_TypeKind == EType_Union)
+				if (m_typeKind == TypeKind_Union)
 				{
-					TUnionCoord UnionCoord;
-					UnionCoord.m_pType = (CUnionType*) this;
-					UnionCoord.m_Level = Level;
-					pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
+					UnionCoord unionCoord;
+					unionCoord.m_type = (UnionType*) this;
+					unionCoord.m_level = level;
+					coord->m_unionCoordArray.insert (0, unionCoord);
 				}
 			}
 
-			return pItem;
+			return item;
 		}
 
-		size_t Count = m_UnnamedFieldArray.GetCount ();
-		for	(size_t i = 0; i < Count; i++)
+		size_t count = m_unnamedFieldArray.getCount ();
+		for	(size_t i = 0; i < count; i++)
 		{
-			CStructField* pField = m_UnnamedFieldArray [i];
-			if (pField->GetType ()->GetTypeKindFlags () & ETypeKindFlag_Derivable)
+			StructField* field = m_unnamedFieldArray [i];
+			if (field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable)
 			{
-				CDerivableType* pType = (CDerivableType*) pField->GetType ();
-				pItem = pType->FindItemTraverseImpl (pName, pCoord, Flags | ETraverse_NoParentNamespace, Level + 1);
-				if (pItem)
+				DerivableType* type = (DerivableType*) field->getType ();
+				item = type->findItemTraverseImpl (name, coord, flags | TraverseKind_NoParentNamespace, level + 1);
+				if (item)
 				{
-					if (pCoord)
+					if (coord)
 					{
-						pCoord->m_Offset += pField->m_Offset;
-						pCoord->m_LlvmIndexArray [Level] = pField->m_LlvmIndex;
+						coord->m_offset += field->m_offset;
+						coord->m_llvmIndexArray [level] = field->m_llvmIndex;
 
-						if (m_TypeKind == EType_Union)
+						if (m_typeKind == TypeKind_Union)
 						{
-							TUnionCoord UnionCoord;
-							UnionCoord.m_pType = (CUnionType*) this;
-							UnionCoord.m_Level = Level;
-							pCoord->m_UnionCoordArray.Insert (0, UnionCoord);
+							UnionCoord unionCoord;
+							unionCoord.m_type = (UnionType*) this;
+							unionCoord.m_level = level;
+							coord->m_unionCoordArray.insert (0, unionCoord);
 						}
 					}
 
-					return pItem;
+					return item;
 				}
 			}
 		}
 	}
 
-	if (!(Flags & ETraverse_NoExtensionNamespace) && m_pExtensionNamespace)
+	if (!(flags & TraverseKind_NoExtensionNamespace) && m_extensionNamespace)
 	{
-		pItem = m_pExtensionNamespace->FindItem (pName);
-		if (pItem)
+		item = m_extensionNamespace->findItem (name);
+		if (item)
 		{
-			if (pCoord)
+			if (coord)
 			{
-				pCoord->m_pType = this;
-				pCoord->m_LlvmIndexArray.SetCount (Level);
+				coord->m_type = this;
+				coord->m_llvmIndexArray.setCount (level);
 			}
 
-			return pItem;
+			return item;
 		}
 	}
 
-	Flags &= ~ETraverse_NoThis;
+	flags &= ~TraverseKind_NoThis;
 
-	if (!(Flags & ETraverse_NoBaseType))
+	if (!(flags & TraverseKind_NoBaseType))
 	{
-		rtl::CIteratorT <CBaseTypeSlot> Slot = m_BaseTypeList.GetHead ();
-		for (; Slot; Slot++)
+		rtl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+		for (; slotIt; slotIt++)
 		{
-			CBaseTypeSlot* pSlot = *Slot;
+			BaseTypeSlot* slot = *slotIt;
 
-			CDerivableType* pBaseType = NULL;
+			DerivableType* baseType = NULL;
 
-			if (pSlot->m_pType)
+			if (slot->m_type)
 			{
-				pBaseType = pSlot->m_pType;
+				baseType = slot->m_type;
 			}
-			else if (pSlot->m_pType_i && pSlot->m_pType_i->IsResolved ())
+			else if (slot->m_type_i && slot->m_type_i->isResolved ())
 			{
-				CType* pActualType = pSlot->m_pType_i->GetActualType ();
-				if (pActualType->GetTypeKindFlags () & ETypeKindFlag_Derivable)
-					pBaseType = (CDerivableType*) pActualType;
+				Type* actualType = slot->m_type_i->getActualType ();
+				if (actualType->getTypeKindFlags () & TypeKindFlagKind_Derivable)
+					baseType = (DerivableType*) actualType;
 			}
 
-			if (!pBaseType)
+			if (!baseType)
 				return NULL;
 
-			pItem = pBaseType->FindItemTraverseImpl (pName, pCoord, Flags, Level + 1);
-			if (pItem)
+			item = baseType->findItemTraverseImpl (name, coord, flags, level + 1);
+			if (item)
 			{
-				if (pCoord)
+				if (coord)
 				{
-					pCoord->m_Offset += pSlot->m_Offset;
-					pCoord->m_LlvmIndexArray [Level] = pSlot->m_LlvmIndex;
-					pCoord->m_VTableIndex += pSlot->m_VTableIndex;
+					coord->m_offset += slot->m_offset;
+					coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
+					coord->m_VTableIndex += slot->m_VTableIndex;
 				}
 
-				return pItem;
+				return item;
 			}
 		}
 	}
 
-	if (!(Flags & ETraverse_NoParentNamespace) && m_pParentNamespace)
+	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		pItem = m_pParentNamespace->FindItemTraverse (pName, pCoord, Flags);
-		if (pItem)
-			return pItem;
+		item = m_parentNamespace->findItemTraverse (name, coord, flags);
+		if (item)
+			return item;
 	}
 
 	return NULL;

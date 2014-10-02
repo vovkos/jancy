@@ -9,139 +9,139 @@
 
 namespace jnc {
 
-struct TIfaceHdr;
+struct IfaceHdr;
 
 //.............................................................................
 
-class CPropertyPtrType: public CType
+class PropertyPtrType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	EPropertyPtrType m_PtrTypeKind;
-	CPropertyType* m_pTargetType;
-	CNamespace* m_pAnchorNamespace; // for dual pointers
+	PropertyPtrTypeKind m_ptrTypeKind;
+	PropertyType* m_targetType;
+	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
-	CPropertyPtrType ();
+	PropertyPtrType ();
 
-	EPropertyPtrType
-	GetPtrTypeKind ()
+	PropertyPtrTypeKind
+	getPtrTypeKind ()
 	{
-		return m_PtrTypeKind;
+		return m_ptrTypeKind;
 	}
 
-	CPropertyType*
-	GetTargetType ()
+	PropertyType*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
-	CNamespace*
-	GetAnchorNamespace ()
+	Namespace*
+	getAnchorNamespace ()
 	{
-		return m_pAnchorNamespace;
+		return m_anchorNamespace;
 	}
 
 	bool
-	IsConstPtrType ();
+	isConstPtrType ();
 
 	bool
-	HasClosure ()
+	hasClosure ()
 	{
-		return m_PtrTypeKind == EPropertyPtrType_Normal || m_PtrTypeKind == EPropertyPtrType_Weak;
+		return m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak;
 	}
 
-	CPropertyPtrType*
-	GetCheckedPtrType ()
+	PropertyPtrType*
+	getCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
+		return !(m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CPropertyPtrType*
-	GetUnCheckedPtrType ()
+	PropertyPtrType*
+	getUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetPropertyPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
+		return (m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CPropertyPtrType*
-	GetNormalPtrType ()
+	PropertyPtrType*
+	getNormalPtrType ()
 	{
-		return (m_PtrTypeKind != EPropertyPtrType_Normal) ?
-			m_pTargetType->GetPropertyPtrType (EPropertyPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind != PropertyPtrTypeKind_Normal) ?
+			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
-	CPropertyPtrType*
-	GetWeakPtrType ()
+	PropertyPtrType*
+	getWeakPtrType ()
 	{
-		return (m_PtrTypeKind != EPropertyPtrType_Weak) ?
-			m_pTargetType->GetPropertyPtrType (EPropertyPtrType_Weak, m_Flags) :
+		return (m_ptrTypeKind != PropertyPtrTypeKind_Weak) ?
+			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
-	CPropertyPtrType*
-	GetUnWeakPtrType ()
+	PropertyPtrType*
+	getUnWeakPtrType ()
 	{
-		return (m_PtrTypeKind == EPropertyPtrType_Weak) ?
-			m_pTargetType->GetPropertyPtrType (EPropertyPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind == PropertyPtrTypeKind_Weak) ?
+			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
-	CStructType*
-	GetPropertyPtrStructType ();
+	StructType*
+	getPropertyPtrStructType ();
 
 	static
-	rtl::CString
-	CreateSignature (
-		CPropertyType* pPropertyType,
-		EType TypeKind,
-		EPropertyPtrType PtrTypeKind,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		PropertyType* propertyType,
+		TypeKind typeKind,
+		PropertyPtrTypeKind ptrTypeKind,
+		uint_t flags
 		);
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 };
 
 //.............................................................................
 
-struct TPropertyPtrTypeTuple: rtl::TListLink
+struct PropertyPtrTypeTuple: rtl::ListLink
 {
-	CStructType* m_pPtrStructType;
-	CPropertyPtrType* m_PtrTypeArray [2] [3] [3]; // ref x kind x unsafe / checked
+	StructType* m_ptrStructType;
+	PropertyPtrType* m_ptrTypeArray [2] [3] [3]; // ref x kind x unsafe / checked
 };
 
 //.............................................................................
 
 inline
 bool
-IsBindableType (CType* pType)
+isBindableType (Type* type)
 {
 	return
-		pType->GetTypeKind () == EType_PropertyRef &&
-		(((CPropertyPtrType*) pType)->GetTargetType ()->GetFlags () & EPropertyTypeFlag_Bindable) != 0;
+		type->getTypeKind () == TypeKind_PropertyRef &&
+		(((PropertyPtrType*) type)->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable) != 0;
 }
 
 //.............................................................................
@@ -150,10 +150,10 @@ IsBindableType (CType* pType)
 // int property* pxTest;
 // int property weak* pxTest;
 
-struct TPropertyPtr
+struct PropertyPtr
 {
 	void** m_pVTable;
-	TIfaceHdr* m_pClosure;
+	IfaceHdr* m_closure;
 };
 
 //.............................................................................

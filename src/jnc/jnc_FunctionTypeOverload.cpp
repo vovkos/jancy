@@ -7,19 +7,19 @@ namespace jnc {
 //.............................................................................
 
 size_t
-CFunctionTypeOverload::FindOverload (CFunctionType* pType) const
+FunctionTypeOverload::findOverload (FunctionType* type) const
 {
-	if (!m_pType)
+	if (!m_type)
 		return -1;
 
-	if (pType->Cmp (m_pType) == 0)
+	if (type->cmp (m_type) == 0)
 		return 0;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
-		if (pType->Cmp (pOverloadType) == 0)
+		FunctionType* overloadType = m_overloadArray [i];
+		if (type->cmp (overloadType) == 0)
 			return i + 1;
 	}
 
@@ -27,19 +27,19 @@ CFunctionTypeOverload::FindOverload (CFunctionType* pType) const
 }
 
 size_t
-CFunctionTypeOverload::FindShortOverload (CFunctionType* pType) const
+FunctionTypeOverload::findShortOverload (FunctionType* type) const
 {
-	if (!m_pType)
+	if (!m_type)
 		return -1;
 
-	if (pType->Cmp (m_pType->GetShortType ()) == 0)
+	if (type->cmp (m_type->getShortType ()) == 0)
 		return 0;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
-		if (pType->Cmp (pOverloadType->GetShortType ()) == 0)
+		FunctionType* overloadType = m_overloadArray [i];
+		if (type->cmp (overloadType->getShortType ()) == 0)
 			return i + 1;
 	}
 
@@ -47,219 +47,219 @@ CFunctionTypeOverload::FindShortOverload (CFunctionType* pType) const
 }
 
 size_t
-CFunctionTypeOverload::ChooseOverload (
-	CFunctionArg* const* pArgArray,
-	size_t ArgCount,
-	ECast* pCastKind
+FunctionTypeOverload::chooseOverload (
+	FunctionArg* const* argArray,
+	size_t argCount,
+	CastKind* castKind
 	) const
 {
-	ASSERT (m_pType);
+	ASSERT (m_type);
 
-	CModule* pModule = m_pType->GetModule ();
+	Module* module = m_type->getModule ();
 
-	ECast BestCastKind = pModule->m_OperatorMgr.GetArgCastKind (m_pType, pArgArray, ArgCount);
-	size_t BestOverload = BestCastKind ? 0 : -1;
+	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind (m_type, argArray, argCount);
+	size_t bestOverload = bestCastKind ? 0 : -1;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
-		ECast CastKind = pModule->m_OperatorMgr.GetArgCastKind (pOverloadType, pArgArray, ArgCount);
-		if (!CastKind)
+		FunctionType* overloadType = m_overloadArray [i];
+		CastKind castKind = module->m_operatorMgr.getArgCastKind (overloadType, argArray, argCount);
+		if (!castKind)
 			continue;
 
-		if (CastKind == BestCastKind)
+		if (castKind == bestCastKind)
 		{
-			err::SetFormatStringError ("ambiguous call to overloaded function");
+			err::setFormatStringError ("ambiguous call to overloaded function");
 			return -1;
 		}
 
-		if (CastKind > BestCastKind)
+		if (castKind > bestCastKind)
 		{
-			BestOverload = i + 1;
-			BestCastKind = CastKind;
+			bestOverload = i + 1;
+			bestCastKind = castKind;
 		}
 	}
 
-	if (BestOverload == -1)
+	if (bestOverload == -1)
 	{
-		err::SetFormatStringError ("none of the %d overloads accept the specified argument list", Count + 1);
+		err::setFormatStringError ("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (pCastKind)
-		*pCastKind = BestCastKind;
+	if (castKind)
+		*castKind = bestCastKind;
 
-	return BestOverload;
+	return bestOverload;
 }
 
 size_t
-CFunctionTypeOverload::ChooseOverload (
-	const rtl::CConstBoxListT <CValue>& ArgList,
-	ECast* pCastKind
+FunctionTypeOverload::chooseOverload (
+	const rtl::ConstBoxList <Value>& argList,
+	CastKind* castKind
 	) const
 {
-	ASSERT (m_pType);
+	ASSERT (m_type);
 
-	CModule* pModule = m_pType->GetModule ();
+	Module* module = m_type->getModule ();
 
-	ECast BestCastKind = pModule->m_OperatorMgr.GetArgCastKind (m_pType, ArgList);
-	size_t BestOverload = BestCastKind ? 0 : -1;
+	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind (m_type, argList);
+	size_t bestOverload = bestCastKind ? 0 : -1;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
-		ECast CastKind = pModule->m_OperatorMgr.GetArgCastKind (pOverloadType, ArgList);
-		if (!CastKind)
+		FunctionType* overloadType = m_overloadArray [i];
+		CastKind castKind = module->m_operatorMgr.getArgCastKind (overloadType, argList);
+		if (!castKind)
 			continue;
 
-		if (CastKind == BestCastKind)
+		if (castKind == bestCastKind)
 		{
-			err::SetFormatStringError ("ambiguous call to overloaded function");
+			err::setFormatStringError ("ambiguous call to overloaded function");
 			return -1;
 		}
 
-		if (CastKind > BestCastKind)
+		if (castKind > bestCastKind)
 		{
-			BestOverload = i + 1;
-			BestCastKind = CastKind;
+			bestOverload = i + 1;
+			bestCastKind = castKind;
 		}
 	}
 
-	if (BestOverload == -1)
+	if (bestOverload == -1)
 	{
-		err::SetFormatStringError ("none of the %d overloads accept the specified argument list", Count + 1);
+		err::setFormatStringError ("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (pCastKind)
-		*pCastKind = BestCastKind;
+	if (castKind)
+		*castKind = bestCastKind;
 
-	return BestOverload;
+	return bestOverload;
 }
 
 size_t
-CFunctionTypeOverload::ChooseSetterOverload (
-	const CValue& Value,
-	ECast* pCastKind
+FunctionTypeOverload::chooseSetterOverload (
+	const Value& value,
+	CastKind* castKind
 	) const
 {
-	ASSERT (m_pType);
+	ASSERT (m_type);
 
-	CModule* pModule = m_pType->GetModule ();
+	Module* module = m_type->getModule ();
 
-	size_t SetterValueIdx = m_pType->GetArgArray ().GetCount () - 1;
-	ASSERT (SetterValueIdx != -1);
+	size_t setterValueIdx = m_type->getArgArray ().getCount () - 1;
+	ASSERT (setterValueIdx != -1);
 
-	CType* pSetterValueArgType = m_pType->GetArgArray () [SetterValueIdx]->GetType ();
-	ECast BestCastKind = pModule->m_OperatorMgr.GetCastKind (Value, pSetterValueArgType);
-	size_t BestOverload = BestCastKind ? 0 : -1;
+	Type* setterValueArgType = m_type->getArgArray () [setterValueIdx]->getType ();
+	CastKind bestCastKind = module->m_operatorMgr.getCastKind (value, setterValueArgType);
+	size_t bestOverload = bestCastKind ? 0 : -1;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
-		CType* pSetterValueArgType = pOverloadType->GetArgArray () [SetterValueIdx]->GetType ();
+		FunctionType* overloadType = m_overloadArray [i];
+		Type* setterValueArgType = overloadType->getArgArray () [setterValueIdx]->getType ();
 
-		ECast CastKind = pModule->m_OperatorMgr.GetCastKind (Value, pSetterValueArgType);
-		if (!CastKind)
+		CastKind castKind = module->m_operatorMgr.getCastKind (value, setterValueArgType);
+		if (!castKind)
 			continue;
 
-		if (CastKind == BestCastKind)
+		if (castKind == bestCastKind)
 		{
-			err::SetFormatStringError ("ambiguous call to overloaded function");
+			err::setFormatStringError ("ambiguous call to overloaded function");
 			return -1;
 		}
 
-		if (CastKind > BestCastKind)
+		if (castKind > bestCastKind)
 		{
-			BestOverload = i + 1;
-			BestCastKind = CastKind;
+			bestOverload = i + 1;
+			bestCastKind = castKind;
 		}
 	}
 
-	if (BestOverload == -1)
+	if (bestOverload == -1)
 	{
-		err::SetFormatStringError ("none of the %d overloads accept the specified argument list", Count + 1);
+		err::setFormatStringError ("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (pCastKind)
-		*pCastKind = BestCastKind;
+	if (castKind)
+		*castKind = bestCastKind;
 
-	return BestOverload;
+	return bestOverload;
 }
 
 bool
-CFunctionTypeOverload::AddOverload (CFunctionType* pType)
+FunctionTypeOverload::addOverload (FunctionType* type)
 {
-	if (!m_pType)
+	if (!m_type)
 	{
-		m_pType = pType;
+		m_type = type;
 		return true;
 	}
-	else if (pType->GetArgSignature ().Cmp (m_pType->GetArgSignature ()) == 0)
+	else if (type->getArgSignature ().cmp (m_type->getArgSignature ()) == 0)
 	{
-		err::SetFormatStringError ("illegal function overload: duplicate argument signature");
+		err::setFormatStringError ("illegal function overload: duplicate argument signature");
 		return false;
 	}
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunctionType* pOverloadType = m_OverloadArray [i];
+		FunctionType* overloadType = m_overloadArray [i];
 
-		if (pType->GetArgSignature ().Cmp (pOverloadType->GetArgSignature ()) == 0)
+		if (type->getArgSignature ().cmp (overloadType->getArgSignature ()) == 0)
 		{
-			err::SetFormatStringError ("illegal function overload: duplicate argument signature");
+			err::setFormatStringError ("illegal function overload: duplicate argument signature");
 			return false;
 		}
 	}
 
-	m_OverloadArray.Append (pType);
+	m_overloadArray.append (type);
 	return true;
 }
 
 void
-CFunctionTypeOverload::Copy (
-	CFunctionType* const* ppTypeArray,
-	size_t Count
+FunctionTypeOverload::copy (
+	FunctionType* const* typeArray,
+	size_t count
 	)
 {
-	if (Count)
+	if (count)
 	{
-		m_pType = ppTypeArray [0];
-		m_OverloadArray.Copy (ppTypeArray + 1, Count - 1);
+		m_type = typeArray [0];
+		m_overloadArray.copy (typeArray + 1, count - 1);
 	}
 	else
 	{
-		m_pType = NULL;
-		m_OverloadArray.Clear ();
+		m_type = NULL;
+		m_overloadArray.clear ();
 	}
 }
 
 bool
-CFunctionTypeOverload::EnsureLayout ()
+FunctionTypeOverload::ensureLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_Flags & EModuleItemFlag_LayoutReady)
+	if (m_flags & ModuleItemFlagKind_LayoutReady)
 		return true;
 
-	Result = m_pType->EnsureLayout ();
-	if (!Result)
+	result = m_type->ensureLayout ();
+	if (!result)
 		return false;
 
-	size_t Count = m_OverloadArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		Result = m_OverloadArray [i]->EnsureLayout ();
-		if (!Result)
+		result = m_overloadArray [i]->ensureLayout ();
+		if (!result)
 			return false;
 	}
 
-	m_Flags |= EModuleItemFlag_LayoutReady;
+	m_flags |= ModuleItemFlagKind_LayoutReady;
 	return true;
 }
 

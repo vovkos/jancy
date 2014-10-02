@@ -2,9 +2,9 @@
 
 pragma
 pragma_pack
-	:	'#' EToken_Pack '(' struct_pack_factor_value $v ')'
+	:	'#' TokenKind_Pack '(' struct_pack_factor_value $v ')'
 		{
-			m_StructPackFactor = $v.m_Value;
+			m_structPackFactor = $v.m_value;
 		}
 	;
 
@@ -38,8 +38,8 @@ named_type_block_declaration
 local_declaration
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.ResetJumpFlag (); // 'stack new' is currently illegal in conditional expression
-		m_pModule->m_NamespaceMgr.SetSourcePos (m_CurrentToken.m_Pos);
+		m_module->m_controlFlowMgr.resetJumpFlag (); // 'stack new' is currently illegal in conditional expression
+		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
 	}
 	:	statement
 	|	using_declaration
@@ -56,39 +56,39 @@ local_declaration
 // namespace & using declarations
 
 namespace_declaration
-	:	EToken_Namespace qualified_name
+	:	TokenKind_Namespace qualified_name
 			{
-				return OpenGlobalNamespace ($2.m_Name, $2.m_FirstToken.m_Pos) != NULL;
+				return openGlobalNamespace ($2.m_name, $2.m_firstToken.m_pos) != NULL;
 			}
 		'{' global_declaration* '}'
 			{
-				m_pModule->m_NamespaceMgr.CloseNamespace ();
+				m_module->m_namespaceMgr.closeNamespace ();
 			}
 	;
 
 extend_declaration
-	:	EToken_Extend qualified_name
+	:	TokenKind_Extend qualified_name
 			{
-				return OpenTypeExtension ($2.m_Name, $2.m_FirstToken.m_Pos);
+				return openTypeExtension ($2.m_name, $2.m_firstToken.m_pos);
 			}
 		'{' named_type_block_declaration* '}'
 			{
-				m_pModule->m_NamespaceMgr.CloseNamespace ();
+				m_module->m_namespaceMgr.closeNamespace ();
 			}
 	;
 
 using_declaration
-	:	EToken_Using qualified_name (',' qualified_name)* ';'
+	:	TokenKind_Using qualified_name (',' qualified_name)* ';'
 	;
 
 friend_declaration
-	:	EToken_Friend qualified_name (',' qualified_name)* ';'
+	:	TokenKind_Friend qualified_name (',' qualified_name)* ';'
 	;
 
 access_declaration
 	:	access_specifier ':'
 			{
-				m_pModule->m_NamespaceMgr.m_CurrentAccessKind = $1.m_AccessKind;
+				m_module->m_namespaceMgr.m_currentAccessKind = $1.m_accessKind;
 			}
 	;
 
@@ -96,20 +96,20 @@ access_declaration
 
 class
 {
-	CQualifiedName m_Name
+	QualifiedName m_name
 }
 qualified_name
-	:	qualified_name_impl <&$.m_Name>
+	:	qualified_name_impl <&$.m_name>
 	;
 
-qualified_name_impl <CQualifiedName* $pName>
-	:	EToken_Identifier
+qualified_name_impl <QualifiedName* $name>
+	:	TokenKind_Identifier
 			{
-				$pName->AddName ($1.m_Data.m_String);
+				$name->addName ($1.m_data.m_string);
 			}
-		('.' EToken_Identifier $n2
+		('.' TokenKind_Identifier $n2
 			{
-				$pName->AddName ($n2.m_Data.m_String);
+				$name->addName ($n2.m_data.m_string);
 			}
 		)*
 	;
@@ -121,12 +121,12 @@ qualified_name_impl <CQualifiedName* $pName>
 item_declaration_w_specifier
 	enter
 	{
-		m_StorageKind = EStorage_Undefined;
-		m_AccessKind = EAccess_Undefined;
+		m_storageKind = StorageKind_Undefined;
+		m_accessKind = AccessKind_Undefined;
 	}
 	:	declaration_specifier_list $s
-		declarator_list <&$s.m_TypeSpecifier>?
-		declaration_terminator <&$s.m_TypeSpecifier>
+		declarator_list <&$s.m_typeSpecifier>?
+		declaration_terminator <&$s.m_typeSpecifier>
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -134,20 +134,20 @@ item_declaration_w_specifier
 item_declaration_wo_specifier
 	local
 	{
-		CDeclarator $Declarator;
+		Declarator $declarator;
 	}
 	enter
 	{
-		m_StorageKind = EStorage_Undefined;
-		m_AccessKind = EAccess_Undefined;
-		$Declarator.SetTypeSpecifier (NULL);
+		m_storageKind = StorageKind_Undefined;
+		m_accessKind = AccessKind_Undefined;
+		$declarator.setTypeSpecifier (NULL);
 	}
-	:	declarator_prefix <&$Declarator>*
-		declarator_name <&$Declarator>
-		function_suffix <&$Declarator> declarator_suffix <&$Declarator>*
-		post_declarator_modifier <&$Declarator>*
+	:	declarator_prefix <&$declarator>*
+		declarator_name <&$declarator>
+		function_suffix <&$declarator> declarator_suffix <&$declarator>*
+		post_declarator_modifier <&$declarator>*
 			{
-				return Declare (&$Declarator);
+				return declare (&$declarator);
 			}
 		declaration_terminator <NULL>
 	;
@@ -161,75 +161,75 @@ item_declaration_wo_specifier
 item_declaration_wo_specifier_rslv
 	local
 	{
-		CDeclarator $Declarator;
+		Declarator $declarator;
 	}
-	:	declarator_name <&$Declarator> '(' // must be a function
+	:	declarator_name <&$declarator> '(' // must be a function
 	;
 
 //.............................................................................
 
-declaration_terminator <CTypeSpecifier* $pTypeSpecifier>
+declaration_terminator <TypeSpecifier* $typeSpecifier>
 	leave
 	{
-		if (m_pAttributeBlock)
+		if (m_attributeBlock)
 		{
-			err::SetFormatStringError ("unused attribute block in declaration");
+			err::setFormatStringError ("unused attribute block in declaration");
 			return false;
 		}
 
-		m_pLastDeclaredItem = NULL;
+		m_lastDeclaredItem = NULL;
 	}
 	:	';'
 			{
-				return IsEmptyDeclarationTerminatorAllowed ($pTypeSpecifier);
+				return isEmptyDeclarationTerminatorAllowed ($typeSpecifier);
 			}
 	|	declaration_body_pass1
 			{
-				return SetDeclarationBody (&$1.m_TokenList);
+				return setDeclarationBody (&$1.m_tokenList);
 			}
 	;
 
 class
 {
-	rtl::CBoxListT <CToken> m_TokenList;
+	rtl::BoxList <Token> m_tokenList;
 }
 declaration_body_pass1
-	:	compound_stmt_pass1 <&$.m_TokenList>
+	:	compound_stmt_pass1 <&$.m_tokenList>
 	;
 
 class
 {
-	CToken* m_pAnchorToken;
+	Token* m_anchorToken;
 }
-compound_stmt_pass1 <rtl::CBoxListT <CToken>* $pTokenList>
+compound_stmt_pass1 <rtl::BoxList <Token>* $tokenList>
 	:	'{' $l
 			{
-				$.m_pAnchorToken = &*$pTokenList->InsertTail ($l);
-				$.m_pAnchorToken->m_Data.m_Integer = 0; // tokens can be reused, ensure cleanup
+				$.m_anchorToken = &*$tokenList->insertTail ($l);
+				$.m_anchorToken->m_data.m_integer = 0; // tokens can be reused, ensure cleanup
 			}
-		statement_pass1 <$pTokenList, $.m_pAnchorToken>*
+		statement_pass1 <$tokenList, $.m_anchorToken>*
 		'}' $r
 			{
-				$pTokenList->InsertTail ($r);
+				$tokenList->insertTail ($r);
 			}
 	;
 
 noast
-statement_pass1 <rtl::CBoxListT <CToken>* $pTokenList, CToken* $pAnchorToken>
-	:	compound_stmt_pass1 <$pTokenList>
-	|	EToken_Catch
+statement_pass1 <rtl::BoxList <Token>* $tokenList, Token* $anchorToken>
+	:	compound_stmt_pass1 <$tokenList>
+	|	TokenKind_Catch
 			{
-				$pTokenList->InsertTail ($1);
-				$pAnchorToken->m_Data.m_Integer |= ELandingPadFlag_Catch;
+				$tokenList->insertTail ($1);
+				$anchorToken->m_data.m_integer |= LandingPadFlagKind_Catch;
 			}
-	|	EToken_Finally
+	|	TokenKind_Finally
 			{
-				$pTokenList->InsertTail ($1);
-				$pAnchorToken->m_Data.m_Integer |= ELandingPadFlag_Finally;
+				$tokenList->insertTail ($1);
+				$anchorToken->m_data.m_integer |= LandingPadFlagKind_Finally;
 			}
 	|	any
 			{
-				$pTokenList->InsertTail ($1);
+				$tokenList->insertTail ($1);
 			}
 	;
 
@@ -237,62 +237,62 @@ statement_pass1 <rtl::CBoxListT <CToken>* $pTokenList, CToken* $pAnchorToken>
 
 // type names
 
-type_name_impl <CType** $ppType, CValue* $pCountValue>
+type_name_impl <Type** $type, Value* $countValue>
 	local
 	{
-		CDeclarator $Declarator;
+		Declarator $declarator;
 	}
 	:	type_specifier_modifier_list
 			{
-				$Declarator.SetTypeSpecifier (&$1.m_TypeSpecifier);
+				$declarator.setTypeSpecifier (&$1.m_typeSpecifier);
 			}
-		declarator_prefix <&$Declarator>*
-		declarator_suffix <&$Declarator>*
+		declarator_prefix <&$declarator>*
+		declarator_suffix <&$declarator>*
 			{
-				CType* pType = $Declarator.CalcType ($pCountValue);
-				if (!pType)
+				Type* type = $declarator.calcType ($countValue);
+				if (!type)
 					return false;
 
-				*$ppType = pType;
+				*$type = type;
 			}
 	;
 
 class
 {
-	CType* m_pType;
+	Type* m_type;
 }
 type_name
-	: type_name_impl <&$.m_pType, NULL>
+	: type_name_impl <&$.m_type, NULL>
 	;
 
 class
 {
-	rtl::CBoxListT <CType*> m_TypeList;
+	rtl::BoxList <Type*> m_typeList;
 }
 type_name_list
 	:	type_name
 			{
-				$.m_TypeList.InsertTail ($1.m_pType);
+				$.m_typeList.insertTail ($1.m_type);
 			}
 		(',' type_name $t2
 			{
-				$.m_TypeList.InsertTail ($t2.m_pType);
+				$.m_typeList.insertTail ($t2.m_type);
 			}
 		)*
 	;
 
 class
 {
-	CType* m_pType;
+	Type* m_type;
 }
 type_name_or_expr
 	:	type_name
 			{
-				$.m_pType = $1.m_pType;
+				$.m_type = $1.m_type;
 			}
 	|	expression_0
 			{
-				$.m_pType = $1.m_Value.GetType ();
+				$.m_type = $1.m_value.getType ();
 			}
 	;
 
@@ -303,7 +303,7 @@ type_name_or_expr
 attribute_block
 	:	'['
 			{
-				m_pAttributeBlock = m_pModule->m_AttributeMgr.CreateAttributeBlock ();
+				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock ();
 			}
 		attribute_declarator_list
 		']'
@@ -316,13 +316,13 @@ attribute_declarator_list
 
 nullable
 attribute_declarator
-	:	EToken_Identifier ('=' expression_pass1)?
+	:	TokenKind_Identifier ('=' expression_pass1)?
 			{
-				CAttribute* pAttribute = m_pAttributeBlock->CreateAttribute ($1.m_Data.m_String, NULL);
-				if (!pAttribute)
+				Attribute* attribute = m_attributeBlock->createAttribute ($1.m_data.m_string, NULL);
+				if (!attribute)
 					return false;
 
-				pAttribute->m_Pos = $1.m_Pos;
+				attribute->m_pos = $1.m_pos;
 			}
 	|	epsilon
 	;

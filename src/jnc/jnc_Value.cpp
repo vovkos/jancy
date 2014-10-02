@@ -8,48 +8,48 @@ namespace jnc {
 
 //.............................................................................
 
-class CLlvmPodArray: public llvm::ConstantDataSequential
+class LlvmPodArray: public llvm::ConstantDataSequential
 {
 public:
 	static
 	llvm::Constant*
-	Get (
-		CArrayType* pType,
+	get (
+		ArrayType* type,
 		const void* p
 		)
 	{
-		llvm::Type* pLlvmType = pType->GetLlvmType ();
-		return getImpl (llvm::StringRef ((char*) p, pType->GetSize ()), pLlvmType);
+		llvm::Type* llvmType = type->getLlvmType ();
+		return getImpl (llvm::StringRef ((char*) p, type->getSize ()), llvmType);
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CLlvmPodStruct: public llvm::ConstantStruct
+class LlvmPodStruct: public llvm::ConstantStruct
 {
 public:
 	static
 	llvm::Constant*
-	Get (
-		CStructType* pType,
+	get (
+		jnc::StructType* type,
 		const void* p
 		)
 	{
-		llvm::Type* pLlvmType = pType->GetLlvmType ();
+		llvm::Type* llvmType = type->getLlvmType ();
 
-		char Buffer [256];
-		rtl::CArrayT <llvm::Constant*> LlvmMemberArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
+		char buffer [256];
+		rtl::Array <llvm::Constant*> llvmMemberArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-		rtl::CIteratorT <CStructField> Member = pType->GetFieldList ().GetHead ();
-		for (; Member; Member++)
+		rtl::Iterator <StructField> member = type->getFieldList ().getHead ();
+		for (; member; member++)
 		{
-			CValue MemberConst ((char*) p + Member->GetOffset (), Member->GetType ());
-			LlvmMemberArray.Append ((llvm::Constant*) MemberConst.GetLlvmValue ());
+			jnc::Value memberConst ((char*) p + member->getOffset (), member->getType ());
+			llvmMemberArray.append ((llvm::Constant*) memberConst.getLlvmValue ());
 		}
 
-		return get (
-			(llvm::StructType*) pLlvmType,
-			llvm::ArrayRef <llvm::Constant*> (LlvmMemberArray, LlvmMemberArray.GetCount ())
+		return llvm::ConstantStruct::get (
+			(llvm::StructType*) llvmType,
+			llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, llvmMemberArray.getCount ())
 			);
 	}
 };
@@ -57,9 +57,9 @@ public:
 //.............................................................................
 
 const char*
-GetValueKindString (EValue ValueKind)
+getValueKindString (ValueKind valueKind)
 {
-	static const char* StringTable [EValue__Count] =
+	static const char* stringTable [ValueKind__Count] =
 	{
 		"void",                   // EValue_Void = 0,
 		"null",                   // EValue_Null,
@@ -76,465 +76,465 @@ GetValueKindString (EValue ValueKind)
 		"bool-or",                // EValue_BoolOr,
 	};
 
-	return (size_t) ValueKind < EValue__Count ?
-		StringTable [ValueKind] :
+	return (size_t) valueKind < ValueKind__Count ?
+		stringTable [valueKind] :
 		"undefined-value-kind";
 }
 
 //.............................................................................
 
 void
-CValue::Init ()
+Value::init ()
 {
-	m_ValueKind = EValue_Void;
-	m_pType = NULL;
-	m_pVariable = NULL;
-	m_pLlvmValue = NULL;
+	m_valueKind = ValueKind_Void;
+	m_type = NULL;
+	m_variable = NULL;
+	m_llvmValue = NULL;
 }
 
 void
-CValue::Clear ()
+Value::clear ()
 {
-	m_ValueKind = EValue_Void;
-	m_pType = NULL;
-	m_pItem = NULL;
-	m_pLlvmValue = NULL;
-	m_Closure = ref::EPtr_Null;
-	m_LeanDataPtrValidator = ref::EPtr_Null;
+	m_valueKind = ValueKind_Void;
+	m_type = NULL;
+	m_item = NULL;
+	m_llvmValue = NULL;
+	m_closure = ref::PtrKind_Null;
+	m_leanDataPtrValidator = ref::PtrKind_Null;
 }
 
 llvm::Value*
-CValue::GetLlvmValue () const
+Value::getLlvmValue () const
 {
-	if (m_pLlvmValue)
-		return m_pLlvmValue;
+	if (m_llvmValue)
+		return m_llvmValue;
 
-	ASSERT (m_ValueKind == EValue_Const);
+	ASSERT (m_valueKind == ValueKind_Const);
 
-	m_pLlvmValue = GetLlvmConst (m_pType, GetConstData ());
-	return m_pLlvmValue;
+	m_llvmValue = getLlvmConst (m_type, getConstData ());
+	return m_llvmValue;
 }
 
 llvm::Constant*
-GetLlvmPtrConst (
-	CType* pType,
+getLlvmPtrConst (
+	Type* type,
 	const void* p
 	)
 {
-	int64_t Integer = *(int64_t*) p;
+	int64_t integer = *(int64_t*) p;
 
-	llvm::Constant* pLlvmConst = llvm::ConstantInt::get (
-		pType->GetModule ()->m_TypeMgr.GetPrimitiveType (EType_Int_pu)->GetLlvmType (),
-		llvm::APInt (sizeof (void*) * 8, Integer, false)
+	llvm::Constant* llvmConst = llvm::ConstantInt::get (
+		type->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Int_pu)->getLlvmType (),
+		llvm::APInt (sizeof (void*) * 8, integer, false)
 		);
 
-	return llvm::ConstantExpr::getIntToPtr (pLlvmConst, pType->GetLlvmType ());
+	return llvm::ConstantExpr::getIntToPtr (llvmConst, type->getLlvmType ());
 }
 
 llvm::Constant*
-CValue::GetLlvmConst (
-	CType* pType,
+Value::getLlvmConst (
+	Type* type,
 	const void* p
 	)
 {
-	int64_t Integer;
-	double Double;
-	llvm::Constant* pLlvmConst = NULL;
+	int64_t integer;
+	double doubleValue;
+	llvm::Constant* llvmConst = NULL;
 
-	if (pType->GetTypeKind () == EType_Enum)
-		pType = ((CEnumType*) pType)->GetBaseType ();
+	if (type->getTypeKind () == TypeKind_Enum)
+		type = ((EnumType*) type)->getBaseType ();
 
-	CModule* pModule = pType->GetModule ();
+	Module* module = type->getModule ();
 
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Bool:
-		Integer = *(int8_t*) p != 0;
-		pLlvmConst = llvm::ConstantInt::get (
-			pType->GetLlvmType (),
-			llvm::APInt (1, Integer, !(pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned))
+	case TypeKind_Bool:
+		integer = *(int8_t*) p != 0;
+		llvmConst = llvm::ConstantInt::get (
+			type->getLlvmType (),
+			llvm::APInt (1, integer, !(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
 			);
 		break;
 
-	case EType_Int8:
-	case EType_Int8_u:
-	case EType_Int16:
-	case EType_Int16_u:
-	case EType_Int32:
-	case EType_Int32_u:
-	case EType_Int64:
-	case EType_Int64_u:
-	case EType_Int16_be:
-	case EType_Int16_beu:
-	case EType_Int32_be:
-	case EType_Int32_beu:
-	case EType_Int64_be:
-	case EType_Int64_beu:
-		Integer = *(int64_t*) p;
-		pLlvmConst = llvm::ConstantInt::get (
-			pType->GetLlvmType (),
-			llvm::APInt (pType->GetSize () * 8, Integer, !(pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned))
+	case TypeKind_Int8:
+	case TypeKind_Int8_u:
+	case TypeKind_Int16:
+	case TypeKind_Int16_u:
+	case TypeKind_Int32:
+	case TypeKind_Int32_u:
+	case TypeKind_Int64:
+	case TypeKind_Int64_u:
+	case TypeKind_Int16_be:
+	case TypeKind_Int16_beu:
+	case TypeKind_Int32_be:
+	case TypeKind_Int32_beu:
+	case TypeKind_Int64_be:
+	case TypeKind_Int64_beu:
+		integer = *(int64_t*) p;
+		llvmConst = llvm::ConstantInt::get (
+			type->getLlvmType (),
+			llvm::APInt (type->getSize () * 8, integer, !(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
 			);
 		break;
 
-	case EType_Float:
-		Double = *(float*) p;
-		pLlvmConst = llvm::ConstantFP::get (pType->GetLlvmType (), Double);
+	case TypeKind_Float:
+		doubleValue = *(float*) p;
+		llvmConst = llvm::ConstantFP::get (type->getLlvmType (), doubleValue);
 		break;
 
-	case EType_Double:
-		Double = *(double*) p;
-		pLlvmConst = llvm::ConstantFP::get (pType->GetLlvmType (), Double);
+	case TypeKind_Double:
+		doubleValue = *(double*) p;
+		llvmConst = llvm::ConstantFP::get (type->getLlvmType (), doubleValue);
 		break;
 
-	case EType_Array:
-		pLlvmConst = CLlvmPodArray::Get ((CArrayType*) pType, p);
+	case TypeKind_Array:
+		llvmConst = LlvmPodArray::get ((ArrayType*) type, p);
 		break;
 
-	case EType_Struct:
-		pLlvmConst = CLlvmPodStruct::Get ((CStructType*) pType, p);
+	case TypeKind_Struct:
+		llvmConst = LlvmPodStruct::get ((StructType*) type, p);
 		break;
 
-	case EType_DataPtr:
-	case EType_DataRef:
-		if (((CDataPtrType*) pType)->GetPtrTypeKind () == EDataPtrType_Normal)
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef:
+		if (((DataPtrType*) type)->getPtrTypeKind () == DataPtrTypeKind_Normal)
 		{
-			pLlvmConst = CLlvmPodStruct::Get (((CDataPtrType*) pType)->GetDataPtrStructType (), p);
+			llvmConst = LlvmPodStruct::get (((DataPtrType*) type)->getDataPtrStructType (), p);
 		}
 		else // thin or unsafe
 		{
-			pLlvmConst = GetLlvmPtrConst (pType, p);
+			llvmConst = getLlvmPtrConst (type, p);
 		}
 		break;
 
-	case EType_ClassPtr:
-		pLlvmConst = GetLlvmPtrConst (pType, p);
+	case TypeKind_ClassPtr:
+		llvmConst = getLlvmPtrConst (type, p);
 		break;
 
 	default:
 		ASSERT (false);
 	}
 
-	return pLlvmConst;
+	return llvmConst;
 }
 
 void
-CValue::InsertToClosureHead (const CValue& Value)
+Value::insertToClosureHead (const Value& value)
 {
-	if (!m_Closure)
-		m_Closure = AXL_REF_NEW (CClosure);
+	if (!m_closure)
+		m_closure = AXL_REF_NEW (Closure);
 	
-	m_Closure->GetArgValueList ()->InsertHead (Value);
+	m_closure->getArgValueList ()->insertHead (value);
 }
 
 void
-CValue::InsertToClosureTail (const CValue& Value)
+Value::insertToClosureTail (const Value& value)
 {
-	if (!m_Closure)
-		m_Closure = AXL_REF_NEW (CClosure);
+	if (!m_closure)
+		m_closure = AXL_REF_NEW (Closure);
 
-	m_Closure->GetArgValueList ()->InsertTail (Value);
+	m_closure->getArgValueList ()->insertTail (value);
 }
 
-CClosure*
-CValue::CreateClosure ()
+Closure*
+Value::createClosure ()
 {
-	m_Closure = AXL_REF_NEW (CClosure);
-	return m_Closure;
-}
-
-void
-CValue::SetClosure (CClosure* pClosure)
-{
-	m_Closure = pClosure;
-}
-
-CType*
-CValue::GetClosureAwareType () const
-{
-	return m_Closure ? m_Closure->GetClosureType (m_pType) : m_pType;
+	m_closure = AXL_REF_NEW (Closure);
+	return m_closure;
 }
 
 void
-CValue::OverrideType (EType TypeKind)
+Value::setClosure (Closure* closure)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	m_closure = closure;
+}
 
-	CType* pType = pModule->m_TypeMgr.GetPrimitiveType (TypeKind);
-	OverrideType (pType);
+Type*
+Value::getClosureAwareType () const
+{
+	return m_closure ? m_closure->getClosureType (m_type) : m_type;
 }
 
 void
-CValue::SetVoid ()
+Value::overrideType (TypeKind typeKind)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	Clear ();
-
-	m_ValueKind = EValue_Void;
-	m_pType = pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
+	overrideType (type);
 }
 
 void
-CValue::SetNull ()
+Value::setVoid ()
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	Clear ();
+	clear ();
 
-	m_ValueKind = EValue_Null;
-	m_pType = pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+	m_valueKind = ValueKind_Void;
+	m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 }
 
 void
-CValue::SetType (CType* pType)
+Value::setNull ()
 {
-	Clear ();
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	m_ValueKind = EValue_Type;
-	m_pType = pType;
+	clear ();
+
+	m_valueKind = ValueKind_Null;
+	m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 }
 
 void
-CValue::SetType (EType TypeKind)
+Value::setType (Type* type)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	clear ();
 
-	CType* pType = pModule->m_TypeMgr.GetPrimitiveType (TypeKind);
-	SetType (pType);
+	m_valueKind = ValueKind_Type;
+	m_type = type;
 }
 
 void
-CValue::SetNamespace (CNamespace* pNamespace)
+Value::setType (TypeKind typeKind)
 {
-	Clear ();
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
-
-	m_ValueKind = EValue_Namespace;
-	m_pNamespace = pNamespace;
-	m_pType = pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
+	setType (type);
 }
 
 void
-CValue::SetVariable (CVariable* pVariable)
+Value::setNamespace (Namespace* nspace)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = EValue_Variable;
-	m_pLlvmValue = pVariable->GetLlvmValue ();
-	m_pVariable = pVariable;
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	uint_t PtrTypeFlags = pVariable->GetPtrTypeFlags () | EPtrTypeFlag_Safe;
+	m_valueKind = ValueKind_Namespace;
+	m_namespace = nspace;
+	m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+}
 
-	CType* pType = pVariable->GetType ();
-	if (pType->GetTypeKind () == EType_Class)
-		m_pType = ((CClassType*) pType)->GetClassPtrType (
-			pVariable->GetParentNamespace (),
-			EType_ClassRef,
-			EClassPtrType_Normal,
-			PtrTypeFlags
+void
+Value::setVariable (Variable* variable)
+{
+	clear ();
+
+	m_valueKind = ValueKind_Variable;
+	m_llvmValue = variable->getLlvmValue ();
+	m_variable = variable;
+
+	uint_t ptrTypeFlags = variable->getPtrTypeFlags () | PtrTypeFlagKind_Safe;
+
+	Type* type = variable->getType ();
+	if (type->getTypeKind () == TypeKind_Class)
+		m_type = ((ClassType*) type)->getClassPtrType (
+			variable->getParentNamespace (),
+			TypeKind_ClassRef,
+			ClassPtrTypeKind_Normal,
+			ptrTypeFlags
 			);
 	else
-		m_pType = pType->GetDataPtrType (
-			pVariable->GetParentNamespace (),
-			EType_DataRef,
-			EDataPtrType_Lean,
-			PtrTypeFlags
+		m_type = type->getDataPtrType (
+			variable->getParentNamespace (),
+			TypeKind_DataRef,
+			DataPtrTypeKind_Lean,
+			ptrTypeFlags
 			);
 }
 
 void
-CValue::SetFunction (CFunction* pFunction)
+Value::setFunction (Function* function)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = EValue_Function;
-	m_pFunction = pFunction;
-	m_pType = pFunction->GetType ()->GetFunctionPtrType (
-		EType_FunctionRef,
-		EFunctionPtrType_Thin,
-		EPtrTypeFlag_Safe
+	m_valueKind = ValueKind_Function;
+	m_function = function;
+	m_type = function->getType ()->getFunctionPtrType (
+		TypeKind_FunctionRef,
+		FunctionPtrTypeKind_Thin,
+		PtrTypeFlagKind_Safe
 		);
 
-	if (!pFunction->IsVirtual ())
-		m_pLlvmValue = pFunction->GetLlvmFunction ();
+	if (!function->isVirtual ())
+		m_llvmValue = function->getLlvmFunction ();
 }
 
 void
-CValue::SetFunctionTypeOverload (CFunctionTypeOverload* pFunctionTypeOverload)
+Value::setFunctionTypeOverload (FunctionTypeOverload* functionTypeOverload)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = pFunctionTypeOverload->IsOverloaded () ? EValue_FunctionTypeOverload : EValue_Type;
-	m_pFunctionTypeOverload = pFunctionTypeOverload;
-	m_pType = pFunctionTypeOverload->GetOverload (0);
+	m_valueKind = functionTypeOverload->isOverloaded () ? ValueKind_FunctionTypeOverload : ValueKind_Type;
+	m_functionTypeOverload = functionTypeOverload;
+	m_type = functionTypeOverload->getOverload (0);
 }
 
 void
-CValue::SetProperty (CProperty* pProperty)
+Value::setProperty (Property* prop)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = EValue_Property;
-	m_pProperty = pProperty;
-	m_pType = pProperty->GetType ()->GetPropertyPtrType (
-		pProperty->GetParentNamespace (),
-		EType_PropertyRef,
-		EPropertyPtrType_Thin,
-		EPtrTypeFlag_Safe
+	m_valueKind = ValueKind_Property;
+	m_property = prop;
+	m_type = prop->getType ()->getPropertyPtrType (
+		prop->getParentNamespace (),
+		TypeKind_PropertyRef,
+		PropertyPtrTypeKind_Thin,
+		PtrTypeFlagKind_Safe
 		);
 
 	// don't assign LlvmValue yet cause property LlvmValue is only needed for pointers
 }
 
 void
-CValue::SetField (
-	CStructField* pField,
-	CType* pType,
-	size_t BaseOffset
+Value::setField (
+	StructField* field,
+	Type* type,
+	size_t baseOffset
 	)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = EValue_Field;
-	m_pField = pField;
-	m_pType = pType;
-	m_Const.GetBuffer (sizeof (TBufHdr) + sizeof (size_t));
-	*(size_t*) GetConstData () = BaseOffset + pField->GetOffset ();
+	m_valueKind = ValueKind_Field;
+	m_field = field;
+	m_type = type;
+	m_const.getBuffer (sizeof (BufHdr) + sizeof (size_t));
+	*(size_t*) getConstData () = baseOffset + field->getOffset ();
 }
 
 void
-CValue::SetField (
-	CStructField* pField,
-	size_t BaseOffset
+Value::setField (
+	StructField* field,
+	size_t baseOffset
 	)
 {
-	SetField (pField, pField->GetType (), BaseOffset);
+	setField (field, field->getType (), baseOffset);
 }
 
 void
-CValue::SetLlvmValue (
-	llvm::Value* pLlvmValue,
-	CType* pType,
-	EValue ValueKind
+Value::setLlvmValue (
+	llvm::Value* llvmValue,
+	Type* type,
+	ValueKind valueKind
 	)
 {
-	Clear ();
+	clear ();
 
-	m_ValueKind = ValueKind;
-	m_pType = pType;
-	m_pLlvmValue = pLlvmValue;
+	m_valueKind = valueKind;
+	m_type = type;
+	m_llvmValue = llvmValue;
 }
 
 void
-CValue::SetLlvmValue (
-	llvm::Value* pLlvmValue,
-	EType TypeKind,
-	EValue ValueKind
+Value::setLlvmValue (
+	llvm::Value* llvmValue,
+	TypeKind typeKind,
+	ValueKind valueKind
 	)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	CType* pType = pModule->m_TypeMgr.GetPrimitiveType (TypeKind);
-	SetLlvmValue (pLlvmValue, pType, ValueKind);
+	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
+	setLlvmValue (llvmValue, type, valueKind);
 }
 
 void
-CValue::SetLeanDataPtrValidator (CLeanDataPtrValidator* pValidator)
+Value::setLeanDataPtrValidator (LeanDataPtrValidator* validator)
 {
-	ASSERT (m_pType->GetTypeKindFlags () & ETypeKindFlag_DataPtr);
-	ASSERT (((CDataPtrType*) m_pType)->GetPtrTypeKind () == EDataPtrType_Lean);
+	ASSERT (m_type->getTypeKindFlags () & TypeKindFlagKind_DataPtr);
+	ASSERT (((DataPtrType*) m_type)->getPtrTypeKind () == DataPtrTypeKind_Lean);
 
-	m_LeanDataPtrValidator = pValidator;
+	m_leanDataPtrValidator = validator;
 }
 
 void
-CValue::SetLeanDataPtrValidator (const CValue& ValidatorValue)
+Value::setLeanDataPtrValidator (const Value& validatorValue)
 {
-	ref::CPtrT <CLeanDataPtrValidator> Validator = AXL_REF_NEW (CLeanDataPtrValidator);
-	Validator->m_ValidatorKind = ELeanDataPtrValidator_Simple;
-	Validator->m_ScopeValidatorValue = ValidatorValue;
-	SetLeanDataPtrValidator (Validator);
+	ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
+	validator->m_validatorKind = LeanDataPtrValidatorKind_Simple;
+	validator->m_scopeValidatorValue = validatorValue;
+	setLeanDataPtrValidator (validator);
 }
 
 void
-CValue::SetLeanDataPtrValidator (
-	const CValue& ScopeValidatorValue,
-	const CValue& RangeBeginValue,
-	const CValue& SizeValue
+Value::setLeanDataPtrValidator (
+	const Value& scopeValidatorValue,
+	const Value& rangeBeginValue,
+	const Value& sizeValue
 	)
 {
-	ref::CPtrT <CLeanDataPtrValidator> Validator = AXL_REF_NEW (CLeanDataPtrValidator);
-	Validator->m_ValidatorKind = ELeanDataPtrValidator_Complex;
-	Validator->m_ScopeValidatorValue = ScopeValidatorValue;
-	Validator->m_RangeBeginValue = RangeBeginValue;
-	Validator->m_SizeValue = SizeValue;
+	ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
+	validator->m_validatorKind = LeanDataPtrValidatorKind_Complex;
+	validator->m_scopeValidatorValue = scopeValidatorValue;
+	validator->m_rangeBeginValue = rangeBeginValue;
+	validator->m_sizeValue = sizeValue;
 
-	SetLeanDataPtrValidator (Validator);
+	setLeanDataPtrValidator (validator);
 }
 
 bool
-CValue::CreateConst (
+Value::createConst (
 	const void* p,
-	CType* pType
+	Type* type
 	)
 {
-	Clear ();
+	clear ();
 
-	size_t Size = pType->GetSize ();
-	size_t AllocSize = AXL_MAX (Size, sizeof (int64_t)); // ensure int64 for GetLlvmConst ()
+	size_t size = type->getSize ();
+	size_t allocSize = AXL_MAX (size, sizeof (int64_t)); // ensure int64 for GetLlvmConst ()
 
-	bool Result = m_Const.GetBuffer (sizeof (TBufHdr) + AllocSize) != NULL;
-	if (!Result)
+	bool result = m_const.getBuffer (sizeof (BufHdr) + allocSize) != NULL;
+	if (!result)
 		return false;
 
-	m_ValueKind = EValue_Const;
-	m_pType = pType;
-	m_Const->m_Size = Size;
+	m_valueKind = ValueKind_Const;
+	m_type = type;
+	m_const->m_size = size;
 
 	if (p)
-		memcpy (GetConstData (), p, Size);
+		memcpy (getConstData (), p, size);
 	else
-		memset (GetConstData (), 0, Size);
+		memset (getConstData (), 0, size);
 
 	return true;
 }
 
 bool
-CValue::CreateConst (
+Value::createConst (
 	const void* p,
-	EType TypeKind
+	TypeKind typeKind
 	)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	CType* pType = pModule->m_TypeMgr.GetPrimitiveType (TypeKind);
-	return CreateConst (p, pType);
+	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
+	return createConst (p, type);
 }
 
 void
-CValue::SetCharArray (
+Value::setCharArray (
 	const void* p,
-	size_t Size
+	size_t size
 	)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	if (!Size)
-		Size = 1;
+	if (!size)
+		size = 1;
 
-	CType* pType = pModule->m_TypeMgr.GetArrayType (EType_Char, Size);
-	CreateConst (p, pType);
+	Type* type = module->m_typeMgr.getArrayType (TypeKind_Char, size);
+	createConst (p, type);
 }
 
 //.............................................................................

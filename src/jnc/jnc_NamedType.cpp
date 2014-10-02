@@ -6,90 +6,90 @@ namespace jnc {
 
 //.............................................................................
 
-CNamedType::CNamedType ()
+NamedType::NamedType ()
 {
-	m_NamespaceKind = ENamespace_Type;
-	m_pItemDecl = this;
+	m_namespaceKind = NamespaceKind_Type;
+	m_itemDecl = this;
 }
 
-CFunctionType*
-CNamedType::GetMemberMethodType (
-	CFunctionType* pShortType,
-	uint_t ThisArgTypeFlags
+FunctionType*
+NamedType::getMemberMethodType (
+	FunctionType* shortType,
+	uint_t thisArgTypeFlags
 	)
 {
-	return m_pModule->m_TypeMgr.GetMemberMethodType (this, pShortType, ThisArgTypeFlags);
+	return m_module->m_typeMgr.getMemberMethodType (this, shortType, thisArgTypeFlags);
 }
 
-CPropertyType*
-CNamedType::GetMemberPropertyType (CPropertyType* pShortType)
+PropertyType*
+NamedType::getMemberPropertyType (PropertyType* shortType)
 {
-	return m_pModule->m_TypeMgr.GetMemberPropertyType (this, pShortType);
+	return m_module->m_typeMgr.getMemberPropertyType (this, shortType);
 }
 
-CModuleItem*
-CNamedType::FindItemTraverseImpl (
-	const char* pName,
-	CMemberCoord* pCoord,
-	uint_t Flags
+ModuleItem*
+NamedType::findItemTraverseImpl (
+	const char* name,
+	MemberCoord* coord,
+	uint_t flags
 	)
 {
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (!(Flags & ETraverse_NoThis))
+	if (!(flags & TraverseKind_NoThis))
 	{
-		pItem = FindItem (pName);
-		if (pItem)
-			return pItem;
+		item = findItem (name);
+		if (item)
+			return item;
 	}
 
-	if (!(Flags & ETraverse_NoExtensionNamespace) && m_pExtensionNamespace)
+	if (!(flags & TraverseKind_NoExtensionNamespace) && m_extensionNamespace)
 	{
-		pItem = m_pExtensionNamespace->FindItem (pName);
-		if (pItem)
-			return pItem;
+		item = m_extensionNamespace->findItem (name);
+		if (item)
+			return item;
 	}
 
-	if (!(Flags & ETraverse_NoParentNamespace) && m_pParentNamespace)
+	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		pItem = m_pParentNamespace->FindItemTraverse (pName, pCoord, Flags & ~ETraverse_NoThis);
-		if (pItem)
-			return pItem;
+		item = m_parentNamespace->findItemTraverse (name, coord, flags & ~TraverseKind_NoThis);
+		if (item)
+			return item;
 	}
 
 	return NULL;
 }
 
 bool
-CNamedType::CalcLayout ()
+NamedType::calcLayout ()
 {
-	if (m_pExtensionNamespace)
-		ApplyExtensionNamespace ();
+	if (m_extensionNamespace)
+		applyExtensionNamespace ();
 
 	return true;
 }
 
 void
-CNamedType::ApplyExtensionNamespace ()
+NamedType::applyExtensionNamespace ()
 {
-	ASSERT (m_pExtensionNamespace);
+	ASSERT (m_extensionNamespace);
 
-	size_t Count = m_pExtensionNamespace->GetItemCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_extensionNamespace->getItemCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CModuleItem* pItem = m_pExtensionNamespace->GetItem (i);
+		ModuleItem* item = m_extensionNamespace->getItem (i);
 
-		EModuleItem ItemKind = pItem->GetItemKind ();
-		switch (ItemKind)
+		ModuleItemKind itemKind = item->getItemKind ();
+		switch (itemKind)
 		{
-		case EModuleItem_Function:
-			if (((CFunction*) pItem)->GetStorageKind () != EStorage_Static)
-				((CFunction*) pItem)->ConvertToMemberMethod (this);
+		case ModuleItemKind_Function:
+			if (((Function*) item)->getStorageKind () != StorageKind_Static)
+				((Function*) item)->convertToMemberMethod (this);
 			break;
 
-		case EModuleItem_Property:
-			if (((CProperty*) pItem)->GetStorageKind () != EStorage_Static)
-				((CProperty*) pItem)->ConvertToMemberProperty (this);
+		case ModuleItemKind_Property:
+			if (((Property*) item)->getStorageKind () != StorageKind_Static)
+				((Property*) item)->convertToMemberProperty (this);
 			break;
 		}
 	}

@@ -8,137 +8,137 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetFunctionPtrTypeKindString (EFunctionPtrType PtrTypeKind)
+getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind)
 {
-	static const char* StringTable [EFunctionPtrType__Count] = 
+	static const char* stringTable [FunctionPtrTypeKind__Count] = 
 	{
 		"closure",  // EFunctionPtrType_Normal = 0,
 		"weak",     // EFunctionPtrType_Weak,
 		"thin",     // EFunctionPtrType_Thin,
 	};
 
-	return (size_t) PtrTypeKind < EFunctionPtrType__Count ? 
-		StringTable [PtrTypeKind] : 
+	return (size_t) ptrTypeKind < FunctionPtrTypeKind__Count ? 
+		stringTable [ptrTypeKind] : 
 		"undefined-function-ptr-kind";
 }
 
 //.............................................................................
 
-CFunctionPtrType::CFunctionPtrType ()
+FunctionPtrType::FunctionPtrType ()
 {
-	m_TypeKind = EType_FunctionPtr;
-	m_PtrTypeKind = EFunctionPtrType_Normal;
-	m_Size = sizeof (TFunctionPtr);
-	m_pTargetType = NULL;
-	m_pMulticastType = NULL;
+	m_typeKind = TypeKind_FunctionPtr;
+	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
+	m_size = sizeof (FunctionPtr);
+	m_targetType = NULL;
+	m_multicastType = NULL;
 }
 
-CStructType* 
-CFunctionPtrType::GetFunctionPtrStructType ()
+StructType* 
+FunctionPtrType::getFunctionPtrStructType ()
 {
-	return m_pModule->m_TypeMgr.GetFunctionPtrStructType (m_pTargetType);
+	return m_module->m_typeMgr.getFunctionPtrStructType (m_targetType);
 }
 
-CClassType* 
-CFunctionPtrType::GetMulticastType ()
+ClassType* 
+FunctionPtrType::getMulticastType ()
 {
-	return m_pModule->m_TypeMgr.GetMulticastType (this);
+	return m_module->m_typeMgr.getMulticastType (this);
 }
 
-rtl::CString
-CFunctionPtrType::CreateSignature (
-	CFunctionType* pFunctionType,
-	EType TypeKind,
-	EFunctionPtrType PtrTypeKind,
-	uint_t Flags
+rtl::String
+FunctionPtrType::createSignature (
+	FunctionType* functionType,
+	TypeKind typeKind,
+	FunctionPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = TypeKind == EType_FunctionRef ? "RF" : "PF";
+	rtl::String signature = typeKind == TypeKind_FunctionRef ? "RF" : "PF";
 
-	switch (PtrTypeKind)
+	switch (ptrTypeKind)
 	{
-	case EFunctionPtrType_Thin:
-		Signature += 't';
+	case FunctionPtrTypeKind_Thin:
+		signature += 't';
 		break;
 
-	case EFunctionPtrType_Weak:
-		Signature += 'w';
+	case FunctionPtrTypeKind_Weak:
+		signature += 'w';
 		break;
 	}
 
-	Signature += GetPtrTypeFlagSignature (Flags);
-	Signature += pFunctionType->GetSignature ();
-	return Signature;
+	signature += getPtrTypeFlagSignature (flags);
+	signature += functionType->getSignature ();
+	return signature;
 }
 
-rtl::CString
-CFunctionPtrType::GetTypeModifierString ()
+rtl::String
+FunctionPtrType::getTypeModifierString ()
 {
-	if (!m_TypeModifierString.IsEmpty ())
-		return m_TypeModifierString;
+	if (!m_typeModifierString.isEmpty ())
+		return m_typeModifierString;
 
-	if (m_Flags & EPtrTypeFlag__AllMask)
+	if (m_flags & PtrTypeFlagKind__AllMask)
 	{
-		m_TypeModifierString += GetPtrTypeFlagString (m_Flags);
-		m_TypeModifierString += ' ';
+		m_typeModifierString += getPtrTypeFlagString (m_flags);
+		m_typeModifierString += ' ';
 	}
 
-	if (m_PtrTypeKind != EFunctionPtrType_Normal)
+	if (m_ptrTypeKind != FunctionPtrTypeKind_Normal)
 	{
-		m_TypeModifierString += GetFunctionPtrTypeKindString (m_PtrTypeKind);
-		m_TypeModifierString += ' ';
+		m_typeModifierString += getFunctionPtrTypeKindString (m_ptrTypeKind);
+		m_typeModifierString += ' ';
 	}
 
-	m_TypeModifierString += m_pTargetType->GetTypeModifierString ();
+	m_typeModifierString += m_targetType->getTypeModifierString ();
 
-	return m_TypeModifierString;
+	return m_typeModifierString;
 }
 
 void
-CFunctionPtrType::PrepareTypeString ()
+FunctionPtrType::prepareTypeString ()
 {
-	m_TypeString = m_pTargetType->GetReturnType ()->GetTypeString ();
-	m_TypeString += ' ';
-	m_TypeString += GetTypeModifierString ();
-	m_TypeString += m_TypeKind == EType_FunctionRef ? "function& " : "function* ";
-	m_TypeString += m_pTargetType->GetArgString ();
+	m_typeString = m_targetType->getReturnType ()->getTypeString ();
+	m_typeString += ' ';
+	m_typeString += getTypeModifierString ();
+	m_typeString += m_typeKind == TypeKind_FunctionRef ? "function& " : "function* ";
+	m_typeString += m_targetType->getArgString ();
 }
 
 void
-CFunctionPtrType::PrepareLlvmType ()
+FunctionPtrType::prepareLlvmType ()
 {
-	m_pLlvmType = 
-		m_PtrTypeKind != EFunctionPtrType_Thin ? GetFunctionPtrStructType ()->GetLlvmType () :
-		llvm::PointerType::get (m_pTargetType->GetLlvmType (), 0);
+	m_llvmType = 
+		m_ptrTypeKind != FunctionPtrTypeKind_Thin ? getFunctionPtrStructType ()->getLlvmType () :
+		llvm::PointerType::get (m_targetType->getLlvmType (), 0);
 }
 
 void
-CFunctionPtrType::PrepareLlvmDiType ()
+FunctionPtrType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = 
-		m_PtrTypeKind != EFunctionPtrType_Thin ? GetFunctionPtrStructType ()->GetLlvmDiType () :
-		m_pModule->m_LlvmDiBuilder.CreatePointerType (m_pTargetType);
+	m_llvmDiType = 
+		m_ptrTypeKind != FunctionPtrTypeKind_Thin ? getFunctionPtrStructType ()->getLlvmDiType () :
+		m_module->m_llvmDiBuilder.createPointerType (m_targetType);
 }
 
 void
-CFunctionPtrType::GcMark (
-	CRuntime* pRuntime,
+FunctionPtrType::gcMark (
+	Runtime* runtime,
 	void* p
 	)
 {
-	ASSERT (m_PtrTypeKind == EFunctionPtrType_Normal || m_PtrTypeKind == EFunctionPtrType_Weak);
+	ASSERT (m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak);
 
-	TFunctionPtr* pPtr = (TFunctionPtr*) p;
-	if (!pPtr->m_pClosure || pPtr->m_pClosure->m_pObject->m_ScopeLevel)
+	FunctionPtr* ptr = (FunctionPtr*) p;
+	if (!ptr->m_closure || ptr->m_closure->m_object->m_scopeLevel)
 		return;
 
-	TObjHdr* pObject = pPtr->m_pClosure->m_pObject;
-	if (m_PtrTypeKind == EFunctionPtrType_Normal)
-		pObject->GcMarkObject (pRuntime);
-	else if (pObject->m_pClassType->GetClassTypeKind () == EClassType_FunctionClosure)
-		pObject->GcWeakMarkClosureObject (pRuntime);
+	ObjHdr* object = ptr->m_closure->m_object;
+	if (m_ptrTypeKind == FunctionPtrTypeKind_Normal)
+		object->gcMarkObject (runtime);
+	else if (object->m_classType->getClassTypeKind () == ClassTypeKind_FunctionClosure)
+		object->gcWeakMarkClosureObject (runtime);
 	else  // simple weak closure
-		pObject->GcWeakMarkObject ();
+		object->gcWeakMarkObject ();
 }
 
 //.............................................................................

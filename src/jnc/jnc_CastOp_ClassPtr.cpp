@@ -7,169 +7,169 @@ namespace jnc {
 //.............................................................................
 
 bool
-IsMulticastToMulticast (
-	CClassPtrType* pSrcType,
-	CClassPtrType* pDstType
+isMulticastToMulticast (
+	ClassPtrType* srcType,
+	ClassPtrType* dstType
 	)
 {
-	if (pSrcType->GetTargetType ()->GetClassTypeKind () != EClassType_Multicast ||
-		pDstType->GetTargetType ()->GetClassTypeKind () != EClassType_Multicast)
+	if (srcType->getTargetType ()->getClassTypeKind () != ClassTypeKind_Multicast ||
+		dstType->getTargetType ()->getClassTypeKind () != ClassTypeKind_Multicast)
 		return false;
 
 	// event -> multicast is never ok
 
-	if ((pSrcType->GetFlags () & EPtrTypeFlag_Event) && !(pDstType->GetFlags () & EPtrTypeFlag_Event))
+	if ((srcType->getFlags () & PtrTypeFlagKind_Event) && !(dstType->getFlags () & PtrTypeFlagKind_Event))
 		return false;
 
-	CMulticastClassType* pSrcMcType = (CMulticastClassType*) pSrcType->GetTargetType ();
-	CMulticastClassType* pDstMcType = (CMulticastClassType*) pDstType->GetTargetType ();
+	MulticastClassType* srcMcType = (MulticastClassType*) srcType->getTargetType ();
+	MulticastClassType* dstMcType = (MulticastClassType*) dstType->getTargetType ();
 
-	return pSrcMcType->GetTargetType ()->Cmp (pDstMcType->GetTargetType ()) == 0;
+	return srcMcType->getTargetType ()->cmp (dstMcType->getTargetType ()) == 0;
 }
 
 //.............................................................................
 
-ECast
-CCast_ClassPtr::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_ClassPtr::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_ClassPtr);
+	ASSERT (type->getTypeKind () == TypeKind_ClassPtr);
 
-	if (OpValue.GetType ()->GetTypeKind () != EType_ClassPtr)
-		return ECast_None; // TODO: user conversions later via constructors
+	if (opValue.getType ()->getTypeKind () != TypeKind_ClassPtr)
+		return CastKind_None; // TODO: user conversions later via constructors
 
-	CClassPtrType* pSrcType = (CClassPtrType*) OpValue.GetType ();
-	CClassPtrType* pDstType = (CClassPtrType*) pType;
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
+	ClassPtrType* dstType = (ClassPtrType*) type;
 
-	if (pSrcType->IsConstPtrType () && !pDstType->IsConstPtrType ()) 
-		return ECast_None; // const vs non-const mismatch
+	if (srcType->isConstPtrType () && !dstType->isConstPtrType ()) 
+		return CastKind_None; // const vs non-const mismatch
 
-	CClassType* pSrcClassType = pSrcType->GetTargetType ();
-	CClassType* pDstClassType = pDstType->GetTargetType ();
+	ClassType* srcClassType = srcType->getTargetType ();
+	ClassType* dstClassType = dstType->getTargetType ();
 
 	return 
-		(pDstClassType->GetClassTypeKind () == EClassType_StdObject) ||	
-		pSrcClassType->Cmp (pDstClassType) == 0 || 
-		IsMulticastToMulticast (pSrcType, pDstType) ||
-		pSrcClassType->FindBaseTypeTraverse (pDstClassType) ? 
-		ECast_Implicit : 
-		ECast_Explicit;
+		(dstClassType->getClassTypeKind () == ClassTypeKind_StdObject) ||	
+		srcClassType->cmp (dstClassType) == 0 || 
+		isMulticastToMulticast (srcType, dstType) ||
+		srcClassType->findBaseTypeTraverse (dstClassType) ? 
+		CastKind_Implicit : 
+		CastKind_Explicit;
 }
 
 bool
-CCast_ClassPtr::LlvmCast (
-	EStorage StorageKind,
-	const CValue& RawOpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_ClassPtr::llvmCast (
+	StorageKind storageKind,
+	const Value& rawOpValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_ClassPtr);
+	ASSERT (type->getTypeKind () == TypeKind_ClassPtr);
 
-	bool Result;
+	bool result;
 
-	if (RawOpValue.GetType ()->GetTypeKind () != EType_ClassPtr)
+	if (rawOpValue.getType ()->getTypeKind () != TypeKind_ClassPtr)
 	{
-		SetCastError (RawOpValue, pType);
+		setCastError (rawOpValue, type);
 		return false; // TODO: user conversions via constructors -- only if target ptr is EPtrTypeFlag_Const
 	}
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	CClassPtrType* pSrcType = (CClassPtrType*) RawOpValue.GetType ();
-	CClassPtrType* pDstType = (CClassPtrType*) pType;
+	ClassPtrType* srcType = (ClassPtrType*) rawOpValue.getType ();
+	ClassPtrType* dstType = (ClassPtrType*) type;
 
-	if (pSrcType->GetPtrTypeKind () == EClassPtrType_Weak &&
-		pDstType->GetPtrTypeKind () != EClassPtrType_Weak)
+	if (srcType->getPtrTypeKind () == ClassPtrTypeKind_Weak &&
+		dstType->getPtrTypeKind () != ClassPtrTypeKind_Weak)
 	{
-		CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "strengthen class pointer");
+		LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "strengthen class pointer");
 
-		CFunction* pStrengthen = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_StrengthenClassPtr);
+		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFuncKind_StrengthenClassPtr);
 
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, m_pModule->GetSimpleType (EStdType_ObjectPtr), &OpValue);
-		m_pModule->m_LlvmIrBuilder.CreateCall (
-			pStrengthen,
-			pStrengthen->GetType (),
-			OpValue,
-			&OpValue
+		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->getSimpleType (StdTypeKind_ObjectPtr), &opValue);
+		m_module->m_llvmIrBuilder.createCall (
+			strengthen,
+			strengthen->getType (),
+			opValue,
+			&opValue
 			);
 
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pSrcType, &OpValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, srcType, &opValue);
 	}
 
-	CClassType* pSrcClassType = pSrcType->GetTargetType ();
-	CClassType* pDstClassType = pDstType->GetTargetType ();
+	ClassType* srcClassType = srcType->getTargetType ();
+	ClassType* dstClassType = dstType->getTargetType ();
 
-	if (pDstType->GetFlags () & EPtrTypeFlag_Safe)
-		m_pModule->m_OperatorMgr.CheckClassPtrNull (OpValue);
+	if (dstType->getFlags () & PtrTypeFlagKind_Safe)
+		m_module->m_operatorMgr.checkClassPtrNull (opValue);
 
-	if (pDstClassType->GetClassTypeKind () == EClassType_StdObject ||
-		IsMulticastToMulticast (pSrcType, pDstType))
+	if (dstClassType->getClassTypeKind () == ClassTypeKind_StdObject ||
+		isMulticastToMulticast (srcType, dstType))
 	{
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pDstType, pResultValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, dstType, resultValue);
 		return true;
 	}
 
-	if (pSrcClassType->Cmp (pDstClassType) == 0)
+	if (srcClassType->cmp (dstClassType) == 0)
 	{
-		pResultValue->OverrideType (OpValue, pType);
+		resultValue->overrideType (opValue, type);
 		return true;
 	}
 
-	CBaseTypeCoord Coord;
-	Result = pSrcClassType->FindBaseTypeTraverse (pDstClassType, &Coord);
-	if (!Result)
+	BaseTypeCoord coord;
+	result = srcClassType->findBaseTypeTraverse (dstClassType, &coord);
+	if (!result)
 	{
-		CValue PtrValue;
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr), &PtrValue);
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ptrValue);
 
-		CValue TypeValue (&pDstClassType, m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr));
+		Value typeValue (&dstClassType, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr));
 
-		CFunction* pDynamicCastClassPtr = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_DynamicCastClassPtr);
-		m_pModule->m_LlvmIrBuilder.CreateCall2 (
-			pDynamicCastClassPtr,
-			pDynamicCastClassPtr->GetType (),
-			PtrValue,
-			TypeValue,
-			&PtrValue
+		Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFuncKind_DynamicCastClassPtr);
+		m_module->m_llvmIrBuilder.createCall2 (
+			dynamicCastClassPtr,
+			dynamicCastClassPtr->getType (),
+			ptrValue,
+			typeValue,
+			&ptrValue
 			);
 
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pDstType, pResultValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, dstType, resultValue);
 		return true;
 	}
 
-	CValue SrcNullValue = pSrcType->GetZeroValue ();
-	CValue DstNullValue = pDstType->GetZeroValue ();
+	Value srcNullValue = srcType->getZeroValue ();
+	Value dstNullValue = dstType->getZeroValue ();
 
-	CBasicBlock* pCmpBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	CBasicBlock* pPhiBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("iface_phi");
-	CBasicBlock* pNoNullBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("iface_nonull");
+	BasicBlock* cmpBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("iface_phi");
+	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("iface_nonull");
 
-	CValue CmpValue;
-	Result = 
-		m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, OpValue, SrcNullValue, &CmpValue) &&
-		m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pPhiBlock, pNoNullBlock, pNoNullBlock);
+	Value cmpValue;
+	result = 
+		m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, opValue, srcNullValue, &cmpValue) &&
+		m_module->m_controlFlowMgr.conditionalJump (cmpValue, phiBlock, noNullBlock, noNullBlock);
 
-	if (!Result)
+	if (!result)
 		return false;
 	
-	Coord.m_LlvmIndexArray.Insert (0, 0);
+	coord.m_llvmIndexArray.insert (0, 0);
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep (
-		OpValue, 
-		Coord.m_LlvmIndexArray,
-		Coord.m_LlvmIndexArray.GetCount (),
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createGep (
+		opValue, 
+		coord.m_llvmIndexArray,
+		coord.m_llvmIndexArray.getCount (),
 		NULL, 
-		&PtrValue
+		&ptrValue
 		);		
 
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
+	m_module->m_controlFlowMgr.follow (phiBlock);
 
-	m_pModule->m_LlvmIrBuilder.CreatePhi (PtrValue, pNoNullBlock, DstNullValue, pCmpBlock, pResultValue);
-	pResultValue->OverrideType (pDstType);
+	m_module->m_llvmIrBuilder.createPhi (ptrValue, noNullBlock, dstNullValue, cmpBlock, resultValue);
+	resultValue->overrideType (dstType);
 	return true;
 }
 

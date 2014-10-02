@@ -12,281 +12,281 @@ namespace jnc {
 
 //.............................................................................
 
-template <typename TRetVal>
+template <typename RetVal>
 bool
-CallFunction (
-	CFunction* pFunction,
-	TRetVal* pRetVal
+callFunction (
+	Function* function,
+	RetVal* retVal
 	)
 {
 	typedef
-	TRetVal
+	RetVal
 	FFunction ();
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		*pRetVal = pf ();
+		*retVal = pf ();
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <
-	typename TRetVal,
-	typename TArg
+	typename RetVal,
+	typename Arg
 	>
 bool
-CallFunction (
-	CFunction* pFunction,
-	TRetVal* pRetVal,
-	TArg Arg
+callFunction (
+	Function* function,
+	RetVal* retVal,
+	Arg arg
 	)
 {
 	typedef
-	TRetVal
-	FFunction (TArg);
+	RetVal
+	FFunction (Arg);
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		*pRetVal = pf (Arg);
+		*retVal = pf (arg);
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <
-	typename TRetVal,
-	typename TArg1,
-	typename TArg2
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
 	>
 bool
-CallFunction (
-	CFunction* pFunction,
-	TRetVal* pRetVal,
-	TArg1 Arg1,
-	TArg2 Arg2
+callFunction (
+	Function* function,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2
 	)
 {
 	typedef
-	TRetVal
+	RetVal
 	FFunction (
-		TArg1,
-		TArg2
+		Arg1,
+		Arg2
 		);
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		*pRetVal = pf (Arg1, Arg2);
+		*retVal = pf (arg1, arg2);
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <
-	typename TRetVal,
-	typename TArg1,
-	typename TArg2,
-	typename TArg3
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
 	>
 bool
-CallFunction (
-	CFunction* pFunction,
-	TRetVal* pRetVal,
-	TArg1 Arg1,
-	TArg2 Arg2,
-	TArg3 Arg3
+callFunction (
+	Function* function,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
 	)
 {
 	typedef
-	TRetVal
+	RetVal
 	FFunction (
-		TArg1,
-		TArg2,
-		TArg3
+		Arg1,
+		Arg2,
+		Arg3
 		);
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		*pRetVal = pf (Arg1, Arg2, Arg3);
+		*retVal = pf (arg1, arg2, arg3);
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <
-	typename TRetVal,
-	typename TArg1,
-	typename TArg2,
-	typename TArg3,
-	typename TArg4
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
 	>
 bool
-CallFunction (
-	CFunction* pFunction,
-	TRetVal* pRetVal,
-	TArg1 Arg1,
-	TArg2 Arg2,
-	TArg3 Arg3,
-	TArg3 Arg4
+callFunction (
+	Function* function,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg3 arg4
 	)
 {
 	typedef
-	TRetVal
+	RetVal
 	FFunction (
-		TArg1,
-		TArg2,
-		TArg3,
-		TArg4
+		Arg1,
+		Arg2,
+		Arg3,
+		Arg4
 		);
 
-	FFunction* pf = (FFunction*) pFunction->GetMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		*pRetVal = pf (Arg1, Arg2, Arg3, Arg4);
+		*retVal = pf (arg1, arg2, arg3, arg4);
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetError (Error);
-		Result = false;
+		err::setError (error);
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 //.............................................................................
 
 inline
 bool
-CallVoidFunction (CFunction* pFunction)
+callVoidFunction (Function* function)
 {
-	int RetVal;
-	return CallFunction <int> (pFunction, &RetVal);
+	int retVal;
+	return callFunction <int> (function, &retVal);
 }
 
-template <typename TArg>
+template <typename Arg>
 bool
-CallVoidFunction (
-	CFunction* pFunction,
-	TArg Arg
+callVoidFunction (
+	Function* function,
+	Arg arg
 	)
 {
-	int RetVal;
-	return CallFunction <int, TArg> (pFunction, &RetVal, Arg);
-}
-
-template <
-	typename TArg1,
-	typename TArg2
-	>
-bool
-CallVoidFunction (
-	CFunction* pFunction,
-	TArg1 Arg1,
-	TArg2 Arg2
-	)
-{
-	int RetVal;
-	return CallFunction <int, TArg1, TArg2> (pFunction, &RetVal, Arg1, Arg2);
+	int retVal;
+	return callFunction <int, Arg> (function, &retVal, arg);
 }
 
 template <
-	typename TArg1,
-	typename TArg2,
-	typename TArg3
+	typename Arg1,
+	typename Arg2
 	>
 bool
-CallVoidFunction (
-	CFunction* pFunction,
-	TArg1 Arg1,
-	TArg2 Arg2,
-	TArg3 Arg3
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2
 	)
 {
-	int RetVal;
-	return CallFunction <int, TArg1, TArg2, TArg3> (
-		pFunction,
-		&RetVal,
-		Arg1,
-		Arg2,
-		Arg3
+	int retVal;
+	return callFunction <int, Arg1, Arg2> (function, &retVal, arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	int retVal;
+	return callFunction <int, Arg1, Arg2, Arg3> (
+		function,
+		&retVal,
+		arg1,
+		arg2,
+		arg3
 		);
 }
 
 template <
-	typename TArg1,
-	typename TArg2,
-	typename TArg3,
-	typename TArg4
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
 	>
 bool
-CallVoidFunction (
-	CFunction* pFunction,
-	TArg1 Arg1,
-	TArg2 Arg2,
-	TArg3 Arg3,
-	TArg3 Arg4
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg3 arg4
 	)
 {
-	int RetVal;
-	return CallFunction <int, TArg1, TArg2, TArg3, TArg4> (
-		pFunction,
-		&RetVal,
-		Arg1,
-		Arg2,
-		Arg3,
-		Arg4
+	int retVal;
+	return callFunction <int, Arg1, Arg2, Arg3, Arg4> (
+		function,
+		&retVal,
+		arg1,
+		arg2,
+		arg3,
+		arg4
 		);
 }
 

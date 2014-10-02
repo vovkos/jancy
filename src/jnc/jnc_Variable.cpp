@@ -6,43 +6,43 @@ namespace jnc {
 
 //.............................................................................
 
-CVariable::CVariable ()
+Variable::Variable ()
 {
-	m_ItemKind = EModuleItem_Variable;
-	m_pType = NULL;
-	m_pType_i = NULL;
-	m_PtrTypeFlags = 0;
-	m_pScope = NULL;
-	m_pTlsField = NULL;
-	m_pLlvmValue = NULL;
-	m_pLlvmAllocValue = NULL;
+	m_itemKind = ModuleItemKind_Variable;
+	m_type = NULL;
+	m_type_i = NULL;
+	m_ptrTypeFlags = 0;
+	m_scope = NULL;
+	m_tlsField = NULL;
+	m_llvmValue = NULL;
+	m_llvmAllocValue = NULL;
 }
 
-CValue
-CVariable::GetScopeLevelObjHdr ()
+Value
+Variable::getScopeLevelObjHdr ()
 {
-	return m_StorageKind == EStorage_Stack ? 
-		m_pModule->m_NamespaceMgr.GetScopeLevelObjHdr (m_pScope) :
-		m_pModule->m_NamespaceMgr.GetStaticObjHdr ();
+	return m_storageKind == StorageKind_Stack ? 
+		m_module->m_namespaceMgr.getScopeLevelObjHdr (m_scope) :
+		m_module->m_namespaceMgr.getStaticObjHdr ();
 }
 
 bool
-CVariable::CalcLayout ()
+Variable::calcLayout ()
 {
-	if (m_pType_i)
-		m_pType = m_pType_i->GetActualType ();
+	if (m_type_i)
+		m_type = m_type_i->getActualType ();
 
-	return m_pType->EnsureLayout ();
+	return m_type->ensureLayout ();
 }
 
 void
-CVariable::EnsureLlvmValue ()
+Variable::ensureLlvmValue ()
 {
-	if (m_pLlvmValue)
+	if (m_llvmValue)
 		return;
 
-	ASSERT (m_StorageKind == EStorage_Thread);
-	m_pModule->m_VariableMgr.AllocateTlsVariable (this);
+	ASSERT (m_storageKind == StorageKind_Thread);
+	m_module->m_variableMgr.allocateTlsVariable (this);
 }
 
 //.............................................................................

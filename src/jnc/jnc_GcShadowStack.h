@@ -6,68 +6,68 @@ namespace jnc {
 
 //.............................................................................
 
-class CGcShadowStack : public llvm::GCStrategy
+class GcShadowStack : public llvm::GCStrategy
 {
 protected:
-	struct TRoot
+	struct Root
 	{
-		llvm::CallInst* m_pLlvmGcRoot;
-		llvm::AllocaInst* m_pLlvmAlloca;
-		llvm::Constant* m_pLlvmType;
+		llvm::CallInst* m_llvmGcRoot;
+		llvm::AllocaInst* m_llvmAlloca;
+		llvm::Constant* m_llvmType;
 	};
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
 public:
-	CGcShadowStack();
+	GcShadowStack();
 
 	virtual
 	bool 
-	initializeCustomLowering (llvm::Module& LlvmModule);
+	initializeCustomLowering (llvm::Module& llvmModule);
 	
 	virtual
 	bool 
-	performCustomLowering (llvm::Function& LlvmFunction);
+	performCustomLowering (llvm::Function& llvmFunction);
 
 private:
 	size_t
-	CollectRoots (
-		CFunction* pFunction,
-		rtl::CArrayT <TRoot>* pRootArray
+	collectRoots (
+		Function* function,
+		rtl::Array <Root>* rootArray
 		);
 
 	bool
-	GetFrameMap (
-		CFunction* pFunction,
-		TRoot* pRootArray,
-		size_t RootCount,
-		CValue* pResultValue
+	getFrameMap (
+		Function* function,
+		Root* rootArray,
+		size_t rootCount,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
 void
-RegisterGcShadowStack (int);
+registerGcShadowStack (int);
 
 //.............................................................................
 
 // structure backing up shadow stack frame map
 
-struct TGcShadowStackFrameMap
+struct GcShadowStackFrameMap
 {
-	size_t m_Count;
+	size_t m_count;
 
 	// followed by array of type pointers
 };
 
 // structure backing up shadow stack frame
 
-struct TGcShadowStackFrame
+struct GcShadowStackFrame
 {
-	TGcShadowStackFrame* m_pNext;
-	TGcShadowStackFrameMap* m_pMap;
+	GcShadowStackFrame* m_next;
+	GcShadowStackFrameMap* m_map;
 
 	// followed by array of root pointers
 };

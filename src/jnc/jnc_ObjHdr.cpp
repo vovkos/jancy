@@ -8,89 +8,89 @@ namespace jnc {
 //.............................................................................
 
 void 
-TObjHdr::GcMarkData (CRuntime* pRuntime)
+ObjHdr::gcMarkData (Runtime* runtime)
 {
-	m_pRoot->m_Flags |= EObjHdrFlag_GcWeakMark;
+	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
 
-	if (m_Flags & EObjHdrFlag_GcRootsAdded)
+	if (m_flags & ObjHdrFlagKind_GcRootsAdded)
 		return;
 
-	m_Flags |= EObjHdrFlag_GcRootsAdded;
+	m_flags |= ObjHdrFlagKind_GcRootsAdded;
 
-	if (!(m_pType->GetFlags () & ETypeFlag_GcRoot))
+	if (!(m_type->getFlags () & TypeFlagKind_GcRoot))
 		return;
 
-	if (!(m_Flags & EObjHdrFlag_DynamicArray))
+	if (!(m_flags & ObjHdrFlagKind_DynamicArray))
 	{
-		if (m_pType->GetTypeKind () == EType_Class)
-			pRuntime->AddGcRoot (this, m_pType);
+		if (m_type->getTypeKind () == TypeKind_Class)
+			runtime->addGcRoot (this, m_type);
 		else
-			pRuntime->AddGcRoot (this + 1, m_pType);
+			runtime->addGcRoot (this + 1, m_type);
 	}
 	else
 	{
-		ASSERT (m_pType->GetTypeKind () != EType_Class);
+		ASSERT (m_type->getTypeKind () != TypeKind_Class);
 
 		char* p = (char*) (this + 1);		
-		size_t Count = *((size_t*) this - 1);
-		for (size_t i = 0; i < Count; i++)
+		size_t count = *((size_t*) this - 1);
+		for (size_t i = 0; i < count; i++)
 		{
-			pRuntime->AddGcRoot (p, m_pType);
-			p += m_pType->GetSize  ();
+			runtime->addGcRoot (p, m_type);
+			p += m_type->getSize  ();
 		}
 	}
 }
 
 void 
-TObjHdr::GcMarkObject (CRuntime* pRuntime)
+ObjHdr::gcMarkObject (Runtime* runtime)
 {
-	m_pRoot->m_Flags |= EObjHdrFlag_GcWeakMark;
-	m_Flags |= EObjHdrFlag_GcMark;
+	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
+	m_flags |= ObjHdrFlagKind_GcMark;
 
-	if (m_Flags & EObjHdrFlag_GcRootsAdded)
+	if (m_flags & ObjHdrFlagKind_GcRootsAdded)
 		return;
 
-	m_Flags |= EObjHdrFlag_GcRootsAdded;
+	m_flags |= ObjHdrFlagKind_GcRootsAdded;
 
-	if (!(m_pType->GetFlags () & ETypeFlag_GcRoot))
+	if (!(m_type->getFlags () & TypeFlagKind_GcRoot))
 		return;
 
-	pRuntime->AddGcRoot (this, m_pType);
+	runtime->addGcRoot (this, m_type);
 }
 
 void
-TObjHdr::GcWeakMarkClosureObject (CRuntime* pRuntime)
+ObjHdr::gcWeakMarkClosureObject (Runtime* runtime)
 {
-	m_pRoot->m_Flags |= EObjHdrFlag_GcWeakMark;
-	m_Flags |= EObjHdrFlag_GcMark;
+	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
+	m_flags |= ObjHdrFlagKind_GcMark;
 
-	if (m_Flags & (EObjHdrFlag_GcWeakMark_c | EObjHdrFlag_GcRootsAdded))
+	if (m_flags & (ObjHdrFlagKind_GcWeakMark_c | ObjHdrFlagKind_GcRootsAdded))
 		return;
 
-	m_Flags |= EObjHdrFlag_GcWeakMark_c;
+	m_flags |= ObjHdrFlagKind_GcWeakMark_c;
 
-	CClosureClassType* pClosureClassType = (CClosureClassType*) m_pClassType;
-	if (!pClosureClassType->GetWeakMask ())
+	ClosureClassType* closureClassType = (ClosureClassType*) m_classType;
+	if (!closureClassType->getWeakMask ())
 	{
-		GcMarkObject (pRuntime);
+		gcMarkObject (runtime);
 		return;
 	}
 
 	char* p = (char*) (this + 1);
 
-	rtl::CArrayT <CStructField*> GcRootMemberFieldArray = pClosureClassType->GetGcRootMemberFieldArray ();
-	size_t Count = GcRootMemberFieldArray.GetCount ();
+	rtl::Array <StructField*> gcRootMemberFieldArray = closureClassType->getGcRootMemberFieldArray ();
+	size_t count = gcRootMemberFieldArray.getCount ();
 
-	for (size_t i = 0; i < Count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = GcRootMemberFieldArray [i];
-		CType* pType = pField->GetType ();
-		ASSERT (pType->GetFlags () & ETypeFlag_GcRoot);		
+		StructField* field = gcRootMemberFieldArray [i];
+		Type* type = field->getType ();
+		ASSERT (type->getFlags () & TypeFlagKind_GcRoot);		
 
-		if (pField->GetFlags () & EStructFieldFlag_WeakMasked)
-			pType = GetWeakPtrType (pType);
+		if (field->getFlags () & StructFieldFlagKind_WeakMasked)
+			type = getWeakPtrType (type);
 
-		pType->GcMark (pRuntime, p + pField->GetOffset ());
+		type->gcMark (runtime, p + field->getOffset ());
 	}
 }
 

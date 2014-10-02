@@ -11,101 +11,101 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-GetArithmeticOperatorResultType (CType* pOpType);
+Type*
+getArithmeticOperatorResultType (Type* opType);
 
 inline
-CType*
-GetArithmeticOperatorResultType (const CValue& OpValue)
+Type*
+getArithmeticOperatorResultType (const Value& opValue)
 {
-	return GetArithmeticOperatorResultType (OpValue.GetType ());
+	return getArithmeticOperatorResultType (opValue.getType ());
 }
 
 inline 
-CType*
-GetArithmeticOperatorResultType (
-	CType* pOpType1,
-	CType* pOpType2
+Type*
+getArithmeticOperatorResultType (
+	Type* opType1,
+	Type* opType2
 	)
 {
-	return GetArithmeticOperatorResultType (
-		pOpType1->GetTypeKind () > pOpType2->GetTypeKind () ? 
-			pOpType1 : 
-			pOpType2
+	return getArithmeticOperatorResultType (
+		opType1->getTypeKind () > opType2->getTypeKind () ? 
+			opType1 : 
+			opType2
 		);
 }
 
 inline
-CType*
-GetArithmeticOperatorResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+getArithmeticOperatorResultType (
+	const Value& opValue1,
+	const Value& opValue2
 	)
 {
-	return GetArithmeticOperatorResultType (OpValue1.GetType (), OpValue2.GetType ());
+	return getArithmeticOperatorResultType (opValue1.getType (), opValue2.getType ());
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class CUnOpT_Arithmetic: public CUnaryOperator
+class UnOp_Arithmetic: public UnaryOperator
 {
 public:
 	enum
 	{
-		IsIntegerOnly = false
+		isIntegerOnly = false
 	};
 
 public:
 	virtual
-	CType*
-	GetResultType (const CValue& OpValue)
+	Type*
+	getResultType (const Value& opValue)
 	{
-		CType* pType = GetArithmeticOperatorResultType (OpValue);
-		if (!pType || T::IsIntegerOnly && !(pType->GetTypeKindFlags () & ETypeKindFlag_Integer))
+		Type* type = getArithmeticOperatorResultType (opValue);
+		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlagKind_Integer))
 		{
-			SetOperatorError (OpValue);
+			setOperatorError (opValue);
 			return NULL;
 		}
 
-		return pType;
+		return type;
 	}
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue,
+		Value* resultValue
 		)
 	{
-		CType* pType = GetResultType (RawOpValue);
+		Type* type = getResultType (rawOpValue);
 
-		CValue OpValue;
-		bool Result = CastOperator (m_pModule, RawOpValue, pType, &OpValue);
-		if (!Result)
+		Value opValue;
+		bool result = castOperator (m_module, rawOpValue, type, &opValue);
+		if (!result)
 			return false;
 
-		if (OpValue.GetValueKind () == EValue_Const)
+		if (opValue.getValueKind () == ValueKind_Const)
 		{
-			EType TypeKind = pType->GetTypeKind ();
-			switch (TypeKind)
+			TypeKind typeKind = type->getTypeKind ();
+			switch (typeKind)
 			{
-			case EType_Int32:
-			case EType_Int32_u:
-				pResultValue->SetConstInt32 (T::ConstOpInt32 (OpValue.GetInt32 ()), pType);
+			case TypeKind_Int32:
+			case TypeKind_Int32_u:
+				resultValue->setConstInt32 (T::constOpInt32 (opValue.getInt32 ()), type);
 				break;
 
-			case EType_Int64:
-			case EType_Int64_u:
-				pResultValue->SetConstInt32 (T::ConstOpInt32 (OpValue.GetInt32 ()), pType);
+			case TypeKind_Int64:
+			case TypeKind_Int64_u:
+				resultValue->setConstInt32 (T::constOpInt32 (opValue.getInt32 ()), type);
 				break;
 
-			case EType_Float:
-				pResultValue->SetConstFloat (T::ConstOpFp32 (OpValue.GetFloat ()));
+			case TypeKind_Float:
+				resultValue->setConstFloat (T::constOpFp32 (opValue.getFloat ()));
 				break;
 
-			case EType_Double:
-				pResultValue->SetConstDouble (T::ConstOpFp64 (OpValue.GetDouble ()));
+			case TypeKind_Double:
+				resultValue->setConstDouble (T::constOpFp64 (opValue.getDouble ()));
 				break;
 
 			default:
@@ -114,26 +114,26 @@ public:
 		}
 		else
 		{
-			EType TypeKind = pType->GetTypeKind ();
-			switch (TypeKind)
+			TypeKind typeKind = type->getTypeKind ();
+			switch (typeKind)
 			{
-			case EType_Int32:
-			case EType_Int32_u:
-			case EType_Int64:
-			case EType_Int64_u:
-				static_cast <T*> (this)->LlvmOpInt (OpValue, pType, pResultValue);
+			case TypeKind_Int32:
+			case TypeKind_Int32_u:
+			case TypeKind_Int64:
+			case TypeKind_Int64_u:
+				static_cast <T*> (this)->llvmOpInt (opValue, type, resultValue);
 				break;
 
-			case EType_Float:
-			case EType_Double:
-				static_cast <T*> (this)->LlvmOpFp (OpValue, pType, pResultValue);
+			case TypeKind_Float:
+			case TypeKind_Double:
+				static_cast <T*> (this)->llvmOpFp (opValue, type, resultValue);
 				break;
 
 			default:
 				ASSERT (false);
 			}
 
-			if (!Result)
+			if (!result)
 				return false;
 		}
 
@@ -144,34 +144,34 @@ public:
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class CUnOpT_IntegerOnly: public CUnOpT_Arithmetic <T>
+class UnOp_IntegerOnly: public UnOp_Arithmetic <T>
 {
 public:
 	enum
 	{
-		IsIntegerOnly = true
+		isIntegerOnly = true
 	};
 
 public:
 	static
 	float
-	ConstOpFp32 (float OpValue)
+	constOpFp32 (float opValue)
 	{
 		return 0;
 	}
 
 	static
 	double
-	ConstOpFp64 (double OpValue)
+	constOpFp64 (double opValue)
 	{
 		return 0;
 	}
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		)
 	{
 		ASSERT (false);
@@ -181,149 +181,149 @@ public:
 
 //.............................................................................
 
-class CUnOp_Plus: public CUnOpT_Arithmetic <CUnOp_Plus>
+class UnOp_Plus: public UnOp_Arithmetic <UnOp_Plus>
 {
 public:
-	CUnOp_Plus ()
+	UnOp_Plus ()
 	{
-		m_OpKind = EUnOp_Plus;
+		m_opKind = UnOpKind_Plus;
 	}
 
 	static
 	int32_t
-	ConstOpInt32 (int32_t OpValue)
+	constOpInt32 (int32_t opValue)
 	{
-		return +OpValue;
+		return +opValue;
 	}
 
 	static
 	int64_t
-	ConstOpInt64 (int64_t OpValue)
+	constOpInt64 (int64_t opValue)
 	{
-		return +OpValue;
+		return +opValue;
 	}
 
 	static
 	float
-	ConstOpFp32 (float OpValue)
+	constOpFp32 (float opValue)
 	{
-		return +OpValue;
+		return +opValue;
 	}
 
 	static
 	double
-	ConstOpFp64 (double OpValue)
+	constOpFp64 (double opValue)
 	{
-		return +OpValue;
+		return +opValue;
 	}
 
 	static
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpInt (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		)
 	{
-		*pResultValue = OpValue;
-		return pResultValue->GetLlvmValue ();
+		*resultValue = opValue;
+		return resultValue->getLlvmValue ();
 	}
 
 	static
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		)
 	{
-		*pResultValue = OpValue;
-		return pResultValue->GetLlvmValue ();
+		*resultValue = opValue;
+		return resultValue->getLlvmValue ();
 	}
 };
 
 //.............................................................................
 
-class CUnOp_Minus: public CUnOpT_Arithmetic <CUnOp_Minus>
+class UnOp_Minus: public UnOp_Arithmetic <UnOp_Minus>
 {
 public:
-	CUnOp_Minus ()
+	UnOp_Minus ()
 	{
-		m_OpKind = EUnOp_Minus;
+		m_opKind = UnOpKind_Minus;
 	}
 
 	static
 	int32_t
-	ConstOpInt32 (int32_t OpValue)
+	constOpInt32 (int32_t opValue)
 	{
-		return -OpValue;
+		return -opValue;
 	}
 
 	static
 	int64_t
-	ConstOpInt64 (int64_t OpValue)
+	constOpInt64 (int64_t opValue)
 	{
-		return -OpValue;
+		return -opValue;
 	}
 
 	static
 	float
-	ConstOpFp32 (float OpValue)
+	constOpFp32 (float opValue)
 	{
-		return -OpValue;
+		return -opValue;
 	}
 
 	static
 	double
-	ConstOpFp64 (double OpValue)
+	constOpFp64 (double opValue)
 	{
-		return -OpValue;
+		return -opValue;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpInt (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		);
 
 	llvm::Value*
-	LlvmOpFp (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpFp (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CUnOp_BwNot: public CUnOpT_IntegerOnly <CUnOp_BwNot>
+class UnOp_BwNot: public UnOp_IntegerOnly <UnOp_BwNot>
 {
 public:
-	CUnOp_BwNot ()
+	UnOp_BwNot ()
 	{
-		m_OpKind = EUnOp_BwNot;
+		m_opKind = UnOpKind_BwNot;
 	};
 
 	static
 	int32_t
-	ConstOpInt32 (int32_t OpValue)
+	constOpInt32 (int32_t opValue)
 	{
-		return ~OpValue;
+		return ~opValue;
 	}
 
 	static
 	int64_t
-	ConstOpInt64 (int64_t OpValue)
+	constOpInt64 (int64_t opValue)
 	{
-		return ~OpValue;
+		return ~opValue;
 	}
 
 	llvm::Value*
-	LlvmOpInt (
-		const CValue& OpValue,
-		CType* pResultType,
-		CValue* pResultValue
+	llvmOpInt (
+		const Value& opValue,
+		Type* resultType,
+		Value* resultValue
 		);
 
 };

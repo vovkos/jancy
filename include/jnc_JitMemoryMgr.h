@@ -9,31 +9,31 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-class CJitMemoryMgr: public llvm::SectionMemoryManager
+class JitMemoryMgr: public llvm::SectionMemoryManager
 {
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
 public:
-	CJitMemoryMgr (CModule* pModule)
+	JitMemoryMgr (Module* module)
 	{
-		m_pModule = pModule;
+		m_module = module;
 	}
 
 	virtual
 	void*
 	getPointerToNamedFunction (
-		const std::string &Name,
-		bool AbortOnFailure
+		const std::string &name,
+		bool abortOnFailure
 		);
 
 	virtual
 	uint64_t
-	getSymbolAddress (const std::string &Name);
+	getSymbolAddress (const std::string &name);
 };
 
 //.............................................................................

@@ -5,42 +5,42 @@ namespace jnc {
 
 //.............................................................................
 
-CBitFieldType::CBitFieldType ()
+BitFieldType::BitFieldType ()
 {
-	m_TypeKind = EType_BitField;
-	m_Flags = ETypeFlag_Pod;
-	m_pBaseType = NULL;
-	m_pBaseType_i = NULL;
-	m_BitOffset = 0;
-	m_BitCount = 0;
+	m_typeKind = TypeKind_BitField;
+	m_flags = TypeFlagKind_Pod;
+	m_baseType = NULL;
+	m_baseType_i = NULL;
+	m_bitOffset = 0;
+	m_bitCount = 0;
 }
 
 void
-CBitFieldType::PrepareTypeString ()
+BitFieldType::prepareTypeString ()
 {
-	m_TypeString.Format (
+	m_typeString.format (
 		"%s:%d:%d",
-		m_pBaseType->GetTypeString ().cc (), // thanks a lot gcc
-		m_BitOffset,
-		m_BitOffset + m_BitCount
+		m_baseType->getTypeString ().cc (), // thanks a lot gcc
+		m_bitOffset,
+		m_bitOffset + m_bitCount
 		);
 }
 
 bool
-CBitFieldType::CalcLayout ()
+BitFieldType::calcLayout ()
 {
-	if (m_pBaseType_i)
-		m_pBaseType = m_pBaseType_i->GetActualType ();
+	if (m_baseType_i)
+		m_baseType = m_baseType_i->getActualType ();
 
-	EType TypeKind = m_pBaseType->GetTypeKind ();
-	if (TypeKind < EType_Int8 || TypeKind > EType_Int64_u)
+	TypeKind typeKind = m_baseType->getTypeKind ();
+	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_u)
 	{
-		err::SetFormatStringError ("bit field can only be used with little-endian integer types");
+		err::setFormatStringError ("bit field can only be used with little-endian integer types");
 		return NULL;
 	}
 
-	m_Size = m_pBaseType->GetSize ();
-	m_AlignFactor = m_pBaseType->GetAlignFactor ();
+	m_size = m_baseType->getSize ();
+	m_alignFactor = m_baseType->getAlignFactor ();
 	return true;
 }
 

@@ -7,9 +7,9 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetUnOpKindString (EUnOp OpKind)
+getUnOpKindString (UnOpKind opKind)
 {
-	static const char* StringTable [EUnOp__Count] = 
+	static const char* stringTable [UnOpKind__Count] = 
 	{
 		"undefined-unary-operator",  // EUnOp_Undefined = 0,
 		"+",                         // EUnOp_Plus,
@@ -25,33 +25,33 @@ GetUnOpKindString (EUnOp OpKind)
 		"->",                        // EUnOp_Ptr,
 	};
 
-	return (size_t) OpKind < EUnOp__Count ? 
-		StringTable [OpKind] : 
-		StringTable [EUnOp_Undefined];
+	return (size_t) opKind < UnOpKind__Count ? 
+		stringTable [opKind] : 
+		stringTable [UnOpKind_Undefined];
 }
 
 //.............................................................................
 
-CUnaryOperator::CUnaryOperator ()
+UnaryOperator::UnaryOperator ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_OpKind = EUnOp_Undefined;
-	m_OpFlags = 0;
+	m_opKind = UnOpKind_Undefined;
+	m_opFlags = 0;
 }
 
 bool
-CUnaryOperator::GetResultType (
-	const CValue& OpValue,
-	CValue* pResultValue
+UnaryOperator::getResultType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pType = GetResultType (OpValue);
-	if (!pType)
+	Type* type = getResultType (opValue);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 

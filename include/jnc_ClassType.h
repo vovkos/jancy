@@ -13,378 +13,378 @@
 
 namespace jnc {
 
-class CClassPtrType;
-struct TClassPtrTypeTuple;
-struct TObjHdr;
-struct TIfaceHdr;
+class ClassPtrType;
+struct ClassPtrTypeTuple;
+struct ObjHdr;
+struct IfaceHdr;
 
 //.............................................................................
 
-enum EClassType
+enum ClassTypeKind
 {
-	EClassType_Normal = 0,
-	EClassType_StdObject, // EStdType_Object
-	EClassType_Box,
-	EClassType_Multicast,
-	EClassType_McSnapshot,
-	EClassType_Reactor,
-	EClassType_ReactorIface,
-	EClassType_FunctionClosure,
-	EClassType_PropertyClosure,
-	EClassType_DataClosure,
+	ClassTypeKind_Normal = 0,
+	ClassTypeKind_StdObject, // EStdType_Object
+	ClassTypeKind_Box,
+	ClassTypeKind_Multicast,
+	ClassTypeKind_McSnapshot,
+	ClassTypeKind_Reactor,
+	ClassTypeKind_ReactorIface,
+	ClassTypeKind_FunctionClosure,
+	ClassTypeKind_PropertyClosure,
+	ClassTypeKind_DataClosure,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EClassTypeFlag
+enum ClassTypeFlagKind
 {
-	EClassTypeFlag_Abstract = 0x010000,
-	EClassTypeFlag_Opaque   = 0x020000,
+	ClassTypeFlagKind_Abstract = 0x010000,
+	ClassTypeFlagKind_Opaque   = 0x020000,
 };
 
 //.............................................................................
 
-enum EClassPtrType
+enum ClassPtrTypeKind
 {
-	EClassPtrType_Normal = 0,
-	EClassPtrType_Weak,
-	EClassPtrType__Count,
+	ClassPtrTypeKind_Normal = 0,
+	ClassPtrTypeKind_Weak,
+	ClassPtrTypeKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetClassPtrTypeKindString (EClassPtrType PtrTypeKind);
+getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind);
 
 //............................................................................
 
-class CClassType: public CDerivableType
+class ClassType: public DerivableType
 {
-	friend class CTypeMgr;
-	friend class CParser;
-	friend class CProperty;
+	friend class TypeMgr;
+	friend class Parser;
+	friend class Property;
 
 protected:
-	EClassType m_ClassTypeKind;
+	ClassTypeKind m_classTypeKind;
 
-	CStructType* m_pIfaceStructType;
-	CStructType* m_pClassStructType;
+	StructType* m_ifaceStructType;
+	StructType* m_classStructType;
 
-	CFunction* m_pPrimer;
-	CFunction* m_pDestructor;
-	CFunction* m_pOperatorNew;
+	Function* m_primer;
+	Function* m_destructor;
+	Function* m_operatorNew;
 
 	// prime arrays
 
-	rtl::CArrayT <CBaseTypeSlot*> m_BaseTypePrimeArray;
-	rtl::CArrayT <CStructField*> m_ClassMemberFieldArray;
+	rtl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
+	rtl::Array <StructField*> m_classMemberFieldArray;
 
 	// destruct arrays
 
-	rtl::CArrayT <CClassType*> m_BaseTypeDestructArray;
-	rtl::CArrayT <CStructField*> m_MemberFieldDestructArray;
-	rtl::CArrayT <CProperty*> m_MemberPropertyDestructArray;
+	rtl::Array <ClassType*> m_baseTypeDestructArray;
+	rtl::Array <StructField*> m_memberFieldDestructArray;
+	rtl::Array <Property*> m_memberPropertyDestructArray;
 
 	// vtable
 
-	rtl::CArrayT <CFunction*> m_VirtualMethodArray;
-	rtl::CArrayT <CFunction*> m_OverrideMethodArray;
-	rtl::CArrayT <CProperty*> m_VirtualPropertyArray;
+	rtl::Array <Function*> m_virtualMethodArray;
+	rtl::Array <Function*> m_overrideMethodArray;
+	rtl::Array <Property*> m_virtualPropertyArray;
 
-	CStructType* m_pVTableStructType;
-	rtl::CArrayT <CFunction*> m_VTable;
-	CValue m_VTablePtrValue;
+	StructType* m_pVTableStructType;
+	rtl::Array <Function*> m_VTable;
+	Value m_VTablePtrValue;
 
-	TClassPtrTypeTuple* m_pClassPtrTypeTuple;
+	ClassPtrTypeTuple* m_classPtrTypeTuple;
 
 public:
-	CClassType ();
+	ClassType ();
 
 	bool
-	IsCreatable ()
+	isCreatable ()
 	{
 		return
-			m_ClassTypeKind != EClassType_StdObject &&
-			!(m_Flags & (EClassTypeFlag_Abstract | EClassTypeFlag_Opaque));
+			m_classTypeKind != ClassTypeKind_StdObject &&
+			!(m_flags & (ClassTypeFlagKind_Abstract | ClassTypeFlagKind_Opaque));
 	}
 
-	EClassType
-	GetClassTypeKind ()
+	ClassTypeKind
+	getClassTypeKind ()
 	{
-		return m_ClassTypeKind;
+		return m_classTypeKind;
 	}
 
-	CStructType*
-	GetIfaceStructType ()
+	StructType*
+	getIfaceStructType ()
 	{
-		ASSERT (m_pIfaceStructType);
-		return m_pIfaceStructType;
+		ASSERT (m_ifaceStructType);
+		return m_ifaceStructType;
 	}
 
-	CStructType*
-	GetClassStructType ()
+	StructType*
+	getClassStructType ()
 	{
-		ASSERT (m_pClassStructType);
-		return m_pClassStructType;
+		ASSERT (m_classStructType);
+		return m_classStructType;
 	}
 
-	CClassPtrType*
-	GetClassPtrType (
-		CNamespace* pAnchorNamespace,
-		EType TypeKind,
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		Namespace* anchorNamespace,
+		TypeKind typeKind,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CClassPtrType*
-	GetClassPtrType (
-		EType TypeKind,
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		TypeKind typeKind,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetClassPtrType (NULL, TypeKind, PtrTypeKind, Flags);
+		return getClassPtrType (NULL, typeKind, ptrTypeKind, flags);
 	}
 
-	CClassPtrType*
-	GetClassPtrType (
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetClassPtrType (EType_ClassPtr, PtrTypeKind, Flags);
+		return getClassPtrType (TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
 	virtual
-	CType*
-	GetThisArgType (uint_t PtrTypeFlags)
+	Type*
+	getThisArgType (uint_t ptrTypeFlags)
 	{
-		return (CType*) GetClassPtrType (EClassPtrType_Normal, PtrTypeFlags);
+		return (Type*) getClassPtrType (ClassPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
-	CFunction*
-	GetPrimer ()
+	Function*
+	getPrimer ()
 	{
-		return m_pPrimer;
+		return m_primer;
 	}
 
-	CFunction*
-	GetDestructor ()
+	Function*
+	getDestructor ()
 	{
-		return m_pDestructor;
+		return m_destructor;
 	}
 
-	CFunction*
-	GetOperatorNew ()
+	Function*
+	getOperatorNew ()
 	{
-		return m_pOperatorNew;
+		return m_operatorNew;
 	}
 
-	rtl::CConstListT <CStructField>
-	GetFieldList ()
+	rtl::ConstList <StructField>
+	getFieldList ()
 	{
-		return m_pIfaceStructType->GetFieldList ();
+		return m_ifaceStructType->getFieldList ();
 	}
 
 	virtual
-	CStructField*
-	GetFieldByIndex (size_t Index);
-
-	virtual
-	bool
-	AddMethod (CFunction* pFunction);
+	StructField*
+	getFieldByIndex (size_t index);
 
 	virtual
 	bool
-	AddProperty (CProperty* pProperty);
+	addMethod (Function* function);
+
+	virtual
+	bool
+	addProperty (Property* prop);
 
 	bool
-	HasVTable ()
+	hasVTable ()
 	{
-		return !m_VTable.IsEmpty ();
+		return !m_VTable.isEmpty ();
 	}
 
-	rtl::CArrayT <CBaseTypeSlot*>
-	GetBaseTypePrimeArray ()
+	rtl::Array <BaseTypeSlot*>
+	getBaseTypePrimeArray ()
 	{
-		return m_BaseTypePrimeArray;
+		return m_baseTypePrimeArray;
 	}
 
-	rtl::CArrayT <CStructField*>
-	GetClassMemberFieldArray ()
+	rtl::Array <StructField*>
+	getClassMemberFieldArray ()
 	{
-		return m_ClassMemberFieldArray;
+		return m_classMemberFieldArray;
 	}
 
-	rtl::CArrayT <CFunction*>
-	GetVirtualMethodArray ()
+	rtl::Array <Function*>
+	getVirtualMethodArray ()
 	{
-		return m_VirtualMethodArray;
+		return m_virtualMethodArray;
 	}
 
-	rtl::CArrayT <CProperty*>
-	GetVirtualPropertyArray ()
+	rtl::Array <Property*>
+	getVirtualPropertyArray ()
 	{
-		return m_VirtualPropertyArray;
+		return m_virtualPropertyArray;
 	}
 
-	CStructType*
-	GetVTableStructType ()
+	StructType*
+	getVTableStructType ()
 	{
 		ASSERT (m_pVTableStructType);
 		return m_pVTableStructType;
 	}
 
-	CValue
-	GetVTablePtrValue ()
+	Value
+	getVTablePtrValue ()
 	{
 		return m_VTablePtrValue;
 	}
 
 	virtual
 	bool
-	Compile ();
+	compile ();
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 	bool
-	CallBaseTypeDestructors (const CValue& ThisValue);
+	callBaseTypeDestructors (const Value& thisValue);
 
 	bool
-	CallMemberFieldDestructors (const CValue& ThisValue);
+	callMemberFieldDestructors (const Value& thisValue);
 
 	bool
-	CallMemberPropertyDestructors (const CValue& ThisValue);
+	callMemberPropertyDestructors (const Value& thisValue);
 
 protected:
 	void
-	EnumGcRootsImpl (
-		CRuntime* pRuntime,
-		TIfaceHdr* pInterface
+	enumGcRootsImpl (
+		Runtime* runtime,
+		IfaceHdr* interface
 		);
 
 	virtual
-	CStructField*
-	CreateFieldImpl (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createFieldImpl (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
 	virtual
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format ("class %s", m_Tag.cc ());
+		m_typeString.format ("class %s", m_tag.cc ());
 	}
 
 	virtual
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
-		m_pLlvmType = GetClassStructType ()->GetLlvmType ();
+		m_llvmType = getClassStructType ()->getLlvmType ();
 	}
 
 	virtual
 	void
-	PrepareLlvmDiType ()
+	prepareLlvmDiType ()
 	{
-		m_LlvmDiType = GetClassStructType ()->GetLlvmDiType ();
+		m_llvmDiType = getClassStructType ()->getLlvmDiType ();
 	}
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	void
-	AddVirtualFunction (CFunction* pFunction);
+	addVirtualFunction (Function* function);
 
 	bool
-	OverrideVirtualFunction (CFunction* pFunction);
+	overrideVirtualFunction (Function* function);
 
 	void
-	CreateVTablePtr ();
+	createVTablePtr ();
 
 	void
-	CreatePrimer ();
+	createPrimer ();
 
 	void
-	PrimeObject (
-		CClassType* pClassType,
-		const CValue& OpValue,
-		const CValue& ScopeLevelValue,
-		const CValue& RootValue,
-		const CValue& FlagsValue
+	primeObject (
+		ClassType* classType,
+		const Value& opValue,
+		const Value& scopeLevelValue,
+		const Value& rootValue,
+		const Value& flagsValue
 		);
 
 	void
-	PrimeInterface (
-		CClassType* pClassType,
-		const CValue& OpValue,
-		const CValue& VTableValue,
-		const CValue& ObjectValue,
-		const CValue& ScopeLevelValue,
-		const CValue& RootValue,
-		const CValue& FlagsValue
+	primeInterface (
+		ClassType* classType,
+		const Value& opValue,
+		const Value& VTableValue,
+		const Value& objectValue,
+		const Value& scopeLevelValue,
+		const Value& rootValue,
+		const Value& flagsValue
 		);
 
 	bool
-	CompileDefaultPreConstructor ();
+	compileDefaultPreConstructor ();
 
 	bool
-	CompileDefaultDestructor ();
+	compileDefaultDestructor ();
 
 	bool
-	CompilePrimer ();
+	compilePrimer ();
 };
 
 //.............................................................................
 
 inline
 bool
-IsClassType (
-	CType* pType,
-	EClassType ClassTypeKind
+isClassType (
+	Type* type,
+	ClassTypeKind classTypeKind
 	)
 {
 	return
-		pType->GetTypeKind () == EType_Class &&
-		((CClassType*) pType)->GetClassTypeKind () == ClassTypeKind;
+		type->getTypeKind () == TypeKind_Class &&
+		((ClassType*) type)->getClassTypeKind () == classTypeKind;
 }
 
 inline
 bool
-IsOpaqueClassType (CType* pType)
+isOpaqueClassType (Type* type)
 {
 	return
-		pType->GetTypeKind () == EType_Class &&
-		(pType->GetFlags () & EClassTypeFlag_Opaque);
+		type->getTypeKind () == TypeKind_Class &&
+		(type->getFlags () & ClassTypeFlagKind_Opaque);
 }
 
 //.............................................................................
 
 // header of class interface
 
-struct TIfaceHdr
+struct IfaceHdr
 {
 	void* m_pVTable;
-	TObjHdr* m_pObject; // back pointer to master header
+	ObjHdr* m_object; // back pointer to master header
 
 	// followed by parents, then by interface data fields
 };
 
-// TIfaceHdrT is a simple trick for allowing multiple inheritance in implementation classes
+// TIfaceHdrTT is a simple trick for allowing multiple inheritance in implementation classes
 
 template <typename T>
-struct TIfaceHdrT: TIfaceHdr
+struct IfaceHdrT: IfaceHdr
 {
 }; 
 
@@ -393,8 +393,8 @@ struct TIfaceHdrT: TIfaceHdr
 // interface with master header
 
 template <typename T>
-class CObjBoxT:
-	public TObjHdr,
+class ObjBox:
+	public ObjHdr,
 	public T
 {
 };
@@ -404,19 +404,19 @@ class CObjBoxT:
 typedef
 void
 FObject_Prime (
-	TObjHdr* pObject,
-	size_t ScopeLevel,
-	TObjHdr* pRoot,
-	uintptr_t Flags
+	ObjHdr* object,
+	size_t scopeLevel,
+	ObjHdr* root,
+	uintptr_t flags
 	);
 
 typedef
 void
-FObject_Construct (TIfaceHdr* pInterface);
+FObject_Construct (IfaceHdr* interface);
 
 typedef
 void
-FObject_Destruct (TIfaceHdr* pInterface);
+FObject_Destruct (IfaceHdr* interface);
 
 //.............................................................................
 

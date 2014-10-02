@@ -8,128 +8,128 @@
 
 namespace jnc {
 
-class CArrayType;
-class CDataPtrType;
-class CClassType;
-class CClassPtrType;
-class CFunctionType;
-class CFunctionPtrType;
-class CPropertyType;
-class CPropertyPtrType;
-class CReactorClassType;
-class CImportType;
-class CImportPtrType;
+class ArrayType;
+class DataPtrType;
+class ClassType;
+class ClassPtrType;
+class FunctionType;
+class FunctionPtrType;
+class PropertyType;
+class PropertyPtrType;
+class ReactorClassType;
+class ImportType;
+class ImportPtrType;
 
 //.............................................................................
 
-class CDeclTypeCalc: protected CTypeModifiers
+class DeclTypeCalc: protected TypeModifiers
 {
 protected:
-	CModule* m_pModule;
-	rtl::CIteratorT <CDeclSuffix> m_Suffix;
+	Module* m_module;
+	rtl::Iterator <DeclSuffix> m_suffix;
 
 public:
-	CDeclTypeCalc ()
+	DeclTypeCalc ()
 	{
-		m_pModule = NULL;
+		m_module = NULL;
 	}
 
-	CType*
-	CalcType (
-		CDeclarator* pDeclarator,
-		CValue* pElementCountValue,
-		uint_t* pFlags
+	Type*
+	calcType (
+		Declarator* declarator,
+		Value* elementCountValue,
+		uint_t* flags
 		)
 	{
-		return CalcType (
-			pDeclarator->GetBaseType (),
-			pDeclarator,
-			pDeclarator->GetPointerPrefixList (),
-			pDeclarator->GetSuffixList (),
-			pElementCountValue,
-			pFlags
+		return calcType (
+			declarator->getBaseType (),
+			declarator,
+			declarator->getPointerPrefixList (),
+			declarator->getSuffixList (),
+			elementCountValue,
+			flags
 			);
 	}
 
-	CType*
-	CalcType (
-		CType* pBaseType,
-		CTypeModifiers* pTypeModifiers,
-		const rtl::CConstListT <CDeclPointerPrefix>& PointerPrefixList,
-		const rtl::CConstListT <CDeclSuffix>& SuffixList,
-		CValue* pElementCountValue,
-		uint_t* pFlags
+	Type*
+	calcType (
+		Type* baseType,
+		TypeModifiers* typeModifiers,
+		const rtl::ConstList <DeclPointerPrefix>& pointerPrefixList,
+		const rtl::ConstList <DeclSuffix>& suffixList,
+		Value* elementCountValue,
+		uint_t* flags
 		);
 
-	CType*
-	CalcPtrType (
-		CType* pType,
-		uint_t TypeModifiers
+	Type*
+	calcPtrType (
+		Type* type,
+		uint_t typeModifiers
 		);
 
-	CType*
-	CalcIntModType (
-		CType* pType,
-		uint_t TypeModifiers
+	Type*
+	calcIntModType (
+		Type* type,
+		uint_t typeModifiers
 		);
 
-	CFunctionType*
-	CalcPropertyGetterType (CDeclarator* pDeclarator);
+	FunctionType*
+	calcPropertyGetterType (Declarator* declarator);
 
 protected:
 	bool
-	CheckUnusedModifiers ();
+	checkUnusedModifiers ();
 
 	bool
-	GetPtrTypeFlags (
-		CType* pType,
-		uint_t* pFlags
+	getPtrTypeFlags (
+		Type* type,
+		uint_t* flags
 		);
 
 	uint_t
-	GetPropertyFlags ();
+	getPropertyFlags ();
 
-	CType*
-	GetIntegerType (CType* pType);
+	Type*
+	getIntegerType (Type* type);
 
-	CArrayType*
-	GetArrayType (CType* pElementType);
+	ArrayType*
+	getArrayType (Type* elementType);
 
-	CFunctionType*
-	GetFunctionType (CType* pReturnType);
+	FunctionType*
+	getFunctionType (Type* returnType);
 
-	CPropertyType*
-	GetPropertyType (CType* pReturnType);
+	PropertyType*
+	getPropertyType (Type* returnType);
 
-	CPropertyType*
-	GetBindableDataType (CType* pDataType);
+	PropertyType*
+	getBindableDataType (Type* dataType);
 
-	CClassType*
-	GetReactorType (CType* pReturnType);
+	ClassType*
+	getReactorType (Type* returnType);
 
-	CClassType*
-	GetMulticastType (CType* pLeftType);
+	ClassType*
+	getMulticastType (Type* leftType);
 
-	CDataPtrType*
-	GetDataPtrType (CType* pDataType);
+	DataPtrType*
+	getDataPtrType (Type* dataType);
 
-	CClassPtrType*
-	GetClassPtrType (CClassType* pClassType);
+	ClassPtrType*
+	getClassPtrType (ClassType* classType);
 
-	CFunctionPtrType*
-	GetFunctionPtrType (CFunctionType* pFunctionType);
+	FunctionPtrType*
+	getFunctionPtrType (FunctionType* functionType);
 
-	CPropertyPtrType*
-	GetPropertyPtrType (CPropertyType* pPropertyType);
+	PropertyPtrType*
+	getPropertyPtrType (PropertyType* propertyType);
 
-	CImportPtrType*
-	GetImportPtrType (CNamedImportType* pImportType);
+	ImportPtrType*
+	getImportPtrType (NamedImportType* importType);
 
-	CImportIntModType*
-	GetImportIntModType (CNamedImportType* pImportType);
+	ImportIntModType*
+	getImportIntModType (NamedImportType* importType);
 
-	CType*
-	PrepareReturnType (CType* pType);
+	Type*
+	prepareReturnType (Type* type);
 };
 
 //.............................................................................

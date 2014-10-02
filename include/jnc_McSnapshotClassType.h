@@ -11,96 +11,96 @@ namespace jnc {
 
 //.............................................................................
 
-enum EMcSnapshotField
+enum McSnapshotFieldKind
 {
-	EMcSnapshotField_Count,
-	EMcSnapshotField_PtrArray,
+	McSnapshotFieldKind_Count,
+	McSnapshotFieldKind_PtrArray,
 
-	EMcSnapshotField__Count,
+	McSnapshotFieldKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EMcSnapshotMethod
+enum McSnapshotMethodKind
 {
-	EMcSnapshotMethod_Call,
+	McSnapshotMethodKind_Call,
 
-	EMcSnapshotMethod__Count,
+	McSnapshotMethodKind__Count,
 };
 
 //.............................................................................
 
-class CMcSnapshotClassType: public CClassType
+class McSnapshotClassType: public ClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CFunctionPtrType* m_pTargetType;
-	CStructField* m_FieldArray [EMcSnapshotField__Count];
-	CFunction* m_MethodArray [EMcSnapshotMethod__Count];
+	FunctionPtrType* m_targetType;
+	StructField* m_fieldArray [McSnapshotFieldKind__Count];
+	Function* m_methodArray [McSnapshotMethodKind__Count];
 
 public:
-	CMcSnapshotClassType ();
+	McSnapshotClassType ();
 
-	CFunctionPtrType* 
-	GetTargetType ()
+	FunctionPtrType* 
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
-	CFunctionType* 
-	GetFunctionType ()
+	FunctionType* 
+	getFunctionType ()
 	{
-		return m_pTargetType->GetTargetType ();
+		return m_targetType->getTargetType ();
 	}
 
-	CStructField* 
-	GetField (EMcSnapshotField Field)
+	StructField* 
+	getField (McSnapshotFieldKind field)
 	{
-		ASSERT (Field < EMcSnapshotField__Count);
-		return m_FieldArray [Field];
+		ASSERT (field < McSnapshotFieldKind__Count);
+		return m_fieldArray [field];
 	}
 
-	CFunction* 
-	GetMethod (EMcSnapshotMethod Method)
+	Function* 
+	getMethod (McSnapshotMethodKind method)
 	{
-		ASSERT (Method < EMcSnapshotMethod__Count);
-		return m_MethodArray [Method];
+		ASSERT (method < McSnapshotMethodKind__Count);
+		return m_methodArray [method];
 	}
 
 	virtual
 	bool
-	Compile ()
+	compile ()
 	{
 		return 
-			CClassType::Compile () &&
-			CompileCallMethod ();
+			ClassType::compile () &&
+			compileCallMethod ();
 	}
 
 	virtual 
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);	
 
 protected:
 	virtual 
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	bool
-	CompileCallMethod ();
+	compileCallMethod ();
 };
 
 //.............................................................................
 
 // multicast snapshot returns function pointer with this closure:
 
-struct TMcSnapshot: TIfaceHdr
+struct McSnapshot: IfaceHdr
 {
-	size_t m_Count;
-	void* m_pPtrArray; // array of function closure or unsafe pointers
+	size_t m_count;
+	void* m_ptrArray; // array of function closure or unsafe pointers
 };
 
 //.............................................................................

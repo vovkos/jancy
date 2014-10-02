@@ -10,96 +10,96 @@ namespace jnc {
 
 //.............................................................................
 
-class CBinOp_Assign: public CBinaryOperator
+class BinOp_Assign: public BinaryOperator
 {
 public:
-	CBinOp_Assign ()
+	BinOp_Assign ()
 	{
-		m_OpKind = EBinOp_Assign;
-		m_OpFlags1 = EOpFlag_KeepRef;
-		m_OpFlags2 = EOpFlag_KeepEnum | EOpFlag_KeepBool;
+		m_opKind = BinOpKind_Assign;
+		m_opFlags1 = OpFlagKind_KeepRef;
+		m_opFlags2 = OpFlagKind_KeepEnum | OpFlagKind_KeepBool;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		)
 	{
-		return OpValue1.GetType ();
+		return opValue1.getType ();
 	}
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	op (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_OpAssign: public CBinaryOperator
+class BinOp_OpAssign: public BinaryOperator
 {
 public:
-	CBinOp_OpAssign ()
+	BinOp_OpAssign ()
 	{
-		m_OpFlags1 = EOpFlag_KeepRef;
-		m_OpFlags2 = EOpFlag_KeepEnum;
+		m_opFlags1 = OpFlagKind_KeepRef;
+		m_opFlags2 = OpFlagKind_KeepEnum;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		)
 	{
-		return OpValue1.GetType ();
+		return opValue1.getType ();
 	}
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	op (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CBinOp_RefAssign: public CBinaryOperator
+class BinOp_RefAssign: public BinaryOperator
 {
 public:
-	CBinOp_RefAssign ()
+	BinOp_RefAssign ()
 	{
-		m_OpKind = EBinOp_RefAssign;
-		m_OpFlags1 = EOpFlag_KeepRef;
+		m_opKind = BinOpKind_RefAssign;
+		m_opFlags1 = OpFlagKind_KeepRef;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		)
 	{
-		err::SetFormatStringError ("'%s' has no overloaded ':=' operator", OpValue1.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().cc ());
 		return NULL;
 	}
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	op (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		)
 	{
-		err::SetFormatStringError ("'%s' has no overloaded ':=' operator", OpValue1.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().cc ());
 		return false;
 	}
 };

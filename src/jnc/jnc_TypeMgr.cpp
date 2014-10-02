@@ -7,178 +7,178 @@ namespace jnc {
 
 //.............................................................................
 
-CTypeMgr::CTypeMgr ()
+TypeMgr::TypeMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	SetupCallConvTable ();
-	SetupAllPrimitiveTypes ();
+	setupCallConvTable ();
+	setupAllPrimitiveTypes ();
 
-	memset (m_StdTypeArray, 0, sizeof (m_StdTypeArray));
-	memset (m_LazyStdTypeArray, 0, sizeof (m_LazyStdTypeArray));
+	memset (m_stdTypeArray, 0, sizeof (m_stdTypeArray));
+	memset (m_lazyStdTypeArray, 0, sizeof (m_lazyStdTypeArray));
 
-	m_UnnamedEnumTypeCounter = 0;
-	m_UnnamedStructTypeCounter = 0;
-	m_UnnamedUnionTypeCounter = 0;
-	m_UnnamedClassTypeCounter = 0;
+	m_unnamedEnumTypeCounter = 0;
+	m_unnamedStructTypeCounter = 0;
+	m_unnamedUnionTypeCounter = 0;
+	m_unnamedClassTypeCounter = 0;
 }
 
 void
-CTypeMgr::Clear ()
+TypeMgr::clear ()
 {
-	m_ArrayTypeList.Clear ();
-	m_BitFieldTypeList.Clear ();
-	m_EnumTypeList.Clear ();
-	m_StructTypeList.Clear ();
-	m_UnionTypeList.Clear ();
-	m_ClassTypeList.Clear ();
-	m_FunctionTypeList.Clear ();
-	m_PropertyTypeList.Clear ();
-	m_DataPtrTypeList.Clear ();
-	m_ClassPtrTypeList.Clear ();
-	m_FunctionPtrTypeList.Clear ();
-	m_PropertyPtrTypeList.Clear ();
-	m_NamedImportTypeList.Clear ();
-	m_ImportPtrTypeList.Clear ();
-	m_ImportIntModTypeList.Clear ();
-	m_ReactorClassTypeList.Clear ();
-	m_FunctionClosureClassTypeList.Clear ();
-	m_PropertyClosureClassTypeList.Clear ();
-	m_DataClosureClassTypeList.Clear ();
-	m_MulticastClassTypeList.Clear ();
-	m_McSnapshotClassTypeList.Clear ();
+	m_arrayTypeList.clear ();
+	m_bitFieldTypeList.clear ();
+	m_enumTypeList.clear ();
+	m_structTypeList.clear ();
+	m_unionTypeList.clear ();
+	m_classTypeList.clear ();
+	m_functionTypeList.clear ();
+	m_propertyTypeList.clear ();
+	m_dataPtrTypeList.clear ();
+	m_classPtrTypeList.clear ();
+	m_functionPtrTypeList.clear ();
+	m_propertyPtrTypeList.clear ();
+	m_namedImportTypeList.clear ();
+	m_importPtrTypeList.clear ();
+	m_importIntModTypeList.clear ();
+	m_reactorClassTypeList.clear ();
+	m_functionClosureClassTypeList.clear ();
+	m_propertyClosureClassTypeList.clear ();
+	m_dataClosureClassTypeList.clear ();
+	m_multicastClassTypeList.clear ();
+	m_mcSnapshotClassTypeList.clear ();
 
-	m_SimplePropertyTypeTupleList.Clear ();
-	m_FunctionArgTupleList.Clear ();
-	m_DataPtrTypeTupleList.Clear ();
-	m_ClassPtrTypeTupleList.Clear ();
-	m_FunctionPtrTypeTupleList.Clear ();
-	m_PropertyPtrTypeTupleList.Clear ();
-	m_DualPtrTypeTupleList.Clear ();
+	m_simplePropertyTypeTupleList.clear ();
+	m_functionArgTupleList.clear ();
+	m_dataPtrTypeTupleList.clear ();
+	m_classPtrTypeTupleList.clear ();
+	m_functionPtrTypeTupleList.clear ();
+	m_propertyPtrTypeTupleList.clear ();
+	m_dualPtrTypeTupleList.clear ();
 
-	m_TypedefList.Clear ();
-	m_LazyStdTypeList.Clear ();
-	m_FunctionArgList.Clear ();
+	m_typedefList.clear ();
+	m_lazyStdTypeList.clear ();
+	m_functionArgList.clear ();
 
-	m_TypeMap.Clear ();
-	m_GcShadowStackFrameTypeArray.Clear ();
+	m_typeMap.clear ();
+	m_gcShadowStackFrameTypeArray.clear ();
 
-	SetupAllPrimitiveTypes ();
+	setupAllPrimitiveTypes ();
 
-	memset (m_StdTypeArray, 0, sizeof (m_StdTypeArray));
-	memset (m_LazyStdTypeArray, 0, sizeof (m_LazyStdTypeArray));
+	memset (m_stdTypeArray, 0, sizeof (m_stdTypeArray));
+	memset (m_lazyStdTypeArray, 0, sizeof (m_lazyStdTypeArray));
 
-	m_UnnamedEnumTypeCounter = 0;
-	m_UnnamedStructTypeCounter = 0;
-	m_UnnamedUnionTypeCounter = 0;
-	m_UnnamedClassTypeCounter = 0;
+	m_unnamedEnumTypeCounter = 0;
+	m_unnamedStructTypeCounter = 0;
+	m_unnamedUnionTypeCounter = 0;
+	m_unnamedClassTypeCounter = 0;
 }
 
-CType*
-CTypeMgr::GetStdType (EStdType StdType)
+Type*
+TypeMgr::getStdType (StdTypeKind stdType)
 {
-	ASSERT ((size_t) StdType < EStdType__Count);
-	if (m_StdTypeArray [StdType])
-		return m_StdTypeArray [StdType];
+	ASSERT ((size_t) stdType < StdTypeKind__Count);
+	if (m_stdTypeArray [stdType])
+		return m_stdTypeArray [stdType];
 
-	CType* pType;
+	Type* type;
 
-	switch (StdType)
+	switch (stdType)
 	{
-	case EStdType_BytePtr:
-		pType = GetPrimitiveType (EType_Int8_u)->GetDataPtrType_c ();
+	case StdTypeKind_BytePtr:
+		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
 		break;
 
-	case EStdType_ObjHdr:
-		pType = CreateObjHdrType ();
+	case StdTypeKind_ObjHdr:
+		type = createObjHdrType ();
 		break;
 
-	case EStdType_ObjHdrPtr:
-		pType = GetStdType (EStdType_ObjHdr)->GetDataPtrType_c ();
+	case StdTypeKind_ObjHdrPtr:
+		type = getStdType (StdTypeKind_ObjHdr)->getDataPtrType_c ();
 		break;
 
-	case EStdType_ObjectClass:
-		pType = CreateObjectType ();
+	case StdTypeKind_ObjectClass:
+		type = createObjectType ();
 		break;
 
-	case EStdType_ObjectPtr:
-		pType = ((CClassType*) GetStdType (EStdType_ObjectClass))->GetClassPtrType ();
+	case StdTypeKind_ObjectPtr:
+		type = ((ClassType*) getStdType (StdTypeKind_ObjectClass))->getClassPtrType ();
 		break;
 
-	case EStdType_SimpleFunction:
-		pType = GetFunctionType (GetPrimitiveType (EType_Void), NULL, 0, 0);
+	case StdTypeKind_SimpleFunction:
+		type = getFunctionType (getPrimitiveType (TypeKind_Void), NULL, 0, 0);
 		break;
 
-	case EStdType_SimpleMulticast:
-		pType = GetMulticastType ((CFunctionType*) GetStdType (EStdType_SimpleFunction));
+	case StdTypeKind_SimpleMulticast:
+		type = getMulticastType ((FunctionType*) getStdType (StdTypeKind_SimpleFunction));
 		break;
 
-	case EStdType_SimpleEventPtr:
-		pType = ((CClassType*) GetStdType (EStdType_SimpleMulticast))->GetClassPtrType (EClassPtrType_Normal);
+	case StdTypeKind_SimpleEventPtr:
+		type = ((ClassType*) getStdType (StdTypeKind_SimpleMulticast))->getClassPtrType (ClassPtrTypeKind_Normal);
 		break;
 
-	case EStdType_ReactorBindSite:
-		pType = CreateReactorBindSiteType ();
+	case StdTypeKind_ReactorBindSite:
+		type = createReactorBindSiteType ();
 		break;
 
-	case EStdType_Binder:
-		pType = GetFunctionType (GetStdType (EStdType_SimpleEventPtr), NULL, 0);
+	case StdTypeKind_Binder:
+		type = getFunctionType (getStdType (StdTypeKind_SimpleEventPtr), NULL, 0);
 		break;
 
-	case EStdType_Scheduler:
-		pType = CreateSchedulerType ();
+	case StdTypeKind_Scheduler:
+		type = createSchedulerType ();
 		break;
 
-	case EStdType_SchedulerPtr:
-		pType = ((CClassType*) GetStdType (EStdType_Scheduler))->GetClassPtrType ();
+	case StdTypeKind_SchedulerPtr:
+		type = ((ClassType*) getStdType (StdTypeKind_Scheduler))->getClassPtrType ();
 		break;
 
-	case EStdType_FmtLiteral:
-		pType = CreateFmtLiteralType ();
+	case StdTypeKind_FmtLiteral:
+		type = createFmtLiteralType ();
 		break;
 
-	case EStdType_Guid:
-		pType = CreateGuidType ();
+	case StdTypeKind_Guid:
+		type = createGuidType ();
 		break;
 
-	case EStdType_Error:
-		pType = CreateErrorType ();
+	case StdTypeKind_Error:
+		type = createErrorType ();
 		break;
 
-	case EStdType_Int64Int64:
-		pType = CreatePairType (
+	case StdTypeKind_Int64Int64:
+		type = createPairType (
 			"Int64Int64",
 			"jnc.Int64Int64",
-			&m_PrimitiveTypeArray [EType_Int64],
-			&m_PrimitiveTypeArray [EType_Int64]
+			&m_primitiveTypeArray [TypeKind_Int64],
+			&m_primitiveTypeArray [TypeKind_Int64]
 			);
 		break;
 
-	case EStdType_Fp64Fp64:
-		pType = CreatePairType (
+	case StdTypeKind_Fp64Fp64:
+		type = createPairType (
 			"Fp64Fp64",
 			"jnc.Fp64Fp64",
-			&m_PrimitiveTypeArray [EType_Double],
-			&m_PrimitiveTypeArray [EType_Double]
+			&m_primitiveTypeArray [TypeKind_Double],
+			&m_primitiveTypeArray [TypeKind_Double]
 			);
 		break;
 
-	case EStdType_Int64Fp64:
-		pType = CreatePairType (
+	case StdTypeKind_Int64Fp64:
+		type = createPairType (
 			"Int64Fp64",
 			"jnc.Int64Fp64",
-			&m_PrimitiveTypeArray [EType_Int64],
-			&m_PrimitiveTypeArray [EType_Double]
+			&m_primitiveTypeArray [TypeKind_Int64],
+			&m_primitiveTypeArray [TypeKind_Double]
 			);
 		break;
 
-	case EStdType_Fp64Int64:
-		pType = CreatePairType (
+	case StdTypeKind_Fp64Int64:
+		type = createPairType (
 			"Fp64Int64",
 			"jnc.Fp64Int64",
-			&m_PrimitiveTypeArray [EType_Double],
-			&m_PrimitiveTypeArray [EType_Int64]
+			&m_primitiveTypeArray [TypeKind_Double],
+			&m_primitiveTypeArray [TypeKind_Int64]
 			);
 		break;
 
@@ -187,19 +187,19 @@ CTypeMgr::GetStdType (EStdType StdType)
 		return NULL;
 	}
 
-	m_StdTypeArray [StdType] = pType;
-	return pType;
+	m_stdTypeArray [stdType] = type;
+	return type;
 }
 
-CLazyStdType*
-CTypeMgr::GetLazyStdType (EStdType StdType)
+LazyStdType*
+TypeMgr::getLazyStdType (StdTypeKind stdType)
 {
-	ASSERT ((size_t) StdType < EStdType__Count);
+	ASSERT ((size_t) stdType < StdTypeKind__Count);
 
-	if (m_LazyStdTypeArray [StdType])
-		return m_LazyStdTypeArray [StdType];
+	if (m_lazyStdTypeArray [stdType])
+		return m_lazyStdTypeArray [stdType];
 
-	const char* NameTable [EStdType__Count] =
+	const char* nameTable [StdTypeKind__Count] =
 	{
 		NULL, // EStdType_BytePtr,
 		NULL, // EStdType_ObjHdr,
@@ -218,570 +218,570 @@ CTypeMgr::GetLazyStdType (EStdType StdType)
 		"Error",     // EStdType_Error,
 	};
 
-	const char* pName = NameTable [StdType];
-	ASSERT (pName);
+	const char* name = nameTable [stdType];
+	ASSERT (name);
 
-	CLazyStdType* pType = AXL_MEM_NEW (CLazyStdType);
-	pType->m_pModule = m_pModule;
-	pType->m_Name = pName;
-	pType->m_StdType = StdType;
-	m_LazyStdTypeList.InsertTail (pType);
-	m_LazyStdTypeArray [StdType] = pType;
-	return pType;
+	LazyStdType* type = AXL_MEM_NEW (LazyStdType);
+	type->m_module = m_module;
+	type->m_name = name;
+	type->m_stdType = stdType;
+	m_lazyStdTypeList.insertTail (type);
+	m_lazyStdTypeArray [stdType] = type;
+	return type;
 }
 
 void
-PushImportSrcPosError (CNamedImportType* pImportType)
+pushImportSrcPosError (NamedImportType* importType)
 {
-	err::PushSrcPosError (
-		pImportType->GetParentUnit ()->GetFilePath (),
-		*pImportType->GetPos ()
+	err::pushSrcPosError (
+		importType->getParentUnit ()->getFilePath (),
+		*importType->getPos ()
 		);
 }
 
 bool
-CTypeMgr::ResolveImportTypes ()
+TypeMgr::resolveImportTypes ()
 {
-	char Buffer [256];
-	rtl::CArrayT <CNamedImportType*> SuperImportTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
+	char buffer [256];
+	rtl::Array <NamedImportType*> superImportTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	rtl::CIteratorT <CNamedImportType> ImportType = m_NamedImportTypeList.GetHead ();
-	for (; ImportType; ImportType++)
+	rtl::Iterator <NamedImportType> importTypeIt = m_namedImportTypeList.getHead ();
+	for (; importTypeIt; importTypeIt++)
 	{
-		CNamedImportType* pImportType = *ImportType;
-		CModuleItem* pItem = pImportType->m_pAnchorNamespace->FindItemTraverse (pImportType->m_Name);
-		if (!pItem)
+		NamedImportType* importType = *importTypeIt;
+		ModuleItem* item = importType->m_anchorNamespace->findItemTraverse (importType->m_name);
+		if (!item)
 		{
-			err::SetFormatStringError ("unresolved import '%s'", pImportType->GetTypeString ().cc ());
-			PushImportSrcPosError (pImportType);
+			err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().cc ());
+			pushImportSrcPosError (importType);
 			return false;
 		}
 
-		EModuleItem ItemKind = pItem->GetItemKind ();
-		switch (ItemKind)
+		ModuleItemKind itemKind = item->getItemKind ();
+		switch (itemKind)
 		{
-		case EModuleItem_Type:
-			pImportType->m_pActualType = (CType*) pItem;
+		case ModuleItemKind_Type:
+			importType->m_actualType = (Type*) item;
 			break;
 
-		case EModuleItem_Typedef:
-			pImportType->m_pActualType = ((CTypedef*) pItem)->GetType ();
-			if (pImportType->m_pActualType->GetTypeKind () == EType_NamedImport)
-				SuperImportTypeArray.Append (pImportType);
+		case ModuleItemKind_Typedef:
+			importType->m_actualType = ((Typedef*) item)->getType ();
+			if (importType->m_actualType->getTypeKind () == TypeKind_NamedImport)
+				superImportTypeArray.append (importType);
 			break;
 
 		default:
-			err::SetFormatStringError ("'%s' is not a type", pImportType->GetTypeString ().cc ());
-			PushImportSrcPosError (pImportType);
+			err::setFormatStringError ("'%s' is not a type", importType->getTypeString ().cc ());
+			pushImportSrcPosError (importType);
 			return false;
 		}
 	}
 
 	// eliminate super-imports and detect import loops
 
-	size_t Count = SuperImportTypeArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = superImportTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CNamedImportType* pSuperImportType = SuperImportTypeArray [i];
-		pSuperImportType->m_Flags |= EImportTypeFlag_ImportLoop;
+		NamedImportType* superImportType = superImportTypeArray [i];
+		superImportType->m_flags |= ImportTypeFlagKind_ImportLoop;
 
-		CType* pType = pSuperImportType->m_pActualType;
-		while (pType->m_TypeKind == EType_NamedImport)
+		Type* type = superImportType->m_actualType;
+		while (type->m_typeKind == TypeKind_NamedImport)
 		{
-			CImportType* pImportType = (CImportType*) pType;
-			if (pImportType->m_Flags & EImportTypeFlag_ImportLoop)
+			ImportType* importType = (ImportType*) type;
+			if (importType->m_flags & ImportTypeFlagKind_ImportLoop)
 			{
-				err::SetFormatStringError ("'%s': import loop detected", pImportType->GetTypeString ().cc ());
-				PushImportSrcPosError (pSuperImportType);
+				err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().cc ());
+				pushImportSrcPosError (superImportType);
 				return false;
 			}
 
-			pImportType->m_Flags |= EImportTypeFlag_ImportLoop;
-			pType = pImportType->m_pActualType;
+			importType->m_flags |= ImportTypeFlagKind_ImportLoop;
+			type = importType->m_actualType;
 		}
 
-		CType* pExternType = pType;
-		while (pType->m_TypeKind == EType_NamedImport)
+		Type* externType = type;
+		while (type->m_typeKind == TypeKind_NamedImport)
 		{
-			CImportType* pImportType = (CImportType*) pType;
-			pImportType->m_pActualType = pExternType;
-			pImportType->m_Flags &= ~EImportTypeFlag_ImportLoop;
-			pType = pImportType->m_pActualType;
+			ImportType* importType = (ImportType*) type;
+			importType->m_actualType = externType;
+			importType->m_flags &= ~ImportTypeFlagKind_ImportLoop;
+			type = importType->m_actualType;
 		}
 	}
 
-	rtl::CIteratorT <CImportIntModType> ImportIntModType = m_ImportIntModTypeList.GetHead ();
-	for (; ImportIntModType; ImportIntModType++)
+	rtl::Iterator <ImportIntModType> importIntModType = m_importIntModTypeList.getHead ();
+	for (; importIntModType; importIntModType++)
 	{
-		CImportIntModType* pImportType = *ImportIntModType;
+		ImportIntModType* importType = *importIntModType;
 
-		CDeclTypeCalc TypeCalc;
+		DeclTypeCalc typeCalc;
 
-		CType* pType = TypeCalc.CalcIntModType (
-			pImportType->m_pImportType->m_pActualType,
-			pImportType->m_TypeModifiers
+		Type* type = typeCalc.calcIntModType (
+			importType->m_importType->m_actualType,
+			importType->m_typeModifiers
 			);
 
-		if (!pType)
+		if (!type)
 			return false;
 
-		pImportType->m_pActualType = pType;
+		importType->m_actualType = type;
 	}
 
-	rtl::CIteratorT <CImportPtrType> ImportPtrType = m_ImportPtrTypeList.GetHead ();
-	for (; ImportPtrType; ImportPtrType++)
+	rtl::Iterator <ImportPtrType> importPtrType = m_importPtrTypeList.getHead ();
+	for (; importPtrType; importPtrType++)
 	{
-		CImportPtrType* pImportType = *ImportPtrType;
+		ImportPtrType* importType = *importPtrType;
 
-		CDeclTypeCalc TypeCalc;
+		DeclTypeCalc typeCalc;
 
-		CType* pType = TypeCalc.CalcPtrType (
-			pImportType->m_pTargetType->m_pActualType,
-			pImportType->m_TypeModifiers
+		Type* type = typeCalc.calcPtrType (
+			importType->m_targetType->m_actualType,
+			importType->m_typeModifiers
 			);
 
-		if (!pType)
+		if (!type)
 			return false;
 
-		if (pImportType->GetFlags () & EPtrTypeFlag_Safe)
-			pType = GetCheckedPtrType (pType);
+		if (importType->getFlags () & PtrTypeFlagKind_Safe)
+			type = getCheckedPtrType (type);
 
-		pImportType->m_pActualType = pType;
+		importType->m_actualType = type;
 	}
 
 	return true;
 }
 
 void
-CTypeMgr::UpdateTypeSignature (
-	CType* pType,
-	const rtl::CString& Signature
+TypeMgr::updateTypeSignature (
+	Type* type,
+	const rtl::String& signature
 	)
 {
-	if (pType->m_Signature == Signature)
+	if (type->m_signature == signature)
 		return;
 
-	if (!pType->m_TypeMapIt)
+	if (!type->m_typeMapIt)
 	{
-		pType->m_Signature = Signature;
+		type->m_signature = signature;
 		return;
 	}
 
-	m_TypeMap.Delete (pType->m_TypeMapIt);
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = m_TypeMap.Goto (Signature);
-	pType->m_TypeMapIt->m_Value = pType;
+	m_typeMap.erase (type->m_typeMapIt);
+	type->m_signature = signature;
+	type->m_typeMapIt = m_typeMap.visit (signature);
+	type->m_typeMapIt->m_value = type;
 }
 
-CBitFieldType*
-CTypeMgr::GetBitFieldType (
-	CType* pBaseType,
-	size_t BitOffset,
-	size_t BitCount
+BitFieldType*
+TypeMgr::getBitFieldType (
+	Type* baseType,
+	size_t bitOffset,
+	size_t bitCount
 	)
 {
-	rtl::CString Signature = CBitFieldType::CreateSignature (pBaseType, BitOffset, BitCount);
+	rtl::String signature = BitFieldType::createSignature (baseType, bitOffset, bitCount);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CBitFieldType* pType = (CBitFieldType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		BitFieldType* type = (BitFieldType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CBitFieldType* pType = AXL_MEM_NEW (CBitFieldType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pBaseType = pBaseType;
-	pType->m_BitOffset = BitOffset;
-	pType->m_BitCount = BitCount;
+	BitFieldType* type = AXL_MEM_NEW (BitFieldType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_baseType = baseType;
+	type->m_bitOffset = bitOffset;
+	type->m_bitCount = bitCount;
 
-	m_BitFieldTypeList.InsertTail (pType);
-	It->m_Value = pType;
+	m_bitFieldTypeList.insertTail (type);
+	it->m_value = type;
 
-	if (pBaseType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (baseType->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pType->m_pBaseType_i = (CImportType*) pBaseType;
-		m_pModule->MarkForLayout (pType, true);
+		type->m_baseType_i = (ImportType*) baseType;
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	return pType;
+	return type;
 }
 
-CArrayType*
-CTypeMgr::CreateAutoSizeArrayType (CType* pElementType)
+ArrayType*
+TypeMgr::createAutoSizeArrayType (Type* elementType)
 {
-	CArrayType* pType = AXL_MEM_NEW (CArrayType);
-	pType->m_Flags |= EArrayTypeFlag_AutoSize;
-	pType->m_pModule = m_pModule;
-	pType->m_pElementType = pElementType;
-	m_ArrayTypeList.InsertTail (pType);
+	ArrayType* type = AXL_MEM_NEW (ArrayType);
+	type->m_flags |= ArrayTypeFlagKind_AutoSize;
+	type->m_module = m_module;
+	type->m_elementType = elementType;
+	m_arrayTypeList.insertTail (type);
 
-	if (pElementType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pElementType_i = (CImportType*) pElementType;
+	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_elementType_i = (ImportType*) elementType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
-		m_pModule->MarkForLayout (pType, true); // can't calclayout yet
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
+		m_module->markForLayout (type, true); // can't calclayout yet
 
-	return pType;
+	return type;
 }
 
-CArrayType*
-CTypeMgr::CreateArrayType (
-	CType* pElementType,
-	rtl::CBoxListT <CToken>* pElementCountInitializer
+ArrayType*
+TypeMgr::createArrayType (
+	Type* elementType,
+	rtl::BoxList <Token>* elementCountInitializer
 	)
 {
-	CArrayType* pType = AXL_MEM_NEW (CArrayType);
-	pType->m_pModule = m_pModule;
-	pType->m_pElementType = pElementType;
-	pType->m_ElementCountInitializer.TakeOver (pElementCountInitializer);
-	pType->m_pParentUnit = m_pModule->m_UnitMgr.GetCurrentUnit ();
-	pType->m_pParentNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	m_ArrayTypeList.InsertTail (pType);
+	ArrayType* type = AXL_MEM_NEW (ArrayType);
+	type->m_module = m_module;
+	type->m_elementType = elementType;
+	type->m_elementCountInitializer.takeOver (elementCountInitializer);
+	type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
+	type->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	m_arrayTypeList.insertTail (type);
 
-	if (pElementType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pElementType_i = (CImportType*) pElementType;
+	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_elementType_i = (ImportType*) elementType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
-		m_pModule->MarkForLayout (pType, true);
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	return pType;
+	return type;
 }
 
-CArrayType*
-CTypeMgr::GetArrayType (
-	CType* pElementType,
-	size_t ElementCount
+ArrayType*
+TypeMgr::getArrayType (
+	Type* elementType,
+	size_t elementCount
 	)
 {
-	rtl::CString Signature = CArrayType::CreateSignature (pElementType, ElementCount);
+	rtl::String signature = ArrayType::createSignature (elementType, elementCount);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CArrayType* pType = (CArrayType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		ArrayType* type = (ArrayType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CArrayType* pType = AXL_MEM_NEW (CArrayType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pElementType = pElementType;
-	pType->m_ElementCount = ElementCount;
-	m_ArrayTypeList.InsertTail (pType);
+	ArrayType* type = AXL_MEM_NEW (ArrayType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_elementType = elementType;
+	type->m_elementCount = elementCount;
+	m_arrayTypeList.insertTail (type);
 
-	if (pElementType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pType->m_pElementType_i = (CImportType*) pElementType;
-		m_pModule->MarkForLayout (pType, true);
+		type->m_elementType_i = (ImportType*) elementType;
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	It->m_Value = pType;
-	return pType;
+	it->m_value = type;
+	return type;
 }
 
-CTypedef*
-CTypeMgr::CreateTypedef (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CType* pType
+Typedef*
+TypeMgr::createTypedef (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* type
 	)
 {
-	CTypedef* pTypedef = AXL_MEM_NEW (CTypedef);
-	pTypedef->m_Name = Name;
-	pTypedef->m_QualifiedName = QualifiedName;
-	pTypedef->m_Tag = QualifiedName;
-	pTypedef->m_pType = pType;
-	m_TypedefList.InsertTail (pTypedef);
+	Typedef* tdef = AXL_MEM_NEW (Typedef);
+	tdef->m_name = name;
+	tdef->m_qualifiedName = qualifiedName;
+	tdef->m_tag = qualifiedName;
+	tdef->m_type = type;
+	m_typedefList.insertTail (tdef);
 
-	return pTypedef;
+	return tdef;
 }
 
-CEnumType*
-CTypeMgr::CreateEnumType (
-	EEnumType EnumTypeKind,
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CType* pBaseType,
-	uint_t Flags
+EnumType*
+TypeMgr::createEnumType (
+	EnumTypeKind enumTypeKind,
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* baseType,
+	uint_t flags
 	)
 {
-	const char* pSignaturePrefix = (Flags & EEnumTypeFlag_Exposed) ? "EC" : "EE";
+	const char* signaturePrefix = (flags & EnumTypeFlagKind_Exposed) ? "EC" : "EE";
 
-	CEnumType* pType = AXL_MEM_NEW (CEnumType);
+	EnumType* type = AXL_MEM_NEW (EnumType);
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedEnumTypeCounter++;
-		pType->m_Signature.Format ("%s%d", pSignaturePrefix, m_UnnamedEnumTypeCounter);
-		pType->m_Tag.Format (".UnnamedEnum%d", m_UnnamedEnumTypeCounter);
+		m_unnamedEnumTypeCounter++;
+		type->m_signature.format ("%s%d", signaturePrefix, m_unnamedEnumTypeCounter);
+		type->m_tag.format (".UnnamedEnum%d", m_unnamedEnumTypeCounter);
 	}
 	else
 	{
-		pType->m_Signature.Format ("%s%s", pSignaturePrefix, QualifiedName.cc ());
-		pType->m_Name = Name;
-		pType->m_QualifiedName = QualifiedName;
-		pType->m_Tag = QualifiedName;
-		pType->m_Flags |= ETypeFlag_Named;
+		type->m_signature.format ("%s%s", signaturePrefix, qualifiedName.cc ());
+		type->m_name = name;
+		type->m_qualifiedName = qualifiedName;
+		type->m_tag = qualifiedName;
+		type->m_flags |= TypeFlagKind_Named;
 	}
 
-	if (!pBaseType)
-		pBaseType = GetPrimitiveType (EType_Int);
+	if (!baseType)
+		baseType = getPrimitiveType (TypeKind_Int);
 
-	pType->m_pModule = m_pModule;
-	pType->m_EnumTypeKind = EnumTypeKind;
-	pType->m_pBaseType = pBaseType;
-	pType->m_Flags |= Flags;
-	m_EnumTypeList.InsertTail (pType);
+	type->m_module = m_module;
+	type->m_enumTypeKind = enumTypeKind;
+	type->m_baseType = baseType;
+	type->m_flags |= flags;
+	m_enumTypeList.insertTail (type);
 
-	if (pBaseType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pBaseType_i = (CImportType*) pBaseType;
+	if (baseType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_baseType_i = (ImportType*) baseType;
 
-	m_pModule->MarkForLayout (pType, true);
-	return pType;
+	m_module->markForLayout (type, true);
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreateStructType (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	size_t PackFactor
+StructType*
+TypeMgr::createStructType (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	size_t packFactor
 	)
 {
-	CStructType* pType = AXL_MEM_NEW (CStructType);
+	StructType* type = AXL_MEM_NEW (StructType);
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedStructTypeCounter++;
-		pType->m_Signature.Format ("S%d", m_UnnamedStructTypeCounter);
-		pType->m_Tag.Format (".UnnamedStruct%d", m_UnnamedStructTypeCounter);
+		m_unnamedStructTypeCounter++;
+		type->m_signature.format ("S%d", m_unnamedStructTypeCounter);
+		type->m_tag.format (".UnnamedStruct%d", m_unnamedStructTypeCounter);
 	}
 	else
 	{
-		pType->m_Signature.Format ("S%s", QualifiedName.cc ());
-		pType->m_Name = Name;
-		pType->m_QualifiedName = QualifiedName;
-		pType->m_Tag = QualifiedName;
-		pType->m_Flags |= ETypeFlag_Named;
+		type->m_signature.format ("S%s", qualifiedName.cc ());
+		type->m_name = name;
+		type->m_qualifiedName = qualifiedName;
+		type->m_tag = qualifiedName;
+		type->m_flags |= TypeFlagKind_Named;
 	}
 
-	pType->m_pModule = m_pModule;
-	pType->m_PackFactor = PackFactor;
-	m_StructTypeList.InsertTail (pType);
-	m_pModule->MarkForLayout (pType, true);
-	return pType;
+	type->m_module = m_module;
+	type->m_packFactor = packFactor;
+	m_structTypeList.insertTail (type);
+	m_module->markForLayout (type, true);
+	return type;
 }
 
-CUnionType*
-CTypeMgr::CreateUnionType (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	size_t PackFactor
+UnionType*
+TypeMgr::createUnionType (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	size_t packFactor
 	)
 {
-	CUnionType* pType = AXL_MEM_NEW (CUnionType);
+	UnionType* type = AXL_MEM_NEW (UnionType);
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedUnionTypeCounter++;
-		pType->m_Signature.Format ("U%d", m_UnnamedUnionTypeCounter);
-		pType->m_Tag.Format (".UnamedUnion%d", m_UnnamedUnionTypeCounter);
+		m_unnamedUnionTypeCounter++;
+		type->m_signature.format ("U%d", m_unnamedUnionTypeCounter);
+		type->m_tag.format (".UnamedUnion%d", m_unnamedUnionTypeCounter);
 	}
 	else
 	{
-		pType->m_Signature.Format ("U%s", QualifiedName.cc ());
-		pType->m_Name = Name;
-		pType->m_QualifiedName = QualifiedName;
-		pType->m_Tag = QualifiedName;
-		pType->m_Flags |= ETypeFlag_Named;
+		type->m_signature.format ("U%s", qualifiedName.cc ());
+		type->m_name = name;
+		type->m_qualifiedName = qualifiedName;
+		type->m_tag = qualifiedName;
+		type->m_flags |= TypeFlagKind_Named;
 	}
 
-	m_pModule->MarkForLayout (pType, true); // before child struct
+	m_module->markForLayout (type, true); // before child struct
 
-	CStructType* pUnionStructType = CreateUnnamedStructType ();
-	pUnionStructType->m_pParentNamespace = pType;
-	pUnionStructType->m_StructTypeKind = EStructType_UnionStruct;
-	pUnionStructType->m_PackFactor = PackFactor;
-	pUnionStructType->m_Tag.Format ("%s.Struct", pType->m_Tag.cc ());
+	StructType* unionStructType = createUnnamedStructType ();
+	unionStructType->m_parentNamespace = type;
+	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
+	unionStructType->m_packFactor = packFactor;
+	unionStructType->m_tag.format ("%s.Struct", type->m_tag.cc ());
 
-	pType->m_pModule = m_pModule;
-	pType->m_pStructType = pUnionStructType;
-	m_UnionTypeList.InsertTail (pType);
-	return pType;
+	type->m_module = m_module;
+	type->m_structType = unionStructType;
+	m_unionTypeList.insertTail (type);
+	return type;
 }
 
-CClassType*
-CTypeMgr::CreateClassType (
-	EClassType ClassTypeKind,
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	size_t PackFactor,
-	uint_t Flags
+ClassType*
+TypeMgr::createClassType (
+	ClassTypeKind classTypeKind,
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	size_t packFactor,
+	uint_t flags
 	)
 {
-	CClassType* pType;
+	ClassType* type;
 
-	switch (ClassTypeKind)
+	switch (classTypeKind)
 	{
-	case EClassType_Reactor:
-		pType = AXL_MEM_NEW (CReactorClassType);
-		m_ReactorClassTypeList.InsertTail ((CReactorClassType*) pType);
+	case ClassTypeKind_Reactor:
+		type = AXL_MEM_NEW (ReactorClassType);
+		m_reactorClassTypeList.insertTail ((ReactorClassType*) type);
 		break;
 
-	case EClassType_FunctionClosure:
-		pType = AXL_MEM_NEW (CFunctionClosureClassType);
-		m_FunctionClosureClassTypeList.InsertTail ((CFunctionClosureClassType*) pType);
+	case ClassTypeKind_FunctionClosure:
+		type = AXL_MEM_NEW (FunctionClosureClassType);
+		m_functionClosureClassTypeList.insertTail ((FunctionClosureClassType*) type);
 		break;
 
-	case EClassType_PropertyClosure:
-		pType = AXL_MEM_NEW (CPropertyClosureClassType);
-		m_PropertyClosureClassTypeList.InsertTail ((CPropertyClosureClassType*) pType);
+	case ClassTypeKind_PropertyClosure:
+		type = AXL_MEM_NEW (PropertyClosureClassType);
+		m_propertyClosureClassTypeList.insertTail ((PropertyClosureClassType*) type);
 		break;
 
-	case EClassType_DataClosure:
-		pType = AXL_MEM_NEW (CDataClosureClassType);
-		m_DataClosureClassTypeList.InsertTail ((CDataClosureClassType*) pType);
+	case ClassTypeKind_DataClosure:
+		type = AXL_MEM_NEW (DataClosureClassType);
+		m_dataClosureClassTypeList.insertTail ((DataClosureClassType*) type);
 		break;
 
-	case EClassType_Multicast:
-		pType = AXL_MEM_NEW (CMulticastClassType);
-		m_MulticastClassTypeList.InsertTail ((CMulticastClassType*) pType);
+	case ClassTypeKind_Multicast:
+		type = AXL_MEM_NEW (MulticastClassType);
+		m_multicastClassTypeList.insertTail ((MulticastClassType*) type);
 		break;
 
-	case EClassType_McSnapshot:
-		pType = AXL_MEM_NEW (CMcSnapshotClassType);
-		m_McSnapshotClassTypeList.InsertTail ((CMcSnapshotClassType*) pType);
+	case ClassTypeKind_McSnapshot:
+		type = AXL_MEM_NEW (McSnapshotClassType);
+		m_mcSnapshotClassTypeList.insertTail ((McSnapshotClassType*) type);
 		break;
 
 	default:
-		pType = AXL_MEM_NEW (CClassType);
-		m_ClassTypeList.InsertTail (pType);
+		type = AXL_MEM_NEW (ClassType);
+		m_classTypeList.insertTail (type);
 	}
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedClassTypeCounter++;
-		pType->m_Signature.Format ("CC%d", m_UnnamedClassTypeCounter);
-		pType->m_Tag.Format (".UnnamedClass%d", m_UnnamedClassTypeCounter);
+		m_unnamedClassTypeCounter++;
+		type->m_signature.format ("CC%d", m_unnamedClassTypeCounter);
+		type->m_tag.format (".UnnamedClass%d", m_unnamedClassTypeCounter);
 	}
 	else
 	{
-		pType->m_Signature.Format ("CC%s", QualifiedName.cc ());
-		pType->m_Name = Name;
-		pType->m_QualifiedName = QualifiedName;
-		pType->m_Tag = QualifiedName;
-		pType->m_Flags |= ETypeFlag_Named;
+		type->m_signature.format ("CC%s", qualifiedName.cc ());
+		type->m_name = name;
+		type->m_qualifiedName = qualifiedName;
+		type->m_tag = qualifiedName;
+		type->m_flags |= TypeFlagKind_Named;
 	}
 
-	m_pModule->MarkForLayout (pType, true); // before child structs
+	m_module->markForLayout (type, true); // before child structs
 
-	CStructType* pVTableStructType = CreateUnnamedStructType ();
-	pVTableStructType->m_Tag.Format ("%s.Vtbl", pType->m_Tag.cc ());
+	StructType* pVTableStructType = createUnnamedStructType ();
+	pVTableStructType->m_tag.format ("%s.Vtbl", type->m_tag.cc ());
 
-	CStructType* pIfaceHdrStructType = CreateUnnamedStructType (PackFactor);
-	pIfaceHdrStructType->m_Tag.Format ("%s.IfaceHdr", pType->m_Tag.cc ());
-	pIfaceHdrStructType->CreateField ("!m_vtbl", pVTableStructType->GetDataPtrType_c ());
-	pIfaceHdrStructType->CreateField ("!m_object", GetStdType (EStdType_ObjHdrPtr));
+	StructType* ifaceHdrStructType = createUnnamedStructType (packFactor);
+	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
+	ifaceHdrStructType->createField ("!m_vtbl", pVTableStructType->getDataPtrType_c ());
+	ifaceHdrStructType->createField ("!m_object", getStdType (StdTypeKind_ObjHdrPtr));
 
-	CStructType* pIfaceStructType = CreateUnnamedStructType (PackFactor);
-	pIfaceStructType->m_StructTypeKind = EStructType_IfaceStruct;
-	pIfaceStructType->m_Tag.Format ("%s.Iface", pType->m_Tag.cc ());
-	pIfaceStructType->m_pParentNamespace = pType;
-	pIfaceStructType->m_StorageKind = EStorage_Member;
-	pIfaceStructType->m_PackFactor = PackFactor;
-	pIfaceStructType->AddBaseType (pIfaceHdrStructType);
+	StructType* ifaceStructType = createUnnamedStructType (packFactor);
+	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
+	ifaceStructType->m_tag.format ("%s.Iface", type->m_tag.cc ());
+	ifaceStructType->m_parentNamespace = type;
+	ifaceStructType->m_storageKind = StorageKind_Member;
+	ifaceStructType->m_packFactor = packFactor;
+	ifaceStructType->addBaseType (ifaceHdrStructType);
 
-	CStructType* pClassStructType = CreateUnnamedStructType (PackFactor);
-	pClassStructType->m_StructTypeKind = EStructType_ClassStruct;
-	pClassStructType->m_Tag.Format ("%s.Class", pType->m_Tag.cc ());
-	pClassStructType->m_pParentNamespace = pType;
-	pClassStructType->CreateField ("!m_objectHdr", GetStdType (EStdType_ObjHdr));
-	pClassStructType->CreateField ("!m_iface", pIfaceStructType);
+	StructType* classStructType = createUnnamedStructType (packFactor);
+	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
+	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
+	classStructType->m_parentNamespace = type;
+	classStructType->createField ("!m_objectHdr", getStdType (StdTypeKind_ObjHdr));
+	classStructType->createField ("!m_iface", ifaceStructType);
 
-	pType->m_pModule = m_pModule;
-	pType->m_Flags |= Flags;
-	pType->m_ClassTypeKind = ClassTypeKind;
-	pType->m_pVTableStructType = pVTableStructType;
-	pType->m_pIfaceStructType = pIfaceStructType;
-	pType->m_pClassStructType = pClassStructType;
-	return pType;
+	type->m_module = m_module;
+	type->m_flags |= flags;
+	type->m_classTypeKind = classTypeKind;
+	type->m_pVTableStructType = pVTableStructType;
+	type->m_ifaceStructType = ifaceStructType;
+	type->m_classStructType = classStructType;
+	return type;
 }
 
-CClassType*
-CTypeMgr::GetBoxClassType (CType* pBaseType)
+ClassType*
+TypeMgr::getBoxClassType (Type* baseType)
 {
-	if (pBaseType->m_pBoxClassType)
-		return pBaseType->m_pBoxClassType;
+	if (baseType->m_boxClassType)
+		return baseType->m_boxClassType;
 
-	EType BaseTypeKind = pBaseType->GetTypeKind ();
-	switch (BaseTypeKind)
+	TypeKind baseTypeKind = baseType->getTypeKind ();
+	switch (baseTypeKind)
 	{
-	case EType_Void:
-		err::SetFormatStringError ("cannot create a box class for 'void'");
+	case TypeKind_Void:
+		err::setFormatStringError ("cannot create a box class for 'void'");
 		return NULL;
 
-	case EType_Class:
-		return (CClassType*) pBaseType;
+	case TypeKind_Class:
+		return (ClassType*) baseType;
 	}
 
-	CClassType* pType = CreateUnnamedClassType (EClassType_Box);
-	pType->m_Tag.Format ("object <%s>", pBaseType->GetTypeString ().cc ());
-	pType->m_Signature.Format ("CB%s", pBaseType->GetSignature ().cc ());
-	pType->CreateField ("m_value", pBaseType);
-	pType->EnsureLayout ();
+	ClassType* type = createUnnamedClassType (ClassTypeKind_Box);
+	type->m_tag.format ("object <%s>", baseType->getTypeString ().cc ());
+	type->m_signature.format ("CB%s", baseType->getSignature ().cc ());
+	type->createField ("m_value", baseType);
+	type->ensureLayout ();
 
-	pBaseType->m_pBoxClassType = pType;
-	return pType;
+	baseType->m_boxClassType = type;
+	return type;
 }
 
-CFunctionArg*
-CTypeMgr::CreateFunctionArg (
-	const rtl::CString& Name,
-	CType* pType,
-	uint_t PtrTypeFlags,
-	rtl::CBoxListT <CToken>* pInitializer
+FunctionArg*
+TypeMgr::createFunctionArg (
+	const rtl::String& name,
+	Type* type,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	CFunctionArg* pFunctionArg = AXL_MEM_NEW (CFunctionArg);
-	pFunctionArg->m_pModule = m_pModule;
-	pFunctionArg->m_Name = Name;
-	pFunctionArg->m_QualifiedName = Name;
-	pFunctionArg->m_Tag = Name;
-	pFunctionArg->m_pType = pType;
-	pFunctionArg->m_PtrTypeFlags = PtrTypeFlags;
+	FunctionArg* functionArg = AXL_MEM_NEW (FunctionArg);
+	functionArg->m_module = m_module;
+	functionArg->m_name = name;
+	functionArg->m_qualifiedName = name;
+	functionArg->m_tag = name;
+	functionArg->m_type = type;
+	functionArg->m_ptrTypeFlags = ptrTypeFlags;
 
-	if (pInitializer)
-		pFunctionArg->m_Initializer.TakeOver (pInitializer);
+	if (initializer)
+		functionArg->m_initializer.takeOver (initializer);
 
-	m_FunctionArgList.InsertTail (pFunctionArg);
+	m_functionArgList.insertTail (functionArg);
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pFunctionArg->m_pType_i = (CImportType*) pType;
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+		functionArg->m_type_i = (ImportType*) type;
 
 	// all this should be calculated during CFunctionType::CalcLayout
 
@@ -796,1685 +796,1685 @@ CTypeMgr::CreateFunctionArg (
 	//		return NULL;
 	//}
 
-	return pFunctionArg;
+	return functionArg;
 }
 
-CFunctionArg*
-CTypeMgr::GetSimpleFunctionArg (
-	EStorage StorageKind,
-	CType* pType,
-	uint_t PtrTypeFlags
+FunctionArg*
+TypeMgr::getSimpleFunctionArg (
+	StorageKind storageKind,
+	Type* type,
+	uint_t ptrTypeFlags
 	)
 {
-	TFunctionArgTuple* pTuple = GetFunctionArgTuple (pType);
+	FunctionArgTuple* tuple = getFunctionArgTuple (type);
 
 	// this x const x volatile
 
-	size_t i1 = StorageKind == EStorage_This;
-	size_t i2 = (PtrTypeFlags & EPtrTypeFlag_Const) != 0;
-	size_t i3 = (PtrTypeFlags & EPtrTypeFlag_Volatile) != 0;
+	size_t i1 = storageKind == StorageKind_This;
+	size_t i2 = (ptrTypeFlags & PtrTypeFlagKind_Const) != 0;
+	size_t i3 = (ptrTypeFlags & PtrTypeFlagKind_Volatile) != 0;
 
-	if (pTuple->m_ArgArray [i1] [i2] [i3])
-		return pTuple->m_ArgArray [i1] [i2] [i3];
+	if (tuple->m_argArray [i1] [i2] [i3])
+		return tuple->m_argArray [i1] [i2] [i3];
 
-	CFunctionArg* pArg = CreateFunctionArg (rtl::CString (), pType, PtrTypeFlags);
-	if (!pArg)
+	FunctionArg* arg = createFunctionArg (rtl::String (), type, ptrTypeFlags);
+	if (!arg)
 		return NULL;
 
-	pArg->m_StorageKind = StorageKind;
+	arg->m_storageKind = storageKind;
 
-	pTuple->m_ArgArray [i1] [i2] [i3] = pArg;
-	return pArg;
+	tuple->m_argArray [i1] [i2] [i3] = arg;
+	return arg;
 }
 
-CFunctionType*
-CTypeMgr::GetFunctionType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	const rtl::CArrayT <CFunctionArg*>& ArgArray,
-	uint_t Flags
+FunctionType*
+TypeMgr::getFunctionType (
+	CallConv* callConv,
+	Type* returnType,
+	const rtl::Array <FunctionArg*>& argArray,
+	uint_t flags
 	)
 {
-	ASSERT (pCallConv && pReturnType);
+	ASSERT (callConv && returnType);
 
-	rtl::CString Signature = CFunctionType::CreateSignature (
-		pCallConv,
-		pReturnType,
-		ArgArray,
-		ArgArray.GetCount (),
-		Flags
+	rtl::String signature = FunctionType::createSignature (
+		callConv,
+		returnType,
+		argArray,
+		argArray.getCount (),
+		flags
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CFunctionType* pType = (CFunctionType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		FunctionType* type = (FunctionType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pCallConv = pCallConv;
-	pType->m_pReturnType = pReturnType;
-	pType->m_Flags = Flags;
-	pType->m_ArgArray = ArgArray;
+	FunctionType* type = AXL_MEM_NEW (FunctionType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_callConv = callConv;
+	type->m_returnType = returnType;
+	type->m_flags = flags;
+	type->m_argArray = argArray;
 
-	m_FunctionTypeList.InsertTail (pType);
+	m_functionTypeList.insertTail (type);
 
-	if (pReturnType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pReturnType_i = (CImportType*) pReturnType;
+	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_returnType_i = (ImportType*) returnType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
-		m_pModule->MarkForLayout (pType, true);
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	It->m_Value = pType;
-	return pType;
+	it->m_value = type;
+	return type;
 }
 
-CFunctionType*
-CTypeMgr::GetFunctionType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	CType* const* pArgTypeArray,
-	size_t ArgCount,
-	uint_t Flags
+FunctionType*
+TypeMgr::getFunctionType (
+	CallConv* callConv,
+	Type* returnType,
+	Type* const* argTypeArray,
+	size_t argCount,
+	uint_t flags
 	)
 {
-	ASSERT (pCallConv && pReturnType);
+	ASSERT (callConv && returnType);
 
-	rtl::CArrayT <CFunctionArg*> ArgArray;
-	ArgArray.SetCount (ArgCount);
-	for (size_t i = 0; i < ArgCount; i++)
+	rtl::Array <FunctionArg*> argArray;
+	argArray.setCount (argCount);
+	for (size_t i = 0; i < argCount; i++)
 	{
-		CFunctionArg* pArg = GetSimpleFunctionArg (pArgTypeArray [i]);
-		if (!pArg)
+		FunctionArg* arg = getSimpleFunctionArg (argTypeArray [i]);
+		if (!arg)
 			return NULL;
 
-		ArgArray [i] = pArg;
+		argArray [i] = arg;
 	}
 
-	rtl::CString Signature = CFunctionType::CreateSignature (
-		pCallConv,
-		pReturnType,
-		pArgTypeArray,
-		ArgCount,
-		Flags
+	rtl::String signature = FunctionType::createSignature (
+		callConv,
+		returnType,
+		argTypeArray,
+		argCount,
+		flags
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CFunctionType* pType = (CFunctionType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		FunctionType* type = (FunctionType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pCallConv = pCallConv;
-	pType->m_pReturnType = pReturnType;
-	pType->m_Flags = Flags;
-	pType->m_ArgArray = ArgArray;
+	FunctionType* type = AXL_MEM_NEW (FunctionType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_callConv = callConv;
+	type->m_returnType = returnType;
+	type->m_flags = flags;
+	type->m_argArray = argArray;
 
-	m_FunctionTypeList.InsertTail (pType);
+	m_functionTypeList.insertTail (type);
 
-	if (pReturnType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pReturnType_i = (CImportType*) pReturnType;
+	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_returnType_i = (ImportType*) returnType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
-		m_pModule->MarkForLayout (pType, true);
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	It->m_Value = pType;
-	return pType;
+	it->m_value = type;
+	return type;
 }
 
-CFunctionType*
-CTypeMgr::CreateUserFunctionType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	rtl::CBoxListT <CToken>* pThrowCondition,
-	const rtl::CArrayT <CFunctionArg*>& ArgArray,
-	uint_t Flags
+FunctionType*
+TypeMgr::createUserFunctionType (
+	CallConv* callConv,
+	Type* returnType,
+	rtl::BoxList <Token>* throwCondition,
+	const rtl::Array <FunctionArg*>& argArray,
+	uint_t flags
 	)
 {
-	ASSERT (pCallConv && pReturnType);
+	ASSERT (callConv && returnType);
 
-	rtl::CString Signature = CFunctionType::CreateSignature (
-		pCallConv,
-		pReturnType,
-		ArgArray,
-		ArgArray.GetCount (),
-		Flags
+	rtl::String signature = FunctionType::createSignature (
+		callConv,
+		returnType,
+		argArray,
+		argArray.getCount (),
+		flags
 		);
 
-	CFunctionType* pType = AXL_MEM_NEW (CFunctionType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_pCallConv = pCallConv;
-	pType->m_pReturnType = pReturnType;
-	pType->m_Flags = Flags | EModuleItemFlag_User;
-	pType->m_ArgArray = ArgArray;
+	FunctionType* type = AXL_MEM_NEW (FunctionType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_callConv = callConv;
+	type->m_returnType = returnType;
+	type->m_flags = flags | ModuleItemFlagKind_User;
+	type->m_argArray = argArray;
 
-	if (pThrowCondition)
+	if (throwCondition)
 	{
-		ASSERT (Flags & EFunctionTypeFlag_Throws);
-		pType->m_ThrowCondition.TakeOver (pThrowCondition);
+		ASSERT (flags & FunctionTypeFlagKind_Throws);
+		type->m_throwCondition.takeOver (throwCondition);
 	}
 
-	m_FunctionTypeList.InsertTail (pType);
+	m_functionTypeList.insertTail (type);
 
-	if (pReturnType->GetTypeKindFlags () & ETypeKindFlag_Import)
-		pType->m_pReturnType_i = (CImportType*) pReturnType;
+	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+		type->m_returnType_i = (ImportType*) returnType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
-		m_pModule->MarkForLayout (pType, true);
+		m_module->markForLayout (type, true);
 	}
 	else
 	{
-		bool Result = pType->EnsureLayout ();
-		if (!Result)
+		bool result = type->ensureLayout ();
+		if (!result)
 			return NULL;
 	}
 
-	return pType;
+	return type;
 }
 
-CFunctionType*
-CTypeMgr::GetMemberMethodType (
-	CNamedType* pParentType,
-	CFunctionType* pFunctionType,
-	uint_t ThisArgPtrTypeFlags
+FunctionType*
+TypeMgr::getMemberMethodType (
+	NamedType* parentType,
+	FunctionType* functionType,
+	uint_t thisArgPtrTypeFlags
 	)
 {
-	if (!IsClassType (pParentType, EClassType_StdObject)) // std object members are miscellaneous closures
-		ThisArgPtrTypeFlags |= EPtrTypeFlag_Safe;
+	if (!isClassType (parentType, ClassTypeKind_StdObject)) // std object members are miscellaneous closures
+		thisArgPtrTypeFlags |= PtrTypeFlagKind_Safe;
 
-	CType* pThisArgType = pParentType->GetThisArgType (ThisArgPtrTypeFlags);
-	CFunctionArg* pThisArg = GetSimpleFunctionArg (EStorage_This, pThisArgType);
+	Type* thisArgType = parentType->getThisArgType (thisArgPtrTypeFlags);
+	FunctionArg* thisArg = getSimpleFunctionArg (StorageKind_This, thisArgType);
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->m_ArgArray;
-	ArgArray.Insert (0, pThisArg);
+	rtl::Array <FunctionArg*> argArray = functionType->m_argArray;
+	argArray.insert (0, thisArg);
 
-	CFunctionType* pMemberMethodType;
+	FunctionType* memberMethodType;
 
-	if (pFunctionType->m_Flags & EModuleItemFlag_User)
+	if (functionType->m_flags & ModuleItemFlagKind_User)
 	{
-		pMemberMethodType = CreateUserFunctionType (
-			pFunctionType->m_pCallConv,
-			pFunctionType->m_pReturnType,
-			ArgArray,
-			pFunctionType->m_Flags
+		memberMethodType = createUserFunctionType (
+			functionType->m_callConv,
+			functionType->m_returnType,
+			argArray,
+			functionType->m_flags
 			);
 
-		pMemberMethodType->m_pShortType = pFunctionType;
+		memberMethodType->m_shortType = functionType;
 	}
 	else
 	{
-		pMemberMethodType = GetFunctionType (
-			pFunctionType->m_pCallConv,
-			pFunctionType->m_pReturnType,
-			ArgArray,
-			pFunctionType->m_Flags
+		memberMethodType = getFunctionType (
+			functionType->m_callConv,
+			functionType->m_returnType,
+			argArray,
+			functionType->m_flags
 			);
 
-		pMemberMethodType->m_pShortType = pFunctionType;
+		memberMethodType->m_shortType = functionType;
 	}
 
-	return pMemberMethodType;
+	return memberMethodType;
 }
 
-CFunctionType*
-CTypeMgr::GetStdObjectMemberMethodType (CFunctionType* pFunctionType)
+FunctionType*
+TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 {
-	if (pFunctionType->m_pStdObjectMemberMethodType)
-		return pFunctionType->m_pStdObjectMemberMethodType;
+	if (functionType->m_stdObjectMemberMethodType)
+		return functionType->m_stdObjectMemberMethodType;
 
-	CClassType* pClassType = (CClassType*) GetStdType (EStdType_ObjectClass);
-	pFunctionType->m_pStdObjectMemberMethodType = pClassType->GetMemberMethodType (pFunctionType);
-	return pFunctionType->m_pStdObjectMemberMethodType;
+	ClassType* classType = (ClassType*) getStdType (StdTypeKind_ObjectClass);
+	functionType->m_stdObjectMemberMethodType = classType->getMemberMethodType (functionType);
+	return functionType->m_stdObjectMemberMethodType;
 }
 
-CPropertyType*
-CTypeMgr::GetPropertyType (
-	CFunctionType* pGetterType,
-	const CFunctionTypeOverload& SetterType,
-	uint_t Flags
+PropertyType*
+TypeMgr::getPropertyType (
+	FunctionType* getterType,
+	const FunctionTypeOverload& setterType,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = CPropertyType::CreateSignature (pGetterType, SetterType, Flags);
+	rtl::String signature = PropertyType::createSignature (getterType, setterType, flags);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CPropertyType* pType = (CPropertyType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		PropertyType* type = (PropertyType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	if (SetterType.IsEmpty ())
-		Flags |= EPropertyTypeFlag_Const;
+	if (setterType.isEmpty ())
+		flags |= PropertyTypeFlagKind_Const;
 
-	CPropertyType* pType = AXL_MEM_NEW (CPropertyType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pGetterType = pGetterType;
-	pType->m_SetterType = SetterType;
-	pType->m_Flags = Flags;
+	PropertyType* type = AXL_MEM_NEW (PropertyType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_getterType = getterType;
+	type->m_setterType = setterType;
+	type->m_flags = flags;
 
-	if (Flags & EPropertyTypeFlag_Bindable)
+	if (flags & PropertyTypeFlagKind_Bindable)
 	{
-		CFunctionType* pBinderType = (CFunctionType*) GetStdType (EStdType_Binder);
-		if (pGetterType->IsMemberMethodType ())
-			pBinderType = pBinderType->GetMemberMethodType (pGetterType->GetThisTargetType (), EPtrTypeFlag_Const);
+		FunctionType* binderType = (FunctionType*) getStdType (StdTypeKind_Binder);
+		if (getterType->isMemberMethodType ())
+			binderType = binderType->getMemberMethodType (getterType->getThisTargetType (), PtrTypeFlagKind_Const);
 
-		pType->m_pBinderType = pBinderType;
+		type->m_binderType = binderType;
 	}
 
-	m_PropertyTypeList.InsertTail (pType);
+	m_propertyTypeList.insertTail (type);
 
-	It->m_Value = pType;
-	return pType;
+	it->m_value = type;
+	return type;
 }
 
-CPropertyType*
-CTypeMgr::GetSimplePropertyType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	uint_t Flags
+PropertyType*
+TypeMgr::getSimplePropertyType (
+	CallConv* callConv,
+	Type* returnType,
+	uint_t flags
 	)
 {
-	TSimplePropertyTypeTuple* pTuple = GetSimplePropertyTypeTuple (pReturnType);
+	SimplePropertyTypeTuple* tuple = getSimplePropertyTypeTuple (returnType);
 
-	uint_t CallConvFlags = pCallConv->GetFlags ();
+	uint_t callConvFlags = callConv->getFlags ();
 
 	size_t i1 =
-		(CallConvFlags & ECallConvFlag_Stdcall) ? 2 :
-		(CallConvFlags & ECallConvFlag_Cdecl) ? 1 : 0;
+		(callConvFlags & CallConvFlagKind_Stdcall) ? 2 :
+		(callConvFlags & CallConvFlagKind_Cdecl) ? 1 : 0;
 
-	size_t i2 = (Flags & EPropertyTypeFlag_Const) != 0;
-	size_t i3 = (Flags & EPropertyTypeFlag_Bindable) != 0;
+	size_t i2 = (flags & PropertyTypeFlagKind_Const) != 0;
+	size_t i3 = (flags & PropertyTypeFlagKind_Bindable) != 0;
 
-	if (pTuple->m_PropertyTypeArray [i1] [i2] [i3])
-		return pTuple->m_PropertyTypeArray [i1] [i2] [i3];
+	if (tuple->m_propertyTypeArray [i1] [i2] [i3])
+		return tuple->m_propertyTypeArray [i1] [i2] [i3];
 
-	CPropertyType* pPropertyType;
+	PropertyType* propertyType;
 
-	CFunctionType* pGetterType = GetFunctionType (pCallConv, pReturnType, NULL, 0, 0);
-	if (Flags & EPropertyTypeFlag_Const)
+	FunctionType* getterType = getFunctionType (callConv, returnType, NULL, 0, 0);
+	if (flags & PropertyTypeFlagKind_Const)
 	{
-		pPropertyType = GetPropertyType (pGetterType, NULL, Flags);
+		propertyType = getPropertyType (getterType, NULL, flags);
 	}
 	else
 	{
-		CType* pVoidType = &m_PrimitiveTypeArray [EType_Void];
-		CFunctionType* pSetterType = GetFunctionType (pCallConv, pVoidType, &pReturnType, 1, 0);
-		pPropertyType = GetPropertyType (pGetterType, pSetterType, Flags);
+		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
+		FunctionType* setterType = getFunctionType (callConv, voidType, &returnType, 1, 0);
+		propertyType = getPropertyType (getterType, setterType, flags);
 	}
 
-	pTuple->m_PropertyTypeArray [i1] [i2] [i3] = pPropertyType;
-	return pPropertyType;
+	tuple->m_propertyTypeArray [i1] [i2] [i3] = propertyType;
+	return propertyType;
 }
 
-CPropertyType*
-CTypeMgr::GetIndexedPropertyType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	CType* const* pIndexArgTypeArray,
-	size_t IndexArgCount,
-	uint_t Flags
+PropertyType*
+TypeMgr::getIndexedPropertyType (
+	CallConv* callConv,
+	Type* returnType,
+	Type* const* indexArgTypeArray,
+	size_t indexArgCount,
+	uint_t flags
 	)
 {
-	CFunctionType* pGetterType = GetFunctionType (pCallConv, pReturnType, pIndexArgTypeArray, IndexArgCount, 0);
+	FunctionType* getterType = getFunctionType (callConv, returnType, indexArgTypeArray, indexArgCount, 0);
 
-	if (Flags & EPropertyTypeFlag_Const)
-		return GetPropertyType (pGetterType, NULL, Flags);
+	if (flags & PropertyTypeFlagKind_Const)
+		return getPropertyType (getterType, NULL, flags);
 
-	char Buffer [256];
-	rtl::CArrayT <CType*> ArgTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgTypeArray.Copy (pIndexArgTypeArray, IndexArgCount);
-	ArgTypeArray.Append (pReturnType);
+	char buffer [256];
+	rtl::Array <Type*> argTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argTypeArray.copy (indexArgTypeArray, indexArgCount);
+	argTypeArray.append (returnType);
 
-	CType* pVoidType = &m_PrimitiveTypeArray [EType_Void];
-	CFunctionType* pSetterType = GetFunctionType (pCallConv, pVoidType, ArgTypeArray, IndexArgCount + 1, 0);
-	return GetPropertyType (pGetterType, pSetterType, Flags);
+	Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
+	FunctionType* setterType = getFunctionType (callConv, voidType, argTypeArray, indexArgCount + 1, 0);
+	return getPropertyType (getterType, setterType, flags);
 }
 
-CPropertyType*
-CTypeMgr::GetIndexedPropertyType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	const rtl::CArrayT <CFunctionArg*>& ArgArray,
-	uint_t Flags
+PropertyType*
+TypeMgr::getIndexedPropertyType (
+	CallConv* callConv,
+	Type* returnType,
+	const rtl::Array <FunctionArg*>& argArray,
+	uint_t flags
 	)
 {
-	CFunctionType* pGetterType = GetFunctionType (pCallConv, pReturnType, ArgArray, 0);
+	FunctionType* getterType = getFunctionType (callConv, returnType, argArray, 0);
 
-	if (Flags & EPropertyTypeFlag_Const)
-		return GetPropertyType (pGetterType, NULL, Flags);
+	if (flags & PropertyTypeFlagKind_Const)
+		return getPropertyType (getterType, NULL, flags);
 
-	rtl::CArrayT <CFunctionArg*> SetterArgArray = ArgArray;
-	SetterArgArray.Append (pReturnType->GetSimpleFunctionArg ());
+	rtl::Array <FunctionArg*> setterArgArray = argArray;
+	setterArgArray.append (returnType->getSimpleFunctionArg ());
 
-	CType* pVoidType = &m_PrimitiveTypeArray [EType_Void];
-	CFunctionType* pSetterType = GetFunctionType (pCallConv, pVoidType, SetterArgArray, 0);
-	return GetPropertyType (pGetterType, pSetterType, Flags);
+	Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
+	FunctionType* setterType = getFunctionType (callConv, voidType, setterArgArray, 0);
+	return getPropertyType (getterType, setterType, flags);
 }
 
-CPropertyType*
-CTypeMgr::CreateIndexedPropertyType (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	const rtl::CArrayT <CFunctionArg*>& ArgArray,
-	uint_t Flags
+PropertyType*
+TypeMgr::createIndexedPropertyType (
+	CallConv* callConv,
+	Type* returnType,
+	const rtl::Array <FunctionArg*>& argArray,
+	uint_t flags
 	)
 {
-	CFunctionType* pGetterType = CreateUserFunctionType (pCallConv, pReturnType, ArgArray, 0);
+	FunctionType* getterType = createUserFunctionType (callConv, returnType, argArray, 0);
 
-	if (Flags & EPropertyTypeFlag_Const)
-		return GetPropertyType (pGetterType, NULL, Flags);
+	if (flags & PropertyTypeFlagKind_Const)
+		return getPropertyType (getterType, NULL, flags);
 
-	rtl::CArrayT <CFunctionArg*> SetterArgArray = ArgArray;
-	SetterArgArray.Append (pReturnType->GetSimpleFunctionArg ());
+	rtl::Array <FunctionArg*> setterArgArray = argArray;
+	setterArgArray.append (returnType->getSimpleFunctionArg ());
 
-	CType* pVoidType = &m_PrimitiveTypeArray [EType_Void];
-	CFunctionType* pSetterType = CreateUserFunctionType (pCallConv, pVoidType, SetterArgArray, 0);
-	return GetPropertyType (pGetterType, pSetterType, Flags);
+	Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
+	FunctionType* setterType = createUserFunctionType (callConv, voidType, setterArgArray, 0);
+	return getPropertyType (getterType, setterType, flags);
 }
 
-CPropertyType*
-CTypeMgr::GetMemberPropertyType (
-	CNamedType* pParentType,
-	CPropertyType* pPropertyType
+PropertyType*
+TypeMgr::getMemberPropertyType (
+	NamedType* parentType,
+	PropertyType* propertyType
 	)
 {
-	CFunctionType* pGetterType = GetMemberMethodType (
-		pParentType,
-		pPropertyType->m_pGetterType,
-		EPtrTypeFlag_Const
+	FunctionType* getterType = getMemberMethodType (
+		parentType,
+		propertyType->m_getterType,
+		PtrTypeFlagKind_Const
 		);
 
-	size_t SetterTypeOverloadCount = pPropertyType->m_SetterType.GetOverloadCount ();
+	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CFunctionType*> SetterTypeOverloadArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	SetterTypeOverloadArray.SetCount (SetterTypeOverloadCount);
+	char buffer [256];
+	rtl::Array <FunctionType*> setterTypeOverloadArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	setterTypeOverloadArray.setCount (setterTypeOverloadCount);
 
-	for (size_t i = 0; i < SetterTypeOverloadCount; i++)
+	for (size_t i = 0; i < setterTypeOverloadCount; i++)
 	{
-		CFunctionType* pOverloadType = pPropertyType->m_SetterType.GetOverload (i);
-		SetterTypeOverloadArray [i] = GetMemberMethodType (pParentType, pOverloadType);
+		FunctionType* overloadType = propertyType->m_setterType.getOverload (i);
+		setterTypeOverloadArray [i] = getMemberMethodType (parentType, overloadType);
 	}
 
-	CPropertyType* pMemberPropertyType = GetPropertyType (
-		pGetterType,
-		CFunctionTypeOverload (SetterTypeOverloadArray, SetterTypeOverloadCount),
-		pPropertyType->m_Flags
+	PropertyType* memberPropertyType = getPropertyType (
+		getterType,
+		FunctionTypeOverload (setterTypeOverloadArray, setterTypeOverloadCount),
+		propertyType->m_flags
 		);
 
-	pMemberPropertyType->m_pShortType = pPropertyType;
-	return pMemberPropertyType;
+	memberPropertyType->m_shortType = propertyType;
+	return memberPropertyType;
 }
 
-CPropertyType*
-CTypeMgr::GetStdObjectMemberPropertyType (CPropertyType* pPropertyType)
+PropertyType*
+TypeMgr::getStdObjectMemberPropertyType (PropertyType* propertyType)
 {
-	if (pPropertyType->m_pStdObjectMemberPropertyType)
-		return pPropertyType->m_pStdObjectMemberPropertyType;
+	if (propertyType->m_stdObjectMemberPropertyType)
+		return propertyType->m_stdObjectMemberPropertyType;
 
-	CClassType* pClassType = (CClassType*) GetStdType (EStdType_ObjectClass);
-	pPropertyType->m_pStdObjectMemberPropertyType = pClassType->GetMemberPropertyType (pPropertyType);
-	return pPropertyType->m_pStdObjectMemberPropertyType;
+	ClassType* classType = (ClassType*) getStdType (StdTypeKind_ObjectClass);
+	propertyType->m_stdObjectMemberPropertyType = classType->getMemberPropertyType (propertyType);
+	return propertyType->m_stdObjectMemberPropertyType;
 }
 
-CPropertyType*
-CTypeMgr::GetShortPropertyType (CPropertyType* pPropertyType)
+PropertyType*
+TypeMgr::getShortPropertyType (PropertyType* propertyType)
 {
-	if (pPropertyType->m_pShortType)
-		return pPropertyType->m_pShortType;
+	if (propertyType->m_shortType)
+		return propertyType->m_shortType;
 
-	if (!pPropertyType->IsMemberPropertyType ())
+	if (!propertyType->isMemberPropertyType ())
 	{
-		pPropertyType->m_pShortType = pPropertyType;
-		return pPropertyType;
+		propertyType->m_shortType = propertyType;
+		return propertyType;
 	}
 
-	CFunctionType* pGetterType = pPropertyType->m_pGetterType->GetShortType ();
-	CFunctionTypeOverload SetterType;
+	FunctionType* getterType = propertyType->m_getterType->getShortType ();
+	FunctionTypeOverload setterType;
 
-	size_t SetterCount = pPropertyType->m_SetterType.GetOverloadCount ();
-	for (size_t i = 0; i < SetterCount; i++)
+	size_t setterCount = propertyType->m_setterType.getOverloadCount ();
+	for (size_t i = 0; i < setterCount; i++)
 	{
-		CFunctionType* pSetterType = pPropertyType->m_SetterType.GetOverload (i)->GetShortType ();
-		SetterType.AddOverload (pSetterType);
+		FunctionType* type = propertyType->m_setterType.getOverload (i)->getShortType ();
+		setterType.addOverload (type);
 	}
 
-	pPropertyType->m_pShortType = GetPropertyType (pGetterType, SetterType, pPropertyType->m_Flags);
-	return pPropertyType->m_pShortType;
+	propertyType->m_shortType = getPropertyType (getterType, setterType, propertyType->m_flags);
+	return propertyType->m_shortType;
 }
 
-CClassType*
-CTypeMgr::GetMulticastType (CFunctionPtrType* pFunctionPtrType)
+ClassType*
+TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 {
-	bool Result;
+	bool result;
 
-	if (pFunctionPtrType->m_pMulticastType)
-		return pFunctionPtrType->m_pMulticastType;
+	if (functionPtrType->m_multicastType)
+		return functionPtrType->m_multicastType;
 
-	CType* pReturnType = pFunctionPtrType->GetTargetType ()->GetReturnType ();
-	if (pReturnType->GetTypeKind () != EType_Void)
+	Type* returnType = functionPtrType->getTargetType ()->getReturnType ();
+	if (returnType->getTypeKind () != TypeKind_Void)
 	{
-		err::SetFormatStringError ("multicast cannot only return 'void', not '%s'", pReturnType->GetTypeString ().cc ());
+		err::setFormatStringError ("multicast cannot only return 'void', not '%s'", returnType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	CMulticastClassType* pType = (CMulticastClassType*) CreateUnnamedClassType (EClassType_Multicast);
-	pType->m_pTargetType = pFunctionPtrType;
-	pType->m_Flags |= (pFunctionPtrType->m_Flags & ETypeFlag_GcRoot);
+	MulticastClassType* type = (MulticastClassType*) createUnnamedClassType (ClassTypeKind_Multicast);
+	type->m_targetType = functionPtrType;
+	type->m_flags |= (functionPtrType->m_flags & TypeFlagKind_GcRoot);
 
 	// fields
 
-	pType->m_FieldArray [EMulticastField_Lock] = pType->CreateField ("!m_lock", GetPrimitiveType (EType_Int_p), 0, EPtrTypeFlag_Volatile);
-	pType->m_FieldArray [EMulticastField_MaxCount] = pType->CreateField ("!m_maxCount", GetPrimitiveType (EType_SizeT));
-	pType->m_FieldArray [EMulticastField_Count] = pType->CreateField ("!m_count", GetPrimitiveType (EType_SizeT));
-	pType->m_FieldArray [EMulticastField_PtrArray] = pType->CreateField ("!m_ptrArray", pFunctionPtrType->GetDataPtrType_c ());
-	pType->m_FieldArray [EMulticastField_HandleTable] = pType->CreateField ("!m_handleTable", GetPrimitiveType (EType_Int_p));
+	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_Int_p), 0, PtrTypeFlagKind_Volatile);
+	type->m_fieldArray [MulticastFieldKind_MaxCount] = type->createField ("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
+	type->m_fieldArray [MulticastFieldKind_Count] = type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
+	type->m_fieldArray [MulticastFieldKind_PtrArray] = type->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
+	type->m_fieldArray [MulticastFieldKind_HandleTable] = type->createField ("!m_handleTable", getPrimitiveType (TypeKind_Int_p));
 
-	CType* pArgType;
-	CFunction* pMethod;
-	CFunctionType* pMethodType;
+	Type* argType;
+	Function* method;
+	FunctionType* methodType;
 
-	bool IsThin = pFunctionPtrType->GetPtrTypeKind () == EFunctionPtrType_Thin;
+	bool isThin = functionPtrType->getPtrTypeKind () == FunctionPtrTypeKind_Thin;
 
 	// methods
 
-	pMethodType = GetFunctionType ();
-	pMethod = pType->CreateMethod (EStorage_Member, "clear", pMethodType);
-	pMethod->m_Tag = "jnc.multicastClear";
-	pMethod->m_Flags |= EMulticastMethodFlag_InaccessibleViaEventPtr;
-	pType->m_MethodArray [EMulticastMethod_Clear] = pMethod;
+	methodType = getFunctionType ();
+	method = type->createMethod (StorageKind_Member, "clear", methodType);
+	method->m_tag = "jnc.multicastClear";
+	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	type->m_methodArray [MulticastMethodKind_Clear] = method;
 
-	pReturnType = GetPrimitiveType (EType_Int_p);
-	pArgType = pFunctionPtrType;
-	pMethodType = GetFunctionType (pReturnType, &pArgType, 1);
+	returnType = getPrimitiveType (TypeKind_Int_p);
+	argType = functionPtrType;
+	methodType = getFunctionType (returnType, &argType, 1);
 
-	pMethod = pType->CreateMethod (EStorage_Member, "set", pMethodType);
-	pMethod->m_Tag = IsThin ? "jnc.multicastSet_t" : "jnc.multicastSet";
-	pMethod->m_Flags |= EMulticastMethodFlag_InaccessibleViaEventPtr;
-	pType->m_MethodArray [EMulticastMethod_Set] = pMethod;
+	method = type->createMethod (StorageKind_Member, "set", methodType);
+	method->m_tag = isThin ? "jnc.multicastSet_t" : "jnc.multicastSet";
+	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	type->m_methodArray [MulticastMethodKind_Set] = method;
 
-	pMethod = pType->CreateMethod (EStorage_Member, "add", pMethodType);
-	pMethod->m_Tag = IsThin ? "jnc.multicastAdd_t" : "jnc.multicastAdd";
-	pType->m_MethodArray [EMulticastMethod_Add] = pMethod;
+	method = type->createMethod (StorageKind_Member, "add", methodType);
+	method->m_tag = isThin ? "jnc.multicastAdd_t" : "jnc.multicastAdd";
+	type->m_methodArray [MulticastMethodKind_Add] = method;
 
-	pReturnType = pFunctionPtrType;
-	pArgType = GetPrimitiveType (EType_Int_p);
-	pMethodType = GetFunctionType (pReturnType, &pArgType, 1);
-	pMethod = pType->CreateMethod (EStorage_Member, "remove", pMethodType);
-	pMethod->m_Tag = IsThin ? "jnc.multicastRemove_t" : "jnc.multicastRemove";
-	pType->m_MethodArray [EMulticastMethod_Remove] = pMethod;
+	returnType = functionPtrType;
+	argType = getPrimitiveType (TypeKind_Int_p);
+	methodType = getFunctionType (returnType, &argType, 1);
+	method = type->createMethod (StorageKind_Member, "remove", methodType);
+	method->m_tag = isThin ? "jnc.multicastRemove_t" : "jnc.multicastRemove";
+	type->m_methodArray [MulticastMethodKind_Remove] = method;
 
-	pReturnType = pFunctionPtrType->GetNormalPtrType ();
-	pMethodType = GetFunctionType (pReturnType, NULL, 0);
-	pMethod = pType->CreateMethod (EStorage_Member, "getSnapshot", pMethodType);
-	pMethod->m_Tag = "jnc.multicastGetSnapshot";
-	pMethod->m_Flags |= EMulticastMethodFlag_InaccessibleViaEventPtr;
-	pType->m_MethodArray [EMulticastMethod_GetSnapshot] = pMethod;
+	returnType = functionPtrType->getNormalPtrType ();
+	methodType = getFunctionType (returnType, NULL, 0);
+	method = type->createMethod (StorageKind_Member, "getSnapshot", methodType);
+	method->m_tag = "jnc.multicastGetSnapshot";
+	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	type->m_methodArray [MulticastMethodKind_GetSnapshot] = method;
 
-	pMethodType = pFunctionPtrType->GetTargetType ();
-	pMethod = pType->CreateMethod (EStorage_Member, "call", pMethodType);
-	pMethod->m_Flags |= EMulticastMethodFlag_InaccessibleViaEventPtr;
-	pType->m_MethodArray [EMulticastMethod_Call] = pMethod;
+	methodType = functionPtrType->getTargetType ();
+	method = type->createMethod (StorageKind_Member, "call", methodType);
+	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	type->m_methodArray [MulticastMethodKind_Call] = method;
 
 	// overloaded operators
 
-	pType->m_BinaryOperatorTable.SetCount (EBinOp__Count);
-	pType->m_BinaryOperatorTable [EBinOp_RefAssign] = pType->m_MethodArray [EMulticastMethod_Set];
-	pType->m_BinaryOperatorTable [EBinOp_AddAssign] = pType->m_MethodArray [EMulticastMethod_Add];
-	pType->m_BinaryOperatorTable [EBinOp_SubAssign] = pType->m_MethodArray [EMulticastMethod_Remove];
-	pType->m_pCallOperator = pType->m_MethodArray [EMulticastMethod_Call];
+	type->m_binaryOperatorTable.setCount (BinOpKind__Count);
+	type->m_binaryOperatorTable [BinOpKind_RefAssign] = type->m_methodArray [MulticastMethodKind_Set];
+	type->m_binaryOperatorTable [BinOpKind_AddAssign] = type->m_methodArray [MulticastMethodKind_Add];
+	type->m_binaryOperatorTable [BinOpKind_SubAssign] = type->m_methodArray [MulticastMethodKind_Remove];
+	type->m_callOperator = type->m_methodArray [MulticastMethodKind_Call];
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)
 
-	CMcSnapshotClassType* pSnapshotType = (CMcSnapshotClassType*) CreateUnnamedClassType (EClassType_McSnapshot);
-	pSnapshotType->m_pTargetType = pFunctionPtrType->GetUnWeakPtrType ();
-	pSnapshotType->m_Flags |= (pFunctionPtrType->m_Flags & ETypeFlag_GcRoot);
+	McSnapshotClassType* snapshotType = (McSnapshotClassType*) createUnnamedClassType (ClassTypeKind_McSnapshot);
+	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType ();
+	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlagKind_GcRoot);
 
 	// fields
 
-	pSnapshotType->m_FieldArray [EMcSnapshotField_Count] = pSnapshotType->CreateField ("!m_count", GetPrimitiveType (EType_SizeT));
-	pSnapshotType->m_FieldArray [EMcSnapshotField_PtrArray] = pSnapshotType->CreateField ("!m_ptrArray", pFunctionPtrType->GetDataPtrType_c ());
+	snapshotType->m_fieldArray [McSnapshotFieldKind_Count] = snapshotType->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
+	snapshotType->m_fieldArray [McSnapshotFieldKind_PtrArray] = snapshotType->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
 
 	// call method
 
-	pMethodType = pFunctionPtrType->GetTargetType ();
-	pSnapshotType->m_MethodArray [EMcSnapshotMethod_Call] = pSnapshotType->CreateMethod (EStorage_Member, "call", pMethodType);
+	methodType = functionPtrType->getTargetType ();
+	snapshotType->m_methodArray [McSnapshotMethodKind_Call] = snapshotType->createMethod (StorageKind_Member, "call", methodType);
 
-	pType->m_pSnapshotType = pSnapshotType;
+	type->m_snapshotType = snapshotType;
 
-	if (!m_pModule->m_NamespaceMgr.GetCurrentScope ())
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
-		m_pModule->MarkForLayout (pType);
-		m_pModule->MarkForLayout (pType->m_pSnapshotType);
+		m_module->markForLayout (type);
+		m_module->markForLayout (type->m_snapshotType);
 	}
 	else
 	{
-		Result =
-			pType->CalcLayout () &&
-			pType->m_pSnapshotType->CalcLayout ();
+		result =
+			type->calcLayout () &&
+			type->m_snapshotType->calcLayout ();
 
-		if (!Result)
+		if (!result)
 			return NULL;
 	}
 
-	m_pModule->MarkForCompile (pType);
-	m_pModule->MarkForCompile (pType->m_pSnapshotType);
+	m_module->markForCompile (type);
+	m_module->markForCompile (type->m_snapshotType);
 
-	pFunctionPtrType->m_pMulticastType = pType;
-	return pType;
+	functionPtrType->m_multicastType = type;
+	return type;
 }
 
-CClassType*
-CTypeMgr::GetReactorInterfaceType (CFunctionType* pStartMethodType)
+ClassType*
+TypeMgr::getReactorInterfaceType (FunctionType* startMethodType)
 {
-	CType* pReturnType = pStartMethodType->GetReturnType ();
-	if (pReturnType->GetTypeKind () != EType_Void)
+	Type* returnType = startMethodType->getReturnType ();
+	if (returnType->getTypeKind () != TypeKind_Void)
 	{
-		err::SetFormatStringError ("reactor must return 'void', not '%s'", pReturnType->GetTypeString ().cc ());
+		err::setFormatStringError ("reactor must return 'void', not '%s'", returnType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	if (pStartMethodType->m_pReactorInterfaceType)
-		return pStartMethodType->m_pReactorInterfaceType;
+	if (startMethodType->m_reactorInterfaceType)
+		return startMethodType->m_reactorInterfaceType;
 
-	CClassType* pType = CreateUnnamedClassType (EClassType_ReactorIface);
-	pType->m_Signature.Format ("CA%s", pStartMethodType->GetTypeString ().cc ());
-	CFunction* pStarter = pType->CreateMethod (EStorage_Abstract, "start", pStartMethodType);
-	pType->CreateMethod (EStorage_Abstract, "stop", (CFunctionType*) GetStdType (EStdType_SimpleFunction));
-	pType->m_pCallOperator = pStarter;
-	return pType;
+	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
+	type->m_signature.format ("CA%s", startMethodType->getTypeString ().cc ());
+	Function* starter = type->createMethod (StorageKind_Abstract, "start", startMethodType);
+	type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdTypeKind_SimpleFunction));
+	type->m_callOperator = starter;
+	return type;
 }
 
-CReactorClassType*
-CTypeMgr::CreateReactorType (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CClassType* pIfaceType,
-	CClassType* pParentType
+ReactorClassType*
+TypeMgr::createReactorType (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	ClassType* ifaceType,
+	ClassType* parentType
 	)
 {
-	CReactorClassType* pType = (CReactorClassType*) CreateClassType (EClassType_Reactor, Name, QualifiedName);
+	ReactorClassType* type = (ReactorClassType*) createClassType (ClassTypeKind_Reactor, name, qualifiedName);
 
-	pType->AddBaseType (pIfaceType);
+	type->addBaseType (ifaceType);
 
 	// fields
 
-	pType->m_FieldArray [EReactorField_Lock]  = pType->CreateField ("!m_lock", m_pModule->GetSimpleType (EType_Int_p));
-	pType->m_FieldArray [EReactorField_State] = pType->CreateField ("!m_state", m_pModule->GetSimpleType (EType_Int_p));
+	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->getSimpleType (TypeKind_Int_p));
+	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->getSimpleType (TypeKind_Int_p));
 
-	rtl::CArrayT <CFunction*> VirtualMethodArray = pIfaceType->GetVirtualMethodArray ();
-	ASSERT (VirtualMethodArray.GetCount () == 2);
+	rtl::Array <Function*> virtualMethodArray = ifaceType->getVirtualMethodArray ();
+	ASSERT (virtualMethodArray.getCount () == 2);
 
-	CFunctionType* pStartMethodType = VirtualMethodArray [0]->GetType ()->GetShortType ();
-	rtl::CArrayT <CFunctionArg*> ArgArray = pStartMethodType->GetArgArray ();
+	FunctionType* startMethodType = virtualMethodArray [0]->getType ()->getShortType ();
+	rtl::Array <FunctionArg*> argArray = startMethodType->getArgArray ();
 
-	size_t ArgCount = ArgArray.GetCount ();
-	for (size_t i = 0; i < ArgCount; i++)
+	size_t argCount = argArray.getCount ();
+	for (size_t i = 0; i < argCount; i++)
 	{
-		CFunctionArg* pArg = ArgArray [i];
-		CStructField* pField = pType->CreateField (pArg->GetName (), pArg->GetType ());
-		if (!pField)
+		FunctionArg* arg = argArray [i];
+		StructField* field = type->createField (arg->getName (), arg->getType ());
+		if (!field)
 			return NULL;
 
 		if (i == 0)
-			pType->m_FirstArgField = pField;
+			type->m_firstArgField = field;
 	}
 
 	// constructor & destructor
 
-	if (pParentType)
+	if (parentType)
 	{
-		CClassPtrType* pParentPtrType = pParentType->GetClassPtrType (EClassPtrType_Normal, EPtrTypeFlag_Safe);
+		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlagKind_Safe);
 
-		pType->m_Flags |= ETypeFlag_Child;
-		pType->m_FieldArray [EReactorField_Parent] = pType->CreateField ("!m_parent", pParentPtrType);
+		type->m_flags |= TypeFlagKind_Child;
+		type->m_fieldArray [ReactorFieldKind_Parent] = type->createField ("!m_parent", parentPtrType);
 
-		CType* pVoidType = &m_PrimitiveTypeArray [EType_Void];
-		CFunctionType* pConstructorType = GetFunctionType (pVoidType, (CType**) &pParentPtrType, 1);
-		CFunction* pConstructor = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Constructor, pConstructorType);
-		pType->AddMethod (pConstructor);
+		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
+		FunctionType* constructorType = getFunctionType (voidType, (Type**) &parentPtrType, 1);
+		Function* constructor = m_module->m_functionMgr.createFunction (FunctionKind_Constructor, constructorType);
+		type->addMethod (constructor);
 	}
 	else
 	{
-		pType->CreateDefaultMethod (EFunction_Constructor);
+		type->createDefaultMethod (FunctionKind_Constructor);
 	}
 
-	pType->CreateDefaultMethod (EFunction_Destructor);
+	type->createDefaultMethod (FunctionKind_Destructor);
 
 	// methods
 
-	pType->m_MethodArray [EReactorMethod_Start] = pType->CreateMethod (EStorage_Override, "start", pStartMethodType);
-	pType->m_MethodArray [EReactorMethod_Stop]  = pType->CreateMethod (EStorage_Override, "stop", (CFunctionType*) GetStdType (EStdType_SimpleFunction));
-	pType->m_pCallOperator = pType->m_MethodArray [EReactorMethod_Start];
-	return pType;
+	type->m_methodArray [ReactorMethodKind_Start] = type->createMethod (StorageKind_Override, "start", startMethodType);
+	type->m_methodArray [ReactorMethodKind_Stop]  = type->createMethod (StorageKind_Override, "stop", (FunctionType*) getStdType (StdTypeKind_SimpleFunction));
+	type->m_callOperator = type->m_methodArray [ReactorMethodKind_Start];
+	return type;
 }
 
-CFunctionClosureClassType*
-CTypeMgr::GetFunctionClosureClassType (
-	CFunctionType* pTargetType,
-	CFunctionType* pThunkType,
-	CType* const* ppArgTypeArray,
-	const size_t* pClosureMap,
-	size_t ArgCount,
-	uint64_t WeakMask
+FunctionClosureClassType*
+TypeMgr::getFunctionClosureClassType (
+	FunctionType* targetType,
+	FunctionType* thunkType,
+	Type* const* argTypeArray,
+	const size_t* closureMap,
+	size_t argCount,
+	uint64_t weakMask
 	)
 {
-	rtl::CString Signature = CClosureClassType::CreateSignature (
-		pTargetType,
-		pThunkType,
-		ppArgTypeArray,
-		pClosureMap,
-		ArgCount,
-		WeakMask
+	rtl::String signature = ClosureClassType::createSignature (
+		targetType,
+		thunkType,
+		argTypeArray,
+		closureMap,
+		argCount,
+		weakMask
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CFunctionClosureClassType* pType = (CFunctionClosureClassType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		FunctionClosureClassType* type = (FunctionClosureClassType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CFunctionClosureClassType* pType = (CFunctionClosureClassType*) CreateUnnamedClassType (EClassType_FunctionClosure);
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_ClosureMap.Copy (pClosureMap, ArgCount);
-	pType->m_WeakMask = WeakMask;
+	FunctionClosureClassType* type = (FunctionClosureClassType*) createUnnamedClassType (ClassTypeKind_FunctionClosure);
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_closureMap.copy (closureMap, argCount);
+	type->m_weakMask = weakMask;
 
-	pType->CreateField ("!m_target", pTargetType->GetFunctionPtrType (EFunctionPtrType_Thin));
+	type->createField ("!m_target", targetType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 
-	rtl::CString ArgFieldName;
+	rtl::String argFieldName;
 
-	for (size_t i = 0; i < ArgCount; i++)
+	for (size_t i = 0; i < argCount; i++)
 	{
-		ArgFieldName.Format ("!m_arg%d", i);
+		argFieldName.format ("!m_arg%d", i);
 
-		CStructField* pField = pType->CreateField (ArgFieldName, ppArgTypeArray [i]);
-		if (WeakMask & (2 << i)) // account for field #0 function ptr
-			pField->m_Flags |= EStructFieldFlag_WeakMasked;
+		StructField* field = type->createField (argFieldName, argTypeArray [i]);
+		if (weakMask & (2 << i)) // account for field #0 function ptr
+			field->m_flags |= StructFieldFlagKind_WeakMasked;
 	}
 
-	CFunction* pThunkFunction = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Internal, "thunkFunction", pThunkType);
-	pType->AddMethod (pThunkFunction);
-	pType->m_pThunkFunction = pThunkFunction;
+	Function* thunkFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, "thunkFunction", thunkType);
+	type->addMethod (thunkFunction);
+	type->m_thunkFunction = thunkFunction;
 
-	pType->EnsureLayout ();
-	m_pModule->MarkForCompile (pType);
+	type->ensureLayout ();
+	m_module->markForCompile (type);
 
-	It->m_Value = pType;
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CPropertyClosureClassType*
-CTypeMgr::GetPropertyClosureClassType (
-	CPropertyType* pTargetType,
-	CPropertyType* pThunkType,
-	CType* const* ppArgTypeArray,
-	const size_t* pClosureMap,
-	size_t ArgCount,
-	uint64_t WeakMask
+PropertyClosureClassType*
+TypeMgr::getPropertyClosureClassType (
+	PropertyType* targetType,
+	PropertyType* thunkType,
+	Type* const* argTypeArray,
+	const size_t* closureMap,
+	size_t argCount,
+	uint64_t weakMask
 	)
 {
-	rtl::CString Signature = CClosureClassType::CreateSignature (
-		pTargetType,
-		pThunkType,
-		ppArgTypeArray,
-		pClosureMap,
-		ArgCount,
-		WeakMask
+	rtl::String signature = ClosureClassType::createSignature (
+		targetType,
+		thunkType,
+		argTypeArray,
+		closureMap,
+		argCount,
+		weakMask
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CPropertyClosureClassType* pType = (CPropertyClosureClassType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		PropertyClosureClassType* type = (PropertyClosureClassType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CPropertyClosureClassType* pType = (CPropertyClosureClassType*) CreateUnnamedClassType (EClassType_PropertyClosure);
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_ClosureMap.Copy (pClosureMap, ArgCount);
-	pType->m_WeakMask = WeakMask;
+	PropertyClosureClassType* type = (PropertyClosureClassType*) createUnnamedClassType (ClassTypeKind_PropertyClosure);
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_closureMap.copy (closureMap, argCount);
+	type->m_weakMask = weakMask;
 
-	pType->CreateField ("!m_target", pTargetType->GetPropertyPtrType (EPropertyPtrType_Thin));
+	type->createField ("!m_target", targetType->getPropertyPtrType (PropertyPtrTypeKind_Thin));
 
-	rtl::CString ArgFieldName;
+	rtl::String argFieldName;
 
-	for (size_t i = 0; i < ArgCount; i++)
+	for (size_t i = 0; i < argCount; i++)
 	{
-		ArgFieldName.Format ("m_arg%d", i);
+		argFieldName.format ("m_arg%d", i);
 
-		CStructField* pField = pType->CreateField (ArgFieldName, ppArgTypeArray [i]);
-		if (WeakMask & (2 << i)) // account for field #0 property ptr
-			pField->m_Flags |= EStructFieldFlag_WeakMasked;
+		StructField* field = type->createField (argFieldName, argTypeArray [i]);
+		if (weakMask & (2 << i)) // account for field #0 property ptr
+			field->m_flags |= StructFieldFlagKind_WeakMasked;
 	}
 
-	CProperty* pThunkProperty = m_pModule->m_FunctionMgr.CreateProperty (EProperty_Normal, "m_thunkProperty");
-	pType->AddProperty (pThunkProperty);
-	pType->m_pThunkProperty = pThunkProperty;
+	Property* thunkProperty = m_module->m_functionMgr.createProperty (PropertyKind_Normal, "m_thunkProperty");
+	type->addProperty (thunkProperty);
+	type->m_thunkProperty = thunkProperty;
 
-	pThunkProperty->Create (pThunkType);
+	thunkProperty->create (thunkType);
 
-	pType->EnsureLayout ();
-	m_pModule->MarkForCompile (pType);
+	type->ensureLayout ();
+	m_module->markForCompile (type);
 
-	It->m_Value = pType;
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CDataClosureClassType*
-CTypeMgr::GetDataClosureClassType (
-	CType* pTargetType,
-	CPropertyType* pThunkType
+DataClosureClassType*
+TypeMgr::getDataClosureClassType (
+	Type* targetType,
+	PropertyType* thunkType
 	)
 {
-	rtl::CString Signature = CDataClosureClassType::CreateSignature (pTargetType, pThunkType);
+	rtl::String signature = DataClosureClassType::createSignature (targetType, thunkType);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CDataClosureClassType* pType = (CDataClosureClassType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		DataClosureClassType* type = (DataClosureClassType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CDataClosureClassType* pType = (CDataClosureClassType*) CreateUnnamedClassType (EClassType_DataClosure);
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->CreateField ("!m_target", pTargetType->GetDataPtrType ());
+	DataClosureClassType* type = (DataClosureClassType*) createUnnamedClassType (ClassTypeKind_DataClosure);
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->createField ("!m_target", targetType->getDataPtrType ());
 
-	CProperty* pThunkProperty = m_pModule->m_FunctionMgr.CreateProperty (EProperty_Normal, "m_thunkProperty");
-	pType->AddProperty (pThunkProperty);
-	pType->m_pThunkProperty = pThunkProperty;
+	Property* thunkProperty = m_module->m_functionMgr.createProperty (PropertyKind_Normal, "m_thunkProperty");
+	type->addProperty (thunkProperty);
+	type->m_thunkProperty = thunkProperty;
 
-	pThunkProperty->Create (pThunkType);
+	thunkProperty->create (thunkType);
 
-	pType->EnsureLayout ();
-	m_pModule->MarkForCompile (pType);
+	type->ensureLayout ();
+	m_module->markForCompile (type);
 
-	It->m_Value = pType;
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CDataPtrType*
-CTypeMgr::GetDataPtrType (
-	CNamespace* pAnchorNamespace,
-	CType* pDataType,
-	EType TypeKind,
-	EDataPtrType PtrTypeKind,
-	uint_t Flags
+DataPtrType*
+TypeMgr::getDataPtrType (
+	Namespace* anchorNamespace,
+	Type* dataType,
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	ASSERT ((size_t) PtrTypeKind < EDataPtrType__Count);
-	ASSERT (pDataType->GetTypeKind () != EType_NamedImport); // for imports, GetImportPtrType () should be called
-	ASSERT (TypeKind != EType_DataRef || pDataType->m_TypeKind != EType_DataRef); // dbl reference
+	ASSERT ((size_t) ptrTypeKind < DataPtrTypeKind__Count);
+	ASSERT (dataType->getTypeKind () != TypeKind_NamedImport); // for imports, GetImportPtrType () should be called
+	ASSERT (typeKind != TypeKind_DataRef || dataType->m_typeKind != TypeKind_DataRef); // dbl reference
 
-	if (TypeKind == EType_DataPtr && PtrTypeKind == EDataPtrType_Normal)
-		Flags |= ETypeFlag_GcRoot | ETypeFlag_StructRet;
+	if (typeKind == TypeKind_DataPtr && ptrTypeKind == DataPtrTypeKind_Normal)
+		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
 
-	TDataPtrTypeTuple* pTuple;
+	DataPtrTypeTuple* tuple;
 
-	if (Flags & EPtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlagKind_ConstD)
 	{
-		ASSERT (pAnchorNamespace != NULL);
-		pTuple = GetConstDDataPtrTypeTuple (pAnchorNamespace, pDataType);
+		ASSERT (anchorNamespace != NULL);
+		tuple = getConstDDataPtrTypeTuple (anchorNamespace, dataType);
 	}
 	else
 	{
-		pTuple = GetDataPtrTypeTuple (pDataType);
+		tuple = getDataPtrTypeTuple (dataType);
 	}
 
 	// ref x ptrkind x const x volatile x checked/markup
 
-	size_t i1 = TypeKind == EType_DataRef;
-	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Const) ? 0 : 1;
-	size_t i4 = (Flags & EPtrTypeFlag_Volatile) ? 0 : 1;
-	size_t i5 = (Flags & EPtrTypeFlag_Safe) ? 1 : 0;
+	size_t i1 = typeKind == TypeKind_DataRef;
+	size_t i2 = ptrTypeKind;
+	size_t i3 = (flags & PtrTypeFlagKind_Const) ? 0 : 1;
+	size_t i4 = (flags & PtrTypeFlagKind_Volatile) ? 0 : 1;
+	size_t i5 = (flags & PtrTypeFlagKind_Safe) ? 1 : 0;
 
-	if (pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5])
-		return pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5];
+	if (tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5])
+		return tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5];
 
-	size_t Size = PtrTypeKind == EDataPtrType_Normal ? sizeof (TDataPtr) : sizeof (void*);
+	size_t size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof (DataPtr) : sizeof (void*);
 
-	CDataPtrType* pType = AXL_MEM_NEW (CDataPtrType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = CDataPtrType::CreateSignature (pDataType, TypeKind, PtrTypeKind, Flags);
-	pType->m_TypeKind = TypeKind;
-	pType->m_PtrTypeKind = PtrTypeKind;
-	pType->m_Size = Size;
-	pType->m_AlignFactor = sizeof (void*);
-	pType->m_pTargetType = pDataType;
-	pType->m_pAnchorNamespace = (Flags & EPtrTypeFlag_ConstD) ? pAnchorNamespace : NULL;
-	pType->m_Flags = Flags;
+	DataPtrType* type = AXL_MEM_NEW (DataPtrType);
+	type->m_module = m_module;
+	type->m_signature = DataPtrType::createSignature (dataType, typeKind, ptrTypeKind, flags);
+	type->m_typeKind = typeKind;
+	type->m_ptrTypeKind = ptrTypeKind;
+	type->m_size = size;
+	type->m_alignFactor = sizeof (void*);
+	type->m_targetType = dataType;
+	type->m_anchorNamespace = (flags & PtrTypeFlagKind_ConstD) ? anchorNamespace : NULL;
+	type->m_flags = flags;
 
-	m_DataPtrTypeList.InsertTail (pType);
-	pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5] = pType;
-	return pType;
+	m_dataPtrTypeList.insertTail (type);
+	tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5] = type;
+	return type;
 }
 
-CStructType*
-CTypeMgr::GetDataPtrStructType (CType* pDataType)
+StructType*
+TypeMgr::getDataPtrStructType (Type* dataType)
 {
-	TDataPtrTypeTuple* pTuple = GetDataPtrTypeTuple (pDataType);
-	if (pTuple->m_pPtrStructType)
-		return pTuple->m_pPtrStructType;
+	DataPtrTypeTuple* tuple = getDataPtrTypeTuple (dataType);
+	if (tuple->m_ptrStructType)
+		return tuple->m_ptrStructType;
 
-	CStructType* pType = CreateUnnamedStructType ();
-	pType->m_Tag.Format ("DataPtr <%s>", pDataType->GetTypeString ().cc ());
-	pType->CreateField ("!m_p", pDataType->GetDataPtrType_c ());
-	pType->CreateField ("!m_rangeBegin", GetStdType (EStdType_BytePtr));
-	pType->CreateField ("!m_rangeEnd", GetStdType (EStdType_BytePtr));
-	pType->CreateField ("!m_object", GetStdType (EStdType_ObjHdrPtr));
-	pType->EnsureLayout ();
+	StructType* type = createUnnamedStructType ();
+	type->m_tag.format ("DataPtr <%s>", dataType->getTypeString ().cc ());
+	type->createField ("!m_p", dataType->getDataPtrType_c ());
+	type->createField ("!m_rangeBegin", getStdType (StdTypeKind_BytePtr));
+	type->createField ("!m_rangeEnd", getStdType (StdTypeKind_BytePtr));
+	type->createField ("!m_object", getStdType (StdTypeKind_ObjHdrPtr));
+	type->ensureLayout ();
 
-	pTuple->m_pPtrStructType = pType;
-	return pType;
+	tuple->m_ptrStructType = type;
+	return type;
 }
 
-CClassPtrType*
-CTypeMgr::GetClassPtrType (
-	CNamespace* pAnchorNamespace,
-	CClassType* pClassType,
-	EType TypeKind,
-	EClassPtrType PtrTypeKind,
-	uint_t Flags
+ClassPtrType*
+TypeMgr::getClassPtrType (
+	Namespace* anchorNamespace,
+	ClassType* classType,
+	TypeKind typeKind,
+	ClassPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	ASSERT ((size_t) PtrTypeKind < EClassPtrType__Count);
-	ASSERT (!(Flags & (EPtrTypeFlag_ConstD | EPtrTypeFlag_EventD)) || pAnchorNamespace != NULL);
+	ASSERT ((size_t) ptrTypeKind < ClassPtrTypeKind__Count);
+	ASSERT (!(flags & (PtrTypeFlagKind_ConstD | PtrTypeFlagKind_EventD)) || anchorNamespace != NULL);
 
-	if (TypeKind == EType_ClassPtr)
-		Flags |= ETypeFlag_GcRoot;
+	if (typeKind == TypeKind_ClassPtr)
+		flags |= TypeFlagKind_GcRoot;
 
-	TClassPtrTypeTuple* pTuple;
+	ClassPtrTypeTuple* tuple;
 
-	if (Flags & EPtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlagKind_ConstD)
 	{
-		ASSERT (pAnchorNamespace != NULL);
-		pTuple = GetConstDClassPtrTypeTuple (pAnchorNamespace, pClassType);
+		ASSERT (anchorNamespace != NULL);
+		tuple = getConstDClassPtrTypeTuple (anchorNamespace, classType);
 	}
-	else if (Flags & EPtrTypeFlag_EventD)
+	else if (flags & PtrTypeFlagKind_EventD)
 	{
-		ASSERT (pAnchorNamespace != NULL && pClassType->GetClassTypeKind () == EClassType_Multicast);
-		pTuple = GetEventDClassPtrTypeTuple (pAnchorNamespace, (CMulticastClassType*) pClassType);
+		ASSERT (anchorNamespace != NULL && classType->getClassTypeKind () == ClassTypeKind_Multicast);
+		tuple = getEventDClassPtrTypeTuple (anchorNamespace, (MulticastClassType*) classType);
 	}
-	else if (Flags & EPtrTypeFlag_Event)
+	else if (flags & PtrTypeFlagKind_Event)
 	{
-		ASSERT (pClassType->GetClassTypeKind () == EClassType_Multicast);
-		pTuple = GetEventClassPtrTypeTuple ((CMulticastClassType*) pClassType);
+		ASSERT (classType->getClassTypeKind () == ClassTypeKind_Multicast);
+		tuple = getEventClassPtrTypeTuple ((MulticastClassType*) classType);
 	}
 	else
 	{
-		pTuple = GetClassPtrTypeTuple (pClassType);
+		tuple = getClassPtrTypeTuple (classType);
 	}
 
 	// ref x ptrkind x const x volatile x checked
 
-	size_t i1 = TypeKind == EType_ClassRef;
-	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Const) ? 0 : 1;
-	size_t i4 = (Flags & EPtrTypeFlag_Volatile) ? 0 : 1;
-	size_t i5 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
+	size_t i1 = typeKind == TypeKind_ClassRef;
+	size_t i2 = ptrTypeKind;
+	size_t i3 = (flags & PtrTypeFlagKind_Const) ? 0 : 1;
+	size_t i4 = (flags & PtrTypeFlagKind_Volatile) ? 0 : 1;
+	size_t i5 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
 
-	if (pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5])
-		return pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5];
+	if (tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5])
+		return tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5];
 
-	CClassPtrType* pType = AXL_MEM_NEW (CClassPtrType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = CClassPtrType::CreateSignature (pClassType, TypeKind, PtrTypeKind, Flags);
-	pType->m_TypeKind = TypeKind;
-	pType->m_PtrTypeKind = PtrTypeKind;
-	pType->m_pTargetType = pClassType;
-	pType->m_pAnchorNamespace = (Flags & (EPtrTypeFlag_ConstD | EPtrTypeFlag_EventD)) ? pAnchorNamespace : NULL;
-	pType->m_Flags = Flags;
+	ClassPtrType* type = AXL_MEM_NEW (ClassPtrType);
+	type->m_module = m_module;
+	type->m_signature = ClassPtrType::createSignature (classType, typeKind, ptrTypeKind, flags);
+	type->m_typeKind = typeKind;
+	type->m_ptrTypeKind = ptrTypeKind;
+	type->m_targetType = classType;
+	type->m_anchorNamespace = (flags & (PtrTypeFlagKind_ConstD | PtrTypeFlagKind_EventD)) ? anchorNamespace : NULL;
+	type->m_flags = flags;
 
-	m_ClassPtrTypeList.InsertTail (pType);
-	pTuple->m_PtrTypeArray [i1] [i2] [i3] [i4] [i5] = pType;
-	return pType;
+	m_classPtrTypeList.insertTail (type);
+	tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5] = type;
+	return type;
 }
 
-CFunctionPtrType*
-CTypeMgr::GetFunctionPtrType (
-	CFunctionType* pFunctionType,
-	EType TypeKind,
-	EFunctionPtrType PtrTypeKind,
-	uint_t Flags
+FunctionPtrType*
+TypeMgr::getFunctionPtrType (
+	FunctionType* functionType,
+	TypeKind typeKind,
+	FunctionPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	ASSERT (TypeKind == EType_FunctionPtr || TypeKind == EType_FunctionRef);
-	ASSERT ((size_t) PtrTypeKind < EFunctionPtrType__Count);
+	ASSERT (typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
+	ASSERT ((size_t) ptrTypeKind < FunctionPtrTypeKind__Count);
 
-	if (TypeKind == EType_FunctionPtr && PtrTypeKind != EFunctionPtrType_Thin)
-		Flags |= ETypeFlag_GcRoot | ETypeFlag_StructRet;
+	if (typeKind == TypeKind_FunctionPtr && ptrTypeKind != FunctionPtrTypeKind_Thin)
+		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
 
-	TFunctionPtrTypeTuple* pTuple = GetFunctionPtrTypeTuple (pFunctionType);
+	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
 
 	// ref x kind x checked
 
-	size_t i1 = TypeKind == EType_FunctionRef;
-	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
+	size_t i1 = typeKind == TypeKind_FunctionRef;
+	size_t i2 = ptrTypeKind;
+	size_t i3 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
 
-	if (pTuple->m_PtrTypeArray [i1] [i2] [i3])
-		return pTuple->m_PtrTypeArray [i1] [i2] [i3];
+	if (tuple->m_ptrTypeArray [i1] [i2] [i3])
+		return tuple->m_ptrTypeArray [i1] [i2] [i3];
 
-	size_t Size = PtrTypeKind == EFunctionPtrType_Thin ? sizeof (void*) : sizeof (TFunctionPtr);
+	size_t size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof (void*) : sizeof (FunctionPtr);
 
-	CFunctionPtrType* pType = AXL_MEM_NEW (CFunctionPtrType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = CFunctionPtrType::CreateSignature (pFunctionType, TypeKind, PtrTypeKind, Flags);
-	pType->m_TypeKind = TypeKind;
-	pType->m_PtrTypeKind = PtrTypeKind;
-	pType->m_Size = Size;
-	pType->m_AlignFactor = sizeof (void*);
-	pType->m_pTargetType = pFunctionType;
-	pType->m_Flags = Flags;
+	FunctionPtrType* type = AXL_MEM_NEW (FunctionPtrType);
+	type->m_module = m_module;
+	type->m_signature = FunctionPtrType::createSignature (functionType, typeKind, ptrTypeKind, flags);
+	type->m_typeKind = typeKind;
+	type->m_ptrTypeKind = ptrTypeKind;
+	type->m_size = size;
+	type->m_alignFactor = sizeof (void*);
+	type->m_targetType = functionType;
+	type->m_flags = flags;
 
-	m_FunctionPtrTypeList.InsertTail (pType);
-	pTuple->m_PtrTypeArray [i1] [i2] [i3] = pType;
-	return pType;
+	m_functionPtrTypeList.insertTail (type);
+	tuple->m_ptrTypeArray [i1] [i2] [i3] = type;
+	return type;
 }
 
-CStructType*
-CTypeMgr::GetFunctionPtrStructType (CFunctionType* pFunctionType)
+StructType*
+TypeMgr::getFunctionPtrStructType (FunctionType* functionType)
 {
-	TFunctionPtrTypeTuple* pTuple = GetFunctionPtrTypeTuple (pFunctionType);
-	if (pTuple->m_pPtrStructType)
-		return pTuple->m_pPtrStructType;
+	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
+	if (tuple->m_ptrStructType)
+		return tuple->m_ptrStructType;
 
-	rtl::CString Signature;
-	Signature.Format ("SP%s", pFunctionType->GetSignature ().cc ());
+	rtl::String signature;
+	signature.format ("SP%s", functionType->getSignature ().cc ());
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CStructType* pType = (CStructType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		StructType* type = (StructType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CFunctionType* pStdObjectMemberMethodType = pFunctionType->GetStdObjectMemberMethodType ();
+	FunctionType* stdObjectMemberMethodType = functionType->getStdObjectMemberMethodType ();
 
-	CStructType* pType = CreateUnnamedStructType ();
-	pType->m_Tag.Format ("FunctionPtr <%s>", pFunctionType->GetTypeString ().cc ());
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->CreateField ("!m_p", pStdObjectMemberMethodType->GetFunctionPtrType (EFunctionPtrType_Thin));
-	pType->CreateField ("!m_closure", GetStdType (EStdType_ObjectPtr));
-	pType->EnsureLayout ();
+	StructType* type = createUnnamedStructType ();
+	type->m_tag.format ("FunctionPtr <%s>", functionType->getTypeString ().cc ());
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->createField ("!m_p", stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+	type->createField ("!m_closure", getStdType (StdTypeKind_ObjectPtr));
+	type->ensureLayout ();
 
-	pTuple->m_pPtrStructType = pType;
-	It->m_Value = pType;
-	return pType;
+	tuple->m_ptrStructType = type;
+	it->m_value = type;
+	return type;
 }
 
-CPropertyPtrType*
-CTypeMgr::GetPropertyPtrType (
-	CNamespace* pAnchorNamespace,
-	CPropertyType* pPropertyType,
-	EType TypeKind,
-	EPropertyPtrType PtrTypeKind,
-	uint_t Flags
+PropertyPtrType*
+TypeMgr::getPropertyPtrType (
+	Namespace* anchorNamespace,
+	PropertyType* propertyType,
+	TypeKind typeKind,
+	PropertyPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	ASSERT (TypeKind == EType_PropertyPtr || TypeKind == EType_PropertyRef);
-	ASSERT ((size_t) PtrTypeKind < EPropertyPtrType__Count);
+	ASSERT (typeKind == TypeKind_PropertyPtr || typeKind == TypeKind_PropertyRef);
+	ASSERT ((size_t) ptrTypeKind < PropertyPtrTypeKind__Count);
 
-	if (TypeKind == EType_PropertyPtr && PtrTypeKind != EPropertyPtrType_Thin)
-		Flags |= ETypeFlag_GcRoot | ETypeFlag_StructRet;
+	if (typeKind == TypeKind_PropertyPtr && ptrTypeKind != PropertyPtrTypeKind_Thin)
+		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
 
-	TPropertyPtrTypeTuple* pTuple;
+	PropertyPtrTypeTuple* tuple;
 
-	if (Flags & EPtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlagKind_ConstD)
 	{
-		ASSERT (pAnchorNamespace != NULL);
-		pTuple = GetConstDPropertyPtrTypeTuple (pAnchorNamespace, pPropertyType);
+		ASSERT (anchorNamespace != NULL);
+		tuple = getConstDPropertyPtrTypeTuple (anchorNamespace, propertyType);
 	}
 	else
 	{
-		pTuple = GetPropertyPtrTypeTuple (pPropertyType);
+		tuple = getPropertyPtrTypeTuple (propertyType);
 	}
 
 	// ref x kind x checked
 
-	size_t i1 = TypeKind == EType_PropertyRef;
-	size_t i2 = PtrTypeKind;
-	size_t i3 = (Flags & EPtrTypeFlag_Safe) ? 0 : 1;
+	size_t i1 = typeKind == TypeKind_PropertyRef;
+	size_t i2 = ptrTypeKind;
+	size_t i3 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
 
-	if (pTuple->m_PtrTypeArray [i1] [i2] [i3])
-		return pTuple->m_PtrTypeArray [i1] [i2] [i3];
+	if (tuple->m_ptrTypeArray [i1] [i2] [i3])
+		return tuple->m_ptrTypeArray [i1] [i2] [i3];
 
-	size_t Size = PtrTypeKind == EPropertyPtrType_Thin ? sizeof (void*) : sizeof (TPropertyPtr);
+	size_t size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof (void*) : sizeof (PropertyPtr);
 
-	CPropertyPtrType* pType = AXL_MEM_NEW (CPropertyPtrType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = CPropertyPtrType::CreateSignature (pPropertyType, TypeKind, PtrTypeKind, Flags);
-	pType->m_TypeKind = TypeKind;
-	pType->m_PtrTypeKind = PtrTypeKind;
-	pType->m_Size = Size;
-	pType->m_AlignFactor = sizeof (void*);
-	pType->m_pTargetType = pPropertyType;
-	pType->m_pAnchorNamespace = (Flags & EPtrTypeFlag_ConstD) ? pAnchorNamespace : NULL;
-	pType->m_Flags = Flags;
+	PropertyPtrType* type = AXL_MEM_NEW (PropertyPtrType);
+	type->m_module = m_module;
+	type->m_signature = PropertyPtrType::createSignature (propertyType, typeKind, ptrTypeKind, flags);
+	type->m_typeKind = typeKind;
+	type->m_ptrTypeKind = ptrTypeKind;
+	type->m_size = size;
+	type->m_alignFactor = sizeof (void*);
+	type->m_targetType = propertyType;
+	type->m_anchorNamespace = (flags & PtrTypeFlagKind_ConstD) ? anchorNamespace : NULL;
+	type->m_flags = flags;
 
-	m_PropertyPtrTypeList.InsertTail (pType);
-	pTuple->m_PtrTypeArray [i1] [i2] [i3] = pType;
-	return pType;
+	m_propertyPtrTypeList.insertTail (type);
+	tuple->m_ptrTypeArray [i1] [i2] [i3] = type;
+	return type;
 }
 
-CStructType*
-CTypeMgr::GetPropertyVTableStructType (CPropertyType* pPropertyType)
+StructType*
+TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 {
-	if (pPropertyType->m_pVTableStructType)
-		return pPropertyType->m_pVTableStructType;
+	if (propertyType->m_pVTableStructType)
+		return propertyType->m_pVTableStructType;
 
-	CStructType* pType = CreateUnnamedStructType ();
-	pType->m_Tag.Format ("%s.Vtbl", pPropertyType->GetTypeString ().cc ());
+	StructType* type = createUnnamedStructType ();
+	type->m_tag.format ("%s.Vtbl", propertyType->getTypeString ().cc ());
 
-	if (pPropertyType->GetFlags () & EPropertyTypeFlag_Bindable)
-		pType->CreateField ("!m_binder", pPropertyType->m_pBinderType->GetFunctionPtrType (EFunctionPtrType_Thin));
+	if (propertyType->getFlags () & PropertyTypeFlagKind_Bindable)
+		type->createField ("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 
-	pType->CreateField ("!m_getter", pPropertyType->m_pGetterType->GetFunctionPtrType (EFunctionPtrType_Thin));
+	type->createField ("!m_getter", propertyType->m_getterType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 
-	rtl::CString SetterFieldName;
+	rtl::String setterFieldName;
 
-	size_t SetterTypeOverloadCount = pPropertyType->m_SetterType.GetOverloadCount ();
-	for (size_t i = 0; i < SetterTypeOverloadCount; i++)
+	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount ();
+	for (size_t i = 0; i < setterTypeOverloadCount; i++)
 	{
-		SetterFieldName.Format ("!m_setter%d", i);
+		setterFieldName.format ("!m_setter%d", i);
 
-		CFunctionType* pSetterType = pPropertyType->m_SetterType.GetOverload (i);
-		pType->CreateField (SetterFieldName, pSetterType->GetFunctionPtrType (EFunctionPtrType_Thin));
+		FunctionType* setterType = propertyType->m_setterType.getOverload (i);
+		type->createField (setterFieldName, setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 	}
 
-	pType->EnsureLayout ();
+	type->ensureLayout ();
 
-	pPropertyType->m_pVTableStructType = pType;
-	return pType;
+	propertyType->m_pVTableStructType = type;
+	return type;
 }
 
-CStructType*
-CTypeMgr::GetPropertyPtrStructType (CPropertyType* pPropertyType)
+StructType*
+TypeMgr::getPropertyPtrStructType (PropertyType* propertyType)
 {
-	TPropertyPtrTypeTuple* pTuple = GetPropertyPtrTypeTuple (pPropertyType);
-	if (pTuple->m_pPtrStructType)
-		return pTuple->m_pPtrStructType;
+	PropertyPtrTypeTuple* tuple = getPropertyPtrTypeTuple (propertyType);
+	if (tuple->m_ptrStructType)
+		return tuple->m_ptrStructType;
 
-	rtl::CString Signature;
-	Signature.Format ("SP%s", pPropertyType->GetSignature ().cc ());
+	rtl::String signature;
+	signature.format ("SP%s", propertyType->getSignature ().cc ());
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CStructType* pType = (CStructType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		StructType* type = (StructType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CPropertyType* pStdObjectMemberPropertyType = pPropertyType->GetStdObjectMemberPropertyType ();
+	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();
 
-	CStructType* pType = CreateUnnamedStructType ();
-	pType->m_Tag.Format ("PropertyPtr <%s>", pPropertyType->GetTypeString ().cc ());
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->CreateField ("!m_p", pStdObjectMemberPropertyType->GetVTableStructType ()->GetDataPtrType_c ());
-	pType->CreateField ("!m_closure", GetStdType (EStdType_ObjectPtr));
-	pType->EnsureLayout ();
+	StructType* type = createUnnamedStructType ();
+	type->m_tag.format ("PropertyPtr <%s>", propertyType->getTypeString ().cc ());
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->createField ("!m_p", stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ());
+	type->createField ("!m_closure", getStdType (StdTypeKind_ObjectPtr));
+	type->ensureLayout ();
 
-	pTuple->m_pPtrStructType = pType;
-	It->m_Value = pType;
-	return pType;
+	tuple->m_ptrStructType = type;
+	it->m_value = type;
+	return type;
 }
 
-CNamedImportType*
-CTypeMgr::GetNamedImportType (
-	const CQualifiedName& Name,
-	CNamespace* pAnchorNamespace
+NamedImportType*
+TypeMgr::getNamedImportType (
+	const QualifiedName& name,
+	Namespace* anchorNamespace
 	)
 {
-	rtl::CString Signature = CNamedImportType::CreateSignature (Name, pAnchorNamespace);
+	rtl::String signature = NamedImportType::createSignature (name, anchorNamespace);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CNamedImportType* pType = (CNamedImportType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		NamedImportType* type = (NamedImportType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CNamedImportType* pType = AXL_MEM_NEW (CNamedImportType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_Name = Name;
-	pType->m_QualifiedName = pAnchorNamespace->CreateQualifiedName (Name);
-	pType->m_pAnchorNamespace = pAnchorNamespace;
-	pType->m_pModule = m_pModule;
+	NamedImportType* type = AXL_MEM_NEW (NamedImportType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_name = name;
+	type->m_qualifiedName = anchorNamespace->createQualifiedName (name);
+	type->m_anchorNamespace = anchorNamespace;
+	type->m_module = m_module;
 
-	m_NamedImportTypeList.InsertTail (pType);
-	It->m_Value = pType;
+	m_namedImportTypeList.insertTail (type);
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CImportPtrType*
-CTypeMgr::GetImportPtrType (
-	CNamedImportType* pNamedImportType,
-	uint_t TypeModifiers,
-	uint_t Flags
+ImportPtrType*
+TypeMgr::getImportPtrType (
+	NamedImportType* namedImportType,
+	uint_t typeModifiers,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = CImportPtrType::CreateSignature (
-		pNamedImportType,
-		TypeModifiers,
-		Flags
+	rtl::String signature = ImportPtrType::createSignature (
+		namedImportType,
+		typeModifiers,
+		flags
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CImportPtrType* pType = (CImportPtrType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		ImportPtrType* type = (ImportPtrType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CImportPtrType* pType = AXL_MEM_NEW (CImportPtrType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pTargetType = pNamedImportType;
-	pType->m_TypeModifiers = TypeModifiers;
-	pType->m_Flags = Flags;
+	ImportPtrType* type = AXL_MEM_NEW (ImportPtrType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_targetType = namedImportType;
+	type->m_typeModifiers = typeModifiers;
+	type->m_flags = flags;
 
-	m_ImportPtrTypeList.InsertTail (pType);
-	It->m_Value = pType;
+	m_importPtrTypeList.insertTail (type);
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CImportIntModType*
-CTypeMgr::GetImportIntModType (
-	CNamedImportType* pNamedImportType,
-	uint_t TypeModifiers,
-	uint_t Flags
+ImportIntModType*
+TypeMgr::getImportIntModType (
+	NamedImportType* namedImportType,
+	uint_t typeModifiers,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = CImportIntModType::CreateSignature (
-		pNamedImportType,
-		TypeModifiers,
-		Flags
+	rtl::String signature = ImportIntModType::createSignature (
+		namedImportType,
+		typeModifiers,
+		flags
 		);
 
-	rtl::CStringHashTableMapIteratorT <CType*> It = m_TypeMap.Goto (Signature);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
 	{
-		CImportIntModType* pType = (CImportIntModType*) It->m_Value;
-		ASSERT (pType->m_Signature == Signature);
-		return pType;
+		ImportIntModType* type = (ImportIntModType*) it->m_value;
+		ASSERT (type->m_signature == signature);
+		return type;
 	}
 
-	CImportIntModType* pType = AXL_MEM_NEW (CImportIntModType);
-	pType->m_pModule = m_pModule;
-	pType->m_Signature = Signature;
-	pType->m_TypeMapIt = It;
-	pType->m_pImportType = pNamedImportType;
-	pType->m_TypeModifiers = TypeModifiers;
-	pType->m_Flags = Flags;
+	ImportIntModType* type = AXL_MEM_NEW (ImportIntModType);
+	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_typeMapIt = it;
+	type->m_importType = namedImportType;
+	type->m_typeModifiers = typeModifiers;
+	type->m_flags = flags;
 
-	m_ImportIntModTypeList.InsertTail (pType);
-	It->m_Value = pType;
+	m_importIntModTypeList.insertTail (type);
+	it->m_value = type;
 
-	return pType;
+	return type;
 }
 
-CType*
-CTypeMgr::GetCheckedPtrType (CType* pType)
+Type*
+TypeMgr::getCheckedPtrType (Type* type)
 {
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_DataPtr:
-		return ((CDataPtrType*) pType)->GetCheckedPtrType ();
+	case TypeKind_DataPtr:
+		return ((DataPtrType*) type)->getCheckedPtrType ();
 
-	case EType_ClassPtr:
-		return ((CClassPtrType*) pType)->GetCheckedPtrType ();
+	case TypeKind_ClassPtr:
+		return ((ClassPtrType*) type)->getCheckedPtrType ();
 
-	case EType_FunctionPtr:
-		return ((CFunctionPtrType*) pType)->GetCheckedPtrType ();
+	case TypeKind_FunctionPtr:
+		return ((FunctionPtrType*) type)->getCheckedPtrType ();
 
-	case EType_PropertyPtr:
-		return ((CPropertyPtrType*) pType)->GetCheckedPtrType ();
+	case TypeKind_PropertyPtr:
+		return ((PropertyPtrType*) type)->getCheckedPtrType ();
 
-	case EType_ImportPtr:
-		return ((CImportPtrType*) pType)->GetCheckedPtrType ();
+	case TypeKind_ImportPtr:
+		return ((ImportPtrType*) type)->getCheckedPtrType ();
 
 	default:
 		ASSERT (false);
-		return pType;
+		return type;
 	}
 }
 
-CStructType*
-CTypeMgr::GetGcShadowStackFrameMapType (size_t RootCount)
+StructType*
+TypeMgr::getGcShadowStackFrameMapType (size_t rootCount)
 {
-	ASSERT (RootCount);
+	ASSERT (rootCount);
 
-	size_t Count = m_GcShadowStackFrameTypeArray.GetCount ();
-	if (RootCount >= Count)
-		m_GcShadowStackFrameTypeArray.SetCount (RootCount + 1);
+	size_t count = m_gcShadowStackFrameTypeArray.getCount ();
+	if (rootCount >= count)
+		m_gcShadowStackFrameTypeArray.setCount (rootCount + 1);
 
-	TGcShadowStackFrameTypePair* pPair = &m_GcShadowStackFrameTypeArray [RootCount];
-	if (pPair->m_pGcShadowStackFrameMapType)
-		return pPair->m_pGcShadowStackFrameMapType;
+	GcShadowStackFrameTypePair* pair = &m_gcShadowStackFrameTypeArray [rootCount];
+	if (pair->m_gcShadowStackFrameMapType)
+		return pair->m_gcShadowStackFrameMapType;
 
-	CArrayType* pArrayType = GetArrayType (GetStdType (EStdType_BytePtr), RootCount);
-	CStructType* pType = CreateStructType ("GcShadowStackFrameMap", "jnc.GcShadowStackFrameMap");
-	pType->CreateField ("!m_count", GetPrimitiveType (EType_SizeT));
-	pType->CreateField ("!m_gcRootTypeArray", pArrayType);
-	pType->EnsureLayout ();
+	ArrayType* arrayType = getArrayType (getStdType (StdTypeKind_BytePtr), rootCount);
+	StructType* type = createStructType ("GcShadowStackFrameMap", "jnc.GcShadowStackFrameMap");
+	type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_gcRootTypeArray", arrayType);
+	type->ensureLayout ();
 
-	pPair->m_pGcShadowStackFrameMapType = pType;
-	return pType;
+	pair->m_gcShadowStackFrameMapType = type;
+	return type;
 }
 
-CStructType*
-CTypeMgr::GetGcShadowStackFrameType (size_t RootCount)
+StructType*
+TypeMgr::getGcShadowStackFrameType (size_t rootCount)
 {
-	CStructType* pMapType = GetGcShadowStackFrameMapType (RootCount);
+	StructType* mapType = getGcShadowStackFrameMapType (rootCount);
 
-	ASSERT (RootCount < m_GcShadowStackFrameTypeArray.GetCount ());
+	ASSERT (rootCount < m_gcShadowStackFrameTypeArray.getCount ());
 
-	TGcShadowStackFrameTypePair* pPair = &m_GcShadowStackFrameTypeArray [RootCount];
-	if (pPair->m_pGcShadowStackFrameType)
-		return pPair->m_pGcShadowStackFrameType;
+	GcShadowStackFrameTypePair* pair = &m_gcShadowStackFrameTypeArray [rootCount];
+	if (pair->m_gcShadowStackFrameType)
+		return pair->m_gcShadowStackFrameType;
 
-	CArrayType* pArrayType = GetArrayType (GetStdType (EStdType_BytePtr), RootCount);
-	CStructType* pType = CreateStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
-	pType->CreateField ("!m_prev", GetStdType (EStdType_BytePtr));
-	pType->CreateField ("!m_map", pMapType->GetDataPtrType_c ());
-	pType->CreateField ("!m_gcRootArray", pArrayType);
-	pType->EnsureLayout ();
+	ArrayType* arrayType = getArrayType (getStdType (StdTypeKind_BytePtr), rootCount);
+	StructType* type = createStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
+	type->createField ("!m_prev", getStdType (StdTypeKind_BytePtr));
+	type->createField ("!m_map", mapType->getDataPtrType_c ());
+	type->createField ("!m_gcRootArray", arrayType);
+	type->ensureLayout ();
 
-	pPair->m_pGcShadowStackFrameType = pType;
-	return pType;
+	pair->m_gcShadowStackFrameType = type;
+	return type;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TDualPtrTypeTuple*
-CTypeMgr::GetDualPtrTypeTuple (
-	CNamespace* pAnchorNamespace,
-	CType* pType
+DualPtrTypeTuple*
+TypeMgr::getDualPtrTypeTuple (
+	Namespace* anchorNamespace,
+	Type* type
 	)
 {
-	rtl::CString Signature = pType->GetSignature ();
-	rtl::CStringHashTableMapIteratorT <TDualPtrTypeTuple*> It = pAnchorNamespace->m_DualPtrTypeTupleMap.Goto (Signature);
-	if (It->m_Value)
-		return It->m_Value;
+	rtl::String signature = type->getSignature ();
+	rtl::StringHashTableMapIterator <DualPtrTypeTuple*> it = anchorNamespace->m_dualPtrTypeTupleMap.visit (signature);
+	if (it->m_value)
+		return it->m_value;
 
-	TDualPtrTypeTuple* pDualPtrTypeTuple = AXL_MEM_NEW (TDualPtrTypeTuple);
-	m_DualPtrTypeTupleList.InsertTail (pDualPtrTypeTuple);
-	It->m_Value = pDualPtrTypeTuple;
-	return pDualPtrTypeTuple;
+	DualPtrTypeTuple* dualPtrTypeTuple = AXL_MEM_NEW (DualPtrTypeTuple);
+	m_dualPtrTypeTupleList.insertTail (dualPtrTypeTuple);
+	it->m_value = dualPtrTypeTuple;
+	return dualPtrTypeTuple;
 }
 
-TSimplePropertyTypeTuple*
-CTypeMgr::GetSimplePropertyTypeTuple (CType* pType)
+SimplePropertyTypeTuple*
+TypeMgr::getSimplePropertyTypeTuple (Type* type)
 {
-	if (pType->m_pSimplePropertyTypeTuple)
-		return pType->m_pSimplePropertyTypeTuple;
+	if (type->m_simplePropertyTypeTuple)
+		return type->m_simplePropertyTypeTuple;
 
-	TSimplePropertyTypeTuple* pTuple = AXL_MEM_NEW (TSimplePropertyTypeTuple);
-	pType->m_pSimplePropertyTypeTuple = pTuple;
-	m_SimplePropertyTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	SimplePropertyTypeTuple* tuple = AXL_MEM_NEW (SimplePropertyTypeTuple);
+	type->m_simplePropertyTypeTuple = tuple;
+	m_simplePropertyTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TFunctionArgTuple*
-CTypeMgr::GetFunctionArgTuple (CType* pType)
+FunctionArgTuple*
+TypeMgr::getFunctionArgTuple (Type* type)
 {
-	if (pType->m_pFunctionArgTuple)
-		return pType->m_pFunctionArgTuple;
+	if (type->m_functionArgTuple)
+		return type->m_functionArgTuple;
 
-	TFunctionArgTuple* pTuple = AXL_MEM_NEW (TFunctionArgTuple);
-	pType->m_pFunctionArgTuple = pTuple;
-	m_FunctionArgTupleList.InsertTail (pTuple);
-	return pTuple;
+	FunctionArgTuple* tuple = AXL_MEM_NEW (FunctionArgTuple);
+	type->m_functionArgTuple = tuple;
+	m_functionArgTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TDataPtrTypeTuple*
-CTypeMgr::GetDataPtrTypeTuple (CType* pType)
+DataPtrTypeTuple*
+TypeMgr::getDataPtrTypeTuple (Type* type)
 {
-	if (pType->m_pDataPtrTypeTuple)
-		return pType->m_pDataPtrTypeTuple;
+	if (type->m_dataPtrTypeTuple)
+		return type->m_dataPtrTypeTuple;
 
-	TDataPtrTypeTuple* pTuple = AXL_MEM_NEW (TDataPtrTypeTuple);
-	pType->m_pDataPtrTypeTuple = pTuple;
-	m_DataPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	DataPtrTypeTuple* tuple = AXL_MEM_NEW (DataPtrTypeTuple);
+	type->m_dataPtrTypeTuple = tuple;
+	m_dataPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TDataPtrTypeTuple*
-CTypeMgr::GetConstDDataPtrTypeTuple (
-	CNamespace* pAnchorNamespace,
-	CType* pType
+DataPtrTypeTuple*
+TypeMgr::getConstDDataPtrTypeTuple (
+	Namespace* anchorNamespace,
+	Type* type
 	)
 {
-	TDualPtrTypeTuple* pDualPtrTypeTuple = GetDualPtrTypeTuple (pAnchorNamespace, pType);
-	if (pDualPtrTypeTuple->m_pConstDDataPtrTypeTuple)
-		return pDualPtrTypeTuple->m_pConstDDataPtrTypeTuple;
+	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, type);
+	if (dualPtrTypeTuple->m_constDDataPtrTypeTuple)
+		return dualPtrTypeTuple->m_constDDataPtrTypeTuple;
 
-	TDataPtrTypeTuple* pTuple = AXL_MEM_NEW (TDataPtrTypeTuple);
-	pDualPtrTypeTuple->m_pConstDDataPtrTypeTuple = pTuple;
-	m_DataPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	DataPtrTypeTuple* tuple = AXL_MEM_NEW (DataPtrTypeTuple);
+	dualPtrTypeTuple->m_constDDataPtrTypeTuple = tuple;
+	m_dataPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TClassPtrTypeTuple*
-CTypeMgr::GetClassPtrTypeTuple (CClassType* pClassType)
+ClassPtrTypeTuple*
+TypeMgr::getClassPtrTypeTuple (ClassType* classType)
 {
-	if (pClassType->m_pClassPtrTypeTuple)
-		return pClassType->m_pClassPtrTypeTuple;
+	if (classType->m_classPtrTypeTuple)
+		return classType->m_classPtrTypeTuple;
 
-	TClassPtrTypeTuple* pTuple = AXL_MEM_NEW (TClassPtrTypeTuple);
-	pClassType->m_pClassPtrTypeTuple = pTuple;
-	m_ClassPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
+	classType->m_classPtrTypeTuple = tuple;
+	m_classPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TClassPtrTypeTuple*
-CTypeMgr::GetConstDClassPtrTypeTuple (
-	CNamespace* pAnchorNamespace,
-	CClassType* pClassType
+ClassPtrTypeTuple*
+TypeMgr::getConstDClassPtrTypeTuple (
+	Namespace* anchorNamespace,
+	ClassType* classType
 	)
 {
-	TDualPtrTypeTuple* pDualPtrTypeTuple = GetDualPtrTypeTuple (pAnchorNamespace, pClassType);
-	if (pDualPtrTypeTuple->m_pConstDClassPtrTypeTuple)
-		return pDualPtrTypeTuple->m_pConstDClassPtrTypeTuple;
+	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
+	if (dualPtrTypeTuple->m_constDClassPtrTypeTuple)
+		return dualPtrTypeTuple->m_constDClassPtrTypeTuple;
 
-	TClassPtrTypeTuple* pTuple = AXL_MEM_NEW (TClassPtrTypeTuple);
-	pDualPtrTypeTuple->m_pConstDClassPtrTypeTuple = pTuple;
-	m_ClassPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
+	dualPtrTypeTuple->m_constDClassPtrTypeTuple = tuple;
+	m_classPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TClassPtrTypeTuple*
-CTypeMgr::GetEventClassPtrTypeTuple (CMulticastClassType* pClassType)
+ClassPtrTypeTuple*
+TypeMgr::getEventClassPtrTypeTuple (MulticastClassType* classType)
 {
-	if (pClassType->m_pEventClassPtrTypeTuple)
-		return pClassType->m_pEventClassPtrTypeTuple;
+	if (classType->m_eventClassPtrTypeTuple)
+		return classType->m_eventClassPtrTypeTuple;
 
-	TClassPtrTypeTuple* pTuple = AXL_MEM_NEW (TClassPtrTypeTuple);
-	pClassType->m_pEventClassPtrTypeTuple = pTuple;
-	m_ClassPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
+	classType->m_eventClassPtrTypeTuple = tuple;
+	m_classPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TClassPtrTypeTuple*
-CTypeMgr::GetEventDClassPtrTypeTuple (
-	CNamespace* pAnchorNamespace,
-	CMulticastClassType* pClassType
+ClassPtrTypeTuple*
+TypeMgr::getEventDClassPtrTypeTuple (
+	Namespace* anchorNamespace,
+	MulticastClassType* classType
 	)
 {
-	TDualPtrTypeTuple* pDualPtrTypeTuple = GetDualPtrTypeTuple (pAnchorNamespace, pClassType);
-	if (pDualPtrTypeTuple->m_pEventDClassPtrTypeTuple)
-		return pDualPtrTypeTuple->m_pEventDClassPtrTypeTuple;
+	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
+	if (dualPtrTypeTuple->m_eventDClassPtrTypeTuple)
+		return dualPtrTypeTuple->m_eventDClassPtrTypeTuple;
 
-	TClassPtrTypeTuple* pTuple = AXL_MEM_NEW (TClassPtrTypeTuple);
-	pDualPtrTypeTuple->m_pEventDClassPtrTypeTuple = pTuple;
-	m_ClassPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
+	dualPtrTypeTuple->m_eventDClassPtrTypeTuple = tuple;
+	m_classPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TFunctionPtrTypeTuple*
-CTypeMgr::GetFunctionPtrTypeTuple (CFunctionType* pFunctionType)
+FunctionPtrTypeTuple*
+TypeMgr::getFunctionPtrTypeTuple (FunctionType* functionType)
 {
-	if (pFunctionType->m_pFunctionPtrTypeTuple)
-		return pFunctionType->m_pFunctionPtrTypeTuple;
+	if (functionType->m_functionPtrTypeTuple)
+		return functionType->m_functionPtrTypeTuple;
 
-	TFunctionPtrTypeTuple* pTuple = AXL_MEM_NEW (TFunctionPtrTypeTuple);
-	pFunctionType->m_pFunctionPtrTypeTuple = pTuple;
-	m_FunctionPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	FunctionPtrTypeTuple* tuple = AXL_MEM_NEW (FunctionPtrTypeTuple);
+	functionType->m_functionPtrTypeTuple = tuple;
+	m_functionPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TPropertyPtrTypeTuple*
-CTypeMgr::GetPropertyPtrTypeTuple (CPropertyType* pPropertyType)
+PropertyPtrTypeTuple*
+TypeMgr::getPropertyPtrTypeTuple (PropertyType* propertyType)
 {
-	if (pPropertyType->m_pPropertyPtrTypeTuple)
-		return pPropertyType->m_pPropertyPtrTypeTuple;
+	if (propertyType->m_propertyPtrTypeTuple)
+		return propertyType->m_propertyPtrTypeTuple;
 
-	TPropertyPtrTypeTuple* pTuple = AXL_MEM_NEW (TPropertyPtrTypeTuple);
-	pPropertyType->m_pPropertyPtrTypeTuple = pTuple;
-	m_PropertyPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	PropertyPtrTypeTuple* tuple = AXL_MEM_NEW (PropertyPtrTypeTuple);
+	propertyType->m_propertyPtrTypeTuple = tuple;
+	m_propertyPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
-TPropertyPtrTypeTuple*
-CTypeMgr::GetConstDPropertyPtrTypeTuple (
-	CNamespace* pAnchorNamespace,
-	CPropertyType* pPropertyType
+PropertyPtrTypeTuple*
+TypeMgr::getConstDPropertyPtrTypeTuple (
+	Namespace* anchorNamespace,
+	PropertyType* propertyType
 	)
 {
-	TDualPtrTypeTuple* pDualPtrTypeTuple = GetDualPtrTypeTuple (pAnchorNamespace, pPropertyType);
-	if (pDualPtrTypeTuple->m_pConstDPropertyPtrTypeTuple)
-		return pDualPtrTypeTuple->m_pConstDPropertyPtrTypeTuple;
+	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, propertyType);
+	if (dualPtrTypeTuple->m_constDPropertyPtrTypeTuple)
+		return dualPtrTypeTuple->m_constDPropertyPtrTypeTuple;
 
-	TPropertyPtrTypeTuple* pTuple = AXL_MEM_NEW (TPropertyPtrTypeTuple);
-	pDualPtrTypeTuple->m_pConstDPropertyPtrTypeTuple = pTuple;
-	m_PropertyPtrTypeTupleList.InsertTail (pTuple);
-	return pTuple;
+	PropertyPtrTypeTuple* tuple = AXL_MEM_NEW (PropertyPtrTypeTuple);
+	dualPtrTypeTuple->m_constDPropertyPtrTypeTuple = tuple;
+	m_propertyPtrTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CTypeMgr::SetupAllPrimitiveTypes ()
+TypeMgr::setupAllPrimitiveTypes ()
 {
-	SetupPrimitiveType (EType_Void,      0, "v");
-	SetupPrimitiveType (EType_Variant,   sizeof (TVariant), "z");
-	SetupPrimitiveType (EType_Bool,      1, "b");
-	SetupPrimitiveType (EType_Int8,      1, "is1");
-	SetupPrimitiveType (EType_Int8_u,    1, "iu1");
-	SetupPrimitiveType (EType_Int16,     2, "is2");
-	SetupPrimitiveType (EType_Int16_u,   2, "iu2");
-	SetupPrimitiveType (EType_Int32,     4, "is4");
-	SetupPrimitiveType (EType_Int32_u,   4, "iu4");
-	SetupPrimitiveType (EType_Int64,     8, "is8");
-	SetupPrimitiveType (EType_Int64_u,   8, "iu8");
-	SetupPrimitiveType (EType_Int16_be,  2, "ibs2");
-	SetupPrimitiveType (EType_Int16_beu, 2, "ibu2");
-	SetupPrimitiveType (EType_Int32_be,  4, "ibs4");
-	SetupPrimitiveType (EType_Int32_beu, 4, "ibu4");
-	SetupPrimitiveType (EType_Int64_be,  8, "ibs8");
-	SetupPrimitiveType (EType_Int64_beu, 8, "ibu8");
-	SetupPrimitiveType (EType_Float,     4, "f4");
-	SetupPrimitiveType (EType_Double,    8, "f8");
+	setupPrimitiveType (TypeKind_Void,      0, "v");
+	setupPrimitiveType (TypeKind_Variant,   sizeof (Variant), "z");
+	setupPrimitiveType (TypeKind_Bool,      1, "b");
+	setupPrimitiveType (TypeKind_Int8,      1, "is1");
+	setupPrimitiveType (TypeKind_Int8_u,    1, "iu1");
+	setupPrimitiveType (TypeKind_Int16,     2, "is2");
+	setupPrimitiveType (TypeKind_Int16_u,   2, "iu2");
+	setupPrimitiveType (TypeKind_Int32,     4, "is4");
+	setupPrimitiveType (TypeKind_Int32_u,   4, "iu4");
+	setupPrimitiveType (TypeKind_Int64,     8, "is8");
+	setupPrimitiveType (TypeKind_Int64_u,   8, "iu8");
+	setupPrimitiveType (TypeKind_Int16_be,  2, "ibs2");
+	setupPrimitiveType (TypeKind_Int16_beu, 2, "ibu2");
+	setupPrimitiveType (TypeKind_Int32_be,  4, "ibs4");
+	setupPrimitiveType (TypeKind_Int32_beu, 4, "ibu4");
+	setupPrimitiveType (TypeKind_Int64_be,  8, "ibs8");
+	setupPrimitiveType (TypeKind_Int64_beu, 8, "ibu8");
+	setupPrimitiveType (TypeKind_Float,     4, "f4");
+	setupPrimitiveType (TypeKind_Double,    8, "f8");
 }
 
 void
-CTypeMgr::SetupPrimitiveType (
-	EType TypeKind,
-	size_t Size,
-	const char* pSignature
+TypeMgr::setupPrimitiveType (
+	TypeKind typeKind,
+	size_t size,
+	const char* signature
 	)
 {
-	ASSERT (TypeKind < EType__PrimitiveTypeCount);
+	ASSERT (typeKind < TypeKind__PrimitiveTypeCount);
 
-	CType* pType = &m_PrimitiveTypeArray [TypeKind];
-	pType->m_pModule = m_pModule;
-	pType->m_TypeKind = TypeKind;
-	pType->m_Flags = ETypeFlag_Pod | EModuleItemFlag_LayoutReady;
-	pType->m_Size = Size;
-	pType->m_AlignFactor = Size;
-	pType->m_Signature = pSignature;
-	pType->m_pLlvmType = NULL;
-	pType->m_LlvmDiType = llvm::DIType ();
-	pType->m_pSimplePropertyTypeTuple = NULL;
-	pType->m_pFunctionArgTuple = NULL;
-	pType->m_pDataPtrTypeTuple = NULL;
-	pType->m_pBoxClassType = NULL;
+	Type* type = &m_primitiveTypeArray [typeKind];
+	type->m_module = m_module;
+	type->m_typeKind = typeKind;
+	type->m_flags = TypeFlagKind_Pod | ModuleItemFlagKind_LayoutReady;
+	type->m_size = size;
+	type->m_alignFactor = size;
+	type->m_signature = signature;
+	type->m_llvmType = NULL;
+	type->m_llvmDiType = llvm::DIType ();
+	type->m_simplePropertyTypeTuple = NULL;
+	type->m_functionArgTuple = NULL;
+	type->m_dataPtrTypeTuple = NULL;
+	type->m_boxClassType = NULL;
 }
 
 void
-CTypeMgr::SetupCallConvTable ()
+TypeMgr::setupCallConvTable ()
 {
-	m_CallConvTable [ECallConv_Jnccall_msc32]  = &m_JnccallCallConv_msc32;
-	m_CallConvTable [ECallConv_Jnccall_msc64]  = &m_JnccallCallConv_msc64;
-	m_CallConvTable [ECallConv_Jnccall_gcc32]  = &m_JnccallCallConv_gcc32;
-	m_CallConvTable [ECallConv_Jnccall_gcc64]  = &m_JnccallCallConv_gcc64;
-	m_CallConvTable [ECallConv_Cdecl_msc32]    = &m_CdeclCallConv_msc32;
-	m_CallConvTable [ECallConv_Cdecl_msc64]    = &m_CdeclCallConv_msc64;
-	m_CallConvTable [ECallConv_Cdecl_gcc32]    = &m_CdeclCallConv_gcc32;
-	m_CallConvTable [ECallConv_Cdecl_gcc64]    = &m_CdeclCallConv_gcc64;
-	m_CallConvTable [ECallConv_Stdcall_msc32]  = &m_StdcallCallConv_msc32;
-	m_CallConvTable [ECallConv_Stdcall_gcc32]  = &m_StdcallCallConv_gcc32;
-	m_CallConvTable [ECallConv_Thiscall_msc32] = &m_ThiscallCallConv_msc32;
+	m_callConvTable [CallConvKind_Jnccall_msc32]  = &m_jnccallCallConv_msc32;
+	m_callConvTable [CallConvKind_Jnccall_msc64]  = &m_jnccallCallConv_msc64;
+	m_callConvTable [CallConvKind_Jnccall_gcc32]  = &m_jnccallCallConv_gcc32;
+	m_callConvTable [CallConvKind_Jnccall_gcc64]  = &m_jnccallCallConv_gcc64;
+	m_callConvTable [CallConvKind_Cdecl_msc32]    = &m_cdeclCallConv_msc32;
+	m_callConvTable [CallConvKind_Cdecl_msc64]    = &m_cdeclCallConv_msc64;
+	m_callConvTable [CallConvKind_Cdecl_gcc32]    = &m_cdeclCallConv_gcc32;
+	m_callConvTable [CallConvKind_Cdecl_gcc64]    = &m_cdeclCallConv_gcc64;
+	m_callConvTable [CallConvKind_Stdcall_msc32]  = &m_stdcallCallConv_msc32;
+	m_callConvTable [CallConvKind_Stdcall_gcc32]  = &m_stdcallCallConv_gcc32;
+	m_callConvTable [CallConvKind_Thiscall_msc32] = &m_thiscallCallConv_msc32;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-CStructType*
-CTypeMgr::CreateObjHdrType ()
+StructType*
+TypeMgr::createObjHdrType ()
 {
-	CStructType* pType = CreateStructType ("ObjHdr", "jnc.ObjHdr");
-	pType->CreateField ("!m_scopeLevel", GetPrimitiveType (EType_SizeT));
-	pType->CreateField ("!m_root", pType->GetDataPtrType_c ());
-	pType->CreateField ("!m_type", GetStdType (EStdType_BytePtr));
-	pType->CreateField ("!m_flags", GetPrimitiveType (EType_Int_p));
-	pType->EnsureLayout ();
-	return pType;
+	StructType* type = createStructType ("ObjHdr", "jnc.ObjHdr");
+	type->createField ("!m_scopeLevel", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_root", type->getDataPtrType_c ());
+	type->createField ("!m_type", getStdType (StdTypeKind_BytePtr));
+	type->createField ("!m_flags", getPrimitiveType (TypeKind_Int_p));
+	type->ensureLayout ();
+	return type;
 }
 
-CClassType*
-CTypeMgr::CreateObjectType ()
+ClassType*
+TypeMgr::createObjectType ()
 {
-	CClassType* pType = CreateUnnamedClassType (EClassType_StdObject);
-	pType->m_Tag = "object";
-	pType->m_Signature = "CO"; // special signature to ensure type equality between modules
-	pType->EnsureLayout ();
-	return pType;
+	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
+	type->m_tag = "object";
+	type->m_signature = "CO"; // special signature to ensure type equality between modules
+	type->ensureLayout ();
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreateReactorBindSiteType ()
+StructType*
+TypeMgr::createReactorBindSiteType ()
 {
-	CStructType* pType = CreateStructType ("ReactorBindSite", "jnc.ReactorBindSite");
-	pType->CreateField ("!m_event", GetStdType (EStdType_SimpleEventPtr));
-	pType->CreateField ("!m_cookie", GetPrimitiveType (EType_Int_p));
-	pType->EnsureLayout ();
-	return pType;
+	StructType* type = createStructType ("ReactorBindSite", "jnc.ReactorBindSite");
+	type->createField ("!m_event", getStdType (StdTypeKind_SimpleEventPtr));
+	type->createField ("!m_cookie", getPrimitiveType (TypeKind_Int_p));
+	type->ensureLayout ();
+	return type;
 }
 
-CClassType*
-CTypeMgr::CreateSchedulerType ()
+ClassType*
+TypeMgr::createSchedulerType ()
 {
-	CFunctionType* pFunctionType = (CFunctionType*) GetStdType (EStdType_SimpleFunction);
-	CType* pReturnType = GetPrimitiveType (EType_Void);
-	CType* pArgType = pFunctionType->GetFunctionPtrType ();
-	CFunctionType* pScheduleType = GetFunctionType (pReturnType, &pArgType, 1);
+	FunctionType* functionType = (FunctionType*) getStdType (StdTypeKind_SimpleFunction);
+	Type* returnType = getPrimitiveType (TypeKind_Void);
+	Type* argType = functionType->getFunctionPtrType ();
+	FunctionType* scheduleType = getFunctionType (returnType, &argType, 1);
 
-	CClassType* pType = CreateClassType ("Scheduler", "jnc.Scheduler");
-	pType->CreateMethod (EStorage_Abstract, "schedule", pScheduleType);
-	pType->EnsureLayout ();
-	return pType;
+	ClassType* type = createClassType ("Scheduler", "jnc.Scheduler");
+	type->createMethod (StorageKind_Abstract, "schedule", scheduleType);
+	type->ensureLayout ();
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreateFmtLiteralType ()
+StructType*
+TypeMgr::createFmtLiteralType ()
 {
-	CStructType* pType = CreateStructType ("FmtLiteral", "jnc.FmtLiteral");
-	pType->CreateField ("!m_p", GetPrimitiveType (EType_Char)->GetDataPtrType_c ());
-	pType->CreateField ("!m_maxLength", GetPrimitiveType (EType_SizeT));
-	pType->CreateField ("!m_length", GetPrimitiveType (EType_SizeT));
-	pType->EnsureLayout ();
-	return pType;
+	StructType* type = createStructType ("FmtLiteral", "jnc.FmtLiteral");
+	type->createField ("!m_p", getPrimitiveType (TypeKind_Char)->getDataPtrType_c ());
+	type->createField ("!m_maxLength", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_length", getPrimitiveType (TypeKind_SizeT));
+	type->ensureLayout ();
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreateGuidType ()
+StructType*
+TypeMgr::createGuidType ()
 {
-	CStructType* pType = CreateStructType ("Guid", "jnc.Guid");
-	pType->CreateField ("m_data1", GetPrimitiveType (EType_Int32_u));
-	pType->CreateField ("m_data2", GetPrimitiveType (EType_Int16_u));
-	pType->CreateField ("m_data3", GetPrimitiveType (EType_Int16_u));
-	pType->CreateField ("m_data4", GetPrimitiveType (EType_Int8_u)->GetArrayType (8));
-	pType->EnsureLayout ();
-	return pType;
+	StructType* type = createStructType ("Guid", "jnc.Guid");
+	type->createField ("m_data1", getPrimitiveType (TypeKind_Int32_u));
+	type->createField ("m_data2", getPrimitiveType (TypeKind_Int16_u));
+	type->createField ("m_data3", getPrimitiveType (TypeKind_Int16_u));
+	type->createField ("m_data4", getPrimitiveType (TypeKind_Int8_u)->getArrayType (8));
+	type->ensureLayout ();
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreateErrorType ()
+StructType*
+TypeMgr::createErrorType ()
 {
-	CStructType* pType = CreateStructType ("Error", "jnc.Error");
-	pType->CreateField ("m_size", GetPrimitiveType (EType_Int32_u));
-	pType->CreateField ("m_guid", GetStdType (EStdType_Guid));
-	pType->CreateField ("m_code", GetPrimitiveType (EType_Int32_u));
+	StructType* type = createStructType ("Error", "jnc.Error");
+	type->createField ("m_size", getPrimitiveType (TypeKind_Int32_u));
+	type->createField ("m_guid", getStdType (StdTypeKind_Guid));
+	type->createField ("m_code", getPrimitiveType (TypeKind_Int32_u));
 
-	CProperty* pDescription = m_pModule->m_FunctionMgr.CreateProperty ("m_description", "jnc.Error.m_description");
-	pType->AddProperty (pDescription);
+	Property* description = m_module->m_functionMgr.createProperty ("m_description", "jnc.Error.m_description");
+	type->addProperty (description);
 
-	CType* pReturnType = GetPrimitiveType (EType_Char)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-	CPropertyType* pPropertyType = GetSimplePropertyType (pReturnType, EPropertyTypeFlag_Const);
-	pDescription->Create (pPropertyType);
+	Type* returnType = getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+	PropertyType* propertyType = getSimplePropertyType (returnType, PropertyTypeFlagKind_Const);
+	description->create (propertyType);
 
-	pType->EnsureLayout ();
-	return pType;
+	type->ensureLayout ();
+	return type;
 }
 
-CStructType*
-CTypeMgr::CreatePairType (
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	CType* pType1,
-	CType* pType2
+StructType*
+TypeMgr::createPairType (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* type1,
+	Type* type2
 	)
 {
-	CStructType* pType = CreateStructType (Name, QualifiedName);
-	pType->CreateField ("m_a", pType1);
-	pType->CreateField ("m_b", pType2);
-	pType->EnsureLayout ();
-	return pType;
+	StructType* type = createStructType (name, qualifiedName);
+	type->createField ("m_a", type1);
+	type->createField ("m_b", type2);
+	type->ensureLayout ();
+	return type;
 }
 
 //.............................................................................

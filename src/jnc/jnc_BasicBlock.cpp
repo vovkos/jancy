@@ -6,22 +6,22 @@ namespace jnc {
 
 //.............................................................................
 
-CBasicBlock::CBasicBlock ()
+BasicBlock::BasicBlock ()
 {
-	m_pModule = NULL;
-	m_pLlvmBlock = NULL;
-	m_pFunction = NULL;
-	m_Flags = 0;
+	m_module = NULL;
+	m_llvmBlock = NULL;
+	m_function = NULL;
+	m_flags = 0;
 }
 
-CValue
-CBasicBlock::GetBlockAddressValue ()
+Value
+BasicBlock::getBlockAddressValue ()
 {
-	llvm::BlockAddress* pLlvmAddress = llvm::BlockAddress::get (m_pFunction->GetLlvmFunction (), m_pLlvmBlock);
+	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get (m_function->getLlvmFunction (), m_llvmBlock);
 	
-	CValue Value;
-	Value.SetLlvmValue (pLlvmAddress, m_pModule->GetSimpleType (EStdType_BytePtr));
-	return Value;	
+	Value value;
+	value.setLlvmValue (llvmAddress, m_module->getSimpleType (StdTypeKind_BytePtr));
+	return value;	
 }
 
 //.............................................................................

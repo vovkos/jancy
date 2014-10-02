@@ -10,31 +10,31 @@ namespace jnc {
 
 //.............................................................................
 
-class CCast_Struct: public CCastOperator
+class Cast_Struct: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 

@@ -6,41 +6,41 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-GetArithmeticOperatorResultType (CType* pOpType)
+Type*
+getArithmeticOperatorResultType (Type* opType)
 {
-	EType TypeKind = pOpType->GetTypeKind ();
+	TypeKind typeKind = opType->getTypeKind ();
 
-	switch (TypeKind)
+	switch (typeKind)
 	{
-	case EType_Int8:
-	case EType_Int16:
-	case EType_Int16_be:
-	case EType_Int32_be:
-		TypeKind = EType_Int32;
+	case TypeKind_Int8:
+	case TypeKind_Int16:
+	case TypeKind_Int16_be:
+	case TypeKind_Int32_be:
+		typeKind = TypeKind_Int32;
 		break;
 
-	case EType_Int8_u:
-	case EType_Int16_u:
-	case EType_Int16_beu:
-	case EType_Int32_beu:
-		TypeKind = EType_Int32_u;
+	case TypeKind_Int8_u:
+	case TypeKind_Int16_u:
+	case TypeKind_Int16_beu:
+	case TypeKind_Int32_beu:
+		typeKind = TypeKind_Int32_u;
 		break;
 	
-	case EType_Int64_be:
-		TypeKind = EType_Int64;
+	case TypeKind_Int64_be:
+		typeKind = TypeKind_Int64;
 		break;
 
-	case EType_Int64_beu:
-		TypeKind = EType_Int64_u;
+	case TypeKind_Int64_beu:
+		typeKind = TypeKind_Int64_u;
 		break;
 
-	case EType_Int32:
-	case EType_Int32_u:
-	case EType_Int64:
-	case EType_Int64_u:
-	case EType_Float:
-	case EType_Double:
+	case TypeKind_Int32:
+	case TypeKind_Int32_u:
+	case TypeKind_Int64:
+	case TypeKind_Int64_u:
+	case TypeKind_Float:
+	case TypeKind_Double:
 		// no change
 		break;
 
@@ -48,41 +48,41 @@ GetArithmeticOperatorResultType (CType* pOpType)
 		return NULL;
 	}
 
-	return pOpType->GetModule ()->m_TypeMgr.GetPrimitiveType (TypeKind);
+	return opType->getModule ()->m_typeMgr.getPrimitiveType (typeKind);
 }
 
 //.............................................................................
 
 llvm::Value*
-CUnOp_Minus::LlvmOpInt (
-	const CValue& OpValue,
-	CType* pResultType,
-	CValue* pResultValue
+UnOp_Minus::llvmOpInt (
+	const Value& opValue,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateNeg_i (OpValue, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createNeg_i (opValue, resultType, resultValue);
 }
 
 llvm::Value*
-CUnOp_Minus::LlvmOpFp (
-	const CValue& OpValue,
-	CType* pResultType,
-	CValue* pResultValue
+UnOp_Minus::llvmOpFp (
+	const Value& opValue,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateNeg_f (OpValue, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createNeg_f (opValue, resultType, resultValue);
 }
 
 //.............................................................................
 
 llvm::Value*
-CUnOp_BwNot::LlvmOpInt (
-	const CValue& OpValue,
-	CType* pResultType,
-	CValue* pResultValue
+UnOp_BwNot::llvmOpInt (
+	const Value& opValue,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateNot (OpValue, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createNot (opValue, resultType, resultValue);
 }
 
 //.............................................................................

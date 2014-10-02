@@ -31,988 +31,988 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-struct TDualPtrTypeTuple: rtl::TListLink
+struct DualPtrTypeTuple: rtl::ListLink
 {
 	union
 	{
-		TDataPtrTypeTuple* m_pConstDDataPtrTypeTuple;
-		TClassPtrTypeTuple* m_pConstDClassPtrTypeTuple;
-		TPropertyPtrTypeTuple* m_pConstDPropertyPtrTypeTuple;
+		DataPtrTypeTuple* m_constDDataPtrTypeTuple;
+		ClassPtrTypeTuple* m_constDClassPtrTypeTuple;
+		PropertyPtrTypeTuple* m_constDPropertyPtrTypeTuple;
 	};
 
-	TClassPtrTypeTuple* m_pEventDClassPtrTypeTuple;
+	ClassPtrTypeTuple* m_eventDClassPtrTypeTuple;
 };
 
 //.............................................................................
 
-class CTypeMgr
+class TypeMgr
 {
-	friend class CModule;
+	friend class Module;
 
 protected:
-	struct TGcShadowStackFrameTypePair
+	struct GcShadowStackFrameTypePair
 	{
-		CStructType* m_pGcShadowStackFrameType;
-		CStructType* m_pGcShadowStackFrameMapType;
+		StructType* m_gcShadowStackFrameType;
+		StructType* m_gcShadowStackFrameMapType;
 	};
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	CType m_PrimitiveTypeArray [EType__PrimitiveTypeCount];
-	CType* m_StdTypeArray [EStdType__Count];
-	CLazyStdType* m_LazyStdTypeArray [EStdType__Count];
+	Type m_primitiveTypeArray [TypeKind__PrimitiveTypeCount];
+	Type* m_stdTypeArray [StdTypeKind__Count];
+	LazyStdType* m_lazyStdTypeArray [StdTypeKind__Count];
 
-	CJnccallCallConv_msc32 m_JnccallCallConv_msc32;
-	CJnccallCallConv_msc64 m_JnccallCallConv_msc64;
-	CJnccallCallConv_gcc32 m_JnccallCallConv_gcc32;
-	CJnccallCallConv_gcc64 m_JnccallCallConv_gcc64;
-	CCdeclCallConv_msc32 m_CdeclCallConv_msc32;
-	CCdeclCallConv_msc64 m_CdeclCallConv_msc64;
-	CCdeclCallConv_gcc32 m_CdeclCallConv_gcc32;
-	CCdeclCallConv_gcc64 m_CdeclCallConv_gcc64;
-	CStdcallCallConv_msc32 m_StdcallCallConv_msc32;
-	CStdcallCallConv_gcc32 m_StdcallCallConv_gcc32;
-	CThiscallCallConv_msc32 m_ThiscallCallConv_msc32;
+	JnccallCallConv_msc32 m_jnccallCallConv_msc32;
+	JnccallCallConv_msc64 m_jnccallCallConv_msc64;
+	JnccallCallConv_gcc32 m_jnccallCallConv_gcc32;
+	JnccallCallConv_gcc64 m_jnccallCallConv_gcc64;
+	CdeclCallConv_msc32 m_cdeclCallConv_msc32;
+	CdeclCallConv_msc64 m_cdeclCallConv_msc64;
+	CdeclCallConv_gcc32 m_cdeclCallConv_gcc32;
+	CdeclCallConv_gcc64 m_cdeclCallConv_gcc64;
+	StdcallCallConv_msc32 m_stdcallCallConv_msc32;
+	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
+	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;
 
-	CCallConv* m_CallConvTable [ECallConv__Count];
+	CallConv* m_callConvTable [CallConvKind__Count];
 
-	rtl::CStdListT <CArrayType> m_ArrayTypeList;
-	rtl::CStdListT <CBitFieldType> m_BitFieldTypeList;
-	rtl::CStdListT <CEnumType> m_EnumTypeList;
-	rtl::CStdListT <CStructType> m_StructTypeList;
-	rtl::CStdListT <CUnionType> m_UnionTypeList;
-	rtl::CStdListT <CClassType> m_ClassTypeList;
-	rtl::CStdListT <CFunctionType> m_FunctionTypeList;
-	rtl::CStdListT <CPropertyType> m_PropertyTypeList;
-	rtl::CStdListT <CDataPtrType> m_DataPtrTypeList;
-	rtl::CStdListT <CClassPtrType> m_ClassPtrTypeList;
-	rtl::CStdListT <CFunctionPtrType> m_FunctionPtrTypeList;
-	rtl::CStdListT <CPropertyPtrType> m_PropertyPtrTypeList;
-	rtl::CStdListT <CNamedImportType> m_NamedImportTypeList;
-	rtl::CStdListT <CImportPtrType> m_ImportPtrTypeList;
-	rtl::CStdListT <CImportIntModType> m_ImportIntModTypeList;
-	rtl::CStdListT <CReactorClassType> m_ReactorClassTypeList;
-	rtl::CStdListT <CFunctionClosureClassType> m_FunctionClosureClassTypeList;
-	rtl::CStdListT <CPropertyClosureClassType> m_PropertyClosureClassTypeList;
-	rtl::CStdListT <CDataClosureClassType> m_DataClosureClassTypeList;
-	rtl::CStdListT <CMulticastClassType> m_MulticastClassTypeList;
-	rtl::CStdListT <CMcSnapshotClassType> m_McSnapshotClassTypeList;
+	rtl::StdList <ArrayType> m_arrayTypeList;
+	rtl::StdList <BitFieldType> m_bitFieldTypeList;
+	rtl::StdList <EnumType> m_enumTypeList;
+	rtl::StdList <StructType> m_structTypeList;
+	rtl::StdList <UnionType> m_unionTypeList;
+	rtl::StdList <ClassType> m_classTypeList;
+	rtl::StdList <FunctionType> m_functionTypeList;
+	rtl::StdList <PropertyType> m_propertyTypeList;
+	rtl::StdList <DataPtrType> m_dataPtrTypeList;
+	rtl::StdList <ClassPtrType> m_classPtrTypeList;
+	rtl::StdList <FunctionPtrType> m_functionPtrTypeList;
+	rtl::StdList <PropertyPtrType> m_propertyPtrTypeList;
+	rtl::StdList <NamedImportType> m_namedImportTypeList;
+	rtl::StdList <ImportPtrType> m_importPtrTypeList;
+	rtl::StdList <ImportIntModType> m_importIntModTypeList;
+	rtl::StdList <ReactorClassType> m_reactorClassTypeList;
+	rtl::StdList <FunctionClosureClassType> m_functionClosureClassTypeList;
+	rtl::StdList <PropertyClosureClassType> m_propertyClosureClassTypeList;
+	rtl::StdList <DataClosureClassType> m_dataClosureClassTypeList;
+	rtl::StdList <MulticastClassType> m_multicastClassTypeList;
+	rtl::StdList <McSnapshotClassType> m_mcSnapshotClassTypeList;
 
-	rtl::CStdListT <CTypedef> m_TypedefList;
-	rtl::CStdListT <CLazyStdType> m_LazyStdTypeList;
-	rtl::CStdListT <CFunctionArg> m_FunctionArgList;
+	rtl::StdList <Typedef> m_typedefList;
+	rtl::StdList <LazyStdType> m_lazyStdTypeList;
+	rtl::StdList <FunctionArg> m_functionArgList;
 
-	rtl::CStdListT <TSimplePropertyTypeTuple> m_SimplePropertyTypeTupleList;
-	rtl::CStdListT <TFunctionArgTuple> m_FunctionArgTupleList;
-	rtl::CStdListT <TDataPtrTypeTuple> m_DataPtrTypeTupleList;
-	rtl::CStdListT <TClassPtrTypeTuple> m_ClassPtrTypeTupleList;
-	rtl::CStdListT <TFunctionPtrTypeTuple> m_FunctionPtrTypeTupleList;
-	rtl::CStdListT <TPropertyPtrTypeTuple> m_PropertyPtrTypeTupleList;
-	rtl::CStdListT <TDualPtrTypeTuple> m_DualPtrTypeTupleList;
+	rtl::StdList <SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
+	rtl::StdList <FunctionArgTuple> m_functionArgTupleList;
+	rtl::StdList <DataPtrTypeTuple> m_dataPtrTypeTupleList;
+	rtl::StdList <ClassPtrTypeTuple> m_classPtrTypeTupleList;
+	rtl::StdList <FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
+	rtl::StdList <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
+	rtl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
 
-	rtl::CStringHashTableMapT <CType*> m_TypeMap;
-	rtl::CArrayT <TGcShadowStackFrameTypePair> m_GcShadowStackFrameTypeArray;
+	rtl::StringHashTableMap <Type*> m_typeMap;
+	rtl::Array <GcShadowStackFrameTypePair> m_gcShadowStackFrameTypeArray;
 
-	size_t m_UnnamedEnumTypeCounter;
-	size_t m_UnnamedStructTypeCounter;
-	size_t m_UnnamedUnionTypeCounter;
-	size_t m_UnnamedClassTypeCounter;
+	size_t m_unnamedEnumTypeCounter;
+	size_t m_unnamedStructTypeCounter;
+	size_t m_unnamedUnionTypeCounter;
+	size_t m_unnamedClassTypeCounter;
 
 public:
-	CTypeMgr ();
+	TypeMgr ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
 	bool
-	ResolveImportTypes ();
+	resolveImportTypes ();
 
 	void
-	UpdateTypeSignature (
-		CType* pType,
-		const rtl::CString& Signature
+	updateTypeSignature (
+		Type* type,
+		const rtl::String& signature
 		);
 
-	rtl::CConstListT <CArrayType>
-	GetArrayTypeList ()
+	rtl::ConstList <ArrayType>
+	getArrayTypeList ()
 	{
-		return m_ArrayTypeList;
+		return m_arrayTypeList;
 	}
 
-	rtl::CConstListT <CBitFieldType>
-	GetBitFieldTypeList ()
+	rtl::ConstList <BitFieldType>
+	getBitFieldTypeList ()
 	{
-		return m_BitFieldTypeList;
+		return m_bitFieldTypeList;
 	}
 
-	rtl::CConstListT <CEnumType>
-	GetEnumTypeList ()
+	rtl::ConstList <EnumType>
+	getEnumTypeList ()
 	{
-		return m_EnumTypeList;
+		return m_enumTypeList;
 	}
 
-	rtl::CConstListT <CStructType>
-	GetStructTypeList ()
+	rtl::ConstList <StructType>
+	getStructTypeList ()
 	{
-		return m_StructTypeList;
+		return m_structTypeList;
 	}
 
-	rtl::CConstListT <CUnionType>
-	GetUnionTypeList ()
+	rtl::ConstList <UnionType>
+	getUnionTypeList ()
 	{
-		return m_UnionTypeList;
+		return m_unionTypeList;
 	}
 
-	rtl::CConstListT <CClassType>
-	GetClassTypeList ()
+	rtl::ConstList <ClassType>
+	getClassTypeList ()
 	{
-		return m_ClassTypeList;
+		return m_classTypeList;
 	}
 
-	rtl::CConstListT <CFunctionType>
-	GetFunctionTypeList ()
+	rtl::ConstList <FunctionType>
+	getFunctionTypeList ()
 	{
-		return m_FunctionTypeList;
+		return m_functionTypeList;
 	}
 
-	rtl::CConstListT <CPropertyType>
-	GetPropertyTypeList ()
+	rtl::ConstList <PropertyType>
+	getPropertyTypeList ()
 	{
-		return m_PropertyTypeList;
+		return m_propertyTypeList;
 	}
 
-	rtl::CConstListT <CDataPtrType>
-	GetDataPtrTypeList ()
+	rtl::ConstList <DataPtrType>
+	getDataPtrTypeList ()
 	{
-		return m_DataPtrTypeList;
+		return m_dataPtrTypeList;
 	}
 
-	rtl::CConstListT <CClassPtrType>
-	GetClassPtrTypeList ()
+	rtl::ConstList <ClassPtrType>
+	getClassPtrTypeList ()
 	{
-		return m_ClassPtrTypeList;
+		return m_classPtrTypeList;
 	}
 
-	rtl::CConstListT <CFunctionPtrType>
-	GetFunctionPtrTypeList ()
+	rtl::ConstList <FunctionPtrType>
+	getFunctionPtrTypeList ()
 	{
-		return m_FunctionPtrTypeList;
+		return m_functionPtrTypeList;
 	}
 
-	rtl::CConstListT <CPropertyPtrType>
-	GetPropertyPtrTypeList ()
+	rtl::ConstList <PropertyPtrType>
+	getPropertyPtrTypeList ()
 	{
-		return m_PropertyPtrTypeList;
+		return m_propertyPtrTypeList;
 	}
 
-	rtl::CConstListT <CNamedImportType>
-	GetNamedImportTypeList ()
+	rtl::ConstList <NamedImportType>
+	getNamedImportTypeList ()
 	{
-		return m_NamedImportTypeList;
+		return m_namedImportTypeList;
 	}
 
-	rtl::CConstListT <CImportPtrType>
-	GetImportPtrTypeList ()
+	rtl::ConstList <ImportPtrType>
+	getImportPtrTypeList ()
 	{
-		return m_ImportPtrTypeList;
+		return m_importPtrTypeList;
 	}
 
-	rtl::CConstListT <CImportIntModType>
-	GetImportIntModTypeList ()
+	rtl::ConstList <ImportIntModType>
+	getImportIntModTypeList ()
 	{
-		return m_ImportIntModTypeList;
+		return m_importIntModTypeList;
 	}
 
-	rtl::CConstListT <CReactorClassType>
-	GetReactorClassTypeList ()
+	rtl::ConstList <ReactorClassType>
+	getReactorClassTypeList ()
 	{
-		return m_ReactorClassTypeList;
+		return m_reactorClassTypeList;
 	}
 
-	rtl::CConstListT <CFunctionClosureClassType>
-	GetFunctionClosureClassTypeList ()
+	rtl::ConstList <FunctionClosureClassType>
+	getFunctionClosureClassTypeList ()
 	{
-		return m_FunctionClosureClassTypeList;
+		return m_functionClosureClassTypeList;
 	}
 
-	rtl::CConstListT <CPropertyClosureClassType>
-	GetPropertyClosureClassTypeList ()
+	rtl::ConstList <PropertyClosureClassType>
+	getPropertyClosureClassTypeList ()
 	{
-		return m_PropertyClosureClassTypeList;
+		return m_propertyClosureClassTypeList;
 	}
 
-	rtl::CConstListT <CDataClosureClassType>
-	GetDataClosureClassTypeList ()
+	rtl::ConstList <DataClosureClassType>
+	getDataClosureClassTypeList ()
 	{
-		return m_DataClosureClassTypeList;
+		return m_dataClosureClassTypeList;
 	}
 
-	rtl::CConstListT <CMulticastClassType>
-	GetMulticastClassTypeList ()
+	rtl::ConstList <MulticastClassType>
+	getMulticastClassTypeList ()
 	{
-		return m_MulticastClassTypeList;
+		return m_multicastClassTypeList;
 	}
 
-	rtl::CConstListT <CMcSnapshotClassType>
-	GetMcSnapshotClassTypeList ()
+	rtl::ConstList <McSnapshotClassType>
+	getMcSnapshotClassTypeList ()
 	{
-		return m_McSnapshotClassTypeList;
+		return m_mcSnapshotClassTypeList;
 	}
 
-	rtl::CConstListT <CTypedef>
-	GetTypedefList ()
+	rtl::ConstList <Typedef>
+	getTypedefList ()
 	{
-		return m_TypedefList;
+		return m_typedefList;
 	}
 
-	CType*
-	GetPrimitiveType (EType TypeKind)
+	Type*
+	getPrimitiveType (TypeKind typeKind)
 	{
-		ASSERT (TypeKind < EType__PrimitiveTypeCount);
-		return &m_PrimitiveTypeArray [TypeKind];
+		ASSERT (typeKind < TypeKind__PrimitiveTypeCount);
+		return &m_primitiveTypeArray [typeKind];
 	}
 
 	bool
-	IsStdTypeUsed (EStdType StdType)
+	isStdTypeUsed (StdTypeKind stdType)
 	{
-		ASSERT (StdType < EStdType__Count);
-		return m_StdTypeArray [StdType] != NULL;
+		ASSERT (stdType < StdTypeKind__Count);
+		return m_stdTypeArray [stdType] != NULL;
 	}
 
-	CType*
-	GetStdType (EStdType StdType);
+	Type*
+	getStdType (StdTypeKind stdType);
 
-	CLazyStdType*
-	GetLazyStdType (EStdType StdType);
+	LazyStdType*
+	getLazyStdType (StdTypeKind stdType);
 
-	CType*
-	GetInt32Type (int32_t Integer)
+	Type*
+	getInt32Type (int32_t integer)
 	{
-		return GetPrimitiveType (GetInt32TypeKind (Integer));
+		return getPrimitiveType (getInt32TypeKind (integer));
 	}
 
-	CType*
-	GetUInt32Type (uint32_t Integer)
+	Type*
+	getUInt32Type (uint32_t integer)
 	{
-		return GetPrimitiveType (GetInt32TypeKind_u (Integer));
+		return getPrimitiveType (getInt32TypeKind_u (integer));
 	}
 
-	CType*
-	GetInt64Type (int64_t Integer)
+	Type*
+	getInt64Type (int64_t integer)
 	{
-		return GetPrimitiveType (GetInt64TypeKind (Integer));
+		return getPrimitiveType (getInt64TypeKind (integer));
 	}
 
-	CType*
-	GetInt64Type_u (uint64_t Integer)
+	Type*
+	getInt64Type_u (uint64_t integer)
 	{
-		return GetPrimitiveType (GetInt64TypeKind_u (Integer));
+		return getPrimitiveType (getInt64TypeKind_u (integer));
 	}
 
-	CBitFieldType*
-	GetBitFieldType (
-		CType* pBaseType,
-		size_t BitOffset,
-		size_t BitCount
+	BitFieldType*
+	getBitFieldType (
+		Type* baseType,
+		size_t bitOffset,
+		size_t bitCount
 		);
 
-	CArrayType*
-	CreateAutoSizeArrayType (CType* pElementType);
+	ArrayType*
+	createAutoSizeArrayType (Type* elementType);
 
-	CArrayType*
-	CreateArrayType (
-		CType* pElementType,
-		rtl::CBoxListT <CToken>* pElementCountInitializer
+	ArrayType*
+	createArrayType (
+		Type* elementType,
+		rtl::BoxList <Token>* elementCountInitializer
 		);
 
-	CArrayType*
-	GetArrayType (
-		CType* pElementType,
-		size_t ElementCount
+	ArrayType*
+	getArrayType (
+		Type* elementType,
+		size_t elementCount
 		);
 
-	CArrayType*
-	GetArrayType (
-		EType ElementTypeKind,
-		size_t ElementCount
+	ArrayType*
+	getArrayType (
+		TypeKind elementTypeKind,
+		size_t elementCount
 		)
 	{
-		return GetArrayType (GetPrimitiveType (ElementTypeKind), ElementCount);
+		return getArrayType (getPrimitiveType (elementTypeKind), elementCount);
 	}
 
-	CTypedef*
-	CreateTypedef (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CType* pType
+	Typedef*
+	createTypedef (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* type
 		);
 
-	CEnumType*
-	CreateEnumType (
-		EEnumType EnumTypeKind,
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CType* pBaseType = NULL,
-		uint_t Flags = 0
+	EnumType*
+	createEnumType (
+		EnumTypeKind enumTypeKind,
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* baseType = NULL,
+		uint_t flags = 0
 		);
 
-	CEnumType*
-	CreateUnnamedEnumType (
-		EEnumType EnumTypeKind,
-		CType* pBaseType = NULL,
-		uint_t Flags = 0
+	EnumType*
+	createUnnamedEnumType (
+		EnumTypeKind enumTypeKind,
+		Type* baseType = NULL,
+		uint_t flags = 0
 		)
 	{
-		return CreateEnumType (EnumTypeKind, rtl::CString (), rtl::CString (), pBaseType, Flags);
+		return createEnumType (enumTypeKind, rtl::String (), rtl::String (), baseType, flags);
 	}
 
-	CStructType*
-	CreateStructType (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		size_t PackFactor = 8
+	StructType*
+	createStructType (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		size_t packFactor = 8
 		);
 
-	CStructType*
-	CreateUnnamedStructType (size_t PackFactor = 8)
+	StructType*
+	createUnnamedStructType (size_t packFactor = 8)
 	{
-		return CreateStructType (rtl::CString (), rtl::CString (), PackFactor);
+		return createStructType (rtl::String (), rtl::String (), packFactor);
 	}
 
-	CStructType*
-	GetStructType (
-		CType** ppMemberTypeArray,
-		size_t MemberCount,
-		size_t PackFactor = 8
+	StructType*
+	getStructType (
+		Type** memberTypeArray,
+		size_t memberCount,
+		size_t packFactor = 8
 		);
 
-	CUnionType*
-	CreateUnionType (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		size_t PackFactor = 8
+	UnionType*
+	createUnionType (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		size_t packFactor = 8
 		);
 
-	CUnionType*
-	CreateUnnamedUnionType (size_t PackFactor = 8)
+	UnionType*
+	createUnnamedUnionType (size_t packFactor = 8)
 	{
-		return CreateUnionType (rtl::CString (), rtl::CString (), PackFactor);
+		return createUnionType (rtl::String (), rtl::String (), packFactor);
 	}
 
-	CClassType*
-	CreateClassType (
-		EClassType ClassTypeKind,
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		size_t PackFactor = 8,
-		uint_t Flags = 0
+	ClassType*
+	createClassType (
+		ClassTypeKind classTypeKind,
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		size_t packFactor = 8,
+		uint_t flags = 0
 		);
 
-	CClassType*
-	CreateClassType (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		size_t PackFactor = 8,
-		uint_t Flags = 0
+	ClassType*
+	createClassType (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		size_t packFactor = 8,
+		uint_t flags = 0
 		)
 	{
-		return CreateClassType (EClassType_Normal, Name, QualifiedName, PackFactor, Flags);
+		return createClassType (ClassTypeKind_Normal, name, qualifiedName, packFactor, flags);
 	}
 
-	CClassType*
-	CreateUnnamedClassType (
-		EClassType ClassTypeKind,
-		size_t PackFactor = 8,
-		uint_t Flags = 0
+	ClassType*
+	createUnnamedClassType (
+		ClassTypeKind classTypeKind,
+		size_t packFactor = 8,
+		uint_t flags = 0
 		)
 	{
-		return CreateClassType (ClassTypeKind,	rtl::CString (), rtl::CString (), PackFactor, Flags);
+		return createClassType (classTypeKind,	rtl::String (), rtl::String (), packFactor, flags);
 	}
 
-	CClassType*
-	CreateUnnamedClassType (
-		size_t PackFactor = 8,
-		uint_t Flags = 0
+	ClassType*
+	createUnnamedClassType (
+		size_t packFactor = 8,
+		uint_t flags = 0
 		)
 	{
-		return CreateClassType (EClassType_Normal, rtl::CString (), rtl::CString (), PackFactor, Flags);
+		return createClassType (ClassTypeKind_Normal, rtl::String (), rtl::String (), packFactor, flags);
 	}
 
-	CClassType*
-	GetBoxClassType (CType* pBaseType);
+	ClassType*
+	getBoxClassType (Type* baseType);
 
-	CFunctionArg*
-	CreateFunctionArg (
-		const rtl::CString& Name,
-		CType* pType,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	FunctionArg*
+	createFunctionArg (
+		const rtl::String& name,
+		Type* type,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
-	CFunctionArg*
-	GetSimpleFunctionArg (
-		EStorage StorageKind,
-		CType* pType,
-		uint_t PtrTypeFlags = 0
+	FunctionArg*
+	getSimpleFunctionArg (
+		StorageKind storageKind,
+		Type* type,
+		uint_t ptrTypeFlags = 0
 		);
 
-	CFunctionArg*
-	GetSimpleFunctionArg (
-		CType* pType,
-		uint_t PtrTypeFlags = 0
+	FunctionArg*
+	getSimpleFunctionArg (
+		Type* type,
+		uint_t ptrTypeFlags = 0
 		)
 	{
-		return GetSimpleFunctionArg (EStorage_Stack, pType, PtrTypeFlags);
+		return getSimpleFunctionArg (StorageKind_Stack, type, ptrTypeFlags);
 	}
 
-	CCallConv*
-	GetCallConv (ECallConv CallConvKind)
+	CallConv*
+	getCallConv (CallConvKind callConvKind)
 	{
-		ASSERT (CallConvKind < ECallConv__Count);
-		return m_CallConvTable [CallConvKind];
+		ASSERT (callConvKind < CallConvKind__Count);
+		return m_callConvTable [callConvKind];
 	}
 
-	CFunctionType*
-	GetFunctionType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		CallConv* callConv,
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		);
 
-	CFunctionType*
-	GetFunctionType (
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionType (m_CallConvTable [ECallConv_Default], pReturnType, ArgArray, Flags);
+		return getFunctionType (m_callConvTable [CallConvKind_Default], returnType, argArray, flags);
 	}
 
-	CFunctionType*
-	GetFunctionType (
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionType (
-			m_CallConvTable [ECallConv_Default],
-			&m_PrimitiveTypeArray [EType_Void],
-			ArgArray,
-			Flags
+		return getFunctionType (
+			m_callConvTable [CallConvKind_Default],
+			&m_primitiveTypeArray [TypeKind_Void],
+			argArray,
+			flags
 			);
 	}
 
-	CFunctionType*
-	GetFunctionType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		CType* const* ppArgType,
-		size_t ArgCount,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		CallConv* callConv,
+		Type* returnType,
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
 		);
 
-	CFunctionType*
-	GetFunctionType (
-		CType* pReturnType,
-		CType* const* ppArgType,
-		size_t ArgCount,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		Type* returnType,
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionType (m_CallConvTable [ECallConv_Default], pReturnType, ppArgType, ArgCount, Flags);
+		return getFunctionType (m_callConvTable [CallConvKind_Default], returnType, argType, argCount, flags);
 	}
 
-	CFunctionType*
-	GetFunctionType (
-		CType* const* ppArgType,
-		size_t ArgCount,
-		uint_t Flags = 0
+	FunctionType*
+	getFunctionType (
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionType (
-			m_CallConvTable [ECallConv_Default],
-			&m_PrimitiveTypeArray [EType_Void],
-			ppArgType,
-			ArgCount,
-			Flags
+		return getFunctionType (
+			m_callConvTable [CallConvKind_Default],
+			&m_primitiveTypeArray [TypeKind_Void],
+			argType,
+			argCount,
+			flags
 			);
 	}
 
-	CFunctionType*
-	GetFunctionType ()
+	FunctionType*
+	getFunctionType ()
 	{
-		return (CFunctionType*) GetStdType (EStdType_SimpleFunction);
+		return (FunctionType*) getStdType (StdTypeKind_SimpleFunction);
 	}
 
-	CFunctionType*
-	CreateUserFunctionType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		rtl::CBoxListT <CToken>* pThrowCondition,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	createUserFunctionType (
+		CallConv* callConv,
+		Type* returnType,
+		rtl::BoxList <Token>* throwCondition,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		);
 
-	CFunctionType*
-	CreateUserFunctionType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	createUserFunctionType (
+		CallConv* callConv,
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return CreateUserFunctionType (pCallConv, pReturnType, NULL, ArgArray, Flags);
+		return createUserFunctionType (callConv, returnType, NULL, argArray, flags);
 	}
 
-	CFunctionType*
-	CreateUserFunctionType (
-		CType* pReturnType,
-		rtl::CBoxListT <CToken>* pThrowCondition,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	createUserFunctionType (
+		Type* returnType,
+		rtl::BoxList <Token>* throwCondition,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return CreateUserFunctionType (m_CallConvTable [ECallConv_Default], pReturnType, pThrowCondition, ArgArray, Flags);
+		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, throwCondition, argArray, flags);
 	}
 
-	CFunctionType*
-	CreateUserFunctionType (
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	createUserFunctionType (
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return CreateUserFunctionType (m_CallConvTable [ECallConv_Default], pReturnType, NULL, ArgArray, Flags);
+		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, NULL, argArray, flags);
 	}
 
-	CFunctionType*
-	CreateUserFunctionType (
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	FunctionType*
+	createUserFunctionType (
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return CreateUserFunctionType (
-			m_CallConvTable [ECallConv_Default],
-			&m_PrimitiveTypeArray [EType_Void],
+		return createUserFunctionType (
+			m_callConvTable [CallConvKind_Default],
+			&m_primitiveTypeArray [TypeKind_Void],
 			NULL,
-			ArgArray,
-			Flags
+			argArray,
+			flags
 			);
 	}
 
-	CFunctionType*
-	GetMemberMethodType (
-		CNamedType* pParentType,
-		CFunctionType* pFunctionType,
-		uint_t ThisArgPtrTypeFlags = 0
+	FunctionType*
+	getMemberMethodType (
+		NamedType* parentType,
+		FunctionType* functionType,
+		uint_t thisArgPtrTypeFlags = 0
 		);
 
-	CFunctionType*
-	GetStdObjectMemberMethodType (CFunctionType* pFunctionType);
+	FunctionType*
+	getStdObjectMemberMethodType (FunctionType* functionType);
 
-	CPropertyType*
-	GetPropertyType (
-		CFunctionType* pGetterType,
-		const CFunctionTypeOverload& SetterType,
-		uint_t Flags = 0
+	PropertyType*
+	getPropertyType (
+		FunctionType* getterType,
+		const FunctionTypeOverload& setterType,
+		uint_t flags = 0
 		);
 
-	CPropertyType*
-	GetSimplePropertyType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		uint_t Flags = 0
+	PropertyType*
+	getSimplePropertyType (
+		CallConv* callConv,
+		Type* returnType,
+		uint_t flags = 0
 		);
 
-	CPropertyType*
-	GetSimplePropertyType (
-		CType* pReturnType,
-		uint_t Flags = 0
+	PropertyType*
+	getSimplePropertyType (
+		Type* returnType,
+		uint_t flags = 0
 		)
 	{
-		return GetSimplePropertyType (
-			m_CallConvTable [ECallConv_Default],
-			pReturnType,
-			Flags
+		return getSimplePropertyType (
+			m_callConvTable [CallConvKind_Default],
+			returnType,
+			flags
 			);
 	}
 
-	CPropertyType*
-	GetIndexedPropertyType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		CType* const* ppIndexArgType,
-		size_t IndexArgCount,
-		uint_t Flags = 0
+	PropertyType*
+	getIndexedPropertyType (
+		CallConv* callConv,
+		Type* returnType,
+		Type* const* indexArgType,
+		size_t indexArgCount,
+		uint_t flags = 0
 		);
 
-	CPropertyType*
-	GetIndexedPropertyType (
-		CType* pReturnType,
-		CType* const* ppIndexArgType,
-		size_t IndexArgCount,
-		uint_t Flags = 0
+	PropertyType*
+	getIndexedPropertyType (
+		Type* returnType,
+		Type* const* indexArgType,
+		size_t indexArgCount,
+		uint_t flags = 0
 		)
 	{
-		return GetIndexedPropertyType (NULL, pReturnType, ppIndexArgType, IndexArgCount, Flags);
+		return getIndexedPropertyType (NULL, returnType, indexArgType, indexArgCount, flags);
 	}
 
-	CPropertyType*
-	GetIndexedPropertyType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	PropertyType*
+	getIndexedPropertyType (
+		CallConv* callConv,
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		);
 
-	CPropertyType*
-	GetIndexedPropertyType (
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	PropertyType*
+	getIndexedPropertyType (
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return GetIndexedPropertyType (NULL, pReturnType, ArgArray, Flags);
+		return getIndexedPropertyType (NULL, returnType, argArray, flags);
 	}
 
-	CPropertyType*
-	CreateIndexedPropertyType (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	PropertyType*
+	createIndexedPropertyType (
+		CallConv* callConv,
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		);
 
-	CPropertyType*
-	CreateIndexedPropertyType (
-		CType* pReturnType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		uint_t Flags = 0
+	PropertyType*
+	createIndexedPropertyType (
+		Type* returnType,
+		const rtl::Array <FunctionArg*>& argArray,
+		uint_t flags = 0
 		)
 	{
-		return CreateIndexedPropertyType (NULL, pReturnType, ArgArray, Flags);
+		return createIndexedPropertyType (NULL, returnType, argArray, flags);
 	}
 
-	CPropertyType*
-	GetMemberPropertyType (
-		CNamedType* pParentType,
-		CPropertyType* pPropertyType
+	PropertyType*
+	getMemberPropertyType (
+		NamedType* parentType,
+		PropertyType* propertyType
 		);
 
-	CPropertyType*
-	GetStdObjectMemberPropertyType (CPropertyType* pPropertyType);
+	PropertyType*
+	getStdObjectMemberPropertyType (PropertyType* propertyType);
 
-	CPropertyType*
-	GetShortPropertyType (CPropertyType* pPropertyType);
+	PropertyType*
+	getShortPropertyType (PropertyType* propertyType);
 
-	CClassType*
-	GetMulticastType (
-		CFunctionType* pFunctionType,
-		EFunctionPtrType PtrTypeKind = EFunctionPtrType_Normal
+	ClassType*
+	getMulticastType (
+		FunctionType* functionType,
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal
 		)
 	{
-		return GetMulticastType (GetFunctionPtrType (pFunctionType, PtrTypeKind));
+		return getMulticastType (getFunctionPtrType (functionType, ptrTypeKind));
 	}
 
-	CClassType*
-	GetMulticastType (CFunctionPtrType* pFunctionPtrType);
+	ClassType*
+	getMulticastType (FunctionPtrType* functionPtrType);
 
-	CClassType*
-	GetReactorInterfaceType (CFunctionType* pStartMethodType);
+	ClassType*
+	getReactorInterfaceType (FunctionType* startMethodType);
 
-	CReactorClassType*
-	CreateReactorType (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CClassType* pIfaceType,
-		CClassType* pParentType
+	ReactorClassType*
+	createReactorType (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		ClassType* ifaceType,
+		ClassType* parentType
 		);
 
-	CFunctionClosureClassType*
-	GetFunctionClosureClassType (
-		CFunctionType* pTargetType,
-		CFunctionType* pThunkType,
-		CType* const* ppArgTypeArray,
-		const size_t* pClosureMap,
-		size_t ArgCount,
-		uint64_t WeakMask
+	FunctionClosureClassType*
+	getFunctionClosureClassType (
+		FunctionType* targetType,
+		FunctionType* thunkType,
+		Type* const* argTypeArray,
+		const size_t* closureMap,
+		size_t argCount,
+		uint64_t weakMask
 		);
 
-	CPropertyClosureClassType*
-	GetPropertyClosureClassType (
-		CPropertyType* pTargetType,
-		CPropertyType* pThunkType,
-		CType* const* ppArgTypeArray,
-		const size_t* pClosureMap,
-		size_t ArgCount,
-		uint64_t WeakMask
+	PropertyClosureClassType*
+	getPropertyClosureClassType (
+		PropertyType* targetType,
+		PropertyType* thunkType,
+		Type* const* argTypeArray,
+		const size_t* closureMap,
+		size_t argCount,
+		uint64_t weakMask
 		);
 
-	CDataClosureClassType*
-	GetDataClosureClassType (
-		CType* pTargetType,
-		CPropertyType* pThunkType
+	DataClosureClassType*
+	getDataClosureClassType (
+		Type* targetType,
+		PropertyType* thunkType
 		);
 
-	CDataPtrType*
-	GetDataPtrType (
-		CNamespace* pAnchorNamespace,
-		CType* pDataType,
-		EType TypeKind,
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		Namespace* anchorNamespace,
+		Type* dataType,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CDataPtrType*
-	GetDataPtrType (
-		CType* pDataType,
-		EType TypeKind,
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		Type* dataType,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetDataPtrType (NULL, pDataType, TypeKind, PtrTypeKind, Flags);
+		return getDataPtrType (NULL, dataType, typeKind, ptrTypeKind, flags);
 
 	}
 
-	CDataPtrType*
-	GetDataPtrType (
-		CType* pDataType,
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		Type* dataType,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetDataPtrType (pDataType, EType_DataPtr, PtrTypeKind, Flags);
+		return getDataPtrType (dataType, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
-	CStructType*
-	GetDataPtrStructType (CType* pDataType);
+	StructType*
+	getDataPtrStructType (Type* dataType);
 
-	CClassPtrType*
-	GetClassPtrType (
-		CNamespace* pAnchorNamespace,
-		CClassType* pClassType,
-		EType TypeKind,
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		Namespace* anchorNamespace,
+		ClassType* classType,
+		TypeKind typeKind,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CClassPtrType*
-	GetClassPtrType (
-		CClassType* pClassType,
-		EType TypeKind,
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		ClassType* classType,
+		TypeKind typeKind,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetClassPtrType (NULL, pClassType, TypeKind, PtrTypeKind, Flags);
+		return getClassPtrType (NULL, classType, typeKind, ptrTypeKind, flags);
 	}
 
-	CClassPtrType*
-	GetClassPtrType (
-		CClassType* pClassType,
-		EClassPtrType PtrTypeKind = EClassPtrType_Normal,
-		uint_t Flags = 0
+	ClassPtrType*
+	getClassPtrType (
+		ClassType* classType,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetClassPtrType (pClassType, EType_ClassPtr, PtrTypeKind, Flags);
+		return getClassPtrType (classType, TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
-	CFunctionPtrType*
-	GetFunctionPtrType (
-		CFunctionType* pFunctionType,
-		EType TypeKind,
-		EFunctionPtrType PtrTypeKind = EFunctionPtrType_Normal,
-		uint_t Flags = 0
+	FunctionPtrType*
+	getFunctionPtrType (
+		FunctionType* functionType,
+		TypeKind typeKind,
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CFunctionPtrType*
-	GetFunctionPtrType (
-		CFunctionType* pFunctionType,
-		EFunctionPtrType PtrTypeKind = EFunctionPtrType_Normal,
-		uint_t Flags = 0
+	FunctionPtrType*
+	getFunctionPtrType (
+		FunctionType* functionType,
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionPtrType (pFunctionType, EType_FunctionPtr, PtrTypeKind, Flags);
+		return getFunctionPtrType (functionType, TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
-	CStructType*
-	GetFunctionPtrStructType (CFunctionType* pFunctionType);
+	StructType*
+	getFunctionPtrStructType (FunctionType* functionType);
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		CNamespace* pAnchorNamespace,
-		CPropertyType* pPropertyType,
-		EType TypeKind,
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyPtrType*
+	getPropertyPtrType (
+		Namespace* anchorNamespace,
+		PropertyType* propertyType,
+		TypeKind typeKind,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		CPropertyType* pPropertyType,
-		EType TypeKind,
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyPtrType*
+	getPropertyPtrType (
+		PropertyType* propertyType,
+		TypeKind typeKind,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetPropertyPtrType (NULL, pPropertyType, TypeKind, PtrTypeKind, Flags);
+		return getPropertyPtrType (NULL, propertyType, typeKind, ptrTypeKind, flags);
 	}
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		CPropertyType* pPropertyType,
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyPtrType*
+	getPropertyPtrType (
+		PropertyType* propertyType,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetPropertyPtrType (pPropertyType, EType_PropertyPtr, PtrTypeKind, Flags);
+		return getPropertyPtrType (propertyType, TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
-	CStructType*
-	GetPropertyVTableStructType (CPropertyType* pPropertyType);
+	StructType*
+	getPropertyVTableStructType (PropertyType* propertyType);
 
-	CStructType*
-	GetPropertyPtrStructType (CPropertyType* pPropertyType);
+	StructType*
+	getPropertyPtrStructType (PropertyType* propertyType);
 
-	CNamedImportType*
-	GetNamedImportType (
-		const CQualifiedName& Name,
-		CNamespace* pAnchorNamespace
+	NamedImportType*
+	getNamedImportType (
+		const QualifiedName& name,
+		Namespace* anchorNamespace
 		);
 
-	CImportPtrType*
-	GetImportPtrType (
-		CNamedImportType* pImportType,
-		uint_t TypeModifiers = 0,
-		uint_t Flags = 0
+	ImportPtrType*
+	getImportPtrType (
+		NamedImportType* importType,
+		uint_t typeModifiers = 0,
+		uint_t flags = 0
 		);
 
-	CImportIntModType*
-	GetImportIntModType (
-		CNamedImportType* pImportType,
-		uint_t TypeModifiers = 0,
-		uint_t Flags = 0
+	ImportIntModType*
+	getImportIntModType (
+		NamedImportType* importType,
+		uint_t typeModifiers = 0,
+		uint_t flags = 0
 		);
 
-	CType*
-	GetCheckedPtrType (CType* pType);
+	Type*
+	getCheckedPtrType (Type* type);
 
-	CStructType*
-	GetGcShadowStackFrameMapType (size_t RootCount);
+	StructType*
+	getGcShadowStackFrameMapType (size_t rootCount);
 
-	CStructType*
-	GetGcShadowStackFrameType (size_t RootCount);
+	StructType*
+	getGcShadowStackFrameType (size_t rootCount);
 
 protected:
-	TDualPtrTypeTuple*
-	GetDualPtrTypeTuple (
-		CNamespace* pAnchorNamespace,
-		CType* pType
+	DualPtrTypeTuple*
+	getDualPtrTypeTuple (
+		Namespace* anchorNamespace,
+		Type* type
 		);
 
-	TSimplePropertyTypeTuple*
-	GetSimplePropertyTypeTuple (CType* pType);
+	SimplePropertyTypeTuple*
+	getSimplePropertyTypeTuple (Type* type);
 
-	TFunctionArgTuple*
-	GetFunctionArgTuple (CType* pType);
+	FunctionArgTuple*
+	getFunctionArgTuple (Type* type);
 
-	TDataPtrTypeTuple*
-	GetDataPtrTypeTuple (CType* pType);
+	DataPtrTypeTuple*
+	getDataPtrTypeTuple (Type* type);
 
-	TDataPtrTypeTuple*
-	GetConstDDataPtrTypeTuple (
-		CNamespace* pAnchorNamespace,
-		CType* pType
+	DataPtrTypeTuple*
+	getConstDDataPtrTypeTuple (
+		Namespace* anchorNamespace,
+		Type* type
 		);
 
-	TClassPtrTypeTuple*
-	GetClassPtrTypeTuple (CClassType* pClassType);
+	ClassPtrTypeTuple*
+	getClassPtrTypeTuple (ClassType* classType);
 
-	TClassPtrTypeTuple*
-	GetConstDClassPtrTypeTuple (
-		CNamespace* pAnchorNamespace,
-		CClassType* pClassType
+	ClassPtrTypeTuple*
+	getConstDClassPtrTypeTuple (
+		Namespace* anchorNamespace,
+		ClassType* classType
 		);
 
-	TClassPtrTypeTuple*
-	GetEventClassPtrTypeTuple (CMulticastClassType* pClassType);
+	ClassPtrTypeTuple*
+	getEventClassPtrTypeTuple (MulticastClassType* classType);
 
-	TClassPtrTypeTuple*
-	GetEventDClassPtrTypeTuple (
-		CNamespace* pAnchorNamespace,
-		CMulticastClassType* pClassType
+	ClassPtrTypeTuple*
+	getEventDClassPtrTypeTuple (
+		Namespace* anchorNamespace,
+		MulticastClassType* classType
 		);
 
-	TFunctionPtrTypeTuple*
-	GetFunctionPtrTypeTuple (CFunctionType* pFunctionType);
+	FunctionPtrTypeTuple*
+	getFunctionPtrTypeTuple (FunctionType* functionType);
 
-	TPropertyPtrTypeTuple*
-	GetPropertyPtrTypeTuple (CPropertyType* pPropertyType);
+	PropertyPtrTypeTuple*
+	getPropertyPtrTypeTuple (PropertyType* propertyType);
 
-	TPropertyPtrTypeTuple*
-	GetConstDPropertyPtrTypeTuple (
-		CNamespace* pAnchorNamespace,
-		CPropertyType* pPropertyType
+	PropertyPtrTypeTuple*
+	getConstDPropertyPtrTypeTuple (
+		Namespace* anchorNamespace,
+		PropertyType* propertyType
 		);
 
 	void
-	SetupAllPrimitiveTypes ();
+	setupAllPrimitiveTypes ();
 
 	void
-	SetupCallConvTable ();
+	setupCallConvTable ();
 
 	void
-	SetupPrimitiveType (
-		EType TypeKind,
-		size_t Size,
-		const char* pSignature
+	setupPrimitiveType (
+		TypeKind typeKind,
+		size_t size,
+		const char* signature
 		);
 
-	CStructType*
-	CreateObjHdrType ();
+	StructType*
+	createObjHdrType ();
 
-	CClassType*
-	CreateObjectType ();
+	ClassType*
+	createObjectType ();
 
-	CStructType*
-	CreateReactorBindSiteType ();
+	StructType*
+	createReactorBindSiteType ();
 
-	CClassType*
-	CreateSchedulerType ();
+	ClassType*
+	createSchedulerType ();
 
-	CStructType*
-	CreateFmtLiteralType ();
+	StructType*
+	createFmtLiteralType ();
 
-	CStructType*
-	CreateGuidType ();
+	StructType*
+	createGuidType ();
 
-	CStructType*
-	CreateErrorType ();
+	StructType*
+	createErrorType ();
 
-	CStructType*
-	CreatePairType (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CType* pType1,
-		CType* pType2
+	StructType*
+	createPairType (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* type1,
+		Type* type2
 		);
 
 	bool
-	CreateMulticastCallMethod (CClassType* pMulticastType);
+	createMulticastCallMethod (ClassType* multicastType);
 };
 
 //.............................................................................

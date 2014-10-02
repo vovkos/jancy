@@ -7,547 +7,547 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::GetPropertyThinPtr (
-	CProperty* pProperty,
-	CClosure* pClosure,
-	CPropertyPtrType* pPtrType,
-	CValue* pResultValue
+OperatorMgr::getPropertyThinPtr (
+	Property* prop,
+	Closure* closure,
+	PropertyPtrType* ptrType,
+	Value* resultValue
 	)
 {
-	ASSERT (pProperty->GetType ()->Cmp (pPtrType->GetTargetType ()) == 0);
+	ASSERT (prop->getType ()->cmp (ptrType->getTargetType ()) == 0);
 
-	bool Result = GetPropertyVTable (pProperty, pClosure, pResultValue);
-	if (!Result)
+	bool result = getPropertyVTable (prop, closure, resultValue);
+	if (!result)
 		return false;
 
-	pResultValue->OverrideType (pPtrType);
+	resultValue->overrideType (ptrType);
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertyVTable (
-	CProperty* pProperty,
-	CClosure* pClosure,
-	CValue* pResultValue
+OperatorMgr::getPropertyVTable (
+	Property* prop,
+	Closure* closure,
+	Value* resultValue
 	)
 {
-	if (pProperty->IsVirtual ())
-		return GetVirtualProperty (pProperty, pClosure, pResultValue);
+	if (prop->isVirtual ())
+		return getVirtualProperty (prop, closure, resultValue);
 
-	*pResultValue = pProperty->GetVTablePtrValue ();
+	*resultValue = prop->getVTablePtrValue ();
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertyVTable (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyVTable (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
 	
-	CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-	EPropertyPtrType PtrTypeKind = pPtrType->GetPtrTypeKind ();
+	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	CType* pVTableType = pPtrType->GetTargetType ()->GetVTableStructType ()->GetDataPtrType_c ();
+	Type* pVTableType = ptrType->getTargetType ()->getVTableStructType ()->getDataPtrType_c ();
 
-	switch (PtrTypeKind)
+	switch (ptrTypeKind)
 	{
-	case EPropertyPtrType_Normal:
+	case PropertyPtrTypeKind_Normal:
 		break;
 
-	case EPropertyPtrType_Weak:
-		err::SetFormatStringError ("cannot invoke weak '%s'", pPtrType->GetTypeString ().cc ());
+	case PropertyPtrTypeKind_Weak:
+		err::setFormatStringError ("cannot invoke weak '%s'", ptrType->getTypeString ().cc ());
 		return false;
 	
-	case EPropertyPtrType_Thin:
-		if (OpValue.GetValueKind () == EValue_Property)
-			return GetPropertyVTable (OpValue.GetProperty (), OpValue.GetClosure (), pResultValue);
+	case PropertyPtrTypeKind_Thin:
+		if (opValue.getValueKind () == ValueKind_Property)
+			return getPropertyVTable (opValue.getProperty (), opValue.getClosure (), resultValue);
 
-		*pResultValue = OpValue;
+		*resultValue = opValue;
 		return true;
 
 	default:
 		ASSERT (false);
 	}
 
-	CType* pClosureType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr);
+	Type* closureType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
 
-	CValue ClosureValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, pVTableType, pResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 1, pClosureType, &ClosureValue);
+	Value closureValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, pVTableType, resultValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, closureType, &closureValue);
 
-	pResultValue->SetClosure (OpValue.GetClosure ());
-	pResultValue->InsertToClosureHead (ClosureValue);
+	resultValue->setClosure (opValue.getClosure ());
+	resultValue->insertToClosureHead (closureValue);
 	return true;
 }
 
-CType*
-COperatorMgr::GetPropertyGetterType (const CValue& RawOpValue)
+Type*
+OperatorMgr::getPropertyGetterType (const Value& rawOpValue)
 {
-	CPropertyType* pPropertyType;
+	PropertyType* propertyType;
 
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		pPropertyType = OpValue.GetProperty ()->GetType ();
+		propertyType = opValue.getProperty ()->getType ();
 	}
 	else
 	{
-		ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
 
-		CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-		pPropertyType = pPtrType->HasClosure () ? 
-			pPtrType->GetTargetType ()->GetStdObjectMemberPropertyType () :
-			pPtrType->GetTargetType ();
+		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+		propertyType = ptrType->hasClosure () ? 
+			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
+			ptrType->getTargetType ();
 	}
 
-	return GetFunctionType (OpValue, pPropertyType->GetGetterType ());
+	return getFunctionType (opValue, propertyType->getGetterType ());
 }
 
 bool
-COperatorMgr::GetPropertyGetterType (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyGetterType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetPropertyGetterType (OpValue);
-	if (!pResultType)
+	Type* resultType = getPropertyGetterType (opValue);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertyGetter (
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyGetter (
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue;
-	Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
-	if (!Result)
+	Value opValue;
+	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	if (!result)
 		return false;
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		*pResultValue = OpValue.GetProperty ()->GetGetter ();
-		pResultValue->SetClosure (OpValue.GetClosure ());
+		*resultValue = opValue.getProperty ()->getGetter ();
+		resultValue->setClosure (opValue.getClosure ());
 		return true;
 	}	
 
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
 
-	CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-	CPropertyType* pPropertyType = pPtrType->HasClosure () ? 
-		pPtrType->GetTargetType ()->GetStdObjectMemberPropertyType () :
-		pPtrType->GetTargetType ();
+	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+	PropertyType* propertyType = ptrType->hasClosure () ? 
+		ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
+		ptrType->getTargetType ();
 
-	CValue VTableValue;
-	Result = GetPropertyVTable (OpValue, &VTableValue);
-	if (!Result)
+	Value VTableValue;
+	result = getPropertyVTable (opValue, &VTableValue);
+	if (!result)
 		return false;
 
-	size_t Index = (pPropertyType->GetFlags () & EPropertyTypeFlag_Bindable) ? 1 : 0;
+	size_t index = (propertyType->getFlags () & PropertyTypeFlagKind_Bindable) ? 1 : 0;
 
-	CValue PfnValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (VTableValue, Index, NULL, &PfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (
-		PfnValue, 
-		pPropertyType->GetGetterType ()->GetFunctionPtrType (EFunctionPtrType_Thin, pPtrType->GetFlags ()), 
-		pResultValue
+	Value pfnValue;
+	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createLoad (
+		pfnValue, 
+		propertyType->getGetterType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		resultValue
 		);
 
-	pResultValue->SetClosure (VTableValue.GetClosure ());
+	resultValue->setClosure (VTableValue.getClosure ());
 	return true;
 }
 
-CType*
-COperatorMgr::GetPropertySetterType (
-	const CValue& RawOpValue,
-	const CValue& ArgValue
+Type*
+OperatorMgr::getPropertySetterType (
+	const Value& rawOpValue,
+	const Value& argValue
 	)
 {
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
 
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
 	
-	CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-	CPropertyType* pPropertyType;
+	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+	PropertyType* propertyType;
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		pPropertyType = OpValue.GetProperty ()->GetType ();
+		propertyType = opValue.getProperty ()->getType ();
 	}
 	else
 	{
-		ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
 
-		pPropertyType = pPtrType->HasClosure () ? 
-			pPtrType->GetTargetType ()->GetStdObjectMemberPropertyType () :
-			pPtrType->GetTargetType ();
+		propertyType = ptrType->hasClosure () ? 
+			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
+			ptrType->getTargetType ();
 	}
 
-	if (pPropertyType->IsReadOnly ())
+	if (propertyType->isReadOnly ())
 	{
-		err::SetFormatStringError ("read-only '%s' has no 'set'", pPropertyType->GetTypeString ().cc ());
+		err::setFormatStringError ("read-only '%s' has no 'set'", propertyType->getTypeString ().cc ());
 		return NULL;
 	}
-	else if (pPtrType->IsConstPtrType ())
+	else if (ptrType->isConstPtrType ())
 	{
-		err::SetFormatStringError ("'set' is inaccessible via 'const' property pointer");
+		err::setFormatStringError ("'set' is inaccessible via 'const' property pointer");
 		return NULL;
 	}
 
-	CFunctionTypeOverload* pSetterTypeOverload = pPropertyType->GetSetterType ();
-	size_t i = pSetterTypeOverload->ChooseSetterOverload (ArgValue);
+	FunctionTypeOverload* setterTypeOverload = propertyType->getSetterType ();
+	size_t i = setterTypeOverload->chooseSetterOverload (argValue);
 	if (i == -1)
 	{
-		err::SetFormatStringError ("cannot choose one of '%d' setter overloads", pSetterTypeOverload->GetOverloadCount ());
+		err::setFormatStringError ("cannot choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 		return NULL;
 	}
 
-	CFunctionType* pSetterType = pSetterTypeOverload->GetOverload (i);
-	return GetFunctionType (OpValue, pSetterType);
+	FunctionType* setterType = setterTypeOverload->getOverload (i);
+	return getFunctionType (opValue, setterType);
 }
 
 bool
-COperatorMgr::GetPropertySetterType (
-	const CValue& OpValue,
-	const CValue& ArgValue,
-	CValue* pResultValue
+OperatorMgr::getPropertySetterType (
+	const Value& opValue,
+	const Value& argValue,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetPropertySetterType (OpValue, ArgValue);
-	if (!pResultType)
+	Type* resultType = getPropertySetterType (opValue, argValue);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertySetter (
-	const CValue& RawOpValue,
-	const CValue& ArgValue,
-	CValue* pResultValue
+OperatorMgr::getPropertySetter (
+	const Value& rawOpValue,
+	const Value& argValue,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue;
-	Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
-	if (!Result)
+	Value opValue;
+	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	if (!result)
 		return false;
 
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
 
-	CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-	CPropertyType* pPropertyType = pPtrType->HasClosure () ? 
-		pPtrType->GetTargetType ()->GetStdObjectMemberPropertyType () :
-		pPtrType->GetTargetType ();
+	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+	PropertyType* propertyType = ptrType->hasClosure () ? 
+		ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
+		ptrType->getTargetType ();
 
-	if (pPropertyType->IsReadOnly ())
+	if (propertyType->isReadOnly ())
 	{
-		err::SetFormatStringError ("read-only '%s' has no setter", pPropertyType->GetTypeString ().cc ());
+		err::setFormatStringError ("read-only '%s' has no setter", propertyType->getTypeString ().cc ());
 		return false;
 	}
-	else if (pPtrType->IsConstPtrType ())
+	else if (ptrType->isConstPtrType ())
 	{
-		err::SetFormatStringError ("'set' is inaccessible via 'const' property pointer");
+		err::setFormatStringError ("'set' is inaccessible via 'const' property pointer");
 		return NULL;
 	}
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		*pResultValue = OpValue.GetProperty ()->GetSetter ();
-		pResultValue->SetClosure (OpValue.GetClosure ());
+		*resultValue = opValue.getProperty ()->getSetter ();
+		resultValue->setClosure (opValue.getClosure ());
 		return true;
 	}
 
-	CFunctionTypeOverload* pSetterTypeOverload = pPropertyType->GetSetterType ();
+	FunctionTypeOverload* setterTypeOverload = propertyType->getSetterType ();
 	size_t i = 0;
 
-	if (pSetterTypeOverload->IsOverloaded ())
+	if (setterTypeOverload->isOverloaded ())
 	{
-		if (!ArgValue)
+		if (!argValue)
 		{
-			err::SetFormatStringError ("no argument value to help choose one of '%d' setter overloads", pSetterTypeOverload->GetOverloadCount ());
+			err::setFormatStringError ("no argument value to help choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 			return false;
 		}
 		
-		i = pSetterTypeOverload->ChooseSetterOverload (ArgValue);
+		i = setterTypeOverload->chooseSetterOverload (argValue);
 		if (i == -1)
 		{
-			err::SetFormatStringError ("cannot choose one of '%d' setter overloads", pSetterTypeOverload->GetOverloadCount ());
+			err::setFormatStringError ("cannot choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 			return false;
 		}
 	}
 
-	CFunctionType* pSetterType = pSetterTypeOverload->GetOverload (i);
+	FunctionType* setterType = setterTypeOverload->getOverload (i);
 
-	CValue VTableValue;
-	Result = GetPropertyVTable (OpValue, &VTableValue);
-	if (!Result)
+	Value VTableValue;
+	result = getPropertyVTable (opValue, &VTableValue);
+	if (!result)
 		return false;
 
-	size_t Index = (pPropertyType->GetFlags () & EPropertyTypeFlag_Bindable) ? 2 : 1;
-	Index += i;
+	size_t index = (propertyType->getFlags () & PropertyTypeFlagKind_Bindable) ? 2 : 1;
+	index += i;
 
-	CValue PfnValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (VTableValue, Index, NULL, &PfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (
-		PfnValue, 
-		pSetterType->GetFunctionPtrType (EFunctionPtrType_Thin, pPtrType->GetFlags ()), 
-		pResultValue
+	Value pfnValue;
+	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createLoad (
+		pfnValue, 
+		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		resultValue
 		);
 
-	pResultValue->SetClosure (VTableValue.GetClosure ());
+	resultValue->setClosure (VTableValue.getClosure ());
 	return true;
 }
 
-CType*
-COperatorMgr::GetPropertyBinderType (const CValue& RawOpValue)
+Type*
+OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 {
-	CPropertyType* pPropertyType;
+	PropertyType* propertyType;
 
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		pPropertyType = OpValue.GetProperty ()->GetType ();
+		propertyType = opValue.getProperty ()->getType ();
 	}
 	else
 	{
-		ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);	
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
 
-		CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-		pPropertyType = pPtrType->HasClosure () ? 
-			pPtrType->GetTargetType ()->GetStdObjectMemberPropertyType () :
-			pPtrType->GetTargetType ();
+		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+		propertyType = ptrType->hasClosure () ? 
+			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
+			ptrType->getTargetType ();
 	}
 
-	if (!(pPropertyType->GetFlags () & EPropertyTypeFlag_Bindable))
+	if (!(propertyType->getFlags () & PropertyTypeFlagKind_Bindable))
 	{
-		err::SetFormatStringError ("'%s' has no 'onchanged' binder", pPropertyType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	return GetFunctionType (OpValue, pPropertyType->GetBinderType ());
+	return getFunctionType (opValue, propertyType->getBinderType ());
 }
 
 bool
-COperatorMgr::GetPropertyBinderType (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyBinderType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pType = GetPropertyBinderType (OpValue);
-	if (!pType)
+	Type* type = getPropertyBinderType (opValue);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;		
 }
 
 bool
-COperatorMgr::GetPropertyBinder (
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyBinder (
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue;
-	Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
-	if (!Result)
+	Value opValue;
+	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	if (!result)
 		return false;
 
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
 
-	CPropertyPtrType* pPtrType = (CPropertyPtrType*) OpValue.GetType ();
-	CPropertyType* pPropertyType = pPtrType->GetTargetType ();
+	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
+	PropertyType* propertyType = ptrType->getTargetType ();
 
-	if (!(pPropertyType->GetFlags () & EPropertyTypeFlag_Bindable))
+	if (!(propertyType->getFlags () & PropertyTypeFlagKind_Bindable))
 	{
-		err::SetFormatStringError ("'%s' has no 'onchanged' binder", pPropertyType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
 		return false;
 	}
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		*pResultValue = OpValue.GetProperty ()->GetBinder ();
-		pResultValue->SetClosure (OpValue.GetClosure ());
+		*resultValue = opValue.getProperty ()->getBinder ();
+		resultValue->setClosure (opValue.getClosure ());
 		return true;
 	}
 
-	if (pPtrType->HasClosure ())
-		pPropertyType = pPropertyType->GetStdObjectMemberPropertyType ();
+	if (ptrType->hasClosure ())
+		propertyType = propertyType->getStdObjectMemberPropertyType ();
 
-	CValue VTableValue;
-	Result = GetPropertyVTable (OpValue, &VTableValue);
-	if (!Result)
+	Value VTableValue;
+	result = getPropertyVTable (opValue, &VTableValue);
+	if (!result)
 		return false;
 
-	CValue PfnValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (VTableValue, 0, NULL, &PfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (
-		PfnValue, 
-		pPropertyType->GetBinderType ()->GetFunctionPtrType (EFunctionPtrType_Thin, pPtrType->GetFlags ()), 
-		pResultValue
+	Value pfnValue;
+	m_module->m_llvmIrBuilder.createGep2 (VTableValue, 0, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createLoad (
+		pfnValue, 
+		propertyType->getBinderType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		resultValue
 		);
 
-	pResultValue->SetClosure (VTableValue.GetClosure ());
+	resultValue->setClosure (VTableValue.getClosure ());
 	return true;
 }
 
 bool
-COperatorMgr::GetProperty (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getProperty (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_PropertyRef);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyRef);
 
-	if (OpValue.GetValueKind () == EValue_Property)
+	if (opValue.getValueKind () == ValueKind_Property)
 	{
-		CProperty* pProperty = OpValue.GetProperty ();
-		if (pProperty->GetFlags () & EPropertyFlag_AutoGet)
-			return GetPropertyAutoGetValue (OpValue, pResultValue);
+		Property* prop = opValue.getProperty ();
+		if (prop->getFlags () & PropertyFlagKind_AutoGet)
+			return getPropertyAutoGetValue (opValue, resultValue);
 	}
 
-	CValue GetterValue;
+	Value getterValue;
 	return 
-		GetPropertyGetter (OpValue, &GetterValue) &&
-		CallOperator (GetterValue, NULL, pResultValue);
+		getPropertyGetter (opValue, &getterValue) &&
+		callOperator (getterValue, NULL, resultValue);
 }
 
 bool
-COperatorMgr::SetProperty (
-	const CValue& OpValue,
-	const CValue& SrcValue
+OperatorMgr::setProperty (
+	const Value& opValue,
+	const Value& srcValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_PropertyRef);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyRef);
 
-	CValue SetterValue;
+	Value setterValue;
 	return 
-		GetPropertySetter (OpValue, SrcValue, &SetterValue) &&
-		CallOperator (SetterValue, SrcValue);
+		getPropertySetter (opValue, srcValue, &setterValue) &&
+		callOperator (setterValue, srcValue);
 }
 
-CType*
-COperatorMgr::GetPropertyAutoGetValueType (const CValue& OpValue)
+Type*
+OperatorMgr::getPropertyAutoGetValueType (const Value& opValue)
 {
-	if (OpValue.GetValueKind () != EValue_Property || 
-		!(OpValue.GetProperty ()->GetFlags () & EPropertyFlag_AutoGet))
+	if (opValue.getValueKind () != ValueKind_Property || 
+		!(opValue.getProperty ()->getFlags () & PropertyFlagKind_AutoGet))
 	{
-		err::SetFormatStringError ("'%s' has no autoget field", OpValue.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
 		return NULL;
 	}
 
-	CType* pType;
+	Type* type;
 
-	CModuleItem* pAutoGetValue = OpValue.GetProperty ()->GetAutoGetValue ();
-	pType = pAutoGetValue->GetItemKind () == EModuleItem_StructField ? 
-		((CStructField*) pAutoGetValue)->GetType() :
-		((CVariable*) pAutoGetValue)->GetType();
+	ModuleItem* autoGetValue = opValue.getProperty ()->getAutoGetValue ();
+	type = autoGetValue->getItemKind () == ModuleItemKind_StructField ? 
+		((StructField*) autoGetValue)->getType() :
+		((Variable*) autoGetValue)->getType();
 
-	return pType->GetDataPtrType (EType_DataRef, EDataPtrType_Lean);
+	return type->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean);
 }
 
 bool
-COperatorMgr::GetPropertyAutoGetValueType (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyAutoGetValueType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pType = GetPropertyAutoGetValueType (OpValue);
-	if (!pType)
+	Type* type = getPropertyAutoGetValueType (opValue);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertyAutoGetValue (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyAutoGetValue (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	if (OpValue.GetValueKind () != EValue_Property || 
-		!(OpValue.GetProperty ()->GetFlags () & EPropertyFlag_AutoGet))
+	if (opValue.getValueKind () != ValueKind_Property || 
+		!(opValue.getProperty ()->getFlags () & PropertyFlagKind_AutoGet))
 	{
-		err::SetFormatStringError ("'%s' has no autoget field", OpValue.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
 		return false;
 	}
 
-	return GetPropertyField (OpValue, OpValue.GetProperty ()->GetAutoGetValue (), pResultValue);
+	return getPropertyField (opValue, opValue.getProperty ()->getAutoGetValue (), resultValue);
 }
 
-CType*
-COperatorMgr::GetPropertyOnChangedType (const CValue& RawOpValue)
+Type*
+OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 {
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
 
-	if (!(OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr) || 
-		!(((CPropertyPtrType*) OpValue.GetType ())->GetTargetType ()->GetFlags () & EPropertyTypeFlag_Bindable))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr) || 
+		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable))
 	{
-		err::SetFormatStringError ("'%s' has no bindable event", OpValue.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
 		return NULL;
 	}
 
-	return m_pModule->GetSimpleType (EStdType_SimpleEventPtr);
+	return m_module->getSimpleType (StdTypeKind_SimpleEventPtr);
 }
 
 bool
-COperatorMgr::GetPropertyOnChangedType (
-	const CValue& OpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyOnChangedType (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CType* pType = GetPropertyOnChangedType (OpValue);
-	if (!pType)
+	Type* type = getPropertyOnChangedType (opValue);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 
 bool
-COperatorMgr::GetPropertyOnChanged (
-	const CValue& RawOpValue,
-	CValue* pResultValue
+OperatorMgr::getPropertyOnChanged (
+	const Value& rawOpValue,
+	Value* resultValue
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue, EOpFlag_KeepPropertyRef);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	if (!result)
 		return false;
 
-	if (!(OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr) || 
-		!(((CPropertyPtrType*) OpValue.GetType ())->GetTargetType ()->GetFlags () & EPropertyTypeFlag_Bindable))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr) || 
+		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable))
 	{
-		err::SetFormatStringError ("'%s' has no bindable event", OpValue.GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
 		return NULL;
 	}
 
-	if (OpValue.GetValueKind () == EValue_Property)
-		return GetPropertyField (OpValue, OpValue.GetProperty ()->GetOnChanged (), pResultValue);
+	if (opValue.getValueKind () == ValueKind_Property)
+		return getPropertyField (opValue, opValue.getProperty ()->getOnChanged (), resultValue);
 
-	CValue BinderValue;
+	Value binderValue;
 	return 
-		GetPropertyBinder (OpValue, &BinderValue) &&
-		CallOperator (BinderValue, NULL, pResultValue);
+		getPropertyBinder (opValue, &binderValue) &&
+		callOperator (binderValue, NULL, resultValue);
 }
 
 //.............................................................................

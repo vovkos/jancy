@@ -9,56 +9,56 @@
 
 namespace jnc {
 
-class CScope;
+class Scope;
 
 //.............................................................................
 
-class CFunctionArg:
-	public CUserModuleItem,
-	public CModuleItemInitializer
+class FunctionArg:
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
-	friend class CTypeMgr;
-	friend class CFunction;
-	friend class CClassType;
-	friend class COrphan;
+	friend class TypeMgr;
+	friend class Function;
+	friend class ClassType;
+	friend class Orphan;
 
 protected:
-	CType* m_pType;
-	CImportType* m_pType_i;
-	uint_t m_PtrTypeFlags;
+	Type* m_type;
+	ImportType* m_type_i;
+	uint_t m_ptrTypeFlags;
 
 public:
-	CFunctionArg ();
+	FunctionArg ();
 
-	CType*
-	GetType ()
+	Type*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CImportType*
-	GetType_i ()
+	ImportType*
+	getType_i ()
 	{
-		return m_pType_i;
+		return m_type_i;
 	}
 
 	uint_t
-	GetPtrTypeFlags ()
+	getPtrTypeFlags ()
 	{
-		return m_PtrTypeFlags;
+		return m_ptrTypeFlags;
 	}
 
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 };
 
 //.............................................................................
 
-struct TFunctionArgTuple: rtl::TListLink
+struct FunctionArgTuple: rtl::ListLink
 {
-	CFunctionArg* m_ArgArray [2] [2] [2]; // this x const x volatile
+	FunctionArg* m_argArray [2] [2] [2]; // this x const x volatile
 };
 
 //.............................................................................

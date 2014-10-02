@@ -9,646 +9,646 @@
 
 namespace jnc {
 
-class CNamespace;
-class CScope;
-class CVariable;
-class CFunction;
-class CFunctionTypeOverload;
-class CProperty;
-class CStructField;
-class CClassType;
-class CClosure;
-class CLeanDataPtrValidator;
+class Namespace;
+class Scope;
+class Variable;
+class Function;
+class FunctionTypeOverload;
+class Property;
+class StructField;
+class ClassType;
+class Closure;
+class LeanDataPtrValidator;
 
 //.............................................................................
 
-enum EValue
+enum ValueKind
 {
-	EValue_Void = 0,
-	EValue_Null,
-	EValue_Namespace,
-	EValue_Type,
-	EValue_Const,
-	EValue_Variable,
-	EValue_Function,
-	EValue_FunctionTypeOverload,
-	EValue_Property,
-	EValue_Field,
-	EValue_LlvmRegister,
-	EValue_BoolNot,
-	EValue_BoolAnd,
-	EValue_BoolOr,
-	EValue__Count,
+	ValueKind_Void = 0,
+	ValueKind_Null,
+	ValueKind_Namespace,
+	ValueKind_Type,
+	ValueKind_Const,
+	ValueKind_Variable,
+	ValueKind_Function,
+	ValueKind_FunctionTypeOverload,
+	ValueKind_Property,
+	ValueKind_Field,
+	ValueKind_LlvmRegister,
+	ValueKind_BoolNot,
+	ValueKind_BoolAnd,
+	ValueKind_BoolOr,
+	ValueKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetValueKindString (EValue ValueKind);
+getValueKindString (ValueKind valueKind);
 
 //.............................................................................
 
-class CValue
+class Value
 {
 protected:
-	struct TBufHdr
+	struct BufHdr
 	{
-		size_t m_Size;
+		size_t m_size;
 	};
 
-	class CGetBufSize
+	class GetBufSize
 	{
 	public:
 		size_t
-		operator () (const TBufHdr& Hdr)
+		operator () (const BufHdr& hdr)
 		{
-			return sizeof (TBufHdr) + Hdr.m_Size;
+			return sizeof (BufHdr) + hdr.m_size;
 		}
 	};
 
 protected:
-	EValue m_ValueKind;
-	CType* m_pType;
+	ValueKind m_valueKind;
+	Type* m_type;
 
-	ref::CBufT <TBufHdr, CGetBufSize> m_Const;
+	ref::Buf <BufHdr, GetBufSize> m_const;
 
 	union
 	{
-		CModuleItem* m_pItem;
-		CNamespace* m_pNamespace;
-		CVariable* m_pVariable;
-		CFunction* m_pFunction;
-		CFunctionTypeOverload* m_pFunctionTypeOverload;
-		CProperty* m_pProperty;
-		CStructField* m_pField;
+		ModuleItem* m_item;
+		Namespace* m_namespace;
+		Variable* m_variable;
+		Function* m_function;
+		FunctionTypeOverload* m_functionTypeOverload;
+		Property* m_property;
+		StructField* m_field;
 	};
 
-	mutable llvm::Value* m_pLlvmValue;
+	mutable llvm::Value* m_llvmValue;
 
-	ref::CPtrT <CClosure> m_Closure;
-	ref::CPtrT <CLeanDataPtrValidator> m_LeanDataPtrValidator;
+	ref::Ptr <Closure> m_closure;
+	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
 
 public:
-	CValue ()
+	Value ()
 	{
-		Init ();
+		init ();
 	}
 
-	CValue (
-		const CValue& Value,
-		CType* pType
+	Value (
+		const Value& value,
+		Type* type
 		)
 	{
-		Init ();
-		OverrideType (Value, pType);
+		init ();
+		overrideType (value, type);
 	}
 
-	CValue (
-		const CValue& Value,
-		EType TypeKind
+	Value (
+		const Value& value,
+		TypeKind typeKind
 		)
 	{
-		Init ();
-		OverrideType (Value, TypeKind);
+		init ();
+		overrideType (value, typeKind);
 	}
 
-	CValue (
-		int64_t Value,
-		EType TypeKind
+	Value (
+		int64_t value,
+		TypeKind typeKind
 		)
 	{
-		Init ();
-		CreateConst (&Value, TypeKind);
+		init ();
+		createConst (&value, typeKind);
 	}
 
-	CValue (
-		int64_t Value,
-		CType* pType
+	Value (
+		int64_t value,
+		Type* type
 		)
 	{
-		Init ();
-		CreateConst (&Value, pType);
+		init ();
+		createConst (&value, type);
 	}
 
-	CValue (
+	Value (
 		const void* p,
-		CType* pType
+		Type* type
 		)
 	{
-		Init ();
-		CreateConst (p, pType);
+		init ();
+		createConst (p, type);
 	}
 
-	CValue (CType* pType)
+	Value (Type* type)
 	{
-		Init ();
-		SetType (pType);
+		init ();
+		setType (type);
 	}
 
-	CValue (CNamespace* pNamespace)
+	Value (Namespace* nspace)
 	{
-		Init ();
-		SetNamespace (pNamespace);
+		init ();
+		setNamespace (nspace);
 	}
 
-	CValue (CVariable* pVariable)
+	Value (Variable* variable)
 	{
-		Init ();
-		SetVariable (pVariable);
+		init ();
+		setVariable (variable);
 	}
 
-	CValue (CFunction* pFunction)
+	Value (Function* function)
 	{
-		Init ();
-		SetFunction (pFunction);
+		init ();
+		setFunction (function);
 	}
 
-	CValue (CFunctionTypeOverload* pFunctionTypeOverload)
+	Value (FunctionTypeOverload* functionTypeOverload)
 	{
-		Init ();
-		SetFunctionTypeOverload (pFunctionTypeOverload);
+		init ();
+		setFunctionTypeOverload (functionTypeOverload);
 	}
 
-	CValue (CProperty* pProperty)
+	Value (Property* prop)
 	{
-		Init ();
-		SetProperty (pProperty);
+		init ();
+		setProperty (prop);
 	}
 
-	CValue (
-		llvm::Value* pLlvmValue,
-		CType* pType = NULL,
-		EValue ValueKind = EValue_LlvmRegister
+	Value (
+		llvm::Value* llvmValue,
+		Type* type = NULL,
+		ValueKind valueKind = ValueKind_LlvmRegister
 		)
 	{
-		Init ();
-		SetLlvmValue (pLlvmValue, pType, ValueKind);
+		init ();
+		setLlvmValue (llvmValue, type, valueKind);
 	}
 
-	CValue (
-		llvm::Value* pLlvmValue,
-		EType TypeKind,
-		EValue ValueKind = EValue_LlvmRegister
+	Value (
+		llvm::Value* llvmValue,
+		TypeKind typeKind,
+		ValueKind valueKind = ValueKind_LlvmRegister
 		)
 	{
-		Init ();
-		SetLlvmValue (pLlvmValue, TypeKind, ValueKind);
+		init ();
+		setLlvmValue (llvmValue, typeKind, valueKind);
 	}
 
 	operator bool () const
 	{
-		return !IsEmpty ();
+		return !isEmpty ();
 	}
 
-	EValue
-	GetValueKind () const
+	ValueKind
+	getValueKind () const
 	{
-		return m_ValueKind;
+		return m_valueKind;
 	}
 
 	bool
-	IsEmpty () const
+	isEmpty () const
 	{
-		return m_ValueKind == EValue_Void;
+		return m_valueKind == ValueKind_Void;
 	}
 
-	CType*
-	GetType () const
+	Type*
+	getType () const
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CNamespace*
-	GetNamespace () const
+	Namespace*
+	getNamespace () const
 	{
-		ASSERT (m_ValueKind == EValue_Namespace);
-		return m_pNamespace;
+		ASSERT (m_valueKind == ValueKind_Namespace);
+		return m_namespace;
 	}
 
-	CVariable*
-	GetVariable () const
+	Variable*
+	getVariable () const
 	{
-		ASSERT (m_ValueKind == EValue_Variable);
-		return m_pVariable;
+		ASSERT (m_valueKind == ValueKind_Variable);
+		return m_variable;
 	}
 
-	CFunction*
-	GetFunction () const
+	Function*
+	getFunction () const
 	{
-		ASSERT (m_ValueKind == EValue_Function);
-		return m_pFunction;
+		ASSERT (m_valueKind == ValueKind_Function);
+		return m_function;
 	}
 
-	CFunctionTypeOverload*
-	GetFunctionTypeOverload () const
+	FunctionTypeOverload*
+	getFunctionTypeOverload () const
 	{
-		ASSERT (m_ValueKind == EValue_FunctionTypeOverload);
-		return m_pFunctionTypeOverload;
+		ASSERT (m_valueKind == ValueKind_FunctionTypeOverload);
+		return m_functionTypeOverload;
 	}
 
-	CProperty*
-	GetProperty () const
+	Property*
+	getProperty () const
 	{
-		ASSERT (m_ValueKind == EValue_Property);
-		return m_pProperty;
+		ASSERT (m_valueKind == ValueKind_Property);
+		return m_property;
 	}
 
-	CStructField*
-	GetField () const
+	StructField*
+	getField () const
 	{
-		ASSERT (m_ValueKind == EValue_Field);
-		return m_pField;
+		ASSERT (m_valueKind == ValueKind_Field);
+		return m_field;
 	}
 
 	void*
-	GetConstData () const
+	getConstData () const
 	{
-		ASSERT (m_ValueKind == EValue_Const || m_ValueKind == EValue_Field);
-		return (void*) (m_Const + 1);
+		ASSERT (m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
+		return (void*) (m_const + 1);
 	}
 
 	int
-	GetInt () const
+	getInt () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (int));
-		return *(int*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int));
+		return *(int*) getConstData ();
 	}
 
 	intptr_t
-	GetIntPtr () const
+	getIntPtr () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (intptr_t));
-		return *(intptr_t*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (intptr_t));
+		return *(intptr_t*) getConstData ();
 	}
 
 	int32_t
-	GetInt32 () const
+	getInt32 () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (int32_t));
-		return *(int32_t*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int32_t));
+		return *(int32_t*) getConstData ();
 	}
 
 	int64_t
-	GetInt64 () const
+	getInt64 () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (int64_t));
-		return *(int64_t*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int64_t));
+		return *(int64_t*) getConstData ();
 	}
 
 	size_t
-	GetSizeT () const
+	getSizeT () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (size_t));
-		return *(size_t*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (size_t));
+		return *(size_t*) getConstData ();
 	}
 
 	size_t
-	GetFieldOffset () const
+	getFieldOffset () const
 	{
-		ASSERT (m_ValueKind == EValue_Field && m_pType->GetSize () >= sizeof (size_t));
-		return *(size_t*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Field && m_type->getSize () >= sizeof (size_t));
+		return *(size_t*) getConstData ();
 	}
 
 	float
-	GetFloat () const
+	getFloat () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (float));
-		return *(float*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (float));
+		return *(float*) getConstData ();
 	}
 
 	double
-	GetDouble () const
+	getDouble () const
 	{
-		ASSERT (m_ValueKind == EValue_Const && m_pType->GetSize () >= sizeof (double));
-		return *(double*) GetConstData ();
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (double));
+		return *(double*) getConstData ();
 	}
 
 	bool
-	HasLlvmValue () const
+	hasLlvmValue () const
 	{
-		return m_pLlvmValue != NULL || m_ValueKind == EValue_Const;
+		return m_llvmValue != NULL || m_valueKind == ValueKind_Const;
 	}
 
 	llvm::Value*
-	GetLlvmValue () const;
+	getLlvmValue () const;
 
-	rtl::CString
-	GetLlvmTypeString () const
+	rtl::String
+	getLlvmTypeString () const
 	{
-		llvm::Value* pLlvmValue = GetLlvmValue ();
-		return pLlvmValue ? jnc::GetLlvmTypeString (pLlvmValue->getType ()) : rtl::CString ();
+		llvm::Value* llvmValue = getLlvmValue ();
+		return llvmValue ? jnc::getLlvmTypeString (llvmValue->getType ()) : rtl::String ();
 	}
 
 	static
 	llvm::Constant*
-	GetLlvmConst (
-		CType* pType,
+	getLlvmConst (
+		Type* type,
 		const void* p
 		);
 
-	CClosure*
-	GetClosure () const
+	Closure*
+	getClosure () const
 	{
-		return m_Closure;
+		return m_closure;
 	}
 
-	CClosure*
-	CreateClosure ();
+	Closure*
+	createClosure ();
 
 	void
-	SetClosure (CClosure* pClosure);
+	setClosure (Closure* closure);
 
 	void
-	ClearClosure ()
+	clearClosure ()
 	{
-		m_Closure = ref::EPtr_Null;
-	}
-
-	void
-	InsertToClosureHead (const CValue& Value);
-
-	void
-	InsertToClosureTail (const CValue& Value);
-
-	CType*
-	GetClosureAwareType () const;
-
-	void
-	OverrideType (CType* pType)
-	{
-		m_pType = pType;
+		m_closure = ref::PtrKind_Null;
 	}
 
 	void
-	OverrideType (EType TypeKind);
+	insertToClosureHead (const Value& value);
 
 	void
-	OverrideType (
-		const CValue& Value,
-		CType* pType
+	insertToClosureTail (const Value& value);
+
+	Type*
+	getClosureAwareType () const;
+
+	void
+	overrideType (Type* type)
+	{
+		m_type = type;
+	}
+
+	void
+	overrideType (TypeKind typeKind);
+
+	void
+	overrideType (
+		const Value& value,
+		Type* type
 		)
 	{
-		*this = Value;
-		OverrideType (pType);
+		*this = value;
+		overrideType (type);
 	}
 
 	void
-	OverrideType (
-		const CValue& Value,
-		EType TypeKind
+	overrideType (
+		const Value& value,
+		TypeKind typeKind
 		)
 	{
-		*this = Value;
-		OverrideType (TypeKind);
+		*this = value;
+		overrideType (typeKind);
 	}
 
 	void
-	Clear ();
+	clear ();
 
 	void
-	SetVoid ();
+	setVoid ();
 
 	void
-	SetNull ();
+	setNull ();
 
 	void
-	SetNamespace (CNamespace* pNamespace);
+	setNamespace (Namespace* nspace);
 
 	void
-	SetType (EType TypeKind);
+	setType (TypeKind typeKind);
 
 	void
-	SetType (CType* pType);
+	setType (Type* type);
 
 	void
-	SetVariable (CVariable* pVariable);
+	setVariable (Variable* variable);
 
 	void
-	SetFunction (CFunction* pFunction);
+	setFunction (Function* function);
 
 	void
-	SetFunctionTypeOverload (CFunctionTypeOverload* pFunctionTypeOverload);
+	setFunctionTypeOverload (FunctionTypeOverload* functionTypeOverload);
 
 	void
-	SetProperty (CProperty* pProperty);
+	setProperty (Property* prop);
 
 	void
-	SetField (
-		CStructField* pField,
-		CType* pType,
-		size_t BaseOffset
+	setField (
+		StructField* field,
+		Type* type,
+		size_t baseOffset
 		);
 
 	void
-	SetField (
-		CStructField* pField,
-		size_t BaseOffset
+	setField (
+		StructField* field,
+		size_t baseOffset
 		);
 
 	void
-	SetLlvmValue (
-		llvm::Value* pLlvmValue,
-		CType* pType,
-		EValue ValueKind = EValue_LlvmRegister
+	setLlvmValue (
+		llvm::Value* llvmValue,
+		Type* type,
+		ValueKind valueKind = ValueKind_LlvmRegister
 		);
 
 	void
-	SetLlvmValue (
-		llvm::Value* pLlvmValue,
-		EType TypeKind,
-		EValue ValueKind = EValue_LlvmRegister
+	setLlvmValue (
+		llvm::Value* llvmValue,
+		TypeKind typeKind,
+		ValueKind valueKind = ValueKind_LlvmRegister
 		);
 
-	CLeanDataPtrValidator*
-	GetLeanDataPtrValidator () const
+	LeanDataPtrValidator*
+	getLeanDataPtrValidator () const
 	{
-		return m_LeanDataPtrValidator;
+		return m_leanDataPtrValidator;
 	}
 
 	void
-	SetLeanDataPtrValidator (CLeanDataPtrValidator* pValidator);
+	setLeanDataPtrValidator (LeanDataPtrValidator* validator);
 
 	void
-	SetLeanDataPtrValidator (const CValue& ValidatorValue);
+	setLeanDataPtrValidator (const Value& validatorValue);
 
 	void
-	SetLeanDataPtrValidator (
-		const CValue& ScopeValidatorValue,
-		const CValue& RangeBeginValue,
-		const CValue& SizeValue
+	setLeanDataPtrValidator (
+		const Value& scopeValidatorValue,
+		const Value& rangeBeginValue,
+		const Value& sizeValue
 		);
 
 	void
-	SetLeanDataPtrValidator (
-		const CValue& ScopeValidatorValue,
-		const CValue& RangeBeginValue,
-		size_t Size
+	setLeanDataPtrValidator (
+		const Value& scopeValidatorValue,
+		const Value& rangeBeginValue,
+		size_t size
 		)
 	{
-		SetLeanDataPtrValidator (ScopeValidatorValue, RangeBeginValue, CValue (Size, EType_SizeT));
+		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, Value (size, TypeKind_SizeT));
 	}
 
 	void
-	SetLeanDataPtr (
-		llvm::Value* pLlvmValue,
-		CDataPtrType* pType,
-		CLeanDataPtrValidator* pValidator
+	setLeanDataPtr (
+		llvm::Value* llvmValue,
+		DataPtrType* type,
+		LeanDataPtrValidator* validator
 		)
 	{
-		SetLlvmValue (pLlvmValue, (CType*) pType);
-		SetLeanDataPtrValidator (pValidator);
+		setLlvmValue (llvmValue, (Type*) type);
+		setLeanDataPtrValidator (validator);
 	}
 
 	void
-	SetLeanDataPtr (
-		llvm::Value* pLlvmValue,
-		CDataPtrType* pType,
-		const CValue& ValidatorValue
+	setLeanDataPtr (
+		llvm::Value* llvmValue,
+		DataPtrType* type,
+		const Value& validatorValue
 		)
 	{
-		SetLlvmValue (pLlvmValue, (CType*) pType);
-		SetLeanDataPtrValidator (ValidatorValue);
+		setLlvmValue (llvmValue, (Type*) type);
+		setLeanDataPtrValidator (validatorValue);
 	}
 
 	void
-	SetLeanDataPtr (
-		llvm::Value* pLlvmValue,
-		CDataPtrType* pType,
-		const CValue& ScopeValidatorValue,
-		const CValue& RangeBeginValue,
-		const CValue& SizeValue
+	setLeanDataPtr (
+		llvm::Value* llvmValue,
+		DataPtrType* type,
+		const Value& scopeValidatorValue,
+		const Value& rangeBeginValue,
+		const Value& sizeValue
 		)
 	{
-		SetLlvmValue (pLlvmValue, (CType*) pType);
-		SetLeanDataPtrValidator (ScopeValidatorValue, RangeBeginValue, SizeValue);
+		setLlvmValue (llvmValue, (Type*) type);
+		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, sizeValue);
 	}
 
 	void
-	SetLeanDataPtr (
-		llvm::Value* pLlvmValue,
-		CDataPtrType* pType,
-		const CValue& ScopeValidatorValue,
-		const CValue& RangeBeginValue,
-		size_t Size
+	setLeanDataPtr (
+		llvm::Value* llvmValue,
+		DataPtrType* type,
+		const Value& scopeValidatorValue,
+		const Value& rangeBeginValue,
+		size_t size
 		)
 	{
-		SetLeanDataPtr (pLlvmValue, pType, ScopeValidatorValue, RangeBeginValue, CValue (Size, EType_SizeT));
+		setLeanDataPtr (llvmValue, type, scopeValidatorValue, rangeBeginValue, Value (size, TypeKind_SizeT));
 	}
 
 	bool
-	CreateConst (
+	createConst (
 		const void* p,
-		CType* pType
+		Type* type
 		);
 
 	bool
-	CreateConst (
+	createConst (
 		const void* p,
-		EType Type
+		TypeKind type
 		);
 
 	void
-	SetConstBool (bool Bool)
+	setConstBool (bool value)
 	{
-		CreateConst (&Bool, EType_Bool);
+		createConst (&value, TypeKind_Bool);
 	}
 
 	void
-	SetConstInt32 (
-		int32_t Integer,
-		CType* pType
+	setConstInt32 (
+		int32_t value,
+		Type* type
 		)
 	{
-		CreateConst (&Integer, pType);
+		createConst (&value, type);
 	}
 
 	void
-	SetConstInt32 (
-		int32_t Integer,
-		EType TypeKind
+	setConstInt32 (
+		int32_t value,
+		TypeKind typeKind
 		)
 	{
-		CreateConst (&Integer, TypeKind);
+		createConst (&value, typeKind);
 	}
 
 	void
-	SetConstInt32 (int32_t Integer)
+	setConstInt32 (int32_t value)
 	{
-		SetConstInt32 (Integer, GetInt32TypeKind (Integer));
+		setConstInt32 (value, getInt32TypeKind (value));
 	}
 
 	void
-	SetConstUInt32 (uint32_t Integer)
+	setConstUInt32 (uint32_t value)
 	{
-		SetConstInt32 (Integer, GetInt32TypeKind_u (Integer));
+		setConstInt32 (value, getInt32TypeKind_u (value));
 	}
 
 	void
-	SetConstInt64 (
-		int64_t Integer,
-		CType* pType
+	setConstInt64 (
+		int64_t value,
+		Type* type
 		)
 	{
-		CreateConst (&Integer, pType);
+		createConst (&value, type);
 	}
 
 	void
-	SetConstInt64 (
-		int64_t Integer,
-		EType TypeKind
+	setConstInt64 (
+		int64_t value,
+		TypeKind typeKind
 		)
 	{
-		CreateConst (&Integer, TypeKind);
+		createConst (&value, typeKind);
 	}
 
 	void
-	SetConstInt64 (int64_t Integer)
+	setConstInt64 (int64_t value)
 	{
-		SetConstInt64 (Integer, GetInt64TypeKind (Integer));
+		setConstInt64 (value, getInt64TypeKind (value));
 	}
 
 	void
-	SetConstInt64_u (uint64_t Integer)
+	setConstInt64_u (uint64_t value)
 	{
-		SetConstInt64 (Integer, GetInt64TypeKind_u (Integer));
+		setConstInt64 (value, getInt64TypeKind_u (value));
 	}
 
 	void
-	SetConstSizeT (
-		size_t Size,
-		EType TypeKind = EType_SizeT
+	setConstSizeT (
+		size_t value,
+		TypeKind typeKind = TypeKind_SizeT
 		)
 	{
-		CreateConst (&Size, TypeKind);
+		createConst (&value, typeKind);
 	}
 
 	void
-	SetConstFloat (float Float)
+	setConstFloat (float value)
 	{
-		CreateConst (&Float, EType_Float);
+		createConst (&value, TypeKind_Float);
 	}
 
 	void
-	SetConstDouble (double Double)
+	setConstDouble (double value)
 	{
-		CreateConst (&Double, EType_Double);
+		createConst (&value, TypeKind_Double);
 	}
 
 	void
-	SetCharArray (const char* p)
+	setCharArray (const char* p)
 	{
-		SetCharArray (p, strlen (p) + 1);
+		setCharArray (p, strlen (p) + 1);
 	}
 
 	void
-	SetCharArray (
+	setCharArray (
 		const void* p,
-		size_t Count
+		size_t count
 		);
 
 protected:
 	void
-	Init ();
+	init ();
 };
 
 //.............................................................................

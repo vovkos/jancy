@@ -6,55 +6,55 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CBinOp_At::GetResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+BinOp_At::getResultType (
+	const Value& opValue1,
+	const Value& opValue2
 	)
 {
-	return OpValue1.GetType ();
+	return opValue1.getType ();
 }
 
 bool
-CBinOp_At::Operator (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_At::op (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue SchedulerValue;
-	Result = m_pModule->m_OperatorMgr.CastOperator (
-		OpValue2,
-		m_pModule->m_TypeMgr.GetStdType (EStdType_SchedulerPtr),
-		&SchedulerValue
+	Value schedulerValue;
+	result = m_module->m_operatorMgr.castOperator (
+		opValue2,
+		m_module->m_typeMgr.getStdType (StdTypeKind_SchedulerPtr),
+		&schedulerValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	EType OpType1 = OpValue1.GetType ()->GetTypeKind ();
-	if (OpType1 != EType_FunctionPtr && OpType1 != EType_FunctionRef)
+	TypeKind opType1 = opValue1.getType ()->getTypeKind ();
+	if (opType1 != TypeKind_FunctionPtr && opType1 != TypeKind_FunctionRef)
 	{
-		SetOperatorError (OpValue1, OpValue2);
+		setOperatorError (opValue1, opValue2);
 		return false;
 	}
 
-	CFunctionPtrType* pTargetPtrType = (CFunctionPtrType*) OpValue1.GetType (); // not closure-aware!
+	FunctionPtrType* targetPtrType = (FunctionPtrType*) opValue1.getType (); // not closure-aware!
 
-	CFunction* pLauncher = m_pModule->m_FunctionMgr.GetScheduleLauncherFunction (pTargetPtrType);
-	if (!pLauncher)
+	Function* launcher = m_module->m_functionMgr.getScheduleLauncherFunction (targetPtrType);
+	if (!launcher)
 		return false;
 
-	pResultValue->SetFunction (pLauncher);
+	resultValue->setFunction (launcher);
 
-	CClosure* pClosure = pResultValue->CreateClosure ();
-	pClosure->GetArgValueList ()->InsertTail (OpValue1);
-	pClosure->GetArgValueList ()->InsertTail (SchedulerValue);
+	Closure* closure = resultValue->createClosure ();
+	closure->getArgValueList ()->insertTail (opValue1);
+	closure->getArgValueList ()->insertTail (schedulerValue);
 
-	if (OpValue1.GetClosure ())
-		pClosure->Append (*OpValue1.GetClosure ()->GetArgValueList ());
+	if (opValue1.getClosure ())
+		closure->append (*opValue1.getClosure ()->getArgValueList ());
 
 	return true;
 }

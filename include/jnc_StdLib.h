@@ -12,240 +12,240 @@ namespace jnc {
 
 //.............................................................................
 
-class CStdLib
+class StdLib
 {
 public:
 	JNC_API_BEGIN_LIB ()
-		JNC_API_STD_FUNCTION (EStdFunc_RuntimeError, RuntimeError)
-		JNC_API_STD_FUNCTION (EStdFunc_DynamicCastClassPtr, DynamicCastClassPtr)
-		JNC_API_STD_FUNCTION (EStdFunc_StrengthenClassPtr, StrengthenClassPtr)
-		JNC_API_STD_FUNCTION (EStdFunc_GcAllocate, GcAllocate)
-		JNC_API_STD_FUNCTION (EStdFunc_GcTryAllocate, GcTryAllocate)
-		JNC_API_STD_FUNCTION_FORCED (EStdFunc_GcEnter, GcEnter)
-		JNC_API_STD_FUNCTION_FORCED (EStdFunc_GcLeave, GcLeave)
-		JNC_API_STD_FUNCTION (EStdFunc_GcPulse, GcPulse)
-		JNC_API_STD_FUNCTION (EStdFunc_RunGc, RunGc)
-		JNC_API_STD_FUNCTION (EStdFunc_GetCurrentThreadId, GetCurrentThreadId)
-		JNC_API_STD_FUNCTION (EStdFunc_CreateThread, CreateThread)
-		JNC_API_STD_FUNCTION (EStdFunc_Sleep, Sleep)
-		JNC_API_STD_FUNCTION (EStdFunc_GetTimestamp, GetTimestamp)
-		JNC_API_STD_FUNCTION (EStdFunc_GetLastError, GetLastError)
-		JNC_API_CONST_PROPERTY ("jnc.Error.m_description", GetErrorDescription)
-		JNC_API_STD_FUNCTION (EStdFunc_StrLen, StrLen)
-		JNC_API_STD_FUNCTION (EStdFunc_MemCpy, MemCpy)
-		JNC_API_STD_FUNCTION (EStdFunc_MemCat, MemCat)
-		JNC_API_STD_FUNCTION (EStdFunc_Rand, Rand)
-		JNC_API_STD_FUNCTION (EStdFunc_Atoi, Atoi)
-		JNC_API_STD_FUNCTION (EStdFunc_Format, Format)
-		JNC_API_STD_FUNCTION (EStdFunc_GetTls, GetTls)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_a, AppendFmtLiteral_a)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_p, AppendFmtLiteral_p)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_i32, AppendFmtLiteral_i32)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_ui32, AppendFmtLiteral_ui32)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_i64, AppendFmtLiteral_i64)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_ui64, AppendFmtLiteral_ui64)
-		JNC_API_STD_FUNCTION (EStdFunc_AppendFmtLiteral_f, AppendFmtLiteral_f)
-		JNC_API_LIB (CMulticastLib)
+		JNC_API_STD_FUNCTION (StdFuncKind_RuntimeError, runtimeError)
+		JNC_API_STD_FUNCTION (StdFuncKind_DynamicCastClassPtr, dynamicCastClassPtr)
+		JNC_API_STD_FUNCTION (StdFuncKind_StrengthenClassPtr, strengthenClassPtr)
+		JNC_API_STD_FUNCTION (StdFuncKind_GcAllocate, gcAllocate)
+		JNC_API_STD_FUNCTION (StdFuncKind_GcTryAllocate, gcTryAllocate)
+		JNC_API_STD_FUNCTION_FORCED (StdFuncKind_GcEnter, gcEnter)
+		JNC_API_STD_FUNCTION_FORCED (StdFuncKind_GcLeave, gcLeave)
+		JNC_API_STD_FUNCTION (StdFuncKind_GcPulse, gcPulse)
+		JNC_API_STD_FUNCTION (StdFuncKind_RunGc, runGc)
+		JNC_API_STD_FUNCTION (StdFuncKind_GetCurrentThreadId, getCurrentThreadId)
+		JNC_API_STD_FUNCTION (StdFuncKind_CreateThread, createThread)
+		JNC_API_STD_FUNCTION (StdFuncKind_Sleep, sleep)
+		JNC_API_STD_FUNCTION (StdFuncKind_GetTimestamp, getTimestamp)
+		JNC_API_STD_FUNCTION (StdFuncKind_GetLastError, getLastError)
+		JNC_API_CONST_PROPERTY ("jnc.Error.m_description", getErrorDescription)
+		JNC_API_STD_FUNCTION (StdFuncKind_StrLen, strLen)
+		JNC_API_STD_FUNCTION (StdFuncKind_MemCpy, memCpy)
+		JNC_API_STD_FUNCTION (StdFuncKind_MemCat, memCat)
+		JNC_API_STD_FUNCTION (StdFuncKind_Rand, rand)
+		JNC_API_STD_FUNCTION (StdFuncKind_Atoi, atoi)
+		JNC_API_STD_FUNCTION (StdFuncKind_Format, format)
+		JNC_API_STD_FUNCTION (StdFuncKind_GetTls, getTls)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_a, appendFmtLiteral_a)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_p, appendFmtLiteral_p)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_i32, appendFmtLiteral_i32)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_ui32, appendFmtLiteral_ui32)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_i64, appendFmtLiteral_i64)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
+		JNC_API_STD_FUNCTION (StdFuncKind_AppendFmtLiteral_f, appendFmtLiteral_f)
+		JNC_API_LIB (MulticastLib)
 	JNC_API_END_LIB ()
 
 public:
 	static
 	void
-	RuntimeError (
-		int Error,
-		void* pCodeAddr,
-		void* pDataAddr
+	runtimeError (
+		int error,
+		void* codeAddr,
+		void* dataAddr
 		)
 	{
-		CRuntime::RuntimeError (Error, pCodeAddr, pDataAddr);
+		Runtime::runtimeError (error, codeAddr, dataAddr);
 	}
 
 	static
-	TIfaceHdr*
-	DynamicCastClassPtr (
-		TIfaceHdr* p,
-		CClassType* pType
+	IfaceHdr*
+	dynamicCastClassPtr (
+		IfaceHdr* p,
+		ClassType* type
 		);
 
 	static
-	TIfaceHdr*
-	StrengthenClassPtr (TIfaceHdr* p);
+	IfaceHdr*
+	strengthenClassPtr (IfaceHdr* p);
 
 	static
 	void*
-	GcAllocate (
-		CType* pType,
-		size_t ElementCount
+	gcAllocate (
+		Type* type,
+		size_t elementCount
 		);
 
 	static
 	void*
-	GcTryAllocate (
-		CType* pType,
-		size_t ElementCount
+	gcTryAllocate (
+		Type* type,
+		size_t elementCount
 		);
 
 	static
 	void
-	GcEnter ();
+	gcEnter ();
 
 	static
 	void
-	GcLeave ();
+	gcLeave ();
 
 	static
 	void
-	GcPulse ();
+	gcPulse ();
 
 	static
 	void
-	RunGc ();
+	runGc ();
 
 	static
 	intptr_t
-	GetCurrentThreadId ();
+	getCurrentThreadId ();
 
 	static
 	bool
-	CreateThread (TFunctionPtr Ptr);
+	createThread (FunctionPtr ptr);
 
 	static
 	void
-	Sleep (uint32_t MsCount)
+	sleep (uint32_t msCount)
 	{
-		g::Sleep (MsCount);
+		g::sleep (msCount);
 	}
 
 	static
 	uint64_t
-	GetTimestamp ()
+	getTimestamp ()
 	{
-		return g::GetTimestamp ();
+		return g::getTimestamp ();
 	}
 
 	static
-	TDataPtr
-	GetLastError ();
+	DataPtr
+	getLastError ();
 
 	static
-	TDataPtr
-	GetErrorDescription (TDataPtr Error);
+	DataPtr
+	getErrorDescription (DataPtr error);
 
 	static
-	TDataPtr
-	Format (
-		TDataPtr FormatString,
+	DataPtr
+	format (
+		DataPtr formatString,
 		...
 		);
 
 	static
 	size_t
-	StrLen (TDataPtr Ptr);
+	strLen (DataPtr ptr);
 
 	static
 	void
-	MemCpy (
-		TDataPtr DstPtr,
-		TDataPtr SrcPtr,
-		size_t Size
+	memCpy (
+		DataPtr dstPtr,
+		DataPtr srcPtr,
+		size_t size
 		);
 
 	static
-	TDataPtr
-	MemCat (
-		TDataPtr Ptr1,
-		size_t Size1,
-		TDataPtr Ptr2,
-		size_t Size2
+	DataPtr
+	memCat (
+		DataPtr ptr1,
+		size_t size1,
+		DataPtr ptr2,
+		size_t size2
 		);
 
 	static
 	int
-	Rand ()
+	rand ()
 	{
-		return rand ();
+		return ::rand ();
 	}
 
 	static
 	int
-	Atoi (TDataPtr Ptr)
+	atoi (DataPtr ptr)
 	{
-		return Ptr.m_p ? atoi ((char*) Ptr.m_p) : 0;
+		return ptr.m_p ? ::atoi ((char*) ptr.m_p) : 0;
 	}
 
 	static
 	void*
-	GetTls ();
+	getTls ();
 
 	static
 	size_t
-	AppendFmtLiteral_a (
-		TFmtLiteral* pFmtLiteral,
+	appendFmtLiteral_a (
+		FmtLiteral* fmtLiteral,
 		const char* p,
-		size_t Length
+		size_t length
 		);
 
 	static
 	size_t
-	AppendFmtLiteral_p (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
-		TDataPtr Ptr
+	appendFmtLiteral_p (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		DataPtr ptr
 		);
 
 	static
 	size_t
-	AppendFmtLiteral_i32 (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
+	appendFmtLiteral_i32 (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
 		int32_t x
 		)
 	{
-		return AppendFmtLiteralImpl (pFmtLiteral, pFmtSpecifier, 'd', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'd', x);
 	}
 
 	static
 	size_t
-	AppendFmtLiteral_ui32 (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
+	appendFmtLiteral_ui32 (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
 		uint32_t x
 		)
 	{
-		return AppendFmtLiteralImpl (pFmtLiteral, pFmtSpecifier, 'u', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'u', x);
 	}
 
 	static
 	size_t
-	AppendFmtLiteral_i64 (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
+	appendFmtLiteral_i64 (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
 		int64_t x
 		)
 	{
-		return AppendFmtLiteralImpl (pFmtLiteral, pFmtSpecifier, 'd', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'd', x);
 	}
 
 	static
 	size_t
-	AppendFmtLiteral_ui64 (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
+	appendFmtLiteral_ui64 (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
 		uint64_t x
 		)
 	{
-		return AppendFmtLiteralImpl (pFmtLiteral, pFmtSpecifier, 'u', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'u', x);
 	}
 
 	static
 	size_t
-	AppendFmtLiteral_f (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
+	appendFmtLiteral_f (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
 		double x
 		)
 	{
-		return AppendFmtLiteralImpl (pFmtLiteral, pFmtSpecifier, 'f', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'f', x);
 	}
 
 protected:
@@ -253,27 +253,27 @@ protected:
 	static
 	DWORD
 	WINAPI
-	ThreadProc (PVOID pContext);
+	threadProc (PVOID context);
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	static
 	void*
-	ThreadProc (void* pContext);
+	threadProc (void* context);
 #endif
 
 	static
 	void
-	PrepareFormatString (
-		rtl::CString* pFormatString,
-		const char* pFmtSpecifier,
-		char DefaultType
+	prepareFormatString (
+		rtl::String* formatString,
+		const char* fmtSpecifier,
+		char defaultType
 		);
 
 	static
 	size_t
-	AppendFmtLiteralImpl (
-		TFmtLiteral* pFmtLiteral,
-		const char* pFmtSpecifier,
-		char DefaultType,
+	appendFmtLiteralImpl (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		char defaultType,
 		...
 		);
 };

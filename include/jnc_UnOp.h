@@ -10,111 +10,111 @@ namespace jnc {
 
 //.............................................................................
 
-enum EUnOp
+enum UnOpKind
 {
-	EUnOp_Undefined = 0,
-	EUnOp_Plus,
-	EUnOp_Minus,
-	EUnOp_BwNot,	
-	EUnOp_Addr,
-	EUnOp_Indir,	
-	EUnOp_LogNot,
-	EUnOp_PreInc,
-	EUnOp_PreDec,
-	EUnOp_PostInc,
-	EUnOp_PostDec,	
-	EUnOp_Ptr,
-	EUnOp__Count,
+	UnOpKind_Undefined = 0,
+	UnOpKind_Plus,
+	UnOpKind_Minus,
+	UnOpKind_BwNot,	
+	UnOpKind_Addr,
+	UnOpKind_Indir,	
+	UnOpKind_LogNot,
+	UnOpKind_PreInc,
+	UnOpKind_PreDec,
+	UnOpKind_PostInc,
+	UnOpKind_PostDec,	
+	UnOpKind_Ptr,
+	UnOpKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetUnOpKindString (EUnOp OpKind);
+getUnOpKindString (UnOpKind opKind);
 
 //.............................................................................
 
-enum EOpFlag
+enum OpFlagKind
 {
-	EOpFlag_KeepDataRef      = 0x01,
-	EOpFlag_KeepClassRef	 = 0x02,
-	EOpFlag_KeepFunctionRef  = 0x04,
-	EOpFlag_KeepPropertyRef  = 0x08,
-	EOpFlag_KeepBool         = 0x10,
-	EOpFlag_KeepEnum         = 0x20,
+	OpFlagKind_KeepDataRef      = 0x01,
+	OpFlagKind_KeepClassRef	 = 0x02,
+	OpFlagKind_KeepFunctionRef  = 0x04,
+	OpFlagKind_KeepPropertyRef  = 0x08,
+	OpFlagKind_KeepBool         = 0x10,
+	OpFlagKind_KeepEnum         = 0x20,
 	
-	EOpFlag_ArrayRefToPtr    = 0x40,
+	OpFlagKind_ArrayRefToPtr    = 0x40,
 	
-	EOpFlag_KeepRef          = 
-		EOpFlag_KeepDataRef | 
-		EOpFlag_KeepClassRef | 
-		EOpFlag_KeepFunctionRef | 
-		EOpFlag_KeepPropertyRef,
+	OpFlagKind_KeepRef          = 
+		OpFlagKind_KeepDataRef | 
+		OpFlagKind_KeepClassRef | 
+		OpFlagKind_KeepFunctionRef | 
+		OpFlagKind_KeepPropertyRef,
 };
 
 //.............................................................................
 
-class CUnaryOperator
+class UnaryOperator
 {
-	friend class COperatorMgr;
+	friend class OperatorMgr;
 
 protected:
-	CModule* m_pModule;
-	EUnOp m_OpKind;
-	uint_t m_OpFlags;
+	Module* m_module;
+	UnOpKind m_opKind;
+	uint_t m_opFlags;
 
 public:
-	CUnaryOperator ();
+	UnaryOperator ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
-	EUnOp 
-	GetOpKind ()
+	UnOpKind 
+	getOpKind ()
 	{
-		return m_OpKind;
+		return m_opKind;
 	}
 
 	int 
-	GetOpFlags ()
+	getOpFlags ()
 	{
-		return m_OpFlags;
+		return m_opFlags;
 	}
 
 	bool
-	GetResultType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getResultType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	virtual
-	CType*
-	GetResultType (const CValue& OpValue) = 0;
+	Type*
+	getResultType (const Value& opValue) = 0;
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue,
-		CValue* pResultValue
+	op (
+		const Value& opValue,
+		Value* resultValue
 		) = 0;
 
-	err::CError
-	SetOperatorError (CType* pOpType)
+	err::Error
+	setOperatorError (Type* opType)
 	{
-		return err::SetFormatStringError (
+		return err::setFormatStringError (
 			"unary '%s' cannot be applied to '%s'",
-			GetUnOpKindString (m_OpKind),
-			pOpType->GetTypeString ().cc () // thanks a lot gcc
+			getUnOpKindString (m_opKind),
+			opType->getTypeString ().cc () // thanks a lot gcc
 			);
 	}
 
-	err::CError
-	SetOperatorError (const CValue& OpValue)
+	err::Error
+	setOperatorError (const Value& opValue)
 	{
-		return SetOperatorError (OpValue.GetType ());
+		return setOperatorError (opValue.getType ());
 	}
 };
 

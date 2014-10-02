@@ -12,34 +12,34 @@ namespace jnc {
 
 // comparison to zero -> bool (common for both integer & fp)
 
-class CCast_BoolFromZeroCmp: public CCastOperator
+class Cast_BoolFromZeroCmp: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -47,16 +47,16 @@ public:
 
 // extract 1st element, convert to int, compare it to zero
 
-class CCast_BoolFromPtr: public CCast_BoolFromZeroCmp
+class Cast_BoolFromPtr: public Cast_BoolFromZeroCmp
 {
 public:
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -64,34 +64,34 @@ public:
 
 // bool <-> int
 
-class CCast_IntFromBool: public CCastOperator
+class Cast_IntFromBool: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -99,23 +99,23 @@ public:
 
 // bool master cast
 
-class CCast_Bool: public CCast_Master
+class Cast_Bool: public Cast_Master
 {
 protected:
-	CCast_BoolFromZeroCmp m_FromZeroCmp;
-	CCast_BoolFromPtr m_FromPtr;
+	Cast_BoolFromZeroCmp m_fromZeroCmp;
+	Cast_BoolFromPtr m_fromPtr;
 
 public:
-	CCast_Bool ()
+	Cast_Bool ()
 	{
-		m_OpFlags = EOpFlag_KeepBool;
+		m_opFlags = OpFlagKind_KeepBool;
 	}
 
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		);
 };
 

@@ -4,7 +4,7 @@ start
 reactor_body
 	: '{' reactor_stmt+ '}'
 		{
-			return FinalizeReactor ();
+			return finalizeReactor ();
 		}
 	;
 
@@ -17,52 +17,52 @@ reactor_stmt
 reactor_expression_stmt
 	enter
 	{
-		m_ReactorBindSiteList.Clear ();
+		m_reactorBindSiteList.clear ();
 	}
 	:	expression_pass1 ';'
 			{
-				return ReactorExpressionStmt ($1.m_TokenList);
+				return reactorExpressionStmt ($1.m_tokenList);
 			}
 	;
 
 reactor_onevent_stmt
 	local
 	{
-		CDeclarator $Declarator;
+		Declarator $declarator;
 	}
-	:	EToken_OnEvent reactor_event_name function_suffix <&$Declarator>
+	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator>
 			{
-				return FinalizeReactorOnEventDeclaration (&$2.m_ValueList, &$Declarator);
+				return finalizeReactorOnEventDeclaration (&$2.m_valueList, &$declarator);
 			}
 		compound_stmt
 			{
-				return FinalizeReactorOnEventBody ();
+				return finalizeReactorOnEventBody ();
 			}
 	;
 
 class 
 {
-	rtl::CBoxListT <CValue> m_ValueList;
+	rtl::BoxList <Value> m_valueList;
 }
 reactor_event_name
 	local 
 	{
-		rtl::CBoxListT <CToken> $TokenList;
+		rtl::BoxList <Token> $tokenList;
 	}
 	:	'(' expression_list ')'
 			{
-				$.m_ValueList.TakeOver (&$2.m_ValueList)
+				$.m_valueList.takeOver (&$2.m_valueList)
 			}
 	|	(any // anything until '('
 			{
-				$TokenList.InsertTail ($1);
+				$tokenList.insertTail ($1);
 			}
 		)+
 			{	
-				CValue Value;			
+				Value value;			
 				return 
-					m_pModule->m_OperatorMgr.ParseExpression (NULL, $TokenList, &Value) && 
-					$.m_ValueList.InsertTail (Value);
+					m_module->m_operatorMgr.parseExpression (NULL, $tokenList, &value) && 
+					$.m_valueList.insertTail (value);
 			}
 	;
 
@@ -82,20 +82,20 @@ reactor_stmt_0
 reactor_expression_stmt_0
 	:	expression_0 ';'
 			{
-				return CountReactorBindableTypes ();
+				return countReactorBindableTypes ();
 			}
 	;
 
 reactor_onevent_stmt_0
 	local
 	{
-		CDeclarator $Declarator;
+		Declarator $declarator;
 	}
 	enter
 	{
-		m_ReactorBindSiteList.Clear (); // clear bindsite list before processing expression list
+		m_reactorBindSiteList.clear (); // clear bindsite list before processing expression list
 	}
-	:	EToken_OnEvent reactor_event_name_0 function_suffix <&$Declarator>
+	:	TokenKind_OnEvent reactor_event_name_0 function_suffix <&$declarator>
 		reactor_compound_stmt_0
 	;
 	
@@ -106,11 +106,11 @@ reactor_compound_stmt_0
 reactor_event_name_0
 	:	'(' expression_list_0 ')'
 		{
-			m_ReactorBindSiteTotalCount += $2.m_ValueList.GetCount ();
+			m_reactorBindSiteTotalCount += $2.m_valueList.getCount ();
 		}
 	|	any+ // anythin until '('
 			{
-				m_ReactorBindSiteTotalCount++;
+				m_reactorBindSiteTotalCount++;
 			}
 	;
 

@@ -9,228 +9,228 @@
 
 namespace jnc {
 
-class CNamespace;
-class CEnumType;
-class CEnumConst;
-class CMemberCoord;
-class CFunction;
+class Namespace;
+class EnumType;
+class EnumConst;
+class MemberCoord;
+class Function;
 
-struct TDualPtrTypeTuple;
+struct DualPtrTypeTuple;
 
 //.............................................................................
 
-enum ENamespace
+enum NamespaceKind
 {
-	ENamespace_Undefined,
-	ENamespace_Global,
-	ENamespace_Scope,
-	ENamespace_Type,
-	ENamespace_TypeExtension,
-	ENamespace_Property,
-	ENamespace_PropertyTemplate,
-	ENamespace__Count
+	NamespaceKind_Undefined,
+	NamespaceKind_Global,
+	NamespaceKind_Scope,
+	NamespaceKind_Type,
+	NamespaceKind_TypeExtension,
+	NamespaceKind_Property,
+	NamespaceKind_PropertyTemplate,
+	NamespaceKind__Count
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetNamespaceKindString (ENamespace NamespaceKind);
+getNamespaceKindString (NamespaceKind namespaceKind);
 
 //.............................................................................
 
 enum
 {
-	ETraverse_NoThis               = 0x01,
-	ETraverse_NoExtensionNamespace = 0x02,
-	ETraverse_NoBaseType           = 0x04,
-	ETraverse_NoParentNamespace    = 0x08,
+	TraverseKind_NoThis               = 0x01,
+	TraverseKind_NoExtensionNamespace = 0x02,
+	TraverseKind_NoBaseType           = 0x04,
+	TraverseKind_NoParentNamespace    = 0x08,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CNamespace: public CModuleItemDecl
+class Namespace: public ModuleItemDecl
 {
-	friend class CNamespaceMgr;
-	friend class CTypeMgr;
-	friend class CParser;
+	friend class NamespaceMgr;
+	friend class TypeMgr;
+	friend class Parser;
 
 protected:
-	ENamespace m_NamespaceKind;
+	NamespaceKind m_namespaceKind;
 
-	rtl::CArrayT <CModuleItem*> m_ItemArray;
-	rtl::CStringHashTableMapT <CModuleItem*> m_ItemMap;
-	rtl::CStringHashTable m_FriendSet;
-	rtl::CStringHashTableMapT <TDualPtrTypeTuple*> m_DualPtrTypeTupleMap;
+	rtl::Array <ModuleItem*> m_itemArray;
+	rtl::StringHashTableMap <ModuleItem*> m_itemMap;
+	rtl::StringHashTable m_friendSet;
+	rtl::StringHashTableMap <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 
 public:
-	CNamespace ()
+	Namespace ()
 	{
-		m_NamespaceKind = ENamespace_Undefined;
+		m_namespaceKind = NamespaceKind_Undefined;
 	}
 
-	ENamespace
-	GetNamespaceKind ()
+	NamespaceKind
+	getNamespaceKind ()
 	{
-		return m_NamespaceKind;
+		return m_namespaceKind;
 	}
 
-	rtl::CString
-	CreateQualifiedName (const char* pName);
+	rtl::String
+	createQualifiedName (const char* name);
 
-	rtl::CString
-	CreateQualifiedName (const rtl::CString& Name)
+	rtl::String
+	createQualifiedName (const rtl::String& name)
 	{
-		return CreateQualifiedName (Name.cc ());
+		return createQualifiedName (name.cc ());
 	}
 
-	rtl::CString
-	CreateQualifiedName (const CQualifiedName& Name)
+	rtl::String
+	createQualifiedName (const QualifiedName& name)
 	{
-		return CreateQualifiedName (Name.GetFullName ());
+		return createQualifiedName (name.getFullName ());
 	}
 
 	bool
-	IsFriend (CNamespace* pNamespace)
+	isFriend (Namespace* nspace)
 	{
-		return m_FriendSet.Find (pNamespace->m_QualifiedName) != NULL;
+		return m_friendSet.find (nspace->m_qualifiedName) != NULL;
 	}
 
-	CModuleItem*
-	GetItemByName (const char* pName);
+	ModuleItem*
+	getItemByName (const char* name);
 
-	CClassType*
-	GetClassTypeByName (const char* pName)
+	ClassType*
+	getClassTypeByName (const char* name)
 	{
-		return VerifyModuleItemIsClassType (GetItemByName (pName), pName);
+		return verifyModuleItemIsClassType (getItemByName (name), name);
 	}
 
-	CFunction*
-	GetFunctionByName (const char* pName)
+	Function*
+	getFunctionByName (const char* name)
 	{
-		return VerifyModuleItemIsFunction (GetItemByName (pName), pName);
+		return verifyModuleItemIsFunction (getItemByName (name), name);
 	}
 
-	CProperty*
-	GetPropertyByName (const char* pName)
+	Property*
+	getPropertyByName (const char* name)
 	{
-		return VerifyModuleItemIsProperty (GetItemByName (pName), pName);
+		return verifyModuleItemIsProperty (getItemByName (name), name);
 	}
 
-	CModuleItem*
-	FindItem (const char* pName);
+	ModuleItem*
+	findItem (const char* name);
 
-	CModuleItem*
-	FindItem (const rtl::CString& Name)
+	ModuleItem*
+	findItem (const rtl::String& name)
 	{
-		return FindItem (Name.cc ());
+		return findItem (name.cc ());
 	}
 
-	CModuleItem*
-	FindItem (const CQualifiedName& Name);
+	ModuleItem*
+	findItem (const QualifiedName& name);
 
-	CModuleItem*
-	FindItemTraverse (
-		const rtl::CString& Name,
-		CMemberCoord* pCoord = NULL,
-		uint_t Flags = 0
+	ModuleItem*
+	findItemTraverse (
+		const rtl::String& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		)
 	{
-		return FindItemTraverseImpl (Name, pCoord, Flags);
+		return findItemTraverseImpl (name, coord, flags);
 	}
 
-	CModuleItem*
-	FindItemTraverse (
-		const char* pName,
-		CMemberCoord* pCoord = NULL,
-		uint_t Flags = 0
+	ModuleItem*
+	findItemTraverse (
+		const char* name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		)
 	{
-		return FindItemTraverseImpl (pName, pCoord, Flags);
+		return findItemTraverseImpl (name, coord, flags);
 	}
 
-	CModuleItem*
-	FindItemTraverse (
-		const CQualifiedName& Name,
-		CMemberCoord* pCoord = NULL,
-		uint_t Flags = 0
+	ModuleItem*
+	findItemTraverse (
+		const QualifiedName& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		);
 
 	template <typename T>
 	bool
-	AddItem (T* pItem)
+	addItem (T* item)
 	{
-		return AddItem (pItem, pItem);
+		return addItem (item, item);
 	}
 
 	bool
-	AddFunction (CFunction* pFunction);
+	addFunction (Function* function);
 
 	size_t
-	GetItemCount ()
+	getItemCount ()
 	{
-		return m_ItemArray.GetCount ();
+		return m_itemArray.getCount ();
 	}
 
-	CModuleItem*
-	GetItem (size_t Index)
+	ModuleItem*
+	getItem (size_t index)
 	{
-		ASSERT (Index < m_ItemArray.GetCount ());
-		return m_ItemArray [Index];
+		ASSERT (index < m_itemArray.getCount ());
+		return m_itemArray [index];
 	}
 
 	bool
-	ExposeEnumConsts (CEnumType* pMember);
+	exposeEnumConsts (EnumType* member);
 
 protected:
 	void
-	Clear ();
+	clear ();
 
 	bool
-	AddItem (
-		CModuleItem* pItem,
-		CModuleItemDecl* pDecl
+	addItem (
+		ModuleItem* item,
+		ModuleItemDecl* decl
 		);
 
 	virtual
-	CModuleItem*
-	FindItemTraverseImpl (
-		const char* pName,
-		CMemberCoord* pCoord = NULL,
-		uint_t Flags = 0
+	ModuleItem*
+	findItemTraverseImpl (
+		const char* name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		);
 };
 
 //.............................................................................
 
-enum EGlobalNamespaceFlag
+enum GlobalNamespaceFlagKind
 {
-	EGlobalNamespaceFlag_Sealed = 0x0100
+	GlobalNamespaceFlagKind_Sealed = 0x0100
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CGlobalNamespace:
-	public CModuleItem,
-	public CNamespace
+class GlobalNamespace:
+	public ModuleItem,
+	public Namespace
 {
-	friend class CNamespaceMgr;
+	friend class NamespaceMgr;
 
 public:
-	CGlobalNamespace ()
+	GlobalNamespace ()
 	{
-		m_ItemKind = EModuleItem_Namespace;
-		m_NamespaceKind = ENamespace_Global;
-		m_pItemDecl = this;
+		m_itemKind = ModuleItemKind_Namespace;
+		m_namespaceKind = NamespaceKind_Global;
+		m_itemDecl = this;
 	}
 };
 
 //.............................................................................
 
 inline
-err::CError
-SetRedefinitionError (const char* pName)
+err::Error
+setRedefinitionError (const char* name)
 {
-	return err::SetFormatStringError ("redefinition of '%s'", pName);
+	return err::setFormatStringError ("redefinition of '%s'", name);
 }
 
 //.............................................................................

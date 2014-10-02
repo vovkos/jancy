@@ -10,55 +10,55 @@ namespace jnc {
 
 //.............................................................................
 
-enum ELeanDataPtrValidator
+enum LeanDataPtrValidatorKind
 {
-	ELeanDataPtrValidator_Undefined,
-	ELeanDataPtrValidator_Simple,
-	ELeanDataPtrValidator_Complex,
+	LeanDataPtrValidatorKind_Undefined,
+	LeanDataPtrValidatorKind_Simple,
+	LeanDataPtrValidatorKind_Complex,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CLeanDataPtrValidator: public ref::CRefCount
+class LeanDataPtrValidator: public ref::RefCount
 {
-	friend class CValue;
-	friend class CConstMgr;
+	friend class Value;
+	friend class ConstMgr;
 
 protected:
-	ELeanDataPtrValidator m_ValidatorKind;
+	LeanDataPtrValidatorKind m_validatorKind;
 
-	CValue m_ScopeValidatorValue;
-	CValue m_RangeBeginValue;
-	CValue m_SizeValue;
+	Value m_scopeValidatorValue;
+	Value m_rangeBeginValue;
+	Value m_sizeValue;
 
 public:
-	CLeanDataPtrValidator ()
+	LeanDataPtrValidator ()
 	{
-		m_ValidatorKind = ELeanDataPtrValidator_Undefined;
+		m_validatorKind = LeanDataPtrValidatorKind_Undefined;
 	}
 
-	ELeanDataPtrValidator 
-	GetValidatorKind ()
+	LeanDataPtrValidatorKind 
+	getValidatorKind ()
 	{
-		return m_ValidatorKind;
+		return m_validatorKind;
 	}
 
-	CValue 
-	GetScopeValidator ()
+	Value 
+	getScopeValidator ()
 	{
-		return m_ScopeValidatorValue;
+		return m_scopeValidatorValue;
 	}
 
-	CValue 
-	GetRangeBegin ()
+	Value 
+	getRangeBegin ()
 	{
-		return m_RangeBeginValue;
+		return m_rangeBeginValue;
 	}
 
-	CValue
-	GetSizeValue ()
+	Value
+	getSizeValue ()
 	{
-		return m_SizeValue;
+		return m_sizeValue;
 	}
 };
 

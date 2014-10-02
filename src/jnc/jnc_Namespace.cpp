@@ -8,38 +8,38 @@ namespace jnc {
 
 //.............................................................................
 
-CNamespace*
-GetItemNamespace (CModuleItem* pItem)
+Namespace*
+getItemNamespace (ModuleItem* item)
 {
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Namespace:
-		return (CGlobalNamespace*) pItem;
+	case ModuleItemKind_Namespace:
+		return (GlobalNamespace*) item;
 
-	case EModuleItem_Property:
-		return (CProperty*) pItem;
+	case ModuleItemKind_Property:
+		return (Property*) item;
 
-	case EModuleItem_Type:
+	case ModuleItemKind_Type:
 		break;
 
-	case EModuleItem_Typedef:
-		pItem = ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*) item)->getType ();
 		break;
 
 	default:
 		return NULL;
 	}
 
-	CType* pType = (CType*) pItem;
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	Type* type = (Type*) item;
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Enum:
-	case EType_Struct:
-	case EType_Union:
-	case EType_Class:
-		return ((CNamedType*) pType);
+	case TypeKind_Enum:
+	case TypeKind_Struct:
+	case TypeKind_Union:
+	case TypeKind_Class:
+		return ((NamedType*) type);
 
 	default:
 		return NULL;
@@ -49,9 +49,9 @@ GetItemNamespace (CModuleItem* pItem)
 //.............................................................................
 
 const char*
-GetNamespaceKindString (ENamespace NamespaceKind)
+getNamespaceKindString (NamespaceKind namespaceKind)
 {
-	static const char* StringTable [ENamespace__Count] =
+	static const char* stringTable [NamespaceKind__Count] =
 	{
 		"undefined-namespace-kind",  // ENamespace_Undefined = 0,
 		"global",                    // ENamespace_Global,
@@ -62,204 +62,204 @@ GetNamespaceKindString (ENamespace NamespaceKind)
 		"property-template",         // ENamespace_PropertyTemplate,
 	};
 
-	return (size_t) NamespaceKind < ENamespace__Count ?
-		StringTable [NamespaceKind] :
-		StringTable [ENamespace_Undefined];
+	return (size_t) namespaceKind < NamespaceKind__Count ?
+		stringTable [namespaceKind] :
+		stringTable [NamespaceKind_Undefined];
 }
 
 //.............................................................................
 
 void
-CNamespace::Clear ()
+Namespace::clear ()
 {
-	m_ItemArray.Clear ();
-	m_ItemMap.Clear ();
+	m_itemArray.clear ();
+	m_itemMap.clear ();
 }
 
-rtl::CString
-CNamespace::CreateQualifiedName (const char* pName)
+rtl::String
+Namespace::createQualifiedName (const char* name)
 {
-	if (m_QualifiedName.IsEmpty ())
-		return pName;
+	if (m_qualifiedName.isEmpty ())
+		return name;
 
-	rtl::CString QualifiedName = m_QualifiedName;
+	rtl::String qualifiedName = m_qualifiedName;
 
-	if (pName && *pName)
+	if (name && *name)
 	{
-		QualifiedName.Append ('.');
-		QualifiedName.Append (pName);
+		qualifiedName.append ('.');
+		qualifiedName.append (name);
 	}
 
-	return QualifiedName;
+	return qualifiedName;
 }
 
-CModuleItem*
-CNamespace::GetItemByName (const char* pName)
+ModuleItem*
+Namespace::getItemByName (const char* name)
 {
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (!strchr (pName, '.'))
+	if (!strchr (name, '.'))
 	{
-		pItem = FindItem (pName);
+		item = findItem (name);
 	}
 	else
 	{
-		CQualifiedName Name;
-		Name.Parse (pName);
-		pItem = FindItem (Name);
+		QualifiedName qualifiedName;
+		qualifiedName.parse (name);
+		item = findItem (qualifiedName);
 	}
 
-	if (!pItem)
+	if (!item)
 	{
-		err::SetFormatStringError ("'%s' not found", pName);
+		err::setFormatStringError ("'%s' not found", name);
 		return NULL;
 	}
 
-	return pItem;
+	return item;
 }
 
-CModuleItem*
-CNamespace::FindItem (const char* pName)
+ModuleItem*
+Namespace::findItem (const char* name)
 {
-	rtl::CStringHashTableMapIteratorT <CModuleItem*> It = m_ItemMap.Find (pName);
-	if (!It)
+	rtl::StringHashTableMapIterator <ModuleItem*> it = m_itemMap.find (name);
+	if (!it)
 		return NULL;
 
-	CModuleItem* pItem = It->m_Value;
-	if (pItem->GetItemKind () != EModuleItem_Lazy)
-		return pItem;
+	ModuleItem* item = it->m_value;
+	if (item->getItemKind () != ModuleItemKind_Lazy)
+		return item;
 
-	CLazyModuleItem* pLazyItem = (CLazyModuleItem*) pItem;
-	ASSERT (!(pLazyItem->m_Flags & ELazyModuleItemFlag_Touched));
+	LazyModuleItem* lazyItem = (LazyModuleItem*) item;
+	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlagKind_Touched));
 
-	pLazyItem->m_Flags |= ELazyModuleItemFlag_Touched;
-	pItem = pLazyItem->GetActualItem ();
-	m_ItemArray.Append (pItem);
-	It->m_Value = pItem;
-	return pItem;
+	lazyItem->m_flags |= LazyModuleItemFlagKind_Touched;
+	item = lazyItem->getActualItem ();
+	m_itemArray.append (item);
+	it->m_value = item;
+	return item;
 }
 
-CModuleItem*
-CNamespace::FindItem (const CQualifiedName& Name)
+ModuleItem*
+Namespace::findItem (const QualifiedName& name)
 {
-	CModuleItem* pItem = FindItem (Name.GetFirstName ());
-	if (!pItem)
+	ModuleItem* item = findItem (name.getFirstName ());
+	if (!item)
 		return NULL;
 
-	rtl::CBoxIteratorT <rtl::CString> NameIt = Name.GetNameList ().GetHead ();
-	for (; NameIt; NameIt++)
+	rtl::BoxIterator <rtl::String> nameIt = name.getNameList ().getHead ();
+	for (; nameIt; nameIt++)
 	{
-		CNamespace* pNamespace = GetItemNamespace (pItem);
-		if (!pNamespace)
+		Namespace* nspace = getItemNamespace (item);
+		if (!nspace)
 			return NULL;
 
-		pItem = pNamespace->FindItem (*NameIt);
-		if (!pItem)
+		item = nspace->findItem (*nameIt);
+		if (!item)
 			return NULL;
 	}
 
-	return pItem;
+	return item;
 }
 
-CModuleItem*
-CNamespace::FindItemTraverse (
-	const CQualifiedName& Name,
-	CMemberCoord* pCoord,
-	uint_t Flags
+ModuleItem*
+Namespace::findItemTraverse (
+	const QualifiedName& name,
+	MemberCoord* coord,
+	uint_t flags
 	)
 {
-	CModuleItem* pItem = FindItemTraverse (Name.GetFirstName (), pCoord, Flags);
-	if (!pItem)
+	ModuleItem* item = findItemTraverse (name.getFirstName (), coord, flags);
+	if (!item)
 		return NULL;
 
-	rtl::CBoxIteratorT <rtl::CString> NameIt = Name.GetNameList ().GetHead ();
-	for (; NameIt; NameIt++)
+	rtl::BoxIterator <rtl::String> nameIt = name.getNameList ().getHead ();
+	for (; nameIt; nameIt++)
 	{
-		CNamespace* pNamespace = GetItemNamespace (pItem);
-		if (!pNamespace)
+		Namespace* nspace = getItemNamespace (item);
+		if (!nspace)
 			return NULL;
 
-		pItem = pNamespace->FindItem (*NameIt);
-		if (!pItem)
+		item = nspace->findItem (*nameIt);
+		if (!item)
 			return NULL;
 	}
 
-	return pItem;
+	return item;
 }
 
-CModuleItem*
-CNamespace::FindItemTraverseImpl (
-	const char* pName,
-	CMemberCoord* pCoord,
-	uint_t Flags
+ModuleItem*
+Namespace::findItemTraverseImpl (
+	const char* name,
+	MemberCoord* coord,
+	uint_t flags
 	)
 {
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (!(Flags & ETraverse_NoThis))
+	if (!(flags & TraverseKind_NoThis))
 	{
-		pItem = FindItem (pName);
-		if (pItem)
-			return pItem;
+		item = findItem (name);
+		if (item)
+			return item;
 	}
 
-	if (!(Flags & ETraverse_NoParentNamespace) && m_pParentNamespace)
+	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		pItem = m_pParentNamespace->FindItemTraverse (pName, pCoord, Flags & ~ETraverse_NoThis);
-		if (pItem)
-			return pItem;
+		item = m_parentNamespace->findItemTraverse (name, coord, flags & ~TraverseKind_NoThis);
+		if (item)
+			return item;
 	}
 
 	return NULL;
 }
 
 bool
-CNamespace::AddItem (
-	CModuleItem* pItem,
-	CModuleItemDecl* pDecl
+Namespace::addItem (
+	ModuleItem* item,
+	ModuleItemDecl* decl
 	)
 {
-	rtl::CStringHashTableMapIteratorT <CModuleItem*> It = m_ItemMap.Goto (pDecl->m_Name);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <ModuleItem*> it = m_itemMap.visit (decl->m_name);
+	if (it->m_value)
 	{
-		SetRedefinitionError (pDecl->m_Name);
+		setRedefinitionError (decl->m_name);
 		return false;
 	}
 
-	if (pItem->GetItemKind () != EModuleItem_Lazy)
-		m_ItemArray.Append (pItem);
+	if (item->getItemKind () != ModuleItemKind_Lazy)
+		m_itemArray.append (item);
 
-	It->m_Value = pItem;
+	it->m_value = item;
 	return true;
 }
 
 bool
-CNamespace::AddFunction (CFunction* pFunction)
+Namespace::addFunction (Function* function)
 {
-	CModuleItem* pOldItem = FindItem (pFunction->GetName ());
-	if (!pOldItem)
-		return AddItem (pFunction);
+	ModuleItem* oldItem = findItem (function->getName ());
+	if (!oldItem)
+		return addItem (function);
 
-	if (pOldItem->GetItemKind () != EModuleItem_Function)
+	if (oldItem->getItemKind () != ModuleItemKind_Function)
 	{
-		SetRedefinitionError (pFunction->GetName ());
+		setRedefinitionError (function->getName ());
 		return false;
 	}
 
-	CFunction* pFunctionOverload = (CFunction*) pOldItem;
-	return pFunctionOverload->AddOverload (pFunction);
+	Function* functionOverload = (Function*) oldItem;
+	return functionOverload->addOverload (function);
 }
 
 bool
-CNamespace::ExposeEnumConsts (CEnumType* pType)
+Namespace::exposeEnumConsts (EnumType* type)
 {
-	bool Result;
+	bool result;
 
-	rtl::CIteratorT <CEnumConst> Const = pType->GetConstList ().GetHead ();
-	for (; Const; Const++)
+	rtl::Iterator <EnumConst> constIt = type->getConstList ().getHead ();
+	for (; constIt; constIt++)
 	{
-		Result = AddItem (*Const);
-		if (!Result)
+		result = addItem (*constIt);
+		if (!result)
 			return false;
 	}
 

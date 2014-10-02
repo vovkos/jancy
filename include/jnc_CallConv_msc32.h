@@ -14,34 +14,34 @@ namespace jnc {
 
 //.............................................................................
 
-class CCdeclCallConv_msc32: public CCallConv
+class CdeclCallConv_msc32: public CallConv
 {
 public:
-	CCdeclCallConv_msc32 ()
+	CdeclCallConv_msc32 ()
 	{
-		m_CallConvKind = ECallConv_Cdecl_msc32;
+		m_callConvKind = CallConvKind_Cdecl_msc32;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CStdcallCallConv_msc32: public CCallConv
+class StdcallCallConv_msc32: public CallConv
 {
 public:
-	CStdcallCallConv_msc32 ()
+	StdcallCallConv_msc32 ()
 	{
-		m_CallConvKind = ECallConv_Stdcall_msc32;
+		m_callConvKind = CallConvKind_Stdcall_msc32;
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CThiscallCallConv_msc32: public CCallConv
+class ThiscallCallConv_msc32: public CallConv
 {
 public:
-	CThiscallCallConv_msc32 ()
+	ThiscallCallConv_msc32 ()
 	{
-		m_CallConvKind = ECallConv_Thiscall_msc32;
+		m_callConvKind = CallConvKind_Thiscall_msc32;
 	}
 };
 

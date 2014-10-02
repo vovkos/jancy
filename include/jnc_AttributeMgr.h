@@ -8,41 +8,41 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-class CAttributeMgr: public rtl::TListLink
+class AttributeMgr: public rtl::ListLink
 {
-	friend class CModule;
+	friend class Module;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CStdListT <CAttributeBlock> m_AttributeBlockList;
+	rtl::StdList <AttributeBlock> m_attributeBlockList;
 
 public:
-	CAttributeMgr ();
+	AttributeMgr ();
 
-	CModule* 
-	GetModule ()
+	Module* 
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ()
+	clear ()
 	{
-		m_AttributeBlockList.Clear ();
+		m_attributeBlockList.clear ();
 	}
 
-	CAttributeBlock*
-	CreateAttributeBlock ();
+	AttributeBlock*
+	createAttributeBlock ();
 
-	CAttribute*
-	CreateAttribute (
-		const rtl::CString& Name,
-		CValue* pValue = NULL
+	Attribute*
+	createAttribute (
+		const rtl::String& name,
+		Value* value = NULL
 		);
 };
 

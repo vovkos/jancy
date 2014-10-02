@@ -12,141 +12,141 @@ namespace jnc {
 
 //.............................................................................
 
-class CClosureClassType: public CClassType
+class ClosureClassType: public ClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	uint64_t m_WeakMask;
+	uint64_t m_weakMask;
 
 public: // tmp
-	rtl::CArrayT <size_t> m_ClosureMap;
+	rtl::Array <size_t> m_closureMap;
 
 public:
-	CClosureClassType ()
+	ClosureClassType ()
 	{
-		m_WeakMask = 0;
+		m_weakMask = 0;
 	}
 
 	uint64_t 
-	GetWeakMask ()
+	getWeakMask ()
 	{
-		return m_WeakMask;
+		return m_weakMask;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CType* pTargetType, // function or property
-		CType* pThunkType, // function or property
-		CType* const* ppArgTypeArray,
-		const size_t* pClosureMap,
-		size_t ClosureArgCount,
-		uint64_t WeakMask
+	rtl::String
+	createSignature (
+		Type* targetType, // function or property
+		Type* thunkType, // function or property
+		Type* const* argTypeArray,
+		const size_t* closureMap,
+		size_t closureArgCount,
+		uint64_t weakMask
 		);
 
 	virtual 
 	bool
-	Compile () = 0;
+	compile () = 0;
 
-	jnc::TIfaceHdr* 
-	Strengthen (jnc::TIfaceHdr* p);
+	jnc::IfaceHdr* 
+	strengthen (jnc::IfaceHdr* p);
 
 protected:
 	void
-	BuildArgValueList (
-		const CValue& ClosureValue,
-		const CValue* pThunkArgValueArray,
-		size_t ThunkArgCount,
-		rtl::CBoxListT <CValue>* pArgValueList
+	buildArgValueList (
+		const Value& closureValue,
+		const Value* thunkArgValueArray,
+		size_t thunkArgCount,
+		rtl::BoxList <Value>* argValueList
 		);
 };
 
 //.............................................................................
 
-class CFunctionClosureClassType: public CClosureClassType
+class FunctionClosureClassType: public ClosureClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CFunction* m_pThunkFunction;
+	Function* m_thunkFunction;
 
 public:
-	CFunctionClosureClassType ();
+	FunctionClosureClassType ();
 
-	CFunction*
-	GetThunkFunction ()
+	Function*
+	getThunkFunction ()
 	{
-		return m_pThunkFunction;
+		return m_thunkFunction;
 	}
 
 	virtual 
 	bool
-	Compile ();
+	compile ();
 };
 
 //.............................................................................
 
-class CPropertyClosureClassType: public CClosureClassType
+class PropertyClosureClassType: public ClosureClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CProperty* m_pThunkProperty;
+	Property* m_thunkProperty;
 
 public:
-	CPropertyClosureClassType ();
+	PropertyClosureClassType ();
 
-	CProperty*
-	GetThunkProperty ()
+	Property*
+	getThunkProperty ()
 	{
-		return m_pThunkProperty;
+		return m_thunkProperty;
 	}
 
 	virtual 
 	bool
-	Compile ();
+	compile ();
 
 protected:
 	bool
-	CompileAccessor (CFunction* pAccessor);
+	compileAccessor (Function* accessor);
 };
 
 //.............................................................................
 
-class CDataClosureClassType: public CClassType
+class DataClosureClassType: public ClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CProperty* m_pThunkProperty;
+	Property* m_thunkProperty;
 
 public:
-	CDataClosureClassType ();
+	DataClosureClassType ();
 
-	CProperty*
-	GetThunkProperty ()
+	Property*
+	getThunkProperty ()
 	{
-		return m_pThunkProperty;
+		return m_thunkProperty;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CType* pTargetType,
-		CPropertyType* pThunkType
+	rtl::String
+	createSignature (
+		Type* targetType,
+		PropertyType* thunkType
 		);
 
 	virtual 
 	bool
-	Compile ();
+	compile ();
 
 protected:
 	bool
-	CompileGetter (CFunction* pGetter);
+	compileGetter (Function* getter);
 
 	bool
-	CompileSetter (CFunction* pSetter);
+	compileSetter (Function* setter);
 };
 
 //.............................................................................

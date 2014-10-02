@@ -6,43 +6,43 @@ namespace jnc {
 
 //.............................................................................
 
-COrphan::COrphan ()
+Orphan::Orphan ()
 {
-	m_ItemKind = EModuleItem_Orphan;
-	m_OrphanKind = EOrphan_Undefined;
-	m_pFunctionType = NULL;
+	m_itemKind = ModuleItemKind_Orphan;
+	m_orphanKind = OrphanKind_Undefined;
+	m_functionType = NULL;
 }
 
 bool
-COrphan::SetBody (rtl::CBoxListT <CToken>* pTokenList)
+Orphan::setBody (rtl::BoxList <Token>* tokenList)
 {
-	if (!m_Body.IsEmpty ())
+	if (!m_body.isEmpty ())
 	{
-		err::SetFormatStringError ("'%s' already has a body", m_Tag.cc ());
+		err::setFormatStringError ("'%s' already has a body", m_tag.cc ());
 		return false;
 	}
 
-	m_Body.TakeOver (pTokenList);
+	m_body.takeOver (tokenList);
 	return true;
 }
 
 bool
-COrphan::ResolveOrphan ()
+Orphan::resolveOrphan ()
 {
-	CModuleItem* pItem = m_pParentNamespace->FindItemTraverse (m_DeclaratorName);
-	if (!pItem)
+	ModuleItem* item = m_parentNamespace->findItemTraverse (m_declaratorName);
+	if (!item)
 	{
-		err::SetFormatStringError ("unresolved orphan '%s'", m_Tag.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("unresolved orphan '%s'", m_tag.cc ()); // thanks a lot gcc
 		return false;
 	}
 
-	switch (m_OrphanKind)
+	switch (m_orphanKind)
 	{
-	case EOrphan_Function:
-		return AdoptOrphanFunction (pItem);
+	case OrphanKind_Function:
+		return adoptOrphanFunction (item);
 
-	case EOrphan_Reactor:
-		return AdoptOrphanReactor (pItem);
+	case OrphanKind_Reactor:
+		return adoptOrphanReactor (item);
 
 	default:
 		ASSERT (false);
@@ -50,57 +50,57 @@ COrphan::ResolveOrphan ()
 	}
 }
 
-CFunction*
-COrphan::GetItemUnnamedMethod (CModuleItem* pItem)
+Function*
+Orphan::getItemUnnamedMethod (ModuleItem* item)
 {
-	if (pItem->GetItemKind () == EModuleItem_Property)
+	if (item->getItemKind () == ModuleItemKind_Property)
 	{
-		CProperty* pProperty = (CProperty*) pItem;
-		switch (m_FunctionKind)
+		Property* prop = (Property*) item;
+		switch (m_functionKind)
 		{
-		case EFunction_Constructor:
-			return pProperty->GetConstructor ();
+		case FunctionKind_Constructor:
+			return prop->getConstructor ();
 
-		case EFunction_StaticConstructor:
-			return pProperty->GetStaticConstructor ();
+		case FunctionKind_StaticConstructor:
+			return prop->getStaticConstructor ();
 
-		case EFunction_Destructor:
-			return pProperty->GetDestructor ();
+		case FunctionKind_Destructor:
+			return prop->getDestructor ();
 
-		case EFunction_Getter:
-			return pProperty->GetGetter ();
+		case FunctionKind_Getter:
+			return prop->getGetter ();
 
-		case EFunction_Setter:
-			return pProperty->GetSetter ();
+		case FunctionKind_Setter:
+			return prop->getSetter ();
 		}
 	}
 	else if (
-		pItem->GetItemKind () == EModuleItem_Type &&
-		(((CType*) pItem)->GetTypeKindFlags () & ETypeKindFlag_Derivable))
+		item->getItemKind () == ModuleItemKind_Type &&
+		(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Derivable))
 	{
-		CDerivableType* pType = (CDerivableType*) pItem;
-		switch (m_FunctionKind)
+		DerivableType* type = (DerivableType*) item;
+		switch (m_functionKind)
 		{
-		case EFunction_PreConstructor:
-			return pType->GetPreConstructor ();
+		case FunctionKind_PreConstructor:
+			return type->getPreConstructor ();
 
-		case EFunction_Constructor:
-			return pType->GetConstructor ();
+		case FunctionKind_Constructor:
+			return type->getConstructor ();
 
-		case EFunction_StaticConstructor:
-			return pType->GetStaticConstructor ();
+		case FunctionKind_StaticConstructor:
+			return type->getStaticConstructor ();
 
-		case EFunction_Destructor:
-			return pType->GetTypeKind () == EType_Class ? ((CClassType*) pType)->GetDestructor () : NULL;
+		case FunctionKind_Destructor:
+			return type->getTypeKind () == TypeKind_Class ? ((ClassType*) type)->getDestructor () : NULL;
 
-		case EFunction_UnaryOperator:
-			return pType->GetUnaryOperator (m_UnOpKind);
+		case FunctionKind_UnaryOperator:
+			return type->getUnaryOperator (m_unOpKind);
 
-		case EFunction_BinaryOperator:
-			return pType->GetBinaryOperator (m_BinOpKind);
+		case FunctionKind_BinaryOperator:
+			return type->getBinaryOperator (m_binOpKind);
 
-		case EFunction_CallOperator:
-			return pType->GetCallOperator ();
+		case FunctionKind_CallOperator:
+			return type->getCallOperator ();
 		}
 	}
 
@@ -108,147 +108,147 @@ COrphan::GetItemUnnamedMethod (CModuleItem* pItem)
 }
 
 bool
-COrphan::AdoptOrphanFunction (CModuleItem* pItem)
+Orphan::adoptOrphanFunction (ModuleItem* item)
 {
-	CFunction* pOriginFunction = NULL;
+	Function* originFunction = NULL;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
+	ModuleItemKind itemKind = item->getItemKind ();
 
-	if (m_FunctionKind == EFunction_Named)
+	if (m_functionKind == FunctionKind_Named)
 	{
-		if (ItemKind != EModuleItem_Function)
+		if (itemKind != ModuleItemKind_Function)
 		{
-			err::SetFormatStringError ("'%s' is not a function", m_Tag.cc ());
+			err::setFormatStringError ("'%s' is not a function", m_tag.cc ());
 			return false;
 		}
 
-		pOriginFunction = (CFunction*) pItem;
+		originFunction = (Function*) item;
 	}
 	else
 	{
-		pOriginFunction = GetItemUnnamedMethod (pItem);
-		if (!pOriginFunction)
+		originFunction = getItemUnnamedMethod (item);
+		if (!originFunction)
 		{
-			err::SetFormatStringError ("'%s' has no '%s'", pItem->m_Tag.cc (), GetFunctionKindString (m_FunctionKind));
+			err::setFormatStringError ("'%s' has no '%s'", item->m_tag.cc (), getFunctionKindString (m_functionKind));
 			return false;
 		}
 	}
 
-	bool Result =
-		m_pFunctionType->EnsureLayout () &&
-		pOriginFunction->GetTypeOverload ()->EnsureLayout ();
+	bool result =
+		m_functionType->ensureLayout () &&
+		originFunction->getTypeOverload ()->ensureLayout ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	pOriginFunction = pOriginFunction->FindShortOverload (m_pFunctionType);
-	if (!pOriginFunction)
+	originFunction = originFunction->findShortOverload (m_functionType);
+	if (!originFunction)
 	{
-		err::SetFormatStringError ("'%s': overload not found", m_Tag.cc ());
+		err::setFormatStringError ("'%s': overload not found", m_tag.cc ());
 		return false;
 	}
 
-	if (!(pOriginFunction->m_Flags & EModuleItemFlag_User))
+	if (!(originFunction->m_flags & ModuleItemFlagKind_User))
 	{
-		err::SetFormatStringError ("'%s' is a compiler-generated function", m_Tag.cc ());
+		err::setFormatStringError ("'%s' is a compiler-generated function", m_tag.cc ());
 		return false;
 	}
 
-	ASSERT (pOriginFunction->m_FunctionKind == m_FunctionKind);
+	ASSERT (originFunction->m_functionKind == m_functionKind);
 
-	CopySrcPos (pOriginFunction);
+	copySrcPos (originFunction);
 
 	return
-		CopyArgNames (pOriginFunction->GetType ()) &&
-		pOriginFunction->SetBody (&m_Body) &&
-		VerifyStorageKind (pOriginFunction);
+		copyArgNames (originFunction->getType ()) &&
+		originFunction->setBody (&m_body) &&
+		verifyStorageKind (originFunction);
 }
 
 bool
-COrphan::AdoptOrphanReactor (CModuleItem* pItem)
+Orphan::adoptOrphanReactor (ModuleItem* item)
 {
-	CType* pItemType = NULL;
+	Type* itemType = NULL;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Variable:
-		pItemType = ((CVariable*) pItem)->GetType ();
+	case ModuleItemKind_Variable:
+		itemType = ((Variable*) item)->getType ();
 		break;
 
-	case EModuleItem_StructField:
-		pItemType = ((CStructField*) pItem)->GetType ();
+	case ModuleItemKind_StructField:
+		itemType = ((StructField*) item)->getType ();
 		break;
 	}
 
-	if (!pItemType || !IsClassType (pItemType, EClassType_Reactor))
+	if (!itemType || !isClassType (itemType, ClassTypeKind_Reactor))
 	{
-		err::SetFormatStringError ("'%s' is not a reactor", m_Tag.cc ());
+		err::setFormatStringError ("'%s' is not a reactor", m_tag.cc ());
 		return false;
 	}
 
-	CReactorClassType* pOriginType = (CReactorClassType*) pItemType ;
-	CFunction* pOriginStart = pOriginType->GetMethod (EReactorMethod_Start);
+	ReactorClassType* originType = (ReactorClassType*) itemType ;
+	Function* originStart = originType->getMethod (ReactorMethodKind_Start);
 
-	CopySrcPos (pOriginType);
-	CopySrcPos (pOriginStart);
+	copySrcPos (originType);
+	copySrcPos (originStart);
 
 	return
-		CopyArgNames (pOriginStart->GetType ()) &&
-		pOriginType->SetBody (&m_Body) &&
-		VerifyStorageKind (pOriginStart);
+		copyArgNames (originStart->getType ()) &&
+		originType->setBody (&m_body) &&
+		verifyStorageKind (originStart);
 }
 
 bool
-COrphan::CopyArgNames (CFunctionType* pTargetFunctionType)
+Orphan::copyArgNames (FunctionType* targetFunctionType)
 {
 	// copy arg names and make sure orphan funciton does not override default values
 
-	rtl::CArrayT <CFunctionArg*> DstArgArray = pTargetFunctionType->GetArgArray ();
-	rtl::CArrayT <CFunctionArg*> SrcArgArray = m_pFunctionType->GetArgArray ();
+	rtl::Array <FunctionArg*> dstArgArray = targetFunctionType->getArgArray ();
+	rtl::Array <FunctionArg*> srcArgArray = m_functionType->getArgArray ();
 
-	size_t ArgCount = DstArgArray.GetCount ();
+	size_t argCount = dstArgArray.getCount ();
 
 	size_t iDst = 0;
 	size_t iSrc = 0;
 
-	if (pTargetFunctionType->IsMemberMethodType ())
+	if (targetFunctionType->isMemberMethodType ())
 		iDst++;
 
-	for (; iDst < ArgCount; iDst++, iSrc++)
+	for (; iDst < argCount; iDst++, iSrc++)
 	{
-		CFunctionArg* pDstArg = DstArgArray [iDst];
-		CFunctionArg* pSrcArg = SrcArgArray [iSrc];
+		FunctionArg* dstArg = dstArgArray [iDst];
+		FunctionArg* srcArg = srcArgArray [iSrc];
 
-		if (!pSrcArg->m_Initializer.IsEmpty ())
+		if (!srcArg->m_initializer.isEmpty ())
 		{
-			err::SetFormatStringError ("redefinition of default value for '%s'", pSrcArg->m_Name.cc ());
+			err::setFormatStringError ("redefinition of default value for '%s'", srcArg->m_name.cc ());
 			return false;
 		}
 
-		pDstArg->m_Name = pSrcArg->m_Name;
-		pDstArg->m_QualifiedName = pSrcArg->m_QualifiedName;
-		pDstArg->m_Tag = pSrcArg->m_Tag;
+		dstArg->m_name = srcArg->m_name;
+		dstArg->m_qualifiedName = srcArg->m_qualifiedName;
+		dstArg->m_tag = srcArg->m_tag;
 	}
 
 	return true;
 }
 
 bool
-COrphan::VerifyStorageKind (CModuleItemDecl* pTargetDecl)
+Orphan::verifyStorageKind (ModuleItemDecl* targetDecl)
 {
-	if (!m_StorageKind || m_StorageKind == pTargetDecl->GetStorageKind ())
+	if (!m_storageKind || m_storageKind == targetDecl->getStorageKind ())
 		return true;
 
-	err::SetFormatStringError ("storage specifier mismatch for orphan '%s'", m_Tag.cc ());
+	err::setFormatStringError ("storage specifier mismatch for orphan '%s'", m_tag.cc ());
 	return false;
 }
 
 void
-COrphan::CopySrcPos (CModuleItemDecl* pTargetDecl)
+Orphan::copySrcPos (ModuleItemDecl* targetDecl)
 {
-	pTargetDecl->m_pParentUnit = m_pParentUnit;
-	pTargetDecl->m_Pos = m_Pos;
+	targetDecl->m_parentUnit = m_parentUnit;
+	targetDecl->m_pos = m_pos;
 }
 
 //.............................................................................

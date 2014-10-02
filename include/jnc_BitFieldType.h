@@ -10,81 +10,81 @@ namespace jnc {
 
 //.............................................................................
 
-class CBitFieldType: public CType
+class BitFieldType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CType* m_pBaseType;
-	CImportType* m_pBaseType_i;
-	size_t m_BitOffset;
-	size_t m_BitCount;
+	Type* m_baseType;
+	ImportType* m_baseType_i;
+	size_t m_bitOffset;
+	size_t m_bitCount;
 
 public:
-	CBitFieldType ();
+	BitFieldType ();
 
-	CType*
-	GetBaseType ()
+	Type*
+	getBaseType ()
 	{
-		return m_pBaseType;
+		return m_baseType;
 	}
 
-	CImportType*
-	GetBaseType_i ()
+	ImportType*
+	getBaseType_i ()
 	{
-		return m_pBaseType_i;
-	}
-
-	size_t
-	GetBitOffset ()
-	{
-		return m_BitOffset;
+		return m_baseType_i;
 	}
 
 	size_t
-	GetBitCount ()
+	getBitOffset ()
 	{
-		return m_BitCount;
+		return m_bitOffset;
+	}
+
+	size_t
+	getBitCount ()
+	{
+		return m_bitCount;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CType* pBaseType,
-		size_t BitOffset,
-		size_t BitCount
+	rtl::String
+	createSignature (
+		Type* baseType,
+		size_t bitOffset,
+		size_t bitCount
 		)
 	{
-		return rtl::CString::Format_s (
+		return rtl::String::format_s (
 			"B%s:%d:%d",
-			pBaseType->GetSignature ().cc (), // thanks a lot gcc
-			BitOffset,
-			BitOffset + BitCount
+			baseType->getSignature ().cc (), // thanks a lot gcc
+			bitOffset,
+			bitOffset + bitCount
 			);
 	}
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
-		m_pLlvmType = m_pBaseType->GetLlvmType ();
+		m_llvmType = m_baseType->getLlvmType ();
 	}
 
 	virtual
 	void
-	PrepareLlvmDiType ()
+	prepareLlvmDiType ()
 	{
-		m_LlvmDiType = m_pBaseType->GetLlvmDiType ();
+		m_llvmDiType = m_baseType->getLlvmDiType ();
 	}
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 };
 
 //.............................................................................

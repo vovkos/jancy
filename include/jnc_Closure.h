@@ -8,72 +8,72 @@
 
 namespace jnc {
 
-class CFunctionType;
-class CFunctionPtrType;
-class CPropertyType;
-class CPropertyPtrType;
+class FunctionType;
+class FunctionPtrType;
+class PropertyType;
+class PropertyPtrType;
 
 //.............................................................................
 
-class CClosure: public ref::CRefCount
+class Closure: public ref::RefCount
 {
-	friend class CValue;
+	friend class Value;
 
 protected:
-	rtl::CBoxListT <CValue> m_ArgValueList;
+	rtl::BoxList <Value> m_argValueList;
 
 public:
-	rtl::CBoxListT <CValue>*
-	GetArgValueList ()
+	rtl::BoxList <Value>*
+	getArgValueList ()
 	{
-		return &m_ArgValueList;
+		return &m_argValueList;
 	}
 
 	bool
-	IsMemberClosure ()
+	isMemberClosure ()
 	{
 		return
-			!m_ArgValueList.IsEmpty () &&
-			!m_ArgValueList.GetHead ()->IsEmpty () &&
-			m_ArgValueList.GetHead ()->GetType ()->GetTypeKind () == EType_ClassPtr;
+			!m_argValueList.isEmpty () &&
+			!m_argValueList.getHead ()->isEmpty () &&
+			m_argValueList.getHead ()->getType ()->getTypeKind () == TypeKind_ClassPtr;
 	}
 
-	CValue
-	GetThisValue ()
+	Value
+	getThisValue ()
 	{
-		ASSERT (IsMemberClosure ());
-		return *m_ArgValueList.GetHead ();
+		ASSERT (isMemberClosure ());
+		return *m_argValueList.getHead ();
 	}
 
 	bool
-	IsSimpleClosure ()
+	isSimpleClosure ()
 	{
-		return IsMemberClosure () && m_ArgValueList.GetCount () == 1;
+		return isMemberClosure () && m_argValueList.getCount () == 1;
 	}
 
 	size_t
-	Append (const rtl::CConstBoxListT <CValue>& ArgValueList);
+	append (const rtl::ConstBoxList <Value>& argValueList);
 
 	bool
-	Apply (rtl::CBoxListT <CValue>* pArgValueList);
+	apply (rtl::BoxList <Value>* argValueList);
 
-	CType*
-	GetClosureType (CType* pType);
+	Type*
+	getClosureType (Type* type);
 
-	CFunctionPtrType*
-	GetFunctionClosureType (CFunction* pFunction); // choose the best overload
+	FunctionPtrType*
+	getFunctionClosureType (Function* function); // choose the best overload
 
-	CFunctionPtrType*
-	GetFunctionClosureType (CFunctionPtrType* pPtrType);
+	FunctionPtrType*
+	getFunctionClosureType (FunctionPtrType* ptrType);
 
-	CPropertyPtrType*
-	GetPropertyClosureType (CPropertyPtrType* pPtrType);
+	PropertyPtrType*
+	getPropertyClosureType (PropertyPtrType* ptrType);
 
 protected:
 	bool
-	GetArgTypeArray (
-		CModule* pModule,
-		rtl::CArrayT <CFunctionArg*>* pArgArray
+	getArgTypeArray (
+		Module* module,
+		rtl::Array <FunctionArg*>* argArray
 		);
 };
 

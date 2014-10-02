@@ -11,177 +11,177 @@
 
 namespace jnc {
 
-class CModule;
-class CClassType;
+class Module;
+class ClassType;
 
 
 //.............................................................................
 
-class CNamespaceMgr
+class NamespaceMgr
 {
-	friend class CModule;
-	friend class CParser;
-	friend class CFunctionMgr;
+	friend class Module;
+	friend class Parser;
+	friend class FunctionMgr;
 
 protected:
-	struct TNamespaceStackEntry
+	struct NamespaceStackEntry
 	{
-		CNamespace* m_pNamespace;
-		EAccess m_AccessKind;
+		Namespace* m_namespace;
+		AccessKind m_accessKind;
 	};
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	CGlobalNamespace m_GlobalNamespace;
-	rtl::CStdListT <CGlobalNamespace> m_NamespaceList;
-	rtl::CStdListT <CScope> m_ScopeList;
-	rtl::CStdListT <COrphan> m_OrphanList;
+	GlobalNamespace m_globalNamespace;
+	rtl::StdList <GlobalNamespace> m_namespaceList;
+	rtl::StdList <Scope> m_scopeList;
+	rtl::StdList <Orphan> m_orphanList;
 
-	rtl::CArrayT <TNamespaceStackEntry> m_NamespaceStack;
+	rtl::Array <NamespaceStackEntry> m_namespaceStack;
 
-	CNamespace* m_pCurrentNamespace;
-	CScope* m_pCurrentScope;
-	EAccess m_CurrentAccessKind;
+	Namespace* m_currentNamespace;
+	Scope* m_currentScope;
+	AccessKind m_currentAccessKind;
 
-	intptr_t m_SourcePosLockCount;
+	intptr_t m_sourcePosLockCount;
 
-	CValue m_StaticObjectValue;
-	CScopeLevelStack m_ScopeLevelStack;
+	Value m_staticObjectValue;
+	ScopeLevelStack m_scopeLevelStack;
 
 public:
-	CNamespaceMgr ();
+	NamespaceMgr ();
 	
-	~CNamespaceMgr ()
+	~NamespaceMgr ()
 	{
-		Clear ();
+		clear ();
 	}
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
 	bool
-	AddStdItems ();
+	addStdItems ();
 
-	COrphan*
-	CreateOrphan (
-		EOrphan OrphanKind,
-		CFunctionType* pFunctionType
+	Orphan*
+	createOrphan (
+		OrphanKind orphanKind,
+		FunctionType* functionType
 		);
 
 	bool
-	ResolveOrphans ();
+	resolveOrphans ();
 
 	void
-	LockSourcePos ()
+	lockSourcePos ()
 	{
-		m_SourcePosLockCount++;
-	}
-
-	void
-	UnlockSourcePos ()
-	{
-		m_SourcePosLockCount--;
+		m_sourcePosLockCount++;
 	}
 
 	void
-	SetSourcePos (const CToken::CPos& Pos);
-
-	CGlobalNamespace*
-	GetGlobalNamespace ()
+	unlockSourcePos ()
 	{
-		return &m_GlobalNamespace;
+		m_sourcePosLockCount--;
 	}
-
-	CNamespace*
-	GetCurrentNamespace ()
-	{
-		return m_pCurrentNamespace; 
-	}
-
-	CScope*
-	GetCurrentScope ()
-	{
-		return m_pCurrentScope;
-	}
-
-	EAccess
-	GetCurrentAccessKind ()
-	{
-		return m_CurrentAccessKind;
-	}
-
-	CValue
-	GetScopeLevel (CScope* pScope)
-	{
-		return pScope ? m_ScopeLevelStack.GetScopeLevel (pScope->GetLevel ()) : CValue ((int64_t) 0, EType_SizeT);
-	}
-
-	CValue
-	GetCurrentScopeLevel ()
-	{
-		return GetScopeLevel (m_pCurrentScope);
-	}
-
-	CValue
-	GetScopeLevelObjHdr (CScope* pScope)
-	{
-		return pScope ? m_ScopeLevelStack.GetObjHdr (pScope->GetLevel ()) : GetStaticObjHdr ();
-	}
-
-	CValue
-	GetCurrentScopeObjHdr ()
-	{
-		return GetScopeLevelObjHdr (m_pCurrentScope);
-	}
-
-	CValue
-	GetStaticObjHdr ();
 
 	void
-	OpenNamespace (CNamespace* pNamespace);
+	setSourcePos (const Token::Pos& pos);
 
-	void
-	CloseNamespace ();
-
-	CScope*
-	OpenInternalScope ();
-
-	CScope*
-	OpenScope (const CToken::CPos& Pos);
-
-	void
-	CloseScope ();
-
-	EAccess
-	GetAccessKind (CNamespace* pNamespace);
-
-	rtl::CString
-	CreateQualifiedName (const char* pName)
+	GlobalNamespace*
+	getGlobalNamespace ()
 	{
-		return m_pCurrentNamespace->CreateQualifiedName (pName);
+		return &m_globalNamespace;
 	}
 
-	CGlobalNamespace*
-	CreateGlobalNamespace (
-		const rtl::CString& Name,
-		CNamespace* pParentNamespace = NULL
+	Namespace*
+	getCurrentNamespace ()
+	{
+		return m_currentNamespace; 
+	}
+
+	Scope*
+	getCurrentScope ()
+	{
+		return m_currentScope;
+	}
+
+	AccessKind
+	getCurrentAccessKind ()
+	{
+		return m_currentAccessKind;
+	}
+
+	Value
+	getScopeLevel (Scope* scope)
+	{
+		return scope ? m_scopeLevelStack.getScopeLevel (scope->getLevel ()) : Value ((int64_t) 0, TypeKind_SizeT);
+	}
+
+	Value
+	getCurrentScopeLevel ()
+	{
+		return getScopeLevel (m_currentScope);
+	}
+
+	Value
+	getScopeLevelObjHdr (Scope* scope)
+	{
+		return scope ? m_scopeLevelStack.getObjHdr (scope->getLevel ()) : getStaticObjHdr ();
+	}
+
+	Value
+	getCurrentScopeObjHdr ()
+	{
+		return getScopeLevelObjHdr (m_currentScope);
+	}
+
+	Value
+	getStaticObjHdr ();
+
+	void
+	openNamespace (Namespace* nspace);
+
+	void
+	closeNamespace ();
+
+	Scope*
+	openInternalScope ();
+
+	Scope*
+	openScope (const Token::Pos& pos);
+
+	void
+	closeScope ();
+
+	AccessKind
+	getAccessKind (Namespace* nspace);
+
+	rtl::String
+	createQualifiedName (const char* name)
+	{
+		return m_currentNamespace->createQualifiedName (name);
+	}
+
+	GlobalNamespace*
+	createGlobalNamespace (
+		const rtl::String& name,
+		Namespace* parentNamespace = NULL
 		);
 
-	CScope*
-	FindBreakScope (size_t Level);
+	Scope*
+	findBreakScope (size_t level);
 
-	CScope*
-	FindContinueScope (size_t Level);
+	Scope*
+	findContinueScope (size_t level);
 
-	CScope*
-	FindCatchScope ();
+	Scope*
+	findCatchScope ();
 };
 
 //.............................................................................

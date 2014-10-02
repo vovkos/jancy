@@ -8,51 +8,51 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-class CScopeLevelStack
+class ScopeLevelStack
 {
-	friend class CNamespaceMgr;
+	friend class NamespaceMgr;
 
-	struct TEntry: rtl::TListLink
+	struct Entry: rtl::ListLink
 	{
-		CValue m_ScopeLevelValue;
-		CValue m_ObjHdrValue;
+		Value m_scopeLevelValue;
+		Value m_objHdrValue;
 	};
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CStdListT <TEntry> m_List;
-	rtl::CArrayT <TEntry*> m_Stack;
+	rtl::StdList <Entry> m_list;
+	rtl::Array <Entry*> m_stack;
 
 public:
-	CScopeLevelStack ()
+	ScopeLevelStack ()
 	{
-		m_pModule = NULL;
+		m_module = NULL;
 	}
 
 	void
-	Clear ()
+	clear ()
 	{
-		m_List.Clear ();
-		m_Stack.Clear ();
+		m_list.clear ();
+		m_stack.clear ();
 	}
 
 	void
-	TakeOver (CScopeLevelStack* pSrcStack);
+	takeOver (ScopeLevelStack* srcStack);
 
-	CValue
-	GetScopeLevel (size_t Level);
+	Value
+	getScopeLevel (size_t level);
 
-	CValue
-	GetObjHdr (size_t Level);
+	Value
+	getObjHdr (size_t level);
 
 protected:
-	TEntry*
-	GetEntry (size_t Level);
+	Entry*
+	getEntry (size_t level);
 };
 
 //.............................................................................

@@ -6,108 +6,108 @@ namespace jnc {
 
 //.............................................................................
 
-CEnumType::CEnumType ()
+EnumType::EnumType ()
 {
-	m_TypeKind = EType_Enum;
-	m_EnumTypeKind = EEnumType_Normal;
-	m_Flags = ETypeFlag_Pod;
-	m_pBaseType = NULL;
-	m_pBaseType_i = NULL;
+	m_typeKind = TypeKind_Enum;
+	m_enumTypeKind = EnumTypeKind_Normal;
+	m_flags = TypeFlagKind_Pod;
+	m_baseType = NULL;
+	m_baseType_i = NULL;
 }
 
-CEnumConst*
-CEnumType::CreateConst (
-	const rtl::CString& Name,
-	rtl::CBoxListT <CToken>* pInitializer
+EnumConst*
+EnumType::createConst (
+	const rtl::String& name,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	CEnumConst* pConst = AXL_MEM_NEW (CEnumConst);
-	pConst->m_Name = Name;
-	pConst->m_pParentEnumType = this;
+	EnumConst* enumConst = AXL_MEM_NEW (EnumConst);
+	enumConst->m_name = name;
+	enumConst->m_parentEnumType = this;
 
-	if (pInitializer)
-		pConst->m_Initializer.TakeOver (pInitializer);
+	if (initializer)
+		enumConst->m_initializer.takeOver (initializer);
 
-	m_ConstList.InsertTail (pConst);
+	m_constList.insertTail (enumConst);
 
-	bool Result = AddItem (pConst);
-	if (!Result)
+	bool result = addItem (enumConst);
+	if (!result)
 		return NULL;
 
-	return pConst;
+	return enumConst;
 }
 
 bool
-CEnumType::CalcLayout ()
+EnumType::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pBaseType_i)
-		m_pBaseType = m_pBaseType_i->GetActualType ();
+	if (m_baseType_i)
+		m_baseType = m_baseType_i->getActualType ();
 
-	if (!(m_pBaseType->GetTypeKindFlags () & ETypeKindFlag_Integer))
+	if (!(m_baseType->getTypeKindFlags () & TypeKindFlagKind_Integer))
 	{
-		err::SetFormatStringError ("enum base type must be integer type");
+		err::setFormatStringError ("enum base type must be integer type");
 		return NULL;
 	}
 
-	m_Size = m_pBaseType->GetSize ();
-	m_AlignFactor = m_pBaseType->GetAlignFactor ();
+	m_size = m_baseType->getSize ();
+	m_alignFactor = m_baseType->getAlignFactor ();
 
 	// assign values to consts
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (this);
-	CUnit* pUnit = m_pItemDecl->GetParentUnit ();
+	m_module->m_namespaceMgr.openNamespace (this);
+	Unit* unit = m_itemDecl->getParentUnit ();
 
-	if (m_EnumTypeKind == EEnumType_Flag)
+	if (m_enumTypeKind == EnumTypeKind_Flag)
 	{
-		intptr_t Value = 1;
+		intptr_t value = 1;
 
-		rtl::CIteratorT <CEnumConst> Const = m_ConstList.GetHead ();
-		for (; Const; Const++)
+		rtl::Iterator <EnumConst> constIt = m_constList.getHead ();
+		for (; constIt; constIt++)
 		{
-			if (!Const->m_Initializer.IsEmpty ())
+			if (!constIt->m_initializer.isEmpty ())
 			{
-				Result = m_pModule->m_OperatorMgr.ParseConstIntegerExpression (
-					pUnit,
-					Const->m_Initializer,
-					&Value
+				result = m_module->m_operatorMgr.parseConstIntegerExpression (
+					unit,
+					constIt->m_initializer,
+					&value
 					);
 
-				if (!Result)
+				if (!result)
 					return false;
 			}
 
-			Const->m_Value = Value;
+			constIt->m_value = value;
 
-			uint8_t HiBitIdx = rtl::GetHiBitIdx (Value);
-			Value = HiBitIdx != -1 ? 2 << HiBitIdx : 1;
+			uint8_t hiBitIdx = rtl::getHiBitIdx (value);
+			value = hiBitIdx != -1 ? 2 << hiBitIdx : 1;
 		}
 	}
 	else
 	{
-		intptr_t Value = 0;
+		intptr_t value = 0;
 
-		rtl::CIteratorT <CEnumConst> Const = m_ConstList.GetHead ();
-		for (; Const; Const++, Value++)
+		rtl::Iterator <EnumConst> constIt = m_constList.getHead ();
+		for (; constIt; constIt++, value++)
 		{
-			if (!Const->m_Initializer.IsEmpty ())
+			if (!constIt->m_initializer.isEmpty ())
 			{
-				Result = m_pModule->m_OperatorMgr.ParseConstIntegerExpression (
-					pUnit,
-					Const->m_Initializer,
-					&Value
+				result = m_module->m_operatorMgr.parseConstIntegerExpression (
+					unit,
+					constIt->m_initializer,
+					&value
 					);
 
-				if (!Result)
+				if (!result)
 					return false;
 			}
 
-			Const->m_Value = Value;
+			constIt->m_value = value;
 		}
 	}
 
-	m_pModule->m_NamespaceMgr.CloseNamespace ();
+	m_module->m_namespaceMgr.closeNamespace ();
 
 	return true;
 }

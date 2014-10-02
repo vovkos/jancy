@@ -7,130 +7,130 @@ namespace jnc {
 //.............................................................................
 
 bool
-CCast_BoolFromZeroCmp::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_BoolFromZeroCmp::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	const char* p = (const char*) OpValue.GetConstData ();
-	const char* pEnd = p + OpValue.GetType ()->GetSize ();
+	const char* p = (const char*) opValue.getConstData ();
+	const char* end = p + opValue.getType ()->getSize ();
 	
-	bool Bool = false;
+	bool result = false;
 
-	for (; p < pEnd; p++)
+	for (; p < end; p++)
 	{
 		if (*p)
 		{
-			Bool = true;
+			result = true;
 			break;
 		}
 	}
 
-	*(bool*) pDst = Bool;
+	*(bool*) dst = result;
 	return true;
 }
 
 bool
-CCast_BoolFromZeroCmp::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_BoolFromZeroCmp::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	CValue ZeroValue = OpValue.GetType ()->GetZeroValue ();
-	return m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Ne, OpValue, ZeroValue, pResultValue);
+	Value zeroValue = opValue.getType ()->getZeroValue ();
+	return m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, opValue, zeroValue, resultValue);
 }
 
 //.............................................................................
 
 bool
-CCast_BoolFromPtr::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_BoolFromPtr::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	if (OpValue.GetType ()->GetSize () == sizeof (void*))
-		return CCast_BoolFromZeroCmp::LlvmCast (StorageKind, OpValue, pType, pResultValue);
+	if (opValue.getType ()->getSize () == sizeof (void*))
+		return Cast_BoolFromZeroCmp::llvmCast (storageKind, opValue, type, resultValue);
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr), &PtrValue);
-	return CCast_BoolFromZeroCmp::LlvmCast (StorageKind, PtrValue, pType, pResultValue);
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &ptrValue);
+	return Cast_BoolFromZeroCmp::llvmCast (storageKind, ptrValue, type, resultValue);
 }
 
 
 //.............................................................................
 
 bool
-CCast_IntFromBool::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_IntFromBool::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Bool);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Bool);
 
-	memset (pDst, 0, pType->GetSize ());
+	memset (dst, 0, type->getSize ());
 
-	if (*(bool*) OpValue.GetConstData ())
-		*(char*) pDst = 1;
+	if (*(bool*) opValue.getConstData ())
+		*(char*) dst = 1;
 
 	return true;
 }
 
 bool
-CCast_IntFromBool::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_IntFromBool::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Bool);
-	m_pModule->m_LlvmIrBuilder.CreateExt_u (OpValue, pType, pResultValue);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Bool);
+	m_module->m_llvmIrBuilder.createExt_u (opValue, type, resultValue);
 	return true;
 }
 
 //.............................................................................
 
-CCastOperator*
-CCast_Bool::GetCastOperator (
-	const CValue& OpValue,
-	CType* pType
+CastOperator*
+Cast_Bool::getCastOperator (
+	const Value& opValue,
+	Type* type
 	)
 {
-	EType SrcTypeKind = OpValue.GetType ()->GetTypeKind ();
-	switch (SrcTypeKind)
+	TypeKind srcTypeKind = opValue.getType ()->getTypeKind ();
+	switch (srcTypeKind)
 	{
-	case EType_Bool:
-	case EType_Int8:
-	case EType_Int8_u:
-	case EType_Int16:
-	case EType_Int16_u:
-	case EType_Int32:
-	case EType_Int32_u:
-	case EType_Int64:
-	case EType_Int64_u:
-	case EType_Int16_be:
-	case EType_Int16_beu:
-	case EType_Int32_be:
-	case EType_Int32_beu:
-	case EType_Int64_be:
-	case EType_Int64_beu:
-	case EType_Float:
-	case EType_Double:
-	case EType_BitField:
-	case EType_Enum:
-		return &m_FromZeroCmp;
+	case TypeKind_Bool:
+	case TypeKind_Int8:
+	case TypeKind_Int8_u:
+	case TypeKind_Int16:
+	case TypeKind_Int16_u:
+	case TypeKind_Int32:
+	case TypeKind_Int32_u:
+	case TypeKind_Int64:
+	case TypeKind_Int64_u:
+	case TypeKind_Int16_be:
+	case TypeKind_Int16_beu:
+	case TypeKind_Int32_be:
+	case TypeKind_Int32_beu:
+	case TypeKind_Int64_be:
+	case TypeKind_Int64_beu:
+	case TypeKind_Float:
+	case TypeKind_Double:
+	case TypeKind_BitField:
+	case TypeKind_Enum:
+		return &m_fromZeroCmp;
 
-	case EType_DataPtr:
-	case EType_ClassPtr:
-	case EType_FunctionPtr:
-	case EType_PropertyPtr:
-		return &m_FromPtr;
+	case TypeKind_DataPtr:
+	case TypeKind_ClassPtr:
+	case TypeKind_FunctionPtr:
+	case TypeKind_PropertyPtr:
+		return &m_fromPtr;
 
 	default:
 		return NULL;

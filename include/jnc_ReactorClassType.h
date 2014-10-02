@@ -10,145 +10,145 @@ namespace jnc {
 
 //.............................................................................
 
-enum EReactorField
+enum ReactorFieldKind
 {
-	EReactorField_Parent,
-	EReactorField_Lock,
-	EReactorField_State,
-	EReactorField_BindSiteArray,
+	ReactorFieldKind_Parent,
+	ReactorFieldKind_Lock,
+	ReactorFieldKind_State,
+	ReactorFieldKind_BindSiteArray,
 
-	EReactorField__Count,
+	ReactorFieldKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EReactorMethod
+enum ReactorMethodKind
 {
-	EReactorMethod_Start,
-	EReactorMethod_Stop,
-	EReactorMethod__Count,
+	ReactorMethodKind_Start,
+	ReactorMethodKind_Stop,
+	ReactorMethodKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TReaction: rtl::TListLink
+struct Reaction: rtl::ListLink
 {
-	rtl::CBoxListT <CValue> m_BindSiteList;
-	CFunction* m_pFunction;
+	rtl::BoxList <Value> m_bindSiteList;
+	Function* m_function;
 };
 
 //.............................................................................
 
-class CReactorClassType: public CClassType
+class ReactorClassType: public ClassType
 {
-	friend class CTypeMgr;
-	friend class CParser;
+	friend class TypeMgr;
+	friend class Parser;
 
 protected:
-	CStructField* m_FieldArray [EReactorField__Count];
-	CFunction* m_MethodArray [EReactorMethod__Count];
-	rtl::CIteratorT <CStructField> m_FirstArgField;
-	size_t m_BindSiteCount;
-	rtl::CBoxListT <CToken> m_Body;
+	StructField* m_fieldArray [ReactorFieldKind__Count];
+	Function* m_methodArray [ReactorMethodKind__Count];
+	rtl::Iterator <StructField> m_firstArgField;
+	size_t m_bindSiteCount;
+	rtl::BoxList <Token> m_body;
 
 public:
-	CReactorClassType ();
+	ReactorClassType ();
 
-	CStructField*
-	GetField (EReactorField Field)
+	StructField*
+	getField (ReactorFieldKind field)
 	{
-		ASSERT (Field < EReactorField__Count);
-		return m_FieldArray [Field];
+		ASSERT (field < ReactorFieldKind__Count);
+		return m_fieldArray [field];
 	}
 
-	CFunction*
-	GetMethod (EReactorMethod Method)
+	Function*
+	getMethod (ReactorMethodKind method)
 	{
-		ASSERT (Method < EReactorMethod__Count);
-		return m_MethodArray [Method];
+		ASSERT (method < ReactorMethodKind__Count);
+		return m_methodArray [method];
 	}
 
 	size_t
-	GetBindSiteCount ()
+	getBindSiteCount ()
 	{
-		return m_BindSiteCount;
+		return m_bindSiteCount;
 	}
 
 	bool
-	HasBody ()
+	hasBody ()
 	{
-		return !m_Body.IsEmpty ();
+		return !m_body.isEmpty ();
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetBody ()
+	rtl::ConstBoxList <Token>
+	getBody ()
 	{
-		return m_Body;
+		return m_body;
 	}
 
 	bool
-	SetBody (rtl::CBoxListT <CToken>* pTokenList);
+	setBody (rtl::BoxList <Token>* tokenList);
 
-	CFunction*
-	CreateHandler (const rtl::CArrayT <CFunctionArg*>& ArgArray = rtl::CArrayT <CFunctionArg*> ());
+	Function*
+	createHandler (const rtl::Array <FunctionArg*>& argArray = rtl::Array <FunctionArg*> ());
 
 	bool
-	BindHandlers (const rtl::CConstListT <TReaction>& HandlerList);
+	bindHandlers (const rtl::ConstList <Reaction>& handlerList);
 
 	virtual
 	bool
-	Compile ()
+	compile ()
 	{
 		// do not call CClass::Compile (it compiles default-constructor and default-destructor)
 
 		return
-			CompilePrimer () &&
-			CompileStartMethod () &&
-			CompileStopMethod () &&
-			CompileConstructor () &&
-			CompileDestructor ();
+			compilePrimer () &&
+			compileStartMethod () &&
+			compileStopMethod () &&
+			compileConstructor () &&
+			compileDestructor ();
 	}
 
 protected:
 	virtual
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format (
+		m_typeString.format (
 			"reactor %s %s",
-			m_QualifiedName.cc (),
-			m_MethodArray [EReactorMethod_Start]->GetType ()->GetShortType ()->GetArgString ().cc ()
+			m_qualifiedName.cc (),
+			m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getArgString ().cc ()
 			);
 	}
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	bool
-	CallStopMethod ();
+	callStopMethod ();
 
 	bool
-	CompileConstructor ();
+	compileConstructor ();
 
 	bool
-	CompileDestructor ();
+	compileDestructor ();
 
 	bool
-	CompileStartMethod ();
+	compileStartMethod ();
 
 	bool
-	CompileStopMethod ();
+	compileStopMethod ();
 };
 
 //.............................................................................
 
 // structure backing up reactor bind site in reactor class
 
-struct TReactorBindSite
+struct ReactorBindSite
 {
-	TIfaceHdr* m_pOnChanged;
-	intptr_t m_Cookie;
+	IfaceHdr* m_onChanged;
+	intptr_t m_cookie;
 };
 
 //.............................................................................

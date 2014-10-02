@@ -7,57 +7,57 @@ namespace jnc {
 //.............................................................................
 
 size_t
-CClosure::Append (const rtl::CConstBoxListT <CValue>& ArgValueList)
+Closure::append (const rtl::ConstBoxList <Value>& argValueList)
 {
-	ASSERT (!ArgValueList.IsEmpty ());
+	ASSERT (!argValueList.isEmpty ());
 
-	rtl::CBoxIteratorT <CValue> InternalArg = m_ArgValueList.GetHead ();
-	rtl::CBoxIteratorT <CValue> ExternalArg = ArgValueList.GetHead ();
+	rtl::BoxIterator <Value> internalArg = m_argValueList.getHead ();
+	rtl::BoxIterator <Value> externalArg = argValueList.getHead ();
 
 	for (;;)
 	{
-		while (InternalArg && !InternalArg->IsEmpty ())
-			InternalArg++;
+		while (internalArg && !internalArg->isEmpty ())
+			internalArg++;
 
-		if (!InternalArg)
+		if (!internalArg)
 			break;
 
-		*InternalArg = *ExternalArg;
-		InternalArg++;
-		ExternalArg++;
+		*internalArg = *externalArg;
+		internalArg++;
+		externalArg++;
 
-		if (!ExternalArg)
-			return m_ArgValueList.GetCount ();
+		if (!externalArg)
+			return m_argValueList.getCount ();
 	}
 
-	for (; ExternalArg; ExternalArg++)
-		m_ArgValueList.InsertTail (*ExternalArg);
+	for (; externalArg; externalArg++)
+		m_argValueList.insertTail (*externalArg);
 
-	return m_ArgValueList.GetCount ();
+	return m_argValueList.getCount ();
 }
 
 bool
-CClosure::Apply (rtl::CBoxListT <CValue>* pArgValueList)
+Closure::apply (rtl::BoxList <Value>* argValueList)
 {
-	if (m_ArgValueList.IsEmpty ())
+	if (m_argValueList.isEmpty ())
 		return true;
 
-	rtl::CBoxIteratorT <CValue> ClosureArg = m_ArgValueList.GetHead ();
-	rtl::CBoxIteratorT <CValue> TargetArg = pArgValueList->GetHead ();
+	rtl::BoxIterator <Value> closureArg = m_argValueList.getHead ();
+	rtl::BoxIterator <Value> targetArg = argValueList->getHead ();
 
-	for (size_t i = 0; ClosureArg; ClosureArg++, i++)
+	for (size_t i = 0; closureArg; closureArg++, i++)
 	{
-		if (!ClosureArg->IsEmpty ())
+		if (!closureArg->isEmpty ())
 		{
-			pArgValueList->InsertBefore (*ClosureArg, TargetArg);
+			argValueList->insertBefore (*closureArg, targetArg);
 		}
-		else if (TargetArg)
+		else if (targetArg)
 		{
-			TargetArg++;
+			targetArg++;
 		}
 		else
 		{
-			err::SetFormatStringError ("closure call misses argument #%d", i + 1);
+			err::setFormatStringError ("closure call misses argument #%d", i + 1);
 			return false;
 		}
 	}
@@ -65,161 +65,161 @@ CClosure::Apply (rtl::CBoxListT <CValue>* pArgValueList)
 	return true;
 }
 
-CType*
-CClosure::GetClosureType (CType* pType)
+Type*
+Closure::getClosureType (Type* type)
 {
-	EType TypeKind = pType->GetTypeKind ();
+	TypeKind typeKind = type->getTypeKind ();
 
-	switch (TypeKind)
+	switch (typeKind)
 	{
-	case EType_FunctionPtr:
-	case EType_FunctionRef:
-		return GetFunctionClosureType ((CFunctionPtrType*) pType);
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		return getFunctionClosureType ((FunctionPtrType*) type);
 
-	case EType_PropertyPtr:
-	case EType_PropertyRef:
-		return GetPropertyClosureType ((CPropertyPtrType*) pType);
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		return getPropertyClosureType ((PropertyPtrType*) type);
 
 	default:
-		return pType;
+		return type;
 	}
 }
 
-CFunctionPtrType*
-CClosure::GetFunctionClosureType (CFunction* pFunction)
+FunctionPtrType*
+Closure::getFunctionClosureType (Function* function)
 {
-	if (!pFunction->IsOverloaded ())
-		return GetFunctionClosureType (pFunction->GetType ()->GetFunctionPtrType (EType_FunctionRef, EFunctionPtrType_Thin));
+	if (!function->isOverloaded ())
+		return getFunctionClosureType (function->getType ()->getFunctionPtrType (TypeKind_FunctionRef, FunctionPtrTypeKind_Thin));
 
-	err::SetFormatStringError ("function overload closures are not implemented yet");
+	err::setFormatStringError ("function overload closures are not implemented yet");
 	return NULL;
 }
 
 bool
-CClosure::GetArgTypeArray (
-	CModule* pModule,
-	rtl::CArrayT <CFunctionArg*>* pArgArray
+Closure::getArgTypeArray (
+	Module* module,
+	rtl::Array <FunctionArg*>* argArray
 	)
 {
-	bool Result;
+	bool result;
 
-	size_t ClosureArgCount = m_ArgValueList.GetCount ();
-	size_t ArgCount = pArgArray->GetCount ();
+	size_t closureArgCount = m_argValueList.getCount ();
+	size_t argCount = argArray->getCount ();
 
-	if (ClosureArgCount > ArgCount)
+	if (closureArgCount > argCount)
 	{
-		err::SetFormatStringError ("closure with %d arguments for function with %d arguments", ClosureArgCount, ArgCount);
+		err::setFormatStringError ("closure with %d arguments for function with %d arguments", closureArgCount, argCount);
 		return NULL;
 	}
 
-	rtl::CBoxIteratorT <CValue> ClosureArg = m_ArgValueList.GetHead ();
-	for (size_t i = 0; ClosureArg; ClosureArg++)
+	rtl::BoxIterator <Value> closureArg = m_argValueList.getHead ();
+	for (size_t i = 0; closureArg; closureArg++)
 	{
-		if (ClosureArg->IsEmpty ())
+		if (closureArg->isEmpty ())
 		{
 			i++;
 			continue;
 		}
 
-		ASSERT (i < ArgCount);
+		ASSERT (i < argCount);
 
-		Result = pModule->m_OperatorMgr.CheckCastKind (ClosureArg->GetType (), (*pArgArray) [i]->GetType ());
-		if (!Result)
+		result = module->m_operatorMgr.checkCastKind (closureArg->getType (), (*argArray) [i]->getType ());
+		if (!result)
 			return false;
 
-		pArgArray->Remove (i);
-		ArgCount--;
+		argArray->remove (i);
+		argCount--;
 	}
 
 	return true;
 }
 
-CFunctionPtrType*
-CClosure::GetFunctionClosureType (CFunctionPtrType* pPtrType)
+FunctionPtrType*
+Closure::getFunctionClosureType (FunctionPtrType* ptrType)
 {
-	bool Result;
+	bool result;
 
-	CModule* pModule = pPtrType->GetModule ();
-	CFunctionType* pType = pPtrType->GetTargetType ();
+	Module* module = ptrType->getModule ();
+	FunctionType* type = ptrType->getTargetType ();
 
-	if (pType->GetFlags () & EFunctionTypeFlag_VarArg)
+	if (type->getFlags () & FunctionTypeFlagKind_VarArg)
 	{
-		err::SetFormatStringError ("function closures cannot be applied to vararg functions");
+		err::setFormatStringError ("function closures cannot be applied to vararg functions");
 		return NULL;
 	}
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pType->GetArgArray ();
-	Result = GetArgTypeArray (pModule, &ArgArray);
-	if (!Result)
+	rtl::Array <FunctionArg*> argArray = type->getArgArray ();
+	result = getArgTypeArray (module, &argArray);
+	if (!result)
 		return NULL;
 
-	CFunctionType* pClosureType = pModule->m_TypeMgr.GetFunctionType (
-		pType->GetCallConv (),
-		pType->GetReturnType (),
-		ArgArray
+	FunctionType* closureType = module->m_typeMgr.getFunctionType (
+		type->getCallConv (),
+		type->getReturnType (),
+		argArray
 		);
 
-	return pClosureType->GetFunctionPtrType (
-		pPtrType->GetTypeKind (),
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	return closureType->getFunctionPtrType (
+		ptrType->getTypeKind (),
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 }
 
-CPropertyPtrType*
-CClosure::GetPropertyClosureType (CPropertyPtrType* pPtrType)
+PropertyPtrType*
+Closure::getPropertyClosureType (PropertyPtrType* ptrType)
 {
-	bool Result;
+	bool result;
 
-	CModule* pModule = pPtrType->GetModule ();
-	CPropertyType* pType = pPtrType->GetTargetType ();
-	CFunctionType* pGetterType = pType->GetGetterType ();
-	CFunctionTypeOverload* pSetterType = pType->GetSetterType ();
+	Module* module = ptrType->getModule ();
+	PropertyType* type = ptrType->getTargetType ();
+	FunctionType* getterType = type->getGetterType ();
+	FunctionTypeOverload* setterType = type->getSetterType ();
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pGetterType->GetArgArray ();
-	Result = GetArgTypeArray (pModule, &ArgArray);
-	if (!Result)
+	rtl::Array <FunctionArg*> argArray = getterType->getArgArray ();
+	result = getArgTypeArray (module, &argArray);
+	if (!result)
 		return NULL;
 
-	CFunctionType* pClosureGetterType = pModule->m_TypeMgr.GetFunctionType (
-		pGetterType->GetCallConv (),
-		pGetterType->GetReturnType (),
-		ArgArray
+	FunctionType* closureGetterType = module->m_typeMgr.getFunctionType (
+		getterType->getCallConv (),
+		getterType->getReturnType (),
+		argArray
 		);
 
-	CFunctionTypeOverload ClosureSetterType;
+	FunctionTypeOverload closureSetterType;
 
-	size_t SetterCount = pSetterType->GetOverloadCount ();
-	for (size_t i = 0; i < SetterCount; i++)
+	size_t setterCount = setterType->getOverloadCount ();
+	for (size_t i = 0; i < setterCount; i++)
 	{
-		CFunctionType* pOverloadType = pSetterType->GetOverload (i);
-		ASSERT (!pOverloadType->GetArgArray ().IsEmpty ());
+		FunctionType* overloadType = setterType->getOverload (i);
+		ASSERT (!overloadType->getArgArray ().isEmpty ());
 
-		ArgArray.Append (pOverloadType->GetArgArray ().GetBack ());
+		argArray.append (overloadType->getArgArray ().getBack ());
 
-		CFunctionType* pClosureOverloadType = pModule->m_TypeMgr.GetFunctionType (
-			pOverloadType->GetCallConv (),
-			pOverloadType->GetReturnType (),
-			ArgArray
+		FunctionType* closureOverloadType = module->m_typeMgr.getFunctionType (
+			overloadType->getCallConv (),
+			overloadType->getReturnType (),
+			argArray
 			);
 
-		ArgArray.Pop ();
+		argArray.pop ();
 
-		Result = ClosureSetterType.AddOverload (pClosureOverloadType);
-		if (!Result)
+		result = closureSetterType.addOverload (closureOverloadType);
+		if (!result)
 			return NULL;
 	}
 
-	CPropertyType* pClosureType = pModule->m_TypeMgr.GetPropertyType (
-		pClosureGetterType,
-		ClosureSetterType,
-		pType->GetFlags ()
+	PropertyType* closureType = module->m_typeMgr.getPropertyType (
+		closureGetterType,
+		closureSetterType,
+		type->getFlags ()
 		);
 
-	return pClosureType->GetPropertyPtrType (
-		pPtrType->GetTypeKind (),
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	return closureType->getPropertyPtrType (
+		ptrType->getTypeKind (),
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 }
 

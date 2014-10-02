@@ -6,64 +6,64 @@ namespace jnc {
 
 //.............................................................................
 
-CThunkProperty::CThunkProperty ()
+ThunkProperty::ThunkProperty ()
 {
-	m_PropertyKind = EProperty_Thunk;
-	m_pTargetProperty = NULL;
+	m_propertyKind = PropertyKind_Thunk;
+	m_targetProperty = NULL;
 }
 
 bool
-CThunkProperty::Create (
-	CProperty* pTargetProperty,
-	CPropertyType* pThunkPropertyType,
-	bool HasUnusedClosure
+ThunkProperty::create (
+	Property* targetProperty,
+	PropertyType* thunkPropertyType,
+	bool hasUnusedClosure
 	)
 {
-	bool Result;
+	bool result;
 
-	m_pTargetProperty = pTargetProperty;
-	m_pType = HasUnusedClosure ? 
-		pThunkPropertyType->GetStdObjectMemberPropertyType () : 
-		pThunkPropertyType;
+	m_targetProperty = targetProperty;
+	m_type = hasUnusedClosure ? 
+		thunkPropertyType->getStdObjectMemberPropertyType () : 
+		thunkPropertyType;
 
-	m_pGetter = m_pModule->m_FunctionMgr.GetDirectThunkFunction (
-		pTargetProperty->GetGetter (), 
-		pThunkPropertyType->GetGetterType (),
-		HasUnusedClosure
+	m_getter = m_module->m_functionMgr.getDirectThunkFunction (
+		targetProperty->getGetter (), 
+		thunkPropertyType->getGetterType (),
+		hasUnusedClosure
 		);
 
-	CFunction* pTargetSetter = pTargetProperty->GetSetter ();
-	CFunctionTypeOverload* pThunkSetterType = pThunkPropertyType->GetSetterType ();
+	Function* targetSetter = targetProperty->getSetter ();
+	FunctionTypeOverload* thunkSetterType = thunkPropertyType->getSetterType ();
 
-	size_t SetterCount = pThunkSetterType->GetOverloadCount ();
-	if (SetterCount && !pTargetSetter)
+	size_t setterCount = thunkSetterType->getOverloadCount ();
+	if (setterCount && !targetSetter)
 	{
-		SetCastError (pTargetProperty, pThunkPropertyType);
+		setCastError (targetProperty, thunkPropertyType);
 		return false;
 	}
 
-	for (size_t i = 0; i < SetterCount; i++)
+	for (size_t i = 0; i < setterCount; i++)
 	{
-		CFunctionType* pThunkFunctionType = pThunkSetterType->GetOverload (i);
+		FunctionType* thunkFunctionType = thunkSetterType->getOverload (i);
 
-		CFunction* pOverload = pTargetSetter->ChooseSetterOverload (pThunkFunctionType);
-		if (!pOverload)
+		Function* overload = targetSetter->chooseSetterOverload (thunkFunctionType);
+		if (!overload)
 			return false;
 
-		CFunction* pThunkFunction = m_pModule->m_FunctionMgr.GetDirectThunkFunction (
-			pOverload, 
-			pThunkFunctionType,
-			HasUnusedClosure
+		Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction (
+			overload, 
+			thunkFunctionType,
+			hasUnusedClosure
 			);
 
-		if (!m_pSetter)
+		if (!m_setter)
 		{
-			m_pSetter = pThunkFunction;
+			m_setter = thunkFunction;
 		}
 		else
 		{
-			Result = m_pSetter->AddOverload (pThunkFunction);
-			if (!Result)
+			result = m_setter->addOverload (thunkFunction);
+			if (!result)
 				return false;
 		}
 	}
@@ -73,27 +73,27 @@ CThunkProperty::Create (
 
 //.............................................................................
 
-CDataThunkProperty::CDataThunkProperty ()
+DataThunkProperty::DataThunkProperty ()
 {
-	m_PropertyKind = EProperty_DataThunk;
-	m_pTargetVariable = NULL;
+	m_propertyKind = PropertyKind_DataThunk;
+	m_targetVariable = NULL;
 }
 
 bool 
-CDataThunkProperty::Compile ()
+DataThunkProperty::compile ()
 {
-	bool Result = CompileGetter ();
-	if (!Result)
+	bool result = compileGetter ();
+	if (!result)
 		return false;
 
-	if (m_pSetter)
+	if (m_setter)
 	{
-		size_t Count = m_pSetter->GetOverloadCount ();
-		for (size_t i = 0; i < Count; i++)
+		size_t count = m_setter->getOverloadCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			CFunction* pOverload = m_pSetter->GetOverload (i);
-			Result = CompileSetter (pOverload);
-			if (!Result)
+			Function* overload = m_setter->getOverload (i);
+			result = compileSetter (overload);
+			if (!result)
 				return false;
 		}
 	}
@@ -102,34 +102,34 @@ CDataThunkProperty::Compile ()
 }
 
 bool 
-CDataThunkProperty::CompileGetter ()
+DataThunkProperty::compileGetter ()
 {
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pGetter);
+	m_module->m_functionMgr.internalPrologue (m_getter);
 
-	bool Result = m_pModule->m_ControlFlowMgr.Return (m_pTargetVariable);
-	if (!Result)
+	bool result = m_module->m_controlFlowMgr.ret (m_targetVariable);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool 
-CDataThunkProperty::CompileSetter (CFunction* pSetter)
+DataThunkProperty::compileSetter (Function* setter)
 {
-	CValue SrcValue;
+	Value srcValue;
 	
-	size_t ArgCount = pSetter->GetType ()->GetArgArray ().GetCount ();
-	ASSERT (ArgCount == 1 || ArgCount == 2);
+	size_t argCount = setter->getType ()->getArgArray ().getCount ();
+	ASSERT (argCount == 1 || argCount == 2);
 
-	CValue ArgValueArray [2];
-	m_pModule->m_FunctionMgr.InternalPrologue (pSetter, ArgValueArray, ArgCount);
+	Value argValueArray [2];
+	m_module->m_functionMgr.internalPrologue (setter, argValueArray, argCount);
 	
-	bool Result = m_pModule->m_OperatorMgr.StoreDataRef (m_pTargetVariable, ArgValueArray [ArgCount - 1]);
-	if (!Result)
+	bool result = m_module->m_operatorMgr.storeDataRef (m_targetVariable, argValueArray [argCount - 1]);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

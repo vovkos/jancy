@@ -8,68 +8,68 @@ namespace jnc {
 
 //.............................................................................
 
-CParser::CParser ()
+Parser::Parser ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	m_Stage = EStage_Pass1;
-	m_Flags = 0;
-	m_StructPackFactor = 8;
-	m_DefaultStructPackFactor = 8;
-	m_StorageKind = EStorage_Undefined;
-	m_AccessKind = EAccess_Undefined;
-	m_pAttributeBlock = NULL;
-	m_pLastDeclaredItem = NULL;
-	m_pLastPropertyGetterType = NULL;
-	m_pReactorType = NULL;
-	m_ReactorBindableTypeCount = 0;
-	m_ReactorBindSiteTotalCount = 0;
-	m_pConstructorType = NULL;
-	m_pConstructorProperty = NULL;
+	m_module = getCurrentThreadModule ();
+	m_stage = StageKind_Pass1;
+	m_flags = 0;
+	m_structPackFactor = 8;
+	m_defaultStructPackFactor = 8;
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Undefined;
+	m_attributeBlock = NULL;
+	m_lastDeclaredItem = NULL;
+	m_lastPropertyGetterType = NULL;
+	m_reactorType = NULL;
+	m_reactorBindableTypeCount = 0;
+	m_reactorBindSiteTotalCount = 0;
+	m_constructorType = NULL;
+	m_constructorProperty = NULL;
 }
 
 bool
-CParser::ParseTokenList (
-	ESymbol Symbol,
-	const rtl::CConstBoxListT <CToken>& TokenList,
-	bool IsBuildingAst
+Parser::parseTokenList (
+	SymbolKind symbol,
+	const rtl::ConstBoxList <Token>& tokenList,
+	bool isBuildingAst
 	)
 {
-	CUnit* pUnit = m_pModule->m_UnitMgr.GetCurrentUnit ();
-	ASSERT (pUnit);
+	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
+	ASSERT (unit);
 
-	ASSERT (!TokenList.IsEmpty ());
+	ASSERT (!tokenList.isEmpty ());
 
-	bool Result;
+	bool result;
 
-	Create (Symbol, IsBuildingAst);
+	create (symbol, isBuildingAst);
 
-	rtl::CBoxIteratorT <CToken> Token = TokenList.GetHead ();
-	for (; Token; Token++)
+	rtl::BoxIterator <Token> token = tokenList.getHead ();
+	for (; token; token++)
 	{
-		Result = ParseToken (&*Token);
-		if (!Result)
+		result = parseToken (&*token);
+		if (!result)
 		{
-			err::EnsureSrcPosError (pUnit->GetFilePath (), Token->m_Pos.m_Line, Token->m_Pos.m_Col);
+			err::ensureSrcPosError (unit->getFilePath (), token->m_pos.m_line, token->m_pos.m_col);
 			return false;
 		}
 	}
 
 	// important: process EOF token, it might actually trigger actions!
 
-	CToken::CPos Pos = TokenList.GetTail ()->m_Pos;
+	Token::Pos pos = tokenList.getTail ()->m_pos;
 
-	CToken EofToken;
-	EofToken.m_Token = 0;
-	EofToken.m_Pos = Pos;
-	EofToken.m_Pos.m_p += Pos.m_Length;
-	EofToken.m_Pos.m_Offset += Pos.m_Length;
-	EofToken.m_Pos.m_Col += Pos.m_Length;
-	EofToken.m_Pos.m_Length = 0;
+	Token eofToken;
+	eofToken.m_token = 0;
+	eofToken.m_pos = pos;
+	eofToken.m_pos.m_p += pos.m_length;
+	eofToken.m_pos.m_offset += pos.m_length;
+	eofToken.m_pos.m_col += pos.m_length;
+	eofToken.m_pos.m_length = 0;
 
-	Result = ParseToken (&EofToken);
-	if (!Result)
+	result = parseToken (&eofToken);
+	if (!result)
 	{
-		err::EnsureSrcPosError (pUnit->GetFilePath (), EofToken.m_Pos.m_Line, EofToken.m_Pos.m_Col);
+		err::ensureSrcPosError (unit->getFilePath (), eofToken.m_pos.m_line, eofToken.m_pos.m_col);
 		return false;
 	}
 
@@ -77,34 +77,34 @@ CParser::ParseTokenList (
 }
 
 bool
-CParser::PreCreateLandingPads (uint_t Flags)
+Parser::preCreateLandingPads (uint_t flags)
 {
-	if (!Flags)
+	if (!flags)
 		return true;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	if (Flags & ELandingPadFlag_Catch)
+	if (flags & LandingPadFlagKind_Catch)
 	{
-		ASSERT (!pScope->m_pCatchBlock);
-		pScope->m_pCatchBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("catch_block");
-		pScope->m_Flags |= EScopeFlag_CanThrow;
+		ASSERT (!scope->m_catchBlock);
+		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
+		scope->m_flags |= ScopeFlagKind_CanThrow;
 	}
 
-	if (Flags & ELandingPadFlag_Finally)
+	if (flags & LandingPadFlagKind_Finally)
 	{
-		ASSERT (!pScope->m_pFinallyBlock);
-		pScope->m_pFinallyBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("finally_block");
-		pScope->m_Flags |= EScopeFlag_HasFinally;
+		ASSERT (!scope->m_finallyBlock);
+		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
+		scope->m_flags |= ScopeFlagKind_HasFinally;
 
-		rtl::CString Name = "finally_return_addr";
-		CType* pType = GetSimpleType (m_pModule, EType_Int);
-		CVariable* pVariable  = m_pModule->m_VariableMgr.CreateStackVariable (Name, pType);
-		pVariable->m_pScope = pScope;
-		pScope->m_pFinallyReturnAddress = pVariable;
+		rtl::String name = "finally_return_addr";
+		Type* type = getSimpleType (m_module, TypeKind_Int);
+		Variable* variable  = m_module->m_variableMgr.createStackVariable (name, type);
+		variable->m_scope = scope;
+		scope->m_finallyReturnAddress = variable;
 
-		bool Result = m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable);
-		if (!Result)
+		bool result = m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
+		if (!result)
 			return false;
 	}
 
@@ -112,9 +112,9 @@ CParser::PreCreateLandingPads (uint_t Flags)
 }
 
 bool
-CParser::IsTypeSpecified ()
+Parser::isTypeSpecified ()
 {
-	if (m_TypeSpecifierStack.IsEmpty ())
+	if (m_typeSpecifierStack.isEmpty ())
 		return false;
 
 	// if we've seen 'unsigned', assume 'int' is implied.
@@ -122,140 +122,140 @@ CParser::IsTypeSpecified ()
 	// property foo { int get (); }
 	// here 'foo' should be a declarator, not import-type-specifier
 
-	CTypeSpecifier* pTypeSpecifier = m_TypeSpecifierStack.GetBack ();
+	TypeSpecifier* typeSpecifier = m_typeSpecifierStack.getBack ();
 	return
-		pTypeSpecifier->GetType () != NULL ||
-		pTypeSpecifier->GetTypeModifiers () & (ETypeModifier_Unsigned | ETypeModifier_Property);
+		typeSpecifier->getType () != NULL ||
+		typeSpecifier->getTypeModifiers () & (TypeModifierKind_Unsigned | TypeModifierKind_Property);
 }
 
-CNamedImportType*
-CParser::GetNamedImportType (
-	const CQualifiedName& Name,
-	const CToken::CPos& Pos
+NamedImportType*
+Parser::getNamedImportType (
+	const QualifiedName& name,
+	const Token::Pos& pos
 	)
 {
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CNamedImportType* pType = m_pModule->m_TypeMgr.GetNamedImportType (Name, pNamespace);
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	NamedImportType* type = m_module->m_typeMgr.getNamedImportType (name, nspace);
 
-	if (!pType->m_pParentUnit)
+	if (!type->m_parentUnit)
 	{
-		pType->m_pParentUnit = m_pModule->m_UnitMgr.GetCurrentUnit ();
-		pType->m_Pos = Pos;
+		type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
+		type->m_pos = pos;
 	}
 
-	return pType;
+	return type;
 }
 
-CType*
-CParser::FindType (
-	size_t BaseTypeIdx,
-	const CQualifiedName& Name,
-	const CToken::CPos& Pos
+Type*
+Parser::findType (
+	size_t baseTypeIdx,
+	const QualifiedName& name,
+	const Token::Pos& pos
 	)
 {
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (m_Stage == EStage_Pass1)
+	if (m_stage == StageKind_Pass1)
 	{
-		if (BaseTypeIdx != -1)
+		if (baseTypeIdx != -1)
 			return NULL;
 
-		if (!Name.IsSimple ())
-			return GetNamedImportType (Name, Pos);
+		if (!name.isSimple ())
+			return getNamedImportType (name, pos);
 
-		rtl::CString ShortName = Name.GetShortName ();
-		pItem = pNamespace->FindItem (ShortName);
-		if (!pItem)
-			return GetNamedImportType (Name, Pos);
+		rtl::String shortName = name.getShortName ();
+		item = nspace->findItem (shortName);
+		if (!item)
+			return getNamedImportType (name, pos);
 	}
 	else
 	{
-		if (BaseTypeIdx != -1)
+		if (baseTypeIdx != -1)
 		{
-			CDerivableType* pBaseType = FindBaseType (BaseTypeIdx);
-			if (!pBaseType)
+			DerivableType* baseType = findBaseType (baseTypeIdx);
+			if (!baseType)
 				return NULL;
 
-			pNamespace = pBaseType;
+			nspace = baseType;
 
-			if (Name.IsEmpty ())
-				return pBaseType;
+			if (name.isEmpty ())
+				return baseType;
 		}
 
-		pItem = pNamespace->FindItemTraverse (Name);
-		if (!pItem)
+		item = nspace->findItemTraverse (name);
+		if (!item)
 			return NULL;
 	}
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Type:
-		return (CType*) pItem;
+	case ModuleItemKind_Type:
+		return (Type*) item;
 
-	case EModuleItem_Typedef:
-		return ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		return ((Typedef*) item)->getType ();
 
 	default:
 		return NULL;
 	}
 }
 
-CType*
-CParser::GetType (
-	size_t BaseTypeIdx,
-	const CQualifiedName& Name,
-	const CToken::CPos& Pos
+Type*
+Parser::getType (
+	size_t baseTypeIdx,
+	const QualifiedName& name,
+	const Token::Pos& pos
 	)
 {
-	CType* pType = FindType (BaseTypeIdx, Name, Pos);
-	if (!pType)
+	Type* type = findType (baseTypeIdx, name, pos);
+	if (!type)
 	{
-		if (BaseTypeIdx == -1)
-			err::SetFormatStringError ("'%s' is not found or not a type", Name.GetFullName ().cc ());
-		else if (Name.IsEmpty ())
-			err::SetFormatStringError ("'basetype%d' is not found", BaseTypeIdx + 1);
+		if (baseTypeIdx == -1)
+			err::setFormatStringError ("'%s' is not found or not a type", name.getFullName ().cc ());
+		else if (name.isEmpty ())
+			err::setFormatStringError ("'basetype%d' is not found", baseTypeIdx + 1);
 		else
-			err::SetFormatStringError ("'basetype%d.%s' is not found or not a type", BaseTypeIdx + 1, Name.GetFullName ().cc ());
+			err::setFormatStringError ("'basetype%d.%s' is not found or not a type", baseTypeIdx + 1, name.getFullName ().cc ());
 
 		return NULL;
 	}
 
-	return pType;
+	return type;
 }
 
 bool
-CParser::IsEmptyDeclarationTerminatorAllowed (CTypeSpecifier* pTypeSpecifier)
+Parser::isEmptyDeclarationTerminatorAllowed (TypeSpecifier* typeSpecifier)
 {
-	if (!m_pLastDeclaredItem)
+	if (!m_lastDeclaredItem)
 	{
-		ASSERT (pTypeSpecifier);
-		CType* pType = pTypeSpecifier->GetType ();
-		if (!pType || !(pType->GetFlags () & ETypeFlag_Named))
+		ASSERT (typeSpecifier);
+		Type* type = typeSpecifier->getType ();
+		if (!type || !(type->getFlags () & TypeFlagKind_Named))
 		{
-			err::SetFormatStringError ("invalid declaration (no declarator, no named type)");
+			err::setFormatStringError ("invalid declaration (no declarator, no named type)");
 			return false;
 		}
 
-		if (pTypeSpecifier->GetTypeModifiers ())
+		if (typeSpecifier->getTypeModifiers ())
 		{
-			err::SetFormatStringError ("unused modifier '%s'", GetTypeModifierString (pTypeSpecifier->GetTypeModifiers ()).cc ());
+			err::setFormatStringError ("unused modifier '%s'", getTypeModifierString (typeSpecifier->getTypeModifiers ()).cc ());
 			return false;
 		}
 
 		return true;
 	}
 
-	EModuleItem ItemKind = m_pLastDeclaredItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Property:
-		return FinalizeLastProperty (false);
+	case ModuleItemKind_Property:
+		return finalizeLastProperty (false);
 
-	case EModuleItem_Orphan:
-		err::SetFormatStringError ("orphan '%s' without a body", m_pLastDeclaredItem->m_Tag.cc ());
+	case ModuleItemKind_Orphan:
+		err::setFormatStringError ("orphan '%s' without a body", m_lastDeclaredItem->m_tag.cc ());
 		return false;
 	}
 
@@ -263,399 +263,399 @@ CParser::IsEmptyDeclarationTerminatorAllowed (CTypeSpecifier* pTypeSpecifier)
 }
 
 bool
-CParser::SetDeclarationBody (rtl::CBoxListT <CToken>* pTokenList)
+Parser::setDeclarationBody (rtl::BoxList <Token>* tokenList)
 {
-	if (!m_pLastDeclaredItem)
+	if (!m_lastDeclaredItem)
 	{
-		err::SetFormatStringError ("declaration without declarator cannot have a body");
+		err::setFormatStringError ("declaration without declarator cannot have a body");
 		return false;
 	}
 
-	CType* pType;
+	Type* type;
 
-	EModuleItem ItemKind = m_pLastDeclaredItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Function:
-		return ((CFunction*) m_pLastDeclaredItem)->SetBody (pTokenList);
+	case ModuleItemKind_Function:
+		return ((Function*) m_lastDeclaredItem)->setBody (tokenList);
 
-	case EModuleItem_Property:
-		return ParseLastPropertyBody (*pTokenList);
+	case ModuleItemKind_Property:
+		return parseLastPropertyBody (*tokenList);
 
-	case EModuleItem_Typedef:
-		pType = ((CTypedef*) m_pLastDeclaredItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		type = ((Typedef*) m_lastDeclaredItem)->getType ();
 		break;
 
-	case EModuleItem_Type:
-		pType = (CType*) m_pLastDeclaredItem;
+	case ModuleItemKind_Type:
+		type = (Type*) m_lastDeclaredItem;
 		break;
 
-	case EModuleItem_Variable:
-		pType = ((CVariable*) m_pLastDeclaredItem)->GetType ();
+	case ModuleItemKind_Variable:
+		type = ((Variable*) m_lastDeclaredItem)->getType ();
 		break;
 
-	case EModuleItem_StructField:
-		pType = ((CStructField*) m_pLastDeclaredItem)->GetType ();
+	case ModuleItemKind_StructField:
+		type = ((StructField*) m_lastDeclaredItem)->getType ();
 		break;
 
-	case EModuleItem_Orphan:
-		return ((COrphan*) m_pLastDeclaredItem)->SetBody (pTokenList);
+	case ModuleItemKind_Orphan:
+		return ((Orphan*) m_lastDeclaredItem)->setBody (tokenList);
 
 	default:
-		err::SetFormatStringError ("'%s' cannot have a body", GetModuleItemKindString (m_pLastDeclaredItem->GetItemKind ()));
+		err::setFormatStringError ("'%s' cannot have a body", getModuleItemKindString (m_lastDeclaredItem->getItemKind ()));
 		return false;
 	}
 
-	if (!IsClassType (pType, EClassType_Reactor))
+	if (!isClassType (type, ClassTypeKind_Reactor))
 	{
-		err::SetFormatStringError ("only functions and reactors can have bodies, not '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("only functions and reactors can have bodies, not '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 
-	return ((CReactorClassType*) pType)->SetBody (pTokenList);
+	return ((ReactorClassType*) type)->setBody (tokenList);
 }
 
 bool
-CParser::SetStorageKind (EStorage StorageKind)
+Parser::setStorageKind (StorageKind storageKind)
 {
-	if (m_StorageKind)
+	if (m_storageKind)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"more than one storage specifier specifiers ('%s' and '%s')",
-			GetStorageKindString (m_StorageKind),
-			GetStorageKindString (StorageKind)
+			getStorageKindString (m_storageKind),
+			getStorageKindString (storageKind)
 			);
 		return false;
 	}
 
-	m_StorageKind = StorageKind;
+	m_storageKind = storageKind;
 	return true;
 }
 
 bool
-CParser::SetAccessKind (EAccess AccessKind)
+Parser::setAccessKind (AccessKind accessKind)
 {
-	if (m_AccessKind)
+	if (m_accessKind)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"more than one access specifiers ('%s' and '%s')",
-			GetAccessKindString (m_AccessKind),
-			GetAccessKindString (AccessKind)
+			getAccessKindString (m_accessKind),
+			getAccessKindString (accessKind)
 			);
 		return false;
 	}
 
-	m_AccessKind = AccessKind;
+	m_accessKind = accessKind;
 	return true;
 }
 
-CGlobalNamespace*
-CParser::OpenGlobalNamespace (
-	const CQualifiedName& Name,
-	const CToken::CPos& Pos
+GlobalNamespace*
+Parser::openGlobalNamespace (
+	const QualifiedName& name,
+	const Token::Pos& pos
 	)
 {
-	CNamespace* pCurrentNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	if (pCurrentNamespace->GetNamespaceKind () != ENamespace_Global)
+	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	if (currentNamespace->getNamespaceKind () != NamespaceKind_Global)
 	{
-		err::SetFormatStringError ("cannot open global namespace in '%s'", GetNamespaceKindString (pCurrentNamespace->GetNamespaceKind ()));
+		err::setFormatStringError ("cannot open global namespace in '%s'", getNamespaceKindString (currentNamespace->getNamespaceKind ()));
 		return NULL;
 	}
 
-	CGlobalNamespace* pNamespace = GetGlobalNamespace ((CGlobalNamespace*) pCurrentNamespace, Name.GetFirstName (), Pos);
-	if (!pNamespace)
+	GlobalNamespace* nspace = getGlobalNamespace ((GlobalNamespace*) currentNamespace, name.getFirstName (), pos);
+	if (!nspace)
 		return NULL;
 
-	if (pNamespace->GetFlags () & EGlobalNamespaceFlag_Sealed)
+	if (nspace->getFlags () & GlobalNamespaceFlagKind_Sealed)
 	{
-		err::SetFormatStringError ("cannot extend sealed namespace '%s'", pNamespace->GetQualifiedName ().cc ());
+		err::setFormatStringError ("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().cc ());
 		return NULL;
 	}
 
-	rtl::CBoxIteratorT <rtl::CString> It = Name.GetNameList ().GetHead ();
-	for (; It; It++)
+	rtl::BoxIterator <rtl::String> it = name.getNameList ().getHead ();
+	for (; it; it++)
 	{
-		pNamespace = GetGlobalNamespace (pNamespace, *It, Pos);
-		if (!pNamespace)
+		nspace = getGlobalNamespace (nspace, *it, pos);
+		if (!nspace)
 			return NULL;
 	}
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (pNamespace);
-	return pNamespace;
+	m_module->m_namespaceMgr.openNamespace (nspace);
+	return nspace;
 }
 
-CGlobalNamespace*
-CParser::GetGlobalNamespace (
-	CGlobalNamespace* pParentNamespace,
-	const rtl::CString& Name,
-	const CToken::CPos& Pos
+GlobalNamespace*
+Parser::getGlobalNamespace (
+	GlobalNamespace* parentNamespace,
+	const rtl::String& name,
+	const Token::Pos& pos
 	)
 {
-	CGlobalNamespace* pNamespace;
+	GlobalNamespace* nspace;
 
-	CModuleItem* pItem = pParentNamespace->FindItem (Name);
-	if (!pItem)
+	ModuleItem* item = parentNamespace->findItem (name);
+	if (!item)
 	{
-		pNamespace = m_pModule->m_NamespaceMgr.CreateGlobalNamespace (Name, pParentNamespace);
-		pNamespace->m_Pos = Pos;
-		pParentNamespace->AddItem (pNamespace);
+		nspace = m_module->m_namespaceMgr.createGlobalNamespace (name, parentNamespace);
+		nspace->m_pos = pos;
+		parentNamespace->addItem (nspace);
 	}
 	else
 	{
-		if (pItem->GetItemKind () != EModuleItem_Namespace)
+		if (item->getItemKind () != ModuleItemKind_Namespace)
 		{
-			err::SetFormatStringError ("'%s' exists and is not a namespace", pParentNamespace->CreateQualifiedName (Name).cc ());
+			err::setFormatStringError ("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).cc ());
 			return NULL;
 		}
 
-		pNamespace = (CGlobalNamespace*) pItem;
+		nspace = (GlobalNamespace*) item;
 	}
 
-	return pNamespace;
+	return nspace;
 }
 
 bool
-CParser::OpenTypeExtension (
-	const CQualifiedName& Name,
-	const CToken::CPos& Pos
+Parser::openTypeExtension (
+	const QualifiedName& name,
+	const Token::Pos& pos
 	)
 {
-	CType* pType = FindType (-1, Name, Pos);
-	if (!pType)
+	Type* type = findType (-1, name, pos);
+	if (!type)
 	{
-		err::SetFormatStringError ("'%s' is not a type", Name.GetFullName ().cc ());
+		err::setFormatStringError ("'%s' is not a type", name.getFullName ().cc ());
 		return false;
 	}
 
-	CNamedType* pNamedType;
+	NamedType* namedType;
 
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Enum:
-	case EType_Struct:
-	case EType_Union:
-	case EType_Class:
-		pNamedType = (CNamedType*) pType;
+	case TypeKind_Enum:
+	case TypeKind_Struct:
+	case TypeKind_Union:
+	case TypeKind_Class:
+		namedType = (NamedType*) type;
 		break;
 
-	case EType_NamedImport:
-		err::SetFormatStringError ("extension namespaces for '%s' is not supported yet", pType->GetTypeString ().cc ());
+	case TypeKind_NamedImport:
+		err::setFormatStringError ("extension namespaces for '%s' is not supported yet", type->getTypeString ().cc ());
 		return false;
 
 	default:
-		err::SetFormatStringError ("'%s' could not have an extension namespace", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' could not have an extension namespace", type->getTypeString ().cc ());
 		return false;
 	}
 
-	if (pNamedType->m_pExtensionNamespace)
+	if (namedType->m_extensionNamespace)
 	{
-		m_pModule->m_NamespaceMgr.OpenNamespace (pNamedType->m_pExtensionNamespace);
+		m_module->m_namespaceMgr.openNamespace (namedType->m_extensionNamespace);
 		return true;
 	}
 
-	CGlobalNamespace* pNamespace = m_pModule->m_NamespaceMgr.CreateGlobalNamespace ("extension", pNamedType);
-	pNamespace->m_NamespaceKind = ENamespace_TypeExtension;
-	pNamespace->m_Pos = Pos;
-	pNamespace->m_pParentNamespace = pNamedType;
-	pNamedType->m_pExtensionNamespace = pNamespace;
+	GlobalNamespace* nspace = m_module->m_namespaceMgr.createGlobalNamespace ("extension", namedType);
+	nspace->m_namespaceKind = NamespaceKind_TypeExtension;
+	nspace->m_pos = pos;
+	nspace->m_parentNamespace = namedType;
+	namedType->m_extensionNamespace = nspace;
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (pNamespace);
+	m_module->m_namespaceMgr.openNamespace (nspace);
 	return true;
 }
 
 bool
-CParser::PreDeclare ()
+Parser::preDeclare ()
 {
-	if (!m_pLastDeclaredItem || m_pLastDeclaredItem->GetItemKind () != EModuleItem_Property)
+	if (!m_lastDeclaredItem || m_lastDeclaredItem->getItemKind () != ModuleItemKind_Property)
 		return true;
 
-	CProperty* pProperty = (CProperty*) m_pLastDeclaredItem;
+	Property* prop = (Property*) m_lastDeclaredItem;
 	return true;
 }
 
 bool
-CParser::Declare (CDeclarator* pDeclarator)
+Parser::declare (Declarator* declarator)
 {
-	m_pLastDeclaredItem = NULL;
+	m_lastDeclaredItem = NULL;
 
-	if ((pDeclarator->GetTypeModifiers () & ETypeModifier_Property) && m_StorageKind != EStorage_Typedef)
+	if ((declarator->getTypeModifiers () & TypeModifierKind_Property) && m_storageKind != StorageKind_Typedef)
 	{
 		// too early to calctype cause maybe this property has a body
 		// declare a typeless property for now
 
-		return DeclareProperty (pDeclarator, NULL, 0);
+		return declareProperty (declarator, NULL, 0);
 	}
 
-	uint_t DeclFlags;
-	CType* pType = pDeclarator->CalcType (&DeclFlags);
-	if (!pType)
+	uint_t declFlags;
+	Type* type = declarator->calcType (&declFlags);
+	if (!type)
 		return false;
 
-	EDeclarator DeclaratorKind = pDeclarator->GetDeclaratorKind ();
-	uint_t PostModifiers = pDeclarator->GetPostDeclaratorModifiers ();
-	EType TypeKind = pType->GetTypeKind ();
+	DeclaratorKind declaratorKind = declarator->getDeclaratorKind ();
+	uint_t postModifiers = declarator->getPostDeclaratorModifiers ();
+	TypeKind typeKind = type->getTypeKind ();
 
-	if (PostModifiers != 0 && TypeKind != EType_Function)
+	if (postModifiers != 0 && typeKind != TypeKind_Function)
 	{
-		err::SetFormatStringError ("unused post-declarator modifier '%s'", GetPostDeclaratorModifierString (PostModifiers).cc ());
+		err::setFormatStringError ("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).cc ());
 		return false;
 	}
 
-	switch (m_StorageKind)
+	switch (m_storageKind)
 	{
-	case EStorage_Typedef:
-		return DeclareTypedef (pDeclarator, pType);
+	case StorageKind_Typedef:
+		return declareTypedef (declarator, type);
 
-	case EStorage_Alias:
-		return DeclareAlias (pDeclarator, pType, DeclFlags);
+	case StorageKind_Alias:
+		return declareAlias (declarator, type, declFlags);
 
 	default:
-		switch (TypeKind)
+		switch (typeKind)
 		{
-		case EType_Function:
-			return DeclareFunction (pDeclarator, (CFunctionType*) pType);
+		case TypeKind_Function:
+			return declareFunction (declarator, (FunctionType*) type);
 
-		case EType_Property:
-			return DeclareProperty (pDeclarator, (CPropertyType*) pType, DeclFlags);
+		case TypeKind_Property:
+			return declareProperty (declarator, (PropertyType*) type, declFlags);
 
 		default:
-			return IsClassType (pType, EClassType_ReactorIface) ?
-				DeclareReactor (pDeclarator, (CClassType*) pType, DeclFlags) :
-				DeclareData (pDeclarator, pType, DeclFlags);
+			return isClassType (type, ClassTypeKind_ReactorIface) ?
+				declareReactor (declarator, (ClassType*) type, declFlags) :
+				declareData (declarator, type, declFlags);
 		}
 	}
 }
 
 void
-CParser::AssignDeclarationAttributes (
-	CModuleItem* pItem,
-	const CToken::CPos& Pos
+Parser::assignDeclarationAttributes (
+	ModuleItem* item,
+	const Token::Pos& pos
 	)
 {
-	CModuleItemDecl* pDecl = pItem->GetItemDecl ();
-	ASSERT (pDecl);
+	ModuleItemDecl* decl = item->getItemDecl ();
+	ASSERT (decl);
 
-	pDecl->m_AccessKind = m_AccessKind ?
-		m_AccessKind :
-		m_pModule->m_NamespaceMgr.GetCurrentAccessKind ();
+	decl->m_accessKind = m_accessKind ?
+		m_accessKind :
+		m_module->m_namespaceMgr.getCurrentAccessKind ();
 
 	// don't overwrite storage unless explicit
 
-	if (m_StorageKind)
-		pDecl->m_StorageKind = m_StorageKind;
+	if (m_storageKind)
+		decl->m_storageKind = m_storageKind;
 
-	pDecl->m_Pos = Pos;
-	pDecl->m_pParentUnit = m_pModule->m_UnitMgr.GetCurrentUnit ();
-	pDecl->m_pParentNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	pDecl->m_pAttributeBlock = m_pAttributeBlock;
+	decl->m_pos = pos;
+	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
+	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	decl->m_attributeBlock = m_attributeBlock;
 
-	pItem->m_Flags |= EModuleItemFlag_User;
+	item->m_flags |= ModuleItemFlagKind_User;
 
-	m_pAttributeBlock = NULL;
-	m_pLastDeclaredItem = pItem;
+	m_attributeBlock = NULL;
+	m_lastDeclaredItem = item;
 }
 
 bool
-CParser::DeclareTypedef (
-	CDeclarator* pDeclarator,
-	CType* pType
+Parser::declareTypedef (
+	Declarator* declarator,
+	Type* type
 	)
 {
-	ASSERT (m_StorageKind == EStorage_Typedef);
+	ASSERT (m_storageKind == StorageKind_Typedef);
 
-	bool Result;
+	bool result;
 
-	if (!pDeclarator->IsSimple ())
+	if (!declarator->isSimple ())
 	{
-		err::SetFormatStringError ("invalid typedef declarator");
+		err::setFormatStringError ("invalid typedef declarator");
 		return false;
 	}
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 
-	rtl::CString Name = pDeclarator->GetName ()->GetShortName ();
-	rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
+	rtl::String name = declarator->getName ()->getShortName ();
+	rtl::String qualifiedName = nspace->createQualifiedName (name);
 
-	CModuleItem* pItem;
+	ModuleItem* item;
 
-	if (IsClassType (pType, EClassType_ReactorIface))
+	if (isClassType (type, ClassTypeKind_ReactorIface))
 	{
-		pType = m_pModule->m_TypeMgr.CreateReactorType (Name, QualifiedName, (CClassType*) pType, NULL);
-		pItem = pType;
+		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ClassType*) type, NULL);
+		item = type;
 	}
 	else
 	{
-		CTypedef* pTypedef = m_pModule->m_TypeMgr.CreateTypedef (Name, QualifiedName, pType);
-		pItem = pTypedef;
+		Typedef* tdef = m_module->m_typeMgr.createTypedef (name, qualifiedName, type);
+		item = tdef;
 	}
 
-	if (!pItem)
+	if (!item)
 		return false;
 
-	AssignDeclarationAttributes (pItem, pDeclarator->GetPos ());
+	assignDeclarationAttributes (item, declarator->getPos ());
 
-	Result = pNamespace->AddItem (pItem, pItem->GetItemDecl ());
-	if (!Result)
+	result = nspace->addItem (item, item->getItemDecl ());
+	if (!result)
 		return false;
 
 	return true;
 }
 
 bool
-CParser::DeclareAlias (
-	CDeclarator* pDeclarator,
-	CType* pType,
-	uint_t PtrTypeFlags
+Parser::declareAlias (
+	Declarator* declarator,
+	Type* type,
+	uint_t ptrTypeFlags
 	)
 {
-	bool Result;
+	bool result;
 
-	if (!pDeclarator->m_Constructor.IsEmpty ())
+	if (!declarator->m_constructor.isEmpty ())
 	{
-		err::SetFormatStringError ("alias cannot have constructor");
+		err::setFormatStringError ("alias cannot have constructor");
 		return false;
 	}
 
-	if (pDeclarator->m_Initializer.IsEmpty ())
+	if (declarator->m_initializer.isEmpty ())
 	{
-		err::SetFormatStringError ("missing alias initializer");
+		err::setFormatStringError ("missing alias initializer");
 		return false;
 	}
 
-	if (!pDeclarator->IsSimple ())
+	if (!declarator->isSimple ())
 	{
-		err::SetFormatStringError ("invalid alias declarator");
+		err::setFormatStringError ("invalid alias declarator");
 		return false;
 	}
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 
-	rtl::CString Name = pDeclarator->GetName ()->GetShortName ();
-	rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-	rtl::CBoxListT <CToken>* pInitializer = &pDeclarator->m_Initializer;
+	rtl::String name = declarator->getName ()->getShortName ();
+	rtl::String qualifiedName = nspace->createQualifiedName (name);
+	rtl::BoxList <Token>* initializer = &declarator->m_initializer;
 
-	CAlias* pAlias = m_pModule->m_VariableMgr.CreateAlias (Name, QualifiedName, pType, pInitializer);
-	AssignDeclarationAttributes (pAlias, pDeclarator->GetPos ());
+	Alias* alias = m_module->m_variableMgr.createAlias (name, qualifiedName, type, initializer);
+	assignDeclarationAttributes (alias, declarator->getPos ());
 
-	Result = pNamespace->AddItem (pAlias);
-	if (!Result)
+	result = nspace->addItem (alias);
+	if (!result)
 		return false;
 
-	if (pNamespace->GetNamespaceKind () == ENamespace_Property)
+	if (nspace->getNamespaceKind () == NamespaceKind_Property)
 	{
-		CProperty* pProperty = (CProperty*) pNamespace;
+		Property* prop = (Property*) nspace;
 
-		if (PtrTypeFlags & EPtrTypeFlag_Bindable)
+		if (ptrTypeFlags & PtrTypeFlagKind_Bindable)
 		{
-			Result = pProperty->SetOnChanged (pAlias);
-			if (!Result)
+			result = prop->setOnChanged (alias);
+			if (!result)
 				return false;
 		}
-		else if (PtrTypeFlags & EPtrTypeFlag_AutoGet)
+		else if (ptrTypeFlags & PtrTypeFlagKind_AutoGet)
 		{
-			Result = pProperty->SetAutoGetValue (pAlias);
-			if (!Result)
+			result = prop->setAutoGetValue (alias);
+			if (!result)
 				return false;
 		}
 	}
@@ -664,533 +664,533 @@ CParser::DeclareAlias (
 }
 
 bool
-CParser::DeclareFunction (
-	CDeclarator* pDeclarator,
-	CFunctionType* pType
+Parser::declareFunction (
+	Declarator* declarator,
+	FunctionType* type
 	)
 {
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	ENamespace NamespaceKind = pNamespace->GetNamespaceKind ();
-	EDeclarator DeclaratorKind = pDeclarator->GetDeclaratorKind ();
-	uint_t PostModifiers = pDeclarator->GetPostDeclaratorModifiers ();
-	EFunction FunctionKind = pDeclarator->GetFunctionKind ();
-	bool HasArgs = !pType->GetArgArray ().IsEmpty ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind ();
+	DeclaratorKind declaratorKind = declarator->getDeclaratorKind ();
+	uint_t postModifiers = declarator->getPostDeclaratorModifiers ();
+	FunctionKind functionKind = declarator->getFunctionKind ();
+	bool hasArgs = !type->getArgArray ().isEmpty ();
 
-	if (DeclaratorKind == EDeclarator_UnaryBinaryOperator)
+	if (declaratorKind == DeclaratorKind_UnaryBinaryOperator)
 	{
-		ASSERT (FunctionKind == EFunction_UnaryOperator || FunctionKind == EFunction_BinaryOperator);
-		FunctionKind = HasArgs ? EFunction_BinaryOperator : EFunction_UnaryOperator;
+		ASSERT (functionKind == FunctionKind_UnaryOperator || functionKind == FunctionKind_BinaryOperator);
+		functionKind = hasArgs ? FunctionKind_BinaryOperator : FunctionKind_UnaryOperator;
 	}
 
-	ASSERT (FunctionKind);
-	uint_t FunctionKindFlags = GetFunctionKindFlags (FunctionKind);
+	ASSERT (functionKind);
+	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
 
-	if ((FunctionKindFlags & EFunctionKindFlag_NoStorage) && m_StorageKind)
+	if ((functionKindFlags & FunctionKindFlagKind_NoStorage) && m_storageKind)
 	{
-		err::SetFormatStringError ("'%s' cannot have storage specifier", GetFunctionKindString (FunctionKind));
+		err::setFormatStringError ("'%s' cannot have storage specifier", getFunctionKindString (functionKind));
 		return false;
 	}
 
-	if ((FunctionKindFlags & EFunctionKindFlag_NoArgs) && HasArgs)
+	if ((functionKindFlags & FunctionKindFlagKind_NoArgs) && hasArgs)
 	{
-		err::SetFormatStringError ("'%s' cannot have arguments", GetFunctionKindString (FunctionKind));
+		err::setFormatStringError ("'%s' cannot have arguments", getFunctionKindString (functionKind));
 		return false;
 	}
 
-	if (!m_StorageKind)
+	if (!m_storageKind)
 	{
-		m_StorageKind =
-			FunctionKind == EFunction_StaticConstructor || FunctionKind == EFunction_StaticDestructor ? EStorage_Static :
-			NamespaceKind == ENamespace_Property ? ((CProperty*) pNamespace)->GetStorageKind () : EStorage_Undefined;
+		m_storageKind =
+			functionKind == FunctionKind_StaticConstructor || functionKind == FunctionKind_StaticDestructor ? StorageKind_Static :
+			namespaceKind == NamespaceKind_Property ? ((Property*) nspace)->getStorageKind () : StorageKind_Undefined;
 	}
 
-	if (NamespaceKind == ENamespace_PropertyTemplate)
+	if (namespaceKind == NamespaceKind_PropertyTemplate)
 	{
-		if (m_StorageKind)
+		if (m_storageKind)
 		{
-			err::SetFormatStringError ("invalid storage '%s' in property template", GetStorageKindString (m_StorageKind));
+			err::setFormatStringError ("invalid storage '%s' in property template", getStorageKindString (m_storageKind));
 			return false;
 		}
 
-		if (PostModifiers)
+		if (postModifiers)
 		{
-			err::SetFormatStringError ("unused post-declarator modifier '%s'", GetPostDeclaratorModifierString (PostModifiers).cc ());
+			err::setFormatStringError ("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).cc ());
 			return false;
 		}
 
-		bool Result = ((CPropertyTemplate*) pNamespace)->AddMethod (FunctionKind, pType);
-		if (!Result)
+		bool result = ((PropertyTemplate*) nspace)->addMethod (functionKind, type);
+		if (!result)
 			return false;
 
-		m_pLastDeclaredItem = pType;
+		m_lastDeclaredItem = type;
 		return true;
 	}
 
-	CUserModuleItem* pFunctionItem;
-	CFunctionName* pFunctionName;
+	UserModuleItem* functionItem;
+	FunctionName* functionName;
 
-	if (pDeclarator->IsQualified ())
+	if (declarator->isQualified ())
 	{
-		COrphan* pOrphan = m_pModule->m_NamespaceMgr.CreateOrphan (EOrphan_Function, pType);
-		pOrphan->m_FunctionKind = FunctionKind;
-		pFunctionItem = pOrphan;
-		pFunctionName = pOrphan;
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Function, type);
+		orphan->m_functionKind = functionKind;
+		functionItem = orphan;
+		functionName = orphan;
 	}
 	else
 	{
-		CFunction* pFunction = m_pModule->m_FunctionMgr.CreateFunction (FunctionKind, pType);
-		pFunctionItem = pFunction;
-		pFunctionName = pFunction;
+		Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
+		functionItem = function;
+		functionName = function;
 	}
 
-	pFunctionName->m_DeclaratorName = *pDeclarator->GetName ();
-	pFunctionItem->m_Tag = pNamespace->CreateQualifiedName (pFunctionName->m_DeclaratorName);
+	functionName->m_declaratorName = *declarator->getName ();
+	functionItem->m_tag = nspace->createQualifiedName (functionName->m_declaratorName);
 
-	AssignDeclarationAttributes (pFunctionItem, pDeclarator->GetPos ());
+	assignDeclarationAttributes (functionItem, declarator->getPos ());
 
-	if (PostModifiers & EPostDeclaratorModifier_Const)
-		pFunctionName->m_ThisArgTypeFlags = EPtrTypeFlag_Const;
+	if (postModifiers & PostDeclaratorModifierKind_Const)
+		functionName->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
 
-	switch (FunctionKind)
+	switch (functionKind)
 	{
-	case EFunction_Named:
-		pFunctionItem->m_Name = pDeclarator->GetName ()->GetShortName ();
-		pFunctionItem->m_QualifiedName = pNamespace->CreateQualifiedName (pFunctionItem->m_Name);
-		pFunctionItem->m_Tag = pFunctionItem->m_QualifiedName;
+	case FunctionKind_Named:
+		functionItem->m_name = declarator->getName ()->getShortName ();
+		functionItem->m_qualifiedName = nspace->createQualifiedName (functionItem->m_name);
+		functionItem->m_tag = functionItem->m_qualifiedName;
 		break;
 
-	case EFunction_UnaryOperator:
-		pFunctionName->m_UnOpKind = pDeclarator->GetUnOpKind ();
-		pFunctionItem->m_Tag.AppendFormat (".unary operator %s", GetUnOpKindString (pFunctionName->m_UnOpKind));
+	case FunctionKind_UnaryOperator:
+		functionName->m_unOpKind = declarator->getUnOpKind ();
+		functionItem->m_tag.appendFormat (".unary operator %s", getUnOpKindString (functionName->m_unOpKind));
 		break;
 
-	case EFunction_BinaryOperator:
-		pFunctionName->m_BinOpKind = pDeclarator->GetBinOpKind ();
-		pFunctionItem->m_Tag.AppendFormat (".binary operator %s", GetBinOpKindString (pFunctionName->m_BinOpKind));
+	case FunctionKind_BinaryOperator:
+		functionName->m_binOpKind = declarator->getBinOpKind ();
+		functionItem->m_tag.appendFormat (".binary operator %s", getBinOpKindString (functionName->m_binOpKind));
 		break;
 
-	case EFunction_CastOperator:
-		pFunctionName->m_pCastOpType = pDeclarator->GetCastOpType ();
-		pFunctionItem->m_Tag.AppendFormat (".cast operator %s", pFunctionName->m_pCastOpType);
+	case FunctionKind_CastOperator:
+		functionName->m_castOpType = declarator->getCastOpType ();
+		functionItem->m_tag.appendFormat (".cast operator %s", functionName->m_castOpType);
 		break;
 
 	default:
-		pFunctionItem->m_Tag.AppendFormat (".%s", GetFunctionKindString (FunctionKind));
+		functionItem->m_tag.appendFormat (".%s", getFunctionKindString (functionKind));
 	}
 
-	if (pFunctionItem->GetItemKind () == EModuleItem_Orphan)
+	if (functionItem->getItemKind () == ModuleItemKind_Orphan)
 		return true;
 
-	ASSERT (pFunctionItem->GetItemKind () == EModuleItem_Function);
-	CFunction* pFunction = (CFunction*) pFunctionItem;
+	ASSERT (functionItem->getItemKind () == ModuleItemKind_Function);
+	Function* function = (Function*) functionItem;
 
-	switch (NamespaceKind)
+	switch (namespaceKind)
 	{
-	case ENamespace_TypeExtension:
-		if (pFunction->IsVirtual ())
+	case NamespaceKind_TypeExtension:
+		if (function->isVirtual ())
 		{
-			err::SetFormatStringError ("invalid storage '%s' in type extension", GetStorageKindString (pFunction->m_StorageKind));
+			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (function->m_storageKind));
 			return false;
 		}
 
 		break;
 
-	case ENamespace_Type:
-		EType TypeKind;
-		TypeKind = ((CNamedType*) pNamespace)->GetTypeKind ();
-		switch (TypeKind)
+	case NamespaceKind_Type:
+		TypeKind typeKind;
+		typeKind = ((NamedType*) nspace)->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_Struct:
-			return ((CStructType*) pNamespace)->AddMethod (pFunction);
+		case TypeKind_Struct:
+			return ((StructType*) nspace)->addMethod (function);
 
-		case EType_Union:
-			return ((CUnionType*) pNamespace)->AddMethod (pFunction);
+		case TypeKind_Union:
+			return ((UnionType*) nspace)->addMethod (function);
 
-		case EType_Class:
-			return ((CClassType*) pNamespace)->AddMethod (pFunction);
+		case TypeKind_Class:
+			return ((ClassType*) nspace)->addMethod (function);
 
 		default:
-			err::SetFormatStringError ("method members are not allowed in '%s'", ((CNamedType*) pNamespace)->GetTypeString ().cc ());
+			err::setFormatStringError ("method members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString ().cc ());
 			return false;
 		}
 
-	case ENamespace_Property:
-		return ((CProperty*) pNamespace)->AddMethod (pFunction);
+	case NamespaceKind_Property:
+		return ((Property*) nspace)->addMethod (function);
 
 	default:
-		if (PostModifiers)
+		if (postModifiers)
 		{
-			err::SetFormatStringError ("unused post-declarator modifier '%s'", GetPostDeclaratorModifierString (PostModifiers).cc ());
+			err::setFormatStringError ("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).cc ());
 			return false;
 		}
 
-		if (m_StorageKind && m_StorageKind != EStorage_Static)
+		if (m_storageKind && m_storageKind != StorageKind_Static)
 		{
-			err::SetFormatStringError ("invalid storage specifier '%s' for a global function", GetStorageKindString (m_StorageKind));
+			err::setFormatStringError ("invalid storage specifier '%s' for a global function", getStorageKindString (m_storageKind));
 			return false;
 		}
 	}
 
-	if (!pNamespace->GetParentNamespace ()) // module constructor / destructor
-		switch (FunctionKind)
+	if (!nspace->getParentNamespace ()) // module constructor / destructor
+		switch (functionKind)
 		{
-		case EFunction_Constructor:
-			return pFunction->GetModule ()->SetConstructor (pFunction);
+		case FunctionKind_Constructor:
+			return function->getModule ()->setConstructor (function);
 
-		case EFunction_Destructor:
-			return pFunction->GetModule ()->SetDestructor (pFunction);
+		case FunctionKind_Destructor:
+			return function->getModule ()->setDestructor (function);
 		}
 
-	if (FunctionKind != EFunction_Named)
+	if (functionKind != FunctionKind_Named)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"invalid '%s' at '%s' namespace",
-			GetFunctionKindString (FunctionKind),
-			GetNamespaceKindString (NamespaceKind)
+			getFunctionKindString (functionKind),
+			getNamespaceKindString (namespaceKind)
 			);
 		return false;
 	}
 
-	return pNamespace->AddFunction (pFunction);
+	return nspace->addFunction (function);
 }
 
 bool
-CParser::DeclareProperty (
-	CDeclarator* pDeclarator,
-	CPropertyType* pType,
-	uint_t Flags
+Parser::declareProperty (
+	Declarator* declarator,
+	PropertyType* type,
+	uint_t flags
 	)
 {
-	if (!pDeclarator->IsSimple ())
+	if (!declarator->isSimple ())
 	{
-		err::SetFormatStringError ("invalid property declarator");
+		err::setFormatStringError ("invalid property declarator");
 		return false;
 	}
 
-	CProperty* pProperty = CreateProperty (
-		pDeclarator->GetName ()->GetShortName (),
-		pDeclarator->GetPos ()
+	Property* prop = createProperty (
+		declarator->getName ()->getShortName (),
+		declarator->getPos ()
 		);
 
-	if (!pProperty)
+	if (!prop)
 		return false;
 
-	if (pType)
+	if (type)
 	{
-		pProperty->m_Flags |= Flags;
-		return pProperty->Create (pType);
+		prop->m_flags |= flags;
+		return prop->create (type);
 	}
 
-	CDeclThrowSuffix* pThrowSuffix = pDeclarator->GetThrowSuffix ();
-	if (pThrowSuffix)
+	DeclThrowSuffix* throwSuffix = declarator->getThrowSuffix ();
+	if (throwSuffix)
 	{
-		pProperty->m_Flags |= EPropertyFlag_Throws;
-		if (!pThrowSuffix->GetThrowCondition ()->IsEmpty ())
+		prop->m_flags |= PropertyFlagKind_Throws;
+		if (!throwSuffix->getThrowCondition ()->isEmpty ())
 		{
-			err::SetFormatStringError ("property cannot have a throw condtion");
+			err::setFormatStringError ("property cannot have a throw condtion");
 			return false;
 		}
 
-		pDeclarator->DeleteSuffix (pThrowSuffix);
+		declarator->deleteSuffix (throwSuffix);
 	}
 
-	if (pDeclarator->GetBaseType ()->GetTypeKind () != EType_Void ||
-		!pDeclarator->GetPointerPrefixList ().IsEmpty () ||
-		!pDeclarator->GetSuffixList ().IsEmpty ())
+	if (declarator->getBaseType ()->getTypeKind () != TypeKind_Void ||
+		!declarator->getPointerPrefixList ().isEmpty () ||
+		!declarator->getSuffixList ().isEmpty ())
 	{
-		CDeclTypeCalc TypeCalc;
-		m_pLastPropertyGetterType = TypeCalc.CalcPropertyGetterType (pDeclarator);
-		if (!m_pLastPropertyGetterType)
+		DeclTypeCalc typeCalc;
+		m_lastPropertyGetterType = typeCalc.calcPropertyGetterType (declarator);
+		if (!m_lastPropertyGetterType)
 			return false;
 	}
 	else
 	{
-		m_pLastPropertyGetterType = NULL;
+		m_lastPropertyGetterType = NULL;
 	}
 
-	if (pDeclarator->GetTypeModifiers () & ETypeModifier_Const)
+	if (declarator->getTypeModifiers () & TypeModifierKind_Const)
 	{
-		if (pProperty->m_Flags & EPropertyFlag_Throws)
+		if (prop->m_flags & PropertyFlagKind_Throws)
 		{
-			err::SetFormatStringError ("const property cannot throw");
+			err::setFormatStringError ("const property cannot throw");
 			return false;
 		}
 
-		pProperty->m_Flags |= EPropertyFlag_Const;
+		prop->m_flags |= PropertyFlagKind_Const;
 	}
 
-	m_LastPropertyTypeModifiers.TakeOver (pDeclarator);
+	m_lastPropertyTypeModifiers.takeOver (declarator);
 	return true;
 }
 
-CPropertyTemplate*
-CParser::CreatePropertyTemplate ()
+PropertyTemplate*
+Parser::createPropertyTemplate ()
 {
-	CPropertyTemplate* pPropertyTemplate = m_pModule->m_FunctionMgr.CreatePropertyTemplate ();
-	uint_t Modifiers = GetTypeSpecifier ()->ClearTypeModifiers (ETypeModifier_Property | ETypeModifier_Bindable);
+	PropertyTemplate* propertyTemplate = m_module->m_functionMgr.createPropertyTemplate ();
+	uint_t modifiers = getTypeSpecifier ()->clearTypeModifiers (TypeModifierKind_Property | TypeModifierKind_Bindable);
 
-	if (Modifiers & ETypeModifier_Bindable)
-		pPropertyTemplate->m_TypeFlags = EPropertyTypeFlag_Bindable;
+	if (modifiers & TypeModifierKind_Bindable)
+		propertyTemplate->m_typeFlags = PropertyTypeFlagKind_Bindable;
 
-	return pPropertyTemplate;
+	return propertyTemplate;
 }
 
-CProperty*
-CParser::CreateProperty (
-	const rtl::CString& Name,
-	const CToken::CPos& Pos
+Property*
+Parser::createProperty (
+	const rtl::String& name,
+	const Token::Pos& pos
 	)
 {
-	bool Result;
+	bool result;
 
-	m_pLastDeclaredItem = NULL;
+	m_lastDeclaredItem = NULL;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	ENamespace NamespaceKind = pNamespace->GetNamespaceKind ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind ();
 
-	if (NamespaceKind == ENamespace_PropertyTemplate)
+	if (namespaceKind == NamespaceKind_PropertyTemplate)
 	{
-		err::SetFormatStringError ("property templates cannot have property members");
+		err::setFormatStringError ("property templates cannot have property members");
 		return NULL;
 	}
 
-	rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-	CProperty* pProperty = m_pModule->m_FunctionMgr.CreateProperty (Name, QualifiedName);
+	rtl::String qualifiedName = nspace->createQualifiedName (name);
+	Property* prop = m_module->m_functionMgr.createProperty (name, qualifiedName);
 
-	AssignDeclarationAttributes (pProperty, Pos);
+	assignDeclarationAttributes (prop, pos);
 
-	EType TypeKind;
+	TypeKind typeKind;
 
-	switch (NamespaceKind)
+	switch (namespaceKind)
 	{
-	case ENamespace_Type:
-		TypeKind = ((CNamedType*) pNamespace)->GetTypeKind ();
-		switch (TypeKind)
+	case NamespaceKind_Type:
+		typeKind = ((NamedType*) nspace)->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_Struct:
-			Result = ((CStructType*) pNamespace)->AddProperty (pProperty);
+		case TypeKind_Struct:
+			result = ((StructType*) nspace)->addProperty (prop);
 			break;
 
-		case EType_Union:
-			Result = ((CUnionType*) pNamespace)->AddProperty (pProperty);
+		case TypeKind_Union:
+			result = ((UnionType*) nspace)->addProperty (prop);
 			break;
 
-		case EType_Class:
-			Result = ((CClassType*) pNamespace)->AddProperty (pProperty);
+		case TypeKind_Class:
+			result = ((ClassType*) nspace)->addProperty (prop);
 			break;
 
 		default:
-			err::SetFormatStringError ("property members are not allowed in '%s'", ((CNamedType*) pNamespace)->GetTypeString ().cc ());
+			err::setFormatStringError ("property members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString ().cc ());
 			return NULL;
 		}
 
-		if (!Result)
+		if (!result)
 			return NULL;
 
 		break;
 
-	case ENamespace_Property:
-		Result = ((CProperty*) pNamespace)->AddProperty (pProperty);
-		if (!Result)
+	case NamespaceKind_Property:
+		result = ((Property*) nspace)->addProperty (prop);
+		if (!result)
 			return NULL;
 
 		break;
 
 	default:
-		if (m_StorageKind && m_StorageKind != EStorage_Static)
+		if (m_storageKind && m_storageKind != StorageKind_Static)
 		{
-			err::SetFormatStringError ("invalid storage specifier '%s' for a global property", GetStorageKindString (m_StorageKind));
+			err::setFormatStringError ("invalid storage specifier '%s' for a global property", getStorageKindString (m_storageKind));
 			return NULL;
 		}
 
-		Result = pNamespace->AddItem (pProperty);
-		if (!Result)
+		result = nspace->addItem (prop);
+		if (!result)
 			return NULL;
 
-		pProperty->m_StorageKind = EStorage_Static;
+		prop->m_storageKind = StorageKind_Static;
 	}
 
-	return pProperty;
+	return prop;
 }
 
 bool
-CParser::ParseLastPropertyBody (const rtl::CConstBoxListT <CToken>& Body)
+Parser::parseLastPropertyBody (const rtl::ConstBoxList <Token>& body)
 {
-	ASSERT (m_pLastDeclaredItem->GetItemKind () == EModuleItem_Property);
+	ASSERT (m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
 
-	bool Result;
+	bool result;
 
-	CProperty* pProperty = (CProperty*) m_pLastDeclaredItem;
+	Property* prop = (Property*) m_lastDeclaredItem;
 
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = CParser::EStage_Pass1;
+	Parser parser;
+	parser.m_module = m_module;
+	parser.m_stage = Parser::StageKind_Pass1;
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (pProperty);
+	m_module->m_namespaceMgr.openNamespace (prop);
 
-	Result = Parser.ParseTokenList (ESymbol_named_type_block_impl, Body);
-	if (!Result)
+	result = parser.parseTokenList (SymbolKind_named_type_block_impl, body);
+	if (!result)
 		return false;
 
-	m_pModule->m_NamespaceMgr.CloseNamespace ();
+	m_module->m_namespaceMgr.closeNamespace ();
 
-	return FinalizeLastProperty (true);
+	return finalizeLastProperty (true);
 }
 
 bool
-CParser::FinalizeLastProperty (bool HasBody)
+Parser::finalizeLastProperty (bool hasBody)
 {
-	ASSERT (m_pLastDeclaredItem->GetItemKind () == EModuleItem_Property);
+	ASSERT (m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
 
-	bool Result;
+	bool result;
 
-	CProperty* pProperty = (CProperty*) m_pLastDeclaredItem;
-	if (pProperty->GetType ())
+	Property* prop = (Property*) m_lastDeclaredItem;
+	if (prop->getType ())
 		return true;
 
 	// finalize getter
 
-	if (!pProperty->m_pGetter)
+	if (!prop->m_getter)
 	{
-		if (!m_pLastPropertyGetterType)
+		if (!m_lastPropertyGetterType)
 		{
-			err::SetFormatStringError ("incomplete property: no 'get' method or autoget field");
+			err::setFormatStringError ("incomplete property: no 'get' method or autoget field");
 			return NULL;
 		}
 
-		CFunction* pGetter = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Getter, m_pLastPropertyGetterType);
-		pGetter->m_Flags |= EModuleItemFlag_User;
+		Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, m_lastPropertyGetterType);
+		getter->m_flags |= ModuleItemFlagKind_User;
 
-		Result = pProperty->AddMethod (pGetter);
-		if (!Result)
+		result = prop->addMethod (getter);
+		if (!result)
 			return false;
 	}
-	else if (m_pLastPropertyGetterType && m_pLastPropertyGetterType->Cmp (pProperty->m_pGetter->GetType ()) != 0)
+	else if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp (prop->m_getter->getType ()) != 0)
 	{
-		err::SetFormatStringError ("getter type '%s' does not match property declaration", pProperty->m_pGetter->GetType ()->GetTypeString ().cc ());
+		err::setFormatStringError ("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString ().cc ());
 		return NULL;
 	}
 
 	// finalize setter
 
-	if (!(m_LastPropertyTypeModifiers.GetTypeModifiers () & ETypeModifier_Const) && !HasBody)
+	if (!(m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_Const) && !hasBody)
 	{
-		CFunctionType* pGetterType = pProperty->m_pGetter->GetType ()->GetShortType ();
-		CType* pReturnType = pGetterType->GetReturnType ();
-		rtl::CArrayT <CFunctionArg*> ArgArray = pGetterType->GetArgArray ();
-		ArgArray.Append (pReturnType->GetSimpleFunctionArg ());
+		FunctionType* getterType = prop->m_getter->getType ()->getShortType ();
+		Type* returnType = getterType->getReturnType ();
+		rtl::Array <FunctionArg*> argArray = getterType->getArgArray ();
+		argArray.append (returnType->getSimpleFunctionArg ());
 
-		CFunctionType* pSetterType = m_pModule->m_TypeMgr.GetFunctionType (ArgArray);
-		CFunction* pSetter = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Setter, pSetterType);
-		pSetter->m_Flags |= EModuleItemFlag_User;
+		FunctionType* setterType = m_module->m_typeMgr.getFunctionType (argArray);
+		Function* setter = m_module->m_functionMgr.createFunction (FunctionKind_Setter, setterType);
+		setter->m_flags |= ModuleItemFlagKind_User;
 
-		Result = pProperty->AddMethod (pSetter);
-		if (!Result)
+		result = prop->addMethod (setter);
+		if (!result)
 			return false;
 	}
 
 	// finalize binder
 
-	if (m_LastPropertyTypeModifiers.GetTypeModifiers () & ETypeModifier_Bindable)
+	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_Bindable)
 	{
-		if (!pProperty->m_pOnChanged)
+		if (!prop->m_onChanged)
 		{
-			Result = pProperty->CreateOnChanged ();
-			if (!Result)
+			result = prop->createOnChanged ();
+			if (!result)
 				return false;
 		}
 	}
 
 	// finalize auto-get value
 
-	if (m_LastPropertyTypeModifiers.GetTypeModifiers () & ETypeModifier_AutoGet)
+	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_AutoGet)
 	{
-		if (!pProperty->m_pAutoGetValue)
+		if (!prop->m_autoGetValue)
 		{
-			Result = pProperty->CreateAutoGetValue (pProperty->m_pGetter->GetType ()->GetReturnType ());
+			result = prop->createAutoGetValue (prop->m_getter->getType ()->getReturnType ());
 
-			if (!Result)
+			if (!result)
 				return false;
 		}
 	}
 
-	uint_t TypeFlags = 0;
-	if (pProperty->m_pOnChanged)
-		TypeFlags |= EPropertyTypeFlag_Bindable;
+	uint_t typeFlags = 0;
+	if (prop->m_onChanged)
+		typeFlags |= PropertyTypeFlagKind_Bindable;
 
-	pProperty->m_pType = pProperty->m_pSetter ?
-		m_pModule->m_TypeMgr.GetPropertyType (
-			pProperty->m_pGetter->GetType (),
-			*pProperty->m_pSetter->GetTypeOverload (),
-			TypeFlags
+	prop->m_type = prop->m_setter ?
+		m_module->m_typeMgr.getPropertyType (
+			prop->m_getter->getType (),
+			*prop->m_setter->getTypeOverload (),
+			typeFlags
 			) :
-		m_pModule->m_TypeMgr.GetPropertyType (
-			pProperty->m_pGetter->GetType (),
+		m_module->m_typeMgr.getPropertyType (
+			prop->m_getter->getType (),
 			NULL,
-			TypeFlags
+			typeFlags
 			);
 
-	if (pProperty->m_Flags & (EPropertyFlag_AutoGet | EPropertyFlag_AutoSet))
-		m_pModule->MarkForCompile (pProperty);
+	if (prop->m_flags & (PropertyFlagKind_AutoGet | PropertyFlagKind_AutoSet))
+		m_module->markForCompile (prop);
 
 	return true;
 }
 
 bool
-CParser::DeclareReactor (
-	CDeclarator* pDeclarator,
-	CClassType* pType,
-	uint_t PtrTypeFlags
+Parser::declareReactor (
+	Declarator* declarator,
+	ClassType* type,
+	uint_t ptrTypeFlags
 	)
 {
-	bool Result;
+	bool result;
 
-	if (pDeclarator->GetDeclaratorKind () != EDeclarator_Name)
+	if (declarator->getDeclaratorKind () != DeclaratorKind_Name)
 	{
-		err::SetFormatStringError ("invalid reactor declarator");
+		err::setFormatStringError ("invalid reactor declarator");
 		return false;
 	}
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	ENamespace NamespaceKind = pNamespace->GetNamespaceKind ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind ();
 
-	CNamedType* pParentType = NULL;
+	NamedType* parentType = NULL;
 
-	switch (NamespaceKind)
+	switch (namespaceKind)
 	{
-	case ENamespace_Property:
-		pParentType = ((CProperty*) pNamespace)->GetParentType ();
+	case NamespaceKind_Property:
+		parentType = ((Property*) nspace)->getParentType ();
 		break;
 
-	case ENamespace_Type:
-		pParentType = (CNamedType*) pNamespace;
+	case NamespaceKind_Type:
+		parentType = (NamedType*) nspace;
 		break;
 	}
 
-	if (pParentType && pParentType->GetTypeKind () != EType_Class)
+	if (parentType && parentType->getTypeKind () != TypeKind_Class)
 	{
-		err::SetFormatStringError ("'%s' cannot contain reactor members", pParentType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' cannot contain reactor members", parentType->getTypeString ().cc ());
 		return false;
 	}
 
-	rtl::CString Name = pDeclarator->GetName ()->GetShortName ();
-	rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
+	rtl::String name = declarator->getName ()->getShortName ();
+	rtl::String qualifiedName = nspace->createQualifiedName (name);
 
-	if (pDeclarator->IsQualified ())
+	if (declarator->isQualified ())
 	{
-		CFunction* pStart = pType->GetVirtualMethodArray () [0];
-		ASSERT (pStart->GetName () == "start");
+		Function* start = type->getVirtualMethodArray () [0];
+		ASSERT (start->getName () == "start");
 
-		COrphan* pOprhan = m_pModule->m_NamespaceMgr.CreateOrphan (EOrphan_Reactor, pStart->GetType ());
-		pOprhan->m_DeclaratorName = *pDeclarator->GetName ();
-		AssignDeclarationAttributes (pOprhan, pDeclarator->GetPos ());
+		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Reactor, start->getType ());
+		oprhan->m_declaratorName = *declarator->getName ();
+		assignDeclarationAttributes (oprhan, declarator->getPos ());
 	}
 	else
 	{
-		pType = m_pModule->m_TypeMgr.CreateReactorType (Name, QualifiedName, (CReactorClassType*) pType, (CClassType*) pParentType);
-		AssignDeclarationAttributes (pType, pDeclarator->GetPos ());
-		Result = DeclareData (pDeclarator, pType, PtrTypeFlags);
-		if (!Result)
+		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ReactorClassType*) type, (ClassType*) parentType);
+		assignDeclarationAttributes (type, declarator->getPos ());
+		result = declareData (declarator, type, ptrTypeFlags);
+		if (!result)
 			return false;
 	}
 
@@ -1198,989 +1198,989 @@ CParser::DeclareReactor (
 }
 
 bool
-CParser::DeclareData (
-	CDeclarator* pDeclarator,
-	CType* pType,
-	uint_t PtrTypeFlags
+Parser::declareData (
+	Declarator* declarator,
+	Type* type,
+	uint_t ptrTypeFlags
 	)
 {
-	bool Result;
+	bool result;
 
-	if (!pDeclarator->IsSimple ())
+	if (!declarator->isSimple ())
 	{
-		err::SetFormatStringError ("invalid data declarator");
+		err::setFormatStringError ("invalid data declarator");
 		return false;
 	}
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	ENamespace NamespaceKind = pNamespace->GetNamespaceKind ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind ();
 
-	switch (NamespaceKind)
+	switch (namespaceKind)
 	{
-	case ENamespace_TypeExtension:
-	case ENamespace_PropertyTemplate:
-		err::SetFormatStringError ("'%s' cannot have data fields", GetNamespaceKindString (NamespaceKind));
+	case NamespaceKind_TypeExtension:
+	case NamespaceKind_PropertyTemplate:
+		err::setFormatStringError ("'%s' cannot have data fields", getNamespaceKindString (namespaceKind));
 		return false;
 	}
 
-	rtl::CString Name = pDeclarator->GetName ()->GetShortName ();
-	size_t BitCount = pDeclarator->GetBitCount ();
-	rtl::CBoxListT <CToken>* pConstructor = &pDeclarator->m_Constructor;
-	rtl::CBoxListT <CToken>* pInitializer = &pDeclarator->m_Initializer;
+	rtl::String name = declarator->getName ()->getShortName ();
+	size_t bitCount = declarator->getBitCount ();
+	rtl::BoxList <Token>* constructor = &declarator->m_constructor;
+	rtl::BoxList <Token>* initializer = &declarator->m_initializer;
 
-	if (IsAutoSizeArrayType (pType))
+	if (isAutoSizeArrayType (type))
 	{
-		if (pInitializer->IsEmpty ())
+		if (initializer->isEmpty ())
 		{
-			err::SetFormatStringError ("auto-size array '%s' should have initializer", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("auto-size array '%s' should have initializer", type->getTypeString ().cc ());
 			return false;
 		}
 
-		CArrayType* pArrayType = (CArrayType*) pType;
-		Result = m_pModule->m_OperatorMgr.ParseAutoSizeArrayInitializer (*pInitializer, &pArrayType->m_ElementCount);
-		if (!Result)
+		ArrayType* arrayType = (ArrayType*) type;
+		result = m_module->m_operatorMgr.parseAutoSizeArrayInitializer (*initializer, &arrayType->m_elementCount);
+		if (!result)
 			return false;
 
-		if (m_Stage == EStage_Pass2)
+		if (m_stage == StageKind_Pass2)
 		{
-			Result = pArrayType->EnsureLayout ();
-			if (!Result)
+			result = arrayType->ensureLayout ();
+			if (!result)
 				return false;
 		}
 	}
 
-	CModuleItem* pDataItem = NULL;
+	ModuleItem* dataItem = NULL;
 
-	if (NamespaceKind != ENamespace_Property && (PtrTypeFlags & (EPtrTypeFlag_AutoGet | EPtrTypeFlag_Bindable)))
+	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlagKind_AutoGet | PtrTypeFlagKind_Bindable)))
 	{
-		err::SetFormatStringError ("'%s' can only be used on property field", GetPtrTypeFlagString (PtrTypeFlags & (EPtrTypeFlag_AutoGet | EPtrTypeFlag_Bindable)).cc ());
+		err::setFormatStringError ("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlagKind_AutoGet | PtrTypeFlagKind_Bindable)).cc ());
 		return false;
 	}
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	switch (m_StorageKind)
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	switch (m_storageKind)
 	{
-	case EStorage_Undefined:
-		switch (NamespaceKind)
+	case StorageKind_Undefined:
+		switch (namespaceKind)
 		{
-		case ENamespace_Scope:
-			m_StorageKind = pType->GetTypeKind () == EType_Class ? EStorage_Heap : EStorage_Stack;
+		case NamespaceKind_Scope:
+			m_storageKind = type->getTypeKind () == TypeKind_Class ? StorageKind_Heap : StorageKind_Stack;
 			break;
 
-		case ENamespace_Type:
-			m_StorageKind = EStorage_Member;
+		case NamespaceKind_Type:
+			m_storageKind = StorageKind_Member;
 			break;
 
-		case ENamespace_Property:
-			m_StorageKind = ((CProperty*) pNamespace)->GetParentType () ? EStorage_Member : EStorage_Static;
+		case NamespaceKind_Property:
+			m_storageKind = ((Property*) nspace)->getParentType () ? StorageKind_Member : StorageKind_Static;
 			break;
 
 		default:
-			m_StorageKind = EStorage_Static;
+			m_storageKind = StorageKind_Static;
 		}
 
 		break;
 
-	case EStorage_Static:
+	case StorageKind_Static:
 		break;
 
-	case EStorage_Thread:
-		if (!pScope && (!pConstructor->IsEmpty () || !pInitializer->IsEmpty ()))
+	case StorageKind_Thread:
+		if (!scope && (!constructor->isEmpty () || !initializer->isEmpty ()))
 		{
-			err::SetFormatStringError ("global 'thread' variables cannot have initializers");
+			err::setFormatStringError ("global 'thread' variables cannot have initializers");
 			return false;
 		}
 
 		break;
 
-	case EStorage_Heap:
-	case EStorage_Stack:
-		if (!pScope)
+	case StorageKind_Heap:
+	case StorageKind_Stack:
+		if (!scope)
 		{
-			err::SetFormatStringError ("can only use '%s' storage specifier for local variables", GetStorageKindString (m_StorageKind));
+			err::setFormatStringError ("can only use '%s' storage specifier for local variables", getStorageKindString (m_storageKind));
 			return false;
 		}
 
 		break;
 
-	case EStorage_Mutable:
-		switch (NamespaceKind)
+	case StorageKind_Mutable:
+		switch (namespaceKind)
 		{
-		case ENamespace_Type:
+		case NamespaceKind_Type:
 			break;
 
-		case ENamespace_Property:
-			if (((CProperty*) pNamespace)->GetParentType ())
+		case NamespaceKind_Property:
+			if (((Property*) nspace)->getParentType ())
 				break;
 
 		default:
-			err::SetFormatStringError ("'mutable' can only be applied to member fields");
+			err::setFormatStringError ("'mutable' can only be applied to member fields");
 			return false;
 		}
 
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid storage specifier '%s' for variable", GetStorageKindString (m_StorageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' for variable", getStorageKindString (m_storageKind));
 		return false;
 	}
 
-	if (NamespaceKind == ENamespace_Property)
+	if (namespaceKind == NamespaceKind_Property)
 	{
-		CProperty* pProperty = (CProperty*) pNamespace;
+		Property* prop = (Property*) nspace;
 
-		if (m_StorageKind == EStorage_Member)
+		if (m_storageKind == StorageKind_Member)
 		{
-			pDataItem = pProperty->CreateField (Name, pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
-			AssignDeclarationAttributes (pDataItem, pDeclarator->GetPos ());
+			dataItem = prop->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
+			assignDeclarationAttributes (dataItem, declarator->getPos ());
 		}
 		else
 		{
-			CVariable* pVariable = m_pModule->m_VariableMgr.CreateVariable (
-				m_StorageKind,
-				Name,
-				pNamespace->CreateQualifiedName (Name),
-				pType,
-				PtrTypeFlags,
-				pConstructor,
-				pInitializer
+			Variable* variable = m_module->m_variableMgr.createVariable (
+				m_storageKind,
+				name,
+				nspace->createQualifiedName (name),
+				type,
+				ptrTypeFlags,
+				constructor,
+				initializer
 				);
 
-			AssignDeclarationAttributes (pVariable, pDeclarator->GetPos ());
+			assignDeclarationAttributes (variable, declarator->getPos ());
 
-			Result = pNamespace->AddItem (pVariable);
-			if (!Result)
+			result = nspace->addItem (variable);
+			if (!result)
 				return false;
 
-			pDataItem = pVariable;
+			dataItem = variable;
 		}
 
-		if (PtrTypeFlags & EPtrTypeFlag_Bindable)
+		if (ptrTypeFlags & PtrTypeFlagKind_Bindable)
 		{
-			Result = pProperty->SetOnChanged (pDataItem);
-			if (!Result)
+			result = prop->setOnChanged (dataItem);
+			if (!result)
 				return false;
 		}
-		else if (PtrTypeFlags & EPtrTypeFlag_AutoGet)
+		else if (ptrTypeFlags & PtrTypeFlagKind_AutoGet)
 		{
-			Result = pProperty->SetAutoGetValue (pDataItem);
-			if (!Result)
+			result = prop->setAutoGetValue (dataItem);
+			if (!result)
 				return false;
 		}
 
 	}
-	else if (m_StorageKind != EStorage_Member && m_StorageKind != EStorage_Mutable)
+	else if (m_storageKind != StorageKind_Member && m_storageKind != StorageKind_Mutable)
 	{
-		CVariable* pVariable = m_pModule->m_VariableMgr.CreateVariable (
-			m_StorageKind,
-			Name,
-			pNamespace->CreateQualifiedName (Name),
-			pType,
-			PtrTypeFlags,
-			pConstructor,
-			pInitializer
+		Variable* variable = m_module->m_variableMgr.createVariable (
+			m_storageKind,
+			name,
+			nspace->createQualifiedName (name),
+			type,
+			ptrTypeFlags,
+			constructor,
+			initializer
 			);
 
-		AssignDeclarationAttributes (pVariable, pDeclarator->GetPos ());
+		assignDeclarationAttributes (variable, declarator->getPos ());
 
-		Result = pNamespace->AddItem (pVariable);
-		if (!Result)
+		result = nspace->addItem (variable);
+		if (!result)
 			return false;
 
-		if (pScope)
+		if (scope)
 		{
-			pVariable->m_pScope = pScope;
+			variable->m_scope = scope;
 
-			Result = m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable);
-			if (!Result)
+			result = m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
+			if (!result)
 				return false;
 		}
 
-		if (pNamespace->GetNamespaceKind () == ENamespace_Type && 
-			(!pVariable->GetConstructor ().IsEmpty () || !pVariable->GetInitializer ().IsEmpty ()))
+		if (nspace->getNamespaceKind () == NamespaceKind_Type && 
+			(!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ()))
 		{
-			CNamedType* pNamedType = (CNamedType*) pNamespace;
-			EType NamedTypeKind = pNamedType->GetTypeKind ();
+			NamedType* namedType = (NamedType*) nspace;
+			TypeKind namedTypeKind = namedType->getTypeKind ();
 
-			switch (NamedTypeKind)
+			switch (namedTypeKind)
 			{
-			case EType_Class:
-			case EType_Struct:
-			case EType_Union:
-				((CDerivableType*) pNamedType)->m_InitializedStaticFieldArray.Append (pVariable);
+			case TypeKind_Class:
+			case TypeKind_Struct:
+			case TypeKind_Union:
+				((DerivableType*) namedType)->m_initializedStaticFieldArray.append (variable);
 				break;
 
 			default:
-				err::SetFormatStringError ("field members are not allowed in '%s'", pNamedType->GetTypeString ().cc ());
+				err::setFormatStringError ("field members are not allowed in '%s'", namedType->getTypeString ().cc ());
 				return false;
 			}
 		}
 	}
 	else
 	{
-		ASSERT (pNamespace->GetNamespaceKind () == ENamespace_Type);
+		ASSERT (nspace->getNamespaceKind () == NamespaceKind_Type);
 
-		CNamedType* pNamedType = (CNamedType*) pNamespace;
-		EType NamedTypeKind = pNamedType->GetTypeKind ();
+		NamedType* namedType = (NamedType*) nspace;
+		TypeKind namedTypeKind = namedType->getTypeKind ();
 
-		CStructField* pField;
+		StructField* field;
 
-		switch (NamedTypeKind)
+		switch (namedTypeKind)
 		{
-		case EType_Class:
-			pField = ((CClassType*) pNamedType)->CreateField (Name, pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
+		case TypeKind_Class:
+			field = ((ClassType*) namedType)->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			break;
 
-		case EType_Struct:
-			pField = ((CStructType*) pNamedType)->CreateField (Name, pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
+		case TypeKind_Struct:
+			field = ((StructType*) namedType)->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			break;
 
-		case EType_Union:
-			pField = ((CUnionType*) pNamedType)->CreateField (Name, pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
+		case TypeKind_Union:
+			field = ((UnionType*) namedType)->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			break;
 
 		default:
-			err::SetFormatStringError ("field members are not allowed in '%s'", pNamedType->GetTypeString ().cc ());
+			err::setFormatStringError ("field members are not allowed in '%s'", namedType->getTypeString ().cc ());
 			return false;
 		}
 
-		if (!pField)
+		if (!field)
 			return false;
 
-		AssignDeclarationAttributes (pField, pDeclarator->GetPos ());
+		assignDeclarationAttributes (field, declarator->getPos ());
 	}
 
 	return true;
 }
 
 bool
-CParser::DeclareUnnamedStructOrUnion (CDerivableType* pType)
+Parser::declareUnnamedStructOrUnion (DerivableType* type)
 {
-	m_StorageKind = EStorage_Undefined;
-	m_AccessKind = EAccess_Undefined;
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Undefined;
 
-	CDeclarator Declarator;
-	Declarator.m_DeclaratorKind = EDeclarator_Name;
-	Declarator.m_Pos = *pType->GetPos ();
-	return DeclareData (&Declarator, pType, 0);
+	Declarator declarator;
+	declarator.m_declaratorKind = DeclaratorKind_Name;
+	declarator.m_pos = *type->getPos ();
+	return declareData (&declarator, type, 0);
 }
 
-CFunctionArg*
-CParser::CreateFormalArg (
-	CDeclFunctionSuffix* pArgSuffix,
-	CDeclarator* pDeclarator
+FunctionArg*
+Parser::createFormalArg (
+	DeclFunctionSuffix* argSuffix,
+	Declarator* declarator
 	)
 {
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 
-	uint_t PtrTypeFlags = 0;
-	CType* pType = pDeclarator->CalcType (&PtrTypeFlags);
-	if (!pType)
+	uint_t ptrTypeFlags = 0;
+	Type* type = declarator->calcType (&ptrTypeFlags);
+	if (!type)
 		return NULL;
 
-	if (m_StorageKind)
+	if (m_storageKind)
 	{
-		err::SetFormatStringError ("invalid storage '%s' for argument", GetStorageKindString (m_StorageKind));
-		return NULL;
-	}
-
-	m_StorageKind = EStorage_Stack;
-
-	rtl::CString Name;
-
-	if (pDeclarator->IsSimple ())
-	{
-		Name = pDeclarator->GetName ()->GetShortName ();
-	}
-	else if (pDeclarator->GetDeclaratorKind () != EDeclarator_Undefined)
-	{
-		err::SetFormatStringError ("invalid formal argument declarator");
+		err::setFormatStringError ("invalid storage '%s' for argument", getStorageKindString (m_storageKind));
 		return NULL;
 	}
 
-	rtl::CBoxListT <CToken>* pInitializer = &pDeclarator->m_Initializer;
+	m_storageKind = StorageKind_Stack;
 
-	CFunctionArg* pArg = m_pModule->m_TypeMgr.CreateFunctionArg (Name, pType, PtrTypeFlags, pInitializer);
-	AssignDeclarationAttributes (pArg, pDeclarator->GetPos ());
+	rtl::String name;
 
-	pArgSuffix->m_ArgArray.Append (pArg);
+	if (declarator->isSimple ())
+	{
+		name = declarator->getName ()->getShortName ();
+	}
+	else if (declarator->getDeclaratorKind () != DeclaratorKind_Undefined)
+	{
+		err::setFormatStringError ("invalid formal argument declarator");
+		return NULL;
+	}
 
-	return pArg;
+	rtl::BoxList <Token>* initializer = &declarator->m_initializer;
+
+	FunctionArg* arg = m_module->m_typeMgr.createFunctionArg (name, type, ptrTypeFlags, initializer);
+	assignDeclarationAttributes (arg, declarator->getPos ());
+
+	argSuffix->m_argArray.append (arg);
+
+	return arg;
 }
 
-CEnumType*
-CParser::CreateEnumType (
-	EEnumType EnumTypeKind,
-	const rtl::CString& Name,
-	CType* pBaseType,
-	uint_t Flags
+EnumType*
+Parser::createEnumType (
+	EnumTypeKind enumTypeKind,
+	const rtl::String& name,
+	Type* baseType,
+	uint_t flags
 	)
 {
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CEnumType* pEnumType = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	EnumType* enumType = NULL;
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		Flags |= EEnumTypeFlag_Exposed;
-		pEnumType = m_pModule->m_TypeMgr.CreateUnnamedEnumType (EnumTypeKind, pBaseType, Flags);
+		flags |= EnumTypeFlagKind_Exposed;
+		enumType = m_module->m_typeMgr.createUnnamedEnumType (enumTypeKind, baseType, flags);
 	}
 	else
 	{
-		rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-		pEnumType = m_pModule->m_TypeMgr.CreateEnumType (EnumTypeKind, Name, QualifiedName, pBaseType, Flags);
-		if (!pEnumType)
+		rtl::String qualifiedName = nspace->createQualifiedName (name);
+		enumType = m_module->m_typeMgr.createEnumType (enumTypeKind, name, qualifiedName, baseType, flags);
+		if (!enumType)
 			return NULL;
 
-		bool Result = pNamespace->AddItem (pEnumType);
-		if (!Result)
+		bool result = nspace->addItem (enumType);
+		if (!result)
 			return NULL;
 	}
 
-	AssignDeclarationAttributes (pEnumType, m_LastMatchedToken.m_Pos);
-	return pEnumType;
+	assignDeclarationAttributes (enumType, m_lastMatchedToken.m_pos);
+	return enumType;
 }
 
-CStructType*
-CParser::CreateStructType (
-	const rtl::CString& Name,
-	rtl::CBoxListT <CType*>* pBaseTypeList,
-	size_t PackFactor
+StructType*
+Parser::createStructType (
+	const rtl::String& name,
+	rtl::BoxList <Type*>* baseTypeList,
+	size_t packFactor
 	)
 {
-	bool Result;
+	bool result;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CStructType* pStructType = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	StructType* structType = NULL;
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		pStructType = m_pModule->m_TypeMgr.CreateUnnamedStructType (PackFactor);
+		structType = m_module->m_typeMgr.createUnnamedStructType (packFactor);
 	}
 	else
 	{
-		rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-		pStructType = m_pModule->m_TypeMgr.CreateStructType (Name, QualifiedName, PackFactor);
-		if (!pStructType)
+		rtl::String qualifiedName = nspace->createQualifiedName (name);
+		structType = m_module->m_typeMgr.createStructType (name, qualifiedName, packFactor);
+		if (!structType)
 			return NULL;
 	}
 
-	if (pBaseTypeList)
+	if (baseTypeList)
 	{
-		rtl::CBoxIteratorT <CType*> BaseType = pBaseTypeList->GetHead ();
-		for (; BaseType; BaseType++)
+		rtl::BoxIterator <Type*> baseType = baseTypeList->getHead ();
+		for (; baseType; baseType++)
 		{
-			Result = pStructType->AddBaseType (*BaseType) != NULL;
-			if (!Result)
+			result = structType->addBaseType (*baseType) != NULL;
+			if (!result)
 				return NULL;
 		}
 	}
 
-	if (!Name.IsEmpty ())
+	if (!name.isEmpty ())
 	{
-		Result = pNamespace->AddItem (pStructType);
-		if (!Result)
+		result = nspace->addItem (structType);
+		if (!result)
 			return NULL;
 	}
 
-	AssignDeclarationAttributes (pStructType, m_LastMatchedToken.m_Pos);
-	return pStructType;
+	assignDeclarationAttributes (structType, m_lastMatchedToken.m_pos);
+	return structType;
 }
 
-CUnionType*
-CParser::CreateUnionType (
-	const rtl::CString& Name,
-	size_t PackFactor
+UnionType*
+Parser::createUnionType (
+	const rtl::String& name,
+	size_t packFactor
 	)
 {
-	bool Result;
+	bool result;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CUnionType* pUnionType = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	UnionType* unionType = NULL;
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		pUnionType = m_pModule->m_TypeMgr.CreateUnnamedUnionType (PackFactor);
+		unionType = m_module->m_typeMgr.createUnnamedUnionType (packFactor);
 	}
 	else
 	{
-		rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-		pUnionType = m_pModule->m_TypeMgr.CreateUnionType (Name, QualifiedName, PackFactor);
-		if (!pUnionType)
+		rtl::String qualifiedName = nspace->createQualifiedName (name);
+		unionType = m_module->m_typeMgr.createUnionType (name, qualifiedName, packFactor);
+		if (!unionType)
 			return NULL;
 
-		Result = pNamespace->AddItem (pUnionType);
-		if (!Result)
+		result = nspace->addItem (unionType);
+		if (!result)
 			return NULL;
 	}
 
-	AssignDeclarationAttributes (pUnionType, m_LastMatchedToken.m_Pos);
-	return pUnionType;
+	assignDeclarationAttributes (unionType, m_lastMatchedToken.m_pos);
+	return unionType;
 }
 
-CClassType*
-CParser::CreateClassType (
-	const rtl::CString& Name,
-	rtl::CBoxListT <CType*>* pBaseTypeList,
-	size_t PackFactor,
-	uint_t Flags
+ClassType*
+Parser::createClassType (
+	const rtl::String& name,
+	rtl::BoxList <Type*>* baseTypeList,
+	size_t packFactor,
+	uint_t flags
 	)
 {
-	bool Result;
+	bool result;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CClassType* pClassType;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ClassType* classType;
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		pClassType = m_pModule->m_TypeMgr.CreateUnnamedClassType (PackFactor, Flags);
+		classType = m_module->m_typeMgr.createUnnamedClassType (packFactor, flags);
 	}
 	else
 	{
-		rtl::CString QualifiedName = pNamespace->CreateQualifiedName (Name);
-		pClassType = m_pModule->m_TypeMgr.CreateClassType (Name, QualifiedName, PackFactor, Flags);
+		rtl::String qualifiedName = nspace->createQualifiedName (name);
+		classType = m_module->m_typeMgr.createClassType (name, qualifiedName, packFactor, flags);
 	}
 
-	if (pBaseTypeList)
+	if (baseTypeList)
 	{
-		rtl::CBoxIteratorT <CType*> BaseType = pBaseTypeList->GetHead ();
-		for (; BaseType; BaseType++)
+		rtl::BoxIterator <Type*> baseType = baseTypeList->getHead ();
+		for (; baseType; baseType++)
 		{
-			Result = pClassType->AddBaseType (*BaseType) != NULL;
-			if (!Result)
+			result = classType->addBaseType (*baseType) != NULL;
+			if (!result)
 				return NULL;
 		}
 	}
 
-	if (!Name.IsEmpty ())
+	if (!name.isEmpty ())
 	{
-		Result = pNamespace->AddItem (pClassType);
-		if (!Result)
+		result = nspace->addItem (classType);
+		if (!result)
 			return NULL;
 	}
 
-	AssignDeclarationAttributes (pClassType, m_LastMatchedToken.m_Pos);
-	return pClassType;
+	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
+	return classType;
 }
 
 bool
-CParser::CountReactorBindableTypes ()
+Parser::countReactorBindableTypes ()
 {
-	if (!m_ReactorBindableTypeCount)
+	if (!m_reactorBindableTypeCount)
 	{
-		err::SetFormatStringError ("no bindable properties found");
+		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
 
-	m_ReactorBindSiteTotalCount += m_ReactorBindableTypeCount;
-	m_ReactorBindableTypeCount = 0;
+	m_reactorBindSiteTotalCount += m_reactorBindableTypeCount;
+	m_reactorBindableTypeCount = 0;
 	return true;
 }
 
 bool 
-CParser::AddReactorBindSite (const CValue& Value)
+Parser::addReactorBindSite (const Value& value)
 {
-	ASSERT (m_Stage == EStage_ReactorStarter);
+	ASSERT (m_stage == StageKind_ReactorStarter);
 
-	bool Result;
+	bool result;
 
-	CValue OnChangedValue;
-	Result = m_pModule->m_OperatorMgr.GetPropertyOnChanged (Value, &OnChangedValue);
-	if (!Result)
+	Value onChangedValue;
+	result = m_module->m_operatorMgr.getPropertyOnChanged (value, &onChangedValue);
+	if (!result)
 		return false;
 	
-	CType* pType = m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleEventPtr);
-	CVariable* pVariable = m_pModule->m_VariableMgr.CreateStackVariable ("onChanged", pType);
+	Type* type = m_module->m_typeMgr.getStdType (StdTypeKind_SimpleEventPtr);
+	Variable* variable = m_module->m_variableMgr.createStackVariable ("onChanged", type);
 	
-	Result = 
-		m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable) &&
-		m_pModule->m_OperatorMgr.StoreDataRef (pVariable, OnChangedValue);
+	result = 
+		m_module->m_variableMgr.allocatePrimeInitializeVariable (variable) &&
+		m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 
-	m_ReactorBindSiteList.InsertTail (pVariable);
+	m_reactorBindSiteList.insertTail (variable);
 	return true;
 }
 
 bool
-CParser::FinalizeReactor ()
+Parser::finalizeReactor ()
 {
-	ASSERT (m_pReactorType);
-	ASSERT (!m_ReactionList.IsEmpty ());
+	ASSERT (m_reactorType);
+	ASSERT (!m_reactionList.isEmpty ());
 
-	bool Result = m_pReactorType->BindHandlers (m_ReactionList);
-	if (!Result)
+	bool result = m_reactorType->bindHandlers (m_reactionList);
+	if (!result)
 		return false;
 
-	m_ReactionList.Clear ();
+	m_reactionList.clear ();
 	return true;
 }
 
 bool
-CParser::FinalizeReactorOnEventDeclaration (
-	rtl::CBoxListT <CValue>* pValueList,
-	CDeclarator* pDeclarator
+Parser::finalizeReactorOnEventDeclaration (
+	rtl::BoxList <Value>* valueList,
+	Declarator* declarator
 	)
 {
-	ASSERT (m_pReactorType);
+	ASSERT (m_reactorType);
 
-	CDeclFunctionSuffix* pSuffix = pDeclarator->GetFunctionSuffix ();
-	ASSERT (pSuffix);
+	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix ();
+	ASSERT (suffix);
 
-	TReaction* pHandler = AXL_MEM_NEW (TReaction);
-	pHandler->m_pFunction = m_pReactorType->CreateHandler (pSuffix->GetArgArray ());
-	pHandler->m_BindSiteList.TakeOver (pValueList);
-	m_ReactionList.InsertTail (pHandler);
+	Reaction* handler = AXL_MEM_NEW (Reaction);
+	handler->m_function = m_reactorType->createHandler (suffix->getArgArray ());
+	handler->m_bindSiteList.takeOver (valueList);
+	m_reactionList.insertTail (handler);
 
-	return m_pModule->m_FunctionMgr.Prologue (pHandler->m_pFunction, m_LastMatchedToken.m_Pos);
+	return m_module->m_functionMgr.prologue (handler->m_function, m_lastMatchedToken.m_pos);
 }
 
 bool
-CParser::ReactorExpressionStmt (const rtl::CConstBoxListT <CToken>& TokenList)
+Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 {
-	ASSERT (m_pReactorType);
-	ASSERT (!TokenList.IsEmpty ());
+	ASSERT (m_reactorType);
+	ASSERT (!tokenList.isEmpty ());
 
-	bool Result;
+	bool result;
 
-	ASSERT (m_pReactorType);
+	ASSERT (m_reactorType);
 
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = EStage_ReactorStarter;
-	Parser.m_pReactorType = m_pReactorType;
+	Parser parser;
+	parser.m_module = m_module;
+	parser.m_stage = StageKind_ReactorStarter;
+	parser.m_reactorType = m_reactorType;
 
-	Result = Parser.ParseTokenList (ESymbol_expression, TokenList);
-	if (!Result)
+	result = parser.parseTokenList (SymbolKind_expression, tokenList);
+	if (!result)
 		return false;
 
-	if (Parser.m_ReactorBindSiteList.IsEmpty ())
+	if (parser.m_reactorBindSiteList.isEmpty ())
 	{
-		err::SetFormatStringError ("no bindable properties found");
+		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
 
-	TReaction* pHandler = AXL_MEM_NEW (TReaction);
-	pHandler->m_pFunction = m_pReactorType->CreateHandler ();
-	pHandler->m_BindSiteList.TakeOver (&Parser.m_ReactorBindSiteList);
-	m_ReactionList.InsertTail (pHandler);
+	Reaction* handler = AXL_MEM_NEW (Reaction);
+	handler->m_function = m_reactorType->createHandler ();
+	handler->m_bindSiteList.takeOver (&parser.m_reactorBindSiteList);
+	m_reactionList.insertTail (handler);
 
-	Result = m_pModule->m_FunctionMgr.Prologue (pHandler->m_pFunction, TokenList.GetHead ()->m_Pos);
-	if (!Result)
+	result = m_module->m_functionMgr.prologue (handler->m_function, tokenList.getHead ()->m_pos);
+	if (!result)
 		return false;
 
-	Parser.m_Stage = EStage_Pass2;
-	Parser.m_pReactorType = NULL;
+	parser.m_stage = StageKind_Pass2;
+	parser.m_reactorType = NULL;
 
-	Result = Parser.ParseTokenList (ESymbol_expression, TokenList);
-	if (!Result)
+	result = parser.parseTokenList (SymbolKind_expression, tokenList);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.Epilogue ();
+	m_module->m_functionMgr.epilogue ();
 	return true;
 }
 
 bool
-CParser::CallBaseTypeMemberConstructor (
-	const CQualifiedName& Name,
-	rtl::CBoxListT <CValue>* pArgList
+Parser::callBaseTypeMemberConstructor (
+	const QualifiedName& name,
+	rtl::BoxList <Value>* argList
 	)
 {
-	ASSERT (m_pConstructorType || m_pConstructorProperty);
+	ASSERT (m_constructorType || m_constructorProperty);
 
-	CNamespace* pNamespace = m_pModule->m_FunctionMgr.GetCurrentFunction ()->GetParentNamespace ();
-	CModuleItem* pItem = pNamespace->FindItemTraverse (Name, NULL, ETraverse_NoExtensionNamespace);
-	if (!pItem)
+	Namespace* nspace = m_module->m_functionMgr.getCurrentFunction ()->getParentNamespace ();
+	ModuleItem* item = nspace->findItemTraverse (name, NULL, TraverseKind_NoExtensionNamespace);
+	if (!item)
 	{
-		err::SetFormatStringError ("name '%s' is not found", Name.GetFullName ().cc ());
+		err::setFormatStringError ("name '%s' is not found", name.getFullName ().cc ());
 		return false;
 	}
 
-	CType* pType = NULL;
+	Type* type = NULL;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Type:
-		return CallBaseTypeConstructor ((CType*) pItem, pArgList);
+	case ModuleItemKind_Type:
+		return callBaseTypeConstructor ((Type*) item, argList);
 
-	case EModuleItem_Typedef:
-		return CallBaseTypeConstructor (((CTypedef*) pItem)->GetType (), pArgList);
+	case ModuleItemKind_Typedef:
+		return callBaseTypeConstructor (((Typedef*) item)->getType (), argList);
 
-	case EModuleItem_Property:
-		err::SetFormatStringError ("property construction is not yet implemented");
+	case ModuleItemKind_Property:
+		err::setFormatStringError ("property construction is not yet implemented");
 		return false;
 
-	case EModuleItem_StructField:
-		return CallFieldConstructor ((CStructField*) pItem, pArgList);
+	case ModuleItemKind_StructField:
+		return callFieldConstructor ((StructField*) item, argList);
 
-	case EModuleItem_Variable:
-		err::SetFormatStringError ("static field construction is not yet implemented");
+	case ModuleItemKind_Variable:
+		err::setFormatStringError ("static field construction is not yet implemented");
 		return false;
 
 	default:
-		err::SetFormatStringError ("'%s' cannot be used in base-type-member construct list");
+		err::setFormatStringError ("'%s' cannot be used in base-type-member construct list");
 		return false;
 	}
 }
 
-CDerivableType*
-CParser::FindBaseType (size_t BaseTypeIdx)
+DerivableType*
+Parser::findBaseType (size_t baseTypeIdx)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction); // should not be called at pass
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function); // should not be called at pass
 
-	CDerivableType* pParentType = pFunction->GetParentType ();
-	if (!pParentType)
+	DerivableType* parentType = function->getParentType ();
+	if (!parentType)
 		return NULL;
 	
-	CBaseTypeSlot* pSlot = pParentType->GetBaseTypeByIndex (BaseTypeIdx);
-	if (!pSlot)
+	BaseTypeSlot* slot = parentType->getBaseTypeByIndex (baseTypeIdx);
+	if (!slot)
 		return NULL;
 
-	return pSlot->GetType ();
+	return slot->getType ();
 }
 
-CDerivableType*
-CParser::GetBaseType (size_t BaseTypeIdx)
+DerivableType*
+Parser::getBaseType (size_t baseTypeIdx)
 {
-	CDerivableType* pType = FindBaseType (BaseTypeIdx);
-	if (!pType)
+	DerivableType* type = findBaseType (baseTypeIdx);
+	if (!type)
 	{
-		err::SetFormatStringError ("'basetype%d' is not found", BaseTypeIdx + 1);
+		err::setFormatStringError ("'basetype%d' is not found", baseTypeIdx + 1);
 		return NULL;
 	}
 
-	return pType;
+	return type;
 }
 
 bool
-CParser::GetBaseType (
-	size_t BaseTypeIdx,
-	CValue* pResultValue
+Parser::getBaseType (
+	size_t baseTypeIdx,
+	Value* resultValue
 	)
 {
-	CDerivableType* pType = GetBaseType (BaseTypeIdx);
-	if (!pType)
+	DerivableType* type = getBaseType (baseTypeIdx);
+	if (!type)
 		return false;
 
-	pResultValue->SetNamespace (pType);
+	resultValue->setNamespace (type);
 	return true;
 }
 
 bool
-CParser::CallBaseTypeConstructor (
-	size_t BaseTypeIdx,
-	rtl::CBoxListT <CValue>* pArgList
+Parser::callBaseTypeConstructor (
+	size_t baseTypeIdx,
+	rtl::BoxList <Value>* argList
 	)
 {
-	ASSERT (m_pConstructorType || m_pConstructorProperty);
+	ASSERT (m_constructorType || m_constructorProperty);
 
-	if (m_pConstructorProperty)
+	if (m_constructorProperty)
 	{
-		err::SetFormatStringError ("'%s.construct' cannot have base-type constructor calls", m_pConstructorProperty->m_Tag.cc ());
+		err::setFormatStringError ("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_tag.cc ());
 		return false;
 	}
 
-	CBaseTypeSlot* pBaseTypeSlot = m_pConstructorType->GetBaseTypeByIndex (BaseTypeIdx);
-	if (!pBaseTypeSlot)
+	BaseTypeSlot* baseTypeSlot = m_constructorType->getBaseTypeByIndex (baseTypeIdx);
+	if (!baseTypeSlot)
 		return false;
 
-	return CallBaseTypeConstructorImpl (pBaseTypeSlot, pArgList);
+	return callBaseTypeConstructorImpl (baseTypeSlot, argList);
 }
 
 bool
-CParser::CallBaseTypeConstructor (
-	CType* pType,
-	rtl::CBoxListT <CValue>* pArgList
+Parser::callBaseTypeConstructor (
+	Type* type,
+	rtl::BoxList <Value>* argList
 	)
 {
-	ASSERT (m_pConstructorType || m_pConstructorProperty);
+	ASSERT (m_constructorType || m_constructorProperty);
 
-	if (m_pConstructorProperty)
+	if (m_constructorProperty)
 	{
-		err::SetFormatStringError ("'%s.construct' cannot have base-type constructor calls", m_pConstructorProperty->m_Tag.cc ());
+		err::setFormatStringError ("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_tag.cc ());
 		return false;
 	}
 
-	CBaseTypeSlot* pBaseTypeSlot = m_pConstructorType->FindBaseType (pType);
-	if (!pBaseTypeSlot)
+	BaseTypeSlot* baseTypeSlot = m_constructorType->findBaseType (type);
+	if (!baseTypeSlot)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' is not a base type of '%s'",
-			pType->GetTypeString ().cc (),
-			m_pConstructorType->GetTypeString ().cc ()
+			type->getTypeString ().cc (),
+			m_constructorType->getTypeString ().cc ()
 			);
 		return false;
 	}
 
-	return CallBaseTypeConstructorImpl (pBaseTypeSlot, pArgList);
+	return callBaseTypeConstructorImpl (baseTypeSlot, argList);
 }
 
 bool
-CParser::CallBaseTypeConstructorImpl (
-	CBaseTypeSlot* pBaseTypeSlot,
-	rtl::CBoxListT <CValue>* pArgList
+Parser::callBaseTypeConstructorImpl (
+	BaseTypeSlot* baseTypeSlot,
+	rtl::BoxList <Value>* argList
 	)
 {
-	CDerivableType* pType = pBaseTypeSlot->GetType ();
+	DerivableType* type = baseTypeSlot->getType ();
 
-	if (pBaseTypeSlot->m_Flags & EModuleItemFlag_Constructed)
+	if (baseTypeSlot->m_flags & ModuleItemFlagKind_Constructed)
 	{
-		err::SetFormatStringError ("'%s' is already constructed", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' is already constructed", type->getTypeString ().cc ());
 		return false;
 	}
 
-	CFunction* pConstructor = pType->GetConstructor ();
-	if (!pConstructor)
+	Function* constructor = type->getConstructor ();
+	if (!constructor)
 	{
-		err::SetFormatStringError ("'%s' has no constructor", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ());
 		return false;
 	}
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	pArgList->InsertHead (ThisValue);
+	argList->insertHead (thisValue);
 
-	bool Result = m_pModule->m_OperatorMgr.CallOperator (pConstructor, pArgList);
-	if (!Result)
+	bool result = m_module->m_operatorMgr.callOperator (constructor, argList);
+	if (!result)
 		return false;
 
-	pBaseTypeSlot->m_Flags |= EModuleItemFlag_Constructed;
+	baseTypeSlot->m_flags |= ModuleItemFlagKind_Constructed;
 	return true;
 }
 
 bool
-CParser::CallFieldConstructor (
-	CStructField* pField,
-	rtl::CBoxListT <CValue>* pArgList
+Parser::callFieldConstructor (
+	StructField* field,
+	rtl::BoxList <Value>* argList
 	)
 {
-	ASSERT (m_pConstructorType || m_pConstructorProperty);
+	ASSERT (m_constructorType || m_constructorProperty);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-	ASSERT (ThisValue);
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	bool Result;
+	bool result;
 
-	if (m_pConstructorProperty)
+	if (m_constructorProperty)
 	{
-		err::SetFormatStringError ("property field construction is not yet implemented");
+		err::setFormatStringError ("property field construction is not yet implemented");
 		return false;
 	}
 
-	if (pField->GetParentNamespace () != m_pConstructorType)
+	if (field->getParentNamespace () != m_constructorType)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"'%s' is not an immediate field of '%s'",
-			pField->GetName ().cc (),
-			m_pConstructorType->GetTypeString ().cc ()
+			field->getName ().cc (),
+			m_constructorType->getTypeString ().cc ()
 			);
 		return false;
 	}
 
-	if (pField->GetFlags () & EModuleItemFlag_Constructed)
+	if (field->getFlags () & ModuleItemFlagKind_Constructed)
 	{
-		err::SetFormatStringError ("'%s' is already constructed", pField->GetName ().cc ());
+		err::setFormatStringError ("'%s' is already constructed", field->getName ().cc ());
 		return false;
 	}
 
-	if (!(pField->GetType ()->GetTypeKindFlags () & ETypeKindFlag_Derivable) ||
-		!((CDerivableType*) pField->GetType ())->GetConstructor ())
+	if (!(field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable) ||
+		!((DerivableType*) field->getType ())->getConstructor ())
 	{
-		err::SetFormatStringError ("'%s' has no constructor", pField->GetName ().cc ());
+		err::setFormatStringError ("'%s' has no constructor", field->getName ().cc ());
 		return false;
 	}
 
-	CFunction* pConstructor = ((CDerivableType*) pField->GetType ())->GetConstructor ();
+	Function* constructor = ((DerivableType*) field->getType ())->getConstructor ();
 
-	CValue FieldValue;
-	Result =
-		m_pModule->m_OperatorMgr.GetField (ThisValue, pField, NULL, &FieldValue) &&
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Addr, &FieldValue);
+	Value fieldValue;
+	result =
+		m_module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, &fieldValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	pArgList->InsertHead (FieldValue);
+	argList->insertHead (fieldValue);
 
-	Result = m_pModule->m_OperatorMgr.CallOperator (pConstructor, pArgList);
-	if (!Result)
+	result = m_module->m_operatorMgr.callOperator (constructor, argList);
+	if (!result)
 		return false;
 
-	pField->m_Flags |= EModuleItemFlag_Constructed;
+	field->m_flags |= ModuleItemFlagKind_Constructed;
 	return true;
 }
 
 bool
-CParser::FinalizeBaseTypeMemberConstructBlock ()
+Parser::finalizeBaseTypeMemberConstructBlock ()
 {
-	ASSERT (m_pConstructorType || m_pConstructorProperty);
+	ASSERT (m_constructorType || m_constructorProperty);
 
-	CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
 
-	bool Result;
+	bool result;
 
-	if (m_pConstructorProperty)
+	if (m_constructorProperty)
 		return
-			m_pConstructorProperty->CallMemberPropertyConstructors (ThisValue) &&
-			m_pConstructorProperty->CallMemberFieldConstructors (ThisValue);
+			m_constructorProperty->callMemberPropertyConstructors (thisValue) &&
+			m_constructorProperty->callMemberFieldConstructors (thisValue);
 
-	ASSERT (ThisValue);
+	ASSERT (thisValue);
 
-	Result =
-		m_pConstructorType->CallBaseTypeConstructors (ThisValue) &&
-		m_pConstructorType->CallMemberPropertyConstructors (ThisValue) &&
-		m_pConstructorType->CallMemberFieldConstructors (ThisValue);
+	result =
+		m_constructorType->callBaseTypeConstructors (thisValue) &&
+		m_constructorType->callMemberPropertyConstructors (thisValue) &&
+		m_constructorType->callMemberFieldConstructors (thisValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	CFunction* pPreConstructor = m_pConstructorType->GetPreConstructor ();
-	if (!pPreConstructor)
+	Function* preConstructor = m_constructorType->getPreConstructor ();
+	if (!preConstructor)
 		return true;
 
-	return m_pModule->m_OperatorMgr.CallOperator (pPreConstructor, ThisValue);
+	return m_module->m_operatorMgr.callOperator (preConstructor, thisValue);
 }
 
 bool
-CParser::NewOperator_0 (
-	EStorage StorageKind,
-	CType* pType,
-	CValue* pResultValue
+Parser::newOperator_0 (
+	StorageKind storageKind,
+	Type* type,
+	Value* resultValue
 	)
 {
-	pResultValue->SetType (m_pModule->m_OperatorMgr.GetNewOperatorResultType (pType));
+	resultValue->setType (m_module->m_operatorMgr.getNewOperatorResultType (type));
 	return true;
 }
 
 bool
-CParser::LookupIdentifier (
-	const rtl::CString& Name,
-	const CToken::CPos& Pos,
-	CValue* pValue
+Parser::lookupIdentifier (
+	const rtl::String& name,
+	const Token::Pos& pos,
+	Value* value
 	)
 {
-	bool Result;
+	bool result;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CModuleItem* pItem = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ModuleItem* item = NULL;
 
-	CMemberCoord Coord;
-	pItem = pNamespace->FindItemTraverse (Name, &Coord);
-	if (!pItem)
+	MemberCoord coord;
+	item = nspace->findItemTraverse (name, &coord);
+	if (!item)
 	{
-		err::SetFormatStringError ("undeclared identifier '%s'", Name.cc ());
-		err::PushSrcPosError (m_pModule->m_UnitMgr.GetCurrentUnit ()->GetFilePath (), Pos);
+		err::setFormatStringError ("undeclared identifier '%s'", name.cc ());
+		err::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
 		return false;
 	}
 
-	CValue ThisValue;
+	Value thisValue;
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Namespace:
-		pValue->SetNamespace ((CGlobalNamespace*) pItem);
+	case ModuleItemKind_Namespace:
+		value->setNamespace ((GlobalNamespace*) item);
 		break;
 
-	case EModuleItem_Typedef:
-		pItem = ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*) item)->getType ();
 		// and fall through
 
-	case EModuleItem_Type:
-		if (!(((CType*) pItem)->GetTypeKindFlags () & ETypeKindFlag_Named))
+	case ModuleItemKind_Type:
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
 		{
-			err::SetFormatStringError ("'%s' cannot be used as expression", ((CType*) pItem)->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
 		}
 
-		pValue->SetNamespace ((CNamedType*) pItem);
+		value->setNamespace ((NamedType*) item);
 		break;
 
-	case EModuleItem_Alias:
-		return m_pModule->m_OperatorMgr.EvaluateAlias (
-			pItem->GetItemDecl (),
-			((CAlias*) pItem)->GetInitializer (),
-			pValue
+	case ModuleItemKind_Alias:
+		return m_module->m_operatorMgr.evaluateAlias (
+			item->getItemDecl (),
+			((Alias*) item)->getInitializer (),
+			value
 			);
 
-	case EModuleItem_Variable:
-		if (m_Flags & EFlag_ConstExpression)
+	case ModuleItemKind_Variable:
+		if (m_flags & FlagKind_ConstExpression)
 		{
-			err::SetFormatStringError ("variable '%s' cannot be used in const expression", Name.cc ());
+			err::setFormatStringError ("variable '%s' cannot be used in const expression", name.cc ());
 			return false;
 		}
 
-		pValue->SetVariable ((CVariable*) pItem);
+		value->setVariable ((Variable*) item);
 		break;
 
-	case EModuleItem_Function:
-		if (m_Flags & EFlag_ConstExpression)
+	case ModuleItemKind_Function:
+		if (m_flags & FlagKind_ConstExpression)
 		{
-			err::SetFormatStringError ("function '%s' cannot be used in const expression", Name.cc ());
+			err::setFormatStringError ("function '%s' cannot be used in const expression", name.cc ());
 			return false;
 		}
 
-		pValue->SetFunction ((CFunction*) pItem);
+		value->setFunction ((Function*) item);
 
-		if (((CFunction*) pItem)->IsMember ())
+		if (((Function*) item)->isMember ())
 		{
-			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
-			if (!Result)
+			result = m_module->m_operatorMgr.createMemberClosure (value);
+			if (!result)
 				return false;
 		}
 
 		break;
 
-	case EModuleItem_Property:
-		if (m_Flags & EFlag_ConstExpression)
+	case ModuleItemKind_Property:
+		if (m_flags & FlagKind_ConstExpression)
 		{
-			err::SetFormatStringError ("property '%s' cannot be used in const expression", Name.cc ());
+			err::setFormatStringError ("property '%s' cannot be used in const expression", name.cc ());
 			return false;
 		}
 
-		pValue->SetProperty ((CProperty*) pItem);
+		value->setProperty ((Property*) item);
 
-		if (((CProperty*) pItem)->IsMember ())
+		if (((Property*) item)->isMember ())
 		{
-			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
-			if (!Result)
+			result = m_module->m_operatorMgr.createMemberClosure (value);
+			if (!result)
 				return false;
 		}
 
 		break;
 
-	case EModuleItem_EnumConst:
-		Result = ((CEnumConst*) pItem)->GetParentEnumType ()->EnsureLayout ();
-		if (!Result)
+	case ModuleItemKind_EnumConst:
+		result = ((EnumConst*) item)->getParentEnumType ()->ensureLayout ();
+		if (!result)
 			return false;
 
-		pValue->SetConstInt64 (
-			((CEnumConst*) pItem)->GetValue (),
-			((CEnumConst*) pItem)->GetParentEnumType ()
+		value->setConstInt64 (
+			((EnumConst*) item)->getValue (),
+			((EnumConst*) item)->getParentEnumType ()
 			);
 		break;
 
-	case EModuleItem_StructField:
-		if (m_Flags & EFlag_ConstExpression)
+	case ModuleItemKind_StructField:
+		if (m_flags & FlagKind_ConstExpression)
 		{
-			err::SetFormatStringError ("field '%s' cannot be used in const expression", Name.cc ());
+			err::setFormatStringError ("field '%s' cannot be used in const expression", name.cc ());
 			return false;
 		}
 
-		Result =
-			m_pModule->m_OperatorMgr.GetThisValue (&ThisValue) &&
-			m_pModule->m_OperatorMgr.GetField (ThisValue, (CStructField*) pItem, &Coord, pValue);
+		result =
+			m_module->m_operatorMgr.getThisValue (&thisValue) &&
+			m_module->m_operatorMgr.getField (thisValue, (StructField*) item, &coord, value);
 
-		if (!Result)
+		if (!result)
 			return false;
 
 		break;
 
 	default:
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"%s '%s' cannot be used as expression",
-			GetModuleItemKindString (pItem->GetItemKind ()),
-			Name.cc ()
+			getModuleItemKindString (item->getItemKind ()),
+			name.cc ()
 			);
 		return false;
 	};
@@ -2189,90 +2189,90 @@ CParser::LookupIdentifier (
 }
 
 bool
-CParser::LookupIdentifierType (
-	const rtl::CString& Name,
-	const CToken::CPos& Pos,
-	CValue* pValue
+Parser::lookupIdentifierType (
+	const rtl::String& name,
+	const Token::Pos& pos,
+	Value* value
 	)
 {
-	bool Result;
+	bool result;
 
-	CNamespace* pNamespace = m_pModule->m_NamespaceMgr.GetCurrentNamespace ();
-	CModuleItem* pItem = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ModuleItem* item = NULL;
 
-	pItem = pNamespace->FindItemTraverse (Name);
-	if (!pItem)
+	item = nspace->findItemTraverse (name);
+	if (!item)
 	{
-		err::SetFormatStringError ("undeclared identifier '%s'", Name.cc ());
-		err::PushSrcPosError (m_pModule->m_UnitMgr.GetCurrentUnit ()->GetFilePath (), Pos);
+		err::setFormatStringError ("undeclared identifier '%s'", name.cc ());
+		err::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
 		return false;
 	}
 
-	EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	ModuleItemKind itemKind = item->getItemKind ();
+	switch (itemKind)
 	{
-	case EModuleItem_Namespace:
-		pValue->SetNamespace ((CGlobalNamespace*) pItem);
+	case ModuleItemKind_Namespace:
+		value->setNamespace ((GlobalNamespace*) item);
 		break;
 
-	case EModuleItem_Typedef:
-		pItem = ((CTypedef*) pItem)->GetType ();
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*) item)->getType ();
 		// and fall through
 
-	case EModuleItem_Type:
-		if (!(((CType*) pItem)->GetTypeKindFlags () & ETypeKindFlag_Named))
+	case ModuleItemKind_Type:
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
 		{
-			err::SetFormatStringError ("'%s' cannot be used as expression", ((CType*) pItem)->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
 		}
 
-		pValue->SetNamespace ((CNamedType*) pItem);
+		value->setNamespace ((NamedType*) item);
 		break;
 
-	case EModuleItem_Variable:
-		pValue->SetType (((CVariable*) pItem)->GetType ()->GetDataPtrType (EType_DataRef, EDataPtrType_Lean));
+	case ModuleItemKind_Variable:
+		value->setType (((Variable*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
 		break;
 
-	case EModuleItem_Alias:
-		pValue->SetType (((CAlias*) pItem)->GetType ());
+	case ModuleItemKind_Alias:
+		value->setType (((Alias*) item)->getType ());
 		break;
 
-	case EModuleItem_Function:
+	case ModuleItemKind_Function:
 		{
-		CFunction* pFunction = (CFunction*) pItem;
-		pValue->SetFunctionTypeOverload (pFunction->GetTypeOverload ());
+		Function* function = (Function*) item;
+		value->setFunctionTypeOverload (function->getTypeOverload ());
 
-		if (((CFunction*) pItem)->IsMember ())
+		if (((Function*) item)->isMember ())
 		{
-			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
-			if (!Result)
+			result = m_module->m_operatorMgr.createMemberClosure (value);
+			if (!result)
 				return false;
 		}
 		}
 		break;
 
-	case EModuleItem_Property:
-		pValue->SetType (((CProperty*) pItem)->GetType ()->GetPropertyPtrType (EType_PropertyRef, EPropertyPtrType_Thin));
+	case ModuleItemKind_Property:
+		value->setType (((Property*) item)->getType ()->getPropertyPtrType (TypeKind_PropertyRef, PropertyPtrTypeKind_Thin));
 
-		if (((CProperty*) pItem)->IsMember ())
+		if (((Property*) item)->isMember ())
 		{
-			Result = m_pModule->m_OperatorMgr.CreateMemberClosure (pValue);
-			if (!Result)
+			result = m_module->m_operatorMgr.createMemberClosure (value);
+			if (!result)
 				return false;
 		}
 
 		break;
 
-	case EModuleItem_EnumConst:
-		pValue->SetType (((CEnumConst*) pItem)->GetParentEnumType ()->GetBaseType ());
+	case ModuleItemKind_EnumConst:
+		value->setType (((EnumConst*) item)->getParentEnumType ()->getBaseType ());
 		break;
 
-	case EModuleItem_StructField:
-		pValue->SetType (((CStructField*) pItem)->GetType ()->GetDataPtrType (EType_DataRef, EDataPtrType_Lean));
+	case ModuleItemKind_StructField:
+		value->setType (((StructField*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
 		break;
 
 	default:
-		err::SetFormatStringError ("'%s' cannot be used as expression", Name.cc ());
+		err::setFormatStringError ("'%s' cannot be used as expression", name.cc ());
 		return false;
 	};
 
@@ -2280,333 +2280,333 @@ CParser::LookupIdentifierType (
 }
 
 bool
-CParser::GetCountOf (
-	CType* pType,
-	CValue* pValue
+Parser::getCountOf (
+	Type* type,
+	Value* value
 	)
 {
-	if (pType->GetTypeKind () != EType_Array)
+	if (type->getTypeKind () != TypeKind_Array)
 	{
-		err::SetFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 
-	pValue->SetConstSizeT (((CArrayType*) pType)->GetElementCount ());
+	value->setConstSizeT (((ArrayType*) type)->getElementCount ());
 	return true;
 }
 
 bool
-CParser::GetThrowReturnValue (CValue* pValue)
+Parser::getThrowReturnValue (Value* value)
 {
-	if (m_ThrowReturnValue.IsEmpty ())
+	if (m_throwReturnValue.isEmpty ())
 	{
-		err::SetFormatStringError ("'retval' can only be used in throw condition");
+		err::setFormatStringError ("'retval' can only be used in throw condition");
 		return false;
 	}
 
-	*pValue = m_ThrowReturnValue;
+	*value = m_throwReturnValue;
 	return true;
 }
 
 bool
-CParser::GetThrowReturnValueType (CValue* pValue)
+Parser::getThrowReturnValueType (Value* value)
 {
-	if (m_ThrowReturnValue.IsEmpty ())
+	if (m_throwReturnValue.isEmpty ())
 	{
-		err::SetFormatStringError ("'retval' can only be used in throw condition");
+		err::setFormatStringError ("'retval' can only be used in throw condition");
 		return false;
 	}
 
-	pValue->SetType (m_ThrowReturnValue.GetType ());
+	value->setType (m_throwReturnValue.getType ());
 	return true;
 }
 
 bool
-CParser::PrepareCurlyInitializerNamedItem (
-	TCurlyInitializer* pInitializer,
-	const char* pName
+Parser::prepareCurlyInitializerNamedItem (
+	CurlyInitializer* initializer,
+	const char* name
 	)
 {
-	CValue MemberValue;
+	Value memberValue;
 
-	bool Result = m_pModule->m_OperatorMgr.MemberOperator (
-		pInitializer->m_TargetValue,
-		pName,
-		&pInitializer->m_MemberValue
+	bool result = m_module->m_operatorMgr.memberOperator (
+		initializer->m_targetValue,
+		name,
+		&initializer->m_memberValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	pInitializer->m_Index = -1;
-	pInitializer->m_Count++;
-	m_CurlyInitializerTargetValue = pInitializer->m_MemberValue;
+	initializer->m_index = -1;
+	initializer->m_count++;
+	m_curlyInitializerTargetValue = initializer->m_memberValue;
 	return true;
 }
 
 bool
-CParser::PrepareCurlyInitializerIndexedItem (TCurlyInitializer* pInitializer)
+Parser::prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer)
 {
-	if (pInitializer->m_Index == -1)
+	if (initializer->m_index == -1)
 	{
-		err::SetFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
+		err::setFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
 		return false;
 	}
 
-	bool Result = m_pModule->m_OperatorMgr.MemberOperator (
-		pInitializer->m_TargetValue,
-		pInitializer->m_Index,
-		&pInitializer->m_MemberValue
+	bool result = m_module->m_operatorMgr.memberOperator (
+		initializer->m_targetValue,
+		initializer->m_index,
+		&initializer->m_memberValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	pInitializer->m_Index++;
-	pInitializer->m_Count++;
-	m_CurlyInitializerTargetValue = pInitializer->m_MemberValue;
+	initializer->m_index++;
+	initializer->m_count++;
+	m_curlyInitializerTargetValue = initializer->m_memberValue;
 	return true;
 }
 
 bool
-CParser::SkipCurlyInitializerItem (TCurlyInitializer* pInitializer)
+Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 {
-	if (pInitializer->m_Index == -1)
+	if (initializer->m_index == -1)
 	{
-		err::SetFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
+		err::setFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
 		return false;
 	}
 
-	pInitializer->m_Index++;
+	initializer->m_index++;
 	return true;
 }
 
 bool
-CParser::AppendFmtLiteral (
-	TLiteral* pLiteral,
+Parser::appendFmtLiteral (
+	Literal* literal,
 	const void* p,
-	size_t Length
+	size_t length
 	)
 {
-	bool Result;
+	bool result;
 
-	if (!pLiteral->m_FmtLiteralValue)
+	if (!literal->m_fmtLiteralValue)
 	{
-		Result = m_pModule->m_OperatorMgr.NewOperator (
-			EStorage_Stack,
-			GetSimpleType (m_pModule, EStdType_FmtLiteral),
+		result = m_module->m_operatorMgr.newOperator (
+			StorageKind_Stack,
+			getSimpleType (m_module, StdTypeKind_FmtLiteral),
 			NULL,
-			&pLiteral->m_FmtLiteralValue
+			&literal->m_fmtLiteralValue
 			);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	CFunction* pAppend = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_AppendFmtLiteral_a);
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFuncKind_AppendFmtLiteral_a);
 
-	pLiteral->m_BinData.Append ((uchar_t*) p, Length);
-	Length = pLiteral->m_BinData.GetCount ();
+	literal->m_binData.append ((uchar_t*) p, length);
+	length = literal->m_binData.getCount ();
 
-	CValue LiteralValue;
-	LiteralValue.SetCharArray (pLiteral->m_BinData, Length);
-	Result = m_pModule->m_OperatorMgr.CastOperator (&LiteralValue, GetSimpleType (m_pModule, EType_Char)->GetDataPtrType_c ());
-	if (!Result)
+	Value literalValue;
+	literalValue.setCharArray (literal->m_binData, length);
+	result = m_module->m_operatorMgr.castOperator (&literalValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
+	if (!result)
 		return false;
 
-	pLiteral->m_BinData.Clear ();
+	literal->m_binData.clear ();
 
-	CValue LengthValue;
-	LengthValue.SetConstSizeT (Length);
+	Value lengthValue;
+	lengthValue.setConstSizeT (length);
 
-	CValue ResultValue;
-	m_pModule->m_LlvmIrBuilder.CreateCall3 (
-		pAppend,
-		pAppend->GetType (),
-		pLiteral->m_FmtLiteralValue,
-		LiteralValue,
-		LengthValue,
-		&ResultValue
+	Value resultValue;
+	m_module->m_llvmIrBuilder.createCall3 (
+		append,
+		append->getType (),
+		literal->m_fmtLiteralValue,
+		literalValue,
+		lengthValue,
+		&resultValue
 		);
 
 	return true;
 }
 
 bool
-CParser::AppendFmtLiteralValue (
-	TLiteral* pLiteral,
-	const CValue& RawSrcValue,
-	const rtl::CString& FmtSpecifierString
+Parser::appendFmtLiteralValue (
+	Literal* literal,
+	const Value& rawSrcValue,
+	const rtl::String& fmtSpecifierString
 	)
 {
-	ASSERT (pLiteral->m_FmtLiteralValue);
+	ASSERT (literal->m_fmtLiteralValue);
 
-	if (FmtSpecifierString == 'B') // binary format
-		return AppendFmtLiteralBinValue (pLiteral, RawSrcValue);
+	if (fmtSpecifierString == 'B') // binary format
+		return appendFmtLiteralBinValue (literal, rawSrcValue);
 
-	CValue SrcValue;
-	bool Result = m_pModule->m_OperatorMgr.PrepareOperand (RawSrcValue, &SrcValue);
-	if (!Result)
+	Value srcValue;
+	bool result = m_module->m_operatorMgr.prepareOperand (rawSrcValue, &srcValue);
+	if (!result)
 		return false;
 
-	EStdFunc AppendFunc;
+	StdFuncKind appendFunc;
 
-	CType* pType = SrcValue.GetType ();
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Integer)
+	Type* type = srcValue.getType ();
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Integer)
 	{
-		static EStdFunc FuncTable [2] [2] =
+		static StdFuncKind funcTable [2] [2] =
 		{
-			{ EStdFunc_AppendFmtLiteral_i32, EStdFunc_AppendFmtLiteral_ui32 },
-			{ EStdFunc_AppendFmtLiteral_i64, EStdFunc_AppendFmtLiteral_ui64 },
+			{ StdFuncKind_AppendFmtLiteral_i32, StdFuncKind_AppendFmtLiteral_ui32 },
+			{ StdFuncKind_AppendFmtLiteral_i64, StdFuncKind_AppendFmtLiteral_ui64 },
 		};
 
-		size_t i1 = pType->GetSize () > 4;
-		size_t i2 = (pType->GetTypeKindFlags () & ETypeKindFlag_Unsigned) != 0;
+		size_t i1 = type->getSize () > 4;
+		size_t i2 = (type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0;
 
-		AppendFunc = FuncTable [i1] [i2];
+		appendFunc = funcTable [i1] [i2];
 	}
-	else if (pType->GetTypeKindFlags () & ETypeKindFlag_Fp)
+	else if (type->getTypeKindFlags () & TypeKindFlagKind_Fp)
 	{
-		AppendFunc = EStdFunc_AppendFmtLiteral_f;
+		appendFunc = StdFuncKind_AppendFmtLiteral_f;
 	}
-	else if (IsCharArrayType (pType) || IsCharArrayRefType (pType) || IsCharPtrType (pType))
+	else if (isCharArrayType (type) || isCharArrayRefType (type) || isCharPtrType (type))
 	{
-		AppendFunc = EStdFunc_AppendFmtLiteral_p;
+		appendFunc = StdFuncKind_AppendFmtLiteral_p;
 	}
 	else
 	{
-		err::SetFormatStringError ("don't know how to format '%s'", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("don't know how to format '%s'", type->getTypeString ().cc ());
 		return false;
 	}
 
-	CFunction* pAppend = m_pModule->m_FunctionMgr.GetStdFunction (AppendFunc);
-	CType* pArgType = pAppend->GetType ()->GetArgArray () [2]->GetType ();
+	Function* append = m_module->m_functionMgr.getStdFunction (appendFunc);
+	Type* argType = append->getType ()->getArgArray () [2]->getType ();
 
-	CValue ArgValue;
-	Result = m_pModule->m_OperatorMgr.CastOperator (SrcValue, pArgType, &ArgValue);
-	if (!Result)
+	Value argValue;
+	result = m_module->m_operatorMgr.castOperator (srcValue, argType, &argValue);
+	if (!result)
 		return false;
 
-	CValue FmtSpecifierValue;
-	if (!FmtSpecifierString.IsEmpty ())
+	Value fmtSpecifierValue;
+	if (!fmtSpecifierString.isEmpty ())
 	{
-		FmtSpecifierValue.SetCharArray (FmtSpecifierString, FmtSpecifierString.GetLength () + 1);
-		m_pModule->m_OperatorMgr.CastOperator (&FmtSpecifierValue, GetSimpleType (m_pModule, EType_Char)->GetDataPtrType_c ());
+		fmtSpecifierValue.setCharArray (fmtSpecifierString, fmtSpecifierString.getLength () + 1);
+		m_module->m_operatorMgr.castOperator (&fmtSpecifierValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
 	}
 	else
 	{
-		FmtSpecifierValue = GetSimpleType (m_pModule, EType_Char)->GetDataPtrType_c ()->GetZeroValue ();
+		fmtSpecifierValue = getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ()->getZeroValue ();
 	}
 
-	return m_pModule->m_OperatorMgr.CallOperator (
-		pAppend, 
-		pLiteral->m_FmtLiteralValue,
-		FmtSpecifierValue,
-		ArgValue
+	return m_module->m_operatorMgr.callOperator (
+		append, 
+		literal->m_fmtLiteralValue,
+		fmtSpecifierValue,
+		argValue
 		);
 }
 
 bool
-CParser::AppendFmtLiteralBinValue (
-	TLiteral* pLiteral,
-	const CValue& RawSrcValue
+Parser::appendFmtLiteralBinValue (
+	Literal* literal,
+	const Value& rawSrcValue
 	)
 {
-	CValue SrcValue;
-	bool Result = m_pModule->m_OperatorMgr.PrepareOperand (RawSrcValue, &SrcValue);
-	if (!Result)
+	Value srcValue;
+	bool result = m_module->m_operatorMgr.prepareOperand (rawSrcValue, &srcValue);
+	if (!result)
 		return false;
 
-	CType* pType = SrcValue.GetType ();
-	CFunction* pAppend = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_AppendFmtLiteral_a);
-	CType* pArgType = GetSimpleType (m_pModule, EStdType_BytePtr);
+	Type* type = srcValue.getType ();
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFuncKind_AppendFmtLiteral_a);
+	Type* argType = getSimpleType (m_module, StdTypeKind_BytePtr);
 
-	CValue SizeValue (pType->GetSize (), EType_SizeT);
+	Value sizeValue (type->getSize (), TypeKind_SizeT);
 
-	CValue TmpValue;
-	CValue ResultValue;
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpFmtValue", NULL, &TmpValue);
-	m_pModule->m_LlvmIrBuilder.CreateStore (SrcValue, TmpValue);
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (TmpValue, pArgType, &TmpValue);
+	Value tmpValue;
+	Value resultValue;
+	m_module->m_llvmIrBuilder.createAlloca (type, "tmpFmtValue", NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createStore (srcValue, tmpValue);
+	m_module->m_llvmIrBuilder.createBitCast (tmpValue, argType, &tmpValue);
 
-	m_pModule->m_LlvmIrBuilder.CreateCall3 (
-		pAppend,
-		pAppend->GetType (),
-		pLiteral->m_FmtLiteralValue,
-		TmpValue,
-		SizeValue,
-		&ResultValue
+	m_module->m_llvmIrBuilder.createCall3 (
+		append,
+		append->getType (),
+		literal->m_fmtLiteralValue,
+		tmpValue,
+		sizeValue,
+		&resultValue
 		);
 
 	return true;
 }
 
 bool
-CParser::FinalizeLiteral (
-	TLiteral* pLiteral,
-	CValue* pResultValue
+Parser::finalizeLiteral (
+	Literal* literal,
+	Value* resultValue
 	)
 {
-	if (!pLiteral->m_FmtLiteralValue)
+	if (!literal->m_fmtLiteralValue)
 	{
-		if (pLiteral->m_LastToken == EToken_Literal)
-			pLiteral->m_BinData.Append (0);
+		if (literal->m_lastToken == TokenKind_Literal)
+			literal->m_binData.append (0);
 
-		pResultValue->SetCharArray (pLiteral->m_BinData, pLiteral->m_BinData.GetCount ());
+		resultValue->setCharArray (literal->m_binData, literal->m_binData.getCount ());
 		return true;
 	}
 
-	AppendFmtLiteral (pLiteral, NULL, 0);
+	appendFmtLiteral (literal, NULL, 0);
 
-	CValue PtrValue;
-	CValue SizeValue;
-	CValue ObjHdrValue;
+	Value ptrValue;
+	Value sizeValue;
+	Value objHdrValue;
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (pLiteral->m_FmtLiteralValue, 0, NULL, &PtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (PtrValue, NULL, &PtrValue);
+	m_module->m_llvmIrBuilder.createGep2 (literal->m_fmtLiteralValue, 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (pLiteral->m_FmtLiteralValue, 2, NULL, &SizeValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (SizeValue, NULL, &SizeValue);
-	m_pModule->m_LlvmIrBuilder.CreateAdd_i (SizeValue, CValue (1, EType_SizeT), NULL, &SizeValue);
+	m_module->m_llvmIrBuilder.createGep2 (literal->m_fmtLiteralValue, 2, NULL, &sizeValue);
+	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
+	m_module->m_llvmIrBuilder.createAdd_i (sizeValue, Value (1, TypeKind_SizeT), NULL, &sizeValue);
 
-	CType* pObjHdrPtrType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr);
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pObjHdrPtrType, &ObjHdrValue);
-	m_pModule->m_LlvmIrBuilder.CreateGep (ObjHdrValue, -1, pObjHdrPtrType, &ObjHdrValue);
+	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
+	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
 
-	pResultValue->SetLeanDataPtr (
-		PtrValue.GetLlvmValue (),
-		GetSimpleType (m_pModule, EType_Char)->GetDataPtrType (EDataPtrType_Lean),
-		ObjHdrValue,
-		PtrValue,
-		SizeValue
+	resultValue->setLeanDataPtr (
+		ptrValue.getLlvmValue (),
+		getSimpleType (m_module, TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
+		objHdrValue,
+		ptrValue,
+		sizeValue
 		);
 
 	return true;
 }
 
 bool
-CParser::FinalizeLiteral_0 (
-	TLiteral* pLiteral,
-	CValue* pResultValue
+Parser::finalizeLiteral_0 (
+	Literal* literal,
+	Value* resultValue
 	)
 {
-	CType* pType;
+	Type* type;
 
-	if (!pLiteral->m_FmtLiteralValue)
+	if (!literal->m_fmtLiteralValue)
 	{
-		size_t Count = pLiteral->m_BinData.GetCount ();
+		size_t count = literal->m_binData.getCount ();
 
-		if (pLiteral->m_LastToken == EToken_Literal)
-			Count++;
+		if (literal->m_lastToken == TokenKind_Literal)
+			count++;
 
-		pType = m_pModule->m_TypeMgr.GetArrayType (EType_Char, Count);
+		type = m_module->m_typeMgr.getArrayType (TypeKind_Char, count);
 	}
 	else
 	{
-		pType = GetSimpleType (m_pModule, EType_Char)->GetDataPtrType ();
+		type = getSimpleType (m_module, TypeKind_Char)->getDataPtrType ();
 	}
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 

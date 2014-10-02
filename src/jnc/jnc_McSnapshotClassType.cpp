@@ -7,99 +7,99 @@ namespace jnc {
 
 //.............................................................................
 
-CMcSnapshotClassType::CMcSnapshotClassType ()
+McSnapshotClassType::McSnapshotClassType ()
 {
-	m_ClassTypeKind = EClassType_McSnapshot;
-	m_pTargetType = NULL;
-	memset (m_FieldArray, 0, sizeof (m_FieldArray));
-	memset (m_MethodArray, 0, sizeof (m_MethodArray));
+	m_classTypeKind = ClassTypeKind_McSnapshot;
+	m_targetType = NULL;
+	memset (m_fieldArray, 0, sizeof (m_fieldArray));
+	memset (m_methodArray, 0, sizeof (m_methodArray));
 }
 
 void
-CMcSnapshotClassType::PrepareTypeString ()
+McSnapshotClassType::prepareTypeString ()
 {
-	m_TypeString = m_pTargetType->GetTypeModifierString ();
-	m_TypeString.AppendFormat ("mcsnapshot %s", m_pTargetType->GetTargetType ()->GetArgString ().cc ());
+	m_typeString = m_targetType->getTypeModifierString ();
+	m_typeString.appendFormat ("mcsnapshot %s", m_targetType->getTargetType ()->getArgString ().cc ());
 }
 
 bool
-CMcSnapshotClassType::CompileCallMethod ()
+McSnapshotClassType::compileCallMethod ()
 {
-	CFunction* pFunction = m_MethodArray [EMcSnapshotMethod_Call];
+	Function* function = m_methodArray [McSnapshotMethodKind_Call];
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunction->GetType ()->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
+	rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
+	size_t argCount = argArray.getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (pFunction, ArgValueArray, ArgCount);
+	m_module->m_functionMgr.internalPrologue (function, argValueArray, argCount);
 
-	rtl::CBoxListT <CValue> ArgValueList;
-	for (size_t i = 1; i < ArgCount; i++)
-		ArgValueList.InsertTail (ArgValueArray [i]);
+	rtl::BoxList <Value> argValueList;
+	for (size_t i = 1; i < argCount; i++)
+		argValueList.insertTail (argValueArray [i]);
 
-	CValue CountValue;
-	CValue PtrPfnValue;
-	CValue PtrPfnEndValue;
-	CValue PtrPfnVariable;
+	Value countValue;
+	Value ptrPfnValue;
+	Value ptrPfnEndValue;
+	Value ptrPfnVariable;
 
-	CType* pPtrPfnType = m_pTargetType->GetDataPtrType_c ();
-	CType* pSizeType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+	Type* ptrPfnType = m_targetType->getDataPtrType_c ();
+	Type* sizeType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 
-	m_pModule->m_OperatorMgr.GetClassField (ArgValueArray [0], m_FieldArray [EMcSnapshotField_Count], NULL, &CountValue);
-	m_pModule->m_OperatorMgr.GetClassField (ArgValueArray [0], m_FieldArray [EMcSnapshotField_PtrArray], NULL, &PtrPfnValue);
+	m_module->m_operatorMgr.getClassField (argValueArray [0], m_fieldArray [McSnapshotFieldKind_Count], NULL, &countValue);
+	m_module->m_operatorMgr.getClassField (argValueArray [0], m_fieldArray [McSnapshotFieldKind_PtrArray], NULL, &ptrPfnValue);
 
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (pPtrPfnType, "ppf", NULL, &PtrPfnVariable);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (PtrPfnValue, PtrPfnValue.GetType (), &PtrPfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (CountValue, CountValue.GetType (), &CountValue);
-	m_pModule->m_LlvmIrBuilder.CreateStore (PtrPfnValue, PtrPfnVariable);
-	m_pModule->m_LlvmIrBuilder.CreateGep (PtrPfnValue, CountValue, pPtrPfnType, &PtrPfnEndValue);
+	m_module->m_llvmIrBuilder.createAlloca (ptrPfnType, "ppf", NULL, &ptrPfnVariable);
+	m_module->m_llvmIrBuilder.createLoad (ptrPfnValue, ptrPfnValue.getType (), &ptrPfnValue);
+	m_module->m_llvmIrBuilder.createLoad (countValue, countValue.getType (), &countValue);
+	m_module->m_llvmIrBuilder.createStore (ptrPfnValue, ptrPfnVariable);
+	m_module->m_llvmIrBuilder.createGep (ptrPfnValue, countValue, ptrPfnType, &ptrPfnEndValue);
 
-	CBasicBlock* pConditionBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("mccall_cond");
-	CBasicBlock* pBodyBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("mccall_loop");
-	CBasicBlock* pFollowBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("mccall_follow");
+	BasicBlock* conditionBlock = m_module->m_controlFlowMgr.createBlock ("mccall_cond");
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("mccall_loop");
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("mccall_follow");
 
-	m_pModule->m_ControlFlowMgr.Follow (pConditionBlock);
+	m_module->m_controlFlowMgr.follow (conditionBlock);
 
-	CValue IdxValue;
-	CValue CmpValue;
-	m_pModule->m_LlvmIrBuilder.CreateLoad (PtrPfnVariable, NULL, &PtrPfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateGe_u (PtrPfnValue, PtrPfnEndValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFollowBlock, pBodyBlock, pBodyBlock);
+	Value idxValue;
+	Value cmpValue;
+	m_module->m_llvmIrBuilder.createLoad (ptrPfnVariable, NULL, &ptrPfnValue);
+	m_module->m_llvmIrBuilder.createGe_u (ptrPfnValue, ptrPfnEndValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, followBlock, bodyBlock, bodyBlock);
 
-	CValue PfnValue;
-	m_pModule->m_LlvmIrBuilder.CreateLoad (PtrPfnValue, m_pTargetType, &PfnValue);
-	m_pModule->m_OperatorMgr.CallOperator (PfnValue, &ArgValueList);
+	Value pfnValue;
+	m_module->m_llvmIrBuilder.createLoad (ptrPfnValue, m_targetType, &pfnValue);
+	m_module->m_operatorMgr.callOperator (pfnValue, &argValueList);
 
-	m_pModule->m_LlvmIrBuilder.CreateGep (PtrPfnValue, 1, pPtrPfnType, &PtrPfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateStore (PtrPfnValue, PtrPfnVariable);
-	m_pModule->m_ControlFlowMgr.Jump (pConditionBlock, pFollowBlock);
+	m_module->m_llvmIrBuilder.createGep (ptrPfnValue, 1, ptrPfnType, &ptrPfnValue);
+	m_module->m_llvmIrBuilder.createStore (ptrPfnValue, ptrPfnVariable);
+	m_module->m_controlFlowMgr.jump (conditionBlock, followBlock);
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;
 }
 
 void
-CMcSnapshotClassType::GcMark (
-	CRuntime* pRuntime,
+McSnapshotClassType::gcMark (
+	Runtime* runtime,
 	void* _p
 	)
 {
-	TObjHdr* pObject = (TObjHdr*) _p;
-	ASSERT (pObject->m_pType == this);
+	ObjHdr* object = (ObjHdr*) _p;
+	ASSERT (object->m_type == this);
 
-	TMcSnapshot* pSnapshot = (TMcSnapshot*) (pObject + 1);
-	if (!(m_pTargetType->GetFlags () & ETypeFlag_GcRoot) || !pSnapshot->m_Count)
+	McSnapshot* snapshot = (McSnapshot*) (object + 1);
+	if (!(m_targetType->getFlags () & TypeFlagKind_GcRoot) || !snapshot->m_count)
 		return;
 
-	char* p = (char*) pSnapshot->m_pPtrArray;
-	size_t Size = m_pTargetType->GetSize ();
+	char* p = (char*) snapshot->m_ptrArray;
+	size_t size = m_targetType->getSize ();
 
-	for (size_t i = 0; i < pSnapshot->m_Count; i++, p += Size)
-		pRuntime->AddGcRoot (p, m_pTargetType);
+	for (size_t i = 0; i < snapshot->m_count; i++, p += size)
+		runtime->addGcRoot (p, m_targetType);
 }
 
 //.............................................................................

@@ -9,37 +9,37 @@
 
 namespace jnc {
 
-class CBaseTypeCoord;
+class BaseTypeCoord;
 
 //.............................................................................
 
 // array -> ptr
 
-class CCast_DataPtr_FromArray: public CCastOperator
+class Cast_DataPtr_FromArray: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -47,113 +47,113 @@ public:
 
 // data ptr -> data ptr
 
-class CCast_DataPtr_Base: public CCastOperator
+class Cast_DataPtr_Base: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 protected:
 	intptr_t
-	GetOffset (
-		CDataPtrType* pSrcType,
-		CDataPtrType* pDstType,
-		CBaseTypeCoord* pCoord
+	getOffset (
+		DataPtrType* srcType,
+		DataPtrType* dstType,
+		BaseTypeCoord* coord
 		);
 
 	intptr_t
-	GetOffsetUnsafePtrValue (
-		const CValue& PtrValue, 
-		CDataPtrType* pSrcType,
-		CDataPtrType* pDstType,
-		CValue* pResultValue
+	getOffsetUnsafePtrValue (
+		const Value& ptrValue, 
+		DataPtrType* srcType,
+		DataPtrType* dstType,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_DataPtr_Normal2Normal: public CCast_DataPtr_Base
+class Cast_DataPtr_Normal2Normal: public Cast_DataPtr_Base
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_DataPtr_Lean2Normal: public CCast_DataPtr_Base
+class Cast_DataPtr_Lean2Normal: public Cast_DataPtr_Base
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_DataPtr_Normal2Thin: public CCast_DataPtr_Base
+class Cast_DataPtr_Normal2Thin: public Cast_DataPtr_Base
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_DataPtr_Lean2Thin: public CCast_DataPtr_Base
+class Cast_DataPtr_Lean2Thin: public Cast_DataPtr_Base
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		)
 	{
 		ASSERT (false); // there are no lean pointer constants
@@ -162,25 +162,25 @@ public:
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_DataPtr_Thin2Thin: public CCast_DataPtr_Lean2Thin
+class Cast_DataPtr_Thin2Thin: public Cast_DataPtr_Lean2Thin
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 };
 
@@ -188,26 +188,26 @@ public:
 
 // data ptr master cast
 
-class CCast_DataPtr: public CCast_Master
+class Cast_DataPtr: public Cast_Master
 {
 protected:
-	CCast_DataPtr_FromArray m_FromArray;
-	CCast_DataPtr_Normal2Normal m_Normal2Normal;
-	CCast_DataPtr_Lean2Normal m_Lean2Normal;
-	CCast_DataPtr_Normal2Thin m_Normal2Thin;
-	CCast_DataPtr_Lean2Thin m_Lean2Thin;
-	CCast_DataPtr_Thin2Thin m_Thin2Thin;
+	Cast_DataPtr_FromArray m_fromArray;
+	Cast_DataPtr_Normal2Normal m_normal2Normal;
+	Cast_DataPtr_Lean2Normal m_lean2Normal;
+	Cast_DataPtr_Normal2Thin m_normal2Thin;
+	Cast_DataPtr_Lean2Thin m_lean2Thin;
+	Cast_DataPtr_Thin2Thin m_thin2Thin;
 
-	CCastOperator* m_OperatorTable [EDataPtrType__Count] [EDataPtrType__Count];
+	CastOperator* m_operatorTable [DataPtrTypeKind__Count] [DataPtrTypeKind__Count];
 
 public:
-	CCast_DataPtr ();
+	Cast_DataPtr ();
 
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		);
 };
 
@@ -215,28 +215,28 @@ public:
 
 // data ref (EUnOp_Indir => data ptr cast => EUnOp_Addr)
 
-class CCast_DataRef: public CCastOperator
+class Cast_DataRef: public CastOperator
 {
 public:
-	CCast_DataRef ()
+	Cast_DataRef ()
 	{
-		m_OpFlags = EOpFlag_KeepRef;
+		m_opFlags = OpFlagKind_KeepRef;
 	}
 
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 

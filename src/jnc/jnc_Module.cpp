@@ -7,65 +7,65 @@ namespace jnc {
 
 //.............................................................................
 
-CModule::CModule ()
+Module::Module ()
 {
-	m_pLlvmModule = NULL;
-	m_pLlvmExecutionEngine = NULL;
-	m_Flags = 0;
+	m_llvmModule = NULL;
+	m_llvmExecutionEngine = NULL;
+	m_flags = 0;
 }
 
 void
-CModule::Clear ()
+Module::clear ()
 {
-	m_TypeMgr.Clear ();
-	m_NamespaceMgr.Clear ();
-	m_FunctionMgr.Clear ();
-	m_VariableMgr.Clear ();
-	m_ConstMgr.Clear ();
-	m_ControlFlowMgr.Clear ();
-	m_OperatorMgr.Clear ();
-	m_UnitMgr.Clear ();
-	m_CalcLayoutArray.Clear ();
-	m_CompileArray.Clear ();
-	m_ApiItemArray.Clear ();
-	m_LlvmDiBuilder.Clear ();
-	m_SourceList.Clear ();
-	m_FunctionMap.Clear ();
+	m_typeMgr.clear ();
+	m_namespaceMgr.clear ();
+	m_functionMgr.clear ();
+	m_variableMgr.clear ();
+	m_constMgr.clear ();
+	m_controlFlowMgr.clear ();
+	m_operatorMgr.clear ();
+	m_unitMgr.clear ();
+	m_calcLayoutArray.clear ();
+	m_compileArray.clear ();
+	m_apiItemArray.clear ();
+	m_llvmDiBuilder.clear ();
+	m_sourceList.clear ();
+	m_functionMap.clear ();
 
-	if (m_pLlvmExecutionEngine)
-		delete m_pLlvmExecutionEngine;
-	else if (m_pLlvmModule)
-		delete m_pLlvmModule;
+	if (m_llvmExecutionEngine)
+		delete m_llvmExecutionEngine;
+	else if (m_llvmModule)
+		delete m_llvmModule;
 
-	m_pConstructor = NULL;
-	m_pDestructor = NULL;
-	m_pLlvmModule = NULL;
-	m_pLlvmExecutionEngine = NULL;
+	m_constructor = NULL;
+	m_destructor = NULL;
+	m_llvmModule = NULL;
+	m_llvmExecutionEngine = NULL;
 
-	m_Flags = 0;
+	m_flags = 0;
 }
 
 bool
-CModule::Create (
-	const rtl::CString& Name,
-	uint_t Flags
+Module::create (
+	const rtl::String& name,
+	uint_t flags
 	)
 {
-	Clear ();
+	clear ();
 
-	m_Flags = Flags;
-	m_Name = Name;
+	m_flags = flags;
+	m_name = name;
 
-	llvm::LLVMContext* pLlvmContext = new llvm::LLVMContext;
-	m_pLlvmModule = new llvm::Module ("jncc_module", *pLlvmContext);
+	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
+	m_llvmModule = new llvm::Module ("jncc_module", *llvmContext);
 
-	m_LlvmIrBuilder.Create ();
+	m_llvmIrBuilder.create ();
 
-	if (Flags & EModuleFlag_DebugInfo)
-		m_LlvmDiBuilder.Create ();
+	if (flags & ModuleFlagKind_DebugInfo)
+		m_llvmDiBuilder.create ();
 
-	bool Result = m_NamespaceMgr.AddStdItems ();
-	if (!Result)
+	bool result = m_namespaceMgr.addStdItems ();
+	if (!result)
 		return false;
 
 	return true;
@@ -79,51 +79,51 @@ extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
 #endif
 
 bool
-CModule::CreateLlvmExecutionEngine ()
+Module::createLlvmExecutionEngine ()
 {
-	ASSERT (!m_pLlvmExecutionEngine);
+	ASSERT (!m_llvmExecutionEngine);
 
-	llvm::EngineBuilder EngineBuilder (m_pLlvmModule);
+	llvm::EngineBuilder engineBuilder (m_llvmModule);
 
 	std::string errorString;
-	EngineBuilder.setErrorStr (&errorString);
-	EngineBuilder.setEngineKind(llvm::EngineKind::JIT);
+	engineBuilder.setErrorStr (&errorString);
+	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
 
-	llvm::TargetOptions TargetOptions;
+	llvm::TargetOptions targetOptions;
 #if (LLVM_VERSION < 0x0304) // they removed JITExceptionHandling in 3.4
-	TargetOptions.JITExceptionHandling = true;
+	targetOptions.JITExceptionHandling = true;
 #endif
 
-	if (m_Flags & EModuleFlag_McJit)
+	if (m_flags & ModuleFlagKind_McJit)
 	{
-		CJitMemoryMgr* pJitMemoryMgr = new CJitMemoryMgr (this);
-		EngineBuilder.setUseMCJIT (true);
+		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
+		engineBuilder.setUseMCJIT (true);
 #if (LLVM_VERSION < 0x0304) // they distinguish between JIT & MCJIT memory managers in 3.4
-		EngineBuilder.setJITMemoryManager (pJitMemoryMgr);
+		engineBuilder.setJITMemoryManager (jitMemoryMgr);
 #else
-		EngineBuilder.setMCJITMemoryManager (pJitMemoryMgr);
+		engineBuilder.setMCJITMemoryManager (jitMemoryMgr);
 #endif
 
-		TargetOptions.JITEmitDebugInfo = true;
+		targetOptions.JITEmitDebugInfo = true;
 
 #if (_AXL_CPU == AXL_CPU_X86 && _AXL_ENV == AXL_ENV_POSIX)
-		m_FunctionMap ["__divdi3"]  = (void*) __divdi3;
-		m_FunctionMap ["__moddi3"]  = (void*) __moddi3;
-		m_FunctionMap ["__udivdi3"] = (void*) __udivdi3;
-		m_FunctionMap ["__umoddi3"] = (void*) __umoddi3;
+		m_functionMap ["__divdi3"]  = (void*) __divdi3;
+		m_functionMap ["__moddi3"]  = (void*) __moddi3;
+		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
+		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
 #endif
 	}
 
-	EngineBuilder.setTargetOptions (TargetOptions);
+	engineBuilder.setTargetOptions (targetOptions);
 
 #if (_AXL_CPU == AXL_CPU_X86)
-	EngineBuilder.setMArch ("x86");
+	engineBuilder.setMArch ("x86");
 #endif
 
-	m_pLlvmExecutionEngine = EngineBuilder.create ();
-	if (!m_pLlvmExecutionEngine)
+	m_llvmExecutionEngine = engineBuilder.create ();
+	if (!m_llvmExecutionEngine)
 	{
-		err::SetFormatStringError ("cannot create execution engine: %s\n", errorString.c_str());
+		err::setFormatStringError ("cannot create execution engine: %s\n", errorString.c_str());
 		return false;
 	}
 
@@ -131,219 +131,219 @@ CModule::CreateLlvmExecutionEngine ()
 }
 
 void
-CModule::MapFunction (
-	llvm::Function* pLlvmFunction,
+Module::mapFunction (
+	llvm::Function* llvmFunction,
 	void* pf
 	)
 {
-	if (m_Flags & EModuleFlag_McJit)
+	if (m_flags & ModuleFlagKind_McJit)
 	{
-		m_FunctionMap [pLlvmFunction->getName ().data ()] = pf;
+		m_functionMap [llvmFunction->getName ().data ()] = pf;
 	}
 	else
 	{
-		ASSERT (m_pLlvmExecutionEngine);
-		m_pLlvmExecutionEngine->addGlobalMapping (pLlvmFunction, pf);
+		ASSERT (m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
 	}
 }
 
-CModuleItem*
-CModule::GetApiItem (
-	size_t Slot,
-	const char* pName
+ModuleItem*
+Module::getApiItem (
+	size_t slot,
+	const char* name
 	)
 {
-	size_t Count = m_ApiItemArray.GetCount ();
-	if (Count <= Slot)
-		m_ApiItemArray.SetCount (Slot + 1);
+	size_t count = m_apiItemArray.getCount ();
+	if (count <= slot)
+		m_apiItemArray.setCount (slot + 1);
 
-	CModuleItem* pItem = m_ApiItemArray [Slot];
-	if (pItem)
-		return pItem;
+	ModuleItem* item = m_apiItemArray [slot];
+	if (item)
+		return item;
 
-	pItem = GetItemByName (pName);
-	m_ApiItemArray [Slot] = pItem;
-	return pItem;
+	item = getItemByName (name);
+	m_apiItemArray [slot] = item;
+	return item;
 }
 
 bool
-CModule::SetConstructor (CFunction* pFunction)
+Module::setConstructor (Function* function)
 {
-	if (!pFunction->GetType ()->GetArgArray ().IsEmpty ())
+	if (!function->getType ()->getArgArray ().isEmpty ())
 	{
-		err::SetFormatStringError ("module 'construct' cannot have arguments");
+		err::setFormatStringError ("module 'construct' cannot have arguments");
 		return false;
 	}
 
-	if (m_pConstructor)
+	if (m_constructor)
 	{
-		err::SetFormatStringError ("module already has 'construct' method");
+		err::setFormatStringError ("module already has 'construct' method");
 		return false;
 	}
 
-	pFunction->m_FunctionKind = EFunction_ModuleConstructor;
-	pFunction->m_StorageKind = EStorage_Static;
-	pFunction->m_Tag = "module.construct";
-	m_pConstructor = pFunction;
+	function->m_functionKind = FunctionKind_ModuleConstructor;
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.construct";
+	m_constructor = function;
 	return true;
 }
 
 bool
-CModule::SetDestructor (CFunction* pFunction)
+Module::setDestructor (Function* function)
 {
-	if (m_pDestructor)
+	if (m_destructor)
 	{
-		err::SetFormatStringError ("module already has 'destruct' method");
+		err::setFormatStringError ("module already has 'destruct' method");
 		return false;
 	}
 
-	pFunction->m_FunctionKind = EFunction_ModuleDestructor;
-	pFunction->m_StorageKind = EStorage_Static;
-	pFunction->m_Tag = "module.destruct";
-	m_pDestructor = pFunction;
+	function->m_functionKind = FunctionKind_ModuleDestructor;
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.destruct";
+	m_destructor = function;
 	return true;
 }
 
 bool
-CModule::SetFunctionPointer (
-	llvm::ExecutionEngine* pLlvmExecutionEngine,
-	const char* pName,
+Module::setFunctionPointer (
+	llvm::ExecutionEngine* llvmExecutionEngine,
+	const char* name,
 	void* pf
 	)
 {
-	CFunction* pFunction = GetFunctionByName (pName);
-	if (!pFunction)
+	Function* function = getFunctionByName (name);
+	if (!function)
 		return false;
 
-	llvm::Function* pLlvmFunction = pFunction->GetLlvmFunction ();
-	if (!pLlvmFunction)
+	llvm::Function* llvmFunction = function->getLlvmFunction ();
+	if (!llvmFunction)
 		return false;
 
-	pLlvmExecutionEngine->addGlobalMapping (pLlvmFunction, pf);
+	llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
 	return true;
 }
 
 bool
-CModule::SetFunctionPointer (
-	llvm::ExecutionEngine* pLlvmExecutionEngine,
-	const CQualifiedName& Name,
+Module::setFunctionPointer (
+	llvm::ExecutionEngine* llvmExecutionEngine,
+	const QualifiedName& name,
 	void* pf
 	)
 {
-	CModuleItem* pItem = m_NamespaceMgr.GetGlobalNamespace ()->FindItem (Name);
-	if (!pItem || pItem->GetItemKind () != EModuleItem_Function)
+	ModuleItem* item = m_namespaceMgr.getGlobalNamespace ()->findItem (name);
+	if (!item || item->getItemKind () != ModuleItemKind_Function)
 		return false;
 
-	llvm::Function* pLlvmFunction = ((CFunction*) pItem)->GetLlvmFunction ();
-	if (!pLlvmFunction)
+	llvm::Function* llvmFunction = ((Function*) item)->getLlvmFunction ();
+	if (!llvmFunction)
 		return false;
 
-	pLlvmExecutionEngine->addGlobalMapping (pLlvmFunction, pf);
+	llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
 	return true;
 }
 
 bool
-CModule::Link (CModule* pModule)
+Module::link (Module* module)
 {
-	err::SetFormatStringError ("module link is not yet implemented");
+	err::setFormatStringError ("module link is not yet implemented");
 	return false;
 }
 
 void
-CModule::MarkForLayout (
-	CModuleItem* pItem,
-	bool IsForced
+Module::markForLayout (
+	ModuleItem* item,
+	bool isForced
 	)
 {
-	if (!IsForced && (pItem->m_Flags & EModuleItemFlag_NeedLayout))
+	if (!isForced && (item->m_flags & ModuleItemFlagKind_NeedLayout))
 		return;
 
-	pItem->m_Flags |= EModuleItemFlag_NeedLayout;
-	m_CalcLayoutArray.Append (pItem);
+	item->m_flags |= ModuleItemFlagKind_NeedLayout;
+	m_calcLayoutArray.append (item);
 }
 
 void
-CModule::MarkForCompile (CModuleItem* pItem)
+Module::markForCompile (ModuleItem* item)
 {
-	if (pItem->m_Flags & EModuleItemFlag_NeedCompile)
+	if (item->m_flags & ModuleItemFlagKind_NeedCompile)
 		return;
 
-	pItem->m_Flags |= EModuleItemFlag_NeedCompile;
-	m_CompileArray.Append (pItem);
+	item->m_flags |= ModuleItemFlagKind_NeedCompile;
+	m_compileArray.append (item);
 }
 
 bool
-CModule::Parse (
-	const char* pFilePath,
-	const char* pSource,
-	size_t Length
+Module::parse (
+	const char* filePath,
+	const char* source,
+	size_t length
 	)
 {
-	bool Result;
+	bool result;
 
-	CScopeThreadModule ScopeModule (this);
+	ScopeThreadModule scopeModule (this);
 
-	m_UnitMgr.CreateUnit (pFilePath);
+	m_unitMgr.createUnit (filePath);
 
-	CLexer Lexer;
-	Lexer.Create (pFilePath, pSource, Length);
+	Lexer lexer;
+	lexer.create (filePath, source, length);
 
-	CParser Parser;
-	Parser.Create (CParser::StartSymbol, true);
+	Parser parser;
+	parser.create (Parser::StartSymbol, true);
 
 	for (;;)
 	{
-		const CToken* pToken = Lexer.GetToken ();
-		if (pToken->m_Token == EToken_Error)
+		const Token* token = lexer.getToken ();
+		if (token->m_token == TokenKind_Error)
 		{
-			err::SetFormatStringError ("invalid character '\\x%02x'", (uchar_t) pToken->m_Data.m_Integer);
-			err::PushSrcPosError (pFilePath, pToken->m_Pos);
+			err::setFormatStringError ("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+			err::pushSrcPosError (filePath, token->m_pos);
 			return false;
 		}
 
-		Result = Parser.ParseToken (pToken);
-		if (!Result)
+		result = parser.parseToken (token);
+		if (!result)
 		{
-			err::EnsureSrcPosError (pFilePath, pToken->m_Pos);
+			err::ensureSrcPosError (filePath, token->m_pos);
 			return false;
 		}
 
-		if (pToken->m_Token == EToken_Eof) // EOF token must be parsed
+		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
 			break;
 
-		Lexer.NextToken ();
+		lexer.nextToken ();
 	}
 
 	return true;
 }
 
 bool
-CModule::ParseFile (const char* pFilePath)
+Module::parseFile (const char* filePath)
 {
-	io::CMappedFile File;
-	bool Result = File.Open (pFilePath, io::EFileFlag_ReadOnly);
-	if (!Result)
+	io::MappedFile file;
+	bool result = file.open (filePath, io::FileFlagKind_ReadOnly);
+	if (!result)
 		return false;
 
-	size_t Length = (size_t) File.GetSize ();
-	const char* p = (const char*) File.View (0, Length);
+	size_t length = (size_t) file.getSize ();
+	const char* p = (const char*) file.view (0, length);
 	if (!p)
 		return false;
 
-	rtl::CString Source (p, Length);
-	m_SourceList.InsertTail (Source);
-	return p != NULL && Parse (pFilePath, Source, Length);
+	rtl::String source (p, length);
+	m_sourceList.insertTail (source);
+	return p != NULL && parse (filePath, source, length);
 }
 
 bool
-CModule::CalcLayout ()
+Module::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	for (size_t i = 0; i < m_CalcLayoutArray.GetCount (); i++) // new items could be added in process
+	for (size_t i = 0; i < m_calcLayoutArray.getCount (); i++) // new items could be added in process
 	{
-		Result = m_CalcLayoutArray [i]->EnsureLayout ();
-		if (!Result)
+		result = m_calcLayoutArray [i]->ensureLayout ();
+		if (!result)
 			return false;
 	}
 
@@ -351,144 +351,144 @@ CModule::CalcLayout ()
 }
 
 bool
-CModule::Compile ()
+Module::compile ()
 {
-	bool Result;
+	bool result;
 
 	// step 1: resolve imports & orphans
 
-	Result =
-		m_TypeMgr.ResolveImportTypes () &&
-		m_NamespaceMgr.ResolveOrphans ();
+	result =
+		m_typeMgr.resolveImportTypes () &&
+		m_namespaceMgr.resolveOrphans ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	// step 2: calc layout
 
-	Result = CalcLayout ();
-	if (!Result)
+	result = calcLayout ();
+	if (!result)
 		return false;
 
 	// step 3: ensure module constructor (always! cause static variable might appear during compilation)
 
-	if (m_pConstructor)
+	if (m_constructor)
 	{
-		if (!m_pConstructor->HasBody ())
+		if (!m_constructor->hasBody ())
 		{
-			err::SetFormatStringError ("unresolved module constructor");
+			err::setFormatStringError ("unresolved module constructor");
 			return false;
 		}
 
-		Result = m_pConstructor->Compile ();
-		if (!Result)
+		result = m_constructor->compile ();
+		if (!result)
 			return false;
 	}
 	else
 	{
-		Result = CreateDefaultConstructor ();
-		if (!Result)
+		result = createDefaultConstructor ();
+		if (!result)
 			return false;
 	}
 
 	// step 4: compile the rest
 
-	for (size_t i = 0; i < m_CompileArray.GetCount (); i++) // new items could be added in process
+	for (size_t i = 0; i < m_compileArray.getCount (); i++) // new items could be added in process
 	{
-		Result = m_CompileArray [i]->Compile ();
-		if (!Result)
+		result = m_compileArray [i]->compile ();
+		if (!result)
 			return false;
 	}
 
 	// step 5: ensure module destructor (if needed)
 
-	if (!m_pDestructor && !m_VariableMgr.m_StaticDestructList.IsEmpty ())
-		CreateDefaultDestructor ();
+	if (!m_destructor && !m_variableMgr.m_staticDestructList.isEmpty ())
+		createDefaultDestructor ();
 
 	// step 6: deal with tls
 
-	Result =
-		m_VariableMgr.CreateTlsStructType () &&
-		m_FunctionMgr.InjectTlsPrologues ();
+	result =
+		m_variableMgr.createTlsStructType () &&
+		m_functionMgr.injectTlsPrologues ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	// step 7: delete unreachable blocks
 
-	m_ControlFlowMgr.DeleteUnreachableBlocks ();
+	m_controlFlowMgr.deleteUnreachableBlocks ();
 
 	// step 8: finalize debug information
 
-	if (m_Flags & EModuleFlag_DebugInfo)
-		m_LlvmDiBuilder.Finalize ();
+	if (m_flags & ModuleFlagKind_DebugInfo)
+		m_llvmDiBuilder.finalize ();
 
 	return true;
 }
 
 bool
-CModule::Jit ()
+Module::jit ()
 {
 	#pragma AXL_TODO ("move JITting logic to CModule")
-	return m_FunctionMgr.JitFunctions ();
+	return m_functionMgr.jitFunctions ();
 }
 
 bool
-CModule::CreateDefaultConstructor ()
+Module::createDefaultConstructor ()
 {
-	bool Result;
+	bool result;
 
-	ASSERT (!m_pConstructor);
+	ASSERT (!m_constructor);
 
-	CFunctionType* pType = (CFunctionType*) GetSimpleType (EStdType_SimpleFunction);
-	CFunction* pFunction = m_FunctionMgr.CreateFunction (EFunction_ModuleConstructor, pType);
-	pFunction->m_StorageKind = EStorage_Static;
-	pFunction->m_Tag = "module.construct";
+	FunctionType* type = (FunctionType*) getSimpleType (StdTypeKind_SimpleFunction);
+	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleConstructor, type);
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.construct";
 
-	m_pConstructor = pFunction;
+	m_constructor = function;
 
-	m_FunctionMgr.InternalPrologue (pFunction);
+	m_functionMgr.internalPrologue (function);
 
-	CBasicBlock* pBlock = m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
+	BasicBlock* block = m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 
-	Result = m_VariableMgr.AllocatePrimeStaticVariables ();
-	if (!Result)
+	result = m_variableMgr.allocatePrimeStaticVariables ();
+	if (!result)
 		return false;
 
-	m_ControlFlowMgr.SetCurrentBlock (pBlock);
+	m_controlFlowMgr.setCurrentBlock (block);
 
-	Result = m_VariableMgr.InitializeGlobalStaticVariables ();
-	if (!Result)
+	result = m_variableMgr.initializeGlobalStaticVariables ();
+	if (!result)
 		return false;
 
-	m_FunctionMgr.InternalEpilogue ();
+	m_functionMgr.internalEpilogue ();
 
 	return true;
 }
 
 void
-CModule::CreateDefaultDestructor ()
+Module::createDefaultDestructor ()
 {
-	ASSERT (!m_pDestructor);
+	ASSERT (!m_destructor);
 
-	CFunctionType* pType = (CFunctionType*) GetSimpleType (EStdType_SimpleFunction);
-	CFunction* pFunction = m_FunctionMgr.CreateFunction (EFunction_ModuleDestructor, "module.destruct", pType);
-	pFunction->m_StorageKind = EStorage_Static;
+	FunctionType* type = (FunctionType*) getSimpleType (StdTypeKind_SimpleFunction);
+	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleDestructor, "module.destruct", type);
+	function->m_storageKind = StorageKind_Static;
 
-	m_pDestructor = pFunction;
+	m_destructor = function;
 
-	m_FunctionMgr.InternalPrologue (pFunction);
-	m_VariableMgr.m_StaticDestructList.RunDestructors ();
-	m_FunctionMgr.InternalEpilogue ();
+	m_functionMgr.internalPrologue (function);
+	m_variableMgr.m_staticDestructList.runDestructors ();
+	m_functionMgr.internalEpilogue ();
 }
 
-rtl::CString
-CModule::GetLlvmIrString ()
+rtl::String
+Module::getLlvmIrString ()
 {
-	std::string String;
-	llvm::raw_string_ostream Stream (String);
-	m_pLlvmModule->print (Stream, NULL);
-	return String.c_str ();
+	std::string string;
+	llvm::raw_string_ostream stream (string);
+	m_llvmModule->print (stream, NULL);
+	return string.c_str ();
 }
 
 //.............................................................................

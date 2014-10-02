@@ -8,590 +8,590 @@
 
 namespace jnc {
 
-class CTypeMgr;
-class CArrayType;
-class CStructType;
-class CClassType;
-class CPropertyType;
-class CDataPtrType;
-class CFunctionArg;
-class CValue;
-class CRuntime;
+class TypeMgr;
+class ArrayType;
+class StructType;
+class ClassType;
+class PropertyType;
+class DataPtrType;
+class FunctionArg;
+class Value;
+class Runtime;
 
-struct TDataPtrTypeTuple;
-struct TSimplePropertyTypeTuple;
-struct TFunctionArgTuple;
+struct DataPtrTypeTuple;
+struct SimplePropertyTypeTuple;
+struct FunctionArgTuple;
 
 //.............................................................................
 
-enum EType
+enum TypeKind
 {
 	// primitive types (completely identified by EType)
 
-	EType_Void,                // v
-	EType_Variant,             // z
-	EType_Bool,                // b
+	TypeKind_Void,                // v
+	TypeKind_Variant,             // z
+	TypeKind_Bool,                // b
 
 	// little-endian integers
 
-	EType_Int8,                // is1
-	EType_Int8_u,              // iu1
-	EType_Int16,               // is2
-	EType_Int16_u,             // iu2
-	EType_Int32,               // is4
-	EType_Int32_u,             // iu4
-	EType_Int64,               // is8
-	EType_Int64_u,             // iu8
+	TypeKind_Int8,                // is1
+	TypeKind_Int8_u,              // iu1
+	TypeKind_Int16,               // is2
+	TypeKind_Int16_u,             // iu2
+	TypeKind_Int32,               // is4
+	TypeKind_Int32_u,             // iu4
+	TypeKind_Int64,               // is8
+	TypeKind_Int64_u,             // iu8
 
 	// big-endian integers
 
-	EType_Int16_be,            // ibs2
-	EType_Int16_beu,           // ibu2
-	EType_Int32_be,            // ibs4
-	EType_Int32_beu,           // ibu4
-	EType_Int64_be,            // ibs8
-	EType_Int64_beu,           // ibu8
+	TypeKind_Int16_be,            // ibs2
+	TypeKind_Int16_beu,           // ibu2
+	TypeKind_Int32_be,            // ibs4
+	TypeKind_Int32_beu,           // ibu4
+	TypeKind_Int64_be,            // ibs8
+	TypeKind_Int64_beu,           // ibu8
 
 	// floating point
 
-	EType_Float,               // f4
-	EType_Double,              // f8
+	TypeKind_Float,               // f4
+	TypeKind_Double,              // f8
 
 	// derived types
 
-	EType_Array,               // A
-	EType_BitField,            // B
+	TypeKind_Array,               // A
+	TypeKind_BitField,            // B
 
 	// named types
 
-	EType_Enum,                // E
-	EType_Struct,              // SS/SP (struct/pointer struct)
-	EType_Union,               // U
-	EType_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
+	TypeKind_Enum,                // E
+	TypeKind_Struct,              // SS/SP (struct/pointer struct)
+	TypeKind_Union,               // U
+	TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
 
 	// function types
 
-	EType_Function,            // F
-	EType_Property,            // X
+	TypeKind_Function,            // F
+	TypeKind_Property,            // X
 
 	// pointers & references
 
-	EType_DataPtr,             // PD
-	EType_DataRef,             // RD
-	EType_ClassPtr,            // PC
-	EType_ClassRef,            // RC
-	EType_FunctionPtr,         // PF
-	EType_FunctionRef,         // RF
-	EType_PropertyPtr,         // PX
-	EType_PropertyRef,         // RX
+	TypeKind_DataPtr,             // PD
+	TypeKind_DataRef,             // RD
+	TypeKind_ClassPtr,            // PC
+	TypeKind_ClassRef,            // RC
+	TypeKind_FunctionPtr,         // PF
+	TypeKind_FunctionRef,         // RF
+	TypeKind_PropertyPtr,         // PX
+	TypeKind_PropertyRef,         // RX
 
 	// import types (resolved after linkage)
 
-	EType_NamedImport,         // ZN
-	EType_ImportPtr,           // ZP
-	EType_ImportIntMod,        // ZI
+	TypeKind_NamedImport,         // ZN
+	TypeKind_ImportPtr,           // ZP
+	TypeKind_ImportIntMod,        // ZI
 
-	EType__Count,
-	EType__EndianDelta = EType_Int16_be - EType_Int16,
-	EType__PrimitiveTypeCount = EType_Double + 1,
+	TypeKind__Count,
+	TypeKind__EndianDelta = TypeKind_Int16_be - TypeKind_Int16,
+	TypeKind__PrimitiveTypeCount = TypeKind_Double + 1,
 
 	// aliases
 
 #if (_AXL_PTR_BITNESS == 64)
-	EType_Int_p    = EType_Int64,
-	EType_Int_pu   = EType_Int64_u,
-	EType_Int_pbe  = EType_Int64_be,
-	EType_Int_pbeu = EType_Int64_beu,
+	TypeKind_Int_p    = TypeKind_Int64,
+	TypeKind_Int_pu   = TypeKind_Int64_u,
+	TypeKind_Int_pbe  = TypeKind_Int64_be,
+	TypeKind_Int_pbeu = TypeKind_Int64_beu,
 #else
-	EType_Int_p    = EType_Int32,
-	EType_Int_pu   = EType_Int32_u,
-	EType_Int_pbe  = EType_Int32_be,
-	EType_Int_pbeu = EType_Int32_beu,
+	TypeKind_Int_p    = TypeKind_Int32,
+	TypeKind_Int_pu   = TypeKind_Int32_u,
+	TypeKind_Int_pbe  = TypeKind_Int32_be,
+	TypeKind_Int_pbeu = TypeKind_Int32_beu,
 #endif
 
-	EType_SizeT    = EType_Int_pu,
-	EType_Int      = EType_Int32,
-	EType_Char     = EType_Int8,
-	EType_UChar    = EType_Int8_u,
-	EType_Byte     = EType_Int8_u,
-	EType_WChar    = EType_Int16,
-	EType_Short    = EType_Int16,
-	EType_UShort   = EType_Int16_u,
-	EType_Word     = EType_Int16_u,
-	EType_Long     = EType_Int32,
-	EType_ULong    = EType_Int32_u,
-	EType_DWord    = EType_Int32_u,
-	EType_QWord    = EType_Int64_u,
+	TypeKind_SizeT    = TypeKind_Int_pu,
+	TypeKind_Int      = TypeKind_Int32,
+	TypeKind_Char     = TypeKind_Int8,
+	TypeKind_UChar    = TypeKind_Int8_u,
+	TypeKind_Byte     = TypeKind_Int8_u,
+	TypeKind_WChar    = TypeKind_Int16,
+	TypeKind_Short    = TypeKind_Int16,
+	TypeKind_UShort   = TypeKind_Int16_u,
+	TypeKind_Word     = TypeKind_Int16_u,
+	TypeKind_Long     = TypeKind_Int32,
+	TypeKind_ULong    = TypeKind_Int32_u,
+	TypeKind_DWord    = TypeKind_Int32_u,
+	TypeKind_QWord    = TypeKind_Int64_u,
 };
 
 //.............................................................................
 
-enum EStdType
+enum StdTypeKind
 {
-	EStdType_BytePtr,
-	EStdType_ObjHdr,
-	EStdType_ObjHdrPtr,
-	EStdType_ObjectClass,
-	EStdType_ObjectPtr,
-	EStdType_SimpleFunction,
-	EStdType_SimpleMulticast,
-	EStdType_SimpleEventPtr,
-	EStdType_Binder,
-	EStdType_ReactorBindSite,
-	EStdType_Scheduler,
-	EStdType_SchedulerPtr,
-	EStdType_FmtLiteral,
-	EStdType_Guid,
-	EStdType_Error,
-	EStdType_Int64Int64, // for system V coercion
-	EStdType_Fp64Fp64,   // for system V coercion
-	EStdType_Int64Fp64,  // for system V coercion
-	EStdType_Fp64Int64,  // for system V coercion
-	EStdType__Count,
+	StdTypeKind_BytePtr,
+	StdTypeKind_ObjHdr,
+	StdTypeKind_ObjHdrPtr,
+	StdTypeKind_ObjectClass,
+	StdTypeKind_ObjectPtr,
+	StdTypeKind_SimpleFunction,
+	StdTypeKind_SimpleMulticast,
+	StdTypeKind_SimpleEventPtr,
+	StdTypeKind_Binder,
+	StdTypeKind_ReactorBindSite,
+	StdTypeKind_Scheduler,
+	StdTypeKind_SchedulerPtr,
+	StdTypeKind_FmtLiteral,
+	StdTypeKind_Guid,
+	StdTypeKind_Error,
+	StdTypeKind_Int64Int64, // for system V coercion
+	StdTypeKind_Fp64Fp64,   // for system V coercion
+	StdTypeKind_Int64Fp64,  // for system V coercion
+	StdTypeKind_Fp64Int64,  // for system V coercion
+	StdTypeKind__Count,
 };
 
 //.............................................................................
 
-enum ETypeModifier
+enum TypeModifierKind
 {
-	ETypeModifier_Unsigned    = 0x00000001,
-	ETypeModifier_BigEndian   = 0x00000002,
-	ETypeModifier_Const       = 0x00000004,
-	ETypeModifier_DConst      = 0x00000008,
-	ETypeModifier_Volatile    = 0x00000010,
-	ETypeModifier_Weak        = 0x00000020,
-	ETypeModifier_Thin        = 0x00000040,
-	ETypeModifier_Safe        = 0x00000080,
-	ETypeModifier_Cdecl       = 0x00000100,
-	ETypeModifier_Stdcall     = 0x00000200,
-	ETypeModifier_Array       = 0x00000400,
-	ETypeModifier_Function    = 0x00000800,
-	ETypeModifier_Property    = 0x00001000,
-	ETypeModifier_Bindable    = 0x00002000,
-	ETypeModifier_AutoGet     = 0x00004000,
-	ETypeModifier_Indexed     = 0x00008000,
-	ETypeModifier_Multicast   = 0x00010000,
-	ETypeModifier_Event       = 0x00020000,
-	ETypeModifier_DEvent      = 0x00040000,
-	ETypeModifier_Reactor     = 0x00080000,
-	ETypeModifier_Thiscall    = 0x00100000,
-	ETypeModifier_Jnccall     = 0x00200000,
+	TypeModifierKind_Unsigned    = 0x00000001,
+	TypeModifierKind_BigEndian   = 0x00000002,
+	TypeModifierKind_Const       = 0x00000004,
+	TypeModifierKind_DConst      = 0x00000008,
+	TypeModifierKind_Volatile    = 0x00000010,
+	TypeModifierKind_Weak        = 0x00000020,
+	TypeModifierKind_Thin        = 0x00000040,
+	TypeModifierKind_Safe        = 0x00000080,
+	TypeModifierKind_Cdecl       = 0x00000100,
+	TypeModifierKind_Stdcall     = 0x00000200,
+	TypeModifierKind_Array       = 0x00000400,
+	TypeModifierKind_Function    = 0x00000800,
+	TypeModifierKind_Property    = 0x00001000,
+	TypeModifierKind_Bindable    = 0x00002000,
+	TypeModifierKind_AutoGet     = 0x00004000,
+	TypeModifierKind_Indexed     = 0x00008000,
+	TypeModifierKind_Multicast   = 0x00010000,
+	TypeModifierKind_Event       = 0x00020000,
+	TypeModifierKind_DEvent      = 0x00040000,
+	TypeModifierKind_Reactor     = 0x00080000,
+	TypeModifierKind_Thiscall    = 0x00100000,
+	TypeModifierKind_Jnccall     = 0x00200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ETypeModifierMask
+enum TypeModifierMaskKind
 {
-	ETypeModifierMask_Integer =
-		ETypeModifier_Unsigned |
-		ETypeModifier_BigEndian,
+	TypeModifierMaskKind_Integer =
+		TypeModifierKind_Unsigned |
+		TypeModifierKind_BigEndian,
 
-	ETypeModifierMask_CallConv =
-		ETypeModifier_Cdecl |
-		ETypeModifier_Stdcall |
-		ETypeModifier_Thiscall |
-		ETypeModifier_Jnccall,
+	TypeModifierMaskKind_CallConv =
+		TypeModifierKind_Cdecl |
+		TypeModifierKind_Stdcall |
+		TypeModifierKind_Thiscall |
+		TypeModifierKind_Jnccall,
 
-	ETypeModifierMask_Function =
-		ETypeModifier_Function |
-		ETypeModifierMask_CallConv ,
+	TypeModifierMaskKind_Function =
+		TypeModifierKind_Function |
+		TypeModifierMaskKind_CallConv ,
 
-	ETypeModifierMask_Property =
-		ETypeModifier_Property |
-		ETypeModifierMask_CallConv |
-		ETypeModifier_Const |
-		ETypeModifier_Bindable |
-		ETypeModifier_Indexed,
+	TypeModifierMaskKind_Property =
+		TypeModifierKind_Property |
+		TypeModifierMaskKind_CallConv |
+		TypeModifierKind_Const |
+		TypeModifierKind_Bindable |
+		TypeModifierKind_Indexed,
 
-	ETypeModifierMask_DataPtr =
-		ETypeModifier_Safe |
-		ETypeModifier_Const |
-		ETypeModifier_DConst |
-		ETypeModifier_Volatile |
-		ETypeModifier_Thin,
+	TypeModifierMaskKind_DataPtr =
+		TypeModifierKind_Safe |
+		TypeModifierKind_Const |
+		TypeModifierKind_DConst |
+		TypeModifierKind_Volatile |
+		TypeModifierKind_Thin,
 
-	ETypeModifierMask_ClassPtr =
-		ETypeModifier_Safe |
-		ETypeModifier_Const |
-		ETypeModifier_DConst |
-		ETypeModifier_Volatile |
-		ETypeModifier_Event |
-		ETypeModifier_DEvent |
-		ETypeModifier_Weak,
+	TypeModifierMaskKind_ClassPtr =
+		TypeModifierKind_Safe |
+		TypeModifierKind_Const |
+		TypeModifierKind_DConst |
+		TypeModifierKind_Volatile |
+		TypeModifierKind_Event |
+		TypeModifierKind_DEvent |
+		TypeModifierKind_Weak,
 
-	ETypeModifierMask_FunctionPtr =
-		ETypeModifier_Safe |
-		ETypeModifier_Weak |
-		ETypeModifier_Thin,
+	TypeModifierMaskKind_FunctionPtr =
+		TypeModifierKind_Safe |
+		TypeModifierKind_Weak |
+		TypeModifierKind_Thin,
 
-	ETypeModifierMask_PropertyPtr =
-		ETypeModifier_Safe |
-		ETypeModifier_Weak |
-		ETypeModifier_Thin,
+	TypeModifierMaskKind_PropertyPtr =
+		TypeModifierKind_Safe |
+		TypeModifierKind_Weak |
+		TypeModifierKind_Thin,
 
-	ETypeModifierMask_ImportPtr =
-		ETypeModifierMask_DataPtr |
-		ETypeModifierMask_ClassPtr |
-		ETypeModifierMask_FunctionPtr |
-		ETypeModifierMask_PropertyPtr,
+	TypeModifierMaskKind_ImportPtr =
+		TypeModifierMaskKind_DataPtr |
+		TypeModifierMaskKind_ClassPtr |
+		TypeModifierMaskKind_FunctionPtr |
+		TypeModifierMaskKind_PropertyPtr,
 
-	ETypeModifierMask_DeclPtr =
-		ETypeModifier_Const |
-		ETypeModifier_DConst |
-		ETypeModifier_Volatile |
-		ETypeModifier_Event |
-		ETypeModifier_DEvent |
-		ETypeModifier_Bindable |
-		ETypeModifier_AutoGet,
+	TypeModifierMaskKind_DeclPtr =
+		TypeModifierKind_Const |
+		TypeModifierKind_DConst |
+		TypeModifierKind_Volatile |
+		TypeModifierKind_Event |
+		TypeModifierKind_DEvent |
+		TypeModifierKind_Bindable |
+		TypeModifierKind_AutoGet,
 
-	ETypeModifierMask_PtrKind =
-		ETypeModifier_Weak |
-		ETypeModifier_Thin,
+	TypeModifierMaskKind_PtrKind =
+		TypeModifierKind_Weak |
+		TypeModifierKind_Thin,
 
-	ETypeModifierMask_TypeKind =
-		ETypeModifier_Function |
-		ETypeModifier_Property |
-		ETypeModifier_Multicast |
-		ETypeModifier_Reactor,
+	TypeModifierMaskKind_TypeKind =
+		TypeModifierKind_Function |
+		TypeModifierKind_Property |
+		TypeModifierKind_Multicast |
+		TypeModifierKind_Reactor,
 
-	ETypeModifierMask_Const =
-		ETypeModifier_Const |
-		ETypeModifier_DConst |
-		ETypeModifier_Event |
-		ETypeModifier_DEvent,
+	TypeModifierMaskKind_Const =
+		TypeModifierKind_Const |
+		TypeModifierKind_DConst |
+		TypeModifierKind_Event |
+		TypeModifierKind_DEvent,
 
-	ETypeModifierMask_Event =
-		ETypeModifier_Event |
-		ETypeModifier_DEvent |
-		ETypeModifier_Const |
-		ETypeModifier_DConst |
-		ETypeModifierMask_TypeKind,
+	TypeModifierMaskKind_Event =
+		TypeModifierKind_Event |
+		TypeModifierKind_DEvent |
+		TypeModifierKind_Const |
+		TypeModifierKind_DConst |
+		TypeModifierMaskKind_TypeKind,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-ETypeModifier
-GetFirstTypeModifier (uint_t Modifiers)
+TypeModifierKind
+getFirstTypeModifier (uint_t modifiers)
 {
-	return (ETypeModifier) (1 << rtl::GetLoBitIdx (Modifiers));
+	return (TypeModifierKind) (1 << rtl::getLoBitIdx (modifiers));
 }
 
 const char*
-GetTypeModifierString (ETypeModifier Modifier);
+getTypeModifierString (TypeModifierKind modifier);
 
-rtl::CString
-GetTypeModifierString (uint_t Modifiers);
+rtl::String
+getTypeModifierString (uint_t modifiers);
 
 inline
 const char*
-GetFirstTypeModifierString (uint_t Modifiers)
+getFirstTypeModifierString (uint_t modifiers)
 {
-	return GetTypeModifierString (GetFirstTypeModifier (Modifiers));
+	return getTypeModifierString (getFirstTypeModifier (modifiers));
 }
 
 //.............................................................................
 
-enum ETypeFlag
+enum TypeFlagKind
 {
-	ETypeFlag_Named        = 0x0100,
-	ETypeFlag_Child        = 0x0200, // constructor has an implicit 'parent' arg
-	ETypeFlag_Pod          = 0x0400, // plain-old-data
-	ETypeFlag_GcRoot       = 0x0800, // is or contains gc-traceable pointers
-	ETypeFlag_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
+	TypeFlagKind_Named        = 0x0100,
+	TypeFlagKind_Child        = 0x0200, // constructor has an implicit 'parent' arg
+	TypeFlagKind_Pod          = 0x0400, // plain-old-data
+	TypeFlagKind_GcRoot       = 0x0800, // is or contains gc-traceable pointers
+	TypeFlagKind_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EPtrTypeFlag
+enum PtrTypeFlagKind
 {
-	EPtrTypeFlag_Safe      = 0x0010000, // all ptr
-	EPtrTypeFlag_Unused    = 0x0020000, // unused
-	EPtrTypeFlag_Const     = 0x0040000, // class & data ptr
-	EPtrTypeFlag_ConstD    = 0x0080000, // class & data ptr
-	EPtrTypeFlag_Volatile  = 0x0100000, // class & data ptr
-	EPtrTypeFlag_Event     = 0x0200000, // multicast-class only
-	EPtrTypeFlag_EventD    = 0x0400000, // multicast-class only
-	EPtrTypeFlag_Bindable  = 0x0800000, // multicast-class only
-	EPtrTypeFlag_AutoGet   = 0x1000000, // data ptr only
+	PtrTypeFlagKind_Safe      = 0x0010000, // all ptr
+	PtrTypeFlagKind_Unused    = 0x0020000, // unused
+	PtrTypeFlagKind_Const     = 0x0040000, // class & data ptr
+	PtrTypeFlagKind_ConstD    = 0x0080000, // class & data ptr
+	PtrTypeFlagKind_Volatile  = 0x0100000, // class & data ptr
+	PtrTypeFlagKind_Event     = 0x0200000, // multicast-class only
+	PtrTypeFlagKind_EventD    = 0x0400000, // multicast-class only
+	PtrTypeFlagKind_Bindable  = 0x0800000, // multicast-class only
+	PtrTypeFlagKind_AutoGet   = 0x1000000, // data ptr only
 
-	EPtrTypeFlag__AllMask  = 0x1ff0000,
+	PtrTypeFlagKind__AllMask  = 0x1ff0000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-EPtrTypeFlag
-GetFirstPtrTypeFlag (uint_t Flags)
+PtrTypeFlagKind
+getFirstPtrTypeFlag (uint_t flags)
 {
-	return (EPtrTypeFlag) (1 << rtl::GetLoBitIdx (Flags));
+	return (PtrTypeFlagKind) (1 << rtl::getLoBitIdx (flags));
 }
 
 const char*
-GetPtrTypeFlagString (EPtrTypeFlag Flag);
+getPtrTypeFlagString (PtrTypeFlagKind flag);
 
-rtl::CString
-GetPtrTypeFlagString (uint_t Flags);
+rtl::String
+getPtrTypeFlagString (uint_t flags);
 
-rtl::CString
-GetPtrTypeFlagSignature (uint_t Flags);
+rtl::String
+getPtrTypeFlagSignature (uint_t flags);
 
 inline
 const char*
-GetFirstPtrTypeFlagString (uint_t Flags)
+getFirstPtrTypeFlagString (uint_t flags)
 {
-	return GetPtrTypeFlagString (GetFirstPtrTypeFlag (Flags));
+	return getPtrTypeFlagString (getFirstPtrTypeFlag (flags));
 }
 
 uint_t
-GetPtrTypeFlagsFromModifiers (uint_t Modifiers);
+getPtrTypeFlagsFromModifiers (uint_t modifiers);
 
 //.............................................................................
 
 // data ptr
 
-enum EDataPtrType
+enum DataPtrTypeKind
 {
-	EDataPtrType_Normal = 0,
-	EDataPtrType_Lean,
-	EDataPtrType_Thin,
-	EDataPtrType__Count,
+	DataPtrTypeKind_Normal = 0,
+	DataPtrTypeKind_Lean,
+	DataPtrTypeKind_Thin,
+	DataPtrTypeKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetDataPtrTypeKindString (EDataPtrType PtrTypeKind);
+getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 
 // useful for simple checks
 
-enum ETypeKindFlag
+enum TypeKindFlagKind
 {
-	ETypeKindFlag_Integer      = 0x00000001,
-	ETypeKindFlag_Unsigned     = 0x00000002,
-	ETypeKindFlag_BigEndian    = 0x00000004,
-	ETypeKindFlag_Fp           = 0x00000008,
-	ETypeKindFlag_Numeric      = 0x00000010,
-	ETypeKindFlag_Aggregate    = 0x00000020,
-	ETypeKindFlag_Named        = 0x00000100,
-	ETypeKindFlag_Derivable    = 0x00000200,
-	ETypeKindFlag_DataPtr      = 0x00000400,
-	ETypeKindFlag_ClassPtr     = 0x00000800,
-	ETypeKindFlag_FunctionPtr  = 0x00001000,
-	ETypeKindFlag_PropertyPtr  = 0x00002000,
-	ETypeKindFlag_Ptr          = 0x00004000,
-	ETypeKindFlag_Ref          = 0x00008000,
-	ETypeKindFlag_Import       = 0x00010000,
-	ETypeKindFlag_Code         = 0x00020000,
+	TypeKindFlagKind_Integer      = 0x00000001,
+	TypeKindFlagKind_Unsigned     = 0x00000002,
+	TypeKindFlagKind_BigEndian    = 0x00000004,
+	TypeKindFlagKind_Fp           = 0x00000008,
+	TypeKindFlagKind_Numeric      = 0x00000010,
+	TypeKindFlagKind_Aggregate    = 0x00000020,
+	TypeKindFlagKind_Named        = 0x00000100,
+	TypeKindFlagKind_Derivable    = 0x00000200,
+	TypeKindFlagKind_DataPtr      = 0x00000400,
+	TypeKindFlagKind_ClassPtr     = 0x00000800,
+	TypeKindFlagKind_FunctionPtr  = 0x00001000,
+	TypeKindFlagKind_PropertyPtr  = 0x00002000,
+	TypeKindFlagKind_Ptr          = 0x00004000,
+	TypeKindFlagKind_Ref          = 0x00008000,
+	TypeKindFlagKind_Import       = 0x00010000,
+	TypeKindFlagKind_Code         = 0x00020000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 uint_t
-GetTypeKindFlags (EType TypeKind);
+getTypeKindFlags (TypeKind typeKind);
 
 //.............................................................................
 
 // integer type utils
 
-EType
-GetInt32TypeKind (int32_t Integer);
+TypeKind
+getInt32TypeKind (int32_t integer);
 
-EType
-GetInt32TypeKind_u (uint32_t Integer);
+TypeKind
+getInt32TypeKind_u (uint32_t integer);
 
-EType
-GetInt64TypeKind (int64_t Integer);
+TypeKind
+getInt64TypeKind (int64_t integer);
 
-EType
-GetInt64TypeKind_u (uint64_t Integer);
+TypeKind
+getInt64TypeKind_u (uint64_t integer);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-EType
-GetBigEndianIntegerTypeKind (EType TypeKind)
+TypeKind
+getBigEndianIntegerTypeKind (TypeKind typeKind)
 {
-	return !(GetTypeKindFlags (TypeKind) & ETypeKindFlag_BigEndian) ?
-		(EType) (TypeKind + EType__EndianDelta) :
-		TypeKind;
+	return !(getTypeKindFlags (typeKind) & TypeKindFlagKind_BigEndian) ?
+		(TypeKind) (typeKind + TypeKind__EndianDelta) :
+		typeKind;
 }
 
 inline
-EType
-GetLittleEndianIntegerTypeKind (EType TypeKind)
+TypeKind
+getLittleEndianIntegerTypeKind (TypeKind typeKind)
 {
-	return (GetTypeKindFlags (TypeKind) & ETypeKindFlag_BigEndian) ?
-		(EType) (TypeKind - EType__EndianDelta) :
-		TypeKind;
+	return (getTypeKindFlags (typeKind) & TypeKindFlagKind_BigEndian) ?
+		(TypeKind) (typeKind - TypeKind__EndianDelta) :
+		typeKind;
 }
 
 inline
-EType
-GetUnsignedIntegerTypeKind (EType TypeKind)
+TypeKind
+getUnsignedIntegerTypeKind (TypeKind typeKind)
 {
-	return !(GetTypeKindFlags (TypeKind) & ETypeKindFlag_Unsigned) ?
-		(EType) (TypeKind + 1) :
-		TypeKind;
+	return !(getTypeKindFlags (typeKind) & TypeKindFlagKind_Unsigned) ?
+		(TypeKind) (typeKind + 1) :
+		typeKind;
 }
 
 inline
-EType
-GetSignedIntegerTypeKind (EType TypeKind)
+TypeKind
+getSignedIntegerTypeKind (TypeKind typeKind)
 {
-	return (GetTypeKindFlags (TypeKind) & ETypeKindFlag_Unsigned) ?
-		(EType) (TypeKind - 1) :
-		TypeKind;
+	return (getTypeKindFlags (typeKind) & TypeKindFlagKind_Unsigned) ?
+		(TypeKind) (typeKind - 1) :
+		typeKind;
 }
 
 inline
 bool
-IsEquivalentIntegerTypeKind (
-	EType TypeKind1,
-	EType TypeKind2
+isEquivalentIntegerTypeKind (
+	TypeKind typeKind1,
+	TypeKind typeKind2
 	)
 {
-	return GetSignedIntegerTypeKind (TypeKind1) == GetSignedIntegerTypeKind (TypeKind2);
+	return getSignedIntegerTypeKind (typeKind1) == getSignedIntegerTypeKind (typeKind2);
 }
 
 //.............................................................................
 
-rtl::CString
-GetLlvmTypeString (llvm::Type* pLlvmType);
+rtl::String
+getLlvmTypeString (llvm::Type* llvmType);
 
 //.............................................................................
 
-class CType: public CModuleItem
+class Type: public ModuleItem
 {
-	friend class CTypeMgr;
-	friend class CCdeclCallConv_gcc64;
+	friend class TypeMgr;
+	friend class CdeclCallConv_gcc64;
 
 protected:
-	EType m_TypeKind;
-	size_t m_Size;
-	size_t m_AlignFactor;
-	rtl::CStringHashTableMapIteratorT <CType*> m_TypeMapIt;
-	rtl::CString m_Signature;
-	rtl::CString m_TypeString;
-	llvm::Type* m_pLlvmType;
-	llvm::DIType m_LlvmDiType;
+	TypeKind m_typeKind;
+	size_t m_size;
+	size_t m_alignFactor;
+	rtl::StringHashTableMapIterator <Type*> m_typeMapIt;
+	rtl::String m_signature;
+	rtl::String m_typeString;
+	llvm::Type* m_llvmType;
+	llvm::DIType m_llvmDiType;
 
-	CClassType* m_pBoxClassType;
-	TSimplePropertyTypeTuple* m_pSimplePropertyTypeTuple;
-	TFunctionArgTuple* m_pFunctionArgTuple;
-	TDataPtrTypeTuple* m_pDataPtrTypeTuple;
+	ClassType* m_boxClassType;
+	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
+	FunctionArgTuple* m_functionArgTuple;
+	DataPtrTypeTuple* m_dataPtrTypeTuple;
 
 public:
-	CType ();
+	Type ();
 
-	EType
-	GetTypeKind ()
+	TypeKind
+	getTypeKind ()
 	{
-		return m_TypeKind;
+		return m_typeKind;
 	}
 
 	uint_t
-	GetTypeKindFlags ()
+	getTypeKindFlags ()
 	{
-		return jnc::GetTypeKindFlags (m_TypeKind);
+		return jnc::getTypeKindFlags (m_typeKind);
 	}
 
 	size_t
-	GetSize ()
+	getSize ()
 	{
-		return m_Size;
+		return m_size;
 	}
 
 	size_t
-	GetAlignFactor ()
+	getAlignFactor ()
 	{
-		return m_AlignFactor;
+		return m_alignFactor;
 	}
 
-	rtl::CString
-	GetSignature ()
+	rtl::String
+	getSignature ()
 	{
-		return m_Signature;
+		return m_signature;
 	}
 
-	rtl::CString
-	GetTypeString ();
+	rtl::String
+	getTypeString ();
 
-	rtl::CString
-	GetLlvmTypeString ()
+	rtl::String
+	getLlvmTypeString ()
 	{
-		return jnc::GetLlvmTypeString (GetLlvmType ());
+		return jnc::getLlvmTypeString (getLlvmType ());
 	}
 
 	llvm::Type*
-	GetLlvmType ();
+	getLlvmType ();
 
 	llvm::DIType
-	GetLlvmDiType ();
+	getLlvmDiType ();
 
-	CValue
-	GetUndefValue ();
+	Value
+	getUndefValue ();
 
-	CValue
-	GetZeroValue ();
+	Value
+	getZeroValue ();
 
 	int
-	Cmp (CType* pType)
+	cmp (Type* type)
 	{
-		return pType != this ? m_Signature.Cmp (pType->m_Signature) : 0;
+		return type != this ? m_signature.cmp (type->m_signature) : 0;
 	}
 
-	CArrayType*
-	GetArrayType (size_t ElementCount);
+	ArrayType*
+	getArrayType (size_t elementCount);
 
-	CDataPtrType*
-	GetDataPtrType (
-		CNamespace* pAnchorNamespace,
-		EType TypeKind,
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		Namespace* anchorNamespace,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CDataPtrType*
-	GetDataPtrType (
-		EType TypeKind,
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetDataPtrType (NULL, TypeKind, PtrTypeKind, Flags);
+		return getDataPtrType (NULL, typeKind, ptrTypeKind, flags);
 	}
 
-	CDataPtrType*
-	GetDataPtrType (
-		EDataPtrType PtrTypeKind = EDataPtrType_Normal,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType (
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetDataPtrType (EType_DataPtr, PtrTypeKind, Flags);
+		return getDataPtrType (TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
-	CDataPtrType*
-	GetDataPtrType_c (
-		EType TypeKind = EType_DataPtr,
-		uint_t Flags = 0
+	DataPtrType*
+	getDataPtrType_c (
+		TypeKind typeKind = TypeKind_DataPtr,
+		uint_t flags = 0
 		)
 	{
-		return GetDataPtrType (TypeKind, EDataPtrType_Thin, Flags);
+		return getDataPtrType (typeKind, DataPtrTypeKind_Thin, flags);
 	}
 
-	CFunctionArg*
-	GetSimpleFunctionArg (uint_t PtrTypeFlags = 0);
+	FunctionArg*
+	getSimpleFunctionArg (uint_t ptrTypeFlags = 0);
 
-	CClassType*
-	GetBoxClassType ();
+	ClassType*
+	getBoxClassType ();
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		)
 	{
@@ -601,92 +601,92 @@ public:
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 
 	virtual
 	bool
-	CalcLayout ()
+	calcLayout ()
 	{
-		ASSERT (m_Size && m_AlignFactor);
+		ASSERT (m_size && m_alignFactor);
 		return true;
 	}
 };
 
 //.............................................................................
 
-class CTypedef: public CUserModuleItem
+class Typedef: public UserModuleItem
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CType* m_pType;
+	Type* m_type;
 
 public:
-	CTypedef ()
+	Typedef ()
 	{
-		m_ItemKind = EModuleItem_Typedef;
-		m_pType  = NULL;
+		m_itemKind = ModuleItemKind_Typedef;
+		m_type  = NULL;
 	}
 
-	CType*
-	GetType ()
+	Type*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 };
 
 //.............................................................................
 
-class CLazyStdType: public CLazyModuleItem
+class LazyStdType: public LazyModuleItem
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	EStdType m_StdType;
+	StdTypeKind m_stdType;
 
 public:
-	CLazyStdType ()
+	LazyStdType ()
 	{
-		m_StdType = (EStdType) -1;
+		m_stdType = (StdTypeKind) -1;
 	}
 
 	virtual
-	CModuleItem*
-	GetActualItem ();
+	ModuleItem*
+	getActualItem ();
 };
 
 //.............................................................................
 
-CType*
-GetSimpleType (
-	CModule* pModule,
-	EType TypeKind
+Type*
+getSimpleType (
+	Module* module,
+	TypeKind typeKind
 	);
 
-CType*
-GetSimpleType (
-	CModule* pModule,
-	EStdType StdTypeKind
+Type*
+getSimpleType (
+	Module* module,
+	StdTypeKind stdTypeKind
 	);
 
-CType*
-GetModuleItemType (CModuleItem* pItem);
+Type*
+getModuleItemType (ModuleItem* item);
 
 //.............................................................................
 
 bool
-IsWeakPtrType (CType* pType);
+isWeakPtrType (Type* type);
 
-CType*
-GetWeakPtrType (CType* pType);
+Type*
+getWeakPtrType (Type* type);
 
 //.............................................................................
 

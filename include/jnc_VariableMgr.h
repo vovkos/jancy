@@ -10,211 +10,211 @@
 
 namespace jnc {
 
-class CClassType;
-class CFunction;
+class ClassType;
+class Function;
 
 //.............................................................................
 
-enum EStdVariable
+enum StdVariableKind
 {
-	EStdVariable_ScopeLevel = 0,
-	EStdVariable_GcShadowStackTop,
+	StdVariableKind_ScopeLevel = 0,
+	StdVariableKind_GcShadowStackTop,
 
-	EStdVariable__Count,
+	StdVariableKind__Count,
 };
 
 //.............................................................................
 
-class CVariableMgr
+class VariableMgr
 {
-	friend class CModule;
-	friend class CVariable;
+	friend class Module;
+	friend class Variable;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CStdListT <CVariable> m_VariableList;
-	rtl::CStdListT <CAlias> m_AliasList;
+	rtl::StdList <Variable> m_variableList;
+	rtl::StdList <Alias> m_aliasList;
 
 	// static variables
 
-	rtl::CArrayT <CVariable*> m_StaticVariableArray;
-	rtl::CArrayT <CVariable*> m_StaticGcRootArray;
-	rtl::CArrayT <CVariable*> m_GlobalStaticVariableArray;
+	rtl::Array <Variable*> m_staticVariableArray;
+	rtl::Array <Variable*> m_staticGcRootArray;
+	rtl::Array <Variable*> m_globalStaticVariableArray;
 
-	rtl::CArrayT <llvm::GlobalVariable*> m_LlvmGlobalVariableArray;
+	rtl::Array <llvm::GlobalVariable*> m_llvmGlobalVariableArray;
 
 	// tls variables
 
-	rtl::CArrayT <CVariable*> m_TlsVariableArray;
-	rtl::CArrayT <CVariable*> m_TlsGcRootArray;
-	CStructType* m_pTlsStructType;
+	rtl::Array <Variable*> m_tlsVariableArray;
+	rtl::Array <Variable*> m_tlsGcRootArray;
+	StructType* m_tlsStructType;
 
-	CVariable* m_StdVariableArray [EStdVariable__Count];
-
-public:
-	CDestructList m_StaticDestructList;
+	Variable* m_stdVariableArray [StdVariableKind__Count];
 
 public:
-	CVariableMgr ();
+	DestructList m_staticDestructList;
 
-	CModule*
-	GetModule ()
+public:
+	VariableMgr ();
+
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
-	CVariable*
-	GetStdVariable (EStdVariable Variable);
+	Variable*
+	getStdVariable (StdVariableKind variable);
 
-	rtl::CArrayT <CVariable*>
-	GetStaticVariableArray ()
+	rtl::Array <Variable*>
+	getStaticVariableArray ()
 	{
-		return m_StaticVariableArray;
+		return m_staticVariableArray;
 	}
 
-	rtl::CArrayT <CVariable*>
-	GetStaticGcRootArray ()
+	rtl::Array <Variable*>
+	getStaticGcRootArray ()
 	{
-		return m_StaticGcRootArray;
+		return m_staticGcRootArray;
 	}
 
-	rtl::CArrayT <CVariable*>
-	GetGlobalStaticVariableArray ()
+	rtl::Array <Variable*>
+	getGlobalStaticVariableArray ()
 	{
-		return m_GlobalStaticVariableArray;
+		return m_globalStaticVariableArray;
 	}
 
-	rtl::CArrayT <CVariable*>
-	GetTlsVariableArray ()
+	rtl::Array <Variable*>
+	getTlsVariableArray ()
 	{
-		return m_TlsVariableArray;
+		return m_tlsVariableArray;
 	}
 
-	rtl::CArrayT <CVariable*>
-	GetTlsGcRootArray ()
+	rtl::Array <Variable*>
+	getTlsGcRootArray ()
 	{
-		return m_TlsGcRootArray;
+		return m_tlsGcRootArray;
 	}
 
-	CStructType*
-	GetTlsStructType ()
+	StructType*
+	getTlsStructType ()
 	{
-		ASSERT (m_pTlsStructType);
-		return m_pTlsStructType;
+		ASSERT (m_tlsStructType);
+		return m_tlsStructType;
 	}
 
-	CVariable*
-	CreateVariable (
-		EStorage StorageKind,
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CType* pType,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	Variable*
+	createVariable (
+		StorageKind storageKind,
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* type,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
-	CVariable*
-	CreateStackVariable (
-		const rtl::CString& Name,
-		CType* pType,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	Variable*
+	createStackVariable (
+		const rtl::String& name,
+		Type* type,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		)
 	{
-		return CreateVariable (
-			EStorage_Stack,
-			Name,
-			Name,
-			pType,
-			PtrTypeFlags,
-			pConstructor,
-			pInitializer
+		return createVariable (
+			StorageKind_Stack,
+			name,
+			name,
+			type,
+			ptrTypeFlags,
+			constructor,
+			initializer
 			);
 	}
 
-	CVariable*
-	CreateOnceFlagVariable (EStorage StorageKind = EStorage_Static);
+	Variable*
+	createOnceFlagVariable (StorageKind storageKind = StorageKind_Static);
 
-	CVariable*
-	CreateArgVariable (
-		CFunctionArg* pArg,
-		llvm::Value* pLlvmArgValue
+	Variable*
+	createArgVariable (
+		FunctionArg* arg,
+		llvm::Value* llvmArgValue
 		);
 
 	llvm::GlobalVariable*
-	CreateLlvmGlobalVariable (
-		CType* pType,
-		const char* pTag
+	createLlvmGlobalVariable (
+		Type* type,
+		const char* tag
 		);
 
-	CAlias*
-	CreateAlias (
-		const rtl::CString& Name,
-		const rtl::CString& QualifiedName,
-		CType* pType,
-		rtl::CBoxListT <CToken>* pInitializer
+	Alias*
+	createAlias (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* type,
+		rtl::BoxList <Token>* initializer
 		);
 
 	bool
-	CreateTlsStructType ();
+	createTlsStructType ();
 
 	bool
-	AllocatePrimeStaticVariable (CVariable* pVariable);
+	allocatePrimeStaticVariable (Variable* variable);
 
 	bool
-	AllocatePrimeStaticVariables ();
+	allocatePrimeStaticVariables ();
 
 	bool
-	InitializeGlobalStaticVariables ();
+	initializeGlobalStaticVariables ();
 
 	bool
-	AllocatePrimeInitializeVariable (CVariable* pVariable);
+	allocatePrimeInitializeVariable (Variable* variable);
 
 	void
-	AllocateTlsVariable (CVariable* pVariable);
+	allocateTlsVariable (Variable* variable);
 
 	void
-	DeallocateTlsVariableArray (
-		const TTlsVariable* ppArray,
-		size_t Count
-		);
-
-	void
-	RestoreTlsVariableArray (
-		const TTlsVariable* ppArray,
-		size_t Count
+	deallocateTlsVariableArray (
+		const TlsVariable* array,
+		size_t count
 		);
 
 	void
-	DeallocateTlsVariableArray (const rtl::CArrayT <TTlsVariable>& Array)
+	restoreTlsVariableArray (
+		const TlsVariable* array,
+		size_t count
+		);
+
+	void
+	deallocateTlsVariableArray (const rtl::Array <TlsVariable>& array)
 	{
-		DeallocateTlsVariableArray (Array, Array.GetCount ());
+		deallocateTlsVariableArray (array, array.getCount ());
 	}
 
 	void
-	RestoreTlsVariableArray (const rtl::CArrayT <TTlsVariable>& Array)
+	restoreTlsVariableArray (const rtl::Array <TlsVariable>& array)
 	{
-		RestoreTlsVariableArray (Array, Array.GetCount ());
+		restoreTlsVariableArray (array, array.getCount ());
 	}
 
 protected:
 	bool
-	AllocatePrimeInitializeStaticVariable (CVariable* pVariable);
+	allocatePrimeInitializeStaticVariable (Variable* variable);
 
 	bool
-	AllocatePrimeInitializeTlsVariable (CVariable* pVariable);
+	allocatePrimeInitializeTlsVariable (Variable* variable);
 
 	bool
-	AllocatePrimeInitializeNonStaticVariable (CVariable* pVariable);
+	allocatePrimeInitializeNonStaticVariable (Variable* variable);
 
 	void
-	CreateStdVariables ();
+	createStdVariables ();
 };
 
 //.............................................................................

@@ -7,141 +7,141 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::LogicalOrOperator (
-	CBasicBlock* pOpBlock1,
-	CBasicBlock* pOpBlock2,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+OperatorMgr::logicalOrOperator (
+	BasicBlock* opBlock1,
+	BasicBlock* opBlock2,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pOpBlock1);
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (opBlock1);
 
-	CFunction* pFunction = GetOverloadedBinaryOperator (EBinOp_LogOr, RawOpValue1, RawOpValue2);
-	if (pFunction)
+	Function* function = getOverloadedBinaryOperator (BinOpKind_LogOr, rawOpValue1, rawOpValue2);
+	if (function)
 	{
-		m_pModule->m_ControlFlowMgr.Follow (pOpBlock2);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-		return OverloadedBinaryOperator (pFunction, RawOpValue1, RawOpValue2, pResultValue);
+		m_module->m_controlFlowMgr.follow (opBlock2);
+		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
 	}
 
-	CValue UnusedResultValue;
-	if (!pResultValue)
-		pResultValue = &UnusedResultValue;
+	Value unusedResultValue;
+	if (!resultValue)
+		resultValue = &unusedResultValue;
 
-	CBasicBlock* pPhiBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("and_phi");
-	CBasicBlock* pFalseBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("op2_false");
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("and_phi");
+	BasicBlock* falseBlock2 = m_module->m_controlFlowMgr.createBlock ("op2_false");
 
-	CValue OpValue1;
-	Result = m_pModule->m_OperatorMgr.CastOperator (RawOpValue1, EType_Bool, &OpValue1);
-	if (!Result)
+	Value opValue1;
+	result = m_module->m_operatorMgr.castOperator (rawOpValue1, TypeKind_Bool, &opValue1);
+	if (!result)
 		return false;
 
-	CBasicBlock* pJumpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	Result = m_pModule->m_ControlFlowMgr.ConditionalJump (OpValue1, pPhiBlock, pOpBlock2, pPrevBlock);
-	ASSERT (Result);
+	BasicBlock* jumpBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
+	result = m_module->m_controlFlowMgr.conditionalJump (opValue1, phiBlock, opBlock2, prevBlock);
+	ASSERT (result);
 
-	CValue OpValue2;
-	Result = m_pModule->m_OperatorMgr.CastOperator (RawOpValue2, EType_Bool, &OpValue2);
-	if (!Result)
+	Value opValue2;
+	result = m_module->m_operatorMgr.castOperator (rawOpValue2, TypeKind_Bool, &opValue2);
+	if (!result)
 		return false;
 
-	CBasicBlock* pJumpBlock2 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	Result = m_pModule->m_ControlFlowMgr.ConditionalJump (OpValue2, pPhiBlock, pFalseBlock2, pFalseBlock2);
-	ASSERT (Result);
+	BasicBlock* jumpBlock2 = m_module->m_controlFlowMgr.getCurrentBlock ();
+	result = m_module->m_controlFlowMgr.conditionalJump (opValue2, phiBlock, falseBlock2, falseBlock2);
+	ASSERT (result);
 
-	CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Bool);
-	CValue TrueValue (true, pType);
-	CValue FalseValue ((int64_t) false, pType);
+	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+	Value trueValue (true, type);
+	Value falseValue ((int64_t) false, type);
 
-	CValue ValueArray [] =
+	Value valueArray [] =
 	{
-		TrueValue,
-		TrueValue,
-		FalseValue,
+		trueValue,
+		trueValue,
+		falseValue,
 	};
 
-	CBasicBlock* BlockArray [] =
+	BasicBlock* blockArray [] =
 	{
-		pJumpBlock1,
-		pJumpBlock2,
-		pFalseBlock2,
+		jumpBlock1,
+		jumpBlock2,
+		falseBlock2,
 	};
 
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
-	m_pModule->m_LlvmIrBuilder.CreatePhi (ValueArray, BlockArray, 3, pResultValue);
+	m_module->m_controlFlowMgr.follow (phiBlock);
+	m_module->m_llvmIrBuilder.createPhi (valueArray, blockArray, 3, resultValue);
 	return true;
 }
 
 bool
-COperatorMgr::LogicalAndOperator (
-	CBasicBlock* pOpBlock1,
-	CBasicBlock* pOpBlock2,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+OperatorMgr::logicalAndOperator (
+	BasicBlock* opBlock1,
+	BasicBlock* opBlock2,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pOpBlock1);
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (opBlock1);
 
-	CFunction* pFunction = GetOverloadedBinaryOperator (EBinOp_LogAnd, RawOpValue1, RawOpValue2);
-	if (pFunction)
+	Function* function = getOverloadedBinaryOperator (BinOpKind_LogAnd, rawOpValue1, rawOpValue2);
+	if (function)
 	{
-		m_pModule->m_ControlFlowMgr.Follow (pOpBlock2);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-		return OverloadedBinaryOperator (pFunction, RawOpValue1, RawOpValue2, pResultValue);
+		m_module->m_controlFlowMgr.follow (opBlock2);
+		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
 	}
 
-	CValue UnusedResultValue;
-	if (!pResultValue)
-		pResultValue = &UnusedResultValue;
+	Value unusedResultValue;
+	if (!resultValue)
+		resultValue = &unusedResultValue;
 
-	CBasicBlock* pLastBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	CBasicBlock* pPhiBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("and_phi");
-	CBasicBlock* pTrueBlock2 = m_pModule->m_ControlFlowMgr.CreateBlock ("op2_true");
+	BasicBlock* lastBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("and_phi");
+	BasicBlock* trueBlock2 = m_module->m_controlFlowMgr.createBlock ("op2_true");
 
-	CValue OpValue1;
-	Result = m_pModule->m_OperatorMgr.CastOperator (RawOpValue1, EType_Bool, &OpValue1);
-	if (!Result)
+	Value opValue1;
+	result = m_module->m_operatorMgr.castOperator (rawOpValue1, TypeKind_Bool, &opValue1);
+	if (!result)
 		return false;
 
-	CBasicBlock* pJumpBlock1 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	Result = m_pModule->m_ControlFlowMgr.ConditionalJump (OpValue1, pOpBlock2, pPhiBlock, pPrevBlock);
-	ASSERT (Result);
+	BasicBlock* jumpBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
+	result = m_module->m_controlFlowMgr.conditionalJump (opValue1, opBlock2, phiBlock, prevBlock);
+	ASSERT (result);
 
-	CValue OpValue2;
-	Result = m_pModule->m_OperatorMgr.CastOperator (RawOpValue2, EType_Bool, &OpValue2);
-	if (!Result)
+	Value opValue2;
+	result = m_module->m_operatorMgr.castOperator (rawOpValue2, TypeKind_Bool, &opValue2);
+	if (!result)
 		return false;
 
-	CBasicBlock* pJumpBlock2 = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	Result = m_pModule->m_ControlFlowMgr.ConditionalJump (OpValue2, pTrueBlock2, pPhiBlock);
-	ASSERT (Result);
+	BasicBlock* jumpBlock2 = m_module->m_controlFlowMgr.getCurrentBlock ();
+	result = m_module->m_controlFlowMgr.conditionalJump (opValue2, trueBlock2, phiBlock);
+	ASSERT (result);
 
-	CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Bool);
-	CValue TrueValue (true, pType);
-	CValue FalseValue ((int64_t) false, pType);
+	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+	Value trueValue (true, type);
+	Value falseValue ((int64_t) false, type);
 
-	CValue ValueArray [] =
+	Value valueArray [] =
 	{
-		FalseValue,
-		FalseValue,
-		TrueValue,
+		falseValue,
+		falseValue,
+		trueValue,
 	};
 
-	CBasicBlock* BlockArray [] =
+	BasicBlock* blockArray [] =
 	{
-		pJumpBlock1,
-		pJumpBlock2,
-		pTrueBlock2,
+		jumpBlock1,
+		jumpBlock2,
+		trueBlock2,
 	};
 
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
-	m_pModule->m_LlvmIrBuilder.CreatePhi (ValueArray, BlockArray, 3, pResultValue);
+	m_module->m_controlFlowMgr.follow (phiBlock);
+	m_module->m_llvmIrBuilder.createPhi (valueArray, blockArray, 3, resultValue);
 	return true;
 }
 

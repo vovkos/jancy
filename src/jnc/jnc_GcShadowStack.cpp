@@ -2,14 +2,61 @@
 #include "jnc_GcShadowStack.h"
 #include "jnc_Module.h"
 
+using namespace llvm;
+
+GetElementPtrInst *
+createGEP(
+	LLVMContext &context,
+	IRBuilder<> &B,
+	Value *basePtr,
+	int idx,
+	int idx2,
+	const char *name
+	)
+{
+	Value *indices[] =
+	{
+		ConstantInt::get(Type::getInt32Ty(context), 0),
+		ConstantInt::get(Type::getInt32Ty(context), idx),
+		ConstantInt::get(Type::getInt32Ty(context), idx2)
+	};
+
+	Value* val = B.CreateGEP(basePtr, indices, name);
+
+	assert(isa<GetElementPtrInst>(val) && "Unexpected folded constant");
+
+	return dyn_cast<GetElementPtrInst>(val);
+}
+
+GetElementPtrInst *
+createGEP (
+	LLVMContext &context,
+	IRBuilder<> &B,
+	Value *basePtr,
+	int idx,
+	const char *name)
+{
+	Value *indices[] =
+	{
+		ConstantInt::get(Type::getInt32Ty(context), 0),
+		ConstantInt::get(Type::getInt32Ty(context), idx)
+	};
+
+	Value *val = B.CreateGEP(basePtr, indices, name);
+
+	assert(isa<GetElementPtrInst>(val) && "Unexpected folded constant");
+
+	return dyn_cast<GetElementPtrInst>(val);
+}
+
 namespace jnc {
 
 //.............................................................................
 
 void
-RegisterGcShadowStack (int)
+registerGcShadowStack (int)
 {
-	static llvm::GCRegistry::Add <CGcShadowStack> ShadowStack (
+	static llvm::GCRegistry::Add <GcShadowStack> shadowStack (
 		"jnc-shadow-stack",
 		"Re-engineered shadow stack for Jancy GC"
 		);
@@ -29,150 +76,103 @@ RegisterGcShadowStack (int)
 class EscapeEnumerator
 {
 	llvm::Function& F;
-	const char* CleanupBBName;
+	const char* cleanupBBName;
 
 	// State.
-	int State;
-	llvm::Function::iterator StateBB, StateE;
-	llvm::IRBuilder<> Builder;
+	int state;
+	llvm::Function::iterator stateBB, stateE;
+	llvm::IRBuilder<> builder;
 
 public:
 	EscapeEnumerator (llvm::Function &F, const char* N = "cleanup");
 
 	llvm::IRBuilder<>*
-	Next ();
+	next ();
 };
 
 //.............................................................................
 
-CGcShadowStack::CGcShadowStack ()
+GcShadowStack::GcShadowStack ()
 {
-	m_pModule = NULL;
+	m_module = NULL;
 	InitRoots = true;
 	CustomRoots = true;
 }
 
 bool
-CGcShadowStack::initializeCustomLowering (llvm::Module& LlvmModule)
+GcShadowStack::initializeCustomLowering (llvm::Module& llvmModule)
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule && m_pModule->GetLlvmModule () == &LlvmModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module && m_module->getLlvmModule () == &llvmModule);
 
 	return true;
 }
 
-using namespace llvm;
-
-GetElementPtrInst *
-CreateGEP(
-	LLVMContext &Context,
-	IRBuilder<> &B,
-	Value *BasePtr,
-	int Idx,
-	int Idx2,
-	const char *Name
-	)
-{
-	Value *Indices[] =
-	{
-		ConstantInt::get(Type::getInt32Ty(Context), 0),
-		ConstantInt::get(Type::getInt32Ty(Context), Idx),
-		ConstantInt::get(Type::getInt32Ty(Context), Idx2)
-	};
-
-	Value* Val = B.CreateGEP(BasePtr, Indices, Name);
-
-	assert(isa<GetElementPtrInst>(Val) && "Unexpected folded constant");
-
-	return dyn_cast<GetElementPtrInst>(Val);
-}
-
-GetElementPtrInst *
-CreateGEP (
-	LLVMContext &Context,
-	IRBuilder<> &B,
-	Value *BasePtr,
-	int Idx,
-	const char *Name)
-{
-	Value *Indices[] =
-	{
-		ConstantInt::get(Type::getInt32Ty(Context), 0),
-		ConstantInt::get(Type::getInt32Ty(Context), Idx)
-	};
-
-	Value *Val = B.CreateGEP(BasePtr, Indices, Name);
-
-	assert(isa<GetElementPtrInst>(Val) && "Unexpected folded constant");
-
-	return dyn_cast<GetElementPtrInst>(Val);
-}
-
 bool
-CGcShadowStack::performCustomLowering (llvm::Function& LlvmFunction)
+GcShadowStack::performCustomLowering (llvm::Function& llvmFunction)
 {
-	bool Result;
+	bool result;
 
-	LLVMContext& Context = LlvmFunction.getContext();
+	LLVMContext& context = llvmFunction.getContext();
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.FindFunctionByLlvmFunction (&LlvmFunction);
-	ASSERT (pFunction && pFunction->GetLlvmFunction () == &LlvmFunction);
+	Function* function = m_module->m_functionMgr.findFunctionByLlvmFunction (&llvmFunction);
+	ASSERT (function && function->getLlvmFunction () == &llvmFunction);
 
-	rtl::CArrayT <TRoot> RootArray;
-	CollectRoots (pFunction, &RootArray);
+	rtl::Array <Root> rootArray;
+	collectRoots (function, &rootArray);
 
-	if (RootArray.IsEmpty ())
+	if (rootArray.isEmpty ())
 		return false;
 
-	size_t RootCount = RootArray.GetCount ();
+	size_t rootCount = rootArray.getCount ();
 
-	CValue FrameMapValue;
-	Result = GetFrameMap (pFunction, RootArray, RootCount, &FrameMapValue);
-	if (!Result)
+	Value frameMapValue;
+	result = getFrameMap (function, rootArray, rootCount, &frameMapValue);
+	if (!result)
 		return false;
 
-	CType* pFrameType = m_pModule->m_TypeMgr.GetGcShadowStackFrameType (RootCount);
+	Type* frameType = m_module->m_typeMgr.getGcShadowStackFrameType (rootCount);
 
 	// Build the shadow stack entry after tls-related injected code
 
-	BasicBlock::iterator LlvmInst = LlvmFunction.getEntryBlock().begin();
-	ASSERT (llvm::isa <llvm::CallInst> (LlvmInst)); // get-tls
+	llvm::BasicBlock::iterator llvmInst = llvmFunction.getEntryBlock().begin();
+	ASSERT (llvm::isa <llvm::CallInst> (llvmInst)); // get-tls
 
-	llvm::Instruction* pLlvmGetTls = LlvmInst;
+	llvm::Instruction* llvmGetTls = llvmInst;
 
-	llvm::Instruction* pLlvmAnchor = pFunction->GetLlvmPostTlsPrologueInst ();
-	BasicBlock::iterator IP = pLlvmAnchor ? pLlvmAnchor : pLlvmGetTls;
+	llvm::Instruction* llvmAnchor = function->getLlvmPostTlsPrologueInst ();
+	llvm::BasicBlock::iterator IP = llvmAnchor ? llvmAnchor : llvmGetTls;
 
-	IRBuilder<> AtEntry(IP->getParent(), IP);
+	IRBuilder<> atEntry(IP->getParent(), IP);
 
-	Instruction *StackEntry = AtEntry.CreateAlloca(pFrameType->GetLlvmType (), 0, "gc_frame");
+	Instruction *stackEntry = atEntry.CreateAlloca(frameType->getLlvmType (), 0, "gc_frame");
 
 	while (isa<AllocaInst>(IP))
 		++IP;
 
-	AtEntry.SetInsertPoint(IP->getParent(), IP);
+	atEntry.SetInsertPoint(IP->getParent(), IP);
 
 	// gc shadow stack top
 
-	CVariable* pGcShadowStackTopVariable = m_pModule->m_VariableMgr.GetStdVariable (EStdVariable_GcShadowStackTop);
-	CStructField* pField = pGcShadowStackTopVariable->GetTlsField ();
-	llvm::Value* Head = CreateGEP (Context, AtEntry, pLlvmGetTls, pField->GetLlvmIndex (), "gc_stack_top");
+	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariableKind_GcShadowStackTop);
+	StructField* field = gcShadowStackTopVariable->getTlsField ();
+	llvm::Value* head = createGEP (context, atEntry, llvmGetTls, field->getLlvmIndex (), "gc_stack_top");
 
 	// Initialize the map pointer and load the current head of the shadow stack.
-	Instruction *CurrentHead = AtEntry.CreateLoad(Head, "gc_currhead");
-	Instruction *EntryMapPtr = CreateGEP (Context, AtEntry, StackEntry, 1, "gc_frame.map");
-	AtEntry.CreateStore (FrameMapValue.GetLlvmValue (), EntryMapPtr);
+	Instruction *currentHead = atEntry.CreateLoad(head, "gc_currhead");
+	Instruction *entryMapPtr = createGEP (context, atEntry, stackEntry, 1, "gc_frame.map");
+	atEntry.CreateStore (frameMapValue.getLlvmValue (), entryMapPtr);
 
 	// After all the allocas...
-	for (size_t i = 0; i < RootCount; i++)
+	for (size_t i = 0; i < rootCount; i++)
 	{
 		// For each root, find the corresponding slot in the aggregate...
-		Value *SlotPtr = CreateGEP(Context, AtEntry, StackEntry, 2, i, "gc_root");
+		llvm::Value *slotPtr = createGEP(context, atEntry, stackEntry, 2, i, "gc_root");
 
 		// And use it in lieu of the alloca.
-		AllocaInst *OriginalAlloca = RootArray [i].m_pLlvmAlloca;
-		SlotPtr->takeName(OriginalAlloca);
-		OriginalAlloca->replaceAllUsesWith(SlotPtr);
+		AllocaInst *originalAlloca = rootArray [i].m_llvmAlloca;
+		slotPtr->takeName(originalAlloca);
+		originalAlloca->replaceAllUsesWith(slotPtr);
 	}
 
 	// Move past the original stores inserted by GCStrategy::InitRoots. This isn't
@@ -182,131 +182,131 @@ CGcShadowStack::performCustomLowering (llvm::Function& LlvmFunction)
 	while (isa<StoreInst>(IP))
 		++IP;
 
-	AtEntry.SetInsertPoint(IP->getParent(), IP);
+	atEntry.SetInsertPoint(IP->getParent(), IP);
 
-	CType* pFramePtrType = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
+	Type* framePtrType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
 
 	// Push the entry onto the shadow stack.
 
-	CFunction* pGcEnter = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_GcEnter);
-	CFunction* pGcLeave = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_GcLeave);
-	AtEntry.CreateCall (pGcEnter->GetLlvmFunction ());
+	Function* gcEnter = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcEnter);
+	Function* gcLeave = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcLeave);
+	atEntry.CreateCall (gcEnter->getLlvmFunction ());
 
-	Value* EntryNextPtr = CreateGEP(Context, AtEntry, StackEntry, 0, "gc_frame.next");
-	Value* NewHeadVal = AtEntry.CreateBitCast (StackEntry, pFramePtrType->GetLlvmType (), "gc_newhead");
-	AtEntry.CreateStore(CurrentHead, EntryNextPtr);
-	AtEntry.CreateStore(NewHeadVal, Head);
+	llvm::Value* entryNextPtr = createGEP(context, atEntry, stackEntry, 0, "gc_frame.next");
+	llvm::Value* newHeadVal = atEntry.CreateBitCast (stackEntry, framePtrType->getLlvmType (), "gc_newhead");
+	atEntry.CreateStore(currentHead, entryNextPtr);
+	atEntry.CreateStore(newHeadVal, head);
 
 	// For each instruction that escapes...
-	EscapeEnumerator EE (LlvmFunction, "gc_cleanup");
-	while (IRBuilder<> *AtExit = EE.Next())
+	EscapeEnumerator EE (llvmFunction, "gc_cleanup");
+	while (IRBuilder<> *atExit = EE.next())
 	{
 		// Pop the entry from the shadow stack. Don't reuse CurrentHead from
 		// AtEntry, since that would make the value live for the entire function.
-		Value* EntryNextPtr2 = CreateGEP(Context, *AtExit, StackEntry, 0, "gc_frame.next");
-		Value* SavedHead = AtExit->CreateLoad(EntryNextPtr2, "gc_savedhead");
-		AtExit->CreateStore(SavedHead, Head);
-		AtExit->CreateCall (pGcLeave->GetLlvmFunction ());
+		llvm::Value* entryNextPtr2 = createGEP(context, *atExit, stackEntry, 0, "gc_frame.next");
+		llvm::Value* savedHead = atExit->CreateLoad(entryNextPtr2, "gc_savedhead");
+		atExit->CreateStore(savedHead, head);
+		atExit->CreateCall (gcLeave->getLlvmFunction ());
 	}
 
-	// Delete the original allocas (which are no longer used) and the intrinsic
+	// Erase the original allocas (which are no longer used) and the intrinsic
 	// calls (which are no longer valid). Doing this last avoids invalidating
 	// iterators.
 
-	for (size_t i = 0; i < RootCount; i++)
+	for (size_t i = 0; i < rootCount; i++)
 	{
-		RootArray [i].m_pLlvmGcRoot->eraseFromParent();
-		RootArray [i].m_pLlvmAlloca->eraseFromParent();
+		rootArray [i].m_llvmGcRoot->eraseFromParent();
+		rootArray [i].m_llvmAlloca->eraseFromParent();
 	}
 
 	return true;
 }
 
 size_t
-CGcShadowStack::CollectRoots (
-	CFunction* pFunction,
-	rtl::CArrayT <TRoot>* pRootArray
+GcShadowStack::collectRoots (
+	Function* function,
+	rtl::Array <Root>* rootArray
 	)
 {
-	CType* pBytePtrType = m_pModule->GetSimpleType (EStdType_BytePtr);
+	Type* bytePtrType = m_module->getSimpleType (StdTypeKind_BytePtr);
 
-	llvm::Function::iterator LlvmBlock = pFunction->GetLlvmFunction ()->begin();
-	llvm::Function::iterator LlvmBlockEnd = pFunction->GetLlvmFunction ()->end ();
+	llvm::Function::iterator llvmBlock = function->getLlvmFunction ()->begin();
+	llvm::Function::iterator llvmBlockEnd = function->getLlvmFunction ()->end ();
 
-	if (LlvmBlock == LlvmBlockEnd)
+	if (llvmBlock == llvmBlockEnd)
 		return 0;
 
-	llvm::BasicBlock::iterator LlvmInst = LlvmBlock->begin ();
-	llvm::BasicBlock::iterator LlvmInstEnd = LlvmBlock->end ();
+	llvm::BasicBlock::iterator llvmInst = llvmBlock->begin ();
+	llvm::BasicBlock::iterator llvmInstEnd = llvmBlock->end ();
 
-	for (; LlvmInst != LlvmInstEnd; LlvmInst++)
+	for (; llvmInst != llvmInstEnd; llvmInst++)
 	{
-		llvm::IntrinsicInst* pLlvmInstinsicInst = llvm::dyn_cast <llvm::IntrinsicInst> (LlvmInst);
+		llvm::IntrinsicInst* llvmInstinsicInst = llvm::dyn_cast <llvm::IntrinsicInst> (llvmInst);
 
-		if (!pLlvmInstinsicInst ||
-			pLlvmInstinsicInst->getCalledFunction ()->getIntrinsicID() != llvm::Intrinsic::gcroot)
+		if (!llvmInstinsicInst ||
+			llvmInstinsicInst->getCalledFunction ()->getIntrinsicID() != llvm::Intrinsic::gcroot)
 			continue;
 
-		TRoot Root;
-		Root.m_pLlvmGcRoot = pLlvmInstinsicInst;
-		Root.m_pLlvmAlloca = llvm::cast <llvm::AllocaInst> (pLlvmInstinsicInst->getArgOperand(0)->stripPointerCasts ());
-		Root.m_pLlvmType   = llvm::cast <llvm::Constant> (pLlvmInstinsicInst->getArgOperand(1));
+		Root root;
+		root.m_llvmGcRoot = llvmInstinsicInst;
+		root.m_llvmAlloca = llvm::cast <llvm::AllocaInst> (llvmInstinsicInst->getArgOperand(0)->stripPointerCasts ());
+		root.m_llvmType   = llvm::cast <llvm::Constant> (llvmInstinsicInst->getArgOperand(1));
 
-		pRootArray->Append (Root);
+		rootArray->append (root);
 	}
 
-	return pRootArray->GetCount ();
+	return rootArray->getCount ();
 }
 
 bool
-CGcShadowStack::GetFrameMap (
-	CFunction* pFunction,
-	TRoot* pRootArray,
-	size_t RootCount,
-	CValue* pResultValue
+GcShadowStack::getFrameMap (
+	Function* function,
+	Root* rootArray,
+	size_t rootCount,
+	Value* resultValue
 	)
 {
-	CStructType* pFrameMapType = m_pModule->m_TypeMgr.GetGcShadowStackFrameMapType (RootCount);
+	StructType* frameMapType = m_module->m_typeMgr.getGcShadowStackFrameMapType (rootCount);
 
-	CType* pTypeArrayType = pFrameMapType->GetFieldByIndex (1)->GetType ();
-	ASSERT (pTypeArrayType->GetTypeKind () == EType_Array);
+	Type* typeArrayType = frameMapType->getFieldByIndex (1)->getType ();
+	ASSERT (typeArrayType->getTypeKind () == TypeKind_Array);
 
-	char Buffer [256];
-	rtl::CArrayT <llvm::Constant*> LlvmTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmTypeArray.SetCount (RootCount);
+	char buffer [256];
+	rtl::Array <llvm::Constant*> llvmTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmTypeArray.setCount (rootCount);
 
-	for (size_t i = 0; i < RootCount; i++)
-		LlvmTypeArray [i] = pRootArray [i].m_pLlvmType;
+	for (size_t i = 0; i < rootCount; i++)
+		llvmTypeArray [i] = rootArray [i].m_llvmType;
 
 	llvm::Constant*
-	LlvmFrameMap [2] =
+	llvmFrameMap [2] =
 	{
-		(llvm::Constant*) CValue (RootCount, m_pModule->GetSimpleType (EType_SizeT)).GetLlvmValue (),
+		(llvm::Constant*) Value (rootCount, m_module->getSimpleType (TypeKind_SizeT)).getLlvmValue (),
 
 		llvm::ConstantArray::get (
-			(llvm::ArrayType*) pTypeArrayType->GetLlvmType (),
-			llvm::ArrayRef <llvm::Constant*> (LlvmTypeArray, RootCount)
+			(llvm::ArrayType*) typeArrayType->getLlvmType (),
+			llvm::ArrayRef <llvm::Constant*> (llvmTypeArray, rootCount)
 			)
 	};
 
-	llvm::Constant* pLlvmFrameMapConst = llvm::ConstantStruct::get (
-		(llvm::StructType*) pFrameMapType->GetLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (LlvmFrameMap, 2)
+	llvm::Constant* llvmFrameMapConst = llvm::ConstantStruct::get (
+		(llvm::StructType*) frameMapType->getLlvmType (),
+		llvm::ArrayRef <llvm::Constant*> (llvmFrameMap, 2)
 		);
 
-	llvm::GlobalVariable* pLlvmFrameMapVariable = new llvm::GlobalVariable (
-		*m_pModule->GetLlvmModule (),
-		pFrameMapType->GetLlvmType (),
+	llvm::GlobalVariable* llvmFrameMapVariable = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		frameMapType->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
-		pLlvmFrameMapConst,
-		(const char*) (pFunction->m_Tag + ".StackFrameMap")
+		llvmFrameMapConst,
+		(const char*) (function->m_tag + ".StackFrameMap")
 		);
 
-	pResultValue->SetLlvmValue (
-		pLlvmFrameMapVariable,
-		pFrameMapType->GetDataPtrType_c (),
-		EValue_Const
+	resultValue->setLlvmValue (
+		llvmFrameMapVariable,
+		frameMapType->getDataPtrType_c (),
+		ValueKind_Const
 		);
 
 	return true;
@@ -317,123 +317,123 @@ CGcShadowStack::GetFrameMap (
 using namespace llvm;
 
 EscapeEnumerator::EscapeEnumerator (
-	Function &F,
+	llvm::Function &F,
 	const char* N
 	):
 	F (F),
-	CleanupBBName (N),
-	State (0),
-	Builder (F.getContext())
+	cleanupBBName (N),
+	state (0),
+	builder (F.getContext())
 {
 }
 
 llvm::IRBuilder<>*
-EscapeEnumerator::Next ()
+EscapeEnumerator::next ()
 {
-	switch (State)
+	switch (state)
 	{
 	default:
 		return 0;
 
 	case 0:
-		StateBB = F.begin();
-		StateE = F.end();
-		State = 1;
+		stateBB = F.begin();
+		stateE = F.end();
+		state = 1;
 
 	case 1:
 		// Find all 'return', 'resume', and 'unwind' instructions.
-		while (StateBB != StateE)
+		while (stateBB != stateE)
 		{
-			BasicBlock *CurBB = StateBB++;
+			llvm::BasicBlock *curBB = stateBB++;
 
-			std::string s = CurBB->getName ();
+			std::string s = curBB->getName ();
 
 			// Branches and invokes do not escape, only unwind, resume, and return
 			// do.
-			TerminatorInst* TI = CurBB->getTerminator();
+			TerminatorInst* TI = curBB->getTerminator();
 			ASSERT (TI);
 
 			if (!isa<ReturnInst>(TI) && !isa<ResumeInst>(TI))
 				continue;
 
-			Builder.SetInsertPoint(TI->getParent(), TI);
-			return &Builder;
+			builder.SetInsertPoint(TI->getParent(), TI);
+			return &builder;
 		}
 
-		State = 2;
+		state = 2;
 		return 0;
 
 #ifdef JNC_EH // will only be relevant after exception handling is implemented
 		// Find all 'call' instructions.
 
-		SmallVector<Instruction*,16> Calls;
+		smallVector<instruction*,16> calls;
 
-		for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
-			for (BasicBlock::iterator II = BB->begin(), EE = BB->end(); II != EE; ++II)
-				if (CallInst *CI = dyn_cast<CallInst>(II))
+		for (function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
+			for (llvm::BasicBlock::iterator II = BB->begin(), EE = BB->end(); II != EE; ++II)
+				if (callInst *CI = dyn_cast<callInst>(II))
 						if (!CI->getCalledFunction() ||
 							!CI->getCalledFunction()->getIntrinsicID())
 						{
-							Calls.push_back(CI);
+							calls.push_back(CI);
 						}
 
-		if (Calls.empty())
+		if (calls.empty())
 			return 0;
 
 		// Create a cleanup block.
 		LLVMContext &C = F.getContext();
-		BasicBlock *CleanupBB = BasicBlock::Create(C, CleanupBBName, &F);
-		Type *ExnTy = StructType::get(
-			Type::getInt8PtrTy(C),
-			Type::getInt32Ty(C),
+		llvm::BasicBlock *cleanupBB = llvm::BasicBlock::create(C, cleanupBBName, &F);
+		type *exnTy = structType::get(
+			type::getInt8PtrTy(C),
+			type::getInt32Ty(C),
 			NULL
 			);
 
-		Constant *PersFn = F.getParent()->getOrInsertFunction(
+		constant *persFn = F.getParent()->getOrInsertFunction(
 			"__gcc_personality_v0",
-			FunctionType::get(Type::getInt32Ty(C), true)
+			functionType::get(type::getInt32Ty(C), true)
 			);
 
-		LandingPadInst *LPad = LandingPadInst::Create(
-			ExnTy,
-			PersFn,
+		landingPadInst *LPad = landingPadInst::create(
+			exnTy,
+			persFn,
 			1,
 			"cleanup.lpad",
-			CleanupBB
+			cleanupBB
 			);
 
 		LPad->setCleanup(true);
-		ResumeInst *RI = ResumeInst::Create(LPad, CleanupBB);
+		resumeInst *RI = resumeInst::create(LPad, cleanupBB);
 
 		// Transform the 'call' instructions into 'invoke's branching to the
 		// cleanup block. Go in reverse order to make prettier BB names.
-		SmallVector<Value*,16> Args;
+		smallVector<value*,16> args;
 
-		for (unsigned I = Calls.size(); I != 0; )
+		for (unsigned I = calls.size(); I != 0; )
 		{
-			CallInst *CI = cast<CallInst>(Calls[--I]);
+			callInst *CI = cast<callInst>(calls[--I]);
 
 			// Split the basic block containing the function call.
-			BasicBlock *CallBB = CI->getParent();
-			BasicBlock *NewBB =
-			CallBB->splitBasicBlock(CI, CallBB->getName() + ".cont");
+			llvm::BasicBlock *callBB = CI->getParent();
+			llvm::BasicBlock *newBB =
+			callBB->splitBasicBlock(CI, callBB->getName() + ".cont");
 
 			// Remove the unconditional branch inserted at the end of CallBB.
-			CallBB->getInstList().pop_back();
-			NewBB->getInstList().remove(CI);
+			callBB->getInstList().pop_back();
+			newBB->getInstList().remove(CI);
 
 			// Create a new invoke instruction.
-			Args.clear();
-			CallSite CS(CI);
-			Args.append(CS.arg_begin(), CS.arg_end());
+			args.clear();
+			callSite CS(CI);
+			args.append(CS.arg_begin(), CS.arg_end());
 
-			InvokeInst *II = InvokeInst::Create(
+			invokeInst *II = invokeInst::create(
 				CI->getCalledValue(),
-				NewBB,
-				CleanupBB,
-				Args,
+				newBB,
+				cleanupBB,
+				args,
 				CI->getName(),
-				CallBB
+				callBB
 				);
 
 			II->setCallingConv(CI->getCallingConv());
@@ -442,8 +442,8 @@ EscapeEnumerator::Next ()
 			delete CI;
 		}
 
-		Builder.SetInsertPoint(RI->getParent(), RI);
-		return &Builder;
+		builder.setInsertPoint(RI->getParent(), RI);
+		return &builder;
 #endif
 	}
 }

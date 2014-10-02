@@ -11,246 +11,246 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-enum ECreateObjectFlag
+enum CreateObjectFlagKind
 {
-	ECreateObjectFlag_Prime     = 0x01,
-	ECreateObjectFlag_Construct = 0x02,
-	ECreateObjectFlag_Pin       = 0x04,
+	CreateObjectFlagKind_Prime     = 0x01,
+	CreateObjectFlagKind_Construct = 0x02,
+	CreateObjectFlagKind_Pin       = 0x04,
 };
 
 //.............................................................................
 
-class CRuntime
+class Runtime
 {
-	friend class CGcHeap;
+	friend class GcHeap;
 
 protected:
-	enum EGcState
+	enum GcStateKind
 	{
-		EGcState_Idle = 0,
-		EGcState_WaitSafePoint,
-		EGcState_Mark,
-		EGcState_Sweep,
+		GcStateKind_Idle = 0,
+		GcStateKind_WaitSafePoint,
+		GcStateKind_Mark,
+		GcStateKind_Sweep,
 	};
 
-	struct TGcRoot
+	struct GcRoot
 	{
 		void* m_p;
-		CType* m_pType;
+		Type* m_type;
 	};
 
-	struct TGcDestructGuard: rtl::TListLink
+	struct GcDestructGuard: rtl::ListLink
 	{
-		rtl::CArrayT <TIfaceHdr*>* m_pDestructArray;
+		rtl::Array <IfaceHdr*>* m_destructArray;
 	};
 
 protected:
-	mt::CLock m_Lock;
-	rtl::CArrayT <CModule*> m_ModuleArray;
+	mt::Lock m_lock;
+	rtl::Array <Module*> m_moduleArray;
 
 	// gc-heap
 
-	volatile EGcState m_GcState;
+	volatile GcStateKind m_gcState;
 
-	size_t m_GcHeapLimit;
-	size_t m_TotalGcAllocSize;
-	size_t m_CurrentGcAllocSize;
-	size_t m_PeriodGcAllocLimit;
-	size_t m_PeriodGcAllocSize;
+	size_t m_gcHeapLimit;
+	size_t m_totalGcAllocSize;
+	size_t m_currentGcAllocSize;
+	size_t m_periodGcAllocLimit;
+	size_t m_periodGcAllocSize;
 
-	mt::CNotificationEvent m_GcIdleEvent;
-	mt::CNotificationEvent m_GcSafePointEvent;
-	volatile intptr_t m_GcUnsafeThreadCount;
-	rtl::CArrayT <TObjHdr*> m_GcObjectArray;
-	rtl::CArrayT <TObjHdr*> m_GcMemBlockArray;
+	mt::NotificationEvent m_gcIdleEvent;
+	mt::NotificationEvent m_gcSafePointEvent;
+	volatile intptr_t m_gcUnsafeThreadCount;
+	rtl::Array <ObjHdr*> m_gcObjectArray;
+	rtl::Array <ObjHdr*> m_gcMemBlockArray;
 
-	rtl::CHashTableT <TIfaceHdr*, rtl::CHashIdT <TIfaceHdr*> > m_GcPinTable;
-	rtl::CAuxListT <TGcDestructGuard> m_GcDestructGuardList;
-	rtl::CArrayT <TGcRoot> m_StaticGcRootArray;
-	rtl::CArrayT <TGcRoot> m_GcRootArray [2];
-	size_t m_CurrentGcRootArrayIdx;
+	rtl::HashTable <IfaceHdr*, rtl::HashId <IfaceHdr*> > m_gcPinTable;
+	rtl::AuxList <GcDestructGuard> m_gcDestructGuardList;
+	rtl::Array <GcRoot> m_staticGcRootArray;
+	rtl::Array <GcRoot> m_gcRootArray [2];
+	size_t m_currentGcRootArrayIdx;
 
 	// tls
 
-	size_t m_StackLimit;
-	size_t m_TlsSlot;
-	size_t m_TlsSize;
-	rtl::CAuxListT <TTlsHdr> m_TlsList;
+	size_t m_stackLimit;
+	size_t m_tlsSlot;
+	size_t m_tlsSize;
+	rtl::AuxList <TlsHdr> m_tlsList;
 
 public:
-	CRuntime ();
+	Runtime ();
 
-	~CRuntime ()
+	~Runtime ()
 	{
-		Destroy ();
+		destroy ();
 	}
 
 	bool
-	Create (
-		size_t HeapLimit = -1,
-		size_t StackLimit = -1
+	create (
+		size_t heapLimit = -1,
+		size_t stackLimit = -1
 		);
 
-	rtl::CArrayT <CModule*> 
-	GetModuleArray ()
+	rtl::Array <Module*> 
+	getModuleArray ()
 	{
-		return m_ModuleArray;
+		return m_moduleArray;
 	}
 
-	CModule* 
-	GetFirstModule ()
+	Module* 
+	getFirstModule ()
 	{
-		return !m_ModuleArray.IsEmpty () ? m_ModuleArray [0] : NULL;
+		return !m_moduleArray.isEmpty () ? m_moduleArray [0] : NULL;
 	}
 
 	bool
-	AddModule (CModule* pModule);
+	addModule (Module* module);
 
 	void
-	Destroy ();
+	destroy ();
 
 	bool
-	Startup ();
+	startup ();
 
 	void
-	Shutdown ();
+	shutdown ();
 
 	static
 	void
-	RuntimeError (
-		int Error,
-		void* pCodeAddr,
-		void* pDataAddr
+	runtimeError (
+		int error,
+		void* codeAddr,
+		void* dataAddr
 		);
 
 	// gc heap
 
 	void
-	RunGc ();
+	runGc ();
 
 	size_t
-	GcMakeThreadSafe (); // return prev gc level
+	gcMakeThreadSafe (); // return prev gc level
 
 	void
-	RestoreGcLevel (size_t PrevGcLevel);
+	restoreGcLevel (size_t prevGcLevel);
 
 	void
-	GcEnter ();
+	gcEnter ();
 
 	void
-	GcLeave ();
+	gcLeave ();
 
 	void
-	GcPulse ();
+	gcPulse ();
 
 	void*
-	GcAllocate (
-		CType* pType,
-		size_t ElementCount = 1
+	gcAllocate (
+		Type* type,
+		size_t elementCount = 1
 		);
 
 	void*
-	GcTryAllocate (
-		CType* pType,
-		size_t ElementCount = 1
+	gcTryAllocate (
+		Type* type,
+		size_t elementCount = 1
 		);
 
 	void
-	AddGcRoot (
+	addGcRoot (
 		void* p,
-		CType* pType
+		Type* type
 		);
 
 	// creating objects on gc heap
 
-	TIfaceHdr*
-	CreateObject (
-		CClassType* pType,
-		uint_t Flags =
-			ECreateObjectFlag_Prime | 
-			ECreateObjectFlag_Construct | 
-			ECreateObjectFlag_Pin
+	IfaceHdr*
+	createObject (
+		ClassType* type,
+		uint_t flags =
+			CreateObjectFlagKind_Prime | 
+			CreateObjectFlagKind_Construct | 
+			CreateObjectFlagKind_Pin
 		);
 
 	void
-	PinObject (TIfaceHdr* pObject);
+	pinObject (IfaceHdr* object);
 
 	void
-	UnpinObject (TIfaceHdr* pObject);
+	unpinObject (IfaceHdr* object);
 
 	// tls
 
 	size_t
-	GetTlsSlot ()
+	getTlsSlot ()
 	{
-		return m_TlsSlot;
+		return m_tlsSlot;
 	}
 
-	TTlsHdr*
-	GetTls ();
+	TlsHdr*
+	getTls ();
 
-	TTlsHdr*
-	CreateTls ();
+	TlsHdr*
+	createTls ();
 
 	void
-	DestroyTls (TTlsHdr* pTls);
+	destroyTls (TlsHdr* tls);
 
 protected:
 	void
-	WaitGcIdleAndLock ();
+	waitGcIdleAndLock ();
 
 	void
-	GcAddObject (
-		TObjHdr* pObject,
-		CClassType* pType
+	gcAddObject (
+		ObjHdr* object,
+		ClassType* type
 		);
 
 	void
-	RunGc_l ();
+	runGc_l ();
 
 	void
-	GcMarkCycle ();
+	gcMarkCycle ();
 
 	void
-	GcIncrementUnsafeThreadCount ();
+	gcIncrementUnsafeThreadCount ();
 
 	void
-	GcDecrementUnsafeThreadCount ();
+	gcDecrementUnsafeThreadCount ();
 
 	void
-	MarkGcLocalHeapRoot (
+	markGcLocalHeapRoot (
 		void* p,
-		CType* pType
+		Type* type
 		);
 };
 
 //.............................................................................
 
-typedef mt::CScopeTlsSlotT <CRuntime> CScopeThreadRuntime;
+typedef mt::ScopeTlsSlot <Runtime> ScopeThreadRuntime;
 
 inline
-CRuntime*
-GetCurrentThreadRuntime ()
+Runtime*
+getCurrentThreadRuntime ()
 {
-	return mt::GetTlsSlotValue <CRuntime> ();
+	return mt::getTlsSlotValue <Runtime> ();
 }
 
 //.............................................................................
 
-enum ERuntimeError
+enum RuntimeErrorKind
 {
-	ERuntimeError_OutOfMemory,
-	ERuntimeError_StackOverflow,
-	ERuntimeError_ScopeMismatch,
-	ERuntimeError_DataPtrOutOfRange,
-	ERuntimeError_NullClassPtr,
-	ERuntimeError_NullFunctionPtr,
-	ERuntimeError_NullPropertyPtr,
-	ERuntimeError_AbstractFunction,
+	RuntimeErrorKind_OutOfMemory,
+	RuntimeErrorKind_StackOverflow,
+	RuntimeErrorKind_ScopeMismatch,
+	RuntimeErrorKind_DataPtrOutOfRange,
+	RuntimeErrorKind_NullClassPtr,
+	RuntimeErrorKind_NullFunctionPtr,
+	RuntimeErrorKind_NullPropertyPtr,
+	RuntimeErrorKind_AbstractFunction,
 };
 
 //.............................................................................

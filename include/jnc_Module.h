@@ -19,324 +19,324 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-enum EModuleFlag
+enum ModuleFlagKind
 {
-	EModuleFlag_DebugInfo  = 0x0001,
-	EModuleFlag_IrComments = 0x0002,
-	EModuleFlag_McJit      = 0x0004,
+	ModuleFlagKind_DebugInfo  = 0x0001,
+	ModuleFlagKind_IrComments = 0x0002,
+	ModuleFlagKind_McJit      = 0x0004,
 };
 
 //.............................................................................
 
 // makes it convenient to initialize childs (especially operators)
 
-class CPreModule
+class PreModule
 {
 protected:
-	CModule* m_pPrevModule;
+	Module* m_prevModule;
 
-	CPreModule ()
+	PreModule ()
 	{
-		m_pPrevModule = mt::SetTlsSlotValue <CModule> ((CModule*) this);
+		m_prevModule = mt::setTlsSlotValue <Module> ((Module*) this);
 	}
 
 	void
-	RestorePrevModule ()
+	restorePrevModule ()
 	{
-		mt::SetTlsSlotValue <CModule> (m_pPrevModule);
+		mt::setTlsSlotValue <Module> (m_prevModule);
 	}
 };
 
 //.............................................................................
 
-class CModule: CPreModule
+class Module: PreModule
 {
 protected:
-	uint_t m_Flags;
+	uint_t m_flags;
 
-	rtl::CString m_Name;
+	rtl::String m_name;
 
-	CFunction* m_pConstructor;
-	CFunction* m_pDestructor;
+	Function* m_constructor;
+	Function* m_destructor;
 
-	rtl::CArrayT <CModuleItem*> m_CalcLayoutArray;
-	rtl::CArrayT <CModuleItem*> m_CompileArray;
-	rtl::CArrayT <CModuleItem*> m_ApiItemArray;
-	rtl::CBoxListT <rtl::CString> m_SourceList;
-	rtl::CStringHashTableMapT <void*> m_FunctionMap;
+	rtl::Array <ModuleItem*> m_calcLayoutArray;
+	rtl::Array <ModuleItem*> m_compileArray;
+	rtl::Array <ModuleItem*> m_apiItemArray;
+	rtl::BoxList <rtl::String> m_sourceList;
+	rtl::StringHashTableMap <void*> m_functionMap;
 
-	llvm::Module* m_pLlvmModule;
-	llvm::ExecutionEngine* m_pLlvmExecutionEngine;
-
-public:
-	CTypeMgr m_TypeMgr;
-	CAttributeMgr m_AttributeMgr;
-	CNamespaceMgr m_NamespaceMgr;
-	CFunctionMgr m_FunctionMgr;
-	CVariableMgr m_VariableMgr;
-	CConstMgr m_ConstMgr;
-	CControlFlowMgr m_ControlFlowMgr;
-	COperatorMgr m_OperatorMgr;
-	CUnitMgr m_UnitMgr;
-	CLlvmIrBuilder m_LlvmIrBuilder;
-	CLlvmDiBuilder m_LlvmDiBuilder;
+	llvm::Module* m_llvmModule;
+	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
 public:
-	CModule ();
+	TypeMgr m_typeMgr;
+	AttributeMgr m_attributeMgr;
+	NamespaceMgr m_namespaceMgr;
+	FunctionMgr m_functionMgr;
+	VariableMgr m_variableMgr;
+	ConstMgr m_constMgr;
+	ControlFlowMgr m_controlFlowMgr;
+	OperatorMgr m_operatorMgr;
+	UnitMgr m_unitMgr;
+	LlvmIrBuilder m_llvmIrBuilder;
+	LlvmDiBuilder m_llvmDiBuilder;
 
-	~CModule ()
+public:
+	Module ();
+
+	~Module ()
 	{
-		Clear ();
+		clear ();
 	}
 
-	rtl::CString
-	GetName ()
+	rtl::String
+	getName ()
 	{
-		return m_Name;
+		return m_name;
 	}
 
 	llvm::LLVMContext*
-	GetLlvmContext ()
+	getLlvmContext ()
 	{
-		ASSERT (m_pLlvmModule);
-		return &m_pLlvmModule->getContext ();
+		ASSERT (m_llvmModule);
+		return &m_llvmModule->getContext ();
 	}
 
 	llvm::Module*
-	GetLlvmModule ()
+	getLlvmModule ()
 	{
-		ASSERT (m_pLlvmModule);
-		return m_pLlvmModule;
+		ASSERT (m_llvmModule);
+		return m_llvmModule;
 	}
 
 	llvm::ExecutionEngine*
-	GetLlvmExecutionEngine ()
+	getLlvmExecutionEngine ()
 	{
-		ASSERT (m_pLlvmExecutionEngine);
-		return m_pLlvmExecutionEngine;
+		ASSERT (m_llvmExecutionEngine);
+		return m_llvmExecutionEngine;
 	}
 
-	CType*
-	GetSimpleType (EType TypeKind)
+	Type*
+	getSimpleType (TypeKind typeKind)
 	{
-		return m_TypeMgr.GetPrimitiveType (TypeKind);
+		return m_typeMgr.getPrimitiveType (typeKind);
 	}
 
-	CType*
-	GetSimpleType (EStdType StdType)
+	Type*
+	getSimpleType (StdTypeKind stdType)
 	{
-		return m_TypeMgr.GetStdType (StdType);
+		return m_typeMgr.getStdType (stdType);
 	}
 
 	uint_t
-	GetFlags ()
+	getFlags ()
 	{
-		return m_Flags;
+		return m_flags;
 	}
 
-	CFunction*
-	GetConstructor ()
+	Function*
+	getConstructor ()
 	{
-		return m_pConstructor;
-	}
-
-	bool
-	SetConstructor (CFunction* pFunction);
-
-	CFunction*
-	GetDestructor ()
-	{
-		return m_pDestructor;
+		return m_constructor;
 	}
 
 	bool
-	SetDestructor (CFunction* pFunction);
+	setConstructor (Function* function);
+
+	Function*
+	getDestructor ()
+	{
+		return m_destructor;
+	}
+
+	bool
+	setDestructor (Function* function);
 
 	void
-	SetFunctionPointer (
-		llvm::ExecutionEngine* pLlvmExecutionEngine,
-		CFunction* pFunction,
+	setFunctionPointer (
+		llvm::ExecutionEngine* llvmExecutionEngine,
+		Function* function,
 		void* pf
 		)
 	{
-		pLlvmExecutionEngine->addGlobalMapping (pFunction->GetLlvmFunction (), pf);
+		llvmExecutionEngine->addGlobalMapping (function->getLlvmFunction (), pf);
 	}
 
 	void
-	SetFunctionPointer (
-		llvm::ExecutionEngine* pLlvmExecutionEngine,
-		EStdFunc FuncKind,
+	setFunctionPointer (
+		llvm::ExecutionEngine* llvmExecutionEngine,
+		StdFuncKind funcKind,
 		void* pf
 		)
 	{
-		SetFunctionPointer (pLlvmExecutionEngine, m_FunctionMgr.GetStdFunction (FuncKind), pf);
+		setFunctionPointer (llvmExecutionEngine, m_functionMgr.getStdFunction (funcKind), pf);
 	}
 
 	bool
-	SetFunctionPointer (
-		llvm::ExecutionEngine* pLlvmExecutionEngine,
-		const char* pName,
+	setFunctionPointer (
+		llvm::ExecutionEngine* llvmExecutionEngine,
+		const char* name,
 		void* pf
 		);
 
 	bool
-	SetFunctionPointer (
-		llvm::ExecutionEngine* pLlvmExecutionEngine,
-		const CQualifiedName& Name,
+	setFunctionPointer (
+		llvm::ExecutionEngine* llvmExecutionEngine,
+		const QualifiedName& name,
 		void* pf
 		);
 
 	void
-	MarkForLayout (
-		CModuleItem* pItem,
-		bool IsForced = false
+	markForLayout (
+		ModuleItem* item,
+		bool isForced = false
 		);
 
 	void
-	MarkForCompile (CModuleItem* pItem);
+	markForCompile (ModuleItem* item);
 
-	CModuleItem*
-	GetItemByName (const char* pName)
+	ModuleItem*
+	getItemByName (const char* name)
 	{
-		return m_NamespaceMgr.GetGlobalNamespace ()->GetItemByName (pName);
+		return m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
 	}
 
-	CClassType*
-	GetClassTypeByName (const char* pName)
+	ClassType*
+	getClassTypeByName (const char* name)
 	{
-		return VerifyModuleItemIsClassType (GetItemByName (pName), pName);
+		return verifyModuleItemIsClassType (getItemByName (name), name);
 	}
 
-	CFunction*
-	GetFunctionByName (const char* pName)
+	Function*
+	getFunctionByName (const char* name)
 	{
-		return VerifyModuleItemIsFunction (GetItemByName (pName), pName);
+		return verifyModuleItemIsFunction (getItemByName (name), name);
 	}
 
-	CProperty*
-	GetPropertyByName (const char* pName)
+	Property*
+	getPropertyByName (const char* name)
 	{
-		return VerifyModuleItemIsProperty (GetItemByName (pName), pName);
+		return verifyModuleItemIsProperty (getItemByName (name), name);
 	}
 
-	CModuleItem*
-	GetApiItem (
-		size_t Slot,
-		const char* pName
+	ModuleItem*
+	getApiItem (
+		size_t slot,
+		const char* name
 		);
 
-	CClassType*
-	GetApiClassType (
-		size_t Slot,
-		const char* pName
+	ClassType*
+	getApiClassType (
+		size_t slot,
+		const char* name
 		)
 	{
-		return VerifyModuleItemIsClassType (GetApiItem (Slot, pName), pName);
+		return verifyModuleItemIsClassType (getApiItem (slot, name), name);
 	}
 
-	CFunction*
-	GetApiFunction (
-		size_t Slot,
-		const char* pName
+	Function*
+	getApiFunction (
+		size_t slot,
+		const char* name
 		)
 	{
-		return VerifyModuleItemIsFunction (GetApiItem (Slot, pName), pName);
+		return verifyModuleItemIsFunction (getApiItem (slot, name), name);
 	}
 
-	CProperty*
-	GetApiProperty (
-		size_t Slot,
-		const char* pName
+	Property*
+	getApiProperty (
+		size_t slot,
+		const char* name
 		)
 	{
-		return VerifyModuleItemIsProperty (GetApiItem (Slot, pName), pName);
+		return verifyModuleItemIsProperty (getApiItem (slot, name), name);
 	}
 
 	bool
-	Create (
-		const rtl::CString& Name,
-		uint_t Flags = 0
+	create (
+		const rtl::String& name,
+		uint_t flags = 0
 		);
 
 	bool
-	CreateLlvmExecutionEngine ();
+	createLlvmExecutionEngine ();
 
 	void
-	Clear ();
+	clear ();
 
 	bool
-	Parse (
-		const char* pFilePath,
-		const char* pSource,
-		size_t Length = -1
+	parse (
+		const char* filePath,
+		const char* source,
+		size_t length = -1
 		);
 
 	bool
-	ParseFile (const char* pFilePath);
+	parseFile (const char* filePath);
 
 	bool
-	Link (CModule* pModule);
+	link (Module* module);
 
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	bool
-	Compile ();
+	compile ();
 
 	bool
-	Jit ();
+	jit ();
 
 	void
-	MapFunction (
-		llvm::Function* pLlvmFunction,
+	mapFunction (
+		llvm::Function* llvmFunction,
 		void* pf
 		);
 
 	void*
-	FindFunctionMapping (const char* pName)
+	findFunctionMapping (const char* name)
 	{
-		rtl::CStringHashTableMapIteratorT <void*> It = m_FunctionMap.Find (pName);
-		return It ? It->m_Value : NULL;
+		rtl::StringHashTableMapIterator <void*> it = m_functionMap.find (name);
+		return it ? it->m_value : NULL;
 	}
 
-	rtl::CString
-	GetLlvmIrString ();
+	rtl::String
+	getLlvmIrString ();
 
 	bool
-	Construct ()
+	construct ()
 	{
-		return jnc::CallVoidFunction (m_pConstructor);
+		return jnc::callVoidFunction (m_constructor);
 	}
 
 protected:
 	bool
-	CreateDefaultConstructor ();
+	createDefaultConstructor ();
 
 	void
-	CreateDefaultDestructor ();
+	createDefaultDestructor ();
 };
 
 //.............................................................................
 
-typedef mt::CScopeTlsSlotT <CModule> CScopeThreadModule;
+typedef mt::ScopeTlsSlot <Module> ScopeThreadModule;
 
 inline
-CModule*
-GetCurrentThreadModule ()
+Module*
+getCurrentThreadModule ()
 {
-	return mt::GetTlsSlotValue <CModule> ();
+	return mt::getTlsSlotValue <Module> ();
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-CModuleItem*
-GetStockModuleItem (
-	size_t Slot,
-	const char* pName
+ModuleItem*
+getStockModuleItem (
+	size_t slot,
+	const char* name
 	);
 
 //.............................................................................

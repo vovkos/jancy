@@ -4,41 +4,41 @@ start
 expression_save_value_0
 	:	expression_0
 			{
-				m_ExpressionValue = $1.m_Value;
+				m_expressionValue = $1.m_value;
 			}
 	;
 
 class
 {
-	CValue m_Value;	
+	Value m_value;	
 }
 start
 expression_0
-	:	conditional_expr_0 <&$.m_Value>
+	:	conditional_expr_0 <&$.m_value>
 	;
 
 class 
 {
-	CValue m_Value;
+	Value m_value;
 }
 nullable
 expression_or_empty_0
-	:	conditional_expr_0 <&$.m_Value>
+	:	conditional_expr_0 <&$.m_value>
 	|	epsilon
 	;
 
 class
 {
-	rtl::CBoxListT <CValue> m_ValueList;
+	rtl::BoxList <Value> m_valueList;
 }
 expression_list_0
 	:	expression_0 
 			{
-				$.m_ValueList.InsertTail ($1.m_Value);
+				$.m_valueList.insertTail ($1.m_value);
 			}
 		(',' expression_0 $e2
 			{
-				$.m_ValueList.InsertTail ($e2.m_Value);
+				$.m_valueList.insertTail ($e2.m_value);
 			}
 		)*
 	;
@@ -48,25 +48,25 @@ expression_list_0
 
 class
 {
-	rtl::CBoxListT <CValue> m_ValueList;
+	rtl::BoxList <Value> m_valueList;
 }
 nullable
 expression_or_empty_list_0
 	:	expression_0
 			{
-				$.m_ValueList.InsertTail ($1.m_Value);
+				$.m_valueList.insertTail ($1.m_value);
 			}
 		(',' expression_or_empty_0 $e2
 			{
-				$.m_ValueList.InsertTail ($e2.m_Value);
+				$.m_valueList.insertTail ($e2.m_value);
 			}
 		)*
 	|		{
-				$.m_ValueList.InsertTail (CValue ());
+				$.m_valueList.insertTail (Value ());
 			}	
 		(',' expression_or_empty_0 $e2
 			{
-				$.m_ValueList.InsertTail ($e2.m_Value);
+				$.m_valueList.insertTail ($e2.m_value);
 			}
 		)+
 	|	epsilon 
@@ -74,412 +74,412 @@ expression_or_empty_list_0
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-conditional_expr_0 <CValue* $pValue>
+conditional_expr_0 <Value* $value>
 	local 
 	{
-		CValue $TrueValue;
-		CValue $FalseValue;
+		Value $trueValue;
+		Value $falseValue;
 	}
-	:	logical_or_expr_0 <$pValue> 
-		('?' conditional_expr_0 <&$TrueValue> ':' conditional_expr_0 <&$FalseValue>
+	:	logical_or_expr_0 <$value> 
+		('?' conditional_expr_0 <&$trueValue> ':' conditional_expr_0 <&$falseValue>
 			{
-				return m_pModule->m_OperatorMgr.GetConditionalOperatorResultType ($TrueValue, $FalseValue, $pValue);
+				return m_module->m_operatorMgr.getConditionalOperatorResultType ($trueValue, $falseValue, $value);
 			}
 		)?
 	;
 
-logical_or_expr_0 <CValue* $pValue>
+logical_or_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	logical_and_expr_0 <$pValue> 
-		(EToken_LogOr logical_and_expr_0 <&$OpValue2>
+	:	logical_and_expr_0 <$value> 
+		(TokenKind_LogOr logical_and_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_LogAnd, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogAnd, $value, $opValue2);
 			}
 		)*
 	;
 
-logical_and_expr_0 <CValue* $pValue>
+logical_and_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	inclusive_or_expr_0 <$pValue> 
-		(EToken_LogAnd inclusive_or_expr_0 <&$OpValue2>
+	:	inclusive_or_expr_0 <$value> 
+		(TokenKind_LogAnd inclusive_or_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_LogOr, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogOr, $value, $opValue2);
 			}
 		)*
 	;
 
-inclusive_or_expr_0 <CValue* $pValue>
+inclusive_or_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	exclusive_or_expr_0 <$pValue> 
-		('|' exclusive_or_expr_0 <&$OpValue2>
+	:	exclusive_or_expr_0 <$value> 
+		('|' exclusive_or_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwOr, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwOr, $value, $opValue2);
 			}
 		)*
 	;
 
-exclusive_or_expr_0 <CValue* $pValue>
+exclusive_or_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	and_expr_0 <$pValue> 
-		('^' and_expr_0 <&$OpValue2>
+	:	and_expr_0 <$value> 
+		('^' and_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwXor, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwXor, $value, $opValue2);
 			}
 		)*
 	;
 
-and_expr_0 <CValue* $pValue>
+and_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	equality_expr_0 <$pValue> 
-		('&' equality_expr_0 <&$OpValue2>
+	:	equality_expr_0 <$value> 
+		('&' equality_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_BwAnd, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwAnd, $value, $opValue2);
 			}
 		)*
 	;
 
-equality_expr_0 <CValue* $pValue>
+equality_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	relational_expr_0 <$pValue> 
-		(equality_operator $o relational_expr_0 <&$OpValue2>
+	:	relational_expr_0 <$value> 
+		(equality_operator $o relational_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
 
-relational_expr_0 <CValue* $pValue>
+relational_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	shift_expr_0 <$pValue> 
-		(relational_operator $o shift_expr_0 <&$OpValue2>
+	:	shift_expr_0 <$value> 
+		(relational_operator $o shift_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
 
-shift_expr_0 <CValue* $pValue>
+shift_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	additive_expr_0 <$pValue> 
-		(shift_operator $o additive_expr_0 <&$OpValue2>
+	:	additive_expr_0 <$value> 
+		(shift_operator $o additive_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
 
-additive_expr_0 <CValue* $pValue>
+additive_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	multiplicative_expr_0 <$pValue> 
-		(additive_operator $o multiplicative_expr_0 <&$OpValue2>
+	:	multiplicative_expr_0 <$value> 
+		(additive_operator $o multiplicative_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
 
-multiplicative_expr_0 <CValue* $pValue>
+multiplicative_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	at_expr_0 <$pValue> 
-		(multiplicative_operator $o at_expr_0 <&$OpValue2>
+	:	at_expr_0 <$value> 
+		(multiplicative_operator $o at_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
 
-at_expr_0 <CValue* $pValue>
+at_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	assignment_expr_0 <$pValue> 
-		('@' assignment_expr_0 <&$OpValue2>
+	:	assignment_expr_0 <$value> 
+		('@' assignment_expr_0 <&$opValue2>
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_At, $pValue, $OpValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_At, $value, $opValue2);
 			}
 		)*
 	;
 
-assignment_expr_0 <CValue* $pValue>
+assignment_expr_0 <Value* $value>
 	local
 	{
-		CValue $OpValue2;
+		Value $opValue2;
 	}
-	:	unary_expr_0 <$pValue> 
+	:	unary_expr_0 <$value> 
 		(
 				{
-					if (m_Stage == EStage_ReactorScan)
-						m_ReactorBindableTypeCount = 0; // reset on assignment
+					if (m_stage == StageKind_ReactorScan)
+						m_reactorBindableTypeCount = 0; // reset on assignment
 				}
-			assignment_operator $o conditional_expr_0 <&$OpValue2>
+			assignment_operator $o conditional_expr_0 <&$opValue2>
 				{
-					return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType ($o.m_OpKind, $pValue, $OpValue2);
+					return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
 				}
 		)?
 	;
 
-unary_expr_0 <CValue* $pValue>
-	:	postfix_expr_0 <$pValue> 
-	|	unary_operator_expr_0 <$pValue> 
+unary_expr_0 <Value* $value>
+	:	postfix_expr_0 <$value> 
+	|	unary_operator_expr_0 <$value> 
 	;
 
-unary_operator_expr_0 <CValue* $pValue>
+unary_operator_expr_0 <Value* $value>
 	leave 
 	{
-		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableTypeCount++;
+		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
+			m_reactorBindableTypeCount++;
 	}
-	:	'+' unary_expr_0 <$pValue> 
+	:	'+' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Plus, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Plus, $value);
 			}
-	|	'-' unary_expr_0 <$pValue> 
+	|	'-' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Minus, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Minus, $value);
 			}
-	|	'~' unary_expr_0 <$pValue> 
+	|	'~' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_BwNot, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_BwNot, $value);
 			}
-	|	'&' unary_expr_0 <$pValue> 
+	|	'&' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Addr, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, $value);
 			}
-	|	'*' unary_expr_0 <$pValue> 
+	|	'*' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Indir, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Indir, $value);
 			}
-	|	'!' unary_expr_0 <$pValue> 
+	|	'!' unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_LogNot, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_LogNot, $value);
 			}
-	|	EToken_Inc unary_expr_0 <$pValue> 
+	|	TokenKind_Inc unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PreInc, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreInc, $value);
 			}
-	|	EToken_Dec unary_expr_0 <$pValue> 
+	|	TokenKind_Dec unary_expr_0 <$value> 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PreDec, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreDec, $value);
 			}
-	|	EToken_Try unary_expr_0 <$pValue> 
+	|	TokenKind_Try unary_expr_0 <$value> 
 			{
 				// try operator does not change type of value				
 			}
-	|	EToken_SizeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
-				$pValue->SetType (EType_SizeT);
+				$value->setType (TypeKind_SizeT);
 			}
-	|	EToken_CountOf '(' type_name_or_expr $t ')'
+	|	TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
-				$pValue->SetType (EType_SizeT);
+				$value->setType (TypeKind_SizeT);
 			}
-	|	EToken_TypeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
-				CType* pType = $t.m_pType->GetTypeKind () == EType_DataRef ? ((CDataPtrType*) $t.m_pType)->GetTargetType () : $t.m_pType;
-				$pValue->SetType ($t.m_pType);
+				Type* type = $t.m_type->getTypeKind () == TypeKind_DataRef ? ((DataPtrType*) $t.m_type)->getTargetType () : $t.m_type;
+				$value->setType ($t.m_type);
 			}
-	|	EToken_OffsetOf '(' expression_0 ')'
+	|	TokenKind_OffsetOf '(' expression_0 ')'
 			{
-				$pValue->SetType (EType_SizeT);
+				$value->setType (TypeKind_SizeT);
 			}
-	|	EToken_BindingOf '(' conditional_expr_0 <$pValue> ')' 
+	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')' 
 			{
-				return m_pModule->m_OperatorMgr.GetPropertyOnChangedType ($pValue);
+				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
 			}
 	|	resolver (cast_operator_rslv) 
-		'(' storage_specifier? type_name $t ')' unary_expr_0 <$pValue> 
+		'(' storage_specifier? type_name $t ')' unary_expr_0 <$value> 
 			{
-				$pValue->SetType ($t.m_pType);
+				$value->setType ($t.m_type);
 			}
-	|	storage_specifier $s? EToken_New new_operator_sype_0 $t
+	|	storage_specifier $s? TokenKind_New new_operator_sype_0 $t
 			{
-				EStorage StorageKind = IsValidLocator ($s) ? $s.m_StorageKind : EStorage_Heap;
-				return NewOperator_0 (StorageKind, $t.m_pType, $pValue);			
+				StorageKind storageKind = isValidLocator ($s) ? $s.m_storageKind : StorageKind_Heap;
+				return newOperator_0 (storageKind, $t.m_type, $value);			
 			}
-	|	EToken_Delete unary_expr_0 <$pValue> 
+	|	TokenKind_Delete unary_expr_0 <$value> 
 			{
-				$pValue->SetVoid ();
+				$value->setVoid ();
 			}
 	;
 
 class
 {
-	CType* m_pType;
+	Type* m_type;
 }
 new_operator_sype_0
 	:	type_name
 			{
-				$.m_pType = $1.m_pType;
+				$.m_type = $1.m_type;
 			}
 	|	resolver (type_name_w_constructor_rslv) priority (2) // set higher priority than type_specifier::qualified_name
-		qualified_type_name $t EToken_Construct? '(' expression_or_empty_list_0 ')'
+		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list_0 ')'
 			{
-				$.m_pType = $t.m_pType;
+				$.m_type = $t.m_type;
 			}
 	;
 
-postfix_expr_0 <CValue* $pValue>
-	:	primary_expr_0 <$pValue>
-		postfix_operator_0 <$pValue>*
+postfix_expr_0 <Value* $value>
+	:	primary_expr_0 <$value>
+		postfix_operator_0 <$value>*
 	;
 
-postfix_operator_0 <CValue* $pValue>
+postfix_operator_0 <Value* $value>
 	leave 
 	{
-		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableTypeCount++;
+		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
+			m_reactorBindableTypeCount++;
 	}
 	:	'(' expression_or_empty_list_0 ')'
 			{
-				return m_pModule->m_OperatorMgr.GetCallOperatorResultType ($pValue, &$2.m_ValueList);
+				return m_module->m_operatorMgr.getCallOperatorResultType ($value, &$2.m_valueList);
 			}		
 	|	'~' '(' expression_or_empty_list_0 ')'
 			{
-				return m_pModule->m_OperatorMgr.GetClosureOperatorResultType ($pValue, &$3.m_ValueList);
+				return m_module->m_operatorMgr.getClosureOperatorResultType ($value, &$3.m_valueList);
 			}		
 	|	'[' expression_or_empty_0 ']'
 			{
-				return m_pModule->m_OperatorMgr.GetBinaryOperatorResultType (EBinOp_Idx, $pValue, $2.m_Value);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_Idx, $value, $2.m_value);
 			}	
-	|	EToken_Inc
+	|	TokenKind_Inc
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PostInc, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostInc, $value);
 			}
-	|	EToken_Dec
+	|	TokenKind_Dec
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_PostDec, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostDec, $value);
 			}
 	|	'.'
-		(EToken_Weak
+		(TokenKind_Weak
 			{
-				return m_pModule->m_OperatorMgr.GetWeakenOperatorResultType ($pValue);
+				return m_module->m_operatorMgr.getWeakenOperatorResultType ($value);
 			}
 		)?
-		member_operator_0 <$pValue>
-	|	EToken_Ptr 
+		member_operator_0 <$value>
+	|	TokenKind_Ptr 
 			{
-				return m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Ptr, $pValue);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Ptr, $value);
 			}
-		member_operator_0 <$pValue>
+		member_operator_0 <$value>
 	;
 
-member_operator_0 <CValue* $pValue>
-	:	EToken_Identifier $n
+member_operator_0 <Value* $value>
+	:	TokenKind_Identifier $n
 			{
-				return m_pModule->m_OperatorMgr.GetMemberOperatorResultType ($pValue, $n.m_Data.m_String);
+				return m_module->m_operatorMgr.getMemberOperatorResultType ($value, $n.m_data.m_string);
 			}
-	|	EToken_Get
+	|	TokenKind_Get
 			{
-				return m_pModule->m_OperatorMgr.GetPropertyGetterType ($pValue);
+				return m_module->m_operatorMgr.getPropertyGetterType ($value);
 			}
-	|	EToken_Set
+	|	TokenKind_Set
 			{
-				return m_pModule->m_OperatorMgr.GetPropertySetterType ($pValue);
+				return m_module->m_operatorMgr.getPropertySetterType ($value);
 			}
 	;
 
-primary_expr_0 <CValue* $pValue>
+primary_expr_0 <Value* $value>
 	leave 
 	{
-		if (m_Stage == EStage_ReactorScan && IsBindableType ($pValue->GetType ()))
-			m_ReactorBindableTypeCount++;
+		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
+			m_reactorBindableTypeCount++;
 	}
-	:	EToken_Identifier
+	:	TokenKind_Identifier
 			{
-				return LookupIdentifierType ($1.m_Data.m_String, $1.m_Pos, $pValue);
+				return lookupIdentifierType ($1.m_data.m_string, $1.m_pos, $value);
 			}
-	|	EToken_BaseType
+	|	TokenKind_BaseType
 			{
-				return GetBaseType ($1.m_Data.m_Integer - 1, $pValue);
+				return getBaseType ($1.m_data.m_integer - 1, $value);
 			}
-	|	EToken_This
+	|	TokenKind_This
 			{
-				return m_pModule->m_OperatorMgr.GetThisValueType ($pValue);
+				return m_module->m_operatorMgr.getThisValueType ($value);
 			}
-	|	EToken_RetVal
+	|	TokenKind_RetVal
 			{
-				return GetThrowReturnValueType ($pValue);
+				return getThrowReturnValueType ($value);
 			}
-	|	EToken_Integer
+	|	TokenKind_Integer
 			{
-				$pValue->SetType (GetInt64TypeKind ($1.m_Data.m_Int64));
+				$value->setType (getInt64TypeKind ($1.m_data.m_int64));
 			}
-	|	EToken_Fp
+	|	TokenKind_Fp
 			{
-				$pValue->SetType (EType_Double);
+				$value->setType (TypeKind_Double);
 			}
-	|	EToken_True
+	|	TokenKind_True
 			{
-				$pValue->SetType (EType_Bool);
+				$value->setType (TypeKind_Bool);
 			}
-	|	EToken_False
+	|	TokenKind_False
 			{
-				$pValue->SetType (EType_Bool);
+				$value->setType (TypeKind_Bool);
 			}
-	|	EToken_Null
+	|	TokenKind_Null
 			{
-				$pValue->SetNull ();
+				$value->setNull ();
 			}
-	|	literal_0 <$pValue> 
-	|	'(' conditional_expr_0 <$pValue> ')'
+	|	literal_0 <$value> 
+	|	'(' conditional_expr_0 <$value> ')'
 	;
 
-literal_0 <CValue* $pValue>
+literal_0 <Value* $value>
 	local
 	{
-		TLiteral $Literal;
+		Literal $literal;
 	}
-	:	(	EToken_Literal 
+	:	(	TokenKind_Literal 
 				{			
-					$Literal.m_BinData.Append ((const uchar_t*) $1.m_Data.m_String.cc (), $1.m_Data.m_String.GetLength ());
-					$Literal.m_LastToken = EToken_Literal;
+					$literal.m_binData.append ((const uchar_t*) $1.m_data.m_string.cc (), $1.m_data.m_string.getLength ());
+					$literal.m_lastToken = TokenKind_Literal;
 				}
-		|	EToken_HexLiteral
+		|	TokenKind_HexLiteral
 				{			
-					$Literal.m_BinData.Append ($2.m_Data.m_BinData, $2.m_Data.m_BinData.GetCount ());
-					$Literal.m_LastToken = EToken_HexLiteral;
+					$literal.m_binData.append ($2.m_data.m_binData, $2.m_data.m_binData.getCount ());
+					$literal.m_lastToken = TokenKind_HexLiteral;
 				}
-		|	EToken_FmtLiteral expression_0 EToken_FmtSpecifier?
+		|	TokenKind_FmtLiteral expression_0 TokenKind_FmtSpecifier?
 				{
 					// mark we have a formatting literal from now on
 
-					if (!$Literal.m_FmtLiteralValue)
-						$Literal.m_FmtLiteralValue.SetConstBool (true); 
+					if (!$literal.m_fmtLiteralValue)
+						$literal.m_fmtLiteralValue.setConstBool (true); 
 				}
 		)+
 			{
-				return FinalizeLiteral_0 (&$Literal, $pValue);
+				return finalizeLiteral_0 (&$literal, $value);
 			}
 	;
 

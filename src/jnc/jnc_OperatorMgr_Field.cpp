@@ -7,58 +7,58 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::GetField (
-	const CValue& OpValue,
-	CStructField* pField,
-	CMemberCoord* pCoord,
-	CValue* pResultValue
+OperatorMgr::getField (
+	const Value& opValue,
+	StructField* field,
+	MemberCoord* coord,
+	Value* resultValue
 	)
 {
-	CType* pType = OpValue.GetType ();
+	Type* type = opValue.getType ();
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_DataPtr)
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
-	else if (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_ClassPtr)
-		pType = ((CClassPtrType*) OpValue.GetType ())->GetTargetType ();
+	if (type->getTypeKindFlags () & TypeKindFlagKind_DataPtr)
+		type = ((DataPtrType*) type)->getTargetType ();
+	else if (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr)
+		type = ((ClassPtrType*) opValue.getType ())->getTargetType ();
 
-	EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_Struct:
-		return GetStructField (OpValue, pField, pCoord,	pResultValue);
+	case TypeKind_Struct:
+		return getStructField (opValue, field, coord,	resultValue);
 
-	case EType_Union:
-		return pCoord ?
-			GetStructField (OpValue, pField, pCoord, pResultValue) :
-			GetUnionField (OpValue, pField, pResultValue);
+	case TypeKind_Union:
+		return coord ?
+			getStructField (opValue, field, coord, resultValue) :
+			getUnionField (opValue, field, resultValue);
 
-	case EType_Class:
-		return GetClassField (OpValue, pField, pCoord, pResultValue);
+	case TypeKind_Class:
+		return getClassField (opValue, field, coord, resultValue);
 
 	default:
-		err::SetFormatStringError ("cannot get a field '%s' of '%s'", pField->GetName ().cc (), pType->GetTypeString ().cc ());
+		err::setFormatStringError ("cannot get a field '%s' of '%s'", field->getName ().cc (), type->getTypeString ().cc ());
 		return false;
 	}
 }
 
 bool
-COperatorMgr::GetFieldPtrImpl (
-	const CValue& OpValueRaw,
-	CMemberCoord* pCoord,
-	CType* pResultType,
-	CValue* pResultValue
+OperatorMgr::getFieldPtrImpl (
+	const Value& opValueRaw,
+	MemberCoord* coord,
+	Type* resultType,
+	Value* resultValue
 	)
 {
 	#pragma AXL_TODO ("double check multiple levels of nested unnamed structs/unions")
 
-	if (pCoord->m_UnionCoordArray.IsEmpty ())
+	if (coord->m_unionCoordArray.isEmpty ())
 	{
-		m_pModule->m_LlvmIrBuilder.CreateGep (
-			OpValueRaw,
-			pCoord->m_LlvmIndexArray,
-			pCoord->m_LlvmIndexArray.GetCount (),
-			pResultType,
-			pResultValue
+		m_module->m_llvmIrBuilder.createGep (
+			opValueRaw,
+			coord->m_llvmIndexArray,
+			coord->m_llvmIndexArray.getCount (),
+			resultType,
+			resultValue
 			);
 
 		return true;
@@ -66,205 +66,205 @@ COperatorMgr::GetFieldPtrImpl (
 
 	// if LLVM were to support unions natively, the following would be not needed
 
-	CValue OpValue = OpValueRaw;
+	Value opValue = opValueRaw;
 
-	int32_t* pLlvmIndex = pCoord->m_LlvmIndexArray;
-	int32_t* pLlvmIndexEnd = pLlvmIndex + pCoord->m_LlvmIndexArray.GetCount ();
-	intptr_t UnionLevel = -1; // take into account initial 0 in LlvmIndexArray
+	int32_t* llvmIndex = coord->m_llvmIndexArray;
+	int32_t* llvmIndexEnd = llvmIndex + coord->m_llvmIndexArray.getCount ();
+	intptr_t unionLevel = -1; // take into account initial 0 in LlvmIndexArray
 
-	size_t UnionCount = pCoord->m_UnionCoordArray.GetCount ();
-	TUnionCoord* pUnionCoord = pCoord->m_UnionCoordArray;
-	for (size_t i = 0; i < UnionCount; i++, pUnionCoord++)
+	size_t unionCount = coord->m_unionCoordArray.getCount ();
+	UnionCoord* unionCoord = coord->m_unionCoordArray;
+	for (size_t i = 0; i < unionCount; i++, unionCoord++)
 	{
-		ASSERT (pUnionCoord->m_Level >= UnionLevel);
-		size_t LlvmIndexDelta = pUnionCoord->m_Level - UnionLevel;
+		ASSERT (unionCoord->m_level >= unionLevel);
+		size_t llvmIndexDelta = unionCoord->m_level - unionLevel;
 
-		if (LlvmIndexDelta)
+		if (llvmIndexDelta)
 		{
-			m_pModule->m_LlvmIrBuilder.CreateGep (
-				OpValue,
-				pLlvmIndex,
-				LlvmIndexDelta,
+			m_module->m_llvmIrBuilder.createGep (
+				opValue,
+				llvmIndex,
+				llvmIndexDelta,
 				NULL,
-				&OpValue
+				&opValue
 				);
 		}
 
-		CStructField* pField = pUnionCoord->m_pType->GetFieldByIndex (pLlvmIndex [LlvmIndexDelta]);
-		CType* pType = pField->GetType ()->GetDataPtrType_c ();
+		StructField* field = unionCoord->m_type->getFieldByIndex (llvmIndex [llvmIndexDelta]);
+		Type* type = field->getType ()->getDataPtrType_c ();
 
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pType, &OpValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, type, &opValue);
 
-		pLlvmIndex += LlvmIndexDelta + 1;
-		UnionLevel = pUnionCoord->m_Level + 1;
+		llvmIndex += llvmIndexDelta + 1;
+		unionLevel = unionCoord->m_level + 1;
 	}
 
-	if (pLlvmIndexEnd > pLlvmIndex)
+	if (llvmIndexEnd > llvmIndex)
 	{
-		ASSERT (pLlvmIndex > pCoord->m_LlvmIndexArray);
+		ASSERT (llvmIndex > coord->m_llvmIndexArray);
 		
-		pLlvmIndex--;
-		*pLlvmIndex = 0; // create initial 0
+		llvmIndex--;
+		*llvmIndex = 0; // create initial 0
 
-		m_pModule->m_LlvmIrBuilder.CreateGep (
-			OpValue,
-			pLlvmIndex,
-			pLlvmIndexEnd - pLlvmIndex,
-			pResultType,
-			pResultValue
+		m_module->m_llvmIrBuilder.createGep (
+			opValue,
+			llvmIndex,
+			llvmIndexEnd - llvmIndex,
+			resultType,
+			resultValue
 			);
 	}
 	else
 	{
-		pResultValue->OverrideType (OpValue, pResultType);
+		resultValue->overrideType (opValue, resultType);
 	}
 
 	return true;
 }
 
 bool
-COperatorMgr::GetStructField (
-	const CValue& OpValue,
-	CStructField* pField,
-	CMemberCoord* pCoord,
-	CValue* pResultValue
+OperatorMgr::getStructField (
+	const Value& opValue,
+	StructField* field,
+	MemberCoord* coord,
+	Value* resultValue
 	)
 {
-	CMemberCoord Coord;
-	if (!pCoord)
-		pCoord = &Coord;
+	MemberCoord dummyCoord;
+	if (!coord)
+		coord = &dummyCoord;
 
-	pCoord->m_LlvmIndexArray.Append (pField->GetLlvmIndex ());
-	pCoord->m_Offset += pField->GetOffset ();
+	coord->m_llvmIndexArray.append (field->getLlvmIndex ());
+	coord->m_offset += field->getOffset ();
 
-	EValue OpValueKind = OpValue.GetValueKind ();
-	if (OpValueKind == EValue_Const)
+	ValueKind opValueKind = opValue.getValueKind ();
+	if (opValueKind == ValueKind_Const)
 	{
-		pResultValue->CreateConst (
-			(char*) OpValue.GetConstData () + pCoord->m_Offset,
-			pField->GetType ()
+		resultValue->createConst (
+			(char*) opValue.getConstData () + coord->m_offset,
+			field->getType ()
 			);
 
 		return true;
 	}
 
-	if (!(OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_DataPtr))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr))
 	{
-		if (!pCoord->m_UnionCoordArray.IsEmpty ())
+		if (!coord->m_unionCoordArray.isEmpty ())
 		{
-			err::SetFormatStringError ("union member operator on registers is not implemented yet");
+			err::setFormatStringError ("union member operator on registers is not implemented yet");
 			return false;
 		}
 
-		m_pModule->m_LlvmIrBuilder.CreateExtractValue (
-			OpValue,
-			pCoord->m_LlvmIndexArray,
-			pCoord->m_LlvmIndexArray.GetCount (),
-			pField->GetType (),
-			pResultValue
+		m_module->m_llvmIrBuilder.createExtractValue (
+			opValue,
+			coord->m_llvmIndexArray,
+			coord->m_llvmIndexArray.getCount (),
+			field->getType (),
+			resultValue
 			);
 
 		return true;
 	}
 
-	CDataPtrType* pOpType = (CDataPtrType*) OpValue.GetType ();
-	pCoord->m_LlvmIndexArray.Insert (0, 0);
+	DataPtrType* opType = (DataPtrType*) opValue.getType ();
+	coord->m_llvmIndexArray.insert (0, 0);
 
-	uint_t PtrTypeFlags = pOpType->GetFlags () | pField->GetPtrTypeFlags ();
-	if (pField->GetStorageKind () == EStorage_Mutable)
-		PtrTypeFlags &= ~EPtrTypeFlag_Const;
+	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
+	if (field->getStorageKind () == StorageKind_Mutable)
+		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
 
-	EDataPtrType PtrTypeKind = pOpType->GetPtrTypeKind ();
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 
-	CDataPtrType* pPtrType = pField->GetType ()->GetDataPtrType (
-		pField->GetParentNamespace (),
-		EType_DataRef,
-		PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-		PtrTypeFlags
+	DataPtrType* ptrType = field->getType ()->getDataPtrType (
+		field->getParentNamespace (),
+		TypeKind_DataRef,
+		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+		ptrTypeFlags
 		);
 
-	if (PtrTypeKind == EDataPtrType_Thin)
+	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		GetFieldPtrImpl (OpValue, pCoord, pPtrType, pResultValue);
+		getFieldPtrImpl (opValue, coord, ptrType, resultValue);
 	}
-	else if (PtrTypeKind == EDataPtrType_Lean)
+	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		GetFieldPtrImpl (OpValue, pCoord, pPtrType, pResultValue);
+		getFieldPtrImpl (opValue, coord, ptrType, resultValue);
 
-		if (OpValue.GetValueKind () == EValue_Variable)
-			pResultValue->SetLeanDataPtrValidator (OpValue);
+		if (opValue.getValueKind () == ValueKind_Variable)
+			resultValue->setLeanDataPtrValidator (opValue);
 		else
-			pResultValue->SetLeanDataPtrValidator (OpValue.GetLeanDataPtrValidator ());
+			resultValue->setLeanDataPtrValidator (opValue.getLeanDataPtrValidator ());
 	}
 	else
 	{
-		CValue PtrValue;
-		m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, NULL, &PtrValue);
-		GetFieldPtrImpl (PtrValue, pCoord, pPtrType, pResultValue);
-		pResultValue->SetLeanDataPtrValidator (OpValue);
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+		getFieldPtrImpl (ptrValue, coord, ptrType, resultValue);
+		resultValue->setLeanDataPtrValidator (opValue);
 	}
 
 	return true;
 }
 
 bool
-COperatorMgr::GetUnionField (
-	const CValue& OpValue,
-	CStructField* pField,
-	CValue* pResultValue
+OperatorMgr::getUnionField (
+	const Value& opValue,
+	StructField* field,
+	Value* resultValue
 	)
 {
-	EValue OpValueKind = OpValue.GetValueKind ();
-	if (OpValueKind == EValue_Const)
+	ValueKind opValueKind = opValue.getValueKind ();
+	if (opValueKind == ValueKind_Const)
 	{
-		pResultValue->CreateConst (OpValue.GetConstData (), pField->GetType ());
+		resultValue->createConst (opValue.getConstData (), field->getType ());
 		return true;
 	}
 
-	if (OpValue.GetType ()->GetTypeKind () != EType_DataRef)
+	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef)
 	{
-		err::SetFormatStringError ("union member operator on registers is not implemented yet");
+		err::setFormatStringError ("union member operator on registers is not implemented yet");
 		return false;
 	}
 
-	CDataPtrType* pOpType = (CDataPtrType*) OpValue.GetType ();
+	DataPtrType* opType = (DataPtrType*) opValue.getType ();
 
-	uint_t PtrTypeFlags = pOpType->GetFlags () | pField->GetPtrTypeFlags ();
-	if (pField->GetStorageKind () == EStorage_Mutable)
-		PtrTypeFlags &= ~EPtrTypeFlag_Const;
+	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
+	if (field->getStorageKind () == StorageKind_Mutable)
+		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
 
-	EDataPtrType PtrTypeKind = pOpType->GetPtrTypeKind ();
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 
-	CDataPtrType* pPtrType = pField->GetType ()->GetDataPtrType (
-		pField->GetParentNamespace (),
-		EType_DataRef,
-		PtrTypeKind == EDataPtrType_Thin ? EDataPtrType_Thin : EDataPtrType_Lean,
-		PtrTypeFlags
+	DataPtrType* ptrType = field->getType ()->getDataPtrType (
+		field->getParentNamespace (),
+		TypeKind_DataRef,
+		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+		ptrTypeFlags
 		);
 
-	if (PtrTypeKind == EDataPtrType_Thin)
+	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pPtrType, pResultValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, ptrType, resultValue);
 	}
-	else if (PtrTypeKind == EDataPtrType_Lean)
+	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pPtrType, pResultValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, ptrType, resultValue);
 
-		if (OpValue.GetValueKind () == EValue_Variable)
-			pResultValue->SetLeanDataPtrValidator (OpValue);
+		if (opValue.getValueKind () == ValueKind_Variable)
+			resultValue->setLeanDataPtrValidator (opValue);
 		else
-			pResultValue->SetLeanDataPtrValidator (OpValue.GetLeanDataPtrValidator ());
+			resultValue->setLeanDataPtrValidator (opValue.getLeanDataPtrValidator ());
 	}
 	else
 	{
-		CValue PtrValue;
-		m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, NULL, &PtrValue);
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pField->GetType ()->GetDataPtrType_c (), &PtrValue);
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, field->getType ()->getDataPtrType_c (), &ptrValue);
 
-		pResultValue->SetLeanDataPtr (
-			PtrValue.GetLlvmValue (),
-			pPtrType,
-			OpValue
+		resultValue->setLeanDataPtr (
+			ptrValue.getLlvmValue (),
+			ptrType,
+			opValue
 			);
 	}
 
@@ -272,77 +272,77 @@ COperatorMgr::GetUnionField (
 }
 
 bool
-COperatorMgr::GetClassField (
-	const CValue& RawOpValue,
-	CStructField* pField,
-	CMemberCoord* pCoord,
-	CValue* pResultValue
+OperatorMgr::getClassField (
+	const Value& rawOpValue,
+	StructField* field,
+	MemberCoord* coord,
+	Value* resultValue
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue);
+	if (!result)
 		return false;
 
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_ClassPtr);
-	CClassPtrType* pOpType = (CClassPtrType*) OpValue.GetType ();
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
+	ClassPtrType* opType = (ClassPtrType*) opValue.getType ();
 
-	CheckClassPtrNull (OpValue);
+	checkClassPtrNull (opValue);
 
-	CClassType* pClassType = (CClassType*) pField->GetParentNamespace ();
+	ClassType* classType = (ClassType*) field->getParentNamespace ();
 
-	CMemberCoord Coord;
-	if (!pCoord)
-		pCoord = &Coord;
+	MemberCoord dummyCoord;
+	if (!coord)
+		coord = &dummyCoord;
 
-	pCoord->m_LlvmIndexArray.Insert (0, 0);
-	pCoord->m_LlvmIndexArray.Append (pField->GetLlvmIndex ());
+	coord->m_llvmIndexArray.insert (0, 0);
+	coord->m_llvmIndexArray.append (field->getLlvmIndex ());
 
-	if (pField->GetType ()->GetTypeKind () == EType_Class)
-		pCoord->m_LlvmIndexArray.Append (1);
+	if (field->getType ()->getTypeKind () == TypeKind_Class)
+		coord->m_llvmIndexArray.append (1);
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep (
-		OpValue,
-		pCoord->m_LlvmIndexArray,
-		pCoord->m_LlvmIndexArray.GetCount (),
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createGep (
+		opValue,
+		coord->m_llvmIndexArray,
+		coord->m_llvmIndexArray.getCount (),
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
-	uint_t PtrTypeFlags = pOpType->GetFlags () | pField->GetPtrTypeFlags () | EPtrTypeFlag_Safe;
-	if (pField->GetStorageKind () == EStorage_Mutable)
-		PtrTypeFlags &= ~EPtrTypeFlag_Const;
+	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags () | PtrTypeFlagKind_Safe;
+	if (field->getStorageKind () == StorageKind_Mutable)
+		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
 
 	// TODO: handle dual types
 	// (PtrTypeFlags & EPtrTypeFlag_ReadOnly) && m_pModule->m_NamespaceMgr.GetAccessKind (pCoord->m_pType) == EAccess_Public)
 
-	if (pField->GetType ()->GetTypeKind () == EType_Class)
+	if (field->getType ()->getTypeKind () == TypeKind_Class)
 	{
-		CClassPtrType* pPtrType = ((CClassType*) pField->GetType ())->GetClassPtrType (
-			pField->GetParentNamespace (),
-			EType_ClassRef,
-			EClassPtrType_Normal,
-			PtrTypeFlags
+		ClassPtrType* ptrType = ((ClassType*) field->getType ())->getClassPtrType (
+			field->getParentNamespace (),
+			TypeKind_ClassRef,
+			ClassPtrTypeKind_Normal,
+			ptrTypeFlags
 			);
 
-		pResultValue->SetLlvmValue (PtrValue.GetLlvmValue (), pPtrType);
+		resultValue->setLlvmValue (ptrValue.getLlvmValue (), ptrType);
 	}
 	else
 	{
-		CDataPtrType* pPtrType = pField->GetType ()->GetDataPtrType (
-			pField->GetParentNamespace (),
-			EType_DataRef,
-			EDataPtrType_Lean,
-			PtrTypeFlags
+		DataPtrType* ptrType = field->getType ()->getDataPtrType (
+			field->getParentNamespace (),
+			TypeKind_DataRef,
+			DataPtrTypeKind_Lean,
+			ptrTypeFlags
 			);
 
-		pResultValue->SetLeanDataPtr (
-			PtrValue.GetLlvmValue (),
-			pPtrType,
-			OpValue,
-			PtrValue,
-			pField->GetType ()->GetSize ()
+		resultValue->setLeanDataPtr (
+			ptrValue.getLlvmValue (),
+			ptrType,
+			opValue,
+			ptrValue,
+			field->getType ()->getSize ()
 			);
 	}
 
@@ -350,41 +350,41 @@ COperatorMgr::GetClassField (
 }
 
 bool
-COperatorMgr::GetPropertyField (
-	const CValue& OpValue,
-	CModuleItem* pMember,
-	CValue* pResultValue
+OperatorMgr::getPropertyField (
+	const Value& opValue,
+	ModuleItem* member,
+	Value* resultValue
 	)
 {
-	EModuleItem ItemKind = pMember->GetItemKind ();
+	ModuleItemKind itemKind = member->getItemKind ();
 
-	switch (ItemKind)
+	switch (itemKind)
 	{
-	case EModuleItem_StructField:
+	case ModuleItemKind_StructField:
 		break;
 
-	case EModuleItem_Variable:
-		pResultValue->SetVariable ((CVariable*) pMember);
+	case ModuleItemKind_Variable:
+		resultValue->setVariable ((Variable*) member);
 		return true;
 
-	case EModuleItem_Alias:
-		return EvaluateAlias (
-			pMember->GetItemDecl (),
-			OpValue.GetClosure (),
-			((CAlias*) pMember)->GetInitializer (),
-			pResultValue
+	case ModuleItemKind_Alias:
+		return evaluateAlias (
+			member->getItemDecl (),
+			opValue.getClosure (),
+			((Alias*) member)->getInitializer (),
+			resultValue
 			);
 
 	default:
 		ASSERT (false);
 	}
 
-	ASSERT (pMember->GetItemKind () == EModuleItem_StructField);
-	CClosure* pClosure = OpValue.GetClosure ();
-	ASSERT (pClosure);
+	ASSERT (member->getItemKind () == ModuleItemKind_StructField);
+	Closure* closure = opValue.getClosure ();
+	ASSERT (closure);
 
-	CValue ParentValue = *pClosure->GetArgValueList ()->GetHead ();
-	return GetField (ParentValue, (CStructField*) pMember, pResultValue);
+	Value parentValue = *closure->getArgValueList ()->getHead ();
+	return getField (parentValue, (StructField*) member, resultValue);
 }
 
 //.............................................................................

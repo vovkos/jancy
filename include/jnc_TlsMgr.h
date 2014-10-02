@@ -6,90 +6,90 @@
 
 namespace jnc {
 
-class CRuntime;
-class CTlsMgr;
-struct TTlsPage;
-struct TGcShadowStackFrame;
+class Runtime;
+class TlsMgr;
+struct TlsPage;
+struct GcShadowStackFrame;
 
 //.............................................................................
 
-struct TTlsHdr: public rtl::TListLink
+struct TlsHdr: public rtl::ListLink
 {
-	CRuntime* m_pRuntime;
-	void* m_pStackEpoch;
-	size_t m_GcLevel;
+	Runtime* m_runtime;
+	void* m_stackEpoch;
+	size_t m_gcLevel;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TTls // struct accessible from jancy
+struct Tls // struct accessible from jancy
 {
-	size_t m_ScopeLevel;
-	TGcShadowStackFrame* m_pGcShadowStackTop;
+	size_t m_scopeLevel;
+	GcShadowStackFrame* m_gcShadowStackTop;
 
 	// followed by user TLS variables
 };
 
 //.............................................................................
 
-class CTlsDirectory: public ref::CRefCount
+class TlsDirectory: public ref::RefCount
 {
 protected:
-	rtl::CArrayT <TTlsHdr*> m_Table;
+	rtl::Array <TlsHdr*> m_table;
 
 public:
-	~CTlsDirectory ();
+	~TlsDirectory ();
 
-	TTlsHdr*
-	FindTls (CRuntime* pRuntime);
+	TlsHdr*
+	findTls (Runtime* runtime);
 
-	TTlsHdr*
-	GetTls (CRuntime* pRuntime);
+	TlsHdr*
+	getTls (Runtime* runtime);
 
-	TTlsHdr*
-	NullifyTls (CRuntime* pRuntime);
+	TlsHdr*
+	nullifyTls (Runtime* runtime);
 };
 
 //.............................................................................
 
-class CTlsMgr
+class TlsMgr
 {
 protected:
-	uint64_t m_MainThreadId;
-	size_t m_TlsSlot;
-	rtl::CBitMap m_SlotMap;
-	size_t m_SlotCount;
+	uint64_t m_mainThreadId;
+	size_t m_tlsSlot;
+	rtl::BitMap m_slotMap;
+	size_t m_slotCount;
 	
 public:
-	CTlsMgr ();
+	TlsMgr ();
 
 	// CreateSlot / DestroySlot should only be called from the main thread;
 	// all threads containing tls pages on particular slot (n) should be terminated by 
 	// the moment of calling DestroySlot (n)
 
 	size_t 
-	CreateSlot ();
+	createSlot ();
 
 	void
-	DestroySlot (size_t Slot);
+	destroySlot (size_t slot);
 
-	TTlsHdr*
-	FindTls (CRuntime* pRuntime);
+	TlsHdr*
+	findTls (Runtime* runtime);
 
-	TTlsHdr*
-	GetTls (CRuntime* pRuntime);
+	TlsHdr*
+	getTls (Runtime* runtime);
 
-	TTlsHdr*
-	NullifyTls (CRuntime* pRuntime);
+	TlsHdr*
+	nullifyTls (Runtime* runtime);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-CTlsMgr*
-GetTlsMgr ()
+TlsMgr*
+getTlsMgr ()
 {
-	return rtl::GetSingleton <CTlsMgr> ();
+	return rtl::getSingleton <TlsMgr> ();
 }
 
 //.............................................................................

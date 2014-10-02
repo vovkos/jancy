@@ -8,54 +8,54 @@
 
 namespace jnc {
 
-class CUnionType;
+class UnionType;
 
 //.............................................................................
 
 // union cannot be a child, but it can be a parent
 
-class CUnionType: public CDerivableType 
+class UnionType: public DerivableType 
 {
-	friend class CTypeMgr;
-	friend class CParser;
+	friend class TypeMgr;
+	friend class Parser;
 
 protected:
-	rtl::CStdListT <CStructField> m_FieldList;
-	rtl::CArrayT <CStructField*> m_FieldArray;
-	CStructField* m_pInitializedField;
-	CStructType* m_pStructType;
+	rtl::StdList <StructField> m_fieldList;
+	rtl::Array <StructField*> m_fieldArray;
+	StructField* m_initializedField;
+	StructType* m_structType;
 	
 public:
-	CUnionType ();
+	UnionType ();
 
-	CStructType*
-	GetStructType ()
+	StructType*
+	getStructType ()
 	{
-		ASSERT (m_pStructType);
-		return m_pStructType;
+		ASSERT (m_structType);
+		return m_structType;
 	}
 
-	rtl::CConstListT <CStructField>
-	GetFieldList ()
+	rtl::ConstList <StructField>
+	getFieldList ()
 	{
-		return m_FieldList;
+		return m_fieldList;
 	}
 
 	virtual
-	CStructField*
-	GetFieldByIndex (size_t Index);
+	StructField*
+	getFieldByIndex (size_t index);
 
 	bool
-	InitializeField (const CValue& ThisValue);
+	initializeField (const Value& thisValue);
 
 	virtual
 	bool
-	Compile ();
+	compile ();
 
 	virtual 
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		)
 	{
@@ -64,40 +64,40 @@ public:
 
 protected:
 	virtual
-	CStructField*
-	CreateFieldImpl (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createFieldImpl (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
 	virtual 
 	void
-	PrepareTypeString ()
+	prepareTypeString ()
 	{
-		m_TypeString.Format ("union %s", m_Tag.cc ()); // thanks a lot gcc
+		m_typeString.format ("union %s", m_tag.cc ()); // thanks a lot gcc
 	}
 
 	virtual 
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
-		m_pLlvmType = GetStructType ()->GetLlvmType ();
+		m_llvmType = getStructType ()->getLlvmType ();
 	}
 	
 	virtual 
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	bool
-	CompileDefaultPreConstructor ();
+	compileDefaultPreConstructor ();
 };
 
 //.............................................................................

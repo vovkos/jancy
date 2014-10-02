@@ -8,90 +8,90 @@ namespace jnc {
 
 //.............................................................................
 
-class CQualifiedName
+class QualifiedName
 {
 protected:
-	rtl::CString m_First;
-	rtl::CBoxListT <rtl::CString> m_List;
+	rtl::String m_first;
+	rtl::BoxList <rtl::String> m_list;
 
 public:
-	CQualifiedName ()
+	QualifiedName ()
 	{
 	}
 
-	CQualifiedName (const rtl::CString& Name)
+	QualifiedName (const rtl::String& name)
 	{
-		m_First = Name;
+		m_first = name;
 	}	
 
-	CQualifiedName (const char* pName)
+	QualifiedName (const char* name)
 	{
-		m_First = pName;
+		m_first = name;
 	}	
 
-	CQualifiedName (const CQualifiedName& Name)
+	QualifiedName (const QualifiedName& name)
 	{
-		Copy (Name);
+		copy (name);
 	}	
 
-	CQualifiedName&
-	operator = (const CQualifiedName& Name)
+	QualifiedName&
+	operator = (const QualifiedName& name)
 	{
-		Copy (Name);
+		copy (name);
 		return *this;
 	}	
 
 	void
-	Clear ()
+	clear ()
 	{
-		m_First.Clear ();
-		m_List.Clear ();
+		m_first.clear ();
+		m_list.clear ();
 	}
 
 	void
-	Parse (const char* pName);
+	parse (const char* name);
 
 	void
-	AddName (const rtl::CString& Name);
+	addName (const rtl::String& name);
 
 	bool
-	IsEmpty () const
+	isEmpty () const
 	{
-		return m_First.IsEmpty ();
+		return m_first.isEmpty ();
 	}
 
 	bool
-	IsSimple () const
+	isSimple () const
 	{
-		return m_List.IsEmpty ();
+		return m_list.isEmpty ();
 	}
 
-	rtl::CString 
-	GetFirstName () const
+	rtl::String 
+	getFirstName () const
 	{
-		return m_First;
+		return m_first;
 	}
 
-	rtl::CConstBoxListT <rtl::CString> 
-	GetNameList () const
+	rtl::ConstBoxList <rtl::String> 
+	getNameList () const
 	{
-		return m_List;
+		return m_list;
 	}
 
-	rtl::CString
-	GetShortName () const
+	rtl::String
+	getShortName () const
 	{
-		return !m_List.IsEmpty () ? *m_List.GetTail () : m_First;
+		return !m_list.isEmpty () ? *m_list.getTail () : m_first;
 	}
 
-	rtl::CString
-	GetFullName () const;
+	rtl::String
+	getFullName () const;
 
 	void
-	Copy (const CQualifiedName& Name);
+	copy (const QualifiedName& name);
 
 	void
-	TakeOver (CQualifiedName* pName);
+	takeOver (QualifiedName* name);
 };
 
 //.............................................................................

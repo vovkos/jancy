@@ -6,66 +6,66 @@ namespace jnc {
 
 //.............................................................................
 
-CPropertyTemplate::CPropertyTemplate ()
+PropertyTemplate::PropertyTemplate ()
 {
-	m_ItemKind = EModuleItem_PropertyTemplate;
-	m_NamespaceKind = ENamespace_PropertyTemplate;
-	m_pItemDecl = this;
-	m_pGetterType = NULL;
-	m_TypeFlags = 0;
+	m_itemKind = ModuleItemKind_PropertyTemplate;
+	m_namespaceKind = NamespaceKind_PropertyTemplate;
+	m_itemDecl = this;
+	m_getterType = NULL;
+	m_typeFlags = 0;
 }
 
 bool
-CPropertyTemplate::AddMethod (
-	EFunction FunctionKind,
-	CFunctionType* pFunctionType
+PropertyTemplate::addMethod (
+	FunctionKind functionKind,
+	FunctionType* functionType
 	)
 {
-	bool Result;
+	bool result;
 
-	if (FunctionKind != EFunction_Getter && FunctionKind != EFunction_Setter)
+	if (functionKind != FunctionKind_Getter && functionKind != FunctionKind_Setter)
 	{
-		err::SetFormatStringError ("property templates can only have accessors");
+		err::setFormatStringError ("property templates can only have accessors");
 		return false;
 	}
 
-	if (FunctionKind == EFunction_Getter)
+	if (functionKind == FunctionKind_Getter)
 	{
-		Result = m_Verifier.CheckGetter (pFunctionType);
-		if (!Result)
+		result = m_verifier.checkGetter (functionType);
+		if (!result)
 			return false;
 
-		if (m_pGetterType)
+		if (m_getterType)
 		{
-			err::SetFormatStringError ("property template already has a getter");
+			err::setFormatStringError ("property template already has a getter");
 			return false;
 		}
 
-		m_pGetterType = pFunctionType;
+		m_getterType = functionType;
 	}
 	else
 	{
-		Result = 
-			m_Verifier.CheckSetter (pFunctionType) &&
-			m_SetterType.AddOverload (pFunctionType);
+		result = 
+			m_verifier.checkSetter (functionType) &&
+			m_setterType.addOverload (functionType);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
 	return true;
 }
 
-CPropertyType*
-CPropertyTemplate::CalcType ()
+PropertyType*
+PropertyTemplate::calcType ()
 {
-	if (!m_pGetterType)
+	if (!m_getterType)
 	{
-		err::SetFormatStringError ("incomplete property template: no 'get' method");
+		err::setFormatStringError ("incomplete property template: no 'get' method");
 		return NULL;
 	}
 
-	return m_pModule->m_TypeMgr.GetPropertyType (m_pGetterType, m_SetterType, m_TypeFlags);
+	return m_module->m_typeMgr.getPropertyType (m_getterType, m_setterType, m_typeFlags);
 }
 
 //.............................................................................

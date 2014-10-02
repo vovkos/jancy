@@ -6,81 +6,81 @@ namespace jnc {
 //.............................................................................
 
 void
-PrimeInterface (
-	CClassType* pType,
-	TIfaceHdr* pThis,
+primeInterface (
+	ClassType* type,
+	IfaceHdr* self,
 	void* pVTable,
-	TObjHdr* pObject,
-	size_t ScopeLevel,
-	TObjHdr* pRoot,
-	uintptr_t Flags
+	ObjHdr* object,
+	size_t scopeLevel,
+	ObjHdr* root,
+	uintptr_t flags
 	)
 {
-	pThis->m_pVTable = pVTable;
-	pThis->m_pObject = pObject;
+	self->m_pVTable = pVTable;
+	self->m_object = object;
 
 	// prime all the base types
 
-	rtl::CArrayT <CBaseTypeSlot*> BaseTypePrimeArray = pType->GetBaseTypePrimeArray ();
-	size_t Count = BaseTypePrimeArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	rtl::Array <BaseTypeSlot*> baseTypePrimeArray = type->getBaseTypePrimeArray ();
+	size_t count = baseTypePrimeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CBaseTypeSlot* pSlot = BaseTypePrimeArray [i];
-		ASSERT (pSlot->GetType ()->GetTypeKind () == EType_Class);
+		BaseTypeSlot* slot = baseTypePrimeArray [i];
+		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
 
-		PrimeInterface (
-			(CClassType*) pSlot->GetType (),
-			(TIfaceHdr*) ((char*) pThis + pSlot->GetOffset ()),
-			pVTable ? (void**) pVTable + pSlot->GetVTableIndex () : NULL,
-			pObject,
-			ScopeLevel,
-			pRoot,
-			Flags
+		primeInterface (
+			(ClassType*) slot->getType (),
+			(IfaceHdr*) ((char*) self + slot->getOffset ()),
+			pVTable ? (void**) pVTable + slot->getVTableIndex () : NULL,
+			object,
+			scopeLevel,
+			root,
+			flags
 			);
 	}
 
 	// prime all the class fields
 
-	rtl::CArrayT <CStructField*> FieldPrimeArray = pType->GetClassMemberFieldArray ();
-	Count = FieldPrimeArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	rtl::Array <StructField*> fieldPrimeArray = type->getClassMemberFieldArray ();
+	count = fieldPrimeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = FieldPrimeArray [i];
-		ASSERT (pField->GetType ()->GetTypeKind () == EType_Class);
+		StructField* field = fieldPrimeArray [i];
+		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
-		CClassType* pFieldType = (CClassType*) pField->GetType ();
-		TObjHdr* pFieldObjHdr = (TObjHdr*) ((char*) pThis + pField->GetOffset ());
-		void* pFieldVTable = NULL; // pFieldType->GetVTablePtrValue ()
+		ClassType* fieldType = (ClassType*) field->getType ();
+		ObjHdr* fieldObjHdr = (ObjHdr*) ((char*) self + field->getOffset ());
+		void* fieldVTable = NULL; // pFieldType->GetVTablePtrValue ()
 
-		Prime (
-			pFieldType, 
-			pFieldVTable,
-			pFieldObjHdr,
-			ScopeLevel,
-			pRoot,
-			Flags
+		prime (
+			fieldType, 
+			fieldVTable,
+			fieldObjHdr,
+			scopeLevel,
+			root,
+			flags
 			);
 	}
 }
 
 void
-Prime (
-	CClassType* pType,
+prime (
+	ClassType* type,
 	void* pVTable,
-	TObjHdr* pObject,
-	size_t ScopeLevel,
-	TObjHdr* pRoot,
-	uintptr_t Flags
+	ObjHdr* object,
+	size_t scopeLevel,
+	ObjHdr* root,
+	uintptr_t flags
 	)
 {
 //	memset (pObject, 0, pType->GetSize ());
 
-	pObject->m_ScopeLevel = ScopeLevel;
-	pObject->m_pRoot = pRoot;
-	pObject->m_pType = pType;
-	pObject->m_Flags = Flags;
+	object->m_scopeLevel = scopeLevel;
+	object->m_root = root;
+	object->m_type = type;
+	object->m_flags = flags;
 
-	PrimeInterface (pType, (TIfaceHdr*) (pObject + 1), pVTable, pObject, ScopeLevel, pRoot, Flags);
+	primeInterface (type, (IfaceHdr*) (object + 1), pVTable, object, scopeLevel, root, flags);
 }
 
 //.............................................................................

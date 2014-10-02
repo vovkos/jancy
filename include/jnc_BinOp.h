@@ -10,149 +10,149 @@ namespace jnc {
 
 //.............................................................................
 
-enum EBinOp
+enum BinOpKind
 {
-	EBinOp_Undefined = 0,
+	BinOpKind_Undefined = 0,
 	
 	// arithmetic
 	
-	EBinOp_Add,
-	EBinOp_Sub,
-	EBinOp_Mul,
-	EBinOp_Div,
-	EBinOp_Mod,	
-	EBinOp_Shl,
-	EBinOp_Shr,	
-	EBinOp_BwAnd,
-	EBinOp_BwXor,	
-	EBinOp_BwOr,
+	BinOpKind_Add,
+	BinOpKind_Sub,
+	BinOpKind_Mul,
+	BinOpKind_Div,
+	BinOpKind_Mod,	
+	BinOpKind_Shl,
+	BinOpKind_Shr,	
+	BinOpKind_BwAnd,
+	BinOpKind_BwXor,	
+	BinOpKind_BwOr,
 
 	// special ops
 
-	EBinOp_At,
-	EBinOp_Idx,
+	BinOpKind_At,
+	BinOpKind_Idx,
 
 	// comparison
 
-	EBinOp_Eq,
-	EBinOp_Ne,
-	EBinOp_Lt,
-	EBinOp_Le,
-	EBinOp_Gt,
-	EBinOp_Ge,
+	BinOpKind_Eq,
+	BinOpKind_Ne,
+	BinOpKind_Lt,
+	BinOpKind_Le,
+	BinOpKind_Gt,
+	BinOpKind_Ge,
 
 	// logic
 
-	EBinOp_LogAnd,
-	EBinOp_LogOr,
+	BinOpKind_LogAnd,
+	BinOpKind_LogOr,
 
 	// assignment
 
-	EBinOp_Assign,
-	EBinOp_RefAssign,
-	EBinOp_AddAssign,
-	EBinOp_SubAssign,
-	EBinOp_MulAssign,
-	EBinOp_DivAssign,
-	EBinOp_ModAssign,
-	EBinOp_ShlAssign,
-	EBinOp_ShrAssign,
-	EBinOp_AndAssign,
-	EBinOp_XorAssign,
-	EBinOp_OrAssign,
-	EBinOp_AtAssign,
+	BinOpKind_Assign,
+	BinOpKind_RefAssign,
+	BinOpKind_AddAssign,
+	BinOpKind_SubAssign,
+	BinOpKind_MulAssign,
+	BinOpKind_DivAssign,
+	BinOpKind_ModAssign,
+	BinOpKind_ShlAssign,
+	BinOpKind_ShrAssign,
+	BinOpKind_AndAssign,
+	BinOpKind_XorAssign,
+	BinOpKind_OrAssign,
+	BinOpKind_AtAssign,
 
-	EBinOp__Count,
-	EBinOp__OpAssignDelta = EBinOp_AddAssign - EBinOp_Add,
+	BinOpKind__Count,
+	BinOpKind__OpAssignDelta = BinOpKind_AddAssign - BinOpKind_Add,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetBinOpKindString (EBinOp OpKind);
+getBinOpKindString (BinOpKind opKind);
 
 //.............................................................................
 
-class CBinaryOperator
+class BinaryOperator
 {	
-	friend class COperatorMgr;
+	friend class OperatorMgr;
 
 protected:
-	CModule* m_pModule;
-	EBinOp m_OpKind;
-	uint_t m_OpFlags1;
-	uint_t m_OpFlags2;
+	Module* m_module;
+	BinOpKind m_opKind;
+	uint_t m_opFlags1;
+	uint_t m_opFlags2;
 
 public:
-	CBinaryOperator ();
+	BinaryOperator ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
-	EBinOp 
-	GetOpKind ()
+	BinOpKind 
+	getOpKind ()
 	{
-		return m_OpKind;
-	}
-
-	int
-	GetOpFlags1 ()
-	{
-		return m_OpFlags1;
+		return m_opKind;
 	}
 
 	int
-	GetOpFlags2 ()
+	getOpFlags1 ()
 	{
-		return m_OpFlags2;
+		return m_opFlags1;
+	}
+
+	int
+	getOpFlags2 ()
+	{
+		return m_opFlags2;
 	}
 
 	bool
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		) = 0;
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	op (
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		) = 0;
 
-	err::CError
-	SetOperatorError (		
-		CType* pOpType1,
-		CType* pOpType2
+	err::Error
+	setOperatorError (		
+		Type* opType1,
+		Type* opType2
 		)
 	{
-		return err::SetFormatStringError (
+		return err::setFormatStringError (
 			"binary '%s' cannot be applied to '%s' and '%s'",
-			GetBinOpKindString (m_OpKind),
-			pOpType1->GetTypeString ().cc (), // thanks a lot gcc
-			pOpType2->GetTypeString ().cc ()
+			getBinOpKindString (m_opKind),
+			opType1->getTypeString ().cc (), // thanks a lot gcc
+			opType2->getTypeString ().cc ()
 			);
 	}
 
-	err::CError
-	SetOperatorError (		
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	err::Error
+	setOperatorError (		
+		const Value& opValue1,
+		const Value& opValue2
 		)
 	{
-		return SetOperatorError (OpValue1.GetType (), OpValue2.GetType ());
+		return setOperatorError (opValue1.getType (), opValue2.getType ());
 	}
 };
 

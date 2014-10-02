@@ -7,28 +7,28 @@ namespace jnc {
 //.............................................................................
 
 void*
-CJitMemoryMgr::getPointerToNamedFunction (
-	const std::string& Name,
-	bool AbortOnFailure
+JitMemoryMgr::getPointerToNamedFunction (
+	const std::string& name,
+	bool abortOnFailure
 	)
 {
-	void* pf = m_pModule->FindFunctionMapping (Name.c_str ());
+	void* pf = m_module->findFunctionMapping (name.c_str ());
 	if (pf)
 		return pf;
 
-	if (AbortOnFailure)
+	if (abortOnFailure)
 	{
-		std::string ErrorString = "CJitMemoryManager::getPointerToNamedFunction: unresolved external function '" + Name + "'";
-		llvm::report_fatal_error (ErrorString);
+		std::string errorString = "CJitMemoryManager::getPointerToNamedFunction: unresolved external function '" + name + "'";
+		llvm::report_fatal_error (errorString);
 	}
 
 	return NULL;
 }
 
 uint64_t
-CJitMemoryMgr::getSymbolAddress (const std::string &Name)
+JitMemoryMgr::getSymbolAddress (const std::string &name)
 {
-	void* pf = m_pModule->FindFunctionMapping (Name.c_str ());
+	void* pf = m_module->findFunctionMapping (name.c_str ());
 	if (pf)
 		return (uint64_t) pf;
 

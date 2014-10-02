@@ -12,59 +12,59 @@ namespace jnc {
 
 //.............................................................................
 
-class CCdeclCallConv_gcc64: public CCallConv
+class CdeclCallConv_gcc64: public CallConv
 {
 public:
-	CCdeclCallConv_gcc64 ()
+	CdeclCallConv_gcc64 ()
 	{
-		m_CallConvKind = ECallConv_Cdecl_gcc64;
+		m_callConvKind = CallConvKind_Cdecl_gcc64;
 	}
 
 	virtual
 	llvm::FunctionType*
-	GetLlvmFunctionType (CFunctionType* pFunctionType);
+	getLlvmFunctionType (FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	CreateLlvmFunction (
-		CFunctionType* pFunctionType,
-		const char* pTag
+	createLlvmFunction (
+		FunctionType* functionType,
+		const char* tag
 		);
 
 	virtual
 	void
-	Call (
-		const CValue& CalleeValue,
-		CFunctionType* pFunctionType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	call (
+		const Value& calleeValue,
+		FunctionType* functionType,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	virtual
 	void
-	Return (
-		CFunction* pFunction,
-		const CValue& Value
+	ret (
+		Function* function,
+		const Value& value
 		);
 
 	virtual
-	CValue
-	GetArgValue (
-		CFunctionArg* pArg,
-		llvm::Value* pLlvmValue
+	Value
+	getArgValue (
+		FunctionArg* arg,
+		llvm::Value* llvmValue
 		);
 
 	virtual
-	CValue
-	GetThisArgValue (CFunction* pFunction);
+	Value
+	getThisArgValue (Function* function);
 
 	virtual
 	void
-	CreateArgVariables (CFunction* pFunction);
+	createArgVariables (Function* function);
 
 protected:
-	CType*
-	GetArgCoerceType (CType* pType);
+	Type*
+	getArgCoerceType (Type* type);
 };
 
 //.............................................................................

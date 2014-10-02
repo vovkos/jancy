@@ -8,132 +8,132 @@ namespace jnc {
 //.............................................................................
 
 void
-CMulticast::Clear ()
+MulticastImpl::clear ()
 {
-	m_Count = 0;
-	if (m_pHandleTable)
-		((rtl::CHandleTableT <size_t>*) m_pHandleTable)->Clear ();
+	m_count = 0;
+	if (m_handleTable)
+		((rtl::HandleTable <size_t>*) m_handleTable)->clear ();
 }
 
 handle_t
-CMulticast::SetHandler (TFunctionPtr Ptr)
+MulticastImpl::setHandler (FunctionPtr ptr)
 {
-	if (Ptr.m_pf)
-		return SetHandlerImpl (Ptr);
+	if (ptr.m_pf)
+		return setHandlerImpl (ptr);
 
-	Clear ();
+	clear ();
 	return NULL;
 }
 
 handle_t
-CMulticast::SetHandler_t (void* pf)
+MulticastImpl::setHandler_t (void* pf)
 {
 	if (pf)
-		return SetHandlerImpl (pf);
+		return setHandlerImpl (pf);
 
-	Clear ();
+	clear ();
 	return NULL;
 }
 
-rtl::CHandleTableT <size_t>*
-CMulticast::GetHandleTable ()
+rtl::HandleTable <size_t>*
+MulticastImpl::getHandleTable ()
 {
-	if (m_pHandleTable)
-		return (rtl::CHandleTableT <size_t>*) m_pHandleTable;
+	if (m_handleTable)
+		return (rtl::HandleTable <size_t>*) m_handleTable;
 
-	rtl::CHandleTableT <size_t>* pHandleTable = AXL_MEM_NEW (rtl::CHandleTableT <size_t>);
-	m_pHandleTable = pHandleTable;
-	return pHandleTable;
+	rtl::HandleTable <size_t>* handleTable = AXL_MEM_NEW (rtl::HandleTable <size_t>);
+	m_handleTable = handleTable;
+	return handleTable;
 }
 
 bool
-CMulticast::SetCount (
-	size_t Count,
-	size_t PtrSize
+MulticastImpl::setCount (
+	size_t count,
+	size_t ptrSize
 	)
 {
-	if (m_MaxCount >= Count)
+	if (m_maxCount >= count)
 	{
-		m_Count = Count;
+		m_count = count;
 		return true;
 	}
 
-	size_t MaxCount = rtl::GetMinPower2Ge (Count);
+	size_t maxCount = rtl::getMinPower2Ge (count);
 
-	void* p = AXL_MEM_ALLOC (MaxCount * PtrSize);
+	void* p = AXL_MEM_ALLOC (maxCount * ptrSize);
 	if (!p)
 		return false;
 
-	if (m_pPtrArray)
-		memcpy (p, m_pPtrArray, m_Count * PtrSize);
+	if (m_ptrArray)
+		memcpy (p, m_ptrArray, m_count * ptrSize);
 
-	m_pPtrArray = p;
-	m_MaxCount = MaxCount;
-	m_Count = Count;
+	m_ptrArray = p;
+	m_maxCount = maxCount;
+	m_count = count;
 	return true;
 }
 
-struct TMcSnapshotObject:
-	TObjHdr,
-	TMcSnapshot
+struct McSnapshotObject:
+	ObjHdr,
+	McSnapshot
 {
 };
 
-TFunctionPtr
-CMulticast::GetSnapshot ()
+FunctionPtr
+MulticastImpl::getSnapshot ()
 {
-	CRuntime* pRuntime = GetCurrentThreadRuntime ();
-	ASSERT (pRuntime);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	ASSERT (m_pObject->m_pClassType->GetClassTypeKind () == EClassType_Multicast);
-	CMulticastClassType* pMulticastType = (CMulticastClassType*) m_pObject->m_pType;
-	CMcSnapshotClassType* pSnapshotType = pMulticastType->GetSnapshotType ();
+	ASSERT (m_object->m_classType->getClassTypeKind () == ClassTypeKind_Multicast);
+	MulticastClassType* multicastType = (MulticastClassType*) m_object->m_type;
+	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
 
 //	TMcSnapshotObject* pSnapshot = (TMcSnapshotObject*) AXL_MEM_NEW (pRuntime->GcAllocate (pSnapshotType);
-	TMcSnapshotObject* pSnapshot = AXL_MEM_NEW (TMcSnapshotObject);
-	pSnapshot->m_ScopeLevel = 0;
-	pSnapshot->m_pRoot = pSnapshot;
-	pSnapshot->m_pType = pSnapshotType;
-	pSnapshot->m_pObject = pSnapshot;
-	pSnapshot->m_Flags = 0;
+	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
+	snapshot->m_scopeLevel = 0;
+	snapshot->m_root = snapshot;
+	snapshot->m_type = snapshotType;
+	snapshot->m_object = snapshot;
+	snapshot->m_flags = 0;
 
-	size_t Size = pMulticastType->GetTargetType ()->GetSize () * m_Count;
-	if (Size)
+	size_t size = multicastType->getTargetType ()->getSize () * m_count;
+	if (size)
 	{
-		pSnapshot->m_pPtrArray = AXL_MEM_ALLOC (Size);
+		snapshot->m_ptrArray = AXL_MEM_ALLOC (size);
 
-		if (pMulticastType->GetTargetType ()->GetPtrTypeKind () == EFunctionPtrType_Weak)
+		if (multicastType->getTargetType ()->getPtrTypeKind () == FunctionPtrTypeKind_Weak)
 		{
-			TFunctionPtr* pDstPtr = (TFunctionPtr*) pSnapshot->m_pPtrArray;
-			TFunctionPtr* pSrcPtr = (TFunctionPtr*) m_pPtrArray;
-			TFunctionPtr* pSrcPtrEnd = pSrcPtr + m_Count;
+			FunctionPtr* dstPtr = (FunctionPtr*) snapshot->m_ptrArray;
+			FunctionPtr* srcPtr = (FunctionPtr*) m_ptrArray;
+			FunctionPtr* srcPtrEnd = srcPtr + m_count;
 
-			size_t AliveCount = 0;
-			for (; pSrcPtr < pSrcPtrEnd; pSrcPtr++)
+			size_t aliveCount = 0;
+			for (; srcPtr < srcPtrEnd; srcPtr++)
 			{
-				if (CStdLib::StrengthenClassPtr (pSrcPtr->m_pClosure))
+				if (StdLib::strengthenClassPtr (srcPtr->m_closure))
 				{
-					*pDstPtr = *pSrcPtr;
-					pDstPtr++;
-					AliveCount++;
+					*dstPtr = *srcPtr;
+					dstPtr++;
+					aliveCount++;
 				}
 			}
 
-			pSnapshot->m_Count = AliveCount;
+			snapshot->m_count = aliveCount;
 		}
 		else
 		{
-			pSnapshot->m_Count = m_Count;
-			memcpy (pSnapshot->m_pPtrArray, m_pPtrArray, Size);
+			snapshot->m_count = m_count;
+			memcpy (snapshot->m_ptrArray, m_ptrArray, size);
 		}
 	}
 
-	TFunctionPtr Ptr = { 0 };
-	Ptr.m_pClosure = pSnapshot;
-	Ptr.m_pf = pSnapshotType->GetMethod (EMcSnapshotMethod_Call)->GetMachineCode ();
+	FunctionPtr ptr = { 0 };
+	ptr.m_closure = snapshot;
+	ptr.m_pf = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
 
-	ASSERT (Ptr.m_pf);
-	return Ptr;
+	ASSERT (ptr.m_pf);
+	return ptr;
 }
 
 //.............................................................................

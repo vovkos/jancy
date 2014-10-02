@@ -6,62 +6,62 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CUnOp_PreInc::GetResultType (const CValue& OpValue)
+Type*
+UnOp_PreInc::getResultType (const Value& opValue)
 {
-	return OpValue.GetType ();
+	return opValue.getType ();
 }
 
 bool
-CUnOp_PreInc::Operator (
-	const CValue& OpValue,
-	CValue* pResultValue
+UnOp_PreInc::op (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	CValue OneValue;
-	OneValue.SetConstInt32 (1);
-	EBinOp BinOpKind = m_OpKind == EUnOp_PreInc ? EBinOp_AddAssign : EBinOp_SubAssign;
+	Value oneValue;
+	oneValue.setConstInt32 (1);
+	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 		
-	bool Result = m_pModule->m_OperatorMgr.BinaryOperator (BinOpKind, OpValue, OneValue);
-	if (!Result)
+	bool result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
+	if (!result)
 		return false;
 
-	*pResultValue = OpValue;
+	*resultValue = opValue;
 	return true;
 }
 
 //.............................................................................
 
-CType*
-CUnOp_PostInc::GetResultType (const CValue& OpValue)
+Type*
+UnOp_PostInc::getResultType (const Value& opValue)
 {
-	CValue OldValue;
-	m_pModule->m_OperatorMgr.PrepareOperandType (OpValue, &OldValue);
-	return OldValue.GetType ();
+	Value oldValue;
+	m_module->m_operatorMgr.prepareOperandType (opValue, &oldValue);
+	return oldValue.getType ();
 }
 
 bool
-CUnOp_PostInc::Operator (
-	const CValue& OpValue,
-	CValue* pResultValue
+UnOp_PostInc::op (
+	const Value& opValue,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OldValue;
-	Result = m_pModule->m_OperatorMgr.PrepareOperand (OpValue, &OldValue);
-	if (!Result)
+	Value oldValue;
+	result = m_module->m_operatorMgr.prepareOperand (opValue, &oldValue);
+	if (!result)
 		return false;
 
-	CValue OneValue;
-	OneValue.SetConstInt32 (1);
-	EBinOp BinOpKind = m_OpKind == EUnOp_PostInc ? EBinOp_AddAssign : EBinOp_SubAssign;
+	Value oneValue;
+	oneValue.setConstInt32 (1);
+	BinOpKind binOpKind = m_opKind == UnOpKind_PostInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 		
-	Result = m_pModule->m_OperatorMgr.BinaryOperator (BinOpKind, OpValue, OneValue);
-	if (!Result)
+	result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
+	if (!result)
 		return false;
 
-	*pResultValue = OldValue;
+	*resultValue = oldValue;
 	return true;
 }
 

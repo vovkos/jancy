@@ -20,16 +20,16 @@ compilation_unit
 
 //.............................................................................
 
-ParserClassName = CParser;
+ParserClassName = Parser;
 
 Includes
 {
 	#define _JNC_PARSER_H
 
+	#include "llk_Parser.h"
 	#include "jnc_Lexer.h"
 	#include "jnc_Module.h"
 	#include "jnc_Decl.h"
-	#include "llk_Parser.h"
 }
 
 CppIncludes
@@ -39,419 +39,419 @@ CppIncludes
 
 Members
 {
-	enum EStage
+	enum StageKind
 	{
-		EStage_Pass1, // global declarations (before linkage)
-		EStage_Pass2, // statements and expressions (after linkage & calclayout)
-		EStage_ReactorScan,    // scan reactor body to build bind site map (after linkage but before calclayout)
-		EStage_ReactorStarter, // evaluate expression and save bindable event pointers
+		StageKind_Pass1, // global declarations (before linkage)
+		StageKind_Pass2, // statements and expressions (after linkage & calclayout)
+		StageKind_ReactorScan,    // scan reactor body to build bind site map (after linkage but before calclayout)
+		StageKind_ReactorStarter, // evaluate expression and save bindable event pointers
 	};
 
-	enum EFlag
+	enum FlagKind
 	{
-		EFlag_ConstExpression = 0x01,
+		FlagKind_ConstExpression = 0x01,
 	};
 
-	enum EAssign
+	enum AssignKind
 	{
-		EAssign_Normal,
-		EAssign_BinOp,
+		AssignKind_Normal,
+		AssignKind_BinOp,
 	};
 
-	enum ELandingPadFlag
+	enum LandingPadFlagKind
 	{
-		ELandingPadFlag_Catch   = 0x01,
-		ELandingPadFlag_Finally = 0x02,
+		LandingPadFlagKind_Catch   = 0x01,
+		LandingPadFlagKind_Finally = 0x02,
 	};
 
-	struct TCurlyInitializer
+	struct CurlyInitializer
 	{
-		CValue m_TargetValue;
-		CValue m_MemberValue;
-		size_t m_Index;
-		size_t m_Count;
+		Value m_targetValue;
+		Value m_memberValue;
+		size_t m_index;
+		size_t m_count;
 	};
 
-	struct TLiteral
+	struct Literal
 	{
-		CValue m_FmtLiteralValue;
-		rtl::CArrayT <uchar_t> m_BinData;
-		EToken m_LastToken;
+		Value m_fmtLiteralValue;
+		rtl::Array <uchar_t> m_binData;
+		TokenKind m_lastToken;
 	};
 
-	CModule* m_pModule;
-	EStage m_Stage;
-	uint_t m_Flags;
-	size_t m_StructPackFactor;
-	size_t m_DefaultStructPackFactor;
-	EStorage m_StorageKind;
-	EAccess m_AccessKind;
-	CAttributeBlock* m_pAttributeBlock;
-	CModuleItem* m_pLastDeclaredItem;
-	rtl::CArrayT <CTypeSpecifier*> m_TypeSpecifierStack;
+	Module* m_module;
+	StageKind m_stage;
+	uint_t m_flags;
+	size_t m_structPackFactor;
+	size_t m_defaultStructPackFactor;
+	StorageKind m_storageKind;
+	AccessKind m_accessKind;
+	AttributeBlock* m_attributeBlock;
+	ModuleItem* m_lastDeclaredItem;
+	rtl::Array <TypeSpecifier*> m_typeSpecifierStack;
 
-	CFunctionType* m_pLastPropertyGetterType;
-	CTypeModifiers m_LastPropertyTypeModifiers;
+	FunctionType* m_lastPropertyGetterType;
+	TypeModifiers m_lastPropertyTypeModifiers;
 
-	CReactorClassType* m_pReactorType;
-	rtl::CStdListT <TReaction> m_ReactionList;
-	rtl::CBoxListT <CValue> m_ReactorBindSiteList;
-	size_t m_ReactorBindableTypeCount;
-	size_t m_ReactorBindSiteTotalCount;
+	ReactorClassType* m_reactorType;
+	rtl::StdList <Reaction> m_reactionList;
+	rtl::BoxList <Value> m_reactorBindSiteList;
+	size_t m_reactorBindableTypeCount;
+	size_t m_reactorBindSiteTotalCount;
 
-	CDerivableType* m_pConstructorType;
-	CProperty* m_pConstructorProperty;
+	DerivableType* m_constructorType;
+	Property* m_constructorProperty;
 
-	CValue m_CurlyInitializerTargetValue;
-	CValue m_ThrowReturnValue;
+	Value m_curlyInitializerTargetValue;
+	Value m_throwReturnValue;
 
 	// saved attributes
 
-	CValue m_ExpressionValue;
-	rtl::CBoxListT <CValue> m_ExpressionValueList;
+	Value m_expressionValue;
+	rtl::BoxList <Value> m_expressionValueList;
 }
 
 Members2
 {
-	CParser ();
+	Parser ();
 
 	bool
-	ParseTokenList (
-		ESymbol Symbol,
-		const rtl::CConstBoxListT <CToken>& TokenList,
-		bool IsBuildingAst = false
-		);
-
-	bool
-	PreCreateLandingPads (uint_t Flags);
-
-	CNamedImportType*
-	GetNamedImportType (
-		const CQualifiedName& Name,
-		const CToken::CPos& Pos
-		);
-
-	rtl::CString
-	GetQualifiedTypeNameString (
-		size_t BaseTypeIdx,
-		const CQualifiedName& Name
-		);
-
-	CType*
-	FindType (
-		size_t BaseTypeIdx,
-		const CQualifiedName& Name,
-		const CToken::CPos& Pos
-		);
-
-	CType*
-	GetType (
-		size_t BaseTypeIdx,
-		const CQualifiedName& Name,
-		const CToken::CPos& Pos
-		);
-
-	CDerivableType*
-	FindBaseType (size_t BaseTypeIdx);
-
-	CDerivableType*
-	GetBaseType (size_t BaseTypeIdx);
-
-	bool
-	GetBaseType (
-		size_t BaseTypeIdx,
-		CValue* pResultValue
+	parseTokenList (
+		SymbolKind symbol,
+		const rtl::ConstBoxList <Token>& tokenList,
+		bool isBuildingAst = false
 		);
 
 	bool
-	SetStorageKind (EStorage StorageKind);
+	preCreateLandingPads (uint_t flags);
+
+	NamedImportType*
+	getNamedImportType (
+		const QualifiedName& name,
+		const Token::Pos& pos
+		);
+
+	rtl::String
+	getQualifiedTypeNameString (
+		size_t baseTypeIdx,
+		const QualifiedName& name
+		);
+
+	Type*
+	findType (
+		size_t baseTypeIdx,
+		const QualifiedName& name,
+		const Token::Pos& pos
+		);
+
+	Type*
+	getType (
+		size_t baseTypeIdx,
+		const QualifiedName& name,
+		const Token::Pos& pos
+		);
+
+	DerivableType*
+	findBaseType (size_t baseTypeIdx);
+
+	DerivableType*
+	getBaseType (size_t baseTypeIdx);
 
 	bool
-	SetAccessKind (EAccess AccessKind);
+	getBaseType (
+		size_t baseTypeIdx,
+		Value* resultValue
+		);
+
+	bool
+	setStorageKind (StorageKind storageKind);
+
+	bool
+	setAccessKind (AccessKind accessKind);
 
 	void
-	PushTypeSpecifier (CTypeSpecifier* pTypeSpecifier)
+	pushTypeSpecifier (TypeSpecifier* typeSpecifier)
 	{
-		m_TypeSpecifierStack.Append (pTypeSpecifier);
+		m_typeSpecifierStack.append (typeSpecifier);
 	}
 
-	CTypeSpecifier*
-	GetTypeSpecifier ()
+	TypeSpecifier*
+	getTypeSpecifier ()
 	{
-		return m_TypeSpecifierStack.GetBack ();
+		return m_typeSpecifierStack.getBack ();
 	}
 
 	void
-	PopTypeSpecifier (CTypeSpecifier* pTypeSpecifier)
+	popTypeSpecifier (TypeSpecifier* typeSpecifier)
 	{
-		m_TypeSpecifierStack.Pop ();
+		m_typeSpecifierStack.pop ();
 	}
 
 	bool
-	IsTypeSpecified ();
+	isTypeSpecified ();
 
 	bool
-	IsEmptyDeclarationTerminatorAllowed (CTypeSpecifier* pTypeSpecifier);
+	isEmptyDeclarationTerminatorAllowed (TypeSpecifier* typeSpecifier);
 
 	bool
-	SetDeclarationBody (rtl::CBoxListT <CToken>* pTokenList);
+	setDeclarationBody (rtl::BoxList <Token>* tokenList);
 
 	void
-	AssignDeclarationAttributes (
-		CModuleItem* pItem,
-		const CToken::CPos& Pos
+	assignDeclarationAttributes (
+		ModuleItem* item,
+		const Token::Pos& pos
 		);
 
-	CGlobalNamespace*
-	OpenGlobalNamespace (
-		const CQualifiedName& Name,
-		const CToken::CPos& Pos
+	GlobalNamespace*
+	openGlobalNamespace (
+		const QualifiedName& name,
+		const Token::Pos& pos
 		);
 
-	CGlobalNamespace*
-	GetGlobalNamespace (
-		CGlobalNamespace* pParentNamespace,
-		const rtl::CString& Name,
-		const CToken::CPos& Pos
-		);
-
-	bool
-	OpenTypeExtension (
-		const CQualifiedName& Name,
-		const CToken::CPos& Pos
+	GlobalNamespace*
+	getGlobalNamespace (
+		GlobalNamespace* parentNamespace,
+		const rtl::String& name,
+		const Token::Pos& pos
 		);
 
 	bool
-	PreDeclare ();
-
-	bool
-	Declare (CDeclarator* pDeclarator);
-
-	bool
-	DeclareTypedef (
-		CDeclarator* pDeclarator,
-		CType* pType
+	openTypeExtension (
+		const QualifiedName& name,
+		const Token::Pos& pos
 		);
 
 	bool
-	DeclareAlias (
-		CDeclarator* pDeclarator,
-		CType* pType,
-		uint_t PtrTypeFlags
+	preDeclare ();
+
+	bool
+	declare (Declarator* declarator);
+
+	bool
+	declareTypedef (
+		Declarator* declarator,
+		Type* type
 		);
 
 	bool
-	DeclareFunction (
-		CDeclarator* pDeclarator,
-		CFunctionType* pType
+	declareAlias (
+		Declarator* declarator,
+		Type* type,
+		uint_t ptrTypeFlags
 		);
 
 	bool
-	DeclareProperty (
-		CDeclarator* pDeclarator,
-		CPropertyType* pType,
-		uint_t Flags
+	declareFunction (
+		Declarator* declarator,
+		FunctionType* type
 		);
 
 	bool
-	DeclareData (
-		CDeclarator* pDeclarator,
-		CType* pType,
-		uint_t PtrTypeFlags
+	declareProperty (
+		Declarator* declarator,
+		PropertyType* type,
+		uint_t flags
 		);
 
 	bool
-	DeclareUnnamedStructOrUnion (CDerivableType* pType);
-
-	bool
-	DeclareReactor (
-		CDeclarator* pDeclarator,
-		CClassType* pType,
-		uint_t PtrTypeFlags
-		);
-
-	CFunctionArg*
-	CreateFormalArg (
-		CDeclFunctionSuffix* pArgSuffix,
-		CDeclarator* pDeclarator
-		);
-
-	CEnumType*
-	CreateEnumType (
-		EEnumType EnumTypeKind,
-		const rtl::CString& Name,
-		CType* pBaseType,
-		uint_t Flags
-		);
-
-	CStructType*
-	CreateStructType (
-		const rtl::CString& Name,
-		rtl::CBoxListT <CType*>* pBaseTypeList,
-		size_t PackFactor
-		);
-
-	CUnionType*
-	CreateUnionType (
-		const rtl::CString& Name,
-		size_t PackFactor
-		);
-
-	CClassType*
-	CreateClassType (
-		const rtl::CString& Name,
-		rtl::CBoxListT <CType*>* pBaseTypeList,
-		size_t PackFactor,
-		uint_t Flags
-		);
-
-	CProperty*
-	CreateProperty (
-		const rtl::CString& Name,
-		const CToken::CPos& Pos
-		);
-
-	CPropertyTemplate*
-	CreatePropertyTemplate ();
-
-	bool
-	FinalizeLastProperty (bool HasBody);
-
-	bool
-	ParseLastPropertyBody (const rtl::CConstBoxListT <CToken>& Body);
-
-	bool
-	NewOperator_0 (
-		EStorage StorageKind,
-		CType* pType,
-		CValue* pResultValue
+	declareData (
+		Declarator* declarator,
+		Type* type,
+		uint_t ptrTypeFlags
 		);
 
 	bool
-	AddReactorBindSite (const CValue& Value);
+	declareUnnamedStructOrUnion (DerivableType* type);
 
 	bool
-	FinalizeReactor ();
+	declareReactor (
+		Declarator* declarator,
+		ClassType* type,
+		uint_t ptrTypeFlags
+		);
+
+	FunctionArg*
+	createFormalArg (
+		DeclFunctionSuffix* argSuffix,
+		Declarator* declarator
+		);
+
+	EnumType*
+	createEnumType (
+		EnumTypeKind enumTypeKind,
+		const rtl::String& name,
+		Type* baseType,
+		uint_t flags
+		);
+
+	StructType*
+	createStructType (
+		const rtl::String& name,
+		rtl::BoxList <Type*>* baseTypeList,
+		size_t packFactor
+		);
+
+	UnionType*
+	createUnionType (
+		const rtl::String& name,
+		size_t packFactor
+		);
+
+	ClassType*
+	createClassType (
+		const rtl::String& name,
+		rtl::BoxList <Type*>* baseTypeList,
+		size_t packFactor,
+		uint_t flags
+		);
+
+	Property*
+	createProperty (
+		const rtl::String& name,
+		const Token::Pos& pos
+		);
+
+	PropertyTemplate*
+	createPropertyTemplate ();
 
 	bool
-	FinalizeReactorOnEventDeclaration (
-		rtl::CBoxListT <CValue>* pValueList,
-		CDeclarator* pDeclarator
+	finalizeLastProperty (bool hasBody);
+
+	bool
+	parseLastPropertyBody (const rtl::ConstBoxList <Token>& body);
+
+	bool
+	newOperator_0 (
+		StorageKind storageKind,
+		Type* type,
+		Value* resultValue
 		);
 
 	bool
-	FinalizeReactorOnEventBody ()
+	addReactorBindSite (const Value& value);
+
+	bool
+	finalizeReactor ();
+
+	bool
+	finalizeReactorOnEventDeclaration (
+		rtl::BoxList <Value>* valueList,
+		Declarator* declarator
+		);
+
+	bool
+	finalizeReactorOnEventBody ()
 	{
-		return m_pModule->m_FunctionMgr.Epilogue ();
+		return m_module->m_functionMgr.epilogue ();
 	}
 
 	bool
-	ReactorExpressionStmt (const rtl::CConstBoxListT <CToken>& TokenList);
+	reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList);
 
 	bool
-	CountReactorBindableTypes ();
+	countReactorBindableTypes ();
 
 	bool
-	CallBaseTypeMemberConstructor (
-		const CQualifiedName& Name,
-		rtl::CBoxListT <CValue>* pArgList
+	callBaseTypeMemberConstructor (
+		const QualifiedName& name,
+		rtl::BoxList <Value>* argList
 		);
 
 	bool
-	CallBaseTypeConstructor (
-		size_t BaseTypeIdx,
-		rtl::CBoxListT <CValue>* pArgList
+	callBaseTypeConstructor (
+		size_t baseTypeIdx,
+		rtl::BoxList <Value>* argList
 		);
 
 	bool
-	CallBaseTypeConstructor (
-		CType* pType,
-		rtl::CBoxListT <CValue>* pArgList
+	callBaseTypeConstructor (
+		Type* type,
+		rtl::BoxList <Value>* argList
 		);
 
 	bool
-	CallBaseTypeConstructorImpl (
-		CBaseTypeSlot* pBaseTypeSlot,
-		rtl::CBoxListT <CValue>* pArgList
+	callBaseTypeConstructorImpl (
+		BaseTypeSlot* baseTypeSlot,
+		rtl::BoxList <Value>* argList
 		);
 
 	bool
-	CallFieldConstructor (
-		CStructField* pField,
-		rtl::CBoxListT <CValue>* pArgList
+	callFieldConstructor (
+		StructField* field,
+		rtl::BoxList <Value>* argList
 		);
 
 	bool
-	FinalizeBaseTypeMemberConstructBlock ();
+	finalizeBaseTypeMemberConstructBlock ();
 
 	bool
-	LookupIdentifier (
-		const rtl::CString& Name,
-		const CToken::CPos& Pos,
-		CValue* pValue
+	lookupIdentifier (
+		const rtl::String& name,
+		const Token::Pos& pos,
+		Value* value
 		);
 
 	bool
-	LookupIdentifierType (
-		const rtl::CString& Name,
-		const CToken::CPos& Pos,
-		CValue* pValue
+	lookupIdentifierType (
+		const rtl::String& name,
+		const Token::Pos& pos,
+		Value* value
 		);
 
 	bool
-	GetCountOf (
-		CType* pType,
-		CValue* pValue
+	getCountOf (
+		Type* type,
+		Value* value
 		);
 
 	bool
-	GetThrowReturnValue (CValue* pValue);
+	getThrowReturnValue (Value* value);
 
 	bool
-	GetThrowReturnValueType (CValue* pValue);
+	getThrowReturnValueType (Value* value);
 
 	bool
-	PrepareCurlyInitializerNamedItem (
-		TCurlyInitializer* pInitializer,
-		const char* pName
+	prepareCurlyInitializerNamedItem (
+		CurlyInitializer* initializer,
+		const char* name
 		);
 
 	bool
-	PrepareCurlyInitializerIndexedItem (TCurlyInitializer* pInitializer);
+	prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer);
 
 	bool
-	SkipCurlyInitializerItem (TCurlyInitializer* pInitializer);
+	skipCurlyInitializerItem (CurlyInitializer* initializer);
 
 	bool
-	AppendFmtLiteral (
-		TLiteral* pLiteral,
+	appendFmtLiteral (
+		Literal* literal,
 		const void* p,
-		size_t Length
+		size_t length
 		);
 
 	bool
-	AppendFmtLiteralValue (
-		TLiteral* pLiteral,
-		const CValue& SrcValue,
-		const rtl::CString& FmtSpecifierString
+	appendFmtLiteralValue (
+		Literal* literal,
+		const Value& srcValue,
+		const rtl::String& fmtSpecifierString
 		);
 
 	bool
-	AppendFmtLiteralBinValue (
-		TLiteral* pLiteral,
-		const CValue& SrcValue
+	appendFmtLiteralBinValue (
+		Literal* literal,
+		const Value& srcValue
 		);
 
 	bool
-	FinalizeLiteral (
-		TLiteral* pLiteral,
-		CValue* pResultValue
+	finalizeLiteral (
+		Literal* literal,
+		Value* resultValue
 		);
 
 	bool
-	FinalizeLiteral_0 (
-		TLiteral* pLiteral,
-		CValue* pResultValue
+	finalizeLiteral_0 (
+		Literal* literal,
+		Value* resultValue
 		);
 }
 

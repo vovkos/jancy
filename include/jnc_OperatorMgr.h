@@ -34,1527 +34,1527 @@
 
 namespace jnc {
 
-class CModule;
+class Module;
 
 //.............................................................................
 
-enum EStdCast
+enum StdCastKind
 {
-	EStdCast_Copy,
-	EStdCast_SwapByteOrder,
-	EStdCast_PtrFromInt,
-	EStdCast_Int,
-	EStdCast_Fp,
-	EStdCast__Count
+	StdCastKind_Copy,
+	StdCastKind_SwapByteOrder,
+	StdCastKind_PtrFromInt,
+	StdCastKind_Int,
+	StdCastKind_Fp,
+	StdCastKind__Count
 };
 
 //.............................................................................
 
-class COperatorMgr
+class OperatorMgr
 {
-	friend class CModule;
-	friend class CVariableMgr;
-	friend class CFunctionMgr;
-	friend class CParser;
-	friend class CCast_FunctionPtr;
+	friend class Module;
+	friend class VariableMgr;
+	friend class FunctionMgr;
+	friend class Parser;
+	friend class Cast_FunctionPtr;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
 	// unary arithmetics
 
-	CUnOp_Plus m_UnOp_Plus;
-	CUnOp_Minus m_UnOp_Minus;
-	CUnOp_BwNot m_UnOp_BwNot;
-	CUnOp_LogNot m_UnOp_LogNot;
+	UnOp_Plus m_unOp_Plus;
+	UnOp_Minus m_unOp_Minus;
+	UnOp_BwNot m_unOp_BwNot;
+	UnOp_LogNot m_unOp_LogNot;
 
 	// pointer operators
 
-	CUnOp_Addr m_UnOp_Addr;
-	CUnOp_Indir m_UnOp_Indir;
+	UnOp_Addr m_unOp_Addr;
+	UnOp_Indir m_unOp_Indir;
 
 	// increment operators
 
-	CUnOp_PreInc m_UnOp_PreInc;
-	CUnOp_PreInc m_UnOp_PreDec;
-	CUnOp_PostInc m_UnOp_PostInc;
-	CUnOp_PostInc m_UnOp_PostDec;
+	UnOp_PreInc m_unOp_PreInc;
+	UnOp_PreInc m_unOp_PreDec;
+	UnOp_PostInc m_unOp_PostInc;
+	UnOp_PostInc m_unOp_PostDec;
 
 	// binary arithmetics
 
-	CBinOp_Add m_BinOp_Add;
-	CBinOp_Sub m_BinOp_Sub;
-	CBinOp_Mul m_BinOp_Mul;
-	CBinOp_Div m_BinOp_Div;
-	CBinOp_Mod m_BinOp_Mod;
-	CBinOp_Shl m_BinOp_Shl;
-	CBinOp_Shr m_BinOp_Shr;
-	CBinOp_BwAnd m_BinOp_BwAnd;
-	CBinOp_BwXor m_BinOp_BwXor;
-	CBinOp_BwOr m_BinOp_BwOr;
+	BinOp_Add m_binOp_Add;
+	BinOp_Sub m_binOp_Sub;
+	BinOp_Mul m_binOp_Mul;
+	BinOp_Div m_binOp_Div;
+	BinOp_Mod m_binOp_Mod;
+	BinOp_Shl m_binOp_Shl;
+	BinOp_Shr m_binOp_Shr;
+	BinOp_BwAnd m_binOp_BwAnd;
+	BinOp_BwXor m_binOp_BwXor;
+	BinOp_BwOr m_binOp_BwOr;
 
 	// special operators
 
-	CBinOp_At m_BinOp_At;
-	CBinOp_Idx m_BinOp_Idx;
+	BinOp_At m_binOp_At;
+	BinOp_Idx m_binOp_Idx;
 
 	// binary logic operators
 
-	CBinOp_LogAnd m_BinOp_LogAnd;
-	CBinOp_LogOr m_BinOp_LogOr;
+	BinOp_LogAnd m_binOp_LogAnd;
+	BinOp_LogOr m_binOp_LogOr;
 
 	// comparison operators
 
-	CBinOp_Eq m_BinOp_Eq;
-	CBinOp_Ne m_BinOp_Ne;
-	CBinOp_Lt m_BinOp_Lt;
-	CBinOp_Le m_BinOp_Le;
-	CBinOp_Gt m_BinOp_Gt;
-	CBinOp_Ge m_BinOp_Ge;
+	BinOp_Eq m_binOp_Eq;
+	BinOp_Ne m_binOp_Ne;
+	BinOp_Lt m_binOp_Lt;
+	BinOp_Le m_binOp_Le;
+	BinOp_Gt m_binOp_Gt;
+	BinOp_Ge m_binOp_Ge;
 
 	// assignment operators
 
-	CBinOp_Assign m_BinOp_Assign;
-	CBinOp_RefAssign m_BinOp_RefAssign;
-	CBinOp_OpAssign m_BinOp_AddAssign;
-	CBinOp_OpAssign m_BinOp_SubAssign;
-	CBinOp_OpAssign m_BinOp_MulAssign;
-	CBinOp_OpAssign m_BinOp_DivAssign;
-	CBinOp_OpAssign m_BinOp_ModAssign;
-	CBinOp_OpAssign m_BinOp_ShlAssign;
-	CBinOp_OpAssign m_BinOp_ShrAssign;
-	CBinOp_OpAssign m_BinOp_AndAssign;
-	CBinOp_OpAssign m_BinOp_XorAssign;
-	CBinOp_OpAssign m_BinOp_OrAssign;
-	CBinOp_OpAssign m_BinOp_AtAssign;
+	BinOp_Assign m_binOp_Assign;
+	BinOp_RefAssign m_binOp_RefAssign;
+	BinOp_OpAssign m_binOp_AddAssign;
+	BinOp_OpAssign m_binOp_SubAssign;
+	BinOp_OpAssign m_binOp_MulAssign;
+	BinOp_OpAssign m_binOp_DivAssign;
+	BinOp_OpAssign m_binOp_ModAssign;
+	BinOp_OpAssign m_binOp_ShlAssign;
+	BinOp_OpAssign m_binOp_ShrAssign;
+	BinOp_OpAssign m_binOp_AndAssign;
+	BinOp_OpAssign m_binOp_XorAssign;
+	BinOp_OpAssign m_binOp_OrAssign;
+	BinOp_OpAssign m_binOp_AtAssign;
 
 	// cast operators
 
-	CCast_Default m_Cast_Default;
-	CCast_Copy m_Cast_Copy;
-	CCast_SwapByteOrder m_Cast_SwapByteOrder;
-	CCast_PtrFromInt m_Cast_PtrFromInt;
-	CCast_Bool m_Cast_Bool;
-	CCast_IntFromBool m_CastIntFromBool;
-	CCast_Int m_Cast_Int;
-	CCast_BeInt m_Cast_BeInt;
-	CCast_Fp m_Cast_Fp;
-	CCast_Array m_Cast_Array;
-	CCast_Enum m_Cast_Enum;
-	CCast_Struct m_Cast_Struct;
-	CCast_DataPtr m_Cast_DataPtr;
-	CCast_DataRef m_Cast_DataRef;
-	CCast_ClassPtr m_Cast_ClassPtr;
-	CCast_FunctionPtr m_Cast_FunctionPtr;
-	CCast_FunctionRef m_Cast_FunctionRef;
-	CCast_PropertyPtr m_Cast_PropertyPtr;
-	CCast_PropertyRef m_Cast_PropertyRef;
+	Cast_Default m_cast_Default;
+	Cast_Copy m_cast_Copy;
+	Cast_SwapByteOrder m_cast_SwapByteOrder;
+	Cast_PtrFromInt m_cast_PtrFromInt;
+	Cast_Bool m_cast_Bool;
+	Cast_IntFromBool m_castIntFromBool;
+	Cast_Int m_cast_Int;
+	Cast_BeInt m_cast_BeInt;
+	Cast_Fp m_cast_Fp;
+	Cast_Array m_cast_Array;
+	Cast_Enum m_cast_Enum;
+	Cast_Struct m_cast_Struct;
+	Cast_DataPtr m_cast_DataPtr;
+	Cast_DataRef m_cast_DataRef;
+	Cast_ClassPtr m_cast_ClassPtr;
+	Cast_FunctionPtr m_cast_FunctionPtr;
+	Cast_FunctionRef m_cast_FunctionRef;
+	Cast_PropertyPtr m_cast_PropertyPtr;
+	Cast_PropertyRef m_cast_PropertyRef;
 
 	// tables
 
-	CUnaryOperator* m_UnaryOperatorTable [EUnOp__Count];
-	CBinaryOperator* m_BinaryOperatorTable [EBinOp__Count];
-	CCastOperator* m_CastOperatorTable [EType__Count];
-	CCastOperator* m_StdCastOperatorTable [EStdCast__Count];
+	UnaryOperator* m_unaryOperatorTable [UnOpKind__Count];
+	BinaryOperator* m_binaryOperatorTable [BinOpKind__Count];
+	CastOperator* m_castOperatorTable [TypeKind__Count];
+	CastOperator* m_stdCastOperatorTable [StdCastKind__Count];
 
-	rtl::CBoxListT <CValue> m_TmpStackGcRootList;
+	rtl::BoxList <Value> m_tmpStackGcRootList;
 
 public:
-	COperatorMgr ();
+	OperatorMgr ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ()
+	clear ()
 	{
-		m_TmpStackGcRootList.Clear ();
+		m_tmpStackGcRootList.clear ();
 	}
 
 	void
-	NullifyTmpStackGcRootList ();
+	nullifyTmpStackGcRootList ();
 
 	void
-	CreateTmpStackGcRoot (const CValue& Value);
+	createTmpStackGcRoot (const Value& value);
 
 	void
-	MarkStackGcRoot (
-		const CValue& PtrValue,
-		CType* pType,
-		bool IsTmpGcRoot = false
+	markStackGcRoot (
+		const Value& ptrValue,
+		Type* type,
+		bool isTmpGcRoot = false
 		);
 
 	// load reference, get property, enum->int, bool->int, array->ptr -- unless specified otherwise with Flags
 
 	void
-	PrepareOperandType (
-		const CValue& OpValue,
-		CValue* pOpValue,
-		uint_t OpFlags = 0
+	prepareOperandType (
+		const Value& opValue,
+		Value* resultValue,
+		uint_t opFlags = 0
 		);
 
 	void
-	PrepareOperandType (
-		CValue* pOpValue,
-		uint_t OpFlags = 0
+	prepareOperandType (
+		Value* opValue,
+		uint_t opFlags = 0
 		)
 	{
-		PrepareOperandType (*pOpValue, pOpValue, OpFlags);
+		prepareOperandType (*opValue, opValue, opFlags);
 	}
 
-	CType*
-	PrepareOperandType (
-		const CValue& OpValue,
-		uint_t OpFlags = 0
+	Type*
+	prepareOperandType (
+		const Value& opValue,
+		uint_t opFlags = 0
 		);
 
 	bool
-	PrepareOperand (
-		const CValue& OpValue,
-		CValue* pOpValue,
-		uint_t OpFlags = 0
+	prepareOperand (
+		const Value& opValue,
+		Value* resultValue,
+		uint_t opFlags = 0
 		);
 
 	bool
-	PrepareOperand (
-		CValue* pOpValue,
-		uint_t OpFlags = 0
+	prepareOperand (
+		Value* opValue,
+		uint_t opFlags = 0
 		)
 	{
-		return PrepareOperand (*pOpValue, pOpValue, OpFlags);
+		return prepareOperand (*opValue, opValue, opFlags);
 	}
 
 	bool
-	PrepareArgumentReturnValue (CValue* pValue);
+	prepareArgumentReturnValue (Value* value);
 
 	bool
-	PrepareDataPtr (
-		const CValue& Value,
-		CValue* pResultValue
+	prepareDataPtr (
+		const Value& value,
+		Value* resultValue
 		);
 
 	bool
-	PrepareDataPtr (CValue* pValue)
+	prepareDataPtr (Value* value)
 	{
-		return PrepareDataPtr (*pValue, pValue);
+		return prepareDataPtr (*value, value);
 	}
 
 	// unary operators
 
-	CType*
-	GetUnaryOperatorResultType (
-		EUnOp OpKind,
-		const CValue& OpValue
+	Type*
+	getUnaryOperatorResultType (
+		UnOpKind opKind,
+		const Value& opValue
 		);
 
 	bool
-	GetUnaryOperatorResultType (
-		EUnOp OpKind,
-		const CValue& OpValue,
-		CValue* pResultValue
+	getUnaryOperatorResultType (
+		UnOpKind opKind,
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetUnaryOperatorResultType (
-		EUnOp OpKind,
-		CValue* pValue
+	getUnaryOperatorResultType (
+		UnOpKind opKind,
+		Value* value
 		)
 	{
-		return GetUnaryOperatorResultType (OpKind, *pValue, pValue);
+		return getUnaryOperatorResultType (opKind, *value, value);
 	}
 
 	bool
-	UnaryOperator (
-		EUnOp OpKind,
-		const CValue& OpValue,
-		CValue* pResultValue = NULL
+	unaryOperator (
+		UnOpKind opKind,
+		const Value& opValue,
+		Value* resultValue = NULL
 		);
 
 	bool
-	UnaryOperator (
-		EUnOp OpKind,
-		CValue* pValue
+	unaryOperator (
+		UnOpKind opKind,
+		Value* value
 		)
 	{
-		return UnaryOperator (OpKind, *pValue, pValue);
+		return unaryOperator (opKind, *value, value);
 	}
 
 	// binary operators
 
-	CType*
-	GetBinaryOperatorResultType (
-		EBinOp OpKind,
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getBinaryOperatorResultType (
+		BinOpKind opKind,
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	bool
-	GetBinaryOperatorResultType (
-		EBinOp OpKind,
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue
+	getBinaryOperatorResultType (
+		BinOpKind opKind,
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
 		);
 
 	bool
-	GetBinaryOperatorResultType (
-		EBinOp OpKind,
-		CValue* pValue,
-		const CValue& OpValue2
+	getBinaryOperatorResultType (
+		BinOpKind opKind,
+		Value* value,
+		const Value& opValue2
 		)
 	{
-		return GetBinaryOperatorResultType (OpKind, *pValue, OpValue2, pValue);
+		return getBinaryOperatorResultType (opKind, *value, opValue2, value);
 	}
 
 	bool
-	BinaryOperator (
-		EBinOp OpKind,
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue = NULL
+	binaryOperator (
+		BinOpKind opKind,
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue = NULL
 		);
 
 	bool
-	LogicalOrOperator (
-		CBasicBlock* pOpBlock1,
-		CBasicBlock* pOpBlock2,
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue = NULL
+	logicalOrOperator (
+		BasicBlock* opBlock1,
+		BasicBlock* opBlock2,
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue = NULL
 		);
 
 	bool
-	LogicalAndOperator (
-		CBasicBlock* pOpBlock1,
-		CBasicBlock* pOpBlock2,
-		const CValue& OpValue1,
-		const CValue& OpValue2,
-		CValue* pResultValue = NULL
+	logicalAndOperator (
+		BasicBlock* opBlock1,
+		BasicBlock* opBlock2,
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue = NULL
 		);
 
 	bool
-	BinaryOperator (
-		EBinOp OpKind,
-		CValue* pValue,
-		const CValue& OpValue2
+	binaryOperator (
+		BinOpKind opKind,
+		Value* value,
+		const Value& opValue2
 		)
 	{
-		return BinaryOperator (OpKind, *pValue, OpValue2, pValue);
+		return binaryOperator (opKind, *value, opValue2, value);
 	}
 
 	bool
-	LogicalOrOperator (
-		CBasicBlock* pOpBlock1,
-		CBasicBlock* pOpBlock2,
-		CValue* pValue,
-		const CValue& OpValue2
+	logicalOrOperator (
+		BasicBlock* opBlock1,
+		BasicBlock* opBlock2,
+		Value* value,
+		const Value& opValue2
 		)
 	{
-		return LogicalOrOperator (pOpBlock1, pOpBlock2, *pValue, OpValue2, pValue);
+		return logicalOrOperator (opBlock1, opBlock2, *value, opValue2, value);
 	}
 
 	bool
-	LogicalAndOperator (
-		CBasicBlock* pOpBlock1,
-		CBasicBlock* pOpBlock2,
-		CValue* pValue,
-		const CValue& OpValue2
+	logicalAndOperator (
+		BasicBlock* opBlock1,
+		BasicBlock* opBlock2,
+		Value* value,
+		const Value& opValue2
 		)
 	{
-		return LogicalAndOperator (pOpBlock1, pOpBlock2, *pValue, OpValue2, pValue);
+		return logicalAndOperator (opBlock1, opBlock2, *value, opValue2, value);
 	}
 
 	// conditional operator
 
-	CType*
-	GetConditionalOperatorResultType (
-		const CValue& TrueValue,
-		const CValue& FalseValue
+	Type*
+	getConditionalOperatorResultType (
+		const Value& trueValue,
+		const Value& falseValue
 		);
 
 	bool
-	GetConditionalOperatorResultType (
-		const CValue& TrueValue,
-		const CValue& FalseValue,
-		CValue* pResultValue
+	getConditionalOperatorResultType (
+		const Value& trueValue,
+		const Value& falseValue,
+		Value* resultValue
 		);
 
 	bool
-	ConditionalOperator (
-		const CValue& TrueValue,
-		const CValue& FalseValue,
-		CBasicBlock* pThenBlock,
-		CBasicBlock* pPhiBlock,
-		CValue* pResultValue = NULL
+	conditionalOperator (
+		const Value& trueValue,
+		const Value& falseValue,
+		BasicBlock* thenBlock,
+		BasicBlock* phiBlock,
+		Value* resultValue = NULL
 		);
 
 	// cast operators
 
 	void
-	ForceCast (
-		const CValue& Value,
-		CType* pType,
-		CValue* pResultValue
+	forceCast (
+		const Value& value,
+		Type* type,
+		Value* resultValue
 		);
 
 	void
-	ForceCast (
-		CValue* pValue,
-		CType* pType
+	forceCast (
+		Value* value,
+		Type* type
 		)
 	{
-		ForceCast (*pValue, pType, pValue);
+		forceCast (*value, type, value);
 	}
 
-	CCastOperator*
-	GetStdCastOperator (EStdCast CastKind)
+	CastOperator*
+	getStdCastOperator (StdCastKind castKind)
 	{
-		ASSERT ((size_t) CastKind < EStdCast__Count);
-		return m_StdCastOperatorTable [CastKind];
+		ASSERT ((size_t) castKind < StdCastKind__Count);
+		return m_stdCastOperatorTable [castKind];
 	}
 
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	bool
-	CheckCastKind (
-		const CValue& OpValue,
-		CType* pType
+	checkCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
-	ECast
-	GetArgCastKind (
-		CFunctionType* pFunctionType,
-		CFunctionArg* const* pArgArray,
-		size_t ArgCount
+	CastKind
+	getArgCastKind (
+		FunctionType* functionType,
+		FunctionArg* const* argArray,
+		size_t argCount
 		);
 
-	ECast
-	GetArgCastKind (
-		CFunctionType* pFunctionType,
-		const rtl::CArrayT <CFunctionArg*>& ArgArray
+	CastKind
+	getArgCastKind (
+		FunctionType* functionType,
+		const rtl::Array <FunctionArg*>& argArray
 		)
 	{
-		return GetArgCastKind (pFunctionType, ArgArray, ArgArray.GetCount ());
+		return getArgCastKind (functionType, argArray, argArray.getCount ());
 	}
 
-	ECast
-	GetArgCastKind (
-		CFunctionType* pFunctionType,
-		const rtl::CConstBoxListT <CValue>& ArgValueList
+	CastKind
+	getArgCastKind (
+		FunctionType* functionType,
+		const rtl::ConstBoxList <Value>& argValueList
 		);
 
-	ECast
-	GetFunctionCastKind (
-		CFunctionType* pSrcType,
-		CFunctionType* pDstType
+	CastKind
+	getFunctionCastKind (
+		FunctionType* srcType,
+		FunctionType* dstType
 		);
 
-	ECast
-	GetPropertyCastKind (
-		CPropertyType* pSrcType,
-		CPropertyType* pDstType
-		);
-
-	bool
-	CastOperator (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue = NULL
+	CastKind
+	getPropertyCastKind (
+		PropertyType* srcType,
+		PropertyType* dstType
 		);
 
 	bool
-	CastOperator (
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue = NULL
+	castOperator (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue = NULL
+		);
+
+	bool
+	castOperator (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue = NULL
 		)
 	{
-		return CastOperator (EStorage_Heap, OpValue, pType, pResultValue);
-	}
-
-	bool
-	CastOperator (
-		EStorage StorageKind,
-		CValue* pValue,
-		CType* pType
-		)
-	{
-		return CastOperator (StorageKind, *pValue, pType, pValue);
+		return castOperator (StorageKind_Heap, opValue, type, resultValue);
 	}
 
 	bool
-	CastOperator (
-		CValue* pValue,
-		CType* pType
+	castOperator (
+		StorageKind storageKind,
+		Value* value,
+		Type* type
 		)
 	{
-		return CastOperator (EStorage_Heap, *pValue, pType, pValue);
+		return castOperator (storageKind, *value, type, value);
 	}
 
 	bool
-	CastOperator (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		EType TypeKind,
-		CValue* pResultValue = NULL
+	castOperator (
+		Value* value,
+		Type* type
+		)
+	{
+		return castOperator (StorageKind_Heap, *value, type, value);
+	}
+
+	bool
+	castOperator (
+		StorageKind storageKind,
+		const Value& opValue,
+		TypeKind typeKind,
+		Value* resultValue = NULL
 		);
 
 	bool
-	CastOperator (
-		const CValue& OpValue,
-		EType TypeKind,
-		CValue* pResultValue = NULL
+	castOperator (
+		const Value& opValue,
+		TypeKind typeKind,
+		Value* resultValue = NULL
 		)
 	{
-		return CastOperator (EStorage_Heap, OpValue, TypeKind, pResultValue);
+		return castOperator (StorageKind_Heap, opValue, typeKind, resultValue);
 	}
 
 	bool
-	CastOperator (
-		EStorage StorageKind,
-		CValue* pValue,
-		EType TypeKind
+	castOperator (
+		StorageKind storageKind,
+		Value* value,
+		TypeKind typeKind
 		)
 	{
-		return CastOperator (StorageKind, *pValue, TypeKind, pValue);
+		return castOperator (storageKind, *value, typeKind, value);
 	}
 
 	bool
-	CastOperator (
-		CValue* pValue,
-		EType TypeKind
+	castOperator (
+		Value* value,
+		TypeKind typeKind
 		)
 	{
-		return CastOperator (EStorage_Heap, *pValue, TypeKind, pValue);
+		return castOperator (StorageKind_Heap, *value, typeKind, value);
 	}
 
 	// new & delete operators
 
 	bool
-	Allocate (
-		EStorage StorageKind,
-		CType* pType,
-		const CValue& ElementCountValue,
-		const char* pTag,
-		CValue* pResultValue
+	allocate (
+		StorageKind storageKind,
+		Type* type,
+		const Value& elementCountValue,
+		const char* tag,
+		Value* resultValue
 		);
 
 	bool
-	Allocate (
-		EStorage StorageKind,
-		CType* pType,
-		const char* pTag,
-		CValue* pResultValue
+	allocate (
+		StorageKind storageKind,
+		Type* type,
+		const char* tag,
+		Value* resultValue
 		)
 	{
-		return Allocate (StorageKind, pType, CValue (), pTag, pResultValue);
+		return allocate (storageKind, type, Value (), tag, resultValue);
 	}
 
 	bool
-	Prime (
-		EStorage StorageKind,
-		const CValue& PtrValue,
-		CType* pType,
-		const CValue& ElementCountValue,
-		CValue* pResultValue
+	prime (
+		StorageKind storageKind,
+		const Value& ptrValue,
+		Type* type,
+		const Value& elementCountValue,
+		Value* resultValue
 		);
 
 	bool
-	Prime (
-		EStorage StorageKind,
-		const CValue& PtrValue,
-		CType* pType,
-		CValue* pResultValue
+	prime (
+		StorageKind storageKind,
+		const Value& ptrValue,
+		Type* type,
+		Value* resultValue
 		)
 	{
-		return Prime (StorageKind, PtrValue, pType, CValue (), pResultValue);
+		return prime (storageKind, ptrValue, type, Value (), resultValue);
 	}
 
 	bool
-	Construct (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList = NULL
+	construct (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList = NULL
 		);
 
 	bool
-	ParseInitializer (
-		const CValue& Value,
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ConstructorTokenList,
-		const rtl::CConstBoxListT <CToken>& InitializerTokenList
+	parseInitializer (
+		const Value& value,
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& constructorTokenList,
+		const rtl::ConstBoxList <Token>& initializerTokenList
 		);
 
 	bool
-	ParseExpressionEx (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		const CValue& ThrowReturnValue,
-		uint_t ParserFlags,
-		CValue* pResultValue
+	parseExpressionEx (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		const Value& throwReturnValue,
+		uint_t parserFlags,
+		Value* resultValue
 		);
 
 	bool
-	ParseThrowCondition (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		const CValue& ThrowReturnValue,
-		CValue* pResultValue
+	parseThrowCondition (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		const Value& throwReturnValue,
+		Value* resultValue
 		)
 	{
-		return ParseExpressionEx (pUnit, ExpressionTokenList, ThrowReturnValue, 0, pResultValue);
+		return parseExpressionEx (unit, expressionTokenList, throwReturnValue, 0, resultValue);
 	}
 
 	bool
-	ParseExpression (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		uint_t ParserFlags,
-		CValue* pResultValue
+	parseExpression (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		uint_t parserFlags,
+		Value* resultValue
 		)
 	{
-		return ParseExpressionEx (pUnit, ExpressionTokenList, CValue (), ParserFlags, pResultValue);
+		return parseExpressionEx (unit, expressionTokenList, Value (), parserFlags, resultValue);
 	}
 
 	bool
-	ParseExpression (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		CValue* pResultValue
+	parseExpression (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		Value* resultValue
 		)
 	{
-		return ParseExpressionEx (pUnit, ExpressionTokenList, CValue (), 0, pResultValue);
+		return parseExpressionEx (unit, expressionTokenList, Value (), 0, resultValue);
 	}
 
 	bool
-	ParseConstExpression (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		CValue* pResultValue
+	parseConstExpression (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		Value* resultValue
 		);
 
 	bool
-	ParseConstIntegerExpression (
-		CUnit* pUnit,
-		const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-		intptr_t* pInteger
+	parseConstIntegerExpression (
+		Unit* unit,
+		const rtl::ConstBoxList <Token>& expressionTokenList,
+		intptr_t* integer
 		);
 
 	bool
-	ParseAutoSizeArrayInitializer (
-		const rtl::CConstBoxListT <CToken>& InitializerTokenList,
-		size_t* pElementCount
+	parseAutoSizeArrayInitializer (
+		const rtl::ConstBoxList <Token>& initializerTokenList,
+		size_t* elementCount
 		);
 
 	size_t
-	ParseAutoSizeArrayLiteralInitializer (const rtl::CConstBoxListT <CToken>& InitializerTokenList);
+	parseAutoSizeArrayLiteralInitializer (const rtl::ConstBoxList <Token>& initializerTokenList);
 
 	size_t
-	ParseAutoSizeArrayCurlyInitializer (const rtl::CConstBoxListT <CToken>& InitializerTokenList);
+	parseAutoSizeArrayCurlyInitializer (const rtl::ConstBoxList <Token>& initializerTokenList);
 
-	CType*
-	GetNewOperatorResultType (CType* pType)
+	Type*
+	getNewOperatorResultType (Type* type)
 	{
-		return pType->GetTypeKind () == EType_Class ?
-			(CType*) ((CClassType*) pType)->GetClassPtrType () :
-			pType->GetDataPtrType ();
+		return type->getTypeKind () == TypeKind_Class ?
+			(Type*) ((ClassType*) type)->getClassPtrType () :
+			type->getDataPtrType ();
 	}
 
 	bool
-	NewOperator (
-		EStorage StorageKind,
-		CType* pType,
-		const CValue& ElementCountValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	newOperator (
+		StorageKind storageKind,
+		Type* type,
+		const Value& elementCountValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	NewOperator (
-		EStorage StorageKind,
-		CType* pType,
-		CValue* pResultValue
+	newOperator (
+		StorageKind storageKind,
+		Type* type,
+		Value* resultValue
 		)
 	{
-		return NewOperator (StorageKind, pType, CValue (), NULL, pResultValue);
+		return newOperator (storageKind, type, Value (), NULL, resultValue);
 	}
 
 	bool
-	NewOperator (
-		EStorage StorageKind,
-		CType* pType,
-		const CValue& ElementCountValue,
-		CValue* pResultValue
+	newOperator (
+		StorageKind storageKind,
+		Type* type,
+		const Value& elementCountValue,
+		Value* resultValue
 		)
 	{
-		return NewOperator (StorageKind, pType, ElementCountValue, NULL, pResultValue);
+		return newOperator (storageKind, type, elementCountValue, NULL, resultValue);
 	}
 
 	bool
-	NewOperator (
-		EStorage StorageKind,
-		CType* pType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	newOperator (
+		StorageKind storageKind,
+		Type* type,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		)
 	{
-		return NewOperator (StorageKind, pType, CValue (), pArgValueList, pResultValue);
+		return newOperator (storageKind, type, Value (), argValueList, resultValue);
 	}
 
 	bool
-	EvaluateAlias (
-		CModuleItemDecl* pDecl,
-		const rtl::CConstBoxListT <CToken> TokenList,
-		CValue* pResultValue
+	evaluateAlias (
+		ModuleItemDecl* decl,
+		const rtl::ConstBoxList <Token> tokenList,
+		Value* resultValue
 		);
 
 	bool
-	EvaluateAlias (
-		CModuleItemDecl* pDecl,
-		const CValue& ThisValue,
-		const rtl::CConstBoxListT <CToken> TokenList,
-		CValue* pResultValue
+	evaluateAlias (
+		ModuleItemDecl* decl,
+		const Value& thisValue,
+		const rtl::ConstBoxList <Token> tokenList,
+		Value* resultValue
 		);
 
 	bool
-	EvaluateAlias (
-		CModuleItemDecl* pDecl,
-		CClosure* pClosure,
-		const rtl::CConstBoxListT <CToken> TokenList,
-		CValue* pResultValue
+	evaluateAlias (
+		ModuleItemDecl* decl,
+		Closure* closure,
+		const rtl::ConstBoxList <Token> tokenList,
+		Value* resultValue
 		)
 	{
-		return pClosure && pClosure->IsMemberClosure () ?
-			EvaluateAlias (pDecl, pClosure->GetThisValue (), TokenList, pResultValue) :
-			EvaluateAlias (pDecl, CValue (), TokenList, pResultValue);
+		return closure && closure->isMemberClosure () ?
+			evaluateAlias (decl, closure->getThisValue (), tokenList, resultValue) :
+			evaluateAlias (decl, Value (), tokenList, resultValue);
 	}
 
 	// member operators
 
 	bool
-	CreateMemberClosure (CValue* pValue);
+	createMemberClosure (Value* value);
 
 	bool
-	GetThisValue (CValue* pValue);
+	getThisValue (Value* value);
 
 	bool
-	GetThisValueType (CValue* pValue);
+	getThisValueType (Value* value);
 
 	bool
-	MemberOperator (
-		const CValue& OpValue,
-		size_t Index,
-		CValue* pResultValue
+	memberOperator (
+		const Value& opValue,
+		size_t index,
+		Value* resultValue
 		);
 
 	bool
-	MemberOperator (
-		CValue* pValue,
-		size_t Index
+	memberOperator (
+		Value* value,
+		size_t index
 		)
 	{
-		return MemberOperator (*pValue, Index, pValue);
+		return memberOperator (*value, index, value);
 	}
 
 	bool
-	GetMemberOperatorResultType (
-		const CValue& OpValue,
-		const char* pName,
-		CValue* pResultValue
+	getMemberOperatorResultType (
+		const Value& opValue,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	GetMemberOperatorResultType (
-		CValue* pValue,
-		const char* pName
+	getMemberOperatorResultType (
+		Value* value,
+		const char* name
 		)
 	{
-		return GetMemberOperatorResultType (*pValue, pName, pValue);
+		return getMemberOperatorResultType (*value, name, value);
 	}
 
 	bool
-	MemberOperator (
-		const CValue& OpValue,
-		const char* pName,
-		CValue* pResultValue
+	memberOperator (
+		const Value& opValue,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	MemberOperator (
-		CValue* pValue,
-		const char* pName
+	memberOperator (
+		Value* value,
+		const char* name
 		)
 	{
-		return MemberOperator (*pValue, pName, pValue);
+		return memberOperator (*value, name, value);
 	}
 
 	bool
-	GetOffsetOf (
-		const CValue& Value,
-		CValue* pResultValue
+	getOffsetOf (
+		const Value& value,
+		Value* resultValue
 		);
 
 	bool
-	GetOffsetOf (CValue* pValue)
+	getOffsetOf (Value* value)
 	{
-		return GetOffsetOf (*pValue, pValue);
+		return getOffsetOf (*value, value);
 	}
 
 	// call operators
 
 	void
-	CallTraceFunction (
-		const char* pFunctionName,
-		const char* pString
+	callTraceFunction (
+		const char* functionName,
+		const char* string
 		);
 
-	CType*
-	GetCallOperatorResultType (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList
-		);
-
-	bool
-	GetCallOperatorResultType (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	Type*
+	getCallOperatorResultType (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList
 		);
 
 	bool
-	GetCallOperatorResultType (
-		CValue* pValue,
-		rtl::CBoxListT <CValue>* pArgValueList
-		)
-	{
-		return GetCallOperatorResultType (*pValue, pArgValueList, pValue);
-	}
-
-	bool
-	CallOperator (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue = NULL
+	getCallOperatorResultType (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	CallOperator (
-		CValue* pValue,
-		rtl::CBoxListT <CValue>* pArgValueList
+	getCallOperatorResultType (
+		Value* value,
+		rtl::BoxList <Value>* argValueList
 		)
 	{
-		return CallOperator (*pValue, pArgValueList, pValue);
+		return getCallOperatorResultType (*value, argValueList, value);
 	}
 
 	bool
-	CallOperator (
-		const CValue& OpValue,
-		CValue* pResultValue = NULL
+	callOperator (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue = NULL
+		);
+
+	bool
+	callOperator (
+		Value* value,
+		rtl::BoxList <Value>* argValueList
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		return CallOperator (OpValue, &ArgValueList, pResultValue);
+		return callOperator (*value, argValueList, value);
 	}
 
 	bool
-	CallOperator (
-		const CValue& OpValue,
-		const CValue& ArgValue,
-		CValue* pResultValue = NULL
+	callOperator (
+		const Value& opValue,
+		Value* resultValue = NULL
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		ArgValueList.InsertTail (ArgValue);
-		return CallOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		return callOperator (opValue, &argValueList, resultValue);
 	}
 
 	bool
-	CallOperator (
-		const CValue& OpValue,
-		const CValue& ArgValue1,
-		const CValue& ArgValue2,
-		CValue* pResultValue = NULL
+	callOperator (
+		const Value& opValue,
+		const Value& argValue,
+		Value* resultValue = NULL
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		ArgValueList.InsertTail (ArgValue1);
-		ArgValueList.InsertTail (ArgValue2);
-		return CallOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue);
+		return callOperator (opValue, &argValueList, resultValue);
 	}
 
 	bool
-	CallOperator (
-		const CValue& OpValue,
-		const CValue& ArgValue1,
-		const CValue& ArgValue2,
-		const CValue& ArgValue3,
-		CValue* pResultValue = NULL
+	callOperator (
+		const Value& opValue,
+		const Value& argValue1,
+		const Value& argValue2,
+		Value* resultValue = NULL
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		ArgValueList.InsertTail (ArgValue1);
-		ArgValueList.InsertTail (ArgValue2);
-		ArgValueList.InsertTail (ArgValue3);
-		return CallOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue1);
+		argValueList.insertTail (argValue2);
+		return callOperator (opValue, &argValueList, resultValue);
+	}
+
+	bool
+	callOperator (
+		const Value& opValue,
+		const Value& argValue1,
+		const Value& argValue2,
+		const Value& argValue3,
+		Value* resultValue = NULL
+		)
+	{
+		rtl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue1);
+		argValueList.insertTail (argValue2);
+		argValueList.insertTail (argValue3);
+		return callOperator (opValue, &argValueList, resultValue);
 	}
 
 	void
-	GcPulse ();
+	gcPulse ();
 
 	// closure operators
 
-	CType*
-	GetClosureOperatorResultType (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList
+	Type*
+	getClosureOperatorResultType (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList
 		);
 
 	bool
-	GetClosureOperatorResultType (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	getClosureOperatorResultType (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	GetClosureOperatorResultType (
-		CValue* pValue,
-		rtl::CBoxListT <CValue>* pArgValueList
+	getClosureOperatorResultType (
+		Value* value,
+		rtl::BoxList <Value>* argValueList
 		)
 	{
-		return GetClosureOperatorResultType (*pValue,  pArgValueList, pValue);
+		return getClosureOperatorResultType (*value,  argValueList, value);
 	}
 
 	bool
-	ClosureOperator (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	closureOperator (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	ClosureOperator (
-		CValue* pValue,
-		rtl::CBoxListT <CValue>* pArgValueList
+	closureOperator (
+		Value* value,
+		rtl::BoxList <Value>* argValueList
 		)
 	{
-		return ClosureOperator (*pValue,  pArgValueList, pValue);
+		return closureOperator (*value,  argValueList, value);
 	}
 
 	bool
-	ClosureOperator (
-		const CValue& OpValue,
-		CValue* pResultValue
+	closureOperator (
+		const Value& opValue,
+		Value* resultValue
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		return ClosureOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		return closureOperator (opValue, &argValueList, resultValue);
 	}
 
 	bool
-	ClosureOperator (
-		const CValue& OpValue,
-		const CValue& ArgValue,
-		CValue* pResultValue
+	closureOperator (
+		const Value& opValue,
+		const Value& argValue,
+		Value* resultValue
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		ArgValueList.InsertTail (ArgValue);
-		return ClosureOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue);
+		return closureOperator (opValue, &argValueList, resultValue);
 	}
 
 	bool
-	ClosureOperator2 (
-		const CValue& OpValue,
-		const CValue& ArgValue1,
-		const CValue& ArgValue2,
-		CValue* pResultValue
+	closureOperator2 (
+		const Value& opValue,
+		const Value& argValue1,
+		const Value& argValue2,
+		Value* resultValue
 		)
 	{
-		rtl::CBoxListT <CValue> ArgValueList;
-		ArgValueList.InsertTail (ArgValue1);
-		ArgValueList.InsertTail (ArgValue2);
-		return ClosureOperator (OpValue, &ArgValueList, pResultValue);
+		rtl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue1);
+		argValueList.insertTail (argValue2);
+		return closureOperator (opValue, &argValueList, resultValue);
 	}
 
-	CType*
-	GetFunctionType (
-		const CValue& OpValue,
-		CFunctionType* pFunctionType
+	Type*
+	getFunctionType (
+		const Value& opValue,
+		FunctionType* functionType
 		);
 
 	// property getter
 
-	CType*
-	GetPropertyGetterType (const CValue& OpValue);
+	Type*
+	getPropertyGetterType (const Value& opValue);
 
 	bool
-	GetPropertyGetterType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyGetterType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyGetterType (CValue* pValue)
+	getPropertyGetterType (Value* value)
 	{
-		return GetPropertyGetterType (*pValue, pValue);
+		return getPropertyGetterType (*value, value);
 	}
 
 	bool
-	GetPropertyGetter (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyGetter (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyGetter (CValue* pValue)
+	getPropertyGetter (Value* value)
 	{
-		return GetPropertyGetter (*pValue, pValue);
+		return getPropertyGetter (*value, value);
 	}
 
 	// property setter
 
-	CType*
-	GetPropertySetterType (
-		const CValue& OpValue,
-		const CValue& ArgValue
+	Type*
+	getPropertySetterType (
+		const Value& opValue,
+		const Value& argValue
 		);
 
 	bool
-	GetPropertySetterType (
-		const CValue& OpValue,
-		const CValue& ArgValue,
-		CValue* pResultValue
+	getPropertySetterType (
+		const Value& opValue,
+		const Value& argValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertySetterType (
-		CValue* pValue,
-		const CValue& ArgValue
+	getPropertySetterType (
+		Value* value,
+		const Value& argValue
 		)
 	{
-		return GetPropertySetterType (*pValue, ArgValue, pValue);
+		return getPropertySetterType (*value, argValue, value);
 	}
 
 	bool
-	GetPropertySetter (
-		const CValue& OpValue,
-		const CValue& ArgValue,
-		CValue* pResultValue
+	getPropertySetter (
+		const Value& opValue,
+		const Value& argValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertySetter (
-		CValue* pValue,
-		const CValue& ArgValue
+	getPropertySetter (
+		Value* value,
+		const Value& argValue
 		)
 	{
-		return GetPropertySetter (*pValue, ArgValue, pValue);
+		return getPropertySetter (*value, argValue, value);
 	}
 
-	CType*
-	GetPropertySetterType (const CValue& OpValue)
+	Type*
+	getPropertySetterType (const Value& opValue)
 	{
-		return GetPropertySetterType (OpValue, CValue ());
+		return getPropertySetterType (opValue, Value ());
 	}
 
 	bool
-	GetPropertySetterType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertySetterType (
+		const Value& opValue,
+		Value* resultValue
 		)
 	{
-		return GetPropertySetterType (OpValue, CValue (), pResultValue);
+		return getPropertySetterType (opValue, Value (), resultValue);
 	}
 
 	bool
-	GetPropertySetterType (CValue* pValue)
+	getPropertySetterType (Value* value)
 	{
-		return GetPropertySetterType (*pValue, CValue (), pValue);
+		return getPropertySetterType (*value, Value (), value);
 	}
 
 	bool
-	GetPropertySetter (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertySetter (
+		const Value& opValue,
+		Value* resultValue
 		)
 	{
-		return GetPropertySetter (OpValue, CValue (), pResultValue);
+		return getPropertySetter (opValue, Value (), resultValue);
 	}
 
 	bool
-	GetPropertySetter (CValue* pValue)
+	getPropertySetter (Value* value)
 	{
-		return GetPropertySetter (*pValue, CValue (), pValue);
+		return getPropertySetter (*value, Value (), value);
 	}
 
 	// property binder
 
-	CType*
-	GetPropertyBinderType (const CValue& OpValue);
+	Type*
+	getPropertyBinderType (const Value& opValue);
 
 	bool
-	GetPropertyBinderType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyBinderType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyBinderType (CValue* pValue)
+	getPropertyBinderType (Value* value)
 	{
-		return GetPropertyBinderType (*pValue, pValue);
+		return getPropertyBinderType (*value, value);
 	}
 
 	bool
-	GetPropertyBinder (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyBinder (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyBinder (CValue* pValue)
+	getPropertyBinder (Value* value)
 	{
-		return GetPropertyBinder (*pValue, pValue);
+		return getPropertyBinder (*value, value);
 	}
 
 	// autoget & onchanged
 
-	CType*
-	GetPropertyAutoGetValueType (const CValue& OpValue);
+	Type*
+	getPropertyAutoGetValueType (const Value& opValue);
 
 	bool
-	GetPropertyAutoGetValueType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyAutoGetValueType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyAutoGetValueType (CValue* pValue)
+	getPropertyAutoGetValueType (Value* value)
 	{
-		return GetPropertyAutoGetValueType (*pValue, pValue);
+		return getPropertyAutoGetValueType (*value, value);
 	}
 
 	bool
-	GetPropertyAutoGetValue (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyAutoGetValue (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyAutoGetValue (CValue* pValue)
+	getPropertyAutoGetValue (Value* value)
 	{
-		return GetPropertyAutoGetValue (*pValue, pValue);
+		return getPropertyAutoGetValue (*value, value);
 	}
 
-	CType*
-	GetPropertyOnChangedType (const CValue& OpValue);
+	Type*
+	getPropertyOnChangedType (const Value& opValue);
 
 	bool
-	GetPropertyOnChangedType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyOnChangedType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyOnChangedType (CValue* pValue)
+	getPropertyOnChangedType (Value* value)
 	{
-		return GetPropertyOnChangedType (*pValue, pValue);
+		return getPropertyOnChangedType (*value, value);
 	}
 
 	bool
-	GetPropertyOnChanged (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyOnChanged (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyOnChanged (CValue* pValue)
+	getPropertyOnChanged (Value* value)
 	{
-		return GetPropertyOnChanged (*pValue, pValue);
+		return getPropertyOnChanged (*value, value);
 	}
 
 	// misc property functions
 
 	bool
-	GetProperty (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getProperty (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	SetProperty (
-		const CValue& OpValue,
-		const CValue& SrcValue
+	setProperty (
+		const Value& opValue,
+		const Value& srcValue
 		);
 
 	bool
-	GetPropertyThinPtr (
-		CProperty* pProperty,
-		CClosure* pClosure,
-		CPropertyPtrType* pPtrType,
-		CValue* pResultValue
+	getPropertyThinPtr (
+		Property* prop,
+		Closure* closure,
+		PropertyPtrType* ptrType,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyThinPtr (
-		CProperty* pProperty,
-		CClosure* pClosure,
-		CValue* pResultValue
+	getPropertyThinPtr (
+		Property* prop,
+		Closure* closure,
+		Value* resultValue
 		)
 	{
-		return GetPropertyThinPtr (
-			pProperty,
-			pClosure,
-			pProperty->GetType ()->GetPropertyPtrType (EPropertyPtrType_Thin),
-			pResultValue
+		return getPropertyThinPtr (
+			prop,
+			closure,
+			prop->getType ()->getPropertyPtrType (PropertyPtrTypeKind_Thin),
+			resultValue
 			);
 	}
 
 	bool
-	GetPropertyVTable (
-		CProperty* pProperty,
-		CClosure* pClosure,
-		CValue* pResultValue
+	getPropertyVTable (
+		Property* prop,
+		Closure* closure,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyVTable (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getPropertyVTable (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	// load & store operators
 
 	bool
-	LoadDataRef (
-		const CValue& OpValue,
-		CValue* pResultValue
+	loadDataRef (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	LoadDataRef (CValue* pValue)
+	loadDataRef (Value* value)
 	{
-		return LoadDataRef (*pValue, pValue);
+		return loadDataRef (*value, value);
 	}
 
 	bool
-	StoreDataRef (
-		const CValue& DstValue,
-		const CValue& SrcValue
+	storeDataRef (
+		const Value& dstValue,
+		const Value& srcValue
 		);
 
 	// weakening
 
-	CClassPtrType*
-	GetWeakenOperatorResultType (const CValue& OpValue);
+	ClassPtrType*
+	getWeakenOperatorResultType (const Value& opValue);
 
 	bool
-	GetWeakenOperatorResultType (
-		const CValue& OpValue,
-		CValue* pResultValue
+	getWeakenOperatorResultType (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	GetWeakenOperatorResultType (CValue* pValue)
+	getWeakenOperatorResultType (Value* value)
 	{
-		return GetWeakenOperatorResultType (*pValue, pValue);
+		return getWeakenOperatorResultType (*value, value);
 	}
 
 	bool
-	WeakenOperator (
-		const CValue& OpValue,
-		CValue* pResultValue
+	weakenOperator (
+		const Value& opValue,
+		Value* resultValue
 		);
 
 	bool
-	WeakenOperator (CValue* pValue)
+	weakenOperator (Value* value)
 	{
-		return WeakenOperator (*pValue, pValue);
+		return weakenOperator (*value, value);
 	}
 
 	// fields
 
 	bool
-	GetField (
-		const CValue& OpValue,
-		CStructField* pMember,
-		CMemberCoord* pCoord,
-		CValue* pResultValue
+	getField (
+		const Value& opValue,
+		StructField* member,
+		MemberCoord* coord,
+		Value* resultValue
 		);
 
 	bool
-	GetField (
-		const CValue& OpValue,
-		CStructField* pMember,
-		CValue* pResultValue
+	getField (
+		const Value& opValue,
+		StructField* member,
+		Value* resultValue
 		)
 	{
-		return GetField (OpValue, pMember, NULL, pResultValue);
+		return getField (opValue, member, NULL, resultValue);
 	}
 
 	bool
-	GetField (
-		CValue* pValue,
-		CStructField* pMember
+	getField (
+		Value* value,
+		StructField* member
 		)
 	{
-		return GetField (*pValue, pMember, NULL, pValue);
+		return getField (*value, member, NULL, value);
 	}
 
 	// impl
 
 	bool
-	GetFieldPtrImpl (
-		const CValue& OpValue,
-		CMemberCoord* pCoord,
-		CType* pResultType,
-		CValue* pResultValue
+	getFieldPtrImpl (
+		const Value& opValue,
+		MemberCoord* coord,
+		Type* resultType,
+		Value* resultValue
 		);
 
 	bool
-	GetStructField (
-		const CValue& OpValue,
-		CStructField* pMember,
-		CMemberCoord* pCoord,
-		CValue* pResultValue
+	getStructField (
+		const Value& opValue,
+		StructField* member,
+		MemberCoord* coord,
+		Value* resultValue
 		);
 
 	bool
-	GetUnionField (
-		const CValue& OpValue,
-		CStructField* pMember,
-		CValue* pResultValue
+	getUnionField (
+		const Value& opValue,
+		StructField* member,
+		Value* resultValue
 		);
 
 	bool
-	GetClassField (
-		const CValue& OpValue,
-		CStructField* pMember,
-		CMemberCoord* pCoord,
-		CValue* pResultValue
+	getClassField (
+		const Value& opValue,
+		StructField* member,
+		MemberCoord* coord,
+		Value* resultValue
 		);
 
 	bool
-	GetPropertyField (
-		const CValue& OpValue,
-		CModuleItem* pMember,
-		CValue* pResultValue
+	getPropertyField (
+		const Value& opValue,
+		ModuleItem* member,
+		Value* resultValue
 		);
 
 	// misc
 
 	bool
-	GetVirtualMethod (
-		CFunction* pFunction,
-		CClosure* pClosure,
-		CValue* pResultValue
+	getVirtualMethod (
+		Function* function,
+		Closure* closure,
+		Value* resultValue
 		);
 
 	bool
-	GetVirtualProperty (
-		CProperty* pProperty,
-		CClosure* pClosure,
-		CValue* pResultValue
+	getVirtualProperty (
+		Property* prop,
+		Closure* closure,
+		Value* resultValue
 		);
 
 	void
-	GetLeanDataPtrRange (
-		const CValue& Value,
-		CValue* pRangeBeginValue,
-		CValue* pRangeEndValue
+	getLeanDataPtrRange (
+		const Value& value,
+		Value* rangeBeginValue,
+		Value* rangeEndValue
 		);
 
 	void
-	GetLeanDataPtrObjHdr (
-		const CValue& Value,
-		CValue* pResultValue
+	getLeanDataPtrObjHdr (
+		const Value& value,
+		Value* resultValue
 		);
 
 	void
-	NullifyGcRootList (const rtl::CConstBoxListT <CValue>& List);
+	nullifyGcRootList (const rtl::ConstBoxList <Value>& list);
 
 	// closures
 
 	bool
-	CreateClosureObject (
-		EStorage StorageKind,
-		const CValue& OpValue, // thin function or property ptr with closure
-		CType* pThunkType, // function or property type
-		bool IsWeak,
-		CValue* pResultValue
+	createClosureObject (
+		StorageKind storageKind,
+		const Value& opValue, // thin function or property ptr with closure
+		Type* thunkType, // function or property type
+		bool isWeak,
+		Value* resultValue
 		);
 
 	bool
-	CreateDataClosureObject (
-		EStorage StorageKind,
-		const CValue& OpValue, // data ptr
-		CPropertyType* pThunkType, // function or property type
-		CValue* pResultValue
+	createDataClosureObject (
+		StorageKind storageKind,
+		const Value& opValue, // data ptr
+		PropertyType* thunkType, // function or property type
+		Value* resultValue
 		);
 
 	// checks
 
 	void
-	GetDataRefObjHdr (
-		const CValue& Value,
-		CValue* pResultValue
+	getDataRefObjHdr (
+		const Value& value,
+		Value* resultValue
 		);
 
 	void
-	CheckDataPtrRange (const CValue& Value);
+	checkDataPtrRange (const Value& value);
 
 	void
-	CheckDataPtrRange (
-		const CValue& PtrValue,
-		size_t Size,
-		const CValue& RangeBeginValue,
-		const CValue& RangeEndValue
+	checkDataPtrRange (
+		const Value& ptrValue,
+		size_t size,
+		const Value& rangeBeginValue,
+		const Value& rangeEndValue
 		);
 
 	bool
-	CheckDataPtrScopeLevel (
-		const CValue& SrcValue,
-		const CValue& DstValue
+	checkDataPtrScopeLevel (
+		const Value& srcValue,
+		const Value& dstValue
 		); // can sometimes detect invalid assigns at compile time
 
 	void
-	CheckClassPtrNull (const CValue& Value);
+	checkClassPtrNull (const Value& value);
 
 	void
-	CheckClassPtrScopeLevel (
-		const CValue& SrcValue,
-		const CValue& DstValue
+	checkClassPtrScopeLevel (
+		const Value& srcValue,
+		const Value& dstValue
 		);
 
 	void
-	CheckFunctionPtrNull (const CValue& Value);
+	checkFunctionPtrNull (const Value& value);
 
 	void
-	CheckFunctionPtrScopeLevel (
-		const CValue& SrcValue,
-		const CValue& DstValue
+	checkFunctionPtrScopeLevel (
+		const Value& srcValue,
+		const Value& dstValue
 		);
 
 	void
-	CheckPropertyPtrNull (const CValue& Value);
+	checkPropertyPtrNull (const Value& value);
 
 	void
-	CheckPropertyPtrScopeLevel (
-		const CValue& SrcValue,
-		const CValue& DstValue
+	checkPropertyPtrScopeLevel (
+		const Value& srcValue,
+		const Value& dstValue
 		);
 
 protected:
 	// overloaded operators
 
-	CFunction*
-	GetOverloadedBinaryOperator (
-		EBinOp OpKind,
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Function*
+	getOverloadedBinaryOperator (
+		BinOpKind opKind,
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	bool
-	OverloadedBinaryOperator (
-		CFunction* pFunction,
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	overloadedBinaryOperator (
+		Function* function,
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		);
 
 	// bit fields
 
 	bool
-	ExtractBitField (
-		const CValue& Value,
-		CBitFieldType* pBitFieldType,
-		CValue* pResultValue
+	extractBitField (
+		const Value& value,
+		BitFieldType* bitFieldType,
+		Value* resultValue
 		);
 
 	bool
-	MergeBitField (
-		const CValue& Value,
-		const CValue& ShadowValue,
-		CBitFieldType* pBitFieldType,
-		CValue* pResultValue
+	mergeBitField (
+		const Value& value,
+		const Value& shadowValue,
+		BitFieldType* bitFieldType,
+		Value* resultValue
 		);
 
 	// member operators
 
 	bool
-	GetNamespaceMemberType (
-		CNamespace* pNamespace,
-		const char* pName,
-		CValue* pResultValue
+	getNamespaceMemberType (
+		Namespace* nspace,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	GetNamespaceMember (
-		CNamespace* pNamespace,
-		const char* pName,
-		CValue* pResultValue
+	getNamespaceMember (
+		Namespace* nspace,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	GetNamedTypeMemberType (
-		const CValue& OpValue,
-		CNamedType* pNamedType,
-		const char* pName,
-		CValue* pResultValue
+	getNamedTypeMemberType (
+		const Value& opValue,
+		NamedType* namedType,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	GetNamedTypeMember (
-		const CValue& OpValue,
-		CNamedType* pNamedType,
-		const char* pName,
-		CValue* pResultValue
+	getNamedTypeMember (
+		const Value& opValue,
+		NamedType* namedType,
+		const char* name,
+		Value* resultValue
 		);
 
 	bool
-	GetClassVTable (
-		const CValue& OpValue,
-		CClassType* pClassType,
-		CValue* pResultValue
+	getClassVTable (
+		const Value& opValue,
+		ClassType* classType,
+		Value* resultValue
 		);
 
 	bool
-	CallImpl (
-		const CValue& PfnValue,
-		CFunctionType* pFunctionType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	callImpl (
+		const Value& pfnValue,
+		FunctionType* functionType,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	CallClosureFunctionPtr (
-		const CValue& OpValue,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	callClosureFunctionPtr (
+		const Value& opValue,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	bool
-	CastArgValueList (
-		CFunctionType* pFunctionType,
-		CClosure* pClosure,
-		rtl::CBoxListT <CValue>* pArgValueList
+	castArgValueList (
+		FunctionType* functionType,
+		Closure* closure,
+		rtl::BoxList <Value>* argValueList
 		);
 
-	CType*
-	GetUnsafeVarArgType (CType* pType);
+	Type*
+	getUnsafeVarArgType (Type* type);
 
 	bool
-	DeleteDataPtr (const CValue& OpValue);
+	deleteDataPtr (const Value& opValue);
 
 	bool
-	DeleteClassPtr (const CValue& OpValue);
+	deleteClassPtr (const Value& opValue);
 };
 
 //.............................................................................

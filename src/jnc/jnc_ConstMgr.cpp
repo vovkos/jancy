@@ -6,47 +6,47 @@ namespace jnc {
 
 //.............................................................................
 
-CConstMgr::CConstMgr ()
+ConstMgr::ConstMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 }
 
 void
-CConstMgr::Clear ()
+ConstMgr::clear ()
 {
-	m_ConstList.Clear ();
-	m_UnsafeLeanDataPtrValidator = ref::EPtr_Null;
+	m_constList.clear ();
+	m_unsafeLeanDataPtrValidator = ref::PtrKind_Null;
 }
 
-CLeanDataPtrValidator*
-CConstMgr::GetUnsafeLeanDataPtrValidator ()
+LeanDataPtrValidator*
+ConstMgr::getUnsafeLeanDataPtrValidator ()
 {
-	if (m_UnsafeLeanDataPtrValidator)
-		return m_UnsafeLeanDataPtrValidator;
+	if (m_unsafeLeanDataPtrValidator)
+		return m_unsafeLeanDataPtrValidator;
 
-	void* pRangeBegin = NULL;
+	void* rangeBegin = NULL;
 
-	m_UnsafeLeanDataPtrValidator = AXL_REF_NEW (CLeanDataPtrValidator);
-	m_UnsafeLeanDataPtrValidator->m_SizeValue.SetConstSizeT (-1);
-	m_UnsafeLeanDataPtrValidator->m_ScopeValidatorValue.SetConstSizeT (0);
-	m_UnsafeLeanDataPtrValidator->m_RangeBeginValue.CreateConst (&pRangeBegin, m_pModule->GetSimpleType (EStdType_BytePtr));
+	m_unsafeLeanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
+	m_unsafeLeanDataPtrValidator->m_sizeValue.setConstSizeT (-1);
+	m_unsafeLeanDataPtrValidator->m_scopeValidatorValue.setConstSizeT (0);
+	m_unsafeLeanDataPtrValidator->m_rangeBeginValue.createConst (&rangeBegin, m_module->getSimpleType (StdTypeKind_BytePtr));
 
-	return m_UnsafeLeanDataPtrValidator;
+	return m_unsafeLeanDataPtrValidator;
 }
 
-const CValue& 
-CConstMgr::SaveLiteral (
+const Value& 
+ConstMgr::saveLiteral (
 	const char* p,
-	size_t Length
+	size_t length
 	)
 {
-	if (Length == -1)
-		Length = strlen (p);
+	if (length == -1)
+		length = strlen (p);
 
-	CValue Value;
-	Value.SetCharArray (p, Length + 1);
-	return SaveValue (Value);
+	Value value;
+	value.setCharArray (p, length + 1);
+	return saveValue (value);
 }
 
 //.............................................................................

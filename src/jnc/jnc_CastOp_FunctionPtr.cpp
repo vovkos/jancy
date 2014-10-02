@@ -6,488 +6,488 @@ namespace jnc {
 
 //.............................................................................
 
-ECast
-CCast_FunctionPtr_FromMulticast::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_FunctionPtr_FromMulticast::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (IsClassPtrType (OpValue.GetType (), EClassType_Multicast));
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (isClassPtrType (opValue.getType (), ClassTypeKind_Multicast));
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	if (OpValue.GetType ()->GetFlags () & EPtrTypeFlag_Event)
-		return ECast_None;
+	if (opValue.getType ()->getFlags () & PtrTypeFlagKind_Event)
+		return CastKind_None;
 
-	CMulticastClassType* pMcType = (CMulticastClassType*) ((CClassPtrType*) OpValue.GetType ())->GetTargetType ();
-	return m_pModule->m_OperatorMgr.GetCastKind (pMcType->GetTargetType (), pType);
+	MulticastClassType* mcType = (MulticastClassType*) ((ClassPtrType*) opValue.getType ())->getTargetType ();
+	return m_module->m_operatorMgr.getCastKind (mcType->getTargetType (), type);
 }
 
 bool
-CCast_FunctionPtr_FromMulticast::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionPtr_FromMulticast::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (IsClassPtrType (OpValue.GetType (), EClassType_Multicast));
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (isClassPtrType (opValue.getType (), ClassTypeKind_Multicast));
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	CValue CallValue;
+	Value callValue;
 
 	return
-		m_pModule->m_OperatorMgr.MemberOperator (OpValue, "call", &CallValue) &&
-		m_pModule->m_OperatorMgr.CastOperator (CallValue, pType, pResultValue);
+		m_module->m_operatorMgr.memberOperator (opValue, "call", &callValue) &&
+		m_module->m_operatorMgr.castOperator (callValue, type, resultValue);
 }
 
 //.............................................................................
 
-ECast
-CCast_FunctionPtr_Base::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_FunctionPtr_Base::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	if (!OpValue.GetType ())
+	if (!opValue.getType ())
 	{
-		ASSERT (OpValue.GetValueKind () == EValue_Function && OpValue.GetFunction ()->IsOverloaded ());
-		return ECast_None; // choosing overload is not yet implemented
+		ASSERT (opValue.getValueKind () == ValueKind_Function && opValue.getFunction ()->isOverloaded ());
+		return CastKind_None; // choosing overload is not yet implemented
 	}
 
-	CFunctionPtrType* pSrcPtrType = (CFunctionPtrType*) OpValue.GetClosureAwareType ();
-	CFunctionPtrType* pDstPtrType = (CFunctionPtrType*) pType;
+	FunctionPtrType* srcPtrType = (FunctionPtrType*) opValue.getClosureAwareType ();
+	FunctionPtrType* dstPtrType = (FunctionPtrType*) type;
 
-	if (!pSrcPtrType)
-		return ECast_None;
+	if (!srcPtrType)
+		return CastKind_None;
 
-	return m_pModule->m_OperatorMgr.GetFunctionCastKind (
-		pSrcPtrType->GetTargetType (),
-		pDstPtrType->GetTargetType ()
+	return m_module->m_operatorMgr.getFunctionCastKind (
+		srcPtrType->getTargetType (),
+		dstPtrType->getTargetType ()
 		);
 }
 
 //.............................................................................
 
 bool
-CCast_FunctionPtr_FromFat::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionPtr_FromFat::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	CFunctionPtrType* pSrcPtrType = (CFunctionPtrType*) OpValue.GetType ();
-	CFunctionType* pSrcFunctionType = pSrcPtrType->GetTargetType ();
+	FunctionPtrType* srcPtrType = (FunctionPtrType*) opValue.getType ();
+	FunctionType* srcFunctionType = srcPtrType->getTargetType ();
 
-	CFunctionPtrType* pThinPtrType = pSrcFunctionType->GetStdObjectMemberMethodType ()->GetFunctionPtrType (EFunctionPtrType_Thin);
+	FunctionPtrType* thinPtrType = srcFunctionType->getStdObjectMemberMethodType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 
-	CValue PfnValue;
-	CValue ClosureObjValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, pThinPtrType, &PfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 1, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr), &ClosureObjValue);
+	Value pfnValue;
+	Value closureObjValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &closureObjValue);
 
-	PfnValue.SetClosure (OpValue.GetClosure ());
-	PfnValue.InsertToClosureHead (ClosureObjValue);
+	pfnValue.setClosure (opValue.getClosure ());
+	pfnValue.insertToClosureHead (closureObjValue);
 
-	return m_pModule->m_OperatorMgr.CastOperator (StorageKind, PfnValue, pType, pResultValue);
+	return m_module->m_operatorMgr.castOperator (storageKind, pfnValue, type, resultValue);
 }
 
 //.............................................................................
 
 bool
-CCast_FunctionPtr_Weak2Normal::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionPtr_Weak2Normal::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr && ((CFunctionPtrType*) pType)->GetPtrTypeKind () == EFunctionPtrType_Normal);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr && ((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Normal);
 
-	CBasicBlock* pInitialBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	CBasicBlock* pStrengthenBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("strengthen");
-	CBasicBlock* pAliveBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("alive");
-	CBasicBlock* pDeadBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("dead");
-	CBasicBlock* pPhiBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("phi");
+	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	BasicBlock* strengthenBlock = m_module->m_controlFlowMgr.createBlock ("strengthen");
+	BasicBlock* aliveBlock = m_module->m_controlFlowMgr.createBlock ("alive");
+	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock ("dead");
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("phi");
 
-	CType* pClosureType = m_pModule->GetSimpleType (EStdType_ObjectPtr);
-	CValue NullClosureValue = pClosureType->GetZeroValue ();
+	Type* closureType = m_module->getSimpleType (StdTypeKind_ObjectPtr);
+	Value nullClosureValue = closureType->getZeroValue ();
 
-	CValue ClosureValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 1, pClosureType, &ClosureValue);
+	Value closureValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, closureType, &closureValue);
 
-	CValue CmpValue;
-	m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Ne, ClosureValue, NullClosureValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pStrengthenBlock, pPhiBlock);
+	Value cmpValue;
+	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, closureValue, nullClosureValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, strengthenBlock, phiBlock);
 
-	CFunction* pStrengthenFunction = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_StrengthenClassPtr);
+	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_StrengthenClassPtr);
 
-	CValue StrengthenedClosureValue;
-	m_pModule->m_LlvmIrBuilder.CreateCall (
-		pStrengthenFunction,
-		pStrengthenFunction->GetType (),
-		ClosureValue,
-		&StrengthenedClosureValue
+	Value strengthenedClosureValue;
+	m_module->m_llvmIrBuilder.createCall (
+		strengthenFunction,
+		strengthenFunction->getType (),
+		closureValue,
+		&strengthenedClosureValue
 		);
 
-	m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Ne, StrengthenedClosureValue, NullClosureValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pAliveBlock, pDeadBlock);
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
+	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, strengthenedClosureValue, nullClosureValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, aliveBlock, deadBlock);
+	m_module->m_controlFlowMgr.follow (phiBlock);
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pDeadBlock);
-	m_pModule->m_ControlFlowMgr.Follow (pPhiBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (deadBlock);
+	m_module->m_controlFlowMgr.follow (phiBlock);
 
-	CValue ValueArray [3] =
+	Value valueArray [3] =
 	{
-		OpValue,
-		OpValue,
-		OpValue.GetType ()->GetZeroValue ()
+		opValue,
+		opValue,
+		opValue.getType ()->getZeroValue ()
 	};
 
-	CBasicBlock* BlockArray [3] =
+	BasicBlock* blockArray [3] =
 	{
-		pInitialBlock,
-		pAliveBlock,
-		pDeadBlock
+		initialBlock,
+		aliveBlock,
+		deadBlock
 	};
 
-	CValue IntermediateValue;
-	m_pModule->m_LlvmIrBuilder.CreatePhi (ValueArray, BlockArray, 3, &IntermediateValue);
+	Value intermediateValue;
+	m_module->m_llvmIrBuilder.createPhi (valueArray, blockArray, 3, &intermediateValue);
 
-	CFunctionPtrType* pIntermediateType = ((CFunctionPtrType*) OpValue.GetType ())->GetUnWeakPtrType ();
-	IntermediateValue.OverrideType (pIntermediateType);
-	return m_pModule->m_OperatorMgr.CastOperator (IntermediateValue, pType, pResultValue);
+	FunctionPtrType* intermediateType = ((FunctionPtrType*) opValue.getType ())->getUnWeakPtrType ();
+	intermediateValue.overrideType (intermediateType);
+	return m_module->m_operatorMgr.castOperator (intermediateValue, type, resultValue);
 }
 
 //.............................................................................
 
 bool
-CCast_FunctionPtr_Thin2Fat::LlvmCast (
-	EStorage StorageKind,
-	const CValue& RawOpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Fat::llvmCast (
+	StorageKind storageKind,
+	const Value& rawOpValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (RawOpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (rawOpValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	CFunctionPtrType* pSrcPtrType = (CFunctionPtrType*) OpValue.GetType ();
-	CFunctionPtrType* pDstPtrType = (CFunctionPtrType*) pType;
+	FunctionPtrType* srcPtrType = (FunctionPtrType*) opValue.getType ();
+	FunctionPtrType* dstPtrType = (FunctionPtrType*) type;
 
-	CFunctionType* pSrcFunctionType = pSrcPtrType->GetTargetType ();
-	CFunctionType* pDstFunctionType = pDstPtrType->GetTargetType ();
+	FunctionType* srcFunctionType = srcPtrType->getTargetType ();
+	FunctionType* dstFunctionType = dstPtrType->getTargetType ();
 
-	CClosure* pClosure = OpValue.GetClosure ();
+	Closure* closure = opValue.getClosure ();
 
-	CValue SimpleClosureValue;
+	Value simpleClosureValue;
 
-	bool IsSimpleClosure = pClosure && pClosure->IsSimpleClosure ();
-	if (IsSimpleClosure)
-		SimpleClosureValue = *pClosure->GetArgValueList ()->GetHead ();
+	bool isSimpleClosure = closure && closure->isSimpleClosure ();
+	if (isSimpleClosure)
+		simpleClosureValue = *closure->getArgValueList ()->getHead ();
 
-	if (OpValue.GetValueKind () == EValue_Function && OpValue.GetFunction ()->IsVirtual ())
+	if (opValue.getValueKind () == ValueKind_Function && opValue.getFunction ()->isVirtual ())
 	{
-		bool Result = m_pModule->m_OperatorMgr.GetVirtualMethod (OpValue.GetFunction (), pClosure, &OpValue);
-		if (!Result)
+		bool result = m_module->m_operatorMgr.getVirtualMethod (opValue.getFunction (), closure, &opValue);
+		if (!result)
 			return false;
 	}
 
 	// case 1: no conversion required, no closure object needs to be created
 
-	if (IsSimpleClosure &&
-		pSrcFunctionType->IsMemberMethodType () &&
-		pSrcFunctionType->GetShortType ()->Cmp (pDstFunctionType) == 0)
+	if (isSimpleClosure &&
+		srcFunctionType->isMemberMethodType () &&
+		srcFunctionType->getShortType ()->cmp (dstFunctionType) == 0)
 	{
-		return LlvmCast_NoThunkSimpleClosure (
-			OpValue,
-			SimpleClosureValue,
-			pSrcFunctionType,
-			pDstPtrType,
-			pResultValue
+		return llvmCast_NoThunkSimpleClosure (
+			opValue,
+			simpleClosureValue,
+			srcFunctionType,
+			dstPtrType,
+			resultValue
 			);
 	}
 
-	if (OpValue.GetValueKind () == EValue_Function)
+	if (opValue.getValueKind () == ValueKind_Function)
 	{
-		CFunction* pFunction = OpValue.GetFunction ();
-		ASSERT (!pFunction->IsVirtual ());
+		Function* function = opValue.getFunction ();
+		ASSERT (!function->isVirtual ());
 
 		// case 2.1: conversion is required, but no closure object needs to be created (closure arg is null)
 
-		if (!pClosure)
-			return LlvmCast_DirectThunkNoClosure (
-				pFunction,
-				pDstPtrType,
-				pResultValue
+		if (!closure)
+			return llvmCast_DirectThunkNoClosure (
+				function,
+				dstPtrType,
+				resultValue
 				);
 
 		// case 2.2: same as above, but simple closure is passed as closure arg
 
-		if (IsSimpleClosure && pFunction->GetType ()->IsMemberMethodType ())
-			return LlvmCast_DirectThunkSimpleClosure (
-				pFunction,
-				SimpleClosureValue,
-				pDstPtrType,
-				pResultValue
+		if (isSimpleClosure && function->getType ()->isMemberMethodType ())
+			return llvmCast_DirectThunkSimpleClosure (
+				function,
+				simpleClosureValue,
+				dstPtrType,
+				resultValue
 				);
 	}
 
 	// case 3: closure object needs to be created (so conversion is required even if function signatures match)
 
-	return LlvmCast_FullClosure (
-		StorageKind,
-		OpValue,
-		pSrcFunctionType,
-		pDstPtrType,
-		pResultValue
+	return llvmCast_FullClosure (
+		storageKind,
+		opValue,
+		srcFunctionType,
+		dstPtrType,
+		resultValue
 		);
 }
 
 bool
-CCast_FunctionPtr_Thin2Fat::LlvmCast_NoThunkSimpleClosure (
-	const CValue& OpValue,
-	const CValue& SimpleClosureObjValue,
-	CFunctionType* pSrcFunctionType,
-	CFunctionPtrType* pDstPtrType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Fat::llvmCast_NoThunkSimpleClosure (
+	const Value& opValue,
+	const Value& simpleClosureObjValue,
+	FunctionType* srcFunctionType,
+	FunctionPtrType* dstPtrType,
+	Value* resultValue
 	)
 {
-	CType* pThisArgType = pSrcFunctionType->GetThisArgType ();
+	Type* thisArgType = srcFunctionType->getThisArgType ();
 
-	CValue ThisArgValue;
-	bool Result = m_pModule->m_OperatorMgr.CastOperator (SimpleClosureObjValue, pThisArgType, &ThisArgValue);
-	if (!Result)
+	Value thisArgValue;
+	bool result = m_module->m_operatorMgr.castOperator (simpleClosureObjValue, thisArgType, &thisArgValue);
+	if (!result)
 		return false;
 
-	m_pModule->m_LlvmIrBuilder.CreateClosureFunctionPtr (OpValue, ThisArgValue, pDstPtrType, pResultValue);
+	m_module->m_llvmIrBuilder.createClosureFunctionPtr (opValue, thisArgValue, dstPtrType, resultValue);
 	return true;
 }
 
 bool
-CCast_FunctionPtr_Thin2Fat::LlvmCast_DirectThunkNoClosure (
-	CFunction* pFunction,
-	CFunctionPtrType* pDstPtrType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkNoClosure (
+	Function* function,
+	FunctionPtrType* dstPtrType,
+	Value* resultValue
 	)
 {
-	CFunction* pThunkFunction = m_pModule->m_FunctionMgr.GetDirectThunkFunction (
-		pFunction,
-		((CFunctionPtrType*) pDstPtrType)->GetTargetType (),
+	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction (
+		function,
+		((FunctionPtrType*) dstPtrType)->getTargetType (),
 		true
 		);
 
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr)->GetZeroValue ();
-	m_pModule->m_LlvmIrBuilder.CreateClosureFunctionPtr (pThunkFunction, NullValue, pDstPtrType, pResultValue);
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr)->getZeroValue ();
+	m_module->m_llvmIrBuilder.createClosureFunctionPtr (thunkFunction, nullValue, dstPtrType, resultValue);
 	return true;
 }
 
 bool
-CCast_FunctionPtr_Thin2Fat::LlvmCast_DirectThunkSimpleClosure (
-	CFunction* pFunction,
-	const CValue& SimpleClosureObjValue,
-	CFunctionPtrType* pDstPtrType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure (
+	Function* function,
+	const Value& simpleClosureObjValue,
+	FunctionPtrType* dstPtrType,
+	Value* resultValue
 	)
 {
-	CType* pThisArgType = pFunction->GetType ()->GetThisArgType ();
-	CNamedType* pThisTargetType = pFunction->GetType ()->GetThisTargetType ();
+	Type* thisArgType = function->getType ()->getThisArgType ();
+	NamedType* thisTargetType = function->getType ()->getThisTargetType ();
 
-	CValue ThisArgValue;
-	bool Result = m_pModule->m_OperatorMgr.CastOperator (SimpleClosureObjValue, pThisArgType, &ThisArgValue);
-	if (!Result)
+	Value thisArgValue;
+	bool result = m_module->m_operatorMgr.castOperator (simpleClosureObjValue, thisArgType, &thisArgValue);
+	if (!result)
 		return false;
 
-	CFunction* pThunkFunction = m_pModule->m_FunctionMgr.GetDirectThunkFunction (
-		pFunction,
-		m_pModule->m_TypeMgr.GetMemberMethodType (pThisTargetType, pDstPtrType->GetTargetType ())
+	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction (
+		function,
+		m_module->m_typeMgr.getMemberMethodType (thisTargetType, dstPtrType->getTargetType ())
 		);
 
-	m_pModule->m_LlvmIrBuilder.CreateClosureFunctionPtr (pThunkFunction, ThisArgValue, pDstPtrType, pResultValue);
+	m_module->m_llvmIrBuilder.createClosureFunctionPtr (thunkFunction, thisArgValue, dstPtrType, resultValue);
 	return true;
 }
 
 bool
-CCast_FunctionPtr_Thin2Fat::LlvmCast_FullClosure (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CFunctionType* pSrcFunctionType,
-	CFunctionPtrType* pDstPtrType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure (
+	StorageKind storageKind,
+	const Value& opValue,
+	FunctionType* srcFunctionType,
+	FunctionPtrType* dstPtrType,
+	Value* resultValue
 	)
 {
-	CValue ClosureValue;
-	bool Result = m_pModule->m_OperatorMgr.CreateClosureObject (
-		StorageKind,
-		OpValue,
-		pDstPtrType->GetTargetType (),
-		pDstPtrType->GetPtrTypeKind () == EFunctionPtrType_Weak,
-		&ClosureValue
+	Value closureValue;
+	bool result = m_module->m_operatorMgr.createClosureObject (
+		storageKind,
+		opValue,
+		dstPtrType->getTargetType (),
+		dstPtrType->getPtrTypeKind () == FunctionPtrTypeKind_Weak,
+		&closureValue
 		);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	ASSERT (IsClassPtrType (ClosureValue.GetType (), EClassType_FunctionClosure));
+	ASSERT (isClassPtrType (closureValue.getType (), ClassTypeKind_FunctionClosure));
 
-	CFunctionClosureClassType* pClosureType = (CFunctionClosureClassType*) ((CClassPtrType*) ClosureValue.GetType ())->GetTargetType ();
-	m_pModule->m_LlvmIrBuilder.CreateClosureFunctionPtr (pClosureType->GetThunkFunction (), ClosureValue, pDstPtrType, pResultValue);
+	FunctionClosureClassType* closureType = (FunctionClosureClassType*) ((ClassPtrType*) closureValue.getType ())->getTargetType ();
+	m_module->m_llvmIrBuilder.createClosureFunctionPtr (closureType->getThunkFunction (), closureValue, dstPtrType, resultValue);
 	return true;
 }
 
 //.............................................................................
 
 bool
-CCast_FunctionPtr_Thin2Thin::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionPtr_Thin2Thin::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	if (OpValue.GetClosure ())
+	if (opValue.getClosure ())
 	{
-		err::SetFormatStringError ("cannot create thin function pointer to a closure");
+		err::setFormatStringError ("cannot create thin function pointer to a closure");
 		return false;
 	}
 
-	CFunctionPtrType* pSrcPtrType = (CFunctionPtrType*) OpValue.GetType ();
-	CFunctionPtrType* pDstPtrType = (CFunctionPtrType*) pType;
+	FunctionPtrType* srcPtrType = (FunctionPtrType*) opValue.getType ();
+	FunctionPtrType* dstPtrType = (FunctionPtrType*) type;
 
-	if (pSrcPtrType->GetTargetType ()->Cmp (pDstPtrType->GetTargetType ()) == 0)
+	if (srcPtrType->getTargetType ()->cmp (dstPtrType->getTargetType ()) == 0)
 	{
-		pResultValue->OverrideType (OpValue, pType);
+		resultValue->overrideType (opValue, type);
 		return true;
 	}
 
-	if (OpValue.GetValueKind () != EValue_Function)
+	if (opValue.getValueKind () != ValueKind_Function)
 	{
-		err::SetFormatStringError ("can only create thin pointer thunk to a function, not a function pointer");
+		err::setFormatStringError ("can only create thin pointer thunk to a function, not a function pointer");
 		return false;
 	}
 
-	CFunction* pThunkFunction = m_pModule->m_FunctionMgr.GetDirectThunkFunction (
-		OpValue.GetFunction (),
-		pDstPtrType->GetTargetType ()
+	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction (
+		opValue.getFunction (),
+		dstPtrType->getTargetType ()
 		);
 
-	pResultValue->SetFunction (pThunkFunction);
-	pResultValue->OverrideType (pType);
+	resultValue->setFunction (thunkFunction);
+	resultValue->overrideType (type);
 	return true;
 }
 
 //.............................................................................
 
-CCast_FunctionPtr::CCast_FunctionPtr ()
+Cast_FunctionPtr::Cast_FunctionPtr ()
 {
-	memset (m_OperatorTable, 0, sizeof (m_OperatorTable));
+	memset (m_operatorTable, 0, sizeof (m_operatorTable));
 
-	m_OperatorTable [EFunctionPtrType_Normal] [EFunctionPtrType_Normal] = &m_FromFat;
-	m_OperatorTable [EFunctionPtrType_Normal] [EFunctionPtrType_Weak]   = &m_FromFat;
-	m_OperatorTable [EFunctionPtrType_Weak] [EFunctionPtrType_Normal]   = &m_Weak2Normal;
-	m_OperatorTable [EFunctionPtrType_Weak] [EFunctionPtrType_Weak]     = &m_FromFat;
-	m_OperatorTable [EFunctionPtrType_Thin] [EFunctionPtrType_Normal]   = &m_Thin2Fat;
-	m_OperatorTable [EFunctionPtrType_Thin] [EFunctionPtrType_Weak]     = &m_Thin2Fat;
-	m_OperatorTable [EFunctionPtrType_Thin] [EFunctionPtrType_Thin]     = &m_Thin2Thin;
+	m_operatorTable [FunctionPtrTypeKind_Normal] [FunctionPtrTypeKind_Normal] = &m_fromFat;
+	m_operatorTable [FunctionPtrTypeKind_Normal] [FunctionPtrTypeKind_Weak]   = &m_fromFat;
+	m_operatorTable [FunctionPtrTypeKind_Weak] [FunctionPtrTypeKind_Normal]   = &m_weak2Normal;
+	m_operatorTable [FunctionPtrTypeKind_Weak] [FunctionPtrTypeKind_Weak]     = &m_fromFat;
+	m_operatorTable [FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Normal]   = &m_thin2Fat;
+	m_operatorTable [FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Weak]     = &m_thin2Fat;
+	m_operatorTable [FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
-CCastOperator*
-CCast_FunctionPtr::GetCastOperator (
-	const CValue& OpValue,
-	CType* pType
+CastOperator*
+Cast_FunctionPtr::getCastOperator (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	CFunctionPtrType* pDstPtrType = (CFunctionPtrType*) pType;
-	EFunctionPtrType DstPtrTypeKind = pDstPtrType->GetPtrTypeKind ();
+	FunctionPtrType* dstPtrType = (FunctionPtrType*) type;
+	FunctionPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind ();
 
-	CType* pSrcType = OpValue.GetType ();
-	if (!pSrcType)
+	Type* srcType = opValue.getType ();
+	if (!srcType)
 	{
-		ASSERT (OpValue.GetValueKind () == EValue_Function && OpValue.GetFunction ()->IsOverloaded ());
-		ASSERT (DstPtrTypeKind >= 0 && DstPtrTypeKind < 2);
+		ASSERT (opValue.getValueKind () == ValueKind_Function && opValue.getFunction ()->isOverloaded ());
+		ASSERT (dstPtrTypeKind >= 0 && dstPtrTypeKind < 2);
 
-		return m_OperatorTable [EFunctionPtrType_Thin] [DstPtrTypeKind];
+		return m_operatorTable [FunctionPtrTypeKind_Thin] [dstPtrTypeKind];
 	}
 
-	if (IsClassPtrType (pSrcType, EClassType_Multicast))
+	if (isClassPtrType (srcType, ClassTypeKind_Multicast))
 	{
-		return &m_FromMulticast;
+		return &m_fromMulticast;
 	}
-	else if (!(pSrcType->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr))
+	else if (!(srcType->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr))
 	{
 		return NULL;
 	}
 
-	CFunctionPtrType* pSrcPtrType = (CFunctionPtrType*) pSrcType;
-	EFunctionPtrType SrcPtrTypeKind = pSrcPtrType->GetPtrTypeKind ();
+	FunctionPtrType* srcPtrType = (FunctionPtrType*) srcType;
+	FunctionPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind ();
 
-	ASSERT ((size_t) SrcPtrTypeKind < EFunctionPtrType__Count);
-	ASSERT ((size_t) DstPtrTypeKind < EFunctionPtrType__Count);
+	ASSERT ((size_t) srcPtrTypeKind < FunctionPtrTypeKind__Count);
+	ASSERT ((size_t) dstPtrTypeKind < FunctionPtrTypeKind__Count);
 
-	return m_OperatorTable [SrcPtrTypeKind] [DstPtrTypeKind];
+	return m_operatorTable [srcPtrTypeKind] [dstPtrTypeKind];
 }
 
 //.............................................................................
 
-ECast
-CCast_FunctionRef::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_FunctionRef::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_FunctionRef);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionRef);
 
-	CType* pIntermediateSrcType = m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Addr, OpValue);
-	if (!pIntermediateSrcType)
-		return ECast_None;
+	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, opValue);
+	if (!intermediateSrcType)
+		return CastKind_None;
 
-	CFunctionPtrType* pPtrType = (CFunctionPtrType*) pType;
-	CFunctionPtrType* pIntermediateDstType = pPtrType->GetTargetType ()->GetFunctionPtrType (
-		EType_FunctionPtr,
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	FunctionPtrType* ptrType = (FunctionPtrType*) type;
+	FunctionPtrType* intermediateDstType = ptrType->getTargetType ()->getFunctionPtrType (
+		TypeKind_FunctionPtr,
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 
-	return m_pModule->m_OperatorMgr.GetCastKind (pIntermediateSrcType, pIntermediateDstType);
+	return m_module->m_operatorMgr.getCastKind (intermediateSrcType, intermediateDstType);
 }
 
 bool
-CCast_FunctionRef::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FunctionRef::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_FunctionRef);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionRef);
 
-	CFunctionPtrType* pPtrType = (CFunctionPtrType*) pType;
-	CFunctionPtrType* pIntermediateType = pPtrType->GetTargetType ()->GetFunctionPtrType (
-		EType_FunctionPtr,
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	FunctionPtrType* ptrType = (FunctionPtrType*) type;
+	FunctionPtrType* intermediateType = ptrType->getTargetType ()->getFunctionPtrType (
+		TypeKind_FunctionPtr,
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 
-	CValue IntermediateValue;
+	Value intermediateValue;
 
 	return
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Addr, OpValue, &IntermediateValue) &&
-		m_pModule->m_OperatorMgr.CastOperator (&IntermediateValue, pIntermediateType) &&
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Indir, IntermediateValue, pResultValue);
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, opValue, &intermediateValue) &&
+		m_module->m_operatorMgr.castOperator (&intermediateValue, intermediateType) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
 }
 
 //.............................................................................

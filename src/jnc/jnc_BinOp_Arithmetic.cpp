@@ -7,383 +7,383 @@ namespace jnc {
 //.............................................................................
 	
 bool
-DataPtrIncrementOperator (
-	CModule* pModule,
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+dataPtrIncrementOperator (
+	Module* module,
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue1.GetType ()->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
 	
-	CDataPtrType* pOpType = (CDataPtrType*) OpValue1.GetType ();
-	CDataPtrType* pResultType = pOpType->GetUnCheckedPtrType ();
+	DataPtrType* opType = (DataPtrType*) opValue1.getType ();
+	DataPtrType* resultType = opType->getUnCheckedPtrType ();
 
-	EDataPtrType PtrTypeKind = pOpType->GetPtrTypeKind ();
-	if (PtrTypeKind == EDataPtrType_Thin)
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
+	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		pModule->m_LlvmIrBuilder.CreateGep (OpValue1, OpValue2, pResultType, pResultValue);
+		module->m_llvmIrBuilder.createGep (opValue1, opValue2, resultType, resultValue);
 	}
-	else if (PtrTypeKind == EDataPtrType_Lean)
+	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		pModule->m_LlvmIrBuilder.CreateGep (OpValue1, OpValue2, pResultType, pResultValue);
-		pResultValue->SetLeanDataPtr (pResultValue->GetLlvmValue (), pResultType, OpValue1.GetLeanDataPtrValidator ());
+		module->m_llvmIrBuilder.createGep (opValue1, opValue2, resultType, resultValue);
+		resultValue->setLeanDataPtr (resultValue->getLlvmValue (), resultType, opValue1.getLeanDataPtrValidator ());
 	}
 	else // EDataPtrType_Normal
 	{
-		CValue PtrValue;
-		pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue1, 0, NULL, &PtrValue);
-		pModule->m_LlvmIrBuilder.CreateGep (PtrValue, OpValue2, NULL, &PtrValue);
-		pModule->m_LlvmIrBuilder.CreateInsertValue (OpValue1, PtrValue, 0, pResultType, pResultValue);
+		Value ptrValue;
+		module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createGep (ptrValue, opValue2, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
 	}
 	
 	return true;
 }	
 
 bool
-DataPtrDifferenceOperator (
-	CModule* pModule,
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+dataPtrDifferenceOperator (
+	Module* module,
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	ASSERT (RawOpValue1.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (RawOpValue2.GetType ()->GetTypeKind () == EType_DataPtr);
+	ASSERT (rawOpValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (rawOpValue2.getType ()->getTypeKind () == TypeKind_DataPtr);
 	
-	CDataPtrType* pOpType = (CDataPtrType*) RawOpValue1.GetType ();
-	CDataPtrType* pBytePtrType = (CDataPtrType*) pModule->GetSimpleType (EStdType_BytePtr);
+	DataPtrType* opType = (DataPtrType*) rawOpValue1.getType ();
+	DataPtrType* bytePtrType = (DataPtrType*) module->getSimpleType (StdTypeKind_BytePtr);
 
-	CValue OpValue1;
-	CValue OpValue2;
+	Value opValue1;
+	Value opValue2;
 
-	bool Result = 
-		pModule->m_OperatorMgr.CastOperator (RawOpValue1, pBytePtrType, &OpValue1) &&
-		pModule->m_OperatorMgr.CastOperator (RawOpValue2, pBytePtrType, &OpValue2);
+	bool result = 
+		module->m_operatorMgr.castOperator (rawOpValue1, bytePtrType, &opValue1) &&
+		module->m_operatorMgr.castOperator (rawOpValue2, bytePtrType, &opValue2);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	CType* pType = pModule->GetSimpleType (EType_Int_p);
+	Type* type = module->getSimpleType (TypeKind_Int_p);
 
-	CValue DiffValue;
-	CValue SizeValue;
+	Value diffValue;
+	Value sizeValue;
 
-	size_t Size = pOpType->GetTargetType ()->GetSize ();
-	SizeValue.SetConstSizeT (Size ? Size : 1);
+	size_t size = opType->getTargetType ()->getSize ();
+	sizeValue.setConstSizeT (size ? size : 1);
 
-	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue1, pType, &OpValue1);
-	pModule->m_LlvmIrBuilder.CreatePtrToInt (OpValue2, pType, &OpValue2);
-	pModule->m_LlvmIrBuilder.CreateSub_i (OpValue1, OpValue2, pType, &DiffValue);
-	pModule->m_LlvmIrBuilder.CreateDiv_i (DiffValue, SizeValue, pType, pResultValue);
+	module->m_llvmIrBuilder.createPtrToInt (opValue1, type, &opValue1);
+	module->m_llvmIrBuilder.createPtrToInt (opValue2, type, &opValue2);
+	module->m_llvmIrBuilder.createSub_i (opValue1, opValue2, type, &diffValue);
+	module->m_llvmIrBuilder.createDiv_i (diffValue, sizeValue, type, resultValue);
 	return true;
 }
 //.............................................................................
 
 bool
-CBinOp_Add::Operator (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_Add::op (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	if (OpValue1.GetType ()->GetTypeKind () == EType_DataPtr && 
-		(OpValue2.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Integer))
-		return DataPtrIncrementOperator (m_pModule, OpValue1, OpValue2, pResultValue);
+	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
+		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		return dataPtrIncrementOperator (m_module, opValue1, opValue2, resultValue);
 	else if (
-		OpValue2.GetType ()->GetTypeKind () == EType_DataPtr && 
-		(OpValue1.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Integer))
-		return DataPtrIncrementOperator (m_pModule, OpValue2, OpValue1, pResultValue);
+		opValue2.getType ()->getTypeKind () == TypeKind_DataPtr && 
+		(opValue1.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		return dataPtrIncrementOperator (m_module, opValue2, opValue1, resultValue);
 	else
-		return CBinOpT_Arithmetic <CBinOp_Add>::Operator (OpValue1, OpValue2, pResultValue);
+		return BinOp_Arithmetic <BinOp_Add>::op (opValue1, opValue2, resultValue);
 }
 
 llvm::Value*
-CBinOp_Add::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Add::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateAdd_i (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createAdd_i (opValue1, opValue2, resultType, resultValue);
 }
 	
 llvm::Value*
-CBinOp_Add::LlvmOpFp (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue
+BinOp_Add::llvmOpFp (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateAdd_f (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createAdd_f (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
 bool
-CBinOp_Sub::Operator (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_Sub::op (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	if (OpValue1.GetType ()->GetTypeKind () == EType_DataPtr && 
-		(OpValue2.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Integer))
+	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
+		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
 	{
-		CValue NegOpValue2;
+		Value negOpValue2;
 		return 
-			m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Minus, OpValue2, &NegOpValue2) &&
-			DataPtrIncrementOperator (m_pModule, OpValue1, NegOpValue2, pResultValue);
+			m_module->m_operatorMgr.unaryOperator (UnOpKind_Minus, opValue2, &negOpValue2) &&
+			dataPtrIncrementOperator (m_module, opValue1, negOpValue2, resultValue);
 	}
 
-	if (OpValue1.GetType ()->GetTypeKind () == EType_DataPtr && OpValue2.GetType ()->GetTypeKind () == EType_DataPtr)
-		return DataPtrDifferenceOperator (m_pModule, OpValue1, OpValue2, pResultValue);
+	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && opValue2.getType ()->getTypeKind () == TypeKind_DataPtr)
+		return dataPtrDifferenceOperator (m_module, opValue1, opValue2, resultValue);
 	else
-		return CBinOpT_Arithmetic <CBinOp_Sub>::Operator (OpValue1, OpValue2, pResultValue);
+		return BinOp_Arithmetic <BinOp_Sub>::op (opValue1, opValue2, resultValue);
 
 }
 
 llvm::Value*
-CBinOp_Sub::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Sub::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateSub_i (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createSub_i (opValue1, opValue2, resultType, resultValue);
 }
 
 	
 llvm::Value*
-CBinOp_Sub::LlvmOpFp (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue
+BinOp_Sub::llvmOpFp (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateSub_f (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createSub_f (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
 llvm::Value*
-CBinOp_Mul::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Mul::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateMul_i (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createMul_i (opValue1, opValue2, resultType, resultValue);
 }
 	
 llvm::Value*
-CBinOp_Mul::LlvmOpFp (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue
+BinOp_Mul::llvmOpFp (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateMul_f (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createMul_f (opValue1, opValue2, resultType, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
-CBinOp_Div::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Div::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return IsUnsigned ?
-		m_pModule->m_LlvmIrBuilder.CreateDiv_u (OpValue1, OpValue2, pResultType, pResultValue) :
-		m_pModule->m_LlvmIrBuilder.CreateDiv_i (OpValue1, OpValue2, pResultType, pResultValue);
+	return isUnsigned ?
+		m_module->m_llvmIrBuilder.createDiv_u (opValue1, opValue2, resultType, resultValue) :
+		m_module->m_llvmIrBuilder.createDiv_i (opValue1, opValue2, resultType, resultValue);
 }
 
 	
 llvm::Value*
-CBinOp_Div::LlvmOpFp (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue
+BinOp_Div::llvmOpFp (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateDiv_f (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createDiv_f (opValue1, opValue2, resultType, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
-CBinOp_Mod::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Mod::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return IsUnsigned ?
-		m_pModule->m_LlvmIrBuilder.CreateMod_u (OpValue1, OpValue2, pResultType, pResultValue) :
-		m_pModule->m_LlvmIrBuilder.CreateMod_i (OpValue1, OpValue2, pResultType, pResultValue);
+	return isUnsigned ?
+		m_module->m_llvmIrBuilder.createMod_u (opValue1, opValue2, resultType, resultValue) :
+		m_module->m_llvmIrBuilder.createMod_i (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
 llvm::Value*
-CBinOp_Shl::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Shl::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateShl (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createShl (opValue1, opValue2, resultType, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
-CBinOp_Shr::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_Shr::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateShr (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createShr (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
-CBinOp_BwAnd::CBinOp_BwAnd ()
+BinOp_BwAnd::BinOp_BwAnd ()
 {
-	m_OpKind = EBinOp_BwAnd;
-	m_OpFlags1 = EOpFlag_KeepEnum;
-	m_OpFlags2 = EOpFlag_KeepEnum;
+	m_opKind = BinOpKind_BwAnd;
+	m_opFlags1 = OpFlagKind_KeepEnum;
+	m_opFlags2 = OpFlagKind_KeepEnum;
 }
 
 bool
-CBinOp_BwAnd::Operator (
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+BinOp_BwAnd::op (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	CValue OpValue1;
-	CValue OpValue2;
-	CValue TmpValue;
+	Value opValue1;
+	Value opValue2;
+	Value tmpValue;
 
-	CEnumType* pEnumType = 
-		IsFlagEnumType (RawOpValue1.GetType ()) ? (CEnumType*) RawOpValue1.GetType () :
-		IsFlagEnumType (RawOpValue2.GetType ()) ? (CEnumType*) RawOpValue2.GetType () : NULL;
+	EnumType* enumType = 
+		isFlagEnumType (rawOpValue1.getType ()) ? (EnumType*) rawOpValue1.getType () :
+		isFlagEnumType (rawOpValue2.getType ()) ? (EnumType*) rawOpValue2.getType () : NULL;
 
-	// prepare before calling Base::Operator cause we have EOpFlag_KeepEnum
+	// prepare before calling Base::Op cause we have EOpFlag_KeepEnum
 
-	if (!pEnumType)
+	if (!enumType)
 	{
 		return 
-			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue1, &OpValue1) &&
-			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue2, &OpValue2) &&
-			CBinOpT_IntegerOnly <CBinOp_BwAnd>::Operator (OpValue1, OpValue2, pResultValue);
+			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
+			m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
+			BinOp_IntegerOnly <BinOp_BwAnd>::op (opValue1, opValue2, resultValue);
 	}
 
 	return 
-		m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue1, &OpValue1) &&
-		m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue2, &OpValue2) &&
-		CBinOpT_IntegerOnly <CBinOp_BwAnd>::Operator (OpValue1, OpValue2, &TmpValue) &&
-		m_pModule->m_OperatorMgr.CastOperator (TmpValue, pEnumType, pResultValue);
+		m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
+		m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
+		BinOp_IntegerOnly <BinOp_BwAnd>::op (opValue1, opValue2, &tmpValue) &&
+		m_module->m_operatorMgr.castOperator (tmpValue, enumType, resultValue);
 }
 
 llvm::Value*
-CBinOp_BwAnd::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_BwAnd::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateAnd (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createAnd (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
-CBinOp_BwOr::CBinOp_BwOr ()
+BinOp_BwOr::BinOp_BwOr ()
 {
-	m_OpKind = EBinOp_BwOr;
-	m_OpFlags1 = EOpFlag_KeepEnum;
-	m_OpFlags2 = EOpFlag_KeepEnum;
+	m_opKind = BinOpKind_BwOr;
+	m_opFlags1 = OpFlagKind_KeepEnum;
+	m_opFlags2 = OpFlagKind_KeepEnum;
 }
 
 bool
-CBinOp_BwOr::Operator (
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+BinOp_BwOr::op (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	CValue OpValue1;
-	CValue OpValue2;
-	CValue TmpValue;
+	Value opValue1;
+	Value opValue2;
+	Value tmpValue;
 
-	// prepare before calling Base::Operator cause we have EOpFlag_KeepEnum
+	// prepare before calling Base::Op cause we have EOpFlag_KeepEnum
 
-	if (!IsFlagEnumOpType (RawOpValue1, RawOpValue2))
+	if (!isFlagEnumOpType (rawOpValue1, rawOpValue2))
 	{
 		return 
-			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue1, &OpValue1) &&
-			m_pModule->m_OperatorMgr.PrepareOperand (RawOpValue2, &OpValue2) &&
-			CBinOpT_IntegerOnly <CBinOp_BwOr>::Operator (OpValue1, OpValue2, pResultValue);
+			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
+			m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
+			BinOp_IntegerOnly <BinOp_BwOr>::op (opValue1, opValue2, resultValue);
 	}
 
-	CEnumType* pEnumType = (CEnumType*) RawOpValue1.GetType ();
+	EnumType* enumType = (EnumType*) rawOpValue1.getType ();
 
-	OpValue1.OverrideType (RawOpValue1, pEnumType->GetBaseType ());
-	OpValue2.OverrideType (RawOpValue2, pEnumType->GetBaseType ());
+	opValue1.overrideType (rawOpValue1, enumType->getBaseType ());
+	opValue2.overrideType (rawOpValue2, enumType->getBaseType ());
 
 	return 
-		CBinOpT_IntegerOnly <CBinOp_BwOr>::Operator (OpValue1, OpValue2, &TmpValue) &&
-		m_pModule->m_OperatorMgr.CastOperator (TmpValue, pEnumType, pResultValue);
+		BinOp_IntegerOnly <BinOp_BwOr>::op (opValue1, opValue2, &tmpValue) &&
+		m_module->m_operatorMgr.castOperator (tmpValue, enumType, resultValue);
 }
 
 llvm::Value*
-CBinOp_BwOr::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_BwOr::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateOr (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createOr (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................
 
 llvm::Value*
-CBinOp_BwXor::LlvmOpInt (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CType* pResultType,
-	CValue* pResultValue,
-	bool IsUnsigned
+BinOp_BwXor::llvmOpInt (
+	const Value& opValue1,
+	const Value& opValue2,
+	Type* resultType,
+	Value* resultValue,
+	bool isUnsigned
 	)
 {
-	return m_pModule->m_LlvmIrBuilder.CreateXor (OpValue1, OpValue2, pResultType, pResultValue);
+	return m_module->m_llvmIrBuilder.createXor (opValue1, opValue2, resultType, resultValue);
 }
 
 //.............................................................................

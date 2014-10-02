@@ -10,8 +10,8 @@ int main (int argc, char* argv [])
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-	err::CParseErrorProvider::Register ();
-	srand ((int) axl::g::GetTimestamp ());
+	err::registerParseErrorProvider ();
+	srand ((int) axl::g::getTimestamp ());
 
 	QApplication app (argc, argv);
 	QCoreApplication::setOrganizationName ("Tibbo");

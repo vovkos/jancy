@@ -10,23 +10,23 @@ namespace jnc {
 
 //.............................................................................
 
-class CCast_ClassPtr: public CCastOperator
+class Cast_ClassPtr: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 

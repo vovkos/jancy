@@ -7,30 +7,30 @@ namespace jnc {
 
 static
 int
-ByteReader (
-	uint8_t* pByte,
-	uint64_t Offset,
-	void* pContext
+byteReader (
+	uint8_t* byte,
+	uint64_t offset,
+	void* context
 	)
 {
-	mem::TBlock* pBlock = (mem::TBlock*) pContext;
+	mem::Block* block = (mem::Block*) context;
 
-	if (Offset >= pBlock->m_Size)
+	if (offset >= block->m_size)
 		return -1;
 
-	*pByte = *((uchar_t*) pBlock->m_p + Offset);
+	*byte = *((uchar_t*) block->m_p + offset);
 	return 0;
 }
 
 //.............................................................................
 
-CDisassembler::CDisassembler ()
+Disassembler::Disassembler ()
 {
-	m_pDisassembler = NULL;
+	m_disassembler = NULL;
 
-/*	llvm::Target* pTarget = NULL; // get target!
+/*	llvm::Target* target = NULL; // get target!
 
-	m_pDisassembler = pTarget->createMCDisassembler ();
+	m_disassembler = target->createMCDisassembler ();
 
 
 
@@ -43,49 +43,49 @@ CDisassembler::CDisassembler ()
 		// llvm::EDDisassembler::kEDAssemblySyntaxX86Intel -- does not work!
 		);
 
-	ASSERT (m_pDisassembler); */
+	ASSERT (m_disassembler); */
 }
 
 bool
-CDisassembler::Disassemble (
-	const void* pCode,
-	size_t Size,
-	rtl::CString* pString
+Disassembler::disassemble (
+	const void* code,
+	size_t size,
+	rtl::String* string
 	)
 {
-	if (!m_pDisassembler)
+	if (!m_disassembler)
 		return false;
 /*
-	mem::TBlock Block ((void*) pCode, Size);
+	mem::Block block ((void*) code, size);
 
-	size_t Address = 0;
-	while (Address < Size)
+	size_t address = 0;
+	while (address < size)
 	{
-		llvm::EDInst* pInst = m_pDisassembler->createInst (ByteReader, Address, &Block);
-		if (!pInst)
+		llvm::EDInst* inst = m_disassembler->createInst (byteReader, address, &block);
+		if (!inst)
 			break;
 
-		size_t TokenCount = pInst->numTokens ();
-		if (TokenCount == -1)
+		size_t tokenCount = inst->numTokens ();
+		if (tokenCount == -1)
 			return false;
 
-		pString->AppendFormat ("%08x  ", Address);
+		string->appendFormat ("%08x  ", address);
 
-		for (size_t i = 0; i < TokenCount; i++)
+		for (size_t i = 0; i < tokenCount; i++)
 		{
-			llvm::EDToken* pToken;
-			pInst->getToken (pToken, i);
+			llvm::EDToken* token;
+			inst->getToken (token, i);
 
-			const char* pTokenString;
-			pToken->getString (pTokenString);
+			const char* tokenString;
+			token->getString (tokenString);
 
-			pString->Append (pTokenString);
+			string->append (tokenString);
 		}
 
-		pString->Append ("\n");
+		string->append ("\n");
 
-		Address += (size_t) pInst->byteSize ();
-		delete pInst;
+		address += (size_t) inst->byteSize ();
+		delete inst;
 	}
 */
 	return true;

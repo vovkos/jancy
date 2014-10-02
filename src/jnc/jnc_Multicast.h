@@ -4,108 +4,108 @@
 #include "jnc_MulticastClassType.h"
 
 namespace jnc {
-
+		
 //.............................................................................
 
-class CMulticast: public TMulticast
+class MulticastImpl: public Multicast
 {
 public:
 	void
-	Clear ();
+	clear ();
 
 	handle_t
-	SetHandler (TFunctionPtr Ptr);
+	setHandler (FunctionPtr ptr);
 
 	handle_t
-	SetHandler_t (void* pf);
+	setHandler_t (void* pf);
 
 	handle_t
-	AddHandler (TFunctionPtr Ptr)
+	addHandler (FunctionPtr ptr)
 	{
-		return Ptr.m_pf ? AddHandlerImpl (Ptr) : NULL;
+		return ptr.m_pf ? addHandlerImpl (ptr) : NULL;
 	}
 
 	handle_t
-	AddHandler_t (void* pf)
+	addHandler_t (void* pf)
 	{
-		return pf ? AddHandlerImpl (pf) : NULL;
+		return pf ? addHandlerImpl (pf) : NULL;
 	}
 
-	TFunctionPtr
-	RemoveHandler (handle_t Handle)
+	FunctionPtr
+	removeHandler (handle_t handle)
 	{
-		return RemoveHandlerImpl <TFunctionPtr> (Handle);
+		return removeHandlerImpl <FunctionPtr> (handle);
 	}
 
 	void* 
-	RemoveHandler_t (handle_t Handle)
+	removeHandler_t (handle_t handle)
 	{
-		return RemoveHandlerImpl <void*> (Handle);
+		return removeHandlerImpl <void*> (handle);
 	}
 
-	TFunctionPtr
-	GetSnapshot ();
+	FunctionPtr
+	getSnapshot ();
 
 protected:
-	rtl::CHandleTableT <size_t>*
-	GetHandleTable ();
+	rtl::HandleTable <size_t>*
+	getHandleTable ();
 
 	bool
-	SetCount (
-		size_t Count,
-		size_t PtrSize
+	setCount (
+		size_t count,
+		size_t ptrSize
 		);
 
 	template <typename T>
 	handle_t
-	SetHandlerImpl (T Ptr)
+	setHandlerImpl (T ptr)
 	{
-		SetCount (1, sizeof (T));
-		*(T*) m_pPtrArray = Ptr;
-		rtl::CHandleTableT <size_t>* pHandleTable = GetHandleTable ();
-		pHandleTable->Clear ();
-		return pHandleTable->Add (0);
+		setCount (1, sizeof (T));
+		*(T*) m_ptrArray = ptr;
+		rtl::HandleTable <size_t>* handleTable = getHandleTable ();
+		handleTable->clear ();
+		return handleTable->add (0);
 	}
 
 	template <typename T>
 	handle_t
-	AddHandlerImpl (T Ptr)
+	addHandlerImpl (T ptr)
 	{
-		size_t i = m_Count;
-		SetCount (i + 1, sizeof (T));
-		*((T*) m_pPtrArray + i) = Ptr;
-		return GetHandleTable ()->Add (i);
+		size_t i = m_count;
+		setCount (i + 1, sizeof (T));
+		*((T*) m_ptrArray + i) = ptr;
+		return getHandleTable ()->add (i);
 	}
 
 	template <typename T>
 	T
-	RemoveHandlerImpl (handle_t Handle)
+	removeHandlerImpl (handle_t handle)
 	{
-		T Ptr = { 0 };
+		T ptr = { 0 };
 
-		if (!m_pHandleTable)
-			return Ptr;
+		if (!m_handleTable)
+			return ptr;
 
-		rtl::CHandleTableT <size_t>* pHandleTable = (rtl::CHandleTableT <size_t>*) m_pHandleTable;
-		rtl::CHandleTableT <size_t>::CMapIterator MapIt = pHandleTable->Find (Handle);
-		if (!MapIt)
-			return Ptr;
+		rtl::HandleTable <size_t>* handleTable = (rtl::HandleTable <size_t>*) m_handleTable;
+		rtl::HandleTable <size_t>::MapIterator mapIt = handleTable->find (handle);
+		if (!mapIt)
+			return ptr;
 	
-		rtl::CHandleTableT <size_t>::CListIterator ListIt = MapIt->m_Value;	
+		rtl::HandleTable <size_t>::ListIterator listIt = mapIt->m_value;	
 
-		size_t i = ListIt->m_Value;
-		ASSERT (i < m_Count);
+		size_t i = listIt->m_value;
+		ASSERT (i < m_count);
 
-		Ptr = *((T*) m_pPtrArray + i);
+		ptr = *((T*) m_ptrArray + i);
 
-		memmove (((T*) m_pPtrArray + i), ((T*) m_pPtrArray + i + 1),  (m_Count - i) * sizeof (T));
-		m_Count--;
+		memmove (((T*) m_ptrArray + i), ((T*) m_ptrArray + i + 1),  (m_count - i) * sizeof (T));
+		m_count--;
 
-		for (ListIt++; ListIt; ListIt++) 
-			ListIt->m_Value--;
+		for (listIt++; listIt; listIt++) 
+			listIt->m_value--;
 
-		pHandleTable->Remove (MapIt);
-		return Ptr;
+		handleTable->remove (mapIt);
+		return ptr;
 	}
 };
 

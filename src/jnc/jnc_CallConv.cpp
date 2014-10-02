@@ -7,9 +7,9 @@ namespace jnc {
 //.............................................................................
 
 llvm::CallingConv::ID
-GetLlvmCallConv (ECallConv CallConvKind)
+getLlvmCallConv (CallConvKind callConvKind)
 {
-	llvm::CallingConv::ID LlvmCallConvTable [] =
+	llvm::CallingConv::ID llvmCallConvTable [] =
 	{
 		llvm::CallingConv::C,            // ECallConv_Undefined = 0,
 		llvm::CallingConv::C,            // ECallConv_Jnccall_msc32,
@@ -25,60 +25,60 @@ GetLlvmCallConv (ECallConv CallConvKind)
 		llvm::CallingConv::X86_ThisCall, // ECallConv_Thiscall_msc32,
 	};
 
-	return (size_t) CallConvKind < countof (LlvmCallConvTable) ?
-		LlvmCallConvTable [CallConvKind] :
-		LlvmCallConvTable [ECallConv_Undefined];
+	return (size_t) callConvKind < countof (llvmCallConvTable) ?
+		llvmCallConvTable [callConvKind] :
+		llvmCallConvTable [CallConvKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 uint_t
-GetCallConvFlags (ECallConv CallConvKind)
+getCallConvFlags (CallConvKind callConvKind)
 {
-	uint_t FlagTable [] =
+	uint_t flagTable [] =
 	{
 		0,                       // ECallConv_Undefined = 0,
-		ECallConvFlag_Jnccall,   // ECallConv_Jnccall_msc32,
-		ECallConvFlag_Jnccall,   // ECallConv_Jnccall_msc64,
-		ECallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc32,
-		ECallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc64,
+		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_msc32,
+		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_msc64,
+		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_gcc32,
+		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_gcc64,
 
-		ECallConvFlag_Cdecl |    // ECallConv_Cdecl_msc32,
-		ECallConvFlag_Msc |
-		ECallConvFlag_UnsafeVarArg,
+		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_msc32,
+		CallConvFlagKind_Msc |
+		CallConvFlagKind_UnsafeVarArg,
 
-		ECallConvFlag_Cdecl |    // ECallConv_Cdecl_msc64,
-		ECallConvFlag_Msc |
-		ECallConvFlag_UnsafeVarArg,
+		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_msc64,
+		CallConvFlagKind_Msc |
+		CallConvFlagKind_UnsafeVarArg,
 
-		ECallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc32,
-		ECallConvFlag_Gcc |
-		ECallConvFlag_UnsafeVarArg,
+		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_gcc32,
+		CallConvFlagKind_Gcc |
+		CallConvFlagKind_UnsafeVarArg,
 
-		ECallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc64,
-		ECallConvFlag_Gcc |
-		ECallConvFlag_UnsafeVarArg,
+		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_gcc64,
+		CallConvFlagKind_Gcc |
+		CallConvFlagKind_UnsafeVarArg,
 
-		ECallConvFlag_Stdcall |  // ECallConv_Stdcall_msc32,
-		ECallConvFlag_Msc |
-		ECallConvFlag_NoVarArg,
+		CallConvFlagKind_Stdcall |  // ECallConv_Stdcall_msc32,
+		CallConvFlagKind_Msc |
+		CallConvFlagKind_NoVarArg,
 
-		ECallConvFlag_Stdcall |  // ECallConv_Stdcall_gcc32,
-		ECallConvFlag_Gcc |
-		ECallConvFlag_NoVarArg,
+		CallConvFlagKind_Stdcall |  // ECallConv_Stdcall_gcc32,
+		CallConvFlagKind_Gcc |
+		CallConvFlagKind_NoVarArg,
 	};
 
-	return (size_t) CallConvKind < countof (FlagTable) ?
-		FlagTable [CallConvKind] :
-		FlagTable [ECallConv_Undefined];
+	return (size_t) callConvKind < countof (flagTable) ?
+		flagTable [callConvKind] :
+		flagTable [CallConvKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetCallConvString (ECallConv CallConvKind)
+getCallConvString (CallConvKind callConvKind)
 {
-	static const char* StringTable [] =
+	static const char* stringTable [] =
 	{
 		"undefinded-call-conv",  // ECallConv_Undefined = 0,
 		"jnccall-msc32",         // ECallConv_Jnccall_msc32,
@@ -93,17 +93,17 @@ GetCallConvString (ECallConv CallConvKind)
 		"stdcall-gcc32",         // ECallConv_Stdcall_gcc32,
 	};
 
-	return (size_t) CallConvKind < countof (StringTable) ?
-		StringTable [CallConvKind] :
-		StringTable [ECallConv_Undefined];
+	return (size_t) callConvKind < countof (stringTable) ?
+		stringTable [callConvKind] :
+		stringTable [CallConvKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetCallConvDisplayString (ECallConv CallConvKind)
+getCallConvDisplayString (CallConvKind callConvKind)
 {
-	static const char* StringTable [] =
+	static const char* stringTable [] =
 	{
 		"undefinded-call-conv",  // ECallConv_Undefined = 0,
 		"jnccall",               // ECallConv_Jnccall_msc32,
@@ -118,17 +118,17 @@ GetCallConvDisplayString (ECallConv CallConvKind)
 		"stdcall",               // ECallConv_Stdcall_gcc32,
 	};
 
-	return (size_t) CallConvKind < countof (StringTable) ?
-		StringTable [CallConvKind] :
-		StringTable [ECallConv_Undefined];
+	return (size_t) callConvKind < countof (stringTable) ?
+		stringTable [callConvKind] :
+		stringTable [CallConvKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetCallConvSignature (ECallConv CallConvKind)
+getCallConvSignature (CallConvKind callConvKind)
 {
-	static const char* StringTable [] =
+	static const char* stringTable [] =
 	{
 		"UСС",    // ECallConv_Undefined = 0,
 		"JM4",    // ECallConv_Jnccall_msc32,
@@ -144,145 +144,145 @@ GetCallConvSignature (ECallConv CallConvKind)
 		"TM4",    // ECallConv_Thiscall_msc32,
 	};
 
-	return (size_t) CallConvKind < countof (StringTable) ?
-		StringTable [CallConvKind] :
-		StringTable [ECallConv_Undefined];
+	return (size_t) callConvKind < countof (stringTable) ?
+		stringTable [callConvKind] :
+		stringTable [CallConvKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ECallConv
-GetCallConvKindFromModifiers (uint_t Modifiers)
+CallConvKind
+getCallConvKindFromModifiers (uint_t modifiers)
 {
 #if (_AXL_CPU == AXL_CPU_X86)
 	return
-		(Modifiers & ETypeModifier_Thiscall) ? ECallConv_Thiscall :
-		(Modifiers & ETypeModifier_Stdcall) ? ECallConv_Stdcall :
-		(Modifiers & ETypeModifier_Cdecl) ? ECallConv_Cdecl : ECallConv_Default;
+		(modifiers & TypeModifierKind_Thiscall) ? CallConvKind_Thiscall :
+		(modifiers & TypeModifierKind_Stdcall) ? CallConvKind_Stdcall :
+		(modifiers & TypeModifierKind_Cdecl) ? CallConvKind_Cdecl : CallConvKind_Default;
 #else
-	return (Modifiers & (ETypeModifier_Cdecl | ETypeModifier_Stdcall)) ?
-		ECallConv_Cdecl :
-		ECallConv_Default;
+	return (modifiers & (TypeModifierKind_Cdecl | TypeModifierKind_Stdcall)) ?
+		CallConvKind_Cdecl :
+		CallConvKind_Default;
 #endif
 }
 
 //.............................................................................
 
-CCallConv::CCallConv ()
+CallConv::CallConv ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_CallConvKind = ECallConv_Undefined;
+	m_callConvKind = CallConvKind_Undefined;
 }
 
 llvm::FunctionType*
-CCallConv::GetLlvmFunctionType (CFunctionType* pFunctionType)
+CallConv::getLlvmFunctionType (FunctionType* functionType)
 {
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+	size_t argCount = argArray.getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <llvm::Type*> LlvmArgTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmArgTypeArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <llvm::Type*> llvmArgTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmArgTypeArray.setCount (argCount);
 
-	for (size_t i = 0; i < ArgCount; i++)
-		LlvmArgTypeArray [i] = ArgArray [i]->GetType ()->GetLlvmType ();
+	for (size_t i = 0; i < argCount; i++)
+		llvmArgTypeArray [i] = argArray [i]->getType ()->getLlvmType ();
 
 	return llvm::FunctionType::get (
-		pFunctionType->GetReturnType ()->GetLlvmType (),
-		llvm::ArrayRef <llvm::Type*> (LlvmArgTypeArray, ArgCount),
-		(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg) != 0
+		functionType->getReturnType ()->getLlvmType (),
+		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
+		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
 		);
 }
 
 llvm::Function*
-CCallConv::CreateLlvmFunction (
-	CFunctionType* pFunctionType,
-	const char* pTag
+CallConv::createLlvmFunction (
+	FunctionType* functionType,
+	const char* tag
 	)
 {
-	llvm::FunctionType* pLlvmType = (llvm::FunctionType*) pFunctionType->GetLlvmType ();
-	llvm::Function* pLlvmFunction = llvm::Function::Create (
-		pLlvmType,
+	llvm::FunctionType* llvmType = (llvm::FunctionType*) functionType->getLlvmType ();
+	llvm::Function* llvmFunction = llvm::Function::Create (
+		llvmType,
 		llvm::Function::ExternalLinkage,
-		pTag,
-		m_pModule->GetLlvmModule ()
+		tag,
+		m_module->getLlvmModule ()
 		);
 
-	llvm::CallingConv::ID LlvmCallConv = GetLlvmCallConv ();
-	if (LlvmCallConv)
-		pLlvmFunction->setCallingConv (LlvmCallConv);
+	llvm::CallingConv::ID llvmCallConv = getLlvmCallConv ();
+	if (llvmCallConv)
+		llvmFunction->setCallingConv (llvmCallConv);
 
-	return pLlvmFunction;
+	return llvmFunction;
 }
 
 void
-CCallConv::Call (
-	const CValue& CalleeValue,
-	CFunctionType* pFunctionType,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+CallConv::call (
+	const Value& calleeValue,
+	FunctionType* functionType,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateCall (
-		CalleeValue,
-		pFunctionType,
-		*pArgValueList,
-		pResultValue
+	m_module->m_llvmIrBuilder.createCall (
+		calleeValue,
+		functionType,
+		*argValueList,
+		resultValue
 		);
 }
 
 void
-CCallConv::Return (
-	CFunction* pFunction,
-	const CValue& Value
+CallConv::ret (
+	Function* function,
+	const Value& value
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateRet (Value);
+	m_module->m_llvmIrBuilder.createRet (value);
 }
 
-CValue
-CCallConv::GetThisArgValue (CFunction* pFunction)
+Value
+CallConv::getThisArgValue (Function* function)
 {
-	ASSERT (pFunction->IsMember ());
+	ASSERT (function->isMember ());
 
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
-	return CValue (LlvmArg, pFunction->GetThisArgType ());
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+	return Value (llvmArg, function->getThisArgType ());
 }
 
 void
-CCallConv::CreateArgVariablesImpl (
-	CFunction* pFunction,
-	size_t BaseLlvmArgIdx
+CallConv::createArgVariablesImpl (
+	Function* function,
+	size_t baseLlvmArgIdx
 	)
 {
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
-	for (size_t i = 0; i < BaseLlvmArgIdx; i++)
-		LlvmArg++;
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+	for (size_t i = 0; i < baseLlvmArgIdx; i++)
+		llvmArg++;
 
 	size_t i = 0;
-	if (pFunction->IsMember ()) // skip this
+	if (function->isMember ()) // skip this
 	{
 		i++;
-		LlvmArg++;
+		llvmArg++;
 	}
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunction->GetType ()->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
-	for (; i < ArgCount; i++, LlvmArg++)
+	rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
+	size_t argCount = argArray.getCount ();
+	for (; i < argCount; i++, llvmArg++)
 	{
-		CFunctionArg* pArg = ArgArray [i];
-		if (!pArg->IsNamed ())
+		FunctionArg* arg = argArray [i];
+		if (!arg->isNamed ())
 			continue;
 
-		llvm::Value* pLlvmArgValue = LlvmArg;
+		llvm::Value* llvmArgValue = llvmArg;
 
-		CVariable* pArgVariable = m_pModule->m_VariableMgr.CreateArgVariable (pArg, pLlvmArgValue);
-		pFunction->GetScope ()->AddItem (pArgVariable);
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, llvmArgValue);
+		function->getScope ()->addItem (argVariable);
 
-		CValue ArgValue (pLlvmArgValue, pArg->GetType ());
-		m_pModule->m_LlvmIrBuilder.CreateStore (ArgValue, pArgVariable);
+		Value argValue (llvmArgValue, arg->getType ());
+		m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
 	}
 }
 

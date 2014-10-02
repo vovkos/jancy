@@ -7,9 +7,9 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetModuleItemKindString (EModuleItem ItemKind)
+getModuleItemKindString (ModuleItemKind itemKind)
 {
-	static const char* StringTable [EModuleItem__Count] =
+	static const char* stringTable [ModuleItemKind__Count] =
 	{
 		"undefined-module-item-kind",  // EModuleItem_Undefined = 0,
 		"namespace",                   // EModuleItem_Namespace,
@@ -30,17 +30,17 @@ GetModuleItemKindString (EModuleItem ItemKind)
 		"lazy",                        // EModuleItem_Lazy,
 	};
 
-	return (size_t) ItemKind < EModuleItem__Count ?
-		StringTable [ItemKind] :
-		StringTable [EModuleItem_Undefined];
+	return (size_t) itemKind < ModuleItemKind__Count ?
+		stringTable [itemKind] :
+		stringTable [ModuleItemKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetStorageKindString (EStorage StorageKind)
+getStorageKindString (StorageKind storageKind)
 {
-	static const char* StringTable [EStorage__Count] =
+	static const char* stringTable [StorageKind__Count] =
 	{
 		"undefined-storage-class",  // EStorage_Undefined = 0,
 		"typedef",                  // EStorage_Typedef,
@@ -58,143 +58,143 @@ GetStorageKindString (EStorage StorageKind)
 		"this",                     // EStorage_This,
 	};
 
-	return (size_t) StorageKind < EStorage__Count ?
-		StringTable [StorageKind] :
-		StringTable [EStorage_Undefined];
+	return (size_t) storageKind < StorageKind__Count ?
+		stringTable [storageKind] :
+		stringTable [StorageKind_Undefined];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetAccessKindString (EAccess AccessKind)
+getAccessKindString (AccessKind accessKind)
 {
-	static const char* StringTable [EAccess__Count] =
+	static const char* stringTable [AccessKind__Count] =
 	{
 		"undefined-access-kind", // EAccess_Undefined = 0,
 		"public",                // EAccess_Public,
 		"protected",             // EAccess_Protected,
 	};
 
-	return (size_t) AccessKind < EAccess__Count ?
-		StringTable [AccessKind] :
-		StringTable [EAccess_Undefined];
+	return (size_t) accessKind < AccessKind__Count ?
+		stringTable [accessKind] :
+		stringTable [AccessKind_Undefined];
 }
 
 //.............................................................................
 
-rtl::CString
-CModuleItemInitializer::GetInitializerString ()
+rtl::String
+ModuleItemInitializer::getInitializerString ()
 {
-	if (m_Initializer.IsEmpty ())
-		return rtl::CString ();
+	if (m_initializer.isEmpty ())
+		return rtl::String ();
 
-	if (m_InitializerString.IsEmpty ())
-		m_InitializerString = CToken::GetTokenListString (m_Initializer);
+	if (m_initializerString.isEmpty ())
+		m_initializerString = Token::getTokenListString (m_initializer);
 
-	return m_InitializerString;
+	return m_initializerString;
 }
 
 //.............................................................................
 
-CModuleItemDecl::CModuleItemDecl ()
+ModuleItemDecl::ModuleItemDecl ()
 {
-	m_StorageKind = EStorage_Undefined;
-	m_AccessKind = EAccess_Public; // public by default
-	m_pParentNamespace = NULL;
-	m_pAttributeBlock = NULL;
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Public; // public by default
+	m_parentNamespace = NULL;
+	m_attributeBlock = NULL;
 }
 
 //.............................................................................
 
-CModuleItem::CModuleItem ()
+ModuleItem::ModuleItem ()
 {
-	m_pModule = NULL;
-	m_ItemKind = EModuleItem_Undefined;
-	m_Flags = 0;
-	m_pItemDecl = NULL;
+	m_module = NULL;
+	m_itemKind = ModuleItemKind_Undefined;
+	m_flags = 0;
+	m_itemDecl = NULL;
 }
 
 bool
-CModuleItem::EnsureLayout ()
+ModuleItem::ensureLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_Flags & EModuleItemFlag_LayoutReady)
+	if (m_flags & ModuleItemFlagKind_LayoutReady)
 		return true;
 
-	if (m_Flags & EModuleItemFlag_InCalcLayout)
+	if (m_flags & ModuleItemFlagKind_InCalcLayout)
 	{
-		err::SetFormatStringError ("can't calculate layout of '%s' due to recursion", m_Tag.cc ());
+		err::setFormatStringError ("can't calculate layout of '%s' due to recursion", m_tag.cc ());
 		return false;
 	}
 
-	m_Flags |= EModuleItemFlag_InCalcLayout;
+	m_flags |= ModuleItemFlagKind_InCalcLayout;
 
-	Result = CalcLayout ();
+	result = calcLayout ();
 
-	m_Flags &= ~EModuleItemFlag_InCalcLayout;
+	m_flags &= ~ModuleItemFlagKind_InCalcLayout;
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_Flags |= EModuleItemFlag_LayoutReady;
+	m_flags |= ModuleItemFlagKind_LayoutReady;
 	return true;
 }
 
 //.............................................................................
 
-CClassType*
-VerifyModuleItemIsClassType (
-	CModuleItem* pItem,
-	const char* pName
+ClassType*
+verifyModuleItemIsClassType (
+	ModuleItem* item,
+	const char* name
 	)
 {
-	if (!pItem)
+	if (!item)
 		return NULL;
 
-	if (pItem->GetItemKind () != EModuleItem_Type || ((CType*) pItem)->GetTypeKind () != EType_Class)
+	if (item->getItemKind () != ModuleItemKind_Type || ((Type*) item)->getTypeKind () != TypeKind_Class)
 	{
-		err::SetFormatStringError ("'%s' is not a class", pName);
+		err::setFormatStringError ("'%s' is not a class", name);
 		return NULL;
 	}
 
-	return (CClassType*) pItem;
+	return (ClassType*) item;
 }
 
-CFunction*
-VerifyModuleItemIsFunction (
-	CModuleItem* pItem,
-	const char* pName
+Function*
+verifyModuleItemIsFunction (
+	ModuleItem* item,
+	const char* name
 	)
 {
-	if (!pItem)
+	if (!item)
 		return NULL;
 
-	if (pItem->GetItemKind () != EModuleItem_Function)
+	if (item->getItemKind () != ModuleItemKind_Function)
 	{
-		err::SetFormatStringError ("'%s' is not a function", pName);
+		err::setFormatStringError ("'%s' is not a function", name);
 		return NULL;
 	}
 
-	return (CFunction*) pItem;
+	return (Function*) item;
 }
 
-CProperty*
-VerifyModuleItemIsProperty (
-	CModuleItem* pItem,
-	const char* pName
+Property*
+verifyModuleItemIsProperty (
+	ModuleItem* item,
+	const char* name
 	)
 {
-	if (!pItem)
+	if (!item)
 		return NULL;
 
-	if (pItem->GetItemKind () != EModuleItem_Property)
+	if (item->getItemKind () != ModuleItemKind_Property)
 	{
-		err::SetFormatStringError ("'%s' is not a property", pName);
+		err::setFormatStringError ("'%s' is not a property", name);
 		return NULL;
 	}
 
-	return (CProperty*) pItem;
+	return (Property*) item;
 }
 
 //.............................................................................

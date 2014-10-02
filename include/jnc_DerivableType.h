@@ -10,86 +10,86 @@
 
 namespace jnc {
 
-class CDerivableType;
-class CStructType;
-class CUnionType;
-class CClassType;
-class CFunction;
-class CProperty;
+class DerivableType;
+class StructType;
+class UnionType;
+class ClassType;
+class Function;
+class Property;
 
 //.............................................................................
 
-class CBaseTypeSlot: public CUserModuleItem
+class BaseTypeSlot: public UserModuleItem
 {
-	friend class CDerivableType;
-	friend class CStructType;
-	friend class CClassType;
+	friend class DerivableType;
+	friend class StructType;
+	friend class ClassType;
 
 protected:
-	CDerivableType* m_pType;
-	CImportType* m_pType_i;
+	DerivableType* m_type;
+	ImportType* m_type_i;
 
-	size_t m_Offset;
+	size_t m_offset;
 	size_t m_VTableIndex;
-	uint_t m_LlvmIndex;
+	uint_t m_llvmIndex;
 
 public:
-	CBaseTypeSlot ();
+	BaseTypeSlot ();
 
 	uint_t
-	GetFlags ()
+	getFlags ()
 	{
-		return m_Flags;
+		return m_flags;
 	}
 
-	CDerivableType*
-	GetType ()
+	DerivableType*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CImportType*
-	GetType_i ()
+	ImportType*
+	getType_i ()
 	{
-		return m_pType_i;
-	}
-
-	size_t
-	GetOffset ()
-	{
-		return m_Offset;
+		return m_type_i;
 	}
 
 	size_t
-	GetVTableIndex ()
+	getOffset ()
+	{
+		return m_offset;
+	}
+
+	size_t
+	getVTableIndex ()
 	{
 		return m_VTableIndex;
 	}
 
 	uint_t
-	GetLlvmIndex ()
+	getLlvmIndex ()
 	{
-		return m_LlvmIndex;
+		return m_llvmIndex;
 	}
 };
 
 //.............................................................................
 
-class CBaseTypeCoord
+class BaseTypeCoord
 {
-	AXL_DISABLE_COPY (CBaseTypeCoord)
+	AXL_DISABLE_COPY (BaseTypeCoord)
 
 protected:
-	char m_Buffer [256];
+	char m_buffer [256];
 
 public:
-	CDerivableType* m_pType;
-	size_t m_Offset;
-	rtl::CArrayT <int32_t> m_LlvmIndexArray;
+	DerivableType* m_type;
+	size_t m_offset;
+	rtl::Array <int32_t> m_llvmIndexArray;
 	size_t m_VTableIndex;
 
 public:
-	CBaseTypeCoord ();
+	BaseTypeCoord ();
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,326 +97,326 @@ public:
 // unfortunately, LLVM does not natively support unions
 // therefore, unnamed unions on the way to a member need special handling
 
-struct TUnionCoord
+struct UnionCoord
 {
-	CUnionType* m_pType;
-	intptr_t m_Level; // signed for simplier comparisons
+	UnionType* m_type;
+	intptr_t m_level; // signed for simplier comparisons
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CMemberCoord: public CBaseTypeCoord
+class MemberCoord: public BaseTypeCoord
 {
 protected:
-	char m_Buffer [256];
+	char m_buffer [256];
 
 public:
-	rtl::CArrayT <TUnionCoord> m_UnionCoordArray;
+	rtl::Array <UnionCoord> m_unionCoordArray;
 
-	CMemberCoord ():
-		m_UnionCoordArray (ref::EBuf_Field, m_Buffer, sizeof (m_Buffer))
+	MemberCoord ():
+		m_unionCoordArray (ref::BufKind_Field, m_buffer, sizeof (m_buffer))
 	{
 	}
 };
 
 //.............................................................................
 
-class CDerivableType: public CNamedType
+class DerivableType: public NamedType
 {
-	friend class CParser;
+	friend class Parser;
 
 protected:
 	// base types
 
-	rtl::CStringHashTableMapT <CBaseTypeSlot*> m_BaseTypeMap;
-	rtl::CStdListT <CBaseTypeSlot> m_BaseTypeList;
-	rtl::CArrayT <CBaseTypeSlot*> m_BaseTypeArray;
-	rtl::CArrayT <CBaseTypeSlot*> m_ImportBaseTypeArray;
+	rtl::StringHashTableMap <BaseTypeSlot*> m_baseTypeMap;
+	rtl::StdList <BaseTypeSlot> m_baseTypeList;
+	rtl::Array <BaseTypeSlot*> m_baseTypeArray;
+	rtl::Array <BaseTypeSlot*> m_importBaseTypeArray;
 
 	// gc roots
 
-	rtl::CArrayT <CBaseTypeSlot*> m_GcRootBaseTypeArray;
-	rtl::CArrayT <CStructField*> m_GcRootMemberFieldArray;
+	rtl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
+	rtl::Array <StructField*> m_gcRootMemberFieldArray;
 
 	// members
 
-	rtl::CArrayT <CStructField*> m_MemberFieldArray;
-	rtl::CArrayT <CFunction*> m_MemberMethodArray;
-	rtl::CArrayT <CProperty*> m_MemberPropertyArray;
-	rtl::CArrayT <CStructField*> m_ImportFieldArray;
-	rtl::CArrayT <CStructField*> m_UnnamedFieldArray;
-	rtl::CArrayT <CVariable*> m_InitializedStaticFieldArray;
+	rtl::Array <StructField*> m_memberFieldArray;
+	rtl::Array <Function*> m_memberMethodArray;
+	rtl::Array <Property*> m_memberPropertyArray;
+	rtl::Array <StructField*> m_importFieldArray;
+	rtl::Array <StructField*> m_unnamedFieldArray;
+	rtl::Array <Variable*> m_initializedStaticFieldArray;
 
 	// construction
 
-	CFunction* m_pPreConstructor;
-	CFunction* m_pConstructor;
-	CFunction* m_pDefaultConstructor;
-	CFunction* m_pStaticConstructor;
-	CFunction* m_pStaticDestructor;
-	CVariable* m_pStaticOnceFlagVariable; // 'once' semantics for static constructor
+	Function* m_preConstructor;
+	Function* m_constructor;
+	Function* m_defaultConstructor;
+	Function* m_staticConstructor;
+	Function* m_staticDestructor;
+	Variable* m_staticOnceFlagVariable; // 'once' semantics for static constructor
 
 	// construct arrays
 
-	rtl::CArrayT <CBaseTypeSlot*> m_BaseTypeConstructArray;
-	rtl::CArrayT <CStructField*> m_MemberFieldConstructArray;
-	rtl::CArrayT <CProperty*> m_MemberPropertyConstructArray;
+	rtl::Array <BaseTypeSlot*> m_baseTypeConstructArray;
+	rtl::Array <StructField*> m_memberFieldConstructArray;
+	rtl::Array <Property*> m_memberPropertyConstructArray;
 
 	// overloaded operators
 
-	rtl::CArrayT <CFunction*> m_UnaryOperatorTable;
-	rtl::CArrayT <CFunction*> m_BinaryOperatorTable;
-	rtl::CStringHashTableMapT <CFunction*> m_CastOperatorMap;
-	CFunction* m_pCallOperator;
+	rtl::Array <Function*> m_unaryOperatorTable;
+	rtl::Array <Function*> m_binaryOperatorTable;
+	rtl::StringHashTableMap <Function*> m_castOperatorMap;
+	Function* m_callOperator;
 
 public:
-	CDerivableType ();
+	DerivableType ();
 
-	rtl::CConstListT <CBaseTypeSlot>
-	GetBaseTypeList ()
+	rtl::ConstList <BaseTypeSlot>
+	getBaseTypeList ()
 	{
-		return m_BaseTypeList;
+		return m_baseTypeList;
 	}
 
-	CBaseTypeSlot*
-	GetBaseTypeByIndex (size_t Index);
+	BaseTypeSlot*
+	getBaseTypeByIndex (size_t index);
 
-	CBaseTypeSlot*
-	AddBaseType (CType* pType);
+	BaseTypeSlot*
+	addBaseType (Type* type);
 
-	CBaseTypeSlot*
-	FindBaseType (CType* pType)
+	BaseTypeSlot*
+	findBaseType (Type* type)
 	{
-		rtl::CStringHashTableMapIteratorT <CBaseTypeSlot*> It = m_BaseTypeMap.Find (pType->GetSignature ());
-		return It ? It->m_Value : NULL;
+		rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+		return it ? it->m_value : NULL;
 	}
 
 	bool
-	FindBaseTypeTraverse (
-		CType* pType,
-		CBaseTypeCoord* pCoord = NULL
+	findBaseTypeTraverse (
+		Type* type,
+		BaseTypeCoord* coord = NULL
 		)
 	{
-		return FindBaseTypeTraverseImpl (pType, pCoord, 0);
+		return findBaseTypeTraverseImpl (type, coord, 0);
 	}
 
-	rtl::CArrayT <CBaseTypeSlot*>
-	GetGcRootBaseTypeArray ()
+	rtl::Array <BaseTypeSlot*>
+	getGcRootBaseTypeArray ()
 	{
-		return m_GcRootBaseTypeArray;
+		return m_gcRootBaseTypeArray;
 	}
 
-	rtl::CArrayT <CStructField*>
-	GetGcRootMemberFieldArray ()
+	rtl::Array <StructField*>
+	getGcRootMemberFieldArray ()
 	{
-		return m_GcRootMemberFieldArray;
+		return m_gcRootMemberFieldArray;
 	}
 
-	rtl::CArrayT <CStructField*>
-	GetMemberFieldArray ()
+	rtl::Array <StructField*>
+	getMemberFieldArray ()
 	{
-		return m_MemberFieldArray;
+		return m_memberFieldArray;
 	}
 
-	rtl::CArrayT <CFunction*>
-	GetMemberMethodArray ()
+	rtl::Array <Function*>
+	getMemberMethodArray ()
 	{
-		return m_MemberMethodArray;
+		return m_memberMethodArray;
 	}
 
-	rtl::CArrayT <CProperty*>
-	GetMemberPropertyArray ()
+	rtl::Array <Property*>
+	getMemberPropertyArray ()
 	{
-		return m_MemberPropertyArray;
+		return m_memberPropertyArray;
 	}
 
-	rtl::CArrayT <CVariable*>
-	GetInitializedStaticFieldArray ()
+	rtl::Array <Variable*>
+	getInitializedStaticFieldArray ()
 	{
-		return m_InitializedStaticFieldArray;
+		return m_initializedStaticFieldArray;
 	}
 
 	bool
-	CallBaseTypeConstructors (const CValue& ThisValue);
+	callBaseTypeConstructors (const Value& thisValue);
 
 	bool
-	CallMemberFieldConstructors (const CValue& ThisValue);
+	callMemberFieldConstructors (const Value& thisValue);
 
 	bool
-	CallMemberPropertyConstructors (const CValue& ThisValue);
+	callMemberPropertyConstructors (const Value& thisValue);
 
 	bool
-	InitializeStaticFields ();
+	initializeStaticFields ();
 
-	CFunction*
-	GetPreConstructor ()
+	Function*
+	getPreConstructor ()
 	{
-		return m_pPreConstructor;
+		return m_preConstructor;
 	}
 
-	CFunction*
-	GetConstructor ()
+	Function*
+	getConstructor ()
 	{
-		return m_pConstructor;
+		return m_constructor;
 	}
 
-	CFunction*
-	GetDefaultConstructor ();
+	Function*
+	getDefaultConstructor ();
 
-	CFunction*
-	GetStaticConstructor ()
+	Function*
+	getStaticConstructor ()
 	{
-		return m_pStaticConstructor;
+		return m_staticConstructor;
 	}
 
-	CFunction*
-	GetStaticDestructor ()
+	Function*
+	getStaticDestructor ()
 	{
-		return m_pStaticDestructor;
+		return m_staticDestructor;
 	}
 
-	CVariable*
-	GetStaticOnceFlagVariable ()
+	Variable*
+	getStaticOnceFlagVariable ()
 	{
-		return m_pStaticOnceFlagVariable;
+		return m_staticOnceFlagVariable;
 	}
 
-	CFunction*
-	GetUnaryOperator (EUnOp OpKind)
+	Function*
+	getUnaryOperator (UnOpKind opKind)
 	{
-		ASSERT ((size_t) OpKind < EUnOp__Count);
-		return m_UnaryOperatorTable ? m_UnaryOperatorTable [OpKind] : NULL;
+		ASSERT ((size_t) opKind < UnOpKind__Count);
+		return m_unaryOperatorTable ? m_unaryOperatorTable [opKind] : NULL;
 	}
 
-	CFunction*
-	GetBinaryOperator (EBinOp OpKind)
+	Function*
+	getBinaryOperator (BinOpKind opKind)
 	{
-		ASSERT ((size_t) OpKind < EBinOp__Count);
-		return m_BinaryOperatorTable ? m_BinaryOperatorTable [OpKind] : NULL;
+		ASSERT ((size_t) opKind < BinOpKind__Count);
+		return m_binaryOperatorTable ? m_binaryOperatorTable [opKind] : NULL;
 	}
 
-	CFunction*
-	GetCallOperator ()
+	Function*
+	getCallOperator ()
 	{
-		return m_pCallOperator;
+		return m_callOperator;
 	}
 
 	virtual
-	CStructField*
-	GetFieldByIndex (size_t Index) = 0;
+	StructField*
+	getFieldByIndex (size_t index) = 0;
 
-	CStructField*
-	CreateField (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createField (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		)
 	{
-		return CreateFieldImpl (Name, pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
+		return createFieldImpl (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	}
 
-	CStructField*
-	CreateField (
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0
+	StructField*
+	createField (
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0
 		)
 	{
-		return CreateFieldImpl (rtl::CString (), pType, BitCount, PtrTypeFlags);
+		return createFieldImpl (rtl::String (), type, bitCount, ptrTypeFlags);
 	}
 
-	CFunction*
-	CreateMethod (
-		EStorage StorageKind,
-		const rtl::CString& Name,
-		CFunctionType* pShortType
+	Function*
+	createMethod (
+		StorageKind storageKind,
+		const rtl::String& name,
+		FunctionType* shortType
 		);
 
-	CFunction*
-	CreateUnnamedMethod (
-		EStorage StorageKind,
-		EFunction FunctionKind,
-		CFunctionType* pShortType
+	Function*
+	createUnnamedMethod (
+		StorageKind storageKind,
+		FunctionKind functionKind,
+		FunctionType* shortType
 		);
 
-	CProperty*
-	CreateProperty (
-		EStorage StorageKind,
-		const rtl::CString& Name,
-		CPropertyType* pShortType
+	Property*
+	createProperty (
+		StorageKind storageKind,
+		const rtl::String& name,
+		PropertyType* shortType
 		);
 
 	virtual
 	bool
-	AddMethod (CFunction* pFunction);
+	addMethod (Function* function);
 
 	virtual
 	bool
-	AddProperty (CProperty* pProperty);
+	addProperty (Property* prop);
 
 protected:
 	virtual
-	CStructField*
-	CreateFieldImpl (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createFieldImpl (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		) = 0;
 
 	bool
-	ResolveImportBaseType (CBaseTypeSlot* pSlot);
+	resolveImportBaseType (BaseTypeSlot* slot);
 
 	bool
-	ResolveImportBaseTypes ();
+	resolveImportBaseTypes ();
 
 	bool
-	ResolveImportFields ();
+	resolveImportFields ();
 
 	bool
-	CreateDefaultMethod (
-		EFunction FunctionKind,
-		EStorage StorageKind = EStorage_Member
+	createDefaultMethod (
+		FunctionKind functionKind,
+		StorageKind storageKind = StorageKind_Member
 		);
 
 	bool
-	CompileDefaultStaticConstructor ();
+	compileDefaultStaticConstructor ();
 
 	bool
-	CompileDefaultPreConstructor ();
+	compileDefaultPreConstructor ();
 
 	bool
-	CompileDefaultConstructor ();
+	compileDefaultConstructor ();
 
 	bool
-	FindBaseTypeTraverseImpl (
-		CType* pType,
-		CBaseTypeCoord* pCoord,
-		size_t Level
+	findBaseTypeTraverseImpl (
+		Type* type,
+		BaseTypeCoord* coord,
+		size_t level
 		);
 
 	virtual
-	CModuleItem*
-	FindItemTraverseImpl (
-		const char* pName,
-		CMemberCoord* pCoord = NULL,
-		uint_t Flags = 0
+	ModuleItem*
+	findItemTraverseImpl (
+		const char* name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		)
 	{
-		return FindItemTraverseImpl (pName, pCoord, Flags, 0);
+		return findItemTraverseImpl (name, coord, flags, 0);
 	}
 
-	CModuleItem*
-	FindItemTraverseImpl (
-		const char* pName,
-		CMemberCoord* pCoord,
-		uint_t Flags,
-		size_t BaseTypeLevel
+	ModuleItem*
+	findItemTraverseImpl (
+		const char* name,
+		MemberCoord* coord,
+		uint_t flags,
+		size_t baseTypeLevel
 		);
 };
 

@@ -7,163 +7,163 @@ namespace jnc {
 //.............................................................................
 
 const char* 
-GetPropertyTypeFlagString (EPropertyTypeFlag Flag)
+getPropertyTypeFlagString (PropertyTypeFlagKind flag)
 {
-	static const char* StringTable [] = 
+	static const char* stringTable [] = 
 	{
 		"const",     // EPropertyTypeFlag_Const    = 0x010000,
 		"bindable",  // EPropertyTypeFlag_Bindable = 0x020000,
 	};
 
-	size_t i = rtl::GetLoBitIdx32 (Flag >> 16);
+	size_t i = rtl::getLoBitIdx32 (flag >> 16);
 
-	return i < countof (StringTable) ? 
-		StringTable [i] : 
+	return i < countof (stringTable) ? 
+		stringTable [i] : 
 		"undefined-property-type-flag";
 }
 
-rtl::CString
-GetPropertyTypeFlagString (uint_t Flags)
+rtl::String
+getPropertyTypeFlagString (uint_t flags)
 {
-	if (!Flags)
-		return rtl::CString ();
+	if (!flags)
+		return rtl::String ();
 
-	EPropertyTypeFlag Flag = GetFirstPropertyTypeFlag (Flags);
-	rtl::CString String = GetPropertyTypeFlagString (Flag);
-	Flags &= ~Flag;
+	PropertyTypeFlagKind flag = getFirstPropertyTypeFlag (flags);
+	rtl::String string = getPropertyTypeFlagString (flag);
+	flags &= ~flag;
 
-	while (Flags)
+	while (flags)
 	{
-		Flag = GetFirstPropertyTypeFlag (Flags);
+		flag = getFirstPropertyTypeFlag (flags);
 
-		String += ' ';
-		String += GetPropertyTypeFlagString (Flag);
+		string += ' ';
+		string += getPropertyTypeFlagString (flag);
 
-		Flags &= ~Flag;
+		flags &= ~flag;
 	}
 
-	return String;
+	return string;
 }
 
 uint_t
-GetPropertyTypeFlagsFromModifiers (uint_t Modifiers)
+getPropertyTypeFlagsFromModifiers (uint_t modifiers)
 {
-	uint_t Flags = 0;
+	uint_t flags = 0;
 
-	if (Modifiers & ETypeModifier_Const)
-		Flags |= EPropertyTypeFlag_Const;
+	if (modifiers & TypeModifierKind_Const)
+		flags |= PropertyTypeFlagKind_Const;
 
-	if (Modifiers & ETypeModifier_Bindable)
-		Flags |= EPropertyTypeFlag_Bindable;
+	if (modifiers & TypeModifierKind_Bindable)
+		flags |= PropertyTypeFlagKind_Bindable;
 
-	return Flags;
+	return flags;
 }
 
 //.............................................................................
 
-CPropertyType::CPropertyType ()
+PropertyType::PropertyType ()
 {
-	m_TypeKind = EType_Property;
+	m_typeKind = TypeKind_Property;
 
-	m_pGetterType = NULL;
-	m_pBinderType = NULL;
-	m_pStdObjectMemberPropertyType = NULL;
-	m_pShortType = NULL;
+	m_getterType = NULL;
+	m_binderType = NULL;
+	m_stdObjectMemberPropertyType = NULL;
+	m_shortType = NULL;
 	m_pVTableStructType = NULL;
-	m_pPropertyPtrTypeTuple = NULL;
+	m_propertyPtrTypeTuple = NULL;
 }
 
-CPropertyPtrType* 
-CPropertyType::GetPropertyPtrType (
-	CNamespace* pNamespace,
-	EType TypeKind,
-	EPropertyPtrType PtrTypeKind,
-	uint_t Flags
+PropertyPtrType* 
+PropertyType::getPropertyPtrType (
+	Namespace* nspace,
+	TypeKind typeKind,
+	PropertyPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	return m_pModule->m_TypeMgr.GetPropertyPtrType (pNamespace, this, TypeKind, PtrTypeKind, Flags);
+	return m_module->m_typeMgr.getPropertyPtrType (nspace, this, typeKind, ptrTypeKind, flags);
 }
 
-CPropertyType*
-CPropertyType::GetMemberPropertyType (CClassType* pClassType)
+PropertyType*
+PropertyType::getMemberPropertyType (ClassType* classType)
 {
-	return m_pModule->m_TypeMgr.GetMemberPropertyType (pClassType, this);
+	return m_module->m_typeMgr.getMemberPropertyType (classType, this);
 }
 
-CPropertyType*
-CPropertyType::GetStdObjectMemberPropertyType ()
+PropertyType*
+PropertyType::getStdObjectMemberPropertyType ()
 {
-	return m_pModule->m_TypeMgr.GetStdObjectMemberPropertyType (this);
+	return m_module->m_typeMgr.getStdObjectMemberPropertyType (this);
 }
 
-CPropertyType*
-CPropertyType::GetShortType  ()
+PropertyType*
+PropertyType::getShortType  ()
 {
-	return m_pModule->m_TypeMgr.GetShortPropertyType (this);
+	return m_module->m_typeMgr.getShortPropertyType (this);
 }
 
-CStructType*
-CPropertyType::GetVTableStructType ()
+StructType*
+PropertyType::getVTableStructType ()
 {
-	return m_pModule->m_TypeMgr.GetPropertyVTableStructType (this);
+	return m_module->m_typeMgr.getPropertyVTableStructType (this);
 }
 
-rtl::CString
-CPropertyType::CreateSignature (
-	CFunctionType* pGetterType,
-	const CFunctionTypeOverload& SetterType,
-	uint_t Flags
+rtl::String
+PropertyType::createSignature (
+	FunctionType* getterType,
+	const FunctionTypeOverload& setterType,
+	uint_t flags
 	)
 {
-	rtl::CString String = "X";
+	rtl::String string = "X";
 	
-	if (Flags & EPropertyTypeFlag_Bindable)
-		String += 'b';
+	if (flags & PropertyTypeFlagKind_Bindable)
+		string += 'b';
 
-	String += pGetterType->GetSignature ();
+	string += getterType->getSignature ();
 
-	size_t OverloadCount = SetterType.GetOverloadCount ();
-	for (size_t i = 0; i < OverloadCount; i++)
+	size_t overloadCount = setterType.getOverloadCount ();
+	for (size_t i = 0; i < overloadCount; i++)
 	{
-		CFunctionType* pOverloadType = SetterType.GetOverload (i);
-		String += pOverloadType->GetSignature ();
+		FunctionType* overloadType = setterType.getOverload (i);
+		string += overloadType->getSignature ();
 	}
 
-	return String;
+	return string;
 }
 
-rtl::CString
-CPropertyType::GetTypeModifierString ()
+rtl::String
+PropertyType::getTypeModifierString ()
 {
-	if (!m_TypeModifierString.IsEmpty ())
-		return m_TypeModifierString;
+	if (!m_typeModifierString.isEmpty ())
+		return m_typeModifierString;
 
-	if (m_Flags & EPropertyTypeFlag_Const)
-		m_TypeModifierString += "const ";
+	if (m_flags & PropertyTypeFlagKind_Const)
+		m_typeModifierString += "const ";
 
-	if (m_Flags & EPropertyTypeFlag_Bindable)
-		m_TypeModifierString += "bindable ";
+	if (m_flags & PropertyTypeFlagKind_Bindable)
+		m_typeModifierString += "bindable ";
 
-	if (IsIndexed ())
-		m_TypeModifierString += "indexed ";
+	if (isIndexed ())
+		m_typeModifierString += "indexed ";
 
-	return m_TypeModifierString;
+	return m_typeModifierString;
 }
 
 void
-CPropertyType::PrepareTypeString ()
+PropertyType::prepareTypeString ()
 {
-	CType* pReturnType = GetReturnType ();
+	Type* returnType = getReturnType ();
 
-	m_TypeString = pReturnType->GetTypeString ();
-	m_TypeString += ' ';
-	m_TypeString += GetTypeModifierString ();
-	m_TypeString += "property";
+	m_typeString = returnType->getTypeString ();
+	m_typeString += ' ';
+	m_typeString += getTypeModifierString ();
+	m_typeString += "property";
 	
-	if (IsIndexed ())
+	if (isIndexed ())
 	{
-		m_TypeString += ' ';
-		m_TypeString += m_pGetterType->GetArgString ();
+		m_typeString += ' ';
+		m_typeString += m_getterType->getArgString ();
 	}
 }
 

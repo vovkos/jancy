@@ -11,43 +11,43 @@ namespace jnc {
 
 //.............................................................................
 
-class CConstMgr
+class ConstMgr
 {
-	friend class CModule;
+	friend class Module;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	ref::CPtrT <CLeanDataPtrValidator> m_UnsafeLeanDataPtrValidator;
-	rtl::CBoxListT <CValue> m_ConstList;
+	ref::Ptr <LeanDataPtrValidator> m_unsafeLeanDataPtrValidator;
+	rtl::BoxList <Value> m_constList;
 
 public:
-	CConstMgr ();
+	ConstMgr ();
 
-	CModule* 
-	GetModule ()
+	Module* 
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
-	const CValue& 
-	SaveValue (const CValue& Value)
+	const Value& 
+	saveValue (const Value& value)
 	{
-		rtl::CBoxIteratorT <CValue> It = m_ConstList.InsertTail (Value);
-		return *It;
+		rtl::BoxIterator <Value> it = m_constList.insertTail (value);
+		return *it;
 	}
 
-	const CValue& 
-	SaveLiteral (
+	const Value& 
+	saveLiteral (
 		const char* p,
-		size_t Length = -1
+		size_t length = -1
 		);
 
-	CLeanDataPtrValidator*
-	GetUnsafeLeanDataPtrValidator ();
+	LeanDataPtrValidator*
+	getUnsafeLeanDataPtrValidator ();
 };
 
 //.............................................................................

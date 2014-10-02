@@ -7,29 +7,29 @@ namespace jnc {
 //.............................................................................
 	
 bool
-CBinOp_Assign::Operator (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_Assign::op (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	*pResultValue = OpValue1;
+	*resultValue = opValue1;
 
-	EType DstTypeKind = OpValue1.GetType ()->GetTypeKind ();
+	TypeKind dstTypeKind = opValue1.getType ()->getTypeKind ();
 	
-	switch (DstTypeKind)
+	switch (dstTypeKind)
 	{
-	case EType_DataRef:
-		return m_pModule->m_OperatorMgr.StoreDataRef (OpValue1, OpValue2);
+	case TypeKind_DataRef:
+		return m_module->m_operatorMgr.storeDataRef (opValue1, opValue2);
 
-	case EType_ClassRef:
-		return m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_RefAssign, OpValue1, OpValue2, pResultValue);
+	case TypeKind_ClassRef:
+		return m_module->m_operatorMgr.binaryOperator (BinOpKind_RefAssign, opValue1, opValue2, resultValue);
 
-	case EType_PropertyRef:
-		return m_pModule->m_OperatorMgr.SetProperty (OpValue1, OpValue2);
+	case TypeKind_PropertyRef:
+		return m_module->m_operatorMgr.setProperty (opValue1, opValue2);
 
 	default:
-		err::SetFormatStringError ("left operand must be l-value");
+		err::setFormatStringError ("left operand must be l-value");
 		return false;
 	}
 }
@@ -37,22 +37,22 @@ CBinOp_Assign::Operator (
 //.............................................................................
 
 bool
-CBinOp_OpAssign::Operator (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_OpAssign::op (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	ASSERT (m_OpKind >= EBinOp_AddAssign && m_OpKind <= EBinOp_AtAssign);
+	ASSERT (m_opKind >= BinOpKind_AddAssign && m_opKind <= BinOpKind_AtAssign);
 
-	*pResultValue = OpValue1;
+	*resultValue = opValue1;
 
-	EBinOp OpKind = (EBinOp) (m_OpKind - EBinOp__OpAssignDelta);
+	BinOpKind opKind = (BinOpKind) (m_opKind - BinOpKind__OpAssignDelta);
 
-	CValue RValue;
+	Value RValue;
 	return 
-		m_pModule->m_OperatorMgr.BinaryOperator (OpKind, OpValue1, OpValue2, &RValue) &&
-		m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Assign, OpValue1, RValue);
+		m_module->m_operatorMgr.binaryOperator (opKind, opValue1, opValue2, &RValue) &&
+		m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, opValue1, RValue);
 }
 	
 //.............................................................................

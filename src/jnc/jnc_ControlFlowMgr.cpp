@@ -6,562 +6,562 @@ namespace jnc {
 
 //.............................................................................
 
-CControlFlowMgr::CControlFlowMgr ()
+ControlFlowMgr::ControlFlowMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_Flags = 0;
-	m_ThrowLockCount = 0;
-	m_pCurrentBlock = NULL;
-	m_pUnreachableBlock = NULL;
+	m_flags = 0;
+	m_throwLockCount = 0;
+	m_currentBlock = NULL;
+	m_unreachableBlock = NULL;
 }
 
 void
-CControlFlowMgr::Clear ()
+ControlFlowMgr::clear ()
 {
-	m_Flags = 0;
-	m_ThrowLockCount = 0;
-	m_BlockList.Clear ();
-	m_ReturnBlockArray.Clear ();
-	m_pCurrentBlock = NULL;
-	m_pUnreachableBlock = NULL;
+	m_flags = 0;
+	m_throwLockCount = 0;
+	m_blockList.clear ();
+	m_returnBlockArray.clear ();
+	m_currentBlock = NULL;
+	m_unreachableBlock = NULL;
 }
 
-CBasicBlock*
-CControlFlowMgr::CreateBlock (const rtl::CString& Name)
+BasicBlock*
+ControlFlowMgr::createBlock (const rtl::String& name)
 {
-	CBasicBlock* pBlock = AXL_MEM_NEW (CBasicBlock);
-	pBlock->m_pModule = m_pModule;
-	pBlock->m_Name = Name;
-	pBlock->m_pLlvmBlock = llvm::BasicBlock::Create (
-		*m_pModule->GetLlvmContext (),
-		(const char*) Name,
+	BasicBlock* block = AXL_MEM_NEW (BasicBlock);
+	block->m_module = m_module;
+	block->m_name = name;
+	block->m_llvmBlock = llvm::BasicBlock::Create (
+		*m_module->getLlvmContext (),
+		(const char*) name,
 		NULL
 		);
 
-	m_BlockList.InsertTail (pBlock);
-	return pBlock;
+	m_blockList.insertTail (block);
+	return block;
 }
 
-CBasicBlock*
-CControlFlowMgr::SetCurrentBlock (CBasicBlock* pBlock)
+BasicBlock*
+ControlFlowMgr::setCurrentBlock (BasicBlock* block)
 {
-	if (m_pCurrentBlock == pBlock)
-		return pBlock;
+	if (m_currentBlock == block)
+		return block;
 
-	CBasicBlock* pPrevCurrentBlock = m_pCurrentBlock;
-	if (pPrevCurrentBlock)
-		pPrevCurrentBlock->m_LlvmDebugLoc = m_pModule->m_LlvmIrBuilder.GetCurrentDebugLoc ();
+	BasicBlock* prevCurrentBlock = m_currentBlock;
+	if (prevCurrentBlock)
+		prevCurrentBlock->m_llvmDebugLoc = m_module->m_llvmIrBuilder.getCurrentDebugLoc ();
 
-	m_pCurrentBlock = pBlock;
-	if (!pBlock)
-		return pPrevCurrentBlock;
+	m_currentBlock = block;
+	if (!block)
+		return prevCurrentBlock;
 
-	if (!pBlock->m_pFunction)
-		AddBlock (pBlock);
+	if (!block->m_function)
+		addBlock (block);
 
-	m_pModule->m_LlvmIrBuilder.SetInsertPoint (pBlock);
+	m_module->m_llvmIrBuilder.setInsertPoint (block);
 
-	if (!pBlock->m_LlvmDebugLoc.isUnknown ())
-		m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (pBlock->m_LlvmDebugLoc);
+	if (!block->m_llvmDebugLoc.isUnknown ())
+		m_module->m_llvmIrBuilder.setCurrentDebugLoc (block->m_llvmDebugLoc);
 
-	return pPrevCurrentBlock;
-}
-
-void
-CControlFlowMgr::AddBlock (CBasicBlock* pBlock)
-{
-	ASSERT (!pBlock->m_pFunction);
-
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
-
-	pFunction->GetLlvmFunction ()->getBasicBlockList ().push_back (pBlock->m_pLlvmBlock);
-	pBlock->m_pFunction = pFunction;
+	return prevCurrentBlock;
 }
 
 void
-CControlFlowMgr::DeleteUnreachableBlocks ()
+ControlFlowMgr::addBlock (BasicBlock* block)
 {
-	rtl::CIteratorT <CBasicBlock> It = m_BlockList.GetHead ();
-	while (It)
+	ASSERT (!block->m_function);
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
+
+	function->getLlvmFunction ()->getBasicBlockList ().push_back (block->m_llvmBlock);
+	block->m_function = function;
+}
+
+void
+ControlFlowMgr::deleteUnreachableBlocks ()
+{
+	rtl::Iterator <BasicBlock> it = m_blockList.getHead ();
+	while (it)
 	{
-		if (It->m_Flags & EBasicBlockFlag_Reachable)
+		if (it->m_flags & BasicBlockFlagKind_Reachable)
 		{
-			It++;
+			it++;
 			continue;
 		}
 
-		CBasicBlock* pBlock = *It;
-		It++;
+		BasicBlock* block = *it;
+		it++;
 
 		// check if block was never added
 
-		if (!pBlock->m_pFunction)
-			delete pBlock->m_pLlvmBlock;
+		if (!block->m_function)
+			delete block->m_llvmBlock;
 
-		m_BlockList.Delete (pBlock);
+		m_blockList.erase (block);
 	}
 
-	m_pUnreachableBlock = NULL;
-	m_pCurrentBlock = NULL;
+	m_unreachableBlock = NULL;
+	m_currentBlock = NULL;
 }
 
-CBasicBlock*
-CControlFlowMgr::GetUnreachableBlock ()
+BasicBlock*
+ControlFlowMgr::getUnreachableBlock ()
 {
-	if (m_pUnreachableBlock && m_pUnreachableBlock->GetInstructionCount () == 1)
-		return m_pUnreachableBlock;
+	if (m_unreachableBlock && m_unreachableBlock->getInstructionCount () == 1)
+		return m_unreachableBlock;
 
-	m_pUnreachableBlock = CreateBlock ("unreachable_block");
-	MarkUnreachable (m_pUnreachableBlock);
-	return m_pUnreachableBlock;
+	m_unreachableBlock = createBlock ("unreachable_block");
+	markUnreachable (m_unreachableBlock);
+	return m_unreachableBlock;
 }
 
 void
-CControlFlowMgr::MarkUnreachable (CBasicBlock* pBlock)
+ControlFlowMgr::markUnreachable (BasicBlock* block)
 {
-	ASSERT (pBlock->IsEmpty () && pBlock->m_Flags == 0);
+	ASSERT (block->isEmpty () && block->m_flags == 0);
 
-	CBasicBlock* pPrevCurrentBlock = SetCurrentBlock (pBlock);
-	m_pModule->m_LlvmIrBuilder.CreateUnreachable ();
-	SetCurrentBlock (pPrevCurrentBlock);
+	BasicBlock* prevCurrentBlock = setCurrentBlock (block);
+	m_module->m_llvmIrBuilder.createUnreachable ();
+	setCurrentBlock (prevCurrentBlock);
 }
 
 void
-CControlFlowMgr::Jump (
-	CBasicBlock* pBlock,
-	CBasicBlock* pFollowBlock
+ControlFlowMgr::jump (
+	BasicBlock* block,
+	BasicBlock* followBlock
 	)
 {
-	m_Flags |= EControlFlowFlag_HasJump;
-	pBlock->m_Flags |= EBasicBlockFlag_Jumped | (m_pCurrentBlock->m_Flags & EBasicBlockFlag_Reachable);
+	m_flags |= ControlFlowFlagKind_HasJump;
+	block->m_flags |= BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
 
-	m_pModule->m_LlvmIrBuilder.CreateBr (pBlock);
+	m_module->m_llvmIrBuilder.createBr (block);
 
-	if (!pFollowBlock)
-		pFollowBlock = GetUnreachableBlock ();
+	if (!followBlock)
+		followBlock = getUnreachableBlock ();
 
-	SetCurrentBlock (pFollowBlock);
+	setCurrentBlock (followBlock);
 }
 
 void
-CControlFlowMgr::Follow (CBasicBlock* pBlock)
+ControlFlowMgr::follow (BasicBlock* block)
 {
-	if (!m_pCurrentBlock->HasTerminator ())
+	if (!m_currentBlock->hasTerminator ())
 	{
-		m_pModule->m_LlvmIrBuilder.CreateBr (pBlock);
-		pBlock->m_Flags |= EBasicBlockFlag_Jumped | (m_pCurrentBlock->m_Flags & EBasicBlockFlag_Reachable);
+		m_module->m_llvmIrBuilder.createBr (block);
+		block->m_flags |= BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
 	}
 
-	SetCurrentBlock (pBlock);
+	setCurrentBlock (block);
 }
 
 bool
-CControlFlowMgr::ConditionalJump (
-	const CValue& Value,
-	CBasicBlock* pThenBlock,
-	CBasicBlock* pElseBlock,
-	CBasicBlock* pFollowBlock
+ControlFlowMgr::conditionalJump (
+	const Value& value,
+	BasicBlock* thenBlock,
+	BasicBlock* elseBlock,
+	BasicBlock* followBlock
 	)
 {
-	CValue BoolValue;
-	bool Result = m_pModule->m_OperatorMgr.CastOperator (Value, EType_Bool, &BoolValue);
-	if (!Result)
+	Value boolValue;
+	bool result = m_module->m_operatorMgr.castOperator (value, TypeKind_Bool, &boolValue);
+	if (!result)
 		return false;
 
-	uint_t ReachableFlag = (m_pCurrentBlock->m_Flags & EBasicBlockFlag_Reachable);
+	uint_t reachableFlag = (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
 
-	m_Flags |= EControlFlowFlag_HasJump;
-	pThenBlock->m_Flags |= EBasicBlockFlag_Jumped | ReachableFlag;
-	pElseBlock->m_Flags |= EBasicBlockFlag_Jumped | ReachableFlag;
+	m_flags |= ControlFlowFlagKind_HasJump;
+	thenBlock->m_flags |= BasicBlockFlagKind_Jumped | reachableFlag;
+	elseBlock->m_flags |= BasicBlockFlagKind_Jumped | reachableFlag;
 
-	m_pModule->m_LlvmIrBuilder.CreateCondBr (BoolValue, pThenBlock, pElseBlock);
+	m_module->m_llvmIrBuilder.createCondBr (boolValue, thenBlock, elseBlock);
 
-	if (!pFollowBlock)
-		pFollowBlock = pThenBlock;
+	if (!followBlock)
+		followBlock = thenBlock;
 
-	SetCurrentBlock (pFollowBlock);
+	setCurrentBlock (followBlock);
 	return true;
 }
 
 bool
-CControlFlowMgr::Break (size_t Level)
+ControlFlowMgr::breakJump (size_t level)
 {
-	CScope* pTargetScope = m_pModule->m_NamespaceMgr.FindBreakScope (Level);
-	if (!pTargetScope)
+	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope (level);
+	if (!targetScope)
 	{
-		err::SetFormatStringError ("illegal break");
+		err::setFormatStringError ("illegal break");
 		return false;
 	}
 
-	OnLeaveScope (pTargetScope);
-	Jump (pTargetScope->m_pBreakBlock);
+	onLeaveScope (targetScope);
+	jump (targetScope->m_breakBlock);
 	return true;
 }
 
 bool
-CControlFlowMgr::Continue (size_t Level)
+ControlFlowMgr::continueJump (size_t level)
 {
-	CScope* pTargetScope = m_pModule->m_NamespaceMgr.FindBreakScope (Level);
-	if (!pTargetScope)
+	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope (level);
+	if (!targetScope)
 	{
-		err::SetFormatStringError ("illegal continue");
+		err::setFormatStringError ("illegal continue");
 		return false;
 	}
 
-	OnLeaveScope (pTargetScope);
-	Jump (pTargetScope->m_pContinueBlock);
+	onLeaveScope (targetScope);
+	jump (targetScope->m_continueBlock);
 	return true;
 }
 
 void
-CControlFlowMgr::OnLeaveScope (CScope* pTargetScope)
+ControlFlowMgr::onLeaveScope (Scope* targetScope)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	while (pScope && pScope != pTargetScope && pScope->GetFunction () == pFunction)
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	while (scope && scope != targetScope && scope->getFunction () == function)
 	{
-		pScope->m_DestructList.RunDestructors ();
-		m_pModule->m_OperatorMgr.NullifyGcRootList (pScope->GetGcRootList ());
+		scope->m_destructList.runDestructors ();
+		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 
-		if (pScope->m_pFinallyBlock && !(pScope->m_Flags & EScopeFlag_FinallyDefined))
+		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlagKind_FinallyDefined))
 		{
-			CBasicBlock* pReturnBlock = CreateBlock ("finally_return_block");
-			AddBlock (pReturnBlock);
+			BasicBlock* returnBlock = createBlock ("finally_return_block");
+			addBlock (returnBlock);
 
-			size_t ReturnBlockId = pScope->m_FinallyReturnBlockArray.GetCount ();
-			CValue FinallyReturnValue;
-			FinallyReturnValue.SetConstInt32 ((uint32_t) ReturnBlockId);
-			m_pModule->m_OperatorMgr.StoreDataRef (pScope->m_pFinallyReturnAddress, FinallyReturnValue);
-			pScope->m_FinallyReturnBlockArray.Append (pReturnBlock);
-			Jump (pScope->m_pFinallyBlock, pReturnBlock);
+			size_t returnBlockId = scope->m_finallyReturnBlockArray.getCount ();
+			Value finallyReturnValue;
+			finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId);
+			m_module->m_operatorMgr.storeDataRef (scope->m_finallyReturnAddress, finallyReturnValue);
+			scope->m_finallyReturnBlockArray.append (returnBlock);
+			jump (scope->m_finallyBlock, returnBlock);
 
 			// return block will be jumped from 'finally', but we can mark it now:
 			// this way we can avoid extra loop in 'finally'
 
-			pReturnBlock->m_Flags |= EBasicBlockFlag_Jumped | EBasicBlockFlag_Reachable;
+			returnBlock->m_flags |= BasicBlockFlagKind_Jumped | BasicBlockFlagKind_Reachable;
 		}
 
-		pScope = pScope->GetParentScope ();
+		scope = scope->getParentScope ();
 	}
 }
 
 void
-CControlFlowMgr::RestoreScopeLevel ()
+ControlFlowMgr::restoreScopeLevel ()
 {
-	CValue ScopeLevelValue = m_pModule->m_FunctionMgr.GetScopeLevel ();
-	if (!ScopeLevelValue)
+	Value scopeLevelValue = m_module->m_functionMgr.getScopeLevel ();
+	if (!scopeLevelValue)
 		return;
 
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "restore scope level before return");
-	CVariable* pVariable = m_pModule->m_VariableMgr.GetStdVariable (EStdVariable_ScopeLevel);
-	m_pModule->m_LlvmIrBuilder.CreateStore (ScopeLevelValue, pVariable);
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "restore scope level before return");
+	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, variable);
 }
 
 bool
-CControlFlowMgr::Return (const CValue& Value)
+ControlFlowMgr::ret (const Value& value)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
 
-	CFunctionType* pFunctionType = pFunction->GetType ();
-	CType* pReturnType = pFunctionType->GetReturnType ();
+	FunctionType* functionType = function->getType ();
+	Type* returnType = functionType->getReturnType ();
 
-	if (!Value)
+	if (!value)
 	{
-		if (pFunction->GetType ()->GetReturnType ()->GetTypeKind () != EType_Void)
+		if (function->getType ()->getReturnType ()->getTypeKind () != TypeKind_Void)
 		{
-			err::SetFormatStringError (
+			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
-				pFunction->m_Tag.cc (),  // thanks a lot gcc
-				pReturnType->GetTypeString ().cc ()
+				function->m_tag.cc (),  // thanks a lot gcc
+				returnType->getTypeString ().cc ()
 				);
 			return false;
 		}
 
-		OnLeaveScope ();
-		RestoreScopeLevel ();
-		m_pModule->m_LlvmIrBuilder.CreateRet ();
+		onLeaveScope ();
+		restoreScopeLevel ();
+		m_module->m_llvmIrBuilder.createRet ();
 	}
 	else
 	{
-		CValue ReturnValue;
-		bool Result = m_pModule->m_OperatorMgr.CastOperator (Value, pReturnType, &ReturnValue);
-		if (!Result)
+		Value returnValue;
+		bool result = m_module->m_operatorMgr.castOperator (value, returnType, &returnValue);
+		if (!result)
 			return false;
 
-		CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-		if (!(pScope->GetFlags () & EScopeFlag_HasFinally))
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+		if (!(scope->getFlags () & ScopeFlagKind_HasFinally))
 		{
-			OnLeaveScope ();
+			onLeaveScope ();
 		}
 		else
 		{
-			CVariable* pVariable = m_pModule->m_VariableMgr.CreateStackVariable ("savedReturnValue", pReturnType);
-			m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pVariable);
+			Variable* variable = m_module->m_variableMgr.createStackVariable ("savedReturnValue", returnType);
+			m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
 
-			m_pModule->m_OperatorMgr.StoreDataRef (pVariable, ReturnValue);
-			OnLeaveScope ();
-			m_pModule->m_OperatorMgr.LoadDataRef (pVariable, &ReturnValue);
+			m_module->m_operatorMgr.storeDataRef (variable, returnValue);
+			onLeaveScope ();
+			m_module->m_operatorMgr.loadDataRef (variable, &returnValue);
 		}
 
-		RestoreScopeLevel ();
-		pFunctionType->GetCallConv ()->Return (pFunction, ReturnValue);
+		restoreScopeLevel ();
+		functionType->getCallConv ()->ret (function, returnValue);
 	}
 
-	ASSERT (!(m_pCurrentBlock->m_Flags & EBasicBlockFlag_Return));
-	m_pCurrentBlock->m_Flags |= EBasicBlockFlag_Return;
-	m_ReturnBlockArray.Append (m_pCurrentBlock);
+	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlagKind_Return));
+	m_currentBlock->m_flags |= BasicBlockFlagKind_Return;
+	m_returnBlockArray.append (m_currentBlock);
 
-	m_Flags |= EControlFlowFlag_HasReturn;
+	m_flags |= ControlFlowFlagKind_HasReturn;
 
-	SetCurrentBlock (GetUnreachableBlock ());
+	setCurrentBlock (getUnreachableBlock ());
 	return true;
 }
 
 bool
-CControlFlowMgr::Throw (
-	const CValue& ReturnValue,
-	CFunctionType* pFunctionType
+ControlFlowMgr::throwIf (
+	const Value& returnValue,
+	FunctionType* functionType
 	)
 {
-	ASSERT (pFunctionType->GetFlags () & EFunctionTypeFlag_Throws);
+	ASSERT (functionType->getFlags () & FunctionTypeFlagKind_Throws);
 
-	bool Result;
+	bool result;
 
-	CBasicBlock* pThrowBlock = CreateBlock ("throw_block");
-	CBasicBlock* pFollowBlock = CreateBlock ("follow_block");
+	BasicBlock* throwBlock = createBlock ("throw_block");
+	BasicBlock* followBlock = createBlock ("follow_block");
 
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	rtl::CConstBoxListT <CToken> ThrowCondition = pFunctionType->GetThrowCondition ();
+	Type* returnType = functionType->getReturnType ();
+	rtl::ConstBoxList <Token> throwCondition = functionType->getThrowCondition ();
 
-	CValue IndicatorValue;
-	if (!ThrowCondition.IsEmpty ())
+	Value indicatorValue;
+	if (!throwCondition.isEmpty ())
 	{
-		Result = m_pModule->m_OperatorMgr.ParseThrowCondition (
+		result = m_module->m_operatorMgr.parseThrowCondition (
 			NULL, // TODO: fix
-			ThrowCondition,
-			ReturnValue,
-			&IndicatorValue
+			throwCondition,
+			returnValue,
+			&indicatorValue
 			);
-		if (!Result)
+		if (!result)
 			return false;
 	}
-	else if (!(pReturnType->GetTypeKindFlags () & ETypeKindFlag_Integer))
+	else if (!(returnType->getTypeKindFlags () & TypeKindFlagKind_Integer))
 	{
-		Result = m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_LogNot, ReturnValue, &IndicatorValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.unaryOperator (UnOpKind_LogNot, returnValue, &indicatorValue);
+		if (!result)
 			return false;
 	}
-	else if (!(pReturnType->GetTypeKindFlags () & ETypeKindFlag_Unsigned))
+	else if (!(returnType->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
 	{
-		CValue ZeroValue = pReturnType->GetZeroValue ();
+		Value zeroValue = returnType->getZeroValue ();
 
-		Result = m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Lt, ReturnValue, ZeroValue, &IndicatorValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Lt, returnValue, zeroValue, &indicatorValue);
+		if (!result)
 			return false;
 	}
 	else
 	{
-		uint64_t MinusOne = -1;
+		uint64_t minusOne = -1;
 
-		CValue MinusOneValue;
-		MinusOneValue.CreateConst (&MinusOne, pReturnType);
+		Value minusOneValue;
+		minusOneValue.createConst (&minusOne, returnType);
 
-		Result = m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Eq, ReturnValue, MinusOneValue, &IndicatorValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, returnValue, minusOneValue, &indicatorValue);
+		if (!result)
 			return false;
 	}
 
-	Result = ConditionalJump (IndicatorValue, pThrowBlock, pFollowBlock);
-	if (!Result)
+	result = conditionalJump (indicatorValue, throwBlock, followBlock);
+	if (!result)
 		return false;
 
-	CScope* pCatchScope = m_pModule->m_NamespaceMgr.FindCatchScope ();
+	Scope* catchScope = m_module->m_namespaceMgr.findCatchScope ();
 
-	if (pCatchScope)
+	if (catchScope)
 	{
-		OnLeaveScope (pCatchScope);
-		pCatchScope->m_DestructList.RunDestructors (); // but don't nullify gc-root list
-		Jump (pCatchScope->m_pCatchBlock);
+		onLeaveScope (catchScope);
+		catchScope->m_destructList.runDestructors (); // but don't nullify gc-root list
+		jump (catchScope->m_catchBlock);
 	}
 	else
 	{
-		CFunctionType* pCurrentFunctionType = m_pModule->m_FunctionMgr.GetCurrentFunction ()->GetType ();
-		CType* pCurrentReturnType = pCurrentFunctionType->GetReturnType ();
+		FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction ()->getType ();
+		Type* currentReturnType = currentFunctionType->getReturnType ();
 
-		CValue ThrowValue;
-		if (!pCurrentFunctionType->GetThrowCondition ().IsEmpty ())
+		Value throwValue;
+		if (!currentFunctionType->getThrowCondition ().isEmpty ())
 		{
-			if (!pCurrentFunctionType->IsThrowConditionMatch (pFunctionType))
+			if (!currentFunctionType->isThrowConditionMatch (functionType))
 			{
-				err::SetFormatStringError ("functions with throw conditions need to 'catch' and 'return' manually");
+				err::setFormatStringError ("functions with throw conditions need to 'catch' and 'return' manually");
 				return false;
 			}
 
-			ThrowValue = ReturnValue; // re-throw
+			throwValue = returnValue; // re-throw
 		}
-		else if (pCurrentReturnType->GetTypeKindFlags () & ETypeKindFlag_Integer)
+		else if (currentReturnType->getTypeKindFlags () & TypeKindFlagKind_Integer)
 		{
-			uint64_t MinusOne = -1;
-			ThrowValue.CreateConst (&MinusOne, pCurrentReturnType);
+			uint64_t minusOne = -1;
+			throwValue.createConst (&minusOne, currentReturnType);
 		}
 		else
 		{
-			ThrowValue = pCurrentReturnType->GetZeroValue ();
+			throwValue = currentReturnType->getZeroValue ();
 		}
 
-		Return (ThrowValue);
+		ret (throwValue);
 	}
 
-	Follow (pFollowBlock);
+	follow (followBlock);
 	return true;
 }
 
 bool
-CControlFlowMgr::Catch ()
+ControlFlowMgr::catchLabel ()
 {
-	bool Result;
+	bool result;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	ASSERT (pScope && pScope->m_pCatchBlock);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope && scope->m_catchBlock);
 
-	if (pScope->m_Flags & EScopeFlag_FinallyDefined)
+	if (scope->m_flags & ScopeFlagKind_FinallyDefined)
 	{
-		err::SetFormatStringError ("'catch' cannot follow 'finally'");
+		err::setFormatStringError ("'catch' cannot follow 'finally'");
 		return false;
 	}
 
-	if (!(pScope->m_pCatchBlock->GetFlags () & EBasicBlockFlag_Jumped))
+	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlagKind_Jumped))
 	{
-		err::SetFormatStringError ("useless 'catch'");
+		err::setFormatStringError ("useless 'catch'");
 		return false;
 	}
 
-	pScope->m_Flags |= EScopeFlag_CatchDefined;
+	scope->m_flags |= ScopeFlagKind_CatchDefined;
 
-	if (pScope->IsFunctionScope ())
+	if (scope->isFunctionScope ())
 	{
-		Result = CheckReturn ();
-		if (!Result)
+		result = checkReturn ();
+		if (!result)
 			return false;
 	}
 
-	pScope->m_DestructList.Clear ();
+	scope->m_destructList.clear ();
 
-	Follow (pScope->m_pCatchBlock);
+	follow (scope->m_catchBlock);
 	return true;
 }
 
 bool
-CControlFlowMgr::Finally ()
+ControlFlowMgr::finallyLabel ()
 {
-	bool Result;
+	bool result;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	ASSERT (pScope && pScope->m_pFinallyBlock);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope && scope->m_finallyBlock);
 
-	if (!(pScope->m_pFinallyBlock->GetFlags () & EBasicBlockFlag_Jumped))
+	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlagKind_Jumped))
 	{
-		err::SetFormatStringError ("useless 'finally'");
+		err::setFormatStringError ("useless 'finally'");
 		return false;
 	}
 
-	pScope->m_Flags |= EScopeFlag_FinallyDefined;
+	scope->m_flags |= ScopeFlagKind_FinallyDefined;
 
-	if (pScope->IsFunctionScope ())
+	if (scope->isFunctionScope ())
 	{
-		Result = CheckReturn ();
-		if (!Result)
+		result = checkReturn ();
+		if (!result)
 			return false;
 	}
 	else
 	{
-		pScope->m_DestructList.RunDestructors (); // but don't nullify gc-root list
+		scope->m_destructList.runDestructors (); // but don't nullify gc-root list
 	}
 
-	pScope->m_DestructList.Clear ();
+	scope->m_destructList.clear ();
 
-	Follow (pScope->m_pFinallyBlock);
+	follow (scope->m_finallyBlock);
 	return true;
 }
 
 bool
-CControlFlowMgr::EndTry ()
+ControlFlowMgr::endTry ()
 {
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	ASSERT (pScope && pScope->m_pCatchBlock);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope && scope->m_catchBlock);
 
-	return !(pScope->GetFlags () & EScopeFlag_CatchDefined) ? Catch () : true;
+	return !(scope->getFlags () & ScopeFlagKind_CatchDefined) ? catchLabel () : true;
 }
 
 bool
-CControlFlowMgr::EndFinally ()
+ControlFlowMgr::endFinally ()
 {
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	ASSERT (pScope && pScope->m_pFinallyBlock && pScope->m_pFinallyReturnAddress);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope && scope->m_finallyBlock && scope->m_finallyReturnAddress);
 
-	CValue ReturnAddressValue;
-	m_pModule->m_OperatorMgr.LoadDataRef (pScope->m_pFinallyReturnAddress, &ReturnAddressValue);
+	Value returnAddressValue;
+	m_module->m_operatorMgr.loadDataRef (scope->m_finallyReturnAddress, &returnAddressValue);
 
 	#pragma AXL_TODO ("switch to indirect-branch as soon as LLVM supports it on Windows")
 
-	size_t BlockCount = pScope->m_FinallyReturnBlockArray.GetCount ();
-	ASSERT (BlockCount);
+	size_t blockCount = scope->m_finallyReturnBlockArray.getCount ();
+	ASSERT (blockCount);
 
-	char Buffer [256];
-	rtl::CArrayT <intptr_t> IntArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	IntArray.SetCount (BlockCount);
+	char buffer [256];
+	rtl::Array <intptr_t> intArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	intArray.setCount (blockCount);
 
-	for (size_t i = 0; i < BlockCount; i++)
-		IntArray [i] = i;
+	for (size_t i = 0; i < blockCount; i++)
+		intArray [i] = i;
 
-	m_pModule->m_LlvmIrBuilder.CreateSwitch (
-		ReturnAddressValue,
-		pScope->m_FinallyReturnBlockArray [0], // something needs to be specified as default block
-		IntArray,
-		pScope->m_FinallyReturnBlockArray,
-		BlockCount
+	m_module->m_llvmIrBuilder.createSwitch (
+		returnAddressValue,
+		scope->m_finallyReturnBlockArray [0], // something needs to be specified as default block
+		intArray,
+		scope->m_finallyReturnBlockArray,
+		blockCount
 		);
 
 	return true;
 }
 
 bool
-CControlFlowMgr::CheckReturn ()
+ControlFlowMgr::checkReturn ()
 {
-	if (m_pCurrentBlock->HasTerminator ())
+	if (m_currentBlock->hasTerminator ())
 		return true;
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	Type* returnType = function->getType ()->getReturnType ();
 
-	if (!(m_pCurrentBlock->GetFlags () & EBasicBlockFlag_Reachable))
+	if (!(m_currentBlock->getFlags () & BasicBlockFlagKind_Reachable))
 	{
-		m_pModule->m_LlvmIrBuilder.CreateUnreachable (); // just to make LLVM happy
+		m_module->m_llvmIrBuilder.createUnreachable (); // just to make LLVM happy
 	}
-	else if (pReturnType->GetTypeKind () == EType_Void)
+	else if (returnType->getTypeKind () == TypeKind_Void)
 	{
-		m_pModule->m_ControlFlowMgr.Return ();
+		m_module->m_controlFlowMgr.ret ();
 	}
-	else if (!(m_pModule->m_ControlFlowMgr.GetFlags () & EControlFlowFlag_HasReturn))
+	else if (!(m_module->m_controlFlowMgr.getFlags () & ControlFlowFlagKind_HasReturn))
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"function '%s' must return a '%s' value",
-			pFunction->m_Tag.cc (),
-			pReturnType->GetTypeString ().cc ()
+			function->m_tag.cc (),
+			returnType->getTypeString ().cc ()
 			);
 		return false;
 	}
 	else
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"not all control paths in function '%s' return a value",
-			pFunction->m_Tag.cc ()
+			function->m_tag.cc ()
 			);
 		return false;
 	}

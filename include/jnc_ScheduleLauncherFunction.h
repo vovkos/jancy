@@ -10,22 +10,22 @@ namespace jnc {
 
 //.............................................................................
 
-class CScheduleLauncherFunction: public CFunction
+class ScheduleLauncherFunction: public Function
 {
-	friend class CFunctionMgr;
+	friend class FunctionMgr;
 
 protected:
-	rtl::CString m_Signature;
+	rtl::String m_signature;
 
 public:
-	CScheduleLauncherFunction ()
+	ScheduleLauncherFunction ()
 	{
-		m_FunctionKind = EFunction_ScheduleLauncher;
+		m_functionKind = FunctionKind_ScheduleLauncher;
 	}
 
 	virtual
 	bool 
-	Compile ();
+	compile ();
 };
 
 //.............................................................................

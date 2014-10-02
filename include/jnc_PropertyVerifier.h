@@ -11,33 +11,33 @@ namespace jnc {
 
 //.............................................................................
 
-class CPropertyVerifier
+class PropertyVerifier
 {
 protected:
-	rtl::CString m_IndexArgSignature; // all accessors must have matching index arg signature
+	rtl::String m_indexArgSignature; // all accessors must have matching index arg signature
 	
 public:
 	bool
-	CheckGetter (CFunctionType* pFunctionType)
+	checkGetter (FunctionType* functionType)
 	{
-		return CheckIndexSignature (EFunction_Getter, pFunctionType);
+		return checkIndexSignature (FunctionKind_Getter, functionType);
 	}
 
 	bool
-	CheckSetter (CFunctionType* pFunctionType);
+	checkSetter (FunctionType* functionType);
 
 protected:
 	bool 
-	CheckIndexSignature (
-		EFunction FunctionKind,
-		CFunctionType* pFunctionType
+	checkIndexSignature (
+		FunctionKind functionKind,
+		FunctionType* functionType
 		);
 
 	static
-	rtl::CString 
-	CreateIndexArgSignature (
-		EFunction FunctionKind,
-		CFunctionType* pFunctionType
+	rtl::String 
+	createIndexArgSignature (
+		FunctionKind functionKind,
+		FunctionType* functionType
 		);
 };
 

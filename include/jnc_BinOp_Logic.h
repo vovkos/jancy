@@ -10,27 +10,27 @@ namespace jnc {
 
 //.............................................................................
 
-class CBinOp_LogAnd: public CBinaryOperator
+class BinOp_LogAnd: public BinaryOperator
 {
 public:
-	CBinOp_LogAnd ()
+	BinOp_LogAnd ()
 	{
-		m_OpKind = EBinOp_LogAnd;
+		m_opKind = BinOpKind_LogAnd;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		)
 	{
 		ASSERT (false); // special handling in COperator::LogicalOrOperator
@@ -40,27 +40,27 @@ public:
 
 //.............................................................................
 
-class CBinOp_LogOr: public CBinaryOperator
+class BinOp_LogOr: public BinaryOperator
 {
 public:
-	CBinOp_LogOr ()
+	BinOp_LogOr ()
 	{
-		m_OpKind = EBinOp_LogOr;
+		m_opKind = BinOpKind_LogOr;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		)
 	{
 		ASSERT (false); // special handling in COperator::LogicalOrOperator

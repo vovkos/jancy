@@ -9,77 +9,77 @@
 namespace axl {
 namespace jnc {
 
-class CModule;
+class Module;
 	
 //.............................................................................
 
-class CThreadModuleMgr
+class ThreadModuleMgr
 {
 protected:
-	size_t m_TlsSlot;
+	size_t m_tlsSlot;
 	
 public:	
-	CThreadModuleMgr ()
+	ThreadModuleMgr ()
 	{
-		m_TlsSlot = mt::GetTlsMgr ()->CreateSlot ();
+		m_tlsSlot = mt::getTlsMgr ()->createSlot ();
 	}
 
-	CModule* 
-	GetModule ()
+	Module* 
+	getModule ()
 	{
-		return (CModule*) mt::GetTlsMgr ()->GetSlotValue (m_TlsSlot).p ();
+		return (Module*) mt::getTlsMgr ()->getSlotValue (m_tlsSlot).p ();
 	}
 
-	CModule* 
-	SetModule (CModule* pModule)
+	Module* 
+	setModule (Module* module)
 	{
-		return (CModule*) mt::GetTlsMgr ()->SetSlotValue (m_TlsSlot, mt::CTlsValue (pModule, NULL)).p ();
+		return (Module*) mt::getTlsMgr ()->setSlotValue (m_tlsSlot, mt::TlsValue (module, NULL)).p ();
 	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-CThreadModuleMgr*
-GetThreadModuleMgr ()
+ThreadModuleMgr*
+getThreadModuleMgr ()
 {
-	return rtl::GetSimpleSingleton <CThreadModuleMgr> ();	
+	return rtl::getSimpleSingleton <ThreadModuleMgr> ();	
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-CModule*
-GetCurrentThreadModule ()
+Module*
+getCurrentThreadModule ()
 {
-	return GetThreadModuleMgr ()->GetModule ();	
+	return getThreadModuleMgr ()->getModule ();	
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-CModule*
-SetCurrentThreadModule (CModule* pModule)
+Module*
+setCurrentThreadModule (Module* module)
 {
-	return GetThreadModuleMgr ()->SetModule (pModule);	
+	return getThreadModuleMgr ()->setModule (module);	
 }
 
 //.............................................................................
 
-class CScopeThreadModule
+class ScopeThreadModule
 {
 protected:
-	CModule* m_pPrevModule;
+	Module* m_prevModule;
 
 public:
-	CScopeThreadModule (CModule* pModule)
+	ScopeThreadModule (Module* module)
 	{
-		m_pPrevModule = SetCurrentThreadModule (pModule);
+		m_prevModule = setCurrentThreadModule (module);
 	}
 
-	~CScopeThreadModule ()
+	~ScopeThreadModule ()
 	{
-		SetCurrentThreadModule (m_pPrevModule);
+		setCurrentThreadModule (m_prevModule);
 	}
 };
 

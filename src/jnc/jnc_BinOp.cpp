@@ -7,9 +7,9 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetBinOpKindString (EBinOp OpKind)
+getBinOpKindString (BinOpKind opKind)
 {
-	static const char* StringTable [EBinOp__Count] = 
+	static const char* stringTable [BinOpKind__Count] = 
 	{
 		"undefined-binary-operator",  // EBinOp_Undefined = 0,
 		"+",                          // EBinOp_Add,
@@ -47,34 +47,34 @@ GetBinOpKindString (EBinOp OpKind)
 		"@=",                         // EBinOp_AtAssign,
 	};
 
-	return (size_t) OpKind < EBinOp__Count ? 
-		StringTable [OpKind] : 
-		StringTable [EBinOp_Undefined];
+	return (size_t) opKind < BinOpKind__Count ? 
+		stringTable [opKind] : 
+		stringTable [BinOpKind_Undefined];
 }
 
 //.............................................................................
 
-CBinaryOperator::CBinaryOperator()
+BinaryOperator::BinaryOperator()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_OpKind = EBinOp_Undefined;
-	m_OpFlags1 = m_OpFlags2 = 0;
+	m_opKind = BinOpKind_Undefined;
+	m_opFlags1 = m_opFlags2 = 0;
 }
 
 bool
-CBinaryOperator::GetResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinaryOperator::getResultType (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	CType* pType = GetResultType (OpValue1, OpValue2);
-	if (!pType)
+	Type* type = getResultType (opValue1, opValue2);
+	if (!type)
 		return false;
 
-	pResultValue->SetType (pType);
+	resultValue->setType (type);
 	return true;
 }
 

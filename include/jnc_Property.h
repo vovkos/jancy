@@ -12,268 +12,268 @@ namespace jnc {
 
 //.............................................................................
 
-enum EProperty
+enum PropertyKind
 {
-	EProperty_Undefined = 0,
-	EProperty_Normal,
-	EProperty_Thunk,
-	EProperty_DataThunk,
-	EProperty__Count
+	PropertyKind_Undefined = 0,
+	PropertyKind_Normal,
+	PropertyKind_Thunk,
+	PropertyKind_DataThunk,
+	PropertyKind__Count
 };
 
 //.............................................................................
 
-enum EPropertyFlag
+enum PropertyFlagKind
 {
-	EPropertyFlag_Const    = 0x010000,
-	EPropertyFlag_Bindable = 0x020000,
-	EPropertyFlag_Throws   = 0x040000,
-	EPropertyFlag_AutoGet  = 0x100000,
-	EPropertyFlag_AutoSet  = 0x200000,
+	PropertyFlagKind_Const    = 0x010000,
+	PropertyFlagKind_Bindable = 0x020000,
+	PropertyFlagKind_Throws   = 0x040000,
+	PropertyFlagKind_AutoGet  = 0x100000,
+	PropertyFlagKind_AutoSet  = 0x200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CProperty: 
-	public CModuleItem,
-	public CNamespace
+class Property: 
+	public ModuleItem,
+	public Namespace
 {
-	friend class CTypeMgr;
-	friend class CDerivableType;
-	friend class CClassType;
-	friend class CFunctionMgr;
-	friend class CParser;
+	friend class TypeMgr;
+	friend class DerivableType;
+	friend class ClassType;
+	friend class FunctionMgr;
+	friend class Parser;
 
 protected:
-	EProperty m_PropertyKind;
+	PropertyKind m_propertyKind;
 
-	CPropertyType* m_pType;
+	PropertyType* m_type;
 
 	// construction / destruction / accessors
 
-	CFunction* m_pPreConstructor;
-	CFunction* m_pConstructor;
-	CFunction* m_pDefaultConstructor;
-	CFunction* m_pStaticConstructor;
-	CFunction* m_pDestructor;
-	CFunction* m_pStaticDestructor;
+	Function* m_preConstructor;
+	Function* m_constructor;
+	Function* m_defaultConstructor;
+	Function* m_staticConstructor;
+	Function* m_destructor;
+	Function* m_staticDestructor;
 
-	CFunction* m_pGetter;
-	CFunction* m_pSetter;
-	CFunction* m_pBinder;
+	Function* m_getter;
+	Function* m_setter;
+	Function* m_binder;
 
 	// member data is CStructField or CVariable
 	
-	CModuleItem* m_pOnChanged;
-	CModuleItem* m_pAutoGetValue;
+	ModuleItem* m_onChanged;
+	ModuleItem* m_autoGetValue;
 
 	// parent type
 
-	CNamedType* m_pParentType;
-	size_t m_ParentClassVTableIndex;
+	NamedType* m_parentType;
+	size_t m_parentClassVTableIndex;
 
-	rtl::CArrayT <CStructField*> m_MemberFieldConstructArray;
-	rtl::CArrayT <CStructField*> m_MemberFieldDestructArray;
-	rtl::CArrayT <CProperty*> m_MemberPropertyConstructArray;
-	rtl::CArrayT <CProperty*> m_MemberPropertyDestructArray;
+	rtl::Array <StructField*> m_memberFieldConstructArray;
+	rtl::Array <StructField*> m_memberFieldDestructArray;
+	rtl::Array <Property*> m_memberPropertyConstructArray;
+	rtl::Array <Property*> m_memberPropertyDestructArray;
 
 	// vtable
 
-	rtl::CArrayT <CFunction*> m_VTable;
-	CValue m_VTablePtrValue;
+	rtl::Array <Function*> m_VTable;
+	Value m_VTablePtrValue;
 
-	CPropertyVerifier m_Verifier;
+	PropertyVerifier m_verifier;
 
 public:
-	CProperty ();
+	Property ();
 
-	EProperty 
-	GetPropertyKind ()
+	PropertyKind 
+	getPropertyKind ()
 	{
-		return m_PropertyKind;
+		return m_propertyKind;
 	}
 
-	CPropertyType* 
-	GetType ()
+	PropertyType* 
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CFunction* 
-	GetPreConstructor ()
+	Function* 
+	getPreConstructor ()
 	{
-		return m_pPreConstructor;
+		return m_preConstructor;
 	}
 
-	CFunction* 
-	GetConstructor ()
+	Function* 
+	getConstructor ()
 	{
-		return m_pConstructor;
+		return m_constructor;
 	}
 
-	CFunction* 
-	GetStaticConstructor ()
+	Function* 
+	getStaticConstructor ()
 	{
-		return m_pStaticConstructor;
+		return m_staticConstructor;
 	}
 
-	CFunction* 
-	GetDefaultConstructor ();
+	Function* 
+	getDefaultConstructor ();
 
-	CFunction* 
-	GetDestructor ()
+	Function* 
+	getDestructor ()
 	{
-		return m_pDestructor;
+		return m_destructor;
 	}
 
-	CFunction* 
-	GetStaticDestructor ()
+	Function* 
+	getStaticDestructor ()
 	{
-		return m_pStaticDestructor;
+		return m_staticDestructor;
 	}
 
-	CFunction* 
-	GetGetter ()
+	Function* 
+	getGetter ()
 	{
-		return m_pGetter;
+		return m_getter;
 	}
 
-	CFunction* 
-	GetSetter ()
+	Function* 
+	getSetter ()
 	{
-		return m_pSetter;
+		return m_setter;
 	}
 
-	CFunction* 
-	GetBinder ()
+	Function* 
+	getBinder ()
 	{
-		return m_pBinder;
+		return m_binder;
 	}
 
-	CModuleItem*
-	GetOnChanged ()
+	ModuleItem*
+	getOnChanged ()
 	{
-		return m_pOnChanged;
-	}
-
-	bool
-	SetOnChanged (CModuleItem* pItem);
-
-	bool
-	CreateOnChanged ();
-
-	CModuleItem*
-	GetAutoGetValue ()
-	{
-		return m_pAutoGetValue;
+		return m_onChanged;
 	}
 
 	bool
-	SetAutoGetValue (CModuleItem* pItem); // struct-field or variable
+	setOnChanged (ModuleItem* item);
 
 	bool
-	CreateAutoGetValue (CType* pType);
+	createOnChanged ();
 
-	CNamedType* 
-	GetParentType ()
+	ModuleItem*
+	getAutoGetValue ()
 	{
-		return m_pParentType;
+		return m_autoGetValue;
 	}
 
 	bool
-	IsMember ()
+	setAutoGetValue (ModuleItem* item); // struct-field or variable
+
+	bool
+	createAutoGetValue (Type* type);
+
+	NamedType* 
+	getParentType ()
 	{
-		return m_StorageKind >= EStorage_Member && m_StorageKind <= EStorage_Override;
+		return m_parentType;
 	}
 
 	bool
-	IsVirtual ()
+	isMember ()
 	{
-		return m_StorageKind >= EStorage_Abstract && m_StorageKind <= EStorage_Override;
+		return m_storageKind >= StorageKind_Member && m_storageKind <= StorageKind_Override;
+	}
+
+	bool
+	isVirtual ()
+	{
+		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
 	size_t 
-	GetParentClassVTableIndex ()
+	getParentClassVTableIndex ()
 	{
-		return m_ParentClassVTableIndex;
+		return m_parentClassVTableIndex;
 	}
 
 	bool
-	Create (CPropertyType* pType);
+	create (PropertyType* type);
 
 	void
-	ConvertToMemberProperty (CNamedType* pParentType);
+	convertToMemberProperty (NamedType* parentType);
 
-	CStructField*
-	CreateField (
-		const rtl::CString& Name,
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0,
-		rtl::CBoxListT <CToken>* pConstructor = NULL,
-		rtl::CBoxListT <CToken>* pInitializer = NULL
+	StructField*
+	createField (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
 		);
 
-	CStructField*
-	CreateField (
-		CType* pType,
-		size_t BitCount = 0,
-		uint_t PtrTypeFlags = 0
+	StructField*
+	createField (
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0
 		)
 	{
-		return CreateField (rtl::CString (), pType, BitCount, PtrTypeFlags);
+		return createField (rtl::String (), type, bitCount, ptrTypeFlags);
 	}
 
 	bool
-	AddMethod (CFunction* pFunction);
+	addMethod (Function* function);
 
 	bool
-	AddProperty (CProperty* pProperty);
+	addProperty (Property* prop);
 
 	bool
-	CallMemberFieldConstructors (const CValue& ThisValue);
+	callMemberFieldConstructors (const Value& thisValue);
 
 	bool
-	CallMemberPropertyConstructors (const CValue& ThisValue);
+	callMemberPropertyConstructors (const Value& thisValue);
 
 	bool
-	CallMemberDestructors (const CValue& ThisValue);
+	callMemberDestructors (const Value& thisValue);
 
-	CValue
-	GetVTablePtrValue ()
+	Value
+	getVTablePtrValue ()
 	{
 		return m_VTablePtrValue;
 	}
 
 	virtual 
 	bool
-	Compile ();
+	compile ();
 
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	void
-	CreateVTablePtr ();
+	createVTablePtr ();
 
-	CValue
-	GetAutoAccessorPropertyValue ();
-
-	bool 
-	CompileAutoGetter ();
+	Value
+	getAutoAccessorPropertyValue ();
 
 	bool 
-	CompileAutoSetter ();
+	compileAutoGetter ();
 
 	bool 
-	CompileBinder ();
+	compileAutoSetter ();
+
+	bool 
+	compileBinder ();
 
 	bool
-	CallMemberFieldDestructors (const CValue& ThisValue);
+	callMemberFieldDestructors (const Value& thisValue);
 
 	bool
-	CallMemberPropertyDestructors (const CValue& ThisValue);
+	callMemberPropertyDestructors (const Value& thisValue);
 };
 
 //.............................................................................

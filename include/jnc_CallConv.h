@@ -11,7 +11,7 @@
 
 namespace jnc {
 
-class CFunctionType;
+class FunctionType;
 
 //.............................................................................
 
@@ -19,188 +19,188 @@ class CFunctionType;
 // - arrays are passed by value (like if it were wrapped in a struct)
 // - varargs are wrapped into variants and prepended with vararg count
 
-enum ECallConv
+enum CallConvKind
 {
-	ECallConv_Undefined = 0,
-	ECallConv_Jnccall_msc32,
-	ECallConv_Jnccall_msc64,
-	ECallConv_Jnccall_gcc32,
-	ECallConv_Jnccall_gcc64,
-	ECallConv_Cdecl_msc32,
-	ECallConv_Cdecl_msc64,
-	ECallConv_Cdecl_gcc32,
-	ECallConv_Cdecl_gcc64,
-	ECallConv_Stdcall_msc32,
-	ECallConv_Stdcall_gcc32,
-	ECallConv_Thiscall_msc32,
-	ECallConv__Count,
+	CallConvKind_Undefined = 0,
+	CallConvKind_Jnccall_msc32,
+	CallConvKind_Jnccall_msc64,
+	CallConvKind_Jnccall_gcc32,
+	CallConvKind_Jnccall_gcc64,
+	CallConvKind_Cdecl_msc32,
+	CallConvKind_Cdecl_msc64,
+	CallConvKind_Cdecl_gcc32,
+	CallConvKind_Cdecl_gcc64,
+	CallConvKind_Stdcall_msc32,
+	CallConvKind_Stdcall_gcc32,
+	CallConvKind_Thiscall_msc32,
+	CallConvKind__Count,
 
 #if (_AXL_CPP == AXL_CPP_MSC)
 #	if (_AXL_CPU == AXL_CPU_AMD64)
-	ECallConv_Jnccall  = ECallConv_Jnccall_msc64,
-	ECallConv_Cdecl    = ECallConv_Cdecl_msc64,
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_msc64,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_msc64,
 #	else
-	ECallConv_Jnccall  = ECallConv_Jnccall_msc32,
-	ECallConv_Cdecl    = ECallConv_Cdecl_msc32,
-	ECallConv_Stdcall  = ECallConv_Stdcall_msc32,
-	ECallConv_Thiscall = ECallConv_Thiscall_msc32,
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_msc32,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_msc32,
+	CallConvKind_Stdcall  = CallConvKind_Stdcall_msc32,
+	CallConvKind_Thiscall = CallConvKind_Thiscall_msc32,
 #	endif
 #else
 #	if (_AXL_CPU == AXL_CPU_AMD64)
-	ECallConv_Jnccall  = ECallConv_Jnccall_gcc64,
-	ECallConv_Cdecl    = ECallConv_Cdecl_gcc64,
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_gcc64,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_gcc64,
 #	else
-	ECallConv_Jnccall  = ECallConv_Jnccall_gcc32,
-	ECallConv_Cdecl    = ECallConv_Cdecl_gcc32,
-	ECallConv_Stdcall  = ECallConv_Stdcall_gcc32,
-	ECallConv_Thiscall = ECallConv_Cdecl_gcc32,
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_gcc32,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_gcc32,
+	CallConvKind_Stdcall  = CallConvKind_Stdcall_gcc32,
+	CallConvKind_Thiscall = CallConvKind_Cdecl_gcc32,
 #	endif
 #endif
 
-	ECallConv_Default = ECallConv_Jnccall,
+	CallConvKind_Default = CallConvKind_Jnccall,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ECallConvFlag
+enum CallConvFlagKind
 {
 	// vararg
 
-	ECallConvFlag_NoVarArg     = 0x0001,
-	ECallConvFlag_UnsafeVarArg = 0x0002,
+	CallConvFlagKind_NoVarArg     = 0x0001,
+	CallConvFlagKind_UnsafeVarArg = 0x0002,
 
 	// family
 
-	ECallConvFlag_Jnccall      = 0x0010,
-	ECallConvFlag_Cdecl        = 0x0020,
-	ECallConvFlag_Stdcall      = 0x0040,
+	CallConvFlagKind_Jnccall      = 0x0010,
+	CallConvFlagKind_Cdecl        = 0x0020,
+	CallConvFlagKind_Stdcall      = 0x0040,
 
 	// compiler
 
-	ECallConvFlag_Msc          = 0x0100,
-	ECallConvFlag_Gcc          = 0x0200,
+	CallConvFlagKind_Msc          = 0x0100,
+	CallConvFlagKind_Gcc          = 0x0200,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::CallingConv::ID
-GetLlvmCallConv (ECallConv CallConvKind);
+getLlvmCallConv (CallConvKind callConvKind);
 
 uint_t
-GetCallConvFlags (ECallConv CallConvKind);
+getCallConvFlags (CallConvKind callConvKind);
 
 const char*
-GetCallConvString (ECallConv CallConvKind);
+getCallConvString (CallConvKind callConvKind);
 
 const char*
-GetCallConvDisplayString (ECallConv CallConvKind);
+getCallConvDisplayString (CallConvKind callConvKind);
 
 const char*
-GetCallConvSignature (ECallConv CallConvKind);
+getCallConvSignature (CallConvKind callConvKind);
 
-ECallConv
-GetCallConvKindFromModifiers (uint_t Modifiers);
+CallConvKind
+getCallConvKindFromModifiers (uint_t modifiers);
 
 //.............................................................................
 
-class CCallConv
+class CallConv
 {
 protected:
-	CModule* m_pModule;
-	ECallConv m_CallConvKind;
+	Module* m_module;
+	CallConvKind m_callConvKind;
 
 public:
-	CCallConv ();
+	CallConv ();
 
-	ECallConv
-	GetCallConvKind ()
+	CallConvKind
+	getCallConvKind ()
 	{
-		return m_CallConvKind;
+		return m_callConvKind;
 	}
 
 	uint_t
-	GetFlags ()
+	getFlags ()
 	{
-		return jnc::GetCallConvFlags (m_CallConvKind);
+		return jnc::getCallConvFlags (m_callConvKind);
 	}
 
 	llvm::CallingConv::ID
-	GetLlvmCallConv ()
+	getLlvmCallConv ()
 	{
-		return jnc::GetLlvmCallConv (m_CallConvKind);
+		return jnc::getLlvmCallConv (m_callConvKind);
 	}
 
 	const char*
-	GetCallConvString ()
+	getCallConvString ()
 	{
-		return jnc::GetCallConvString (m_CallConvKind);
+		return jnc::getCallConvString (m_callConvKind);
 	}
 
 	const char*
-	GetCallConvDisplayString ()
+	getCallConvDisplayString ()
 	{
-		return jnc::GetCallConvDisplayString (m_CallConvKind);
+		return jnc::getCallConvDisplayString (m_callConvKind);
 	}
 
 	bool
-	IsDefault ()
+	isDefault ()
 	{
-		return m_CallConvKind == ECallConv_Default;
+		return m_callConvKind == CallConvKind_Default;
 	}
 
 	virtual
 	llvm::FunctionType*
-	GetLlvmFunctionType (CFunctionType* pFunctionType);
+	getLlvmFunctionType (FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	CreateLlvmFunction (
-		CFunctionType* pFunctionType,
-		const char* pTag
+	createLlvmFunction (
+		FunctionType* functionType,
+		const char* tag
 		);
 
 	virtual
 	void
-	Call (
-		const CValue& CalleeValue,
-		CFunctionType* pFunctionType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	call (
+		const Value& calleeValue,
+		FunctionType* functionType,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	virtual
 	void
-	Return (
-		CFunction* pFunction,
-		const CValue& Value
+	ret (
+		Function* function,
+		const Value& value
 		);
 
 	virtual
-	CValue
-	GetThisArgValue (CFunction* pFunction);
+	Value
+	getThisArgValue (Function* function);
 
 	virtual
-	CValue
-	GetArgValue (
-		CFunctionArg* pArg,
-		llvm::Value* pLlvmValue
+	Value
+	getArgValue (
+		FunctionArg* arg,
+		llvm::Value* llvmValue
 		)
 	{
-		return CValue (pLlvmValue, pArg->GetType ());
+		return Value (llvmValue, arg->getType ());
 	}
 
 	virtual
 	void
-	CreateArgVariables (CFunction* pFunction)
+	createArgVariables (Function* function)
 	{
-		CreateArgVariablesImpl (pFunction, 0);
+		createArgVariablesImpl (function, 0);
 	}
 
 protected:
 	void
-	CreateArgVariablesImpl (
-		CFunction* pFunction,
-		size_t BaseLlvmArgIdx = 0
+	createArgVariablesImpl (
+		Function* function,
+		size_t baseLlvmArgIdx = 0
 		);
 };
 

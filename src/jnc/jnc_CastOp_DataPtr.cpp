@@ -6,493 +6,495 @@ namespace jnc {
 
 //.............................................................................
 
-ECast
-CCast_DataPtr_FromArray::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_DataPtr_FromArray::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	if (IsArrayRefType (OpValue.GetType ()))
+	if (isArrayRefType (opValue.getType ()))
 	{
-		CValue PtrValue = m_pModule->m_OperatorMgr.PrepareOperandType (OpValue, EOpFlag_ArrayRefToPtr);
-		return m_pModule->m_OperatorMgr.GetCastKind (PtrValue, pType);
+		Value ptrValue = m_module->m_operatorMgr.prepareOperandType (opValue, OpFlagKind_ArrayRefToPtr);
+		return m_module->m_operatorMgr.getCastKind (ptrValue, type);
 	}
 
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Array);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Array);
 
-	CArrayType* pSrcType = (CArrayType*) OpValue.GetType ();	
-	CDataPtrType* pDstType = (CDataPtrType*) pType;
+	ArrayType* srcType = (ArrayType*) opValue.getType ();	
+	DataPtrType* dstType = (DataPtrType*) type;
 
-	CType* pArrayElementType = pSrcType->GetElementType ();
-	CType* pPtrDataType = pDstType->GetTargetType ();
+	Type* arrayElementType = srcType->getElementType ();
+	Type* ptrDataType = dstType->getTargetType ();
 
 	return
-		pArrayElementType->Cmp (pPtrDataType) == 0 ? ECast_Implicit :
-		(pArrayElementType->GetFlags () & ETypeFlag_Pod) ?
-			pPtrDataType->GetTypeKind () == EType_Void ? ECast_Implicit :
-			(pPtrDataType->GetFlags () & ETypeFlag_Pod) ? ECast_Explicit : ECast_None : ECast_None;
+		arrayElementType->cmp (ptrDataType) == 0 ? CastKind_Implicit :
+		(arrayElementType->getFlags () & TypeFlagKind_Pod) ?
+			ptrDataType->getTypeKind () == TypeKind_Void ? CastKind_Implicit :
+			(ptrDataType->getFlags () & TypeFlagKind_Pod) ? CastKind_Explicit : CastKind_None : CastKind_None;
 }
 
 bool
-CCast_DataPtr_FromArray::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_DataPtr_FromArray::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Array);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Array);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	CArrayType* pSrcType = (CArrayType*) OpValue.GetType ();
-	CDataPtrType* pDstType = (CDataPtrType*) pType;
+	ArrayType* srcType = (ArrayType*) opValue.getType ();
+	DataPtrType* dstType = (DataPtrType*) type;
 
-	const CValue& SavedOpValue = m_pModule->m_ConstMgr.SaveValue (OpValue);
-	void* p = SavedOpValue.GetConstData ();
+	const Value& savedOpValue = m_module->m_constMgr.saveValue (opValue);
+	void* p = savedOpValue.getConstData ();
 
 	// #pragma AXL_TODO ("create a global constant holding the array")
 
-	if (pDstType->GetPtrTypeKind () == EDataPtrType_Normal)
+	if (dstType->getPtrTypeKind () == DataPtrTypeKind_Normal)
 	{
-		TDataPtr* pPtr = (TDataPtr*) pDst;
-		pPtr->m_p = p;
-		pPtr->m_pRangeBegin = p;
-		pPtr->m_pRangeEnd = (char*) p + pSrcType->GetSize ();
-		pPtr->m_pObject = GetStaticObjHdr ();
+		DataPtr* ptr = (DataPtr*) dst;
+		ptr->m_p = p;
+		ptr->m_rangeBegin = p;
+		ptr->m_rangeEnd = (char*) p + srcType->getSize ();
+		ptr->m_object = getStaticObjHdr ();
 	}
 	else // thin or lean
 	{
-		*(void**) pDst = p;
+		*(void**) dst = p;
 	}
 
 	return true;
 }
 
 bool
-CCast_DataPtr_FromArray::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_DataPtr_FromArray::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	if (IsArrayRefType (OpValue.GetType ()))
+	if (isArrayRefType (opValue.getType ()))
 	{
-		CValue PtrValue;
+		Value ptrValue;
 
 		return 
-			m_pModule->m_OperatorMgr.PrepareOperand (OpValue, &PtrValue, EOpFlag_ArrayRefToPtr) &&
-			m_pModule->m_OperatorMgr.CastOperator (PtrValue, pType, pResultValue);
+			m_module->m_operatorMgr.prepareOperand (opValue, &ptrValue, OpFlagKind_ArrayRefToPtr) &&
+			m_module->m_operatorMgr.castOperator (ptrValue, type, resultValue);
 	}
 
-	err::SetFormatStringError ("casting from array to pointer is currently only implemented for constants");
+	err::setFormatStringError ("casting from array to pointer is currently only implemented for constants");
 	return false;
 }
 
 //.............................................................................
 
-ECast
-CCast_DataPtr_Base::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_DataPtr_Base::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr && pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr && type->getTypeKind () == TypeKind_DataPtr);
 
-	CDataPtrType* pSrcType = (CDataPtrType*) OpValue.GetType ();
-	CDataPtrType* pDstType = (CDataPtrType*) pType;
-	CType* pSrcDataType = pSrcType->GetTargetType ();
-	CType* pDstDataType = pDstType->GetTargetType ();
+	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
+	DataPtrType* dstType = (DataPtrType*) type;
+	Type* srcDataType = srcType->getTargetType ();
+	Type* dstDataType = dstType->getTargetType ();
 
-	if (pSrcType->IsConstPtrType () && !pDstType->IsConstPtrType ())
-		return ECast_None; // const vs non-const mismatch
+	if (srcType->isConstPtrType () && !dstType->isConstPtrType ())
+		return CastKind_None; // const vs non-const mismatch
 
 #pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
 #if 0
-	if ((pDstDataType->GetFlags () & ETypeFlag_Pod) != (pSrcDataType->GetFlags () & ETypeFlag_Pod))
-		return ECast_None; // pod vs non-pod mismatch
+	if ((dstDataType->getFlags () & TypeFlagKind_Pod) != (srcDataType->getFlags () & TypeFlagKind_Pod))
+		return CastKind_None; // pod vs non-pod mismatch
 #endif
 
-	if (pSrcDataType->Cmp (pDstDataType) == 0 || pDstDataType->GetTypeKind () == EType_Void)
-		return ECast_Implicit;
+	if (srcDataType->cmp (dstDataType) == 0 || dstDataType->getTypeKind () == TypeKind_Void)
+		return CastKind_Implicit;
 
-	if (pSrcDataType->GetTypeKind () != EType_Struct)
-		return ECast_Explicit;
+	if (srcDataType->getTypeKind () != TypeKind_Struct)
+		return CastKind_Explicit;
 
-	return ((CStructType*) pSrcDataType)->FindBaseTypeTraverse (pDstDataType) ?
-		ECast_Implicit :
-		ECast_Explicit;
+	return ((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType) ?
+		CastKind_Implicit :
+		CastKind_Explicit;
 }
 
 intptr_t
-CCast_DataPtr_Base::GetOffset (
-	CDataPtrType* pSrcType,
-	CDataPtrType* pDstType,
-	CBaseTypeCoord* pCoord
+Cast_DataPtr_Base::getOffset (
+	DataPtrType* srcType,
+	DataPtrType* dstType,
+	BaseTypeCoord* coord
 	)
 {
-	CType* pSrcDataType = pSrcType->GetTargetType ();
-	CType* pDstDataType = pDstType->GetTargetType ();
+	Type* srcDataType = srcType->getTargetType ();
+	Type* dstDataType = dstType->getTargetType ();
 
-	if (pSrcDataType->Cmp (pDstDataType) == 0 ||
-		pSrcDataType->GetTypeKind () != EType_Struct ||
-		pDstDataType->GetTypeKind () != EType_Struct)
+	if (srcDataType->cmp (dstDataType) == 0 ||
+		srcDataType->getTypeKind () != TypeKind_Struct ||
+		dstDataType->getTypeKind () != TypeKind_Struct)
 	{
 		return 0;
 	}
 
-	CStructType* pSrcStructType = (CStructType*) pSrcDataType;
-	CStructType* pDstStructType = (CStructType*) pDstDataType;
+	StructType* srcStructType = (StructType*) srcDataType;
+	StructType* dstStructType = (StructType*) dstDataType;
 
-	if (pSrcStructType->FindBaseTypeTraverse (pDstStructType, pCoord))
-		return pCoord->m_Offset;
+	if (srcStructType->findBaseTypeTraverse (dstStructType, coord))
+		return coord->m_offset;
 
-	CBaseTypeCoord Coord;
-	if (pDstStructType->FindBaseTypeTraverse (pSrcStructType, &Coord))
-		return -Coord.m_Offset;
+	#pragma AXL_TODO ("safe upcasts")
+
+	BaseTypeCoord upcastCoord;
+	if (dstStructType->findBaseTypeTraverse (srcStructType, &upcastCoord))
+		return -upcastCoord.m_offset;
 
 	return 0;
 }
 
 intptr_t
-CCast_DataPtr_Base::GetOffsetUnsafePtrValue (
-	const CValue& PtrValue,
-	CDataPtrType* pSrcType,
-	CDataPtrType* pDstType,
-	CValue* pResultValue
+Cast_DataPtr_Base::getOffsetUnsafePtrValue (
+	const Value& ptrValue,
+	DataPtrType* srcType,
+	DataPtrType* dstType,
+	Value* resultValue
 	)
 {
-	CBaseTypeCoord Coord;
-	intptr_t Offset = GetOffset (pSrcType, pDstType, &Coord);
+	BaseTypeCoord coord;
+	intptr_t offset = getOffset (srcType, dstType, &coord);
 
-	if (!Coord.m_LlvmIndexArray.IsEmpty ())
+	if (!coord.m_llvmIndexArray.isEmpty ())
 	{
-		Coord.m_LlvmIndexArray.Insert (0, 0);
-		m_pModule->m_LlvmIrBuilder.CreateGep (
-			PtrValue,
-			Coord.m_LlvmIndexArray,
-			Coord.m_LlvmIndexArray.GetCount (),
-			pDstType,
-			pResultValue
+		coord.m_llvmIndexArray.insert (0, 0);
+		m_module->m_llvmIrBuilder.createGep (
+			ptrValue,
+			coord.m_llvmIndexArray,
+			coord.m_llvmIndexArray.getCount (),
+			dstType,
+			resultValue
 			);
 
-		return Offset;
+		return offset;
 	}
 
-	if (!Offset)
+	if (!offset)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pDstType, pResultValue);
-		return Offset;
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, dstType, resultValue);
+		return offset;
 	}
 
-	ASSERT (Offset < 0);
+	ASSERT (offset < 0);
 
-	CValue BytePtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr), &BytePtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateGep (BytePtrValue, (int32_t) Offset, NULL, &BytePtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (BytePtrValue, pDstType, pResultValue);
-	return Offset;
+	Value bytePtrValue;
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &bytePtrValue);
+	m_module->m_llvmIrBuilder.createGep (bytePtrValue, (int32_t) offset, NULL, &bytePtrValue);
+	m_module->m_llvmIrBuilder.createBitCast (bytePtrValue, dstType, resultValue);
+	return offset;
 }
 
 //.............................................................................
 
 bool
-CCast_DataPtr_Normal2Normal::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_DataPtr_Normal2Normal::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t Offset = GetOffset ((CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, NULL);
+	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
 
-	TDataPtr* pDstPtr = (TDataPtr*) pDst;
-	TDataPtr* pSrcPtr = (TDataPtr*) OpValue.GetConstData ();
-	pDstPtr->m_p = (char*) pSrcPtr->m_p + Offset;
-	pDstPtr->m_pRangeBegin = pSrcPtr->m_pRangeBegin;
-	pDstPtr->m_pRangeEnd = pSrcPtr->m_pRangeEnd;
-	pDstPtr->m_pObject = pSrcPtr->m_pObject;
+	DataPtr* dstPtr = (DataPtr*) dst;
+	DataPtr* srcPtr = (DataPtr*) opValue.getConstData ();
+	dstPtr->m_p = (char*) srcPtr->m_p + offset;
+	dstPtr->m_rangeBegin = srcPtr->m_rangeBegin;
+	dstPtr->m_rangeEnd = srcPtr->m_rangeEnd;
+	dstPtr->m_object = srcPtr->m_object;
 	return true;
 }
 
 bool
-CCast_DataPtr_Normal2Normal::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_DataPtr_Normal2Normal::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	if (pType->GetFlags () & EPtrTypeFlag_Safe)
-		m_pModule->m_OperatorMgr.CheckDataPtrRange (OpValue);
+	if (type->getFlags () & PtrTypeFlagKind_Safe)
+		m_module->m_operatorMgr.checkDataPtrRange (opValue);
 
-	CValue PtrValue;
-	CValue RangeBeginValue;
-	CValue RangeEndValue;
-	CValue ScopeLevelValue;
+	Value ptrValue;
+	Value rangeBeginValue;
+	Value rangeEndValue;
+	Value scopeLevelValue;
 
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, NULL, &PtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 1, NULL, &RangeBeginValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 2, NULL, &RangeEndValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 3, NULL, &ScopeLevelValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, NULL, &rangeBeginValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 2, NULL, &rangeEndValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 3, NULL, &scopeLevelValue);
 
-	CDataPtrType* pUnsafePtrType = ((CDataPtrType*) pType)->GetTargetType ()->GetDataPtrType_c ();
-	GetOffsetUnsafePtrValue (PtrValue, (CDataPtrType*) OpValue.GetType (), pUnsafePtrType, &PtrValue);
+	DataPtrType* unsafePtrType = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c ();
+	getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), unsafePtrType, &ptrValue);
 
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "create safe data pointer");
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
 
-	CValue ResultValue = pType->GetUndefValue ();
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, PtrValue, 0, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, RangeBeginValue, 1, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, RangeEndValue, 2, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, ScopeLevelValue, 3, pType, pResultValue);
-	return true;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bool
-CCast_DataPtr_Lean2Normal::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
-	)
-{
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
-
-	EDataPtrType SrcPtrTypeKind = ((CDataPtrType*) OpValue.GetType ())->GetPtrTypeKind ();
-	ASSERT (SrcPtrTypeKind == EDataPtrType_Lean);
-
-	intptr_t Offset = GetOffset ((CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, NULL);
-
-	TDataPtr* pDstPtr = (TDataPtr*) pDst;
-	const void* pSrc = OpValue.GetConstData ();
-
-	pDstPtr->m_p = (char*) pSrc + Offset;
-	pDstPtr->m_pRangeBegin = NULL;
-	pDstPtr->m_pRangeEnd = (void*) -1;
-	pDstPtr->m_pObject = GetStaticObjHdr ();
-	return true;
-}
-
-bool
-CCast_DataPtr_Lean2Normal::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
-	)
-{
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
-
-	EDataPtrType SrcPtrTypeKind = ((CDataPtrType*) OpValue.GetType ())->GetPtrTypeKind ();
-	ASSERT (SrcPtrTypeKind == EDataPtrType_Lean);
-
-	CValue PtrValue;
-	CDataPtrType* pUnsafePtrType = ((CDataPtrType*) pType)->GetTargetType ()->GetDataPtrType_c ();
-	GetOffsetUnsafePtrValue (OpValue, (CDataPtrType*) OpValue.GetType (), pUnsafePtrType, &PtrValue);
-
-	CValue RangeBeginValue;
-	CValue RangeEndValue;
-	CValue ObjHdrValue;
-
-	m_pModule->m_OperatorMgr.GetLeanDataPtrRange (OpValue, &RangeBeginValue, &RangeEndValue);
-
-	if (pType->GetFlags () & EPtrTypeFlag_Safe)
-		m_pModule->m_OperatorMgr.CheckDataPtrRange (OpValue);
-
-	m_pModule->m_OperatorMgr.GetLeanDataPtrObjHdr (OpValue, &ObjHdrValue);
-
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "create safe data pointer");
-
-	CValue ResultValue = pType->GetUndefValue ();
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, PtrValue, 0, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, RangeBeginValue, 1, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, RangeEndValue, 2, NULL, &ResultValue);
-	m_pModule->m_LlvmIrBuilder.CreateInsertValue (ResultValue, ObjHdrValue, 3, pType, pResultValue);
+	Value tmpValue = type->getUndefValue ();
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, ptrValue, 0, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeBeginValue, 1, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeEndValue, 2, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, scopeLevelValue, 3, type, resultValue);
 	return true;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CCast_DataPtr_Normal2Thin::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_DataPtr_Lean2Normal::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t Offset = GetOffset ((CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, NULL);
-	*(char**) pDst = *(char**) OpValue.GetConstData () + Offset;
+	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
+	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
+
+	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+
+	DataPtr* dstPtr = (DataPtr*) dst;
+	const void* src = opValue.getConstData ();
+
+	dstPtr->m_p = (char*) src + offset;
+	dstPtr->m_rangeBegin = NULL;
+	dstPtr->m_rangeEnd = (void*) -1;
+	dstPtr->m_object = getStaticObjHdr ();
 	return true;
 }
 
 bool
-CCast_DataPtr_Normal2Thin::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_DataPtr_Lean2Normal::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, NULL, &PtrValue);
-	GetOffsetUnsafePtrValue (PtrValue, (CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, pResultValue);
+	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
+	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
+
+	Value ptrValue;
+	DataPtrType* unsafePtrType = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c ();
+	getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), unsafePtrType, &ptrValue);
+
+	Value rangeBeginValue;
+	Value rangeEndValue;
+	Value objHdrValue;
+
+	m_module->m_operatorMgr.getLeanDataPtrRange (opValue, &rangeBeginValue, &rangeEndValue);
+
+	if (type->getFlags () & PtrTypeFlagKind_Safe)
+		m_module->m_operatorMgr.checkDataPtrRange (opValue);
+
+	m_module->m_operatorMgr.getLeanDataPtrObjHdr (opValue, &objHdrValue);
+
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
+
+	Value tmpValue = type->getUndefValue ();
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, ptrValue, 0, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeBeginValue, 1, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeEndValue, 2, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, objHdrValue, 3, type, resultValue);
 	return true;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CCast_DataPtr_Lean2Thin::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_DataPtr_Normal2Thin::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	GetOffsetUnsafePtrValue (OpValue, (CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, pResultValue);
+	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	*(char**) dst = *(char**) opValue.getConstData () + offset;
+	return true;
+}
+
+bool
+Cast_DataPtr_Normal2Thin::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+	getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
 	return true;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CCast_DataPtr_Thin2Thin::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_DataPtr_Lean2Thin::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t Offset = GetOffset ((CDataPtrType*) OpValue.GetType (), (CDataPtrType*) pType, NULL);
-	*(char**) pDst = *(char**) OpValue.GetConstData () + Offset;
+	getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
+	return true;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+Cast_DataPtr_Thin2Thin::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	*(char**) dst = *(char**) opValue.getConstData () + offset;
 	return true;
 }
 
 //.............................................................................
 
-CCast_DataPtr::CCast_DataPtr ()
+Cast_DataPtr::Cast_DataPtr ()
 {
-	memset (m_OperatorTable, 0, sizeof (m_OperatorTable));
+	memset (m_operatorTable, 0, sizeof (m_operatorTable));
 
-	m_OperatorTable [EDataPtrType_Normal] [EDataPtrType_Normal] = &m_Normal2Normal;
-	m_OperatorTable [EDataPtrType_Normal] [EDataPtrType_Thin]   = &m_Normal2Thin;
-	m_OperatorTable [EDataPtrType_Lean] [EDataPtrType_Normal]   = &m_Lean2Normal;
-	m_OperatorTable [EDataPtrType_Lean] [EDataPtrType_Thin]     = &m_Lean2Thin;
-	m_OperatorTable [EDataPtrType_Thin] [EDataPtrType_Thin]     = &m_Thin2Thin;
+	m_operatorTable [DataPtrTypeKind_Normal] [DataPtrTypeKind_Normal] = &m_normal2Normal;
+	m_operatorTable [DataPtrTypeKind_Normal] [DataPtrTypeKind_Thin]   = &m_normal2Thin;
+	m_operatorTable [DataPtrTypeKind_Lean] [DataPtrTypeKind_Normal]   = &m_lean2Normal;
+	m_operatorTable [DataPtrTypeKind_Lean] [DataPtrTypeKind_Thin]     = &m_lean2Thin;
+	m_operatorTable [DataPtrTypeKind_Thin] [DataPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
-CCastOperator*
-CCast_DataPtr::GetCastOperator (
-	const CValue& OpValue,
-	CType* pType
+CastOperator*
+Cast_DataPtr::getCastOperator (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	CDataPtrType* pDstPtrType = (CDataPtrType*) pType;
-	EDataPtrType DstPtrTypeKind = pDstPtrType->GetPtrTypeKind ();
+	DataPtrType* dstPtrType = (DataPtrType*) type;
+	DataPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind ();
 
-	CType* pSrcType = OpValue.GetType ();
-	EType SrcTypeKind = pSrcType->GetTypeKind ();
+	Type* srcType = opValue.getType ();
+	TypeKind srcTypeKind = srcType->getTypeKind ();
 
-	if (IsArrayRefType (pSrcType) || SrcTypeKind == EType_Array)
+	if (isArrayRefType (srcType) || srcTypeKind == TypeKind_Array)
 	{
-		return &m_FromArray;
+		return &m_fromArray;
 	}
-	else if (SrcTypeKind != EType_DataPtr)
+	else if (srcTypeKind != TypeKind_DataPtr)
 	{
 		return NULL;
 	}
 
-	CDataPtrType* pSrcPtrType = (CDataPtrType*) pSrcType;
-	EDataPtrType SrcPtrTypeKind = pSrcPtrType->GetPtrTypeKind ();
+	DataPtrType* srcPtrType = (DataPtrType*) srcType;
+	DataPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind ();
 
-	if (DstPtrTypeKind == EDataPtrType_Normal)
+	if (dstPtrTypeKind == DataPtrTypeKind_Normal)
 	{
 #pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
 #if 0
-		if ((pSrcPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod) !=
-			(pDstPtrType->GetTargetType ()->GetFlags () & ETypeFlag_Pod))
+		if ((srcPtrType->getTargetType ()->getFlags () & TypeFlagKind_Pod) !=
+			(dstPtrType->getTargetType ()->getFlags () & TypeFlagKind_Pod))
 			return NULL;
 #endif
 
-		if (pSrcPtrType->IsConstPtrType () && !pDstPtrType->IsConstPtrType ())
+		if (srcPtrType->isConstPtrType () && !dstPtrType->isConstPtrType ())
 			return NULL;
 	}
 
-	ASSERT ((size_t) SrcPtrTypeKind < EDataPtrType__Count);
-	ASSERT ((size_t) DstPtrTypeKind < EDataPtrType__Count);
+	ASSERT ((size_t) srcPtrTypeKind < DataPtrTypeKind__Count);
+	ASSERT ((size_t) dstPtrTypeKind < DataPtrTypeKind__Count);
 
-	return m_OperatorTable [SrcPtrTypeKind] [DstPtrTypeKind];
+	return m_operatorTable [srcPtrTypeKind] [dstPtrTypeKind];
 }
 
 //.............................................................................
 
-ECast
-CCast_DataRef::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_DataRef::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_DataRef);
+	ASSERT (type->getTypeKind () == TypeKind_DataRef);
 
-	CType* pIntermediateSrcType = m_pModule->m_OperatorMgr.GetUnaryOperatorResultType (EUnOp_Addr, OpValue);
-	if (!pIntermediateSrcType)
-		return ECast_None;
+	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, opValue);
+	if (!intermediateSrcType)
+		return CastKind_None;
 
-	CDataPtrType* pPtrType = (CDataPtrType*) pType;
-	CDataPtrType* pIntermediateDstType = pPtrType->GetTargetType ()->GetDataPtrType (
-		EType_DataPtr,
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	DataPtrType* ptrType = (DataPtrType*) type;
+	DataPtrType* intermediateDstType = ptrType->getTargetType ()->getDataPtrType (
+		TypeKind_DataPtr,
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 
-	return m_pModule->m_OperatorMgr.GetCastKind (pIntermediateSrcType, pIntermediateDstType);
+	return m_module->m_operatorMgr.getCastKind (intermediateSrcType, intermediateDstType);
 }
 
 bool
-CCast_DataRef::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_DataRef::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	ASSERT (pType->GetTypeKind () == EType_DataRef);
+	ASSERT (type->getTypeKind () == TypeKind_DataRef);
 
-	CDataPtrType* pPtrType = (CDataPtrType*) pType;
-	CDataPtrType* pIntermediateType = pPtrType->GetTargetType ()->GetDataPtrType (
-		EType_DataPtr,
-		pPtrType->GetPtrTypeKind (),
-		pPtrType->GetFlags ()
+	DataPtrType* ptrType = (DataPtrType*) type;
+	DataPtrType* intermediateType = ptrType->getTargetType ()->getDataPtrType (
+		TypeKind_DataPtr,
+		ptrType->getPtrTypeKind (),
+		ptrType->getFlags ()
 		);
 
-	CValue IntermediateValue;
+	Value intermediateValue;
 
 	return
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Addr, OpValue, &IntermediateValue) &&
-		m_pModule->m_OperatorMgr.CastOperator (&IntermediateValue, pIntermediateType) &&
-		m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Indir, IntermediateValue, pResultValue);
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, opValue, &intermediateValue) &&
+		m_module->m_operatorMgr.castOperator (&intermediateValue, intermediateType) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
 }
 
 //.............................................................................

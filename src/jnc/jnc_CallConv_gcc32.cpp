@@ -7,125 +7,125 @@ namespace jnc {
 //.............................................................................
 
 llvm::FunctionType*
-CCallConv_gcc32::GetLlvmFunctionType (CFunctionType* pFunctionType)
+CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
 {
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
-		return CCallConv::GetLlvmFunctionType (pFunctionType);
+	Type* returnType = functionType->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+		return CallConv::getLlvmFunctionType (functionType);
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount () + 1;
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+	size_t argCount = argArray.getCount () + 1;
 
-	char Buffer [256];
-	rtl::CArrayT <llvm::Type*> LlvmArgTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmArgTypeArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <llvm::Type*> llvmArgTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmArgTypeArray.setCount (argCount);
 
-	LlvmArgTypeArray [0] = pReturnType->GetDataPtrType_c ()->GetLlvmType ();
+	llvmArgTypeArray [0] = returnType->getDataPtrType_c ()->getLlvmType ();
 
-	for (size_t i = 0, j = 1; j < ArgCount; i++, j++)
-		LlvmArgTypeArray [j] = ArgArray [i]->GetType ()->GetLlvmType ();
+	for (size_t i = 0, j = 1; j < argCount; i++, j++)
+		llvmArgTypeArray [j] = argArray [i]->getType ()->getLlvmType ();
 
 	return llvm::FunctionType::get (
-		m_pModule->GetSimpleType (EType_Void)->GetLlvmType (),
-		llvm::ArrayRef <llvm::Type*> (LlvmArgTypeArray, ArgCount),
-		(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg) != 0
+		m_module->getSimpleType (TypeKind_Void)->getLlvmType (),
+		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
+		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
 		);
 }
 
 llvm::Function*
-CCallConv_gcc32::CreateLlvmFunction (
-	CFunctionType* pFunctionType,
-	const char* pTag
+CallConv_gcc32::createLlvmFunction (
+	FunctionType* functionType,
+	const char* tag
 	)
 {
-	llvm::Function* pLlvmFunction = CCallConv::CreateLlvmFunction (pFunctionType, pTag);
+	llvm::Function* llvmFunction = CallConv::createLlvmFunction (functionType, tag);
 
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
-		pLlvmFunction->addAttribute (1, llvm::Attribute::StructRet);
+	Type* returnType = functionType->getReturnType ();
+	if (returnType->getFlags () & TypeFlagKind_StructRet)
+		llvmFunction->addAttribute (1, llvm::Attribute::StructRet);
 
-	return pLlvmFunction;
+	return llvmFunction;
 }
 
 void
-CCallConv_gcc32::Call (
-	const CValue& CalleeValue,
-	CFunctionType* pFunctionType,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+CallConv_gcc32::call (
+	const Value& calleeValue,
+	FunctionType* functionType,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
+	Type* returnType = functionType->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
 	{
-		CCallConv::Call (CalleeValue, pFunctionType, pArgValueList, pResultValue);
+		CallConv::call (calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
 
-	CValue TmpReturnValue;
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (
-		pReturnType,
+	Value tmpReturnValue;
+	m_module->m_llvmIrBuilder.createAlloca (
+		returnType,
 		"tmpRetVal",
-		pReturnType->GetDataPtrType_c (),
-		&TmpReturnValue
+		returnType->getDataPtrType_c (),
+		&tmpReturnValue
 		);
 
-	pArgValueList->InsertHead (TmpReturnValue);
+	argValueList->insertHead (tmpReturnValue);
 
-	llvm::CallInst* pInst = m_pModule->m_LlvmIrBuilder.CreateCall (
-		CalleeValue,
+	llvm::CallInst* inst = m_module->m_llvmIrBuilder.createCall (
+		calleeValue,
 		this,
-		*pArgValueList,
-		m_pModule->GetSimpleType (EType_Void),
+		*argValueList,
+		m_module->getSimpleType (TypeKind_Void),
 		NULL
 		);
 
-	pInst->addAttribute (1, llvm::Attribute::StructRet);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (TmpReturnValue, pReturnType, pResultValue);
+	inst->addAttribute (1, llvm::Attribute::StructRet);
+	m_module->m_llvmIrBuilder.createLoad (tmpReturnValue, returnType, resultValue);
 }
 
 void
-CCallConv_gcc32::Return (
-	CFunction* pFunction,
-	const CValue& Value
+CallConv_gcc32::ret (
+	Function* function,
+	const Value& value
 	)
 {
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
+	Type* returnType = function->getType ()->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
 	{
-		CCallConv::Return (pFunction, Value);
+		CallConv::ret (function, value);
 		return;
 	}
 
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin();
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
 
-	CValue ReturnPtrValue;
-	ReturnPtrValue.SetLlvmValue (LlvmArg, pReturnType->GetDataPtrType_c ());
-	m_pModule->m_LlvmIrBuilder.CreateStore (Value, ReturnPtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateRet ();
+	Value returnPtrValue;
+	returnPtrValue.setLlvmValue (llvmArg, returnType->getDataPtrType_c ());
+	m_module->m_llvmIrBuilder.createStore (value, returnPtrValue);
+	m_module->m_llvmIrBuilder.createRet ();
 }
 
-CValue
-CCallConv_gcc32::GetThisArgValue (CFunction* pFunction)
+Value
+CallConv_gcc32::getThisArgValue (Function* function)
 {
-	ASSERT (pFunction->IsMember ());
+	ASSERT (function->isMember ());
 
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
-		return CCallConv::GetThisArgValue (pFunction);
+	Type* returnType = function->getType ()->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+		return CallConv::getThisArgValue (function);
 
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin();
-	LlvmArg++;
-	return CValue (LlvmArg, pFunction->GetThisArgType ());
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
+	llvmArg++;
+	return Value (llvmArg, function->getThisArgType ());
 }
 
 void
-CCallConv_gcc32::CreateArgVariables (CFunction* pFunction)
+CallConv_gcc32::createArgVariables (Function* function)
 {
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
-	CCallConv::CreateArgVariablesImpl (
-		pFunction,
-		(pReturnType->GetFlags () & ETypeFlag_StructRet) ? 1 : 0
+	Type* returnType = function->getType ()->getReturnType ();
+	CallConv::createArgVariablesImpl (
+		function,
+		(returnType->getFlags () & TypeFlagKind_StructRet) ? 1 : 0
 		);
 }
 

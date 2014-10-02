@@ -12,126 +12,126 @@ namespace jnc {
 
 //.............................................................................
 
-class CFunctionTypeOverload
+class FunctionTypeOverload
 {
 protected:
-	uint_t m_Flags;
-	CFunctionType* m_pType;
-	rtl::CArrayT <CFunctionType*> m_OverloadArray;
+	uint_t m_flags;
+	FunctionType* m_type;
+	rtl::Array <FunctionType*> m_overloadArray;
 
 public:
-	CFunctionTypeOverload ()
+	FunctionTypeOverload ()
 	{
-		m_Flags = 0;
-		m_pType = NULL;
+		m_flags = 0;
+		m_type = NULL;
 	}
 
-	CFunctionTypeOverload (CFunctionType* pType)
+	FunctionTypeOverload (FunctionType* type)
 	{
-		m_pType = pType;
+		m_type = type;
 	}
 
-	CFunctionTypeOverload (
-		CFunctionType* const* ppTypeArray,
-		size_t Count
+	FunctionTypeOverload (
+		FunctionType* const* typeArray,
+		size_t count
 		)
 	{
-		Copy (ppTypeArray, Count);
+		copy (typeArray, count);
 	}
 
-	operator CFunctionType* ()
+	operator FunctionType* ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CFunctionTypeOverload&
-	operator = (CFunctionType* pType)
+	FunctionTypeOverload&
+	operator = (FunctionType* type)
 	{
-		m_pType = pType;
-		m_OverloadArray.Clear ();
+		m_type = type;
+		m_overloadArray.clear ();
 		return *this;
 	}
 
 	bool
-	IsEmpty () const
+	isEmpty () const
 	{
-		return m_pType == NULL;
+		return m_type == NULL;
 	}
 
 	bool
-	IsOverloaded () const
+	isOverloaded () const
 	{
-		return !m_OverloadArray.IsEmpty ();
+		return !m_overloadArray.isEmpty ();
 	}
 
 	size_t
-	GetOverloadCount () const
+	getOverloadCount () const
 	{
-		return m_pType ? m_OverloadArray.GetCount () + 1 : 0;
+		return m_type ? m_overloadArray.getCount () + 1 : 0;
 	}
 
-	CFunctionType*
-	GetOverload (size_t Overload = 0) const
+	FunctionType*
+	getOverload (size_t overload = 0) const
 	{
 		return
-			Overload == 0 ? m_pType :
-			Overload <= m_OverloadArray.GetCount () ? m_OverloadArray [Overload - 1] : NULL;
+			overload == 0 ? m_type :
+			overload <= m_overloadArray.getCount () ? m_overloadArray [overload - 1] : NULL;
 	}
 
 	size_t
-	FindOverload (CFunctionType* pType) const;
+	findOverload (FunctionType* type) const;
 
 	size_t
-	FindShortOverload (CFunctionType* pType) const;
+	findShortOverload (FunctionType* type) const;
 
 	size_t
-	ChooseOverload (
-		CFunctionArg* const* pArgArray,
-		size_t ArgCount,
-		ECast* pCastKind = NULL
+	chooseOverload (
+		FunctionArg* const* argArray,
+		size_t argCount,
+		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	ChooseOverload (
-		const rtl::CArrayT <CFunctionArg*>& ArgArray,
-		ECast* pCastKind = NULL
+	chooseOverload (
+		const rtl::Array <FunctionArg*>& argArray,
+		CastKind* castKind = NULL
 		) const
 	{
-		return ChooseOverload (ArgArray, ArgArray.GetCount (), pCastKind);
+		return chooseOverload (argArray, argArray.getCount (), castKind);
 	}
 
 	size_t
-	ChooseOverload (
-		const rtl::CConstBoxListT <CValue>& ArgList,
-		ECast* pCastKind = NULL
+	chooseOverload (
+		const rtl::ConstBoxList <Value>& argList,
+		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	ChooseSetterOverload (
-		const CValue& ArgValue,
-		ECast* pCastKind = NULL
+	chooseSetterOverload (
+		const Value& argValue,
+		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	ChooseSetterOverload (
-		CFunctionType* pFunctionType,
-		ECast* pCastKind = NULL
+	chooseSetterOverload (
+		FunctionType* functionType,
+		CastKind* castKind = NULL
 		) const
 	{
-		return ChooseSetterOverload (pFunctionType->GetArgArray ().GetBack ()->GetType (), pCastKind);
+		return chooseSetterOverload (functionType->getArgArray ().getBack ()->getType (), castKind);
 	}
 
 	bool
-	AddOverload (CFunctionType* pType);
+	addOverload (FunctionType* type);
 
 	void
-	Copy (
-		CFunctionType* const* ppTypeArray,
-		size_t Count
+	copy (
+		FunctionType* const* typeArray,
+		size_t count
 		);
 
 	bool
-	EnsureLayout ();
+	ensureLayout ();
 };
 
 //.............................................................................

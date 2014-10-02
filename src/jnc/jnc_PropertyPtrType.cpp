@@ -8,136 +8,136 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetPropertyPtrTypeKindString (EPropertyPtrType PtrTypeKind)
+getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind)
 {
-	static const char* StringTable [EPropertyPtrType__Count] =
+	static const char* stringTable [PropertyPtrTypeKind__Count] =
 	{
 		"closure",  // EPropertyPtrType_Normal = 0,
 		"weak",     // EPropertyPtrType_Weak,
 		"thin",     // EPropertyPtrType_Thin,
 	};
 
-	return (size_t) PtrTypeKind < EPropertyPtrType__Count ?
-		StringTable [PtrTypeKind] :
+	return (size_t) ptrTypeKind < PropertyPtrTypeKind__Count ?
+		stringTable [ptrTypeKind] :
 		"undefined-property-ptr-kind";
 }
 
 //.............................................................................
 
-CPropertyPtrType::CPropertyPtrType ()
+PropertyPtrType::PropertyPtrType ()
 {
-	m_TypeKind = EType_PropertyPtr;
-	m_PtrTypeKind = EPropertyPtrType_Normal;
-	m_Size = sizeof (TPropertyPtr);
-	m_pTargetType = NULL;
-	m_pAnchorNamespace = NULL;
+	m_typeKind = TypeKind_PropertyPtr;
+	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
+	m_size = sizeof (PropertyPtr);
+	m_targetType = NULL;
+	m_anchorNamespace = NULL;
 }
 
 bool
-CPropertyPtrType::IsConstPtrType ()
+PropertyPtrType::isConstPtrType ()
 {
 	return
-		m_pTargetType->IsReadOnly () ||
-		(m_Flags & EPtrTypeFlag_Const) != 0 ||
-		(m_Flags & EPtrTypeFlag_ConstD) != 0 &&
-		m_pModule->m_NamespaceMgr.GetAccessKind (m_pAnchorNamespace) == EAccess_Public;
+		m_targetType->isReadOnly () ||
+		(m_flags & PtrTypeFlagKind_Const) != 0 ||
+		(m_flags & PtrTypeFlagKind_ConstD) != 0 &&
+		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
-CStructType*
-CPropertyPtrType::GetPropertyPtrStructType ()
+StructType*
+PropertyPtrType::getPropertyPtrStructType ()
 {
-	return m_pModule->m_TypeMgr.GetPropertyPtrStructType (m_pTargetType);
+	return m_module->m_typeMgr.getPropertyPtrStructType (m_targetType);
 }
 
-rtl::CString
-CPropertyPtrType::CreateSignature (
-	CPropertyType* pPropertyType,
-	EType TypeKind,
-	EPropertyPtrType PtrTypeKind,
-	uint_t Flags
+rtl::String
+PropertyPtrType::createSignature (
+	PropertyType* propertyType,
+	TypeKind typeKind,
+	PropertyPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = TypeKind == EType_PropertyRef ? "RX" : "PX";
+	rtl::String signature = typeKind == TypeKind_PropertyRef ? "RX" : "PX";
 
-	switch (PtrTypeKind)
+	switch (ptrTypeKind)
 	{
-	case EPropertyPtrType_Thin:
-		Signature += 't';
+	case PropertyPtrTypeKind_Thin:
+		signature += 't';
 		break;
 
-	case EPropertyPtrType_Weak:
-		Signature += 'w';
+	case PropertyPtrTypeKind_Weak:
+		signature += 'w';
 		break;
 	}
 
-	Signature += GetPtrTypeFlagSignature (Flags);
-	Signature += pPropertyType->GetSignature ();
-	return Signature;
+	signature += getPtrTypeFlagSignature (flags);
+	signature += propertyType->getSignature ();
+	return signature;
 }
 
 void
-CPropertyPtrType::PrepareTypeString ()
+PropertyPtrType::prepareTypeString ()
 {
-	m_TypeString = m_pTargetType->GetReturnType ()->GetTypeString ();
-	m_TypeString += ' ';
-	m_TypeString += m_pTargetType->GetTypeModifierString ();
+	m_typeString = m_targetType->getReturnType ()->getTypeString ();
+	m_typeString += ' ';
+	m_typeString += m_targetType->getTypeModifierString ();
 
-	if (m_Flags & EPtrTypeFlag__AllMask)
+	if (m_flags & PtrTypeFlagKind__AllMask)
 	{
-		m_TypeString += GetPtrTypeFlagString (m_Flags);
-		m_TypeString += ' ';
+		m_typeString += getPtrTypeFlagString (m_flags);
+		m_typeString += ' ';
 	}
 
-	if (m_PtrTypeKind != EPropertyPtrType_Normal)
+	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
 	{
-		m_TypeString += GetPropertyPtrTypeKindString (m_PtrTypeKind);
-		m_TypeString += ' ';
+		m_typeString += getPropertyPtrTypeKindString (m_ptrTypeKind);
+		m_typeString += ' ';
 	}
 
-	m_TypeString += m_TypeKind == EType_PropertyRef ? "property&" : "property*";
+	m_typeString += m_typeKind == TypeKind_PropertyRef ? "property&" : "property*";
 
-	if (m_pTargetType->IsIndexed ())
+	if (m_targetType->isIndexed ())
 	{
-		m_TypeString += ' ';
-		m_TypeString += m_pTargetType->GetGetterType ()->GetArgString ();
+		m_typeString += ' ';
+		m_typeString += m_targetType->getGetterType ()->getArgString ();
 	}
 }
 
 void
-CPropertyPtrType::PrepareLlvmType ()
+PropertyPtrType::prepareLlvmType ()
 {
-	m_pLlvmType =
-		m_PtrTypeKind != EPropertyPtrType_Thin ? GetPropertyPtrStructType ()->GetLlvmType () :
-		m_pTargetType->GetVTableStructType ()->GetDataPtrType_c ()->GetLlvmType ();
+	m_llvmType =
+		m_ptrTypeKind != PropertyPtrTypeKind_Thin ? getPropertyPtrStructType ()->getLlvmType () :
+		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmType ();
 }
 
 void
-CPropertyPtrType::PrepareLlvmDiType ()
+PropertyPtrType::prepareLlvmDiType ()
 {
-	m_LlvmDiType =
-		m_PtrTypeKind != EPropertyPtrType_Thin ? GetPropertyPtrStructType ()->GetLlvmDiType () :
-		m_pTargetType->GetVTableStructType ()->GetDataPtrType_c ()->GetLlvmDiType ();
+	m_llvmDiType =
+		m_ptrTypeKind != PropertyPtrTypeKind_Thin ? getPropertyPtrStructType ()->getLlvmDiType () :
+		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmDiType ();
 }
 
 void
-CPropertyPtrType::GcMark (
-	CRuntime* pRuntime,
+PropertyPtrType::gcMark (
+	Runtime* runtime,
 	void* p
 	)
 {
-	ASSERT (m_PtrTypeKind == EPropertyPtrType_Normal || m_PtrTypeKind == EPropertyPtrType_Weak);
+	ASSERT (m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak);
 
-	TPropertyPtr* pPtr = (TPropertyPtr*) p;
-	if (!pPtr->m_pClosure || pPtr->m_pClosure->m_pObject->m_ScopeLevel)
+	PropertyPtr* ptr = (PropertyPtr*) p;
+	if (!ptr->m_closure || ptr->m_closure->m_object->m_scopeLevel)
 		return;
 
-	TObjHdr* pObject = pPtr->m_pClosure->m_pObject;
-	if (m_PtrTypeKind == EPropertyPtrType_Normal)
-		pObject->GcMarkObject (pRuntime);
-	else if (pObject->m_pClassType->GetClassTypeKind () == EClassType_FunctionClosure)
-		pObject->GcWeakMarkClosureObject (pRuntime);
+	ObjHdr* object = ptr->m_closure->m_object;
+	if (m_ptrTypeKind == PropertyPtrTypeKind_Normal)
+		object->gcMarkObject (runtime);
+	else if (object->m_classType->getClassTypeKind () == ClassTypeKind_FunctionClosure)
+		object->gcWeakMarkClosureObject (runtime);
 	else  // simple weak closure
-		pObject->GcWeakMarkObject ();
+		object->gcWeakMarkObject ();
 }
 
 //.............................................................................

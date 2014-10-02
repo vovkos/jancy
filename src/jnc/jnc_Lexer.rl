@@ -20,12 +20,12 @@ write data;
 
 prepush
 {
-	stack = PrePush ();
+	stack = prePush ();
 }
 
 postpop
 {
-	PostPop ();
+	postPop ();
 }
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -39,7 +39,7 @@ oct    = [0-7];
 bin    = [01];
 id     = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws     = [ \t\r]+;
-nl     = '\n' @{ NewLine (p + 1); };
+nl     = '\n' @{ newLine (p + 1); };
 esc    = '\\' [^\n];
 lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
@@ -52,16 +52,16 @@ lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
 lit_fmt := |*
 
 esc       ;
-'$' id    { CreateFmtSimpleIdentifierToken (); };
-'$('      { CreateFmtLiteralToken (EToken_FmtLiteral); m_ParenthesesLevelStack.Append (1); fcall main; };
-'"' | nl  { CreateFmtLiteralToken (EToken_Literal); fret; };
+'$' id    { createFmtSimpleIdentifierToken (); };
+'$('      { createFmtLiteralToken (TokenKind_FmtLiteral); m_parenthesesLevelStack.append (1); fcall main; };
+'"' | nl  { createFmtLiteralToken (TokenKind_Literal); fret; };
 any       ;
 
 *|;
 
 fmt_spec := |*
 
-',' [^")\n]* { CreateFmtSpecifierToken (); fret; };
+',' [^")\n]* { createFmtSpecifierToken (); fret; };
 any          { ASSERT (false); fret; };
 
 *|;
@@ -78,211 +78,211 @@ main := |*
 
 # global declarations & pragmas
 
-'namespace'      { CreateToken (EToken_Namespace); };
-'using'          { CreateToken (EToken_Using); };
-'extend'         { CreateToken (EToken_Extend); };
-'pack'           { CreateToken (EToken_Pack); };
+'namespace'      { createToken (TokenKind_Namespace); };
+'using'          { createToken (TokenKind_Using); };
+'extend'         { createToken (TokenKind_Extend); };
+'pack'           { createToken (TokenKind_Pack); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # storage specifiers
 
-'typedef'        { CreateToken (EToken_Typedef); };
-'alias'          { CreateToken (EToken_Alias); };
-'static'         { CreateToken (EToken_Static); };
-'thread'         { CreateToken (EToken_Thread); };
-'stack'          { CreateToken (EToken_Stack); };
-'heap'           { CreateToken (EToken_Heap); };
-'uheap'          { CreateToken (EToken_UHeap); };
-'abstract'       { CreateToken (EToken_Abstract); };
-'virtual'        { CreateToken (EToken_Virtual); };
-'override'       { CreateToken (EToken_Override); };
-'mutable'        { CreateToken (EToken_Mutable); };
+'typedef'        { createToken (TokenKind_Typedef); };
+'alias'          { createToken (TokenKind_Alias); };
+'static'         { createToken (TokenKind_Static); };
+'thread'         { createToken (TokenKind_Thread); };
+'stack'          { createToken (TokenKind_Stack); };
+'heap'           { createToken (TokenKind_Heap); };
+'uheap'          { createToken (TokenKind_UHeap); };
+'abstract'       { createToken (TokenKind_Abstract); };
+'virtual'        { createToken (TokenKind_Virtual); };
+'override'       { createToken (TokenKind_Override); };
+'mutable'        { createToken (TokenKind_Mutable); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # access specifiers
 
-'public'         { CreateToken (EToken_Public); };
-'protected'      { CreateToken (EToken_Protected); };
-'friend'         { CreateToken (EToken_Friend); };
+'public'         { createToken (TokenKind_Public); };
+'protected'      { createToken (TokenKind_Protected); };
+'friend'         { createToken (TokenKind_Friend); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type modifiers
 
-'signed'         { CreateToken (EToken_Signed); };
-'unsigned'       { CreateToken (EToken_Unsigned); };
-'bigendian'      { CreateToken (EToken_BigEndian); };
-'const'          { CreateToken (EToken_Const); };
-'dconst'         { CreateToken (EToken_DConst); };
-'volatile'       { CreateToken (EToken_Volatile); };
-'weak'           { CreateToken (EToken_Weak); };
-'thin'           { CreateToken (EToken_Thin); };
-'safe'           { CreateToken (EToken_Safe); };
-'throws'         { CreateToken (EToken_Throws); };
-'cdecl'          { CreateToken (EToken_Cdecl); };
-'stdcall'        { CreateToken (EToken_Stdcall); };
-'thiscall'       { CreateToken (EToken_Thiscall); };
-'array'          { CreateToken (EToken_Array); };
-'function'       { CreateToken (EToken_Function); };
-'property'       { CreateToken (EToken_Property); };
-'bindable'       { CreateToken (EToken_Bindable); };
-'autoget'        { CreateToken (EToken_AutoGet); };
-'indexed'        { CreateToken (EToken_Indexed); };
-'multicast'      { CreateToken (EToken_Multicast); };
-'event'          { CreateToken (EToken_Event); };
-'devent'         { CreateToken (EToken_DEvent); };
-'reactor'        { CreateToken (EToken_Reactor); };
+'signed'         { createToken (TokenKind_Signed); };
+'unsigned'       { createToken (TokenKind_Unsigned); };
+'bigendian'      { createToken (TokenKind_BigEndian); };
+'const'          { createToken (TokenKind_Const); };
+'dconst'         { createToken (TokenKind_DConst); };
+'volatile'       { createToken (TokenKind_Volatile); };
+'weak'           { createToken (TokenKind_Weak); };
+'thin'           { createToken (TokenKind_Thin); };
+'safe'           { createToken (TokenKind_Safe); };
+'throws'         { createToken (TokenKind_Throws); };
+'cdecl'          { createToken (TokenKind_Cdecl); };
+'stdcall'        { createToken (TokenKind_Stdcall); };
+'thiscall'       { createToken (TokenKind_Thiscall); };
+'array'          { createToken (TokenKind_Array); };
+'function'       { createToken (TokenKind_Function); };
+'property'       { createToken (TokenKind_Property); };
+'bindable'       { createToken (TokenKind_Bindable); };
+'autoget'        { createToken (TokenKind_AutoGet); };
+'indexed'        { createToken (TokenKind_Indexed); };
+'multicast'      { createToken (TokenKind_Multicast); };
+'event'          { createToken (TokenKind_Event); };
+'devent'         { createToken (TokenKind_DEvent); };
+'reactor'        { createToken (TokenKind_Reactor); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type specifiers
 
-'auto'           { CreateToken (EToken_Auto); };
-'void'           { CreateToken (EToken_Void); };
-'object'         { CreateToken (EToken_Object); };
-'variant'        { CreateToken (EToken_Variant); };
-'bool'           { CreateToken (EToken_Bool); };
-'int8'           { CreateToken (EToken_Int8); };
-'int16'          { CreateToken (EToken_Int16); };
-'int32'          { CreateToken (EToken_Int32); };
-'int64'          { CreateToken (EToken_Int64); };
-'float'          { CreateToken (EToken_Float); };
-'double'         { CreateToken (EToken_Double); };
-'int'            { CreateToken (EToken_Int); };
-'intptr'         { CreateToken (EToken_IntPtr); };
-'char'           { CreateToken (EToken_Char); };
+'auto'           { createToken (TokenKind_Auto); };
+'void'           { createToken (TokenKind_Void); };
+'object'         { createToken (TokenKind_Object); };
+'variant'        { createToken (TokenKind_Variant); };
+'bool'           { createToken (TokenKind_Bool); };
+'int8'           { createToken (TokenKind_Int8); };
+'int16'          { createToken (TokenKind_Int16); };
+'int32'          { createToken (TokenKind_Int32); };
+'int64'          { createToken (TokenKind_Int64); };
+'float'          { createToken (TokenKind_Float); };
+'double'         { createToken (TokenKind_Double); };
+'int'            { createToken (TokenKind_Int); };
+'intptr'         { createToken (TokenKind_IntPtr); };
+'char'           { createToken (TokenKind_Char); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # named type specifiers
 
-'enum'           { CreateToken (EToken_Enum); };
-'fenum'          { CreateToken (EToken_FEnum); };
-'cenum'          { CreateToken (EToken_CEnum); };
-'struct'         { CreateToken (EToken_Struct); };
-'union'          { CreateToken (EToken_Union); };
-'class'          { CreateToken (EToken_Class); };
-'opaque'         { CreateToken (EToken_Opaque); };
+'enum'           { createToken (TokenKind_Enum); };
+'fenum'          { createToken (TokenKind_FEnum); };
+'cenum'          { createToken (TokenKind_CEnum); };
+'struct'         { createToken (TokenKind_Struct); };
+'union'          { createToken (TokenKind_Union); };
+'class'          { createToken (TokenKind_Class); };
+'opaque'         { createToken (TokenKind_Opaque); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # special member methods
 
-'get'            { CreateToken (EToken_Get); };
-'set'            { CreateToken (EToken_Set); };
-'preconstruct'   { CreateToken (EToken_PreConstruct); };
-'construct'      { CreateToken (EToken_Construct); };
-'destruct'       { CreateToken (EToken_Destruct); };
-'operator'       { CreateToken (EToken_Operator); };
-'postfix'        { CreateToken (EToken_Postfix); };
+'get'            { createToken (TokenKind_Get); };
+'set'            { createToken (TokenKind_Set); };
+'preconstruct'   { createToken (TokenKind_PreConstruct); };
+'construct'      { createToken (TokenKind_Construct); };
+'destruct'       { createToken (TokenKind_Destruct); };
+'operator'       { createToken (TokenKind_Operator); };
+'postfix'        { createToken (TokenKind_Postfix); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # operators
 
-'new'            { CreateToken (EToken_New); };
-'pnew'           { CreateToken (EToken_PNew); };
-'delete'         { CreateToken (EToken_Delete); };
-'sizeof'         { CreateToken (EToken_SizeOf); };
-'countof'        { CreateToken (EToken_CountOf); };
-'offsetof'       { CreateToken (EToken_OffsetOf); };
-'typeof'         { CreateToken (EToken_TypeOf); };
-'dtypeof'        { CreateToken (EToken_DTypeOf); };
-'bindingof'      { CreateToken (EToken_BindingOf); };
+'new'            { createToken (TokenKind_New); };
+'pnew'           { createToken (TokenKind_PNew); };
+'delete'         { createToken (TokenKind_Delete); };
+'sizeof'         { createToken (TokenKind_SizeOf); };
+'countof'        { createToken (TokenKind_CountOf); };
+'offsetof'       { createToken (TokenKind_OffsetOf); };
+'typeof'         { createToken (TokenKind_TypeOf); };
+'dtypeof'        { createToken (TokenKind_DTypeOf); };
+'bindingof'      { createToken (TokenKind_BindingOf); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # statements
 
-'if'             { CreateToken (EToken_If); };
-'else'           { CreateToken (EToken_Else); };
-'for'            { CreateToken (EToken_For); };
-'while'          { CreateToken (EToken_While); };
-'do'             { CreateToken (EToken_Do); };
-'break'          { CreateKeywordTokenEx (EToken_Break, 1); };
-'break' [1-9]    { CreateKeywordTokenEx (EToken_Break, te [-1] - '0'); };
-'continue'       { CreateKeywordTokenEx (EToken_Continue, 1); };
-'continue' [1-9] { CreateKeywordTokenEx (EToken_Continue, te [-1] - '0'); };
-'return'         { CreateToken (EToken_Return); };
-'switch'         { CreateToken (EToken_Switch); };
-'case'           { CreateToken (EToken_Case); };
-'default'        { CreateToken (EToken_Default); };
-'once'           { CreateToken (EToken_Once); };
-'onevent'        { CreateToken (EToken_OnEvent); };
-'try'            { CreateToken (EToken_Try); };
-'catch'          { CreateToken (EToken_Catch); };
-'finally'        { CreateToken (EToken_Finally); };
+'if'             { createToken (TokenKind_If); };
+'else'           { createToken (TokenKind_Else); };
+'for'            { createToken (TokenKind_For); };
+'while'          { createToken (TokenKind_While); };
+'do'             { createToken (TokenKind_Do); };
+'break'          { createKeywordTokenEx (TokenKind_Break, 1); };
+'break' [1-9]    { createKeywordTokenEx (TokenKind_Break, te [-1] - '0'); };
+'continue'       { createKeywordTokenEx (TokenKind_Continue, 1); };
+'continue' [1-9] { createKeywordTokenEx (TokenKind_Continue, te [-1] - '0'); };
+'return'         { createToken (TokenKind_Return); };
+'switch'         { createToken (TokenKind_Switch); };
+'case'           { createToken (TokenKind_Case); };
+'default'        { createToken (TokenKind_Default); };
+'once'           { createToken (TokenKind_Once); };
+'onevent'        { createToken (TokenKind_OnEvent); };
+'try'            { createToken (TokenKind_Try); };
+'catch'          { createToken (TokenKind_Catch); };
+'finally'        { createToken (TokenKind_Finally); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # pre-defined values
 
-'basetype'       { CreateKeywordTokenEx (EToken_BaseType, 1); };
-'basetype' [1-9] { CreateKeywordTokenEx (EToken_BaseType, te [-1] - '0'); };
-'this'           { CreateToken (EToken_This); };
-'retval'         { CreateToken (EToken_RetVal); };
-'true'           { CreateToken (EToken_True); };
-'false'          { CreateToken (EToken_False); };
-'null'           { CreateToken (EToken_Null); };
+'basetype'       { createKeywordTokenEx (TokenKind_BaseType, 1); };
+'basetype' [1-9] { createKeywordTokenEx (TokenKind_BaseType, te [-1] - '0'); };
+'this'           { createToken (TokenKind_This); };
+'retval'         { createToken (TokenKind_RetVal); };
+'true'           { createToken (TokenKind_True); };
+'false'          { createToken (TokenKind_False); };
+'null'           { createToken (TokenKind_Null); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # symbol tokens
 
-'++'             { CreateToken (EToken_Inc); };
-'--'             { CreateToken (EToken_Dec); };
-'->'             { CreateToken (EToken_Ptr); };
-'=>'             { CreateToken (EToken_Imply); };
-'<<'             { CreateToken (EToken_Shl); };
-'>>'             { CreateToken (EToken_Shr); };
-'&&'             { CreateToken (EToken_LogAnd); };
-'||'             { CreateToken (EToken_LogOr); };
-'=='             { CreateToken (EToken_Eq); };
-'!='             { CreateToken (EToken_Ne); };
-'<='             { CreateToken (EToken_Le); };
-'>='             { CreateToken (EToken_Ge); };
-':='             { CreateToken (EToken_RefAssign); };
-'+='             { CreateToken (EToken_AddAssign); };
-'-='             { CreateToken (EToken_SubAssign); };
-'*='             { CreateToken (EToken_MulAssign); };
-'/='             { CreateToken (EToken_DivAssign); };
-'%='             { CreateToken (EToken_ModAssign); };
-'<<='            { CreateToken (EToken_ShlAssign); };
-'>>='            { CreateToken (EToken_ShrAssign); };
-'&='             { CreateToken (EToken_AndAssign); };
-'^='             { CreateToken (EToken_XorAssign); };
-'|='             { CreateToken (EToken_OrAssign); };
-'@='             { CreateToken (EToken_AtAssign); };
-'...'            { CreateToken (EToken_Ellipsis); };
+'++'             { createToken (TokenKind_Inc); };
+'--'             { createToken (TokenKind_Dec); };
+'->'             { createToken (TokenKind_Ptr); };
+'=>'             { createToken (TokenKind_Imply); };
+'<<'             { createToken (TokenKind_Shl); };
+'>>'             { createToken (TokenKind_Shr); };
+'&&'             { createToken (TokenKind_LogAnd); };
+'||'             { createToken (TokenKind_LogOr); };
+'=='             { createToken (TokenKind_Eq); };
+'!='             { createToken (TokenKind_Ne); };
+'<='             { createToken (TokenKind_Le); };
+'>='             { createToken (TokenKind_Ge); };
+':='             { createToken (TokenKind_RefAssign); };
+'+='             { createToken (TokenKind_AddAssign); };
+'-='             { createToken (TokenKind_SubAssign); };
+'*='             { createToken (TokenKind_MulAssign); };
+'/='             { createToken (TokenKind_DivAssign); };
+'%='             { createToken (TokenKind_ModAssign); };
+'<<='            { createToken (TokenKind_ShlAssign); };
+'>>='            { createToken (TokenKind_ShrAssign); };
+'&='             { createToken (TokenKind_AndAssign); };
+'^='             { createToken (TokenKind_XorAssign); };
+'|='             { createToken (TokenKind_OrAssign); };
+'@='             { createToken (TokenKind_AtAssign); };
+'...'            { createToken (TokenKind_Ellipsis); };
 
-'$"'             { PreCreateFmtLiteralToken (); fcall lit_fmt; };
+'$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # common tokens
 
-id               { CreateStringToken (EToken_Identifier); };
-lit_sq           { CreateCharToken (EToken_Integer); };
-lit_dq           { CreateStringToken (EToken_Literal, 1, 1, true); };
-dec+             { CreateIntegerToken (10); };
-'0' [Xx] hex+    { CreateIntegerToken (16, 2); };
-'0' [Xx] lit_dq  { CreateHexLiteralToken (); };
-dec+ ('.' dec+) | ([Ee] [+\-]? dec+)
-				 { CreateFpToken (); };
+id               { createStringToken (TokenKind_Identifier); };
+lit_sq           { createCharToken (TokenKind_Integer); };
+lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
+dec+             { createIntegerToken (10); };
+'0' [xx] hex+    { createIntegerToken (16, 2); };
+'0' [xx] lit_dq  { createHexLiteralToken (); };
+dec+ ('.' dec+) | ([ee] [+\-]? dec+)
+				 { createFpToken (); };
 
 '//' [^\n]*      ;
 '/*' (any | nl)* :>> '*/'
 				 ;
 
-'('              { OnLeftParentheses (); };
-')'              { if (!OnRightParentheses ()) fret; };
-','              { if (!OnComma ()) fcall fmt_spec; };
+'('              { onLeftParentheses (); };
+')'              { if (!onRightParentheses ()) fret; };
+','              { if (!onComma ()) fcall fmt_spec; };
 
 ws | nl          ;
-print            { CreateToken (ts [0]); };
-any              { CreateErrorToken (ts [0]); };
+print            { createToken (ts [0]); };
+any              { createErrorToken (ts [0]); };
 
 *|;
 
@@ -291,13 +291,13 @@ any              { CreateErrorToken (ts [0]); };
 //.............................................................................
 
 void
-CLexer::Init ()
+Lexer::init ()
 {
 	%% write init;
 }
 
 void
-CLexer::Exec ()
+Lexer::exec ()
 {
 	%% write exec;
 }

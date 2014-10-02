@@ -7,40 +7,40 @@ namespace jnc {
 //.............................................................................
 
 bool
-CScheduleLauncherFunction::Compile ()
+ScheduleLauncherFunction::compile ()
 {
-	bool Result;
+	bool result;
 
-	size_t ArgCount = m_pType->GetArgArray ().GetCount ();
+	size_t argCount = m_type->getArgArray ().getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (this, ArgValueArray, ArgCount);
+	m_module->m_functionMgr.internalPrologue (this, argValueArray, argCount);
 
-	CValue ScheduleValue;
-	Result = m_pModule->m_OperatorMgr.MemberOperator (ArgValueArray [1], "schedule", &ScheduleValue);
-	if (!Result)
+	Value scheduleValue;
+	result = m_module->m_operatorMgr.memberOperator (argValueArray [1], "schedule", &scheduleValue);
+	if (!result)
 		return false;
 
-	CValue FunctionPtrValue = ArgValueArray [0];
-	if (ArgCount > 2)
+	Value functionPtrValue = argValueArray [0];
+	if (argCount > 2)
 	{
-		rtl::CBoxListT <CValue> ArgList;
-		for (size_t i = 2; i < ArgCount; i++)
-			ArgList.InsertTail (ArgValueArray [i]);
+		rtl::BoxList <Value> argList;
+		for (size_t i = 2; i < argCount; i++)
+			argList.insertTail (argValueArray [i]);
 
-		Result = m_pModule->m_OperatorMgr.ClosureOperator (&FunctionPtrValue, &ArgList);
-		if (!Result)
+		result = m_module->m_operatorMgr.closureOperator (&functionPtrValue, &argList);
+		if (!result)
 			return false;
 	}
 
-	Result = m_pModule->m_OperatorMgr.CallOperator (ScheduleValue, FunctionPtrValue);
-	if (!Result)
+	result = m_module->m_operatorMgr.callOperator (scheduleValue, functionPtrValue);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

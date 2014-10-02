@@ -6,18 +6,18 @@ namespace jnc {
 
 //.............................................................................
 
-CScope::CScope ()
+Scope::Scope ()
 {
-	m_ItemKind = EModuleItem_Scope;
-	m_NamespaceKind = ENamespace_Scope;
-	m_pItemDecl = this;
-	m_Level = 1; // 0 is global
-	m_pFunction = NULL;
-	m_pBreakBlock = NULL;
-	m_pContinueBlock = NULL;
-	m_pCatchBlock = NULL;
-	m_pFinallyBlock = NULL;
-	m_pFinallyReturnAddress = NULL;
+	m_itemKind = ModuleItemKind_Scope;
+	m_namespaceKind = NamespaceKind_Scope;
+	m_itemDecl = this;
+	m_level = 1; // 0 is global
+	m_function = NULL;
+	m_breakBlock = NULL;
+	m_continueBlock = NULL;
+	m_catchBlock = NULL;
+	m_finallyBlock = NULL;
+	m_finallyReturnAddress = NULL;
 }
 
 //.............................................................................

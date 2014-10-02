@@ -7,61 +7,61 @@ namespace jnc {
 //.............................................................................
 
 bool
-CCast_FpTrunc::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FpTrunc::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateTrunc_f (OpValue, pType, pResultValue);
+	m_module->m_llvmIrBuilder.createTrunc_f (opValue, type, resultValue);
 	return true;
 }
 
 //.............................................................................
 
 bool
-CCast_FpExt::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FpExt::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateExt_f (OpValue, pType, pResultValue);
+	m_module->m_llvmIrBuilder.createExt_f (opValue, type, resultValue);
 	return true;
 }
 
 //.............................................................................
 
 bool
-CCast_FpFromInt::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FpFromInt::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateIntToFp (OpValue, pType, pResultValue);
+	m_module->m_llvmIrBuilder.createIntToFp (opValue, type, resultValue);
 	return true;
 }
 
 bool
-CCast_FpFromInt::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_FpFromInt::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	EType DstTypeKind = pType->GetTypeKind ();
-	switch (DstTypeKind)
+	TypeKind dstTypeKind = type->getTypeKind ();
+	switch (dstTypeKind)
 	{
-	case EType_Float:
-		ConstCast_Fp32 (OpValue, (float*) pDst);
+	case TypeKind_Float:
+		constCast_Fp32 (opValue, (float*) dst);
 		break;
 
-	case EType_Double:
-		ConstCast_Fp64 (OpValue, (double*) pDst);
+	case TypeKind_Double:
+		constCast_Fp64 (opValue, (double*) dst);
 		break;
 
 	default:
@@ -72,30 +72,30 @@ CCast_FpFromInt::ConstCast (
 }
 
 void
-CCast_FpFromInt::ConstCast_Fp32 (
-	const CValue& OpValue,
-	float* pFp32
+Cast_FpFromInt::constCast_Fp32 (
+	const Value& opValue,
+	float* fp32
 	)
 {
-	const void* pSrc = OpValue.GetConstData ();
+	const void* src = opValue.getConstData ();
 	
-	size_t SrcSize = OpValue.GetType ()->GetSize ();
-	switch (SrcSize)
+	size_t srcSize = opValue.getType ()->getSize ();
+	switch (srcSize)
 	{
 	case 1:
-		*pFp32 = *(char*) pSrc;
+		*fp32 = *(char*) src;
 		break;
 
 	case 2:
-		*pFp32 = *(short*) pSrc;
+		*fp32 = *(short*) src;
 		break;
 
 	case 4:
-		*pFp32 = (float) *(int32_t*) pSrc;
+		*fp32 = (float) *(int32_t*) src;
 		break;
 
 	case 8:
-		*pFp32 = (float) *(int64_t*) pSrc;
+		*fp32 = (float) *(int64_t*) src;
 		break;
 
 	default:
@@ -104,30 +104,30 @@ CCast_FpFromInt::ConstCast_Fp32 (
 };
 
 void
-CCast_FpFromInt::ConstCast_Fp64 (
-	const CValue& OpValue,
-	double* pFp64
+Cast_FpFromInt::constCast_Fp64 (
+	const Value& opValue,
+	double* fp64
 	)
 {
-	const void* pSrc = OpValue.GetConstData ();
+	const void* src = opValue.getConstData ();
 	
-	size_t SrcSize = OpValue.GetType ()->GetSize ();
-	switch (SrcSize)
+	size_t srcSize = opValue.getType ()->getSize ();
+	switch (srcSize)
 	{
 	case 1:
-		*pFp64 = *(char*) pSrc;
+		*fp64 = *(char*) src;
 		break;
 
 	case 2:
-		*pFp64 = *(short*) pSrc;
+		*fp64 = *(short*) src;
 		break;
 
 	case 4:
-		*pFp64 = *(int32_t*) pSrc;
+		*fp64 = *(int32_t*) src;
 		break;
 
 	case 8:
-		*pFp64 = (double) *(int64_t*) pSrc;
+		*fp64 = (double) *(int64_t*) src;
 		break;
 
 	default:
@@ -138,33 +138,33 @@ CCast_FpFromInt::ConstCast_Fp64 (
 //.............................................................................
 
 bool
-CCast_FpFromInt_u::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_FpFromInt_u::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateIntToFp_u (OpValue, pType, pResultValue);
+	m_module->m_llvmIrBuilder.createIntToFp_u (opValue, type, resultValue);
 	return true;
 }
 
 bool
-CCast_FpFromInt_u::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_FpFromInt_u::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	EType DstTypeKind = pType->GetTypeKind ();
-	switch (DstTypeKind)
+	TypeKind dstTypeKind = type->getTypeKind ();
+	switch (dstTypeKind)
 	{
-	case EType_Float:
-		ConstCast_Fp32 (OpValue, (float*) pDst);
+	case TypeKind_Float:
+		constCast_Fp32 (opValue, (float*) dst);
 		break;
 
-	case EType_Double:
-		ConstCast_Fp64 (OpValue, (double*) pDst);
+	case TypeKind_Double:
+		constCast_Fp64 (opValue, (double*) dst);
 		break;
 
 	default:
@@ -175,30 +175,30 @@ CCast_FpFromInt_u::ConstCast (
 }
 
 void
-CCast_FpFromInt_u::ConstCast_Fp32 (
-	const CValue& OpValue,
-	float* pFp32
+Cast_FpFromInt_u::constCast_Fp32 (
+	const Value& opValue,
+	float* fp32
 	)
 {
-	const void* pSrc = OpValue.GetConstData ();
+	const void* src = opValue.getConstData ();
 	
-	size_t SrcSize = OpValue.GetType ()->GetSize ();
-	switch (SrcSize)
+	size_t srcSize = opValue.getType ()->getSize ();
+	switch (srcSize)
 	{
 	case 1:
-		*pFp32 = *(uint8_t*) pSrc;
+		*fp32 = *(uint8_t*) src;
 		break;
 
 	case 2:
-		*pFp32 = *(uint16_t*) pSrc;
+		*fp32 = *(uint16_t*) src;
 		break;
 
 	case 4:
-		*pFp32 = (float) *(uint32_t*) pSrc;
+		*fp32 = (float) *(uint32_t*) src;
 		break;
 
 	case 8:
-		*pFp32 = (float) *(uint64_t*) pSrc;
+		*fp32 = (float) *(uint64_t*) src;
 		break;
 
 	default:
@@ -207,30 +207,30 @@ CCast_FpFromInt_u::ConstCast_Fp32 (
 };
 
 void
-CCast_FpFromInt_u::ConstCast_Fp64 (
-	const CValue& OpValue,
-	double* pFp64
+Cast_FpFromInt_u::constCast_Fp64 (
+	const Value& opValue,
+	double* fp64
 	)
 {
-	const void* pSrc = OpValue.GetConstData ();
+	const void* src = opValue.getConstData ();
 	
-	size_t SrcSize = OpValue.GetType ()->GetSize ();
-	switch (SrcSize)
+	size_t srcSize = opValue.getType ()->getSize ();
+	switch (srcSize)
 	{
 	case 1:
-		*pFp64 = *(uint8_t*) pSrc;
+		*fp64 = *(uint8_t*) src;
 		break;
 
 	case 2:
-		*pFp64 = *(uint16_t*) pSrc;
+		*fp64 = *(uint16_t*) src;
 		break;
 
 	case 4:
-		*pFp64 = *(uint32_t*) pSrc;
+		*fp64 = *(uint32_t*) src;
 		break;
 
 	case 8:
-		*pFp64 = (double) *(uint64_t*) pSrc;
+		*fp64 = (double) *(uint64_t*) src;
 		break;
 
 	default:
@@ -241,95 +241,95 @@ CCast_FpFromInt_u::ConstCast_Fp64 (
 //.............................................................................
 
 bool
-CCast_FpFromBeInt::GetCastOperators (
-	const CValue& OpValue,
-	CType* pType,
-	CCastOperator** ppFirstOperator,
-	CCastOperator** ppSecondOperator,
-	CType** ppIntermediateType
+Cast_FpFromBeInt::getCastOperators (
+	const Value& opValue,
+	Type* type,
+	CastOperator** firstOperator,
+	CastOperator** secondOperator,
+	Type** intermediateType
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_BigEndian);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_BigEndian);
 
-	EType IntermediateTypeKind = GetLittleEndianIntegerTypeKind (OpValue.GetType ()->GetTypeKind ());
+	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (opValue.getType ()->getTypeKind ());
 
-	*ppFirstOperator = m_pModule->m_OperatorMgr.GetStdCastOperator (EStdCast_SwapByteOrder);
-	*ppSecondOperator = m_pModule->m_OperatorMgr.GetStdCastOperator (EStdCast_Fp);
-	*ppIntermediateType = m_pModule->m_TypeMgr.GetPrimitiveType (IntermediateTypeKind);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Fp);
+	*intermediateType = m_module->m_typeMgr.getPrimitiveType (intermediateTypeKind);
 	return true;
 }
 
 //.............................................................................
 
 bool
-CCast_FpFromEnum::GetCastOperators (
-	const CValue& OpValue,
-	CType* pType,
-	CCastOperator** ppFirstOperator,
-	CCastOperator** ppSecondOperator,
-	CType** ppIntermediateType
+Cast_FpFromEnum::getCastOperators (
+	const Value& opValue,
+	Type* type,
+	CastOperator** firstOperator,
+	CastOperator** secondOperator,
+	Type** intermediateType_o
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_Enum);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Enum);
 
-	CType* pIntermediateType = ((CEnumType*) OpValue.GetType ())->GetBaseType ();
+	Type* intermediateType = ((EnumType*) opValue.getType ())->getBaseType ();
 
-	*ppFirstOperator = m_pModule->m_OperatorMgr.GetStdCastOperator (EStdCast_Copy);
-	*ppSecondOperator = m_pModule->m_OperatorMgr.GetStdCastOperator (EStdCast_Fp);
-	*ppIntermediateType = pIntermediateType;
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Fp);
+	*intermediateType_o = intermediateType;
 	return true;
 }
 
 //.............................................................................
 
-CCastOperator*
-CCast_Fp::GetCastOperator (
-	const CValue& OpValue,
-	CType* pType
+CastOperator*
+Cast_Fp::getCastOperator (
+	const Value& opValue,
+	Type* type
 	)
 {
-	CType* pSrcType = OpValue.GetType ();
+	Type* srcType = opValue.getType ();
 
-	EType SrcTypeKind = pSrcType->GetTypeKind ();
-	EType DstTypeKind = pType->GetTypeKind ();
+	TypeKind srcTypeKind = srcType->getTypeKind ();
+	TypeKind dstTypeKind = type->getTypeKind ();
 
-	size_t SrcSize = pSrcType->GetSize ();
-	size_t DstSize = pType->GetSize ();
+	size_t srcSize = srcType->getSize ();
+	size_t dstSize = type->getSize ();
 
-	ASSERT (DstTypeKind == EType_Float || DstTypeKind == EType_Double);
+	ASSERT (dstTypeKind == TypeKind_Float || dstTypeKind == TypeKind_Double);
 
-	switch (SrcTypeKind)
+	switch (srcTypeKind)
 	{
-	case EType_Int8:
-	case EType_Int16:
-	case EType_Int32:
-	case EType_Int64:
-		return &m_FromInt;
+	case TypeKind_Int8:
+	case TypeKind_Int16:
+	case TypeKind_Int32:
+	case TypeKind_Int64:
+		return &m_fromInt;
 
-	case EType_Bool:
-	case EType_Int8_u:
-	case EType_Int16_u:
-	case EType_Int32_u:
-	case EType_Int64_u:
-		return &m_FromInt_u;
+	case TypeKind_Bool:
+	case TypeKind_Int8_u:
+	case TypeKind_Int16_u:
+	case TypeKind_Int32_u:
+	case TypeKind_Int64_u:
+		return &m_fromInt_u;
 
-	case EType_Int16_be:
-	case EType_Int16_beu:
-	case EType_Int32_be:
-	case EType_Int32_beu:
-	case EType_Int64_be:
-	case EType_Int64_beu:
-		return &m_FromBeInt;
+	case TypeKind_Int16_be:
+	case TypeKind_Int16_beu:
+	case TypeKind_Int32_be:
+	case TypeKind_Int32_beu:
+	case TypeKind_Int64_be:
+	case TypeKind_Int64_beu:
+		return &m_fromBeInt;
 
-	case EType_Float:
-	case EType_Double:
+	case TypeKind_Float:
+	case TypeKind_Double:
 		return 
-			SrcSize == DstSize ? m_pModule->m_OperatorMgr.GetStdCastOperator (EStdCast_Copy) : 
-			SrcSize > DstSize ? (CCastOperator*) &m_Trunc : 
-			(CCastOperator*) &m_Ext;
+			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy) : 
+			srcSize > dstSize ? (CastOperator*) &m_trunc : 
+			(CastOperator*) &m_ext;
 
-	case EType_Enum:
-		return &m_FromEnum;
+	case TypeKind_Enum:
+		return &m_fromEnum;
 
 	default:
 		return NULL;

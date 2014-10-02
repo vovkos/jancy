@@ -7,126 +7,126 @@ namespace jnc {
 
 //.............................................................................
 
-CMulticastClassType::CMulticastClassType ()
+MulticastClassType::MulticastClassType ()
 {
-	m_ClassTypeKind = EClassType_Multicast;
-	m_pTargetType = NULL;
-	m_pSnapshotType = NULL;
-	m_pEventClassPtrTypeTuple = NULL;
-	memset (m_FieldArray, 0, sizeof (m_FieldArray));
-	memset (m_MethodArray, 0, sizeof (m_MethodArray));
+	m_classTypeKind = ClassTypeKind_Multicast;
+	m_targetType = NULL;
+	m_snapshotType = NULL;
+	m_eventClassPtrTypeTuple = NULL;
+	memset (m_fieldArray, 0, sizeof (m_fieldArray));
+	memset (m_methodArray, 0, sizeof (m_methodArray));
 }
 
 void
-CMulticastClassType::PrepareTypeString ()
+MulticastClassType::prepareTypeString ()
 {
-	m_TypeString = m_pTargetType->GetTypeModifierString ();
-	m_TypeString.AppendFormat ("multicast %s", m_pTargetType->GetTargetType ()->GetArgString ().cc ());
+	m_typeString = m_targetType->getTypeModifierString ();
+	m_typeString.appendFormat ("multicast %s", m_targetType->getTargetType ()->getArgString ().cc ());
 }
 
 bool
-CMulticastClassType::CompileCallMethod ()
+MulticastClassType::compileCallMethod ()
 {
-	bool Result;
+	bool result;
 
-	CFunction* pFunction = m_MethodArray [EMulticastMethod_Call];
+	Function* function = m_methodArray [MulticastMethodKind_Call];
 
-	size_t ArgCount = pFunction->GetType ()->GetArgArray ().GetCount ();
+	size_t argCount = function->getType ()->getArgArray ().getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (pFunction, ArgValueArray, ArgCount);
+	m_module->m_functionMgr.internalPrologue (function, argValueArray, argCount);
 
-	CFunction* pGetSnapshot = m_MethodArray [EMulticastMethod_GetSnapshot];
+	Function* getSnapshot = m_methodArray [MulticastMethodKind_GetSnapshot];
 
-	CValue SnapshotValue;
-	Result = m_pModule->m_OperatorMgr.CallOperator (pGetSnapshot, ArgValueArray [0], &SnapshotValue);
-	if (!Result)
+	Value snapshotValue;
+	result = m_module->m_operatorMgr.callOperator (getSnapshot, argValueArray [0], &snapshotValue);
+	if (!result)
 		return false;
 
-	rtl::CBoxListT <CValue> ArgList;
-	for (size_t i = 1; i < ArgCount; i++)
-		ArgList.InsertTail (ArgValueArray [i]);
+	rtl::BoxList <Value> argList;
+	for (size_t i = 1; i < argCount; i++)
+		argList.insertTail (argValueArray [i]);
 
-	m_pModule->m_OperatorMgr.CallOperator (SnapshotValue, &ArgList);
+	m_module->m_operatorMgr.callOperator (snapshotValue, &argList);
 
-	m_pModule->m_ControlFlowMgr.Return ();
+	m_module->m_controlFlowMgr.ret ();
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;
 }
 
 void
-CMulticastClassType::GcMark (
-	CRuntime* pRuntime,
+MulticastClassType::gcMark (
+	Runtime* runtime,
 	void* _p
 	)
 {
-	TObjHdr* pObject = (TObjHdr*) _p;
-	ASSERT (pObject->m_pType == this);
+	ObjHdr* object = (ObjHdr*) _p;
+	ASSERT (object->m_type == this);
 
-	TMulticast* pMulticast = (TMulticast*) (pObject + 1);
-	if (!(m_pTargetType->GetFlags () & ETypeFlag_GcRoot) || !pMulticast->m_Count)
+	Multicast* multicast = (Multicast*) (object + 1);
+	if (!(m_targetType->getFlags () & TypeFlagKind_GcRoot) || !multicast->m_count)
 		return;
 
-	char* p = (char*) pMulticast->m_pPtrArray;
-	size_t Size = m_pTargetType->GetSize ();
+	char* p = (char*) multicast->m_ptrArray;
+	size_t size = m_targetType->getSize ();
 
-	for (size_t i = 0; i < pMulticast->m_Count; i++, p += Size)
-		pRuntime->AddGcRoot (p, m_pTargetType);
+	for (size_t i = 0; i < multicast->m_count; i++, p += size)
+		runtime->addGcRoot (p, m_targetType);
 }
 
 //.............................................................................
 
 void
-TMulticast::Call ()
+Multicast::call ()
 {
-	jnc::CFunction* pMethod = GetMethod (jnc::EMulticastMethod_Call);
+	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
 	
 	typedef 
 	void 
-	FCall (jnc::TMulticast*);
+	FCall (jnc::Multicast*);
 
-	FCall* pf = (FCall*) pMethod->GetMachineCode ();
+	FCall* pf = (FCall*) method->getMachineCode ();
 	pf (this);
 }
 
 void
-TMulticast::Call (intptr_t a)
+Multicast::call (intptr_t a)
 {
-	jnc::CFunction* pMethod = GetMethod (jnc::EMulticastMethod_Call);
+	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
 	
 	typedef 
 	void 
 	FCall (
-		jnc::TMulticast*, 
+		jnc::Multicast*, 
 		intptr_t
 		);
 
-	FCall* pf = (FCall*) pMethod->GetMachineCode ();
+	FCall* pf = (FCall*) method->getMachineCode ();
 	pf (this, a);
 }
 
 void
-TMulticast::Call (
+Multicast::call (
 	intptr_t a1,
 	intptr_t a2
 	)
 {
-	jnc::CFunction* pMethod = GetMethod (jnc::EMulticastMethod_Call);
+	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
 	
 	typedef 
 	void 
 	FCall (
-		jnc::TMulticast*, 
+		jnc::Multicast*, 
 		intptr_t,
 		intptr_t
 		);
 
-	FCall* pf = (FCall*) pMethod->GetMachineCode ();
+	FCall* pf = (FCall*) method->getMachineCode ();
 	pf (this, a1, a2);	
 }
 

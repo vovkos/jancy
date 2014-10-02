@@ -9,223 +9,223 @@
 
 namespace jnc {
 
-class CFunctionPtrType;
-class CNamedType;
-class CClassType;
-class CClassPtrType;
-class CReactorClassType;
-class CCdeclCallConv_msc64;
-class CFunction;
+class FunctionPtrType;
+class NamedType;
+class ClassType;
+class ClassPtrType;
+class ReactorClassType;
+class CdeclCallConv_msc64;
+class Function;
 
-struct TFunctionPtrTypeTuple;
+struct FunctionPtrTypeTuple;
 
 //.............................................................................
 
-enum EFunctionTypeFlag
+enum FunctionTypeFlagKind
 {
-	EFunctionTypeFlag_VarArg      = 0x010000,
-	EFunctionTypeFlag_Throws      = 0x040000,
-	EFunctionTypeFlag_CoercedArgs = 0x080000,
+	FunctionTypeFlagKind_VarArg      = 0x010000,
+	FunctionTypeFlagKind_Throws      = 0x040000,
+	FunctionTypeFlagKind_CoercedArgs = 0x080000,
 };
 
 //.............................................................................
 
-enum EFunctionPtrType
+enum FunctionPtrTypeKind
 {
-	EFunctionPtrType_Normal = 0,
-	EFunctionPtrType_Weak,
-	EFunctionPtrType_Thin,
-	EFunctionPtrType__Count,
+	FunctionPtrTypeKind_Normal = 0,
+	FunctionPtrTypeKind_Weak,
+	FunctionPtrTypeKind_Thin,
+	FunctionPtrTypeKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetFunctionPtrTypeKindString (EFunctionPtrType PtrTypeKind);
+getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 
-class CFunctionType: public CType
+class FunctionType: public Type
 {
-	friend class CTypeMgr;
-	friend class CClassType;
-	friend class CCdeclCallConv_msc64;
-	friend class CCdeclCallConv_gcc64;
+	friend class TypeMgr;
+	friend class ClassType;
+	friend class CdeclCallConv_msc64;
+	friend class CdeclCallConv_gcc64;
 
 protected:
-	CCallConv* m_pCallConv;
-	CType* m_pReturnType;
-	CImportType* m_pReturnType_i;
-	rtl::CArrayT <CFunctionArg*> m_ArgArray;
-	rtl::CBoxListT <CToken> m_ThrowCondition;
-	rtl::CString m_ArgSignature;
-	rtl::CString m_TypeModifierString;
-	rtl::CString m_ArgString;
-	CFunctionType* m_pShortType;
-	CFunctionType* m_pStdObjectMemberMethodType;
-	CFunction* m_pAbstractFunction;
-	TFunctionPtrTypeTuple* m_pFunctionPtrTypeTuple;
-	CReactorClassType* m_pReactorInterfaceType;
+	CallConv* m_callConv;
+	Type* m_returnType;
+	ImportType* m_returnType_i;
+	rtl::Array <FunctionArg*> m_argArray;
+	rtl::BoxList <Token> m_throwCondition;
+	rtl::String m_argSignature;
+	rtl::String m_typeModifierString;
+	rtl::String m_argString;
+	FunctionType* m_shortType;
+	FunctionType* m_stdObjectMemberMethodType;
+	Function* m_abstractFunction;
+	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
+	ReactorClassType* m_reactorInterfaceType;
 
 public:
-	CFunctionType ();
+	FunctionType ();
 
-	CCallConv*
-	GetCallConv ()
+	CallConv*
+	getCallConv ()
 	{
-		return m_pCallConv;
+		return m_callConv;
 	}
 
-	CType*
-	GetReturnType ()
+	Type*
+	getReturnType ()
 	{
-		return m_pReturnType;
+		return m_returnType;
 	}
 
-	CImportType*
-	GetReturnType_i ()
+	ImportType*
+	getReturnType_i ()
 	{
-		return m_pReturnType_i;
+		return m_returnType_i;
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetThrowCondition ()
+	rtl::ConstBoxList <Token>
+	getThrowCondition ()
 	{
-		return m_ThrowCondition;
+		return m_throwCondition;
 	}
 
 	bool
-	IsThrowConditionMatch (CFunctionType* pType);
+	isThrowConditionMatch (FunctionType* type);
 
-	rtl::CArrayT <CFunctionArg*>
-	GetArgArray ()
+	rtl::Array <FunctionArg*>
+	getArgArray ()
 	{
-		return m_ArgArray;
+		return m_argArray;
 	}
 
-	rtl::CString
-	GetArgSignature ();
+	rtl::String
+	getArgSignature ();
 
-	rtl::CString
-	GetArgString ();
+	rtl::String
+	getArgString ();
 
-	rtl::CString
-	GetTypeModifierString ();
+	rtl::String
+	getTypeModifierString ();
 
 	bool
-	IsMemberMethodType ()
+	isMemberMethodType ()
 	{
-		return !m_ArgArray.IsEmpty () && m_ArgArray [0]->GetStorageKind () == EStorage_This;
+		return !m_argArray.isEmpty () && m_argArray [0]->getStorageKind () == StorageKind_This;
 	}
 
-	CType*
-	GetThisArgType ()
+	Type*
+	getThisArgType ()
 	{
-		return IsMemberMethodType () ? m_ArgArray [0]->GetType () : NULL;
+		return isMemberMethodType () ? m_argArray [0]->getType () : NULL;
 	}
 
-	CNamedType*
-	GetThisTargetType ();
+	NamedType*
+	getThisTargetType ();
 
-	CFunctionType*
-	GetShortType ()
+	FunctionType*
+	getShortType ()
 	{
-		return m_pShortType;
+		return m_shortType;
 	}
 
-	CFunctionType*
-	GetMemberMethodType (
-		CNamedType* pType,
-		uint_t ThisArgFlags = 0
+	FunctionType*
+	getMemberMethodType (
+		NamedType* type,
+		uint_t thisArgFlags = 0
 		);
 
-	CFunctionType*
-	GetStdObjectMemberMethodType ();
+	FunctionType*
+	getStdObjectMemberMethodType ();
 
-	CFunction*
-	GetAbstractFunction ();
+	Function*
+	getAbstractFunction ();
 
-	CFunctionPtrType*
-	GetFunctionPtrType (
-		EType TypeKind,
-		EFunctionPtrType PtrTypeKind = EFunctionPtrType_Normal,
-		uint_t Flags = 0
+	FunctionPtrType*
+	getFunctionPtrType (
+		TypeKind typeKind,
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CFunctionPtrType*
-	GetFunctionPtrType (
-		EFunctionPtrType PtrTypeKind = EFunctionPtrType_Normal,
-		uint_t Flags = 0
+	FunctionPtrType*
+	getFunctionPtrType (
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetFunctionPtrType (EType_FunctionPtr, PtrTypeKind, Flags);
+		return getFunctionPtrType (TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
-	CClassType*
-	GetMulticastType ();
+	ClassType*
+	getMulticastType ();
 
 	static
-	rtl::CString
-	CreateSignature (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		CType* const* pArgTypeArray,
-		size_t ArgCount,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		CallConv* callConv,
+		Type* returnType,
+		Type* const* argTypeArray,
+		size_t argCount,
+		uint_t flags
 		);
 
 	static
-	rtl::CString
-	CreateSignature (
-		CCallConv* pCallConv,
-		CType* pReturnType,
-		CFunctionArg* const* pArgArray,
-		size_t ArgCount,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		CallConv* callConv,
+		Type* returnType,
+		FunctionArg* const* argArray,
+		size_t argCount,
+		uint_t flags
 		);
 
 	static
-	rtl::CString
-	CreateArgSignature (
-		CType* const* pArgTypeArray,
-		size_t ArgCount,
-		uint_t Flags
+	rtl::String
+	createArgSignature (
+		Type* const* argTypeArray,
+		size_t argCount,
+		uint_t flags
 		);
 
 	static
-	rtl::CString
-	CreateArgSignature (
-		CFunctionArg* const* pArgArray,
-		size_t ArgCount,
-		uint_t Flags
+	rtl::String
+	createArgSignature (
+		FunctionArg* const* argArray,
+		size_t argCount,
+		uint_t flags
 		);
 
-	rtl::CString
-	CreateArgSignature ()
+	rtl::String
+	createArgSignature ()
 	{
-		return CreateArgSignature (m_ArgArray, m_ArgArray.GetCount (), m_Flags);
+		return createArgSignature (m_argArray, m_argArray.getCount (), m_flags);
 	}
 
 	virtual
 	bool
-	Compile ();
+	compile ();
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 };
 
 //.............................................................................

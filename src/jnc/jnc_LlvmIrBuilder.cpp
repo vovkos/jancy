@@ -6,430 +6,430 @@ namespace jnc {
 
 //.............................................................................
 
-CLlvmIrBuilder::CLlvmIrBuilder ()
+LlvmIrBuilder::LlvmIrBuilder ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_pLlvmIrBuilder = NULL;
+	m_llvmIrBuilder = NULL;
 
-	m_CommentMdKind = 0;
+	m_commentMdKind = 0;
 }
 
 void
-CLlvmIrBuilder::Create ()
+LlvmIrBuilder::create ()
 {
-	Clear ();
+	clear ();
 
-	m_pLlvmIrBuilder = new llvm::IRBuilder <> (*m_pModule->GetLlvmContext ());
+	m_llvmIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
 
-	if (m_pModule->GetFlags () & EModuleFlag_IrComments)
-		m_CommentMdKind = m_pModule->GetLlvmContext ()->getMDKindID ("jnc.comment");
+	if (m_module->getFlags () & ModuleFlagKind_IrComments)
+		m_commentMdKind = m_module->getLlvmContext ()->getMDKindID ("jnc.comment");
 }
 
 void
-CLlvmIrBuilder::Clear ()
+LlvmIrBuilder::clear ()
 {
-	if (!m_pLlvmIrBuilder)
+	if (!m_llvmIrBuilder)
 		return;
 
-	delete m_pLlvmIrBuilder;
-	m_pLlvmIrBuilder = NULL;
+	delete m_llvmIrBuilder;
+	m_llvmIrBuilder = NULL;
 }
 
 bool
-CLlvmIrBuilder::CreateComment_va (
-	const char* pFormat,
+LlvmIrBuilder::createComment_va (
+	const char* format,
 	axl_va_list va
 	)
 {
-	if (!(m_pModule->GetFlags () & EModuleFlag_IrComments))
+	if (!(m_module->getFlags () & ModuleFlagKind_IrComments))
 		return false;
 
-	char Buffer [256];
-	rtl::CString String (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	String.Format_va (pFormat, va);
+	char buffer [256];
+	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.format_va (format, va);
 
-	return CreateComment_0 (String);
+	return createComment_0 (string);
 }
 
 bool
-CLlvmIrBuilder::CreateComment_0 (const char* pText)
+LlvmIrBuilder::createComment_0 (const char* text)
 {
-	if (!(m_pModule->GetFlags () & EModuleFlag_IrComments))
+	if (!(m_module->getFlags () & ModuleFlagKind_IrComments))
 		return false;
 
-	CBasicBlock* pBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	llvm::BasicBlock* pLlvmBlock = pBlock->GetLlvmBlock ();
+	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
+	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
 
-	if (pLlvmBlock->getInstList ().empty ())
+	if (llvmBlock->getInstList ().empty ())
 	{
-		pBlock->m_LeadingComment = pText;
+		block->m_leadingComment = text;
 		return true;
 	}
 
-	llvm::Instruction* pInst = &pLlvmBlock->getInstList ().back ();
-	llvm::MDString* pMdString = llvm::MDString::get (*m_pModule->GetLlvmContext (), pText);
-	llvm::MDNode* pMdNode = llvm::MDNode::get (*m_pModule->GetLlvmContext (), llvm::ArrayRef <llvm::Value*> ((llvm::Value**) &pMdString, 1));
-	pInst->setMetadata (m_CommentMdKind, pMdNode);
+	llvm::Instruction* inst = &llvmBlock->getInstList ().back ();
+	llvm::MDString* mdString = llvm::MDString::get (*m_module->getLlvmContext (), text);
+	llvm::MDNode* mdNode = llvm::MDNode::get (*m_module->getLlvmContext (), llvm::ArrayRef <llvm::Value*> ((llvm::Value**) &mdString, 1));
+	inst->setMetadata (m_commentMdKind, mdNode);
 	return true;
 }
 
 llvm::SwitchInst*
-CLlvmIrBuilder::CreateSwitch (
-	const CValue& Value,
-	CBasicBlock* pDefaultBlock,
-	rtl::CHashTableMapIteratorT <intptr_t, CBasicBlock*> FirstCase,
-	size_t CaseCount
+LlvmIrBuilder::createSwitch (
+	const Value& value,
+	BasicBlock* defaultBlock,
+	rtl::HashTableMapIterator <intptr_t, BasicBlock*> firstCase,
+	size_t caseCount
 	)
 {
-	CType* pType = Value.GetType ();
-	ASSERT (pType->GetTypeKindFlags () & ETypeKindFlag_Integer);
+	Type* type = value.getType ();
+	ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Integer);
 
-	llvm::SwitchInst* pInst = m_pLlvmIrBuilder->CreateSwitch (
-		Value.GetLlvmValue (),
-		pDefaultBlock->GetLlvmBlock (),
-		CaseCount
+	llvm::SwitchInst* inst = m_llvmIrBuilder->CreateSwitch (
+		value.getLlvmValue (),
+		defaultBlock->getLlvmBlock (),
+		caseCount
 		);
 
-	rtl::CHashTableMapIteratorT <intptr_t, CBasicBlock*> Case = FirstCase;
-	for (; Case; Case++)
+	rtl::HashTableMapIterator <intptr_t, BasicBlock*> caseIt = firstCase;
+	for (; caseIt; caseIt++)
 	{
-		CValue ConstValue (Case->m_Key, pType);
-		CBasicBlock* pBlock = Case->m_Value;
+		Value constValue (caseIt->m_key, type);
+		BasicBlock* block = caseIt->m_value;
 
-		pInst->addCase ((llvm::ConstantInt*) ConstValue.GetLlvmValue (), pBlock->GetLlvmBlock ());
+		inst->addCase ((llvm::ConstantInt*) constValue.getLlvmValue (), block->getLlvmBlock ());
 	}
 
-	return pInst;
+	return inst;
 }
 
 void
-CLlvmIrBuilder::SetInsertPoint (CBasicBlock* pBlock)
+LlvmIrBuilder::setInsertPoint (BasicBlock* block)
 {
-	if (!(pBlock->GetFlags () & EBasicBlockFlag_Entry) || !pBlock->HasTerminator ())
-		m_pLlvmIrBuilder->SetInsertPoint (pBlock->GetLlvmBlock ());
+	if (!(block->getFlags () & BasicBlockFlagKind_Entry) || !block->hasTerminator ())
+		m_llvmIrBuilder->SetInsertPoint (block->getLlvmBlock ());
 	else
-		m_pLlvmIrBuilder->SetInsertPoint (pBlock->GetLlvmBlock ()->getTerminator ());
+		m_llvmIrBuilder->SetInsertPoint (block->getLlvmBlock ()->getTerminator ());
 }
 
 llvm::IndirectBrInst*
-CLlvmIrBuilder::CreateIndirectBr (
-	const CValue& Value,
-	CBasicBlock** ppBlockArray,
-	size_t BlockCount
+LlvmIrBuilder::createIndirectBr (
+	const Value& value,
+	BasicBlock** blockArray,
+	size_t blockCount
 	)
 {
-	llvm::IndirectBrInst* pInst = m_pLlvmIrBuilder->CreateIndirectBr (Value.GetLlvmValue (), BlockCount);
+	llvm::IndirectBrInst* inst = m_llvmIrBuilder->CreateIndirectBr (value.getLlvmValue (), blockCount);
 
-	for (size_t i = 0; i < BlockCount; i++)
-		pInst->addDestination (ppBlockArray [i]->GetLlvmBlock ());
+	for (size_t i = 0; i < blockCount; i++)
+		inst->addDestination (blockArray [i]->getLlvmBlock ());
 
-	return pInst;
+	return inst;
 }
 
 llvm::SwitchInst*
-CLlvmIrBuilder::CreateSwitch (
-	const CValue& Value,
-	CBasicBlock* pDefaultBlock,
-	intptr_t* pConstArray,
-	CBasicBlock** pBlockArray,
-	size_t CaseCount
+LlvmIrBuilder::createSwitch (
+	const Value& value,
+	BasicBlock* defaultBlock,
+	intptr_t* constArray,
+	BasicBlock** blockArray,
+	size_t caseCount
 	)
 {
-	CType* pType = Value.GetType ();
-	ASSERT (pType->GetTypeKindFlags () & ETypeKindFlag_Integer);
+	Type* type = value.getType ();
+	ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Integer);
 
-	llvm::SwitchInst* pInst = m_pLlvmIrBuilder->CreateSwitch (
-		Value.GetLlvmValue (),
-		pDefaultBlock->GetLlvmBlock (),
-		CaseCount
+	llvm::SwitchInst* inst = m_llvmIrBuilder->CreateSwitch (
+		value.getLlvmValue (),
+		defaultBlock->getLlvmBlock (),
+		caseCount
 		);
 
-	for (size_t i = 0; i < CaseCount; i++)
+	for (size_t i = 0; i < caseCount; i++)
 	{
-		CValue ConstValue (pConstArray [i], pType);
-		CBasicBlock* pBlock = pBlockArray [i];
+		Value constValue (constArray [i], type);
+		BasicBlock* block = blockArray [i];
 
-		pInst->addCase ((llvm::ConstantInt*) ConstValue.GetLlvmValue (), pBlock->GetLlvmBlock ());
+		inst->addCase ((llvm::ConstantInt*) constValue.getLlvmValue (), block->getLlvmBlock ());
 	}
 
-	return pInst;
+	return inst;
 }
 
 
 llvm::PHINode*
-CLlvmIrBuilder::CreatePhi (
-	const CValue* pValueArray,
-	CBasicBlock** pBlockArray,
-	size_t Count,
-	CValue* pResultValue
+LlvmIrBuilder::createPhi (
+	const Value* valueArray,
+	BasicBlock** blockArray,
+	size_t count,
+	Value* resultValue
 	)
 {
-	if (pValueArray->IsEmpty ())
+	if (valueArray->isEmpty ())
 	{
-		pResultValue->SetVoid ();
+		resultValue->setVoid ();
 		return NULL;
 	}
 
-	llvm::PHINode* pPhiNode = m_pLlvmIrBuilder->CreatePHI (pValueArray->GetType ()->GetLlvmType (), Count, "phi");
+	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI (valueArray->getType ()->getLlvmType (), count, "phi");
 
-	for (size_t i = 0; i < Count; i++)
-		pPhiNode->addIncoming (pValueArray [i].GetLlvmValue (), pBlockArray [i]->GetLlvmBlock ());
+	for (size_t i = 0; i < count; i++)
+		phiNode->addIncoming (valueArray [i].getLlvmValue (), blockArray [i]->getLlvmBlock ());
 
-	pResultValue->SetLlvmValue (pPhiNode, pValueArray->GetType ());
-	return pPhiNode;
+	resultValue->setLlvmValue (phiNode, valueArray->getType ());
+	return phiNode;
 }
 
 llvm::PHINode*
-CLlvmIrBuilder::CreatePhi (
-	const CValue& Value1,
-	CBasicBlock* pBlock1,
-	const CValue& Value2,
-	CBasicBlock* pBlock2,
-	CValue* pResultValue
+LlvmIrBuilder::createPhi (
+	const Value& value1,
+	BasicBlock* block1,
+	const Value& value2,
+	BasicBlock* block2,
+	Value* resultValue
 	)
 {
-	if (Value1.IsEmpty ())
+	if (value1.isEmpty ())
 	{
-		pResultValue->SetVoid ();
+		resultValue->setVoid ();
 		return NULL;
 	}
 
-	llvm::PHINode* pPhiNode = m_pLlvmIrBuilder->CreatePHI (Value1.GetLlvmValue ()->getType (), 2,  "phi");
-	pPhiNode->addIncoming (Value1.GetLlvmValue (), pBlock1->GetLlvmBlock ());
-	pPhiNode->addIncoming (Value2.GetLlvmValue (), pBlock2->GetLlvmBlock ());
-	pResultValue->SetLlvmValue (pPhiNode, Value1.GetType ());
-	return pPhiNode;
+	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI (value1.getLlvmValue ()->getType (), 2,  "phi");
+	phiNode->addIncoming (value1.getLlvmValue (), block1->getLlvmBlock ());
+	phiNode->addIncoming (value2.getLlvmValue (), block2->getLlvmBlock ());
+	resultValue->setLlvmValue (phiNode, value1.getType ());
+	return phiNode;
 }
 
 llvm::AllocaInst*
-CLlvmIrBuilder::CreateAlloca (
-	CType* pType,
-	const char* pName,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createAlloca (
+	Type* type,
+	const char* name,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
 
 	// always create alloca in entry block
 
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
-	llvm::AllocaInst* pInst = m_pLlvmIrBuilder->CreateAlloca (pType->GetLlvmType (), 0, pName);
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+	llvm::AllocaInst* inst = m_llvmIrBuilder->CreateAlloca (type->getLlvmType (), 0, name);
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 
-	pResultValue->SetLlvmValue (pInst, pResultType);
-	return pInst;
+	resultValue->setLlvmValue (inst, resultType);
+	return inst;
 }
 
 llvm::Value*
-CLlvmIrBuilder::CreateGep (
-	const CValue& Value,
-	const CValue* pIndexArray,
-	size_t IndexCount,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createGep (
+	const Value& value,
+	const Value* indexArray,
+	size_t indexCount,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	char Buffer [256];
-	rtl::CArrayT <llvm::Value*> LlvmIndexArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmIndexArray.SetCount (IndexCount);
+	char buffer [256];
+	rtl::Array <llvm::Value*> llvmIndexArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmIndexArray.setCount (indexCount);
 
-	for (size_t i = 0; i < IndexCount; i++)
-		LlvmIndexArray [i] = pIndexArray [i].GetLlvmValue ();
+	for (size_t i = 0; i < indexCount; i++)
+		llvmIndexArray [i] = indexArray [i].getLlvmValue ();
 
-	llvm::Value* pInst;
-	pInst = m_pLlvmIrBuilder->CreateGEP (
-			Value.GetLlvmValue (),
-			llvm::ArrayRef <llvm::Value*> (LlvmIndexArray, IndexCount),
+	llvm::Value* inst;
+	inst = m_llvmIrBuilder->CreateGEP (
+			value.getLlvmValue (),
+			llvm::ArrayRef <llvm::Value*> (llvmIndexArray, indexCount),
 			"gep"
 			);
 
-	pResultValue->SetLlvmValue (pInst, pResultType);
-	return pInst;
+	resultValue->setLlvmValue (inst, resultType);
+	return inst;
 }
 
 llvm::Value*
-CLlvmIrBuilder::CreateGep (
-	const CValue& Value,
-	const int32_t* pIndexArray,
-	size_t IndexCount,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createGep (
+	const Value& value,
+	const int32_t* indexArray,
+	size_t indexCount,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	char Buffer [256];
-	rtl::CArrayT <llvm::Value*> LlvmIndexArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmIndexArray.SetCount (IndexCount);
+	char buffer [256];
+	rtl::Array <llvm::Value*> llvmIndexArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmIndexArray.setCount (indexCount);
 
-	for (size_t i = 0; i < IndexCount; i++)
+	for (size_t i = 0; i < indexCount; i++)
 	{
-		CValue IndexValue;
-		IndexValue.SetConstInt32 (pIndexArray [i], EType_Int32_u);
-		LlvmIndexArray [i] = IndexValue.GetLlvmValue ();
+		Value indexValue;
+		indexValue.setConstInt32 (indexArray [i], TypeKind_Int32_u);
+		llvmIndexArray [i] = indexValue.getLlvmValue ();
 	}
 
-	llvm::Value* pInst;
-	pInst = m_pLlvmIrBuilder->CreateGEP (
-			Value.GetLlvmValue (),
-			llvm::ArrayRef <llvm::Value*> (LlvmIndexArray, IndexCount),
+	llvm::Value* inst;
+	inst = m_llvmIrBuilder->CreateGEP (
+			value.getLlvmValue (),
+			llvm::ArrayRef <llvm::Value*> (llvmIndexArray, indexCount),
 			"gep"
 			);
 
-	pResultValue->SetLlvmValue (pInst, pResultType);
-	return pInst;
+	resultValue->setLlvmValue (inst, resultType);
+	return inst;
 }
 
 llvm::CallInst*
-CLlvmIrBuilder::CreateCall (
-	const CValue& CalleeValue,
-	CCallConv* pCallConv,
-	llvm::Value* const* pLlvmArgValueArray,
-	size_t ArgCount,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createCall (
+	const Value& calleeValue,
+	CallConv* callConv,
+	llvm::Value* const* llvmArgValueArray,
+	size_t argCount,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	llvm::CallInst* pInst;
+	llvm::CallInst* inst;
 
-	if (pResultType->GetTypeKind () != EType_Void)
+	if (resultType->getTypeKind () != TypeKind_Void)
 	{
-		pInst = m_pLlvmIrBuilder->CreateCall (
-			CalleeValue.GetLlvmValue (),
-			llvm::ArrayRef <llvm::Value*> (pLlvmArgValueArray, ArgCount),
+		inst = m_llvmIrBuilder->CreateCall (
+			calleeValue.getLlvmValue (),
+			llvm::ArrayRef <llvm::Value*> (llvmArgValueArray, argCount),
 			"call"
 			);
 
-		ASSERT (pResultValue);
-		pResultValue->SetLlvmValue (pInst, pResultType);
+		ASSERT (resultValue);
+		resultValue->setLlvmValue (inst, resultType);
 	}
 	else
 	{
-		pInst = m_pLlvmIrBuilder->CreateCall (
-			CalleeValue.GetLlvmValue (),
-			llvm::ArrayRef <llvm::Value*> (pLlvmArgValueArray, ArgCount)
+		inst = m_llvmIrBuilder->CreateCall (
+			calleeValue.getLlvmValue (),
+			llvm::ArrayRef <llvm::Value*> (llvmArgValueArray, argCount)
 			);
 
-		if (pResultValue)
-			pResultValue->SetVoid ();
+		if (resultValue)
+			resultValue->setVoid ();
 	}
 
-	llvm::CallingConv::ID LlvmCallConv = pCallConv->GetLlvmCallConv ();
-	if (LlvmCallConv)
-		pInst->setCallingConv (LlvmCallConv);
+	llvm::CallingConv::ID llvmCallConv = callConv->getLlvmCallConv ();
+	if (llvmCallConv)
+		inst->setCallingConv (llvmCallConv);
 
-	return pInst;
+	return inst;
 }
 
 llvm::CallInst*
-CLlvmIrBuilder::CreateCall (
-	const CValue& CalleeValue,
-	CCallConv* pCallConv,
-	const rtl::CBoxListT <CValue>& ArgValueList,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createCall (
+	const Value& calleeValue,
+	CallConv* callConv,
+	const rtl::BoxList <Value>& argValueList,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	size_t ArgCount = ArgValueList.GetCount ();
+	size_t argCount = argValueList.getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <llvm::Value*> LlvmArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <llvm::Value*> llvmArgValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmArgValueArray.setCount (argCount);
 
-	rtl::CBoxIteratorT <CValue> It = ArgValueList.GetHead ();
-	for (size_t i = 0; i < ArgCount; i++, It++)
+	rtl::BoxIterator <Value> it = argValueList.getHead ();
+	for (size_t i = 0; i < argCount; i++, it++)
 	{
-		ASSERT (It);
-		LlvmArgValueArray [i] = It->GetLlvmValue ();
+		ASSERT (it);
+		llvmArgValueArray [i] = it->getLlvmValue ();
 	}
 
-	return CreateCall (CalleeValue, pCallConv, LlvmArgValueArray, ArgCount, pResultType, pResultValue);
+	return createCall (calleeValue, callConv, llvmArgValueArray, argCount, resultType, resultValue);
 }
 
 llvm::CallInst*
-CLlvmIrBuilder::CreateCall (
-	const CValue& CalleeValue,
-	CCallConv* pCallConv,
-	const CValue* pArgArray,
-	size_t ArgCount,
-	CType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createCall (
+	const Value& calleeValue,
+	CallConv* callConv,
+	const Value* argArray,
+	size_t argCount,
+	Type* resultType,
+	Value* resultValue
 	)
 {
-	char Buffer [256];
-	rtl::CArrayT <llvm::Value*> LlvmArgValueArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmArgValueArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <llvm::Value*> llvmArgValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmArgValueArray.setCount (argCount);
 
-	for (size_t i = 0; i < ArgCount; i++)
-		LlvmArgValueArray [i] = pArgArray [i].GetLlvmValue ();
+	for (size_t i = 0; i < argCount; i++)
+		llvmArgValueArray [i] = argArray [i].getLlvmValue ();
 
-	return CreateCall (CalleeValue, pCallConv, LlvmArgValueArray, ArgCount, pResultType, pResultValue);
+	return createCall (calleeValue, callConv, llvmArgValueArray, argCount, resultType, resultValue);
 }
 
 bool
-CLlvmIrBuilder::CreateClosureFunctionPtr (
-	const CValue& RawPfnValue,
-	const CValue& RawIfaceValue,
-	CFunctionPtrType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createClosureFunctionPtr (
+	const Value& rawPfnValue,
+	const Value& rawIfaceValue,
+	FunctionPtrType* resultType,
+	Value* resultValue
 	)
 {
-	CLlvmScopeComment Comment (this, "create closure function pointer");
+	LlvmScopeComment comment (this, "create closure function pointer");
 
-	CValue PfnValue;
-	CValue IfaceValue;
-	CValue FunctionPtrValue = pResultType->GetUndefValue ();
+	Value pfnValue;
+	Value ifaceValue;
+	Value functionPtrValue = resultType->getUndefValue ();
 
-	CFunctionType* pStdObjectMemberMethodType = pResultType->GetTargetType ()->GetStdObjectMemberMethodType ();
+	FunctionType* stdObjectMemberMethodType = resultType->getTargetType ()->getStdObjectMemberMethodType ();
 
-	CreateBitCast (RawPfnValue, pStdObjectMemberMethodType->GetFunctionPtrType (EFunctionPtrType_Thin), &PfnValue);
-	CreateBitCast (RawIfaceValue, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr), &IfaceValue);
+	createBitCast (rawPfnValue, stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
+	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
 
-	CreateInsertValue (FunctionPtrValue, PfnValue, 0, NULL, &FunctionPtrValue);
-	CreateInsertValue (FunctionPtrValue, IfaceValue, 1, pResultType, pResultValue);
+	createInsertValue (functionPtrValue, pfnValue, 0, NULL, &functionPtrValue);
+	createInsertValue (functionPtrValue, ifaceValue, 1, resultType, resultValue);
 	return true;
 }
 
 bool
-CLlvmIrBuilder::CreateClosurePropertyPtr (
-	const CValue& RawPfnValue,
-	const CValue& RawIfaceValue,
-	CPropertyPtrType* pResultType,
-	CValue* pResultValue
+LlvmIrBuilder::createClosurePropertyPtr (
+	const Value& rawPfnValue,
+	const Value& rawIfaceValue,
+	PropertyPtrType* resultType,
+	Value* resultValue
 	)
 {
-	CLlvmScopeComment Comment (this, "create closure property pointer");
+	LlvmScopeComment comment (this, "create closure property pointer");
 
-	CValue PfnValue;
-	CValue IfaceValue;
-	CValue PropertyPtrValue = pResultType->GetUndefValue ();
+	Value pfnValue;
+	Value ifaceValue;
+	Value propertyPtrValue = resultType->getUndefValue ();
 
-	CPropertyType* pStdObjectMemberPropertyType = pResultType->GetTargetType ()->GetStdObjectMemberPropertyType ();
+	PropertyType* stdObjectMemberPropertyType = resultType->getTargetType ()->getStdObjectMemberPropertyType ();
 
-	CreateBitCast (RawPfnValue, pStdObjectMemberPropertyType->GetPropertyPtrType (EPropertyPtrType_Thin), &PfnValue);
-	CreateBitCast (RawIfaceValue, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr), &IfaceValue);
+	createBitCast (rawPfnValue, stdObjectMemberPropertyType->getPropertyPtrType (PropertyPtrTypeKind_Thin), &pfnValue);
+	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
 
-	CreateInsertValue (PropertyPtrValue, PfnValue, 0, NULL, &PropertyPtrValue);
-	CreateInsertValue (PropertyPtrValue, IfaceValue, 1, pResultType, pResultValue);
+	createInsertValue (propertyPtrValue, pfnValue, 0, NULL, &propertyPtrValue);
+	createInsertValue (propertyPtrValue, ifaceValue, 1, resultType, resultValue);
 	return true;
 }
 
 bool
-CLlvmIrBuilder::RuntimeError (const CValue& ErrorValue)
+LlvmIrBuilder::runtimeError (const Value& errorValue)
 {
-	CFunction* pRuntimeError = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_RuntimeError);
+	Function* runtimeError = m_module->m_functionMgr.getStdFunction (StdFuncKind_RuntimeError);
 
 	// TODO: calc real code address
 
-	CValue CodeAddrValue = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetZeroValue ();
+	Value codeAddrValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
 
-	CreateCall2 (
-		pRuntimeError,
-		pRuntimeError->GetType (),
-		ErrorValue,
-		CodeAddrValue,
+	createCall2 (
+		runtimeError,
+		runtimeError->getType (),
+		errorValue,
+		codeAddrValue,
 		NULL
 		);
 

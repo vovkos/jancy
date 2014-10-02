@@ -6,76 +6,76 @@ namespace jnc {
 
 //.............................................................................
 
-ECast
-CCast_Struct::GetCastKind (
-	const CValue& OpValue,
-	CType* pType
+CastKind
+Cast_Struct::getCastKind (
+	const Value& opValue,
+	Type* type
 	)
 {
-	if (OpValue.GetType ()->GetTypeKind () != EType_Struct)
-		return ECast_None;
+	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
+		return CastKind_None;
 
-	CStructType* pStructType = (CStructType*) OpValue.GetType ();
-	return pStructType->FindBaseType (pType) ? ECast_Implicit : ECast_None;
+	StructType* structType = (StructType*) opValue.getType ();
+	return structType->findBaseType (type) ? CastKind_Implicit : CastKind_None;
 }
 
 bool
-CCast_Struct::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_Struct::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	if (OpValue.GetType ()->GetTypeKind () != EType_Struct)
+	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
 	{
-		SetCastError (OpValue, pType);
+		setCastError (opValue, type);
 		return false;
 	}
 
-	CStructType* pStructType = (CStructType*) OpValue.GetType ();
+	StructType* structType = (StructType*) opValue.getType ();
 
-	CBaseTypeCoord Coord;
-	bool Result = pStructType->FindBaseTypeTraverse (pType, &Coord);
-	if (!Result)
+	BaseTypeCoord coord;
+	bool result = structType->findBaseTypeTraverse (type, &coord);
+	if (!result)
 	{
-		SetCastError (OpValue, pType);
+		setCastError (opValue, type);
 		return false;
 	}
 	
-	memcpy (pDst, (char*) OpValue.GetConstData () + Coord.m_Offset, pType->GetSize ());
+	memcpy (dst, (char*) opValue.getConstData () + coord.m_offset, type->getSize ());
 	return true;
 }
 
 bool
-CCast_Struct::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_Struct::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	if (OpValue.GetType ()->GetTypeKind () != EType_Struct)
+	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
 	{
-		SetCastError (OpValue, pType);
+		setCastError (opValue, type);
 		return false;
 	}
 
-	CStructType* pStructType = (CStructType*) OpValue.GetType ();
+	StructType* structType = (StructType*) opValue.getType ();
 
-	CBaseTypeCoord Coord;
-	bool Result = pStructType->FindBaseTypeTraverse (pType, &Coord);
-	if (!Result)
+	BaseTypeCoord coord;
+	bool result = structType->findBaseTypeTraverse (type, &coord);
+	if (!result)
 	{
-		SetCastError (OpValue, pType);
+		setCastError (opValue, type);
 		return false;
 	}
 
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (
-		OpValue, 
-		Coord.m_LlvmIndexArray, 
-		Coord.m_LlvmIndexArray.GetCount (), 
-		pType, 
-		pResultValue
+	m_module->m_llvmIrBuilder.createExtractValue (
+		opValue, 
+		coord.m_llvmIndexArray, 
+		coord.m_llvmIndexArray.getCount (), 
+		type, 
+		resultValue
 		);
 
 	return true;

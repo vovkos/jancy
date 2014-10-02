@@ -4,14 +4,14 @@
 //.............................................................................
 
 size_t
-CFileOutStream::Printf_va (
-	const char* pFormat,
+FileOutStream::printf_va (
+	const char* format,
 	axl_va_list va
 	)
 {
-	int Length = vfprintf (m_pFile, pFormat, va.m_va);
-	fflush (m_pFile);
-	return Length;
+	int length = vfprintf (m_file, format, va.m_va);
+	fflush (m_file);
+	return length;
 }
 
 //.............................................................................

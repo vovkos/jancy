@@ -7,468 +7,468 @@ namespace jnc {
 //.............................................................................
 
 void
-COperatorMgr::CallTraceFunction (
-	const char* pFunctionName,
-	const char* pString
+OperatorMgr::callTraceFunction (
+	const char* functionName,
+	const char* string
 	)
 {
-	CModuleItem* pItem = m_pModule->m_NamespaceMgr.GetGlobalNamespace ()->FindItem (pFunctionName);
-	if (pItem && pItem->GetItemKind () == EModuleItem_Function)
+	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace ()->findItem (functionName);
+	if (item && item->getItemKind () == ModuleItemKind_Function)
 	{
-		CValue LiteralValue;
-		LiteralValue.SetCharArray (pString);
-		m_pModule->m_OperatorMgr.CallOperator ((CFunction*) pItem, LiteralValue);
+		Value literalValue;
+		literalValue.setCharArray (string);
+		m_module->m_operatorMgr.callOperator ((Function*) item, literalValue);
 	}
 }
 
-CType*
-COperatorMgr::GetFunctionType (
-	const CValue& OpValue,
-	CFunctionType* pFunctionType
+Type*
+OperatorMgr::getFunctionType (
+	const Value& opValue,
+	FunctionType* functionType
 	)
 {
-	CFunctionPtrType* pFunctionPtrType = pFunctionType->GetFunctionPtrType (
-		EType_FunctionRef,
-		EFunctionPtrType_Thin
+	FunctionPtrType* functionPtrType = functionType->getFunctionPtrType (
+		TypeKind_FunctionRef,
+		FunctionPtrTypeKind_Thin
 		);
 
-	CClosure* pClosure = OpValue.GetClosure ();
-	if (!pClosure)
-		return pFunctionPtrType;
+	Closure* closure = opValue.getClosure ();
+	if (!closure)
+		return functionPtrType;
 
-	return GetClosureOperatorResultType (pFunctionPtrType, pClosure->GetArgValueList ());
+	return getClosureOperatorResultType (functionPtrType, closure->getArgValueList ());
 }
 
-CType*
-COperatorMgr::GetClosureOperatorResultType (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList
+Type*
+OperatorMgr::getClosureOperatorResultType (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue);
+	if (!result)
 		return NULL;
 
-	EType TypeKind = OpValue.GetType ()->GetTypeKind ();
-	if (TypeKind != EType_FunctionRef && TypeKind != EType_FunctionPtr)
+	TypeKind typeKind = opValue.getType ()->getTypeKind ();
+	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"closure operator cannot be applied to '%s'",
-			OpValue.GetType ()->GetTypeString ().cc () // thanks a lot gcc
+			opValue.getType ()->getTypeString ().cc () // thanks a lot gcc
 			);
 		return NULL;
 	}
 
-	ref::CPtrT <CClosure> Closure = AXL_REF_NEW (CClosure);
-	Closure->Append (*pArgValueList);
-	return Closure->GetClosureType (OpValue.GetType ());
+	ref::Ptr <Closure> closure = AXL_REF_NEW (Closure);
+	closure->append (*argValueList);
+	return closure->getClosureType (opValue.getType ());
 }
 
 bool
-COperatorMgr::GetClosureOperatorResultType (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::getClosureOperatorResultType (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetClosureOperatorResultType (RawOpValue, pArgValueList);
-	if (!pResultType)
+	Type* resultType = getClosureOperatorResultType (rawOpValue, argValueList);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::ClosureOperator (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::closureOperator (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	CValue OpValue;
-	bool Result = PrepareOperand (RawOpValue, &OpValue);
-	if (!Result)
+	Value opValue;
+	bool result = prepareOperand (rawOpValue, &opValue);
+	if (!result)
 		return false;
 
-	EType TypeKind = OpValue.GetType ()->GetTypeKind ();
-	if (TypeKind != EType_FunctionRef && TypeKind != EType_FunctionPtr)
+	TypeKind typeKind = opValue.getType ()->getTypeKind ();
+	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"closure operator cannot be applied to '%s'",
-			OpValue.GetType ()->GetTypeString ().cc ()
+			opValue.getType ()->getTypeString ().cc ()
 			);
 		return false;
 	}
 
-	*pResultValue = OpValue;
+	*resultValue = opValue;
 
-	CClosure* pClosure = pResultValue->GetClosure ();
-	if (!pClosure)
-		pClosure = pResultValue->CreateClosure ();
+	Closure* closure = resultValue->getClosure ();
+	if (!closure)
+		closure = resultValue->createClosure ();
 
-	pClosure->Append (*pArgValueList);
+	closure->append (*argValueList);
 	return true;
 }
 
-CType*
-COperatorMgr::GetUnsafeVarArgType (CType* pType)
+Type*
+OperatorMgr::getUnsafeVarArgType (Type* type)
 {
 	for (;;)
 	{
-		CType* pPrevType = pType;
+		Type* prevType = type;
 
-		EType TypeKind = pType->GetTypeKind ();
-		switch (TypeKind)
+		TypeKind typeKind = type->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_PropertyRef:
-			pType = ((CPropertyPtrType*) pType)->GetTargetType ()->GetReturnType ();
+		case TypeKind_PropertyRef:
+			type = ((PropertyPtrType*) type)->getTargetType ()->getReturnType ();
 			break;
 
-		case EType_DataRef:
-			pType = ((CDataPtrType*) pType)->GetTargetType ();
+		case TypeKind_DataRef:
+			type = ((DataPtrType*) type)->getTargetType ();
 			break;
 
-		case EType_BitField:
-			pType = ((CBitFieldType*) pType)->GetBaseType ();
+		case TypeKind_BitField:
+			type = ((BitFieldType*) type)->getBaseType ();
 			break;
 
-		case EType_Enum:
-			pType = ((CEnumType*) pType)->GetBaseType ();
+		case TypeKind_Enum:
+			type = ((EnumType*) type)->getBaseType ();
 			break;
 
-		case EType_Float:
-			pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Double);
+		case TypeKind_Float:
+			type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double);
 			break;
 
-		case EType_Array:
-			pType = ((CArrayType*) pType)->GetElementType ()->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const);
+		case TypeKind_Array:
+			type = ((ArrayType*) type)->getElementType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const);
 			break;
 
-		case EType_DataPtr:
-			pType = ((CDataPtrType*) pType)->GetTargetType ()->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const);
+		case TypeKind_DataPtr:
+			type = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const);
 			break;
 
 		default:
-			if (pType->GetTypeKindFlags () & ETypeKindFlag_Integer)
+			if (type->getTypeKindFlags () & TypeKindFlagKind_Integer)
 			{
-				pType = pType->GetSize () > 4 ?
-					m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64) :
-					m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32);
+				type = type->getSize () > 4 ?
+					m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64) :
+					m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
 			}
 		}
 
-		if (pType == pPrevType)
-			return pType;
+		if (type == prevType)
+			return type;
 	}
 }
 
-CType*
-COperatorMgr::GetCallOperatorResultType (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList
+Type*
+OperatorMgr::getCallOperatorResultType (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue;
-	PrepareOperandType (RawOpValue, &OpValue);
+	Value opValue;
+	prepareOperandType (rawOpValue, &opValue);
 
-	if (OpValue.GetType ()->GetTypeKind () == EType_ClassPtr)
+	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CFunction* pCallOperator = ((CClassPtrType*) OpValue.GetType ())->GetTargetType ()->GetCallOperator ();
-		if (!pCallOperator)
+		Function* callOperator = ((ClassPtrType*) opValue.getType ())->getTargetType ()->getCallOperator ();
+		if (!callOperator)
 		{
-			err::SetFormatStringError ("cannot call '%s'", OpValue.GetType ()->GetTypeString ().cc ());
+			err::setFormatStringError ("cannot call '%s'", opValue.getType ()->getTypeString ().cc ());
 			return NULL;
 		}
 
-		CValue ObjValue = OpValue;
+		Value objValue = opValue;
 
-		OpValue.SetFunctionTypeOverload (pCallOperator->GetTypeOverload ());
-		OpValue.InsertToClosureTail (ObjValue);
+		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());
+		opValue.insertToClosureTail (objValue);
 	}
 
-	ref::CPtrT <CClosure> Closure = OpValue.GetClosure ();
-	if (Closure)
+	ref::Ptr <Closure> closure = opValue.getClosure ();
+	if (closure)
 	{
-		Result = Closure->Apply (pArgValueList);
-		if (!Result)
+		result = closure->apply (argValueList);
+		if (!result)
 			return NULL;
 	}
 
-	if (RawOpValue.GetValueKind () == EValue_FunctionTypeOverload)
+	if (rawOpValue.getValueKind () == ValueKind_FunctionTypeOverload)
 	{
-		size_t i = RawOpValue.GetFunctionTypeOverload ()->ChooseOverload (*pArgValueList);
+		size_t i = rawOpValue.getFunctionTypeOverload ()->chooseOverload (*argValueList);
 		if (i == -1)
 			return NULL;
 
-		CFunctionType* pFunctionType = RawOpValue.GetFunctionTypeOverload ()->GetOverload (i);
-		return pFunctionType->GetReturnType ();
+		FunctionType* functionType = rawOpValue.getFunctionTypeOverload ()->getOverload (i);
+		return functionType->getReturnType ();
 	}
 
-	CFunctionType* pFunctionType;
+	FunctionType* functionType;
 
-	CType* pOpType = OpValue.GetType ();
-	EType TypeKind = pOpType->GetTypeKind ();
+	Type* opType = opValue.getType ();
+	TypeKind typeKind = opType->getTypeKind ();
 
-	switch (TypeKind)
+	switch (typeKind)
 	{
-	case EType_Function:
-		pFunctionType = (CFunctionType*) pOpType;
+	case TypeKind_Function:
+		functionType = (FunctionType*) opType;
 		break;
 
-	case EType_FunctionRef:
-	case EType_FunctionPtr:
-		pFunctionType = ((CFunctionPtrType*) pOpType)->GetTargetType ();
+	case TypeKind_FunctionRef:
+	case TypeKind_FunctionPtr:
+		functionType = ((FunctionPtrType*) opType)->getTargetType ();
 		break;
 
 	default:
-		err::SetFormatStringError ("cannot call '%s'", pOpType->GetTypeString ().cc ());
+		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	return pFunctionType->GetReturnType ();
+	return functionType->getReturnType ();
 }
 
 bool
-COperatorMgr::GetCallOperatorResultType (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::getCallOperatorResultType (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	CType* pResultType = GetCallOperatorResultType (RawOpValue, pArgValueList);
-	if (!pResultType)
+	Type* resultType = getCallOperatorResultType (rawOpValue, argValueList);
+	if (!resultType)
 		return false;
 
-	pResultValue->SetType (pResultType);
+	resultValue->setType (resultType);
 	return true;
 }
 
 bool
-COperatorMgr::CallOperator (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::callOperator (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue;
-	CValue UnusedReturnValue;
-	rtl::CBoxListT <CValue> EmptyArgValueList;
+	Value opValue;
+	Value unusedReturnValue;
+	rtl::BoxList <Value> emptyArgValueList;
 
-	if (!pResultValue)
-		pResultValue = &UnusedReturnValue;
+	if (!resultValue)
+		resultValue = &unusedReturnValue;
 
-	if (!pArgValueList)
-		pArgValueList = &EmptyArgValueList;
+	if (!argValueList)
+		argValueList = &emptyArgValueList;
 
-	Result = PrepareOperand (RawOpValue, &OpValue, 0);
-	if (!Result)
+	result = prepareOperand (rawOpValue, &opValue, 0);
+	if (!result)
 		return false;
 
-	if (OpValue.GetType ()->GetTypeKind () == EType_ClassPtr)
+	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
 	{
-		CClassPtrType* pPtrType = (CClassPtrType*) OpValue.GetType ();
+		ClassPtrType* ptrType = (ClassPtrType*) opValue.getType ();
 
-		CFunction* pCallOperator = pPtrType->GetTargetType ()->GetCallOperator ();
-		if (!pCallOperator)
+		Function* callOperator = ptrType->getTargetType ()->getCallOperator ();
+		if (!callOperator)
 		{
-			err::SetFormatStringError ("cannot call '%s'", pPtrType->GetTypeString ().cc ());
+			err::setFormatStringError ("cannot call '%s'", ptrType->getTypeString ().cc ());
 			return false;
 		}
 
-		if ((pCallOperator->GetFlags () & EMulticastMethodFlag_InaccessibleViaEventPtr) && pPtrType->IsEventPtrType ())
+		if ((callOperator->getFlags () & MulticastMethodFlagKind_InaccessibleViaEventPtr) && ptrType->isEventPtrType ())
 		{
-			err::SetFormatStringError ("'Call' is inaccessible via 'event' pointer");
+			err::setFormatStringError ("'Call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
-		CValue ObjValue = OpValue;
+		Value objValue = opValue;
 
-		OpValue.SetFunction (pCallOperator);
-		OpValue.InsertToClosureTail (ObjValue);
+		opValue.setFunction (callOperator);
+		opValue.insertToClosureTail (objValue);
 	}
 
-	ref::CPtrT <CClosure> Closure = OpValue.GetClosure ();
-	if (Closure)
+	ref::Ptr <Closure> closure = opValue.getClosure ();
+	if (closure)
 	{
-		Result = Closure->Apply (pArgValueList);
-		if (!Result)
+		result = closure->apply (argValueList);
+		if (!result)
 			return false;
 	}
 
-	if (OpValue.GetValueKind () == EValue_Function && OpValue.GetFunction ()->IsOverloaded ())
+	if (opValue.getValueKind () == ValueKind_Function && opValue.getFunction ()->isOverloaded ())
 	{
-		CFunction* pFunction = OpValue.GetFunction ()->ChooseOverload (*pArgValueList);
-		if (!pFunction)
+		Function* function = opValue.getFunction ()->chooseOverload (*argValueList);
+		if (!function)
 			return false;
 
-		OpValue.SetFunction (pFunction);
-		OpValue.SetClosure (Closure);
+		opValue.setFunction (function);
+		opValue.setClosure (closure);
 	}
 
-	if (OpValue.GetValueKind () == EValue_Function)
+	if (opValue.getValueKind () == ValueKind_Function)
 	{
-		CFunction* pFunction = OpValue.GetFunction ();
+		Function* function = opValue.getFunction ();
 
-		if (pFunction->IsVirtual ())
+		if (function->isVirtual ())
 		{
-			Result = GetVirtualMethod (pFunction, Closure, &OpValue);
-			if (!Result)
+			result = getVirtualMethod (function, closure, &opValue);
+			if (!result)
 				return false;
 		}
 
-		return CallImpl (OpValue, pFunction->GetType (), pArgValueList, pResultValue);
+		return callImpl (opValue, function->getType (), argValueList, resultValue);
 	}
 
-	CType* pOpType = OpValue.GetType ();
-	if (!(pOpType->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr) ||
-		((CFunctionPtrType*) pOpType)->GetPtrTypeKind () == EFunctionPtrType_Weak)
+	Type* opType = opValue.getType ();
+	if (!(opType->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr) ||
+		((FunctionPtrType*) opType)->getPtrTypeKind () == FunctionPtrTypeKind_Weak)
 	{
-		err::SetFormatStringError ("cannot call '%s'", pOpType->GetTypeString ().cc ());
+		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().cc ());
 		return false;
 	}
 
-	CFunctionPtrType* pFunctionPtrType = ((CFunctionPtrType*) pOpType);
-	return pFunctionPtrType->HasClosure () ?
-		CallClosureFunctionPtr (OpValue, pArgValueList, pResultValue) :
-		CallImpl (OpValue, pFunctionPtrType->GetTargetType (), pArgValueList, pResultValue);
+	FunctionPtrType* functionPtrType = ((FunctionPtrType*) opType);
+	return functionPtrType->hasClosure () ?
+		callClosureFunctionPtr (opValue, argValueList, resultValue) :
+		callImpl (opValue, functionPtrType->getTargetType (), argValueList, resultValue);
 }
 
 bool
-COperatorMgr::CastArgValueList (
-	CFunctionType* pFunctionType,
-	CClosure* pClosure,
-	rtl::CBoxListT <CValue>* pArgValueList
+OperatorMgr::castArgValueList (
+	FunctionType* functionType,
+	Closure* closure,
+	rtl::BoxList <Value>* argValueList
 	)
 {
-	bool Result;
+	bool result;
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 
-	size_t FormalArgCount = ArgArray.GetCount ();
-	size_t ActualArgCount = pArgValueList->GetCount ();
+	size_t formalArgCount = argArray.getCount ();
+	size_t actualArgCount = argValueList->getCount ();
 
-	bool IsVarArg = (pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg) != 0;
-	bool IsUnsafeVarArg = (pFunctionType->GetCallConv ()->GetFlags () & ECallConvFlag_UnsafeVarArg) != 0;
+	bool isVarArg = (functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0;
+	bool isUnsafeVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlagKind_UnsafeVarArg) != 0;
 
-	size_t CommonArgCount;
+	size_t commonArgCount;
 
-	if (ActualArgCount <= FormalArgCount)
+	if (actualArgCount <= formalArgCount)
 	{
-		CommonArgCount = ActualArgCount;
+		commonArgCount = actualArgCount;
 	}
-	else if (IsVarArg)
+	else if (isVarArg)
 	{
-		CommonArgCount = FormalArgCount;
+		commonArgCount = formalArgCount;
 	}
 	else
 	{
-		err::SetFormatStringError ("too many arguments in a call to '%s'", pFunctionType->GetTypeString ().cc ());
+		err::setFormatStringError ("too many arguments in a call to '%s'", functionType->getTypeString ().cc ());
 		return false;
 	}
 
 	size_t i = 0;
-	rtl::CBoxIteratorT <CValue> ArgValueIt = pArgValueList->GetHead ();
+	rtl::BoxIterator <Value> argValueIt = argValueList->getHead ();
 
 	// common for both formal and actual
 
-	for (; i < CommonArgCount; ArgValueIt++, i++)
+	for (; i < commonArgCount; argValueIt++, i++)
 	{
-		CValue ArgValue = *ArgValueIt;
+		Value argValue = *argValueIt;
 
-		CFunctionArg* pArg = ArgArray [i];
-		if (ArgValue.IsEmpty ())
+		FunctionArg* arg = argArray [i];
+		if (argValue.isEmpty ())
 		{
-			rtl::CConstBoxListT <CToken> Initializer = pArg->GetInitializer ();
-			if (Initializer.IsEmpty ())
+			rtl::ConstBoxList <Token> initializer = arg->getInitializer ();
+			if (initializer.isEmpty ())
 			{
-				err::SetFormatStringError (
+				err::setFormatStringError (
 					"argument (%d) of '%s' has no default value",
 					i + 1,
-					pFunctionType->GetTypeString ().cc ()
+					functionType->getTypeString ().cc ()
 					);
 				return false;
 			}
 
-			Result = EvaluateAlias (pArg->GetItemDecl (), pClosure, Initializer, &ArgValue);
-			if (!Result)
+			result = evaluateAlias (arg->getItemDecl (), closure, initializer, &argValue);
+			if (!result)
 				return false;
 		}
 
-		CType* pFormalArgType = pArg->GetType ();
+		Type* formalArgType = arg->getType ();
 
-		Result =
-			CheckCastKind (ArgValue, pFormalArgType) &&
-			CastOperator (ArgValue, pFormalArgType, &*ArgValueIt); // store it in the same list entry
+		result =
+			checkCastKind (argValue, formalArgType) &&
+			castOperator (argValue, formalArgType, &*argValueIt); // store it in the same list entry
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
 	// default formal arguments
 
-	for (; i < FormalArgCount; i++)
+	for (; i < formalArgCount; i++)
 	{
-		CValue ArgValue;
+		Value argValue;
 
-		CFunctionArg* pArg = ArgArray [i];
-		rtl::CConstBoxListT <CToken> Initializer = pArg->GetInitializer ();
-		if (Initializer.IsEmpty ())
+		FunctionArg* arg = argArray [i];
+		rtl::ConstBoxList <Token> initializer = arg->getInitializer ();
+		if (initializer.isEmpty ())
 		{
-			err::SetFormatStringError (
+			err::setFormatStringError (
 				"argument (%d) of '%s' has no default value",
 				i + 1,
-				pFunctionType->GetTypeString ().cc ()
+				functionType->getTypeString ().cc ()
 				);
 			return false;
 		}
 
-		Result = EvaluateAlias (pArg->GetItemDecl (), pClosure, Initializer, &ArgValue);
-		if (!Result)
+		result = evaluateAlias (arg->getItemDecl (), closure, initializer, &argValue);
+		if (!result)
 			return false;
 
-		CType* pFormalArgType = pArg->GetType ();
+		Type* formalArgType = arg->getType ();
 
-		Result =
-			CheckCastKind (ArgValue, pFormalArgType) &&
-			CastOperator (&ArgValue, pFormalArgType);
+		result =
+			checkCastKind (argValue, formalArgType) &&
+			castOperator (&argValue, formalArgType);
 
-		if (!Result)
+		if (!result)
 			return false;
 
-		pArgValueList->InsertTail (ArgValue);
+		argValueList->insertTail (argValue);
 	}
 
-	if (!IsVarArg)
+	if (!isVarArg)
 		return true;
 
 	// vararg arguments
 
-	if (!IsUnsafeVarArg)
+	if (!isUnsafeVarArg)
 	{
-		err::SetFormatStringError ("only 'cdecl' vararg is currently supported");
+		err::setFormatStringError ("only 'cdecl' vararg is currently supported");
 		return false;
 	}
 
-	for (; ArgValueIt; ArgValueIt++)
+	for (; argValueIt; argValueIt++)
 	{
-		CValue ArgValue = *ArgValueIt;
+		Value argValue = *argValueIt;
 
-		if (ArgValue.IsEmpty ())
+		if (argValue.isEmpty ())
 		{
-			err::SetFormatStringError ("vararg arguments cannot be skipped");
+			err::setFormatStringError ("vararg arguments cannot be skipped");
 			return false;
 		}
 
-		CType* pFormalArgType = GetUnsafeVarArgType (ArgValue.GetType ());
+		Type* formalArgType = getUnsafeVarArgType (argValue.getType ());
 
-		Result = CastOperator (ArgValue, pFormalArgType, &*ArgValueIt); // store it in the same list entry
-		if (!Result)
+		result = castOperator (argValue, formalArgType, &*argValueIt); // store it in the same list entry
+		if (!result)
 			return false;
 	}
 
@@ -476,73 +476,73 @@ COperatorMgr::CastArgValueList (
 }
 
 bool
-COperatorMgr::CallClosureFunctionPtr (
-	const CValue& OpValue,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::callClosureFunctionPtr (
+	const Value& opValue,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
 
-	CFunctionPtrType* pFunctionPointerType = (CFunctionPtrType*) OpValue.GetType ();
-	CFunctionType* pFunctionType = pFunctionPointerType->GetTargetType ();
-	CFunctionType* pAbstractMethodType = pFunctionType->GetStdObjectMemberMethodType ();
+	FunctionPtrType* functionPointerType = (FunctionPtrType*) opValue.getType ();
+	FunctionType* functionType = functionPointerType->getTargetType ();
+	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType ();
 
-	CheckFunctionPtrNull (OpValue);
+	checkFunctionPtrNull (opValue);
 
-	CValue PfnValue;
-	CValue IfaceValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 0, pAbstractMethodType->GetFunctionPtrType (EFunctionPtrType_Thin), &PfnValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue, 1, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr), &IfaceValue);
-	pArgValueList->InsertHead (IfaceValue);
+	Value pfnValue;
+	Value ifaceValue;
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
+	argValueList->insertHead (ifaceValue);
 
-	return CallImpl (PfnValue, pAbstractMethodType, pArgValueList, pResultValue);
+	return callImpl (pfnValue, abstractMethodType, argValueList, resultValue);
 }
 
 bool
-COperatorMgr::CallImpl (
-	const CValue& PfnValue,
-	CFunctionType* pFunctionType,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+OperatorMgr::callImpl (
+	const Value& pfnValue,
+	FunctionType* functionType,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	bool Result = CastArgValueList (pFunctionType, PfnValue.GetClosure (), pArgValueList);
-	if (!Result)
+	bool result = castArgValueList (functionType, pfnValue.getClosure (), argValueList);
+	if (!result)
 		return false;
 
-	if (m_pModule->m_FunctionMgr.GetScopeLevel ())
+	if (m_module->m_functionMgr.getScopeLevel ())
 	{
-		CValue ScopeLevelValue = m_pModule->m_NamespaceMgr.GetCurrentScopeLevel ();
-		CVariable* pVariable = m_pModule->m_VariableMgr.GetStdVariable (EStdVariable_ScopeLevel);
-		m_pModule->m_LlvmIrBuilder.CreateStore (ScopeLevelValue, pVariable);
+		Value scopeLevelValue = m_module->m_namespaceMgr.getCurrentScopeLevel ();
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+		m_module->m_llvmIrBuilder.createStore (scopeLevelValue, variable);
 	}
 
-	pFunctionType->GetCallConv ()->Call (
-		PfnValue,
-		pFunctionType,
-		pArgValueList,
-		pResultValue
+	functionType->getCallConv ()->call (
+		pfnValue,
+		functionType,
+		argValueList,
+		resultValue
 		);
 
-	if (pResultValue->GetType ()->GetFlags () & ETypeFlag_GcRoot)
-		CreateTmpStackGcRoot (*pResultValue);
+	if (resultValue->getType ()->getFlags () & TypeFlagKind_GcRoot)
+		createTmpStackGcRoot (*resultValue);
 
-	if ((pFunctionType->GetFlags () & EFunctionTypeFlag_Throws) &&
-		!m_pModule->m_ControlFlowMgr.IsThrowLocked ())
+	if ((functionType->getFlags () & FunctionTypeFlagKind_Throws) &&
+		!m_module->m_controlFlowMgr.isThrowLocked ())
 	{
-		CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-		if (!(pScope->GetFlags () & EScopeFlag_CanThrow))
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+		if (!(scope->getFlags () & ScopeFlagKind_CanThrow))
 		{
-			err::SetFormatStringError (
+			err::setFormatStringError (
 				"cannot call throwing function from here ('%s' does not throw and there is no 'try' or 'catch')",
-				m_pModule->m_FunctionMgr.GetCurrentFunction ()->m_Tag.cc ()
+				m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ()
 				);
 			return false;
 		}
 
-		Result = m_pModule->m_ControlFlowMgr.Throw (*pResultValue, pFunctionType);
-		if (!Result)
+		result = m_module->m_controlFlowMgr.throwIf (*resultValue, functionType);
+		if (!result)
 			return false;
 	}
 
@@ -550,10 +550,10 @@ COperatorMgr::CallImpl (
 }
 
 void
-COperatorMgr::GcPulse ()
+OperatorMgr::gcPulse ()
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_GcPulse);
-	m_pModule->m_LlvmIrBuilder.CreateCall (pFunction, pFunction->GetType (), NULL);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcPulse);
+	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
 }
 
 //.............................................................................

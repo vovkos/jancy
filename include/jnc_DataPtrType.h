@@ -8,128 +8,128 @@
 
 namespace jnc {
 
-struct TObjHdr;
+struct ObjHdr;
 
 //.............................................................................
 	
-class CDataPtrType: public CType
+class DataPtrType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 	
 protected:
-	EDataPtrType m_PtrTypeKind;
-	CType* m_pTargetType;
-	CNamespace* m_pAnchorNamespace; // for dual pointers
+	DataPtrTypeKind m_ptrTypeKind;
+	Type* m_targetType;
+	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
-	CDataPtrType ();
+	DataPtrType ();
 
-	EDataPtrType
-	GetPtrTypeKind ()
+	DataPtrTypeKind
+	getPtrTypeKind ()
 	{
-		return m_PtrTypeKind;
+		return m_ptrTypeKind;
 	}
 
-	CType*
-	GetTargetType ()
+	Type*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
-	CNamespace* 
-	GetAnchorNamespace ()
+	Namespace* 
+	getAnchorNamespace ()
 	{
-		return m_pAnchorNamespace;
+		return m_anchorNamespace;
 	}
 
 	bool
-	IsConstPtrType ();
+	isConstPtrType ();
 
-	CDataPtrType*
-	GetCheckedPtrType ()
+	DataPtrType*
+	getCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Safe) ?  
-			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) : 
+		return !(m_flags & PtrTypeFlagKind_Safe) ?  
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) : 
 			this;			
 	}
 
-	CDataPtrType*
-	GetUnCheckedPtrType ()
+	DataPtrType*
+	getUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Safe) ?  
-			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) : 
+		return (m_flags & PtrTypeFlagKind_Safe) ?  
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) : 
 			this;			
 	}
 
-	CDataPtrType*
-	GetUnConstPtrType ()
+	DataPtrType*
+	getUnConstPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Const) ?  
-			m_pTargetType->GetDataPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Const) : 
+		return (m_flags & PtrTypeFlagKind_Const) ?  
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Const) : 
 			this;			
 	}
 
-	CStructType* 
-	GetDataPtrStructType ();
+	StructType* 
+	getDataPtrStructType ();
 
 	static
-	rtl::CString
-	CreateSignature (
-		CType* pBaseType,
-		EType TypeKind,
-		EDataPtrType PtrTypeKind,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		Type* baseType,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind,
+		uint_t flags
 		);
 
 	virtual 
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual 
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual 
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual 
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 };
 
 //.............................................................................
 
-struct TDataPtrTypeTuple: rtl::TListLink
+struct DataPtrTypeTuple: rtl::ListLink
 {
-	CStructType* m_pPtrStructType;
-	CDataPtrType* m_PtrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x safe
+	StructType* m_ptrStructType;
+	DataPtrType* m_ptrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x safe
 };
 
 //.............................................................................
 
 inline
 bool 
-IsCharPtrType (CType* pType)
+isCharPtrType (Type* type)
 {
 	return 
-		pType->GetTypeKind () == EType_DataPtr &&
-		((CDataPtrType*) pType)->GetTargetType ()->GetTypeKind () == EType_Char;
+		type->getTypeKind () == TypeKind_DataPtr &&
+		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Char;
 }
 
 //.............................................................................
 
 inline
 bool 
-IsArrayRefType (CType* pType)
+isArrayRefType (Type* type)
 {
 	return 
-		pType->GetTypeKind () == EType_DataRef &&
-		((CDataPtrType*) pType)->GetTargetType ()->GetTypeKind () == EType_Array;
+		type->getTypeKind () == TypeKind_DataRef &&
+		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Array;
 }
 
 //.............................................................................
@@ -137,31 +137,31 @@ IsArrayRefType (CType* pType)
 // structure backing up fat data pointer, e.g.:
 // int* p;
 
-struct TDataPtr
+struct DataPtr
 {
 	void* m_p;
-	void* m_pRangeBegin;
-	void* m_pRangeEnd;
-	TObjHdr* m_pObject;
+	void* m_rangeBegin;
+	void* m_rangeEnd;
+	ObjHdr* m_object;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // structure backing up formatting literal
 
-struct TFmtLiteral
+struct FmtLiteral
 {
 	char* m_p;
-	size_t m_MaxLength;
-	size_t m_Length;
+	size_t m_maxLength;
+	size_t m_length;
 };
 
 //.............................................................................
 
-TDataPtr
-StrDup (
+DataPtr
+strDup (
 	const char* p,
-	size_t Length = -1
+	size_t length = -1
 	);
 
 //.............................................................................

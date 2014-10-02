@@ -5,23 +5,23 @@ namespace jnc {
 
 //.............................................................................
 
-CFunctionArg::CFunctionArg ()
+FunctionArg::FunctionArg ()
 {
-	m_ItemKind = EModuleItem_FunctionArg;
-	m_pType = NULL;
-	m_pType_i = NULL;
-	m_PtrTypeFlags = 0;
+	m_itemKind = ModuleItemKind_FunctionArg;
+	m_type = NULL;
+	m_type_i = NULL;
+	m_ptrTypeFlags = 0;
 }
 
 bool
-CFunctionArg::CalcLayout ()
+FunctionArg::calcLayout ()
 {
-	if (m_pType_i)
-		m_pType = m_pType_i->GetActualType ();
+	if (m_type_i)
+		m_type = m_type_i->getActualType ();
 
 	// TODO: check for valid argument type
 
-	return m_pType->EnsureLayout ();
+	return m_type->ensureLayout ();
 }
 
 //.............................................................................

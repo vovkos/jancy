@@ -8,114 +8,114 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetClassPtrTypeKindString (EClassPtrType PtrTypeKind)
+getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
 {
-	static const char* StringTable [EClassPtrType__Count] = 
+	static const char* stringTable [ClassPtrTypeKind__Count] = 
 	{
 		"strong", // EClassPtrType_Normal = 0,
 		"weak",   // EClassPtrType_Weak,
 	};
 
-	return (size_t) PtrTypeKind < EClassPtrType__Count ? 
-		StringTable [PtrTypeKind] : 
+	return (size_t) ptrTypeKind < ClassPtrTypeKind__Count ? 
+		stringTable [ptrTypeKind] : 
 		"undefined-class-ptr-kind";
 }
 
 //.............................................................................
 
-CClassPtrType::CClassPtrType ()
+ClassPtrType::ClassPtrType ()
 {
-	m_TypeKind = EType_ClassPtr;
-	m_PtrTypeKind = EClassPtrType_Normal;
-	m_pTargetType = NULL;
-	m_pAnchorNamespace = NULL;
-	m_Size = sizeof (void*);
-	m_AlignFactor = sizeof (void*);
+	m_typeKind = TypeKind_ClassPtr;
+	m_ptrTypeKind = ClassPtrTypeKind_Normal;
+	m_targetType = NULL;
+	m_anchorNamespace = NULL;
+	m_size = sizeof (void*);
+	m_alignFactor = sizeof (void*);
 }
 
 bool
-CClassPtrType::IsConstPtrType ()
+ClassPtrType::isConstPtrType ()
 {
 	return 
-		(m_Flags & EPtrTypeFlag_Const) != 0 || 
-		(m_Flags & EPtrTypeFlag_ConstD) != 0 && 
-		m_pModule->m_NamespaceMgr.GetAccessKind (m_pAnchorNamespace) == EAccess_Public;
+		(m_flags & PtrTypeFlagKind_Const) != 0 || 
+		(m_flags & PtrTypeFlagKind_ConstD) != 0 && 
+		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
 bool
-CClassPtrType::IsEventPtrType ()
+ClassPtrType::isEventPtrType ()
 {
 	return 
-		(m_Flags & EPtrTypeFlag_Event) != 0 || 
-		(m_Flags & EPtrTypeFlag_EventD) != 0 && 
-		m_pModule->m_NamespaceMgr.GetAccessKind (m_pAnchorNamespace) == EAccess_Public;
+		(m_flags & PtrTypeFlagKind_Event) != 0 || 
+		(m_flags & PtrTypeFlagKind_EventD) != 0 && 
+		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
-rtl::CString
-CClassPtrType::CreateSignature (
-	CClassType* pClassType,
-	EType TypeKind,
-	EClassPtrType PtrTypeKind,
-	uint_t Flags
+rtl::String
+ClassPtrType::createSignature (
+	ClassType* classType,
+	TypeKind typeKind,
+	ClassPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	rtl::CString Signature = TypeKind == EType_ClassRef ? "RC" : "PC";
+	rtl::String signature = typeKind == TypeKind_ClassRef ? "RC" : "PC";
 
-	if (PtrTypeKind == EClassPtrType_Weak)
-		Signature += 'w';
+	if (ptrTypeKind == ClassPtrTypeKind_Weak)
+		signature += 'w';
 
-	Signature += GetPtrTypeFlagSignature (Flags);
-	Signature += pClassType->GetSignature ();
-	return Signature;
+	signature += getPtrTypeFlagSignature (flags);
+	signature += classType->getSignature ();
+	return signature;
 }
 
 void
-CClassPtrType::PrepareTypeString ()
+ClassPtrType::prepareTypeString ()
 {
-	m_TypeString += m_pTargetType->GetTypeString ();
+	m_typeString += m_targetType->getTypeString ();
 
-	if (m_Flags & EPtrTypeFlag__AllMask)
+	if (m_flags & PtrTypeFlagKind__AllMask)
 	{
-		m_TypeString += ' ';
-		m_TypeString += GetPtrTypeFlagString (m_Flags);
+		m_typeString += ' ';
+		m_typeString += getPtrTypeFlagString (m_flags);
 	}
 
-	if (m_PtrTypeKind != EClassPtrType_Normal)
+	if (m_ptrTypeKind != ClassPtrTypeKind_Normal)
 	{
-		m_TypeString += ' ';
-		m_TypeString += GetClassPtrTypeKindString (m_PtrTypeKind);
+		m_typeString += ' ';
+		m_typeString += getClassPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	m_TypeString += m_TypeKind == EType_ClassRef ? "&" : "*";
+	m_typeString += m_typeKind == TypeKind_ClassRef ? "&" : "*";
 }
 
 void
-CClassPtrType::PrepareLlvmType ()
+ClassPtrType::prepareLlvmType ()
 {
-	m_pLlvmType = llvm::PointerType::get (m_pTargetType->GetIfaceStructType ()->GetLlvmType (), 0);
+	m_llvmType = llvm::PointerType::get (m_targetType->getIfaceStructType ()->getLlvmType (), 0);
 }
 
 void
-CClassPtrType::PrepareLlvmDiType ()
+ClassPtrType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = m_pModule->m_LlvmDiBuilder.CreatePointerType (m_pTargetType->GetIfaceStructType ());
+	m_llvmDiType = m_module->m_llvmDiBuilder.createPointerType (m_targetType->getIfaceStructType ());
 }
 
 void
-CClassPtrType::GcMark (
-	CRuntime* pRuntime,
+ClassPtrType::gcMark (
+	Runtime* runtime,
 	void* p
 	)
 {
-	TIfaceHdr* pIface = *(TIfaceHdr**) p;
-	if (!pIface || pIface->m_pObject->m_ScopeLevel)
+	IfaceHdr* iface = *(IfaceHdr**) p;
+	if (!iface || iface->m_object->m_scopeLevel)
 		return;
 
-	TObjHdr* pObject = pIface->m_pObject;
-	if (m_PtrTypeKind == EClassPtrType_Weak)
-		pObject->GcWeakMarkObject ();
+	ObjHdr* object = iface->m_object;
+	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
+		object->gcWeakMarkObject ();
 	else
-		pObject->GcMarkObject (pRuntime);
+		object->gcMarkObject (runtime);
 }
 
 //.............................................................................

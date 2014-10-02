@@ -10,45 +10,45 @@ namespace jnc {
 
 //.............................................................................
 
-class CUnOp_PreInc: public CUnaryOperator
+class UnOp_PreInc: public UnaryOperator
 {
 public:
-	CUnOp_PreInc ()
+	UnOp_PreInc ()
 	{
-		m_OpFlags = EOpFlag_KeepRef;
+		m_opFlags = OpFlagKind_KeepRef;
 	}
 
 	virtual
-	CType*
-	GetResultType (const CValue& OpValue);
+	Type*
+	getResultType (const Value& opValue);
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue,
-		CValue* pResultValue
+	op (
+		const Value& opValue,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CUnOp_PostInc: public CUnaryOperator
+class UnOp_PostInc: public UnaryOperator
 {
 public:
-	CUnOp_PostInc ()
+	UnOp_PostInc ()
 	{
-		m_OpFlags = EOpFlag_KeepRef;
+		m_opFlags = OpFlagKind_KeepRef;
 	}
 
 	virtual
-	CType*
-	GetResultType (const CValue& OpValue);
+	Type*
+	getResultType (const Value& opValue);
 
 	virtual
 	bool
-	Operator (
-		const CValue& OpValue,
-		CValue* pResultValue
+	op (
+		const Value& opValue,
+		Value* resultValue
 		);
 };
 

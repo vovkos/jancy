@@ -6,83 +6,83 @@ namespace jnc {
 
 //.............................................................................
 
-CProperty::CProperty ()
+Property::Property ()
 {
-	m_ItemKind = EModuleItem_Property;
-	m_NamespaceKind = ENamespace_Property;
-	m_PropertyKind = EProperty_Normal;
-	m_pItemDecl = this;
-	m_pType = NULL;
+	m_itemKind = ModuleItemKind_Property;
+	m_namespaceKind = NamespaceKind_Property;
+	m_propertyKind = PropertyKind_Normal;
+	m_itemDecl = this;
+	m_type = NULL;
 
-	m_pPreConstructor = NULL;
-	m_pConstructor = NULL;
-	m_pDefaultConstructor = NULL;
-	m_pStaticConstructor = NULL;
-	m_pDestructor = NULL;
-	m_pStaticDestructor = NULL;
-	m_pGetter = NULL;
-	m_pSetter = NULL;
-	m_pBinder = NULL;
+	m_preConstructor = NULL;
+	m_constructor = NULL;
+	m_defaultConstructor = NULL;
+	m_staticConstructor = NULL;
+	m_destructor = NULL;
+	m_staticDestructor = NULL;
+	m_getter = NULL;
+	m_setter = NULL;
+	m_binder = NULL;
 
-	m_pAutoGetValue = NULL;
-	m_pOnChanged = NULL;
+	m_autoGetValue = NULL;
+	m_onChanged = NULL;
 
-	m_pParentType = NULL;
-	m_ParentClassVTableIndex = -1;
+	m_parentType = NULL;
+	m_parentClassVTableIndex = -1;
 }
 
-CFunction*
-CProperty::GetDefaultConstructor ()
+Function*
+Property::getDefaultConstructor ()
 {
-	ASSERT (m_pConstructor);
-	if (m_pDefaultConstructor)
-		return m_pDefaultConstructor;
+	ASSERT (m_constructor);
+	if (m_defaultConstructor)
+		return m_defaultConstructor;
 
 	// avoid allocations
 
-	rtl::CBoxListEntryT <CValue> ThisArgValue;
-	rtl::CAuxListT <rtl::CBoxListEntryT <CValue> > ArgList;
+	rtl::BoxListEntry <Value> thisArgValue;
+	rtl::AuxList <rtl::BoxListEntry <Value> > argList;
 
-	if (m_pParentType)
+	if (m_parentType)
 	{
-		CType* pThisArgType = m_pParentType->GetThisArgType (EPtrTypeFlag_Safe);
-		ThisArgValue.m_Value.SetType (pThisArgType);
-		ArgList.InsertTail (&ThisArgValue);
+		Type* thisArgType = m_parentType->getThisArgType (PtrTypeFlagKind_Safe);
+		thisArgValue.m_value.setType (thisArgType);
+		argList.insertTail (&thisArgValue);
 	}
 
-	m_pDefaultConstructor = m_pConstructor->ChooseOverload (ArgList);
-	if (!m_pDefaultConstructor)
+	m_defaultConstructor = m_constructor->chooseOverload (argList);
+	if (!m_defaultConstructor)
 	{
-		err::SetFormatStringError ("'%s' has no default constructor", m_Tag.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("'%s' has no default constructor", m_tag.cc ()); // thanks a lot gcc
 		return NULL;
 	}
 
-	return m_pDefaultConstructor;
+	return m_defaultConstructor;
 }
 
 bool
-CProperty::Compile ()
+Property::compile ()
 {
-	bool Result;
+	bool result;
 
-	if (m_Flags & EPropertyFlag_AutoGet)
+	if (m_flags & PropertyFlagKind_AutoGet)
 	{
-		Result = CompileAutoGetter ();
-		if (!Result)
+		result = compileAutoGetter ();
+		if (!result)
 			return false;
 	}
 
-	if (m_Flags & EPropertyFlag_AutoSet)
+	if (m_flags & PropertyFlagKind_AutoSet)
 	{
-		Result = CompileAutoSetter ();
-		if (!Result)
+		result = compileAutoSetter ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pType->GetFlags () & EPropertyTypeFlag_Bindable)
+	if (m_type->getFlags () & PropertyTypeFlagKind_Bindable)
 	{
-		Result = CompileBinder ();
-		if (!Result)
+		result = compileBinder ();
+		if (!result)
 			return false;
 	}
 
@@ -90,410 +90,410 @@ CProperty::Compile ()
 }
 
 bool
-CProperty::Create (CPropertyType* pType)
+Property::create (PropertyType* type)
 {
-	bool Result;
+	bool result;
 
-	EStorage StorageKind = m_StorageKind == EStorage_Abstract ? EStorage_Virtual : m_StorageKind;
+	StorageKind storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
-	uint_t GetterFlags = 0;
-	uint_t SetterFlags = 0;
+	uint_t getterFlags = 0;
+	uint_t setterFlags = 0;
 
-	if (m_Flags & EModuleItemFlag_User)
+	if (m_flags & ModuleItemFlagKind_User)
 	{
-		if (!(m_Flags & EPropertyFlag_AutoGet))
-			GetterFlags |= EModuleItemFlag_User;
+		if (!(m_flags & PropertyFlagKind_AutoGet))
+			getterFlags |= ModuleItemFlagKind_User;
 
-		if (!(m_Flags & EPropertyFlag_AutoSet))
-			SetterFlags |= EModuleItemFlag_User;
+		if (!(m_flags & PropertyFlagKind_AutoSet))
+			setterFlags |= ModuleItemFlagKind_User;
 	}
 
-	if (pType->GetFlags () & EPropertyTypeFlag_Bindable)
+	if (type->getFlags () & PropertyTypeFlagKind_Bindable)
 	{
-		Result = CreateOnChanged ();
-		if (!Result)
+		result = createOnChanged ();
+		if (!result)
 			return false;
 	}
 
-	CFunctionType* pGetterType = pType->GetGetterType ();
+	FunctionType* getterType = type->getGetterType ();
 
-	if (m_Flags & EPropertyFlag_AutoGet)
+	if (m_flags & PropertyFlagKind_AutoGet)
 	{
-		Result = CreateAutoGetValue (pGetterType->GetReturnType ());
-		if (!Result)
+		result = createAutoGetValue (getterType->getReturnType ());
+		if (!result)
 			return false;
 	}
 	else
 	{
-		CFunction* pGetter = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Getter, pGetterType);
-		pGetter->m_StorageKind = StorageKind;
-		pGetter->m_Flags |= GetterFlags;
+		Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, getterType);
+		getter->m_storageKind = storageKind;
+		getter->m_flags |= getterFlags;
 
-		if (m_pParentType)
-			pGetter->m_ThisArgTypeFlags = EPtrTypeFlag_Const;
+		if (m_parentType)
+			getter->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
 
-		Result = AddMethod (pGetter);
-		if (!Result)
+		result = addMethod (getter);
+		if (!result)
 			return false;
 	}
 
-	size_t SetterTypeOverloadCount = pType->GetSetterType ()->GetOverloadCount ();
-	for (size_t i = 0; i < SetterTypeOverloadCount; i++)
+	size_t setterTypeOverloadCount = type->getSetterType ()->getOverloadCount ();
+	for (size_t i = 0; i < setterTypeOverloadCount; i++)
 	{
-		CFunctionType* pSetterType = pType->GetSetterType ()->GetOverload (i);
-		CFunction* pSetter = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Setter, pSetterType);
-		pSetter->m_StorageKind = StorageKind;
-		pSetter->m_Flags |= SetterFlags;
+		FunctionType* setterType = type->getSetterType ()->getOverload (i);
+		Function* setter = m_module->m_functionMgr.createFunction (FunctionKind_Setter, setterType);
+		setter->m_storageKind = storageKind;
+		setter->m_flags |= setterFlags;
 
-		Result = AddMethod (pSetter);
-		if (!Result)
+		result = addMethod (setter);
+		if (!result)
 			return false;
 	}
 
-	m_pType = m_pParentType ? m_pParentType->GetMemberPropertyType (pType) : pType;
+	m_type = m_parentType ? m_parentType->getMemberPropertyType (type) : type;
 
-	if (m_Flags & (EPropertyFlag_AutoGet | EPropertyFlag_AutoSet))
-		m_pModule->MarkForCompile (this);
+	if (m_flags & (PropertyFlagKind_AutoGet | PropertyFlagKind_AutoSet))
+		m_module->markForCompile (this);
 
 	return true;
 }
 
 void
-CProperty::ConvertToMemberProperty (CNamedType* pParentType)
+Property::convertToMemberProperty (NamedType* parentType)
 {
-	ASSERT (!m_pParentType);
-	m_pParentType = pParentType;
-	m_pType = pParentType->GetMemberPropertyType (m_pType);
+	ASSERT (!m_parentType);
+	m_parentType = parentType;
+	m_type = parentType->getMemberPropertyType (m_type);
 }
 
 bool
-CProperty::SetOnChanged (CModuleItem* pItem)
+Property::setOnChanged (ModuleItem* item)
 {
-	if (m_pOnChanged)
+	if (m_onChanged)
 	{
-		err::SetFormatStringError ("'%s' already has 'bindable %s'", m_Tag.cc (), m_pOnChanged->m_Tag.cc ());
+		err::setFormatStringError ("'%s' already has 'bindable %s'", m_tag.cc (), m_onChanged->m_tag.cc ());
 		return false;
 	}
 
-	CType* pType = GetModuleItemType (pItem);
-	if (!pType)
+	Type* type = getModuleItemType (item);
+	if (!type)
 	{
-		err::SetFormatStringError ("invalid bindable item");
+		err::setFormatStringError ("invalid bindable item");
 		return false;
 	}
 
-	m_pOnChanged = pItem;
-	m_Flags |= EPropertyFlag_Bindable;
+	m_onChanged = item;
+	m_flags |= PropertyFlagKind_Bindable;
 
-	CFunctionType* pBinderType = (CFunctionType*) m_pModule->GetSimpleType (EStdType_Binder);
-	CFunction* pBinder = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Binder, pBinderType);
-	pBinder->m_StorageKind = m_StorageKind == EStorage_Abstract ? EStorage_Virtual : m_StorageKind;
+	FunctionType* binderType = (FunctionType*) m_module->getSimpleType (StdTypeKind_Binder);
+	Function* binder = m_module->m_functionMgr.createFunction (FunctionKind_Binder, binderType);
+	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
-	if (m_pParentType)
-		pBinder->m_ThisArgTypeFlags = EPtrTypeFlag_Const;
+	if (m_parentType)
+		binder->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
 
-	m_pModule->MarkForCompile (this);
+	m_module->markForCompile (this);
 
-	return AddMethod (pBinder);
+	return addMethod (binder);
 }
 
 bool
-CProperty::CreateOnChanged ()
+Property::createOnChanged ()
 {
-	rtl::CString Name = "m_onChanged";
+	rtl::String name = "m_onChanged";
 
-	CType* pType = m_pModule->GetSimpleType (EStdType_SimpleMulticast);
+	Type* type = m_module->getSimpleType (StdTypeKind_SimpleMulticast);
 
-	if (m_pParentType)
+	if (m_parentType)
 	{
-		CStructField* pField = CreateField (Name, pType);
+		StructField* field = createField (name, type);
 		return
-			pField != NULL &&
-			SetOnChanged (pField);
+			field != NULL &&
+			setOnChanged (field);
 	}
 	else
 	{
-		CVariable* pVariable = m_pModule->m_VariableMgr.CreateVariable (
-			EStorage_Static,
-			Name,
-			CreateQualifiedName (Name),
-			pType
+		Variable* variable = m_module->m_variableMgr.createVariable (
+			StorageKind_Static,
+			name,
+			createQualifiedName (name),
+			type
 			);
 
 		return
-			pVariable != NULL &&
-			AddItem (pVariable) &&
-			SetOnChanged (pVariable);
+			variable != NULL &&
+			addItem (variable) &&
+			setOnChanged (variable);
 	}
 }
 
 bool
-CProperty::SetAutoGetValue (CModuleItem* pItem)
+Property::setAutoGetValue (ModuleItem* item)
 {
-	if (m_pAutoGetValue)
+	if (m_autoGetValue)
 	{
-		err::SetFormatStringError ("'%s' already has 'autoget %s'", m_Tag.cc (), m_pAutoGetValue->m_Tag.cc ());
+		err::setFormatStringError ("'%s' already has 'autoget %s'", m_tag.cc (), m_autoGetValue->m_tag.cc ());
 		return false;
 	}
 
-	CType* pType = GetModuleItemType (pItem);
-	if (!pType)
+	Type* type = getModuleItemType (item);
+	if (!type)
 	{
-		err::SetFormatStringError ("invalid autoget item");
+		err::setFormatStringError ("invalid autoget item");
 		return false;
 	}
 
-	m_pAutoGetValue = pItem;
-	m_Flags |= EPropertyFlag_AutoGet;
+	m_autoGetValue = item;
+	m_flags |= PropertyFlagKind_AutoGet;
 
-	CFunctionType* pGetterType = m_pModule->m_TypeMgr.GetFunctionType (pType, NULL, 0, 0);
+	FunctionType* getterType = m_module->m_typeMgr.getFunctionType (type, NULL, 0, 0);
 
-	if (m_pGetter)
+	if (m_getter)
 	{
-		if (m_pGetter->GetType ()->GetReturnType ()->Cmp (pType) != 0)
+		if (m_getter->getType ()->getReturnType ()->cmp (type) != 0)
 		{
-			err::SetFormatStringError ("'autoget %s' does not match property declaration", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'autoget %s' does not match property declaration", type->getTypeString ().cc ());
 			return false;
 		}
 
 		return true;
 	}
 
-	CFunction* pGetter = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Getter, pGetterType);
-	pGetter->m_StorageKind = m_StorageKind == EStorage_Abstract ? EStorage_Virtual : m_StorageKind;
+	Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, getterType);
+	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
-	if (m_pParentType)
-		pGetter->m_ThisArgTypeFlags = EPtrTypeFlag_Const;
+	if (m_parentType)
+		getter->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
 
-	m_pModule->MarkForCompile (this);
+	m_module->markForCompile (this);
 
-	return AddMethod (pGetter);
+	return addMethod (getter);
 }
 
 
 bool
-CProperty::CreateAutoGetValue (CType* pType)
+Property::createAutoGetValue (Type* type)
 {
-	rtl::CString Name = "m_value";
+	rtl::String name = "m_value";
 
-	if (m_pParentType)
+	if (m_parentType)
 	{
-		CStructField* pField = CreateField (Name, pType);
+		StructField* field = createField (name, type);
 		return
-			pField != NULL &&
-			SetAutoGetValue (pField);
+			field != NULL &&
+			setAutoGetValue (field);
 	}
 	else
 	{
-		CVariable* pVariable = m_pModule->m_VariableMgr.CreateVariable (
-			EStorage_Static,
-			Name,
-			CreateQualifiedName (Name),
-			pType
+		Variable* variable = m_module->m_variableMgr.createVariable (
+			StorageKind_Static,
+			name,
+			createQualifiedName (name),
+			type
 			);
 
 		return
-			pVariable != NULL &&
-			AddItem (pVariable) &&
-			SetAutoGetValue (pVariable);
+			variable != NULL &&
+			addItem (variable) &&
+			setAutoGetValue (variable);
 	}
 }
 
-CStructField*
-CProperty::CreateField (
-	const rtl::CString& Name,
-	CType* pType,
-	size_t BitCount,
-	uint_t PtrTypeFlags,
-	rtl::CBoxListT <CToken>* pConstructor,
-	rtl::CBoxListT <CToken>* pInitializer
+StructField*
+Property::createField (
+	const rtl::String& name,
+	Type* type,
+	size_t bitCount,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* constructor,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	ASSERT (m_pParentType);
+	ASSERT (m_parentType);
 
-	if (!(m_pParentType->GetTypeKindFlags () & ETypeKindFlag_Derivable))
+	if (!(m_parentType->getTypeKindFlags () & TypeKindFlagKind_Derivable))
 	{
-		err::SetFormatStringError ("'%s' cannot have field members", m_pParentType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' cannot have field members", m_parentType->getTypeString ().cc ());
 		return NULL;
 	}
 
-	CDerivableType* pParentType = (CDerivableType*) m_pParentType;
+	DerivableType* parentType = (DerivableType*) m_parentType;
 
-	bool Result;
+	bool result;
 
 	// don't add field to parent namespace
 
-	CStructField* pField = pParentType->CreateField (rtl::CString (), pType, BitCount, PtrTypeFlags, pConstructor, pInitializer);
-	if (!pField)
+	StructField* field = parentType->createField (rtl::String (), type, bitCount, ptrTypeFlags, constructor, initializer);
+	if (!field)
 		return NULL;
 
 	// re-parent
 
-	pField->m_pParentNamespace = this;
-	pField->m_Name = Name;
+	field->m_parentNamespace = this;
+	field->m_name = name;
 
-	if (!Name.IsEmpty ())
+	if (!name.isEmpty ())
 	{
-		Result = AddItem (pField);
-		if (!Result)
+		result = addItem (field);
+		if (!result)
 			return NULL;
 	}
 
-	return pField;
+	return field;
 }
 
 bool
-CProperty::AddMethod (CFunction* pFunction)
+Property::addMethod (Function* function)
 {
-	bool Result;
+	bool result;
 
-	EStorage StorageKind = pFunction->GetStorageKind ();
-	EFunction FunctionKind = pFunction->GetFunctionKind ();
-	uint_t FunctionKindFlags = GetFunctionKindFlags (FunctionKind);
-	uint_t ThisArgTypeFlags = pFunction->m_ThisArgTypeFlags;
+	StorageKind storageKind = function->getStorageKind ();
+	FunctionKind functionKind = function->getFunctionKind ();
+	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
+	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
 
-	if (m_pParentType)
+	if (m_parentType)
 	{
-		switch (StorageKind)
+		switch (storageKind)
 		{
-		case EStorage_Static:
-			if (ThisArgTypeFlags)
+		case StorageKind_Static:
+			if (thisArgTypeFlags)
 			{
-				err::SetFormatStringError ("static method cannot be '%s'", GetPtrTypeFlagString (ThisArgTypeFlags).cc ());
+				err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
 				return false;
 			}
 
 			break;
 
-		case EStorage_Undefined:
-			pFunction->m_StorageKind = EStorage_Member;
+		case StorageKind_Undefined:
+			function->m_storageKind = StorageKind_Member;
 			// and fall through
 
-		case EStorage_Member:
-			if (FunctionKind == EFunction_Getter)
-				pFunction->m_ThisArgTypeFlags |= EPtrTypeFlag_Const;
+		case StorageKind_Member:
+			if (functionKind == FunctionKind_Getter)
+				function->m_thisArgTypeFlags |= PtrTypeFlagKind_Const;
 
-			pFunction->ConvertToMemberMethod (m_pParentType);
+			function->convertToMemberMethod (m_parentType);
 			break;
 
-		case EStorage_Abstract:
-		case EStorage_Virtual:
-		case EStorage_Override:
-			if (FunctionKind == EFunction_Getter)
-				pFunction->m_ThisArgTypeFlags |= EPtrTypeFlag_Const;
+		case StorageKind_Abstract:
+		case StorageKind_Virtual:
+		case StorageKind_Override:
+			if (functionKind == FunctionKind_Getter)
+				function->m_thisArgTypeFlags |= PtrTypeFlagKind_Const;
 
-			if (m_pParentType->GetTypeKind () != EType_Class)
+			if (m_parentType->getTypeKind () != TypeKind_Class)
 			{
-				err::SetFormatStringError (
+				err::setFormatStringError (
 					"'%s' method cannot be part of '%s'",
-					GetStorageKindString (StorageKind),
-					m_pParentType->GetTypeString ().cc ()
+					getStorageKindString (storageKind),
+					m_parentType->getTypeString ().cc ()
 					);
 				return false;
 			}
 
-			if (!pFunction->IsAccessor ())
-				((CClassType*) m_pParentType)->m_VirtualMethodArray.Append (pFunction); // otherwise we are already on VirtualPropertyArray
+			if (!function->isAccessor ())
+				((ClassType*) m_parentType)->m_virtualMethodArray.append (function); // otherwise we are already on VirtualPropertyArray
 
-			pFunction->ConvertToMemberMethod (m_pParentType);
+			function->convertToMemberMethod (m_parentType);
 			break;
 
 		default:
-			err::SetFormatStringError ("invalid storage specifier '%s' for method member", GetStorageKindString (StorageKind));
+			err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 			return false;
 		}
 	}
 	else
 	{
-		switch (StorageKind)
+		switch (storageKind)
 		{
-		case EStorage_Undefined:
-			pFunction->m_StorageKind = EStorage_Static;
+		case StorageKind_Undefined:
+			function->m_storageKind = StorageKind_Static;
 			// and fall through
 
-		case EStorage_Static:
+		case StorageKind_Static:
 			break;
 
 		default:
-			err::SetFormatStringError ("invalid storage specifier '%s' for static property member", GetStorageKindString (StorageKind));
+			err::setFormatStringError ("invalid storage specifier '%s' for static property member", getStorageKindString (storageKind));
 			return false;
 		}
 
-		if (ThisArgTypeFlags)
+		if (thisArgTypeFlags)
 		{
-			err::SetFormatStringError ("global property methods cannot be '%s'", GetPtrTypeFlagString (ThisArgTypeFlags).cc ());
+			err::setFormatStringError ("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
 			return false;
 		}
 
 	}
 
-	pFunction->m_pParentNamespace = this;
-	pFunction->m_pProperty = this;
+	function->m_parentNamespace = this;
+	function->m_property = this;
 
-	CFunction** ppTarget = NULL;
+	Function** target = NULL;
 
-	switch (FunctionKind)
+	switch (functionKind)
 	{
-	case EFunction_Constructor:
-		ppTarget = &m_pConstructor;
+	case FunctionKind_Constructor:
+		target = &m_constructor;
 		break;
 
-	case EFunction_StaticConstructor:
-		ppTarget = &m_pStaticConstructor;
+	case FunctionKind_StaticConstructor:
+		target = &m_staticConstructor;
 		break;
 
-	case EFunction_Destructor:
-		ppTarget = &m_pDestructor;
+	case FunctionKind_Destructor:
+		target = &m_destructor;
 		break;
 
-	case EFunction_Getter:
-		Result = m_Verifier.CheckGetter (pFunction->GetType ());
-		if (!Result)
+	case FunctionKind_Getter:
+		result = m_verifier.checkGetter (function->getType ());
+		if (!result)
 			return false;
 
-		ppTarget = &m_pGetter;
+		target = &m_getter;
 		break;
 
-	case EFunction_Setter:
-		if (m_Flags & EPropertyFlag_Const)
+	case FunctionKind_Setter:
+		if (m_flags & PropertyFlagKind_Const)
 		{
-			err::SetFormatStringError ("const property '%s' cannot have setters", m_Tag.cc ());
+			err::setFormatStringError ("const property '%s' cannot have setters", m_tag.cc ());
 			return false;
 		}
 
-		Result = m_Verifier.CheckSetter (pFunction->GetType ());
-		if (!Result)
+		result = m_verifier.checkSetter (function->getType ());
+		if (!result)
 			return false;
 
-		ppTarget = &m_pSetter;
+		target = &m_setter;
 		break;
 
-	case EFunction_Binder:
-		ppTarget = &m_pBinder;
+	case FunctionKind_Binder:
+		target = &m_binder;
 		break;
 
-	case EFunction_Named:
-		return AddFunction (pFunction);
+	case FunctionKind_Named:
+		return addFunction (function);
 
 	default:
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"invalid %s in '%s'",
-			GetFunctionKindString (FunctionKind),
-			m_Tag.cc ()
+			getFunctionKindString (functionKind),
+			m_tag.cc ()
 			);
 		return false;
 	}
 
-	pFunction->m_Tag.Format ("%s.%s", m_Tag.cc (), GetFunctionKindString (FunctionKind));
+	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
 
-	if (!*ppTarget)
+	if (!*target)
 	{
-		*ppTarget = pFunction;
+		*target = function;
 	}
 	else
 	{
-		Result = (*ppTarget)->AddOverload (pFunction);
-		if (!Result)
+		result = (*target)->addOverload (function);
+		if (!result)
 			return false;
 	}
 
@@ -501,51 +501,51 @@ CProperty::AddMethod (CFunction* pFunction)
 }
 
 bool
-CProperty::AddProperty (CProperty* pProperty)
+Property::addProperty (Property* prop)
 {
-	ASSERT (pProperty->IsNamed ());
-	bool Result = AddItem (pProperty);
-	if (!Result)
+	ASSERT (prop->isNamed ());
+	bool result = addItem (prop);
+	if (!result)
 		return false;
 
-	pProperty->m_pParentNamespace = this;
+	prop->m_parentNamespace = this;
 
-	if (!m_pParentType)
+	if (!m_parentType)
 		return true;
 
-	EStorage StorageKind = pProperty->GetStorageKind ();
-	switch (StorageKind)
+	StorageKind storageKind = prop->getStorageKind ();
+	switch (storageKind)
 	{
-	case EStorage_Static:
+	case StorageKind_Static:
 		break;
 
-	case EStorage_Undefined:
-		pProperty->m_StorageKind = EStorage_Member;
+	case StorageKind_Undefined:
+		prop->m_storageKind = StorageKind_Member;
 		// and fall through
 
-	case EStorage_Member:
-		pProperty->m_pParentType = m_pParentType;
+	case StorageKind_Member:
+		prop->m_parentType = m_parentType;
 		break;
 
-	case EStorage_Abstract:
-	case EStorage_Virtual:
-	case EStorage_Override:
-		if (m_pParentType->GetTypeKind () != EType_Class)
+	case StorageKind_Abstract:
+	case StorageKind_Virtual:
+	case StorageKind_Override:
+		if (m_parentType->getTypeKind () != TypeKind_Class)
 		{
-			err::SetFormatStringError (
+			err::setFormatStringError (
 				"'%s' property cannot be part of '%s'",
-				GetStorageKindString (StorageKind),
-				m_pParentType->GetTypeString ().cc ()
+				getStorageKindString (storageKind),
+				m_parentType->getTypeString ().cc ()
 				);
 			return false;
 		}
 
-		((CClassType*) m_pParentType)->m_VirtualPropertyArray.Append (pProperty);
-		pProperty->m_pParentType = m_pParentType;
+		((ClassType*) m_parentType)->m_virtualPropertyArray.append (prop);
+		prop->m_parentType = m_parentType;
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid storage specifier '%s' for property member", GetStorageKindString (StorageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
 		return false;
 	}
 
@@ -553,33 +553,33 @@ CProperty::AddProperty (CProperty* pProperty)
 }
 
 bool
-CProperty::CallMemberFieldConstructors (const CValue& ThisValue)
+Property::callMemberFieldConstructors (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_MemberFieldConstructArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_memberFieldConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = m_MemberFieldConstructArray [i];
-		if (pField->m_Flags & EModuleItemFlag_Constructed)
+		StructField* field = m_memberFieldConstructArray [i];
+		if (field->m_flags & ModuleItemFlagKind_Constructed)
 		{
-			pField->m_Flags &= ~EModuleItemFlag_Constructed;
+			field->m_flags &= ~ModuleItemFlagKind_Constructed;
 			continue;
 		}
 
-		CType* pType = pField->GetType ();
+		Type* type = field->getType ();
 
-		ASSERT (pType->GetTypeKindFlags () & ETypeKindFlag_Derivable);
-		CFunction* pConstructor = ((CDerivableType*) pType)->GetDefaultConstructor ();
-		if (!pConstructor)
+		ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Derivable);
+		Function* constructor = ((DerivableType*) type)->getDefaultConstructor ();
+		if (!constructor)
 			return false;
 
-		CValue FieldValue;
-		Result =
-			m_pModule->m_OperatorMgr.GetClassField (ThisValue, pField, NULL, &FieldValue) &&
-			m_pModule->m_OperatorMgr.CallOperator (pConstructor, FieldValue);
+		Value fieldValue;
+		result =
+			m_module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue) &&
+			m_module->m_operatorMgr.callOperator (constructor, fieldValue);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
@@ -587,26 +587,26 @@ CProperty::CallMemberFieldConstructors (const CValue& ThisValue)
 }
 
 bool
-CProperty::CallMemberPropertyConstructors (const CValue& ThisValue)
+Property::callMemberPropertyConstructors (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_MemberPropertyConstructArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_memberPropertyConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CProperty* pProperty = m_MemberPropertyConstructArray [i];
-		if (pProperty->m_Flags & EModuleItemFlag_Constructed)
+		Property* prop = m_memberPropertyConstructArray [i];
+		if (prop->m_flags & ModuleItemFlagKind_Constructed)
 		{
-			pProperty->m_Flags &= ~EModuleItemFlag_Constructed;
+			prop->m_flags &= ~ModuleItemFlagKind_Constructed;
 			continue;
 		}
 
-		CFunction* pConstructor = pProperty->GetDefaultConstructor ();
-		if (!pConstructor)
+		Function* constructor = prop->getDefaultConstructor ();
+		if (!constructor)
 			return false;
 
-		Result = m_pModule->m_OperatorMgr.CallOperator (pConstructor, ThisValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
+		if (!result)
 			return false;
 	}
 
@@ -614,180 +614,180 @@ CProperty::CallMemberPropertyConstructors (const CValue& ThisValue)
 }
 
 bool
-CProperty::CalcLayout ()
+Property::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	ASSERT (m_StorageKind && m_VTable.IsEmpty ());
+	ASSERT (m_storageKind && m_VTable.isEmpty ());
 
-	size_t SetterCount = m_pSetter ? m_pSetter->GetOverloadCount () : 0;
+	size_t setterCount = m_setter ? m_setter->getOverloadCount () : 0;
 
-	m_VTable.Reserve (2 + SetterCount);
+	m_VTable.reserve (2 + setterCount);
 
-	if (m_pBinder)
+	if (m_binder)
 	{
-		Result = m_pBinder->GetType ()->EnsureLayout ();
-		if (!Result)
+		result = m_binder->getType ()->ensureLayout ();
+		if (!result)
 			return false;
 
-		m_VTable.Append (m_pBinder);
+		m_VTable.append (m_binder);
 	}
 
-	Result = m_pGetter->GetType ()->EnsureLayout ();
-	if (!Result)
+	result = m_getter->getType ()->ensureLayout ();
+	if (!result)
 		return false;
 
-	m_VTable.Append (m_pGetter);
+	m_VTable.append (m_getter);
 
-	for (size_t i = 0; i < SetterCount; i++)
+	for (size_t i = 0; i < setterCount; i++)
 	{
-		CFunction* pSetter = m_pSetter->GetOverload (i);
-		Result = pSetter->GetType ()->EnsureLayout ();
-		if (!Result)
+		Function* setter = m_setter->getOverload (i);
+		result = setter->getType ()->ensureLayout ();
+		if (!result)
 			return false;
 
-		m_VTable.Append (pSetter);
+		m_VTable.append (setter);
 	}
 
-	CreateVTablePtr ();
+	createVTablePtr ();
 	return true;
 }
 
 void
-CProperty::CreateVTablePtr ()
+Property::createVTablePtr ()
 {
-	char Buffer [256];
-	rtl::CArrayT <llvm::Constant*> LlvmVTable (ref::EBuf_Stack, Buffer, sizeof (Buffer));
+	char buffer [256];
+	rtl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	size_t Count = m_VTable.GetCount ();
-	LlvmVTable.SetCount (Count);
+	size_t count = m_VTable.getCount ();
+	llvmVTable.setCount (count);
 
-	for (size_t i = 0; i < Count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
-		CFunction* pFunction = m_VTable [i];
+		Function* function = m_VTable [i];
 
-		if (pFunction->GetStorageKind () == EStorage_Abstract)
-			pFunction = pFunction->GetType ()->GetAbstractFunction ();
+		if (function->getStorageKind () == StorageKind_Abstract)
+			function = function->getType ()->getAbstractFunction ();
 
-		LlvmVTable [i] = pFunction->GetLlvmFunction ();
+		llvmVTable [i] = function->getLlvmFunction ();
 	}
 
-	CStructType* pVTableStructType = m_pType->GetVTableStructType ();
+	StructType* pVTableStructType = m_type->getVTableStructType ();
 
-	llvm::Constant* pLlvmVTableConstant = llvm::ConstantStruct::get (
-		(llvm::StructType*) pVTableStructType->GetLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (LlvmVTable, Count)
+	llvm::Constant* llvmVTableConstant = llvm::ConstantStruct::get (
+		(llvm::StructType*) pVTableStructType->getLlvmType (),
+		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
 		);
 
-	llvm::GlobalVariable* pLlvmVTableVariable = new llvm::GlobalVariable (
-		*m_pModule->GetLlvmModule (),
-		pVTableStructType->GetLlvmType (),
+	llvm::GlobalVariable* llvmVTableVariable = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		pVTableStructType->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
-		pLlvmVTableConstant,
-		(const char*) (m_Tag + ".Vtbl")
+		llvmVTableConstant,
+		(const char*) (m_tag + ".Vtbl")
 		);
 
-	m_VTablePtrValue.SetLlvmValue (
-		pLlvmVTableVariable,
-		pVTableStructType->GetDataPtrType_c (),
-		EValue_Const
+	m_VTablePtrValue.setLlvmValue (
+		llvmVTableVariable,
+		pVTableStructType->getDataPtrType_c (),
+		ValueKind_Const
 		);
 }
 
 bool
-CProperty::CompileAutoGetter ()
+Property::compileAutoGetter ()
 {
-	ASSERT (m_pGetter);
+	ASSERT (m_getter);
 
-	bool Result;
+	bool result;
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pGetter);
+	m_module->m_functionMgr.internalPrologue (m_getter);
 
-	CValue AutoGetValue;
-	Result =
-		m_pModule->m_OperatorMgr.GetPropertyAutoGetValue (GetAutoAccessorPropertyValue (), &AutoGetValue) &&
-		m_pModule->m_ControlFlowMgr.Return (AutoGetValue);
+	Value autoGetValue;
+	result =
+		m_module->m_operatorMgr.getPropertyAutoGetValue (getAutoAccessorPropertyValue (), &autoGetValue) &&
+		m_module->m_controlFlowMgr.ret (autoGetValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CProperty::CompileAutoSetter ()
+Property::compileAutoSetter ()
 {
-	ASSERT (m_pSetter && !m_pSetter->IsOverloaded ());
-	ASSERT (m_pType->GetFlags () & EPropertyTypeFlag_Bindable);
+	ASSERT (m_setter && !m_setter->isOverloaded ());
+	ASSERT (m_type->getFlags () & PropertyTypeFlagKind_Bindable);
 
-	bool Result;
+	bool result;
 
-	CValue SrcValue;
+	Value srcValue;
 
-	if (IsMember ())
+	if (isMember ())
 	{
-		CValue ArgValueArray [2];
-		m_pModule->m_FunctionMgr.InternalPrologue (m_pSetter, ArgValueArray, 2);
-		SrcValue = ArgValueArray [1];
+		Value argValueArray [2];
+		m_module->m_functionMgr.internalPrologue (m_setter, argValueArray, 2);
+		srcValue = argValueArray [1];
 	}
 	else
 	{
-		m_pModule->m_FunctionMgr.InternalPrologue (m_pSetter, &SrcValue, 1);
+		m_module->m_functionMgr.internalPrologue (m_setter, &srcValue, 1);
 	}
 
-	CBasicBlock* pAssignBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("assign_block");
-	CBasicBlock* pReturnBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("return_block");
+	BasicBlock* assignBlock = m_module->m_controlFlowMgr.createBlock ("assign_block");
+	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock ("return_block");
 
-	CValue AutoGetValue;
-	CValue CmpValue;
+	Value autoGetValue;
+	Value cmpValue;
 
-	Result =
-		m_pModule->m_OperatorMgr.GetPropertyAutoGetValue (GetAutoAccessorPropertyValue (), &AutoGetValue) &&
-		m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Ne, AutoGetValue, SrcValue, &CmpValue) &&
-		m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pAssignBlock, pReturnBlock) &&
-		m_pModule->m_OperatorMgr.StoreDataRef (AutoGetValue, SrcValue) &&
-		m_pModule->m_FunctionMgr.FireOnChanged ();
+	result =
+		m_module->m_operatorMgr.getPropertyAutoGetValue (getAutoAccessorPropertyValue (), &autoGetValue) &&
+		m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, autoGetValue, srcValue, &cmpValue) &&
+		m_module->m_controlFlowMgr.conditionalJump (cmpValue, assignBlock, returnBlock) &&
+		m_module->m_operatorMgr.storeDataRef (autoGetValue, srcValue) &&
+		m_module->m_functionMgr.fireOnChanged ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_pModule->m_ControlFlowMgr.Follow (pReturnBlock);
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_controlFlowMgr.follow (returnBlock);
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CProperty::CompileBinder ()
+Property::compileBinder ()
 {
-	ASSERT (m_pBinder);
+	ASSERT (m_binder);
 
-	bool Result;
+	bool result;
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pBinder);
+	m_module->m_functionMgr.internalPrologue (m_binder);
 
-	CValue OnChangedValue;
-	Result =
-		m_pModule->m_OperatorMgr.GetPropertyOnChanged (GetAutoAccessorPropertyValue (), &OnChangedValue) &&
-		m_pModule->m_ControlFlowMgr.Return (OnChangedValue);
+	Value onChangedValue;
+	result =
+		m_module->m_operatorMgr.getPropertyOnChanged (getAutoAccessorPropertyValue (), &onChangedValue) &&
+		m_module->m_controlFlowMgr.ret (onChangedValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
-CValue
-CProperty::GetAutoAccessorPropertyValue ()
+Value
+Property::getAutoAccessorPropertyValue ()
 {
-	if (!IsMember ())
+	if (!isMember ())
 		return this;
 
-	CValue Value = this;
-	Value.InsertToClosureHead (m_pModule->m_FunctionMgr.GetThisValue ());
-	return Value;
+	Value value = this;
+	value.insertToClosureHead (m_module->m_functionMgr.getThisValue ());
+	return value;
 }
 
 //.............................................................................

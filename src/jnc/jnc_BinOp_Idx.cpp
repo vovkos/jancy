@@ -6,193 +6,193 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CBinOp_Idx::GetResultType (
-	const CValue& OpValue1,
-	const CValue& OpValue2
+Type*
+BinOp_Idx::getResultType (
+	const Value& opValue1,
+	const Value& opValue2
 	)
 {
-	CType* pOpType1 = OpValue1.GetType ();
-	if (pOpType1->GetTypeKind () == EType_DataRef)
+	Type* opType1 = opValue1.getType ();
+	if (opType1->getTypeKind () == TypeKind_DataRef)
 	{
-		CDataPtrType* pPtrType = (CDataPtrType*) pOpType1;
-		CType* pBaseType = pPtrType->GetTargetType ();
+		DataPtrType* ptrType = (DataPtrType*) opType1;
+		Type* baseType = ptrType->getTargetType ();
 
-		if (pBaseType->GetTypeKind () == EType_Array)
-			return ((CArrayType*) pBaseType)->GetElementType ()->GetDataPtrType (
-				EType_DataRef, 
-				pPtrType->GetPtrTypeKind (), 
-				pPtrType->GetFlags ()
+		if (baseType->getTypeKind () == TypeKind_Array)
+			return ((ArrayType*) baseType)->getElementType ()->getDataPtrType (
+				TypeKind_DataRef, 
+				ptrType->getPtrTypeKind (), 
+				ptrType->getFlags ()
 				);
 
-		pOpType1 = pBaseType;
+		opType1 = baseType;
 	}
 
-	CDataPtrType* pPtrType;
+	DataPtrType* ptrType;
 
-	EType TypeKind = pOpType1->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = opType1->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_DataPtr:
-		pPtrType = (CDataPtrType*) pOpType1;
-		return pPtrType->GetTargetType ()->GetDataPtrType (
-			EType_DataRef, 
-			pPtrType->GetPtrTypeKind (), 
-			pPtrType->GetFlags ()
+	case TypeKind_DataPtr:
+		ptrType = (DataPtrType*) opType1;
+		return ptrType->getTargetType ()->getDataPtrType (
+			TypeKind_DataRef, 
+			ptrType->getPtrTypeKind (), 
+			ptrType->getFlags ()
 			);
 
-	case EType_Array:
-		return ((CArrayType*) pOpType1)->GetElementType ();
+	case TypeKind_Array:
+		return ((ArrayType*) opType1)->getElementType ();
 
-	case EType_PropertyRef:
-	case EType_PropertyPtr:
-		return GetPropertyIndexResultType (OpValue1, OpValue2);
+	case TypeKind_PropertyRef:
+	case TypeKind_PropertyPtr:
+		return getPropertyIndexResultType (opValue1, opValue2);
 
 	default:
-		err::SetFormatStringError ("cannot index '%s'", pOpType1->GetTypeString ().cc ()); // thanks a lot gcc
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ()); // thanks a lot gcc
 		return NULL;
 	}
 }
 
 bool
-CBinOp_Idx::Operator (
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+BinOp_Idx::op (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CValue OpValue1 = RawOpValue1;
-	CValue OpValue2 = RawOpValue2;
+	Value opValue1 = rawOpValue1;
+	Value opValue2 = rawOpValue2;
 
-	CType* pOpType1 = RawOpValue1.GetType ();
-	if (pOpType1->GetTypeKind () == EType_DataRef)
+	Type* opType1 = rawOpValue1.getType ();
+	if (opType1->getTypeKind () == TypeKind_DataRef)
 	{
-		CType* pBaseType = ((CDataPtrType*) pOpType1)->GetTargetType ();
+		Type* baseType = ((DataPtrType*) opType1)->getTargetType ();
 
-		if (pBaseType->GetTypeKind () == EType_Array)
+		if (baseType->getTypeKind () == TypeKind_Array)
 			return 
-				m_pModule->m_OperatorMgr.CastOperator (&OpValue2, EType_Int_p) &&
-				ArrayIndexOperator (RawOpValue1, (CArrayType*) pBaseType, OpValue2, pResultValue);
+				m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+				arrayIndexOperator (rawOpValue1, (ArrayType*) baseType, opValue2, resultValue);
 
-		Result = m_pModule->m_OperatorMgr.LoadDataRef (RawOpValue1, &OpValue1);
-		if (!Result)
+		result = m_module->m_operatorMgr.loadDataRef (rawOpValue1, &opValue1);
+		if (!result)
 			return false;
 
-		pOpType1 = OpValue1.GetType ();
+		opType1 = opValue1.getType ();
 	}
 
-	EType TypeKind = pOpType1->GetTypeKind ();
-	switch (TypeKind)
+	TypeKind typeKind = opType1->getTypeKind ();
+	switch (typeKind)
 	{
-	case EType_DataPtr:
+	case TypeKind_DataPtr:
 		return 
-			m_pModule->m_OperatorMgr.CastOperator (&OpValue2, EType_Int_p) &&
-			m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Add, OpValue1, OpValue2, &OpValue1) &&
-			m_pModule->m_OperatorMgr.UnaryOperator (EUnOp_Indir, OpValue1, pResultValue);
+			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+			m_module->m_operatorMgr.binaryOperator (BinOpKind_Add, opValue1, opValue2, &opValue1) &&
+			m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, opValue1, resultValue);
 
-	case EType_Array:
+	case TypeKind_Array:
 		return 
-			m_pModule->m_OperatorMgr.CastOperator (&OpValue2, EType_Int_p) &&
-			ArrayIndexOperator (OpValue1, (CArrayType*) pOpType1, OpValue2, pResultValue);
+			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+			arrayIndexOperator (opValue1, (ArrayType*) opType1, opValue2, resultValue);
 
-	case EType_PropertyRef:
-	case EType_PropertyPtr:
-		return PropertyIndexOperator (OpValue1, OpValue2, pResultValue);
+	case TypeKind_PropertyRef:
+	case TypeKind_PropertyPtr:
+		return propertyIndexOperator (opValue1, opValue2, resultValue);
 
 	default:
-		err::SetFormatStringError ("cannot index '%s'", pOpType1->GetTypeString ().cc ()); 
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ()); 
 		return false;
 	}
 }
 
 bool
-CBinOp_Idx::ArrayIndexOperator (
-	const CValue& OpValue1,
-	CArrayType* pArrayType,
-	const CValue& OpValue2,
-	CValue* pResultValue
+BinOp_Idx::arrayIndexOperator (
+	const Value& opValue1,
+	ArrayType* arrayType,
+	const Value& opValue2,
+	Value* resultValue
 	)
 {
-	CType* pElementType = pArrayType->GetElementType ();
+	Type* elementType = arrayType->getElementType ();
 
-	if (OpValue1.GetValueKind () == EValue_Const && OpValue2.GetValueKind ())
+	if (opValue1.getValueKind () == ValueKind_Const && opValue2.getValueKind ())
 	{
-		void* p = (char*) OpValue1.GetConstData () + OpValue2.GetSizeT () * pElementType->GetSize ();
-		pResultValue->CreateConst (p, pElementType);
+		void* p = (char*) opValue1.getConstData () + opValue2.getSizeT () * elementType->getSize ();
+		resultValue->createConst (p, elementType);
 		return true;
 	}
 
-	EType OpTypeKind1 = OpValue1.GetType ()->GetTypeKind ();
+	TypeKind opTypeKind1 = opValue1.getType ()->getTypeKind ();
 
-	if (OpTypeKind1 != EType_DataRef)
+	if (opTypeKind1 != TypeKind_DataRef)
 	{
-		ASSERT (OpTypeKind1 == EType_Array);
-		err::SetFormatStringError ("indexing register-based arrays is not supported yet");
+		ASSERT (opTypeKind1 == TypeKind_Array);
+		err::setFormatStringError ("indexing register-based arrays is not supported yet");
 		return false;
 	}
 
-	CDataPtrType* pOpType1 = (CDataPtrType*) OpValue1.GetType ();
+	DataPtrType* opType1 = (DataPtrType*) opValue1.getType ();
 
-	CDataPtrType* pPtrType;
+	DataPtrType* ptrType;
 
-	uint_t PtrTypeFlags = pOpType1->GetFlags ();
+	uint_t ptrTypeFlags = opType1->getFlags ();
 
-	if (PtrTypeFlags & EPtrTypeFlag_Safe)
+	if (ptrTypeFlags & PtrTypeFlagKind_Safe)
 	{
-		if (OpValue2.GetValueKind () == EValue_Const)
+		if (opValue2.getValueKind () == ValueKind_Const)
 		{			
-			CValue IdxValue;
-			bool Result = m_pModule->m_OperatorMgr.CastOperator (OpValue2, EType_Int_p, &IdxValue);
-			if (!Result)
+			Value idxValue;
+			bool result = m_module->m_operatorMgr.castOperator (opValue2, TypeKind_Int_p, &idxValue);
+			if (!result)
 				return false;
 
-			intptr_t i = IdxValue.GetSizeT ();
-			if (i < 0 || i >= (intptr_t) pArrayType->GetElementCount ())
+			intptr_t i = idxValue.getSizeT ();
+			if (i < 0 || i >= (intptr_t) arrayType->getElementCount ())
 			{
-				err::SetFormatStringError ("index '%d' is out of bounds in '%s'", i, pArrayType->GetTypeString ().cc ());
+				err::setFormatStringError ("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString ().cc ());
 				return false;
 			}
 		}
 		else
 		{
-			PtrTypeFlags &= ~EPtrTypeFlag_Safe;
+			ptrTypeFlags &= ~PtrTypeFlagKind_Safe;
 		}
 	}
 	
-	CValue PtrValue;
+	Value ptrValue;
 
-	EDataPtrType PtrTypeKind = pOpType1->GetPtrTypeKind ();
-	if (PtrTypeKind == EDataPtrType_Thin)
+	DataPtrTypeKind ptrTypeKind = opType1->getPtrTypeKind ();
+	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		pPtrType = pElementType->GetDataPtrType (EType_DataRef, EDataPtrType_Thin, PtrTypeFlags);
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (OpValue1, OpValue2, pPtrType, pResultValue);
+		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
+		m_module->m_llvmIrBuilder.createGep2 (opValue1, opValue2, ptrType, resultValue);
 	}
-	else if (PtrTypeKind == EDataPtrType_Lean)
+	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		pPtrType = pElementType->GetDataPtrType (EType_DataRef, EDataPtrType_Lean, PtrTypeFlags);
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (OpValue1, OpValue2, pPtrType, pResultValue);
+		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		m_module->m_llvmIrBuilder.createGep2 (opValue1, opValue2, ptrType, resultValue);
 
-		if (OpValue1.GetValueKind () == EValue_Variable)
-			pResultValue->SetLeanDataPtrValidator (OpValue1);
+		if (opValue1.getValueKind () == ValueKind_Variable)
+			resultValue->setLeanDataPtrValidator (opValue1);
 		else
-			pResultValue->SetLeanDataPtrValidator (OpValue1.GetLeanDataPtrValidator ());
+			resultValue->setLeanDataPtrValidator (opValue1.getLeanDataPtrValidator ());
 	}
 	else // EDataPtrType_Normal
 	{
-		m_pModule->m_LlvmIrBuilder.CreateExtractValue (OpValue1, 0, NULL, &PtrValue);
+		m_module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
 
-		pPtrType = pElementType->GetDataPtrType_c ();
+		ptrType = elementType->getDataPtrType_c ();
 
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (PtrValue, OpValue2, NULL, &PtrValue);
+		m_module->m_llvmIrBuilder.createGep2 (ptrValue, opValue2, NULL, &ptrValue);
 
-		pPtrType = pElementType->GetDataPtrType (EType_DataRef, EDataPtrType_Lean, PtrTypeFlags);
+		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
 
-		pResultValue->SetLeanDataPtr (
-			PtrValue.GetLlvmValue (), 
-			pPtrType,
-			OpValue1
+		resultValue->setLeanDataPtr (
+			ptrValue.getLlvmValue (), 
+			ptrType,
+			opValue1
 			);
 	}
 
@@ -200,26 +200,26 @@ CBinOp_Idx::ArrayIndexOperator (
 }
 
 bool
-CBinOp_Idx::PropertyIndexOperator (
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2,
-	CValue* pResultValue
+BinOp_Idx::propertyIndexOperator (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
 	)
 {
-	*pResultValue = RawOpValue1;
-	pResultValue->InsertToClosureTail (RawOpValue2);
+	*resultValue = rawOpValue1;
+	resultValue->insertToClosureTail (rawOpValue2);
 	return true;
 }
 
-CType*
-CBinOp_Idx::GetPropertyIndexResultType (
-	const CValue& RawOpValue1,
-	const CValue& RawOpValue2
+Type*
+BinOp_Idx::getPropertyIndexResultType (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2
 	)
 {
-	CValue ResultValue;
-	PropertyIndexOperator (RawOpValue1, RawOpValue2, &ResultValue);
-	return ResultValue.GetClosure ()->GetClosureType (RawOpValue1.GetType ());
+	Value resultValue;
+	propertyIndexOperator (rawOpValue1, rawOpValue2, &resultValue);
+	return resultValue.getClosure ()->getClosureType (rawOpValue1.getType ());
 }
 
 //.............................................................................

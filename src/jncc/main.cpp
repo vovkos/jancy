@@ -7,9 +7,9 @@
 //.............................................................................
 
 void
-PrintVersion (COutStream* pOutStream)
+printVersion (OutStream* outStream)
 {
-	pOutStream->Printf (
+	outStream->printf (
 		"Jancy (%s) v%d.%d.%d\n",
 		_AXL_CPU_STRING,
 		VERSION_MAJOR,
@@ -19,12 +19,12 @@ PrintVersion (COutStream* pOutStream)
 }
 
 void
-PrintUsage (COutStream* pOutStream)
+printUsage (OutStream* outStream)
 {
-	PrintVersion (pOutStream);
+	printVersion (outStream);
 
-	rtl::CString HelpString = CCmdLineSwitchTable::GetHelpString ();
-	pOutStream->Printf ("Usage: jancy [<options>...] <source_file>\n%s", HelpString.cc ());
+	rtl::String helpString = CmdLineSwitchTable::getHelpString ();
+	outStream->printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.cc ());
 }
 
 //.............................................................................
@@ -43,37 +43,37 @@ main (
 	)
 #endif
 {
-	bool Result;
+	bool result;
 
 	llvm::InitializeNativeTarget ();
 	llvm::InitializeNativeTargetAsmParser ();
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-	err::CParseErrorProvider::Register ();
-	srand ((int) axl::g::GetTimestamp ());
+	err::registerParseErrorProvider ();
+	srand ((int) axl::g::getTimestamp ());
 
-	CFileOutStream StdOut;
-	TCmdLine CmdLine;
-	CCmdLineParser Parser (&CmdLine);
+	FileOutStream stdOut;
+	CmdLine cmdLine;
+	CmdLineParser parser (&cmdLine);
 
 #ifdef _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 	if (argc < 2)
 	{
-		PrintUsage (&StdOut);
+		printUsage (&stdOut);
 		return 0;
 	}
 #endif
 
-	Result = Parser.Parse (argc, argv);
-	if (!Result)
+	result = parser.parse (argc, argv);
+	if (!result)
 	{
-		printf ("error parsing command line: %s\n", err::GetError ()->GetDescription ().cc ());
-		return EJncError_InvalidCmdLine;
+		printf ("error parsing command line: %s\n", err::getError ()->getDescription ().cc ());
+		return JncErrorKind_InvalidCmdLine;
 	}
 
-	CJnc Jnc;
-	return Jnc.Run (&CmdLine, &StdOut);
+	Jnc jnc;
+	return jnc.run (&cmdLine, &stdOut);
 }
 
 //.............................................................................

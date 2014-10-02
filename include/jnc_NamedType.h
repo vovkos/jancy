@@ -9,61 +9,61 @@
 
 namespace jnc {
 
-class CFunctionType;
-class CPropertyType;
-class CStructType;
-class CVariable;
+class FunctionType;
+class PropertyType;
+class StructType;
+class Variable;
 
 //.............................................................................
 
-class CNamedType:
-	public CType,
-	public CNamespace
+class NamedType:
+	public Type,
+	public Namespace
 {
-	friend class CParser;
+	friend class Parser;
 
 protected:
-	CNamespace* m_pExtensionNamespace;
+	Namespace* m_extensionNamespace;
 
 public:
-	CNamedType ();
+	NamedType ();
 
-	CNamespace*
-	GetExtensionNamespace ()
+	Namespace*
+	getExtensionNamespace ()
 	{
-		return m_pExtensionNamespace;
+		return m_extensionNamespace;
 	}
 
 	virtual
-	CType*
-	GetThisArgType (uint_t PtrTypeFlags)
+	Type*
+	getThisArgType (uint_t ptrTypeFlags)
 	{
-		return (CType*) GetDataPtrType (EDataPtrType_Normal, PtrTypeFlags);
+		return (Type*) getDataPtrType (DataPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
-	CFunctionType*
-	GetMemberMethodType (
-		CFunctionType* pShortType,
-		uint_t ThisArgTypeFlags = 0
+	FunctionType*
+	getMemberMethodType (
+		FunctionType* shortType,
+		uint_t thisArgTypeFlags = 0
 		);
 
-	CPropertyType*
-	GetMemberPropertyType (CPropertyType* pShortType);
+	PropertyType*
+	getMemberPropertyType (PropertyType* shortType);
 
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	void
-	ApplyExtensionNamespace ();
+	applyExtensionNamespace ();
 
 	virtual
-	CModuleItem*
-	FindItemTraverseImpl (
-		const char* pName,
-		CMemberCoord* pCoord,
-		uint_t Flags
+	ModuleItem*
+	findItemTraverseImpl (
+		const char* name,
+		MemberCoord* coord,
+		uint_t flags
 		);
 };
 //.............................................................................

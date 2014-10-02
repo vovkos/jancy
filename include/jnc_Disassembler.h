@@ -4,30 +4,30 @@ namespace jnc {
 
 //.............................................................................
 
-class CDisassembler
+class Disassembler
 {
 protected:
-	llvm::MCDisassembler* m_pDisassembler;
+	llvm::MCDisassembler* m_disassembler;
 
 public:
-	CDisassembler ();
+	Disassembler ();
 
 	bool
-	Disassemble (
-		const void* pCode,
-		size_t Size,
-		rtl::CString* pString
+	disassemble (
+		const void* code,
+		size_t size,
+		rtl::String* string
 		);
 
-	rtl::CString
-	Disassemble (
-		const void* pCode,
-		size_t Size
+	rtl::String
+	disassemble (
+		const void* code,
+		size_t size
 		)
 	{
-		rtl::CString String;
-		Disassemble (pCode, Size, &String);
-		return String;
+		rtl::String string;
+		disassemble (code, size, &string);
+		return string;
 	}
 };
 

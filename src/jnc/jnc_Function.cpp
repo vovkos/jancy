@@ -9,9 +9,9 @@ namespace jnc {
 //.............................................................................
 
 const char*
-GetFunctionKindString (EFunction FunctionKind)
+getFunctionKindString (FunctionKind functionKind)
 {
-	static const char* StringTable [EFunction__Count] =
+	static const char* stringTable [FunctionKind__Count] =
 	{
 		"undefined-function-kind",  // EFunction_Undefined,
 		"named-function",           // EFunction_Named,
@@ -37,48 +37,48 @@ GetFunctionKindString (EFunction FunctionKind)
 		"schedule-launcher",        // EFunction_ScheduleLauncher,
 	};
 
-	return (size_t) FunctionKind < EFunction__Count ?
-		StringTable [FunctionKind] :
-		StringTable [EFunction_Undefined];
+	return (size_t) functionKind < FunctionKind__Count ?
+		stringTable [functionKind] :
+		stringTable [FunctionKind_Undefined];
 }
 
 //.............................................................................
 
 int
-GetFunctionKindFlags (EFunction FunctionKind)
+getFunctionKindFlags (FunctionKind functionKind)
 {
-	static int FlagTable [EFunction__Count] =
+	static int flagTable [FunctionKind__Count] =
 	{
 		0,                              // EFunction_Undefined,
 		0,                              // EFunction_Named,
-		EFunctionKindFlag_NoOverloads,  // EFunction_Getter,
+		FunctionKindFlagKind_NoOverloads,  // EFunction_Getter,
 		0,                              // EFunction_Setter,
 		0,                              // EFunction_Binder,
 		0,                              // EFunction_Primer,
-		EFunctionKindFlag_NoStorage   | // EFunction_PreConstructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoStorage,    // EFunction_Constructor,
-		EFunctionKindFlag_NoStorage   | // EFunction_Destructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoStorage   | // EFunction_StaticConstructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoStorage   | // EFunction_StaticDestructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoStorage   | // EFunction_ModuleConstructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoStorage   | // EFunction_ModuleDestructor,
-		EFunctionKindFlag_NoOverloads |
-		EFunctionKindFlag_NoArgs,
+		FunctionKindFlagKind_NoStorage   | // EFunction_PreConstructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoStorage,    // EFunction_Constructor,
+		FunctionKindFlagKind_NoStorage   | // EFunction_Destructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoStorage   | // EFunction_StaticConstructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoStorage   | // EFunction_StaticDestructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoStorage   | // EFunction_ModuleConstructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoStorage   | // EFunction_ModuleDestructor,
+		FunctionKindFlagKind_NoOverloads |
+		FunctionKindFlagKind_NoArgs,
 		0,                              // EFunction_CallOperator,
-		EFunctionKindFlag_NoOverloads | // EFunction_CastOperator,
-		EFunctionKindFlag_NoArgs,
-		EFunctionKindFlag_NoOverloads | // EFunction_UnaryOperator,
-		EFunctionKindFlag_NoArgs,
+		FunctionKindFlagKind_NoOverloads | // EFunction_CastOperator,
+		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlagKind_NoOverloads | // EFunction_UnaryOperator,
+		FunctionKindFlagKind_NoArgs,
 		0,                              // EFunction_BinaryOperator,
 		0,                              // EFunction_OperatorNew,
 		0,                              // EFunction_Internal,
@@ -87,224 +87,224 @@ GetFunctionKindFlags (EFunction FunctionKind)
 		0,                              // EFunction_ScheduleLauncher,
 	};
 
-	return FunctionKind >= 0 && FunctionKind < EFunction__Count ? FlagTable [FunctionKind] : 0;
+	return functionKind >= 0 && functionKind < FunctionKind__Count ? flagTable [functionKind] : 0;
 }
 
 //.............................................................................
 
-CFunction::CFunction ()
+Function::Function ()
 {
-	m_ItemKind = EModuleItem_Function;
-	m_FunctionKind = EFunction_Undefined;
-	m_pType = NULL;
-	m_pCastOpType = NULL;
-	m_pThisArgType = NULL;
-	m_pThisType = NULL;
-	m_ThisArgDelta = 0;
-	m_ThisArgTypeFlags = 0;
-	m_pVirtualOriginClassType = NULL;
-	m_pProperty = NULL;
-	m_ClassVTableIndex = -1;
-	m_PropertyVTableIndex = -1;
-	m_pEntryBlock = NULL;
-	m_pScope = NULL;
-	m_pLlvmFunction = NULL;
-	m_pLlvmPostTlsPrologueInst = NULL;
+	m_itemKind = ModuleItemKind_Function;
+	m_functionKind = FunctionKind_Undefined;
+	m_type = NULL;
+	m_castOpType = NULL;
+	m_thisArgType = NULL;
+	m_thisType = NULL;
+	m_thisArgDelta = 0;
+	m_thisArgTypeFlags = 0;
+	m_virtualOriginClassType = NULL;
+	m_property = NULL;
+	m_classVTableIndex = -1;
+	m_propertyVTableIndex = -1;
+	m_entryBlock = NULL;
+	m_scope = NULL;
+	m_llvmFunction = NULL;
+	m_llvmPostTlsPrologueInst = NULL;
 	m_pfMachineCode = NULL;
-	m_MachineCodeSize = 0;
+	m_machineCodeSize = 0;
 }
 
 void
-CFunction::MarkGc ()
+Function::markGc ()
 {
-	llvm::Function* pLlvmFunction = GetLlvmFunction ();
-	if (!pLlvmFunction->hasGC ())
-		pLlvmFunction->setGC ("jnc-shadow-stack");
+	llvm::Function* llvmFunction = getLlvmFunction ();
+	if (!llvmFunction->hasGC ())
+		llvmFunction->setGC ("jnc-shadow-stack");
 }
 
 bool
-CFunction::SetBody (rtl::CBoxListT <CToken>* pTokenList)
+Function::setBody (rtl::BoxList <Token>* tokenList)
 {
-	if (!m_Body.IsEmpty ())
+	if (!m_body.isEmpty ())
 	{
-		err::SetFormatStringError ("'%s' already has a body", m_Tag.cc ());
+		err::setFormatStringError ("'%s' already has a body", m_tag.cc ());
 		return false;
 	}
 
-	if (m_StorageKind == EStorage_Abstract)
+	if (m_storageKind == StorageKind_Abstract)
 	{
-		err::SetFormatStringError ("'%s' is abstract and hence cannot have a body", m_Tag.cc ());
+		err::setFormatStringError ("'%s' is abstract and hence cannot have a body", m_tag.cc ());
 		return false;
 	}
 
-	m_Body.TakeOver (pTokenList);
-	m_pModule->MarkForCompile (this);
+	m_body.takeOver (tokenList);
+	m_module->markForCompile (this);
 	return true;
 }
 
 llvm::Function*
-CFunction::GetLlvmFunction ()
+Function::getLlvmFunction ()
 {
-	if (m_pLlvmFunction)
-		return m_pLlvmFunction;
+	if (m_llvmFunction)
+		return m_llvmFunction;
 
-	m_pLlvmFunction = m_pType->GetCallConv ()->CreateLlvmFunction (m_pType, m_Tag);
-	m_pModule->m_FunctionMgr.m_LlvmFunctionMap [m_pLlvmFunction] = this;
-	return m_pLlvmFunction;
+	m_llvmFunction = m_type->getCallConv ()->createLlvmFunction (m_type, m_tag);
+	m_module->m_functionMgr.m_llvmFunctionMap [m_llvmFunction] = this;
+	return m_llvmFunction;
 }
 
 llvm::DISubprogram
-CFunction::GetLlvmDiSubprogram ()
+Function::getLlvmDiSubprogram ()
 {
-	if (m_LlvmDiSubprogram)
-		return m_LlvmDiSubprogram;
+	if (m_llvmDiSubprogram)
+		return m_llvmDiSubprogram;
 
-	m_LlvmDiSubprogram = m_pModule->m_LlvmDiBuilder.CreateFunction (this);
-	return m_LlvmDiSubprogram;
+	m_llvmDiSubprogram = m_module->m_llvmDiBuilder.createFunction (this);
+	return m_llvmDiSubprogram;
 }
 
 void
-CFunction::ConvertToMemberMethod (CNamedType* pParentType)
+Function::convertToMemberMethod (NamedType* parentType)
 {
-	ASSERT (m_TypeOverload.GetOverloadCount () == 1);
+	ASSERT (m_typeOverload.getOverloadCount () == 1);
 
-	m_pParentNamespace = pParentType;
-	m_pType = pParentType->GetMemberMethodType (m_pType, m_ThisArgTypeFlags);
-	m_TypeOverload = m_pType;
+	m_parentNamespace = parentType;
+	m_type = parentType->getMemberMethodType (m_type, m_thisArgTypeFlags);
+	m_typeOverload = m_type;
 
-	ASSERT (!m_pType->GetArgArray ().IsEmpty ());
-	m_pThisArgType = m_pType->GetArgArray () [0]->GetType ();
-	m_pThisType = m_pThisArgType;
+	ASSERT (!m_type->getArgArray ().isEmpty ());
+	m_thisArgType = m_type->getArgArray () [0]->getType ();
+	m_thisType = m_thisArgType;
 }
 
 bool
-CFunction::AddOverload (CFunction* pFunction)
+Function::addOverload (Function* function)
 {
-	bool Result = m_TypeOverload.AddOverload (pFunction->m_pType);
-	if (!Result)
+	bool result = m_typeOverload.addOverload (function->m_type);
+	if (!result)
 		return false;
 
-	m_OverloadArray.Append (pFunction);
+	m_overloadArray.append (function);
 	return true;
 }
 
 void
-CFunction::AddTlsVariable (CVariable* pVariable)
+Function::addTlsVariable (Variable* variable)
 {
-	llvm::AllocaInst* pLlvmAlloca = (llvm::AllocaInst*) pVariable->GetLlvmValue ();
-	ASSERT (pLlvmAlloca && llvm::isa <llvm::AllocaInst> (*pLlvmAlloca));
+	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) variable->getLlvmValue ();
+	ASSERT (llvmAlloca && llvm::isa <llvm::AllocaInst> (*llvmAlloca));
 
-	TTlsVariable TlsVariable;
-	TlsVariable.m_pVariable = pVariable;
-	TlsVariable.m_pLlvmAlloca = pLlvmAlloca;
-	m_TlsVariableArray.Append (TlsVariable);
+	TlsVariable tlsVariable;
+	tlsVariable.m_variable = variable;
+	tlsVariable.m_llvmAlloca = llvmAlloca;
+	m_tlsVariableArray.append (tlsVariable);
 }
 
 bool
-CFunction::Compile ()
+Function::compile ()
 {
-	ASSERT (!m_Body.IsEmpty ()); // otherwise what are we doing here?
-	ASSERT (!m_pEntryBlock || m_FunctionKind == EFunction_ModuleConstructor);
+	ASSERT (!m_body.isEmpty ()); // otherwise what are we doing here?
+	ASSERT (!m_entryBlock || m_functionKind == FunctionKind_ModuleConstructor);
 
-	bool Result;
+	bool result;
 
-	if (m_pEntryBlock) // already compiled
+	if (m_entryBlock) // already compiled
 		return true;
 
-	m_pModule->m_UnitMgr.SetCurrentUnit (m_pItemDecl->GetParentUnit ());
+	m_module->m_unitMgr.setCurrentUnit (m_itemDecl->getParentUnit ());
 
 	// prologue
 
-	CToken::CPos BeginPos = m_Body.GetHead ()->m_Pos;
-	CToken::CPos EndPos = m_Body.GetTail ()->m_Pos;
+	Token::Pos beginPos = m_body.getHead ()->m_pos;
+	Token::Pos endPos = m_body.getTail ()->m_pos;
 
-	Result = m_pModule->m_FunctionMgr.Prologue (this, BeginPos);
-	if (!Result)
+	result = m_module->m_functionMgr.prologue (this, beginPos);
+	if (!result)
 		return false;
 
-	TOnceStmt Stmt; // for static constructors
+	OnceStmt stmt; // for static constructors
 
 	// parse body
 
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = CParser::EStage_Pass2;
+	Parser parser;
+	parser.m_module = m_module;
+	parser.m_stage = Parser::StageKind_Pass2;
 
-	ESymbol StartSymbol = ESymbol_compound_stmt;
+	SymbolKind startSymbol = SymbolKind_compound_stmt;
 
-	if (m_FunctionKind == EFunction_StaticConstructor)
+	if (m_functionKind == FunctionKind_StaticConstructor)
 	{
-		CDerivableType* pParentType = GetParentType ();
-		if (!pParentType)
+		DerivableType* parentType = getParentType ();
+		if (!parentType)
 		{
-			err::SetFormatStringError ("static constructors for properties are not yet supported");
+			err::setFormatStringError ("static constructors for properties are not yet supported");
 			return false;
 		}
 
-		m_pModule->m_ControlFlowMgr.OnceStmt_Create (&Stmt, pParentType->GetStaticOnceFlagVariable ());
+		m_module->m_controlFlowMgr.onceStmt_Create (&stmt, parentType->getStaticOnceFlagVariable ());
 
-		Result = m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&Stmt, BeginPos);
-		if (!Result)
+		result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, beginPos);
+		if (!result)
 			return false;
 	}
-	else if (m_FunctionKind == EFunction_PreConstructor)
+	else if (m_functionKind == FunctionKind_PreConstructor)
 	{
-		CDerivableType* pParentType = GetParentType ();
-		if (!pParentType)
+		DerivableType* parentType = getParentType ();
+		if (!parentType)
 		{
-			err::SetFormatStringError ("preconstructors for properties are not yet supported");
+			err::setFormatStringError ("preconstructors for properties are not yet supported");
 			return false;
 		}
 
-		CFunction* pStaticConstructor = pParentType->GetStaticConstructor ();
-		if (pStaticConstructor)
-			m_pModule->m_OperatorMgr.CallOperator (pStaticConstructor);
+		Function* staticConstructor = parentType->getStaticConstructor ();
+		if (staticConstructor)
+			m_module->m_operatorMgr.callOperator (staticConstructor);
 
-		CValue ThisValue = m_pModule->m_FunctionMgr.GetThisValue ();
-		ASSERT (ThisValue);
+		Value thisValue = m_module->m_functionMgr.getThisValue ();
+		ASSERT (thisValue);
 
-		EType TypeKind = pParentType->GetTypeKind ();
-		switch (TypeKind)
+		TypeKind typeKind = parentType->getTypeKind ();
+		switch (typeKind)
 		{
-		case EType_Struct:
-			Result = ((CStructType*) pParentType)->InitializeFields (ThisValue);
+		case TypeKind_Struct:
+			result = ((StructType*) parentType)->initializeFields (thisValue);
 			break;
 
-		case EType_Union:
-			Result = ((CUnionType*) pParentType)->InitializeField (ThisValue);
+		case TypeKind_Union:
+			result = ((UnionType*) parentType)->initializeField (thisValue);
 			break;
 
-		case EType_Class:
-			Result = ((CClassType*) pParentType)->GetIfaceStructType ()->InitializeFields (ThisValue);
+		case TypeKind_Class:
+			result = ((ClassType*) parentType)->getIfaceStructType ()->initializeFields (thisValue);
 			break;
 		}
 	}
-	else if (m_FunctionKind == EFunction_Constructor)
+	else if (m_functionKind == FunctionKind_Constructor)
 	{
-		StartSymbol = ESymbol_constructor_compound_stmt;
+		startSymbol = SymbolKind_constructor_compound_stmt;
 
-		ENamespace Namespace = m_pParentNamespace->GetNamespaceKind ();
-		ASSERT (Namespace == ENamespace_Type || Namespace == ENamespace_Property);
+		NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind ();
+		ASSERT (namespaceKind == NamespaceKind_Type || namespaceKind == NamespaceKind_Property);
 
-		if (Namespace == ENamespace_Type)
-			Parser.m_pConstructorType = (CDerivableType*) m_pParentNamespace;
+		if (namespaceKind == NamespaceKind_Type)
+			parser.m_constructorType = (DerivableType*) m_parentNamespace;
 		else
-			Parser.m_pConstructorProperty = (CProperty*) m_pParentNamespace;
+			parser.m_constructorProperty = (Property*) m_parentNamespace;
 	}
 
-	Result = Parser.ParseTokenList (StartSymbol, m_Body, true);
-	if (!Result)
+	result = parser.parseTokenList (startSymbol, m_body, true);
+	if (!result)
 		return false;
 
-	if (m_FunctionKind == EFunction_StaticConstructor)
-		m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, EndPos);
+	if (m_functionKind == FunctionKind_StaticConstructor)
+		m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, endPos);
 
 	// epilogue
 
-	m_pModule->m_NamespaceMgr.SetSourcePos (EndPos);
+	m_module->m_namespaceMgr.setSourcePos (endPos);
 
-	Result = m_pModule->m_FunctionMgr.Epilogue ();
-	if (!Result)
+	result = m_module->m_functionMgr.epilogue ();
+	if (!result)
 		return false;
 
 	return true;
@@ -313,10 +313,10 @@ CFunction::Compile ()
 //.............................................................................
 
 
-CModuleItem*
-CLazyStdFunction::GetActualItem ()
+ModuleItem*
+LazyStdFunction::getActualItem ()
 {
-	return m_pModule->m_FunctionMgr.GetStdFunction (m_Func);
+	return m_module->m_functionMgr.getStdFunction (m_func);
 }
 
 //.............................................................................

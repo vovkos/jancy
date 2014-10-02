@@ -6,143 +6,143 @@ namespace jnc {
 
 //.............................................................................
 
-CStructField::CStructField ()
+StructField::StructField ()
 {
-	m_ItemKind = EModuleItem_StructField;
-	m_pType = NULL;
-	m_pType_i = NULL;
-	m_PtrTypeFlags = 0;
-	m_pBitFieldBaseType = NULL;
-	m_BitCount = 0;
-	m_Offset = 0;
-	m_LlvmIndex = -1;
+	m_itemKind = ModuleItemKind_StructField;
+	m_type = NULL;
+	m_type_i = NULL;
+	m_ptrTypeFlags = 0;
+	m_bitFieldBaseType = NULL;
+	m_bitCount = 0;
+	m_offset = 0;
+	m_llvmIndex = -1;
 }
 
 //.............................................................................
 
-CStructType::CStructType ()
+StructType::StructType ()
 {
-	m_TypeKind = EType_Struct;
-	m_Flags = ETypeFlag_Pod | ETypeFlag_StructRet;
-	m_PackFactor = 8;
-	m_FieldActualSize = 0;
-	m_FieldAlignedSize = 0;
-	m_pLastBitFieldType = NULL;
-	m_LastBitFieldOffset = 0;
+	m_typeKind = TypeKind_Struct;
+	m_flags = TypeFlagKind_Pod | TypeFlagKind_StructRet;
+	m_packFactor = 8;
+	m_fieldActualSize = 0;
+	m_fieldAlignedSize = 0;
+	m_lastBitFieldType = NULL;
+	m_lastBitFieldOffset = 0;
 }
 
 void
-CStructType::PrepareLlvmType ()
+StructType::prepareLlvmType ()
 {
-	m_pLlvmType = llvm::StructType::create (*m_pModule->GetLlvmContext (), m_Tag.cc ());
+	m_llvmType = llvm::StructType::create (*m_module->getLlvmContext (), m_tag.cc ());
 }
 
-CStructField*
-CStructType::CreateFieldImpl (
-	const rtl::CString& Name,
-	CType* pType,
-	size_t BitCount,
-	uint_t PtrTypeFlags,
-	rtl::CBoxListT <CToken>* pConstructor,
-	rtl::CBoxListT <CToken>* pInitializer
+StructField*
+StructType::createFieldImpl (
+	const rtl::String& name,
+	Type* type,
+	size_t bitCount,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* constructor,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	CStructField* pField = AXL_MEM_NEW (CStructField);
-	pField->m_pModule = m_pModule;
-	pField->m_StorageKind = m_StorageKind;
-	pField->m_pParentNamespace = this;
-	pField->m_Name = Name;
-	pField->m_pType = pType;
-	pField->m_PtrTypeFlags = PtrTypeFlags;
-	pField->m_pBitFieldBaseType = BitCount ? pType : NULL;
-	pField->m_BitCount = BitCount;
+	StructField* field = AXL_MEM_NEW (StructField);
+	field->m_module = m_module;
+	field->m_storageKind = m_storageKind;
+	field->m_parentNamespace = this;
+	field->m_name = name;
+	field->m_type = type;
+	field->m_ptrTypeFlags = ptrTypeFlags;
+	field->m_bitFieldBaseType = bitCount ? type : NULL;
+	field->m_bitCount = bitCount;
 
-	if (pConstructor)
-		pField->m_Constructor.TakeOver (pConstructor);
+	if (constructor)
+		field->m_constructor.takeOver (constructor);
 
-	if (pInitializer)
-		pField->m_Initializer.TakeOver (pInitializer);
+	if (initializer)
+		field->m_initializer.takeOver (initializer);
 
-	if (!pField->m_Constructor.IsEmpty () ||
-		!pField->m_Initializer.IsEmpty ())
+	if (!field->m_constructor.isEmpty () ||
+		!field->m_initializer.isEmpty ())
 	{
-		m_InitializedFieldArray.Append (pField);
+		m_initializedFieldArray.append (field);
 	}
 
-	m_FieldList.InsertTail (pField);
+	m_fieldList.insertTail (field);
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedFieldArray.Append (pField);
+		m_unnamedFieldArray.append (field);
 	}
-	else if (Name [0] != '!') // internal field
+	else if (name [0] != '!') // internal field
 	{
-		bool Result = AddItem (pField);
-		if (!Result)
+		bool result = addItem (field);
+		if (!result)
 			return NULL;
 	}
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pField->m_pType_i = (CImportType*) pType;
-		m_ImportFieldArray.Append (pField);
+		field->m_type_i = (ImportType*) type;
+		m_importFieldArray.append (field);
 	}
 
-	m_MemberFieldArray.Append (pField);
-	return pField;
+	m_memberFieldArray.append (field);
+	return field;
 }
 
-CStructField*
-CStructType::GetFieldByIndexImpl (
-	size_t Index,
-	bool IgnoreBaseTypes
+StructField*
+StructType::getFieldByIndexImpl (
+	size_t index,
+	bool ignoreBaseTypes
 	)
 {
-	if (!IgnoreBaseTypes && !m_BaseTypeList.IsEmpty ())
+	if (!ignoreBaseTypes && !m_baseTypeList.isEmpty ())
 	{
-		err::SetFormatStringError ("'%s' has base types, cannot use indexed member operator", GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().cc ());
 		return NULL;
 	}
 
-	size_t Count = m_FieldList.GetCount ();
-	if (Index >= Count)
+	size_t count = m_fieldList.getCount ();
+	if (index >= count)
 	{
-		err::SetFormatStringError ("index '%d' is out of bounds", Index);
+		err::setFormatStringError ("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	if (m_FieldArray.GetCount () != Count)
+	if (m_fieldArray.getCount () != count)
 	{
-		m_FieldArray.SetCount (Count);
-		rtl::CIteratorT <CStructField> Field = m_FieldList.GetHead ();
-		for (size_t i = 0; i < Count; i++, Field++)
-			m_FieldArray [i] = *Field;
+		m_fieldArray.setCount (count);
+		rtl::Iterator <StructField> field = m_fieldList.getHead ();
+		for (size_t i = 0; i < count; i++, field++)
+			m_fieldArray [i] = *field;
 	}
 
-	return m_FieldArray [Index];
+	return m_fieldArray [index];
 }
 
 bool
-CStructType::Append (CStructType* pType)
+StructType::append (StructType* type)
 {
-	bool Result;
+	bool result;
 
-	rtl::CIteratorT <CBaseTypeSlot> Slot = pType->m_BaseTypeList.GetHead ();
-	for (; Slot; Slot++)
+	rtl::Iterator <BaseTypeSlot> slot = type->m_baseTypeList.getHead ();
+	for (; slot; slot++)
 	{
-		Result = AddBaseType (Slot->m_pType) != NULL;
-		if (!Result)
+		result = addBaseType (slot->m_type) != NULL;
+		if (!result)
 			return false;
 	}
 
-	rtl::CIteratorT <CStructField> Field = pType->m_FieldList.GetHead ();
-	for (; Field; Field++)
+	rtl::Iterator <StructField> field = type->m_fieldList.getHead ();
+	for (; field; field++)
 	{
-		Result = Field->m_BitCount ?
-			CreateField (Field->m_Name, Field->m_pBitFieldBaseType, Field->m_BitCount, Field->m_PtrTypeFlags) != NULL:
-			CreateField (Field->m_Name, Field->m_pType, 0, Field->m_PtrTypeFlags) != NULL;
+		result = field->m_bitCount ?
+			createField (field->m_name, field->m_bitFieldBaseType, field->m_bitCount, field->m_ptrTypeFlags) != NULL:
+			createField (field->m_name, field->m_type, 0, field->m_ptrTypeFlags) != NULL;
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
@@ -150,168 +150,168 @@ CStructType::Append (CStructType* pType)
 }
 
 bool
-CStructType::CalcLayout ()
+StructType::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pExtensionNamespace)
-		ApplyExtensionNamespace ();
+	if (m_extensionNamespace)
+		applyExtensionNamespace ();
 
-	Result =
-		ResolveImportBaseTypes () &&
-		ResolveImportFields ();
+	result =
+		resolveImportBaseTypes () &&
+		resolveImportFields ();
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	rtl::CIteratorT <CBaseTypeSlot> Slot = m_BaseTypeList.GetHead ();
-	for (; Slot; Slot++)
+	rtl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+	for (; slotIt; slotIt++)
 	{
-		CBaseTypeSlot* pSlot = *Slot;
+		BaseTypeSlot* slot = *slotIt;
 
-		Result = pSlot->m_pType->EnsureLayout ();
-		if (!Result)
+		result = slot->m_type->ensureLayout ();
+		if (!result)
 			return false;
 
-		if (pSlot->m_pType->GetTypeKind () == EType_Class)
+		if (slot->m_type->getTypeKind () == TypeKind_Class)
 		{
-			err::SetFormatStringError ("'%s' cannot be a base type of a struct", pSlot->m_pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().cc ());
 			return false;
 		}
 
-		if (pSlot->m_pType->GetFlags () & ETypeFlag_GcRoot)
+		if (slot->m_type->getFlags () & TypeFlagKind_GcRoot)
 		{
-			m_GcRootBaseTypeArray.Append (pSlot);
-			m_Flags |= ETypeFlag_GcRoot;
+			m_gcRootBaseTypeArray.append (slot);
+			m_flags |= TypeFlagKind_GcRoot;
 		}
 
-		if (pSlot->m_pType->GetConstructor ())
-			m_BaseTypeConstructArray.Append (pSlot);
+		if (slot->m_type->getConstructor ())
+			m_baseTypeConstructArray.append (slot);
 
-		Result = LayoutField (
-			pSlot->m_pType,
-			&pSlot->m_Offset,
-			&pSlot->m_LlvmIndex
+		result = layoutField (
+			slot->m_type,
+			&slot->m_offset,
+			&slot->m_llvmIndex
 			);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	rtl::CIteratorT <CStructField> Field = m_FieldList.GetHead ();
-	for (; Field; Field++)
+	rtl::Iterator <StructField> fieldIt = m_fieldList.getHead ();
+	for (; fieldIt; fieldIt++)
 	{
-		CStructField* pField = *Field;
+		StructField* field = *fieldIt;
 
-		Result = pField->m_pType->EnsureLayout ();
-		if (!Result)
+		result = field->m_type->ensureLayout ();
+		if (!result)
 			return false;
 
-		if (m_StructTypeKind != EStructType_IfaceStruct && pField->m_pType->GetTypeKind () == EType_Class)
+		if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
 		{
-			err::SetFormatStringError ("'%s' cannot be a field of a struct", pField->m_pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().cc ());
 			return false;
 		}
 
-		Result = pField->m_BitCount ?
-			LayoutBitField (
-				pField->m_pBitFieldBaseType,
-				pField->m_BitCount,
-				&pField->m_pType,
-				&pField->m_Offset,
-				&pField->m_LlvmIndex
+		result = field->m_bitCount ?
+			layoutBitField (
+				field->m_bitFieldBaseType,
+				field->m_bitCount,
+				&field->m_type,
+				&field->m_offset,
+				&field->m_llvmIndex
 				) :
-			LayoutField (
-				pField->m_pType,
-				&pField->m_Offset,
-				&pField->m_LlvmIndex
+			layoutField (
+				field->m_type,
+				&field->m_offset,
+				&field->m_llvmIndex
 				);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	if (m_FieldAlignedSize > m_FieldActualSize)
-		InsertPadding (m_FieldAlignedSize - m_FieldActualSize);
+	if (m_fieldAlignedSize > m_fieldActualSize)
+		insertPadding (m_fieldAlignedSize - m_fieldActualSize);
 
 	// scan members for gcroots and constructors (not for auxilary structs such as class iface)
 
-	if (m_StructTypeKind == EStructType_Normal)
+	if (m_structTypeKind == StructTypeKind_Normal)
 	{
-		size_t Count = m_MemberFieldArray.GetCount ();
-		for (size_t i = 0; i < Count; i++)
+		size_t count = m_memberFieldArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			CStructField* pField = m_MemberFieldArray [i];
-			CType* pType = pField->GetType ();
+			StructField* field = m_memberFieldArray [i];
+			Type* type = field->getType ();
 
-			uint_t FieldTypeFlags = pType->GetFlags ();
+			uint_t fieldTypeFlags = type->getFlags ();
 
-			if (!(FieldTypeFlags & ETypeFlag_Pod))
-				m_Flags &= ~ETypeFlag_Pod;
+			if (!(fieldTypeFlags & TypeFlagKind_Pod))
+				m_flags &= ~TypeFlagKind_Pod;
 
-			if (FieldTypeFlags & ETypeFlag_GcRoot)
+			if (fieldTypeFlags & TypeFlagKind_GcRoot)
 			{
-				m_GcRootMemberFieldArray.Append (pField);
-				m_Flags |= ETypeFlag_GcRoot;
+				m_gcRootMemberFieldArray.append (field);
+				m_flags |= TypeFlagKind_GcRoot;
 			}
 
-			if ((pType->GetTypeKindFlags () & ETypeKindFlag_Derivable) && ((CDerivableType*) pType)->GetConstructor ())
-				m_MemberFieldConstructArray.Append (pField);
+			if ((type->getTypeKindFlags () & TypeKindFlagKind_Derivable) && ((DerivableType*) type)->getConstructor ())
+				m_memberFieldConstructArray.append (field);
 		}
 
-		Count = m_MemberPropertyArray.GetCount ();
-		for (size_t i = 0; i < Count; i++)
+		count = m_memberPropertyArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			CProperty* pProperty = m_MemberPropertyArray [i];
-			Result = pProperty->EnsureLayout ();
-			if (!Result)
+			Property* prop = m_memberPropertyArray [i];
+			result = prop->ensureLayout ();
+			if (!result)
 				return false;
 
-			if (pProperty->GetConstructor ())
-				m_MemberPropertyConstructArray.Append (pProperty);
+			if (prop->getConstructor ())
+				m_memberPropertyConstructArray.append (prop);
 		}
 	}
 
-	llvm::StructType* pLlvmStructType = (llvm::StructType*) GetLlvmType ();
-	pLlvmStructType->setBody (
-		llvm::ArrayRef<llvm::Type*> (m_LlvmFieldTypeArray, m_LlvmFieldTypeArray.GetCount ()),
+	llvm::StructType* llvmStructType = (llvm::StructType*) getLlvmType ();
+	llvmStructType->setBody (
+		llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount ()),
 		true
 		);
 
-	m_Size = m_FieldAlignedSize;
+	m_size = m_fieldAlignedSize;
 
-	if (m_StructTypeKind == EStructType_Normal)
+	if (m_structTypeKind == StructTypeKind_Normal)
 	{
-		if (!m_pStaticConstructor && (m_pStaticDestructor || !m_InitializedStaticFieldArray.IsEmpty ()))
+		if (!m_staticConstructor && (m_staticDestructor || !m_initializedStaticFieldArray.isEmpty ()))
 		{
-			Result = CreateDefaultMethod (EFunction_StaticConstructor, EStorage_Static);
-			if (!Result)
+			result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
+			if (!result)
 				return false;
 		}
 
-		if (m_pStaticConstructor)
-			m_pStaticOnceFlagVariable = m_pModule->m_VariableMgr.CreateOnceFlagVariable ();
+		if (m_staticConstructor)
+			m_staticOnceFlagVariable = m_module->m_variableMgr.createOnceFlagVariable ();
 
-		if (m_pStaticDestructor)
-			m_pModule->m_VariableMgr.m_StaticDestructList.AddStaticDestructor (m_pStaticDestructor, m_pStaticOnceFlagVariable);
+		if (m_staticDestructor)
+			m_module->m_variableMgr.m_staticDestructList.addStaticDestructor (m_staticDestructor, m_staticOnceFlagVariable);
 
-		if (!m_pPreConstructor &&
-			(m_pStaticConstructor ||
-			!m_InitializedFieldArray.IsEmpty ()))
+		if (!m_preConstructor &&
+			(m_staticConstructor ||
+			!m_initializedFieldArray.isEmpty ()))
 		{
-			Result = CreateDefaultMethod (EFunction_PreConstructor);
-			if (!Result)
+			result = createDefaultMethod (FunctionKind_PreConstructor);
+			if (!result)
 				return false;
 		}
 
-		if (!m_pConstructor &&
-			(m_pPreConstructor ||
-			!m_BaseTypeConstructArray.IsEmpty () ||
-			!m_MemberFieldConstructArray.IsEmpty () ||
-			!m_MemberPropertyConstructArray.IsEmpty ()))
+		if (!m_constructor &&
+			(m_preConstructor ||
+			!m_baseTypeConstructArray.isEmpty () ||
+			!m_memberFieldConstructArray.isEmpty () ||
+			!m_memberPropertyConstructArray.isEmpty ()))
 		{
-			Result = CreateDefaultMethod (EFunction_Constructor);
-			if (!Result)
+			result = createDefaultMethod (FunctionKind_Constructor);
+			if (!result)
 				return false;
 		}
 	}
@@ -320,28 +320,28 @@ CStructType::CalcLayout ()
 }
 
 bool
-CStructType::Compile ()
+StructType::compile ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pStaticConstructor && !(m_pStaticConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultStaticConstructor ();
-		if (!Result)
+		result = compileDefaultStaticConstructor ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pPreConstructor && !(m_pPreConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultPreConstructor ();
-		if (!Result)
+		result = compileDefaultPreConstructor ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pConstructor && !(m_pConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultConstructor ();
-		if (!Result)
+		result = compileDefaultConstructor ();
+		if (!result)
 			return false;
 	}
 
@@ -349,53 +349,53 @@ CStructType::Compile ()
 }
 
 bool
-CStructType::CompileDefaultPreConstructor ()
+StructType::compileDefaultPreConstructor ()
 {
-	ASSERT (m_pPreConstructor);
+	ASSERT (m_preConstructor);
 
-	bool Result;
+	bool result;
 
-	CValue ThisValue;
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pPreConstructor, &ThisValue, 1);
+	Value thisValue;
+	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
 
-	if (m_pStaticConstructor)
+	if (m_staticConstructor)
 	{
-		Result = m_pModule->m_OperatorMgr.CallOperator (m_pStaticConstructor, ThisValue);
-		if (!Result)
+		result = m_module->m_operatorMgr.callOperator (m_staticConstructor, thisValue);
+		if (!result)
 			return false;
 	}
 
-	Result = InitializeFields (ThisValue);
-	if (!Result)
+	result = initializeFields (thisValue);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 bool
-CStructType::InitializeFields (const CValue& ThisValue)
+StructType::initializeFields (const Value& thisValue)
 {
-	bool Result;
+	bool result;
 
-	size_t Count = m_InitializedFieldArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_initializedFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = m_InitializedFieldArray [i];
+		StructField* field = m_initializedFieldArray [i];
 
-		CValue FieldValue;
-		Result = m_pModule->m_OperatorMgr.GetField (ThisValue, pField, NULL, &FieldValue);
-		if (!Result)
+		Value fieldValue;
+		result = m_module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue);
+		if (!result)
 			return false;
 
-		Result = m_pModule->m_OperatorMgr.ParseInitializer (
-			FieldValue,
-			m_pParentUnit,
-			pField->m_Constructor,
-			pField->m_Initializer
+		result = m_module->m_operatorMgr.parseInitializer (
+			fieldValue,
+			m_parentUnit,
+			field->m_constructor,
+			field->m_initializer
 			);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
@@ -403,156 +403,156 @@ CStructType::InitializeFields (const CValue& ThisValue)
 }
 
 bool
-CStructType::LayoutField (
-	llvm::Type* pLlvmType,
-	size_t Size,
-	size_t AlignFactor,
-	size_t* pOffset,
-	uint_t* pLlvmIndex
+StructType::layoutField (
+	llvm::Type* llvmType,
+	size_t size,
+	size_t alignFactor,
+	size_t* offset_o,
+	uint_t* llvmIndex
 	)
 {
-	if (AlignFactor > m_AlignFactor)
-		m_AlignFactor = AXL_MIN (AlignFactor, m_PackFactor);
+	if (alignFactor > m_alignFactor)
+		m_alignFactor = AXL_MIN (alignFactor, m_packFactor);
 
-	size_t Offset = GetFieldOffset (AlignFactor);
-	if (Offset > m_FieldActualSize)
-		InsertPadding (Offset - m_FieldActualSize);
+	size_t offset = getFieldOffset (alignFactor);
+	if (offset > m_fieldActualSize)
+		insertPadding (offset - m_fieldActualSize);
 
-	*pOffset = Offset;
-	*pLlvmIndex = (uint_t) m_LlvmFieldTypeArray.GetCount ();
+	*offset_o = offset;
+	*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
 
-	m_pLastBitFieldType = NULL;
-	m_LastBitFieldOffset = 0;
+	m_lastBitFieldType = NULL;
+	m_lastBitFieldOffset = 0;
 
-	m_LlvmFieldTypeArray.Append (pLlvmType);
-	SetFieldActualSize (Offset + Size);
+	m_llvmFieldTypeArray.append (llvmType);
+	setFieldActualSize (offset + size);
 	return true;
 }
 
 bool
-CStructType::LayoutBitField (
-	CType* pBaseType,
-	size_t BitCount,
-	CType** ppType,
-	size_t* pOffset,
-	uint_t* pLlvmIndex
+StructType::layoutBitField (
+	Type* baseType,
+	size_t bitCount,
+	Type** type_o,
+	size_t* offset_o,
+	uint_t* llvmIndex
 	)
 {
-	size_t BitOffset = GetBitFieldBitOffset (pBaseType, BitCount);
-	CBitFieldType* pType = m_pModule->m_TypeMgr.GetBitFieldType (pBaseType, BitOffset, BitCount);
-	if (!pType)
+	size_t bitOffset = getBitFieldBitOffset (baseType, bitCount);
+	BitFieldType* type = m_module->m_typeMgr.getBitFieldType (baseType, bitOffset, bitCount);
+	if (!type)
 		return false;
 
-	*ppType = pType;
-	m_pLastBitFieldType = pType;
+	*type_o = type;
+	m_lastBitFieldType = type;
 
-	if (BitOffset)
+	if (bitOffset)
 	{
-		*pOffset = m_LastBitFieldOffset;
-		*pLlvmIndex = (uint_t) m_LlvmFieldTypeArray.GetCount () - 1;
+		*offset_o = m_lastBitFieldOffset;
+		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount () - 1;
 		return true;
 	}
 
-	size_t AlignFactor = pType->GetAlignFactor ();
-	if (AlignFactor > m_AlignFactor)
-		m_AlignFactor = AXL_MIN (AlignFactor, m_PackFactor);
+	size_t alignFactor = type->getAlignFactor ();
+	if (alignFactor > m_alignFactor)
+		m_alignFactor = AXL_MIN (alignFactor, m_packFactor);
 
-	size_t Offset = GetFieldOffset (AlignFactor);
-	m_LastBitFieldOffset = Offset;
+	size_t offset = getFieldOffset (alignFactor);
+	m_lastBitFieldOffset = offset;
 
-	if (Offset > m_FieldActualSize)
-		InsertPadding (Offset - m_FieldActualSize);
+	if (offset > m_fieldActualSize)
+		insertPadding (offset - m_fieldActualSize);
 
-	*pOffset = Offset;
-	*pLlvmIndex = (uint_t) m_LlvmFieldTypeArray.GetCount ();
+	*offset_o = offset;
+	*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
 
-	m_LlvmFieldTypeArray.Append (pType->GetLlvmType ());
-	SetFieldActualSize (Offset + pType->GetSize ());
+	m_llvmFieldTypeArray.append (type->getLlvmType ());
+	setFieldActualSize (offset + type->getSize ());
 	return true;
 }
 
 size_t
-CStructType::GetFieldOffset (size_t AlignFactor)
+StructType::getFieldOffset (size_t alignFactor)
 {
-	size_t Offset = m_FieldActualSize;
+	size_t offset = m_fieldActualSize;
 
-	if (AlignFactor > m_PackFactor)
-		AlignFactor = m_PackFactor;
+	if (alignFactor > m_packFactor)
+		alignFactor = m_packFactor;
 
-	size_t Mod = Offset % AlignFactor;
-	if (Mod)
-		Offset += AlignFactor - Mod;
+	size_t mod = offset % alignFactor;
+	if (mod)
+		offset += alignFactor - mod;
 
-	return Offset;
+	return offset;
 }
 
 size_t
-CStructType::GetBitFieldBitOffset (
-	CType* pType,
-	size_t BitCount
+StructType::getBitFieldBitOffset (
+	Type* type,
+	size_t bitCount
 	)
 {
-	if (!m_pLastBitFieldType || m_pLastBitFieldType->GetBaseType ()->Cmp (pType) != 0)
+	if (!m_lastBitFieldType || m_lastBitFieldType->getBaseType ()->cmp (type) != 0)
 		return 0;
 
-	size_t LastBitOffset =
-		m_pLastBitFieldType->GetBitOffset () +
-		m_pLastBitFieldType->GetBitCount ();
+	size_t lastBitOffset =
+		m_lastBitFieldType->getBitOffset () +
+		m_lastBitFieldType->getBitCount ();
 
-	return LastBitOffset + BitCount <= pType->GetSize () * 8 ? LastBitOffset : 0;
+	return lastBitOffset + bitCount <= type->getSize () * 8 ? lastBitOffset : 0;
 }
 
 size_t
-CStructType::SetFieldActualSize (size_t Size)
+StructType::setFieldActualSize (size_t size)
 {
-	if (m_FieldActualSize >= Size)
-		return m_FieldAlignedSize;
+	if (m_fieldActualSize >= size)
+		return m_fieldAlignedSize;
 
-	m_FieldActualSize = Size;
-	m_FieldAlignedSize = Size;
+	m_fieldActualSize = size;
+	m_fieldAlignedSize = size;
 
-	size_t Mod = Size % m_AlignFactor;
-	if (Mod)
-		m_FieldAlignedSize += m_AlignFactor - Mod;
+	size_t mod = size % m_alignFactor;
+	if (mod)
+		m_fieldAlignedSize += m_alignFactor - mod;
 
-	return m_FieldAlignedSize;
+	return m_fieldAlignedSize;
 }
 
-CArrayType*
-CStructType::InsertPadding (size_t Size)
+ArrayType*
+StructType::insertPadding (size_t size)
 {
-	CArrayType* pType = m_pModule->m_TypeMgr.GetArrayType (EType_Int8_u, Size);
-	m_LlvmFieldTypeArray.Append (pType->GetLlvmType ());
-	return pType;
-}
-
-void
-CStructType::PrepareLlvmDiType ()
-{
-	m_LlvmDiType = m_pModule->m_LlvmDiBuilder.CreateEmptyStructType (this);
-	m_pModule->m_LlvmDiBuilder.SetStructTypeBody (this);
+	ArrayType* type = m_module->m_typeMgr.getArrayType (TypeKind_Int8_u, size);
+	m_llvmFieldTypeArray.append (type->getLlvmType ());
+	return type;
 }
 
 void
-CStructType::GcMark (
-	CRuntime* pRuntime,
+StructType::prepareLlvmDiType ()
+{
+	m_llvmDiType = m_module->m_llvmDiBuilder.createEmptyStructType (this);
+	m_module->m_llvmDiBuilder.setStructTypeBody (this);
+}
+
+void
+StructType::gcMark (
+	Runtime* runtime,
 	void* _p
 	)
 {
 	char* p = (char*) _p;
 
-	size_t Count = m_GcRootBaseTypeArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_gcRootBaseTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CBaseTypeSlot* pSlot = m_GcRootBaseTypeArray [i];
-		pSlot->GetType ()->GcMark (pRuntime, p + pSlot->GetOffset ());
+		BaseTypeSlot* slot = m_gcRootBaseTypeArray [i];
+		slot->getType ()->gcMark (runtime, p + slot->getOffset ());
 	}
 
-	Count = m_GcRootMemberFieldArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	count = m_gcRootMemberFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = m_GcRootMemberFieldArray [i];
-		pField->GetType ()->GcMark (pRuntime, p + pField->GetOffset ());
+		StructField* field = m_gcRootMemberFieldArray [i];
+		field->getType ()->gcMark (runtime, p + field->getOffset ());
 	}
 }
 

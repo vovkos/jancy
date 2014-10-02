@@ -12,91 +12,91 @@ namespace jnc {
 //.............................................................................
 
 void
-CScopeLevelStack::TakeOver (CScopeLevelStack* pSrcStack)
+ScopeLevelStack::takeOver (ScopeLevelStack* srcStack)
 {
-	m_pModule = pSrcStack->m_pModule;
-	m_List.TakeOver (&pSrcStack->m_List);
-	m_Stack = pSrcStack->m_Stack;
-	pSrcStack->m_Stack.Clear ();
+	m_module = srcStack->m_module;
+	m_list.takeOver (&srcStack->m_list);
+	m_stack = srcStack->m_stack;
+	srcStack->m_stack.clear ();
 }
 
-CValue
-CScopeLevelStack::GetScopeLevel (size_t Level)
+Value
+ScopeLevelStack::getScopeLevel (size_t level)
 {
 #ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	TEntry* pEntry = GetEntry (Level);
-	if (pEntry->m_ScopeLevelValue)
-		return pEntry->m_ScopeLevelValue;
+	Entry* entry = getEntry (level);
+	if (entry->m_scopeLevelValue)
+		return entry->m_scopeLevelValue;
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 #endif
 
-	CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 
-	CValue ScopeBaseLevelValue = m_pModule->m_FunctionMgr.GetScopeLevel ();
-	CValue ScopeIncValue (Level, pType);
-	CValue ScopeLevelValue;
+	Value scopeBaseLevelValue = m_module->m_functionMgr.getScopeLevel ();
+	Value scopeIncValue (level, type);
+	Value scopeLevelValue;
 
-	m_pModule->m_LlvmIrBuilder.CreateAdd_i (
-		ScopeBaseLevelValue,
-		ScopeIncValue,
-		pType,
-		&ScopeLevelValue
+	m_module->m_llvmIrBuilder.createAdd_i (
+		scopeBaseLevelValue,
+		scopeIncValue,
+		type,
+		&scopeLevelValue
 		);
 
 #ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-	pEntry->m_ScopeLevelValue = ScopeLevelValue;
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+	entry->m_scopeLevelValue = scopeLevelValue;
 #endif
-	return ScopeLevelValue;
+	return scopeLevelValue;
 }
 
-CValue
-CScopeLevelStack::GetObjHdr (size_t Level)
+Value
+ScopeLevelStack::getObjHdr (size_t level)
 {
 #ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	TEntry* pEntry = GetEntry (Level);
-	if (pEntry->m_ObjHdrValue)
-		return pEntry->m_ObjHdrValue;
+	Entry* entry = getEntry (level);
+	if (entry->m_objHdrValue)
+		return entry->m_objHdrValue;
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 #endif
 
-	CValue ObjHdrValue;
+	Value objHdrValue;
 
-	CType* pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
+	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "scopeLevel", pType, &ObjHdrValue);
+	m_module->m_llvmIrBuilder.createAlloca (type, "scopeLevel", type, &objHdrValue);
 
-	CValue ScopeLevelValue = GetScopeLevel (Level);
-	m_pModule->m_LlvmIrBuilder.CreateStore (ScopeLevelValue, ObjHdrValue);
+	Value scopeLevelValue = getScopeLevel (level);
+	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, objHdrValue);
 
-	pType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr);
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (ObjHdrValue, pType, &ObjHdrValue);
+	type = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr);
+	m_module->m_llvmIrBuilder.createBitCast (objHdrValue, type, &objHdrValue);
 
 #ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-	pEntry->m_ObjHdrValue = ObjHdrValue;
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+	entry->m_objHdrValue = objHdrValue;
 #endif
-	return ObjHdrValue;
+	return objHdrValue;
 }
 
-CScopeLevelStack::TEntry*
-CScopeLevelStack::GetEntry (size_t Level)
+ScopeLevelStack::Entry*
+ScopeLevelStack::getEntry (size_t level)
 {
-	size_t Count = m_Stack.GetCount ();
-	if (Level >= Count)
-		m_Stack.SetCount (Level + 1);
+	size_t count = m_stack.getCount ();
+	if (level >= count)
+		m_stack.setCount (level + 1);
 
-	if (m_Stack [Level])
-		return m_Stack [Level];
+	if (m_stack [level])
+		return m_stack [level];
 
-	TEntry* pEntry = AXL_MEM_NEW (TEntry);
-	m_List.InsertTail (pEntry);
-	m_Stack [Level] = pEntry;
-	return pEntry;
+	Entry* entry = AXL_MEM_NEW (Entry);
+	m_list.insertTail (entry);
+	m_stack [level] = entry;
+	return entry;
 }
 
 //.............................................................................

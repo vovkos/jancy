@@ -6,33 +6,33 @@ namespace jnc {
 
 //.............................................................................
 
-CFunctionType::CFunctionType ()
+FunctionType::FunctionType ()
 {
-	m_TypeKind = EType_Function;
-	m_pCallConv = NULL;
-	m_pReturnType = NULL;
-	m_pReturnType_i = NULL;
-	m_pShortType = this;
-	m_pStdObjectMemberMethodType = NULL;
-	m_pFunctionPtrTypeTuple = NULL;
-	m_pReactorInterfaceType = NULL;
+	m_typeKind = TypeKind_Function;
+	m_callConv = NULL;
+	m_returnType = NULL;
+	m_returnType_i = NULL;
+	m_shortType = this;
+	m_stdObjectMemberMethodType = NULL;
+	m_functionPtrTypeTuple = NULL;
+	m_reactorInterfaceType = NULL;
 }
 
-CNamedType*
-CFunctionType::GetThisTargetType ()
+NamedType*
+FunctionType::getThisTargetType ()
 {
-	CType* pThisArgType = GetThisArgType ();
-	if (!pThisArgType)
+	Type* thisArgType = getThisArgType ();
+	if (!thisArgType)
 		return NULL;
 
-	EType ThisArgTypeKind = pThisArgType->GetTypeKind ();
-	switch (ThisArgTypeKind)
+	TypeKind thisArgTypeKind = thisArgType->getTypeKind ();
+	switch (thisArgTypeKind)
 	{
-	case EType_ClassPtr:
-		return ((CClassPtrType*) pThisArgType)->GetTargetType ();
+	case TypeKind_ClassPtr:
+		return ((ClassPtrType*) thisArgType)->getTargetType ();
 
-	case EType_DataPtr:
-		return (CNamedType*) ((CDataPtrType*) pThisArgType)->GetTargetType ();
+	case TypeKind_DataPtr:
+		return (NamedType*) ((DataPtrType*) thisArgType)->getTargetType ();
 
 	default:
 		ASSERT (false);
@@ -41,19 +41,19 @@ CFunctionType::GetThisTargetType ()
 }
 
 bool
-CFunctionType::IsThrowConditionMatch (CFunctionType* pType)
+FunctionType::isThrowConditionMatch (FunctionType* type)
 {
-	if (m_pReturnType->Cmp (pType->m_pReturnType) != 0 ||
-		(m_Flags & EFunctionTypeFlag_Throws) != (pType->m_Flags & EFunctionTypeFlag_Throws) ||
-		m_ThrowCondition.GetCount () != pType->m_ThrowCondition.GetCount ())
+	if (m_returnType->cmp (type->m_returnType) != 0 ||
+		(m_flags & FunctionTypeFlagKind_Throws) != (type->m_flags & FunctionTypeFlagKind_Throws) ||
+		m_throwCondition.getCount () != type->m_throwCondition.getCount ())
 		return false;
 
-	rtl::CBoxIteratorT <CToken> Token1 = m_ThrowCondition.GetHead ();
-	rtl::CBoxIteratorT <CToken> Token2 = pType->m_ThrowCondition.GetHead ();
+	rtl::BoxIterator <Token> token1 = m_throwCondition.getHead ();
+	rtl::BoxIterator <Token> token2 = type->m_throwCondition.getHead ();
 
-	for (; Token1 && Token2; Token1++, Token2++)
+	for (; token1 && token2; token1++, token2++)
 	{
-		if (Token1->m_Token != Token2->m_Token)
+		if (token1->m_token != token2->m_token)
 			return false;
 
 		#pragma AXL_TODO ("check token data also. in fact, need to come up with something smarter than token cmp")
@@ -62,285 +62,285 @@ CFunctionType::IsThrowConditionMatch (CFunctionType* pType)
 	return true;
 }
 
-rtl::CString
-CFunctionType::GetArgSignature ()
+rtl::String
+FunctionType::getArgSignature ()
 {
-	if (m_ArgSignature.IsEmpty ())
-		m_ArgSignature = CreateArgSignature ();
+	if (m_argSignature.isEmpty ())
+		m_argSignature = createArgSignature ();
 
-	return m_ArgSignature;
+	return m_argSignature;
 }
 
-CFunctionPtrType*
-CFunctionType::GetFunctionPtrType (
-	EType TypeKind,
-	EFunctionPtrType PtrTypeKind,
-	uint_t Flags
+FunctionPtrType*
+FunctionType::getFunctionPtrType (
+	TypeKind typeKind,
+	FunctionPtrTypeKind ptrTypeKind,
+	uint_t flags
 	)
 {
-	return m_pModule->m_TypeMgr.GetFunctionPtrType (this, TypeKind, PtrTypeKind, Flags);
+	return m_module->m_typeMgr.getFunctionPtrType (this, typeKind, ptrTypeKind, flags);
 }
 
-CClassType*
-CFunctionType::GetMulticastType ()
+ClassType*
+FunctionType::getMulticastType ()
 {
-	return m_pModule->m_TypeMgr.GetMulticastType (this);
+	return m_module->m_typeMgr.getMulticastType (this);
 }
 
-CFunctionType*
-CFunctionType::GetMemberMethodType (
-	CNamedType* pParentType,
-	uint_t ThisArgTypeFlags
+FunctionType*
+FunctionType::getMemberMethodType (
+	NamedType* parentType,
+	uint_t thisArgTypeFlags
 	)
 {
-	return m_pModule->m_TypeMgr.GetMemberMethodType (pParentType, this, ThisArgTypeFlags);
+	return m_module->m_typeMgr.getMemberMethodType (parentType, this, thisArgTypeFlags);
 }
 
-CFunctionType*
-CFunctionType::GetStdObjectMemberMethodType ()
+FunctionType*
+FunctionType::getStdObjectMemberMethodType ()
 {
-	return m_pModule->m_TypeMgr.GetStdObjectMemberMethodType (this);
+	return m_module->m_typeMgr.getStdObjectMemberMethodType (this);
 }
 
-CFunction*
-CFunctionType::GetAbstractFunction ()
+Function*
+FunctionType::getAbstractFunction ()
 {
-	if (m_pAbstractFunction)
-		return m_pAbstractFunction;
+	if (m_abstractFunction)
+		return m_abstractFunction;
 
-	CFunction* pFunction = m_pModule->m_FunctionMgr.CreateFunction (EFunction_Internal, "abstractFunction", this);
-	m_pAbstractFunction = pFunction;
-	m_pModule->MarkForCompile (this);
-	return pFunction;
+	Function* function = m_module->m_functionMgr.createFunction (FunctionKind_Internal, "abstractFunction", this);
+	m_abstractFunction = function;
+	m_module->markForCompile (this);
+	return function;
 }
 
 bool
-CFunctionType::Compile ()
+FunctionType::compile ()
 {
-	ASSERT (m_pAbstractFunction);
+	ASSERT (m_abstractFunction);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pAbstractFunction);
-	m_pModule->m_LlvmIrBuilder.RuntimeError (ERuntimeError_AbstractFunction);
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalPrologue (m_abstractFunction);
+	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_AbstractFunction);
+	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;
 }
 
-rtl::CString
-CFunctionType::CreateArgSignature (
-	CType* const* pArgTypeArray,
-	size_t ArgCount,
-	uint_t Flags
+rtl::String
+FunctionType::createArgSignature (
+	Type* const* argTypeArray,
+	size_t argCount,
+	uint_t flags
 	)
 {
-	rtl::CString String = "(";
+	rtl::String string = "(";
 
-	for (size_t i = 0; i < ArgCount; i++)
+	for (size_t i = 0; i < argCount; i++)
 	{
-		CType* pType = pArgTypeArray [i];
-		String += pType->GetSignature ();
-		String += ",";
+		Type* type = argTypeArray [i];
+		string += type->getSignature ();
+		string += ",";
 	}
 
-	String += (Flags & EFunctionTypeFlag_VarArg) ? ".)" : ")";
-	return String;
+	string += (flags & FunctionTypeFlagKind_VarArg) ? ".)" : ")";
+	return string;
 }
 
-rtl::CString
-CFunctionType::CreateArgSignature (
-	CFunctionArg* const* pArgArray,
-	size_t ArgCount,
-	uint_t Flags
+rtl::String
+FunctionType::createArgSignature (
+	FunctionArg* const* argArray,
+	size_t argCount,
+	uint_t flags
 	)
 {
-	rtl::CString String = "(";
+	rtl::String string = "(";
 
-	for (size_t i = 0; i < ArgCount; i++)
+	for (size_t i = 0; i < argCount; i++)
 	{
-		CFunctionArg* pArg = pArgArray [i];
+		FunctionArg* arg = argArray [i];
 
-		String += pArg->GetType ()->GetSignature ();
-		String += ",";
+		string += arg->getType ()->getSignature ();
+		string += ",";
 	}
 
-	String += (Flags & EFunctionTypeFlag_VarArg) ? ".)" : ")";
-	return String;
+	string += (flags & FunctionTypeFlagKind_VarArg) ? ".)" : ")";
+	return string;
 }
 
-rtl::CString
-CFunctionType::CreateSignature (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	CType* const* pArgTypeArray,
-	size_t ArgCount,
-	uint_t Flags
+rtl::String
+FunctionType::createSignature (
+	CallConv* callConv,
+	Type* returnType,
+	Type* const* argTypeArray,
+	size_t argCount,
+	uint_t flags
 	)
 {
-	rtl::CString String = "F";
-	String += GetCallConvSignature (pCallConv->GetCallConvKind ());
-	String += pReturnType->GetSignature ();
-	String += CreateArgSignature (pArgTypeArray, ArgCount, Flags);
-	return String;
+	rtl::String string = "F";
+	string += getCallConvSignature (callConv->getCallConvKind ());
+	string += returnType->getSignature ();
+	string += createArgSignature (argTypeArray, argCount, flags);
+	return string;
 }
 
-rtl::CString
-CFunctionType::CreateSignature (
-	CCallConv* pCallConv,
-	CType* pReturnType,
-	CFunctionArg* const* pArgArray,
-	size_t ArgCount,
-	uint_t Flags
+rtl::String
+FunctionType::createSignature (
+	CallConv* callConv,
+	Type* returnType,
+	FunctionArg* const* argArray,
+	size_t argCount,
+	uint_t flags
 	)
 {
-	rtl::CString String = "F";
-	String += GetCallConvSignature (pCallConv->GetCallConvKind ());
-	String += pReturnType->GetSignature ();
-	String += CreateArgSignature (pArgArray, ArgCount, Flags);
-	return String;
+	rtl::String string = "F";
+	string += getCallConvSignature (callConv->getCallConvKind ());
+	string += returnType->getSignature ();
+	string += createArgSignature (argArray, argCount, flags);
+	return string;
 }
 
-rtl::CString
-CFunctionType::GetArgString ()
+rtl::String
+FunctionType::getArgString ()
 {
-	if (!m_ArgString.IsEmpty ())
-		return m_ArgString;
+	if (!m_argString.isEmpty ())
+		return m_argString;
 
-	bool IsUserType = (m_Flags & EModuleItemFlag_User) != 0;
+	bool isUserType = (m_flags & ModuleItemFlagKind_User) != 0;
 
-	m_ArgString = "(";
+	m_argString = "(";
 
-	if (!m_ArgArray.IsEmpty ())
+	if (!m_argArray.isEmpty ())
 	{
-		CFunctionArg* pArg = m_ArgArray [0];
-		m_ArgString.AppendFormat ("%s", pArg->GetType ()->GetTypeString ().cc ()); // thanks a lot gcc
+		FunctionArg* arg = m_argArray [0];
+		m_argString.appendFormat ("%s", arg->getType ()->getTypeString ().cc ()); // thanks a lot gcc
 
-		if (pArg->GetStorageKind () == EStorage_This)
+		if (arg->getStorageKind () == StorageKind_This)
 		{
-			m_ArgString += " this";
+			m_argString += " this";
 		}
-		else if (IsUserType)
+		else if (isUserType)
 		{
-				if (!pArg->GetName ().IsEmpty ())
-					m_ArgString.AppendFormat (" %s", pArg->GetName ().cc ());
+				if (!arg->getName ().isEmpty ())
+					m_argString.appendFormat (" %s", arg->getName ().cc ());
 
-				if (!pArg->GetInitializer ().IsEmpty ())
-					m_ArgString.AppendFormat (" = %s", pArg->GetInitializerString ().cc ());
+				if (!arg->getInitializer ().isEmpty ())
+					m_argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
 		}
 
-		size_t ArgCount = m_ArgArray.GetCount ();
-		for (size_t i = 1; i < ArgCount; i++)
+		size_t argCount = m_argArray.getCount ();
+		for (size_t i = 1; i < argCount; i++)
 		{
-			pArg = m_ArgArray [i];
+			arg = m_argArray [i];
 
-			m_ArgString.AppendFormat (", %s", pArg->GetType ()->GetTypeString ().cc ());
+			m_argString.appendFormat (", %s", arg->getType ()->getTypeString ().cc ());
 
-			if (IsUserType)
+			if (isUserType)
 			{
-				if (!pArg->GetName ().IsEmpty ())
-					m_ArgString.AppendFormat (" %s", pArg->GetName ().cc ());
+				if (!arg->getName ().isEmpty ())
+					m_argString.appendFormat (" %s", arg->getName ().cc ());
 
-				if (!pArg->GetInitializer ().IsEmpty ())
-					m_ArgString.AppendFormat (" = %s", pArg->GetInitializerString ().cc ());
+				if (!arg->getInitializer ().isEmpty ())
+					m_argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
 			}
 		}
 
-		if (m_Flags & EFunctionTypeFlag_VarArg)
-			m_ArgString += ", ";
+		if (m_flags & FunctionTypeFlagKind_VarArg)
+			m_argString += ", ";
 	}
 
-	if (!(m_Flags & EFunctionTypeFlag_VarArg))
-		m_ArgString += ")";
+	if (!(m_flags & FunctionTypeFlagKind_VarArg))
+		m_argString += ")";
 	else
-		m_ArgString += "...)";
+		m_argString += "...)";
 
-	if (m_Flags & EFunctionTypeFlag_Throws)
+	if (m_flags & FunctionTypeFlagKind_Throws)
 	{
-		m_ArgString += " throws";
+		m_argString += " throws";
 
-		if (!m_ThrowCondition.IsEmpty ())
-			m_ArgString.AppendFormat (" if (%s)", CToken::GetTokenListString (m_ThrowCondition).cc ());
+		if (!m_throwCondition.isEmpty ())
+			m_argString.appendFormat (" if (%s)", Token::getTokenListString (m_throwCondition).cc ());
 	}
 
-	return m_ArgString;
+	return m_argString;
 }
 
-rtl::CString
-CFunctionType::GetTypeModifierString ()
+rtl::String
+FunctionType::getTypeModifierString ()
 {
-	if (!m_TypeModifierString.IsEmpty ())
-		return m_TypeModifierString;
+	if (!m_typeModifierString.isEmpty ())
+		return m_typeModifierString;
 
-	if (!m_pCallConv->IsDefault ())
+	if (!m_callConv->isDefault ())
 	{
-		m_TypeModifierString = m_pCallConv->GetCallConvDisplayString ();
-		m_TypeModifierString += ' ';
+		m_typeModifierString = m_callConv->getCallConvDisplayString ();
+		m_typeModifierString += ' ';
 	}
 
-	return m_TypeModifierString;
+	return m_typeModifierString;
 }
 
 void
-CFunctionType::PrepareTypeString ()
+FunctionType::prepareTypeString ()
 {
-	m_TypeString = GetTypeModifierString ();
-	m_TypeString += m_pReturnType->GetTypeString ();
-	m_TypeString += ' ';
-	m_TypeString += GetArgString ();
+	m_typeString = getTypeModifierString ();
+	m_typeString += m_returnType->getTypeString ();
+	m_typeString += ' ';
+	m_typeString += getArgString ();
 }
 
 void
-CFunctionType::PrepareLlvmType ()
+FunctionType::prepareLlvmType ()
 {
-	m_pLlvmType = m_pCallConv->GetLlvmFunctionType (this);
+	m_llvmType = m_callConv->getLlvmFunctionType (this);
 }
 
 void
-CFunctionType::PrepareLlvmDiType ()
+FunctionType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = m_pModule->m_LlvmDiBuilder.CreateSubroutineType (this);
+	m_llvmDiType = m_module->m_llvmDiBuilder.createSubroutineType (this);
 }
 
 bool
-CFunctionType::CalcLayout ()
+FunctionType::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pReturnType_i)
+	if (m_returnType_i)
 	{
-		m_pReturnType = m_pReturnType_i->GetActualType ();
+		m_returnType = m_returnType_i->getActualType ();
 		// TODO: check for valid return type
 	}
 
-	Result = m_pReturnType->EnsureLayout ();
-	if (!Result)
+	result = m_returnType->ensureLayout ();
+	if (!result)
 		return false;
 
-	size_t ArgCount = m_ArgArray.GetCount ();
-	for (size_t i = 0; i < ArgCount; i++)
+	size_t argCount = m_argArray.getCount ();
+	for (size_t i = 0; i < argCount; i++)
 	{
-		Result = m_ArgArray [i]->EnsureLayout ();
-		if (!Result)
+		result = m_argArray [i]->ensureLayout ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pShortType != this)
+	if (m_shortType != this)
 	{
-		Result = m_pShortType->EnsureLayout ();
-		if (!Result)
+		result = m_shortType->ensureLayout ();
+		if (!result)
 			return false;
 	}
 
 	// update signature
 
-	rtl::CString Signature = CreateSignature (
-		m_pCallConv,
-		m_pReturnType,
-		m_ArgArray,
-		m_ArgArray.GetCount (),
-		m_Flags
+	rtl::String signature = createSignature (
+		m_callConv,
+		m_returnType,
+		m_argArray,
+		m_argArray.getCount (),
+		m_flags
 		);
 
-	m_pModule->m_TypeMgr.UpdateTypeSignature (this, Signature);
+	m_module->m_typeMgr.updateTypeSignature (this, signature);
 	return true;
 }
 

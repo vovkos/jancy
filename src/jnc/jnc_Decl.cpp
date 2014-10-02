@@ -8,111 +8,111 @@ namespace jnc {
 //.............................................................................
 
 void
-CTypeModifiers::Clear ()
+TypeModifiers::clear ()
 {
-	m_TypeModifiers = 0;
+	m_typeModifiers = 0;
 }
 
 void
-CTypeModifiers::TakeOver (CTypeModifiers* pSrc)
+TypeModifiers::takeOver (TypeModifiers* src)
 {
-	m_TypeModifiers = pSrc->m_TypeModifiers;
-	pSrc->Clear ();
+	m_typeModifiers = src->m_typeModifiers;
+	src->clear ();
 }
 
 bool
-CTypeModifiers::SetTypeModifier (ETypeModifier Modifier)
+TypeModifiers::setTypeModifier (TypeModifierKind modifier)
 {
 	static
 	uint_t
-	AntiModifierTable [] = 
+	antiModifierTable [] = 
 	{		
 		0,                          // ETypeModifier_Unsigned         = 0x00000001,
 		0,                          // ETypeModifier_BigEndian        = 0x00000002,
-		ETypeModifierMask_Const,    // ETypeModifier_Const            = 0x00000004,
-		ETypeModifierMask_Const,    // ETypeModifier_DConst           = 0x00000008,
+		TypeModifierMaskKind_Const,    // ETypeModifier_Const            = 0x00000004,
+		TypeModifierMaskKind_Const,    // ETypeModifier_DConst           = 0x00000008,
 		0,                          // ETypeModifier_Volatile         = 0x00000010,
-		ETypeModifierMask_PtrKind,  // ETypeModifier_Weak             = 0x00000020,
-		ETypeModifierMask_PtrKind,  // ETypeModifier_Thin             = 0x00000040,
+		TypeModifierMaskKind_PtrKind,  // ETypeModifier_Weak             = 0x00000020,
+		TypeModifierMaskKind_PtrKind,  // ETypeModifier_Thin             = 0x00000040,
 		0,                          // ETypeModifier_Unused           = 0x00000080,
-		ETypeModifierMask_CallConv, // ETypeModifier_Cdecl            = 0x00000100,
-		ETypeModifierMask_CallConv, // ETypeModifier_Stdcall          = 0x00000200,
-		ETypeModifierMask_TypeKind, // ETypeModifier_Array            = 0x00000400,
-		ETypeModifierMask_TypeKind, // ETypeModifier_Function         = 0x00000800,
-		ETypeModifierMask_TypeKind, // ETypeModifier_Property         = 0x00001000,
+		TypeModifierMaskKind_CallConv, // ETypeModifier_Cdecl            = 0x00000100,
+		TypeModifierMaskKind_CallConv, // ETypeModifier_Stdcall          = 0x00000200,
+		TypeModifierMaskKind_TypeKind, // ETypeModifier_Array            = 0x00000400,
+		TypeModifierMaskKind_TypeKind, // ETypeModifier_Function         = 0x00000800,
+		TypeModifierMaskKind_TypeKind, // ETypeModifier_Property         = 0x00001000,
 		0,                          // ETypeModifier_Bindable         = 0x00002000,
-		ETypeModifier_Indexed,      // ETypeModifier_AutoGet          = 0x00004000,
-		ETypeModifier_AutoGet,      // ETypeModifier_Indexed          = 0x00008000,
-		ETypeModifierMask_TypeKind, // ETypeModifier_Multicast        = 0x00010000,
-		ETypeModifierMask_Event,    // ETypeModifier_Event            = 0x00020000,
-		ETypeModifierMask_Event,    // ETypeModifier_DEvent           = 0x00040000,
-		ETypeModifierMask_TypeKind, // ETypeModifier_Reactor          = 0x00080000,
-		ETypeModifierMask_CallConv, // ETypeModifier_Thiscall         = 0x00100000,
-		ETypeModifierMask_CallConv, // ETypeModifier_Jnccall          = 0x00200000,
+		TypeModifierKind_Indexed,      // ETypeModifier_AutoGet          = 0x00004000,
+		TypeModifierKind_AutoGet,      // ETypeModifier_Indexed          = 0x00008000,
+		TypeModifierMaskKind_TypeKind, // ETypeModifier_Multicast        = 0x00010000,
+		TypeModifierMaskKind_Event,    // ETypeModifier_Event            = 0x00020000,
+		TypeModifierMaskKind_Event,    // ETypeModifier_DEvent           = 0x00040000,
+		TypeModifierMaskKind_TypeKind, // ETypeModifier_Reactor          = 0x00080000,
+		TypeModifierMaskKind_CallConv, // ETypeModifier_Thiscall         = 0x00100000,
+		TypeModifierMaskKind_CallConv, // ETypeModifier_Jnccall          = 0x00200000,
 	};
 
 	// check duplicates
 
-	if (m_TypeModifiers & Modifier)
+	if (m_typeModifiers & modifier)
 	{
-		err::SetFormatStringError ("type modifier '%s' used more than once", GetTypeModifierString (Modifier));
+		err::setFormatStringError ("type modifier '%s' used more than once", getTypeModifierString (modifier));
 		return false;
 	}
 
-	size_t i = rtl::GetLoBitIdx32 (Modifier);
-	if (i >= countof (AntiModifierTable))
+	size_t i = rtl::getLoBitIdx32 (modifier);
+	if (i >= countof (antiModifierTable))
 	{
-		m_TypeModifiers |= Modifier;
+		m_typeModifiers |= modifier;
 		return true; // allow adding new modifiers without changing table
 	}
 
 	// check anti-modifiers
 
-	if (m_TypeModifiers & AntiModifierTable [i])
+	if (m_typeModifiers & antiModifierTable [i])
 	{
-		ETypeModifier Modifier2 = GetFirstTypeModifier (m_TypeModifiers);
-		err::SetFormatStringError (
+		TypeModifierKind modifier2 = getFirstTypeModifier (m_typeModifiers);
+		err::setFormatStringError (
 			"type modifiers '%s' and '%s' cannot be used together",
-			GetTypeModifierString (Modifier2),
-			GetTypeModifierString (Modifier)
+			getTypeModifierString (modifier2),
+			getTypeModifierString (modifier)
 			);
 
 		return false;
 	}
 
-	m_TypeModifiers |= Modifier;
+	m_typeModifiers |= modifier;
 	return true;
 }
 
 int
-CTypeModifiers::ClearTypeModifiers (int ModifierMask)
+TypeModifiers::clearTypeModifiers (int modifierMask)
 {
-	uint_t TypeModifiers = m_TypeModifiers & ModifierMask;
-	m_TypeModifiers &= ~ModifierMask;
-	return TypeModifiers;
+	uint_t typeModifiers = m_typeModifiers & modifierMask;
+	m_typeModifiers &= ~modifierMask;
+	return typeModifiers;
 }
 
 bool
-CTypeModifiers::CheckAntiTypeModifiers (int ModifierMask)
+TypeModifiers::checkAntiTypeModifiers (int modifierMask)
 {
-	uint_t Modifiers = m_TypeModifiers;
+	uint_t modifiers = m_typeModifiers;
 
-	Modifiers &= ModifierMask;
-	if (!Modifiers)
+	modifiers &= modifierMask;
+	if (!modifiers)
 		return true;
 
-	ETypeModifier FirstModifier = GetFirstTypeModifier (Modifiers);
-	Modifiers &= ~FirstModifier;
-	if (!Modifiers)
+	TypeModifierKind firstModifier = getFirstTypeModifier (modifiers);
+	modifiers &= ~firstModifier;
+	if (!modifiers)
 		return true;
 
 	// more than one
 
-	ETypeModifier SecondModifier = GetFirstTypeModifier (Modifiers);
-	err::SetFormatStringError (
+	TypeModifierKind secondModifier = getFirstTypeModifier (modifiers);
+	err::setFormatStringError (
 		"type modifiers '%s' and '%s' cannot be used together",
-		GetTypeModifierString (FirstModifier),
-		GetTypeModifierString (SecondModifier)
+		getTypeModifierString (firstModifier),
+		getTypeModifierString (secondModifier)
 		);
 
 	return false;
@@ -121,255 +121,255 @@ CTypeModifiers::CheckAntiTypeModifiers (int ModifierMask)
 //.............................................................................
 
 bool
-CTypeSpecifier::SetType (CType* pType)
+TypeSpecifier::setType (Type* type)
 {
-	if (m_pType)
+	if (m_type)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"more than one type specifiers ('%s' and '%s')", 
-			m_pType->GetTypeString ().cc (), // thanks a lot gcc
-			pType->GetTypeString ().cc ()
+			m_type->getTypeString ().cc (), // thanks a lot gcc
+			type->getTypeString ().cc ()
 			);
 
 		return false;
 	}
 
-	m_pType = pType;
+	m_type = type;
 	return true;
 }
 
 //.............................................................................
 
 const char* 
-GetPostDeclaratorModifierString (EPostDeclaratorModifier Modifier)
+getPostDeclaratorModifierString (PostDeclaratorModifierKind modifier)
 {
-	static const char* StringTable [] = 
+	static const char* stringTable [] = 
 	{
 		"const",    // EPostDeclaratorModifier_Const  = 0x01,
 	};
 
-	size_t i  = rtl::GetLoBitIdx32 (Modifier);
-	return i < countof (StringTable) ? 
-		StringTable [i] : 
+	size_t i  = rtl::getLoBitIdx32 (modifier);
+	return i < countof (stringTable) ? 
+		stringTable [i] : 
 		"undefined-post-declarator-modifier";
 }
 
-rtl::CString
-GetPostDeclaratorModifierString (uint_t Modifiers)
+rtl::String
+getPostDeclaratorModifierString (uint_t modifiers)
 {
-	if (!Modifiers)
-		return rtl::CString ();
+	if (!modifiers)
+		return rtl::String ();
 
-	EPostDeclaratorModifier Modifier = GetFirstPostDeclaratorModifier (Modifiers);
-	rtl::CString String = GetPostDeclaratorModifierString (Modifier);
-	Modifiers &= ~Modifier;
+	PostDeclaratorModifierKind modifier = getFirstPostDeclaratorModifier (modifiers);
+	rtl::String string = getPostDeclaratorModifierString (modifier);
+	modifiers &= ~modifier;
 
-	while (Modifiers)
+	while (modifiers)
 	{
-		Modifier = GetFirstPostDeclaratorModifier (Modifiers);
+		modifier = getFirstPostDeclaratorModifier (modifiers);
 
-		String += ' ';
-		String += GetPostDeclaratorModifierString (Modifier);
+		string += ' ';
+		string += getPostDeclaratorModifierString (modifier);
 
-		Modifiers &= ~Modifier;
+		modifiers &= ~modifier;
 	}
 
-	return String;
+	return string;
 }
 
 //.............................................................................
 
-CDeclarator::CDeclarator ()
+Declarator::Declarator ()
 {
-	m_DeclaratorKind = EDeclarator_Undefined;
-	m_FunctionKind = EFunction_Undefined;
-	m_UnOpKind = EUnOp_Undefined;
-	m_BinOpKind = EBinOp_Undefined;
-	m_pCastOpType = NULL;
-	m_BitCount = 0;
-	m_PostDeclaratorModifiers = 0;
-	m_pBaseType = NULL;
+	m_declaratorKind = DeclaratorKind_Undefined;
+	m_functionKind = FunctionKind_Undefined;
+	m_unOpKind = UnOpKind_Undefined;
+	m_binOpKind = BinOpKind_Undefined;
+	m_castOpType = NULL;
+	m_bitCount = 0;
+	m_postDeclaratorModifiers = 0;
+	m_baseType = NULL;
 }
 
 void
-CDeclarator::SetTypeSpecifier (CTypeSpecifier* pTypeSpecifier)
+Declarator::setTypeSpecifier (TypeSpecifier* typeSpecifier)
 {
-	CModule* pModule = GetCurrentThreadModule ();
-	ASSERT (pModule);
+	Module* module = getCurrentThreadModule ();
+	ASSERT (module);
 
-	if (!pTypeSpecifier)
+	if (!typeSpecifier)
 	{
-		m_pBaseType = pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+		m_baseType = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	}
 	else
 	{
-		TakeOver (pTypeSpecifier);
+		takeOver (typeSpecifier);
 
-		m_pBaseType = pTypeSpecifier->GetType ();	
-		if (!m_pBaseType)
+		m_baseType = typeSpecifier->getType ();	
+		if (!m_baseType)
 		{
-			m_pBaseType = (m_TypeModifiers & ETypeModifier_Unsigned) ? 
-				pModule->m_TypeMgr.GetPrimitiveType (EType_Int) : 
-				pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+			m_baseType = (m_typeModifiers & TypeModifierKind_Unsigned) ? 
+				module->m_typeMgr.getPrimitiveType (TypeKind_Int) : 
+				module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		}
 	}
 }
 
 bool
-CDeclarator::AddName (rtl::CString Name)
+Declarator::addName (rtl::String name)
 {
-	if (m_FunctionKind && m_FunctionKind != EFunction_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
 	{
-		err::SetFormatStringError ("cannot further qualify '%s' declarator", GetFunctionKindString (m_FunctionKind));
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
-	m_DeclaratorKind = EDeclarator_Name;
-	m_FunctionKind = EFunction_Named;
-	m_Name.AddName (Name);
+	m_declaratorKind = DeclaratorKind_Name;
+	m_functionKind = FunctionKind_Named;
+	m_name.addName (name);
 	return true;
 }
 
 bool
-CDeclarator::AddUnnamedMethod (EFunction FunctionKind)
+Declarator::addUnnamedMethod (FunctionKind functionKind)
 {
-	if (m_FunctionKind && m_FunctionKind != EFunction_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
 	{
-		err::SetFormatStringError ("cannot further qualify '%s' declarator", GetFunctionKindString (m_FunctionKind));
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
-	m_DeclaratorKind = EDeclarator_UnnamedMethod;
-	m_FunctionKind = FunctionKind;
+	m_declaratorKind = DeclaratorKind_UnnamedMethod;
+	m_functionKind = functionKind;
 	return true;
 }
 
 bool
-CDeclarator::AddCastOperator (CType* pType)
+Declarator::addCastOperator (Type* type)
 {
-	m_DeclaratorKind = EDeclarator_CastOperator;
-	m_FunctionKind = EFunction_CastOperator;
-	m_pCastOpType = pType;
+	m_declaratorKind = DeclaratorKind_CastOperator;
+	m_functionKind = FunctionKind_CastOperator;
+	m_castOpType = type;
 	return false;
 }
 
 bool
-CDeclarator::AddUnaryBinaryOperator (
-	EUnOp UnOpKind,
-	EBinOp BinOpKind
+Declarator::addUnaryBinaryOperator (
+	UnOpKind unOpKind,
+	BinOpKind binOpKind
 	)
 {
-	if (m_FunctionKind && m_FunctionKind != EFunction_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
 	{
-		err::SetFormatStringError ("cannot further qualify '%s' declarator", GetFunctionKindString (m_FunctionKind));
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
-	if (BinOpKind == EBinOp_Assign)
+	if (binOpKind == BinOpKind_Assign)
 	{
-		err::SetFormatStringError ("assignment operator could not be overloaded");
+		err::setFormatStringError ("assignment operator could not be overloaded");
 		return false;
 	}
 
-	m_DeclaratorKind = EDeclarator_UnaryBinaryOperator;
-	m_FunctionKind = EFunction_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
-	m_UnOpKind = UnOpKind;
-	m_BinOpKind = BinOpKind;
+	m_declaratorKind = DeclaratorKind_UnaryBinaryOperator;
+	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
+	m_unOpKind = unOpKind;
+	m_binOpKind = binOpKind;
 	return true;
 }
 
 bool
-CDeclarator::AddOperatorNew ()
+Declarator::addOperatorNew ()
 {
-	if (m_FunctionKind && m_FunctionKind != EFunction_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
 	{
-		err::SetFormatStringError ("cannot further qualify '%s' declarator", GetFunctionKindString (m_FunctionKind));
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
-	m_DeclaratorKind = EDeclarator_OperatorNew;
-	m_FunctionKind = EFunction_OperatorNew;
+	m_declaratorKind = DeclaratorKind_OperatorNew;
+	m_functionKind = FunctionKind_OperatorNew;
 	return true;
 }
 
 bool
-CDeclarator::SetPostDeclaratorModifier (EPostDeclaratorModifier Modifier)
+Declarator::setPostDeclaratorModifier (PostDeclaratorModifierKind modifier)
 {
-	if (m_PostDeclaratorModifiers & Modifier)
+	if (m_postDeclaratorModifiers & modifier)
 	{
-		err::SetFormatStringError ("type modifier '%s' used more than once", GetPostDeclaratorModifierString (Modifier));
+		err::setFormatStringError ("type modifier '%s' used more than once", getPostDeclaratorModifierString (modifier));
 		return false;
 	}
 
-	m_PostDeclaratorModifiers |= Modifier;
+	m_postDeclaratorModifiers |= modifier;
 	return true;
 }
 
 void
-CDeclarator::AddPointerPrefix ()
+Declarator::addPointerPrefix ()
 {
-	CDeclPointerPrefix* pPrefix = AXL_MEM_NEW (CDeclPointerPrefix);
-	pPrefix->TakeOver (this);
-	m_PointerPrefixList.InsertTail (pPrefix);
+	DeclPointerPrefix* prefix = AXL_MEM_NEW (DeclPointerPrefix);
+	prefix->takeOver (this);
+	m_pointerPrefixList.insertTail (prefix);
 }
 
-CDeclArraySuffix*
-CDeclarator::AddArraySuffix (rtl::CBoxListT <CToken>* pElementCountInitializer)
+DeclArraySuffix*
+Declarator::addArraySuffix (rtl::BoxList <Token>* elementCountInitializer)
 {
-	CDeclArraySuffix* pSuffix = AXL_MEM_NEW (CDeclArraySuffix);
-	pSuffix->m_ElementCountInitializer.TakeOver (pElementCountInitializer);
-	m_SuffixList.InsertTail (pSuffix);
-	return pSuffix;
+	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	suffix->m_elementCountInitializer.takeOver (elementCountInitializer);
+	m_suffixList.insertTail (suffix);
+	return suffix;
 }
 
-CDeclArraySuffix*
-CDeclarator::AddArraySuffix (size_t ElementCount)
+DeclArraySuffix*
+Declarator::addArraySuffix (size_t elementCount)
 {
-	CDeclArraySuffix* pSuffix = AXL_MEM_NEW (CDeclArraySuffix);
-	pSuffix->m_ElementCount = ElementCount;
-	m_SuffixList.InsertTail (pSuffix);
-	return pSuffix;
+	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	suffix->m_elementCount = elementCount;
+	m_suffixList.insertTail (suffix);
+	return suffix;
 }
 
-CDeclFunctionSuffix*
-CDeclarator::AddFunctionSuffix ()
+DeclFunctionSuffix*
+Declarator::addFunctionSuffix ()
 {
-	CDeclFunctionSuffix* pSuffix = AXL_MEM_NEW (CDeclFunctionSuffix);
-	m_SuffixList.InsertTail (pSuffix);
-	return pSuffix;
+	DeclFunctionSuffix* suffix = AXL_MEM_NEW (DeclFunctionSuffix);
+	m_suffixList.insertTail (suffix);
+	return suffix;
 }
 
-CDeclThrowSuffix*
-CDeclarator::AddThrowSuffix (rtl::CBoxListT <CToken>* pThrowCondition)
+DeclThrowSuffix*
+Declarator::addThrowSuffix (rtl::BoxList <Token>* throwCondition)
 {
-	CDeclThrowSuffix* pSuffix = AXL_MEM_NEW (CDeclThrowSuffix);
-	if (pThrowCondition)
-		pSuffix->m_ThrowCondition.TakeOver (pThrowCondition);
-	m_SuffixList.InsertTail (pSuffix);
-	return pSuffix;
+	DeclThrowSuffix* suffix = AXL_MEM_NEW (DeclThrowSuffix);
+	if (throwCondition)
+		suffix->m_throwCondition.takeOver (throwCondition);
+	m_suffixList.insertTail (suffix);
+	return suffix;
 }
 
 bool
-CDeclarator::AddBitFieldSuffix (size_t BitCount)
+Declarator::addBitFieldSuffix (size_t bitCount)
 {
-	if (m_BitCount || !m_SuffixList.IsEmpty () || !m_PointerPrefixList.IsEmpty ())
+	if (m_bitCount || !m_suffixList.isEmpty () || !m_pointerPrefixList.isEmpty ())
 	{
-		err::SetFormatStringError ("bit field can only be applied to integer type");
+		err::setFormatStringError ("bit field can only be applied to integer type");
 		return false;
 	}
 
-	m_BitCount = BitCount;
+	m_bitCount = bitCount;
 	return true;
 }
 
-CType*
-CDeclarator::CalcTypeImpl (
-	CValue* pElementCountValue,
-	uint_t* pFlags
+Type*
+Declarator::calcTypeImpl (
+	Value* elementCountValue,
+	uint_t* flags
 	)
 {
-	CDeclTypeCalc TypeCalc;
-	return TypeCalc.CalcType (this, pElementCountValue, pFlags);
+	DeclTypeCalc typeCalc;
+	return typeCalc.calcType (this, elementCountValue, flags);
 }
 
 //.............................................................................

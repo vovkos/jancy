@@ -6,20 +6,20 @@ namespace jnc {
 
 //.............................................................................
 
-CAlias::CAlias ()
+Alias::Alias ()
 {
-	m_ItemKind = EModuleItem_Alias;
-	m_pType = NULL;
-	m_pType_i = NULL;
+	m_itemKind = ModuleItemKind_Alias;
+	m_type = NULL;
+	m_type_i = NULL;
 }
 
 bool
-CAlias::CalcLayout ()
+Alias::calcLayout ()
 {
-	if (m_pType_i)
-		m_pType = m_pType_i->GetActualType ();
+	if (m_type_i)
+		m_type = m_type_i->getActualType ();
 
-	return m_pType->EnsureLayout ();
+	return m_type->ensureLayout ();
 }
 
 //.............................................................................

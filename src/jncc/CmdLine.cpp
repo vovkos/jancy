@@ -3,39 +3,39 @@
 
 //.............................................................................
 
-TCmdLine::TCmdLine ()
+CmdLine::CmdLine ()
 {
-	m_Flags = 0;
-	m_ServerPort = 0;
-	m_GcHeapSize = 16 * 1024;
-	m_StackSize = 16 * 1024;
+	m_flags = 0;
+	m_serverPort = 0;
+	m_gcHeapSize = 16 * 1024;
+	m_stackSize = 16 * 1024;
 }
 
 //.............................................................................
 
 size_t
-ParseSizeString (const char* pString)
+parseSizeString (const char* string)
 {
-	if (!pString)
+	if (!string)
 		return 0;
 
-	size_t Length = strlen (pString);
-	if (!Length)
+	size_t length = strlen (string);
+	if (!length)
 		return 0;
 
-	size_t Multiplier = 1;
+	size_t multiplier = 1;
 
-	char c = pString [Length - 1];
+	char c = string [length - 1];
 	if (isalpha (c))
 	{
 		switch (c)
 		{
 		case 'K':
-			Multiplier = 1024;
+			multiplier = 1024;
 			break;
 
 		case 'M':
-			Multiplier = 1024 * 1024;
+			multiplier = 1024 * 1024;
 			break;
 
 		default:
@@ -43,106 +43,106 @@ ParseSizeString (const char* pString)
 		}
 	}
 
-	return strtoul (pString, NULL, 10) * Multiplier;
+	return strtoul (string, NULL, 10) * multiplier;
 }
 
 //.............................................................................
 
 bool
-CCmdLineParser::OnValue (const char* pValue)
+CmdLineParser::onValue (const char* value)
 {
-	m_pCmdLine->m_SrcFileName = pValue;
+	m_cmdLine->m_srcFileName = value;
 	return true;
 }
 
 bool
-CCmdLineParser::OnSwitch (
-	ESwitch Switch,
-	const char* pValue
+CmdLineParser::onSwitch (
+	SwitchKind switchKind,
+	const char* value
 	)
 {
-	switch (Switch)
+	switch (switchKind)
 	{
-	case ECmdLineSwitch_Help:
-		m_pCmdLine->m_Flags |= EJncFlag_Help;
+	case CmdLineSwitchKind_Help:
+		m_cmdLine->m_flags |= JncFlagKind_Help;
 		break;
 
-	case ECmdLineSwitch_Version:
-		m_pCmdLine->m_Flags |= EJncFlag_Version;
+	case CmdLineSwitchKind_Version:
+		m_cmdLine->m_flags |= JncFlagKind_Version;
 		break;
 
-	case ECmdLineSwitch_StdInSrc:
-		m_pCmdLine->m_Flags |= EJncFlag_StdInSrc;
+	case CmdLineSwitchKind_StdInSrc:
+		m_cmdLine->m_flags |= JncFlagKind_StdInSrc;
 		break;
 
-	case ECmdLineSwitch_SrcNameOverride:
-		m_pCmdLine->m_SrcNameOverride = pValue;
+	case CmdLineSwitchKind_SrcNameOverride:
+		m_cmdLine->m_srcNameOverride = value;
 		break;
 
-	case ECmdLineSwitch_DebugInfo:
-		m_pCmdLine->m_Flags |= EJncFlag_DebugInfo;
+	case CmdLineSwitchKind_DebugInfo:
+		m_cmdLine->m_flags |= JncFlagKind_DebugInfo;
 		break;
 
-	case ECmdLineSwitch_Jit:
-		m_pCmdLine->m_Flags |= EJncFlag_Jit;
+	case CmdLineSwitchKind_Jit:
+		m_cmdLine->m_flags |= JncFlagKind_Jit;
 		break;
 
-	case ECmdLineSwitch_McJit:
-		m_pCmdLine->m_Flags |= EJncFlag_Jit;
-		m_pCmdLine->m_Flags |= EJncFlag_Jit_mc;
+	case CmdLineSwitchKind_McJit:
+		m_cmdLine->m_flags |= JncFlagKind_Jit;
+		m_cmdLine->m_flags |= JncFlagKind_Jit_mc;
 		break;
 
-	case ECmdLineSwitch_LlvmIr:
-		m_pCmdLine->m_Flags |= EJncFlag_LlvmIr;
+	case CmdLineSwitchKind_LlvmIr:
+		m_cmdLine->m_flags |= JncFlagKind_LlvmIr;
 		break;
 
-	case ECmdLineSwitch_LlvmIrComments:
-		m_pCmdLine->m_Flags |= EJncFlag_LlvmIr;
-		m_pCmdLine->m_Flags |= EJncFlag_LlvmIr_c;
+	case CmdLineSwitchKind_LlvmIrComments:
+		m_cmdLine->m_flags |= JncFlagKind_LlvmIr;
+		m_cmdLine->m_flags |= JncFlagKind_LlvmIr_c;
 		break;
 
-	case ECmdLineSwitch_Disassembly:
-		m_pCmdLine->m_Flags |= EJncFlag_Disassembly;
+	case CmdLineSwitchKind_Disassembly:
+		m_cmdLine->m_flags |= JncFlagKind_Disassembly;
 		break;
 
-	case ECmdLineSwitch_Run:
-		m_pCmdLine->m_Flags |= EJncFlag_Jit;
-		m_pCmdLine->m_Flags |= EJncFlag_RunFunction;
-		m_pCmdLine->m_FunctionName = "main";
+	case CmdLineSwitchKind_Run:
+		m_cmdLine->m_flags |= JncFlagKind_Jit;
+		m_cmdLine->m_flags |= JncFlagKind_RunFunction;
+		m_cmdLine->m_functionName = "main";
 		break;
 
-	case ECmdLineSwitch_RunFunction:
-		m_pCmdLine->m_Flags |= EJncFlag_Jit;
-		m_pCmdLine->m_Flags |= EJncFlag_RunFunction;
-		m_pCmdLine->m_FunctionName = pValue;
+	case CmdLineSwitchKind_RunFunction:
+		m_cmdLine->m_flags |= JncFlagKind_Jit;
+		m_cmdLine->m_flags |= JncFlagKind_RunFunction;
+		m_cmdLine->m_functionName = value;
 		break;
 
-	case ECmdLineSwitch_Server:
-		m_pCmdLine->m_Flags |= EJncFlag_Server;
-		m_pCmdLine->m_ServerPort = atoi (pValue);
-		if (!m_pCmdLine->m_ServerPort)
+	case CmdLineSwitchKind_Server:
+		m_cmdLine->m_flags |= JncFlagKind_Server;
+		m_cmdLine->m_serverPort = atoi (value);
+		if (!m_cmdLine->m_serverPort)
 		{
-			err::SetFormatStringError ("invalid server TCP port '%s'", pValue);
+			err::setFormatStringError ("invalid server TCP port '%s'", value);
 			return false;
 		}
 
 		break;
 
-	case ECmdLineSwitch_HeapSize:
-		m_pCmdLine->m_GcHeapSize = ParseSizeString (pValue);
-		if (!m_pCmdLine->m_GcHeapSize)
+	case CmdLineSwitchKind_HeapSize:
+		m_cmdLine->m_gcHeapSize = parseSizeString (value);
+		if (!m_cmdLine->m_gcHeapSize)
 		{
-			err::SetFormatStringError ("invalid GC heap size '%s'", pValue);
+			err::setFormatStringError ("invalid GC heap size '%s'", value);
 			return false;
 		}
 
 		break;
 
-	case ECmdLineSwitch_StackSize:
-		m_pCmdLine->m_StackSize = ParseSizeString (pValue);
-		if (!m_pCmdLine->m_StackSize)
+	case CmdLineSwitchKind_StackSize:
+		m_cmdLine->m_stackSize = parseSizeString (value);
+		if (!m_cmdLine->m_stackSize)
 		{
-			err::SetFormatStringError ("invalid stack size '%s'", pValue);
+			err::setFormatStringError ("invalid stack size '%s'", value);
 			return false;
 		}
 
@@ -153,17 +153,17 @@ CCmdLineParser::OnSwitch (
 }
 
 bool
-CCmdLineParser::Finalize ()
+CmdLineParser::finalize ()
 {
-	if (!(m_pCmdLine->m_Flags & (
-			EJncFlag_Help |
-			EJncFlag_Version |
-			EJncFlag_Server |
-			EJncFlag_StdInSrc
+	if (!(m_cmdLine->m_flags & (
+			JncFlagKind_Help |
+			JncFlagKind_Version |
+			JncFlagKind_Server |
+			JncFlagKind_StdInSrc
 			)) &&
-		m_pCmdLine->m_SrcFileName.IsEmpty ())
+		m_cmdLine->m_srcFileName.isEmpty ())
 	{
-		err::SetFormatStringError ("missing input (source-file-name or --stdin)");
+		err::setFormatStringError ("missing input (source-file-name or --stdin)");
 		return false;
 	}
 

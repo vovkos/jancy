@@ -11,154 +11,154 @@ namespace jnc {
 
 //.............................................................................
 
-class CCast_FunctionPtr_FromMulticast: public CCastOperator
+class Cast_FunctionPtr_FromMulticast: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CCast_FunctionPtr_Base: public CCastOperator
+class Cast_FunctionPtr_Base: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_FunctionPtr_FromFat: public CCast_FunctionPtr_Base
+class Cast_FunctionPtr_FromFat: public Cast_FunctionPtr_Base
 {
 public:
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_FunctionPtr_Weak2Normal: public CCast_FunctionPtr_Base
+class Cast_FunctionPtr_Weak2Normal: public Cast_FunctionPtr_Base
 {
 public:
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_FunctionPtr_Thin2Fat: public CCast_FunctionPtr_Base
+class Cast_FunctionPtr_Thin2Fat: public Cast_FunctionPtr_Base
 {
 public:
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 
 protected:
 	bool
-	LlvmCast_NoThunkSimpleClosure (
-		const CValue& OpValue,
-		const CValue& SimpleClosureObjValue,
-		CFunctionType* pSrcFunctionType,
-		CFunctionPtrType* pDstPtrType,
-		CValue* pResultValue
+	llvmCast_NoThunkSimpleClosure (
+		const Value& opValue,
+		const Value& simpleClosureObjValue,
+		FunctionType* srcFunctionType,
+		FunctionPtrType* dstPtrType,
+		Value* resultValue
 		);
 
 	bool
-	LlvmCast_DirectThunkNoClosure (
-		CFunction* pFunction,
-		CFunctionPtrType* pDstPtrType,
-		CValue* pResultValue
+	llvmCast_DirectThunkNoClosure (
+		Function* function,
+		FunctionPtrType* dstPtrType,
+		Value* resultValue
 		);
 
 	bool
-	LlvmCast_DirectThunkSimpleClosure (
-		CFunction* pFunction,
-		const CValue& SimpleClosureObjValue,
-		CFunctionPtrType* pDstPtrType,
-		CValue* pResultValue
+	llvmCast_DirectThunkSimpleClosure (
+		Function* function,
+		const Value& simpleClosureObjValue,
+		FunctionPtrType* dstPtrType,
+		Value* resultValue
 		);
 
 	bool
-	LlvmCast_FullClosure (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CFunctionType* pSrcFunctionType,
-		CFunctionPtrType* pDstPtrType,
-		CValue* pResultValue
+	llvmCast_FullClosure (
+		StorageKind storageKind,
+		const Value& opValue,
+		FunctionType* srcFunctionType,
+		FunctionPtrType* dstPtrType,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_FunctionPtr_Thin2Thin: public CCast_FunctionPtr_Base
+class Cast_FunctionPtr_Thin2Thin: public Cast_FunctionPtr_Base
 {
 public:
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //.............................................................................
 
-class CCast_FunctionPtr: public CCast_Master
+class Cast_FunctionPtr: public Cast_Master
 {
 protected:
-	CCast_FunctionPtr_FromMulticast m_FromMulticast;
-	CCast_FunctionPtr_FromFat m_FromFat;
-	CCast_FunctionPtr_Weak2Normal m_Weak2Normal;
-	CCast_FunctionPtr_Thin2Fat m_Thin2Fat;
-	CCast_FunctionPtr_Thin2Thin m_Thin2Thin;
+	Cast_FunctionPtr_FromMulticast m_fromMulticast;
+	Cast_FunctionPtr_FromFat m_fromFat;
+	Cast_FunctionPtr_Weak2Normal m_weak2Normal;
+	Cast_FunctionPtr_Thin2Fat m_thin2Fat;
+	Cast_FunctionPtr_Thin2Thin m_thin2Thin;
 
-	CCastOperator* m_OperatorTable [EFunctionPtrType__Count] [EFunctionPtrType__Count];
+	CastOperator* m_operatorTable [FunctionPtrTypeKind__Count] [FunctionPtrTypeKind__Count];
 
 public:
-	CCast_FunctionPtr ();
+	Cast_FunctionPtr ();
 
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		);
 };
 
@@ -166,23 +166,23 @@ public:
 
 // function ref (EUnOp_Indir => function ptr cast => EUnOp_Addr)
 
-class CCast_FunctionRef: public CCastOperator
+class Cast_FunctionRef: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 

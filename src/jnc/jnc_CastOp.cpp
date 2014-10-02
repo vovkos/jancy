@@ -6,93 +6,93 @@ namespace jnc {
 
 //.............................................................................
 
-err::CError
-SetCastError (
-	const CValue& OpValue,
-	CType* pDstType
+err::Error
+setCastError (
+	const Value& opValue,
+	Type* dstType
 	)
 {
-	CType* pSrcType = OpValue.GetType ();
-	if (!pSrcType)
+	Type* srcType = opValue.getType ();
+	if (!srcType)
 	{
-		ASSERT (OpValue.GetValueKind () == EValue_Function);
-		CFunction* pFunction = (CFunction*) OpValue.GetFunction ();
+		ASSERT (opValue.getValueKind () == ValueKind_Function);
+		Function* function = (Function*) opValue.getFunction ();
 
-		return err::SetFormatStringError (
+		return err::setFormatStringError (
 			"not enough information to select one of %d overloads of '%s'",
-			pFunction->GetOverloadCount (),
-			pFunction->m_Tag.cc () // thanks a lot gcc
+			function->getOverloadCount (),
+			function->m_tag.cc () // thanks a lot gcc
 			);
 	}
 
-	return err::SetFormatStringError (
+	return err::setFormatStringError (
 		"cannot convert from '%s' to '%s'",
-		OpValue.GetValueKind () == EValue_Null ? "null" : OpValue.GetType ()->GetTypeString ().cc (), 
-		pDstType->GetTypeString ().cc ()
+		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().cc (), 
+		dstType->getTypeString ().cc ()
 		);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CastOperator (
-	CModule* pModule,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pOpValue
+castOperator (
+	Module* module,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	return pModule->m_OperatorMgr.CastOperator (OpValue, pType, pOpValue);
+	return module->m_operatorMgr.castOperator (opValue, type, resultValue);
 }
 
 //.............................................................................
 
-CCastOperator::CCastOperator()
+CastOperator::CastOperator()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_OpFlags = 0;
+	m_opFlags = 0;
 }
 
 bool
-CCastOperator::Cast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+CastOperator::cast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue_o
 	)
 {
-	EValue OpValueKind = OpValue.GetValueKind ();
-	if (OpValueKind != EValue_Const)
-		return LlvmCast (StorageKind, OpValue, pType, pResultValue);
+	ValueKind opValueKind = opValue.getValueKind ();
+	if (opValueKind != ValueKind_Const)
+		return llvmCast (storageKind, opValue, type, resultValue_o);
 	
-	CValue ResultValue;
+	Value resultValue;
 	
-	bool Result = 
-		ResultValue.CreateConst (NULL, pType) && 
-		ConstCast (OpValue, pType, ResultValue.GetConstData ());
+	bool result = 
+		resultValue.createConst (NULL, type) && 
+		constCast (opValue, type, resultValue.getConstData ());
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	*pResultValue = ResultValue;
+	*resultValue_o = resultValue;
 	return true;
 }
 
 bool
-CCastOperator::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+CastOperator::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
 	// fail by default; if const-cast is supported then override and implement
 
-	err::SetFormatStringError (
+	err::setFormatStringError (
 		"cannot convert constant from '%s' to '%s'",
-		OpValue.GetType ()->GetTypeString ().cc (), 
-		pType->GetTypeString ().cc ()
+		opValue.getType ()->getTypeString ().cc (), 
+		type->getTypeString ().cc ()
 		);
 
 	return false;
@@ -101,246 +101,246 @@ CCastOperator::ConstCast (
 //.............................................................................
 
 bool
-CCast_Copy::ConstCast (
-	const CValue& OpValue,
-	CType* pType,
-	void* pDst
+Cast_Copy::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
 	)
 {
-	size_t SrcSize = OpValue.GetType ()->GetSize ();
-	size_t DstSize = pType->GetSize ();
+	size_t srcSize = opValue.getType ()->getSize ();
+	size_t dstSize = type->getSize ();
 
-	ASSERT (SrcSize == DstSize);
+	ASSERT (srcSize == dstSize);
 
-	memcpy (pDst, OpValue.GetConstData (), DstSize);
+	memcpy (dst, opValue.getConstData (), dstSize);
 	return true;
 }
 
 bool
-CCast_Copy::LlvmCast (
-	EStorage StorageKind,
-	const CValue& OpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_Copy::llvmCast (
+	StorageKind storageKind,
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (OpValue, pType, pResultValue);
+	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
 	return true;
 }
 
 //.............................................................................
 
-ECast
-CCast_Master::GetCastKind (
-	const CValue& RawOpValue,
-	CType* pType
+CastKind
+Cast_Master::getCastKind (
+	const Value& rawOpValue,
+	Type* type
 	)
 {
-	if (!RawOpValue.GetType ())
-		return ECast_None;
+	if (!rawOpValue.getType ())
+		return CastKind_None;
 
-	CCastOperator* pOperator = GetCastOperator (RawOpValue, pType);
-	if (!pOperator)
-		return ECast_None;
+	CastOperator* op = getCastOperator (rawOpValue, type);
+	if (!op)
+		return CastKind_None;
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	uint_t OpFlags = pOperator->GetOpFlags ();
-	if (OpFlags != m_OpFlags)
-		m_pModule->m_OperatorMgr.PrepareOperandType (&OpValue, OpFlags);
+	uint_t opFlags = op->getOpFlags ();
+	if (opFlags != m_opFlags)
+		m_module->m_operatorMgr.prepareOperandType (&opValue, opFlags);
 
-	return pOperator->GetCastKind (OpValue, pType);
+	return op->getCastKind (opValue, type);
 }
 
 bool
-CCast_Master::ConstCast (
-	const CValue& RawOpValue,
-	CType* pType,
-	void* pDst
+Cast_Master::constCast (
+	const Value& rawOpValue,
+	Type* type,
+	void* dst
 	)
 {
-	CCastOperator* pOperator = GetCastOperator (RawOpValue, pType);
-	if (!pOperator)
+	CastOperator* op = getCastOperator (rawOpValue, type);
+	if (!op)
 	{
-		SetCastError (RawOpValue, pType);
+		setCastError (rawOpValue, type);
 		return false;
 	}
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	uint_t OpFlags = pOperator->GetOpFlags ();
-	if (OpFlags != m_OpFlags)
+	uint_t opFlags = op->getOpFlags ();
+	if (opFlags != m_opFlags)
 	{
-		bool Result = m_pModule->m_OperatorMgr.PrepareOperand (&OpValue, OpFlags);
-		if (!Result)
+		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags);
+		if (!result)
 			return false;
 	}
 
-	return pOperator->ConstCast (OpValue, pType, pDst);
+	return op->constCast (opValue, type, dst);
 }
 
 bool
-CCast_Master::LlvmCast (
-	EStorage StorageKind,
-	const CValue& RawOpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_Master::llvmCast (
+	StorageKind storageKind,
+	const Value& rawOpValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	CCastOperator* pOperator = GetCastOperator (RawOpValue, pType);
-	if (!pOperator)
+	CastOperator* op = getCastOperator (rawOpValue, type);
+	if (!op)
 	{
-		SetCastError (RawOpValue, pType);
+		setCastError (rawOpValue, type);
 		return false;
 	}
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	uint_t OpFlags = pOperator->GetOpFlags ();
-	if (OpFlags != m_OpFlags)
+	uint_t opFlags = op->getOpFlags ();
+	if (opFlags != m_opFlags)
 	{
-		bool Result = m_pModule->m_OperatorMgr.PrepareOperand (&OpValue, OpFlags);
-		if (!Result)
+		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags);
+		if (!result)
 			return false;
 	}
 		
-	return pOperator->LlvmCast (StorageKind, OpValue, pType, pResultValue);
+	return op->llvmCast (storageKind, opValue, type, resultValue);
 }
 
 //.............................................................................
 
-ECast
-CCast_SuperMaster::GetCastKind (
-	const CValue& RawOpValue,
-	CType* pType
+CastKind
+Cast_SuperMaster::getCastKind (
+	const Value& rawOpValue,
+	Type* type
 	)
 {
-	if (!RawOpValue.GetType ())
-		return ECast_None;
+	if (!rawOpValue.getType ())
+		return CastKind_None;
 
-	CCastOperator* pOperator1 = NULL;
-	CCastOperator* pOperator2 = NULL;
-	CType* pIntermediateType = NULL;
+	CastOperator* operator1 = NULL;
+	CastOperator* operator2 = NULL;
+	Type* intermediateType = NULL;
 
-	bool Result = GetCastOperators (
-		RawOpValue, 
-		pType,
-		&pOperator1, 
-		&pOperator2, 
-		&pIntermediateType
+	bool result = getCastOperators (
+		rawOpValue, 
+		type,
+		&operator1, 
+		&operator2, 
+		&intermediateType
 		);
 
-	if (!Result)
-		return ECast_None;
+	if (!result)
+		return CastKind_None;
 
-	ASSERT (pOperator1);
+	ASSERT (operator1);
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	uint_t OpFlags1 = pOperator1->GetOpFlags ();
-	if (OpFlags1 != m_OpFlags)
-		m_pModule->m_OperatorMgr.PrepareOperandType (&OpValue, OpFlags1);
+	uint_t opFlags1 = operator1->getOpFlags ();
+	if (opFlags1 != m_opFlags)
+		m_module->m_operatorMgr.prepareOperandType (&opValue, opFlags1);
 
-	if (!pOperator2) 
-		return pOperator1->GetCastKind (OpValue, pType);
+	if (!operator2) 
+		return operator1->getCastKind (opValue, type);
 	
-	ECast CastKind1 = pOperator1->GetCastKind (OpValue, pIntermediateType);
-	ECast CastKind2 = pOperator2->GetCastKind (pIntermediateType, pType);
-	return AXL_MIN (CastKind1, CastKind2);
+	CastKind castKind1 = operator1->getCastKind (opValue, intermediateType);
+	CastKind castKind2 = operator2->getCastKind (intermediateType, type);
+	return AXL_MIN (castKind1, castKind2);
 }
 
 bool
-CCast_SuperMaster::ConstCast (
-	const CValue& RawOpValue,
-	CType* pType,
-	void* pDst
+Cast_SuperMaster::constCast (
+	const Value& rawOpValue,
+	Type* type,
+	void* dst
 	)
 {
-	CCastOperator* pOperator1 = NULL;
-	CCastOperator* pOperator2 = NULL;
-	CType* pIntermediateType = NULL;
+	CastOperator* operator1 = NULL;
+	CastOperator* operator2 = NULL;
+	Type* intermediateType = NULL;
 
-	bool Result = GetCastOperators (
-		RawOpValue, 
-		pType,
-		&pOperator1, 
-		&pOperator2, 
-		&pIntermediateType
+	bool result = getCastOperators (
+		rawOpValue, 
+		type,
+		&operator1, 
+		&operator2, 
+		&intermediateType
 		);
 
-	if (!Result)
+	if (!result)
 	{
-		SetCastError (RawOpValue, pType);
+		setCastError (rawOpValue, type);
 		return false;
 	}
 
-	ASSERT (pOperator1);
+	ASSERT (operator1);
 
-	CValue SrcValue = RawOpValue;
+	Value srcValue = rawOpValue;
 
-	uint_t OpFlags1 = pOperator1->GetOpFlags ();
-	if (OpFlags1 != m_OpFlags)
+	uint_t opFlags1 = operator1->getOpFlags ();
+	if (opFlags1 != m_opFlags)
 	{
-		bool Result = m_pModule->m_OperatorMgr.PrepareOperand (&SrcValue, OpFlags1);
-		if (!Result)
+		bool result = m_module->m_operatorMgr.prepareOperand (&srcValue, opFlags1);
+		if (!result)
 			return false;
 	}
 
-	if (!pOperator2) 
-		return pOperator1->ConstCast (SrcValue, pType, pDst);
+	if (!operator2) 
+		return operator1->constCast (srcValue, type, dst);
 
-	CValue TmpValue;
+	Value tmpValue;
 	return 
-		TmpValue.CreateConst (NULL, pIntermediateType) &&
-		pOperator1->ConstCast (SrcValue, pIntermediateType, TmpValue.GetConstData ()) &&
-		pOperator2->ConstCast (TmpValue, pType, pDst);
+		tmpValue.createConst (NULL, intermediateType) &&
+		operator1->constCast (srcValue, intermediateType, tmpValue.getConstData ()) &&
+		operator2->constCast (tmpValue, type, dst);
 }
 
 bool
-CCast_SuperMaster::LlvmCast (
-	EStorage StorageKind,
-	const CValue& RawOpValue,
-	CType* pType,
-	CValue* pResultValue
+Cast_SuperMaster::llvmCast (
+	StorageKind storageKind,
+	const Value& rawOpValue,
+	Type* type,
+	Value* resultValue
 	)
 {
-	CCastOperator* pOperator1 = NULL;
-	CCastOperator* pOperator2 = NULL;
-	CType* pIntermediateType = NULL;
+	CastOperator* operator1 = NULL;
+	CastOperator* operator2 = NULL;
+	Type* intermediateType = NULL;
 
-	bool Result = GetCastOperators (
-		RawOpValue, 
-		pType,
-		&pOperator1, 
-		&pOperator2, 
-		&pIntermediateType
+	bool result = getCastOperators (
+		rawOpValue, 
+		type,
+		&operator1, 
+		&operator2, 
+		&intermediateType
 		);
 
-	if (!Result)
+	if (!result)
 	{
-		SetCastError (RawOpValue, pType);
+		setCastError (rawOpValue, type);
 		return false;
 	}
 
-	ASSERT (pOperator1);
+	ASSERT (operator1);
 
-	CValue OpValue = RawOpValue;
+	Value opValue = rawOpValue;
 
-	uint_t OpFlags1 = pOperator1->GetOpFlags ();
-	if (OpFlags1 != m_OpFlags)
+	uint_t opFlags1 = operator1->getOpFlags ();
+	if (opFlags1 != m_opFlags)
 	{
-		bool Result = m_pModule->m_OperatorMgr.PrepareOperand (&OpValue, OpFlags1);
-		if (!Result)
+		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags1);
+		if (!result)
 			return false;
 	}
 
-	if (!pOperator2) 
-		return pOperator1->LlvmCast (StorageKind, OpValue, pType, pResultValue);
+	if (!operator2) 
+		return operator1->llvmCast (storageKind, opValue, type, resultValue);
 
-	CValue TmpValue;
+	Value tmpValue;
 	return 
-		pOperator1->LlvmCast (StorageKind, OpValue, pIntermediateType, &TmpValue) &&
-		pOperator2->LlvmCast (StorageKind, TmpValue, pType, pResultValue);
+		operator1->llvmCast (storageKind, opValue, intermediateType, &tmpValue) &&
+		operator2->llvmCast (storageKind, tmpValue, type, resultValue);
 }
 
 //.............................................................................

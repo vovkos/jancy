@@ -10,118 +10,118 @@ namespace jnc {
 
 //.............................................................................
 
-enum EMulticastField
+enum MulticastFieldKind
 {
-	EMulticastField_Lock,
-	EMulticastField_MaxCount,
-	EMulticastField_Count,
-	EMulticastField_PtrArray,
-	EMulticastField_HandleTable,
+	MulticastFieldKind_Lock,
+	MulticastFieldKind_MaxCount,
+	MulticastFieldKind_Count,
+	MulticastFieldKind_PtrArray,
+	MulticastFieldKind_HandleTable,
 
-	EMulticastField__Count,
+	MulticastFieldKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EMulticastMethod
+enum MulticastMethodKind
 {
-	EMulticastMethod_Clear,
-	EMulticastMethod_Set,
-	EMulticastMethod_Add,
-	EMulticastMethod_Remove,
-	EMulticastMethod_GetSnapshot,
-	EMulticastMethod_Call,
-	EMulticastMethod__Count,
+	MulticastMethodKind_Clear,
+	MulticastMethodKind_Set,
+	MulticastMethodKind_Add,
+	MulticastMethodKind_Remove,
+	MulticastMethodKind_GetSnapshot,
+	MulticastMethodKind_Call,
+	MulticastMethodKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EMulticastMethodFlag
+enum MulticastMethodFlagKind
 {
-	EMulticastMethodFlag_InaccessibleViaEventPtr = 0x010000,
+	MulticastMethodFlagKind_InaccessibleViaEventPtr = 0x010000,
 };
 
 //.............................................................................
 
-class CMulticastClassType: public CClassType
+class MulticastClassType: public ClassType
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CFunctionPtrType* m_pTargetType;
-	CMcSnapshotClassType* m_pSnapshotType;
-	CStructField* m_FieldArray [EMulticastField__Count];
-	CFunction* m_MethodArray [EMulticastMethod__Count];
+	FunctionPtrType* m_targetType;
+	McSnapshotClassType* m_snapshotType;
+	StructField* m_fieldArray [MulticastFieldKind__Count];
+	Function* m_methodArray [MulticastMethodKind__Count];
 
-	TClassPtrTypeTuple* m_pEventClassPtrTypeTuple;
+	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
 
 public:
-	CMulticastClassType ();
+	MulticastClassType ();
 
-	CFunctionPtrType*
-	GetTargetType ()
+	FunctionPtrType*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
-	CFunctionType*
-	GetFunctionType ()
+	FunctionType*
+	getFunctionType ()
 	{
-		return m_pTargetType->GetTargetType ();
+		return m_targetType->getTargetType ();
 	}
 
-	CStructField*
-	GetField (EMulticastField Field)
+	StructField*
+	getField (MulticastFieldKind field)
 	{
-		ASSERT (Field < EMulticastField__Count);
-		return m_FieldArray [Field];
+		ASSERT (field < MulticastFieldKind__Count);
+		return m_fieldArray [field];
 	}
 
-	CFunction*
-	GetMethod (EMulticastMethod Method)
+	Function*
+	getMethod (MulticastMethodKind method)
 	{
-		ASSERT (Method < EMulticastMethod__Count);
-		return m_MethodArray [Method];
+		ASSERT (method < MulticastMethodKind__Count);
+		return m_methodArray [method];
 	}
 
-	CMcSnapshotClassType*
-	GetSnapshotType ()
+	McSnapshotClassType*
+	getSnapshotType ()
 	{
-		return m_pSnapshotType;
+		return m_snapshotType;
 	}
 
 	virtual
 	bool
-	Compile ()
+	compile ()
 	{
 		return
-			CClassType::Compile () &&
-			CompileCallMethod ();
+			ClassType::compile () &&
+			compileCallMethod ();
 	}
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	bool
-	CalcLayout ()
+	calcLayout ()
 	{
 		return
-			CClassType::CalcLayout () &&
-			m_pSnapshotType->EnsureLayout ();
+			ClassType::calcLayout () &&
+			m_snapshotType->ensureLayout ();
 	}
 
 	bool
-	CompileCallMethod ();
+	compileCallMethod ();
 };
 
 //.............................................................................
@@ -129,28 +129,28 @@ protected:
 // structures backing up multicast, e.g.:
 // mutlicast OnFire ();
 
-struct TMulticast: TIfaceHdr
+struct Multicast: IfaceHdr
 {
-	volatile intptr_t m_Lock;
-	size_t m_MaxCount;
-	size_t m_Count;
-	void* m_pPtrArray; // array of function closure, weak or unsafe pointers
-	void* m_pHandleTable;
+	volatile intptr_t m_lock;
+	size_t m_maxCount;
+	size_t m_count;
+	void* m_ptrArray; // array of function closure, weak or unsafe pointers
+	void* m_handleTable;
 
-	CFunction*
-	GetMethod (EMulticastMethod Method)
+	Function*
+	getMethod (MulticastMethodKind method)
 	{
-		return ((CMulticastClassType*) m_pObject->m_pType)->GetMethod (Method);
+		return ((MulticastClassType*) m_object->m_type)->getMethod (method);
 	}
 
 	void
-	Call ();
+	call ();
 
 	void
-	Call (intptr_t a);
+	call (intptr_t a);
 
 	void
-	Call (
+	call (
 		intptr_t a1,
 		intptr_t a2
 		);

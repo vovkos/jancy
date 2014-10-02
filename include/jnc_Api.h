@@ -10,49 +10,49 @@ namespace jnc {
 
 //.............................................................................
 
-#define JNC_API_BEGIN_CLASS(Name, Slot) \
-jnc::TIfaceHdr* \
-GetRootIfaceHdr () \
+#define JNC_API_BEGIN_CLASS(name, slot) \
+jnc::IfaceHdr* \
+getRootIfaceHdr () \
 { \
-	return (jnc::TIfaceHdr*) (char*) this; \
+	return (jnc::IfaceHdr*) (char*) this; \
 } \
 static \
 size_t \
-GetApiClassSlot () \
+getApiClassSlot () \
 { \
-	return Slot; \
+	return slot; \
 } \
 static \
 const char* \
-GetApiClassName () \
+getApiClassName () \
 { \
-	return Name; \
+	return name; \
 } \
 static \
-jnc::CClassType* \
-GetApiClassType () \
+jnc::ClassType* \
+getApiClassType () \
 { \
-	jnc::CModule* pModule = jnc::GetCurrentThreadModule (); \
-	return pModule->GetApiClassType (GetApiClassSlot (), GetApiClassName ()); \
+	jnc::Module* module = jnc::getCurrentThreadModule (); \
+	return module->getApiClassType (getApiClassSlot (), getApiClassName ()); \
 } \
 static \
 bool \
-Export (jnc::CModule* pModule) \
+mapFunctions (jnc::Module* module) \
 { \
-	bool Result = true; \
-	jnc::CFunction* pFunction = NULL; \
-	jnc::CProperty* pProperty = NULL; \
-	jnc::CClassType* pType = pModule->GetApiClassType (GetApiClassSlot (), GetApiClassName ()); \
-	if (!pType) \
+	bool result = true; \
+	jnc::Function* function = NULL; \
+	jnc::Property* prop = NULL; \
+	jnc::ClassType* type = module->getApiClassType (getApiClassSlot (), getApiClassName ()); \
+	if (!type) \
 		return false; \
-	jnc::CNamespace* pNamespace = pType;
+	jnc::Namespace* nspace = type;
 
 #define JNC_API_END_CLASS() \
 	return true; \
 } \
 static \
 void* \
-GetApiClassVTable () \
+getApiClassVTable () \
 { \
 	return NULL; \
 }
@@ -64,13 +64,13 @@ GetApiClassVTable () \
 } \
 static \
 void* \
-GetApiClassVTable () \
+getApiClassVTable () \
 { \
 	static void* VTable [] = \
 	{
 
-#define JNC_API_VTABLE_FUNCTION(Function) \
-	pvoid_cast (Function),
+#define JNC_API_VTABLE_FUNCTION(function) \
+	pvoid_cast (function),
 
 #define JNC_API_END_VTABLE() \
 	}; \
@@ -82,12 +82,12 @@ GetApiClassVTable () \
 #define JNC_API_BEGIN_LIB() \
 static \
 bool \
-Export (jnc::CModule* pModule) \
+mapFunctions (jnc::Module* module) \
 { \
-	bool Result = true; \
-	jnc::CFunction* pFunction = NULL; \
-	jnc::CProperty* pProperty = NULL; \
-	jnc::CNamespace* pNamespace = pModule->m_NamespaceMgr.GetGlobalNamespace ();
+	bool result = true; \
+	jnc::Function* function = NULL; \
+	jnc::Property* prop = NULL; \
+	jnc::Namespace* nspace = module->m_namespaceMgr.getGlobalNamespace ();
 
 #define JNC_API_END_LIB() \
 	return true; \
@@ -95,99 +95,99 @@ Export (jnc::CModule* pModule) \
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_API_LIB(Lib) \
-	Result = Lib::Export (pModule); \
-	if (!Result) \
+#define JNC_API_LIB(lib) \
+	result = lib::mapFunctions (module); \
+	if (!result) \
 		return false;
 
-#define JNC_API_CLASS(Class) \
-	Result = Class::Export (pModule); \
-	if (!Result) \
+#define JNC_API_CLASS(class) \
+	result = class::mapFunctions (module); \
+	if (!result) \
 		return false;
 
-#define JNC_API_OPERATOR_NEW(Function) \
-	pFunction = pType->GetOperatorNew (); \
-	if (!pFunction) \
+#define JNC_API_OPERATOR_NEW(proc) \
+	function = type->getOperatorNew (); \
+	if (!function) \
 	{ \
-		err::SetFormatStringError ("'%s' has no operator new", pType->GetTypeString ().cc ()); \
+		err::setFormatStringError ("'%s' has no operator new", type->getTypeString ().cc ()); \
 		return false; \
 	} \
-	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_FUNCTION(Name, Function) \
-	pFunction = pNamespace->GetFunctionByName (Name); \
-	if (!pFunction) \
+#define JNC_API_FUNCTION(name, proc) \
+	function = nspace->getFunctionByName (name); \
+	if (!function) \
 		return false; \
-	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_STD_FUNCTION_FORCED(StdFunc, Function) \
-	pFunction = pModule->m_FunctionMgr.GetStdFunction (StdFunc); \
-	ASSERT (pFunction); \
-	pModule->MapFunction (pFunction->GetLlvmFunction (), pvoid_cast (Function));
+#define JNC_API_STD_FUNCTION_FORCED(stdFunc, proc) \
+	function = module->m_functionMgr.getStdFunction (stdFunc); \
+	ASSERT (function); \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_STD_FUNCTION(StdFunc, Function) \
-	if (pModule->m_FunctionMgr.IsStdFunctionUsed (StdFunc)) \
+#define JNC_API_STD_FUNCTION(stdFunc, proc) \
+	if (module->m_functionMgr.isStdFunctionUsed (stdFunc)) \
 	{ \
-		JNC_API_STD_FUNCTION_FORCED (StdFunc, Function); \
+		JNC_API_STD_FUNCTION_FORCED (stdFunc, proc); \
 	}
 
-#define JNC_API_PROPERTY(Name, Getter, Setter) \
-	pProperty = pNamespace->GetPropertyByName (Name); \
-	if (!pProperty) \
+#define JNC_API_PROPERTY(name, getterProc, setterProc) \
+	prop = nspace->getPropertyByName (name); \
+	if (!prop) \
 		return false; \
-	pModule->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter)); \
-	pModule->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
+	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc)); \
+	module->mapFunction (prop->getSetter ()->getLlvmFunction (), pvoid_cast (setterProc));
 
-#define JNC_API_CONST_PROPERTY(Name, Getter) \
-	pProperty = pNamespace->GetPropertyByName (Name); \
-	if (!pProperty) \
+#define JNC_API_CONST_PROPERTY(name, getterProc) \
+	prop = nspace->getPropertyByName (name); \
+	if (!prop) \
 		return false; \
-	pModule->MapFunction (pProperty->GetGetter ()->GetLlvmFunction (), pvoid_cast (Getter));
+	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc));
 
-#define JNC_API_AUTOGET_PROPERTY(Name, Setter) \
-	pProperty = pNamespace->GetPropertyByName (Name); \
-	if (!pProperty) \
+#define JNC_API_AUTOGET_PROPERTY(name, setterProc) \
+	prop = nspace->getPropertyByName (name); \
+	if (!prop) \
 		return false; \
-	pModule->MapFunction (pProperty->GetSetter ()->GetLlvmFunction (), pvoid_cast (Setter));
+	module->mapFunction (prop->getSetter ()->getLlvmFunction (), pvoid_cast (setterProc));
 
 //.............................................................................
 
 void
-Prime (
-	CClassType* pType,
+prime (
+	ClassType* type,
 	void* pVTable,
-	TObjHdr* pObject,
-	size_t ScopeLevel,
-	TObjHdr* pRoot,
-	uintptr_t Flags
+	ObjHdr* object,
+	size_t scopeLevel,
+	ObjHdr* root,
+	uintptr_t flags
 	);
 
 template <typename T>
-class CApiObjBoxT:
-	public TObjHdr,
+class ApiObjBox:
+	public ObjHdr,
 	public T
 {
 public:
 	void
-	Prime (
-		size_t ScopeLevel,
-		jnc::TObjHdr* pRoot,
-		uintptr_t Flags = 0
+	prime (
+		size_t scopeLevel,
+		jnc::ObjHdr* root,
+		uintptr_t flags = 0
 		)
 	{
-		jnc::Prime (T::GetApiClassType (), T::GetApiClassVTable (), this, ScopeLevel, pRoot, Flags);
+		jnc::prime (T::getApiClassType (), T::getApiClassVTable (), this, scopeLevel, root, flags);
 	}
 
 	void
-	Prime (jnc::TObjHdr* pRoot)
+	prime (jnc::ObjHdr* root)
 	{
-		Prime (pRoot->m_ScopeLevel, pRoot, pRoot->m_Flags);
+		prime (root->m_scopeLevel, root, root->m_flags);
 	}
 
 	void
-	Prime () // most common primer with scope level 0
+	prime () // most common primer with scope level 0
 	{
-		Prime (0, this, 0);
+		prime (0, this, 0);
 	}
 };
 
@@ -198,22 +198,22 @@ public:
 #if (_AXL_CPP == AXL_CPP_MSC)
 
 template <typename T>
-class CApiBaseT: public T
+class ApiBase: public T
 {
 };
 
 #else 
 
 template <typename T>
-class CApiBaseT: public T
+class ApiBase: public T
 {
 private:
-	struct TTailPaddingCheck: T
+	struct TailPaddingCheck: T
 	{
-		char m_Field; // this filed might be allocated in T's tail-padding
+		char m_field; // this filed might be allocated in T's tail-padding
 	};
 
-	char m_TailPadding [sizeof (T) - offsetof (TTailPaddingCheck, m_Field)];
+	char m_tailPadding [sizeof (T) - offsetof (TailPaddingCheck, m_field)];
 };
 
 #endif

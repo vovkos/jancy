@@ -6,131 +6,131 @@ namespace jnc {
 
 //.............................................................................
 
-CArrayType::CArrayType ()
+ArrayType::ArrayType ()
 {
-	m_TypeKind = EType_Array;
-	m_Flags = ETypeFlag_StructRet;
-	m_pElementType = NULL;
-	m_pElementType_i = NULL;
-	m_pRootType = NULL;
-	m_ElementCount = -1;
-	m_pParentUnit = NULL;
-	m_pParentNamespace = NULL;
+	m_typeKind = TypeKind_Array;
+	m_flags = TypeFlagKind_StructRet;
+	m_elementType = NULL;
+	m_elementType_i = NULL;
+	m_rootType = NULL;
+	m_elementCount = -1;
+	m_parentUnit = NULL;
+	m_parentNamespace = NULL;
 }
 
-CType*
-CArrayType::GetRootType ()
+Type*
+ArrayType::getRootType ()
 {
-	if (!m_pRootType)
-		m_pRootType = m_pElementType->GetTypeKind () == EType_Array ?
-			((CArrayType*) m_pElementType)->GetRootType () :
-			m_pElementType;
+	if (!m_rootType)
+		m_rootType = m_elementType->getTypeKind () == TypeKind_Array ?
+			((ArrayType*) m_elementType)->getRootType () :
+			m_elementType;
 
-	return m_pRootType;
+	return m_rootType;
 }
 
 void
-CArrayType::PrepareTypeString ()
+ArrayType::prepareTypeString ()
 {
-	rtl::CString String;
+	rtl::String string;
 
-	m_TypeString.Format (
-		m_ElementCount == -1 ? "%s []" : "%s [%d]",
-		GetRootType ()->GetTypeString ().cc (), // thanks a lot gcc
-		m_ElementCount
+	m_typeString.format (
+		m_elementCount == -1 ? "%s []" : "%s [%d]",
+		getRootType ()->getTypeString ().cc (), // thanks a lot gcc
+		m_elementCount
 		);
 
-	CType* pElementType = m_pElementType;
-	while (pElementType->GetTypeKind () == EType_Array)
+	Type* elementType = m_elementType;
+	while (elementType->getTypeKind () == TypeKind_Array)
 	{
-		CArrayType* pArrayType = (CArrayType*) pElementType;
-		m_TypeString.AppendFormat (" [%d]", pArrayType->m_ElementCount);
-		pElementType = pArrayType->m_pElementType;
+		ArrayType* arrayType = (ArrayType*) elementType;
+		m_typeString.appendFormat (" [%d]", arrayType->m_elementCount);
+		elementType = arrayType->m_elementType;
 	}
 }
 
 bool
-CArrayType::CalcLayout ()
+ArrayType::calcLayout ()
 {
-	if (m_pElementType_i)
-		m_pElementType = m_pElementType_i->GetActualType ();
+	if (m_elementType_i)
+		m_elementType = m_elementType_i->getActualType ();
 
-	bool Result = m_pElementType->EnsureLayout ();
-	if (!Result)
+	bool result = m_elementType->ensureLayout ();
+	if (!result)
 		return false;
 
 	// ensure update
 
-	m_pRootType = NULL;
-	m_TypeString.Clear ();
+	m_rootType = NULL;
+	m_typeString.clear ();
 
-	uint_t RootTypeFlags = GetRootType ()->GetFlags ();
-	if (RootTypeFlags & ETypeFlag_Pod)
-		m_Flags |= ETypeFlag_Pod;
-	else if (RootTypeFlags & ETypeFlag_GcRoot)
-		m_Flags |= ETypeFlag_GcRoot;
+	uint_t rootTypeFlags = getRootType ()->getFlags ();
+	if (rootTypeFlags & TypeFlagKind_Pod)
+		m_flags |= TypeFlagKind_Pod;
+	else if (rootTypeFlags & TypeFlagKind_GcRoot)
+		m_flags |= TypeFlagKind_GcRoot;
 
-	m_AlignFactor = m_pElementType->GetAlignFactor ();
+	m_alignFactor = m_elementType->getAlignFactor ();
 
 	// calculate size
 
-	if (!m_ElementCountInitializer.IsEmpty ())
+	if (!m_elementCountInitializer.isEmpty ())
 	{
-		ASSERT (m_pParentUnit && m_pParentNamespace);
-		m_pModule->m_NamespaceMgr.OpenNamespace (m_pParentNamespace);
+		ASSERT (m_parentUnit && m_parentNamespace);
+		m_module->m_namespaceMgr.openNamespace (m_parentNamespace);
 
-		intptr_t Value = 0;
-		Result = m_pModule->m_OperatorMgr.ParseConstIntegerExpression (
-			m_pParentUnit,
-			m_ElementCountInitializer,
-			&Value
+		intptr_t value = 0;
+		result = m_module->m_operatorMgr.parseConstIntegerExpression (
+			m_parentUnit,
+			m_elementCountInitializer,
+			&value
 			);
 
-		if (!Result)
+		if (!result)
 			return false;
 
-		if (Value <= 0)
+		if (value <= 0)
 		{
-			err::SetFormatStringError ("invalid array size '%d'\n", Value);
-			err::PushSrcPosError (
-				m_pParentUnit->GetFilePath (),
-				m_ElementCountInitializer.GetHead ()->m_Pos
+			err::setFormatStringError ("invalid array size '%d'\n", value);
+			err::pushSrcPosError (
+				m_parentUnit->getFilePath (),
+				m_elementCountInitializer.getHead ()->m_pos
 				);
 			
 			return false;
 		}
 
-		m_ElementCount = Value;
-		m_pModule->m_NamespaceMgr.CloseNamespace ();
+		m_elementCount = value;
+		m_module->m_namespaceMgr.closeNamespace ();
 	}
 
-	rtl::CString Signature = CreateSignature (m_pElementType, m_ElementCount);
-	m_pModule->m_TypeMgr.UpdateTypeSignature (this, Signature);
+	rtl::String signature = createSignature (m_elementType, m_elementCount);
+	m_module->m_typeMgr.updateTypeSignature (this, signature);
 
-	m_Size = m_pElementType->GetSize () * m_ElementCount;
+	m_size = m_elementType->getSize () * m_elementCount;
 	return true;
 }
 
 void
-CArrayType::GcMark (
-	CRuntime* pRuntime,
+ArrayType::gcMark (
+	Runtime* runtime,
 	void* _p
 	)
 {
-	ASSERT (m_Flags & ETypeFlag_GcRoot);
+	ASSERT (m_flags & TypeFlagKind_GcRoot);
 
 	char* p = (char*) _p;
-	for (size_t i = 0; i < m_ElementCount; i++)
+	for (size_t i = 0; i < m_elementCount; i++)
 	{
-		m_pElementType->GcMark (pRuntime, p);
-		p += m_pElementType->GetSize ();
+		m_elementType->gcMark (runtime, p);
+		p += m_elementType->getSize ();
 	}
 }
 
 void
-CArrayType::PrepareLlvmDiType ()
+ArrayType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = m_pModule->m_LlvmDiBuilder.CreateArrayType (this);
+	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType (this);
 }
 
 //.............................................................................

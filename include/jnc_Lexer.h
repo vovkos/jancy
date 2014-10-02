@@ -8,513 +8,513 @@ namespace jnc {
 
 //.............................................................................
 
-enum EToken
+enum TokenKind
 {
 	// common tokens
 
-	EToken_Eof = 0,
-	EToken_Error = -1,
-	EToken_Identifier = 256,
-	EToken_Integer,
-	EToken_Fp,
-	EToken_Literal,
+	TokenKind_Eof = 0,
+	TokenKind_Error = -1,
+	TokenKind_Identifier = 256,
+	TokenKind_Integer,
+	TokenKind_Fp,
+	TokenKind_Literal,
 
 	// special literals
 
-	EToken_HexLiteral,
-	EToken_FmtLiteral,
-	EToken_FmtSpecifier,
+	TokenKind_HexLiteral,
+	TokenKind_FmtLiteral,
+	TokenKind_FmtSpecifier,
 
 	// global declarations & pragmas
 
-	EToken_Namespace,
-	EToken_Using,
-	EToken_Extend,
-	EToken_Pack,
+	TokenKind_Namespace,
+	TokenKind_Using,
+	TokenKind_Extend,
+	TokenKind_Pack,
 
 	// storage specifiers
 
-	EToken_Typedef,
-	EToken_Alias,
-	EToken_Static,
-	EToken_Thread,
-	EToken_Stack,
-	EToken_Heap,
-	EToken_UHeap,
-	EToken_Abstract,
-	EToken_Virtual,
-	EToken_Override,
-	EToken_Mutable,
+	TokenKind_Typedef,
+	TokenKind_Alias,
+	TokenKind_Static,
+	TokenKind_Thread,
+	TokenKind_Stack,
+	TokenKind_Heap,
+	TokenKind_UHeap,
+	TokenKind_Abstract,
+	TokenKind_Virtual,
+	TokenKind_Override,
+	TokenKind_Mutable,
 
 	// access specifiers
 
-	EToken_Public,
-	EToken_Protected,
-	EToken_Friend,
+	TokenKind_Public,
+	TokenKind_Protected,
+	TokenKind_Friend,
 
 	// type modifiers
 
-	EToken_Signed,
-	EToken_Unsigned,
-	EToken_BigEndian,
-	EToken_Const,
-	EToken_DConst,
-	EToken_Volatile,
-	EToken_Weak,
-	EToken_Thin,
-	EToken_Safe,
-	EToken_Throws,
-	EToken_Cdecl,
-	EToken_Stdcall,
-	EToken_Thiscall,
-	EToken_Jnccall,
-	EToken_Array,
-	EToken_Function,
-	EToken_Property,
-	EToken_Bindable,
-	EToken_AutoGet,
-	EToken_Indexed,
-	EToken_Multicast,
-	EToken_Event,
-	EToken_DEvent,
-	EToken_Reactor,
+	TokenKind_Signed,
+	TokenKind_Unsigned,
+	TokenKind_BigEndian,
+	TokenKind_Const,
+	TokenKind_DConst,
+	TokenKind_Volatile,
+	TokenKind_Weak,
+	TokenKind_Thin,
+	TokenKind_Safe,
+	TokenKind_Throws,
+	TokenKind_Cdecl,
+	TokenKind_Stdcall,
+	TokenKind_Thiscall,
+	TokenKind_Jnccall,
+	TokenKind_Array,
+	TokenKind_Function,
+	TokenKind_Property,
+	TokenKind_Bindable,
+	TokenKind_AutoGet,
+	TokenKind_Indexed,
+	TokenKind_Multicast,
+	TokenKind_Event,
+	TokenKind_DEvent,
+	TokenKind_Reactor,
 
 	// type specifiers
 
-	EToken_Auto,
-	EToken_Void,
-	EToken_Object,
-	EToken_Variant,
-	EToken_Bool,
-	EToken_Int8,
-	EToken_Int16,
-	EToken_Int32,
-	EToken_Int64,
-	EToken_Float,
-	EToken_Double,
-	EToken_Char,
-	EToken_Int,
-	EToken_IntPtr,
+	TokenKind_Auto,
+	TokenKind_Void,
+	TokenKind_Object,
+	TokenKind_Variant,
+	TokenKind_Bool,
+	TokenKind_Int8,
+	TokenKind_Int16,
+	TokenKind_Int32,
+	TokenKind_Int64,
+	TokenKind_Float,
+	TokenKind_Double,
+	TokenKind_Char,
+	TokenKind_Int,
+	TokenKind_IntPtr,
 
 	// named type specifiers
 
-	EToken_Enum,
-	EToken_FEnum,
-	EToken_CEnum,
-	EToken_Struct,
-	EToken_Union,
-	EToken_Class,
-	EToken_Opaque,
+	TokenKind_Enum,
+	TokenKind_FEnum,
+	TokenKind_CEnum,
+	TokenKind_Struct,
+	TokenKind_Union,
+	TokenKind_Class,
+	TokenKind_Opaque,
 
 	// special member methods
 
-	EToken_Get,
-	EToken_Set,
-	EToken_PreConstruct,
-	EToken_Construct,
-	EToken_Destruct,
-	EToken_Operator,
-	EToken_Postfix,
+	TokenKind_Get,
+	TokenKind_Set,
+	TokenKind_PreConstruct,
+	TokenKind_Construct,
+	TokenKind_Destruct,
+	TokenKind_Operator,
+	TokenKind_Postfix,
 
 	// statements
 
-	EToken_If,
-	EToken_Else,
-	EToken_For,
-	EToken_While,
-	EToken_Do,
-	EToken_Break,
-	EToken_Continue,
-	EToken_Return,
-	EToken_Switch,
-	EToken_Case,
-	EToken_Default,
-	EToken_Once,
-	EToken_OnEvent,
-	EToken_Try,
-	EToken_Catch,
-	EToken_Finally,
+	TokenKind_If,
+	TokenKind_Else,
+	TokenKind_For,
+	TokenKind_While,
+	TokenKind_Do,
+	TokenKind_Break,
+	TokenKind_Continue,
+	TokenKind_Return,
+	TokenKind_Switch,
+	TokenKind_Case,
+	TokenKind_Default,
+	TokenKind_Once,
+	TokenKind_OnEvent,
+	TokenKind_Try,
+	TokenKind_Catch,
+	TokenKind_Finally,
 
 	// pre-defined values
 
-	EToken_BaseType,
-	EToken_This,
-	EToken_RetVal,
-	EToken_True,
-	EToken_False,
-	EToken_Null,
+	TokenKind_BaseType,
+	TokenKind_This,
+	TokenKind_RetVal,
+	TokenKind_True,
+	TokenKind_False,
+	TokenKind_Null,
 
 	// keyword operators
 
-	EToken_New,
-	EToken_PNew,
-	EToken_Delete,
-	EToken_SizeOf,
-	EToken_CountOf,
-	EToken_OffsetOf,
-	EToken_TypeOf,
-	EToken_DTypeOf,
-	EToken_BindingOf,
+	TokenKind_New,
+	TokenKind_PNew,
+	TokenKind_Delete,
+	TokenKind_SizeOf,
+	TokenKind_CountOf,
+	TokenKind_OffsetOf,
+	TokenKind_TypeOf,
+	TokenKind_DTypeOf,
+	TokenKind_BindingOf,
 
 	// symbol tokens
 
-	EToken_Inc,
-	EToken_Dec,
-	EToken_Ptr,
-	EToken_Imply,
-	EToken_Shl,
-	EToken_Shr,
-	EToken_LogAnd,
-	EToken_LogOr,
-	EToken_Eq,
-	EToken_Ne,
-	EToken_Le,
-	EToken_Ge,
-	EToken_RefAssign,
-	EToken_AddAssign,
-	EToken_SubAssign,
-	EToken_MulAssign,
-	EToken_DivAssign,
-	EToken_ModAssign,
-	EToken_ShlAssign,
-	EToken_ShrAssign,
-	EToken_AndAssign,
-	EToken_XorAssign,
-	EToken_OrAssign,
-	EToken_AtAssign,
-	EToken_Ellipsis,
+	TokenKind_Inc,
+	TokenKind_Dec,
+	TokenKind_Ptr,
+	TokenKind_Imply,
+	TokenKind_Shl,
+	TokenKind_Shr,
+	TokenKind_LogAnd,
+	TokenKind_LogOr,
+	TokenKind_Eq,
+	TokenKind_Ne,
+	TokenKind_Le,
+	TokenKind_Ge,
+	TokenKind_RefAssign,
+	TokenKind_AddAssign,
+	TokenKind_SubAssign,
+	TokenKind_MulAssign,
+	TokenKind_DivAssign,
+	TokenKind_ModAssign,
+	TokenKind_ShlAssign,
+	TokenKind_ShrAssign,
+	TokenKind_AndAssign,
+	TokenKind_XorAssign,
+	TokenKind_OrAssign,
+	TokenKind_AtAssign,
+	TokenKind_Ellipsis,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_LEX_BEGIN_TOKEN_NAME_MAP (CTokenName)
+AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	// common tokens
 
-	AXL_LEX_TOKEN_NAME (EToken_Eof,          "eof")
-	AXL_LEX_TOKEN_NAME (EToken_Error,        "error")
-	AXL_LEX_TOKEN_NAME (EToken_Identifier,   "identifier")
-	AXL_LEX_TOKEN_NAME (EToken_Integer,      "integer-constant")
-	AXL_LEX_TOKEN_NAME (EToken_Fp,           "floating-point-constant")
-	AXL_LEX_TOKEN_NAME (EToken_Literal,      "string-literal")
-	AXL_LEX_TOKEN_NAME (EToken_HexLiteral,   "hex-literal")
-	AXL_LEX_TOKEN_NAME (EToken_FmtLiteral,   "fmt-literal")
-	AXL_LEX_TOKEN_NAME (EToken_FmtSpecifier, "fmt-specifier")
+	AXL_LEX_TOKEN_NAME (TokenKind_Eof,          "eof")
+	AXL_LEX_TOKEN_NAME (TokenKind_Error,        "error")
+	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
+	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
+	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
+	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
+	AXL_LEX_TOKEN_NAME (TokenKind_HexLiteral,   "hex-literal")
+	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
+	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
 
 	// global declarations & pragmas
 
-	AXL_LEX_TOKEN_NAME (EToken_Namespace,    "namespace")
-	AXL_LEX_TOKEN_NAME (EToken_Using,        "using")
-	AXL_LEX_TOKEN_NAME (EToken_Extend,       "extend")
-	AXL_LEX_TOKEN_NAME (EToken_Pack,         "pack")
+	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
+	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
+	AXL_LEX_TOKEN_NAME (TokenKind_Extend,       "extend")
+	AXL_LEX_TOKEN_NAME (TokenKind_Pack,         "pack")
 
 	// storage specifiers
 
-	AXL_LEX_TOKEN_NAME (EToken_Typedef,      "typedef")
-	AXL_LEX_TOKEN_NAME (EToken_Alias,        "alias")
-	AXL_LEX_TOKEN_NAME (EToken_Static,       "static")
-	AXL_LEX_TOKEN_NAME (EToken_Thread,       "thread")
-	AXL_LEX_TOKEN_NAME (EToken_Stack,        "stack")
-	AXL_LEX_TOKEN_NAME (EToken_Heap,         "heap")
-	AXL_LEX_TOKEN_NAME (EToken_UHeap,        "uheap")
-	AXL_LEX_TOKEN_NAME (EToken_Abstract,     "abstract")
-	AXL_LEX_TOKEN_NAME (EToken_Virtual,      "virtual")
-	AXL_LEX_TOKEN_NAME (EToken_Override,     "override")
-	AXL_LEX_TOKEN_NAME (EToken_Mutable,      "mutable")
+	AXL_LEX_TOKEN_NAME (TokenKind_Typedef,      "typedef")
+	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
+	AXL_LEX_TOKEN_NAME (TokenKind_Static,       "static")
+	AXL_LEX_TOKEN_NAME (TokenKind_Thread,       "thread")
+	AXL_LEX_TOKEN_NAME (TokenKind_Stack,        "stack")
+	AXL_LEX_TOKEN_NAME (TokenKind_Heap,         "heap")
+	AXL_LEX_TOKEN_NAME (TokenKind_UHeap,        "uheap")
+	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")
+	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
+	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")
+	AXL_LEX_TOKEN_NAME (TokenKind_Mutable,      "mutable")
 
 	// access specifiers
 
-	AXL_LEX_TOKEN_NAME (EToken_Public,       "public")
-	AXL_LEX_TOKEN_NAME (EToken_Protected,    "protected")
-	AXL_LEX_TOKEN_NAME (EToken_Friend,       "friend")
+	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
+	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
+	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 
 	// type modifiers
 
-	AXL_LEX_TOKEN_NAME (EToken_Signed,       "signed")
-	AXL_LEX_TOKEN_NAME (EToken_Unsigned,     "unsigned")
-	AXL_LEX_TOKEN_NAME (EToken_BigEndian,    "bigendian")
-	AXL_LEX_TOKEN_NAME (EToken_Const,        "const")
-	AXL_LEX_TOKEN_NAME (EToken_DConst,       "dconst")
-	AXL_LEX_TOKEN_NAME (EToken_Volatile,     "volatile")
-	AXL_LEX_TOKEN_NAME (EToken_Weak,         "weak")
-	AXL_LEX_TOKEN_NAME (EToken_Thin,         "thin")
-	AXL_LEX_TOKEN_NAME (EToken_Safe,         "safe")
-	AXL_LEX_TOKEN_NAME (EToken_Throws,       "throws")
-	AXL_LEX_TOKEN_NAME (EToken_Cdecl,        "cdecl")
-	AXL_LEX_TOKEN_NAME (EToken_Stdcall,      "stdcall")
-	AXL_LEX_TOKEN_NAME (EToken_Thiscall,     "thiscall")
-	AXL_LEX_TOKEN_NAME (EToken_Jnccall,      "jnccall")
-	AXL_LEX_TOKEN_NAME (EToken_Array,        "array")
-	AXL_LEX_TOKEN_NAME (EToken_Function,     "function")
-	AXL_LEX_TOKEN_NAME (EToken_Property,     "property")
-	AXL_LEX_TOKEN_NAME (EToken_Bindable,     "bindable")
-	AXL_LEX_TOKEN_NAME (EToken_AutoGet,      "autoget")
-	AXL_LEX_TOKEN_NAME (EToken_Indexed,      "indexed")
-	AXL_LEX_TOKEN_NAME (EToken_Multicast,    "multicast")
-	AXL_LEX_TOKEN_NAME (EToken_Event,        "event")
-	AXL_LEX_TOKEN_NAME (EToken_DEvent,       "devent")
-	AXL_LEX_TOKEN_NAME (EToken_Reactor,      "reactor")
+	AXL_LEX_TOKEN_NAME (TokenKind_Signed,       "signed")
+	AXL_LEX_TOKEN_NAME (TokenKind_Unsigned,     "unsigned")
+	AXL_LEX_TOKEN_NAME (TokenKind_BigEndian,    "bigendian")
+	AXL_LEX_TOKEN_NAME (TokenKind_Const,        "const")
+	AXL_LEX_TOKEN_NAME (TokenKind_DConst,       "dconst")
+	AXL_LEX_TOKEN_NAME (TokenKind_Volatile,     "volatile")
+	AXL_LEX_TOKEN_NAME (TokenKind_Weak,         "weak")
+	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
+	AXL_LEX_TOKEN_NAME (TokenKind_Safe,         "safe")
+	AXL_LEX_TOKEN_NAME (TokenKind_Throws,       "throws")
+	AXL_LEX_TOKEN_NAME (TokenKind_Cdecl,        "cdecl")
+	AXL_LEX_TOKEN_NAME (TokenKind_Stdcall,      "stdcall")
+	AXL_LEX_TOKEN_NAME (TokenKind_Thiscall,     "thiscall")
+	AXL_LEX_TOKEN_NAME (TokenKind_Jnccall,      "jnccall")
+	AXL_LEX_TOKEN_NAME (TokenKind_Array,        "array")
+	AXL_LEX_TOKEN_NAME (TokenKind_Function,     "function")
+	AXL_LEX_TOKEN_NAME (TokenKind_Property,     "property")
+	AXL_LEX_TOKEN_NAME (TokenKind_Bindable,     "bindable")
+	AXL_LEX_TOKEN_NAME (TokenKind_AutoGet,      "autoget")
+	AXL_LEX_TOKEN_NAME (TokenKind_Indexed,      "indexed")
+	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
+	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
+	AXL_LEX_TOKEN_NAME (TokenKind_DEvent,       "devent")
+	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
 
 	// type specifiers
 
-	AXL_LEX_TOKEN_NAME (EToken_Auto,         "auto")
-	AXL_LEX_TOKEN_NAME (EToken_Void,         "void")
-	AXL_LEX_TOKEN_NAME (EToken_Object,       "object")
-	AXL_LEX_TOKEN_NAME (EToken_Variant,      "variant")
-	AXL_LEX_TOKEN_NAME (EToken_Bool,         "bool")
-	AXL_LEX_TOKEN_NAME (EToken_Int8,         "int8")
-	AXL_LEX_TOKEN_NAME (EToken_Int16,        "int16")
-	AXL_LEX_TOKEN_NAME (EToken_Int32,        "int32")
-	AXL_LEX_TOKEN_NAME (EToken_Int64,        "int64")
-	AXL_LEX_TOKEN_NAME (EToken_Float,        "float")
-	AXL_LEX_TOKEN_NAME (EToken_Double,       "double")
-	AXL_LEX_TOKEN_NAME (EToken_Char,         "char")
-	AXL_LEX_TOKEN_NAME (EToken_Int,          "int")
-	AXL_LEX_TOKEN_NAME (EToken_IntPtr,       "intptr")
+	AXL_LEX_TOKEN_NAME (TokenKind_Auto,         "auto")
+	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
+	AXL_LEX_TOKEN_NAME (TokenKind_Object,       "object")
+	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
+	AXL_LEX_TOKEN_NAME (TokenKind_Bool,         "bool")
+	AXL_LEX_TOKEN_NAME (TokenKind_Int8,         "int8")
+	AXL_LEX_TOKEN_NAME (TokenKind_Int16,        "int16")
+	AXL_LEX_TOKEN_NAME (TokenKind_Int32,        "int32")
+	AXL_LEX_TOKEN_NAME (TokenKind_Int64,        "int64")
+	AXL_LEX_TOKEN_NAME (TokenKind_Float,        "float")
+	AXL_LEX_TOKEN_NAME (TokenKind_Double,       "double")
+	AXL_LEX_TOKEN_NAME (TokenKind_Char,         "char")
+	AXL_LEX_TOKEN_NAME (TokenKind_Int,          "int")
+	AXL_LEX_TOKEN_NAME (TokenKind_IntPtr,       "intptr")
 
 	// named type specifiers
 
-	AXL_LEX_TOKEN_NAME (EToken_Enum,         "enum")
-	AXL_LEX_TOKEN_NAME (EToken_FEnum,        "fenum")
-	AXL_LEX_TOKEN_NAME (EToken_CEnum,        "cenum")
-	AXL_LEX_TOKEN_NAME (EToken_Struct,       "struct")
-	AXL_LEX_TOKEN_NAME (EToken_Union,        "union")
-	AXL_LEX_TOKEN_NAME (EToken_Class,        "class")
-	AXL_LEX_TOKEN_NAME (EToken_Opaque,       "opaque")
+	AXL_LEX_TOKEN_NAME (TokenKind_Enum,         "enum")
+	AXL_LEX_TOKEN_NAME (TokenKind_FEnum,        "fenum")
+	AXL_LEX_TOKEN_NAME (TokenKind_CEnum,        "cenum")
+	AXL_LEX_TOKEN_NAME (TokenKind_Struct,       "struct")
+	AXL_LEX_TOKEN_NAME (TokenKind_Union,        "union")
+	AXL_LEX_TOKEN_NAME (TokenKind_Class,        "class")
+	AXL_LEX_TOKEN_NAME (TokenKind_Opaque,       "opaque")
 
 	// special members
 
-	AXL_LEX_TOKEN_NAME (EToken_Get,          "get")
-	AXL_LEX_TOKEN_NAME (EToken_Set,          "set")
-	AXL_LEX_TOKEN_NAME (EToken_PreConstruct, "preconstruct")
-	AXL_LEX_TOKEN_NAME (EToken_Construct,    "construct")
-	AXL_LEX_TOKEN_NAME (EToken_Destruct,     "destruct")
-	AXL_LEX_TOKEN_NAME (EToken_Operator,     "operator")
-	AXL_LEX_TOKEN_NAME (EToken_Postfix,      "postfix")
+	AXL_LEX_TOKEN_NAME (TokenKind_Get,          "get")
+	AXL_LEX_TOKEN_NAME (TokenKind_Set,          "set")
+	AXL_LEX_TOKEN_NAME (TokenKind_PreConstruct, "preconstruct")
+	AXL_LEX_TOKEN_NAME (TokenKind_Construct,    "construct")
+	AXL_LEX_TOKEN_NAME (TokenKind_Destruct,     "destruct")
+	AXL_LEX_TOKEN_NAME (TokenKind_Operator,     "operator")
+	AXL_LEX_TOKEN_NAME (TokenKind_Postfix,      "postfix")
 
 	// statements
 
-	AXL_LEX_TOKEN_NAME (EToken_If,           "if")
-	AXL_LEX_TOKEN_NAME (EToken_Else,         "else")
-	AXL_LEX_TOKEN_NAME (EToken_For,          "for")
-	AXL_LEX_TOKEN_NAME (EToken_While,        "while")
-	AXL_LEX_TOKEN_NAME (EToken_Do,           "do")
-	AXL_LEX_TOKEN_NAME (EToken_Break,        "break")
-	AXL_LEX_TOKEN_NAME (EToken_Continue,     "continue")
-	AXL_LEX_TOKEN_NAME (EToken_Return,       "return")
-	AXL_LEX_TOKEN_NAME (EToken_Switch,       "switch")
-	AXL_LEX_TOKEN_NAME (EToken_Case,         "case")
-	AXL_LEX_TOKEN_NAME (EToken_Default,      "default")
-	AXL_LEX_TOKEN_NAME (EToken_Once,         "once")
-	AXL_LEX_TOKEN_NAME (EToken_OnEvent,      "onevent")
-	AXL_LEX_TOKEN_NAME (EToken_Try,          "try")
-	AXL_LEX_TOKEN_NAME (EToken_Catch,        "catch")
-	AXL_LEX_TOKEN_NAME (EToken_Finally,      "finally")
+	AXL_LEX_TOKEN_NAME (TokenKind_If,           "if")
+	AXL_LEX_TOKEN_NAME (TokenKind_Else,         "else")
+	AXL_LEX_TOKEN_NAME (TokenKind_For,          "for")
+	AXL_LEX_TOKEN_NAME (TokenKind_While,        "while")
+	AXL_LEX_TOKEN_NAME (TokenKind_Do,           "do")
+	AXL_LEX_TOKEN_NAME (TokenKind_Break,        "break")
+	AXL_LEX_TOKEN_NAME (TokenKind_Continue,     "continue")
+	AXL_LEX_TOKEN_NAME (TokenKind_Return,       "return")
+	AXL_LEX_TOKEN_NAME (TokenKind_Switch,       "switch")
+	AXL_LEX_TOKEN_NAME (TokenKind_Case,         "case")
+	AXL_LEX_TOKEN_NAME (TokenKind_Default,      "default")
+	AXL_LEX_TOKEN_NAME (TokenKind_Once,         "once")
+	AXL_LEX_TOKEN_NAME (TokenKind_OnEvent,      "onevent")
+	AXL_LEX_TOKEN_NAME (TokenKind_Try,          "try")
+	AXL_LEX_TOKEN_NAME (TokenKind_Catch,        "catch")
+	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
 
 	// pre-defined values
 
-	AXL_LEX_TOKEN_NAME (EToken_BaseType,     "basetype")
-	AXL_LEX_TOKEN_NAME (EToken_This,         "this")
-	AXL_LEX_TOKEN_NAME (EToken_RetVal,       "retval")
-	AXL_LEX_TOKEN_NAME (EToken_True,         "true")
-	AXL_LEX_TOKEN_NAME (EToken_False,        "false")
-	AXL_LEX_TOKEN_NAME (EToken_Null,         "null")
+	AXL_LEX_TOKEN_NAME (TokenKind_BaseType,     "basetype")
+	AXL_LEX_TOKEN_NAME (TokenKind_This,         "this")
+	AXL_LEX_TOKEN_NAME (TokenKind_RetVal,       "retval")
+	AXL_LEX_TOKEN_NAME (TokenKind_True,         "true")
+	AXL_LEX_TOKEN_NAME (TokenKind_False,        "false")
+	AXL_LEX_TOKEN_NAME (TokenKind_Null,         "null")
 
 	// keyword operators
 
-	AXL_LEX_TOKEN_NAME (EToken_New,          "new")
-	AXL_LEX_TOKEN_NAME (EToken_PNew,         "pnew")
-	AXL_LEX_TOKEN_NAME (EToken_Delete,       "delete")
-	AXL_LEX_TOKEN_NAME (EToken_SizeOf,       "sizeof")
-	AXL_LEX_TOKEN_NAME (EToken_CountOf,      "countof")
-	AXL_LEX_TOKEN_NAME (EToken_OffsetOf,     "offsetof")
-	AXL_LEX_TOKEN_NAME (EToken_TypeOf,       "typeof")
-	AXL_LEX_TOKEN_NAME (EToken_DTypeOf,      "dtypeof")
-	AXL_LEX_TOKEN_NAME (EToken_BindingOf,    "bindingof")
+	AXL_LEX_TOKEN_NAME (TokenKind_New,          "new")
+	AXL_LEX_TOKEN_NAME (TokenKind_PNew,         "pnew")
+	AXL_LEX_TOKEN_NAME (TokenKind_Delete,       "delete")
+	AXL_LEX_TOKEN_NAME (TokenKind_SizeOf,       "sizeof")
+	AXL_LEX_TOKEN_NAME (TokenKind_CountOf,      "countof")
+	AXL_LEX_TOKEN_NAME (TokenKind_OffsetOf,     "offsetof")
+	AXL_LEX_TOKEN_NAME (TokenKind_TypeOf,       "typeof")
+	AXL_LEX_TOKEN_NAME (TokenKind_DTypeOf,      "dtypeof")
+	AXL_LEX_TOKEN_NAME (TokenKind_BindingOf,    "bindingof")
 
 	// symbol tokens
 
-	AXL_LEX_TOKEN_NAME (EToken_Inc,          "++")
-	AXL_LEX_TOKEN_NAME (EToken_Dec,          "--")
-	AXL_LEX_TOKEN_NAME (EToken_Ptr,          "->")
-	AXL_LEX_TOKEN_NAME (EToken_Imply,        "=>")
-	AXL_LEX_TOKEN_NAME (EToken_Shl,          "<<")
-	AXL_LEX_TOKEN_NAME (EToken_Shr,          ">>")
-	AXL_LEX_TOKEN_NAME (EToken_LogAnd,       "&&")
-	AXL_LEX_TOKEN_NAME (EToken_LogOr,        "||")
-	AXL_LEX_TOKEN_NAME (EToken_Eq,           "==")
-	AXL_LEX_TOKEN_NAME (EToken_Ne,           "!=")
-	AXL_LEX_TOKEN_NAME (EToken_Le,           "<=")
-	AXL_LEX_TOKEN_NAME (EToken_Ge,           ">=")
-	AXL_LEX_TOKEN_NAME (EToken_RefAssign,    ":=")
-	AXL_LEX_TOKEN_NAME (EToken_AddAssign,    "+=")
-	AXL_LEX_TOKEN_NAME (EToken_SubAssign,    "-=")
-	AXL_LEX_TOKEN_NAME (EToken_MulAssign,    "*=")
-	AXL_LEX_TOKEN_NAME (EToken_DivAssign,    "/=")
-	AXL_LEX_TOKEN_NAME (EToken_ModAssign,    "%=")
-	AXL_LEX_TOKEN_NAME (EToken_ShlAssign,    "<<=")
-	AXL_LEX_TOKEN_NAME (EToken_ShrAssign,    ">>=")
-	AXL_LEX_TOKEN_NAME (EToken_AndAssign,    "&=")
-	AXL_LEX_TOKEN_NAME (EToken_XorAssign,    "^=")
-	AXL_LEX_TOKEN_NAME (EToken_OrAssign,     "|=")
-	AXL_LEX_TOKEN_NAME (EToken_AtAssign,     "@=")
-	AXL_LEX_TOKEN_NAME (EToken_Ellipsis,     "...")
+	AXL_LEX_TOKEN_NAME (TokenKind_Inc,          "++")
+	AXL_LEX_TOKEN_NAME (TokenKind_Dec,          "--")
+	AXL_LEX_TOKEN_NAME (TokenKind_Ptr,          "->")
+	AXL_LEX_TOKEN_NAME (TokenKind_Imply,        "=>")
+	AXL_LEX_TOKEN_NAME (TokenKind_Shl,          "<<")
+	AXL_LEX_TOKEN_NAME (TokenKind_Shr,          ">>")
+	AXL_LEX_TOKEN_NAME (TokenKind_LogAnd,       "&&")
+	AXL_LEX_TOKEN_NAME (TokenKind_LogOr,        "||")
+	AXL_LEX_TOKEN_NAME (TokenKind_Eq,           "==")
+	AXL_LEX_TOKEN_NAME (TokenKind_Ne,           "!=")
+	AXL_LEX_TOKEN_NAME (TokenKind_Le,           "<=")
+	AXL_LEX_TOKEN_NAME (TokenKind_Ge,           ">=")
+	AXL_LEX_TOKEN_NAME (TokenKind_RefAssign,    ":=")
+	AXL_LEX_TOKEN_NAME (TokenKind_AddAssign,    "+=")
+	AXL_LEX_TOKEN_NAME (TokenKind_SubAssign,    "-=")
+	AXL_LEX_TOKEN_NAME (TokenKind_MulAssign,    "*=")
+	AXL_LEX_TOKEN_NAME (TokenKind_DivAssign,    "/=")
+	AXL_LEX_TOKEN_NAME (TokenKind_ModAssign,    "%=")
+	AXL_LEX_TOKEN_NAME (TokenKind_ShlAssign,    "<<=")
+	AXL_LEX_TOKEN_NAME (TokenKind_ShrAssign,    ">>=")
+	AXL_LEX_TOKEN_NAME (TokenKind_AndAssign,    "&=")
+	AXL_LEX_TOKEN_NAME (TokenKind_XorAssign,    "^=")
+	AXL_LEX_TOKEN_NAME (TokenKind_OrAssign,     "|=")
+	AXL_LEX_TOKEN_NAME (TokenKind_AtAssign,     "@=")
+	AXL_LEX_TOKEN_NAME (TokenKind_Ellipsis,     "...")
 
 AXL_LEX_END_TOKEN_NAME_MAP ();
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CTokenData: public lex::CStdTokenData
+class TokenData: public lex::StdTokenData
 {
 public:
-	rtl::CArrayT <uchar_t> m_BinData;
+	rtl::Array <uchar_t> m_binData;
 };
 
-typedef lex::CRagelTokenT <EToken, CTokenName, CTokenData> CToken;
+typedef lex::RagelToken <TokenKind, TokenName, TokenData> Token;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CLexer: public lex::CRagelLexerT <CLexer, CToken>
+class Lexer: public lex::RagelLexer <Lexer, Token>
 {
-	friend class lex::CRagelLexerT <CLexer, CToken>;
+	friend class lex::RagelLexer <Lexer, Token>;
 
 protected:
-	CToken* m_pFmtLiteralToken;
-	rtl::CArrayT <intptr_t> m_ParenthesesLevelStack;
+	Token* m_fmtLiteralToken;
+	rtl::Array <intptr_t> m_parenthesesLevelStack;
 
 public:
-	CLexer ()
+	Lexer ()
 	{
-		m_pFmtLiteralToken = NULL;
+		m_fmtLiteralToken = NULL;
 	}
 
 protected:
-	CToken*
-	CreateKeywordTokenEx (
-		int Token,
-		int Param
+	Token*
+	createKeywordTokenEx (
+		int tokenKind,
+		int param
 		)
 	{
-		CToken* pToken = CreateToken (Token);
-		pToken->m_Data.m_Integer = Param;
-		return pToken;
+		Token* token = createToken (tokenKind);
+		token->m_data.m_integer = param;
+		return token;
 	}
 
-	CToken*
-	CreateStringToken (
-		int Token,
-		size_t Left = 0,
-		size_t Right = 0,
-		bool UseEscapeEncoding = false
+	Token*
+	createStringToken (
+		int tokenKind,
+		size_t left = 0,
+		size_t right = 0,
+		bool useEscapeEncoding = false
 		)
 	{
-		CToken* pToken = CreateToken (Token);
-		ASSERT (pToken->m_Pos.m_Length >= Left + Right);
+		Token* token = createToken (tokenKind);
+		ASSERT (token->m_pos.m_length >= left + right);
 
-		size_t Length = pToken->m_Pos.m_Length - (Left + Right);
-		if (UseEscapeEncoding)
-			pToken->m_Data.m_String = rtl::CEscapeEncoding::Decode (ts + Left, Length);
+		size_t length = token->m_pos.m_length - (left + right);
+		if (useEscapeEncoding)
+			token->m_data.m_string = rtl::EscapeEncoding::decode (ts + left, length);
 		else
-			pToken->m_Data.m_String.Copy (ts + Left, Length);
+			token->m_data.m_string.copy (ts + left, length);
 
-		return pToken;
+		return token;
 	}
 
-	CToken*
-	CreateHexLiteralToken ()
+	Token*
+	createHexLiteralToken ()
 	{
-		CToken* pToken = CreateToken (EToken_HexLiteral);
-		ASSERT (pToken->m_Pos.m_Length >= 4);
-		pToken->m_Data.m_BinData = rtl::CHexEncoding::Decode (ts + 3, pToken->m_Pos.m_Length - 4);
-		return pToken;
+		Token* token = createToken (TokenKind_HexLiteral);
+		ASSERT (token->m_pos.m_length >= 4);
+		token->m_data.m_binData = rtl::HexEncoding::decode (ts + 3, token->m_pos.m_length - 4);
+		return token;
 	}
 
-	CToken*
-	CreateCharToken (int Token)
+	Token*
+	createCharToken (int tokenKind)
 	{
-		CToken* pToken = CreateToken (Token);
-		pToken->m_Data.m_Integer = ts [1];
-		return pToken;
+		Token* token = createToken (tokenKind);
+		token->m_data.m_integer = ts [1];
+		return token;
 	}
 
-	CToken*
-	CreateIntegerToken (
-		int Radix = 10,
-		size_t Left = 0
+	Token*
+	createIntegerToken (
+		int radix = 10,
+		size_t left = 0
 		)
 	{
-		CToken* pToken = CreateToken (EToken_Integer);
-		pToken->m_Data.m_Int64_u = _strtoui64 (ts + Left, NULL, Radix);
-		return pToken;
+		Token* token = createToken (TokenKind_Integer);
+		token->m_data.m_int64_u = _strtoui64 (ts + left, NULL, radix);
+		return token;
 	}
 
-	CToken*
-	CreateFpToken ()
+	Token*
+	createFpToken ()
 	{
-		CToken* pToken = CreateToken (EToken_Fp);
-		pToken->m_Data.m_Double = strtod (ts, NULL);
-		return pToken;
+		Token* token = createToken (TokenKind_Fp);
+		token->m_data.m_double = strtod (ts, NULL);
+		return token;
 	}
 
-	CToken*
-	CreateConstIntegerToken (int Value)
+	Token*
+	createConstIntegerToken (int value)
 	{
-		CToken* pToken = CreateToken (EToken_Integer);
-		pToken->m_Data.m_Integer = Value;
-		return pToken;
+		Token* token = createToken (TokenKind_Integer);
+		token->m_data.m_integer = value;
+		return token;
 	}
 
 	// formatting literals
 
-	CToken*
-	PreCreateFmtLiteralToken ()
+	Token*
+	preCreateFmtLiteralToken ()
 	{
-		ASSERT (!m_pFmtLiteralToken);
-		m_pFmtLiteralToken = PreCreateToken (0);
-		return m_pFmtLiteralToken;
+		ASSERT (!m_fmtLiteralToken);
+		m_fmtLiteralToken = preCreateToken (0);
+		return m_fmtLiteralToken;
 	}
 
-	CToken*
-	CreateFmtLiteralToken (int Token)
+	Token*
+	createFmtLiteralToken (int tokenKind)
 	{
-		ASSERT (m_pFmtLiteralToken);
-		CToken* pToken = m_pFmtLiteralToken;
+		ASSERT (m_fmtLiteralToken);
+		Token* token = m_fmtLiteralToken;
 
-		size_t Left = pToken->m_Pos.m_Length;
-		size_t Right = te - ts;
+		size_t left = token->m_pos.m_length;
+		size_t right = te - ts;
 
-		m_pFmtLiteralToken = NULL;
+		m_fmtLiteralToken = NULL;
 
-		pToken->m_Pos.m_Length = te - pToken->m_Pos.m_p;
-		ASSERT (pToken->m_Pos.m_Length >= Left + Right);
+		token->m_pos.m_length = te - token->m_pos.m_p;
+		ASSERT (token->m_pos.m_length >= left + right);
 
-		pToken->m_Token = Token;
-		pToken->m_Data.m_String = rtl::CEscapeEncoding::Decode (
-			pToken->m_Pos.m_p + Left,
-			pToken->m_Pos.m_Length - (Left + Right));
-		return pToken;
+		token->m_token = tokenKind;
+		token->m_data.m_string = rtl::EscapeEncoding::decode (
+			token->m_pos.m_p + left,
+			token->m_pos.m_length - (left + right));
+		return token;
 	}
 
-	CToken*
-	CreateFmtSimpleIdentifierToken ()
+	Token*
+	createFmtSimpleIdentifierToken ()
 	{
-		CreateFmtLiteralToken (EToken_FmtLiteral);
+		createFmtLiteralToken (TokenKind_FmtLiteral);
 
-		// important: prevent Break () -- otherwise we could feed half-created fmt-literal token to the parser
+		// important: prevent BreakJump () -- otherwise we could feed half-created fmt-literal token to the parser
 
-		size_t PrevTokenizeLimit = m_TokenizeLimit;
-		m_TokenizeLimit = -1;
+		size_t prevTokenizeLimit = m_tokenizeLimit;
+		m_tokenizeLimit = -1;
 
-		CToken* pToken = CreateStringToken (EToken_Identifier, 1, 0);
+		Token* token = createStringToken (TokenKind_Identifier, 1, 0);
 
-		m_TokenizeLimit = PrevTokenizeLimit;
+		m_tokenizeLimit = prevTokenizeLimit;
 
-		PreCreateFmtLiteralToken ();
-		return pToken;
+		preCreateFmtLiteralToken ();
+		return token;
 	}
 
-	CToken*
-	CreateFmtSpecifierToken ()
+	Token*
+	createFmtSpecifierToken ()
 	{
 		ASSERT (*ts == ',');
 		ts++;
@@ -522,45 +522,45 @@ protected:
 		while (ts < te && (*ts == ' ' || *ts == '\t'))
 			ts++;
 
-		return ts < te ? CreateStringToken (EToken_FmtSpecifier) : NULL;
+		return ts < te ? createStringToken (TokenKind_FmtSpecifier) : NULL;
 	}
 
 	void
-	OnLeftParentheses ()
+	onLeftParentheses ()
 	{
-		if (!m_ParenthesesLevelStack.IsEmpty ())
-			m_ParenthesesLevelStack [m_ParenthesesLevelStack.GetCount () - 1]++;
+		if (!m_parenthesesLevelStack.isEmpty ())
+			m_parenthesesLevelStack [m_parenthesesLevelStack.getCount () - 1]++;
 
-		CreateToken ('(');
+		createToken ('(');
 	}
 
 	bool
-	OnRightParentheses ()
+	onRightParentheses ()
 	{
-		if (!m_ParenthesesLevelStack.IsEmpty ())
+		if (!m_parenthesesLevelStack.isEmpty ())
 		{
-			size_t i = m_ParenthesesLevelStack.GetCount () - 1;
-			if (m_ParenthesesLevelStack [i] == 1)
+			size_t i = m_parenthesesLevelStack.getCount () - 1;
+			if (m_parenthesesLevelStack [i] == 1)
 			{
-				m_ParenthesesLevelStack.Pop ();
-				PreCreateFmtLiteralToken ();
+				m_parenthesesLevelStack.pop ();
+				preCreateFmtLiteralToken ();
 				return false;
 			}
 
-			m_ParenthesesLevelStack [i]--;
+			m_parenthesesLevelStack [i]--;
 		}
 
-		CreateToken (')');
+		createToken (')');
 		return true;
 	}
 
 	bool
-	OnComma ()
+	onComma ()
 	{
-		if (!m_ParenthesesLevelStack.IsEmpty ())
+		if (!m_parenthesesLevelStack.isEmpty ())
 		{
-			size_t i = m_ParenthesesLevelStack.GetCount () - 1;
-			if (m_ParenthesesLevelStack [i] == 1)
+			size_t i = m_parenthesesLevelStack.getCount () - 1;
+			if (m_parenthesesLevelStack [i] == 1)
 			{
 				ASSERT (*ts == ',');
 				p = ts - 1; // need to reparse colon with 'fmt_spec' machine
@@ -568,32 +568,32 @@ protected:
 			}
 		}
 
-		CreateToken (',');
+		createToken (',');
 		return true;
 	}
 
 	void
-	TerminateFmtSpecifier ()
+	terminateFmtSpecifier ()
 	{
-		ASSERT (!m_ParenthesesLevelStack.IsEmpty () && m_pFmtLiteralToken == NULL);
-		m_ParenthesesLevelStack.Pop ();
-		PreCreateFmtLiteralToken ();
+		ASSERT (!m_parenthesesLevelStack.isEmpty () && m_fmtLiteralToken == NULL);
+		m_parenthesesLevelStack.pop ();
+		preCreateFmtLiteralToken ();
 	}
 
 	void
-	TerminateFmtLiteral ()
+	terminateFmtLiteral ()
 	{
-		ASSERT (!m_ParenthesesLevelStack.IsEmpty () && m_pFmtLiteralToken == NULL);
-		m_ParenthesesLevelStack.Pop ();
+		ASSERT (!m_parenthesesLevelStack.isEmpty () && m_fmtLiteralToken == NULL);
+		m_parenthesesLevelStack.pop ();
 	}
 
 	// implemented in *.rl
 
 	void
-	Init ();
+	init ();
 
 	void
-	Exec ();
+	exec ();
 };
 
 //.............................................................................

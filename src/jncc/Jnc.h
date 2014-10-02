@@ -5,114 +5,114 @@
 
 //.............................................................................
 
-enum EJncError
+enum JncErrorKind
 {
-	EJncError_Success = 0,
-	EJncError_InvalidCmdLine,
-	EJncError_IoFailure,
-	EJncError_CompileFailure,
-	EJncError_RunFailure,
+	JncErrorKind_Success = 0,
+	JncErrorKind_InvalidCmdLine,
+	JncErrorKind_IoFailure,
+	JncErrorKind_CompileFailure,
+	JncErrorKind_RunFailure,
 };
 
 //.............................................................................
 
 void
-PrintVersion (COutStream* pOutStream);
+printVersion (OutStream* outStream);
 
 void
-PrintUsage (COutStream* pOutStream);
+printUsage (OutStream* outStream);
 
 //.............................................................................
 
-class CStdLib: public jnc::CStdLib
+class StdLib: public jnc::StdLib
 {
 public:
 	JNC_API_BEGIN_LIB ()
-		JNC_API_FUNCTION ("printf",  &Printf)
-		JNC_API_LIB (jnc::CStdLib)
+		JNC_API_FUNCTION ("printf",  &printf)
+		JNC_API_LIB (jnc::StdLib)
 	JNC_API_END_LIB ()
 
 	static
 	int
-	Printf (
-		const char* pFormat,
+	printf (
+		const char* format,
 		...
 		);
 };
 
 //.............................................................................
 
-class CJnc
+class Jnc
 {
 protected:
-	static CJnc* m_pCurrentJnc;
+	static Jnc* m_currentJnc;
 
-	TCmdLine* m_pCmdLine;
-	COutStream* m_pOutStream;
+	CmdLine* m_cmdLine;
+	OutStream* m_outStream;
 
-	jnc::CModule m_Module;
-	jnc::CRuntime m_Runtime;
+	jnc::Module m_module;
+	jnc::Runtime m_runtime;
 
 public:
-	CJnc ()
+	Jnc ()
 	{
-		m_pCurrentJnc = this;
-		m_pCmdLine = NULL;
-		m_pOutStream = NULL;
+		m_currentJnc = this;
+		m_cmdLine = NULL;
+		m_outStream = NULL;
 	}
 
 	static
-	CJnc*
-	GetCurrentJnc ()
+	Jnc*
+	getCurrentJnc ()
 	{
-		return m_pCurrentJnc;
+		return m_currentJnc;
 	}
 
-	COutStream*
-	GetOutStream ()
+	OutStream*
+	getOutStream ()
 	{
-		return m_pOutStream;
+		return m_outStream;
 	}
 
 	int
-	Run (
-		TCmdLine* pCmdLine,
-		COutStream* pOutStream
+	run (
+		CmdLine* cmdLine,
+		OutStream* outStream
 		);
 
 protected:
 	bool
-	Compile (
-		const char* pFileName,
-		const char* pSource,
-		size_t Length
+	compile (
+		const char* fileName,
+		const char* source,
+		size_t length
 		);
 
 	bool
-	Jit ();
+	jit ();
 
 	void
-	PrintLlvmIr ();
+	printLlvmIr ();
 
 	void
-	PrintDisassembly ();
+	printDisassembly ();
 
 	bool
-	RunFunction (int* pReturnValue = NULL);
+	runFunction (int* returnValue = NULL);
 
 	bool
-	RunFunction (
-		jnc::CFunction* pFunction,
-		int* pReturnValue = NULL
+	runFunction (
+		jnc::Function* function,
+		int* returnValue = NULL
 		);
 
 	int
-	Server ();
+	server ();
 
 	int
-	Client (
-		SOCKET Socket,
-		sockaddr_in* pSockAddr
+	client (
+		SOCKET socket,
+		sockaddr_in* sockAddr
 		);
 };
 

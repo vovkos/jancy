@@ -6,19 +6,19 @@ namespace jnc {
 
 //.............................................................................
 
-CAttributeMgr::CAttributeMgr ()
+AttributeMgr::AttributeMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 }
 
-CAttributeBlock*
-CAttributeMgr::CreateAttributeBlock ()
+AttributeBlock*
+AttributeMgr::createAttributeBlock ()
 {
-	CAttributeBlock* pAttributeBlock = AXL_MEM_NEW (CAttributeBlock);
-	pAttributeBlock->m_pModule = m_pModule;
-	m_AttributeBlockList.InsertTail (pAttributeBlock);
-	return pAttributeBlock;
+	AttributeBlock* attributeBlock = AXL_MEM_NEW (AttributeBlock);
+	attributeBlock->m_module = m_module;
+	m_attributeBlockList.insertTail (attributeBlock);
+	return attributeBlock;
 }
 
 //.............................................................................

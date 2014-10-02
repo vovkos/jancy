@@ -12,38 +12,38 @@ namespace jnc {
 
 // floating point truncation
 
-class CCast_FpTrunc: public CCastOperator
+class Cast_FpTrunc: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Explicit;
+		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		)
 	{
-		*(float*) pDst = (float) *(double*) OpValue.GetConstData ();
+		*(float*) dst = (float) *(double*) opValue.getConstData ();
 		return true;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -51,38 +51,38 @@ public:
 
 // floating point extension
 
-class CCast_FpExt: public CCastOperator
+class Cast_FpExt: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		)
 	{
-		*(double*) pDst = *(float*) OpValue.GetConstData ();
+		*(double*) dst = *(float*) opValue.getConstData ();
 		return true;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -90,47 +90,47 @@ public:
 
 // signed integer -> floating point
 
-class CCast_FpFromInt: public CCastOperator
+class Cast_FpFromInt: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return OpValue.GetType ()->GetSize () < pType->GetSize () ? ECast_ImplicitCrossFamily : ECast_Explicit;
+		return opValue.getType ()->getSize () < type->getSize () ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 protected:
 	void
-	ConstCast_Fp32 (
-		const CValue& SrcValue,
-		float* pFp32
+	constCast_Fp32 (
+		const Value& srcValue,
+		float* fp32
 		);
 
 	void
-	ConstCast_Fp64 (
-		const CValue& SrcValue,
-		double* pFp64
+	constCast_Fp64 (
+		const Value& srcValue,
+		double* fp64
 		);
 };
 
@@ -138,47 +138,47 @@ protected:
 
 // unsigned integer -> floating point
 
-class CCast_FpFromInt_u: public CCastOperator
+class Cast_FpFromInt_u: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return OpValue.GetType ()->GetSize () < pType->GetSize () ? ECast_ImplicitCrossFamily : ECast_Explicit;
+		return opValue.getType ()->getSize () < type->getSize () ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 protected:
 	void
-	ConstCast_Fp32 (
-		const CValue& SrcValue,
-		float* pFp32
+	constCast_Fp32 (
+		const Value& srcValue,
+		float* fp32
 		);
 
 	void
-	ConstCast_Fp64 (
-		const CValue& SrcValue,
-		double* pFp64
+	constCast_Fp64 (
+		const Value& srcValue,
+		double* fp64
 		);
 };
 
@@ -186,17 +186,17 @@ protected:
 
 // bigendian integer -> floating point
 
-class CCast_FpFromBeInt: public CCast_SuperMaster
+class Cast_FpFromBeInt: public Cast_SuperMaster
 {
 public:
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
 		);
 };
 
@@ -204,17 +204,17 @@ public:
 
 // enum -> floating point
 
-class CCast_FpFromEnum: public CCast_SuperMaster
+class Cast_FpFromEnum: public Cast_SuperMaster
 {
 public:
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
 		);
 };
 
@@ -222,22 +222,22 @@ public:
 
 // floating point master cast
 
-class CCast_Fp: public CCast_Master
+class Cast_Fp: public Cast_Master
 {
 protected:
-	CCast_FpTrunc m_Trunc;
-	CCast_FpExt m_Ext;
-	CCast_FpFromInt m_FromInt;
-	CCast_FpFromInt_u m_FromInt_u;
-	CCast_FpFromBeInt m_FromBeInt;
-	CCast_FpFromEnum m_FromEnum;
+	Cast_FpTrunc m_trunc;
+	Cast_FpExt m_ext;
+	Cast_FpFromInt m_fromInt;
+	Cast_FpFromInt_u m_fromInt_u;
+	Cast_FpFromBeInt m_fromBeInt;
+	Cast_FpFromEnum m_fromEnum;
 
 public:
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		);
 };
 

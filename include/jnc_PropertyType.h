@@ -9,195 +9,195 @@
 
 namespace jnc {
 
-class CPropertyPtrType;
-class CClassType;
+class PropertyPtrType;
+class ClassType;
 
-struct TPropertyPtrTypeTuple;
+struct PropertyPtrTypeTuple;
 
 //.............................................................................
 
-enum EPropertyTypeFlag
+enum PropertyTypeFlagKind
 {
-	EPropertyTypeFlag_Const    = 0x010000,
-	EPropertyTypeFlag_Bindable = 0x020000,
-	EPropertyTypeFlag_Throws   = 0x040000,
+	PropertyTypeFlagKind_Const    = 0x010000,
+	PropertyTypeFlagKind_Bindable = 0x020000,
+	PropertyTypeFlagKind_Throws   = 0x040000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-EPropertyTypeFlag
-GetFirstPropertyTypeFlag (uint_t Flags)
+PropertyTypeFlagKind
+getFirstPropertyTypeFlag (uint_t flags)
 {
-	return (EPropertyTypeFlag) (1 << rtl::GetLoBitIdx (Flags));
+	return (PropertyTypeFlagKind) (1 << rtl::getLoBitIdx (flags));
 }
 
 const char*
-GetPropertyTypeFlagString (EPropertyTypeFlag Flag);
+getPropertyTypeFlagString (PropertyTypeFlagKind flag);
 
-rtl::CString
-GetPropertyTypeFlagString (uint_t Flags);
+rtl::String
+getPropertyTypeFlagString (uint_t flags);
 
 inline
 const char*
-GetFirstPropertyTypeFlagString (uint_t Flags)
+getFirstPropertyTypeFlagString (uint_t flags)
 {
-	return GetPropertyTypeFlagString (GetFirstPropertyTypeFlag (Flags));
+	return getPropertyTypeFlagString (getFirstPropertyTypeFlag (flags));
 }
 
 //.............................................................................
 
-enum EPropertyPtrType
+enum PropertyPtrTypeKind
 {
-	EPropertyPtrType_Normal = 0,
-	EPropertyPtrType_Weak,
-	EPropertyPtrType_Thin,
-	EPropertyPtrType__Count,
+	PropertyPtrTypeKind_Normal = 0,
+	PropertyPtrTypeKind_Weak,
+	PropertyPtrTypeKind_Thin,
+	PropertyPtrTypeKind__Count,
 };
 
 const char*
-GetPropertyPtrTypeKindString (EPropertyPtrType PtrTypeKind);
+getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 
-class CPropertyType: public CType
+class PropertyType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	CFunctionType* m_pGetterType;
-	CFunctionTypeOverload m_SetterType;
-	CFunctionType* m_pBinderType;
-	CPropertyType* m_pStdObjectMemberPropertyType;
-	CPropertyType* m_pShortType;
-	CStructType* m_pVTableStructType;
-	TPropertyPtrTypeTuple* m_pPropertyPtrTypeTuple;
+	FunctionType* m_getterType;
+	FunctionTypeOverload m_setterType;
+	FunctionType* m_binderType;
+	PropertyType* m_stdObjectMemberPropertyType;
+	PropertyType* m_shortType;
+	StructType* m_pVTableStructType;
+	PropertyPtrTypeTuple* m_propertyPtrTypeTuple;
 
-	rtl::CString m_BindableEventName;
-	rtl::CString m_TypeModifierString;
+	rtl::String m_bindableEventName;
+	rtl::String m_typeModifierString;
 
 public:
-	CPropertyType ();
+	PropertyType ();
 
 	bool
-	IsReadOnly ()
+	isReadOnly ()
 	{
-		return m_SetterType.IsEmpty ();
-	}
-
-	bool
-	IsIndexed ()
-	{
-		return !m_pGetterType->GetArgArray ().IsEmpty ();
+		return m_setterType.isEmpty ();
 	}
 
 	bool
-	IsMemberPropertyType ()
+	isIndexed ()
 	{
-		return m_pGetterType->IsMemberMethodType ();
+		return !m_getterType->getArgArray ().isEmpty ();
 	}
 
-	CType*
-	GetThisArgType ()
+	bool
+	isMemberPropertyType ()
 	{
-		return m_pGetterType->GetThisArgType ();
+		return m_getterType->isMemberMethodType ();
 	}
 
-	CNamedType*
-	GetThisTargetType ()
+	Type*
+	getThisArgType ()
 	{
-		return m_pGetterType->GetThisTargetType ();
+		return m_getterType->getThisArgType ();
 	}
 
-	CFunctionType*
-	GetGetterType ()
+	NamedType*
+	getThisTargetType ()
 	{
-		return m_pGetterType;
+		return m_getterType->getThisTargetType ();
 	}
 
-	CFunctionTypeOverload*
-	GetSetterType ()
+	FunctionType*
+	getGetterType ()
 	{
-		return &m_SetterType;
+		return m_getterType;
 	}
 
-	CFunctionType*
-	GetBinderType ()
+	FunctionTypeOverload*
+	getSetterType ()
 	{
-		return m_pBinderType;
+		return &m_setterType;
 	}
 
-	CType*
-	GetReturnType ()
+	FunctionType*
+	getBinderType ()
 	{
-		ASSERT (m_pGetterType);
-		return m_pGetterType->GetReturnType ();
+		return m_binderType;
 	}
 
-	CPropertyType*
-	GetMemberPropertyType (CClassType* pType);
+	Type*
+	getReturnType ()
+	{
+		ASSERT (m_getterType);
+		return m_getterType->getReturnType ();
+	}
 
-	CPropertyType*
-	GetStdObjectMemberPropertyType ();
+	PropertyType*
+	getMemberPropertyType (ClassType* type);
 
-	CPropertyType*
-	GetShortType  ();
+	PropertyType*
+	getStdObjectMemberPropertyType ();
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		CNamespace* pNamespace,
-		EType TypeKind,
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyType*
+	getShortType  ();
+
+	PropertyPtrType*
+	getPropertyPtrType (
+		Namespace* nspace,
+		TypeKind typeKind,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		);
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		EType TypeKind,
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyPtrType*
+	getPropertyPtrType (
+		TypeKind typeKind,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetPropertyPtrType (NULL, TypeKind, PtrTypeKind, Flags);
+		return getPropertyPtrType (NULL, typeKind, ptrTypeKind, flags);
 	}
 
-	CPropertyPtrType*
-	GetPropertyPtrType (
-		EPropertyPtrType PtrTypeKind = EPropertyPtrType_Normal,
-		uint_t Flags = 0
+	PropertyPtrType*
+	getPropertyPtrType (
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
+		uint_t flags = 0
 		)
 	{
-		return GetPropertyPtrType (EType_PropertyPtr, PtrTypeKind, Flags);
+		return getPropertyPtrType (TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
-	CStructType*
-	GetVTableStructType ();
+	StructType*
+	getVTableStructType ();
 
-	rtl::CString
-	GetBindableEventName ()
+	rtl::String
+	getBindableEventName ()
 	{
-		return m_BindableEventName;
+		return m_bindableEventName;
 	}
 
-	rtl::CString
-	GetTypeModifierString ();
+	rtl::String
+	getTypeModifierString ();
 
 	static
-	rtl::CString
-	CreateSignature (
-		CFunctionType* pGetterType,
-		const CFunctionTypeOverload& SetterType,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		FunctionType* getterType,
+		const FunctionTypeOverload& setterType,
+		uint_t flags
 		);
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
 		ASSERT (false);
 	}
@@ -205,9 +205,9 @@ protected:
 
 //.............................................................................
 
-struct TSimplePropertyTypeTuple: rtl::TListLink
+struct SimplePropertyTypeTuple: rtl::ListLink
 {
-	CPropertyType* m_PropertyTypeArray [3] [2] [2]; // call-conv-family x const x bindable
+	PropertyType* m_propertyTypeArray [3] [2] [2]; // call-conv-family x const x bindable
 };
 
 //.............................................................................

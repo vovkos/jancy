@@ -8,259 +8,259 @@
 
 namespace jnc {
 
-class CModule;
-class CUnit;
-class CNamespace;
-class CAttributeBlock;
-class CClassType;
-class CFunction;
-class CProperty;
+class Module;
+class Unit;
+class Namespace;
+class AttributeBlock;
+class ClassType;
+class Function;
+class Property;
 
 //.............................................................................
 
-enum EModuleItem
+enum ModuleItemKind
 {
-	EModuleItem_Undefined = 0,
-	EModuleItem_Namespace,
-	EModuleItem_Scope,
-	EModuleItem_Type,
-	EModuleItem_Typedef,
-	EModuleItem_Alias,
-	EModuleItem_Const,
-	EModuleItem_Variable,
-	EModuleItem_FunctionArg,
-	EModuleItem_Function,
-	EModuleItem_Property,
-	EModuleItem_PropertyTemplate,
-	EModuleItem_EnumConst,
-	EModuleItem_StructField,
-	EModuleItem_BaseTypeSlot,
-	EModuleItem_Orphan,
-	EModuleItem_Lazy,
-	EModuleItem__Count,
+	ModuleItemKind_Undefined = 0,
+	ModuleItemKind_Namespace,
+	ModuleItemKind_Scope,
+	ModuleItemKind_Type,
+	ModuleItemKind_Typedef,
+	ModuleItemKind_Alias,
+	ModuleItemKind_Const,
+	ModuleItemKind_Variable,
+	ModuleItemKind_FunctionArg,
+	ModuleItemKind_Function,
+	ModuleItemKind_Property,
+	ModuleItemKind_PropertyTemplate,
+	ModuleItemKind_EnumConst,
+	ModuleItemKind_StructField,
+	ModuleItemKind_BaseTypeSlot,
+	ModuleItemKind_Orphan,
+	ModuleItemKind_Lazy,
+	ModuleItemKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetModuleItemKindString (EModuleItem ItemKind);
+getModuleItemKindString (ModuleItemKind itemKind);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EModuleItemFlag
+enum ModuleItemFlagKind
 {
-	EModuleItemFlag_User         = 0x01,
-	EModuleItemFlag_NeedLayout   = 0x02,
-	EModuleItemFlag_NeedCompile  = 0x04,
-	EModuleItemFlag_InCalcLayout = 0x10,
-	EModuleItemFlag_LayoutReady  = 0x20,
-	EModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
+	ModuleItemFlagKind_User         = 0x01,
+	ModuleItemFlagKind_NeedLayout   = 0x02,
+	ModuleItemFlagKind_NeedCompile  = 0x04,
+	ModuleItemFlagKind_InCalcLayout = 0x10,
+	ModuleItemFlagKind_LayoutReady  = 0x20,
+	ModuleItemFlagKind_Constructed  = 0x40, // fields, properties, base type slots
 };
 
 
 //.............................................................................
 
-enum EStorage
+enum StorageKind
 {
-	EStorage_Undefined = 0,
-	EStorage_Alias,
-	EStorage_Typedef,
-	EStorage_Static,
-	EStorage_Thread,
-	EStorage_Stack,
-	EStorage_Heap,
-	EStorage_UHeap,
-	EStorage_Member,
-	EStorage_Abstract,
-	EStorage_Virtual,
-	EStorage_Override,
-	EStorage_Mutable,
-	EStorage_This,
-	EStorage__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-GetStorageKindString (EStorage StorageKind);
-
-//.............................................................................
-
-enum EAccess
-{
-	EAccess_Undefined = 0,
-	EAccess_Public,
-	EAccess_Protected,
-	EAccess__Count,
+	StorageKind_Undefined = 0,
+	StorageKind_Alias,
+	StorageKind_Typedef,
+	StorageKind_Static,
+	StorageKind_Thread,
+	StorageKind_Stack,
+	StorageKind_Heap,
+	StorageKind_UHeap,
+	StorageKind_Member,
+	StorageKind_Abstract,
+	StorageKind_Virtual,
+	StorageKind_Override,
+	StorageKind_Mutable,
+	StorageKind_This,
+	StorageKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetAccessKindString (EAccess AccessKind);
+getStorageKindString (StorageKind storageKind);
 
 //.............................................................................
 
-class CModuleItemPos
+enum AccessKind
 {
-	friend class CParser;
+	AccessKind_Undefined = 0,
+	AccessKind_Public,
+	AccessKind_Protected,
+	AccessKind__Count,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+const char*
+getAccessKindString (AccessKind accessKind);
+
+//.............................................................................
+
+class ModuleItemPos
+{
+	friend class Parser;
 
 protected:
-	CUnit* m_pParentUnit;
-	CToken::CPos m_Pos;
+	Unit* m_parentUnit;
+	Token::Pos m_pos;
 
 public:
-	CModuleItemPos ()
+	ModuleItemPos ()
 	{
-		m_pParentUnit = NULL;
+		m_parentUnit = NULL;
 	}
 
-	CUnit*
-	GetParentUnit ()
+	Unit*
+	getParentUnit ()
 	{
-		return m_pParentUnit;
+		return m_parentUnit;
 	}
 
-	const CToken::CPos*
-	GetPos ()
+	const Token::Pos*
+	getPos ()
 	{
-		return &m_Pos;
+		return &m_pos;
 	}
 };
 
 //.............................................................................
 
-class CModuleItemInitializer
+class ModuleItemInitializer
 {
-	friend class CParser;
+	friend class Parser;
 
 protected:
-	rtl::CBoxListT <CToken> m_Initializer;
-	rtl::CString m_InitializerString;
+	rtl::BoxList <Token> m_initializer;
+	rtl::String m_initializerString;
 
 public:
-	rtl::CConstBoxListT <CToken>
-	GetInitializer ()
+	rtl::ConstBoxList <Token>
+	getInitializer ()
 	{
-		return m_Initializer;
+		return m_initializer;
 	}
 
-	rtl::CString
-	GetInitializerString ();
+	rtl::String
+	getInitializerString ();
 };
 
 //.............................................................................
 
-class CModuleItemDecl: public CModuleItemPos
+class ModuleItemDecl: public ModuleItemPos
 {
-	friend class CParser;
-	friend class CNamespace;
-	friend class CControlFlowMgr;
-	friend class COrphan;
+	friend class Parser;
+	friend class Namespace;
+	friend class ControlFlowMgr;
+	friend class Orphan;
 
 protected:
-	EStorage m_StorageKind;
-	EAccess m_AccessKind;
-	rtl::CString m_Name;
-	rtl::CString m_QualifiedName;
-	CNamespace* m_pParentNamespace;
-	CAttributeBlock* m_pAttributeBlock;
+	StorageKind m_storageKind;
+	AccessKind m_accessKind;
+	rtl::String m_name;
+	rtl::String m_qualifiedName;
+	Namespace* m_parentNamespace;
+	AttributeBlock* m_attributeBlock;
 
 public:
-	CModuleItemDecl ();
+	ModuleItemDecl ();
 
-	EStorage
-	GetStorageKind ()
+	StorageKind
+	getStorageKind ()
 	{
-		return m_StorageKind;
+		return m_storageKind;
 	}
 
-	EAccess
-	GetAccessKind ()
+	AccessKind
+	getAccessKind ()
 	{
-		return m_AccessKind;
+		return m_accessKind;
 	}
 
 	bool
-	IsNamed ()
+	isNamed ()
 	{
-		return !m_Name.IsEmpty ();
+		return !m_name.isEmpty ();
 	}
 
-	rtl::CString
-	GetName ()
+	rtl::String
+	getName ()
 	{
-		return m_Name;
+		return m_name;
 	}
 
-	rtl::CString
-	GetQualifiedName ()
+	rtl::String
+	getQualifiedName ()
 	{
-		return m_QualifiedName;
+		return m_qualifiedName;
 	}
 
-	CNamespace*
-	GetParentNamespace ()
+	Namespace*
+	getParentNamespace ()
 	{
-		return m_pParentNamespace;
+		return m_parentNamespace;
 	}
 
-	CAttributeBlock*
-	GetAttributeBlock ()
+	AttributeBlock*
+	getAttributeBlock ()
 	{
-		return m_pAttributeBlock;
+		return m_attributeBlock;
 	}
 };
 
 //.............................................................................
 
-class CModuleItem: public rtl::TListLink
+class ModuleItem: public rtl::ListLink
 {
-	friend class CModule;
-	friend class CParser;
+	friend class Module;
+	friend class Parser;
 
 protected:
-	CModule* m_pModule;
-	EModuleItem m_ItemKind;
-	uint_t m_Flags;
-	CModuleItemDecl* m_pItemDecl;
+	Module* m_module;
+	ModuleItemKind m_itemKind;
+	uint_t m_flags;
+	ModuleItemDecl* m_itemDecl;
 
 public:
-	rtl::CString m_Tag;
+	rtl::String m_tag;
 
 public:
-	CModuleItem ();
+	ModuleItem ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
-	EModuleItem
-	GetItemKind ()
+	ModuleItemKind
+	getItemKind ()
 	{
-		return m_ItemKind;
+		return m_itemKind;
 	}
 
 	uint_t
-	GetFlags ()
+	getFlags ()
 	{
-		return m_Flags;
+		return m_flags;
 	}
 
-	CModuleItemDecl*
-	GetItemDecl ()
+	ModuleItemDecl*
+	getItemDecl ()
 	{
-		return m_pItemDecl;
+		return m_itemDecl;
 	}
 
 	bool
-	EnsureLayout ();
+	ensureLayout ();
 
 	virtual
 	bool
-	Compile ()
+	compile ()
 	{
 		ASSERT (false);
 		return true;
@@ -269,7 +269,7 @@ public:
 protected:
 	virtual
 	bool
-	CalcLayout ()
+	calcLayout ()
 	{
 		ASSERT (false);
 		return true;
@@ -278,59 +278,59 @@ protected:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CUserModuleItem:
-	public CModuleItem,
-	public CModuleItemDecl
+class UserModuleItem:
+	public ModuleItem,
+	public ModuleItemDecl
 {
 public:
-	CUserModuleItem ()
+	UserModuleItem ()
 	{
-		m_pItemDecl = this;
+		m_itemDecl = this;
 	}
 };
 
 //.............................................................................
 
-enum ELazyModuleItemFlag
+enum LazyModuleItemFlagKind
 {
-	ELazyModuleItemFlag_Touched = 0x010000,
+	LazyModuleItemFlagKind_Touched = 0x010000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CLazyModuleItem: public CUserModuleItem
+class LazyModuleItem: public UserModuleItem
 {
-	friend class CNamespace;
+	friend class Namespace;
 
 public:
-	CLazyModuleItem ()
+	LazyModuleItem ()
 	{
-		m_ItemKind = EModuleItem_Lazy;
+		m_itemKind = ModuleItemKind_Lazy;
 	}
 
 	virtual
-	CModuleItem*
-	GetActualItem () = 0;
+	ModuleItem*
+	getActualItem () = 0;
 };
 
 //.............................................................................
 
-CClassType*
-VerifyModuleItemIsClassType (
-	CModuleItem* pItem,
-	const char* pName
+ClassType*
+verifyModuleItemIsClassType (
+	ModuleItem* item,
+	const char* name
 	);
 
-CFunction*
-VerifyModuleItemIsFunction (
-	CModuleItem* pItem,
-	const char* pName
+Function*
+verifyModuleItemIsFunction (
+	ModuleItem* item,
+	const char* name
 	);
 
-CProperty*
-VerifyModuleItemIsProperty (
-	CModuleItem* pItem,
-	const char* pName
+Property*
+verifyModuleItemIsProperty (
+	ModuleItem* item,
+	const char* name
 	);
 
 //.............................................................................

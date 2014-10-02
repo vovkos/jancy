@@ -11,76 +11,76 @@ namespace jnc {
 
 //.............................................................................
 
-enum EArrayTypeFlag
+enum ArrayTypeFlagKind
 {
-	EArrayTypeFlag_AutoSize = 0x010000,
+	ArrayTypeFlagKind_AutoSize = 0x010000,
 };
 
 //.............................................................................
 
-class CArrayType: public CType
+class ArrayType: public Type
 {
-	friend class CTypeMgr;
-	friend class CParser;
+	friend class TypeMgr;
+	friend class Parser;
 
 protected:
-	CType* m_pElementType;
-	CImportType* m_pElementType_i;
-	CType* m_pRootType;
-	size_t m_ElementCount;
+	Type* m_elementType;
+	ImportType* m_elementType_i;
+	Type* m_rootType;
+	size_t m_elementCount;
 
-	rtl::CBoxListT <CToken> m_ElementCountInitializer;
-	CUnit* m_pParentUnit;
-	CNamespace* m_pParentNamespace;
+	rtl::BoxList <Token> m_elementCountInitializer;
+	Unit* m_parentUnit;
+	Namespace* m_parentNamespace;
 
 public:
-	CArrayType ();
+	ArrayType ();
 
-	CType*
-	GetElementType ()
+	Type*
+	getElementType ()
 	{
-		return m_pElementType;
+		return m_elementType;
 	}
 
-	CImportType*
-	GetElementType_i ()
+	ImportType*
+	getElementType_i ()
 	{
-		return m_pElementType_i;
+		return m_elementType_i;
 	}
 
-	CType*
-	GetRootType ();
+	Type*
+	getRootType ();
 
 	size_t
-	GetElementCount ()
+	getElementCount ()
 	{
-		return m_ElementCount;
+		return m_elementCount;
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetElementCountInitializer ()
+	rtl::ConstBoxList <Token>
+	getElementCountInitializer ()
 	{
-		return m_ElementCountInitializer;
+		return m_elementCountInitializer;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CType* pElementType,
-		size_t ElementCount
+	rtl::String
+	createSignature (
+		Type* elementType,
+		size_t elementCount
 		)
 	{
-		return rtl::CString::Format_s (
+		return rtl::String::format_s (
 			"A%d%s",
-			ElementCount,
-			pElementType->GetSignature ().cc () // thanks a lot gcc
+			elementCount,
+			elementType->getSignature ().cc () // thanks a lot gcc
 			);
 	}
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
@@ -88,52 +88,52 @@ public:
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ()
+	prepareLlvmType ()
 	{
-		ASSERT (m_ElementCount != -1);
-		m_pLlvmType = llvm::ArrayType::get (m_pElementType->GetLlvmType (), m_ElementCount);
+		ASSERT (m_elementCount != -1);
+		m_llvmType = llvm::ArrayType::get (m_elementType->getLlvmType (), m_elementCount);
 	}
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 };
 
 //.............................................................................
 
 inline
 bool
-IsAutoSizeArrayType (CType* pType)
+isAutoSizeArrayType (Type* type)
 {
 	return
-		pType->GetTypeKind () == EType_Array &&
-		(pType->GetFlags () & EArrayTypeFlag_AutoSize) != 0;
+		type->getTypeKind () == TypeKind_Array &&
+		(type->getFlags () & ArrayTypeFlagKind_AutoSize) != 0;
 }
 
 inline
 bool
-IsCharArrayType (CType* pType)
+isCharArrayType (Type* type)
 {
 	return
-		pType->GetTypeKind () == EType_Array &&
-		((CArrayType*) pType)->GetElementType ()->GetTypeKind () == EType_Char;
+		type->getTypeKind () == TypeKind_Array &&
+		((ArrayType*) type)->getElementType ()->getTypeKind () == TypeKind_Char;
 }
 
 inline
 bool
-IsCharArrayRefType (CType* pType)
+isCharArrayRefType (Type* type)
 {
 	return
-		pType->GetTypeKind () == EType_DataRef &&
-		IsCharArrayType (((CDataPtrType*) pType)->GetTargetType ());
+		type->getTypeKind () == TypeKind_DataRef &&
+		isCharArrayType (((DataPtrType*) type)->getTargetType ());
 }
 
 //.............................................................................

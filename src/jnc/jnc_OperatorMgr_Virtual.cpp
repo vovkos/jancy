@@ -7,135 +7,135 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::GetClassVTable (
-	const CValue& OpValue,
-	CClassType* pClassType,
-	CValue* pResultValue
+OperatorMgr::getClassVTable (
+	const Value& opValue,
+	ClassType* classType,
+	Value* resultValue
 	)
 {
-	int32_t LlvmIndexArray [] =
+	int32_t llvmIndexArray [] =
 	{
 		0, // class.iface*
 		0, // class.iface.hdr*
 		0, // class.vtbl**
 	};
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep (
-		OpValue,
-		LlvmIndexArray,
-		countof (LlvmIndexArray),
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createGep (
+		opValue,
+		llvmIndexArray,
+		countof (llvmIndexArray),
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
 	// class.vtbl*
 
-	CDataPtrType* pResultType = pClassType->GetVTableStructType ()->GetDataPtrType_c ();
-	m_pModule->m_LlvmIrBuilder.CreateLoad (PtrValue, pResultType, pResultValue);
+	DataPtrType* resultType = classType->getVTableStructType ()->getDataPtrType_c ();
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, resultType, resultValue);
 	return true;
 }
 
 bool
-COperatorMgr::GetVirtualMethod (
-	CFunction* pFunction,
-	CClosure* pClosure,
-	CValue* pResultValue
+OperatorMgr::getVirtualMethod (
+	Function* function,
+	Closure* closure,
+	Value* resultValue
 	)
 {
-	ASSERT (pFunction->IsVirtual ());
+	ASSERT (function->isVirtual ());
 
-	if (!pClosure || !pClosure->IsMemberClosure ())
+	if (!closure || !closure->isMemberClosure ())
 	{
-		err::SetFormatStringError ("virtual function requires an object pointer");
+		err::setFormatStringError ("virtual function requires an object pointer");
 		return false;
 	}
 
-	CValue Value = *pClosure->GetArgValueList ()->GetHead ();
-	CClassType* pClassType = ((CClassPtrType*) Value.GetType ())->GetTargetType ();
-	CClassType* pVTableType = pFunction->GetVirtualOriginClassType ();
-	size_t VTableIndex = pFunction->GetClassVTableIndex ();
+	Value value = *closure->getArgValueList ()->getHead ();
+	ClassType* classType = ((ClassPtrType*) value.getType ())->getTargetType ();
+	ClassType* pVTableType = function->getVirtualOriginClassType ();
+	size_t VTableIndex = function->getClassVTableIndex ();
 
-	CBaseTypeCoord Coord;
-	pClassType->FindBaseTypeTraverse (pVTableType, &Coord);
-	VTableIndex += Coord.m_VTableIndex;
+	BaseTypeCoord coord;
+	classType->findBaseTypeTraverse (pVTableType, &coord);
+	VTableIndex += coord.m_VTableIndex;
 
 	// class.vtbl*
 
-	CValue PtrValue;
-	GetClassVTable (Value, pClassType, &PtrValue);
+	Value ptrValue;
+	getClassVTable (value, classType, &ptrValue);
 
 	// pf*
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (
-		PtrValue,
+	m_module->m_llvmIrBuilder.createGep2 (
+		ptrValue,
 		VTableIndex,
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
 	// pf
 
-	m_pModule->m_LlvmIrBuilder.CreateLoad (
-		PtrValue,
+	m_module->m_llvmIrBuilder.createLoad (
+		ptrValue,
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
-	pResultValue->SetLlvmValue (
-		PtrValue.GetLlvmValue (),
-		pFunction->GetType ()->GetFunctionPtrType (EFunctionPtrType_Thin)
+	resultValue->setLlvmValue (
+		ptrValue.getLlvmValue (),
+		function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin)
 		);
 
-	pResultValue->SetClosure (pClosure);
+	resultValue->setClosure (closure);
 	return true;
 }
 
 bool
-COperatorMgr::GetVirtualProperty (
-	CProperty* pProperty,
-	CClosure* pClosure,
-	CValue* pResultValue
+OperatorMgr::getVirtualProperty (
+	Property* prop,
+	Closure* closure,
+	Value* resultValue
 	)
 {
-	ASSERT (pProperty->IsVirtual ());
+	ASSERT (prop->isVirtual ());
 
-	if (!pClosure || !pClosure->IsMemberClosure ())
+	if (!closure || !closure->isMemberClosure ())
 	{
-		err::SetFormatStringError ("virtual property requires an object pointer");
+		err::setFormatStringError ("virtual property requires an object pointer");
 		return false;
 	}
 
-	CValue Value = *pClosure->GetArgValueList ()->GetHead ();
-	CClassType* pClassType = ((CClassPtrType*) Value.GetType ())->GetTargetType ();
-	size_t VTableIndex = pProperty->GetParentClassVTableIndex ();
+	Value value = *closure->getArgValueList ()->getHead ();
+	ClassType* classType = ((ClassPtrType*) value.getType ())->getTargetType ();
+	size_t VTableIndex = prop->getParentClassVTableIndex ();
 
-	CBaseTypeCoord Coord;
-	pClassType->FindBaseTypeTraverse (pProperty->GetParentType (), &Coord);
-	VTableIndex += Coord.m_VTableIndex;
+	BaseTypeCoord coord;
+	classType->findBaseTypeTraverse (prop->getParentType (), &coord);
+	VTableIndex += coord.m_VTableIndex;
 
 	// class.vtbl*
 
-	CValue PtrValue;
-	GetClassVTable (Value, pClassType, &PtrValue);
+	Value ptrValue;
+	getClassVTable (value, classType, &ptrValue);
 
 	// property.vtbl*
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (
-		PtrValue,
+	m_module->m_llvmIrBuilder.createGep2 (
+		ptrValue,
 		VTableIndex,
 		NULL,
-		&PtrValue
+		&ptrValue
 		);
 
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (
-		PtrValue,
-		pProperty->GetType ()->GetVTableStructType ()->GetDataPtrType_c (),
-		&PtrValue
+	m_module->m_llvmIrBuilder.createBitCast (
+		ptrValue,
+		prop->getType ()->getVTableStructType ()->getDataPtrType_c (),
+		&ptrValue
 		);
 
-	pResultValue->OverrideType (PtrValue, pProperty->GetType ()->GetPropertyPtrType (EPropertyPtrType_Thin));
-	pResultValue->SetClosure (pClosure);
+	resultValue->overrideType (ptrValue, prop->getType ()->getPropertyPtrType (PropertyPtrTypeKind_Thin));
+	resultValue->setClosure (closure);
 	return true;
 }
 

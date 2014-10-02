@@ -10,27 +10,27 @@ namespace jnc {
 
 //.............................................................................
 
-class CBinOp_At: public CBinaryOperator
+class BinOp_At: public BinaryOperator
 {
 public:
-	CBinOp_At ()
+	BinOp_At ()
 	{
-		m_OpKind = EBinOp_At;
+		m_opKind = BinOpKind_At;
 	}
 
 	virtual
-	CType*
-	GetResultType (
-		const CValue& OpValue1,
-		const CValue& OpValue2
+	Type*
+	getResultType (
+		const Value& opValue1,
+		const Value& opValue2
 		);
 
 	virtual
 	bool
-	Operator (
-		const CValue& RawOpValue1,
-		const CValue& RawOpValue2,
-		CValue* pResultValue
+	op (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
 		);
 };
 

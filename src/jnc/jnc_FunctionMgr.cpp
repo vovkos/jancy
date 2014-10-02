@@ -9,1102 +9,1102 @@ namespace jnc {
 
 //.............................................................................
 
-CFunctionMgr::CFunctionMgr ()
+FunctionMgr::FunctionMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_pCurrentFunction = NULL;
-	memset (m_StdFunctionArray, 0, sizeof (m_StdFunctionArray));
-	memset (m_LazyStdFunctionArray, 0, sizeof (m_LazyStdFunctionArray));
+	m_currentFunction = NULL;
+	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
+	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
 
-	mt::CallOnce (RegisterGcShadowStack, 0);
+	mt::callOnce (registerGcShadowStack, 0);
 }
 
 void
-CFunctionMgr::Clear ()
+FunctionMgr::clear ()
 {
-	m_LlvmFunctionMap.Clear ();
-	m_FunctionList.Clear ();
-	m_PropertyList.Clear ();
-	m_PropertyTemplateList.Clear ();
-	m_ScheduleLauncherFunctionList.Clear ();
-	m_ThunkFunctionList.Clear ();
-	m_ThunkPropertyList.Clear ();
-	m_DataThunkPropertyList.Clear ();
-	m_ThunkFunctionMap.Clear ();
-	m_ThunkPropertyMap.Clear ();
-	m_LazyStdFunctionList.Clear ();
-	m_ScheduleLauncherFunctionMap.Clear ();
-	m_EmissionContextStack.Clear ();
-	m_ThisValue.Clear ();
-	m_ScopeLevelValue.Clear ();
+	m_llvmFunctionMap.clear ();
+	m_functionList.clear ();
+	m_propertyList.clear ();
+	m_propertyTemplateList.clear ();
+	m_scheduleLauncherFunctionList.clear ();
+	m_thunkFunctionList.clear ();
+	m_thunkPropertyList.clear ();
+	m_dataThunkPropertyList.clear ();
+	m_thunkFunctionMap.clear ();
+	m_thunkPropertyMap.clear ();
+	m_lazyStdFunctionList.clear ();
+	m_scheduleLauncherFunctionMap.clear ();
+	m_emissionContextStack.clear ();
+	m_thisValue.clear ();
+	m_scopeLevelValue.clear ();
 
-	m_pCurrentFunction = NULL;
-	memset (m_StdFunctionArray, 0, sizeof (m_StdFunctionArray));
-	memset (m_LazyStdFunctionArray, 0, sizeof (m_LazyStdFunctionArray));
+	m_currentFunction = NULL;
+	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
+	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
 }
 
-CValue
-CFunctionMgr::OverrideThisValue (const CValue& Value)
+Value
+FunctionMgr::overrideThisValue (const Value& value)
 {
-	CValue PrevThisValue = m_ThisValue;
-	m_ThisValue = Value;
-	return PrevThisValue;
+	Value prevThisValue = m_thisValue;
+	m_thisValue = value;
+	return prevThisValue;
 }
 
-CFunction*
-CFunctionMgr::CreateFunction (
-	EFunction FunctionKind,
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	const rtl::CString& Tag,
-	CFunctionType* pType
+Function*
+FunctionMgr::createFunction (
+	FunctionKind functionKind,
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	const rtl::String& tag,
+	FunctionType* type
 	)
 {
-	CFunction* pFunction;
-	switch (FunctionKind)
+	Function* function;
+	switch (functionKind)
 	{
-	case EFunction_Thunk:
-		pFunction = AXL_MEM_NEW (CThunkFunction);
-		m_ThunkFunctionList.InsertTail ((CThunkFunction*) pFunction);
+	case FunctionKind_Thunk:
+		function = AXL_MEM_NEW (ThunkFunction);
+		m_thunkFunctionList.insertTail ((ThunkFunction*) function);
 		break;
 
-	case EFunction_ScheduleLauncher:
-		pFunction = AXL_MEM_NEW (CScheduleLauncherFunction);
-		m_ScheduleLauncherFunctionList.InsertTail ((CScheduleLauncherFunction*) pFunction);
+	case FunctionKind_ScheduleLauncher:
+		function = AXL_MEM_NEW (ScheduleLauncherFunction);
+		m_scheduleLauncherFunctionList.insertTail ((ScheduleLauncherFunction*) function);
 		break;
 
 	default:
-		pFunction = AXL_MEM_NEW (CFunction);
-		m_FunctionList.InsertTail (pFunction);
+		function = AXL_MEM_NEW (Function);
+		m_functionList.insertTail (function);
 	}
 
-	pFunction->m_pModule = m_pModule;
-	pFunction->m_FunctionKind = FunctionKind;
-	pFunction->m_Name = Name;
-	pFunction->m_QualifiedName = QualifiedName;
-	pFunction->m_Tag = Tag;
-	pFunction->m_pType = pType;
-	pFunction->m_TypeOverload.AddOverload (pType);
-	return pFunction;
+	function->m_module = m_module;
+	function->m_functionKind = functionKind;
+	function->m_name = name;
+	function->m_qualifiedName = qualifiedName;
+	function->m_tag = tag;
+	function->m_type = type;
+	function->m_typeOverload.addOverload (type);
+	return function;
 }
 
-CProperty*
-CFunctionMgr::CreateProperty (
-	EProperty PropertyKind,
-	const rtl::CString& Name,
-	const rtl::CString& QualifiedName,
-	const rtl::CString& Tag
+Property*
+FunctionMgr::createProperty (
+	PropertyKind propertyKind,
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	const rtl::String& tag
 	)
 {
-	CProperty* pProperty;
+	Property* prop;
 
-	switch (PropertyKind)
+	switch (propertyKind)
 	{
-	case EProperty_Thunk:
-		pProperty = AXL_MEM_NEW (CThunkProperty);
-		m_ThunkPropertyList.InsertTail ((CThunkProperty*) pProperty);
+	case PropertyKind_Thunk:
+		prop = AXL_MEM_NEW (ThunkProperty);
+		m_thunkPropertyList.insertTail ((ThunkProperty*) prop);
 		break;
 
-	case EProperty_DataThunk:
-		pProperty = AXL_MEM_NEW (CDataThunkProperty);
-		m_DataThunkPropertyList.InsertTail ((CDataThunkProperty*) pProperty);
+	case PropertyKind_DataThunk:
+		prop = AXL_MEM_NEW (DataThunkProperty);
+		m_dataThunkPropertyList.insertTail ((DataThunkProperty*) prop);
 		break;
 
 	default:
-		pProperty = AXL_MEM_NEW (CProperty);
-		m_PropertyList.InsertTail (pProperty);
+		prop = AXL_MEM_NEW (Property);
+		m_propertyList.insertTail (prop);
 	}
 
-	pProperty->m_pModule = m_pModule;
-	pProperty->m_PropertyKind = PropertyKind;
-	pProperty->m_Name = Name;
-	pProperty->m_QualifiedName = QualifiedName;
-	pProperty->m_Tag = Tag;
-	m_pModule->MarkForLayout (pProperty, true);
-	return pProperty;
+	prop->m_module = m_module;
+	prop->m_propertyKind = propertyKind;
+	prop->m_name = name;
+	prop->m_qualifiedName = qualifiedName;
+	prop->m_tag = tag;
+	m_module->markForLayout (prop, true);
+	return prop;
 }
 
-CPropertyTemplate*
-CFunctionMgr::CreatePropertyTemplate ()
+PropertyTemplate*
+FunctionMgr::createPropertyTemplate ()
 {
-	CPropertyTemplate* pPropertyTemplate = AXL_MEM_NEW (CPropertyTemplate);
-	pPropertyTemplate->m_pModule = m_pModule;
-	m_PropertyTemplateList.InsertTail (pPropertyTemplate);
-	return pPropertyTemplate;
+	PropertyTemplate* propertyTemplate = AXL_MEM_NEW (PropertyTemplate);
+	propertyTemplate->m_module = m_module;
+	m_propertyTemplateList.insertTail (propertyTemplate);
+	return propertyTemplate;
 }
 
 #pragma AXL_TODO ("get rid of emission context stack: postpone compilation of nested function")
 
 void
-CFunctionMgr::PushEmissionContext ()
+FunctionMgr::pushEmissionContext ()
 {
-	if (!m_pCurrentFunction)
+	if (!m_currentFunction)
 		return;
 
-	TEmissionContext* pContext = AXL_MEM_NEW (TEmissionContext);
-	pContext->m_pCurrentFunction = m_pCurrentFunction;
-	pContext->m_ThisValue = m_ThisValue;
-	pContext->m_ScopeLevelValue = m_ScopeLevelValue;
-	pContext->m_TmpStackGcRootList.TakeOver (&m_pModule->m_OperatorMgr.m_TmpStackGcRootList);
+	EmissionContext* context = AXL_MEM_NEW (EmissionContext);
+	context->m_currentFunction = m_currentFunction;
+	context->m_thisValue = m_thisValue;
+	context->m_scopeLevelValue = m_scopeLevelValue;
+	context->m_tmpStackGcRootList.takeOver (&m_module->m_operatorMgr.m_tmpStackGcRootList);
 
-	pContext->m_pCurrentNamespace = m_pModule->m_NamespaceMgr.m_pCurrentNamespace;
-	pContext->m_pCurrentScope = m_pModule->m_NamespaceMgr.m_pCurrentScope;
-	pContext->m_ScopeLevelStack.TakeOver (&m_pModule->m_NamespaceMgr.m_ScopeLevelStack);
+	context->m_currentNamespace = m_module->m_namespaceMgr.m_currentNamespace;
+	context->m_currentScope = m_module->m_namespaceMgr.m_currentScope;
+	context->m_scopeLevelStack.takeOver (&m_module->m_namespaceMgr.m_scopeLevelStack);
 
-	pContext->m_ReturnBlockArray = m_pModule->m_ControlFlowMgr.m_ReturnBlockArray;
-	pContext->m_pCurrentBlock = m_pModule->m_ControlFlowMgr.m_pCurrentBlock;
-	pContext->m_pUnreachableBlock = m_pModule->m_ControlFlowMgr.m_pUnreachableBlock;
-	pContext->m_ControlFlowMgrFlags = m_pModule->m_ControlFlowMgr.m_Flags;
-	pContext->m_LlvmDebugLoc = m_pModule->m_LlvmIrBuilder.GetCurrentDebugLoc ();
+	context->m_returnBlockArray = m_module->m_controlFlowMgr.m_returnBlockArray;
+	context->m_currentBlock = m_module->m_controlFlowMgr.m_currentBlock;
+	context->m_unreachableBlock = m_module->m_controlFlowMgr.m_unreachableBlock;
+	context->m_controlFlowMgrFlags = m_module->m_controlFlowMgr.m_flags;
+	context->m_llvmDebugLoc = m_module->m_llvmIrBuilder.getCurrentDebugLoc ();
 
-	m_EmissionContextStack.InsertTail (pContext);
+	m_emissionContextStack.insertTail (context);
 
-	m_pModule->m_NamespaceMgr.m_ScopeLevelStack.Clear ();
-	m_pModule->m_NamespaceMgr.m_pCurrentNamespace = &m_pModule->m_NamespaceMgr.m_GlobalNamespace;
-	m_pModule->m_NamespaceMgr.m_pCurrentScope = NULL;
+	m_module->m_namespaceMgr.m_scopeLevelStack.clear ();
+	m_module->m_namespaceMgr.m_currentNamespace = &m_module->m_namespaceMgr.m_globalNamespace;
+	m_module->m_namespaceMgr.m_currentScope = NULL;
 
-	m_pModule->m_ControlFlowMgr.m_ReturnBlockArray.Clear ();
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (NULL);
-	m_pModule->m_ControlFlowMgr.m_pUnreachableBlock = NULL;
-	m_pModule->m_ControlFlowMgr.m_Flags = 0;
-	m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (llvm::DebugLoc ());
+	m_module->m_controlFlowMgr.m_returnBlockArray.clear ();
+	m_module->m_controlFlowMgr.setCurrentBlock (NULL);
+	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
+	m_module->m_controlFlowMgr.m_flags = 0;
+	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
 	// m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (m_pModule->m_LlvmDiBuilder.GetEmptyDebugLoc ());
 
-	m_pModule->m_VariableMgr.DeallocateTlsVariableArray (m_pCurrentFunction->m_TlsVariableArray);
+	m_module->m_variableMgr.deallocateTlsVariableArray (m_currentFunction->m_tlsVariableArray);
 
-	m_pCurrentFunction = NULL;
-	m_ThisValue.Clear ();
-	m_ScopeLevelValue.Clear ();
+	m_currentFunction = NULL;
+	m_thisValue.clear ();
+	m_scopeLevelValue.clear ();
 }
 
 void
-CFunctionMgr::PopEmissionContext ()
+FunctionMgr::popEmissionContext ()
 {
-	ASSERT (m_pCurrentFunction);
-	m_pModule->m_VariableMgr.DeallocateTlsVariableArray (m_pCurrentFunction->m_TlsVariableArray);
+	ASSERT (m_currentFunction);
+	m_module->m_variableMgr.deallocateTlsVariableArray (m_currentFunction->m_tlsVariableArray);
 
-	if (m_EmissionContextStack.IsEmpty ())
+	if (m_emissionContextStack.isEmpty ())
 	{
-		m_pCurrentFunction = NULL;
-		m_ThisValue.Clear ();
-		m_ScopeLevelValue.Clear ();
-		m_pModule->m_NamespaceMgr.m_ScopeLevelStack.Clear ();
-		m_pModule->m_OperatorMgr.m_TmpStackGcRootList.Clear ();
+		m_currentFunction = NULL;
+		m_thisValue.clear ();
+		m_scopeLevelValue.clear ();
+		m_module->m_namespaceMgr.m_scopeLevelStack.clear ();
+		m_module->m_operatorMgr.m_tmpStackGcRootList.clear ();
 		return;
 	}
 
-	TEmissionContext* pContext = m_EmissionContextStack.RemoveTail ();
-	m_pCurrentFunction = pContext->m_pCurrentFunction;
-	m_ThisValue = pContext->m_ThisValue;
-	m_ScopeLevelValue = pContext->m_ScopeLevelValue;
-	m_pModule->m_OperatorMgr.m_TmpStackGcRootList.TakeOver (&pContext->m_TmpStackGcRootList);
+	EmissionContext* context = m_emissionContextStack.removeTail ();
+	m_currentFunction = context->m_currentFunction;
+	m_thisValue = context->m_thisValue;
+	m_scopeLevelValue = context->m_scopeLevelValue;
+	m_module->m_operatorMgr.m_tmpStackGcRootList.takeOver (&context->m_tmpStackGcRootList);
 
-	m_pModule->m_NamespaceMgr.m_pCurrentNamespace = pContext->m_pCurrentNamespace;
-	m_pModule->m_NamespaceMgr.m_pCurrentScope = pContext->m_pCurrentScope;
-	m_pModule->m_NamespaceMgr.m_ScopeLevelStack.TakeOver (&pContext->m_ScopeLevelStack);
+	m_module->m_namespaceMgr.m_currentNamespace = context->m_currentNamespace;
+	m_module->m_namespaceMgr.m_currentScope = context->m_currentScope;
+	m_module->m_namespaceMgr.m_scopeLevelStack.takeOver (&context->m_scopeLevelStack);
 
-	m_pModule->m_ControlFlowMgr.m_ReturnBlockArray = pContext->m_ReturnBlockArray;
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pContext->m_pCurrentBlock);
-	m_pModule->m_ControlFlowMgr.m_pUnreachableBlock = pContext->m_pUnreachableBlock;
-	m_pModule->m_ControlFlowMgr.m_Flags = pContext->m_ControlFlowMgrFlags;
-	m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (pContext->m_LlvmDebugLoc);
+	m_module->m_controlFlowMgr.m_returnBlockArray = context->m_returnBlockArray;
+	m_module->m_controlFlowMgr.setCurrentBlock (context->m_currentBlock);
+	m_module->m_controlFlowMgr.m_unreachableBlock = context->m_unreachableBlock;
+	m_module->m_controlFlowMgr.m_flags = context->m_controlFlowMgrFlags;
+	m_module->m_llvmIrBuilder.setCurrentDebugLoc (context->m_llvmDebugLoc);
 
-	AXL_MEM_DELETE (pContext);
+	AXL_MEM_DELETE (context);
 
-	m_pModule->m_VariableMgr.RestoreTlsVariableArray (m_pCurrentFunction->m_TlsVariableArray);
+	m_module->m_variableMgr.restoreTlsVariableArray (m_currentFunction->m_tlsVariableArray);
 }
 
 bool
-CFunctionMgr::FireOnChanged ()
+FunctionMgr::fireOnChanged ()
 {
-	CFunction* pFunction = m_pCurrentFunction;
+	Function* function = m_currentFunction;
 
 	ASSERT (
-		pFunction->m_FunctionKind == EFunction_Setter &&
-		pFunction->m_pProperty &&
-		pFunction->m_pProperty->GetType ()->GetFlags () & EPropertyTypeFlag_Bindable
+		function->m_functionKind == FunctionKind_Setter &&
+		function->m_property &&
+		function->m_property->getType ()->getFlags () & PropertyTypeFlagKind_Bindable
 		);
 
-	CValue PropertyValue = pFunction->m_pProperty;
+	Value propertyValue = function->m_property;
 
-	if (pFunction->m_pThisType)
+	if (function->m_thisType)
 	{
-		ASSERT (m_ThisValue);
-		PropertyValue.InsertToClosureHead (m_ThisValue);
+		ASSERT (m_thisValue);
+		propertyValue.insertToClosureHead (m_thisValue);
 	}
 
-	CValue OnChanged;
+	Value onChanged;
 
 	return
-		m_pModule->m_OperatorMgr.GetPropertyOnChanged (PropertyValue, &OnChanged) &&
-		m_pModule->m_OperatorMgr.MemberOperator (&OnChanged, "call") &&
-		m_pModule->m_OperatorMgr.CallOperator (OnChanged);
+		m_module->m_operatorMgr.getPropertyOnChanged (propertyValue, &onChanged) &&
+		m_module->m_operatorMgr.memberOperator (&onChanged, "call") &&
+		m_module->m_operatorMgr.callOperator (onChanged);
 }
 
-CFunction*
-CFunctionMgr::SetCurrentFunction (CFunction* pFunction)
+Function*
+FunctionMgr::setCurrentFunction (Function* function)
 {
-	CFunction* pPrevFunction = m_pCurrentFunction;
-	m_pCurrentFunction = pFunction;
-	return pPrevFunction;
+	Function* prevFunction = m_currentFunction;
+	m_currentFunction = function;
+	return prevFunction;
 }
 
 bool
-CFunctionMgr::Prologue (
-	CFunction* pFunction,
-	const CToken::CPos& Pos
+FunctionMgr::prologue (
+	Function* function,
+	const Token::Pos& pos
 	)
 {
-	bool Result;
+	bool result;
 
-	PushEmissionContext ();
+	pushEmissionContext ();
 
-	m_pCurrentFunction = pFunction;
+	m_currentFunction = function;
 
 	// create scope
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (pFunction->m_pParentNamespace);
+	m_module->m_namespaceMgr.openNamespace (function->m_parentNamespace);
 
-	pFunction->m_pScope = m_pModule->m_NamespaceMgr.OpenScope (Pos);
+	function->m_scope = m_module->m_namespaceMgr.openScope (pos);
 
 	// create entry block (gc roots come here)
 
-	CBasicBlock* pEntryBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("function_entry");
-	CBasicBlock* pBodyBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("function_body");
+	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
 
-	pFunction->m_pEntryBlock = pEntryBlock;
-	pEntryBlock->MarkEntry ();
+	function->m_entryBlock = entryBlock;
+	entryBlock->markEntry ();
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pEntryBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
-	if (pFunction->m_FunctionKind == EFunction_ModuleConstructor)
+	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
-		bool Result = m_pModule->m_VariableMgr.AllocatePrimeStaticVariables ();
-		if (!Result)
+		bool result = m_module->m_variableMgr.allocatePrimeStaticVariables ();
+		if (!result)
 			return false;
 	}
 	else // do not save / restore scope level in module constructor
 	{
-		CVariable* pVariable = m_pModule->m_VariableMgr.GetStdVariable (EStdVariable_ScopeLevel);
-		m_pModule->m_LlvmIrBuilder.CreateLoad (pVariable, NULL, &m_ScopeLevelValue);
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
 	}
 
-	m_pModule->m_ControlFlowMgr.Jump (pBodyBlock, pBodyBlock);
-	m_pModule->m_ControlFlowMgr.m_pUnreachableBlock = NULL;
-	m_pModule->m_ControlFlowMgr.m_Flags = 0; // clear jump flag
+	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
+	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
+	m_module->m_controlFlowMgr.m_flags = 0; // clear jump flag
 
 	// save scope level
 
-	if (pFunction->m_FunctionKind == EFunction_ModuleConstructor)
+	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
-		Result = m_pModule->m_VariableMgr.InitializeGlobalStaticVariables ();
-		if (!Result)
+		result = m_module->m_variableMgr.initializeGlobalStaticVariables ();
+		if (!result)
 			return false;
 	}
 
-	pFunction->GetType ()->GetCallConv ()->CreateArgVariables (pFunction);
+	function->getType ()->getCallConv ()->createArgVariables (function);
 
 	// 'this' arg
 
-	if (pFunction->IsMember ())
-		CreateThisValue ();
+	if (function->isMember ())
+		createThisValue ();
 
 	// static initializers
 
-	if (pFunction->m_FunctionKind == EFunction_StaticConstructor)
+	if (function->m_functionKind == FunctionKind_StaticConstructor)
 	{
-		CDerivableType* pType = pFunction->GetParentType ();
-		pType->InitializeStaticFields ();
+		DerivableType* type = function->getParentType ();
+		type->initializeStaticFields ();
 	}
 
 	return true;
 }
 
 void
-CFunctionMgr::CreateThisValue ()
+FunctionMgr::createThisValue ()
 {
-	CFunction* pFunction = m_pCurrentFunction;
-	ASSERT (pFunction && pFunction->IsMember ());
+	Function* function = m_currentFunction;
+	ASSERT (function && function->isMember ());
 
-	CValue ThisArgValue = pFunction->GetType ()->GetCallConv ()->GetThisArgValue (pFunction);
+	Value thisArgValue = function->getType ()->getCallConv ()->getThisArgValue (function);
 
-	if (pFunction->m_pThisArgType->Cmp (pFunction->m_pThisType) == 0)
+	if (function->m_thisArgType->cmp (function->m_thisType) == 0)
 	{
-		if (pFunction->m_pThisType->GetTypeKind () != EType_DataPtr)
+		if (function->m_thisType->getTypeKind () != TypeKind_DataPtr)
 		{
-			m_ThisValue = ThisArgValue;
+			m_thisValue = thisArgValue;
 		}
 		else // make it lean
 		{
 			ASSERT (
-				ThisArgValue.GetType ()->GetTypeKind () == EType_DataPtr &&
-				((CDataPtrType*) ThisArgValue.GetType ())->GetPtrTypeKind () == EDataPtrType_Normal);
+				thisArgValue.getType ()->getTypeKind () == TypeKind_DataPtr &&
+				((DataPtrType*) thisArgValue.getType ())->getPtrTypeKind () == DataPtrTypeKind_Normal);
 
-			CDataPtrType* pPtrType = ((CDataPtrType*) ThisArgValue.GetType ());
+			DataPtrType* ptrType = ((DataPtrType*) thisArgValue.getType ());
 
-			CValue PtrValue;
-			m_pModule->m_LlvmIrBuilder.CreateExtractValue (ThisArgValue, 0, NULL, &PtrValue);
+			Value ptrValue;
+			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 0, NULL, &ptrValue);
 
-			pPtrType = pPtrType->GetTargetType ()->GetDataPtrType (EDataPtrType_Lean, pPtrType->GetFlags ());
-			m_ThisValue.SetLeanDataPtr (PtrValue.GetLlvmValue (), pPtrType, ThisArgValue);
+			ptrType = ptrType->getTargetType ()->getDataPtrType (DataPtrTypeKind_Lean, ptrType->getFlags ());
+			m_thisValue.setLeanDataPtr (ptrValue.getLlvmValue (), ptrType, thisArgValue);
 		}
 	}
 	else
 	{
-		ASSERT (pFunction->m_StorageKind == EStorage_Override && pFunction->m_ThisArgDelta < 0);
+		ASSERT (function->m_storageKind == StorageKind_Override && function->m_thisArgDelta < 0);
 
-		CValue PtrValue;
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (ThisArgValue, m_pModule->GetSimpleType (EStdType_BytePtr), &PtrValue);
-		m_pModule->m_LlvmIrBuilder.CreateGep (PtrValue, (int32_t) pFunction->m_ThisArgDelta, NULL, &PtrValue);
-		m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pFunction->m_pThisType, &m_ThisValue);
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdTypeKind_BytePtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createGep (ptrValue, (int32_t) function->m_thisArgDelta, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, function->m_thisType, &m_thisValue);
 	}
 }
 
 bool
-CFunctionMgr::Epilogue ()
+FunctionMgr::epilogue ()
 {
-	bool Result;
+	bool result;
 
-	CFunction* pFunction = m_pCurrentFunction;
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
+	Function* function = m_currentFunction;
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	ASSERT (m_pCurrentFunction && pScope);
+	ASSERT (m_currentFunction && scope);
 
-	if (pFunction->m_FunctionKind == EFunction_Destructor)
+	if (function->m_functionKind == FunctionKind_Destructor)
 	{
-		ASSERT (pFunction->GetParentType ()->GetTypeKind () == EType_Class && m_ThisValue);
+		ASSERT (function->getParentType ()->getTypeKind () == TypeKind_Class && m_thisValue);
 
-		CClassType* pClassType = (CClassType*) pFunction->GetParentType ();
+		ClassType* classType = (ClassType*) function->getParentType ();
 
-		Result =
-			pClassType->CallMemberPropertyDestructors (m_ThisValue) &&
-			pClassType->CallMemberFieldDestructors (m_ThisValue) &&
-			pClassType->CallBaseTypeDestructors (m_ThisValue);
+		result =
+			classType->callMemberPropertyDestructors (m_thisValue) &&
+			classType->callMemberFieldDestructors (m_thisValue) &&
+			classType->callBaseTypeDestructors (m_thisValue);
 
-		if (!Result)
+		if (!result)
 			return false;
 	}
 
-	if (pFunction->m_FunctionKind == EFunction_ModuleDestructor)
-		m_pModule->m_VariableMgr.m_StaticDestructList.RunDestructors ();
+	if (function->m_functionKind == FunctionKind_ModuleDestructor)
+		m_module->m_variableMgr.m_staticDestructList.runDestructors ();
 
-	Result = m_pModule->m_ControlFlowMgr.CheckReturn ();
-	if (!Result)
+	result = m_module->m_controlFlowMgr.checkReturn ();
+	if (!result)
 		return false;
 
 	try
 	{
-		llvm::verifyFunction (*pFunction->GetLlvmFunction (), llvm::ReturnStatusAction);
+		llvm::verifyFunction (*function->getLlvmFunction (), llvm::ReturnStatusAction);
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetFormatStringError (
+		err::setFormatStringError (
 			"LLVM verification fail for '%s': %s",
-			pFunction->m_Tag.cc (),
-			Error->GetDescription ().cc ()
+			function->m_tag.cc (),
+			error->getDescription ().cc ()
 			);
 
 		return false;
 	}
 
-	m_pModule->m_NamespaceMgr.CloseScope ();
-	m_pModule->m_NamespaceMgr.CloseNamespace ();
+	m_module->m_namespaceMgr.closeScope ();
+	m_module->m_namespaceMgr.closeNamespace ();
 
-	PopEmissionContext ();
+	popEmissionContext ();
 	return true;
 }
 
 void
-CFunctionMgr::InternalPrologue (
-	CFunction* pFunction,
-	CValue* pArgValueArray,
-	size_t ArgCount
+FunctionMgr::internalPrologue (
+	Function* function,
+	Value* argValueArray,
+	size_t argCount
 	)
 {
-	PushEmissionContext ();
+	pushEmissionContext ();
 
-	m_pCurrentFunction = pFunction;
+	m_currentFunction = function;
 
-	m_pModule->m_NamespaceMgr.OpenInternalScope ();
-	m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (llvm::DebugLoc ());
+	m_module->m_namespaceMgr.openInternalScope ();
+	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
 
-	CBasicBlock* pEntryBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("function_entry");
-	CBasicBlock* pBodyBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("function_body");
+	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
 
-	pFunction->m_pEntryBlock = pEntryBlock;
-	pEntryBlock->MarkEntry ();
+	function->m_entryBlock = entryBlock;
+	entryBlock->markEntry ();
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pEntryBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
-	if (pFunction->m_FunctionKind != EFunction_ModuleConstructor) // do not save / restore scope level in module constructor
+	if (function->m_functionKind != FunctionKind_ModuleConstructor) // do not save / restore scope level in module constructor
 	{
-		CVariable* pVariable = m_pModule->m_VariableMgr.GetStdVariable (EStdVariable_ScopeLevel);
-		m_pModule->m_LlvmIrBuilder.CreateLoad (pVariable, NULL, &m_ScopeLevelValue);
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
 	}
 
-	m_pModule->m_ControlFlowMgr.Jump (pBodyBlock, pBodyBlock);
-	m_pModule->m_ControlFlowMgr.m_pUnreachableBlock = NULL;
-	m_pModule->m_ControlFlowMgr.m_Flags = 0;
+	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
+	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
+	m_module->m_controlFlowMgr.m_flags = 0;
 
-	if (pFunction->IsMember ())
-		CreateThisValue ();
+	if (function->isMember ())
+		createThisValue ();
 
-	if (ArgCount)
+	if (argCount)
 	{
-		llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
-		rtl::CArrayT <CFunctionArg*> ArgArray = pFunction->GetType ()->GetArgArray ();
+		llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+		rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
 
-		CCallConv* pCallConv = pFunction->GetType ()->GetCallConv ();
+		CallConv* callConv = function->getType ()->getCallConv ();
 
-		for (size_t i = 0; i < ArgCount; i++, LlvmArg++)
-			pArgValueArray [i] = pCallConv->GetArgValue (ArgArray [i], LlvmArg);
+		for (size_t i = 0; i < argCount; i++, llvmArg++)
+			argValueArray [i] = callConv->getArgValue (argArray [i], llvmArg);
 	}
 }
 
 void
-CFunctionMgr::InternalEpilogue ()
+FunctionMgr::internalEpilogue ()
 {
-	CFunction* pFunction = m_pCurrentFunction;
+	Function* function = m_currentFunction;
 
-	CBasicBlock* pCurrentBlock = m_pModule->m_ControlFlowMgr.GetCurrentBlock ();
-	if (!pCurrentBlock->HasTerminator ())
+	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	if (!currentBlock->hasTerminator ())
 	{
-		CType* pReturnType = pFunction->GetType ()->GetReturnType ();
+		Type* returnType = function->getType ()->getReturnType ();
 
-		CValue ReturnValue;
-		if (pReturnType->GetTypeKind () != EType_Void)
-			ReturnValue = pReturnType->GetZeroValue ();
+		Value returnValue;
+		if (returnType->getTypeKind () != TypeKind_Void)
+			returnValue = returnType->getZeroValue ();
 
-		m_pModule->m_ControlFlowMgr.Return (ReturnValue);
+		m_module->m_controlFlowMgr.ret (returnValue);
 	}
 
-	m_pModule->m_NamespaceMgr.CloseScope ();
+	m_module->m_namespaceMgr.closeScope ();
 
-	PopEmissionContext ();
+	popEmissionContext ();
 }
 
-CFunction*
-CFunctionMgr::GetDirectThunkFunction (
-	CFunction* pTargetFunction,
-	CFunctionType* pThunkFunctionType,
-	bool HasUnusedClosure
+Function*
+FunctionMgr::getDirectThunkFunction (
+	Function* targetFunction,
+	FunctionType* thunkFunctionType,
+	bool hasUnusedClosure
 	)
 {
-	if (!HasUnusedClosure && pTargetFunction->m_pType->Cmp (pThunkFunctionType) == 0)
-		return pTargetFunction;
+	if (!hasUnusedClosure && targetFunction->m_type->cmp (thunkFunctionType) == 0)
+		return targetFunction;
 
-	char SignatureChar = 'D';
+	char signatureChar = 'D';
 
-	if (HasUnusedClosure)
+	if (hasUnusedClosure)
 	{
-		SignatureChar = 'U';
-		pThunkFunctionType = pThunkFunctionType->GetStdObjectMemberMethodType ();
+		signatureChar = 'U';
+		thunkFunctionType = thunkFunctionType->getStdObjectMemberMethodType ();
 	}
 
-	rtl::CString Signature;
-	Signature.Format (
+	rtl::String signature;
+	signature.format (
 		"%c%x.%s",
-		SignatureChar,
-		pTargetFunction,
-		pThunkFunctionType->GetSignature ().cc ()
+		signatureChar,
+		targetFunction,
+		thunkFunctionType->getSignature ().cc ()
 		);
 
-	rtl::CStringHashTableMapIteratorT <CFunction*> Thunk = m_ThunkFunctionMap.Goto (Signature);
-	if (Thunk->m_Value)
-		return Thunk->m_Value;
+	rtl::StringHashTableMapIterator <Function*> thunk = m_thunkFunctionMap.visit (signature);
+	if (thunk->m_value)
+		return thunk->m_value;
 
-	CThunkFunction* pThunkFunction = (CThunkFunction*) CreateFunction (EFunction_Thunk, pThunkFunctionType);
-	pThunkFunction->m_StorageKind = EStorage_Static;
-	pThunkFunction->m_Tag = "directThunkFunction";
-	pThunkFunction->m_Signature = Signature;
-	pThunkFunction->m_pTargetFunction = pTargetFunction;
+	ThunkFunction* thunkFunction = (ThunkFunction*) createFunction (FunctionKind_Thunk, thunkFunctionType);
+	thunkFunction->m_storageKind = StorageKind_Static;
+	thunkFunction->m_tag = "directThunkFunction";
+	thunkFunction->m_signature = signature;
+	thunkFunction->m_targetFunction = targetFunction;
 
-	Thunk->m_Value = pThunkFunction;
+	thunk->m_value = thunkFunction;
 
-	m_pModule->MarkForCompile (pThunkFunction);
-	return pThunkFunction;
+	m_module->markForCompile (thunkFunction);
+	return thunkFunction;
 }
 
-CProperty*
-CFunctionMgr::GetDirectThunkProperty (
-	CProperty* pTargetProperty,
-	CPropertyType* pThunkPropertyType,
-	bool HasUnusedClosure
+Property*
+FunctionMgr::getDirectThunkProperty (
+	Property* targetProperty,
+	PropertyType* thunkPropertyType,
+	bool hasUnusedClosure
 	)
 {
-	if (!HasUnusedClosure && pTargetProperty->m_pType->Cmp (pThunkPropertyType) == 0)
-		return pTargetProperty;
+	if (!hasUnusedClosure && targetProperty->m_type->cmp (thunkPropertyType) == 0)
+		return targetProperty;
 
-	rtl::CString Signature;
-	Signature.Format (
+	rtl::String signature;
+	signature.format (
 		"%c%x.%s",
-		HasUnusedClosure ? 'U' : 'D',
-		pTargetProperty,
-		pThunkPropertyType->GetSignature ().cc ()
+		hasUnusedClosure ? 'U' : 'D',
+		targetProperty,
+		thunkPropertyType->getSignature ().cc ()
 		);
 
-	rtl::CStringHashTableMapIteratorT <CProperty*> Thunk = m_ThunkPropertyMap.Goto (Signature);
-	if (Thunk->m_Value)
-		return Thunk->m_Value;
+	rtl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
+	if (thunk->m_value)
+		return thunk->m_value;
 
-	CThunkProperty* pThunkProperty = (CThunkProperty*) CreateProperty (EProperty_Thunk);
-	pThunkProperty->m_StorageKind = EStorage_Static;
-	pThunkProperty->m_Signature = Signature;
-	pThunkProperty->m_Tag = "g_directThunkProperty";
+	ThunkProperty* thunkProperty = (ThunkProperty*) createProperty (PropertyKind_Thunk);
+	thunkProperty->m_storageKind = StorageKind_Static;
+	thunkProperty->m_signature = signature;
+	thunkProperty->m_tag = "g_directThunkProperty";
 
-	bool Result = pThunkProperty->Create (pTargetProperty, pThunkPropertyType, HasUnusedClosure);
-	if (!Result)
+	bool result = thunkProperty->create (targetProperty, thunkPropertyType, hasUnusedClosure);
+	if (!result)
 		return NULL;
 
-	Thunk->m_Value = pThunkProperty;
+	thunk->m_value = thunkProperty;
 
-	pThunkProperty->EnsureLayout ();
-	return pThunkProperty;
+	thunkProperty->ensureLayout ();
+	return thunkProperty;
 }
 
-CProperty*
-CFunctionMgr::GetDirectDataThunkProperty (
-	CVariable* pTargetVariable,
-	CPropertyType* pThunkPropertyType,
-	bool HasUnusedClosure
+Property*
+FunctionMgr::getDirectDataThunkProperty (
+	Variable* targetVariable,
+	PropertyType* thunkPropertyType,
+	bool hasUnusedClosure
 	)
 {
-	bool Result;
+	bool result;
 
-	rtl::CString Signature;
-	Signature.Format (
+	rtl::String signature;
+	signature.format (
 		"%c%x.%s",
-		HasUnusedClosure ? 'U' : 'D',
-		pTargetVariable,
-		pThunkPropertyType->GetSignature ().cc ()
+		hasUnusedClosure ? 'U' : 'D',
+		targetVariable,
+		thunkPropertyType->getSignature ().cc ()
 		);
 
-	rtl::CStringHashTableMapIteratorT <CProperty*> Thunk = m_ThunkPropertyMap.Goto (Signature);
-	if (Thunk->m_Value)
-		return Thunk->m_Value;
+	rtl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
+	if (thunk->m_value)
+		return thunk->m_value;
 
-	CDataThunkProperty* pThunkProperty = (CDataThunkProperty*) CreateProperty (EProperty_DataThunk);
-	pThunkProperty->m_StorageKind = EStorage_Static;
-	pThunkProperty->m_Signature = Signature;
-	pThunkProperty->m_pTargetVariable = pTargetVariable;
-	pThunkProperty->m_Tag = "g_directDataThunkProperty";
+	DataThunkProperty* thunkProperty = (DataThunkProperty*) createProperty (PropertyKind_DataThunk);
+	thunkProperty->m_storageKind = StorageKind_Static;
+	thunkProperty->m_signature = signature;
+	thunkProperty->m_targetVariable = targetVariable;
+	thunkProperty->m_tag = "g_directDataThunkProperty";
 
-	if (HasUnusedClosure)
-		pThunkPropertyType = pThunkPropertyType->GetStdObjectMemberPropertyType ();
+	if (hasUnusedClosure)
+		thunkPropertyType = thunkPropertyType->getStdObjectMemberPropertyType ();
 
-	Result = pThunkProperty->Create (pThunkPropertyType);
-	if (!Result)
+	result = thunkProperty->create (thunkPropertyType);
+	if (!result)
 		return NULL;
 
-	Thunk->m_Value = pThunkProperty;
+	thunk->m_value = thunkProperty;
 
-	pThunkProperty->EnsureLayout ();
-	m_pModule->MarkForCompile (pThunkProperty);
-	return pThunkProperty;
+	thunkProperty->ensureLayout ();
+	m_module->markForCompile (thunkProperty);
+	return thunkProperty;
 }
 
-CFunction*
-CFunctionMgr::GetScheduleLauncherFunction (
-	CFunctionPtrType* pTargetFunctionPtrType,
-	EClassPtrType SchedulerPtrTypeKind
+Function*
+FunctionMgr::getScheduleLauncherFunction (
+	FunctionPtrType* targetFunctionPtrType,
+	ClassPtrTypeKind schedulerPtrTypeKind
 	)
 {
-	rtl::CString Signature = pTargetFunctionPtrType->GetSignature ();
-	if (SchedulerPtrTypeKind == EClassPtrType_Weak)
-		Signature += ".w";
+	rtl::String signature = targetFunctionPtrType->getSignature ();
+	if (schedulerPtrTypeKind == ClassPtrTypeKind_Weak)
+		signature += ".w";
 
-	rtl::CStringHashTableMapIteratorT <CFunction*> Thunk = m_ScheduleLauncherFunctionMap.Goto (Signature);
-	if (Thunk->m_Value)
-		return Thunk->m_Value;
+	rtl::StringHashTableMapIterator <Function*> thunk = m_scheduleLauncherFunctionMap.visit (signature);
+	if (thunk->m_value)
+		return thunk->m_value;
 
-	CClassPtrType* pSchedulerPtrType = ((CClassType*) m_pModule->GetSimpleType (EStdType_Scheduler))->GetClassPtrType (SchedulerPtrTypeKind);
+	ClassPtrType* schedulerPtrType = ((ClassType*) m_module->getSimpleType (StdTypeKind_Scheduler))->getClassPtrType (schedulerPtrTypeKind);
 
-	rtl::CArrayT <CFunctionArg*> ArgArray  = pTargetFunctionPtrType->GetTargetType ()->GetArgArray ();
-	ArgArray.Insert (0, pTargetFunctionPtrType->GetSimpleFunctionArg ());
-	ArgArray.Insert (1, pSchedulerPtrType->GetSimpleFunctionArg ());
+	rtl::Array <FunctionArg*> argArray  = targetFunctionPtrType->getTargetType ()->getArgArray ();
+	argArray.insert (0, targetFunctionPtrType->getSimpleFunctionArg ());
+	argArray.insert (1, schedulerPtrType->getSimpleFunctionArg ());
 
-	CFunctionType* pLauncherType = m_pModule->m_TypeMgr.GetFunctionType (ArgArray);
-	CScheduleLauncherFunction* pLauncherFunction = (CScheduleLauncherFunction*) CreateFunction (EFunction_ScheduleLauncher, pLauncherType);
-	pLauncherFunction->m_StorageKind = EStorage_Static;
-	pLauncherFunction->m_Tag = "scheduleLauncherFunction";
-	pLauncherFunction->m_Signature = Signature;
+	FunctionType* launcherType = m_module->m_typeMgr.getFunctionType (argArray);
+	ScheduleLauncherFunction* launcherFunction = (ScheduleLauncherFunction*) createFunction (FunctionKind_ScheduleLauncher, launcherType);
+	launcherFunction->m_storageKind = StorageKind_Static;
+	launcherFunction->m_tag = "scheduleLauncherFunction";
+	launcherFunction->m_signature = signature;
 
-	Thunk->m_Value = pLauncherFunction;
+	thunk->m_value = launcherFunction;
 
-	m_pModule->MarkForCompile (pLauncherFunction);
-	return pLauncherFunction;
+	m_module->markForCompile (launcherFunction);
+	return launcherFunction;
 }
 
 bool
-CFunctionMgr::InjectTlsPrologues ()
+FunctionMgr::injectTlsPrologues ()
 {
-	rtl::CIteratorT <CFunction> Function = m_FunctionList.GetHead ();
-	for (; Function; Function++)
+	rtl::Iterator <Function> functionIt = m_functionList.getHead ();
+	for (; functionIt; functionIt++)
 	{
-		CFunction* pFunction = *Function;
-		if (pFunction->GetEntryBlock () && !pFunction->GetTlsVariableArray ().IsEmpty ())
-			InjectTlsPrologue (pFunction);
+		Function* function = *functionIt;
+		if (function->getEntryBlock () && !function->getTlsVariableArray ().isEmpty ())
+			injectTlsPrologue (function);
 	}
 
-	rtl::CIteratorT <CThunkFunction> ThunkFunction = m_ThunkFunctionList.GetHead ();
-	for (; ThunkFunction; ThunkFunction++)
+	rtl::Iterator <ThunkFunction> thunkFunctionIt = m_thunkFunctionList.getHead ();
+	for (; thunkFunctionIt; thunkFunctionIt++)
 	{
-		CFunction* pFunction = *ThunkFunction;
-		if (!pFunction->GetTlsVariableArray ().IsEmpty ())
-			InjectTlsPrologue (pFunction);
+		Function* function = *thunkFunctionIt;
+		if (!function->getTlsVariableArray ().isEmpty ())
+			injectTlsPrologue (function);
 	}
 
-	rtl::CIteratorT <CScheduleLauncherFunction> ScheduleLauncherFunction = m_ScheduleLauncherFunctionList.GetHead ();
-	for (; ScheduleLauncherFunction; ScheduleLauncherFunction++)
+	rtl::Iterator <ScheduleLauncherFunction> scheduleLauncherFunctionIt = m_scheduleLauncherFunctionList.getHead ();
+	for (; scheduleLauncherFunctionIt; scheduleLauncherFunctionIt++)
 	{
-		CFunction* pFunction = *ScheduleLauncherFunction;
-		if (!pFunction->GetTlsVariableArray ().IsEmpty ())
-			InjectTlsPrologue (pFunction);
+		Function* function = *scheduleLauncherFunctionIt;
+		if (!function->getTlsVariableArray ().isEmpty ())
+			injectTlsPrologue (function);
 	}
 
 	return true;
 }
 
 void
-CFunctionMgr::InjectTlsPrologue (CFunction* pFunction)
+FunctionMgr::injectTlsPrologue (Function* function)
 {
-	CBasicBlock* pBlock = pFunction->GetEntryBlock ();
-	ASSERT (pBlock);
+	BasicBlock* block = function->getEntryBlock ();
+	ASSERT (block);
 
-	rtl::CArrayT <TTlsVariable> TlsVariableArray = pFunction->GetTlsVariableArray ();
-	ASSERT (!TlsVariableArray.IsEmpty ());
+	rtl::Array <TlsVariable> tlsVariableArray = function->getTlsVariableArray ();
+	ASSERT (!tlsVariableArray.isEmpty ());
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (block);
 
-	llvm::BasicBlock::iterator LlvmAnchor = pBlock->GetLlvmBlock ()->begin ();
+	llvm::BasicBlock::iterator llvmAnchor = block->getLlvmBlock ()->begin ();
 
-	if (llvm::isa <llvm::CallInst> (LlvmAnchor)) // skip gc-enter
-		LlvmAnchor++;
+	if (llvm::isa <llvm::CallInst> (llvmAnchor)) // skip gc-enter
+		llvmAnchor++;
 
-	m_pModule->m_LlvmIrBuilder.SetInsertPoint (LlvmAnchor);
+	m_module->m_llvmIrBuilder.setInsertPoint (llvmAnchor);
 
-	CFunction* pGetTls = GetStdFunction (EStdFunc_GetTls);
-	CValue TlsValue;
-	LlvmAnchor = m_pModule->m_LlvmIrBuilder.CreateCall (pGetTls, pGetTls->GetType (), &TlsValue);
+	Function* getTls = getStdFunction (StdFuncKind_GetTls);
+	Value tlsValue;
+	llvmAnchor = m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
 
 	// tls variables used in this function
 
-	size_t Count = TlsVariableArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = tlsVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = TlsVariableArray [i].m_pVariable->GetTlsField ();
-		ASSERT (pField);
+		StructField* field = tlsVariableArray [i].m_variable->getTlsField ();
+		ASSERT (field);
 
-		CValue PtrValue;
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (TlsValue, pField->GetLlvmIndex (), NULL, &PtrValue);
-		TlsVariableArray [i].m_pLlvmAlloca->replaceAllUsesWith (PtrValue.GetLlvmValue ());
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createGep2 (tlsValue, field->getLlvmIndex (), NULL, &ptrValue);
+		tlsVariableArray [i].m_llvmAlloca->replaceAllUsesWith (ptrValue.getLlvmValue ());
 	}
 
 	// unfortunately, erasing could not be safely done inside the above loop (cause of InsertPoint)
 	// so just have a dedicated loop for erasing alloca's
 
-	Count = TlsVariableArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
-		TlsVariableArray [i].m_pLlvmAlloca->eraseFromParent ();
+	count = tlsVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+		tlsVariableArray [i].m_llvmAlloca->eraseFromParent ();
 
 	// skip all the gep's to get past tls prologue
 
-	LlvmAnchor++;
-	while (llvm::isa <llvm::GetElementPtrInst> (LlvmAnchor))
-		LlvmAnchor++;
+	llvmAnchor++;
+	while (llvm::isa <llvm::GetElementPtrInst> (llvmAnchor))
+		llvmAnchor++;
 
-	pFunction->m_pLlvmPostTlsPrologueInst = LlvmAnchor;
+	function->m_llvmPostTlsPrologueInst = llvmAnchor;
 }
 
-class CJitEventListener: public llvm::JITEventListener
+class JitEventListener: public llvm::JITEventListener
 {
 protected:
-	CFunctionMgr* m_pFunctionMgr;
+	FunctionMgr* m_functionMgr;
 
 public:
-	CJitEventListener (CFunctionMgr* pFunctionMgr)
+	JitEventListener (FunctionMgr* functionMgr)
 	{
-		m_pFunctionMgr = pFunctionMgr;
+		m_functionMgr = functionMgr;
 	}
 
 	virtual
 	void
-	NotifyObjectEmitted (const llvm::ObjectImage& LLvmObjectImage)
+	notifyObjectEmitted (const llvm::ObjectImage& LLvmObjectImage)
 	{
 		// printf ("NotifyObjectEmitted\n");
 	}
 
 	virtual
 	void
-	NotifyFunctionEmitted (
-		const llvm::Function& LlvmFunction,
+	notifyFunctionEmitted (
+		const llvm::Function& llvmFunction,
 		void* p,
-		size_t Size,
-		const EmittedFunctionDetails& Details
+		size_t size,
+		const EmittedFunctionDetails& details
 		)
 	{
-		CFunction* pFunction = m_pFunctionMgr->FindFunctionByLlvmFunction ((llvm::Function*) &LlvmFunction);
-		if (pFunction)
+		Function* function = m_functionMgr->findFunctionByLlvmFunction ((llvm::Function*) &llvmFunction);
+		if (function)
 		{
-			pFunction->m_pfMachineCode = p;
-			pFunction->m_MachineCodeSize = Size;
+			function->m_pfMachineCode = p;
+			function->m_machineCodeSize = size;
 		}
 	}
 };
 
 void
-LlvmFatalErrorHandler (
-	void* pContext,
-	const std::string& ErrorString,
-	bool ShouldGenerateCrashDump
+llvmFatalErrorHandler (
+	void* context,
+	const std::string& errorString,
+	bool shouldGenerateCrashDump
 	)
 {
-	throw err::CreateStringError (ErrorString.c_str ());
+	throw err::createStringError (errorString.c_str ());
 }
 
 bool
-CFunctionMgr::JitFunctions ()
+FunctionMgr::jitFunctions ()
 {
 #ifdef _JNC_NO_JIT
-	err::SetFormatStringError ("LLVM jitting is disabled");
+	err::setFormatStringError ("LLVM jitting is disabled");
 	return false;
 #endif
 
-	CScopeThreadModule ScopeModule (m_pModule);
-	llvm::ScopedFatalErrorHandler ScopeErrorHandler (LlvmFatalErrorHandler);
+	ScopeThreadModule scopeModule (m_module);
+	llvm::ScopedFatalErrorHandler scopeErrorHandler (llvmFatalErrorHandler);
 
-	CJitEventListener JitEventListener (this);
-	llvm::ExecutionEngine* pLlvmExecutionEngine = m_pModule->GetLlvmExecutionEngine ();
-	pLlvmExecutionEngine->RegisterJITEventListener (&JitEventListener);
+	JitEventListener jitEventListener (this);
+	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine ();
+	llvmExecutionEngine->RegisterJITEventListener (&jitEventListener);
 
 	try
 	{
-		rtl::CIteratorT <CFunction> Function = m_FunctionList.GetHead ();
-		for (; Function; Function++)
+		rtl::Iterator <Function> functionIt = m_functionList.getHead ();
+		for (; functionIt; functionIt++)
 		{
-			CFunction* pFunction = *Function;
+			Function* function = *functionIt;
 
-			if (!pFunction->GetEntryBlock ())
+			if (!function->getEntryBlock ())
 				continue;
 
-			void* pf = pLlvmExecutionEngine->getPointerToFunction (pFunction->GetLlvmFunction ());
-			pFunction->m_pfMachineCode = pf;
+			void* pf = llvmExecutionEngine->getPointerToFunction (function->getLlvmFunction ());
+			function->m_pfMachineCode = pf;
 
 			// ASSERT (pFunction->m_pfMachineCode == pf && pFunction->m_MachineCodeSize != 0);
 		}
 
 		// for MC jitter this should do all the job
-		pLlvmExecutionEngine->finalizeObject ();
+		llvmExecutionEngine->finalizeObject ();
 	}
-	catch (err::CError Error)
+	catch (err::Error error)
 	{
-		err::SetFormatStringError ("LLVM jitting failed: %s", Error->GetDescription ().cc ());
-		pLlvmExecutionEngine->UnregisterJITEventListener (&JitEventListener);
+		err::setFormatStringError ("LLVM jitting failed: %s", error->getDescription ().cc ());
+		llvmExecutionEngine->UnregisterJITEventListener (&jitEventListener);
 		return false;
 	}
 
-	pLlvmExecutionEngine->UnregisterJITEventListener (&JitEventListener);
+	llvmExecutionEngine->UnregisterJITEventListener (&jitEventListener);
 	return true;
 }
 
-CFunction*
-CFunctionMgr::GetStdFunction (EStdFunc Func)
+Function*
+FunctionMgr::getStdFunction (StdFuncKind func)
 {
-	ASSERT ((size_t) Func < EStdFunc__Count);
+	ASSERT ((size_t) func < StdFuncKind__Count);
 
-	if (m_StdFunctionArray [Func])
-		return m_StdFunctionArray [Func];
+	if (m_stdFunctionArray [func])
+		return m_stdFunctionArray [func];
 
-	CType* ArgTypeArray [8] = { 0 }; // 8 is enough for all the std functions
+	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
 
-	CType* pReturnType;
-	CFunctionType* pFunctionType;
-	CFunction* pFunction;
+	Type* returnType;
+	FunctionType* functionType;
+	Function* function;
 
-	switch (Func)
+	switch (func)
 	{
-	case EStdFunc_RuntimeError:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 2);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.runtimeError", pFunctionType);
+	case StdFuncKind_RuntimeError:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.runtimeError", functionType);
 		break;
 
-	case EStdFunc_CheckNullPtr:
-		pFunction = CreateCheckNullPtr ();
+	case StdFuncKind_CheckNullPtr:
+		function = createCheckNullPtr ();
 		break;
 
-	case EStdFunc_CheckScopeLevel:
-		pFunction = CreateCheckScopeLevel ();
+	case StdFuncKind_CheckScopeLevel:
+		function = createCheckScopeLevel ();
 		break;
 
-	case EStdFunc_CheckClassPtrScopeLevel:
-		pFunction = CreateCheckClassPtrScopeLevel ();
+	case StdFuncKind_CheckClassPtrScopeLevel:
+		function = createCheckClassPtrScopeLevel ();
 		break;
 
-	case EStdFunc_CheckDataPtrRange:
-		pFunction = CreateCheckDataPtrRange ();
+	case StdFuncKind_CheckDataPtrRange:
+		function = createCheckDataPtrRange ();
 		break;
 
-	case EStdFunc_DynamicCastClassPtr:
-		pReturnType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 2);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.dynamicCastClassPtr", pFunctionType);
+	case StdFuncKind_DynamicCastClassPtr:
+		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.dynamicCastClassPtr", functionType);
 		break;
 
-	case EStdFunc_StrengthenClassPtr:
-		pReturnType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr);
-		ArgTypeArray [0] = ((CClassType*) m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectClass))->GetClassPtrType (EClassPtrType_Weak);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.strengthenClassPtr", pFunctionType);
+	case StdFuncKind_StrengthenClassPtr:
+		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
+		argTypeArray [0] = ((ClassType*) m_module->m_typeMgr.getStdType (StdTypeKind_ObjectClass))->getClassPtrType (ClassPtrTypeKind_Weak);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.strengthenClassPtr", functionType);
 		break;
 
-	case EStdFunc_GetDataPtrSpan:
-		pFunction = CreateGetDataPtrSpan ();
+	case StdFuncKind_GetDataPtrSpan:
+		function = createGetDataPtrSpan ();
 		break;
 
-	case EStdFunc_GcAllocate:
-		pReturnType = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 2);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.gcAllocate", pFunctionType);
+	case StdFuncKind_GcAllocate:
+		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.gcAllocate", functionType);
 		break;
 
-	case EStdFunc_GcTryAllocate:
-		pReturnType = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 2);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.gcTryAllocate", pFunctionType);
+	case StdFuncKind_GcTryAllocate:
+		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.gcTryAllocate", functionType);
 		break;
 
-	case EStdFunc_MarkGcRoot:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetDataPtrType_c ();
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 2);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.markGcRoot", pFunctionType);
-		pFunction->m_pLlvmFunction = llvm::Intrinsic::getDeclaration (m_pModule->GetLlvmModule (), llvm::Intrinsic::gcroot);
+	case StdFuncKind_MarkGcRoot:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getDataPtrType_c ();
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.markGcRoot", functionType);
+		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (m_module->getLlvmModule (), llvm::Intrinsic::gcroot);
 		break;
 
-	case EStdFunc_GetTls:
-		pReturnType = m_pModule->m_VariableMgr.GetTlsStructType ()->GetDataPtrType (EDataPtrType_Thin);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.getTls", pFunctionType);
+	case StdFuncKind_GetTls:
+		returnType = m_module->m_variableMgr.getTlsStructType ()->getDataPtrType (DataPtrTypeKind_Thin);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
 		break;
 
-	case EStdFunc_GcEnter:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.gcEnter", pFunctionType);
+	case StdFuncKind_GcEnter:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.gcEnter", functionType);
 		break;
 
-	case EStdFunc_GcLeave:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.gcLeave", pFunctionType);
+	case StdFuncKind_GcLeave:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.gcLeave", functionType);
 		break;
 
-	case EStdFunc_GcPulse:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.gcPulse", pFunctionType);
+	case StdFuncKind_GcPulse:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.gcPulse", functionType);
 		break;
 
-	case EStdFunc_RunGc:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction ("runGc", "jnc.runGc", pFunctionType);
+	case StdFuncKind_RunGc:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction ("runGc", "jnc.runGc", functionType);
 		break;
 
-	case EStdFunc_CreateThread:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u);
-		ArgTypeArray [0] = ((CFunctionType*) m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleFunction))->GetFunctionPtrType (EFunctionPtrType_Normal, EPtrTypeFlag_Safe);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
-		pFunction = CreateFunction ("createThread", "jnc.createThread", pFunctionType);
+	case StdFuncKind_CreateThread:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
+		argTypeArray [0] = ((FunctionType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleFunction))->getFunctionPtrType (FunctionPtrTypeKind_Normal, PtrTypeFlagKind_Safe);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction ("createThread", "jnc.createThread", functionType);
 		break;
 
-	case EStdFunc_Sleep:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32_u);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
-		pFunction = CreateFunction ("sleep", "jnc.sleep", pFunctionType);
+	case StdFuncKind_Sleep:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32_u);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction ("sleep", "jnc.sleep", functionType);
 		break;
 
-	case EStdFunc_GetTimestamp:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction ("getTimestamp", "jnc.getTimestamp", pFunctionType);
+	case StdFuncKind_GetTimestamp:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction ("getTimestamp", "jnc.getTimestamp", functionType);
 		break;
 
-	case EStdFunc_GetCurrentThreadId:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction ("getCurrentThreadId", "jnc.getCurrentThreadId", pFunctionType);
+	case StdFuncKind_GetCurrentThreadId:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction ("getCurrentThreadId", "jnc.getCurrentThreadId", functionType);
 		break;
 
-	case EStdFunc_GetLastError:
-		pReturnType = m_pModule->m_TypeMgr.GetStdType (EStdType_Error)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction ("getLastError", "jnc.getLastError", pFunctionType);
+	case StdFuncKind_GetLastError:
+		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_Error)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction ("getLastError", "jnc.getLastError", functionType);
 		break;
 
-	case EStdFunc_StrLen:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
-		pFunction = CreateFunction ("strlen", "strlen", pFunctionType);
+	case StdFuncKind_StrLen:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction ("strlen", "strlen", functionType);
 		break;
 
-	case EStdFunc_MemCpy:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction ("memcpy", "memcpy", pFunctionType);
+	case StdFuncKind_MemCpy:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction ("memcpy", "memcpy", functionType);
 		break;
 
-	case EStdFunc_MemCat:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const);
-		ArgTypeArray [3] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 4);
-		pFunction = CreateFunction ("memcat", "memcat", pFunctionType);
+	case StdFuncKind_MemCat:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		argTypeArray [3] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 4);
+		function = createFunction ("memcat", "memcat", functionType);
 		break;
 
-	case EStdFunc_Rand:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, NULL, 0);
-		pFunction = CreateFunction ("rand", "rand", pFunctionType);
+	case StdFuncKind_Rand:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction ("rand", "rand", functionType);
 		break;
 
-	case EStdFunc_Printf:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int_p);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Thin, EPtrTypeFlag_Const);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (
-			m_pModule->m_TypeMgr.GetCallConv (ECallConv_Cdecl),
-			pReturnType,
-			ArgTypeArray, 1,
-			EFunctionTypeFlag_VarArg
+	case StdFuncKind_Printf:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Thin, PtrTypeFlagKind_Const);
+		functionType = m_module->m_typeMgr.getFunctionType (
+			m_module->m_typeMgr.getCallConv (CallConvKind_Cdecl),
+			returnType,
+			argTypeArray, 1,
+			FunctionTypeFlagKind_VarArg
 			);
-		pFunction = CreateFunction ("printf", "printf", pFunctionType);
+		function = createFunction ("printf", "printf", functionType);
 		break;
 
-	case EStdFunc_Atoi:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Normal, EPtrTypeFlag_Const);
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 1);
-		pFunction = CreateFunction ("atoi", "atoi", pFunctionType);
+	case StdFuncKind_Atoi:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction ("atoi", "atoi", functionType);
 		break;
 
-	case EStdFunc_Format:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EType_DataPtr, EDataPtrType_Normal, EPtrTypeFlag_Const);
-		ArgTypeArray [0] = pReturnType;
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (
-			m_pModule->m_TypeMgr.GetCallConv (ECallConv_Cdecl),
-			pReturnType,
-			ArgTypeArray, 1,
-			EFunctionTypeFlag_VarArg
+	case StdFuncKind_Format:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
+		argTypeArray [0] = returnType;
+		functionType = m_module->m_typeMgr.getFunctionType (
+			m_module->m_typeMgr.getCallConv (CallConvKind_Cdecl),
+			returnType,
+			argTypeArray, 1,
+			FunctionTypeFlagKind_VarArg
 			);
-		pFunction = CreateFunction ("format", "jnc.format", pFunctionType);
+		function = createFunction ("format", "jnc.format", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_a:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_a", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_a:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_a", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_p:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_p", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_p:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_p", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_i32:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_i32", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_i32:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_i32", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_ui32:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32_u),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_ui32", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_ui32:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32_u),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_ui32", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_i64:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_i64", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_i64:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_i64", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_ui64:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64_u),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_ui64", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_ui64:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_ui64", functionType);
 		break;
 
-	case EStdFunc_AppendFmtLiteral_f:
-		pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT);
-		ArgTypeArray [0] = m_pModule->m_TypeMgr.GetStdType (EStdType_FmtLiteral)->GetDataPtrType_c (),
-		ArgTypeArray [1] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char)->GetDataPtrType_c (EType_DataPtr, EPtrTypeFlag_Const),
-		ArgTypeArray [2] = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Double),
-		pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, 3);
-		pFunction = CreateFunction (EFunction_Internal, "jnc.appendFmtLiteral_f", pFunctionType);
+	case StdFuncKind_AppendFmtLiteral_f:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const),
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double),
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_f", functionType);
 		break;
 
-	case EStdFunc_SimpleMulticastCall:
-		pFunction = ((CMulticastClassType*) m_pModule->m_TypeMgr.GetStdType (EStdType_SimpleMulticast))->GetMethod (EMulticastMethod_Call);
+	case StdFuncKind_SimpleMulticastCall:
+		function = ((MulticastClassType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleMulticast))->getMethod (MulticastMethodKind_Call);
 		break;
 
 	default:
 		ASSERT (false);
-		pFunction = NULL;
+		function = NULL;
 	}
 
-	m_StdFunctionArray [Func] = pFunction;
-	return pFunction;
+	m_stdFunctionArray [func] = function;
+	return function;
 }
 
-CLazyStdFunction*
-CFunctionMgr::GetLazyStdFunction (EStdFunc Func)
+LazyStdFunction*
+FunctionMgr::getLazyStdFunction (StdFuncKind func)
 {
-	ASSERT ((size_t) Func < EStdFunc__Count);
+	ASSERT ((size_t) func < StdFuncKind__Count);
 
-	if (m_LazyStdFunctionArray [Func])
-		return m_LazyStdFunctionArray [Func];
+	if (m_lazyStdFunctionArray [func])
+		return m_lazyStdFunctionArray [func];
 
-	const char* NameTable [EStdFunc__Count] =
+	const char* nameTable [StdFuncKind__Count] =
 	{
 		NULL, // EStdFunc_RuntimeError,
 		NULL, // EStdFunc_CheckNullPtr,
@@ -1144,239 +1144,239 @@ CFunctionMgr::GetLazyStdFunction (EStdFunc Func)
 		"getLastError",       // EStdFunc_GetLastError,
 	};
 
-	const char* pName = NameTable [Func];
-	ASSERT (pName);
+	const char* name = nameTable [func];
+	ASSERT (name);
 
-	CLazyStdFunction* pFunction = AXL_MEM_NEW (CLazyStdFunction);
-	pFunction->m_pModule = m_pModule;
-	pFunction->m_Name = pName;
-	pFunction->m_Func = Func;
-	m_LazyStdFunctionList.InsertTail (pFunction);
-	m_LazyStdFunctionArray [Func] = pFunction;
-	return pFunction;
+	LazyStdFunction* function = AXL_MEM_NEW (LazyStdFunction);
+	function->m_module = m_module;
+	function->m_name = name;
+	function->m_func = func;
+	m_lazyStdFunctionList.insertTail (function);
+	m_lazyStdFunctionArray [func] = function;
+	return function;
 }
 
-CFunction*
-CFunctionMgr::CreateCheckNullPtr ()
+Function*
+FunctionMgr::createCheckNullPtr ()
 {
-	CType* pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-	CType* ArgTypeArray [] =
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
 	{
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr),
-		m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int),
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int),
 	};
 
-	CFunctionType* pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, countof (ArgTypeArray));
-	CFunction* pFunction = CreateFunction (EFunction_Internal, "jnc.checkNullPtr", pFunctionType);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkNullPtr", functionType);
 
-	CValue ArgValueArray [2];
-	InternalPrologue (pFunction, ArgValueArray, countof (ArgValueArray));
+	Value argValueArray [2];
+	internalPrologue (function, argValueArray, countof (argValueArray));
 
-	CValue ArgValue1 = ArgValueArray [0];
-	CValue ArgValue2 = ArgValueArray [1];
+	Value argValue1 = argValueArray [0];
+	Value argValue2 = argValueArray [1];
 
-	CBasicBlock* pFailBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("iface_fail");
-	CBasicBlock* pSuccessBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("iface_success");
+	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("iface_fail");
+	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("iface_success");
 
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
 
-	CValue CmpValue;
-	m_pModule->m_LlvmIrBuilder.CreateEq_i (ArgValue1, NullValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pSuccessBlock);
+	Value cmpValue;
+	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
 
-	m_pModule->m_LlvmIrBuilder.RuntimeError (ArgValue2);
+	m_module->m_llvmIrBuilder.runtimeError (argValue2);
 
-	m_pModule->m_ControlFlowMgr.Follow (pSuccessBlock);
+	m_module->m_controlFlowMgr.follow (successBlock);
 
-	InternalEpilogue ();
+	internalEpilogue ();
 
-	return pFunction;
+	return function;
 }
 
-CFunction*
-CFunctionMgr::CreateCheckScopeLevel ()
+Function*
+FunctionMgr::createCheckScopeLevel ()
 {
-	CType* pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-	CType* ArgTypeArray [] =
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
 	{
-		m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr),
-		m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
 	};
 
-	CFunctionType* pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, countof (ArgTypeArray));
-	CFunction* pFunction = CreateFunction (EFunction_Internal, "jnc.checkScopeLevel", pFunctionType);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkScopeLevel", functionType);
 
-	CValue ArgValueArray [2];
-	InternalPrologue (pFunction, ArgValueArray, countof (ArgValueArray));
+	Value argValueArray [2];
+	internalPrologue (function, argValueArray, countof (argValueArray));
 
-	CValue ArgValue1 = ArgValueArray [0];
-	CValue ArgValue2 = ArgValueArray [1];
+	Value argValue1 = argValueArray [0];
+	Value argValue2 = argValueArray [1];
 
-	CBasicBlock* pNoNullBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_nonull");
-	CBasicBlock* pFailBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_fail");
-	CBasicBlock* pSuccessBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_success");
+	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("scope_nonull");
+	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("scope_fail");
+	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
-	CValue CmpValue;
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr)->GetZeroValue ();
+	Value cmpValue;
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr)->getZeroValue ();
 
-	m_pModule->m_LlvmIrBuilder.CreateEq_i (ArgValue1, NullValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pSuccessBlock, pNoNullBlock, pNoNullBlock);
+	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (ArgValue1, 0, NULL, &ArgValue1);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (ArgValue1, NULL, &ArgValue1);
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (ArgValue2, 0, NULL, &ArgValue2);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (ArgValue2, NULL, &ArgValue2);
-	m_pModule->m_LlvmIrBuilder.CreateGt_u (ArgValue1, ArgValue2, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pSuccessBlock);
-	m_pModule->m_LlvmIrBuilder.RuntimeError (ERuntimeError_ScopeMismatch);
+	m_module->m_llvmIrBuilder.createGep2 (argValue1, 0, NULL, &argValue1);
+	m_module->m_llvmIrBuilder.createLoad (argValue1, NULL, &argValue1);
+	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
+	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
+	m_module->m_llvmIrBuilder.createGt_u (argValue1, argValue2, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
+	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);
 
-	m_pModule->m_ControlFlowMgr.Follow (pSuccessBlock);
+	m_module->m_controlFlowMgr.follow (successBlock);
 
-	InternalEpilogue ();
+	internalEpilogue ();
 
-	return pFunction;
+	return function;
 }
 
-CFunction*
-CFunctionMgr::CreateCheckClassPtrScopeLevel ()
+Function*
+FunctionMgr::createCheckClassPtrScopeLevel ()
 {
-	CType* pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-	CType* ArgTypeArray [] =
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
 	{
-		m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr),
-		m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
 	};
 
-	CFunctionType* pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, countof (ArgTypeArray));
-	CFunction* pFunction = CreateFunction (EFunction_Internal, "jnc.checkClassPtrScopeLevel", pFunctionType);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkClassPtrScopeLevel", functionType);
 
-	CValue ArgValueArray [2];
-	InternalPrologue (pFunction, ArgValueArray, countof (ArgValueArray));
+	Value argValueArray [2];
+	internalPrologue (function, argValueArray, countof (argValueArray));
 
-	CValue ArgValue1 = ArgValueArray [0];
-	CValue ArgValue2 = ArgValueArray [1];
+	Value argValue1 = argValueArray [0];
+	Value argValue2 = argValueArray [1];
 
-	CBasicBlock* pNoNullBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_nonull");
-	CBasicBlock* pFailBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_fail");
-	CBasicBlock* pSuccessBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("scope_success");
+	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("scope_nonull");
+	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("scope_fail");
+	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
-	CValue CmpValue;
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectPtr)->GetZeroValue ();
+	Value cmpValue;
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr)->getZeroValue ();
 
-	m_pModule->m_LlvmIrBuilder.CreateEq_i (ArgValue1, NullValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pSuccessBlock, pNoNullBlock, pNoNullBlock);
+	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
 
-	static int32_t LlvmIndexArray [] =
+	static int32_t llvmIndexArray [] =
 	{
 		0, // TIfaceHdr**
 		0, // TIfaceHdr*
 		1, // TObjHdr**
 	};
 
-	CValue ObjPtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep (ArgValue1, LlvmIndexArray, countof (LlvmIndexArray), NULL, &ObjPtrValue); // TObjHdr** ppObject
-	m_pModule->m_LlvmIrBuilder.CreateLoad (ObjPtrValue, NULL, &ObjPtrValue);  // TObjHdr* pObject
+	Value objPtrValue;
+	m_module->m_llvmIrBuilder.createGep (argValue1, llvmIndexArray, countof (llvmIndexArray), NULL, &objPtrValue); // TObjHdr** ppObject
+	m_module->m_llvmIrBuilder.createLoad (objPtrValue, NULL, &objPtrValue);  // TObjHdr* pObject
 
-	CValue SrcScopeLevelValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (ObjPtrValue, 0, NULL, &SrcScopeLevelValue);     // size_t* pScopeLevel
-	m_pModule->m_LlvmIrBuilder.CreateLoad (SrcScopeLevelValue, NULL, &SrcScopeLevelValue); // size_t ScopeLevel
+	Value srcScopeLevelValue;
+	m_module->m_llvmIrBuilder.createGep2 (objPtrValue, 0, NULL, &srcScopeLevelValue);     // size_t* pScopeLevel
+	m_module->m_llvmIrBuilder.createLoad (srcScopeLevelValue, NULL, &srcScopeLevelValue); // size_t ScopeLevel
 
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (ArgValue2, 0, NULL, &ArgValue2);
-	m_pModule->m_LlvmIrBuilder.CreateLoad (ArgValue2, NULL, &ArgValue2);
+	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
+	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
 
-	m_pModule->m_LlvmIrBuilder.CreateGt_u (SrcScopeLevelValue, ArgValue2, &CmpValue); // SrcScopeLevel > DstScopeLevel
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pSuccessBlock);
-	m_pModule->m_LlvmIrBuilder.RuntimeError (ERuntimeError_ScopeMismatch);
+	m_module->m_llvmIrBuilder.createGt_u (srcScopeLevelValue, argValue2, &cmpValue); // SrcScopeLevel > DstScopeLevel
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
+	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);
 
-	m_pModule->m_ControlFlowMgr.Follow (pSuccessBlock);
+	m_module->m_controlFlowMgr.follow (successBlock);
 
-	InternalEpilogue ();
+	internalEpilogue ();
 
-	return pFunction;
+	return function;
 }
 
-CFunction*
-CFunctionMgr::CreateCheckDataPtrRange ()
+Function*
+FunctionMgr::createCheckDataPtrRange ()
 {
-	CType* pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
-	CType* ArgTypeArray [] =
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
 	{
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr),
-		m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT),
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr),
-		m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
 	};
 
-	CFunctionType* pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pReturnType, ArgTypeArray, countof (ArgTypeArray));
-	CFunction* pFunction = CreateFunction (EFunction_Internal, "jnc.checkDataPtrRange", pFunctionType);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRange", functionType);
 
-	CValue ArgValueArray [4];
-	InternalPrologue (pFunction, ArgValueArray, countof (ArgValueArray));
+	Value argValueArray [4];
+	internalPrologue (function, argValueArray, countof (argValueArray));
 
-	CValue ArgValue1 = ArgValueArray [0];
-	CValue ArgValue2 = ArgValueArray [1];
-	CValue ArgValue3 = ArgValueArray [2];
-	CValue ArgValue4 = ArgValueArray [3];
+	Value argValue1 = argValueArray [0];
+	Value argValue2 = argValueArray [1];
+	Value argValue3 = argValueArray [2];
+	Value argValue4 = argValueArray [3];
 
-	CBasicBlock* pFailBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("sptr_fail");
-	CBasicBlock* pSuccessBlock = m_pModule->m_ControlFlowMgr.CreateBlock ("sptr_success");
-	CBasicBlock* pCmp2Block = m_pModule->m_ControlFlowMgr.CreateBlock ("sptr_cmp2");
-	CBasicBlock* pCmp3Block = m_pModule->m_ControlFlowMgr.CreateBlock ("sptr_cmp3");
+	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("sptr_fail");
+	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("sptr_success");
+	BasicBlock* cmp2Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp2");
+	BasicBlock* cmp3Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp3");
 
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
 
-	CValue CmpValue;
-	m_pModule->m_LlvmIrBuilder.CreateEq_i (ArgValue1, NullValue, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pCmp2Block, pCmp2Block);
+	Value cmpValue;
+	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, cmp2Block, cmp2Block);
 
-	m_pModule->m_LlvmIrBuilder.CreateLt_u (ArgValue1, ArgValue3, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pCmp3Block, pCmp3Block);
+	m_module->m_llvmIrBuilder.createLt_u (argValue1, argValue3, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, cmp3Block, cmp3Block);
 
-	CValue PtrEndValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep (ArgValue1, ArgValue2, NULL ,&PtrEndValue);
-	m_pModule->m_LlvmIrBuilder.CreateGt_u (PtrEndValue, ArgValue4, &CmpValue);
-	m_pModule->m_ControlFlowMgr.ConditionalJump (CmpValue, pFailBlock, pSuccessBlock);
+	Value ptrEndValue;
+	m_module->m_llvmIrBuilder.createGep (argValue1, argValue2, NULL ,&ptrEndValue);
+	m_module->m_llvmIrBuilder.createGt_u (ptrEndValue, argValue4, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
 
-	m_pModule->m_LlvmIrBuilder.RuntimeError (ERuntimeError_DataPtrOutOfRange);
+	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_DataPtrOutOfRange);
 
-	m_pModule->m_ControlFlowMgr.Follow (pSuccessBlock);
+	m_module->m_controlFlowMgr.follow (successBlock);
 
-	InternalEpilogue ();
+	internalEpilogue ();
 
-	return pFunction;
+	return function;
 }
 
 // size_t
 // jnc.GetDataPtrSpan (jnc.DataPtr Ptr);
 
-CFunction*
-CFunctionMgr::CreateGetDataPtrSpan ()
+Function*
+FunctionMgr::createGetDataPtrSpan ()
 {
-	CType* pIntPtrType = m_pModule->GetSimpleType (EType_Int_p);
-	CType* ArgTypeArray [] =
+	Type* intPtrType = m_module->getSimpleType (TypeKind_Int_p);
+	Type* argTypeArray [] =
 	{
-		m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void)->GetDataPtrType (EDataPtrType_Normal, EPtrTypeFlag_Const),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const),
 	};
 
-	CFunctionType* pFunctionType = m_pModule->m_TypeMgr.GetFunctionType (pIntPtrType, ArgTypeArray, countof (ArgTypeArray));
-	CFunction* pFunction = CreateFunction ("getDataPtrSpan", "jnc.getDataPtrSpan", pFunctionType);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (intPtrType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction ("getDataPtrSpan", "jnc.getDataPtrSpan", functionType);
 
-	CValue ArgValue;
-	InternalPrologue (pFunction, &ArgValue, 1);
+	Value argValue;
+	internalPrologue (function, &argValue, 1);
 
-	CValue PtrValue;
-	CValue RangeEndValue;
-	CValue SpanValue;
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (ArgValue, 0, NULL, &PtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateExtractValue (ArgValue, 2, NULL, &RangeEndValue);
-	m_pModule->m_LlvmIrBuilder.CreatePtrToInt (PtrValue, pIntPtrType, &PtrValue);
-	m_pModule->m_LlvmIrBuilder.CreatePtrToInt (RangeEndValue, pIntPtrType, &RangeEndValue);
-	m_pModule->m_LlvmIrBuilder.CreateSub_i (RangeEndValue, PtrValue, pIntPtrType, &SpanValue);
-	m_pModule->m_LlvmIrBuilder.CreateRet (SpanValue);
+	Value ptrValue;
+	Value rangeEndValue;
+	Value spanValue;
+	m_module->m_llvmIrBuilder.createExtractValue (argValue, 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createExtractValue (argValue, 2, NULL, &rangeEndValue);
+	m_module->m_llvmIrBuilder.createPtrToInt (ptrValue, intPtrType, &ptrValue);
+	m_module->m_llvmIrBuilder.createPtrToInt (rangeEndValue, intPtrType, &rangeEndValue);
+	m_module->m_llvmIrBuilder.createSub_i (rangeEndValue, ptrValue, intPtrType, &spanValue);
+	m_module->m_llvmIrBuilder.createRet (spanValue);
 
-	InternalEpilogue ();
+	internalEpilogue ();
 
-	return pFunction;
+	return function;
 }
 
 //.............................................................................

@@ -17,64 +17,64 @@
 
 namespace jnc {
 
-class CDerivableType;
-class CClassType;
-class CPropertyType;
-class CReactorClassType;
-class CProperty;
-class CJitEventListener;
+class DerivableType;
+class ClassType;
+class PropertyType;
+class ReactorClassType;
+class Property;
+class JitEventListener;
 
 //.............................................................................
 
-enum EFunction
+enum FunctionKind
 {
-	EFunction_Undefined = 0,
-	EFunction_Named,
-	EFunction_Getter,
-	EFunction_Setter,
-	EFunction_Binder,
-	EFunction_Primer,
-	EFunction_PreConstructor,
-	EFunction_Constructor,
-	EFunction_Destructor,
-	EFunction_StaticConstructor,
-	EFunction_StaticDestructor,
-	EFunction_ModuleConstructor,
-	EFunction_ModuleDestructor,
-	EFunction_CallOperator,
-	EFunction_CastOperator,
-	EFunction_UnaryOperator,
-	EFunction_BinaryOperator,
-	EFunction_OperatorNew,
-	EFunction_Internal,
-	EFunction_Thunk,
-	EFunction_Reaction,
-	EFunction_ScheduleLauncher,
-	EFunction__Count
+	FunctionKind_Undefined = 0,
+	FunctionKind_Named,
+	FunctionKind_Getter,
+	FunctionKind_Setter,
+	FunctionKind_Binder,
+	FunctionKind_Primer,
+	FunctionKind_PreConstructor,
+	FunctionKind_Constructor,
+	FunctionKind_Destructor,
+	FunctionKind_StaticConstructor,
+	FunctionKind_StaticDestructor,
+	FunctionKind_ModuleConstructor,
+	FunctionKind_ModuleDestructor,
+	FunctionKind_CallOperator,
+	FunctionKind_CastOperator,
+	FunctionKind_UnaryOperator,
+	FunctionKind_BinaryOperator,
+	FunctionKind_OperatorNew,
+	FunctionKind_Internal,
+	FunctionKind_Thunk,
+	FunctionKind_Reaction,
+	FunctionKind_ScheduleLauncher,
+	FunctionKind__Count
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EFunctionKindFlag
+enum FunctionKindFlagKind
 {
-	EFunctionKindFlag_NoStorage   = 0x01,
-	EFunctionKindFlag_NoOverloads = 0x02,
-	EFunctionKindFlag_NoArgs      = 0x04,
+	FunctionKindFlagKind_NoStorage   = 0x01,
+	FunctionKindFlagKind_NoOverloads = 0x02,
+	FunctionKindFlagKind_NoArgs      = 0x04,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-GetFunctionKindString (EFunction FunctionKind);
+getFunctionKindString (FunctionKind functionKind);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int
-GetFunctionKindFlags (EFunction FunctionKind);
+getFunctionKindFlags (FunctionKind functionKind);
 
 //.............................................................................
 
-enum EStdFunc
+enum StdFuncKind
 {
 	// void
 	// jnc.RuntimeError (
@@ -82,7 +82,7 @@ enum EStdFunc
 	//		int8* pCodeAddr
 	//		);
 
-	EStdFunc_RuntimeError,
+	StdFuncKind_RuntimeError,
 
 	// void
 	// jnc.CheckNullPtr (
@@ -90,7 +90,7 @@ enum EStdFunc
 	//		int Error
 	//		);
 
-	EStdFunc_CheckNullPtr,
+	StdFuncKind_CheckNullPtr,
 
 	// void
 	// jnc.CheckScopeLevel (
@@ -98,7 +98,7 @@ enum EStdFunc
 	//		jnc.TObjHdr* pDstObject
 	//		);
 
-	EStdFunc_CheckScopeLevel,
+	StdFuncKind_CheckScopeLevel,
 
 	// void
 	// jnc.CheckClassPtrScopeLevel (
@@ -106,7 +106,7 @@ enum EStdFunc
 	//		jnc.TObjHdr* pDstObject
 	//		);
 
-	EStdFunc_CheckClassPtrScopeLevel,
+	StdFuncKind_CheckClassPtrScopeLevel,
 
 	// void
 	// jnc.CheckDataPtrRange (
@@ -116,7 +116,7 @@ enum EStdFunc
 	//		int8* pRangeEnd
 	//		);
 
-	EStdFunc_CheckDataPtrRange,
+	StdFuncKind_CheckDataPtrRange,
 
 	// object*
 	// jnc.DynamicCastClassPtr (
@@ -124,17 +124,17 @@ enum EStdFunc
 	//		int8* pType
 	//		);
 
-	EStdFunc_DynamicCastClassPtr,
+	StdFuncKind_DynamicCastClassPtr,
 
 	// object*
 	// jnc.StrengthenClassPtr (weak object* p);
 
-	EStdFunc_StrengthenClassPtr,
+	StdFuncKind_StrengthenClassPtr,
 
 	// size_t
 	// jnc.GetDataPtrSpan (jnc.TDataPtr Ptr);
 
-	EStdFunc_GetDataPtrSpan,
+	StdFuncKind_GetDataPtrSpan,
 
 	// int8*
 	// jnc.GcAllocate (
@@ -142,7 +142,7 @@ enum EStdFunc
 	//		size_t Count
 	//		);
 
-	EStdFunc_GcAllocate,
+	StdFuncKind_GcAllocate,
 
 	// int8*
 	// jnc.GcAllocate (
@@ -150,22 +150,22 @@ enum EStdFunc
 	//		size_t Count
 	//		);
 
-	EStdFunc_GcTryAllocate,
+	StdFuncKind_GcTryAllocate,
 
 	// bool
 	// jnc.GcEnter ();
 
-	EStdFunc_GcEnter,
+	StdFuncKind_GcEnter,
 
 	// void
 	// jnc.GcLeave ();
 
-	EStdFunc_GcLeave,
+	StdFuncKind_GcLeave,
 
 	// void
 	// jnc.GcPulse ();
 
-	EStdFunc_GcPulse,
+	StdFuncKind_GcPulse,
 
 	// void
 	// jnc.MarkGcRoot (
@@ -173,42 +173,42 @@ enum EStdFunc
 	//		int8* pType
 	//		);
 
-	EStdFunc_MarkGcRoot,
+	StdFuncKind_MarkGcRoot,
 
 	// void
 	// jnc.RunGc ();
 
-	EStdFunc_RunGc,
+	StdFuncKind_RunGc,
 
 	// i64
 	// jnc.GetCurrentThreadId ();
 
-	EStdFunc_GetCurrentThreadId,
+	StdFuncKind_GetCurrentThreadId,
 
 	// i64
 	// jnc.CreateThread (function* pf ());
 
-	EStdFunc_CreateThread,
+	StdFuncKind_CreateThread,
 
 	// void
 	// jnc.sleep (uint_t MsCount);
 
-	EStdFunc_Sleep,
+	StdFuncKind_Sleep,
 
 	// uint64_t
 	// jnc.getTimestamp ();
 
-	EStdFunc_GetTimestamp,
+	StdFuncKind_GetTimestamp,
 
 	// char const*
 	// jnc.format (char const* format, ...);
 
-	EStdFunc_Format,
+	StdFuncKind_Format,
 
 	// size_t
 	// strlen (const char* nullable p);
 
-	EStdFunc_StrLen,
+	StdFuncKind_StrLen,
 
 	// void
 	// jnc.memcpy (
@@ -217,7 +217,7 @@ enum EStdFunc
 	//		size_t Size
 	//		);
 
-	EStdFunc_MemCpy,
+	StdFuncKind_MemCpy,
 
 	// void*
 	// jnc.memcat (
@@ -227,27 +227,27 @@ enum EStdFunc
 	//		size_t Size2
 	//		);
 
-	EStdFunc_MemCat,
+	StdFuncKind_MemCat,
 
 	// int
 	// rand ();
 
-	EStdFunc_Rand,
+	StdFuncKind_Rand,
 
 	// int
 	// printf (char const* format, ...);
 
-	EStdFunc_Printf,
+	StdFuncKind_Printf,
 
 	// int
 	// atoi (char const* format);
 
-	EStdFunc_Atoi,
+	StdFuncKind_Atoi,
 
 	// jnc.TTlsStruct*
 	// jnc.GetTls ();
 
-	EStdFunc_GetTls,
+	StdFuncKind_GetTls,
 
 	// size_t
 	// jnc.AppendFmtLiteral_a (
@@ -256,7 +256,7 @@ enum EStdFunc
 	//		size_t Length
 	//		);
 
-	EStdFunc_AppendFmtLiteral_a,
+	StdFuncKind_AppendFmtLiteral_a,
 
 	// size_t
 	// jnc.AppendFmtLiteral_p (
@@ -265,7 +265,7 @@ enum EStdFunc
 	//		jnc.TPtr Ptr
 	//		);
 
-	EStdFunc_AppendFmtLiteral_p,
+	StdFuncKind_AppendFmtLiteral_p,
 
 	// size_t
 	// jnc.AppendFmtLiteral_i32 (
@@ -274,7 +274,7 @@ enum EStdFunc
 	//		i32 i
 	//		);
 
-	EStdFunc_AppendFmtLiteral_i32,
+	StdFuncKind_AppendFmtLiteral_i32,
 
 	// size_t
 	// jnc.AppendFmtLiteral_ui32 (
@@ -283,7 +283,7 @@ enum EStdFunc
 	//		i32 i
 	//		);
 
-	EStdFunc_AppendFmtLiteral_ui32,
+	StdFuncKind_AppendFmtLiteral_ui32,
 
 	// size_t
 	// jnc.AppendFmtLiteral_i64 (
@@ -292,7 +292,7 @@ enum EStdFunc
 	//		i64 i
 	//		);
 
-	EStdFunc_AppendFmtLiteral_i64,
+	StdFuncKind_AppendFmtLiteral_i64,
 
 	// size_t
 	// jnc.AppendFmtLiteral_ui64 (
@@ -301,7 +301,7 @@ enum EStdFunc
 	//		i64 i
 	//		);
 
-	EStdFunc_AppendFmtLiteral_ui64,
+	StdFuncKind_AppendFmtLiteral_ui64,
 
 	// size_t
 	// jnc.AppendFmtLiteral_f (
@@ -310,399 +310,399 @@ enum EStdFunc
 	//		double f
 	//		);
 
-	EStdFunc_AppendFmtLiteral_f,
+	StdFuncKind_AppendFmtLiteral_f,
 
-	EStdFunc_SimpleMulticastCall,
+	StdFuncKind_SimpleMulticastCall,
 
 	// jnc.Error*
 	// jnc.g_lastError.get ();
 
-	EStdFunc_GetLastError,
+	StdFuncKind_GetLastError,
 
-	EStdFunc__Count
+	StdFuncKind__Count
 };
 
 //.............................................................................
 
 // shared between CFunction and COrphan
 
-class CFunctionName
+class FunctionName
 {
-	friend class CParser;
+	friend class Parser;
 
 protected:
-	EFunction m_FunctionKind;
+	FunctionKind m_functionKind;
 
 	union
 	{
-		EUnOp m_UnOpKind;
-		EBinOp m_BinOpKind;
-		CType* m_pCastOpType;
+		UnOpKind m_unOpKind;
+		BinOpKind m_binOpKind;
+		Type* m_castOpType;
 	};
 
-	CQualifiedName m_DeclaratorName;
-	uint_t m_ThisArgTypeFlags;
+	QualifiedName m_declaratorName;
+	uint_t m_thisArgTypeFlags;
 
 public:
-	CFunctionName ()
+	FunctionName ()
 	{
-		m_FunctionKind = EFunction_Undefined;
-		m_pCastOpType = NULL;
+		m_functionKind = FunctionKind_Undefined;
+		m_castOpType = NULL;
 	}
 
-	EFunction
-	GetFunctionKind ()
+	FunctionKind
+	getFunctionKind ()
 	{
-		return m_FunctionKind;
+		return m_functionKind;
 	}
 
-	EUnOp
-	GetUnOpKind ()
+	UnOpKind
+	getUnOpKind ()
 	{
-		ASSERT (m_FunctionKind == EFunction_UnaryOperator);
-		return m_UnOpKind;
+		ASSERT (m_functionKind == FunctionKind_UnaryOperator);
+		return m_unOpKind;
 	}
 
-	EBinOp
-	GetBinOpKind ()
+	BinOpKind
+	getBinOpKind ()
 	{
-		ASSERT (m_FunctionKind == EFunction_BinaryOperator);
-		return m_BinOpKind;
+		ASSERT (m_functionKind == FunctionKind_BinaryOperator);
+		return m_binOpKind;
 	}
 
-	CType*
-	GetCastOpType ()
+	Type*
+	getCastOpType ()
 	{
-		ASSERT (m_FunctionKind == EFunction_CastOperator);
-		return m_pCastOpType;
+		ASSERT (m_functionKind == FunctionKind_CastOperator);
+		return m_castOpType;
 	}
 
-	const CQualifiedName*
-	GetDeclaratorName ()
+	const QualifiedName*
+	getDeclaratorName ()
 	{
-		return &m_DeclaratorName;
+		return &m_declaratorName;
 	}
 
 	uint_t
-	GetThisArgTypeFlags ()
+	getThisArgTypeFlags ()
 	{
-		return m_ThisArgTypeFlags;
+		return m_thisArgTypeFlags;
 	}
 };
 
 //.............................................................................
 
-class CFunction:
-	public CUserModuleItem,
-	public CFunctionName
+class Function:
+	public UserModuleItem,
+	public FunctionName
 {
-	friend class CModule;
-	friend class CFunctionMgr;
-	friend class CTypeMgr;
-	friend class CDerivableType;
-	friend class CClassType;
-	friend class CProperty;
-	friend class COrphan;
-	friend class CParser;
-	friend class CCast_FunctionPtr;
-	friend class CJitEventListener;
+	friend class Module;
+	friend class FunctionMgr;
+	friend class TypeMgr;
+	friend class DerivableType;
+	friend class ClassType;
+	friend class Property;
+	friend class Orphan;
+	friend class Parser;
+	friend class Cast_FunctionPtr;
+	friend class JitEventListener;
 
 protected:
-	CFunctionType* m_pType;
-	CFunctionTypeOverload m_TypeOverload;
-	rtl::CArrayT <CFunction*> m_OverloadArray;
+	FunctionType* m_type;
+	FunctionTypeOverload m_typeOverload;
+	rtl::Array <Function*> m_overloadArray;
 
 	// for non-static member methods
 
-	CType* m_pThisArgType;
-	CType* m_pThisType;
-	intptr_t m_ThisArgDelta;
+	Type* m_thisArgType;
+	Type* m_thisType;
+	intptr_t m_thisArgDelta;
 
 	// for virtual member methods
 
-	CClassType* m_pVirtualOriginClassType;
-	size_t m_ClassVTableIndex;
+	ClassType* m_virtualOriginClassType;
+	size_t m_classVTableIndex;
 
 	// for property gettes/setters
 
-	CProperty* m_pProperty;
-	size_t m_PropertyVTableIndex;
+	Property* m_property;
+	size_t m_propertyVTableIndex;
 
-	rtl::CBoxListT <CToken> m_Body;
+	rtl::BoxList <Token> m_body;
 
-	CBasicBlock* m_pEntryBlock;
-	CScope* m_pScope;
+	BasicBlock* m_entryBlock;
+	Scope* m_scope;
 
-	llvm::Function* m_pLlvmFunction;
-	llvm::Instruction* m_pLlvmPostTlsPrologueInst;
-	llvm::DISubprogram m_LlvmDiSubprogram;
+	llvm::Function* m_llvmFunction;
+	llvm::Instruction* m_llvmPostTlsPrologueInst;
+	llvm::DISubprogram m_llvmDiSubprogram;
 
-	rtl::CArrayT <TTlsVariable> m_TlsVariableArray;
+	rtl::Array <TlsVariable> m_tlsVariableArray;
 
 	// native machine code
 
 	void* m_pfMachineCode;
-	size_t m_MachineCodeSize;
+	size_t m_machineCodeSize;
 
 public:
-	CFunction ();
+	Function ();
 
-	CFunctionType*
-	GetType ()
+	FunctionType*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CFunctionTypeOverload*
-	GetTypeOverload ()
+	FunctionTypeOverload*
+	getTypeOverload ()
 	{
-		return &m_TypeOverload;
-	}
-
-	bool
-	IsAccessor ()
-	{
-		return m_FunctionKind == EFunction_Getter || m_FunctionKind == EFunction_Setter;
+		return &m_typeOverload;
 	}
 
 	bool
-	IsMember ()
+	isAccessor ()
 	{
-		return m_pThisType != NULL;
+		return m_functionKind == FunctionKind_Getter || m_functionKind == FunctionKind_Setter;
 	}
 
 	bool
-	IsVirtual ()
+	isMember ()
 	{
-		return m_StorageKind >= EStorage_Abstract && m_StorageKind <= EStorage_Override;
+		return m_thisType != NULL;
 	}
 
-	CClassType*
-	GetVirtualOriginClassType ()
+	bool
+	isVirtual ()
 	{
-		return m_pVirtualOriginClassType;
+		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
-	CDerivableType*
-	GetParentType ()
+	ClassType*
+	getVirtualOriginClassType ()
 	{
-		return m_pParentNamespace->GetNamespaceKind () == ENamespace_Type ?
-			(CDerivableType*) (CNamedType*) m_pParentNamespace : NULL;
+		return m_virtualOriginClassType;
 	}
 
-	CType*
-	GetThisArgType ()
+	DerivableType*
+	getParentType ()
 	{
-		return m_pThisArgType;
+		return m_parentNamespace->getNamespaceKind () == NamespaceKind_Type ?
+			(DerivableType*) (NamedType*) m_parentNamespace : NULL;
 	}
 
-	CType*
-	GetThisType ()
+	Type*
+	getThisArgType ()
 	{
-		return m_pThisType;
+		return m_thisArgType;
+	}
+
+	Type*
+	getThisType ()
+	{
+		return m_thisType;
 	}
 
 	intptr_t
-	GetThisArgDelta ()
+	getThisArgDelta ()
 	{
-		return m_ThisArgDelta;
+		return m_thisArgDelta;
 	}
 
 	size_t
-	GetClassVTableIndex ()
+	getClassVTableIndex ()
 	{
-		return m_ClassVTableIndex;
+		return m_classVTableIndex;
 	}
 
-	CProperty*
-	GetProperty ()
+	Property*
+	getProperty ()
 	{
-		return m_pProperty;
+		return m_property;
 	}
 
 	size_t
-	GetPropertyVTableIndex ()
+	getPropertyVTableIndex ()
 	{
-		return m_PropertyVTableIndex;
+		return m_propertyVTableIndex;
 	}
 
 	void
-	ConvertToMemberMethod (CNamedType* pParentType);
+	convertToMemberMethod (NamedType* parentType);
 
 	bool
-	HasBody ()
+	hasBody ()
 	{
-		return !m_Body.IsEmpty ();
+		return !m_body.isEmpty ();
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetBody ()
+	rtl::ConstBoxList <Token>
+	getBody ()
 	{
-		return m_Body;
+		return m_body;
 	}
 
 	bool
-	SetBody (rtl::CBoxListT <CToken>* pTokenList);
+	setBody (rtl::BoxList <Token>* tokenList);
 
 	void
-	MarkGc ();
+	markGc ();
 
-	CScope*
-	GetScope ()
+	Scope*
+	getScope ()
 	{
-		return m_pScope;
+		return m_scope;
 	}
 
-	CBasicBlock*
-	GetEntryBlock ()
+	BasicBlock*
+	getEntryBlock ()
 	{
-		return m_pEntryBlock;
+		return m_entryBlock;
 	}
 
 	llvm::Function*
-	GetLlvmFunction ();
+	getLlvmFunction ();
 
 	llvm::Instruction*
-	GetLlvmPostTlsPrologueInst ()
+	getLlvmPostTlsPrologueInst ()
 	{
-		return m_pLlvmPostTlsPrologueInst;
+		return m_llvmPostTlsPrologueInst;
 	}
 
 	llvm::DISubprogram
-	GetLlvmDiSubprogram ();
+	getLlvmDiSubprogram ();
 
 	void*
-	GetMachineCode ()
+	getMachineCode ()
 	{
 		return m_pfMachineCode;
 	}
 
 	size_t
-	GetMachineCodeSize ()
+	getMachineCodeSize ()
 	{
-		return m_MachineCodeSize;
+		return m_machineCodeSize;
 	}
 
-	rtl::CArrayT <TTlsVariable>
-	GetTlsVariableArray ()
+	rtl::Array <TlsVariable>
+	getTlsVariableArray ()
 	{
-		return m_TlsVariableArray;
+		return m_tlsVariableArray;
 	}
 
 	void
-	AddTlsVariable (CVariable* pVariable);
+	addTlsVariable (Variable* variable);
 
 	bool
-	IsOverloaded ()
+	isOverloaded ()
 	{
-		return !m_OverloadArray.IsEmpty ();
+		return !m_overloadArray.isEmpty ();
 	}
 
 	size_t
-	GetOverloadCount ()
+	getOverloadCount ()
 	{
-		return m_OverloadArray.GetCount () + 1;
+		return m_overloadArray.getCount () + 1;
 	}
 
-	CFunction*
-	GetOverload (size_t Overload = 0)
+	Function*
+	getOverload (size_t overload = 0)
 	{
 		return
-			Overload == 0 ? this :
-			Overload <= m_OverloadArray.GetCount () ? m_OverloadArray [Overload - 1] : NULL;
+			overload == 0 ? this :
+			overload <= m_overloadArray.getCount () ? m_overloadArray [overload - 1] : NULL;
 	}
 
-	CFunction*
-	FindOverload (CFunctionType* pType)
+	Function*
+	findOverload (FunctionType* type)
 	{
-		size_t i = m_TypeOverload.FindOverload (pType);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.findOverload (type);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	FindShortOverload (CFunctionType* pType)
+	Function*
+	findShortOverload (FunctionType* type)
 	{
-		size_t i = m_TypeOverload.FindShortOverload (pType);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.findShortOverload (type);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	ChooseOverload (
-		CFunctionArg* const* pArgArray,
-		size_t ArgCount,
-		ECast* pCastKind = NULL
+	Function*
+	chooseOverload (
+		FunctionArg* const* argArray,
+		size_t argCount,
+		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_TypeOverload.ChooseOverload (pArgArray, ArgCount, pCastKind);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseOverload (argArray, argCount, castKind);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	ChooseOverload (
-		const rtl::CConstBoxListT <CValue>& ArgList,
-		ECast* pCastKind = NULL
+	Function*
+	chooseOverload (
+		const rtl::ConstBoxList <Value>& argList,
+		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_TypeOverload.ChooseOverload (ArgList, pCastKind);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseOverload (argList, castKind);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	ChooseSetterOverload (
-		CType* pArgType,
-		ECast* pCastKind = NULL
+	Function*
+	chooseSetterOverload (
+		Type* argType,
+		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_TypeOverload.ChooseSetterOverload (pArgType, pCastKind);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload (argType, castKind);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	ChooseSetterOverload (
-		const CValue& ArgValue,
-		ECast* pCastKind = NULL
+	Function*
+	chooseSetterOverload (
+		const Value& argValue,
+		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_TypeOverload.ChooseSetterOverload (ArgValue, pCastKind);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload (argValue, castKind);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	CFunction*
-	ChooseSetterOverload (
-		CFunctionType* pFunctionType,
-		ECast* pCastKind = NULL
+	Function*
+	chooseSetterOverload (
+		FunctionType* functionType,
+		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_TypeOverload.ChooseSetterOverload (pFunctionType, pCastKind);
-		return i != -1 ? GetOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload (functionType, castKind);
+		return i != -1 ? getOverload (i) : NULL;
 	}
 
 	bool
-	AddOverload (CFunction* pFunction);
+	addOverload (Function* function);
 
 	virtual
 	bool
-	Compile ();
+	compile ();
 };
 
 //.............................................................................
 
-class CLazyStdFunction: public CLazyModuleItem
+class LazyStdFunction: public LazyModuleItem
 {
-	friend class CFunctionMgr;
+	friend class FunctionMgr;
 
 protected:
-	EStdFunc m_Func;
+	StdFuncKind m_func;
 
 public:
-	CLazyStdFunction ()
+	LazyStdFunction ()
 	{
-		m_Func = (EStdFunc) -1;
+		m_func = (StdFuncKind) -1;
 	}
 
 	virtual
-	CModuleItem*
-	GetActualItem ();
+	ModuleItem*
+	getActualItem ();
 };
 
 //.............................................................................

@@ -12,48 +12,48 @@ namespace jnc {
 
 //.............................................................................
 
-class CCdeclCallConv_msc64: public CCallConv
+class CdeclCallConv_msc64: public CallConv
 {
 public:
-	CCdeclCallConv_msc64 ()
+	CdeclCallConv_msc64 ()
 	{
-		m_CallConvKind = ECallConv_Cdecl_msc64;
+		m_callConvKind = CallConvKind_Cdecl_msc64;
 	}
 
 	virtual
 	llvm::FunctionType*
-	GetLlvmFunctionType (CFunctionType* pFunctionType);
+	getLlvmFunctionType (FunctionType* functionType);
 
 	virtual
 	void
-	Call (
-		const CValue& CalleeValue,
-		CFunctionType* pFunctionType,
-		rtl::CBoxListT <CValue>* pArgValueList,
-		CValue* pResultValue
+	call (
+		const Value& calleeValue,
+		FunctionType* functionType,
+		rtl::BoxList <Value>* argValueList,
+		Value* resultValue
 		);
 
 	virtual
 	void
-	Return (
-		CFunction* pFunction,
-		const CValue& Value
+	ret (
+		Function* function,
+		const Value& value
 		);
 
 	virtual
-	CValue
-	GetArgValue (
-		CFunctionArg* pArg,
-		llvm::Value* pLlvmValue
+	Value
+	getArgValue (
+		FunctionArg* arg,
+		llvm::Value* llvmValue
 		);
 
 	virtual
-	CValue
-	GetThisArgValue (CFunction* pFunction);
+	Value
+	getThisArgValue (Function* function);
 
 	virtual
 	void
-	CreateArgVariables (CFunction* pFunction);
+	createArgVariables (Function* function);
 };
 
 //.............................................................................

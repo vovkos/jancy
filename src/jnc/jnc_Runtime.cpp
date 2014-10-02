@@ -8,198 +8,198 @@ namespace jnc {
 
 //.............................................................................
 
-CRuntime::CRuntime ()
+Runtime::Runtime ()
 {
-	m_GcState = EGcState_Idle;
-	m_GcHeapLimit = -1;
-	m_TotalGcAllocSize = 0;
-	m_CurrentGcAllocSize = 0;
-	m_PeriodGcAllocSize = 0;
-	m_PeriodGcAllocLimit = 16 * 1024;
-	m_GcUnsafeThreadCount = 1;
-	m_CurrentGcRootArrayIdx = 0;
+	m_gcState = GcStateKind_Idle;
+	m_gcHeapLimit = -1;
+	m_totalGcAllocSize = 0;
+	m_currentGcAllocSize = 0;
+	m_periodGcAllocSize = 0;
+	m_periodGcAllocLimit = 16 * 1024;
+	m_gcUnsafeThreadCount = 1;
+	m_currentGcRootArrayIdx = 0;
 
-	m_StackLimit = -1;
-	m_TlsSlot = -1;
-	m_TlsSize = 0;
+	m_stackLimit = -1;
+	m_tlsSlot = -1;
+	m_tlsSize = 0;
 }
 
 bool
-CRuntime::Create (
-	size_t HeapLimit,
-	size_t StackLimit
+Runtime::create (
+	size_t heapLimit,
+	size_t stackLimit
 	)
 {
-	Destroy ();
+	destroy ();
 
-	m_GcHeapLimit = HeapLimit;
-	m_StackLimit = StackLimit;
+	m_gcHeapLimit = heapLimit;
+	m_stackLimit = stackLimit;
 
-	m_TlsSlot = GetTlsMgr ()->CreateSlot ();
+	m_tlsSlot = getTlsMgr ()->createSlot ();
 	return true;
 }
 
 void
-CRuntime::Destroy ()
+Runtime::destroy ()
 {
-	if (m_TlsSlot != -1)
+	if (m_tlsSlot != -1)
 	{
-		GetTlsMgr ()->NullifyTls (this);
-		GetTlsMgr ()->DestroySlot (m_TlsSlot);
+		getTlsMgr ()->nullifyTls (this);
+		getTlsMgr ()->destroySlot (m_tlsSlot);
 	}
 
-	m_TlsSlot = -1;
-	m_TlsSize = 0;
+	m_tlsSlot = -1;
+	m_tlsSize = 0;
 
-	while (!m_TlsList.IsEmpty ())
+	while (!m_tlsList.isEmpty ())
 	{
-		TTlsHdr* pTls = m_TlsList.RemoveHead ();
-		AXL_MEM_FREE (pTls);
+		TlsHdr* tls = m_tlsList.removeHead ();
+		AXL_MEM_FREE (tls);
 	}
 
-	m_StaticGcRootArray.Clear ();
-	m_ModuleArray.Clear ();
+	m_staticGcRootArray.clear ();
+	m_moduleArray.clear ();
 }
 
 bool
-CRuntime::AddModule (CModule* pModule)
+Runtime::addModule (Module* module)
 {
-	llvm::ExecutionEngine* pLlvmExecutionEngine = pModule->GetLlvmExecutionEngine ();
+	llvm::ExecutionEngine* llvmExecutionEngine = module->getLlvmExecutionEngine ();
 
 	// static gc roots
 
-	rtl::CArrayT <CVariable*> StaticRootArray = pModule->m_VariableMgr.GetStaticGcRootArray ();
-	size_t Count = StaticRootArray.GetCount ();
+	rtl::Array <Variable*> staticRootArray = module->m_variableMgr.getStaticGcRootArray ();
+	size_t count = staticRootArray.getCount ();
 
-	m_StaticGcRootArray.SetCount (Count);
-	for (size_t i = 0; i < Count; i++)
+	m_staticGcRootArray.setCount (count);
+	for (size_t i = 0; i < count; i++)
 	{
-		CVariable* pVariable = StaticRootArray [i];
-		void* p = pLlvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) pVariable->GetLlvmAllocValue ());
+		Variable* variable = staticRootArray [i];
+		void* p = llvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) variable->getLlvmAllocValue ());
 		ASSERT (p);
 
-		m_StaticGcRootArray [i].m_p = p;
-		m_StaticGcRootArray [i].m_pType = pVariable->GetType ();
+		m_staticGcRootArray [i].m_p = p;
+		m_staticGcRootArray [i].m_type = variable->getType ();
 	}
 
 	// tls
 	
-	size_t TlsSize = pModule->m_VariableMgr.GetTlsStructType ()->GetSize ();
-	if (!m_TlsSize)
+	size_t tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
+	if (!m_tlsSize)
 	{
-		m_TlsSize = TlsSize >= 1024 ? TlsSize : 1024; // reserve at least 1K for TLS
+		m_tlsSize = tlsSize >= 1024 ? tlsSize : 1024; // reserve at least 1K for TLS
 	}
-	else if (m_TlsSize < TlsSize)
+	else if (m_tlsSize < tlsSize)
 	{
-		err::SetFormatStringError ("dynamic grow of TLS is not yet supported");
+		err::setFormatStringError ("dynamic grow of TLS is not yet supported");
 		return false;
 	}
 
-	m_ModuleArray.Append (pModule);
+	m_moduleArray.append (module);
 	return true;
 }
 
 bool
-CRuntime::Startup ()
+Runtime::startup ()
 {
 	// ensure correct state
 
-	m_GcState = EGcState_Idle;
-	m_GcUnsafeThreadCount = 1;
-	m_GcIdleEvent.Signal ();
+	m_gcState = GcStateKind_Idle;
+	m_gcUnsafeThreadCount = 1;
+	m_gcIdleEvent.signal ();
 
-	GetTlsMgr ()->NullifyTls (this);
-	m_TlsList.Clear ();
+	getTlsMgr ()->nullifyTls (this);
+	m_tlsList.clear ();
 	return true;
 }
 
 void
-CRuntime::Shutdown ()
+Runtime::shutdown ()
 {
-	rtl::CArrayT <TGcRoot> SaveStaticGcRootArray = m_StaticGcRootArray;
-	m_StaticGcRootArray.Clear ();
+	rtl::Array <GcRoot> saveStaticGcRootArray = m_staticGcRootArray;
+	m_staticGcRootArray.clear ();
 
-	RunGc ();
-	RunGc (); // 2nd gc run is needed to clean up after destruction
+	runGc ();
+	runGc (); // 2nd gc run is needed to clean up after destruction
 
-	TTlsHdr* pTls = GetTlsMgr ()->NullifyTls (this);
-	if (pTls)
+	TlsHdr* tls = getTlsMgr ()->nullifyTls (this);
+	if (tls)
 	{
-		m_TlsList.Remove (pTls);
-		AXL_MEM_FREE (pTls);
+		m_tlsList.remove (tls);
+		AXL_MEM_FREE (tls);
 	}
 
-	ASSERT (m_TlsList.IsEmpty ());
+	ASSERT (m_tlsList.isEmpty ());
 
-	m_StaticGcRootArray = SaveStaticGcRootArray; // recover
+	m_staticGcRootArray = saveStaticGcRootArray; // recover
 }
 
 void
-CRuntime::RuntimeError (
-	int Error,
-	void* pCodeAddr,
-	void* pDataAddr
+Runtime::runtimeError (
+	int error,
+	void* codeAddr,
+	void* dataAddr
 	)
 {
-	const char* pErrorString;
+	const char* errorString;
 
-	switch (Error)
+	switch (error)
 	{
-	case ERuntimeError_OutOfMemory:
-		pErrorString = "OUT_OF_MEMORY";
+	case RuntimeErrorKind_OutOfMemory:
+		errorString = "OUT_OF_MEMORY";
 		break;
 
-	case ERuntimeError_StackOverflow:
-		pErrorString = "STACK_OVERFLOW";
+	case RuntimeErrorKind_StackOverflow:
+		errorString = "STACK_OVERFLOW";
 		break;
 
-	case ERuntimeError_DataPtrOutOfRange:
-		pErrorString = "DATA_PTR_OOR";
+	case RuntimeErrorKind_DataPtrOutOfRange:
+		errorString = "DATA_PTR_OOR";
 		break;
 
-	case ERuntimeError_ScopeMismatch:
-		pErrorString = "SCOPE_MISMATCH";
+	case RuntimeErrorKind_ScopeMismatch:
+		errorString = "SCOPE_MISMATCH";
 		break;
 
-	case ERuntimeError_NullClassPtr:
-		pErrorString = "NULL_CLASS_PTR";
+	case RuntimeErrorKind_NullClassPtr:
+		errorString = "NULL_CLASS_PTR";
 		break;
 
-	case ERuntimeError_NullFunctionPtr:
-		pErrorString = "NULL_FUNCTION_PTR";
+	case RuntimeErrorKind_NullFunctionPtr:
+		errorString = "NULL_FUNCTION_PTR";
 		break;
 
-	case ERuntimeError_NullPropertyPtr:
-		pErrorString = "NULL_PROPERTY_PTR";
+	case RuntimeErrorKind_NullPropertyPtr:
+		errorString = "NULL_PROPERTY_PTR";
 		break;
 
-	case ERuntimeError_AbstractFunction:
-		pErrorString = "ABSTRACT_FUNCTION";
+	case RuntimeErrorKind_AbstractFunction:
+		errorString = "ABSTRACT_FUNCTION";
 		break;
 
 	default:
 		ASSERT (false);
-		pErrorString = "<UNDEF>";
+		errorString = "<UNDEF>";
 	}
 
-	throw err::FormatStringError (
+	throw err::formatStringError (
 		"RUNTIME ERROR: %s (code %x accessing data %x)",
-		pErrorString,
-		pCodeAddr,
-		pDataAddr
+		errorString,
+		codeAddr,
+		dataAddr
 		);
 }
 
 void*
-CRuntime::GcAllocate (
-	CType* pType,
-	size_t ElementCount
+Runtime::gcAllocate (
+	Type* type,
+	size_t elementCount
 	)
 {
-	void* p = GcTryAllocate (pType, ElementCount);
+	void* p = gcTryAllocate (type, elementCount);
 	if (!p)
 	{
-		RuntimeError (ERuntimeError_OutOfMemory, NULL, NULL);
+		runtimeError (RuntimeErrorKind_OutOfMemory, NULL, NULL);
 		ASSERT (false);
 	}
 
@@ -207,168 +207,168 @@ CRuntime::GcAllocate (
 }
 
 void*
-CRuntime::GcTryAllocate (
-	CType* pType,
-	size_t ElementCount
+Runtime::gcTryAllocate (
+	Type* type,
+	size_t elementCount
 	)
 {
-	size_t PrevGcLevel = GcMakeThreadSafe ();
-	ASSERT (PrevGcLevel); // otherwise there is risk of losing return value
+	size_t prevGcLevel = gcMakeThreadSafe ();
+	ASSERT (prevGcLevel); // otherwise there is risk of losing return value
 
-	size_t Size = sizeof (TObjHdr) + pType->GetSize () * ElementCount;
-	if (ElementCount > 1)
-		Size += sizeof (size_t);
+	size_t size = sizeof (ObjHdr) + type->getSize () * elementCount;
+	if (elementCount > 1)
+		size += sizeof (size_t);
 
-	WaitGcIdleAndLock ();
-	if (m_PeriodGcAllocSize > m_PeriodGcAllocLimit)
+	waitGcIdleAndLock ();
+	if (m_periodGcAllocSize > m_periodGcAllocLimit)
 	{
 	//	RunGc_l ();
 	//	WaitGcIdleAndLock ();
 	}
 
-	RestoreGcLevel (PrevGcLevel); // restore before unlocking
+	restoreGcLevel (prevGcLevel); // restore before unlocking
 
-	void* pBlock = AXL_MEM_ALLOC (Size);
-	if (!pBlock)
+	void* block = AXL_MEM_ALLOC (size);
+	if (!block)
 	{
-		m_Lock.Unlock ();
+		m_lock.unlock ();
 		return NULL;
 	}
 
-	TObjHdr* pObject;
+	ObjHdr* object;
 	void* p;
 
-	if (pType->GetTypeKind () == EType_Class)
+	if (type->getTypeKind () == TypeKind_Class)
 	{
-		pObject = (TObjHdr*) pBlock;
-		GcAddObject (pObject, (CClassType*) pType);
+		object = (ObjHdr*) block;
+		gcAddObject (object, (ClassType*) type);
 
 		// object will be primed by user code
 
-		p = pObject;
+		p = object;
 	}
 	else
 	{
-		if (ElementCount > 1)
+		if (elementCount > 1)
 		{
-			size_t* pSize = (size_t*) pBlock;
-			*pSize = ElementCount;
-			pObject = (TObjHdr*) (pSize + 1);
-			pObject->m_Flags = EObjHdrFlag_DynamicArray;
+			size_t* size = (size_t*) block;
+			*size = elementCount;
+			object = (ObjHdr*) (size + 1);
+			object->m_flags = ObjHdrFlagKind_DynamicArray;
 		}
 		else
 		{
-			pObject = (TObjHdr*) pBlock;
-			pObject->m_Flags = 0;
+			object = (ObjHdr*) block;
+			object->m_flags = 0;
 		}
 
-		pObject->m_ScopeLevel = 0;
-		pObject->m_pRoot = pObject;
-		pObject->m_pType = pType;
+		object->m_scopeLevel = 0;
+		object->m_root = object;
+		object->m_type = type;
 
-		p = pObject + 1;
+		p = object + 1;
 	}
 
-	m_PeriodGcAllocSize += Size;
-	m_GcMemBlockArray.Append (pObject);
-	m_Lock.Unlock ();
+	m_periodGcAllocSize += size;
+	m_gcMemBlockArray.append (object);
+	m_lock.unlock ();
 	return p;
 }
 
 void
-CRuntime::GcAddObject (
-	TObjHdr* pObject,
-	CClassType* pType
+Runtime::gcAddObject (
+	ObjHdr* object,
+	ClassType* type
 	)
 {
-	char* p = (char*) (pObject + 1);
+	char* p = (char*) (object + 1);
 
-	rtl::CArrayT <CStructField*> ClassFieldArray = pType->GetClassMemberFieldArray ();
-	size_t Count = ClassFieldArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	rtl::Array <StructField*> classFieldArray = type->getClassMemberFieldArray ();
+	size_t count = classFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		CStructField* pField = ClassFieldArray [i];
-		ASSERT (pField->GetType ()->GetTypeKind () == EType_Class);
+		StructField* field = classFieldArray [i];
+		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
-		TObjHdr* pChildObject = (TObjHdr*) (p + pField->GetOffset ());
-		GcAddObject (pChildObject, (CClassType*) pField->GetType ());
+		ObjHdr* childObject = (ObjHdr*) (p + field->getOffset ());
+		gcAddObject (childObject, (ClassType*) field->getType ());
 	}
 
-	m_GcObjectArray.Append (pObject);
+	m_gcObjectArray.append (object);
 }
 
 void
-CRuntime::AddGcRoot (
+Runtime::addGcRoot (
 	void* p,
-	CType* pType
+	Type* type
 	)
 {
-	ASSERT (m_GcState == EGcState_Mark);
-	ASSERT (pType->GetFlags () & ETypeFlag_GcRoot);
+	ASSERT (m_gcState == GcStateKind_Mark);
+	ASSERT (type->getFlags () & TypeFlagKind_GcRoot);
 
-	TGcRoot Root = { p, pType };
-	m_GcRootArray [m_CurrentGcRootArrayIdx].Append (Root);
+	GcRoot root = { p, type };
+	m_gcRootArray [m_currentGcRootArrayIdx].append (root);
 }
 
 void
-CRuntime::MarkGcLocalHeapRoot (
+Runtime::markGcLocalHeapRoot (
 	void* p,
-	CType* pType
+	Type* type
 	)
 {
-	if (pType->GetTypeKind () == EType_Class)
-		((TObjHdr*) p)->GcMarkObject (this);
+	if (type->getTypeKind () == TypeKind_Class)
+		((ObjHdr*) p)->gcMarkObject (this);
 	else
-		((TObjHdr*) p - 1)->GcMarkData (this);
+		((ObjHdr*) p - 1)->gcMarkData (this);
 
-	if (pType->GetFlags () & ETypeFlag_GcRoot)
-		AddGcRoot (p, pType);
+	if (type->getFlags () & TypeFlagKind_GcRoot)
+		addGcRoot (p, type);
 }
 
 void
-CRuntime::RunGc ()
+Runtime::runGc ()
 {
-	size_t PrevGcLevel = GcMakeThreadSafe ();
-	WaitGcIdleAndLock ();
-	RunGc_l ();
-	RestoreGcLevel (PrevGcLevel);
+	size_t prevGcLevel = gcMakeThreadSafe ();
+	waitGcIdleAndLock ();
+	runGc_l ();
+	restoreGcLevel (prevGcLevel);
 }
 
 void
-CRuntime::RunGc_l ()
+Runtime::runGc_l ()
 {
-	m_GcIdleEvent.Reset ();
+	m_gcIdleEvent.reset ();
 
 	// 1) suspend all mutator threads at safe points
 
-	m_GcState = EGcState_WaitSafePoint;
+	m_gcState = GcStateKind_WaitSafePoint;
 
-	ASSERT (m_GcUnsafeThreadCount);
-	m_GcSafePointEvent.Reset ();
-	intptr_t UnsafeCount = mt::AtomicDec (&m_GcUnsafeThreadCount);
-	if (UnsafeCount)
+	ASSERT (m_gcUnsafeThreadCount);
+	m_gcSafePointEvent.reset ();
+	intptr_t unsafeCount = mt::atomicDec (&m_gcUnsafeThreadCount);
+	if (unsafeCount)
 	{
-		m_Lock.Unlock ();
-		m_GcSafePointEvent.Wait ();
-		m_Lock.Lock ();
+		m_lock.unlock ();
+		m_gcSafePointEvent.wait ();
+		m_lock.lock ();
 	}
 
 	// 2) mark
 
-	m_GcState = EGcState_Mark;
+	m_gcState = GcStateKind_Mark;
 
-	m_GcRootArray [0].Clear ();
-	m_CurrentGcRootArrayIdx = 0;
+	m_gcRootArray [0].clear ();
+	m_currentGcRootArrayIdx = 0;
 
 	// 2.1) add static roots
 
-	size_t Count = m_StaticGcRootArray.GetCount ();
-	for (size_t i = 0; i < Count; i++)
+	size_t count = m_staticGcRootArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		ASSERT (m_StaticGcRootArray [i].m_pType->GetFlags () & ETypeFlag_GcRoot);
-		AddGcRoot (
-			m_StaticGcRootArray [i].m_p,
-			m_StaticGcRootArray [i].m_pType
+		ASSERT (m_staticGcRootArray [i].m_type->getFlags () & TypeFlagKind_GcRoot);
+		addGcRoot (
+			m_staticGcRootArray [i].m_p,
+			m_staticGcRootArray [i].m_type
 			);
 	}
 
@@ -376,33 +376,33 @@ CRuntime::RunGc_l ()
 
 	// 2.2) add stack roots
 
-	rtl::CIteratorT <TTlsHdr> Tls = m_TlsList.GetHead ();
-	for (; Tls; Tls++)
+	rtl::Iterator <TlsHdr> tlsIt = m_tlsList.getHead ();
+	for (; tlsIt; tlsIt++)
 	{
-		TTls* pTls = (TTls*) (*Tls + 1);
+		Tls* tls = (Tls*) (*tlsIt + 1);
 
-		TGcShadowStackFrame* pStackFrame = pTls->m_pGcShadowStackTop;
-		for (; pStackFrame; pStackFrame = pStackFrame->m_pNext)
+		GcShadowStackFrame* stackFrame = tls->m_gcShadowStackTop;
+		for (; stackFrame; stackFrame = stackFrame->m_next)
 		{
-			size_t Count = pStackFrame->m_pMap->m_Count;
-			void** ppRootArray = (void**) (pStackFrame + 1);
-			CType** ppTypeArray = (CType**) (pStackFrame->m_pMap + 1);
+			size_t count = stackFrame->m_map->m_count;
+			void** rootArray = (void**) (stackFrame + 1);
+			Type** typeArray = (Type**) (stackFrame->m_map + 1);
 
-			for (size_t i = 0; i < Count; i++)
+			for (size_t i = 0; i < count; i++)
 			{
-				void* p = ppRootArray [i];
-				CType* pType = ppTypeArray [i];
+				void* p = rootArray [i];
+				Type* type = typeArray [i];
 
 				if (p) // check needed, stack roots could be nullified
 				{
-					if (pType->GetTypeKind () == EType_DataPtr &&
-						((CDataPtrType*) pType)->GetPtrTypeKind () == EDataPtrType_Thin) // local heap variable
+					if (type->getTypeKind () == TypeKind_DataPtr &&
+						((DataPtrType*) type)->getPtrTypeKind () == DataPtrTypeKind_Thin) // local heap variable
 					{
-						MarkGcLocalHeapRoot (p, ((CDataPtrType*) pType)->GetTargetType ());
+						markGcLocalHeapRoot (p, ((DataPtrType*) type)->getTargetType ());
 					}
 					else
 					{
-						AddGcRoot (p, pType);
+						addGcRoot (p, type);
 					}
 				}
 			}
@@ -411,381 +411,381 @@ CRuntime::RunGc_l ()
 
 	// 2.3) run mark cycle
 
-	GcMarkCycle ();
+	gcMarkCycle ();
 
 	// 2.4) mark objects as dead and schedule destruction
 
-	char Buffer [256];
-	rtl::CArrayT <TIfaceHdr*> DestructArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	TGcDestructGuard DestructGuard;
+	char buffer [256];
+	rtl::Array <IfaceHdr*> destructArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	GcDestructGuard destructGuard;
 
-	Count = m_GcObjectArray.GetCount ();
-	for (intptr_t i = Count - 1; i >= 0; i--)
+	count = m_gcObjectArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		jnc::TObjHdr* pObject = m_GcObjectArray [i];
+		jnc::ObjHdr* object = m_gcObjectArray [i];
 
-		if (!(pObject->m_Flags & (EObjHdrFlag_GcMark | EObjHdrFlag_GcWeakMark_c)))
+		if (!(object->m_flags & (ObjHdrFlagKind_GcMark | ObjHdrFlagKind_GcWeakMark_c)))
 		{
-			m_GcObjectArray.Remove (i);
-			pObject->m_Flags |= EObjHdrFlag_Dead;
+			m_gcObjectArray.remove (i);
+			object->m_flags |= ObjHdrFlagKind_Dead;
 
-			if (pObject->m_pClassType->GetDestructor ())
-				DestructArray.Append ((TIfaceHdr*) (pObject + 1));
+			if (object->m_classType->getDestructor ())
+				destructArray.append ((IfaceHdr*) (object + 1));
 		}
 	}
 
-	if (!DestructArray.IsEmpty ())
+	if (!destructArray.isEmpty ())
 	{
-		DestructGuard.m_pDestructArray = &DestructArray;
-		m_GcDestructGuardList.InsertTail (&DestructGuard);
+		destructGuard.m_destructArray = &destructArray;
+		m_gcDestructGuardList.insertTail (&destructGuard);
 	}
 
 	// 2.5) mark all destruct guard gc roots
 
-	rtl::CIteratorT <TGcDestructGuard> It = m_GcDestructGuardList.GetHead ();
-	for (; It; It++)
+	rtl::Iterator <GcDestructGuard> it = m_gcDestructGuardList.getHead ();
+	for (; it; it++)
 	{
-		TGcDestructGuard* pDestructGuard = *It;
+		GcDestructGuard* destructGuard = *it;
 
-		Count = DestructArray.GetCount ();
-		for (size_t i = 0; i < Count; i++)
+		count = destructArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			AddGcRoot (
-				&DestructArray [i],
-				DestructArray [i]->m_pObject->m_pClassType->GetClassPtrType ()
+			addGcRoot (
+				&destructArray [i],
+				destructArray [i]->m_object->m_classType->getClassPtrType ()
 				);
 		}
 	}
 
-	GcMarkCycle ();
+	gcMarkCycle ();
 
 	// 3) sweep
 
-	m_GcState = EGcState_Sweep;
+	m_gcState = GcStateKind_Sweep;
 
 	// 3.4) free memory blocks
 
-	Count = m_GcMemBlockArray.GetCount ();
-	for (intptr_t i = Count - 1; i >= 0; i--)
+	count = m_gcMemBlockArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		TObjHdr* pObject = m_GcMemBlockArray [i];
-		if (!(pObject->m_Flags & EObjHdrFlag_GcWeakMark))
+		ObjHdr* object = m_gcMemBlockArray [i];
+		if (!(object->m_flags & ObjHdrFlagKind_GcWeakMark))
 		{
-			m_GcMemBlockArray.Remove (i);
+			m_gcMemBlockArray.remove (i);
 
-			void* pBlock = (pObject->m_Flags & EObjHdrFlag_DynamicArray) ?
-				(void*) ((size_t*) pObject - 1) :
-				pObject;
+			void* block = (object->m_flags & ObjHdrFlagKind_DynamicArray) ?
+				(void*) ((size_t*) object - 1) :
+				object;
 
-			AXL_MEM_FREE (pBlock);
+			AXL_MEM_FREE (block);
 		}
 		else
 		{
-			pObject->m_Flags &= ~EObjHdrFlag_GcMask; // unmark
+			object->m_flags &= ~ObjHdrFlagKind_GcMask; // unmark
 		}
 	}
 
 	// 3.5) unmark the remaining objects
 
-	Count = m_GcObjectArray.GetCount ();
-	for (intptr_t i = Count - 1; i >= 0; i--)
+	count = m_gcObjectArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		jnc::TObjHdr* pObject = m_GcObjectArray [i];
-		pObject->m_Flags &= ~EObjHdrFlag_GcMask;
+		jnc::ObjHdr* object = m_gcObjectArray [i];
+		object->m_flags &= ~ObjHdrFlagKind_GcMask;
 	}
 
 	// 4) gc run is done, resume all suspended threads
 
-	mt::AtomicInc (&m_GcUnsafeThreadCount);
-	m_PeriodGcAllocSize = 0;
-	m_GcState = EGcState_Idle;
-	m_GcIdleEvent.Signal ();
-	m_Lock.Unlock ();
+	mt::atomicInc (&m_gcUnsafeThreadCount);
+	m_periodGcAllocSize = 0;
+	m_gcState = GcStateKind_Idle;
+	m_gcIdleEvent.signal ();
+	m_lock.unlock ();
 
 	// 5) run destructors
 
-	if (!DestructArray.IsEmpty ())
+	if (!destructArray.isEmpty ())
 	{
-		Count = DestructArray.GetCount ();
-		for (size_t i = 0; i < Count; i++)
+		count = destructArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			TIfaceHdr* pIface = DestructArray [i];
-			CFunction* pDestructor = pIface->m_pObject->m_pClassType->GetDestructor ();
-			ASSERT (pDestructor);
+			IfaceHdr* iface = destructArray [i];
+			Function* destructor = iface->m_object->m_classType->getDestructor ();
+			ASSERT (destructor);
 
-			FObject_Destruct* pf = (FObject_Destruct*) pDestructor->GetMachineCode ();
-			pf (pIface);
+			FObject_Destruct* pf = (FObject_Destruct*) destructor->getMachineCode ();
+			pf (iface);
 		}
 
-		m_Lock.Lock ();
-		m_GcDestructGuardList.Remove (&DestructGuard);
-		m_Lock.Unlock ();
+		m_lock.lock ();
+		m_gcDestructGuardList.remove (&destructGuard);
+		m_lock.unlock ();
 	}
 }
 
 void
-CRuntime::GcMarkCycle ()
+Runtime::gcMarkCycle ()
 {
 	// mark breadth first
 
-	while (!m_GcRootArray [m_CurrentGcRootArrayIdx].IsEmpty ())
+	while (!m_gcRootArray [m_currentGcRootArrayIdx].isEmpty ())
 	{
-		size_t PrevGcRootArrayIdx =  m_CurrentGcRootArrayIdx;
-		m_CurrentGcRootArrayIdx = !m_CurrentGcRootArrayIdx;
-		m_GcRootArray [m_CurrentGcRootArrayIdx].Clear ();
+		size_t prevGcRootArrayIdx =  m_currentGcRootArrayIdx;
+		m_currentGcRootArrayIdx = !m_currentGcRootArrayIdx;
+		m_gcRootArray [m_currentGcRootArrayIdx].clear ();
 
-		size_t Count = m_GcRootArray [PrevGcRootArrayIdx].GetCount ();
-		for (size_t i = 0; i < Count; i++)
+		size_t count = m_gcRootArray [prevGcRootArrayIdx].getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			const TGcRoot* pRoot = &m_GcRootArray [PrevGcRootArrayIdx] [i];
-			pRoot->m_pType->GcMark (this, pRoot->m_p);
+			const GcRoot* root = &m_gcRootArray [prevGcRootArrayIdx] [i];
+			root->m_type->gcMark (this, root->m_p);
 		}
 	}
 }
 
 void
-CRuntime::GcEnter ()
+Runtime::gcEnter ()
 {
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls);
 
-	pTls->m_GcLevel++;
-	if (pTls->m_GcLevel > 1) // was already unsafe
-		GcPulse (); // pulse on enter only, no pulse on leave: might lose retval gcroot
+	tls->m_gcLevel++;
+	if (tls->m_gcLevel > 1) // was already unsafe
+		gcPulse (); // pulse on enter only, no pulse on leave: might lose retval gcroot
 	else
-		GcIncrementUnsafeThreadCount ();
+		gcIncrementUnsafeThreadCount ();
 }
 
 void
-CRuntime::GcLeave ()
+Runtime::gcLeave ()
 {
-	ASSERT (m_GcState == EGcState_Idle || m_GcState == EGcState_WaitSafePoint);
+	ASSERT (m_gcState == GcStateKind_Idle || m_gcState == GcStateKind_WaitSafePoint);
 
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls && pTls->m_GcLevel);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls && tls->m_gcLevel);
 
-	pTls->m_GcLevel--;
-	if (!pTls->m_GcLevel) // not unsafe anymore
-		GcDecrementUnsafeThreadCount ();
+	tls->m_gcLevel--;
+	if (!tls->m_gcLevel) // not unsafe anymore
+		gcDecrementUnsafeThreadCount ();
 }
 
 void
-CRuntime::GcPulse ()
+Runtime::gcPulse ()
 {
-	ASSERT (m_GcState == EGcState_Idle || m_GcState == EGcState_WaitSafePoint);
+	ASSERT (m_gcState == GcStateKind_Idle || m_gcState == GcStateKind_WaitSafePoint);
 
-	if (m_GcState != EGcState_WaitSafePoint)
+	if (m_gcState != GcStateKind_WaitSafePoint)
 		return;
 
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls);
 
-	if (pTls->m_GcLevel)
+	if (tls->m_gcLevel)
 	{
-		GcDecrementUnsafeThreadCount ();
-		GcIncrementUnsafeThreadCount ();
+		gcDecrementUnsafeThreadCount ();
+		gcIncrementUnsafeThreadCount ();
 	}
 }
 
 void
-CRuntime::GcIncrementUnsafeThreadCount ()
+Runtime::gcIncrementUnsafeThreadCount ()
 {
 	// what we try to prevent here is entering an unsafe region when collector thread
 	// thinks all the mutators are parked at safe regions and therefore moves on to mark/sweep
 
 	for (;;)
 	{
-		if (m_GcState != EGcState_Idle)
-			m_GcIdleEvent.Wait ();
+		if (m_gcState != GcStateKind_Idle)
+			m_gcIdleEvent.wait ();
 
-		intptr_t OldCount = m_GcUnsafeThreadCount;
-		if (OldCount == 0) // oh-oh -- we started gc run in between these two 'if's
+		intptr_t oldCount = m_gcUnsafeThreadCount;
+		if (oldCount == 0) // oh-oh -- we started gc run in between these two 'if's
 			continue;
 
-		intptr_t NewCount = OldCount + 1;
-		intptr_t PrevCount = mt::AtomicCmpXchg (&m_GcUnsafeThreadCount, OldCount, NewCount);
-		if (PrevCount == OldCount)
+		intptr_t newCount = oldCount + 1;
+		intptr_t prevCount = mt::atomicCmpXchg (&m_gcUnsafeThreadCount, oldCount, newCount);
+		if (prevCount == oldCount)
 			break;
 	}
 }
 
 void
-CRuntime::GcDecrementUnsafeThreadCount ()
+Runtime::gcDecrementUnsafeThreadCount ()
 {
-	intptr_t Count = mt::AtomicDec (&m_GcUnsafeThreadCount);
-	if (m_GcState == EGcState_WaitSafePoint)
+	intptr_t count = mt::atomicDec (&m_gcUnsafeThreadCount);
+	if (m_gcState == GcStateKind_WaitSafePoint)
 	{
-		if (!Count)
-			m_GcSafePointEvent.Signal ();
+		if (!count)
+			m_gcSafePointEvent.signal ();
 
-		m_GcIdleEvent.Wait ();
+		m_gcIdleEvent.wait ();
 	}
 }
 
 size_t
-CRuntime::GcMakeThreadSafe ()
+Runtime::gcMakeThreadSafe ()
 {
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls);
 
-	if (!pTls->m_GcLevel)
+	if (!tls->m_gcLevel)
 		return 0;
 
-	size_t PrevGcLevel = pTls->m_GcLevel;
-	pTls->m_GcLevel = 0;
-	GcDecrementUnsafeThreadCount ();
-	return PrevGcLevel;
+	size_t prevGcLevel = tls->m_gcLevel;
+	tls->m_gcLevel = 0;
+	gcDecrementUnsafeThreadCount ();
+	return prevGcLevel;
 }
 
 void
-CRuntime::RestoreGcLevel (size_t PrevGcLevel)
+Runtime::restoreGcLevel (size_t prevGcLevel)
 {
-	if (!PrevGcLevel)
+	if (!prevGcLevel)
 		return;
 
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls);
 
-	pTls->m_GcLevel = PrevGcLevel;
-	GcIncrementUnsafeThreadCount ();
+	tls->m_gcLevel = prevGcLevel;
+	gcIncrementUnsafeThreadCount ();
 }
 
 void
-CRuntime::WaitGcIdleAndLock ()
+Runtime::waitGcIdleAndLock ()
 {
-	ASSERT (!GetTls ()->m_GcLevel); // otherwise we have a potential deadlock
+	ASSERT (!getTls ()->m_gcLevel); // otherwise we have a potential deadlock
 
 	for (;;)
 	{
-		m_Lock.Lock ();
+		m_lock.lock ();
 
-		if (m_GcState == EGcState_Idle)
+		if (m_gcState == GcStateKind_Idle)
 			break;
 
-		m_Lock.Unlock ();
-		m_GcIdleEvent.Wait ();
+		m_lock.unlock ();
+		m_gcIdleEvent.wait ();
 	}
 }
 
-TTlsHdr*
-CRuntime::GetTls ()
+TlsHdr*
+Runtime::getTls ()
 {
-	TTlsHdr* pTls = GetTlsMgr ()->GetTls (this);
-	ASSERT (pTls);
+	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	ASSERT (tls);
 
 	// check for stack overflow
 
 	char* p = (char*) _alloca (1);
 
-	if (!pTls->m_pStackEpoch) // first time call
+	if (!tls->m_stackEpoch) // first time call
 	{
-		pTls->m_pStackEpoch = p;
+		tls->m_stackEpoch = p;
 	}
 	else
 	{
-		char* p0 = (char*) pTls->m_pStackEpoch;
+		char* p0 = (char*) tls->m_stackEpoch;
 		if (p0 >= p) // the opposite could happen, but it's stack-overflow-safe
 		{
-			size_t StackSize = p0 - p;
-			if (StackSize > m_StackLimit)
+			size_t stackSize = p0 - p;
+			if (stackSize > m_stackLimit)
 			{
-				CStdLib::RuntimeError (ERuntimeError_StackOverflow, NULL, NULL);
+				StdLib::runtimeError (RuntimeErrorKind_StackOverflow, NULL, NULL);
 				ASSERT (false);
 			}
 		}
 	}
 
-	return pTls;
+	return tls;
 }
 
-TTlsHdr*
-CRuntime::CreateTls ()
+TlsHdr*
+Runtime::createTls ()
 {
-	size_t Size = sizeof (TTlsHdr) + m_TlsSize;
+	size_t size = sizeof (TlsHdr) + m_tlsSize;
 
-	TTlsHdr* pTls = (TTlsHdr*) AXL_MEM_ALLOC (Size);
-	memset (pTls, 0, Size);
-	pTls->m_pRuntime = this;
-	pTls->m_pStackEpoch = NULL;
+	TlsHdr* tls = (TlsHdr*) AXL_MEM_ALLOC (size);
+	memset (tls, 0, size);
+	tls->m_runtime = this;
+	tls->m_stackEpoch = NULL;
 
-	m_Lock.Lock ();
-	m_TlsList.InsertTail (pTls);
-	m_Lock.Unlock ();
+	m_lock.lock ();
+	m_tlsList.insertTail (tls);
+	m_lock.unlock ();
 
-	return pTls;
+	return tls;
 }
 
 void
-CRuntime::DestroyTls (TTlsHdr* pTls)
+Runtime::destroyTls (TlsHdr* tls)
 {
-	m_Lock.Lock ();
-	m_TlsList.Remove (pTls);
-	m_Lock.Unlock ();
+	m_lock.lock ();
+	m_tlsList.remove (tls);
+	m_lock.unlock ();
 
-	AXL_MEM_FREE (pTls);
+	AXL_MEM_FREE (tls);
 }
 
-TIfaceHdr*
-CRuntime::CreateObject (
-	CClassType* pType,
-	uint_t Flags
+IfaceHdr*
+Runtime::createObject (
+	ClassType* type,
+	uint_t flags
 	)
 {
-	CFunction* pPrimer = pType->GetPrimer ();
-	if (!pPrimer) // abstract
+	Function* primer = type->getPrimer ();
+	if (!primer) // abstract
 	{
-		err::SetFormatStringError ("cannot create abstract '%s'", pType->m_Tag.cc ());
+		err::setFormatStringError ("cannot create abstract '%s'", type->m_tag.cc ());
 		return NULL;
 	}
 
-	GcEnter ();
+	gcEnter ();
 
-	TObjHdr* pObject = (TObjHdr*) GcAllocate (pType);
-	if (!pObject)
+	ObjHdr* object = (ObjHdr*) gcAllocate (type);
+	if (!object)
 		return NULL;
 
-	CScopeThreadRuntime ScopeRuntime (this);
+	ScopeThreadRuntime scopeRuntime (this);
 
-	if (Flags & ECreateObjectFlag_Prime)
+	if (flags & CreateObjectFlagKind_Prime)
 	{
-		FObject_Prime* pfPrime = (FObject_Prime*) pPrimer->GetMachineCode ();
-		pfPrime (pObject, 0, pObject, 0);
+		FObject_Prime* pfPrime = (FObject_Prime*) primer->getMachineCode ();
+		pfPrime (object, 0, object, 0);
 	}
 
-	TIfaceHdr* pInterface = (TIfaceHdr*) (pObject + 1);
+	IfaceHdr* interface = (IfaceHdr*) (object + 1);
 
-	if ((Flags & ECreateObjectFlag_Construct) && pType->GetConstructor ())
+	if ((flags & CreateObjectFlagKind_Construct) && type->getConstructor ())
 	{
-		CFunction* pConstructor = pType->GetDefaultConstructor ();
-		if (!pConstructor)
+		Function* constructor = type->getDefaultConstructor ();
+		if (!constructor)
 			return NULL;
 
-		FObject_Construct* pfConstruct = (FObject_Construct*) pConstructor->GetMachineCode ();
-		pfConstruct (pInterface);
+		FObject_Construct* pfConstruct = (FObject_Construct*) constructor->getMachineCode ();
+		pfConstruct (interface);
 	}
 
-	if (Flags & ECreateObjectFlag_Pin)
-		PinObject (pInterface);
+	if (flags & CreateObjectFlagKind_Pin)
+		pinObject (interface);
 
-	GcLeave ();
+	gcLeave ();
 
-	return pInterface;
+	return interface;
 }
 
 void
-CRuntime::PinObject (TIfaceHdr* pObject)
+Runtime::pinObject (IfaceHdr* object)
 {
-	m_Lock.Lock ();
-	m_GcPinTable.Goto (pObject);
-	m_Lock.Unlock ();
+	m_lock.lock ();
+	m_gcPinTable.visit (object);
+	m_lock.unlock ();
 }
 
 void
-CRuntime::UnpinObject (TIfaceHdr* pObject)
+Runtime::unpinObject (IfaceHdr* object)
 {
-	m_Lock.Lock ();
-	m_GcPinTable.DeleteByKey (pObject);
-	m_Lock.Unlock ();
+	m_lock.lock ();
+	m_gcPinTable.eraseByKey (object);
+	m_lock.unlock ();
 }
 
 //.............................................................................

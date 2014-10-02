@@ -26,7 +26,7 @@ enum EApiSlot
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class OpaqueTest: public jnc::TIfaceHdr
+class OpaqueTest: public jnc::IfaceHdr
 {
 public:
 	JNC_API_BEGIN_CLASS ("OpaqueTest", EApiSlot_OpaqueTest)
@@ -41,7 +41,7 @@ protected:
 
 public:
 	void
-	Construct (int x, int y)
+	construct (int x, int y)
 	{
 		m_x = x;
 		m_y = y;
@@ -60,13 +60,13 @@ public:
 
 //.............................................................................
 
-class StdLib: public jnc::CStdLib
+class StdLib: public jnc::StdLib
 {
 public:
 	JNC_API_BEGIN_LIB ()
-		JNC_API_STD_FUNCTION (jnc::EStdFunc_Printf,  &Printf)
+		JNC_API_STD_FUNCTION (jnc::StdFuncKind_Printf,  &Printf)
 //		JNC_API_CLASS (OpaqueTest)
-		JNC_API_LIB (jnc::CStdLib)
+		JNC_API_LIB (jnc::StdLib)
 //		JNC_API_FUNCTION ("testPtr",  &testPtr)
 	JNC_API_END_LIB ()
 
@@ -79,7 +79,7 @@ public:
 
 	static
 	void
-	testPtr (int x, jnc::TDataPtr Ptr, int y);
+	testPtr (int x, jnc::DataPtr Ptr, int y);
 };
 
 //.............................................................................
@@ -121,7 +121,7 @@ private:
 	void createStatusBar();
 	void createMdiArea();
 
-	bool runFunction (jnc::CFunction* pFunction, int* pReturnValue = NULL);
+	bool runFunction (jnc::Function* pFunction, int* pReturnValue = NULL);
 
 	void createPanes();
 	QDockWidget *addPane(QWidget *widget, const QString &title, Qt::DockWidgetArea dockArea);
@@ -132,7 +132,7 @@ private:
 	void readSettings();
 	void writeSettings();
 
-	jnc::CFunction *findGlobalFunction(const QString &name);
+	jnc::Function *findGlobalFunction(const QString &name);
 
 	QMdiArea *mdiArea;
 
@@ -160,8 +160,8 @@ private:
 	QAction *compileAction;
 	QAction *runAction;
 
-	jnc::CModule module;
-	jnc::CRuntime runtime;
+	jnc::Module module;
+	jnc::Runtime runtime;
 };
 
 inline MainWindow *GetMainWindow()

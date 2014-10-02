@@ -10,20 +10,20 @@ namespace jnc {
 
 //.............................................................................
 
-class CThunkFunction: public CFunction
+class ThunkFunction: public Function
 {
-	friend class CFunctionMgr;
+	friend class FunctionMgr;
 
 protected:
-	rtl::CString m_Signature;
-	CFunction* m_pTargetFunction;
+	rtl::String m_signature;
+	Function* m_targetFunction;
 
 public:
-	CThunkFunction ();
+	ThunkFunction ();
 
 	virtual
 	bool 
-	Compile ();
+	compile ();
 };
 
 //.............................................................................

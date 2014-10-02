@@ -6,69 +6,69 @@ namespace jnc {
 
 //.............................................................................
 
-CThunkFunction::CThunkFunction ()
+ThunkFunction::ThunkFunction ()
 {
-	m_FunctionKind = EFunction_Thunk;
-	m_pTargetFunction = NULL;
+	m_functionKind = FunctionKind_Thunk;
+	m_targetFunction = NULL;
 }
 
 bool 
-CThunkFunction::Compile ()
+ThunkFunction::compile ()
 {
-	ASSERT (m_pTargetFunction);
+	ASSERT (m_targetFunction);
 
-	bool Result;
+	bool result;
 
-	rtl::CArrayT <CFunctionArg*> TargetArgArray = m_pTargetFunction->GetType ()->GetArgArray ();
-	rtl::CArrayT <CFunctionArg*> ThunkArgArray = m_pType->GetArgArray ();
+	rtl::Array <FunctionArg*> targetArgArray = m_targetFunction->getType ()->getArgArray ();
+	rtl::Array <FunctionArg*> thunkArgArray = m_type->getArgArray ();
 
-	size_t TargetArgCount = TargetArgArray.GetCount ();
-	size_t ThunkArgCount = ThunkArgArray.GetCount ();
+	size_t targetArgCount = targetArgArray.getCount ();
+	size_t thunkArgCount = thunkArgArray.getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <CValue> ArgArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	ArgArray.SetCount (TargetArgCount);
+	char buffer [256];
+	rtl::Array <Value> argArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argArray.setCount (targetArgCount);
 
-	m_pModule->m_FunctionMgr.InternalPrologue (this);
+	m_module->m_functionMgr.internalPrologue (this);
 
-	llvm::Function::arg_iterator LlvmArg = GetLlvmFunction ()->arg_begin();
+	llvm::Function::arg_iterator llvmArg = getLlvmFunction ()->arg_begin();
 
 	// skip the first thunk argument (if needed)
 	
-	if (ThunkArgCount != TargetArgCount)
+	if (thunkArgCount != targetArgCount)
 	{
-		ASSERT (ThunkArgCount == TargetArgCount + 1);
-		ThunkArgArray.Remove (0); 
-		LlvmArg++;
+		ASSERT (thunkArgCount == targetArgCount + 1);
+		thunkArgArray.remove (0); 
+		llvmArg++;
 	}
 		
-	for (size_t i = 0; i < TargetArgCount; i++, LlvmArg++)
+	for (size_t i = 0; i < targetArgCount; i++, llvmArg++)
 	{
-		CValue ArgValue (LlvmArg, ThunkArgArray [i]->GetType ());
-		Result = m_pModule->m_OperatorMgr.CastOperator (&ArgValue, TargetArgArray [i]->GetType ());
-		if (!Result)
+		Value argValue (llvmArg, thunkArgArray [i]->getType ());
+		result = m_module->m_operatorMgr.castOperator (&argValue, targetArgArray [i]->getType ());
+		if (!result)
 			return false;
 
-		ArgArray [i] = ArgValue;
+		argArray [i] = argValue;
 	}	
 
-	CValue ReturnValue;
-	m_pModule->m_LlvmIrBuilder.CreateCall (
-		m_pTargetFunction, 
-		m_pTargetFunction->GetType (),
-		ArgArray,
-		ArgArray.GetCount (),
-		&ReturnValue
+	Value returnValue;
+	m_module->m_llvmIrBuilder.createCall (
+		m_targetFunction, 
+		m_targetFunction->getType (),
+		argArray,
+		argArray.getCount (),
+		&returnValue
 		);
 
-	if (m_pType->GetReturnType ()->GetTypeKind () != EType_Void)
+	if (m_type->getReturnType ()->getTypeKind () != TypeKind_Void)
 	{
-		Result = m_pModule->m_ControlFlowMgr.Return (ReturnValue);
-		if (!Result)
+		result = m_module->m_controlFlowMgr.ret (returnValue);
+		if (!result)
 			return false;
 	}
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

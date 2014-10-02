@@ -8,133 +8,133 @@
 
 namespace jnc {
 
-struct TIfaceHdr;
+struct IfaceHdr;
 
 //.............................................................................
 
-class CFunctionPtrType: public CType
+class FunctionPtrType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	EFunctionPtrType m_PtrTypeKind;
-	CFunctionType* m_pTargetType;
-	CClassType* m_pMulticastType;
-	rtl::CString m_TypeModifierString;
+	FunctionPtrTypeKind m_ptrTypeKind;
+	FunctionType* m_targetType;
+	ClassType* m_multicastType;
+	rtl::String m_typeModifierString;
 
 public:
-	CFunctionPtrType ();
+	FunctionPtrType ();
 
-	EFunctionPtrType
-	GetPtrTypeKind ()
+	FunctionPtrTypeKind
+	getPtrTypeKind ()
 	{
-		return m_PtrTypeKind;
+		return m_ptrTypeKind;
 	}
 
-	CFunctionType*
-	GetTargetType ()
+	FunctionType*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
 	bool
-	HasClosure ()
+	hasClosure ()
 	{
-		return m_PtrTypeKind == EFunctionPtrType_Normal || m_PtrTypeKind == EFunctionPtrType_Weak;
+		return m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak;
 	}
 
-	CFunctionPtrType*
-	GetCheckedPtrType ()
+	FunctionPtrType*
+	getCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
+		return !(m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CFunctionPtrType*
-	GetUnCheckedPtrType ()
+	FunctionPtrType*
+	getUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetFunctionPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
+		return (m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CFunctionPtrType*
-	GetNormalPtrType ()
+	FunctionPtrType*
+	getNormalPtrType ()
 	{
-		return (m_PtrTypeKind != EFunctionPtrType_Normal) ?
-			m_pTargetType->GetFunctionPtrType (EFunctionPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind != FunctionPtrTypeKind_Normal) ?
+			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
-	CFunctionPtrType*
-	GetWeakPtrType ()
+	FunctionPtrType*
+	getWeakPtrType ()
 	{
-		return (m_PtrTypeKind != EFunctionPtrType_Weak) ?
-			m_pTargetType->GetFunctionPtrType (EFunctionPtrType_Weak, m_Flags) :
+		return (m_ptrTypeKind != FunctionPtrTypeKind_Weak) ?
+			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
-	CFunctionPtrType*
-	GetUnWeakPtrType ()
+	FunctionPtrType*
+	getUnWeakPtrType ()
 	{
-		return (m_PtrTypeKind == EFunctionPtrType_Weak) ?
-			m_pTargetType->GetFunctionPtrType (EFunctionPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind == FunctionPtrTypeKind_Weak) ?
+			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
-	CClassType*
-	GetMulticastType ();
+	ClassType*
+	getMulticastType ();
 
-	CStructType*
-	GetFunctionPtrStructType ();
+	StructType*
+	getFunctionPtrStructType ();
 
-	rtl::CString
-	GetTypeModifierString ();
+	rtl::String
+	getTypeModifierString ();
 
 	static
-	rtl::CString
-	CreateSignature (
-		CFunctionType* pFunctionType,
-		EType TypeKind,
-		EFunctionPtrType PtrTypeKind,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		FunctionType* functionType,
+		TypeKind typeKind,
+		FunctionPtrTypeKind ptrTypeKind,
+		uint_t flags
 		);
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 
 	virtual
 	bool
-	CalcLayout ()
+	calcLayout ()
 	{
-		return m_pTargetType->EnsureLayout ();	
+		return m_targetType->ensureLayout ();	
 	}
 };
 
 //.............................................................................
 
-struct TFunctionPtrTypeTuple: rtl::TListLink
+struct FunctionPtrTypeTuple: rtl::ListLink
 {
-	CStructType* m_pPtrStructType;
-	CFunctionPtrType* m_PtrTypeArray [2] [3] [2]; // ref x kind x checked
+	StructType* m_ptrStructType;
+	FunctionPtrType* m_ptrTypeArray [2] [3] [2]; // ref x kind x checked
 };
 
 //.............................................................................
@@ -143,10 +143,10 @@ struct TFunctionPtrTypeTuple: rtl::TListLink
 // int function* pfTest (int, int);
 // int function weak* pfTest (int, int);
 
-struct TFunctionPtr
+struct FunctionPtr
 {
 	void* m_pf;
-	TIfaceHdr* m_pClosure;
+	IfaceHdr* m_closure;
 };
 
 //.............................................................................

@@ -14,10 +14,10 @@ public:
 
 	QSize sizeHint() const { return QSize(300, 50); }	
 
-	bool build(jnc::CModule *module);
+	bool build(jnc::Module *module);
 
 protected:
-	void addFunction(jnc::CFunction* function);
+	void addFunction(jnc::Function* function);
 };
 
 

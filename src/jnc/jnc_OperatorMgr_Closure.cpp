@@ -8,201 +8,201 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::CreateClosureObject (
-	EStorage StorageKind,
-	const CValue& OpValue, // thin function or property ptr with closure
-	CType* pThunkType, // function or property type
-	bool IsWeak,
-	CValue* pResultValue
+OperatorMgr::createClosureObject (
+	StorageKind storageKind,
+	const Value& opValue, // thin function or property ptr with closure
+	Type* thunkType, // function or property type
+	bool isWeak,
+	Value* resultValue
 	)
 {
-	ASSERT (pThunkType->GetTypeKind () == EType_Function || pThunkType->GetTypeKind () == EType_Property);
+	ASSERT (thunkType->getTypeKind () == TypeKind_Function || thunkType->getTypeKind () == TypeKind_Property);
 
-	bool Result;
+	bool result;
 
 	// choose reference function type
 
-	CFunctionType* pSrcFunctionType;
-	if (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_FunctionPtr)
+	FunctionType* srcFunctionType;
+	if (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr)
 	{
-		ASSERT (((CFunctionPtrType*) OpValue.GetType ())->GetPtrTypeKind () == EFunctionPtrType_Thin);
-		pSrcFunctionType = ((CFunctionPtrType*) OpValue.GetType ())->GetTargetType ();
+		ASSERT (((FunctionPtrType*) opValue.getType ())->getPtrTypeKind () == FunctionPtrTypeKind_Thin);
+		srcFunctionType = ((FunctionPtrType*) opValue.getType ())->getTargetType ();
 	}
 	else
 	{
-		ASSERT (OpValue.GetType ()->GetTypeKindFlags () & ETypeKindFlag_PropertyPtr);
-		ASSERT (((CPropertyPtrType*) OpValue.GetType ())->GetPtrTypeKind () == EPropertyPtrType_Thin);
-		pSrcFunctionType = ((CPropertyPtrType*) OpValue.GetType ())->GetTargetType ()->GetGetterType ();
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+		ASSERT (((PropertyPtrType*) opValue.getType ())->getPtrTypeKind () == PropertyPtrTypeKind_Thin);
+		srcFunctionType = ((PropertyPtrType*) opValue.getType ())->getTargetType ()->getGetterType ();
 	}
 
-	char Buffer1 [256];
-	char Buffer2 [256];
+	char buffer1 [256];
+	char buffer2 [256];
 
-	rtl::CArrayT <CType*> ClosureArgTypeArray (ref::EBuf_Stack, Buffer1, sizeof (Buffer1));
-	rtl::CArrayT <size_t> ClosureMap (ref::EBuf_Stack, Buffer2, sizeof (Buffer2));
-	size_t ClosureArgCount = 0;
-	uint64_t WeakMask = 0;
+	rtl::Array <Type*> closureArgTypeArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	rtl::Array <size_t> closureMap (ref::BufKind_Stack, buffer2, sizeof (buffer2));
+	size_t closureArgCount = 0;
+	uint64_t weakMask = 0;
 
 	// build closure arg type array & closure map
 
-	CClosure* pClosure = OpValue.GetClosure ();
-	if (pClosure)
+	Closure* closure = opValue.getClosure ();
+	if (closure)
 	{
-		ClosureArgCount = pClosure->GetArgValueList ()->GetCount ();
+		closureArgCount = closure->getArgValueList ()->getCount ();
 
-		rtl::CArrayT <CFunctionArg*> SrcArgArray = pSrcFunctionType->GetArgArray ();
-		size_t SrcArgCount = SrcArgArray.GetCount ();
+		rtl::Array <FunctionArg*> srcArgArray = srcFunctionType->getArgArray ();
+		size_t srcArgCount = srcArgArray.getCount ();
 
-		if (ClosureArgCount > SrcArgCount)
+		if (closureArgCount > srcArgCount)
 		{
-			err::SetFormatStringError ("closure is too big for '%s'", pSrcFunctionType->GetTypeString ().cc ());
+			err::setFormatStringError ("closure is too big for '%s'", srcFunctionType->getTypeString ().cc ());
 			return false;
 		}
 
-		ClosureArgTypeArray.SetCount (ClosureArgCount);
-		ClosureMap.SetCount (ClosureArgCount);
+		closureArgTypeArray.setCount (closureArgCount);
+		closureMap.setCount (closureArgCount);
 
-		rtl::CBoxIteratorT <CValue> ClosureArgValue = pClosure->GetArgValueList ()->GetHead ();
+		rtl::BoxIterator <Value> closureArgValue = closure->getArgValueList ()->getHead ();
 
 		size_t j = 0;
 
-		for (size_t i = 0; i < ClosureArgCount; ClosureArgValue++, i++)
+		for (size_t i = 0; i < closureArgCount; closureArgValue++, i++)
 		{
-			if (ClosureArgValue->IsEmpty ())
+			if (closureArgValue->isEmpty ())
 				continue;
 
-			CType* pType = ClosureArgValue->GetType ();
-			if (IsWeakPtrType (pType))
-				WeakMask |= (uint64_t) 2 << j; // account for function ptr field (at idx 0)
+			Type* type = closureArgValue->getType ();
+			if (isWeakPtrType (type))
+				weakMask |= (uint64_t) 2 << j; // account for function ptr field (at idx 0)
 
-			ClosureArgTypeArray [j] = SrcArgArray [i]->GetType ();
-			ClosureMap [j] = i;
+			closureArgTypeArray [j] = srcArgArray [i]->getType ();
+			closureMap [j] = i;
 			j++;
 		}
 
-		ClosureArgCount = j; // account for possible skipped args
+		closureArgCount = j; // account for possible skipped args
 	}
 
 	// find or create closure class type
 
-	CClosureClassType* pClosureType;
+	ClosureClassType* closureType;
 
-	if (pThunkType->GetTypeKind () == EType_Function)
+	if (thunkType->getTypeKind () == TypeKind_Function)
 	{
-		pClosureType = m_pModule->m_TypeMgr.GetFunctionClosureClassType (
-			((CFunctionPtrType*) OpValue.GetType ())->GetTargetType (),
-			(CFunctionType*) pThunkType,
-			ClosureArgTypeArray,
-			ClosureMap,
-			ClosureArgCount,
-			WeakMask
+		closureType = m_module->m_typeMgr.getFunctionClosureClassType (
+			((FunctionPtrType*) opValue.getType ())->getTargetType (),
+			(FunctionType*) thunkType,
+			closureArgTypeArray,
+			closureMap,
+			closureArgCount,
+			weakMask
 			);
 	}
 	else
 	{
-		ASSERT (pThunkType->GetTypeKind () == EType_Property);
+		ASSERT (thunkType->getTypeKind () == TypeKind_Property);
 
-		pClosureType = m_pModule->m_TypeMgr.GetPropertyClosureClassType (
-			((CPropertyPtrType*) OpValue.GetType ())->GetTargetType (),
-			(CPropertyType*) pThunkType,
-			ClosureArgTypeArray,
-			ClosureMap,
-			ClosureArgCount,
-			WeakMask
+		closureType = m_module->m_typeMgr.getPropertyClosureClassType (
+			((PropertyPtrType*) opValue.getType ())->getTargetType (),
+			(PropertyType*) thunkType,
+			closureArgTypeArray,
+			closureMap,
+			closureArgCount,
+			weakMask
 			);
 	}
 
 	// create instance
 
-	CValue ClosureValue;
-	Result = m_pModule->m_OperatorMgr.NewOperator (StorageKind, pClosureType, NULL, &ClosureValue);
-	if (!Result)
+	Value closureValue;
+	result = m_module->m_operatorMgr.newOperator (storageKind, closureType, NULL, &closureValue);
+	if (!result)
 		return false;
 
-	rtl::CIteratorT <CStructField> Field = pClosureType->GetFieldList ().GetHead ();
+	rtl::Iterator <StructField> field = closureType->getFieldList ().getHead ();
 
 	// save function/property pointer
 
-	CValue PfnValue = OpValue;
-	PfnValue.ClearClosure ();
+	Value pfnValue = opValue;
+	pfnValue.clearClosure ();
 
-	CValue FieldValue;
-	Result =
-		GetClassField (ClosureValue, *Field, NULL, &FieldValue) &&
-		BinaryOperator (EBinOp_Assign, FieldValue, PfnValue);
+	Value fieldValue;
+	result =
+		getClassField (closureValue, *field, NULL, &fieldValue) &&
+		binaryOperator (BinOpKind_Assign, fieldValue, pfnValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	Field++;
+	field++;
 
 	// save closure arguments (if any)
 
-	if (pClosure)
+	if (closure)
 	{
-		rtl::CBoxIteratorT <CValue> ClosureArgValue = pClosure->GetArgValueList ()->GetHead ();
-		for (; ClosureArgValue; ClosureArgValue++)
+		rtl::BoxIterator <Value> closureArgValue = closure->getArgValueList ()->getHead ();
+		for (; closureArgValue; closureArgValue++)
 		{
-			if (ClosureArgValue->IsEmpty ())
+			if (closureArgValue->isEmpty ())
 				continue;
 
-			ASSERT (Field);
+			ASSERT (field);
 
-			CValue FieldValue;
-			Result =
-				GetClassField (ClosureValue, *Field, NULL, &FieldValue) &&
-				BinaryOperator (EBinOp_Assign, FieldValue, *ClosureArgValue);
+			Value fieldValue;
+			result =
+				getClassField (closureValue, *field, NULL, &fieldValue) &&
+				binaryOperator (BinOpKind_Assign, fieldValue, *closureArgValue);
 
-			if (!Result)
+			if (!result)
 				return false;
 
-			Field++;
+			field++;
 		}
 	}
 
-	*pResultValue = ClosureValue;
+	*resultValue = closureValue;
 	return true;
 }
 
 bool
-COperatorMgr::CreateDataClosureObject (
-	EStorage StorageKind,
-	const CValue& OpValue, // data ptr
-	CPropertyType* pThunkType, // function or property type
-	CValue* pResultValue
+OperatorMgr::createDataClosureObject (
+	StorageKind storageKind,
+	const Value& opValue, // data ptr
+	PropertyType* thunkType, // function or property type
+	Value* resultValue
 	)
 {
-	ASSERT (OpValue.GetType ()->GetTypeKind () == EType_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
 
-	bool Result;
+	bool result;
 
 	// find or create closure class type
 
-	CDataClosureClassType* pClosureType = m_pModule->m_TypeMgr.GetDataClosureClassType (
-		((CDataPtrType*) OpValue.GetType ())->GetTargetType (),
-		pThunkType
+	DataClosureClassType* closureType = m_module->m_typeMgr.getDataClosureClassType (
+		((DataPtrType*) opValue.getType ())->getTargetType (),
+		thunkType
 		);
 
 	// create instance
 
-	CValue ClosureValue;
-	Result = m_pModule->m_OperatorMgr.NewOperator (StorageKind, pClosureType, NULL, &ClosureValue);
-	if (!Result)
+	Value closureValue;
+	result = m_module->m_operatorMgr.newOperator (storageKind, closureType, NULL, &closureValue);
+	if (!result)
 		return false;
 
-	rtl::CIteratorT <CStructField> Field = pClosureType->GetFieldList ().GetHead ();
+	rtl::Iterator <StructField> field = closureType->getFieldList ().getHead ();
 
 	// save data pointer
 
-	CValue FieldValue;
-	Result =
-		GetClassField (ClosureValue, *Field, NULL, &FieldValue) &&
-		BinaryOperator (EBinOp_Assign, FieldValue, OpValue);
+	Value fieldValue;
+	result =
+		getClassField (closureValue, *field, NULL, &fieldValue) &&
+		binaryOperator (BinOpKind_Assign, fieldValue, opValue);
 
-	if (!Result)
+	if (!result)
 		return false;
 
-	*pResultValue = ClosureValue;
+	*resultValue = closureValue;
 	return true;
 }
 

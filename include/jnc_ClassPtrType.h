@@ -10,139 +10,139 @@ namespace jnc {
 
 //.............................................................................
 
-class CClassPtrType: public CType
+class ClassPtrType: public Type
 {
-	friend class CTypeMgr;
+	friend class TypeMgr;
 
 protected:
-	EClassPtrType m_PtrTypeKind;
-	CClassType* m_pTargetType;
-	CNamespace* m_pAnchorNamespace; // for dual pointers
+	ClassPtrTypeKind m_ptrTypeKind;
+	ClassType* m_targetType;
+	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
-	CClassPtrType ();
+	ClassPtrType ();
 
-	EClassPtrType
-	GetPtrTypeKind ()
+	ClassPtrTypeKind
+	getPtrTypeKind ()
 	{
-		return m_PtrTypeKind;
+		return m_ptrTypeKind;
 	}
 
-	CClassType*
-	GetTargetType ()
+	ClassType*
+	getTargetType ()
 	{
-		return m_pTargetType;
+		return m_targetType;
 	}
 
-	CNamespace*
-	GetAnchorNamespace ()
+	Namespace*
+	getAnchorNamespace ()
 	{
-		return m_pAnchorNamespace;
+		return m_anchorNamespace;
 	}
 
 	bool
-	IsConstPtrType ();
+	isConstPtrType ();
 
 	bool
-	IsEventPtrType ();
+	isEventPtrType ();
 
-	CClassPtrType*
-	GetCheckedPtrType ()
+	ClassPtrType*
+	getCheckedPtrType ()
 	{
-		return !(m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags | EPtrTypeFlag_Safe) :
+		return !(m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CClassPtrType*
-	GetUnCheckedPtrType ()
+	ClassPtrType*
+	getUnCheckedPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Safe) ?
-			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Safe) :
+		return (m_flags & PtrTypeFlagKind_Safe) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
 			this;
 	}
 
-	CClassPtrType*
-	GetUnConstPtrType ()
+	ClassPtrType*
+	getUnConstPtrType ()
 	{
-		return (m_Flags & EPtrTypeFlag_Const) ?
-			m_pTargetType->GetClassPtrType (m_TypeKind, m_PtrTypeKind, m_Flags & ~EPtrTypeFlag_Const) :
+		return (m_flags & PtrTypeFlagKind_Const) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Const) :
 			this;
 	}
 
-	CClassPtrType*
-	GetNormalPtrType ()
+	ClassPtrType*
+	getNormalPtrType ()
 	{
-		return (m_PtrTypeKind != EClassPtrType_Normal) ?
-			m_pTargetType->GetClassPtrType (EClassPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind != ClassPtrTypeKind_Normal) ?
+			m_targetType->getClassPtrType (ClassPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
-	CClassPtrType*
-	GetWeakPtrType ()
+	ClassPtrType*
+	getWeakPtrType ()
 	{
-		return (m_PtrTypeKind != EClassPtrType_Weak) ?
-			m_pTargetType->GetClassPtrType (EClassPtrType_Weak, m_Flags) :
+		return (m_ptrTypeKind != ClassPtrTypeKind_Weak) ?
+			m_targetType->getClassPtrType (ClassPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
-	CClassPtrType*
-	GetUnWeakPtrType ()
+	ClassPtrType*
+	getUnWeakPtrType ()
 	{
-		return (m_PtrTypeKind == EClassPtrType_Weak) ?
-			m_pTargetType->GetClassPtrType (EClassPtrType_Normal, m_Flags) :
+		return (m_ptrTypeKind == ClassPtrTypeKind_Weak) ?
+			m_targetType->getClassPtrType (ClassPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	static
-	rtl::CString
-	CreateSignature (
-		CClassType* pClassType,
-		EType TypeKind,
-		EClassPtrType PtrTypeKind,
-		uint_t Flags
+	rtl::String
+	createSignature (
+		ClassType* classType,
+		TypeKind typeKind,
+		ClassPtrTypeKind ptrTypeKind,
+		uint_t flags
 		);
 
 	virtual
 	void
-	GcMark (
-		CRuntime* pRuntime,
+	gcMark (
+		Runtime* runtime,
 		void* p
 		);
 
 protected:
 	virtual
 	void
-	PrepareTypeString ();
+	prepareTypeString ();
 
 	virtual
 	void
-	PrepareLlvmType ();
+	prepareLlvmType ();
 
 	virtual
 	void
-	PrepareLlvmDiType ();
+	prepareLlvmDiType ();
 };
 
 //.............................................................................
 
-struct TClassPtrTypeTuple: rtl::TListLink
+struct ClassPtrTypeTuple: rtl::ListLink
 {
-	CClassPtrType* m_PtrTypeArray [2] [2] [2] [2] [2]; // ref x kind x const x volatile x checked
+	ClassPtrType* m_ptrTypeArray [2] [2] [2] [2] [2]; // ref x kind x const x volatile x checked
 };
 
 //.............................................................................
 
 inline
 bool
-IsClassPtrType (
-	CType* pType,
-	EClassType ClassTypeKind
+isClassPtrType (
+	Type* type,
+	ClassTypeKind classTypeKind
 	)
 {
 	return
-		(pType->GetTypeKindFlags () & ETypeKindFlag_ClassPtr) &&
-		((CClassPtrType*) pType)->GetTargetType ()->GetClassTypeKind () == ClassTypeKind;
+		(type->getTypeKindFlags () & TypeKindFlagKind_ClassPtr) &&
+		((ClassPtrType*) type)->getTargetType ()->getClassTypeKind () == classTypeKind;
 }
 
 //.............................................................................

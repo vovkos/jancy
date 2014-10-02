@@ -9,98 +9,98 @@
 
 namespace jnc {
 
-class CBasicBlock;
-class CFunction;
+class BasicBlock;
+class Function;
 
 //.............................................................................
 
-enum EScopeFlag
+enum ScopeFlagKind
 {
-	EScopeFlag_Try            = 0x0100,
-	EScopeFlag_CatchDefined   = 0x0200,
-	EScopeFlag_FinallyDefined = 0x0400,
-	EScopeFlag_CanThrow       = 0x0800, // function throws, or parent has catch
-	EScopeFlag_HasFinally     = 0x1000, // this scope or its parent has finally
+	ScopeFlagKind_Try            = 0x0100,
+	ScopeFlagKind_CatchDefined   = 0x0200,
+	ScopeFlagKind_FinallyDefined = 0x0400,
+	ScopeFlagKind_CanThrow       = 0x0800, // function throws, or parent has catch
+	ScopeFlagKind_HasFinally     = 0x1000, // this scope or its parent has finally
 };
 
 //.............................................................................
 
-class CScope:
-	public CModuleItem,
-	public CNamespace
+class Scope:
+	public ModuleItem,
+	public Namespace
 {
-	friend class CNamespaceMgr;
-	friend class CControlFlowMgr;
-	friend class CFunctionMgr;
-	friend class CParser;
+	friend class NamespaceMgr;
+	friend class ControlFlowMgr;
+	friend class FunctionMgr;
+	friend class Parser;
 
 protected:
-	size_t m_Level;
+	size_t m_level;
 
-	CToken::CPos m_Pos;
-	CFunction* m_pFunction;
+	Token::Pos m_pos;
+	Function* m_function;
 
-	rtl::CBoxListT <CValue> m_GcRootList;
-	llvm::DIScope m_LlvmDiScope;
-
-public:
-	CBasicBlock* m_pBreakBlock;
-	CBasicBlock* m_pContinueBlock;
-	CBasicBlock* m_pCatchBlock;
-	CBasicBlock* m_pFinallyBlock;
-	CVariable* m_pFinallyReturnAddress;
-	rtl::CArrayT <CBasicBlock*> m_FinallyReturnBlockArray;
-	CDestructList m_DestructList;
+	rtl::BoxList <Value> m_gcRootList;
+	llvm::DIScope m_llvmDiScope;
 
 public:
-	CScope ();
+	BasicBlock* m_breakBlock;
+	BasicBlock* m_continueBlock;
+	BasicBlock* m_catchBlock;
+	BasicBlock* m_finallyBlock;
+	Variable* m_finallyReturnAddress;
+	rtl::Array <BasicBlock*> m_finallyReturnBlockArray;
+	DestructList m_destructList;
+
+public:
+	Scope ();
 
 	size_t
-	GetLevel ()
+	getLevel ()
 	{
-		return m_Level;
+		return m_level;
 	}
 
 	bool
-	IsFunctionScope ()
+	isFunctionScope ()
 	{
-		return m_Level == 2;
+		return m_level == 2;
 	}
 
-	const CToken::CPos*
-	GetPos ()
+	const Token::Pos*
+	getPos ()
 	{
-		return &m_Pos;
+		return &m_pos;
 	}
 
-	CFunction*
-	GetFunction ()
+	Function*
+	getFunction ()
 	{
-		return m_pFunction;
+		return m_function;
 	}
 
-	CScope*
-	GetParentScope ()
+	Scope*
+	getParentScope ()
 	{
-		return m_pParentNamespace && m_pParentNamespace->GetNamespaceKind () == ENamespace_Scope ? (CScope*) m_pParentNamespace : NULL;
+		return m_parentNamespace && m_parentNamespace->getNamespaceKind () == NamespaceKind_Scope ? (Scope*) m_parentNamespace : NULL;
 	}
 
-	rtl::CConstBoxListT <CValue>
-	GetGcRootList ()
+	rtl::ConstBoxList <Value>
+	getGcRootList ()
 	{
-		return m_GcRootList;
+		return m_gcRootList;
 	}
 
 	void
-	AddToGcRootList (const CValue& Value)
+	addToGcRootList (const Value& value)
 	{
-		m_GcRootList.InsertTail (Value);
+		m_gcRootList.insertTail (value);
 	}
 
 	llvm::DIScope
-	GetLlvmDiScope ()
+	getLlvmDiScope ()
 	{
-		return m_LlvmDiScope;
+		return m_llvmDiScope;
 	}
 };
 

@@ -9,84 +9,84 @@
 
 namespace jnc {
 
-class CMulticastClassType;
+class MulticastClassType;
 
 //.............................................................................
 
-class CMulticastLib
+class MulticastLib
 {
 protected:
-	static void* m_MulticastMethodTable [EFunctionPtrType__Count] [EMulticastMethod__Count - 1];
+	static void* m_multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1];
 
 public:
 	static
 	bool
-	Export (CModule* pRuntime);
+	mapFunctions (Module* runtime);
 
 	static
 	void
-	MulticastClear (TMulticast* pMulticast);
+	multicastClear (Multicast* multicast);
 
 	static
 	handle_t
-	MulticastSet (
-		TMulticast* pMulticast,
-		TFunctionPtr Ptr
+	multicastSet (
+		Multicast* multicast,
+		FunctionPtr ptr
 		);
 
 	static
 	handle_t
-	MulticastSet_t (
-		TMulticast* pMulticast,
+	multicastSet_t (
+		Multicast* multicast,
 		void* pf
 		);
 
 	static
 	handle_t
-	MulticastAdd (
-		TMulticast* pMulticast,
-		TFunctionPtr Ptr
+	multicastAdd (
+		Multicast* multicast,
+		FunctionPtr ptr
 		);
 
 	static
 	handle_t
-	MulticastAdd_t (
-		TMulticast* pMulticast,
+	multicastAdd_t (
+		Multicast* multicast,
 		void* pf
 		);
 
 	static
-	TFunctionPtr
-	MulticastRemove (
-		TMulticast* pMulticast,
-		handle_t Handle
+	FunctionPtr
+	multicastRemove (
+		Multicast* multicast,
+		handle_t handle
 		);
 
 	static
 	void*
-	MulticastRemove_t (
-		TMulticast* pMulticast,
-		handle_t Handle
+	multicastRemove_t (
+		Multicast* multicast,
+		handle_t handle
 		);
 
 	static
-	TFunctionPtr
-	MulticastGetSnapshot (TMulticast* pMulticast);
+	FunctionPtr
+	multicastGetSnapshot (Multicast* multicast);
 
 protected:
 	static
 	void
-	MapMulticastMethods (
-		CModule* pModule,
-		CMulticastClassType* pMulticastType
+	mapMulticastMethods (
+		Module* module,
+		MulticastClassType* multicastType
 		);
 
 	static
 	void
-	ExportMulticastMethods (
-		CModule* pModule,
-		llvm::ExecutionEngine* pLlvmExecutionEngine,
-		CMulticastClassType* pMulticastType
+	exportMulticastMethods (
+		Module* module,
+		llvm::ExecutionEngine* llvmExecutionEngine,
+		MulticastClassType* multicastType
 		);
 };
 

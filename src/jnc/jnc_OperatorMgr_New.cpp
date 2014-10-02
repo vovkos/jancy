@@ -8,374 +8,374 @@ namespace jnc {
 //.............................................................................
 
 bool
-COperatorMgr::Allocate (
-	EStorage StorageKind,
-	CType* pType,
-	const CValue& ElementCountValue,
-	const char* pTag,
-	CValue* pResultValue
+OperatorMgr::allocate (
+	StorageKind storageKind,
+	Type* type,
+	const Value& elementCountValue,
+	const char* tag,
+	Value* resultValue
 	)
 {
-	ASSERT (!ElementCountValue || ElementCountValue.GetType ()->GetTypeKind () == EType_SizeT);
+	ASSERT (!elementCountValue || elementCountValue.getType ()->getTypeKind () == TypeKind_SizeT);
 
-	CType* pPtrType = pType->GetDataPtrType_c ();
+	Type* ptrType = type->getDataPtrType_c ();
 
-	bool IsNonConstSizeArray = ElementCountValue && ElementCountValue.GetValueKind () != EValue_Const;
-	if (IsNonConstSizeArray)
+	bool isNonConstSizeArray = elementCountValue && elementCountValue.getValueKind () != ValueKind_Const;
+	if (isNonConstSizeArray)
 	{
-		if (StorageKind != EStorage_Heap && StorageKind != EStorage_UHeap)
+		if (storageKind != StorageKind_Heap && storageKind != StorageKind_UHeap)
 		{
-			err::SetFormatStringError ("cannot create non-const-sized arrays with '%s new'", GetStorageKindString (StorageKind));
+			err::setFormatStringError ("cannot create non-const-sized arrays with '%s new'", getStorageKindString (storageKind));
 			return false;
 		}
 	}
-	else if (ElementCountValue.GetValueKind () == EValue_Const)
+	else if (elementCountValue.getValueKind () == ValueKind_Const)
 	{
-		size_t Count = ElementCountValue.GetSizeT ();
-		if (Count > 1)
-			pType = m_pModule->m_TypeMgr.GetArrayType (pType, Count);
+		size_t count = elementCountValue.getSizeT ();
+		if (count > 1)
+			type = m_module->m_typeMgr.getArrayType (type, count);
 	}
 
-	CVariable* pVariable;
-	CFunction* pFunction;
-	CBasicBlock* pPrevBlock;
+	Variable* variable;
+	Function* function;
+	BasicBlock* prevBlock;
 
-	CValue TypeValue;
-	CValue PtrValue;
+	Value typeValue;
+	Value ptrValue;
 
-	switch (StorageKind)
+	switch (storageKind)
 	{
-	case EStorage_Static:
-		pVariable = m_pModule->m_VariableMgr.CreateVariable (EStorage_Static, pTag, pTag, pType);
+	case StorageKind_Static:
+		variable = m_module->m_variableMgr.createVariable (StorageKind_Static, tag, tag, type);
 
-		pFunction = m_pModule->GetConstructor ();
-		pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
-		m_pModule->m_VariableMgr.AllocatePrimeStaticVariable (pVariable);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
-		pResultValue->SetVariable (pVariable);
+		function = m_module->getConstructor ();
+		prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+		m_module->m_variableMgr.allocatePrimeStaticVariable (variable);
+		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+		resultValue->setVariable (variable);
 		return true;
 
-	case EStorage_Thread:
-		pVariable = m_pModule->m_VariableMgr.CreateVariable (EStorage_Thread, pTag, pTag, pType);
-		pResultValue->SetVariable (pVariable);
+	case StorageKind_Thread:
+		variable = m_module->m_variableMgr.createVariable (StorageKind_Thread, tag, tag, type);
+		resultValue->setVariable (variable);
 		return true;
 
-	case EStorage_Stack:
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, pTag, pPtrType, &PtrValue);
+	case StorageKind_Stack:
+		m_module->m_llvmIrBuilder.createAlloca (type, tag, ptrType, &ptrValue);
 
-		if (pType->GetFlags () & ETypeFlag_GcRoot)
-			MarkStackGcRoot (PtrValue, pType);
+		if (type->getFlags () & TypeFlagKind_GcRoot)
+			markStackGcRoot (ptrValue, type);
 		break;
 
-	case EStorage_Heap:
-		pFunction = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_GcAllocate);
+	case StorageKind_Heap:
+		function = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcAllocate);
 
-		TypeValue.CreateConst (&pType, m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr));
+		typeValue.createConst (&type, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr));
 
-		m_pModule->m_LlvmIrBuilder.CreateCall2 (
-			pFunction,
-			pFunction->GetType (),
-			TypeValue,
-			IsNonConstSizeArray ?
-				ElementCountValue :
-				CValue (1, m_pModule->m_TypeMgr.GetPrimitiveType (EType_SizeT)),
-			&PtrValue
+		m_module->m_llvmIrBuilder.createCall2 (
+			function,
+			function->getType (),
+			typeValue,
+			isNonConstSizeArray ?
+				elementCountValue :
+				Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+			&ptrValue
 			);
 
-		CreateTmpStackGcRoot (PtrValue);
+		createTmpStackGcRoot (ptrValue);
 		break;
 
-	case EStorage_UHeap:
-		err::SetFormatStringError ("manual memory management is not supported yet");
+	case StorageKind_UHeap:
+		err::setFormatStringError ("manual memory management is not supported yet");
 		return false;
 
 	default:
-		err::SetFormatStringError ("invalid storage specifier '%s' in 'new' operator", GetStorageKindString (StorageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' in 'new' operator", getStorageKindString (storageKind));
 		return false;
 	}
 
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pPtrType, pResultValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, resultValue);
 	return true;
 }
 
 bool
-COperatorMgr::Prime (
-	EStorage StorageKind,
-	const CValue& PtrValue,
-	CType* pType,
-	const CValue& ElementCountValue,
-	CValue* pResultValue
+OperatorMgr::prime (
+	StorageKind storageKind,
+	const Value& ptrValue,
+	Type* type,
+	const Value& elementCountValue,
+	Value* resultValue
 	)
 {
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	if (pType->GetTypeKind () != EType_Class)
+	if (type->getTypeKind () != TypeKind_Class)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateStore (pType->GetZeroValue (), PtrValue);
+		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), ptrValue);
 
-		CValue ObjHdrValue;
-		switch (StorageKind)
+		Value objHdrValue;
+		switch (storageKind)
 		{
-		case EStorage_Static:
-		case EStorage_Thread:
-			ObjHdrValue = m_pModule->m_NamespaceMgr.GetStaticObjHdr ();
+		case StorageKind_Static:
+		case StorageKind_Thread:
+			objHdrValue = m_module->m_namespaceMgr.getStaticObjHdr ();
 			break;
 
-		case EStorage_Stack:
-			ObjHdrValue = m_pModule->m_NamespaceMgr.GetScopeLevelObjHdr (pScope);
+		case StorageKind_Stack:
+			objHdrValue = m_module->m_namespaceMgr.getScopeLevelObjHdr (scope);
 			break;
 
-		case EStorage_Heap:
-			m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr), &ObjHdrValue);
-			m_pModule->m_LlvmIrBuilder.CreateGep (ObjHdrValue, -1, ObjHdrValue.GetType (), &ObjHdrValue);
+		case StorageKind_Heap:
+			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr), &objHdrValue);
+			m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
 			break;
 
 		default:
-			err::SetFormatStringError ("cannot prime '%s' value", GetStorageKindString (StorageKind));
+			err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
 			return false;
 		}
 
-		CValue SizeValue (pType->GetSize (), EType_SizeT);
-		if (ElementCountValue)
+		Value sizeValue (type->getSize (), TypeKind_SizeT);
+		if (elementCountValue)
 		{
-			bool Result = BinaryOperator (EBinOp_Mul, &SizeValue, ElementCountValue);
-			if (!Result)
+			bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
+			if (!result)
 				return false;
 		}
 
-		pResultValue->SetLeanDataPtr (
-			PtrValue.GetLlvmValue (),
-			pType->GetDataPtrType (EDataPtrType_Lean),
-			ObjHdrValue,
-			PtrValue,
-			SizeValue
+		resultValue->setLeanDataPtr (
+			ptrValue.getLlvmValue (),
+			type->getDataPtrType (DataPtrTypeKind_Lean),
+			objHdrValue,
+			ptrValue,
+			sizeValue
 			);
 
 		return true;
 	}
 
-	CClassType* pClassType = (CClassType*) pType;
+	ClassType* classType = (ClassType*) type;
 
-	uint_t Flags = 0;
-	switch (StorageKind)
+	uint_t flags = 0;
+	switch (storageKind)
 	{
-	case EStorage_Static:
-		Flags |= EObjHdrFlag_Static;
+	case StorageKind_Static:
+		flags |= ObjHdrFlagKind_Static;
 		break;
 
-	case EStorage_Stack:
-		Flags |= EObjHdrFlag_Stack;
+	case StorageKind_Stack:
+		flags |= ObjHdrFlagKind_Stack;
 		break;
 
-	case EStorage_UHeap:
-		Flags |= EObjHdrFlag_UHeap;
+	case StorageKind_UHeap:
+		flags |= ObjHdrFlagKind_UHeap;
 		break;
 	}
 
-	if (!pClassType->IsCreatable ())
+	if (!classType->isCreatable ())
 	{
-		err::SetFormatStringError ("cannot instantiate '%s'", pClassType->GetTypeString ().cc ());
+		err::setFormatStringError ("cannot instantiate '%s'", classType->getTypeString ().cc ());
 		return false;
 	}
 
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "prime object");
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "prime object");
 
-	CFunction* pPrimer = pClassType->GetPrimer ();
+	Function* primer = classType->getPrimer ();
 
-	CValue ScopeLevelValue;
-	if (StorageKind == EStorage_Stack)
+	Value scopeLevelValue;
+	if (storageKind == StorageKind_Stack)
 	{
-		ASSERT (pScope);
-		ScopeLevelValue = m_pModule->m_NamespaceMgr.GetScopeLevel (pScope);
+		ASSERT (scope);
+		scopeLevelValue = m_module->m_namespaceMgr.getScopeLevel (scope);
 	}
 	else
 	{
-		ScopeLevelValue.SetConstSizeT (0);
+		scopeLevelValue.setConstSizeT (0);
 	}
 
-	CValue RootValue;
-	m_pModule->m_LlvmIrBuilder.CreateGep2 (PtrValue, 0, NULL, &RootValue);
+	Value rootValue;
+	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &rootValue);
 
-	m_pModule->m_LlvmIrBuilder.CreateCall4 (
-		pPrimer,
-		pPrimer->GetType (),
-		PtrValue,
-		ScopeLevelValue,
-		RootValue,
-		CValue (Flags, EType_Int_p),
+	m_module->m_llvmIrBuilder.createCall4 (
+		primer,
+		primer->getType (),
+		ptrValue,
+		scopeLevelValue,
+		rootValue,
+		Value (flags, TypeKind_Int_p),
 		NULL
 		);
 
-	CFunction* pDestructor = pClassType->GetDestructor ();
-	if (StorageKind != EStorage_Stack || !pDestructor)
+	Function* destructor = classType->getDestructor ();
+	if (storageKind != StorageKind_Stack || !destructor)
 	{
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (PtrValue, 1, pClassType->GetClassPtrType (), pResultValue);
+		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
 		return true;
 	}
 
-	CVariable* pFlagVariable = NULL;
-	if (m_pModule->m_ControlFlowMgr.GetFlags () & EControlFlowFlag_HasJump)
+	Variable* flagVariable = NULL;
+	if (m_module->m_controlFlowMgr.getFlags () & ControlFlowFlagKind_HasJump)
 	{
-		CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-		CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (PtrValue, 1, pClassType->GetClassPtrType (), pResultValue);
+		Function* function = m_module->m_functionMgr.getCurrentFunction ();
+		BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
 
-		pFlagVariable = m_pModule->m_VariableMgr.CreateOnceFlagVariable (EStorage_Stack);
-		m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pFlagVariable);
-		m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
+		flagVariable = m_module->m_variableMgr.createOnceFlagVariable (StorageKind_Stack);
+		m_module->m_variableMgr.allocatePrimeInitializeVariable (flagVariable);
+		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 
-		m_pModule->m_OperatorMgr.BinaryOperator (
-			EBinOp_Assign,
-			pFlagVariable,
-			CValue ((int64_t) 1, pFlagVariable->GetType ())
+		m_module->m_operatorMgr.binaryOperator (
+			BinOpKind_Assign,
+			flagVariable,
+			Value ((int64_t) 1, flagVariable->getType ())
 			);
 	}
 	else
 	{
-		m_pModule->m_LlvmIrBuilder.CreateGep2 (PtrValue, 1, pClassType->GetClassPtrType (), pResultValue);
+		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
 	}
 
-	m_pModule->m_NamespaceMgr.GetCurrentScope ()->m_DestructList.AddDestructor (
-		pDestructor,
-		*pResultValue,
-		pFlagVariable
+	m_module->m_namespaceMgr.getCurrentScope ()->m_destructList.addDestructor (
+		destructor,
+		*resultValue,
+		flagVariable
 		);
 
 	return true;
 }
 
 bool
-COperatorMgr::Construct (
-	const CValue& RawOpValue,
-	rtl::CBoxListT <CValue>* pArgList
+OperatorMgr::construct (
+	const Value& rawOpValue,
+	rtl::BoxList <Value>* argList
 	)
 {
-	CType* pType = RawOpValue.GetType ();
-	EType PtrTypeKind = pType->GetTypeKind ();
+	Type* type = rawOpValue.getType ();
+	TypeKind ptrTypeKind = type->getTypeKind ();
 
-	switch (PtrTypeKind)
+	switch (ptrTypeKind)
 	{
-	case EType_DataRef:
-	case EType_DataPtr:
-		pType = ((CDataPtrType*) pType)->GetTargetType ();
+	case TypeKind_DataRef:
+	case TypeKind_DataPtr:
+		type = ((DataPtrType*) type)->getTargetType ();
 		break;
 
-	case EType_ClassPtr:
-	case EType_ClassRef:
-		pType = ((CClassPtrType*) pType)->GetTargetType ();
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		type = ((ClassPtrType*) type)->getTargetType ();
 		break;
 
 	default:
-		err::SetFormatStringError ("'%s' is not a pointer or reference", pType->GetTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a pointer or reference", type->getTypeString ().cc ());
 		return false;
 	}
 
-	EType TypeKind = pType->GetTypeKind ();
+	TypeKind typeKind = type->getTypeKind ();
 
-	CFunction* pConstructor = NULL;
+	Function* constructor = NULL;
 
-	switch (TypeKind)
+	switch (typeKind)
 	{
-	case EType_Struct:
-	case EType_Union:
-		pConstructor = ((CDerivableType*) pType)->GetConstructor ();
+	case TypeKind_Struct:
+	case TypeKind_Union:
+		constructor = ((DerivableType*) type)->getConstructor ();
 		break;
 
-	case EType_Class:
-		pConstructor = ((CClassType*) pType)->GetConstructor ();
+	case TypeKind_Class:
+		constructor = ((ClassType*) type)->getConstructor ();
 		break;
 	}
 
-	if (!pConstructor)
+	if (!constructor)
 	{
-		if (pArgList && !pArgList->IsEmpty ())
+		if (argList && !argList->isEmpty ())
 		{
-			err::SetFormatStringError ("'%s' has no constructor", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ());
 			return false;
 		}
 
 		return true;
 	}
 
-	rtl::CBoxListT <CValue> ArgList;
-	if (!pArgList)
-		pArgList = &ArgList;
+	rtl::BoxList <Value> emptyArgList;
+	if (!argList)
+		argList = &emptyArgList;
 
-	CValue OpValue = RawOpValue;
-	if (PtrTypeKind == EType_DataRef || PtrTypeKind == EType_ClassRef)
+	Value opValue = rawOpValue;
+	if (ptrTypeKind == TypeKind_DataRef || ptrTypeKind == TypeKind_ClassRef)
 	{
-		bool Result = UnaryOperator (EUnOp_Addr, &OpValue);
-		if (!Result)
+		bool result = unaryOperator (UnOpKind_Addr, &opValue);
+		if (!result)
 			return false;
 	}
 
-	pArgList->InsertHead (OpValue);
+	argList->insertHead (opValue);
 
-	return CallOperator (pConstructor, pArgList);
+	return callOperator (constructor, argList);
 }
 
 bool
-COperatorMgr::ParseInitializer (
-	const CValue& RawValue,
-	CUnit* pUnit,
-	const rtl::CConstBoxListT <CToken>& ConstructorTokenList,
-	const rtl::CConstBoxListT <CToken>& InitializerTokenList
+OperatorMgr::parseInitializer (
+	const Value& rawValue,
+	Unit* unit,
+	const rtl::ConstBoxList <Token>& constructorTokenList,
+	const rtl::ConstBoxList <Token>& initializerTokenList
 	)
 {
-	if (pUnit)
-		m_pModule->m_UnitMgr.SetCurrentUnit (pUnit);
+	if (unit)
+		m_module->m_unitMgr.setCurrentUnit (unit);
 
-	bool Result;
+	bool result;
 
-	CValue Value = RawValue;
+	Value value = rawValue;
 
-	if (RawValue.GetType ()->GetTypeKind () == EType_DataRef)
-		Value.OverrideType (((CDataPtrType*) RawValue.GetType ())->GetUnConstPtrType ());
-	else if (RawValue.GetType ()->GetTypeKind () == EType_ClassRef)
-		Value.OverrideType (((CClassPtrType*) RawValue.GetType ())->GetUnConstPtrType ());
+	if (rawValue.getType ()->getTypeKind () == TypeKind_DataRef)
+		value.overrideType (((DataPtrType*) rawValue.getType ())->getUnConstPtrType ());
+	else if (rawValue.getType ()->getTypeKind () == TypeKind_ClassRef)
+		value.overrideType (((ClassPtrType*) rawValue.getType ())->getUnConstPtrType ());
 
-	rtl::CBoxListT <CValue> ArgList;
-	if (!ConstructorTokenList.IsEmpty ())
+	rtl::BoxList <Value> argList;
+	if (!constructorTokenList.isEmpty ())
 	{
-		CParser Parser;
-		Parser.m_pModule = m_pModule;
-		Parser.m_Stage = CParser::EStage_Pass2;
+		Parser parser;
+		parser.m_module = m_module;
+		parser.m_stage = Parser::StageKind_Pass2;
 
-		m_pModule->m_ControlFlowMgr.ResetJumpFlag ();
+		m_module->m_controlFlowMgr.resetJumpFlag ();
 
-		Result = Parser.ParseTokenList (ESymbol_expression_or_empty_list_save_list, ConstructorTokenList);
-		if (!Result)
+		result = parser.parseTokenList (SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
+		if (!result)
 			return false;
 
-		ArgList.TakeOver (&Parser.m_ExpressionValueList);
+		argList.takeOver (&parser.m_expressionValueList);
 	}
 
-	Result = Construct (Value, &ArgList);
-	if (!Result)
+	result = construct (value, &argList);
+	if (!result)
 		return false;
 
-	if (!InitializerTokenList.IsEmpty ())
+	if (!initializerTokenList.isEmpty ())
 	{
-		CParser Parser;
-		Parser.m_pModule = m_pModule;
-		Parser.m_Stage = CParser::EStage_Pass2;
+		Parser parser;
+		parser.m_module = m_module;
+		parser.m_stage = Parser::StageKind_Pass2;
 
-		m_pModule->m_ControlFlowMgr.ResetJumpFlag ();
+		m_module->m_controlFlowMgr.resetJumpFlag ();
 
-		if (InitializerTokenList.GetHead ()->m_Token == '{')
+		if (initializerTokenList.getHead ()->m_token == '{')
 		{
-			Parser.m_CurlyInitializerTargetValue = Value;
-			Result = Parser.ParseTokenList (ESymbol_curly_initializer, InitializerTokenList);
-			if (!Result)
+			parser.m_curlyInitializerTargetValue = value;
+			result = parser.parseTokenList (SymbolKind_curly_initializer, initializerTokenList);
+			if (!result)
 				return false;
 		}
 		else
 		{
-			Result =
-				Parser.ParseTokenList (ESymbol_expression_save_value, InitializerTokenList) &&
-				m_pModule->m_OperatorMgr.BinaryOperator (EBinOp_Assign, Value, Parser.m_ExpressionValue);
+			result =
+				parser.parseTokenList (SymbolKind_expression_save_value, initializerTokenList) &&
+				m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, value, parser.m_expressionValue);
 
-			if (!Result)
+			if (!result)
 				return false;
 		}
 	}
@@ -384,91 +384,91 @@ COperatorMgr::ParseInitializer (
 }
 
 bool
-COperatorMgr::ParseExpressionEx (
-	CUnit* pUnit,
-	const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-	const CValue& ThrowReturnValue,
-	uint_t Flags,
-	CValue* pResultValue
+OperatorMgr::parseExpressionEx (
+	Unit* unit,
+	const rtl::ConstBoxList <Token>& expressionTokenList,
+	const Value& throwReturnValue,
+	uint_t flags,
+	Value* resultValue
 	)
 {
-	if (pUnit)
-		m_pModule->m_UnitMgr.SetCurrentUnit (pUnit);
+	if (unit)
+		m_module->m_unitMgr.setCurrentUnit (unit);
 
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = CParser::EStage_Pass2;
-	Parser.m_ThrowReturnValue = ThrowReturnValue;
-	Parser.m_Flags |= Flags;
+	Parser parser;
+	parser.m_module = m_module;
+	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_throwReturnValue = throwReturnValue;
+	parser.m_flags |= flags;
 
-	m_pModule->m_ControlFlowMgr.ResetJumpFlag ();
+	m_module->m_controlFlowMgr.resetJumpFlag ();
 
-	bool Result = Parser.ParseTokenList (ESymbol_expression_save_value, ExpressionTokenList);
-	if (!Result)
+	bool result = parser.parseTokenList (SymbolKind_expression_save_value, expressionTokenList);
+	if (!result)
 		return false;
 
-	*pResultValue = Parser.m_ExpressionValue;
+	*resultValue = parser.m_expressionValue;
 	return true;
 }
 
 bool
-COperatorMgr::ParseConstExpression (
-	CUnit* pUnit,
-	const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-	CValue* pResultValue
+OperatorMgr::parseConstExpression (
+	Unit* unit,
+	const rtl::ConstBoxList <Token>& expressionTokenList,
+	Value* resultValue
 	)
 {
-	bool Result = ParseExpression (pUnit, ExpressionTokenList, CParser::EFlag_ConstExpression, pResultValue);
-	if (!Result)
+	bool result = parseExpression (unit, expressionTokenList, Parser::FlagKind_ConstExpression, resultValue);
+	if (!result)
 		return false;
 
-	ASSERT (pResultValue->GetValueKind () == EValue_Const);
+	ASSERT (resultValue->getValueKind () == ValueKind_Const);
 	return true;
 }
 
 bool
-COperatorMgr::ParseConstIntegerExpression (
-	CUnit* pUnit,
-	const rtl::CConstBoxListT <CToken>& ExpressionTokenList,
-	intptr_t* pInteger
+OperatorMgr::parseConstIntegerExpression (
+	Unit* unit,
+	const rtl::ConstBoxList <Token>& expressionTokenList,
+	intptr_t* integer
 	)
 {
-	CValue Value;
-	bool Result = ParseConstExpression (pUnit, ExpressionTokenList, &Value);
-	if (!Result)
+	Value value;
+	bool result = parseConstExpression (unit, expressionTokenList, &value);
+	if (!result)
 		return false;
 
-	if (!(Value.GetType ()->GetTypeKindFlags () & ETypeKindFlag_Integer))
+	if (!(value.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
 	{
-		err::SetFormatStringError ("expression is not integer constant");
+		err::setFormatStringError ("expression is not integer constant");
 		return false;
 	}
 
-	*pInteger = 0;
-	memcpy (pInteger, Value.GetConstData (), Value.GetType ()->GetSize ());
+	*integer = 0;
+	memcpy (integer, value.getConstData (), value.getType ()->getSize ());
 	return true;
 }
 
 bool
-COperatorMgr::ParseAutoSizeArrayInitializer (
-	const rtl::CConstBoxListT <CToken>& InitializerTokenList,
-	size_t* pElementCount
+OperatorMgr::parseAutoSizeArrayInitializer (
+	const rtl::ConstBoxList <Token>& initializerTokenList,
+	size_t* elementCount
 	)
 {
-	int FirstToken = InitializerTokenList.GetHead ()->m_Token;
-	switch (FirstToken)
+	int firstToken = initializerTokenList.getHead ()->m_token;
+	switch (firstToken)
 	{
-	case EToken_Literal:
-	case EToken_HexLiteral:
-		*pElementCount = ParseAutoSizeArrayLiteralInitializer (InitializerTokenList);
+	case TokenKind_Literal:
+	case TokenKind_HexLiteral:
+		*elementCount = parseAutoSizeArrayLiteralInitializer (initializerTokenList);
 		break;
 
 	case '{':
-		*pElementCount = ParseAutoSizeArrayCurlyInitializer (InitializerTokenList);
+		*elementCount = parseAutoSizeArrayCurlyInitializer (initializerTokenList);
 		break;
 
 	default:
-		err::SetFormatStringError ("invalid initializer for auto-size-array");
+		err::setFormatStringError ("invalid initializer for auto-size-array");
 		return false;
 	}
 
@@ -478,283 +478,283 @@ COperatorMgr::ParseAutoSizeArrayInitializer (
 // it's both more efficient AND easier to parse these by hand
 
 size_t
-COperatorMgr::ParseAutoSizeArrayLiteralInitializer (const rtl::CConstBoxListT <CToken>& InitializerTokenList)
+OperatorMgr::parseAutoSizeArrayLiteralInitializer (const rtl::ConstBoxList <Token>& initializerTokenList)
 {
-	size_t ElementCount = 0;
+	size_t elementCount = 0;
 
-	rtl::CBoxIteratorT <CToken> Token = InitializerTokenList.GetHead ();
-	for (; Token; Token++)
+	rtl::BoxIterator <Token> token = initializerTokenList.getHead ();
+	for (; token; token++)
 	{
-		switch (Token->m_Token)
+		switch (token->m_token)
 		{
-		case EToken_Literal:
-			ElementCount += Token->m_Data.m_String.GetLength ();
+		case TokenKind_Literal:
+			elementCount += token->m_data.m_string.getLength ();
 			break;
 
-		case EToken_HexLiteral:
-			ElementCount += Token->m_Data.m_BinData.GetCount ();
+		case TokenKind_HexLiteral:
+			elementCount += token->m_data.m_binData.getCount ();
 			break;
 		}
 	}
 
-	if (InitializerTokenList.GetTail ()->m_Token == EToken_Literal)
-		ElementCount++;
+	if (initializerTokenList.getTail ()->m_token == TokenKind_Literal)
+		elementCount++;
 
-	return ElementCount;
+	return elementCount;
 }
 
 size_t
-COperatorMgr::ParseAutoSizeArrayCurlyInitializer (const rtl::CConstBoxListT <CToken>& InitializerTokenList)
+OperatorMgr::parseAutoSizeArrayCurlyInitializer (const rtl::ConstBoxList <Token>& initializerTokenList)
 {
-	intptr_t Level = 0;
-	size_t ElementCount = 0;
+	intptr_t level = 0;
+	size_t elementCount = 0;
 
-	bool IsElement = false;
+	bool isElement = false;
 
-	rtl::CBoxIteratorT <CToken> Token = InitializerTokenList.GetHead ();
-	for (; Token; Token++)
+	rtl::BoxIterator <Token> token = initializerTokenList.getHead ();
+	for (; token; token++)
 	{
-		switch (Token->m_Token)
+		switch (token->m_token)
 		{
 		case '{':
-			if (Level == 1)
-				IsElement = true;
+			if (level == 1)
+				isElement = true;
 
-			Level++;
+			level++;
 			break;
 
 		case '}':
-			if (Level == 1 && IsElement)
+			if (level == 1 && isElement)
 			{
-				ElementCount++;
-				IsElement = false;
+				elementCount++;
+				isElement = false;
 			}
 
-			Level--;
+			level--;
 			break;
 
 		case ',':
-			if (Level == 1)
+			if (level == 1)
 			{
-				ElementCount++;
-				IsElement = false;
+				elementCount++;
+				isElement = false;
 			}
 
 			break;
 
 		default:
-			if (Level == 1)
-				IsElement = true;
+			if (level == 1)
+				isElement = true;
 		}
 	}
 
-	return ElementCount;
+	return elementCount;
 }
 
 bool
-COperatorMgr::EvaluateAlias (
-	CModuleItemDecl* pDecl,
-	const CValue& ThisValue,
-	const rtl::CConstBoxListT <CToken> TokenList,
-	CValue* pResultValue
+OperatorMgr::evaluateAlias (
+	ModuleItemDecl* decl,
+	const Value& thisValue,
+	const rtl::ConstBoxList <Token> tokenList,
+	Value* resultValue
 	)
 {
-	CValue PrevThisValue = m_pModule->m_FunctionMgr.OverrideThisValue (ThisValue);
-	bool Result = EvaluateAlias (pDecl, TokenList, pResultValue);
-	m_pModule->m_FunctionMgr.OverrideThisValue (PrevThisValue);
+	Value prevThisValue = m_module->m_functionMgr.overrideThisValue (thisValue);
+	bool result = evaluateAlias (decl, tokenList, resultValue);
+	m_module->m_functionMgr.overrideThisValue (prevThisValue);
 	return true;
 }
 
 bool
-COperatorMgr::EvaluateAlias (
-	CModuleItemDecl* pDecl,
-	const rtl::CConstBoxListT <CToken> TokenList,
-	CValue* pResultValue
+OperatorMgr::evaluateAlias (
+	ModuleItemDecl* decl,
+	const rtl::ConstBoxList <Token> tokenList,
+	Value* resultValue
 	)
 {
-	CParser Parser;
-	Parser.m_pModule = m_pModule;
-	Parser.m_Stage = CParser::EStage_Pass2;
+	Parser parser;
+	parser.m_module = m_module;
+	parser.m_stage = Parser::StageKind_Pass2;
 
-	m_pModule->m_NamespaceMgr.OpenNamespace (pDecl->GetParentNamespace ());
-	m_pModule->m_NamespaceMgr.LockSourcePos ();
+	m_module->m_namespaceMgr.openNamespace (decl->getParentNamespace ());
+	m_module->m_namespaceMgr.lockSourcePos ();
 
-	bool Result = Parser.ParseTokenList (ESymbol_expression_save_value, TokenList);
-	if (!Result)
+	bool result = parser.parseTokenList (SymbolKind_expression_save_value, tokenList);
+	if (!result)
 		return false;
 
-	m_pModule->m_NamespaceMgr.UnlockSourcePos ();
-	m_pModule->m_NamespaceMgr.CloseNamespace ();
+	m_module->m_namespaceMgr.unlockSourcePos ();
+	m_module->m_namespaceMgr.closeNamespace ();
 
-	*pResultValue = Parser.m_ExpressionValue;
+	*resultValue = parser.m_expressionValue;
 	return true;
 }
 
 bool
-COperatorMgr::NewOperator (
-	EStorage StorageKind,
-	CType* pType,
-	const CValue& RawElementCountValue,
-	rtl::CBoxListT <CValue>* pArgList,
-	CValue* pResultValue
+OperatorMgr::newOperator (
+	StorageKind storageKind,
+	Type* type,
+	const Value& rawElementCountValue,
+	rtl::BoxList <Value>* argList,
+	Value* resultValue
 	)
 {
-	bool Result;
+	bool result;
 
-	CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-	ASSERT (pScope);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope);
 
-	if (IsOpaqueClassType (pType))
+	if (isOpaqueClassType (type))
 	{
-		CFunction* pOperatorNew = ((CClassType*) pType)->GetOperatorNew ();
-		if (!pOperatorNew)
+		Function* operatorNew = ((ClassType*) type)->getOperatorNew ();
+		if (!operatorNew)
 		{
-			err::SetFormatStringError ("opaque '%s' has no operator new", pType->GetTypeString ().cc ());
+			err::setFormatStringError ("opaque '%s' has no operator new", type->getTypeString ().cc ());
 			return false;
 		}
 
-		return CallOperator (pOperatorNew, pArgList, pResultValue);
+		return callOperator (operatorNew, argList, resultValue);
 	}
 
-	CValue ElementCountValue;
-	if (RawElementCountValue)
+	Value elementCountValue;
+	if (rawElementCountValue)
 	{
-		Result = CastOperator (RawElementCountValue, EType_SizeT, &ElementCountValue);
-		if (!Result)
+		result = castOperator (rawElementCountValue, TypeKind_SizeT, &elementCountValue);
+		if (!result)
 			return false;
 	}
 
-	CValue PtrValue;
-	Result = Allocate (StorageKind, pType, ElementCountValue, "new", &PtrValue);
-	if (!Result)
+	Value ptrValue;
+	result = allocate (storageKind, type, elementCountValue, "new", &ptrValue);
+	if (!result)
 		return false;
 
-	if (StorageKind != EStorage_Static && StorageKind != EStorage_Thread)
+	if (storageKind != StorageKind_Static && storageKind != StorageKind_Thread)
 		return
-			Prime (StorageKind, PtrValue, pType, ElementCountValue, pResultValue) &&
-			Construct (*pResultValue, pArgList);
+			prime (storageKind, ptrValue, type, elementCountValue, resultValue) &&
+			construct (*resultValue, argList);
 
-	TOnceStmt Stmt;
-	CToken::CPos Pos;
+	OnceStmt stmt;
+	Token::Pos pos;
 
-	Result =
-		m_pModule->m_ControlFlowMgr.OnceStmt_Create (&Stmt, Pos, StorageKind) &&
-		m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&Stmt, Pos);
+	result =
+		m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos, storageKind) &&
+		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
 
-	if (!Result)
+	if (!result)
 		return false;
 
 	// no need to prime static or thread variables
 
-	ASSERT (PtrValue.GetValueKind () == EValue_Variable);
+	ASSERT (ptrValue.getValueKind () == ValueKind_Variable);
 
-	Result = Construct (PtrValue, pArgList);
-	if (!Result)
+	result = construct (ptrValue, argList);
+	if (!result)
 		return false;
 
-	m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&Stmt, Pos);
+	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
-	*pResultValue = PtrValue;
+	*resultValue = ptrValue;
 	return true;
 }
 
 void
-COperatorMgr::NullifyGcRootList (const rtl::CConstBoxListT <CValue>& List)
+OperatorMgr::nullifyGcRootList (const rtl::ConstBoxList <Value>& list)
 {
-	if (List.IsEmpty ())
+	if (list.isEmpty ())
 		return;
 
-	CLlvmScopeComment Comment (&m_pModule->m_LlvmIrBuilder, "nullify gcroot list");
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "nullify gcroot list");
 
-	CValue NullValue = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr)->GetZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
 
-	rtl::CBoxIteratorT <CValue> It = List.GetTail ();
-	for (; It; It--)
+	rtl::BoxIterator <Value> it = list.getTail ();
+	for (; it; it--)
 	{
-		CValue Value = *It;
-		ASSERT (Value.GetType ()->GetTypeKind () == EType_DataPtr);
+		Value value = *it;
+		ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr);
 
-		m_pModule->m_LlvmIrBuilder.CreateStore (NullValue, Value);
+		m_module->m_llvmIrBuilder.createStore (nullValue, value);
 	}
 }
 
 void
-COperatorMgr::CreateTmpStackGcRoot (const CValue& Value)
+OperatorMgr::createTmpStackGcRoot (const Value& value)
 {
-	CType* pType = Value.GetType ();
+	Type* type = value.getType ();
 	ASSERT (
-		(pType->GetFlags () & ETypeFlag_GcRoot) ||
-		pType->GetTypeKind () == EType_DataPtr // heap new creates tmp stack root
+		(type->getFlags () & TypeFlagKind_GcRoot) ||
+		type->getTypeKind () == TypeKind_DataPtr // heap new creates tmp stack root
 		);
 
-	CValue PtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpGcRoot", NULL, &PtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateStore (Value, PtrValue);
-	MarkStackGcRoot (PtrValue, pType, true);
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createStore (value, ptrValue);
+	markStackGcRoot (ptrValue, type, true);
 }
 
 void
-COperatorMgr::NullifyTmpStackGcRootList ()
+OperatorMgr::nullifyTmpStackGcRootList ()
 {
-	if (m_pModule->m_ControlFlowMgr.GetCurrentBlock ()->GetFlags () & EBasicBlockFlag_Reachable)
-		NullifyGcRootList (m_TmpStackGcRootList);
+	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlagKind_Reachable)
+		nullifyGcRootList (m_tmpStackGcRootList);
 
-	m_TmpStackGcRootList.Clear ();
+	m_tmpStackGcRootList.clear ();
 }
 
 void
-COperatorMgr::MarkStackGcRoot (
-	const CValue& PtrValue,
-	CType* pType,
-	bool IsTmpGcRoot
+OperatorMgr::markStackGcRoot (
+	const Value& ptrValue,
+	Type* type,
+	bool isTmpGcRoot
 	)
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	pFunction->MarkGc ();
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	function->markGc ();
 
-	CBasicBlock* pPrevBlock = m_pModule->m_ControlFlowMgr.SetCurrentBlock (pFunction->GetEntryBlock ());
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 
-	CType* pBytePtrType = m_pModule->m_TypeMgr.GetStdType (EStdType_BytePtr);
+	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
 
-	CValue GcRootValue;
-	m_pModule->m_LlvmIrBuilder.CreateAlloca (
-		pBytePtrType,
+	Value gcRootValue;
+	m_module->m_llvmIrBuilder.createAlloca (
+		bytePtrType,
 		"gcRoot",
-		pBytePtrType->GetDataPtrType_c (),
-		&GcRootValue
+		bytePtrType->getDataPtrType_c (),
+		&gcRootValue
 		);
 
-	if (IsTmpGcRoot)
+	if (isTmpGcRoot)
 	{
-		m_TmpStackGcRootList.InsertTail (GcRootValue);
+		m_tmpStackGcRootList.insertTail (gcRootValue);
 	}
 	else
 	{
-		CScope* pScope = m_pModule->m_NamespaceMgr.GetCurrentScope ();
-		ASSERT (pScope);
-		pScope->AddToGcRootList (GcRootValue);
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+		ASSERT (scope);
+		scope->addToGcRootList (gcRootValue);
 	}
 
-	CFunction* pMarkGcRoot = m_pModule->m_FunctionMgr.GetStdFunction (EStdFunc_MarkGcRoot);
-	ASSERT (pMarkGcRoot);
+	Function* markGcRoot = m_module->m_functionMgr.getStdFunction (StdFuncKind_MarkGcRoot);
+	ASSERT (markGcRoot);
 
-	CValue ArgValueArray [2];
-	ArgValueArray [0] = GcRootValue;
-	ArgValueArray [1].CreateConst (&pType, m_pModule->GetSimpleType (EStdType_BytePtr));
+	Value argValueArray [2];
+	argValueArray [0] = gcRootValue;
+	argValueArray [1].createConst (&type, m_module->getSimpleType (StdTypeKind_BytePtr));
 
-	CValue ResultValue;
-	m_pModule->m_LlvmIrBuilder.CreateCall (
-		pMarkGcRoot,
-		pMarkGcRoot->GetType (),
-		ArgValueArray, 2,
-		&ResultValue
+	Value resultValue;
+	m_module->m_llvmIrBuilder.createCall (
+		markGcRoot,
+		markGcRoot->getType (),
+		argValueArray, 2,
+		&resultValue
 		);
 
-	m_pModule->m_ControlFlowMgr.SetCurrentBlock (pPrevBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 
-	CValue BytePtrValue;
-	m_pModule->m_LlvmIrBuilder.CreateBitCast (PtrValue, pBytePtrType, &BytePtrValue);
-	m_pModule->m_LlvmIrBuilder.CreateStore (BytePtrValue, GcRootValue);
+	Value bytePtrValue;
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, bytePtrType, &bytePtrValue);
+	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue);
 }
 
 //.............................................................................

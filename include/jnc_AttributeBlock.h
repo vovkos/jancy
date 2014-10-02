@@ -10,67 +10,67 @@ namespace jnc {
 
 //.............................................................................
 
-class CAttribute: public CUserModuleItem
+class Attribute: public UserModuleItem
 {
-	friend class CAttributeBlock;
+	friend class AttributeBlock;
 
 protected:
-	CValue* m_pValue;
+	Value* m_value;
 
 public:
-	CAttribute ()
+	Attribute ()
 	{
-		m_pValue = NULL;
+		m_value = NULL;
 	}
 
-	CValue* 
-	GetValue ()
+	Value* 
+	getValue ()
 	{
-		return m_pValue;
+		return m_value;
 	}
 };
 
 //.............................................................................
 
-class CAttributeBlock: public CUserModuleItem
+class AttributeBlock: public UserModuleItem
 {
-	friend class CAttributeMgr;
+	friend class AttributeMgr;
 
 protected:
-	CModuleItem* m_pParentItem;
+	ModuleItem* m_parentItem;
 
-	rtl::CStdListT <CAttribute> m_AttributeList;
-	rtl::CStringHashTableMapT <CAttribute*> m_AttributeMap; 
+	rtl::StdList <Attribute> m_attributeList;
+	rtl::StringHashTableMap <Attribute*> m_attributeMap; 
 
 public:
-	CAttributeBlock ()
+	AttributeBlock ()
 	{
-		m_pParentItem = NULL;
+		m_parentItem = NULL;
 	}
 
-	CModuleItem*
-	GetParentItem ()
+	ModuleItem*
+	getParentItem ()
 	{
-		return m_pParentItem;
+		return m_parentItem;
 	}
 
-	rtl::CConstListT <CAttribute>
-	GetAttributeList ()
+	rtl::ConstList <Attribute>
+	getAttributeList ()
 	{
-		return m_AttributeList;
+		return m_attributeList;
 	}
 
-	CAttribute*
-	FindAttribute (const char* pName)
+	Attribute*
+	findAttribute (const char* name)
 	{
-		rtl::CStringHashTableMapIteratorT <CAttribute*> It = m_AttributeMap.Find (pName); 
-		return It ? It->m_Value : NULL;
+		rtl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.find (name); 
+		return it ? it->m_value : NULL;
 	}
 
-	CAttribute*
-	CreateAttribute (
-		const rtl::CString& Name,
-		CValue* pValue = NULL
+	Attribute*
+	createAttribute (
+		const rtl::String& name,
+		Value* value = NULL
 		);
 };
 

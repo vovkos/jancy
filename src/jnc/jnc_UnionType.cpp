@@ -6,212 +6,212 @@ namespace jnc {
 
 //.............................................................................
 
-CUnionType::CUnionType ()
+UnionType::UnionType ()
 {
-	m_TypeKind = EType_Union;
-	m_Flags = ETypeFlag_Pod;
-	m_pStructType = NULL;
-	m_pInitializedField = NULL;
+	m_typeKind = TypeKind_Union;
+	m_flags = TypeFlagKind_Pod;
+	m_structType = NULL;
+	m_initializedField = NULL;
 }
 
-CStructField*
-CUnionType::CreateFieldImpl (
-	const rtl::CString& Name,
-	CType* pType,
-	size_t BitCount,
-	uint_t PtrTypeFlags,
-	rtl::CBoxListT <CToken>* pConstructor,
-	rtl::CBoxListT <CToken>* pInitializer
+StructField*
+UnionType::createFieldImpl (
+	const rtl::String& name,
+	Type* type,
+	size_t bitCount,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* constructor,
+	rtl::BoxList <Token>* initializer
 	)
 {
-	CStructField* pField = AXL_MEM_NEW (CStructField);
-	pField->m_Name = Name;
-	pField->m_pParentNamespace = this;
-	pField->m_pType = pType;
-	pField->m_PtrTypeFlags = PtrTypeFlags;
-	pField->m_pBitFieldBaseType = BitCount ? pType : NULL;
-	pField->m_BitCount = BitCount;
+	StructField* field = AXL_MEM_NEW (StructField);
+	field->m_name = name;
+	field->m_parentNamespace = this;
+	field->m_type = type;
+	field->m_ptrTypeFlags = ptrTypeFlags;
+	field->m_bitFieldBaseType = bitCount ? type : NULL;
+	field->m_bitCount = bitCount;
 
-	if (pConstructor)
-		pField->m_Constructor.TakeOver (pConstructor);
+	if (constructor)
+		field->m_constructor.takeOver (constructor);
 
-	if (pInitializer)
-		pField->m_Initializer.TakeOver (pInitializer);
+	if (initializer)
+		field->m_initializer.takeOver (initializer);
 
-	if (!pField->m_Constructor.IsEmpty () ||
-		!pField->m_Initializer.IsEmpty ())
+	if (!field->m_constructor.isEmpty () ||
+		!field->m_initializer.isEmpty ())
 	{
-		if (m_pInitializedField)
+		if (m_initializedField)
 		{
-			err::SetFormatStringError (
+			err::setFormatStringError (
 				"'%s' already has initialized field '%s'",
-				pType->GetTypeString ().cc (),
-				m_pInitializedField->GetName ().cc ()
+				type->getTypeString ().cc (),
+				m_initializedField->getName ().cc ()
 				);
 			return NULL;
 		}
 
-		m_pInitializedField = pField;
+		m_initializedField = field;
 	}
 
-	m_FieldList.InsertTail (pField);
+	m_fieldList.insertTail (field);
 
-	if (Name.IsEmpty ())
+	if (name.isEmpty ())
 	{
-		m_UnnamedFieldArray.Append (pField);
+		m_unnamedFieldArray.append (field);
 	}
-	else if (Name [0] != '!') // internal field
+	else if (name [0] != '!') // internal field
 	{
-		bool Result = AddItem (pField);
-		if (!Result)
+		bool result = addItem (field);
+		if (!result)
 			return NULL;
 	}
 
-	if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
+	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
 	{
-		pField->m_pType_i = (CImportType*) pType;
-		m_ImportFieldArray.Append (pField);
+		field->m_type_i = (ImportType*) type;
+		m_importFieldArray.append (field);
 	}
 
-	m_MemberFieldArray.Append (pField);
-	return pField;
+	m_memberFieldArray.append (field);
+	return field;
 }
 
-CStructField*
-CUnionType::GetFieldByIndex (size_t Index)
+StructField*
+UnionType::getFieldByIndex (size_t index)
 {
-	size_t Count = m_FieldList.GetCount ();
-	if (Index >= Count)
+	size_t count = m_fieldList.getCount ();
+	if (index >= count)
 	{
-		err::SetFormatStringError ("index '%d' is out of bounds", Index);
+		err::setFormatStringError ("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	if (m_FieldArray.GetCount () != Count)
+	if (m_fieldArray.getCount () != count)
 	{
-		m_FieldArray.SetCount (Count);
-		rtl::CIteratorT <CStructField> Field = m_FieldList.GetHead ();
-		for (size_t i = 0; i < Count; i++, Field++)
-			m_FieldArray [i] = *Field;
+		m_fieldArray.setCount (count);
+		rtl::Iterator <StructField> field = m_fieldList.getHead ();
+		for (size_t i = 0; i < count; i++, field++)
+			m_fieldArray [i] = *field;
 	}
 
-	return m_FieldArray [Index];
+	return m_fieldArray [index];
 }
 
 bool
-CUnionType::CalcLayout ()
+UnionType::calcLayout ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pExtensionNamespace)
-		ApplyExtensionNamespace ();
+	if (m_extensionNamespace)
+		applyExtensionNamespace ();
 
-	Result = ResolveImportFields ();
-	if (!Result)
+	result = resolveImportFields ();
+	if (!result)
 		return false;
 
-	CType* pLargestFieldType = NULL;
-	size_t LargestAlignFactor = 0;
+	Type* largestFieldType = NULL;
+	size_t largestAlignFactor = 0;
 
-	rtl::CIteratorT <CStructField> Field = m_FieldList.GetHead ();
-	for (size_t i = 0; Field; Field++, i++)
+	rtl::Iterator <StructField> fieldIt = m_fieldList.getHead ();
+	for (size_t i = 0; fieldIt; fieldIt++, i++)
 	{
-		CStructField* pField = *Field;
+		StructField* field = *fieldIt;
 
-		Result = pField->m_pType->EnsureLayout ();
-		if (!Result)
+		result = field->m_type->ensureLayout ();
+		if (!result)
 			return false;
 
-		uint_t FieldTypeFlags = pField->m_pType->GetFlags ();
-		size_t FieldAlignFactor = pField->m_pType->GetAlignFactor ();
+		uint_t fieldTypeFlags = field->m_type->getFlags ();
+		size_t fieldAlignFactor = field->m_type->getAlignFactor ();
 
-		if (!(FieldTypeFlags & ETypeFlag_Pod))
+		if (!(fieldTypeFlags & TypeFlagKind_Pod))
 		{
-			err::SetFormatStringError ("non-POD '%s' cannot be union member", pField->m_pType->GetTypeString ().cc ());
+			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().cc ());
 			return NULL;
 		}
 
-		if (pField->m_BitCount)
+		if (field->m_bitCount)
 		{
-			pField->m_pType = m_pModule->m_TypeMgr.GetBitFieldType (pField->m_pBitFieldBaseType, 0, pField->m_BitCount);
-			if (!pField->m_pType)
+			field->m_type = m_module->m_typeMgr.getBitFieldType (field->m_bitFieldBaseType, 0, field->m_bitCount);
+			if (!field->m_type)
 				return false;
 		}
 
-		if (!pLargestFieldType || pField->m_pType->GetSize () > pLargestFieldType->GetSize ())
-			pLargestFieldType = pField->m_pType;
+		if (!largestFieldType || field->m_type->getSize () > largestFieldType->getSize ())
+			largestFieldType = field->m_type;
 
-		if (LargestAlignFactor < pField->m_pType->GetAlignFactor ())
-			LargestAlignFactor = pField->m_pType->GetAlignFactor ();
+		if (largestAlignFactor < field->m_type->getAlignFactor ())
+			largestAlignFactor = field->m_type->getAlignFactor ();
 
-		pField->m_LlvmIndex = i;
+		field->m_llvmIndex = i;
 	}
 
-	ASSERT (pLargestFieldType);
+	ASSERT (largestFieldType);
 
-	m_pStructType->CreateField (pLargestFieldType);
-	m_pStructType->m_AlignFactor = AXL_MIN (LargestAlignFactor, m_pStructType->m_PackFactor);
+	m_structType->createField (largestFieldType);
+	m_structType->m_alignFactor = AXL_MIN (largestAlignFactor, m_structType->m_packFactor);
 
-	Result = m_pStructType->EnsureLayout ();
-	if (!Result)
+	result = m_structType->ensureLayout ();
+	if (!result)
 		return false;
 
-	if (!m_pStaticConstructor && m_pStaticDestructor)
+	if (!m_staticConstructor && m_staticDestructor)
 	{
-		Result = CreateDefaultMethod (EFunction_StaticConstructor, EStorage_Static);
-		if (!Result)
+		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
+		if (!result)
 			return false;
 	}
 
-	if (m_pStaticConstructor)
-		m_pStaticOnceFlagVariable = m_pModule->m_VariableMgr.CreateOnceFlagVariable ();
+	if (m_staticConstructor)
+		m_staticOnceFlagVariable = m_module->m_variableMgr.createOnceFlagVariable ();
 
-	if (m_pStaticDestructor)
-		m_pModule->m_VariableMgr.m_StaticDestructList.AddStaticDestructor (m_pStaticDestructor, m_pStaticOnceFlagVariable);
+	if (m_staticDestructor)
+		m_module->m_variableMgr.m_staticDestructList.addStaticDestructor (m_staticDestructor, m_staticOnceFlagVariable);
 
-	if (!m_pPreConstructor &&
-		(m_pStaticConstructor || m_pInitializedField))
+	if (!m_preConstructor &&
+		(m_staticConstructor || m_initializedField))
 	{
-		Result = CreateDefaultMethod (EFunction_PreConstructor);
-		if (!Result)
+		result = createDefaultMethod (FunctionKind_PreConstructor);
+		if (!result)
 			return false;
 	}
 
-	if (!m_pConstructor && m_pPreConstructor)
+	if (!m_constructor && m_preConstructor)
 	{
-		Result = CreateDefaultMethod (EFunction_Constructor);
-		if (!Result)
+		result = createDefaultMethod (FunctionKind_Constructor);
+		if (!result)
 			return false;
 	}
 
-	m_Size = m_pStructType->GetSize ();
-	m_AlignFactor = m_pStructType->GetAlignFactor ();
+	m_size = m_structType->getSize ();
+	m_alignFactor = m_structType->getAlignFactor ();
 	return true;
 }
 
 bool
-CUnionType::Compile ()
+UnionType::compile ()
 {
-	bool Result;
+	bool result;
 
-	if (m_pStaticConstructor && !(m_pStaticConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultStaticConstructor ();
-		if (!Result)
+		result = compileDefaultStaticConstructor ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pPreConstructor && !(m_pPreConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultPreConstructor ();
-		if (!Result)
+		result = compileDefaultPreConstructor ();
+		if (!result)
 			return false;
 	}
 
-	if (m_pConstructor && !(m_pConstructor->GetFlags () & EModuleItemFlag_User))
+	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlagKind_User))
 	{
-		Result = CompileDefaultConstructor ();
-		if (!Result)
+		result = compileDefaultConstructor ();
+		if (!result)
 			return false;
 	}
 
@@ -219,45 +219,45 @@ CUnionType::Compile ()
 }
 
 bool
-CUnionType::CompileDefaultPreConstructor ()
+UnionType::compileDefaultPreConstructor ()
 {
-	ASSERT (m_pPreConstructor);
+	ASSERT (m_preConstructor);
 
-	bool Result;
+	bool result;
 
-	CValue ThisValue;
-	m_pModule->m_FunctionMgr.InternalPrologue (m_pPreConstructor, &ThisValue, 1);
+	Value thisValue;
+	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
 
-	Result = InitializeField (ThisValue);
-	if (!Result)
+	result = initializeField (thisValue);
+	if (!result)
 		return false;
 
-	m_pModule->m_FunctionMgr.InternalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 
 
 bool
-CUnionType::InitializeField (const CValue& ThisValue)
+UnionType::initializeField (const Value& thisValue)
 {
-	ASSERT (m_pInitializedField);
+	ASSERT (m_initializedField);
 
-	CValue FieldValue;
+	Value fieldValue;
 	return
-		m_pModule->m_OperatorMgr.GetField (ThisValue, m_pInitializedField, NULL, &FieldValue) &&
-		m_pModule->m_OperatorMgr.ParseInitializer (
-			FieldValue,
-			m_pParentUnit,
-			m_pInitializedField->m_Constructor,
-			m_pInitializedField->m_Initializer
+		m_module->m_operatorMgr.getField (thisValue, m_initializedField, NULL, &fieldValue) &&
+		m_module->m_operatorMgr.parseInitializer (
+			fieldValue,
+			m_parentUnit,
+			m_initializedField->m_constructor,
+			m_initializedField->m_initializer
 			);
 }
 
 void
-CUnionType::PrepareLlvmDiType ()
+UnionType::prepareLlvmDiType ()
 {
-	m_LlvmDiType = m_pModule->m_LlvmDiBuilder.CreateEmptyUnionType (this);
-	m_pModule->m_LlvmDiBuilder.SetUnionTypeBody (this);
+	m_llvmDiType = m_module->m_llvmDiBuilder.createEmptyUnionType (this);
+	m_module->m_llvmDiBuilder.setUnionTypeBody (this);
 }
 
 //.............................................................................

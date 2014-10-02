@@ -9,364 +9,364 @@
 
 namespace jnc {
 
-class CFunctionType;
+class FunctionType;
 
 //.............................................................................
 
-struct TIfStmt
+struct IfStmt
 {
-	CBasicBlock* m_pThenBlock;
-	CBasicBlock* m_pElseBlock;
-	CBasicBlock* m_pFollowBlock;
+	BasicBlock* m_thenBlock;
+	BasicBlock* m_elseBlock;
+	BasicBlock* m_followBlock;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TSwitchStmt
+struct SwitchStmt
 {
-	CValue m_Value;
-	CBasicBlock* m_pSwitchBlock;
-	CBasicBlock* m_pDefaultBlock;
-	CBasicBlock* m_pFollowBlock;
-	rtl::CHashTableMapT <intptr_t, CBasicBlock*, axl::rtl::CHashIdT <intptr_t> > m_CaseMap;
+	Value m_value;
+	BasicBlock* m_switchBlock;
+	BasicBlock* m_defaultBlock;
+	BasicBlock* m_followBlock;
+	rtl::HashTableMap <intptr_t, BasicBlock*, axl::rtl::HashId <intptr_t> > m_caseMap;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TWhileStmt
+struct WhileStmt
 {
-	CBasicBlock* m_pConditionBlock;
-	CBasicBlock* m_pBodyBlock;
-	CBasicBlock* m_pFollowBlock;
+	BasicBlock* m_conditionBlock;
+	BasicBlock* m_bodyBlock;
+	BasicBlock* m_followBlock;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TDoStmt
+struct DoStmt
 {
-	CBasicBlock* m_pConditionBlock;
-	CBasicBlock* m_pBodyBlock;
-	CBasicBlock* m_pFollowBlock;
+	BasicBlock* m_conditionBlock;
+	BasicBlock* m_bodyBlock;
+	BasicBlock* m_followBlock;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TForStmt
+struct ForStmt
 {
-	CScope* m_pScope;
-	CBasicBlock* m_pConditionBlock;
-	CBasicBlock* m_pBodyBlock;
-	CBasicBlock* m_pLoopBlock;
-	CBasicBlock* m_pFollowBlock;
+	Scope* m_scope;
+	BasicBlock* m_conditionBlock;
+	BasicBlock* m_bodyBlock;
+	BasicBlock* m_loopBlock;
+	BasicBlock* m_followBlock;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TOnceStmt
+struct OnceStmt
 {
-	CVariable* m_pFlagVariable;
-	CBasicBlock* m_pFollowBlock;
-};
-
-//.............................................................................
-
-enum EControlFlowFlag
-{
-	EControlFlowFlag_HasReturn = 1,
-	EControlFlowFlag_HasJump   = 2,
+	Variable* m_flagVariable;
+	BasicBlock* m_followBlock;
 };
 
 //.............................................................................
 
-class CControlFlowMgr
+enum ControlFlowFlagKind
 {
-	friend class CModule;
-	friend class CFunctionMgr;
+	ControlFlowFlagKind_HasReturn = 1,
+	ControlFlowFlagKind_HasJump   = 2,
+};
+
+//.............................................................................
+
+class ControlFlowMgr
+{
+	friend class Module;
+	friend class FunctionMgr;
 
 protected:
-	CModule* m_pModule;
+	Module* m_module;
 
-	rtl::CStdListT <CBasicBlock> m_BlockList;
-	rtl::CArrayT <CBasicBlock*> m_ReturnBlockArray;
-	CBasicBlock* m_pCurrentBlock;
-	CBasicBlock* m_pUnreachableBlock;
+	rtl::StdList <BasicBlock> m_blockList;
+	rtl::Array <BasicBlock*> m_returnBlockArray;
+	BasicBlock* m_currentBlock;
+	BasicBlock* m_unreachableBlock;
 
-	uint_t m_Flags;
-	intptr_t m_ThrowLockCount;
+	uint_t m_flags;
+	intptr_t m_throwLockCount;
 
 public:
-	CControlFlowMgr ();
+	ControlFlowMgr ();
 
-	CModule*
-	GetModule ()
+	Module*
+	getModule ()
 	{
-		return m_pModule;
+		return m_module;
 	}
 
 	void
-	Clear ();
+	clear ();
 
 	int
-	GetFlags ()
+	getFlags ()
 	{
-		return m_Flags;
+		return m_flags;
 	}
 
 	void
-	LockThrow ()
+	lockThrow ()
 	{
-		m_ThrowLockCount++;
+		m_throwLockCount++;
 	}
 
 	void
-	UnlockThrow ()
+	unlockThrow ()
 	{
-		m_ThrowLockCount--;
+		m_throwLockCount--;
 	}
 
 	bool
-	IsThrowLocked ()
+	isThrowLocked ()
 	{
-		return m_ThrowLockCount > 0;
+		return m_throwLockCount > 0;
 	}
 
 	void
-	ResetJumpFlag ()
+	resetJumpFlag ()
 	{
-		m_Flags &= ~EControlFlowFlag_HasJump;
+		m_flags &= ~ControlFlowFlagKind_HasJump;
 	}
 
-	CBasicBlock*
-	CreateBlock (const rtl::CString& Name);
+	BasicBlock*
+	createBlock (const rtl::String& name);
 
-	CBasicBlock*
-	GetCurrentBlock ()
+	BasicBlock*
+	getCurrentBlock ()
 	{
-		return m_pCurrentBlock;
+		return m_currentBlock;
 	}
 
-	CBasicBlock*
-	SetCurrentBlock (CBasicBlock* pBlock); // returns prev
+	BasicBlock*
+	setCurrentBlock (BasicBlock* block); // returns prev
 
 	void
-	MarkUnreachable (CBasicBlock* pBlock);
+	markUnreachable (BasicBlock* block);
 
 	void
-	DeleteUnreachableBlocks ();
+	deleteUnreachableBlocks ();
 
 	// jumps
 
 	void
-	Jump (
-		CBasicBlock* pBlock,
-		CBasicBlock* pFollowBlock = NULL
+	jump (
+		BasicBlock* block,
+		BasicBlock* followBlock = NULL
 		);
 
 	void
-	Follow (CBasicBlock* pBlock);
+	follow (BasicBlock* block);
 
 	bool
-	ConditionalJump (
-		const CValue& Value,
-		CBasicBlock* pThenBlock,
-		CBasicBlock* pElseBlock,
-		CBasicBlock* pFollowBlock = NULL // if NULL then follow with pThenBlock
+	conditionalJump (
+		const Value& value,
+		BasicBlock* thenBlock,
+		BasicBlock* elseBlock,
+		BasicBlock* followBlock = NULL // if NULL then follow with pThenBlock
 		);
 
 	bool
-	Break (size_t Level);
+	breakJump (size_t level);
 
 	bool
-	Continue (size_t Level);
+	continueJump (size_t level);
 
 	bool
-	Return (const CValue& Value);
+	ret (const Value& value);
 
 	bool
-	Return ()
+	ret ()
 	{
-		return Return (CValue ());
+		return ret (Value ());
 	}
 
 	bool
-	Throw (
-		const CValue& ReturnValue,
-		CFunctionType* pType
+	throwIf (
+		const Value& returnValue,
+		FunctionType* type
 		);
 
 	bool
-	Catch ();
+	catchLabel ();
 
 	bool
-	Finally ();
+	finallyLabel ();
 
 	bool
-	EndTry ();
+	endTry ();
 
 	bool
-	EndFinally ();
+	endFinally ();
 
 	bool
-	CheckReturn ();
+	checkReturn ();
 
 	// if stmt
 
 	void
-	IfStmt_Create (TIfStmt* pStmt);
+	ifStmt_Create (IfStmt* stmt);
 
 	bool
-	IfStmt_Condition (
-		TIfStmt* pStmt,
-		const CValue& Value,
-		const CToken::CPos& Pos
+	ifStmt_Condition (
+		IfStmt* stmt,
+		const Value& value,
+		const Token::Pos& pos
 		);
 
 	void
-	IfStmt_Else (
-		TIfStmt* pStmt,
-		const CToken::CPos& Pos
+	ifStmt_Else (
+		IfStmt* stmt,
+		const Token::Pos& pos
 		);
 
 	void
-	IfStmt_Follow (TIfStmt* pStmt);
+	ifStmt_Follow (IfStmt* stmt);
 
 	// switch stmt
 
 	void
-	SwitchStmt_Create (TSwitchStmt* pStmt);
+	switchStmt_Create (SwitchStmt* stmt);
 
 	bool
-	SwitchStmt_Condition (
-		TSwitchStmt* pStmt,
-		const CValue& Value,
-		const CToken::CPos& Pos
+	switchStmt_Condition (
+		SwitchStmt* stmt,
+		const Value& value,
+		const Token::Pos& pos
 		);
 
 	bool
-	SwitchStmt_Case (
-		TSwitchStmt* pStmt,
-		intptr_t Value,
-		const CToken::CPos& Pos
+	switchStmt_Case (
+		SwitchStmt* stmt,
+		intptr_t value,
+		const Token::Pos& pos
 		);
 
 	bool
-	SwitchStmt_Default (
-		TSwitchStmt* pStmt,
-		const CToken::CPos& Pos
+	switchStmt_Default (
+		SwitchStmt* stmt,
+		const Token::Pos& pos
 		);
 
 	void
-	SwitchStmt_Follow (TSwitchStmt* pStmt);
+	switchStmt_Follow (SwitchStmt* stmt);
 
 	// while stmt
 
 	void
-	WhileStmt_Create (TWhileStmt* pStmt);
+	whileStmt_Create (WhileStmt* stmt);
 
 	bool
-	WhileStmt_Condition (
-		TWhileStmt* pStmt,
-		const CValue& Value,
-		const CToken::CPos& Pos
+	whileStmt_Condition (
+		WhileStmt* stmt,
+		const Value& value,
+		const Token::Pos& pos
 		);
 
 	void
-	WhileStmt_Follow (TWhileStmt* pStmt);
+	whileStmt_Follow (WhileStmt* stmt);
 
 	// do stmt
 
 	void
-	DoStmt_Create (TDoStmt* pStmt);
+	doStmt_Create (DoStmt* stmt);
 
 	void
-	DoStmt_PreBody (
-		TDoStmt* pStmt,
-		const CToken::CPos& Pos
+	doStmt_PreBody (
+		DoStmt* stmt,
+		const Token::Pos& pos
 		);
 
 	void
-	DoStmt_PostBody (TDoStmt* pStmt);
+	doStmt_PostBody (DoStmt* stmt);
 
 	bool
-	DoStmt_Condition (
-		TDoStmt* pStmt,
-		const CValue& Value
+	doStmt_Condition (
+		DoStmt* stmt,
+		const Value& value
 		);
 
 	// for stmt
 
 	void
-	ForStmt_Create (TForStmt* pStmt);
+	forStmt_Create (ForStmt* stmt);
 
 	void
-	ForStmt_PreInit (
-		TForStmt* pStmt,
-		const CToken::CPos& Pos
+	forStmt_PreInit (
+		ForStmt* stmt,
+		const Token::Pos& pos
 		);
 
 	void
-	ForStmt_NoCondition (TForStmt* pStmt);
+	forStmt_NoCondition (ForStmt* stmt);
 
 	void
-	ForStmt_PreCondition (TForStmt* pStmt);
+	forStmt_PreCondition (ForStmt* stmt);
 
 	bool
-	ForStmt_PostCondition (
-		TForStmt* pStmt,
-		const CValue& Value
+	forStmt_PostCondition (
+		ForStmt* stmt,
+		const Value& value
 		);
 
 	void
-	ForStmt_PreLoop (TForStmt* pStmt);
+	forStmt_PreLoop (ForStmt* stmt);
 
 	void
-	ForStmt_PostLoop (TForStmt* pStmt);
+	forStmt_PostLoop (ForStmt* stmt);
 
 	void
-	ForStmt_PreBody (TForStmt* pStmt);
+	forStmt_PreBody (ForStmt* stmt);
 
 	void
-	ForStmt_PostBody (TForStmt* pStmt);
+	forStmt_PostBody (ForStmt* stmt);
 
 	// once stmt
 
 	bool
-	OnceStmt_Create (
-		TOnceStmt* pStmt,
-		const CToken::CPos& Pos,
-		EStorage StorageKind = EStorage_Static
+	onceStmt_Create (
+		OnceStmt* stmt,
+		const Token::Pos& pos,
+		StorageKind storageKind = StorageKind_Static
 		);
 
 	void
-	OnceStmt_Create (
-		TOnceStmt* pStmt,
-		CVariable* pFlagVariable
+	onceStmt_Create (
+		OnceStmt* stmt,
+		Variable* flagVariable
 		);
 
 	bool
-	OnceStmt_PreBody (
-		TOnceStmt* pStmt,
-		const CToken::CPos& Pos
+	onceStmt_PreBody (
+		OnceStmt* stmt,
+		const Token::Pos& pos
 		);
 
 	void
-	OnceStmt_PostBody (
-		TOnceStmt* pStmt,
-		const CToken::CPos& Pos
+	onceStmt_PostBody (
+		OnceStmt* stmt,
+		const Token::Pos& pos
 		);
 
 protected:
 	void
-	AddBlock (CBasicBlock* pBlock);
+	addBlock (BasicBlock* block);
 
 	void
-	RestoreScopeLevel ();
+	restoreScopeLevel ();
 
 	void
-	OnLeaveScope (CScope* pTargetScope = NULL);
+	onLeaveScope (Scope* targetScope = NULL);
 
-	CBasicBlock*
-	GetUnreachableBlock ();
+	BasicBlock*
+	getUnreachableBlock ();
 };
 
 //.............................................................................

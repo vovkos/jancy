@@ -4,13 +4,13 @@ start
 compound_stmt
 	:	'{'
 			{
-				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
-				PreCreateLandingPads ($1.m_Data.m_Integer);
+				m_module->m_namespaceMgr.openScope ($1.m_pos);
+				preCreateLandingPads ($1.m_data.m_integer);
 			}
 		local_declaration*
 		'}'
 			{
-				m_pModule->m_NamespaceMgr.CloseScope ();
+				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
@@ -18,17 +18,17 @@ start
 constructor_compound_stmt
 	:	'{'
 			{
-				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
-				PreCreateLandingPads ($1.m_Data.m_Integer);
+				m_module->m_namespaceMgr.openScope ($1.m_pos);
+				preCreateLandingPads ($1.m_data.m_integer);
 			}
 		btm_construct_stmt*
 			{
-				return FinalizeBaseTypeMemberConstructBlock ();
+				return finalizeBaseTypeMemberConstructBlock ();
 			}
 		local_declaration*
 		'}'
 			{
-				m_pModule->m_NamespaceMgr.CloseScope ();
+				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
@@ -40,45 +40,45 @@ btm_construct_stmt
 	:	resolver (btm_construct_stmt_rslv)
 		btm_construct_name $n '(' expression_or_empty_list $a ')'
 			{
-				return CallBaseTypeMemberConstructor ($n.m_Name, &$a.m_ValueList);
+				return callBaseTypeMemberConstructor ($n.m_name, &$a.m_valueList);
 			}
-	|	EToken_BaseType $b '.' EToken_Construct '(' expression_or_empty_list $a ')'
+	|	TokenKind_BaseType $b '.' TokenKind_Construct '(' expression_or_empty_list $a ')'
 			{
-				return CallBaseTypeConstructor ($b.m_Data.m_Integer - 1, &$a.m_ValueList);
+				return callBaseTypeConstructor ($b.m_data.m_integer - 1, &$a.m_valueList);
 			}
 	|	';'
 	;
 
 btm_construct_stmt_rslv
-	: EToken_Identifier '.' (EToken_Identifier '.')* EToken_Construct
+	: TokenKind_Identifier '.' (TokenKind_Identifier '.')* TokenKind_Construct
 	;
 
 class
 {
-	CQualifiedName m_Name;
+	QualifiedName m_name;
 }
 btm_construct_name
-	:	EToken_Identifier '.'
+	:	TokenKind_Identifier '.'
 			{
-				$.m_Name.AddName ($1.m_Data.m_String);
+				$.m_name.addName ($1.m_data.m_string);
 			}
-		(EToken_Identifier $n2 '.'
+		(TokenKind_Identifier $n2 '.'
 			{
-				$.m_Name.AddName ($n2.m_Data.m_String);
+				$.m_name.addName ($n2.m_data.m_string);
 			}
 		)*
-		EToken_Construct
+		TokenKind_Construct
 	;
 
 statement
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.ResetJumpFlag (); // 'stack new' is currently illegal in conditional expression
-		m_pModule->m_NamespaceMgr.SetSourcePos (m_CurrentToken.m_Pos);
+		m_module->m_controlFlowMgr.resetJumpFlag (); // 'stack new' is currently illegal in conditional expression
+		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
 	}
 	leave
 	{
-		m_pModule->m_OperatorMgr.NullifyTmpStackGcRootList ();
+		m_module->m_operatorMgr.nullifyTmpStackGcRootList ();
 	}
 	:	compound_stmt
 	|	expression_stmt
@@ -102,58 +102,58 @@ expression_stmt
 if_stmt
 	local
 	{
-		TIfStmt $Stmt;
+		IfStmt $stmt;
 	}
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.IfStmt_Create (&$Stmt);
+		m_module->m_controlFlowMgr.ifStmt_Create (&$stmt);
 	}
-	:	EToken_If '(' expression $e ')' $a
+	:	TokenKind_If '(' expression $e ')' $a
 			{
-				return m_pModule->m_ControlFlowMgr.IfStmt_Condition (&$Stmt, $e.m_Value, $a.m_Pos);
+				return m_module->m_controlFlowMgr.ifStmt_Condition (&$stmt, $e.m_value, $a.m_pos);
 			}
 		statement $t
 		(
-			EToken_Else $a2
+			TokenKind_Else $a2
 				{
-					m_pModule->m_ControlFlowMgr.IfStmt_Else (&$Stmt, $a2.m_Pos);
+					m_module->m_controlFlowMgr.ifStmt_Else (&$stmt, $a2.m_pos);
 				}
 			statement $f
 		)?
 			{
-				m_pModule->m_ControlFlowMgr.IfStmt_Follow (&$Stmt);
+				m_module->m_controlFlowMgr.ifStmt_Follow (&$stmt);
 			}
 	;
 
 switch_stmt
 	local
 	{
-		TSwitchStmt $Stmt;
+		SwitchStmt $stmt;
 	}
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.SwitchStmt_Create (&$Stmt);
+		m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
 	}
-	:	EToken_Switch '(' expression $e ')' '{' $l
+	:	TokenKind_Switch '(' expression $e ')' '{' $l
 			{
 				return
-					m_pModule->m_ControlFlowMgr.SwitchStmt_Condition (&$Stmt, $e.m_Value, $l.m_Pos) &&
-					PreCreateLandingPads ($l.m_Data.m_Integer);
+					m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, $e.m_value, $l.m_pos) &&
+					preCreateLandingPads ($l.m_data.m_integer);
 			}
-		switch_block_stmt <&$Stmt>* '}'
+		switch_block_stmt <&$stmt>* '}'
 			{
-				m_pModule->m_ControlFlowMgr.SwitchStmt_Follow (&$Stmt);
+				m_module->m_controlFlowMgr.switchStmt_Follow (&$stmt);
 			}
 	;
 
-switch_block_stmt <TSwitchStmt* $pStmt>
-	:	EToken_Case constant_integer_expr $e ':'
+switch_block_stmt <SwitchStmt* $stmt>
+	:	TokenKind_Case constant_integer_expr $e ':'
 			{
-				return m_pModule->m_ControlFlowMgr.SwitchStmt_Case ($pStmt, $e.m_Value, $1.m_Pos);
+				return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, $e.m_value, $1.m_pos);
 			}
-	|	EToken_Default ':'
+	|	TokenKind_Default ':'
 			{
-				return m_pModule->m_ControlFlowMgr.SwitchStmt_Default ($pStmt, $1.m_Pos);
+				return m_module->m_controlFlowMgr.switchStmt_Default ($stmt, $1.m_pos);
 			}
 	|	local_declaration
 	;
@@ -161,160 +161,160 @@ switch_block_stmt <TSwitchStmt* $pStmt>
 while_stmt
 	local
 	{
-		TWhileStmt $Stmt;
+		WhileStmt $stmt;
 	}
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.WhileStmt_Create (&$Stmt);
+		m_module->m_controlFlowMgr.whileStmt_Create (&$stmt);
 	}
-	:	EToken_While '(' expression $e ')' $a
+	:	TokenKind_While '(' expression $e ')' $a
 			{
-				m_pModule->m_ControlFlowMgr.WhileStmt_Condition (&$Stmt, $e.m_Value, $a.m_Pos);
+				m_module->m_controlFlowMgr.whileStmt_Condition (&$stmt, $e.m_value, $a.m_pos);
 			}
 		statement
 			{
-				m_pModule->m_ControlFlowMgr.WhileStmt_Follow (&$Stmt);
+				m_module->m_controlFlowMgr.whileStmt_Follow (&$stmt);
 			}
 	;
 
 do_stmt
 	local
 	{
-		TDoStmt $Stmt;
+		DoStmt $stmt;
 	}
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.DoStmt_Create (&$Stmt);
+		m_module->m_controlFlowMgr.doStmt_Create (&$stmt);
 	}
-	:	EToken_Do
+	:	TokenKind_Do
 			{
-				m_pModule->m_ControlFlowMgr.DoStmt_PreBody (&$Stmt, $1.m_Pos);
+				m_module->m_controlFlowMgr.doStmt_PreBody (&$stmt, $1.m_pos);
 			}
 		statement
 			{
-				m_pModule->m_ControlFlowMgr.DoStmt_PostBody (&$Stmt);
+				m_module->m_controlFlowMgr.doStmt_PostBody (&$stmt);
 			}
-		EToken_While '(' expression $e ')' ';'
+		TokenKind_While '(' expression $e ')' ';'
 			{
-				return m_pModule->m_ControlFlowMgr.DoStmt_Condition (&$Stmt, $e.m_Value);
+				return m_module->m_controlFlowMgr.doStmt_Condition (&$stmt, $e.m_value);
 			}
 	;
 
 for_stmt
 	local
 	{
-		TForStmt $Stmt;
+		ForStmt $stmt;
 	}
 	enter
 	{
-		m_pModule->m_ControlFlowMgr.ForStmt_Create (&$Stmt);
+		m_module->m_controlFlowMgr.forStmt_Create (&$stmt);
 	}
-	:	EToken_For '('
+	:	TokenKind_For '('
 			{
-				m_pModule->m_ControlFlowMgr.ForStmt_PreInit (&$Stmt, $1.m_Pos);
+				m_module->m_controlFlowMgr.forStmt_PreInit (&$stmt, $1.m_pos);
 			}
 		(item_declaration_w_specifier | expression_or_empty_list ';')
-		for_stmt_condition <&$Stmt> ';'
+		for_stmt_condition <&$stmt> ';'
 		(
 				{
-					m_pModule->m_ControlFlowMgr.ForStmt_PreLoop (&$Stmt);
+					m_module->m_controlFlowMgr.forStmt_PreLoop (&$stmt);
 				}
 			expression_list
 				{
-					m_pModule->m_ControlFlowMgr.ForStmt_PostLoop (&$Stmt);
+					m_module->m_controlFlowMgr.forStmt_PostLoop (&$stmt);
 				}
 		)? ')'
 			{
-				m_pModule->m_ControlFlowMgr.ForStmt_PreBody (&$Stmt);
+				m_module->m_controlFlowMgr.forStmt_PreBody (&$stmt);
 			}
 		statement
 			{
-				m_pModule->m_ControlFlowMgr.ForStmt_PostBody (&$Stmt);
+				m_module->m_controlFlowMgr.forStmt_PostBody (&$stmt);
 			}
 	;
 
 nullable
-for_stmt_condition <TForStmt* $pStmt>
+for_stmt_condition <ForStmt* $stmt>
 	:		{
-				m_pModule->m_ControlFlowMgr.ForStmt_PreCondition ($pStmt);
+				m_module->m_controlFlowMgr.forStmt_PreCondition ($stmt);
 			}
 		expression $e
 			{
-				return m_pModule->m_ControlFlowMgr.ForStmt_PostCondition ($pStmt, $e.m_Value);
+				return m_module->m_controlFlowMgr.forStmt_PostCondition ($stmt, $e.m_value);
 			}
 	|	epsilon
 			{
-				m_pModule->m_ControlFlowMgr.ForStmt_NoCondition ($pStmt);
+				m_module->m_controlFlowMgr.forStmt_NoCondition ($stmt);
 			}
 	;
 	
 
 break_stmt
-	:	EToken_Break ';'
+	:	TokenKind_Break ';'
 			{
-				return m_pModule->m_ControlFlowMgr.Break ($1.m_Data.m_Integer);
+				return m_module->m_controlFlowMgr.breakJump ($1.m_data.m_integer);
 			}
 	;
 
 continue_stmt
-	:	EToken_Continue ';'
+	:	TokenKind_Continue ';'
 			{
-				return m_pModule->m_ControlFlowMgr.Continue ($1.m_Data.m_Integer);
+				return m_module->m_controlFlowMgr.continueJump ($1.m_data.m_integer);
 			}
 	;
 
 return_stmt
-	:	EToken_Return expression $e? ';'
+	:	TokenKind_Return expression $e? ';'
 			{
-				return m_pModule->m_ControlFlowMgr.Return (IsValidLocator ($e) ? $e.m_Value : CValue ());
+				return m_module->m_controlFlowMgr.ret (isValidLocator ($e) ? $e.m_value : Value ());
 			}
 	;
 
 once_stmt
 	local
 	{
-		TOnceStmt $Stmt;
+		OnceStmt $stmt;
 	}
-	:	storage_specifier? EToken_Once
+	:	storage_specifier? TokenKind_Once
 			{
-				EStorage StorageKind = IsValidLocator ($1) ? $1.m_StorageKind : EStorage_Static;
+				StorageKind storageKind = isValidLocator ($1) ? $1.m_storageKind : StorageKind_Static;
 				return
-					m_pModule->m_ControlFlowMgr.OnceStmt_Create (&$Stmt, $2.m_Pos, StorageKind) &&
-					m_pModule->m_ControlFlowMgr.OnceStmt_PreBody (&$Stmt, $2.m_Pos);
+					m_module->m_controlFlowMgr.onceStmt_Create (&$stmt, $2.m_pos, storageKind) &&
+					m_module->m_controlFlowMgr.onceStmt_PreBody (&$stmt, $2.m_pos);
 			}
 		statement $s
 			{
-				m_pModule->m_ControlFlowMgr.OnceStmt_PostBody (&$Stmt, $s.m_LastToken.m_Pos);
+				m_module->m_controlFlowMgr.onceStmt_PostBody (&$stmt, $s.m_lastToken.m_pos);
 			}
 	;
 
 try_stmt
-	:	EToken_Try
+	:	TokenKind_Try
 		'{'
 			{
-				m_pModule->m_NamespaceMgr.OpenScope ($1.m_Pos);
-				PreCreateLandingPads ($1.m_Data.m_Integer | ELandingPadFlag_Catch); // always catch
+				m_module->m_namespaceMgr.openScope ($1.m_pos);
+				preCreateLandingPads ($1.m_data.m_integer | LandingPadFlagKind_Catch); // always catch
 			}
 		local_declaration*
 		'}'
 			{
-				m_pModule->m_ControlFlowMgr.EndTry ();
-				m_pModule->m_NamespaceMgr.CloseScope ();
+				m_module->m_controlFlowMgr.endTry ();
+				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
 
 catch_label
-	:	EToken_Catch ':'
+	:	TokenKind_Catch ':'
 			{
-				return m_pModule->m_ControlFlowMgr.Catch ();
+				return m_module->m_controlFlowMgr.catchLabel ();
 			}
 	;
 
 finally_label
-	:	EToken_Finally ':'
+	:	TokenKind_Finally ':'
 			{
-				return m_pModule->m_ControlFlowMgr.Finally ();
+				return m_module->m_controlFlowMgr.finallyLabel ();
 			}
 	;
 

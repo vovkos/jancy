@@ -5,26 +5,26 @@ namespace jnc {
 
 //.............................................................................
 
-CAttribute*
-CAttributeBlock::CreateAttribute (
-	const rtl::CString& Name,
-	CValue* pValue
+Attribute*
+AttributeBlock::createAttribute (
+	const rtl::String& name,
+	Value* value
 	)
 {
-	rtl::CStringHashTableMapIteratorT <CAttribute*> It = m_AttributeMap.Goto (Name);
-	if (It->m_Value)
+	rtl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.visit (name);
+	if (it->m_value)
 	{
-		err::SetFormatStringError ("redefinition of attribute '%s'", Name.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("redefinition of attribute '%s'", name.cc ()); // thanks a lot gcc
 		return NULL;
 	}
 
-	CAttribute* pAttribute = AXL_MEM_NEW (CAttribute);
-	pAttribute->m_pModule = m_pModule;
-	pAttribute->m_Name = Name;
-	pAttribute->m_pValue = pValue;
-	m_AttributeList.InsertTail (pAttribute);
-	It->m_Value = pAttribute;
-	return pAttribute;
+	Attribute* attribute = AXL_MEM_NEW (Attribute);
+	attribute->m_module = m_module;
+	attribute->m_name = name;
+	attribute->m_value = value;
+	m_attributeList.insertTail (attribute);
+	it->m_value = attribute;
+	return attribute;
 }
 
 //.............................................................................

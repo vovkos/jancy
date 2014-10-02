@@ -9,106 +9,106 @@
 
 namespace jnc {
 
-class CScope;
-class CStructField;
+class Scope;
+class StructField;
 
 //.............................................................................
 
-class CVariable: 
-	public CUserModuleItem,
-	public CModuleItemInitializer
+class Variable: 
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
-	friend class CVariableMgr;
-	friend class CParser;
+	friend class VariableMgr;
+	friend class Parser;
 
 protected:
-	CType* m_pType;
-	CImportType* m_pType_i;
-	uint_t m_PtrTypeFlags;
-	rtl::CBoxListT <CToken> m_Constructor;
+	Type* m_type;
+	ImportType* m_type_i;
+	uint_t m_ptrTypeFlags;
+	rtl::BoxList <Token> m_constructor;
 
-	CScope* m_pScope;
-	CStructField* m_pTlsField;
-	llvm::Value* m_pLlvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
-	llvm::Value* m_pLlvmAllocValue;
-	llvm::DIDescriptor m_LlvmDiDescriptor; // DIVariable / DIGlobalVariable /
+	Scope* m_scope;
+	StructField* m_tlsField;
+	llvm::Value* m_llvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
+	llvm::Value* m_llvmAllocValue;
+	llvm::DIDescriptor m_llvmDiDescriptor; // DIVariable / DIGlobalVariable /
 
 public:
-	CVariable ();
+	Variable ();
 
-	CType*
-	GetType ()
+	Type*
+	getType ()
 	{
-		return m_pType;
+		return m_type;
 	}
 
-	CImportType*
-	GetType_i ()
+	ImportType*
+	getType_i ()
 	{
-		return m_pType_i;
+		return m_type_i;
 	}
 
 	uint_t
-	GetPtrTypeFlags ()
+	getPtrTypeFlags ()
 	{
-		return m_PtrTypeFlags;
+		return m_ptrTypeFlags;
 	}
 
-	rtl::CConstBoxListT <CToken>
-	GetConstructor ()
+	rtl::ConstBoxList <Token>
+	getConstructor ()
 	{
-		return m_Constructor;
+		return m_constructor;
 	}
 
-	CScope*
-	GetScope ()
+	Scope*
+	getScope ()
 	{
-		return m_pScope;
+		return m_scope;
 	}
 
 	size_t
-	GetScopeLevel ()
+	getScopeLevel ()
 	{
-		return m_pScope ? m_pScope->GetLevel () : 0;
+		return m_scope ? m_scope->getLevel () : 0;
 	}
 
-	CValue
-	GetScopeLevelObjHdr ();
+	Value
+	getScopeLevelObjHdr ();
 
-	CStructField*
-	GetTlsField ()
+	StructField*
+	getTlsField ()
 	{
-		return m_pTlsField;
-	}
-
-	llvm::Value*
-	GetLlvmValue ()
-	{
-		EnsureLlvmValue ();
-		return m_pLlvmValue;
+		return m_tlsField;
 	}
 
 	llvm::Value*
-	GetLlvmAllocValue ()
+	getLlvmValue ()
 	{
-		EnsureLlvmValue ();
-		return m_pLlvmAllocValue;
+		ensureLlvmValue ();
+		return m_llvmValue;
+	}
+
+	llvm::Value*
+	getLlvmAllocValue ()
+	{
+		ensureLlvmValue ();
+		return m_llvmAllocValue;
 	}
 
 	llvm::DIDescriptor
-	GetLlvmDiDescriptor ()
+	getLlvmDiDescriptor ()
 	{
-		EnsureLlvmValue ();
-		return m_LlvmDiDescriptor;
+		ensureLlvmValue ();
+		return m_llvmDiDescriptor;
 	}
 
 protected:
 	virtual
 	bool
-	CalcLayout ();
+	calcLayout ();
 
 	void
-	EnsureLlvmValue ();
+	ensureLlvmValue ();
 };
 
 //.............................................................................
@@ -117,10 +117,10 @@ protected:
 // then we can insert instructions to get TLS block in every function and then replace
 // all alloca's temporarily representing TLS variables with GEPs into this TLS block
 
-struct TTlsVariable
+struct TlsVariable
 {
-	CVariable* m_pVariable;
-	llvm::AllocaInst* m_pLlvmAlloca;
+	Variable* m_variable;
+	llvm::AllocaInst* m_llvmAlloca;
 };
 
 //.............................................................................

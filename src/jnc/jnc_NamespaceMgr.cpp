@@ -6,93 +6,93 @@ namespace jnc {
 
 //.............................................................................
 
-CNamespaceMgr::CNamespaceMgr ()
+NamespaceMgr::NamespaceMgr ()
 {
-	m_pModule = GetCurrentThreadModule ();
-	ASSERT (m_pModule);
+	m_module = getCurrentThreadModule ();
+	ASSERT (m_module);
 
-	m_pCurrentNamespace = &m_GlobalNamespace;
-	m_pCurrentScope = NULL;
-	m_CurrentAccessKind = EAccess_Public;
-	m_SourcePosLockCount = 0;
-	m_ScopeLevelStack.m_pModule = m_pModule;
+	m_currentNamespace = &m_globalNamespace;
+	m_currentScope = NULL;
+	m_currentAccessKind = AccessKind_Public;
+	m_sourcePosLockCount = 0;
+	m_scopeLevelStack.m_module = m_module;
 }
 
 void
-CNamespaceMgr::Clear ()
+NamespaceMgr::clear ()
 {
-	m_GlobalNamespace.Clear ();
-	m_NamespaceList.Clear ();
-	m_ScopeList.Clear ();
-	m_OrphanList.Clear ();
-	m_NamespaceStack.Clear ();
-	m_pCurrentNamespace = &m_GlobalNamespace;
-	m_pCurrentScope = NULL;
-	m_SourcePosLockCount = 0;
-	m_ScopeLevelStack.Clear ();
-	m_StaticObjectValue.Clear ();
+	m_globalNamespace.clear ();
+	m_namespaceList.clear ();
+	m_scopeList.clear ();
+	m_orphanList.clear ();
+	m_namespaceStack.clear ();
+	m_currentNamespace = &m_globalNamespace;
+	m_currentScope = NULL;
+	m_sourcePosLockCount = 0;
+	m_scopeLevelStack.clear ();
+	m_staticObjectValue.clear ();
 }
 
 bool
-CNamespaceMgr::AddStdItems ()
+NamespaceMgr::addStdItems ()
 {
-	CGlobalNamespace* pJnc = CreateGlobalNamespace ("jnc", &m_GlobalNamespace);
-	pJnc->m_Flags |= EGlobalNamespaceFlag_Sealed;
+	GlobalNamespace* jnc = createGlobalNamespace ("jnc", &m_globalNamespace);
+	jnc->m_flags |= GlobalNamespaceFlagKind_Sealed;
 
 	return
-		m_GlobalNamespace.AddItem (pJnc) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_StrLen)) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_MemCpy)) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_MemCat)) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Rand)) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Printf)) &&
-		m_GlobalNamespace.AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Atoi)) &&
-		pJnc->AddItem (m_pModule->m_TypeMgr.GetLazyStdType (EStdType_Scheduler)) &&
-		pJnc->AddItem (m_pModule->m_TypeMgr.GetLazyStdType (EStdType_Error)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetDataPtrSpan)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_RunGc)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_CreateThread)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Sleep)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetCurrentThreadId)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetTimestamp)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_GetLastError)) &&
-		pJnc->AddItem (m_pModule->m_FunctionMgr.GetLazyStdFunction (EStdFunc_Format));
+		m_globalNamespace.addItem (jnc) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_StrLen)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_MemCpy)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_MemCat)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Rand)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Printf)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Atoi)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Scheduler)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Error)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetDataPtrSpan)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_RunGc)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_CreateThread)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Sleep)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetCurrentThreadId)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetTimestamp)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetLastError)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Format));
 }
 
-CValue
-CNamespaceMgr::GetStaticObjHdr ()
+Value
+NamespaceMgr::getStaticObjHdr ()
 {
-	if (m_StaticObjectValue)
-		return m_StaticObjectValue;
+	if (m_staticObjectValue)
+		return m_staticObjectValue;
 
-	static TObjHdr* pStaticObjHdr = jnc::GetStaticObjHdr ();
-	m_StaticObjectValue.CreateConst (&pStaticObjHdr, m_pModule->m_TypeMgr.GetStdType (EStdType_ObjHdrPtr));
-	return m_StaticObjectValue;
+	static ObjHdr* staticObjHdr = jnc::getStaticObjHdr ();
+	m_staticObjectValue.createConst (&staticObjHdr, m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr));
+	return m_staticObjectValue;
 }
 
-COrphan*
-CNamespaceMgr::CreateOrphan (
-	EOrphan OrphanKind,
-	CFunctionType* pFunctionType
+Orphan*
+NamespaceMgr::createOrphan (
+	OrphanKind orphanKind,
+	FunctionType* functionType
 	)
 {
-	COrphan* pOrphan = AXL_MEM_NEW (COrphan);
-	pOrphan->m_OrphanKind = OrphanKind;
-	pOrphan->m_pFunctionType = pFunctionType;
-	m_OrphanList.InsertTail (pOrphan);
-	return pOrphan;
+	Orphan* orphan = AXL_MEM_NEW (Orphan);
+	orphan->m_orphanKind = orphanKind;
+	orphan->m_functionType = functionType;
+	m_orphanList.insertTail (orphan);
+	return orphan;
 }
 
 bool
-CNamespaceMgr::ResolveOrphans ()
+NamespaceMgr::resolveOrphans ()
 {
-	bool Result;
+	bool result;
 
-	rtl::CIteratorT <COrphan> It = m_OrphanList.GetHead ();
-	for (; It; It++)
+	rtl::Iterator <Orphan> it = m_orphanList.getHead ();
+	for (; it; it++)
 	{
-		Result = It->ResolveOrphan ();
-		if (!Result)
+		result = it->resolveOrphan ();
+		if (!result)
 			return false;
 	}
 
@@ -100,228 +100,228 @@ CNamespaceMgr::ResolveOrphans ()
 }
 
 void
-CNamespaceMgr::SetSourcePos (const CToken::CPos& Pos)
+NamespaceMgr::setSourcePos (const Token::Pos& pos)
 {
-	if (!(m_pModule->GetFlags () & EModuleFlag_DebugInfo) ||
-		!m_pCurrentScope ||
-		m_SourcePosLockCount)
+	if (!(m_module->getFlags () & ModuleFlagKind_DebugInfo) ||
+		!m_currentScope ||
+		m_sourcePosLockCount)
 		return;
 
-	llvm::DebugLoc LlvmDebugLoc = m_pModule->m_LlvmDiBuilder.GetDebugLoc (m_pCurrentScope, Pos);
-	m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (LlvmDebugLoc);
+	llvm::DebugLoc llvmDebugLoc = m_module->m_llvmDiBuilder.getDebugLoc (m_currentScope, pos);
+	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvmDebugLoc);
 }
 
 void
-CNamespaceMgr::OpenNamespace (CNamespace* pNamespace)
+NamespaceMgr::openNamespace (Namespace* nspace)
 {
-	TNamespaceStackEntry Entry =
+	NamespaceStackEntry entry =
 	{
-		m_pCurrentNamespace,
-		m_CurrentAccessKind
+		m_currentNamespace,
+		m_currentAccessKind
 	};
 
-	m_NamespaceStack.Append (Entry);
-	m_pCurrentNamespace = pNamespace;
-	m_pCurrentScope = pNamespace->m_NamespaceKind == ENamespace_Scope ? (CScope*) pNamespace : NULL;
-	m_CurrentAccessKind = EAccess_Public; // always start with 'public'
+	m_namespaceStack.append (entry);
+	m_currentNamespace = nspace;
+	m_currentScope = nspace->m_namespaceKind == NamespaceKind_Scope ? (Scope*) nspace : NULL;
+	m_currentAccessKind = AccessKind_Public; // always start with 'public'
 }
 
 void
-CNamespaceMgr::CloseNamespace ()
+NamespaceMgr::closeNamespace ()
 {
-	if (m_NamespaceStack.IsEmpty ())
+	if (m_namespaceStack.isEmpty ())
 		return;
 
-	TNamespaceStackEntry Entry = m_NamespaceStack.GetBackAndPop ();
+	NamespaceStackEntry entry = m_namespaceStack.getBackAndPop ();
 
-	m_pCurrentNamespace = Entry.m_pNamespace;
-	m_pCurrentScope = m_pCurrentNamespace->m_NamespaceKind == ENamespace_Scope ? (CScope*) m_pCurrentNamespace : NULL;
-	m_CurrentAccessKind = Entry.m_AccessKind;
+	m_currentNamespace = entry.m_namespace;
+	m_currentScope = m_currentNamespace->m_namespaceKind == NamespaceKind_Scope ? (Scope*) m_currentNamespace : NULL;
+	m_currentAccessKind = entry.m_accessKind;
 }
 
-CScope*
-CNamespaceMgr::OpenInternalScope ()
+Scope*
+NamespaceMgr::openInternalScope ()
 {
-	CFunction* pFunction = m_pModule->m_FunctionMgr.GetCurrentFunction ();
-	ASSERT (pFunction);
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
 
-	CScope* pScope = AXL_MEM_NEW (CScope);
-	pScope->m_pModule = m_pModule;
-	pScope->m_pFunction = pFunction;
-	pScope->m_Level = m_pCurrentScope ? m_pCurrentScope->GetLevel () + 1 : 1;
-	pScope->m_pParentNamespace = m_pCurrentNamespace;
+	Scope* scope = AXL_MEM_NEW (Scope);
+	scope->m_module = m_module;
+	scope->m_function = function;
+	scope->m_level = m_currentScope ? m_currentScope->getLevel () + 1 : 1;
+	scope->m_parentNamespace = m_currentNamespace;
 
-	if (m_pCurrentScope)
-		pScope->m_Flags |= m_pCurrentScope->m_Flags & (EScopeFlag_CanThrow | EScopeFlag_HasFinally);
-	else if (pFunction->GetType ()->GetFlags () & EFunctionTypeFlag_Throws)
-		pScope->m_Flags |= EScopeFlag_CanThrow;
+	if (m_currentScope)
+		scope->m_flags |= m_currentScope->m_flags & (ScopeFlagKind_CanThrow | ScopeFlagKind_HasFinally);
+	else if (function->getType ()->getFlags () & FunctionTypeFlagKind_Throws)
+		scope->m_flags |= ScopeFlagKind_CanThrow;
 
-	m_ScopeList.InsertTail (pScope);
+	m_scopeList.insertTail (scope);
 
-	OpenNamespace (pScope);
-	return pScope;
+	openNamespace (scope);
+	return scope;
 }
 
-CScope*
-CNamespaceMgr::OpenScope (const CToken::CPos& Pos)
+Scope*
+NamespaceMgr::openScope (const Token::Pos& pos)
 {
-	CScope* pParentScope = m_pCurrentScope;
-	CScope* pScope = OpenInternalScope ();
-	pScope->m_Pos = Pos;
+	Scope* parentScope = m_currentScope;
+	Scope* scope = openInternalScope ();
+	scope->m_pos = pos;
 
-	if (m_pModule->GetFlags () & EModuleFlag_DebugInfo)
-		pScope->m_LlvmDiScope = (llvm::DIScope) m_pModule->m_LlvmDiBuilder.CreateLexicalBlock (pParentScope, Pos);
+	if (m_module->getFlags () & ModuleFlagKind_DebugInfo)
+		scope->m_llvmDiScope = (llvm::DIScope) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);
 
-	SetSourcePos (Pos);
-	return pScope;
+	setSourcePos (pos);
+	return scope;
 }
 
 void
-CNamespaceMgr::CloseScope ()
+NamespaceMgr::closeScope ()
 {
-	CScope* pScope = m_pCurrentScope;
-	ASSERT (pScope);
+	Scope* scope = m_currentScope;
+	ASSERT (scope);
 
-	if (m_pModule->m_ControlFlowMgr.GetCurrentBlock ()->GetFlags () & EBasicBlockFlag_Reachable)
+	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlagKind_Reachable)
 	{
-		pScope->m_DestructList.RunDestructors ();
-		m_pModule->m_OperatorMgr.NullifyGcRootList (pScope->GetGcRootList ());
+		scope->m_destructList.runDestructors ();
+		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 	}
 
-	if (pScope->m_Flags & EScopeFlag_FinallyDefined)
-		m_pModule->m_ControlFlowMgr.EndFinally ();
+	if (scope->m_flags & ScopeFlagKind_FinallyDefined)
+		m_module->m_controlFlowMgr.endFinally ();
 
-	CloseNamespace ();
+	closeNamespace ();
 }
 
-EAccess
-CNamespaceMgr::GetAccessKind (CNamespace* pTargetNamespace)
+AccessKind
+NamespaceMgr::getAccessKind (Namespace* targetNamespace)
 {
-	CNamespace* pNamespace = m_pCurrentNamespace;
+	Namespace* nspace = m_currentNamespace;
 
-	if (!pTargetNamespace->IsNamed ())
+	if (!targetNamespace->isNamed ())
 	{
-		for (; pNamespace; pNamespace = pNamespace->m_pParentNamespace)
+		for (; nspace; nspace = nspace->m_parentNamespace)
 		{
-			if (pNamespace == pTargetNamespace)
-				return EAccess_Protected;
+			if (nspace == targetNamespace)
+				return AccessKind_Protected;
 		}
 
-		return EAccess_Public;
+		return AccessKind_Public;
 	}
 
-	if (pTargetNamespace->m_NamespaceKind != ENamespace_Type)
+	if (targetNamespace->m_namespaceKind != NamespaceKind_Type)
 	{
-		for (; pNamespace; pNamespace = pNamespace->m_pParentNamespace)
+		for (; nspace; nspace = nspace->m_parentNamespace)
 		{
-			if (!pNamespace->IsNamed ())
+			if (!nspace->isNamed ())
 				continue;
 
-			if (pNamespace == pTargetNamespace ||
-				pTargetNamespace->m_QualifiedName.Cmp (pNamespace->m_QualifiedName) == 0 ||
-				pTargetNamespace->m_FriendSet.Find (pNamespace->m_QualifiedName))
-				return EAccess_Protected;
+			if (nspace == targetNamespace ||
+				targetNamespace->m_qualifiedName.cmp (nspace->m_qualifiedName) == 0 ||
+				targetNamespace->m_friendSet.find (nspace->m_qualifiedName))
+				return AccessKind_Protected;
 		}
 
-		return EAccess_Public;
+		return AccessKind_Public;
 	}
 
-	CNamedType* pTargetType = (CNamedType*) pTargetNamespace;
+	NamedType* targetType = (NamedType*) targetNamespace;
 
-	for (; pNamespace; pNamespace = pNamespace->m_pParentNamespace)
+	for (; nspace; nspace = nspace->m_parentNamespace)
 	{
-		if (!pNamespace->IsNamed ())
+		if (!nspace->isNamed ())
 			continue;
 
-		if (pNamespace == pTargetNamespace ||
-			pTargetNamespace->m_QualifiedName.Cmp (pNamespace->m_QualifiedName) == 0 ||
-			pTargetNamespace->m_FriendSet.Find (pNamespace->m_QualifiedName))
-			return EAccess_Protected;
+		if (nspace == targetNamespace ||
+			targetNamespace->m_qualifiedName.cmp (nspace->m_qualifiedName) == 0 ||
+			targetNamespace->m_friendSet.find (nspace->m_qualifiedName))
+			return AccessKind_Protected;
 
-		if (pNamespace->m_NamespaceKind == ENamespace_Type)
+		if (nspace->m_namespaceKind == NamespaceKind_Type)
 		{
-			CNamedType* pType = (CNamedType*) pNamespace;
-			EType TypeKind = pType->GetTypeKind ();
-			if (TypeKind == EType_Class || TypeKind == EType_Struct)
+			NamedType* type = (NamedType*) nspace;
+			TypeKind typeKind = type->getTypeKind ();
+			if (typeKind == TypeKind_Class || typeKind == TypeKind_Struct)
 			{
-				bool Result = ((CDerivableType*) pType)->FindBaseTypeTraverse (pTargetType);
-				if (Result)
-					return EAccess_Protected;
+				bool result = ((DerivableType*) type)->findBaseTypeTraverse (targetType);
+				if (result)
+					return AccessKind_Protected;
 			}
 		}
 	}
 
-	return EAccess_Public;
+	return AccessKind_Public;
 }
 
-CGlobalNamespace*
-CNamespaceMgr::CreateGlobalNamespace (
-	const rtl::CString& Name,
-	CNamespace* pParentNamespace
+GlobalNamespace*
+NamespaceMgr::createGlobalNamespace (
+	const rtl::String& name,
+	Namespace* parentNamespace
 	)
 {
-	if (!pParentNamespace)
-		pParentNamespace = &m_GlobalNamespace;
+	if (!parentNamespace)
+		parentNamespace = &m_globalNamespace;
 
-	rtl::CString QualifiedName = pParentNamespace->CreateQualifiedName (Name);
+	rtl::String qualifiedName = parentNamespace->createQualifiedName (name);
 
-	CGlobalNamespace* pNamespace = AXL_MEM_NEW (CGlobalNamespace);
-	pNamespace->m_pModule = m_pModule;
-	pNamespace->m_Name = Name;
-	pNamespace->m_QualifiedName = QualifiedName;
-	pNamespace->m_Tag = QualifiedName;
-	pNamespace->m_pParentNamespace = pParentNamespace;
-	m_NamespaceList.InsertTail (pNamespace);
-	return pNamespace;
+	GlobalNamespace* nspace = AXL_MEM_NEW (GlobalNamespace);
+	nspace->m_module = m_module;
+	nspace->m_name = name;
+	nspace->m_qualifiedName = qualifiedName;
+	nspace->m_tag = qualifiedName;
+	nspace->m_parentNamespace = parentNamespace;
+	m_namespaceList.insertTail (nspace);
+	return nspace;
 }
 
-CScope*
-CNamespaceMgr::FindBreakScope (size_t Level)
+Scope*
+NamespaceMgr::findBreakScope (size_t level)
 {
 	size_t i = 0;
-	CScope* pScope = m_pCurrentScope;
-	for (; pScope; pScope = pScope->GetParentScope ())
+	Scope* scope = m_currentScope;
+	for (; scope; scope = scope->getParentScope ())
 	{
-		if (pScope->m_pBreakBlock)
+		if (scope->m_breakBlock)
 		{
 			i++;
-			if (i >= Level)
+			if (i >= level)
 				break;
 		}
 	}
 
-	return pScope;
+	return scope;
 }
 
-CScope*
-CNamespaceMgr::FindContinueScope (size_t Level)
+Scope*
+NamespaceMgr::findContinueScope (size_t level)
 {
 	size_t i = 0;
-	CScope* pScope = m_pCurrentScope;
-	for (; pScope; pScope = pScope->GetParentScope ())
+	Scope* scope = m_currentScope;
+	for (; scope; scope = scope->getParentScope ())
 	{
-		if (pScope->m_pContinueBlock)
+		if (scope->m_continueBlock)
 		{
 			i++;
-			if (i >= Level)
+			if (i >= level)
 				break;
 		}
 	}
 
-	return pScope;
+	return scope;
 }
 
-CScope*
-CNamespaceMgr::FindCatchScope ()
+Scope*
+NamespaceMgr::findCatchScope ()
 {
-	CScope* pScope = m_pCurrentScope;
-	for (; pScope; pScope = pScope->GetParentScope ())
+	Scope* scope = m_currentScope;
+	for (; scope; scope = scope->getParentScope ())
 	{
-		if (pScope->m_pCatchBlock)
+		if (scope->m_catchBlock)
 			break;
 	}
 
-	return pScope;
+	return scope;
 }
 
 //.............................................................................

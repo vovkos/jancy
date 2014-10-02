@@ -12,34 +12,34 @@ namespace jnc {
 
 // integer truncation
 
-class CCast_IntTrunc: public CCastOperator
+class Cast_IntTrunc: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Explicit;
+		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -47,67 +47,67 @@ public:
 
 // integer extensions
 
-class CCast_IntExt: public CCastOperator
+class Cast_IntExt: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_IntExt_u: public CCastOperator
+class Cast_IntExt_u: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -115,66 +115,66 @@ public:
 
 // big endian <-> little endian
 
-class CCast_SwapByteOrder: public CCastOperator
+class Cast_SwapByteOrder: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Implicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
-		);
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class CCast_IntFromBeInt: public CCast_SuperMaster
-{
-public:
-	virtual
-	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_BeInt: public CCast_SuperMaster
+class Cast_IntFromBeInt: public Cast_SuperMaster
 {
 public:
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
+		);
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class Cast_BeInt: public Cast_SuperMaster
+{
+public:
+	virtual
+	bool
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
 		);
 };
 
@@ -182,54 +182,54 @@ public:
 
 // floating point -> integer
 
-class CCast_IntFromFp: public CCastOperator
+class Cast_IntFromFp: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Explicit;
+		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_IntFromFp32: public CCast_IntFromFp
+class Cast_IntFromFp32: public Cast_IntFromFp
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_IntFromFp64: public CCast_IntFromFp
+class Cast_IntFromFp64: public Cast_IntFromFp
 {
 public:
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 };
 
@@ -237,45 +237,45 @@ public:
 
 // enum <-> integer
 
-class CCast_IntFromEnum: public CCast_SuperMaster
+class Cast_IntFromEnum: public Cast_SuperMaster
 {
 public:
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_Enum: public CCast_SuperMaster
+class Cast_Enum: public Cast_SuperMaster
 {
 public:
-	CCast_Enum ()
+	Cast_Enum ()
 	{
-		m_OpFlags = EOpFlag_KeepEnum;
+		m_opFlags = OpFlagKind_KeepEnum;
 	}
 
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
 	bool
-	GetCastOperators (
-		const CValue& OpValue,
-		CType* pType,
-		CCastOperator** ppFirstOperator,
-		CCastOperator** ppSecondOperator,
-		CType** ppIntermediateType
+	getCastOperators (
+		const Value& opValue,
+		Type* type,
+		CastOperator** firstOperator,
+		CastOperator** secondOperator,
+		Type** intermediateType
 		);
 };
 
@@ -283,68 +283,68 @@ public:
 
 // pointer <-> integer
 
-class CCast_IntFromPtr: public CCastOperator
+class Cast_IntFromPtr: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		ASSERT (OpValue.GetType ()->GetSize () >= sizeof (intptr_t));
-		return ECast_Explicit;
+		ASSERT (opValue.getType ()->getSize () >= sizeof (intptr_t));
+		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CCast_PtrFromInt: public CCastOperator
+class Cast_PtrFromInt: public CastOperator
 {
 public:
 	virtual
-	ECast
-	GetCastKind (
-		const CValue& OpValue,
-		CType* pType
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		)
 	{
-		return ECast_Explicit;
+		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	ConstCast (
-		const CValue& OpValue,
-		CType* pType,
-		void* pDst
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
 		);
 
 	virtual
 	bool
-	LlvmCast (
-		EStorage StorageKind,
-		const CValue& OpValue,
-		CType* pType,
-		CValue* pResultValue
+	llvmCast (
+		StorageKind storageKind,
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
 		);
 };
 
@@ -352,24 +352,24 @@ public:
 
 // integer master cast
 
-class CCast_Int: public CCast_Master
+class Cast_Int: public Cast_Master
 {
 protected:
-	CCast_IntTrunc m_Trunc;
-	CCast_IntExt m_Ext;
-	CCast_IntExt_u m_Ext_u;
-	CCast_IntFromBeInt m_FromBeInt;
-	CCast_IntFromFp32 m_FromFp32;
-	CCast_IntFromFp64 m_FromFp64;
-	CCast_IntFromEnum m_FromEnum;
-	CCast_IntFromPtr m_FromPtr;
+	Cast_IntTrunc m_trunc;
+	Cast_IntExt m_ext;
+	Cast_IntExt_u m_ext_u;
+	Cast_IntFromBeInt m_fromBeInt;
+	Cast_IntFromFp32 m_fromFp32;
+	Cast_IntFromFp64 m_fromFp64;
+	Cast_IntFromEnum m_fromEnum;
+	Cast_IntFromPtr m_fromPtr;
 
 public:
 	virtual
-	CCastOperator*
-	GetCastOperator (
-		const CValue& OpValue,
-		CType* pType
+	CastOperator*
+	getCastOperator (
+		const Value& opValue,
+		Type* type
 		);
 };
 

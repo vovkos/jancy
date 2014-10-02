@@ -6,309 +6,309 @@ namespace jnc {
 
 //.............................................................................
 
-CType*
-CCdeclCallConv_gcc64::GetArgCoerceType (CType* pType)
+Type*
+CdeclCallConv_gcc64::getArgCoerceType (Type* type)
 {
 	#pragma AXL_TODO ("implement proper coercion for structures with floating point fields")
 
-	return pType->GetSize () > sizeof (uint64_t) ?
-		m_pModule->m_TypeMgr.GetStdType (EStdType_Int64Int64) :
-		m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64);
+	return type->getSize () > sizeof (uint64_t) ?
+		m_module->m_typeMgr.getStdType (StdTypeKind_Int64Int64) :
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
 }
 
 llvm::FunctionType*
-CCdeclCallConv_gcc64::GetLlvmFunctionType (CFunctionType* pFunctionType)
+CdeclCallConv_gcc64::getLlvmFunctionType (FunctionType* functionType)
 {
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
+	Type* returnType = functionType->getReturnType ();
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+	size_t argCount = argArray.getCount ();
 
-	char Buffer [256];
-	rtl::CArrayT <llvm::Type*> LlvmArgTypeArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
-	LlvmArgTypeArray.SetCount (ArgCount);
+	char buffer [256];
+	rtl::Array <llvm::Type*> llvmArgTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	llvmArgTypeArray.setCount (argCount);
 
 	size_t j = 0;
 
-	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
+	if (returnType->getFlags () & TypeFlagKind_StructRet)
 	{
-		if (pReturnType->GetSize () > sizeof (uint64_t) * 2) // return in memory
+		if (returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 		{
-			ArgCount++;
-			LlvmArgTypeArray.SetCount (ArgCount);
-			LlvmArgTypeArray [0] = pReturnType->GetDataPtrType_c ()->GetLlvmType ();
+			argCount++;
+			llvmArgTypeArray.setCount (argCount);
+			llvmArgTypeArray [0] = returnType->getDataPtrType_c ()->getLlvmType ();
 			j = 1;
 
-			pReturnType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+			returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		}
 		else // coerce
 		{
-			pReturnType = GetArgCoerceType (pReturnType);
+			returnType = getArgCoerceType (returnType);
 		}
 	}
 
-	bool HasCoercedArgs = false;
+	bool hasCoercedArgs = false;
 
-	for (size_t i = 0; j < ArgCount; i++, j++)
+	for (size_t i = 0; j < argCount; i++, j++)
 	{
-		CType* pType = ArgArray [i]->GetType ();
-		if (!(pType->GetFlags () & ETypeFlag_StructRet))
+		Type* type = argArray [i]->getType ();
+		if (!(type->getFlags () & TypeFlagKind_StructRet))
 		{
-			LlvmArgTypeArray [j] = pType->GetLlvmType ();
+			llvmArgTypeArray [j] = type->getLlvmType ();
 		}
-		else if (pType->GetSize () > sizeof (uint64_t) * 2) // pass in memory
+		else if (type->getSize () > sizeof (uint64_t) * 2) // pass in memory
 		{
-			LlvmArgTypeArray [j] = pType->GetDataPtrType_c ()->GetLlvmType ();
-			HasCoercedArgs = true;
+			llvmArgTypeArray [j] = type->getDataPtrType_c ()->getLlvmType ();
+			hasCoercedArgs = true;
 		}
 		else // coerce
 		{
-			LlvmArgTypeArray [j] = GetArgCoerceType (pType)->GetLlvmType ();
-			HasCoercedArgs = true;
+			llvmArgTypeArray [j] = getArgCoerceType (type)->getLlvmType ();
+			hasCoercedArgs = true;
 		}
 	}
 
-	if (HasCoercedArgs)
-		pFunctionType->m_Flags |= EFunctionTypeFlag_CoercedArgs;
+	if (hasCoercedArgs)
+		functionType->m_flags |= FunctionTypeFlagKind_CoercedArgs;
 
 	return llvm::FunctionType::get (
-		pReturnType->GetLlvmType (),
-		llvm::ArrayRef <llvm::Type*> (LlvmArgTypeArray, ArgCount),
-		(pFunctionType->GetFlags () & EFunctionTypeFlag_VarArg) != 0
+		returnType->getLlvmType (),
+		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
+		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
 		);
 }
 
 llvm::Function*
-CCdeclCallConv_gcc64::CreateLlvmFunction (
-	CFunctionType* pFunctionType,
-	const char* pTag
+CdeclCallConv_gcc64::createLlvmFunction (
+	FunctionType* functionType,
+	const char* tag
 	)
 {
-	llvm::Function* pLlvmFunction = CCallConv::CreateLlvmFunction (pFunctionType, pTag);
+	llvm::Function* llvmFunction = CallConv::createLlvmFunction (functionType, tag);
 
 	size_t j = 1;
 
-	CType* pReturnType = pFunctionType->GetReturnType ();
-	if ((pReturnType->GetFlags () & ETypeFlag_StructRet) &&
-		pReturnType->GetSize () > sizeof (uint64_t) * 2) // return in memory
+	Type* returnType = functionType->getReturnType ();
+	if ((returnType->getFlags () & TypeFlagKind_StructRet) &&
+		returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 	{
-		pLlvmFunction->addAttribute (1, llvm::Attribute::StructRet);
+		llvmFunction->addAttribute (1, llvm::Attribute::StructRet);
 		j = 2;
 	}
 
-	if (pFunctionType->GetFlags () & EFunctionTypeFlag_CoercedArgs)
+	if (functionType->getFlags () & FunctionTypeFlagKind_CoercedArgs)
 	{
-		rtl::CArrayT <CFunctionArg*> ArgArray = pFunctionType->GetArgArray ();
-		size_t ArgCount = ArgArray.GetCount ();
+		rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+		size_t argCount = argArray.getCount ();
 
-		for (size_t i = 0; i < ArgCount; i++, j++)
+		for (size_t i = 0; i < argCount; i++, j++)
 		{
-			CType* pType = ArgArray [i]->GetType ();
-			if ((pType->GetFlags () & ETypeFlag_StructRet) &&
-				pType->GetSize () > sizeof (uint64_t) * 2) // pass in memory
+			Type* type = argArray [i]->getType ();
+			if ((type->getFlags () & TypeFlagKind_StructRet) &&
+				type->getSize () > sizeof (uint64_t) * 2) // pass in memory
 			{
-				pLlvmFunction->addAttribute (j, llvm::Attribute::ByVal);
+				llvmFunction->addAttribute (j, llvm::Attribute::ByVal);
 			}
 		}
 	}
 
-	return pLlvmFunction;
+	return llvmFunction;
 }
 
 void
-CCdeclCallConv_gcc64::Call (
-	const CValue& CalleeValue,
-	CFunctionType* pFunctionType,
-	rtl::CBoxListT <CValue>* pArgValueList,
-	CValue* pResultValue
+CdeclCallConv_gcc64::call (
+	const Value& calleeValue,
+	FunctionType* functionType,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
 	)
 {
-	CType* pReturnType = pFunctionType->GetReturnType ();
+	Type* returnType = functionType->getReturnType ();
 
-	if (!(pFunctionType->GetFlags () & EFunctionTypeFlag_CoercedArgs) &&
-		!(pReturnType->GetFlags () & ETypeFlag_StructRet))
+	if (!(functionType->getFlags () & FunctionTypeFlagKind_CoercedArgs) &&
+		!(returnType->getFlags () & TypeFlagKind_StructRet))
 	{
-		CCallConv::Call (CalleeValue, pFunctionType, pArgValueList, pResultValue);
+		CallConv::call (calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
 
 
-	CValue TmpReturnValue;
+	Value tmpReturnValue;
 
-	if ((pReturnType->GetFlags () & ETypeFlag_StructRet) &&
-		pReturnType->GetSize () > sizeof (uint64_t) * 2) // return in memory
+	if ((returnType->getFlags () & TypeFlagKind_StructRet) &&
+		returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 	{
-		m_pModule->m_LlvmIrBuilder.CreateAlloca (
-			pReturnType,
+		m_module->m_llvmIrBuilder.createAlloca (
+			returnType,
 			"tmpRetVal",
-			pReturnType->GetDataPtrType_c (),
-			&TmpReturnValue
+			returnType->getDataPtrType_c (),
+			&tmpReturnValue
 			);
 
-		pArgValueList->InsertHead (TmpReturnValue);
+		argValueList->insertHead (tmpReturnValue);
 	}
 
 	unsigned j = 1;
-	char Buffer [256];
-	rtl::CArrayT <unsigned> ByValArgIdxArray (ref::EBuf_Stack, Buffer, sizeof (Buffer));
+	char buffer [256];
+	rtl::Array <unsigned> byValArgIdxArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	if (pFunctionType->GetFlags () & EFunctionTypeFlag_CoercedArgs)
+	if (functionType->getFlags () & FunctionTypeFlagKind_CoercedArgs)
 	{
-		rtl::CBoxIteratorT <CValue> It = pArgValueList->GetHead ();
-		for (; It; It++, j++)
+		rtl::BoxIterator <Value> it = argValueList->getHead ();
+		for (; it; it++, j++)
 		{
-			CType* pType = It->GetType ();
-			if (!(pType->GetFlags () & ETypeFlag_StructRet))
+			Type* type = it->getType ();
+			if (!(type->getFlags () & TypeFlagKind_StructRet))
 				continue;
 
-			if (pType->GetSize () > sizeof (uint64_t) * 2) // pass in memory
+			if (type->getSize () > sizeof (uint64_t) * 2) // pass in memory
 			{
-				CValue TmpValue;
-				m_pModule->m_LlvmIrBuilder.CreateAlloca (pType, "tmpArg", NULL, &TmpValue);
-				m_pModule->m_LlvmIrBuilder.CreateStore (*It, TmpValue);
+				Value tmpValue;
+				m_module->m_llvmIrBuilder.createAlloca (type, "tmpArg", NULL, &tmpValue);
+				m_module->m_llvmIrBuilder.createStore (*it, tmpValue);
 
-				*It = TmpValue;
-				ByValArgIdxArray.Append (j);
+				*it = tmpValue;
+				byValArgIdxArray.append (j);
 			}
 			else // coerce
 			{
-				CType* pCoerceType = GetArgCoerceType (pType);
-				m_pModule->m_OperatorMgr.ForceCast (It.GetObject (), pCoerceType);
+				Type* coerceType = getArgCoerceType (type);
+				m_module->m_operatorMgr.forceCast (it.getObject (), coerceType);
 			}
 		}
 	}
 
-	llvm::CallInst* pLlvmInst = m_pModule->m_LlvmIrBuilder.CreateCall (
-		CalleeValue,
+	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall (
+		calleeValue,
 		this,
-		*pArgValueList,
-		TmpReturnValue ?
-			m_pModule->GetSimpleType (EType_Void) :
-			pReturnType,
-		pResultValue
+		*argValueList,
+		tmpReturnValue ?
+			m_module->getSimpleType (TypeKind_Void) :
+			returnType,
+		resultValue
 		);
 
-	size_t ByValArgCount = ByValArgIdxArray.GetCount ();
-	for (size_t i = 0; i < ByValArgCount; i++)
-		pLlvmInst->addAttribute (ByValArgIdxArray [i], llvm::Attribute::ByVal);
+	size_t byValArgCount = byValArgIdxArray.getCount ();
+	for (size_t i = 0; i < byValArgCount; i++)
+		llvmInst->addAttribute (byValArgIdxArray [i], llvm::Attribute::ByVal);
 
-	if (pReturnType->GetFlags () & ETypeFlag_StructRet)
+	if (returnType->getFlags () & TypeFlagKind_StructRet)
 	{
-		if (pReturnType->GetSize () > sizeof (uint64_t) * 2) // return in memory
+		if (returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 		{
-			pLlvmInst->addAttribute (1, llvm::Attribute::StructRet);
-			m_pModule->m_LlvmIrBuilder.CreateLoad (TmpReturnValue, pReturnType, pResultValue);
+			llvmInst->addAttribute (1, llvm::Attribute::StructRet);
+			m_module->m_llvmIrBuilder.createLoad (tmpReturnValue, returnType, resultValue);
 		}
 		else // coerce
 		{
-			CType* pCoerceType = GetArgCoerceType (pReturnType);
-			pResultValue->OverrideType (pCoerceType);
-			m_pModule->m_OperatorMgr.ForceCast (pResultValue, pReturnType);
+			Type* coerceType = getArgCoerceType (returnType);
+			resultValue->overrideType (coerceType);
+			m_module->m_operatorMgr.forceCast (resultValue, returnType);
 		}
 	}
 }
 
 void
-CCdeclCallConv_gcc64::Return (
-	CFunction* pFunction,
-	const CValue& Value
+CdeclCallConv_gcc64::ret (
+	Function* function,
+	const Value& value
 	)
 {
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet))
+	Type* returnType = function->getType ()->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
 	{
-		CCallConv::Return (pFunction, Value);
+		CallConv::ret (function, value);
 		return;
 	}
 
-	if (pReturnType->GetSize () > sizeof (uint64_t) * 2) // return in memory
+	if (returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 	{
-		CValue ReturnPtrValue (pFunction->GetLlvmFunction ()->arg_begin());
+		Value returnPtrValue (function->getLlvmFunction ()->arg_begin());
 
-		m_pModule->m_LlvmIrBuilder.CreateStore (Value, ReturnPtrValue);
-		m_pModule->m_LlvmIrBuilder.CreateRet ();
+		m_module->m_llvmIrBuilder.createStore (value, returnPtrValue);
+		m_module->m_llvmIrBuilder.createRet ();
 	}
 	else // coerce
 	{
-		CType* pCoerceType = GetArgCoerceType (pReturnType);
+		Type* coerceType = getArgCoerceType (returnType);
 
-		CValue TmpValue;
-		m_pModule->m_OperatorMgr.ForceCast (Value, pCoerceType, &TmpValue);
-		m_pModule->m_LlvmIrBuilder.CreateRet (TmpValue);
+		Value tmpValue;
+		m_module->m_operatorMgr.forceCast (value, coerceType, &tmpValue);
+		m_module->m_llvmIrBuilder.createRet (tmpValue);
 	}
 }
 
-CValue
-CCdeclCallConv_gcc64::GetThisArgValue (CFunction* pFunction)
+Value
+CdeclCallConv_gcc64::getThisArgValue (Function* function)
 {
-	ASSERT (pFunction->IsMember ());
+	ASSERT (function->isMember ());
 
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
-	if (!(pReturnType->GetFlags () & ETypeFlag_StructRet) ||
-		pReturnType->GetSize () <= sizeof (uint64_t) * 2)
-		return CCallConv::GetThisArgValue (pFunction);
+	Type* returnType = function->getType ()->getReturnType ();
+	if (!(returnType->getFlags () & TypeFlagKind_StructRet) ||
+		returnType->getSize () <= sizeof (uint64_t) * 2)
+		return CallConv::getThisArgValue (function);
 
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin();
-	LlvmArg++;
-	return CValue (LlvmArg, pFunction->GetThisArgType ());
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
+	llvmArg++;
+	return Value (llvmArg, function->getThisArgType ());
 }
 
-CValue
-CCdeclCallConv_gcc64::GetArgValue (
-	CFunctionArg* pArg,
-	llvm::Value* pLlvmValue
+Value
+CdeclCallConv_gcc64::getArgValue (
+	FunctionArg* arg,
+	llvm::Value* llvmValue
 	)
 {
-	CType* pType = pArg->GetType ();
+	Type* type = arg->getType ();
 
-	if (!(pType->GetFlags () & ETypeFlag_StructRet))
-		return CValue (pLlvmValue, pType);
+	if (!(type->getFlags () & TypeFlagKind_StructRet))
+		return Value (llvmValue, type);
 
-	CValue Value;
+	Value value;
 
-	if (pType->GetSize () > sizeof (uint64_t) * 2) // passed in memory
+	if (type->getSize () > sizeof (uint64_t) * 2) // passed in memory
 	{
-		m_pModule->m_LlvmIrBuilder.CreateLoad (pLlvmValue, pType, &Value);
+		m_module->m_llvmIrBuilder.createLoad (llvmValue, type, &value);
 	}
 	else // coerce
 	{
-		CType* pCoerceType = GetArgCoerceType (pType);
-		m_pModule->m_OperatorMgr.ForceCast (CValue (pLlvmValue, pCoerceType), pType, &Value);
+		Type* coerceType = getArgCoerceType (type);
+		m_module->m_operatorMgr.forceCast (Value (llvmValue, coerceType), type, &value);
 	}
 
-	return Value;
+	return value;
 }
 
 void
-CCdeclCallConv_gcc64::CreateArgVariables (CFunction* pFunction)
+CdeclCallConv_gcc64::createArgVariables (Function* function)
 {
-	CType* pReturnType = pFunction->GetType ()->GetReturnType ();
+	Type* returnType = function->getType ()->getReturnType ();
 
-	llvm::Function::arg_iterator LlvmArg = pFunction->GetLlvmFunction ()->arg_begin ();
-	if ((pReturnType->GetFlags () & ETypeFlag_StructRet) &&
-		pReturnType->GetSize () > sizeof (uint64_t) * 2)
-		LlvmArg++;
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+	if ((returnType->getFlags () & TypeFlagKind_StructRet) &&
+		returnType->getSize () > sizeof (uint64_t) * 2)
+		llvmArg++;
 
 	size_t i = 0;
-	if (pFunction->IsMember ()) // skip this
+	if (function->isMember ()) // skip this
 	{
 		i++;
-		LlvmArg++;
+		llvmArg++;
 	}
 
-	rtl::CArrayT <CFunctionArg*> ArgArray = pFunction->GetType ()->GetArgArray ();
-	size_t ArgCount = ArgArray.GetCount ();
-	for (; i < ArgCount; i++, LlvmArg++)
+	rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
+	size_t argCount = argArray.getCount ();
+	for (; i < argCount; i++, llvmArg++)
 	{
-		CFunctionArg* pArg = ArgArray [i];
-		if (!pArg->IsNamed ())
+		FunctionArg* arg = argArray [i];
+		if (!arg->isNamed ())
 			continue;
 
-		CVariable* pArgVariable = m_pModule->m_VariableMgr.CreateStackVariable (pArg->GetName (), pArg->GetType ());
-		pFunction->GetScope ()->AddItem (pArgVariable);
-		m_pModule->m_VariableMgr.AllocatePrimeInitializeVariable (pArgVariable);
+		Variable* argVariable = m_module->m_variableMgr.createStackVariable (arg->getName (), arg->getType ());
+		function->getScope ()->addItem (argVariable);
+		m_module->m_variableMgr.allocatePrimeInitializeVariable (argVariable);
 
-		CValue ArgValue = CCdeclCallConv_gcc64::GetArgValue (pArg, LlvmArg);
-		m_pModule->m_LlvmIrBuilder.CreateStore (ArgValue, pArgVariable);
+		Value argValue = CdeclCallConv_gcc64::getArgValue (arg, llvmArg);
+		m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
 	}
 }
 

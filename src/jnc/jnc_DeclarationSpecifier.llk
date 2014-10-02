@@ -2,37 +2,37 @@
 
 class
 {
-	CTypeSpecifier m_TypeSpecifier;
+	TypeSpecifier m_typeSpecifier;
 }
 declaration_specifier_list
 	enter
 	{
-		PushTypeSpecifier (&$.m_TypeSpecifier);
+		pushTypeSpecifier (&$.m_typeSpecifier);
 	}
 	leave
 	{
-		PopTypeSpecifier (&$.m_TypeSpecifier);
+		popTypeSpecifier (&$.m_typeSpecifier);
 	}
-	:	declaration_specifier <&$.m_TypeSpecifier>+
+	:	declaration_specifier <&$.m_typeSpecifier>+
 	;
 
-declaration_specifier <CTypeSpecifier* $pTypeSpecifier>
+declaration_specifier <TypeSpecifier* $typeSpecifier>
 	:	attribute_block
 	|	storage_specifier
 			{
-				return SetStorageKind ($1.m_StorageKind);
+				return setStorageKind ($1.m_storageKind);
 			}
 	|	access_specifier
 			{
-				return SetAccessKind ($1.m_AccessKind);
+				return setAccessKind ($1.m_accessKind);
 			}
 	|	type_specifier
 			{
-				return $pTypeSpecifier->SetType ($1.m_pType);
+				return $typeSpecifier->setType ($1.m_type);
 			}
 	|	type_modifier
 			{
-				return $pTypeSpecifier->SetTypeModifier ($1.m_TypeModifier);
+				return $typeSpecifier->setTypeModifier ($1.m_typeModifier);
 			}
 	;
 
@@ -40,28 +40,28 @@ declaration_specifier <CTypeSpecifier* $pTypeSpecifier>
 
 class
 {
-	CTypeSpecifier m_TypeSpecifier;
+	TypeSpecifier m_typeSpecifier;
 }
 type_specifier_modifier_list
 	enter
 	{
-		PushTypeSpecifier (&$.m_TypeSpecifier);
+		pushTypeSpecifier (&$.m_typeSpecifier);
 	}
 	leave
 	{
-		PopTypeSpecifier (&$.m_TypeSpecifier);
+		popTypeSpecifier (&$.m_typeSpecifier);
 	}
-	: type_specifier_modifier <&$.m_TypeSpecifier>+
+	: type_specifier_modifier <&$.m_typeSpecifier>+
 	;
 
-type_specifier_modifier <CTypeSpecifier* $pTypeSpecifier>
+type_specifier_modifier <TypeSpecifier* $typeSpecifier>
 	:	type_specifier
 			{
-				return $pTypeSpecifier->SetType ($1.m_pType);
+				return $typeSpecifier->setType ($1.m_type);
 			}
 	|	type_modifier
 			{
-				return $pTypeSpecifier->SetTypeModifier ($1.m_TypeModifier);
+				return $typeSpecifier->setTypeModifier ($1.m_typeModifier);
 			}
 	;
 
@@ -69,54 +69,54 @@ type_specifier_modifier <CTypeSpecifier* $pTypeSpecifier>
 
 class
 {
-	EStorage m_StorageKind;
+	StorageKind m_storageKind;
 }
 storage_specifier
-	:	EToken_Typedef
+	:	TokenKind_Typedef
 			{
-				$.m_StorageKind = EStorage_Typedef;
+				$.m_storageKind = StorageKind_Typedef;
 			}
-	|	EToken_Alias
+	|	TokenKind_Alias
 			{
-				$.m_StorageKind = EStorage_Alias;
+				$.m_storageKind = StorageKind_Alias;
 			}
-	|	EToken_Static
+	|	TokenKind_Static
 			{
-				$.m_StorageKind = EStorage_Static;
+				$.m_storageKind = StorageKind_Static;
 			}
-	|	EToken_Thread
+	|	TokenKind_Thread
 			{
-				$.m_StorageKind = EStorage_Thread;
+				$.m_storageKind = StorageKind_Thread;
 			}
-	|	EToken_Stack
+	|	TokenKind_Stack
 			{
-				$.m_StorageKind = EStorage_Stack;
+				$.m_storageKind = StorageKind_Stack;
 			}
-	|	EToken_Heap
+	|	TokenKind_Heap
 			{
-				$.m_StorageKind = EStorage_Heap;
+				$.m_storageKind = StorageKind_Heap;
 			}
-	|	EToken_UHeap
+	|	TokenKind_UHeap
 			{
 				// $.m_StorageKind = EStorage_UHeap;
-				err::SetFormatStringError ("manual memory management is not supported yet");
+				err::setFormatStringError ("manual memory management is not supported yet");
 				return false;
 			}
-	|	EToken_Abstract
+	|	TokenKind_Abstract
 			{
-				$.m_StorageKind = EStorage_Abstract;
+				$.m_storageKind = StorageKind_Abstract;
 			}
-	|	EToken_Virtual
+	|	TokenKind_Virtual
 			{
-				$.m_StorageKind = EStorage_Virtual;
+				$.m_storageKind = StorageKind_Virtual;
 			}
-	|	EToken_Override
+	|	TokenKind_Override
 			{
-				$.m_StorageKind = EStorage_Override;
+				$.m_storageKind = StorageKind_Override;
 			}
-	|	EToken_Mutable
+	|	TokenKind_Mutable
 			{
-				$.m_StorageKind = EStorage_Mutable;
+				$.m_storageKind = StorageKind_Mutable;
 			}
 	;
 
@@ -124,16 +124,16 @@ storage_specifier
 
 class
 {
-	EAccess m_AccessKind;
+	AccessKind m_accessKind;
 }
 access_specifier
-	:	EToken_Public
+	:	TokenKind_Public
 			{
-				$.m_AccessKind = EAccess_Public;
+				$.m_accessKind = AccessKind_Public;
 			}
-	|	EToken_Protected
+	|	TokenKind_Protected
 			{
-				$.m_AccessKind = EAccess_Protected;
+				$.m_accessKind = AccessKind_Protected;
 			}
 	;
 
@@ -141,80 +141,80 @@ access_specifier
 
 class
 {
-	CType* m_pType;
+	Type* m_type;
 }
 type_specifier
-	:	EToken_Void
+	:	TokenKind_Void
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Void);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 			}
-	|	EToken_Variant
+	|	TokenKind_Variant
 			{
-				err::SetStringError ("'variant' type specifier is not yet supported");
+				err::setStringError ("'variant' type specifier is not yet supported");
 				return false;
 			}
-	|	EToken_Object
+	|	TokenKind_Object
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetStdType (EStdType_ObjectClass);
+				$.m_type = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectClass);
 			}
-	|	EToken_Object '<' type_name '>'
+	|	TokenKind_Object '<' type_name '>'
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetBoxClassType ($3.m_pType);
+				$.m_type = m_module->m_typeMgr.getBoxClassType ($3.m_type);
 			}
-	|	EToken_Bool
+	|	TokenKind_Bool
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Bool);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 			}
-	|	EToken_Int8
+	|	TokenKind_Int8
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int8);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8);
 			}
-	|	EToken_Int16
+	|	TokenKind_Int16
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int16);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int16);
 			}
-	|	EToken_Int32
+	|	TokenKind_Int32
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int32);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
 			}
-	|	EToken_Int64
+	|	TokenKind_Int64
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int64);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
 			}
-	|	EToken_Int
+	|	TokenKind_Int
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
 			}
-	|	EToken_IntPtr
+	|	TokenKind_IntPtr
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Int_p);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
 			}
-	|	EToken_Char
+	|	TokenKind_Char
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Char);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char);
 			}
-	|	EToken_Float
+	|	TokenKind_Float
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Float);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Float);
 			}
-	|	EToken_Double
+	|	TokenKind_Double
 			{
-				$.m_pType = m_pModule->m_TypeMgr.GetPrimitiveType (EType_Double);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double);
 			}
-	|	EToken_Auto
+	|	TokenKind_Auto
 			{
-				err::SetStringError ("'auto' type specifier is not yet supported");
+				err::setStringError ("'auto' type specifier is not yet supported");
 				return false;
 			}
-	|	resolver (EToken_Property '{')
+	|	resolver (TokenKind_Property '{')
 		property_template_specifier $t
 			{
-				$.m_pType = $t.m_pType;
+				$.m_type = $t.m_type;
 			}
 	|	resolver (qualified_type_name_rslv)
 		qualified_type_name $t
 			{
-				$.m_pType = $t.m_pType;
+				$.m_type = $t.m_type;
 			}
 	;
 
@@ -222,37 +222,37 @@ type_specifier
 
 class 
 {
-	size_t m_BaseTypeIdx;
-	CQualifiedName m_Name;
+	size_t m_baseTypeIdx;
+	QualifiedName m_name;
 }
 basetype_qualified_name
-	:	EToken_BaseType	
+	:	TokenKind_BaseType	
 			{
-				$.m_BaseTypeIdx = $1.m_Data.m_Integer - 1;
+				$.m_baseTypeIdx = $1.m_data.m_integer - 1;
 			}
-	|	EToken_BaseType '.' qualified_name_impl <&$.m_Name>
+	|	TokenKind_BaseType '.' qualified_name_impl <&$.m_name>
 			{
-				$.m_BaseTypeIdx = $1.m_Data.m_Integer - 1;
+				$.m_baseTypeIdx = $1.m_data.m_integer - 1;
 			}
-	|	qualified_name_impl <&$.m_Name>
+	|	qualified_name_impl <&$.m_name>
 			{
-				$.m_BaseTypeIdx = -1;
+				$.m_baseTypeIdx = -1;
 			}
 	;
 
 qualified_type_name_rslv
 	:		{
-				if (IsTypeSpecified ())
+				if (isTypeSpecified ())
 					return false;
 			}
 		basetype_qualified_name $n
 			{
 				return 
-					m_Stage == EStage_Pass1 || 
-					FindType (
-						$n.m_BaseTypeIdx,
-						$n.m_Name, 
-						$n.m_FirstToken.m_Pos
+					m_stage == StageKind_Pass1 || 
+					findType (
+						$n.m_baseTypeIdx,
+						$n.m_name, 
+						$n.m_firstToken.m_pos
 						) != NULL;
 			}
 		('(' // we need this check if we are already in type_specifier_modifier_list
@@ -264,38 +264,38 @@ qualified_type_name_rslv
 
 class
 {
-	CType* m_pType;
+	Type* m_type;
 }
 qualified_type_name
 	:	basetype_qualified_name
 			{
-				$.m_pType = GetType (
-					$1.m_BaseTypeIdx,
-					$1.m_Name, 
-					$1.m_FirstToken.m_Pos
+				$.m_type = getType (
+					$1.m_baseTypeIdx,
+					$1.m_name, 
+					$1.m_firstToken.m_pos
 					);
 
-				return $.m_pType != NULL;
+				return $.m_type != NULL;
 			}
 	;
 
 class
 {
-	CPropertyType* m_pType;
+	PropertyType* m_type;
 }
 property_template_specifier
 	local
 	{
-		CPropertyTemplate* $pTemplate;
+		PropertyTemplate* $propertyTemplate;
 	}
-	:	EToken_Property
+	:	TokenKind_Property
 			{
-				$pTemplate = CreatePropertyTemplate ();
+				$propertyTemplate = createPropertyTemplate ();
 			}
-		named_type_block <$pTemplate>
+		named_type_block <$propertyTemplate>
 			{
-				$.m_pType = $pTemplate->CalcType ();
-				return $.m_pType != NULL;
+				$.m_type = $propertyTemplate->calcType ();
+				return $.m_type != NULL;
 			}
 	;
 
@@ -303,96 +303,96 @@ property_template_specifier
 
 class
 {
-	ETypeModifier m_TypeModifier;
+	TypeModifierKind m_typeModifier;
 }
 type_modifier
-	:	EToken_Unsigned
+	:	TokenKind_Unsigned
 			{
-				$.m_TypeModifier = ETypeModifier_Unsigned;
+				$.m_typeModifier = TypeModifierKind_Unsigned;
 			}
-	|	EToken_BigEndian
+	|	TokenKind_BigEndian
 			{
-				$.m_TypeModifier = ETypeModifier_BigEndian;
+				$.m_typeModifier = TypeModifierKind_BigEndian;
 			}
-	|	EToken_Const
+	|	TokenKind_Const
 			{
-				$.m_TypeModifier = ETypeModifier_Const;
+				$.m_typeModifier = TypeModifierKind_Const;
 			}
-	|	EToken_DConst
+	|	TokenKind_DConst
 			{
-				$.m_TypeModifier = ETypeModifier_DConst;
+				$.m_typeModifier = TypeModifierKind_DConst;
 			}
-	|	EToken_Volatile
+	|	TokenKind_Volatile
 			{
-				$.m_TypeModifier = ETypeModifier_Volatile;
+				$.m_typeModifier = TypeModifierKind_Volatile;
 			}
-	|	EToken_Weak
+	|	TokenKind_Weak
 			{
-				$.m_TypeModifier = ETypeModifier_Weak;
+				$.m_typeModifier = TypeModifierKind_Weak;
 			}
-	|	EToken_Thin
+	|	TokenKind_Thin
 			{
-				$.m_TypeModifier = ETypeModifier_Thin;
+				$.m_typeModifier = TypeModifierKind_Thin;
 			}
-	|	EToken_Safe
+	|	TokenKind_Safe
 			{
-				$.m_TypeModifier = ETypeModifier_Safe;
+				$.m_typeModifier = TypeModifierKind_Safe;
 			}
-	|	EToken_Cdecl
+	|	TokenKind_Cdecl
 			{
-				$.m_TypeModifier = ETypeModifier_Cdecl;
+				$.m_typeModifier = TypeModifierKind_Cdecl;
 			}
-	|	EToken_Stdcall
+	|	TokenKind_Stdcall
 			{
-				$.m_TypeModifier = ETypeModifier_Stdcall;
+				$.m_typeModifier = TypeModifierKind_Stdcall;
 			}
-	|	EToken_Thiscall
+	|	TokenKind_Thiscall
 			{
-				$.m_TypeModifier = ETypeModifier_Thiscall;
+				$.m_typeModifier = TypeModifierKind_Thiscall;
 			}
-	|	EToken_Jnccall
+	|	TokenKind_Jnccall
 			{
-				$.m_TypeModifier = ETypeModifier_Jnccall;
+				$.m_typeModifier = TypeModifierKind_Jnccall;
 			}
-	|	EToken_Array
+	|	TokenKind_Array
 			{
-				$.m_TypeModifier = ETypeModifier_Array;
+				$.m_typeModifier = TypeModifierKind_Array;
 			}
-	|	EToken_Function
+	|	TokenKind_Function
 			{
-				$.m_TypeModifier = ETypeModifier_Function;
+				$.m_typeModifier = TypeModifierKind_Function;
 			}
-	|	EToken_Property
+	|	TokenKind_Property
 			{
-				$.m_TypeModifier = ETypeModifier_Property;
+				$.m_typeModifier = TypeModifierKind_Property;
 			}
-	|	EToken_Bindable
+	|	TokenKind_Bindable
 			{
-				$.m_TypeModifier = ETypeModifier_Bindable;
+				$.m_typeModifier = TypeModifierKind_Bindable;
 			}
-	|	EToken_AutoGet
+	|	TokenKind_AutoGet
 			{
-				$.m_TypeModifier = ETypeModifier_AutoGet;
+				$.m_typeModifier = TypeModifierKind_AutoGet;
 			}
-	|	EToken_Indexed
+	|	TokenKind_Indexed
 			{
-				$.m_TypeModifier = ETypeModifier_Indexed;
+				$.m_typeModifier = TypeModifierKind_Indexed;
 			}
-	|	EToken_Multicast
+	|	TokenKind_Multicast
 			{
-				$.m_TypeModifier = ETypeModifier_Multicast;
+				$.m_typeModifier = TypeModifierKind_Multicast;
 			}
-	|	EToken_Event
+	|	TokenKind_Event
 			{
-				$.m_TypeModifier = ETypeModifier_Event;
+				$.m_typeModifier = TypeModifierKind_Event;
 			}
-	|	EToken_DEvent
+	|	TokenKind_DEvent
 			{
-				$.m_TypeModifier = ETypeModifier_DEvent;
+				$.m_typeModifier = TypeModifierKind_DEvent;
 			}
-	|	EToken_Reactor
+	|	TokenKind_Reactor
 			{
-				$.m_TypeModifier = ETypeModifier_Reactor;
+				$.m_typeModifier = TypeModifierKind_Reactor;
 			}
 	;
 
