@@ -12,12 +12,12 @@ class Function;
 
 //.............................................................................
 
-enum BasicBlockFlagKind
+enum BasicBlockFlag
 {
-	BasicBlockFlagKind_Reachable = 0x01,
-	BasicBlockFlagKind_Jumped    = 0x02,
-	BasicBlockFlagKind_Entry     = 0x04,
-	BasicBlockFlagKind_Return    = 0x08,
+	BasicBlockFlag_Reachable = 0x01,
+	BasicBlockFlag_Jumped    = 0x02,
+	BasicBlockFlag_Entry     = 0x04,
+	BasicBlockFlag_Return    = 0x08,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -102,7 +102,7 @@ public:
 	void
 	markEntry ()
 	{
-		m_flags |= (BasicBlockFlagKind_Entry | BasicBlockFlagKind_Reachable);
+		m_flags |= (BasicBlockFlag_Entry | BasicBlockFlag_Reachable);
 	}
 };
 

@@ -117,7 +117,7 @@ OperatorMgr::getNamespaceMemberType (
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
 			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
@@ -205,7 +205,7 @@ OperatorMgr::getNamespaceMember (
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
 			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
@@ -313,7 +313,7 @@ OperatorMgr::getNamedTypeMemberType (
 		if (opValue.getValueKind () == ValueKind_Field)
 			baseOffset = opValue.getFieldOffset ();
 
-		if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr))
+		if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
 		{
 			resultValue->setField (field, baseOffset); 
 			break;
@@ -414,8 +414,8 @@ OperatorMgr::getNamedTypeMember (
 
 	if (isClassType (namedType, ClassTypeKind_Multicast))
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
-		if ((member->getFlags () & MulticastMethodFlagKind_InaccessibleViaEventPtr) &&
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
+		if ((member->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			((ClassPtrType*) opValue.getType ())->isEventPtrType ())
 		{
 			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", name);
@@ -438,7 +438,7 @@ OperatorMgr::getMemberOperatorResultType (
 		return getNamespaceMemberType (rawOpValue.getNamespace (), name, resultValue);
 
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepDataRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepDataRef);
 
 	Type* type = opValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
@@ -478,7 +478,7 @@ OperatorMgr::memberOperator (
 	)
 {
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepDataRef | OpFlagKind_KeepClassRef);
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepClassRef);
 	if (!result)
 		return false;
 
@@ -532,7 +532,7 @@ OperatorMgr::memberOperator (
 		return getNamespaceMember (rawOpValue.getNamespace (), name, resultValue);
 
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepDataRef);
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepDataRef);
 	if (!result)
 		return false;
 

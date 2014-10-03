@@ -21,9 +21,9 @@ enum EnumTypeKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EnumTypeFlagKind
+enum EnumTypeFlag
 {
-	EnumTypeFlagKind_Exposed = 0x010000,
+	EnumTypeFlag_Exposed = 0x010000,
 };
 
 //.............................................................................
@@ -113,7 +113,7 @@ protected:
 	prepareTypeString ()
 	{
 		m_typeString.format (
-			(m_flags & EnumTypeFlagKind_Exposed) ? 
+			(m_flags & EnumTypeFlag_Exposed) ? 
 				"cenum %s" : 
 				"enum %s", 
 			m_tag.cc () // thanks a lot gcc

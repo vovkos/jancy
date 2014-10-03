@@ -43,8 +43,8 @@ public:
 	{
 		Type* type;
 
-		if ((rawOpValue1.getType ()->getTypeKindFlags () & TypeKindFlagKind_Ptr) ||
-			(rawOpValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Ptr))
+		if ((rawOpValue1.getType ()->getTypeKindFlags () & TypeKindFlag_Ptr) ||
+			(rawOpValue2.getType ()->getTypeKindFlags () & TypeKindFlag_Ptr))
 		{
 			type = getPtrCmpOperatorOperandType (rawOpValue1, rawOpValue2);
 		}
@@ -80,7 +80,7 @@ public:
 					T::constOpInt32 (
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
-						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						)
 					);
 				break;
@@ -91,7 +91,7 @@ public:
 					T::constOpInt32 (
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
-						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						)
 					);
 				break;
@@ -121,7 +121,7 @@ public:
 					opValue1, 
 					opValue2, 
 					resultValue,
-					(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+					(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 					);
 				break;
 

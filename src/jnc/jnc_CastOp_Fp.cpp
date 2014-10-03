@@ -249,7 +249,7 @@ Cast_FpFromBeInt::getCastOperators (
 	Type** intermediateType
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_BigEndian);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (opValue.getType ()->getTypeKind ());
 

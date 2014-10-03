@@ -36,9 +36,9 @@ enum MulticastMethodKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum MulticastMethodFlagKind
+enum MulticastMethodFlag
 {
-	MulticastMethodFlagKind_InaccessibleViaEventPtr = 0x010000,
+	MulticastMethodFlag_InaccessibleViaEventPtr = 0x010000,
 };
 
 //.............................................................................

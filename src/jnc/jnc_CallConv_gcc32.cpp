@@ -10,7 +10,7 @@ llvm::FunctionType*
 CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
 {
 	Type* returnType = functionType->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet))
 		return CallConv::getLlvmFunctionType (functionType);
 
 	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
@@ -28,7 +28,7 @@ CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
 	return llvm::FunctionType::get (
 		m_module->getSimpleType (TypeKind_Void)->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
-		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
+		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
 		);
 }
 
@@ -41,7 +41,7 @@ CallConv_gcc32::createLlvmFunction (
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction (functionType, tag);
 
 	Type* returnType = functionType->getReturnType ();
-	if (returnType->getFlags () & TypeFlagKind_StructRet)
+	if (returnType->getFlags () & TypeFlag_StructRet)
 		llvmFunction->addAttribute (1, llvm::Attribute::StructRet);
 
 	return llvmFunction;
@@ -56,7 +56,7 @@ CallConv_gcc32::call (
 	)
 {
 	Type* returnType = functionType->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet))
 	{
 		CallConv::call (calleeValue, functionType, argValueList, resultValue);
 		return;
@@ -91,7 +91,7 @@ CallConv_gcc32::ret (
 	)
 {
 	Type* returnType = function->getType ()->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet))
 	{
 		CallConv::ret (function, value);
 		return;
@@ -111,7 +111,7 @@ CallConv_gcc32::getThisArgValue (Function* function)
 	ASSERT (function->isMember ());
 
 	Type* returnType = function->getType ()->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet))
 		return CallConv::getThisArgValue (function);
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
@@ -125,7 +125,7 @@ CallConv_gcc32::createArgVariables (Function* function)
 	Type* returnType = function->getType ()->getReturnType ();
 	CallConv::createArgVariablesImpl (
 		function,
-		(returnType->getFlags () & TypeFlagKind_StructRet) ? 1 : 0
+		(returnType->getFlags () & TypeFlag_StructRet) ? 1 : 0
 		);
 }
 

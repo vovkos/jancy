@@ -69,7 +69,7 @@ MulticastClassType::gcMark (
 	ASSERT (object->m_type == this);
 
 	Multicast* multicast = (Multicast*) (object + 1);
-	if (!(m_targetType->getFlags () & TypeFlagKind_GcRoot) || !multicast->m_count)
+	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !multicast->m_count)
 		return;
 
 	char* p = (char*) multicast->m_ptrArray;

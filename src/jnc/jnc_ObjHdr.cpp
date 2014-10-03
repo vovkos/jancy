@@ -10,17 +10,17 @@ namespace jnc {
 void 
 ObjHdr::gcMarkData (Runtime* runtime)
 {
-	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
 
-	if (m_flags & ObjHdrFlagKind_GcRootsAdded)
+	if (m_flags & ObjHdrFlag_GcRootsAdded)
 		return;
 
-	m_flags |= ObjHdrFlagKind_GcRootsAdded;
+	m_flags |= ObjHdrFlag_GcRootsAdded;
 
-	if (!(m_type->getFlags () & TypeFlagKind_GcRoot))
+	if (!(m_type->getFlags () & TypeFlag_GcRoot))
 		return;
 
-	if (!(m_flags & ObjHdrFlagKind_DynamicArray))
+	if (!(m_flags & ObjHdrFlag_DynamicArray))
 	{
 		if (m_type->getTypeKind () == TypeKind_Class)
 			runtime->addGcRoot (this, m_type);
@@ -44,15 +44,15 @@ ObjHdr::gcMarkData (Runtime* runtime)
 void 
 ObjHdr::gcMarkObject (Runtime* runtime)
 {
-	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
-	m_flags |= ObjHdrFlagKind_GcMark;
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+	m_flags |= ObjHdrFlag_GcMark;
 
-	if (m_flags & ObjHdrFlagKind_GcRootsAdded)
+	if (m_flags & ObjHdrFlag_GcRootsAdded)
 		return;
 
-	m_flags |= ObjHdrFlagKind_GcRootsAdded;
+	m_flags |= ObjHdrFlag_GcRootsAdded;
 
-	if (!(m_type->getFlags () & TypeFlagKind_GcRoot))
+	if (!(m_type->getFlags () & TypeFlag_GcRoot))
 		return;
 
 	runtime->addGcRoot (this, m_type);
@@ -61,13 +61,13 @@ ObjHdr::gcMarkObject (Runtime* runtime)
 void
 ObjHdr::gcWeakMarkClosureObject (Runtime* runtime)
 {
-	m_root->m_flags |= ObjHdrFlagKind_GcWeakMark;
-	m_flags |= ObjHdrFlagKind_GcMark;
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+	m_flags |= ObjHdrFlag_GcMark;
 
-	if (m_flags & (ObjHdrFlagKind_GcWeakMark_c | ObjHdrFlagKind_GcRootsAdded))
+	if (m_flags & (ObjHdrFlag_GcWeakMark_c | ObjHdrFlag_GcRootsAdded))
 		return;
 
-	m_flags |= ObjHdrFlagKind_GcWeakMark_c;
+	m_flags |= ObjHdrFlag_GcWeakMark_c;
 
 	ClosureClassType* closureClassType = (ClosureClassType*) m_classType;
 	if (!closureClassType->getWeakMask ())
@@ -85,9 +85,9 @@ ObjHdr::gcWeakMarkClosureObject (Runtime* runtime)
 	{
 		StructField* field = gcRootMemberFieldArray [i];
 		Type* type = field->getType ();
-		ASSERT (type->getFlags () & TypeFlagKind_GcRoot);		
+		ASSERT (type->getFlags () & TypeFlag_GcRoot);		
 
-		if (field->getFlags () & StructFieldFlagKind_WeakMasked)
+		if (field->getFlags () & StructFieldFlag_WeakMasked)
 			type = getWeakPtrType (type);
 
 		type->gcMark (runtime, p + field->getOffset ());

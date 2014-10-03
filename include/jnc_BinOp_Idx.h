@@ -16,7 +16,7 @@ public:
 	BinOp_Idx ()
 	{
 		m_opKind = BinOpKind_Idx;
-		m_opFlags1 = OpFlagKind_KeepPropertyRef;
+		m_opFlags1 = OpFlag_KeepPropertyRef;
 	}
 
 	virtual

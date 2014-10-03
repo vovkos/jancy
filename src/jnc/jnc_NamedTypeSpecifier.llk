@@ -36,7 +36,7 @@ class
 enum_specifier
 	leave
 	{
-		if ($.m_type->getName ().isEmpty () || ($.m_type->getFlags () & EnumTypeFlagKind_Exposed))
+		if ($.m_type->getName ().isEmpty () || ($.m_type->getFlags () & EnumTypeFlag_Exposed))
 			return m_module->m_namespaceMgr.getCurrentNamespace ()->exposeEnumConsts ($.m_type);
 	}
 	:	enum_type_kind $k
@@ -77,7 +77,7 @@ enum_type_kind
 	|	TokenKind_CEnum
 			{
 				$.m_enumTypeKind = EnumTypeKind_Normal;
-				$.m_flags = EnumTypeFlagKind_Exposed;
+				$.m_flags = EnumTypeFlag_Exposed;
 			}
 	;
 
@@ -226,7 +226,7 @@ class_specifier
 					$n.m_data.m_string,
 					isValidLocator ($b) ? &$b.m_typeList : NULL,
 					isValidLocator ($p) ? $p.m_packFactor : m_structPackFactor,
-					isValidLocator ($o) ? ClassTypeFlagKind_Opaque : 0
+					isValidLocator ($o) ? ClassTypeFlag_Opaque : 0
 					);
 
 				if (!$.m_type)

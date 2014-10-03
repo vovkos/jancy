@@ -169,7 +169,7 @@ ClassType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_OperatorNew:
-		if (!(m_flags & ClassTypeFlagKind_Opaque))
+		if (!(m_flags & ClassTypeFlag_Opaque))
 		{
 			err::setFormatStringError (
 				"'%s' is not opaque, 'operator new' is not needed",
@@ -203,7 +203,7 @@ ClassType::addMethod (Function* function)
 	{
 		*target = function;
 	}
-	else if (functionKindFlags & FunctionKindFlagKind_NoOverloads)
+	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
 	{
 		err::setFormatStringError (
 			"'%s' already has '%s' method",
@@ -295,10 +295,10 @@ ClassType::calcLayout ()
 		if (!result)
 			return false;
 
-		if (slot->m_type->getFlags () & TypeFlagKind_GcRoot)
+		if (slot->m_type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_gcRootBaseTypeArray.append (slot);
-			m_flags |= TypeFlagKind_GcRoot;
+			m_flags |= TypeFlag_GcRoot;
 		}
 
 		if (slot->m_type->getConstructor ())
@@ -311,7 +311,7 @@ ClassType::calcLayout ()
 		}
 
 		ClassType* baseClassType = (ClassType*) slot->m_type;
-		if (baseClassType->m_flags & ClassTypeFlagKind_Opaque)
+		if (baseClassType->m_flags & ClassTypeFlag_Opaque)
 		{
 			err::setFormatStringError ("cannot derive from opaque '%s'", baseClassType->getTypeString ().cc ());
 			return false;
@@ -342,13 +342,13 @@ ClassType::calcLayout ()
 		StructField* field = m_memberFieldArray [i];
 		Type* type = field->getType ();
 
-		if (type->getFlags () & TypeFlagKind_GcRoot)
+		if (type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_gcRootMemberFieldArray.append (field);
-			m_flags |= TypeFlagKind_GcRoot;
+			m_flags |= TypeFlag_GcRoot;
 		}
 
-		if ((type->getTypeKindFlags () & TypeKindFlagKind_Derivable) && ((DerivableType*) type)->getConstructor ())
+		if ((type->getTypeKindFlags () & TypeKindFlag_Derivable) && ((DerivableType*) type)->getConstructor ())
 			m_memberFieldConstructArray.append (field);
 
 		if (type->getTypeKind () == TypeKind_Class)
@@ -609,7 +609,7 @@ ClassType::overrideVirtualFunction (Function* function)
 	FunctionArg* origThisArg = function->m_type->m_argArray [0];
 	FunctionArg* thisArg = m_module->m_typeMgr.getSimpleFunctionArg (StorageKind_This, thisArgType, origThisArg->getPtrTypeFlags ());
 
-	if (function->m_type->getFlags () & ModuleItemFlagKind_User)
+	if (function->m_type->getFlags () & ModuleItemFlag_User)
 	{
 		function->m_type->m_argArray [0] = thisArg;
 	}
@@ -658,7 +658,7 @@ ClassType::createVTablePtr ()
 		if (function->getStorageKind () == StorageKind_Abstract)
 		{
 			function = function->getType ()->getAbstractFunction ();
-			m_flags |= ClassTypeFlagKind_Abstract;
+			m_flags |= ClassTypeFlag_Abstract;
 		}
 
 		llvmVTable [i] = function->getLlvmFunction ();
@@ -690,28 +690,28 @@ ClassType::compile ()
 {
 	bool result;
 
-	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultStaticConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultPreConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_destructor && !(m_destructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_destructor && !(m_destructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultDestructor ();
 		if (!result)
@@ -813,7 +813,7 @@ ClassType::callMemberFieldDestructors (const Value& thisValue)
 	m_module->m_llvmIrBuilder.createLoad (flagsValue, type, &flagsValue);
 
 	Value maskValue;
-	maskValue.setConstSizeT (ObjHdrFlagKind_Static | ObjHdrFlagKind_Stack | ObjHdrFlagKind_UHeap, TypeKind_Int_p);
+	maskValue.setConstSizeT (ObjHdrFlag_Static | ObjHdrFlag_Stack | ObjHdrFlag_UHeap, TypeKind_Int_p);
 
 	Value andValue;
 	result =

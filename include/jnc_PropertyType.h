@@ -16,24 +16,24 @@ struct PropertyPtrTypeTuple;
 
 //.............................................................................
 
-enum PropertyTypeFlagKind
+enum PropertyTypeFlag
 {
-	PropertyTypeFlagKind_Const    = 0x010000,
-	PropertyTypeFlagKind_Bindable = 0x020000,
-	PropertyTypeFlagKind_Throws   = 0x040000,
+	PropertyTypeFlag_Const    = 0x010000,
+	PropertyTypeFlag_Bindable = 0x020000,
+	PropertyTypeFlag_Throws   = 0x040000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-PropertyTypeFlagKind
+PropertyTypeFlag
 getFirstPropertyTypeFlag (uint_t flags)
 {
-	return (PropertyTypeFlagKind) (1 << rtl::getLoBitIdx (flags));
+	return (PropertyTypeFlag) (1 << rtl::getLoBitIdx (flags));
 }
 
 const char*
-getPropertyTypeFlagString (PropertyTypeFlagKind flag);
+getPropertyTypeFlagString (PropertyTypeFlag flag);
 
 rtl::String
 getPropertyTypeFlagString (uint_t flags);

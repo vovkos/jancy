@@ -36,10 +36,10 @@ enum ClassTypeKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ClassTypeFlagKind
+enum ClassTypeFlag
 {
-	ClassTypeFlagKind_Abstract = 0x010000,
-	ClassTypeFlagKind_Opaque   = 0x020000,
+	ClassTypeFlag_Abstract = 0x010000,
+	ClassTypeFlag_Opaque   = 0x020000,
 };
 
 //.............................................................................
@@ -105,7 +105,7 @@ public:
 	{
 		return
 			m_classTypeKind != ClassTypeKind_StdObject &&
-			!(m_flags & (ClassTypeFlagKind_Abstract | ClassTypeFlagKind_Opaque));
+			!(m_flags & (ClassTypeFlag_Abstract | ClassTypeFlag_Opaque));
 	}
 
 	ClassTypeKind
@@ -366,7 +366,7 @@ isOpaqueClassType (Type* type)
 {
 	return
 		type->getTypeKind () == TypeKind_Class &&
-		(type->getFlags () & ClassTypeFlagKind_Opaque);
+		(type->getFlags () & ClassTypeFlag_Opaque);
 }
 
 //.............................................................................

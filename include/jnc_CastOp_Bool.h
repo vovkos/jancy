@@ -108,7 +108,7 @@ protected:
 public:
 	Cast_Bool ()
 	{
-		m_opFlags = OpFlagKind_KeepBool;
+		m_opFlags = OpFlag_KeepBool;
 	}
 
 	virtual

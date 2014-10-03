@@ -139,7 +139,7 @@ VariableMgr::createVariable (
 		ASSERT (false);
 	}
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		variable->m_type_i = (ImportType*) type;
 		m_module->markForLayout (variable);
@@ -156,7 +156,7 @@ VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 		"once_flag",
 		"once_flag",
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32),
-		storageKind == StorageKind_Static ? PtrTypeFlagKind_Volatile : 0
+		storageKind == StorageKind_Static ? PtrTypeFlag_Volatile : 0
 		);
 }
 
@@ -176,7 +176,7 @@ VariableMgr::createArgVariable (
 
 	variable->m_parentUnit = arg->getParentUnit ();
 	variable->m_pos = *arg->getPos ();
-	variable->m_flags |= ModuleItemFlagKind_User;
+	variable->m_flags |= ModuleItemFlag_User;
 
 	Value ptrValue;
 	result = m_module->m_operatorMgr.allocate (
@@ -192,8 +192,8 @@ VariableMgr::createArgVariable (
 	variable->m_llvmAllocValue = ptrValue.getLlvmValue ();
 	variable->m_llvmValue = ptrValue.getLlvmValue ();
 
-	if ((m_module->getFlags () & ModuleFlagKind_DebugInfo) &&
-		(variable->getFlags () & ModuleItemFlagKind_User))
+	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
+		(variable->getFlags () & ModuleItemFlag_User))
 	{
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (
 			variable,
@@ -244,7 +244,7 @@ VariableMgr::createAlias (
 
 	m_aliasList.insertTail (alias);
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		alias->m_type_i = (ImportType*) type;
 		m_module->markForLayout (alias);
@@ -265,7 +265,7 @@ VariableMgr::createTlsStructType ()
 	{
 		Variable* variable = m_tlsVariableArray [i];
 
-		if (variable->m_type->getTypeKindFlags () & TypeKindFlagKind_Aggregate)
+		if (variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate)
 		{
 			err::setFormatStringError ("'thread' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().cc ());
 			return false;
@@ -317,10 +317,10 @@ VariableMgr::allocatePrimeStaticVariable (Variable* variable)
 
 	variable->m_llvmValue = ptrValue.getLlvmValue ();
 
-	if (variable->m_type->getFlags () & TypeFlagKind_GcRoot)
+	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		m_staticGcRootArray.append (variable);
 
-	if (m_module->getFlags () & ModuleFlagKind_DebugInfo)
+	if (m_module->getFlags () & ModuleFlag_DebugInfo)
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createGlobalVariable (variable);
 
 	return true;
@@ -362,8 +362,8 @@ VariableMgr::allocatePrimeInitializeVariable (Variable* variable)
 {
 	Type* type = variable->getType ();
 
-	if ((type->getTypeKindFlags () & TypeKindFlagKind_Ptr) && 
-		(type->getFlags () & PtrTypeFlagKind_Safe) &&
+	if ((type->getTypeKindFlags () & TypeKindFlag_Ptr) && 
+		(type->getFlags () & PtrTypeFlag_Safe) &&
 		variable->getInitializer ().isEmpty ())
 	{
 		err::setFormatStringError (
@@ -518,8 +518,8 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 		}
 	}
 
-	if ((m_module->getFlags () & ModuleFlagKind_DebugInfo) &&
-		(variable->getFlags () & ModuleItemFlagKind_User))
+	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
+		(variable->getFlags () & ModuleItemFlag_User))
 	{
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (variable);
 		m_module->m_llvmDiBuilder.createDeclare (variable);

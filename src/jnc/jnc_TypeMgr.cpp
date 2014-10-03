@@ -283,20 +283,20 @@ TypeMgr::resolveImportTypes ()
 	for (size_t i = 0; i < count; i++)
 	{
 		NamedImportType* superImportType = superImportTypeArray [i];
-		superImportType->m_flags |= ImportTypeFlagKind_ImportLoop;
+		superImportType->m_flags |= ImportTypeFlag_ImportLoop;
 
 		Type* type = superImportType->m_actualType;
 		while (type->m_typeKind == TypeKind_NamedImport)
 		{
 			ImportType* importType = (ImportType*) type;
-			if (importType->m_flags & ImportTypeFlagKind_ImportLoop)
+			if (importType->m_flags & ImportTypeFlag_ImportLoop)
 			{
 				err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().cc ());
 				pushImportSrcPosError (superImportType);
 				return false;
 			}
 
-			importType->m_flags |= ImportTypeFlagKind_ImportLoop;
+			importType->m_flags |= ImportTypeFlag_ImportLoop;
 			type = importType->m_actualType;
 		}
 
@@ -305,7 +305,7 @@ TypeMgr::resolveImportTypes ()
 		{
 			ImportType* importType = (ImportType*) type;
 			importType->m_actualType = externType;
-			importType->m_flags &= ~ImportTypeFlagKind_ImportLoop;
+			importType->m_flags &= ~ImportTypeFlag_ImportLoop;
 			type = importType->m_actualType;
 		}
 	}
@@ -343,7 +343,7 @@ TypeMgr::resolveImportTypes ()
 		if (!type)
 			return false;
 
-		if (importType->getFlags () & PtrTypeFlagKind_Safe)
+		if (importType->getFlags () & PtrTypeFlag_Safe)
 			type = getCheckedPtrType (type);
 
 		importType->m_actualType = type;
@@ -401,7 +401,7 @@ TypeMgr::getBitFieldType (
 	m_bitFieldTypeList.insertTail (type);
 	it->m_value = type;
 
-	if (baseType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		type->m_baseType_i = (ImportType*) baseType;
 		m_module->markForLayout (type, true);
@@ -420,12 +420,12 @@ ArrayType*
 TypeMgr::createAutoSizeArrayType (Type* elementType)
 {
 	ArrayType* type = AXL_MEM_NEW (ArrayType);
-	type->m_flags |= ArrayTypeFlagKind_AutoSize;
+	type->m_flags |= ArrayTypeFlag_AutoSize;
 	type->m_module = m_module;
 	type->m_elementType = elementType;
 	m_arrayTypeList.insertTail (type);
 
-	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_elementType_i = (ImportType*) elementType;
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
@@ -448,7 +448,7 @@ TypeMgr::createArrayType (
 	type->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	m_arrayTypeList.insertTail (type);
 
-	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_elementType_i = (ImportType*) elementType;
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
@@ -489,7 +489,7 @@ TypeMgr::getArrayType (
 	type->m_elementCount = elementCount;
 	m_arrayTypeList.insertTail (type);
 
-	if (elementType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		type->m_elementType_i = (ImportType*) elementType;
 		m_module->markForLayout (type, true);
@@ -531,7 +531,7 @@ TypeMgr::createEnumType (
 	uint_t flags
 	)
 {
-	const char* signaturePrefix = (flags & EnumTypeFlagKind_Exposed) ? "EC" : "EE";
+	const char* signaturePrefix = (flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
 
 	EnumType* type = AXL_MEM_NEW (EnumType);
 
@@ -547,7 +547,7 @@ TypeMgr::createEnumType (
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
-		type->m_flags |= TypeFlagKind_Named;
+		type->m_flags |= TypeFlag_Named;
 	}
 
 	if (!baseType)
@@ -559,7 +559,7 @@ TypeMgr::createEnumType (
 	type->m_flags |= flags;
 	m_enumTypeList.insertTail (type);
 
-	if (baseType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_baseType_i = (ImportType*) baseType;
 
 	m_module->markForLayout (type, true);
@@ -587,7 +587,7 @@ TypeMgr::createStructType (
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
-		type->m_flags |= TypeFlagKind_Named;
+		type->m_flags |= TypeFlag_Named;
 	}
 
 	type->m_module = m_module;
@@ -618,7 +618,7 @@ TypeMgr::createUnionType (
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
-		type->m_flags |= TypeFlagKind_Named;
+		type->m_flags |= TypeFlag_Named;
 	}
 
 	m_module->markForLayout (type, true); // before child struct
@@ -695,7 +695,7 @@ TypeMgr::createClassType (
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
-		type->m_flags |= TypeFlagKind_Named;
+		type->m_flags |= TypeFlag_Named;
 	}
 
 	m_module->markForLayout (type, true); // before child structs
@@ -780,7 +780,7 @@ TypeMgr::createFunctionArg (
 
 	m_functionArgList.insertTail (functionArg);
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 		functionArg->m_type_i = (ImportType*) type;
 
 	// all this should be calculated during CFunctionType::CalcLayout
@@ -811,8 +811,8 @@ TypeMgr::getSimpleFunctionArg (
 	// this x const x volatile
 
 	size_t i1 = storageKind == StorageKind_This;
-	size_t i2 = (ptrTypeFlags & PtrTypeFlagKind_Const) != 0;
-	size_t i3 = (ptrTypeFlags & PtrTypeFlagKind_Volatile) != 0;
+	size_t i2 = (ptrTypeFlags & PtrTypeFlag_Const) != 0;
+	size_t i3 = (ptrTypeFlags & PtrTypeFlag_Volatile) != 0;
 
 	if (tuple->m_argArray [i1] [i2] [i3])
 		return tuple->m_argArray [i1] [i2] [i3];
@@ -864,7 +864,7 @@ TypeMgr::getFunctionType (
 
 	m_functionTypeList.insertTail (type);
 
-	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_returnType_i = (ImportType*) returnType;
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
@@ -931,7 +931,7 @@ TypeMgr::getFunctionType (
 
 	m_functionTypeList.insertTail (type);
 
-	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_returnType_i = (ImportType*) returnType;
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
@@ -973,18 +973,18 @@ TypeMgr::createUserFunctionType (
 	type->m_signature = signature;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
-	type->m_flags = flags | ModuleItemFlagKind_User;
+	type->m_flags = flags | ModuleItemFlag_User;
 	type->m_argArray = argArray;
 
 	if (throwCondition)
 	{
-		ASSERT (flags & FunctionTypeFlagKind_Throws);
+		ASSERT (flags & FunctionTypeFlag_Throws);
 		type->m_throwCondition.takeOver (throwCondition);
 	}
 
 	m_functionTypeList.insertTail (type);
 
-	if (returnType->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_returnType_i = (ImportType*) returnType;
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
@@ -1009,7 +1009,7 @@ TypeMgr::getMemberMethodType (
 	)
 {
 	if (!isClassType (parentType, ClassTypeKind_StdObject)) // std object members are miscellaneous closures
-		thisArgPtrTypeFlags |= PtrTypeFlagKind_Safe;
+		thisArgPtrTypeFlags |= PtrTypeFlag_Safe;
 
 	Type* thisArgType = parentType->getThisArgType (thisArgPtrTypeFlags);
 	FunctionArg* thisArg = getSimpleFunctionArg (StorageKind_This, thisArgType);
@@ -1019,7 +1019,7 @@ TypeMgr::getMemberMethodType (
 
 	FunctionType* memberMethodType;
 
-	if (functionType->m_flags & ModuleItemFlagKind_User)
+	if (functionType->m_flags & ModuleItemFlag_User)
 	{
 		memberMethodType = createUserFunctionType (
 			functionType->m_callConv,
@@ -1074,7 +1074,7 @@ TypeMgr::getPropertyType (
 	}
 
 	if (setterType.isEmpty ())
-		flags |= PropertyTypeFlagKind_Const;
+		flags |= PropertyTypeFlag_Const;
 
 	PropertyType* type = AXL_MEM_NEW (PropertyType);
 	type->m_module = m_module;
@@ -1084,11 +1084,11 @@ TypeMgr::getPropertyType (
 	type->m_setterType = setterType;
 	type->m_flags = flags;
 
-	if (flags & PropertyTypeFlagKind_Bindable)
+	if (flags & PropertyTypeFlag_Bindable)
 	{
 		FunctionType* binderType = (FunctionType*) getStdType (StdTypeKind_Binder);
 		if (getterType->isMemberMethodType ())
-			binderType = binderType->getMemberMethodType (getterType->getThisTargetType (), PtrTypeFlagKind_Const);
+			binderType = binderType->getMemberMethodType (getterType->getThisTargetType (), PtrTypeFlag_Const);
 
 		type->m_binderType = binderType;
 	}
@@ -1111,11 +1111,11 @@ TypeMgr::getSimplePropertyType (
 	uint_t callConvFlags = callConv->getFlags ();
 
 	size_t i1 =
-		(callConvFlags & CallConvFlagKind_Stdcall) ? 2 :
-		(callConvFlags & CallConvFlagKind_Cdecl) ? 1 : 0;
+		(callConvFlags & CallConvFlag_Stdcall) ? 2 :
+		(callConvFlags & CallConvFlag_Cdecl) ? 1 : 0;
 
-	size_t i2 = (flags & PropertyTypeFlagKind_Const) != 0;
-	size_t i3 = (flags & PropertyTypeFlagKind_Bindable) != 0;
+	size_t i2 = (flags & PropertyTypeFlag_Const) != 0;
+	size_t i3 = (flags & PropertyTypeFlag_Bindable) != 0;
 
 	if (tuple->m_propertyTypeArray [i1] [i2] [i3])
 		return tuple->m_propertyTypeArray [i1] [i2] [i3];
@@ -1123,7 +1123,7 @@ TypeMgr::getSimplePropertyType (
 	PropertyType* propertyType;
 
 	FunctionType* getterType = getFunctionType (callConv, returnType, NULL, 0, 0);
-	if (flags & PropertyTypeFlagKind_Const)
+	if (flags & PropertyTypeFlag_Const)
 	{
 		propertyType = getPropertyType (getterType, NULL, flags);
 	}
@@ -1149,7 +1149,7 @@ TypeMgr::getIndexedPropertyType (
 {
 	FunctionType* getterType = getFunctionType (callConv, returnType, indexArgTypeArray, indexArgCount, 0);
 
-	if (flags & PropertyTypeFlagKind_Const)
+	if (flags & PropertyTypeFlag_Const)
 		return getPropertyType (getterType, NULL, flags);
 
 	char buffer [256];
@@ -1172,7 +1172,7 @@ TypeMgr::getIndexedPropertyType (
 {
 	FunctionType* getterType = getFunctionType (callConv, returnType, argArray, 0);
 
-	if (flags & PropertyTypeFlagKind_Const)
+	if (flags & PropertyTypeFlag_Const)
 		return getPropertyType (getterType, NULL, flags);
 
 	rtl::Array <FunctionArg*> setterArgArray = argArray;
@@ -1193,7 +1193,7 @@ TypeMgr::createIndexedPropertyType (
 {
 	FunctionType* getterType = createUserFunctionType (callConv, returnType, argArray, 0);
 
-	if (flags & PropertyTypeFlagKind_Const)
+	if (flags & PropertyTypeFlag_Const)
 		return getPropertyType (getterType, NULL, flags);
 
 	rtl::Array <FunctionArg*> setterArgArray = argArray;
@@ -1213,7 +1213,7 @@ TypeMgr::getMemberPropertyType (
 	FunctionType* getterType = getMemberMethodType (
 		parentType,
 		propertyType->m_getterType,
-		PtrTypeFlagKind_Const
+		PtrTypeFlag_Const
 		);
 
 	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount ();
@@ -1292,11 +1292,11 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	MulticastClassType* type = (MulticastClassType*) createUnnamedClassType (ClassTypeKind_Multicast);
 	type->m_targetType = functionPtrType;
-	type->m_flags |= (functionPtrType->m_flags & TypeFlagKind_GcRoot);
+	type->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
 	// fields
 
-	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_Int_p), 0, PtrTypeFlagKind_Volatile);
+	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_Int_p), 0, PtrTypeFlag_Volatile);
 	type->m_fieldArray [MulticastFieldKind_MaxCount] = type->createField ("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
 	type->m_fieldArray [MulticastFieldKind_Count] = type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
 	type->m_fieldArray [MulticastFieldKind_PtrArray] = type->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
@@ -1313,7 +1313,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	methodType = getFunctionType ();
 	method = type->createMethod (StorageKind_Member, "clear", methodType);
 	method->m_tag = "jnc.multicastClear";
-	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray [MulticastMethodKind_Clear] = method;
 
 	returnType = getPrimitiveType (TypeKind_Int_p);
@@ -1322,7 +1322,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	method = type->createMethod (StorageKind_Member, "set", methodType);
 	method->m_tag = isThin ? "jnc.multicastSet_t" : "jnc.multicastSet";
-	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray [MulticastMethodKind_Set] = method;
 
 	method = type->createMethod (StorageKind_Member, "add", methodType);
@@ -1340,12 +1340,12 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	methodType = getFunctionType (returnType, NULL, 0);
 	method = type->createMethod (StorageKind_Member, "getSnapshot", methodType);
 	method->m_tag = "jnc.multicastGetSnapshot";
-	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray [MulticastMethodKind_GetSnapshot] = method;
 
 	methodType = functionPtrType->getTargetType ();
 	method = type->createMethod (StorageKind_Member, "call", methodType);
-	method->m_flags |= MulticastMethodFlagKind_InaccessibleViaEventPtr;
+	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray [MulticastMethodKind_Call] = method;
 
 	// overloaded operators
@@ -1360,7 +1360,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	McSnapshotClassType* snapshotType = (McSnapshotClassType*) createUnnamedClassType (ClassTypeKind_McSnapshot);
 	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType ();
-	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlagKind_GcRoot);
+	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
 	// fields
 
@@ -1456,9 +1456,9 @@ TypeMgr::createReactorType (
 
 	if (parentType)
 	{
-		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlagKind_Safe);
+		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 
-		type->m_flags |= TypeFlagKind_Child;
+		type->m_flags |= TypeFlag_Child;
 		type->m_fieldArray [ReactorFieldKind_Parent] = type->createField ("!m_parent", parentPtrType);
 
 		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
@@ -1524,7 +1524,7 @@ TypeMgr::getFunctionClosureClassType (
 
 		StructField* field = type->createField (argFieldName, argTypeArray [i]);
 		if (weakMask & (2 << i)) // account for field #0 function ptr
-			field->m_flags |= StructFieldFlagKind_WeakMasked;
+			field->m_flags |= StructFieldFlag_WeakMasked;
 	}
 
 	Function* thunkFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, "thunkFunction", thunkType);
@@ -1582,7 +1582,7 @@ TypeMgr::getPropertyClosureClassType (
 
 		StructField* field = type->createField (argFieldName, argTypeArray [i]);
 		if (weakMask & (2 << i)) // account for field #0 property ptr
-			field->m_flags |= StructFieldFlagKind_WeakMasked;
+			field->m_flags |= StructFieldFlag_WeakMasked;
 	}
 
 	Property* thunkProperty = m_module->m_functionMgr.createProperty (PropertyKind_Normal, "m_thunkProperty");
@@ -1648,11 +1648,11 @@ TypeMgr::getDataPtrType (
 	ASSERT (typeKind != TypeKind_DataRef || dataType->m_typeKind != TypeKind_DataRef); // dbl reference
 
 	if (typeKind == TypeKind_DataPtr && ptrTypeKind == DataPtrTypeKind_Normal)
-		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
+		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	DataPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlagKind_ConstD)
+	if (flags & PtrTypeFlag_ConstD)
 	{
 		ASSERT (anchorNamespace != NULL);
 		tuple = getConstDDataPtrTypeTuple (anchorNamespace, dataType);
@@ -1666,9 +1666,9 @@ TypeMgr::getDataPtrType (
 
 	size_t i1 = typeKind == TypeKind_DataRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlagKind_Const) ? 0 : 1;
-	size_t i4 = (flags & PtrTypeFlagKind_Volatile) ? 0 : 1;
-	size_t i5 = (flags & PtrTypeFlagKind_Safe) ? 1 : 0;
+	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : 1;
+	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
+	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
 	if (tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5])
 		return tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5];
@@ -1683,7 +1683,7 @@ TypeMgr::getDataPtrType (
 	type->m_size = size;
 	type->m_alignFactor = sizeof (void*);
 	type->m_targetType = dataType;
-	type->m_anchorNamespace = (flags & PtrTypeFlagKind_ConstD) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & PtrTypeFlag_ConstD) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_dataPtrTypeList.insertTail (type);
@@ -1720,24 +1720,24 @@ TypeMgr::getClassPtrType (
 	)
 {
 	ASSERT ((size_t) ptrTypeKind < ClassPtrTypeKind__Count);
-	ASSERT (!(flags & (PtrTypeFlagKind_ConstD | PtrTypeFlagKind_EventD)) || anchorNamespace != NULL);
+	ASSERT (!(flags & (PtrTypeFlag_ConstD | PtrTypeFlag_EventD)) || anchorNamespace != NULL);
 
 	if (typeKind == TypeKind_ClassPtr)
-		flags |= TypeFlagKind_GcRoot;
+		flags |= TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlagKind_ConstD)
+	if (flags & PtrTypeFlag_ConstD)
 	{
 		ASSERT (anchorNamespace != NULL);
 		tuple = getConstDClassPtrTypeTuple (anchorNamespace, classType);
 	}
-	else if (flags & PtrTypeFlagKind_EventD)
+	else if (flags & PtrTypeFlag_EventD)
 	{
 		ASSERT (anchorNamespace != NULL && classType->getClassTypeKind () == ClassTypeKind_Multicast);
 		tuple = getEventDClassPtrTypeTuple (anchorNamespace, (MulticastClassType*) classType);
 	}
-	else if (flags & PtrTypeFlagKind_Event)
+	else if (flags & PtrTypeFlag_Event)
 	{
 		ASSERT (classType->getClassTypeKind () == ClassTypeKind_Multicast);
 		tuple = getEventClassPtrTypeTuple ((MulticastClassType*) classType);
@@ -1751,9 +1751,9 @@ TypeMgr::getClassPtrType (
 
 	size_t i1 = typeKind == TypeKind_ClassRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlagKind_Const) ? 0 : 1;
-	size_t i4 = (flags & PtrTypeFlagKind_Volatile) ? 0 : 1;
-	size_t i5 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
+	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : 1;
+	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
+	size_t i5 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
 	if (tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5])
 		return tuple->m_ptrTypeArray [i1] [i2] [i3] [i4] [i5];
@@ -1764,7 +1764,7 @@ TypeMgr::getClassPtrType (
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_targetType = classType;
-	type->m_anchorNamespace = (flags & (PtrTypeFlagKind_ConstD | PtrTypeFlagKind_EventD)) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & (PtrTypeFlag_ConstD | PtrTypeFlag_EventD)) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_classPtrTypeList.insertTail (type);
@@ -1784,7 +1784,7 @@ TypeMgr::getFunctionPtrType (
 	ASSERT ((size_t) ptrTypeKind < FunctionPtrTypeKind__Count);
 
 	if (typeKind == TypeKind_FunctionPtr && ptrTypeKind != FunctionPtrTypeKind_Thin)
-		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
+		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
 
@@ -1792,7 +1792,7 @@ TypeMgr::getFunctionPtrType (
 
 	size_t i1 = typeKind == TypeKind_FunctionRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
+	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
 	if (tuple->m_ptrTypeArray [i1] [i2] [i3])
 		return tuple->m_ptrTypeArray [i1] [i2] [i3];
@@ -1860,11 +1860,11 @@ TypeMgr::getPropertyPtrType (
 	ASSERT ((size_t) ptrTypeKind < PropertyPtrTypeKind__Count);
 
 	if (typeKind == TypeKind_PropertyPtr && ptrTypeKind != PropertyPtrTypeKind_Thin)
-		flags |= TypeFlagKind_GcRoot | TypeFlagKind_StructRet;
+		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	PropertyPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlagKind_ConstD)
+	if (flags & PtrTypeFlag_ConstD)
 	{
 		ASSERT (anchorNamespace != NULL);
 		tuple = getConstDPropertyPtrTypeTuple (anchorNamespace, propertyType);
@@ -1878,7 +1878,7 @@ TypeMgr::getPropertyPtrType (
 
 	size_t i1 = typeKind == TypeKind_PropertyRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlagKind_Safe) ? 0 : 1;
+	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
 	if (tuple->m_ptrTypeArray [i1] [i2] [i3])
 		return tuple->m_ptrTypeArray [i1] [i2] [i3];
@@ -1893,7 +1893,7 @@ TypeMgr::getPropertyPtrType (
 	type->m_size = size;
 	type->m_alignFactor = sizeof (void*);
 	type->m_targetType = propertyType;
-	type->m_anchorNamespace = (flags & PtrTypeFlagKind_ConstD) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & PtrTypeFlag_ConstD) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_propertyPtrTypeList.insertTail (type);
@@ -1910,7 +1910,7 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 	StructType* type = createUnnamedStructType ();
 	type->m_tag.format ("%s.Vtbl", propertyType->getTypeString ().cc ());
 
-	if (propertyType->getFlags () & PropertyTypeFlagKind_Bindable)
+	if (propertyType->getFlags () & PropertyTypeFlag_Bindable)
 		type->createField ("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 
 	type->createField ("!m_getter", propertyType->m_getterType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
@@ -2344,7 +2344,7 @@ TypeMgr::setupPrimitiveType (
 	Type* type = &m_primitiveTypeArray [typeKind];
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_flags = TypeFlagKind_Pod | ModuleItemFlagKind_LayoutReady;
+	type->m_flags = TypeFlag_Pod | ModuleItemFlag_LayoutReady;
 	type->m_size = size;
 	type->m_alignFactor = size;
 	type->m_signature = signature;
@@ -2454,8 +2454,8 @@ TypeMgr::createErrorType ()
 	Property* description = m_module->m_functionMgr.createProperty ("m_description", "jnc.Error.m_description");
 	type->addProperty (description);
 
-	Type* returnType = getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlagKind_Const);
-	PropertyType* propertyType = getSimplePropertyType (returnType, PropertyTypeFlagKind_Const);
+	Type* returnType = getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	PropertyType* propertyType = getSimplePropertyType (returnType, PropertyTypeFlag_Const);
 	description->create (propertyType);
 
 	type->ensureLayout ();

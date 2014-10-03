@@ -67,7 +67,7 @@ public:
 					T::constOpInt32 (
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
-						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						), 
 					type
 					);
@@ -79,7 +79,7 @@ public:
 					T::constOpInt32 (
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
-						(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						), 
 					type
 					);
@@ -111,7 +111,7 @@ public:
 					opValue2, 
 					type,
 					resultValue,
-					(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0
+					(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 					);
 				break;
 
@@ -144,7 +144,7 @@ protected:
 		)
 	{
 		Type* type = getArithmeticOperatorResultType (opValue1, opValue2);
-		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlag_Integer))
 		{
 			setOperatorError (opValue1, opValue2);
 			return NULL;

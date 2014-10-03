@@ -23,7 +23,7 @@ StructField::StructField ()
 StructType::StructType ()
 {
 	m_typeKind = TypeKind_Struct;
-	m_flags = TypeFlagKind_Pod | TypeFlagKind_StructRet;
+	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
 	m_packFactor = 8;
 	m_fieldActualSize = 0;
 	m_fieldAlignedSize = 0;
@@ -82,7 +82,7 @@ StructType::createFieldImpl (
 			return NULL;
 	}
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		field->m_type_i = (ImportType*) type;
 		m_importFieldArray.append (field);
@@ -179,10 +179,10 @@ StructType::calcLayout ()
 			return false;
 		}
 
-		if (slot->m_type->getFlags () & TypeFlagKind_GcRoot)
+		if (slot->m_type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_gcRootBaseTypeArray.append (slot);
-			m_flags |= TypeFlagKind_GcRoot;
+			m_flags |= TypeFlag_GcRoot;
 		}
 
 		if (slot->m_type->getConstructor ())
@@ -246,16 +246,16 @@ StructType::calcLayout ()
 
 			uint_t fieldTypeFlags = type->getFlags ();
 
-			if (!(fieldTypeFlags & TypeFlagKind_Pod))
-				m_flags &= ~TypeFlagKind_Pod;
+			if (!(fieldTypeFlags & TypeFlag_Pod))
+				m_flags &= ~TypeFlag_Pod;
 
-			if (fieldTypeFlags & TypeFlagKind_GcRoot)
+			if (fieldTypeFlags & TypeFlag_GcRoot)
 			{
 				m_gcRootMemberFieldArray.append (field);
-				m_flags |= TypeFlagKind_GcRoot;
+				m_flags |= TypeFlag_GcRoot;
 			}
 
-			if ((type->getTypeKindFlags () & TypeKindFlagKind_Derivable) && ((DerivableType*) type)->getConstructor ())
+			if ((type->getTypeKindFlags () & TypeKindFlag_Derivable) && ((DerivableType*) type)->getConstructor ())
 				m_memberFieldConstructArray.append (field);
 		}
 
@@ -324,21 +324,21 @@ StructType::compile ()
 {
 	bool result;
 
-	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultStaticConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultPreConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultConstructor ();
 		if (!result)

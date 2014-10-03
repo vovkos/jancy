@@ -91,7 +91,7 @@ ClosureClassType::strengthen (jnc::IfaceHdr* p)
 		size_t index = rtl::getLoBitIdx64 (weakMask);
 
 		StructField* field = getFieldByIndex (index);
-		ASSERT (field && (field->getFlags () & StructFieldFlagKind_WeakMasked));
+		ASSERT (field && (field->getFlags () & StructFieldFlag_WeakMasked));
 
 		// only strengthen if source arg is weak, but target arg is strong
 

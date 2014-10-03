@@ -44,7 +44,7 @@ OperatorMgr::getPropertyVTable (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 	
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
@@ -88,7 +88,7 @@ OperatorMgr::getPropertyGetterType (const Value& rawOpValue)
 	PropertyType* propertyType;
 
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
 	if (opValue.getValueKind () == ValueKind_Property)
 	{
@@ -96,7 +96,7 @@ OperatorMgr::getPropertyGetterType (const Value& rawOpValue)
 	}
 	else
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 		propertyType = ptrType->hasClosure () ? 
@@ -130,7 +130,7 @@ OperatorMgr::getPropertyGetter (
 	bool result;
 
 	Value opValue;
-	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return false;
 
@@ -141,7 +141,7 @@ OperatorMgr::getPropertyGetter (
 		return true;
 	}	
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType = ptrType->hasClosure () ? 
@@ -153,7 +153,7 @@ OperatorMgr::getPropertyGetter (
 	if (!result)
 		return false;
 
-	size_t index = (propertyType->getFlags () & PropertyTypeFlagKind_Bindable) ? 1 : 0;
+	size_t index = (propertyType->getFlags () & PropertyTypeFlag_Bindable) ? 1 : 0;
 
 	Value pfnValue;
 	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
@@ -174,9 +174,9 @@ OperatorMgr::getPropertySetterType (
 	)
 {
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
 	
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType;
@@ -187,7 +187,7 @@ OperatorMgr::getPropertySetterType (
 	}
 	else
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 		propertyType = ptrType->hasClosure () ? 
 			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
@@ -242,11 +242,11 @@ OperatorMgr::getPropertySetter (
 	bool result;
 
 	Value opValue;
-	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType = ptrType->hasClosure () ? 
@@ -297,7 +297,7 @@ OperatorMgr::getPropertySetter (
 	if (!result)
 		return false;
 
-	size_t index = (propertyType->getFlags () & PropertyTypeFlagKind_Bindable) ? 2 : 1;
+	size_t index = (propertyType->getFlags () & PropertyTypeFlag_Bindable) ? 2 : 1;
 	index += i;
 
 	Value pfnValue;
@@ -318,7 +318,7 @@ OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 	PropertyType* propertyType;
 
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
 	if (opValue.getValueKind () == ValueKind_Property)
 	{
@@ -326,7 +326,7 @@ OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 	}
 	else
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
 
 		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 		propertyType = ptrType->hasClosure () ? 
@@ -334,7 +334,7 @@ OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 			ptrType->getTargetType ();
 	}
 
-	if (!(propertyType->getFlags () & PropertyTypeFlagKind_Bindable))
+	if (!(propertyType->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
 		return NULL;
@@ -366,16 +366,16 @@ OperatorMgr::getPropertyBinder (
 	bool result;
 
 	Value opValue;
-	result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType = ptrType->getTargetType ();
 
-	if (!(propertyType->getFlags () & PropertyTypeFlagKind_Bindable))
+	if (!(propertyType->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
 		return false;
@@ -419,7 +419,7 @@ OperatorMgr::getProperty (
 	if (opValue.getValueKind () == ValueKind_Property)
 	{
 		Property* prop = opValue.getProperty ();
-		if (prop->getFlags () & PropertyFlagKind_AutoGet)
+		if (prop->getFlags () & PropertyFlag_AutoGet)
 			return getPropertyAutoGetValue (opValue, resultValue);
 	}
 
@@ -447,7 +447,7 @@ Type*
 OperatorMgr::getPropertyAutoGetValueType (const Value& opValue)
 {
 	if (opValue.getValueKind () != ValueKind_Property || 
-		!(opValue.getProperty ()->getFlags () & PropertyFlagKind_AutoGet))
+		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
 		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
 		return NULL;
@@ -484,7 +484,7 @@ OperatorMgr::getPropertyAutoGetValue (
 	)
 {
 	if (opValue.getValueKind () != ValueKind_Property || 
-		!(opValue.getProperty ()->getFlags () & PropertyFlagKind_AutoGet))
+		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
 		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
 		return false;
@@ -497,10 +497,10 @@ Type*
 OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 {
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr) || 
-		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
+		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
 		return NULL;
@@ -530,12 +530,12 @@ OperatorMgr::getPropertyOnChanged (
 	)
 {
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue, OpFlagKind_KeepPropertyRef);
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return false;
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr) || 
-		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
+		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
 		return NULL;

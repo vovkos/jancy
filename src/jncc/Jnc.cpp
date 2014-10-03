@@ -34,19 +34,19 @@ Jnc::run (
 	m_cmdLine = cmdLine;
 	m_outStream = outStream;
 
-	if (cmdLine->m_flags & JncFlagKind_Help)
+	if (cmdLine->m_flags & JncFlag_Help)
 	{
 		printUsage (outStream);
 		return JncErrorKind_Success;
 	}
 
-	if (cmdLine->m_flags & JncFlagKind_Version)
+	if (cmdLine->m_flags & JncFlag_Version)
 	{
 		printVersion (outStream);
 		return JncErrorKind_Success;
 	}
 
-	if (cmdLine->m_flags & JncFlagKind_Server)
+	if (cmdLine->m_flags & JncFlag_Server)
 		return server ();
 
 	rtl::Array <char> stdInBuffer;
@@ -56,7 +56,7 @@ Jnc::run (
 	const char* src;
 	size_t srcSize;
 
-	if (cmdLine->m_flags & JncFlagKind_StdInSrc)
+	if (cmdLine->m_flags & JncFlag_StdInSrc)
 	{
 #if (_AXL_ENV == AXL_ENV_WIN)
 		int stdInFile = _fileno (stdin);
@@ -83,7 +83,7 @@ Jnc::run (
 	}
 	else if (!cmdLine->m_srcFileName.isEmpty ())
 	{
-		result = srcFile.open (cmdLine->m_srcFileName, io::FileFlagKind_ReadOnly);
+		result = srcFile.open (cmdLine->m_srcFileName, io::FileFlag_ReadOnly);
 		if (!result)
 		{
 			outStream->printf (
@@ -106,8 +106,8 @@ Jnc::run (
 		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (cmdLine->m_flags & (JncFlagKind_RunFunction | JncFlagKind_Disassembly))
-		cmdLine->m_flags |= JncFlagKind_Jit;
+	if (cmdLine->m_flags & (JncFlag_RunFunction | JncFlag_Disassembly))
+		cmdLine->m_flags |= JncFlag_Jit;
 
 	result = compile (srcName, src, srcSize);
 	if (!result)
@@ -116,10 +116,10 @@ Jnc::run (
 		return JncErrorKind_CompileFailure;
 	}
 
-	if (cmdLine->m_flags & JncFlagKind_LlvmIr)
+	if (cmdLine->m_flags & JncFlag_LlvmIr)
 		printLlvmIr ();
 
-	if (m_cmdLine->m_flags & JncFlagKind_Jit)
+	if (m_cmdLine->m_flags & JncFlag_Jit)
 	{
 		result = jit ();
 		if (!result)
@@ -129,10 +129,10 @@ Jnc::run (
 		}
 	}
 
-	if (cmdLine->m_flags & JncFlagKind_Disassembly)
+	if (cmdLine->m_flags & JncFlag_Disassembly)
 		printDisassembly ();
 
-	if (cmdLine->m_flags & JncFlagKind_RunFunction)
+	if (cmdLine->m_flags & JncFlag_RunFunction)
 	{
 		int returnValue;
 		result = runFunction (&returnValue);
@@ -160,11 +160,11 @@ Jnc::compile (
 	bool result;
 
 	uint_t moduleFlags = 0;
-	if (m_cmdLine->m_flags & JncFlagKind_DebugInfo)
-		moduleFlags |= jnc::ModuleFlagKind_DebugInfo;
+	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
+		moduleFlags |= jnc::ModuleFlag_DebugInfo;
 
-	if (m_cmdLine->m_flags & JncFlagKind_Jit_mc)
-		moduleFlags |= jnc::ModuleFlagKind_McJit;
+	if (m_cmdLine->m_flags & JncFlag_Jit_mc)
+		moduleFlags |= jnc::ModuleFlag_McJit;
 
 	m_module.create ("jncc_module", moduleFlags);
 
@@ -194,7 +194,7 @@ Jnc::jit ()
 void
 Jnc::printLlvmIr ()
 {
-	if (!(m_cmdLine->m_flags & JncFlagKind_LlvmIr_c))
+	if (!(m_cmdLine->m_flags & JncFlag_LlvmIr_c))
 	{
 		m_outStream->printf ("%s", m_module.getLlvmIrString ().cc ());
 		return;
@@ -466,7 +466,7 @@ Jnc::client (
 		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (cmdLine.m_flags & JncFlagKind_Server)
+	if (cmdLine.m_flags & JncFlag_Server)
 	{
 		socketOut.printf ("recursive server request\n");
 		return JncErrorKind_InvalidCmdLine;

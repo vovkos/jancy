@@ -139,7 +139,7 @@ BinOp_Idx::arrayIndexOperator (
 
 	uint_t ptrTypeFlags = opType1->getFlags ();
 
-	if (ptrTypeFlags & PtrTypeFlagKind_Safe)
+	if (ptrTypeFlags & PtrTypeFlag_Safe)
 	{
 		if (opValue2.getValueKind () == ValueKind_Const)
 		{			
@@ -157,7 +157,7 @@ BinOp_Idx::arrayIndexOperator (
 		}
 		else
 		{
-			ptrTypeFlags &= ~PtrTypeFlagKind_Safe;
+			ptrTypeFlags &= ~PtrTypeFlag_Safe;
 		}
 	}
 	

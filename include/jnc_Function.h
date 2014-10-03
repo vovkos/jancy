@@ -55,11 +55,11 @@ enum FunctionKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum FunctionKindFlagKind
+enum FunctionKindFlag
 {
-	FunctionKindFlagKind_NoStorage   = 0x01,
-	FunctionKindFlagKind_NoOverloads = 0x02,
-	FunctionKindFlagKind_NoArgs      = 0x04,
+	FunctionKindFlag_NoStorage   = 0x01,
+	FunctionKindFlag_NoOverloads = 0x02,
+	FunctionKindFlag_NoArgs      = 0x04,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

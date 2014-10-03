@@ -77,7 +77,7 @@ FunctionPtrType::getTypeModifierString ()
 	if (!m_typeModifierString.isEmpty ())
 		return m_typeModifierString;
 
-	if (m_flags & PtrTypeFlagKind__AllMask)
+	if (m_flags & PtrTypeFlag__AllMask)
 	{
 		m_typeModifierString += getPtrTypeFlagString (m_flags);
 		m_typeModifierString += ' ';

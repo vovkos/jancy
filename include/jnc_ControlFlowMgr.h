@@ -70,10 +70,10 @@ struct OnceStmt
 
 //.............................................................................
 
-enum ControlFlowFlagKind
+enum ControlFlowFlag
 {
-	ControlFlowFlagKind_HasReturn = 1,
-	ControlFlowFlagKind_HasJump   = 2,
+	ControlFlowFlag_HasReturn = 1,
+	ControlFlowFlag_HasJump   = 2,
 };
 
 //.............................................................................
@@ -133,7 +133,7 @@ public:
 	void
 	resetJumpFlag ()
 	{
-		m_flags &= ~ControlFlowFlagKind_HasJump;
+		m_flags &= ~ControlFlowFlag_HasJump;
 	}
 
 	BasicBlock*

@@ -244,7 +244,7 @@ FunctionTypeOverload::ensureLayout ()
 {
 	bool result;
 
-	if (m_flags & ModuleItemFlagKind_LayoutReady)
+	if (m_flags & ModuleItemFlag_LayoutReady)
 		return true;
 
 	result = m_type->ensureLayout ();
@@ -259,7 +259,7 @@ FunctionTypeOverload::ensureLayout ()
 			return false;
 	}
 
-	m_flags |= ModuleItemFlagKind_LayoutReady;
+	m_flags |= ModuleItemFlag_LayoutReady;
 	return true;
 }
 

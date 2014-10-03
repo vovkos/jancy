@@ -23,7 +23,7 @@ LlvmIrBuilder::create ()
 
 	m_llvmIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
 
-	if (m_module->getFlags () & ModuleFlagKind_IrComments)
+	if (m_module->getFlags () & ModuleFlag_IrComments)
 		m_commentMdKind = m_module->getLlvmContext ()->getMDKindID ("jnc.comment");
 }
 
@@ -43,7 +43,7 @@ LlvmIrBuilder::createComment_va (
 	axl_va_list va
 	)
 {
-	if (!(m_module->getFlags () & ModuleFlagKind_IrComments))
+	if (!(m_module->getFlags () & ModuleFlag_IrComments))
 		return false;
 
 	char buffer [256];
@@ -56,7 +56,7 @@ LlvmIrBuilder::createComment_va (
 bool
 LlvmIrBuilder::createComment_0 (const char* text)
 {
-	if (!(m_module->getFlags () & ModuleFlagKind_IrComments))
+	if (!(m_module->getFlags () & ModuleFlag_IrComments))
 		return false;
 
 	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
@@ -84,7 +84,7 @@ LlvmIrBuilder::createSwitch (
 	)
 {
 	Type* type = value.getType ();
-	ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Integer);
+	ASSERT (type->getTypeKindFlags () & TypeKindFlag_Integer);
 
 	llvm::SwitchInst* inst = m_llvmIrBuilder->CreateSwitch (
 		value.getLlvmValue (),
@@ -107,7 +107,7 @@ LlvmIrBuilder::createSwitch (
 void
 LlvmIrBuilder::setInsertPoint (BasicBlock* block)
 {
-	if (!(block->getFlags () & BasicBlockFlagKind_Entry) || !block->hasTerminator ())
+	if (!(block->getFlags () & BasicBlockFlag_Entry) || !block->hasTerminator ())
 		m_llvmIrBuilder->SetInsertPoint (block->getLlvmBlock ());
 	else
 		m_llvmIrBuilder->SetInsertPoint (block->getLlvmBlock ()->getTerminator ());
@@ -138,7 +138,7 @@ LlvmIrBuilder::createSwitch (
 	)
 {
 	Type* type = value.getType ();
-	ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Integer);
+	ASSERT (type->getTypeKindFlags () & TypeKindFlag_Integer);
 
 	llvm::SwitchInst* inst = m_llvmIrBuilder->CreateSwitch (
 		value.getLlvmValue (),

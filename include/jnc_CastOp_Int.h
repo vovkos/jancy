@@ -258,7 +258,7 @@ class Cast_Enum: public Cast_SuperMaster
 public:
 	Cast_Enum ()
 	{
-		m_opFlags = OpFlagKind_KeepEnum;
+		m_opFlags = OpFlag_KeepEnum;
 	}
 
 	virtual

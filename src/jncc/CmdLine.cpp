@@ -64,15 +64,15 @@ CmdLineParser::onSwitch (
 	switch (switchKind)
 	{
 	case CmdLineSwitchKind_Help:
-		m_cmdLine->m_flags |= JncFlagKind_Help;
+		m_cmdLine->m_flags |= JncFlag_Help;
 		break;
 
 	case CmdLineSwitchKind_Version:
-		m_cmdLine->m_flags |= JncFlagKind_Version;
+		m_cmdLine->m_flags |= JncFlag_Version;
 		break;
 
 	case CmdLineSwitchKind_StdInSrc:
-		m_cmdLine->m_flags |= JncFlagKind_StdInSrc;
+		m_cmdLine->m_flags |= JncFlag_StdInSrc;
 		break;
 
 	case CmdLineSwitchKind_SrcNameOverride:
@@ -80,45 +80,45 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitchKind_DebugInfo:
-		m_cmdLine->m_flags |= JncFlagKind_DebugInfo;
+		m_cmdLine->m_flags |= JncFlag_DebugInfo;
 		break;
 
 	case CmdLineSwitchKind_Jit:
-		m_cmdLine->m_flags |= JncFlagKind_Jit;
+		m_cmdLine->m_flags |= JncFlag_Jit;
 		break;
 
 	case CmdLineSwitchKind_McJit:
-		m_cmdLine->m_flags |= JncFlagKind_Jit;
-		m_cmdLine->m_flags |= JncFlagKind_Jit_mc;
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_flags |= JncFlag_Jit_mc;
 		break;
 
 	case CmdLineSwitchKind_LlvmIr:
-		m_cmdLine->m_flags |= JncFlagKind_LlvmIr;
+		m_cmdLine->m_flags |= JncFlag_LlvmIr;
 		break;
 
 	case CmdLineSwitchKind_LlvmIrComments:
-		m_cmdLine->m_flags |= JncFlagKind_LlvmIr;
-		m_cmdLine->m_flags |= JncFlagKind_LlvmIr_c;
+		m_cmdLine->m_flags |= JncFlag_LlvmIr;
+		m_cmdLine->m_flags |= JncFlag_LlvmIr_c;
 		break;
 
 	case CmdLineSwitchKind_Disassembly:
-		m_cmdLine->m_flags |= JncFlagKind_Disassembly;
+		m_cmdLine->m_flags |= JncFlag_Disassembly;
 		break;
 
 	case CmdLineSwitchKind_Run:
-		m_cmdLine->m_flags |= JncFlagKind_Jit;
-		m_cmdLine->m_flags |= JncFlagKind_RunFunction;
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_flags |= JncFlag_RunFunction;
 		m_cmdLine->m_functionName = "main";
 		break;
 
 	case CmdLineSwitchKind_RunFunction:
-		m_cmdLine->m_flags |= JncFlagKind_Jit;
-		m_cmdLine->m_flags |= JncFlagKind_RunFunction;
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_flags |= JncFlag_RunFunction;
 		m_cmdLine->m_functionName = value;
 		break;
 
 	case CmdLineSwitchKind_Server:
-		m_cmdLine->m_flags |= JncFlagKind_Server;
+		m_cmdLine->m_flags |= JncFlag_Server;
 		m_cmdLine->m_serverPort = atoi (value);
 		if (!m_cmdLine->m_serverPort)
 		{
@@ -156,10 +156,10 @@ bool
 CmdLineParser::finalize ()
 {
 	if (!(m_cmdLine->m_flags & (
-			JncFlagKind_Help |
-			JncFlagKind_Version |
-			JncFlagKind_Server |
-			JncFlagKind_StdInSrc
+			JncFlag_Help |
+			JncFlag_Version |
+			JncFlag_Server |
+			JncFlag_StdInSrc
 			)) &&
 		m_cmdLine->m_srcFileName.isEmpty ())
 	{

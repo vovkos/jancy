@@ -92,7 +92,7 @@ McSnapshotClassType::gcMark (
 	ASSERT (object->m_type == this);
 
 	McSnapshot* snapshot = (McSnapshot*) (object + 1);
-	if (!(m_targetType->getFlags () & TypeFlagKind_GcRoot) || !snapshot->m_count)
+	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !snapshot->m_count)
 		return;
 
 	char* p = (char*) snapshot->m_ptrArray;

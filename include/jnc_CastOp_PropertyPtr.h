@@ -197,7 +197,7 @@ class Cast_PropertyRef: public CastOperator
 public:
 	Cast_PropertyRef ()
 	{
-		m_opFlags = OpFlagKind_KeepRef;
+		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual

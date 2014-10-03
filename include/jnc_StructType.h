@@ -14,9 +14,9 @@ class UnionType;
 
 //.............................................................................
 
-enum StructFieldFlagKind
+enum StructFieldFlag
 {
-	StructFieldFlagKind_WeakMasked = 0x010000,
+	StructFieldFlag_WeakMasked = 0x010000,
 };
 
 //.............................................................................

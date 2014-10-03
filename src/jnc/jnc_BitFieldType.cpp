@@ -8,7 +8,7 @@ namespace jnc {
 BitFieldType::BitFieldType ()
 {
 	m_typeKind = TypeKind_BitField;
-	m_flags = TypeFlagKind_Pod;
+	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
 	m_baseType_i = NULL;
 	m_bitOffset = 0;

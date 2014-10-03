@@ -34,22 +34,22 @@ getUnOpKindString (UnOpKind opKind);
 
 //.............................................................................
 
-enum OpFlagKind
+enum OpFlag
 {
-	OpFlagKind_KeepDataRef      = 0x01,
-	OpFlagKind_KeepClassRef	 = 0x02,
-	OpFlagKind_KeepFunctionRef  = 0x04,
-	OpFlagKind_KeepPropertyRef  = 0x08,
-	OpFlagKind_KeepBool         = 0x10,
-	OpFlagKind_KeepEnum         = 0x20,
+	OpFlag_KeepDataRef      = 0x01,
+	OpFlag_KeepClassRef	 = 0x02,
+	OpFlag_KeepFunctionRef  = 0x04,
+	OpFlag_KeepPropertyRef  = 0x08,
+	OpFlag_KeepBool         = 0x10,
+	OpFlag_KeepEnum         = 0x20,
 	
-	OpFlagKind_ArrayRefToPtr    = 0x40,
+	OpFlag_ArrayRefToPtr    = 0x40,
 	
-	OpFlagKind_KeepRef          = 
-		OpFlagKind_KeepDataRef | 
-		OpFlagKind_KeepClassRef | 
-		OpFlagKind_KeepFunctionRef | 
-		OpFlagKind_KeepPropertyRef,
+	OpFlag_KeepRef          = 
+		OpFlag_KeepDataRef | 
+		OpFlag_KeepClassRef | 
+		OpFlag_KeepFunctionRef | 
+		OpFlag_KeepPropertyRef,
 };
 
 //.............................................................................

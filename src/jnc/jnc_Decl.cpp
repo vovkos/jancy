@@ -21,7 +21,7 @@ TypeModifiers::takeOver (TypeModifiers* src)
 }
 
 bool
-TypeModifiers::setTypeModifier (TypeModifierKind modifier)
+TypeModifiers::setTypeModifier (TypeModifier modifier)
 {
 	static
 	uint_t
@@ -41,8 +41,8 @@ TypeModifiers::setTypeModifier (TypeModifierKind modifier)
 		TypeModifierMaskKind_TypeKind, // ETypeModifier_Function         = 0x00000800,
 		TypeModifierMaskKind_TypeKind, // ETypeModifier_Property         = 0x00001000,
 		0,                          // ETypeModifier_Bindable         = 0x00002000,
-		TypeModifierKind_Indexed,      // ETypeModifier_AutoGet          = 0x00004000,
-		TypeModifierKind_AutoGet,      // ETypeModifier_Indexed          = 0x00008000,
+		TypeModifier_Indexed,      // ETypeModifier_AutoGet          = 0x00004000,
+		TypeModifier_AutoGet,      // ETypeModifier_Indexed          = 0x00008000,
 		TypeModifierMaskKind_TypeKind, // ETypeModifier_Multicast        = 0x00010000,
 		TypeModifierMaskKind_Event,    // ETypeModifier_Event            = 0x00020000,
 		TypeModifierMaskKind_Event,    // ETypeModifier_DEvent           = 0x00040000,
@@ -70,7 +70,7 @@ TypeModifiers::setTypeModifier (TypeModifierKind modifier)
 
 	if (m_typeModifiers & antiModifierTable [i])
 	{
-		TypeModifierKind modifier2 = getFirstTypeModifier (m_typeModifiers);
+		TypeModifier modifier2 = getFirstTypeModifier (m_typeModifiers);
 		err::setFormatStringError (
 			"type modifiers '%s' and '%s' cannot be used together",
 			getTypeModifierString (modifier2),
@@ -101,14 +101,14 @@ TypeModifiers::checkAntiTypeModifiers (int modifierMask)
 	if (!modifiers)
 		return true;
 
-	TypeModifierKind firstModifier = getFirstTypeModifier (modifiers);
+	TypeModifier firstModifier = getFirstTypeModifier (modifiers);
 	modifiers &= ~firstModifier;
 	if (!modifiers)
 		return true;
 
 	// more than one
 
-	TypeModifierKind secondModifier = getFirstTypeModifier (modifiers);
+	TypeModifier secondModifier = getFirstTypeModifier (modifiers);
 	err::setFormatStringError (
 		"type modifiers '%s' and '%s' cannot be used together",
 		getTypeModifierString (firstModifier),
@@ -141,7 +141,7 @@ TypeSpecifier::setType (Type* type)
 //.............................................................................
 
 const char* 
-getPostDeclaratorModifierString (PostDeclaratorModifierKind modifier)
+getPostDeclaratorModifierString (PostDeclaratorModifier modifier)
 {
 	static const char* stringTable [] = 
 	{
@@ -160,7 +160,7 @@ getPostDeclaratorModifierString (uint_t modifiers)
 	if (!modifiers)
 		return rtl::String ();
 
-	PostDeclaratorModifierKind modifier = getFirstPostDeclaratorModifier (modifiers);
+	PostDeclaratorModifier modifier = getFirstPostDeclaratorModifier (modifiers);
 	rtl::String string = getPostDeclaratorModifierString (modifier);
 	modifiers &= ~modifier;
 
@@ -208,7 +208,7 @@ Declarator::setTypeSpecifier (TypeSpecifier* typeSpecifier)
 		m_baseType = typeSpecifier->getType ();	
 		if (!m_baseType)
 		{
-			m_baseType = (m_typeModifiers & TypeModifierKind_Unsigned) ? 
+			m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ? 
 				module->m_typeMgr.getPrimitiveType (TypeKind_Int) : 
 				module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		}
@@ -293,7 +293,7 @@ Declarator::addOperatorNew ()
 }
 
 bool
-Declarator::setPostDeclaratorModifier (PostDeclaratorModifierKind modifier)
+Declarator::setPostDeclaratorModifier (PostDeclaratorModifier modifier)
 {
 	if (m_postDeclaratorModifiers & modifier)
 	{

@@ -16,7 +16,7 @@ public:
 	UnOp_Addr ()
 	{
 		m_opKind = UnOpKind_Addr;
-		m_opFlags = OpFlagKind_KeepRef;
+		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual

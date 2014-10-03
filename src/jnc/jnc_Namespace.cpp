@@ -130,9 +130,9 @@ Namespace::findItem (const char* name)
 		return item;
 
 	LazyModuleItem* lazyItem = (LazyModuleItem*) item;
-	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlagKind_Touched));
+	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
 
-	lazyItem->m_flags |= LazyModuleItemFlagKind_Touched;
+	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 	item = lazyItem->getActualItem ();
 	m_itemArray.append (item);
 	it->m_value = item;

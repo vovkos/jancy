@@ -220,7 +220,7 @@ class Cast_DataRef: public CastOperator
 public:
 	Cast_DataRef ()
 	{
-		m_opFlags = OpFlagKind_KeepRef;
+		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual

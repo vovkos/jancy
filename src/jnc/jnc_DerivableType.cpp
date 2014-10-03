@@ -46,7 +46,7 @@ DerivableType::getDefaultConstructor ()
 	if (m_defaultConstructor)
 		return m_defaultConstructor;
 
-	Type* thisArgType = getThisArgType (PtrTypeFlagKind_Safe);
+	Type* thisArgType = getThisArgType (PtrTypeFlag_Safe);
 
 	// avoid allocations
 
@@ -110,7 +110,7 @@ DerivableType::addBaseType (Type* type)
 		m_importBaseTypeArray.append (slot);
 	}
 	else if (
-		(type->getTypeKindFlags () & TypeKindFlagKind_Derivable) &&
+		(type->getTypeKindFlags () & TypeKindFlag_Derivable) &&
 		(typeKind != TypeKind_Class || m_typeKind == TypeKind_Class))
 	{
 		slot->m_type = (DerivableType*) type;
@@ -146,7 +146,7 @@ DerivableType::resolveImportBaseType (BaseTypeSlot* slot)
 		return false;
 	}
 
-	if (!(type->getTypeKindFlags () & TypeKindFlagKind_Derivable) ||
+	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
 		type->getTypeKind () == TypeKind_Class && m_typeKind != TypeKind_Class)
 	{
 		err::setFormatStringError (
@@ -188,7 +188,7 @@ DerivableType::resolveImportFields ()
 		ASSERT (field->m_type_i);
 
 		Type* type = field->m_type_i->getActualType ();
-		if (field->m_type->getTypeKindFlags () & TypeKindFlagKind_Code)
+		if (field->m_type->getTypeKindFlags () & TypeKindFlag_Code)
 		{
 			err::setFormatStringError ("'%s': illegal type for a field", type->getTypeString ().cc ());
 			return false;
@@ -363,7 +363,7 @@ DerivableType::addMethod (Function* function)
 	{
 		*target = function;
 	}
-	else if (functionKindFlags & FunctionKindFlagKind_NoOverloads)
+	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
 	{
 		err::setFormatStringError (
 			"'%s' already has '%s' method",
@@ -498,9 +498,9 @@ DerivableType::callBaseTypeConstructors (const Value& thisValue)
 	for (size_t i = 0; i < count; i++)
 	{
 		BaseTypeSlot* slot = m_baseTypeConstructArray [i];
-		if (slot->m_flags & ModuleItemFlagKind_Constructed)
+		if (slot->m_flags & ModuleItemFlag_Constructed)
 		{
-			slot->m_flags &= ~ModuleItemFlagKind_Constructed;
+			slot->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
@@ -525,9 +525,9 @@ DerivableType::callMemberFieldConstructors (const Value& thisValue)
 	for (size_t i = 0; i < count; i++)
 	{
 		StructField* field = m_memberFieldConstructArray [i];
-		if (field->m_flags & ModuleItemFlagKind_Constructed)
+		if (field->m_flags & ModuleItemFlag_Constructed)
 		{
-			field->m_flags &= ~ModuleItemFlagKind_Constructed;
+			field->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
@@ -536,7 +536,7 @@ DerivableType::callMemberFieldConstructors (const Value& thisValue)
 		if (!result)
 			return false;
 
-		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable);
+		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable);
 		DerivableType* type = (DerivableType*) field->getType ();
 
 		Function* constructor;
@@ -544,7 +544,7 @@ DerivableType::callMemberFieldConstructors (const Value& thisValue)
 		rtl::BoxList <Value> argList;
 		argList.insertTail (fieldValue);
 
-		if (!(type->getFlags () & TypeFlagKind_Child))
+		if (!(type->getFlags () & TypeFlag_Child))
 		{
 			constructor = type->getDefaultConstructor ();
 			if (!constructor)
@@ -575,9 +575,9 @@ DerivableType::callMemberPropertyConstructors (const Value& thisValue)
 	for (size_t i = 0; i < count; i++)
 	{
 		Property* prop = m_memberPropertyConstructArray [i];
-		if (prop->m_flags & ModuleItemFlagKind_Constructed)
+		if (prop->m_flags & ModuleItemFlag_Constructed)
 		{
-			prop->m_flags &= ~ModuleItemFlagKind_Constructed;
+			prop->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
@@ -697,7 +697,7 @@ DerivableType::findItemTraverseImpl (
 		for	(size_t i = 0; i < count; i++)
 		{
 			StructField* field = m_unnamedFieldArray [i];
-			if (field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable)
+			if (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable)
 			{
 				DerivableType* type = (DerivableType*) field->getType ();
 				item = type->findItemTraverseImpl (name, coord, flags | TraverseKind_NoParentNamespace, level + 1);
@@ -756,7 +756,7 @@ DerivableType::findItemTraverseImpl (
 			else if (slot->m_type_i && slot->m_type_i->isResolved ())
 			{
 				Type* actualType = slot->m_type_i->getActualType ();
-				if (actualType->getTypeKindFlags () & TypeKindFlagKind_Derivable)
+				if (actualType->getTypeKindFlags () & TypeKindFlag_Derivable)
 					baseType = (DerivableType*) actualType;
 			}
 

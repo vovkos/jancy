@@ -352,7 +352,7 @@ Cast_PropertyPtr_Weak2Normal::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr && ((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Normal);
 
 	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
@@ -441,7 +441,7 @@ Cast_PropertyPtr_Thin2Thin::llvmCast (
 	if (prop->getType ()->cmp (targetType) == 0)
 		return m_module->m_operatorMgr.getPropertyThinPtr (prop, NULL, ptrType, resultValue);
 
-	if (prop->getFlags () & PropertyTypeFlagKind_Bindable)
+	if (prop->getFlags () & PropertyTypeFlag_Bindable)
 	{
 		err::setFormatStringError ("bindable properties are not supported yet");
 		return false;
@@ -463,7 +463,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast (
 {
 	#pragma AXL_TODO ("will only work for simple closures. redesign Thin2Normal to support 'weak'")
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);
 
 	if (opValue.getClosure () && !opValue.getClosure ()->isSimpleClosure ())

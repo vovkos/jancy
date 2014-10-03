@@ -11,9 +11,9 @@ namespace jnc {
 
 //.............................................................................
 
-enum ArrayTypeFlagKind
+enum ArrayTypeFlag
 {
-	ArrayTypeFlagKind_AutoSize = 0x010000,
+	ArrayTypeFlag_AutoSize = 0x010000,
 };
 
 //.............................................................................
@@ -115,7 +115,7 @@ isAutoSizeArrayType (Type* type)
 {
 	return
 		type->getTypeKind () == TypeKind_Array &&
-		(type->getFlags () & ArrayTypeFlagKind_AutoSize) != 0;
+		(type->getFlags () & ArrayTypeFlag_AutoSize) != 0;
 }
 
 inline

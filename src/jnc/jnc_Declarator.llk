@@ -357,7 +357,7 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 	|	function_formal_argument_wo_specifier <$functionSuffix>
 	|	TokenKind_Ellipsis
 			{
-				$functionSuffix->m_functionTypeFlags |= FunctionTypeFlagKind_VarArg;
+				$functionSuffix->m_functionTypeFlags |= FunctionTypeFlag_VarArg;
 			}
 	;
 
@@ -438,7 +438,7 @@ bitfield_suffix <Declarator* $declarator>
 post_declarator_modifier <Declarator* $declarator>
 	:	TokenKind_Const
 			{
-				return $declarator->setPostDeclaratorModifier (PostDeclaratorModifierKind_Const);
+				return $declarator->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
 			}
 	;
 

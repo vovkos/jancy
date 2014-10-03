@@ -45,7 +45,7 @@ Property::getDefaultConstructor ()
 
 	if (m_parentType)
 	{
-		Type* thisArgType = m_parentType->getThisArgType (PtrTypeFlagKind_Safe);
+		Type* thisArgType = m_parentType->getThisArgType (PtrTypeFlag_Safe);
 		thisArgValue.m_value.setType (thisArgType);
 		argList.insertTail (&thisArgValue);
 	}
@@ -65,21 +65,21 @@ Property::compile ()
 {
 	bool result;
 
-	if (m_flags & PropertyFlagKind_AutoGet)
+	if (m_flags & PropertyFlag_AutoGet)
 	{
 		result = compileAutoGetter ();
 		if (!result)
 			return false;
 	}
 
-	if (m_flags & PropertyFlagKind_AutoSet)
+	if (m_flags & PropertyFlag_AutoSet)
 	{
 		result = compileAutoSetter ();
 		if (!result)
 			return false;
 	}
 
-	if (m_type->getFlags () & PropertyTypeFlagKind_Bindable)
+	if (m_type->getFlags () & PropertyTypeFlag_Bindable)
 	{
 		result = compileBinder ();
 		if (!result)
@@ -99,16 +99,16 @@ Property::create (PropertyType* type)
 	uint_t getterFlags = 0;
 	uint_t setterFlags = 0;
 
-	if (m_flags & ModuleItemFlagKind_User)
+	if (m_flags & ModuleItemFlag_User)
 	{
-		if (!(m_flags & PropertyFlagKind_AutoGet))
-			getterFlags |= ModuleItemFlagKind_User;
+		if (!(m_flags & PropertyFlag_AutoGet))
+			getterFlags |= ModuleItemFlag_User;
 
-		if (!(m_flags & PropertyFlagKind_AutoSet))
-			setterFlags |= ModuleItemFlagKind_User;
+		if (!(m_flags & PropertyFlag_AutoSet))
+			setterFlags |= ModuleItemFlag_User;
 	}
 
-	if (type->getFlags () & PropertyTypeFlagKind_Bindable)
+	if (type->getFlags () & PropertyTypeFlag_Bindable)
 	{
 		result = createOnChanged ();
 		if (!result)
@@ -117,7 +117,7 @@ Property::create (PropertyType* type)
 
 	FunctionType* getterType = type->getGetterType ();
 
-	if (m_flags & PropertyFlagKind_AutoGet)
+	if (m_flags & PropertyFlag_AutoGet)
 	{
 		result = createAutoGetValue (getterType->getReturnType ());
 		if (!result)
@@ -130,7 +130,7 @@ Property::create (PropertyType* type)
 		getter->m_flags |= getterFlags;
 
 		if (m_parentType)
-			getter->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
+			getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 		result = addMethod (getter);
 		if (!result)
@@ -152,7 +152,7 @@ Property::create (PropertyType* type)
 
 	m_type = m_parentType ? m_parentType->getMemberPropertyType (type) : type;
 
-	if (m_flags & (PropertyFlagKind_AutoGet | PropertyFlagKind_AutoSet))
+	if (m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
 		m_module->markForCompile (this);
 
 	return true;
@@ -183,14 +183,14 @@ Property::setOnChanged (ModuleItem* item)
 	}
 
 	m_onChanged = item;
-	m_flags |= PropertyFlagKind_Bindable;
+	m_flags |= PropertyFlag_Bindable;
 
 	FunctionType* binderType = (FunctionType*) m_module->getSimpleType (StdTypeKind_Binder);
 	Function* binder = m_module->m_functionMgr.createFunction (FunctionKind_Binder, binderType);
 	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
-		binder->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
+		binder->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	m_module->markForCompile (this);
 
@@ -244,7 +244,7 @@ Property::setAutoGetValue (ModuleItem* item)
 	}
 
 	m_autoGetValue = item;
-	m_flags |= PropertyFlagKind_AutoGet;
+	m_flags |= PropertyFlag_AutoGet;
 
 	FunctionType* getterType = m_module->m_typeMgr.getFunctionType (type, NULL, 0, 0);
 
@@ -263,7 +263,7 @@ Property::setAutoGetValue (ModuleItem* item)
 	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
-		getter->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
+		getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	m_module->markForCompile (this);
 
@@ -311,7 +311,7 @@ Property::createField (
 {
 	ASSERT (m_parentType);
 
-	if (!(m_parentType->getTypeKindFlags () & TypeKindFlagKind_Derivable))
+	if (!(m_parentType->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
 		err::setFormatStringError ("'%s' cannot have field members", m_parentType->getTypeString ().cc ());
 		return NULL;
@@ -371,7 +371,7 @@ Property::addMethod (Function* function)
 
 		case StorageKind_Member:
 			if (functionKind == FunctionKind_Getter)
-				function->m_thisArgTypeFlags |= PtrTypeFlagKind_Const;
+				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
 
 			function->convertToMemberMethod (m_parentType);
 			break;
@@ -380,7 +380,7 @@ Property::addMethod (Function* function)
 		case StorageKind_Virtual:
 		case StorageKind_Override:
 			if (functionKind == FunctionKind_Getter)
-				function->m_thisArgTypeFlags |= PtrTypeFlagKind_Const;
+				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
 
 			if (m_parentType->getTypeKind () != TypeKind_Class)
 			{
@@ -455,7 +455,7 @@ Property::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Setter:
-		if (m_flags & PropertyFlagKind_Const)
+		if (m_flags & PropertyFlag_Const)
 		{
 			err::setFormatStringError ("const property '%s' cannot have setters", m_tag.cc ());
 			return false;
@@ -561,15 +561,15 @@ Property::callMemberFieldConstructors (const Value& thisValue)
 	for (size_t i = 0; i < count; i++)
 	{
 		StructField* field = m_memberFieldConstructArray [i];
-		if (field->m_flags & ModuleItemFlagKind_Constructed)
+		if (field->m_flags & ModuleItemFlag_Constructed)
 		{
-			field->m_flags &= ~ModuleItemFlagKind_Constructed;
+			field->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
 		Type* type = field->getType ();
 
-		ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_Derivable);
+		ASSERT (type->getTypeKindFlags () & TypeKindFlag_Derivable);
 		Function* constructor = ((DerivableType*) type)->getDefaultConstructor ();
 		if (!constructor)
 			return false;
@@ -595,9 +595,9 @@ Property::callMemberPropertyConstructors (const Value& thisValue)
 	for (size_t i = 0; i < count; i++)
 	{
 		Property* prop = m_memberPropertyConstructArray [i];
-		if (prop->m_flags & ModuleItemFlagKind_Constructed)
+		if (prop->m_flags & ModuleItemFlag_Constructed)
 		{
-			prop->m_flags &= ~ModuleItemFlagKind_Constructed;
+			prop->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
@@ -720,7 +720,7 @@ bool
 Property::compileAutoSetter ()
 {
 	ASSERT (m_setter && !m_setter->isOverloaded ());
-	ASSERT (m_type->getFlags () & PropertyTypeFlagKind_Bindable);
+	ASSERT (m_type->getFlags () & PropertyTypeFlag_Bindable);
 
 	bool result;
 

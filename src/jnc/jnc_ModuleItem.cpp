@@ -119,25 +119,25 @@ ModuleItem::ensureLayout ()
 {
 	bool result;
 
-	if (m_flags & ModuleItemFlagKind_LayoutReady)
+	if (m_flags & ModuleItemFlag_LayoutReady)
 		return true;
 
-	if (m_flags & ModuleItemFlagKind_InCalcLayout)
+	if (m_flags & ModuleItemFlag_InCalcLayout)
 	{
 		err::setFormatStringError ("can't calculate layout of '%s' due to recursion", m_tag.cc ());
 		return false;
 	}
 
-	m_flags |= ModuleItemFlagKind_InCalcLayout;
+	m_flags |= ModuleItemFlag_InCalcLayout;
 
 	result = calcLayout ();
 
-	m_flags &= ~ModuleItemFlagKind_InCalcLayout;
+	m_flags &= ~ModuleItemFlag_InCalcLayout;
 
 	if (!result)
 		return false;
 
-	m_flags |= ModuleItemFlagKind_LayoutReady;
+	m_flags |= ModuleItemFlag_LayoutReady;
 	return true;
 }
 

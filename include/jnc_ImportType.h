@@ -13,9 +13,9 @@ class ImportPtrType;
 
 //.............................................................................
 
-enum ImportTypeFlagKind
+enum ImportTypeFlag
 {
-	ImportTypeFlagKind_ImportLoop = 0x010000, // used for detection of import loops
+	ImportTypeFlag_ImportLoop = 0x010000, // used for detection of import loops
 };
 
 //.............................................................................
@@ -146,16 +146,16 @@ public:
 	ImportPtrType*
 	getCheckedPtrType ()
 	{
-		return !(m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getImportPtrType (m_typeModifiers, m_flags | PtrTypeFlagKind_Safe) :
+		return !(m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getImportPtrType (m_typeModifiers, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ImportPtrType*
 	getUnCheckedPtrType ()
 	{
-		return (m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getImportPtrType (m_typeModifiers, m_flags & ~PtrTypeFlagKind_Safe) :
+		return (m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getImportPtrType (m_typeModifiers, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 

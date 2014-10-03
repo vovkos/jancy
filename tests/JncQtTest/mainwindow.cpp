@@ -392,7 +392,7 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	uint_t ModuleFlags = jnc::ModuleFlagKind_DebugInfo | jnc::ModuleFlagKind_McJit;
+	uint_t ModuleFlags = jnc::ModuleFlag_DebugInfo | jnc::ModuleFlag_McJit;
 #else
 	uint_t ModuleFlags = 0;
 #endif

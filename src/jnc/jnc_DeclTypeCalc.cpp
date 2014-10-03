@@ -63,7 +63,7 @@ DeclTypeCalc::calcType (
 		TypeKind typeKind = type->getTypeKind ();
 
 		m_typeModifiers = pointerPrefix->getTypeModifiers ();
-		if (m_typeModifiers & TypeModifierKind_Array)
+		if (m_typeModifiers & TypeModifier_Array)
 		{
 			ArrayType* arrayType = getArrayType (type);
 			if (!arrayType)
@@ -71,7 +71,7 @@ DeclTypeCalc::calcType (
 
 			type = getDataPtrType (arrayType);
 		}
-		else if (m_typeModifiers & TypeModifierKind_Function)
+		else if (m_typeModifiers & TypeModifier_Function)
 		{
 			FunctionType* functionType = getFunctionType (type);
 			if (!functionType)
@@ -79,7 +79,7 @@ DeclTypeCalc::calcType (
 
 			type = getFunctionPtrType (functionType);
 		}
-		else if (m_typeModifiers & TypeModifierKind_Property)
+		else if (m_typeModifiers & TypeModifier_Property)
 		{
 			PropertyType* propertyType = getPropertyType (type);
 			if (!propertyType)
@@ -87,7 +87,7 @@ DeclTypeCalc::calcType (
 
 			type = getPropertyPtrType (propertyType);
 		}
-		else if (m_typeModifiers & (TypeModifierKind_Multicast | TypeModifierKind_Event | TypeModifierKind_DEvent))
+		else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event | TypeModifier_DEvent))
 		{
 			ClassType* classType = getMulticastType (type);
 			if (!classType)
@@ -95,7 +95,7 @@ DeclTypeCalc::calcType (
 
 			type = getClassPtrType (classType);
 		}
-		else if (m_typeModifiers & TypeModifierKind_Reactor)
+		else if (m_typeModifiers & TypeModifier_Reactor)
 		{
 			ClassType* classType = getReactorType (type);
 			if (!classType)
@@ -138,7 +138,7 @@ DeclTypeCalc::calcType (
 			return NULL;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_Property)
+	if (m_typeModifiers & TypeModifier_Property)
 	{
 		type = getPropertyType (type);
 		if (!type)
@@ -147,22 +147,22 @@ DeclTypeCalc::calcType (
 		if (flags)
 			*flags = getPropertyFlags ();
 	}
-	else if (m_typeModifiers & (TypeModifierKind_Multicast | TypeModifierKind_Event | TypeModifierKind_DEvent))
+	else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event | TypeModifier_DEvent))
 	{
 		type = getMulticastType (type);
 		if (!type)
 			return NULL;
 	}
-	else if (m_typeModifiers & TypeModifierKind_Bindable)
+	else if (m_typeModifiers & TypeModifier_Bindable)
 	{
 		type = getBindableDataType (type);
 		if (!type)
 			return NULL;
 
 		if (flags)
-			*flags = PropertyFlagKind_AutoGet | PropertyFlagKind_AutoSet;
+			*flags = PropertyFlag_AutoGet | PropertyFlag_AutoSet;
 	}
-	else if (m_typeModifiers & TypeModifierKind_Reactor)
+	else if (m_typeModifiers & TypeModifier_Reactor)
 	{
 		type = getReactorType (type);
 		if (!type)
@@ -185,7 +185,7 @@ DeclTypeCalc::calcType (
 
 		case DeclSuffixKind_Function:
 		case DeclSuffixKind_Throw:
-			if (m_typeModifiers & TypeModifierKind_Reactor)
+			if (m_typeModifiers & TypeModifier_Reactor)
 				type = getReactorType (type);
 			else
 				type = getFunctionType (type);
@@ -203,7 +203,7 @@ DeclTypeCalc::calcType (
 		}
 	}
 
-	if (!(type->getTypeKindFlags () & TypeKindFlagKind_Code) && flags != NULL)
+	if (!(type->getTypeKindFlags () & TypeKindFlag_Code) && flags != NULL)
 	{
 		result = getPtrTypeFlags (type, flags);
 		if (!result)
@@ -271,18 +271,18 @@ FunctionType*
 DeclTypeCalc::calcPropertyGetterType (Declarator* declarator)
 {
 	uint_t typeModifiers = declarator->getTypeModifiers ();
-	ASSERT (typeModifiers & TypeModifierKind_Property);
+	ASSERT (typeModifiers & TypeModifier_Property);
 
 	DeclFunctionSuffix* functionSuffix = NULL;
-	if (!(typeModifiers & TypeModifierKind_Indexed))
+	if (!(typeModifiers & TypeModifier_Indexed))
 		functionSuffix = declarator->addFunctionSuffix ();
 
 	declarator->m_typeModifiers &= ~(
-		TypeModifierKind_Const |
-		TypeModifierKind_Property |
-		TypeModifierKind_Bindable |
-		TypeModifierKind_AutoGet |
-		TypeModifierKind_Indexed
+		TypeModifier_Const |
+		TypeModifier_Property |
+		TypeModifier_Bindable |
+		TypeModifier_AutoGet |
+		TypeModifier_Indexed
 		);
 
 	Type* type = calcType (
@@ -326,30 +326,30 @@ DeclTypeCalc::getPtrTypeFlags (
 {
 	uint_t flags = 0;
 
-	if (m_typeModifiers & TypeModifierKind_Const)
-		flags |= PtrTypeFlagKind_Const;
+	if (m_typeModifiers & TypeModifier_Const)
+		flags |= PtrTypeFlag_Const;
 
-	if (m_typeModifiers & TypeModifierKind_DConst)
-		flags |= PtrTypeFlagKind_ConstD;
+	if (m_typeModifiers & TypeModifier_DConst)
+		flags |= PtrTypeFlag_ConstD;
 
-	if (m_typeModifiers & TypeModifierKind_Volatile)
+	if (m_typeModifiers & TypeModifier_Volatile)
 	{
-		if (type->getTypeKindFlags () & TypeKindFlagKind_Code)
+		if (type->getTypeKindFlags () & TypeKindFlag_Code)
 		{
 			err::setFormatStringError ("'volatile' cannot be applied to '%s'", type->getTypeString ().cc ());
 			return false;
 		}
 
-		flags |= PtrTypeFlagKind_Volatile;
+		flags |= PtrTypeFlag_Volatile;
 	}
 
-	if (m_typeModifiers & (TypeModifierKind_Event | TypeModifierKind_DEvent)) // convert 'event' to 'devent'
+	if (m_typeModifiers & (TypeModifier_Event | TypeModifier_DEvent)) // convert 'event' to 'devent'
 	{
 		ASSERT (isClassType (type, ClassTypeKind_Multicast));
-		flags |= PtrTypeFlagKind_EventD;
+		flags |= PtrTypeFlag_EventD;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_Bindable)
+	if (m_typeModifiers & TypeModifier_Bindable)
 	{
 		if (!isClassType (type, ClassTypeKind_Multicast))
 		{
@@ -357,11 +357,11 @@ DeclTypeCalc::getPtrTypeFlags (
 			return false;
 		}
 
-		flags |= PtrTypeFlagKind_Bindable;
+		flags |= PtrTypeFlag_Bindable;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_AutoGet)
-		flags |= PtrTypeFlagKind_AutoGet;
+	if (m_typeModifiers & TypeModifier_AutoGet)
+		flags |= PtrTypeFlag_AutoGet;
 
 	m_typeModifiers &= ~TypeModifierMaskKind_DeclPtr;
 	*flags_o = flags;
@@ -373,10 +373,10 @@ DeclTypeCalc::getPropertyFlags ()
 {
 	uint_t flags = 0;
 
-	if (m_typeModifiers & TypeModifierKind_AutoGet)
-		flags |= PropertyFlagKind_AutoGet;
+	if (m_typeModifiers & TypeModifier_AutoGet)
+		flags |= PropertyFlag_AutoGet;
 
-	m_typeModifiers &= ~TypeModifierKind_AutoGet;
+	m_typeModifiers &= ~TypeModifier_AutoGet;
 	return flags;
 }
 
@@ -388,7 +388,7 @@ DeclTypeCalc::getIntegerType (Type* type)
 	if (type->getTypeKind () == TypeKind_NamedImport)
 		return getImportIntModType ((NamedImportType*) type);
 
-	if (!(type->getTypeKindFlags () & TypeKindFlagKind_Integer))
+	if (!(type->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError ("'%s' modifier cannot be applied to '%s'",
 			getTypeModifierString (m_typeModifiers & TypeModifierMaskKind_Integer).cc (),
@@ -397,13 +397,13 @@ DeclTypeCalc::getIntegerType (Type* type)
 		return NULL;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_Unsigned)
+	if (m_typeModifiers & TypeModifier_Unsigned)
 	{
 		TypeKind modTypeKind = getUnsignedIntegerTypeKind (type->getTypeKind ());
 		type = m_module->m_typeMgr.getPrimitiveType (modTypeKind);
 	}
 
-	if (m_typeModifiers & TypeModifierKind_BigEndian)
+	if (m_typeModifiers & TypeModifier_BigEndian)
 	{
 		TypeKind modTypeKind = getBigEndianIntegerTypeKind (type->getTypeKind ());
 		type = m_module->m_typeMgr.getPrimitiveType (modTypeKind);
@@ -449,7 +449,7 @@ DeclTypeCalc::getArrayType (Type* elementType)
 		}
 	}
 
-	m_typeModifiers &= ~TypeModifierKind_Array;
+	m_typeModifiers &= ~TypeModifier_Array;
 
 	rtl::BoxList <Token>* elementCountInitializer = suffix->getElementCountInitializer ();
 	if (!elementCountInitializer->isEmpty ())
@@ -507,7 +507,7 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	{
 		DeclThrowSuffix* suffix = (DeclThrowSuffix*) *m_suffix--;
 
-		typeFlags |= FunctionTypeFlagKind_Throws;
+		typeFlags |= FunctionTypeFlag_Throws;
 		throwCondition = suffix->getThrowCondition ();
 	}
 
@@ -515,7 +515,7 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	if (!returnType)
 		return NULL;
 
-	if ((typeFlags & FunctionTypeFlagKind_Throws) && returnType->getTypeKind () == TypeKind_Void)
+	if ((typeFlags & FunctionTypeFlag_Throws) && returnType->getTypeKind () == TypeKind_Void)
 	{
 		err::setFormatStringError ("void function cannot throw");
 		return NULL;
@@ -533,17 +533,17 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	CallConvKind callConvKind = getCallConvKindFromModifiers (m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
 
-	if (typeFlags & FunctionTypeFlagKind_VarArg)
+	if (typeFlags & FunctionTypeFlag_VarArg)
 	{
 		uint_t callConvFlags = callConv->getFlags ();
 
-		if (callConvFlags & CallConvFlagKind_NoVarArg)
+		if (callConvFlags & CallConvFlag_NoVarArg)
 		{
 			err::setFormatStringError ("vararg cannot be used with '%s'", callConv->getCallConvDisplayString ());
 			return NULL;
 		}
 
-		if (!(callConvFlags & CallConvFlagKind_UnsafeVarArg))
+		if (!(callConvFlags & CallConvFlag_UnsafeVarArg))
 		{
 			err::setFormatStringError ("only 'cdecl' vararg is currently supported");
 			return NULL;
@@ -574,7 +574,7 @@ DeclTypeCalc::getPropertyType (Type* returnType)
 			return NULL;
 		}
 
-		typeFlags |= PropertyTypeFlagKind_Throws;
+		typeFlags |= PropertyTypeFlag_Throws;
 	}
 
 	returnType = prepareReturnType (returnType);
@@ -590,21 +590,21 @@ DeclTypeCalc::getPropertyType (Type* returnType)
 	CallConvKind callConvKind = getCallConvKindFromModifiers (m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
 
-	if (m_typeModifiers & TypeModifierKind_Const)
+	if (m_typeModifiers & TypeModifier_Const)
 	{
-		if (typeFlags & PropertyTypeFlagKind_Throws)
+		if (typeFlags & PropertyTypeFlag_Throws)
 		{
 			err::setFormatStringError ("const property cannot throw");
 			return NULL;
 		}
 
-		typeFlags |= PropertyTypeFlagKind_Const;
+		typeFlags |= PropertyTypeFlag_Const;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_Bindable)
-		typeFlags |= PropertyTypeFlagKind_Bindable;
+	if (m_typeModifiers & TypeModifier_Bindable)
+		typeFlags |= PropertyTypeFlag_Bindable;
 
-	bool isIndexed = (m_typeModifiers & TypeModifierKind_Indexed) != 0;
+	bool isIndexed = (m_typeModifiers & TypeModifier_Indexed) != 0;
 	m_typeModifiers &= ~TypeModifierMaskKind_Property;
 
 	if (!isIndexed)
@@ -644,7 +644,7 @@ DeclTypeCalc::getBindableDataType (Type* dataType)
 		return NULL;
 	}
 
-	if (m_typeModifiers & TypeModifierKind_Indexed)
+	if (m_typeModifiers & TypeModifier_Indexed)
 	{
 		err::setFormatStringError ("bindable data cannot be 'indexed'");
 		return NULL;
@@ -654,7 +654,7 @@ DeclTypeCalc::getBindableDataType (Type* dataType)
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
 
 	m_typeModifiers &= ~TypeModifierMaskKind_Property;
-	return m_module->m_typeMgr.getSimplePropertyType (callConv, dataType, PropertyTypeFlagKind_Bindable);
+	return m_module->m_typeMgr.getSimplePropertyType (callConv, dataType, PropertyTypeFlag_Bindable);
 }
 
 ClassType*
@@ -664,7 +664,7 @@ DeclTypeCalc::getReactorType (Type* returnType)
 	if (!startMethodType)
 		return NULL;
 
-	m_typeModifiers &= ~TypeModifierKind_Reactor;
+	m_typeModifiers &= ~TypeModifier_Reactor;
 	return m_module->m_typeMgr.getReactorInterfaceType (startMethodType);
 }
 
@@ -695,7 +695,7 @@ DeclTypeCalc::getMulticastType (Type* leftType)
 			return NULL;
 	}
 
-	m_typeModifiers &= ~TypeModifierKind_Multicast;
+	m_typeModifiers &= ~TypeModifier_Multicast;
 	return m_module->m_typeMgr.getMulticastType (ptrType);
 }
 
@@ -711,9 +711,9 @@ DeclTypeCalc::getDataPtrType (Type* dataType)
 
 	DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal;
 
-	if (m_typeModifiers & TypeModifierKind_Thin)
+	if (m_typeModifiers & TypeModifier_Thin)
 	{
-		if (m_typeModifiers & TypeModifierKind_Safe)
+		if (m_typeModifiers & TypeModifier_Safe)
 		{
 			err::setFormatStringError ("'thin' data pointer cannot be 'safe'");
 			return NULL;
@@ -736,7 +736,7 @@ DeclTypeCalc::getDataPtrType (Type* dataType)
 ClassPtrType*
 DeclTypeCalc::getClassPtrType (ClassType* classType)
 {
-	ClassPtrTypeKind ptrTypeKind = (m_typeModifiers & TypeModifierKind_Weak) ? ClassPtrTypeKind_Weak : ClassPtrTypeKind_Normal;
+	ClassPtrTypeKind ptrTypeKind = (m_typeModifiers & TypeModifier_Weak) ? ClassPtrTypeKind_Weak : ClassPtrTypeKind_Normal;
 	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 
 	m_typeModifiers &= ~TypeModifierMaskKind_ClassPtr;
@@ -752,8 +752,8 @@ FunctionPtrType*
 DeclTypeCalc::getFunctionPtrType (FunctionType* functionType)
 {
 	FunctionPtrTypeKind ptrTypeKind =
-		(m_typeModifiers & TypeModifierKind_Weak) ? FunctionPtrTypeKind_Weak :
-		(m_typeModifiers & TypeModifierKind_Thin) ? FunctionPtrTypeKind_Thin : FunctionPtrTypeKind_Normal;
+		(m_typeModifiers & TypeModifier_Weak) ? FunctionPtrTypeKind_Weak :
+		(m_typeModifiers & TypeModifier_Thin) ? FunctionPtrTypeKind_Thin : FunctionPtrTypeKind_Normal;
 
 	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 
@@ -765,8 +765,8 @@ PropertyPtrType*
 DeclTypeCalc::getPropertyPtrType (PropertyType* propertyType)
 {
 	PropertyPtrTypeKind ptrTypeKind =
-		(m_typeModifiers & TypeModifierKind_Weak) ? PropertyPtrTypeKind_Weak :
-		(m_typeModifiers & TypeModifierKind_Thin) ? PropertyPtrTypeKind_Thin : PropertyPtrTypeKind_Normal;
+		(m_typeModifiers & TypeModifier_Weak) ? PropertyPtrTypeKind_Weak :
+		(m_typeModifiers & TypeModifier_Thin) ? PropertyPtrTypeKind_Thin : PropertyPtrTypeKind_Normal;
 
 	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 

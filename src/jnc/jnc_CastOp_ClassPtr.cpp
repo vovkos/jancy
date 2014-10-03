@@ -18,7 +18,7 @@ isMulticastToMulticast (
 
 	// event -> multicast is never ok
 
-	if ((srcType->getFlags () & PtrTypeFlagKind_Event) && !(dstType->getFlags () & PtrTypeFlagKind_Event))
+	if ((srcType->getFlags () & PtrTypeFlag_Event) && !(dstType->getFlags () & PtrTypeFlag_Event))
 		return false;
 
 	MulticastClassType* srcMcType = (MulticastClassType*) srcType->getTargetType ();
@@ -102,7 +102,7 @@ Cast_ClassPtr::llvmCast (
 	ClassType* srcClassType = srcType->getTargetType ();
 	ClassType* dstClassType = dstType->getTargetType ();
 
-	if (dstType->getFlags () & PtrTypeFlagKind_Safe)
+	if (dstType->getFlags () & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkClassPtrNull (opValue);
 
 	if (dstClassType->getClassTypeKind () == ClassTypeKind_StdObject ||

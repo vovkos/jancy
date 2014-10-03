@@ -142,7 +142,7 @@ Closure::getFunctionClosureType (FunctionPtrType* ptrType)
 	Module* module = ptrType->getModule ();
 	FunctionType* type = ptrType->getTargetType ();
 
-	if (type->getFlags () & FunctionTypeFlagKind_VarArg)
+	if (type->getFlags () & FunctionTypeFlag_VarArg)
 	{
 		err::setFormatStringError ("function closures cannot be applied to vararg functions");
 		return NULL;

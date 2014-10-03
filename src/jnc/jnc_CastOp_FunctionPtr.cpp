@@ -15,7 +15,7 @@ Cast_FunctionPtr_FromMulticast::getCastKind (
 	ASSERT (isClassPtrType (opValue.getType (), ClassTypeKind_Multicast));
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
-	if (opValue.getType ()->getFlags () & PtrTypeFlagKind_Event)
+	if (opValue.getType ()->getFlags () & PtrTypeFlag_Event)
 		return CastKind_None;
 
 	MulticastClassType* mcType = (MulticastClassType*) ((ClassPtrType*) opValue.getType ())->getTargetType ();
@@ -48,7 +48,7 @@ Cast_FunctionPtr_Base::getCastKind (
 	Type* type
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	if (!opValue.getType ())
@@ -79,7 +79,7 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	FunctionPtrType* srcPtrType = (FunctionPtrType*) opValue.getType ();
@@ -108,7 +108,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr && ((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Normal);
 
 	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
@@ -176,7 +176,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (rawOpValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (rawOpValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	Value opValue = rawOpValue;
@@ -354,7 +354,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	if (opValue.getClosure ())
@@ -427,7 +427,7 @@ Cast_FunctionPtr::getCastOperator (
 	{
 		return &m_fromMulticast;
 	}
-	else if (!(srcType->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr))
+	else if (!(srcType->getTypeKindFlags () & TypeKindFlag_FunctionPtr))
 	{
 		return NULL;
 	}

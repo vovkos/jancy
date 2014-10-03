@@ -14,127 +14,127 @@ getTypeKindFlags (TypeKind typeKind)
 		0,                           // EType_Void
 		0,                           // EType_Variant
 
-		TypeKindFlagKind_Numeric,       // EType_Bool
+		TypeKindFlag_Numeric,       // EType_Bool
 
-		TypeKindFlagKind_Integer |      // EType_Int8
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Integer |      // EType_Int8
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int8_u
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int8_u
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Integer |      // EType_Int16
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Integer |      // EType_Int16
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int16_u
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int16_u
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Integer |      // EType_Int32
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Integer |      // EType_Int32
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int32_u
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int32_u
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Integer |      // EType_Int64
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Integer |      // EType_Int64
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int64_u
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int64_u
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_BigEndian |    // EType_Int16_be
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_BigEndian |    // EType_Int16_be
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int16_beu
-		TypeKindFlagKind_BigEndian |
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int16_beu
+		TypeKindFlag_BigEndian |
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_BigEndian |    // EType_Int32_be
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_BigEndian |    // EType_Int32_be
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int32_beu
-		TypeKindFlagKind_BigEndian |
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int32_beu
+		TypeKindFlag_BigEndian |
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_BigEndian |    // EType_Int64_be
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_BigEndian |    // EType_Int64_be
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Unsigned |     // EType_Int64_beu
-		TypeKindFlagKind_BigEndian |
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Unsigned |     // EType_Int64_beu
+		TypeKindFlag_BigEndian |
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Fp |           // EType_Float
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Fp |           // EType_Float
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Fp |           // EType_Double
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Fp |           // EType_Double
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Aggregate,     // EType_Array
+		TypeKindFlag_Aggregate,     // EType_Array
 		0,                           // EType_BitField
 
-		TypeKindFlagKind_Named |        // EType_Enum
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Named |        // EType_Enum
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 
-		TypeKindFlagKind_Aggregate |    // EType_Struct
-		TypeKindFlagKind_Derivable |
-		TypeKindFlagKind_Named,
+		TypeKindFlag_Aggregate |    // EType_Struct
+		TypeKindFlag_Derivable |
+		TypeKindFlag_Named,
 
-		TypeKindFlagKind_Aggregate |    // EType_Union
-		TypeKindFlagKind_Derivable |
-		TypeKindFlagKind_Named,
+		TypeKindFlag_Aggregate |    // EType_Union
+		TypeKindFlag_Derivable |
+		TypeKindFlag_Named,
 
-		TypeKindFlagKind_Aggregate |    // EType_Class
-		TypeKindFlagKind_Derivable |
-		TypeKindFlagKind_Named,
+		TypeKindFlag_Aggregate |    // EType_Class
+		TypeKindFlag_Derivable |
+		TypeKindFlag_Named,
 
-		TypeKindFlagKind_Code,          // EType_Function
-		TypeKindFlagKind_Code,          // EType_Property
+		TypeKindFlag_Code,          // EType_Function
+		TypeKindFlag_Code,          // EType_Property
 
-		TypeKindFlagKind_DataPtr |      // EType_DataPtr
-		TypeKindFlagKind_Ptr,
+		TypeKindFlag_DataPtr |      // EType_DataPtr
+		TypeKindFlag_Ptr,
 
-		TypeKindFlagKind_DataPtr |      // EType_DataRef
-		TypeKindFlagKind_Ptr |
-		TypeKindFlagKind_Ref,
+		TypeKindFlag_DataPtr |      // EType_DataRef
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Ref,
 
-		TypeKindFlagKind_ClassPtr |     // EType_ClassPtr
-		TypeKindFlagKind_Ptr,
+		TypeKindFlag_ClassPtr |     // EType_ClassPtr
+		TypeKindFlag_Ptr,
 
-		TypeKindFlagKind_ClassPtr |     // EType_ClassRef
-		TypeKindFlagKind_Ptr |
-		TypeKindFlagKind_Ref,
+		TypeKindFlag_ClassPtr |     // EType_ClassRef
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Ref,
 
-		TypeKindFlagKind_FunctionPtr |  // EType_FunctionPtr
-		TypeKindFlagKind_Ptr,
+		TypeKindFlag_FunctionPtr |  // EType_FunctionPtr
+		TypeKindFlag_Ptr,
 
-		TypeKindFlagKind_FunctionPtr |  // EType_FunctionRef
-		TypeKindFlagKind_Ptr |
-		TypeKindFlagKind_Ref,
+		TypeKindFlag_FunctionPtr |  // EType_FunctionRef
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Ref,
 
-		TypeKindFlagKind_PropertyPtr |  // EType_PropertyPtr
-		TypeKindFlagKind_Ptr,
+		TypeKindFlag_PropertyPtr |  // EType_PropertyPtr
+		TypeKindFlag_Ptr,
 
-		TypeKindFlagKind_PropertyPtr |  // EType_PropertyRef
-		TypeKindFlagKind_Ptr |
-		TypeKindFlagKind_Ref,
+		TypeKindFlag_PropertyPtr |  // EType_PropertyRef
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Ref,
 
-		TypeKindFlagKind_Import,        // EType_NamedImport
+		TypeKindFlag_Import,        // EType_NamedImport
 
-		TypeKindFlagKind_Import |       // EType_ImportPtr
-		TypeKindFlagKind_Ptr,
+		TypeKindFlag_Import |       // EType_ImportPtr
+		TypeKindFlag_Ptr,
 
-		TypeKindFlagKind_Import |       // EType_ImportIntMod
-		TypeKindFlagKind_Integer |
-		TypeKindFlagKind_Numeric,
+		TypeKindFlag_Import |       // EType_ImportIntMod
+		TypeKindFlag_Integer |
+		TypeKindFlag_Numeric,
 	};
 
 	return typeKind < TypeKind__Count ? flagTable [typeKind] : 0;
@@ -197,7 +197,7 @@ getLlvmTypeString (llvm::Type* llvmType)
 //.............................................................................
 
 const char*
-getTypeModifierString (TypeModifierKind modifier)
+getTypeModifierString (TypeModifier modifier)
 {
 	static const char* stringTable [] =
 	{
@@ -237,7 +237,7 @@ getTypeModifierString (uint_t modifiers)
 	if (!modifiers)
 		return rtl::String ();
 
-	TypeModifierKind modifier = getFirstTypeModifier (modifiers);
+	TypeModifier modifier = getFirstTypeModifier (modifiers);
 	rtl::String string = getTypeModifierString (modifier);
 	modifiers &= ~modifier;
 
@@ -257,7 +257,7 @@ getTypeModifierString (uint_t modifiers)
 //.............................................................................
 
 const char*
-getPtrTypeFlagString (PtrTypeFlagKind flag)
+getPtrTypeFlagString (PtrTypeFlag flag)
 {
 	static const char* stringTable [] =
 	{
@@ -284,26 +284,26 @@ getPtrTypeFlagString (uint_t flags)
 {
 	rtl::String string;
 
-	if (flags & PtrTypeFlagKind_Safe)
+	if (flags & PtrTypeFlag_Safe)
 		string = "safe ";
 
-	if (flags & PtrTypeFlagKind_Const)
+	if (flags & PtrTypeFlag_Const)
 		string += "const ";
-	else if (flags & PtrTypeFlagKind_ConstD)
+	else if (flags & PtrTypeFlag_ConstD)
 		string += "dconst ";
 
-	if (flags & PtrTypeFlagKind_Volatile)
+	if (flags & PtrTypeFlag_Volatile)
 		string += "volatile ";
 
-	if (flags & PtrTypeFlagKind_Event)
+	if (flags & PtrTypeFlag_Event)
 		string += "event ";
-	else if (flags & PtrTypeFlagKind_EventD)
+	else if (flags & PtrTypeFlag_EventD)
 		string += "devent ";
 
-	if (flags & PtrTypeFlagKind_Bindable)
+	if (flags & PtrTypeFlag_Bindable)
 		string += "bindable ";
 
-	if (flags & PtrTypeFlagKind_AutoGet)
+	if (flags & PtrTypeFlag_AutoGet)
 		string += "autoget ";
 
 	if (!string.isEmpty ())
@@ -317,20 +317,20 @@ getPtrTypeFlagSignature (uint_t flags)
 {
 	rtl::String signature;
 
-	if (flags & PtrTypeFlagKind_Safe)
+	if (flags & PtrTypeFlag_Safe)
 		signature = 's';
 
-	if (flags & PtrTypeFlagKind_Const)
+	if (flags & PtrTypeFlag_Const)
 		signature += 'c';
-	else if (flags & PtrTypeFlagKind_ConstD)
+	else if (flags & PtrTypeFlag_ConstD)
 		signature += "pc";
 
-	if (flags & PtrTypeFlagKind_Volatile)
+	if (flags & PtrTypeFlag_Volatile)
 		signature += 'v';
 
-	if (flags & PtrTypeFlagKind_Event)
+	if (flags & PtrTypeFlag_Event)
 		signature += 'e';
-	else if (flags & PtrTypeFlagKind_EventD)
+	else if (flags & PtrTypeFlag_EventD)
 		signature += "pe";
 
 	return signature;
@@ -341,21 +341,21 @@ getPtrTypeFlagsFromModifiers (uint_t modifiers)
 {
 	uint_t flags = 0;
 
-	if (modifiers & TypeModifierKind_Safe)
-		flags |= PtrTypeFlagKind_Safe;
+	if (modifiers & TypeModifier_Safe)
+		flags |= PtrTypeFlag_Safe;
 
-	if (modifiers & TypeModifierKind_Volatile)
-		flags |= PtrTypeFlagKind_Volatile;
+	if (modifiers & TypeModifier_Volatile)
+		flags |= PtrTypeFlag_Volatile;
 
-	if (modifiers & TypeModifierKind_Const)
-		flags |= PtrTypeFlagKind_Const;
-	else if (modifiers & TypeModifierKind_DConst)
-		flags |= PtrTypeFlagKind_ConstD;
+	if (modifiers & TypeModifier_Const)
+		flags |= PtrTypeFlag_Const;
+	else if (modifiers & TypeModifier_DConst)
+		flags |= PtrTypeFlag_ConstD;
 
-	if (modifiers & TypeModifierKind_Event)
-		flags |= PtrTypeFlagKind_Event;
-	else if (modifiers & TypeModifierKind_DEvent)
-		flags |= PtrTypeFlagKind_EventD;
+	if (modifiers & TypeModifier_Event)
+		flags |= PtrTypeFlag_Event;
+	else if (modifiers & TypeModifier_DEvent)
+		flags |= PtrTypeFlag_EventD;
 
 	return flags;
 }

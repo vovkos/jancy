@@ -38,34 +38,34 @@ getCallConvFlags (CallConvKind callConvKind)
 	uint_t flagTable [] =
 	{
 		0,                       // ECallConv_Undefined = 0,
-		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_msc32,
-		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_msc64,
-		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_gcc32,
-		CallConvFlagKind_Jnccall,   // ECallConv_Jnccall_gcc64,
+		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc32,
+		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc64,
+		CallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc32,
+		CallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc64,
 
-		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_msc32,
-		CallConvFlagKind_Msc |
-		CallConvFlagKind_UnsafeVarArg,
+		CallConvFlag_Cdecl |    // ECallConv_Cdecl_msc32,
+		CallConvFlag_Msc |
+		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_msc64,
-		CallConvFlagKind_Msc |
-		CallConvFlagKind_UnsafeVarArg,
+		CallConvFlag_Cdecl |    // ECallConv_Cdecl_msc64,
+		CallConvFlag_Msc |
+		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_gcc32,
-		CallConvFlagKind_Gcc |
-		CallConvFlagKind_UnsafeVarArg,
+		CallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc32,
+		CallConvFlag_Gcc |
+		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlagKind_Cdecl |    // ECallConv_Cdecl_gcc64,
-		CallConvFlagKind_Gcc |
-		CallConvFlagKind_UnsafeVarArg,
+		CallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc64,
+		CallConvFlag_Gcc |
+		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlagKind_Stdcall |  // ECallConv_Stdcall_msc32,
-		CallConvFlagKind_Msc |
-		CallConvFlagKind_NoVarArg,
+		CallConvFlag_Stdcall |  // ECallConv_Stdcall_msc32,
+		CallConvFlag_Msc |
+		CallConvFlag_NoVarArg,
 
-		CallConvFlagKind_Stdcall |  // ECallConv_Stdcall_gcc32,
-		CallConvFlagKind_Gcc |
-		CallConvFlagKind_NoVarArg,
+		CallConvFlag_Stdcall |  // ECallConv_Stdcall_gcc32,
+		CallConvFlag_Gcc |
+		CallConvFlag_NoVarArg,
 	};
 
 	return (size_t) callConvKind < countof (flagTable) ?
@@ -156,11 +156,11 @@ getCallConvKindFromModifiers (uint_t modifiers)
 {
 #if (_AXL_CPU == AXL_CPU_X86)
 	return
-		(modifiers & TypeModifierKind_Thiscall) ? CallConvKind_Thiscall :
-		(modifiers & TypeModifierKind_Stdcall) ? CallConvKind_Stdcall :
-		(modifiers & TypeModifierKind_Cdecl) ? CallConvKind_Cdecl : CallConvKind_Default;
+		(modifiers & TypeModifier_Thiscall) ? CallConvKind_Thiscall :
+		(modifiers & TypeModifier_Stdcall) ? CallConvKind_Stdcall :
+		(modifiers & TypeModifier_Cdecl) ? CallConvKind_Cdecl : CallConvKind_Default;
 #else
-	return (modifiers & (TypeModifierKind_Cdecl | TypeModifierKind_Stdcall)) ?
+	return (modifiers & (TypeModifier_Cdecl | TypeModifier_Stdcall)) ?
 		CallConvKind_Cdecl :
 		CallConvKind_Default;
 #endif
@@ -192,7 +192,7 @@ CallConv::getLlvmFunctionType (FunctionType* functionType)
 	return llvm::FunctionType::get (
 		functionType->getReturnType ()->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
-		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
+		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
 		);
 }
 

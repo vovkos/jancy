@@ -47,9 +47,9 @@ Members
 		StageKind_ReactorStarter, // evaluate expression and save bindable event pointers
 	};
 
-	enum FlagKind
+	enum Flag
 	{
-		FlagKind_ConstExpression = 0x01,
+		Flag_ConstExpression = 0x01,
 	};
 
 	enum AssignKind
@@ -58,10 +58,10 @@ Members
 		AssignKind_BinOp,
 	};
 
-	enum LandingPadFlagKind
+	enum LandingPadFlag
 	{
-		LandingPadFlagKind_Catch   = 0x01,
-		LandingPadFlagKind_Finally = 0x02,
+		LandingPadFlag_Catch   = 0x01,
+		LandingPadFlag_Finally = 0x02,
 	};
 
 	struct CurlyInitializer

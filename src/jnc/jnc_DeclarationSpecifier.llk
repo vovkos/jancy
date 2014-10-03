@@ -303,96 +303,96 @@ property_template_specifier
 
 class
 {
-	TypeModifierKind m_typeModifier;
+	TypeModifier m_typeModifier;
 }
 type_modifier
 	:	TokenKind_Unsigned
 			{
-				$.m_typeModifier = TypeModifierKind_Unsigned;
+				$.m_typeModifier = TypeModifier_Unsigned;
 			}
 	|	TokenKind_BigEndian
 			{
-				$.m_typeModifier = TypeModifierKind_BigEndian;
+				$.m_typeModifier = TypeModifier_BigEndian;
 			}
 	|	TokenKind_Const
 			{
-				$.m_typeModifier = TypeModifierKind_Const;
+				$.m_typeModifier = TypeModifier_Const;
 			}
 	|	TokenKind_DConst
 			{
-				$.m_typeModifier = TypeModifierKind_DConst;
+				$.m_typeModifier = TypeModifier_DConst;
 			}
 	|	TokenKind_Volatile
 			{
-				$.m_typeModifier = TypeModifierKind_Volatile;
+				$.m_typeModifier = TypeModifier_Volatile;
 			}
 	|	TokenKind_Weak
 			{
-				$.m_typeModifier = TypeModifierKind_Weak;
+				$.m_typeModifier = TypeModifier_Weak;
 			}
 	|	TokenKind_Thin
 			{
-				$.m_typeModifier = TypeModifierKind_Thin;
+				$.m_typeModifier = TypeModifier_Thin;
 			}
 	|	TokenKind_Safe
 			{
-				$.m_typeModifier = TypeModifierKind_Safe;
+				$.m_typeModifier = TypeModifier_Safe;
 			}
 	|	TokenKind_Cdecl
 			{
-				$.m_typeModifier = TypeModifierKind_Cdecl;
+				$.m_typeModifier = TypeModifier_Cdecl;
 			}
 	|	TokenKind_Stdcall
 			{
-				$.m_typeModifier = TypeModifierKind_Stdcall;
+				$.m_typeModifier = TypeModifier_Stdcall;
 			}
 	|	TokenKind_Thiscall
 			{
-				$.m_typeModifier = TypeModifierKind_Thiscall;
+				$.m_typeModifier = TypeModifier_Thiscall;
 			}
 	|	TokenKind_Jnccall
 			{
-				$.m_typeModifier = TypeModifierKind_Jnccall;
+				$.m_typeModifier = TypeModifier_Jnccall;
 			}
 	|	TokenKind_Array
 			{
-				$.m_typeModifier = TypeModifierKind_Array;
+				$.m_typeModifier = TypeModifier_Array;
 			}
 	|	TokenKind_Function
 			{
-				$.m_typeModifier = TypeModifierKind_Function;
+				$.m_typeModifier = TypeModifier_Function;
 			}
 	|	TokenKind_Property
 			{
-				$.m_typeModifier = TypeModifierKind_Property;
+				$.m_typeModifier = TypeModifier_Property;
 			}
 	|	TokenKind_Bindable
 			{
-				$.m_typeModifier = TypeModifierKind_Bindable;
+				$.m_typeModifier = TypeModifier_Bindable;
 			}
 	|	TokenKind_AutoGet
 			{
-				$.m_typeModifier = TypeModifierKind_AutoGet;
+				$.m_typeModifier = TypeModifier_AutoGet;
 			}
 	|	TokenKind_Indexed
 			{
-				$.m_typeModifier = TypeModifierKind_Indexed;
+				$.m_typeModifier = TypeModifier_Indexed;
 			}
 	|	TokenKind_Multicast
 			{
-				$.m_typeModifier = TypeModifierKind_Multicast;
+				$.m_typeModifier = TypeModifier_Multicast;
 			}
 	|	TokenKind_Event
 			{
-				$.m_typeModifier = TypeModifierKind_Event;
+				$.m_typeModifier = TypeModifier_Event;
 			}
 	|	TokenKind_DEvent
 			{
-				$.m_typeModifier = TypeModifierKind_DEvent;
+				$.m_typeModifier = TypeModifier_DEvent;
 			}
 	|	TokenKind_Reactor
 			{
-				$.m_typeModifier = TypeModifierKind_Reactor;
+				$.m_typeModifier = TypeModifier_Reactor;
 			}
 	;
 

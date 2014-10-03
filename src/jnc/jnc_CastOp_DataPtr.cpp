@@ -14,7 +14,7 @@ Cast_DataPtr_FromArray::getCastKind (
 {
 	if (isArrayRefType (opValue.getType ()))
 	{
-		Value ptrValue = m_module->m_operatorMgr.prepareOperandType (opValue, OpFlagKind_ArrayRefToPtr);
+		Value ptrValue = m_module->m_operatorMgr.prepareOperandType (opValue, OpFlag_ArrayRefToPtr);
 		return m_module->m_operatorMgr.getCastKind (ptrValue, type);
 	}
 
@@ -29,9 +29,9 @@ Cast_DataPtr_FromArray::getCastKind (
 
 	return
 		arrayElementType->cmp (ptrDataType) == 0 ? CastKind_Implicit :
-		(arrayElementType->getFlags () & TypeFlagKind_Pod) ?
+		(arrayElementType->getFlags () & TypeFlag_Pod) ?
 			ptrDataType->getTypeKind () == TypeKind_Void ? CastKind_Implicit :
-			(ptrDataType->getFlags () & TypeFlagKind_Pod) ? CastKind_Explicit : CastKind_None : CastKind_None;
+			(ptrDataType->getFlags () & TypeFlag_Pod) ? CastKind_Explicit : CastKind_None : CastKind_None;
 }
 
 bool
@@ -81,7 +81,7 @@ Cast_DataPtr_FromArray::llvmCast (
 		Value ptrValue;
 
 		return 
-			m_module->m_operatorMgr.prepareOperand (opValue, &ptrValue, OpFlagKind_ArrayRefToPtr) &&
+			m_module->m_operatorMgr.prepareOperand (opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
 			m_module->m_operatorMgr.castOperator (ptrValue, type, resultValue);
 	}
 
@@ -109,7 +109,7 @@ Cast_DataPtr_Base::getCastKind (
 
 #pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
 #if 0
-	if ((dstDataType->getFlags () & TypeFlagKind_Pod) != (srcDataType->getFlags () & TypeFlagKind_Pod))
+	if ((dstDataType->getFlags () & TypeFlag_Pod) != (srcDataType->getFlags () & TypeFlag_Pod))
 		return CastKind_None; // pod vs non-pod mismatch
 #endif
 
@@ -230,7 +230,7 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	if (type->getFlags () & PtrTypeFlagKind_Safe)
+	if (type->getFlags () & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkDataPtrRange (opValue);
 
 	Value ptrValue;
@@ -307,7 +307,7 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 
 	m_module->m_operatorMgr.getLeanDataPtrRange (opValue, &rangeBeginValue, &rangeEndValue);
 
-	if (type->getFlags () & PtrTypeFlagKind_Safe)
+	if (type->getFlags () & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkDataPtrRange (opValue);
 
 	m_module->m_operatorMgr.getLeanDataPtrObjHdr (opValue, &objHdrValue);
@@ -433,8 +433,8 @@ Cast_DataPtr::getCastOperator (
 	{
 #pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
 #if 0
-		if ((srcPtrType->getTargetType ()->getFlags () & TypeFlagKind_Pod) !=
-			(dstPtrType->getTargetType ()->getFlags () & TypeFlagKind_Pod))
+		if ((srcPtrType->getTargetType ()->getFlags () & TypeFlag_Pod) !=
+			(dstPtrType->getTargetType ()->getFlags () & TypeFlag_Pod))
 			return NULL;
 #endif
 

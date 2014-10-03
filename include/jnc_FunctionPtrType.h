@@ -46,16 +46,16 @@ public:
 	FunctionPtrType*
 	getCheckedPtrType ()
 	{
-		return !(m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
+		return !(m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
 	getUnCheckedPtrType ()
 	{
-		return (m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
+		return (m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 

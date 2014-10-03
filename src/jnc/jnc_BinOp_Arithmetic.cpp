@@ -88,11 +88,11 @@ BinOp_Add::op (
 	)
 {
 	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
-		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 		return dataPtrIncrementOperator (m_module, opValue1, opValue2, resultValue);
 	else if (
 		opValue2.getType ()->getTypeKind () == TypeKind_DataPtr && 
-		(opValue1.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		(opValue1.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 		return dataPtrIncrementOperator (m_module, opValue2, opValue1, resultValue);
 	else
 		return BinOp_Arithmetic <BinOp_Add>::op (opValue1, opValue2, resultValue);
@@ -131,7 +131,7 @@ BinOp_Sub::op (
 	)
 {
 	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
-		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		Value negOpValue2;
 		return 
@@ -272,8 +272,8 @@ BinOp_Shr::llvmOpInt (
 BinOp_BwAnd::BinOp_BwAnd ()
 {
 	m_opKind = BinOpKind_BwAnd;
-	m_opFlags1 = OpFlagKind_KeepEnum;
-	m_opFlags2 = OpFlagKind_KeepEnum;
+	m_opFlags1 = OpFlag_KeepEnum;
+	m_opFlags2 = OpFlag_KeepEnum;
 }
 
 bool
@@ -325,8 +325,8 @@ BinOp_BwAnd::llvmOpInt (
 BinOp_BwOr::BinOp_BwOr ()
 {
 	m_opKind = BinOpKind_BwOr;
-	m_opFlags1 = OpFlagKind_KeepEnum;
-	m_opFlags2 = OpFlagKind_KeepEnum;
+	m_opFlags1 = OpFlag_KeepEnum;
+	m_opFlags2 = OpFlag_KeepEnum;
 }
 
 bool

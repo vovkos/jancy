@@ -55,16 +55,16 @@ public:
 	PropertyPtrType*
 	getCheckedPtrType ()
 	{
-		return !(m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
+		return !(m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
 	getUnCheckedPtrType ()
 	{
-		return (m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
+		return (m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
@@ -141,7 +141,7 @@ isBindableType (Type* type)
 {
 	return
 		type->getTypeKind () == TypeKind_PropertyRef &&
-		(((PropertyPtrType*) type)->getTargetType ()->getFlags () & PropertyTypeFlagKind_Bindable) != 0;
+		(((PropertyPtrType*) type)->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable) != 0;
 }
 
 //.............................................................................

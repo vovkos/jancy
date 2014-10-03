@@ -51,34 +51,34 @@ getFunctionKindFlags (FunctionKind functionKind)
 	{
 		0,                              // EFunction_Undefined,
 		0,                              // EFunction_Named,
-		FunctionKindFlagKind_NoOverloads,  // EFunction_Getter,
+		FunctionKindFlag_NoOverloads,  // EFunction_Getter,
 		0,                              // EFunction_Setter,
 		0,                              // EFunction_Binder,
 		0,                              // EFunction_Primer,
-		FunctionKindFlagKind_NoStorage   | // EFunction_PreConstructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoStorage,    // EFunction_Constructor,
-		FunctionKindFlagKind_NoStorage   | // EFunction_Destructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoStorage   | // EFunction_StaticConstructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoStorage   | // EFunction_StaticDestructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoStorage   | // EFunction_ModuleConstructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoStorage   | // EFunction_ModuleDestructor,
-		FunctionKindFlagKind_NoOverloads |
-		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlag_NoStorage   | // EFunction_PreConstructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoStorage,    // EFunction_Constructor,
+		FunctionKindFlag_NoStorage   | // EFunction_Destructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoStorage   | // EFunction_StaticConstructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoStorage   | // EFunction_StaticDestructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoStorage   | // EFunction_ModuleConstructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoStorage   | // EFunction_ModuleDestructor,
+		FunctionKindFlag_NoOverloads |
+		FunctionKindFlag_NoArgs,
 		0,                              // EFunction_CallOperator,
-		FunctionKindFlagKind_NoOverloads | // EFunction_CastOperator,
-		FunctionKindFlagKind_NoArgs,
-		FunctionKindFlagKind_NoOverloads | // EFunction_UnaryOperator,
-		FunctionKindFlagKind_NoArgs,
+		FunctionKindFlag_NoOverloads | // EFunction_CastOperator,
+		FunctionKindFlag_NoArgs,
+		FunctionKindFlag_NoOverloads | // EFunction_UnaryOperator,
+		FunctionKindFlag_NoArgs,
 		0,                              // EFunction_BinaryOperator,
 		0,                              // EFunction_OperatorNew,
 		0,                              // EFunction_Internal,

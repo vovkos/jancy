@@ -23,14 +23,14 @@ OperatorMgr::createClosureObject (
 	// choose reference function type
 
 	FunctionType* srcFunctionType;
-	if (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr)
+	if (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr)
 	{
 		ASSERT (((FunctionPtrType*) opValue.getType ())->getPtrTypeKind () == FunctionPtrTypeKind_Thin);
 		srcFunctionType = ((FunctionPtrType*) opValue.getType ())->getTargetType ();
 	}
 	else
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 		ASSERT (((PropertyPtrType*) opValue.getType ())->getPtrTypeKind () == PropertyPtrTypeKind_Thin);
 		srcFunctionType = ((PropertyPtrType*) opValue.getType ())->getTargetType ()->getGetterType ();
 	}

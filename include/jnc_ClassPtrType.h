@@ -49,24 +49,24 @@ public:
 	ClassPtrType*
 	getCheckedPtrType ()
 	{
-		return !(m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlagKind_Safe) :
+		return !(m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnCheckedPtrType ()
 	{
-		return (m_flags & PtrTypeFlagKind_Safe) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Safe) :
+		return (m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnConstPtrType ()
 	{
-		return (m_flags & PtrTypeFlagKind_Const) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlagKind_Const) :
+		return (m_flags & PtrTypeFlag_Const) ?
+			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
 			this;
 	}
 
@@ -141,7 +141,7 @@ isClassPtrType (
 	)
 {
 	return
-		(type->getTypeKindFlags () & TypeKindFlagKind_ClassPtr) &&
+		(type->getTypeKindFlags () & TypeKindFlag_ClassPtr) &&
 		((ClassPtrType*) type)->getTargetType ()->getClassTypeKind () == classTypeKind;
 }
 

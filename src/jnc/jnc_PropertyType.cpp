@@ -7,7 +7,7 @@ namespace jnc {
 //.............................................................................
 
 const char* 
-getPropertyTypeFlagString (PropertyTypeFlagKind flag)
+getPropertyTypeFlagString (PropertyTypeFlag flag)
 {
 	static const char* stringTable [] = 
 	{
@@ -28,7 +28,7 @@ getPropertyTypeFlagString (uint_t flags)
 	if (!flags)
 		return rtl::String ();
 
-	PropertyTypeFlagKind flag = getFirstPropertyTypeFlag (flags);
+	PropertyTypeFlag flag = getFirstPropertyTypeFlag (flags);
 	rtl::String string = getPropertyTypeFlagString (flag);
 	flags &= ~flag;
 
@@ -50,11 +50,11 @@ getPropertyTypeFlagsFromModifiers (uint_t modifiers)
 {
 	uint_t flags = 0;
 
-	if (modifiers & TypeModifierKind_Const)
-		flags |= PropertyTypeFlagKind_Const;
+	if (modifiers & TypeModifier_Const)
+		flags |= PropertyTypeFlag_Const;
 
-	if (modifiers & TypeModifierKind_Bindable)
-		flags |= PropertyTypeFlagKind_Bindable;
+	if (modifiers & TypeModifier_Bindable)
+		flags |= PropertyTypeFlag_Bindable;
 
 	return flags;
 }
@@ -117,7 +117,7 @@ PropertyType::createSignature (
 {
 	rtl::String string = "X";
 	
-	if (flags & PropertyTypeFlagKind_Bindable)
+	if (flags & PropertyTypeFlag_Bindable)
 		string += 'b';
 
 	string += getterType->getSignature ();
@@ -138,10 +138,10 @@ PropertyType::getTypeModifierString ()
 	if (!m_typeModifierString.isEmpty ())
 		return m_typeModifierString;
 
-	if (m_flags & PropertyTypeFlagKind_Const)
+	if (m_flags & PropertyTypeFlag_Const)
 		m_typeModifierString += "const ";
 
-	if (m_flags & PropertyTypeFlagKind_Bindable)
+	if (m_flags & PropertyTypeFlag_Bindable)
 		m_typeModifierString += "bindable ";
 
 	if (isIndexed ())

@@ -37,7 +37,7 @@ bool
 NamespaceMgr::addStdItems ()
 {
 	GlobalNamespace* jnc = createGlobalNamespace ("jnc", &m_globalNamespace);
-	jnc->m_flags |= GlobalNamespaceFlagKind_Sealed;
+	jnc->m_flags |= GlobalNamespaceFlag_Sealed;
 
 	return
 		m_globalNamespace.addItem (jnc) &&
@@ -102,7 +102,7 @@ NamespaceMgr::resolveOrphans ()
 void
 NamespaceMgr::setSourcePos (const Token::Pos& pos)
 {
-	if (!(m_module->getFlags () & ModuleFlagKind_DebugInfo) ||
+	if (!(m_module->getFlags () & ModuleFlag_DebugInfo) ||
 		!m_currentScope ||
 		m_sourcePosLockCount)
 		return;
@@ -152,9 +152,9 @@ NamespaceMgr::openInternalScope ()
 	scope->m_parentNamespace = m_currentNamespace;
 
 	if (m_currentScope)
-		scope->m_flags |= m_currentScope->m_flags & (ScopeFlagKind_CanThrow | ScopeFlagKind_HasFinally);
-	else if (function->getType ()->getFlags () & FunctionTypeFlagKind_Throws)
-		scope->m_flags |= ScopeFlagKind_CanThrow;
+		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_CanThrow | ScopeFlag_HasFinally);
+	else if (function->getType ()->getFlags () & FunctionTypeFlag_Throws)
+		scope->m_flags |= ScopeFlag_CanThrow;
 
 	m_scopeList.insertTail (scope);
 
@@ -169,7 +169,7 @@ NamespaceMgr::openScope (const Token::Pos& pos)
 	Scope* scope = openInternalScope ();
 	scope->m_pos = pos;
 
-	if (m_module->getFlags () & ModuleFlagKind_DebugInfo)
+	if (m_module->getFlags () & ModuleFlag_DebugInfo)
 		scope->m_llvmDiScope = (llvm::DIScope) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);
 
 	setSourcePos (pos);
@@ -182,13 +182,13 @@ NamespaceMgr::closeScope ()
 	Scope* scope = m_currentScope;
 	ASSERT (scope);
 
-	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlagKind_Reachable)
+	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
 	{
 		scope->m_destructList.runDestructors ();
 		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 	}
 
-	if (scope->m_flags & ScopeFlagKind_FinallyDefined)
+	if (scope->m_flags & ScopeFlag_FinallyDefined)
 		m_module->m_controlFlowMgr.endFinally ();
 
 	closeNamespace ();

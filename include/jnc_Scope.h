@@ -14,13 +14,13 @@ class Function;
 
 //.............................................................................
 
-enum ScopeFlagKind
+enum ScopeFlag
 {
-	ScopeFlagKind_Try            = 0x0100,
-	ScopeFlagKind_CatchDefined   = 0x0200,
-	ScopeFlagKind_FinallyDefined = 0x0400,
-	ScopeFlagKind_CanThrow       = 0x0800, // function throws, or parent has catch
-	ScopeFlagKind_HasFinally     = 0x1000, // this scope or its parent has finally
+	ScopeFlag_Try            = 0x0100,
+	ScopeFlag_CatchDefined   = 0x0200,
+	ScopeFlag_FinallyDefined = 0x0400,
+	ScopeFlag_CanThrow       = 0x0800, // function throws, or parent has catch
+	ScopeFlag_HasFinally     = 0x1000, // this scope or its parent has finally
 };
 
 //.............................................................................

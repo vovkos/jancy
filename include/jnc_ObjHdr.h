@@ -12,18 +12,18 @@ class Runtime;
 
 //.............................................................................
 
-enum ObjHdrFlagKind
+enum ObjHdrFlag
 {
-	ObjHdrFlagKind_Dead         = 0x0001,
-	ObjHdrFlagKind_DynamicArray = 0x0002,	
-	ObjHdrFlagKind_Static       = 0x0010,
-	ObjHdrFlagKind_Stack        = 0x0020,
-	ObjHdrFlagKind_UHeap        = 0x0040,
-	ObjHdrFlagKind_GcMark       = 0x0100,
-	ObjHdrFlagKind_GcWeakMark   = 0x0200,
-	ObjHdrFlagKind_GcWeakMark_c = 0x0400,
-	ObjHdrFlagKind_GcRootsAdded = 0x0800,
-	ObjHdrFlagKind_GcMask       = 0x0f00,
+	ObjHdrFlag_Dead         = 0x0001,
+	ObjHdrFlag_DynamicArray = 0x0002,	
+	ObjHdrFlag_Static       = 0x0010,
+	ObjHdrFlag_Stack        = 0x0020,
+	ObjHdrFlag_UHeap        = 0x0040,
+	ObjHdrFlag_GcMark       = 0x0100,
+	ObjHdrFlag_GcWeakMark   = 0x0200,
+	ObjHdrFlag_GcWeakMark_c = 0x0400,
+	ObjHdrFlag_GcRootsAdded = 0x0800,
+	ObjHdrFlag_GcMask       = 0x0f00,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -50,7 +50,7 @@ struct ObjHdr
 	void 
 	gcWeakMarkObject ()
 	{
-		m_flags |= ObjHdrFlagKind_GcWeakMark;
+		m_flags |= ObjHdrFlag_GcWeakMark;
 	}
 
 	void 
@@ -68,10 +68,10 @@ getStaticObjHdr ()
 		0, 
 		&objHdr, 
 		NULL, 
-		ObjHdrFlagKind_Static | 
-		ObjHdrFlagKind_GcMark | 
-		ObjHdrFlagKind_GcWeakMark | 
-		ObjHdrFlagKind_GcRootsAdded
+		ObjHdrFlag_Static | 
+		ObjHdrFlag_GcMark | 
+		ObjHdrFlag_GcWeakMark | 
+		ObjHdrFlag_GcRootsAdded
 	};
 
 	return &objHdr;

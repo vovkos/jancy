@@ -72,7 +72,7 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	DataPtrType* type = (DataPtrType*) value.getType ();
 	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
 
-	if (type->getFlags () & PtrTypeFlagKind_Safe)
+	if (type->getFlags () & PtrTypeFlag_Safe)
 		return;
 
 	Value ptrValue;
@@ -163,7 +163,7 @@ OperatorMgr::checkClassPtrScopeLevel (
 	const Value& dstValue
 	)
 {
-	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
+	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 
 	Value dstObjHdrValue;
 	getDataRefObjHdr (dstValue, &dstObjHdrValue);
@@ -187,12 +187,12 @@ OperatorMgr::checkClassPtrScopeLevel (
 void
 OperatorMgr::checkClassPtrNull (const Value& value)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 
 	ClassPtrType* ptrType = (ClassPtrType*) value.getType ();
 	ClassPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	if (ptrType->getFlags () & PtrTypeFlagKind_Safe)
+	if (ptrType->getFlags () & PtrTypeFlag_Safe)
 		return;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null class pointer");
@@ -214,12 +214,12 @@ OperatorMgr::checkClassPtrNull (const Value& value)
 void
 OperatorMgr::checkFunctionPtrNull (const Value& value)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 
 	FunctionPtrType* ptrType = (FunctionPtrType*) value.getType ();
 	FunctionPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	if (ptrType->getFlags () & PtrTypeFlagKind_Safe)
+	if (ptrType->getFlags () & PtrTypeFlag_Safe)
 		return;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null function pointer");
@@ -250,7 +250,7 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 	const Value& dstValue
 	)
 {
-	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	FunctionPtrType* ptrType = (FunctionPtrType*) srcValue.getType ();
 
 	if (!ptrType->hasClosure ())
@@ -264,12 +264,12 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 void
 OperatorMgr::checkPropertyPtrNull (const Value& value)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlagKind_PropertyPtr);
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) value.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	if (ptrType->getFlags () & PtrTypeFlagKind_Safe)
+	if (ptrType->getFlags () & PtrTypeFlag_Safe)
 		return;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null property pointer");

@@ -47,14 +47,14 @@ getModuleItemKindString (ModuleItemKind itemKind);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ModuleItemFlagKind
+enum ModuleItemFlag
 {
-	ModuleItemFlagKind_User         = 0x01,
-	ModuleItemFlagKind_NeedLayout   = 0x02,
-	ModuleItemFlagKind_NeedCompile  = 0x04,
-	ModuleItemFlagKind_InCalcLayout = 0x10,
-	ModuleItemFlagKind_LayoutReady  = 0x20,
-	ModuleItemFlagKind_Constructed  = 0x40, // fields, properties, base type slots
+	ModuleItemFlag_User         = 0x01,
+	ModuleItemFlag_NeedLayout   = 0x02,
+	ModuleItemFlag_NeedCompile  = 0x04,
+	ModuleItemFlag_InCalcLayout = 0x10,
+	ModuleItemFlag_LayoutReady  = 0x20,
+	ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
 };
 
 
@@ -291,9 +291,9 @@ public:
 
 //.............................................................................
 
-enum LazyModuleItemFlagKind
+enum LazyModuleItemFlag
 {
-	LazyModuleItemFlagKind_Touched = 0x010000,
+	LazyModuleItemFlag_Touched = 0x010000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

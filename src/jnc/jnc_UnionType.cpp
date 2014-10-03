@@ -9,7 +9,7 @@ namespace jnc {
 UnionType::UnionType ()
 {
 	m_typeKind = TypeKind_Union;
-	m_flags = TypeFlagKind_Pod;
+	m_flags = TypeFlag_Pod;
 	m_structType = NULL;
 	m_initializedField = NULL;
 }
@@ -67,7 +67,7 @@ UnionType::createFieldImpl (
 			return NULL;
 	}
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Import)
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 	{
 		field->m_type_i = (ImportType*) type;
 		m_importFieldArray.append (field);
@@ -125,7 +125,7 @@ UnionType::calcLayout ()
 		uint_t fieldTypeFlags = field->m_type->getFlags ();
 		size_t fieldAlignFactor = field->m_type->getAlignFactor ();
 
-		if (!(fieldTypeFlags & TypeFlagKind_Pod))
+		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
 			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().cc ());
 			return NULL;
@@ -194,21 +194,21 @@ UnionType::compile ()
 {
 	bool result;
 
-	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultStaticConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultPreConstructor ();
 		if (!result)
 			return false;
 	}
 
-	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlagKind_User))
+	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultConstructor ();
 		if (!result)

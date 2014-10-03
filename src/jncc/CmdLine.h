@@ -2,19 +2,19 @@
 
 //.............................................................................
 
-enum JncFlagKind
+enum JncFlag
 {
-	JncFlagKind_Help        = 0x0001,
-	JncFlagKind_Version     = 0x0002,
-	JncFlagKind_LlvmIr      = 0x0004,
-	JncFlagKind_LlvmIr_c    = 0x0008,
-	JncFlagKind_Jit         = 0x0010,
-	JncFlagKind_Jit_mc      = 0x0020,
-	JncFlagKind_Disassembly = 0x0040,
-	JncFlagKind_RunFunction = 0x0080,
-	JncFlagKind_Server      = 0x0100,
-	JncFlagKind_DebugInfo   = 0x0200,
-	JncFlagKind_StdInSrc    = 0x0400,
+	JncFlag_Help        = 0x0001,
+	JncFlag_Version     = 0x0002,
+	JncFlag_LlvmIr      = 0x0004,
+	JncFlag_LlvmIr_c    = 0x0008,
+	JncFlag_Jit         = 0x0010,
+	JncFlag_Jit_mc      = 0x0020,
+	JncFlag_Disassembly = 0x0040,
+	JncFlag_RunFunction = 0x0080,
+	JncFlag_Server      = 0x0100,
+	JncFlag_DebugInfo   = 0x0200,
+	JncFlag_StdInSrc    = 0x0400,
 };
 
 struct CmdLine
@@ -46,7 +46,7 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_McJit,
 	CmdLineSwitchKind_Disassembly,
 	CmdLineSwitchKind_Run,
-	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlagKind_HasValue,
+	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitchKind_Server,
 	CmdLineSwitchKind_HeapSize,
 	CmdLineSwitchKind_StackSize,

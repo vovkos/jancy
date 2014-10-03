@@ -16,9 +16,9 @@ OperatorMgr::getField (
 {
 	Type* type = opValue.getType ();
 
-	if (type->getTypeKindFlags () & TypeKindFlagKind_DataPtr)
+	if (type->getTypeKindFlags () & TypeKindFlag_DataPtr)
 		type = ((DataPtrType*) type)->getTargetType ();
-	else if (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr)
+	else if (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
 		type = ((ClassPtrType*) opValue.getType ())->getTargetType ();
 
 	TypeKind typeKind = type->getTypeKind ();
@@ -148,7 +148,7 @@ OperatorMgr::getStructField (
 		return true;
 	}
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
 	{
 		if (!coord->m_unionCoordArray.isEmpty ())
 		{
@@ -172,7 +172,7 @@ OperatorMgr::getStructField (
 
 	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
 	if (field->getStorageKind () == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
+		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 
@@ -231,7 +231,7 @@ OperatorMgr::getUnionField (
 
 	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
 	if (field->getStorageKind () == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
+		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 
@@ -284,7 +284,7 @@ OperatorMgr::getClassField (
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_ClassPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 	ClassPtrType* opType = (ClassPtrType*) opValue.getType ();
 
 	checkClassPtrNull (opValue);
@@ -310,9 +310,9 @@ OperatorMgr::getClassField (
 		&ptrValue
 		);
 
-	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags () | PtrTypeFlagKind_Safe;
+	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags () | PtrTypeFlag_Safe;
 	if (field->getStorageKind () == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlagKind_Const;
+		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	// TODO: handle dual types
 	// (PtrTypeFlags & EPtrTypeFlag_ReadOnly) && m_pModule->m_NamespaceMgr.GetAccessKind (pCoord->m_pType) == EAccess_Public)

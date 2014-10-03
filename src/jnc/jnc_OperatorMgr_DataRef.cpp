@@ -12,7 +12,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	Value* resultValue
 	)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr);
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 
 	ValueKind valueKind = value.getValueKind ();
 	if (valueKind == ValueKind_Variable)
@@ -46,7 +46,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	}
 	else
 	{
-		ASSERT (scopeValidatorType->getTypeKindFlags () & TypeKindFlagKind_DataPtr);
+		ASSERT (scopeValidatorType->getTypeKindFlags () & TypeKindFlag_DataPtr);
 		ASSERT (((DataPtrType*) scopeValidatorType)->getPtrTypeKind () == DataPtrTypeKind_Normal);
 		m_module->m_llvmIrBuilder.createExtractValue (scopeValidatorValue, 3, resultType, resultValue);
 	}
@@ -59,7 +59,7 @@ OperatorMgr::getLeanDataPtrRange (
 	Value* rangeEndValue
 	)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr);
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 
 	Type* bytePtrType = m_module->getSimpleType (StdTypeKind_BytePtr);
 
@@ -96,7 +96,7 @@ OperatorMgr::getLeanDataPtrRange (
 	}
 
 	ASSERT (
-		(validatorValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_DataPtr) &&
+		(validatorValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
 		((DataPtrType*) validatorValue.getType ())->getPtrTypeKind () == DataPtrTypeKind_Normal);
 
 	m_module->m_llvmIrBuilder.createExtractValue (validatorValue, 1, bytePtrType, rangeBeginValue);
@@ -126,7 +126,7 @@ OperatorMgr::prepareDataPtr (
 	}
 	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		if (type->getFlags () & PtrTypeFlagKind_Safe)
+		if (type->getFlags () & PtrTypeFlag_Safe)
 		{
 			resultValue->overrideType (value, resultType);
 			return true;
@@ -139,7 +139,7 @@ OperatorMgr::prepareDataPtr (
 	{
 		m_module->m_llvmIrBuilder.createExtractValue (value, 0, resultType, &ptrValue);
 
-		if (type->getFlags () & PtrTypeFlagKind_Safe)
+		if (type->getFlags () & PtrTypeFlag_Safe)
 		{
 			*resultValue = ptrValue;
 			return true;
@@ -177,7 +177,7 @@ OperatorMgr::loadDataRef (
 		ptrValue, 
 		targetType, 
 		resultValue, 
-		(type->getFlags () & PtrTypeFlagKind_Volatile) != 0
+		(type->getFlags () & PtrTypeFlag_Volatile) != 0
 		);
 
 	if (targetType->getTypeKind () == TypeKind_BitField)
@@ -257,7 +257,7 @@ OperatorMgr::storeDataRef (
 			ptrValue, 
 			castType,
 			&bfShadowValue,
-			(dstType->getFlags () & PtrTypeFlagKind_Volatile) != 0
+			(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
 			);
 
 		result = mergeBitField (
@@ -274,7 +274,7 @@ OperatorMgr::storeDataRef (
 	m_module->m_llvmIrBuilder.createStore (
 		srcValue, 
 		ptrValue, 
-		(dstType->getFlags () & PtrTypeFlagKind_Volatile) != 0
+		(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
 		);
 
 	return true;
@@ -307,7 +307,7 @@ OperatorMgr::extractBitField (
 	if (!result)
 		return false;
 
-	if (!(baseType->getTypeKindFlags () & TypeKindFlagKind_Unsigned)) // extend with sign bit
+	if (!(baseType->getTypeKindFlags () & TypeKindFlag_Unsigned)) // extend with sign bit
 	{
 		int64_t signBit = (int64_t) 1 << (bitCount - 1);
 

@@ -62,23 +62,23 @@ enum CallConvKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum CallConvFlagKind
+enum CallConvFlag
 {
 	// vararg
 
-	CallConvFlagKind_NoVarArg     = 0x0001,
-	CallConvFlagKind_UnsafeVarArg = 0x0002,
+	CallConvFlag_NoVarArg     = 0x0001,
+	CallConvFlag_UnsafeVarArg = 0x0002,
 
 	// family
 
-	CallConvFlagKind_Jnccall      = 0x0010,
-	CallConvFlagKind_Cdecl        = 0x0020,
-	CallConvFlagKind_Stdcall      = 0x0040,
+	CallConvFlag_Jnccall      = 0x0010,
+	CallConvFlag_Cdecl        = 0x0020,
+	CallConvFlag_Stdcall      = 0x0040,
 
 	// compiler
 
-	CallConvFlagKind_Msc          = 0x0100,
-	CallConvFlagKind_Gcc          = 0x0200,
+	CallConvFlag_Msc          = 0x0100,
+	CallConvFlag_Gcc          = 0x0200,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

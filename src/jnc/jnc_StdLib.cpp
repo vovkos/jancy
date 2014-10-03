@@ -38,7 +38,7 @@ StdLib::strengthenClassPtr (IfaceHdr* p)
 	ClassTypeKind classTypeKind = p->m_object->m_classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ClosureClassType*) p->m_object->m_type)->strengthen (p) :
-		(!(p->m_object->m_flags & ObjHdrFlagKind_Dead)) ? p : NULL;
+		(!(p->m_object->m_flags & ObjHdrFlag_Dead)) ? p : NULL;
 }
 
 void*

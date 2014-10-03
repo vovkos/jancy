@@ -63,7 +63,7 @@ OperatorMgr::allocate (
 	case StorageKind_Stack:
 		m_module->m_llvmIrBuilder.createAlloca (type, tag, ptrType, &ptrValue);
 
-		if (type->getFlags () & TypeFlagKind_GcRoot)
+		if (type->getFlags () & TypeFlag_GcRoot)
 			markStackGcRoot (ptrValue, type);
 		break;
 
@@ -160,15 +160,15 @@ OperatorMgr::prime (
 	switch (storageKind)
 	{
 	case StorageKind_Static:
-		flags |= ObjHdrFlagKind_Static;
+		flags |= ObjHdrFlag_Static;
 		break;
 
 	case StorageKind_Stack:
-		flags |= ObjHdrFlagKind_Stack;
+		flags |= ObjHdrFlag_Stack;
 		break;
 
 	case StorageKind_UHeap:
-		flags |= ObjHdrFlagKind_UHeap;
+		flags |= ObjHdrFlag_UHeap;
 		break;
 	}
 
@@ -214,7 +214,7 @@ OperatorMgr::prime (
 	}
 
 	Variable* flagVariable = NULL;
-	if (m_module->m_controlFlowMgr.getFlags () & ControlFlowFlagKind_HasJump)
+	if (m_module->m_controlFlowMgr.getFlags () & ControlFlowFlag_HasJump)
 	{
 		Function* function = m_module->m_functionMgr.getCurrentFunction ();
 		BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
@@ -418,7 +418,7 @@ OperatorMgr::parseConstExpression (
 	Value* resultValue
 	)
 {
-	bool result = parseExpression (unit, expressionTokenList, Parser::FlagKind_ConstExpression, resultValue);
+	bool result = parseExpression (unit, expressionTokenList, Parser::Flag_ConstExpression, resultValue);
 	if (!result)
 		return false;
 
@@ -438,7 +438,7 @@ OperatorMgr::parseConstIntegerExpression (
 	if (!result)
 		return false;
 
-	if (!(value.getType ()->getTypeKindFlags () & TypeKindFlagKind_Integer))
+	if (!(value.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError ("expression is not integer constant");
 		return false;
@@ -683,7 +683,7 @@ OperatorMgr::createTmpStackGcRoot (const Value& value)
 {
 	Type* type = value.getType ();
 	ASSERT (
-		(type->getFlags () & TypeFlagKind_GcRoot) ||
+		(type->getFlags () & TypeFlag_GcRoot) ||
 		type->getTypeKind () == TypeKind_DataPtr // heap new creates tmp stack root
 		);
 
@@ -696,7 +696,7 @@ OperatorMgr::createTmpStackGcRoot (const Value& value)
 void
 OperatorMgr::nullifyTmpStackGcRootList ()
 {
-	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlagKind_Reachable)
+	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
 		nullifyGcRootList (m_tmpStackGcRootList);
 
 	m_tmpStackGcRootList.clear ();

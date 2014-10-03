@@ -152,30 +152,30 @@ enum StdTypeKind
 
 //.............................................................................
 
-enum TypeModifierKind
+enum TypeModifier
 {
-	TypeModifierKind_Unsigned    = 0x00000001,
-	TypeModifierKind_BigEndian   = 0x00000002,
-	TypeModifierKind_Const       = 0x00000004,
-	TypeModifierKind_DConst      = 0x00000008,
-	TypeModifierKind_Volatile    = 0x00000010,
-	TypeModifierKind_Weak        = 0x00000020,
-	TypeModifierKind_Thin        = 0x00000040,
-	TypeModifierKind_Safe        = 0x00000080,
-	TypeModifierKind_Cdecl       = 0x00000100,
-	TypeModifierKind_Stdcall     = 0x00000200,
-	TypeModifierKind_Array       = 0x00000400,
-	TypeModifierKind_Function    = 0x00000800,
-	TypeModifierKind_Property    = 0x00001000,
-	TypeModifierKind_Bindable    = 0x00002000,
-	TypeModifierKind_AutoGet     = 0x00004000,
-	TypeModifierKind_Indexed     = 0x00008000,
-	TypeModifierKind_Multicast   = 0x00010000,
-	TypeModifierKind_Event       = 0x00020000,
-	TypeModifierKind_DEvent      = 0x00040000,
-	TypeModifierKind_Reactor     = 0x00080000,
-	TypeModifierKind_Thiscall    = 0x00100000,
-	TypeModifierKind_Jnccall     = 0x00200000,
+	TypeModifier_Unsigned    = 0x00000001,
+	TypeModifier_BigEndian   = 0x00000002,
+	TypeModifier_Const       = 0x00000004,
+	TypeModifier_DConst      = 0x00000008,
+	TypeModifier_Volatile    = 0x00000010,
+	TypeModifier_Weak        = 0x00000020,
+	TypeModifier_Thin        = 0x00000040,
+	TypeModifier_Safe        = 0x00000080,
+	TypeModifier_Cdecl       = 0x00000100,
+	TypeModifier_Stdcall     = 0x00000200,
+	TypeModifier_Array       = 0x00000400,
+	TypeModifier_Function    = 0x00000800,
+	TypeModifier_Property    = 0x00001000,
+	TypeModifier_Bindable    = 0x00002000,
+	TypeModifier_AutoGet     = 0x00004000,
+	TypeModifier_Indexed     = 0x00008000,
+	TypeModifier_Multicast   = 0x00010000,
+	TypeModifier_Event       = 0x00020000,
+	TypeModifier_DEvent      = 0x00040000,
+	TypeModifier_Reactor     = 0x00080000,
+	TypeModifier_Thiscall    = 0x00100000,
+	TypeModifier_Jnccall     = 0x00200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -183,51 +183,51 @@ enum TypeModifierKind
 enum TypeModifierMaskKind
 {
 	TypeModifierMaskKind_Integer =
-		TypeModifierKind_Unsigned |
-		TypeModifierKind_BigEndian,
+		TypeModifier_Unsigned |
+		TypeModifier_BigEndian,
 
 	TypeModifierMaskKind_CallConv =
-		TypeModifierKind_Cdecl |
-		TypeModifierKind_Stdcall |
-		TypeModifierKind_Thiscall |
-		TypeModifierKind_Jnccall,
+		TypeModifier_Cdecl |
+		TypeModifier_Stdcall |
+		TypeModifier_Thiscall |
+		TypeModifier_Jnccall,
 
 	TypeModifierMaskKind_Function =
-		TypeModifierKind_Function |
+		TypeModifier_Function |
 		TypeModifierMaskKind_CallConv ,
 
 	TypeModifierMaskKind_Property =
-		TypeModifierKind_Property |
+		TypeModifier_Property |
 		TypeModifierMaskKind_CallConv |
-		TypeModifierKind_Const |
-		TypeModifierKind_Bindable |
-		TypeModifierKind_Indexed,
+		TypeModifier_Const |
+		TypeModifier_Bindable |
+		TypeModifier_Indexed,
 
 	TypeModifierMaskKind_DataPtr =
-		TypeModifierKind_Safe |
-		TypeModifierKind_Const |
-		TypeModifierKind_DConst |
-		TypeModifierKind_Volatile |
-		TypeModifierKind_Thin,
+		TypeModifier_Safe |
+		TypeModifier_Const |
+		TypeModifier_DConst |
+		TypeModifier_Volatile |
+		TypeModifier_Thin,
 
 	TypeModifierMaskKind_ClassPtr =
-		TypeModifierKind_Safe |
-		TypeModifierKind_Const |
-		TypeModifierKind_DConst |
-		TypeModifierKind_Volatile |
-		TypeModifierKind_Event |
-		TypeModifierKind_DEvent |
-		TypeModifierKind_Weak,
+		TypeModifier_Safe |
+		TypeModifier_Const |
+		TypeModifier_DConst |
+		TypeModifier_Volatile |
+		TypeModifier_Event |
+		TypeModifier_DEvent |
+		TypeModifier_Weak,
 
 	TypeModifierMaskKind_FunctionPtr =
-		TypeModifierKind_Safe |
-		TypeModifierKind_Weak |
-		TypeModifierKind_Thin,
+		TypeModifier_Safe |
+		TypeModifier_Weak |
+		TypeModifier_Thin,
 
 	TypeModifierMaskKind_PropertyPtr =
-		TypeModifierKind_Safe |
-		TypeModifierKind_Weak |
-		TypeModifierKind_Thin,
+		TypeModifier_Safe |
+		TypeModifier_Weak |
+		TypeModifier_Thin,
 
 	TypeModifierMaskKind_ImportPtr =
 		TypeModifierMaskKind_DataPtr |
@@ -236,49 +236,49 @@ enum TypeModifierMaskKind
 		TypeModifierMaskKind_PropertyPtr,
 
 	TypeModifierMaskKind_DeclPtr =
-		TypeModifierKind_Const |
-		TypeModifierKind_DConst |
-		TypeModifierKind_Volatile |
-		TypeModifierKind_Event |
-		TypeModifierKind_DEvent |
-		TypeModifierKind_Bindable |
-		TypeModifierKind_AutoGet,
+		TypeModifier_Const |
+		TypeModifier_DConst |
+		TypeModifier_Volatile |
+		TypeModifier_Event |
+		TypeModifier_DEvent |
+		TypeModifier_Bindable |
+		TypeModifier_AutoGet,
 
 	TypeModifierMaskKind_PtrKind =
-		TypeModifierKind_Weak |
-		TypeModifierKind_Thin,
+		TypeModifier_Weak |
+		TypeModifier_Thin,
 
 	TypeModifierMaskKind_TypeKind =
-		TypeModifierKind_Function |
-		TypeModifierKind_Property |
-		TypeModifierKind_Multicast |
-		TypeModifierKind_Reactor,
+		TypeModifier_Function |
+		TypeModifier_Property |
+		TypeModifier_Multicast |
+		TypeModifier_Reactor,
 
 	TypeModifierMaskKind_Const =
-		TypeModifierKind_Const |
-		TypeModifierKind_DConst |
-		TypeModifierKind_Event |
-		TypeModifierKind_DEvent,
+		TypeModifier_Const |
+		TypeModifier_DConst |
+		TypeModifier_Event |
+		TypeModifier_DEvent,
 
 	TypeModifierMaskKind_Event =
-		TypeModifierKind_Event |
-		TypeModifierKind_DEvent |
-		TypeModifierKind_Const |
-		TypeModifierKind_DConst |
+		TypeModifier_Event |
+		TypeModifier_DEvent |
+		TypeModifier_Const |
+		TypeModifier_DConst |
 		TypeModifierMaskKind_TypeKind,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-TypeModifierKind
+TypeModifier
 getFirstTypeModifier (uint_t modifiers)
 {
-	return (TypeModifierKind) (1 << rtl::getLoBitIdx (modifiers));
+	return (TypeModifier) (1 << rtl::getLoBitIdx (modifiers));
 }
 
 const char*
-getTypeModifierString (TypeModifierKind modifier);
+getTypeModifierString (TypeModifier modifier);
 
 rtl::String
 getTypeModifierString (uint_t modifiers);
@@ -292,43 +292,43 @@ getFirstTypeModifierString (uint_t modifiers)
 
 //.............................................................................
 
-enum TypeFlagKind
+enum TypeFlag
 {
-	TypeFlagKind_Named        = 0x0100,
-	TypeFlagKind_Child        = 0x0200, // constructor has an implicit 'parent' arg
-	TypeFlagKind_Pod          = 0x0400, // plain-old-data
-	TypeFlagKind_GcRoot       = 0x0800, // is or contains gc-traceable pointers
-	TypeFlagKind_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
+	TypeFlag_Named        = 0x0100,
+	TypeFlag_Child        = 0x0200, // constructor has an implicit 'parent' arg
+	TypeFlag_Pod          = 0x0400, // plain-old-data
+	TypeFlag_GcRoot       = 0x0800, // is or contains gc-traceable pointers
+	TypeFlag_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum PtrTypeFlagKind
+enum PtrTypeFlag
 {
-	PtrTypeFlagKind_Safe      = 0x0010000, // all ptr
-	PtrTypeFlagKind_Unused    = 0x0020000, // unused
-	PtrTypeFlagKind_Const     = 0x0040000, // class & data ptr
-	PtrTypeFlagKind_ConstD    = 0x0080000, // class & data ptr
-	PtrTypeFlagKind_Volatile  = 0x0100000, // class & data ptr
-	PtrTypeFlagKind_Event     = 0x0200000, // multicast-class only
-	PtrTypeFlagKind_EventD    = 0x0400000, // multicast-class only
-	PtrTypeFlagKind_Bindable  = 0x0800000, // multicast-class only
-	PtrTypeFlagKind_AutoGet   = 0x1000000, // data ptr only
+	PtrTypeFlag_Safe      = 0x0010000, // all ptr
+	PtrTypeFlag_Unused    = 0x0020000, // unused
+	PtrTypeFlag_Const     = 0x0040000, // class & data ptr
+	PtrTypeFlag_ConstD    = 0x0080000, // class & data ptr
+	PtrTypeFlag_Volatile  = 0x0100000, // class & data ptr
+	PtrTypeFlag_Event     = 0x0200000, // multicast-class only
+	PtrTypeFlag_EventD    = 0x0400000, // multicast-class only
+	PtrTypeFlag_Bindable  = 0x0800000, // multicast-class only
+	PtrTypeFlag_AutoGet   = 0x1000000, // data ptr only
 
-	PtrTypeFlagKind__AllMask  = 0x1ff0000,
+	PtrTypeFlag__AllMask  = 0x1ff0000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-PtrTypeFlagKind
+PtrTypeFlag
 getFirstPtrTypeFlag (uint_t flags)
 {
-	return (PtrTypeFlagKind) (1 << rtl::getLoBitIdx (flags));
+	return (PtrTypeFlag) (1 << rtl::getLoBitIdx (flags));
 }
 
 const char*
-getPtrTypeFlagString (PtrTypeFlagKind flag);
+getPtrTypeFlagString (PtrTypeFlag flag);
 
 rtl::String
 getPtrTypeFlagString (uint_t flags);
@@ -367,24 +367,24 @@ getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind);
 
 // useful for simple checks
 
-enum TypeKindFlagKind
+enum TypeKindFlag
 {
-	TypeKindFlagKind_Integer      = 0x00000001,
-	TypeKindFlagKind_Unsigned     = 0x00000002,
-	TypeKindFlagKind_BigEndian    = 0x00000004,
-	TypeKindFlagKind_Fp           = 0x00000008,
-	TypeKindFlagKind_Numeric      = 0x00000010,
-	TypeKindFlagKind_Aggregate    = 0x00000020,
-	TypeKindFlagKind_Named        = 0x00000100,
-	TypeKindFlagKind_Derivable    = 0x00000200,
-	TypeKindFlagKind_DataPtr      = 0x00000400,
-	TypeKindFlagKind_ClassPtr     = 0x00000800,
-	TypeKindFlagKind_FunctionPtr  = 0x00001000,
-	TypeKindFlagKind_PropertyPtr  = 0x00002000,
-	TypeKindFlagKind_Ptr          = 0x00004000,
-	TypeKindFlagKind_Ref          = 0x00008000,
-	TypeKindFlagKind_Import       = 0x00010000,
-	TypeKindFlagKind_Code         = 0x00020000,
+	TypeKindFlag_Integer      = 0x00000001,
+	TypeKindFlag_Unsigned     = 0x00000002,
+	TypeKindFlag_BigEndian    = 0x00000004,
+	TypeKindFlag_Fp           = 0x00000008,
+	TypeKindFlag_Numeric      = 0x00000010,
+	TypeKindFlag_Aggregate    = 0x00000020,
+	TypeKindFlag_Named        = 0x00000100,
+	TypeKindFlag_Derivable    = 0x00000200,
+	TypeKindFlag_DataPtr      = 0x00000400,
+	TypeKindFlag_ClassPtr     = 0x00000800,
+	TypeKindFlag_FunctionPtr  = 0x00001000,
+	TypeKindFlag_PropertyPtr  = 0x00002000,
+	TypeKindFlag_Ptr          = 0x00004000,
+	TypeKindFlag_Ref          = 0x00008000,
+	TypeKindFlag_Import       = 0x00010000,
+	TypeKindFlag_Code         = 0x00020000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -414,7 +414,7 @@ inline
 TypeKind
 getBigEndianIntegerTypeKind (TypeKind typeKind)
 {
-	return !(getTypeKindFlags (typeKind) & TypeKindFlagKind_BigEndian) ?
+	return !(getTypeKindFlags (typeKind) & TypeKindFlag_BigEndian) ?
 		(TypeKind) (typeKind + TypeKind__EndianDelta) :
 		typeKind;
 }
@@ -423,7 +423,7 @@ inline
 TypeKind
 getLittleEndianIntegerTypeKind (TypeKind typeKind)
 {
-	return (getTypeKindFlags (typeKind) & TypeKindFlagKind_BigEndian) ?
+	return (getTypeKindFlags (typeKind) & TypeKindFlag_BigEndian) ?
 		(TypeKind) (typeKind - TypeKind__EndianDelta) :
 		typeKind;
 }
@@ -432,7 +432,7 @@ inline
 TypeKind
 getUnsignedIntegerTypeKind (TypeKind typeKind)
 {
-	return !(getTypeKindFlags (typeKind) & TypeKindFlagKind_Unsigned) ?
+	return !(getTypeKindFlags (typeKind) & TypeKindFlag_Unsigned) ?
 		(TypeKind) (typeKind + 1) :
 		typeKind;
 }
@@ -441,7 +441,7 @@ inline
 TypeKind
 getSignedIntegerTypeKind (TypeKind typeKind)
 {
-	return (getTypeKindFlags (typeKind) & TypeKindFlagKind_Unsigned) ?
+	return (getTypeKindFlags (typeKind) & TypeKindFlag_Unsigned) ?
 		(TypeKind) (typeKind - 1) :
 		typeKind;
 }

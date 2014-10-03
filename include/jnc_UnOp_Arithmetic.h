@@ -62,7 +62,7 @@ public:
 	getResultType (const Value& opValue)
 	{
 		Type* type = getArithmeticOperatorResultType (opValue);
-		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlagKind_Integer))
+		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlag_Integer))
 		{
 			setOperatorError (opValue);
 			return NULL;

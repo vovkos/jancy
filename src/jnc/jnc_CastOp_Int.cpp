@@ -164,7 +164,7 @@ Cast_IntFromBeInt::getCastOperators (
 	Type** intermediateType
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_BigEndian);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (opValue.getType ()->getTypeKind ());
 
@@ -191,7 +191,7 @@ Cast_BeInt::getCastOperators (
 	Type** intermediateType
 	)
 {
-	ASSERT (type->getTypeKindFlags () & TypeKindFlagKind_BigEndian);
+	ASSERT (type->getTypeKindFlags () & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (type->getTypeKind ());
 
@@ -481,7 +481,7 @@ Cast_Int::getCastOperator (
 		return
 			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy) :
 			srcSize > dstSize ? (CastOperator*) &m_trunc :
-			(getTypeKindFlags (srcTypeKind) & TypeKindFlagKind_Unsigned) ?
+			(getTypeKindFlags (srcTypeKind) & TypeKindFlag_Unsigned) ?
 				(CastOperator*) &m_ext_u :
 				(CastOperator*) &m_ext;
 

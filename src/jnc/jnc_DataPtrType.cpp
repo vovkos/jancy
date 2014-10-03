@@ -37,8 +37,8 @@ bool
 DataPtrType::isConstPtrType ()
 {
 	return 
-		(m_flags & PtrTypeFlagKind_Const) != 0 || 
-		(m_flags & PtrTypeFlagKind_ConstD) != 0 && 
+		(m_flags & PtrTypeFlag_Const) != 0 || 
+		(m_flags & PtrTypeFlag_ConstD) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -79,7 +79,7 @@ DataPtrType::prepareTypeString ()
 {
 	m_typeString = m_targetType->getTypeString ();
 
-	if (m_flags & PtrTypeFlagKind__AllMask)
+	if (m_flags & PtrTypeFlag__AllMask)
 	{
 		m_typeString += ' ';
 		m_typeString += getPtrTypeFlagString (m_flags);

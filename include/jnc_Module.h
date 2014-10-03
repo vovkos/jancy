@@ -23,11 +23,11 @@ class Module;
 
 //.............................................................................
 
-enum ModuleFlagKind
+enum ModuleFlag
 {
-	ModuleFlagKind_DebugInfo  = 0x0001,
-	ModuleFlagKind_IrComments = 0x0002,
-	ModuleFlagKind_McJit      = 0x0004,
+	ModuleFlag_DebugInfo  = 0x0001,
+	ModuleFlag_IrComments = 0x0002,
+	ModuleFlag_McJit      = 0x0004,
 };
 
 //.............................................................................

@@ -61,7 +61,7 @@ Module::create (
 
 	m_llvmIrBuilder.create ();
 
-	if (flags & ModuleFlagKind_DebugInfo)
+	if (flags & ModuleFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
 
 	bool result = m_namespaceMgr.addStdItems ();
@@ -94,7 +94,7 @@ Module::createLlvmExecutionEngine ()
 	targetOptions.JITExceptionHandling = true;
 #endif
 
-	if (m_flags & ModuleFlagKind_McJit)
+	if (m_flags & ModuleFlag_McJit)
 	{
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
 		engineBuilder.setUseMCJIT (true);
@@ -136,7 +136,7 @@ Module::mapFunction (
 	void* pf
 	)
 {
-	if (m_flags & ModuleFlagKind_McJit)
+	if (m_flags & ModuleFlag_McJit)
 	{
 		m_functionMap [llvmFunction->getName ().data ()] = pf;
 	}
@@ -255,20 +255,20 @@ Module::markForLayout (
 	bool isForced
 	)
 {
-	if (!isForced && (item->m_flags & ModuleItemFlagKind_NeedLayout))
+	if (!isForced && (item->m_flags & ModuleItemFlag_NeedLayout))
 		return;
 
-	item->m_flags |= ModuleItemFlagKind_NeedLayout;
+	item->m_flags |= ModuleItemFlag_NeedLayout;
 	m_calcLayoutArray.append (item);
 }
 
 void
 Module::markForCompile (ModuleItem* item)
 {
-	if (item->m_flags & ModuleItemFlagKind_NeedCompile)
+	if (item->m_flags & ModuleItemFlag_NeedCompile)
 		return;
 
-	item->m_flags |= ModuleItemFlagKind_NeedCompile;
+	item->m_flags |= ModuleItemFlag_NeedCompile;
 	m_compileArray.append (item);
 }
 
@@ -321,7 +321,7 @@ bool
 Module::parseFile (const char* filePath)
 {
 	io::MappedFile file;
-	bool result = file.open (filePath, io::FileFlagKind_ReadOnly);
+	bool result = file.open (filePath, io::FileFlag_ReadOnly);
 	if (!result)
 		return false;
 
@@ -420,7 +420,7 @@ Module::compile ()
 
 	// step 8: finalize debug information
 
-	if (m_flags & ModuleFlagKind_DebugInfo)
+	if (m_flags & ModuleFlag_DebugInfo)
 		m_llvmDiBuilder.finalize ();
 
 	return true;

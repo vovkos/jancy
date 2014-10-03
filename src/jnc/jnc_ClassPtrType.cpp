@@ -37,8 +37,8 @@ bool
 ClassPtrType::isConstPtrType ()
 {
 	return 
-		(m_flags & PtrTypeFlagKind_Const) != 0 || 
-		(m_flags & PtrTypeFlagKind_ConstD) != 0 && 
+		(m_flags & PtrTypeFlag_Const) != 0 || 
+		(m_flags & PtrTypeFlag_ConstD) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -46,8 +46,8 @@ bool
 ClassPtrType::isEventPtrType ()
 {
 	return 
-		(m_flags & PtrTypeFlagKind_Event) != 0 || 
-		(m_flags & PtrTypeFlagKind_EventD) != 0 && 
+		(m_flags & PtrTypeFlag_Event) != 0 || 
+		(m_flags & PtrTypeFlag_EventD) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -74,7 +74,7 @@ ClassPtrType::prepareTypeString ()
 {
 	m_typeString += m_targetType->getTypeString ();
 
-	if (m_flags & PtrTypeFlagKind__AllMask)
+	if (m_flags & PtrTypeFlag__AllMask)
 	{
 		m_typeString += ' ';
 		m_typeString += getPtrTypeFlagString (m_flags);

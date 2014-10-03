@@ -10,7 +10,7 @@ EnumType::EnumType ()
 {
 	m_typeKind = TypeKind_Enum;
 	m_enumTypeKind = EnumTypeKind_Normal;
-	m_flags = TypeFlagKind_Pod;
+	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
 	m_baseType_i = NULL;
 }
@@ -45,7 +45,7 @@ EnumType::calcLayout ()
 	if (m_baseType_i)
 		m_baseType = m_baseType_i->getActualType ();
 
-	if (!(m_baseType->getTypeKindFlags () & TypeKindFlagKind_Integer))
+	if (!(m_baseType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError ("enum base type must be integer type");
 		return NULL;

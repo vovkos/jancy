@@ -10,7 +10,7 @@ namespace jnc {
 
 Runtime::Runtime ()
 {
-	m_gcState = GcStateKind_Idle;
+	m_gcState = GcState_Idle;
 	m_gcHeapLimit = -1;
 	m_totalGcAllocSize = 0;
 	m_currentGcAllocSize = 0;
@@ -104,7 +104,7 @@ Runtime::startup ()
 {
 	// ensure correct state
 
-	m_gcState = GcStateKind_Idle;
+	m_gcState = GcState_Idle;
 	m_gcUnsafeThreadCount = 1;
 	m_gcIdleEvent.signal ();
 
@@ -254,7 +254,7 @@ Runtime::gcTryAllocate (
 			size_t* size = (size_t*) block;
 			*size = elementCount;
 			object = (ObjHdr*) (size + 1);
-			object->m_flags = ObjHdrFlagKind_DynamicArray;
+			object->m_flags = ObjHdrFlag_DynamicArray;
 		}
 		else
 		{
@@ -303,8 +303,8 @@ Runtime::addGcRoot (
 	Type* type
 	)
 {
-	ASSERT (m_gcState == GcStateKind_Mark);
-	ASSERT (type->getFlags () & TypeFlagKind_GcRoot);
+	ASSERT (m_gcState == GcState_Mark);
+	ASSERT (type->getFlags () & TypeFlag_GcRoot);
 
 	GcRoot root = { p, type };
 	m_gcRootArray [m_currentGcRootArrayIdx].append (root);
@@ -321,7 +321,7 @@ Runtime::markGcLocalHeapRoot (
 	else
 		((ObjHdr*) p - 1)->gcMarkData (this);
 
-	if (type->getFlags () & TypeFlagKind_GcRoot)
+	if (type->getFlags () & TypeFlag_GcRoot)
 		addGcRoot (p, type);
 }
 
@@ -341,7 +341,7 @@ Runtime::runGc_l ()
 
 	// 1) suspend all mutator threads at safe points
 
-	m_gcState = GcStateKind_WaitSafePoint;
+	m_gcState = GcState_WaitSafePoint;
 
 	ASSERT (m_gcUnsafeThreadCount);
 	m_gcSafePointEvent.reset ();
@@ -355,7 +355,7 @@ Runtime::runGc_l ()
 
 	// 2) mark
 
-	m_gcState = GcStateKind_Mark;
+	m_gcState = GcState_Mark;
 
 	m_gcRootArray [0].clear ();
 	m_currentGcRootArrayIdx = 0;
@@ -365,7 +365,7 @@ Runtime::runGc_l ()
 	size_t count = m_staticGcRootArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		ASSERT (m_staticGcRootArray [i].m_type->getFlags () & TypeFlagKind_GcRoot);
+		ASSERT (m_staticGcRootArray [i].m_type->getFlags () & TypeFlag_GcRoot);
 		addGcRoot (
 			m_staticGcRootArray [i].m_p,
 			m_staticGcRootArray [i].m_type
@@ -424,10 +424,10 @@ Runtime::runGc_l ()
 	{
 		jnc::ObjHdr* object = m_gcObjectArray [i];
 
-		if (!(object->m_flags & (ObjHdrFlagKind_GcMark | ObjHdrFlagKind_GcWeakMark_c)))
+		if (!(object->m_flags & (ObjHdrFlag_GcMark | ObjHdrFlag_GcWeakMark_c)))
 		{
 			m_gcObjectArray.remove (i);
-			object->m_flags |= ObjHdrFlagKind_Dead;
+			object->m_flags |= ObjHdrFlag_Dead;
 
 			if (object->m_classType->getDestructor ())
 				destructArray.append ((IfaceHdr*) (object + 1));
@@ -461,7 +461,7 @@ Runtime::runGc_l ()
 
 	// 3) sweep
 
-	m_gcState = GcStateKind_Sweep;
+	m_gcState = GcState_Sweep;
 
 	// 3.4) free memory blocks
 
@@ -469,11 +469,11 @@ Runtime::runGc_l ()
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		ObjHdr* object = m_gcMemBlockArray [i];
-		if (!(object->m_flags & ObjHdrFlagKind_GcWeakMark))
+		if (!(object->m_flags & ObjHdrFlag_GcWeakMark))
 		{
 			m_gcMemBlockArray.remove (i);
 
-			void* block = (object->m_flags & ObjHdrFlagKind_DynamicArray) ?
+			void* block = (object->m_flags & ObjHdrFlag_DynamicArray) ?
 				(void*) ((size_t*) object - 1) :
 				object;
 
@@ -481,7 +481,7 @@ Runtime::runGc_l ()
 		}
 		else
 		{
-			object->m_flags &= ~ObjHdrFlagKind_GcMask; // unmark
+			object->m_flags &= ~ObjHdrFlag_GcMask; // unmark
 		}
 	}
 
@@ -491,14 +491,14 @@ Runtime::runGc_l ()
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		jnc::ObjHdr* object = m_gcObjectArray [i];
-		object->m_flags &= ~ObjHdrFlagKind_GcMask;
+		object->m_flags &= ~ObjHdrFlag_GcMask;
 	}
 
 	// 4) gc run is done, resume all suspended threads
 
 	mt::atomicInc (&m_gcUnsafeThreadCount);
 	m_periodGcAllocSize = 0;
-	m_gcState = GcStateKind_Idle;
+	m_gcState = GcState_Idle;
 	m_gcIdleEvent.signal ();
 	m_lock.unlock ();
 
@@ -559,7 +559,7 @@ Runtime::gcEnter ()
 void
 Runtime::gcLeave ()
 {
-	ASSERT (m_gcState == GcStateKind_Idle || m_gcState == GcStateKind_WaitSafePoint);
+	ASSERT (m_gcState == GcState_Idle || m_gcState == GcState_WaitSafePoint);
 
 	TlsHdr* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls && tls->m_gcLevel);
@@ -572,9 +572,9 @@ Runtime::gcLeave ()
 void
 Runtime::gcPulse ()
 {
-	ASSERT (m_gcState == GcStateKind_Idle || m_gcState == GcStateKind_WaitSafePoint);
+	ASSERT (m_gcState == GcState_Idle || m_gcState == GcState_WaitSafePoint);
 
-	if (m_gcState != GcStateKind_WaitSafePoint)
+	if (m_gcState != GcState_WaitSafePoint)
 		return;
 
 	TlsHdr* tls = getTlsMgr ()->getTls (this);
@@ -595,7 +595,7 @@ Runtime::gcIncrementUnsafeThreadCount ()
 
 	for (;;)
 	{
-		if (m_gcState != GcStateKind_Idle)
+		if (m_gcState != GcState_Idle)
 			m_gcIdleEvent.wait ();
 
 		intptr_t oldCount = m_gcUnsafeThreadCount;
@@ -613,7 +613,7 @@ void
 Runtime::gcDecrementUnsafeThreadCount ()
 {
 	intptr_t count = mt::atomicDec (&m_gcUnsafeThreadCount);
-	if (m_gcState == GcStateKind_WaitSafePoint)
+	if (m_gcState == GcState_WaitSafePoint)
 	{
 		if (!count)
 			m_gcSafePointEvent.signal ();
@@ -659,7 +659,7 @@ Runtime::waitGcIdleAndLock ()
 	{
 		m_lock.lock ();
 
-		if (m_gcState == GcStateKind_Idle)
+		if (m_gcState == GcState_Idle)
 			break;
 
 		m_lock.unlock ();
@@ -746,7 +746,7 @@ Runtime::createObject (
 
 	ScopeThreadRuntime scopeRuntime (this);
 
-	if (flags & CreateObjectFlagKind_Prime)
+	if (flags & CreateObjectFlag_Prime)
 	{
 		FObject_Prime* pfPrime = (FObject_Prime*) primer->getMachineCode ();
 		pfPrime (object, 0, object, 0);
@@ -754,7 +754,7 @@ Runtime::createObject (
 
 	IfaceHdr* iface = (IfaceHdr*) (object + 1);
 
-	if ((flags & CreateObjectFlagKind_Construct) && type->getConstructor ())
+	if ((flags & CreateObjectFlag_Construct) && type->getConstructor ())
 	{
 		Function* constructor = type->getDefaultConstructor ();
 		if (!constructor)
@@ -764,7 +764,7 @@ Runtime::createObject (
 		pfConstruct (iface);
 	}
 
-	if (flags & CreateObjectFlagKind_Pin)
+	if (flags & CreateObjectFlag_Pin)
 		pinObject (iface);
 
 	gcLeave ();

@@ -153,7 +153,7 @@ Value::getLlvmConst (
 		integer = *(int8_t*) p != 0;
 		llvmConst = llvm::ConstantInt::get (
 			type->getLlvmType (),
-			llvm::APInt (1, integer, !(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
+			llvm::APInt (1, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
 			);
 		break;
 
@@ -174,7 +174,7 @@ Value::getLlvmConst (
 		integer = *(int64_t*) p;
 		llvmConst = llvm::ConstantInt::get (
 			type->getLlvmType (),
-			llvm::APInt (type->getSize () * 8, integer, !(type->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
+			llvm::APInt (type->getSize () * 8, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
 			);
 		break;
 
@@ -331,7 +331,7 @@ Value::setVariable (Variable* variable)
 	m_llvmValue = variable->getLlvmValue ();
 	m_variable = variable;
 
-	uint_t ptrTypeFlags = variable->getPtrTypeFlags () | PtrTypeFlagKind_Safe;
+	uint_t ptrTypeFlags = variable->getPtrTypeFlags () | PtrTypeFlag_Safe;
 
 	Type* type = variable->getType ();
 	if (type->getTypeKind () == TypeKind_Class)
@@ -360,7 +360,7 @@ Value::setFunction (Function* function)
 	m_type = function->getType ()->getFunctionPtrType (
 		TypeKind_FunctionRef,
 		FunctionPtrTypeKind_Thin,
-		PtrTypeFlagKind_Safe
+		PtrTypeFlag_Safe
 		);
 
 	if (!function->isVirtual ())
@@ -388,7 +388,7 @@ Value::setProperty (Property* prop)
 		prop->getParentNamespace (),
 		TypeKind_PropertyRef,
 		PropertyPtrTypeKind_Thin,
-		PtrTypeFlagKind_Safe
+		PtrTypeFlag_Safe
 		);
 
 	// don't assign LlvmValue yet cause property LlvmValue is only needed for pointers
@@ -450,7 +450,7 @@ Value::setLlvmValue (
 void
 Value::setLeanDataPtrValidator (LeanDataPtrValidator* validator)
 {
-	ASSERT (m_type->getTypeKindFlags () & TypeKindFlagKind_DataPtr);
+	ASSERT (m_type->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (((DataPtrType*) m_type)->getPtrTypeKind () == DataPtrTypeKind_Lean);
 
 	m_leanDataPtrValidator = validator;

@@ -44,7 +44,7 @@ bool
 FunctionType::isThrowConditionMatch (FunctionType* type)
 {
 	if (m_returnType->cmp (type->m_returnType) != 0 ||
-		(m_flags & FunctionTypeFlagKind_Throws) != (type->m_flags & FunctionTypeFlagKind_Throws) ||
+		(m_flags & FunctionTypeFlag_Throws) != (type->m_flags & FunctionTypeFlag_Throws) ||
 		m_throwCondition.getCount () != type->m_throwCondition.getCount ())
 		return false;
 
@@ -142,7 +142,7 @@ FunctionType::createArgSignature (
 		string += ",";
 	}
 
-	string += (flags & FunctionTypeFlagKind_VarArg) ? ".)" : ")";
+	string += (flags & FunctionTypeFlag_VarArg) ? ".)" : ")";
 	return string;
 }
 
@@ -163,7 +163,7 @@ FunctionType::createArgSignature (
 		string += ",";
 	}
 
-	string += (flags & FunctionTypeFlagKind_VarArg) ? ".)" : ")";
+	string += (flags & FunctionTypeFlag_VarArg) ? ".)" : ")";
 	return string;
 }
 
@@ -205,7 +205,7 @@ FunctionType::getArgString ()
 	if (!m_argString.isEmpty ())
 		return m_argString;
 
-	bool isUserType = (m_flags & ModuleItemFlagKind_User) != 0;
+	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
 
 	m_argString = "(";
 
@@ -244,16 +244,16 @@ FunctionType::getArgString ()
 			}
 		}
 
-		if (m_flags & FunctionTypeFlagKind_VarArg)
+		if (m_flags & FunctionTypeFlag_VarArg)
 			m_argString += ", ";
 	}
 
-	if (!(m_flags & FunctionTypeFlagKind_VarArg))
+	if (!(m_flags & FunctionTypeFlag_VarArg))
 		m_argString += ")";
 	else
 		m_argString += "...)";
 
-	if (m_flags & FunctionTypeFlagKind_Throws)
+	if (m_flags & FunctionTypeFlag_Throws)
 	{
 		m_argString += " throws";
 

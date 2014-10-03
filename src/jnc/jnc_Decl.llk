@@ -220,12 +220,12 @@ statement_pass1 <rtl::BoxList <Token>* $tokenList, Token* $anchorToken>
 	|	TokenKind_Catch
 			{
 				$tokenList->insertTail ($1);
-				$anchorToken->m_data.m_integer |= LandingPadFlagKind_Catch;
+				$anchorToken->m_data.m_integer |= LandingPadFlag_Catch;
 			}
 	|	TokenKind_Finally
 			{
 				$tokenList->insertTail ($1);
-				$anchorToken->m_data.m_integer |= LandingPadFlagKind_Finally;
+				$anchorToken->m_data.m_integer |= LandingPadFlag_Finally;
 			}
 	|	any
 			{

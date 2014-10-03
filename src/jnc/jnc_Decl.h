@@ -37,7 +37,7 @@ public:
 	}
 
 	bool
-	setTypeModifier (TypeModifierKind modifier);
+	setTypeModifier (TypeModifier modifier);
 
 	int
 	clearTypeModifiers (int modifierMask);
@@ -202,22 +202,22 @@ public:
 
 //.............................................................................
 
-enum PostDeclaratorModifierKind
+enum PostDeclaratorModifier
 {
-	PostDeclaratorModifierKind_Const = 0x01,
+	PostDeclaratorModifier_Const = 0x01,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-PostDeclaratorModifierKind
+PostDeclaratorModifier
 getFirstPostDeclaratorModifier (uint_t modifiers)
 {
-	return (PostDeclaratorModifierKind) (1 << rtl::getLoBitIdx (modifiers));
+	return (PostDeclaratorModifier) (1 << rtl::getLoBitIdx (modifiers));
 }
 
 const char* 
-getPostDeclaratorModifierString (PostDeclaratorModifierKind modifier);
+getPostDeclaratorModifierString (PostDeclaratorModifier modifier);
 
 rtl::String
 getPostDeclaratorModifierString (uint_t modifiers);
@@ -356,7 +356,7 @@ public:
 	}
 
 	bool
-	setPostDeclaratorModifier (PostDeclaratorModifierKind modifier);
+	setPostDeclaratorModifier (PostDeclaratorModifier modifier);
 
 	DeclFunctionSuffix*
 	getFunctionSuffix ()

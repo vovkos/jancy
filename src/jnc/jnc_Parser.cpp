@@ -84,18 +84,18 @@ Parser::preCreateLandingPads (uint_t flags)
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	if (flags & LandingPadFlagKind_Catch)
+	if (flags & LandingPadFlag_Catch)
 	{
 		ASSERT (!scope->m_catchBlock);
 		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
-		scope->m_flags |= ScopeFlagKind_CanThrow;
+		scope->m_flags |= ScopeFlag_CanThrow;
 	}
 
-	if (flags & LandingPadFlagKind_Finally)
+	if (flags & LandingPadFlag_Finally)
 	{
 		ASSERT (!scope->m_finallyBlock);
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
-		scope->m_flags |= ScopeFlagKind_HasFinally;
+		scope->m_flags |= ScopeFlag_HasFinally;
 
 		rtl::String name = "finally_return_addr";
 		Type* type = getSimpleType (m_module, TypeKind_Int);
@@ -125,7 +125,7 @@ Parser::isTypeSpecified ()
 	TypeSpecifier* typeSpecifier = m_typeSpecifierStack.getBack ();
 	return
 		typeSpecifier->getType () != NULL ||
-		typeSpecifier->getTypeModifiers () & (TypeModifierKind_Unsigned | TypeModifierKind_Property);
+		typeSpecifier->getTypeModifiers () & (TypeModifier_Unsigned | TypeModifier_Property);
 }
 
 NamedImportType*
@@ -233,7 +233,7 @@ Parser::isEmptyDeclarationTerminatorAllowed (TypeSpecifier* typeSpecifier)
 	{
 		ASSERT (typeSpecifier);
 		Type* type = typeSpecifier->getType ();
-		if (!type || !(type->getFlags () & TypeFlagKind_Named))
+		if (!type || !(type->getFlags () & TypeFlag_Named))
 		{
 			err::setFormatStringError ("invalid declaration (no declarator, no named type)");
 			return false;
@@ -366,7 +366,7 @@ Parser::openGlobalNamespace (
 	if (!nspace)
 		return NULL;
 
-	if (nspace->getFlags () & GlobalNamespaceFlagKind_Sealed)
+	if (nspace->getFlags () & GlobalNamespaceFlag_Sealed)
 	{
 		err::setFormatStringError ("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().cc ());
 		return NULL;
@@ -479,7 +479,7 @@ Parser::declare (Declarator* declarator)
 {
 	m_lastDeclaredItem = NULL;
 
-	if ((declarator->getTypeModifiers () & TypeModifierKind_Property) && m_storageKind != StorageKind_Typedef)
+	if ((declarator->getTypeModifiers () & TypeModifier_Property) && m_storageKind != StorageKind_Typedef)
 	{
 		// too early to calctype cause maybe this property has a body
 		// declare a typeless property for now
@@ -550,7 +550,7 @@ Parser::assignDeclarationAttributes (
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	decl->m_attributeBlock = m_attributeBlock;
 
-	item->m_flags |= ModuleItemFlagKind_User;
+	item->m_flags |= ModuleItemFlag_User;
 
 	m_attributeBlock = NULL;
 	m_lastDeclaredItem = item;
@@ -646,13 +646,13 @@ Parser::declareAlias (
 	{
 		Property* prop = (Property*) nspace;
 
-		if (ptrTypeFlags & PtrTypeFlagKind_Bindable)
+		if (ptrTypeFlags & PtrTypeFlag_Bindable)
 		{
 			result = prop->setOnChanged (alias);
 			if (!result)
 				return false;
 		}
-		else if (ptrTypeFlags & PtrTypeFlagKind_AutoGet)
+		else if (ptrTypeFlags & PtrTypeFlag_AutoGet)
 		{
 			result = prop->setAutoGetValue (alias);
 			if (!result)
@@ -685,13 +685,13 @@ Parser::declareFunction (
 	ASSERT (functionKind);
 	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
 
-	if ((functionKindFlags & FunctionKindFlagKind_NoStorage) && m_storageKind)
+	if ((functionKindFlags & FunctionKindFlag_NoStorage) && m_storageKind)
 	{
 		err::setFormatStringError ("'%s' cannot have storage specifier", getFunctionKindString (functionKind));
 		return false;
 	}
 
-	if ((functionKindFlags & FunctionKindFlagKind_NoArgs) && hasArgs)
+	if ((functionKindFlags & FunctionKindFlag_NoArgs) && hasArgs)
 	{
 		err::setFormatStringError ("'%s' cannot have arguments", getFunctionKindString (functionKind));
 		return false;
@@ -748,8 +748,8 @@ Parser::declareFunction (
 
 	assignDeclarationAttributes (functionItem, declarator->getPos ());
 
-	if (postModifiers & PostDeclaratorModifierKind_Const)
-		functionName->m_thisArgTypeFlags = PtrTypeFlagKind_Const;
+	if (postModifiers & PostDeclaratorModifier_Const)
+		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	switch (functionKind)
 	{
@@ -884,7 +884,7 @@ Parser::declareProperty (
 	DeclThrowSuffix* throwSuffix = declarator->getThrowSuffix ();
 	if (throwSuffix)
 	{
-		prop->m_flags |= PropertyFlagKind_Throws;
+		prop->m_flags |= PropertyFlag_Throws;
 		if (!throwSuffix->getThrowCondition ()->isEmpty ())
 		{
 			err::setFormatStringError ("property cannot have a throw condtion");
@@ -908,15 +908,15 @@ Parser::declareProperty (
 		m_lastPropertyGetterType = NULL;
 	}
 
-	if (declarator->getTypeModifiers () & TypeModifierKind_Const)
+	if (declarator->getTypeModifiers () & TypeModifier_Const)
 	{
-		if (prop->m_flags & PropertyFlagKind_Throws)
+		if (prop->m_flags & PropertyFlag_Throws)
 		{
 			err::setFormatStringError ("const property cannot throw");
 			return false;
 		}
 
-		prop->m_flags |= PropertyFlagKind_Const;
+		prop->m_flags |= PropertyFlag_Const;
 	}
 
 	m_lastPropertyTypeModifiers.takeOver (declarator);
@@ -927,10 +927,10 @@ PropertyTemplate*
 Parser::createPropertyTemplate ()
 {
 	PropertyTemplate* propertyTemplate = m_module->m_functionMgr.createPropertyTemplate ();
-	uint_t modifiers = getTypeSpecifier ()->clearTypeModifiers (TypeModifierKind_Property | TypeModifierKind_Bindable);
+	uint_t modifiers = getTypeSpecifier ()->clearTypeModifiers (TypeModifier_Property | TypeModifier_Bindable);
 
-	if (modifiers & TypeModifierKind_Bindable)
-		propertyTemplate->m_typeFlags = PropertyTypeFlagKind_Bindable;
+	if (modifiers & TypeModifier_Bindable)
+		propertyTemplate->m_typeFlags = PropertyTypeFlag_Bindable;
 
 	return propertyTemplate;
 }
@@ -1059,7 +1059,7 @@ Parser::finalizeLastProperty (bool hasBody)
 		}
 
 		Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, m_lastPropertyGetterType);
-		getter->m_flags |= ModuleItemFlagKind_User;
+		getter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod (getter);
 		if (!result)
@@ -1073,7 +1073,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize setter
 
-	if (!(m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_Const) && !hasBody)
+	if (!(m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_Const) && !hasBody)
 	{
 		FunctionType* getterType = prop->m_getter->getType ()->getShortType ();
 		Type* returnType = getterType->getReturnType ();
@@ -1082,7 +1082,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 		FunctionType* setterType = m_module->m_typeMgr.getFunctionType (argArray);
 		Function* setter = m_module->m_functionMgr.createFunction (FunctionKind_Setter, setterType);
-		setter->m_flags |= ModuleItemFlagKind_User;
+		setter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod (setter);
 		if (!result)
@@ -1091,7 +1091,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize binder
 
-	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_Bindable)
+	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_Bindable)
 	{
 		if (!prop->m_onChanged)
 		{
@@ -1103,7 +1103,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize auto-get value
 
-	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifierKind_AutoGet)
+	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_AutoGet)
 	{
 		if (!prop->m_autoGetValue)
 		{
@@ -1116,7 +1116,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	uint_t typeFlags = 0;
 	if (prop->m_onChanged)
-		typeFlags |= PropertyTypeFlagKind_Bindable;
+		typeFlags |= PropertyTypeFlag_Bindable;
 
 	prop->m_type = prop->m_setter ?
 		m_module->m_typeMgr.getPropertyType (
@@ -1130,7 +1130,7 @@ Parser::finalizeLastProperty (bool hasBody)
 			typeFlags
 			);
 
-	if (prop->m_flags & (PropertyFlagKind_AutoGet | PropertyFlagKind_AutoSet))
+	if (prop->m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
 		m_module->markForCompile (prop);
 
 	return true;
@@ -1251,9 +1251,9 @@ Parser::declareData (
 
 	ModuleItem* dataItem = NULL;
 
-	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlagKind_AutoGet | PtrTypeFlagKind_Bindable)))
+	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)))
 	{
-		err::setFormatStringError ("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlagKind_AutoGet | PtrTypeFlagKind_Bindable)).cc ());
+		err::setFormatStringError ("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).cc ());
 		return false;
 	}
 
@@ -1355,13 +1355,13 @@ Parser::declareData (
 			dataItem = variable;
 		}
 
-		if (ptrTypeFlags & PtrTypeFlagKind_Bindable)
+		if (ptrTypeFlags & PtrTypeFlag_Bindable)
 		{
 			result = prop->setOnChanged (dataItem);
 			if (!result)
 				return false;
 		}
-		else if (ptrTypeFlags & PtrTypeFlagKind_AutoGet)
+		else if (ptrTypeFlags & PtrTypeFlag_AutoGet)
 		{
 			result = prop->setAutoGetValue (dataItem);
 			if (!result)
@@ -1521,7 +1521,7 @@ Parser::createEnumType (
 
 	if (name.isEmpty ())
 	{
-		flags |= EnumTypeFlagKind_Exposed;
+		flags |= EnumTypeFlag_Exposed;
 		enumType = m_module->m_typeMgr.createUnnamedEnumType (enumTypeKind, baseType, flags);
 	}
 	else
@@ -1922,7 +1922,7 @@ Parser::callBaseTypeConstructorImpl (
 {
 	DerivableType* type = baseTypeSlot->getType ();
 
-	if (baseTypeSlot->m_flags & ModuleItemFlagKind_Constructed)
+	if (baseTypeSlot->m_flags & ModuleItemFlag_Constructed)
 	{
 		err::setFormatStringError ("'%s' is already constructed", type->getTypeString ().cc ());
 		return false;
@@ -1944,7 +1944,7 @@ Parser::callBaseTypeConstructorImpl (
 	if (!result)
 		return false;
 
-	baseTypeSlot->m_flags |= ModuleItemFlagKind_Constructed;
+	baseTypeSlot->m_flags |= ModuleItemFlag_Constructed;
 	return true;
 }
 
@@ -1977,13 +1977,13 @@ Parser::callFieldConstructor (
 		return false;
 	}
 
-	if (field->getFlags () & ModuleItemFlagKind_Constructed)
+	if (field->getFlags () & ModuleItemFlag_Constructed)
 	{
 		err::setFormatStringError ("'%s' is already constructed", field->getName ().cc ());
 		return false;
 	}
 
-	if (!(field->getType ()->getTypeKindFlags () & TypeKindFlagKind_Derivable) ||
+	if (!(field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable) ||
 		!((DerivableType*) field->getType ())->getConstructor ())
 	{
 		err::setFormatStringError ("'%s' has no constructor", field->getName ().cc ());
@@ -2006,7 +2006,7 @@ Parser::callFieldConstructor (
 	if (!result)
 		return false;
 
-	field->m_flags |= ModuleItemFlagKind_Constructed;
+	field->m_flags |= ModuleItemFlag_Constructed;
 	return true;
 }
 
@@ -2087,7 +2087,7 @@ Parser::lookupIdentifier (
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
 			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
@@ -2104,7 +2104,7 @@ Parser::lookupIdentifier (
 			);
 
 	case ModuleItemKind_Variable:
-		if (m_flags & FlagKind_ConstExpression)
+		if (m_flags & Flag_ConstExpression)
 		{
 			err::setFormatStringError ("variable '%s' cannot be used in const expression", name.cc ());
 			return false;
@@ -2114,7 +2114,7 @@ Parser::lookupIdentifier (
 		break;
 
 	case ModuleItemKind_Function:
-		if (m_flags & FlagKind_ConstExpression)
+		if (m_flags & Flag_ConstExpression)
 		{
 			err::setFormatStringError ("function '%s' cannot be used in const expression", name.cc ());
 			return false;
@@ -2132,7 +2132,7 @@ Parser::lookupIdentifier (
 		break;
 
 	case ModuleItemKind_Property:
-		if (m_flags & FlagKind_ConstExpression)
+		if (m_flags & Flag_ConstExpression)
 		{
 			err::setFormatStringError ("property '%s' cannot be used in const expression", name.cc ());
 			return false;
@@ -2161,7 +2161,7 @@ Parser::lookupIdentifier (
 		break;
 
 	case ModuleItemKind_StructField:
-		if (m_flags & FlagKind_ConstExpression)
+		if (m_flags & Flag_ConstExpression)
 		{
 			err::setFormatStringError ("field '%s' cannot be used in const expression", name.cc ());
 			return false;
@@ -2220,7 +2220,7 @@ Parser::lookupIdentifierType (
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Named))
+		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
 			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
 			return false;
@@ -2452,7 +2452,7 @@ Parser::appendFmtLiteralValue (
 	StdFuncKind appendFunc;
 
 	Type* type = srcValue.getType ();
-	if (type->getTypeKindFlags () & TypeKindFlagKind_Integer)
+	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
 	{
 		static StdFuncKind funcTable [2] [2] =
 		{
@@ -2461,11 +2461,11 @@ Parser::appendFmtLiteralValue (
 		};
 
 		size_t i1 = type->getSize () > 4;
-		size_t i2 = (type->getTypeKindFlags () & TypeKindFlagKind_Unsigned) != 0;
+		size_t i2 = (type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0;
 
 		appendFunc = funcTable [i1] [i2];
 	}
-	else if (type->getTypeKindFlags () & TypeKindFlagKind_Fp)
+	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
 	{
 		appendFunc = StdFuncKind_AppendFmtLiteral_f;
 	}

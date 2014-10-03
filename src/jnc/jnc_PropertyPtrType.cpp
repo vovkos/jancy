@@ -38,8 +38,8 @@ PropertyPtrType::isConstPtrType ()
 {
 	return
 		m_targetType->isReadOnly () ||
-		(m_flags & PtrTypeFlagKind_Const) != 0 ||
-		(m_flags & PtrTypeFlagKind_ConstD) != 0 &&
+		(m_flags & PtrTypeFlag_Const) != 0 ||
+		(m_flags & PtrTypeFlag_ConstD) != 0 &&
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -82,7 +82,7 @@ PropertyPtrType::prepareTypeString ()
 	m_typeString += ' ';
 	m_typeString += m_targetType->getTypeModifierString ();
 
-	if (m_flags & PtrTypeFlagKind__AllMask)
+	if (m_flags & PtrTypeFlag__AllMask)
 	{
 		m_typeString += getPtrTypeFlagString (m_flags);
 		m_typeString += ' ';

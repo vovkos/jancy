@@ -19,7 +19,7 @@ CdeclCallConv_msc64::getLlvmFunctionType (FunctionType* functionType)
 
 	size_t j = 0;
 
-	if (returnType->getFlags () & TypeFlagKind_StructRet)
+	if (returnType->getFlags () & TypeFlag_StructRet)
 	{
 		if (returnType->getSize () <= sizeof (uint64_t))
 		{
@@ -41,7 +41,7 @@ CdeclCallConv_msc64::getLlvmFunctionType (FunctionType* functionType)
 	for (size_t i = 0; j < argCount; i++, j++)
 	{
 		Type* type = argArray [i]->getType ();
-		if (!(type->getFlags () & TypeFlagKind_StructRet))
+		if (!(type->getFlags () & TypeFlag_StructRet))
 		{
 			llvmArgTypeArray [j] = type->getLlvmType ();
 		}
@@ -58,12 +58,12 @@ CdeclCallConv_msc64::getLlvmFunctionType (FunctionType* functionType)
 	}
 
 	if (hasCoercedArgs)
-		functionType->m_flags |= FunctionTypeFlagKind_CoercedArgs;
+		functionType->m_flags |= FunctionTypeFlag_CoercedArgs;
 
 	return llvm::FunctionType::get (
 		returnType->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
-		(functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0
+		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
 		);
 }
 
@@ -77,8 +77,8 @@ CdeclCallConv_msc64::call (
 {
 	Type* returnType = functionType->getReturnType ();
 
-	if (!(functionType->getFlags () & FunctionTypeFlagKind_CoercedArgs) &&
-		!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(functionType->getFlags () & FunctionTypeFlag_CoercedArgs) &&
+		!(returnType->getFlags () & TypeFlag_StructRet))
 	{
 		CallConv::call (calleeValue, functionType, argValueList, resultValue);
 		return;
@@ -86,7 +86,7 @@ CdeclCallConv_msc64::call (
 
 	Value tmpReturnValue;
 
-	if (returnType->getFlags () & TypeFlagKind_StructRet)
+	if (returnType->getFlags () & TypeFlag_StructRet)
 	{
 		m_module->m_llvmIrBuilder.createAlloca (
 			returnType,
@@ -99,13 +99,13 @@ CdeclCallConv_msc64::call (
 			argValueList->insertHead (tmpReturnValue);
 	}
 
-	if (functionType->getFlags () & FunctionTypeFlagKind_CoercedArgs)
+	if (functionType->getFlags () & FunctionTypeFlag_CoercedArgs)
 	{
 		rtl::BoxIterator <Value> it = argValueList->getHead ();
 		for (; it; it++)
 		{
 			Type* type = it->getType ();
-			if (!(type->getFlags () & TypeFlagKind_StructRet))
+			if (!(type->getFlags () & TypeFlag_StructRet))
 				continue;
 
 			if (type->getSize () > sizeof (uint64_t))
@@ -136,7 +136,7 @@ CdeclCallConv_msc64::call (
 		resultValue
 		);
 
-	if (returnType->getFlags () & TypeFlagKind_StructRet)
+	if (returnType->getFlags () & TypeFlag_StructRet)
 	{
 		if (returnType->getSize () <= sizeof (uint64_t))
 		{
@@ -157,7 +157,7 @@ CdeclCallConv_msc64::ret (
 	)
 {
 	Type* returnType = function->getType ()->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet))
 	{
 		CallConv::ret (function, value);
 		return;
@@ -189,7 +189,7 @@ CdeclCallConv_msc64::getThisArgValue (Function* function)
 	ASSERT (function->isMember ());
 
 	Type* returnType = function->getType ()->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlagKind_StructRet) ||
+	if (!(returnType->getFlags () & TypeFlag_StructRet) ||
 		returnType->getSize () <= sizeof (uint64_t))
 		return CallConv::getThisArgValue (function);
 
@@ -206,7 +206,7 @@ CdeclCallConv_msc64::getArgValue (
 {
 	Type* type = arg->getType ();
 
-	if (!(type->getFlags () & TypeFlagKind_StructRet))
+	if (!(type->getFlags () & TypeFlag_StructRet))
 		return Value (llvmValue, type);
 
 	if (type->getSize () > sizeof (uint64_t))
@@ -233,7 +233,7 @@ CdeclCallConv_msc64::createArgVariables (Function* function)
 	Type* returnType = function->getType ()->getReturnType ();
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
-	if ((returnType->getFlags () & TypeFlagKind_StructRet) &&
+	if ((returnType->getFlags () & TypeFlag_StructRet) &&
 		returnType->getSize () > sizeof (uint64_t))
 		llvmArg++;
 
@@ -255,7 +255,7 @@ CdeclCallConv_msc64::createArgVariables (Function* function)
 		Type* type = arg->getType ();
 		llvm::Value* llvmArgValue = llvmArg;
 
-		if (!(type->getFlags () & TypeFlagKind_StructRet))
+		if (!(type->getFlags () & TypeFlag_StructRet))
 		{
 			Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, llvmArgValue);
 			function->getScope ()->addItem (argVariable);

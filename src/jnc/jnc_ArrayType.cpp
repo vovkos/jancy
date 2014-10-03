@@ -9,7 +9,7 @@ namespace jnc {
 ArrayType::ArrayType ()
 {
 	m_typeKind = TypeKind_Array;
-	m_flags = TypeFlagKind_StructRet;
+	m_flags = TypeFlag_StructRet;
 	m_elementType = NULL;
 	m_elementType_i = NULL;
 	m_rootType = NULL;
@@ -65,10 +65,10 @@ ArrayType::calcLayout ()
 	m_typeString.clear ();
 
 	uint_t rootTypeFlags = getRootType ()->getFlags ();
-	if (rootTypeFlags & TypeFlagKind_Pod)
-		m_flags |= TypeFlagKind_Pod;
-	else if (rootTypeFlags & TypeFlagKind_GcRoot)
-		m_flags |= TypeFlagKind_GcRoot;
+	if (rootTypeFlags & TypeFlag_Pod)
+		m_flags |= TypeFlag_Pod;
+	else if (rootTypeFlags & TypeFlag_GcRoot)
+		m_flags |= TypeFlag_GcRoot;
 
 	m_alignFactor = m_elementType->getAlignFactor ();
 
@@ -117,7 +117,7 @@ ArrayType::gcMark (
 	void* _p
 	)
 {
-	ASSERT (m_flags & TypeFlagKind_GcRoot);
+	ASSERT (m_flags & TypeFlag_GcRoot);
 
 	char* p = (char*) _p;
 	for (size_t i = 0; i < m_elementCount; i++)

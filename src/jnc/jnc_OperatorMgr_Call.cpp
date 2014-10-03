@@ -143,15 +143,15 @@ OperatorMgr::getUnsafeVarArgType (Type* type)
 			break;
 
 		case TypeKind_Array:
-			type = ((ArrayType*) type)->getElementType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const);
+			type = ((ArrayType*) type)->getElementType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
 			break;
 
 		case TypeKind_DataPtr:
-			type = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlagKind_Const);
+			type = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
 			break;
 
 		default:
-			if (type->getTypeKindFlags () & TypeKindFlagKind_Integer)
+			if (type->getTypeKindFlags () & TypeKindFlag_Integer)
 			{
 				type = type->getSize () > 4 ?
 					m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64) :
@@ -281,7 +281,7 @@ OperatorMgr::callOperator (
 			return false;
 		}
 
-		if ((callOperator->getFlags () & MulticastMethodFlagKind_InaccessibleViaEventPtr) && ptrType->isEventPtrType ())
+		if ((callOperator->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) && ptrType->isEventPtrType ())
 		{
 			err::setFormatStringError ("'Call' is inaccessible via 'event' pointer");
 			return false;
@@ -326,7 +326,7 @@ OperatorMgr::callOperator (
 	}
 
 	Type* opType = opValue.getType ();
-	if (!(opType->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr) ||
+	if (!(opType->getTypeKindFlags () & TypeKindFlag_FunctionPtr) ||
 		((FunctionPtrType*) opType)->getPtrTypeKind () == FunctionPtrTypeKind_Weak)
 	{
 		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().cc ());
@@ -353,8 +353,8 @@ OperatorMgr::castArgValueList (
 	size_t formalArgCount = argArray.getCount ();
 	size_t actualArgCount = argValueList->getCount ();
 
-	bool isVarArg = (functionType->getFlags () & FunctionTypeFlagKind_VarArg) != 0;
-	bool isUnsafeVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlagKind_UnsafeVarArg) != 0;
+	bool isVarArg = (functionType->getFlags () & FunctionTypeFlag_VarArg) != 0;
+	bool isUnsafeVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlag_UnsafeVarArg) != 0;
 
 	size_t commonArgCount;
 
@@ -482,7 +482,7 @@ OperatorMgr::callClosureFunctionPtr (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlagKind_FunctionPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 
 	FunctionPtrType* functionPointerType = (FunctionPtrType*) opValue.getType ();
 	FunctionType* functionType = functionPointerType->getTargetType ();
@@ -525,14 +525,14 @@ OperatorMgr::callImpl (
 		resultValue
 		);
 
-	if (resultValue->getType ()->getFlags () & TypeFlagKind_GcRoot)
+	if (resultValue->getType ()->getFlags () & TypeFlag_GcRoot)
 		createTmpStackGcRoot (*resultValue);
 
-	if ((functionType->getFlags () & FunctionTypeFlagKind_Throws) &&
+	if ((functionType->getFlags () & FunctionTypeFlag_Throws) &&
 		!m_module->m_controlFlowMgr.isThrowLocked ())
 	{
 		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		if (!(scope->getFlags () & ScopeFlagKind_CanThrow))
+		if (!(scope->getFlags () & ScopeFlag_CanThrow))
 		{
 			err::setFormatStringError (
 				"cannot call throwing function from here ('%s' does not throw and there is no 'try' or 'catch')",

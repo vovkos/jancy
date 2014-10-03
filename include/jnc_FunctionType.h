@@ -21,11 +21,11 @@ struct FunctionPtrTypeTuple;
 
 //.............................................................................
 
-enum FunctionTypeFlagKind
+enum FunctionTypeFlag
 {
-	FunctionTypeFlagKind_VarArg      = 0x010000,
-	FunctionTypeFlagKind_Throws      = 0x040000,
-	FunctionTypeFlagKind_CoercedArgs = 0x080000,
+	FunctionTypeFlag_VarArg      = 0x010000,
+	FunctionTypeFlag_Throws      = 0x040000,
+	FunctionTypeFlag_CoercedArgs = 0x080000,
 };
 
 //.............................................................................

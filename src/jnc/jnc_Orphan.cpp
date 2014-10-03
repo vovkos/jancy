@@ -76,7 +76,7 @@ Orphan::getItemUnnamedMethod (ModuleItem* item)
 	}
 	else if (
 		item->getItemKind () == ModuleItemKind_Type &&
-		(((Type*) item)->getTypeKindFlags () & TypeKindFlagKind_Derivable))
+		(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
 		DerivableType* type = (DerivableType*) item;
 		switch (m_functionKind)
@@ -148,7 +148,7 @@ Orphan::adoptOrphanFunction (ModuleItem* item)
 		return false;
 	}
 
-	if (!(originFunction->m_flags & ModuleItemFlagKind_User))
+	if (!(originFunction->m_flags & ModuleItemFlag_User))
 	{
 		err::setFormatStringError ("'%s' is a compiler-generated function", m_tag.cc ());
 		return false;

@@ -87,7 +87,7 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 	rtl::Iterator <BasicBlock> it = m_blockList.getHead ();
 	while (it)
 	{
-		if (it->m_flags & BasicBlockFlagKind_Reachable)
+		if (it->m_flags & BasicBlockFlag_Reachable)
 		{
 			it++;
 			continue;
@@ -135,8 +135,8 @@ ControlFlowMgr::jump (
 	BasicBlock* followBlock
 	)
 {
-	m_flags |= ControlFlowFlagKind_HasJump;
-	block->m_flags |= BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
+	m_flags |= ControlFlowFlag_HasJump;
+	block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
 	m_module->m_llvmIrBuilder.createBr (block);
 
@@ -152,7 +152,7 @@ ControlFlowMgr::follow (BasicBlock* block)
 	if (!m_currentBlock->hasTerminator ())
 	{
 		m_module->m_llvmIrBuilder.createBr (block);
-		block->m_flags |= BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
+		block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 	}
 
 	setCurrentBlock (block);
@@ -171,11 +171,11 @@ ControlFlowMgr::conditionalJump (
 	if (!result)
 		return false;
 
-	uint_t reachableFlag = (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
+	uint_t reachableFlag = (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
-	m_flags |= ControlFlowFlagKind_HasJump;
-	thenBlock->m_flags |= BasicBlockFlagKind_Jumped | reachableFlag;
-	elseBlock->m_flags |= BasicBlockFlagKind_Jumped | reachableFlag;
+	m_flags |= ControlFlowFlag_HasJump;
+	thenBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
+	elseBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 
 	m_module->m_llvmIrBuilder.createCondBr (boolValue, thenBlock, elseBlock);
 
@@ -228,7 +228,7 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 		scope->m_destructList.runDestructors ();
 		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 
-		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlagKind_FinallyDefined))
+		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlag_FinallyDefined))
 		{
 			BasicBlock* returnBlock = createBlock ("finally_return_block");
 			addBlock (returnBlock);
@@ -243,7 +243,7 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 			// return block will be jumped from 'finally', but we can mark it now:
 			// this way we can avoid extra loop in 'finally'
 
-			returnBlock->m_flags |= BasicBlockFlagKind_Jumped | BasicBlockFlagKind_Reachable;
+			returnBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
 		}
 
 		scope = scope->getParentScope ();
@@ -295,7 +295,7 @@ ControlFlowMgr::ret (const Value& value)
 			return false;
 
 		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		if (!(scope->getFlags () & ScopeFlagKind_HasFinally))
+		if (!(scope->getFlags () & ScopeFlag_HasFinally))
 		{
 			onLeaveScope ();
 		}
@@ -313,11 +313,11 @@ ControlFlowMgr::ret (const Value& value)
 		functionType->getCallConv ()->ret (function, returnValue);
 	}
 
-	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlagKind_Return));
-	m_currentBlock->m_flags |= BasicBlockFlagKind_Return;
+	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlag_Return));
+	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append (m_currentBlock);
 
-	m_flags |= ControlFlowFlagKind_HasReturn;
+	m_flags |= ControlFlowFlag_HasReturn;
 
 	setCurrentBlock (getUnreachableBlock ());
 	return true;
@@ -329,7 +329,7 @@ ControlFlowMgr::throwIf (
 	FunctionType* functionType
 	)
 {
-	ASSERT (functionType->getFlags () & FunctionTypeFlagKind_Throws);
+	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws);
 
 	bool result;
 
@@ -351,13 +351,13 @@ ControlFlowMgr::throwIf (
 		if (!result)
 			return false;
 	}
-	else if (!(returnType->getTypeKindFlags () & TypeKindFlagKind_Integer))
+	else if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		result = m_module->m_operatorMgr.unaryOperator (UnOpKind_LogNot, returnValue, &indicatorValue);
 		if (!result)
 			return false;
 	}
-	else if (!(returnType->getTypeKindFlags () & TypeKindFlagKind_Unsigned))
+	else if (!(returnType->getTypeKindFlags () & TypeKindFlag_Unsigned))
 	{
 		Value zeroValue = returnType->getZeroValue ();
 
@@ -405,7 +405,7 @@ ControlFlowMgr::throwIf (
 
 			throwValue = returnValue; // re-throw
 		}
-		else if (currentReturnType->getTypeKindFlags () & TypeKindFlagKind_Integer)
+		else if (currentReturnType->getTypeKindFlags () & TypeKindFlag_Integer)
 		{
 			uint64_t minusOne = -1;
 			throwValue.createConst (&minusOne, currentReturnType);
@@ -430,19 +430,19 @@ ControlFlowMgr::catchLabel ()
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope && scope->m_catchBlock);
 
-	if (scope->m_flags & ScopeFlagKind_FinallyDefined)
+	if (scope->m_flags & ScopeFlag_FinallyDefined)
 	{
 		err::setFormatStringError ("'catch' cannot follow 'finally'");
 		return false;
 	}
 
-	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlagKind_Jumped))
+	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlag_Jumped))
 	{
 		err::setFormatStringError ("useless 'catch'");
 		return false;
 	}
 
-	scope->m_flags |= ScopeFlagKind_CatchDefined;
+	scope->m_flags |= ScopeFlag_CatchDefined;
 
 	if (scope->isFunctionScope ())
 	{
@@ -465,13 +465,13 @@ ControlFlowMgr::finallyLabel ()
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope && scope->m_finallyBlock);
 
-	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlagKind_Jumped))
+	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlag_Jumped))
 	{
 		err::setFormatStringError ("useless 'finally'");
 		return false;
 	}
 
-	scope->m_flags |= ScopeFlagKind_FinallyDefined;
+	scope->m_flags |= ScopeFlag_FinallyDefined;
 
 	if (scope->isFunctionScope ())
 	{
@@ -496,7 +496,7 @@ ControlFlowMgr::endTry ()
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope && scope->m_catchBlock);
 
-	return !(scope->getFlags () & ScopeFlagKind_CatchDefined) ? catchLabel () : true;
+	return !(scope->getFlags () & ScopeFlag_CatchDefined) ? catchLabel () : true;
 }
 
 bool
@@ -540,7 +540,7 @@ ControlFlowMgr::checkReturn ()
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	Type* returnType = function->getType ()->getReturnType ();
 
-	if (!(m_currentBlock->getFlags () & BasicBlockFlagKind_Reachable))
+	if (!(m_currentBlock->getFlags () & BasicBlockFlag_Reachable))
 	{
 		m_module->m_llvmIrBuilder.createUnreachable (); // just to make LLVM happy
 	}
@@ -548,7 +548,7 @@ ControlFlowMgr::checkReturn ()
 	{
 		m_module->m_controlFlowMgr.ret ();
 	}
-	else if (!(m_module->m_controlFlowMgr.getFlags () & ControlFlowFlagKind_HasReturn))
+	else if (!(m_module->m_controlFlowMgr.getFlags () & ControlFlowFlag_HasReturn))
 	{
 		err::setFormatStringError (
 			"function '%s' must return a '%s' value",

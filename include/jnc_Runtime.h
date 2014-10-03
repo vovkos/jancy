@@ -15,11 +15,11 @@ class Module;
 
 //.............................................................................
 
-enum CreateObjectFlagKind
+enum CreateObjectFlag
 {
-	CreateObjectFlagKind_Prime     = 0x01,
-	CreateObjectFlagKind_Construct = 0x02,
-	CreateObjectFlagKind_Pin       = 0x04,
+	CreateObjectFlag_Prime     = 0x01,
+	CreateObjectFlag_Construct = 0x02,
+	CreateObjectFlag_Pin       = 0x04,
 };
 
 //.............................................................................
@@ -29,12 +29,12 @@ class Runtime
 	friend class GcHeap;
 
 protected:
-	enum GcStateKind
+	enum GcState
 	{
-		GcStateKind_Idle = 0,
-		GcStateKind_WaitSafePoint,
-		GcStateKind_Mark,
-		GcStateKind_Sweep,
+		GcState_Idle = 0,
+		GcState_WaitSafePoint,
+		GcState_Mark,
+		GcState_Sweep,
 	};
 
 	struct GcRoot
@@ -54,7 +54,7 @@ protected:
 
 	// gc-heap
 
-	volatile GcStateKind m_gcState;
+	volatile GcState m_gcState;
 
 	size_t m_gcHeapLimit;
 	size_t m_totalGcAllocSize;
@@ -171,9 +171,9 @@ public:
 	createObject (
 		ClassType* type,
 		uint_t flags =
-			CreateObjectFlagKind_Prime | 
-			CreateObjectFlagKind_Construct | 
-			CreateObjectFlagKind_Pin
+			CreateObjectFlag_Prime | 
+			CreateObjectFlag_Construct | 
+			CreateObjectFlag_Pin
 		);
 
 	void

@@ -97,7 +97,7 @@ ControlFlowMgr::switchStmt_Case (
 	m_module->m_namespaceMgr.closeScope ();
 
 	BasicBlock* block = createBlock ("switch_case");
-	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlagKind_Reachable);
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow (block);
 	it->m_value = block;
 
@@ -119,7 +119,7 @@ ControlFlowMgr::switchStmt_Default (
 	}
 
 	BasicBlock* block = createBlock ("switch_default");
-	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlagKind_Reachable);
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow (block);
 	stmt->m_defaultBlock = block;
 
@@ -292,7 +292,7 @@ ControlFlowMgr::forStmt_PostBody (ForStmt* stmt)
 	m_module->m_namespaceMgr.closeScope ();
 	jump (stmt->m_loopBlock, stmt->m_followBlock);
 
-	if (!(stmt->m_followBlock->getFlags () & BasicBlockFlagKind_Jumped))
+	if (!(stmt->m_followBlock->getFlags () & BasicBlockFlag_Jumped))
 		markUnreachable (stmt->m_followBlock);
 }
 
@@ -371,7 +371,7 @@ ControlFlowMgr::onceStmt_PreBody (
 		if (!result)
 			return false;
 
-		uint_t flags = BasicBlockFlagKind_Jumped | (m_currentBlock->m_flags & BasicBlockFlagKind_Reachable);
+		uint_t flags = BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
 		BasicBlock* preBodyBlock = createBlock ("once_prebody");
 		BasicBlock* bodyBlock = createBlock ("once_body");

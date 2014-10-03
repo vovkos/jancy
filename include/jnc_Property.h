@@ -23,13 +23,13 @@ enum PropertyKind
 
 //.............................................................................
 
-enum PropertyFlagKind
+enum PropertyFlag
 {
-	PropertyFlagKind_Const    = 0x010000,
-	PropertyFlagKind_Bindable = 0x020000,
-	PropertyFlagKind_Throws   = 0x040000,
-	PropertyFlagKind_AutoGet  = 0x100000,
-	PropertyFlagKind_AutoSet  = 0x200000,
+	PropertyFlag_Const    = 0x010000,
+	PropertyFlag_Bindable = 0x020000,
+	PropertyFlag_Throws   = 0x040000,
+	PropertyFlag_AutoGet  = 0x100000,
+	PropertyFlag_AutoSet  = 0x200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

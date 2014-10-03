@@ -202,9 +202,9 @@ protected:
 
 //.............................................................................
 
-enum GlobalNamespaceFlagKind
+enum GlobalNamespaceFlag
 {
-	GlobalNamespaceFlagKind_Sealed = 0x0100
+	GlobalNamespaceFlag_Sealed = 0x0100
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

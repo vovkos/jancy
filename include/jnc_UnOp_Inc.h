@@ -15,7 +15,7 @@ class UnOp_PreInc: public UnaryOperator
 public:
 	UnOp_PreInc ()
 	{
-		m_opFlags = OpFlagKind_KeepRef;
+		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual
@@ -37,7 +37,7 @@ class UnOp_PostInc: public UnaryOperator
 public:
 	UnOp_PostInc ()
 	{
-		m_opFlags = OpFlagKind_KeepRef;
+		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual
