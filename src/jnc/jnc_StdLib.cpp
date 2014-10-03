@@ -272,7 +272,7 @@ StdLib::getLastError ()
 DataPtr
 StdLib::getErrorDescription (DataPtr errorPtr)
 {
-	err::Error* error = (err::Error*) errorPtr.m_p;
+	err::ErrorData* error = (err::ErrorData*) errorPtr.m_p;
 	rtl::String string = error->getDescription ();
 	size_t length = string.getLength ();
 
