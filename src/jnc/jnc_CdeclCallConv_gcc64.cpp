@@ -172,7 +172,7 @@ CdeclCallConv_gcc64::call (
 			else // coerce
 			{
 				Type* coerceType = getArgCoerceType (type);
-				m_module->m_operatorMgr.forceCast (it.getObject (), coerceType);
+				m_module->m_operatorMgr.forceCast (it.p (), coerceType);
 			}
 		}
 	}
