@@ -593,44 +593,21 @@ public:
 		);
 
 	bool
-	parseExpressionEx (
+	parseExpression (
 		Unit* unit,
 		const rtl::ConstBoxList <Token>& expressionTokenList,
-		const Value& throwReturnValue,
 		uint_t parserFlags,
 		Value* resultValue
 		);
 
 	bool
-	parseThrowCondition (
-		Unit* unit,
-		const rtl::ConstBoxList <Token>& expressionTokenList,
-		const Value& throwReturnValue,
-		Value* resultValue
-		)
-	{
-		return parseExpressionEx (unit, expressionTokenList, throwReturnValue, 0, resultValue);
-	}
-
-	bool
-	parseExpression (
-		Unit* unit,
-		const rtl::ConstBoxList <Token>& expressionTokenList,
-		uint_t parserFlags,
-		Value* resultValue
-		)
-	{
-		return parseExpressionEx (unit, expressionTokenList, Value (), parserFlags, resultValue);
-	}
-
-	bool
 	parseExpression (
 		Unit* unit,
 		const rtl::ConstBoxList <Token>& expressionTokenList,
 		Value* resultValue
 		)
 	{
-		return parseExpressionEx (unit, expressionTokenList, Value (), 0, resultValue);
+		return parseExpression (unit, expressionTokenList, 0, resultValue);
 	}
 
 	bool

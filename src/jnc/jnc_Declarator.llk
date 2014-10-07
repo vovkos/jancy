@@ -417,11 +417,6 @@ throw_suffix <Declarator* $declarator>
 			{
 				$declarator->addThrowSuffix ();
 			}
-
-	|	TokenKind_Throws TokenKind_If '(' expression_pass1 $e ')'
-			{
-				$declarator->addThrowSuffix (&$e.m_tokenList);
-			}
 	;
 	
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

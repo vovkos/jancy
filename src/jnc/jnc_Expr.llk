@@ -782,10 +782,6 @@ primary_expr <Value* $value>
 			{
 				return m_module->m_operatorMgr.getThisValue ($value);
 			}
-	|	TokenKind_RetVal
-			{
-				return getThrowReturnValue ($value);
-			}
 	|	TokenKind_Integer
 			{
 				$value->setConstInt64_u ($1.m_data.m_int64_u);

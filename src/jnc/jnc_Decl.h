@@ -177,29 +177,6 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class DeclThrowSuffix: public DeclSuffix
-{
-	friend class Declarator;
-	friend class Parser;
-
-protected:
-	rtl::BoxList <Token> m_throwCondition;
-
-public:
-	DeclThrowSuffix ()
-	{
-		m_suffixKind = DeclSuffixKind_Throw;
-	}
-
-	rtl::BoxList <Token>*
-	getThrowCondition ()
-	{
-		return &m_throwCondition;
-	}
-};
-
 //.............................................................................
 
 enum PostDeclaratorModifier
@@ -413,17 +390,17 @@ public:
 	DeclFunctionSuffix*
 	addFunctionSuffix ();
 
-	DeclThrowSuffix*
-	addThrowSuffix (rtl::BoxList <Token>* throwCondition = NULL);
+	DeclSuffix*
+	addThrowSuffix ();
 	
 	bool
 	addBitFieldSuffix (size_t bitCount);
 
-	DeclThrowSuffix*
+	DeclSuffix*
 	getThrowSuffix ()
 	{
 		return !m_suffixList.isEmpty () && m_suffixList.getTail ()->getSuffixKind () == DeclSuffixKind_Throw ? 
-			(DeclThrowSuffix*) *m_suffixList.getTail () : 
+			*m_suffixList.getTail () : 
 			NULL;
 	}
 

@@ -40,28 +40,6 @@ FunctionType::getThisTargetType ()
 	}
 }
 
-bool
-FunctionType::isThrowConditionMatch (FunctionType* type)
-{
-	if (m_returnType->cmp (type->m_returnType) != 0 ||
-		(m_flags & FunctionTypeFlag_Throws) != (type->m_flags & FunctionTypeFlag_Throws) ||
-		m_throwCondition.getCount () != type->m_throwCondition.getCount ())
-		return false;
-
-	rtl::BoxIterator <Token> token1 = m_throwCondition.getHead ();
-	rtl::BoxIterator <Token> token2 = type->m_throwCondition.getHead ();
-
-	for (; token1 && token2; token1++, token2++)
-	{
-		if (token1->m_token != token2->m_token)
-			return false;
-
-		#pragma AXL_TODO ("check token data also. in fact, need to come up with something smarter than token cmp")
-	}
-
-	return true;
-}
-
 rtl::String
 FunctionType::getArgSignature ()
 {
@@ -254,12 +232,7 @@ FunctionType::getArgString ()
 		m_argString += "...)";
 
 	if (m_flags & FunctionTypeFlag_Throws)
-	{
 		m_argString += " throws";
-
-		if (!m_throwCondition.isEmpty ())
-			m_argString.appendFormat (" if (%s)", Token::getTokenListString (m_throwCondition).cc ());
-	}
 
 	return m_argString;
 }

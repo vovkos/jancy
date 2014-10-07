@@ -501,14 +501,11 @@ FunctionType*
 DeclTypeCalc::getFunctionType (Type* returnType)
 {
 	uint_t typeFlags = 0;
-	rtl::BoxList <Token>* throwCondition = NULL;
 
 	if (m_suffix && m_suffix->getSuffixKind () == DeclSuffixKind_Throw)
 	{
-		DeclThrowSuffix* suffix = (DeclThrowSuffix*) *m_suffix--;
-
 		typeFlags |= FunctionTypeFlag_Throws;
-		throwCondition = suffix->getThrowCondition ();
+		m_suffix--;
 	}
 
 	returnType = prepareReturnType (returnType);
@@ -555,7 +552,6 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	return m_module->m_typeMgr.createUserFunctionType (
 		callConv,
 		returnType,
-		throwCondition,
 		suffix->getArgArray (),
 		typeFlags
 		);
@@ -567,14 +563,8 @@ DeclTypeCalc::getPropertyType (Type* returnType)
 	uint_t typeFlags = 0;
 	if (m_suffix && m_suffix->getSuffixKind () == DeclSuffixKind_Throw)
 	{
-		DeclThrowSuffix* suffix = (DeclThrowSuffix*) *m_suffix--;
-		if (!suffix->getThrowCondition ()->isEmpty ())
-		{
-			err::setFormatStringError ("property cannot have a throw condition");
-			return NULL;
-		}
-
 		typeFlags |= PropertyTypeFlag_Throws;
+		m_suffix--;
 	}
 
 	returnType = prepareReturnType (returnType);

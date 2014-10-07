@@ -427,10 +427,6 @@ primary_expr_0 <Value* $value>
 			{
 				return m_module->m_operatorMgr.getThisValueType ($value);
 			}
-	|	TokenKind_RetVal
-			{
-				return getThrowReturnValueType ($value);
-			}
 	|	TokenKind_Integer
 			{
 				$value->setType (getInt64TypeKind ($1.m_data.m_int64));

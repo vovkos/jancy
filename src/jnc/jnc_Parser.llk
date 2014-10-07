@@ -103,7 +103,6 @@ Members
 	Property* m_constructorProperty;
 
 	Value m_curlyInitializerTargetValue;
-	Value m_throwReturnValue;
 
 	// saved attributes
 
@@ -403,12 +402,6 @@ Members2
 		Type* type,
 		Value* value
 		);
-
-	bool
-	getThrowReturnValue (Value* value);
-
-	bool
-	getThrowReturnValueType (Value* value);
 
 	bool
 	prepareCurlyInitializerNamedItem (

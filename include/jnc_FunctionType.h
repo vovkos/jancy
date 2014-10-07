@@ -57,7 +57,6 @@ protected:
 	Type* m_returnType;
 	ImportType* m_returnType_i;
 	rtl::Array <FunctionArg*> m_argArray;
-	rtl::BoxList <Token> m_throwCondition;
 	rtl::String m_argSignature;
 	rtl::String m_typeModifierString;
 	rtl::String m_argString;
@@ -87,15 +86,6 @@ public:
 	{
 		return m_returnType_i;
 	}
-
-	rtl::ConstBoxList <Token>
-	getThrowCondition ()
-	{
-		return m_throwCondition;
-	}
-
-	bool
-	isThrowConditionMatch (FunctionType* type);
 
 	rtl::Array <FunctionArg*>
 	getArgArray ()

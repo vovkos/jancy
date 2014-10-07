@@ -339,12 +339,11 @@ Declarator::addFunctionSuffix ()
 	return suffix;
 }
 
-DeclThrowSuffix*
-Declarator::addThrowSuffix (rtl::BoxList <Token>* throwCondition)
+DeclSuffix*
+Declarator::addThrowSuffix ()
 {
-	DeclThrowSuffix* suffix = AXL_MEM_NEW (DeclThrowSuffix);
-	if (throwCondition)
-		suffix->m_throwCondition.takeOver (throwCondition);
+	DeclSuffix* suffix = AXL_MEM_NEW (DeclSuffix);
+	suffix->m_suffixKind = DeclSuffixKind_Throw;
 	m_suffixList.insertTail (suffix);
 	return suffix;
 }

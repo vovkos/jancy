@@ -337,21 +337,9 @@ ControlFlowMgr::throwIf (
 	BasicBlock* followBlock = createBlock ("follow_block");
 
 	Type* returnType = functionType->getReturnType ();
-	rtl::ConstBoxList <Token> throwCondition = functionType->getThrowCondition ();
 
 	Value indicatorValue;
-	if (!throwCondition.isEmpty ())
-	{
-		result = m_module->m_operatorMgr.parseThrowCondition (
-			NULL, // TODO: fix
-			throwCondition,
-			returnValue,
-			&indicatorValue
-			);
-		if (!result)
-			return false;
-	}
-	else if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
+	if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		result = m_module->m_operatorMgr.unaryOperator (UnOpKind_LogNot, returnValue, &indicatorValue);
 		if (!result)
@@ -395,14 +383,8 @@ ControlFlowMgr::throwIf (
 		Type* currentReturnType = currentFunctionType->getReturnType ();
 
 		Value throwValue;
-		if (!currentFunctionType->getThrowCondition ().isEmpty ())
+		if (currentReturnType->cmp (returnValue.getType ()) == 0)
 		{
-			if (!currentFunctionType->isThrowConditionMatch (functionType))
-			{
-				err::setFormatStringError ("functions with throw conditions need to 'catch' and 'return' manually");
-				return false;
-			}
-
 			throwValue = returnValue; // re-throw
 		}
 		else if (currentReturnType->getTypeKindFlags () & TypeKindFlag_Integer)

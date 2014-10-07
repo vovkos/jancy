@@ -139,7 +139,6 @@ enum TokenKind
 
 	TokenKind_BaseType,
 	TokenKind_This,
-	TokenKind_RetVal,
 	TokenKind_True,
 	TokenKind_False,
 	TokenKind_Null,
@@ -315,7 +314,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	AXL_LEX_TOKEN_NAME (TokenKind_BaseType,     "basetype")
 	AXL_LEX_TOKEN_NAME (TokenKind_This,         "this")
-	AXL_LEX_TOKEN_NAME (TokenKind_RetVal,       "retval")
 	AXL_LEX_TOKEN_NAME (TokenKind_True,         "true")
 	AXL_LEX_TOKEN_NAME (TokenKind_False,        "false")
 	AXL_LEX_TOKEN_NAME (TokenKind_Null,         "null")

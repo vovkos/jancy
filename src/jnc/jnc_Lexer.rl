@@ -222,7 +222,6 @@ main := |*
 'basetype'       { createKeywordTokenEx (TokenKind_BaseType, 1); };
 'basetype' [1-9] { createKeywordTokenEx (TokenKind_BaseType, te [-1] - '0'); };
 'this'           { createToken (TokenKind_This); };
-'retval'         { createToken (TokenKind_RetVal); };
 'true'           { createToken (TokenKind_True); };
 'false'          { createToken (TokenKind_False); };
 'null'           { createToken (TokenKind_Null); };

@@ -881,16 +881,10 @@ Parser::declareProperty (
 		return prop->create (type);
 	}
 
-	DeclThrowSuffix* throwSuffix = declarator->getThrowSuffix ();
+	DeclSuffix* throwSuffix = declarator->getThrowSuffix ();
 	if (throwSuffix)
 	{
 		prop->m_flags |= PropertyFlag_Throws;
-		if (!throwSuffix->getThrowCondition ()->isEmpty ())
-		{
-			err::setFormatStringError ("property cannot have a throw condtion");
-			return false;
-		}
-
 		declarator->deleteSuffix (throwSuffix);
 	}
 
@@ -2292,32 +2286,6 @@ Parser::getCountOf (
 	}
 
 	value->setConstSizeT (((ArrayType*) type)->getElementCount ());
-	return true;
-}
-
-bool
-Parser::getThrowReturnValue (Value* value)
-{
-	if (m_throwReturnValue.isEmpty ())
-	{
-		err::setFormatStringError ("'retval' can only be used in throw condition");
-		return false;
-	}
-
-	*value = m_throwReturnValue;
-	return true;
-}
-
-bool
-Parser::getThrowReturnValueType (Value* value)
-{
-	if (m_throwReturnValue.isEmpty ())
-	{
-		err::setFormatStringError ("'retval' can only be used in throw condition");
-		return false;
-	}
-
-	value->setType (m_throwReturnValue.getType ());
 	return true;
 }
 

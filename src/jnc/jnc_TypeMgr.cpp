@@ -953,7 +953,6 @@ FunctionType*
 TypeMgr::createUserFunctionType (
 	CallConv* callConv,
 	Type* returnType,
-	rtl::BoxList <Token>* throwCondition,
 	const rtl::Array <FunctionArg*>& argArray,
 	uint_t flags
 	)
@@ -975,12 +974,6 @@ TypeMgr::createUserFunctionType (
 	type->m_returnType = returnType;
 	type->m_flags = flags | ModuleItemFlag_User;
 	type->m_argArray = argArray;
-
-	if (throwCondition)
-	{
-		ASSERT (flags & FunctionTypeFlag_Throws);
-		type->m_throwCondition.takeOver (throwCondition);
-	}
 
 	m_functionTypeList.insertTail (type);
 

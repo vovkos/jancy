@@ -384,10 +384,9 @@ OperatorMgr::parseInitializer (
 }
 
 bool
-OperatorMgr::parseExpressionEx (
+OperatorMgr::parseExpression (
 	Unit* unit,
 	const rtl::ConstBoxList <Token>& expressionTokenList,
-	const Value& throwReturnValue,
 	uint_t flags,
 	Value* resultValue
 	)
@@ -398,7 +397,6 @@ OperatorMgr::parseExpressionEx (
 	Parser parser;
 	parser.m_module = m_module;
 	parser.m_stage = Parser::StageKind_Pass2;
-	parser.m_throwReturnValue = throwReturnValue;
 	parser.m_flags |= flags;
 
 	m_module->m_controlFlowMgr.resetJumpFlag ();

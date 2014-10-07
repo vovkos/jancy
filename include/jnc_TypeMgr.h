@@ -561,41 +561,18 @@ public:
 	createUserFunctionType (
 		CallConv* callConv,
 		Type* returnType,
-		rtl::BoxList <Token>* throwCondition,
 		const rtl::Array <FunctionArg*>& argArray,
 		uint_t flags = 0
 		);
 
 	FunctionType*
 	createUserFunctionType (
-		CallConv* callConv,
 		Type* returnType,
 		const rtl::Array <FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return createUserFunctionType (callConv, returnType, NULL, argArray, flags);
-	}
-
-	FunctionType*
-	createUserFunctionType (
-		Type* returnType,
-		rtl::BoxList <Token>* throwCondition,
-		const rtl::Array <FunctionArg*>& argArray,
-		uint_t flags = 0
-		)
-	{
-		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, throwCondition, argArray, flags);
-	}
-
-	FunctionType*
-	createUserFunctionType (
-		Type* returnType,
-		const rtl::Array <FunctionArg*>& argArray,
-		uint_t flags = 0
-		)
-	{
-		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, NULL, argArray, flags);
+		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, argArray, flags);
 	}
 
 	FunctionType*
@@ -607,7 +584,6 @@ public:
 		return createUserFunctionType (
 			m_callConvTable [CallConvKind_Default],
 			&m_primitiveTypeArray [TypeKind_Void],
-			NULL,
 			argArray,
 			flags
 			);
