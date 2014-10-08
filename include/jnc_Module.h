@@ -30,6 +30,19 @@ enum ModuleFlag
 	ModuleFlag_McJit      = 0x0004,
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ModuleCompileState
+{
+	ModuleCompileState_Idle,
+	ModuleCompileState_Resolving,
+	ModuleCompileState_CalcLayout,
+	ModuleCompileState_Compiling,
+	ModuleCompileState_Compiled,
+	ModuleCompileState_Jitting,
+	ModuleCompileState_Jitted,
+};
+
 //.............................................................................
 
 // makes it convenient to initialize childs (especially operators)
@@ -56,9 +69,10 @@ protected:
 class Module: PreModule
 {
 protected:
-	uint_t m_flags;
-
 	rtl::String m_name;
+
+	uint_t m_flags;
+	ModuleCompileState m_compileState;
 
 	Function* m_constructor;
 	Function* m_destructor;
@@ -99,6 +113,18 @@ public:
 		return m_name;
 	}
 
+	uint_t
+	getFlags ()
+	{
+		return m_flags;
+	}
+
+	ModuleCompileState
+	getCompileState ()
+	{
+		return m_compileState;
+	}
+
 	llvm::LLVMContext*
 	getLlvmContext ()
 	{
@@ -127,15 +153,9 @@ public:
 	}
 
 	Type*
-	getSimpleType (StdTypeKind stdType)
+	getSimpleType (StdTypeKind stdTypeKind)
 	{
-		return m_typeMgr.getStdType (stdType);
-	}
-
-	uint_t
-	getFlags ()
-	{
-		return m_flags;
+		return m_typeMgr.getStdType (stdTypeKind);
 	}
 
 	Function*

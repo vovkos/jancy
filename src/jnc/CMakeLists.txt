@@ -423,22 +423,15 @@ source_group (
 
 set (
 	RUNTIME_H_LIST
-	${JANCY_INC_DIR}/jnc_Api.h
-	${JANCY_INC_DIR}/jnc_MulticastLib.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
-	${JANCY_INC_DIR}/jnc_StdLib.h
 	${JANCY_INC_DIR}/jnc_TlsMgr.h
 	jnc_Multicast.h
 	)
 
 set (
 	RUNTIME_CPP_LIST
-	jnc_Api.cpp
-	jnc_MulticastLib.cpp
 	jnc_Runtime.cpp
-	jnc_StdLib.cpp
 	jnc_TlsMgr.cpp
-	jnc_Multicast.cpp
 	)
 
 source_group (
@@ -446,6 +439,48 @@ source_group (
 	FILES
 	${RUNTIME_H_LIST}
 	${RUNTIME_CPP_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# stdlib folder
+#
+
+set (
+	STDLIB_H_LIST
+	${JANCY_INC_DIR}/jnc_Api.h
+	${JANCY_INC_DIR}/jnc_MulticastLib.h
+	${JANCY_INC_DIR}/jnc_StdLib.h
+	jnc_Multicast.h
+	)
+
+set (
+	STDLIB_CPP_LIST
+	jnc_Api.cpp
+	jnc_MulticastLib.cpp
+	jnc_StdLib.cpp
+	jnc_Multicast.cpp
+	)
+
+set (
+	STDLIB_JNC_LIST
+	jnc_StdDef.jnc
+	jnc_String.jnc
+	jnc_Array.jnc
+	)
+
+set (
+	STDLIB_PL_LIST
+	jnc2cpp.pl
+	)
+	
+source_group (
+	stdlib
+	FILES
+	${STDLIB_H_LIST}
+	${STDLIB_CPP_LIST}
+	${STDLIB_JNC_LIST}
+	${STDLIB_PL_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -458,6 +493,24 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
+add_perl_step (
+	jnc_StdDef.jnc.cpp
+	jnc_StdDef.jnc
+	jnc2cpp.pl
+	)
+
+add_perl_step (
+	jnc_String.jnc.cpp
+	jnc_String.jnc
+	jnc2cpp.pl
+	)
+
+add_perl_step (
+	jnc_Array.jnc.cpp
+	jnc_Array.jnc
+	jnc2cpp.pl
+	)
+	
 add_ragel_step (
 	jnc_Lexer.rl.cpp
 	jnc_Lexer.rl
@@ -483,22 +536,38 @@ add_bulldozer_double_step (
 pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
+	GEN_PL_CPP_LIST
+	${GEN_DIR}/jnc_StdDef.jnc.cpp
+	${GEN_DIR}/jnc_String.jnc.cpp
+	${GEN_DIR}/jnc_Array.jnc.cpp
+	)
+
+set (
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jnc_Lexer.rl.cpp
 	)
-
+	
 set (
 	GEN_LLK_H_LIST
 	${GEN_DIR}/jnc_Parser.llk.h
 	)
 
+set (
+	GEN_LLK_CPP_LIST
+	${GEN_DIR}/jnc_Parser.llk.cpp
+	)
+
+exclude_from_build (${GEN_PL_CPP_LIST})  # include "*.jnc.cpp" manually
 exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
 
 source_group (
 	gen
 	FILES
+	${GEN_PL_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
+	${GEN_LLK_CPP_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -561,8 +630,14 @@ add_library (
 	${VARIABLE_CPP_LIST}
 	${RUNTIME_H_LIST}
 	${RUNTIME_CPP_LIST}
+	${STDLIB_H_LIST}
+	${STDLIB_CPP_LIST}
+	${STDLIB_JNC_LIST}
+	${STDLIB_PL_LIST}
+	${GEN_PL_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
+	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
 	)
 
 set_pch (

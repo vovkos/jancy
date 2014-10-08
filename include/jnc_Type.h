@@ -143,6 +143,11 @@ enum StdTypeKind
 	StdTypeKind_FmtLiteral,
 	StdTypeKind_Guid,
 	StdTypeKind_Error,
+	StdTypeKind_String,
+	StdTypeKind_StringBuilder,
+	StdTypeKind_SmartPtr,
+	StdTypeKind_SmartConstPtr,
+	StdTypeKind_DynamicArray,
 	StdTypeKind_Int64Int64, // for system V coercion
 	StdTypeKind_Fp64Fp64,   // for system V coercion
 	StdTypeKind_Int64Fp64,  // for system V coercion

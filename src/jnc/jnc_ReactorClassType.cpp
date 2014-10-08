@@ -147,10 +147,9 @@ ReactorClassType::bindHandlers (const rtl::ConstList <Reaction>& handlerList)
 			if (!result)
 				return false;
 
-			// force-cast event pointers (normal cast would result in dynamic cast)
+			// bit-cast event pointers is enough
 
-			Type* eventType = m_module->m_typeMgr.getStdType (StdTypeKind_SimpleEventPtr);
-			m_module->m_llvmIrBuilder.createBitCast (eventValue, eventType, &eventValue);
+			m_module->m_llvmIrBuilder.createBitCast (eventValue, eventPtrField->getType (), &eventValue);
 			m_module->m_llvmIrBuilder.createStore (eventValue, dstEventValue);
 		}
 	}

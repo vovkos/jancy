@@ -13,6 +13,7 @@ include (${CMAKE_CURRENT_LIST_DIR}/../cmake/Master.cmake)
 print_std_settings ()
 
 check_and_print_std_libs (
+	PERL
 	RAGEL
 	LLVM
 	QT

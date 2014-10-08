@@ -27,17 +27,28 @@ NamespaceMgr::clear ()
 	m_orphanList.clear ();
 	m_namespaceStack.clear ();
 	m_currentNamespace = &m_globalNamespace;
+	m_jncNamespace = NULL;
 	m_currentScope = NULL;
 	m_sourcePosLockCount = 0;
 	m_scopeLevelStack.clear ();
 	m_staticObjectValue.clear ();
 }
 
+GlobalNamespace* 
+NamespaceMgr::getJncNamespace ()
+{
+	if (m_jncNamespace)
+		return m_jncNamespace;
+
+	m_jncNamespace = createGlobalNamespace ("jnc", &m_globalNamespace);
+	m_jncNamespace->m_flags |= GlobalNamespaceFlag_Sealed;
+	return m_jncNamespace;
+}
+
 bool
 NamespaceMgr::addStdItems ()
 {
-	GlobalNamespace* jnc = createGlobalNamespace ("jnc", &m_globalNamespace);
-	jnc->m_flags |= GlobalNamespaceFlag_Sealed;
+	GlobalNamespace* jnc = getJncNamespace ();
 
 	return
 		m_globalNamespace.addItem (jnc) &&
@@ -48,7 +59,13 @@ NamespaceMgr::addStdItems ()
 		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Printf)) &&
 		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Atoi)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Scheduler)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Guid)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Error)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_String)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_StringBuilder)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_SmartPtr)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_SmartConstPtr)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_DynamicArray)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetDataPtrSpan)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_RunGc)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_CreateThread)) &&

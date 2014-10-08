@@ -126,16 +126,23 @@ Namespace::findItem (const char* name)
 		return NULL;
 
 	ModuleItem* item = it->m_value;
-	if (item->getItemKind () != ModuleItemKind_Lazy)
+	if (!item || item->getItemKind () != ModuleItemKind_Lazy)
 		return item;
 
 	LazyModuleItem* lazyItem = (LazyModuleItem*) item;
 	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
 
+	it->m_value = NULL; // many lazy std-types are parsed, so 
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 	item = lazyItem->getActualItem ();
-	m_itemArray.append (item);
-	it->m_value = item;
+
+	if (!it->m_value)
+	{
+		m_itemArray.append (item);
+		it->m_value = item;
+	}
+
+	ASSERT (it->m_value == item);
 	return item;
 }
 

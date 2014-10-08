@@ -1,0 +1,32 @@
+//.............................................................................
+
+///; static char smartPtrTypeSrc [] = 
+
+struct Ptr
+{
+	void* dconst m_p;
+	unsigned intptr dconst m_count;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char smartConstPtrTypeSrc [] = 
+
+struct ConstPtr
+{
+	void* dconst m_p;
+	unsigned intptr dconst m_count;
+	bool dconst m_isFinal;
+}
+
+//.............................................................................
+
+///; static char dynamicArrayTypeSrc [] = 
+
+class Array
+{
+}
+
+//.............................................................................
+
+///;

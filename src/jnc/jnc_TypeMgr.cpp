@@ -2,6 +2,13 @@
 #include "jnc_TypeMgr.h"
 #include "jnc_Module.h"
 #include "jnc_DeclTypeCalc.h"
+#include "jnc_Parser.llk.h"
+
+// it's very common for classes and structs to reference themselves
+// in pointer fields, retvals, arguments etc
+// adding self to the namespace avoids creating unnecessary import types
+
+#define _JNC_NAMED_TYPE_ADD_SELF
 
 namespace jnc {
 
@@ -62,7 +69,11 @@ TypeMgr::clear ()
 	m_functionArgList.clear ();
 
 	m_typeMap.clear ();
+
 	m_gcShadowStackFrameTypeArray.clear ();
+	m_unresolvedNamedImportTypeArray.clear ();
+	m_unresolvedImportPtrTypeArray.clear ();
+	m_unresolvedImportIntModTypeArray.clear ();
 
 	setupAllPrimitiveTypes ();
 
@@ -76,22 +87,56 @@ TypeMgr::clear ()
 }
 
 Type*
-TypeMgr::getStdType (StdTypeKind stdType)
+TypeMgr::getStdType (StdTypeKind stdTypeKind)
 {
-	ASSERT ((size_t) stdType < StdTypeKind__Count);
-	if (m_stdTypeArray [stdType])
-		return m_stdTypeArray [stdType];
+	#include "jnc_StdDef.jnc.cpp"
+	#include "jnc_String.jnc.cpp"
+	#include "jnc_Array.jnc.cpp"
+
+	struct StringRef
+	{
+		const char* m_p;
+		size_t m_length;
+	};
+
+	static StringRef stdTypeSrcTable [StdTypeKind__Count] = 
+	{
+		{ NULL },                                                      // StdTypeKind_BytePtr,
+		{ objHdrTypeSrc, lengthof (objHdrTypeSrc) },                   // StdTypeKind_ObjHdr,
+		{ NULL },                                                      // StdTypeKind_ObjHdrPtr,
+		{ NULL },                                                      // StdTypeKind_ObjectClass,
+		{ NULL },                                                      // StdTypeKind_ObjectPtr,
+		{ NULL },                                                      // StdTypeKind_SimpleFunction,
+		{ NULL },                                                      // StdTypeKind_SimpleMulticast,
+		{ NULL },                                                      // StdTypeKind_SimpleEventPtr,
+		{ NULL },                                                      // StdTypeKind_Binder,
+		{ reactorBindSiteTypeSrc, lengthof (reactorBindSiteTypeSrc) }, // StdTypeKind_ReactorBindSite,
+		{ schedulerTypeSrc, lengthof (schedulerTypeSrc) },             // StdTypeKind_Scheduler,
+		{ NULL },                                                      // StdTypeKind_SchedulerPtr,
+		{ fmtLiteralTypeSrc, lengthof (fmtLiteralTypeSrc) },           // StdTypeKind_FmtLiteral,
+		{ guidTypeSrc, lengthof (guidTypeSrc) },                       // StdTypeKind_Guid,
+		{ errorTypeSrc, lengthof (errorTypeSrc) },                     // StdTypeKind_Error,
+		{ stringTypeSrc, lengthof (stringTypeSrc) },                   // StdTypeKind_String,
+		{ stringBuilderTypeSrc, lengthof (stringBuilderTypeSrc) },     // StdTypeKind_StringBuilder,
+		{ smartPtrTypeSrc, lengthof (smartPtrTypeSrc) },               // StdTypeKind_SmartPtr,
+		{ smartConstPtrTypeSrc, lengthof (smartConstPtrTypeSrc) },     // StdTypeKind_SmartConstPtr,
+		{ dynamicArrayTypeSrc, lengthof (dynamicArrayTypeSrc) },       // StdTypeKind_DynamicArray,
+		{ int64Int64TypeSrc, lengthof (int64Int64TypeSrc) },           // StdTypeKind_Int64Int64,
+		{ fp64Fp64TypeSrc, lengthof (fp64Fp64TypeSrc) },               // StdTypeKind_Fp64Fp64,
+		{ int64Fp64TypeSrc, lengthof (int64Fp64TypeSrc) },             // StdTypeKind_Int64Fp64,
+		{ fp64Int64TypeSrc, lengthof (fp64Int64TypeSrc) },             // StdTypeKind_Fp64Int64,
+	};
+
+	ASSERT ((size_t) stdTypeKind < StdTypeKind__Count);
+	if (m_stdTypeArray [stdTypeKind])
+		return m_stdTypeArray [stdTypeKind];
 
 	Type* type;
 
-	switch (stdType)
+	switch (stdTypeKind)
 	{
 	case StdTypeKind_BytePtr:
 		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
-		break;
-
-	case StdTypeKind_ObjHdr:
-		type = createObjHdrType ();
 		break;
 
 	case StdTypeKind_ObjHdrPtr:
@@ -118,67 +163,33 @@ TypeMgr::getStdType (StdTypeKind stdType)
 		type = ((ClassType*) getStdType (StdTypeKind_SimpleMulticast))->getClassPtrType (ClassPtrTypeKind_Normal);
 		break;
 
-	case StdTypeKind_ReactorBindSite:
-		type = createReactorBindSiteType ();
-		break;
-
 	case StdTypeKind_Binder:
 		type = getFunctionType (getStdType (StdTypeKind_SimpleEventPtr), NULL, 0);
-		break;
-
-	case StdTypeKind_Scheduler:
-		type = createSchedulerType ();
 		break;
 
 	case StdTypeKind_SchedulerPtr:
 		type = ((ClassType*) getStdType (StdTypeKind_Scheduler))->getClassPtrType ();
 		break;
 
+	case StdTypeKind_ObjHdr:
+	case StdTypeKind_ReactorBindSite:
 	case StdTypeKind_FmtLiteral:
-		type = createFmtLiteralType ();
-		break;
-
+	case StdTypeKind_Scheduler:
 	case StdTypeKind_Guid:
-		type = createGuidType ();
-		break;
-
 	case StdTypeKind_Error:
-		type = createErrorType ();
-		break;
-
+	case StdTypeKind_String:
+	case StdTypeKind_StringBuilder:
+	case StdTypeKind_SmartPtr:
+	case StdTypeKind_SmartConstPtr:
+	case StdTypeKind_DynamicArray:
 	case StdTypeKind_Int64Int64:
-		type = createPairType (
-			"Int64Int64",
-			"jnc.Int64Int64",
-			&m_primitiveTypeArray [TypeKind_Int64],
-			&m_primitiveTypeArray [TypeKind_Int64]
-			);
-		break;
-
 	case StdTypeKind_Fp64Fp64:
-		type = createPairType (
-			"Fp64Fp64",
-			"jnc.Fp64Fp64",
-			&m_primitiveTypeArray [TypeKind_Double],
-			&m_primitiveTypeArray [TypeKind_Double]
-			);
-		break;
-
 	case StdTypeKind_Int64Fp64:
-		type = createPairType (
-			"Int64Fp64",
-			"jnc.Int64Fp64",
-			&m_primitiveTypeArray [TypeKind_Int64],
-			&m_primitiveTypeArray [TypeKind_Double]
-			);
-		break;
-
 	case StdTypeKind_Fp64Int64:
-		type = createPairType (
-			"Fp64Int64",
-			"jnc.Fp64Int64",
-			&m_primitiveTypeArray [TypeKind_Double],
-			&m_primitiveTypeArray [TypeKind_Int64]
+		ASSERT (stdTypeSrcTable [stdTypeKind].m_p);
+		type = parseStdNamedType (
+			stdTypeSrcTable [stdTypeKind].m_p, 
+			stdTypeSrcTable [stdTypeKind].m_length
 			);
 		break;
 
@@ -187,46 +198,51 @@ TypeMgr::getStdType (StdTypeKind stdType)
 		return NULL;
 	}
 
-	m_stdTypeArray [stdType] = type;
+	m_stdTypeArray [stdTypeKind] = type;
 	return type;
 }
 
 LazyStdType*
-TypeMgr::getLazyStdType (StdTypeKind stdType)
+TypeMgr::getLazyStdType (StdTypeKind stdTypeKind)
 {
-	ASSERT ((size_t) stdType < StdTypeKind__Count);
+	ASSERT ((size_t) stdTypeKind < StdTypeKind__Count);
 
-	if (m_lazyStdTypeArray [stdType])
-		return m_lazyStdTypeArray [stdType];
+	if (m_lazyStdTypeArray [stdTypeKind])
+		return m_lazyStdTypeArray [stdTypeKind];
 
 	const char* nameTable [StdTypeKind__Count] =
 	{
-		NULL, // EStdType_BytePtr,
-		NULL, // EStdType_ObjHdr,
-		NULL, // EStdType_ObjHdrPtr,
-		NULL, // EStdType_ObjectClass,
-		NULL, // EStdType_ObjectPtr,
-		NULL, // EStdType_SimpleFunction,
-		NULL, // EStdType_SimpleMulticast,
-		NULL, // EStdType_SimpleEventPtr,
-		NULL, // EStdType_Binder,
-		NULL, // EStdType_ReactorBindSite,
-		"Scheduler", // EStdType_Scheduler,
-		NULL, // EStdType_SchedulerPtr,
-		NULL, // EStdType_FmtLiteral,
-		"Guid",      // EStdType_Guid
-		"Error",     // EStdType_Error,
+		NULL,            // EStdType_BytePtr,
+		NULL,            // EStdType_ObjHdr,
+		NULL,            // EStdType_ObjHdrPtr,
+		NULL,            // EStdType_ObjectClass,
+		NULL,            // EStdType_ObjectPtr,
+		NULL,            // EStdType_SimpleFunction,
+		NULL,            // EStdType_SimpleMulticast,
+		NULL,            // EStdType_SimpleEventPtr,
+		NULL,            // EStdType_Binder,
+		NULL,            // EStdType_ReactorBindSite,
+		"Scheduler",     // EStdType_Scheduler,
+		NULL,            // EStdType_SchedulerPtr,
+		NULL,            // EStdType_FmtLiteral,
+		"Guid",          // EStdType_Guid
+		"Error",         // EStdType_Error,
+		"String",        // StdTypeKind_String,
+		"StringBuilder", // StdTypeKind_StringBuilder,
+		"Ptr",           // StdTypeKind_SmartPtr,
+		"ConstPtr",      // StdTypeKind_SmartConstPtr,
+		"Array",         // StdTypeKind_DynamicArray,
 	};
 
-	const char* name = nameTable [stdType];
+	const char* name = nameTable [stdTypeKind];
 	ASSERT (name);
 
 	LazyStdType* type = AXL_MEM_NEW (LazyStdType);
 	type->m_module = m_module;
 	type->m_name = name;
-	type->m_stdType = stdType;
+	type->m_stdType = stdTypeKind;
 	m_lazyStdTypeList.insertTail (type);
-	m_lazyStdTypeArray [stdType] = type;
+	m_lazyStdTypeArray [stdTypeKind] = type;
 	return type;
 }
 
@@ -244,109 +260,128 @@ TypeMgr::resolveImportTypes ()
 {
 	char buffer [256];
 	rtl::Array <NamedImportType*> superImportTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	
+	// new items can be added in the process of resolving
 
-	rtl::Iterator <NamedImportType> importTypeIt = m_namedImportTypeList.getHead ();
-	for (; importTypeIt; importTypeIt++)
+	while (
+		!m_unresolvedNamedImportTypeArray.isEmpty () ||
+		!m_unresolvedImportPtrTypeArray.isEmpty () ||
+		!m_unresolvedImportIntModTypeArray.isEmpty ()
+		)
 	{
-		NamedImportType* importType = *importTypeIt;
-		ModuleItem* item = importType->m_anchorNamespace->findItemTraverse (importType->m_name);
-		if (!item)
+		superImportTypeArray.clear ();
+
+		rtl::Array <NamedImportType*> unresolvedNamedImportTypeArray = m_unresolvedNamedImportTypeArray;
+		rtl::Array <ImportPtrType*> unresolvedImportPtrTypeArray = m_unresolvedImportPtrTypeArray;
+		rtl::Array <ImportIntModType*> unresolvedImportIntModTypeArray = m_unresolvedImportIntModTypeArray;
+
+		m_unresolvedNamedImportTypeArray.clear ();
+		m_unresolvedImportIntModTypeArray.clear ();
+		m_unresolvedImportPtrTypeArray.clear ();
+
+		size_t count = unresolvedNamedImportTypeArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().cc ());
-			pushImportSrcPosError (importType);
-			return false;
-		}
-
-		ModuleItemKind itemKind = item->getItemKind ();
-		switch (itemKind)
-		{
-		case ModuleItemKind_Type:
-			importType->m_actualType = (Type*) item;
-			break;
-
-		case ModuleItemKind_Typedef:
-			importType->m_actualType = ((Typedef*) item)->getType ();
-			if (importType->m_actualType->getTypeKind () == TypeKind_NamedImport)
-				superImportTypeArray.append (importType);
-			break;
-
-		default:
-			err::setFormatStringError ("'%s' is not a type", importType->getTypeString ().cc ());
-			pushImportSrcPosError (importType);
-			return false;
-		}
-	}
-
-	// eliminate super-imports and detect import loops
-
-	size_t count = superImportTypeArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		NamedImportType* superImportType = superImportTypeArray [i];
-		superImportType->m_flags |= ImportTypeFlag_ImportLoop;
-
-		Type* type = superImportType->m_actualType;
-		while (type->m_typeKind == TypeKind_NamedImport)
-		{
-			ImportType* importType = (ImportType*) type;
-			if (importType->m_flags & ImportTypeFlag_ImportLoop)
+			NamedImportType* importType = unresolvedNamedImportTypeArray [i];
+			ModuleItem* item = importType->m_anchorNamespace->findItemTraverse (importType->m_name);
+			if (!item)
 			{
-				err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().cc ());
-				pushImportSrcPosError (superImportType);
+				err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().cc ());
+				pushImportSrcPosError (importType);
 				return false;
 			}
 
-			importType->m_flags |= ImportTypeFlag_ImportLoop;
-			type = importType->m_actualType;
+			ModuleItemKind itemKind = item->getItemKind ();
+			switch (itemKind)
+			{
+			case ModuleItemKind_Type:
+				importType->m_actualType = (Type*) item;
+				break;
+
+			case ModuleItemKind_Typedef:
+				importType->m_actualType = ((Typedef*) item)->getType ();
+				if (importType->m_actualType->getTypeKind () == TypeKind_NamedImport)
+					superImportTypeArray.append (importType);
+				break;
+
+			default:
+				err::setFormatStringError ("'%s' is not a type", importType->getTypeString ().cc ());
+				pushImportSrcPosError (importType);
+				return false;
+			}
 		}
 
-		Type* externType = type;
-		while (type->m_typeKind == TypeKind_NamedImport)
+		// eliminate super-imports and detect import loops
+
+		count = superImportTypeArray.getCount ();
+		for (size_t i = 0; i < count; i++)
 		{
-			ImportType* importType = (ImportType*) type;
-			importType->m_actualType = externType;
-			importType->m_flags &= ~ImportTypeFlag_ImportLoop;
-			type = importType->m_actualType;
+			NamedImportType* superImportType = superImportTypeArray [i];
+			superImportType->m_flags |= ImportTypeFlag_ImportLoop;
+
+			Type* type = superImportType->m_actualType;
+			while (type->m_typeKind == TypeKind_NamedImport)
+			{
+				ImportType* importType = (ImportType*) type;
+				if (importType->m_flags & ImportTypeFlag_ImportLoop)
+				{
+					err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().cc ());
+					pushImportSrcPosError (superImportType);
+					return false;
+				}
+
+				importType->m_flags |= ImportTypeFlag_ImportLoop;
+				type = importType->m_actualType;
+			}
+
+			Type* externType = type;
+			while (type->m_typeKind == TypeKind_NamedImport)
+			{
+				ImportType* importType = (ImportType*) type;
+				importType->m_actualType = externType;
+				importType->m_flags &= ~ImportTypeFlag_ImportLoop;
+				type = importType->m_actualType;
+			}
 		}
-	}
 
-	rtl::Iterator <ImportIntModType> importIntModType = m_importIntModTypeList.getHead ();
-	for (; importIntModType; importIntModType++)
-	{
-		ImportIntModType* importType = *importIntModType;
+		count = unresolvedImportIntModTypeArray.getCount ();
+		for (size_t i = 0; i < count; i++)
+		{
+			ImportIntModType* importType = unresolvedImportIntModTypeArray [i];
 
-		DeclTypeCalc typeCalc;
+			DeclTypeCalc typeCalc;
 
-		Type* type = typeCalc.calcIntModType (
-			importType->m_importType->m_actualType,
-			importType->m_typeModifiers
-			);
+			Type* type = typeCalc.calcIntModType (
+				importType->m_importType->m_actualType,
+				importType->m_typeModifiers
+				);
 
-		if (!type)
-			return false;
+			if (!type)
+				return false;
 
-		importType->m_actualType = type;
-	}
+			importType->m_actualType = type;
+		}
 
-	rtl::Iterator <ImportPtrType> importPtrType = m_importPtrTypeList.getHead ();
-	for (; importPtrType; importPtrType++)
-	{
-		ImportPtrType* importType = *importPtrType;
+		count = unresolvedImportPtrTypeArray.getCount ();
+		for (size_t i = 0; i < count; i++)
+		{
+			ImportPtrType* importType = unresolvedImportPtrTypeArray [i];
 
-		DeclTypeCalc typeCalc;
+			DeclTypeCalc typeCalc;
 
-		Type* type = typeCalc.calcPtrType (
-			importType->m_targetType->m_actualType,
-			importType->m_typeModifiers
-			);
+			Type* type = typeCalc.calcPtrType (
+				importType->m_targetType->m_actualType,
+				importType->m_typeModifiers
+				);
 
-		if (!type)
-			return false;
+			if (!type)
+				return false;
 
-		if (importType->getFlags () & PtrTypeFlag_Safe)
-			type = getCheckedPtrType (type);
+			if (importType->getFlags () & PtrTypeFlag_Safe)
+				type = getCheckedPtrType (type);
 
-		importType->m_actualType = type;
+			importType->m_actualType = type;
+		}
 	}
 
 	return true;
@@ -548,6 +583,8 @@ TypeMgr::createEnumType (
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
+
+		type->addItem (type);
 	}
 
 	if (!baseType)
@@ -588,6 +625,10 @@ TypeMgr::createStructType (
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
+
+#ifdef _JNC_NAMED_TYPE_ADD_SELF
+		type->addItem (type);
+#endif
 	}
 
 	type->m_module = m_module;
@@ -619,6 +660,10 @@ TypeMgr::createUnionType (
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
+
+#ifdef _JNC_NAMED_TYPE_ADD_SELF
+		type->addItem (type);
+#endif
 	}
 
 	m_module->markForLayout (type, true); // before child struct
@@ -696,6 +741,10 @@ TypeMgr::createClassType (
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
+
+#ifdef _JNC_NAMED_TYPE_ADD_SELF
+		type->addItem (type);
+#endif
 	}
 
 	m_module->markForLayout (type, true); // before child structs
@@ -1984,6 +2033,7 @@ TypeMgr::getNamedImportType (
 	type->m_module = m_module;
 
 	m_namedImportTypeList.insertTail (type);
+	m_unresolvedNamedImportTypeArray.append (type);
 	it->m_value = type;
 
 	return type;
@@ -2019,6 +2069,7 @@ TypeMgr::getImportPtrType (
 	type->m_flags = flags;
 
 	m_importPtrTypeList.insertTail (type);
+	m_unresolvedImportPtrTypeArray.append (type);
 	it->m_value = type;
 
 	return type;
@@ -2054,6 +2105,7 @@ TypeMgr::getImportIntModType (
 	type->m_flags = flags;
 
 	m_importIntModTypeList.insertTail (type);
+	m_unresolvedImportIntModTypeArray.append (type);
 	it->m_value = type;
 
 	return type;
@@ -2365,17 +2417,60 @@ TypeMgr::setupCallConvTable ()
 	m_callConvTable [CallConvKind_Thiscall_msc32] = &m_thiscallCallConv_msc32;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-StructType*
-TypeMgr::createObjHdrType ()
+NamedType*
+TypeMgr::parseStdNamedType (
+	const char* source,
+	size_t length
+	)
 {
-	StructType* type = createStructType ("ObjHdr", "jnc.ObjHdr");
-	type->createField ("!m_scopeLevel", getPrimitiveType (TypeKind_SizeT));
-	type->createField ("!m_root", type->getDataPtrType_c ());
-	type->createField ("!m_type", getStdType (StdTypeKind_BytePtr));
-	type->createField ("!m_flags", getPrimitiveType (TypeKind_Int_p));
-	type->ensureLayout ();
+	bool result;
+
+	Lexer lexer;
+	lexer.create ("jnc_StdDef.jnc", source, length);
+
+	Namespace* jncNamespace = m_module->m_namespaceMgr.getJncNamespace ();
+	m_module->m_namespaceMgr.openNamespace (jncNamespace);
+
+	Parser parser;
+	parser.create (SymbolKind_named_type_specifier_save_type);
+
+	for (;;)
+	{
+		const Token* token = lexer.getToken ();
+
+		result = parser.parseToken (token);
+		if (!result)
+		{
+			dbg::trace ("error: %s\n", err::getError ()->getDescription ());
+		}
+
+		ASSERT (result);
+
+		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
+			break;
+
+		lexer.nextToken ();
+	}
+
+	m_module->m_namespaceMgr.closeNamespace ();
+
+	NamedType* type = parser.m_namedType;
+	ASSERT (type);
+
+	ModuleCompileState state = m_module->getCompileState ();
+	if (state > ModuleCompileState_Resolving)
+	{
+		result = resolveImportTypes ();
+		ASSERT (result);
+
+		if (state > ModuleCompileState_CalcLayout)
+		{
+			result = type->ensureLayout ();
+			ASSERT (result);
+		}
+	}
+
+	ASSERT (result);
 	return type;
 }
 
@@ -2385,87 +2480,6 @@ TypeMgr::createObjectType ()
 	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
 	type->m_tag = "object";
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createReactorBindSiteType ()
-{
-	StructType* type = createStructType ("ReactorBindSite", "jnc.ReactorBindSite");
-	type->createField ("!m_event", getStdType (StdTypeKind_SimpleEventPtr));
-	type->createField ("!m_cookie", getPrimitiveType (TypeKind_Int_p));
-	type->ensureLayout ();
-	return type;
-}
-
-ClassType*
-TypeMgr::createSchedulerType ()
-{
-	FunctionType* functionType = (FunctionType*) getStdType (StdTypeKind_SimpleFunction);
-	Type* returnType = getPrimitiveType (TypeKind_Void);
-	Type* argType = functionType->getFunctionPtrType ();
-	FunctionType* scheduleType = getFunctionType (returnType, &argType, 1);
-
-	ClassType* type = createClassType ("Scheduler", "jnc.Scheduler");
-	type->createMethod (StorageKind_Abstract, "schedule", scheduleType);
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createFmtLiteralType ()
-{
-	StructType* type = createStructType ("FmtLiteral", "jnc.FmtLiteral");
-	type->createField ("!m_p", getPrimitiveType (TypeKind_Char)->getDataPtrType_c ());
-	type->createField ("!m_maxLength", getPrimitiveType (TypeKind_SizeT));
-	type->createField ("!m_length", getPrimitiveType (TypeKind_SizeT));
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createGuidType ()
-{
-	StructType* type = createStructType ("Guid", "jnc.Guid");
-	type->createField ("m_data1", getPrimitiveType (TypeKind_Int32_u));
-	type->createField ("m_data2", getPrimitiveType (TypeKind_Int16_u));
-	type->createField ("m_data3", getPrimitiveType (TypeKind_Int16_u));
-	type->createField ("m_data4", getPrimitiveType (TypeKind_Int8_u)->getArrayType (8));
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createErrorType ()
-{
-	StructType* type = createStructType ("Error", "jnc.Error");
-	type->createField ("m_size", getPrimitiveType (TypeKind_Int32_u));
-	type->createField ("m_guid", getStdType (StdTypeKind_Guid));
-	type->createField ("m_code", getPrimitiveType (TypeKind_Int32_u));
-
-	Property* description = m_module->m_functionMgr.createProperty ("m_description", "jnc.Error.m_description");
-	type->addProperty (description);
-
-	Type* returnType = getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
-	PropertyType* propertyType = getSimplePropertyType (returnType, PropertyTypeFlag_Const);
-	description->create (propertyType);
-
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createPairType (
-	const rtl::String& name,
-	const rtl::String& qualifiedName,
-	Type* type1,
-	Type* type2
-	)
-{
-	StructType* type = createStructType (name, qualifiedName);
-	type->createField ("m_a", type1);
-	type->createField ("m_b", type2);
 	type->ensureLayout ();
 	return type;
 }

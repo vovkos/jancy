@@ -27,6 +27,8 @@ set (
 	43_ScheduleOperator.jnc
 	44_PropertyPtr.jnc
 	45_WeakPropertyPtr.jnc
+	46_String.jnc
+	47_Array.jnc
 	50_Multicasts.jnc
 	51_WeakMulticasts.jnc
 	60_Reactors.jnc

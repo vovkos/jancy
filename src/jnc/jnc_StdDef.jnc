@@ -1,0 +1,110 @@
+//.............................................................................
+
+///; static char objHdrTypeSrc [] = 
+
+struct ObjHdr
+{
+	unsigned intptr m_scopeLevel;
+	ObjHdr thin* m_root;
+	unsigned char thin* m_type;
+	intptr m_flags;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char schedulerTypeSrc [] = 
+
+class Scheduler
+{
+	abstract schedule (function* fn ());
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char guidTypeSrc [] = 
+
+struct Guid
+{
+	unsigned int32 m_data1;
+	unsigned int16 m_data2;
+	unsigned int16 m_data3;
+	unsigned int8 m_data4 [8];
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char errorTypeSrc [] = 
+
+struct Error
+{
+	unsigned int32 dconst m_size;
+	Guid dconst m_guid;
+	unsigned int32 dconst m_code;
+
+	char const* const property m_description;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char fmtLiteralTypeSrc [] = 
+
+struct FmtLiteral
+{
+	char const thin* dconst m_p;
+	unsigned intptr dconst m_maxLength;
+	unsigned intptr dconst m_length;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char reactorBindSiteTypeSrc [] = 
+
+struct ReactorBindSite
+{
+	event* m_event ();
+	intptr m_cookie;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char int64Int64TypeSrc [] = 
+
+struct Int64Int64
+{
+	int64 m_a;
+	int64 m_b;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char fp64Fp64TypeSrc [] = 
+
+struct Fp64Fp64
+{
+	double m_a;
+	double m_b;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char int64Fp64TypeSrc [] = 
+
+struct Int64Fp64
+{
+	int64 m_a;
+	double m_b;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char fp64Int64TypeSrc [] = 
+
+struct Fp64Int64
+{
+	double m_a;
+	int64 m_b;
+}
+
+//.............................................................................
+
+///;

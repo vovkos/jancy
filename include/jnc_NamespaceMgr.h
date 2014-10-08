@@ -34,6 +34,7 @@ protected:
 	Module* m_module;
 
 	GlobalNamespace m_globalNamespace;
+	GlobalNamespace* m_jncNamespace;
 	rtl::StdList <GlobalNamespace> m_namespaceList;
 	rtl::StdList <Scope> m_scopeList;
 	rtl::StdList <Orphan> m_orphanList;
@@ -98,6 +99,9 @@ public:
 	{
 		return &m_globalNamespace;
 	}
+
+	GlobalNamespace* 
+	getJncNamespace ();
 
 	Namespace*
 	getCurrentNamespace ()

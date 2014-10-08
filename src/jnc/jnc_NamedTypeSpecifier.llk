@@ -4,7 +4,7 @@
 
 class
 {
-	Type* m_type;
+	NamedType* m_type;
 }
 named_type_specifier
 	:	enum_specifier
@@ -22,6 +22,14 @@ named_type_specifier
 	|	class_specifier
 			{
 				$.m_type = $1.m_type;
+			}
+	;
+
+start
+named_type_specifier_save_type
+	:	named_type_specifier
+			{
+				m_namedType = $1.m_type;
 			}
 	;
 

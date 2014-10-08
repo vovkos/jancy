@@ -108,6 +108,7 @@ Members
 
 	Value m_expressionValue;
 	rtl::BoxList <Value> m_expressionValueList;
+	NamedType* m_namedType;
 }
 
 Members2

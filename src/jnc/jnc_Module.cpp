@@ -12,6 +12,7 @@ Module::Module ()
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_flags = 0;
+	m_compileState = ModuleCompileState_Idle;
 }
 
 void
@@ -43,6 +44,7 @@ Module::clear ()
 	m_llvmExecutionEngine = NULL;
 
 	m_flags = 0;
+	m_compileState = ModuleCompileState_Idle;
 }
 
 bool
@@ -357,6 +359,8 @@ Module::compile ()
 
 	// step 1: resolve imports & orphans
 
+	m_compileState = ModuleCompileState_Resolving;
+
 	result =
 		m_typeMgr.resolveImportTypes () &&
 		m_namespaceMgr.resolveOrphans ();
@@ -366,11 +370,15 @@ Module::compile ()
 
 	// step 2: calc layout
 
+	m_compileState = ModuleCompileState_CalcLayout;
+
 	result = calcLayout ();
 	if (!result)
 		return false;
 
 	// step 3: ensure module constructor (always! cause static variable might appear during compilation)
+
+	m_compileState = ModuleCompileState_Compiling;
 
 	if (m_constructor)
 	{
@@ -423,6 +431,8 @@ Module::compile ()
 	if (m_flags & ModuleFlag_DebugInfo)
 		m_llvmDiBuilder.finalize ();
 
+	m_compileState = ModuleCompileState_Compiled;
+
 	return true;
 }
 
@@ -430,7 +440,16 @@ bool
 Module::jit ()
 {
 	#pragma AXL_TODO ("move JITting logic to CModule")
-	return m_functionMgr.jitFunctions ();
+
+	ASSERT (m_compileState = ModuleCompileState_Compiled);
+
+	m_compileState = ModuleCompileState_Jitting;
+	bool result = m_functionMgr.jitFunctions ();
+	if (!result)
+		return false;
+
+	m_compileState = ModuleCompileState_Jitted;
+	return true;
 }
 
 bool

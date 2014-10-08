@@ -1,0 +1,22 @@
+//.............................................................................
+
+///; static char stringTypeSrc [] = 
+
+struct String
+{
+	char const* dconst m_p;
+	unsigned intptr dconst m_length;
+	bool dconst m_isFinal;
+}
+
+//.............................................................................
+
+///; static char stringBuilderTypeSrc [] = 
+
+class StringBuilder
+{
+}
+
+//.............................................................................
+
+///;

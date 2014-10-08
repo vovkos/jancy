@@ -25,6 +25,7 @@ Parser::Parser ()
 	m_reactorBindSiteTotalCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
+	m_namedType = NULL;
 }
 
 bool

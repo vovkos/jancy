@@ -116,7 +116,11 @@ protected:
 	rtl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
 
 	rtl::StringHashTableMap <Type*> m_typeMap;
+
 	rtl::Array <GcShadowStackFrameTypePair> m_gcShadowStackFrameTypeArray;
+	rtl::Array <NamedImportType*> m_unresolvedNamedImportTypeArray;
+	rtl::Array <ImportPtrType*> m_unresolvedImportPtrTypeArray;
+	rtl::Array <ImportIntModType*> m_unresolvedImportIntModTypeArray;
 
 	size_t m_unnamedEnumTypeCounter;
 	size_t m_unnamedStructTypeCounter;
@@ -284,17 +288,17 @@ public:
 	}
 
 	bool
-	isStdTypeUsed (StdTypeKind stdType)
+	isStdTypeUsed (StdTypeKind stdTypeKind)
 	{
-		ASSERT (stdType < StdTypeKind__Count);
-		return m_stdTypeArray [stdType] != NULL;
+		ASSERT (stdTypeKind < StdTypeKind__Count);
+		return m_stdTypeArray [stdTypeKind] != NULL;
 	}
 
 	Type*
-	getStdType (StdTypeKind stdType);
+	getStdType (StdTypeKind stdTypeKind);
 
 	LazyStdType*
-	getLazyStdType (StdTypeKind stdType);
+	getLazyStdType (StdTypeKind stdTypeKind);
 
 	Type*
 	getInt32Type (int32_t integer)
@@ -958,37 +962,14 @@ protected:
 		const char* signature
 		);
 
-	StructType*
-	createObjHdrType ();
+	NamedType*
+	parseStdNamedType (
+		const char* source,
+		size_t length = -1
+		);
 
 	ClassType*
 	createObjectType ();
-
-	StructType*
-	createReactorBindSiteType ();
-
-	ClassType*
-	createSchedulerType ();
-
-	StructType*
-	createFmtLiteralType ();
-
-	StructType*
-	createGuidType ();
-
-	StructType*
-	createErrorType ();
-
-	StructType*
-	createPairType (
-		const rtl::String& name,
-		const rtl::String& qualifiedName,
-		Type* type1,
-		Type* type2
-		);
-
-	bool
-	createMulticastCallMethod (ClassType* multicastType);
 };
 
 //.............................................................................
