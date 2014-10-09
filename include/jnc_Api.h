@@ -218,7 +218,7 @@ public:
 		uintptr_t flags = 0
 		)
 	{
-		jnc::prime (T::getApiClassType (), T::getApiClassVTable (), this, scopeLevel, root, flags);
+		jnc::prime (T::getApiType (), T::getApiClassVTable (), this, scopeLevel, root, flags);
 	}
 
 	void
