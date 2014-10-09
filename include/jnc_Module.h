@@ -228,19 +228,28 @@ public:
 	ClassType*
 	getClassTypeByName (const char* name)
 	{
-		return verifyModuleItemIsClassType (getItemByName (name), name);
+		return m_namespaceMgr.getGlobalNamespace ()->getClassTypeByName (name);
 	}
 
 	Function*
 	getFunctionByName (const char* name)
 	{
-		return verifyModuleItemIsFunction (getItemByName (name), name);
+		return m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name);
+	}
+
+	Function*
+	getFunctionByName (
+		const char* name,
+		size_t overloadIdx
+		)
+	{
+		return m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name, overloadIdx);
 	}
 
 	Property*
 	getPropertyByName (const char* name)
 	{
-		return verifyModuleItemIsProperty (getItemByName (name), name);
+		return m_namespaceMgr.getGlobalNamespace ()->getPropertyByName (name);
 	}
 
 	ModuleItem*
@@ -265,6 +274,17 @@ public:
 		)
 	{
 		return verifyModuleItemIsFunction (getApiItem (slot, name), name);
+	}
+
+	Function*
+	getApiFunction (
+		size_t slot,
+		const char* name,
+		size_t overloadIdx
+		)
+	{
+		Function* function = getApiFunction (slot, name);
+		return function ? function->getOverload (overloadIdx) : NULL;
 	}
 
 	Property*

@@ -47,7 +47,7 @@ PropertyTemplate::addMethod (
 	{
 		result = 
 			m_verifier.checkSetter (functionType) &&
-			m_setterType.addOverload (functionType);
+			m_setterType.addOverload (functionType) != -1;
 
 		if (!result)
 			return false;

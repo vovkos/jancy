@@ -13,7 +13,6 @@ class Namespace;
 class EnumType;
 class EnumConst;
 class MemberCoord;
-class Function;
 
 struct DualPtrTypeTuple;
 
@@ -110,6 +109,12 @@ public:
 		return verifyModuleItemIsFunction (getItemByName (name), name);
 	}
 
+	Function*
+	getFunctionByName (
+		const char* name,
+		size_t overloadIdx
+		);
+
 	Property*
 	getPropertyByName (const char* name)
 	{
@@ -162,8 +167,8 @@ public:
 		return addItem (item, item);
 	}
 
-	bool
-	addFunction (Function* function);
+	size_t
+	addFunction (Function* function); // returns overload idx or -1 on error
 
 	size_t
 	getItemCount ()

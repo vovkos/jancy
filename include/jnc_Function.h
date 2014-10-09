@@ -8,7 +8,6 @@
 #include "jnc_FunctionTypeOverload.h"
 #include "jnc_NamedType.h"
 #include "jnc_BasicBlock.h"
-#include "jnc_Scope.h"
 #include "jnc_Value.h"
 #include "jnc_Closure.h"
 #include "jnc_UnOp.h"
@@ -23,6 +22,7 @@ class PropertyType;
 class ReactorClassType;
 class Property;
 class JitEventListener;
+class Scope;
 
 //.............................................................................
 
@@ -605,11 +605,11 @@ public:
 	}
 
 	Function*
-	getOverload (size_t overload = 0)
+	getOverload (size_t overloadIdx)
 	{
 		return
-			overload == 0 ? this :
-			overload <= m_overloadArray.getCount () ? m_overloadArray [overload - 1] : NULL;
+			overloadIdx == 0 ? this :
+			overloadIdx <= m_overloadArray.getCount () ? m_overloadArray [overloadIdx - 1] : NULL;
 	}
 
 	Function*
@@ -677,7 +677,7 @@ public:
 		return i != -1 ? getOverload (i) : NULL;
 	}
 
-	bool
+	size_t
 	addOverload (Function* function);
 
 	virtual

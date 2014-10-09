@@ -71,11 +71,11 @@ public:
 	}
 
 	FunctionType*
-	getOverload (size_t overload = 0) const
+	getOverload (size_t overloadIdx = 0) const
 	{
 		return
-			overload == 0 ? m_type :
-			overload <= m_overloadArray.getCount () ? m_overloadArray [overload - 1] : NULL;
+			overloadIdx == 0 ? m_type :
+			overloadIdx <= m_overloadArray.getCount () ? m_overloadArray [overloadIdx - 1] : NULL;
 	}
 
 	size_t
@@ -121,7 +121,7 @@ public:
 		return chooseSetterOverload (functionType->getArgArray ().getBack ()->getType (), castKind);
 	}
 
-	bool
+	size_t
 	addOverload (FunctionType* type);
 
 	void

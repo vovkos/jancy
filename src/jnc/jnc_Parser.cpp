@@ -852,7 +852,7 @@ Parser::declareFunction (
 		return false;
 	}
 
-	return nspace->addFunction (function);
+	return nspace->addFunction (function) != -1;
 }
 
 bool

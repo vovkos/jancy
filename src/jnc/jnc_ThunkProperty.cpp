@@ -62,7 +62,7 @@ ThunkProperty::create (
 		}
 		else
 		{
-			result = m_setter->addOverload (thunkFunction);
+			result = m_setter->addOverload (thunkFunction) != -1;
 			if (!result)
 				return false;
 		}

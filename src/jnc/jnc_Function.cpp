@@ -177,15 +177,16 @@ Function::convertToMemberMethod (NamedType* parentType)
 	m_thisType = m_thisArgType;
 }
 
-bool
+size_t
 Function::addOverload (Function* function)
 {
-	bool result = m_typeOverload.addOverload (function->m_type);
-	if (!result)
-		return false;
-
+	size_t overloadIdx = m_typeOverload.addOverload (function->m_type);
+	if (overloadIdx == -1)
+		return -1;
+	
 	m_overloadArray.append (function);
-	return true;
+	ASSERT (overloadIdx == m_overloadArray.getCount ());
+	return overloadIdx;
 }
 
 void

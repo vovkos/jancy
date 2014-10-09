@@ -473,7 +473,7 @@ Property::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Named:
-		return addFunction (function);
+		return addFunction (function) != -1;
 
 	default:
 		err::setFormatStringError (
@@ -492,7 +492,7 @@ Property::addMethod (Function* function)
 	}
 	else
 	{
-		result = (*target)->addOverload (function);
+		result = (*target)->addOverload (function) != -1;
 		if (!result)
 			return false;
 	}

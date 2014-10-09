@@ -191,18 +191,18 @@ FunctionTypeOverload::chooseSetterOverload (
 	return bestOverload;
 }
 
-bool
+size_t
 FunctionTypeOverload::addOverload (FunctionType* type)
 {
 	if (!m_type)
 	{
 		m_type = type;
-		return true;
+		return 0;
 	}
 	else if (type->getArgSignature ().cmp (m_type->getArgSignature ()) == 0)
 	{
 		err::setFormatStringError ("illegal function overload: duplicate argument signature");
-		return false;
+		return -1;
 	}
 
 	size_t count = m_overloadArray.getCount ();
@@ -213,12 +213,12 @@ FunctionTypeOverload::addOverload (FunctionType* type)
 		if (type->getArgSignature ().cmp (overloadType->getArgSignature ()) == 0)
 		{
 			err::setFormatStringError ("illegal function overload: duplicate argument signature");
-			return false;
+			return -1;
 		}
 	}
 
 	m_overloadArray.append (type);
-	return true;
+	return m_overloadArray.getCount ();
 }
 
 void

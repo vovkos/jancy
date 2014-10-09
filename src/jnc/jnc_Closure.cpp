@@ -205,7 +205,7 @@ Closure::getPropertyClosureType (PropertyPtrType* ptrType)
 
 		argArray.pop ();
 
-		result = closureSetterType.addOverload (closureOverloadType);
+		result = closureSetterType.addOverload (closureOverloadType) != -1;
 		if (!result)
 			return NULL;
 	}

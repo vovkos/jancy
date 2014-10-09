@@ -12,29 +12,43 @@
 
 //.............................................................................
 
-OpaqueTest*
-OpaqueTest::operatorNew (int x, int y)
+void
+AXL_CDECL
+TestClass::construct_0 ()
 {
-	jnc::ApiObjBox <OpaqueTest>* p = AXL_MEM_NEW (jnc::ApiObjBox <OpaqueTest>);
-	p->prime ();
-	p->construct (x, y);
-	return p;
+	printf ("OpaqueTest::construct ()\n");
 }
 
 void
-OpaqueTest::foo ()
+AXL_CDECL
+TestClass::construct_1 (int x)
 {
-	printf ("OpaqueTest::foo () { %d, %d }\n", m_x, m_y);
+	printf ("OpaqueTest::construct (int x = %d)\n", x);
 }
 
-Point
-OpaqueTest::bar (int x)
+void
+AXL_CDECL
+TestClass::construct_2 (double y)
 {
-	printf ("OpaqueTest::bar (%d) { %d, %d }\n", x, m_x, m_y);
+	printf ("OpaqueTest::construct (double y = %f)\n", y);
+}
 
-	Point point = { x, 2 * x };
-//	Point point = { x, 2 * x, 3 * x , 4 * x };
-	return point;
+void
+TestClass::foo_0 ()
+{
+	printf ("OpaqueTest::foo ()\n");
+}
+
+void
+TestClass::foo_1 (int x)
+{
+	printf ("OpaqueTest::foo (int x = %d)\n", x);
+}
+
+void
+TestClass::foo_2 (double y)
+{
+	printf ("OpaqueTest::foo (double y = %f)\n", y);
 }
 
 //.............................................................................

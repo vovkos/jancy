@@ -121,6 +121,7 @@ ClassType::addMethod (Function* function)
 	}
 
 	Function** target = NULL;
+	size_t overloadIdx;
 
 	switch (functionKind)
 	{
@@ -148,7 +149,14 @@ ClassType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Named:
-		return addFunction (function);
+		overloadIdx = addFunction (function);
+		if (overloadIdx == -1)
+			return false;
+
+		if (overloadIdx == 0)
+			m_memberMethodArray.append (function);
+
+		return true;
 
 	case FunctionKind_UnaryOperator:
 		if (m_unaryOperatorTable.isEmpty ())
@@ -214,7 +222,7 @@ ClassType::addMethod (Function* function)
 	}
 	else
 	{
-		bool result = (*target)->addOverload (function);
+		bool result = (*target)->addOverload (function) != -1;
 		if (!result)
 			return false;
 	}

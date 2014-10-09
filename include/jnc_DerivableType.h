@@ -261,6 +261,12 @@ public:
 	}
 
 	Function*
+	getConstructor (size_t overloadIdx)
+	{
+		return m_constructor ? m_constructor->getOverload (overloadIdx) : NULL;
+	}
+
+	Function*
 	getDefaultConstructor ();
 
 	Function*

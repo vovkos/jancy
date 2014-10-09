@@ -95,13 +95,13 @@ mapFunctions (jnc::Module* module) \
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_API_LIB(lib) \
-	result = lib::mapFunctions (module); \
+#define JNC_API_LIB(Lib) \
+	result = Lib::mapFunctions (module); \
 	if (!result) \
 		return false;
 
-#define JNC_API_CLASS(class) \
-	result = class::mapFunctions (module); \
+#define JNC_API_CLASS(Class) \
+	result = Class::mapFunctions (module); \
 	if (!result) \
 		return false;
 
@@ -114,8 +114,32 @@ mapFunctions (jnc::Module* module) \
 	} \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
+#define JNC_API_CONSTRUCTOR(proc) \
+	function = type->getConstructor (); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ()); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+
+#define JNC_API_CONSTRUCTOR_OVERLOAD(overloadIdx, proc) \
+	function = type->getConstructor (overloadIdx); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no constructor overload #%d", type->getTypeString ().cc (), overloadIdx); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+
 #define JNC_API_FUNCTION(name, proc) \
 	function = nspace->getFunctionByName (name); \
+	if (!function) \
+		return false; \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+
+#define JNC_API_FUNCTION_OVERLOAD(name, overloadIdx, proc) \
+	function = nspace->getFunctionByName (name, overloadIdx); \
 	if (!function) \
 		return false; \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));

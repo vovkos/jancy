@@ -4,9 +4,103 @@
 
 struct String
 {
+	enum CopyKind
+	{
+		Final,
+		Attach,
+	}
+
 	char const* dconst m_p;
 	unsigned intptr dconst m_length;
 	bool dconst m_isFinal;
+
+	String ()
+	{
+	}
+
+	String (
+		CopyKind copyKind,
+		String src
+		)
+	{
+		copy (copyKind, src);
+	}
+
+	String (String src)
+	{
+		copy (CopyKind.Final, src);
+	}
+
+	String (
+		CopyKind copyKind,
+		char const* p,
+		size_t length = -1,
+		)
+	{
+		copy (copyKind, p, length);
+	}
+
+	String (
+		char const* p,
+		size_t length = -1,
+		)
+	{
+		copy (CopyKind.Final, p, length);
+	}
+		
+	String (
+		char const* p,
+		size_t length = -1,
+		);
+
+	String operator = (String src)
+	{
+		copy (src);
+	}
+
+	String operator = (char const* p)
+	{
+		copy (src);
+	}
+
+	operator = char const* () const;
+
+	bool ensureFinal () throws;
+	
+	bool copy (
+		CopyKind copyKind,
+		String src
+		) throws;
+
+	bool copy (String src) throws
+	{
+		return copy (CopyKind.Final, src);
+	}
+
+	bool copy (
+		CopyKind copyKind,
+		char const* p,
+		size_t length = -1
+		) throws;
+
+	bool copy (
+		char const* p,
+		size_t length = -1
+		) throws
+	{
+		return copy (CopyKind.Final, p, length);
+	}
+
+	String getFinalString () const
+	{
+		String string;
+		string.copy (CopyKind.Final, *this);
+		return string;
+	}
+
+	bool isZeroTerminated () const;
+	bool ensureZeroTerminated ();
+	String getZeroTerminatedString () const;
 }
 
 //.............................................................................
@@ -15,6 +109,7 @@ struct String
 
 class StringBuilder
 {
+	
 }
 
 //.............................................................................

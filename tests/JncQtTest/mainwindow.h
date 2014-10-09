@@ -19,43 +19,54 @@ struct Point
 
 //.............................................................................
 
-enum EApiSlot
+enum ApiSlot
 {
-	EApiSlot_OpaqueTest = 0,
+	ApiSlot_TestClass = 0,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class OpaqueTest: public jnc::IfaceHdr
+class TestClass: public jnc::IfaceHdr
 {
 public:
-	JNC_API_BEGIN_CLASS ("OpaqueTest", EApiSlot_OpaqueTest)
-		JNC_API_OPERATOR_NEW (&OpaqueTest::operatorNew)
-		JNC_API_FUNCTION ("foo",  &OpaqueTest::foo)
-		JNC_API_FUNCTION ("bar",  &OpaqueTest::bar)
+	JNC_API_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
+		JNC_API_CONSTRUCTOR_OVERLOAD (0, &TestClass::construct_0)
+		JNC_API_CONSTRUCTOR_OVERLOAD (1, &TestClass::construct_1)
+		JNC_API_CONSTRUCTOR_OVERLOAD (2, &TestClass::construct_2)
+
+		JNC_API_FUNCTION_OVERLOAD ("foo", 0, &TestClass::foo_0)
+		JNC_API_FUNCTION_OVERLOAD ("foo", 1, &TestClass::foo_1)
+		JNC_API_FUNCTION_OVERLOAD ("foo", 2, &TestClass::foo_2)
 	JNC_API_END_CLASS ()
 
-protected:
+public:
 	int m_x;
-	int m_y;
+	double m_y;
 
 public:
 	void
-	construct (int x, int y)
-	{
-		m_x = x;
-		m_y = y;
-	}
-
-	static
-	OpaqueTest*
-	operatorNew (int x, int y);
+	AXL_CDECL
+	construct_0 ();
 
 	void
-	foo ();
+	AXL_CDECL
+	construct_1 (int x);
 
-	Point
-	bar (int x);
+	void
+	AXL_CDECL
+	construct_2 (double y);
+
+	void
+	AXL_CDECL
+	foo_0 ();
+
+	void
+	AXL_CDECL
+	foo_1 (int x);
+
+	void
+	AXL_CDECL
+	foo_2 (double y);
 };
 
 //.............................................................................
@@ -65,7 +76,7 @@ class StdLib: public jnc::StdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (jnc::StdFuncKind_Printf,  &Printf)
-//		JNC_API_CLASS (OpaqueTest)
+		JNC_API_CLASS (TestClass)
 		JNC_API_LIB (jnc::StdLib)
 //		JNC_API_FUNCTION ("testPtr",  &testPtr)
 	JNC_API_END_LIB ()

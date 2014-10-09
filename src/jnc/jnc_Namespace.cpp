@@ -220,6 +220,16 @@ Namespace::findItemTraverseImpl (
 	return NULL;
 }
 
+Function*
+Namespace::getFunctionByName (
+	const char* name,
+	size_t overloadIdx
+	)
+{
+	Function* function = getFunctionByName (name);
+	return function ? function->getOverload (overloadIdx) : NULL;
+}
+
 bool
 Namespace::addItem (
 	ModuleItem* item,
@@ -240,21 +250,23 @@ Namespace::addItem (
 	return true;
 }
 
-bool
+size_t
 Namespace::addFunction (Function* function)
 {
-	ModuleItem* oldItem = findItem (function->getName ());
+	ModuleItem* oldItem = findItem (function->m_name);
 	if (!oldItem)
-		return addItem (function);
+	{
+		addItem (function);
+		return 0;
+	}
 
 	if (oldItem->getItemKind () != ModuleItemKind_Function)
 	{
-		setRedefinitionError (function->getName ());
-		return false;
+		setRedefinitionError (function->m_name);
+		return -1;
 	}
 
-	Function* functionOverload = (Function*) oldItem;
-	return functionOverload->addOverload (function);
+	return ((Function*) oldItem)->addOverload (function);
 }
 
 bool
