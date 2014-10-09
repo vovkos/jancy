@@ -10,30 +10,25 @@ namespace jnc {
 
 //.............................................................................
 
-#define JNC_API_BEGIN_CLASS(name, slot) \
-jnc::IfaceHdr* \
-getRootIfaceHdr () \
-{ \
-	return (jnc::IfaceHdr*) (char*) this; \
-} \
+#define JNC_API_BEGIN_TYPE_EX(Type, moduleGetApiType, name, slot) \
 static \
-size_t \
-getApiClassSlot () \
+Type* \
+getApiType () \
 { \
-	return slot; \
+	jnc::Module* module = jnc::getCurrentThreadModule (); \
+	return module->moduleGetApiType (getApiTypeSlot (), getApiTypeName ()); \
 } \
 static \
 const char* \
-getApiClassName () \
+getApiTypeName () \
 { \
 	return name; \
 } \
 static \
-jnc::ClassType* \
-getApiClassType () \
+size_t \
+getApiTypeSlot () \
 { \
-	jnc::Module* module = jnc::getCurrentThreadModule (); \
-	return module->getApiClassType (getApiClassSlot (), getApiClassName ()); \
+	return slot; \
 } \
 static \
 bool \
@@ -41,15 +36,33 @@ mapFunctions (jnc::Module* module) \
 { \
 	bool result = true; \
 	jnc::Function* function = NULL; \
+	jnc::Function* overload = NULL; \
+	size_t overloadIdx = 0; \
 	jnc::Property* prop = NULL; \
-	jnc::ClassType* type = module->getApiClassType (getApiClassSlot (), getApiClassName ()); \
+	Type* type = module->moduleGetApiType (getApiTypeSlot (), getApiTypeName ()); \
 	if (!type) \
 		return false; \
 	jnc::Namespace* nspace = type;
 
-#define JNC_API_END_CLASS() \
+#define JNC_API_BEGIN_TYPE(name, slot) \
+	JNC_API_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
+
+#define JNC_API_END_TYPE() \
 	return true; \
+}
+
+//.............................................................................
+
+#define JNC_API_BEGIN_CLASS(name, slot) \
+jnc::IfaceHdr* \
+getRootIfaceHdr () \
+{ \
+	return (jnc::IfaceHdr*) (char*) this; \
 } \
+JNC_API_BEGIN_TYPE_EX (jnc::ClassType, getApiClassType, name, slot) \
+
+#define JNC_API_END_CLASS() \
+JNC_API_END_TYPE () \
 static \
 void* \
 getApiClassVTable () \
@@ -57,11 +70,8 @@ getApiClassVTable () \
 	return NULL; \
 }
 
-//.............................................................................
-
 #define JNC_API_END_CLASS_BEGIN_VTABLE() \
-	return true; \
-} \
+JNC_API_END_TYPE () \
 static \
 void* \
 getApiClassVTable () \
@@ -86,8 +96,10 @@ mapFunctions (jnc::Module* module) \
 { \
 	bool result = true; \
 	jnc::Function* function = NULL; \
+	jnc::Function* overload = NULL; \
+	size_t overloadIdx = 0; \
 	jnc::Property* prop = NULL; \
-	jnc::Namespace* nspace = module->m_namespaceMgr.getGlobalNamespace ();
+	jnc::Namespace* nspace = module->m_namespaceMgr.getGlobalNamespace (); \
 
 #define JNC_API_END_LIB() \
 	return true; \
@@ -100,8 +112,8 @@ mapFunctions (jnc::Module* module) \
 	if (!result) \
 		return false;
 
-#define JNC_API_CLASS(Class) \
-	result = Class::mapFunctions (module); \
+#define JNC_API_TYPE(Type) \
+	result = Type::mapFunctions (module); \
 	if (!result) \
 		return false;
 
@@ -121,28 +133,35 @@ mapFunctions (jnc::Module* module) \
 		err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ()); \
 		return false; \
 	} \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
 
-#define JNC_API_CONSTRUCTOR_OVERLOAD(overloadIdx, proc) \
-	function = type->getConstructor (overloadIdx); \
+#define JNC_API_DESTRUCTOR(proc) \
+	function = type->getDestructor (); \
 	if (!function) \
 	{ \
-		err::setFormatStringError ("'%s' has no constructor overload #%d", type->getTypeString ().cc (), overloadIdx); \
+		err::setFormatStringError ("'%s' has no destructor", type->getTypeString ().cc ()); \
 		return false; \
 	} \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
 
 #define JNC_API_FUNCTION(name, proc) \
 	function = nspace->getFunctionByName (name); \
 	if (!function) \
 		return false; \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
 
-#define JNC_API_FUNCTION_OVERLOAD(name, overloadIdx, proc) \
-	function = nspace->getFunctionByName (name, overloadIdx); \
-	if (!function) \
+#define JNC_API_OVERLOAD(proc) \
+	ASSERT (function); \
+	overload = function->getOverload (++overloadIdx); \
+	if (!overload) \
+	{ \
+		err::setFormatStringError ("'%s' is not overloaded", function->m_tag.cc ()); \
 		return false; \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	} \
+	module->mapFunction (overload->getLlvmFunction (), pvoid_cast (proc));
 
 #define JNC_API_STD_FUNCTION_FORCED(stdFunc, proc) \
 	function = module->m_functionMgr.getStdFunction (stdFunc); \

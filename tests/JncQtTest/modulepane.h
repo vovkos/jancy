@@ -35,15 +35,13 @@ private:
 	void addFunctionImpl(QTreeWidgetItem *parent, jnc::Function *function);
 	void addProperty(QTreeWidgetItem *parent, jnc::Property *prop);
 	void addEnumTypeMembers(QTreeWidgetItem *parent, jnc::EnumType *type);
-	void addStructTypeMembers(QTreeWidgetItem *parent, jnc::StructType *type);
-	
+	void addClassTypeMembers(QTreeWidgetItem *parent, jnc::ClassType *type);
+	void addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::DerivableType *type);
+
 	void addStructField(QTreeWidgetItem *parent, jnc::StructField *field)
 	{
 		addValue (parent, field->getName (), field->getType (), field);
 	}
-
-	void addUnionTypeMembers(QTreeWidgetItem *parent, jnc::UnionType *type);
-	void addClassTypeMembers(QTreeWidgetItem *parent, jnc::ClassType *type);
 
 	MdiChild *document;
 };

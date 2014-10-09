@@ -209,11 +209,8 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 		break;
 
 	case jnc::TypeKind_Struct:
-		addStructTypeMembers(item, (jnc::StructType *)type);
-		break;
-
 	case jnc::TypeKind_Union:
-		addUnionTypeMembers(item, (jnc::UnionType *)type);
+		addDerivableTypeMembers(item, (jnc::StructType *)type);
 		break;
 
 	case jnc::TypeKind_Class:
@@ -266,29 +263,15 @@ void ModulePane::addEnumTypeMembers (QTreeWidgetItem *parent, jnc::EnumType* typ
 	expandItem (parent);
 }
 
-void ModulePane::addStructTypeMembers (QTreeWidgetItem *parent, jnc::StructType* pType)
+void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::DerivableType *pType)
 {
-	rtl::Iterator <jnc::StructField> Member = pType->getFieldList ().getHead ();
-	for (; Member; Member++)
-		addStructField (parent, *Member);
-
-	expandItem (parent);
-}
-
-void ModulePane::addUnionTypeMembers (QTreeWidgetItem *parent, jnc::UnionType* pType)
-{
-	rtl::Iterator <jnc::StructField> Member = pType->getFieldList ().getHead ();
-	for (; Member; Member++)
-		addStructField (parent, *Member);
-
-	expandItem (parent);
-}
-
-void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::ClassType* pType)
-{
-	rtl::Iterator <jnc::StructField> Member = pType->getFieldList ().getHead ();
-	for (; Member; Member++)
-		addStructField (parent, *Member);
+	rtl::Array <jnc::StructField*> FieldArray = pType->getMemberFieldArray ();
+	size_t Count = FieldArray.getCount ();
+	for (size_t i = 0; i < Count; i++)
+	{
+		jnc::StructField* pField = FieldArray [i];
+		addStructField (parent, pField);
+	}
 
 	if (pType->getStaticConstructor ())
 		addItem (parent, pType->getStaticConstructor ());
@@ -302,11 +285,8 @@ void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::ClassType* p
 	if (pType->getConstructor ())
 		addItem (parent, pType->getConstructor ());
 
-	if (pType->getDestructor ())
-		addItem (parent, pType->getDestructor ());
-
 	rtl::Array <jnc::Property*> PropertyArray = pType->getMemberPropertyArray ();
-	size_t Count = PropertyArray.getCount ();
+	Count = PropertyArray.getCount ();
 	for (size_t i = 0; i < Count; i++)
 	{
 		jnc::Property* pProp = PropertyArray [i];
@@ -322,6 +302,14 @@ void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::ClassType* p
 	}
 
 	expandItem (parent);
+}
+
+void ModulePane::addClassTypeMembers (QTreeWidgetItem *parent, jnc::ClassType* pType)
+{
+	if (pType->getDestructor ())
+		addItem (parent, pType->getDestructor ());
+
+	addDerivableTypeMembers (parent, pType);
 }
 
 void ModulePane::addFunction (QTreeWidgetItem *parent, jnc::Function* pFunction)

@@ -16,39 +16,94 @@ void
 AXL_CDECL
 TestClass::construct_0 ()
 {
-	printf ("OpaqueTest::construct ()\n");
+	printf ("TestClass::construct () { m_x = %d, m_y = %f } { m_x = %d, m_y = %f }\n", m_x, m_y);
 }
 
 void
 AXL_CDECL
 TestClass::construct_1 (int x)
 {
-	printf ("OpaqueTest::construct (int x = %d)\n", x);
+	printf ("TestClass::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, m_x, m_y);
 }
 
 void
 AXL_CDECL
 TestClass::construct_2 (double y)
 {
-	printf ("OpaqueTest::construct (double y = %f)\n", y);
+	printf ("TestClass::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, m_x, m_y);
 }
 
 void
+AXL_CDECL
 TestClass::foo_0 ()
 {
-	printf ("OpaqueTest::foo ()\n");
+	printf ("TestClass::foo () { m_x = %d, m_y = %f }\n", m_x, m_y);
 }
 
 void
+AXL_CDECL
 TestClass::foo_1 (int x)
 {
-	printf ("OpaqueTest::foo (int x = %d)\n", x);
+	printf ("TestClass::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, m_x, m_y);
 }
 
 void
+AXL_CDECL
 TestClass::foo_2 (double y)
 {
-	printf ("OpaqueTest::foo (double y = %f)\n", y);
+	printf ("TestClass::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, m_x, m_y);
+}
+
+//.............................................................................
+
+void
+AXL_CDECL
+TestStruct::construct_0 (jnc::DataPtr selfPtr)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::construct () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
+}
+
+void
+AXL_CDECL
+TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
+	self->m_x = x;
+}
+
+void
+AXL_CDECL
+TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
+	self->m_y = y;
+}
+
+void
+AXL_CDECL
+TestStruct::foo_0 (jnc::DataPtr selfPtr)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::foo () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
+}
+
+void
+AXL_CDECL
+TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
+}
+
+void
+AXL_CDECL
+TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
+{
+	TestStruct* self = (TestStruct*) selfPtr.m_p;
+	printf ("TestStruct::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
 }
 
 //.............................................................................

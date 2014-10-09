@@ -97,6 +97,18 @@ public:
 	ModuleItem*
 	getItemByName (const char* name);
 
+	Type*
+	getTypeByName (const char* name)
+	{
+		return verifyModuleItemIsType (getItemByName (name), name);
+	}
+
+	DerivableType*
+	getDerivableTypeByName (const char* name)
+	{
+		return verifyModuleItemIsDerivableType (getItemByName (name), name);
+	}
+
 	ClassType*
 	getClassTypeByName (const char* name)
 	{

@@ -12,6 +12,8 @@ class Module;
 class Unit;
 class Namespace;
 class AttributeBlock;
+class Type;
+class DerivableType;
 class ClassType;
 class Function;
 class Property;
@@ -314,6 +316,18 @@ public:
 };
 
 //.............................................................................
+
+Type*
+verifyModuleItemIsType (
+	ModuleItem* item,
+	const char* name
+	);
+
+DerivableType*
+verifyModuleItemIsDerivableType (
+	ModuleItem* item,
+	const char* name
+	);
 
 ClassType*
 verifyModuleItemIsClassType (

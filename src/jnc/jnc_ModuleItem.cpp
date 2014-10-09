@@ -143,6 +143,43 @@ ModuleItem::ensureLayout ()
 
 //.............................................................................
 
+Type*
+verifyModuleItemIsType (
+	ModuleItem* item,
+	const char* name
+	)
+{
+	if (!item)
+		return NULL;
+
+	if (item->getItemKind () != ModuleItemKind_Type)
+	{
+		err::setFormatStringError ("'%s' is not a type", name);
+		return NULL;
+	}
+
+	return (Type*) item;
+}
+
+DerivableType*
+verifyModuleItemIsDerivableType (
+	ModuleItem* item,
+	const char* name
+	)
+{
+	if (!item)
+		return NULL;
+
+	if (item->getItemKind () != ModuleItemKind_Type || 
+		!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Derivable))
+	{
+		err::setFormatStringError ("'%s' is not a derivable type", name);
+		return NULL;
+	}
+
+	return (DerivableType*) item;
+}
+
 ClassType*
 verifyModuleItemIsClassType (
 	ModuleItem* item,
@@ -152,7 +189,8 @@ verifyModuleItemIsClassType (
 	if (!item)
 		return NULL;
 
-	if (item->getItemKind () != ModuleItemKind_Type || ((Type*) item)->getTypeKind () != TypeKind_Class)
+	if (item->getItemKind () != ModuleItemKind_Type || 
+		((Type*) item)->getTypeKind () != TypeKind_Class)
 	{
 		err::setFormatStringError ("'%s' is not a class", name);
 		return NULL;

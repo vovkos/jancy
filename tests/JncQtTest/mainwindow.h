@@ -22,6 +22,7 @@ struct Point
 enum ApiSlot
 {
 	ApiSlot_TestClass = 0,
+	ApiSlot_TestStruct,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -30,13 +31,13 @@ class TestClass: public jnc::IfaceHdr
 {
 public:
 	JNC_API_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
-		JNC_API_CONSTRUCTOR_OVERLOAD (0, &TestClass::construct_0)
-		JNC_API_CONSTRUCTOR_OVERLOAD (1, &TestClass::construct_1)
-		JNC_API_CONSTRUCTOR_OVERLOAD (2, &TestClass::construct_2)
+		JNC_API_CONSTRUCTOR (&TestClass::construct_0)
+		JNC_API_OVERLOAD (&TestClass::construct_1)
+		JNC_API_OVERLOAD (&TestClass::construct_2)
 
-		JNC_API_FUNCTION_OVERLOAD ("foo", 0, &TestClass::foo_0)
-		JNC_API_FUNCTION_OVERLOAD ("foo", 1, &TestClass::foo_1)
-		JNC_API_FUNCTION_OVERLOAD ("foo", 2, &TestClass::foo_2)
+		JNC_API_FUNCTION ("foo", &TestClass::foo_0)
+		JNC_API_OVERLOAD (&TestClass::foo_1)
+		JNC_API_OVERLOAD (&TestClass::foo_2)
 	JNC_API_END_CLASS ()
 
 public:
@@ -69,6 +70,69 @@ public:
 	foo_2 (double y);
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class TestStruct
+{
+public:
+	JNC_API_BEGIN_TYPE ("TestStruct", ApiSlot_TestStruct)
+		JNC_API_CONSTRUCTOR (&TestStruct::construct_0)
+		JNC_API_OVERLOAD (&TestStruct::construct_1)
+		JNC_API_OVERLOAD (&TestStruct::construct_2)
+
+		JNC_API_FUNCTION ("foo", &TestStruct::foo_0)
+		JNC_API_OVERLOAD (&TestStruct::foo_1)
+		JNC_API_OVERLOAD (&TestStruct::foo_2)
+	JNC_API_END_TYPE ()
+
+public:
+	int m_x;
+	double m_y;
+
+public:
+	static
+	void
+	AXL_CDECL
+	construct_0 (jnc::DataPtr selfPtr);
+
+	static
+	void
+	AXL_CDECL
+	construct_1 (
+		jnc::DataPtr selfPtr, 
+		int x
+		);
+
+	static
+	void
+	AXL_CDECL
+	construct_2 (
+		jnc::DataPtr selfPtr, 
+		double y
+		);
+
+	static
+	void
+	AXL_CDECL
+	foo_0 (jnc::DataPtr selfPtr);
+
+	static
+	void
+	AXL_CDECL
+	foo_1 (
+		jnc::DataPtr selfPtr, 
+		int x
+		);
+
+	static
+	void
+	AXL_CDECL
+	foo_2 (
+		jnc::DataPtr selfPtr, 
+		double y
+		);
+};
+
 //.............................................................................
 
 class StdLib: public jnc::StdLib
@@ -76,7 +140,8 @@ class StdLib: public jnc::StdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (jnc::StdFuncKind_Printf,  &Printf)
-		JNC_API_CLASS (TestClass)
+//		JNC_API_TYPE (TestClass)
+//		JNC_API_TYPE (TestStruct)
 		JNC_API_LIB (jnc::StdLib)
 //		JNC_API_FUNCTION ("testPtr",  &testPtr)
 	JNC_API_END_LIB ()

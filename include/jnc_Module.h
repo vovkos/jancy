@@ -225,6 +225,18 @@ public:
 		return m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
 	}
 
+	Type*
+	getTypeByName (const char* name)
+	{
+		return m_namespaceMgr.getGlobalNamespace ()->getTypeByName (name);
+	}
+
+	DerivableType*
+	getDerivableTypeByName (const char* name)
+	{
+		return m_namespaceMgr.getGlobalNamespace ()->getDerivableTypeByName (name);
+	}
+
 	ClassType*
 	getClassTypeByName (const char* name)
 	{
@@ -257,6 +269,24 @@ public:
 		size_t slot,
 		const char* name
 		);
+
+	Type*
+	getApiType (
+		size_t slot,
+		const char* name
+		)
+	{
+		return verifyModuleItemIsType (getApiItem (slot, name), name);
+	}
+
+	DerivableType*
+	getApiDerivableType (
+		size_t slot,
+		const char* name
+		)
+	{
+		return verifyModuleItemIsDerivableType (getApiItem (slot, name), name);
+	}
 
 	ClassType*
 	getApiClassType (
