@@ -52,7 +52,7 @@ dataPtrDifferenceOperator (
 	ASSERT (rawOpValue2.getType ()->getTypeKind () == TypeKind_DataPtr);
 	
 	DataPtrType* opType = (DataPtrType*) rawOpValue1.getType ();
-	DataPtrType* bytePtrType = (DataPtrType*) module->getSimpleType (StdTypeKind_BytePtr);
+	DataPtrType* bytePtrType = (DataPtrType*) module->getSimpleType (StdType_BytePtr);
 
 	Value opValue1;
 	Value opValue2;

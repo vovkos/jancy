@@ -27,7 +27,7 @@ BinOp_At::op (
 	Value schedulerValue;
 	result = m_module->m_operatorMgr.castOperator (
 		opValue2,
-		m_module->m_typeMgr.getStdType (StdTypeKind_SchedulerPtr),
+		m_module->m_typeMgr.getStdType (StdType_SchedulerPtr),
 		&schedulerValue
 		);
 

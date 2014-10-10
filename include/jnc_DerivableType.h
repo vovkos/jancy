@@ -166,6 +166,7 @@ protected:
 
 	rtl::Array <Function*> m_unaryOperatorTable;
 	rtl::Array <Function*> m_binaryOperatorTable;
+	rtl::Array <Function*> m_castOperatorTable;
 	rtl::StringHashTableMap <Function*> m_castOperatorMap;
 	Function* m_callOperator;
 
@@ -290,15 +291,26 @@ public:
 	Function*
 	getUnaryOperator (UnOpKind opKind)
 	{
-		ASSERT ((size_t) opKind < UnOpKind__Count);
-		return m_unaryOperatorTable ? m_unaryOperatorTable [opKind] : NULL;
+		return (size_t) opKind < m_unaryOperatorTable.getCount () ? m_unaryOperatorTable [opKind] : NULL;
 	}
 
 	Function*
 	getBinaryOperator (BinOpKind opKind)
 	{
-		ASSERT ((size_t) opKind < BinOpKind__Count);
-		return m_binaryOperatorTable ? m_binaryOperatorTable [opKind] : NULL;
+		return (size_t) opKind < m_binaryOperatorTable.getCount () ? m_binaryOperatorTable [opKind] : NULL;
+	}
+
+	Function*
+	getCastOperator (size_t i)
+	{
+		return i < m_castOperatorTable.getCount () ? m_castOperatorTable [i] : NULL;
+	}
+
+	Function*
+	getCastOperator (Type* type)
+	{
+		rtl::StringHashTableMapIterator <Function*> it = m_castOperatorMap.find (type->getSignature ());
+		return it ? it->m_value : NULL;
 	}
 
 	Function*

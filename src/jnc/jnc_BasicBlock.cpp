@@ -20,7 +20,7 @@ BasicBlock::getBlockAddressValue ()
 	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get (m_function->getLlvmFunction (), m_llvmBlock);
 	
 	Value value;
-	value.setLlvmValue (llvmAddress, m_module->getSimpleType (StdTypeKind_BytePtr));
+	value.setLlvmValue (llvmAddress, m_module->getSimpleType (StdType_BytePtr));
 	return value;	
 }
 

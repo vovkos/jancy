@@ -190,7 +190,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	ASSERT (offset < 0);
 
 	Value bytePtrValue;
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &bytePtrValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &bytePtrValue);
 	m_module->m_llvmIrBuilder.createGep (bytePtrValue, (int32_t) offset, NULL, &bytePtrValue);
 	m_module->m_llvmIrBuilder.createBitCast (bytePtrValue, dstType, resultValue);
 	return offset;

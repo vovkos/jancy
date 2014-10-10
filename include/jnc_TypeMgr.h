@@ -64,8 +64,10 @@ protected:
 	Module* m_module;
 
 	Type m_primitiveTypeArray [TypeKind__PrimitiveTypeCount];
-	Type* m_stdTypeArray [StdTypeKind__Count];
-	LazyStdType* m_lazyStdTypeArray [StdTypeKind__Count];
+	Type* m_stdTypeArray [StdType__Count];
+	Typedef m_stdTypedefArray [StdTypedef__Count];
+	LazyStdType* m_lazyStdTypeArray [StdType__Count];
+	CallConv* m_callConvArray [CallConvKind__Count];
 
 	JnccallCallConv_msc32 m_jnccallCallConv_msc32;
 	JnccallCallConv_msc64 m_jnccallCallConv_msc64;
@@ -78,8 +80,6 @@ protected:
 	StdcallCallConv_msc32 m_stdcallCallConv_msc32;
 	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
 	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;
-
-	CallConv* m_callConvTable [CallConvKind__Count];
 
 	rtl::StdList <ArrayType> m_arrayTypeList;
 	rtl::StdList <BitFieldType> m_bitFieldTypeList;
@@ -126,6 +126,8 @@ protected:
 	size_t m_unnamedStructTypeCounter;
 	size_t m_unnamedUnionTypeCounter;
 	size_t m_unnamedClassTypeCounter;
+
+	size_t m_parseStdTypeLevel;
 
 public:
 	TypeMgr ();
@@ -288,17 +290,24 @@ public:
 	}
 
 	bool
-	isStdTypeUsed (StdTypeKind stdTypeKind)
+	isStdTypeUsed (StdType stdType)
 	{
-		ASSERT (stdTypeKind < StdTypeKind__Count);
-		return m_stdTypeArray [stdTypeKind] != NULL;
+		ASSERT (stdType < StdType__Count);
+		return m_stdTypeArray [stdType] != NULL;
 	}
 
 	Type*
-	getStdType (StdTypeKind stdTypeKind);
+	getStdType (StdType stdType);
 
 	LazyStdType*
-	getLazyStdType (StdTypeKind stdTypeKind);
+	getLazyStdType (StdType stdType);
+
+	Typedef*
+	getStdTypedef (StdTypedef stdTypedef)
+	{
+		ASSERT (stdTypedef < StdTypedef__Count);
+		return &m_stdTypedefArray [stdTypedef];
+	}
 
 	Type*
 	getInt32Type (int32_t integer)
@@ -484,7 +493,7 @@ public:
 	getCallConv (CallConvKind callConvKind)
 	{
 		ASSERT (callConvKind < CallConvKind__Count);
-		return m_callConvTable [callConvKind];
+		return m_callConvArray [callConvKind];
 	}
 
 	FunctionType*
@@ -502,7 +511,7 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (m_callConvTable [CallConvKind_Default], returnType, argArray, flags);
+		return getFunctionType (m_callConvArray [CallConvKind_Default], returnType, argArray, flags);
 	}
 
 	FunctionType*
@@ -512,7 +521,7 @@ public:
 		)
 	{
 		return getFunctionType (
-			m_callConvTable [CallConvKind_Default],
+			m_callConvArray [CallConvKind_Default],
 			&m_primitiveTypeArray [TypeKind_Void],
 			argArray,
 			flags
@@ -536,7 +545,7 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (m_callConvTable [CallConvKind_Default], returnType, argType, argCount, flags);
+		return getFunctionType (m_callConvArray [CallConvKind_Default], returnType, argType, argCount, flags);
 	}
 
 	FunctionType*
@@ -547,7 +556,7 @@ public:
 		)
 	{
 		return getFunctionType (
-			m_callConvTable [CallConvKind_Default],
+			m_callConvArray [CallConvKind_Default],
 			&m_primitiveTypeArray [TypeKind_Void],
 			argType,
 			argCount,
@@ -558,7 +567,7 @@ public:
 	FunctionType*
 	getFunctionType ()
 	{
-		return (FunctionType*) getStdType (StdTypeKind_SimpleFunction);
+		return (FunctionType*) getStdType (StdType_SimpleFunction);
 	}
 
 	FunctionType*
@@ -576,7 +585,7 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createUserFunctionType (m_callConvTable [CallConvKind_Default], returnType, argArray, flags);
+		return createUserFunctionType (m_callConvArray [CallConvKind_Default], returnType, argArray, flags);
 	}
 
 	FunctionType*
@@ -586,7 +595,7 @@ public:
 		)
 	{
 		return createUserFunctionType (
-			m_callConvTable [CallConvKind_Default],
+			m_callConvArray [CallConvKind_Default],
 			&m_primitiveTypeArray [TypeKind_Void],
 			argArray,
 			flags
@@ -624,7 +633,7 @@ public:
 		)
 	{
 		return getSimplePropertyType (
-			m_callConvTable [CallConvKind_Default],
+			m_callConvArray [CallConvKind_Default],
 			returnType,
 			flags
 			);
@@ -953,13 +962,23 @@ protected:
 	setupAllPrimitiveTypes ();
 
 	void
-	setupCallConvTable ();
+	setupStdTypedefArray ();
+
+	void
+	setupCallConvArray ();
 
 	void
 	setupPrimitiveType (
 		TypeKind typeKind,
 		size_t size,
 		const char* signature
+		);
+
+	void
+	setupStdTypedef (
+		StdTypedef stdTypedef,
+		TypeKind typeKind,
+		const rtl::String& name
 		);
 
 	NamedType*
@@ -970,6 +989,9 @@ protected:
 
 	ClassType*
 	createObjectType ();
+
+	StructType*
+	createObjHdrType ();
 };
 
 //.............................................................................

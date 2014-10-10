@@ -1,17 +1,5 @@
 //.............................................................................
 
-///; static char objHdrTypeSrc [] = 
-
-struct ObjHdr
-{
-	unsigned intptr m_scopeLevel;
-	ObjHdr thin* m_root;
-	unsigned char thin* m_type;
-	intptr m_flags;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 ///; static char schedulerTypeSrc [] = 
 
 class Scheduler

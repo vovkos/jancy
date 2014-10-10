@@ -1,22 +1,32 @@
 //.............................................................................
 
-///; static char smartPtrTypeSrc [] = 
+///; static char constArrayTypeSrc [] = 
 
-struct Ptr
+struct ConstArray
 {
-	void* dconst m_p;
-	unsigned intptr dconst m_count;
+	void const* dconst m_p;
+	size_t dconst m_count;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char smartConstPtrTypeSrc [] = 
+///; static char constArrayRefTypeSrc [] = 
 
-struct ConstPtr
+struct ConstArrayRef
+{
+	void const* dconst m_p;
+	size_t dconst m_count;
+	bool dconst m_isFinal;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char arrayRefTypeSrc [] = 
+
+struct ArrayRef
 {
 	void* dconst m_p;
-	unsigned intptr dconst m_count;
-	bool dconst m_isFinal;
+	size_t dconst m_count;
 }
 
 //.............................................................................

@@ -16,7 +16,7 @@ while (chomp (my $s = <>))
 
 		if ($s !~ m/^[ \t]*$/)
 		{
-			print ("\"$s\"");
+			print ("\"$s\\n\"");
 		}	
 	}	
 

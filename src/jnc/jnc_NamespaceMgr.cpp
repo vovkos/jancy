@@ -51,29 +51,44 @@ NamespaceMgr::addStdItems ()
 	GlobalNamespace* jnc = getJncNamespace ();
 
 	return
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uintptr_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_size_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint8_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uchar_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_byte_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint16_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_ushort_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_word_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint32_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
+		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrLen)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
+		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&
 		m_globalNamespace.addItem (jnc) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_StrLen)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_MemCpy)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_MemCat)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Rand)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Printf)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Atoi)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Scheduler)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Guid)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_Error)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_String)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_StringBuilder)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_SmartPtr)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_SmartConstPtr)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdTypeKind_DynamicArray)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetDataPtrSpan)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_RunGc)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_CreateThread)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Sleep)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetCurrentThreadId)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetTimestamp)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_GetLastError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFuncKind_Format));
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_String)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringRef)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringBuilder)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstArray)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstArrayRef)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ArrayRef)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_DynamicArray)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetDataPtrSpan)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_RunGc)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CreateThread)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Sleep)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetCurrentThreadId)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetTimestamp)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetLastError)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Format));
 }
 
 Value
@@ -83,7 +98,7 @@ NamespaceMgr::getStaticObjHdr ()
 		return m_staticObjectValue;
 
 	static ObjHdr* staticObjHdr = jnc::getStaticObjHdr ();
-	m_staticObjectValue.createConst (&staticObjHdr, m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr));
+	m_staticObjectValue.createConst (&staticObjHdr, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr));
 	return m_staticObjectValue;
 }
 

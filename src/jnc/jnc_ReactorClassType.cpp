@@ -69,7 +69,7 @@ ReactorClassType::calcLayout ()
 	ASSERT (parser.m_reactorBindSiteTotalCount);
 	m_bindSiteCount = parser.m_reactorBindSiteTotalCount;
 
-	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
 	ArrayType* bindSiteArrayType = bindSiteType->getArrayType (m_bindSiteCount);
 	m_fieldArray [ReactorFieldKind_BindSiteArray] = createField ("!m_bindSiteArray", bindSiteArrayType);
 
@@ -85,7 +85,7 @@ ReactorClassType::bindHandlers (const rtl::ConstList <Reaction>& handlerList)
 {
 	bool result;
 
-	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
 	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
 	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
 
@@ -303,7 +303,7 @@ ReactorClassType::compileStopMethod ()
 {
 	bool result;
 
-	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdTypeKind_ReactorBindSite);
+	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
 	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
 	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
 

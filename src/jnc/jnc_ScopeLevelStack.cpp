@@ -73,7 +73,7 @@ ScopeLevelStack::getObjHdr (size_t level)
 	Value scopeLevelValue = getScopeLevel (level);
 	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, objHdrValue);
 
-	type = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr);
+	type = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
 	m_module->m_llvmIrBuilder.createBitCast (objHdrValue, type, &objHdrValue);
 
 #ifndef _JNC_NO_SCOPE_LEVEL_CACHE

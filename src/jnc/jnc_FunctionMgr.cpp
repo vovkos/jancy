@@ -356,7 +356,7 @@ FunctionMgr::createThisValue ()
 		ASSERT (function->m_storageKind == StorageKind_Override && function->m_thisArgDelta < 0);
 
 		Value ptrValue;
-		m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdTypeKind_BytePtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdType_BytePtr), &ptrValue);
 		m_module->m_llvmIrBuilder.createGep (ptrValue, (int32_t) function->m_thisArgDelta, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast (ptrValue, function->m_thisType, &m_thisValue);
 	}
@@ -619,7 +619,7 @@ FunctionMgr::getScheduleLauncherFunction (
 	if (thunk->m_value)
 		return thunk->m_value;
 
-	ClassPtrType* schedulerPtrType = ((ClassType*) m_module->getSimpleType (StdTypeKind_Scheduler))->getClassPtrType (schedulerPtrTypeKind);
+	ClassPtrType* schedulerPtrType = ((ClassType*) m_module->getSimpleType (StdType_Scheduler))->getClassPtrType (schedulerPtrTypeKind);
 
 	rtl::Array <FunctionArg*> argArray  = targetFunctionPtrType->getTargetType ()->getArgArray ();
 	argArray.insert (0, targetFunctionPtrType->getSimpleFunctionArg ());
@@ -685,7 +685,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 
 	m_module->m_llvmIrBuilder.setInsertPoint (llvmAnchor);
 
-	Function* getTls = getStdFunction (StdFuncKind_GetTls);
+	Function* getTls = getStdFunction (StdFunction_GetTls);
 	Value tlsValue;
 	llvmAnchor = m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
 
@@ -810,9 +810,9 @@ FunctionMgr::jitFunctions ()
 }
 
 Function*
-FunctionMgr::getStdFunction (StdFuncKind func)
+FunctionMgr::getStdFunction (StdFunction func)
 {
-	ASSERT ((size_t) func < StdFuncKind__Count);
+	ASSERT ((size_t) func < StdFunction__Count);
 
 	if (m_stdFunctionArray [func])
 		return m_stdFunctionArray [func];
@@ -825,146 +825,146 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 
 	switch (func)
 	{
-	case StdFuncKind_RuntimeError:
+	case StdFunction_RuntimeError:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
-		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.runtimeError", functionType);
 		break;
 
-	case StdFuncKind_CheckNullPtr:
+	case StdFunction_CheckNullPtr:
 		function = createCheckNullPtr ();
 		break;
 
-	case StdFuncKind_CheckScopeLevel:
+	case StdFunction_CheckScopeLevel:
 		function = createCheckScopeLevel ();
 		break;
 
-	case StdFuncKind_CheckClassPtrScopeLevel:
+	case StdFunction_CheckClassPtrScopeLevel:
 		function = createCheckClassPtrScopeLevel ();
 		break;
 
-	case StdFuncKind_CheckDataPtrRange:
+	case StdFunction_CheckDataPtrRange:
 		function = createCheckDataPtrRange ();
 		break;
 
-	case StdFuncKind_DynamicCastClassPtr:
-		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
-		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+	case StdFunction_DynamicCastClassPtr:
+		returnType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.dynamicCastClassPtr", functionType);
 		break;
 
-	case StdFuncKind_StrengthenClassPtr:
-		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
-		argTypeArray [0] = ((ClassType*) m_module->m_typeMgr.getStdType (StdTypeKind_ObjectClass))->getClassPtrType (ClassPtrTypeKind_Weak);
+	case StdFunction_StrengthenClassPtr:
+		returnType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+		argTypeArray [0] = ((ClassType*) m_module->m_typeMgr.getStdType (StdType_ObjectClass))->getClassPtrType (ClassPtrTypeKind_Weak);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.strengthenClassPtr", functionType);
 		break;
 
-	case StdFuncKind_GetDataPtrSpan:
+	case StdFunction_GetDataPtrSpan:
 		function = createGetDataPtrSpan ();
 		break;
 
-	case StdFuncKind_GcAllocate:
-		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+	case StdFunction_GcAllocate:
+		returnType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.gcAllocate", functionType);
 		break;
 
-	case StdFuncKind_GcTryAllocate:
-		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+	case StdFunction_GcTryAllocate:
+		returnType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.gcTryAllocate", functionType);
 		break;
 
-	case StdFuncKind_MarkGcRoot:
+	case StdFunction_MarkGcRoot:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getDataPtrType_c ();
-		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getDataPtrType_c ();
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.markGcRoot", functionType);
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (m_module->getLlvmModule (), llvm::Intrinsic::gcroot);
 		break;
 
-	case StdFuncKind_GetTls:
+	case StdFunction_GetTls:
 		returnType = m_module->m_variableMgr.getTlsStructType ()->getDataPtrType (DataPtrTypeKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
 		break;
 
-	case StdFuncKind_GcEnter:
+	case StdFunction_GcEnter:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.gcEnter", functionType);
 		break;
 
-	case StdFuncKind_GcLeave:
+	case StdFunction_GcLeave:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.gcLeave", functionType);
 		break;
 
-	case StdFuncKind_GcPulse:
+	case StdFunction_GcPulse:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.gcPulse", functionType);
 		break;
 
-	case StdFuncKind_RunGc:
+	case StdFunction_RunGc:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction ("runGc", "jnc.runGc", functionType);
 		break;
 
-	case StdFuncKind_CreateThread:
+	case StdFunction_CreateThread:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
-		argTypeArray [0] = ((FunctionType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleFunction))->getFunctionPtrType (FunctionPtrTypeKind_Normal, PtrTypeFlag_Safe);
+		argTypeArray [0] = ((FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction))->getFunctionPtrType (FunctionPtrTypeKind_Normal, PtrTypeFlag_Safe);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction ("createThread", "jnc.createThread", functionType);
 		break;
 
-	case StdFuncKind_Sleep:
+	case StdFunction_Sleep:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32_u);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction ("sleep", "jnc.sleep", functionType);
 		break;
 
-	case StdFuncKind_GetTimestamp:
+	case StdFunction_GetTimestamp:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
-		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction ("getTimestamp", "jnc.getTimestamp", functionType);
 		break;
 
-	case StdFuncKind_GetCurrentThreadId:
+	case StdFunction_GetCurrentThreadId:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction ("getCurrentThreadId", "jnc.getCurrentThreadId", functionType);
 		break;
 
-	case StdFuncKind_GetLastError:
-		returnType = m_module->m_typeMgr.getStdType (StdTypeKind_Error)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	case StdFunction_GetLastError:
+		returnType = m_module->m_typeMgr.getStdType (StdType_Error)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction ("getLastError", "jnc.getLastError", functionType);
 		break;
 
-	case StdFuncKind_StrLen:
+	case StdFunction_StrLen:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction ("strlen", "strlen", functionType);
 		break;
 
-	case StdFuncKind_MemCpy:
+	case StdFunction_MemCpy:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
@@ -973,7 +973,7 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 		function = createFunction ("memcpy", "memcpy", functionType);
 		break;
 
-	case StdFuncKind_MemCat:
+	case StdFunction_MemCat:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -983,13 +983,13 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 		function = createFunction ("memcat", "memcat", functionType);
 		break;
 
-	case StdFuncKind_Rand:
+	case StdFunction_Rand:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction ("rand", "rand", functionType);
 		break;
 
-	case StdFuncKind_Printf:
+	case StdFunction_Printf:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Thin, PtrTypeFlag_Const);
 		functionType = m_module->m_typeMgr.getFunctionType (
@@ -1001,14 +1001,14 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 		function = createFunction ("printf", "printf", functionType);
 		break;
 
-	case StdFuncKind_Atoi:
+	case StdFunction_Atoi:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction ("atoi", "atoi", functionType);
 		break;
 
-	case StdFuncKind_Format:
+	case StdFunction_Format:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (TypeKind_DataPtr, DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		argTypeArray [0] = returnType;
 		functionType = m_module->m_typeMgr.getFunctionType (
@@ -1020,71 +1020,71 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 		function = createFunction ("format", "jnc.format", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_a:
+	case StdFunction_AppendFmtLiteral_a:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_a", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_p:
+	case StdFunction_AppendFmtLiteral_p:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_p", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_i32:
+	case StdFunction_AppendFmtLiteral_i32:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_i32", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_ui32:
+	case StdFunction_AppendFmtLiteral_ui32:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32_u),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_ui32", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_i64:
+	case StdFunction_AppendFmtLiteral_i64:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_i64", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_ui64:
+	case StdFunction_AppendFmtLiteral_ui64:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64_u),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_ui64", functionType);
 		break;
 
-	case StdFuncKind_AppendFmtLiteral_f:
+	case StdFunction_AppendFmtLiteral_f:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdTypeKind_FmtLiteral)->getDataPtrType_c (),
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_FmtLiteral)->getDataPtrType_c (),
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const),
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double),
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
 		function = createFunction (FunctionKind_Internal, "jnc.appendFmtLiteral_f", functionType);
 		break;
 
-	case StdFuncKind_SimpleMulticastCall:
-		function = ((MulticastClassType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleMulticast))->getMethod (MulticastMethodKind_Call);
+	case StdFunction_SimpleMulticastCall:
+		function = ((MulticastClassType*) m_module->m_typeMgr.getStdType (StdType_SimpleMulticast))->getMethod (MulticastMethodKind_Call);
 		break;
 
 	default:
@@ -1097,14 +1097,14 @@ FunctionMgr::getStdFunction (StdFuncKind func)
 }
 
 LazyStdFunction*
-FunctionMgr::getLazyStdFunction (StdFuncKind func)
+FunctionMgr::getLazyStdFunction (StdFunction func)
 {
-	ASSERT ((size_t) func < StdFuncKind__Count);
+	ASSERT ((size_t) func < StdFunction__Count);
 
 	if (m_lazyStdFunctionArray [func])
 		return m_lazyStdFunctionArray [func];
 
-	const char* nameTable [StdFuncKind__Count] =
+	const char* nameTable [StdFunction__Count] =
 	{
 		NULL, // EStdFunc_RuntimeError,
 		NULL, // EStdFunc_CheckNullPtr,
@@ -1162,7 +1162,7 @@ FunctionMgr::createCheckNullPtr ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int),
 	};
 
@@ -1178,7 +1178,7 @@ FunctionMgr::createCheckNullPtr ()
 	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("iface_fail");
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("iface_success");
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
 
 	Value cmpValue;
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
@@ -1199,8 +1199,8 @@ FunctionMgr::createCheckScopeLevel ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
-		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
 	};
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
@@ -1217,7 +1217,7 @@ FunctionMgr::createCheckScopeLevel ()
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
 	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr)->getZeroValue ();
 
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
@@ -1243,8 +1243,8 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr),
-		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
+		m_module->m_typeMgr.getStdType (StdType_ObjectPtr),
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
 	};
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
@@ -1261,7 +1261,7 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
 	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjectPtr)->getZeroValue ();
 
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
@@ -1301,10 +1301,10 @@ FunctionMgr::createCheckDataPtrRange ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr),
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
 	};
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
@@ -1323,7 +1323,7 @@ FunctionMgr::createCheckDataPtrRange ()
 	BasicBlock* cmp2Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp2");
 	BasicBlock* cmp3Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp3");
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
 
 	Value cmpValue;
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);

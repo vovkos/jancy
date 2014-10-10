@@ -19,8 +19,9 @@ TypeMgr::TypeMgr ()
 	m_module = getCurrentThreadModule ();
 	ASSERT (m_module);
 
-	setupCallConvTable ();
 	setupAllPrimitiveTypes ();
+	setupStdTypedefArray ();
+	setupCallConvArray ();
 
 	memset (m_stdTypeArray, 0, sizeof (m_stdTypeArray));
 	memset (m_lazyStdTypeArray, 0, sizeof (m_lazyStdTypeArray));
@@ -29,6 +30,8 @@ TypeMgr::TypeMgr ()
 	m_unnamedStructTypeCounter = 0;
 	m_unnamedUnionTypeCounter = 0;
 	m_unnamedClassTypeCounter = 0;
+
+	m_parseStdTypeLevel = 0;
 }
 
 void
@@ -84,10 +87,12 @@ TypeMgr::clear ()
 	m_unnamedStructTypeCounter = 0;
 	m_unnamedUnionTypeCounter = 0;
 	m_unnamedClassTypeCounter = 0;
+
+	m_parseStdTypeLevel = 0;
 }
 
 Type*
-TypeMgr::getStdType (StdTypeKind stdTypeKind)
+TypeMgr::getStdType (StdType stdType)
 {
 	#include "jnc_StdDef.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
@@ -99,97 +104,104 @@ TypeMgr::getStdType (StdTypeKind stdTypeKind)
 		size_t m_length;
 	};
 
-	static StringRef stdTypeSrcTable [StdTypeKind__Count] = 
+	static StringRef stdTypeSrcTable [StdType__Count] = 
 	{
-		{ NULL },                                                      // StdTypeKind_BytePtr,
-		{ objHdrTypeSrc, lengthof (objHdrTypeSrc) },                   // StdTypeKind_ObjHdr,
-		{ NULL },                                                      // StdTypeKind_ObjHdrPtr,
-		{ NULL },                                                      // StdTypeKind_ObjectClass,
-		{ NULL },                                                      // StdTypeKind_ObjectPtr,
-		{ NULL },                                                      // StdTypeKind_SimpleFunction,
-		{ NULL },                                                      // StdTypeKind_SimpleMulticast,
-		{ NULL },                                                      // StdTypeKind_SimpleEventPtr,
-		{ NULL },                                                      // StdTypeKind_Binder,
-		{ reactorBindSiteTypeSrc, lengthof (reactorBindSiteTypeSrc) }, // StdTypeKind_ReactorBindSite,
-		{ schedulerTypeSrc, lengthof (schedulerTypeSrc) },             // StdTypeKind_Scheduler,
-		{ NULL },                                                      // StdTypeKind_SchedulerPtr,
-		{ fmtLiteralTypeSrc, lengthof (fmtLiteralTypeSrc) },           // StdTypeKind_FmtLiteral,
-		{ guidTypeSrc, lengthof (guidTypeSrc) },                       // StdTypeKind_Guid,
-		{ errorTypeSrc, lengthof (errorTypeSrc) },                     // StdTypeKind_Error,
-		{ stringTypeSrc, lengthof (stringTypeSrc) },                   // StdTypeKind_String,
-		{ stringBuilderTypeSrc, lengthof (stringBuilderTypeSrc) },     // StdTypeKind_StringBuilder,
-		{ smartPtrTypeSrc, lengthof (smartPtrTypeSrc) },               // StdTypeKind_SmartPtr,
-		{ smartConstPtrTypeSrc, lengthof (smartConstPtrTypeSrc) },     // StdTypeKind_SmartConstPtr,
-		{ dynamicArrayTypeSrc, lengthof (dynamicArrayTypeSrc) },       // StdTypeKind_DynamicArray,
-		{ int64Int64TypeSrc, lengthof (int64Int64TypeSrc) },           // StdTypeKind_Int64Int64,
-		{ fp64Fp64TypeSrc, lengthof (fp64Fp64TypeSrc) },               // StdTypeKind_Fp64Fp64,
-		{ int64Fp64TypeSrc, lengthof (int64Fp64TypeSrc) },             // StdTypeKind_Int64Fp64,
-		{ fp64Int64TypeSrc, lengthof (fp64Int64TypeSrc) },             // StdTypeKind_Fp64Int64,
+		{ NULL },                                                      // StdType_BytePtr,
+		{ NULL },                                                      // StdType_ObjHdr,
+		{ NULL },                                                      // StdType_ObjHdrPtr,
+		{ NULL },                                                      // StdType_ObjectClass,
+		{ NULL },                                                      // StdType_ObjectPtr,
+		{ NULL },                                                      // StdType_SimpleFunction,
+		{ NULL },                                                      // StdType_SimpleMulticast,
+		{ NULL },                                                      // StdType_SimpleEventPtr,
+		{ NULL },                                                      // StdType_Binder,
+		{ reactorBindSiteTypeSrc, lengthof (reactorBindSiteTypeSrc) }, // StdType_ReactorBindSite,
+		{ schedulerTypeSrc, lengthof (schedulerTypeSrc) },             // StdType_Scheduler,
+		{ NULL },                                                      // StdType_SchedulerPtr,
+		{ fmtLiteralTypeSrc, lengthof (fmtLiteralTypeSrc) },           // StdType_FmtLiteral,
+		{ guidTypeSrc, lengthof (guidTypeSrc) },                       // StdType_Guid,
+		{ errorTypeSrc, lengthof (errorTypeSrc) },                     // StdType_Error,
+		{ stringTypeSrc, lengthof (stringTypeSrc) },                   // StdType_String,
+		{ stringRefTypeSrc, lengthof (stringRefTypeSrc) },             // StdType_StringRef,
+		{ stringBuilderTypeSrc, lengthof (stringBuilderTypeSrc) },     // StdType_StringBuilder,
+		{ constArrayTypeSrc, lengthof (constArrayTypeSrc) },           // StdType_ConstArray,
+		{ constArrayRefTypeSrc, lengthof (constArrayRefTypeSrc) },     // StdType_ConstArrayRef,
+		{ arrayRefTypeSrc, lengthof (arrayRefTypeSrc) },               // StdType_ArrayRef,
+		{ dynamicArrayTypeSrc, lengthof (dynamicArrayTypeSrc) },       // StdType_DynamicArray,
+		{ int64Int64TypeSrc, lengthof (int64Int64TypeSrc) },           // StdType_Int64Int64,
+		{ fp64Fp64TypeSrc, lengthof (fp64Fp64TypeSrc) },               // StdType_Fp64Fp64,
+		{ int64Fp64TypeSrc, lengthof (int64Fp64TypeSrc) },             // StdType_Int64Fp64,
+		{ fp64Int64TypeSrc, lengthof (fp64Int64TypeSrc) },             // StdType_Fp64Int64,
 	};
 
-	ASSERT ((size_t) stdTypeKind < StdTypeKind__Count);
-	if (m_stdTypeArray [stdTypeKind])
-		return m_stdTypeArray [stdTypeKind];
+	ASSERT ((size_t) stdType < StdType__Count);
+	if (m_stdTypeArray [stdType])
+		return m_stdTypeArray [stdType];
 
 	Type* type;
 
-	switch (stdTypeKind)
+	switch (stdType)
 	{
-	case StdTypeKind_BytePtr:
+	case StdType_BytePtr:
 		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
 		break;
 
-	case StdTypeKind_ObjHdrPtr:
-		type = getStdType (StdTypeKind_ObjHdr)->getDataPtrType_c ();
+	case StdType_ObjHdr:
+		type = createObjHdrType ();
 		break;
 
-	case StdTypeKind_ObjectClass:
+	case StdType_ObjHdrPtr:
+		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
+		break;
+
+	case StdType_ObjectClass:
 		type = createObjectType ();
 		break;
 
-	case StdTypeKind_ObjectPtr:
-		type = ((ClassType*) getStdType (StdTypeKind_ObjectClass))->getClassPtrType ();
+	case StdType_ObjectPtr:
+		type = ((ClassType*) getStdType (StdType_ObjectClass))->getClassPtrType ();
 		break;
 
-	case StdTypeKind_SimpleFunction:
+	case StdType_SimpleFunction:
 		type = getFunctionType (getPrimitiveType (TypeKind_Void), NULL, 0, 0);
 		break;
 
-	case StdTypeKind_SimpleMulticast:
-		type = getMulticastType ((FunctionType*) getStdType (StdTypeKind_SimpleFunction));
+	case StdType_SimpleMulticast:
+		type = getMulticastType ((FunctionType*) getStdType (StdType_SimpleFunction));
 		break;
 
-	case StdTypeKind_SimpleEventPtr:
-		type = ((ClassType*) getStdType (StdTypeKind_SimpleMulticast))->getClassPtrType (ClassPtrTypeKind_Normal);
+	case StdType_SimpleEventPtr:
+		type = ((ClassType*) getStdType (StdType_SimpleMulticast))->getClassPtrType (ClassPtrTypeKind_Normal);
 		break;
 
-	case StdTypeKind_Binder:
-		type = getFunctionType (getStdType (StdTypeKind_SimpleEventPtr), NULL, 0);
+	case StdType_Binder:
+		type = getFunctionType (getStdType (StdType_SimpleEventPtr), NULL, 0);
 		break;
 
-	case StdTypeKind_SchedulerPtr:
-		type = ((ClassType*) getStdType (StdTypeKind_Scheduler))->getClassPtrType ();
+	case StdType_SchedulerPtr:
+		type = ((ClassType*) getStdType (StdType_Scheduler))->getClassPtrType ();
 		break;
 
-	case StdTypeKind_ObjHdr:
-	case StdTypeKind_ReactorBindSite:
-	case StdTypeKind_FmtLiteral:
-	case StdTypeKind_Scheduler:
-	case StdTypeKind_Guid:
-	case StdTypeKind_Error:
-	case StdTypeKind_String:
-	case StdTypeKind_StringBuilder:
-	case StdTypeKind_SmartPtr:
-	case StdTypeKind_SmartConstPtr:
-	case StdTypeKind_DynamicArray:
-	case StdTypeKind_Int64Int64:
-	case StdTypeKind_Fp64Fp64:
-	case StdTypeKind_Int64Fp64:
-	case StdTypeKind_Fp64Int64:
-		ASSERT (stdTypeSrcTable [stdTypeKind].m_p);
+	case StdType_ReactorBindSite:
+	case StdType_FmtLiteral:
+	case StdType_Scheduler:
+	case StdType_Guid:
+	case StdType_Error:
+	case StdType_String:
+	case StdType_StringRef:
+	case StdType_StringBuilder:
+	case StdType_ConstArray:
+	case StdType_ConstArrayRef:
+	case StdType_ArrayRef:
+	case StdType_DynamicArray:
+	case StdType_Int64Int64:
+	case StdType_Fp64Fp64:
+	case StdType_Int64Fp64:
+	case StdType_Fp64Int64:
+		ASSERT (stdTypeSrcTable [stdType].m_p);
 		type = parseStdNamedType (
-			stdTypeSrcTable [stdTypeKind].m_p, 
-			stdTypeSrcTable [stdTypeKind].m_length
+			stdTypeSrcTable [stdType].m_p, 
+			stdTypeSrcTable [stdType].m_length
 			);
 		break;
 
@@ -198,19 +210,19 @@ TypeMgr::getStdType (StdTypeKind stdTypeKind)
 		return NULL;
 	}
 
-	m_stdTypeArray [stdTypeKind] = type;
+	m_stdTypeArray [stdType] = type;
 	return type;
 }
 
 LazyStdType*
-TypeMgr::getLazyStdType (StdTypeKind stdTypeKind)
+TypeMgr::getLazyStdType (StdType stdType)
 {
-	ASSERT ((size_t) stdTypeKind < StdTypeKind__Count);
+	ASSERT ((size_t) stdType < StdType__Count);
 
-	if (m_lazyStdTypeArray [stdTypeKind])
-		return m_lazyStdTypeArray [stdTypeKind];
+	if (m_lazyStdTypeArray [stdType])
+		return m_lazyStdTypeArray [stdType];
 
-	const char* nameTable [StdTypeKind__Count] =
+	const char* nameTable [StdType__Count] =
 	{
 		NULL,            // EStdType_BytePtr,
 		NULL,            // EStdType_ObjHdr,
@@ -227,22 +239,24 @@ TypeMgr::getLazyStdType (StdTypeKind stdTypeKind)
 		NULL,            // EStdType_FmtLiteral,
 		"Guid",          // EStdType_Guid
 		"Error",         // EStdType_Error,
-		"String",        // StdTypeKind_String,
-		"StringBuilder", // StdTypeKind_StringBuilder,
-		"Ptr",           // StdTypeKind_SmartPtr,
-		"ConstPtr",      // StdTypeKind_SmartConstPtr,
-		"Array",         // StdTypeKind_DynamicArray,
+		"String",        // StdType_String,
+		"StringRef",     // StdType_StringRef,
+		"StringBuilder", // StdType_StringBuilder,
+		"ConstArray",    // StdType_ConstArray,
+		"ConstArrayRef", // StdType_ConstArrayRef,
+		"ArrayRef",      // StdType_ArrayRef,
+		"Array",         // StdType_DynamicArray,
 	};
 
-	const char* name = nameTable [stdTypeKind];
+	const char* name = nameTable [stdType];
 	ASSERT (name);
 
 	LazyStdType* type = AXL_MEM_NEW (LazyStdType);
 	type->m_module = m_module;
 	type->m_name = name;
-	type->m_stdType = stdTypeKind;
+	type->m_stdType = stdType;
 	m_lazyStdTypeList.insertTail (type);
-	m_lazyStdTypeArray [stdTypeKind] = type;
+	m_lazyStdTypeArray [stdType] = type;
 	return type;
 }
 
@@ -548,6 +562,7 @@ TypeMgr::createTypedef (
 	)
 {
 	Typedef* tdef = AXL_MEM_NEW (Typedef);
+	type->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = qualifiedName;
 	tdef->m_tag = qualifiedName;
@@ -755,7 +770,7 @@ TypeMgr::createClassType (
 	StructType* ifaceHdrStructType = createUnnamedStructType (packFactor);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
 	ifaceHdrStructType->createField ("!m_vtbl", pVTableStructType->getDataPtrType_c ());
-	ifaceHdrStructType->createField ("!m_object", getStdType (StdTypeKind_ObjHdrPtr));
+	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (packFactor);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
@@ -769,7 +784,7 @@ TypeMgr::createClassType (
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
 	classStructType->m_parentNamespace = type;
-	classStructType->createField ("!m_objectHdr", getStdType (StdTypeKind_ObjHdr));
+	classStructType->createField ("!m_objectHdr", getStdType (StdType_ObjHdr));
 	classStructType->createField ("!m_iface", ifaceStructType);
 
 	type->m_module = m_module;
@@ -1093,7 +1108,7 @@ TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 	if (functionType->m_stdObjectMemberMethodType)
 		return functionType->m_stdObjectMemberMethodType;
 
-	ClassType* classType = (ClassType*) getStdType (StdTypeKind_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
 	functionType->m_stdObjectMemberMethodType = classType->getMemberMethodType (functionType);
 	return functionType->m_stdObjectMemberMethodType;
 }
@@ -1128,7 +1143,7 @@ TypeMgr::getPropertyType (
 
 	if (flags & PropertyTypeFlag_Bindable)
 	{
-		FunctionType* binderType = (FunctionType*) getStdType (StdTypeKind_Binder);
+		FunctionType* binderType = (FunctionType*) getStdType (StdType_Binder);
 		if (getterType->isMemberMethodType ())
 			binderType = binderType->getMemberMethodType (getterType->getThisTargetType (), PtrTypeFlag_Const);
 
@@ -1286,7 +1301,7 @@ TypeMgr::getStdObjectMemberPropertyType (PropertyType* propertyType)
 	if (propertyType->m_stdObjectMemberPropertyType)
 		return propertyType->m_stdObjectMemberPropertyType;
 
-	ClassType* classType = (ClassType*) getStdType (StdTypeKind_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
 	propertyType->m_stdObjectMemberPropertyType = classType->getMemberPropertyType (propertyType);
 	return propertyType->m_stdObjectMemberPropertyType;
 }
@@ -1454,7 +1469,7 @@ TypeMgr::getReactorInterfaceType (FunctionType* startMethodType)
 	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
 	type->m_signature.format ("CA%s", startMethodType->getTypeString ().cc ());
 	Function* starter = type->createMethod (StorageKind_Abstract, "start", startMethodType);
-	type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdTypeKind_SimpleFunction));
+	type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
 	type->m_callOperator = starter;
 	return type;
 }
@@ -1518,7 +1533,7 @@ TypeMgr::createReactorType (
 	// methods
 
 	type->m_methodArray [ReactorMethodKind_Start] = type->createMethod (StorageKind_Override, "start", startMethodType);
-	type->m_methodArray [ReactorMethodKind_Stop]  = type->createMethod (StorageKind_Override, "stop", (FunctionType*) getStdType (StdTypeKind_SimpleFunction));
+	type->m_methodArray [ReactorMethodKind_Stop]  = type->createMethod (StorageKind_Override, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
 	type->m_callOperator = type->m_methodArray [ReactorMethodKind_Start];
 	return type;
 }
@@ -1743,9 +1758,9 @@ TypeMgr::getDataPtrStructType (Type* dataType)
 	StructType* type = createUnnamedStructType ();
 	type->m_tag.format ("DataPtr <%s>", dataType->getTypeString ().cc ());
 	type->createField ("!m_p", dataType->getDataPtrType_c ());
-	type->createField ("!m_rangeBegin", getStdType (StdTypeKind_BytePtr));
-	type->createField ("!m_rangeEnd", getStdType (StdTypeKind_BytePtr));
-	type->createField ("!m_object", getStdType (StdTypeKind_ObjHdrPtr));
+	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
+	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
+	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 	type->ensureLayout ();
 
 	tuple->m_ptrStructType = type;
@@ -1881,7 +1896,7 @@ TypeMgr::getFunctionPtrStructType (FunctionType* functionType)
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->createField ("!m_p", stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
-	type->createField ("!m_closure", getStdType (StdTypeKind_ObjectPtr));
+	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
 	type->ensureLayout ();
 
 	tuple->m_ptrStructType = type;
@@ -1999,7 +2014,7 @@ TypeMgr::getPropertyPtrStructType (PropertyType* propertyType)
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->createField ("!m_p", stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ());
-	type->createField ("!m_closure", getStdType (StdTypeKind_ObjectPtr));
+	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
 	type->ensureLayout ();
 
 	tuple->m_ptrStructType = type;
@@ -2151,7 +2166,7 @@ TypeMgr::getGcShadowStackFrameMapType (size_t rootCount)
 	if (pair->m_gcShadowStackFrameMapType)
 		return pair->m_gcShadowStackFrameMapType;
 
-	ArrayType* arrayType = getArrayType (getStdType (StdTypeKind_BytePtr), rootCount);
+	ArrayType* arrayType = getArrayType (getStdType (StdType_BytePtr), rootCount);
 	StructType* type = createStructType ("GcShadowStackFrameMap", "jnc.GcShadowStackFrameMap");
 	type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
 	type->createField ("!m_gcRootTypeArray", arrayType);
@@ -2172,9 +2187,9 @@ TypeMgr::getGcShadowStackFrameType (size_t rootCount)
 	if (pair->m_gcShadowStackFrameType)
 		return pair->m_gcShadowStackFrameType;
 
-	ArrayType* arrayType = getArrayType (getStdType (StdTypeKind_BytePtr), rootCount);
+	ArrayType* arrayType = getArrayType (getStdType (StdType_BytePtr), rootCount);
 	StructType* type = createStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
-	type->createField ("!m_prev", getStdType (StdTypeKind_BytePtr));
+	type->createField ("!m_prev", getStdType (StdType_BytePtr));
 	type->createField ("!m_map", mapType->getDataPtrType_c ());
 	type->createField ("!m_gcRootArray", arrayType);
 	type->ensureLayout ();
@@ -2378,6 +2393,40 @@ TypeMgr::setupAllPrimitiveTypes ()
 }
 
 void
+TypeMgr::setupStdTypedefArray ()
+{
+	setupStdTypedef (StdTypedef_uint_t,    TypeKind_Int_u,   "uint_t");
+	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_Int_pu,  "uintptr_t");
+	setupStdTypedef (StdTypedef_size_t,    TypeKind_SizeT,   "size_t");
+	setupStdTypedef (StdTypedef_uint8_t,   TypeKind_Int8_u,  "uint8_t");
+	setupStdTypedef (StdTypedef_uchar_t,   TypeKind_Int8_u,  "uchar_t");
+	setupStdTypedef (StdTypedef_byte_t,    TypeKind_Int8_u,  "byte_t");
+	setupStdTypedef (StdTypedef_uint16_t,  TypeKind_Int16_u, "uint16_t");
+	setupStdTypedef (StdTypedef_ushort_t,  TypeKind_Int16_u, "ushort_t");
+	setupStdTypedef (StdTypedef_word_t,    TypeKind_Int16_u, "word_t");
+	setupStdTypedef (StdTypedef_uint32_t,  TypeKind_Int32_u, "uint32_t");
+	setupStdTypedef (StdTypedef_dword_t,   TypeKind_Int32_u, "dword_t");
+	setupStdTypedef (StdTypedef_uint64_t,  TypeKind_Int64_u, "uint64_t");
+	setupStdTypedef (StdTypedef_qword_t,   TypeKind_Int64_u, "qword_t");
+}
+
+void
+TypeMgr::setupCallConvArray ()
+{
+	m_callConvArray [CallConvKind_Jnccall_msc32]  = &m_jnccallCallConv_msc32;
+	m_callConvArray [CallConvKind_Jnccall_msc64]  = &m_jnccallCallConv_msc64;
+	m_callConvArray [CallConvKind_Jnccall_gcc32]  = &m_jnccallCallConv_gcc32;
+	m_callConvArray [CallConvKind_Jnccall_gcc64]  = &m_jnccallCallConv_gcc64;
+	m_callConvArray [CallConvKind_Cdecl_msc32]    = &m_cdeclCallConv_msc32;
+	m_callConvArray [CallConvKind_Cdecl_msc64]    = &m_cdeclCallConv_msc64;
+	m_callConvArray [CallConvKind_Cdecl_gcc32]    = &m_cdeclCallConv_gcc32;
+	m_callConvArray [CallConvKind_Cdecl_gcc64]    = &m_cdeclCallConv_gcc64;
+	m_callConvArray [CallConvKind_Stdcall_msc32]  = &m_stdcallCallConv_msc32;
+	m_callConvArray [CallConvKind_Stdcall_gcc32]  = &m_stdcallCallConv_gcc32;
+	m_callConvArray [CallConvKind_Thiscall_msc32] = &m_thiscallCallConv_msc32;
+}
+
+void
 TypeMgr::setupPrimitiveType (
 	TypeKind typeKind,
 	size_t size,
@@ -2402,19 +2451,21 @@ TypeMgr::setupPrimitiveType (
 }
 
 void
-TypeMgr::setupCallConvTable ()
+TypeMgr::setupStdTypedef (
+	StdTypedef stdTypedef,
+	TypeKind typeKind,
+	const rtl::String& name
+	)
 {
-	m_callConvTable [CallConvKind_Jnccall_msc32]  = &m_jnccallCallConv_msc32;
-	m_callConvTable [CallConvKind_Jnccall_msc64]  = &m_jnccallCallConv_msc64;
-	m_callConvTable [CallConvKind_Jnccall_gcc32]  = &m_jnccallCallConv_gcc32;
-	m_callConvTable [CallConvKind_Jnccall_gcc64]  = &m_jnccallCallConv_gcc64;
-	m_callConvTable [CallConvKind_Cdecl_msc32]    = &m_cdeclCallConv_msc32;
-	m_callConvTable [CallConvKind_Cdecl_msc64]    = &m_cdeclCallConv_msc64;
-	m_callConvTable [CallConvKind_Cdecl_gcc32]    = &m_cdeclCallConv_gcc32;
-	m_callConvTable [CallConvKind_Cdecl_gcc64]    = &m_cdeclCallConv_gcc64;
-	m_callConvTable [CallConvKind_Stdcall_msc32]  = &m_stdcallCallConv_msc32;
-	m_callConvTable [CallConvKind_Stdcall_gcc32]  = &m_stdcallCallConv_gcc32;
-	m_callConvTable [CallConvKind_Thiscall_msc32] = &m_thiscallCallConv_msc32;
+	ASSERT (stdTypedef < StdTypedef__Count);
+	ASSERT (typeKind < TypeKind__PrimitiveTypeCount);
+
+	Typedef* tdef = &m_stdTypedefArray [stdTypedef];
+	tdef->m_module = m_module;
+	tdef->m_name = name;
+	tdef->m_qualifiedName = name;
+	tdef->m_tag = name;
+	tdef->m_type = &m_primitiveTypeArray [typeKind];
 }
 
 NamedType*
@@ -2424,6 +2475,8 @@ TypeMgr::parseStdNamedType (
 	)
 {
 	bool result;
+
+	m_parseStdTypeLevel++;
 
 	Lexer lexer;
 	lexer.create ("jnc_StdDef.jnc", source, length);
@@ -2458,19 +2511,33 @@ TypeMgr::parseStdNamedType (
 	ASSERT (type);
 
 	ModuleCompileState state = m_module->getCompileState ();
-	if (state > ModuleCompileState_Resolving)
+	if (state > ModuleCompileState_Resolving && m_parseStdTypeLevel == 1)
 	{
 		result = resolveImportTypes ();
 		ASSERT (result);
 
 		if (state > ModuleCompileState_CalcLayout)
 		{
-			result = type->ensureLayout ();
+			result = m_module->calcLayout ();
 			ASSERT (result);
+
+			if (state >= ModuleCompileState_Compiled)
+			{
+				result = m_module->processCompileArray ();
+				ASSERT (result);
+			}
 		}
+
+		// if this assert fires, rewrite std type
+
+		ASSERT (
+			m_unresolvedNamedImportTypeArray.isEmpty () &&
+			m_unresolvedImportPtrTypeArray.isEmpty () &&
+			m_unresolvedImportIntModTypeArray.isEmpty ()
+			);
 	}
 
-	ASSERT (result);
+	m_parseStdTypeLevel--;
 	return type;
 }
 
@@ -2480,6 +2547,18 @@ TypeMgr::createObjectType ()
 	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
 	type->m_tag = "object";
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createObjHdrType ()
+{
+	StructType* type = createStructType ("ObjHdr", "jnc.ObjHdr");
+	type->createField ("!m_scopeLevel", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_root", type->getDataPtrType_c ());
+	type->createField ("!m_type", getStdType (StdType_BytePtr));
+	type->createField ("!m_flags", getPrimitiveType (TypeKind_Int_p));
 	type->ensureLayout ();
 	return type;
 }

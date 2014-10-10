@@ -86,9 +86,9 @@ Cast_ClassPtr::llvmCast (
 	{
 		LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "strengthen class pointer");
 
-		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFuncKind_StrengthenClassPtr);
+		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
 
-		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->getSimpleType (StdTypeKind_ObjectPtr), &opValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->getSimpleType (StdType_ObjectPtr), &opValue);
 		m_module->m_llvmIrBuilder.createCall (
 			strengthen,
 			strengthen->getType (),
@@ -123,11 +123,11 @@ Cast_ClassPtr::llvmCast (
 	if (!result)
 	{
 		Value ptrValue;
-		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ptrValue);
 
-		Value typeValue (&dstClassType, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr));
+		Value typeValue (&dstClassType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-		Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFuncKind_DynamicCastClassPtr);
+		Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastClassPtr);
 		m_module->m_llvmIrBuilder.createCall2 (
 			dynamicCastClassPtr,
 			dynamicCastClassPtr->getType (),

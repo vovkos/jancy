@@ -90,7 +90,7 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	Value pfnValue;
 	Value closureObjValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &closureObjValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureObjValue);
 
 	pfnValue.setClosure (opValue.getClosure ());
 	pfnValue.insertToClosureHead (closureObjValue);
@@ -117,7 +117,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock ("dead");
 	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("phi");
 
-	Type* closureType = m_module->getSimpleType (StdTypeKind_ObjectPtr);
+	Type* closureType = m_module->getSimpleType (StdType_ObjectPtr);
 	Value nullClosureValue = closureType->getZeroValue ();
 
 	Value closureValue;
@@ -127,7 +127,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, closureValue, nullClosureValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, strengthenBlock, phiBlock);
 
-	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_StrengthenClassPtr);
+	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
 
 	Value strengthenedClosureValue;
 	m_module->m_llvmIrBuilder.createCall (
@@ -286,7 +286,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkNoClosure (
 		true
 		);
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjectPtr)->getZeroValue ();
 	m_module->m_llvmIrBuilder.createClosureFunctionPtr (thunkFunction, nullValue, dstPtrType, resultValue);
 	return true;
 }

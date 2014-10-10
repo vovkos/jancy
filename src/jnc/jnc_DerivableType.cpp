@@ -429,7 +429,7 @@ DerivableType::createDefaultMethod (
 	StorageKind storageKind
 	)
 {
-	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdTypeKind_SimpleFunction);
+	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
 	Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
 	function->m_storageKind = storageKind;
 	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));

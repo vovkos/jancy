@@ -74,7 +74,7 @@ getFunctionKindFlags (FunctionKind functionKind);
 
 //.............................................................................
 
-enum StdFuncKind
+enum StdFunction
 {
 	// void
 	// jnc.RuntimeError (
@@ -82,7 +82,7 @@ enum StdFuncKind
 	//		int8* pCodeAddr
 	//		);
 
-	StdFuncKind_RuntimeError,
+	StdFunction_RuntimeError,
 
 	// void
 	// jnc.CheckNullPtr (
@@ -90,7 +90,7 @@ enum StdFuncKind
 	//		int Error
 	//		);
 
-	StdFuncKind_CheckNullPtr,
+	StdFunction_CheckNullPtr,
 
 	// void
 	// jnc.CheckScopeLevel (
@@ -98,7 +98,7 @@ enum StdFuncKind
 	//		jnc.TObjHdr* pDstObject
 	//		);
 
-	StdFuncKind_CheckScopeLevel,
+	StdFunction_CheckScopeLevel,
 
 	// void
 	// jnc.CheckClassPtrScopeLevel (
@@ -106,7 +106,7 @@ enum StdFuncKind
 	//		jnc.TObjHdr* pDstObject
 	//		);
 
-	StdFuncKind_CheckClassPtrScopeLevel,
+	StdFunction_CheckClassPtrScopeLevel,
 
 	// void
 	// jnc.CheckDataPtrRange (
@@ -116,7 +116,7 @@ enum StdFuncKind
 	//		int8* pRangeEnd
 	//		);
 
-	StdFuncKind_CheckDataPtrRange,
+	StdFunction_CheckDataPtrRange,
 
 	// object*
 	// jnc.DynamicCastClassPtr (
@@ -124,17 +124,17 @@ enum StdFuncKind
 	//		int8* pType
 	//		);
 
-	StdFuncKind_DynamicCastClassPtr,
+	StdFunction_DynamicCastClassPtr,
 
 	// object*
 	// jnc.StrengthenClassPtr (weak object* p);
 
-	StdFuncKind_StrengthenClassPtr,
+	StdFunction_StrengthenClassPtr,
 
 	// size_t
 	// jnc.GetDataPtrSpan (jnc.TDataPtr Ptr);
 
-	StdFuncKind_GetDataPtrSpan,
+	StdFunction_GetDataPtrSpan,
 
 	// int8*
 	// jnc.GcAllocate (
@@ -142,7 +142,7 @@ enum StdFuncKind
 	//		size_t Count
 	//		);
 
-	StdFuncKind_GcAllocate,
+	StdFunction_GcAllocate,
 
 	// int8*
 	// jnc.GcAllocate (
@@ -150,22 +150,22 @@ enum StdFuncKind
 	//		size_t Count
 	//		);
 
-	StdFuncKind_GcTryAllocate,
+	StdFunction_GcTryAllocate,
 
 	// bool
 	// jnc.GcEnter ();
 
-	StdFuncKind_GcEnter,
+	StdFunction_GcEnter,
 
 	// void
 	// jnc.GcLeave ();
 
-	StdFuncKind_GcLeave,
+	StdFunction_GcLeave,
 
 	// void
 	// jnc.GcPulse ();
 
-	StdFuncKind_GcPulse,
+	StdFunction_GcPulse,
 
 	// void
 	// jnc.MarkGcRoot (
@@ -173,42 +173,42 @@ enum StdFuncKind
 	//		int8* pType
 	//		);
 
-	StdFuncKind_MarkGcRoot,
+	StdFunction_MarkGcRoot,
 
 	// void
 	// jnc.RunGc ();
 
-	StdFuncKind_RunGc,
+	StdFunction_RunGc,
 
 	// i64
 	// jnc.GetCurrentThreadId ();
 
-	StdFuncKind_GetCurrentThreadId,
+	StdFunction_GetCurrentThreadId,
 
 	// i64
 	// jnc.CreateThread (function* pf ());
 
-	StdFuncKind_CreateThread,
+	StdFunction_CreateThread,
 
 	// void
 	// jnc.sleep (uint_t MsCount);
 
-	StdFuncKind_Sleep,
+	StdFunction_Sleep,
 
 	// uint64_t
 	// jnc.getTimestamp ();
 
-	StdFuncKind_GetTimestamp,
+	StdFunction_GetTimestamp,
 
 	// char const*
 	// jnc.format (char const* format, ...);
 
-	StdFuncKind_Format,
+	StdFunction_Format,
 
 	// size_t
 	// strlen (const char* nullable p);
 
-	StdFuncKind_StrLen,
+	StdFunction_StrLen,
 
 	// void
 	// jnc.memcpy (
@@ -217,7 +217,7 @@ enum StdFuncKind
 	//		size_t Size
 	//		);
 
-	StdFuncKind_MemCpy,
+	StdFunction_MemCpy,
 
 	// void*
 	// jnc.memcat (
@@ -227,27 +227,27 @@ enum StdFuncKind
 	//		size_t Size2
 	//		);
 
-	StdFuncKind_MemCat,
+	StdFunction_MemCat,
 
 	// int
 	// rand ();
 
-	StdFuncKind_Rand,
+	StdFunction_Rand,
 
 	// int
 	// printf (char const* format, ...);
 
-	StdFuncKind_Printf,
+	StdFunction_Printf,
 
 	// int
 	// atoi (char const* format);
 
-	StdFuncKind_Atoi,
+	StdFunction_Atoi,
 
 	// jnc.TTlsStruct*
 	// jnc.GetTls ();
 
-	StdFuncKind_GetTls,
+	StdFunction_GetTls,
 
 	// size_t
 	// jnc.AppendFmtLiteral_a (
@@ -256,7 +256,7 @@ enum StdFuncKind
 	//		size_t Length
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_a,
+	StdFunction_AppendFmtLiteral_a,
 
 	// size_t
 	// jnc.AppendFmtLiteral_p (
@@ -265,7 +265,7 @@ enum StdFuncKind
 	//		jnc.TPtr Ptr
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_p,
+	StdFunction_AppendFmtLiteral_p,
 
 	// size_t
 	// jnc.AppendFmtLiteral_i32 (
@@ -274,7 +274,7 @@ enum StdFuncKind
 	//		i32 i
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_i32,
+	StdFunction_AppendFmtLiteral_i32,
 
 	// size_t
 	// jnc.AppendFmtLiteral_ui32 (
@@ -283,7 +283,7 @@ enum StdFuncKind
 	//		i32 i
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_ui32,
+	StdFunction_AppendFmtLiteral_ui32,
 
 	// size_t
 	// jnc.AppendFmtLiteral_i64 (
@@ -292,7 +292,7 @@ enum StdFuncKind
 	//		i64 i
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_i64,
+	StdFunction_AppendFmtLiteral_i64,
 
 	// size_t
 	// jnc.AppendFmtLiteral_ui64 (
@@ -301,7 +301,7 @@ enum StdFuncKind
 	//		i64 i
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_ui64,
+	StdFunction_AppendFmtLiteral_ui64,
 
 	// size_t
 	// jnc.AppendFmtLiteral_f (
@@ -310,16 +310,16 @@ enum StdFuncKind
 	//		double f
 	//		);
 
-	StdFuncKind_AppendFmtLiteral_f,
+	StdFunction_AppendFmtLiteral_f,
 
-	StdFuncKind_SimpleMulticastCall,
+	StdFunction_SimpleMulticastCall,
 
 	// jnc.Error*
 	// jnc.g_lastError.get ();
 
-	StdFuncKind_GetLastError,
+	StdFunction_GetLastError,
 
-	StdFuncKind__Count
+	StdFunction__Count
 };
 
 //.............................................................................
@@ -692,12 +692,12 @@ class LazyStdFunction: public LazyModuleItem
 	friend class FunctionMgr;
 
 protected:
-	StdFuncKind m_func;
+	StdFunction m_func;
 
 public:
 	LazyStdFunction ()
 	{
-		m_func = (StdFuncKind) -1;
+		m_func = (StdFunction) -1;
 	}
 
 	virtual

@@ -72,8 +72,8 @@ protected:
 
 	rtl::StdList <EmissionContext> m_emissionContextStack;
 
-	Function* m_stdFunctionArray [StdFuncKind__Count];
-	LazyStdFunction* m_lazyStdFunctionArray [StdFuncKind__Count];
+	Function* m_stdFunctionArray [StdFunction__Count];
+	LazyStdFunction* m_lazyStdFunctionArray [StdFunction__Count];
 
 public:
 	FunctionMgr ();
@@ -258,17 +258,17 @@ public:
 	// std functions
 
 	bool
-	isStdFunctionUsed (StdFuncKind func)
+	isStdFunctionUsed (StdFunction func)
 	{
-		ASSERT (func < StdFuncKind__Count);
+		ASSERT (func < StdFunction__Count);
 		return m_stdFunctionArray [func] != NULL;
 	}
 
 	Function*
-	getStdFunction (StdFuncKind func);
+	getStdFunction (StdFunction func);
 
 	LazyStdFunction*
-	getLazyStdFunction (StdFuncKind func);
+	getLazyStdFunction (StdFunction func);
 
 	Function*
 	getDirectThunkFunction (

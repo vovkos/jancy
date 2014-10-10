@@ -385,7 +385,7 @@ LlvmIrBuilder::createClosureFunctionPtr (
 	FunctionType* stdObjectMemberMethodType = resultType->getTargetType ()->getStdObjectMemberMethodType ();
 
 	createBitCast (rawPfnValue, stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
-	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
+	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
 
 	createInsertValue (functionPtrValue, pfnValue, 0, NULL, &functionPtrValue);
 	createInsertValue (functionPtrValue, ifaceValue, 1, resultType, resultValue);
@@ -409,7 +409,7 @@ LlvmIrBuilder::createClosurePropertyPtr (
 	PropertyType* stdObjectMemberPropertyType = resultType->getTargetType ()->getStdObjectMemberPropertyType ();
 
 	createBitCast (rawPfnValue, stdObjectMemberPropertyType->getPropertyPtrType (PropertyPtrTypeKind_Thin), &pfnValue);
-	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
+	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
 
 	createInsertValue (propertyPtrValue, pfnValue, 0, NULL, &propertyPtrValue);
 	createInsertValue (propertyPtrValue, ifaceValue, 1, resultType, resultValue);
@@ -419,11 +419,11 @@ LlvmIrBuilder::createClosurePropertyPtr (
 bool
 LlvmIrBuilder::runtimeError (const Value& errorValue)
 {
-	Function* runtimeError = m_module->m_functionMgr.getStdFunction (StdFuncKind_RuntimeError);
+	Function* runtimeError = m_module->m_functionMgr.getStdFunction (StdFunction_RuntimeError);
 
 	// TODO: calc real code address
 
-	Value codeAddrValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
+	Value codeAddrValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
 
 	createCall2 (
 		runtimeError,

@@ -155,7 +155,7 @@ type_specifier
 			}
 	|	TokenKind_Object
 			{
-				$.m_type = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectClass);
+				$.m_type = m_module->m_typeMgr.getStdType (StdType_ObjectClass);
 			}
 	|	TokenKind_Object '<' type_name '>'
 			{

@@ -68,9 +68,9 @@ OperatorMgr::allocate (
 		break;
 
 	case StorageKind_Heap:
-		function = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcAllocate);
+		function = m_module->m_functionMgr.getStdFunction (StdFunction_GcAllocate);
 
-		typeValue.createConst (&type, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr));
+		typeValue.createConst (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 		m_module->m_llvmIrBuilder.createCall2 (
 			function,
@@ -126,7 +126,7 @@ OperatorMgr::prime (
 			break;
 
 		case StorageKind_Heap:
-			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr), &objHdrValue);
+			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &objHdrValue);
 			m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
 			break;
 
@@ -664,7 +664,7 @@ OperatorMgr::nullifyGcRootList (const rtl::ConstBoxList <Value>& list)
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "nullify gcroot list");
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
 
 	rtl::BoxIterator <Value> it = list.getTail ();
 	for (; it; it--)
@@ -712,7 +712,7 @@ OperatorMgr::markStackGcRoot (
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 
-	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	Value gcRootValue;
 	m_module->m_llvmIrBuilder.createAlloca (
@@ -733,12 +733,12 @@ OperatorMgr::markStackGcRoot (
 		scope->addToGcRootList (gcRootValue);
 	}
 
-	Function* markGcRoot = m_module->m_functionMgr.getStdFunction (StdFuncKind_MarkGcRoot);
+	Function* markGcRoot = m_module->m_functionMgr.getStdFunction (StdFunction_MarkGcRoot);
 	ASSERT (markGcRoot);
 
 	Value argValueArray [2];
 	argValueArray [0] = gcRootValue;
-	argValueArray [1].createConst (&type, m_module->getSimpleType (StdTypeKind_BytePtr));
+	argValueArray [1].createConst (&type, m_module->getSimpleType (StdType_BytePtr));
 
 	Value resultValue;
 	m_module->m_llvmIrBuilder.createCall (

@@ -184,12 +184,12 @@ GcShadowStack::performCustomLowering (llvm::Function& llvmFunction)
 
 	atEntry.SetInsertPoint(IP->getParent(), IP);
 
-	Type* framePtrType = m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr);
+	Type* framePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	// Push the entry onto the shadow stack.
 
-	Function* gcEnter = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcEnter);
-	Function* gcLeave = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcLeave);
+	Function* gcEnter = m_module->m_functionMgr.getStdFunction (StdFunction_GcEnter);
+	Function* gcLeave = m_module->m_functionMgr.getStdFunction (StdFunction_GcLeave);
 	atEntry.CreateCall (gcEnter->getLlvmFunction ());
 
 	llvm::Value* entryNextPtr = createGEP(context, atEntry, stackEntry, 0, "gc_frame.next");
@@ -228,7 +228,7 @@ GcShadowStack::collectRoots (
 	rtl::Array <Root>* rootArray
 	)
 {
-	Type* bytePtrType = m_module->getSimpleType (StdTypeKind_BytePtr);
+	Type* bytePtrType = m_module->getSimpleType (StdType_BytePtr);
 
 	llvm::Function::iterator llvmBlock = function->getLlvmFunction ()->begin();
 	llvm::Function::iterator llvmBlockEnd = function->getLlvmFunction ()->end ();

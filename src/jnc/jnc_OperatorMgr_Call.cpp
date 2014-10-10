@@ -493,7 +493,7 @@ OperatorMgr::callClosureFunctionPtr (
 	Value pfnValue;
 	Value ifaceValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
 	argValueList->insertHead (ifaceValue);
 
 	return callImpl (pfnValue, abstractMethodType, argValueList, resultValue);
@@ -552,7 +552,7 @@ OperatorMgr::callImpl (
 void
 OperatorMgr::gcPulse ()
 {
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFuncKind_GcPulse);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_GcPulse);
 	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
 }
 

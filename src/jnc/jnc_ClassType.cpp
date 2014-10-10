@@ -903,7 +903,7 @@ ClassType::createPrimer ()
 	{
 		getClassStructType ()->getDataPtrType_c (),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),  // scope level
-		m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr), // root
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), // root
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p)   // flags
 	};
 
@@ -951,7 +951,7 @@ ClassType::primeObject (
 	Value fieldValue;
 	Value objHdrValue;
 	Value ifaceValue;
-	Value typeValue (&classType, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr));
+	Value typeValue (&classType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 	m_module->m_llvmIrBuilder.createGep2 (opValue, 0, NULL, &objHdrValue);
 	m_module->m_llvmIrBuilder.createGep2 (opValue, 1, NULL, &ifaceValue);

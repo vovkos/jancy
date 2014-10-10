@@ -4,103 +4,78 @@
 
 struct String
 {
-	enum CopyKind
+	char const* dconst m_p;
+	size_t dconst m_length;
+
+	construct ()
 	{
-		Final,
-		Attach,
 	}
 
+	construct (
+		char const* p,
+		size_t length = -1
+		)
+	{
+		try copy (p, length);
+	}
+
+	bool isZeroTerminated () const
+	{
+		return m_p && !m_p [m_length];
+	}
+
+	bool ensureZeroTerminated () throws;
+	String getZeroTerminatedString ();
+
+	bool copy (
+		char const* p,
+		size_t length = -1
+		) throws;
+}
+
+//.............................................................................
+
+///; static char stringRefTypeSrc [] = 
+
+struct StringRef
+{
 	char const* dconst m_p;
-	unsigned intptr dconst m_length;
+	size_t dconst m_length;
 	bool dconst m_isFinal;
 
-	String ()
+	construct ()
 	{
 	}
 
-	String (
-		CopyKind copyKind,
-		String src
-		)
+	construct (String src)
 	{
-		copy (copyKind, src);
+		setup (src.m_p, src.m_length, true);
 	}
 
-	String (String src)
-	{
-		copy (CopyKind.Final, src);
-	}
-
-	String (
-		CopyKind copyKind,
-		char const* p,
-		size_t length = -1,
-		)
-	{
-		copy (copyKind, p, length);
-	}
-
-	String (
-		char const* p,
-		size_t length = -1,
-		)
-	{
-		copy (CopyKind.Final, p, length);
-	}
-		
-	String (
-		char const* p,
-		size_t length = -1,
-		);
-
-	String operator = (String src)
-	{
-		copy (src);
-	}
-
-	String operator = (char const* p)
-	{
-		copy (src);
-	}
-
-	operator = char const* () const;
-
-	bool ensureFinal () throws;
-	
-	bool copy (
-		CopyKind copyKind,
-		String src
-		) throws;
-
-	bool copy (String src) throws
-	{
-		return copy (CopyKind.Final, src);
-	}
-
-	bool copy (
-		CopyKind copyKind,
+	construct (
 		char const* p,
 		size_t length = -1
-		) throws;
+		)
+	{
+		setup (src.m_p, length != -1 ? length : strlen (p), true);
+	}
 
-	bool copy (
+	bool isZeroTerminated () const;	
+
+	String getString ();
+	String getZeroTerminatedString ();
+
+protected:
+	void setup (
 		char const* p,
-		size_t length = -1
-		) throws
+		size_t length,
+		bool isFinal
+		)
 	{
-		return copy (CopyKind.Final, p, length);
+		m_p = p;
+		m_length = length;
+		m_isFinal = isFinal;
 	}
-
-	String getFinalString () const
-	{
-		String string;
-		string.copy (CopyKind.Final, *this);
-		return string;
-	}
-
-	bool isZeroTerminated () const;
-	bool ensureZeroTerminated ();
-	String getZeroTerminatedString () const;
 }
 
 //.............................................................................

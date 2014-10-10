@@ -100,7 +100,7 @@ DataPtrType::prepareLlvmType ()
 	m_llvmType = 
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmType () :
 		m_targetType->getTypeKind () != TypeKind_Void ? llvm::PointerType::get (m_targetType->getLlvmType (), 0) :
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getLlvmType ();
+		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmType ();
 }
 
 void
@@ -109,7 +109,7 @@ DataPtrType::prepareLlvmDiType ()
 	m_llvmDiType = 
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmDiType () :
 		m_targetType->getTypeKind () != TypeKind_Void ? m_module->m_llvmDiBuilder.createPointerType (m_targetType) :
-		m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)->getLlvmDiType ();
+		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmDiType ();
 }
 
 void

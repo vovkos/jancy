@@ -30,7 +30,7 @@ ConstMgr::getUnsafeLeanDataPtrValidator ()
 	m_unsafeLeanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
 	m_unsafeLeanDataPtrValidator->m_sizeValue.setConstSizeT (-1);
 	m_unsafeLeanDataPtrValidator->m_scopeValidatorValue.setConstSizeT (0);
-	m_unsafeLeanDataPtrValidator->m_rangeBeginValue.createConst (&rangeBegin, m_module->getSimpleType (StdTypeKind_BytePtr));
+	m_unsafeLeanDataPtrValidator->m_rangeBeginValue.createConst (&rangeBegin, m_module->getSimpleType (StdType_BytePtr));
 
 	return m_unsafeLeanDataPtrValidator;
 }

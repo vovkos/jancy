@@ -1,0 +1,15 @@
+//.............................................................................
+
+int main ()
+{
+	printf ("main\n");
+
+	jnc.String string; // = "hui, govno i muravei";
+	string = "hui, govno i muravei";
+
+	printf ("string = '%s'\n", string.m_p);
+	
+	return 10; 
+}
+
+//.............................................................................

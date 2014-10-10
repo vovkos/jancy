@@ -146,6 +146,46 @@ mapFunctions (jnc::Module* module) \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
 	overloadIdx = 0;
 
+#define JNC_API_UNARY_OPERATOR(opKind, proc) \
+	function = type->getUnaryOperator (opKind); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no operator %s", type->getTypeString ().cc (), jnc::getUnOpKindString (opKind)); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
+
+#define JNC_API_BINARY_OPERATOR(opKind, proc) \
+	function = type->getBinaryOperator (opKind); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no operator %s", type->getTypeString ().cc (), jnc::getBinOpKindString (opKind)); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
+
+#define JNC_API_CALL_OPERATOR(proc) \
+	function = type->getCallOperator (opKind); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no operator ()", type->getTypeString ().cc ()); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
+
+#define JNC_API_CAST_OPERATOR(i, proc) \
+	function = type->getCastOperator (i); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no cast operator #%d", type->getTypeString ().cc (), i); \
+		return false; \
+	} \
+	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc)); \
+	overloadIdx = 0;
+
 #define JNC_API_FUNCTION(name, proc) \
 	function = nspace->getFunctionByName (name); \
 	if (!function) \
@@ -158,20 +198,29 @@ mapFunctions (jnc::Module* module) \
 	overload = function->getOverload (++overloadIdx); \
 	if (!overload) \
 	{ \
-		err::setFormatStringError ("'%s' is not overloaded", function->m_tag.cc ()); \
+		err::setFormatStringError ("'%s' has no overload #%d", function->m_tag.cc (), overloadIdx); \
 		return false; \
 	} \
 	module->mapFunction (overload->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_STD_FUNCTION_FORCED(stdFunc, proc) \
-	function = module->m_functionMgr.getStdFunction (stdFunc); \
+#define JNC_API_SKIP_OVERLOAD() \
+	++overloadIdx;
+
+#define JNC_API_STD_FUNCTION_FORCED(stdFuncKind, proc) \
+	function = module->m_functionMgr.getStdFunction (stdFuncKind); \
 	ASSERT (function); \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_STD_FUNCTION(stdFunc, proc) \
-	if (module->m_functionMgr.isStdFunctionUsed (stdFunc)) \
+#define JNC_API_STD_FUNCTION(stdFuncKind, proc) \
+	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
 	{ \
-		JNC_API_STD_FUNCTION_FORCED (stdFunc, proc); \
+		JNC_API_STD_FUNCTION_FORCED (stdFuncKind, proc); \
+	}
+
+#define JNC_API_STD_TYPE(stdType, Type) \
+	if (module->m_typeMgr.isStdTypeUsed (stdType)) \
+	{ \
+		JNC_API_TYPE (Type); \
 	}
 
 #define JNC_API_PROPERTY(name, getterProc, setterProc) \

@@ -25,7 +25,7 @@ OperatorMgr::getDataRefObjHdr (
 		m_module->m_llvmIrBuilder.createExtractValue (
 			value,
 			3,
-			m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr),
+			m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
 			resultValue
 			);
 	}
@@ -44,7 +44,7 @@ OperatorMgr::checkDataPtrRange (
 	Value sizeValue (size, TypeKind_SizeT);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
 	Value argValueArray [] =
 	{
@@ -54,7 +54,7 @@ OperatorMgr::checkDataPtrRange (
 		rangeEndValue,
 	};
 
-	Function* checkDataPtrRange = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckDataPtrRange);
+	Function* checkDataPtrRange = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange);
 
 	m_module->m_llvmIrBuilder.createCall (
 		checkDataPtrRange,
@@ -137,14 +137,14 @@ OperatorMgr::checkDataPtrScopeLevel (
 	if (ptrTypeKind == DataPtrTypeKind_Lean)
 		getLeanDataPtrObjHdr (srcValue, &srcObjHdrValue);
 	else
-		m_module->m_llvmIrBuilder.createExtractValue (srcValue, 3, m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr), &srcObjHdrValue);
+		m_module->m_llvmIrBuilder.createExtractValue (srcValue, 3, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &srcObjHdrValue);
 
 	Value dstObjHdrValue;
 	getDataRefObjHdr (dstValue, &dstObjHdrValue);
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check data pointer scope level");
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckScopeLevel);
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevel);
 
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,
@@ -171,9 +171,9 @@ OperatorMgr::checkClassPtrScopeLevel (
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
 
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckClassPtrScopeLevel);
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckClassPtrScopeLevel);
 
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,
@@ -198,9 +198,9 @@ OperatorMgr::checkClassPtrNull (const Value& value)
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null class pointer");
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckNullPtr);
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
 
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,
@@ -231,9 +231,9 @@ OperatorMgr::checkFunctionPtrNull (const Value& value)
 	else
 		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
 
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckNullPtr);
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
 
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,
@@ -257,7 +257,7 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdTypeKind_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdType_ObjectPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 
@@ -281,9 +281,9 @@ OperatorMgr::checkPropertyPtrNull (const Value& value)
 	else
 		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
 
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFuncKind_CheckNullPtr);
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
 	
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,
@@ -307,7 +307,7 @@ OperatorMgr::checkPropertyPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdTypeKind_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdType_ObjectPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 

@@ -1683,7 +1683,7 @@ Parser::addReactorBindSite (const Value& value)
 	if (!result)
 		return false;
 	
-	Type* type = m_module->m_typeMgr.getStdType (StdTypeKind_SimpleEventPtr);
+	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 	Variable* variable = m_module->m_variableMgr.createStackVariable ("onChanged", type);
 	
 	result = 
@@ -2363,7 +2363,7 @@ Parser::appendFmtLiteral (
 	{
 		result = m_module->m_operatorMgr.newOperator (
 			StorageKind_Stack,
-			getSimpleType (m_module, StdTypeKind_FmtLiteral),
+			getSimpleType (m_module, StdType_FmtLiteral),
 			NULL,
 			&literal->m_fmtLiteralValue
 			);
@@ -2372,7 +2372,7 @@ Parser::appendFmtLiteral (
 			return false;
 	}
 
-	Function* append = m_module->m_functionMgr.getStdFunction (StdFuncKind_AppendFmtLiteral_a);
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
 
 	literal->m_binData.append ((uchar_t*) p, length);
 	length = literal->m_binData.getCount ();
@@ -2418,15 +2418,15 @@ Parser::appendFmtLiteralValue (
 	if (!result)
 		return false;
 
-	StdFuncKind appendFunc;
+	StdFunction appendFunc;
 
 	Type* type = srcValue.getType ();
 	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
 	{
-		static StdFuncKind funcTable [2] [2] =
+		static StdFunction funcTable [2] [2] =
 		{
-			{ StdFuncKind_AppendFmtLiteral_i32, StdFuncKind_AppendFmtLiteral_ui32 },
-			{ StdFuncKind_AppendFmtLiteral_i64, StdFuncKind_AppendFmtLiteral_ui64 },
+			{ StdFunction_AppendFmtLiteral_i32, StdFunction_AppendFmtLiteral_ui32 },
+			{ StdFunction_AppendFmtLiteral_i64, StdFunction_AppendFmtLiteral_ui64 },
 		};
 
 		size_t i1 = type->getSize () > 4;
@@ -2436,11 +2436,11 @@ Parser::appendFmtLiteralValue (
 	}
 	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
 	{
-		appendFunc = StdFuncKind_AppendFmtLiteral_f;
+		appendFunc = StdFunction_AppendFmtLiteral_f;
 	}
 	else if (isCharArrayType (type) || isCharArrayRefType (type) || isCharPtrType (type))
 	{
-		appendFunc = StdFuncKind_AppendFmtLiteral_p;
+		appendFunc = StdFunction_AppendFmtLiteral_p;
 	}
 	else
 	{
@@ -2487,8 +2487,8 @@ Parser::appendFmtLiteralBinValue (
 		return false;
 
 	Type* type = srcValue.getType ();
-	Function* append = m_module->m_functionMgr.getStdFunction (StdFuncKind_AppendFmtLiteral_a);
-	Type* argType = getSimpleType (m_module, StdTypeKind_BytePtr);
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
+	Type* argType = getSimpleType (m_module, StdType_BytePtr);
 
 	Value sizeValue (type->getSize (), TypeKind_SizeT);
 
@@ -2538,7 +2538,7 @@ Parser::finalizeLiteral (
 	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
 	m_module->m_llvmIrBuilder.createAdd_i (sizeValue, Value (1, TypeKind_SizeT), NULL, &sizeValue);
 
-	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr);
+	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
 	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
 

@@ -450,6 +450,9 @@ set (
 	STDLIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Api.h
 	${JANCY_INC_DIR}/jnc_MulticastLib.h
+	${JANCY_INC_DIR}/jnc_String.h
+	${JANCY_INC_DIR}/jnc_StringBuilder.h
+	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	${JANCY_INC_DIR}/jnc_StdLib.h
 	jnc_Multicast.h
 	)
@@ -457,9 +460,11 @@ set (
 set (
 	STDLIB_CPP_LIST
 	jnc_Api.cpp
-	jnc_MulticastLib.cpp
-	jnc_StdLib.cpp
 	jnc_Multicast.cpp
+	jnc_MulticastLib.cpp
+	jnc_String.cpp
+	jnc_StringBuilder.cpp
+	jnc_StdLib.cpp
 	)
 
 set (

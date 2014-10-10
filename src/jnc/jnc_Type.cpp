@@ -713,10 +713,10 @@ getSimpleType (
 Type*
 getSimpleType (
 	Module* module,
-	StdTypeKind stdTypeKind
+	StdType stdType
 	)
 {
-	return module->m_typeMgr.getStdType (stdTypeKind);
+	return module->m_typeMgr.getStdType (stdType);
 }
 
 Type*

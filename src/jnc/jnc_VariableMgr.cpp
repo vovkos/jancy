@@ -68,7 +68,7 @@ VariableMgr::getStdVariable (StdVariableKind variableKind)
 			StorageKind_Thread,
 			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
-			m_module->m_typeMgr.getStdType (StdTypeKind_BytePtr)
+			m_module->m_typeMgr.getStdType (StdType_BytePtr)
 			);
 		break;
 

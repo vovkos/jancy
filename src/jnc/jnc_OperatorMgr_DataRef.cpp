@@ -31,7 +31,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	}
 	
 	Type* scopeValidatorType = scopeValidatorValue.getType ();
-	Type* resultType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjHdrPtr);
+	Type* resultType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
 	if (scopeValidatorType->cmp (resultType) == 0)
 	{
 		*resultValue = scopeValidatorValue;
@@ -61,7 +61,7 @@ OperatorMgr::getLeanDataPtrRange (
 {
 	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 
-	Type* bytePtrType = m_module->getSimpleType (StdTypeKind_BytePtr);
+	Type* bytePtrType = m_module->getSimpleType (StdType_BytePtr);
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "calc lean data pointer range");
 

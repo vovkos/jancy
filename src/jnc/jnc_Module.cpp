@@ -342,11 +342,40 @@ Module::calcLayout ()
 {
 	bool result;
 
-	for (size_t i = 0; i < m_calcLayoutArray.getCount (); i++) // new items could be added in process
+	while (!m_calcLayoutArray.isEmpty ()) // new items could be added in process
 	{
-		result = m_calcLayoutArray [i]->ensureLayout ();
-		if (!result)
-			return false;
+		rtl::Array <ModuleItem*> calcLayoutArray = m_calcLayoutArray;
+		m_calcLayoutArray.clear ();
+
+		size_t count = calcLayoutArray.getCount ();
+		for (size_t i = 0; i < calcLayoutArray.getCount (); i++) 
+		{
+			result = calcLayoutArray [i]->ensureLayout ();
+			if (!result)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+bool
+Module::processCompileArray ()
+{
+	bool result;
+
+	while (!m_compileArray.isEmpty ()) // new items could be added in process
+	{
+		rtl::Array <ModuleItem*> compileArray = m_compileArray;
+		m_compileArray.clear ();
+
+		size_t count = compileArray.getCount ();
+		for (size_t i = 0; i < compileArray.getCount (); i++) 
+		{
+			result = compileArray [i]->compile ();
+			if (!result)
+				return false;
+		}
 	}
 
 	return true;
@@ -401,12 +430,9 @@ Module::compile ()
 
 	// step 4: compile the rest
 
-	for (size_t i = 0; i < m_compileArray.getCount (); i++) // new items could be added in process
-	{
-		result = m_compileArray [i]->compile ();
-		if (!result)
-			return false;
-	}
+	result = processCompileArray ();
+	if (!result)
+		return false;
 
 	// step 5: ensure module destructor (if needed)
 
@@ -459,7 +485,7 @@ Module::createDefaultConstructor ()
 
 	ASSERT (!m_constructor);
 
-	FunctionType* type = (FunctionType*) getSimpleType (StdTypeKind_SimpleFunction);
+	FunctionType* type = (FunctionType*) getSimpleType (StdType_SimpleFunction);
 	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleConstructor, type);
 	function->m_storageKind = StorageKind_Static;
 	function->m_tag = "module.construct";
@@ -490,7 +516,7 @@ Module::createDefaultDestructor ()
 {
 	ASSERT (!m_destructor);
 
-	FunctionType* type = (FunctionType*) getSimpleType (StdTypeKind_SimpleFunction);
+	FunctionType* type = (FunctionType*) getSimpleType (StdType_SimpleFunction);
 	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleDestructor, "module.destruct", type);
 	function->m_storageKind = StorageKind_Static;
 

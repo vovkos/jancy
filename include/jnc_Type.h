@@ -111,48 +111,76 @@ enum TypeKind
 
 	TypeKind_SizeT    = TypeKind_Int_pu,
 	TypeKind_Int      = TypeKind_Int32,
+	TypeKind_Int_u    = TypeKind_Int32_u,
 	TypeKind_Char     = TypeKind_Int8,
-	TypeKind_UChar    = TypeKind_Int8_u,
+	TypeKind_Char_u   = TypeKind_Int8_u,
 	TypeKind_Byte     = TypeKind_Int8_u,
-	TypeKind_WChar    = TypeKind_Int16,
 	TypeKind_Short    = TypeKind_Int16,
-	TypeKind_UShort   = TypeKind_Int16_u,
+	TypeKind_Short_u  = TypeKind_Int16_u,
 	TypeKind_Word     = TypeKind_Int16_u,
-	TypeKind_Long     = TypeKind_Int32,
-	TypeKind_ULong    = TypeKind_Int32_u,
 	TypeKind_DWord    = TypeKind_Int32_u,
 	TypeKind_QWord    = TypeKind_Int64_u,
+
+#if (_AXL_CPP == AXL_CPP_GCC && _AXL_PTR_BITNESS == 64)
+	TypeKind_Long     = TypeKind_Int64,
+	TypeKind_Long_u   = TypeKind_Int64_u,
+#else
+	TypeKind_Long     = TypeKind_Int32,
+	TypeKind_Long_u   = TypeKind_Int32_u,
+#endif
 };
 
 //.............................................................................
 
-enum StdTypeKind
+enum StdType
 {
-	StdTypeKind_BytePtr,
-	StdTypeKind_ObjHdr,
-	StdTypeKind_ObjHdrPtr,
-	StdTypeKind_ObjectClass,
-	StdTypeKind_ObjectPtr,
-	StdTypeKind_SimpleFunction,
-	StdTypeKind_SimpleMulticast,
-	StdTypeKind_SimpleEventPtr,
-	StdTypeKind_Binder,
-	StdTypeKind_ReactorBindSite,
-	StdTypeKind_Scheduler,
-	StdTypeKind_SchedulerPtr,
-	StdTypeKind_FmtLiteral,
-	StdTypeKind_Guid,
-	StdTypeKind_Error,
-	StdTypeKind_String,
-	StdTypeKind_StringBuilder,
-	StdTypeKind_SmartPtr,
-	StdTypeKind_SmartConstPtr,
-	StdTypeKind_DynamicArray,
-	StdTypeKind_Int64Int64, // for system V coercion
-	StdTypeKind_Fp64Fp64,   // for system V coercion
-	StdTypeKind_Int64Fp64,  // for system V coercion
-	StdTypeKind_Fp64Int64,  // for system V coercion
-	StdTypeKind__Count,
+	StdType_BytePtr,
+	StdType_ObjHdr,
+	StdType_ObjHdrPtr,
+	StdType_ObjectClass,
+	StdType_ObjectPtr,
+	StdType_SimpleFunction,
+	StdType_SimpleMulticast,
+	StdType_SimpleEventPtr,
+	StdType_Binder,
+	StdType_ReactorBindSite,
+	StdType_Scheduler,
+	StdType_SchedulerPtr,
+	StdType_FmtLiteral,
+	StdType_Guid,
+	StdType_Error,
+	StdType_String,
+	StdType_StringRef,
+	StdType_StringBuilder,
+	StdType_ConstArray,
+	StdType_ConstArrayRef,
+	StdType_ArrayRef,
+	StdType_DynamicArray,
+	StdType_Int64Int64, // for system V coercion
+	StdType_Fp64Fp64,   // for system V coercion
+	StdType_Int64Fp64,  // for system V coercion
+	StdType_Fp64Int64,  // for system V coercion
+	StdType__Count,
+};
+
+//.............................................................................
+
+enum StdTypedef
+{
+	StdTypedef_uint_t,
+	StdTypedef_uintptr_t,
+	StdTypedef_size_t,
+	StdTypedef_uint8_t,
+	StdTypedef_uchar_t,
+	StdTypedef_byte_t,
+	StdTypedef_uint16_t,
+	StdTypedef_ushort_t,
+	StdTypedef_word_t,
+	StdTypedef_uint32_t,
+	StdTypedef_dword_t,
+	StdTypedef_uint64_t,
+	StdTypedef_qword_t,
+	StdTypedef__Count,
 };
 
 //.............................................................................
@@ -655,12 +683,12 @@ class LazyStdType: public LazyModuleItem
 	friend class TypeMgr;
 
 protected:
-	StdTypeKind m_stdType;
+	StdType m_stdType;
 
 public:
 	LazyStdType ()
 	{
-		m_stdType = (StdTypeKind) -1;
+		m_stdType = (StdType) -1;
 	}
 
 	virtual
@@ -679,7 +707,7 @@ getSimpleType (
 Type*
 getSimpleType (
 	Module* module,
-	StdTypeKind stdTypeKind
+	StdType stdType
 	);
 
 Type*

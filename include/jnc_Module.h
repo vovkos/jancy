@@ -153,9 +153,9 @@ public:
 	}
 
 	Type*
-	getSimpleType (StdTypeKind stdTypeKind)
+	getSimpleType (StdType stdType)
 	{
-		return m_typeMgr.getStdType (stdTypeKind);
+		return m_typeMgr.getStdType (stdType);
 	}
 
 	Function*
@@ -189,7 +189,7 @@ public:
 	void
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
-		StdFuncKind funcKind,
+		StdFunction funcKind,
 		void* pf
 		)
 	{
@@ -353,6 +353,9 @@ public:
 
 	bool
 	calcLayout ();
+
+	bool
+	processCompileArray ();
 
 	bool
 	compile ();

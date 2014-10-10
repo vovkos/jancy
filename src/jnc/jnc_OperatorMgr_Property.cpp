@@ -71,7 +71,7 @@ OperatorMgr::getPropertyVTable (
 		ASSERT (false);
 	}
 
-	Type* closureType = m_module->m_typeMgr.getStdType (StdTypeKind_ObjectPtr);
+	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
 
 	Value closureValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, pVTableType, resultValue);
@@ -506,7 +506,7 @@ OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 		return NULL;
 	}
 
-	return m_module->getSimpleType (StdTypeKind_SimpleEventPtr);
+	return m_module->getSimpleType (StdType_SimpleEventPtr);
 }
 
 bool
