@@ -25,12 +25,16 @@ enum TokenKind
 	TokenKind_FmtLiteral,
 	TokenKind_FmtSpecifier,
 
-	// global declarations & pragmas
+	// special declarations
 
-	TokenKind_Namespace,
-	TokenKind_Using,
-	TokenKind_Extend,
 	TokenKind_Pack,
+	TokenKind_Namespace,
+	TokenKind_Extend,
+	TokenKind_Using,
+	TokenKind_Friend,
+	TokenKind_Public,
+	TokenKind_Protected,
+	TokenKind_SetAs,
 
 	// storage specifiers
 
@@ -45,12 +49,6 @@ enum TokenKind
 	TokenKind_Virtual,
 	TokenKind_Override,
 	TokenKind_Mutable,
-
-	// access specifiers
-
-	TokenKind_Public,
-	TokenKind_Protected,
-	TokenKind_Friend,
 
 	// type modifiers
 
@@ -200,12 +198,16 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
 
-	// global declarations & pragmas
+	// special declarations
 
+	AXL_LEX_TOKEN_NAME (TokenKind_Pack,         "pack")
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
 	AXL_LEX_TOKEN_NAME (TokenKind_Extend,       "extend")
-	AXL_LEX_TOKEN_NAME (TokenKind_Pack,         "pack")
+	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
+	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
+	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
+	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")	
 
 	// storage specifiers
 
@@ -220,12 +222,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
 	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")
 	AXL_LEX_TOKEN_NAME (TokenKind_Mutable,      "mutable")
-
-	// access specifiers
-
-	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
-	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
-	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 
 	// type modifiers
 

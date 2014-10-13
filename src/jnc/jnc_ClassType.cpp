@@ -278,10 +278,7 @@ ClassType::calcLayout ()
 
 	// resolve imports
 
-	result =
-		resolveImportBaseTypes () &&
-		resolveImportFields ();
-
+	result = resolveImportTypes ();
 	if (!result)
 		return false;
 

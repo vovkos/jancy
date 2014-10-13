@@ -157,10 +157,7 @@ StructType::calcLayout ()
 	if (m_extensionNamespace)
 		applyExtensionNamespace ();
 
-	result =
-		resolveImportBaseTypes () &&
-		resolveImportFields ();
-
+	result = resolveImportTypes ();
 	if (!result)
 		return false;
 

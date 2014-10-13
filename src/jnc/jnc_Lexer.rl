@@ -78,10 +78,14 @@ main := |*
 
 # global declarations & pragmas
 
-'namespace'      { createToken (TokenKind_Namespace); };
-'using'          { createToken (TokenKind_Using); };
-'extend'         { createToken (TokenKind_Extend); };
 'pack'           { createToken (TokenKind_Pack); };
+'namespace'      { createToken (TokenKind_Namespace); };
+'extend'         { createToken (TokenKind_Extend); };
+'using'          { createToken (TokenKind_Using); };
+'friend'         { createToken (TokenKind_Friend); };
+'public'         { createToken (TokenKind_Public); };
+'protected'      { createToken (TokenKind_Protected); };
+'setas'          { createToken (TokenKind_SetAs); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -98,14 +102,6 @@ main := |*
 'virtual'        { createToken (TokenKind_Virtual); };
 'override'       { createToken (TokenKind_Override); };
 'mutable'        { createToken (TokenKind_Mutable); };
-
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-# access specifiers
-
-'public'         { createToken (TokenKind_Public); };
-'protected'      { createToken (TokenKind_Protected); };
-'friend'         { createToken (TokenKind_Friend); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

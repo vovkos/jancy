@@ -37,6 +37,8 @@ DerivableType::DerivableType ()
 	m_staticDestructor = NULL;
 	m_staticOnceFlagVariable = NULL;
 	m_callOperator = NULL;
+	m_setAsType = NULL;
+	m_setAsType_i = NULL;
 }
 
 Function*
@@ -131,57 +133,45 @@ DerivableType::addBaseType (Type* type)
 }
 
 bool
-DerivableType::resolveImportBaseType (BaseTypeSlot* slot)
+DerivableType::resolveImportTypes ()
 {
-	ASSERT (slot->m_type_i);
-
-	Type* type = slot->m_type_i->getActualType ();
-	rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
-	if (it->m_value)
-	{
-		err::setFormatStringError (
-			"'%s' is already a base type",
-			type->getTypeString ().cc () // thanks a lot gcc
-			);
-		return false;
-	}
-
-	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
-		type->getTypeKind () == TypeKind_Class && m_typeKind != TypeKind_Class)
-	{
-		err::setFormatStringError (
-			"'%s' cannot be inherited from '%s'",
-			getTypeString ().cc (),
-			type->getTypeString ().cc ()
-			);
-		return NULL;
-	}
-
-	slot->m_type = (DerivableType*) type;
-	it->m_value = slot;
-	return true;
-}
-
-bool
-DerivableType::resolveImportBaseTypes ()
-{
-	bool result;
+	// base types
 
 	size_t count = m_importBaseTypeArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		result = resolveImportBaseType (m_importBaseTypeArray [i]);
-		if (!result)
+		BaseTypeSlot* slot = m_importBaseTypeArray [i];
+		ASSERT (slot->m_type_i);
+
+		Type* type = slot->m_type_i->getActualType ();
+		rtl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
+		if (it->m_value)
+		{
+			err::setFormatStringError (
+				"'%s' is already a base type",
+				type->getTypeString ().cc () // thanks a lot gcc
+				);
 			return false;
+		}
+
+		if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
+			type->getTypeKind () == TypeKind_Class && m_typeKind != TypeKind_Class)
+		{
+			err::setFormatStringError (
+				"'%s' cannot be inherited from '%s'",
+				getTypeString ().cc (),
+				type->getTypeString ().cc ()
+				);
+			return NULL;
+		}
+
+		slot->m_type = (DerivableType*) type;
+		it->m_value = slot;
 	}
 
-	return true;
-}
+	// fields
 
-bool
-DerivableType::resolveImportFields ()
-{
-	size_t count = m_importFieldArray.getCount ();
+	count = m_importFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		StructField* field = m_importFieldArray [i];
@@ -202,6 +192,11 @@ DerivableType::resolveImportFields ()
 			field->m_bitFieldBaseType = type;
 		}
 	}
+
+	// setas type
+
+	if (m_setAsType_i)
+		m_setAsType = m_setAsType_i->getActualType ();
 
 	return true;
 }

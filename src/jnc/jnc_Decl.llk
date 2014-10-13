@@ -28,6 +28,7 @@ global_declaration
 named_type_block_declaration
 	:	friend_declaration
 	|	access_declaration
+	|   setas_declaration
 	|	named_type_specifier
 	|	item_declaration_w_specifier
 	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
@@ -89,6 +90,13 @@ access_declaration
 	:	access_specifier ':'
 			{
 				m_module->m_namespaceMgr.m_currentAccessKind = $1.m_accessKind;
+			}
+	;
+
+setas_declaration
+	:	TokenKind_SetAs type_name ';'
+			{
+				return setSetAsType ($2.m_type);
 			}
 	;
 
@@ -181,7 +189,7 @@ declaration_terminator <TypeSpecifier* $typeSpecifier>
 	}
 	:	';'
 			{
-				return isEmptyDeclarationTerminatorAllowed ($typeSpecifier);
+				return emptyDeclarationTerminator ($typeSpecifier);
 			}
 	|	declaration_body_pass1
 			{

@@ -132,6 +132,11 @@ protected:
 	rtl::StdList <BaseTypeSlot> m_baseTypeList;
 	rtl::Array <BaseTypeSlot*> m_baseTypeArray;
 	rtl::Array <BaseTypeSlot*> m_importBaseTypeArray;
+	
+	// set-as type
+
+	Type* m_setAsType;
+	ImportType* m_setAsType_i;
 
 	// gc roots
 
@@ -199,6 +204,12 @@ public:
 		)
 	{
 		return findBaseTypeTraverseImpl (type, coord, 0);
+	}
+
+	Type*
+	getSetAsType ()
+	{
+		return m_setAsType;
 	}
 
 	rtl::Array <BaseTypeSlot*>
@@ -388,13 +399,7 @@ protected:
 		) = 0;
 
 	bool
-	resolveImportBaseType (BaseTypeSlot* slot);
-
-	bool
-	resolveImportBaseTypes ();
-
-	bool
-	resolveImportFields ();
+	resolveImportTypes ();
 
 	bool
 	createDefaultMethod (

@@ -1,13 +1,29 @@
 //.............................................................................
 
+struct B
+{
+}
+
+struct A
+{
+	setas B;
+}
+
+A property g_a;
+
+A g_a.get ()
+{
+	A a;
+	return a;
+}
+
+g_a.set (B b)
+{	
+}
+
 int main ()
 {
 	printf ("main\n");
-
-	jnc.String string = "hui, govno i muravei";
-
-	printf ("string = '%s'\n", string.m_p);
-	
 	return 10; 
 }
 

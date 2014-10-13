@@ -164,6 +164,9 @@ Members2
 		);
 
 	bool
+	setSetAsType (Type* type);
+
+	bool
 	setStorageKind (StorageKind storageKind);
 
 	bool
@@ -191,7 +194,7 @@ Members2
 	isTypeSpecified ();
 
 	bool
-	isEmptyDeclarationTerminatorAllowed (TypeSpecifier* typeSpecifier);
+	emptyDeclarationTerminator (TypeSpecifier* typeSpecifier);
 
 	bool
 	setDeclarationBody (rtl::BoxList <Token>* tokenList);

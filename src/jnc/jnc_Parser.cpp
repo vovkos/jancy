@@ -228,7 +228,32 @@ Parser::getType (
 }
 
 bool
-Parser::isEmptyDeclarationTerminatorAllowed (TypeSpecifier* typeSpecifier)
+Parser::setSetAsType (Type* type)
+{
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	if (nspace->getNamespaceKind () != NamespaceKind_Type)
+	{
+		err::setFormatStringError ("invalid setas in '%s'", nspace->getQualifiedName ().cc ());
+		return false;
+	}
+
+	DerivableType* derivableType = (DerivableType*) (NamedType*) nspace;
+	if (derivableType->m_setAsType)
+	{
+		err::setFormatStringError ("setas redefinition for '%s'", derivableType->getTypeString ().cc ());
+		return false;
+	}	
+
+	derivableType->m_setAsType = type;
+	
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
+		derivableType->m_setAsType_i = (ImportType*) type;
+
+	return true;
+}
+
+bool
+Parser::emptyDeclarationTerminator (TypeSpecifier* typeSpecifier)
 {
 	if (!m_lastDeclaredItem)
 	{
@@ -1071,9 +1096,17 @@ Parser::finalizeLastProperty (bool hasBody)
 	if (!(m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_Const) && !hasBody)
 	{
 		FunctionType* getterType = prop->m_getter->getType ()->getShortType ();
-		Type* returnType = getterType->getReturnType ();
 		rtl::Array <FunctionArg*> argArray = getterType->getArgArray ();
-		argArray.append (returnType->getSimpleFunctionArg ());
+
+		Type* setterArgType = getterType->getReturnType ();
+		if (setterArgType->getTypeKindFlags () & TypeKindFlag_Derivable)
+		{
+			Type* setAsType = ((DerivableType*) setterArgType)->getSetAsType ();
+			if (setAsType)
+				setterArgType = setAsType;
+		}
+
+		argArray.append (setterArgType->getSimpleFunctionArg ());
 
 		FunctionType* setterType = m_module->m_typeMgr.getFunctionType (argArray);
 		Function* setter = m_module->m_functionMgr.createFunction (FunctionKind_Setter, setterType);

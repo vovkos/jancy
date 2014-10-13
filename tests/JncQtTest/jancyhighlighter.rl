@@ -33,10 +33,14 @@ main := |*
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 (
-'namespace'       |
-'using'           |
-'extend'          |
 'pack'            |
+'namespace'       |
+'extend'          |
+'using'           |
+'friend'          |
+'public'          |
+'protected'       |
+'setas'           |
 
 'typedef'         |
 'alias'           |
@@ -49,10 +53,6 @@ main := |*
 'virtual'         |
 'override'        |
 'mutable'         |
-
-'public'          |
-'protected'       |
-'friend'          |
 
 'signed'          |
 'unsigned'        |

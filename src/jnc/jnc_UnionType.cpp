@@ -106,7 +106,7 @@ UnionType::calcLayout ()
 	if (m_extensionNamespace)
 		applyExtensionNamespace ();
 
-	result = resolveImportFields ();
+	result = resolveImportTypes ();
 	if (!result)
 		return false;
 

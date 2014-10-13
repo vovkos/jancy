@@ -4,6 +4,8 @@
 
 struct String
 {
+	setas StringRef const*;
+
 	char const* dconst m_p;
 	size_t dconst m_length;
 
