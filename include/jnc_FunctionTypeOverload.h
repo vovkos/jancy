@@ -93,6 +93,13 @@ public:
 
 	size_t
 	chooseOverload (
+		const Value* argArray,
+		size_t argCount,
+		CastKind* castKind = NULL
+		) const;
+
+	size_t
+	chooseOverload (
 		const rtl::Array <FunctionArg*>& argArray,
 		CastKind* castKind = NULL
 		) const

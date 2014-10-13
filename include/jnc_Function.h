@@ -639,6 +639,17 @@ public:
 
 	Function*
 	chooseOverload (
+		const Value* argValueArray,
+		size_t argCount,
+		CastKind* castKind = NULL
+		)
+	{
+		size_t i = m_typeOverload.chooseOverload (argValueArray, argCount, castKind);
+		return i != -1 ? getOverload (i) : NULL;
+	}
+
+	Function*
+	chooseOverload (
 		const rtl::ConstBoxList <Value>& argList,
 		CastKind* castKind = NULL
 		)

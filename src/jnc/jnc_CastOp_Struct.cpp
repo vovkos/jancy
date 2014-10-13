@@ -12,11 +12,29 @@ Cast_Struct::getCastKind (
 	Type* type
 	)
 {
-	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
-		return CastKind_None;
+	if (opValue.getType ()->getTypeKind () == TypeKind_Struct)
+	{
+		StructType* srcStructType = (StructType*) opValue.getType ();
+		if (srcStructType->findBaseType (type))
+			return CastKind_Implicit;
+	}
 
-	StructType* structType = (StructType*) opValue.getType ();
-	return structType->findBaseType (type) ? CastKind_Implicit : CastKind_None;
+	ASSERT (type->getTypeKind () == TypeKind_Struct);
+	StructType* structType = (StructType*) type;
+
+	Function* constructor = structType->getConstructor ();
+	if (constructor)
+	{
+		Value argValueArray [2];
+		argValueArray [0].setType (structType->getDataPtrType ());
+		argValueArray [1] = opValue;
+
+		CastKind castKind;
+		if (constructor->chooseOverload (argValueArray, 2, &castKind))
+			return castKind;
+	}
+
+	return CastKind_None;
 }
 
 bool
@@ -27,20 +45,14 @@ Cast_Struct::constCast (
 	)
 {
 	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
-	{
-		setCastError (opValue, type);
 		return false;
-	}
 
-	StructType* structType = (StructType*) opValue.getType ();
+	StructType* srcStructType = (StructType*) opValue.getType ();
 
 	BaseTypeCoord coord;
-	bool result = structType->findBaseTypeTraverse (type, &coord);
+	bool result = srcStructType->findBaseTypeTraverse (type, &coord);
 	if (!result)
-	{
-		setCastError (opValue, type);
 		return false;
-	}
 	
 	memcpy (dst, (char*) opValue.getConstData () + coord.m_offset, type->getSize ());
 	return true;
@@ -54,31 +66,47 @@ Cast_Struct::llvmCast (
 	Value* resultValue
 	)
 {
-	if (opValue.getType ()->getTypeKind () != TypeKind_Struct)
+	bool result;
+
+	if (opValue.getType ()->getTypeKind () == TypeKind_Struct)
 	{
-		setCastError (opValue, type);
-		return false;
+		StructType* srcStructType = (StructType*) opValue.getType ();
+
+		BaseTypeCoord coord;
+		result = srcStructType->findBaseTypeTraverse (type, &coord);
+		if (result)
+		{
+			m_module->m_llvmIrBuilder.createExtractValue (
+				opValue, 
+				coord.m_llvmIndexArray, 
+				coord.m_llvmIndexArray.getCount (), 
+				type, 
+				resultValue
+				);
+
+			return true;
+		}
 	}
 
-	StructType* structType = (StructType*) opValue.getType ();
+	ASSERT (type->getTypeKind () == TypeKind_Struct);
+	StructType* structType = (StructType*) type;
 
-	BaseTypeCoord coord;
-	bool result = structType->findBaseTypeTraverse (type, &coord);
-	if (!result)
+	Function* constructor = structType->getConstructor ();
+	if (!constructor)
 	{
 		setCastError (opValue, type);
-		return false;
+		return false;	
 	}
 
-	m_module->m_llvmIrBuilder.createExtractValue (
-		opValue, 
-		coord.m_llvmIndexArray, 
-		coord.m_llvmIndexArray.getCount (), 
-		type, 
-		resultValue
-		);
+	Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
+	
+	Value tmpValue;
 
-	return true;
+	return
+		m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
+		m_module->m_operatorMgr.callOperator (constructor, tmpValue, opValue) &&
+		m_module->m_operatorMgr.loadDataRef (tmpVariable, resultValue);
 }
 
 //.............................................................................

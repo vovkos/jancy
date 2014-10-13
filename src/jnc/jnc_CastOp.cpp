@@ -16,7 +16,7 @@ setCastError (
 	if (!srcType)
 	{
 		ASSERT (opValue.getValueKind () == ValueKind_Function);
-		Function* function = (Function*) opValue.getFunction ();
+		Function* function = opValue.getFunction ();
 
 		return err::setFormatStringError (
 			"not enough information to select one of %d overloads of '%s'",
@@ -60,42 +60,22 @@ CastOperator::cast (
 	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
-	Value* resultValue_o
+	Value* resultValue
 	)
 {
-	ValueKind opValueKind = opValue.getValueKind ();
-	if (opValueKind != ValueKind_Const)
-		return llvmCast (storageKind, opValue, type, resultValue_o);
-	
-	Value resultValue;
-	
-	bool result = 
-		resultValue.createConst (NULL, type) && 
-		constCast (opValue, type, resultValue.getConstData ());
+	if (opValue.getValueKind () == ValueKind_Const) // try const-cast
+	{
+		bool result = 
+			resultValue->createConst (NULL, type) &&
+			constCast (opValue, type, resultValue->getConstData ());
 
-	if (!result)
-		return false;
+		if (result)
+			return true;
+	}
 
-	*resultValue_o = resultValue;
-	return true;
-}
+	// if const-cast is not available or fails, do full cast
 
-bool
-CastOperator::constCast (
-	const Value& opValue,
-	Type* type,
-	void* dst
-	)
-{
-	// fail by default; if const-cast is supported then override and implement
-
-	err::setFormatStringError (
-		"cannot convert constant from '%s' to '%s'",
-		opValue.getType ()->getTypeString ().cc (), 
-		type->getTypeString ().cc ()
-		);
-
-	return false;
+	return llvmCast (storageKind, opValue, type, resultValue);
 }
 
 //.............................................................................
@@ -161,10 +141,7 @@ Cast_Master::constCast (
 {
 	CastOperator* op = getCastOperator (rawOpValue, type);
 	if (!op)
-	{
-		setCastError (rawOpValue, type);
 		return false;
-	}
 
 	Value opValue = rawOpValue;
 
@@ -269,10 +246,7 @@ Cast_SuperMaster::constCast (
 		);
 
 	if (!result)
-	{
-		setCastError (rawOpValue, type);
 		return false;
-	}
 
 	ASSERT (operator1);
 

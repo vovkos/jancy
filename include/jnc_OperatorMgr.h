@@ -438,6 +438,13 @@ public:
 	CastKind
 	getArgCastKind (
 		FunctionType* functionType,
+		const Value* argValueArray,
+		size_t argCount
+		);
+
+	CastKind
+	getArgCastKind (
+		FunctionType* functionType,
 		const rtl::Array <FunctionArg*>& argArray
 		)
 	{

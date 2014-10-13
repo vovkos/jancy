@@ -93,7 +93,10 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+		)
+	{
+		return false;
+	}
 
 	virtual
 	bool

@@ -22,7 +22,6 @@ Cast_Array::constCast (
 	void* dst
 	)
 {
-	err::setFormatStringError ("CCast_Array::ConstCast is not yet implemented");
 	return false;
 }
 

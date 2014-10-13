@@ -95,6 +95,53 @@ FunctionTypeOverload::chooseOverload (
 
 size_t
 FunctionTypeOverload::chooseOverload (
+	const Value* argValueArray,
+	size_t argCount,
+	CastKind* castKind
+	) const
+{
+	ASSERT (m_type);
+
+	Module* module = m_type->getModule ();
+
+	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind (m_type, argValueArray, argCount);
+	size_t bestOverload = bestCastKind ? 0 : -1;
+
+	size_t count = m_overloadArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		FunctionType* overloadType = m_overloadArray [i];
+		CastKind castKind = module->m_operatorMgr.getArgCastKind (overloadType, argValueArray, argCount);
+		if (!castKind)
+			continue;
+
+		if (castKind == bestCastKind)
+		{
+			err::setFormatStringError ("ambiguous call to overloaded function");
+			return -1;
+		}
+
+		if (castKind > bestCastKind)
+		{
+			bestOverload = i + 1;
+			bestCastKind = castKind;
+		}
+	}
+
+	if (bestOverload == -1)
+	{
+		err::setFormatStringError ("none of the %d overloads accept the specified argument list", count + 1);
+		return -1;
+	}
+
+	if (castKind)
+		*castKind = bestCastKind;
+
+	return bestOverload;
+}
+
+size_t
+FunctionTypeOverload::chooseOverload (
 	const rtl::ConstBoxList <Value>& argList,
 	CastKind* castKind
 	) const

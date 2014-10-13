@@ -630,6 +630,46 @@ OperatorMgr::getArgCastKind (
 CastKind
 OperatorMgr::getArgCastKind (
 	FunctionType* functionType,
+	const Value* argValueArray,
+	size_t actualArgCount
+	)
+{
+	rtl::Array <FunctionArg*> formalArgArray = functionType->getArgArray ();
+	size_t formalArgCount = formalArgArray.getCount ();
+
+	if (actualArgCount > formalArgCount && !(functionType->getFlags () & FunctionTypeFlag_VarArg))
+		return CastKind_None;
+
+	size_t argCount = formalArgCount;
+	while (actualArgCount < argCount)
+	{
+		if (formalArgArray [argCount - 1]->getInitializer ().isEmpty ())
+			return CastKind_None;
+
+		argCount--;
+	}
+	
+	CastKind worstCastKind = CastKind_Identitiy;
+
+	for (size_t i = 0; i < argCount; i++)
+	{
+		Type* formalArgType = formalArgArray [i]->getType ();
+		Type* actualArgType = argValueArray [i].getType ();
+
+		CastKind castKind = getCastKind (actualArgType, formalArgType);
+		if (!castKind)
+			return CastKind_None;
+
+		if (castKind < worstCastKind)
+			worstCastKind = castKind;
+	}
+
+	return worstCastKind;
+}
+
+CastKind
+OperatorMgr::getArgCastKind (
+	FunctionType* functionType,
 	const rtl::ConstBoxList <Value>& argList
 	)
 {

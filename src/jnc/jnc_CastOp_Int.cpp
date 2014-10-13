@@ -351,6 +351,7 @@ Cast_PtrFromInt::constCast (
 	if (!result)
 		return false;
 
+	ASSERT (opValue.getValueKind () == ValueKind_Const);
 	ASSERT (opValue.getType ()->getSize () == sizeof (intptr_t));
 	ASSERT (type->getSize () == sizeof (intptr_t));
 
