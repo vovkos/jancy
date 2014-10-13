@@ -147,7 +147,7 @@ Cast_DataPtr_Base::getOffset (
 	if (srcStructType->findBaseTypeTraverse (dstStructType, coord))
 		return coord->m_offset;
 
-	#pragma AXL_TODO ("safe upcasts")
+	#pragma AXL_TODO ("safe downcasts")
 
 	BaseTypeCoord upcastCoord;
 	if (dstStructType->findBaseTypeTraverse (srcStructType, &upcastCoord))

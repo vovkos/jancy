@@ -10,7 +10,7 @@ full_declarator <TypeSpecifier* $typeSpecifier>
 		return preDeclare ();
 	}
 	:	declarator $d <$typeSpecifier>
-		(TokenKind_Construct arg_list_pass1 $c
+		(TokenKind_Construct? arg_list_pass1 $c
 			{
 				$d.m_declarator.m_constructor.takeOver (&$c.m_tokenList);
 			}
@@ -304,7 +304,8 @@ declarator_prefix <Declarator* $declarator>
 noast
 declarator_suffix <Declarator* $declarator>
 	:	array_suffix <$declarator>
-	|	function_suffix <$declarator>
+	|	resolver (function_suffix_rslv)
+		function_suffix <$declarator>
 	|	throw_suffix <$declarator>
 	|	resolver ({ return false; }) // prefer conditional-expr over type-name
 		bitfield_suffix <$declarator>
@@ -328,6 +329,12 @@ array_suffix <Declarator* $declarator>
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+function_suffix_rslv
+	:	'(' ')'
+	|	'(' TokenKind_Ellipsis ')'
+	|	'(' (type_specifier | type_modifier)
+	;
 
 function_suffix <Declarator* $declarator>
 	local
@@ -353,15 +360,6 @@ function_formal_argument_list <DeclFunctionSuffix* $functionSuffix>
 	;
 
 function_formal_argument <DeclFunctionSuffix* $functionSuffix>
-	:	function_formal_argument_w_specifier <$functionSuffix>
-	|	function_formal_argument_wo_specifier <$functionSuffix>
-	|	TokenKind_Ellipsis
-			{
-				$functionSuffix->m_functionTypeFlags |= FunctionTypeFlag_VarArg;
-			}
-	;
-
-function_formal_argument_w_specifier <DeclFunctionSuffix* $functionSuffix>
 	local
 	{
 		Declarator $declarator;
@@ -385,28 +383,9 @@ function_formal_argument_w_specifier <DeclFunctionSuffix* $functionSuffix>
 			{
 				return createFormalArg ($functionSuffix, &$declarator) != NULL;
 			}
-	;
-
-function_formal_argument_wo_specifier <DeclFunctionSuffix* $functionSuffix>
-	local
-	{
-		Declarator $declarator;
-	}
-	enter
-	{
-		m_storageKind = StorageKind_Undefined;
-		$declarator.setTypeSpecifier (NULL);
-	}
-	:	declarator_prefix <&$declarator>+
-		declarator_name <&$declarator>?
-		declarator_suffix <&$declarator>*
-		('=' expression_pass1 $i
+	|	TokenKind_Ellipsis
 			{
-				$declarator.m_initializer.takeOver (&$i.m_tokenList);
-			}
-		)?
-			{
-				return createFormalArg ($functionSuffix, &$declarator) != NULL;
+				$functionSuffix->m_functionTypeFlags |= FunctionTypeFlag_VarArg;
 			}
 	;
 
