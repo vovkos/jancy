@@ -454,28 +454,28 @@ primary_expr_0 <Value* $value>
 literal_0 <Value* $value>
 	local
 	{
-		Literal $literal;
+		Literal_0 $literal;
 	}
-	:	(	TokenKind_Literal 
-				{			
-					$literal.m_binData.append ((const uchar_t*) $1.m_data.m_string.cc (), $1.m_data.m_string.getLength ());
-					$literal.m_lastToken = TokenKind_Literal;
-				}
-		|	TokenKind_HexLiteral
-				{			
-					$literal.m_binData.append ($2.m_data.m_binData, $2.m_data.m_binData.getCount ());
-					$literal.m_lastToken = TokenKind_HexLiteral;
-				}
-		|	TokenKind_FmtLiteral expression_0 TokenKind_FmtSpecifier?
-				{
-					// mark we have a formatting literal from now on
-
-					if (!$literal.m_fmtLiteralValue)
-						$literal.m_fmtLiteralValue.setConstBool (true); 
-				}
-		)+
+	:	literal_atom_0 <&$literal>+ ('(' expression_or_empty_list_0 ')')?
 			{
 				return finalizeLiteral_0 (&$literal, $value);
+			}
+	;
+
+literal_atom_0 <Literal_0* $literal>
+	:	TokenKind_Literal 
+			{
+				$literal->m_length += $1.m_data.m_string.getLength ();
+				$literal->m_isZeroTerminated = true;
+			}
+	|	TokenKind_HexLiteral
+			{			
+				$literal->m_length += $1.m_data.m_binData.getCount ();
+				$literal->m_isZeroTerminated = false;
+			}
+	|	TokenKind_FmtLiteral expression_0 TokenKind_FmtSpecifier?
+			{
+				$literal->m_isFmtLiteral = true;
 			}
 	;
 

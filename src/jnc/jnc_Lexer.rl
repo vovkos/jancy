@@ -53,7 +53,8 @@ lit_fmt := |*
 
 esc       ;
 '$' id    { createFmtSimpleIdentifierToken (); };
-'$('      { createFmtLiteralToken (TokenKind_FmtLiteral); m_parenthesesLevelStack.append (1); fcall main; };
+'%' dec+  { createFmtIndexToken (); };
+[$%] '('  { createFmtLiteralToken (TokenKind_FmtLiteral, *ts == '%'); m_parenthesesLevelStack.append (1); fcall main; };
 '"' | nl  { createFmtLiteralToken (TokenKind_Literal); fret; };
 any       ;
 
@@ -61,11 +62,10 @@ any       ;
 
 fmt_spec := |*
 
-',' [^")\n]* { createFmtSpecifierToken (); fret; };
+';' [^")\n]* { createFmtSpecifierToken (); fret; };
 any          { ASSERT (false); fret; };
 
 *|;
-
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -273,7 +273,7 @@ dec+ ('.' dec+) | ([ee] [+\-]? dec+)
 
 '('              { onLeftParentheses (); };
 ')'              { if (!onRightParentheses ()) fret; };
-','              { if (!onComma ()) fcall fmt_spec; };
+';'              { if (!onSemicolon ()) fcall fmt_spec; };
 
 ws | nl          ;
 print            { createToken (ts [0]); };

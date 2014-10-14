@@ -387,12 +387,7 @@ protected:
 	createKeywordTokenEx (
 		int tokenKind,
 		int param
-		)
-	{
-		Token* token = createToken (tokenKind);
-		token->m_data.m_integer = param;
-		return token;
-	}
+		);
 
 	Token*
 	createStringToken (
@@ -400,186 +395,60 @@ protected:
 		size_t left = 0,
 		size_t right = 0,
 		bool useEscapeEncoding = false
-		)
-	{
-		Token* token = createToken (tokenKind);
-		ASSERT (token->m_pos.m_length >= left + right);
-
-		size_t length = token->m_pos.m_length - (left + right);
-		if (useEscapeEncoding)
-			token->m_data.m_string = rtl::EscapeEncoding::decode (ts + left, length);
-		else
-			token->m_data.m_string.copy (ts + left, length);
-
-		return token;
-	}
+		);
 
 	Token*
-	createHexLiteralToken ()
-	{
-		Token* token = createToken (TokenKind_HexLiteral);
-		ASSERT (token->m_pos.m_length >= 4);
-		token->m_data.m_binData = rtl::HexEncoding::decode (ts + 3, token->m_pos.m_length - 4);
-		return token;
-	}
+	createHexLiteralToken ();
 
 	Token*
-	createCharToken (int tokenKind)
-	{
-		Token* token = createToken (tokenKind);
-		token->m_data.m_integer = ts [1];
-		return token;
-	}
+	createCharToken (int tokenKind);
 
 	Token*
 	createIntegerToken (
 		int radix = 10,
 		size_t left = 0
-		)
-	{
-		Token* token = createToken (TokenKind_Integer);
-		token->m_data.m_int64_u = _strtoui64 (ts + left, NULL, radix);
-		return token;
-	}
+		);
 
 	Token*
-	createFpToken ()
-	{
-		Token* token = createToken (TokenKind_Fp);
-		token->m_data.m_double = strtod (ts, NULL);
-		return token;
-	}
+	createFpToken ();
 
 	Token*
-	createConstIntegerToken (int value)
-	{
-		Token* token = createToken (TokenKind_Integer);
-		token->m_data.m_integer = value;
-		return token;
-	}
+	createConstIntegerToken (int value);
 
 	// formatting literals
 
 	Token*
-	preCreateFmtLiteralToken ()
-	{
-		ASSERT (!m_fmtLiteralToken);
-		m_fmtLiteralToken = preCreateToken (0);
-		return m_fmtLiteralToken;
-	}
+	preCreateFmtLiteralToken ();
 
 	Token*
-	createFmtLiteralToken (int tokenKind)
-	{
-		ASSERT (m_fmtLiteralToken);
-		Token* token = m_fmtLiteralToken;
-
-		size_t left = token->m_pos.m_length;
-		size_t right = te - ts;
-
-		m_fmtLiteralToken = NULL;
-
-		token->m_pos.m_length = te - token->m_pos.m_p;
-		ASSERT (token->m_pos.m_length >= left + right);
-
-		token->m_token = tokenKind;
-		token->m_data.m_string = rtl::EscapeEncoding::decode (
-			token->m_pos.m_p + left,
-			token->m_pos.m_length - (left + right));
-		return token;
-	}
+	createFmtLiteralToken (
+		int tokenKind,
+		int param = 0
+		);
 
 	Token*
-	createFmtSimpleIdentifierToken ()
-	{
-		createFmtLiteralToken (TokenKind_FmtLiteral);
-
-		// important: prevent BreakJump () -- otherwise we could feed half-created fmt-literal token to the parser
-
-		size_t prevTokenizeLimit = m_tokenizeLimit;
-		m_tokenizeLimit = -1;
-
-		Token* token = createStringToken (TokenKind_Identifier, 1, 0);
-
-		m_tokenizeLimit = prevTokenizeLimit;
-
-		preCreateFmtLiteralToken ();
-		return token;
-	}
+	createFmtSimpleIdentifierToken ();
 
 	Token*
-	createFmtSpecifierToken ()
-	{
-		ASSERT (*ts == ',');
-		ts++;
+	createFmtIndexToken ();
 
-		while (ts < te && (*ts == ' ' || *ts == '\t'))
-			ts++;
-
-		return ts < te ? createStringToken (TokenKind_FmtSpecifier) : NULL;
-	}
+	Token*
+	createFmtSpecifierToken ();
 
 	void
-	onLeftParentheses ()
-	{
-		if (!m_parenthesesLevelStack.isEmpty ())
-			m_parenthesesLevelStack [m_parenthesesLevelStack.getCount () - 1]++;
-
-		createToken ('(');
-	}
+	onLeftParentheses ();
 
 	bool
-	onRightParentheses ()
-	{
-		if (!m_parenthesesLevelStack.isEmpty ())
-		{
-			size_t i = m_parenthesesLevelStack.getCount () - 1;
-			if (m_parenthesesLevelStack [i] == 1)
-			{
-				m_parenthesesLevelStack.pop ();
-				preCreateFmtLiteralToken ();
-				return false;
-			}
-
-			m_parenthesesLevelStack [i]--;
-		}
-
-		createToken (')');
-		return true;
-	}
+	onRightParentheses ();
 
 	bool
-	onComma ()
-	{
-		if (!m_parenthesesLevelStack.isEmpty ())
-		{
-			size_t i = m_parenthesesLevelStack.getCount () - 1;
-			if (m_parenthesesLevelStack [i] == 1)
-			{
-				ASSERT (*ts == ',');
-				p = ts - 1; // need to reparse colon with 'fmt_spec' machine
-				return false;
-			}
-		}
-
-		createToken (',');
-		return true;
-	}
+	onSemicolon ();
 
 	void
-	terminateFmtSpecifier ()
-	{
-		ASSERT (!m_parenthesesLevelStack.isEmpty () && m_fmtLiteralToken == NULL);
-		m_parenthesesLevelStack.pop ();
-		preCreateFmtLiteralToken ();
-	}
+	terminateFmtSpecifier ();
 
 	void
-	terminateFmtLiteral ()
-	{
-		ASSERT (!m_parenthesesLevelStack.isEmpty () && m_fmtLiteralToken == NULL);
-		m_parenthesesLevelStack.pop ();
-	}
+	terminateFmtLiteral ();
 
 	// implemented in *.rl
 

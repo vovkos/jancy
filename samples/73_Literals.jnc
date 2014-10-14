@@ -24,7 +24,7 @@ int main ()
 
 	int i = 100;	
 
-	char* p = $"i = $i; a [6] = $(a [6], c); b [2] = $(b [2], 02x)";
+	char* p = $"i = $i; a [6] = $(a [6]; c); b [2] = $(b [2]; 02x)";
 	printf ("formatting literal: %s\n", p);	
 	
 	// all literals could be concatenated in any combinations 

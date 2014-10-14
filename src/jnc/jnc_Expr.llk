@@ -834,34 +834,35 @@ literal <Value* $value>
 	{
 		Literal $literal;
 	}
-	:	(	TokenKind_Literal
-				{
-					$literal.m_binData.append ((const uchar_t*) $1.m_data.m_string.cc (), $1.m_data.m_string.getLength ());
-					$literal.m_lastToken = TokenKind_Literal;
-				}
-		|	TokenKind_HexLiteral
-				{
-					$literal.m_binData.append ($2.m_data.m_binData, $2.m_data.m_binData.getCount ());
-					$literal.m_lastToken = TokenKind_HexLiteral;
-				}
-		|	TokenKind_FmtLiteral
-				{
-					return appendFmtLiteral (&$literal, $3.m_data.m_string.cc (), $3.m_data.m_string.getLength ());
-				}
-			fmt_literal_value <&$literal>
-		)+
+	:	literal_atom <&$literal>+ ('(' expression_or_empty_list $a ')')?
 			{
-				return finalizeLiteral (&$literal, $value);
+				return finalizeLiteral (&$literal, isValidLocator ($a) ? &$a.m_valueList : NULL, $value);
 			}
 	;
 
-fmt_literal_value <Literal* $literal>
-	:	expression TokenKind_FmtSpecifier?
+literal_atom <Literal* $literal>
+	:	TokenKind_Literal
 			{
-				return isValidLocator ($2) ?
-					appendFmtLiteralValue ($literal, $1.m_value, $2.m_data.m_string) :
-					appendFmtLiteralValue ($literal, $1.m_value, rtl::String ());
+				$literal->m_binData.append ((const uchar_t*) $1.m_data.m_string.cc (), $1.m_data.m_string.getLength ());
+				$literal->m_isZeroTerminated = true;
 			}
+	|	TokenKind_HexLiteral
+			{
+				$literal->m_binData.append ($1.m_data.m_binData, $1.m_data.m_binData.getCount ());
+				$literal->m_isZeroTerminated = false;
+			}
+	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier $s?
+			{
+				rtl::String fmtSpecifier = isValidLocator ($s) ? $s.m_data.m_string : rtl::String ();
+				return addFmtSite (
+					$literal, 
+					(const uchar_t*) $1.m_data.m_string.cc (), 
+					$1.m_data.m_string.getLength (),
+					$2.m_value, 
+					$1.m_data.m_integer != 0, 
+					fmtSpecifier
+					);
+			}		
 	;
 
 //.............................................................................

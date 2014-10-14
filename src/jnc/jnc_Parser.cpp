@@ -2384,39 +2384,195 @@ Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 }
 
 bool
-Parser::appendFmtLiteral (
+Parser::addFmtSite (
 	Literal* literal,
+	const uchar_t* p,
+	size_t length,
+	const Value& value,
+	bool isIndex,
+	const rtl::String& fmtSpecifierString
+	)
+{
+	literal->m_binData.append (p, length);
+
+	FmtSite* site = AXL_MEM_NEW (FmtSite);
+	site->m_offset = literal->m_binData.getCount ();
+	site->m_fmtSpecifierString = fmtSpecifierString;
+	literal->m_fmtSiteList.insertTail (site);
+	literal->m_isZeroTerminated = true;
+
+	if (!isIndex)
+	{
+		site->m_value = value;
+		site->m_index = -1;
+	}
+	else
+	{
+		if (value.getValueKind () != ValueKind_Const ||
+			!(value.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
+		{
+			err::setFormatStringError ("expression is not integer constant");
+			return false;
+		}
+
+		site->m_index = 0;
+		memcpy (&site->m_index, value.getConstData (), value.getType ()->getSize ());
+	}
+
+	return true;
+}
+
+bool
+Parser::finalizeLiteral_0 (
+	Literal_0* literal,
+	Value* resultValue
+	)
+{
+	Type* type;
+
+	if (literal->m_isFmtLiteral)
+	{
+		type = getSimpleType (m_module, TypeKind_Char)->getDataPtrType ();
+	}
+	else
+	{
+		if (literal->m_isZeroTerminated)
+			literal->m_length++;
+
+		type = m_module->m_typeMgr.getArrayType (TypeKind_Char, literal->m_length);
+	}
+
+	resultValue->setType (type);
+	return true;
+}
+
+bool
+Parser::finalizeLiteral (
+	Literal* literal,
+	rtl::BoxList <Value>* argValueList,
+	Value* resultValue
+	)
+{
+	bool result;
+
+	if (literal->m_fmtSiteList.isEmpty ())
+	{
+		if (literal->m_isZeroTerminated)
+			literal->m_binData.append (0);
+
+		resultValue->setCharArray (literal->m_binData, literal->m_binData.getCount ());
+		return true;
+	}
+
+	char buffer [256];
+	rtl::Array <Value*> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	size_t argCount = 0;
+
+	if (argValueList)
+	{
+		argCount = argValueList->getCount ();
+		argValueArray.setCount (argCount);
+
+		rtl::BoxIterator <Value> it = argValueList->getHead ();
+		for (size_t i = 0; i < argCount; i++, it++)
+		{
+			ASSERT (it);
+			argValueArray [i] = it.p ();
+		}
+	}
+
+	Value fmtLiteralValue;
+	result = m_module->m_operatorMgr.newOperator (
+		StorageKind_Stack,
+		m_module->m_typeMgr.getStdType (StdType_FmtLiteral),
+		NULL,
+		&fmtLiteralValue
+		);
+
+	if (!result)
+		return false;
+	
+	size_t offset = 0;
+
+	rtl::Iterator <FmtSite> it = literal->m_fmtSiteList.getHead ();
+	for (; it; it++)
+	{
+		FmtSite* site = *it;
+		Value* value;
+
+		if (site->m_index == -1)
+		{
+			value = &site->m_value;
+		}
+		else
+		{
+			size_t i = site->m_index - 1;
+			if (i >= argCount)
+			{
+				err::setFormatStringError ("formatting literal doesn't have argument %%%d\n", site->m_index);
+				return false;
+			}
+
+			value = argValueArray [i];
+		}
+
+		if (site->m_offset > offset)
+		{
+			size_t length = site->m_offset - offset;
+			appendFmtLiteralRawData (
+				fmtLiteralValue, 
+				literal->m_binData + offset,
+				length 
+				);
+
+			offset += length;
+		}
+
+		appendFmtLiteralValue (fmtLiteralValue, *value, site->m_fmtSpecifierString);
+	}
+
+	Value ptrValue;
+	Value sizeValue;
+	Value objHdrValue;
+
+	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
+
+	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 2, NULL, &sizeValue);
+	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
+	m_module->m_llvmIrBuilder.createAdd_i (sizeValue, Value (1, TypeKind_SizeT), NULL, &sizeValue);
+
+	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
+	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
+
+	resultValue->setLeanDataPtr (
+		ptrValue.getLlvmValue (),
+		getSimpleType (m_module, TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
+		objHdrValue,
+		ptrValue,
+		sizeValue
+		);
+
+	return true;
+}
+
+bool
+Parser::appendFmtLiteralRawData (
+	const Value& fmtLiteralValue,
 	const void* p,
 	size_t length
 	)
 {
 	bool result;
 
-	if (!literal->m_fmtLiteralValue)
-	{
-		result = m_module->m_operatorMgr.newOperator (
-			StorageKind_Stack,
-			getSimpleType (m_module, StdType_FmtLiteral),
-			NULL,
-			&literal->m_fmtLiteralValue
-			);
-
-		if (!result)
-			return false;
-	}
-
 	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
 
-	literal->m_binData.append ((uchar_t*) p, length);
-	length = literal->m_binData.getCount ();
-
 	Value literalValue;
-	literalValue.setCharArray (literal->m_binData, length);
+	literalValue.setCharArray (p, length);
 	result = m_module->m_operatorMgr.castOperator (&literalValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
 	if (!result)
 		return false;
-
-	literal->m_binData.clear ();
 
 	Value lengthValue;
 	lengthValue.setConstSizeT (length);
@@ -2425,7 +2581,7 @@ Parser::appendFmtLiteral (
 	m_module->m_llvmIrBuilder.createCall3 (
 		append,
 		append->getType (),
-		literal->m_fmtLiteralValue,
+		fmtLiteralValue,
 		literalValue,
 		lengthValue,
 		&resultValue
@@ -2436,15 +2592,13 @@ Parser::appendFmtLiteral (
 
 bool
 Parser::appendFmtLiteralValue (
-	Literal* literal,
+	const Value& fmtLiteralValue,
 	const Value& rawSrcValue,
 	const rtl::String& fmtSpecifierString
 	)
 {
-	ASSERT (literal->m_fmtLiteralValue);
-
 	if (fmtSpecifierString == 'B') // binary format
-		return appendFmtLiteralBinValue (literal, rawSrcValue);
+		return appendFmtLiteralBinValue (fmtLiteralValue, rawSrcValue);
 
 	Value srcValue;
 	bool result = m_module->m_operatorMgr.prepareOperand (rawSrcValue, &srcValue);
@@ -2502,7 +2656,7 @@ Parser::appendFmtLiteralValue (
 
 	return m_module->m_operatorMgr.callOperator (
 		append, 
-		literal->m_fmtLiteralValue,
+		fmtLiteralValue,
 		fmtSpecifierValue,
 		argValue
 		);
@@ -2510,7 +2664,7 @@ Parser::appendFmtLiteralValue (
 
 bool
 Parser::appendFmtLiteralBinValue (
-	Literal* literal,
+	const Value& fmtLiteralValue,
 	const Value& rawSrcValue
 	)
 {
@@ -2534,81 +2688,12 @@ Parser::appendFmtLiteralBinValue (
 	m_module->m_llvmIrBuilder.createCall3 (
 		append,
 		append->getType (),
-		literal->m_fmtLiteralValue,
+		fmtLiteralValue,
 		tmpValue,
 		sizeValue,
 		&resultValue
 		);
 
-	return true;
-}
-
-bool
-Parser::finalizeLiteral (
-	Literal* literal,
-	Value* resultValue
-	)
-{
-	if (!literal->m_fmtLiteralValue)
-	{
-		if (literal->m_lastToken == TokenKind_Literal)
-			literal->m_binData.append (0);
-
-		resultValue->setCharArray (literal->m_binData, literal->m_binData.getCount ());
-		return true;
-	}
-
-	appendFmtLiteral (literal, NULL, 0);
-
-	Value ptrValue;
-	Value sizeValue;
-	Value objHdrValue;
-
-	m_module->m_llvmIrBuilder.createGep2 (literal->m_fmtLiteralValue, 0, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
-
-	m_module->m_llvmIrBuilder.createGep2 (literal->m_fmtLiteralValue, 2, NULL, &sizeValue);
-	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
-	m_module->m_llvmIrBuilder.createAdd_i (sizeValue, Value (1, TypeKind_SizeT), NULL, &sizeValue);
-
-	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
-	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
-
-	resultValue->setLeanDataPtr (
-		ptrValue.getLlvmValue (),
-		getSimpleType (m_module, TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
-		objHdrValue,
-		ptrValue,
-		sizeValue
-		);
-
-	return true;
-}
-
-bool
-Parser::finalizeLiteral_0 (
-	Literal* literal,
-	Value* resultValue
-	)
-{
-	Type* type;
-
-	if (!literal->m_fmtLiteralValue)
-	{
-		size_t count = literal->m_binData.getCount ();
-
-		if (literal->m_lastToken == TokenKind_Literal)
-			count++;
-
-		type = m_module->m_typeMgr.getArrayType (TypeKind_Char, count);
-	}
-	else
-	{
-		type = getSimpleType (m_module, TypeKind_Char)->getDataPtrType ();
-	}
-
-	resultValue->setType (type);
 	return true;
 }
 

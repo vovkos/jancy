@@ -72,11 +72,26 @@ Members
 		size_t m_count;
 	};
 
+	struct FmtSite: rtl::ListLink
+	{
+		size_t m_offset;
+		size_t m_index;
+		Value m_value;
+		rtl::String m_fmtSpecifierString;
+	};
+
 	struct Literal
 	{
-		Value m_fmtLiteralValue;
 		rtl::Array <uchar_t> m_binData;
-		TokenKind m_lastToken;
+		rtl::StdList <FmtSite> m_fmtSiteList;
+		bool m_isZeroTerminated;
+	};
+
+	struct Literal_0
+	{
+		size_t m_length;
+		bool m_isZeroTerminated;
+		bool m_isFmtLiteral;
 	};
 
 	Module* m_module;
@@ -420,35 +435,46 @@ Members2
 	skipCurlyInitializerItem (CurlyInitializer* initializer);
 
 	bool
-	appendFmtLiteral (
+	addFmtSite (
 		Literal* literal,
-		const void* p,
-		size_t length
-		);
-
-	bool
-	appendFmtLiteralValue (
-		Literal* literal,
-		const Value& srcValue,
+		const uchar_t* p,
+		size_t length,
+		const Value& value,
+		bool isIndex,
 		const rtl::String& fmtSpecifierString
-		);
-
-	bool
-	appendFmtLiteralBinValue (
-		Literal* literal,
-		const Value& srcValue
 		);
 
 	bool
 	finalizeLiteral (
 		Literal* literal,
+		rtl::BoxList <Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
 	finalizeLiteral_0 (
-		Literal* literal,
+		Literal_0* literal,
 		Value* resultValue
+		);
+
+	bool
+	appendFmtLiteralRawData (
+		const Value& fmtLiteralValue,
+		const void* p,
+		size_t size
+		);
+
+	bool
+	appendFmtLiteralValue (
+		const Value& fmtLiteralValue,
+		const Value& rawSrcValue,
+		const rtl::String& fmtSpecifierString
+		);
+
+	bool
+	appendFmtLiteralBinValue (
+		const Value& fmtLiteralValue,
+		const Value& rawSrcValue
 		);
 }
 
