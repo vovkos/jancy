@@ -25,13 +25,23 @@ Cast_Struct::getCastKind (
 	Function* constructor = structType->getConstructor ();
 	if (constructor)
 	{
+		rtl::StringHashTableMapIterator <bool> it = m_recursionStopperSet.visit (structType->getSignature ());
+		if (it->m_value)
+			return CastKind_None;
+
+		it->m_value = true;
+
 		Value argValueArray [2];
 		argValueArray [0].setType (structType->getDataPtrType ());
 		argValueArray [1] = opValue;
 
 		CastKind castKind;
-		if (constructor->chooseOverload (argValueArray, 2, &castKind))
-			return castKind;
+		Function* overload = constructor->chooseOverload (argValueArray, 2, &castKind);
+
+		m_recursionStopperSet.erase (it);
+
+		if (overload)	
+			return AXL_MIN (castKind, CastKind_ImplicitCrossFamily);
 	}
 
 	return CastKind_None;
@@ -102,11 +112,24 @@ Cast_Struct::llvmCast (
 	
 	Value tmpValue;
 
-	return
+	rtl::StringHashTableMapIterator <bool> it = m_recursionStopperSet.visit (structType->getSignature ());
+	if (it->m_value)
+	{
+		setCastError (opValue, type);
+		return false;	
+	}
+
+	it->m_value = true;
+
+	result = 
 		m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
 		m_module->m_operatorMgr.callOperator (constructor, tmpValue, opValue) &&
 		m_module->m_operatorMgr.loadDataRef (tmpVariable, resultValue);
+
+	m_recursionStopperSet.erase (it);
+
+	return result;
 }
 
 //.............................................................................

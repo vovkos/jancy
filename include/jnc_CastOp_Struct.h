@@ -12,6 +12,9 @@ namespace jnc {
 
 class Cast_Struct: public CastOperator
 {
+protected:
+	rtl::StringHashTableMap <bool> m_recursionStopperSet;
+
 public:
 	virtual
 	CastKind
