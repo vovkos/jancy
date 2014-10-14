@@ -2531,6 +2531,17 @@ Parser::finalizeLiteral (
 		appendFmtLiteralValue (fmtLiteralValue, *value, site->m_fmtSpecifierString);
 	}
 
+	size_t endOffset = literal->m_binData.getCount ();
+	if (endOffset > offset)
+	{
+		size_t length = endOffset - offset;
+		appendFmtLiteralRawData (
+			fmtLiteralValue, 
+			literal->m_binData + offset,
+			length 
+			);
+	}
+
 	Value ptrValue;
 	Value sizeValue;
 	Value objHdrValue;
