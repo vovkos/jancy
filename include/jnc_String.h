@@ -13,7 +13,8 @@ struct String
 	JNC_API_BEGIN_TYPE ("jnc.String", ApiSlot_jnc_String)
 		JNC_API_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
 		JNC_API_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-		JNC_API_FUNCTION ("copy", &String::copy_s)
+		JNC_API_FUNCTION_0 ("copy")
+		JNC_API_OVERLOAD (&String::copy_s)
 	JNC_API_END_TYPE ()
 
 public:
@@ -63,6 +64,52 @@ protected:
 	{
 		return ((String*) selfPtr.m_p)->copy (ptr, length);
 	}
+};
+
+//.............................................................................
+
+struct StringRef
+{
+	JNC_API_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
+	JNC_API_END_TYPE ()
+
+public:
+	DataPtr m_ptr;
+	size_t m_length;
+	bool m_isFinal;
+};
+
+//.............................................................................
+
+class StringBuilder: public IfaceHdr
+{
+public:
+	JNC_API_BEGIN_CLASS ("jnc.StringBuilder", ApiSlot_jnc_StringBuilder)
+		JNC_API_FUNCTION_0 ("copy")
+		JNC_API_OVERLOAD (&StringBuilder::copy)
+		JNC_API_FUNCTION_0 ("append")
+		JNC_API_OVERLOAD (&StringBuilder::append)
+	JNC_API_END_CLASS ()
+
+public:
+	DataPtr m_ptr;
+	size_t m_length;
+	size_t m_maxLength;
+
+public:
+	bool 
+	AXL_CDECL
+	copy (
+		DataPtr ptr,
+		size_t length
+		);
+
+	bool 
+	AXL_CDECL
+	append (
+		DataPtr ptr,
+		size_t length
+		);
 };
 
 //.............................................................................

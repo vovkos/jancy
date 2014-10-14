@@ -108,10 +108,6 @@ Cast_Struct::llvmCast (
 		return false;	
 	}
 
-	Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
-	
-	Value tmpValue;
-
 	rtl::StringHashTableMapIterator <bool> it = m_recursionStopperSet.visit (structType->getSignature ());
 	if (it->m_value)
 	{
@@ -120,6 +116,9 @@ Cast_Struct::llvmCast (
 	}
 
 	it->m_value = true;
+
+	Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
+	Value tmpValue;
 
 	result = 
 		m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&

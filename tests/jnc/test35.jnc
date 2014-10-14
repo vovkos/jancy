@@ -4,24 +4,17 @@ int main ()
 {
 	printf ("main\n");
 
-	int a = 10;
-	int b = 20;
-	int c = 30;
-
-	char const* s = 
-		"suka bla "
-		$"a = %1/0x%(1; 02x), " 
-		$"b = %2/0x%(2; 02x), " 
-		$"c = %3/0x%(3; 02x)." (
-			a, 
-			b, 
-			c
-			);
-	
-
-	printf ("s = '%s'\n", s);
+	jnc.StringBuilder stringBuilder;
+	stringBuilder.copy ("hui ");
+	stringBuilder.append ("govno ");
+	stringBuilder.append ("i ");
+	stringBuilder.append ("muravei.");
 
 	return 10; 
+
+catch:
+	printf ("error\n");
+	return -1;
 }
 
 //.............................................................................

@@ -47,4 +47,26 @@ String::copy (
 
 //.............................................................................
 
+bool 
+AXL_CDECL
+StringBuilder::copy (
+	DataPtr ptr,
+	size_t length
+	)
+{
+	return true;
+}
+
+bool 
+AXL_CDECL
+StringBuilder::append (
+	DataPtr ptr,
+	size_t length
+	)
+{
+	return true;
+}
+
+//.............................................................................
+
 } // namespace jnc

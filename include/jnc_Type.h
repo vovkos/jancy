@@ -152,10 +152,10 @@ enum StdType
 	StdType_String,
 	StdType_StringRef,
 	StdType_StringBuilder,
-	StdType_ConstArray,
-	StdType_ConstArrayRef,
-	StdType_ArrayRef,
-	StdType_DynamicArray,
+	StdType_ConstBuffer,
+	StdType_ConstBufferRef,
+	StdType_BufferRef,
+	StdType_Buffer,
 	StdType_Int64Int64, // for system V coercion
 	StdType_Fp64Fp64,   // for system V coercion
 	StdType_Int64Fp64,  // for system V coercion

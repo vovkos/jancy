@@ -96,7 +96,7 @@ TypeMgr::getStdType (StdType stdType)
 {
 	#include "jnc_StdDef.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
-	#include "jnc_Array.jnc.cpp"
+	#include "jnc_Buffer.jnc.cpp"
 
 	struct StringRef
 	{
@@ -124,10 +124,10 @@ TypeMgr::getStdType (StdType stdType)
 		{ stringTypeSrc, lengthof (stringTypeSrc) },                   // StdType_String,
 		{ stringRefTypeSrc, lengthof (stringRefTypeSrc) },             // StdType_StringRef,
 		{ stringBuilderTypeSrc, lengthof (stringBuilderTypeSrc) },     // StdType_StringBuilder,
-		{ constArrayTypeSrc, lengthof (constArrayTypeSrc) },           // StdType_ConstArray,
-		{ constArrayRefTypeSrc, lengthof (constArrayRefTypeSrc) },     // StdType_ConstArrayRef,
-		{ arrayRefTypeSrc, lengthof (arrayRefTypeSrc) },               // StdType_ArrayRef,
-		{ dynamicArrayTypeSrc, lengthof (dynamicArrayTypeSrc) },       // StdType_DynamicArray,
+		{ constBufferTypeSrc, lengthof (constBufferTypeSrc) },         // StdType_ConstBuffer,
+		{ constBufferRefTypeSrc, lengthof (constBufferRefTypeSrc) },   // StdType_ConstBufferRef,
+		{ bufferRefTypeSrc, lengthof (bufferRefTypeSrc) },             // StdType_BufferRef,
+		{ bufferTypeSrc, lengthof (bufferTypeSrc) },                   // StdType_Buffer,
 		{ int64Int64TypeSrc, lengthof (int64Int64TypeSrc) },           // StdType_Int64Int64,
 		{ fp64Fp64TypeSrc, lengthof (fp64Fp64TypeSrc) },               // StdType_Fp64Fp64,
 		{ int64Fp64TypeSrc, lengthof (int64Fp64TypeSrc) },             // StdType_Int64Fp64,
@@ -190,10 +190,10 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_String:
 	case StdType_StringRef:
 	case StdType_StringBuilder:
-	case StdType_ConstArray:
-	case StdType_ConstArrayRef:
-	case StdType_ArrayRef:
-	case StdType_DynamicArray:
+	case StdType_ConstBuffer:
+	case StdType_ConstBufferRef:
+	case StdType_BufferRef:
+	case StdType_Buffer:
 	case StdType_Int64Int64:
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:

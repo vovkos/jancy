@@ -4,13 +4,18 @@
 
 struct String
 {
-	setas StringRef const*;
+	setas StringRef;
 
 	char const* dconst m_p;
 	size_t dconst m_length;
 
 	construct ()
 	{
+	}
+
+	construct (StringRef src)
+	{
+		try copy (src.m_p, src.m_length);
 	}
 
 	construct (
@@ -28,6 +33,11 @@ struct String
 
 	bool ensureZeroTerminated () throws;
 	String getZeroTerminatedString ();
+
+	bool copy (StringRef src) throws
+	{
+		return try copy (src.m_p, src.m_length);
+	}
 
 	bool copy (
 		char const* p,
@@ -59,7 +69,7 @@ struct StringRef
 		size_t length = -1
 		)
 	{
-		setup (src.m_p, length != -1 ? length : strlen (p), true);
+		setup (p, length != -1 ? length : strlen (p), false);
 	}
 
 	bool isZeroTerminated () const;	
@@ -86,7 +96,29 @@ protected:
 
 class StringBuilder
 {
+	char const* dconst m_p;
+	size_t dconst m_length;
+	size_t dconst m_maxLength;
+
+	bool copy (StringRef string) throws
+	{
+		return try copy (string.m_p, string.m_length);
+	}
 	
+	bool copy (
+		char const* p,
+		size_t length
+		) throws;
+
+	bool append (StringRef string) throws
+	{
+		return try append (string.m_p, string.m_length);
+	}
+
+	bool append (
+		char const* p,
+		size_t length
+		) throws;
 }
 
 //.............................................................................

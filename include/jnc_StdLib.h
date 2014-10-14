@@ -7,7 +7,7 @@
 #include "jnc_Runtime.h"
 #include "jnc_Api.h"
 #include "jnc_String.h"
-#include "jnc_StringBuilder.h"
+#include "jnc_Buffer.h"
 #include "jnc_MulticastLib.h"
 
 namespace jnc {
@@ -48,7 +48,12 @@ public:
 		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_f, appendFmtLiteral_f)
 		JNC_API_STD_TYPE (StdType_String, String)
+		JNC_API_STD_TYPE (StdType_StringRef, StringRef)
 		JNC_API_STD_TYPE (StdType_StringBuilder, StringBuilder)
+		JNC_API_STD_TYPE (StdType_ConstBuffer, ConstBuffer)
+		JNC_API_STD_TYPE (StdType_ConstBufferRef, ConstBufferRef)
+		JNC_API_STD_TYPE (StdType_BufferRef, BufferRef)
+		JNC_API_STD_TYPE (StdType_Buffer, Buffer)
 		JNC_API_LIB (MulticastLib)
 	JNC_API_END_LIB ()
 

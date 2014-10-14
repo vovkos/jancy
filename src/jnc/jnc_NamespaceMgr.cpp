@@ -77,10 +77,10 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_String)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringBuilder)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstArray)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstArrayRef)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ArrayRef)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_DynamicArray)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBuffer)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBufferRef)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_BufferRef)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Buffer)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetDataPtrSpan)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_RunGc)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CreateThread)) &&

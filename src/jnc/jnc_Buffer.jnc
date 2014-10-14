@@ -1,0 +1,136 @@
+//.............................................................................
+
+///; static char constBufferTypeSrc [] = 
+
+struct ConstBuffer
+{
+	setas ConstBufferRef;
+
+	void const* dconst m_p;
+	size_t dconst m_size;
+
+	construct ()
+	{
+	}
+
+	construct (ConstBufferRef src)
+	{
+		try copy (src.m_p, src.m_size);
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		try copy (p, size);
+	}
+
+	bool copy (ConstBufferRef src) throws
+	{
+		return try copy (src.m_p, src.m_size);
+	}
+
+	bool copy (
+		void const* p,
+		size_t size
+		) throws;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char constBufferRefTypeSrc [] = 
+
+struct ConstBufferRef
+{
+	void const* dconst m_p;
+	size_t dconst m_size;
+	bool dconst m_isFinal;
+
+	construct ()
+	{
+	}
+
+	construct (ConstBuffer src)
+	{
+		setup (src.m_p, src.m_size, true);
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		setup (src.m_p, size, false);
+	}
+
+protected:
+	void setup (
+		char const* p,
+		size_t size,
+		bool isFinal
+		)
+	{
+		m_p = p;
+		m_size = size;
+		m_isFinal = isFinal;
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char bufferRefTypeSrc [] = 
+
+struct BufferRef
+{
+	void* dconst m_p;
+	size_t dconst m_size;
+
+	construct ()
+	{
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		m_p = p;
+		m_size = size;
+	}
+}
+
+//.............................................................................
+
+///; static char bufferTypeSrc [] = 
+
+class Buffer
+{
+	void* dconst m_p;
+	size_t dconst m_size;
+	size_t dconst m_maxSize;
+
+	bool copy (ConstBufferRef buffer) throws
+	{
+		return try copy (buffer.m_p, buffer.m_size);
+	}
+
+	bool copy (
+		char const* p,
+		size_t size,
+		) throws;
+
+	bool append (ConstBufferRef buffer) throws
+	{
+		return try append (buffer.m_p, buffer.m_size);
+	}
+
+	bool append (
+		char const* p,
+		size_t size,
+		) throws;
+}
+
+//.............................................................................
+
+///;
