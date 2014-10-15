@@ -50,6 +50,11 @@ public:
 class Cast_DataPtr_Base: public CastOperator
 {
 public:
+	Cast_DataPtr_Base ()
+	{
+		m_opFlags = OpFlag_KeepDerivableRef;
+	}
+
 	virtual
 	CastKind
 	getCastKind (

@@ -31,7 +31,7 @@ struct String
 		try copy (p, length);
 	}
 
-	const char thin* operator cdecl ... ()
+	const char thin* operator cdecl ... () const
 	{
 		return m_p;
 	}
@@ -84,7 +84,7 @@ struct StringRef
 		setup (p, length != -1 ? length : strlen (p), false);
 	}
 
-	const char thin* operator cdecl ... ()
+	const char thin* operator cdecl ... () const
 	{
 		return m_p;
 	}

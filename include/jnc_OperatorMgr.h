@@ -1439,18 +1439,15 @@ protected:
 	// overloaded operators
 
 	Function*
-	getOverloadedBinaryOperator (
-		BinOpKind opKind,
-		const Value& opValue1,
-		const Value& opValue2
+	getOverloadedUnaryOperator (
+		UnOpKind opKind,
+		const Value& opValue
 		);
 
-	bool
-	overloadedBinaryOperator (
-		Function* function,
-		const Value& rawOpValue1,
-		const Value& rawOpValue2,
-		Value* resultValue
+	Function*
+	getOverloadedBinaryOperator (
+		BinOpKind opKind,
+		const Value& opValue1
 		);
 
 	// bit fields

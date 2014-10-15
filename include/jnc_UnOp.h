@@ -37,13 +37,13 @@ getUnOpKindString (UnOpKind opKind);
 enum OpFlag
 {
 	OpFlag_KeepDataRef      = 0x01,
-	OpFlag_KeepClassRef	 = 0x02,
+	OpFlag_KeepClassRef	    = 0x02,
 	OpFlag_KeepFunctionRef  = 0x04,
 	OpFlag_KeepPropertyRef  = 0x08,
-	OpFlag_KeepBool         = 0x10,
-	OpFlag_KeepEnum         = 0x20,
-	
-	OpFlag_ArrayRefToPtr    = 0x40,
+	OpFlag_KeepDerivableRef = 0x10,
+	OpFlag_KeepBool         = 0x20,
+	OpFlag_KeepEnum         = 0x40,
+	OpFlag_ArrayRefToPtr    = 0x80,
 	
 	OpFlag_KeepRef          = 
 		OpFlag_KeepDataRef | 

@@ -19,12 +19,16 @@ OperatorMgr::logicalOrOperator (
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (opBlock1);
 
-	Function* function = getOverloadedBinaryOperator (BinOpKind_LogOr, rawOpValue1, rawOpValue2);
+	Function* function = getOverloadedBinaryOperator (BinOpKind_LogOr, rawOpValue1);
 	if (function)
 	{
 		m_module->m_controlFlowMgr.follow (opBlock2);
 		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
+
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue1);
+		argList.insertTail (rawOpValue2);
+		return callOperator (function, &argList, resultValue);
 	}
 
 	Value unusedResultValue;
@@ -88,12 +92,16 @@ OperatorMgr::logicalAndOperator (
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (opBlock1);
 
-	Function* function = getOverloadedBinaryOperator (BinOpKind_LogAnd, rawOpValue1, rawOpValue2);
+	Function* function = getOverloadedBinaryOperator (BinOpKind_LogAnd, rawOpValue1);
 	if (function)
 	{
 		m_module->m_controlFlowMgr.follow (opBlock2);
 		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
+
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue1);
+		argList.insertTail (rawOpValue2);
+		return callOperator (function, &argList, resultValue);
 	}
 
 	Value unusedResultValue;

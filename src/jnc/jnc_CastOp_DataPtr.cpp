@@ -18,8 +18,8 @@ Cast_DataPtr_FromArray::getCastKind (
 		return m_module->m_operatorMgr.getCastKind (ptrValue, type);
 	}
 
-	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Array);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	ArrayType* srcType = (ArrayType*) opValue.getType ();	
 	DataPtrType* dstType = (DataPtrType*) type;
@@ -97,7 +97,8 @@ Cast_DataPtr_Base::getCastKind (
 	Type* type
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr && type->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 	DataPtrType* dstType = (DataPtrType*) type;
@@ -205,7 +206,7 @@ Cast_DataPtr_Normal2Normal::constCast (
 	void* dst
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
@@ -227,7 +228,7 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	if (type->getFlags () & PtrTypeFlag_Safe)
@@ -265,7 +266,7 @@ Cast_DataPtr_Lean2Normal::constCast (
 	void* dst
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
@@ -291,7 +292,7 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
@@ -331,7 +332,7 @@ Cast_DataPtr_Normal2Thin::constCast (
 	void* dst
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
@@ -347,7 +348,7 @@ Cast_DataPtr_Normal2Thin::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	Value ptrValue;
@@ -366,7 +367,7 @@ Cast_DataPtr_Lean2Thin::llvmCast (
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
@@ -382,7 +383,7 @@ Cast_DataPtr_Thin2Thin::constCast (
 	void* dst
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr);
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
@@ -401,6 +402,8 @@ Cast_DataPtr::Cast_DataPtr ()
 	m_operatorTable [DataPtrTypeKind_Lean] [DataPtrTypeKind_Normal]   = &m_lean2Normal;
 	m_operatorTable [DataPtrTypeKind_Lean] [DataPtrTypeKind_Thin]     = &m_lean2Thin;
 	m_operatorTable [DataPtrTypeKind_Thin] [DataPtrTypeKind_Thin]     = &m_thin2Thin;
+
+	m_opFlags = OpFlag_KeepDerivableRef;
 }
 
 CastOperator*
@@ -415,13 +418,11 @@ Cast_DataPtr::getCastOperator (
 	DataPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind ();
 
 	Type* srcType = opValue.getType ();
-	TypeKind srcTypeKind = srcType->getTypeKind ();
-
-	if (isArrayRefType (srcType) || srcTypeKind == TypeKind_Array)
+	if (isArrayRefType (srcType) || srcType->getTypeKind () == TypeKind_Array)
 	{
 		return &m_fromArray;
 	}
-	else if (srcTypeKind != TypeKind_DataPtr)
+	else if (!(srcType->getTypeKindFlags () & TypeKindFlag_DataPtr))
 	{
 		return NULL;
 	}

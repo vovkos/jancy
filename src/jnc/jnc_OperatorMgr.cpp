@@ -135,6 +135,28 @@ OperatorMgr::OperatorMgr ()
 	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
 }
 
+Function*
+OperatorMgr::getOverloadedUnaryOperator (
+	UnOpKind opKind,
+	const Value& opValue
+	)
+{
+	Type* opType = prepareOperandType (opValue);
+
+	if (opType->getTypeKind () == TypeKind_ClassPtr)
+	{
+		ClassPtrType* ptrType = (ClassPtrType*) opType;
+		return ptrType->getTargetType ()->getUnaryOperator (opKind);
+	}
+	else if (opType->getTypeKindFlags () & TypeKindFlag_Derivable)
+	{
+		DerivableType* derivableType = (DerivableType*) opType;
+		return derivableType->getUnaryOperator (opKind);
+	}
+
+	return NULL;
+}
+
 Type*
 OperatorMgr::getUnaryOperatorResultType (
 	UnOpKind opKind,
@@ -143,26 +165,19 @@ OperatorMgr::getUnaryOperatorResultType (
 {
 	ASSERT ((size_t) opKind < UnOpKind__Count);
 
-	Value opValue;
-
-	prepareOperandType (rawOpValue, &opValue);
-	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
+	Function* function = getOverloadedUnaryOperator (opKind, rawOpValue);
+	if (function)
 	{
-		ClassType* classType = ((ClassPtrType*) opValue.getType ())->getTargetType ();
-		Function* function = classType->getUnaryOperator (opKind);
-		if (function)
-		{
-			rtl::BoxList <Value> argList;
-			argList.insertTail (rawOpValue);
-			return getCallOperatorResultType (function->getTypeOverload (), &argList);
-		}
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue);
+		return getCallOperatorResultType (function->getTypeOverload (), &argList);
 	}
 
 	UnaryOperator* op = m_unaryOperatorTable [opKind];
 	ASSERT (op);
 
+	Value opValue;
 	prepareOperandType (rawOpValue, &opValue, op->getOpFlags ());
-
 	return op->getResultType (opValue);
 }
 
@@ -190,24 +205,19 @@ OperatorMgr::unaryOperator (
 {
 	ASSERT ((size_t) opKind < UnOpKind__Count);
 
+	Function* function = getOverloadedUnaryOperator (opKind, rawOpValue);
+	if (function)
+	{
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue);
+		return callOperator (function, &argList, resultValue);
+	}
+
 	Value opValue;
 	Value unusedResultValue;
 
 	if (!resultValue)
 		resultValue = &unusedResultValue;
-
-	prepareOperandType (rawOpValue, &opValue);
-	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
-	{
-		ClassType* classType = ((ClassPtrType*) opValue.getType ())->getTargetType ();
-		Function* function = classType->getUnaryOperator (opKind);
-		if (function)
-		{
-			rtl::BoxList <Value> argList;
-			argList.insertTail (rawOpValue);
-			return callOperator (function, &argList, resultValue);
-		}
-	}
 
 	UnaryOperator* op = m_unaryOperatorTable [opKind];
 	ASSERT (op);
@@ -226,29 +236,23 @@ OperatorMgr::getBinaryOperatorResultType (
 {
 	ASSERT ((size_t) opKind < BinOpKind__Count);
 
-	Value opValue1;
-	Value opValue2;
-
-	prepareOperandType (rawOpValue1, &opValue1);
-	if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr)
+	Function* function = getOverloadedBinaryOperator (opKind, rawOpValue1);
+	if (function)
 	{
-		ClassType* classType = ((ClassPtrType*) opValue1.getType ())->getTargetType ();
-		Function* function = classType->getBinaryOperator (opKind);
-
-		if (function)
-		{
-			rtl::BoxList <Value> argList;
-			argList.insertTail (rawOpValue1);
-			argList.insertTail (rawOpValue2);
-			return getCallOperatorResultType (function->getTypeOverload (), &argList);
-		}
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue1);
+		argList.insertTail (rawOpValue2);
+		return getCallOperatorResultType (function->getTypeOverload (), &argList);
 	}
 
 	BinaryOperator* op = m_binaryOperatorTable [opKind];
 	ASSERT (op);
 
+	Value opValue1;
+	Value opValue2;
 	prepareOperandType (rawOpValue1, &opValue1, op->getOpFlags1 ());
 	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
+
 	return op->getResultType (opValue1, opValue2);
 }
 
@@ -271,47 +275,22 @@ OperatorMgr::getBinaryOperatorResultType (
 Function*
 OperatorMgr::getOverloadedBinaryOperator (
 	BinOpKind opKind,
-	const Value& rawOpValue1,
-	const Value& rawOpValue2
+	const Value& opValue
 	)
 {
-	Value opValue1;
-	prepareOperandType (rawOpValue1, &opValue1);
-
-	if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr)
+	Type* opType = prepareOperandType (opValue);
+	if (opType->getTypeKind () == TypeKind_ClassPtr)
 	{
-		ClassPtrType* ptrType = (ClassPtrType*) opValue1.getType ();
+		ClassPtrType* ptrType = (ClassPtrType*) opType;
 		return ptrType->getTargetType ()->getBinaryOperator (opKind);
+	}
+	else if (opType->getTypeKindFlags () & TypeKindFlag_Derivable)
+	{
+		DerivableType* derivableType = (DerivableType*) opType;
+		return derivableType->getBinaryOperator (opKind);
 	}
 
 	return NULL;
-}
-
-bool
-OperatorMgr::overloadedBinaryOperator (
-	Function* function,
-	const Value& rawOpValue1,
-	const Value& rawOpValue2,
-	Value* resultValue
-	)
-{
-	if (function->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr)
-	{
-		Value opValue1;
-		prepareOperandType (rawOpValue1, &opValue1);
-
-		if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr &&
-			((ClassPtrType*) opValue1.getType ())->isEventPtrType ())
-		{
-			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", getBinOpKindString (function->getBinOpKind ()));
-			return false;
-		}
-	}
-
-	rtl::BoxList <Value> argList;
-	argList.insertTail (rawOpValue1);
-	argList.insertTail (rawOpValue2);
-	return callOperator (function, &argList, resultValue);
 }
 
 bool
@@ -324,9 +303,27 @@ OperatorMgr::binaryOperator (
 {
 	ASSERT ((size_t) opKind < BinOpKind__Count);
 
-	Function* function = getOverloadedBinaryOperator (opKind, rawOpValue1, rawOpValue2);
+	Function* function = getOverloadedBinaryOperator (opKind, rawOpValue1);
 	if (function)
-		return overloadedBinaryOperator (function, rawOpValue1, rawOpValue2, resultValue);
+	{
+		if (function->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr)
+		{
+			Value opValue1;
+			prepareOperandType (rawOpValue1, &opValue1);
+
+			if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr &&
+				((ClassPtrType*) opValue1.getType ())->isEventPtrType ())
+			{
+				err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", getBinOpKindString (function->getBinOpKind ()));
+				return false;
+			}
+		}
+
+		rtl::BoxList <Value> argList;
+		argList.insertTail (rawOpValue1);
+		argList.insertTail (rawOpValue2);
+		return callOperator (function, &argList, resultValue);
+	}
 
 	Value opValue1;
 	Value opValue2;
@@ -821,7 +818,11 @@ OperatorMgr::prepareOperandType (
 				}
 				else if (targetTypeKind != TypeKind_Array)
 				{
-					value = ((DataPtrType*) type)->getTargetType ();
+					if (!(targetType->getTypeKindFlags () & TypeKindFlag_Derivable) ||
+						!(opFlags & OpFlag_KeepDerivableRef))
+					{
+						value = ((DataPtrType*) type)->getTargetType ();
+					}
 				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{
@@ -939,11 +940,16 @@ OperatorMgr::prepareOperand (
 			if (!(opFlags & OpFlag_KeepDataRef))
 			{
 				DataPtrType* ptrType = (DataPtrType*) type;
-				if (ptrType->getTargetType ()->getTypeKind () != TypeKind_Array)
+				Type* targetType = ptrType->getTargetType ();
+				if (targetType->getTypeKind () != TypeKind_Array)
 				{
-					result = loadDataRef (&value);
-					if (!result)
-						return false;
+					if (!(targetType->getTypeKindFlags () & TypeKindFlag_Derivable) ||
+						!(opFlags & OpFlag_KeepDerivableRef))
+					{
+						result = loadDataRef (&value);
+						if (!result)
+							return false;
+					}
 				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{
