@@ -39,7 +39,7 @@ struct String
 	bool ensureZeroTerminated () throws;
 	String getZeroTerminatedString ();
 
-	bool copy (StringRef src) throws;`
+	bool copy (StringRef src) throws;
 
 	bool copy (
 		char const* p,
