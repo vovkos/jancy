@@ -1,23 +1,13 @@
 //.............................................................................
 
-struct Point
-{
-	int m_x;
-	int m_y;
-
-	int operator cdecl ... ()
-	{
-		return -m_y;
-	}
-}
-
 int main ()
 {
 	printf ("main\n");
 
-	Point point = { 10, 20 };
+	jnc.String s1 = "abc";
+	jnc.String s2 = "def";
 
-	printf ("%d\n", point);
+	printf ("s1 = %s s2 = %s\n", s1, s2);
 
 	return 0; 
 }
