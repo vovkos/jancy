@@ -457,7 +457,7 @@ Members2
 		Value* resultValue
 		);
 
-	bool
+	void
 	appendFmtLiteralRawData (
 		const Value& fmtLiteralValue,
 		const void* p,

@@ -2528,7 +2528,9 @@ Parser::finalizeLiteral (
 			offset += length;
 		}
 
-		appendFmtLiteralValue (fmtLiteralValue, *value, site->m_fmtSpecifierString);
+		result = appendFmtLiteralValue (fmtLiteralValue, *value, site->m_fmtSpecifierString);
+		if (!result)
+			return false;
 	}
 
 	size_t endOffset = literal->m_binData.getCount ();
@@ -2568,22 +2570,18 @@ Parser::finalizeLiteral (
 	return true;
 }
 
-bool
+void
 Parser::appendFmtLiteralRawData (
 	const Value& fmtLiteralValue,
 	const void* p,
 	size_t length
 	)
 {
-	bool result;
-
 	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
 
 	Value literalValue;
 	literalValue.setCharArray (p, length);
-	result = m_module->m_operatorMgr.castOperator (&literalValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
-	if (!result)
-		return false;
+	m_module->m_operatorMgr.castOperator (&literalValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
 
 	Value lengthValue;
 	lengthValue.setConstSizeT (length);
@@ -2597,8 +2595,6 @@ Parser::appendFmtLiteralRawData (
 		lengthValue,
 		&resultValue
 		);
-
-	return true;
 }
 
 bool
