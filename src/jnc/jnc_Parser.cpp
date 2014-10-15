@@ -797,7 +797,7 @@ Parser::declareFunction (
 
 	case FunctionKind_CastOperator:
 		functionName->m_castOpType = declarator->getCastOpType ();
-		functionItem->m_tag.appendFormat (".cast operator %s", functionName->m_castOpType);
+		functionItem->m_tag.appendFormat (".cast operator %s", functionName->m_castOpType->getTypeString ().cc ());
 		break;
 
 	default:

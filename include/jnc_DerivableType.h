@@ -174,6 +174,8 @@ protected:
 	rtl::Array <Function*> m_castOperatorTable;
 	rtl::StringHashTableMap <Function*> m_castOperatorMap;
 	Function* m_callOperator;
+	Function* m_operatorVararg;
+	Function* m_operatorCdeclVararg;
 
 public:
 	DerivableType ();
@@ -328,6 +330,18 @@ public:
 	getCallOperator ()
 	{
 		return m_callOperator;
+	}
+
+	Function*
+	getOperatorVararg ()
+	{
+		return m_operatorVararg;
+	}
+
+	Function*
+	getOperatorCdeclVararg ()
+	{
+		return m_operatorCdeclVararg;
 	}
 
 	virtual

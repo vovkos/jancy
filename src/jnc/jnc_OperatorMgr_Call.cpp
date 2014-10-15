@@ -113,7 +113,7 @@ OperatorMgr::closureOperator (
 }
 
 Type*
-OperatorMgr::getUnsafeVarArgType (Type* type)
+OperatorMgr::getCdeclVarArgType (Type* type)
 {
 	for (;;)
 	{
@@ -340,6 +340,37 @@ OperatorMgr::callOperator (
 }
 
 bool
+OperatorMgr::callOperatorVararg (
+	Function* operatorVararg,
+	DerivableType* type,
+	const Value& value,
+	Value* resultValue
+	)
+{
+	Value tmpValue;
+
+	Type* valueType = value.getType ();
+
+	if (valueType->getTypeKind () == TypeKind_DataRef && 
+		((DataPtrType*) valueType)->getTargetType () == type)
+	{
+		return
+			unaryOperator (UnOpKind_Addr, value, &tmpValue) &&
+			callOperator (operatorVararg, tmpValue, resultValue);
+	}
+	else
+	{
+		Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
+
+		return
+			m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&
+			storeDataRef (tmpVariable, value) &&
+			unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
+			callOperator (operatorVararg, tmpValue, resultValue);
+	}
+}
+
+bool
 OperatorMgr::castArgValueList (
 	FunctionType* functionType,
 	Closure* closure,
@@ -354,7 +385,7 @@ OperatorMgr::castArgValueList (
 	size_t actualArgCount = argValueList->getCount ();
 
 	bool isVarArg = (functionType->getFlags () & FunctionTypeFlag_VarArg) != 0;
-	bool isUnsafeVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlag_UnsafeVarArg) != 0;
+	bool isCdeclVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlag_Cdecl) != 0;
 
 	size_t commonArgCount;
 
@@ -449,7 +480,7 @@ OperatorMgr::castArgValueList (
 
 	// vararg arguments
 
-	if (!isUnsafeVarArg)
+	if (!isCdeclVarArg)
 	{
 		err::setFormatStringError ("only 'cdecl' vararg is currently supported");
 		return false;
@@ -458,15 +489,30 @@ OperatorMgr::castArgValueList (
 	for (; argValueIt; argValueIt++)
 	{
 		Value argValue = *argValueIt;
-
 		if (argValue.isEmpty ())
 		{
 			err::setFormatStringError ("vararg arguments cannot be skipped");
 			return false;
 		}
 
-		Type* formalArgType = getUnsafeVarArgType (argValue.getType ());
+		Type* type = prepareOperandType (argValue);
+		if (type->getTypeKindFlags () & TypeKindFlag_Derivable)
+		{
+			DerivableType* derivableType = (DerivableType*) type;
 
+			Function* operatorVararg = derivableType->getOperatorCdeclVararg ();
+			if (!operatorVararg)
+				operatorVararg = derivableType->getOperatorVararg ();
+
+			if (operatorVararg)
+			{
+				result = callOperatorVararg (operatorVararg, derivableType, &argValue);
+				if (!result)
+					return false;
+			}
+		}
+
+		Type* formalArgType = getCdeclVarArgType (argValue.getType ());
 		result = castOperator (argValue, formalArgType, &*argValueIt); // store it in the same list entry
 		if (!result)
 			return false;

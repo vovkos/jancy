@@ -46,6 +46,8 @@ enum FunctionKind
 	FunctionKind_UnaryOperator,
 	FunctionKind_BinaryOperator,
 	FunctionKind_OperatorNew,
+	FunctionKind_OperatorVararg,
+	FunctionKind_OperatorCdeclVararg,
 	FunctionKind_Internal,
 	FunctionKind_Thunk,
 	FunctionKind_Reaction,

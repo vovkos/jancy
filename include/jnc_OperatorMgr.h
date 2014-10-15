@@ -1532,7 +1532,25 @@ protected:
 		);
 
 	Type*
-	getUnsafeVarArgType (Type* type);
+	getCdeclVarArgType (Type* type);
+
+	bool
+	callOperatorVararg (
+		Function* operatorVararg,
+		DerivableType* type,
+		const Value& value,
+		Value* resultValue
+		);
+
+	bool
+	callOperatorVararg (
+		Function* operatorVararg,
+		DerivableType* type,
+		Value* value
+		)
+	{
+		return callOperatorVararg (operatorVararg, type, *value, value);
+	}
 
 	bool
 	deleteDataPtr (const Value& opValue);

@@ -37,6 +37,8 @@ DerivableType::DerivableType ()
 	m_staticDestructor = NULL;
 	m_staticOnceFlagVariable = NULL;
 	m_callOperator = NULL;
+	m_operatorVararg = NULL;
+	m_operatorCdeclVararg = NULL;
 	m_setAsType = NULL;
 	m_setAsType_i = NULL;
 }
@@ -329,8 +331,6 @@ DerivableType::addMethod (Function* function)
 		return true;
 
 	case FunctionKind_UnaryOperator:
-		function->m_tag.format ("%s.operator %s", m_tag.cc (), getUnOpKindString (function->getUnOpKind ()));
-
 		if (m_unaryOperatorTable.isEmpty ())
 			m_unaryOperatorTable.setCount (UnOpKind__Count);
 
@@ -338,8 +338,6 @@ DerivableType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_BinaryOperator:
-		function->m_tag.format ("%s.operator %s", m_tag.cc (), getBinOpKindString (function->getBinOpKind ()));
-
 		if (m_binaryOperatorTable.isEmpty ())
 			m_binaryOperatorTable.setCount (BinOpKind__Count);
 
@@ -347,8 +345,15 @@ DerivableType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_CallOperator:
-		function->m_tag.format ("%s.operator ()", m_tag.cc ());
 		target = &m_callOperator;
+		break;
+
+	case FunctionKind_OperatorVararg:
+		target = &m_operatorVararg;
+		break;
+
+	case FunctionKind_OperatorCdeclVararg:
+		target = &m_operatorCdeclVararg;
 		break;
 
 	default:

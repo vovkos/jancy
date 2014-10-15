@@ -85,21 +85,33 @@ declarator_qualifier <Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod (FunctionKind_StaticDestructor);
 			}
-	|	TokenKind_Operator '(' ')'
+	|	TokenKind_Operator declarator_operator_qualifier <$declarator>
+	;
+
+declarator_operator_qualifier <Declarator* $declarator>
+	:	'(' ')'
 			{
 				return $declarator->addUnnamedMethod (FunctionKind_CallOperator);
 			}
-	|	TokenKind_Operator type_name
+	|	type_name
 			{
-				return $declarator->addCastOperator ($2.m_type);
+				return $declarator->addCastOperator ($1.m_type);
 			}
-	|	TokenKind_Operator operator_name
+	|	operator_name
 			{
-				return $declarator->addUnaryBinaryOperator ($2.m_unOpKind, $2.m_binOpKind);
+				return $declarator->addUnaryBinaryOperator ($1.m_unOpKind, $1.m_binOpKind);
 			}
-	|	TokenKind_Operator TokenKind_New
+	|	TokenKind_New
 			{
 				return $declarator->addOperatorNew ();
+			}
+	|	TokenKind_Ellipsis
+			{
+				return $declarator->addOperatorVararg ();
+			}
+	|	TokenKind_Cdecl TokenKind_Ellipsis
+			{
+				return $declarator->addOperatorCdeclVararg ();
 			}
 	;
 

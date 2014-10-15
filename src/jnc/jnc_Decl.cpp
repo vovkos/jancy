@@ -293,6 +293,34 @@ Declarator::addOperatorNew ()
 }
 
 bool
+Declarator::addOperatorVararg ()
+{
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
+	{
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		return false;
+	}
+
+	m_declaratorKind = DeclaratorKind_OperatorVararg;
+	m_functionKind = FunctionKind_OperatorVararg;
+	return true;
+}
+
+bool
+Declarator::addOperatorCdeclVararg ()
+{
+	if (m_functionKind && m_functionKind != FunctionKind_Named)
+	{
+		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		return false;
+	}
+
+	m_declaratorKind = DeclaratorKind_OperatorCdeclVararg;
+	m_functionKind = FunctionKind_OperatorCdeclVararg;
+	return true;
+}
+
+bool
 Declarator::setPostDeclaratorModifier (PostDeclaratorModifier modifier)
 {
 	if (m_postDeclaratorModifiers & modifier)

@@ -216,6 +216,8 @@ enum DeclaratorKind
 	DeclaratorKind_UnaryBinaryOperator,
 	DeclaratorKind_CastOperator,
 	DeclaratorKind_OperatorNew,
+	DeclaratorKind_OperatorVararg,
+	DeclaratorKind_OperatorCdeclVararg,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -377,6 +379,12 @@ public:
 
 	bool
 	addOperatorNew ();
+
+	bool
+	addOperatorVararg ();
+
+	bool
+	addOperatorCdeclVararg ();
 
 	void
 	addPointerPrefix ();
