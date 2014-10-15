@@ -5,7 +5,20 @@
 #include "jnc_StdLibApiSlots.h"
 
 namespace jnc {
-		
+
+//.............................................................................
+
+struct StringRef
+{
+	JNC_API_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
+	JNC_API_END_TYPE ()
+
+public:
+	DataPtr m_ptr;
+	size_t m_length;
+	bool m_isFinal;
+};
+
 //.............................................................................
 
 struct String
@@ -13,8 +26,8 @@ struct String
 	JNC_API_BEGIN_TYPE ("jnc.String", ApiSlot_jnc_String)
 		JNC_API_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
 		JNC_API_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-		JNC_API_FUNCTION_0 ("copy")
-		JNC_API_OVERLOAD (&String::copy_s)
+		JNC_API_FUNCTION ("copy", &String::copy_s1)
+		JNC_API_OVERLOAD (&String::copy_s2)
 	JNC_API_END_TYPE ()
 
 public:
@@ -32,6 +45,9 @@ public:
 
 	String 
 	getZeroTerminatedString ();
+
+	bool 
+	copy (StringRef ref);
 
 	bool 
 	copy (
@@ -56,7 +72,17 @@ protected:
 
 	static
 	bool 
-	copy_s (
+	copy_s1 (
+		DataPtr selfPtr,
+		StringRef ref
+		)
+	{
+		return ((String*) selfPtr.m_p)->copy (ref);
+	}
+
+	static
+	bool 
+	copy_s2 (
 		DataPtr selfPtr,
 		DataPtr ptr,
 		size_t length
@@ -64,19 +90,6 @@ protected:
 	{
 		return ((String*) selfPtr.m_p)->copy (ptr, length);
 	}
-};
-
-//.............................................................................
-
-struct StringRef
-{
-	JNC_API_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
-	JNC_API_END_TYPE ()
-
-public:
-	DataPtr m_ptr;
-	size_t m_length;
-	bool m_isFinal;
 };
 
 //.............................................................................
@@ -109,6 +122,13 @@ public:
 	append (
 		DataPtr ptr,
 		size_t length
+		);
+
+protected:
+	bool
+	setLength (
+		size_t length,
+		bool saveContents
 		);
 };
 

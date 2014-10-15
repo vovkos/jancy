@@ -5,16 +5,16 @@ int main ()
 	printf ("main\n");
 
 	jnc.StringBuilder stringBuilder;
-	stringBuilder.copy ("hui ");
-	stringBuilder.append ("govno ");
-	stringBuilder.append ("i ");
-	stringBuilder.append ("muravei.");
+	stringBuilder := "hui ";
+	stringBuilder += "govno ";
+	stringBuilder += "i ";
+	stringBuilder += "muravei!";
 
-	return 10; 
+	jnc.String string = stringBuilder;
 
-catch:
-	printf ("error\n");
-	return -1;
+	printf ("string = '%s'\n", string.m_p);
+
+	return 0; 
 }
 
 //.............................................................................

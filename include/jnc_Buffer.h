@@ -8,11 +8,24 @@ namespace jnc {
 		
 //.............................................................................
 
+struct ConstBufferRef
+{
+	JNC_API_BEGIN_TYPE ("jnc.ConstBufferRef", ApiSlot_jnc_ConstBufferRef)
+	JNC_API_END_TYPE ()
+
+public:
+	DataPtr m_ptr;
+	size_t m_size;
+	bool m_isFinal;
+};
+
+//.............................................................................
+
 struct ConstBuffer
 {
 	JNC_API_BEGIN_TYPE ("jnc.ConstBuffer", ApiSlot_jnc_ConstBuffer)
-		JNC_API_FUNCTION_0 ("copy")
-		JNC_API_OVERLOAD (&ConstBuffer::copy_s)
+		JNC_API_FUNCTION ("copy", &ConstBuffer::copy_s1)
+		JNC_API_OVERLOAD (&ConstBuffer::copy_s2)
 	JNC_API_END_TYPE ()
 
 public:
@@ -20,6 +33,9 @@ public:
 	size_t m_size;
 
 public:
+	bool 
+	copy (ConstBufferRef ref);
+
 	bool 
 	copy (
 		DataPtr ptr,
@@ -29,7 +45,17 @@ public:
 protected:
 	static
 	bool 
-	copy_s (
+	copy_s1 (
+		DataPtr selfPtr,
+		ConstBufferRef ref
+		)
+	{
+		return ((ConstBuffer*) selfPtr.m_p)->copy (ref);
+	}
+
+	static
+	bool 
+	copy_s2 (
 		DataPtr selfPtr,
 		DataPtr ptr,
 		size_t size
@@ -41,19 +67,6 @@ protected:
 
 //.............................................................................
 
-struct ConstBufferRef
-{
-	JNC_API_BEGIN_TYPE ("jnc.ConstBufferRef", ApiSlot_jnc_ConstBufferRef)
-	JNC_API_END_TYPE ()
-
-public:
-	DataPtr m_ptr;
-	size_t m_length;
-	bool m_isFinal;
-};
-
-//.............................................................................
-
 struct BufferRef
 {
 	JNC_API_BEGIN_TYPE ("jnc.BufferRef", ApiSlot_jnc_BufferRef)
@@ -61,7 +74,7 @@ struct BufferRef
 
 public:
 	DataPtr m_ptr;
-	size_t m_length;
+	size_t m_size;
 };
 
 //.............................................................................
@@ -94,6 +107,13 @@ public:
 	append (
 		DataPtr ptr,
 		size_t size
+		);
+
+protected:
+	bool
+	setSize (
+		size_t size,
+		bool saveContents
 		);
 };
 
