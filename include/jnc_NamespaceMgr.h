@@ -33,8 +33,7 @@ protected:
 protected:
 	Module* m_module;
 
-	GlobalNamespace m_globalNamespace;
-	GlobalNamespace* m_jncNamespace;
+	GlobalNamespace m_stdNamespaceArray [StdNamespace__Count];
 	rtl::StdList <GlobalNamespace> m_namespaceList;
 	rtl::StdList <Scope> m_scopeList;
 	rtl::StdList <Orphan> m_orphanList;
@@ -97,11 +96,15 @@ public:
 	GlobalNamespace*
 	getGlobalNamespace ()
 	{
-		return &m_globalNamespace;
+		return &m_stdNamespaceArray [StdNamespace_Global];
 	}
 
 	GlobalNamespace* 
-	getJncNamespace ();
+	getStdNamespace (StdNamespace stdNamespace)
+	{
+		ASSERT (stdNamespace < StdNamespace__Count);
+		return &m_stdNamespaceArray [stdNamespace];
+	}
 
 	Namespace*
 	getCurrentNamespace ()
@@ -150,6 +153,13 @@ public:
 
 	void
 	openNamespace (Namespace* nspace);
+
+	void
+	openStdNamespace (StdNamespace stdNamepace)
+	{
+		ASSERT (stdNamepace < StdNamespace__Count);
+		openNamespace (&m_stdNamespaceArray [stdNamepace]);
+	}
 
 	void
 	closeNamespace ();

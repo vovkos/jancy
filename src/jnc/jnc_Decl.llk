@@ -18,10 +18,8 @@ global_declaration
 	|	using_declaration
 	|	friend_declaration
 	|	access_declaration
+	|	normal_item_declaration
 	|	named_type_specifier
-	|	item_declaration_w_specifier
-	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_wo_specifier
 	|	';'
 	;
 
@@ -29,10 +27,8 @@ named_type_block_declaration
 	:	friend_declaration
 	|	access_declaration
 	|   setas_declaration
+	|	normal_item_declaration
 	|	named_type_specifier
-	|	item_declaration_w_specifier
-	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_wo_specifier
 	|	';'
 	;
 
@@ -44,10 +40,8 @@ local_declaration
 	}
 	:	statement
 	|	using_declaration
+	|	local_item_declaration
 	|	named_type_specifier
-	|	item_declaration_w_specifier
-	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
-		item_declaration_wo_specifier
 	|	catch_label
 	|	finally_label
 	;
@@ -126,18 +120,32 @@ qualified_name_impl <QualifiedName* $name>
 
 // item declarations
 
-item_declaration_w_specifier
+start
+normal_item_declaration
 	enter
 	{
-		m_storageKind = StorageKind_Undefined;
-		m_accessKind = AccessKind_Undefined;
+		preDeclaration ();
 	}
+	:	item_declaration_w_specifier
+	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_wo_specifier
+	;
+
+local_item_declaration
+	enter
+	{
+		preDeclaration ();
+	}
+	:	item_declaration_w_specifier
+	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
+		item_declaration_wo_specifier
+	;
+
+item_declaration_w_specifier
 	:	declaration_specifier_list $s
 		declarator_list <&$s.m_typeSpecifier>?
 		declaration_terminator <&$s.m_typeSpecifier>
 	;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 item_declaration_wo_specifier
 	local
@@ -146,8 +154,6 @@ item_declaration_wo_specifier
 	}
 	enter
 	{
-		m_storageKind = StorageKind_Undefined;
-		m_accessKind = AccessKind_Undefined;
 		$declarator.setTypeSpecifier (NULL);
 	}
 	:	declarator_prefix <&$declarator>*
@@ -159,8 +165,6 @@ item_declaration_wo_specifier
 			}
 		declaration_terminator <NULL>
 	;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // conflict at EToken_Identifier in global scope and in named type block
 // between qualified_type_name and declarator_name
@@ -184,8 +188,6 @@ declaration_terminator <TypeSpecifier* $typeSpecifier>
 			err::setFormatStringError ("unused attribute block in declaration");
 			return false;
 		}
-
-		m_lastDeclaredItem = NULL;
 	}
 	:	';'
 			{

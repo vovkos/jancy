@@ -6,7 +6,8 @@ namespace jnc {
 
 enum ApiSlot
 {	
-	ApiSlot_jnc_String = 0,
+	ApiSlot_jnc_Error,
+	ApiSlot_jnc_String,
 	ApiSlot_jnc_StringRef,
 	ApiSlot_jnc_StringBuilder,
 	ApiSlot_jnc_ConstBuffer,

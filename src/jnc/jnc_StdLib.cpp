@@ -270,26 +270,6 @@ StdLib::getLastError ()
 }
 
 DataPtr
-StdLib::getErrorDescription (DataPtr errorPtr)
-{
-	err::ErrorData* error = (err::ErrorData*) errorPtr.m_p;
-	rtl::String string = error->getDescription ();
-	size_t length = string.getLength ();
-
-	char* p = (char*) AXL_MEM_ALLOC (length + 1);
-	memcpy (p, string.cc (), length);
-	p [length] = 0;
-
-	jnc::DataPtr ptr = { 0 };
-	ptr.m_p = p;
-	ptr.m_rangeBegin = ptr.m_p;
-	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
-	ptr.m_object = jnc::getStaticObjHdr ();
-
-	return ptr;
-}
-
-DataPtr
 StdLib::format (
 	DataPtr formatStringPtr,
 	...
@@ -444,13 +424,33 @@ StdLib::appendFmtLiteralImpl (
 
 	char buffer1 [256];
 	rtl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
-	prepareFormatString (&formatString, fmtSpecifier,  defaultType);
+	prepareFormatString (&formatString, fmtSpecifier, defaultType);
 
 	char buffer2 [256];
 	rtl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
 	string.format_va (formatString, va);
 
 	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+}
+
+size_t
+StdLib::appendFmtLiteralStringImpl (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	const char* p,
+	size_t length
+	)
+{
+	char buffer [256];
+	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+
+	if (p [length] != 0) // ensure zero-terminated
+	{
+		string.copy (p, length);
+		p = string;
+	}
+
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 's', p);
 }
 
 //.............................................................................

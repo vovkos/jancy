@@ -252,6 +252,14 @@ Parser::setSetAsType (Type* type)
 	return true;
 }
 
+void
+Parser::preDeclaration ()
+{
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Undefined;
+	m_lastDeclaredItem = NULL;
+}
+
 bool
 Parser::emptyDeclarationTerminator (TypeSpecifier* typeSpecifier)
 {
@@ -1036,7 +1044,7 @@ Parser::createProperty (
 bool
 Parser::parseLastPropertyBody (const rtl::ConstBoxList <Token>& body)
 {
-	ASSERT (m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
+	ASSERT (m_lastDeclaredItem && m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
 
 	bool result;
 
@@ -1060,7 +1068,7 @@ Parser::parseLastPropertyBody (const rtl::ConstBoxList <Token>& body)
 bool
 Parser::finalizeLastProperty (bool hasBody)
 {
-	ASSERT (m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
+	ASSERT (m_lastDeclaredItem && m_lastDeclaredItem->getItemKind () == ModuleItemKind_Property);
 
 	bool result;
 
@@ -2638,8 +2646,33 @@ Parser::appendFmtLiteralValue (
 	}
 	else
 	{
-		err::setFormatStringError ("don't know how to format '%s'", type->getTypeString ().cc ());
-		return false;
+		StdType stdType = type->getStdType ();
+		switch (stdType)
+		{
+		case StdType_String:
+			appendFunc = StdFunction_AppendFmtLiteral_s;
+			break;
+
+		case StdType_StringRef:
+			appendFunc = StdFunction_AppendFmtLiteral_sr;
+			break;
+
+		case StdType_ConstBuffer:
+			appendFunc = StdFunction_AppendFmtLiteral_cb;
+			break;
+
+		case StdType_ConstBufferRef:
+			appendFunc = StdFunction_AppendFmtLiteral_cbr;
+			break;
+
+		case StdType_BufferRef:
+			appendFunc = StdFunction_AppendFmtLiteral_br;
+			break;
+
+		default:
+			err::setFormatStringError ("don't know how to format '%s'", type->getTypeString ().cc ());
+			return false;
+		}
 	}
 
 	Function* append = m_module->m_functionMgr.getStdFunction (appendFunc);

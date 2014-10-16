@@ -6,6 +6,7 @@
 
 #include "jnc_Runtime.h"
 #include "jnc_Api.h"
+#include "jnc_Error.h"
 #include "jnc_String.h"
 #include "jnc_Buffer.h"
 #include "jnc_MulticastLib.h"
@@ -32,7 +33,6 @@ public:
 		JNC_API_STD_FUNCTION (StdFunction_Sleep, sleep)
 		JNC_API_STD_FUNCTION (StdFunction_GetTimestamp, getTimestamp)
 		JNC_API_STD_FUNCTION (StdFunction_GetLastError, getLastError)
-		JNC_API_CONST_PROPERTY ("jnc.Error.m_description", getErrorDescription)
 		JNC_API_STD_FUNCTION (StdFunction_StrLen, strLen)
 		JNC_API_STD_FUNCTION (StdFunction_MemCpy, memCpy)
 		JNC_API_STD_FUNCTION (StdFunction_MemCat, memCat)
@@ -47,6 +47,12 @@ public:
 		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_i64, appendFmtLiteral_i64)
 		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_f, appendFmtLiteral_f)
+		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_s, appendFmtLiteral_s)
+		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_sr, appendFmtLiteral_sr)
+		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
+		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
+		JNC_API_STD_FUNCTION (StdFunction_AppendFmtLiteral_br, appendFmtLiteral_s)
+		JNC_API_STD_TYPE (StdType_Error, Error)
 		JNC_API_STD_TYPE (StdType_String, String)
 		JNC_API_STD_TYPE (StdType_StringRef, StringRef)
 		JNC_API_STD_TYPE (StdType_StringBuilder, StringBuilder)
@@ -62,11 +68,10 @@ public:
 	void
 	runtimeError (
 		int error,
-		void* codeAddr,
-		void* dataAddr
+		void* codeAddr
 		)
 	{
-		Runtime::runtimeError (error, codeAddr, dataAddr);
+		Runtime::runtimeError (error, codeAddr, NULL);
 	}
 
 	static
@@ -135,10 +140,6 @@ public:
 	static
 	DataPtr
 	getLastError ();
-
-	static
-	DataPtr
-	getErrorDescription (DataPtr error);
 
 	static
 	DataPtr
@@ -257,6 +258,38 @@ public:
 		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'f', x);
 	}
 
+	static
+	size_t
+	appendFmtLiteral_s (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		StringRef string
+		)
+	{
+		return appendFmtLiteralStringImpl (
+			fmtLiteral, 
+			fmtSpecifier, 
+			(const char*) string.m_ptr.m_p, 
+			string.m_length
+			);
+	}
+
+	static
+	size_t
+	appendFmtLiteral_sr (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		StringRef stringRef
+		)
+	{
+		return appendFmtLiteralStringImpl (
+			fmtLiteral, 
+			fmtSpecifier, 
+			(const char*) stringRef.m_ptr.m_p, 
+			stringRef.m_length
+			);
+	}
+
 protected:
 #if (_AXL_ENV == AXL_ENV_WIN)
 	static
@@ -284,6 +317,15 @@ protected:
 		const char* fmtSpecifier,
 		char defaultType,
 		...
+		);
+
+	static
+	size_t
+	appendFmtLiteralStringImpl (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		const char* p,
+		size_t length
 		);
 };
 

@@ -78,249 +78,47 @@ getFunctionKindFlags (FunctionKind functionKind);
 
 enum StdFunction
 {
-	// void
-	// jnc.RuntimeError (
-	//		int Error,
-	//		int8* pCodeAddr
-	//		);
-
 	StdFunction_RuntimeError,
-
-	// void
-	// jnc.CheckNullPtr (
-	//		int8* p,
-	//		int Error
-	//		);
-
 	StdFunction_CheckNullPtr,
-
-	// void
-	// jnc.CheckScopeLevel (
-	//		jnc.TObjHdr* pSrcObject
-	//		jnc.TObjHdr* pDstObject
-	//		);
-
 	StdFunction_CheckScopeLevel,
-
-	// void
-	// jnc.CheckClassPtrScopeLevel (
-	//		object* p,
-	//		jnc.TObjHdr* pDstObject
-	//		);
-
 	StdFunction_CheckClassPtrScopeLevel,
-
-	// void
-	// jnc.CheckDataPtrRange (
-	//		int8* p,
-	//		size_t Size,
-	//		int8* pRangeBegin,
-	//		int8* pRangeEnd
-	//		);
-
 	StdFunction_CheckDataPtrRange,
-
-	// object*
-	// jnc.DynamicCastClassPtr (
-	//		object* p,
-	//		int8* pType
-	//		);
-
 	StdFunction_DynamicCastClassPtr,
-
-	// object*
-	// jnc.StrengthenClassPtr (weak object* p);
-
 	StdFunction_StrengthenClassPtr,
-
-	// size_t
-	// jnc.GetDataPtrSpan (jnc.TDataPtr Ptr);
-
 	StdFunction_GetDataPtrSpan,
-
-	// int8*
-	// jnc.GcAllocate (
-	//		int8* pType,
-	//		size_t Count
-	//		);
-
 	StdFunction_GcAllocate,
-
-	// int8*
-	// jnc.GcAllocate (
-	//		int8* pType,
-	//		size_t Count
-	//		);
-
 	StdFunction_GcTryAllocate,
-
-	// bool
-	// jnc.GcEnter ();
-
 	StdFunction_GcEnter,
-
-	// void
-	// jnc.GcLeave ();
-
 	StdFunction_GcLeave,
-
-	// void
-	// jnc.GcPulse ();
-
 	StdFunction_GcPulse,
-
-	// void
-	// jnc.MarkGcRoot (
-	//		int8* p,
-	//		int8* pType
-	//		);
-
 	StdFunction_MarkGcRoot,
-
-	// void
-	// jnc.RunGc ();
-
 	StdFunction_RunGc,
-
-	// i64
-	// jnc.GetCurrentThreadId ();
-
 	StdFunction_GetCurrentThreadId,
-
-	// i64
-	// jnc.CreateThread (function* pf ());
-
 	StdFunction_CreateThread,
-
-	// void
-	// jnc.sleep (uint_t MsCount);
-
 	StdFunction_Sleep,
-
-	// uint64_t
-	// jnc.getTimestamp ();
-
 	StdFunction_GetTimestamp,
-
-	// char const*
-	// jnc.format (char const* format, ...);
-
 	StdFunction_Format,
-
-	// size_t
-	// strlen (const char* nullable p);
-
 	StdFunction_StrLen,
-
-	// void
-	// jnc.memcpy (
-	//		void* pDst,
-	//		const void* pSrc,
-	//		size_t Size
-	//		);
-
 	StdFunction_MemCpy,
-
-	// void*
-	// jnc.memcat (
-	//		const void* p1,
-	//		size_t Size1,
-	//		const void* p2,
-	//		size_t Size2
-	//		);
-
 	StdFunction_MemCat,
-
-	// int
-	// rand ();
-
 	StdFunction_Rand,
-
-	// int
-	// printf (char const* format, ...);
-
 	StdFunction_Printf,
-
-	// int
-	// atoi (char const* format);
-
 	StdFunction_Atoi,
-
-	// jnc.TTlsStruct*
-	// jnc.GetTls ();
-
 	StdFunction_GetTls,
-
-	// size_t
-	// jnc.AppendFmtLiteral_a (
-	//		jnc.TFmtLiteral* pLiteral,
-	//		char* p,
-	//		size_t Length
-	//		);
-
 	StdFunction_AppendFmtLiteral_a,
-
-	// size_t
-	// jnc.AppendFmtLiteral_p (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		jnc.TPtr Ptr
-	//		);
-
 	StdFunction_AppendFmtLiteral_p,
-
-	// size_t
-	// jnc.AppendFmtLiteral_i32 (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		i32 i
-	//		);
-
 	StdFunction_AppendFmtLiteral_i32,
-
-	// size_t
-	// jnc.AppendFmtLiteral_ui32 (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		i32 i
-	//		);
-
 	StdFunction_AppendFmtLiteral_ui32,
-
-	// size_t
-	// jnc.AppendFmtLiteral_i64 (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		i64 i
-	//		);
-
 	StdFunction_AppendFmtLiteral_i64,
-
-	// size_t
-	// jnc.AppendFmtLiteral_ui64 (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		i64 i
-	//		);
-
 	StdFunction_AppendFmtLiteral_ui64,
-
-	// size_t
-	// jnc.AppendFmtLiteral_f (
-	//		jnc.TFmtLiteral* pFmtLiteral,
-	//		char* pFmtSpecifier,
-	//		double f
-	//		);
-
 	StdFunction_AppendFmtLiteral_f,
-
+	StdFunction_AppendFmtLiteral_s,
+	StdFunction_AppendFmtLiteral_sr,
+	StdFunction_AppendFmtLiteral_cb,
+	StdFunction_AppendFmtLiteral_cbr,
+	StdFunction_AppendFmtLiteral_br,
 	StdFunction_SimpleMulticastCall,
-
-	// jnc.Error*
-	// jnc.g_lastError.get ();
-
 	StdFunction_GetLastError,
-
 	StdFunction__Count
 };
 

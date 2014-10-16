@@ -213,7 +213,7 @@ for_stmt
 			{
 				m_module->m_controlFlowMgr.forStmt_PreInit (&$stmt, $1.m_pos);
 			}
-		(item_declaration_w_specifier | expression_or_empty_list ';')
+		(local_item_declaration | expression_or_empty_list ';')
 		for_stmt_condition <&$stmt> ';'
 		(
 				{

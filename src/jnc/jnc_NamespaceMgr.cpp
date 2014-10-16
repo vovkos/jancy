@@ -11,7 +11,27 @@ NamespaceMgr::NamespaceMgr ()
 	m_module = getCurrentThreadModule ();
 	ASSERT (m_module);
 
-	m_currentNamespace = &m_globalNamespace;
+	rtl::String jncName ("jnc");
+
+	GlobalNamespace* global = &m_stdNamespaceArray [StdNamespace_Global];
+	GlobalNamespace* jnc = &m_stdNamespaceArray [StdNamespace_Jnc];
+	GlobalNamespace* internal = &m_stdNamespaceArray [StdNamespace_Internal];
+
+	global->m_module = m_module;
+
+	jnc->m_module = m_module;
+	jnc->m_parentNamespace = global;
+	jnc->m_name = jncName;
+	jnc->m_qualifiedName = jncName;
+	jnc->m_tag = jncName;
+
+	internal->m_module = m_module;
+	internal->m_parentNamespace = global;
+	internal->m_name = jncName;
+	internal->m_qualifiedName = jncName;
+	internal->m_tag = jncName;
+
+	m_currentNamespace = global;
 	m_currentScope = NULL;
 	m_currentAccessKind = AccessKind_Public;
 	m_sourcePosLockCount = 0;
@@ -21,56 +41,47 @@ NamespaceMgr::NamespaceMgr ()
 void
 NamespaceMgr::clear ()
 {
-	m_globalNamespace.clear ();
+	for (size_t i = 0; i < StdNamespace__Count; i++)
+		m_stdNamespaceArray [i].clear ();
+
 	m_namespaceList.clear ();
 	m_scopeList.clear ();
 	m_orphanList.clear ();
 	m_namespaceStack.clear ();
-	m_currentNamespace = &m_globalNamespace;
-	m_jncNamespace = NULL;
+	m_currentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
 	m_currentScope = NULL;
 	m_sourcePosLockCount = 0;
 	m_scopeLevelStack.clear ();
 	m_staticObjectValue.clear ();
 }
 
-GlobalNamespace* 
-NamespaceMgr::getJncNamespace ()
-{
-	if (m_jncNamespace)
-		return m_jncNamespace;
-
-	m_jncNamespace = createGlobalNamespace ("jnc", &m_globalNamespace);
-	m_jncNamespace->m_flags |= GlobalNamespaceFlag_Sealed;
-	return m_jncNamespace;
-}
-
 bool
 NamespaceMgr::addStdItems ()
 {
-	GlobalNamespace* jnc = getJncNamespace ();
+	GlobalNamespace* global = &m_stdNamespaceArray [StdNamespace_Global];
+	GlobalNamespace* jnc = &m_stdNamespaceArray [StdNamespace_Jnc];
 
 	return
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uintptr_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_size_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint8_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uchar_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_byte_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint16_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_ushort_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_word_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint32_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
-		m_globalNamespace.addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrLen)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
-		m_globalNamespace.addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&
-		m_globalNamespace.addItem (jnc) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uintptr_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_size_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint8_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uchar_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_byte_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint16_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_ushort_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_word_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint32_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrLen)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&
+		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&
@@ -293,7 +304,7 @@ NamespaceMgr::createGlobalNamespace (
 	)
 {
 	if (!parentNamespace)
-		parentNamespace = &m_globalNamespace;
+		parentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
 
 	rtl::String qualifiedName = parentNamespace->createQualifiedName (name);
 

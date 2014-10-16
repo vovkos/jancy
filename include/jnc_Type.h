@@ -503,6 +503,7 @@ class Type: public ModuleItem
 
 protected:
 	TypeKind m_typeKind;
+	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignFactor;
 	rtl::StringHashTableMapIterator <Type*> m_typeMapIt;
@@ -529,6 +530,12 @@ public:
 	getTypeKindFlags ()
 	{
 		return jnc::getTypeKindFlags (m_typeKind);
+	}
+
+	StdType
+	getStdType ()
+	{
+		return m_stdType;
 	}
 
 	size_t

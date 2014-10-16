@@ -313,6 +313,13 @@ protected:
 	// LLVM code support functions
 
 	Function*
+	parseStdFunction (
+		StdNamespace stdNamespace,
+		const char* source,
+		size_t length
+		);
+
+	Function*
 	createCheckNullPtr ();
 
 	Function*

@@ -4,7 +4,7 @@
 
 class Scheduler
 {
-	abstract schedule (function* fn ());
+	abstract schedule (function* proc ());
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

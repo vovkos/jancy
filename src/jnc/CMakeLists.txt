@@ -450,6 +450,7 @@ set (
 	STDLIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Api.h
 	${JANCY_INC_DIR}/jnc_MulticastLib.h
+	${JANCY_INC_DIR}/jnc_Error.h
 	${JANCY_INC_DIR}/jnc_Buffer.h
 	${JANCY_INC_DIR}/jnc_String.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
@@ -462,6 +463,7 @@ set (
 	jnc_Api.cpp
 	jnc_Multicast.cpp
 	jnc_MulticastLib.cpp
+	jnc_Error.cpp
 	jnc_Buffer.cpp
 	jnc_String.cpp
 	jnc_StdLib.cpp
@@ -469,8 +471,9 @@ set (
 
 set (
 	STDLIB_JNC_LIST
+	jnc_StdTypes.jnc
+	jnc_StdFunctions.jnc
 	jnc_Buffer.jnc
-	jnc_StdDef.jnc
 	jnc_String.jnc
 	)
 
@@ -499,8 +502,14 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
-	jnc_StdDef.jnc.cpp
-	jnc_StdDef.jnc
+	jnc_StdTypes.jnc.cpp
+	jnc_StdTypes.jnc
+	jnc2cpp.pl
+	)
+
+add_perl_step (
+	jnc_StdFunctions.jnc.cpp
+	jnc_StdFunctions.jnc
 	jnc2cpp.pl
 	)
 
@@ -542,7 +551,8 @@ pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_PL_CPP_LIST
-	${GEN_DIR}/jnc_StdDef.jnc.cpp
+	${GEN_DIR}/jnc_StdTypes.jnc.cpp
+	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
 	${GEN_DIR}/jnc_Buffer.jnc.cpp
 	${GEN_DIR}/jnc_String.jnc.cpp
 	)

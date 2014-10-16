@@ -94,44 +94,109 @@ TypeMgr::clear ()
 Type*
 TypeMgr::getStdType (StdType stdType)
 {
-	#include "jnc_StdDef.jnc.cpp"
-	#include "jnc_String.jnc.cpp"
+	#include "jnc_StdTypes.jnc.cpp"
 	#include "jnc_Buffer.jnc.cpp"
+	#include "jnc_String.jnc.cpp"
 
-	struct StringRef
+	struct SourceRef
 	{
 		const char* m_p;
 		size_t m_length;
+		StdNamespace m_stdNamespace;
 	};
 
-	static StringRef stdTypeSrcTable [StdType__Count] = 
+	static SourceRef sourceTable [StdType__Count] = 
 	{
-		{ NULL },                                                      // StdType_BytePtr,
-		{ NULL },                                                      // StdType_ObjHdr,
-		{ NULL },                                                      // StdType_ObjHdrPtr,
-		{ NULL },                                                      // StdType_ObjectClass,
-		{ NULL },                                                      // StdType_ObjectPtr,
-		{ NULL },                                                      // StdType_SimpleFunction,
-		{ NULL },                                                      // StdType_SimpleMulticast,
-		{ NULL },                                                      // StdType_SimpleEventPtr,
-		{ NULL },                                                      // StdType_Binder,
-		{ reactorBindSiteTypeSrc, lengthof (reactorBindSiteTypeSrc) }, // StdType_ReactorBindSite,
-		{ schedulerTypeSrc, lengthof (schedulerTypeSrc) },             // StdType_Scheduler,
-		{ NULL },                                                      // StdType_SchedulerPtr,
-		{ fmtLiteralTypeSrc, lengthof (fmtLiteralTypeSrc) },           // StdType_FmtLiteral,
-		{ guidTypeSrc, lengthof (guidTypeSrc) },                       // StdType_Guid,
-		{ errorTypeSrc, lengthof (errorTypeSrc) },                     // StdType_Error,
-		{ stringTypeSrc, lengthof (stringTypeSrc) },                   // StdType_String,
-		{ stringRefTypeSrc, lengthof (stringRefTypeSrc) },             // StdType_StringRef,
-		{ stringBuilderTypeSrc, lengthof (stringBuilderTypeSrc) },     // StdType_StringBuilder,
-		{ constBufferTypeSrc, lengthof (constBufferTypeSrc) },         // StdType_ConstBuffer,
-		{ constBufferRefTypeSrc, lengthof (constBufferRefTypeSrc) },   // StdType_ConstBufferRef,
-		{ bufferRefTypeSrc, lengthof (bufferRefTypeSrc) },             // StdType_BufferRef,
-		{ bufferTypeSrc, lengthof (bufferTypeSrc) },                   // StdType_Buffer,
-		{ int64Int64TypeSrc, lengthof (int64Int64TypeSrc) },           // StdType_Int64Int64,
-		{ fp64Fp64TypeSrc, lengthof (fp64Fp64TypeSrc) },               // StdType_Fp64Fp64,
-		{ int64Fp64TypeSrc, lengthof (int64Fp64TypeSrc) },             // StdType_Int64Fp64,
-		{ fp64Int64TypeSrc, lengthof (fp64Int64TypeSrc) },             // StdType_Fp64Int64,
+		{ NULL },                            // StdType_BytePtr,
+		{ NULL },                            // StdType_ObjHdr,
+		{ NULL },                            // StdType_ObjHdrPtr,
+		{ NULL },                            // StdType_ObjectClass,
+		{ NULL },                            // StdType_ObjectPtr,
+		{ NULL },                            // StdType_SimpleFunction,
+		{ NULL },                            // StdType_SimpleMulticast,
+		{ NULL },                            // StdType_SimpleEventPtr,
+		{ NULL },                            // StdType_Binder,
+		{                                    // StdType_ReactorBindSite,
+			reactorBindSiteTypeSrc, 
+			lengthof (reactorBindSiteTypeSrc),
+			StdNamespace_Internal,
+		},
+		{                                    // StdType_Scheduler,
+			schedulerTypeSrc, 
+			lengthof (schedulerTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{ NULL },                            // StdType_SchedulerPtr,
+		{                                    // StdType_FmtLiteral,
+			fmtLiteralTypeSrc, 
+			lengthof (fmtLiteralTypeSrc), 
+			StdNamespace_Internal,
+		},
+		{                                    // StdType_Guid,
+			guidTypeSrc, 
+			lengthof (guidTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Error,
+			errorTypeSrc, 
+			lengthof (errorTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_String,
+			stringTypeSrc, 
+			lengthof (stringTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_StringRef,
+			stringRefTypeSrc, 
+			lengthof (stringRefTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_StringBuilder,
+			stringBuilderTypeSrc, 
+			lengthof (stringBuilderTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_ConstBuffer,
+			constBufferTypeSrc, 
+			lengthof (constBufferTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_ConstBufferRef,
+			constBufferRefTypeSrc, 
+			lengthof (constBufferRefTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_BufferRef,
+			bufferRefTypeSrc, 
+			lengthof (bufferRefTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Buffer,
+			bufferTypeSrc, 
+			lengthof (bufferTypeSrc), 
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Int64Int64,
+			int64Int64TypeSrc, 
+			lengthof (int64Int64TypeSrc), 
+			StdNamespace_Internal,
+		},
+		{                                    // StdType_Fp64Fp64,
+			fp64Fp64TypeSrc, 
+			lengthof (fp64Fp64TypeSrc), 
+			StdNamespace_Internal,
+		},
+		{                                    // StdType_Int64Fp64,
+			int64Fp64TypeSrc, 
+			lengthof (int64Fp64TypeSrc), 
+			StdNamespace_Internal,
+		},
+		{                                    // StdType_Fp64Int64,
+			fp64Int64TypeSrc, 
+			lengthof (fp64Int64TypeSrc), 
+			StdNamespace_Internal,
+		},
 	};
 
 	ASSERT ((size_t) stdType < StdType__Count);
@@ -198,10 +263,11 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
 	case StdType_Fp64Int64:
-		ASSERT (stdTypeSrcTable [stdType].m_p);
-		type = parseStdNamedType (
-			stdTypeSrcTable [stdType].m_p, 
-			stdTypeSrcTable [stdType].m_length
+		ASSERT (sourceTable [stdType].m_p);
+		type = parseStdType (
+			sourceTable [stdType].m_stdNamespace, 
+			sourceTable [stdType].m_p, 
+			sourceTable [stdType].m_length
 			);
 		break;
 
@@ -210,6 +276,7 @@ TypeMgr::getStdType (StdType stdType)
 		return NULL;
 	}
 
+	type->m_stdType = stdType;
 	m_stdTypeArray [stdType] = type;
 	return type;
 }
@@ -2469,7 +2536,8 @@ TypeMgr::setupStdTypedef (
 }
 
 NamedType*
-TypeMgr::parseStdNamedType (
+TypeMgr::parseStdType (
+	StdNamespace stdNamespace,
 	const char* source,
 	size_t length
 	)
@@ -2479,10 +2547,10 @@ TypeMgr::parseStdNamedType (
 	m_parseStdTypeLevel++;
 
 	Lexer lexer;
-	lexer.create ("jnc_StdDef.jnc", source, length);
+	lexer.create ("jnc_StdTypes.jnc", source, length);
 
-	Namespace* jncNamespace = m_module->m_namespaceMgr.getJncNamespace ();
-	m_module->m_namespaceMgr.openNamespace (jncNamespace);
+	if (stdNamespace)
+		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
 
 	Parser parser;
 	parser.create (SymbolKind_named_type_specifier_save_type);
@@ -2494,10 +2562,9 @@ TypeMgr::parseStdNamedType (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("error: %s\n", err::getError ()->getDescription ());
+			dbg::trace ("parse std type error: %s\n", err::getError ()->getDescription ());
+			ASSERT (false);
 		}
-
-		ASSERT (result);
 
 		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
 			break;
@@ -2505,7 +2572,8 @@ TypeMgr::parseStdNamedType (
 		lexer.nextToken ();
 	}
 
-	m_module->m_namespaceMgr.closeNamespace ();
+	if (stdNamespace)
+		m_module->m_namespaceMgr.closeNamespace ();
 
 	NamedType* type = parser.m_namedType;
 	ASSERT (type);
@@ -2513,20 +2581,8 @@ TypeMgr::parseStdNamedType (
 	ModuleCompileState state = m_module->getCompileState ();
 	if (state > ModuleCompileState_Resolving && m_parseStdTypeLevel == 1)
 	{
-		result = resolveImportTypes ();
+		result = m_module->postParseStdItem ();
 		ASSERT (result);
-
-		if (state > ModuleCompileState_CalcLayout)
-		{
-			result = m_module->calcLayout ();
-			ASSERT (result);
-
-			if (state >= ModuleCompileState_Compiled)
-			{
-				result = m_module->processCompileArray ();
-				ASSERT (result);
-			}
-		}
 
 		// if this assert fires, rewrite std type
 

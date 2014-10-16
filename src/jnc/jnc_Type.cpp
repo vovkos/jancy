@@ -366,6 +366,7 @@ Type::Type ()
 {
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = TypeKind_Void;
+	m_stdType = (StdType) -1;
 	m_size = 0;
 	m_alignFactor = 0;
 	m_llvmType = NULL;

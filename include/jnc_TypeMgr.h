@@ -982,9 +982,10 @@ protected:
 		);
 
 	NamedType*
-	parseStdNamedType (
+	parseStdType (
+		StdNamespace stdNamespace,
 		const char* source,
-		size_t length = -1
+		size_t length
 		);
 
 	ClassType*

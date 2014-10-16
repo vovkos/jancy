@@ -18,7 +18,7 @@ struct ConstBuffer
 		try copy (src);
 	}
 
-	construct (Buffer* src)
+	construct (Buffer const* src)
 	{
 		try copy (src.m_p, src.m_size);
 	}
@@ -58,7 +58,7 @@ struct ConstBufferRef
 		setup (src.m_p, src.m_size, true);
 	}
 
-	construct (Buffer* src)
+	construct (Buffer const* src)
 	{
 		setup (src.m_p, src.m_size, false);
 	}

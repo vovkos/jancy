@@ -382,6 +382,30 @@ Module::processCompileArray ()
 }
 
 bool
+Module::postParseStdItem ()
+{
+	bool result = m_typeMgr.resolveImportTypes ();
+	if (!result)
+		return false;
+
+	if (m_compileState > ModuleCompileState_CalcLayout)
+	{
+		result = calcLayout ();
+		if (!result)
+			return false;
+
+		if (m_compileState >= ModuleCompileState_Compiled)
+		{
+			result = processCompileArray ();
+			if (!result)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+bool
 Module::compile ()
 {
 	bool result;

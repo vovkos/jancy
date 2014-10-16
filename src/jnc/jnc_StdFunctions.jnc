@@ -1,0 +1,219 @@
+//.............................................................................
+
+///; static char runtimeErrorSrc [] = 
+
+void runtimeError (
+	int error,
+	uint8_t thin* codeAddress
+	);
+
+///; static char dynamicCastClassPtrSrc [] = 
+
+object* dynamicCastClassPtr (
+	object* p,
+	uint8_t thin* type
+	);
+
+///; static char strengthenClassPtrSrc [] = 
+
+object* strengthenClassPtr (object weak* p);
+
+///; static char gcAllocateSrc [] = 
+
+uint8_t thin* gcAllocate (
+	uint8_t thin* type,
+	size_t elementCount
+	);
+
+///; static char gcTryAllocateSrc [] = 
+
+uint8_t thin* gcTryAllocate (
+	uint8_t thin* type,
+	size_t elementCount
+	);
+
+///; static char markGcRootSrc [] = 
+
+void markGcRoot (
+	uint8_t thin* thin* p,
+	uint8_t thin* type
+	);
+
+///; static char gcEnterSrc [] = 
+
+void gcEnter ();
+
+///; static char gcLeaveSrc [] = 
+
+void gcLeave ();
+
+///; static char gcPulseSrc [] = 
+
+void gcPulse ();
+
+///; static char runGcSrc [] = 
+
+void runGc ();
+
+///; static char createThreadSrc [] = 
+
+uint64_t createThread (function* proc ());
+
+///; static char sleepSrc [] = 
+
+void sleep (uint32_t msec);
+
+///; static char getTimestampSrc [] = 
+
+uint64_t getTimestamp ();
+
+///; static char getCurrentThreadIdSrc [] = 
+
+uintptr_t getCurrentThreadId ();
+
+///; static char getLastErrorSrc [] = 
+
+Error const* getLastError ();
+
+///; static char strlenSrc [] = 
+
+size_t strlen (char const* p);
+
+///; static char memcpySrc [] = 
+
+void memcpy (
+	void* dst,
+	void const* src,
+	size_t size
+	);
+
+///; static char memcatSrc [] = 
+
+void* memcat (
+	void const* p1,
+	size_t size1,
+	void const* p2,
+	size_t size2
+	);
+
+///; static char randSrc [] = 
+
+int rand ();
+
+///; static char printfSrc [] = 
+
+intptr cdecl printf (
+	char const thin* fmtSpecifier,
+	...
+	);
+
+///; static char atoiSrc [] = 
+
+int atoi (char const* p);
+
+///; static char formatSrc [] = 
+
+char const* cdecl format (
+	char const* fmtSpecifier,
+	...
+	);
+
+///; static char appendFmtLiteralSrc_a [] = 
+
+size_t appendFmtLiteral_a (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* p,
+	size_t length
+	);
+
+///; static char appendFmtLiteralSrc_p [] = 
+
+size_t appendFmtLiteral_p (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	char const* p
+	);
+
+///; static char appendFmtLiteralSrc_i32 [] = 
+
+size_t appendFmtLiteral_i32 (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	int32 value
+	);
+
+///; static char appendFmtLiteralSrc_ui32 [] = 
+
+size_t appendFmtLiteral_ui32 (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	uint32_t value
+	);
+
+///; static char appendFmtLiteralSrc_i64 [] = 
+
+size_t appendFmtLiteral_i64 (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	int64 value
+	);
+
+///; static char appendFmtLiteralSrc_ui64 [] = 
+
+size_t appendFmtLiteral_ui64 (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	uint64_t value
+	);
+
+///; static char appendFmtLiteralSrc_f [] = 
+
+size_t appendFmtLiteral_ui64 (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	double value
+	);
+
+///; static char appendFmtLiteralSrc_s [] = 
+
+size_t appendFmtLiteral_s (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	String string
+	);
+
+///; static char appendFmtLiteralSrc_sr [] = 
+
+size_t appendFmtLiteral_sr (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	StringRef stringRef
+	);
+
+///; static char appendFmtLiteralSrc_cb [] = 
+
+size_t appendFmtLiteral_cb (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	ConstBuffer buffer
+	);
+
+///; static char appendFmtLiteralSrc_cbr [] = 
+
+size_t appendFmtLiteral_cbr (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	ConstBufferRef bufferRef
+	);
+
+///; static char appendFmtLiteralSrc_br [] = 
+
+size_t appendFmtLiteral_br (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	BufferRef bufferRef
+	);
+
+//.............................................................................
+
+///;

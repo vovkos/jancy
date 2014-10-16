@@ -689,7 +689,7 @@ Runtime::getTls ()
 			size_t stackSize = p0 - p;
 			if (stackSize > m_stackLimit)
 			{
-				StdLib::runtimeError (RuntimeErrorKind_StackOverflow, NULL, NULL);
+				StdLib::runtimeError (RuntimeErrorKind_StackOverflow, NULL);
 				ASSERT (false);
 			}
 		}

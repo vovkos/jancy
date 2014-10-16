@@ -358,6 +358,9 @@ public:
 	processCompileArray ();
 
 	bool
+	postParseStdItem ();
+
+	bool
 	compile ();
 
 	bool

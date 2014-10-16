@@ -208,6 +208,9 @@ Members2
 	bool
 	isTypeSpecified ();
 
+	void
+	preDeclaration ();
+
 	bool
 	emptyDeclarationTerminator (TypeSpecifier* typeSpecifier);
 

@@ -27,13 +27,23 @@ enum NamespaceKind
 	NamespaceKind_TypeExtension,
 	NamespaceKind_Property,
 	NamespaceKind_PropertyTemplate,
-	NamespaceKind__Count
+	NamespaceKind__Count,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
 getNamespaceKindString (NamespaceKind namespaceKind);
+
+//.............................................................................
+
+enum StdNamespace
+{
+	StdNamespace_Global,
+	StdNamespace_Jnc,
+	StdNamespace_Internal,
+	StdNamespace__Count,
+};
 
 //.............................................................................
 
