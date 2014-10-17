@@ -4,8 +4,8 @@
 
 #..............................................................................
 
-set (JANCY_INC_DIR "@CMAKE_CURRENT_LIST_DIR@/include")
-set (JANCY_LIB_DIR "@CMAKE_CURRENT_BINARY_DIR@/lib/${CONFIGURATION_SUFFIX}")
-set (JANCY_EXE     "@CMAKE_CURRENT_BINARY_DIR@/bin/${CONFIGURATION_SUFFIX}/jancy")
+set (JANCY_INC_DIR "@JANCY_ROOT_DIR@/include")
+set (JANCY_LIB_DIR "@CMAKE_ARCHIVE_OUTPUT_DIRECTORY@/${CONFIGURATION_SUFFIX}")
+set (JANCY_EXE     "@CMAKE_RUNTIME_OUTPUT_DIRECTORY@/${CONFIGURATION_SUFFIX}/jancy")
 
 #..............................................................................

@@ -1,9 +1,13 @@
 # This file is part of Jancy project
-# Tibbo Technology Inc (C) 2004-2014. All rights reserved
+# Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
 #..............................................................................
 
-include (@CMAKE_CURRENT_LIST_DIR@/latest/jancy-${TARGET_CPU}.cmake)
+if (WIN32)
+    add_subdirectory (windows)
+elseif (UNIX)
+    add_subdirectory (linux)
+endif ()
 
 #..............................................................................

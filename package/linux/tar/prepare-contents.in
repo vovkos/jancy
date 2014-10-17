@@ -1,0 +1,19 @@
+ROOT_DIR=${NJ_ROOT_DIR}
+BIN_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+
+prepare_contents ()
+{
+	mkdir -p $1/etc/ioninja
+	cp -T $ROOT_DIR/src/nj_app/paths-linux.conf   $1/etc/ioninja/paths.conf
+	cp -T $ROOT_DIR/src/nj_app/api-linux.conf     $1/etc/ioninja/api.conf
+	cp -T $ROOT_DIR/src/nj_app/plugins-linux.conf $1/etc/ioninja/plugins.conf
+
+	mkdir -p $1/usr/bin
+	cp $BIN_DIR/ioninja        $1/usr/bin
+	cp $BIN_DIR/ioninja-server $1/usr/bin
+
+	mkdir -p $1/usr/share/ioninja
+	cp -rf $ROOT_DIR/scripts   $1/usr/share/ioninja
+	cp -rf $ROOT_DIR/license   $1/usr/share/ioninja
+	cp -rf $ROOT_DIR/icons     $1/usr/share/ioninja
+}

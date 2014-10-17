@@ -533,8 +533,8 @@ add_ragel_step (
 add_bulldozer_double_step (
 	jnc_Parser.llk.h
 	jnc_Parser.llk.cpp
-	"${BULLDOZER_FRAME_DIR}/CppParser.h.in"
-	"${BULLDOZER_FRAME_DIR}/CppParser.cpp.in"
+	CppParser.h.in
+	CppParser.cpp.in
 	jnc_Parser.llk
 
 	jnc_Decl.llk

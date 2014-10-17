@@ -4,6 +4,22 @@
 
 #..............................................................................
 
-include (@CMAKE_CURRENT_LIST_DIR@/latest/jancy-${TARGET_CPU}.cmake)
+configure_file (
+	jancy.cmake.in
+	jancy.cmake
+	@ONLY
+	)
+
+configure_file (
+	jancy.cmake.in
+	${CMAKE_CURRENT_LIST_DIR}/latest/jancy-${TARGET_CPU}.cmake
+	@ONLY
+	)
+
+configure_file (
+	jancy-latest.cmake.in
+	${CMAKE_CURRENT_LIST_DIR}/latest/jancy.cmake
+	@ONLY
+	)
 
 #..............................................................................

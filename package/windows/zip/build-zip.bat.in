@@ -1,0 +1,49 @@
+@echo off
+
+rem ...........................................................................
+
+set ROOT_DIR="${JANCY_ROOT_DIR}"
+set OUT_DIR="${JANCY_PACKAGE_DIR}"
+set ZIP_DIR="${CMAKE_CURRENT_BINARY_DIR}/zip"
+set ZIP_EXE="${7Z_EXE}"
+
+set ROOT_DIR=%ROOT_DIR:/=\%
+set OUT_DIR=%OUT_DIR:/=\%
+set ZIP_DIR=%ZIP_DIR:/=\%
+set ZIP_EXE=%ZIP_EXE:/=\%
+
+set CONTENTS_DIR="%ZIP_DIR%\jancy-${VERSION_FILE_SUFFIX}"
+set OUT_FILE_NAME=jancy-src-${VERSION_FILE_SUFFIX}.zip
+set OUT_FILE_PATH=%OUT_DIR%\%OUT_FILE_NAME%
+
+echo Building archive %OUT_FILE_NAME%...
+
+if exist %ZIP_DIR% (rd /S /Q %ZIP_DIR% || exit)
+if exist %OUT_FILE_PATH% (del %OUT_FILE_PATH%  || exit)
+
+mkdir %CONTENTS_DIR%\cmake\std || exit
+mkdir %CONTENTS_DIR%\include || exit
+mkdir %CONTENTS_DIR%\src || exit
+mkdir %CONTENTS_DIR%\samples || exit
+mkdir %CONTENTS_DIR%\tests || exit
+if not exist "%OUT_DIR%" (mkdir "%OUT_DIR%" || exit)
+
+xcopy /Y /Q %ROOT_DIR%\cmake\*.* %CONTENTS_DIR%\cmake
+xcopy /Y /Q %ROOT_DIR%\..\cmake\*.* %CONTENTS_DIR%\cmake\std
+xcopy /Y /Q %ROOT_DIR%\include\*.* %CONTENTS_DIR%\include
+xcopy /Y /Q /E %ROOT_DIR%\src\*.* %CONTENTS_DIR%\src
+xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples
+xcopy /Y /Q /E %ROOT_DIR%\tests\*.* %CONTENTS_DIR%\tests
+xcopy /Y /Q %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR%\
+xcopy /Y /Q %ROOT_DIR%\version.cmake %CONTENTS_DIR%\
+
+del %CONTENTS_DIR%\cmake\std\paths.cmake
+
+set PREV_DIR=%CD%
+cd %ZIP_DIR% || exit
+%ZIP_EXE% a -tzip -y %OUT_FILE_PATH% || exit
+cd %PREV_DIR% || exit
+
+rd /S /Q "%ZIP_DIR%"
+
+rem ...........................................................................
