@@ -19,12 +19,14 @@ endif ()
 print_std_settings ()
 
 check_and_print_libs (
-	PERL
-	RAGEL
-	LLVM
-	QT
-	AXL
-	BULLDOZER
+	REQUIRED 
+		PERL
+		RAGEL
+		LLVM
+		AXL
+		BULLDOZER
+	OPTIONAL 
+		QT
 	)
 
 if (QT_FOUND)
