@@ -44,8 +44,10 @@ include (${BULLDOZER_CMAKE_DIR}/bulldozer.cmake)
 
 #..............................................................................
 
-set (JANCY_ROOT_DIR    ${CMAKE_CURRENT_LIST_DIR})
-set (JANCY_PACKAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/package)
+set (JANCY_ROOT_DIR     ${CMAKE_CURRENT_LIST_DIR})
+set (JANCY_LIB_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set (JANCY_BIN_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set (JANCY_PACKAGE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/package)
 
 add_subdirectory (cmake)
 

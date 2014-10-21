@@ -2,17 +2,35 @@
 
 set -e
 
-THIS_DIR=${CMAKE_CURRENT_BINARY_DIR}
+ROOT_DIR=${JANCY_ROOT_DIR}
+OUT_DIR=${JANCY_PACKAGE_DIR}
 TAR_DIR=${CMAKE_CURRENT_BINARY_DIR}/tar
-OUT_DIR=${NJ_PUBLISH_DIR}
-OUT_FILE_NAME=ioninja-linux-${TARGET_CPU}-${NJ_VERSION_FILE_SUFFIX}.tar.gz
+CONTENTS_DIR=$TAR_DIR/jancy-${VERSION_FILE_SUFFIX}
+OUT_FILE_NAME=jancy-src-${VERSION_FILE_SUFFIX}.tar.gz
 OUT_FILE_PATH=$OUT_DIR/$OUT_FILE_NAME
 
-echo Building TAR archive $OUT_FILE_NAME...
+echo Building archive $OUT_FILE_NAME...
 
-. $THIS_DIR/../prepare-contents
-prepare_contents $TAR_DIR
+rm -rf $TAR_DIR
+rm -f $OUT_FILE_PATH
 
+mkdir -p $CONTENTS_DIR/cmake/std
+mkdir -p $CONTENTS_DIR/include
+mkdir -p $CONTENTS_DIR/src
 mkdir -p $OUT_DIR
+
+cp -f $ROOT_DIR/cmake/*.* $CONTENTS_DIR/cmake
+cp -f $ROOT_DIR/../cmake/master.cmake $CONTENTS_DIR/cmake/std
+cp -f $ROOT_DIR/../cmake/utils.cmake $CONTENTS_DIR/cmake/std
+cp -f $ROOT_DIR/../cmake/libs.cmake $CONTENTS_DIR/cmake/std
+cp -f $ROOT_DIR/../cmake/settings.cmake $CONTENTS_DIR/cmake/std
+cp -f $ROOT_DIR/package/cmake/*.* $CONTENTS_DIR/cmake/std
+cp -f $ROOT_DIR/include/*.* $CONTENTS_DIR/include
+cp -rf $ROOT_DIR/src $CONTENTS_DIR
+cp -rf $ROOT_DIR/samples $CONTENTS_DIR
+cp -rf $ROOT_DIR/tests $CONTENTS_DIR
+cp -f $ROOT_DIR/CMakeLists.txt $CONTENTS_DIR
+cp -f $ROOT_DIR/version.cmake $CONTENTS_DIR
+
 tar -czf $OUT_FILE_PATH -C $TAR_DIR .
 rm -rf $TAR_DIR

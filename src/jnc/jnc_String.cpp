@@ -6,7 +6,7 @@ namespace jnc {
 
 //.............................................................................
 
-String 
+String
 String::getZeroTerminatedString ()
 {
 	String resultString = *this;
@@ -14,7 +14,7 @@ String::getZeroTerminatedString ()
 	return resultString;
 }
 
-bool 
+bool
 String::copy (StringRef ref)
 {
 	if (!ref.m_isFinal)
@@ -25,7 +25,7 @@ String::copy (StringRef ref)
 	return true;
 }
 
-bool 
+bool
 String::copy (
 	DataPtr ptr,
 	size_t length
@@ -36,7 +36,7 @@ String::copy (
 
 	if (!length)
 	{
-		m_ptr.m_p = "";
+		m_ptr.m_p = (void*) "";
 		m_length = 0;
 		return true;
 	}
@@ -58,7 +58,7 @@ String::copy (
 
 //.............................................................................
 
-bool 
+bool
 AXL_CDECL
 StringBuilder::copy (
 	DataPtr ptr,
@@ -76,7 +76,7 @@ StringBuilder::copy (
 	return true;
 }
 
-bool 
+bool
 AXL_CDECL
 StringBuilder::append (
 	DataPtr ptr,
@@ -116,7 +116,7 @@ StringBuilder::setLength (
 		return false;
 
 	p [length] = 0;
-	
+
 	if (saveContents)
 		memcpy (p, m_ptr.m_p, m_length);
 
@@ -124,7 +124,7 @@ StringBuilder::setLength (
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + maxLength + 1;
 	m_ptr.m_object = jnc::getStaticObjHdr ();
-	
+
 	m_length = length;
 	m_maxLength = maxLength;
 	return true;

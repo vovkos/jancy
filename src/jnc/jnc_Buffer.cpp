@@ -6,7 +6,7 @@ namespace jnc {
 
 //.............................................................................
 
-bool 
+bool
 ConstBuffer::copy (ConstBufferRef ref)
 {
 	if (!ref.m_isFinal)
@@ -17,7 +17,7 @@ ConstBuffer::copy (ConstBufferRef ref)
 	return true;
 }
 
-bool 
+bool
 ConstBuffer::copy (
 	DataPtr ptr,
 	size_t size
@@ -25,7 +25,7 @@ ConstBuffer::copy (
 {
 	if (!size)
 	{
-		m_ptr.m_p = "";
+		m_ptr.m_p = (void*) "";
 		m_size = 0;
 		return true;
 	}
@@ -47,7 +47,7 @@ ConstBuffer::copy (
 
 //.............................................................................
 
-bool 
+bool
 AXL_CDECL
 Buffer::copy (
 	DataPtr ptr,
@@ -62,7 +62,7 @@ Buffer::copy (
 	return true;
 }
 
-bool 
+bool
 AXL_CDECL
 Buffer::append (
 	DataPtr ptr,
@@ -99,7 +99,7 @@ Buffer::setSize (
 		return false;
 
 	p [size] = 0;
-	
+
 	if (saveContents)
 		memcpy (p, m_ptr.m_p, m_size);
 
@@ -107,7 +107,7 @@ Buffer::setSize (
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + maxSize + 1;
 	m_ptr.m_object = jnc::getStaticObjHdr ();
-	
+
 	m_size = size;
 	m_maxSize = maxSize;
 	return true;

@@ -4,13 +4,6 @@
 
 #..............................................................................
 
-configure_file (
-    prepare-contents.in
-    prepare-contents
-    )
-
-add_subdirectory (nj_deb_package)
-add_subdirectory (nj_rpm_package)
-add_subdirectory (nj_tar_archive)
+add_subdirectory (tar)
 
 #..............................................................................

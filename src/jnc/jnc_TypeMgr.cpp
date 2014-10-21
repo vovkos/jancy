@@ -105,7 +105,7 @@ TypeMgr::getStdType (StdType stdType)
 		StdNamespace m_stdNamespace;
 	};
 
-	static SourceRef sourceTable [StdType__Count] = 
+	static SourceRef sourceTable [StdType__Count] =
 	{
 		{ NULL },                            // StdType_BytePtr,
 		{ NULL },                            // StdType_ObjHdr,
@@ -117,84 +117,84 @@ TypeMgr::getStdType (StdType stdType)
 		{ NULL },                            // StdType_SimpleEventPtr,
 		{ NULL },                            // StdType_Binder,
 		{                                    // StdType_ReactorBindSite,
-			reactorBindSiteTypeSrc, 
+			reactorBindSiteTypeSrc,
 			lengthof (reactorBindSiteTypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Scheduler,
-			schedulerTypeSrc, 
+			schedulerTypeSrc,
 			lengthof (schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{ NULL },                            // StdType_SchedulerPtr,
 		{                                    // StdType_FmtLiteral,
-			fmtLiteralTypeSrc, 
-			lengthof (fmtLiteralTypeSrc), 
+			fmtLiteralTypeSrc,
+			lengthof (fmtLiteralTypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Guid,
-			guidTypeSrc, 
+			guidTypeSrc,
 			lengthof (guidTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_Error,
-			errorTypeSrc, 
-			lengthof (errorTypeSrc), 
+			errorTypeSrc,
+			lengthof (errorTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_String,
-			stringTypeSrc, 
-			lengthof (stringTypeSrc), 
+			stringTypeSrc,
+			lengthof (stringTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_StringRef,
-			stringRefTypeSrc, 
-			lengthof (stringRefTypeSrc), 
+			stringRefTypeSrc,
+			lengthof (stringRefTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_StringBuilder,
-			stringBuilderTypeSrc, 
-			lengthof (stringBuilderTypeSrc), 
+			stringBuilderTypeSrc,
+			lengthof (stringBuilderTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_ConstBuffer,
-			constBufferTypeSrc, 
-			lengthof (constBufferTypeSrc), 
+			constBufferTypeSrc,
+			lengthof (constBufferTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_ConstBufferRef,
-			constBufferRefTypeSrc, 
-			lengthof (constBufferRefTypeSrc), 
+			constBufferRefTypeSrc,
+			lengthof (constBufferRefTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_BufferRef,
-			bufferRefTypeSrc, 
-			lengthof (bufferRefTypeSrc), 
+			bufferRefTypeSrc,
+			lengthof (bufferRefTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_Buffer,
-			bufferTypeSrc, 
-			lengthof (bufferTypeSrc), 
+			bufferTypeSrc,
+			lengthof (bufferTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_Int64Int64,
-			int64Int64TypeSrc, 
-			lengthof (int64Int64TypeSrc), 
+			int64Int64TypeSrc,
+			lengthof (int64Int64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Fp64Fp64,
-			fp64Fp64TypeSrc, 
-			lengthof (fp64Fp64TypeSrc), 
+			fp64Fp64TypeSrc,
+			lengthof (fp64Fp64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Int64Fp64,
-			int64Fp64TypeSrc, 
-			lengthof (int64Fp64TypeSrc), 
+			int64Fp64TypeSrc,
+			lengthof (int64Fp64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Fp64Int64,
-			fp64Int64TypeSrc, 
-			lengthof (fp64Int64TypeSrc), 
+			fp64Int64TypeSrc,
+			lengthof (fp64Int64TypeSrc),
 			StdNamespace_Internal,
 		},
 	};
@@ -265,8 +265,8 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_Fp64Int64:
 		ASSERT (sourceTable [stdType].m_p);
 		type = parseStdType (
-			sourceTable [stdType].m_stdNamespace, 
-			sourceTable [stdType].m_p, 
+			sourceTable [stdType].m_stdNamespace,
+			sourceTable [stdType].m_p,
 			sourceTable [stdType].m_length
 			);
 		break;
@@ -341,7 +341,7 @@ TypeMgr::resolveImportTypes ()
 {
 	char buffer [256];
 	rtl::Array <NamedImportType*> superImportTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
-	
+
 	// new items can be added in the process of resolving
 
 	while (
@@ -2562,7 +2562,7 @@ TypeMgr::parseStdType (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("parse std type error: %s\n", err::getError ()->getDescription ());
+			dbg::trace ("parse std type error: %s\n", err::getError ()->getDescription ().cc ());
 			ASSERT (false);
 		}
 
