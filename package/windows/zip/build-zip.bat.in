@@ -28,14 +28,18 @@ mkdir %CONTENTS_DIR%\samples || exit
 mkdir %CONTENTS_DIR%\tests || exit
 if not exist "%OUT_DIR%" (mkdir "%OUT_DIR%" || exit)
 
-xcopy /Y /Q %ROOT_DIR%\cmake\*.* %CONTENTS_DIR%\cmake
-xcopy /Y /Q %ROOT_DIR%\..\cmake\*.* %CONTENTS_DIR%\cmake\std
-xcopy /Y /Q %ROOT_DIR%\include\*.* %CONTENTS_DIR%\include
-xcopy /Y /Q /E %ROOT_DIR%\src\*.* %CONTENTS_DIR%\src
-xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples
-xcopy /Y /Q /E %ROOT_DIR%\tests\*.* %CONTENTS_DIR%\tests
-xcopy /Y /Q %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR%\
-xcopy /Y /Q %ROOT_DIR%\version.cmake %CONTENTS_DIR%\
+copy /Y %ROOT_DIR%\cmake\*.* %CONTENTS_DIR%\cmake || exit
+copy /Y %ROOT_DIR%\..\cmake\master.cmake %CONTENTS_DIR%\cmake\std || exit
+copy /Y %ROOT_DIR%\..\cmake\utils.cmake %CONTENTS_DIR%\cmake\std || exit
+copy /Y %ROOT_DIR%\..\cmake\libs.cmake %CONTENTS_DIR%\cmake\std || exit
+copy /Y %ROOT_DIR%\..\cmake\settings.cmake %CONTENTS_DIR%\cmake\std || exit
+copy /Y %ROOT_DIR%\package\cmake\*.* %CONTENTS_DIR%\cmake\std || exit
+copy /Y %ROOT_DIR%\include\*.* %CONTENTS_DIR%\include || exit
+xcopy /Y /Q /E %ROOT_DIR%\src\*.* %CONTENTS_DIR%\src || exit
+xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples || exit
+xcopy /Y /Q /E %ROOT_DIR%\tests\*.* %CONTENTS_DIR%\tests || exit
+copy /Y %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR% || exit
+copy /Y %ROOT_DIR%\version.cmake %CONTENTS_DIR% || exit
 
 del %CONTENTS_DIR%\cmake\std\paths.cmake
 
