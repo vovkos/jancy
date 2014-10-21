@@ -1122,6 +1122,7 @@ FunctionMgr::parseStdFunction (
 
 	Parser parser;
 	parser.create (SymbolKind_normal_item_declaration);
+	parser.m_stage = Parser::StageKind_Pass2; // no imports
 
 	for (;;)
 	{

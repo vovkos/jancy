@@ -2095,6 +2095,8 @@ TypeMgr::getNamedImportType (
 	Namespace* anchorNamespace
 	)
 {
+	ASSERT (anchorNamespace->getNamespaceKind () != NamespaceKind_Scope);
+
 	rtl::String signature = NamedImportType::createSignature (name, anchorNamespace);
 
 	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
