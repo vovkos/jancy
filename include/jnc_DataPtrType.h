@@ -145,6 +145,8 @@ struct DataPtr
 	ObjHdr* m_object;
 };
 
+AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // structure backing up formatting literal

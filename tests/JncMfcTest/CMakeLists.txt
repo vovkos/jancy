@@ -3,10 +3,6 @@
 # Author: Vladimir Gladkov
 
 #..............................................................................
-
-set (VIRTUAL_FOLDER_SUB_DIR JncMfcTest)
-
-#..............................................................................
 #
 # src folder
 #
@@ -38,8 +34,9 @@ set (
 	test_ast.cpp
 	)
 
-virtual_folder (
+source_group (
 	src
+	FILES
 	${SRC_H_LIST}
 	${SRC_CPP_LIST}
 	)
@@ -85,8 +82,9 @@ set (
 	res/test_ast.rc2
 	)
 
-virtual_folder (
+source_group (
 	res
+	FILES
 	${RES_BMP_LIST}
 	${RES_ICO_LIST}
 	${RES_XML_LIST}
@@ -101,8 +99,9 @@ virtual_folder (
 set (PCH_H   pch.h)
 set (PCH_CPP pch.cpp)
 
-virtual_folder (
+source_group (
 	pch
+	FILES
 	${PCH_H}
 	${PCH_CPP}
 	)
