@@ -108,7 +108,7 @@ source_group (
 
 #..............................................................................
 #
-# JncMfcTest compiler test
+# test_mfc compiler test
 #
 
 include_directories (
@@ -123,7 +123,7 @@ link_directories (
 set (CMAKE_MFC_FLAG 1)
 
 add_executable (
-	JncMfcTest WIN32
+	test_mfc WIN32
 	${PCH_H}
 	${PCH_CPP}
 	${SRC_H_LIST}
@@ -142,7 +142,7 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	JncMfcTest
+	test_mfc
 	axl_core
 	axl_io
 	axl_jnc
@@ -151,15 +151,15 @@ target_link_libraries (
 	)
 
 set_pch (
-	JncMfcTest
+	test_mfc
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 set_target_properties (
-	JncMfcTest
+	test_mfc
 	PROPERTIES
-	FOLDER tests
+	FOLDER test
 	LINKER_LANGUAGE C
 	)
 

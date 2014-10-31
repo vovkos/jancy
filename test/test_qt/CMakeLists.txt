@@ -157,7 +157,7 @@ source_group (
 
 #..............................................................................
 #
-# JncQtTest compiler test
+# test_qt compiler test
 #
 
 if (MSVC)
@@ -178,7 +178,7 @@ link_directories (
 	)
 
 add_executable (
-	JncQtTest
+	test_qt
 	${PCH_H}
 	${PCH_CPP}
 	${APP_H_LIST}
@@ -201,7 +201,7 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	JncQtTest
+	test_qt
 	jnc
 	axl_io
 	axl_core
@@ -210,28 +210,28 @@ target_link_libraries (
 
 if (UNIX)
 	target_link_libraries (
-		JncQtTest
+		test_qt
 		rt
 		)
 endif ()
 
-qt5_use_modules (JncQtTest Widgets)
+qt5_use_modules (test_qt Widgets)
 
 if (WIN32)
-	copy_qt_dll_files (JncQtTest Core Gui Widgets)
+	copy_qt_dll_files (test_qt Core Gui Widgets)
 endif ()
 
 set_pch (
-	JncQtTest
+	test_qt
 	${PCH_H}
 	${PCH_CPP}
 	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 set_target_properties (
-	JncQtTest
+	test_qt
 	PROPERTIES
-	FOLDER tests
+	FOLDER test
 	)
 
 #..............................................................................

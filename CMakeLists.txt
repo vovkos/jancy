@@ -65,8 +65,8 @@ endif ()
 
 add_subdirectory (src)
 
-if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/tests/CMakeLists.txt")
-	add_subdirectory (tests)
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt")
+	add_subdirectory (test)
 endif ()	
 	
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/package/CMakeLists.txt")

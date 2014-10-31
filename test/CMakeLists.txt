@@ -6,13 +6,13 @@
 
 if (WIN32)
 	option (
-		BUILD_JNC_MFC_TEST
-		"Build JncMfcTest"
+		BUILD_TEST_MFC
+		"Build test_mfc"
 		OFF
 		)
 
-	if (BUILD_JNC_MFC_TEST)
-		add_subdirectory (JncMfcTest)
+	if (BUILD_TEST_MFC)
+		add_subdirectory (test_mfc)
 	endif ()
 endif ()
 
@@ -20,13 +20,13 @@ endif ()
 
 if (${QT_FOUND})
 	option (
-		BUILD_JNC_QT_TEST
-		"Build JncQtTest"
+		BUILD_TEST_QT
+		"Build test_qt"
 		ON
 		)
 
-	if (BUILD_JNC_QT_TEST)
-		add_subdirectory (JncQtTest)
+	if (BUILD_TEST_QT)
+		add_subdirectory (test_qt)
 	endif ()
 endif ()
 
