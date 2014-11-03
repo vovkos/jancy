@@ -28,7 +28,7 @@ cp -f $ROOT_DIR/package/cmake/*.* $CONTENTS_DIR/cmake/std
 cp -f $ROOT_DIR/include/*.* $CONTENTS_DIR/include
 cp -rf $ROOT_DIR/src $CONTENTS_DIR
 cp -rf $ROOT_DIR/samples $CONTENTS_DIR
-cp -rf $ROOT_DIR/tests $CONTENTS_DIR
+cp -rf $ROOT_DIR/test $CONTENTS_DIR
 cp -f $ROOT_DIR/CMakeLists.txt $CONTENTS_DIR
 cp -f $ROOT_DIR/version.cmake $CONTENTS_DIR
 
