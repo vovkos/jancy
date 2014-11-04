@@ -37,7 +37,7 @@ copy /Y %ROOT_DIR%\package\cmake\*.* %CONTENTS_DIR%\cmake\std || exit
 copy /Y %ROOT_DIR%\include\*.* %CONTENTS_DIR%\include || exit
 xcopy /Y /Q /E %ROOT_DIR%\src\*.* %CONTENTS_DIR%\src || exit
 xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples || exit
-xcopy /Y /Q /E %ROOT_DIR%\tests\*.* %CONTENTS_DIR%\tests || exit
+xcopy /Y /Q /E %ROOT_DIR%\test\*.* %CONTENTS_DIR%\tests || exit
 copy /Y %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR% || exit
 copy /Y %ROOT_DIR%\version.cmake %CONTENTS_DIR% || exit
 

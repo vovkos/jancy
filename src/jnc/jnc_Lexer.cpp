@@ -29,7 +29,7 @@ Lexer::createStringToken (
 
 	size_t length = token->m_pos.m_length - (left + right);
 	if (useEscapeEncoding)
-		token->m_data.m_string = rtl::EscapeEncoding::decode (ts + left, length);
+		token->m_data.m_string = enc::EscapeEncoding::decode (ts + left, length);
 	else
 		token->m_data.m_string.copy (ts + left, length);
 
@@ -41,7 +41,7 @@ Lexer::createHexLiteralToken ()
 {
 	Token* token = createToken (TokenKind_HexLiteral);
 	ASSERT (token->m_pos.m_length >= 4);
-	token->m_data.m_binData = rtl::HexEncoding::decode (ts + 3, token->m_pos.m_length - 4);
+	token->m_data.m_binData = enc::HexEncoding::decode (ts + 3, token->m_pos.m_length - 4);
 	return token;
 }
 
@@ -108,7 +108,7 @@ Lexer::createFmtLiteralToken (
 	ASSERT (token->m_pos.m_length >= left + right);
 
 	token->m_token = tokenKind;
-	token->m_data.m_string = rtl::EscapeEncoding::decode (
+	token->m_data.m_string = enc::EscapeEncoding::decode (
 		token->m_pos.m_p + left,
 		token->m_pos.m_length - (left + right));
 	token->m_data.m_integer = param;
