@@ -12,6 +12,7 @@ set (
 	CmdLine.h
 	Jnc.h
 	OutStream.h
+	Version.h.in
 	)
 
 set (
