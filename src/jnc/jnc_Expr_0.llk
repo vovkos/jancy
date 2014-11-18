@@ -428,15 +428,15 @@ primary_expr_0 <Value* $value>
 			{
 				$value->setNull ();
 			}
-	|	TokenKind_Dynamic? TokenKind_SizeOf '(' type_name_or_expr ')'
+	|	TokenKind_Dynamic? TokenKind_SizeOf '(' type_name_or_expr_0 ')'
 			{
 				$value->setType (TypeKind_SizeT);
 			}
-	|	TokenKind_Dynamic? TokenKind_CountOf '(' type_name_or_expr ')'
+	|	TokenKind_Dynamic? TokenKind_CountOf '(' type_name_or_expr_0 ')'
 			{
 				$value->setType (TypeKind_SizeT);
 			}
-	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr_0 ')'
 			{
 				$value->setType (m_module->m_typeMgr.getStdType (StdType_ObjectPtr));
 			}
@@ -448,6 +448,13 @@ primary_expr_0 <Value* $value>
 			{
 				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
 			}
+	;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+type_name_or_expr_0
+	:	type_name
+	|	expression_0
 	;
 
 literal_0 <Value* $value>

@@ -805,17 +805,17 @@ primary_expr <Value* $value>
 	|	TokenKind_Dynamic $d? TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
 				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.sizeofOperator (dynamism, $value);
+				return m_module->m_operatorMgr.sizeofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_Dynamic $d? TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
 				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.countofOperator (dynamism, $value);
+				return m_module->m_operatorMgr.countofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_Dynamic $d? TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
 				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.typeofOperator (dynamism, $value);
+				return m_module->m_operatorMgr.typeofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
 			{
@@ -828,6 +828,21 @@ primary_expr <Value* $value>
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class
+{
+	Value m_value;
+}
+type_name_or_expr
+	:	type_name
+			{
+				$.m_value = $1.m_type;
+			}
+	|	expression
+			{
+				$.m_value = $1.m_value;
+			}
+	;
 
 literal <Value* $value>
 	local

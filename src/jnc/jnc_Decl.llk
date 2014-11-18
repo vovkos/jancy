@@ -309,21 +309,6 @@ type_name_list
 		)*
 	;
 
-class
-{
-	Type* m_type;
-}
-type_name_or_expr
-	:	type_name
-			{
-				$.m_type = $1.m_type;
-			}
-	|	expression_0
-			{
-				$.m_type = $1.m_value.getType ();
-			}
-	;
-
 //.............................................................................
 
 // attributes
