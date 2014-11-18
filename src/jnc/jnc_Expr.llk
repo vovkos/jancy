@@ -636,10 +636,10 @@ unary_operator_expr <Value* $value>
 				m_module->m_controlFlowMgr.unlockThrow ();
 			}
 	|	resolver (cast_operator_rslv)
-		'(' storage_specifier $s? type_name $t ')' unary_expr <$value>
+		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr <$value>
 			{
-				StorageKind storageKind = isValidLocator ($s) ? $s.m_storageKind : StorageKind_Heap;
-				return m_module->m_operatorMgr.castOperator (storageKind, $value, $t.m_type);
+				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				return m_module->m_operatorMgr.castOperator (dynamism, $value, $t.m_type);
 			}
 	|	storage_specifier $s? TokenKind_New new_operator_type $t
 			{
@@ -696,7 +696,7 @@ cast_operator_rslv
 	{
 		TypeSpecifier $typeSpecifier;
 	}
-	:	'(' storage_specifier? type_specifier_modifier <&$typeSpecifier>
+	:	TokenKind_Dynamic? '(' type_specifier_modifier <&$typeSpecifier>
 	;
 
 postfix_expr <Value* $value>
@@ -802,24 +802,24 @@ primary_expr <Value* $value>
 			{
 				$value->setNull ();
 			}
-	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_Dynamic $d? TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
-				Type* type = $t.m_type->getTypeKind () == TypeKind_DataRef ? ((DataPtrType*) $t.m_type)->getTargetType () : $t.m_type;
-				$value->setConstSizeT (type->getSize ());
+				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				return m_module->m_operatorMgr.sizeofOperator (dynamism, $value);
 			}
-	|	TokenKind_CountOf '(' type_name_or_expr $t ')'
+	|	TokenKind_Dynamic $d? TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
-				Type* type = $t.m_type->getTypeKind () == TypeKind_DataRef ? ((DataPtrType*) $t.m_type)->getTargetType () : $t.m_type;
-				return getCountOf (type, $value);
+				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				return m_module->m_operatorMgr.countofOperator (dynamism, $value);
 			}
-	|	TokenKind_TypeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_Dynamic $d? TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
-				Type* type = $t.m_type->getTypeKind () == TypeKind_DataRef ? ((DataPtrType*) $t.m_type)->getTargetType () : $t.m_type;
-				$value->setType ($t.m_type);
+				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				return m_module->m_operatorMgr.typeofOperator (dynamism, $value);
 			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
 			{
-				return m_module->m_operatorMgr.getOffsetOf ($e.m_value, $value);
+				return m_module->m_operatorMgr.offsetofOperator ($e.m_value, $value);
 			}
 	|	TokenKind_BindingOf '(' conditional_expr <$value> ')'
 			{

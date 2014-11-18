@@ -296,29 +296,8 @@ unary_operator_expr_0 <Value* $value>
 			{
 				// try operator does not change type of value				
 			}
-	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
-			{
-				$value->setType (TypeKind_SizeT);
-			}
-	|	TokenKind_CountOf '(' type_name_or_expr $t ')'
-			{
-				$value->setType (TypeKind_SizeT);
-			}
-	|	TokenKind_TypeOf '(' type_name_or_expr $t ')'
-			{
-				Type* type = $t.m_type->getTypeKind () == TypeKind_DataRef ? ((DataPtrType*) $t.m_type)->getTargetType () : $t.m_type;
-				$value->setType ($t.m_type);
-			}
-	|	TokenKind_OffsetOf '(' expression_0 ')'
-			{
-				$value->setType (TypeKind_SizeT);
-			}
-	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')' 
-			{
-				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
-			}
 	|	resolver (cast_operator_rslv) 
-		'(' storage_specifier? type_name $t ')' unary_expr_0 <$value> 
+		'(' type_name $t ')' unary_expr_0 <$value> 
 			{
 				$value->setType ($t.m_type);
 			}
@@ -415,13 +394,15 @@ primary_expr_0 <Value* $value>
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
 			m_reactorBindableTypeCount++;
 	}
-	:	TokenKind_Identifier
-			{
-				return lookupIdentifierType ($1.m_data.m_string, $1.m_pos, $value);
-			}
+	:	'(' conditional_expr_0 <$value> ')'
+	|	literal_0 <$value> 
 	|	TokenKind_BaseType
 			{
 				return getBaseType ($1.m_data.m_integer - 1, $value);
+			}
+	|	TokenKind_Identifier
+			{
+				return lookupIdentifierType ($1.m_data.m_string, $1.m_pos, $value);
 			}
 	|	TokenKind_This
 			{
@@ -447,8 +428,26 @@ primary_expr_0 <Value* $value>
 			{
 				$value->setNull ();
 			}
-	|	literal_0 <$value> 
-	|	'(' conditional_expr_0 <$value> ')'
+	|	TokenKind_Dynamic? TokenKind_SizeOf '(' type_name_or_expr ')'
+			{
+				$value->setType (TypeKind_SizeT);
+			}
+	|	TokenKind_Dynamic? TokenKind_CountOf '(' type_name_or_expr ')'
+			{
+				$value->setType (TypeKind_SizeT);
+			}
+	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr $t ')'
+			{
+				$value->setType (m_module->m_typeMgr.getStdType (StdType_ObjectPtr));
+			}
+	|	TokenKind_OffsetOf '(' expression_0 ')'
+			{
+				$value->setType (TypeKind_SizeT);
+			}
+	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')' 
+			{
+				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
+			}
 	;
 
 literal_0 <Value* $value>

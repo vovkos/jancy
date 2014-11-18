@@ -83,6 +83,7 @@ enum StdFunction
 	StdFunction_CheckScopeLevel,
 	StdFunction_CheckClassPtrScopeLevel,
 	StdFunction_CheckDataPtrRange,
+	StdFunction_DynamicCastDataPtr,
 	StdFunction_DynamicCastClassPtr,
 	StdFunction_StrengthenClassPtr,
 	StdFunction_GetDataPtrSpan,

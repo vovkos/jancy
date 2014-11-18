@@ -13,8 +13,8 @@ Parser::Parser ()
 	m_module = getCurrentThreadModule ();
 	m_stage = StageKind_Pass1;
 	m_flags = 0;
-	m_structPackFactor = 8;
-	m_defaultStructPackFactor = 8;
+	m_fieldAlignment = 8;
+	m_defaultFieldAlignment = 8;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
@@ -1544,9 +1544,24 @@ Parser::createFormalArg (
 	return arg;
 }
 
+bool
+Parser::addEnumFlag (
+	uint_t* flags,
+	EnumTypeFlag flag
+	)
+{
+	if (*flags & flag)
+	{
+		err::setFormatStringError ("modifier '%s' used more than once", getEnumTypeFlagString (flag));
+		return false;
+	}
+
+	*flags |= flag;
+	return true;
+}
+
 EnumType*
 Parser::createEnumType (
-	EnumTypeKind enumTypeKind,
 	const rtl::String& name,
 	Type* baseType,
 	uint_t flags
@@ -1558,12 +1573,12 @@ Parser::createEnumType (
 	if (name.isEmpty ())
 	{
 		flags |= EnumTypeFlag_Exposed;
-		enumType = m_module->m_typeMgr.createUnnamedEnumType (enumTypeKind, baseType, flags);
+		enumType = m_module->m_typeMgr.createUnnamedEnumType (baseType, flags);
 	}
 	else
 	{
 		rtl::String qualifiedName = nspace->createQualifiedName (name);
-		enumType = m_module->m_typeMgr.createEnumType (enumTypeKind, name, qualifiedName, baseType, flags);
+		enumType = m_module->m_typeMgr.createEnumType (name, qualifiedName, baseType, flags);
 		if (!enumType)
 			return NULL;
 
@@ -1580,7 +1595,7 @@ StructType*
 Parser::createStructType (
 	const rtl::String& name,
 	rtl::BoxList <Type*>* baseTypeList,
-	size_t packFactor
+	size_t fieldAlignment
 	)
 {
 	bool result;
@@ -1590,12 +1605,12 @@ Parser::createStructType (
 
 	if (name.isEmpty ())
 	{
-		structType = m_module->m_typeMgr.createUnnamedStructType (packFactor);
+		structType = m_module->m_typeMgr.createUnnamedStructType (fieldAlignment);
 	}
 	else
 	{
 		rtl::String qualifiedName = nspace->createQualifiedName (name);
-		structType = m_module->m_typeMgr.createStructType (name, qualifiedName, packFactor);
+		structType = m_module->m_typeMgr.createStructType (name, qualifiedName, fieldAlignment);
 		if (!structType)
 			return NULL;
 	}
@@ -1625,7 +1640,7 @@ Parser::createStructType (
 UnionType*
 Parser::createUnionType (
 	const rtl::String& name,
-	size_t packFactor
+	size_t fieldAlignment
 	)
 {
 	bool result;
@@ -1635,12 +1650,12 @@ Parser::createUnionType (
 
 	if (name.isEmpty ())
 	{
-		unionType = m_module->m_typeMgr.createUnnamedUnionType (packFactor);
+		unionType = m_module->m_typeMgr.createUnnamedUnionType (fieldAlignment);
 	}
 	else
 	{
 		rtl::String qualifiedName = nspace->createQualifiedName (name);
-		unionType = m_module->m_typeMgr.createUnionType (name, qualifiedName, packFactor);
+		unionType = m_module->m_typeMgr.createUnionType (name, qualifiedName, fieldAlignment);
 		if (!unionType)
 			return NULL;
 
@@ -1657,7 +1672,7 @@ ClassType*
 Parser::createClassType (
 	const rtl::String& name,
 	rtl::BoxList <Type*>* baseTypeList,
-	size_t packFactor,
+	size_t fieldAlignment,
 	uint_t flags
 	)
 {
@@ -1668,12 +1683,12 @@ Parser::createClassType (
 
 	if (name.isEmpty ())
 	{
-		classType = m_module->m_typeMgr.createUnnamedClassType (packFactor, flags);
+		classType = m_module->m_typeMgr.createUnnamedClassType (fieldAlignment, flags);
 	}
 	else
 	{
 		rtl::String qualifiedName = nspace->createQualifiedName (name);
-		classType = m_module->m_typeMgr.createClassType (name, qualifiedName, packFactor, flags);
+		classType = m_module->m_typeMgr.createClassType (name, qualifiedName, fieldAlignment, flags);
 	}
 
 	if (baseTypeList)
@@ -2312,22 +2327,6 @@ Parser::lookupIdentifierType (
 		return false;
 	};
 
-	return true;
-}
-
-bool
-Parser::getCountOf (
-	Type* type,
-	Value* value
-	)
-{
-	if (type->getTypeKind () != TypeKind_Array)
-	{
-		err::setFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().cc ());
-		return false;
-	}
-
-	value->setConstSizeT (((ArrayType*) type)->getElementCount ());
 	return true;
 }
 

@@ -25,7 +25,6 @@ Cast_PropertyPtr_FromDataPtr::getCastKind (
 
 bool
 Cast_PropertyPtr_FromDataPtr::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -48,7 +47,9 @@ Cast_PropertyPtr_FromDataPtr::llvmCast (
 		return false;
 	}
 
-	return llvmCast_FullClosure (storageKind, opValue, dstPtrType, resultValue);
+#pragma AXL_TODO ("support storage kind specification when creating closures")
+
+	return llvmCast_FullClosure (StorageKind_Heap, opValue, dstPtrType, resultValue);
 }
 
 bool
@@ -133,7 +134,6 @@ Cast_PropertyPtr_Base::getCastKind (
 
 bool
 Cast_PropertyPtr_FromFat::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -154,14 +154,13 @@ Cast_PropertyPtr_FromFat::llvmCast (
 	pfnValue.setClosure (opValue.getClosure ());
 	pfnValue.insertToClosureHead (closureObjValue);
 
-	return m_module->m_operatorMgr.castOperator (storageKind, pfnValue, type, resultValue);
+	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }
 
 //.............................................................................
 
 bool
 Cast_PropertyPtr_Thin2Fat::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -224,8 +223,10 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 
 	// case 3: closure object needs to be created (so conversion is required even if Property signatures match)
 
+#pragma AXL_TODO ("support storage kind specification when creating closures")
+
 	return llvmCast_FullClosure (
-		storageKind,
+		StorageKind_Heap,
 		opValue,
 		srcPropertyType,
 		dstPtrType,
@@ -346,7 +347,6 @@ Cast_PropertyPtr_Thin2Fat::createClosurePropertyPtr (
 
 bool
 Cast_PropertyPtr_Weak2Normal::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -413,7 +413,6 @@ Cast_PropertyPtr_Weak2Normal::llvmCast (
 
 bool
 Cast_PropertyPtr_Thin2Thin::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -455,7 +454,6 @@ Cast_PropertyPtr_Thin2Thin::llvmCast (
 /*
 bool
 Cast_PropertyPtr_Thin2Weak::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -473,7 +471,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast (
 	}
 
 	PropertyPtrType* intermediateType = ((PropertyPtrType*) type)->getTargetType ()->getPropertyPtrType (PropertyPtrTypeKind_Normal);
-	bool result = m_module->m_operatorMgr.castOperator (storageKind, opValue, intermediateType, resultValue);
+	bool result = m_module->m_operatorMgr.castOperator (opValue, intermediateType, resultValue);
 	if (!result)
 		return false;
 
@@ -554,7 +552,6 @@ Cast_PropertyRef::getCastKind (
 
 bool
 Cast_PropertyRef::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

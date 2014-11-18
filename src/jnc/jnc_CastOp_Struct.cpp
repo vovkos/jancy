@@ -69,7 +69,6 @@ Cast_Struct::constCast (
 
 bool
 Cast_Struct::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

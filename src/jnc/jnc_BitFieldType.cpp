@@ -40,7 +40,7 @@ BitFieldType::calcLayout ()
 	}
 
 	m_size = m_baseType->getSize ();
-	m_alignFactor = m_baseType->getAlignFactor ();
+	m_alignment = m_baseType->getAlignment ();
 	return true;
 }
 

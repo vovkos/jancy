@@ -637,8 +637,8 @@ public:
 		)
 	{
 		return 
-			isFlagEnumType (opValue1.getType ()) ? opValue1.getType () :
-			isFlagEnumType (opValue2.getType ()) ? opValue2.getType () :
+			isBitFlagEnumType (opValue1.getType ()) ? opValue1.getType () :
+			isBitFlagEnumType (opValue2.getType ()) ? opValue2.getType () :
 			getArithmeticResultType (opValue1, opValue2);
 	}
 
@@ -746,7 +746,7 @@ public:
 		const Value& opValue2
 		)
 	{
-		return opValue1.getType () == opValue2.getType () && isFlagEnumType (opValue1.getType ());
+		return opValue1.getType () == opValue2.getType () && isBitFlagEnumType (opValue1.getType ());
 	}
 
 };

@@ -6,13 +6,58 @@ namespace jnc {
 
 //.............................................................................
 
+const char*
+getEnumTypeFlagString (EnumTypeFlag flag)
+{
+	static const char* stringTable [] =
+	{
+		"exposed",   // EnumTypeFlag_Exposed = 0x0010000
+		"bitflag",   // EnumTypeFlag_BitFlag = 0x0020000
+	};
+
+	size_t i = rtl::getLoBitIdx32 (flag >> 12);
+
+	return i < countof (stringTable) ?
+		stringTable [i] :
+		"undefined-enum-type-flag";
+}
+
+rtl::String
+getEnumTypeFlagString (uint_t flags)
+{
+	rtl::String string;
+
+	if (flags & EnumTypeFlag_Exposed)
+		string = "exposed ";
+
+	if (flags & EnumTypeFlag_BitFlag)
+		string += "bitflag ";
+
+	if (!string.isEmpty ())
+		string.reduceLength (1);
+
+	return string;
+}
+
+//.............................................................................
+
 EnumType::EnumType ()
 {
 	m_typeKind = TypeKind_Enum;
-	m_enumTypeKind = EnumTypeKind_Normal;
 	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
 	m_baseType_i = NULL;
+}
+
+void
+EnumType::prepareTypeString ()
+{
+	m_typeString = getEnumTypeFlagString (m_flags);
+
+	if (!m_typeString.isEmpty ())
+		m_typeString += ' ';
+
+	m_typeString.appendFormat ("enum %s", m_tag.cc ());
 }
 
 EnumConst*
@@ -52,14 +97,14 @@ EnumType::calcLayout ()
 	}
 
 	m_size = m_baseType->getSize ();
-	m_alignFactor = m_baseType->getAlignFactor ();
+	m_alignment = m_baseType->getAlignment ();
 
 	// assign values to consts
 
 	m_module->m_namespaceMgr.openNamespace (this);
 	Unit* unit = m_itemDecl->getParentUnit ();
 
-	if (m_enumTypeKind == EnumTypeKind_Flag)
+	if (m_flags & EnumTypeFlag_BitFlag)
 	{
 		intptr_t value = 1;
 

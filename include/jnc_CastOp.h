@@ -101,7 +101,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -109,7 +108,6 @@ public:
 
 	bool
 	cast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -136,7 +134,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -175,7 +172,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -207,7 +203,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -246,7 +241,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

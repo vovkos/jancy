@@ -288,8 +288,8 @@ BinOp_BwAnd::op (
 	Value tmpValue;
 
 	EnumType* enumType = 
-		isFlagEnumType (rawOpValue1.getType ()) ? (EnumType*) rawOpValue1.getType () :
-		isFlagEnumType (rawOpValue2.getType ()) ? (EnumType*) rawOpValue2.getType () : NULL;
+		isBitFlagEnumType (rawOpValue1.getType ()) ? (EnumType*) rawOpValue1.getType () :
+		isBitFlagEnumType (rawOpValue2.getType ()) ? (EnumType*) rawOpValue2.getType () : NULL;
 
 	// prepare before calling Base::Op cause we have EOpFlag_KeepEnum
 

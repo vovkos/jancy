@@ -190,7 +190,7 @@ enum TypeModifier
 	TypeModifier_Unsigned    = 0x00000001,
 	TypeModifier_BigEndian   = 0x00000002,
 	TypeModifier_Const       = 0x00000004,
-	TypeModifier_DConst      = 0x00000008,
+	TypeModifier_ReadOnly    = 0x00000008,
 	TypeModifier_Volatile    = 0x00000010,
 	TypeModifier_Weak        = 0x00000020,
 	TypeModifier_Thin        = 0x00000040,
@@ -205,7 +205,7 @@ enum TypeModifier
 	TypeModifier_Indexed     = 0x00008000,
 	TypeModifier_Multicast   = 0x00010000,
 	TypeModifier_Event       = 0x00020000,
-	TypeModifier_DEvent      = 0x00040000,
+	TypeModifier_Unused      = 0x00040000,
 	TypeModifier_Reactor     = 0x00080000,
 	TypeModifier_Thiscall    = 0x00100000,
 	TypeModifier_Jnccall     = 0x00200000,
@@ -239,17 +239,16 @@ enum TypeModifierMaskKind
 	TypeModifierMaskKind_DataPtr =
 		TypeModifier_Safe |
 		TypeModifier_Const |
-		TypeModifier_DConst |
+		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Thin,
 
 	TypeModifierMaskKind_ClassPtr =
 		TypeModifier_Safe |
 		TypeModifier_Const |
-		TypeModifier_DConst |
+		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
-		TypeModifier_DEvent |
 		TypeModifier_Weak,
 
 	TypeModifierMaskKind_FunctionPtr =
@@ -270,10 +269,9 @@ enum TypeModifierMaskKind
 
 	TypeModifierMaskKind_DeclPtr =
 		TypeModifier_Const |
-		TypeModifier_DConst |
+		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
-		TypeModifier_DEvent |
 		TypeModifier_Bindable |
 		TypeModifier_AutoGet,
 
@@ -289,15 +287,13 @@ enum TypeModifierMaskKind
 
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |
-		TypeModifier_DConst |
-		TypeModifier_Event |
-		TypeModifier_DEvent,
+		TypeModifier_ReadOnly |
+		TypeModifier_Event,
 
 	TypeModifierMaskKind_Event =
 		TypeModifier_Event |
-		TypeModifier_DEvent |
 		TypeModifier_Const |
-		TypeModifier_DConst |
+		TypeModifier_ReadOnly |
 		TypeModifierMaskKind_TypeKind,
 };
 
@@ -341,10 +337,10 @@ enum PtrTypeFlag
 	PtrTypeFlag_Safe      = 0x0010000, // all ptr
 	PtrTypeFlag_Unused    = 0x0020000, // unused
 	PtrTypeFlag_Const     = 0x0040000, // class & data ptr
-	PtrTypeFlag_ConstD    = 0x0080000, // class & data ptr
+	PtrTypeFlag_ReadOnly  = 0x0080000, // class & data ptr
 	PtrTypeFlag_Volatile  = 0x0100000, // class & data ptr
 	PtrTypeFlag_Event     = 0x0200000, // multicast-class only
-	PtrTypeFlag_EventD    = 0x0400000, // multicast-class only
+	PtrTypeFlag_DualEvent = 0x0400000, // multicast-class only
 	PtrTypeFlag_Bindable  = 0x0800000, // multicast-class only
 	PtrTypeFlag_AutoGet   = 0x1000000, // data ptr only
 
@@ -505,7 +501,7 @@ protected:
 	TypeKind m_typeKind;
 	StdType m_stdType;
 	size_t m_size;
-	size_t m_alignFactor;
+	size_t m_alignment;
 	rtl::StringHashTableMapIterator <Type*> m_typeMapIt;
 	rtl::String m_signature;
 	rtl::String m_typeString;
@@ -545,9 +541,9 @@ public:
 	}
 
 	size_t
-	getAlignFactor ()
+	getAlignment ()
 	{
-		return m_alignFactor;
+		return m_alignment;
 	}
 
 	rtl::String
@@ -655,7 +651,7 @@ protected:
 	bool
 	calcLayout ()
 	{
-		ASSERT (m_size && m_alignFactor);
+		ASSERT (m_size && m_alignment);
 		return true;
 	}
 };

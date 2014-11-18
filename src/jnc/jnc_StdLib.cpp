@@ -7,6 +7,17 @@ namespace jnc {
 
 //.............................................................................
 
+DataPtr
+StdLib::dynamicCastDataPtr (
+	DataPtr ptr,
+	Type* type
+	)
+{
+	DataPtr resultPtr = { 0 };
+
+	return resultPtr;
+}
+
 IfaceHdr*
 StdLib::dynamicCastClassPtr (
 	IfaceHdr* p,

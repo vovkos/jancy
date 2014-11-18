@@ -23,7 +23,7 @@ OperatorMgr::allocate (
 	bool isNonConstSizeArray = elementCountValue && elementCountValue.getValueKind () != ValueKind_Const;
 	if (isNonConstSizeArray)
 	{
-		if (storageKind != StorageKind_Heap && storageKind != StorageKind_UHeap)
+		if (storageKind != StorageKind_Heap)
 		{
 			err::setFormatStringError ("cannot create non-const-sized arrays with '%s new'", getStorageKindString (storageKind));
 			return false;
@@ -84,10 +84,6 @@ OperatorMgr::allocate (
 
 		createTmpStackGcRoot (ptrValue);
 		break;
-
-	case StorageKind_UHeap:
-		err::setFormatStringError ("manual memory management is not supported yet");
-		return false;
 
 	default:
 		err::setFormatStringError ("invalid storage specifier '%s' in 'new' operator", getStorageKindString (storageKind));
@@ -165,10 +161,6 @@ OperatorMgr::prime (
 
 	case StorageKind_Stack:
 		flags |= ObjHdrFlag_Stack;
-		break;
-
-	case StorageKind_UHeap:
-		flags |= ObjHdrFlag_UHeap;
 		break;
 	}
 

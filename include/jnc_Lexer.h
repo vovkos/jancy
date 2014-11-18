@@ -27,13 +27,13 @@ enum TokenKind
 
 	// special declarations
 
-	TokenKind_Pack,
 	TokenKind_Namespace,
 	TokenKind_Extend,
 	TokenKind_Using,
 	TokenKind_Friend,
 	TokenKind_Public,
 	TokenKind_Protected,
+	TokenKind_Alignment,
 	TokenKind_SetAs,
 
 	// storage specifiers
@@ -44,7 +44,6 @@ enum TokenKind
 	TokenKind_Thread,
 	TokenKind_Stack,
 	TokenKind_Heap,
-	TokenKind_UHeap,
 	TokenKind_Abstract,
 	TokenKind_Virtual,
 	TokenKind_Override,
@@ -56,7 +55,7 @@ enum TokenKind
 	TokenKind_Unsigned,
 	TokenKind_BigEndian,
 	TokenKind_Const,
-	TokenKind_DConst,
+	TokenKind_ReadOnly,
 	TokenKind_Volatile,
 	TokenKind_Weak,
 	TokenKind_Thin,
@@ -74,7 +73,6 @@ enum TokenKind
 	TokenKind_Indexed,
 	TokenKind_Multicast,
 	TokenKind_Event,
-	TokenKind_DEvent,
 	TokenKind_Reactor,
 
 	// type specifiers
@@ -97,12 +95,12 @@ enum TokenKind
 	// named type specifiers
 
 	TokenKind_Enum,
-	TokenKind_FEnum,
-	TokenKind_CEnum,
 	TokenKind_Struct,
 	TokenKind_Union,
 	TokenKind_Class,
 	TokenKind_Opaque,
+	TokenKind_Exposed,
+	TokenKind_BitFlag,
 
 	// special member methods
 
@@ -144,14 +142,13 @@ enum TokenKind
 	// keyword operators
 
 	TokenKind_New,
-	TokenKind_PNew,
 	TokenKind_Delete,
 	TokenKind_SizeOf,
 	TokenKind_CountOf,
 	TokenKind_OffsetOf,
 	TokenKind_TypeOf,
-	TokenKind_DTypeOf,
 	TokenKind_BindingOf,
+	TokenKind_Dynamic,
 
 	// symbol tokens
 
@@ -200,13 +197,13 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	// special declarations
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Pack,         "pack")
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
 	AXL_LEX_TOKEN_NAME (TokenKind_Extend,       "extend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
+	AXL_LEX_TOKEN_NAME (TokenKind_Alignment,    "alignment")
 	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")	
 
 	// storage specifiers
@@ -217,7 +214,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Thread,       "thread")
 	AXL_LEX_TOKEN_NAME (TokenKind_Stack,        "stack")
 	AXL_LEX_TOKEN_NAME (TokenKind_Heap,         "heap")
-	AXL_LEX_TOKEN_NAME (TokenKind_UHeap,        "uheap")
 	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")
 	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
 	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")
@@ -229,7 +225,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Unsigned,     "unsigned")
 	AXL_LEX_TOKEN_NAME (TokenKind_BigEndian,    "bigendian")
 	AXL_LEX_TOKEN_NAME (TokenKind_Const,        "const")
-	AXL_LEX_TOKEN_NAME (TokenKind_DConst,       "dconst")
+	AXL_LEX_TOKEN_NAME (TokenKind_ReadOnly,     "readonly")
 	AXL_LEX_TOKEN_NAME (TokenKind_Volatile,     "volatile")
 	AXL_LEX_TOKEN_NAME (TokenKind_Weak,         "weak")
 	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
@@ -247,7 +243,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Indexed,      "indexed")
 	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
 	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
-	AXL_LEX_TOKEN_NAME (TokenKind_DEvent,       "devent")
 	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
 
 	// type specifiers
@@ -270,12 +265,12 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// named type specifiers
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Enum,         "enum")
-	AXL_LEX_TOKEN_NAME (TokenKind_FEnum,        "fenum")
-	AXL_LEX_TOKEN_NAME (TokenKind_CEnum,        "cenum")
 	AXL_LEX_TOKEN_NAME (TokenKind_Struct,       "struct")
 	AXL_LEX_TOKEN_NAME (TokenKind_Union,        "union")
 	AXL_LEX_TOKEN_NAME (TokenKind_Class,        "class")
 	AXL_LEX_TOKEN_NAME (TokenKind_Opaque,       "opaque")
+	AXL_LEX_TOKEN_NAME (TokenKind_Exposed,      "exposed")
+	AXL_LEX_TOKEN_NAME (TokenKind_BitFlag,      "bitflag")
 
 	// special members
 
@@ -317,14 +312,13 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// keyword operators
 
 	AXL_LEX_TOKEN_NAME (TokenKind_New,          "new")
-	AXL_LEX_TOKEN_NAME (TokenKind_PNew,         "pnew")
 	AXL_LEX_TOKEN_NAME (TokenKind_Delete,       "delete")
 	AXL_LEX_TOKEN_NAME (TokenKind_SizeOf,       "sizeof")
 	AXL_LEX_TOKEN_NAME (TokenKind_CountOf,      "countof")
 	AXL_LEX_TOKEN_NAME (TokenKind_OffsetOf,     "offsetof")
 	AXL_LEX_TOKEN_NAME (TokenKind_TypeOf,       "typeof")
-	AXL_LEX_TOKEN_NAME (TokenKind_DTypeOf,      "dtypeof")
 	AXL_LEX_TOKEN_NAME (TokenKind_BindingOf,    "bindingof")
+	AXL_LEX_TOKEN_NAME (TokenKind_Dynamic,      "dynamic")
 
 	// symbol tokens
 

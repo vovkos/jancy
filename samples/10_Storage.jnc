@@ -57,7 +57,6 @@ int main ()
 	static int s = 100; // 'static' can be surely used for local variables
 	thread int t = 200; // for local 'thread' variables, initialization is permitted
 	heap char a [256]; // 'heap' storage can be used to allocate local variables on gc-heap
-	// uheap char b [256];  // <-- error: 'uheap' storage cannot be used for variables
 
 	heap C2 c1 construct (1000); // for local 'class' variables, default storage is 'heap'
 	static C2 c2 construct (2000); // 'static' and 'stack' can also be used for 'class' variables

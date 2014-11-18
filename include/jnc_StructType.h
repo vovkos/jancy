@@ -105,7 +105,7 @@ class StructType: public DerivableType
 protected:
 	StructTypeKind m_structTypeKind;
 
-	size_t m_packFactor;
+	size_t m_fieldAlignment;
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
@@ -126,9 +126,9 @@ public:
 	}
 
 	size_t
-	getPackFactor ()
+	getFieldAlignment ()
 	{
-		return m_packFactor;
+		return m_fieldAlignment;
 	}
 
 	size_t
@@ -223,7 +223,7 @@ protected:
 	layoutField (
 		llvm::Type* llvmType,
 		size_t size,
-		size_t alignFactor,
+		size_t alignment,
 		size_t* offset,
 		uint_t* llvmIndex
 		);
@@ -240,7 +240,7 @@ protected:
 			layoutField (
 				type->getLlvmType (),
 				type->getSize (),
-				type->getAlignFactor (),
+				type->getAlignment (),
 				offset,
 				llvmIndex
 				);
@@ -256,7 +256,7 @@ protected:
 		);
 
 	size_t
-	getFieldOffset (size_t alignFactor);
+	getFieldOffset (size_t alignment);
 
 	size_t
 	getBitFieldBitOffset (

@@ -30,7 +30,7 @@ ClassPtrType::ClassPtrType ()
 	m_targetType = NULL;
 	m_anchorNamespace = NULL;
 	m_size = sizeof (void*);
-	m_alignFactor = sizeof (void*);
+	m_alignment = sizeof (void*);
 }
 
 bool
@@ -38,7 +38,7 @@ ClassPtrType::isConstPtrType ()
 {
 	return 
 		(m_flags & PtrTypeFlag_Const) != 0 || 
-		(m_flags & PtrTypeFlag_ConstD) != 0 && 
+		(m_flags & PtrTypeFlag_ReadOnly) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -47,7 +47,7 @@ ClassPtrType::isEventPtrType ()
 {
 	return 
 		(m_flags & PtrTypeFlag_Event) != 0 || 
-		(m_flags & PtrTypeFlag_EventD) != 0 && 
+		(m_flags & PtrTypeFlag_DualEvent) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 

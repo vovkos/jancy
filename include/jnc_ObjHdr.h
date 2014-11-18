@@ -18,7 +18,6 @@ enum ObjHdrFlag
 	ObjHdrFlag_DynamicArray = 0x0002,	
 	ObjHdrFlag_Static       = 0x0010,
 	ObjHdrFlag_Stack        = 0x0020,
-	ObjHdrFlag_UHeap        = 0x0040,
 	ObjHdrFlag_GcMark       = 0x0100,
 	ObjHdrFlag_GcWeakMark   = 0x0200,
 	ObjHdrFlag_GcWeakMark_c = 0x0400,

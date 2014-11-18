@@ -48,6 +48,14 @@ enum StdCastKind
 	StdCastKind__Count
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OperatorDynamism
+{
+	OperatorDynamism_Static = 0,
+	OperatorDynamism_Dynamic,
+};
+
 //.............................................................................
 
 class OperatorMgr
@@ -471,7 +479,7 @@ public:
 
 	bool
 	castOperator (
-		StorageKind storageKind,
+		OperatorDynamism dynamism,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue = NULL
@@ -479,36 +487,17 @@ public:
 
 	bool
 	castOperator (
-		const Value& opValue,
-		Type* type,
-		Value* resultValue = NULL
-		)
-	{
-		return castOperator (StorageKind_Heap, opValue, type, resultValue);
-	}
-
-	bool
-	castOperator (
-		StorageKind storageKind,
+		OperatorDynamism dynamism,
 		Value* value,
 		Type* type
 		)
 	{
-		return castOperator (storageKind, *value, type, value);
+		return castOperator (dynamism, *value, type, value);
 	}
 
 	bool
 	castOperator (
-		Value* value,
-		Type* type
-		)
-	{
-		return castOperator (StorageKind_Heap, *value, type, value);
-	}
-
-	bool
-	castOperator (
-		StorageKind storageKind,
+		OperatorDynamism dynamism,
 		const Value& opValue,
 		TypeKind typeKind,
 		Value* resultValue = NULL
@@ -516,22 +505,41 @@ public:
 
 	bool
 	castOperator (
+		OperatorDynamism dynamism,
+		Value* value,
+		TypeKind typeKind
+		)
+	{
+		return castOperator (dynamism, *value, typeKind, value);
+	}
+
+	bool
+	castOperator (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue = NULL
+		)
+	{
+		return castOperator (OperatorDynamism_Static, opValue, type, resultValue);
+	}
+
+	bool
+	castOperator (
+		Value* value,
+		Type* type
+		)
+	{
+		return castOperator (OperatorDynamism_Static, *value, type, value);
+	}
+
+	bool
+	castOperator (
 		const Value& opValue,
 		TypeKind typeKind,
 		Value* resultValue = NULL
 		)
 	{
-		return castOperator (StorageKind_Heap, opValue, typeKind, resultValue);
-	}
-
-	bool
-	castOperator (
-		StorageKind storageKind,
-		Value* value,
-		TypeKind typeKind
-		)
-	{
-		return castOperator (storageKind, *value, typeKind, value);
+		return castOperator (OperatorDynamism_Static, opValue, typeKind, resultValue);
 	}
 
 	bool
@@ -540,7 +548,120 @@ public:
 		TypeKind typeKind
 		)
 	{
-		return castOperator (StorageKind_Heap, *value, typeKind, value);
+		return castOperator (OperatorDynamism_Static, *value, typeKind, value);
+	}
+
+	// sizeof 
+
+	bool
+	sizeofOperator (		
+		OperatorDynamism dynamism,
+		const Value& opValue,
+		Value* resultValue = NULL
+		);
+
+	bool
+	sizeofOperator (
+		OperatorDynamism dynamism,
+		Value* value
+		)
+	{
+		return sizeofOperator (dynamism, *value, value);
+	}
+
+	bool
+	sizeofOperator (		
+		const Value& opValue,
+		Value* resultValue = NULL
+		)
+	{
+		return sizeofOperator (OperatorDynamism_Static, opValue, resultValue);
+	}
+
+	bool
+	sizeofOperator (Value* value)
+	{
+		return sizeofOperator (OperatorDynamism_Static, *value, value);
+	}
+
+	// countof
+
+	bool
+	countofOperator (		
+		OperatorDynamism dynamism,
+		const Value& opValue,
+		Value* resultValue = NULL
+		);
+
+	bool
+	countofOperator (
+		OperatorDynamism dynamism,
+		Value* value
+		)
+	{
+		return countofOperator (dynamism, *value, value);
+	}
+
+	bool
+	countofOperator (		
+		const Value& opValue,
+		Value* resultValue = NULL
+		)
+	{ 
+		return countofOperator (OperatorDynamism_Static, opValue, resultValue); 
+	}
+
+	bool
+	countofOperator (Value* value)
+	{
+		return countofOperator (OperatorDynamism_Static, *value, value);
+	}
+	
+	// typeof
+
+	bool
+	typeofOperator (		
+		OperatorDynamism dynamism,
+		const Value& opValue,
+		Value* resultValue = NULL
+		);
+
+	bool
+	typeofOperator (
+		OperatorDynamism dynamism,
+		Value* value
+		)
+	{
+		return typeofOperator (dynamism, *value, value);
+	}
+
+	bool
+	typeofOperator (		
+		const Value& opValue,
+		Value* resultValue = NULL
+		)
+	{
+		return typeofOperator (OperatorDynamism_Static, opValue, resultValue);
+	}
+
+	bool
+	typeofOperator (Value* value)
+	{
+		return typeofOperator (OperatorDynamism_Static, *value, value);
+	}
+
+	// offsetof
+
+	bool
+	offsetofOperator (
+		const Value& value,
+		Value* resultValue
+		);
+
+	bool
+	offsetofOperator (Value* value)
+	{
+		return offsetofOperator (*value, value);
 	}
 
 	// new & delete operators
@@ -777,18 +898,6 @@ public:
 		)
 	{
 		return memberOperator (*value, name, value);
-	}
-
-	bool
-	getOffsetOf (
-		const Value& value,
-		Value* resultValue
-		);
-
-	bool
-	getOffsetOf (Value* value)
-	{
-		return getOffsetOf (*value, value);
 	}
 
 	// call operators
@@ -1554,6 +1663,20 @@ protected:
 
 	bool
 	deleteClassPtr (const Value& opValue);
+
+	bool 
+	dynamicCastDataPtr (
+		const Value& opValue,
+		DataPtrType* type,
+		Value* resultValue		
+		);
+
+	bool 
+	dynamicCastClassPtr (
+		const Value& opValue,
+		ClassPtrType* type,
+		Value* resultValue		
+		);
 };
 
 //.............................................................................

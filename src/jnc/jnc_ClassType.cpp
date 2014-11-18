@@ -507,7 +507,7 @@ ClassType::calcLayout ()
 		createPrimer ();
 
 	m_size = m_classStructType->getSize ();
-	m_alignFactor = m_classStructType->getAlignFactor ();
+	m_alignment = m_classStructType->getAlignment ();
 	return true;
 }
 
@@ -818,7 +818,7 @@ ClassType::callMemberFieldDestructors (const Value& thisValue)
 	m_module->m_llvmIrBuilder.createLoad (flagsValue, type, &flagsValue);
 
 	Value maskValue;
-	maskValue.setConstSizeT (ObjHdrFlag_Static | ObjHdrFlag_Stack | ObjHdrFlag_UHeap, TypeKind_Int_p);
+	maskValue.setConstSizeT (ObjHdrFlag_Static | ObjHdrFlag_Stack, TypeKind_Int_p);
 
 	Value andValue;
 	result =

@@ -60,7 +60,6 @@ Cast_ClassPtr::getCastKind (
 
 bool
 Cast_ClassPtr::llvmCast (
-	StorageKind storageKind,
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -73,7 +72,7 @@ Cast_ClassPtr::llvmCast (
 	if (rawOpValue.getType ()->getTypeKind () != TypeKind_ClassPtr)
 	{
 		setCastError (rawOpValue, type);
-		return false; // TODO: user conversions via constructors -- only if target ptr is EPtrTypeFlag_Const
+		return false; // TODO: user conversions via constructors -- only if target ptr is PtrTypeFlag_Const
 	}
 
 	Value opValue = rawOpValue;
@@ -122,22 +121,12 @@ Cast_ClassPtr::llvmCast (
 	result = srcClassType->findBaseTypeTraverse (dstClassType, &coord);
 	if (!result)
 	{
-		Value ptrValue;
-		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ptrValue);
-
-		Value typeValue (&dstClassType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-
-		Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastClassPtr);
-		m_module->m_llvmIrBuilder.createCall2 (
-			dynamicCastClassPtr,
-			dynamicCastClassPtr->getType (),
-			ptrValue,
-			typeValue,
-			&ptrValue
+		err::setFormatStringError (
+			"cannot statically cast '%s' to '%s' (use dynamic cast maybe?)", 
+			opValue.getType ()->getTypeString ().cc (),
+			type->getTypeString ().cc ()
 			);
-
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, dstType, resultValue);
-		return true;
+		return false;
 	}
 
 	Value srcNullValue = srcType->getZeroValue ();

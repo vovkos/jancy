@@ -36,7 +36,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -63,14 +62,14 @@ public:
 		);
 
 protected:
-	intptr_t
+	size_t
 	getOffset (
 		DataPtrType* srcType,
 		DataPtrType* dstType,
 		BaseTypeCoord* coord
 		);
 
-	intptr_t
+	bool
 	getOffsetUnsafePtrValue (
 		const Value& ptrValue, 
 		DataPtrType* srcType,
@@ -95,7 +94,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -118,7 +116,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -141,7 +138,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -168,7 +164,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -238,7 +233,6 @@ public:
 	virtual
 	bool
 	llvmCast (
-		StorageKind storageKind,
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

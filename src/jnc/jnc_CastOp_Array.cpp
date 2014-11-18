@@ -27,7 +27,6 @@ Cast_Array::constCast (
 
 bool
 Cast_Array::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

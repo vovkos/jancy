@@ -24,7 +24,6 @@ Cast_FunctionPtr_FromMulticast::getCastKind (
 
 bool
 Cast_FunctionPtr_FromMulticast::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -73,7 +72,6 @@ Cast_FunctionPtr_Base::getCastKind (
 
 bool
 Cast_FunctionPtr_FromFat::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -95,14 +93,13 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	pfnValue.setClosure (opValue.getClosure ());
 	pfnValue.insertToClosureHead (closureObjValue);
 
-	return m_module->m_operatorMgr.castOperator (storageKind, pfnValue, type, resultValue);
+	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }
 
 //.............................................................................
 
 bool
 Cast_FunctionPtr_Weak2Normal::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -170,7 +167,6 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 
 bool
 Cast_FunctionPtr_Thin2Fat::llvmCast (
-	StorageKind storageKind,
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -244,8 +240,10 @@ Cast_FunctionPtr_Thin2Fat::llvmCast (
 
 	// case 3: closure object needs to be created (so conversion is required even if function signatures match)
 
+#pragma AXL_TODO ("support storage kind specification when creating closures")
+
 	return llvmCast_FullClosure (
-		storageKind,
+		StorageKind_Heap,
 		opValue,
 		srcFunctionType,
 		dstPtrType,
@@ -348,7 +346,6 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure (
 
 bool
 Cast_FunctionPtr_Thin2Thin::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -467,7 +464,6 @@ Cast_FunctionRef::getCastKind (
 
 bool
 Cast_FunctionRef::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

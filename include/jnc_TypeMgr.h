@@ -373,7 +373,6 @@ public:
 
 	EnumType*
 	createEnumType (
-		EnumTypeKind enumTypeKind,
 		const rtl::String& name,
 		const rtl::String& qualifiedName,
 		Type* baseType = NULL,
@@ -382,45 +381,44 @@ public:
 
 	EnumType*
 	createUnnamedEnumType (
-		EnumTypeKind enumTypeKind,
 		Type* baseType = NULL,
 		uint_t flags = 0
 		)
 	{
-		return createEnumType (enumTypeKind, rtl::String (), rtl::String (), baseType, flags);
+		return createEnumType (rtl::String (), rtl::String (), baseType, flags);
 	}
 
 	StructType*
 	createStructType (
 		const rtl::String& name,
 		const rtl::String& qualifiedName,
-		size_t packFactor = 8
+		size_t fieldAlignment = 8
 		);
 
 	StructType*
-	createUnnamedStructType (size_t packFactor = 8)
+	createUnnamedStructType (size_t fieldAlignment = 8)
 	{
-		return createStructType (rtl::String (), rtl::String (), packFactor);
+		return createStructType (rtl::String (), rtl::String (), fieldAlignment);
 	}
 
 	StructType*
 	getStructType (
 		Type** memberTypeArray,
 		size_t memberCount,
-		size_t packFactor = 8
+		size_t fieldAlignment = 8
 		);
 
 	UnionType*
 	createUnionType (
 		const rtl::String& name,
 		const rtl::String& qualifiedName,
-		size_t packFactor = 8
+		size_t fieldAlignment = 8
 		);
 
 	UnionType*
-	createUnnamedUnionType (size_t packFactor = 8)
+	createUnnamedUnionType (size_t fieldAlignment = 8)
 	{
-		return createUnionType (rtl::String (), rtl::String (), packFactor);
+		return createUnionType (rtl::String (), rtl::String (), fieldAlignment);
 	}
 
 	ClassType*
@@ -428,7 +426,7 @@ public:
 		ClassTypeKind classTypeKind,
 		const rtl::String& name,
 		const rtl::String& qualifiedName,
-		size_t packFactor = 8,
+		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		);
 
@@ -436,30 +434,30 @@ public:
 	createClassType (
 		const rtl::String& name,
 		const rtl::String& qualifiedName,
-		size_t packFactor = 8,
+		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (ClassTypeKind_Normal, name, qualifiedName, packFactor, flags);
+		return createClassType (ClassTypeKind_Normal, name, qualifiedName, fieldAlignment, flags);
 	}
 
 	ClassType*
 	createUnnamedClassType (
 		ClassTypeKind classTypeKind,
-		size_t packFactor = 8,
+		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (classTypeKind,	rtl::String (), rtl::String (), packFactor, flags);
+		return createClassType (classTypeKind,	rtl::String (), rtl::String (), fieldAlignment, flags);
 	}
 
 	ClassType*
 	createUnnamedClassType (
-		size_t packFactor = 8,
+		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (ClassTypeKind_Normal, rtl::String (), rtl::String (), packFactor, flags);
+		return createClassType (ClassTypeKind_Normal, rtl::String (), rtl::String (), fieldAlignment, flags);
 	}
 
 	ClassType*
@@ -923,7 +921,7 @@ protected:
 	getDataPtrTypeTuple (Type* type);
 
 	DataPtrTypeTuple*
-	getConstDDataPtrTypeTuple (
+	getReadOnlyDataPtrTypeTuple (
 		Namespace* anchorNamespace,
 		Type* type
 		);
@@ -932,7 +930,7 @@ protected:
 	getClassPtrTypeTuple (ClassType* classType);
 
 	ClassPtrTypeTuple*
-	getConstDClassPtrTypeTuple (
+	getReadOnlyClassPtrTypeTuple (
 		Namespace* anchorNamespace,
 		ClassType* classType
 		);
@@ -941,7 +939,7 @@ protected:
 	getEventClassPtrTypeTuple (MulticastClassType* classType);
 
 	ClassPtrTypeTuple*
-	getEventDClassPtrTypeTuple (
+	getDualEventClassPtrTypeTuple (
 		Namespace* anchorNamespace,
 		MulticastClassType* classType
 		);

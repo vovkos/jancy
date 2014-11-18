@@ -1,9 +1,9 @@
 // jancy introduces dual modifiers, i.e. modifiers which have different meaning
 // for 'aliens' and 'friends' of a namespace. 
-// dual modifier 'dconst' allows declaring type of data which looks like 'const' for aliens, 
+// dual modifier 'readonly' allows declaring type of data which looks like 'const' for aliens, 
 // and 'non-const' for 'friends'.  designated to eliminate the routine of creating 
 // trivial properties whose only purpose is providing read-only access
-// dual modifier 'devent' allows declaring events or event pointers. aliens can only 
+// dual modifier 'event' allows declaring events or event pointers. aliens can only 
 // subscribe/unsubscribe ('event' semantics) while friends must be also able 
 // to fire event ('multicast' semantics)
 
@@ -11,8 +11,8 @@
 
 class C1
 {
-	dconst int m_progress;
-	devent m_completeEvent ();
+	readonly int m_progress;
+	event m_completeEvent ();
 
 	work ()
 	{

@@ -70,7 +70,7 @@ ArrayType::calcLayout ()
 	else if (rootTypeFlags & TypeFlag_GcRoot)
 		m_flags |= TypeFlag_GcRoot;
 
-	m_alignFactor = m_elementType->getAlignFactor ();
+	m_alignment = m_elementType->getAlignment ();
 
 	// calculate size
 

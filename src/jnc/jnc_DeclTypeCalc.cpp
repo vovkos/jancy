@@ -87,7 +87,7 @@ DeclTypeCalc::calcType (
 
 			type = getPropertyPtrType (propertyType);
 		}
-		else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event | TypeModifier_DEvent))
+		else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event))
 		{
 			ClassType* classType = getMulticastType (type);
 			if (!classType)
@@ -147,7 +147,7 @@ DeclTypeCalc::calcType (
 		if (flags)
 			*flags = getPropertyFlags ();
 	}
-	else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event | TypeModifier_DEvent))
+	else if (m_typeModifiers & (TypeModifier_Multicast | TypeModifier_Event))
 	{
 		type = getMulticastType (type);
 		if (!type)
@@ -329,8 +329,8 @@ DeclTypeCalc::getPtrTypeFlags (
 	if (m_typeModifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
 
-	if (m_typeModifiers & TypeModifier_DConst)
-		flags |= PtrTypeFlag_ConstD;
+	if (m_typeModifiers & TypeModifier_ReadOnly)
+		flags |= PtrTypeFlag_ReadOnly;
 
 	if (m_typeModifiers & TypeModifier_Volatile)
 	{
@@ -343,10 +343,10 @@ DeclTypeCalc::getPtrTypeFlags (
 		flags |= PtrTypeFlag_Volatile;
 	}
 
-	if (m_typeModifiers & (TypeModifier_Event | TypeModifier_DEvent)) // convert 'event' to 'devent'
+	if (m_typeModifiers & TypeModifier_Event) // convert 'event' to 'dualevent'
 	{
 		ASSERT (isClassType (type, ClassTypeKind_Multicast));
-		flags |= PtrTypeFlag_EventD;
+		flags |= PtrTypeFlag_DualEvent;
 	}
 
 	if (m_typeModifiers & TypeModifier_Bindable)

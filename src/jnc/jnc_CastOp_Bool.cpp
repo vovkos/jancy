@@ -33,7 +33,6 @@ Cast_BoolFromZeroCmp::constCast (
 
 bool
 Cast_BoolFromZeroCmp::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -47,18 +46,17 @@ Cast_BoolFromZeroCmp::llvmCast (
 
 bool
 Cast_BoolFromPtr::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
 	if (opValue.getType ()->getSize () == sizeof (void*))
-		return Cast_BoolFromZeroCmp::llvmCast (storageKind, opValue, type, resultValue);
+		return Cast_BoolFromZeroCmp::llvmCast (opValue, type, resultValue);
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-	return Cast_BoolFromZeroCmp::llvmCast (storageKind, ptrValue, type, resultValue);
+	return Cast_BoolFromZeroCmp::llvmCast (ptrValue, type, resultValue);
 }
 
 
@@ -83,7 +81,6 @@ Cast_IntFromBool::constCast (
 
 bool
 Cast_IntFromBool::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

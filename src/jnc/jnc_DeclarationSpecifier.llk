@@ -96,12 +96,6 @@ storage_specifier
 			{
 				$.m_storageKind = StorageKind_Heap;
 			}
-	|	TokenKind_UHeap
-			{
-				// $.m_StorageKind = EStorage_UHeap;
-				err::setFormatStringError ("manual memory management is not supported yet");
-				return false;
-			}
 	|	TokenKind_Abstract
 			{
 				$.m_storageKind = StorageKind_Abstract;
@@ -318,9 +312,9 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Const;
 			}
-	|	TokenKind_DConst
+	|	TokenKind_ReadOnly
 			{
-				$.m_typeModifier = TypeModifier_DConst;
+				$.m_typeModifier = TypeModifier_ReadOnly;
 			}
 	|	TokenKind_Volatile
 			{
@@ -385,10 +379,6 @@ type_modifier
 	|	TokenKind_Event
 			{
 				$.m_typeModifier = TypeModifier_Event;
-			}
-	|	TokenKind_DEvent
-			{
-				$.m_typeModifier = TypeModifier_DEvent;
 			}
 	|	TokenKind_Reactor
 			{

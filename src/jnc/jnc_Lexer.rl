@@ -76,13 +76,13 @@ main := |*
 
 # global declarations & pragmas
 
-'pack'           { createToken (TokenKind_Pack); };
 'namespace'      { createToken (TokenKind_Namespace); };
 'extend'         { createToken (TokenKind_Extend); };
 'using'          { createToken (TokenKind_Using); };
 'friend'         { createToken (TokenKind_Friend); };
 'public'         { createToken (TokenKind_Public); };
 'protected'      { createToken (TokenKind_Protected); };
+'alignment'      { createToken (TokenKind_Alignment); };
 'setas'          { createToken (TokenKind_SetAs); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -95,7 +95,6 @@ main := |*
 'thread'         { createToken (TokenKind_Thread); };
 'stack'          { createToken (TokenKind_Stack); };
 'heap'           { createToken (TokenKind_Heap); };
-'uheap'          { createToken (TokenKind_UHeap); };
 'abstract'       { createToken (TokenKind_Abstract); };
 'virtual'        { createToken (TokenKind_Virtual); };
 'override'       { createToken (TokenKind_Override); };
@@ -109,7 +108,7 @@ main := |*
 'unsigned'       { createToken (TokenKind_Unsigned); };
 'bigendian'      { createToken (TokenKind_BigEndian); };
 'const'          { createToken (TokenKind_Const); };
-'dconst'         { createToken (TokenKind_DConst); };
+'readonly'       { createToken (TokenKind_ReadOnly); };
 'volatile'       { createToken (TokenKind_Volatile); };
 'weak'           { createToken (TokenKind_Weak); };
 'thin'           { createToken (TokenKind_Thin); };
@@ -126,7 +125,6 @@ main := |*
 'indexed'        { createToken (TokenKind_Indexed); };
 'multicast'      { createToken (TokenKind_Multicast); };
 'event'          { createToken (TokenKind_Event); };
-'devent'         { createToken (TokenKind_DEvent); };
 'reactor'        { createToken (TokenKind_Reactor); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -153,12 +151,12 @@ main := |*
 # named type specifiers
 
 'enum'           { createToken (TokenKind_Enum); };
-'fenum'          { createToken (TokenKind_FEnum); };
-'cenum'          { createToken (TokenKind_CEnum); };
 'struct'         { createToken (TokenKind_Struct); };
 'union'          { createToken (TokenKind_Union); };
 'class'          { createToken (TokenKind_Class); };
 'opaque'         { createToken (TokenKind_Opaque); };
+'exposed'        { createToken (TokenKind_Exposed); };
+'bitflag'        { createToken (TokenKind_BitFlag); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -177,14 +175,13 @@ main := |*
 # operators
 
 'new'            { createToken (TokenKind_New); };
-'pnew'           { createToken (TokenKind_PNew); };
 'delete'         { createToken (TokenKind_Delete); };
 'sizeof'         { createToken (TokenKind_SizeOf); };
 'countof'        { createToken (TokenKind_CountOf); };
 'offsetof'       { createToken (TokenKind_OffsetOf); };
 'typeof'         { createToken (TokenKind_TypeOf); };
-'dtypeof'        { createToken (TokenKind_DTypeOf); };
 'bindingof'      { createToken (TokenKind_BindingOf); };
+'dynamic'        { createToken (TokenKind_Dynamic); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -298,5 +295,3 @@ Lexer::exec ()
 //.............................................................................
 
 } // namespace jnc {
-
-

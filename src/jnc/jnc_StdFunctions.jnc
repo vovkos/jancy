@@ -7,6 +7,13 @@ void runtimeError (
 	uint8_t thin* codeAddress
 	);
 
+///; static char dynamicCastDataPtrSrc [] = 
+
+void* dynamicCastDataPtr (
+	void* p,
+	uint8_t thin* type
+	);
+
 ///; static char dynamicCastClassPtrSrc [] = 
 
 object* dynamicCastClassPtr (

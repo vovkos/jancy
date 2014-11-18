@@ -24,7 +24,6 @@ Cast_IntTrunc::constCast (
 
 bool
 Cast_IntTrunc::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -61,7 +60,6 @@ Cast_IntExt::constCast (
 
 bool
 Cast_IntExt::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -94,7 +92,6 @@ Cast_IntExt_u::constCast (
 
 bool
 Cast_IntExt_u::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -126,7 +123,6 @@ Cast_SwapByteOrder::constCast (
 
 bool
 Cast_SwapByteOrder::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -211,7 +207,6 @@ Cast_BeInt::getCastOperators (
 
 bool
 Cast_IntFromFp::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -320,7 +315,6 @@ Cast_IntFromPtr::constCast (
 
 bool
 Cast_IntFromPtr::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -361,7 +355,6 @@ Cast_PtrFromInt::constCast (
 
 bool
 Cast_PtrFromInt::llvmCast (
-	StorageKind storageKind,
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -414,10 +407,10 @@ Cast_Enum::getCastKind (
 	ASSERT (type->getTypeKind () == TypeKind_Enum);
 	ASSERT (type->cmp (opValue.getType ()) != 0); // identity should have been handled earlier
 
-	// 0 could be put to flag enum
+	// 0 could be put to bitflag enum
 
 	return
-		((EnumType*) type)->getEnumTypeKind () == EnumTypeKind_Flag &&
+		(((EnumType*) type)->getFlags () & EnumTypeFlag_BitFlag) &&
 		opValue.getValueKind () == ValueKind_Const &&
 		opValue.getType ()->getTypeKind () == TypeKind_Int8_u &&
 		*(char*) opValue.getConstData () == 0 ? CastKind_Implicit : CastKind_Explicit;

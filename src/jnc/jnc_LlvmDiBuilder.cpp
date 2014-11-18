@@ -90,7 +90,7 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 		unit->getLlvmDiFile (),
 		structType->getItemDecl ()->getPos ()->m_line + 1,
 		structType->getSize () * 8,
-		structType->getAlignFactor () * 8,
+		structType->getAlignment () * 8,
 		0,
 		llvm::DIType (), // derived from
 		llvm::DIArray () // elements -- set body later
@@ -126,7 +126,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			unit->getLlvmDiFile (),
 			baseType->getItemDecl ()->getPos ()->m_line + 1,
 			baseType->getType ()->getSize () * 8,
-			baseType->getType ()->getAlignFactor () * 8,
+			baseType->getType ()->getAlignment () * 8,
 			baseType->getOffset () * 8,
 			0,
 			baseType->getType ()->getLlvmDiType ()
@@ -145,7 +145,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			unit->getLlvmDiFile (),
 			field->getItemDecl ()->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
-			field->getType ()->getAlignFactor () * 8,
+			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
 			0,
 			field->getType ()->getLlvmDiType ()
@@ -172,7 +172,7 @@ LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 		unit->getLlvmDiFile (),
 		unionType->getItemDecl ()->getPos ()->m_line + 1,
 		unionType->getSize () * 8,
-		unionType->getAlignFactor () * 8,
+		unionType->getAlignment () * 8,
 		0,
 		llvm::DIArray () // elements -- set body later
 		);
@@ -203,7 +203,7 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 			unit->getLlvmDiFile (),
 			field->getItemDecl ()->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
-			field->getType ()->getAlignFactor () * 8,
+			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
 			0,
 			field->getType ()->getLlvmDiType ()
@@ -244,7 +244,7 @@ LlvmDiBuilder::createArrayType (ArrayType* arrayType)
 
 	return m_llvmDiBuilder->createArrayType (
 		arrayType->getSize () * 8,
-		arrayType->getAlignFactor () * 8,
+		arrayType->getAlignment () * 8,
 		arrayType->getRootType ()->getLlvmDiType (),
 		llvmDiArray
 		);
@@ -256,7 +256,7 @@ LlvmDiBuilder::createPointerType (Type* type)
 	return m_llvmDiBuilder->createPointerType (
 		type->getLlvmDiType (),
 		type->getSize () * 8,
-		type->getAlignFactor () * 8,
+		type->getAlignment () * 8,
 		type->getTypeString ().cc ()
 		);
 }

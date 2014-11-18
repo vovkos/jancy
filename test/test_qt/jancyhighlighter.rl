@@ -31,13 +31,13 @@ main := |*
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 (
-'pack'            |
 'namespace'       |
 'extend'          |
 'using'           |
 'friend'          |
 'public'          |
 'protected'       |
+'alignment'       |
 'setas'           |
 
 'typedef'         |
@@ -46,7 +46,6 @@ main := |*
 'thread'          |
 'stack'           |
 'heap'            |
-'uheap'           |
 'abstract'        |
 'virtual'         |
 'override'        |
@@ -56,7 +55,7 @@ main := |*
 'unsigned'        |
 'bigendian'       |
 'const'           |
-'dconst'          |
+'readonly'        |
 'volatile'        |
 'safe'            |
 'weak'            |
@@ -74,7 +73,6 @@ main := |*
 'indexed'         |
 'multicast'       |
 'event'           |
-'devent'          |
 'reactor'         |
 
 'auto'            |
@@ -93,12 +91,12 @@ main := |*
 'intptr'          |
 
 'enum'            |
-'fenum'           |
-'cenum'           |
 'struct'          |
 'union'           |
 'class'           |
 'opaque'          |
+'exposed'         |
+'bitflag'         |
 
 'get'             |
 'set'             |
@@ -128,20 +126,18 @@ main := |*
 
 'basetype' [1-9]? |
 'this'            |
-'retval'          |
 'true'            |
 'false'           |
 'null'            |
 
 'new'             |
-'pnew'            |
 'delete'          |
 'sizeof'          |
 'countof'         |
 'offsetof'        |
 'typeof'          |
-'dtypeof'         |
-'bindingof'
+'bindingof'       |
+'dynamic'
 
 )                   { colorize(ts, te, Qt::blue); };
 

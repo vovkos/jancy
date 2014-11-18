@@ -8,7 +8,6 @@ namespace jnc {
 
 bool
 Cast_FpTrunc::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -22,7 +21,6 @@ Cast_FpTrunc::llvmCast (
 
 bool
 Cast_FpExt::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -36,7 +34,6 @@ Cast_FpExt::llvmCast (
 
 bool
 Cast_FpFromInt::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -139,7 +136,6 @@ Cast_FpFromInt::constCast_Fp64 (
 
 bool
 Cast_FpFromInt_u::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

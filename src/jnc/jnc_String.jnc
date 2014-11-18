@@ -6,8 +6,8 @@ struct String
 {
 	setas StringRef;
 
-	char const* dconst m_p;
-	size_t dconst m_length;
+	char const* readonly m_p;
+	size_t readonly m_length;
 
 	construct ()
 	{
@@ -58,9 +58,9 @@ struct String
 
 struct StringRef
 {
-	char const* dconst m_p;
-	size_t dconst m_length;
-	bool dconst m_isFinal;
+	char const* readonly m_p;
+	size_t readonly m_length;
+	bool readonly m_isFinal;
 
 	construct ()
 	{
@@ -113,9 +113,9 @@ protected:
 
 class StringBuilder
 {
-	char* dconst m_p;
-	size_t dconst m_length;
-	size_t dconst m_maxLength;
+	char* readonly m_p;
+	size_t readonly m_length;
+	size_t readonly m_maxLength;
 
 	bool copy (StringRef src) throws
 	{

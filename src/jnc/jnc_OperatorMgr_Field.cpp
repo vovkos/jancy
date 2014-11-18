@@ -315,7 +315,7 @@ OperatorMgr::getClassField (
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	// TODO: handle dual types
-	// (PtrTypeFlags & EPtrTypeFlag_ReadOnly) && m_pModule->m_NamespaceMgr.GetAccessKind (pCoord->m_pType) == EAccess_Public)
+	// (PtrTypeFlags & PtrTypeFlag_ReadOnly) && m_pModule->m_NamespaceMgr.GetAccessKind (pCoord->m_pType) == EAccess_Public)
 
 	if (field->getType ()->getTypeKind () == TypeKind_Class)
 	{

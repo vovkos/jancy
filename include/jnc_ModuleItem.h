@@ -71,7 +71,6 @@ enum StorageKind
 	StorageKind_Thread,
 	StorageKind_Stack,
 	StorageKind_Heap,
-	StorageKind_UHeap,
 	StorageKind_Member,
 	StorageKind_Abstract,
 	StorageKind_Virtual,

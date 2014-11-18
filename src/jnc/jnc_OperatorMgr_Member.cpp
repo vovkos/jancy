@@ -620,7 +620,7 @@ OperatorMgr::weakenOperator (
 }
 
 bool
-OperatorMgr::getOffsetOf (
+OperatorMgr::offsetofOperator (
 	const Value& value,
 	Value* resultValue
 	)

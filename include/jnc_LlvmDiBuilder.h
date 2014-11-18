@@ -91,11 +91,11 @@ public:
 	createBasicType (
 		const char* name,
 		size_t size,
-		size_t alignFactor,
+		size_t alignment,
 		uint_t code
 		)
 	{
-		return m_llvmDiBuilder->createBasicType (name, size * 8, alignFactor * 8, code);
+		return m_llvmDiBuilder->createBasicType (name, size * 8, alignment * 8, code);
 	}
 
 	llvm::DIType

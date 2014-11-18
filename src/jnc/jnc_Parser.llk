@@ -97,8 +97,8 @@ Members
 	Module* m_module;
 	StageKind m_stage;
 	uint_t m_flags;
-	size_t m_structPackFactor;
-	size_t m_defaultStructPackFactor;
+	size_t m_fieldAlignment;
+	size_t m_defaultFieldAlignment;
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;
@@ -297,9 +297,14 @@ Members2
 		Declarator* declarator
 		);
 
+	bool
+	addEnumFlag (
+		uint_t* flags,
+		EnumTypeFlag flag
+		);
+
 	EnumType*
 	createEnumType (
-		EnumTypeKind enumTypeKind,
 		const rtl::String& name,
 		Type* baseType,
 		uint_t flags
@@ -309,20 +314,20 @@ Members2
 	createStructType (
 		const rtl::String& name,
 		rtl::BoxList <Type*>* baseTypeList,
-		size_t packFactor
+		size_t fieldAlignment
 		);
 
 	UnionType*
 	createUnionType (
 		const rtl::String& name,
-		size_t packFactor
+		size_t fieldAlignment
 		);
 
 	ClassType*
 	createClassType (
 		const rtl::String& name,
 		rtl::BoxList <Type*>* baseTypeList,
-		size_t packFactor,
+		size_t fieldAlignment,
 		uint_t flags
 		);
 
@@ -416,12 +421,6 @@ Members2
 	lookupIdentifierType (
 		const rtl::String& name,
 		const Token::Pos& pos,
-		Value* value
-		);
-
-	bool
-	getCountOf (
-		Type* type,
 		Value* value
 		);
 

@@ -1,0 +1,37 @@
+//.............................................................................
+
+struct A
+{
+	int m_x;
+	int m_y;
+}
+
+struct B: A
+{
+	int m_z;
+	void* m_p;
+}
+
+foo (A* a)
+{
+	B* b = dynamic (B*) a;
+	if (b)
+		printf ("is B\n");
+	else
+		printf ("is NOT B\n");
+}
+
+int main ()
+{
+	printf ("main\n");
+
+	A a;
+	foo (a);
+
+	B b;
+	foo (b);
+
+	return 0; 
+}
+
+//.............................................................................

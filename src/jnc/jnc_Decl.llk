@@ -1,15 +1,5 @@
 //.............................................................................
 
-pragma
-pragma_pack
-	:	'#' TokenKind_Pack '(' struct_pack_factor_value $v ')'
-		{
-			m_structPackFactor = $v.m_value;
-		}
-	;
-
-//.............................................................................
-
 // root declaration productions
 
 global_declaration
@@ -18,6 +8,7 @@ global_declaration
 	|	using_declaration
 	|	friend_declaration
 	|	access_declaration
+	|   alignment_declaration
 	|	normal_item_declaration
 	|	named_type_specifier
 	|	';'
@@ -26,6 +17,7 @@ global_declaration
 named_type_block_declaration
 	:	friend_declaration
 	|	access_declaration
+	|   alignment_declaration
 	|   setas_declaration
 	|	normal_item_declaration
 	|	named_type_specifier
@@ -40,6 +32,7 @@ local_declaration
 	}
 	:	statement
 	|	using_declaration
+	|   alignment_declaration
 	|	local_item_declaration
 	|	named_type_specifier
 	|	catch_label
@@ -87,10 +80,35 @@ access_declaration
 			}
 	;
 
-setas_declaration
-	:	TokenKind_SetAs type_name ';'
+alignment_declaration
+	:	TokenKind_Alignment '='? alignment_value ';'
+	|	TokenKind_Alignment '(' alignment_value ')'
+	;
+
+alignment_value
+	:	TokenKind_Integer
 			{
-				return setSetAsType ($2.m_type);
+				m_fieldAlignment = $1.m_data.m_integer;
+			}
+	|	TokenKind_Default
+			{
+				m_fieldAlignment = m_defaultFieldAlignment;
+			}
+	;
+
+setas_declaration
+	:	TokenKind_SetAs '='? type_name ';'
+	|	TokenKind_SetAs '(' type_name ')'
+	;
+
+setas_value
+	:	type_name 
+			{
+				return setSetAsType ($1.m_type);
+			}
+	|	TokenKind_Default
+			{
+				return setSetAsType (NULL);
 			}
 	;
 

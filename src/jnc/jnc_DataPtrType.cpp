@@ -38,7 +38,7 @@ DataPtrType::isConstPtrType ()
 {
 	return 
 		(m_flags & PtrTypeFlag_Const) != 0 || 
-		(m_flags & PtrTypeFlag_ConstD) != 0 && 
+		(m_flags & PtrTypeFlag_ReadOnly) != 0 && 
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 

@@ -641,14 +641,15 @@ TypeMgr::createTypedef (
 
 EnumType*
 TypeMgr::createEnumType (
-	EnumTypeKind enumTypeKind,
 	const rtl::String& name,
 	const rtl::String& qualifiedName,
 	Type* baseType,
 	uint_t flags
 	)
 {
-	const char* signaturePrefix = (flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
+	const char* signaturePrefix = (flags & EnumTypeFlag_BitFlag) ? 
+		(flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
+		(flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
 
 	EnumType* type = AXL_MEM_NEW (EnumType);
 
@@ -673,7 +674,6 @@ TypeMgr::createEnumType (
 		baseType = getPrimitiveType (TypeKind_Int);
 
 	type->m_module = m_module;
-	type->m_enumTypeKind = enumTypeKind;
 	type->m_baseType = baseType;
 	type->m_flags |= flags;
 	m_enumTypeList.insertTail (type);
@@ -689,7 +689,7 @@ StructType*
 TypeMgr::createStructType (
 	const rtl::String& name,
 	const rtl::String& qualifiedName,
-	size_t packFactor
+	size_t fieldAlignment
 	)
 {
 	StructType* type = AXL_MEM_NEW (StructType);
@@ -714,7 +714,7 @@ TypeMgr::createStructType (
 	}
 
 	type->m_module = m_module;
-	type->m_packFactor = packFactor;
+	type->m_fieldAlignment = fieldAlignment;
 	m_structTypeList.insertTail (type);
 	m_module->markForLayout (type, true);
 	return type;
@@ -724,7 +724,7 @@ UnionType*
 TypeMgr::createUnionType (
 	const rtl::String& name,
 	const rtl::String& qualifiedName,
-	size_t packFactor
+	size_t fieldAlignment
 	)
 {
 	UnionType* type = AXL_MEM_NEW (UnionType);
@@ -753,7 +753,7 @@ TypeMgr::createUnionType (
 	StructType* unionStructType = createUnnamedStructType ();
 	unionStructType->m_parentNamespace = type;
 	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
-	unionStructType->m_packFactor = packFactor;
+	unionStructType->m_fieldAlignment = fieldAlignment;
 	unionStructType->m_tag.format ("%s.Struct", type->m_tag.cc ());
 
 	type->m_module = m_module;
@@ -767,7 +767,7 @@ TypeMgr::createClassType (
 	ClassTypeKind classTypeKind,
 	const rtl::String& name,
 	const rtl::String& qualifiedName,
-	size_t packFactor,
+	size_t fieldAlignment,
 	uint_t flags
 	)
 {
@@ -834,20 +834,20 @@ TypeMgr::createClassType (
 	StructType* pVTableStructType = createUnnamedStructType ();
 	pVTableStructType->m_tag.format ("%s.Vtbl", type->m_tag.cc ());
 
-	StructType* ifaceHdrStructType = createUnnamedStructType (packFactor);
+	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
 	ifaceHdrStructType->createField ("!m_vtbl", pVTableStructType->getDataPtrType_c ());
 	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 
-	StructType* ifaceStructType = createUnnamedStructType (packFactor);
+	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
 	ifaceStructType->m_tag.format ("%s.Iface", type->m_tag.cc ());
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
-	ifaceStructType->m_packFactor = packFactor;
+	ifaceStructType->m_fieldAlignment = fieldAlignment;
 	ifaceStructType->addBaseType (ifaceHdrStructType);
 
-	StructType* classStructType = createUnnamedStructType (packFactor);
+	StructType* classStructType = createUnnamedStructType (fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
 	classStructType->m_parentNamespace = type;
@@ -1776,10 +1776,10 @@ TypeMgr::getDataPtrType (
 
 	DataPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlag_ReadOnly)
 	{
 		ASSERT (anchorNamespace != NULL);
-		tuple = getConstDDataPtrTypeTuple (anchorNamespace, dataType);
+		tuple = getReadOnlyDataPtrTypeTuple (anchorNamespace, dataType);
 	}
 	else
 	{
@@ -1805,9 +1805,9 @@ TypeMgr::getDataPtrType (
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignFactor = sizeof (void*);
+	type->m_alignment = sizeof (void*);
 	type->m_targetType = dataType;
-	type->m_anchorNamespace = (flags & PtrTypeFlag_ConstD) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & PtrTypeFlag_ReadOnly) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_dataPtrTypeList.insertTail (type);
@@ -1844,22 +1844,22 @@ TypeMgr::getClassPtrType (
 	)
 {
 	ASSERT ((size_t) ptrTypeKind < ClassPtrTypeKind__Count);
-	ASSERT (!(flags & (PtrTypeFlag_ConstD | PtrTypeFlag_EventD)) || anchorNamespace != NULL);
+	ASSERT (!(flags & (PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent)) || anchorNamespace != NULL);
 
 	if (typeKind == TypeKind_ClassPtr)
 		flags |= TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlag_ReadOnly)
 	{
 		ASSERT (anchorNamespace != NULL);
-		tuple = getConstDClassPtrTypeTuple (anchorNamespace, classType);
+		tuple = getReadOnlyClassPtrTypeTuple (anchorNamespace, classType);
 	}
-	else if (flags & PtrTypeFlag_EventD)
+	else if (flags & PtrTypeFlag_DualEvent)
 	{
 		ASSERT (anchorNamespace != NULL && classType->getClassTypeKind () == ClassTypeKind_Multicast);
-		tuple = getEventDClassPtrTypeTuple (anchorNamespace, (MulticastClassType*) classType);
+		tuple = getDualEventClassPtrTypeTuple (anchorNamespace, (MulticastClassType*) classType);
 	}
 	else if (flags & PtrTypeFlag_Event)
 	{
@@ -1888,7 +1888,7 @@ TypeMgr::getClassPtrType (
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_targetType = classType;
-	type->m_anchorNamespace = (flags & (PtrTypeFlag_ConstD | PtrTypeFlag_EventD)) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & (PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent)) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_classPtrTypeList.insertTail (type);
@@ -1929,7 +1929,7 @@ TypeMgr::getFunctionPtrType (
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignFactor = sizeof (void*);
+	type->m_alignment = sizeof (void*);
 	type->m_targetType = functionType;
 	type->m_flags = flags;
 
@@ -1988,7 +1988,7 @@ TypeMgr::getPropertyPtrType (
 
 	PropertyPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlag_ConstD)
+	if (flags & PtrTypeFlag_ReadOnly)
 	{
 		ASSERT (anchorNamespace != NULL);
 		tuple = getConstDPropertyPtrTypeTuple (anchorNamespace, propertyType);
@@ -2015,9 +2015,9 @@ TypeMgr::getPropertyPtrType (
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignFactor = sizeof (void*);
+	type->m_alignment = sizeof (void*);
 	type->m_targetType = propertyType;
-	type->m_anchorNamespace = (flags & PtrTypeFlag_ConstD) ? anchorNamespace : NULL;
+	type->m_anchorNamespace = (flags & PtrTypeFlag_ReadOnly) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_propertyPtrTypeList.insertTail (type);
@@ -2323,7 +2323,7 @@ TypeMgr::getDataPtrTypeTuple (Type* type)
 }
 
 DataPtrTypeTuple*
-TypeMgr::getConstDDataPtrTypeTuple (
+TypeMgr::getReadOnlyDataPtrTypeTuple (
 	Namespace* anchorNamespace,
 	Type* type
 	)
@@ -2351,7 +2351,7 @@ TypeMgr::getClassPtrTypeTuple (ClassType* classType)
 }
 
 ClassPtrTypeTuple*
-TypeMgr::getConstDClassPtrTypeTuple (
+TypeMgr::getReadOnlyClassPtrTypeTuple (
 	Namespace* anchorNamespace,
 	ClassType* classType
 	)
@@ -2379,7 +2379,7 @@ TypeMgr::getEventClassPtrTypeTuple (MulticastClassType* classType)
 }
 
 ClassPtrTypeTuple*
-TypeMgr::getEventDClassPtrTypeTuple (
+TypeMgr::getDualEventClassPtrTypeTuple (
 	Namespace* anchorNamespace,
 	MulticastClassType* classType
 	)
@@ -2509,7 +2509,7 @@ TypeMgr::setupPrimitiveType (
 	type->m_typeKind = typeKind;
 	type->m_flags = TypeFlag_Pod | ModuleItemFlag_LayoutReady;
 	type->m_size = size;
-	type->m_alignFactor = size;
+	type->m_alignment = size;
 	type->m_signature = signature;
 	type->m_llvmType = NULL;
 	type->m_llvmDiType = llvm::DIType ();

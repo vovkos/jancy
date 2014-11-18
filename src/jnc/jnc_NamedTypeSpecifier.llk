@@ -40,22 +40,27 @@ named_type_specifier_save_type
 class
 {
 	EnumType* m_type;
+	uint_t m_flags;
 }
 enum_specifier
+	enter
+	{
+		m_flags = 0;
+	}
 	leave
 	{
 		if ($.m_type->getName ().isEmpty () || ($.m_type->getFlags () & EnumTypeFlag_Exposed))
 			return m_module->m_namespaceMgr.getCurrentNamespace ()->exposeEnumConsts ($.m_type);
 	}
-	:	enum_type_kind $k
+	:	enum_modifier <&$.m_flags>*
+		TokenKind_Enum
 		TokenKind_Identifier $n?
 		(':' type_name $b)?
 			{
 				$.m_type = createEnumType (
-					$k.m_enumTypeKind,
 					isValidLocator ($n) ? $n.m_data.m_string : rtl::String (),
 					isValidLocator ($b) ? $b.m_type : NULL,
-					$k.m_flags
+					$.m_flags
 					);
 
 				if (!$.m_type)
@@ -64,32 +69,16 @@ enum_specifier
 		enum_block <$.m_type>
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class
-{
-	EnumTypeKind m_enumTypeKind;
-	uint_t m_flags;
-}
-enum_type_kind
-	:	TokenKind_Enum
+enum_modifier <uint_t* $flags>
+	:	TokenKind_Exposed 			
 			{
-				$.m_enumTypeKind = EnumTypeKind_Normal;
-				$.m_flags = 0;
+				return addEnumFlag ($flags, EnumTypeFlag_Exposed);
 			}
-	|	TokenKind_FEnum
+	|	TokenKind_BitFlag
 			{
-				$.m_enumTypeKind = EnumTypeKind_Flag;
-				$.m_flags = 0;
-			}
-	|	TokenKind_CEnum
-			{
-				$.m_enumTypeKind = EnumTypeKind_Normal;
-				$.m_flags = EnumTypeFlag_Exposed;
+				return addEnumFlag ($flags, EnumTypeFlag_BitFlag);
 			}
 	;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum_block <EnumType* $type>
 	:	'{'
@@ -140,48 +129,19 @@ struct_specifier
 			return declareUnnamedStructOrUnion ($.m_type);
 	}
 	:	TokenKind_Struct
-		struct_pack_factor $p?
 		TokenKind_Identifier $n?
 		(':' type_name_list $b)?
 			{
 				$.m_type = createStructType (
 					isValidLocator ($n) ? $n.m_data.m_string : rtl::String (),
 					isValidLocator ($b) ? &$b.m_typeList : NULL,
-					isValidLocator ($p) ? $p.m_packFactor : m_structPackFactor
+					m_fieldAlignment
 					);
 
 				if (!$.m_type)
 					return false;
 			}
 		named_type_block <$.m_type>
-	;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class
-{
-	size_t m_packFactor;
-}
-struct_pack_factor
-	:	TokenKind_Pack '(' struct_pack_factor_value $v ')'
-			{
-				$.m_packFactor = $v.m_value;
-			}
-	;
-
-class
-{
-	size_t m_value;
-}
-struct_pack_factor_value
-	:	TokenKind_Integer
-			{
-				$.m_value = $1.m_data.m_integer;
-			}
-	|	TokenKind_Default
-			{
-				$.m_value = m_defaultStructPackFactor;
-			}
 	;
 
 //.............................................................................
@@ -199,12 +159,11 @@ union_specifier
 			return declareUnnamedStructOrUnion ($.m_type);
 	}
 	:	TokenKind_Union
-		struct_pack_factor $p?
 		TokenKind_Identifier $n?
 			{
 				$.m_type = createUnionType (
 					isValidLocator ($n) ? $n.m_data.m_string : rtl::String (),
-					isValidLocator ($p) ? $p.m_packFactor : m_structPackFactor
+					m_fieldAlignment
 					);
 
 				if (!$.m_type)
@@ -217,8 +176,6 @@ union_specifier
 
 // class
 
-// TODO: redesign class attributes (abstract, sealed, pack)
-
 class
 {
 	ClassType* m_type;
@@ -226,14 +183,13 @@ class
 class_specifier
 	:	TokenKind_Opaque $o?
 		TokenKind_Class
-		struct_pack_factor $p?
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?
 			{
 				$.m_type = createClassType (
 					$n.m_data.m_string,
 					isValidLocator ($b) ? &$b.m_typeList : NULL,
-					isValidLocator ($p) ? $p.m_packFactor : m_structPackFactor,
+					m_fieldAlignment,
 					isValidLocator ($o) ? ClassTypeFlag_Opaque : 0
 					);
 

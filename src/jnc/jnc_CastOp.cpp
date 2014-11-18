@@ -57,7 +57,6 @@ CastOperator::CastOperator()
 
 bool
 CastOperator::cast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -75,7 +74,7 @@ CastOperator::cast (
 
 	// if const-cast is not available or fails, do full cast
 
-	return llvmCast (storageKind, opValue, type, resultValue);
+	return llvmCast (opValue, type, resultValue);
 }
 
 //.............................................................................
@@ -98,7 +97,6 @@ Cast_Copy::constCast (
 
 bool
 Cast_Copy::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -158,7 +156,6 @@ Cast_Master::constCast (
 
 bool
 Cast_Master::llvmCast (
-	StorageKind storageKind,
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -181,7 +178,7 @@ Cast_Master::llvmCast (
 			return false;
 	}
 		
-	return op->llvmCast (storageKind, opValue, type, resultValue);
+	return op->llvmCast (opValue, type, resultValue);
 }
 
 //.............................................................................
@@ -272,7 +269,6 @@ Cast_SuperMaster::constCast (
 
 bool
 Cast_SuperMaster::llvmCast (
-	StorageKind storageKind,
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -309,12 +305,12 @@ Cast_SuperMaster::llvmCast (
 	}
 
 	if (!operator2) 
-		return operator1->llvmCast (storageKind, opValue, type, resultValue);
+		return operator1->llvmCast (opValue, type, resultValue);
 
 	Value tmpValue;
 	return 
-		operator1->llvmCast (storageKind, opValue, intermediateType, &tmpValue) &&
-		operator2->llvmCast (storageKind, tmpValue, type, resultValue);
+		operator1->llvmCast (opValue, intermediateType, &tmpValue) &&
+		operator2->llvmCast (tmpValue, type, resultValue);
 }
 
 //.............................................................................

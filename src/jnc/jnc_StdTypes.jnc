@@ -25,9 +25,9 @@ struct Guid
 
 struct Error
 {
-	unsigned int32 dconst m_size;
-	Guid dconst m_guid;
-	unsigned int32 dconst m_code;
+	unsigned int32 readonly m_size;
+	Guid readonly m_guid;
+	unsigned int32 readonly m_code;
 
 	char const* const property m_description;
 }
@@ -38,9 +38,9 @@ struct Error
 
 struct FmtLiteral
 {
-	char const thin* dconst m_p;
-	unsigned intptr dconst m_maxLength;
-	unsigned intptr dconst m_length;
+	char const thin* readonly m_p;
+	unsigned intptr readonly m_maxLength;
+	unsigned intptr readonly m_length;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

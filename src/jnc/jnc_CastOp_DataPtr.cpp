@@ -70,7 +70,6 @@ Cast_DataPtr_FromArray::constCast (
 
 bool
 Cast_DataPtr_FromArray::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -125,7 +124,7 @@ Cast_DataPtr_Base::getCastKind (
 		CastKind_Explicit;
 }
 
-intptr_t
+size_t
 Cast_DataPtr_Base::getOffset (
 	DataPtrType* srcType,
 	DataPtrType* dstType,
@@ -145,19 +144,23 @@ Cast_DataPtr_Base::getOffset (
 	StructType* srcStructType = (StructType*) srcDataType;
 	StructType* dstStructType = (StructType*) dstDataType;
 
-	if (srcStructType->findBaseTypeTraverse (dstStructType, coord))
-		return coord->m_offset;
+	if (!srcStructType->findBaseTypeTraverse (dstStructType, coord))
+	{
+		if (dstStructType->getFlags () & TypeFlag_Pod)
+			return 0;
 
-	#pragma AXL_TODO ("safe downcasts")
+		err::setFormatStringError (
+			"cannot statically cast '%s' to '%s' (use dynamic cast maybe?)", 
+			srcType->getTypeString ().cc (),
+			dstType->getTypeString ().cc ()
+			);
+		return -1;
+	}
 
-	BaseTypeCoord upcastCoord;
-	if (dstStructType->findBaseTypeTraverse (srcStructType, &upcastCoord))
-		return -upcastCoord.m_offset;
-
-	return 0;
+	return coord->m_offset;
 }
 
-intptr_t
+bool
 Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	const Value& ptrValue,
 	DataPtrType* srcType,
@@ -166,7 +169,13 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	)
 {
 	BaseTypeCoord coord;
-	intptr_t offset = getOffset (srcType, dstType, &coord);
+	
+	size_t offset = getOffset (srcType, dstType, &coord);
+	if (offset == -1)
+		return false;
+
+	if (dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
+		dstType = dstType->getTargetType ()->getDataPtrType_c ();
 
 	if (!coord.m_llvmIndexArray.isEmpty ())
 	{
@@ -179,22 +188,13 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 			resultValue
 			);
 
-		return offset;
+		return true;
 	}
 
-	if (!offset)
-	{
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, dstType, resultValue);
-		return offset;
-	}
+	ASSERT (offset == 0);
 
-	ASSERT (offset < 0);
-
-	Value bytePtrValue;
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &bytePtrValue);
-	m_module->m_llvmIrBuilder.createGep (bytePtrValue, (int32_t) offset, NULL, &bytePtrValue);
-	m_module->m_llvmIrBuilder.createBitCast (bytePtrValue, dstType, resultValue);
-	return offset;
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, dstType, resultValue);
+	return true;
 }
 
 //.............................................................................
@@ -209,7 +209,9 @@ Cast_DataPtr_Normal2Normal::constCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	if (offset == -1)
+		return false;
 
 	DataPtr* dstPtr = (DataPtr*) dst;
 	DataPtr* srcPtr = (DataPtr*) opValue.getConstData ();
@@ -222,7 +224,6 @@ Cast_DataPtr_Normal2Normal::constCast (
 
 bool
 Cast_DataPtr_Normal2Normal::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -244,8 +245,9 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 2, NULL, &rangeEndValue);
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 3, NULL, &scopeLevelValue);
 
-	DataPtrType* unsafePtrType = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c ();
-	getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), unsafePtrType, &ptrValue);
+	bool result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, &ptrValue);
+	if (!result)
+		return false;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
 
@@ -272,7 +274,9 @@ Cast_DataPtr_Lean2Normal::constCast (
 	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
 	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
 
-	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	if (offset == -1)
+		return false;
 
 	DataPtr* dstPtr = (DataPtr*) dst;
 	const void* src = opValue.getConstData ();
@@ -286,7 +290,6 @@ Cast_DataPtr_Lean2Normal::constCast (
 
 bool
 Cast_DataPtr_Lean2Normal::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -299,8 +302,9 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
 
 	Value ptrValue;
-	DataPtrType* unsafePtrType = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c ();
-	getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), unsafePtrType, &ptrValue);
+	bool result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, &ptrValue);
+	if (!result)
+		return false;
 
 	Value rangeBeginValue;
 	Value rangeEndValue;
@@ -335,14 +339,16 @@ Cast_DataPtr_Normal2Thin::constCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	if (offset == -1)
+		return false;
+
 	*(char**) dst = *(char**) opValue.getConstData () + offset;
 	return true;
 }
 
 bool
 Cast_DataPtr_Normal2Thin::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -353,15 +359,13 @@ Cast_DataPtr_Normal2Thin::llvmCast (
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
-	getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
-	return true;
+	return getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 Cast_DataPtr_Lean2Thin::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
@@ -370,8 +374,7 @@ Cast_DataPtr_Lean2Thin::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
-	return true;
+	return getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -386,7 +389,10 @@ Cast_DataPtr_Thin2Thin::constCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	intptr_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	if (offset == -1)
+		return false;
+
 	*(char**) dst = *(char**) opValue.getConstData () + offset;
 	return true;
 }
@@ -475,7 +481,6 @@ Cast_DataRef::getCastKind (
 
 bool
 Cast_DataRef::llvmCast (
-	StorageKind storageKind,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue

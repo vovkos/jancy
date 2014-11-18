@@ -201,28 +201,28 @@ getTypeModifierString (TypeModifier modifier)
 {
 	static const char* stringTable [] =
 	{
-		"unsigned",     // ETypeModifier_Unsigned    = 0x00000001,
-		"bigendian",    // ETypeModifier_BigEndian   = 0x00000002,
-		"const",        // ETypeModifier_Const       = 0x00000004,
-		"dconst",       // ETypeModifier_DConst      = 0x00000008,
-		"volatile",     // ETypeModifier_Volatile    = 0x00000010,
-		"weak",         // ETypeModifier_Weak        = 0x00000020,
-		"thin",         // ETypeModifier_Thin        = 0x00000040,
-		"safe",         // ETypeModifier_Safe        = 0x00000080,
-		"cdecl",        // ETypeModifier_Cdecl       = 0x00000100,
-		"stdcall",      // ETypeModifier_Stdcall     = 0x00000200,
-		"array",        // ETypeModifier_Array       = 0x00000400,
-		"function",     // ETypeModifier_Function    = 0x00000800,
-		"property",     // ETypeModifier_Property    = 0x00001000,
-		"bindable",     // ETypeModifier_Bindable    = 0x00002000,
-		"autoget",      // ETypeModifier_AutoGet     = 0x00004000,
-		"indexed",      // ETypeModifier_Indexed     = 0x00008000,
-		"multicast",    // ETypeModifier_Multicast   = 0x00010000,
-		"event",        // ETypeModifier_Event       = 0x00020000,
-		"devent",       // ETypeModifier_DEvent      = 0x00040000,
-		"reactor",      // ETypeModifier_Reactor     = 0x00080000,
-		"thiscall",     // ETypeModifier_Thiscall    = 0x00100000,
-		"jnccall",      // ETypeModifier_Jnccall     = 0x00200000,
+		"unsigned",     // TypeModifier_Unsigned    = 0x00000001,
+		"bigendian",    // TypeModifier_BigEndian   = 0x00000002,
+		"const",        // TypeModifier_Const       = 0x00000004,
+		"readonly",     // TypeModifier_ReadOnly    = 0x00000008,
+		"volatile",     // TypeModifier_Volatile    = 0x00000010,
+		"weak",         // TypeModifier_Weak        = 0x00000020,
+		"thin",         // TypeModifier_Thin        = 0x00000040,
+		"safe",         // TypeModifier_Safe        = 0x00000080,
+		"cdecl",        // TypeModifier_Cdecl       = 0x00000100,
+		"stdcall",      // TypeModifier_Stdcall     = 0x00000200,
+		"array",        // TypeModifier_Array       = 0x00000400,
+		"function",     // TypeModifier_Function    = 0x00000800,
+		"property",     // TypeModifier_Property    = 0x00001000,
+		"bindable",     // TypeModifier_Bindable    = 0x00002000,
+		"autoget",      // TypeModifier_AutoGet     = 0x00004000,
+		"indexed",      // TypeModifier_Indexed     = 0x00008000,
+		"multicast",    // TypeModifier_Multicast   = 0x00010000,
+		"event",        // TypeModifier_Event       = 0x00020000,
+		"unused",       // TypeModifier_Unused      = 0x00040000,
+		"reactor",      // TypeModifier_Reactor     = 0x00080000,
+		"thiscall",     // TypeModifier_Thiscall    = 0x00100000,
+		"jnccall",      // TypeModifier_Jnccall     = 0x00200000,
 	};
 
 	size_t i = rtl::getLoBitIdx32 (modifier);
@@ -261,15 +261,15 @@ getPtrTypeFlagString (PtrTypeFlag flag)
 {
 	static const char* stringTable [] =
 	{
-		"safe",     // EPtrTypeFlag_Safe      = 0x0010000
-		"unused",   // EPtrTypeFlag_Unused    = 0x0020000
-		"const",    // EPtrTypeFlag_Const     = 0x0040000
-		"dconst",   // EPtrTypeFlag_ConstD    = 0x0080000
-		"volatile", // EPtrTypeFlag_Volatile  = 0x0100000
-		"event",    // EPtrTypeFlag_Event     = 0x0200000
-		"devent",   // EPtrTypeFlag_EventD    = 0x0400000
-		"bindable", // EPtrTypeFlag_Bindable  = 0x0800000
-		"autoget",  // EPtrTypeFlag_AutoGet   = 0x1000000
+		"safe",      // PtrTypeFlag_Safe      = 0x0010000
+		"unused",    // PtrTypeFlag_Unused    = 0x0020000
+		"const",     // PtrTypeFlag_Const     = 0x0040000
+		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0080000
+		"volatile",  // PtrTypeFlag_Volatile  = 0x0100000
+		"event",     // PtrTypeFlag_Event     = 0x0200000
+		"dualevent", // PtrTypeFlag_DualEvent = 0x0400000
+		"bindable",  // PtrTypeFlag_Bindable  = 0x0800000
+		"autoget",   // PtrTypeFlag_AutoGet   = 0x1000000
 	};
 
 	size_t i = rtl::getLoBitIdx32 (flag >> 12);
@@ -289,16 +289,16 @@ getPtrTypeFlagString (uint_t flags)
 
 	if (flags & PtrTypeFlag_Const)
 		string += "const ";
-	else if (flags & PtrTypeFlag_ConstD)
-		string += "dconst ";
+	else if (flags & PtrTypeFlag_ReadOnly)
+		string += "readonly ";
 
 	if (flags & PtrTypeFlag_Volatile)
 		string += "volatile ";
 
 	if (flags & PtrTypeFlag_Event)
 		string += "event ";
-	else if (flags & PtrTypeFlag_EventD)
-		string += "devent ";
+	else if (flags & PtrTypeFlag_DualEvent)
+		string += "dualevent ";
 
 	if (flags & PtrTypeFlag_Bindable)
 		string += "bindable ";
@@ -322,7 +322,7 @@ getPtrTypeFlagSignature (uint_t flags)
 
 	if (flags & PtrTypeFlag_Const)
 		signature += 'c';
-	else if (flags & PtrTypeFlag_ConstD)
+	else if (flags & PtrTypeFlag_ReadOnly)
 		signature += "pc";
 
 	if (flags & PtrTypeFlag_Volatile)
@@ -330,7 +330,7 @@ getPtrTypeFlagSignature (uint_t flags)
 
 	if (flags & PtrTypeFlag_Event)
 		signature += 'e';
-	else if (flags & PtrTypeFlag_EventD)
+	else if (flags & PtrTypeFlag_DualEvent)
 		signature += "pe";
 
 	return signature;
@@ -349,13 +349,11 @@ getPtrTypeFlagsFromModifiers (uint_t modifiers)
 
 	if (modifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
-	else if (modifiers & TypeModifier_DConst)
-		flags |= PtrTypeFlag_ConstD;
+	else if (modifiers & TypeModifier_ReadOnly)
+		flags |= PtrTypeFlag_ReadOnly;
 
 	if (modifiers & TypeModifier_Event)
 		flags |= PtrTypeFlag_Event;
-	else if (modifiers & TypeModifier_DEvent)
-		flags |= PtrTypeFlag_EventD;
 
 	return flags;
 }
@@ -368,7 +366,7 @@ Type::Type ()
 	m_typeKind = TypeKind_Void;
 	m_stdType = (StdType) -1;
 	m_size = 0;
-	m_alignFactor = 0;
+	m_alignment = 1;
 	m_llvmType = NULL;
 	m_simplePropertyTypeTuple = NULL;
 	m_functionArgTuple = NULL;

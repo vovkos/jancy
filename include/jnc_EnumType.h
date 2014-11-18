@@ -13,18 +13,26 @@ class EnumType;
 
 //.............................................................................
 
-enum EnumTypeKind
+enum EnumTypeFlag
 {
-	EnumTypeKind_Normal,
-	EnumTypeKind_Flag,
+	EnumTypeFlag_Exposed = 0x010000,
+	EnumTypeFlag_BitFlag = 0x020000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum EnumTypeFlag
+inline
+EnumTypeFlag
+getFirstEnumTypeFlag (uint_t flags)
 {
-	EnumTypeFlag_Exposed = 0x010000,
-};
+	return (EnumTypeFlag) (1 << rtl::getLoBitIdx (flags));
+}
+
+const char*
+getEnumTypeFlagString (EnumTypeFlag flag);
+
+rtl::String
+getEnumTypeFlagString (uint_t flags);
 
 //.............................................................................
 
@@ -68,20 +76,12 @@ class EnumType: public NamedType
 	friend class Parser;
 	
 protected:
-	EnumTypeKind m_enumTypeKind;
-
 	Type* m_baseType;
 	ImportType* m_baseType_i;
 	rtl::StdList <EnumConst> m_constList;
 
 public:
 	EnumType ();
-
-	EnumTypeKind 
-	getEnumTypeKind ()
-	{
-		return m_enumTypeKind;
-	}
 
 	Type*
 	getBaseType ()
@@ -110,15 +110,7 @@ public:
 protected:
 	virtual 
 	void
-	prepareTypeString ()
-	{
-		m_typeString.format (
-			(m_flags & EnumTypeFlag_Exposed) ? 
-				"cenum %s" : 
-				"enum %s", 
-			m_tag.cc () // thanks a lot gcc
-			);
-	}
+	prepareTypeString ();
 
 	virtual 
 	void
@@ -143,11 +135,11 @@ protected:
 
 inline
 bool 
-isFlagEnumType (Type* type)
+isBitFlagEnumType (Type* type)
 {
 	return 
 		type->getTypeKind () == TypeKind_Enum &&
-		((EnumType*) type)->getEnumTypeKind () == EnumTypeKind_Flag;
+		(((EnumType*) type)->getFlags () & EnumTypeFlag_BitFlag);
 }
 
 //.............................................................................

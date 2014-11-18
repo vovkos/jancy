@@ -6,8 +6,8 @@ struct ConstBuffer
 {
 	setas ConstBufferRef;
 
-	void const* dconst m_p;
-	size_t dconst m_size;
+	void const* readonly m_p;
+	size_t readonly m_size;
 
 	construct ()
 	{
@@ -45,9 +45,9 @@ struct ConstBuffer
 
 struct ConstBufferRef
 {
-	void const* dconst m_p;
-	size_t dconst m_size;
-	bool dconst m_isFinal;
+	void const* readonly m_p;
+	size_t readonly m_size;
+	bool readonly m_isFinal;
 
 	construct ()
 	{
@@ -90,8 +90,8 @@ protected:
 
 struct BufferRef
 {
-	void* dconst m_p;
-	size_t dconst m_size;
+	void* readonly m_p;
+	size_t readonly m_size;
 
 	construct ()
 	{
@@ -127,9 +127,9 @@ protected:
 
 class Buffer
 {
-	void* dconst m_p;
-	size_t dconst m_size;
-	size_t dconst m_maxSize;
+	void* readonly m_p;
+	size_t readonly m_size;
+	size_t readonly m_maxSize;
 
 	bool copy (ConstBufferRef buffer) throws
 	{

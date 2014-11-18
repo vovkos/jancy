@@ -111,7 +111,7 @@ UnionType::calcLayout ()
 		return false;
 
 	Type* largestFieldType = NULL;
-	size_t largestAlignFactor = 0;
+	size_t largestAlignment = 0;
 
 	rtl::Iterator <StructField> fieldIt = m_fieldList.getHead ();
 	for (size_t i = 0; fieldIt; fieldIt++, i++)
@@ -123,7 +123,7 @@ UnionType::calcLayout ()
 			return false;
 
 		uint_t fieldTypeFlags = field->m_type->getFlags ();
-		size_t fieldAlignFactor = field->m_type->getAlignFactor ();
+		size_t fieldAlignment = field->m_type->getAlignment ();
 
 		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
@@ -141,8 +141,8 @@ UnionType::calcLayout ()
 		if (!largestFieldType || field->m_type->getSize () > largestFieldType->getSize ())
 			largestFieldType = field->m_type;
 
-		if (largestAlignFactor < field->m_type->getAlignFactor ())
-			largestAlignFactor = field->m_type->getAlignFactor ();
+		if (largestAlignment < field->m_type->getAlignment ())
+			largestAlignment = field->m_type->getAlignment ();
 
 		field->m_llvmIndex = i;
 	}
@@ -150,7 +150,7 @@ UnionType::calcLayout ()
 	ASSERT (largestFieldType);
 
 	m_structType->createField (largestFieldType);
-	m_structType->m_alignFactor = AXL_MIN (largestAlignFactor, m_structType->m_packFactor);
+	m_structType->m_alignment = AXL_MIN (largestAlignment, m_structType->m_fieldAlignment);
 
 	result = m_structType->ensureLayout ();
 	if (!result)
@@ -185,7 +185,7 @@ UnionType::calcLayout ()
 	}
 
 	m_size = m_structType->getSize ();
-	m_alignFactor = m_structType->getAlignFactor ();
+	m_alignment = m_structType->getAlignment ();
 	return true;
 }
 

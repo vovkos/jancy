@@ -24,7 +24,7 @@ StructType::StructType ()
 {
 	m_typeKind = TypeKind_Struct;
 	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
-	m_packFactor = 8;
+	m_fieldAlignment = 8;
 	m_fieldActualSize = 0;
 	m_fieldAlignedSize = 0;
 	m_lastBitFieldType = NULL;
@@ -403,15 +403,15 @@ bool
 StructType::layoutField (
 	llvm::Type* llvmType,
 	size_t size,
-	size_t alignFactor,
+	size_t alignment,
 	size_t* offset_o,
 	uint_t* llvmIndex
 	)
 {
-	if (alignFactor > m_alignFactor)
-		m_alignFactor = AXL_MIN (alignFactor, m_packFactor);
+	if (alignment > m_alignment)
+		m_alignment = AXL_MIN (alignment, m_fieldAlignment);
 
-	size_t offset = getFieldOffset (alignFactor);
+	size_t offset = getFieldOffset (alignment);
 	if (offset > m_fieldActualSize)
 		insertPadding (offset - m_fieldActualSize);
 
@@ -450,11 +450,11 @@ StructType::layoutBitField (
 		return true;
 	}
 
-	size_t alignFactor = type->getAlignFactor ();
-	if (alignFactor > m_alignFactor)
-		m_alignFactor = AXL_MIN (alignFactor, m_packFactor);
+	size_t alignment = type->getAlignment ();
+	if (alignment > m_alignment)
+		m_alignment = AXL_MIN (alignment, m_fieldAlignment);
 
-	size_t offset = getFieldOffset (alignFactor);
+	size_t offset = getFieldOffset (alignment);
 	m_lastBitFieldOffset = offset;
 
 	if (offset > m_fieldActualSize)
@@ -469,16 +469,16 @@ StructType::layoutBitField (
 }
 
 size_t
-StructType::getFieldOffset (size_t alignFactor)
+StructType::getFieldOffset (size_t alignment)
 {
 	size_t offset = m_fieldActualSize;
 
-	if (alignFactor > m_packFactor)
-		alignFactor = m_packFactor;
+	if (alignment > m_fieldAlignment)
+		alignment = m_fieldAlignment;
 
-	size_t mod = offset % alignFactor;
+	size_t mod = offset % alignment;
 	if (mod)
-		offset += alignFactor - mod;
+		offset += alignment - mod;
 
 	return offset;
 }
@@ -508,9 +508,9 @@ StructType::setFieldActualSize (size_t size)
 	m_fieldActualSize = size;
 	m_fieldAlignedSize = size;
 
-	size_t mod = size % m_alignFactor;
+	size_t mod = size % m_alignment;
 	if (mod)
-		m_fieldAlignedSize += m_alignFactor - mod;
+		m_fieldAlignedSize += m_alignment - mod;
 
 	return m_fieldAlignedSize;
 }

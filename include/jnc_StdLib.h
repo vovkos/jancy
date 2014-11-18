@@ -20,6 +20,7 @@ class StdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (StdFunction_RuntimeError, runtimeError)
+		JNC_API_STD_FUNCTION (StdFunction_DynamicCastDataPtr, dynamicCastDataPtr)
 		JNC_API_STD_FUNCTION (StdFunction_DynamicCastClassPtr, dynamicCastClassPtr)
 		JNC_API_STD_FUNCTION (StdFunction_StrengthenClassPtr, strengthenClassPtr)
 		JNC_API_STD_FUNCTION (StdFunction_GcAllocate, gcAllocate)
@@ -73,6 +74,13 @@ public:
 	{
 		Runtime::runtimeError (error, codeAddr, NULL);
 	}
+
+	static
+	DataPtr
+	dynamicCastDataPtr (
+		DataPtr ptr,
+		Type* type
+		);
 
 	static
 	IfaceHdr*
