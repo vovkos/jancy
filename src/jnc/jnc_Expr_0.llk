@@ -32,7 +32,7 @@ class
 	rtl::BoxList <Value> m_valueList;
 }
 expression_list_0
-	:	expression_0 
+	:	expression_0
 			{
 				$.m_valueList.insertTail ($1.m_value);
 			}

@@ -1,5 +1,7 @@
 // test for unions and unnamed structs
 
+alignment (2);
+
 //.............................................................................
 
 typedef unsigned int    uint_t;
@@ -28,7 +30,7 @@ enum AddressFamily: uint16_t
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct pack (2) SocketAddress_Ip4
+struct SocketAddress_Ip4
 {
 	bigendian uint16_t m_port;
 
@@ -41,7 +43,7 @@ struct pack (2) SocketAddress_Ip4
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct pack (2) SocketAddress_Ip6
+struct SocketAddress_Ip6
 {
 	bigendian uint16_t m_port;
 	bigendian uint32_t m_flow;
