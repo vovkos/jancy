@@ -28,12 +28,12 @@ int main ()
 {
 	{
 	// classes are allocated on gc heap by default, so use explicit 'stack' specifier 
-	stack C1 c construct (10); 
+	stack C1 c (10); 
 
 	} // C1.destruct is called
 
 	{
-	stack new C1 (20);
+	stack C1 c2 (20);
 
 	} // C1.destruct is called
 

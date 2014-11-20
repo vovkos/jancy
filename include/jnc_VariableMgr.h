@@ -214,7 +214,7 @@ protected:
 	allocateTlsVariableObjHdr (Variable* variable);
 
 	void
-	allocateHeapVariableObjHdr (Variable* variable);
+	getHeapVariableObjHdr (Variable* variable);
 
 	void
 	allocateStackVariableObjHdr (Variable* variable);

@@ -410,7 +410,7 @@ VariableMgr::allocateVariableObjHdr (Variable* variable)
 		break;
 
 	case StorageKind_Heap:
-		allocateHeapVariableObjHdr (variable);
+		getHeapVariableObjHdr (variable);
 		break;
 
 	case StorageKind_Stack:
@@ -672,10 +672,12 @@ VariableMgr::allocateTlsVariableObjHdr (Variable* variable)
 }
 
 void
-VariableMgr::allocateHeapVariableObjHdr (Variable* variable)
+VariableMgr::getHeapVariableObjHdr (Variable* variable)
 {
+	Type* type = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
+
 	Value objHdrValue;
-	m_module->m_llvmIrBuilder.createBitCast (variable->m_llvmValue, NULL, &objHdrValue);
+	m_module->m_llvmIrBuilder.createBitCast (variable->m_llvmValue, type, &objHdrValue);
 	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, NULL, &objHdrValue);
 	variable->m_llvmObjHdrValue = objHdrValue.getLlvmValue ();
 }

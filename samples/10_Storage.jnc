@@ -64,10 +64,10 @@ int main ()
 
 	C2* p1 = new C2 (4000); // for 'new' operator, default storage is 'heap'
 
-	C2* p3 = static new C2 (6000); // 'static' also can be used
+	static C2 p3 (6000); // 'static' also can be used
 
 	{
-	C2* p4 = stack new C2 (7000); // objects allocated on 'stack' storage will be destructed upon exiting the scope
+	stack C2 p4 (7000); // objects allocated on 'stack' storage will be destructed upon exiting the scope
 	} // 'destruct' will be called
 
 	// thread new C2 (8000); // <-- error: thread variables cannot be aggregate
