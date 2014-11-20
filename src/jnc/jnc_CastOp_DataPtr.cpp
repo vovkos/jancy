@@ -50,7 +50,7 @@ Cast_DataPtr_FromArray::constCast (
 	const Value& savedOpValue = m_module->m_constMgr.saveValue (opValue);
 	void* p = savedOpValue.getConstData ();
 
-	// #pragma AXL_TODO ("create a global constant holding the array")
+	#pragma AXL_TODO ("create a global constant holding the array")
 
 	if (dstType->getPtrTypeKind () == DataPtrTypeKind_Normal)
 	{
@@ -107,21 +107,20 @@ Cast_DataPtr_Base::getCastKind (
 	if (srcType->isConstPtrType () && !dstType->isConstPtrType ())
 		return CastKind_None; // const vs non-const mismatch
 
-#pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
-#if 0
-	if ((dstDataType->getFlags () & TypeFlag_Pod) != (srcDataType->getFlags () & TypeFlag_Pod))
-		return CastKind_None; // pod vs non-pod mismatch
-#endif
-
 	if (srcDataType->cmp (dstDataType) == 0 || dstDataType->getTypeKind () == TypeKind_Void)
 		return CastKind_Implicit;
 
 	if (srcDataType->getTypeKind () != TypeKind_Struct)
-		return CastKind_Explicit;
+	{
+		return 
+			(dstDataType->getFlags () & TypeFlag_Pod) && (srcDataType->getFlags () & TypeFlag_Pod) ? CastKind_Explicit : 
+			(dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) ? CastKind_Dynamic : CastKind_None;
+	}
 
-	return ((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType) ?
-		CastKind_Implicit :
-		CastKind_Explicit;
+	return 
+		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType) ? CastKind_Implicit :
+		!(dstDataType->getFlags () & TypeFlag_Pod) || !(srcDataType->getFlags () & TypeFlag_Pod) ?
+		CastKind_Dynamic : CastKind_Explicit;
 }
 
 size_t
@@ -134,11 +133,17 @@ Cast_DataPtr_Base::getOffset (
 	Type* srcDataType = srcType->getTargetType ();
 	Type* dstDataType = dstType->getTargetType ();
 
-	if (srcDataType->cmp (dstDataType) == 0 ||
-		srcDataType->getTypeKind () != TypeKind_Struct ||
-		dstDataType->getTypeKind () != TypeKind_Struct)
-	{
+	if (srcDataType->cmp (dstDataType) == 0 || dstDataType->getTypeKind () == TypeKind_Void)
 		return 0;
+
+	if (srcDataType->getTypeKind () != TypeKind_Struct)
+	{
+		if ((srcDataType->getFlags () & TypeFlag_Pod) && (dstDataType->getFlags () & TypeFlag_Pod))
+			return 0;
+
+		CastKind castKind = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) ? CastKind_Dynamic : CastKind_None;
+		setCastError (srcType, dstType, castKind);
+		return -1;
 	}
 
 	StructType* srcStructType = (StructType*) srcDataType;
@@ -146,14 +151,10 @@ Cast_DataPtr_Base::getOffset (
 
 	if (!srcStructType->findBaseTypeTraverse (dstStructType, coord))
 	{
-		if (dstStructType->getFlags () & TypeFlag_Pod)
+		if ((srcDataType->getFlags () & TypeFlag_Pod) && (dstDataType->getFlags () & TypeFlag_Pod))
 			return 0;
 
-		err::setFormatStringError (
-			"cannot statically cast '%s' to '%s' (use dynamic cast maybe?)", 
-			srcType->getTypeString ().cc (),
-			dstType->getTypeString ().cc ()
-			);
+		setCastError (srcType, dstType, CastKind_Dynamic);
 		return -1;
 	}
 

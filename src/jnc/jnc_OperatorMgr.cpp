@@ -577,12 +577,11 @@ OperatorMgr::dynamicCastDataPtr (
 	Value* resultValue		
 	)
 {
-	Type* opType = opValue.getType ();
-	if (!(opType->getTypeKindFlags () & TypeKindFlag_DataPtr))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
 	{
 		err::setFormatStringError (
 			"cannot dynamically cast '%s' to '%s'", 
-			opType->getTypeString ().cc (),
+			opValue.getType ()->getTypeString ().cc (),
 			type->getTypeString ().cc ()
 			);
 		return false;
@@ -591,19 +590,20 @@ OperatorMgr::dynamicCastDataPtr (
 	Value ptrValue;
 	bool result = castOperator (
 		opValue, 
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (), 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const), 
 		&ptrValue
 		);
 
 	if (!result)
 		return false;
 
-	Value typeValue (type->getTargetType (), m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Type* targetType = type->getTargetType ();
+	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-	Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastDataPtr);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastDataPtr);
 	m_module->m_llvmIrBuilder.createCall2 (
-		dynamicCastClassPtr,
-		dynamicCastClassPtr->getType (),
+		function,
+		function->getType (),
 		ptrValue,
 		typeValue,
 		&ptrValue
@@ -636,12 +636,11 @@ OperatorMgr::dynamicCastClassPtr (
 	Value* resultValue		
 	)
 {
-	Type* opType = opValue.getType ();
-	if (!(opType->getTypeKindFlags () & TypeKindFlag_ClassPtr))
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr))
 	{
 		err::setFormatStringError (
 			"cannot dynamically cast '%s' to '%s'", 
-			opType->getTypeString ().cc (),
+			opValue.getType ()->getTypeString ().cc (),
 			type->getTypeString ().cc ()
 			);
 		return false;
@@ -650,18 +649,91 @@ OperatorMgr::dynamicCastClassPtr (
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ptrValue);
 
-	Value typeValue (type->getTargetType (), m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Type* targetType = type->getTargetType ();
+	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-	Function* dynamicCastClassPtr = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastClassPtr);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastClassPtr);
 	m_module->m_llvmIrBuilder.createCall2 (
-		dynamicCastClassPtr,
-		dynamicCastClassPtr->getType (),
+		function,
+		function->getType (),
 		ptrValue,
 		typeValue,
 		&ptrValue
 		);
 
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, type, resultValue);
+	return true;
+}
+
+bool 
+OperatorMgr::dynamicSizeOf (
+	const Value& opValue,
+	Value* resultValue		
+	)
+{
+	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef ||
+		opValue.getValueKind () == ValueKind_Variable)
+	{
+		err::setFormatStringError ("dynamic sizeof is only applicable to references");
+		return false;
+	}
+
+	Value ptrValue;
+	bool result = castOperator (
+		opValue, 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const), 
+		&ptrValue
+		);
+
+	if (!result)
+		return false;
+
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicSizeOf);
+	m_module->m_llvmIrBuilder.createCall (
+		function,
+		function->getType (),
+		ptrValue,
+		resultValue
+		);
+
+	return true;
+}
+
+bool 
+OperatorMgr::dynamicCountOf (
+	const Value& opValue,
+	Value* resultValue		
+	)
+{
+	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef ||
+		opValue.getValueKind () == ValueKind_Variable)
+	{
+		err::setFormatStringError ("dynamic countof is only applicable to references");
+		return false;
+	}
+
+	Value ptrValue;
+	bool result = castOperator (
+		opValue, 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const),
+		&ptrValue
+		);
+
+	if (!result)
+		return false;
+
+	Type* targetType = ((DataPtrType*) opValue.getType ())->getTargetType ();
+	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCountOf);
+	m_module->m_llvmIrBuilder.createCall2 (
+		function,
+		function->getType (),
+		ptrValue,
+		typeValue,
+		resultValue
+		);
+
 	return true;
 }
 
@@ -874,21 +946,12 @@ OperatorMgr::checkCastKind (
 	)
 {
 	CastKind castKind = getCastKind (opValue, type);
-	switch (castKind)
+	if (castKind <= CastKind_Explicit)
 	{
-	case CastKind_Explicit:
-		err::setFormatStringError (
-			"conversion from '%s' to '%s' requires explicit cast",
-			opValue.getType ()->getTypeString ().cc (), // thanks a lot gcc
-			type->getTypeString ().cc ()
-			);
-		return false;
-
-	case CastKind_None:
-		setCastError (opValue, type);
+		setCastError (opValue, type, castKind);
 		return false;
 	}
-
+	
 	return true;
 }
 
@@ -899,6 +962,9 @@ OperatorMgr::sizeofOperator (
 	Value* resultValue
 	)
 {
+	if (dynamism == OperatorDynamism_Dynamic)
+		return dynamicSizeOf (opValue, resultValue);
+
 	Type* type = opValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
@@ -914,6 +980,9 @@ OperatorMgr::countofOperator (
 	Value* resultValue
 	)
 {
+	if (dynamism == OperatorDynamism_Dynamic)
+		return dynamicCountOf (opValue, resultValue);
+
 	Type* type = opValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();

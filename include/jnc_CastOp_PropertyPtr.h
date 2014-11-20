@@ -39,7 +39,6 @@ protected:
 
 	bool
 	llvmCast_FullClosure (
-		StorageKind storageKind,
 		const Value& opValue,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
@@ -113,7 +112,6 @@ protected:
 
 	bool
 	llvmCast_FullClosure (
-		StorageKind storageKind,
 		const Value& opValue,
 		PropertyType* srcPropertyType,
 		PropertyPtrType* dstPtrType,

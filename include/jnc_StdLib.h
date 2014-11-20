@@ -20,6 +20,8 @@ class StdLib
 public:
 	JNC_API_BEGIN_LIB ()
 		JNC_API_STD_FUNCTION (StdFunction_RuntimeError, runtimeError)
+		JNC_API_STD_FUNCTION (StdFunction_DynamicSizeOf, dynamicSizeOf)
+		JNC_API_STD_FUNCTION (StdFunction_DynamicCountOf, dynamicCountOf)
 		JNC_API_STD_FUNCTION (StdFunction_DynamicCastDataPtr, dynamicCastDataPtr)
 		JNC_API_STD_FUNCTION (StdFunction_DynamicCastClassPtr, dynamicCastClassPtr)
 		JNC_API_STD_FUNCTION (StdFunction_StrengthenClassPtr, strengthenClassPtr)
@@ -74,6 +76,17 @@ public:
 	{
 		Runtime::runtimeError (error, codeAddr, NULL);
 	}
+
+	static
+	size_t
+	dynamicSizeOf (DataPtr ptr);
+
+	static
+	size_t
+	dynamicCountOf (
+		DataPtr ptr,
+		Type* type
+		);
 
 	static
 	DataPtr

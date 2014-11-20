@@ -154,7 +154,7 @@ GcShadowStack::performCustomLowering (llvm::Function& llvmFunction)
 
 	// gc shadow stack top
 
-	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariableKind_GcShadowStackTop);
+	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
 	StructField* field = gcShadowStackTopVariable->getTlsField ();
 	llvm::Value* head = createGEP (context, atEntry, llvmGetTls, field->getLlvmIndex (), "gc_stack_top");
 

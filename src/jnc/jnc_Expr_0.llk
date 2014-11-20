@@ -303,8 +303,7 @@ unary_operator_expr_0 <Value* $value>
 			}
 	|	storage_specifier $s? TokenKind_New new_operator_sype_0 $t
 			{
-				StorageKind storageKind = isValidLocator ($s) ? $s.m_storageKind : StorageKind_Heap;
-				return newOperator_0 (storageKind, $t.m_type, $value);			
+				return newOperator_0 ($t.m_type, $value);			
 			}
 	|	TokenKind_Delete unary_expr_0 <$value> 
 			{

@@ -103,8 +103,6 @@ OperatorMgr::prime (
 	Value* resultValue
 	)
 {
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-
 	if (type->getTypeKind () != TypeKind_Class)
 	{
 		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), ptrValue);
@@ -113,18 +111,18 @@ OperatorMgr::prime (
 		switch (storageKind)
 		{
 		case StorageKind_Static:
-		case StorageKind_Thread:
 			objHdrValue = m_module->m_namespaceMgr.getStaticObjHdr ();
-			break;
-
-		case StorageKind_Stack:
-			objHdrValue = m_module->m_namespaceMgr.getScopeLevelObjHdr (scope);
 			break;
 
 		case StorageKind_Heap:
 			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &objHdrValue);
 			m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
 			break;
+
+		case StorageKind_Thread:
+		case StorageKind_Stack:
+			#pragma AXL_TODO ("cleanup the whole new/allocate/prime/initialize mess")
+			ASSERT (false);
 
 		default:
 			err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
@@ -177,8 +175,7 @@ OperatorMgr::prime (
 	Value scopeLevelValue;
 	if (storageKind == StorageKind_Stack)
 	{
-		ASSERT (scope);
-		scopeLevelValue = m_module->m_namespaceMgr.getScopeLevel (scope);
+		scopeLevelValue = m_module->m_namespaceMgr.getCurrentScopeLevel ();
 	}
 	else
 	{
@@ -582,7 +579,6 @@ OperatorMgr::evaluateAlias (
 
 bool
 OperatorMgr::newOperator (
-	StorageKind storageKind,
 	Type* type,
 	const Value& rawElementCountValue,
 	rtl::BoxList <Value>* argList,
@@ -590,9 +586,6 @@ OperatorMgr::newOperator (
 	)
 {
 	bool result;
-
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope);
 
 	if (isOpaqueClassType (type))
 	{
@@ -615,34 +608,13 @@ OperatorMgr::newOperator (
 	}
 
 	Value ptrValue;
-	result = allocate (storageKind, type, elementCountValue, "new", &ptrValue);
-	if (!result)
-		return false;
-
-	if (storageKind != StorageKind_Static && storageKind != StorageKind_Thread)
-		return
-			prime (storageKind, ptrValue, type, elementCountValue, resultValue) &&
-			construct (*resultValue, argList);
-
-	OnceStmt stmt;
-	Token::Pos pos;
-
-	result =
-		m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos, storageKind) &&
-		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
+	result = 
+		allocate (StorageKind_Heap, type, elementCountValue, "new", &ptrValue) &&
+		prime (StorageKind_Heap, ptrValue, type, elementCountValue, &ptrValue) &&
+		construct (ptrValue, argList);
 
 	if (!result)
 		return false;
-
-	// no need to prime static or thread variables
-
-	ASSERT (ptrValue.getValueKind () == ValueKind_Variable);
-
-	result = construct (ptrValue, argList);
-	if (!result)
-		return false;
-
-	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
 	*resultValue = ptrValue;
 	return true;

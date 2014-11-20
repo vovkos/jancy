@@ -125,7 +125,7 @@ StdLib::Printf (
 }
 
 void
-StdLib::testPtr (int x, jnc::DataPtr ptr, int y)
+StdLib::testPtr (jnc::DataPtr ptr)
 {
 	printf ("StdLib::testPtr\n");
 }

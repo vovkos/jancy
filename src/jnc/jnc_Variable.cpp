@@ -16,14 +16,19 @@ Variable::Variable ()
 	m_tlsField = NULL;
 	m_llvmValue = NULL;
 	m_llvmAllocValue = NULL;
+	m_llvmObjHdrValue = NULL;
 }
 
 Value
-Variable::getScopeLevelObjHdr ()
+Variable::getObjHdr ()
 {
-	return m_storageKind == StorageKind_Stack ? 
-		m_module->m_namespaceMgr.getScopeLevelObjHdr (m_scope) :
-		m_module->m_namespaceMgr.getStaticObjHdr ();
+	if (!m_llvmObjHdrValue)
+	{
+		m_module->m_variableMgr.allocateVariableObjHdr (this);
+		ASSERT (m_llvmObjHdrValue);
+	}
+
+	return Value (m_llvmObjHdrValue, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr));
 }
 
 bool
@@ -44,6 +49,7 @@ Variable::ensureLlvmValue ()
 	ASSERT (m_storageKind == StorageKind_Thread);
 	m_module->m_variableMgr.allocateTlsVariable (this);
 }
+
 
 //.............................................................................
 

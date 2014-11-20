@@ -15,16 +15,6 @@ class Function;
 
 //.............................................................................
 
-enum StdVariableKind
-{
-	StdVariableKind_ScopeLevel = 0,
-	StdVariableKind_GcShadowStackTop,
-
-	StdVariableKind__Count,
-};
-
-//.............................................................................
-
 class VariableMgr
 {
 	friend class Module;
@@ -49,8 +39,9 @@ protected:
 	rtl::Array <Variable*> m_tlsVariableArray;
 	rtl::Array <Variable*> m_tlsGcRootArray;
 	StructType* m_tlsStructType;
+	llvm::Value* m_llvmTlsObjHdrValue;
 
-	Variable* m_stdVariableArray [StdVariableKind__Count];
+	Variable* m_stdVariableArray [StdVariable__Count];
 
 public:
 	DestructList m_staticDestructList;
@@ -68,7 +59,7 @@ public:
 	clear ();
 
 	Variable*
-	getStdVariable (StdVariableKind variable);
+	getStdVariable (StdVariable variable);
 
 	rtl::Array <Variable*>
 	getStaticVariableArray ()
@@ -180,6 +171,9 @@ public:
 	allocateTlsVariable (Variable* variable);
 
 	void
+	allocateVariableObjHdr (Variable* variable);
+
+	void
 	deallocateTlsVariableArray (
 		const TlsVariable* array,
 		size_t count
@@ -212,6 +206,39 @@ protected:
 
 	bool
 	allocatePrimeInitializeNonStaticVariable (Variable* variable);
+
+	void
+	allocateStaticVariableObjHdr (Variable* variable);
+
+	void
+	allocateTlsVariableObjHdr (Variable* variable);
+
+	void
+	allocateHeapVariableObjHdr (Variable* variable);
+
+	void
+	allocateStackVariableObjHdr (Variable* variable);
+
+	void
+	initializeVariableObjHdr (
+		const Value& objHdrValue,
+		const Value& scopeLevelValue,
+		Type* type,
+		uint_t flags,
+		const Value& ptrValue
+		);
+
+	void
+	initializeVariableObjHdr (
+		const Value& objHdrValue,
+		size_t scopeLevel,
+		Type* type,
+		uint_t flags,
+		const Value& ptrValue
+		)
+	{
+		initializeVariableObjHdr (objHdrValue, Value (scopeLevel, TypeKind_SizeT), type, flags, ptrValue);
+	}
 
 	void
 	createStdVariables ();

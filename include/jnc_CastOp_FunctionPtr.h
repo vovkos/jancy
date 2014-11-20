@@ -111,7 +111,6 @@ protected:
 
 	bool
 	llvmCast_FullClosure (
-		StorageKind storageKind,
 		const Value& opValue,
 		FunctionType* srcFunctionType,
 		FunctionPtrType* dstPtrType,

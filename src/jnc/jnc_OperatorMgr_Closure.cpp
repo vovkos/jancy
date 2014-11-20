@@ -9,7 +9,6 @@ namespace jnc {
 
 bool
 OperatorMgr::createClosureObject (
-	StorageKind storageKind,
 	const Value& opValue, // thin function or property ptr with closure
 	Type* thunkType, // function or property type
 	bool isWeak,
@@ -115,7 +114,7 @@ OperatorMgr::createClosureObject (
 	// create instance
 
 	Value closureValue;
-	result = m_module->m_operatorMgr.newOperator (storageKind, closureType, NULL, &closureValue);
+	result = m_module->m_operatorMgr.newOperator (closureType, NULL, &closureValue);
 	if (!result)
 		return false;
 
@@ -166,7 +165,6 @@ OperatorMgr::createClosureObject (
 
 bool
 OperatorMgr::createDataClosureObject (
-	StorageKind storageKind,
 	const Value& opValue, // data ptr
 	PropertyType* thunkType, // function or property type
 	Value* resultValue
@@ -186,7 +184,7 @@ OperatorMgr::createDataClosureObject (
 	// create instance
 
 	Value closureValue;
-	result = m_module->m_operatorMgr.newOperator (storageKind, closureType, NULL, &closureValue);
+	result = m_module->m_operatorMgr.newOperator (closureType, NULL, &closureValue);
 	if (!result)
 		return false;
 

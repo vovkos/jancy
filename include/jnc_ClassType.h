@@ -23,7 +23,7 @@ struct IfaceHdr;
 enum ClassTypeKind
 {
 	ClassTypeKind_Normal = 0,
-	ClassTypeKind_StdObject, // EStdType_Object
+	ClassTypeKind_StdObject, // StdType_Object
 	ClassTypeKind_Box,
 	ClassTypeKind_Multicast,
 	ClassTypeKind_McSnapshot,

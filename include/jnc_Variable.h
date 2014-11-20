@@ -14,6 +14,17 @@ class StructField;
 
 //.............................................................................
 
+enum StdVariable
+{
+	StdVariable_ScopeLevel = 0,
+	StdVariable_GcShadowStackTop,
+
+	StdVariable__Count,
+};
+
+
+//.............................................................................
+
 class Variable: 
 	public UserModuleItem,
 	public ModuleItemInitializer
@@ -31,6 +42,7 @@ protected:
 	StructField* m_tlsField;
 	llvm::Value* m_llvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
 	llvm::Value* m_llvmAllocValue;
+	llvm::Value* m_llvmObjHdrValue;
 	llvm::DIDescriptor m_llvmDiDescriptor; // DIVariable / DIGlobalVariable /
 
 public:
@@ -73,7 +85,7 @@ public:
 	}
 
 	Value
-	getScopeLevelObjHdr ();
+	getObjHdr ();
 
 	StructField*
 	getTlsField ()

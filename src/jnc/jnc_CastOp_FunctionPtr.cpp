@@ -240,10 +240,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast (
 
 	// case 3: closure object needs to be created (so conversion is required even if function signatures match)
 
-#pragma AXL_TODO ("support storage kind specification when creating closures")
-
 	return llvmCast_FullClosure (
-		StorageKind_Heap,
 		opValue,
 		srcFunctionType,
 		dstPtrType,
@@ -316,7 +313,6 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure (
 
 bool
 Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure (
-	StorageKind storageKind,
 	const Value& opValue,
 	FunctionType* srcFunctionType,
 	FunctionPtrType* dstPtrType,
@@ -325,7 +321,6 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure (
 {
 	Value closureValue;
 	bool result = m_module->m_operatorMgr.createClosureObject (
-		storageKind,
 		opValue,
 		dstPtrType->getTargetType (),
 		dstPtrType->getPtrTypeKind () == FunctionPtrTypeKind_Weak,

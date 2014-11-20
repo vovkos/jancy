@@ -109,6 +109,7 @@ TypeMgr::getStdType (StdType stdType)
 	{
 		{ NULL },                            // StdType_BytePtr,
 		{ NULL },                            // StdType_ObjHdr,
+		{ NULL },                            // StdType_VariableObjHdr,
 		{ NULL },                            // StdType_ObjHdrPtr,
 		{ NULL },                            // StdType_ObjectClass,
 		{ NULL },                            // StdType_ObjectPtr,
@@ -215,6 +216,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = createObjHdrType ();
 		break;
 
+	case StdType_VariableObjHdr:
+		type = createVariableObjHdrType ();
+		break;
+
 	case StdType_ObjHdrPtr:
 		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
 		break;
@@ -291,21 +296,22 @@ TypeMgr::getLazyStdType (StdType stdType)
 
 	const char* nameTable [StdType__Count] =
 	{
-		NULL,            // EStdType_BytePtr,
-		NULL,            // EStdType_ObjHdr,
-		NULL,            // EStdType_ObjHdrPtr,
-		NULL,            // EStdType_ObjectClass,
-		NULL,            // EStdType_ObjectPtr,
-		NULL,            // EStdType_SimpleFunction,
-		NULL,            // EStdType_SimpleMulticast,
-		NULL,            // EStdType_SimpleEventPtr,
-		NULL,            // EStdType_Binder,
-		NULL,            // EStdType_ReactorBindSite,
-		"Scheduler",     // EStdType_Scheduler,
-		NULL,            // EStdType_SchedulerPtr,
-		NULL,            // EStdType_FmtLiteral,
-		"Guid",          // EStdType_Guid
-		"Error",         // EStdType_Error,
+		NULL,            // StdType_BytePtr,
+		NULL,            // StdType_ObjHdr,
+		NULL,            // StdType_VariableObjHdr,
+		NULL,            // StdType_ObjHdrPtr,
+		NULL,            // StdType_ObjectClass,
+		NULL,            // StdType_ObjectPtr,
+		NULL,            // StdType_SimpleFunction,
+		NULL,            // StdType_SimpleMulticast,
+		NULL,            // StdType_SimpleEventPtr,
+		NULL,            // StdType_Binder,
+		NULL,            // StdType_ReactorBindSite,
+		"Scheduler",     // StdType_Scheduler,
+		NULL,            // StdType_SchedulerPtr,
+		NULL,            // StdType_FmtLiteral,
+		"Guid",          // StdType_Guid
+		"Error",         // StdType_Error,
 		"String",        // StdType_String,
 		"StringRef",     // StdType_StringRef,
 		"StringBuilder", // StdType_StringBuilder,
@@ -2617,6 +2623,16 @@ TypeMgr::createObjHdrType ()
 	type->createField ("!m_root", type->getDataPtrType_c ());
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_Int_p));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createVariableObjHdrType ()
+{
+	StructType* type = createStructType ("VariableObjHdr", "jnc.VariableObjHdr");
+	type->createField ("!m_object", getStdType (StdType_ObjHdr));
+	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }

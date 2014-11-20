@@ -19,7 +19,6 @@ class ScopeLevelStack
 	struct Entry: rtl::ListLink
 	{
 		Value m_scopeLevelValue;
-		Value m_objHdrValue;
 	};
 
 protected:
@@ -46,9 +45,6 @@ public:
 
 	Value
 	getScopeLevel (size_t level);
-
-	Value
-	getObjHdr (size_t level);
 
 protected:
 	Entry*

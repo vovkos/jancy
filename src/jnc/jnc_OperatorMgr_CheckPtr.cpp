@@ -139,12 +139,21 @@ OperatorMgr::checkDataPtrScopeLevel (
 	else
 		m_module->m_llvmIrBuilder.createExtractValue (srcValue, 3, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &srcObjHdrValue);
 
+	Function* checkFunction;
 	Value dstObjHdrValue;
-	getDataRefObjHdr (dstValue, &dstObjHdrValue);
+
+	if (dstValue.getValueKind () == ValueKind_Variable)
+	{
+		checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevelDirect);
+		dstObjHdrValue = m_module->m_namespaceMgr.getScopeLevel (dstValue.getVariable ()->getScope ());
+	}
+	else
+	{
+		checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevel);
+		getDataRefObjHdr (dstValue, &dstObjHdrValue);
+	}
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check data pointer scope level");
-
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevel);
 
 	m_module->m_llvmIrBuilder.createCall2 (
 		checkFunction,

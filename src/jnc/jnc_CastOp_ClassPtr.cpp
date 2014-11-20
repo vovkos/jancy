@@ -55,7 +55,7 @@ Cast_ClassPtr::getCastKind (
 		isMulticastToMulticast (srcType, dstType) ||
 		srcClassType->findBaseTypeTraverse (dstClassType) ? 
 		CastKind_Implicit : 
-		CastKind_Explicit;
+		CastKind_Dynamic;
 }
 
 bool
@@ -121,11 +121,7 @@ Cast_ClassPtr::llvmCast (
 	result = srcClassType->findBaseTypeTraverse (dstClassType, &coord);
 	if (!result)
 	{
-		err::setFormatStringError (
-			"cannot statically cast '%s' to '%s' (use dynamic cast maybe?)", 
-			opValue.getType ()->getTypeString ().cc (),
-			type->getTypeString ().cc ()
-			);
+		setCastError (opValue, type, CastKind_Dynamic);
 		return false;
 	}
 

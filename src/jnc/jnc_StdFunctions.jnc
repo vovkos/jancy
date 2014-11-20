@@ -7,17 +7,28 @@ void runtimeError (
 	uint8_t thin* codeAddress
 	);
 
+///; static char dynamicSizeOfSrc [] = 
+
+size_t dynamicSizeOf (void const* p);
+
+///; static char dynamicCountOfSrc [] = 
+
+size_t dynamicCountOf (
+	void const* p,
+	uint8_t thin* type
+	);
+
 ///; static char dynamicCastDataPtrSrc [] = 
 
 void* dynamicCastDataPtr (
-	void* p,
+	void const* p,
 	uint8_t thin* type
 	);
 
 ///; static char dynamicCastClassPtrSrc [] = 
 
 object* dynamicCastClassPtr (
-	object* p,
+	object const* p,
 	uint8_t thin* type
 	);
 

@@ -258,7 +258,7 @@ ControlFlowMgr::restoreScopeLevel ()
 		return;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "restore scope level before return");
-	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
 	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, variable);
 }
 

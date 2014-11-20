@@ -155,7 +155,7 @@ public:
 
 	static
 	void
-	testPtr (int x, jnc::DataPtr Ptr, int y);
+	testPtr (jnc::DataPtr Ptr);
 };
 
 //.............................................................................

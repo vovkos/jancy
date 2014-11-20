@@ -2094,7 +2094,6 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 
 bool
 Parser::newOperator_0 (
-	StorageKind storageKind,
 	Type* type,
 	Value* resultValue
 	)
@@ -2488,17 +2487,15 @@ Parser::finalizeLiteral (
 		}
 	}
 
+	Type* type = m_module->m_typeMgr.getStdType (StdType_FmtLiteral);
 	Value fmtLiteralValue;
-	result = m_module->m_operatorMgr.newOperator (
-		StorageKind_Stack,
-		m_module->m_typeMgr.getStdType (StdType_FmtLiteral),
-		NULL,
-		&fmtLiteralValue
-		);
 
+	result = m_module->m_operatorMgr.allocate (StorageKind_Stack, type, "fmtLiteral", &fmtLiteralValue);
 	if (!result)
 		return false;
 	
+	m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), fmtLiteralValue);
+
 	size_t offset = 0;
 
 	rtl::Iterator <FmtSite> it = literal->m_fmtSiteList.getHead ();

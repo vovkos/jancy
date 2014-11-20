@@ -18,6 +18,7 @@ class FunctionPtrType;
 enum CastKind
 {
 	CastKind_None,
+	CastKind_Dynamic,
 	CastKind_Explicit,
 	CastKind_ImplicitCrossFamily,
 	CastKind_Implicit,
@@ -29,7 +30,8 @@ enum CastKind
 err::Error
 setCastError (
 	const Value& opValue,
-	Type* type
+	Type* type,
+	CastKind castKind = CastKind_None
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

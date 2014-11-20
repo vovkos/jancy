@@ -348,7 +348,6 @@ Members2
 
 	bool
 	newOperator_0 (
-		StorageKind storageKind,
 		Type* type,
 		Value* resultValue
 		);

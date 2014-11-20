@@ -326,6 +326,9 @@ protected:
 	createCheckScopeLevel ();
 
 	Function*
+	createCheckScopeLevelDirect ();
+
+	Function*
 	createCheckDataPtrRange ();
 
 	Function*

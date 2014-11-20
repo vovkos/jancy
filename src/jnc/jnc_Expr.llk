@@ -641,11 +641,9 @@ unary_operator_expr <Value* $value>
 				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.castOperator (dynamism, $value, $t.m_type);
 			}
-	|	storage_specifier $s? TokenKind_New new_operator_type $t
+	|	TokenKind_New new_operator_type $t
 			{
-				StorageKind storageKind = isValidLocator ($s) ? $s.m_storageKind : StorageKind_Heap;
 				return m_module->m_operatorMgr.newOperator (
-					storageKind,
 					$t.m_type,
 					$t.m_elementCountValue,
 					&$t.m_argList,

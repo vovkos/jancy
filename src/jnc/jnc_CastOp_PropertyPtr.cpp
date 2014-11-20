@@ -47,9 +47,7 @@ Cast_PropertyPtr_FromDataPtr::llvmCast (
 		return false;
 	}
 
-#pragma AXL_TODO ("support storage kind specification when creating closures")
-
-	return llvmCast_FullClosure (StorageKind_Heap, opValue, dstPtrType, resultValue);
+	return llvmCast_FullClosure (opValue, dstPtrType, resultValue);
 }
 
 bool
@@ -81,7 +79,6 @@ Cast_PropertyPtr_FromDataPtr::llvmCast_DirectThunk (
 
 bool
 Cast_PropertyPtr_FromDataPtr::llvmCast_FullClosure (
-	StorageKind storageKind,
 	const Value& opValue,
 	PropertyPtrType* dstPtrType,
 	Value* resultValue
@@ -89,7 +86,6 @@ Cast_PropertyPtr_FromDataPtr::llvmCast_FullClosure (
 {
 	Value closureValue;
 	bool result = m_module->m_operatorMgr.createDataClosureObject (
-		storageKind,
 		opValue,
 		dstPtrType->getTargetType (),
 		&closureValue
@@ -223,10 +219,7 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 
 	// case 3: closure object needs to be created (so conversion is required even if Property signatures match)
 
-#pragma AXL_TODO ("support storage kind specification when creating closures")
-
 	return llvmCast_FullClosure (
-		StorageKind_Heap,
 		opValue,
 		srcPropertyType,
 		dstPtrType,
@@ -301,7 +294,6 @@ Cast_PropertyPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure (
 
 bool
 Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure (
-	StorageKind storageKind,
 	const Value& opValue,
 	PropertyType* srcPropertyType,
 	PropertyPtrType* dstPtrType,
@@ -310,7 +302,6 @@ Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure (
 {
 	Value closureValue;
 	bool result = m_module->m_operatorMgr.createClosureObject (
-		storageKind,
 		opValue,
 		dstPtrType->getTargetType (),
 		dstPtrType->getPtrTypeKind () == PropertyPtrTypeKind_Weak,

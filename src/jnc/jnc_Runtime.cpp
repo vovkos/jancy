@@ -235,6 +235,8 @@ Runtime::gcTryAllocate (
 		return NULL;
 	}
 
+	memset (block, 0, size);
+
 	ObjHdr* object;
 	void* p;
 

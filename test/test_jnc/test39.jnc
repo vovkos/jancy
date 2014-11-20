@@ -2,23 +2,29 @@
 
 struct A
 {
-	int m_x;
-	int m_y;
+	int m_a;
+	int m_b;
 }
 
 struct B: A
 {
-	int m_z;
+	int m_x;
+	int m_y;
 	void* m_p;
 }
 
-foo (A* a)
+foo (void* p)
 {
-	B* b = dynamic (B*) a;
+	B* b = dynamic (B*) p;
 	if (b)
-		printf ("is B\n");
+		printf ("a is B\n");
 	else
-		printf ("is NOT B\n");
+		printf ("a is NOT B\n");
+
+	size_t size = dynamic sizeof (*p);
+	size_t count = dynamic countof (*b);
+
+	printf ("sizeof = %d, countof = %d\n", size, count);
 }
 
 int main ()
@@ -26,9 +32,9 @@ int main ()
 	printf ("main\n");
 
 	A a;
-	foo (a);
-
 	B b;
+
+	foo (a);
 	foo (b);
 
 	return 0; 

@@ -774,7 +774,6 @@ public:
 
 	bool
 	newOperator (
-		StorageKind storageKind,
 		Type* type,
 		const Value& elementCountValue,
 		rtl::BoxList <Value>* argValueList,
@@ -783,34 +782,31 @@ public:
 
 	bool
 	newOperator (
-		StorageKind storageKind,
 		Type* type,
 		Value* resultValue
 		)
 	{
-		return newOperator (storageKind, type, Value (), NULL, resultValue);
+		return newOperator (type, Value (), NULL, resultValue);
 	}
 
 	bool
 	newOperator (
-		StorageKind storageKind,
 		Type* type,
 		const Value& elementCountValue,
 		Value* resultValue
 		)
 	{
-		return newOperator (storageKind, type, elementCountValue, NULL, resultValue);
+		return newOperator (type, elementCountValue, NULL, resultValue);
 	}
 
 	bool
 	newOperator (
-		StorageKind storageKind,
 		Type* type,
 		rtl::BoxList <Value>* argValueList,
 		Value* resultValue
 		)
 	{
-		return newOperator (storageKind, type, Value (), argValueList, resultValue);
+		return newOperator (type, Value (), argValueList, resultValue);
 	}
 
 	bool
@@ -1477,7 +1473,6 @@ public:
 
 	bool
 	createClosureObject (
-		StorageKind storageKind,
 		const Value& opValue, // thin function or property ptr with closure
 		Type* thunkType, // function or property type
 		bool isWeak,
@@ -1486,7 +1481,6 @@ public:
 
 	bool
 	createDataClosureObject (
-		StorageKind storageKind,
 		const Value& opValue, // data ptr
 		PropertyType* thunkType, // function or property type
 		Value* resultValue
@@ -1675,6 +1669,18 @@ protected:
 	dynamicCastClassPtr (
 		const Value& opValue,
 		ClassPtrType* type,
+		Value* resultValue		
+		);
+
+	bool 
+	dynamicSizeOf (
+		const Value& opValue,
+		Value* resultValue		
+		);
+
+	bool 
+	dynamicCountOf (
+		const Value& opValue,
 		Value* resultValue		
 		);
 };

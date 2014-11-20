@@ -288,7 +288,7 @@ FunctionMgr::prologue (
 	}
 	else // do not save / restore scope level in module constructor
 	{
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
 		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
 	}
 
@@ -441,7 +441,7 @@ FunctionMgr::internalPrologue (
 
 	if (function->m_functionKind != FunctionKind_ModuleConstructor) // do not save / restore scope level in module constructor
 	{
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariableKind_ScopeLevel);
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
 		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
 	}
 
@@ -836,8 +836,19 @@ FunctionMgr::getStdFunction (StdFunction func)
 		},
 		{ NULL },                                // StdFunction_CheckNullPtr,
 		{ NULL },                                // StdFunction_CheckScopeLevel,
+		{ NULL },                                // StdFunction_CheckScopeLevelDirect,
 		{ NULL },                                // StdFunction_CheckClassPtrScopeLevel,
 		{ NULL },                                // StdFunction_CheckDataPtrRange,
+		{                                        // StdFunction_DynamicSizeOf,
+			dynamicSizeOfSrc,
+			lengthof (dynamicSizeOfSrc),
+			StdNamespace_Internal,
+		},
+		{                                        // StdFunction_DynamicCountOf,
+			dynamicCountOfSrc,
+			lengthof (dynamicCountOfSrc),
+			StdNamespace_Internal,
+		},
 		{                                        // StdFunction_DynamicCastDataPtr,
 			dynamicCastDataPtrSrc,
 			lengthof (dynamicCastDataPtrSrc),
@@ -1029,6 +1040,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createCheckScopeLevel ();
 		break;
 
+	case StdFunction_CheckScopeLevelDirect:
+		function = createCheckScopeLevelDirect ();
+		break;
+
 	case StdFunction_CheckClassPtrScopeLevel:
 		function = createCheckClassPtrScopeLevel ();
 		break;
@@ -1057,6 +1072,8 @@ FunctionMgr::getStdFunction (StdFunction func)
 		break;
 
 	case StdFunction_RuntimeError:
+	case StdFunction_DynamicSizeOf:
+	case StdFunction_DynamicCountOf:
 	case StdFunction_DynamicCastDataPtr:
 	case StdFunction_DynamicCastClassPtr:
 	case StdFunction_StrengthenClassPtr:
@@ -1172,8 +1189,11 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                 // StdFunction_RuntimeError,
 		NULL,                 // StdFunction_CheckNullPtr,
 		NULL,                 // StdFunction_CheckScopeLevel,
+		NULL,                 // StdFunction_CheckScopeLevelDirect,
 		NULL,                 // StdFunction_CheckClassPtrScopeLevel,
 		NULL,                 // StdFunction_CheckDataPtrRange,
+		NULL,                 // StdFunction_DynamicSizeOf,
+		NULL,                 // StdFunction_DynamicCountOf,
 		NULL,                 // StdFunction_DynamicCastDataPtr,
 		NULL,                 // StdFunction_DynamicCastClassPtr,
 		NULL,                 // StdFunction_StrengthenClassPtr,
@@ -1281,6 +1301,42 @@ FunctionMgr::createCheckScopeLevel ()
 	Value argValue1 = argValueArray [0];
 	Value argValue2 = argValueArray [1];
 
+	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
+	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
+
+	Function* checkScopeLevelDirect = getStdFunction (StdFunction_CheckScopeLevelDirect);
+	m_module->m_llvmIrBuilder.createCall2 (
+		checkScopeLevelDirect, 
+		checkScopeLevelDirect->getType (),
+		argValue1, 
+		argValue2, 
+		NULL
+		);
+
+	internalEpilogue ();
+
+	return function;
+}
+
+Function*
+FunctionMgr::createCheckScopeLevelDirect ()
+{
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
+	{
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
+	};
+
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkScopeLevelDirect", functionType);
+
+	Value argValueArray [2];
+	internalPrologue (function, argValueArray, countof (argValueArray));
+
+	Value argValue1 = argValueArray [0];
+	Value argValue2 = argValueArray [1];
+
 	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("scope_nonull");
 	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("scope_fail");
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
@@ -1293,8 +1349,6 @@ FunctionMgr::createCheckScopeLevel ()
 
 	m_module->m_llvmIrBuilder.createGep2 (argValue1, 0, NULL, &argValue1);
 	m_module->m_llvmIrBuilder.createLoad (argValue1, NULL, &argValue1);
-	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
-	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
 	m_module->m_llvmIrBuilder.createGt_u (argValue1, argValue2, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
 	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);

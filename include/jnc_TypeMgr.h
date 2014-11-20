@@ -991,6 +991,9 @@ protected:
 
 	StructType*
 	createObjHdrType ();
+
+	StructType*
+	createVariableObjHdrType ();
 };
 
 //.............................................................................

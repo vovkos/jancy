@@ -15,7 +15,8 @@ class Runtime;
 enum ObjHdrFlag
 {
 	ObjHdrFlag_Dead         = 0x0001,
-	ObjHdrFlag_DynamicArray = 0x0002,	
+	ObjHdrFlag_DynamicArray = 0x0002,
+	ObjHdrFlag_Variable     = 0x0004,
 	ObjHdrFlag_Static       = 0x0010,
 	ObjHdrFlag_Stack        = 0x0020,
 	ObjHdrFlag_GcMark       = 0x0100,
@@ -54,6 +55,13 @@ struct ObjHdr
 
 	void 
 	gcWeakMarkClosureObject (Runtime* runtime);
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct VariableObjHdr: ObjHdr
+{
+	void* m_p;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

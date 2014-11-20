@@ -9,7 +9,8 @@ namespace jnc {
 err::Error
 setCastError (
 	const Value& opValue,
-	Type* dstType
+	Type* dstType,
+	CastKind castKind
 	)
 {
 	Type* srcType = opValue.getType ();
@@ -25,8 +26,25 @@ setCastError (
 			);
 	}
 
+	const char* format;
+
+	switch (castKind)
+	{
+	case CastKind_Explicit:
+		format = "explicit cast is needed to convert from '%s' to '%s'";
+		break;
+
+	case CastKind_Dynamic:
+		format = "dynamic cast is needed to convert from '%s' to '%s'";
+		break;
+
+	default:
+		format = "cannot convert from '%s' to '%s'";
+		break;
+	}
+		
 	return err::setFormatStringError (
-		"cannot convert from '%s' to '%s'",
+		format,
 		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().cc (), 
 		dstType->getTypeString ().cc ()
 		);

@@ -137,18 +137,6 @@ public:
 	}
 
 	Value
-	getScopeLevelObjHdr (Scope* scope)
-	{
-		return scope ? m_scopeLevelStack.getObjHdr (scope->getLevel ()) : getStaticObjHdr ();
-	}
-
-	Value
-	getCurrentScopeObjHdr ()
-	{
-		return getScopeLevelObjHdr (m_currentScope);
-	}
-
-	Value
 	getStaticObjHdr ();
 
 	void

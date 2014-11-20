@@ -7,15 +7,66 @@ namespace jnc {
 
 //.............................................................................
 
+size_t
+StdLib::dynamicSizeOf (DataPtr ptr)
+{
+	size_t maxSize = (char*) ptr.m_rangeEnd > (char*) ptr.m_p ? (char*) ptr.m_rangeEnd - (char*) ptr.m_p : 0;
+
+	if (!ptr.m_object)
+		return maxSize;
+
+	#pragma AXL_TODO ("find field pointed to by ptr and calculate sizeof accordingly")
+	return maxSize;
+}
+
+size_t
+StdLib::dynamicCountOf (
+	DataPtr ptr,
+	Type* type
+	)
+{
+	size_t maxSize = (char*) ptr.m_rangeEnd > (char*) ptr.m_p ? (char*) ptr.m_rangeEnd - (char*) ptr.m_p : 0;
+	size_t typeSize = type->getSize ();
+	size_t maxCount = maxSize / (typeSize ? typeSize : 1);
+
+	if (!ptr.m_object)
+		return maxCount;
+
+	#pragma AXL_TODO ("find field pointed to by ptr and calculate countof accordingly")
+	return maxCount;
+}
+
 DataPtr
 StdLib::dynamicCastDataPtr (
 	DataPtr ptr,
 	Type* type
 	)
 {
-	DataPtr resultPtr = { 0 };
+	if (!ptr.m_object)
+		return g_nullPtr;
 
-	return resultPtr;
+	void* p = (ptr.m_object->m_flags  & (ObjHdrFlag_Stack | ObjHdrFlag_Static)) ?
+		((VariableObjHdr*) ptr.m_object)->m_p :
+		ptr.m_object + 1;
+
+	if (ptr.m_object->m_type->cmp (type) == 0)
+	{
+		ptr.m_p = p;
+		return ptr;
+	}
+
+	if (ptr.m_object->m_type->getTypeKind () != TypeKind_Struct)
+		return g_nullPtr;
+
+	StructType* structType = (StructType*) ptr.m_object->m_type;
+
+	BaseTypeCoord coord;
+	bool result = structType->findBaseTypeTraverse (type, &coord);
+	if (!result)
+		return g_nullPtr;
+
+	ptr.m_p = (char*) p + coord.m_offset;
+	return ptr;
 }
 
 IfaceHdr*

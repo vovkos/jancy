@@ -136,6 +136,7 @@ enum StdType
 {
 	StdType_BytePtr,
 	StdType_ObjHdr,
+	StdType_VariableObjHdr,
 	StdType_ObjHdrPtr,
 	StdType_ObjectClass,
 	StdType_ObjectPtr,

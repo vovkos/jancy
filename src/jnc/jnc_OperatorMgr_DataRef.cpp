@@ -17,7 +17,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	ValueKind valueKind = value.getValueKind ();
 	if (valueKind == ValueKind_Variable)
 	{	
-		*resultValue = value.getVariable ()->getScopeLevelObjHdr ();
+		*resultValue = value.getVariable ()->getObjHdr ();
 		return;
 	}
 
@@ -26,7 +26,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 
 	if (scopeValidatorValue.getValueKind () == ValueKind_Variable)
 	{
-		*resultValue = scopeValidatorValue.getVariable ()->getScopeLevelObjHdr ();
+		*resultValue = scopeValidatorValue.getVariable ()->getObjHdr ();
 		return;
 	}
 	

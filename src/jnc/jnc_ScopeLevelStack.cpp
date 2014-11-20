@@ -52,37 +52,6 @@ ScopeLevelStack::getScopeLevel (size_t level)
 	return scopeLevelValue;
 }
 
-Value
-ScopeLevelStack::getObjHdr (size_t level)
-{
-#ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	Entry* entry = getEntry (level);
-	if (entry->m_objHdrValue)
-		return entry->m_objHdrValue;
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-#endif
-
-	Value objHdrValue;
-
-	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-
-	m_module->m_llvmIrBuilder.createAlloca (type, "scopeLevel", type, &objHdrValue);
-
-	Value scopeLevelValue = getScopeLevel (level);
-	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, objHdrValue);
-
-	type = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
-	m_module->m_llvmIrBuilder.createBitCast (objHdrValue, type, &objHdrValue);
-
-#ifndef _JNC_NO_SCOPE_LEVEL_CACHE
-	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-	entry->m_objHdrValue = objHdrValue;
-#endif
-	return objHdrValue;
-}
-
 ScopeLevelStack::Entry*
 ScopeLevelStack::getEntry (size_t level)
 {
