@@ -101,26 +101,39 @@ Cast_DataPtr_Base::getCastKind (
 
 	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 	DataPtrType* dstType = (DataPtrType*) type;
+	
+	bool isSrcConst = srcType->isConstPtrType ();
+	bool isDstConst = dstType->isConstPtrType ();
+
+	if (isSrcConst && !isDstConst)
+		return CastKind_None; // const vs non-const mismatch
+
 	Type* srcDataType = srcType->getTargetType ();
 	Type* dstDataType = dstType->getTargetType ();
 
-	if (srcType->isConstPtrType () && !dstType->isConstPtrType ())
-		return CastKind_None; // const vs non-const mismatch
+	if (srcDataType->cmp (dstDataType) == 0)
+		return CastKind_Implicit;
 
-	if (srcDataType->cmp (dstDataType) == 0 || dstDataType->getTypeKind () == TypeKind_Void)
+	bool isSrcPod = (srcDataType->getFlags () & TypeFlag_Pod) != 0;
+	bool isDstPod = (dstDataType->getFlags () & TypeFlag_Pod) != 0;
+	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
+
+	if (dstDataType->getTypeKind () == TypeKind_Void && (isDstConst || isSrcPod))
 		return CastKind_Implicit;
 
 	if (srcDataType->getTypeKind () != TypeKind_Struct)
 	{
 		return 
-			(dstDataType->getFlags () & TypeFlag_Pod) && (srcDataType->getFlags () & TypeFlag_Pod) ? CastKind_Explicit : 
-			(dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) ? CastKind_Dynamic : CastKind_None;
+			isSrcPod && isDstPod ? CastKind_Explicit : 
+			isDstDerivable ? CastKind_Dynamic : CastKind_None;
 	}
 
+	bool isDstBase = ((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType);
+
 	return 
-		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType) ? CastKind_Implicit :
-		!(dstDataType->getFlags () & TypeFlag_Pod) || !(srcDataType->getFlags () & TypeFlag_Pod) ?
-		CastKind_Dynamic : CastKind_Explicit;
+		isDstBase ? CastKind_Implicit :
+		isSrcPod && isDstPod ? CastKind_Explicit : 
+		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }
 
 size_t
@@ -130,35 +143,48 @@ Cast_DataPtr_Base::getOffset (
 	BaseTypeCoord* coord
 	)
 {
+	bool isSrcConst = srcType->isConstPtrType ();
+	bool isDstConst = dstType->isConstPtrType ();
+
+	if (isSrcConst && !isDstConst)
+	{
+		setCastError (srcType, dstType);
+		return -1;
+	}
+
 	Type* srcDataType = srcType->getTargetType ();
 	Type* dstDataType = dstType->getTargetType ();
 
-	if (srcDataType->cmp (dstDataType) == 0 || dstDataType->getTypeKind () == TypeKind_Void)
+	if (srcDataType->cmp (dstDataType) == 0)
+		return 0;
+
+	bool isSrcPod = (srcDataType->getFlags () & TypeFlag_Pod) != 0;
+	bool isDstPod = (dstDataType->getFlags () & TypeFlag_Pod) != 0;
+	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
+
+	if (dstDataType->getTypeKind () == TypeKind_Void && (isDstConst || isSrcPod))
 		return 0;
 
 	if (srcDataType->getTypeKind () != TypeKind_Struct)
 	{
-		if ((srcDataType->getFlags () & TypeFlag_Pod) && (dstDataType->getFlags () & TypeFlag_Pod))
+		if (isSrcPod && isDstPod)
 			return 0;
 
-		CastKind castKind = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) ? CastKind_Dynamic : CastKind_None;
+		CastKind castKind = isDstDerivable? CastKind_Dynamic : CastKind_None;
 		setCastError (srcType, dstType, castKind);
 		return -1;
 	}
 
-	StructType* srcStructType = (StructType*) srcDataType;
-	StructType* dstStructType = (StructType*) dstDataType;
+	bool isDstBase = ((StructType*) srcDataType)->findBaseTypeTraverse (dstType, coord);
+	if (isDstBase)
+		return coord->m_offset;
 
-	if (!srcStructType->findBaseTypeTraverse (dstStructType, coord))
-	{
-		if ((srcDataType->getFlags () & TypeFlag_Pod) && (dstDataType->getFlags () & TypeFlag_Pod))
-			return 0;
+	if (isSrcPod && isDstPod)
+		return 0;
 
-		setCastError (srcType, dstType, CastKind_Dynamic);
-		return -1;
-	}
-
-	return coord->m_offset;
+	CastKind castKind = isDstDerivable? CastKind_Dynamic : CastKind_None;
+	setCastError (srcType, dstType, castKind);
+	return -1;
 }
 
 bool
@@ -437,18 +463,8 @@ Cast_DataPtr::getCastOperator (
 	DataPtrType* srcPtrType = (DataPtrType*) srcType;
 	DataPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind ();
 
-	if (dstPtrTypeKind == DataPtrTypeKind_Normal)
-	{
-#pragma AXL_TODO ("develop safe data pointer casts when non-POD is involved")
-#if 0
-		if ((srcPtrType->getTargetType ()->getFlags () & TypeFlag_Pod) !=
-			(dstPtrType->getTargetType ()->getFlags () & TypeFlag_Pod))
-			return NULL;
-#endif
-
-		if (srcPtrType->isConstPtrType () && !dstPtrType->isConstPtrType ())
-			return NULL;
-	}
+	if (dstPtrTypeKind == DataPtrTypeKind_Normal && srcPtrType->isConstPtrType () && !dstPtrType->isConstPtrType ())
+		return NULL;
 
 	ASSERT ((size_t) srcPtrTypeKind < DataPtrTypeKind__Count);
 	ASSERT ((size_t) dstPtrTypeKind < DataPtrTypeKind__Count);

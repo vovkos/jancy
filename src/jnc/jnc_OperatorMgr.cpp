@@ -587,6 +587,12 @@ OperatorMgr::dynamicCastDataPtr (
 		return false;
 	}
 
+	if (((DataPtrType*) opValue.getType ())->isConstPtrType () && !type->isConstPtrType ())
+	{
+		setCastError (opValue, type);
+		return false;
+	}
+
 	Value ptrValue;
 	bool result = castOperator (
 		opValue, 
@@ -643,6 +649,12 @@ OperatorMgr::dynamicCastClassPtr (
 			opValue.getType ()->getTypeString ().cc (),
 			type->getTypeString ().cc ()
 			);
+		return false;
+	}
+
+	if (((ClassPtrType*) opValue.getType ())->isConstPtrType () && !type->isConstPtrType ())
+	{
+		setCastError (opValue, type);
 		return false;
 	}
 

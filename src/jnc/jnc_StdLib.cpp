@@ -44,24 +44,41 @@ StdLib::dynamicCastDataPtr (
 {
 	if (!ptr.m_object)
 		return g_nullPtr;
-
+	
 	void* p = (ptr.m_object->m_flags  & (ObjHdrFlag_Stack | ObjHdrFlag_Static)) ?
 		((VariableObjHdr*) ptr.m_object)->m_p :
 		ptr.m_object + 1;
 
-	if (ptr.m_object->m_type->cmp (type) == 0)
+	if (ptr.m_p < p)
+		return g_nullPtr;
+
+	Type* srcType = ptr.m_object->m_type;
+	while (srcType->getTypeKind () == TypeKind_Array)
+	{
+		ArrayType* arrayType = (ArrayType*) srcType;
+		srcType = arrayType->getElementType ();
+		
+		size_t srcTypeSize = srcType->getSize ();
+		if (!srcTypeSize)
+			srcTypeSize = 1;
+
+		size_t offset = ((char*) ptr.m_p - (char*) p) % srcTypeSize;
+		p = (char*) ptr.m_p - offset;
+	}
+
+	if (srcType->cmp (type) == 0)
 	{
 		ptr.m_p = p;
 		return ptr;
 	}
 
-	if (ptr.m_object->m_type->getTypeKind () != TypeKind_Struct)
+	#pragma AXL_TODO ("find field pointed to by ptr and do cast accordingly")
+
+	if (srcType->getTypeKind () != TypeKind_Struct)
 		return g_nullPtr;
 
-	StructType* structType = (StructType*) ptr.m_object->m_type;
-
 	BaseTypeCoord coord;
-	bool result = structType->findBaseTypeTraverse (type, &coord);
+	bool result = ((StructType*) srcType)->findBaseTypeTraverse (type, &coord);
 	if (!result)
 		return g_nullPtr;
 

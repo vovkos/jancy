@@ -13,18 +13,19 @@ struct B: A
 	void* m_p;
 }
 
-foo (void* p)
+foo (void const* p)
 {
-	B* b = dynamic (B*) p;
-	if (b)
-		printf ("a is B\n");
-	else
-		printf ("a is NOT B\n");
+	B const* b = dynamic (B const*) p;
+	if (!b)
+	{
+		printf ("p is NOT B\n");
+		return;
+	}
 
-	size_t size = dynamic sizeof (*p);
+	size_t size = dynamic sizeof (*b);
 	size_t count = dynamic countof (*b);
 
-	printf ("sizeof = %d, countof = %d\n", size, count);
+	printf ("p is B: sizeof = %d, countof = %d\n", size, count);
 }
 
 int main ()
@@ -32,10 +33,10 @@ int main ()
 	printf ("main\n");
 
 	A a;
-	B b;
+	B b [5];
 
 	foo (a);
-	foo (b);
+	foo (&b [3]);
 
 	return 0; 
 }
