@@ -864,7 +864,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (strengthenClassPtrSrc),
 			StdNamespace_Internal,
 		},
-		{ NULL },                                // StdFunction_GetDataPtrSpan,
 		{                                        // StdFunction_GcAllocate,
 			gcAllocateSrc,
 			lengthof (gcAllocateSrc),
@@ -1052,10 +1051,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createCheckDataPtrRange ();
 		break;
 
-	case StdFunction_GetDataPtrSpan:
-		function = createGetDataPtrSpan ();
-		break;
-
 	case StdFunction_MarkGcRoot:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getDataPtrType_c ();
@@ -1197,7 +1192,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                 // StdFunction_DynamicCastDataPtr,
 		NULL,                 // StdFunction_DynamicCastClassPtr,
 		NULL,                 // StdFunction_StrengthenClassPtr,
-		"getDataPtrSpan",     // StdFunction_GetDataPtrSpan,
 		NULL,                 // StdFunction_GcAllocate,
 		NULL,                 // StdFunction_GcTryAllocate,
 		NULL,                 // StdFunction_GcEnter,
@@ -1463,39 +1457,6 @@ FunctionMgr::createCheckDataPtrRange ()
 	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_DataPtrOutOfRange);
 
 	m_module->m_controlFlowMgr.follow (successBlock);
-
-	internalEpilogue ();
-
-	return function;
-}
-
-// size_t
-// jnc.GetDataPtrSpan (jnc.DataPtr Ptr);
-
-Function*
-FunctionMgr::createGetDataPtrSpan ()
-{
-	Type* intPtrType = m_module->getSimpleType (TypeKind_Int_p);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (intPtrType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction ("getDataPtrSpan", "jnc.getDataPtrSpan", functionType);
-
-	Value argValue;
-	internalPrologue (function, &argValue, 1);
-
-	Value ptrValue;
-	Value rangeEndValue;
-	Value spanValue;
-	m_module->m_llvmIrBuilder.createExtractValue (argValue, 0, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createExtractValue (argValue, 2, NULL, &rangeEndValue);
-	m_module->m_llvmIrBuilder.createPtrToInt (ptrValue, intPtrType, &ptrValue);
-	m_module->m_llvmIrBuilder.createPtrToInt (rangeEndValue, intPtrType, &rangeEndValue);
-	m_module->m_llvmIrBuilder.createSub_i (rangeEndValue, ptrValue, intPtrType, &spanValue);
-	m_module->m_llvmIrBuilder.createRet (spanValue);
 
 	internalEpilogue ();
 

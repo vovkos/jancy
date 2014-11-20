@@ -89,7 +89,6 @@ enum StdFunction
 	StdFunction_DynamicCastDataPtr,
 	StdFunction_DynamicCastClassPtr,
 	StdFunction_StrengthenClassPtr,
-	StdFunction_GetDataPtrSpan,
 	StdFunction_GcAllocate,
 	StdFunction_GcTryAllocate,
 	StdFunction_GcEnter,

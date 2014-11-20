@@ -333,9 +333,6 @@ protected:
 
 	Function*
 	createCheckClassPtrScopeLevel ();
-
-	Function*
-	createGetDataPtrSpan ();
 };
 
 //.............................................................................
