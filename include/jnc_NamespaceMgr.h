@@ -125,15 +125,15 @@ public:
 	}
 
 	Value
-	getScopeLevel (Scope* scope)
+	getScopeLevel (size_t scopeLevel)
 	{
-		return scope ? m_scopeLevelStack.getScopeLevel (scope->getLevel ()) : Value ((int64_t) 0, TypeKind_SizeT);
+		return scopeLevel ? m_scopeLevelStack.getScopeLevel (scopeLevel) : Value ((int64_t) 0, TypeKind_SizeT);
 	}
 
 	Value
 	getCurrentScopeLevel ()
 	{
-		return getScopeLevel (m_currentScope);
+		return m_currentScope ? getScopeLevel (m_currentScope->getLevel ()) : Value ((int64_t) 0, TypeKind_SizeT);
 	}
 
 	Value

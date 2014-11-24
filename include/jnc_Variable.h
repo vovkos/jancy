@@ -39,6 +39,8 @@ protected:
 	rtl::BoxList <Token> m_constructor;
 
 	Scope* m_scope;
+	size_t m_scopeLevel; // not necessarily m_scope->m_level
+
 	StructField* m_tlsField;
 	llvm::Value* m_llvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
 	llvm::Value* m_llvmAllocValue;
@@ -81,7 +83,7 @@ public:
 	size_t
 	getScopeLevel ()
 	{
-		return m_scope ? m_scope->getLevel () : 0;
+		return m_scopeLevel;
 	}
 
 	Value
