@@ -101,7 +101,8 @@ Parser::preCreateLandingPads (uint_t flags)
 		rtl::String name = "finally_return_addr";
 		Type* type = getSimpleType (m_module, TypeKind_Int);
 		Variable* variable  = m_module->m_variableMgr.createStackVariable (name, type);
-		variable->m_scope = scope;
+		ASSERT (variable->m_scope == scope);
+
 		scope->m_finallyReturnAddress = variable;
 
 		bool result = m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);

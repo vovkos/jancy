@@ -145,7 +145,7 @@ OperatorMgr::checkDataPtrScopeLevel (
 	if (dstValue.getValueKind () == ValueKind_Variable)
 	{
 		checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevelDirect);
-		dstObjHdrValue = m_module->m_namespaceMgr.getScopeLevel (dstValue.getVariable ()->getScope ());
+		dstObjHdrValue = m_module->m_namespaceMgr.getScopeLevel (dstValue.getVariable ()->getScopeLevel ());
 	}
 	else
 	{

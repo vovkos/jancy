@@ -13,6 +13,7 @@ Variable::Variable ()
 	m_type_i = NULL;
 	m_ptrTypeFlags = 0;
 	m_scope = NULL;
+	m_scopeLevel = 0;
 	m_tlsField = NULL;
 	m_llvmValue = NULL;
 	m_llvmAllocValue = NULL;

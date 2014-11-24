@@ -357,7 +357,7 @@ StdLib::assertionFailure (
 	)
 {
 	rtl::String string;
-	string.format ("%s(%d) : assertion (%s) failed", fileName, line + 1, condition);
+	string.format ("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
 	if (message)
 		string.appendFormat ("; %s", message);
 

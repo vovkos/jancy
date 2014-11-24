@@ -111,6 +111,7 @@ VariableMgr::createVariable (
 		ASSERT (scope);
 
 		variable->m_scope = scope;
+		variable->m_scopeLevel = scope->getLevel ();
 	}
 
 	if (constructor)
@@ -133,6 +134,7 @@ VariableMgr::createVariable (
 
 	case StorageKind_Thread:
 		m_tlsVariableArray.append (variable);
+		variable->m_scopeLevel = 1;
 		break;
 
 	case StorageKind_Stack:
@@ -652,6 +654,9 @@ VariableMgr::allocateTlsVariableObjHdr (Variable* variable)
 		return;
 	}
 
+	static void* null = NULL;
+	Value nullPtrValue (&null, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+
 	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableObjHdr);
 	llvm::Value* llvmValue = createLlvmGlobalVariable (type, "jnc.g_tlsObjHdr");
 	initializeVariableObjHdr (
@@ -662,7 +667,7 @@ VariableMgr::allocateTlsVariableObjHdr (Variable* variable)
 		ObjHdrFlag_GcMark | 
 		ObjHdrFlag_GcWeakMark | 
 		ObjHdrFlag_GcRootsAdded,
-		Value ()
+		nullPtrValue
 		);
 
 	Value ptrValue;
@@ -696,7 +701,7 @@ VariableMgr::allocateStackVariableObjHdr (Variable* variable)
 
 	initializeVariableObjHdr (
 		objHdrValue, 
-		m_module->m_namespaceMgr.getScopeLevel (variable->m_scope), 
+		m_module->m_namespaceMgr.getScopeLevel (variable->m_scopeLevel), 
 		variable->m_type, 
 		ObjHdrFlag_Stack | 
 		ObjHdrFlag_GcMark | 
