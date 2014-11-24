@@ -127,6 +127,13 @@ public:
 		void* dataAddr
 		);
 
+	static
+	void
+	runtimeError (const err::Error& error)
+	{
+		throw error;
+	}
+
 	// gc heap
 
 	void

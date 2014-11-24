@@ -93,6 +93,15 @@ uintptr_t getCurrentThreadId ();
 
 Error const* getLastError ();
 
+///; static char assertionFailureSrc [] = 
+
+void assertionFailure (
+	char const thin* fileName,
+	int line, 
+	char const thin* condition,
+	char const thin* message
+	);
+
 ///; static char strlenSrc [] = 
 
 size_t strlen (char const* p);

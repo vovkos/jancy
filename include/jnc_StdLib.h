@@ -36,6 +36,7 @@ public:
 		JNC_API_STD_FUNCTION (StdFunction_Sleep, sleep)
 		JNC_API_STD_FUNCTION (StdFunction_GetTimestamp, getTimestamp)
 		JNC_API_STD_FUNCTION (StdFunction_GetLastError, getLastError)
+		JNC_API_STD_FUNCTION (StdFunction_AssertionFailure, assertionFailure)
 		JNC_API_STD_FUNCTION (StdFunction_StrLen, strLen)
 		JNC_API_STD_FUNCTION (StdFunction_MemCpy, memCpy)
 		JNC_API_STD_FUNCTION (StdFunction_MemCat, memCat)
@@ -161,6 +162,15 @@ public:
 	static
 	DataPtr
 	getLastError ();
+
+	static
+	void
+	assertionFailure (
+		const char* fileName,
+		int line,
+		const char* condition,
+		const char* message
+		);
 
 	static
 	DataPtr

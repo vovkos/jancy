@@ -2733,6 +2733,73 @@ Parser::appendFmtLiteralBinValue (
 	return true;
 }
 
+BasicBlock*
+Parser::assertCondition (const rtl::BoxList <Token>& tokenList)
+{
+	bool result;
+
+	Value conditionValue;
+	result = m_module->m_operatorMgr.parseExpression (NULL, tokenList, &conditionValue);
+	if (!result)
+		return NULL;
+
+	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("assert_fail");
+	BasicBlock* continueBlock = m_module->m_controlFlowMgr.createBlock ("assert_continue");
+	
+	result = m_module->m_controlFlowMgr.conditionalJump (conditionValue, continueBlock, failBlock, failBlock); 
+	if (!result)
+		return NULL;
+	
+	return continueBlock;
+}
+
+bool 
+Parser::finalizeAssertStmt (
+	const rtl::BoxList <Token>& conditionTokenList,
+	const Value& messageValue,
+	BasicBlock* continueBlock
+	)
+{
+	ASSERT (!conditionTokenList.isEmpty ());
+
+	rtl::String fileName = m_module->m_unitMgr.getCurrentUnit ()->getFilePath ();
+	rtl::String conditionString = Token::getTokenListString (conditionTokenList);
+	Token::Pos pos = conditionTokenList.getHead ()->m_pos;
+
+	Value fileNameValue;
+	Value lineValue;
+	Value conditionValue;
+	
+	fileNameValue.setCharArray (fileName, fileName.getLength ());
+	lineValue.setConstInt32 (pos.m_line);
+	conditionValue.setCharArray (conditionString, conditionString.getLength ());
+
+	Function* assertionFailure = m_module->m_functionMgr.getStdFunction (StdFunction_AssertionFailure);
+
+	rtl::BoxList <Value> argValueList;
+	argValueList.insertTail (fileNameValue);
+	argValueList.insertTail (lineValue);
+	argValueList.insertTail (conditionValue);
+
+	if (messageValue)
+	{
+		argValueList.insertTail (messageValue);
+	}
+	else
+	{
+		Value nullValue;
+		nullValue.setNull ();
+		argValueList.insertTail (nullValue);
+	}
+	
+	bool result = m_module->m_operatorMgr.callOperator (assertionFailure, &argValueList);
+	if (!result)
+		return false;
+		
+	m_module->m_controlFlowMgr.follow (continueBlock); 
+	return true;
+}
+
 //.............................................................................
 
 } // namespace jnc {

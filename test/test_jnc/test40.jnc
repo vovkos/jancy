@@ -3,6 +3,11 @@
 int main ()
 {
 	printf ("main\n");
+
+	int x = 11;
+
+	assert (x == 10, "x must be 10");
+
 	return 0; 
 }
 

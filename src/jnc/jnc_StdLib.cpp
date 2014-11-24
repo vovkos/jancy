@@ -348,6 +348,22 @@ StdLib::getLastError ()
 	return ptr;
 }
 
+void
+StdLib::assertionFailure (
+	const char* fileName,
+	int line,
+	const char* condition,
+	const char* message
+	)
+{
+	rtl::String string;
+	string.format ("%s(%d) : assertion (%s) failed", fileName, line + 1, condition);
+	if (message)
+		string.appendFormat ("; %s", message);
+
+	Runtime::runtimeError (err::createStringError (string, string.getLength ()));
+}
+
 DataPtr
 StdLib::format (
 	DataPtr formatStringPtr,

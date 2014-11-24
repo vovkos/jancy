@@ -1021,6 +1021,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (getLastErrorSrc),
 			StdNamespace_Jnc,
 		},
+		{                                       // StdFunction_AssertionFailure,
+			assertionFailureSrc,
+			lengthof (assertionFailureSrc),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1083,6 +1088,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_GetTimestamp:
 	case StdFunction_GetCurrentThreadId:
 	case StdFunction_GetLastError:
+	case StdFunction_AssertionFailure:
 	case StdFunction_StrLen:
 	case StdFunction_MemCpy:
 	case StdFunction_MemCat:
@@ -1225,6 +1231,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                 // StdFunction_AppendFmtLiteral_br,
 		NULL,                 // StdFunction_SimpleMulticastCall,
 		"getLastError",       // StdFunction_GetLastError,
+		"assertionFailure",   // StdFunction_AssertionFailure,
 	};
 
 	const char* name = nameTable [func];

@@ -123,6 +123,7 @@ main := |*
 'try'             |
 'catch'           |
 'finally'         |
+'assert'          |
 
 'basetype' [1-9]? |
 'this'            |

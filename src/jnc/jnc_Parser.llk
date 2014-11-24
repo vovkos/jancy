@@ -477,6 +477,16 @@ Members2
 		const Value& fmtLiteralValue,
 		const Value& rawSrcValue
 		);
+
+	BasicBlock*
+	assertCondition (const rtl::BoxList <Token>& tokenList);
+
+	bool 
+	finalizeAssertStmt (
+		const rtl::BoxList <Token>& conditionTokenList,
+		const Value& messageValue,
+		BasicBlock* continueBlock
+		);
 }
 
 OpenNamespace

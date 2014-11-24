@@ -205,6 +205,7 @@ main := |*
 'try'            { createToken (TokenKind_Try); };
 'catch'          { createToken (TokenKind_Catch); };
 'finally'        { createToken (TokenKind_Finally); };
+'assert'         { createToken (TokenKind_Assert); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
