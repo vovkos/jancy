@@ -50,7 +50,7 @@
 #include "llvm/ExecutionEngine/ObjectImage.h"
 
 // LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
-// we want to be able avoid that (i.e. if a libraries defines LLVM-dependant classes, but
+// we want to be able avoid that (i.e. if a libraries defines LLVM-dependent classes, but
 // application does not use those classes -- then why link to LLVM?)
 
 #ifndef _AXL_LLVM_NO_JIT

@@ -170,8 +170,11 @@ public:
 	QSize sizeHint() const { return QSize(800, 600); }
 
 	void writeStatus(const QString &text, int timeout = 0);
-	void writeOutput_va(const char* format, va_list va);
-	void writeOutput(const char* format, ...);
+	
+	size_t writeOutputDirect(const char* text, size_t length = -1);
+	size_t writeOutput_va(const char* format, va_list va);
+	size_t writeOutput(const char* format, ...);
+
 	MdiChild *findMdiChild(const QString &filePath);
 
 protected:
@@ -240,7 +243,7 @@ private:
 	jnc::Runtime runtime;
 };
 
-inline MainWindow *GetMainWindow()
+inline MainWindow* getMainWindow ()
 {
 	foreach (QWidget *widget, QApplication::topLevelWidgets())
 	{
@@ -250,18 +253,6 @@ inline MainWindow *GetMainWindow()
 	}
 
 	return NULL;
-}
-
-inline void WriteOutput_va(const char* format, va_list va)
-{
-	GetMainWindow()->writeOutput_va(format, va);
-}
-
-inline void WriteOutput(const char* format, ...)
-{
-	va_list va;
-	va_start (va, format);
-	GetMainWindow()->writeOutput_va(format, va);
 }
 
 #endif

@@ -22,7 +22,7 @@ void Output::mouseDoubleClickEvent(QMouseEvent *e)
 
 	if(parseLine(textCursor(), documentLine, documentCol, filePath))
 	{	
-		MdiChild *child = GetMainWindow()->findMdiChild(filePath);
+		MdiChild *child = getMainWindow()->findMdiChild(filePath);
 		if (child)
 		{
 			QColor foreColor(Qt::white);

@@ -110,18 +110,12 @@ TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 
 int
 StdLib::Printf (
-	const char* pFormat,
+	const char* format,
 	...
 	)
 {
-	AXL_VA_DECL (va, pFormat);
-
-	rtl::String Text;
-	size_t Length = Text.format_va (pFormat, va);
-
-	WriteOutput (Text, Length);
-
-	return Length;
+	AXL_VA_DECL (va, format);
+	return (int) getMainWindow ()->writeOutput_va (format, va.m_va);
 }
 
 void
@@ -340,11 +334,12 @@ void MainWindow::writeStatus(const QString &text, int timeout)
 	statusBar()->showMessage(text, timeout);
 }
 
-void MainWindow::writeOutput_va(const char* format, va_list va)
+size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 {
-	rtl::String text;
-	text.format_va (format, va);
-	QString string = QString::fromUtf8 (text, text.getLength ());
+	if (length == -1)
+		length = strlen (text);
+
+	QString string = QString::fromUtf8 (text, length);
 
 	if (QApplication::instance()->thread () == QThread::currentThread () && outputQueue.empty ())
 	{
@@ -359,6 +354,22 @@ void MainWindow::writeOutput_va(const char* format, va_list va)
 
 		emit outputSignal ();
 	}
+
+	return length;
+}
+
+size_t MainWindow::writeOutput_va(const char* format, va_list va)
+{
+	rtl::String text;
+	text.format_va (format, va);
+	return writeOutputDirect (text, text.getLength ());
+}
+
+size_t MainWindow::writeOutput (const char* format, ...)
+{
+	va_list va;
+	va_start (va, format);
+	return writeOutput_va (format, va);
 }
 
 void MainWindow::outputSlot ()
@@ -377,13 +388,6 @@ void MainWindow::outputSlot ()
 	}
 
 	outputMutex.unlock ();
-}
-
-void MainWindow::writeOutput(const char* format, ...)
-{
-	va_list va;
-	va_start (va, format);
-	writeOutput_va (format, va);
 }
 
 MdiChild *MainWindow::findMdiChild(const QString &filePath)

@@ -77,7 +77,7 @@ main := |*
 # global declarations & pragmas
 
 'namespace'      { createToken (TokenKind_Namespace); };
-'extend'         { createToken (TokenKind_Extend); };
+'extension'      { createToken (TokenKind_Extension); };
 'using'          { createToken (TokenKind_Using); };
 'friend'         { createToken (TokenKind_Friend); };
 'public'         { createToken (TokenKind_Public); };

@@ -1,23 +1,21 @@
 //.............................................................................
 
-struct A
-{
-	int m_x;
-}
+int bindable g_data;
 
-struct B: A
+reactor g_reactor ()
 {
-	int* m_p;
+	onevent bindingof (g_data) ()
+	{
+		printf ("g_data has changed\n");
+	}
 }
 
 int main ()
 {
 	printf ("main\n");
 
-	B b;
-	A* a = &b;
-
-	char const* p = (char const*) &b;
+	g_reactor.start ();
+	g_data = 100;
 
 	return 0; 
 }

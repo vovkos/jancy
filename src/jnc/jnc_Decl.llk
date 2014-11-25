@@ -4,7 +4,7 @@
 
 global_declaration
 	:	namespace_declaration
-	|	extend_declaration
+	|	extension_declaration
 	|	using_declaration
 	|	friend_declaration
 	|	access_declaration
@@ -54,8 +54,8 @@ namespace_declaration
 			}
 	;
 
-extend_declaration
-	:	TokenKind_Extend qualified_name
+extension_declaration
+	:	TokenKind_Extension qualified_name
 			{
 				return openTypeExtension ($2.m_name, $2.m_firstToken.m_pos);
 			}

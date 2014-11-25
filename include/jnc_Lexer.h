@@ -28,7 +28,7 @@ enum TokenKind
 	// special declarations
 
 	TokenKind_Namespace,
-	TokenKind_Extend,
+	TokenKind_Extension,
 	TokenKind_Using,
 	TokenKind_Friend,
 	TokenKind_Public,
@@ -199,8 +199,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// special declarations
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
+	AXL_LEX_TOKEN_NAME (TokenKind_Extension,    "extension")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
-	AXL_LEX_TOKEN_NAME (TokenKind_Extend,       "extend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
