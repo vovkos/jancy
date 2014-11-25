@@ -118,21 +118,16 @@ Cast_DataPtr_Base::getCastKind (
 	bool isDstPod = (dstDataType->getFlags () & TypeFlag_Pod) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
 
-	if (dstDataType->getTypeKind () == TypeKind_Void && (isDstConst || isSrcPod))
+	if (dstDataType->getTypeKind () == TypeKind_Void && (isSrcPod || isDstConst))
 		return CastKind_Implicit;
 
-	if (srcDataType->getTypeKind () != TypeKind_Struct)
-	{
-		return 
-			isSrcPod && isDstPod ? CastKind_Explicit : 
-			isDstDerivable ? CastKind_Dynamic : CastKind_None;
-	}
-
-	bool isDstBase = ((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType);
+	bool isDstBase = 
+		srcDataType->getTypeKind () == TypeKind_Struct && 
+		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType);
 
 	return 
 		isDstBase ? CastKind_Implicit :
-		isSrcPod && isDstPod ? CastKind_Explicit : 
+		isDstPod && (isSrcPod || isDstConst) ? CastKind_Explicit : 
 		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }
 
@@ -165,21 +160,14 @@ Cast_DataPtr_Base::getOffset (
 	if (dstDataType->getTypeKind () == TypeKind_Void && (isDstConst || isSrcPod))
 		return 0;
 
-	if (srcDataType->getTypeKind () != TypeKind_Struct)
-	{
-		if (isSrcPod && isDstPod)
-			return 0;
+	bool isDstBase = 
+		srcDataType->getTypeKind () == TypeKind_Struct && 
+		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType, coord);
 
-		CastKind castKind = isDstDerivable? CastKind_Dynamic : CastKind_None;
-		setCastError (srcType, dstType, castKind);
-		return -1;
-	}
-
-	bool isDstBase = ((StructType*) srcDataType)->findBaseTypeTraverse (dstType, coord);
 	if (isDstBase)
 		return coord->m_offset;
 
-	if (isSrcPod && isDstPod)
+	if (isDstPod && (isSrcPod || isDstConst))
 		return 0;
 
 	CastKind castKind = isDstDerivable? CastKind_Dynamic : CastKind_None;

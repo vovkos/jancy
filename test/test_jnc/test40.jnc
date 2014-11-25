@@ -1,12 +1,23 @@
 //.............................................................................
 
+struct A
+{
+	int m_x;
+}
+
+struct B: A
+{
+	int* m_p;
+}
+
 int main ()
 {
 	printf ("main\n");
 
-	int x = 11;
+	B b;
+	A* a = &b;
 
-	assert (x == 10, "x must be 10");
+	char const* p = (char const*) &b;
 
 	return 0; 
 }
