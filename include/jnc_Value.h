@@ -578,7 +578,7 @@ public:
 	}
 
 	void
-	setConstUInt32 (uint32_t value)
+	setConstInt32_u (uint32_t value)
 	{
 		setConstInt32 (value, getInt32TypeKind_u (value));
 	}
