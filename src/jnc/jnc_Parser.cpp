@@ -98,7 +98,7 @@ Parser::preCreateLandingPads (uint_t flags)
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
 		scope->m_flags |= ScopeFlag_HasFinally;
 
-		rtl::String name = "finally_return_addr";
+		rtl::String name = "finallyReturnAddr";
 		Type* type = getSimpleType (m_module, TypeKind_Int);
 		Variable* variable  = m_module->m_variableMgr.createStackVariable (name, type);
 		ASSERT (variable->m_scope == scope);

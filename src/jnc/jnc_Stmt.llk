@@ -294,7 +294,7 @@ try_stmt
 		'{'
 			{
 				m_module->m_namespaceMgr.openScope ($1.m_pos);
-				preCreateLandingPads ($1.m_data.m_integer | LandingPadFlag_Catch); // always catch
+				preCreateLandingPads ($2.m_data.m_integer | LandingPadFlag_Catch); // always catch
 			}
 		local_declaration*
 		'}'

@@ -412,6 +412,12 @@ ControlFlowMgr::catchLabel ()
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope && scope->m_catchBlock);
 
+	if (scope->m_flags & ScopeFlag_CatchDefined)
+	{
+		err::setFormatStringError ("'catch' is already defined");
+		return false;
+	}
+
 	if (scope->m_flags & ScopeFlag_FinallyDefined)
 	{
 		err::setFormatStringError ("'catch' cannot follow 'finally'");
@@ -446,6 +452,12 @@ ControlFlowMgr::finallyLabel ()
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope && scope->m_finallyBlock);
+
+	if (scope->m_flags & ScopeFlag_FinallyDefined)
+	{
+		err::setFormatStringError ("'finally' is already defined");
+		return false;
+	}
 
 	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlag_Jumped))
 	{
@@ -510,6 +522,7 @@ ControlFlowMgr::endFinally ()
 		blockCount
 		);
 
+	setCurrentBlock (getUnreachableBlock ());
 	return true;
 }
 
