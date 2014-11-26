@@ -293,13 +293,12 @@ try_stmt
 	:	TokenKind_Try
 		'{'
 			{
-				m_module->m_namespaceMgr.openScope ($1.m_pos);
+				m_module->m_namespaceMgr.openTryScope ($1.m_pos);
 				preCreateLandingPads ($2.m_data.m_integer | LandingPadFlag_Catch); // always catch
 			}
 		local_declaration*
 		'}'
 			{
-				m_module->m_controlFlowMgr.endTry ();
 				m_module->m_namespaceMgr.closeScope ();
 			}
 	;

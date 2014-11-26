@@ -158,6 +158,9 @@ public:
 	Scope*
 	openScope (const Token::Pos& pos);
 
+	Scope*
+	openTryScope (const Token::Pos& pos);
+
 	void
 	closeScope ();
 

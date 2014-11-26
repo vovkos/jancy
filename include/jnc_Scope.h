@@ -47,6 +47,7 @@ public:
 	BasicBlock* m_breakBlock;
 	BasicBlock* m_continueBlock;
 	BasicBlock* m_catchBlock;
+	BasicBlock* m_catchFollowBlock;
 	BasicBlock* m_finallyBlock;
 	Variable* m_finallyReturnAddress;
 	rtl::Array <BasicBlock*> m_finallyReturnBlockArray;

@@ -217,6 +217,27 @@ ControlFlowMgr::continueJump (size_t level)
 }
 
 void
+ControlFlowMgr::jumpToFinally (Scope* scope)
+{
+	ASSERT (scope->m_finallyBlock);
+
+	BasicBlock* returnBlock = createBlock ("return_from_finally");
+	addBlock (returnBlock);
+
+	size_t returnBlockId = scope->m_finallyReturnBlockArray.getCount ();
+	Value finallyReturnValue;
+	finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId);
+	m_module->m_operatorMgr.storeDataRef (scope->m_finallyReturnAddress, finallyReturnValue);
+	scope->m_finallyReturnBlockArray.append (returnBlock);
+	jump (scope->m_finallyBlock, returnBlock);
+
+	// return block will be jumped from 'finally', but we can mark it now:
+	// this way we can avoid extra loop in 'finally'
+
+	returnBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
+}
+
+void
 ControlFlowMgr::onLeaveScope (Scope* targetScope)
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
@@ -229,22 +250,7 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 
 		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlag_FinallyDefined))
-		{
-			BasicBlock* returnBlock = createBlock ("finally_return_block");
-			addBlock (returnBlock);
-
-			size_t returnBlockId = scope->m_finallyReturnBlockArray.getCount ();
-			Value finallyReturnValue;
-			finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId);
-			m_module->m_operatorMgr.storeDataRef (scope->m_finallyReturnAddress, finallyReturnValue);
-			scope->m_finallyReturnBlockArray.append (returnBlock);
-			jump (scope->m_finallyBlock, returnBlock);
-
-			// return block will be jumped from 'finally', but we can mark it now:
-			// this way we can avoid extra loop in 'finally'
-
-			returnBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
-		}
+			jumpToFinally (scope);
 
 		scope = scope->getParentScope ();
 	}
@@ -410,7 +416,7 @@ ControlFlowMgr::catchLabel ()
 	bool result;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope && scope->m_catchBlock);
+	ASSERT (scope && scope->m_catchBlock && !scope->m_catchFollowBlock);
 
 	if (scope->m_flags & ScopeFlag_CatchDefined)
 	{
@@ -441,7 +447,12 @@ ControlFlowMgr::catchLabel ()
 
 	scope->m_destructList.clear ();
 
-	follow (scope->m_catchBlock);
+	scope->m_catchFollowBlock = createBlock ("catch_follow");
+
+	if (scope->m_finallyBlock)
+		jumpToFinally (scope);
+
+	jump (scope->m_catchFollowBlock, scope->m_catchBlock);
 	return true;
 }
 
@@ -457,6 +468,13 @@ ControlFlowMgr::finallyLabel ()
 	{
 		err::setFormatStringError ("'finally' is already defined");
 		return false;
+	}
+
+	if (scope->m_catchBlock && !(scope->m_flags & ScopeFlag_CatchDefined)) // try { } stmt
+	{
+		result = catchLabel ();
+		if (!result)
+			return false;
 	}
 
 	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlag_Jumped))
@@ -484,16 +502,16 @@ ControlFlowMgr::finallyLabel ()
 	return true;
 }
 
-bool
-ControlFlowMgr::endTry ()
+void
+ControlFlowMgr::endCatch ()
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope && scope->m_catchBlock);
-
-	return !(scope->getFlags () & ScopeFlag_CatchDefined) ? catchLabel () : true;
+	ASSERT (scope && scope->m_catchFollowBlock);
+	
+	follow (scope->m_catchFollowBlock);	
 }
 
-bool
+void
 ControlFlowMgr::endFinally ()
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
@@ -522,8 +540,27 @@ ControlFlowMgr::endFinally ()
 		blockCount
 		);
 
-	setCurrentBlock (getUnreachableBlock ());
-	return true;
+	setCurrentBlock (scope->m_catchFollowBlock ? scope->m_catchFollowBlock : getUnreachableBlock ());
+}
+
+void
+ControlFlowMgr::endTry ()
+{
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	
+	ASSERT (
+		scope && scope->m_catchBlock &&
+		(scope->getFlags () & ScopeFlag_Try) && 
+		!(scope->getFlags () & (ScopeFlag_CatchDefined | ScopeFlag_FinallyDefined))
+		);
+
+	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlag_Jumped))
+		return; // ignore useless try
+
+	bool result = catchLabel ();
+	ASSERT (result);
+
+	endCatch ();
 }
 
 bool

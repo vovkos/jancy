@@ -4,7 +4,7 @@
 #include "jnc_Module.h"
 #include "jnc_Parser.llk.h"
 
-//#define _JNC_NO_JIT
+// #define _JNC_NO_JIT
 
 namespace jnc {
 

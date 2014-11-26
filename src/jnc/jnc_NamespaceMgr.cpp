@@ -220,6 +220,14 @@ NamespaceMgr::openScope (const Token::Pos& pos)
 	return scope;
 }
 
+Scope*
+NamespaceMgr::openTryScope (const Token::Pos& pos)
+{
+	Scope* scope = openScope (pos);
+	scope->m_flags |= ScopeFlag_Try;
+	return scope;
+}
+
 void
 NamespaceMgr::closeScope ()
 {
@@ -234,6 +242,10 @@ NamespaceMgr::closeScope ()
 
 	if (scope->m_flags & ScopeFlag_FinallyDefined)
 		m_module->m_controlFlowMgr.endFinally ();
+	else if (scope->m_flags & ScopeFlag_CatchDefined)
+		m_module->m_controlFlowMgr.endCatch ();
+	else if (scope->m_flags & ScopeFlag_Try)
+		m_module->m_controlFlowMgr.endTry ();
 
 	closeNamespace ();
 }

@@ -200,11 +200,14 @@ public:
 	bool
 	finallyLabel ();
 
-	bool
-	endTry ();
+	void
+	endCatch ();
 
-	bool
+	void
 	endFinally ();
+
+	void
+	endTry ();
 
 	bool
 	checkReturn ();
@@ -364,6 +367,9 @@ protected:
 
 	void
 	onLeaveScope (Scope* targetScope = NULL);
+
+	void
+	jumpToFinally (Scope* scope);
 
 	BasicBlock*
 	getUnreachableBlock ();

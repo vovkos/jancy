@@ -16,6 +16,7 @@ Scope::Scope ()
 	m_breakBlock = NULL;
 	m_continueBlock = NULL;
 	m_catchBlock = NULL;
+	m_catchFollowBlock = NULL;
 	m_finallyBlock = NULL;
 	m_finallyReturnAddress = NULL;
 }
