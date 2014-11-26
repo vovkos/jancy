@@ -50,7 +50,13 @@ Token*
 Lexer::createCharToken (int tokenKind)
 {
 	Token* token = createToken (tokenKind);
-	token->m_data.m_integer = ts [1];
+	ASSERT (token->m_pos.m_length >= 2);
+
+	char buffer [256];
+	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	enc::EscapeEncoding::decode (&string, ts + 1, token->m_pos.m_length - 2);
+		
+	token->m_data.m_integer = string [0];
 	return token;
 }
 

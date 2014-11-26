@@ -1,29 +1,12 @@
 //.............................................................................
 
-bool bar () throws
-{
-	printf ("bar ()\n");
-	return false;
-}
-
-foo ()
-{
-	try
-	{	
-		bar ();
-		bar ();
-		bar ();
-
-	finally:
-		printf ("finally\n"); 
-	}
-}
-
 int main ()
 {
 	printf ("main\n");
 
-	foo ();
+	int x = '\n';
+
+	printf ("x = %d\n", x);
 
 	return 2; 
 }
