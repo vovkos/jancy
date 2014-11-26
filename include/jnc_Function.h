@@ -122,6 +122,8 @@ enum StdFunction
 	StdFunction_AppendFmtLiteral_br,
 	StdFunction_SimpleMulticastCall,
 	StdFunction_GetLastError,
+	StdFunction_SetPosixError,
+	StdFunction_SetStringError,
 	StdFunction_AssertionFailure,
 	StdFunction__Count
 };

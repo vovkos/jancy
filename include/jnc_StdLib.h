@@ -36,6 +36,8 @@ public:
 		JNC_API_STD_FUNCTION (StdFunction_Sleep, sleep)
 		JNC_API_STD_FUNCTION (StdFunction_GetTimestamp, getTimestamp)
 		JNC_API_STD_FUNCTION (StdFunction_GetLastError, getLastError)
+		JNC_API_STD_FUNCTION (StdFunction_SetPosixError, setPosixError)
+		JNC_API_STD_FUNCTION (StdFunction_SetStringError, setStringError)
 		JNC_API_STD_FUNCTION (StdFunction_AssertionFailure, assertionFailure)
 		JNC_API_STD_FUNCTION (StdFunction_StrLen, strLen)
 		JNC_API_STD_FUNCTION (StdFunction_MemCpy, memCpy)
@@ -161,7 +163,24 @@ public:
 
 	static
 	DataPtr
-	getLastError ();
+	getLastError ()
+	{
+		return getErrorPtr (err::getError ());
+	}
+
+	static
+	DataPtr
+	setPosixError (int code)
+	{
+		return getErrorPtr (err::setErrno (code));
+	}
+
+	static
+	DataPtr
+	setStringError (DataPtr stringPtr)
+	{
+		return getErrorPtr (err::setStringError ((const char*) stringPtr.m_p));
+	}
 
 	static
 	void
@@ -332,6 +351,10 @@ protected:
 	void*
 	threadProc (void* context);
 #endif
+
+	static
+	DataPtr
+	getErrorPtr (const err::ErrorData* errorData);
 
 	static
 	void

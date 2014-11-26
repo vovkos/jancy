@@ -89,6 +89,14 @@ uint64_t getTimestamp ();
 
 uintptr_t getCurrentThreadId ();
 
+///; static char setPosixErrorSrc [] = 
+
+Error const* setPosixError (int errno);
+
+///; static char setStringErrorSrc [] = 
+
+Error const* setStringError (char const* string);
+
 ///; static char getLastErrorSrc [] = 
 
 Error const* getLastError ();

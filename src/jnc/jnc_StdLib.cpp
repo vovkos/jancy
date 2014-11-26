@@ -331,13 +331,12 @@ StdLib::createThread (FunctionPtr ptr)
 #endif
 
 DataPtr
-StdLib::getLastError ()
+StdLib::getErrorPtr (const err::ErrorData* errorData)
 {
-	err::Error error = err::getError ();
-	size_t size = error->m_size;
+	size_t size = errorData->m_size;
 
 	void* p = AXL_MEM_ALLOC (size);
-	memcpy (p , error, size);
+	memcpy (p , errorData, size);
 
 	jnc::DataPtr ptr = { 0 };
 	ptr.m_p = p;

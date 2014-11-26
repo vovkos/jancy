@@ -1021,6 +1021,16 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (getLastErrorSrc),
 			StdNamespace_Jnc,
 		},
+		{                                       // StdFunction_SetPosixError,
+			setPosixErrorSrc,
+			lengthof (setPosixErrorSrc),
+			StdNamespace_Jnc,
+		},
+		{                                       // StdFunction_SetStringError,
+			setStringErrorSrc,
+			lengthof (setStringErrorSrc),
+			StdNamespace_Jnc,
+		},
 		{                                       // StdFunction_AssertionFailure,
 			assertionFailureSrc,
 			lengthof (assertionFailureSrc),
@@ -1088,6 +1098,8 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_GetTimestamp:
 	case StdFunction_GetCurrentThreadId:
 	case StdFunction_GetLastError:
+	case StdFunction_SetPosixError:
+	case StdFunction_SetStringError:
 	case StdFunction_AssertionFailure:
 	case StdFunction_StrLen:
 	case StdFunction_MemCpy:
@@ -1231,6 +1243,8 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                 // StdFunction_AppendFmtLiteral_br,
 		NULL,                 // StdFunction_SimpleMulticastCall,
 		"getLastError",       // StdFunction_GetLastError,
+		"setPosixError",      // StdFunction_SetPosixError,
+		"setStringError",     // StdFunction_SetStringError,
 		"assertionFailure",   // StdFunction_AssertionFailure,
 	};
 
