@@ -283,7 +283,7 @@ OperatorMgr::callOperator (
 
 		if ((callOperator->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) && ptrType->isEventPtrType ())
 		{
-			err::setFormatStringError ("'Call' is inaccessible via 'event' pointer");
+			err::setFormatStringError ("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
