@@ -58,8 +58,14 @@ arg_list_pass1
 noast
 arg_pass1 <rtl::BoxList <Token>* $tokenList>
 	:	'('
+			{
+				$tokenList->insertTail ($1);
+			}
 		arg_pass1 <$tokenList>*
 		')'
+			{
+				$tokenList->insertTail ($3);
+			}
 	|	any
 			{
 				$tokenList->insertTail ($1);
