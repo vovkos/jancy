@@ -1,5 +1,10 @@
-// in jancy developer does not have to write trivial getters, compiler can generate
-// both field to store value and getter to retrieve it.
+// 99% of the time property getter simply returns the value of some internal 
+// field and all the property logic is actually contained in setter(s). 
+
+// jancy supports so-called 'autoget' properties to spare developer from the 
+// routine of writing trivial getters - compiler will generate both a field to 
+// store property value and a getter to retrieve it and will actually bypass 
+// getter completely wherever it's possible.
 
 //.............................................................................
 
@@ -7,19 +12,28 @@
 
 int autoget property g_simpleProp;
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// setter implementation (no getter needed)
+
 g_simpleProp.set (int x)
 {
 	printf ("g_simpleProp.set (%d)\n", x);
-	m_value = x; // by default, the name of compiler-generated field is 'm_value'
+	
+	// by default, the name of a compiler-generated field is 'm_value'
+
+	m_value = x; 
 }
 
 //.............................................................................
 
-// the same property declared using full syntax
+// similar property declared using full syntax
 
 property g_prop
 {	
-	int autoget m_x; // declaring an 'autoget' field implicitly makes property 'autoget'
+	// declaring an 'autoget' field implicitly makes property 'autoget'
+
+	int autoget m_x; 
 
 	set (int x)
 	{
@@ -27,7 +41,7 @@ property g_prop
 		m_x = x;
 	}
 
-	// setters of autoget property can surely be overloaded
+	// setters of autoget properties can be overloaded
 
 	set (double x)
 	{
@@ -42,6 +56,8 @@ property g_prop
 
 int main ()
 {
+	printf ("main ()\n");
+
 	g_simpleProp = 100;
 	int x = g_simpleProp;
 	printf ("x = %d\n", x);

@@ -1,11 +1,12 @@
-// full property declaration syntax allows declaring properties with
-// overloaded setters, members fields, helper methods, constructors / destructors etc
+// jancy also supports full property declaration syntax which allows declaring 
+// complex properties with overloaded setters, members fields, helper methods, 
+// constructors / destructors etc.
 
 //.............................................................................
 
 property g_prop
 {
-	int m_x = 5; // member field with in-place initializer
+	int m_x = 5;
 
 	int get ()
 	{
@@ -15,17 +16,23 @@ property g_prop
 
 	set (int x);
 		
-	set (double x); // overloaded setter
+	// overloaded setter
 
-	update () // helper method
+	set (double x); 
+
+	// helper method
+
+	update () 
 	{
 		printf ("g_prop.update ()\n");	
 	}
+
+	// ...
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// like in case of classes, implementation could be placed outside of property declaration
+// like with classes, implementation could be placed outside of property body
 
 g_prop.set (int x)
 {
@@ -49,6 +56,8 @@ g_prop.set (double x)
 
 int main ()
 {
+	printf ("main ()\n");
+
 	int x = g_prop;
 
 	g_prop = 100;

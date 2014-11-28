@@ -1,0 +1,85 @@
+// 'finally' clause is traditionally associated with exception handling only. 
+// however, in jancy it has a wider application domain. after all, finalization
+// is not only needed when errors occur, right?
+
+// let's say, developer wants to create a block of finalization code to be 
+// executed upon exiting a paricular scope no matter what exit path happens at 
+// runtime. why force him to create a 'try' block just for that (like in java)?
+
+// if you ever asked yourself this question then we have good news: in jancy, 
+// 'finally' block can be made a part of any given scope.
+
+//.............................................................................
+
+size_t foo (char const* s)
+{
+	printf ("foo (%s)\n", s);
+
+	size_t count = dynamic sizeof (*s);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		int c = s [i];
+		if (!c)
+			break;
+	
+		if (c == '\t')
+		{
+			printf ("TAB found at %d\n", i);
+			return i;
+		}
+	}
+
+	printf ("TAB not found\n");
+	return -1;
+
+	// nothing to do with exceptions here, just a 'finally' block
+
+finally:
+	printf ("foo () finalization\n");	
+}
+
+bool bar (int a) throws
+{
+	printf ("bar (%d)\n", a);
+
+	if (a < 0)
+	{
+		jnc.setPosixError (22); // EINVAL
+		return false;
+	}
+
+	return true;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// traditionally looking usage of 'finally'
+	
+	try
+	{
+		foo ("abc");
+		foo ("def\tghi");
+
+		bar (10);
+		bar (-1);
+
+		printf ("not supposed to get here\n");
+
+	catch:
+		printf ("error (%s)\n", jnc.getLastError ()->m_description);
+
+	finally:
+		printf ("main () finalization");
+	}
+
+	return 0;
+}
+
+//.............................................................................

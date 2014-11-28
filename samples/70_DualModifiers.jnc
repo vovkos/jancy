@@ -1,31 +1,47 @@
-// jancy introduces dual modifiers, i.e. modifiers which have different meaning
-// for 'aliens' and 'friends' of a namespace. 
-// dual modifier 'readonly' allows declaring type of data which looks like 'const' for aliens, 
-// and 'non-const' for 'friends'.  designated to eliminate the routine of creating 
-// trivial properties whose only purpose is providing read-only access
-// dual modifier 'event' allows declaring events or event pointers. aliens can only 
-// subscribe/unsubscribe ('event' semantics) while friends must be also able 
-// to fire event ('multicast' semantics)
+// jancy features dual modifiers, i.e. modifiers with a different meaning for 
+// aliens and friends of a namespace. 
+
+// dual modifier 'readonly' allows declaring types which behave like 'const' 
+// for aliens and non-const for friends. it is designed for providing read-only 
+// access in a clean and natural way (instead of creating dummy properties with 
+// trivial getters - which are used for this purpose in other languages).
+
+// dual modifier 'event' allows declaring events or event pointers. aliens can 
+// only subscribe/unsubscribe ('event' semantics) while friends must be also 
+// able to fire event ('multicast' semantics)
 
 //.............................................................................
 
 class C1
 {
-	readonly int m_progress;
-	event m_completeEvent ();
+	// read-only field declared with dual modifier 'readonly' 
+
+	int readonly m_progress;
+
+	// event field declared with dual modifier 'event'
+
+	event m_onCompleted ();
 
 	work ()
 	{
-		m_progress += 25; // insiders have write-access to m_progress
+		// insiders have write-access to 'm_progress'
+
+		m_progress += 25; 
 	
 		if (m_progress >= 100)
-			m_completeEvent (); // insiders have multicast-access to m_completeEvent
+		{
+			// insiders have multicast-access to 'm_onCompleted'
+
+			m_onCompleted (); 
+		}
 	}
 }
 
-onComplete ()
+//.............................................................................
+
+onCompleted ()
 {
-	printf ("onComplete () -- work is finished\n");
+	printf ("onCompleted () -- work is finished\n");
 }
 
 //.............................................................................
@@ -37,17 +53,27 @@ int main ()
 	printf ("main ()\n");
 
 	C1 c;
-	c.m_completeEvent += onComplete; // outsiders have event-access to C1.m_completeEvent
 
-	// c.m_completeEvent (); // <-- error: outsiders have no multicast-access to C1.m_completeEvent
+	// aliens have event-access to 'C1.m_onCompleted'...
+
+	c.m_onCompleted += onCompleted; 
+
+	// ...but no multicast-access
+
+	// c.m_onCompleted (); // <-- error
 
 	while (c.m_progress < 100)
 	{
 		c.work ();
-		printf ("progress = %d%%\n", c.m_progress); // outsiders have read-access to C1.m_x
+
+		// outsiders have read-access to 'C1.m_x'...
+
+		printf ("progress = %d%%\n", c.m_progress); 
 	}
 
-	// c.m_progress = 100; // <-- error: outsiders have no write-access to C1.m_x
+	// ...but no write-access
+
+	// c.m_progress = 100; // <-- error
 
 	return 0;
 }

@@ -1,0 +1,90 @@
+// schedule operator is used to ensure execution of a function in proper 
+// environment. good examples would be: calling a function in a worker thread, 
+// calling a function in response to a windows message, calling a function with
+// a mutex held etc.
+
+//.............................................................................
+
+// jnc.Scheduler is a built-in jancy class
+
+class LockScheduler: jnc.Scheduler
+{
+	// note how schedule () has no information about argument signature of the
+	// target function
+
+	override schedule (function* f ())
+	{
+		printf ("lock before call...\n");
+		f ();
+		printf ("unlock after call...\n");
+	}
+}
+
+//.............................................................................
+
+foo (
+	int a,
+	int b,
+	function* completionProc (
+		int, 
+		int
+		)
+	)
+{
+	// do some work
+
+	for (int i = 0; i < 100; i += 10)
+	{
+		printf ("working, %2d%%...\n", i);
+	}
+
+	// call completion proc
+
+	completionProc (a, b);
+}
+
+bar (int x)
+{
+	printf ("bar (%d)\n", x);
+}
+
+onComplete (
+	int a,
+	int b
+	)
+{
+	printf ("onComplete (%d, %d)\n", a, b);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	LockScheduler scheduler;
+
+	// use @ (at) operator to create a scheduled pointer; resulting scheduled 
+	// pointer has the same argument signature as the target function
+
+	function* completionProc (
+		int,
+		int
+		) = onComplete @ scheduler; 
+
+	// when passing a scheduled function pointer as, say, completion routine,
+	// you can be sure the target function will be called in proper environment
+
+	foo (10, 20, completionProc);
+
+	// obviously, it's also ok to schedule a function call immediatly, without 
+	// saving a scheduled function pointer
+	
+	(bar @ scheduler) (100);
+
+	return 0;
+}
+
+//.............................................................................

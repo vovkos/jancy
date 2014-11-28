@@ -1,7 +1,8 @@
-// the simpliest possible program in jancy
-// at this level jancy looks exactly like C/C++
+// the simplest possible program in jancy. looks just like C/C++, doesn't it?
 
 //.............................................................................
+
+// entry point
 
 int main ()
 {

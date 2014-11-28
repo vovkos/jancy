@@ -1,0 +1,47 @@
+// safe data pointers and safe pointer arithmetics was one of the biggest 
+// motivations to create jancy language in the first place.
+
+// jancy data pointers are by default 'fat': besides actual pointer they also
+// carry a pointer validator which contains permitted address range, type and
+// scope level.
+
+// this sample demonstrates data range checks performed by jancy runtime on 
+// pointer access.
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	int a [] = { 10, 20, 30 };
+
+	int* p = a;	
+	int* end = p + countof (a);	
+
+	for (; p < end; p++)
+		printf ("*p = %d\n", *p);
+	
+	// now 'p' points beyond the end of array, accessing it will induce 
+	// runtime error: data pointer out-of-range 
+
+	// int x = *p; // <-- runtime error
+	
+	// using index operator is range-checked as well
+	
+	size_t i;
+
+	for (i = 0; i < countof (a); i++)
+		printf ("a [%d] = %d\n", i, a [i]);
+		
+	// now 'i' holds the index past the length of array, accessing it will 
+	// induce runtime error: data pointer out-of-range 
+	
+	// a [i] = i; // <-- runtime error	
+	
+	return 0;
+}
+
+//.............................................................................

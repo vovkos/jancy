@@ -1,0 +1,112 @@
+// reactive programming is a programming paradigm that can tremendously help
+// with many programming tasks, but is especially effective in case of UI 
+// programming. 
+
+// the idea behind it is to automate execution of certain 'update' actions in 
+// response to property changes. imagine a complex setting dialog with many 
+// interconnected items: values of some items must control color, visibility, 
+// availability etc of other items.
+
+// traditional approach woule be to write multiple event handlers and do the
+// updates of dependent items from within those handlers.
+
+// with 'reactor' approach it is possible to write a single 'constraints' block
+// where all the relations and dependencies are described in declarative style.
+// then start the reactor and just let the jancy runtime to automatically bind,  
+// track property changes and execute requested updates!
+
+//.............................................................................
+
+// update functions that need to be called when bindable properties change
+
+updatePurple (
+	int red, 
+	int blue,
+	int alpha
+	)
+{
+	printf ("updatePurple (%x, %x, %x)\n", red, blue, alpha);
+}
+
+updateYellow (
+	int red, 
+	int green,
+	int alpha
+	)
+{
+	printf ("updateYellow (%x, %x, %x)\n", red, green, alpha);
+}
+
+updateCyan (
+	int green, 
+	int blue,
+	int alpha
+	)
+{
+	printf ("updateCyan (%x, %x, %x)\n", green, blue, alpha);
+}
+
+//.............................................................................
+
+// 3 bindable data properties
+
+int bindable g_red;
+int bindable g_green;
+int bindable g_blue;
+
+// this variable will be automatically updated by g_colorReactor
+
+int g_rgb; 
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// inside 'reactor' developer writes expressions which describe relations and 
+// constraints in a declarative manner
+
+// upon starting the reactor jancy runtime will bind to all bindable non-lvalue 
+// properties touched in expressions inside this reactor and then re-evaluate 
+// dependent expressions automatically
+
+// if the required logic cannot be expressed by a simple expression, 'onevent' 
+// statement could be used (see the next sample)
+
+reactor g_colorReactor (int alpha)
+{
+	updatePurple (g_red, g_blue, alpha); 
+	updateYellow (g_red, g_green, alpha);
+	updateCyan (g_green, g_blue, alpha);
+
+	g_rgb = (g_red << 16) + (g_green << 8) + g_blue;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// starting reactor executes all the expressions in reactor block once
+
+	g_colorReactor.start (5);
+
+	printf ("changing g_red...\n");
+	g_red = 0xab; 
+
+	printf ("changing g_green...\n");
+	g_green = 0xcd;
+
+	// if reactor is stopped now then g_blue change below will not be handled
+
+	// g_colorReactor.stop (); 
+
+	printf ("changing g_blue...\n");
+	g_blue = 0xef; 
+
+	printf ("g_rgb = #%06x\n", g_rgb);
+
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,103 @@
+// jancy features const-correctness: a great tool unjustly left behind in most 
+// of the modern managed languages.
+
+//.............................................................................
+
+struct Point
+{
+	int m_x;
+	int m_y;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+transpose (
+	Point* dst,
+	Point const* src
+	)
+{
+	printf ("transpose (%d, %d)\n", src.m_x, src.m_y);
+
+	int x = src.m_x;
+	dst.m_x = src.m_y;
+	dst.m_y = x;
+
+	// compiler prevents stores into const location
+
+	// src.m_x = 0; // <-- error
+
+	// unlike C++ jancy strictly disallows const -> non-const pointer casts
+
+	// Point* p2 = (Point*) src;
+}
+
+//.............................................................................
+
+class C1
+{
+	int m_field;
+	mutable int m_mutableField;
+
+	// jancy uses C++ syntax for declaring const methods
+
+	foo () const 
+	{
+		printf ("C1.foo () { m_field = %d }\n", m_field);
+	}
+
+	bar (int x)
+	{
+		printf ("C1.bar (%d)\n", x);
+		m_field = x;
+	}	
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+baz (const C1* p)
+{
+	printf ("p.m_x = %d\n", p.m_field);
+
+	// ok to call const methods via const pointer
+
+	p.foo (); 
+
+	// ok to modify mutable fields via const pointer
+
+	p.m_mutableField = 100;
+
+	// illegal to call non-const methods or modify non-mutable fields
+
+	// p.bar (200);     // <-- error
+	// p.m_field = 200; // <-- error
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	Point srcPoint = { 10, 20 };
+	Point dstPoint;
+
+	// we can be sure 'srcPoint' is not going to change
+
+	transpose (&dstPoint, &srcPoint); 
+
+	C1 c;
+
+	// no problem to call non-const method via non-const C1 pointer
+
+	c.bar (10); 
+	
+	// we can be sure 'c' is not going to change
+
+	baz (&c); 
+
+	return 0;
+}
+
+//.............................................................................

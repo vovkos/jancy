@@ -1,0 +1,81 @@
+// checking range is not enough: when a pointer references stack variable, this 
+// pointer becomes invalid without any modification, just by running out of the 
+// local scope where this stack variable was declared.
+
+// to address this issue, jancy runtime prevents storing addresses with higher 
+// scope levels into locations with lower scope levels. in other words, jancy 
+// prevents leaking of the addresses out of their lifetime scopes.
+
+//.............................................................................
+
+// static (and heap-allocated) variables have scope level 0
+
+int g_x0;
+int* g_p0;
+int** g_pp0 = &g_p0;
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// thread variables have scope level 1, which is higher then both static 
+	// and heap (0)
+
+	thread int x1;
+	thread int* p1;
+	thread int** pp1 = &p1;
+
+	// it's ok to store addresses with equal or lower scope levels
+
+	p1 = &x1;     // ok
+	p1 = &g_x0;   // ok	
+	*pp1 = &x1;   // ok
+	*pp1 = &g_x0; // ok
+
+	// storing addresses into locations with lower scope levels is illegal;
+	// multiple indirection stores are also checked for scope-level compliance
+	
+	// g_p0 = &x1;   // <-- runtime error
+	// *g_pp0 = &x1; // <-- runtime error
+
+	// stack variables have scope levels starting with 2, which is higher 
+	// than both static (0), heap (0) and thread (1)
+
+	int x2;
+	int* p2;
+	int** pp2 = &p2;
+
+	p2 = &x2;   // ok
+	p2 = &x1;   // ok
+	*pp2 = &x2; // ok
+	*pp2 = &x1; // ok
+
+	// p1 = &x2;     // <-- runtime error
+	// *pp1 = &x2;   // <-- runtime error
+	// g_p0 = &x2;   // <-- runtime error
+	// *g_pp0 = &x2; // <-- runtime error
+
+	{
+		int x3;
+		int* p3;
+		int** pp3 = &p3;
+
+		p3 = &x3;   // ok
+		p3 = &x2;   // ok
+		*pp3 = &x3; // ok
+		*pp3 = &x2; // ok
+
+		// p1 = &x3;     // <-- runtime error
+		// *pp1 = &x3;   // <-- runtime error
+		// p2 = &x3;     // <-- runtime error
+		// *pp2 = &x3;   // <-- runtime error
+	}
+
+	// the same rules 
+
+	return 0;
+}
+
+//.............................................................................

@@ -1,0 +1,98 @@
+// enums in jancy conseal member identifiers within enum namespace to prevent 
+// parent namespace pollution.
+
+// to simplify porting of existing C/C++ code jancy also offers 'exposed' enums
+// which behave just like traditional C/C++ enums exposing member identifiers.
+
+// yet another flavour of enums in jancy is 'bitflag' enum, i.e. enum designed 
+// to be used for bitflag description. bitflag enums differ from normal enums 
+// in the following aspects:
+//   * automatic value assignment goes 1, 2, 4, 8 etc - i.e. instead of +1 it 
+//     shifts the higher bit of the previous member;
+//   * bitwise or operator '|' on 2 operands of matching bitflag enum type 
+//     yields the same bitflag enum type
+//   * it's ok to assign '0' to bitflag enum
+
+// by default bitflag enums conseal member identifiers like normal enums do, 
+// but it's ok to apply 'exposed' modifier to a bitflag enum to change that.
+
+//.............................................................................
+
+enum Color
+{
+	Red,    // = 0 
+	Orange,
+	Yellow,
+	Green      = 15, 
+	Blue,   // = 16 
+	Purple,
+}
+
+exposed enum State
+{
+	State_Idle, // = 0
+	State_Connecting,
+	State_Connected,
+	State_Disconnecting,
+}
+
+bitflag enum OpenFlags: int
+{
+	ReadOnly,      // = 0x01
+	Exclusive         = 0x20,
+	DeleteOnClose, // = 0x40
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// enum members must be qualified (unqualified name is not visible)
+
+	Color color = Color.Blue;
+
+	// cast int -> enum must be explicit
+
+	// color = 0; // <-- error 
+
+	printf ("color = %d\n", color);
+
+	// exposed enum members need not to be qualified...
+
+	State state = State_Connecting; 
+
+	// ...but qualified names work also
+	
+	state = State.State_Disconnecting; 
+
+	// cast int -> exposed enum still must be explicit
+
+	// state = 100; // <-- error 
+
+	printf ("state = %d\n", state);
+
+	// you can bitwise-or bitflag enum members together
+
+	OpenFlags flags = 
+		OpenFlags.ReadOnly | 
+		OpenFlags.Exclusive | 
+		OpenFlags.DeleteOnClose;
+
+	printf ("flags = 0x%x\n", flags);
+
+	// cast int -> bitflag enum must be explicit...
+
+	// flags = 200; // <-- error
+
+	// ...but it is ok to assign '0'
+
+	flags = 0;  
+
+	return 0;
+}
+
+//.............................................................................

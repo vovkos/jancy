@@ -1,11 +1,15 @@
-// jancy provides a natural syntax for declaring simple properties
-// obviously it is only possible if property has no overloaded setters
+// jancy features the most natural syntax imaginable for declaring properties 
+// which have no overloaded setters.
 
 //.............................................................................
 
+// we dare you to come up with a better syntax! ;)
+
 int property g_simpleProp;
 
-// accessor implementation
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// accessors implementation
 
 int g_simpleProp.get ()
 {
@@ -20,9 +24,12 @@ g_simpleProp.set (int x)
 
 //.............................................................................
 
-// read-only property also can use simple declaration syntax
+// read-only properties are called 'const-properties' in jancy. this is because 
+// 'readonly' has a special meaning (see dual modifiers for more)
 
-const int property g_simpleReadOnlyProp;
+int const property g_simpleReadOnlyProp;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int g_simpleReadOnlyProp.get ()
 {
@@ -36,13 +43,17 @@ int g_simpleReadOnlyProp.get ()
 
 int main ()
 {
+	printf ("main ()\n");
+
 	int x = g_simpleProp;
 
 	g_simpleProp = 100;
 
 	int y = g_simpleReadOnlyProp;
 
-	// g_simpleReadOnlyProp = 200; // <-- error: property is read-only
+	// const properties cannot be written to, obviously
+
+	// g_simpleReadOnlyProp = 200; // <-- error
 
 	return 0;
 }

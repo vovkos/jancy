@@ -1,0 +1,124 @@
+// jancy provides 'static', 'stack', 'thread' and 'heap' data storage for 
+// member fields and global/local variables.
+
+//.............................................................................
+
+class C1
+{
+	// for member fields, default storage is parent memory block
+
+	int m_memberField; 
+	static int m_staticField = 2;
+	thread int m_threadField;
+
+	// thread fields cannot be initialized or be aggregate
+
+	// thread int m_threadField2 = 3; // <-- error
+	// thread int m_threadField3 [4]; // <-- error
+
+	// member fields cannot use 'heap' or 'stack' storage
+
+	// heap int m_heapField;   // <-- error
+	// stack int m_stackField; // <-- error
+
+	construct (int x)
+	{
+		printf ("C1.construct (%d)\n", x);
+		m_memberField = x;
+	}
+
+	destruct ()
+	{
+		printf ("C1.destruct (%d)\n", m_memberField);
+	}
+}
+
+//.............................................................................
+
+class C2
+{
+	// jancy allows allocation of multiple class objects at once on the same 
+	// memory block (like C++)
+
+	C1 m_classField; 	                 
+
+	construct (int x)
+	{
+		// if a member field requires construction, it must be done in the 
+		// beginning of constructor (much like base type constructors)
+
+		m_classField.construct (x); 
+
+		printf ("C2.construct (%d)\n", x);
+	}
+
+	destruct ()
+	{
+		printf ("C2.destruct (%d)\n", m_classField.m_memberField);
+	}
+}
+
+//.............................................................................
+
+// for global variables, default storage is 'static'
+
+int g_staticGlobal; 
+thread int g_threadGlobal;
+
+// global thread variables cannot be initialized or be aggregate
+
+// thread int g_threadGlobal2 = 1; // <-- error
+// thread int g_threadGlobal3 [8]; // <-- error                                
+
+// global variables cannot use 'heap' or 'stack' storage
+
+// heap int g_heapGlobal;   // <-- error
+// stack int g_stackGlobal; // <-- error
+
+// when declaring a global class variable and initializing it with constructor
+// call, 'construct' keyword must be used. that is because jancy does not 
+// enforce declare-before-use paradigm at global scope, therefore it cannot 
+// resolve constructor-call vs function-declaration grammar conflict in the 
+// most general case (i.e. 'A B (C)')
+
+C1 g_classGlobal construct (10);
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// for local non-class variables, default storage is 'stack'
+
+	int x; 
+	static int s = 100;
+
+	// local 'thread' variables can be initialized
+
+	thread int t = 200; 
+	
+	// 'heap' storage can be used to avoid allocation of large local variables 
+	// on stack and use gc-heap instead
+
+	heap char a [256]; 
+
+	// for local class variables, default storage is 'heap'
+
+	C2 c1 (1000); 
+	static C2 c2 (2000);
+
+	// local thread variables still cannot be aggregate
+
+	// thread C2 c3 (3000); // <-- error
+
+	// new operator uses 'heap' storage (allocates on gc-heap)
+
+	C2* c4 = new C2 (4000); 
+
+	return 0;
+}
+
+//.............................................................................

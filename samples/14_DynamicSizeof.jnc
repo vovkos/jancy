@@ -1,0 +1,47 @@
+// jancy runtime uses data pointer validators for ensuring pointer safety. but 
+// developer can also access some information in validator, which can be quite 
+// helpful in certain situations.
+
+//.............................................................................
+
+foo (char const* s)
+{
+	// 'dynamic sizeof' is only applicable to fat data references
+	
+	printf ("s = '%s'; length = %d\n", s, dynamic sizeof (*s) - 1);
+}
+
+int calcSum (int const* a)
+{
+	// 'dynamic countof' is only applicable to fat data references
+
+	size_t count = dynamic countof (*a);
+
+	int result = 0;
+
+	for (size_t i = 0; i < count; i++)
+		result += a [i];
+
+	return result;		
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	foo ("dynamic!");
+
+	int a [] = { 10, 20, 30 };
+
+	int sum = calcSum (a);
+
+	printf ("sum = %d\n", sum);	
+
+	return 0;
+}
+
+//.............................................................................

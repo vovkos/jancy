@@ -1,8 +1,9 @@
-// jancy provides a nice way of assigning aggregate values with curly initializers
+// jancy features a nice way of assigning aggregate values with curly 
+// initializers just like in C/C++ or C#, but better!
 
 //.............................................................................
 
-// something to curly-initialize
+// something type to curly-initialize
 
 struct Point
 {
@@ -17,7 +18,11 @@ struct Point
 
 int main ()
 {
-	int a [] = { 1, 2, 3 };	 // classic C-style curly-intializers
+	printf ("main ()\n");
+
+	// classic C-style curly-intializers
+
+	int a [] = { 1, 2, 3 };	 
 
 	printf ("a = { "); 
 
@@ -26,7 +31,9 @@ int main ()
 
 	printf ("}\n");
 
-	int b [10] = { ,, 3, 4,,, 7 }; // can skip elements leaving them zero-initialized
+	// it's ok to skip elements leaving them zero-initialized
+
+	int b [10] = { ,, 3, 4,,, 7 }; 
 
 	printf ("b = { "); 
 
@@ -35,13 +42,19 @@ int main ()
 
 	printf ("}\n");
 
-	Point point = { 10, m_z = 30 };  // can use both index- and name-based addressing
+	// both index- and name-based addressing modes are supported
+
+	Point point = { 10, m_z = 30 };  
 	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
-	point = { , 200, 300 }; // can use curly-initializers in assignment operator after declaration
+	// can use curly-initializers in assignment operator 
+
+	point = { , 200, 300 }; 
 	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
-	Point* point2 = new Point { m_y = 2000, m_z = 3000 }; // can use curly-initializers in new operator
+	// can use curly-initializers in new operator
+
+	Point* point2 = new Point { m_y = 2000, m_z = 3000 }; 
 	printf ("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);
 
 	return 0;

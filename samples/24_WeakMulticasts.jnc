@@ -1,0 +1,65 @@
+// weak multicasts and events is one the main applications of the whole concept
+// of weak pointers. 
+
+// probably the most well known scenario in which weak pointers are necessary 
+// is event-subscriber pattern: usually developer does not want a pointer held 
+// by an event to retain subscriber from being collected (which leads to subtle 
+// and hard to track leaks/bugs). 
+
+// jancy provides a solution for this problem with out-of-the-box support for 
+// weak multicasts.
+
+//.............................................................................
+
+class C1
+{
+	int m_x = -1;
+
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}		
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}		
+
+	foo ()
+	{
+		printf ("C1.foo () { m_x = %d }\n", m_x);
+	}
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	weak multicast wm ();
+
+	C1* c = new C1; 
+
+	wm += c.weak foo;
+	
+	// if we lose strong pointer then object will get destructed next gc run
+
+	// c = null;
+
+	printf ("gc run...\n");
+	jnc.runGc ();
+
+	// if object was collected during gc-run, corresponding entry in weak 
+	// multicast will be automatically removed during getting next snapshot
+	// (which is implicitly done during 'mulicast.call')
+
+	printf ("calling weak multicast...\n");
+	wm (); 	
+
+	return 0;
+}
+
+//.............................................................................

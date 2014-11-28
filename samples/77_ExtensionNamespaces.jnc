@@ -1,8 +1,8 @@
-// jancy provides a way to extend functionality of existing classes with extension namespaces.
-// extension namespace declares additional methods which have access to all the members 
-// of the class they extend. there are certain limitations imposed on the extension methods 
-// in order to ensure that if some code runs without extension namespaces, it runs exactly the same 
-// with introduction of any extension namespace(s)
+// jancy provides a way to extend functionality of existing types with 
+// extension namespaces. 
+
+// extension namespaces declare additional methods and properties which have 
+// access to all the members of the type they extend. 
 
 //.............................................................................
 
@@ -15,41 +15,84 @@ class C1
 		printf ("C1.construct (%d)\n", x);
 		m_x = x;
 	}
-
-	foo ()
-	{
-		printf ("C1.foo () { m_x = %d }\n", m_x);
-	}
-}
-
-extend C1
-{
-	bar ()
-	{
-		printf ("C1 (extend).bar () { m_x = %d }\n", m_x); // extension method has access to protected data
-	}
-
-	static baz ()
-	{
-		printf ("C1 (extend).baz ()\n");
-	}
-
-	// construct (double x);    // <-- error: constructors cannot be part of extension namespace
-	// int operator += (int x); // <-- error: operator methods cannot be part of extension namespace
-	// virtual baz ();          // <-- error: virtual methods cannot be part of extension namespace
 }
 
 //.............................................................................
+
+extension C1Ext: C1
+{
+	// extension methods have access to protected data
+
+	foo ()
+	{
+		printf ("C1Ext.foo () { m_x = %d }\n", m_x); 
+	}
+
+	bar (int x);
+
+	static baz ()
+	{
+		printf ("C1Ext.baz ()\n");
+	}
+
+	int autoget property m_prop;
+
+	// fields, destructors and virtual methods cannot be added to extension 
+	// namespaces for an obvious reason: extension should not *alter* the type,
+	// it should *extend* it
+
+	// int m_f;         // <-- error
+	// abstract v1 ();  // <-- error
+	
+	// constructors and operators theoretically can, but it's not currently 
+	// supported -- only named methods and properties for now
+	
+	// construct (double x);    // <-- error
+	// int operator += (int x); // <-- error
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// extension methods can be implemented outside of extension just like other 
+// member methods
+
+C1Ext.bar (int x)
+{
+	printf ("C1Ext.bar (%d) { m_x = %d }\n", x, m_x); 
+	m_x = x;
+
+	// it's ok to refer to other extension methods, not just original ones
+
+	foo ();
+}
+	
+C1Ext.m_prop.set (int x)
+{	
+	printf ("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x); 
+	m_value = x;
+} 
+
+//.............................................................................
+
+// notify jancy compiler we want to use this particular extension
+
+using extension C1Ext;
 
 // entry point
 
 int main ()
 {
-	C1 c construct (100);
-	c.foo ();
-	c.bar ();  // bar () is extension method
+	printf ("main ()\n");
 
-	C1.baz (); // baz () is static extension method
+	C1 c (100);
+
+	// invoke extension member methods
+
+	c.foo ();  
+	c.bar (500);
+	C1.baz ();
+
+	c.m_prop = 100;
 
 	return 0;
 }

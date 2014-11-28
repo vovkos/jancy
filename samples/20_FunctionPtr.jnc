@@ -1,0 +1,97 @@
+// jancy supports partial application with fat function pointers; thin function
+// pointers are also supported.
+
+//.............................................................................
+
+// class with a method to be called through function pointer
+
+class C1
+{
+	int m_x = -1;
+
+	foo (
+		int a,
+		int b,
+		int c		
+		)
+	{
+		printf ("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
+	}
+}
+
+//.............................................................................
+
+// simple global function to be called through function pointer
+
+bar (
+	int a,
+	int b
+	)
+{
+	printf ("bar (%d, %d)\n", a, b);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// 'thin' function pointer is just like a function pointer in C/C++
+
+	function thin* f1 (
+		int, 
+		int
+		) = bar;
+
+	f1 (10, 20);
+
+	// unlike C/C++ however, argument conversion is automated as compiler 
+	// generates thunks if needed
+
+	typedef function FpProc (
+		double, 
+		double
+		);
+
+	FpProc thin* f2 = (FpProc thin*) bar;
+	f2 (15.8, 7.1);
+
+	// unless explicitly specified, function pointer is fat: it also contains
+	// a pointer to a closure object for capturing context arguments
+
+	C1 c;
+
+	// in this case, pointer to 'c' will be captured
+
+	function* f3 (
+		int, 
+		int, 
+		int
+		) = c.foo;
+
+	f3 (100, 200, 300);
+
+	// use partial application operator '~()' to capture any arguments you want
+
+	function* f4 (int) = bar ~(5);
+	f4 (6);
+
+	// it's ok to skip arguments during parital application, thus allowing any
+	// combinations like: 
+	
+	// args 1 and 4 come from closure, args 2 and 3 come from call
+	
+	function* f5 (
+		int, 
+		int
+		) = c.foo ~(,, 3);
+
+	f5 (1, 2);
+
+	return 0;
+}
+
+//.............................................................................

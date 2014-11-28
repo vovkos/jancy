@@ -1,0 +1,97 @@
+// jancy doesn't support throwable exceptions they way С++ or java does. what
+// jancy provides instead is syntactic sugar over good-old C-style error code 
+// check model.
+
+// it looks almost like throwing and catching exceptions and frees developer 
+// from the routine of constantly checking error codes manually. at the same 
+// time, this model is much more transparent and predictable than the "real" 
+// exceptions and is extremely easy to support from the host C/C++ application.
+
+// last but not least - this model allows developer to choose whether to use 
+// error code check or exception semantics when calling the very same function,
+// depending on what is more appropriate or convenient in each particular case!
+
+//.............................................................................
+
+// sample error code enumeration
+
+enum Error
+{
+	Success  = 0,
+	TooHigh  = -1,
+	TooLow   = -2,
+}
+
+//.............................................................................
+
+// function marked by 'throws' modifier will have its return value interpreted 
+// as an error code. intuitive error conditions are assumed: 'false' for bools, 
+// negative for signed integers, '-1' for unsigned integers; other types will 
+// be cast to 'bool' for error condition check
+
+int foo (int a) throws
+{
+	printf ("foo (%d)\n", a);
+
+	if (a > 100)
+	{
+		printf ("arguent too high\n");
+		return Error.TooHigh;
+	}
+
+	if (a < -100)
+	{
+		printf ("argument too low\n");
+		return Error.TooLow;
+	}
+
+	// everything ok, do the actual work...
+
+	return Error.Success;
+}
+
+// if return types of throwing functions match, error code is automatically 
+// propagated down the call stack
+
+int bar (
+	int a,
+	int b	
+	) throws
+{
+	printf ("bar (%d, %d)\n", a, b);
+
+	foo (a);
+	foo (b);
+
+	return Error.Success;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// use 'try' operator to shield expression from throwing and handle error 
+	// code manually...
+
+	int error = try bar (1, -150);
+	if (error < 0)
+	{
+		printf ("bar returned error %d\n", error);
+	}
+
+	bar (2, 3);
+	bar (5, 150);
+	return 0;
+
+	// ...or use 'catch' label to handle error in an exception-style manner
+
+catch:
+	printf ("some of the throwing functions above returned error condition\n");
+	return -1;
+}
+
+//.............................................................................

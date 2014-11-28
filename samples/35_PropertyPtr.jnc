@@ -1,0 +1,127 @@
+// properties are present in many modern languages. property pointers, on the 
+// other hand, require well developed syntax and semantics of pointer 
+// declarations and operators, which is usually lacking. jancy is proud to be 
+// one of the first languages with full support for property pointers.
+
+// property pointers resemble and are closely related to function pointers.
+// unlike function pointers however, dealing with property pointers requires 
+// careful application of address '&' an indirection '*' operators. this is due
+// to implicit invokation of property accessors and ambiguity induced by this 
+// invokation (which cannot be automatically resolved).
+
+//.............................................................................
+
+// simple autoget property
+
+int autoget property g_foo;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// accessor implementation
+
+g_foo.set (int x)
+{
+	printf ("g_foo.set (%d)\n", x);
+	m_value = x;
+}
+
+//.............................................................................
+
+// simple indexed property
+
+int indexed property g_baz (
+	size_t i,
+	size_t j
+	);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// accessors implementation
+
+int g_baz.get (
+	size_t i,
+	size_t j
+	)
+{
+	printf ("g_baz.get (%d, %d)\n", i, j);
+	return g_bazTable [i] [j];
+}
+
+g_baz.set (
+	size_t i,
+	size_t j,
+	int x
+	)
+{
+	printf ("g_baz.set (%d, %d, %d)\n", i, j, x);
+	g_bazTable [i] [j] = x;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// global variable to store the property value
+
+int g_bazTable [2] [2];
+
+//.............................................................................
+
+// class containing a property (which might look simple but is in fact indexed 
+// because of the implicit 'this' argument
+
+class C1
+{
+	int autoget property m_bar;
+
+	m_bar.set (int x)
+	{
+		printf ("C1.m_bar.set (%d)\n", x);
+		m_value = x;
+	}
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// 'thin' property pointer is a pointer to property accessor table
+
+	int property thin* p1 = &g_foo;
+	*p1 = 10;
+
+	// like with function pointers, argument conversion is automated (compiler 
+	// generates thunks if needed)
+
+	typedef double property FpProp;
+	FpProp thin* p2 = (FpProp thin*) &g_foo;
+	*p2 = 15.8;
+
+	// like with function pointers, property pointers can capture values of 
+	// index arguments in the closure
+
+	C1 c;
+
+	// in this case, pointer to 'c' will be captured
+
+	int property* p3 = &c.m_bar; 
+
+	*p3 = 200;
+	
+	// use index operator to capture index arguments in the closure, thus 
+	// reducing dimensions of an indexed property or completely de-indexing it
+
+	int property* p4 = &(g_baz [0] [1]);
+	*p4 = 300;
+
+	// like with function pointers, it's ok to skip indexes when capturing
+
+	int indexed property* p5 (size_t) = &(g_baz [] [0]);
+	(*p5) [1] = 400;
+
+	return 0;
+}
+
+//.............................................................................

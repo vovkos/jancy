@@ -1,30 +1,38 @@
-// jancy supports 'indexed' properties: properties with semantics of arrays
+// jancy also supports so-called 'indexed' properties, i.e. properties with 
+// semantics of arrays. unlike with arrays though, index arguments of indexed 
+// properies does not need to be integer and does not need to mean index -- 
+// both type and indexing logic is totally up to developer.
 
 //.............................................................................
 
 // simple indexed property declaration syntax
 
-int g_x [2];
+int indexed property g_simpleProp (size_t i);
 
-int indexed property g_simpleProp (unsigned i);
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// here index argument is really used as integer index into array; but both type and 
-// what index really means for the particular property is totally up to developer
+// accessors implementation
 
-int g_simpleProp.get (unsigned i)
+int g_simpleProp.get (size_t i)
 {
 	printf ("g_simpleProp.get (%d)\n", i);
 	return g_x [i];
 }
 
 g_simpleProp.set (
-	unsigned i,
+	size_t i,
 	int x
 	)
 {
 	printf ("g_simpleProp.set (%d, %d)\n", i, x);
 	g_x [i] = x;
 }
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// global variable to store the property value
+
+int g_x [2];
 
 //.............................................................................
 
@@ -34,20 +42,22 @@ property g_prop
 {	
 	int m_x [2] [2];
 
-	// more than one index argument could be used
+	// more than one index argument can be used...
 
 	int get (
-		unsigned i,
-		unsigned j
+		size_t i,
+		size_t j
 		)
 	{
 		printf ("g_prop.get (%d, %d)\n", i, j);
 		return m_x [i] [j];
 	}
 
+	// ...but all accessors should have the same index arguments
+
 	set (
-		unsigned i,
-		unsigned j,
+		size_t i,
+		size_t j,
 		int x
 		)
 	{
@@ -55,11 +65,11 @@ property g_prop
 		m_x [i] [j] = x;
 	}
 
-	// setters of indexed property can be overloaded too
+	// setters of indexed properties can be overloaded
 
 	set (
-		unsigned i,
-		unsigned j,
+		size_t i,
+		size_t j,
 		double x
 		)
 	{
@@ -74,14 +84,16 @@ property g_prop
 
 int main ()
 {
+	printf ("main ()\n");
+
 	int x = g_simpleProp [0];
 
 	g_simpleProp [0] = 100;
 	g_simpleProp [1] = 200;
-	// g_simpleProp [2] = 300; // <-- runtime error: out-of-range store
+	// g_simpleProp [2] = 300; // <-- runtime error
 
-	// to access multi-indexed property, use the same syntax
-	// as for accessing multi-dimensional array
+	// to access property with multiple index arguments, use the same syntax as
+	// for accessing multi-dimensional arrays
 
 	x = g_prop [1] [1];
 	g_prop [0] [1] = 500;

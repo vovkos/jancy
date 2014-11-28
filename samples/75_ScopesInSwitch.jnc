@@ -1,5 +1,6 @@
-// jancy enclosed all the case blocks in switch statement into implicitly created scopes
-// this means freedom to create and use local variables in switch statement 
+// unlike C++ or java, jancy encloses all the case blocks in a switch statement
+// into implicit scopes. this means you are free to declare, initialize and use 
+// local variables from within case blocks of a switch statement.
 
 //.............................................................................
 
@@ -11,29 +12,35 @@ int main ()
 
 	int result;
 
-	int x = rand () % 3;
-	switch (x)
+	int a = rand () % 3;
+	switch (a)
 	{
 	case 0:
 		int i = 10;
-		result = i * i;
+		result = i * 2;
 		break;
 
 	case 1:
-		int i = 20; // no problem: we are in different scope
-		result = i * i;
+		// no problem to re-declare 'i': we are in a different scope
+
+		int i = 20; 
 	
 	case 2:
-		int i = 30; // no problem even when we fall-through from previous case label
-		result = i * i;
-		break;
+		// no problem even when we fall-through from previous case label
 
-	default: // true programmers expect the unexpected! j/k; this 'default' is utterly pointless
-		int i = 40; // still ok. you've got the idea
-		result = i * i;
+		int i = 30; 
+		result = i * 3;
+		break;
+		
+	default: 
+		// true programmers expect the unexpected! just kidding, this 'default' 
+		// is utterly pointless; but it's still ok to declare locals
+
+		int i = 40; 
+		result = i * 4;
 	}
 
-	printf ("x = %d, result = %d\n", x, result);
+	printf ("a = %d, result = %d\n", a, result);
 	return 0;
 }
 

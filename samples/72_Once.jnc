@@ -1,0 +1,99 @@
+// jancy features a nice and clean approach to lazy initialization problem with
+// 'once' statement. just prefix any statement (including a compound statement
+// '{ ... }') with 'once' or 'thread once' and it will be executed once per 
+// program run (or once per thread run).
+
+// static or thread variable construction and initialization is also guaranteed
+// to be executed once per program run (or once per thread run).
+
+// lazy initialization is guaranteed to be thread safe - compiler generates 
+// output code similar to boost::call_once ()
+
+//.............................................................................
+
+class C1
+{
+	int m_x;
+
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+		m_x = rand () % 10;
+	}
+}
+
+//.............................................................................
+
+int foo ()
+{
+	printf ("foo ()\n");
+	return rand () % 10;
+}
+
+initSomethingElse ()
+{
+	printf ("initSomethingElse ()\n");
+}
+
+baz (int x)
+{
+	printf ("baz (%d)\n", x);
+}
+
+bar ()
+{
+	printf ("bar ()\n");
+
+	// static variable construction 
+
+	static C1 c;
+
+	// static variable initialization
+
+	static int x = foo ();
+
+	// static variable initialization with 'once' statement
+
+	static int a [3];
+	
+	once 
+	{
+		printf ("foo.static once\n");
+		for (size_t i = 0; i < countof (a); i++)
+			a [i] = i * 10;
+	}
+
+	// call initialization procedure once
+
+	once initSomethingElse ();	
+
+	// print values of static variables
+
+	printf ("c.m_x = %d\n", c.m_x);
+
+	printf ("x = %d\n", x);
+
+	printf ("a = { ");
+
+	for (size_t i = 0; i < countof (a); i++)
+		printf ("%d, ", a [i]);
+	
+	printf ("}\n");
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	bar ();
+	bar ();
+	bar ();
+
+	return 0;
+}
+
+//.............................................................................

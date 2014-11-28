@@ -1,0 +1,79 @@
+// sometimes, expressions don't quite cut it when it comes to describing what 
+// has to be done in response to a property change. for example, it might be 
+// necessary to run a for-loop or execute a sequence of statements.
+
+// also, under certain circumstances tracking changes of *all* bindable 
+// properties referenced from an expression within a reactor could be 
+// 'trying-to-be-too-smart' while developer might need to have more control 
+// over which bindable properties or events to track.
+
+// 'onevent' declaration in reactor block gives developer fine-grained control
+// over dependencies and at the same time frees him from the routine of manual 
+// subscribing to events.
+
+//.............................................................................
+
+bool bindable g_useDhcp;
+
+uint32_t bindable g_ip4;
+uint32_t bindable g_routerIp4;
+
+event g_onApplyIpSettings ();
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+reactor g_ipReactor ()
+{
+	onevent bindingof (g_useDhcp) ()
+	{
+		if (g_useDhcp)
+			printf ("using DHCP, disable IP-edit\n");
+		else
+			printf ("using manual IP configuration\n");
+	}
+
+	// it's ok to specify multiple events to subscribe to 
+
+	onevent (bindingof (g_ip4), bindingof (g_routerIp4)) ()
+	{
+		printf ("IP or router IP has changed\n");
+		g_useDhcp = false;
+	}
+
+	// onevent statement allows subscribing to any events, not just 'onChanged'
+
+	onevent g_onApplyIpSettings ()
+	{
+		for (int i = 0; i < 100; i += 10)
+			printf ("applying %d%%...\n", i);
+
+		printf ("done!\n");
+	}
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	g_ipReactor.start ();
+
+	printf ("turning DHCP on...\n");
+	g_useDhcp = true;
+
+	printf ("changing IP...\n");
+	g_ip4 = 0xc0a80148;
+
+	printf ("changing router IP...\n");
+	g_ip4 = 0xc0a80101;
+
+	printf ("applying IP settings...\n");
+	g_onApplyIpSettings ();
+
+	return 0;
+}
+
+//.............................................................................

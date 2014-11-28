@@ -1,6 +1,9 @@
-// jancy supports 'bindable' properties which automatically notify subscribers 
-// when they change (after the return from setter). 
-// of course automatic notification can be suppressed, and replaced by manual notification
+// jancy supports 'bindable' properties which will notify subscribers after 
+// they have changed. 
+
+// firing of the bindable event must be done manually - that is, unless the 
+// whole property is compiler-generated. in the latter case this property is 
+// called 'bindable data'.
 
 //.............................................................................
 
@@ -8,15 +11,22 @@
 
 int autoget bindable property g_simpleProp;
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// setter implementation
+
 g_simpleProp.set (int x)
 {
 	printf ("g_simpleProp.set (%d)\n", x);
-	m_value = x;
 
-	if (x > 150)
+	if (m_value == x)
 		return;
+
+	m_value = x;
 	
-	m_onChanged (); // by default, the name of compiler-generated event is 'm_onChanged'
+	// by default, the name of compiler-generated event is 'm_onChanged'
+
+	m_onChanged (); 
 }
 
 //.............................................................................
@@ -25,43 +35,66 @@ g_simpleProp.set (int x)
 
 property g_prop
 {	
-	autoget int m_x; // declaring an 'autoget' field implicitly makes property 'autoget'
-	bindable event m_e (); // declaring a 'bindable' event implicitly makes property 'bindable'
+	// declaring an 'autoget' field implicitly makes property 'autoget'
 
-	set (int x)
-	{
-		printf ("g_prop.set (int %d)\n", x);
-		m_x = x;
-	}
+	autoget int m_x; 
 
-	set (double x)
-	{
-		printf ("g_prop.set (double %f)\n", x);
-		m_x = (int) x;
-	}
+	// declaring a 'bindable' event implicitly makes property 'bindable'
+
+	bindable event m_e (); 
+
+	set (int x);
+	set (double x);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// setters implementation
+
+g_prop.set (int x)
+{
+	printf ("g_prop.set (int %d)\n", x);
+
+	if (m_x == x)
+		return;
+
+	m_x = x;
+	m_e ();
+}
+
+g_prop.set (double x)
+{
+	printf ("g_prop.set (double %f)\n", x);
+
+	if (m_x == (int) x)
+		return;
+
+	m_x = (int) x;
+	m_e ();
 }
 
 //.............................................................................
 
-// bindable data: bindable property with compiler-generated getter & setter
-// since getter and setter are auto-generated, the purpose of
-// bindable data is purely to track data changes 
+// bindable data is completely compiler-generated property with trivial getter 
+// and setter - the sole purpose of bindable data is to track data changes
 
 int bindable g_data;
 
 //.............................................................................
 
-onSimplePropChange ()
+// onChanged event handlers
+
+onSimplePropChanged ()
 {
 	printf ("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
 }
 
-onPropChange ()
+onPropChanged ()
 {
 	printf ("g_prop has changed (new value = %d)\n", g_prop);
 }
 
-onDataChange ()
+onDataChanged ()
 {
 	printf ("g_data has changed (new value = %d)\n", g_data);
 }
@@ -72,19 +105,23 @@ onDataChange ()
 
 int main ()
 {
-	// to access bindable event of a property, use 'bindingof'
+	printf ("main ()\n");
 
-	bindingof (g_simpleProp) += onSimplePropChange;
-	bindingof (g_prop) += onPropChange;
-	bindingof (g_data) += onDataChange;
+	// to access bindable event of a property, use 'bindingof' operator
+
+	bindingof (g_simpleProp) += onSimplePropChanged;
+	bindingof (g_prop) += onPropChanged;
+	bindingof (g_data) += onDataChanged;
 
 	g_simpleProp = 100;
-	g_simpleProp = 200; // 'onchanged' event will not fire 
+	g_simpleProp = 100; // bindable event is not going to get fired
 
 	g_prop = 500;
-	g_prop = 5.5;
+	g_prop = 5.2;
+	g_prop = 5;   // bindable event is not going to get fired
 
 	g_data = 1000;
+	g_data = 1000; // bindable event is not going to get fired
 
 	return 0;
 }

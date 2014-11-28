@@ -1,0 +1,56 @@
+// jancy provides built-in support for weak pointers to classes, i.e. pointers 
+// which do not affect the lifetime of an object and do not retain it from 
+// being collected by gc.
+
+//.............................................................................
+
+class C1
+{
+	int m_x;
+
+	construct (int x)
+	{
+		printf ("C1.construct (%d)\n", x);
+		m_x = x;
+	}		
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}		
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	C1* c = new C1 (10);
+	C1 weak* wc = c;
+
+	// weak pointer cannot be used to access an object 
+
+	// wc.m_x = 20; // <-- error
+
+	// if we lose strong pointer then object will get destructed next gc run
+
+	// c = null;
+
+	printf ("gc run...\n");
+	jnc.runGc ();
+
+	// try to recover strong pointer
+
+	c = wc;
+	if (c)
+		printf ("object survived gc run\n");
+	else
+		printf ("object was collected during gc run\n");
+
+	return 0;
+}
+
+//.............................................................................
