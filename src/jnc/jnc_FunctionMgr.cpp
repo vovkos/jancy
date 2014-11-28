@@ -270,6 +270,12 @@ FunctionMgr::prologue (
 
 	function->m_scope = m_module->m_namespaceMgr.openScope (pos);
 
+	if (function->m_extensionNamespace)
+	{
+		function->m_scope->m_usingSet.addGlobalNamespace (function->m_extensionNamespace);
+		function->m_scope->m_usingSet.addExtensionNamespace (function->m_extensionNamespace);
+	}
+
 	// create entry block (gc roots come here)
 
 	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");

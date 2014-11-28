@@ -298,6 +298,26 @@ Parser::emptyDeclarationTerminator (TypeSpecifier* typeSpecifier)
 }
 
 bool
+Parser::setFunctionBody (
+	Function* function,
+	rtl::BoxList <Token>* tokenList
+	)
+{
+	bool result = function->setBody (tokenList);
+	if (!result)
+		return false;
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	while (nspace)
+	{
+		function->m_usingSet.append (nspace->getUsingSet ());
+		nspace = nspace->getParentNamespace ();
+	}
+
+	return true;
+}
+
+bool
 Parser::setDeclarationBody (rtl::BoxList <Token>* tokenList)
 {
 	if (!m_lastDeclaredItem)
@@ -312,7 +332,7 @@ Parser::setDeclarationBody (rtl::BoxList <Token>* tokenList)
 	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
-		return ((Function*) m_lastDeclaredItem)->setBody (tokenList);
+		return setFunctionBody ((Function*) m_lastDeclaredItem, tokenList);
 
 	case ModuleItemKind_Property:
 		return parseLastPropertyBody (*tokenList);
@@ -385,6 +405,36 @@ Parser::setAccessKind (AccessKind accessKind)
 }
 
 GlobalNamespace*
+Parser::getGlobalNamespace (
+	GlobalNamespace* parentNamespace,
+	const rtl::String& name,
+	const Token::Pos& pos
+	)
+{
+	GlobalNamespace* nspace;
+
+	ModuleItem* item = parentNamespace->findItem (name);
+	if (!item)
+	{
+		nspace = m_module->m_namespaceMgr.createGlobalNamespace (name, parentNamespace);
+		nspace->m_pos = pos;
+		parentNamespace->addItem (nspace);
+	}
+	else
+	{
+		if (item->getItemKind () != ModuleItemKind_Namespace)
+		{
+			err::setFormatStringError ("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).cc ());
+			return NULL;
+		}
+
+		nspace = (GlobalNamespace*) item;
+	}
+
+	return nspace;
+}
+
+GlobalNamespace*
 Parser::openGlobalNamespace (
 	const QualifiedName& name,
 	const Token::Pos& pos
@@ -419,83 +469,98 @@ Parser::openGlobalNamespace (
 	return nspace;
 }
 
-GlobalNamespace*
-Parser::getGlobalNamespace (
-	GlobalNamespace* parentNamespace,
-	const rtl::String& name,
-	const Token::Pos& pos
-	)
-{
-	GlobalNamespace* nspace;
-
-	ModuleItem* item = parentNamespace->findItem (name);
-	if (!item)
-	{
-		nspace = m_module->m_namespaceMgr.createGlobalNamespace (name, parentNamespace);
-		nspace->m_pos = pos;
-		parentNamespace->addItem (nspace);
-	}
-	else
-	{
-		if (item->getItemKind () != ModuleItemKind_Namespace)
-		{
-			err::setFormatStringError ("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).cc ());
-			return NULL;
-		}
-
-		nspace = (GlobalNamespace*) item;
-	}
-
-	return nspace;
-}
-
 bool
-Parser::openTypeExtension (
-	const QualifiedName& name,
+Parser::openExtensionNamespace (
+	const rtl::String& name,
+	Type* type,
 	const Token::Pos& pos
 	)
 {
-	Type* type = findType (-1, name, pos);
-	if (!type)
-	{
-		err::setFormatStringError ("'%s' is not a type", name.getFullName ().cc ());
-		return false;
-	}
-
-	NamedType* namedType;
-
 	TypeKind typeKind = type->getTypeKind ();
 	switch (typeKind)
 	{
-	case TypeKind_Enum:
 	case TypeKind_Struct:
 	case TypeKind_Union:
 	case TypeKind_Class:
-		namedType = (NamedType*) type;
 		break;
 
 	case TypeKind_NamedImport:
-		err::setFormatStringError ("extension namespaces for '%s' is not supported yet", type->getTypeString ().cc ());
+		err::setFormatStringError ("type extensions for imports not supported yet");
 		return false;
 
 	default:
-		err::setFormatStringError ("'%s' could not have an extension namespace", type->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' cannot have a type extension", type->getTypeString ().cc ());
 		return false;
 	}
 
-	if (namedType->m_extensionNamespace)
+	DerivableType* derivableType = (DerivableType*) type;
+
+	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ExtensionNamespace* extensionNamespace = m_module->m_namespaceMgr.createExtensionNamespace (
+		name, 
+		derivableType, 
+		currentNamespace
+		);
+
+	extensionNamespace->m_pos = pos;
+	derivableType->m_extensionNamespaceArray.append (extensionNamespace);
+
+	bool result = currentNamespace->addItem (extensionNamespace);
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.openNamespace (extensionNamespace);
+	return true;
+}
+
+bool
+Parser::useNamespace (
+	const rtl::BoxList <QualifiedName>& nameList,
+	NamespaceKind namespaceKind,
+	const Token::Pos& pos
+	)
+{
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	
+	rtl::BoxIterator <QualifiedName> it = nameList.getHead ();
+	for (; it; it++)
 	{
-		m_module->m_namespaceMgr.openNamespace (namedType->m_extensionNamespace);
-		return true;
+		ModuleItem* item = nspace->findItemTraverse (*it);
+		if (!item)
+		{
+			err::setFormatStringError ("undeclared identifier '%s'", it->getFullName ().cc ());
+			return false;
+		}
+
+		if (item->getItemKind () != ModuleItemKind_Namespace)
+		{
+			err::setFormatStringError ("'%s' is not a namespace", it->getFullName ().cc ());
+			return false;
+		}
+		
+		GlobalNamespace* usedNamespace = (GlobalNamespace*) item;
+		if (usedNamespace->getNamespaceKind () != namespaceKind)
+		{
+			err::setFormatStringError ("'%s' is not %s", it->getFullName ().cc (), getNamespaceKindString (namespaceKind));
+			return false;
+		}
+
+		switch (namespaceKind)
+		{
+		case NamespaceKind_Global:
+			nspace->m_usingSet.addGlobalNamespace (usedNamespace);
+			break;
+
+		case NamespaceKind_Extension:
+			nspace->m_usingSet.addExtensionNamespace ((ExtensionNamespace*) usedNamespace);
+			break;
+
+		default:
+			err::setFormatStringError ("invalid using: %s", getNamespaceKindString (namespaceKind));
+			return false;
+		}
 	}
 
-	GlobalNamespace* nspace = m_module->m_namespaceMgr.createGlobalNamespace ("extension", namedType);
-	nspace->m_namespaceKind = NamespaceKind_TypeExtension;
-	nspace->m_pos = pos;
-	nspace->m_parentNamespace = namedType;
-	namedType->m_extensionNamespace = nspace;
-
-	m_module->m_namespaceMgr.openNamespace (nspace);
 	return true;
 }
 
@@ -819,19 +884,33 @@ Parser::declareFunction (
 	ASSERT (functionItem->getItemKind () == ModuleItemKind_Function);
 	Function* function = (Function*) functionItem;
 
+	ExtensionNamespace* extensionNamespace;
+	DerivableType* extensionType;
+	TypeKind typeKind;
+
 	switch (namespaceKind)
 	{
-	case NamespaceKind_TypeExtension:
+	case NamespaceKind_Extension:
 		if (function->isVirtual ())
 		{
 			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (function->m_storageKind));
 			return false;
 		}
 
+		extensionNamespace = (ExtensionNamespace*) nspace;
+		extensionType = extensionNamespace->getType ();
+
+		if (function->m_storageKind != StorageKind_Static)
+		{
+			function->m_storageKind = StorageKind_Member;
+			function->convertToMemberMethod (extensionType);
+		}
+
+		function->m_parentNamespace = extensionType;
+		function->m_extensionNamespace = extensionNamespace;
 		break;
 
 	case NamespaceKind_Type:
-		TypeKind typeKind;
 		typeKind = ((NamedType*) nspace)->getTypeKind ();
 		switch (typeKind)
 		{
@@ -988,10 +1067,36 @@ Parser::createProperty (
 
 	assignDeclarationAttributes (prop, pos);
 
+	ExtensionNamespace* extensionNamespace;
+	DerivableType* extensionType;
 	TypeKind typeKind;
 
 	switch (namespaceKind)
 	{
+	case NamespaceKind_Extension:
+		if (prop->isVirtual ())
+		{
+			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
+			return false;
+		}
+
+		extensionNamespace = (ExtensionNamespace*) nspace;
+		extensionType = extensionNamespace->getType ();
+
+		if (prop->m_storageKind != StorageKind_Static)
+		{
+			prop->m_storageKind = StorageKind_Member;
+			prop->m_parentType = extensionType;
+		}
+
+		result = nspace->addItem (prop);
+		if (!result)
+			return NULL;
+
+		prop->m_parentNamespace = extensionType;
+		prop->m_extensionNamespace = extensionNamespace;
+		break;
+
 	case NamespaceKind_Type:
 		typeKind = ((NamedType*) nspace)->getTypeKind ();
 		switch (typeKind)
@@ -1254,7 +1359,7 @@ Parser::declareData (
 
 	switch (namespaceKind)
 	{
-	case NamespaceKind_TypeExtension:
+	case NamespaceKind_Extension:
 	case NamespaceKind_PropertyTemplate:
 		err::setFormatStringError ("'%s' cannot have data fields", getNamespaceKindString (namespaceKind));
 		return false;
@@ -1838,7 +1943,7 @@ Parser::callBaseTypeMemberConstructor (
 	ASSERT (m_constructorType || m_constructorProperty);
 
 	Namespace* nspace = m_module->m_functionMgr.getCurrentFunction ()->getParentNamespace ();
-	ModuleItem* item = nspace->findItemTraverse (name, NULL, TraverseKind_NoExtensionNamespace);
+	ModuleItem* item = nspace->findItemTraverse (name);
 	if (!item)
 	{
 		err::setFormatStringError ("name '%s' is not found", name.getFullName ().cc ());

@@ -602,7 +602,7 @@ public:
 
 	FunctionType*
 	getMemberMethodType (
-		NamedType* parentType,
+		DerivableType* parentType,
 		FunctionType* functionType,
 		uint_t thisArgPtrTypeFlags = 0
 		);
@@ -695,7 +695,7 @@ public:
 
 	PropertyType*
 	getMemberPropertyType (
-		NamedType* parentType,
+		DerivableType* parentType,
 		PropertyType* propertyType
 		);
 

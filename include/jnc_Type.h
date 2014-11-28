@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "jnc_ModuleItem.h"
+#include "jnc_Namespace.h"
 
 namespace jnc {
 
@@ -654,6 +654,22 @@ protected:
 	{
 		ASSERT (m_size && m_alignment);
 		return true;
+	}
+};
+
+//.............................................................................
+
+class NamedType:
+	public Type,
+	public Namespace
+{
+	friend class Parser;
+
+public:
+	NamedType ()
+	{
+		m_namespaceKind = NamespaceKind_Type;
+		m_itemDecl = this;
 	}
 };
 

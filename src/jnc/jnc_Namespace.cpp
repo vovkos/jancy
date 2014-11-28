@@ -53,13 +53,13 @@ getNamespaceKindString (NamespaceKind namespaceKind)
 {
 	static const char* stringTable [NamespaceKind__Count] =
 	{
-		"undefined-namespace-kind",  // ENamespace_Undefined = 0,
-		"global",                    // ENamespace_Global,
-		"scope",                     // ENamespace_Scope,
-		"named-type",                // ENamespace_Type,
-		"named-type-extension",      // ENamespace_TypeExtension,
-		"property",                  // ENamespace_Property,
-		"property-template",         // ENamespace_PropertyTemplate,
+		"undefined-namespace-kind",  // Namespace_Undefined = 0,
+		"global-namespace",          // Namespace_Global,
+		"scope",                     // Namespace_Scope,
+		"named-type",                // Namespace_Type,
+		"extension-namespace",       // Namespace_Extension,
+		"property",                  // Namespace_Property,
+		"property-template",         // Namespace_PropertyTemplate,
 	};
 
 	return (size_t) namespaceKind < NamespaceKind__Count ?
@@ -74,6 +74,7 @@ Namespace::clear ()
 {
 	m_itemArray.clear ();
 	m_itemMap.clear ();
+	m_usingSet.clear ();
 }
 
 rtl::String
@@ -206,6 +207,13 @@ Namespace::findItemTraverseImpl (
 	if (!(flags & TraverseKind_NoThis))
 	{
 		item = findItem (name);
+		if (item)
+			return item;
+	}
+
+	if (!(flags & TraverseKind_NoUsingNamespaces))
+	{
+		item = m_usingSet.findItem (name);
 		if (item)
 			return item;
 	}

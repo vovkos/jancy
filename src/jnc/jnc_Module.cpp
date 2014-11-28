@@ -316,6 +316,7 @@ Module::parse (
 		lexer.nextToken ();
 	}
 
+	m_namespaceMgr.getGlobalNamespace ()->getUsingSet ()->clear ();
 	return true;
 }
 

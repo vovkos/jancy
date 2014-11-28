@@ -44,7 +44,8 @@ NamespaceMgr::clear ()
 	for (size_t i = 0; i < StdNamespace__Count; i++)
 		m_stdNamespaceArray [i].clear ();
 
-	m_namespaceList.clear ();
+	m_globalNamespaceList.clear ();
+	m_extensionNamespaceList.clear ();
 	m_scopeList.clear ();
 	m_orphanList.clear ();
 	m_namespaceStack.clear ();
@@ -175,8 +176,11 @@ NamespaceMgr::closeNamespace ()
 {
 	if (m_namespaceStack.isEmpty ())
 		return;
-
+	
 	NamespaceStackEntry entry = m_namespaceStack.getBackAndPop ();
+
+	if (m_currentNamespace->m_namespaceKind == NamespaceKind_Global) // for others not really needed
+		m_currentNamespace->m_usingSet.clear ();
 
 	m_currentNamespace = entry.m_namespace;
 	m_currentScope = m_currentNamespace->m_namespaceKind == NamespaceKind_Scope ? (Scope*) m_currentNamespace : NULL;
@@ -327,7 +331,30 @@ NamespaceMgr::createGlobalNamespace (
 	nspace->m_qualifiedName = qualifiedName;
 	nspace->m_tag = qualifiedName;
 	nspace->m_parentNamespace = parentNamespace;
-	m_namespaceList.insertTail (nspace);
+	m_globalNamespaceList.insertTail (nspace);
+	return nspace;
+}
+
+ExtensionNamespace*
+NamespaceMgr::createExtensionNamespace (
+	const rtl::String& name,
+	DerivableType* type,
+	Namespace* parentNamespace
+	)
+{
+	if (!parentNamespace)
+		parentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
+
+	rtl::String qualifiedName = type->createQualifiedName (name);
+
+	ExtensionNamespace* nspace = AXL_MEM_NEW (ExtensionNamespace);
+	nspace->m_module = m_module;
+	nspace->m_name = name;
+	nspace->m_qualifiedName = qualifiedName;
+	nspace->m_tag = qualifiedName;
+	nspace->m_parentNamespace = parentNamespace;
+	nspace->m_type = type;
+	m_extensionNamespaceList.insertTail (nspace);
 	return nspace;
 }
 

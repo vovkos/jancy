@@ -114,7 +114,7 @@ public:
 		return isMemberMethodType () ? m_argArray [0]->getType () : NULL;
 	}
 
-	NamedType*
+	DerivableType*
 	getThisTargetType ();
 
 	FunctionType*
@@ -125,7 +125,7 @@ public:
 
 	FunctionType*
 	getMemberMethodType (
-		NamedType* type,
+		DerivableType* type,
 		uint_t thisArgFlags = 0
 		);
 

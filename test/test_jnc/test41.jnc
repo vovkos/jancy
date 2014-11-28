@@ -1,13 +1,38 @@
 //.............................................................................
 
+namespace ns1 {
+
+foo ()
+{
+	printf ("ns1.foo ()\n");
+}
+
+} // namespace ns1 {
+
+namespace ns2 {
+
+foo ()
+{
+	printf ("ns2.foo ()\n");
+}
+
+} // namespace ns2 {
+
+bar ()
+{
+	using namespace ns2;
+
+	foo ();
+}
+
+using namespace ns1;
+
 int main ()
 {
 	printf ("main\n");
 
-	int x = '\n';
-
-	printf ("x = %d\n", x);
-
+	foo ();
+	bar ();
 	return 2; 
 }
 

@@ -69,8 +69,10 @@ protected:
 
 	// parent type
 
-	NamedType* m_parentType;
+	DerivableType* m_parentType;
 	size_t m_parentClassVTableIndex;
+
+	ExtensionNamespace* m_extensionNamespace;
 
 	rtl::Array <StructField*> m_memberFieldConstructArray;
 	rtl::Array <StructField*> m_memberFieldDestructArray;
@@ -174,7 +176,7 @@ public:
 	bool
 	createAutoGetValue (Type* type);
 
-	NamedType* 
+	DerivableType* 
 	getParentType ()
 	{
 		return m_parentType;
@@ -200,9 +202,6 @@ public:
 
 	bool
 	create (PropertyType* type);
-
-	void
-	convertToMemberProperty (NamedType* parentType);
 
 	StructField*
 	createField (

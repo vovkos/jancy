@@ -54,6 +54,9 @@ public:
 	void
 	addName (const rtl::String& name);
 
+	rtl::String
+	removeLastName ();
+
 	bool
 	isEmpty () const
 	{

@@ -34,7 +34,8 @@ protected:
 	Module* m_module;
 
 	GlobalNamespace m_stdNamespaceArray [StdNamespace__Count];
-	rtl::StdList <GlobalNamespace> m_namespaceList;
+	rtl::StdList <GlobalNamespace> m_globalNamespaceList;
+	rtl::StdList <ExtensionNamespace> m_extensionNamespaceList;
 	rtl::StdList <Scope> m_scopeList;
 	rtl::StdList <Orphan> m_orphanList;
 
@@ -176,6 +177,13 @@ public:
 	GlobalNamespace*
 	createGlobalNamespace (
 		const rtl::String& name,
+		Namespace* parentNamespace = NULL
+		);
+
+	ExtensionNamespace*
+	createExtensionNamespace (
+		const rtl::String& name,
+		DerivableType* type,
 		Namespace* parentNamespace = NULL
 		);
 

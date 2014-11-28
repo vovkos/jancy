@@ -12,7 +12,6 @@ ClassType::ClassType ()
 	m_typeKind = TypeKind_Class;
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
-	m_extensionNamespace = NULL;
 	m_primer = NULL;
 	m_destructor = NULL;
 	m_operatorNew = NULL;
@@ -272,9 +271,6 @@ bool
 ClassType::calcLayout ()
 {
 	bool result;
-
-	if (m_extensionNamespace)
-		applyExtensionNamespace ();
 
 	// resolve imports
 
@@ -537,7 +533,10 @@ ClassType::overrideVirtualFunction (Function* function)
 	ModuleItem* member = findItemTraverse (
 		function->m_declaratorName,
 		&coord,
-		TraverseKind_NoExtensionNamespace | TraverseKind_NoParentNamespace | TraverseKind_NoThis
+		TraverseKind_NoExtensionNamespaces | 
+		TraverseKind_NoParentNamespace | 
+		TraverseKind_NoUsingNamespaces | 
+		TraverseKind_NoThis
 		);
 
 	if (!member)

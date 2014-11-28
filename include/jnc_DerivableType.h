@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "jnc_NamedType.h"
 #include "jnc_ImportType.h"
 #include "jnc_Function.h"
 
@@ -132,7 +131,11 @@ protected:
 	rtl::StdList <BaseTypeSlot> m_baseTypeList;
 	rtl::Array <BaseTypeSlot*> m_baseTypeArray;
 	rtl::Array <BaseTypeSlot*> m_importBaseTypeArray;
-	
+
+	// extension namespaces
+
+	rtl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
+
 	// set-as type
 
 	Type* m_setAsType;
@@ -179,6 +182,22 @@ protected:
 
 public:
 	DerivableType ();
+
+	virtual
+	Type*
+	getThisArgType (uint_t ptrTypeFlags)
+	{
+		return (Type*) getDataPtrType (DataPtrTypeKind_Normal, ptrTypeFlags);
+	}
+
+	FunctionType*
+	getMemberMethodType (
+		FunctionType* shortType,
+		uint_t thisArgTypeFlags = 0
+		);
+
+	PropertyType*
+	getMemberPropertyType (PropertyType* shortType);
 
 	rtl::ConstList <BaseTypeSlot>
 	getBaseTypeList ()
@@ -401,6 +420,9 @@ public:
 	addProperty (Property* prop);
 
 protected:
+	ModuleItem*
+	findItemInExtensionNamespaces (const char* name);
+
 	virtual
 	StructField*
 	createFieldImpl (

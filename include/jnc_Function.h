@@ -6,7 +6,6 @@
 
 #include "jnc_FunctionType.h"
 #include "jnc_FunctionTypeOverload.h"
-#include "jnc_NamedType.h"
 #include "jnc_BasicBlock.h"
 #include "jnc_Value.h"
 #include "jnc_Closure.h"
@@ -234,10 +233,13 @@ protected:
 	Property* m_property;
 	size_t m_propertyVTableIndex;
 
+	ExtensionNamespace* m_extensionNamespace;
+
 	rtl::BoxList <Token> m_body;
 
 	BasicBlock* m_entryBlock;
 	Scope* m_scope;
+	UsingSet m_usingSet;
 
 	llvm::Function* m_llvmFunction;
 	llvm::Instruction* m_llvmPostTlsPrologueInst;
@@ -333,7 +335,7 @@ public:
 	}
 
 	void
-	convertToMemberMethod (NamedType* parentType);
+	convertToMemberMethod (DerivableType* parentType);
 
 	bool
 	hasBody ()

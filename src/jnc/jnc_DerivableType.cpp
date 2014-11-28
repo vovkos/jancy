@@ -43,6 +43,37 @@ DerivableType::DerivableType ()
 	m_setAsType_i = NULL;
 }
 
+FunctionType*
+DerivableType::getMemberMethodType (
+	FunctionType* shortType,
+	uint_t thisArgTypeFlags
+	)
+{
+	return m_module->m_typeMgr.getMemberMethodType (this, shortType, thisArgTypeFlags);
+}
+
+PropertyType*
+DerivableType::getMemberPropertyType (PropertyType* shortType)
+{
+	return m_module->m_typeMgr.getMemberPropertyType (this, shortType);
+}
+
+ModuleItem*
+DerivableType::findItemInExtensionNamespaces (const char* name)
+{
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	while (nspace)
+	{
+		ModuleItem* item = nspace->getUsingSet ()->findExtensionItem (this, name);
+		if (item)
+			return item;
+
+		nspace = nspace->getParentNamespace ();
+	}
+
+	return NULL;
+}
+
 Function*
 DerivableType::getDefaultConstructor ()
 {
@@ -731,19 +762,11 @@ DerivableType::findItemTraverseImpl (
 		}
 	}
 
-	if (!(flags & TraverseKind_NoExtensionNamespace) && m_extensionNamespace)
+	if (!(flags & TraverseKind_NoExtensionNamespaces))
 	{
-		item = m_extensionNamespace->findItem (name);
+		item = findItemInExtensionNamespaces (name);
 		if (item)
-		{
-			if (coord)
-			{
-				coord->m_type = this;
-				coord->m_llvmIndexArray.setCount (level);
-			}
-
 			return item;
-		}
 	}
 
 	flags &= ~TraverseKind_NoThis;

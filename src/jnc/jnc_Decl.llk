@@ -55,9 +55,13 @@ namespace_declaration
 	;
 
 extension_declaration
-	:	TokenKind_Extension qualified_name
+	:	TokenKind_Extension TokenKind_Identifier ':' type_name
 			{
-				return openTypeExtension ($2.m_name, $2.m_firstToken.m_pos);
+				return openExtensionNamespace (
+					$2.m_data.m_string, 
+					$4.m_type,
+					$2.m_pos
+					);
 			}
 		'{' named_type_block_declaration* '}'
 			{
@@ -66,11 +70,29 @@ extension_declaration
 	;
 
 using_declaration
-	:	TokenKind_Using qualified_name (',' qualified_name)* ';'
+	:	TokenKind_Using using_namespace_kind qualified_name_list ';'
+			{
+				return useNamespace ($3.m_nameList, $2.m_namespaceKind, $1.m_pos);
+			}
+	;
+
+class
+{
+	NamespaceKind m_namespaceKind;
+}
+using_namespace_kind
+	:	TokenKind_Namespace
+			{
+				$.m_namespaceKind = NamespaceKind_Global;
+			}
+	|	TokenKind_Extension
+			{
+				$.m_namespaceKind = NamespaceKind_Extension;
+			}
 	;
 
 friend_declaration
-	:	TokenKind_Friend qualified_name (',' qualified_name)* ';'
+	:	TokenKind_Friend qualified_name_list ';'
 	;
 
 access_declaration
@@ -130,6 +152,24 @@ qualified_name_impl <QualifiedName* $name>
 		('.' TokenKind_Identifier $n2
 			{
 				$name->addName ($n2.m_data.m_string);
+			}
+		)*
+	;
+
+class
+{
+	rtl::BoxList <QualifiedName> m_nameList;
+}
+qualified_name_list
+	:	qualified_name 
+			{
+				rtl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
+				it->takeOver (&$1.m_name);
+			}
+		(',' qualified_name 
+			{
+				rtl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
+				it->takeOver (&$3.m_name);
 			}
 		)*
 	;

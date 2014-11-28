@@ -103,7 +103,7 @@ public:
 		return m_getterType->getThisArgType ();
 	}
 
-	NamedType*
+	DerivableType*
 	getThisTargetType ()
 	{
 		return m_getterType->getThisTargetType ();

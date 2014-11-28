@@ -1133,7 +1133,7 @@ TypeMgr::createUserFunctionType (
 
 FunctionType*
 TypeMgr::getMemberMethodType (
-	NamedType* parentType,
+	DerivableType* parentType,
 	FunctionType* functionType,
 	uint_t thisArgPtrTypeFlags
 	)
@@ -1336,7 +1336,7 @@ TypeMgr::createIndexedPropertyType (
 
 PropertyType*
 TypeMgr::getMemberPropertyType (
-	NamedType* parentType,
+	DerivableType* parentType,
 	PropertyType* propertyType
 	)
 {

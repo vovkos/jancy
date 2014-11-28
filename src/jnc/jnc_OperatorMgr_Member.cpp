@@ -306,6 +306,10 @@ OperatorMgr::getNamedTypeMemberType (
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
+	case ModuleItemKind_Namespace:
+		resultValue->setNamespace ((GlobalNamespace*) member);
+		break;
+
 	case ModuleItemKind_StructField:
 		{
 		StructField* field = (StructField*) member;
@@ -383,6 +387,10 @@ OperatorMgr::getNamedTypeMember (
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
+	case ModuleItemKind_Namespace:
+		resultValue->setNamespace ((GlobalNamespace*) member);
+		break;
+
 	case ModuleItemKind_StructField:
 		return getField (opValue, (StructField*) member, &coord, resultValue);
 
@@ -395,7 +403,7 @@ OperatorMgr::getNamedTypeMember (
 		break;
 
 	default:
-		err::setFormatStringError ("invalid class member kind");
+		err::setFormatStringError ("invalid member kind");
 		return false;
 	}
 

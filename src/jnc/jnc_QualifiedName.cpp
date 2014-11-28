@@ -15,6 +15,24 @@ QualifiedName::addName (const rtl::String& name)
 }
 
 rtl::String
+QualifiedName::removeLastName ()
+{
+	rtl::String name;
+
+	if (m_list.isEmpty ())
+	{
+		name = m_first;
+		m_first.clear ();
+	}
+	else
+	{
+		name = m_list.removeTail ();		
+	}
+
+	return name;
+}
+
+rtl::String
 QualifiedName::getFullName () const
 {
 	if (m_list.isEmpty ())

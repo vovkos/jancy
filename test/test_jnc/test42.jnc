@@ -1,0 +1,42 @@
+//.............................................................................
+
+class C1
+{
+	protected int m_x = 10;
+
+	foo ()
+	{
+		printf ("C1.foo () { m_x = %d }\n", m_x);
+	}	
+}
+
+extension C1Ext: C1
+{
+	bar ()
+	{
+		printf ("C1Ext.bar () { m_x = %d }\n", m_x);
+	}
+
+	int autoget property m_prop;
+
+	m_prop.set (int x)
+	{
+		printf ("C1Ext.set (%d) { m_x = %d }\n", x, m_x);		
+	}
+	
+}
+
+using extension Ext;
+
+int main ()
+{
+	printf ("main\n");
+
+	C1 c;
+	//c.foo ();
+	c.bar ();
+
+	return 2; 
+}
+
+//.............................................................................

@@ -295,7 +295,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure (
 	)
 {
 	Type* thisArgType = function->getType ()->getThisArgType ();
-	NamedType* thisTargetType = function->getType ()->getThisTargetType ();
+	DerivableType* thisTargetType = function->getType ()->getThisTargetType ();
 
 	Value thisArgValue;
 	bool result = m_module->m_operatorMgr.castOperator (simpleClosureObjValue, thisArgType, &thisArgValue);

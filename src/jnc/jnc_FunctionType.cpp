@@ -18,7 +18,7 @@ FunctionType::FunctionType ()
 	m_reactorInterfaceType = NULL;
 }
 
-NamedType*
+DerivableType*
 FunctionType::getThisTargetType ()
 {
 	Type* thisArgType = getThisArgType ();
@@ -32,7 +32,7 @@ FunctionType::getThisTargetType ()
 		return ((ClassPtrType*) thisArgType)->getTargetType ();
 
 	case TypeKind_DataPtr:
-		return (NamedType*) ((DataPtrType*) thisArgType)->getTargetType ();
+		return (DerivableType*) ((DataPtrType*) thisArgType)->getTargetType ();
 
 	default:
 		ASSERT (false);
@@ -67,7 +67,7 @@ FunctionType::getMulticastType ()
 
 FunctionType*
 FunctionType::getMemberMethodType (
-	NamedType* parentType,
+	DerivableType* parentType,
 	uint_t thisArgTypeFlags
 	)
 {

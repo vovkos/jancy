@@ -29,6 +29,8 @@ Property::Property ()
 
 	m_parentType = NULL;
 	m_parentClassVTableIndex = -1;
+
+	m_extensionNamespace = NULL;
 }
 
 Function*
@@ -156,14 +158,6 @@ Property::create (PropertyType* type)
 		m_module->markForCompile (this);
 
 	return true;
-}
-
-void
-Property::convertToMemberProperty (NamedType* parentType)
-{
-	ASSERT (!m_parentType);
-	m_parentType = parentType;
-	m_type = parentType->getMemberPropertyType (m_type);
 }
 
 bool
@@ -429,6 +423,7 @@ Property::addMethod (Function* function)
 
 	function->m_parentNamespace = this;
 	function->m_property = this;
+	function->m_extensionNamespace = m_extensionNamespace;
 
 	Function** target = NULL;
 

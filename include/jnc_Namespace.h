@@ -6,10 +6,14 @@
 
 #include "jnc_ModuleItem.h"
 #include "jnc_QualifiedName.h"
+#include "jnc_UsingSet.h"
 
 namespace jnc {
 
 class Namespace;
+class GlobalNamespace;
+class ExtensionNamespace;
+class DerivableType;
 class EnumType;
 class EnumConst;
 class MemberCoord;
@@ -24,7 +28,7 @@ enum NamespaceKind
 	NamespaceKind_Global,
 	NamespaceKind_Scope,
 	NamespaceKind_Type,
-	NamespaceKind_TypeExtension,
+	NamespaceKind_Extension,
 	NamespaceKind_Property,
 	NamespaceKind_PropertyTemplate,
 	NamespaceKind__Count,
@@ -49,10 +53,11 @@ enum StdNamespace
 
 enum
 {
-	TraverseKind_NoThis               = 0x01,
-	TraverseKind_NoExtensionNamespace = 0x02,
-	TraverseKind_NoBaseType           = 0x04,
-	TraverseKind_NoParentNamespace    = 0x08,
+	TraverseKind_NoThis                = 0x01,
+	TraverseKind_NoBaseType            = 0x04,
+	TraverseKind_NoParentNamespace     = 0x08,
+	TraverseKind_NoUsingNamespaces     = 0x10,
+	TraverseKind_NoExtensionNamespaces = 0x20,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -70,6 +75,7 @@ protected:
 	rtl::StringHashTableMap <ModuleItem*> m_itemMap;
 	rtl::StringHashTable m_friendSet;
 	rtl::StringHashTableMap <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
+	UsingSet m_usingSet;
 
 public:
 	Namespace ()
@@ -81,6 +87,12 @@ public:
 	getNamespaceKind ()
 	{
 		return m_namespaceKind;
+	}
+
+	UsingSet*
+	getUsingSet ()
+	{
+		return &m_usingSet;
 	}
 
 	rtl::String
@@ -248,6 +260,28 @@ public:
 		m_itemKind = ModuleItemKind_Namespace;
 		m_namespaceKind = NamespaceKind_Global;
 		m_itemDecl = this;
+	}
+};
+
+//.............................................................................
+
+class ExtensionNamespace: public GlobalNamespace
+{
+	friend class NamespaceMgr;
+
+protected:
+	DerivableType* m_type;
+
+public:
+	ExtensionNamespace ()
+	{
+		m_namespaceKind = NamespaceKind_Extension;
+		m_type = NULL;
+	}
+
+	DerivableType* getType ()
+	{
+		return m_type;
 	}
 };
 

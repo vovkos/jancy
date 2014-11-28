@@ -217,15 +217,15 @@ Members2
 	bool
 	setDeclarationBody (rtl::BoxList <Token>* tokenList);
 
+	bool
+	setFunctionBody (
+		Function* function,
+		rtl::BoxList <Token>* tokenList
+		);
+
 	void
 	assignDeclarationAttributes (
 		ModuleItem* item,
-		const Token::Pos& pos
-		);
-
-	GlobalNamespace*
-	openGlobalNamespace (
-		const QualifiedName& name,
 		const Token::Pos& pos
 		);
 
@@ -236,9 +236,23 @@ Members2
 		const Token::Pos& pos
 		);
 
-	bool
-	openTypeExtension (
+	GlobalNamespace*
+	openGlobalNamespace (
 		const QualifiedName& name,
+		const Token::Pos& pos
+		);
+
+	bool
+	openExtensionNamespace (
+		const rtl::String& name,
+		Type* type,
+		const Token::Pos& pos
+		);
+
+	bool
+	useNamespace (
+		const rtl::BoxList <QualifiedName>& nameList,
+		NamespaceKind namespaceKind,
 		const Token::Pos& pos
 		);
 

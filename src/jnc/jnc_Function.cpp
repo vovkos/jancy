@@ -110,6 +110,7 @@ Function::Function ()
 	m_thisArgTypeFlags = 0;
 	m_virtualOriginClassType = NULL;
 	m_property = NULL;
+	m_extensionNamespace = NULL;
 	m_classVTableIndex = -1;
 	m_propertyVTableIndex = -1;
 	m_entryBlock = NULL;
@@ -170,7 +171,7 @@ Function::getLlvmDiSubprogram ()
 }
 
 void
-Function::convertToMemberMethod (NamedType* parentType)
+Function::convertToMemberMethod (DerivableType* parentType)
 {
 	ASSERT (m_typeOverload.getOverloadCount () == 1);
 
@@ -228,6 +229,8 @@ Function::compile ()
 	result = m_module->m_functionMgr.prologue (this, beginPos);
 	if (!result)
 		return false;
+
+	m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
 
 	OnceStmt stmt; // for static constructors
 

@@ -149,6 +149,7 @@ set (
 	${JANCY_INC_DIR}/jnc_QualifiedName.h
 	${JANCY_INC_DIR}/jnc_Scope.h
 	${JANCY_INC_DIR}/jnc_ScopeLevelStack.h
+	${JANCY_INC_DIR}/jnc_UsingSet.h
 	)
 
 set (
@@ -159,6 +160,7 @@ set (
 	jnc_QualifiedName.cpp
 	jnc_Scope.cpp
 	jnc_ScopeLevelStack.cpp
+	jnc_UsingSet.cpp
 	)
 
 source_group (
@@ -313,7 +315,6 @@ set (
 	${JANCY_INC_DIR}/jnc_ImportType.h
 	${JANCY_INC_DIR}/jnc_McSnapshotClassType.h
 	${JANCY_INC_DIR}/jnc_MulticastClassType.h
-	${JANCY_INC_DIR}/jnc_NamedType.h
 	${JANCY_INC_DIR}/jnc_PropertyPtrType.h
 	${JANCY_INC_DIR}/jnc_PropertyType.h
 	${JANCY_INC_DIR}/jnc_ReactorClassType.h
@@ -341,7 +342,6 @@ set (
 	jnc_ImportType.cpp
 	jnc_McSnapshotClassType.cpp
 	jnc_MulticastClassType.cpp
-	jnc_NamedType.cpp
 	jnc_PropertyPtrType.cpp
 	jnc_PropertyType.cpp
 	jnc_ReactorClassType.cpp

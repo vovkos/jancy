@@ -32,7 +32,7 @@ main := |*
 
 (
 'namespace'       |
-'extend'          |
+'extension'       |
 'using'           |
 'friend'          |
 'public'          |
