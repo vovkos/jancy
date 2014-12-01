@@ -51,7 +51,6 @@ enum TokenKind
 
 	// type modifiers
 
-	TokenKind_Signed,
 	TokenKind_Unsigned,
 	TokenKind_BigEndian,
 	TokenKind_Const,

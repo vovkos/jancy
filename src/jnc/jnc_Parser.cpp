@@ -1077,7 +1077,7 @@ Parser::createProperty (
 		if (prop->isVirtual ())
 		{
 			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
-			return false;
+			return NULL;
 		}
 
 		extensionNamespace = (ExtensionNamespace*) nspace;

@@ -607,13 +607,10 @@ OperatorMgr::dynamicCastDataPtr (
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastDataPtr);
-	m_module->m_llvmIrBuilder.createCall2 (
-		function,
-		function->getType (),
-		ptrValue,
-		typeValue,
-		&ptrValue
-		);
+
+	result = callOperator (function, ptrValue, typeValue, &ptrValue);
+	if (!result)
+		return false;
 
 	Value thinPtrValue;
 	Value rangeBeginValue;
@@ -695,20 +692,14 @@ OperatorMgr::dynamicSizeOf (
 		opValue, 
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const), 
 		&ptrValue
-		);
+		) &&
+		unaryOperator (UnOpKind_Addr, &ptrValue);
 
 	if (!result)
 		return false;
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicSizeOf);
-	m_module->m_llvmIrBuilder.createCall (
-		function,
-		function->getType (),
-		ptrValue,
-		resultValue
-		);
-
-	return true;
+	return callOperator (function, ptrValue, resultValue);
 }
 
 bool 
@@ -729,7 +720,8 @@ OperatorMgr::dynamicCountOf (
 		opValue, 
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const),
 		&ptrValue
-		);
+		) &&
+		unaryOperator (UnOpKind_Addr, &ptrValue);
 
 	if (!result)
 		return false;
@@ -738,15 +730,7 @@ OperatorMgr::dynamicCountOf (
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCountOf);
-	m_module->m_llvmIrBuilder.createCall2 (
-		function,
-		function->getType (),
-		ptrValue,
-		typeValue,
-		resultValue
-		);
-
-	return true;
+	return callOperator (function, ptrValue, typeValue, resultValue);
 }
 
 CastKind

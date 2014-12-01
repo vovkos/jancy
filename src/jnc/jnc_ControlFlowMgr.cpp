@@ -96,9 +96,9 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 		BasicBlock* block = *it;
 		it++;
 
-		// check if block was never added
-
-		if (!block->m_function)
+		if (block->m_function)
+			block->m_llvmBlock->eraseFromParent ();
+		else
 			delete block->m_llvmBlock;
 
 		m_blockList.erase (block);
@@ -430,7 +430,7 @@ ControlFlowMgr::catchLabel ()
 		return false;
 	}
 
-	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlag_Jumped))
+	if (!(scope->m_catchBlock->m_flags & BasicBlockFlag_Jumped))
 	{
 		err::setFormatStringError ("useless 'catch'");
 		return false;
@@ -446,7 +446,7 @@ ControlFlowMgr::catchLabel ()
 	}
 
 	scope->m_destructList.clear ();
-
+	
 	scope->m_catchFollowBlock = createBlock ("catch_follow");
 
 	if (scope->m_finallyBlock)
@@ -477,7 +477,7 @@ ControlFlowMgr::finallyLabel ()
 			return false;
 	}
 
-	if (!(scope->m_finallyBlock->getFlags () & BasicBlockFlag_Jumped))
+	if (!(scope->m_finallyBlock->m_flags & BasicBlockFlag_Jumped))
 	{
 		err::setFormatStringError ("useless 'finally'");
 		return false;
@@ -554,7 +554,7 @@ ControlFlowMgr::endTry ()
 		!(scope->getFlags () & (ScopeFlag_CatchDefined | ScopeFlag_FinallyDefined))
 		);
 
-	if (!(scope->m_catchBlock->getFlags () & BasicBlockFlag_Jumped))
+	if (!(scope->m_catchBlock->m_flags & BasicBlockFlag_Jumped))
 		return; // ignore useless try
 
 	bool result = catchLabel ();
@@ -572,7 +572,7 @@ ControlFlowMgr::checkReturn ()
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	Type* returnType = function->getType ()->getReturnType ();
 
-	if (!(m_currentBlock->getFlags () & BasicBlockFlag_Reachable))
+	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
 	{
 		m_module->m_llvmIrBuilder.createUnreachable (); // just to make LLVM happy
 	}

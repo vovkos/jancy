@@ -26,7 +26,7 @@ extension C1Ext: C1
 	
 }
 
-using extension Ext;
+using extension C1Ext;
 
 int main ()
 {
@@ -36,7 +36,7 @@ int main ()
 	//c.foo ();
 	c.bar ();
 
-	return 2; 
+	return 2;
 }
 
 //.............................................................................

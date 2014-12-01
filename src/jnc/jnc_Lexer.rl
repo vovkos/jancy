@@ -104,7 +104,6 @@ main := |*
 
 # type modifiers
 
-'signed'         { createToken (TokenKind_Signed); };
 'unsigned'       { createToken (TokenKind_Unsigned); };
 'bigendian'      { createToken (TokenKind_BigEndian); };
 'const'          { createToken (TokenKind_Const); };

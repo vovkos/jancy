@@ -60,7 +60,7 @@ bar ()
 	{
 		printf ("foo.static once\n");
 		for (size_t i = 0; i < countof (a); i++)
-			a [i] = i * 10;
+			a [i] = (int) i * 10;
 	}
 
 	// call initialization procedure once

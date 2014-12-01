@@ -595,7 +595,7 @@ VariableMgr::initializeVariableObjHdr (
 	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 2, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (typeValue, dstValue);
 	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 3, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (Value (flags, TypeKind_Int_u), dstValue);
+	m_module->m_llvmIrBuilder.createStore (Value (flags, TypeKind_Int_pu), dstValue);
 
 	// variable ptr
 
