@@ -8,13 +8,17 @@
 // to be used for bitflag description. bitflag enums differ from normal enums 
 // in the following aspects:
 //   * automatic value assignment goes 1, 2, 4, 8 etc - i.e. instead of +1 it 
-//     shifts the higher bit of the previous member;
+//     shifts the highest bit of the previous member;
 //   * bitwise or operator '|' on 2 operands of matching bitflag enum type 
 //     yields the same bitflag enum type
 //   * it's ok to assign '0' to bitflag enum
 
 // by default bitflag enums conseal member identifiers like normal enums do, 
 // but it's ok to apply 'exposed' modifier to a bitflag enum to change that.
+
+// all enums in jancy can be derived from integer types to specify how much 
+// memory will a particular enum occupy and whether it will be treated as a 
+// signed or unsigned value (where it matters).
 
 //.............................................................................
 
@@ -36,7 +40,7 @@ exposed enum State
 	State_Disconnecting,
 }
 
-bitflag enum OpenFlags: int
+bitflag enum OpenFlags: uint8_t
 {
 	ReadOnly,      // = 0x01
 	Exclusive         = 0x20,
