@@ -221,7 +221,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	// type modifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Signed,       "signed")
 	AXL_LEX_TOKEN_NAME (TokenKind_Unsigned,     "unsigned")
 	AXL_LEX_TOKEN_NAME (TokenKind_BigEndian,    "bigendian")
 	AXL_LEX_TOKEN_NAME (TokenKind_Const,        "const")
