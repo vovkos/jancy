@@ -1,7 +1,8 @@
-// schedule operator is used to ensure execution of a function in proper 
-// environment. good examples would be: calling a function in a worker thread, 
-// calling a function in response to a windows message, calling a function with
-// a mutex held etc.
+// Schedule operator is used to ensure the function execution in the proper 
+// environment. Some practical use examples for this operator: 
+//   * calling a function in a worker thread
+//   * calling a function in response to a Windows message
+//   * calling a function with a mutex held
 
 //.............................................................................
 
@@ -66,20 +67,20 @@ int main ()
 
 	LockScheduler scheduler;
 
-	// use @ (at) operator to create a scheduled pointer; resulting scheduled 
-	// pointer has the same argument signature as the target function
+	// use the @ (at) operator to create a scheduled pointer; the resulting 
+	// scheduled pointer has the same argument signature as the target function
 
 	function* completionProc (
 		int,
 		int
 		) = onComplete @ scheduler; 
 
-	// when passing a scheduled function pointer as, say, completion routine,
-	// you can be sure the target function will be called in proper environment
+	// pass a scheduled function pointer as a completion routine and you can be
+	// sure that the target function will be called in the proper environment
 
 	foo (10, 20, completionProc);
 
-	// obviously, it's also ok to schedule a function call immediatly, without 
+	// naturally, it's also OK to schedule a function call immediately, without 
 	// saving a scheduled function pointer
 	
 	(bar @ scheduler) (100);

@@ -1,14 +1,15 @@
-// jancy doesn't support throwable exceptions they way С++ or java does. what
-// jancy provides instead is syntactic sugar over good-old C-style error code 
+// Jancy doesn't support throwable exceptions the way С++ or Java does. What
+// Jancy provides instead is a syntactic sugar over good old C-style error code
 // check model.
 
-// it looks almost like throwing and catching exceptions and frees developer 
-// from the routine of constantly checking error codes manually. at the same 
-// time, this model is much more transparent and predictable than the "real" 
-// exceptions and is extremely easy to support from the host C/C++ application.
+// This looks almost like throwing and catching exceptions and frees the 
+// developer from the routine of constantly checking for error codes. At the 
+// same time this model is much more transparent and predictable than the real 
+// exceptions. It is also extremely easy to support from the host C/C++ 
+// application.
 
-// last but not least - this model allows developer to choose whether to use 
-// error code check or exception semantics when calling the very same function,
+// Last but not least, this model allows the developer to choose between using 
+// error code checks or exception semantics when calling the very same function
 // depending on what is more appropriate or convenient in each particular case!
 
 //.............................................................................
@@ -24,10 +25,10 @@ enum Error
 
 //.............................................................................
 
-// function marked by 'throws' modifier will have its return value interpreted 
-// as an error code. intuitive error conditions are assumed: 'false' for bools, 
-// negative for signed integers, '-1' for unsigned integers; other types will 
-// be cast to 'bool' for error condition check
+// A function marked by the 'throws' modifier will have its return value 
+// interpreted as an error code. Intuitive error conditions are assumed: 
+// 'false' for bools, negative for signed integers, '-1' for unsigned integers.
+// Other types will be cast to 'bool' for error condition checking.
 
 int foo (int a) throws
 {
@@ -45,13 +46,13 @@ int foo (int a) throws
 		return Error.TooLow;
 	}
 
-	// everything ok, do the actual work...
+	// everything is OK, do the actual work...
 
 	return Error.Success;
 }
 
-// if return types of throwing functions match, error code is automatically 
-// propagated down the call stack
+// if the return types of the throwing functions match, the error code is 
+// automatically propagated down the call stack
 
 int bar (
 	int a,
@@ -74,8 +75,8 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// use 'try' operator to shield expression from throwing and handle error 
-	// code manually...
+	// use the 'try' operator to shield an expression from throwing and 
+	// handling the error code manually...
 
 	int error = try bar (1, -150);
 	if (error < 0)
@@ -87,10 +88,11 @@ int main ()
 	bar (5, 150);
 	return 0;
 
-	// ...or use 'catch' label to handle error in an exception-style manner
+	// ...or use the 'catch' label to handle an error in the exception-style 
+	// manner
 
 catch:
-	printf ("some of the throwing functions above returned error condition\n");
+	printf ("some of the throwing functions above returned an error\n");
 	return -1;
 }
 

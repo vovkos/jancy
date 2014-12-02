@@ -1,5 +1,5 @@
-// jancy features the most natural syntax imaginable for declaring properties 
-// which have no overloaded setters.
+// Jancy features the most natural syntax imaginable for declaring properties 
+// with no overloaded setters.
 
 //.............................................................................
 
@@ -24,8 +24,8 @@ g_simpleProp.set (int x)
 
 //.............................................................................
 
-// read-only properties are called 'const-properties' in jancy. this is because 
-// 'readonly' has a special meaning (see dual modifiers for more)
+// read-only properties are called 'const-properties' in Jancy. This is because
+// 'readonly' has a special meaning (see dual modifiers for more).
 
 int const property g_simpleReadOnlyProp;
 
@@ -51,7 +51,7 @@ int main ()
 
 	int y = g_simpleReadOnlyProp;
 
-	// const properties cannot be written to, obviously
+	// obviously, const properties cannot be written to
 
 	// g_simpleReadOnlyProp = 200; // <-- error
 

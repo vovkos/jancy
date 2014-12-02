@@ -1,8 +1,6 @@
-// jancy provides a way to extend functionality of existing types with 
-// extension namespaces. 
-
-// extension namespaces declare additional methods and properties which have 
-// access to all the members of the type they extend. 
+// Jancy provides a way to extend the functionality of existing types with 
+// extension namespaces. Extension namespaces declare additional methods and 
+// properties, which have access to all the members of the type they extend. 
 
 //.............................................................................
 
@@ -38,14 +36,14 @@ extension C1Ext: C1
 	int autoget property m_prop;
 
 	// fields, destructors and virtual methods cannot be added to extension 
-	// namespaces for an obvious reason: extension should not *alter* the type,
-	// it should *extend* it
+	// namespaces for obvious reasons: extensions should not *alter* types,
+	// it should *extend* them
 
 	// int m_f;         // <-- error
 	// abstract v1 ();  // <-- error
 	
-	// constructors and operators theoretically can, but it's not currently 
-	// supported -- only named methods and properties for now
+	// constructors and operators theoretically can be added, but it's not 
+	// currently supported -- only named methods and properties for now
 	
 	// construct (double x);    // <-- error
 	// int operator += (int x); // <-- error
@@ -61,7 +59,7 @@ C1Ext.bar (int x)
 	printf ("C1Ext.bar (%d) { m_x = %d }\n", x, m_x); 
 	m_x = x;
 
-	// it's ok to refer to other extension methods, not just original ones
+	// it's OK to refer to other extension methods, not just original ones
 
 	foo ();
 }
@@ -74,7 +72,7 @@ C1Ext.m_prop.set (int x)
 
 //.............................................................................
 
-// notify jancy compiler we want to use this particular extension
+// notify the compiler we want to use this particular extension
 
 using extension C1Ext;
 
@@ -86,7 +84,7 @@ int main ()
 
 	C1 c (100);
 
-	// invoke extension member methods
+	// invoke extension member methods and properties
 
 	c.foo ();  
 	c.bar (500);

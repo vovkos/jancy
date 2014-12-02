@@ -1,19 +1,18 @@
-// reactive programming is a programming paradigm that can tremendously help
-// with many programming tasks, but is especially effective in case of UI 
-// programming. 
+// Reactive programming is a programming paradigm offering tremendous help
+// for many programming tasks and is especially effective for UI programming. 
 
-// the idea behind it is to automate execution of certain 'update' actions in 
-// response to property changes. imagine a complex setting dialog with many 
-// interconnected items: values of some items must control color, visibility, 
-// availability etc of other items.
+// The idea behind the reactive programming is to automate the execution of
+// certain update actions in response to property changes. Imagine a complex
+// configuration dialog with many interconnected items: a value of some items
+// affects the color, visibility, and availability of other items.
 
-// traditional approach woule be to write multiple event handlers and do the
-// updates of dependent items from within those handlers.
+// The traditional approach to creating such a dialog is to write multiple
+// event handlers responsible for updating dependent items.
 
-// with 'reactor' approach it is possible to write a single 'constraints' block
-// where all the relations and dependencies are described in declarative style.
-// then start the reactor and just let the jancy runtime to automatically bind,  
-// track property changes and execute requested updates!
+// Jancy makes it possible to write a single 'reactor' block where all the 
+// relations and dependencies are described in declarative style. After the 
+// reactor start the jancy runtime will automatically bind to, track property 
+// changes, and execute required updates!
 
 //.............................................................................
 
@@ -60,15 +59,15 @@ int g_rgb;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// inside 'reactor' developer writes expressions which describe relations and 
-// constraints in a declarative manner
+// inside the reactor the developer writes expressions describing relations and
+// constraints; this is done in the declarative manner
 
-// upon starting the reactor jancy runtime will bind to all bindable non-lvalue 
-// properties touched in expressions inside this reactor and then re-evaluate 
-// dependent expressions automatically
+// upon starting the reactor the Jancy runtime binds to all bindable non-lvalue
+// properties referenced in the expressions inside the reactor and 
+// automatically re-evaluates all dependent expressions
 
-// if the required logic cannot be expressed by a simple expression, 'onevent' 
-// statement could be used (see the next sample)
+// if the required logic cannot be expressed by a simple expression, the 
+// 'onevent' statement can be used (see the next sample)
 
 reactor g_colorReactor (int alpha)
 {
@@ -87,7 +86,8 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// starting reactor executes all the expressions in reactor block once
+	// starting the reactor executes all expressions in this reactor block one 
+	// time
 
 	g_colorReactor.start (5);
 
@@ -97,7 +97,8 @@ int main ()
 	printf ("changing g_green...\n");
 	g_green = 0xcd;
 
-	// if reactor is stopped now then g_blue change below will not be handled
+	// if the reactor is stopped now then the change of 'g_blue' below will not
+	// be handled
 
 	// g_colorReactor.stop (); 
 

@@ -1,8 +1,9 @@
-// besides good-old C literals which define static arrays of const char's,
-// jancy features two more useful kinds of literals.
+// In addition to the good old C literals defining static arrays of const 
+// chars, Jancy features two more useful kinds of literals.
 
-// this sample demonstrates hex literals designed for a nice and clean defining
-// of hardcoded const binary data blocks (built-in icons, public keys etc)
+// This sample code demonstrates hex literals designed for a nice and clean
+// definition of hardcoded const binary data blocks (built-in icons, public
+// keys, etc).
 
 //.............................................................................
 
@@ -19,14 +20,14 @@ int main ()
 	
 	printf ("a = %s\n", a);
 
-	// it's ok to use upper-case or lower-case and group hex codes with spaces
+	// it's OK to use upper-case or lower-case and group hex codes with spaces
 	// to your liking (or not use spaces for grouping at all)
 
 	char b [] = 0x"696a 6b6c 6D6E 6F70 0000";
 
 	printf ("b = %s\n", b);
 
-	// it's also fine to concatenate hex literals and C-literals in any 
+	// it's also OK to concatenate hex literals and C-literals in any 
 	// combinations; the result is still a static char array (whether it will
 	// be zero-terminated or not depends on the last literal of concatenation)
 
@@ -35,7 +36,7 @@ int main ()
 	printf ("c = %s\n", c);
 
 	// concatenating hex and C-literals can also be used for removing trailing
-	// zero from a C-literal for producing non-zero-terminated literals
+	// zero from a C-literal and thus producing non-zero-terminated literals
 
 	char d [] = "non-zero-terminated" 0x"";
 

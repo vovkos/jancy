@@ -1,5 +1,5 @@
-// function pointers can be 'weak', meaning they do not retain some of the 
-// objects captured in the closure from being collected by gc.
+// Function pointers can be 'weak', meaning that they do not retain some of the
+// objects captured in the closure from being collected by the GC.
 
 //.............................................................................
 
@@ -37,10 +37,10 @@ int main ()
 
 	C1* c = new C1;
 
-	// to make function pointer weak, we must specify which of the captured 
-	// arguments will be weakly referenced. 
+	// to make a function pointer weak specify which of the captured arguments 
+	// will be weakly referenced. 
 	
-	// in the current version of jancy you can only make 'this' argument weak
+	// in the current version of Jancy you can only make 'this' argument weak
 
 	function weak* wf (int, int) = c.weak foo ~(,, 3);
 
@@ -48,24 +48,25 @@ int main ()
 
 	// wf (10, 20); <-- error
 
-	// if we lose strong pointer then object will get destructed next gc run
+	// if we lose the strong pointer then the object will get destructed on the
+	// next GC run
 
 	// c = null; 
 
 	printf ("gc run...\n");
 	jnc.runGc ();
 
-	// try to recover strong pointer
+	// try to recover the strong pointer
 
 	function* f (int, int) = wf;
 	if (f)
 	{
-		printf ("object survived gc run\n");
+		printf ("object survived the GC run\n");
 		f (1, 2);
 	}
 	else
 	{
-		printf ("object was collected during gc run\n");
+		printf ("object was collected during the GC run\n");
 	}
 
 	return 0;

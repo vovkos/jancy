@@ -1,6 +1,6 @@
-// jancy also supports full property declaration syntax which allows declaring 
-// complex properties with overloaded setters, members fields, helper methods, 
-// constructors / destructors etc.
+// Jancy also supports full property declaration syntax, which allows declaring
+// complex properties with overloaded setters, member fields, helper methods, 
+// constructors / destructors, etc.
 
 //.............................................................................
 
@@ -32,7 +32,8 @@ property g_prop
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// like with classes, implementation could be placed outside of property body
+// like with classes, the implementation of methods may be placed outside of 
+// the property body
 
 g_prop.set (int x)
 {

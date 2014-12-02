@@ -1,8 +1,8 @@
-// jancy provides multi-level loop jumps with 'break-n' and 'continue-n'. 
+// Jancy provides multi-level loop jumps with 'break-n' and 'continue-n'.
 
-// ever wanted to exit 2 loops at once in C++ and do so neatly, without 
-// resorting to techniques being frowned upon, like a 'goto'? if yes then 
-// rejoyce because in jancy you can do that!
+// Ever wanted to exit two loops at once and do so neatly, without resorting 
+// to techniques being frowned upon, like using a 'goto'? If the answer is yes
+// then rejoyce because Jancy allows you to do that!
 
 //.............................................................................
 

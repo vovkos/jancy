@@ -1,11 +1,11 @@
-// jancy provides 'static', 'stack', 'thread' and 'heap' data storage for 
+// Jancy provides 'static', 'stack', 'thread' and 'heap' data storage for 
 // member fields and global/local variables.
 
 //.............................................................................
 
 class C1
 {
-	// for member fields, default storage is parent memory block
+	// for member fields the default storage is parent memory block
 
 	int m_memberField; 
 	static int m_staticField = 2;
@@ -37,15 +37,15 @@ class C1
 
 class C2
 {
-	// jancy allows allocation of multiple class objects at once on the same 
-	// memory block (like C++)
+	// Jancy allows to allocate multiple class objects at once and on the same 
+	// memory block (like in C++)
 
 	C1 m_classField; 	                 
 
 	construct (int x)
 	{
-		// if a member field requires construction, it must be done in the 
-		// beginning of constructor (much like base type constructors)
+		// if a member field requires construction this must be done in the 
+		// beginning of the constructor (much like with base type constructors)
 
 		m_classField.construct (x); 
 
@@ -60,7 +60,7 @@ class C2
 
 //.............................................................................
 
-// for global variables, default storage is 'static'
+// for global variables the default storage is 'static'
 
 int g_staticGlobal; 
 thread int g_threadGlobal;
@@ -75,11 +75,11 @@ thread int g_threadGlobal;
 // heap int g_heapGlobal;   // <-- error
 // stack int g_stackGlobal; // <-- error
 
-// when declaring a global class variable and initializing it with constructor
-// call, 'construct' keyword must be used. that is because jancy does not 
-// enforce declare-before-use paradigm at global scope, therefore it cannot 
-// resolve constructor-call vs function-declaration grammar conflict in the 
-// most general case (i.e. 'A B (C)')
+// When declaring a global class variable and initializing it with a 
+// constructor call the 'construct' keyword must be used. This is because Jancy
+// does not enforce declare-before-use paradigm at the global scope and, 
+// therefore, cannot resolve constructor call vs. function declaration grammar 
+// conflict in the most general case (i.e. 'A B (C)').
 
 C1 g_classGlobal construct (10);
 
@@ -91,7 +91,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// for local non-class variables, default storage is 'stack'
+	// for local non-class variables the default storage is 'stack'
 
 	int x; 
 	static int s = 100;
@@ -100,12 +100,12 @@ int main ()
 
 	thread int t = 200; 
 	
-	// 'heap' storage can be used to avoid allocation of large local variables 
-	// on stack and use gc-heap instead
+	// 'heap' storage can be used to allocate large local variables in the 
+	// GC-heap (and thus avoid allocation on the stack)
 
 	heap char a [256]; 
 
-	// for local class variables, default storage is 'heap'
+	// for local class variables the default storage is 'heap'
 
 	C2 c1 (1000); 
 	static C2 c2 (2000);

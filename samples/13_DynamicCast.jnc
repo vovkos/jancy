@@ -1,17 +1,17 @@
-// downcasting or casting to a pointer-to-char (or similar) type represents a 
-// critical threat to security cause it makes it possible to overwrite pointer 
-// validator with random data, thus damaging validator itself
+// Downcasting or casting to a pointer-to-char (or similar) type represents a 
+// critical threat to security since this makes it possible to overwrite a
+// pointer validator with random data, thus damaging the validator itself.
 
-// to prevent this from happening, jancy separates all the types into two 
-// categories: POD-types and non-POD-types. non-POD-types are the ones with 
-// meta-information (i.e. classes, safe pointers and aggregates containing 
-// other non-POD types). casts from and to non-POD types are only allowed when
-// it's safe to do (e.g. upcasts or casts to const POD pointer).
+// To prevent this from happening, Jancy separates all types into two 
+// categories: POD types and non-POD types. Non-POD types are the ones with 
+// meta-data (i.e. classes, safe pointers and aggregates containing other 
+// non-POD types). Casts from and to non-POD types are only allowed when it's 
+// safe to do so (e.g. in upcasts or casts to const POD pointer).
 
-// to perform downcasts of non-POD types, developer must use dynamic cast 
-// operator. this will translate into a call to jancy runtime support routine
-// which will return the resulting pointer or a null if the requested downcast 
-// is not available
+// To perform downcasts of non-POD types, the developer must use a dynamic cast
+// operator. This will translate into a call to the Jancy runtime support 
+// routine, which will return the resulting pointer or 'null' if the requested 
+// downcast is not available.
 
 //.............................................................................
 
@@ -33,7 +33,7 @@ struct EulerAngles
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// in C++ it's not a POD, but in jancy it is (contains no meta-info)
+// not a POD in C++, but it is in Jancy (because this contains no meta-info)
 
 struct Transform: 
 	EulerAngles,
@@ -54,17 +54,18 @@ struct TaggedTransform: Transform
 
 foo (TaggedTransform* taggedTransform)
 {
-	// upcasts are always ok, no cast operator is needed
+	// upcasts are always OK, no cast operator is needed
 
 	Transform* transform = taggedTransform;
 	EulerAngles* angles = taggedTransform;
 	Vector* vector = taggedTransform;	
 
-	// non-POD types cannot be cast to POD types to prevent damaging meta-info
+	// non-POD pointers cannot be cast to POD non-const pointers in order to 
+	// prevent damaging meta-data
 
 	// char* p = (char*) taggedTransform; // <-- error
 
-	// non-POD types can, however, be cast to POD const pointers for reading
+	// non-POD pointers can be cast to POD const pointers for reading
 
 	char const* c = (char const*) taggedTransform;	
 
@@ -79,7 +80,8 @@ foo (TaggedTransform* taggedTransform)
 		taggedTransform,
 		transform,
 		angles,
-		vector
+		vector,
+		c
 		);
 }
 
@@ -87,15 +89,15 @@ foo (TaggedTransform* taggedTransform)
 
 bar (Vector* vector)
 {
-	// POD-types can be cast to each other using cast operator...
+	// POD types can be cast to each other using the cast operator...
 
 	Transform* transform1 = (Transform*) vector;
 
-	// ...even if they aren't related via base-child hierarchy
+	// ...even if they aren't related via the base-child hierarchy
 
 	EulerAngles* angles1 = (EulerAngles*) vector;
 
-	// non-POD-types cannot be cast to (unless it's an upcast, of course)
+	// non-POD types cannot be cast to (unless it's an upcast, of course)
 	
 	// TaggedTransform const* p = (TaggedTransform const*) vector; // <-- error
 
@@ -103,7 +105,7 @@ bar (Vector* vector)
 
 	TaggedTransform* taggedTransform = dynamic (TaggedTransform*) vector;
 
-	// dynamic cast is also applicable to POD-types
+	// dynamic cast is also applicable to POD types
 
 	Transform* transform2 = dynamic (Transform*) vector;
 	EulerAngles* angles2 = dynamic (EulerAngles*) vector;

@@ -1,4 +1,4 @@
-// another useful kind of literal in jancy is formatting literal. it allows 
+// Another useful kind of literal in Jancy is the formatting literal. It allows 
 // using perl-style-formatting from a C-style language.
 
 //.............................................................................
@@ -36,7 +36,7 @@ int main ()
 
 	size_t i = rand () % countof (colorTable);
 
-	// it's ok to use expressions in formatting literals
+	// it's OK to use expressions in formatting literals
 
 	printf ($"random color = $(colorTable [i].m_name)\n");
 
@@ -44,8 +44,8 @@ int main ()
 
 	printf ($"color value  = #$(colorTable [i].m_value; 06x)\n");
 
-	// it's also ok to specify some of injected values (or all of them) in the 
-	// argument list of formatting literal and reference them by index
+	// it's also OK to specify some of injected values (or all of them) in the 
+	// argument list of the formatting literal and reference them by index
 
 	printf (
 		$"rgb dec = (%1, %2, %3)\nrgb hex = (%(1;x), %(2;x), %(3;x))\n" (
@@ -55,7 +55,7 @@ int main ()
 			)
 		);
 	
-	// last but not least, it's ok to concatenate all kinds of literals
+	// last but not least, it's OK to concatenate all kinds of literals
 
 	printf (
 		"stats\n"

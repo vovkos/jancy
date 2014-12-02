@@ -1,12 +1,12 @@
-// class in jancy is a special kind of datatype. actual user fields are 
-// preceded with header containing meta-information such as type, vtable 
-// pointer, root object pointer, gc-related flags etc.
+// Jancy class is a special kind of data type. Actual user fields are preceded 
+// with a header containing meta-data such as type, vtable pointer, root object 
+// pointer, GC-related flags, etc.
 
 //.............................................................................
 
 class C1
 {
-	// default access is public; access can be specified in C++ style...
+	// default access mode is public; access can be specified in C++ style...
 
 protected: 
 	static int m_table [10];
@@ -17,14 +17,14 @@ protected:
 	public int m_y = 20;
 
 public:
-	// syntax for declaring special members is a bit different from C++/java
+	// syntax for declaring special members is a bit different from C++/Java
 
 	// static constructors / destructors
 
 	static construct (); 
 
 	// preconstructors are called before each constructor overload
-	// (similar to java initializer blocks)
+	// (similar to Java initializer blocks)
 	
 	preconstruct () 
 	{
@@ -91,15 +91,18 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// jancy does not have distinction between reference-types and value-types.
-	// it means that unlike in java, when jancy programmer declares a class 
-	// variable or field, he creates an actual object, not a pointer to object.
-	// in jancy what *is* a pointer, must *look like* a pointer.
+	// Jancy does not distinguish between reference-types and value-types.
+	// Unlike in Java, when Jancy programmer declares a class variable or a
+	// field he creates an actual object, not a pointer to this object. 
 
 	C1 c (100, 200);
 	c += 1;
 
 	printf ("c = { %d, %d }\n", c.m_x, c.m_y);
+
+	// in Jancy what *is* a pointer, must *look like* a pointer
+
+	C1* p = new C1;
 
 	return 0;
 }

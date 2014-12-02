@@ -1,7 +1,7 @@
-// jancy supports the RAII paradigm (resource-acquisition-is-initialization).
+// Jancy supports the RAII paradigm (resource-acquisition-is-initialization).
 
-// class variables allocated on stack are destructed upon exiting the scope 
-// they belong to, thus ensuring deterministic resource release.
+// Class variables allocated on stack are destructed upon exiting the scope 
+// they belong to, thus ensuring deterministic release of resources.
 
 //.............................................................................
 
@@ -30,8 +30,8 @@ int main ()
 	printf ("main ()\n");
 
 	{
-		// use explicit 'stack' specifier to allocate a class variable on stack
-		// and not gc-heap (which is default for class variables)
+		// use the explicit 'stack' specifier to allocate a class variable on 
+		// stack and not gc-heap (which is the default for class variables)
 		
 		stack C1 c (10); 
 

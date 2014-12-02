@@ -1,5 +1,5 @@
-// jancy features const-correctness: a great tool unjustly left behind in most 
-// of the modern managed languages.
+// Jancy features const-correctness -- a great tool unjustly left behind in 
+// most modern managed languages.
 
 //.............................................................................
 
@@ -26,9 +26,9 @@ transpose (
 
 	// src.m_x = 0; // <-- error
 
-	// unlike C++ jancy strictly disallows const -> non-const pointer casts
+	// unlike C++ Jancy strictly disallows const -> non-const pointer casts
 
-	// Point* p2 = (Point*) src;
+	// Point* p2 = (Point*) src; // <-- error
 }
 
 //.............................................................................
@@ -38,7 +38,7 @@ class C1
 	int m_field;
 	mutable int m_mutableField;
 
-	// jancy uses C++ syntax for declaring const methods
+	// Jancy uses C++ syntax for declaring const methods
 
 	foo () const 
 	{
@@ -54,15 +54,15 @@ class C1
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-baz (C1 const* p)
+baz (const C1* p)
 {
 	printf ("p.m_x = %d\n", p.m_field);
 
-	// ok to call const methods via const pointer
+	// OK to call const methods via a const pointer
 
 	p.foo (); 
 
-	// ok to modify mutable fields via const pointer
+	// OK to modify mutable fields via a const pointer
 
 	p.m_mutableField = 100;
 

@@ -1,10 +1,10 @@
-// 99% of the time property getter simply returns the value of some internal 
+// 99% of the time a property getter simply returns the value of some internal 
 // field and all the property logic is actually contained in setter(s). 
 
-// jancy supports so-called 'autoget' properties to spare developer from the 
-// routine of writing trivial getters - compiler will generate both a field to 
-// store property value and a getter to retrieve it and will actually bypass 
-// getter completely wherever it's possible.
+// Jancy supports so-called 'autoget' properties thus sparing the developer
+// from the routine of writing trivial getters - the compiler will generate 
+// both the field to store the property value and the getter to retrieve it. 
+// The compiler will also bypass the getter completely whenever possible.
 
 //.............................................................................
 
@@ -31,7 +31,8 @@ g_simpleProp.set (int x)
 
 property g_prop
 {	
-	// declaring an 'autoget' field implicitly makes property 'autoget'
+	// declaring a field with 'autoget' modifier implicitly makes the whole 
+	// property autoget
 
 	int autoget m_x; 
 

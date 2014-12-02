@@ -1,10 +1,11 @@
-// checking range is not enough: when a pointer references stack variable, this 
-// pointer becomes invalid without any modification, just by running out of the 
-// local scope where this stack variable was declared.
+// Checking the range is not enough: when a pointer references a stack 
+// variable, this pointer becomes invalid just by running out of the local 
+// scope where this stack variable was declared. That is, actual pointer 
+// modification is not required to invalidate the pointer.
 
-// to address this issue, jancy runtime prevents storing addresses with higher 
-// scope levels into locations with lower scope levels. in other words, jancy 
-// prevents leaking of the addresses out of their lifetime scopes.
+// To address this issue, the Jancy runtime prevents storing addresses with 
+// higher scope levels into locations with lower scope levels. in other words,
+// Jancy prevents addresses from leaking out of their lifetime scopes.
 
 //.............................................................................
 
@@ -21,18 +22,18 @@ int main ()
 	printf ("main ()\n");
 
 	// thread variables have scope level 1, which is higher then both static 
-	// and heap (0)
+	// and heap scope levels (0)
 
 	thread int x1;
 	thread int* p1;
 	thread int** pp1 = &p1;
 
-	// it's ok to store addresses with equal or lower scope levels
+	// it's OK to store addresses with equal or lower scope levels
 
-	p1 = &x1;     // ok
-	p1 = &g_x0;   // ok	
-	*pp1 = &x1;   // ok
-	*pp1 = &g_x0; // ok
+	p1 = &x1;
+	p1 = &g_x0;
+	*pp1 = &x1;
+	*pp1 = &g_x0;
 
 	// storing addresses into locations with lower scope levels is illegal;
 	// multiple indirection stores are also checked for scope-level compliance
@@ -41,16 +42,18 @@ int main ()
 	// *g_pp0 = &x1; // <-- runtime error
 
 	// stack variables have scope levels starting with 2, which is higher 
-	// than both static (0), heap (0) and thread (1)
+	// than both static (0), heap (0), and thread (1) levels
 
 	int x2;
 	int* p2;
 	int** pp2 = &p2;
 
-	p2 = &x2;   // ok
-	p2 = &x1;   // ok
-	*pp2 = &x2; // ok
-	*pp2 = &x1; // ok
+	// equal or lower scope levels -- OK
+
+	p2 = &x2;
+	p2 = &x1;
+	*pp2 = &x2;
+	*pp2 = &x1;
 
 	// p1 = &x2;     // <-- runtime error
 	// *pp1 = &x2;   // <-- runtime error
@@ -62,10 +65,12 @@ int main ()
 		int* p3;
 		int** pp3 = &p3;
 
-		p3 = &x3;   // ok
-		p3 = &x2;   // ok
-		*pp3 = &x3; // ok
-		*pp3 = &x2; // ok
+		// equal or lower scope levels -- OK
+
+		p3 = &x3;
+		p3 = &x2;
+		*pp3 = &x3;
+		*pp3 = &x2;
 
 		// p1 = &x3;     // <-- runtime error
 		// *pp1 = &x3;   // <-- runtime error

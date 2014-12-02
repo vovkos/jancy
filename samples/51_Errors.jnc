@@ -1,12 +1,14 @@
-// unlike C++ and java catching an error condition in jancy with a catch label
-// does not provide any additional information about the nature of that error. 
+// Unlike with C++ and Java, catching an error condition in Jancy with a catch
+// label doesn't provide any additional information on the nature of that 
+// error.
 
-// we suggest using jancy default error facilities for storing and retrieving 
-// error information to/from thread local storage - similar to POSIX errno or 
-// Windows GetLastError approach (but not limited to an integer error code).
+// We suggest using Jancy's default error facilities for storing and retrieving 
+// the error information to/from thread-local storage. This is similar to POSIX
+// errno or Windows GetLastError approach (but not limited to an integer error 
+// code).
 
-// however, it is up to developer to choose which particular mechanism of error 
-// reporting to use.
+// However, it is up to the developer to choose the suitable mechanism of error
+// reporting.
 
 //.............................................................................
 
@@ -40,7 +42,7 @@ int main ()
 	bool result = try foo (-1);
 	if (!result)
 	{
-		printf ("bar returned error (%s)\n", jnc.getLastError ().m_description);
+		printf ("foo failed (%s)\n", jnc.getLastError ().m_description);
 	}
 
 	foo (150);

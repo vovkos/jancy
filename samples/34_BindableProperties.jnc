@@ -1,9 +1,9 @@
-// jancy supports 'bindable' properties which will notify subscribers after 
-// they have changed. 
+// Jancy supports 'bindable' properties, which notify subscribers after they 
+// have changed. 
 
-// firing of the bindable event must be done manually - that is, unless the 
-// whole property is compiler-generated. in the latter case this property is 
-// called 'bindable data'.
+// The firing of the bindable event must be done manually, unless the entire 
+// property is compiler-generated. In this latter case the property is called 
+// bindable data.
 
 //.............................................................................
 
@@ -31,15 +31,17 @@ g_simpleProp.set (int x)
 
 //.............................................................................
 
-// similar property declared using full syntax
+// similar property declared using the full syntax
 
 property g_prop
 {	
-	// declaring an 'autoget' field implicitly makes property 'autoget'
+	// declaring a field with 'autoget' modifier implicitly makes the whole 
+	// property autoget
 
 	autoget int m_x; 
 
-	// declaring a 'bindable' event implicitly makes property 'bindable'
+	// declaring an event with 'bindable' modifier implicitly makes the whole 
+	// property bindable
 
 	bindable event m_e (); 
 
@@ -75,7 +77,7 @@ g_prop.set (double x)
 
 //.............................................................................
 
-// bindable data is completely compiler-generated property with trivial getter 
+// bindable data is a wholly compiler-generated property with trivial getter 
 // and setter - the sole purpose of bindable data is to track data changes
 
 int bindable g_data;
@@ -107,7 +109,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// to access bindable event of a property, use 'bindingof' operator
+	// use 'bindingof' to access a bindable event of a property
 
 	bindingof (g_simpleProp) += onSimplePropChanged;
 	bindingof (g_prop) += onPropChanged;

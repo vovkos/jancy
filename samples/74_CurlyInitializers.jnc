@@ -1,5 +1,5 @@
-// jancy features a nice way of assigning aggregate values with curly 
-// initializers just like in C/C++ or C#, but better!
+// Jancy features a nice way of assigning aggregate values with curly 
+// initializers -- just like in C/C++ or C#, but better!
 
 //.............................................................................
 
@@ -20,7 +20,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// classic C-style curly-intializers
+	// classic C-style curly-initializers
 
 	int a [] = { 1, 2, 3 };	 
 
@@ -31,7 +31,7 @@ int main ()
 
 	printf ("}\n");
 
-	// it's ok to skip elements leaving them zero-initialized
+	// it's OK to skip elements leaving them zero-initialized
 
 	int b [10] = { ,, 3, 4,,, 7 }; 
 
@@ -47,12 +47,12 @@ int main ()
 	Point point = { 10, m_z = 30 };  
 	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
-	// can use curly-initializers in assignment operator 
+	// OK to use curly-initializers in assignment operators 
 
 	point = { , 200, 300 }; 
 	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
-	// can use curly-initializers in new operator
+	// OK to use curly-initializers in new operators
 
 	Point* point2 = new Point { m_y = 2000, m_z = 3000 }; 
 	printf ("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);

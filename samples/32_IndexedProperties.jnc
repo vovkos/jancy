@@ -1,7 +1,8 @@
-// jancy also supports so-called 'indexed' properties, i.e. properties with 
-// semantics of arrays. unlike with arrays though, index arguments of indexed 
-// properies does not need to be integer and does not need to mean index -- 
-// both type and indexing logic is totally up to developer.
+// Jancy also supports so-called "indexed" properties, i.e. properties with 
+// semantics of arrays. Unlike with arrays, index arguments of indexed 
+// properties don't have to be of the integer type and don't actually have to
+// function as an index. Both the type and the indexing logic are left to the
+// developer.
 
 //.............................................................................
 
@@ -30,13 +31,13 @@ g_simpleProp.set (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// global variable to store the property value
+// a global variable to store the property value
 
 int g_x [2];
 
 //.............................................................................
 
-// similar property declared using full syntax
+// a similar property declared using the full syntax
 
 property g_prop
 {	
@@ -53,7 +54,7 @@ property g_prop
 		return m_x [i] [j];
 	}
 
-	// ...but all accessors should have the same index arguments
+	// ... but all accessors should have the same index arguments
 
 	set (
 		size_t i,
@@ -92,7 +93,7 @@ int main ()
 	g_simpleProp [1] = 200;
 	// g_simpleProp [2] = 300; // <-- runtime error
 
-	// to access property with multiple index arguments, use the same syntax as
+	// to access a property with multiple index arguments use the same syntax as
 	// for accessing multi-dimensional arrays
 
 	x = g_prop [1] [1];

@@ -1,13 +1,14 @@
-// 'finally' clause is traditionally associated with exception handling only. 
-// however, in jancy it has a wider application domain. after all, finalization
-// is not only needed when errors occur, right?
+// The 'finally' clause is traditionally associated only with exception 
+// handling. In Jancy it has a wider application domain. After all, 
+// finalization is not only needed when errors occur, right?
 
-// let's say, developer wants to create a block of finalization code to be 
-// executed upon exiting a paricular scope no matter what exit path happens at 
-// runtime. why force him to create a 'try' block just for that (like in java)?
+// Supposing the developer wants to create a block of finalization code to be 
+// executed upon exiting a certain scope no matter what exit path is taken at 
+// runtime. Why force him to create a 'try' block just for that (as Java would
+// force him to do)?
 
-// if you ever asked yourself this question then we have good news: in jancy, 
-// 'finally' block can be made a part of any given scope.
+// If you ever asked yourself this question then we have good news: in Jancy 
+// the 'finally' block can be added to any given scope.
 
 //.............................................................................
 
@@ -60,7 +61,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// traditionally looking usage of 'finally'
+	// traditional usage of 'finally'
 	
 	try
 	{
@@ -76,7 +77,7 @@ int main ()
 		printf ("error (%s)\n", jnc.getLastError ()->m_description);
 
 	finally:
-		printf ("main () finalization");
+		printf ("try-block finalization");
 	}
 
 	return 0;

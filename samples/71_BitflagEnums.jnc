@@ -1,24 +1,25 @@
-// enums in jancy conseal member identifiers within enum namespace to prevent 
-// parent namespace pollution.
+// Jancy enums conceal member identifiers within the enum namespace thus
+// preventing the parent namespace pollution.
 
-// to simplify porting of existing C/C++ code jancy also offers 'exposed' enums
-// which behave just like traditional C/C++ enums exposing member identifiers.
+// To simplify porting of existing C/C++ code Jancy also offers 'exposed' 
+// enums, which behave just like traditional C/C++ enums and expose member 
+// identifiers.
 
-// yet another flavour of enums in jancy is 'bitflag' enum, i.e. enum designed 
-// to be used for bitflag description. bitflag enums differ from normal enums 
-// in the following aspects:
-//   * automatic value assignment goes 1, 2, 4, 8 etc - i.e. instead of +1 it 
-//     shifts the highest bit of the previous member;
-//   * bitwise or operator '|' on 2 operands of matching bitflag enum type 
-//     yields the same bitflag enum type
-//   * it's ok to assign '0' to bitflag enum
+// Yet another flavour of Jancy enums is the 'bitflag' enum, i.e. the enum
+// designed to be used to describe bit flags. Bitflag enums differ from
+// regular enums in the following aspects:
+//   * Automatic value assignment goes 1, 2, 4, 8, i.e. in the power of 2 steps
+//   * The bitwise OR operator '|' on two operands of matching bitflag enum 
+//     type yields the same bitflag enum type
+//   * It's OK to assign zero to a bitflag enum
 
-// by default bitflag enums conseal member identifiers like normal enums do, 
-// but it's ok to apply 'exposed' modifier to a bitflag enum to change that.
+// By default the bitflag enums conceal member identifiers like normal enums 
+// do. The 'exposed' modifier can be applied to the bitflag enum to change 
+// that.
 
-// all enums in jancy can be derived from integer types to specify how much 
-// memory will a particular enum occupy and whether it will be treated as a 
-// signed or unsigned value (where it matters).
+// All enums in Jancy can be derived from integer types to specify how many 
+// bytes will a particular enum occupy in memory and whether it will be treated
+// as a signed or unsigned value.
 
 //.............................................................................
 
@@ -55,7 +56,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// enum members must be qualified (unqualified name is not visible)
+	// enum members must be qualified (unqualified names are not visible)
 
 	Color color = Color.Blue;
 
@@ -65,11 +66,11 @@ int main ()
 
 	printf ("color = %d\n", color);
 
-	// exposed enum members need not to be qualified...
+	// exposed enum members need not be qualified...
 
 	State state = State_Connecting; 
 
-	// ...but qualified names work also
+	// ... but qualified names work also
 	
 	state = State.State_Disconnecting; 
 
@@ -79,7 +80,7 @@ int main ()
 
 	printf ("state = %d\n", state);
 
-	// you can bitwise-or bitflag enum members together
+	// you can bitwise OR bitflag enum members together
 
 	OpenFlags flags = 
 		OpenFlags.ReadOnly | 
@@ -92,7 +93,7 @@ int main ()
 
 	// flags = 200; // <-- error
 
-	// ...but it is ok to assign '0'
+	// ...but it is OK to assign '0'
 
 	flags = 0;  
 

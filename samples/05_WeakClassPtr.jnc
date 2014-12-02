@@ -1,6 +1,6 @@
-// jancy provides built-in support for weak pointers to classes, i.e. pointers 
-// which do not affect the lifetime of an object and do not retain it from 
-// being collected by gc.
+// Jancy offers support for weak pointers to classes, i.e. pointers that do not
+// affect the lifetime of an object and do not retain it so the object can be 
+// collected by GC.
 
 //.............................................................................
 
@@ -35,20 +35,21 @@ int main ()
 
 	// wc.m_x = 20; // <-- error
 
-	// if we lose strong pointer then object will get destructed next gc run
+	// if we lose the strong pointer then the object will get destructed on the
+	// next GC run
 
 	// c = null;
 
 	printf ("gc run...\n");
 	jnc.runGc ();
 
-	// try to recover strong pointer
+	// try to recover the strong pointer
 
 	c = wc;
 	if (c)
-		printf ("object survived gc run\n");
+		printf ("object survived the GC run\n");
 	else
-		printf ("object was collected during gc run\n");
+		printf ("object was collected during the GC run\n");
 
 	return 0;
 }

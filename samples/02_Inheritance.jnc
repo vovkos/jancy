@@ -1,9 +1,9 @@
-// mulitple inheritance is an unfairly abandoned tool which allows for the most
-// natural way of implementation sharing.
+// Multiple inheritance is the unfairly abandoned tool, which allows for the 
+// most natural way of implementation sharing.
 
-// jancy uses simple multiple inheritance model: multiple instances of shared 
-// bases (if any). the infamous virtual multiple inheritance model of C++ is 
-// not (and will not be) supported. 
+// Jancy uses the simple multiple inheritance model: multiple instances of 
+// shared bases (if any). The infamous virtual multiple inheritance model of
+// C++ is not (and will not be) supported. 
 
 //.............................................................................
 
@@ -92,7 +92,7 @@ struct Point3D: Point
 
 //.............................................................................
 
-// it's ok to inherit class from multiple bases including structs or unions
+// it's OK to inherit a class from multiple bases including structs and unions
 
 class C3:
 	C1,
@@ -111,11 +111,11 @@ class C3:
 
 C3.construct (int a)
 {
-	// if a base type requires construction, it must be done in the beginning 
-	// of derived type constructor
+	// if a base type requires construction this must be done in the beginning 
+	// of the derived type constructor
 		
-	// convenient keywords 'basetype', 'basetype1'..'basetype9' can be used to 
-	// reference base types ('basetype' is equivalent to 'basetype1')
+	// keywords 'basetype', 'basetype1'..'basetype9' could be used to reference
+	// base types ('basetype' is equivalent to 'basetype1')
 
 	basetype1.construct (a * 10); 
 		
@@ -126,8 +126,8 @@ C3.construct (int a)
 	printf ("C3.construct (%d)\n", a);
 }
 
-// it's ok to use storage specifier in out-of-class definition (must match the 
-// original one, of course)
+// it's OK to use storage specifier in an out-of-class method implementation 
+// (it must match the original one, of course)
 
 override C3.baz (
 	int x,
