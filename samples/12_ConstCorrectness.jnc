@@ -54,7 +54,7 @@ class C1
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-baz (const C1* p)
+baz (C1 const* p)
 {
 	printf ("p.m_x = %d\n", p.m_field);
 

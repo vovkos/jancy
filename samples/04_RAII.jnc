@@ -31,7 +31,7 @@ int main ()
 
 	{
 		// use the explicit 'stack' specifier to allocate a class variable on 
-		// stack and not gc-heap (which is the default for class variables)
+		// stack and not GC-heap (which is the default for class variables)
 		
 		stack C1 c (10); 
 

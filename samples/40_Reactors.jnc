@@ -3,16 +3,16 @@
 
 // The idea behind the reactive programming is to automate the execution of
 // certain update actions in response to property changes. Imagine a complex
-// configuration dialog with many interconnected items: a value of some items
-// affects the color, visibility, and availability of other items.
+// configuration dialog with many interconnected items: a value of one item
+// may affect the color, visibility, and availability of some other item.
 
 // The traditional approach to creating such a dialog is to write multiple
 // event handlers responsible for updating dependent items.
 
 // Jancy makes it possible to write a single 'reactor' block where all the 
-// relations and dependencies are described in declarative style. After the 
-// reactor start the jancy runtime will automatically bind to, track property 
-// changes, and execute required updates!
+// relations and dependencies are described in a declarative style. After the 
+// reactor start the Jancy runtime will automatically bind to, track property 
+// changes, and execute required updates.
 
 //.............................................................................
 

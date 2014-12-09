@@ -36,7 +36,7 @@ int main ()
 	printf ("c = %s\n", c);
 
 	// concatenating hex and C-literals can also be used for removing trailing
-	// zero from a C-literal and thus producing non-zero-terminated literals
+	// zeroes from a C-literals thus producing non-zero-terminated literals
 
 	char d [] = "non-zero-terminated" 0x"";
 

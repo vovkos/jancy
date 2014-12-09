@@ -33,16 +33,16 @@ extension C1Ext: C1
 		printf ("C1Ext.baz ()\n");
 	}
 
-	int autoget property m_prop;
+	int property m_prop;
 
 	// fields, destructors and virtual methods cannot be added to extension 
-	// namespaces for obvious reasons: extensions should not *alter* types,
-	// it should *extend* them
+	// namespaces for obvious reasons: an extension should not alter a type
+	// but rather extend it
 
 	// int m_f;         // <-- error
 	// abstract v1 ();  // <-- error
 	
-	// constructors and operators theoretically can be added, but it's not 
+	// constructors and operators theoretically can be added, but this is not 
 	// currently supported -- only named methods and properties for now
 	
 	// construct (double x);    // <-- error

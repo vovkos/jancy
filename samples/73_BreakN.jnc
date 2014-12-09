@@ -2,7 +2,7 @@
 
 // Ever wanted to exit two loops at once and do so neatly, without resorting 
 // to techniques being frowned upon, like using a 'goto'? If the answer is yes
-// then rejoyce because Jancy allows you to do that!
+// then rejoyce! Jancy allows you to do just that.
 
 //.............................................................................
 
