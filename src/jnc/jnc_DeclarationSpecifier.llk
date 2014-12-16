@@ -285,9 +285,11 @@ property_template_specifier
 	:	TokenKind_Property
 			{
 				$propertyTemplate = createPropertyTemplate ();
+				m_module->m_namespaceMgr.openNamespace ($propertyTemplate);
 			}
-		named_type_block <$propertyTemplate>
+		named_type_block_impl
 			{
+				m_module->m_namespaceMgr.closeNamespace ();
 				$.m_type = $propertyTemplate->calcType ();
 				return $.m_type != NULL;
 			}

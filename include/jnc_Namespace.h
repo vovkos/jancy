@@ -241,13 +241,6 @@ protected:
 
 //.............................................................................
 
-enum GlobalNamespaceFlag
-{
-	GlobalNamespaceFlag_Sealed = 0x0100
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 class GlobalNamespace:
 	public ModuleItem,
 	public Namespace

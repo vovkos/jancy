@@ -452,7 +452,7 @@ Parser::openGlobalNamespace (
 	if (!nspace)
 		return NULL;
 
-	if (nspace->getFlags () & GlobalNamespaceFlag_Sealed)
+	if (nspace->getFlags () & ModuleItemFlag_Sealed)
 	{
 		err::setFormatStringError ("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().cc ());
 		return NULL;
@@ -1360,8 +1360,8 @@ Parser::declareData (
 
 	switch (namespaceKind)
 	{
-	case NamespaceKind_Extension:
 	case NamespaceKind_PropertyTemplate:
+	case NamespaceKind_Extension:
 		err::setFormatStringError ("'%s' cannot have data fields", getNamespaceKindString (namespaceKind));
 		return false;
 	}
@@ -1475,6 +1475,9 @@ Parser::declareData (
 		if (m_storageKind == StorageKind_Member)
 		{
 			dataItem = prop->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
+			if (!dataItem)
+				return false;
+
 			assignDeclarationAttributes (dataItem, declarator->getPos ());
 		}
 		else

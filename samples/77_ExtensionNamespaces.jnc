@@ -39,8 +39,9 @@ extension C1Ext: C1
 	// namespaces for obvious reasons: an extension should not alter a type
 	// but rather extend it
 
-	// int m_f;         // <-- error
-	// abstract v1 ();  // <-- error
+	// int m_f;                      // <-- error
+	// abstract v1 ();               // <-- error
+	// int autoget property m_prop2; // <-- error
 	
 	// constructors and operators theoretically can be added, but this is not 
 	// currently supported -- only named methods and properties for now
@@ -63,11 +64,17 @@ C1Ext.bar (int x)
 
 	foo ();
 }
+
+int C1Ext.m_prop.get ()
+{	
+	printf ("C1Ext.m_prop.get () { m_x = %d }\n", m_x); 
+	return m_x;
+} 
 	
 C1Ext.m_prop.set (int x)
 {	
 	printf ("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x); 
-	m_value = x;
+	m_x = x;
 } 
 
 //.............................................................................
@@ -87,10 +94,11 @@ int main ()
 	// invoke extension member methods and properties
 
 	c.foo ();  
-	c.bar (500);
+	c.bar (200);
 	C1.baz ();
 
-	c.m_prop = 100;
+	c.m_prop = 300;
+	int x = c.m_prop;
 
 	return 0;
 }

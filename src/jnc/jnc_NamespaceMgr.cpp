@@ -24,6 +24,7 @@ NamespaceMgr::NamespaceMgr ()
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
 	jnc->m_tag = jncName;
+	jnc->m_flags |= ModuleItemFlag_Sealed;
 
 	internal->m_module = m_module;
 	internal->m_parentNamespace = global;

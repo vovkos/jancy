@@ -47,6 +47,12 @@ StructType::createFieldImpl (
 	rtl::BoxList <Token>* initializer
 	)
 {
+	if (m_flags & ModuleItemFlag_Sealed)
+	{
+		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().cc ());
+		return NULL;
+	}
+
 	StructField* field = AXL_MEM_NEW (StructField);
 	field->m_module = m_module;
 	field->m_storageKind = m_storageKind;

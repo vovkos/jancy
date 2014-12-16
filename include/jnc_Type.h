@@ -324,11 +324,11 @@ getFirstTypeModifierString (uint_t modifiers)
 
 enum TypeFlag
 {
-	TypeFlag_Named        = 0x0100,
-	TypeFlag_Child        = 0x0200, // constructor has an implicit 'parent' arg
-	TypeFlag_Pod          = 0x0400, // plain-old-data
-	TypeFlag_GcRoot       = 0x0800, // is or contains gc-traceable pointers
-	TypeFlag_StructRet    = 0x1000, // return through hidden 1st arg (gcc32 callconv)
+	TypeFlag_Named     = 0x0100,
+	TypeFlag_Child     = 0x0200, // constructor has an implicit 'parent' arg
+	TypeFlag_Pod       = 0x0400, // plain-old-data
+	TypeFlag_GcRoot    = 0x0800, // is or contains gc-traceable pointers
+	TypeFlag_StructRet = 0x1000, // return through hidden 1st arg (gcc32 callconv)
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -57,6 +57,7 @@ enum ModuleItemFlag
 	ModuleItemFlag_InCalcLayout = 0x10,
 	ModuleItemFlag_LayoutReady  = 0x20,
 	ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
+	ModuleItemFlag_Sealed       = 0x80,
 };
 
 

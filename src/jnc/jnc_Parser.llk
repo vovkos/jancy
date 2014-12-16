@@ -41,8 +41,8 @@ Members
 {
 	enum StageKind
 	{
-		StageKind_Pass1, // global declarations (before linkage)
-		StageKind_Pass2, // statements and expressions (after linkage & calclayout)
+		StageKind_Pass1,          // global declarations (before linkage)
+		StageKind_Pass2,          // statements and expressions (after linkage & calclayout)
 		StageKind_ReactorScan,    // scan reactor body to build bind site map (after linkage but before calclayout)
 		StageKind_ReactorStarter, // evaluate expression and save bindable event pointers
 	};

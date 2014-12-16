@@ -378,11 +378,13 @@ Property::addMethod (Function* function)
 
 			if (m_parentType->getTypeKind () != TypeKind_Class)
 			{
-				err::setFormatStringError (
-					"'%s' method cannot be part of '%s'",
-					getStorageKindString (storageKind),
-					m_parentType->getTypeString ().cc ()
-					);
+				err::setFormatStringError ("virtual method cannot be added to '%s'", m_parentType->getTypeString ().cc ());
+				return false;
+			}
+
+			if (m_parentType->getFlags () & ModuleItemFlag_Sealed)
+			{
+				err::setFormatStringError ("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().cc ());
 				return false;
 			}
 

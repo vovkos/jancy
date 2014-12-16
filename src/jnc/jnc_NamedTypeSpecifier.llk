@@ -203,13 +203,14 @@ class_specifier
 
 // struct, union, class, property
 
-named_type_block <Namespace* $nspace>
+named_type_block <NamedType* $type>
 	enter
 	{
-		m_module->m_namespaceMgr.openNamespace ($nspace);
+		m_module->m_namespaceMgr.openNamespace ($type);
 	}
 	leave
 	{
+		$type->m_flags |= ModuleItemFlag_Sealed;
 		m_module->m_namespaceMgr.closeNamespace ();
 	}
 	:	named_type_block_impl

@@ -52,6 +52,12 @@ ClassType::createFieldImpl (
 	rtl::BoxList <Token>* initializer
 	)
 {
+	if (m_flags & ModuleItemFlag_Sealed)
+	{
+		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().cc ());
+		return NULL;
+	}
+
 	StructField* field = m_ifaceStructType->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	if (!field)
 		return NULL;
