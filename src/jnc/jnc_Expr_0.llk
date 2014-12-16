@@ -240,7 +240,7 @@ assignment_expr_0 <Value* $value>
 		(
 				{
 					if (m_stage == StageKind_ReactorScan)
-						m_reactorBindableTypeCount = 0; // reset on assignment
+						m_reactionBindSiteCount = 0; // reset on assignment
 				}
 			assignment_operator $o conditional_expr_0 <&$opValue2>
 				{
@@ -258,7 +258,7 @@ unary_operator_expr_0 <Value* $value>
 	leave 
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
-			m_reactorBindableTypeCount++;
+			m_reactionBindSiteCount++;
 	}
 	:	'+' unary_expr_0 <$value> 
 			{
@@ -336,7 +336,7 @@ postfix_operator_0 <Value* $value>
 	leave 
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
-			m_reactorBindableTypeCount++;
+			m_reactionBindSiteCount++;
 	}
 	:	'(' expression_or_empty_list_0 ')'
 			{
@@ -391,7 +391,7 @@ primary_expr_0 <Value* $value>
 	leave 
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
-			m_reactorBindableTypeCount++;
+			m_reactionBindSiteCount++;
 	}
 	:	'(' conditional_expr_0 <$value> ')'
 	|	literal_0 <$value> 

@@ -21,8 +21,9 @@ Parser::Parser ()
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_reactorType = NULL;
-	m_reactorBindableTypeCount = 0;
-	m_reactorBindSiteTotalCount = 0;
+	m_reactionBindSiteCount = 0;
+	m_reactorTotalBindSiteCount = 0;
+	m_reactionIndex = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
@@ -1820,16 +1821,17 @@ Parser::createClassType (
 }
 
 bool
-Parser::countReactorBindableTypes ()
+Parser::countReactionBindSites ()
 {
-	if (!m_reactorBindableTypeCount)
+	if (!m_reactionBindSiteCount)
 	{
 		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
 
-	m_reactorBindSiteTotalCount += m_reactorBindableTypeCount;
-	m_reactorBindableTypeCount = 0;
+	m_reactorTotalBindSiteCount += m_reactionBindSiteCount;
+	m_reactionBindSiteCount = 0;
+	m_reactionIndex++;
 	return true;
 }
 
@@ -1852,7 +1854,7 @@ Parser::addReactorBindSite (const Value& value)
 		m_module->m_variableMgr.allocatePrimeInitializeVariable (variable) &&
 		m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 
-	m_reactorBindSiteList.insertTail (variable);
+	m_reactionBindSiteList.insertTail (variable);
 	return true;
 }
 
@@ -1862,7 +1864,7 @@ Parser::finalizeReactor ()
 	ASSERT (m_reactorType);
 	ASSERT (!m_reactionList.isEmpty ());
 
-	bool result = m_reactorType->bindHandlers (m_reactionList);
+	bool result = m_reactorType->subscribe (m_reactionList);
 	if (!result)
 		return false;
 
@@ -1881,12 +1883,24 @@ Parser::finalizeReactorOnEventDeclaration (
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix ();
 	ASSERT (suffix);
 
-	Reaction* handler = AXL_MEM_NEW (Reaction);
-	handler->m_function = m_reactorType->createHandler (suffix->getArgArray ());
-	handler->m_bindSiteList.takeOver (valueList);
-	m_reactionList.insertTail (handler);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (suffix->getArgArray ());
+	Reaction* reaction = AXL_MEM_NEW (Reaction);
+	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
+	reaction->m_bindSiteList.takeOver (valueList);
+	m_reactionList.insertTail (reaction);
 
-	return m_module->m_functionMgr.prologue (handler->m_function, m_lastMatchedToken.m_pos);
+	return m_module->m_functionMgr.prologue (reaction->m_function, m_lastMatchedToken.m_pos);
+}
+
+bool
+Parser::finalizeReactorOnEventBody ()
+{
+	bool result = m_module->m_functionMgr.epilogue ();
+	if (!result)
+		return false;
+
+	m_reactionIndex++;
+	return true;
 }
 
 bool
@@ -1908,29 +1922,52 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 	if (!result)
 		return false;
 
-	if (parser.m_reactorBindSiteList.isEmpty ())
+	if (parser.m_reactionBindSiteList.isEmpty ())
 	{
 		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
 
-	Reaction* handler = AXL_MEM_NEW (Reaction);
-	handler->m_function = m_reactorType->createHandler ();
-	handler->m_bindSiteList.takeOver (&parser.m_reactorBindSiteList);
-	m_reactionList.insertTail (handler);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType ();
+	Reaction* reaction = AXL_MEM_NEW (Reaction);
+	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
+	reaction->m_bindSiteList.takeOver (&parser.m_reactionBindSiteList);
+	m_reactionList.insertTail (reaction);
 
-	result = m_module->m_functionMgr.prologue (handler->m_function, tokenList.getHead ()->m_pos);
+	result = m_module->m_functionMgr.prologue (reaction->m_function, tokenList.getHead ()->m_pos);
 	if (!result)
 		return false;
 
+	StructField* stateField = m_reactorType->getField (ReactorFieldKind_ReactionStateArray);
+
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
+
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow_block");
+	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock ("return_block");
+
+	Value stateValue;
+	Value stateCmpValue;
+
+	result =
+		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
+		m_module->m_operatorMgr.binaryOperator (BinOpKind_Idx, &stateValue, Value (m_reactionIndex, TypeKind_SizeT)) &&
+		m_module->m_controlFlowMgr.conditionalJump (stateValue, returnBlock, followBlock, followBlock) &&
+		m_module->m_operatorMgr.storeDataRef (stateValue, Value (1, TypeKind_Int32));
+	
 	parser.m_stage = StageKind_Pass2;
 	parser.m_reactorType = NULL;
 
-	result = parser.parseTokenList (SymbolKind_expression, tokenList);
+	result = 
+		parser.parseTokenList (SymbolKind_expression, tokenList) &&
+		m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 0, TypeKind_Int32));
+
 	if (!result)
 		return false;
-
+	
+	m_module->m_controlFlowMgr.follow (returnBlock);
 	m_module->m_functionMgr.epilogue ();
+	m_reactionIndex++;
 	return true;
 }
 

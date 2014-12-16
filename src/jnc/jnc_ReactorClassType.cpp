@@ -10,16 +10,10 @@ namespace jnc {
 ReactorClassType::ReactorClassType ()
 {
 	m_classTypeKind = ClassTypeKind_Reactor;
+	m_reactionCount = 0;
 	m_bindSiteCount = 0;
 	memset (m_fieldArray, 0, sizeof (m_fieldArray));
 	memset (m_methodArray, 0, sizeof (m_methodArray));
-}
-
-Function*
-ReactorClassType::createHandler (const rtl::Array <FunctionArg*>& argArray)
-{
-	FunctionType* type = m_module->m_typeMgr.getFunctionType (argArray);
-	return createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, type);
 }
 
 bool
@@ -66,12 +60,16 @@ ReactorClassType::calcLayout ()
 	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.setCurrentFunction (prevFunction);
 
-	ASSERT (parser.m_reactorBindSiteTotalCount);
-	m_bindSiteCount = parser.m_reactorBindSiteTotalCount;
+	ASSERT (parser.m_reactorTotalBindSiteCount && parser.m_reactionIndex);
+	m_bindSiteCount = parser.m_reactorTotalBindSiteCount;	
+	m_reactionCount = parser.m_reactionIndex;
 
 	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
-	ArrayType* bindSiteArrayType = bindSiteType->getArrayType (m_bindSiteCount);
-	m_fieldArray [ReactorFieldKind_BindSiteArray] = createField ("!m_bindSiteArray", bindSiteArrayType);
+	ArrayType* arrayType = bindSiteType->getArrayType (m_bindSiteCount);
+	m_fieldArray [ReactorFieldKind_BindSiteArray] = createField ("!m_bindSiteArray", arrayType);
+
+	arrayType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)->getArrayType (m_reactionCount);
+	m_fieldArray [ReactorFieldKind_ReactionStateArray] = createField ("!m_reactionStateArray", arrayType);
 
 	result = ClassType::calcLayout ();
 	if (!result)
@@ -81,7 +79,7 @@ ReactorClassType::calcLayout ()
 }
 
 bool
-ReactorClassType::bindHandlers (const rtl::ConstList <Reaction>& handlerList)
+ReactorClassType::subscribe (const rtl::ConstList <Reaction>& reactionList)
 {
 	bool result;
 
@@ -103,13 +101,13 @@ ReactorClassType::bindHandlers (const rtl::ConstList <Reaction>& handlerList)
 	if (!result)
 		return false;
 
-	rtl::Iterator <Reaction> handler = handlerList.getHead ();
+	rtl::Iterator <Reaction> reaction = reactionList.getHead ();
 	size_t i = 0;
-	for (; handler; handler++)
+	for (; reaction; reaction++)
 	{
-		Function* function = handler->m_function;
+		Function* function = reaction->m_function;
 
-		rtl::BoxIterator <Value> value = handler->m_bindSiteList.getHead ();
+		rtl::BoxIterator <Value> value = reaction->m_bindSiteList.getHead ();
 		for (; value; value++, i++)
 		{
 			Value eventValue = *value;

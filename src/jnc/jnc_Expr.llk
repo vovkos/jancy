@@ -522,7 +522,7 @@ assignment_operator_expr <Value* $value>
 	enter
 	{
 		if (m_stage == StageKind_ReactorStarter)  // reset on assignment
-			m_reactorBindSiteList.clear ();
+			m_reactionBindSiteList.clear ();
 	}
 	:	assignment_operator $o conditional_expr <&$opValue2>
 			{

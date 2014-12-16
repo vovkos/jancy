@@ -110,9 +110,10 @@ Members
 
 	ReactorClassType* m_reactorType;
 	rtl::StdList <Reaction> m_reactionList;
-	rtl::BoxList <Value> m_reactorBindSiteList;
-	size_t m_reactorBindableTypeCount;
-	size_t m_reactorBindSiteTotalCount;
+	rtl::BoxList <Value> m_reactionBindSiteList;
+	size_t m_reactionBindSiteCount;
+	size_t m_reactorTotalBindSiteCount;
+	size_t m_reactionIndex;
 
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
@@ -379,16 +380,13 @@ Members2
 		);
 
 	bool
-	finalizeReactorOnEventBody ()
-	{
-		return m_module->m_functionMgr.epilogue ();
-	}
+	finalizeReactorOnEventBody ();
 
 	bool
 	reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList);
 
 	bool
-	countReactorBindableTypes ();
+	countReactionBindSites ();
 
 	bool
 	callBaseTypeMemberConstructor (

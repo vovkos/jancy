@@ -17,7 +17,7 @@ reactor_stmt
 reactor_expression_stmt
 	enter
 	{
-		m_reactorBindSiteList.clear ();
+		m_reactionBindSiteList.clear ();
 	}
 	:	expression_pass1 ';'
 			{
@@ -89,7 +89,7 @@ reactor_stmt_0
 reactor_expression_stmt_0
 	:	expression_0 ';'
 			{
-				return countReactorBindableTypes ();
+				return countReactionBindSites ();
 			}
 	;
 
@@ -100,10 +100,13 @@ reactor_onevent_stmt_0
 	}
 	enter
 	{
-		m_reactorBindSiteList.clear (); // clear bindsite list before processing expression list
+		m_reactionBindSiteList.clear (); // clear bindsite list before processing expression list
 	}
 	:	TokenKind_OnEvent reactor_event_name_0 function_suffix <&$declarator>
 		reactor_compound_stmt_0
+			{
+				m_reactionIndex++;
+			}
 	;
 	
 reactor_compound_stmt_0
@@ -113,15 +116,15 @@ reactor_compound_stmt_0
 reactor_event_name_0
 	:	'(' expression_list_0 ')'
 		{
-			m_reactorBindSiteTotalCount += $2.m_valueList.getCount ();
+			m_reactorTotalBindSiteCount += $2.m_valueList.getCount ();
 		}
 	|	TokenKind_BindingOf '(' expression_0 ')'
 			{
-				m_reactorBindSiteTotalCount++;
+				m_reactorTotalBindSiteCount++;
 			}
-	|	any+ // anythin until '('
+	|	any+ // anything until '('
 			{
-				m_reactorBindSiteTotalCount++;
+				m_reactorTotalBindSiteCount++;
 			}
 	;
 

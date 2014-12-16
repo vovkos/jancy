@@ -1,0 +1,37 @@
+//.............................................................................
+
+int autoget bindable property g_a;
+int autoget bindable property g_b;
+
+g_a.set (int x)
+{
+	printf ("g_a.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+g_b.set (int x)
+{
+	printf ("g_b.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+reactor g_myReactor ()
+{
+	g_a = g_b + 1;
+	g_b = g_a + 1;
+}
+
+int main ()
+{
+	printf ("main\n");
+
+	g_myReactor.start ();
+
+	g_a = 10;
+
+	return 0;
+}
+
+//.............................................................................

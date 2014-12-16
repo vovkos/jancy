@@ -16,6 +16,7 @@ enum ReactorFieldKind
 	ReactorFieldKind_Lock,
 	ReactorFieldKind_State,
 	ReactorFieldKind_BindSiteArray,
+	ReactorFieldKind_ReactionStateArray,
 
 	ReactorFieldKind__Count,
 };
@@ -49,6 +50,7 @@ protected:
 	Function* m_methodArray [ReactorMethodKind__Count];
 	rtl::Iterator <StructField> m_firstArgField;
 	size_t m_bindSiteCount;
+	size_t m_reactionCount;
 	rtl::BoxList <Token> m_body;
 
 public:
@@ -74,6 +76,12 @@ public:
 		return m_bindSiteCount;
 	}
 
+	size_t
+	getReactionCount ()
+	{
+		return m_reactionCount;
+	}
+
 	bool
 	hasBody ()
 	{
@@ -89,11 +97,8 @@ public:
 	bool
 	setBody (rtl::BoxList <Token>* tokenList);
 
-	Function*
-	createHandler (const rtl::Array <FunctionArg*>& argArray = rtl::Array <FunctionArg*> ());
-
 	bool
-	bindHandlers (const rtl::ConstList <Reaction>& handlerList);
+	subscribe (const rtl::ConstList <Reaction>& reactionList);
 
 	virtual
 	bool

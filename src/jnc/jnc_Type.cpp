@@ -149,8 +149,7 @@ getInt32TypeKind (int32_t integer)
 		integer >= INT8_MIN && integer <= INT8_MAX ? TypeKind_Int8 :
 		(uint32_t) integer <= UINT8_MAX ? TypeKind_Int8_u :
 		integer >= INT16_MIN && integer <= INT16_MAX ? TypeKind_Int16 :
-		(uint32_t) integer <= UINT16_MAX ? TypeKind_Int16_u :
-		integer >= INT32_MIN && integer <= INT32_MAX ? TypeKind_Int32 : TypeKind_Int32_u;
+		(uint32_t) integer <= UINT16_MAX ? TypeKind_Int16_u : TypeKind_Int32;
 }
 
 TypeKind
@@ -173,8 +172,7 @@ getInt64TypeKind (int64_t integer)
 		integer >= INT16_MIN && integer <= INT16_MAX ? TypeKind_Int16 :
 		(uint64_t) integer <= UINT16_MAX ? TypeKind_Int16_u :
 		integer >= INT32_MIN && integer <= INT32_MAX ? TypeKind_Int32 :
-		(uint64_t) integer <= UINT32_MAX ? TypeKind_Int32_u :
-		integer >= INT64_MIN && integer <= INT64_MAX ? TypeKind_Int64 : TypeKind_Int64_u;
+		(uint64_t) integer <= UINT32_MAX ? TypeKind_Int32_u : TypeKind_Int64;
 }
 
 TypeKind
