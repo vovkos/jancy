@@ -10,8 +10,8 @@ namespace jnc {
 
 struct ConstBufferRef
 {
-	JNC_API_BEGIN_TYPE ("jnc.ConstBufferRef", ApiSlot_jnc_ConstBufferRef)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.ConstBufferRef", ApiSlot_jnc_ConstBufferRef)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr m_ptr;
@@ -23,10 +23,10 @@ public:
 
 struct ConstBuffer
 {
-	JNC_API_BEGIN_TYPE ("jnc.ConstBuffer", ApiSlot_jnc_ConstBuffer)
-		JNC_API_FUNCTION ("copy", &ConstBuffer::copy_s1)
-		JNC_API_OVERLOAD (&ConstBuffer::copy_s2)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.ConstBuffer", ApiSlot_jnc_ConstBuffer)
+		JNC_FUNCTION ("copy", &ConstBuffer::copy_s1)
+		JNC_OVERLOAD (&ConstBuffer::copy_s2)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr m_ptr;
@@ -69,8 +69,8 @@ protected:
 
 struct BufferRef
 {
-	JNC_API_BEGIN_TYPE ("jnc.BufferRef", ApiSlot_jnc_BufferRef)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.BufferRef", ApiSlot_jnc_BufferRef)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr m_ptr;
@@ -82,12 +82,12 @@ public:
 class Buffer: public IfaceHdr
 {
 public:
-	JNC_API_BEGIN_CLASS ("jnc.Buffer", ApiSlot_jnc_Buffer)
-		JNC_API_FUNCTION_0 ("copy")
-		JNC_API_OVERLOAD (&Buffer::copy)
-		JNC_API_FUNCTION_0 ("append")
-		JNC_API_OVERLOAD (&Buffer::append)
-	JNC_API_END_CLASS ()
+	JNC_BEGIN_CLASS ("jnc.Buffer", ApiSlot_jnc_Buffer)
+		JNC_FUNCTION_0 ("copy")
+		JNC_OVERLOAD (&Buffer::copy)
+		JNC_FUNCTION_0 ("append")
+		JNC_OVERLOAD (&Buffer::append)
+	JNC_END_CLASS ()
 
 public:
 	DataPtr m_ptr;

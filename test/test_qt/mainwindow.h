@@ -30,15 +30,15 @@ enum ApiSlot
 class TestClass: public jnc::IfaceHdr
 {
 public:
-	JNC_API_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
-		JNC_API_CONSTRUCTOR (&TestClass::construct_0)
-		JNC_API_OVERLOAD (&TestClass::construct_1)
-		JNC_API_OVERLOAD (&TestClass::construct_2)
+	JNC_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
+		JNC_CONSTRUCTOR (&TestClass::construct_0)
+		JNC_OVERLOAD (&TestClass::construct_1)
+		JNC_OVERLOAD (&TestClass::construct_2)
 
-		JNC_API_FUNCTION ("foo", &TestClass::foo_0)
-		JNC_API_OVERLOAD (&TestClass::foo_1)
-		JNC_API_OVERLOAD (&TestClass::foo_2)
-	JNC_API_END_CLASS ()
+		JNC_FUNCTION ("foo", &TestClass::foo_0)
+		JNC_OVERLOAD (&TestClass::foo_1)
+		JNC_OVERLOAD (&TestClass::foo_2)
+	JNC_END_CLASS ()
 
 public:
 	int m_x;
@@ -75,15 +75,15 @@ public:
 class TestStruct
 {
 public:
-	JNC_API_BEGIN_TYPE ("TestStruct", ApiSlot_TestStruct)
-		JNC_API_CONSTRUCTOR (&TestStruct::construct_0)
-		JNC_API_OVERLOAD (&TestStruct::construct_1)
-		JNC_API_OVERLOAD (&TestStruct::construct_2)
+	JNC_BEGIN_TYPE ("TestStruct", ApiSlot_TestStruct)
+		JNC_CONSTRUCTOR (&TestStruct::construct_0)
+		JNC_OVERLOAD (&TestStruct::construct_1)
+		JNC_OVERLOAD (&TestStruct::construct_2)
 
-		JNC_API_FUNCTION ("foo", &TestStruct::foo_0)
-		JNC_API_OVERLOAD (&TestStruct::foo_1)
-		JNC_API_OVERLOAD (&TestStruct::foo_2)
-	JNC_API_END_TYPE ()
+		JNC_FUNCTION ("foo", &TestStruct::foo_0)
+		JNC_OVERLOAD (&TestStruct::foo_1)
+		JNC_OVERLOAD (&TestStruct::foo_2)
+	JNC_END_TYPE ()
 
 public:
 	int m_x;
@@ -138,13 +138,13 @@ public:
 class StdLib: public jnc::StdLib
 {
 public:
-	JNC_API_BEGIN_LIB ()
-		JNC_API_STD_FUNCTION (jnc::StdFunction_Printf,  &Printf)
-//		JNC_API_TYPE (TestClass)
-//		JNC_API_TYPE (TestStruct)
-		JNC_API_LIB (jnc::StdLib)
-//		JNC_API_FUNCTION ("testPtr",  &testPtr)
-	JNC_API_END_LIB ()
+	JNC_BEGIN_LIB ()
+		JNC_STD_FUNCTION (jnc::StdFunction_Printf,  &Printf)
+//		JNC_TYPE (TestClass)
+//		JNC_TYPE (TestStruct)
+		JNC_LIB (jnc::StdLib)
+//		JNC_FUNCTION ("testPtr",  &testPtr)
+	JNC_END_LIB ()
 
 	static
 	int

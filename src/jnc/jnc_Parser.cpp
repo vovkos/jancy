@@ -2538,7 +2538,7 @@ Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 bool
 Parser::addFmtSite (
 	Literal* literal,
-	const uchar_t* p,
+	const char* p,
 	size_t length,
 	const Value& value,
 	bool isIndex,

@@ -355,7 +355,7 @@ AXL_LEX_END_TOKEN_NAME_MAP ();
 class TokenData: public lex::StdTokenData
 {
 public:
-	rtl::Array <uchar_t> m_binData;
+	rtl::Array <char> m_binData;
 };
 
 typedef lex::RagelToken <TokenKind, TokenName, TokenData> Token;

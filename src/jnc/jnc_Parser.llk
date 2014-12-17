@@ -82,7 +82,7 @@ Members
 
 	struct Literal
 	{
-		rtl::Array <uchar_t> m_binData;
+		rtl::Array <char> m_binData;
 		rtl::StdList <FmtSite> m_fmtSiteList;
 		bool m_isZeroTerminated;
 	};
@@ -450,7 +450,7 @@ Members2
 	bool
 	addFmtSite (
 		Literal* literal,
-		const uchar_t* p,
+		const char* p,
 		size_t length,
 		const Value& value,
 		bool isIndex,

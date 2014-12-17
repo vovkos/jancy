@@ -10,9 +10,9 @@ namespace jnc {
 
 struct Error: err::ErrorData
 {
-	JNC_API_BEGIN_TYPE ("jnc.Error", ApiSlot_jnc_Error)
-		JNC_API_CONST_PROPERTY ("m_description", getDescription_s)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.Error", ApiSlot_jnc_Error)
+		JNC_CONST_PROPERTY ("m_description", getDescription_s)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr

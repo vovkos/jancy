@@ -10,8 +10,8 @@ namespace jnc {
 
 struct StringRef
 {
-	JNC_API_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr m_ptr;
@@ -23,12 +23,12 @@ public:
 
 struct String
 {
-	JNC_API_BEGIN_TYPE ("jnc.String", ApiSlot_jnc_String)
-		JNC_API_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
-		JNC_API_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-		JNC_API_FUNCTION ("copy", &String::copy_s1)
-		JNC_API_OVERLOAD (&String::copy_s2)
-	JNC_API_END_TYPE ()
+	JNC_BEGIN_TYPE ("jnc.String", ApiSlot_jnc_String)
+		JNC_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
+		JNC_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
+		JNC_FUNCTION ("copy", &String::copy_s1)
+		JNC_OVERLOAD (&String::copy_s2)
+	JNC_END_TYPE ()
 
 public:
 	DataPtr m_ptr;
@@ -97,12 +97,12 @@ protected:
 class StringBuilder: public IfaceHdr
 {
 public:
-	JNC_API_BEGIN_CLASS ("jnc.StringBuilder", ApiSlot_jnc_StringBuilder)
-		JNC_API_FUNCTION_0 ("copy")
-		JNC_API_OVERLOAD (&StringBuilder::copy)
-		JNC_API_FUNCTION_0 ("append")
-		JNC_API_OVERLOAD (&StringBuilder::append)
-	JNC_API_END_CLASS ()
+	JNC_BEGIN_CLASS ("jnc.StringBuilder", ApiSlot_jnc_StringBuilder)
+		JNC_FUNCTION_0 ("copy")
+		JNC_OVERLOAD (&StringBuilder::copy)
+		JNC_FUNCTION_0 ("append")
+		JNC_OVERLOAD (&StringBuilder::append)
+	JNC_END_CLASS ()
 
 public:
 	DataPtr m_ptr;

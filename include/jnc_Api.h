@@ -10,7 +10,7 @@ namespace jnc {
 
 //.............................................................................
 
-#define JNC_API_BEGIN_TYPE_EX(Type, moduleGetApiType, name, slot) \
+#define JNC_BEGIN_TYPE_EX(Type, moduleGetApiType, name, slot) \
 static \
 Type* \
 getApiType () \
@@ -44,25 +44,25 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	jnc::Namespace* nspace = type;
 
-#define JNC_API_BEGIN_TYPE(name, slot) \
-	JNC_API_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
+#define JNC_BEGIN_TYPE(name, slot) \
+	JNC_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
 
-#define JNC_API_END_TYPE() \
+#define JNC_END_TYPE() \
 	return true; \
 }
 
 //.............................................................................
 
-#define JNC_API_BEGIN_CLASS(name, slot) \
+#define JNC_BEGIN_CLASS(name, slot) \
 jnc::IfaceHdr* \
 getRootIfaceHdr () \
 { \
 	return (jnc::IfaceHdr*) (char*) this; \
 } \
-JNC_API_BEGIN_TYPE_EX (jnc::ClassType, getApiClassType, name, slot) \
+JNC_BEGIN_TYPE_EX (jnc::ClassType, getApiClassType, name, slot) \
 
-#define JNC_API_END_CLASS() \
-JNC_API_END_TYPE () \
+#define JNC_END_CLASS() \
+JNC_END_TYPE () \
 static \
 void* \
 getApiClassVTable () \
@@ -70,8 +70,8 @@ getApiClassVTable () \
 	return NULL; \
 }
 
-#define JNC_API_END_CLASS_BEGIN_VTABLE() \
-JNC_API_END_TYPE () \
+#define JNC_END_CLASS_BEGIN_VTABLE() \
+JNC_END_TYPE () \
 static \
 void* \
 getApiClassVTable () \
@@ -79,17 +79,17 @@ getApiClassVTable () \
 	static void* VTable [] = \
 	{
 
-#define JNC_API_VTABLE_FUNCTION(function) \
+#define JNC_VTABLE_FUNCTION(function) \
 	pvoid_cast (function),
 
-#define JNC_API_END_VTABLE() \
+#define JNC_END_VTABLE() \
 	}; \
 	return VTable; \
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_API_BEGIN_LIB() \
+#define JNC_BEGIN_LIB() \
 static \
 bool \
 mapFunctions (jnc::Module* module) \
@@ -101,26 +101,26 @@ mapFunctions (jnc::Module* module) \
 	jnc::Property* prop = NULL; \
 	jnc::Namespace* nspace = module->m_namespaceMgr.getGlobalNamespace (); \
 
-#define JNC_API_END_LIB() \
+#define JNC_END_LIB() \
 	return true; \
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_API_LIB(Lib) \
+#define JNC_LIB(Lib) \
 	result = Lib::mapFunctions (module); \
 	if (!result) \
 		return false;
 
-#define JNC_API_TYPE(Type) \
+#define JNC_TYPE(Type) \
 	result = Type::mapFunctions (module); \
 	if (!result) \
 		return false;
 
-#define JNC_API_MAP(function, proc) \
+#define JNC_MAP(function, proc) \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_OVERLOAD_0() \
+#define JNC_OVERLOAD_0() \
 	ASSERT (function); \
 	overload = function->getOverload (++overloadIdx); \
 	if (!overload) \
@@ -129,11 +129,11 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	}
 
-#define JNC_API_OVERLOAD(proc) \
-	JNC_API_OVERLOAD_0 () \
-	JNC_API_MAP (overload, proc)
+#define JNC_OVERLOAD(proc) \
+	JNC_OVERLOAD_0 () \
+	JNC_MAP (overload, proc)
 
-#define JNC_API_OPERATOR_NEW_0() \
+#define JNC_OPERATOR_NEW_0() \
 	function = type->getOperatorNew (); \
 	if (!function) \
 	{ \
@@ -141,11 +141,11 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	}
 
-#define JNC_API_OPERATOR_NEW(proc) \
-	JNC_API_OPERATOR_NEW_0 () \
-	JNC_API_MAP (function, proc)
+#define JNC_OPERATOR_NEW(proc) \
+	JNC_OPERATOR_NEW_0 () \
+	JNC_MAP (function, proc)
 
-#define JNC_API_CONSTRUCTOR_0() \
+#define JNC_CONSTRUCTOR_0() \
 	function = type->getConstructor (); \
 	if (!function) \
 	{ \
@@ -154,11 +154,11 @@ mapFunctions (jnc::Module* module) \
 	} \
 	overloadIdx = 0;
 
-#define JNC_API_CONSTRUCTOR(proc) \
-	JNC_API_CONSTRUCTOR_0 () \
-	JNC_API_MAP (function, proc)
+#define JNC_CONSTRUCTOR(proc) \
+	JNC_CONSTRUCTOR_0 () \
+	JNC_MAP (function, proc)
 
-#define JNC_API_DESTRUCTOR(proc) \
+#define JNC_DESTRUCTOR(proc) \
 	function = type->getDestructor (); \
 	if (!function) \
 	{ \
@@ -166,9 +166,9 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	} \
 	overloadIdx = 0; \
-	JNC_API_MAP (function, proc)
+	JNC_MAP (function, proc)
 
-#define JNC_API_UNARY_OPERATOR_0(opKind) \
+#define JNC_UNARY_OPERATOR_0(opKind) \
 	function = type->getUnaryOperator (opKind); \
 	if (!function) \
 	{ \
@@ -177,11 +177,11 @@ mapFunctions (jnc::Module* module) \
 	} \
 	overloadIdx = 0;
 
-#define JNC_API_UNARY_OPERATOR(opKind, proc) \
-	JNC_API_UNARY_OPERATOR_0 (opKind) \
-	JNC_API_MAP (function, proc)
+#define JNC_UNARY_OPERATOR(opKind, proc) \
+	JNC_UNARY_OPERATOR_0 (opKind) \
+	JNC_MAP (function, proc)
 
-#define JNC_API_BINARY_OPERATOR_0(opKind) \
+#define JNC_BINARY_OPERATOR_0(opKind) \
 	function = type->getBinaryOperator (opKind); \
 	if (!function) \
 	{ \
@@ -190,11 +190,11 @@ mapFunctions (jnc::Module* module) \
 	} \
 	overloadIdx = 0;
 
-#define JNC_API_BINARY_OPERATOR(opKind, proc) \
-	JNC_API_BINARY_OPERATOR_0 (opKind) \
-	JNC_API_MAP (function, proc)
+#define JNC_BINARY_OPERATOR(opKind, proc) \
+	JNC_BINARY_OPERATOR_0 (opKind) \
+	JNC_MAP (function, proc)
 
-#define JNC_API_CALL_OPERATOR_0(proc) \
+#define JNC_CALL_OPERATOR_0(proc) \
 	function = type->getCallOperator (opKind); \
 	if (!function) \
 	{ \
@@ -203,11 +203,11 @@ mapFunctions (jnc::Module* module) \
 	} \
 	overloadIdx = 0;
 
-#define JNC_API_CALL_OPERATOR(proc) \
-	JNC_API_CALL_OPERATOR_0 (proc) \
-	JNC_API_MAP (function, proc)
+#define JNC_CALL_OPERATOR(proc) \
+	JNC_CALL_OPERATOR_0 (proc) \
+	JNC_MAP (function, proc)
 
-#define JNC_API_CAST_OPERATOR(i, proc) \
+#define JNC_CAST_OPERATOR(i, proc) \
 	function = type->getCastOperator (i); \
 	if (!function) \
 	{ \
@@ -215,49 +215,49 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	} \
 	overloadIdx = 0; \
-	JNC_API_MAP (function, proc)
+	JNC_MAP (function, proc)
 
-#define JNC_API_FUNCTION_0(name) \
+#define JNC_FUNCTION_0(name) \
 	function = nspace->getFunctionByName (name); \
 	if (!function) \
 		return false; \
 	overloadIdx = 0;
 
-#define JNC_API_FUNCTION(name, proc) \
-	JNC_API_FUNCTION_0 (name) \
-	JNC_API_MAP (function, proc)
+#define JNC_FUNCTION(name, proc) \
+	JNC_FUNCTION_0 (name) \
+	JNC_MAP (function, proc)
 
-#define JNC_API_STD_FUNCTION_FORCED(stdFuncKind, proc) \
+#define JNC_STD_FUNCTION_FORCED(stdFuncKind, proc) \
 	function = module->m_functionMgr.getStdFunction (stdFuncKind); \
 	ASSERT (function); \
 	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
 
-#define JNC_API_STD_FUNCTION(stdFuncKind, proc) \
+#define JNC_STD_FUNCTION(stdFuncKind, proc) \
 	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
 	{ \
-		JNC_API_STD_FUNCTION_FORCED (stdFuncKind, proc); \
+		JNC_STD_FUNCTION_FORCED (stdFuncKind, proc); \
 	}
 
-#define JNC_API_STD_TYPE(stdType, Type) \
+#define JNC_STD_TYPE(stdType, Type) \
 	if (module->m_typeMgr.isStdTypeUsed (stdType)) \
 	{ \
-		JNC_API_TYPE (Type); \
+		JNC_TYPE (Type); \
 	}
 
-#define JNC_API_PROPERTY(name, getterProc, setterProc) \
+#define JNC_PROPERTY(name, getterProc, setterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
 	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc)); \
 	module->mapFunction (prop->getSetter ()->getLlvmFunction (), pvoid_cast (setterProc));
 
-#define JNC_API_CONST_PROPERTY(name, getterProc) \
+#define JNC_CONST_PROPERTY(name, getterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
 	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc));
 
-#define JNC_API_AUTOGET_PROPERTY(name, setterProc) \
+#define JNC_AUTOGET_PROPERTY(name, setterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \

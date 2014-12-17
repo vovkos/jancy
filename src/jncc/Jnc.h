@@ -27,10 +27,10 @@ printUsage (OutStream* outStream);
 class StdLib: public jnc::StdLib
 {
 public:
-	JNC_API_BEGIN_LIB ()
-		JNC_API_FUNCTION ("printf",  &printf)
-		JNC_API_LIB (jnc::StdLib)
-	JNC_API_END_LIB ()
+	JNC_BEGIN_LIB ()
+		JNC_FUNCTION ("printf",  &printf)
+		JNC_LIB (jnc::StdLib)
+	JNC_END_LIB ()
 
 	static
 	int
