@@ -25,6 +25,10 @@ public:
 
 	static
 	void
+	multicastDestruct (Multicast* multicast);
+
+	static
+	void
 	multicastClear (Multicast* multicast);
 
 	static
@@ -73,6 +77,10 @@ public:
 	FunctionPtr
 	multicastGetSnapshot (Multicast* multicast);
 
+	static
+	void
+	mcSnapshotDestruct (McSnapshot* mcSnapshot);
+
 protected:
 	static
 	void
@@ -83,10 +91,9 @@ protected:
 
 	static
 	void
-	exportMulticastMethods (
+	mapMcSnapshotMethods (
 		Module* module,
-		llvm::ExecutionEngine* llvmExecutionEngine,
-		MulticastClassType* multicastType
+		McSnapshotClassType* mcSnapshotType
 		);
 };
 

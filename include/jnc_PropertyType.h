@@ -70,7 +70,7 @@ protected:
 	FunctionType* m_binderType;
 	PropertyType* m_stdObjectMemberPropertyType;
 	PropertyType* m_shortType;
-	StructType* m_pVTableStructType;
+	StructType* m_vtableStructType;
 	PropertyPtrTypeTuple* m_propertyPtrTypeTuple;
 
 	rtl::String m_bindableEventName;

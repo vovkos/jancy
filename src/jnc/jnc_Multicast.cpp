@@ -8,6 +8,22 @@ namespace jnc {
 //.............................................................................
 
 void
+MulticastImpl::destruct ()
+{
+	if (m_handleTable)
+	{
+		AXL_MEM_DELETE ((rtl::HandleTable <size_t>*) m_handleTable);
+		m_handleTable = NULL;
+	}
+
+	if (m_ptrArray)
+	{
+		AXL_MEM_FREE (m_ptrArray);
+		m_handleTable = NULL;
+	}
+}
+
+void
 MulticastImpl::clear ()
 {
 	m_count = 0;
@@ -18,7 +34,7 @@ MulticastImpl::clear ()
 handle_t
 MulticastImpl::setHandler (FunctionPtr ptr)
 {
-	if (ptr.m_pf)
+	if (ptr.m_p)
 		return setHandlerImpl (ptr);
 
 	clear ();
@@ -65,7 +81,10 @@ MulticastImpl::setCount (
 		return false;
 
 	if (m_ptrArray)
+	{
 		memcpy (p, m_ptrArray, m_count * ptrSize);
+		AXL_MEM_FREE (m_ptrArray);
+	}
 
 	m_ptrArray = p;
 	m_maxCount = maxCount;
@@ -89,8 +108,7 @@ MulticastImpl::getSnapshot ()
 	MulticastClassType* multicastType = (MulticastClassType*) m_object->m_type;
 	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
 
-//	TMcSnapshotObject* pSnapshot = (TMcSnapshotObject*) AXL_MEM_NEW (pRuntime->GcAllocate (pSnapshotType);
-	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
+	McSnapshotObject* snapshot = (McSnapshotObject*) StdLib::gcAllocate (snapshotType);
 	snapshot->m_scopeLevel = 0;
 	snapshot->m_root = snapshot;
 	snapshot->m_type = snapshotType;
@@ -130,10 +148,22 @@ MulticastImpl::getSnapshot ()
 
 	FunctionPtr ptr = { 0 };
 	ptr.m_closure = snapshot;
-	ptr.m_pf = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
+	ptr.m_p = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
 
-	ASSERT (ptr.m_pf);
+	ASSERT (ptr.m_p);
 	return ptr;
+}
+
+//.............................................................................
+
+void 
+McSnapshotImpl::destruct ()
+{
+	if (m_ptrArray)
+	{
+		AXL_MEM_FREE (m_ptrArray);
+		m_ptrArray = NULL;
+	}
 }
 
 //.............................................................................

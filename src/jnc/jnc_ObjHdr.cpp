@@ -42,10 +42,17 @@ ObjHdr::gcMarkData (Runtime* runtime)
 }
 
 void 
+ObjHdr::gcWeakMarkObject ()
+{
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+	m_flags |= ObjHdrFlag_GcWeakMark;
+}
+
+void 
 ObjHdr::gcMarkObject (Runtime* runtime)
 {
 	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
-	m_flags |= ObjHdrFlag_GcMark;
+	m_flags |= ObjHdrFlag_GcMark | ObjHdrFlag_GcWeakMark;
 
 	if (m_flags & ObjHdrFlag_GcRootsAdded)
 		return;

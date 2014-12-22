@@ -11,6 +11,9 @@ class MulticastImpl: public Multicast
 {
 public:
 	void
+	destruct ();
+
+	void
 	clear ();
 
 	handle_t
@@ -22,13 +25,13 @@ public:
 	handle_t
 	addHandler (FunctionPtr ptr)
 	{
-		return ptr.m_pf ? addHandlerImpl (ptr) : NULL;
+		return ptr.m_p ? addHandlerImpl (ptr) : NULL;
 	}
 
 	handle_t
-	addHandler_t (void* pf)
+	addHandler_t (void* p)
 	{
-		return pf ? addHandlerImpl (pf) : NULL;
+		return p ? addHandlerImpl (p) : NULL;
 	}
 
 	FunctionPtr
@@ -107,6 +110,15 @@ protected:
 		handleTable->remove (mapIt);
 		return ptr;
 	}
+};
+
+//.............................................................................
+
+class McSnapshotImpl: public McSnapshot
+{
+public:
+	void 
+	destruct ();
 };
 
 //.............................................................................

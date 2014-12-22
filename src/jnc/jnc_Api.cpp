@@ -16,7 +16,7 @@ primeInterface (
 	uintptr_t flags
 	)
 {
-	self->m_pVTable = pVTable;
+	self->m_vtable = pVTable;
 	self->m_object = object;
 
 	// prime all the base types

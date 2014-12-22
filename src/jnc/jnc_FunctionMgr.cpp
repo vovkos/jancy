@@ -755,7 +755,7 @@ public:
 		Function* function = m_functionMgr->findFunctionByLlvmFunction ((llvm::Function*) &llvmFunction);
 		if (function)
 		{
-			function->m_pfMachineCode = p;
+			function->m_machineCode = p;
 			function->m_machineCodeSize = size;
 		}
 	}
@@ -796,10 +796,10 @@ FunctionMgr::jitFunctions ()
 			if (!function->getEntryBlock ())
 				continue;
 
-			void* pf = llvmExecutionEngine->getPointerToFunction (function->getLlvmFunction ());
-			function->m_pfMachineCode = pf;
+			void* p = llvmExecutionEngine->getPointerToFunction (function->getLlvmFunction ());
+			function->m_machineCode = p;
 
-			// ASSERT (pFunction->m_pfMachineCode == pf && pFunction->m_MachineCodeSize != 0);
+			// ASSERT (pFunction->m_machineCode == p && pFunction->m_MachineCodeSize != 0);
 		}
 
 		// for MC jitter this should do all the job

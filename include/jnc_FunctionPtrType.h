@@ -145,7 +145,7 @@ struct FunctionPtrTypeTuple: rtl::ListLink
 
 struct FunctionPtr
 {
-	void* m_pf;
+	void* m_p;
 	IfaceHdr* m_closure;
 };
 

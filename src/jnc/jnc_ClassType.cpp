@@ -15,8 +15,28 @@ ClassType::ClassType ()
 	m_primer = NULL;
 	m_destructor = NULL;
 	m_operatorNew = NULL;
-	m_pVTableStructType = NULL;
+	m_gcRootEnumProc = NULL;
+	m_vtableStructType = NULL;
 	m_classPtrTypeTuple = NULL;
+}
+
+bool
+ClassType::setGcRootEnumProc (ClassTypeGcRootEnumProc* proc)
+{
+	if (!(m_flags & ClassTypeFlag_Opaque))
+	{
+		err::setFormatStringError ("'%s' doesn't need gc root enumerator", getTypeString ().cc ());
+		return false;
+	}
+
+	if (m_gcRootEnumProc)
+	{
+		err::setFormatStringError ("'%s' already has gc root enumerator", getTypeString ().cc ());
+		return false;
+	}
+	
+	m_gcRootEnumProc = proc;
+	return true;
 }
 
 ClassPtrType*
@@ -327,7 +347,7 @@ ClassType::calcLayout ()
 		ifaceBaseTypeArray [i] = m_ifaceStructType->addBaseType (baseClassType->getIfaceStructType ());
 		slot->m_VTableIndex = m_VTable.getCount ();
 		m_VTable.append (baseClassType->m_VTable);
-		m_pVTableStructType->append (baseClassType->m_pVTableStructType);
+		m_vtableStructType->append (baseClassType->m_vtableStructType);
 
 		m_baseTypePrimeArray.append (slot);
 
@@ -413,7 +433,7 @@ ClassType::calcLayout ()
 
 		prop->m_parentClassVTableIndex = VTableIndex;
 		m_VTable.append (prop->m_VTable);
-		m_pVTableStructType->append (prop->m_type->getVTableStructType ());
+		m_vtableStructType->append (prop->m_type->getVTableStructType ());
 
 		size_t accessorCount = prop->m_VTable.getCount ();
 		for (size_t j = 0; j < accessorCount; j++)
@@ -454,7 +474,7 @@ ClassType::calcLayout ()
 			return false;
 	}
 
-	result = m_pVTableStructType->ensureLayout ();
+	result = m_vtableStructType->ensureLayout ();
 	if (!result)
 		return false;
 
@@ -523,7 +543,7 @@ ClassType::addVirtualFunction (Function* function)
 	function->m_classVTableIndex = m_VTable.getCount ();
 
 	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin);
-	m_pVTableStructType->createField (pointerType);
+	m_vtableStructType->createField (pointerType);
 	m_VTable.append (function);
 }
 
@@ -652,7 +672,7 @@ ClassType::createVTablePtr ()
 {
 	if (m_VTable.isEmpty ())
 	{
-		m_VTablePtrValue = m_pVTableStructType->getDataPtrType_c ()->getZeroValue ();
+		m_VTablePtrValue = m_vtableStructType->getDataPtrType_c ()->getZeroValue ();
 		return;
 	}
 
@@ -675,13 +695,13 @@ ClassType::createVTablePtr ()
 	}
 
 	llvm::Constant* llvmVTableConstant = llvm::ConstantStruct::get (
-		(llvm::StructType*) m_pVTableStructType->getLlvmType (),
+		(llvm::StructType*) m_vtableStructType->getLlvmType (),
 		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
 		);
 
 	llvm::GlobalVariable* llvmVTableVariable = new llvm::GlobalVariable (
 		*m_module->getLlvmModule (),
-		m_pVTableStructType->getLlvmType (),
+		m_vtableStructType->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmVTableConstant,
@@ -690,7 +710,7 @@ ClassType::createVTablePtr ()
 
 	m_VTablePtrValue.setLlvmValue (
 		llvmVTableVariable,
-		m_pVTableStructType->getDataPtrType_c (),
+		m_vtableStructType->getDataPtrType_c (),
 		ValueKind_Const
 		);
 }
@@ -834,7 +854,7 @@ ClassType::callMemberFieldDestructors (const Value& thisValue)
 		return false;
 
 	size_t count = m_memberFieldDestructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		StructField* field = m_memberFieldDestructArray [i];
 		Type* type = field->getType ();
@@ -863,7 +883,7 @@ ClassType::callMemberPropertyDestructors (const Value& thisValue)
 	bool result;
 
 	size_t count = m_memberPropertyDestructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		Property* prop = m_memberPropertyDestructArray [i];
 
@@ -884,7 +904,7 @@ ClassType::callBaseTypeDestructors (const Value& thisValue)
 	bool result;
 
 	size_t count = m_baseTypeDestructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		ClassType* baseClassType = m_baseTypeDestructArray [i];
 		Function* destructor = baseClassType->getDestructor ();
@@ -1112,11 +1132,12 @@ ClassType::enumGcRootsImpl (
 	{
 		BaseTypeSlot* slot = m_gcRootBaseTypeArray [i];
 		Type* type = slot->getType ();
+		char* p2  = p + slot->getOffset ();
 
 		if (type->getTypeKind () == TypeKind_Class)
-			((ClassType*) type)->enumGcRootsImpl (runtime, (IfaceHdr*) (p + slot->getOffset ()));
+			((ClassType*) type)->enumGcRootsImpl (runtime, (IfaceHdr*) p2);
 		else
-			type->gcMark (runtime, p + slot->getOffset ());
+			type->gcMark (runtime, p2);
 	}
 
 	count = m_gcRootMemberFieldArray.getCount ();
@@ -1124,8 +1145,15 @@ ClassType::enumGcRootsImpl (
 	{
 		StructField* field = m_gcRootMemberFieldArray [i];
 		Type* type = field->getType ();
+		char* p2 = p + field->getOffset ();
 
-		field->getType ()->gcMark (runtime, p + field->getOffset ());
+		type->gcMark (runtime, p2);
+	}
+
+	if (m_gcRootEnumProc)
+	{
+		ASSERT (iface->m_object->m_type == this);
+		m_gcRootEnumProc (runtime, iface);
 	}
 }
 

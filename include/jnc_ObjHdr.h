@@ -48,10 +48,7 @@ struct ObjHdr
 	gcMarkObject (Runtime* runtime);
 
 	void 
-	gcWeakMarkObject ()
-	{
-		m_flags |= ObjHdrFlag_GcWeakMark;
-	}
+	gcWeakMarkObject ();
 
 	void 
 	gcWeakMarkClosureObject (Runtime* runtime);

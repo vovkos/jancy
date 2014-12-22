@@ -48,6 +48,11 @@ mapFunctions (jnc::Module* module) \
 	JNC_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
 
 #define JNC_END_TYPE() \
+	if (isOpaqueClassType (type) && !((jnc::ClassType*) type)->getGcRootEnumProc ()) \
+	{ \
+		err::setFormatStringError ("JNC_GC_ROOT_ENUMERATOR is missing for '%s'", type->getTypeString ().cc ()); \
+		return false; \
+	} \
 	return true; \
 }
 
@@ -118,7 +123,7 @@ mapFunctions (jnc::Module* module) \
 		return false;
 
 #define JNC_MAP(function, proc) \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	module->mapFunction (function, pvoid_cast (proc));
 
 #define JNC_OVERLOAD_0() \
 	ASSERT (function); \
@@ -144,6 +149,11 @@ mapFunctions (jnc::Module* module) \
 #define JNC_OPERATOR_NEW(proc) \
 	JNC_OPERATOR_NEW_0 () \
 	JNC_MAP (function, proc)
+
+#define JNC_GC_ROOT_ENUMERATOR(proc) \
+	result = type->setGcRootEnumProc (proc); \
+	if (!result) \
+		return false;
 
 #define JNC_CONSTRUCTOR_0() \
 	function = type->getConstructor (); \
@@ -230,7 +240,7 @@ mapFunctions (jnc::Module* module) \
 #define JNC_STD_FUNCTION_FORCED(stdFuncKind, proc) \
 	function = module->m_functionMgr.getStdFunction (stdFuncKind); \
 	ASSERT (function); \
-	module->mapFunction (function->getLlvmFunction (), pvoid_cast (proc));
+	module->mapFunction (function, pvoid_cast (proc));
 
 #define JNC_STD_FUNCTION(stdFuncKind, proc) \
 	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
@@ -248,20 +258,20 @@ mapFunctions (jnc::Module* module) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc)); \
-	module->mapFunction (prop->getSetter ()->getLlvmFunction (), pvoid_cast (setterProc));
+	module->mapFunction (prop->getGetter (), pvoid_cast (getterProc)); \
+	module->mapFunction (prop->getSetter (), pvoid_cast (setterProc));
 
 #define JNC_CONST_PROPERTY(name, getterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getGetter ()->getLlvmFunction (), pvoid_cast (getterProc));
+	module->mapFunction (prop->getGetter (), pvoid_cast (getterProc));
 
 #define JNC_AUTOGET_PROPERTY(name, setterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getSetter ()->getLlvmFunction (), pvoid_cast (setterProc));
+	module->mapFunction (prop->getSetter (), pvoid_cast (setterProc));
 
 //.............................................................................
 

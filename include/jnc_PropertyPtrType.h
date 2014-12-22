@@ -152,7 +152,7 @@ isBindableType (Type* type)
 
 struct PropertyPtr
 {
-	void** m_pVTable;
+	void** m_vtable;
 	IfaceHdr* m_closure;
 };
 

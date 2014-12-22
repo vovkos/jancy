@@ -816,6 +816,9 @@ TypeMgr::createClassType (
 		m_classTypeList.insertTail (type);
 	}
 
+	if (flags & ClassTypeFlag_Opaque)
+		flags |= TypeFlag_GcRoot;
+
 	if (name.isEmpty ())
 	{
 		m_unnamedClassTypeCounter++;
@@ -863,7 +866,7 @@ TypeMgr::createClassType (
 	type->m_module = m_module;
 	type->m_flags |= flags;
 	type->m_classTypeKind = classTypeKind;
-	type->m_pVTableStructType = pVTableStructType;
+	type->m_vtableStructType = pVTableStructType;
 	type->m_ifaceStructType = ifaceStructType;
 	type->m_classStructType = classStructType;
 	return type;
@@ -1438,6 +1441,13 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	bool isThin = functionPtrType->getPtrTypeKind () == FunctionPtrTypeKind_Thin;
 
+	// destrutor
+
+	methodType = getFunctionType ();
+	method = type->createUnnamedMethod (StorageKind_Member, FunctionKind_Destructor, methodType);
+	method->m_flags |= ModuleItemFlag_User; // no need to generate default destructor
+	type->m_destructor = method;
+
 	// methods
 
 	methodType = getFunctionType ();
@@ -1497,6 +1507,13 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	snapshotType->m_fieldArray [McSnapshotFieldKind_Count] = snapshotType->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
 	snapshotType->m_fieldArray [McSnapshotFieldKind_PtrArray] = snapshotType->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
 
+	// destrutor
+
+	methodType = getFunctionType ();
+	method = snapshotType->createUnnamedMethod (StorageKind_Member, FunctionKind_Destructor, methodType);
+	method->m_flags |= ModuleItemFlag_User; // no need to generate default destructor
+	snapshotType->m_destructor = method;
+
 	// call method
 
 	methodType = functionPtrType->getTargetType ();
@@ -1512,8 +1529,8 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	else
 	{
 		result =
-			type->calcLayout () &&
-			type->m_snapshotType->calcLayout ();
+			type->ensureLayout  () &&
+			type->m_snapshotType->ensureLayout ();
 
 		if (!result)
 			return NULL;
@@ -2034,8 +2051,8 @@ TypeMgr::getPropertyPtrType (
 StructType*
 TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 {
-	if (propertyType->m_pVTableStructType)
-		return propertyType->m_pVTableStructType;
+	if (propertyType->m_vtableStructType)
+		return propertyType->m_vtableStructType;
 
 	StructType* type = createUnnamedStructType ();
 	type->m_tag.format ("%s.Vtbl", propertyType->getTypeString ().cc ());
@@ -2058,7 +2075,7 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 
 	type->ensureLayout ();
 
-	propertyType->m_pVTableStructType = type;
+	propertyType->m_vtableStructType = type;
 	return type;
 }
 

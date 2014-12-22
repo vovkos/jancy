@@ -69,7 +69,7 @@ PropertyType::PropertyType ()
 	m_binderType = NULL;
 	m_stdObjectMemberPropertyType = NULL;
 	m_shortType = NULL;
-	m_pVTableStructType = NULL;
+	m_vtableStructType = NULL;
 	m_propertyPtrTypeTuple = NULL;
 }
 

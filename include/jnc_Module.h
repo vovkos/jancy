@@ -368,8 +368,8 @@ public:
 
 	void
 	mapFunction (
-		llvm::Function* llvmFunction,
-		void* pf
+		Function* function,
+		void* p
 		);
 
 	void*

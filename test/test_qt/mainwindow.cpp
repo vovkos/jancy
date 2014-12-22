@@ -13,45 +13,37 @@
 //.............................................................................
 
 void
-AXL_CDECL
-TestClass::construct_0 ()
+TestClass::enumGcRoots (
+	jnc::Runtime* runtime,
+	jnc::IfaceHdr* iface
+	)
 {
-	printf ("TestClass::construct () { m_x = %d, m_y = %f } { m_x = %d, m_y = %f }\n", m_x, m_y);
+	TestClass* self = (TestClass*) iface;
+	if (self->m_hiddenIface)
+		self->m_hiddenIface->m_object->gcMarkObject (runtime);
+}
+
+TestClass*
+TestClass::operatorNew ()
+{
+	jnc::ApiObjBox <TestClass>* test = (jnc::ApiObjBox <TestClass>*) jnc::StdLib::gcAllocate (getApiType (), 1);
+	test->prime ();
+	return test;
 }
 
 void
 AXL_CDECL
-TestClass::construct_1 (int x)
+TestClass::destruct ()
 {
-	printf ("TestClass::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, m_x, m_y);
+	printf ("TestClass::destruct ()\n");
 }
 
 void
 AXL_CDECL
-TestClass::construct_2 (double y)
+TestClass::foo (jnc::IfaceHdr* iface)
 {
-	printf ("TestClass::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, m_x, m_y);
-}
-
-void
-AXL_CDECL
-TestClass::foo_0 ()
-{
-	printf ("TestClass::foo () { m_x = %d, m_y = %f }\n", m_x, m_y);
-}
-
-void
-AXL_CDECL
-TestClass::foo_1 (int x)
-{
-	printf ("TestClass::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, m_x, m_y);
-}
-
-void
-AXL_CDECL
-TestClass::foo_2 (double y)
-{
-	printf ("TestClass::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, m_x, m_y);
+	printf ("TestClass::foo (iface = %x)\n", iface);
+	m_hiddenIface = iface;
 }
 
 //.............................................................................

@@ -32,8 +32,8 @@ DestructList::runDestructors ()
 {
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "process destruct list");
 
-	rtl::Iterator <Entry> entryIt = m_list.getHead ();
-	for (; entryIt; entryIt++)
+	rtl::Iterator <Entry> entryIt = m_list.getTail ();
+	for (; entryIt; entryIt--)
 	{
 		Entry* entry = *entryIt;
 		if (!entry->m_flagVariable) // unconditional destructor

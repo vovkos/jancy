@@ -31,43 +31,37 @@ class TestClass: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
-		JNC_CONSTRUCTOR (&TestClass::construct_0)
-		JNC_OVERLOAD (&TestClass::construct_1)
-		JNC_OVERLOAD (&TestClass::construct_2)
-
-		JNC_FUNCTION ("foo", &TestClass::foo_0)
-		JNC_OVERLOAD (&TestClass::foo_1)
-		JNC_OVERLOAD (&TestClass::foo_2)
+		JNC_OPERATOR_NEW (&TestClass::operatorNew)
+		JNC_DESTRUCTOR (&TestClass::destruct)
+		JNC_GC_ROOT_ENUMERATOR (&TestClass::enumGcRoots)
+		JNC_FUNCTION ("foo", &TestClass::foo)
 	JNC_END_CLASS ()
 
 public:
 	int m_x;
-	double m_y;
+
+protected:
+	jnc::IfaceHdr* m_hiddenIface;
 
 public:
+	static
 	void
-	AXL_CDECL
-	construct_0 ();
+	enumGcRoots (
+		jnc::Runtime* runtime,
+		jnc::IfaceHdr* iface
+		);
+
+	static 
+	TestClass*
+	operatorNew ();
 
 	void
 	AXL_CDECL
-	construct_1 (int x);
+	destruct ();
 
 	void
 	AXL_CDECL
-	construct_2 (double y);
-
-	void
-	AXL_CDECL
-	foo_0 ();
-
-	void
-	AXL_CDECL
-	foo_1 (int x);
-
-	void
-	AXL_CDECL
-	foo_2 (double y);
+	foo (jnc::IfaceHdr* obj);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

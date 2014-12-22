@@ -56,6 +56,15 @@ enum ClassPtrTypeKind
 const char*
 getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind);
 
+//.............................................................................
+
+typedef
+void
+ClassTypeGcRootEnumProc (
+	Runtime* runtime,
+	IfaceHdr* iface
+	);
+
 //............................................................................
 
 class ClassType: public DerivableType
@@ -73,6 +82,7 @@ protected:
 	Function* m_primer;
 	Function* m_destructor;
 	Function* m_operatorNew;
+	ClassTypeGcRootEnumProc* m_gcRootEnumProc;
 
 	// prime arrays
 
@@ -91,7 +101,7 @@ protected:
 	rtl::Array <Function*> m_overrideMethodArray;
 	rtl::Array <Property*> m_virtualPropertyArray;
 
-	StructType* m_pVTableStructType;
+	StructType* m_vtableStructType;
 	rtl::Array <Function*> m_VTable;
 	Value m_VTablePtrValue;
 
@@ -180,6 +190,15 @@ public:
 		return m_operatorNew;
 	}
 
+	ClassTypeGcRootEnumProc*
+	getGcRootEnumProc()
+	{
+		return m_gcRootEnumProc;
+	}
+
+	bool
+	setGcRootEnumProc (ClassTypeGcRootEnumProc* proc);
+
 	rtl::ConstList <StructField>
 	getFieldList ()
 	{
@@ -231,8 +250,8 @@ public:
 	StructType*
 	getVTableStructType ()
 	{
-		ASSERT (m_pVTableStructType);
-		return m_pVTableStructType;
+		ASSERT (m_vtableStructType);
+		return m_vtableStructType;
 	}
 
 	Value
@@ -375,7 +394,7 @@ isOpaqueClassType (Type* type)
 
 struct IfaceHdr
 {
-	void* m_pVTable;
+	void* m_vtable;
 	ObjHdr* m_object; // back pointer to master header
 
 	// followed by parents, then by iface data fields

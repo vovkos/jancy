@@ -31,7 +31,7 @@ struct Variant
 		double m_double;
 
 		void* m_p;
-		intptr_t (* m_pf) (...);
+		intptr_t (* m_func) (...);
 
 		DataPtr m_dataPtr;
 		IfaceHdr* m_classPtr;

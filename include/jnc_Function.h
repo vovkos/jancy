@@ -249,7 +249,7 @@ protected:
 
 	// native machine code
 
-	void* m_pfMachineCode;
+	void* m_machineCode;
 	size_t m_machineCodeSize;
 
 public:
@@ -382,7 +382,7 @@ public:
 	void*
 	getMachineCode ()
 	{
-		return m_pfMachineCode;
+		return m_machineCode;
 	}
 
 	size_t

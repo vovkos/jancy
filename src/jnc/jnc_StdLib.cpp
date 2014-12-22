@@ -265,7 +265,7 @@ StdLib::threadProc (PVOID rawContext)
 	ScopeThreadRuntime scopeRuntime (runtime);
 	getTlsMgr ()->getTls (runtime); // register thread right away
 
-	((void (__cdecl*) (IfaceHdr*)) ptr.m_pf) (ptr.m_closure);
+	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	return 0;
 }
 
@@ -309,7 +309,7 @@ StdLib::threadProc (void* rawContext)
 	ScopeThreadRuntime scopeRuntime (runtime);
 	getTlsMgr ()->getTls (runtime); // register thread right away
 
-	((void (*) (IfaceHdr*)) ptr.m_pf) (ptr.m_closure);
+	((void (*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	return NULL;
 }
 

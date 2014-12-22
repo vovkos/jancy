@@ -113,14 +113,14 @@ public:
 	void*
 	gcAllocate (
 		Type* type,
-		size_t elementCount
+		size_t elementCount = 1
 		);
 
 	static
 	void*
 	gcTryAllocate (
 		Type* type,
-		size_t elementCount
+		size_t elementCount = 1
 		);
 
 	static

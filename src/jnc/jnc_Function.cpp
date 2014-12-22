@@ -117,7 +117,7 @@ Function::Function ()
 	m_scope = NULL;
 	m_llvmFunction = NULL;
 	m_llvmPostTlsPrologueInst = NULL;
-	m_pfMachineCode = NULL;
+	m_machineCode = NULL;
 	m_machineCodeSize = 0;
 }
 

@@ -134,19 +134,23 @@ Module::createLlvmExecutionEngine ()
 
 void
 Module::mapFunction (
-	llvm::Function* llvmFunction,
-	void* pf
+	Function* function,
+	void* p
 	)
 {
+	llvm::Function* llvmFunction = function->getLlvmFunction ();
+
 	if (m_flags & ModuleFlag_McJit)
 	{
-		m_functionMap [llvmFunction->getName ().data ()] = pf;
+		m_functionMap [llvmFunction->getName ().data ()] = p;
 	}
 	else
 	{
 		ASSERT (m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
+		m_llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
 	}
+
+	function->m_machineCode = p;
 }
 
 ModuleItem*
