@@ -1,18 +1,13 @@
 //.............................................................................
 
-int bindable g_red;
-int g_x;
-
-reactor g_reactor ()
-{
-	g_x = g_red;
-}
-
 int main ()
 {
 	printf ("main\n");
-	g_reactor ();	
 
+	int i = 15;
+	char* s = $"suka $i";
+
+	printf ("s = %s\n", s);
 	return 0;
 }
 

@@ -418,16 +418,10 @@ StdLib::appendFmtLiteral_a (
 		ASSERT (module);
 
 		size_t newMaxLength = rtl::getMinPower2Ge (newLength);
-		ObjHdr* objHdr = AXL_MEM_NEW_EXTRA (ObjHdr, newMaxLength + 1);
-		objHdr->m_scopeLevel = 0;
-		objHdr->m_root = objHdr;
-		objHdr->m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
-		objHdr->m_flags = 0;
+		char* p = (char*) runtime->gcAllocate (newLength);
+		memcpy (p, fmtLiteral->m_p, fmtLiteral->m_length);
 
-		char* buffer = (char*) (objHdr + 1);
-		memcpy (buffer, fmtLiteral->m_p, fmtLiteral->m_length);
-
-		fmtLiteral->m_p = buffer;
+		fmtLiteral->m_p = p;
 		fmtLiteral->m_maxLength = newMaxLength;
 	}
 

@@ -277,6 +277,20 @@ Runtime::gcTryAllocate (
 	return p;
 }
 
+void*
+Runtime::gcAllocate (size_t size)
+{
+	Type* type = getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	return gcAllocate (type, size);
+}
+
+void*
+Runtime::gcTryAllocate (size_t size)
+{
+	Type* type = getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	return gcTryAllocate (type, size);
+}
+
 void
 Runtime::gcAddObject (
 	ObjHdr* object,

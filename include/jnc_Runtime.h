@@ -166,6 +166,12 @@ public:
 		size_t elementCount = 1
 		);
 
+	void*
+	gcAllocate (size_t size);
+
+	void*
+	gcTryAllocate (size_t size);
+
 	void
 	addGcRoot (
 		void* p,
