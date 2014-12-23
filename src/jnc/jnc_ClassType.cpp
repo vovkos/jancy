@@ -345,8 +345,8 @@ ClassType::calcLayout ()
 		}
 
 		ifaceBaseTypeArray [i] = m_ifaceStructType->addBaseType (baseClassType->getIfaceStructType ());
-		slot->m_VTableIndex = m_VTable.getCount ();
-		m_VTable.append (baseClassType->m_VTable);
+		slot->m_vtableIndex = m_vtable.getCount ();
+		m_vtable.append (baseClassType->m_vtable);
 		m_vtableStructType->append (baseClassType->m_vtableStructType);
 
 		m_baseTypePrimeArray.append (slot);
@@ -429,16 +429,16 @@ ClassType::calcLayout ()
 		Property* prop = m_virtualPropertyArray [i];
 		ASSERT (prop->m_storageKind == StorageKind_Abstract || prop->m_storageKind == StorageKind_Virtual);
 
-		size_t VTableIndex = m_VTable.getCount ();
+		size_t VTableIndex = m_vtable.getCount ();
 
 		prop->m_parentClassVTableIndex = VTableIndex;
-		m_VTable.append (prop->m_VTable);
+		m_vtable.append (prop->m_vtable);
 		m_vtableStructType->append (prop->m_type->getVTableStructType ());
 
-		size_t accessorCount = prop->m_VTable.getCount ();
+		size_t accessorCount = prop->m_vtable.getCount ();
 		for (size_t j = 0; j < accessorCount; j++)
 		{
-			Function* accessor = prop->m_VTable [j];
+			Function* accessor = prop->m_vtable [j];
 			accessor->m_virtualOriginClassType = this;
 			accessor->m_classVTableIndex = VTableIndex + j;
 		}
@@ -540,11 +540,11 @@ ClassType::addVirtualFunction (Function* function)
 	ASSERT (function->m_virtualOriginClassType == NULL); // not layed out yet
 
 	function->m_virtualOriginClassType = this;
-	function->m_classVTableIndex = m_VTable.getCount ();
+	function->m_classVTableIndex = m_vtable.getCount ();
 
 	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 	m_vtableStructType->createField (pointerType);
-	m_VTable.append (function);
+	m_vtable.append (function);
 }
 
 bool
@@ -661,30 +661,30 @@ ClassType::overrideVirtualFunction (Function* function)
 	function->m_virtualOriginClassType = overridenFunction->m_virtualOriginClassType;
 	function->m_classVTableIndex = overridenFunction->m_classVTableIndex;
 
-	size_t VTableIndex = coord.m_VTableIndex + overridenFunction->m_classVTableIndex;
-	ASSERT (VTableIndex < m_VTable.getCount ());
-	m_VTable [VTableIndex] = function;
+	size_t VTableIndex = coord.m_vtableIndex + overridenFunction->m_classVTableIndex;
+	ASSERT (VTableIndex < m_vtable.getCount ());
+	m_vtable [VTableIndex] = function;
 	return true;
 }
 
 void
 ClassType::createVTablePtr ()
 {
-	if (m_VTable.isEmpty ())
+	if (m_vtable.isEmpty ())
 	{
-		m_VTablePtrValue = m_vtableStructType->getDataPtrType_c ()->getZeroValue ();
+		m_vtablePtrValue = m_vtableStructType->getDataPtrType_c ()->getZeroValue ();
 		return;
 	}
 
 	char buffer [256];
 	rtl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	size_t count = m_VTable.getCount ();
+	size_t count = m_vtable.getCount ();
 	llvmVTable.setCount (count);
 
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_VTable [i];
+		Function* function = m_vtable [i];
 		if (function->getStorageKind () == StorageKind_Abstract)
 		{
 			function = function->getType ()->getAbstractFunction ();
@@ -708,7 +708,7 @@ ClassType::createVTablePtr ()
 		(const char*) (m_tag + ".m_vtbl")
 		);
 
-	m_VTablePtrValue.setLlvmValue (
+	m_vtablePtrValue.setLlvmValue (
 		llvmVTableVariable,
 		m_vtableStructType->getDataPtrType_c (),
 		ValueKind_Const
@@ -990,7 +990,7 @@ ClassType::primeObject (
 	primeInterface (
 		classType,
 		ifaceValue,
-		classType->m_VTablePtrValue,
+		classType->m_vtablePtrValue,
 		objHdrValue,
 		scopeLevelValue,
 		rootValue,

@@ -16,7 +16,6 @@ Property::Property ()
 
 	m_preConstructor = NULL;
 	m_constructor = NULL;
-	m_defaultConstructor = NULL;
 	m_staticConstructor = NULL;
 	m_destructor = NULL;
 	m_staticDestructor = NULL;
@@ -31,35 +30,6 @@ Property::Property ()
 	m_parentClassVTableIndex = -1;
 
 	m_extensionNamespace = NULL;
-}
-
-Function*
-Property::getDefaultConstructor ()
-{
-	ASSERT (m_constructor);
-	if (m_defaultConstructor)
-		return m_defaultConstructor;
-
-	// avoid allocations
-
-	rtl::BoxListEntry <Value> thisArgValue;
-	rtl::AuxList <rtl::BoxListEntry <Value> > argList;
-
-	if (m_parentType)
-	{
-		Type* thisArgType = m_parentType->getThisArgType (PtrTypeFlag_Safe);
-		thisArgValue.m_value.setType (thisArgType);
-		argList.insertTail (&thisArgValue);
-	}
-
-	m_defaultConstructor = m_constructor->chooseOverload (argList);
-	if (!m_defaultConstructor)
-	{
-		err::setFormatStringError ("'%s' has no default constructor", m_tag.cc ()); // thanks a lot gcc
-		return NULL;
-	}
-
-	return m_defaultConstructor;
 }
 
 bool
@@ -648,7 +618,7 @@ Property::callMemberPropertyConstructors (const Value& thisValue)
 			continue;
 		}
 
-		Function* constructor = prop->getDefaultConstructor ();
+		Function* constructor = prop->getConstructor ();
 		if (!constructor)
 			return false;
 
@@ -665,11 +635,11 @@ Property::calcLayout ()
 {
 	bool result;
 
-	ASSERT (m_storageKind && m_VTable.isEmpty ());
+	ASSERT (m_storageKind && m_vtable.isEmpty ());
 
 	size_t setterCount = m_setter ? m_setter->getOverloadCount () : 0;
 
-	m_VTable.reserve (2 + setterCount);
+	m_vtable.reserve (2 + setterCount);
 
 	if (m_binder)
 	{
@@ -677,14 +647,14 @@ Property::calcLayout ()
 		if (!result)
 			return false;
 
-		m_VTable.append (m_binder);
+		m_vtable.append (m_binder);
 	}
 
 	result = m_getter->getType ()->ensureLayout ();
 	if (!result)
 		return false;
 
-	m_VTable.append (m_getter);
+	m_vtable.append (m_getter);
 
 	for (size_t i = 0; i < setterCount; i++)
 	{
@@ -693,7 +663,7 @@ Property::calcLayout ()
 		if (!result)
 			return false;
 
-		m_VTable.append (setter);
+		m_vtable.append (setter);
 	}
 
 	createVTablePtr ();
@@ -706,12 +676,12 @@ Property::createVTablePtr ()
 	char buffer [256];
 	rtl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	size_t count = m_VTable.getCount ();
+	size_t count = m_vtable.getCount ();
 	llvmVTable.setCount (count);
 
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_VTable [i];
+		Function* function = m_vtable [i];
 
 		if (function->getStorageKind () == StorageKind_Abstract)
 			function = function->getType ()->getAbstractFunction ();
@@ -719,25 +689,25 @@ Property::createVTablePtr ()
 		llvmVTable [i] = function->getLlvmFunction ();
 	}
 
-	StructType* pVTableStructType = m_type->getVTableStructType ();
+	StructType* vtableStructType = m_type->getVTableStructType ();
 
 	llvm::Constant* llvmVTableConstant = llvm::ConstantStruct::get (
-		(llvm::StructType*) pVTableStructType->getLlvmType (),
+		(llvm::StructType*) vtableStructType->getLlvmType (),
 		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
 		);
 
 	llvm::GlobalVariable* llvmVTableVariable = new llvm::GlobalVariable (
 		*m_module->getLlvmModule (),
-		pVTableStructType->getLlvmType (),
+		vtableStructType->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmVTableConstant,
 		(const char*) (m_tag + ".Vtbl")
 		);
 
-	m_VTablePtrValue.setLlvmValue (
+	m_vtablePtrValue.setLlvmValue (
 		llvmVTableVariable,
-		pVTableStructType->getDataPtrType_c (),
+		vtableStructType->getDataPtrType_c (),
 		ValueKind_Const
 		);
 }

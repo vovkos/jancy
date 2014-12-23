@@ -9,14 +9,14 @@ void
 primeInterface (
 	ClassType* type,
 	IfaceHdr* self,
-	void* pVTable,
+	void* vtable,
 	ObjHdr* object,
 	size_t scopeLevel,
 	ObjHdr* root,
 	uintptr_t flags
 	)
 {
-	self->m_vtable = pVTable;
+	self->m_vtable = vtable;
 	self->m_object = object;
 
 	// prime all the base types
@@ -31,7 +31,7 @@ primeInterface (
 		primeInterface (
 			(ClassType*) slot->getType (),
 			(IfaceHdr*) ((char*) self + slot->getOffset ()),
-			pVTable ? (void**) pVTable + slot->getVTableIndex () : NULL,
+			vtable ? (void**) vtable + slot->getVTableIndex () : NULL,
 			object,
 			scopeLevel,
 			root,
@@ -66,7 +66,7 @@ primeInterface (
 void
 prime (
 	ClassType* type,
-	void* pVTable,
+	void* vtable,
 	ObjHdr* object,
 	size_t scopeLevel,
 	ObjHdr* root,
@@ -80,7 +80,7 @@ prime (
 	object->m_type = type;
 	object->m_flags = flags;
 
-	primeInterface (type, (IfaceHdr*) (object + 1), pVTable, object, scopeLevel, root, flags);
+	primeInterface (type, (IfaceHdr*) (object + 1), vtable, object, scopeLevel, root, flags);
 }
 
 //.............................................................................

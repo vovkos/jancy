@@ -278,7 +278,7 @@ mapFunctions (jnc::Module* module) \
 void
 prime (
 	ClassType* type,
-	void* pVTable,
+	void* vtable,
 	ObjHdr* object,
 	size_t scopeLevel,
 	ObjHdr* root,

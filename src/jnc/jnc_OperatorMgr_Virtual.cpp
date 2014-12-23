@@ -53,12 +53,12 @@ OperatorMgr::getVirtualMethod (
 
 	Value value = *closure->getArgValueList ()->getHead ();
 	ClassType* classType = ((ClassPtrType*) value.getType ())->getTargetType ();
-	ClassType* pVTableType = function->getVirtualOriginClassType ();
+	ClassType* vtableType = function->getVirtualOriginClassType ();
 	size_t VTableIndex = function->getClassVTableIndex ();
 
 	BaseTypeCoord coord;
-	classType->findBaseTypeTraverse (pVTableType, &coord);
-	VTableIndex += coord.m_VTableIndex;
+	classType->findBaseTypeTraverse (vtableType, &coord);
+	VTableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 
@@ -112,7 +112,7 @@ OperatorMgr::getVirtualProperty (
 
 	BaseTypeCoord coord;
 	classType->findBaseTypeTraverse (prop->getParentType (), &coord);
-	VTableIndex += coord.m_VTableIndex;
+	VTableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 

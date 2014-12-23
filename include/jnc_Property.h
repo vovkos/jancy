@@ -53,7 +53,6 @@ protected:
 
 	Function* m_preConstructor;
 	Function* m_constructor;
-	Function* m_defaultConstructor;
 	Function* m_staticConstructor;
 	Function* m_destructor;
 	Function* m_staticDestructor;
@@ -82,8 +81,8 @@ protected:
 
 	// vtable
 
-	rtl::Array <Function*> m_VTable;
-	Value m_VTablePtrValue;
+	rtl::Array <Function*> m_vtable;
+	Value m_vtablePtrValue;
 
 	PropertyVerifier m_verifier;
 
@@ -119,9 +118,6 @@ public:
 	{
 		return m_staticConstructor;
 	}
-
-	Function* 
-	getDefaultConstructor ();
 
 	Function* 
 	getDestructor ()
@@ -245,7 +241,7 @@ public:
 	Value
 	getVTablePtrValue ()
 	{
-		return m_VTablePtrValue;
+		return m_vtablePtrValue;
 	}
 
 	virtual 

@@ -49,7 +49,7 @@ OperatorMgr::getPropertyVTable (
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	Type* pVTableType = ptrType->getTargetType ()->getVTableStructType ()->getDataPtrType_c ();
+	Type* vtableType = ptrType->getTargetType ()->getVTableStructType ()->getDataPtrType_c ();
 
 	switch (ptrTypeKind)
 	{
@@ -74,7 +74,7 @@ OperatorMgr::getPropertyVTable (
 	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, pVTableType, resultValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, vtableType, resultValue);
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, closureType, &closureValue);
 
 	resultValue->setClosure (opValue.getClosure ());

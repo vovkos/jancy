@@ -13,7 +13,7 @@ BaseTypeSlot::BaseTypeSlot ()
 	m_type_i = NULL;
 	m_offset = 0;
 	m_llvmIndex = -1;
-	m_VTableIndex = -1;
+	m_vtableIndex = -1;
 }
 
 //.............................................................................
@@ -23,7 +23,7 @@ BaseTypeCoord::BaseTypeCoord ():
 {
 	m_type = NULL;
 	m_offset = 0;
-	m_VTableIndex = 0;
+	m_vtableIndex = 0;
 }
 
 //.............................................................................
@@ -620,7 +620,7 @@ DerivableType::callMemberPropertyConstructors (const Value& thisValue)
 			continue;
 		}
 
-		Function* constructor = prop->getDefaultConstructor ();
+		Function* constructor = prop->getConstructor ();
 		ASSERT (constructor);
 
 		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
@@ -671,7 +671,7 @@ DerivableType::findBaseTypeTraverseImpl (
 		BaseTypeSlot* slot = it->m_value;
 		coord->m_type = slot->m_type;
 		coord->m_offset = slot->m_offset;
-		coord->m_VTableIndex = slot->m_VTableIndex;
+		coord->m_vtableIndex = slot->m_vtableIndex;
 		coord->m_llvmIndexArray.setCount (level + 1);
 		coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
 		return true;
@@ -689,7 +689,7 @@ DerivableType::findBaseTypeTraverseImpl (
 			if (coord)
 			{
 				coord->m_offset += slot->m_offset;
-				coord->m_VTableIndex += slot->m_VTableIndex;
+				coord->m_vtableIndex += slot->m_vtableIndex;
 				coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
 			}
 
@@ -801,7 +801,7 @@ DerivableType::findItemTraverseImpl (
 				{
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
-					coord->m_VTableIndex += slot->m_VTableIndex;
+					coord->m_vtableIndex += slot->m_vtableIndex;
 				}
 
 				return item;

@@ -102,8 +102,8 @@ protected:
 	rtl::Array <Property*> m_virtualPropertyArray;
 
 	StructType* m_vtableStructType;
-	rtl::Array <Function*> m_VTable;
-	Value m_VTablePtrValue;
+	rtl::Array <Function*> m_vtable;
+	Value m_vtablePtrValue;
 
 	ClassPtrTypeTuple* m_classPtrTypeTuple;
 
@@ -220,7 +220,7 @@ public:
 	bool
 	hasVTable ()
 	{
-		return !m_VTable.isEmpty ();
+		return !m_vtable.isEmpty ();
 	}
 
 	rtl::Array <BaseTypeSlot*>
@@ -257,7 +257,7 @@ public:
 	Value
 	getVTablePtrValue ()
 	{
-		return m_VTablePtrValue;
+		return m_vtablePtrValue;
 	}
 
 	virtual

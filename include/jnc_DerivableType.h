@@ -29,7 +29,7 @@ protected:
 	ImportType* m_type_i;
 
 	size_t m_offset;
-	size_t m_VTableIndex;
+	size_t m_vtableIndex;
 	uint_t m_llvmIndex;
 
 public:
@@ -62,7 +62,7 @@ public:
 	size_t
 	getVTableIndex ()
 	{
-		return m_VTableIndex;
+		return m_vtableIndex;
 	}
 
 	uint_t
@@ -85,7 +85,7 @@ public:
 	DerivableType* m_type;
 	size_t m_offset;
 	rtl::Array <int32_t> m_llvmIndexArray;
-	size_t m_VTableIndex;
+	size_t m_vtableIndex;
 
 public:
 	BaseTypeCoord ();

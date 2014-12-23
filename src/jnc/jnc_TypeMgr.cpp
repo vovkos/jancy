@@ -840,12 +840,12 @@ TypeMgr::createClassType (
 
 	m_module->markForLayout (type, true); // before child structs
 
-	StructType* pVTableStructType = createUnnamedStructType ();
-	pVTableStructType->m_tag.format ("%s.Vtbl", type->m_tag.cc ());
+	StructType* vtableStructType = createUnnamedStructType ();
+	vtableStructType->m_tag.format ("%s.Vtbl", type->m_tag.cc ());
 
 	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
-	ifaceHdrStructType->createField ("!m_vtbl", pVTableStructType->getDataPtrType_c ());
+	ifaceHdrStructType->createField ("!m_vtbl", vtableStructType->getDataPtrType_c ());
 	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
@@ -866,7 +866,7 @@ TypeMgr::createClassType (
 	type->m_module = m_module;
 	type->m_flags |= flags;
 	type->m_classTypeKind = classTypeKind;
-	type->m_vtableStructType = pVTableStructType;
+	type->m_vtableStructType = vtableStructType;
 	type->m_ifaceStructType = ifaceStructType;
 	type->m_classStructType = classStructType;
 	return type;
