@@ -65,6 +65,9 @@ protected:
 	rtl::StringHashTableMap <Property*> m_thunkPropertyMap;
 	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
 
+	rtl::Array <Property*> m_globalStaticPropertyConstructArray;
+	rtl::Array <Property*> m_globalStaticPropertyDestructArray;
+
 	Function* m_currentFunction;
 
 	Value m_thisValue;
@@ -153,6 +156,12 @@ public:
 	{
 		return m_dataThunkPropertyList;
 	}
+
+	bool
+	constructGlobalStaticProperties ();
+
+	bool
+	destructGlobalStaticProperties ();
 
 	Function*
 	createFunction (

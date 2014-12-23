@@ -620,10 +620,10 @@ DerivableType::callMemberPropertyConstructors (const Value& thisValue)
 			continue;
 		}
 
-		Function* destructor = prop->getDefaultConstructor ();
-		ASSERT (destructor);
+		Function* constructor = prop->getDefaultConstructor ();
+		ASSERT (constructor);
 
-		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
+		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
 		if (!result)
 			return false;
 	}

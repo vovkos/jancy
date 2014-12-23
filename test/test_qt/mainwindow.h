@@ -208,6 +208,7 @@ private:
 	jnc::Function *findGlobalFunction(const QString &name);
 
 	QMdiArea *mdiArea;
+	QString m_lastDir;
 
 	Output *output;
 	ModulePane *modulePane;

@@ -264,7 +264,6 @@ Property::setAutoGetValue (ModuleItem* item)
 	return addMethod (getter);
 }
 
-
 bool
 Property::createAutoGetValue (Type* type)
 {
@@ -345,6 +344,7 @@ Property::addMethod (Function* function)
 	FunctionKind functionKind = function->getFunctionKind ();
 	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
 	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
+	bool hasArgs = !function->getType ()->getArgArray ().isEmpty ();
 
 	if (m_parentType)
 	{
@@ -432,15 +432,41 @@ Property::addMethod (Function* function)
 	switch (functionKind)
 	{
 	case FunctionKind_Constructor:
-		target = &m_constructor;
-		break;
+		if (hasArgs)
+		{
+			err::setFormatStringError ("property constructor cannot have arguments");
+			return false;
+		}
+
+		if (storageKind != StorageKind_Static)
+		{
+			target = &m_constructor;
+			break;
+		}
+
+		functionKind = FunctionKind_StaticConstructor;
+		function->m_functionKind = FunctionKind_StaticConstructor;
+
+		// and fall through
 
 	case FunctionKind_StaticConstructor:
 		target = &m_staticConstructor;
 		break;
 
 	case FunctionKind_Destructor:
-		target = &m_destructor;
+		if (storageKind != StorageKind_Static)
+		{
+			target = &m_destructor;
+			break;
+		}
+
+		functionKind = FunctionKind_StaticDestructor;
+		function->m_functionKind = FunctionKind_StaticDestructor;
+
+		// and fall through
+
+	case FunctionKind_StaticDestructor:
+		target = &m_staticDestructor;
 		break;
 
 	case FunctionKind_Getter:
@@ -544,6 +570,30 @@ Property::addProperty (Property* prop)
 	default:
 		err::setFormatStringError ("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
 		return false;
+	}
+
+	return true;
+}
+
+bool
+Property::initializeStaticFields ()
+{
+	bool result;
+
+	size_t count = m_initializedStaticFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* staticField = m_initializedStaticFieldArray [i];
+
+		result = m_module->m_operatorMgr.parseInitializer (
+			staticField,
+			m_parentUnit,
+			staticField->getConstructor (),
+			staticField->getInitializer ()
+			);
+
+		if (!result)
+			return false;
 	}
 
 	return true;

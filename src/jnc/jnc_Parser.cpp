@@ -1276,6 +1276,15 @@ Parser::finalizeLastProperty (bool hasBody)
 	if (prop->m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
 		m_module->markForCompile (prop);
 
+	if (m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Global)
+	{
+		if (prop->getStaticConstructor ())
+			m_module->m_functionMgr.m_globalStaticPropertyConstructArray.append (prop);
+
+		if (prop->getStaticDestructor ())
+			m_module->m_functionMgr.m_globalStaticPropertyDestructArray.append (prop);
+	}
+
 	return true;
 }
 
@@ -1498,6 +1507,9 @@ Parser::declareData (
 			if (!result)
 				return false;
 
+			if (!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ())
+				prop->m_initializedStaticFieldArray.append (variable);
+
 			dataItem = variable;
 		}
 
@@ -1542,7 +1554,7 @@ Parser::declareData (
 				return false;
 		}
 
-		if (nspace->getNamespaceKind () == NamespaceKind_Type && 
+		if (nspace->getNamespaceKind () == NamespaceKind_Type &&
 			(!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ()))
 		{
 			NamedType* namedType = (NamedType*) nspace;

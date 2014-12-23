@@ -40,10 +40,52 @@ FunctionMgr::clear ()
 	m_emissionContextStack.clear ();
 	m_thisValue.clear ();
 	m_scopeLevelValue.clear ();
+	m_globalStaticPropertyConstructArray.clear ();
+	m_globalStaticPropertyDestructArray.clear ();
 
 	m_currentFunction = NULL;
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
 	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
+}
+
+bool
+FunctionMgr::constructGlobalStaticProperties ()
+{
+	bool result;
+
+	size_t count = m_globalStaticPropertyConstructArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		Property* prop = m_globalStaticPropertyConstructArray [i];
+		Function* constructor = prop->getStaticConstructor ();
+		ASSERT (constructor);		
+
+		result = m_module->m_operatorMgr.callOperator (constructor);
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+FunctionMgr::destructGlobalStaticProperties ()
+{
+	bool result;
+
+	size_t count = m_globalStaticPropertyDestructArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
+	{
+		Property* prop = m_globalStaticPropertyDestructArray [i];
+		Function* destructor = prop->getStaticDestructor ();
+		ASSERT (destructor);		
+
+		result = m_module->m_operatorMgr.callOperator (destructor);
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 Value
@@ -306,7 +348,10 @@ FunctionMgr::prologue (
 
 	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
-		result = m_module->m_variableMgr.initializeGlobalStaticVariables ();
+		result = 
+			m_module->m_variableMgr.initializeGlobalStaticVariables () &&
+			constructGlobalStaticProperties ();
+
 		if (!result)
 			return false;
 	}
@@ -322,8 +367,10 @@ FunctionMgr::prologue (
 
 	if (function->m_functionKind == FunctionKind_StaticConstructor)
 	{
-		DerivableType* type = function->getParentType ();
-		type->initializeStaticFields ();
+		if (function->getProperty ())
+			function->getProperty ()->initializeStaticFields ();
+		else if (function->getParentType ())
+			function->getParentType ()->initializeStaticFields ();		
 	}
 
 	return true;
@@ -382,7 +429,6 @@ FunctionMgr::epilogue ()
 	if (function->m_functionKind == FunctionKind_Destructor)
 	{
 		ASSERT (function->getParentType ()->getTypeKind () == TypeKind_Class && m_thisValue);
-
 		ClassType* classType = (ClassType*) function->getParentType ();
 
 		result =
@@ -395,7 +441,10 @@ FunctionMgr::epilogue ()
 	}
 
 	if (function->m_functionKind == FunctionKind_ModuleDestructor)
+	{
+		destructGlobalStaticProperties ();
 		m_module->m_variableMgr.m_staticDestructList.runDestructors ();
+	}
 
 	result = m_module->m_controlFlowMgr.checkReturn ();
 	if (!result)

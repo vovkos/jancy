@@ -162,12 +162,18 @@ void MainWindow::openFile(QString filePath)
 {
 	if (filePath.isEmpty())
 	{
-		filePath = QFileDialog::getOpenFileName(this, "Open File", "",
-							"Jancy Files (*.jnc);;All Files (*.*)");
+		filePath = QFileDialog::getOpenFileName(
+			this, 
+			"Open File", 
+			m_lastDir,
+			"Jancy Files (*.jnc);;All Files (*.*)"
+			);
 	}
 
 	if (filePath.isEmpty())
 		return;
+
+	m_lastDir = QFileInfo (filePath).dir ().absolutePath ();
 
 	QMdiSubWindow *subWindow = findMdiSubWindow(filePath);
 	if(subWindow) {
@@ -397,6 +403,7 @@ void MainWindow::readSettings()
 {
 	QSettings s;
 
+	m_lastDir = s.value ("lastDir").toString ();
 	QStringList files = s.value("filesOpened").toStringList();
 
 	foreach (QString file, files)
@@ -413,6 +420,7 @@ void MainWindow::writeSettings()
 			files.append(child->file());
 
 	s.setValue("filesOpened", files);
+	s.setValue ("lastDir", m_lastDir);
 }
 
 jnc::Function *MainWindow::findGlobalFunction(const QString &name)

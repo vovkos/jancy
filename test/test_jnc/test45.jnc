@@ -1,13 +1,68 @@
 //.............................................................................
+/*
+	property m_prop
+	{
+		static int m_px = 100;
+		int m_py = 200;
+
+		static construct ()
+		{
+			printf ("C1.m_prop.static construct () { m_x = %d, m_px = %d }\n", m_x, m_px);
+		}
+
+		construct ()
+		{
+			printf ("C1.m_prop.construct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
+		}
+
+		int get ()
+		{
+			return 0;
+		}
+	}
+*/
+
+class C1
+{
+	static int m_x = 10;
+	int m_y = 20;
+
+	static construct ()
+	{
+		printf ("C1.static construct () { m_x = %d }\n", m_x);
+	}
+
+	construct ()
+	{
+		printf ("C1.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
+	}
+}
+
+class C2
+{
+	static int m_x = 100;
+	int m_y = 200;
+	C1 m_c;
+
+	static construct ()
+	{
+		printf ("C2.static construct () { m_x = %d }\n", m_x);
+	}
+
+	construct ()
+	{
+		printf ("C2.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
+	}
+}
+
+//.............................................................................
 
 int main ()
 {
-	printf ("main\n");
+	printf ("main ()\n");
 
-	int i = 15;
-	char* s = $"suka $i";
+	C2 c;
 
-	printf ("s = %s\n", s);
 	return 0;
 }
 

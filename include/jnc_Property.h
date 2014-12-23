@@ -78,6 +78,7 @@ protected:
 	rtl::Array <StructField*> m_memberFieldDestructArray;
 	rtl::Array <Property*> m_memberPropertyConstructArray;
 	rtl::Array <Property*> m_memberPropertyDestructArray;
+	rtl::Array <Variable*> m_initializedStaticFieldArray;
 
 	// vtable
 
@@ -237,6 +238,9 @@ public:
 
 	bool
 	callMemberDestructors (const Value& thisValue);
+
+	bool
+	initializeStaticFields ();
 
 	Value
 	getVTablePtrValue ()

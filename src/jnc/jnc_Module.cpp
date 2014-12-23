@@ -531,7 +531,10 @@ Module::createDefaultConstructor ()
 
 	m_controlFlowMgr.setCurrentBlock (block);
 
-	result = m_variableMgr.initializeGlobalStaticVariables ();
+	result = 
+		m_variableMgr.initializeGlobalStaticVariables () &&
+		m_functionMgr.constructGlobalStaticProperties ();
+
 	if (!result)
 		return false;
 
@@ -552,6 +555,7 @@ Module::createDefaultDestructor ()
 	m_destructor = function;
 
 	m_functionMgr.internalPrologue (function);
+	m_functionMgr.destructGlobalStaticProperties ();
 	m_variableMgr.m_staticDestructList.runDestructors ();
 	m_functionMgr.internalEpilogue ();
 }

@@ -242,20 +242,21 @@ Function::compile ()
 
 	SymbolKind startSymbol = SymbolKind_compound_stmt;
 
+	bool isOnce = false;
+
 	if (m_functionKind == FunctionKind_StaticConstructor)
 	{
 		DerivableType* parentType = getParentType ();
-		if (!parentType)
+		if (parentType)
 		{
-			err::setFormatStringError ("static constructors for properties are not yet supported");
-			return false;
+			m_module->m_controlFlowMgr.onceStmt_Create (&stmt, parentType->getStaticOnceFlagVariable ());
+
+			result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, beginPos);
+			if (!result)
+				return false;
+
+			isOnce = true;
 		}
-
-		m_module->m_controlFlowMgr.onceStmt_Create (&stmt, parentType->getStaticOnceFlagVariable ());
-
-		result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, beginPos);
-		if (!result)
-			return false;
 	}
 	else if (m_functionKind == FunctionKind_PreConstructor)
 	{
@@ -306,7 +307,7 @@ Function::compile ()
 	if (!result)
 		return false;
 
-	if (m_functionKind == FunctionKind_StaticConstructor)
+	if (isOnce)
 		m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, endPos);
 
 	// epilogue
