@@ -1,5 +1,10 @@
 //.............................................................................
-/*
+
+class C1
+{
+	static int m_x = 10;
+	int m_y = 20;
+
 	property m_prop
 	{
 		static int m_px = 100;
@@ -15,17 +20,21 @@
 			printf ("C1.m_prop.construct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
 		}
 
+		destruct ()
+		{
+			printf ("C1.m_prop.destruct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
+		}
+
+		static destruct ()
+		{
+			printf ("C1.m_prop.static destruct () { m_x = %d, m_px = %d }\n", m_x, m_px);
+		}
+
 		int get ()
 		{
 			return 0;
 		}
 	}
-*/
-
-class C1
-{
-	static int m_x = 10;
-	int m_y = 20;
 
 	static construct ()
 	{
@@ -36,22 +45,15 @@ class C1
 	{
 		printf ("C1.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
-}
 
-class C2
-{
-	static int m_x = 100;
-	int m_y = 200;
-	C1 m_c;
-
-	static construct ()
+	destruct ()
 	{
-		printf ("C2.static construct () { m_x = %d }\n", m_x);
+		printf ("C1.destruct () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 
-	construct ()
+	static destruct ()
 	{
-		printf ("C2.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
+		printf ("C1.static destruct () { m_x = %d }\n", m_x);
 	}
 }
 
@@ -61,8 +63,8 @@ int main ()
 {
 	printf ("main ()\n");
 
-	C2 c;
-
+	C1 c;
+	
 	return 0;
 }
 

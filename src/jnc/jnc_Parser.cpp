@@ -1276,14 +1276,8 @@ Parser::finalizeLastProperty (bool hasBody)
 	if (prop->m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
 		m_module->markForCompile (prop);
 
-	if (m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Global)
-	{
-		if (prop->getStaticConstructor ())
-			m_module->m_functionMgr.m_globalStaticPropertyConstructArray.append (prop);
-
-		if (prop->getStaticDestructor ())
-			m_module->m_functionMgr.m_globalStaticPropertyDestructArray.append (prop);
-	}
+	if (prop->getStaticConstructor ())
+		m_module->m_functionMgr.addStaticConstructor (prop);
 
 	return true;
 }
@@ -2230,15 +2224,15 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 
 	if (m_constructorProperty)
 		return
-			m_constructorProperty->callMemberPropertyConstructors (thisValue) &&
-			m_constructorProperty->callMemberFieldConstructors (thisValue);
+			m_constructorProperty->callMemberFieldConstructors (thisValue) &&
+			m_constructorProperty->callMemberPropertyConstructors (thisValue);
 
 	ASSERT (thisValue);
 
 	result =
 		m_constructorType->callBaseTypeConstructors (thisValue) &&
-		m_constructorType->callMemberPropertyConstructors (thisValue) &&
-		m_constructorType->callMemberFieldConstructors (thisValue);
+		m_constructorType->callMemberFieldConstructors (thisValue) &&
+		m_constructorType->callMemberPropertyConstructors (thisValue);
 
 	if (!result)
 		return false;

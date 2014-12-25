@@ -28,14 +28,10 @@ BaseTypeCoord::BaseTypeCoord ():
 
 //.............................................................................
 
-DerivableType::DerivableType ()
+DerivableType::DerivableType ():
+	NamedTypeBlock (this)
 {
-	m_preConstructor = NULL;
-	m_constructor = NULL;
 	m_defaultConstructor = NULL;
-	m_staticConstructor = NULL;
-	m_staticDestructor = NULL;
-	m_staticOnceFlagVariable = NULL;
 	m_callOperator = NULL;
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
@@ -72,6 +68,25 @@ DerivableType::findItemInExtensionNamespaces (const char* name)
 	}
 
 	return NULL;
+}
+
+StructField*
+DerivableType::getFieldByIndex(size_t index)
+{
+	if (!m_baseTypeList.isEmpty ())
+	{
+		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().cc ());
+		return NULL;
+	}
+
+	size_t count = m_memberFieldArray.getCount ();
+	if (index >= count)
+	{
+		err::setFormatStringError ("index '%d' is out of bounds", index);
+		return NULL;
+	}
+
+	return m_memberFieldArray [index];
 }
 
 Function*
@@ -234,68 +249,6 @@ DerivableType::resolveImportTypes ()
 	return true;
 }
 
-Function*
-DerivableType::createMethod (
-	StorageKind storageKind,
-	const rtl::String& name,
-	FunctionType* shortType
-	)
-{
-	rtl::String qualifiedName = createQualifiedName (name);
-
-	Function* function = m_module->m_functionMgr.createFunction (FunctionKind_Named, shortType);
-	function->m_storageKind = storageKind;
-	function->m_name = name;
-	function->m_qualifiedName = qualifiedName;
-	function->m_declaratorName = name;
-	function->m_tag = qualifiedName;
-
-	bool result = addMethod (function);
-	if (!result)
-		return NULL;
-
-	return function;
-}
-
-Function*
-DerivableType::createUnnamedMethod (
-	StorageKind storageKind,
-	FunctionKind functionKind,
-	FunctionType* shortType
-	)
-{
-	Function* function = m_module->m_functionMgr.createFunction (functionKind, shortType);
-	function->m_storageKind = storageKind;
-	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
-
-	bool result = addMethod (function);
-	if (!result)
-		return NULL;
-
-	return function;
-}
-
-Property*
-DerivableType::createProperty (
-	StorageKind storageKind,
-	const rtl::String& name,
-	PropertyType* shortType
-	)
-{
-	rtl::String qualifiedName = createQualifiedName (name);
-
-	Property* prop = m_module->m_functionMgr.createProperty (name, qualifiedName);
-
-	bool result =
-		addProperty (prop) &&
-		prop->create (shortType);
-
-	if (!result)
-		return NULL;
-
-	return prop;
-}
-
 bool
 DerivableType::addMethod (Function* function)
 {
@@ -345,6 +298,7 @@ DerivableType::addMethod (Function* function)
 
 	case FunctionKind_StaticConstructor:
 		target = &m_staticConstructor;
+		m_module->m_functionMgr.addStaticConstructor (this);
 		break;
 
 	case FunctionKind_StaticDestructor:
@@ -480,20 +434,27 @@ DerivableType::compileDefaultStaticConstructor ()
 
 	m_module->m_functionMgr.internalPrologue (m_staticConstructor);
 
-	Token::Pos pos;
-
-	OnceStmt stmt;
-	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos);
-
-	bool result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
+	bool result = initializeStaticFields ();
 	if (!result)
 		return false;
 
-	result = initializeStaticFields ();
+	m_module->m_functionMgr.internalEpilogue ();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultPreConstructor ()
+{
+	ASSERT (m_preConstructor);
+
+	bool result;
+
+	Value thisValue;
+	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
+
+	result = initializeMemberFields (thisValue);
 	if (!result)
 		return false;
-
-	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
 	m_module->m_functionMgr.internalEpilogue ();
 	return true;
@@ -511,8 +472,8 @@ DerivableType::compileDefaultConstructor ()
 
 	result =
 		callBaseTypeConstructors (thisValue) &&
-		callMemberPropertyConstructors (thisValue) &&
-		callMemberFieldConstructors (thisValue);
+		callMemberFieldConstructors (thisValue) &&
+		callMemberPropertyConstructors (thisValue);
 
 	if (!result)
 		return false;
@@ -523,6 +484,28 @@ DerivableType::compileDefaultConstructor ()
 		if (!result)
 			return false;
 	}
+
+	m_module->m_functionMgr.internalEpilogue ();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultDestructor ()
+{
+	ASSERT (m_destructor);
+
+	bool result;
+
+	Value argValue;
+	m_module->m_functionMgr.internalPrologue (m_destructor, &argValue, 1);
+
+	result =
+		callMemberPropertyDestructors (argValue) &&
+		callMemberFieldDestructors (argValue) &&
+		callBaseTypeDestructors (argValue);
+
+	if (!result)
+		return false;
 
 	m_module->m_functionMgr.internalEpilogue ();
 	return true;
@@ -556,98 +539,18 @@ DerivableType::callBaseTypeConstructors (const Value& thisValue)
 }
 
 bool
-DerivableType::callMemberFieldConstructors (const Value& thisValue)
+DerivableType::callBaseTypeDestructors (const Value& thisValue)
 {
 	bool result;
 
-	size_t count = m_memberFieldConstructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
+	size_t count = m_baseTypeDestructArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		StructField* field = m_memberFieldConstructArray [i];
-		if (field->m_flags & ModuleItemFlag_Constructed)
-		{
-			field->m_flags &= ~ModuleItemFlag_Constructed;
-			continue;
-		}
+		BaseTypeSlot* slot = m_baseTypeDestructArray [i];
+		Function* destructor = slot->m_type->getDestructor ();
+		ASSERT (destructor);
 
-		Value fieldValue;
-		result = m_module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue);
-		if (!result)
-			return false;
-
-		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable);
-		DerivableType* type = (DerivableType*) field->getType ();
-
-		Function* constructor;
-
-		rtl::BoxList <Value> argList;
-		argList.insertTail (fieldValue);
-
-		if (!(type->getFlags () & TypeFlag_Child))
-		{
-			constructor = type->getDefaultConstructor ();
-			if (!constructor)
-				return false;
-		}
-		else
-		{
-			constructor = type->getConstructor ();
-			ASSERT (constructor && !constructor->isOverloaded ());
-
-			argList.insertTail (thisValue);
-		}
-
-		result = m_module->m_operatorMgr.callOperator (constructor, &argList);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-DerivableType::callMemberPropertyConstructors (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_memberPropertyConstructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Property* prop = m_memberPropertyConstructArray [i];
-		if (prop->m_flags & ModuleItemFlag_Constructed)
-		{
-			prop->m_flags &= ~ModuleItemFlag_Constructed;
-			continue;
-		}
-
-		Function* constructor = prop->getConstructor ();
-		ASSERT (constructor);
-
-		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-DerivableType::initializeStaticFields ()
-{
-	bool result;
-
-	size_t count = m_initializedStaticFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* staticField = m_initializedStaticFieldArray [i];
-
-		result = m_module->m_operatorMgr.parseInitializer (
-			staticField,
-			m_parentUnit,
-			staticField->getConstructor (),
-			staticField->getInitializer ()
-			);
-
+		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
 		if (!result)
 			return false;
 	}

@@ -53,29 +53,22 @@ StructType::createFieldImpl (
 		return NULL;
 	}
 
-	StructField* field = AXL_MEM_NEW (StructField);
-	field->m_module = m_module;
-	field->m_storageKind = m_storageKind;
+	StructField* field = m_module->m_typeMgr.createStructField (
+		name, 
+		type, 
+		bitCount, 
+		ptrTypeFlags, 
+		constructor, 
+		initializer
+		);
+
 	field->m_parentNamespace = this;
-	field->m_name = name;
-	field->m_type = type;
-	field->m_ptrTypeFlags = ptrTypeFlags;
-	field->m_bitFieldBaseType = bitCount ? type : NULL;
-	field->m_bitCount = bitCount;
-
-	if (constructor)
-		field->m_constructor.takeOver (constructor);
-
-	if (initializer)
-		field->m_initializer.takeOver (initializer);
 
 	if (!field->m_constructor.isEmpty () ||
 		!field->m_initializer.isEmpty ())
 	{
-		m_initializedFieldArray.append (field);
+		m_initializedMemberFieldArray.append (field);
 	}
-
-	m_fieldList.insertTail (field);
 
 	if (name.isEmpty ())
 	{
@@ -98,36 +91,6 @@ StructType::createFieldImpl (
 	return field;
 }
 
-StructField*
-StructType::getFieldByIndexImpl (
-	size_t index,
-	bool ignoreBaseTypes
-	)
-{
-	if (!ignoreBaseTypes && !m_baseTypeList.isEmpty ())
-	{
-		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().cc ());
-		return NULL;
-	}
-
-	size_t count = m_fieldList.getCount ();
-	if (index >= count)
-	{
-		err::setFormatStringError ("index '%d' is out of bounds", index);
-		return NULL;
-	}
-
-	if (m_fieldArray.getCount () != count)
-	{
-		m_fieldArray.setCount (count);
-		rtl::Iterator <StructField> field = m_fieldList.getHead ();
-		for (size_t i = 0; i < count; i++, field++)
-			m_fieldArray [i] = *field;
-	}
-
-	return m_fieldArray [index];
-}
-
 bool
 StructType::append (StructType* type)
 {
@@ -141,9 +104,11 @@ StructType::append (StructType* type)
 			return false;
 	}
 
-	rtl::Iterator <StructField> field = type->m_fieldList.getHead ();
-	for (; field; field++)
+	rtl::Array <StructField*> fieldArray = type->getMemberFieldArray ();
+	size_t count = fieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
+		StructField* field = fieldArray [i];
 		result = field->m_bitCount ?
 			createField (field->m_name, field->m_bitFieldBaseType, field->m_bitCount, field->m_ptrTypeFlags) != NULL:
 			createField (field->m_name, field->m_type, 0, field->m_ptrTypeFlags) != NULL;
@@ -198,10 +163,10 @@ StructType::calcLayout ()
 			return false;
 	}
 
-	rtl::Iterator <StructField> fieldIt = m_fieldList.getHead ();
-	for (; fieldIt; fieldIt++)
+	size_t count = m_memberFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = *fieldIt;
+		StructField* field = m_memberFieldArray [i];
 
 		result = field->m_type->ensureLayout ();
 		if (!result)
@@ -289,15 +254,9 @@ StructType::calcLayout ()
 				return false;
 		}
 
-		if (m_staticConstructor)
-			m_staticOnceFlagVariable = m_module->m_variableMgr.createOnceFlagVariable ();
-
-		if (m_staticDestructor)
-			m_module->m_variableMgr.m_staticDestructList.addStaticDestructor (m_staticDestructor, m_staticOnceFlagVariable);
-
 		if (!m_preConstructor &&
 			(m_staticConstructor ||
-			!m_initializedFieldArray.isEmpty ()))
+			!m_initializedMemberFieldArray.isEmpty ()))
 		{
 			result = createDefaultMethod (FunctionKind_PreConstructor);
 			if (!result)
@@ -341,60 +300,6 @@ StructType::compile ()
 	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultConstructor ();
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-StructType::compileDefaultPreConstructor ()
-{
-	ASSERT (m_preConstructor);
-
-	bool result;
-
-	Value thisValue;
-	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
-
-	if (m_staticConstructor)
-	{
-		result = m_module->m_operatorMgr.callOperator (m_staticConstructor, thisValue);
-		if (!result)
-			return false;
-	}
-
-	result = initializeFields (thisValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-bool
-StructType::initializeFields (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_initializedFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		StructField* field = m_initializedFieldArray [i];
-
-		Value fieldValue;
-		result = m_module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue);
-		if (!result)
-			return false;
-
-		result = m_module->m_operatorMgr.parseInitializer (
-			fieldValue,
-			m_parentUnit,
-			field->m_constructor,
-			field->m_initializer
-			);
-
 		if (!result)
 			return false;
 	}

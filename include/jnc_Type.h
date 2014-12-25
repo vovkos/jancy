@@ -135,9 +135,11 @@ enum TypeKind
 enum StdType
 {
 	StdType_BytePtr,
+	StdType_SimpleIfaceHdr,
+	StdType_SimpleIfaceHdrPtr,
 	StdType_ObjHdr,
-	StdType_VariableObjHdr,
 	StdType_ObjHdrPtr,
+	StdType_VariableObjHdr,
 	StdType_ObjectClass,
 	StdType_ObjectPtr,
 	StdType_SimpleFunction,

@@ -315,6 +315,7 @@ set (
 	${JANCY_INC_DIR}/jnc_ImportType.h
 	${JANCY_INC_DIR}/jnc_McSnapshotClassType.h
 	${JANCY_INC_DIR}/jnc_MulticastClassType.h
+	${JANCY_INC_DIR}/jnc_NamedTypeBlock.h
 	${JANCY_INC_DIR}/jnc_PropertyPtrType.h
 	${JANCY_INC_DIR}/jnc_PropertyType.h
 	${JANCY_INC_DIR}/jnc_ReactorClassType.h
@@ -342,6 +343,7 @@ set (
 	jnc_ImportType.cpp
 	jnc_McSnapshotClassType.cpp
 	jnc_MulticastClassType.cpp
+	jnc_NamedTypeBlock.cpp
 	jnc_PropertyPtrType.cpp
 	jnc_PropertyType.cpp
 	jnc_ReactorClassType.cpp

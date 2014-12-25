@@ -10,13 +10,13 @@ namespace jnc {
 ClassType::ClassType ()
 {
 	m_typeKind = TypeKind_Class;
+	m_ifaceHdrStructType = NULL;
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
+	m_vtableStructType = NULL;
 	m_primer = NULL;
-	m_destructor = NULL;
 	m_operatorNew = NULL;
 	m_gcRootEnumProc = NULL;
-	m_vtableStructType = NULL;
 	m_classPtrTypeTuple = NULL;
 }
 
@@ -48,18 +48,6 @@ ClassType::getClassPtrType (
 	)
 {
 	return m_module->m_typeMgr.getClassPtrType (anchorNamespace, this, typeKind, ptrTypeKind, flags);
-}
-
-StructField*
-ClassType::getFieldByIndex (size_t index)
-{
-	if (!m_baseTypeList.isEmpty ())
-	{
-		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().cc ());
-		return NULL;
-	}
-
-	return m_ifaceStructType->getFieldByIndexImpl (index, true);
 }
 
 StructField*
@@ -95,6 +83,12 @@ ClassType::createFieldImpl (
 		bool result = addItem (field);
 		if (!result)
 			return NULL;
+	}
+
+	if (!field->m_constructor.isEmpty () ||
+		!field->m_initializer.isEmpty ())
+	{
+		m_initializedMemberFieldArray.append (field);
 	}
 
 	m_memberFieldArray.append (field);
@@ -167,6 +161,7 @@ ClassType::addMethod (Function* function)
 
 	case FunctionKind_StaticConstructor:
 		target = &m_staticConstructor;
+		m_module->m_functionMgr.addStaticConstructor (this);
 		break;
 
 	case FunctionKind_StaticDestructor:
@@ -306,6 +301,12 @@ ClassType::calcLayout ()
 
 	// layout base types
 
+	if (m_baseTypeList.isEmpty () || 
+		m_baseTypeList.getHead ()->getType ()->getTypeKind () != TypeKind_Class)
+	{
+		m_ifaceStructType->addBaseType (m_ifaceHdrStructType);
+	}
+
 	size_t baseTypeCount = m_baseTypeList.getCount ();
 
 	char buffer [256];
@@ -352,7 +353,7 @@ ClassType::calcLayout ()
 		m_baseTypePrimeArray.append (slot);
 
 		if (baseClassType->m_destructor)
-			m_baseTypeDestructArray.append (baseClassType);
+			m_baseTypeDestructArray.append (slot);
 	}
 
 	// finalize iface layout
@@ -489,15 +490,9 @@ ClassType::calcLayout ()
 			return false;
 	}
 
-	if (m_staticConstructor)
-		m_staticOnceFlagVariable = m_module->m_variableMgr.createOnceFlagVariable ();
-
-	if (m_staticDestructor)
-		m_module->m_variableMgr.m_staticDestructList.addStaticDestructor (m_staticDestructor, m_staticOnceFlagVariable);
-
 	if (!m_preConstructor &&
 		(m_staticConstructor ||
-		!m_ifaceStructType->getInitializedFieldArray ().isEmpty ()))
+		!m_ifaceStructType->getInitializedMemberFieldArray ().isEmpty ()))
 	{
 		result = createDefaultMethod (FunctionKind_PreConstructor);
 		if (!result)
@@ -758,166 +753,6 @@ ClassType::compile ()
 	return true;
 }
 
-bool
-ClassType::compileDefaultPreConstructor ()
-{
-	ASSERT (m_preConstructor);
-
-	bool result;
-
-	Value thisValue;
-	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
-
-	if (m_staticConstructor)
-	{
-		result = m_module->m_operatorMgr.callOperator (m_staticConstructor);
-		if (!result)
-			return false;
-	}
-
-	result = m_ifaceStructType->initializeFields (thisValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-bool
-ClassType::compileDefaultDestructor ()
-{
-	ASSERT (m_destructor);
-
-	bool result;
-
-	Value argValue;
-	m_module->m_functionMgr.internalPrologue (m_destructor, &argValue, 1);
-
-	result =
-		callMemberPropertyDestructors (argValue) &&
-		callMemberFieldDestructors (argValue) &&
-		callBaseTypeDestructors (argValue);
-
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-bool
-ClassType::callMemberFieldDestructors (const Value& thisValue)
-{
-	if (m_memberFieldDestructArray.isEmpty ())
-		return true;
-
-	bool result;
-
-	// only call member field destructors if storage is stack, static or uheap
-
-	BasicBlock* callBlock = m_module->m_controlFlowMgr.createBlock ("call_member_field_destructors");
-	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow");
-
-	static int32_t llvmIndexArray [] =
-	{
-		0, // TIfaceHdr**
-		0, // TIfaceHdr*
-		1, // TObjHdr**
-	};
-
-	Value objectPtrValue;
-	m_module->m_llvmIrBuilder.createGep (
-		thisValue,
-		llvmIndexArray,
-		countof (llvmIndexArray),
-		NULL,
-		&objectPtrValue
-		);
-
-	m_module->m_llvmIrBuilder.createLoad (objectPtrValue, NULL, &objectPtrValue);
-
-	Type* type = m_module->getSimpleType (TypeKind_Int_p);
-
-	Value flagsValue;
-	m_module->m_llvmIrBuilder.createGep2 (objectPtrValue, 3, NULL, &flagsValue);
-	m_module->m_llvmIrBuilder.createLoad (flagsValue, type, &flagsValue);
-
-	Value maskValue;
-	maskValue.setConstSizeT (ObjHdrFlag_Static | ObjHdrFlag_Stack, TypeKind_Int_p);
-
-	Value andValue;
-	result =
-		m_module->m_operatorMgr.binaryOperator (BinOpKind_BwAnd, flagsValue, maskValue, &andValue) &&
-		m_module->m_controlFlowMgr.conditionalJump (andValue, callBlock, followBlock);
-
-	if (!result)
-		return false;
-
-	size_t count = m_memberFieldDestructArray.getCount ();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
-		StructField* field = m_memberFieldDestructArray [i];
-		Type* type = field->getType ();
-
-		ASSERT (type->getTypeKind () == TypeKind_Class);
-
-		Function* destructor = ((ClassType*) type)->getDestructor ();
-		ASSERT (destructor);
-
-		Value fieldValue;
-		result =
-			m_module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue) &&
-			m_module->m_operatorMgr.callOperator (destructor, fieldValue);
-
-		if (!result)
-			return false;
-	}
-
-	m_module->m_controlFlowMgr.follow (followBlock);
-	return true;
-}
-
-bool
-ClassType::callMemberPropertyDestructors (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_memberPropertyDestructArray.getCount ();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
-		Property* prop = m_memberPropertyDestructArray [i];
-
-		Function* destructor = prop->getDestructor ();
-		ASSERT (destructor);
-
-		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-ClassType::callBaseTypeDestructors (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_baseTypeDestructArray.getCount ();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
-		ClassType* baseClassType = m_baseTypeDestructArray [i];
-		Function* destructor = baseClassType->getDestructor ();
-		ASSERT (destructor);
-
-		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
 void
 ClassType::createPrimer ()
 {
@@ -981,6 +816,7 @@ ClassType::primeObject (
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &fieldValue);
 	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, fieldValue);
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &fieldValue);
+
 	m_module->m_llvmIrBuilder.createStore (rootValue, fieldValue);
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 2, NULL, &fieldValue);
 	m_module->m_llvmIrBuilder.createStore (typeValue, fieldValue);
@@ -1017,7 +853,7 @@ ClassType::primeInterface (
 	Value VTableFieldValue;
 	Value objectFieldValue;
 
-	m_module->m_llvmIrBuilder.createGep2 (opValue, 0, NULL, &ifaceHdrValue);
+	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ifaceHdrValue);
 	m_module->m_llvmIrBuilder.createGep2 (ifaceHdrValue, 0, NULL, &VTableFieldValue);
 	m_module->m_llvmIrBuilder.createGep2 (ifaceHdrValue, 1, NULL, &objectFieldValue);
 	m_module->m_llvmIrBuilder.createStore (VTableValue, VTableFieldValue);

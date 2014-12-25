@@ -64,9 +64,7 @@ protected:
 	rtl::StringHashTableMap <Function*> m_thunkFunctionMap;
 	rtl::StringHashTableMap <Property*> m_thunkPropertyMap;
 	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
-
-	rtl::Array <Property*> m_globalStaticPropertyConstructArray;
-	rtl::Array <Property*> m_globalStaticPropertyDestructArray;
+	rtl::Array <NamedTypeBlock*> m_staticConstructArray;
 
 	Function* m_currentFunction;
 
@@ -157,11 +155,20 @@ public:
 		return m_dataThunkPropertyList;
 	}
 
-	bool
-	constructGlobalStaticProperties ();
+	rtl::Array <NamedTypeBlock*>
+	getStaticConstructor ()
+	{
+		return m_staticConstructArray;
+	}
+
+	void
+	addStaticConstructor (NamedTypeBlock* namedTypeBlock)
+	{
+		m_staticConstructArray.append (namedTypeBlock);
+	}
 
 	bool
-	destructGlobalStaticProperties ();
+	callStaticConstructors ();
 
 	Function*
 	createFunction (

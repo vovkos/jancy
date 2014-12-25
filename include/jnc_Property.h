@@ -7,6 +7,7 @@
 #include "jnc_PropertyType.h"
 #include "jnc_PropertyVerifier.h"
 #include "jnc_Function.h"
+#include "jnc_NamedTypeBlock.h"
 
 namespace jnc {
 
@@ -36,9 +37,11 @@ enum PropertyFlag
 
 class Property: 
 	public ModuleItem,
-	public Namespace
+	public Namespace,
+	public NamedTypeBlock
 {
 	friend class TypeMgr;
+	friend class NamedTypeBlock;
 	friend class DerivableType;
 	friend class ClassType;
 	friend class FunctionMgr;
@@ -49,19 +52,11 @@ protected:
 
 	PropertyType* m_type;
 
-	// construction / destruction / accessors
-
-	Function* m_preConstructor;
-	Function* m_constructor;
-	Function* m_staticConstructor;
-	Function* m_destructor;
-	Function* m_staticDestructor;
-
 	Function* m_getter;
 	Function* m_setter;
 	Function* m_binder;
 
-	// member data is CStructField or CVariable
+	// member data is StructField or Variable
 	
 	ModuleItem* m_onChanged;
 	ModuleItem* m_autoGetValue;
@@ -70,19 +65,10 @@ protected:
 
 	DerivableType* m_parentType;
 	size_t m_parentClassVTableIndex;
-
-	ExtensionNamespace* m_extensionNamespace;
-
-	rtl::Array <StructField*> m_memberFieldConstructArray;
-	rtl::Array <StructField*> m_memberFieldDestructArray;
-	rtl::Array <Property*> m_memberPropertyConstructArray;
-	rtl::Array <Property*> m_memberPropertyDestructArray;
-	rtl::Array <Variable*> m_initializedStaticFieldArray;
-
-	// vtable
-
 	rtl::Array <Function*> m_vtable;
 	Value m_vtablePtrValue;
+
+	ExtensionNamespace* m_extensionNamespace;
 
 	PropertyVerifier m_verifier;
 
@@ -99,36 +85,6 @@ public:
 	getType ()
 	{
 		return m_type;
-	}
-
-	Function* 
-	getPreConstructor ()
-	{
-		return m_preConstructor;
-	}
-
-	Function* 
-	getConstructor ()
-	{
-		return m_constructor;
-	}
-
-	Function* 
-	getStaticConstructor ()
-	{
-		return m_staticConstructor;
-	}
-
-	Function* 
-	getDestructor ()
-	{
-		return m_destructor;
-	}
-
-	Function* 
-	getStaticDestructor ()
-	{
-		return m_staticDestructor;
 	}
 
 	Function* 
@@ -200,43 +156,13 @@ public:
 	bool
 	create (PropertyType* type);
 
-	StructField*
-	createField (
-		const rtl::String& name,
-		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0,
-		rtl::BoxList <Token>* constructor = NULL,
-		rtl::BoxList <Token>* initializer = NULL
-		);
-
-	StructField*
-	createField (
-		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0
-		)
-	{
-		return createField (rtl::String (), type, bitCount, ptrTypeFlags);
-	}
-
+	virtual
 	bool
 	addMethod (Function* function);
 
+	virtual
 	bool
 	addProperty (Property* prop);
-
-	bool
-	callMemberFieldConstructors (const Value& thisValue);
-
-	bool
-	callMemberPropertyConstructors (const Value& thisValue);
-
-	bool
-	callMemberDestructors (const Value& thisValue);
-
-	bool
-	initializeStaticFields ();
 
 	Value
 	getVTablePtrValue ()
@@ -249,6 +175,17 @@ public:
 	compile ();
 
 protected:
+	virtual
+	StructField*
+	createFieldImpl (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
+		);
+
 	virtual
 	bool
 	calcLayout ();
@@ -267,12 +204,6 @@ protected:
 
 	bool 
 	compileBinder ();
-
-	bool
-	callMemberFieldDestructors (const Value& thisValue);
-
-	bool
-	callMemberPropertyDestructors (const Value& thisValue);
 };
 
 //.............................................................................

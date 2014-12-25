@@ -1,0 +1,34 @@
+//.............................................................................
+
+struct SerialOpenParams
+{
+	uint_t m_baudRate;
+	uint_t m_flowControl;
+	uint_t m_dataBits;
+	uint_t m_stopBits;
+	uint_t m_parity;
+
+	// followed by port name
+};
+
+int main ()
+{
+	printf ("main ()\n");
+
+	char const* name = "COM1";
+	SerialOpenParams params;
+
+	char const* p =
+		$"[\e^-1\e[34m-\e[m] Opened port \e[34m$name\n"
+		$"    \e[90mBaud rate:    \e[34m$(params.m_baudRate)\e[m bps\n"
+		$"    \e[90mData bits:    \e[34m$(params.m_dataBits)\n"
+		$"    \e[90mStop bits:    \e[34m$(params.m_stopBits)\n"
+		$"    \e[90mParity:       \e[34m$(params.m_parity)\n"
+		$"    \e[90mFlow control: \e[34m$(params.m_flowControl)";
+
+	printf ("p = %s\n", p);
+
+	return 0;
+}
+
+//.............................................................................

@@ -134,7 +134,7 @@ override C3.baz (
 	int y
 	)
 {
-	printf ("C3.Baz (%d, %d)\n", x, y);
+	printf ("C3.baz (%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
 }	

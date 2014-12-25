@@ -55,15 +55,6 @@ public:
 		Variable* flagVariable
 		);
 
-	void 
-	addStaticDestructor (
-		Function* destructor,
-		Variable* flagVariable
-		)
-	{
-		addDestructor (destructor, Value (), flagVariable);
-	}
-
 	void
 	runDestructors ();
 };

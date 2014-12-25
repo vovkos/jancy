@@ -11,7 +11,6 @@ UnionType::UnionType ()
 	m_typeKind = TypeKind_Union;
 	m_flags = TypeFlag_Pod;
 	m_structType = NULL;
-	m_initializedField = NULL;
 }
 
 StructField*
@@ -30,37 +29,34 @@ UnionType::createFieldImpl (
 		return NULL;
 	}
 
-	StructField* field = AXL_MEM_NEW (StructField);
-	field->m_name = name;
+	StructField* field = m_module->m_typeMgr.createStructField (
+		name,
+		type,
+		bitCount,
+		ptrTypeFlags,
+		constructor,
+		initializer
+		);
+
 	field->m_parentNamespace = this;
-	field->m_type = type;
-	field->m_ptrTypeFlags = ptrTypeFlags;
-	field->m_bitFieldBaseType = bitCount ? type : NULL;
-	field->m_bitCount = bitCount;
-
-	if (constructor)
-		field->m_constructor.takeOver (constructor);
-
-	if (initializer)
-		field->m_initializer.takeOver (initializer);
 
 	if (!field->m_constructor.isEmpty () ||
 		!field->m_initializer.isEmpty ())
 	{
-		if (m_initializedField)
+		if (m_initializedMemberFieldArray.isEmpty ())
 		{
 			err::setFormatStringError (
 				"'%s' already has initialized field '%s'",
 				type->getTypeString ().cc (),
-				m_initializedField->getName ().cc ()
+				m_initializedMemberFieldArray [0]->getName ().cc ()
 				);
 			return NULL;
 		}
 
-		m_initializedField = field;
+		m_initializedMemberFieldArray.append (field);
 	}
 
-	m_fieldList.insertTail (field);
+	m_memberFieldArray.append (field);
 
 	if (name.isEmpty ())
 	{
@@ -83,27 +79,6 @@ UnionType::createFieldImpl (
 	return field;
 }
 
-StructField*
-UnionType::getFieldByIndex (size_t index)
-{
-	size_t count = m_fieldList.getCount ();
-	if (index >= count)
-	{
-		err::setFormatStringError ("index '%d' is out of bounds", index);
-		return NULL;
-	}
-
-	if (m_fieldArray.getCount () != count)
-	{
-		m_fieldArray.setCount (count);
-		rtl::Iterator <StructField> field = m_fieldList.getHead ();
-		for (size_t i = 0; i < count; i++, field++)
-			m_fieldArray [i] = *field;
-	}
-
-	return m_fieldArray [index];
-}
-
 bool
 UnionType::calcLayout ()
 {
@@ -116,10 +91,10 @@ UnionType::calcLayout ()
 	Type* largestFieldType = NULL;
 	size_t largestAlignment = 0;
 
-	rtl::Iterator <StructField> fieldIt = m_fieldList.getHead ();
-	for (size_t i = 0; fieldIt; fieldIt++, i++)
+	size_t count = m_memberFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = *fieldIt;
+		StructField* field = m_memberFieldArray [i];
 
 		result = field->m_type->ensureLayout ();
 		if (!result)
@@ -147,7 +122,7 @@ UnionType::calcLayout ()
 		if (largestAlignment < field->m_type->getAlignment ())
 			largestAlignment = field->m_type->getAlignment ();
 
-		field->m_llvmIndex = i;
+		field->m_llvmIndex = i; // llvmIndex is used in unions!
 	}
 
 	ASSERT (largestFieldType);
@@ -166,14 +141,8 @@ UnionType::calcLayout ()
 			return false;
 	}
 
-	if (m_staticConstructor)
-		m_staticOnceFlagVariable = m_module->m_variableMgr.createOnceFlagVariable ();
-
-	if (m_staticDestructor)
-		m_module->m_variableMgr.m_staticDestructList.addStaticDestructor (m_staticDestructor, m_staticOnceFlagVariable);
-
 	if (!m_preConstructor &&
-		(m_staticConstructor || m_initializedField))
+		(m_staticConstructor || !m_initializedMemberFieldArray.isEmpty ()))
 	{
 		result = createDefaultMethod (FunctionKind_PreConstructor);
 		if (!result)
@@ -219,41 +188,6 @@ UnionType::compile ()
 	}
 
 	return true;
-}
-
-bool
-UnionType::compileDefaultPreConstructor ()
-{
-	ASSERT (m_preConstructor);
-
-	bool result;
-
-	Value thisValue;
-	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
-
-	result = initializeField (thisValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-
-bool
-UnionType::initializeField (const Value& thisValue)
-{
-	ASSERT (m_initializedField);
-
-	Value fieldValue;
-	return
-		m_module->m_operatorMgr.getField (thisValue, m_initializedField, NULL, &fieldValue) &&
-		m_module->m_operatorMgr.parseInitializer (
-			fieldValue,
-			m_parentUnit,
-			m_initializedField->m_constructor,
-			m_initializedField->m_initializer
-			);
 }
 
 void

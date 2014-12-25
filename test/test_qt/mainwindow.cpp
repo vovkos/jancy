@@ -13,37 +13,37 @@
 //.............................................................................
 
 void
-TestClass::enumGcRoots (
+TestClassB::enumGcRoots (
 	jnc::Runtime* runtime,
-	jnc::IfaceHdr* iface
+	TestClassB* self
 	)
 {
-	TestClass* self = (TestClass*) iface;
-	if (self->m_hiddenIface)
-		self->m_hiddenIface->m_object->gcMarkObject (runtime);
+//	if (self->m_hiddenIface)
+//		self->m_hiddenIface->m_object->gcMarkObject (runtime);
 }
 
-TestClass*
-TestClass::operatorNew ()
+void
+AXL_CDECL
+TestClassA::foo (int x)
 {
-	jnc::ApiObjBox <TestClass>* test = (jnc::ApiObjBox <TestClass>*) jnc::StdLib::gcAllocate (getApiType (), 1);
+	printf ("TestClassA::foo (%d)\n", x);
+	m_x = x;
+}
+
+TestClassB*
+TestClassB::operatorNew ()
+{
+	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (getApiType (), 1);
 	test->prime ();
 	return test;
 }
 
 void
 AXL_CDECL
-TestClass::destruct ()
+TestClassB::bar (int y)
 {
-	printf ("TestClass::destruct ()\n");
-}
-
-void
-AXL_CDECL
-TestClass::foo (jnc::IfaceHdr* iface)
-{
-	printf ("TestClass::foo (iface = %x)\n", iface);
-	m_hiddenIface = iface;
+	printf ("TestClassB::bar (%d)\n", y);
+	m_y = y;
 }
 
 //.............................................................................
@@ -587,7 +587,11 @@ MainWindow::run ()
 
 	runtime.startup ();
 
-	// constructor
+	// constructor && dtor
+
+	jnc::Function* pDestructor = module.getDestructor ();
+	if (pDestructor)
+		runtime.addStaticDestructor ((jnc::StaticDestructor*) pDestructor->getMachineCode ());
 
 	jnc::Function* pConstructor = module.getConstructor ();
 	if (pConstructor)
@@ -603,16 +607,6 @@ MainWindow::run ()
 	Result = runFunction (pMainFunction, &ReturnValue);
 	if (!Result)
 		return false;
-
-	// destructor
-
-	jnc::Function* pDestructor = module.getDestructor ();
-	if (pDestructor)
-	{
-		Result = runFunction (pDestructor);
-		if (!Result)
-			return false;
-	}
 
 	runtime.shutdown ();
 

@@ -76,32 +76,22 @@ class ClassType: public DerivableType
 protected:
 	ClassTypeKind m_classTypeKind;
 
+	StructType* m_ifaceHdrStructType;
 	StructType* m_ifaceStructType;
 	StructType* m_classStructType;
-
-	Function* m_primer;
-	Function* m_destructor;
-	Function* m_operatorNew;
-	ClassTypeGcRootEnumProc* m_gcRootEnumProc;
-
-	// prime arrays
+	StructType* m_vtableStructType;
 
 	rtl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
 	rtl::Array <StructField*> m_classMemberFieldArray;
 
-	// destruct arrays
-
-	rtl::Array <ClassType*> m_baseTypeDestructArray;
-	rtl::Array <StructField*> m_memberFieldDestructArray;
-	rtl::Array <Property*> m_memberPropertyDestructArray;
-
-	// vtable
+	Function* m_primer;
+	Function* m_operatorNew;
+	ClassTypeGcRootEnumProc* m_gcRootEnumProc;
 
 	rtl::Array <Function*> m_virtualMethodArray;
 	rtl::Array <Function*> m_overrideMethodArray;
 	rtl::Array <Property*> m_virtualPropertyArray;
 
-	StructType* m_vtableStructType;
 	rtl::Array <Function*> m_vtable;
 	Value m_vtablePtrValue;
 
@@ -122,6 +112,20 @@ public:
 	getClassTypeKind ()
 	{
 		return m_classTypeKind;
+	}
+
+	StructType* 
+	getIfaceHdrStructType ()
+	{
+		ASSERT (m_ifaceHdrStructType);
+		return m_ifaceHdrStructType;
+	}
+
+	DataPtrType* 
+	getIfaceHdrPtrType ()
+	{
+		ASSERT (m_ifaceHdrStructType);
+		return m_ifaceHdrStructType->getDataPtrType_c ();
 	}
 
 	StructType*
@@ -179,35 +183,19 @@ public:
 	}
 
 	Function*
-	getDestructor ()
-	{
-		return m_destructor;
-	}
-
-	Function*
 	getOperatorNew ()
 	{
 		return m_operatorNew;
 	}
 
 	ClassTypeGcRootEnumProc*
-	getGcRootEnumProc()
+	getGcRootEnumProc ()
 	{
 		return m_gcRootEnumProc;
 	}
 
 	bool
 	setGcRootEnumProc (ClassTypeGcRootEnumProc* proc);
-
-	rtl::ConstList <StructField>
-	getFieldList ()
-	{
-		return m_ifaceStructType->getFieldList ();
-	}
-
-	virtual
-	StructField*
-	getFieldByIndex (size_t index);
 
 	virtual
 	bool
@@ -270,15 +258,6 @@ public:
 		Runtime* runtime,
 		void* p
 		);
-
-	bool
-	callBaseTypeDestructors (const Value& thisValue);
-
-	bool
-	callMemberFieldDestructors (const Value& thisValue);
-
-	bool
-	callMemberPropertyDestructors (const Value& thisValue);
 
 protected:
 	void
@@ -356,12 +335,6 @@ protected:
 		);
 
 	bool
-	compileDefaultPreConstructor ();
-
-	bool
-	compileDefaultDestructor ();
-
-	bool
 	compilePrimer ();
 };
 
@@ -399,13 +372,6 @@ struct IfaceHdr
 
 	// followed by parents, then by iface data fields
 };
-
-// TIfaceHdrTT is a simple trick for allowing multiple inheritance in implementation classes
-
-template <typename T>
-struct IfaceHdrT: IfaceHdr
-{
-}; 
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

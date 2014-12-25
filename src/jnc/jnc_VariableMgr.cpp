@@ -28,7 +28,6 @@ VariableMgr::clear ()
 	m_staticVariableArray.clear ();
 	m_staticGcRootArray.clear ();
 	m_globalStaticVariableArray.clear ();
-	m_staticDestructList.clear ();
 
 	m_tlsVariableArray.clear ();
 	m_tlsGcRootArray.clear ();
@@ -337,10 +336,28 @@ VariableMgr::initializeGlobalStaticVariables ()
 {
 	bool result;
 
+	Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
+	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+
 	size_t count = m_globalStaticVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = m_globalStaticVariableArray [i];
+
+		if (variable->m_type->getTypeKind () == TypeKind_Class)
+		{
+			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
+			if (destructor)
+			{
+				Value dtorValue;
+				result = 
+					m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
+					m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
+
+				if (!result)
+					return false;
+			}
+		}
 
 		result = m_module->m_operatorMgr.parseInitializer (
 			variable,
@@ -348,13 +365,6 @@ VariableMgr::initializeGlobalStaticVariables ()
 			variable->m_constructor,
 			variable->m_initializer
 			);
-
-		if (variable->m_type->getTypeKind () == TypeKind_Class)
-		{
-			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
-			if (destructor)
-				m_staticDestructList.addDestructor (destructor, variable);
-		}
 
 		if (!result)
 			return false;
@@ -445,15 +455,7 @@ VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 	OnceStmt stmt;
 	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos);
 
-	result =
-		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos) &&
-		m_module->m_operatorMgr.parseInitializer (
-			variable,
-			variable->m_itemDecl->getParentUnit (),
-			variable->m_constructor,
-			variable->m_initializer
-			);
-
+	result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
 	if (!result)
 		return false;
 
@@ -461,8 +463,29 @@ VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 	{
 		Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
 		if (destructor)
-			m_staticDestructList.addDestructor (destructor, variable, stmt.m_flagVariable);
+		{
+			Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
+			Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+
+			Value dtorValue;
+			result = 
+				m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
+				m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
+
+			if (!result)
+				return false;
+		}
 	}
+
+	result = m_module->m_operatorMgr.parseInitializer (
+		variable,
+		variable->m_itemDecl->getParentUnit (),
+		variable->m_constructor,
+		variable->m_initializer
+		);
+
+	if (!result)
+		return false;
 
 	if (!variable->m_initializer.isEmpty ())
 		pos = variable->m_initializer.getTail ()->m_pos;

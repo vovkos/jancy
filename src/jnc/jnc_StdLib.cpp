@@ -363,6 +363,27 @@ StdLib::assertionFailure (
 	Runtime::runtimeError (err::createStringError (string, string.getLength ()));
 }
 
+void
+StdLib::addStaticDestructor (StaticDestructor* dtor)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->addStaticDestructor (dtor);
+}
+
+void
+StdLib::addDestructor (
+	Destructor* dtor,
+	jnc::IfaceHdr* iface
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->addDestructor (dtor, iface);
+}
+
 DataPtr
 StdLib::format (
 	DataPtr formatStringPtr,
@@ -418,7 +439,7 @@ StdLib::appendFmtLiteral_a (
 		ASSERT (module);
 
 		size_t newMaxLength = rtl::getMinPower2Ge (newLength);
-		char* p = (char*) runtime->gcAllocate (newLength);
+		char* p = (char*) runtime->gcAllocate (newMaxLength + 1); // for zero-termination
 		memcpy (p, fmtLiteral->m_p, fmtLiteral->m_length);
 
 		fmtLiteral->m_p = p;

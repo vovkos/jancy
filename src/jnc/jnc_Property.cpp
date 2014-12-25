@@ -6,7 +6,8 @@ namespace jnc {
 
 //.............................................................................
 
-Property::Property ()
+Property::Property ():
+	NamedTypeBlock (this)
 {
 	m_itemKind = ModuleItemKind_Property;
 	m_namespaceKind = NamespaceKind_Property;
@@ -14,11 +15,6 @@ Property::Property ()
 	m_itemDecl = this;
 	m_type = NULL;
 
-	m_preConstructor = NULL;
-	m_constructor = NULL;
-	m_staticConstructor = NULL;
-	m_destructor = NULL;
-	m_staticDestructor = NULL;
 	m_getter = NULL;
 	m_setter = NULL;
 	m_binder = NULL;
@@ -263,7 +259,7 @@ Property::createAutoGetValue (Type* type)
 }
 
 StructField*
-Property::createField (
+Property::createFieldImpl (
 	const rtl::String& name,
 	Type* type,
 	size_t bitCount,
@@ -540,91 +536,6 @@ Property::addProperty (Property* prop)
 	default:
 		err::setFormatStringError ("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
 		return false;
-	}
-
-	return true;
-}
-
-bool
-Property::initializeStaticFields ()
-{
-	bool result;
-
-	size_t count = m_initializedStaticFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* staticField = m_initializedStaticFieldArray [i];
-
-		result = m_module->m_operatorMgr.parseInitializer (
-			staticField,
-			m_parentUnit,
-			staticField->getConstructor (),
-			staticField->getInitializer ()
-			);
-
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-Property::callMemberFieldConstructors (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_memberFieldConstructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		StructField* field = m_memberFieldConstructArray [i];
-		if (field->m_flags & ModuleItemFlag_Constructed)
-		{
-			field->m_flags &= ~ModuleItemFlag_Constructed;
-			continue;
-		}
-
-		Type* type = field->getType ();
-
-		ASSERT (type->getTypeKindFlags () & TypeKindFlag_Derivable);
-		Function* constructor = ((DerivableType*) type)->getDefaultConstructor ();
-		if (!constructor)
-			return false;
-
-		Value fieldValue;
-		result =
-			m_module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue) &&
-			m_module->m_operatorMgr.callOperator (constructor, fieldValue);
-
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-Property::callMemberPropertyConstructors (const Value& thisValue)
-{
-	bool result;
-
-	size_t count = m_memberPropertyConstructArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Property* prop = m_memberPropertyConstructArray [i];
-		if (prop->m_flags & ModuleItemFlag_Constructed)
-		{
-			prop->m_flags &= ~ModuleItemFlag_Constructed;
-			continue;
-		}
-
-		Function* constructor = prop->getConstructor ();
-		if (!constructor)
-			return false;
-
-		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
-		if (!result)
-			return false;
 	}
 
 	return true;

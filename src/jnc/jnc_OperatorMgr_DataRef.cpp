@@ -38,10 +38,10 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	}
 	else if (scopeValidatorType->getTypeKind () == TypeKind_ClassPtr)
 	{
-		static int llvmIndexArray [] = { 0, 0, 1 }; // Iface*, IfaceHdr**, ObjHdr**
-
+		Type* ifaceHdrPtrType = m_module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr);
 		Value objHdrValue;
-		m_module->m_llvmIrBuilder.createGep (scopeValidatorValue, llvmIndexArray, 3, NULL, &objHdrValue);
+		m_module->m_llvmIrBuilder.createBitCast (scopeValidatorValue, ifaceHdrPtrType, &objHdrValue);
+		m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &objHdrValue);
 		m_module->m_llvmIrBuilder.createLoad (objHdrValue, resultType, resultValue);
 	}
 	else

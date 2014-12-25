@@ -40,10 +40,13 @@ public:
 		char buffer [256];
 		rtl::Array <llvm::Constant*> llvmMemberArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-		rtl::Iterator <StructField> member = type->getFieldList ().getHead ();
-		for (; member; member++)
+		rtl::Array <StructField*> fieldArray = type->getMemberFieldArray ();
+		size_t count = fieldArray.getCount ();
+
+		for (size_t i = 0; i < count; i++)
 		{
-			jnc::Value memberConst ((char*) p + member->getOffset (), member->getType ());
+			StructField* field = fieldArray [i];
+			jnc::Value memberConst ((char*) p + field->getOffset (), field->getType ());
 			llvmMemberArray.append ((llvm::Constant*) memberConst.getLlvmValue ());
 		}
 

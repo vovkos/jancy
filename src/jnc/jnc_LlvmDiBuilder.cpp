@@ -104,9 +104,11 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 	ASSERT (unit);
 
 	rtl::ConstList <BaseTypeSlot> baseTypeList = structType->getBaseTypeList ();
-	rtl::ConstList <StructField> fieldList = structType->getFieldList ();
+	rtl::Array <StructField*> fieldArray = structType->getMemberFieldArray ();
 
-	size_t count = baseTypeList.getCount () + fieldList.getCount ();
+	size_t baseTypeCount = baseTypeList.getCount ();
+	size_t fieldCount = fieldArray.getCount ();
+	size_t count = baseTypeCount + fieldCount;
 
 	char buffer [256];
 	rtl::Array <llvm::Value*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
@@ -133,10 +135,9 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			);
 	}
 
-	rtl::Iterator <StructField> fieldIt = fieldList.getHead ();
-	for (; fieldIt; i++, fieldIt++)
+	for (size_t j = 0; j < fieldCount; i++, j++)
 	{
-		StructField* field = *fieldIt;
+		StructField* field = fieldArray [j];
 		rtl::String name = field->getName ();
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (
@@ -184,17 +185,16 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
 	ASSERT (unit);
 
-	rtl::ConstList <StructField> fieldList = unionType->getFieldList ();
-	size_t count = fieldList.getCount ();
+	rtl::Array <StructField*> fieldArray = unionType->getMemberFieldArray ();
+	size_t count = fieldArray.getCount ();
 
 	char buffer [256];
 	rtl::Array <llvm::Value*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	fieldTypeArray.setCount (count);
 
-	rtl::Iterator <StructField> fieldIt = fieldList.getHead ();
-	for (size_t i = 0; fieldIt; i++, fieldIt++)
+	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = *fieldIt;
+		StructField* field = fieldArray [i];
 		rtl::String name = field->getName ();
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (

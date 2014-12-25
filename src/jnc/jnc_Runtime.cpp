@@ -120,7 +120,27 @@ Runtime::shutdown ()
 	m_staticGcRootArray.clear ();
 
 	runGc ();
-	runGc (); // 2nd gc run is needed to clean up after destruction
+
+	m_lock.lock ();
+	
+	while (!m_staticDestructList.isEmpty ())
+	{
+		StaticDestruct* destruct = m_staticDestructList.removeTail ();
+		m_lock.unlock ();
+
+		if (destruct->m_iface)
+			destruct->m_dtor (destruct->m_iface);
+		else
+			destruct->m_staticDtor ();
+
+		AXL_MEM_DELETE (destruct);
+
+		m_lock.lock ();
+	}
+
+	m_lock.unlock ();
+
+	runGc (); 
 
 	TlsHdr* tls = getTlsMgr ()->nullifyTls (this);
 	if (tls)
@@ -801,6 +821,33 @@ Runtime::unpinObject (IfaceHdr* object)
 {
 	m_lock.lock ();
 	m_gcPinTable.eraseByKey (object);
+	m_lock.unlock ();
+}
+
+void
+Runtime::addStaticDestructor (StaticDestructor *dtor)
+{
+	StaticDestruct* destruct = AXL_MEM_NEW (StaticDestruct);
+	destruct->m_staticDtor = dtor;
+	destruct->m_iface = NULL;
+
+	m_lock.lock ();
+	m_staticDestructList.insertTail (destruct);
+	m_lock.unlock ();
+}
+
+void
+Runtime::addDestructor (
+	Destructor *dtor,
+	jnc::IfaceHdr* iface
+	)
+{
+	StaticDestruct* destruct = AXL_MEM_NEW (StaticDestruct);
+	destruct->m_dtor = dtor;
+	destruct->m_iface = iface;
+
+	m_lock.lock ();
+	m_staticDestructList.insertTail (destruct);
 	m_lock.unlock ();
 }
 

@@ -44,9 +44,6 @@ protected:
 	Variable* m_stdVariableArray [StdVariable__Count];
 
 public:
-	DestructList m_staticDestructList;
-
-public:
 	VariableMgr ();
 
 	Module*

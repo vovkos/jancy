@@ -232,8 +232,6 @@ Function::compile ()
 
 	m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
 
-	OnceStmt stmt; // for static constructors
-
 	// parse body
 
 	Parser parser;
@@ -242,53 +240,15 @@ Function::compile ()
 
 	SymbolKind startSymbol = SymbolKind_compound_stmt;
 
-	bool isOnce = false;
-
-	if (m_functionKind == FunctionKind_StaticConstructor)
+	if (m_functionKind == FunctionKind_PreConstructor)
 	{
 		DerivableType* parentType = getParentType ();
-		if (parentType)
-		{
-			m_module->m_controlFlowMgr.onceStmt_Create (&stmt, parentType->getStaticOnceFlagVariable ());
-
-			result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, beginPos);
-			if (!result)
-				return false;
-
-			isOnce = true;
-		}
-	}
-	else if (m_functionKind == FunctionKind_PreConstructor)
-	{
-		DerivableType* parentType = getParentType ();
-		if (!parentType)
-		{
-			err::setFormatStringError ("preconstructors for properties are not yet supported");
-			return false;
-		}
-
-		Function* staticConstructor = parentType->getStaticConstructor ();
-		if (staticConstructor)
-			m_module->m_operatorMgr.callOperator (staticConstructor);
+		ASSERT (parentType);
 
 		Value thisValue = m_module->m_functionMgr.getThisValue ();
 		ASSERT (thisValue);
 
-		TypeKind typeKind = parentType->getTypeKind ();
-		switch (typeKind)
-		{
-		case TypeKind_Struct:
-			result = ((StructType*) parentType)->initializeFields (thisValue);
-			break;
-
-		case TypeKind_Union:
-			result = ((UnionType*) parentType)->initializeField (thisValue);
-			break;
-
-		case TypeKind_Class:
-			result = ((ClassType*) parentType)->getIfaceStructType ()->initializeFields (thisValue);
-			break;
-		}
+		result = parentType->initializeMemberFields (thisValue);
 	}
 	else if (m_functionKind == FunctionKind_Constructor)
 	{
@@ -306,9 +266,6 @@ Function::compile ()
 	result = parser.parseTokenList (startSymbol, m_body, true);
 	if (!result)
 		return false;
-
-	if (isOnce)
-		m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, endPos);
 
 	// epilogue
 

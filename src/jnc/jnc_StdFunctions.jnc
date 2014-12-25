@@ -110,6 +110,17 @@ void assertionFailure (
 	char const thin* message
 	);
 
+///; static char addStaticDestructorSrc [] = 
+
+void addStaticDestructor (intptr dtor);
+
+///; static char addDestructorSrc [] = 
+
+void addDestructor (
+	intptr dtor,
+	object* obj
+	);
+
 ///; static char strlenSrc [] = 
 
 size_t strlen (char const* p);

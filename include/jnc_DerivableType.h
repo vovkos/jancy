@@ -6,6 +6,7 @@
 
 #include "jnc_ImportType.h"
 #include "jnc_Function.h"
+#include "jnc_NamedTypeBlock.h"
 
 namespace jnc {
 
@@ -120,7 +121,9 @@ public:
 
 //.............................................................................
 
-class DerivableType: public NamedType
+class DerivableType: 
+	public NamedType,
+	public NamedTypeBlock
 {
 	friend class Parser;
 
@@ -131,44 +134,14 @@ protected:
 	rtl::StdList <BaseTypeSlot> m_baseTypeList;
 	rtl::Array <BaseTypeSlot*> m_baseTypeArray;
 	rtl::Array <BaseTypeSlot*> m_importBaseTypeArray;
-
-	// extension namespaces
-
-	rtl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
-
-	// set-as type
+	rtl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
+	rtl::Array <BaseTypeSlot*> m_baseTypeConstructArray;
+	rtl::Array <BaseTypeSlot*> m_baseTypeDestructArray;
 
 	Type* m_setAsType;
 	ImportType* m_setAsType_i;
-
-	// gc roots
-
-	rtl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
-	rtl::Array <StructField*> m_gcRootMemberFieldArray;
-
-	// members
-
-	rtl::Array <StructField*> m_memberFieldArray;
-	rtl::Array <Function*> m_memberMethodArray;
-	rtl::Array <Property*> m_memberPropertyArray;
-	rtl::Array <StructField*> m_importFieldArray;
-	rtl::Array <StructField*> m_unnamedFieldArray;
-	rtl::Array <Variable*> m_initializedStaticFieldArray;
-
-	// construction
-
-	Function* m_preConstructor;
-	Function* m_constructor;
 	Function* m_defaultConstructor;
-	Function* m_staticConstructor;
-	Function* m_staticDestructor;
-	Variable* m_staticOnceFlagVariable; // 'once' semantics for static constructor
-
-	// construct arrays
-
-	rtl::Array <BaseTypeSlot*> m_baseTypeConstructArray;
-	rtl::Array <StructField*> m_memberFieldConstructArray;
-	rtl::Array <Property*> m_memberPropertyConstructArray;
+	rtl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
 
 	// overloaded operators
 
@@ -227,59 +200,17 @@ public:
 		return findBaseTypeTraverseImpl (type, coord, 0);
 	}
 
-	Type*
-	getSetAsType ()
-	{
-		return m_setAsType;
-	}
-
 	rtl::Array <BaseTypeSlot*>
 	getGcRootBaseTypeArray ()
 	{
 		return m_gcRootBaseTypeArray;
 	}
 
-	rtl::Array <StructField*>
-	getGcRootMemberFieldArray ()
+	Type*
+	getSetAsType ()
 	{
-		return m_gcRootMemberFieldArray;
+		return m_setAsType;
 	}
-
-	rtl::Array <StructField*>
-	getMemberFieldArray ()
-	{
-		return m_memberFieldArray;
-	}
-
-	rtl::Array <Function*>
-	getMemberMethodArray ()
-	{
-		return m_memberMethodArray;
-	}
-
-	rtl::Array <Property*>
-	getMemberPropertyArray ()
-	{
-		return m_memberPropertyArray;
-	}
-
-	rtl::Array <Variable*>
-	getInitializedStaticFieldArray ()
-	{
-		return m_initializedStaticFieldArray;
-	}
-
-	bool
-	callBaseTypeConstructors (const Value& thisValue);
-
-	bool
-	callMemberFieldConstructors (const Value& thisValue);
-
-	bool
-	callMemberPropertyConstructors (const Value& thisValue);
-
-	bool
-	initializeStaticFields ();
 
 	Function*
 	getPreConstructor ()
@@ -288,37 +219,7 @@ public:
 	}
 
 	Function*
-	getConstructor ()
-	{
-		return m_constructor;
-	}
-
-	Function*
-	getConstructor (size_t overloadIdx)
-	{
-		return m_constructor ? m_constructor->getOverload (overloadIdx) : NULL;
-	}
-
-	Function*
 	getDefaultConstructor ();
-
-	Function*
-	getStaticConstructor ()
-	{
-		return m_staticConstructor;
-	}
-
-	Function*
-	getStaticDestructor ()
-	{
-		return m_staticDestructor;
-	}
-
-	Variable*
-	getStaticOnceFlagVariable ()
-	{
-		return m_staticOnceFlagVariable;
-	}
 
 	Function*
 	getUnaryOperator (UnOpKind opKind)
@@ -363,53 +264,8 @@ public:
 		return m_operatorCdeclVararg;
 	}
 
-	virtual
 	StructField*
-	getFieldByIndex (size_t index) = 0;
-
-	StructField*
-	createField (
-		const rtl::String& name,
-		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0,
-		rtl::BoxList <Token>* constructor = NULL,
-		rtl::BoxList <Token>* initializer = NULL
-		)
-	{
-		return createFieldImpl (name, type, bitCount, ptrTypeFlags, constructor, initializer);
-	}
-
-	StructField*
-	createField (
-		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0
-		)
-	{
-		return createFieldImpl (rtl::String (), type, bitCount, ptrTypeFlags);
-	}
-
-	Function*
-	createMethod (
-		StorageKind storageKind,
-		const rtl::String& name,
-		FunctionType* shortType
-		);
-
-	Function*
-	createUnnamedMethod (
-		StorageKind storageKind,
-		FunctionKind functionKind,
-		FunctionType* shortType
-		);
-
-	Property*
-	createProperty (
-		StorageKind storageKind,
-		const rtl::String& name,
-		PropertyType* shortType
-		);
+	getFieldByIndex (size_t index);
 
 	virtual
 	bool
@@ -419,20 +275,15 @@ public:
 	bool
 	addProperty (Property* prop);
 
+	bool
+	callBaseTypeConstructors (const Value& thisValue);
+
+	bool
+	callBaseTypeDestructors (const Value& thisValue);
+
 protected:
 	ModuleItem*
 	findItemInExtensionNamespaces (const char* name);
-
-	virtual
-	StructField*
-	createFieldImpl (
-		const rtl::String& name,
-		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0,
-		rtl::BoxList <Token>* constructor = NULL,
-		rtl::BoxList <Token>* initializer = NULL
-		) = 0;
 
 	bool
 	resolveImportTypes ();
@@ -444,13 +295,16 @@ protected:
 		);
 
 	bool
-	compileDefaultStaticConstructor ();
-
-	bool
 	compileDefaultPreConstructor ();
 
 	bool
+	compileDefaultStaticConstructor ();
+
+	bool
 	compileDefaultConstructor ();
+
+	bool
+	compileDefaultDestructor ();
 
 	bool
 	findBaseTypeTraverseImpl (

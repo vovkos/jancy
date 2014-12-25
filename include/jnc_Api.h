@@ -151,7 +151,7 @@ mapFunctions (jnc::Module* module) \
 	JNC_MAP (function, proc)
 
 #define JNC_GC_ROOT_ENUMERATOR(proc) \
-	result = type->setGcRootEnumProc (proc); \
+	result = type->setGcRootEnumProc ((jnc::ClassTypeGcRootEnumProc*) proc); \
 	if (!result) \
 		return false;
 
@@ -333,7 +333,7 @@ class ApiBase: public T
 private:
 	struct TailPaddingCheck: T
 	{
-		char m_field; // this filed might be allocated in T's tail-padding
+		char m_field; // this field might be allocated in T's tail-padding
 	};
 
 	char m_tailPadding [sizeof (T) - offsetof (TailPaddingCheck, m_field)];

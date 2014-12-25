@@ -13,23 +13,9 @@ OperatorMgr::getClassVTable (
 	Value* resultValue
 	)
 {
-	int32_t llvmIndexArray [] =
-	{
-		0, // class.iface*
-		0, // class.iface.hdr*
-		0, // class.vtbl**
-	};
-
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep (
-		opValue,
-		llvmIndexArray,
-		countof (llvmIndexArray),
-		NULL,
-		&ptrValue
-		);
-
-	// class.vtbl*
+	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ptrValue);
+	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &ptrValue);
 
 	DataPtrType* resultType = classType->getVTableStructType ()->getDataPtrType_c ();
 	m_module->m_llvmIrBuilder.createLoad (ptrValue, resultType, resultValue);

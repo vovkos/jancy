@@ -39,6 +39,8 @@ public:
 		JNC_STD_FUNCTION (StdFunction_SetPosixError, setPosixError)
 		JNC_STD_FUNCTION (StdFunction_SetStringError, setStringError)
 		JNC_STD_FUNCTION (StdFunction_AssertionFailure, assertionFailure)
+		JNC_STD_FUNCTION (StdFunction_AddStaticDestructor, addStaticDestructor)
+		JNC_STD_FUNCTION (StdFunction_AddDestructor, addDestructor)
 		JNC_STD_FUNCTION (StdFunction_StrLen, strLen)
 		JNC_STD_FUNCTION (StdFunction_MemCpy, memCpy)
 		JNC_STD_FUNCTION (StdFunction_MemCat, memCat)
@@ -189,6 +191,17 @@ public:
 		int line,
 		const char* condition,
 		const char* message
+		);
+
+	static
+	void
+	addStaticDestructor (StaticDestructor *dtor);
+
+	static
+	void
+	addDestructor (
+		Destructor *dtor,
+		jnc::IfaceHdr* iface
 		);
 
 	static

@@ -44,22 +44,22 @@ ClosureClassType::buildArgValueList (
 	rtl::BoxList <Value>* argValueList
 	)
 {
-	rtl::Iterator <StructField> field = getFieldList ().getHead ();
-	field++; // skip function / property ptr
+	size_t fieldIdx = 1; // skip function / property ptr
 
 	size_t iClosure = 0;
 	size_t iThunk = 1; // skip 'this' arg
 
 	// part 1 -- arguments come both from closure and from thunk
 
-	for (size_t i = 0; field; i++)
+	size_t fieldCount = m_memberFieldArray.getCount ();
+	for (size_t i = 0; fieldIdx < fieldCount; i++)
 	{
 		Value argValue;
 
 		if (i == m_closureMap [iClosure])
 		{
-			m_module->m_operatorMgr.getClassField (closureValue, *field, NULL, &argValue);
-			field++;
+			m_module->m_operatorMgr.getClassField (closureValue, m_memberFieldArray [fieldIdx], NULL, &argValue);
+			fieldIdx++;
 			iClosure++;
 		}
 		else
@@ -83,7 +83,7 @@ ClosureClassType::strengthen (jnc::IfaceHdr* p)
 	if (!m_weakMask)
 		return p;
 
-	size_t count = m_ifaceStructType->getFieldList ().getCount ();
+	size_t count = m_ifaceStructType->getMemberFieldArray ().getCount ();
 
 	uint64_t weakMask = m_weakMask;
 	while (weakMask)
@@ -161,7 +161,7 @@ FunctionClosureClassType::compile ()
 	ASSERT (thisValue);
 
 	Value pfnValue;
-	m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &pfnValue);
+	m_module->m_operatorMgr.getClassField (thisValue, m_memberFieldArray [0], NULL, &pfnValue);
 
 	rtl::BoxList <Value> argValueList;
 	buildArgValueList (thisValue, argValueArray, argCount, &argValueList);
@@ -250,7 +250,7 @@ PropertyClosureClassType::compileAccessor (Function* accessor)
 	ASSERT (thisValue);
 
 	Value propertyPtrValue;
-	result = m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &propertyPtrValue);
+	result = m_module->m_operatorMgr.getClassField (thisValue, m_memberFieldArray [0], NULL, &propertyPtrValue);
 	ASSERT (result);
 
 	Value pfnValue;
@@ -366,7 +366,7 @@ DataClosureClassType::compileGetter (Function* getter)
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField (thisValue, m_memberFieldArray [0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &ptrValue) &&
 		m_module->m_controlFlowMgr.ret (ptrValue);
 
@@ -389,7 +389,7 @@ DataClosureClassType::compileSetter (Function* setter)
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField (thisValue, *getFieldList ().getHead (), NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField (thisValue, m_memberFieldArray [0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &ptrValue) &&
 		m_module->m_operatorMgr.storeDataRef (ptrValue, argValue);
 

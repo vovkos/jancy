@@ -20,9 +20,6 @@ class UnionType: public DerivableType
 	friend class Parser;
 
 protected:
-	rtl::StdList <StructField> m_fieldList;
-	rtl::Array <StructField*> m_fieldArray;
-	StructField* m_initializedField;
 	StructType* m_structType;
 	
 public:
@@ -34,19 +31,6 @@ public:
 		ASSERT (m_structType);
 		return m_structType;
 	}
-
-	rtl::ConstList <StructField>
-	getFieldList ()
-	{
-		return m_fieldList;
-	}
-
-	virtual
-	StructField*
-	getFieldByIndex (size_t index);
-
-	bool
-	initializeField (const Value& thisValue);
 
 	virtual
 	bool
@@ -95,9 +79,6 @@ protected:
 	virtual
 	bool
 	calcLayout ();
-
-	bool
-	compileDefaultPreConstructor ();
 };
 
 //.............................................................................

@@ -124,6 +124,8 @@ enum StdFunction
 	StdFunction_SetPosixError,
 	StdFunction_SetStringError,
 	StdFunction_AssertionFailure,
+	StdFunction_AddStaticDestructor,
+	StdFunction_AddDestructor,
 	StdFunction__Count
 };
 
@@ -204,6 +206,7 @@ class Function:
 	friend class Module;
 	friend class FunctionMgr;
 	friend class TypeMgr;
+	friend class NamedTypeBlock;
 	friend class DerivableType;
 	friend class ClassType;
 	friend class Property;

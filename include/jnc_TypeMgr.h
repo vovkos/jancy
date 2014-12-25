@@ -106,6 +106,7 @@ protected:
 	rtl::StdList <Typedef> m_typedefList;
 	rtl::StdList <LazyStdType> m_lazyStdTypeList;
 	rtl::StdList <FunctionArg> m_functionArgList;
+	rtl::StdList <StructField> m_structFieldList;
 
 	rtl::StdList <SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
 	rtl::StdList <FunctionArgTuple> m_functionArgTupleList;
@@ -486,6 +487,16 @@ public:
 	{
 		return getSimpleFunctionArg (StorageKind_Stack, type, ptrTypeFlags);
 	}
+
+	StructField*
+	createStructField (
+		const rtl::String& name,
+		Type* type,
+		size_t bitCount = 0,
+		uint_t ptrTypeFlags = 0,
+		rtl::BoxList <Token>* constructor = NULL,
+		rtl::BoxList <Token>* initializer = NULL
+		);
 
 	CallConv*
 	getCallConv (CallConvKind callConvKind)
@@ -988,6 +999,9 @@ protected:
 
 	ClassType*
 	createObjectType ();
+
+	StructType*
+	createSimpleIfaceHdrType ();
 
 	StructType*
 	createObjHdrType ();

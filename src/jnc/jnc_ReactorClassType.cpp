@@ -84,8 +84,10 @@ ReactorClassType::subscribe (const rtl::ConstList <Reaction>& reactionList)
 	bool result;
 
 	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
-	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
-	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
+
+	rtl::Array <StructField*> fieldArray = bindSiteType->getMemberFieldArray ();
+	StructField* eventPtrField = fieldArray [0];
+	StructField* cookieField = fieldArray.getBack ();
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	ASSERT (thisValue);
@@ -302,8 +304,10 @@ ReactorClassType::compileStopMethod ()
 	bool result;
 
 	StructType* bindSiteType = (StructType*) m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
-	StructField* eventPtrField = *bindSiteType->getFieldList ().getHead ();
-	StructField* cookieField = *bindSiteType->getFieldList ().getTail ();
+
+	rtl::Array <StructField*> fieldArray = bindSiteType->getMemberFieldArray ();
+	StructField* eventPtrField = fieldArray [0];
+	StructField* cookieField = fieldArray.getBack ();
 
 	m_module->m_functionMgr.internalPrologue (m_methodArray [ReactorMethodKind_Stop]);
 

@@ -118,7 +118,8 @@ OperatorMgr::createClosureObject (
 	if (!result)
 		return false;
 
-	rtl::Iterator <StructField> field = closureType->getFieldList ().getHead ();
+	rtl::Array <StructField*> fieldArray = closureType->getMemberFieldArray ();
+	size_t fieldIdx = 0;
 
 	// save function/property pointer
 
@@ -127,13 +128,13 @@ OperatorMgr::createClosureObject (
 
 	Value fieldValue;
 	result =
-		getClassField (closureValue, *field, NULL, &fieldValue) &&
+		getClassField (closureValue, fieldArray [fieldIdx], NULL, &fieldValue) &&
 		binaryOperator (BinOpKind_Assign, fieldValue, pfnValue);
 
 	if (!result)
 		return false;
 
-	field++;
+	fieldIdx++;
 
 	// save closure arguments (if any)
 
@@ -145,17 +146,15 @@ OperatorMgr::createClosureObject (
 			if (closureArgValue->isEmpty ())
 				continue;
 
-			ASSERT (field);
-
 			Value fieldValue;
 			result =
-				getClassField (closureValue, *field, NULL, &fieldValue) &&
+				getClassField (closureValue, fieldArray [fieldIdx], NULL, &fieldValue) &&
 				binaryOperator (BinOpKind_Assign, fieldValue, *closureArgValue);
 
 			if (!result)
 				return false;
 
-			field++;
+			fieldIdx++;
 		}
 	}
 
@@ -188,13 +187,14 @@ OperatorMgr::createDataClosureObject (
 	if (!result)
 		return false;
 
-	rtl::Iterator <StructField> field = closureType->getFieldList ().getHead ();
+	rtl::Array <StructField*> fieldArray = closureType->getMemberFieldArray ();
+	ASSERT (!fieldArray.isEmpty ());
 
 	// save data pointer
 
 	Value fieldValue;
 	result =
-		getClassField (closureValue, *field, NULL, &fieldValue) &&
+		getClassField (closureValue, fieldArray [0], NULL, &fieldValue) &&
 		binaryOperator (BinOpKind_Assign, fieldValue, opValue);
 
 	if (!result)

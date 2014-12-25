@@ -21,47 +21,62 @@ struct Point
 
 enum ApiSlot
 {
-	ApiSlot_TestClass = 0,
+	ApiSlot_TestClassA,
+	ApiSlot_TestClassB,
 	ApiSlot_TestStruct,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
-class TestClass: public jnc::IfaceHdr
+class TestClassA: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
-		JNC_OPERATOR_NEW (&TestClass::operatorNew)
-		JNC_DESTRUCTOR (&TestClass::destruct)
-		JNC_GC_ROOT_ENUMERATOR (&TestClass::enumGcRoots)
-		JNC_FUNCTION ("foo", &TestClass::foo)
+	JNC_BEGIN_CLASS ("TestClassA", ApiSlot_TestClassA)
+		JNC_FUNCTION ("foo", &TestClassA::foo)
 	JNC_END_CLASS ()
 
 public:
 	int m_x;
 
-protected:
-	jnc::IfaceHdr* m_hiddenIface;
-
 public:
-	static
-	void
-	enumGcRoots (
-		jnc::Runtime* runtime,
-		jnc::IfaceHdr* iface
-		);
-
-	static 
-	TestClass*
-	operatorNew ();
-
 	void
 	AXL_CDECL
 	destruct ();
 
 	void
 	AXL_CDECL
-	foo (jnc::IfaceHdr* obj);
+	foo (int x);
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class TestClassB: public TestClassA
+{
+public:
+	JNC_BEGIN_CLASS ("TestClassB", ApiSlot_TestClassB)
+		JNC_GC_ROOT_ENUMERATOR (&TestClassB::enumGcRoots)
+		JNC_OPERATOR_NEW (&TestClassB::operatorNew)
+		JNC_FUNCTION ("bar", &TestClassB::bar)
+	JNC_END_CLASS ()
+
+public:
+	int m_y;
+
+public:
+	static
+	void
+	enumGcRoots (
+		jnc::Runtime* runtime,
+		TestClassB* self
+		);
+
+	static 
+	TestClassB*
+	operatorNew ();
+
+	void
+	AXL_CDECL
+	bar (int y);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -134,7 +149,8 @@ class StdLib: public jnc::StdLib
 public:
 	JNC_BEGIN_LIB ()
 		JNC_STD_FUNCTION (jnc::StdFunction_Printf,  &Printf)
-//		JNC_TYPE (TestClass)
+//		JNC_TYPE (TestClassA)
+//		JNC_TYPE (TestClassB)
 //		JNC_TYPE (TestStruct)
 		JNC_LIB (jnc::StdLib)
 //		JNC_FUNCTION ("testPtr",  &testPtr)

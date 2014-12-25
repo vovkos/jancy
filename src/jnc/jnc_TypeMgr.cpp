@@ -70,6 +70,7 @@ TypeMgr::clear ()
 	m_typedefList.clear ();
 	m_lazyStdTypeList.clear ();
 	m_functionArgList.clear ();
+	m_structFieldList.clear ();
 
 	m_typeMap.clear ();
 
@@ -108,9 +109,11 @@ TypeMgr::getStdType (StdType stdType)
 	static SourceRef sourceTable [StdType__Count] =
 	{
 		{ NULL },                            // StdType_BytePtr,
+		{ NULL },                            // StdType_SimpleIfaceHdr,
+		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
 		{ NULL },                            // StdType_ObjHdr,
-		{ NULL },                            // StdType_VariableObjHdr,
 		{ NULL },                            // StdType_ObjHdrPtr,
+		{ NULL },                            // StdType_VariableObjHdr,
 		{ NULL },                            // StdType_ObjectClass,
 		{ NULL },                            // StdType_ObjectPtr,
 		{ NULL },                            // StdType_SimpleFunction,
@@ -212,16 +215,24 @@ TypeMgr::getStdType (StdType stdType)
 		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
 		break;
 
+	case StdType_SimpleIfaceHdr:
+		type = createSimpleIfaceHdrType ();
+		break;
+
+	case StdType_SimpleIfaceHdrPtr:
+		type = getStdType (StdType_SimpleIfaceHdr)->getDataPtrType_c ();
+		break;
+
 	case StdType_ObjHdr:
 		type = createObjHdrType ();
 		break;
 
-	case StdType_VariableObjHdr:
-		type = createVariableObjHdrType ();
-		break;
-
 	case StdType_ObjHdrPtr:
 		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
+		break;
+
+	case StdType_VariableObjHdr:
+		type = createVariableObjHdrType ();
 		break;
 
 	case StdType_ObjectClass:
@@ -297,9 +308,11 @@ TypeMgr::getLazyStdType (StdType stdType)
 	const char* nameTable [StdType__Count] =
 	{
 		NULL,            // StdType_BytePtr,
+		NULL,            // StdType_SimpleIfaceHdr,
+		NULL,            // StdType_SimpleIfaceHdrPtr,
 		NULL,            // StdType_ObjHdr,
-		NULL,            // StdType_VariableObjHdr,
 		NULL,            // StdType_ObjHdrPtr,
+		NULL,            // StdType_VariableObjHdr,
 		NULL,            // StdType_ObjectClass,
 		NULL,            // StdType_ObjectPtr,
 		NULL,            // StdType_SimpleFunction,
@@ -854,7 +867,6 @@ TypeMgr::createClassType (
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 	ifaceStructType->m_fieldAlignment = fieldAlignment;
-	ifaceStructType->addBaseType (ifaceHdrStructType);
 
 	StructType* classStructType = createUnnamedStructType (fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
@@ -867,6 +879,7 @@ TypeMgr::createClassType (
 	type->m_flags |= flags;
 	type->m_classTypeKind = classTypeKind;
 	type->m_vtableStructType = vtableStructType;
+	type->m_ifaceHdrStructType = ifaceHdrStructType;
 	type->m_ifaceStructType = ifaceStructType;
 	type->m_classStructType = classStructType;
 	return type;
@@ -937,6 +950,34 @@ TypeMgr::createFunctionArg (
 	//}
 
 	return functionArg;
+}
+
+StructField*
+TypeMgr::createStructField (
+	const rtl::String& name,
+	Type* type,
+	size_t bitCount,
+	uint_t ptrTypeFlags,
+	rtl::BoxList <Token>* constructor,
+	rtl::BoxList <Token>* initializer
+	)
+{
+	StructField* field = AXL_MEM_NEW (StructField);
+	field->m_module = m_module;
+	field->m_name = name;
+	field->m_type = type;
+	field->m_ptrTypeFlags = ptrTypeFlags;
+	field->m_bitFieldBaseType = bitCount ? type : NULL;
+	field->m_bitCount = bitCount;
+
+	if (constructor)
+		field->m_constructor.takeOver (constructor);
+
+	if (initializer)
+		field->m_initializer.takeOver (initializer);
+
+	m_structFieldList.insertTail (field);
+	return field;
 }
 
 FunctionArg*
@@ -2628,6 +2669,16 @@ TypeMgr::createObjectType ()
 	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
 	type->m_tag = "object";
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createSimpleIfaceHdrType ()
+{
+	StructType* type = createStructType ("SimpleIfaceHdr", "jnc.SimpleIfaceHdr");
+	type->createField ("!m_vtbl", getStdType (StdType_BytePtr));
+	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 	type->ensureLayout ();
 	return type;
 }

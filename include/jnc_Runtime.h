@@ -22,6 +22,16 @@ enum CreateObjectFlag
 	CreateObjectFlag_Pin       = 0x04,
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef 
+void
+StaticDestructor ();
+
+typedef 
+void
+Destructor (jnc::IfaceHdr* iface);
+
 //.............................................................................
 
 class Runtime
@@ -46,6 +56,17 @@ protected:
 	struct GcDestructGuard: rtl::ListLink
 	{
 		rtl::Array <IfaceHdr*>* m_destructArray;
+	};
+
+	struct StaticDestruct: rtl::ListLink
+	{
+		union
+		{
+			StaticDestructor* m_staticDtor;
+			Destructor* m_dtor;
+		};
+
+		IfaceHdr* m_iface;
 	};
 
 protected:
@@ -73,6 +94,8 @@ protected:
 	rtl::Array <GcRoot> m_staticGcRootArray;
 	rtl::Array <GcRoot> m_gcRootArray [2];
 	size_t m_currentGcRootArrayIdx;
+
+	rtl::StdList <StaticDestruct> m_staticDestructList;
 
 	// tls
 
@@ -194,6 +217,17 @@ public:
 
 	void
 	unpinObject (IfaceHdr* object);
+
+	// static destruct
+
+	void
+	addStaticDestructor (StaticDestructor *dtor);
+
+	void
+	addDestructor (
+		Destructor *dtor,
+		jnc::IfaceHdr* iface
+		);
 
 	// tls
 

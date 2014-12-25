@@ -391,9 +391,6 @@ public:
 protected:
 	bool
 	createDefaultConstructor ();
-
-	void
-	createDefaultDestructor ();
 };
 
 //.............................................................................

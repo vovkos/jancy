@@ -40,8 +40,7 @@ FunctionMgr::clear ()
 	m_emissionContextStack.clear ();
 	m_thisValue.clear ();
 	m_scopeLevelValue.clear ();
-	m_globalStaticPropertyConstructArray.clear ();
-	m_globalStaticPropertyDestructArray.clear ();
+	m_staticConstructArray.clear ();
 
 	m_currentFunction = NULL;
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
@@ -49,38 +48,34 @@ FunctionMgr::clear ()
 }
 
 bool
-FunctionMgr::constructGlobalStaticProperties ()
+FunctionMgr::callStaticConstructors ()
 {
 	bool result;
 
-	size_t count = m_globalStaticPropertyConstructArray.getCount ();
+	Function* addDestructor = getStdFunction (StdFunction_AddStaticDestructor);
+	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+
+	size_t count = m_staticConstructArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		Property* prop = m_globalStaticPropertyConstructArray [i];
-		Function* constructor = prop->getStaticConstructor ();
-		ASSERT (constructor);		
+		NamedTypeBlock* namedTypeBlock = m_staticConstructArray [i];
+
+		Function* destructor = namedTypeBlock->getStaticDestructor ();
+		if (destructor)
+		{
+			Value dtorValue;
+			result = 
+				m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
+				m_module->m_operatorMgr.callOperator (addDestructor, dtorValue);
+
+			if (!result)
+				return false;
+		}
+
+		Function* constructor = namedTypeBlock->getStaticConstructor ();
+		ASSERT (constructor);
 
 		result = m_module->m_operatorMgr.callOperator (constructor);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-FunctionMgr::destructGlobalStaticProperties ()
-{
-	bool result;
-
-	size_t count = m_globalStaticPropertyDestructArray.getCount ();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
-		Property* prop = m_globalStaticPropertyDestructArray [i];
-		Function* destructor = prop->getStaticDestructor ();
-		ASSERT (destructor);		
-
-		result = m_module->m_operatorMgr.callOperator (destructor);
 		if (!result)
 			return false;
 	}
@@ -350,7 +345,7 @@ FunctionMgr::prologue (
 	{
 		result = 
 			m_module->m_variableMgr.initializeGlobalStaticVariables () &&
-			constructGlobalStaticProperties ();
+			callStaticConstructors ();
 
 		if (!result)
 			return false;
@@ -407,12 +402,19 @@ FunctionMgr::createThisValue ()
 	}
 	else
 	{
-		ASSERT (function->m_storageKind == StorageKind_Override && function->m_thisArgDelta < 0);
-
-		Value ptrValue;
-		m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdType_BytePtr), &ptrValue);
-		m_module->m_llvmIrBuilder.createGep (ptrValue, (int32_t) function->m_thisArgDelta, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, function->m_thisType, &m_thisValue);
+		ASSERT (function->m_storageKind == StorageKind_Override);
+		
+		if (function->m_thisArgDelta == 0)
+		{
+			m_module->m_llvmIrBuilder.createBitCast (thisArgValue, function->m_thisType, &m_thisValue);
+		}
+		else
+		{
+			Value ptrValue;
+			m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdType_BytePtr), &ptrValue);
+			m_module->m_llvmIrBuilder.createGep (ptrValue, (int32_t) function->m_thisArgDelta, NULL, &ptrValue);
+			m_module->m_llvmIrBuilder.createBitCast (ptrValue, function->m_thisType, &m_thisValue);
+		}
 	}
 }
 
@@ -428,22 +430,29 @@ FunctionMgr::epilogue ()
 
 	if (function->m_functionKind == FunctionKind_Destructor)
 	{
-		ASSERT (function->getParentType ()->getTypeKind () == TypeKind_Class && m_thisValue);
-		ClassType* classType = (ClassType*) function->getParentType ();
+		ASSERT (m_thisValue);
 
-		result =
-			classType->callMemberPropertyDestructors (m_thisValue) &&
-			classType->callMemberFieldDestructors (m_thisValue) &&
-			classType->callBaseTypeDestructors (m_thisValue);
+		if (function->getProperty ())
+		{
+			Property* prop = function->getProperty ();
+
+			result =
+				prop->callMemberPropertyDestructors (m_thisValue) &&
+				prop->callMemberFieldDestructors (m_thisValue);
+		}
+		else
+		{
+			ASSERT (function->getParentType ()->getTypeKind () == TypeKind_Class && m_thisValue);
+			ClassType* classType = (ClassType*) function->getParentType ();
+
+			result =
+				classType->callMemberPropertyDestructors (m_thisValue) &&
+				classType->callMemberFieldDestructors (m_thisValue) &&
+				classType->callBaseTypeDestructors (m_thisValue);
+		}
 
 		if (!result)
 			return false;
-	}
-
-	if (function->m_functionKind == FunctionKind_ModuleDestructor)
-	{
-		destructGlobalStaticProperties ();
-		m_module->m_variableMgr.m_staticDestructList.runDestructors ();
 	}
 
 	result = m_module->m_controlFlowMgr.checkReturn ();
@@ -1091,6 +1100,16 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (assertionFailureSrc),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_AddStaticDestructor,
+			addStaticDestructorSrc,
+			lengthof (addStaticDestructorSrc),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_AddDestructor,
+			addDestructorSrc,
+			lengthof (addDestructorSrc),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1156,6 +1175,8 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_SetPosixError:
 	case StdFunction_SetStringError:
 	case StdFunction_AssertionFailure:
+	case StdFunction_AddStaticDestructor:
+	case StdFunction_AddDestructor:
 	case StdFunction_StrLen:
 	case StdFunction_MemCpy:
 	case StdFunction_MemCat:
@@ -1254,53 +1275,55 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 
 	const char* nameTable [StdFunction__Count] =
 	{
-		NULL,                 // StdFunction_RuntimeError,
-		NULL,                 // StdFunction_CheckNullPtr,
-		NULL,                 // StdFunction_CheckScopeLevel,
-		NULL,                 // StdFunction_CheckScopeLevelDirect,
-		NULL,                 // StdFunction_CheckClassPtrScopeLevel,
-		NULL,                 // StdFunction_CheckDataPtrRange,
-		NULL,                 // StdFunction_DynamicSizeOf,
-		NULL,                 // StdFunction_DynamicCountOf,
-		NULL,                 // StdFunction_DynamicCastDataPtr,
-		NULL,                 // StdFunction_DynamicCastClassPtr,
-		NULL,                 // StdFunction_StrengthenClassPtr,
-		NULL,                 // StdFunction_GcAllocate,
-		NULL,                 // StdFunction_GcTryAllocate,
-		NULL,                 // StdFunction_GcEnter,
-		NULL,                 // StdFunction_GcLeave,
-		NULL,                 // StdFunction_GcPulse,
-		NULL,                 // StdFunction_MarkGcRoot,
-		"runGc",              // StdFunction_RunGc,
-		"getCurrentThreadId", // StdFunction_GetCurrentThreadId,
-		"createThread",       // StdFunction_CreateThread,
-		"sleep",              // StdFunction_Sleep,
-		"getTimestamp",       // StdFunction_GetTimestamp,
-		"format",             // StdFunction_Format,
-		"strlen",             // StdFunction_StrLen,
-		"memcpy",             // StdFunction_MemCpy,
-		"memcat",             // StdFunction_MemCat,
-		"rand",               // StdFunction_Rand,
-		"printf",             // StdFunction_Printf,
-		"atoi",               // StdFunction_Atoi,
-		NULL,                 // StdFunction_GetTls,
-		NULL,                 // StdFunction_AppendFmtLiteral_a,
-		NULL,                 // StdFunction_AppendFmtLiteral_p,
-		NULL,                 // StdFunction_AppendFmtLiteral_i32,
-		NULL,                 // StdFunction_AppendFmtLiteral_ui32,
-		NULL,                 // StdFunction_AppendFmtLiteral_i64,
-		NULL,                 // StdFunction_AppendFmtLiteral_ui64,
-		NULL,                 // StdFunction_AppendFmtLiteral_f,
-		NULL,                 // StdFunction_AppendFmtLiteral_s,
-		NULL,                 // StdFunction_AppendFmtLiteral_sr,
-		NULL,                 // StdFunction_AppendFmtLiteral_cb,
-		NULL,                 // StdFunction_AppendFmtLiteral_cbr,
-		NULL,                 // StdFunction_AppendFmtLiteral_br,
-		NULL,                 // StdFunction_SimpleMulticastCall,
-		"getLastError",       // StdFunction_GetLastError,
-		"setPosixError",      // StdFunction_SetPosixError,
-		"setStringError",     // StdFunction_SetStringError,
-		"assertionFailure",   // StdFunction_AssertionFailure,
+		NULL,                  // StdFunction_RuntimeError,
+		NULL,                  // StdFunction_CheckNullPtr,
+		NULL,                  // StdFunction_CheckScopeLevel,
+		NULL,                  // StdFunction_CheckScopeLevelDirect,
+		NULL,                  // StdFunction_CheckClassPtrScopeLevel,
+		NULL,                  // StdFunction_CheckDataPtrRange,
+		NULL,                  // StdFunction_DynamicSizeOf,
+		NULL,                  // StdFunction_DynamicCountOf,
+		NULL,                  // StdFunction_DynamicCastDataPtr,
+		NULL,                  // StdFunction_DynamicCastClassPtr,
+		NULL,                  // StdFunction_StrengthenClassPtr,
+		NULL,                  // StdFunction_GcAllocate,
+		NULL,                  // StdFunction_GcTryAllocate,
+		NULL,                  // StdFunction_GcEnter,
+		NULL,                  // StdFunction_GcLeave,
+		NULL,                  // StdFunction_GcPulse,
+		NULL,                  // StdFunction_MarkGcRoot,
+		"runGc",               // StdFunction_RunGc,
+		"getCurrentThreadId",  // StdFunction_GetCurrentThreadId,
+		"createThread",        // StdFunction_CreateThread,
+		"sleep",               // StdFunction_Sleep,
+		"getTimestamp",        // StdFunction_GetTimestamp,
+		"format",              // StdFunction_Format,
+		"strlen",              // StdFunction_StrLen,
+		"memcpy",              // StdFunction_MemCpy,
+		"memcat",              // StdFunction_MemCat,
+		"rand",                // StdFunction_Rand,
+		"printf",              // StdFunction_Printf,
+		"atoi",                // StdFunction_Atoi,
+		NULL,                  // StdFunction_GetTls,
+		NULL,                  // StdFunction_AppendFmtLiteral_a,
+		NULL,                  // StdFunction_AppendFmtLiteral_p,
+		NULL,                  // StdFunction_AppendFmtLiteral_i32,
+		NULL,                  // StdFunction_AppendFmtLiteral_ui32,
+		NULL,                  // StdFunction_AppendFmtLiteral_i64,
+		NULL,                  // StdFunction_AppendFmtLiteral_ui64,
+		NULL,                  // StdFunction_AppendFmtLiteral_f,
+		NULL,                  // StdFunction_AppendFmtLiteral_s,
+		NULL,                  // StdFunction_AppendFmtLiteral_sr,
+		NULL,                  // StdFunction_AppendFmtLiteral_cb,
+		NULL,                  // StdFunction_AppendFmtLiteral_cbr,
+		NULL,                  // StdFunction_AppendFmtLiteral_br,
+		NULL,                  // StdFunction_SimpleMulticastCall,
+		"getLastError",        // StdFunction_GetLastError,
+		"setPosixError",       // StdFunction_SetPosixError,
+		"setStringError",      // StdFunction_SetStringError,
+		"assertionFailure",    // StdFunction_AssertionFailure,
+		"addStaticDestructor", // StdFunction_AddStaticDestructor,
+		"addDestructor",       // StdFunction_AddDestructor,
 	};
 
 	const char* name = nameTable [func];
@@ -1459,16 +1482,12 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
 
-	static int32_t llvmIndexArray [] =
-	{
-		0, // TIfaceHdr**
-		0, // TIfaceHdr*
-		1, // TObjHdr**
-	};
+	Type* ifaceHdrPtrType = m_module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr);
 
 	Value objPtrValue;
-	m_module->m_llvmIrBuilder.createGep (argValue1, llvmIndexArray, countof (llvmIndexArray), NULL, &objPtrValue); // TObjHdr** ppObject
-	m_module->m_llvmIrBuilder.createLoad (objPtrValue, NULL, &objPtrValue);  // TObjHdr* pObject
+	m_module->m_llvmIrBuilder.createBitCast (argValue1, ifaceHdrPtrType, &objPtrValue); // IfaceHdr*
+	m_module->m_llvmIrBuilder.createGep2 (objPtrValue, 1, NULL, &objPtrValue); // ObjHdr**
+	m_module->m_llvmIrBuilder.createLoad (objPtrValue, NULL, &objPtrValue);  // ObjHdr*
 
 	Value srcScopeLevelValue;
 	m_module->m_llvmIrBuilder.createGep2 (objPtrValue, 0, NULL, &srcScopeLevelValue);     // size_t* pScopeLevel

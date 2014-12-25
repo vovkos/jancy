@@ -26,6 +26,7 @@ class StructField:
 	public ModuleItemInitializer
 {
 	friend class TypeMgr;
+	friend class NamedTypeBlock;
 	friend class DerivableType;
 	friend class Property;
 	friend class StructType;
@@ -109,9 +110,6 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
-	rtl::StdList <StructField> m_fieldList;
-	rtl::Array <StructField*> m_fieldArray;
-	rtl::Array <StructField*> m_initializedFieldArray;
 	rtl::Array <llvm::Type*> m_llvmFieldTypeArray;
 	BitFieldType* m_lastBitFieldType;
 	size_t m_lastBitFieldOffset;
@@ -143,30 +141,8 @@ public:
 		return m_fieldAlignedSize;
 	}
 
-	rtl::ConstList <StructField>
-	getFieldList ()
-	{
-		return m_fieldList;
-	}
-
-	virtual
-	StructField*
-	getFieldByIndex (size_t index)
-	{
-		return getFieldByIndexImpl (index, false);
-	}
-
-	rtl::Array <StructField*>
-	getInitializedFieldArray ()
-	{
-		return m_initializedFieldArray;
-	}
-
 	bool
 	append (StructType* type);
-
-	bool
-	initializeFields (const Value& thisValue);
 
 	virtual
 	bool
@@ -209,15 +185,6 @@ protected:
 	virtual
 	bool
 	calcLayout ();
-
-	bool
-	compileDefaultPreConstructor ();
-
-	StructField*
-	getFieldByIndexImpl (
-		size_t index,
-		bool ignoreBaseTypes
-		);
 
 	bool
 	layoutField (

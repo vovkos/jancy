@@ -463,11 +463,6 @@ Module::compile ()
 	if (!result)
 		return false;
 
-	// step 5: ensure module destructor (if needed)
-
-	if (!m_destructor && !m_variableMgr.m_staticDestructList.isEmpty ())
-		createDefaultDestructor ();
-
 	// step 6: deal with tls
 
 	result =
@@ -533,7 +528,7 @@ Module::createDefaultConstructor ()
 
 	result = 
 		m_variableMgr.initializeGlobalStaticVariables () &&
-		m_functionMgr.constructGlobalStaticProperties ();
+		m_functionMgr.callStaticConstructors ();
 
 	if (!result)
 		return false;
@@ -541,23 +536,6 @@ Module::createDefaultConstructor ()
 	m_functionMgr.internalEpilogue ();
 
 	return true;
-}
-
-void
-Module::createDefaultDestructor ()
-{
-	ASSERT (!m_destructor);
-
-	FunctionType* type = (FunctionType*) getSimpleType (StdType_SimpleFunction);
-	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleDestructor, "module.destruct", type);
-	function->m_storageKind = StorageKind_Static;
-
-	m_destructor = function;
-
-	m_functionMgr.internalPrologue (function);
-	m_functionMgr.destructGlobalStaticProperties ();
-	m_variableMgr.m_staticDestructList.runDestructors ();
-	m_functionMgr.internalEpilogue ();
 }
 
 rtl::String

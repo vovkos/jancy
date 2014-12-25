@@ -25,7 +25,7 @@ OperatorMgr::getField (
 	switch (typeKind)
 	{
 	case TypeKind_Struct:
-		return getStructField (opValue, field, coord,	resultValue);
+		return getStructField (opValue, field, coord, resultValue);
 
 	case TypeKind_Union:
 		return coord ?
