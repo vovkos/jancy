@@ -216,8 +216,8 @@ item_declaration_wo_specifier
 	}
 	:	declarator_prefix <&$declarator>*
 		declarator_name <&$declarator>
-		function_suffix <&$declarator> declarator_suffix <&$declarator>*
-		post_declarator_modifier <&$declarator>*
+		function_suffix <&$declarator> 
+		declarator_suffix <&$declarator>*
 			{
 				return declare (&$declarator);
 			}

@@ -39,7 +39,6 @@ declarator <TypeSpecifier* $typeSpecifier>
 	:	declarator_prefix <&$.m_declarator>*
 		declarator_name <&$.m_declarator>
 		declarator_suffix <&$.m_declarator>*
-		post_declarator_modifier <&$.m_declarator>*
 	;
 
 //.............................................................................
@@ -318,7 +317,8 @@ declarator_suffix <Declarator* $declarator>
 	:	array_suffix <$declarator>
 	|	resolver (function_suffix_rslv)
 		function_suffix <$declarator>
-	|	throw_suffix <$declarator>
+	|	throws_suffix <$declarator>
+	|	post_declarator_modifier <$declarator>
 	|	resolver ({ return false; }) // prefer conditional-expr over type-name
 		bitfield_suffix <$declarator>
 	;
@@ -403,7 +403,7 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-throw_suffix <Declarator* $declarator>
+throws_suffix <Declarator* $declarator>
 	:	TokenKind_Throws
 			{
 				$declarator->addThrowSuffix ();
