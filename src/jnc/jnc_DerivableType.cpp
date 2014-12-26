@@ -443,24 +443,6 @@ DerivableType::compileDefaultStaticConstructor ()
 }
 
 bool
-DerivableType::compileDefaultPreConstructor ()
-{
-	ASSERT (m_preConstructor);
-
-	bool result;
-
-	Value thisValue;
-	m_module->m_functionMgr.internalPrologue (m_preConstructor, &thisValue, 1);
-
-	result = initializeMemberFields (thisValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-bool
 DerivableType::compileDefaultConstructor ()
 {
 	ASSERT (m_constructor);
@@ -473,6 +455,7 @@ DerivableType::compileDefaultConstructor ()
 	result =
 		callBaseTypeConstructors (thisValue) &&
 		callMemberFieldConstructors (thisValue) &&
+		initializeMemberFields (thisValue) &&
 		callMemberPropertyConstructors (thisValue);
 
 	if (!result)

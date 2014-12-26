@@ -247,18 +247,9 @@ StructType::calcLayout ()
 
 	if (m_structTypeKind == StructTypeKind_Normal)
 	{
-		if (!m_staticConstructor && (m_staticDestructor || !m_initializedStaticFieldArray.isEmpty ()))
+		if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 		{
 			result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
-			if (!result)
-				return false;
-		}
-
-		if (!m_preConstructor &&
-			(m_staticConstructor ||
-			!m_initializedMemberFieldArray.isEmpty ()))
-		{
-			result = createDefaultMethod (FunctionKind_PreConstructor);
 			if (!result)
 				return false;
 		}
@@ -267,6 +258,7 @@ StructType::calcLayout ()
 			(m_preConstructor ||
 			!m_baseTypeConstructArray.isEmpty () ||
 			!m_memberFieldConstructArray.isEmpty () ||
+			!m_initializedMemberFieldArray.isEmpty () ||
 			!m_memberPropertyConstructArray.isEmpty ()))
 		{
 			result = createDefaultMethod (FunctionKind_Constructor);
@@ -286,13 +278,6 @@ StructType::compile ()
 	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultStaticConstructor ();
-		if (!result)
-			return false;
-	}
-
-	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlag_User))
-	{
-		result = compileDefaultPreConstructor ();
 		if (!result)
 			return false;
 	}

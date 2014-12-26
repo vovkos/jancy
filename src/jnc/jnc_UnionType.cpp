@@ -134,22 +134,16 @@ UnionType::calcLayout ()
 	if (!result)
 		return false;
 
-	if (!m_staticConstructor && m_staticDestructor)
+	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 	{
 		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
 		if (!result)
 			return false;
 	}
 
-	if (!m_preConstructor &&
-		(m_staticConstructor || !m_initializedMemberFieldArray.isEmpty ()))
-	{
-		result = createDefaultMethod (FunctionKind_PreConstructor);
-		if (!result)
-			return false;
-	}
-
-	if (!m_constructor && m_preConstructor)
+	if (!m_constructor && 
+		(m_preConstructor ||
+		!m_initializedMemberFieldArray.isEmpty ()))
 	{
 		result = createDefaultMethod (FunctionKind_Constructor);
 		if (!result)
@@ -169,13 +163,6 @@ UnionType::compile ()
 	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
 	{
 		result = compileDefaultStaticConstructor ();
-		if (!result)
-			return false;
-	}
-
-	if (m_preConstructor && !(m_preConstructor->getFlags () & ModuleItemFlag_User))
-	{
-		result = compileDefaultPreConstructor ();
 		if (!result)
 			return false;
 	}

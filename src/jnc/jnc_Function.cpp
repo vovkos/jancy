@@ -240,17 +240,7 @@ Function::compile ()
 
 	SymbolKind startSymbol = SymbolKind_compound_stmt;
 
-	if (m_functionKind == FunctionKind_PreConstructor)
-	{
-		DerivableType* parentType = getParentType ();
-		ASSERT (parentType);
-
-		Value thisValue = m_module->m_functionMgr.getThisValue ();
-		ASSERT (thisValue);
-
-		result = parentType->initializeMemberFields (thisValue);
-	}
-	else if (m_functionKind == FunctionKind_Constructor)
+	if (m_functionKind == FunctionKind_Constructor)
 	{
 		startSymbol = SymbolKind_constructor_compound_stmt;
 

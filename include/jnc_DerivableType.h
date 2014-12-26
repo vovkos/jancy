@@ -295,9 +295,6 @@ protected:
 		);
 
 	bool
-	compileDefaultPreConstructor ();
-
-	bool
 	compileDefaultStaticConstructor ();
 
 	bool

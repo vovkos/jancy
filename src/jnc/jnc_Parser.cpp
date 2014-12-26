@@ -2225,6 +2225,7 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 	if (m_constructorProperty)
 		return
 			m_constructorProperty->callMemberFieldConstructors (thisValue) &&
+			m_constructorProperty->initializeMemberFields (thisValue) &&
 			m_constructorProperty->callMemberPropertyConstructors (thisValue);
 
 	ASSERT (thisValue);
@@ -2232,6 +2233,7 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 	result =
 		m_constructorType->callBaseTypeConstructors (thisValue) &&
 		m_constructorType->callMemberFieldConstructors (thisValue) &&
+		m_constructorType->initializeMemberFields (thisValue) &&
 		m_constructorType->callMemberPropertyConstructors (thisValue);
 
 	if (!result)
