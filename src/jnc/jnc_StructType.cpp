@@ -429,6 +429,12 @@ StructType::gcMark (
 	void* _p
 	)
 {
+	if (m_stdType == StdType_FmtLiteral) // special handling
+	{
+		gcMarkFmtLiteral (runtime, (FmtLiteral*) _p);
+		return;
+	}
+
 	char* p = (char*) _p;
 
 	size_t count = m_gcRootBaseTypeArray.getCount ();
@@ -444,6 +450,20 @@ StructType::gcMark (
 		StructField* field = m_gcRootMemberFieldArray [i];
 		field->getType ()->gcMark (runtime, p + field->getOffset ());
 	}
+}
+
+void
+StructType::gcMarkFmtLiteral (
+	Runtime* runtime,
+	FmtLiteral* literal
+	)
+{
+	if (!literal->m_p)
+		return;
+
+	ObjHdr* object = ((ObjHdr*) literal->m_p) - 1;
+	ASSERT (object->m_scopeLevel == 0);
+	object->gcMarkData (runtime);
 }
 
 //.............................................................................

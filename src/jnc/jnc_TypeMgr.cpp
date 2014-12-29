@@ -264,7 +264,6 @@ TypeMgr::getStdType (StdType stdType)
 		break;
 
 	case StdType_ReactorBindSite:
-	case StdType_FmtLiteral:
 	case StdType_Scheduler:
 	case StdType_Guid:
 	case StdType_Error:
@@ -285,6 +284,17 @@ TypeMgr::getStdType (StdType stdType)
 			sourceTable [stdType].m_p,
 			sourceTable [stdType].m_length
 			);
+		break;
+
+	case StdType_FmtLiteral:
+		ASSERT (sourceTable [stdType].m_p);
+		type = parseStdType (
+			sourceTable [stdType].m_stdNamespace,
+			sourceTable [stdType].m_p,
+			sourceTable [stdType].m_length
+			);
+
+		type->m_flags |= TypeFlag_GcRoot;
 		break;
 
 	default:

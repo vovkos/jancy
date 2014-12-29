@@ -11,6 +11,7 @@ namespace jnc {
 
 class StructType;
 class UnionType;
+struct FmtLiteral;
 
 //.............................................................................
 
@@ -236,6 +237,12 @@ protected:
 
 	ArrayType*
 	insertPadding (size_t size);
+
+	void
+	gcMarkFmtLiteral (
+		Runtime* runtime,
+		FmtLiteral* literal
+		);
 };
 
 //.............................................................................
