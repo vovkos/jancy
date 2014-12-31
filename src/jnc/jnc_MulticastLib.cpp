@@ -140,7 +140,7 @@ MulticastLib::mapMulticastMethods (
 	ASSERT (ptrTypeKind < FunctionPtrTypeKind__Count);
 
 	Function* function = multicastType->getDestructor ();
-	module->mapFunction (function, multicastDestruct);
+	module->mapFunction (function, (void*) multicastDestruct);
 
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++)
 	{
@@ -156,7 +156,7 @@ MulticastLib::mapMcSnapshotMethods (
 	)
 {
 	Function* function = mcSnapshotType->getDestructor ();
-	module->mapFunction (function, mcSnapshotDestruct);
+	module->mapFunction (function, (void*) mcSnapshotDestruct);
 }
 
 //.............................................................................
