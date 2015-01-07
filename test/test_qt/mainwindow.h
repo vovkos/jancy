@@ -54,8 +54,8 @@ class TestClassB: public TestClassA
 {
 public:
 	JNC_BEGIN_CLASS ("TestClassB", ApiSlot_TestClassB)
-		JNC_GC_ROOT_ENUMERATOR (&TestClassB::enumGcRoots)
-		JNC_OPERATOR_NEW (&TestClassB::operatorNew)
+		JNC_OPAQUE_CLASS (TestClassB, &enumGcRoots)
+		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_FUNCTION ("bar", &TestClassB::bar)
 	JNC_END_CLASS ()
 

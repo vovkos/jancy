@@ -98,10 +98,8 @@ class StringBuilder: public IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS ("jnc.StringBuilder", ApiSlot_jnc_StringBuilder)
-		JNC_FUNCTION_0 ("copy")
-		JNC_OVERLOAD (&StringBuilder::copy)
-		JNC_FUNCTION_0 ("append")
-		JNC_OVERLOAD (&StringBuilder::append)
+		JNC_FUNCTION ("copy", &StringBuilder::copy)
+		JNC_FUNCTION ("append", &StringBuilder::append)
 	JNC_END_CLASS ()
 
 public:

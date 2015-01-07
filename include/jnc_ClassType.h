@@ -194,8 +194,11 @@ public:
 		return m_gcRootEnumProc;
 	}
 
-	bool
-	setGcRootEnumProc (ClassTypeGcRootEnumProc* proc);
+	void
+	setupOpaqueClass (
+		size_t size,
+		ClassTypeGcRootEnumProc* gcRootEnumProc
+		);
 
 	virtual
 	bool

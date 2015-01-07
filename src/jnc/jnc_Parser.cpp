@@ -2239,11 +2239,11 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 	if (!result)
 		return false;
 
-	Function* preConstructor = m_constructorType->getPreConstructor ();
-	if (!preConstructor)
+	Function* preconstructor = m_constructorType->getPreconstructor ();
+	if (!preconstructor)
 		return true;
 
-	return m_module->m_operatorMgr.callOperator (preConstructor, thisValue);
+	return m_module->m_operatorMgr.callOperator (preconstructor, thisValue);
 }
 
 bool

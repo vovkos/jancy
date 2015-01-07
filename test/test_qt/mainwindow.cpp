@@ -33,7 +33,7 @@ TestClassA::foo (int x)
 TestClassB*
 TestClassB::operatorNew ()
 {
-	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (getApiType (), 1);
+	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (getApiType ());
 	test->prime ();
 	return test;
 }
@@ -458,10 +458,6 @@ bool MainWindow::compile ()
 	if(!child->save())
 		return false;
 
-	QByteArray filePathBytes = child->file().toUtf8 ();
-	llvm::LLVMContext* pLlvmContext = new llvm::LLVMContext;
-	llvm::Module* pLlvmModule = new llvm::Module (filePathBytes.constData(), *pLlvmContext);
-
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
@@ -470,9 +466,10 @@ bool MainWindow::compile ()
 	uint_t ModuleFlags = 0;
 #endif
 
-	module.create (filePathBytes.data(), ModuleFlags);
+	QByteArray filePath = child->file().toUtf8 ();
+	module.create (filePath.data(), ModuleFlags);
 
-	jnc::ScopeThreadModule ScopeModule (&module);
+	jnc::ScopeThreadModule scopeModule (&module);
 
 	writeOutput("Parsing...\n");
 
@@ -480,12 +477,12 @@ bool MainWindow::compile ()
 	llvmIr->clear ();
 	disassembly->clear ();
 
-	QByteArray sourceBytes = child->toPlainText().toUtf8();
+	QByteArray source = child->toPlainText().toUtf8();
 
 	result = module.parse (
-		filePathBytes.constData (),
-		sourceBytes.constData (),
-		sourceBytes.size ()
+		filePath.constData (),
+		source.constData (),
+		source.size ()
 		);
 
 	if (!result)
@@ -529,53 +526,53 @@ bool MainWindow::compile ()
 	return true;
 }
 
-bool MainWindow::runFunction (jnc::Function* pFunction, int* pReturnValue)
+bool MainWindow::runFunction (jnc::Function* function, int* returnValue_o)
 {
 	typedef int FFunction ();
-	FFunction* pf = (FFunction*) pFunction->getMachineCode ();
+	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool Result = true;
+	bool result = true;
 
 	try
 	{
-		int ReturnValue = pf ();
-		if (pReturnValue)
-			*pReturnValue = ReturnValue;
+		int returnValue = pf ();
+		if (returnValue_o)
+			*returnValue_o = returnValue;
 
 	}
-	catch (err::Error Error)
+	catch (err::Error error)
 	{
-		writeOutput ("ERROR: %s\n", Error.getDescription ().cc ());
-		Result = false;
+		writeOutput ("ERROR: %s\n", error.getDescription ().cc ());
+		result = false;
 	}
 	catch (...)
 	{
 		writeOutput ("UNKNOWN EXCEPTION\n");
-		Result = false;
+		result = false;
 	}
 
-	return Result;
+	return result;
 }
 
 bool
 MainWindow::run ()
 {
-	bool Result;
+	bool result;
 
-	 MdiChild* mdiChild = activeMdiChild();
+	 MdiChild* mdiChild = activeMdiChild ();
 	 if (!mdiChild)
 		 return true;
 
 	if (mdiChild->isCompilationNeeded ())
 	{
-		Result = compile ();
-		if (!Result)
+		result = compile ();
+		if (!result)
 			return false;
 	}
 
-	jnc::Function* pMainFunction = findGlobalFunction ("main");
-	if (!pMainFunction)
+	jnc::Function* mainFunction = findGlobalFunction ("main");
+	if (!mainFunction)
 	{
 		writeOutput ("'main' is not found or not a function\n");
 		return false;
@@ -583,34 +580,34 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-	jnc::ScopeThreadRuntime ScopeRuntime (&runtime);
+	jnc::ScopeThreadRuntime scopeRuntime (&runtime);
 
 	runtime.startup ();
 
-	// constructor && dtor
+	// constructor && destructor
 
-	jnc::Function* pDestructor = module.getDestructor ();
-	if (pDestructor)
-		runtime.addStaticDestructor ((jnc::StaticDestructor*) pDestructor->getMachineCode ());
+	jnc::Function* destructor = module.getDestructor ();
+	if (destructor)
+		runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
 
-	jnc::Function* pConstructor = module.getConstructor ();
-	if (pConstructor)
+	jnc::Function* constructor = module.getConstructor ();
+	if (constructor)
 	{
-		Result = runFunction (pConstructor);
-		if (!Result)
+		result = runFunction (constructor);
+		if (!result)
 			return false;
 	}
 
 	// main
 
-	int ReturnValue;
-	Result = runFunction (pMainFunction, &ReturnValue);
-	if (!Result)
+	int returnValue;
+	result = runFunction (mainFunction, &returnValue);
+	if (!result)
 		return false;
 
 	runtime.shutdown ();
 
-	writeOutput ("Done (retval = %d).\n", ReturnValue);
+	writeOutput ("Done (retval = %d).\n", returnValue);
 	return true;
 }
 

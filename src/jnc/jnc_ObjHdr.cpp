@@ -44,15 +44,24 @@ ObjHdr::gcMarkData (Runtime* runtime)
 void 
 ObjHdr::gcWeakMarkObject ()
 {
-	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+	if (m_flags & ObjHdrFlag_GcWeakMark)
+		return;
+
 	m_flags |= ObjHdrFlag_GcWeakMark;
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
 }
 
 void 
 ObjHdr::gcMarkObject (Runtime* runtime)
 {
-	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+	if (m_flags & ObjHdrFlag_GcMark)
+		return;
+
 	m_flags |= ObjHdrFlag_GcMark | ObjHdrFlag_GcWeakMark;
+	m_root->m_flags |= ObjHdrFlag_GcWeakMark;
+
+	if (m_type->getTypeKind () == TypeKind_Class)
+		gcMarkClassMemberFields (runtime);
 
 	if (m_flags & ObjHdrFlag_GcRootsAdded)
 		return;
@@ -63,6 +72,27 @@ ObjHdr::gcMarkObject (Runtime* runtime)
 		return;
 
 	runtime->addGcRoot (this, m_type);
+}
+
+void 
+ObjHdr::gcMarkClassMemberFields (Runtime* runtime)
+{
+	ASSERT (m_type->getTypeKind () == TypeKind_Class);
+	ClassType* classType = (ClassType*) m_type;
+	rtl::Array <StructField*> classMemberFieldArray = classType->getClassMemberFieldArray ();
+	size_t count = classMemberFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		StructField* field = classMemberFieldArray [i];
+		ObjHdr* childObjHdr = (ObjHdr*) ((char*) (this + 1) + field->getOffset ());
+		ASSERT (childObjHdr->m_type == field->getType ());
+
+		if (childObjHdr->m_flags & ObjHdrFlag_GcMark)
+			continue;
+
+		childObjHdr->m_flags |= ObjHdrFlag_GcMark | ObjHdrFlag_GcWeakMark;
+		childObjHdr->gcMarkClassMemberFields (runtime);
+	}
 }
 
 void

@@ -163,7 +163,7 @@ main := |*
 
 'get'            { createToken (TokenKind_Get); };
 'set'            { createToken (TokenKind_Set); };
-'preconstruct'   { createToken (TokenKind_PreConstruct); };
+'preconstruct'   { createToken (TokenKind_Preconstruct); };
 'construct'      { createToken (TokenKind_Construct); };
 'destruct'       { createToken (TokenKind_Destruct); };
 'operator'       { createToken (TokenKind_Operator); };

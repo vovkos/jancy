@@ -41,7 +41,7 @@ protected:
 
 	Function* m_staticConstructor;
 	Function* m_staticDestructor;
-	Function* m_preConstructor;
+	Function* m_preconstructor;
 	Function* m_constructor;
 	Function* m_destructor;
 
@@ -103,9 +103,9 @@ public:
 	}
 
 	Function*
-	getPreConstructor ()
+	getPreconstructor ()
 	{
-		return m_preConstructor;
+		return m_preconstructor;
 	}
 
 	Function*

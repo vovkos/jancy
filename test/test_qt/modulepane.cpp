@@ -279,8 +279,8 @@ void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::Derivable
 	if (pType->getStaticDestructor ())
 		addItem (parent, pType->getStaticDestructor ());
 
-	if (pType->getPreConstructor ())
-		addItem (parent, pType->getPreConstructor ());
+	if (pType->getPreconstructor ())
+		addItem (parent, pType->getPreconstructor ());
 
 	if (pType->getConstructor ())
 		addItem (parent, pType->getConstructor ());

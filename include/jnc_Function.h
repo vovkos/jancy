@@ -33,7 +33,7 @@ enum FunctionKind
 	FunctionKind_Setter,
 	FunctionKind_Binder,
 	FunctionKind_Primer,
-	FunctionKind_PreConstructor,
+	FunctionKind_Preconstructor,
 	FunctionKind_Constructor,
 	FunctionKind_Destructor,
 	FunctionKind_StaticConstructor,

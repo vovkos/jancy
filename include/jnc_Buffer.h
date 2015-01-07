@@ -83,10 +83,8 @@ class Buffer: public IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS ("jnc.Buffer", ApiSlot_jnc_Buffer)
-		JNC_FUNCTION_0 ("copy")
-		JNC_OVERLOAD (&Buffer::copy)
-		JNC_FUNCTION_0 ("append")
-		JNC_OVERLOAD (&Buffer::append)
+		JNC_FUNCTION ("copy", &Buffer::copy)
+		JNC_FUNCTION ("append", &Buffer::append)
 	JNC_END_CLASS ()
 
 public:

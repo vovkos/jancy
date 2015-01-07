@@ -213,9 +213,9 @@ public:
 	}
 
 	Function*
-	getPreConstructor ()
+	getPreconstructor ()
 	{
-		return m_preConstructor;
+		return m_preconstructor;
 	}
 
 	Function*

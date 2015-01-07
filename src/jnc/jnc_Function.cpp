@@ -19,7 +19,7 @@ getFunctionKindString (FunctionKind functionKind)
 		"set",                      // FunctionKind_Setter,
 		"bind",                     // FunctionKind_Binder,
 		"prime",                    // FunctionKind_Primer,
-		"preconstruct",             // FunctionKind_PreConstructor,
+		"preconstruct",             // FunctionKind_Preconstructor,
 		"construct",                // FunctionKind_Constructor,
 		"destruct",                 // FunctionKind_Destructor,
 		"static construct",         // FunctionKind_StaticConstructor,
@@ -57,7 +57,7 @@ getFunctionKindFlags (FunctionKind functionKind)
 		0,                              // FunctionKind_Setter,
 		0,                              // FunctionKind_Binder,
 		0,                              // FunctionKind_Primer,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_PreConstructor,
+		FunctionKindFlag_NoStorage   |  // FunctionKind_Preconstructor,
 		FunctionKindFlag_NoOverloads |
 		FunctionKindFlag_NoArgs,
 		FunctionKindFlag_NoStorage,     // FunctionKind_Constructor,

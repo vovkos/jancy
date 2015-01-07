@@ -50,7 +50,7 @@ mapFunctions (jnc::Module* module) \
 #define JNC_END_TYPE() \
 	if (isOpaqueClassType (type) && !((jnc::ClassType*) type)->getGcRootEnumProc ()) \
 	{ \
-		err::setFormatStringError ("JNC_GC_ROOT_ENUMERATOR is missing for '%s'", type->getTypeString ().cc ()); \
+		err::setFormatStringError ("JNC_OPAQUE_CLASS is missing for '%s'", type->getTypeString ().cc ()); \
 		return false; \
 	} \
 	return true; \
@@ -125,47 +125,47 @@ mapFunctions (jnc::Module* module) \
 #define JNC_MAP(function, proc) \
 	module->mapFunction (function, pvoid_cast (proc));
 
-#define JNC_OVERLOAD_0() \
+#define JNC_OVERLOAD(proc) \
 	ASSERT (function); \
 	overload = function->getOverload (++overloadIdx); \
 	if (!overload) \
 	{ \
 		err::setFormatStringError ("'%s' has no overload #%d", function->m_tag.cc (), overloadIdx); \
 		return false; \
-	}
-
-#define JNC_OVERLOAD(proc) \
-	JNC_OVERLOAD_0 () \
+	} \
 	JNC_MAP (overload, proc)
 
-#define JNC_OPERATOR_NEW_0() \
+#define JNC_OPAQUE_CLASS(cls, gcRootEnumProc) \
+	type->setupOpaqueClass (sizeof (cls), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
+
+#define JNC_OPERATOR_NEW(proc) \
 	function = type->getOperatorNew (); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no operator new", type->getTypeString ().cc ()); \
 		return false; \
-	}
+	} \
+	overloadIdx = 0; \
+	JNC_MAP (function, proc) \
 
-#define JNC_OPERATOR_NEW(proc) \
-	JNC_OPERATOR_NEW_0 () \
+#define JNC_PRECONSTRUCTOR(proc) \
+	function = type->getPreconstructor (); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no preconstructor", type->getTypeString ().cc ()); \
+		return false; \
+	} \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_GC_ROOT_ENUMERATOR(proc) \
-	result = type->setGcRootEnumProc ((jnc::ClassTypeGcRootEnumProc*) proc); \
-	if (!result) \
-		return false;
-
-#define JNC_CONSTRUCTOR_0() \
+#define JNC_CONSTRUCTOR(proc) \
 	function = type->getConstructor (); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ()); \
 		return false; \
 	} \
-	overloadIdx = 0;
-
-#define JNC_CONSTRUCTOR(proc) \
-	JNC_CONSTRUCTOR_0 () \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
 #define JNC_DESTRUCTOR(proc) \
@@ -178,43 +178,34 @@ mapFunctions (jnc::Module* module) \
 	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_UNARY_OPERATOR_0(opKind) \
+#define JNC_UNARY_OPERATOR(opKind, proc) \
 	function = type->getUnaryOperator (opKind); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no operator %s", type->getTypeString ().cc (), jnc::getUnOpKindString (opKind)); \
 		return false; \
 	} \
-	overloadIdx = 0;
-
-#define JNC_UNARY_OPERATOR(opKind, proc) \
-	JNC_UNARY_OPERATOR_0 (opKind) \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_BINARY_OPERATOR_0(opKind) \
+#define JNC_BINARY_OPERATOR(opKind, proc) \
 	function = type->getBinaryOperator (opKind); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no operator %s", type->getTypeString ().cc (), jnc::getBinOpKindString (opKind)); \
 		return false; \
 	} \
-	overloadIdx = 0;
-
-#define JNC_BINARY_OPERATOR(opKind, proc) \
-	JNC_BINARY_OPERATOR_0 (opKind) \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_CALL_OPERATOR_0(proc) \
+#define JNC_CALL_OPERATOR(proc) \
 	function = type->getCallOperator (opKind); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no operator ()", type->getTypeString ().cc ()); \
 		return false; \
 	} \
-	overloadIdx = 0;
-
-#define JNC_CALL_OPERATOR(proc) \
-	JNC_CALL_OPERATOR_0 (proc) \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
 #define JNC_CAST_OPERATOR(i, proc) \
@@ -227,20 +218,17 @@ mapFunctions (jnc::Module* module) \
 	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_FUNCTION_0(name) \
+#define JNC_FUNCTION(name, proc) \
 	function = nspace->getFunctionByName (name); \
 	if (!function) \
 		return false; \
-	overloadIdx = 0;
-
-#define JNC_FUNCTION(name, proc) \
-	JNC_FUNCTION_0 (name) \
+	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
 #define JNC_STD_FUNCTION_FORCED(stdFuncKind, proc) \
 	function = module->m_functionMgr.getStdFunction (stdFuncKind); \
 	ASSERT (function); \
-	module->mapFunction (function, pvoid_cast (proc));
+	JNC_MAP (function, proc);
 
 #define JNC_STD_FUNCTION(stdFuncKind, proc) \
 	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
@@ -254,24 +242,34 @@ mapFunctions (jnc::Module* module) \
 		JNC_TYPE (Type); \
 	}
 
+#define JNC_MAP_PROPERTY_SETTER(prop, proc) \
+	function = prop->getSetter (); \
+	if (!function) \
+	{ \
+		err::setFormatStringError ("'%s' has no setter", prop->m_tag.cc ()); \
+		return false; \
+	} \
+	overloadIdx = 0; \
+	JNC_MAP (function, proc);
+
 #define JNC_PROPERTY(name, getterProc, setterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getGetter (), pvoid_cast (getterProc)); \
-	module->mapFunction (prop->getSetter (), pvoid_cast (setterProc));
+	JNC_MAP (prop->getGetter (), getterProc); \
+	JNC_MAP_PROPERTY_SETTER (prop, setterProc);
 
 #define JNC_CONST_PROPERTY(name, getterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getGetter (), pvoid_cast (getterProc));
+	JNC_MAP (prop->getGetter (), getterProc);
 
 #define JNC_AUTOGET_PROPERTY(name, setterProc) \
 	prop = nspace->getPropertyByName (name); \
 	if (!prop) \
 		return false; \
-	module->mapFunction (prop->getSetter (), pvoid_cast (setterProc));
+	JNC_MAP_PROPERTY_SETTER (prop, setterProc);
 
 //.............................................................................
 

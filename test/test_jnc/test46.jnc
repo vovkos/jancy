@@ -1,8 +1,43 @@
 //.............................................................................
 
+class C1
+{
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}
+}
+
+class C2
+{
+	C1 m_c1;
+
+	construct ()
+	{
+		printf ("C2.construct ()\n");
+	}
+
+	destruct ()
+	{
+		printf ("C2.destruct ()\n");
+	}
+}
+
 int main ()
 {
 	printf ("main ()\n");
+
+	C2* c = new C2;
+
+	printf ("running GC...\n");
+	jnc.runGc ();
+
+	printf ("done.\n");
 	return 0;
 }
 

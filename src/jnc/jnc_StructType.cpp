@@ -255,7 +255,7 @@ StructType::calcLayout ()
 		}
 
 		if (!m_constructor &&
-			(m_preConstructor ||
+			(m_preconstructor ||
 			!m_baseTypeConstructArray.isEmpty () ||
 			!m_memberFieldConstructArray.isEmpty () ||
 			!m_initializedMemberFieldArray.isEmpty () ||

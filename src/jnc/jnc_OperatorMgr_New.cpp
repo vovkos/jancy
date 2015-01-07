@@ -82,7 +82,8 @@ OperatorMgr::allocate (
 			&ptrValue
 			);
 
-		createTmpStackGcRoot (ptrValue);
+		#pragma AXL_TODO ("add tmp stack gc root properly")
+		// createTmpStackGcRoot (ptrValue);
 		break;
 
 	default:
@@ -369,6 +370,7 @@ OperatorMgr::parseInitializer (
 		}
 	}
 
+	nullifyTmpStackGcRootList ();
 	return true;
 }
 

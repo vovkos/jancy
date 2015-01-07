@@ -311,6 +311,19 @@ Runtime::gcTryAllocate (size_t size)
 	return gcTryAllocate (type, size);
 }
 
+void*
+gcAllocateOpaqueObject (
+	ClassType* type,
+	size_t size
+	);
+
+void*
+gcTryAllocateOpaqueObject (
+	ClassType* type,
+	size_t size
+	);
+
+
 void
 Runtime::gcAddObject (
 	ObjHdr* object,

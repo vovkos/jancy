@@ -15,7 +15,7 @@ NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
 
 	m_staticConstructor = NULL;
 	m_staticDestructor = NULL;
-	m_preConstructor = NULL;
+	m_preconstructor = NULL;
 	m_constructor = NULL;
 	m_destructor = NULL;
 }

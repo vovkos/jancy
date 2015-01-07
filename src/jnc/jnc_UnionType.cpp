@@ -142,7 +142,7 @@ UnionType::calcLayout ()
 	}
 
 	if (!m_constructor && 
-		(m_preConstructor ||
+		(m_preconstructor ||
 		!m_initializedMemberFieldArray.isEmpty ()))
 	{
 		result = createDefaultMethod (FunctionKind_Constructor);

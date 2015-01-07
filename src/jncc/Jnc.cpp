@@ -50,7 +50,7 @@ Jnc::run (
 		return server ();
 
 	rtl::Array <char> stdInBuffer;
-	io::MappedFile srcFile;
+	io::SimpleMappedFile srcFile;
 
 	rtl::String srcName;
 	const char* src;
@@ -94,7 +94,7 @@ Jnc::run (
 			return JncErrorKind_IoFailure;
 		}
 
-		src = (const char*) srcFile.view ();
+		src = (const char*) srcFile.p ();
 		srcSize = (size_t) srcFile.getSize ();
 		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
 			m_cmdLine->m_srcNameOverride :

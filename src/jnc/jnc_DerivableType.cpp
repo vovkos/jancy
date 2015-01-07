@@ -288,8 +288,8 @@ DerivableType::addMethod (Function* function)
 
 	switch (functionKind)
 	{
-	case FunctionKind_PreConstructor:
-		target = &m_preConstructor;
+	case FunctionKind_Preconstructor:
+		target = &m_preconstructor;
 		break;
 
 	case FunctionKind_Constructor:
@@ -461,9 +461,9 @@ DerivableType::compileDefaultConstructor ()
 	if (!result)
 		return false;
 
-	if (m_preConstructor)
+	if (m_preconstructor)
 	{
-		result = m_module->m_operatorMgr.callOperator (m_preConstructor, thisValue);
+		result = m_module->m_operatorMgr.callOperator (m_preconstructor, thisValue);
 		if (!result)
 			return false;
 	}

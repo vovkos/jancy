@@ -20,23 +20,16 @@ ClassType::ClassType ()
 	m_classPtrTypeTuple = NULL;
 }
 
-bool
-ClassType::setGcRootEnumProc (ClassTypeGcRootEnumProc* proc)
+void
+ClassType::setupOpaqueClass (
+	size_t size,
+	ClassTypeGcRootEnumProc* gcRootEnumProc
+	)
 {
-	if (!(m_flags & ClassTypeFlag_Opaque))
-	{
-		err::setFormatStringError ("'%s' doesn't need gc root enumerator", getTypeString ().cc ());
-		return false;
-	}
+	ASSERT ((m_flags & ClassTypeFlag_Opaque) && !m_gcRootEnumProc && size >= m_size);
 
-	if (m_gcRootEnumProc)
-	{
-		err::setFormatStringError ("'%s' already has gc root enumerator", getTypeString ().cc ());
-		return false;
-	}
-	
-	m_gcRootEnumProc = proc;
-	return true;
+	m_size = size;
+	m_gcRootEnumProc = gcRootEnumProc;
 }
 
 ClassPtrType*
@@ -147,8 +140,8 @@ ClassType::addMethod (Function* function)
 	case FunctionKind_Internal:
 		return true;
 
-	case FunctionKind_PreConstructor:
-		target = &m_preConstructor;
+	case FunctionKind_Preconstructor:
+		target = &m_preconstructor;
 		break;
 
 	case FunctionKind_Constructor:
@@ -491,7 +484,7 @@ ClassType::calcLayout ()
 	}
 
 	if (!m_constructor &&
-		(m_preConstructor ||
+		(m_preconstructor ||
 		!m_baseTypeConstructArray.isEmpty () ||
 		!m_memberFieldConstructArray.isEmpty () ||
 		!m_initializedMemberFieldArray.isEmpty () ||

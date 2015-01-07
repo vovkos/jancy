@@ -48,6 +48,9 @@ struct ObjHdr
 	gcMarkObject (Runtime* runtime);
 
 	void 
+	gcMarkClassMemberFields (Runtime* runtime);
+
+	void 
 	gcWeakMarkObject ();
 
 	void 
