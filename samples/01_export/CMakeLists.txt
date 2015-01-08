@@ -23,53 +23,17 @@ set (
 	TestStruct.cpp
 	)
 
+set (
+	APP_JNC_LIST
+	script.jnc
+	)
+
 source_group (
 	app
 	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	)	
-
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
-# jnc & gen folder
-#
-
-# put script next to executable and track changes to the original file
-
-set (
-	SCRIPT_JNC
-	${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX}/script.jnc
-	)
-
-add_custom_command (
-	OUTPUT ${SCRIPT_JNC}
-	MAIN_DEPENDENCY script.jnc.in
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${CMAKE_CURRENT_LIST_DIR}/script.jnc.in
-		"${SCRIPT_JNC}"
-	)
-
-set (
-	JNC_LIST
-	script.jnc.in
-	)
-
-set (
-	GEN_LIST
-	${SCRIPT_JNC}
-	)
-
-source_group (
-	jnc
-	FILES
-	${JNC_LIST}
-	)	
-
-source_group (
-	gen
-	FILES
-	${GEN_LIST}
+	${APP_JNC_LIST}
 	)	
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -119,8 +83,7 @@ add_executable (
 	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	${JNC_LIST}
-	${GEN_LIST}
+	${APP_JNC_LIST}
 	)
 
 set_target_properties (

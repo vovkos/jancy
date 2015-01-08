@@ -116,6 +116,9 @@ Runtime::startup ()
 void
 Runtime::shutdown ()
 {
+	if (m_tlsSlot == -1)
+		return;
+
 	rtl::Array <GcRoot> saveStaticGcRootArray = m_staticGcRootArray;
 	m_staticGcRootArray.clear ();
 

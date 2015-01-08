@@ -175,7 +175,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+	MainWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
 
 	QSize sizeHint() const { return QSize(800, 600); }
 
@@ -185,10 +185,10 @@ public:
 	size_t writeOutput_va(const char* format, va_list va);
 	size_t writeOutput(const char* format, ...);
 
-	MdiChild *findMdiChild(const QString &filePath);
+	MdiChild* findMdiChild(const QString &filePath);
 
 protected:
-	void closeEvent(QCloseEvent *e);
+	void closeEvent(QCloseEvent* e);
 
 private slots:
 	void newFile();
@@ -213,57 +213,61 @@ private:
 	bool runFunction (jnc::Function* pFunction, int* pReturnValue = NULL);
 
 	void createPanes();
-	QDockWidget *addPane(QWidget *widget, const QString &title, Qt::DockWidgetArea dockArea);
+	QDockWidget* addPane(QWidget* widget, const QString &title, Qt::DockWidgetArea dockArea);
 
-	MdiChild *createMdiChild();
-	MdiChild *activeMdiChild();
-	QMdiSubWindow *findMdiSubWindow(const QString &filePath);
+	MdiChild* createMdiChild();
+	MdiChild* activeMdiChild();
+	QMdiSubWindow* findMdiSubWindow(const QString &filePath);
 	void readSettings();
 	void writeSettings();
 
-	jnc::Function *findGlobalFunction(const QString &name);
+	jnc::Function* findGlobalFunction(const QString &name);
 
-	QMdiArea *mdiArea;
+	QMdiArea* mdiArea;
 	QString m_lastDir;
 
-	Output *output;
-	ModulePane *modulePane;
-	LlvmIr *llvmIr;
-	Disassembly *disassembly;
+	Output* output;
+	ModulePane* modulePane;
+	LlvmIr* llvmIr;
+	Disassembly* disassembly;
 
 	QMutex outputMutex;
 	QStringList outputQueue;
 
-	QMenu *fileMenu;
-	QMenu *editMenu;
-	QMenu *debugMenu;
-	QMenu *viewMenu;
+	QMenu* fileMenu;
+	QMenu* editMenu;
+	QMenu* debugMenu;
+	QMenu* viewMenu;
 
-	QToolBar *mainToolBar;
+	QToolBar* mainToolBar;
 
-	QAction *quitAction;
-	QAction *newFileAction;
-	QAction *openFileAction;
-	QAction *saveFileAction;
-	QAction *saveAsAction;
-	QAction *clearOutputAction;
-	QAction *compileAction;
-	QAction *runAction;
+	QAction* quitAction;
+	QAction* newFileAction;
+	QAction* openFileAction;
+	QAction* saveFileAction;
+	QAction* saveAsAction;
+	QAction* clearOutputAction;
+	QAction* compileAction;
+	QAction* runAction;
 
 	jnc::Module module;
 	jnc::Runtime runtime;
 };
 
+//.............................................................................
+
 inline MainWindow* getMainWindow ()
 {
-	foreach (QWidget *widget, QApplication::topLevelWidgets())
+	foreach (QWidget* widget, QApplication::topLevelWidgets())
 	{
-		MainWindow * mainWindow = qobject_cast<MainWindow *>(widget);
+		MainWindow*  mainWindow = qobject_cast <MainWindow*> (widget);
 		if(mainWindow)
 			return mainWindow;
 	}
 
 	return NULL;
 }
+
+//.............................................................................
 
 #endif

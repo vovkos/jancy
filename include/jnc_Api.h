@@ -136,7 +136,7 @@ mapFunctions (jnc::Module* module) \
 	JNC_MAP (overload, proc)
 
 #define JNC_OPAQUE_CLASS(cls, gcRootEnumProc) \
-	type->setupOpaqueClass (sizeof (cls), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
+	type->setupOpaqueClass (sizeof (jnc::ObjHdr) + sizeof (cls), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
 
 #define JNC_OPERATOR_NEW(proc) \
 	function = type->getOperatorNew (); \

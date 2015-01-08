@@ -118,7 +118,7 @@ StdLib::testPtr (jnc::DataPtr ptr)
 
 //.............................................................................
 
-MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
+MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
 {
 	createMdiArea();
@@ -139,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 		);
 }
 
-void MainWindow::closeEvent(QCloseEvent *e)
+void MainWindow::closeEvent(QCloseEvent* e)
 {
 	writeSettings();
 
@@ -153,7 +153,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::newFile()
 {
-	MdiChild *child = createMdiChild();
+	MdiChild* child = createMdiChild();
 	child->newFile();
 	child->showMaximized();
 }
@@ -175,11 +175,11 @@ void MainWindow::openFile(QString filePath)
 
 	m_lastDir = QFileInfo (filePath).dir ().absolutePath ();
 
-	QMdiSubWindow *subWindow = findMdiSubWindow(filePath);
+	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
 	if(subWindow) {
 		mdiArea->setActiveSubWindow(subWindow);
 	} else {
-		MdiChild *child = createMdiChild();
+		MdiChild* child = createMdiChild();
 		if (child->loadFile(filePath)) {
 			writeStatus("File loaded", 2000);
 			child->showMaximized();
@@ -289,7 +289,7 @@ void MainWindow::createMdiArea()
 	mdiArea->setTabsClosable(true);
 	mdiArea->setTabsMovable(true);
 
-	QTabBar *tabBar = mdiArea->findChild<QTabBar *>();
+	QTabBar* tabBar = mdiArea->findChild<QTabBar*>();
 	if (tabBar)
 		tabBar->setExpanding(false);
 }
@@ -304,20 +304,20 @@ void MainWindow::createPanes()
 	addPane(output, "Output", Qt::BottomDockWidgetArea);
 	addPane(modulePane, "Module", Qt::RightDockWidgetArea);
 
-	QDockWidget *llvmIrDock = addPane(llvmIr, "LLVM IR",
+	QDockWidget* llvmIrDock = addPane(llvmIr, "LLVM IR",
 		Qt::RightDockWidgetArea);
 
-	QDockWidget *disassemblyDock = addPane(disassembly, "Disassembly",
+	QDockWidget* disassemblyDock = addPane(disassembly, "Disassembly",
 		Qt::RightDockWidgetArea);
 
 	tabifyDockWidget(llvmIrDock, disassemblyDock);
 	llvmIrDock->raise();
 }
 
-QDockWidget *MainWindow::addPane(QWidget *widget, const QString &title,
+QDockWidget* MainWindow::addPane(QWidget* widget, const QString& title,
 	Qt::DockWidgetArea dockArea)
 {
-	QDockWidget *dockWidget = new QDockWidget(title, this);
+	QDockWidget* dockWidget = new QDockWidget(title, this);
 	dockWidget->setWidget(widget);
 
 	addDockWidget(dockArea, dockWidget);
@@ -327,7 +327,7 @@ QDockWidget *MainWindow::addPane(QWidget *widget, const QString &title,
 	return dockWidget;
 }
 
-void MainWindow::writeStatus(const QString &text, int timeout)
+void MainWindow::writeStatus(const QString& text, int timeout)
 {
 	statusBar()->showMessage(text, timeout);
 }
@@ -388,13 +388,13 @@ void MainWindow::outputSlot ()
 	outputMutex.unlock ();
 }
 
-MdiChild *MainWindow::findMdiChild(const QString &filePath)
+MdiChild* MainWindow::findMdiChild(const QString& filePath)
 {
-	MdiChild *child = 0;
+	MdiChild* child = 0;
 
-	QMdiSubWindow *subWindow = findMdiSubWindow(filePath);
+	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
 	if (subWindow)
-		child = qobject_cast<MdiChild *>(subWindow->widget());
+		child = qobject_cast<MdiChild*>(subWindow->widget());
 
 	return child;
 }
@@ -415,18 +415,18 @@ void MainWindow::writeSettings()
 	QSettings s;
 
 	QStringList files;
-	foreach (QMdiSubWindow *subWindow, mdiArea->subWindowList())
-		if(MdiChild *child = qobject_cast<MdiChild *>(subWindow->widget()))
+	foreach (QMdiSubWindow* subWindow, mdiArea->subWindowList())
+		if(MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget()))
 			files.append(child->file());
 
 	s.setValue("filesOpened", files);
 	s.setValue ("lastDir", m_lastDir);
 }
 
-jnc::Function *MainWindow::findGlobalFunction(const QString &name)
+jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	jnc::ModuleItem *item =
+	jnc::ModuleItem* item =
 		module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
 
 	if(!item)
@@ -435,7 +435,7 @@ jnc::Function *MainWindow::findGlobalFunction(const QString &name)
 	if(item->getItemKind() != jnc::ModuleItemKind_Function)
 		return NULL;
 
-	return (jnc::Function *)item;
+	return (jnc::Function*)item;
 }
 
 void MainWindow::clearOutput()
@@ -451,7 +451,7 @@ bool MainWindow::compile ()
 
 	bool result;
 
-	MdiChild *child = activeMdiChild();
+	MdiChild* child = activeMdiChild();
 	if (!child)
 		return false;
 
@@ -611,18 +611,18 @@ MainWindow::run ()
 	return true;
 }
 
-MdiChild *MainWindow::createMdiChild()
+MdiChild* MainWindow::createMdiChild()
 {
-	MdiChild *child = new MdiChild(this);
+	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
 	mdiArea->addSubWindow(child);
 
 	return child;
 }
 
-MdiChild *MainWindow::activeMdiChild()
+MdiChild* MainWindow::activeMdiChild()
 {
-	 QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow();
+	 QMdiSubWindow* activeSubWindow = mdiArea->activeSubWindow();
 
 	 if (!activeSubWindow && !mdiArea->subWindowList().empty())
 		 activeSubWindow = mdiArea->subWindowList().at(0);
@@ -630,18 +630,20 @@ MdiChild *MainWindow::activeMdiChild()
 	 if (!activeSubWindow)
 		 return 0;
 
-	 return qobject_cast<MdiChild *>(activeSubWindow->widget());
+	 return qobject_cast<MdiChild*>(activeSubWindow->widget());
 }
 
-QMdiSubWindow *MainWindow::findMdiSubWindow(const QString &filePath)
+QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath)
 {
 	QString canonicalFilePath = QFileInfo(filePath).canonicalFilePath();
 
-	foreach (QMdiSubWindow *subWindow, mdiArea->subWindowList()) {
-		MdiChild *child = qobject_cast<MdiChild *>(subWindow->widget());
+	foreach (QMdiSubWindow* subWindow, mdiArea->subWindowList()) {
+		MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget());
 		if(child && child->file() == canonicalFilePath)
 			return subWindow;
 	}
 
 	return 0;
 }
+
+//.............................................................................

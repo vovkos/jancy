@@ -6,9 +6,10 @@
 enum Error
 {
 	Error_Success = 0,
-	Error_Io      = -1,
-	Error_Compile = -2,
-	Error_Runtime = -3,
+	Error_CmdLine = -1,
+	Error_Io      = -2,
+	Error_Compile = -3,
+	Error_Runtime = -4,
 };
 
 //.............................................................................
@@ -29,20 +30,24 @@ main (
 {
 	printf ("Initializing...\n");
 	
+	if (argc < 2)
+	{
+		printf ("usage: 01_export <script.jnc>\n");
+		return Error_CmdLine;
+	}
+
 	llvm::InitializeNativeTarget ();
 	llvm::InitializeNativeTargetAsmParser ();
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
-	
+
 	err::registerParseErrorProvider ();
 
-#if (_AXL_ENV == AXL_ENV_WIN)
-	rtl::String fileName = io::getDir (rtl::String (argv [0])) + "\\script.jnc";
-#else
-	rtl::String fileName = io::getDir (argv [0]) + "/script.jnc";
-#endif
+	srand ((int) axl::g::getTimestamp ());
 	
-	printf ("Opening '%s'...\n", fileName.cc ());
+	rtl::String fileName = argv [1];
+
+	printf ("Opening '%s'...\n", fileName);
 
 	io::SimpleMappedFile file;
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);
@@ -134,12 +139,13 @@ main (
 
 	try
 	{
-		typedef int Function ();
+		typedef void ConstructorProc ();
+		typedef int MainProc ();
 
 		if (constructor)
-			((Function*) constructor->getMachineCode ()) ();
+			((ConstructorProc*) constructor->getMachineCode ()) ();
 
-		int returnValue = ((Function*) mainFunction->getMachineCode ()) ();
+		int returnValue = ((MainProc*) mainFunction->getMachineCode ()) ();
 		printf ("'main' returned (%d)\n", returnValue);
 	}
 	catch (err::Error error)

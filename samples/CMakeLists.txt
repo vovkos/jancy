@@ -6,5 +6,6 @@
 
 add_subdirectory (00_jnc)
 add_subdirectory (01_export)
+add_subdirectory (02_dialog)
 
 #..............................................................................

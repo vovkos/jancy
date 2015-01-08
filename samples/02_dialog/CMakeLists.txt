@@ -9,37 +9,37 @@
 
 set (
 	APP_H_LIST
-	disassembly.h
-	editor.h
-	highlighter.h
-	jancyhighlighter.h
-	llvmir.h
-	llvmirhighlighter.h
-	mainwindow.h
-	mdichild.h
-	modulepane.h
-	output.h
+	ApiSlots.h
+	MyLib.h
+	MyWidget.h
+	MyLayout.h
+	MyLabel.h
+	MyButton.h
+	MyCheckBox.h
+	MyTextEdit.h
+	MySlider.h
+	QtSignalBridge.h
+	MainWindow.h
 	)
 
 set (
 	APP_CPP_LIST
-	disassembly.cpp
-	editor.cpp
-	highlighter.cpp
-	jancyhighlighter.cpp
-	llvmir.cpp
-	llvmirhighlighter.cpp
+	MyLib.cpp
+	MyWidget.cpp
+	MyLayout.cpp
+	MyLabel.cpp
+	MyButton.cpp
+	MyCheckBox.cpp
+	MyTextEdit.cpp
+	MySlider.cpp
+	QtSignalBridge.cpp
+	MainWindow.cpp
 	main.cpp
-	mainwindow.cpp
-	mdichild.cpp
-	modulepane.cpp
-	output.cpp
 	)
 
 set (
-	APP_RL_LIST
-	jancyhighlighter.rl
-	llvmirhighlighter.rl
+	APP_JNC_LIST
+	script.jnc
 	)
 
 source_group (
@@ -47,33 +47,7 @@ source_group (
 	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	${APP_RL_LIST}
-	)
-
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
-# res folder
-#
-
-set (
-	RES_PNG_LIST
-	res/compile.png
-	res/new.png
-	res/open.png
-	res/run.png
-	res/save.png
-	)
-
-set (
-	RES_QRC_LIST
-	jancyedit.qrc
-	)
-
-source_group (
-	res
-	FILES
-	${RES_PNG_LIST}
-	${RES_QRC_LIST}
+	${APP_JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -86,16 +60,8 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 
 set (
 	MOC_H_LIST
-	disassembly.h
-	editor.h
-	highlighter.h
-	jancyhighlighter.h
-	llvmir.h
-	llvmirhighlighter.h
-	mainwindow.h
-	mdichild.h
-	modulepane.h
-	output.h
+	QtSignalBridge.h
+	MainWindow.h
 	)
 
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
@@ -105,38 +71,13 @@ qt5_wrap_cpp (
 	${MOC_H_LIST}
 	)
 
-qt5_add_resources (
-	GEN_QRC_CPP_LIST
-	${RES_QRC_LIST}
-	)
-
-add_ragel_step (
-	jancyhighlighter.rl.cpp
-	jancyhighlighter.rl
-	)
-
-add_ragel_step (
-	llvmirhighlighter.rl.cpp
-	llvmirhighlighter.rl
-	)
-
-set (
-	GEN_RL_CPP_LIST
-	${GEN_DIR}/jancyhighlighter.rl.cpp
-	${GEN_DIR}/llvmirhighlighter.rl.cpp
-	)
-
 pop (CMAKE_CURRENT_BINARY_DIR)
 
 exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
-exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
-exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
 source_group (
 	gen
 	FILES
-	${GEN_RL_CPP_LIST}
-	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
 	)
 
@@ -157,7 +98,7 @@ source_group (
 
 #..............................................................................
 #
-# test_qt compiler test
+# 02_dialog sample
 #
 
 if (MSVC)
@@ -178,18 +119,13 @@ link_directories (
 	)
 
 add_executable (
-	test_qt
+	02_dialog
 	${PCH_H}
 	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	${APP_RL_LIST}
-	${RES_PNG_LIST}
-	${RES_QRC_LIST}
-	${GEN_QRC_CPP_LIST}
+	${APP_JNC_LIST}
 	${GEN_MOC_CPP_LIST}
-	${GEN_UI_H_LIST}
-	${GEN_RL_CPP_LIST}
 	)
 
 llvm_map_components_to_libraries (
@@ -201,7 +137,7 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	test_qt
+	02_dialog
 	jnc
 	axl_io
 	axl_core
@@ -210,28 +146,28 @@ target_link_libraries (
 
 if (UNIX)
 	target_link_libraries (
-		test_qt
+		02_dialog
 		rt
 		)
 endif ()
 
-qt5_use_modules (test_qt Widgets)
+qt5_use_modules (02_dialog Widgets)
 
 if (WIN32)
-	copy_qt_dll_files (test_qt Core Gui Widgets)
+	copy_qt_dll_files (02_dialog Core Gui Widgets)
 endif ()
 
 set_pch (
-	test_qt
+	02_dialog
 	${PCH_H}
 	${PCH_CPP}
 	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 set_target_properties (
-	test_qt
+	02_dialog
 	PROPERTIES
-	FOLDER test
+	FOLDER samples
 	)
 
 #..............................................................................
