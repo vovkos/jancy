@@ -100,6 +100,13 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
+if (UNIX)
+	target_link_libraries (
+		01_export
+		rt
+		)
+endif ()
+
 set_pch (
 	01_export
 	${PCH_H}

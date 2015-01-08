@@ -61,9 +61,9 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	rtl::String fileName = (const wchar_t*) fileName_qt.unicode ();
+	rtl::String fileName = (const utf16_t*) fileName_qt.unicode ();
 
-	output ("Opening '%s'...\n", fileName);
+	output ("Opening '%s'...\n", fileName.cc ());
 
 	io::SimpleMappedFile file;
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);

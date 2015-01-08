@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MyLib.h"
+#include "axl_g_WarningSuppression.h"
 
 //.............................................................................
 

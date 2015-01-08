@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "MyLib.h"
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 //.............................................................................
 

@@ -1,7 +1,5 @@
 #include "pch.h"
-#include "mainwindow.h"
-
-#include "QtSignalBridge.h"
+#include "MainWindow.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	pragma comment (linker, "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")

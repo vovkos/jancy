@@ -47,7 +47,7 @@ main (
 	
 	rtl::String fileName = argv [1];
 
-	printf ("Opening '%s'...\n", fileName);
+	printf ("Opening '%s'...\n", fileName.cc ());
 
 	io::SimpleMappedFile file;
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);
