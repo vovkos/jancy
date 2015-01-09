@@ -6,8 +6,8 @@
 
 set (LLVM_VERSION      3.3)
 set (QT_VERSION        5.0.2)
-set (AXL_VERSION       5.0.1)
-set (BULLDOZER_VERSION 1.0.0)
+set (AXL_VERSION       5.3.1)
+set (BULLDOZER_VERSION 1.1.1)
 set (RAGEL_VERSION     6.7)
 
 #..............................................................................
