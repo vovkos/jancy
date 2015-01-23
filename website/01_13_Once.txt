@@ -1,0 +1,63 @@
+<md>
+
+# Once
+
+Jancy provides an elegant syntax for lazy initialization. 
+Prefix the necessary piece of code with 'once' and the compiler will generate a thread-safe wrapper. The latter will ensure that this code executes once per each program run.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	once initialize ();
+
+	// ...
+}
+
+</code>
+</div>
+
+<br>
+If your lazy initialization requires more than a single statement, enclose the entire block of your initialization code in a compound statement:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	once 
+	{
+		initializeTables ();
+		initializeMaps ();
+		initializeIo ();
+
+		// ...
+	}
+
+	// ...
+}
+
+</code>
+</div>
+
+<br>
+Jancy also provides a way to run the lazy initialization once per thread.
+Use 'thread once' to achieve this:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	thread once initializeThread (); 
+
+	// ...
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [break-n/continue-n](breakn.html)
+</md>

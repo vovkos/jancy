@@ -1,0 +1,127 @@
+<md>
+
+# Exception Handling
+
+Jancy exceptions handling model applies a layer of syntactic sugar over good old C-style error code checking. As a result, it is extremely transparent and easy to support from the host C/C++ application.
+
+A function marked by the 'throws' modifier will have its return value interpreted as an error code. Intuitive defaults are assumed: 'false' for bools, negative for signed integers, '-1' for unsigned integers and 'null' for pointers.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+bool foo (int a) throws
+{
+	printf ("foo (%d)\n", a);
+	return a > 0;
+}
+
+</code>
+</div>
+
+<br>
+If something more complex or non-standard is required, custom throw conditions can be employed: 
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int baz (int a) throws if (retval < 5)
+{
+	printf ("baz (%d)\n", a);
+	return a;
+}
+
+</code>
+</div>
+
+<br>
+If throw conditions match, the error code is automatically propagated:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int bar (int a) throws if (retval < 5)
+{
+	// ...
+
+	baz (a); 
+
+	// ...
+}
+
+</code>
+</div>
+
+<br>
+The 'try' operator shields an expression from 'throwing':
+
+<div class='new_frame snippet'>
+<code name="jancy">
+	int result = try baz (-5); 
+</code>
+</div>
+
+<br>
+The 'try' block shields a parent scope from 'throwing' even if this parent scope has no 'catch':
+
+<div class='new_frame snippet'>
+<code name="jancy">
+foo ()
+{
+	// ...
+
+	try
+	{
+		baz (20);
+		baz (-1);
+		baz (21); // never get here	
+	}
+
+	// ...
+}
+</code>
+</div>
+
+<br>
+'Catch' & 'finally' can be within any scope:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int bar (int a) throws
+{
+	// ...
+
+catch: 
+	printf ("bar.catch\n");	
+	return -5;
+
+finally:
+	printf ("bar.finally\n");	
+}
+
+</code>
+</div>
+
+<br>
+When calling a function, the developer can use either an error code check or exception semantics depending on what's more appropriate or convenient in each particular case.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int main ()
+{
+	// ...
+
+	int result = try bar ();
+	if (result < 0)
+	{
+		// handle error
+	}
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [access control model](dual_access.html)
+</md>

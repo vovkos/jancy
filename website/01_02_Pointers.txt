@@ -1,0 +1,474 @@
+<md>
+
+# Pointers
+
+Unsafe as they are, pointers are not something we can live without. Even languages without pointers (like Basic or Java) have pointers to classes and interfaces.
+
+Pointers has always been considered an unsafe tool that could easily cause a program to crash or (worse!) silently corrupt user data.
+
+Even if we limit the number of pointer kinds and pointer operations available to developers, we still won't be able to perform the complete analysis of pointer-related correctness at compile time.
+
+For the purpose of the discussion that follows let's define "pointer safety".
+
+We will call a pointer "safe" if it's impossible to either crash a program or corrupt user data by accessing this pointer. This means that any invalid pointer access will be caught and handled by the language runtime.
+
+## Data Pointers
+
+Do we even need data pointers? In C/C++ world that's not much of a question: using pointers is the one and only way of working with dynamic memory. What about the managed world, do we need data pointers there?
+
+Most managed language designers believe that the answer is NO. This is largely because data pointers fall into the disadvantageous area on the risk/reward chart for most programming tasks. There is, however, one programming area where the use of data pointers truly shines: working with binary data.
+
+Here is an example. Try to write Java code that deconstructs an Ethernet packet. Compare the resulting mess of fixed index array references and word types assembled from bytes to the clean and efficient code in C that will superimpose protocol header structs on the buffer data, then traverse the packet using pointer arithmetic!
+
+Since Jancy was conceived as the scripting language for our [IO Ninja](/ioninja/) software, living without pointers was out of the question. Instead, we made data pointers safe. Safe data pointers and safe pointer arithmetic are among the biggest innovations of Jancy.
+
+As with many languages, the Jancy runtime doesn't allow access to data via a pointer that failed the range check. Unfortunately, range checks are not enough for stack data pointers:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	//...
+
+	int* p;
+
+	{
+		int a = 10;
+		p = &a;
+	}
+
+	int b = 20;
+
+	*p = 30; // oh-oh
+
+	//...
+}
+</code>
+</div>
+
+<br>
+Pointer 'p' obviously passes the range check (it has not been changed!) but accessing this pointer will write to the dead and, possibly, re-allocated location. That happens because stack pointers become invalid even without modification, simply by running out of scope.
+
+To address this issue, Jancy pointer validators also maintain integer thread-local variable holding the target scope level. The Jancy runtime prevents storing an address with a higher scope level at the location with a lower scope level. 
+
+Simply put, the approach used by Jancy is this: check the data range at the pointer access, check the scope level at the pointer assignment.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int* g_p;
+
+foo ()
+{
+	int* p = null;
+
+	int x = *p; // <-- error: pointer out of range
+
+	int a [] = { 10, 20, 30 };
+	g_p = a;    // <-- error: storing pointer in location with lesser scope level
+
+	int** p2 = &g_p;
+	*p2 = &x;   // <-- error: storing pointer in location with lesser scope level
+
+	int i = countof (a);
+	x = a [i];  // <-- error: pointer out of range
+}
+</code>
+</div>
+
+<br>
+Our safe pointers are not thread-safe. It's still possible to corrupt a pointer validator in a multi-threaded environment. Still, our solution covers a lot of bases and future Jancy versions will likely address the issue by preventing race conditions on pointer validators.
+
+Besides the normal data pointer with validators ("fat" or "safe" data pointers) Jancy also supports "thin" data pointers, which only hold the target address. This might be useful when writing performance-critical code, or for interoperability with the host C/C++ program. "Thin" pointers are not safe.
+
+## Class Pointers
+
+Pointer arithmetic is not applicable to class pointers, therefore, class pointer validity can be ensured by performing a null-check on access and a scope level check on assignment. Scope level information could be stored in class header instead of class pointer, so class pointer does not need to be "fat" to be safe.
+
+Jancy provides built-in support for a special kind of class pointers: "weak". These pointers do not affect the lifetime of an object. Obviously, weak class pointers cannot be used to access an object they point to and can only be cast to strong pointers. If this cast operation returns non-null value, the result can be used to access the object normally; otherwise, the object has already been destroyed.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+class C1
+{
+	//...
+}
+
+foo ()
+{
+	C1* c = new C1;
+	C1 weak* w = c;
+
+	// if we lose a strong pointer before GC run, the object will be collected
+
+	jnc.runGc ();
+
+	c = w; // try to restore strong pointer
+
+	if (c)
+	{
+		// the object is still alive
+	}
+}
+
+</code>
+</div>
+
+## Function Pointers
+
+Remember nested C language declarators of death needed to describe a pointer to a function, which returns a pointer to a function, which returns yet another pointer, and so on? 
+
+Nested declarators are <i>evil</i>! Fortunately, there are other ways to achieve the same result. Jancy uses a different approach, which is much easier to read while allowing to declare function pointers of arbitrary complexity.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	// ...
+}
+
+int* bar (int x)
+{
+	// ...
+}
+
+int* function* chooseFunc () (int)
+{
+	return bar;
+}
+
+main ()
+{
+	function* f () = foo; // boooring
+	int* function* f2 (int) = bar; 
+	int* function* function* f3 () (int) = chooseFunc; // hmmm.. keep going
+	int* function* function* f4 () (int) = chooseAnotherFunc; 
+	int* function* function** f5 [2] () (int) = { &f3, &f4 }; // now we are talking!!
+
+	(*f5 [0]) () (100); // bar (100)
+}
+
+</code>
+</div>
+
+<br>
+Function pointers can be "fat" or "thin". 
+Thin pointers are just like C/C++ function pointers: they simply hold the address of the code. 
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo (int a)
+{
+	// ...
+}
+
+bar ()
+{
+	function thin* p (int) = foo;
+	p (10);
+}
+
+</code>
+</div>
+
+<br>
+Unlike C/C++, the argument conversion is automated (Jancy compiler generates thunks as needed)
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo (int a)
+{
+	// ...
+}
+
+bar ()
+{
+	typedef FpFunc (double);
+	FpFunc thin* f = (FpFunc thin*) foo; // explicit cast is required to generate a thunk
+	f (3.14);
+}
+
+</code>
+</div>
+
+<br>
+The true power comes with "fat" function pointers. Besides the code address, fat pointers also hold the address to the closure object, which stores the context captured at the moment of creating the function pointer.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	foo ()
+	{
+		// ...
+	}
+}
+
+bar ()
+{
+	C1 c;
+
+	function* f () = c.foo; // in this case, pointer to 'c' was captured
+	f ();
+}
+
+</code>
+</div>
+
+<br>
+Jancy also allows to capture arbitrary arguments in the closure through the use of partial application operator '~()'
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo (
+	int x,
+	int y
+	)
+{
+	// ...
+}
+
+bar ()
+{
+	function* f (int) = foo ~(10);
+	f (20); // => foo (10, 20);
+}
+
+</code>
+</div>
+
+<br>
+You are free to skip arguments during the partial application. For example, you can make it so that the argument 3 comes from the closure, while arguments 1 and 2 come from the call.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	foo (
+		int x,
+		int y,
+		int z
+		)
+	{
+		// ...
+	}
+}
+
+bar ()
+{
+	C1 c;
+
+	function* f (int, int) = c.foo ~(,, 300);
+	f (100, 200); // => c.foo (100, 200, 300);
+}
+
+</code>
+</div>
+
+<br>
+Fat function pointers can be 'weak', meaning they do not retain some of the objects in the closure. 
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	foo (
+		int a,
+		int b,
+		int c		
+		)
+	{
+		// ...
+	}
+}
+
+bar ()
+{
+	C1* c = new C1;
+
+	function weak* w (int, int) = c.weak foo (,, 3);
+
+	// if we lose strong pointer 'c' then object will get destructed on the next gc run
+
+	jnc.runGc ();
+
+	function* f (int, int) = w;
+	if (f)
+	{
+		// object survived GC run, call it
+
+		f (1, 2); // c.foo (1, 2, 3);		
+	}
+}
+</code>
+</div>
+
+<br>
+Currently it's only possible to weaken the parent object of the method (using the weak member operator '.weak'). Future Jancy releases will allow developers to explicitly define which captured arguments should be retained.
+
+## Property Pointers
+
+Property pointers are yet another unique feature of Jancy. 
+
+Properties are found in many modern languages. What commonly lacks is a developed syntax and semantics of pointer declarations and operators. 
+
+Property pointers resemble and are closely related to function pointers. Dealing with property pointers requires a more careful application of address '&' and indirection '*' operators. This is due to the possibility of implicit invocation of property accessors and the ambiguity induced by such invocation, which can be automatically resolved with function pointers and not with property pointers.
+
+Like the function pointers, property pointers can be "thin" or "fat". 
+Thin property pointers hold a pointer to a property accessor table.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+int autoget property g_prop;
+
+g_prop.set (int x)
+{
+	// ...
+}
+
+foo ()
+{
+	int property thin* p = &g_prop;
+	*p = 10;	
+}
+
+</code>
+</div>
+
+<br>
+Like with the function pointers, the argument conversion is automated (compiler generates thunks if needed).
+
+<div class='new_frame snippet'>
+<code name="jancy">
+int autoget property g_prop;
+
+g_prop.set (int x)
+{
+	// ...
+}
+
+foo ()
+{
+	typedef double property FpProp; 
+	FpProp thin* p = (FpProp thin*) &g_prop; // explicit cast is required to generate a thunk
+	*p = 2.71;	
+}
+
+</code>
+</div>
+
+<br>
+Fat property pointers support partial application by capturing arguments in the closure.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	int autoget property m_prop;
+
+	m_prop.set (int x)
+	{
+		// ...
+	}
+}
+
+foo ()
+{
+	C1 c;
+	int property* p = c.m_prop;
+	*p = 100;
+}
+
+</code>
+</div>
+
+<br>
+It is also possible to capture index arguments in the closure, thus reducing dimensions of indexed properties or completely de-indexing them.
+Skipping indexes is OK, too.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+property g_prop 
+{
+	int get (
+		unsigned i,
+		unsigned j
+		)
+	{
+		// ...
+	}
+
+	set (
+		unsigned i,
+		unsigned j,
+		int x
+		)
+	{
+		// ...
+	}
+}
+
+foo ()
+{
+	int indexed property* p (unsigned) = g_prop [] [20];
+	*p [10] = 100; // => g_prop [10] [20] = 100;
+}
+
+</code>
+</div>
+
+<br>
+Like function pointers, property pointers can be 'weak', meaning that they do not retain selected objects in the closure from being collected by the garbage collector.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	int autoget property m_prop;
+
+	// ...
+}
+
+C1.m_foo.set (int x)
+{
+	// ...
+}
+
+foo ()
+{
+	C1* c = new C1;
+
+	int property weak* w = &c.weak m_prop;
+
+	// if we lose strong pointer 'c' then object will get destructed on the next gc run
+
+	jnc.runGc ();
+
+	int property* p = w;
+	if (p)
+	{
+		// object survived GC run, access it
+
+		*p = 100;
+	}
+
+	return 0;
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [properties](properties.html)
+</md>

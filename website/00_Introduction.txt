@@ -1,0 +1,52 @@
+<div style="float:right; margin-left: 15px;margin-bottom:15px">
+<a href="/jancy/downloads.html"><img src="/images/ninja/jancy-maskot-350.png" 
+alt="Jancy" style="display:block;margin-left:auto;margin-right:auto;"></a>
+<a href="/jancy/downloads.html"><img src="/images/ninja/download.png" 
+style="display:block;margin:15px auto 0 auto"></a>
+</div>
+
+<md>
+# Introducing Jancy
+
+What?! Yet another programming language? Like, there isn't enough of them already? 
+
+Believe us, we know how it sounds! We also likely know every possible argument against creating a new programming language. But the truth is, Jancy was <i>not</i> created just to fix the infamous <a href="http://www.drdobbs.com/windows/a-brief-history-of-windows-programming-r/225701475" target="_blank">fatal flaw</a> of other languages -- although we admit that the passion to invent was a significant driving force.
+
+<i>The main</i> motivation to create Jancy was our software product called [IO Ninja](/ioninja/). 
+
+What we needed was a scripting language with safe data pointer arithmetic, extensive facilities for UI programming (properties, events, etc.), and easy integration with the host C/C++ application.
+
+We couldn't find such a language! So we created it. Meet Jancy.
+
+## Main design goals
+
+* Object-oriented language for IO and UI programming with C-family syntax
+* Designed to be used as a scripting language from the host C/C++ application
+* ABI (application-binary-interface) compatibility with C/C++
+* Automatic memory management via accurate GC (garbage collection)
+* LLVM (Low Level Virtual Machine) as a back-end
+
+## Key features
+
+* Safe pointers and pointer arithmetic
+* Properties (the most comprehensive implementation thereof)
+* Multicasts and events (including weak events, which do not require to unsubscribe)
+* RAII (resource-acquisition-is-initialization) paradigm support
+* Reactive programming (one of the first implementations in a general-purpose imperative language)
+
+## Other notable features
+* Multiple inheritance support
+* Const-correctness support
+* Explicit stack allocation and thread-local storage
+* Weak pointers (that do not retain objects)
+* Partial application support for functions and properties
+* Scheduled function pointers
+* Exception-style syntax over error code checks
+* Flag enums
+* Perl-style formatting 
+* …and more
+
+---
+Proceed to the detailed discussion of Jancy [feature list](features.html)
+
+</md>

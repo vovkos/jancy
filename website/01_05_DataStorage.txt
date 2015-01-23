@@ -1,0 +1,126 @@
+<md>
+
+# Data Storage Control &amp; RAII
+
+## Data Storage Control
+
+Jancy gives developers full control over what storage to use during a particular operation. This includes member field allocation, global & local variables, allocations induced by casts, as well as allocations performed by the 'new' operator.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1
+{
+	int m_memberField;
+	static int m_staticField = 2;
+	thread int m_threadField;
+	thread int m_threadField2 = 3; // <-- error: thread fields cannot be initialized
+}
+
+int g_staticGlobal; // for global variables, default storage is 'static'
+thread int g_threadGlobal;
+thread int g_threadGlobal2 = 10; // <-- error: global thread variables cannot be initialized
+thread C1 g_threadGlobal3;       // <-- error: thread variables cannot be aggregate
+
+foo ()
+{
+	int x; // for local variables, default storage is 'stack'
+	static int s = 100; 
+	thread int t = 200; // for local 'thread' variables, initialization is permitted
+	heap char a [256];  // 'heap' storage can be used to allocate local variables on gc-heap
+}
+
+</code>
+</div>
+
+<br>
+A few words must be said about the data storage specifics for class variables or fields.
+As explained in the section dedicated to [classes](classes.html), a declaration of a class variable or field is not implicitly converted to a class pointer. It is actually an instruction that tells the compiler to create an instance of this class.
+
+It is, therefore, possible to share memory blocks between multiple class instances by declaring class fields, much like in C++.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1 
+{
+    // ...
+}
+
+class C2
+{
+    // ...
+
+    C1 m_classField; // allocated as part of C2 layout
+}
+
+</code>
+</div>
+
+<br>
+Global variables of class types are allocated statically, while local variables of class types are allocated on the GC heap by default, unless specified otherwise.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class C1 
+{
+    // ...
+}
+
+C1 g_classVariable; // allocated statically
+
+foo ()
+{
+    C1 a;        // allocated on heap (same as: C1* a = heap new C1;)
+    stack C1 b;  // allocated on stack (same as: C1* b = stack new C1;)
+    static C2 c; // allocated statically (same as: C1* c = static new C1;)
+
+    // ...
+}
+
+</code>
+</div>
+
+## RAII
+
+The possibility of explicit stack allocation for classes means that in Jancy you are free to use the RAII paradigm (resource-acquisition-is-initialization), just like you would in C++.
+Classes allocated on stack are destructed upon exiting the scope thus ensuring deterministic resource release.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class Resource
+{
+	construct ()
+	{
+		// acquire
+	}
+
+	destruct ()
+	{
+		// release
+	}
+}
+
+foo (int x)
+{
+	stack new Resource;
+
+	if (x >= 0)
+	{
+		stack Resource anotherResource;
+		// ...
+	} // anotherResource is released
+	
+	// ...
+
+	return 0; // the 1st resource is released
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [reactive programming](reactive.html)
+</md>

@@ -1,0 +1,116 @@
+<h1>Jancy Features</h1>
+
+<h2>Key Features</h2>
+
+<features_list rows="2" icon_w="80" icon_h="80">
+
+<feature url="features/cpp_compat.html" caption="ABI-compatibility with C/C++">
+<md>
+Jancy scripts are JIT-compiled and can be called directly from the host C/C++ application. Jancy supports all of the major calling conventions and is compatible with C/C++ compilers with respect to struct/union layouts with arbitrary packing factors.
+</md>
+</feature>
+
+<feature url="features/pointers.html" caption="Pointers">
+<md>
+Jancy provides all the colors and flavors of pointers such as safe pointers and safe pointer arithmetic, unsafe pointers for interoperability  with the host C/C++ application, weak pointers which do not retain objects, function pointers with captured arguments, scheduled function pointers and even property pointers!
+</md>
+</feature>
+
+<feature url="features/properties.html" caption="Properties">
+<md>
+Jancy features one of, if not the most, comprehensive implementation of properties. Along with the natural syntax for simple properties there is support for properties with overloaded setters, indexed properties, bindable properties, auto-get properties, and property pointers.
+</md>
+</feature>
+
+<feature url="features/multicasts.html" caption="Multicasts & Events">
+<md>
+Jancy supports multicasts and events which allow accumulating function pointers and then calling them all at once. Weak multicasts and events which do not require explicit unsubscribing are also supported, thus providing an out-of-the-box solution for the publisher-subscriber pattern.
+</md>
+</feature>
+
+<feature url="features/storage.html" caption="Data Storage Control &amp; RAII">
+<md>
+Like C/C++, Jancy supports explicit stack allocation and the RAII approach to resource management. Further, the developer is always in full control of what memory to use for the specific variable, field or temp: a static, stack, heap, thread-local-storage, or parent object memory block.
+</md>
+</feature>
+
+<feature url="features/reactive.html" caption="Reactive Programming">
+<md>
+Ever used Microsoft Excel before? Then you know the concept of writing a 'formula' which will be automatically re-evaluated when the referenced cells change. With Jancy you can do the same in your code -- and with full control of where and when to use this reactive paradigm. This is perfect for UI programming!
+</md>
+</feature>
+
+</features_list>
+
+<h2>Other Notable Features</h2>
+
+<features_list>
+
+<feature url="features/classes.html" caption="Classes With Multiple Inheritance">
+<md>
+Besides standard class features such as constructors, destructors, virtual methods, and namespace member access control, Jancy also supports multiple inheritance, in- and out-of-class method implementation, operator overloading, in-place field initialization and preconstructors.
+</md>
+</feature>
+
+<feature url="features/schedulers.html" caption="Schedulers">
+<md>
+This function pointer-related feature simplifies the development of asynchronous multi-threaded applications. Jancy provides a natural syntax for creating callback function pointers, which are then executed in the proper context (e.g. in a worker thread,  with a lock held, as a Windows message handler, etc.)
+</md>
+</feature>
+
+<feature url="features/const_correctness.html" caption="Const-correctness">
+<md>
+Const-correctness is a yin to the yang of data pointers. It is a great feature, which  not only detects a whole range of logical errors at compilation time but also helps to design better and more foolproof libraries and APIs. Const-correctness is left behind in way too many languages. Jancy restores justice by bringing it back.
+</md>
+</feature>
+
+<feature url="features/exceptions.html" caption="Exception Handling">
+<md>
+Under the hood of Jancy's error handling lie the good old C-style return value checks. The syntactic sugar on top of that makes them look like throwing and catching of exceptions. You are free to use the error check or exception semantics with the <i>same</i> function depending on what you deem more appropriate in each particular case.
+</md>
+</feature>
+
+<feature url="features/dual_access.html" caption="Dual Access Control Model">
+<md>
+Jancy features a rather unusual approach to controlling namespace member access. There are only two access specifiers: public and protected. Yes, this makes it more difficult to fine-tune member access, but at the same time opens up a new possibility for dual-access modifiers that have different meanings for 'friends' and 'aliens'.
+</md>
+</feature>
+
+<feature url="features/literals.html" caption="Special Literals">
+<md>
+Beside traditional character literals, Jancy features two new kinds thereof. The first kind is hex literals for a convenient definition of in-program binary constants; the second kind is formatting literals (as in perl-style formatting). All three kinds can be concatenated in any combinations.
+</md>
+</feature>
+
+<feature url="features/fenums.html" caption="Flag Enums">
+<md>
+Flag enums, or <i>fenums</i>, are just like enums... but for flag constants. Flag enums are missing in most modern languages and usually require some not-so-trivial workarounds. Jancy provides a solution for flag enums out-of-the-box. 
+</md>
+</feature>
+
+<feature url="features/once.html" caption="Once">
+<md>
+Jancy offers an elegant approach to writing lazy initialization code (that must be executed once per program run or once per thread). The traditional approach works too: Jancy ensures single execution of static constructors and initializers (and unlike C/C++, Jancy does so in a thread-safe way).
+</md>
+</feature>
+
+<feature url="features/breakn.html" caption="Break-n/Continue-n">
+<md>
+We routinely found that our code would be so much nicer if we had a statement to break or continue the outer loop. So if you are like us and ever wanted to exit 2 loops at once, rejoice! Jancy provides a way to do this.
+</md>
+</feature>
+
+<feature url="features/misc.html" caption="Miscellaneous">
+<md>
+This section gives a brief overview and many code snippets to demonstrate the rest of nice little things that make Jancy different from other languages.
+</md>
+</feature>
+
+</features_list>
+
+<md>
+
+---
+Proceed to [compiler overview](compiler_architecture.html)
+
+</md>

@@ -1,0 +1,369 @@
+<md>
+
+# Miscellaneous Features
+
+## Opaque Classes
+
+When implementing the interaction between your Jancy script and the host C/C++ application you will often need to hide the details of C++ implementation of classes exported to the Jancy namespace. Jancy simplifies the job by providing <i>opaque classes</i>. 
+
+<div class='new_frame snippet'>
+<code name="jancy">
+opaque class Serial
+{
+	uint_t autoget property m_baudRate;
+	SerialFlowControl autoget property m_flowControl;
+	uint_t autoget property m_dataBits; // typically 5..8
+	SerialStopBits autoget property m_stopBits;
+	SerialParity autoget property m_parity;
+
+	// ...
+
+	Serial* operator new ();
+}
+
+</code>
+</div>
+
+<br>
+The corresponding C++ implementation class would look somewhat like this:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class CSerial: public jnc::TIfaceHdr
+{
+public:
+	JNC_API_BEGIN_CLASS ("io.Serial", EApiSlot_Serial)
+		JNC_API_AUTOGET_PROPERTY ("m_baudRate",    &CSerial::SetBaudRate)
+		JNC_API_AUTOGET_PROPERTY ("m_flowControl", &CSerial::SetFlowControl)
+		JNC_API_AUTOGET_PROPERTY ("m_dataBits",    &CSerial::SetDataBits)
+		JNC_API_AUTOGET_PROPERTY ("m_stopBits",    &CSerial::SetStopBits)
+		JNC_API_AUTOGET_PROPERTY ("m_parity",      &CSerial::SetParity)
+
+		// ...
+
+		JNC_API_OPERATOR_NEW (&CSerial::OperatorNew)
+	JNC_API_END_CLASS ()
+
+	uint_t m_BaudRate;
+	axl::io::ESerialFlowControl m_FlowControl;
+	uint_t m_DataBits;
+	axl::io::ESerialStopBits m_StopBits;
+	axl::io::ESerialParity m_Parity;
+
+	// ...
+
+protected:
+	// hidden implementation
+
+	axl::io::CSerial m_Serial;
+	mt::CLock m_IoLock;
+	uint_t m_IoFlags;
+	CIoThread m_IoThread;
+
+};
+
+</code>
+</div>
+
+<br>
+Opaque classes can be neither derived from nor allocated statically, on stack, or as a class field member. This is because the Jancy compiler has no information about their full layout -- they are <i>opaque</i> after all.
+
+Opaque classes can only be allocated on the heap and only if their declaration includes 'operator new'. The developer can choose which opaque classes should be creatable and which ones should be exposed as non-creatable host interfaces.
+
+## Expression Aliases
+
+Jancy provides convenient syntax for creating expression aliases. These behave much like macros of C/C++ except they belong to the namespace they were declared at, plus they must reference the complete expression. 
+
+Besides the obvious use as a safe alternative to macros, aliases are irreplaceable when you need to share an on-change event between multiple properties.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+opaque class ComboBox
+{
+	// ...
+
+	property m_currentIndex
+	{	
+		size_t autoget m_value;
+		set (size_t value);
+		alias bindable event m_onPropChanged () = m_onChanged;
+	}
+
+	property m_currentText
+	{		
+		char const* get ();
+		alias bindable event m_onPropChanged () = m_onChanged;
+	}
+
+	property m_currentData
+	{		
+		object* get ();
+		alias bindable event m_onPropChanged () = m_onChanged;
+	}
+
+	event m_onChanged ();
+
+	// ...
+}
+</code>
+</div>
+
+## Scopes in Switch
+
+Jancy encloses all the case blocks in switch statements into implicitly created scopes. This means you are free to create and use local variables in switch statements:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo (int x)
+{
+	switch (x)
+	{
+	case 0:
+		int i = 10;
+		break;
+
+	case 1:
+		int i = 20; // no problem: we are in different scope
+	
+	case 2:
+		int i = 30; // no problem even when we fall-through from previous case label
+		break;
+
+	default:
+		int i = 40; // still ok. you've got the idea
+	}
+}
+
+</code>
+</div>
+
+## Module Constructors/Destructors
+
+Jancy provides module constructors/destructors as a convenient way to write 
+initialization/cleanup code for compilation units:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+
+class C1
+{
+	construct ()
+	{
+		printf ("C1.construct ()\n");
+	}
+
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}
+}
+
+C1 g_c; // global static variable with constructor & destructor
+
+int g_x = foo (); // global static variable with initializer
+
+int foo ()
+{
+	printf ("foo ()\n");
+	return 100;
+}
+
+// module constructor will be called after all global static variables have been initialized
+
+construct ()
+{
+	printf ("module.construct ()\n");
+}
+
+// module destructor will be called before global static variables have been destructed
+
+destruct ()
+{
+	printf ("module.destruct ()\n");
+}
+
+</code>
+</div>
+
+## Extension Namespaces
+
+Jancy offers a way to extend the functionality of existing classes with extension namespaces. An extension namespace declares additional methods which have access to all the members of the class that they extend. There are certain limitations imposed on the extension methods. These ensure that if your code runs without extension namespaces, then it runs exactly the same with the introduction of any extension namespace(s):
+
+<div class='new_frame snippet'>
+<code name="jancy">
+class C1
+{
+	protected int m_x;
+
+	construct (int x)
+	{
+		printf ("C1.construct (%d)\n", x);
+		m_x = x;
+	}
+
+	foo ()
+	{
+		printf ("C1.foo () { m_x = %d }\n", m_x);
+	}
+}
+
+extend C1
+{
+	bar ()
+	{
+		printf ("C1 (extend).bar () { m_x = %d }\n", m_x); // extension method has access to protected data
+	}
+
+	static baz ()
+	{
+		printf ("C1 (extend).baz ()\n");
+	}
+
+	// construct (double x);    // <-- error: constructors cannot be part of extension namespace
+	// int operator += (int x); // <-- error: operator methods cannot be part of extension namespace
+	// virtual baz ();          // <-- error: virtual methods cannot be part of extension namespace
+}
+
+// entry point
+
+int main ()
+{
+	C1 c construct (100);
+	c.foo ();
+	c.bar ();  // bar () is extension method
+
+	C1.baz (); // baz () is static extension method
+
+	return 0;
+}
+
+</code>
+</div>
+
+## Curly Initializers
+
+Jancy supports a method of assigning arbitrary aggregate values with curly initializers:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+// something to curly-initialize
+
+struct Point
+{
+	int m_x;
+	int m_y;
+	int m_z;
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	int a [] = { 1, 2, 3 };	 // classic C-style curly-intializers
+
+	printf ("a = { "); 
+
+	for (int i = 0; i < countof (a); i++)
+		printf ("%d, ", a [i]);
+
+	printf ("}\n");
+
+	int b [10] = { ,, 3, 4,,, 7 }; // can skip elements leaving them zero-initialized
+
+	printf ("b = { "); 
+
+	for (int i = 0; i < countof (b); i++)
+		printf ("%d, ", b [i]);
+
+	printf ("}\n");
+
+	Point point = { 10, m_z = 30 };  // can use both index- and name-based addressing
+	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
+
+	point = { , 200, 300 }; // can use curly-initializers in assignment operator after declaration
+	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
+
+	Point* point2 = new Point { m_y = 2000, m_z = 3000 }; // can use curly-initializers in new operator
+	printf ("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);
+
+	return 0;
+}
+
+</code>
+</div>
+
+## 'onevent' Statement
+
+Sometimes, expressions don't quite cut it when it comes to describing what has to be done in response to a property change: e.g. running a cycle, or executing a sequence of statements. Using expressions in 'reactor' blocks might not provide enough control over which actions must be taken in response to what property change.  
+
+The 'onevent' declaration in 'reactor' blocks gives you fine-grained control over dependencies and at the same time frees you from manually binding/unbinding to/from events:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+bool bindable g_useDhcp;
+unsigned int32 bindable g_ip4;
+event g_onApplyIpSettings ();
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+reactor g_ipReactor ()
+{
+	onevent (bindingof (g_useDhcp)) ()
+	{
+		if (g_useDhcp)
+		{		
+			printf ("using DHCP, disable IP-edit\n");
+		}
+		else
+		{
+			printf (
+				"using manual IP configuration (IP = %d.%d.%d.%d)\n",
+				(g_ip4 & 0xff000000) >> 24,
+				(g_ip4 & 0x00ff0000) >> 16,
+				(g_ip4 & 0x0000ff00) >> 8,
+				(g_ip4 & 0x000000ff)
+				);
+		}			
+	}
+
+	onevent (bindingof (g_ip4)) ()
+	{
+		g_useDhcp = false;
+	}
+
+	// onevent statement allows automatically binding to any events, not just 'onChanged'
+
+	onevent g_onApplyIpSettings ()
+	{
+		printf ("apply IP settings...\n");
+	}
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	g_ipReactor.start ();
+
+	g_useDhcp = true;
+	g_ip4 = 0xc0a80105;
+	g_onApplyIpSettings ();
+
+	return 0;
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [compiler overview](/jancy/compiler_architecture.html)
+</md>

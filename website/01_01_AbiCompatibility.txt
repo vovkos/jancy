@@ -1,0 +1,147 @@
+<md>
+
+# ABI-compatibility with C/C++
+
+After the proper declaration of a data type in the Jancy scripts and in the host C/C++ application it becomes possible to directly pass data through arguments and return values without the need to explicitly push and pop the stack of the virtual machine or pack data into variant-like containers.
+
+The following types are supported:
+
+* All primitive C/C++ types (also integer types with inverted byte order, a.k.a. <i>bigendians</i>)
+* Structs (with arbitrary pack factor)
+* Unions
+* Bit fields (in structs and unions)
+* Arrays
+* C/C++ data and function pointers
+
+The following calling conventions are supported:
+
+* cdecl (Microsoft/gcc)
+* stdcall (Microsoft/gcc)
+* Microsoft x64
+* System V
+
+The above brings simplicity and effectiveness to the application-script interaction.
+
+Consider the following example of mapping Jancy declarations to C++ implementation:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+opaque class Socket
+{
+	// ...
+
+	SocketAddress const property m_address;
+	SocketAddress const property m_peerAddress;
+
+	bool dconst m_isOpen;
+	uint_t m_syncId;
+
+	Socket* operator new ();
+
+	bool open (
+		Protocol protocol,
+		SocketAddress const* address = null
+		) throws;
+
+	void close ();
+
+	// ...
+}
+
+</code>
+</div>
+
+<br> 
+The implementation in C/C++ would look something like:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+class CSocket: public jnc::TIfaceHdr
+{
+public:
+	// conventient macros for name-to-address mapping
+
+	JNC_API_BEGIN_CLASS ("io.Socket", EApiSlot_Socket)
+		JNC_API_OPERATOR_NEW (&CSocket::OperatorNew)
+		JNC_API_CONST_PROPERTY ("m_address",     &CSocket::GetAddress)
+		JNC_API_CONST_PROPERTY ("m_peerAddress", &CSocket::GetPeerAddress)
+		JNC_API_FUNCTION ("open",     &CSocket::Open)
+		JNC_API_FUNCTION ("close",    &CSocket::Close)
+
+		// ...
+	JNC_API_END_CLASS ()
+
+	// these fields are directly accessed from Jancy
+
+	bool m_IsOpen;
+	uint_t m_SyncId;
+
+	// ...
+
+	// these methods are directly called from Jancy
+
+	static
+	CSocket*
+	OperatorNew ();
+
+	sockaddr
+	AXL_CDECL
+	GetAddress ();
+
+	sockaddr
+	AXL_CDECL
+	GetPeerAddress ();
+
+	bool
+	AXL_CDECL
+	Open (
+		int Protocol,
+		jnc::TDataPtr Address
+		);
+
+	void
+	AXL_CDECL
+	Close ();
+
+	// ...
+};
+
+</code>
+</div>
+
+<br>
+The described compatibility also means you can copy-paste C definitions of communication protocol headers (such as TCP, UDP, etc.). C is the de-facto standard of system programming and it’s possible to find C definition for virtually any protocol in existence. Need to use this protocol from Jancy for analysis, implementation, or testing? Copy-paste the definition of protocol headers into Jancy!
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+enum IpProtocol: uint8_t
+{
+	Icmp = 1,
+	Tcp  = 6,
+	Udp  = 17,
+}
+
+struct IpHdr
+{
+	uint8_t m_headerLength : 4;
+	uint8_t m_version      : 4;
+	uint8_t m_typeOfService;
+	bigendian uint16_t m_totalLength;
+	uint16_t m_identification;
+	uint16_t m_flags;
+	uint8_t m_timeToLive;
+	IpProtocol m_protocol;
+	bigendian uint16_t m_headerChecksum;
+	uint32_t m_srcAddress;
+	uint32_t m_dstAddress;
+}
+
+</code>
+</div>
+
+---
+Proceed to Jancy [pointers](pointers.html)
+</md>
