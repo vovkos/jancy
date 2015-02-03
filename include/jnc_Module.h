@@ -74,7 +74,6 @@ protected:
 	uint_t m_flags;
 	ModuleCompileState m_compileState;
 
-	rtl::BoxList <rtl::String>* m_importDirList;
 	rtl::BoxList <rtl::String> m_importList;
 	rtl::BoxList <rtl::String> m_shadowImportList;
 	rtl::StringHashTable m_importSet;
@@ -92,6 +91,8 @@ protected:
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
 public:
+	rtl::BoxList <rtl::String> m_importDirList;
+
 	TypeMgr m_typeMgr;
 	AttributeMgr m_attributeMgr;
 	NamespaceMgr m_namespaceMgr;

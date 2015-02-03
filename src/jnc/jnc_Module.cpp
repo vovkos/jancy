@@ -13,13 +13,12 @@ Module::Module ()
 	m_llvmExecutionEngine = NULL;
 	m_flags = 0;
 	m_compileState = ModuleCompileState_Idle;
-	m_importDirList = NULL;
 }
 
 void
 Module::clear ()
 {
-	m_importDirList = NULL;
+	m_importDirList.clear ();
 	m_importList.clear ();
 	m_shadowImportList.clear ();
 	m_importSet.clear ();
@@ -293,7 +292,7 @@ Module::import (const char* fileName)
 	rtl::String filePath = io::findFilePath (
 		fileName, 
 		unit->getDir (),
-		m_importDirList,
+		&m_importDirList,
 		false
 		);
 

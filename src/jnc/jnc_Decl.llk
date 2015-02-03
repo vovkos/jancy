@@ -43,7 +43,7 @@ local_declaration
 //.............................................................................
 
 import_declaration
-	:	TokenKind_Import TokenKind_Literal ';'
+	:	TokenKind_Import TokenKind_Literal
 			{
 				return m_module->import ($2.m_data.m_string);
 			}

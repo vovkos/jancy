@@ -32,16 +32,18 @@ getApiTypeSlot () \
 } \
 static \
 bool \
-mapFunctions (jnc::Module* module) \
+mapFunctions ( \
+	jnc::Module* module, \
+	bool isRequired \
+	) \
 { \
 	bool result = true; \
 	jnc::Function* function = NULL; \
-	jnc::Function* overload = NULL; \
 	size_t overloadIdx = 0; \
 	jnc::Property* prop = NULL; \
 	Type* type = module->moduleGetApiType (getApiTypeSlot (), getApiTypeName ()); \
 	if (!type) \
-		return false; \
+		return isRequired ? false : true; \
 	jnc::Namespace* nspace = type;
 
 #define JNC_BEGIN_TYPE(name, slot) \
@@ -101,7 +103,6 @@ mapFunctions (jnc::Module* module) \
 { \
 	bool result = true; \
 	jnc::Function* function = NULL; \
-	jnc::Function* overload = NULL; \
 	size_t overloadIdx = 0; \
 	jnc::Property* prop = NULL; \
 	jnc::Namespace* nspace = module->m_namespaceMgr.getGlobalNamespace (); \
@@ -117,23 +118,31 @@ mapFunctions (jnc::Module* module) \
 	if (!result) \
 		return false;
 
-#define JNC_TYPE(Type) \
-	result = Type::mapFunctions (module); \
+#define JNC_TYPE_EX(Type, isRequired) \
+	result = Type::mapFunctions (module, isRequired); \
 	if (!result) \
 		return false;
+
+#define JNC_TYPE(Type) \
+	JNC_TYPE_EX(Type, true)
+
+#define JNC_OPT_TYPE(Type) \
+	JNC_TYPE_EX(Type, false)
 
 #define JNC_MAP(function, proc) \
 	module->mapFunction (function, pvoid_cast (proc));
 
 #define JNC_OVERLOAD(proc) \
-	ASSERT (function); \
-	overload = function->getOverload (++overloadIdx); \
-	if (!overload) \
+	if (function) \
 	{ \
-		err::setFormatStringError ("'%s' has no overload #%d", function->m_tag.cc (), overloadIdx); \
-		return false; \
-	} \
-	JNC_MAP (overload, proc)
+		jnc::Function* overload = function->getOverload (++overloadIdx); \
+		if (!overload) \
+		{ \
+			err::setFormatStringError ("'%s' has no overload #%d", function->m_tag.cc (), overloadIdx); \
+			return false; \
+		} \
+		JNC_MAP (overload, proc) \
+	}
 
 #define JNC_OPAQUE_CLASS(cls, gcRootEnumProc) \
 	type->setupOpaqueClass (sizeof (jnc::ObjHdr) + sizeof (cls), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
@@ -218,12 +227,23 @@ mapFunctions (jnc::Module* module) \
 	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_FUNCTION(name, proc) \
+#define JNC_FUNCTION_EX(name, proc, isRequired) \
 	function = nspace->getFunctionByName (name); \
-	if (!function) \
+	if (function) \
+	{ \
+		overloadIdx = 0; \
+		JNC_MAP (function, proc) \
+	} \
+	else if (isRequired) \
+	{ \
 		return false; \
-	overloadIdx = 0; \
-	JNC_MAP (function, proc)
+	}
+
+#define JNC_FUNCTION(name, proc) \
+	JNC_FUNCTION_EX(name, proc, true)
+
+#define JNC_OPT_FUNCTION(name, proc) \
+	JNC_FUNCTION_EX(name, proc, false)
 
 #define JNC_STD_FUNCTION_FORCED(stdFuncKind, proc) \
 	function = module->m_functionMgr.getStdFunction (stdFuncKind); \
