@@ -1,0 +1,4 @@
+utilsFoo ()
+{
+	printf ("utilsFoo ()\n");
+}

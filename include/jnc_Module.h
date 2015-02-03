@@ -74,6 +74,11 @@ protected:
 	uint_t m_flags;
 	ModuleCompileState m_compileState;
 
+	rtl::BoxList <rtl::String>* m_importDirList;
+	rtl::BoxList <rtl::String> m_importList;
+	rtl::BoxList <rtl::String> m_shadowImportList;
+	rtl::StringHashTable m_importSet;
+
 	Function* m_constructor;
 	Function* m_destructor;
 
@@ -347,6 +352,12 @@ public:
 
 	bool
 	parseFile (const char* filePath);
+
+	bool
+	parseImports ();
+
+	bool
+	import (const char* fileName);
 
 	bool
 	link (Module* module);

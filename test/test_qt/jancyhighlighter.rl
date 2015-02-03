@@ -31,6 +31,7 @@ main := |*
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 (
+'import'          |
 'namespace'       |
 'extension'       |
 'using'           |

@@ -27,6 +27,7 @@ enum TokenKind
 
 	// special declarations
 
+	TokenKind_Import,
 	TokenKind_Namespace,
 	TokenKind_Extension,
 	TokenKind_Using,
@@ -197,6 +198,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	// special declarations
 
+	AXL_LEX_TOKEN_NAME (TokenKind_Import,       "import")
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME (TokenKind_Extension,    "extension")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")

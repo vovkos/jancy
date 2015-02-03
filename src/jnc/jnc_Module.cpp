@@ -13,11 +13,17 @@ Module::Module ()
 	m_llvmExecutionEngine = NULL;
 	m_flags = 0;
 	m_compileState = ModuleCompileState_Idle;
+	m_importDirList = NULL;
 }
 
 void
 Module::clear ()
 {
+	m_importDirList = NULL;
+	m_importList.clear ();
+	m_shadowImportList.clear ();
+	m_importSet.clear ();
+
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
 	m_functionMgr.clear ();
@@ -279,6 +285,34 @@ Module::markForCompile (ModuleItem* item)
 }
 
 bool
+Module::import (const char* fileName)
+{
+	Unit* unit = m_unitMgr.getCurrentUnit ();
+	ASSERT (unit);
+
+	rtl::String filePath = io::findFilePath (
+		fileName, 
+		unit->getDir (),
+		m_importDirList,
+		false
+		);
+
+	if (filePath.isEmpty ())
+	{
+		err::setFormatStringError ("import '%s' not found", fileName);
+		return false;
+	}
+
+	rtl::StringHashTableIterator it = m_importSet.find (filePath);
+	if (it) // already
+		return true;
+	
+	m_importList.insertTail (filePath);
+	m_importSet.visit (filePath);
+	return true;
+}
+
+bool
 Module::parse (
 	const char* filePath,
 	const char* source,
@@ -339,7 +373,23 @@ Module::parseFile (const char* filePath)
 
 	rtl::String source (p, length);
 	m_sourceList.insertTail (source);
-	return p != NULL && parse (filePath, source, length);
+	return parse (filePath, source, length);
+}
+
+bool
+Module::parseImports ()
+{
+	while (!m_importList.isEmpty ())
+	{
+		rtl::String filePath = m_importList.removeHead ();
+		m_shadowImportList.insertTail (filePath);
+
+		bool result = parseFile (filePath);
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 bool

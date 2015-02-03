@@ -99,6 +99,7 @@ Members
 	uint_t m_flags;
 	size_t m_fieldAlignment;
 	size_t m_defaultFieldAlignment;
+
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;

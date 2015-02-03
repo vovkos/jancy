@@ -483,7 +483,8 @@ bool MainWindow::compile ()
 		filePath.constData (),
 		source.constData (),
 		source.size ()
-		);
+		) &&
+		module.parseImports ();
 
 	if (!result)
 	{

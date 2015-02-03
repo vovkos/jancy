@@ -3,7 +3,8 @@
 // root declaration productions
 
 global_declaration
-	:	namespace_declaration
+	:	import_declaration
+	|	namespace_declaration
 	|	extension_declaration
 	|	using_declaration
 	|	friend_declaration
@@ -41,7 +42,12 @@ local_declaration
 
 //.............................................................................
 
-// namespace & using declarations
+import_declaration
+	:	TokenKind_Import TokenKind_Literal ';'
+			{
+				return m_module->import ($2.m_data.m_string);
+			}
+	;
 
 namespace_declaration
 	:	TokenKind_Namespace qualified_name

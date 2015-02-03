@@ -75,7 +75,7 @@ void runGc ();
 
 ///; static char createThreadSrc [] = 
 
-uint64_t createThread (function* proc ());
+uint64_t createThread (function* threadFunc ());
 
 ///; static char sleepSrc [] = 
 

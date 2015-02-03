@@ -1,5 +1,7 @@
 //.............................................................................
 
+import "utils.jnc";
+
 class C1
 {
 	construct ()
@@ -31,6 +33,8 @@ class C2
 int main ()
 {
 	printf ("main ()\n");
+
+	utilsFoo ();
 
 	C2* c = new C2;
 

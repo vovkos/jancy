@@ -76,6 +76,7 @@ main := |*
 
 # global declarations & pragmas
 
+'import'         { createToken (TokenKind_Import); };
 'namespace'      { createToken (TokenKind_Namespace); };
 'extension'      { createToken (TokenKind_Extension); };
 'using'          { createToken (TokenKind_Using); };
