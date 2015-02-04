@@ -120,9 +120,7 @@ GcShadowStack::performCustomLowering (llvm::Function& llvmFunction)
 
 	rtl::Array <Root> rootArray;
 	collectRoots (function, &rootArray);
-
-	if (rootArray.isEmpty ())
-		return false;
+	ASSERT (!rootArray.isEmpty ());
 
 	size_t rootCount = rootArray.getCount ();
 

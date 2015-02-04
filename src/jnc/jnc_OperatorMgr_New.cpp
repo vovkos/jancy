@@ -82,8 +82,6 @@ OperatorMgr::allocate (
 			&ptrValue
 			);
 
-		#pragma AXL_TODO ("add tmp stack gc root properly")
-		// createTmpStackGcRoot (ptrValue);
 		break;
 
 	default:
@@ -610,8 +608,13 @@ OperatorMgr::newOperator (
 	}
 
 	Value ptrValue;
+	result = allocate (StorageKind_Heap, type, elementCountValue, "new", &ptrValue);
+	if (!result)
+		return false;
+
+	markStackGcRoot (ptrValue, type->getDataPtrType_c (), true);
+
 	result = 
-		allocate (StorageKind_Heap, type, elementCountValue, "new", &ptrValue) &&
 		prime (StorageKind_Heap, ptrValue, type, elementCountValue, &ptrValue) &&
 		construct (ptrValue, argList);
 
