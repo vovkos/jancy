@@ -38,7 +38,10 @@ public:
 
 	static 
 	TestClass*
-	operatorNew (int value);
+	operatorNew (
+		jnc::ClassType* type,
+		int value
+		);
 
 	void 
 	AXL_CDECL

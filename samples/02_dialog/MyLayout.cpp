@@ -12,10 +12,13 @@ MyLayout::enumGcRoots (
 }
 
 MyLayout*
-MyLayout::operatorNew (QBoxLayout::Direction direction)
+MyLayout::operatorNew (
+	jnc::ClassType* type,
+	QBoxLayout::Direction direction
+	)
 {
-	jnc::ApiObjBox <MyLayout>* layout = (jnc::ApiObjBox <MyLayout>*) jnc::StdLib::gcAllocate (getApiType ());
-	layout->prime ();	
+	jnc::ApiObjBox <MyLayout>* layout = (jnc::ApiObjBox <MyLayout>*) jnc::StdLib::gcAllocate (type);
+	layout->prime (type);	
 	layout->construct (direction);
 	return layout;
 }

@@ -26,7 +26,7 @@ CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
 		llvmArgTypeArray [j] = argArray [i]->getType ()->getLlvmType ();
 
 	return llvm::FunctionType::get (
-		m_module->getSimpleType (TypeKind_Void)->getLlvmType (),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
 		);
@@ -76,7 +76,7 @@ CallConv_gcc32::call (
 		calleeValue,
 		this,
 		*argValueList,
-		m_module->getSimpleType (TypeKind_Void),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void),
 		NULL
 		);
 

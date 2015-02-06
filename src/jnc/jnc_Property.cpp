@@ -145,7 +145,7 @@ Property::setOnChanged (ModuleItem* item)
 	m_onChanged = item;
 	m_flags |= PropertyFlag_Bindable;
 
-	FunctionType* binderType = (FunctionType*) m_module->getSimpleType (StdType_Binder);
+	FunctionType* binderType = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_Binder);
 	Function* binder = m_module->m_functionMgr.createFunction (FunctionKind_Binder, binderType);
 	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
@@ -162,7 +162,7 @@ Property::createOnChanged ()
 {
 	rtl::String name = "m_onChanged";
 
-	Type* type = m_module->getSimpleType (StdType_SimpleMulticast);
+	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleMulticast);
 
 	if (m_parentType)
 	{

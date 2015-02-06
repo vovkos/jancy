@@ -31,7 +31,10 @@ public:
 
 	static 
 	MyButton*
-	operatorNew (jnc::DataPtr textPtr);
+	operatorNew (
+		jnc::ClassType* type,
+		jnc::DataPtr textPtr
+		);
 
 	void
 	construct (jnc::DataPtr textPtr);

@@ -13,12 +13,13 @@ MySlider::enumGcRoots (
 
 MySlider*
 MySlider::operatorNew (
+	jnc::ClassType* type,
 	int minimum,
 	int maximum
 	)
 {
-	jnc::ApiObjBox <MySlider>* slider = (jnc::ApiObjBox <MySlider>*) jnc::StdLib::gcAllocate (getApiType ());
-	slider->prime ();	
+	jnc::ApiObjBox <MySlider>* slider = (jnc::ApiObjBox <MySlider>*) jnc::StdLib::gcAllocate (type);
+	slider->prime (type);	
 	slider->construct (minimum, maximum);
 	return slider;
 }

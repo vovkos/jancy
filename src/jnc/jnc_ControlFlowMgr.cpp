@@ -8,7 +8,7 @@ namespace jnc {
 
 ControlFlowMgr::ControlFlowMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_flags = 0;
@@ -204,7 +204,7 @@ ControlFlowMgr::breakJump (size_t level)
 bool
 ControlFlowMgr::continueJump (size_t level)
 {
-	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope (level);
+	Scope* targetScope = m_module->m_namespaceMgr.findContinueScope (level);
 	if (!targetScope)
 	{
 		err::setFormatStringError ("illegal continue");
@@ -226,7 +226,7 @@ ControlFlowMgr::jumpToFinally (Scope* scope)
 
 	size_t returnBlockId = scope->m_finallyReturnBlockArray.getCount ();
 	Value finallyReturnValue;
-	finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId);
+	finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId, m_module);
 	m_module->m_operatorMgr.storeDataRef (scope->m_finallyReturnAddress, finallyReturnValue);
 	scope->m_finallyReturnBlockArray.append (returnBlock);
 	jump (scope->m_finallyBlock, returnBlock);

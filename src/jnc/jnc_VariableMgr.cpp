@@ -9,7 +9,7 @@ namespace jnc {
 
 VariableMgr::VariableMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 	
 	m_tlsStructType = NULL;
@@ -618,7 +618,10 @@ VariableMgr::initializeVariableObjHdr (
 	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 2, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (typeValue, dstValue);
 	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 3, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (Value (flags, TypeKind_Int_pu), dstValue);
+	m_module->m_llvmIrBuilder.createStore (
+		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_pu)), 
+		dstValue
+		);
 
 	// variable ptr
 

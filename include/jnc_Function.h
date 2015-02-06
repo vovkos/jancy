@@ -101,7 +101,13 @@ enum StdFunction
 	StdFunction_GetTimestamp,
 	StdFunction_Format,
 	StdFunction_StrLen,
+	StdFunction_StrCmp,
+	StdFunction_StriCmp,
+	StdFunction_StrChr,
+	StdFunction_MemCmp,
+	StdFunction_MemChr,
 	StdFunction_MemCpy,
+	StdFunction_MemSet,
 	StdFunction_MemCat,
 	StdFunction_Rand,
 	StdFunction_Printf,
@@ -339,6 +345,9 @@ public:
 
 	void
 	convertToMemberMethod (DerivableType* parentType);
+
+	void
+	convertToOperatorNew ();
 
 	bool
 	hasBody ()

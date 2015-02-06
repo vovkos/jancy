@@ -12,10 +12,13 @@ MyCheckBox::enumGcRoots (
 }
 
 MyCheckBox*
-MyCheckBox::operatorNew (jnc::DataPtr textPtr)
+MyCheckBox::operatorNew (
+	jnc::ClassType* type,
+	jnc::DataPtr textPtr
+	)
 {
-	jnc::ApiObjBox <MyCheckBox>* checkBox = (jnc::ApiObjBox <MyCheckBox>*) jnc::StdLib::gcAllocate (getApiType ());
-	checkBox->prime ();	
+	jnc::ApiObjBox <MyCheckBox>* checkBox = (jnc::ApiObjBox <MyCheckBox>*) jnc::StdLib::gcAllocate (type);
+	checkBox->prime (type);	
 	checkBox->construct (textPtr);
 	return checkBox;
 }

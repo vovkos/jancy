@@ -50,23 +50,31 @@ enum ModuleCompileState
 class PreModule
 {
 protected:
-	Module* m_prevModule;
-
 	PreModule ()
 	{
-		m_prevModule = mt::setTlsSlotValue <Module> ((Module*) this);
+		Module* prevModule = mt::setTlsSlotValue <Module> ((Module*) this);
+		ASSERT (prevModule == NULL);
 	}
 
-	void
-	restorePrevModule ()
+public:
+	static
+	Module* 
+	getCurrentConstructedModule ()
 	{
-		mt::setTlsSlotValue <Module> (m_prevModule);
+		return mt::getTlsSlotValue <Module> ();
+	}
+
+protected:
+	void
+	finalizeConstruction ()
+	{
+		mt::setTlsSlotValue <Module> (NULL);
 	}
 };
 
 //.............................................................................
 
-class Module: PreModule
+class Module: public PreModule
 {
 protected:
 	rtl::String m_name;
@@ -150,18 +158,6 @@ public:
 	{
 		ASSERT (m_llvmExecutionEngine);
 		return m_llvmExecutionEngine;
-	}
-
-	Type*
-	getSimpleType (TypeKind typeKind)
-	{
-		return m_typeMgr.getPrimitiveType (typeKind);
-	}
-
-	Type*
-	getSimpleType (StdType stdType)
-	{
-		return m_typeMgr.getStdType (stdType);
 	}
 
 	Function*
@@ -404,25 +400,6 @@ protected:
 	bool
 	createDefaultConstructor ();
 };
-
-//.............................................................................
-
-typedef mt::ScopeTlsSlot <Module> ScopeThreadModule;
-
-inline
-Module*
-getCurrentThreadModule ()
-{
-	return mt::getTlsSlotValue <Module> ();
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-ModuleItem*
-getStockModuleItem (
-	size_t slot,
-	const char* name
-	);
 
 //.............................................................................
 

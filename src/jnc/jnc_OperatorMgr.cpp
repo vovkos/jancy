@@ -8,7 +8,7 @@ namespace jnc {
 
 OperatorMgr::OperatorMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	// operator tables
@@ -500,7 +500,7 @@ OperatorMgr::castOperator (
 		}
 
 		if (type->getTypeKind () == TypeKind_Void)
-			resultValue->setNull ();
+			resultValue->setNull (m_module);
 		else
 			*resultValue = type->getZeroValue ();
 
@@ -965,7 +965,7 @@ OperatorMgr::sizeofOperator (
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
 
-	resultValue->setConstSizeT (type->getSize ());
+	resultValue->setConstSizeT (type->getSize (), m_module);
 	return true;
 }
 
@@ -989,7 +989,7 @@ OperatorMgr::countofOperator (
 		return false;
 	}
 
-	resultValue->setConstSizeT (((ArrayType*) type)->getElementCount ());
+	resultValue->setConstSizeT (((ArrayType*) type)->getElementCount (), m_module);
 	return true;
 }
 
@@ -1004,7 +1004,7 @@ OperatorMgr::typeofOperator (
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
 
-	resultValue->setNull ();
+	resultValue->setNull (m_module);
 	return true;
 }
 
@@ -1253,7 +1253,7 @@ OperatorMgr::prepareOperand (
 		case TypeKind_Bool:
 			if (!(opFlags & OpFlag_KeepBool))
 			{
-				result = m_castIntFromBool.cast (value, m_module->getSimpleType (TypeKind_Int8), &value);
+				result = m_castIntFromBool.cast (value, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8), &value);
 				if (!result)
 					return false;
 			}

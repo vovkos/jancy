@@ -352,7 +352,7 @@ Cast_PropertyPtr_Weak2Normal::llvmCast (
 	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock ("dead");
 	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("phi");
 
-	Type* closureType = m_module->getSimpleType (StdType_ObjectPtr);
+	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
 	Value nullClosureValue = closureType->getZeroValue ();
 
 	Value closureValue;

@@ -34,7 +34,7 @@ getUnOpKindString (UnOpKind opKind)
 
 UnaryOperator::UnaryOperator ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_opKind = UnOpKind_Undefined;

@@ -31,7 +31,10 @@ public:
 
 	static 
 	MyLayout*
-	operatorNew (QBoxLayout::Direction direction);
+	operatorNew (
+		jnc::ClassType* type,
+		QBoxLayout::Direction direction
+		);
 
 	void
 	construct (

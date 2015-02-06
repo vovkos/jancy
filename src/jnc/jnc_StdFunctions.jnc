@@ -125,11 +125,56 @@ void addDestructor (
 
 size_t strlen (char const* p);
 
+///; static char strcmpSrc [] = 
+
+int strcmp (
+	char const* p1,
+	char const* p2
+	);
+
+///; static char stricmpSrc [] = 
+
+int stricmp (
+	char const* p1,
+	char const* p2
+	);
+
+///; static char strchrSrc [] = 
+
+size_t strchr (
+	char const* p,
+	int c
+	);
+
+///; static char memcmpSrc [] = 
+
+int memcmp (
+	void const* p1,
+	void const* p2,
+	size_t size
+	);
+
+///; static char memchrSrc [] = 
+
+size_t memchr (
+	void const* p,
+	int c,
+	size_t size
+	);
+
 ///; static char memcpySrc [] = 
 
 void memcpy (
 	void* dst,
 	void const* src,
+	size_t size
+	);
+
+///; static char memsetSrc [] = 
+
+void memset (
+	void* p,
+	int c,
 	size_t size
 	);
 

@@ -369,6 +369,7 @@ set (
 	VALUE_H_LIST
 	${JANCY_INC_DIR}/jnc_Closure.h
 	${JANCY_INC_DIR}/jnc_ConstMgr.h
+	${JANCY_INC_DIR}/jnc_DestructList.h
 	${JANCY_INC_DIR}/jnc_ObjHdr.h
 	${JANCY_INC_DIR}/jnc_LeanDataPtrValidator.h
 	${JANCY_INC_DIR}/jnc_Value.h
@@ -378,6 +379,7 @@ set (
 	VALUE_CPP_LIST
 	jnc_Closure.cpp
 	jnc_ConstMgr.cpp
+	jnc_DestructList.cpp
 	jnc_ObjHdr.cpp
 	jnc_LeanDataPtrValidator.cpp
 	jnc_Value.cpp
@@ -398,7 +400,6 @@ source_group (
 set (
 	VARIABLE_H_LIST
 	${JANCY_INC_DIR}/jnc_Alias.h
-	${JANCY_INC_DIR}/jnc_DestructList.h
 	${JANCY_INC_DIR}/jnc_Variable.h
 	${JANCY_INC_DIR}/jnc_VariableMgr.h
 	)
@@ -406,7 +407,6 @@ set (
 set (
 	VARIABLE_CPP_LIST
 	jnc_Alias.cpp
-	jnc_DestructList.cpp
 	jnc_Variable.cpp
 	jnc_VariableMgr.cpp
 	)

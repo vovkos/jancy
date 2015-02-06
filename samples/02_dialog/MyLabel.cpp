@@ -12,10 +12,13 @@ MyLabel::enumGcRoots (
 }
 
 MyLabel*
-MyLabel::operatorNew (jnc::DataPtr textPtr)
+MyLabel::operatorNew (
+	jnc::ClassType* type,
+	jnc::DataPtr textPtr
+	)
 {
-	jnc::ApiObjBox <MyLabel>* label = (jnc::ApiObjBox <MyLabel>*) jnc::StdLib::gcAllocate (getApiType ());
-	label->prime ();	
+	jnc::ApiObjBox <MyLabel>* label = (jnc::ApiObjBox <MyLabel>*) jnc::StdLib::gcAllocate (type);
+	label->prime (type);
 	label->construct (textPtr);
 	return label;
 }

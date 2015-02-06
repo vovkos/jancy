@@ -60,8 +60,6 @@ main (
 	printf ("Parsing...\n");
 
 	jnc::Module module;
-	jnc::ScopeThreadModule scopeModule (&module);
-
 	module.create (fileName);
 
 	result = module.parse (

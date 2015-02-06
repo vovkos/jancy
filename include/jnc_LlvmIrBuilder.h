@@ -276,7 +276,7 @@ public:
 		)
 	{
 		Value indexValue;
-		indexValue.setConstInt32 (index, TypeKind_Int32);
+		indexValue.setConstInt32 (index, getSimpleType (TypeKind_Int32, m_module));
 		return createGep (value, indexValue, resultType, resultValue);
 	}
 
@@ -309,8 +309,8 @@ public:
 	{
 		Value indexValue1;
 		Value indexValue2;
-		indexValue1.setConstInt32 (index1, TypeKind_Int32);
-		indexValue2.setConstInt32 (index2, TypeKind_Int32);
+		indexValue1.setConstInt32 (index1, getSimpleType (TypeKind_Int32, m_module));
+		indexValue2.setConstInt32 (index2, getSimpleType (TypeKind_Int32, m_module));
 		return createGep2 (value, indexValue1, indexValue2, resultType, resultValue);
 	}
 
@@ -323,7 +323,7 @@ public:
 		)
 	{
 		Value indexValue1;
-		indexValue1.setConstInt32 (0, TypeKind_Int32);
+		indexValue1.setConstInt32 (0, getSimpleType (TypeKind_Int32, m_module));
 		return createGep2 (value, indexValue1, indexValue2, resultType, resultValue);
 	}
 
@@ -337,8 +337,8 @@ public:
 	{
 		Value indexValue1;
 		Value indexValue2;
-		indexValue1.setConstInt32 (0, TypeKind_Int32);
-		indexValue2.setConstInt32 (index2, TypeKind_Int32);
+		indexValue1.setConstInt32 (0, getSimpleType (TypeKind_Int32, m_module));
+		indexValue2.setConstInt32 (index2, getSimpleType (TypeKind_Int32, m_module));
 		return createGep2 (value, indexValue1, indexValue2, resultType, resultValue);
 	}
 
@@ -672,7 +672,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpEQ (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "eq_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -684,7 +684,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOEQ (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "eq_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -696,7 +696,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpNE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "ne_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -708,7 +708,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpONE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "ne_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -720,7 +720,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "lt_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -732,7 +732,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "lt_u");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -744,7 +744,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "lt_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -756,7 +756,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "le_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -768,7 +768,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "le_u");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -780,7 +780,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "le_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -792,7 +792,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "gt_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -804,7 +804,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "gt_u");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -816,7 +816,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGT (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "gt_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -828,7 +828,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "ge_i");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -840,7 +840,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "ge_u");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -852,7 +852,7 @@ public:
 		)
 	{
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGE (opValue1.getLlvmValue (), opValue2.getLlvmValue (), "ge_f");
-		resultValue->setLlvmValue (inst, TypeKind_Bool);
+		resultValue->setLlvmValue (inst, getSimpleType (TypeKind_Bool, m_module));
 		return inst;
 	}
 
@@ -1211,7 +1211,7 @@ public:
 	bool
 	runtimeError (RuntimeErrorKind error)
 	{
-		return runtimeError (Value (error, TypeKind_Int));
+		return runtimeError (Value (error, getSimpleType (TypeKind_Int, m_module)));
 	}
 };
 

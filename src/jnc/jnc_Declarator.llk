@@ -34,7 +34,7 @@ class
 declarator <TypeSpecifier* $typeSpecifier>
 	enter
 	{
-		$.m_declarator.setTypeSpecifier ($typeSpecifier);
+		$.m_declarator.setTypeSpecifier ($typeSpecifier, m_module);
 	}
 	:	declarator_prefix <&$.m_declarator>*
 		declarator_name <&$.m_declarator>
@@ -382,7 +382,7 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 	}
 	:	declaration_specifier_list $s
 			{
-				$declarator.setTypeSpecifier (&$s.m_typeSpecifier);
+				$declarator.setTypeSpecifier (&$s.m_typeSpecifier, m_module);
 			}
 		declarator_prefix <&$declarator>*
 		declarator_name <&$declarator>?

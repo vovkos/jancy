@@ -43,9 +43,8 @@ ReactorClassType::calcLayout ()
 
 	// scan
 
-	Parser parser;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_ReactorScan;
-	parser.m_module = m_module;
 	parser.m_reactorType = this;
 
 	Function* start = m_methodArray [ReactorMethodKind_Start];
@@ -129,7 +128,7 @@ ReactorClassType::subscribe (const rtl::ConstList <Reaction>& reactionList)
 				ASSERT (result);
 			}
 
-			Value idxValue (i, TypeKind_SizeT);
+			Value idxValue (i, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			Value addMethodValue;
 			Value cookieValue;
 			Value bindSiteValue;
@@ -271,9 +270,8 @@ ReactorClassType::compileStartMethod ()
 
 	// compile start
 
-	Parser parser;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass2;
-	parser.m_module = m_module;
 	parser.m_reactorType = this;
 
 	result = parser.parseTokenList (SymbolKind_reactor_body, m_body, true);
@@ -285,7 +283,10 @@ ReactorClassType::compileStartMethod ()
 	Value stateValue;
 	result =
 		m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_State], NULL, &stateValue) &&
-		m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 1, TypeKind_Int_p));
+		m_module->m_operatorMgr.storeDataRef (
+			stateValue, 
+			Value ((int64_t) 1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p))
+			);
 
 	if (!result)
 		return false;
@@ -334,7 +335,7 @@ ReactorClassType::compileStopMethod ()
 
 	for (size_t i = 0; i < m_bindSiteCount; i++)
 	{
-		Value idxValue (i, TypeKind_SizeT);
+		Value idxValue (i, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 		Value bindSiteValue;
 		Value eventValue;
 		Value cookieValue;
@@ -351,7 +352,11 @@ ReactorClassType::compileStopMethod ()
 			return false;
 	}
 
-	result = m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 0, TypeKind_Int_p));
+	result = m_module->m_operatorMgr.storeDataRef (
+		stateValue, 
+		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p))
+		);
+
 	ASSERT (result);
 
 	m_module->m_controlFlowMgr.follow (followBlock);

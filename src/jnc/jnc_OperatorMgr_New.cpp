@@ -128,7 +128,7 @@ OperatorMgr::prime (
 			return false;
 		}
 
-		Value sizeValue (type->getSize (), TypeKind_SizeT);
+		Value sizeValue (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 		if (elementCountValue)
 		{
 			bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
@@ -178,7 +178,7 @@ OperatorMgr::prime (
 	}
 	else
 	{
-		scopeLevelValue.setConstSizeT (0);
+		scopeLevelValue.setConstSizeT (0, m_module);
 	}
 
 	Value rootValue;
@@ -190,7 +190,7 @@ OperatorMgr::prime (
 		ptrValue,
 		scopeLevelValue,
 		rootValue,
-		Value (flags, TypeKind_Int_p),
+		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p)),
 		NULL
 		);
 
@@ -325,8 +325,7 @@ OperatorMgr::parseInitializer (
 	rtl::BoxList <Value> argList;
 	if (!constructorTokenList.isEmpty ())
 	{
-		Parser parser;
-		parser.m_module = m_module;
+		Parser parser (m_module);
 		parser.m_stage = Parser::StageKind_Pass2;
 
 		m_module->m_controlFlowMgr.resetJumpFlag ();
@@ -344,8 +343,7 @@ OperatorMgr::parseInitializer (
 
 	if (!initializerTokenList.isEmpty ())
 	{
-		Parser parser;
-		parser.m_module = m_module;
+		Parser parser (m_module);
 		parser.m_stage = Parser::StageKind_Pass2;
 
 		m_module->m_controlFlowMgr.resetJumpFlag ();
@@ -383,8 +381,7 @@ OperatorMgr::parseExpression (
 	if (unit)
 		m_module->m_unitMgr.setCurrentUnit (unit);
 
-	Parser parser;
-	parser.m_module = m_module;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass2;
 	parser.m_flags |= flags;
 
@@ -559,8 +556,7 @@ OperatorMgr::evaluateAlias (
 	Value* resultValue
 	)
 {
-	Parser parser;
-	parser.m_module = m_module;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass2;
 
 	m_module->m_namespaceMgr.openNamespace (decl->getParentNamespace ());
@@ -596,6 +592,8 @@ OperatorMgr::newOperator (
 			return false;
 		}
 
+		Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+		argList->insertHead (typeValue);
 		return callOperator (operatorNew, argList, resultValue);
 	}
 
@@ -707,7 +705,7 @@ OperatorMgr::markStackGcRoot (
 
 	Value argValueArray [2];
 	argValueArray [0] = gcRootValue;
-	argValueArray [1].createConst (&type, m_module->getSimpleType (StdType_BytePtr));
+	argValueArray [1].createConst (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 	Value resultValue;
 	m_module->m_llvmIrBuilder.createCall (

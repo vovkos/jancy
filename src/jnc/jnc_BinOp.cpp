@@ -56,7 +56,7 @@ getBinOpKindString (BinOpKind opKind)
 
 BinaryOperator::BinaryOperator()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_opKind = BinOpKind_Undefined;

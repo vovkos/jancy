@@ -788,23 +788,23 @@ primary_expr <Value* $value>
 			}
 	|	TokenKind_Integer
 			{
-				$value->setConstInt64_u ($1.m_data.m_int64_u);
+				$value->setConstInt64_u ($1.m_data.m_int64_u, m_module);
 			}
 	|	TokenKind_Fp
 			{
-				$value->setConstDouble ($1.m_data.m_double);
+				$value->setConstDouble ($1.m_data.m_double, m_module);
 			}
 	|	TokenKind_True
 			{
-				$value->setConstBool (true);
+				$value->setConstBool (true, m_module);
 			}
 	|	TokenKind_False
 			{
-				$value->setConstBool (false);
+				$value->setConstBool (false, m_module);
 			}
 	|	TokenKind_Null
 			{
-				$value->setNull ();
+				$value->setNull (m_module);
 			}
 	|	TokenKind_Dynamic $d? TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{

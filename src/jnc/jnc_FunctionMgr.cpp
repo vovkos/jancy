@@ -12,7 +12,7 @@ namespace jnc {
 
 FunctionMgr::FunctionMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_currentFunction = NULL;
@@ -411,7 +411,7 @@ FunctionMgr::createThisValue ()
 		else
 		{
 			Value ptrValue;
-			m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->getSimpleType (StdType_BytePtr), &ptrValue);
+			m_module->m_llvmIrBuilder.createBitCast (thisArgValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 			m_module->m_llvmIrBuilder.createGep (ptrValue, (int32_t) function->m_thisArgDelta, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast (ptrValue, function->m_thisType, &m_thisValue);
 		}
@@ -684,7 +684,7 @@ FunctionMgr::getScheduleLauncherFunction (
 	if (thunk->m_value)
 		return thunk->m_value;
 
-	ClassPtrType* schedulerPtrType = ((ClassType*) m_module->getSimpleType (StdType_Scheduler))->getClassPtrType (schedulerPtrTypeKind);
+	ClassPtrType* schedulerPtrType = ((ClassType*) m_module->m_typeMgr.getStdType (StdType_Scheduler))->getClassPtrType (schedulerPtrTypeKind);
 
 	rtl::Array <FunctionArg*> argArray  = targetFunctionPtrType->getTargetType ()->getArgArray ();
 	argArray.insert (0, targetFunctionPtrType->getSimpleFunctionArg ());
@@ -837,7 +837,6 @@ FunctionMgr::jitFunctions ()
 	return false;
 #endif
 
-	ScopeThreadModule scopeModule (m_module);
 	llvm::ScopedFatalErrorHandler scopeErrorHandler (llvmFatalErrorHandler);
 
 	JitEventListener jitEventListener (this);
@@ -993,9 +992,39 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (strlenSrc),
 			StdNamespace_Global,
 		},
+		{                                        // StdFunction_StrCmp,
+			strcmpSrc,
+			lengthof (strcmpSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_StriCmp,
+			stricmpSrc,
+			lengthof (stricmpSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_StrChr,
+			strchrSrc,
+			lengthof (strchrSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_MemCmp,
+			memcmpSrc,
+			lengthof (memcmpSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_MemChr,
+			memchrSrc,
+			lengthof (memchrSrc),
+			StdNamespace_Global,
+		},
 		{                                        // StdFunction_MemCpy,
 			memcpySrc,
 			lengthof (memcpySrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_MemSet,
+			memsetSrc,
+			lengthof (memsetSrc),
 			StdNamespace_Global,
 		},
 		{                                        // StdFunction_MemCat,
@@ -1178,7 +1207,13 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AddStaticDestructor:
 	case StdFunction_AddDestructor:
 	case StdFunction_StrLen:
+	case StdFunction_StrCmp:
+	case StdFunction_StriCmp:
+	case StdFunction_StrChr:
+	case StdFunction_MemCmp:
+	case StdFunction_MemChr:
 	case StdFunction_MemCpy:
+	case StdFunction_MemSet:
 	case StdFunction_MemCat:
 	case StdFunction_Rand:
 	case StdFunction_Printf:
@@ -1232,7 +1267,7 @@ FunctionMgr::parseStdFunction (
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
 
-	Parser parser;
+	Parser parser (m_module);
 	parser.create (SymbolKind_normal_item_declaration);
 	parser.m_stage = Parser::StageKind_Pass2; // no imports
 
@@ -1299,7 +1334,13 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		"getTimestamp",        // StdFunction_GetTimestamp,
 		"format",              // StdFunction_Format,
 		"strlen",              // StdFunction_StrLen,
+		"strcmp",              // StdFunction_StrCmp,
+		"stricmp",             // StdFunction_StriCmp,
+		"strchr",              // StdFunction_StrChr,
+		"memcmp",              // StdFunction_MemCmp,
+		"memchr",              // StdFunction_MemChr,
 		"memcpy",              // StdFunction_MemCpy,
+		"memset",              // StdFunction_MemSet,
 		"memcat",              // StdFunction_MemCat,
 		"rand",                // StdFunction_Rand,
 		"printf",              // StdFunction_Printf,

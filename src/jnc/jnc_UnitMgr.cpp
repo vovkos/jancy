@@ -8,7 +8,7 @@ namespace jnc {
 
 UnitMgr::UnitMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_currentUnit = NULL;

@@ -342,7 +342,8 @@ OperatorMgr::getClassField (
 			ptrType,
 			opValue,
 			ptrValue,
-			field->getType ()->getSize ()
+			field->getType ()->getSize (),
+			m_module
 			);
 	}
 

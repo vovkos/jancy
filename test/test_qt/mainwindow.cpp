@@ -13,6 +13,16 @@
 //.............................................................................
 
 void
+AXL_CDECL
+TestClassA::foo (int x)
+{
+	printf ("TestClassA::foo (%d)\n", x);
+	m_x = x;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
 TestClassB::enumGcRoots (
 	jnc::Runtime* runtime,
 	TestClassB* self
@@ -22,19 +32,11 @@ TestClassB::enumGcRoots (
 //		self->m_hiddenIface->m_object->gcMarkObject (runtime);
 }
 
-void
-AXL_CDECL
-TestClassA::foo (int x)
-{
-	printf ("TestClassA::foo (%d)\n", x);
-	m_x = x;
-}
-
 TestClassB*
-TestClassB::operatorNew ()
+TestClassB::operatorNew (jnc::ClassType* type)
 {
-	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (getApiType ());
-	test->prime ();
+	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (type);
+	test->prime (type);
 	return test;
 }
 
@@ -118,9 +120,16 @@ StdLib::testPtr (jnc::DataPtr ptr)
 
 //.............................................................................
 
+MainWindow* g_mainWindow = NULL;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
 {
+	ASSERT (!g_mainWindow);
+	g_mainWindow = this;
+
 	createMdiArea();
 	setCentralWidget(mdiArea);
 
@@ -468,8 +477,6 @@ bool MainWindow::compile ()
 
 	QByteArray filePath = child->file().toUtf8 ();
 	module.create (filePath.data(), ModuleFlags);
-
-	jnc::ScopeThreadModule scopeModule (&module);
 
 	writeOutput("Parsing...\n");
 

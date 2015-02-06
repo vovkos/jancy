@@ -8,7 +8,7 @@ namespace jnc {
 
 LlvmIrBuilder::LlvmIrBuilder ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_llvmIrBuilder = NULL;
@@ -168,7 +168,7 @@ LlvmIrBuilder::createPhi (
 {
 	if (valueArray->isEmpty ())
 	{
-		resultValue->setVoid ();
+		resultValue->setVoid (m_module);
 		return NULL;
 	}
 
@@ -192,7 +192,7 @@ LlvmIrBuilder::createPhi (
 {
 	if (value1.isEmpty ())
 	{
-		resultValue->setVoid ();
+		resultValue->setVoid (m_module);
 		return NULL;
 	}
 
@@ -267,7 +267,7 @@ LlvmIrBuilder::createGep (
 	for (size_t i = 0; i < indexCount; i++)
 	{
 		Value indexValue;
-		indexValue.setConstInt32 (indexArray [i], TypeKind_Int32_u);
+		indexValue.setConstInt32 (indexArray [i], m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32_u));
 		llvmIndexArray [i] = indexValue.getLlvmValue ();
 	}
 
@@ -313,7 +313,7 @@ LlvmIrBuilder::createCall (
 			);
 
 		if (resultValue)
-			resultValue->setVoid ();
+			resultValue->setVoid (m_module);
 	}
 
 	llvm::CallingConv::ID llvmCallConv = callConv->getLlvmCallConv ();

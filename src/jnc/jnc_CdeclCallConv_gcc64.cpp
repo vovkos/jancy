@@ -182,7 +182,7 @@ CdeclCallConv_gcc64::call (
 		this,
 		*argValueList,
 		tmpReturnValue ?
-			m_module->getSimpleType (TypeKind_Void) :
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_Void) :
 			returnType,
 		resultValue
 		);

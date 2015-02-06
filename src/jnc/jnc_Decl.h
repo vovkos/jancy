@@ -290,7 +290,10 @@ public:
 	}
 
 	void
-	setTypeSpecifier (TypeSpecifier* typeSpecifier);
+	setTypeSpecifier (
+		TypeSpecifier* typeSpecifier,
+		Module* module
+		);
 
 	const QualifiedName*
 	getName ()

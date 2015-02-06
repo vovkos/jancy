@@ -87,7 +87,7 @@ Cast_ClassPtr::llvmCast (
 
 		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
 
-		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->getSimpleType (StdType_ObjectPtr), &opValue);
+		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &opValue);
 		m_module->m_llvmIrBuilder.createCall (
 			strengthen,
 			strengthen->getType (),

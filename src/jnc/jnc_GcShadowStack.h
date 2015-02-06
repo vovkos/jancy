@@ -20,7 +20,7 @@ protected:
 	Module* m_module;
 
 public:
-	GcShadowStack();
+	GcShadowStack ();
 
 	virtual
 	bool 

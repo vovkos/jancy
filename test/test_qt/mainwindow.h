@@ -72,7 +72,7 @@ public:
 
 	static 
 	TestClassB*
-	operatorNew ();
+	operatorNew (jnc::ClassType* type);
 
 	void
 	AXL_CDECL
@@ -254,18 +254,12 @@ private:
 	jnc::Runtime runtime;
 };
 
-//.............................................................................
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline MainWindow* getMainWindow ()
 {
-	foreach (QWidget* widget, QApplication::topLevelWidgets())
-	{
-		MainWindow*  mainWindow = qobject_cast <MainWindow*> (widget);
-		if(mainWindow)
-			return mainWindow;
-	}
-
-	return NULL;
+	extern MainWindow* g_mainWindow;
+	return g_mainWindow;
 }
 
 //.............................................................................

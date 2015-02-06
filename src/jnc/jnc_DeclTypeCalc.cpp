@@ -48,7 +48,7 @@ DeclTypeCalc::calcType (
 		}
 		else if (arraySuffix->getElementCount () != -1)
 		{
-			elementCountValue->setConstSizeT (arraySuffix->getElementCount ());
+			elementCountValue->setConstSizeT (arraySuffix->getElementCount (), m_module);
 			suffixEnd = arraySuffix;
 		}
 	}

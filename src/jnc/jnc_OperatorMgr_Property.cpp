@@ -506,7 +506,7 @@ OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 		return NULL;
 	}
 
-	return m_module->getSimpleType (StdType_SimpleEventPtr);
+	return m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 }
 
 bool

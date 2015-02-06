@@ -168,8 +168,6 @@ Jnc::compile (
 
 	m_module.create ("jncc_module", moduleFlags);
 
-	jnc::ScopeThreadModule scopeModule (&m_module);
-
 	result =
 		m_module.parse (fileName, source, length) &&
 		m_module.compile ();

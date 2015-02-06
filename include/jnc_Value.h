@@ -104,24 +104,6 @@ public:
 	}
 
 	Value (
-		const Value& value,
-		TypeKind typeKind
-		)
-	{
-		init ();
-		overrideType (value, typeKind);
-	}
-
-	Value (
-		int64_t value,
-		TypeKind typeKind
-		)
-	{
-		init ();
-		createConst (&value, typeKind);
-	}
-
-	Value (
 		int64_t value,
 		Type* type
 		)
@@ -145,7 +127,7 @@ public:
 		setType (type);
 	}
 
-	Value (Namespace* nspace)
+	Value (GlobalNamespace* nspace)
 	{
 		init ();
 		setNamespace (nspace);
@@ -183,16 +165,6 @@ public:
 	{
 		init ();
 		setLlvmValue (llvmValue, type, valueKind);
-	}
-
-	Value (
-		llvm::Value* llvmValue,
-		TypeKind typeKind,
-		ValueKind valueKind = ValueKind_LlvmRegister
-		)
-	{
-		init ();
-		setLlvmValue (llvmValue, typeKind, valueKind);
 	}
 
 	operator bool () const
@@ -380,9 +352,6 @@ public:
 	}
 
 	void
-	overrideType (TypeKind typeKind);
-
-	void
 	overrideType (
 		const Value& value,
 		Type* type
@@ -393,29 +362,19 @@ public:
 	}
 
 	void
-	overrideType (
-		const Value& value,
-		TypeKind typeKind
-		)
-	{
-		*this = value;
-		overrideType (typeKind);
-	}
-
-	void
 	clear ();
 
 	void
-	setVoid ();
+	setVoid (Module* module);
 
 	void
-	setNull ();
+	setNull (Module* module);
 
 	void
-	setNamespace (Namespace* nspace);
+	setNamespace (GlobalNamespace* nspace);
 
 	void
-	setType (TypeKind typeKind);
+	setNamespace (NamedType* type);
 
 	void
 	setType (Type* type);
@@ -452,13 +411,6 @@ public:
 		ValueKind valueKind = ValueKind_LlvmRegister
 		);
 
-	void
-	setLlvmValue (
-		llvm::Value* llvmValue,
-		TypeKind typeKind,
-		ValueKind valueKind = ValueKind_LlvmRegister
-		);
-
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator () const
 	{
@@ -482,10 +434,12 @@ public:
 	setLeanDataPtrValidator (
 		const Value& scopeValidatorValue,
 		const Value& rangeBeginValue,
-		size_t size
+		size_t size,
+		Module* module
 		)
 	{
-		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, Value (size, TypeKind_SizeT));
+		Value sizeValue (size, getSimpleType (TypeKind_SizeT, module));
+		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, sizeValue);
 	}
 
 	void
@@ -529,10 +483,12 @@ public:
 		DataPtrType* type,
 		const Value& scopeValidatorValue,
 		const Value& rangeBeginValue,
-		size_t size
+		size_t size,
+		Module* module
 		)
 	{
-		setLeanDataPtr (llvmValue, type, scopeValidatorValue, rangeBeginValue, Value (size, TypeKind_SizeT));
+		Value sizeValue (size, getSimpleType (TypeKind_SizeT, module));
+		setLeanDataPtr (llvmValue, type, scopeValidatorValue, rangeBeginValue, sizeValue);
 	}
 
 	bool
@@ -541,16 +497,13 @@ public:
 		Type* type
 		);
 
-	bool
-	createConst (
-		const void* p,
-		TypeKind type
-		);
-
 	void
-	setConstBool (bool value)
+	setConstBool (
+		bool value,
+		Module* module
+		)
 	{
-		createConst (&value, TypeKind_Bool);
+		createConst (&value, getSimpleType (TypeKind_Bool, module));
 	}
 
 	void
@@ -565,22 +518,21 @@ public:
 	void
 	setConstInt32 (
 		int32_t value,
-		TypeKind typeKind
+		Module* module
 		)
 	{
-		createConst (&value, typeKind);
+		Type* type = getSimpleType (getInt32TypeKind (value), module);
+		setConstInt32 (value, type);
 	}
 
 	void
-	setConstInt32 (int32_t value)
+	setConstInt32_u (
+		uint32_t value,
+		Module* module
+		)
 	{
-		setConstInt32 (value, getInt32TypeKind (value));
-	}
-
-	void
-	setConstInt32_u (uint32_t value)
-	{
-		setConstInt32 (value, getInt32TypeKind_u (value));
+		Type* type = getSimpleType (getInt32TypeKind_u (value), module);
+		setConstInt32 (value, type);
 	}
 
 	void
@@ -595,55 +547,73 @@ public:
 	void
 	setConstInt64 (
 		int64_t value,
-		TypeKind typeKind
+		Module* module
 		)
 	{
-		createConst (&value, typeKind);
+		Type* type = getSimpleType (getInt64TypeKind (value), module);
+		setConstInt64 (value, type);
 	}
 
 	void
-	setConstInt64 (int64_t value)
+	setConstInt64_u (
+		uint64_t value,
+		Module* module
+		)
 	{
-		setConstInt64 (value, getInt64TypeKind (value));
-	}
-
-	void
-	setConstInt64_u (uint64_t value)
-	{
-		setConstInt64 (value, getInt64TypeKind_u (value));
+		Type* type = getSimpleType (getInt64TypeKind_u (value), module);
+		setConstInt64 (value, type);
 	}
 
 	void
 	setConstSizeT (
 		size_t value,
-		TypeKind typeKind = TypeKind_SizeT
+		Type* type
 		)
 	{
-		createConst (&value, typeKind);
+		createConst (&value, type);
 	}
 
 	void
-	setConstFloat (float value)
+	setConstSizeT (
+		size_t value,
+		Module* module
+		)
 	{
-		createConst (&value, TypeKind_Float);
+		createConst (&value, getSimpleType (TypeKind_SizeT, module));
 	}
 
 	void
-	setConstDouble (double value)
+	setConstFloat (
+		float value,
+		Module* module
+		)
 	{
-		createConst (&value, TypeKind_Double);
+		createConst (&value, getSimpleType (TypeKind_Float, module));
 	}
 
 	void
-	setCharArray (const char* p)
+	setConstDouble (
+		double value,
+		Module* module
+		)
 	{
-		setCharArray (p, strlen (p) + 1);
+		createConst (&value, getSimpleType (TypeKind_Double, module));
+	}
+
+	void
+	setCharArray (
+		const char* p,
+		Module* module
+		)
+	{
+		setCharArray (p, strlen (p) + 1, module);
 	}
 
 	void
 	setCharArray (
 		const void* p,
-		size_t count
+		size_t count, 
+		Module* module
 		);
 
 protected:

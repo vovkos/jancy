@@ -32,7 +32,10 @@ public:
 
 	static 
 	MyCheckBox*
-	operatorNew (jnc::DataPtr textPtr);
+	operatorNew (
+		jnc::ClassType* type,
+		jnc::DataPtr textPtr
+		);
 
 	void
 	construct (jnc::DataPtr textPtr);

@@ -8,7 +8,7 @@ namespace jnc {
 
 NamespaceMgr::NamespaceMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	rtl::String jncName ("jnc");
@@ -78,7 +78,13 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrLen)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StriCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrChr)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemChr)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemSet)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
@@ -196,6 +202,7 @@ NamespaceMgr::openInternalScope ()
 
 	Scope* scope = AXL_MEM_NEW (Scope);
 	scope->m_module = m_module;
+	scope->m_destructList.m_module = m_module;
 	scope->m_function = function;
 	scope->m_level = m_currentScope ? m_currentScope->getLevel () + 1 : 1;
 	scope->m_parentNamespace = m_currentNamespace;

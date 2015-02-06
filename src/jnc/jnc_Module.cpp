@@ -13,6 +13,8 @@ Module::Module ()
 	m_llvmExecutionEngine = NULL;
 	m_flags = 0;
 	m_compileState = ModuleCompileState_Idle;
+
+	finalizeConstruction ();
 }
 
 void
@@ -126,6 +128,8 @@ Module::createLlvmExecutionEngine ()
 #if (_AXL_CPU == AXL_CPU_X86)
 	engineBuilder.setMArch ("x86");
 #endif
+
+	mt::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
 
 	m_llvmExecutionEngine = engineBuilder.create ();
 	if (!m_llvmExecutionEngine)
@@ -320,14 +324,12 @@ Module::parse (
 {
 	bool result;
 
-	ScopeThreadModule scopeModule (this);
-
 	m_unitMgr.createUnit (filePath);
 
 	Lexer lexer;
 	lexer.create (filePath, source, length);
 
-	Parser parser;
+	Parser parser (this);
 	parser.create (Parser::StartSymbol, true);
 
 	for (;;)
@@ -558,7 +560,7 @@ Module::createDefaultConstructor ()
 
 	ASSERT (!m_constructor);
 
-	FunctionType* type = (FunctionType*) getSimpleType (StdType_SimpleFunction);
+	FunctionType* type = (FunctionType*) m_typeMgr.getStdType (StdType_SimpleFunction);
 	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleConstructor, type);
 	function->m_storageKind = StorageKind_Static;
 	function->m_tag = "module.construct";

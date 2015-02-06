@@ -260,21 +260,8 @@ Value::getClosureAwareType () const
 }
 
 void
-Value::overrideType (TypeKind typeKind)
+Value::setVoid (Module* module)
 {
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
-	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
-	overrideType (type);
-}
-
-void
-Value::setVoid ()
-{
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
 	clear ();
 
 	m_valueKind = ValueKind_Void;
@@ -282,11 +269,8 @@ Value::setVoid ()
 }
 
 void
-Value::setNull ()
+Value::setNull (Module* module)
 {
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
 	clear ();
 
 	m_valueKind = ValueKind_Null;
@@ -303,25 +287,26 @@ Value::setType (Type* type)
 }
 
 void
-Value::setType (TypeKind typeKind)
-{
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
-	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
-	setType (type);
-}
-
-void
-Value::setNamespace (Namespace* nspace)
+Value::setNamespace (GlobalNamespace* nspace)
 {
 	clear ();
 
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
+	Module* module = nspace->getModule ();
 
 	m_valueKind = ValueKind_Namespace;
 	m_namespace = nspace;
+	m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+}
+
+void
+Value::setNamespace (NamedType* type)
+{
+	clear ();
+
+	Module* module = type->getModule ();
+
+	m_valueKind = ValueKind_Namespace;
+	m_namespace = type;
 	m_type = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 }
 
@@ -437,20 +422,6 @@ Value::setLlvmValue (
 }
 
 void
-Value::setLlvmValue (
-	llvm::Value* llvmValue,
-	TypeKind typeKind,
-	ValueKind valueKind
-	)
-{
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
-	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
-	setLlvmValue (llvmValue, type, valueKind);
-}
-
-void
 Value::setLeanDataPtrValidator (LeanDataPtrValidator* validator)
 {
 	ASSERT (m_type->getTypeKindFlags () & TypeKindFlag_DataPtr);
@@ -511,28 +482,13 @@ Value::createConst (
 	return true;
 }
 
-bool
-Value::createConst (
-	const void* p,
-	TypeKind typeKind
-	)
-{
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
-	Type* type = module->m_typeMgr.getPrimitiveType (typeKind);
-	return createConst (p, type);
-}
-
 void
 Value::setCharArray (
 	const void* p,
-	size_t size
+	size_t size,
+	Module* module
 	)
 {
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
 	if (!size)
 		size = 1;
 

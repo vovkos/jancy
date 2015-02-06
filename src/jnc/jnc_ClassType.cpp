@@ -98,8 +98,14 @@ ClassType::addMethod (Function* function)
 
 	function->m_parentNamespace = this;
 
+	if (functionKind == FunctionKind_OperatorNew)
+	{
+		storageKind = StorageKind_Static;
+		function->convertToOperatorNew ();
+	}
+
 	if (storageKind == StorageKind_Undefined)
-		storageKind = functionKind == FunctionKind_OperatorNew ? StorageKind_Static : StorageKind_Member;
+		storageKind = StorageKind_Member;
 
 	switch (storageKind)
 	{

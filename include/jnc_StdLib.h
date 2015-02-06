@@ -42,7 +42,13 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AddStaticDestructor, addStaticDestructor)
 		JNC_STD_FUNCTION (StdFunction_AddDestructor, addDestructor)
 		JNC_STD_FUNCTION (StdFunction_StrLen, strLen)
+		JNC_STD_FUNCTION (StdFunction_StrCmp, strCmp)
+		JNC_STD_FUNCTION (StdFunction_StriCmp, striCmp)
+		JNC_STD_FUNCTION (StdFunction_StrChr, strChr)
+		JNC_STD_FUNCTION (StdFunction_MemCmp, memCmp)
+		JNC_STD_FUNCTION (StdFunction_MemChr, memChr)
 		JNC_STD_FUNCTION (StdFunction_MemCpy, memCpy)
+		JNC_STD_FUNCTION (StdFunction_MemSet, memSet)
 		JNC_STD_FUNCTION (StdFunction_MemCat, memCat)
 		JNC_STD_FUNCTION (StdFunction_Rand, rand)
 		JNC_STD_FUNCTION (StdFunction_Atoi, atoi)
@@ -216,10 +222,55 @@ public:
 	strLen (DataPtr ptr);
 
 	static
+	int
+	strCmp (
+		DataPtr ptr1,
+		DataPtr ptr2
+		);
+
+	static
+	int
+	striCmp (
+		DataPtr ptr1,
+		DataPtr ptr2
+		);
+
+	static
+	size_t
+	strChr (
+		DataPtr ptr,
+		int c
+		);
+
+	static
+	int
+	memCmp (
+		DataPtr ptr1,
+		DataPtr ptr2,
+		size_t size
+		);
+
+	static
+	size_t
+	memChr (
+		DataPtr ptr,
+		int c,
+		size_t size
+		);
+
+	static
 	void
 	memCpy (
 		DataPtr dstPtr,
 		DataPtr srcPtr,
+		size_t size
+		);
+
+	static
+	void
+	memSet (
+		DataPtr ptr,
+		int c,
 		size_t size
 		);
 

@@ -307,7 +307,7 @@ unary_operator_expr_0 <Value* $value>
 			}
 	|	TokenKind_Delete unary_expr_0 <$value> 
 			{
-				$value->setVoid ();
+				$value->setVoid (m_module);
 			}
 	;
 
@@ -409,31 +409,32 @@ primary_expr_0 <Value* $value>
 			}
 	|	TokenKind_Integer
 			{
-				$value->setType (getInt64TypeKind ($1.m_data.m_int64));
+				TypeKind typeKind = getInt64TypeKind ($1.m_data.m_int64);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (typeKind));
 			}
 	|	TokenKind_Fp
 			{
-				$value->setType (TypeKind_Double);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Double));
 			}
 	|	TokenKind_True
 			{
-				$value->setType (TypeKind_Bool);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
 			}
 	|	TokenKind_False
 			{
-				$value->setType (TypeKind_Bool);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
 			}
 	|	TokenKind_Null
 			{
-				$value->setNull ();
+				$value->setNull (m_module);
 			}
 	|	TokenKind_Dynamic? TokenKind_SizeOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (TypeKind_SizeT);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			}
 	|	TokenKind_Dynamic? TokenKind_CountOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (TypeKind_SizeT);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			}
 	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr_0 ')'
 			{
@@ -441,7 +442,7 @@ primary_expr_0 <Value* $value>
 			}
 	|	TokenKind_OffsetOf '(' expression_0 ')'
 			{
-				$value->setType (TypeKind_SizeT);
+				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			}
 	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')' 
 			{

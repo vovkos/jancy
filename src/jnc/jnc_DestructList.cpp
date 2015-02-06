@@ -6,12 +6,6 @@ namespace jnc {
 
 //.............................................................................
 
-DestructList::DestructList ()
-{
-	m_module = getCurrentThreadModule ();
-	ASSERT (m_module);
-}
-
 void 
 DestructList::addDestructor (
 	Function* destructor,

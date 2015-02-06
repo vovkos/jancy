@@ -184,6 +184,15 @@ Function::convertToMemberMethod (DerivableType* parentType)
 	m_thisType = m_thisArgType;
 }
 
+void
+Function::convertToOperatorNew ()
+{
+	ASSERT (m_typeOverload.getOverloadCount () == 1);
+
+	m_type = m_module->m_typeMgr.getOperatorNewType (m_type);
+	m_typeOverload = m_type;
+}
+
 size_t
 Function::addOverload (Function* function)
 {
@@ -234,8 +243,7 @@ Function::compile ()
 
 	// parse body
 
-	Parser parser;
-	parser.m_module = m_module;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass2;
 
 	SymbolKind startSymbol = SymbolKind_compound_stmt;

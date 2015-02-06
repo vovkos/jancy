@@ -61,7 +61,7 @@ OperatorMgr::getLeanDataPtrRange (
 {
 	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 
-	Type* bytePtrType = m_module->getSimpleType (StdType_BytePtr);
+	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "calc lean data pointer range");
 
@@ -294,11 +294,12 @@ OperatorMgr::extractBitField (
 	size_t bitCount = bitFieldType->getBitCount ();
 
 	TypeKind typeKind = baseType->getSize () <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
+	Type* type = m_module->m_typeMgr.getPrimitiveType (typeKind);
 	int64_t mask = ((int64_t) 1 << bitCount) - 1;
 
 	Value value (rawValue, baseType);
-	Value maskValue (mask, typeKind);
-	Value offsetValue (bitOffset, typeKind);
+	Value maskValue (mask, type);
+	Value offsetValue (bitOffset, type);
 
 	result = 
 		binaryOperator (BinOpKind_Shr, &value, offsetValue) &&
@@ -311,8 +312,8 @@ OperatorMgr::extractBitField (
 	{
 		int64_t signBit = (int64_t) 1 << (bitCount - 1);
 
-		Value signBitValue (signBit, typeKind);
-		Value oneValue (1, typeKind);
+		Value signBitValue (signBit, type);
+		Value oneValue (1, type);
 
 		Value signExtValue;
 		result = 
@@ -343,12 +344,13 @@ OperatorMgr::mergeBitField (
 	size_t bitCount = bitFieldType->getBitCount ();
 
 	TypeKind typeKind = baseType->getSize () <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
+	Type* type = m_module->m_typeMgr.getPrimitiveType (typeKind);
 	int64_t mask = (((int64_t) 1 << bitCount) - 1) << bitOffset;
 
 	Value value (rawValue, baseType);
 	Value shadowValue (rawShadowValue, baseType);
-	Value maskValue (mask, typeKind);
-	Value offsetValue (bitOffset, typeKind);
+	Value maskValue (mask, type);
+	Value offsetValue (bitOffset, type);
 
 	result = 
 		binaryOperator (BinOpKind_Shl, &value, offsetValue) &&
@@ -358,7 +360,7 @@ OperatorMgr::mergeBitField (
 		return false;
 
 	mask = ~((((uint64_t) 1 << bitCount) - 1) << bitOffset);	
-	maskValue.setConstInt64 (mask, typeKind);
+	maskValue.setConstInt64 (mask, type);
 
 	return 
 		binaryOperator (BinOpKind_BwAnd, &shadowValue, maskValue) &&

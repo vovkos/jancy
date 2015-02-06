@@ -12,6 +12,8 @@ namespace jnc {
 
 class DestructList
 {
+	friend class NamespaceMgr;
+
 protected:
 	struct Entry: rtl::ListLink 
 	{
@@ -25,7 +27,10 @@ protected:
 	rtl::StdList <Entry> m_list;
 
 public:
-	DestructList ();
+	DestructList ()
+	{
+		m_module = NULL;
+	}
 
 	void
 	clear ()

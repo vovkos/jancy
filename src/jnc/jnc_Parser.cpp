@@ -8,9 +8,9 @@ namespace jnc {
 
 //.............................................................................
 
-Parser::Parser ()
+Parser::Parser (Module* module)
 {
-	m_module = getCurrentThreadModule ();
+	m_module = module;
 	m_stage = StageKind_Pass1;
 	m_flags = 0;
 	m_fieldAlignment = 8;
@@ -100,7 +100,7 @@ Parser::preCreateLandingPads (uint_t flags)
 		scope->m_flags |= ScopeFlag_HasFinally;
 
 		rtl::String name = "finallyReturnAddr";
-		Type* type = getSimpleType (m_module, TypeKind_Int);
+		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
 		Variable* variable  = m_module->m_variableMgr.createStackVariable (name, type);
 		ASSERT (variable->m_scope == scope);
 
@@ -1157,8 +1157,7 @@ Parser::parseLastPropertyBody (const rtl::ConstBoxList <Token>& body)
 
 	Property* prop = (Property*) m_lastDeclaredItem;
 
-	Parser parser;
-	parser.m_module = m_module;
+	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass1;
 
 	m_module->m_namespaceMgr.openNamespace (prop);
@@ -1922,8 +1921,7 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 
 	ASSERT (m_reactorType);
 
-	Parser parser;
-	parser.m_module = m_module;
+	Parser parser (m_module);
 	parser.m_stage = StageKind_ReactorStarter;
 	parser.m_reactorType = m_reactorType;
 
@@ -1960,16 +1958,26 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 
 	result =
 		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
-		m_module->m_operatorMgr.binaryOperator (BinOpKind_Idx, &stateValue, Value (m_reactionIndex, TypeKind_SizeT)) &&
+		m_module->m_operatorMgr.binaryOperator (
+			BinOpKind_Idx, 
+			&stateValue, 
+			Value (m_reactionIndex, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))
+			) &&
 		m_module->m_controlFlowMgr.conditionalJump (stateValue, returnBlock, followBlock, followBlock) &&
-		m_module->m_operatorMgr.storeDataRef (stateValue, Value (1, TypeKind_Int32));
+		m_module->m_operatorMgr.storeDataRef (
+			stateValue, 
+			Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
+			);
 	
 	parser.m_stage = StageKind_Pass2;
 	parser.m_reactorType = NULL;
 
 	result = 
 		parser.parseTokenList (SymbolKind_expression, tokenList) &&
-		m_module->m_operatorMgr.storeDataRef (stateValue, Value ((int64_t) 0, TypeKind_Int32));
+		m_module->m_operatorMgr.storeDataRef (
+			stateValue, 
+			Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
+			);
 
 	if (!result)
 		return false;
@@ -2592,7 +2600,7 @@ Parser::finalizeLiteral_0 (
 
 	if (literal->m_isFmtLiteral)
 	{
-		type = getSimpleType (m_module, TypeKind_Char)->getDataPtrType ();
+		type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType ();
 	}
 	else
 	{
@@ -2620,7 +2628,7 @@ Parser::finalizeLiteral (
 		if (literal->m_isZeroTerminated)
 			literal->m_binData.append (0);
 
-		resultValue->setCharArray (literal->m_binData, literal->m_binData.getCount ());
+		resultValue->setCharArray (literal->m_binData, literal->m_binData.getCount (), m_module);
 		return true;
 	}
 
@@ -2711,7 +2719,12 @@ Parser::finalizeLiteral (
 
 	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 2, NULL, &sizeValue);
 	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
-	m_module->m_llvmIrBuilder.createAdd_i (sizeValue, Value (1, TypeKind_SizeT), NULL, &sizeValue);
+	m_module->m_llvmIrBuilder.createAdd_i (
+		sizeValue, 
+		Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)), 
+		NULL, 
+		&sizeValue
+		);
 
 	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
@@ -2719,7 +2732,7 @@ Parser::finalizeLiteral (
 
 	resultValue->setLeanDataPtr (
 		ptrValue.getLlvmValue (),
-		getSimpleType (m_module, TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
 		objHdrValue,
 		ptrValue,
 		sizeValue
@@ -2738,11 +2751,11 @@ Parser::appendFmtLiteralRawData (
 	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
 
 	Value literalValue;
-	literalValue.setCharArray (p, length);
-	m_module->m_operatorMgr.castOperator (&literalValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
+	literalValue.setCharArray (p, length, m_module);
+	m_module->m_operatorMgr.castOperator (&literalValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c ());
 
 	Value lengthValue;
-	lengthValue.setConstSizeT (length);
+	lengthValue.setConstSizeT (length, m_module);
 
 	Value resultValue;
 	m_module->m_llvmIrBuilder.createCall3 (
@@ -2836,12 +2849,12 @@ Parser::appendFmtLiteralValue (
 	Value fmtSpecifierValue;
 	if (!fmtSpecifierString.isEmpty ())
 	{
-		fmtSpecifierValue.setCharArray (fmtSpecifierString, fmtSpecifierString.getLength () + 1);
-		m_module->m_operatorMgr.castOperator (&fmtSpecifierValue, getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ());
+		fmtSpecifierValue.setCharArray (fmtSpecifierString, fmtSpecifierString.getLength () + 1, m_module);
+		m_module->m_operatorMgr.castOperator (&fmtSpecifierValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c ());
 	}
 	else
 	{
-		fmtSpecifierValue = getSimpleType (m_module, TypeKind_Char)->getDataPtrType_c ()->getZeroValue ();
+		fmtSpecifierValue = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c ()->getZeroValue ();
 	}
 
 	return m_module->m_operatorMgr.callOperator (
@@ -2865,9 +2878,12 @@ Parser::appendFmtLiteralBinValue (
 
 	Type* type = srcValue.getType ();
 	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
-	Type* argType = getSimpleType (m_module, StdType_BytePtr);
+	Type* argType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
-	Value sizeValue (type->getSize (), TypeKind_SizeT);
+	Value sizeValue (
+		type->getSize (), 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
+		);
 
 	Value tmpValue;
 	Value resultValue;
@@ -2924,9 +2940,9 @@ Parser::finalizeAssertStmt (
 	Value lineValue;
 	Value conditionValue;
 	
-	fileNameValue.setCharArray (fileName, fileName.getLength ());
-	lineValue.setConstInt32 (pos.m_line);
-	conditionValue.setCharArray (conditionString, conditionString.getLength ());
+	fileNameValue.setCharArray (fileName, fileName.getLength (), m_module);
+	lineValue.setConstInt32 (pos.m_line, m_module);
+	conditionValue.setCharArray (conditionString, conditionString.getLength (), m_module);
 
 	Function* assertionFailure = m_module->m_functionMgr.getStdFunction (StdFunction_AssertionFailure);
 
@@ -2942,7 +2958,7 @@ Parser::finalizeAssertStmt (
 	else
 	{
 		Value nullValue;
-		nullValue.setNull ();
+		nullValue.setNull (m_module);
 		argValueList.insertTail (nullValue);
 	}
 	

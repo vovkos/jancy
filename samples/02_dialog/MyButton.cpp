@@ -13,10 +13,13 @@ MyButton::enumGcRoots (
 }
 
 MyButton*
-MyButton::operatorNew (jnc::DataPtr textPtr)
+MyButton::operatorNew (
+	jnc::ClassType* type,
+	jnc::DataPtr textPtr
+	)
 {
-	jnc::ApiObjBox <MyButton>* button = (jnc::ApiObjBox <MyButton>*) jnc::StdLib::gcAllocate (getApiType ());
-	button->prime ();	
+	jnc::ApiObjBox <MyButton>* button = (jnc::ApiObjBox <MyButton>*) jnc::StdLib::gcAllocate (type);
+	button->prime (type);	
 	button->construct (textPtr);
 	return button;
 }

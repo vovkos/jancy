@@ -30,7 +30,7 @@ public:
 		const Value& opValue2
 		)
 	{
-		return getSimpleType (m_module, TypeKind_Bool);
+		return getSimpleType (TypeKind_Bool, m_module);
 	}
 
 	virtual
@@ -81,7 +81,8 @@ public:
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
-						)
+						), 
+					m_module
 					);
 				break;
 
@@ -92,16 +93,17 @@ public:
 						opValue1.getInt32 (), 
 						opValue2.getInt32 (), 
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
-						)
+						),
+					m_module
 					);
 				break;
 
 			case TypeKind_Float:
-				resultValue->setConstBool (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()));
+				resultValue->setConstBool (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()), m_module);
 				break;
 
 			case TypeKind_Double:
-				resultValue->setConstBool (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()));
+				resultValue->setConstBool (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()), m_module);
 				break;
 
 			default:

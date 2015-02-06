@@ -27,7 +27,7 @@ public:
 
 	static 
 	MyTextEdit*
-	operatorNew ();
+	operatorNew (jnc::ClassType* type);
 
 	void
 	construct ();

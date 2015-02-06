@@ -17,12 +17,15 @@ TestClass::enumGcRoots (
 }
 
 TestClass*
-TestClass::operatorNew (int value)
+TestClass::operatorNew (
+	jnc::ClassType* type,
+	int value
+	)
 {
 	printf ("  TestClass::operatorNew (%d)\n", value);
 
-	jnc::ApiObjBox <TestClass>* object = (jnc::ApiObjBox <TestClass>*) jnc::StdLib::gcAllocate (getApiType ());
-	object->prime ();	
+	jnc::ApiObjBox <TestClass>* object = (jnc::ApiObjBox <TestClass>*) jnc::StdLib::gcAllocate (type);
+	object->prime (type);
 	object->m_internalValue = value;
 	sprintf (object->m_internalData, "TestClass (%p)", (TestClass*) object);
 	return object;

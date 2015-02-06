@@ -36,6 +36,7 @@ public:
 	static 
 	MySlider*
 	operatorNew (
+		jnc::ClassType* type,
 		int minimum,
 		int maximum
 		);

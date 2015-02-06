@@ -621,6 +621,9 @@ public:
 	FunctionType*
 	getStdObjectMemberMethodType (FunctionType* functionType);
 
+	FunctionType*
+	getOperatorNewType (FunctionType* functionType);
+
 	PropertyType*
 	getPropertyType (
 		FunctionType* getterType,

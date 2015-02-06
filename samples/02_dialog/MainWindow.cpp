@@ -141,7 +141,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	m_layout.prime ();	
+	m_layout.prime (&m_module);	
 	m_layout.construct (QBoxLayout::TopToBottom, m_body);
 
 	jnc::Function* constructor = m_module.getConstructor ();

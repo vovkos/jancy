@@ -8,7 +8,7 @@ namespace jnc {
 
 LlvmDiBuilder::LlvmDiBuilder ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_llvmDiBuilder = NULL;

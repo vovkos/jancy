@@ -8,7 +8,7 @@ namespace jnc {
 
 AttributeMgr::AttributeMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 }
 

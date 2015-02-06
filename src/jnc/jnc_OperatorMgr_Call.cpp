@@ -16,7 +16,7 @@ OperatorMgr::callTraceFunction (
 	if (item && item->getItemKind () == ModuleItemKind_Function)
 	{
 		Value literalValue;
-		literalValue.setCharArray (string);
+		literalValue.setCharArray (string, m_module);
 		m_module->m_operatorMgr.callOperator ((Function*) item, literalValue);
 	}
 }

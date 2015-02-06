@@ -67,7 +67,7 @@ castOperator (
 
 CastOperator::CastOperator()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_opFlags = 0;

@@ -192,26 +192,25 @@ Declarator::Declarator ()
 }
 
 void
-Declarator::setTypeSpecifier (TypeSpecifier* typeSpecifier)
+Declarator::setTypeSpecifier (
+	TypeSpecifier* typeSpecifier,
+	Module* module
+	)
 {
-	Module* module = getCurrentThreadModule ();
-	ASSERT (module);
-
 	if (!typeSpecifier)
 	{
 		m_baseType = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		return;
 	}
-	else
-	{
-		takeOver (typeSpecifier);
 
-		m_baseType = typeSpecifier->getType ();	
-		if (!m_baseType)
-		{
-			m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ? 
-				module->m_typeMgr.getPrimitiveType (TypeKind_Int) : 
-				module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-		}
+	takeOver (typeSpecifier);
+
+	m_baseType = typeSpecifier->getType ();	
+	if (!m_baseType)
+	{
+		m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ? 
+			module->m_typeMgr.getPrimitiveType (TypeKind_Int) : 
+			module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	}
 }
 

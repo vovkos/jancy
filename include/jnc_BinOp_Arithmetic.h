@@ -86,11 +86,11 @@ public:
 				break;
 
 			case TypeKind_Float:
-				resultValue->setConstFloat (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()));
+				resultValue->setConstFloat (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()), m_module);
 				break;
 
 			case TypeKind_Double:
-				resultValue->setConstDouble (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()));
+				resultValue->setConstDouble (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()), m_module);
 				break;
 
 			default:

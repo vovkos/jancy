@@ -13,10 +13,9 @@ namespace jnc {
 #define JNC_BEGIN_TYPE_EX(Type, moduleGetApiType, name, slot) \
 static \
 Type* \
-getApiType () \
+getApiType (jnc::Module* module) \
 { \
-	jnc::Module* module = jnc::getCurrentThreadModule (); \
-	return module->moduleGetApiType (getApiTypeSlot (), getApiTypeName ()); \
+	return module->moduleGetApiType (slot, name); \
 } \
 static \
 const char* \
@@ -41,7 +40,7 @@ mapFunctions ( \
 	jnc::Function* function = NULL; \
 	size_t overloadIdx = 0; \
 	jnc::Property* prop = NULL; \
-	Type* type = module->moduleGetApiType (getApiTypeSlot (), getApiTypeName ()); \
+	Type* type = module->moduleGetApiType (slot, name); \
 	if (!type) \
 		return isRequired ? false : true; \
 	jnc::Namespace* nspace = type;
@@ -303,6 +302,8 @@ prime (
 	uintptr_t flags
 	);
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 template <typename T>
 class ApiObjBox:
 	public ObjHdr,
@@ -311,24 +312,54 @@ class ApiObjBox:
 public:
 	void
 	prime (
+		ClassType* type,
 		size_t scopeLevel,
-		jnc::ObjHdr* root,
+		ObjHdr* root,
 		uintptr_t flags = 0
 		)
 	{
-		jnc::prime (T::getApiType (), T::getApiClassVTable (), this, scopeLevel, root, flags);
+		jnc::prime (type, T::getApiClassVTable (), this, scopeLevel, root, flags);
 	}
 
 	void
-	prime (jnc::ObjHdr* root)
+	prime (
+		Module* module,
+		size_t scopeLevel,
+		ObjHdr* root,
+		uintptr_t flags = 0
+		)
 	{
-		prime (root->m_scopeLevel, root, root->m_flags);
+		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, scopeLevel, root, flags);
 	}
 
 	void
-	prime () // most common primer with scope level 0
+	prime (
+		ClassType* type,
+		ObjHdr* root
+		)
 	{
-		prime (0, this, 0);
+		prime (type, root->m_scopeLevel, root, root->m_flags);
+	}
+
+	void
+	prime (
+		Module* module,
+		ObjHdr* root
+		)
+	{
+		prime (T::getApiType (module), root->m_scopeLevel, root, root->m_flags);
+	}
+
+	void
+	prime (ClassType* type) // most common primer with scope level 0
+	{
+		prime (type, 0, this, 0);
+	}
+
+	void
+	prime (Module* module) // most common primer with scope level 0
+	{
+		prime (T::getApiType (module), 0, this, 0);
 	}
 };
 

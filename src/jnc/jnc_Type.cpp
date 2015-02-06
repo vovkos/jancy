@@ -707,8 +707,8 @@ LazyStdType::getActualItem ()
 
 Type*
 getSimpleType (
-	Module* module,
-	TypeKind typeKind
+	TypeKind typeKind,
+	Module* module
 	)
 {
 	return module->m_typeMgr.getPrimitiveType (typeKind);
@@ -716,8 +716,8 @@ getSimpleType (
 
 Type*
 getSimpleType (
-	Module* module,
-	StdType stdType
+	StdType stdType,
+	Module* module
 	)
 {
 	return module->m_typeMgr.getStdType (stdType);

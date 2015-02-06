@@ -19,7 +19,7 @@ UnOp_PreInc::op (
 	)
 {
 	Value oneValue;
-	oneValue.setConstInt32 (1);
+	oneValue.setConstInt32 (1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 		
 	bool result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
@@ -54,7 +54,7 @@ UnOp_PostInc::op (
 		return false;
 
 	Value oneValue;
-	oneValue.setConstInt32 (1);
+	oneValue.setConstInt32 (1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PostInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 		
 	result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);

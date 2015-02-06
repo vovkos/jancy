@@ -170,7 +170,7 @@ getCallConvKindFromModifiers (uint_t modifiers)
 
 CallConv::CallConv ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	m_callConvKind = CallConvKind_Undefined;

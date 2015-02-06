@@ -102,9 +102,8 @@ GcShadowStack::GcShadowStack ()
 bool
 GcShadowStack::initializeCustomLowering (llvm::Module& llvmModule)
 {
-	m_module = getCurrentThreadModule ();
+	m_module = mt::getTlsSlotValue <Module> ();
 	ASSERT (m_module && m_module->getLlvmModule () == &llvmModule);
-
 	return true;
 }
 
@@ -226,7 +225,7 @@ GcShadowStack::collectRoots (
 	rtl::Array <Root>* rootArray
 	)
 {
-	Type* bytePtrType = m_module->getSimpleType (StdType_BytePtr);
+	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	llvm::Function::iterator llvmBlock = function->getLlvmFunction ()->begin();
 	llvm::Function::iterator llvmBlockEnd = function->getLlvmFunction ()->end ();
@@ -279,7 +278,7 @@ GcShadowStack::getFrameMap (
 	llvm::Constant*
 	llvmFrameMap [2] =
 	{
-		(llvm::Constant*) Value (rootCount, m_module->getSimpleType (TypeKind_SizeT)).getLlvmValue (),
+		(llvm::Constant*) Value (rootCount, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)).getLlvmValue (),
 
 		llvm::ConstantArray::get (
 			(llvm::ArrayType*) typeArrayType->getLlvmType (),

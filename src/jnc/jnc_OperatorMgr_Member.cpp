@@ -503,7 +503,12 @@ OperatorMgr::memberOperator (
 		switch (typeKind)
 		{
 		case TypeKind_Array:
-			return binaryOperator (BinOpKind_Idx, opValue, Value (index, TypeKind_SizeT), resultValue);
+			return binaryOperator (
+				BinOpKind_Idx, 
+				opValue, 
+				Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)), 
+				resultValue
+				);
 
 		case TypeKind_Struct:
 			field = ((StructType*) type)->getFieldByIndex (index);
@@ -639,7 +644,7 @@ OperatorMgr::offsetofOperator (
 		return false;
 	}
 
-	resultValue->setConstSizeT (value.getFieldOffset ());
+	resultValue->setConstSizeT (value.getFieldOffset (), m_module);
 	return true;
 }
 

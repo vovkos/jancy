@@ -137,6 +137,7 @@ ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 	setCurrentBlock (stmt->m_switchBlock);
 
 	BasicBlock* defaultBlock = stmt->m_defaultBlock ? stmt->m_defaultBlock : stmt->m_followBlock;
+	defaultBlock->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 
 	m_module->m_llvmIrBuilder.createSwitch (
 		stmt->m_value,

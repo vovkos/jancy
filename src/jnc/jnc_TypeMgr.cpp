@@ -16,7 +16,7 @@ namespace jnc {
 
 TypeMgr::TypeMgr ()
 {
-	m_module = getCurrentThreadModule ();
+	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
 	setupAllPrimitiveTypes ();
@@ -109,6 +109,7 @@ TypeMgr::getStdType (StdType stdType)
 	static SourceRef sourceTable [StdType__Count] =
 	{
 		{ NULL },                            // StdType_BytePtr,
+		{ NULL },                            // StdType_ByteConstPtr,
 		{ NULL },                            // StdType_SimpleIfaceHdr,
 		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
 		{ NULL },                            // StdType_ObjHdr,
@@ -215,6 +216,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
 		break;
 
+	case StdType_ByteConstPtr:
+		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
+		break;
+
 	case StdType_SimpleIfaceHdr:
 		type = createSimpleIfaceHdrType ();
 		break;
@@ -318,6 +323,7 @@ TypeMgr::getLazyStdType (StdType stdType)
 	const char* nameTable [StdType__Count] =
 	{
 		NULL,            // StdType_BytePtr,
+		NULL,            // StdType_ByteConstPtr,
 		NULL,            // StdType_SimpleIfaceHdr,
 		NULL,            // StdType_SimpleIfaceHdrPtr,
 		NULL,            // StdType_ObjHdr,
@@ -1240,6 +1246,24 @@ TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 	return functionType->m_stdObjectMemberMethodType;
 }
 
+FunctionType*
+TypeMgr::getOperatorNewType (FunctionType* functionType)
+{
+	ASSERT (functionType->m_flags & ModuleItemFlag_User);
+
+	FunctionArg* thisArg = getSimpleFunctionArg (getStdType (StdType_BytePtr));
+
+	rtl::Array <FunctionArg*> argArray = functionType->m_argArray;
+	argArray.insert (0, thisArg);
+
+	return createUserFunctionType (
+		functionType->m_callConv,
+		functionType->m_returnType,
+		argArray,
+		functionType->m_flags
+		);
+}
+
 PropertyType*
 TypeMgr::getPropertyType (
 	FunctionType* getterType,
@@ -1629,8 +1653,8 @@ TypeMgr::createReactorType (
 
 	// fields
 
-	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->getSimpleType (TypeKind_Int_p));
-	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->getSimpleType (TypeKind_Int_p));
+	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p));
+	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p));
 
 	rtl::Array <Function*> virtualMethodArray = ifaceType->getVirtualMethodArray ();
 	ASSERT (virtualMethodArray.getCount () == 2);
@@ -2628,7 +2652,7 @@ TypeMgr::parseStdType (
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
 
-	Parser parser;
+	Parser parser (m_module);
 	parser.create (SymbolKind_named_type_specifier_save_type);
 
 	for (;;)

@@ -41,7 +41,7 @@ OperatorMgr::checkDataPtrRange (
 {
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check data pointer range");
 
-	Value sizeValue (size, TypeKind_SizeT);
+	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
@@ -215,7 +215,7 @@ OperatorMgr::checkClassPtrNull (const Value& value)
 		checkFunction,
 		checkFunction->getType (),
 		ptrValue,
-		Value (RuntimeErrorKind_NullClassPtr, TypeKind_Int),
+		Value (RuntimeErrorKind_NullClassPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
 		NULL
 		);
 }
@@ -248,7 +248,7 @@ OperatorMgr::checkFunctionPtrNull (const Value& value)
 		checkFunction,
 		checkFunction->getType (),
 		ptrValue,
-		Value (RuntimeErrorKind_NullFunctionPtr, TypeKind_Int),
+		Value (RuntimeErrorKind_NullFunctionPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
 		NULL
 		);
 }
@@ -266,7 +266,7 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 
@@ -298,7 +298,7 @@ OperatorMgr::checkPropertyPtrNull (const Value& value)
 		checkFunction,
 		checkFunction->getType (),
 		ptrValue,
-		Value (RuntimeErrorKind_NullPropertyPtr, TypeKind_Int),
+		Value (RuntimeErrorKind_NullPropertyPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
 		NULL
 		);
 }
@@ -316,7 +316,7 @@ OperatorMgr::checkPropertyPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->getSimpleType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 

@@ -194,6 +194,79 @@ StdLib::strLen (DataPtr ptr)
 	return p - p0;
 }
 
+int
+StdLib::strCmp (
+	DataPtr ptr1,
+	DataPtr ptr2
+	)
+{
+	if (ptr1.m_p == ptr2.m_p)
+		return 0;
+
+	return 
+		!ptr1.m_p ? -1 :
+		!ptr2.m_p ? 1 :
+		strcmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
+}
+
+int
+StdLib::striCmp (
+	DataPtr ptr1,
+	DataPtr ptr2
+	)
+{
+	if (ptr1.m_p == ptr2.m_p)
+		return 0;
+
+	return 
+		!ptr1.m_p ? -1 :
+		!ptr2.m_p ? 1 :
+		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
+}
+
+size_t
+StdLib::strChr (
+	DataPtr ptr,
+	int c
+	)
+{
+	if (!ptr.m_p)
+		return -1;
+
+	char* p = strchr ((char*) ptr.m_p, c);
+	return p ? p - (char*) ptr.m_p : -1;
+}
+
+int
+StdLib::memCmp (
+	DataPtr ptr1,
+	DataPtr ptr2,
+	size_t size
+	)
+{
+	if (ptr1.m_p == ptr2.m_p)
+		return 0;
+
+	return 
+		!ptr1.m_p ? -1 :
+		!ptr2.m_p ? 1 :
+		memcmp (ptr1.m_p, ptr2.m_p, size);
+}
+
+size_t
+StdLib::memChr (
+	DataPtr ptr,
+	int c,
+	size_t size
+	)
+{
+	if (!ptr.m_p)
+		return -1;
+
+	void* p = memchr (ptr.m_p, c, size);
+	return p ? (char*) p - (char*) ptr.m_p : -1;
+}
+
 void
 StdLib::memCpy (
 	DataPtr dstPtr,
@@ -203,6 +276,15 @@ StdLib::memCpy (
 {
 	if (dstPtr.m_p && srcPtr.m_p)
 		memcpy (dstPtr.m_p, srcPtr.m_p, size);
+}
+
+void
+StdLib::memSet (
+	DataPtr ptr,
+	int c,
+	size_t size
+	)
+{
 }
 
 DataPtr

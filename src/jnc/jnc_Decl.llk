@@ -218,7 +218,7 @@ item_declaration_wo_specifier
 	}
 	enter
 	{
-		$declarator.setTypeSpecifier (NULL);
+		$declarator.setTypeSpecifier (NULL, m_module);
 	}
 	:	declarator_prefix <&$declarator>*
 		declarator_name <&$declarator>
@@ -318,7 +318,7 @@ type_name_impl <Type** $type, Value* $countValue>
 	}
 	:	type_specifier_modifier_list
 			{
-				$declarator.setTypeSpecifier (&$1.m_typeSpecifier);
+				$declarator.setTypeSpecifier (&$1.m_typeSpecifier, m_module);
 			}
 		declarator_prefix <&$declarator>*
 		declarator_suffix <&$declarator>*

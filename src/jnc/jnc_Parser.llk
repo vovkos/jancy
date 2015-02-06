@@ -130,7 +130,7 @@ Members
 
 Members2
 {
-	Parser ();
+	Parser (Module* module);
 
 	bool
 	parseTokenList (

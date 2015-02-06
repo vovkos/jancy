@@ -234,7 +234,8 @@ protected:
 		const Value& ptrValue
 		)
 	{
-		initializeVariableObjHdr (objHdrValue, Value (scopeLevel, TypeKind_SizeT), type, flags, ptrValue);
+		Value scopeLevelValue (scopeLevel, getSimpleType (TypeKind_SizeT, m_module));
+		initializeVariableObjHdr (objHdrValue, scopeLevelValue, type, flags, ptrValue);
 	}
 
 	void

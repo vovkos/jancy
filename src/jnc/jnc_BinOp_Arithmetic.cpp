@@ -51,8 +51,16 @@ dataPtrDifferenceOperator (
 	ASSERT (rawOpValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
 	ASSERT (rawOpValue2.getType ()->getTypeKind () == TypeKind_DataPtr);
 	
-	DataPtrType* opType = (DataPtrType*) rawOpValue1.getType ();
-	DataPtrType* bytePtrType = (DataPtrType*) module->getSimpleType (StdType_BytePtr);
+	Type* targetType1 = ((DataPtrType*) rawOpValue1.getType ())->getTargetType ();
+	Type* targetType2 = ((DataPtrType*) rawOpValue2.getType ())->getTargetType ();
+	
+	if (targetType1->cmp (targetType2) != 0)
+	{
+		err::setFormatStringError ("pointer difference target types mismatch");
+		return false;
+	}
+
+	Type* bytePtrType = module->m_typeMgr.getStdType (StdType_ByteConstPtr);
 
 	Value opValue1;
 	Value opValue2;
@@ -64,13 +72,13 @@ dataPtrDifferenceOperator (
 	if (!result)
 		return false;
 
-	Type* type = module->getSimpleType (TypeKind_Int_p);
+	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
 
 	Value diffValue;
 	Value sizeValue;
 
-	size_t size = opType->getTargetType ()->getSize ();
-	sizeValue.setConstSizeT (size ? size : 1);
+	size_t size = targetType1->getSize ();
+	sizeValue.setConstSizeT (size ? size : 1, module);
 
 	module->m_llvmIrBuilder.createPtrToInt (opValue1, type, &opValue1);
 	module->m_llvmIrBuilder.createPtrToInt (opValue2, type, &opValue2);

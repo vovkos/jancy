@@ -135,6 +135,7 @@ enum TypeKind
 enum StdType
 {
 	StdType_BytePtr,
+	StdType_ByteConstPtr,
 	StdType_SimpleIfaceHdr,
 	StdType_SimpleIfaceHdrPtr,
 	StdType_ObjHdr,
@@ -722,14 +723,14 @@ public:
 
 Type*
 getSimpleType (
-	Module* module,
-	TypeKind typeKind
+	TypeKind typeKind,
+	Module* module
 	);
 
 Type*
 getSimpleType (
-	Module* module,
-	StdType stdType
+	StdType stdType,
+	Module* module
 	);
 
 Type*
