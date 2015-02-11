@@ -1,12 +1,28 @@
+$state = 0;
+
 while (chomp (my $s = <>))
 {
+
 	if ($s =~ m/\/\/\//)
 	{
-		# inject /// comments directly as C++ snippets 
+		$body = $';
 
-		print ("$'");
+		if ($body =~ m/^\+\+\+/)
+		{
+			$state = 1;
+		}
+		elsif ($body =~ m/^\-\-\-/)
+		{
+			$state = 0;
+		}
+		else 
+		{
+			# inject as C++ snippet 
+
+			print ("$body\n");
+		}		
 	}
-	else 
+	elsif ($state)
 	{
 		# get rid of single-line comments
 
@@ -16,9 +32,7 @@ while (chomp (my $s = <>))
 
 		if ($s !~ m/^[ \t]*$/)
 		{
-			print ("\"$s\\n\"");
+			print ("\"$s\\n\"\n");
 		}	
 	}	
-
-	print ("\n");
 }

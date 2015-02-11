@@ -1,125 +1,6 @@
+///+++
+
 //.............................................................................
-
-///; static char runtimeErrorSrc [] = 
-
-void runtimeError (
-	int error,
-	uint8_t thin* codeAddress
-	);
-
-///; static char dynamicSizeOfSrc [] = 
-
-size_t dynamicSizeOf (void const* p);
-
-///; static char dynamicCountOfSrc [] = 
-
-size_t dynamicCountOf (
-	void const* p,
-	uint8_t thin* type
-	);
-
-///; static char dynamicCastDataPtrSrc [] = 
-
-void* dynamicCastDataPtr (
-	void const* p,
-	uint8_t thin* type
-	);
-
-///; static char dynamicCastClassPtrSrc [] = 
-
-object* dynamicCastClassPtr (
-	object const* p,
-	uint8_t thin* type
-	);
-
-///; static char strengthenClassPtrSrc [] = 
-
-object* strengthenClassPtr (object weak* p);
-
-///; static char gcAllocateSrc [] = 
-
-uint8_t thin* gcAllocate (
-	uint8_t thin* type,
-	size_t elementCount
-	);
-
-///; static char gcTryAllocateSrc [] = 
-
-uint8_t thin* gcTryAllocate (
-	uint8_t thin* type,
-	size_t elementCount
-	);
-
-///; static char markGcRootSrc [] = 
-
-void markGcRoot (
-	uint8_t thin* thin* p,
-	uint8_t thin* type
-	);
-
-///; static char gcEnterSrc [] = 
-
-void gcEnter ();
-
-///; static char gcLeaveSrc [] = 
-
-void gcLeave ();
-
-///; static char gcPulseSrc [] = 
-
-void gcPulse ();
-
-///; static char runGcSrc [] = 
-
-void runGc ();
-
-///; static char createThreadSrc [] = 
-
-uint64_t createThread (function* threadFunc ());
-
-///; static char sleepSrc [] = 
-
-void sleep (uint32_t msec);
-
-///; static char getTimestampSrc [] = 
-
-uint64_t getTimestamp ();
-
-///; static char getCurrentThreadIdSrc [] = 
-
-uintptr_t getCurrentThreadId ();
-
-///; static char setPosixErrorSrc [] = 
-
-Error const* setPosixError (int errno);
-
-///; static char setStringErrorSrc [] = 
-
-Error const* setStringError (char const* string);
-
-///; static char getLastErrorSrc [] = 
-
-Error const* getLastError ();
-
-///; static char assertionFailureSrc [] = 
-
-void assertionFailure (
-	char const thin* fileName,
-	int line, 
-	char const thin* condition,
-	char const thin* message
-	);
-
-///; static char addStaticDestructorSrc [] = 
-
-void addStaticDestructor (intptr dtor);
-
-///; static char addDestructorSrc [] = 
-
-void addDestructor (
-	intptr dtor,
-	object* obj
-	);
 
 ///; static char strlenSrc [] = 
 
@@ -202,11 +83,156 @@ intptr cdecl printf (
 
 int atoi (char const* p);
 
+//.............................................................................
+
+///---
+
+namespace jnc {
+
+///+++
+
+//.............................................................................
+
+///; static char runGcSrc [] = 
+
+void runGc ();
+
+///; static char createThreadSrc [] = 
+
+uint64_t createThread (function* threadFunc ());
+
+///; static char sleepSrc [] = 
+
+void sleep (uint32_t msec);
+
+///; static char getTimestampSrc [] = 
+
+uint64_t getTimestamp ();
+
+///; static char getCurrentThreadIdSrc [] = 
+
+uintptr_t getCurrentThreadId ();
+
+///; static char setPosixErrorSrc [] = 
+
+Error const* setPosixError (int errno);
+
+///; static char setStringErrorSrc [] = 
+
+Error const* setStringError (char const* string);
+
+///; static char getLastErrorSrc [] = 
+
+Error const* getLastError ();
+
 ///; static char formatSrc [] = 
 
 char const* cdecl format (
 	char const* fmtSpecifier,
 	...
+	);
+
+///;
+
+//.............................................................................
+
+///---
+
+} // namespace jnc {
+
+namespace jnci {
+
+///+++
+
+//.............................................................................
+
+///; static char runtimeErrorSrc [] = 
+
+void runtimeError (
+	int error,
+	uint8_t thin* codeAddress
+	);
+
+///; static char dynamicSizeOfSrc [] = 
+
+size_t dynamicSizeOf (void const* p);
+
+///; static char dynamicCountOfSrc [] = 
+
+size_t dynamicCountOf (
+	void const* p,
+	uint8_t thin* type
+	);
+
+///; static char dynamicCastDataPtrSrc [] = 
+
+void* dynamicCastDataPtr (
+	void const* p,
+	uint8_t thin* type
+	);
+
+///; static char dynamicCastClassPtrSrc [] = 
+
+object* dynamicCastClassPtr (
+	object const* p,
+	uint8_t thin* type
+	);
+
+///; static char strengthenClassPtrSrc [] = 
+
+object* strengthenClassPtr (object weak* p);
+
+///; static char gcAllocateSrc [] = 
+
+uint8_t thin* gcAllocate (
+	uint8_t thin* type,
+	size_t elementCount
+	);
+
+///; static char gcTryAllocateSrc [] = 
+
+uint8_t thin* gcTryAllocate (
+	uint8_t thin* type,
+	size_t elementCount
+	);
+
+///; static char markGcRootSrc [] = 
+
+void markGcRoot (
+	uint8_t thin* thin* p,
+	uint8_t thin* type
+	);
+
+///; static char gcEnterSrc [] = 
+
+void gcEnter ();
+
+///; static char gcLeaveSrc [] = 
+
+void gcLeave ();
+
+///; static char gcPulseSrc [] = 
+
+void gcPulse ();
+
+///; static char assertionFailureSrc [] = 
+
+void assertionFailure (
+	char const thin* fileName,
+	int line, 
+	char const thin* condition,
+	char const thin* message
+	);
+
+///; static char addStaticDestructorSrc [] = 
+
+void addStaticDestructor (intptr dtor);
+
+///; static char addDestructorSrc [] = 
+
+void addDestructor (
+	intptr dtor,
+	object* obj
 	);
 
 ///; static char appendFmtLiteralSrc_a [] = 
@@ -305,6 +331,11 @@ size_t appendFmtLiteral_br (
 	BufferRef bufferRef
 	);
 
+///;
+
 //.............................................................................
 
-///;
+///---
+
+} // namespace jnc {
+
