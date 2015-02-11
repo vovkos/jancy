@@ -337,5 +337,5 @@ size_t appendFmtLiteral_br (
 
 ///---
 
-} // namespace jnc {
+} // namespace jnci {
 

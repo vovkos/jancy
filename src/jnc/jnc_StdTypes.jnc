@@ -36,7 +36,17 @@ struct Error
 	char const* const property m_description;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
+
+///---
+
+} // namespace jnc {
+
+namespace jnci {
+
+///+++
+
+//.............................................................................
 
 ///; static char fmtLiteralTypeSrc [] = 
 
@@ -103,5 +113,5 @@ struct Fp64Int64
 
 ///---
 
-} // namespace jnc {
+} // namespace jnci {
 
