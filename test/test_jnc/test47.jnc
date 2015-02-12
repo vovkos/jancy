@@ -2,11 +2,12 @@
 
 int main ()
 {	
-//	printf ("main ()\n");
+	printf ("main ()\n");
 
-	uchar_t a [3] = 0x"1 2";
+	char const* p = null;
 
-//	a = b;
+	printf ($"abc -- '$p'\n");
+
 
 	return 0;
 }

@@ -224,17 +224,20 @@ StdLib::striCmp (
 		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
 }
 
-size_t
+DataPtr 
 StdLib::strChr (
 	DataPtr ptr,
 	int c
 	)
 {
-	if (!ptr.m_p)
-		return -1;
+	DataPtr resultPtr = { 0 };
 
-	char* p = strchr ((char*) ptr.m_p, c);
-	return p ? p - (char*) ptr.m_p : -1;
+	if (!ptr.m_p)
+		return resultPtr;
+
+	resultPtr = ptr;
+	resultPtr.m_p = strchr ((char*) ptr.m_p, c);
+	return resultPtr;
 }
 
 int
@@ -253,18 +256,21 @@ StdLib::memCmp (
 		memcmp (ptr1.m_p, ptr2.m_p, size);
 }
 
-size_t
+DataPtr 
 StdLib::memChr (
 	DataPtr ptr,
 	int c,
 	size_t size
 	)
 {
-	if (!ptr.m_p)
-		return -1;
+	DataPtr resultPtr = { 0 };
 
-	void* p = memchr (ptr.m_p, c, size);
-	return p ? (char*) p - (char*) ptr.m_p : -1;
+	if (!ptr.m_p)
+		return resultPtr;
+
+	resultPtr = ptr;
+	resultPtr.m_p = memchr (ptr.m_p, c, size);
+	return resultPtr;
 }
 
 void
@@ -569,7 +575,7 @@ StdLib::appendFmtLiteral_p (
 	)
 {
 	if (!ptr.m_p)
-		return appendFmtLiteral_a (fmtLiteral, "(null)", 6);
+		return fmtLiteral->m_length;
 
 	char* p = (char*) ptr.m_p;
 	while (*p && p < ptr.m_rangeEnd)

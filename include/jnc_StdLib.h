@@ -236,7 +236,7 @@ public:
 		);
 
 	static
-	size_t
+	DataPtr 
 	strChr (
 		DataPtr ptr,
 		int c
@@ -251,7 +251,7 @@ public:
 		);
 
 	static
-	size_t
+	DataPtr 
 	memChr (
 		DataPtr ptr,
 		int c,
