@@ -1051,6 +1051,10 @@ OperatorMgr::prepareOperandType (
 						value = ((DataPtrType*) type)->getTargetType ();
 					}
 				}
+				else if (opFlags & OpFlag_LoadArrayRef)
+				{
+					value = ((DataPtrType*) type)->getTargetType ();
+				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{
 					DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
@@ -1177,6 +1181,12 @@ OperatorMgr::prepareOperand (
 						if (!result)
 							return false;
 					}
+				}
+				else if (opFlags & OpFlag_LoadArrayRef)
+				{
+					result = loadDataRef (&value);
+					if (!result)
+						return false;
 				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{

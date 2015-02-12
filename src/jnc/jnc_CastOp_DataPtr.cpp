@@ -121,6 +121,11 @@ Cast_DataPtr_Base::getCastKind (
 	if (dstDataType->getTypeKind () == TypeKind_Void && (isSrcPod || isDstConst))
 		return CastKind_Implicit;
 
+	if ((srcDataType->getTypeKindFlags () & TypeKindFlag_Integer) &&
+		(dstDataType->getTypeKindFlags () & TypeKindFlag_Integer) &&
+		srcDataType->getSize () == dstDataType->getSize ())
+		return CastKind_Implicit;
+
 	bool isDstBase = 
 		srcDataType->getTypeKind () == TypeKind_Struct && 
 		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType);

@@ -15,6 +15,11 @@ namespace jnc {
 class Cast_Array: public CastOperator
 {
 public:
+	Cast_Array ()
+	{
+		// m_opFlags = OpFlag_LoadArrayRef;
+	}
+
 	virtual
 	CastKind
 	getCastKind (

@@ -44,6 +44,7 @@ enum OpFlag
 	OpFlag_KeepBool         = 0x20,
 	OpFlag_KeepEnum         = 0x40,
 	OpFlag_ArrayRefToPtr    = 0x80,
+	OpFlag_LoadArrayRef     = 0x100,
 	
 	OpFlag_KeepRef          = 
 		OpFlag_KeepDataRef | 
