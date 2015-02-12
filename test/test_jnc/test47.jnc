@@ -4,7 +4,9 @@ int main ()
 {	
 	printf ("main ()\n");
 
-	char const* p = null;
+	char const* p = memchr (0x"11 22 33 44", 0x33, 4);
+
+	
 
 	printf ($"abc -- '$p'\n");
 

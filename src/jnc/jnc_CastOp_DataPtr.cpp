@@ -121,6 +121,10 @@ Cast_DataPtr_Base::getCastKind (
 	if (dstDataType->getTypeKind () == TypeKind_Void && (isSrcPod || isDstConst))
 		return CastKind_Implicit;
 
+	if (srcDataType->getTypeKind () == TypeKind_Void && 
+		(dstDataType->getTypeKind () == TypeKind_Int8 || dstDataType->getTypeKind () == TypeKind_Int8_u))
+		return CastKind_Implicit;
+
 	if ((srcDataType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		(dstDataType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		srcDataType->getSize () == dstDataType->getSize ())
