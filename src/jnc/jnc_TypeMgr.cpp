@@ -98,6 +98,7 @@ TypeMgr::getStdType (StdType stdType)
 	#include "jnc_StdTypes.jnc.cpp"
 	#include "jnc_Buffer.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
+	#include "jnc_Recognizer.jnc.cpp"
 
 	struct SourceRef
 	{
@@ -131,7 +132,11 @@ TypeMgr::getStdType (StdType stdType)
 			lengthof (schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{ NULL },                            // StdType_SchedulerPtr,
+		{                                    // StdType_Recognizer,
+			recognizerTypeSrc,
+			lengthof (recognizerTypeSrc),
+			StdNamespace_Jnc,
+		},
 		{                                    // StdType_FmtLiteral,
 			fmtLiteralTypeSrc,
 			lengthof (fmtLiteralTypeSrc),
@@ -264,9 +269,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = getFunctionType (getStdType (StdType_SimpleEventPtr), NULL, 0);
 		break;
 
-	case StdType_SchedulerPtr:
-		type = ((ClassType*) getStdType (StdType_Scheduler))->getClassPtrType ();
-		break;
+	case StdType_Recognizer:		
+		type = (Type*) m_module->m_namespaceMgr.getGlobalNamespace ()->findItemByName ("jnc.Recognizer");
+		if (type)
+			break;
+
+		// else fall through
 
 	case StdType_ReactorBindSite:
 	case StdType_Scheduler:
@@ -322,32 +330,32 @@ TypeMgr::getLazyStdType (StdType stdType)
 
 	const char* nameTable [StdType__Count] =
 	{
-		NULL,            // StdType_BytePtr,
-		NULL,            // StdType_ByteConstPtr,
-		NULL,            // StdType_SimpleIfaceHdr,
-		NULL,            // StdType_SimpleIfaceHdrPtr,
-		NULL,            // StdType_ObjHdr,
-		NULL,            // StdType_ObjHdrPtr,
-		NULL,            // StdType_VariableObjHdr,
-		NULL,            // StdType_ObjectClass,
-		NULL,            // StdType_ObjectPtr,
-		NULL,            // StdType_SimpleFunction,
-		NULL,            // StdType_SimpleMulticast,
-		NULL,            // StdType_SimpleEventPtr,
-		NULL,            // StdType_Binder,
-		NULL,            // StdType_ReactorBindSite,
-		"Scheduler",     // StdType_Scheduler,
-		NULL,            // StdType_SchedulerPtr,
-		NULL,            // StdType_FmtLiteral,
-		"Guid",          // StdType_Guid
-		"Error",         // StdType_Error,
-		"String",        // StdType_String,
-		"StringRef",     // StdType_StringRef,
-		"StringBuilder", // StdType_StringBuilder,
-		"ConstArray",    // StdType_ConstArray,
-		"ConstArrayRef", // StdType_ConstArrayRef,
-		"ArrayRef",      // StdType_ArrayRef,
-		"Array",         // StdType_DynamicArray,
+		NULL,             // StdType_BytePtr,
+		NULL,             // StdType_ByteConstPtr,
+		NULL,             // StdType_SimpleIfaceHdr,
+		NULL,             // StdType_SimpleIfaceHdrPtr,
+		NULL,             // StdType_ObjHdr,
+		NULL,             // StdType_ObjHdrPtr,
+		NULL,             // StdType_VariableObjHdr,
+		NULL,             // StdType_ObjectClass,
+		NULL,             // StdType_ObjectPtr,
+		NULL,             // StdType_SimpleFunction,
+		NULL,             // StdType_SimpleMulticast,
+		NULL,             // StdType_SimpleEventPtr,
+		NULL,             // StdType_Binder,
+		NULL,             // StdType_ReactorBindSite,
+		"Scheduler",      // StdType_Scheduler,
+		"Recognizer",     // StdType_Recognizer,
+		NULL,             // StdType_FmtLiteral,
+		"Guid",           // StdType_Guid
+		"Error",          // StdType_Error,
+		"String",         // StdType_String,
+		"StringRef",      // StdType_StringRef,
+		"StringBuilder",  // StdType_StringBuilder,
+		"ConstArray",     // StdType_ConstArray,
+		"ConstArrayRef",  // StdType_ConstArrayRef,
+		"ArrayRef",       // StdType_ArrayRef,
+		"Array",          // StdType_DynamicArray,
 	};
 
 	const char* name = nameTable [stdType];

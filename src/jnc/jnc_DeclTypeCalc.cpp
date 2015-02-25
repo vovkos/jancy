@@ -71,7 +71,7 @@ DeclTypeCalc::calcType (
 
 			type = getDataPtrType (arrayType);
 		}
-		else if (m_typeModifiers & TypeModifier_Function)
+		else if (m_typeModifiers & (TypeModifier_Function | TypeModifier_Automaton))
 		{
 			FunctionType* functionType = getFunctionType (type);
 			if (!functionType)
@@ -529,6 +529,31 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 
 	CallConvKind callConvKind = getCallConvKindFromModifiers (m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
+
+	if (m_typeModifiers & TypeModifier_Automaton) // automatons takes 2 implicit arguments
+	{
+		if (returnType->getTypeKind () != TypeKind_Bool || 
+			!suffix->m_argArray.isEmpty () ||
+			(typeFlags & FunctionTypeFlag_VarArg))
+		{
+			err::setFormatStringError ("automaton function must return 'bool' and take no explicit arguments");
+			return NULL;
+		}
+
+		typeFlags |= FunctionTypeFlag_Automaton;
+
+		ClassType* recognizerType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Recognizer);
+		Type* recognizerPtrType = recognizerType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+
+		FunctionArg* argArray [] = 
+		{			
+			m_module->m_typeMgr.createFunctionArg ("recognizer", recognizerPtrType),
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)->getSimpleFunctionArg (),
+		};
+
+		suffix->m_argArray.append (argArray [0]);
+		suffix->m_argArray.append (argArray [1]);
+	}
 
 	if (typeFlags & FunctionTypeFlag_VarArg)
 	{

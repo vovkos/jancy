@@ -24,6 +24,7 @@ enum TokenKind
 	TokenKind_HexLiteral,
 	TokenKind_FmtLiteral,
 	TokenKind_FmtSpecifier,
+	TokenKind_RegExpLiteral,
 
 	// special declarations
 
@@ -74,6 +75,7 @@ enum TokenKind
 	TokenKind_Multicast,
 	TokenKind_Event,
 	TokenKind_Reactor,
+	TokenKind_Automaton,
 
 	// type specifiers
 
@@ -191,10 +193,14 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
 	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
+	
+	// literal tokens
+
 	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_HexLiteral,   "hex-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
+	AXL_LEX_TOKEN_NAME (TokenKind_RegExpLiteral, "regexp-literal")
 
 	// special declarations
 
@@ -245,6 +251,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
 	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
 	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
+	AXL_LEX_TOKEN_NAME (TokenKind_Automaton,    "automaton")
 
 	// type specifiers
 

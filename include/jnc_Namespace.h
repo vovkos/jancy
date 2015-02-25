@@ -117,6 +117,9 @@ public:
 	}
 
 	ModuleItem*
+	findItemByName (const char* name);
+
+	ModuleItem*
 	getItemByName (const char* name);
 
 	Type*

@@ -104,6 +104,12 @@ public:
 	{
 		m_flags |= (BasicBlockFlag_Entry | BasicBlockFlag_Reachable);
 	}
+
+	void
+	markReachable ()
+	{
+		m_flags |= BasicBlockFlag_Reachable;
+	}
 };
 
 //.............................................................................

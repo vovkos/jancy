@@ -45,7 +45,7 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 		TypeModifier_AutoGet,           // TypeModifier_Indexed    = 0x00008000,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Multicast  = 0x00010000,
 		TypeModifierMaskKind_Event,     // TypeModifier_Event      = 0x00020000,
-		0,                              // TypeModifier_Unused     = 0x00040000,
+		TypeModifierMaskKind_TypeKind,  // TypeModifier_Automaton  = 0x00040000,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Reactor    = 0x00080000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Thiscall   = 0x00100000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Jnccall    = 0x00200000,

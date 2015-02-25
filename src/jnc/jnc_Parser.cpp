@@ -3,6 +3,7 @@
 #include "jnc_Parser.llk.cpp"
 #include "jnc_Closure.h"
 #include "jnc_DeclTypeCalc.h"
+#include "jnc_Recognizer.h"
 
 namespace jnc {
 
@@ -24,6 +25,8 @@ Parser::Parser (Module* module)
 	m_reactionBindSiteCount = 0;
 	m_reactorTotalBindSiteCount = 0;
 	m_reactionIndex = 0;
+	m_automatonSwitchBlock = NULL;
+	m_automatonReturnBlock = NULL;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
@@ -1986,6 +1989,159 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 	m_module->m_functionMgr.epilogue ();
 	m_reactionIndex++;
 	return true;
+}
+
+bool
+Parser::beginAutomatonFunction ()
+{
+	m_automatonSwitchBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	m_automatonReturnBlock = m_module->m_controlFlowMgr.createBlock ("automaton_return_block");
+	m_automatonRegExp.clear ();
+	return true;
+}
+
+bool
+Parser::finalizeAutomatonFunction ()
+{
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function->m_type->getFlags () & FunctionTypeFlag_Automaton);
+
+	ClassType* recognizerType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Recognizer);
+	Type* recognizerPtrType = recognizerType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+	Value recognizerValue (llvmArg++, recognizerPtrType);
+	Value requestValue (llvmArg++, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+
+	// finalize regexp
+
+	BasicBlock* automatonSetupBlock = m_module->m_controlFlowMgr.createBlock ("automaton_setup_block");
+
+	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp);
+	regExpCompiler.finalize ();
+
+	// build dfa tables
+
+	rtl::Array <fsm::DfaState*> stateArray = m_automatonRegExp.getDfaStateArray ();
+	size_t stateCount = stateArray.getCount ();
+
+	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (TypeKind_Int_u, stateCount);
+	Type* transitionTableType = m_module->m_typeMgr.getArrayType (TypeKind_SizeT, stateCount * 256);
+
+	Value stateFlagTableValue ((void*) NULL, stateFlagTableType);
+	Value transitionTableValue ((void*) NULL, transitionTableType);
+
+	uint_t* stateFlags = (uint_t*) stateFlagTableValue.getConstData ();
+	size_t* transitionRow = (size_t*) transitionTableValue.getConstData ();
+
+	rtl::HashTableMap <intptr_t, BasicBlock*, axl::rtl::HashId <intptr_t> > caseMap;
+	for (size_t i = 0; i < stateCount; i++)
+	{
+		fsm::DfaState* state = stateArray [i];
+
+		*stateFlags = 0;
+		if (state->m_isAccept)
+		{
+			*stateFlags |= RecognizerStateFlag_Accept;
+			caseMap [state->m_id] = (BasicBlock*) state->m_acceptContext;
+		}
+
+		if (state->m_transitionList.isEmpty ())
+			*stateFlags |= RecognizerStateFlag_Final;
+
+		memset (transitionRow, -1, sizeof (size_t) * 256);
+
+		rtl::Iterator <fsm::DfaTransition> transitionIt = state->m_transitionList.getHead ();
+		for (; transitionIt; transitionIt++)
+		{
+			fsm::DfaTransition* transition = *transitionIt;
+			switch (transition->m_matchCondition.m_conditionKind)
+			{
+			case fsm::MatchConditionKind_Char:
+				transitionRow [(uchar_t) transition->m_matchCondition.m_char] = transition->m_outState->m_id;
+				break;
+
+			case fsm::MatchConditionKind_CharSet:
+				for (size_t j = 0; j < 256; j++)
+					if (transition->m_matchCondition.m_charSet.getBit (j))
+						transitionRow [j] = transition->m_outState->m_id;
+				break;
+
+			case fsm::MatchConditionKind_Any:
+				for (size_t j = 0; j < 256; j++)
+					transitionRow [j] = transition->m_outState->m_id;
+				break;
+			}
+		}
+
+		stateFlags++;
+		transitionRow += 256;
+	}
+
+	// generate switch 
+
+	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonSwitchBlock);
+
+	m_module->m_llvmIrBuilder.createSwitch (
+		requestValue,
+		automatonSetupBlock,
+		caseMap.getHead (),
+		caseMap.getCount ()
+		);
+	
+	// generate setup
+
+	m_module->m_controlFlowMgr.setCurrentBlock (automatonSetupBlock);
+	automatonSetupBlock->markReachable ();
+	
+	rtl::Array <StructField*> fieldArray = recognizerType->getMemberFieldArray ();
+	
+	Value fieldValue;
+
+	bool result =
+		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [RecognizerField_StateCount], NULL, &fieldValue) &&
+		m_module->m_operatorMgr.storeDataRef (fieldValue, Value (stateCount, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))) &&
+		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [RecognizerField_StateFlagTable], NULL, &fieldValue) &&
+		m_module->m_operatorMgr.storeDataRef (fieldValue, stateFlagTableValue) &&
+		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [RecognizerField_TransitionTable], NULL, &fieldValue) &&
+		m_module->m_operatorMgr.storeDataRef (fieldValue, transitionTableValue);
+
+	if (!result)
+		return false;
+
+	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
+
+	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonReturnBlock);	
+	Value retValue (true, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
+	m_module->m_controlFlowMgr.ret (retValue);
+	return true;
+}
+
+bool
+Parser::beginAutomatonRegExpBlock (
+	const rtl::String& regExpSource,
+	const Token::Pos& pos
+	)
+{
+	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp);
+	
+	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_regexp_block");
+	
+	bool result = regExpCompiler.incrementalCompile (regExpSource, block);
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.openScope (pos);
+	m_module->m_controlFlowMgr.setCurrentBlock (block);
+	block->markReachable ();
+	return true;
+}
+
+void
+Parser::endAutomatonRegExpBlock ()
+{
+	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
+	m_module->m_namespaceMgr.closeScope ();
 }
 
 bool

@@ -121,6 +121,10 @@ Members
 
 	Value m_curlyInitializerTargetValue;
 
+	fsm::RegExp m_automatonRegExp;
+	BasicBlock* m_automatonSwitchBlock;
+	BasicBlock* m_automatonReturnBlock;
+
 	// saved attributes
 
 	Value m_expressionValue;
@@ -388,6 +392,21 @@ Members2
 
 	bool
 	countReactionBindSites ();
+
+	bool
+	beginAutomatonFunction ();
+
+	bool
+	finalizeAutomatonFunction ();
+
+	bool
+	beginAutomatonRegExpBlock (
+		const rtl::String& regExpSource,
+		const Token::Pos& pos
+		);
+
+	void
+	endAutomatonRegExpBlock ();
 
 	bool
 	callBaseTypeMemberConstructor (

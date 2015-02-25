@@ -455,6 +455,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Error.h
 	${JANCY_INC_DIR}/jnc_Buffer.h
 	${JANCY_INC_DIR}/jnc_String.h
+	${JANCY_INC_DIR}/jnc_Recognizer.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	${JANCY_INC_DIR}/jnc_StdLib.h
 	jnc_Multicast.h
@@ -468,6 +469,7 @@ set (
 	jnc_Error.cpp
 	jnc_Buffer.cpp
 	jnc_String.cpp
+	jnc_Recognizer.cpp
 	jnc_StdLib.cpp
 	)
 
@@ -477,6 +479,7 @@ set (
 	jnc_StdFunctions.jnc
 	jnc_Buffer.jnc
 	jnc_String.jnc
+	jnc_Recognizer.jnc
 	)
 
 set (
@@ -526,6 +529,12 @@ add_perl_step (
 	jnc_String.jnc
 	jnc2cpp.pl
 	)
+
+add_perl_step (
+	jnc_Recognizer.jnc.cpp
+	jnc_Recognizer.jnc
+	jnc2cpp.pl
+	)
 	
 add_ragel_step (
 	jnc_Lexer.rl.cpp
@@ -557,6 +566,7 @@ set (
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
 	${GEN_DIR}/jnc_Buffer.jnc.cpp
 	${GEN_DIR}/jnc_String.jnc.cpp
+	${GEN_DIR}/jnc_Recognizer.jnc.cpp
 	)
 
 set (

@@ -154,7 +154,7 @@ FunctionType::createSignature (
 	uint_t flags
 	)
 {
-	rtl::String string = "F";
+	rtl::String string = (flags & FunctionTypeFlag_Automaton) ? "FA" : "FF";
 	string += getCallConvSignature (callConv->getCallConvKind ());
 	string += returnType->getSignature ();
 	string += createArgSignature (argTypeArray, argCount, flags);
@@ -170,7 +170,7 @@ FunctionType::createSignature (
 	uint_t flags
 	)
 {
-	rtl::String string = "F";
+	rtl::String string = (flags & FunctionTypeFlag_Automaton) ? "FA" : "FF";
 	string += getCallConvSignature (callConv->getCallConvKind ());
 	string += returnType->getSignature ();
 	string += createArgSignature (argArray, argCount, flags);
@@ -248,6 +248,9 @@ FunctionType::getTypeModifierString ()
 		m_typeModifierString = m_callConv->getCallConvDisplayString ();
 		m_typeModifierString += ' ';
 	}
+
+	if (m_flags & FunctionTypeFlag_Automaton)
+		m_typeModifierString += "automaton ";
 
 	return m_typeModifierString;
 }

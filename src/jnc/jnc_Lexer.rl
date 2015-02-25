@@ -116,6 +116,7 @@ main := |*
 'throws'         { createToken (TokenKind_Throws); };
 'cdecl'          { createToken (TokenKind_Cdecl); };
 'stdcall'        { createToken (TokenKind_Stdcall); };
+'jnccall'        { createToken (TokenKind_Jnccall); };
 'thiscall'       { createToken (TokenKind_Thiscall); };
 'array'          { createToken (TokenKind_Array); };
 'function'       { createToken (TokenKind_Function); };
@@ -126,6 +127,7 @@ main := |*
 'multicast'      { createToken (TokenKind_Multicast); };
 'event'          { createToken (TokenKind_Event); };
 'reactor'        { createToken (TokenKind_Reactor); };
+'automaton'      { createToken (TokenKind_Automaton); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -250,6 +252,8 @@ main := |*
 
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
 
+'%%' [^\n]*      { createStringToken (TokenKind_RegExpLiteral, 2); };
+
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # common tokens
@@ -260,7 +264,7 @@ lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
 dec+             { createIntegerToken (10); };
 '0' [xx] hex+    { createIntegerToken (16, 2); };
 '0' [xx] lit_dq  { createHexLiteralToken (); };
-dec+ ('.' dec+) | ([ee] [+\-]? dec+)
+dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 
 '//' [^\n]*      ;

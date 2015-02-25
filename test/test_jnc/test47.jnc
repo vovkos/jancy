@@ -1,15 +1,34 @@
 //.............................................................................
 
+bool automaton scanPacket ()
+{
+	%% "open" [ \t]* [0-9]* [\r\n]
+		printf ("command = open\n%s\n", recognizer.m_lexeme);
+
+	%% "close" [ \t]* [0-9]* [\r\n]
+		printf ("command = close\n%s\n", recognizer.m_lexeme);
+
+	%% "connect" [ \t]* [0-9]* [\r\n]
+		printf ("command = connect\n%s\n", recognizer.m_lexeme);
+
+	%% . 
+		// simply ignore invalid input rather than fail
+}
+
 int main ()
 {	
 	printf ("main ()\n");
 
-	char const* p = memchr (0x"11 22 33 44", 0x33, 4);
+	jnc.Recognizer recognizer (scanPacket);
 
-	
-
-	printf ($"abc -- '$p'\n");
-
+	try 
+	{
+		recognizer.write ("op");
+		recognizer.write ("en 12\ncon");
+		recognizer.write ("nect5\r i cl");
+		recognizer.write ("ose\t777\r");
+		recognizer.eof ();
+	}
 
 	return 0;
 }

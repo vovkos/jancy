@@ -260,6 +260,10 @@ Function::compile ()
 		else
 			parser.m_constructorProperty = (Property*) m_parentNamespace;
 	}
+	else if (m_type->getFlags () & FunctionTypeFlag_Automaton)
+	{
+		startSymbol = SymbolKind_automaton_compound_stmt;
+	}
 
 	result = parser.parseTokenList (startSymbol, m_body, true);
 	if (!result)

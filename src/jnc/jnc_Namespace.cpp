@@ -95,20 +95,20 @@ Namespace::createQualifiedName (const char* name)
 }
 
 ModuleItem*
+Namespace::findItemByName (const char* name)
+{
+	if (!strchr (name, '.'))
+		return findItem (name);
+
+	QualifiedName qualifiedName;
+	qualifiedName.parse (name);
+	return findItem (qualifiedName);
+}
+
+ModuleItem*
 Namespace::getItemByName (const char* name)
 {
-	ModuleItem* item;
-
-	if (!strchr (name, '.'))
-	{
-		item = findItem (name);
-	}
-	else
-	{
-		QualifiedName qualifiedName;
-		qualifiedName.parse (name);
-		item = findItem (qualifiedName);
-	}
+	ModuleItem* item = findItemByName (name);
 
 	if (!item)
 	{
@@ -133,7 +133,7 @@ Namespace::findItem (const char* name)
 	LazyModuleItem* lazyItem = (LazyModuleItem*) item;
 	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
 
-	it->m_value = NULL; // many lazy std-types are parsed, so 
+	it->m_value = NULL; // many lazy std-types are parsed, so remove it from namespace
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 	item = lazyItem->getActualItem ();
 

@@ -14,6 +14,7 @@ enum ApiSlot
 	ApiSlot_jnc_ConstBufferRef,
 	ApiSlot_jnc_BufferRef,
 	ApiSlot_jnc_Buffer,
+	ApiSlot_jnc_Recognizer,
 };
 
 //.............................................................................

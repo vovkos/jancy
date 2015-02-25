@@ -553,6 +553,12 @@ OperatorMgr::callImpl (
 	Value* resultValue
 	)
 {
+	if (functionType->getFlags () & FunctionTypeFlag_Automaton)
+	{
+		err::setFormatStringError ("cannot call automaton functions");
+		return false;
+	}
+
 	bool result = castArgValueList (functionType, pfnValue.getClosure (), argValueList);
 	if (!result)
 		return false;

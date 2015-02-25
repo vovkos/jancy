@@ -15,6 +15,33 @@ compound_stmt
 	;
 
 start
+automaton_compound_stmt
+	:	'{' 
+			{
+				return beginAutomatonFunction ();
+			}
+		automaton_declaration* 
+		'}'
+			{
+				return finalizeAutomatonFunction ();
+			}
+	;
+
+automaton_declaration
+	:	TokenKind_RegExpLiteral
+			{
+				return beginAutomatonRegExpBlock (
+					$1.m_data.m_string,
+					$1.m_pos
+					);
+			}
+		local_declaration*
+			{
+				endAutomatonRegExpBlock ();
+			}
+	;
+
+start
 constructor_compound_stmt
 	:	'{'
 			{

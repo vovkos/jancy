@@ -91,6 +91,7 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&
 		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_String)) &&

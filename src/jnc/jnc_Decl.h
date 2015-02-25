@@ -151,6 +151,7 @@ public:
 class DeclFunctionSuffix: public DeclSuffix
 {
 	friend class Declarator;
+	friend class DeclTypeCalc;
 	friend class Parser;
 
 protected:

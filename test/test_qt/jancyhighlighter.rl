@@ -75,6 +75,7 @@ main := |*
 'multicast'       |
 'event'           |
 'reactor'         |
+'automaton'       |
 
 'auto'            |
 'void'            |

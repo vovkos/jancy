@@ -149,7 +149,7 @@ enum StdType
 	StdType_Binder,
 	StdType_ReactorBindSite,
 	StdType_Scheduler,
-	StdType_SchedulerPtr,
+	StdType_Recognizer,
 	StdType_FmtLiteral,
 	StdType_Guid,
 	StdType_Error,
@@ -209,7 +209,7 @@ enum TypeModifier
 	TypeModifier_Indexed     = 0x00008000,
 	TypeModifier_Multicast   = 0x00010000,
 	TypeModifier_Event       = 0x00020000,
-	TypeModifier_Unused      = 0x00040000,
+	TypeModifier_Automaton   = 0x00040000,
 	TypeModifier_Reactor     = 0x00080000,
 	TypeModifier_Thiscall    = 0x00100000,
 	TypeModifier_Jnccall     = 0x00200000,
@@ -231,6 +231,7 @@ enum TypeModifierMaskKind
 
 	TypeModifierMaskKind_Function =
 		TypeModifier_Function |
+		TypeModifier_Automaton |
 		TypeModifierMaskKind_CallConv ,
 
 	TypeModifierMaskKind_Property =
