@@ -11,8 +11,7 @@ bool automaton scanPacket ()
 	%% "connect" [ \t]* [0-9]* [\r\n]
 		printf ("command = connect\n%s\n", recognizer.m_lexeme);
 
-	%% . 
-		// simply ignore invalid input rather than fail
+	%% .
 }
 
 int main ()
@@ -26,7 +25,7 @@ int main ()
 		recognizer.write ("op");
 		recognizer.write ("en 12\ncon");
 		recognizer.write ("nect5\r i cl");
-		recognizer.write ("ose\t777\r");
+		recognizer.write ("ose\t777\r ");
 		recognizer.eof ();
 	}
 

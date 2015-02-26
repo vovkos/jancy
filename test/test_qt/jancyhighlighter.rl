@@ -153,6 +153,7 @@ dec+                { colorize(ts, te, Qt::darkRed); };
 '0' [Xx] lit_dq     { colorize(ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize(ts, te, Qt::darkRed); };
 
+'%%' [^\n]*         { colorize(ts, te, Qt::darkRed); };
 '//' [^\n]*         { colorize(ts, te, Qt::darkGray); };
 
 '/*'                { colorize(ts, te, Qt::darkGray); fgoto comment; };

@@ -1,0 +1,30 @@
+//.............................................................................
+
+bool automaton scanPacket ()
+{
+	%% "ab"* 'c'
+		printf ("pattern matched: %s\n", recognizer.m_lexeme);
+
+	%% . 
+		printf ("default: %s\n", recognizer.m_lexeme);
+}
+
+int main ()
+{	
+	printf ("main ()\n");
+
+	jnc.Recognizer recognizer (scanPacket);
+
+	try 
+	{
+		recognizer.write ("abab");
+		recognizer.eof ();
+
+	catch:
+		printf ("can't match: %s\n", jnc.getLastError ().m_description);
+	}
+
+	return 0;
+}
+
+//.............................................................................

@@ -65,13 +65,7 @@ Recognizer::write (
 	if (length == -1)
 		length = StdLib::strLen (ptr);
 
-	if (length == 0)
-	{
-		// TODO: handle eof
-		return true;
-	}
-
-	return writeImpl ((uchar_t*) ptr.m_p, length);
+	return length ? writeImpl ((uchar_t*) ptr.m_p, length) : forceEof ();
 }
 
 bool
@@ -122,6 +116,29 @@ Recognizer::writeImpl (
 }
 
 bool
+Recognizer::forceEof ()
+{
+	for (;;)
+	{
+		if (!m_lexemeLength) // just matched
+			return true;
+
+		if (m_lastAcceptStateId == -1)
+		{
+			err::setStringError ("unrecognized lexeme");
+			return false;
+		}
+
+		if (m_lastAcceptLexemeLength >= m_lexemeLength)
+			return match (m_lastAcceptStateId);
+
+		bool result = rollback ();
+		if (!result)
+			return false;
+	}
+}
+
+bool
 Recognizer::gotoState (size_t stateId)
 {
 	m_stateId = stateId;
@@ -147,10 +164,18 @@ Recognizer::rollback ()
 	size_t chunkLength = m_lexemeLength - m_lastAcceptLexemeLength;
 
 	m_offset = m_lexemeOffset + m_lastAcceptLexemeLength;
+	m_lexemeLength = m_lastAcceptLexemeLength;
 
-	return 
-		match (m_lastAcceptStateId) &&
-		writeImpl (chunk, chunkLength);
+	size_t savedLexemeLength = m_lexemeLength;
+	uchar_t savedChar = ((uchar_t*) m_lexeme.m_p) [m_lexemeLength];
+	
+	bool result = match (m_lastAcceptStateId);
+	if (!result)
+		return false;
+
+	((uchar_t*) m_lexeme.m_p) [savedLexemeLength] = savedChar;
+
+	return chunkLength ? writeImpl (chunk, chunkLength) : true;
 }
 
 bool

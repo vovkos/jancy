@@ -82,8 +82,11 @@ protected:
 		);
 
 	bool
-	gotoState (size_t stateId);
+	forceEof ();
 
+	bool
+	gotoState (size_t stateId);
+	
 	bool
 	rollback ();
 
