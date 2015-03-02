@@ -69,7 +69,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -85,7 +85,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -94,7 +94,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = m_module.compile ();
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -115,14 +115,14 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = m_module.jit ();
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
 	jnc::Function* mainFunction = m_module.getFunctionByName ("main");
 	if (!mainFunction)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -137,7 +137,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	if (!result)
 	{
-		output ("%s\n", err::getError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 

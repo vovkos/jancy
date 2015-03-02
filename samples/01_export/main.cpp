@@ -53,7 +53,7 @@ main (
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Io;
 	}
 
@@ -70,7 +70,7 @@ main (
 
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Compile;
 	}
 
@@ -79,7 +79,7 @@ main (
 	result = module.compile ();
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Compile;
 	}
 
@@ -91,7 +91,7 @@ main (
 
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Compile;
 	}
 
@@ -100,14 +100,14 @@ main (
 	result = module.jit ();
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Compile;
 	}
 
 	jnc::Function* mainFunction = module.getFunctionByName ("main");
 	if (!mainFunction)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Compile;
 	}
 
@@ -123,7 +123,7 @@ main (
 
 	if (!result)
 	{
-		printf ("%s\n", err::getError ()->getDescription ().cc ());
+		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
 		return Error_Runtime;
 	}
 

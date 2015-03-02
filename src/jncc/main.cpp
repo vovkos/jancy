@@ -68,7 +68,7 @@ main (
 	result = parser.parse (argc, argv);
 	if (!result)
 	{
-		printf ("error parsing command line: %s\n", err::getError ()->getDescription ().cc ());
+		printf ("error parsing command line: %s\n", err::getLastError ()->getDescription ().cc ());
 		return JncErrorKind_InvalidCmdLine;
 	}
 

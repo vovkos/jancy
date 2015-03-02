@@ -175,7 +175,7 @@ public:
 	DataPtr
 	getLastError ()
 	{
-		return getErrorPtr (err::getError ());
+		return getErrorPtr (err::getLastError ());
 	}
 
 	static

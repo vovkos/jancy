@@ -495,7 +495,7 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -503,7 +503,7 @@ bool MainWindow::compile ()
 	result = module.compile ();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
@@ -523,7 +523,7 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
 	}
 
