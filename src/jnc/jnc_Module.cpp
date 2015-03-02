@@ -544,6 +544,8 @@ Module::jit ()
 
 	ASSERT (m_compileState = ModuleCompileState_Compiled);
 
+	mt::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
+
 	m_compileState = ModuleCompileState_Jitting;
 	bool result = m_functionMgr.jitFunctions ();
 	if (!result)
