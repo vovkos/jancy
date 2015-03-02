@@ -130,10 +130,7 @@ public:
 	createOnceFlagVariable (StorageKind storageKind = StorageKind_Static);
 
 	Variable*
-	createArgVariable (
-		FunctionArg* arg,
-		llvm::Value* llvmArgValue
-		);
+	createArgVariable (FunctionArg* arg);
 
 	llvm::GlobalVariable*
 	createLlvmGlobalVariable (

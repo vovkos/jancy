@@ -166,10 +166,7 @@ VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 }
 
 Variable*
-VariableMgr::createArgVariable (
-	FunctionArg* arg,
-	llvm::Value* llvmArgValue
-	)
+VariableMgr::createArgVariable (FunctionArg* arg)
 {
 	bool result;
 

@@ -257,17 +257,15 @@ CdeclCallConv_msc64::createArgVariables (Function* function)
 
 		if (!(type->getFlags () & TypeFlag_StructRet))
 		{
-			Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, llvmArgValue);
+			Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
 			function->getScope ()->addItem (argVariable);
 
 			m_module->m_llvmIrBuilder.createStore (llvmArgValue, argVariable);
 		}
 		else
 		{
-			Variable* argVariable = m_module->m_variableMgr.createStackVariable (arg->getName (), type);
+			Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
 			function->getScope ()->addItem (argVariable);
-
-			m_module->m_variableMgr.allocatePrimeInitializeVariable (argVariable);
 
 			if (type->getSize () > sizeof (uint64_t))
 			{

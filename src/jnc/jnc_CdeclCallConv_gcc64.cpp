@@ -303,9 +303,8 @@ CdeclCallConv_gcc64::createArgVariables (Function* function)
 		if (!arg->isNamed ())
 			continue;
 
-		Variable* argVariable = m_module->m_variableMgr.createStackVariable (arg->getName (), arg->getType ());
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
 		function->getScope ()->addItem (argVariable);
-		m_module->m_variableMgr.allocatePrimeInitializeVariable (argVariable);
 
 		Value argValue = CdeclCallConv_gcc64::getArgValue (arg, llvmArg);
 		m_module->m_llvmIrBuilder.createStore (argValue, argVariable);

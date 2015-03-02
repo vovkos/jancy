@@ -278,7 +278,7 @@ CallConv::createArgVariablesImpl (
 
 		llvm::Value* llvmArgValue = llvmArg;
 
-		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, llvmArgValue);
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
 		function->getScope ()->addItem (argVariable);
 
 		Value argValue (llvmArgValue, arg->getType ());
