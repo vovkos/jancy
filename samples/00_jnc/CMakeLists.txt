@@ -139,23 +139,40 @@ source_group (
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# automaton samples folder
+#
+
+set (
+	AUTOMATON_JNC_LIST
+	70_Recognizers.jnc
+	71_AutomatonSwitch.jnc
+	)
+
+source_group (
+	7_automaton
+	FILES
+	${AUTOMATON_JNC_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # misc samples folder
 #
 
 set (
 	MISC_JNC_LIST
-	70_DualModifiers.jnc
-	71_BitflagEnums.jnc
-	72_Once.jnc
-	73_BreakN.jnc
-	74_CurlyInitializers.jnc
-	75_ScopesInSwitch.jnc
-	76_ModuleConstructors.jnc
-	77_ExtensionNamespaces.jnc
+	80_DualModifiers.jnc
+	81_BitflagEnums.jnc
+	82_Once.jnc
+	83_BreakN.jnc
+	84_CurlyInitializers.jnc
+	85_ScopesInSwitch.jnc
+	86_ModuleConstructors.jnc
+	87_ExtensionNamespaces.jnc
 	)
 
 source_group (
-	7_misc
+	8_misc
 	FILES
 	${MISC_JNC_LIST}
 	)
@@ -172,6 +189,7 @@ set (
 	${FUNCTION_PTR_JNC_LIST}
 	${PROPERTY_JNC_LIST}
 	${REACTIVE_JNC_LIST}
+	${AUTOMATON_JNC_LIST}
 	${EXCEPTION_JNC_LIST}
 	${LITERAL_JNC_LIST}
 	${MISC_JNC_LIST}

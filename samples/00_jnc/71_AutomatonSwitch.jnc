@@ -1,0 +1,55 @@
+// Like Ragel, Jancy-generated recognizer support mixed-language documents.
+// Developer can switch languages at will, by adjusting the value of 
+// jnc.Recognizer.m_automatonFunc field at appropriate locations.
+
+//.............................................................................
+
+// the first language recognizes lexeme 'foo'
+
+bool automaton foo ()
+{
+%% "foo"
+	printf ("lexeme found: foo\n");
+
+%% '\''
+	recognizer.m_automatonFunc = bar; // switch language
+
+%% [ \r\n\t]*
+	// ignore whitespace
+}
+
+// the second language recognizes lexeme 'bar'
+
+bool automaton bar ()
+{
+%% "bar"
+	printf ("lexeme found: bar\n");
+
+%% "\\'"
+	// ignore escape-protected apostrophe
+
+%% '\''
+	recognizer.m_automatonFunc = foo; // switch language back
+
+%% [ \r\n\t]*
+	// ignore whitespace
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	jnc.Recognizer recognizer (foo);
+
+	bool result = try recognizer.recognize ("foo 'bar \\' bar' foo");
+	if (!result)
+		printf ("recognition error: %s\n", jnc.getLastError ().m_description);
+
+	return 0;
+}
+
+//.............................................................................

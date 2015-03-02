@@ -41,14 +41,13 @@ protected:
 	size_t m_stateCount;
 	uint_t* m_stateFlagTable;
 	uintptr_t* m_transitionTable;
-
-public:
-	FunctionPtr m_automatonFuncPtr;
 	uintptr_t m_stateId;
 	size_t m_offset;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
 	
+public:
+	FunctionPtr m_automatonFuncPtr;
 	DataPtr m_lexeme;
 	size_t m_lexemeOffset;
 	size_t m_lexemeLength;

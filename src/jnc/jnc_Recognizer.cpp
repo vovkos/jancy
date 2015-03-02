@@ -44,7 +44,6 @@ Recognizer::reset ()
 	m_offset = 0;
 	m_lastAcceptStateId = -1;
 	m_lastAcceptLexemeLength = 0;
-	memset (&m_lexeme, 0, sizeof (m_lexeme));
 	m_lexemeOffset = 0;
 	m_lexemeLength = 0;
 }
