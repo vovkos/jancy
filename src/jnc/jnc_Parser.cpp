@@ -2010,6 +2010,10 @@ Parser::finalizeAutomatonFunction ()
 	Type* recognizerPtrType = recognizerType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+
+	if (function->isMember ())
+		llvmArg++;
+
 	Value recognizerValue (llvmArg++, recognizerPtrType);
 	Value requestValue (llvmArg++, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 
