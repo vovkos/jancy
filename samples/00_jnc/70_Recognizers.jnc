@@ -11,7 +11,7 @@
 //.............................................................................
 
 // our automaton compiles to a function with some implicit internal arguments,
-// one of which has type jnc.Recognizer* is named 'recognizer'
+// one of which has type jnc.Recognizer* and is named 'recognizer'
 
 bool automaton fooBar ()
 {
@@ -63,7 +63,7 @@ int main ()
 		recognizer.write ("100");
 		recognizer.write ("000");
 
-		// notify recognizer about end of file -- can trigger actions or errors
+		// notify recognizer about eof (this can trigger actions or errors)
 
 		recognizer.eof (); 
 
