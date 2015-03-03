@@ -8,31 +8,31 @@
 
 bool automaton foo ()
 {
-%% "foo"
-	printf ("lexeme found: foo\n");
+	%% "foo"
+		printf ("lexeme found: foo\n");
 
-%% '\''
-	recognizer.m_automatonFunc = bar; // switch language
+	%% '\''
+		recognizer.m_automatonFunc = bar; // switch language
 
-%% [ \r\n\t]*
-	// ignore whitespace
+	%% [ \r\n\t]*
+		// ignore whitespace
 }
 
 // the second language recognizes lexeme 'bar'
 
 bool automaton bar ()
 {
-%% "bar"
-	printf ("lexeme found: bar\n");
+	%% "bar"
+		printf ("lexeme found: bar\n");
 
-%% "\\'"
-	// ignore escape-protected apostrophe
+	%% "\\'"
+		// ignore escape-protected apostrophe
 
-%% '\''
-	recognizer.m_automatonFunc = foo; // switch language back
+	%% '\''
+		recognizer.m_automatonFunc = foo; // switch language back
 
-%% [ \r\n\t]*
-	// ignore whitespace
+	%% [ \r\n\t]*
+		// ignore whitespace
 }
 
 //.............................................................................

@@ -15,18 +15,18 @@
 
 bool automaton fooBar ()
 {
-%% "foo"
-	printf ("lexeme found: foo\n");
+	%% "foo"
+		printf ("lexeme found: foo\n");
 
-%% "bar"
-	printf ("lexeme found: bar\n");
+	%% "bar"
+		printf ("lexeme found: bar\n");
 
-%% [0-9]+
-	// you can access matched lexeme via recognizer.m_lexeme field
-	printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme); 
+	%% [0-9]+
+		// you can access matched lexeme via recognizer.m_lexeme field
+		printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme); 
 
-%% [ \r\n\t]*
-	// ignore whitespace
+	%% [ \r\n\t]*
+		// ignore whitespace
 }
 
 //.............................................................................
