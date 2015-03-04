@@ -10,7 +10,7 @@ namespace jnc {
 
 struct ConstBufferRef
 {
-	JNC_BEGIN_TYPE ("jnc.ConstBufferRef", ApiSlot_jnc_ConstBufferRef)
+	JNC_BEGIN_TYPE ("jnc.ConstBufferRef", StdApiSlot_ConstBufferRef)
 	JNC_END_TYPE ()
 
 public:
@@ -23,7 +23,7 @@ public:
 
 struct ConstBuffer
 {
-	JNC_BEGIN_TYPE ("jnc.ConstBuffer", ApiSlot_jnc_ConstBuffer)
+	JNC_BEGIN_TYPE ("jnc.ConstBuffer", StdApiSlot_ConstBuffer)
 		JNC_FUNCTION ("copy", &ConstBuffer::copy_s1)
 		JNC_OVERLOAD (&ConstBuffer::copy_s2)
 	JNC_END_TYPE ()
@@ -69,7 +69,7 @@ protected:
 
 struct BufferRef
 {
-	JNC_BEGIN_TYPE ("jnc.BufferRef", ApiSlot_jnc_BufferRef)
+	JNC_BEGIN_TYPE ("jnc.BufferRef", StdApiSlot_BufferRef)
 	JNC_END_TYPE ()
 
 public:
@@ -82,7 +82,7 @@ public:
 class Buffer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("jnc.Buffer", ApiSlot_jnc_Buffer)
+	JNC_BEGIN_CLASS ("jnc.Buffer", StdApiSlot_Buffer)
 		JNC_FUNCTION ("copy", &Buffer::copy)
 		JNC_FUNCTION ("append", &Buffer::append)
 	JNC_END_CLASS ()

@@ -10,7 +10,7 @@ namespace jnc {
 
 struct Error: err::ErrorData
 {
-	JNC_BEGIN_TYPE ("jnc.Error", ApiSlot_jnc_Error)
+	JNC_BEGIN_TYPE ("jnc.Error", StdApiSlot_Error)
 		JNC_CONST_PROPERTY ("m_description", getDescription_s)
 	JNC_END_TYPE ()
 

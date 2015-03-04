@@ -81,11 +81,14 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrCmp)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StriCmp)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrChr)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrCat)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrDup)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCmp)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemChr)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemSet)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemDup)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
 		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&

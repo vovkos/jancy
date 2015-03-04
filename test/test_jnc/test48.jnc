@@ -1,29 +1,70 @@
 //.............................................................................
 
-bool automaton scanPacket ()
-{
-	%% "ab"* 'c'
-		printf ("pattern matched: %s\n", recognizer.m_lexeme);
+char const* g_data;
+size_t g_dataOffset;
 
-	%% . 
-		printf ("default: %s\n", recognizer.m_lexeme);
+bool automaton scanCommand ()
+{
+	%% '<' [^>]+ '>'
+		size_t length = recognizer.m_currentOffset - g_dataOffset;		
+
+		char const* chunk = strdup (g_data, length);
+
+		printf ("%s\n", chunk);
+		printf ("inband '%s'\n", recognizer.m_lexeme);
+
+		g_data += length;
+		g_dataOffset += length;
+
+	%% .
+		// ignore
 }
 
 int main ()
 {	
 	printf ("main ()\n");
 
-	jnc.Recognizer recognizer (scanPacket);
+	jnc.Recognizer recognizer (scanCommand);
 
 	try 
 	{
-		recognizer.write ("abab");
+		g_data = "abc <ab";
+		g_dataOffset = 0;
+		recognizer.write (g_data, strlen (g_data));
+
+		size_t length = recognizer.m_currentOffset - g_dataOffset;		
+		char const* chunk = strdup (g_data, length);
+		printf ("%s", chunk);
+		g_dataOffset += length;
+
+		g_data = "out> <gr> rr";
+		recognizer.write (g_data, strlen (g_data));
+	
+		length = recognizer.m_currentOffset - g_dataOffset;		
+		chunk = strdup (g_data, length);
+		printf ("%s", chunk);
+		g_dataOffset += length;
+
+		g_data = "ab <versi";
+		recognizer.write (g_data, strlen (g_data));
+
+		length = recognizer.m_currentOffset - g_dataOffset;		
+		chunk = strdup (g_data, length);
+		printf ("%s", chunk);
+		g_dataOffset += length;
+
+		g_data = "on> aboutb";
+		recognizer.write (g_data, strlen (g_data));
+
+		length = recognizer.m_currentOffset - g_dataOffset;		
+		chunk = strdup (g_data, length);
+		printf ("%s", chunk);
+		g_dataOffset += length;
+
 		recognizer.eof ();
-
-	catch:
-		printf ("can't match: %s\n", jnc.getLastError ().m_description);
 	}
-
+	
+	printf ("\n");
 	return 0;
 }
 

@@ -30,7 +30,7 @@ enum RecognizerStateFlag
 class Recognizer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE ("jnc.Recognizer", ApiSlot_jnc_Recognizer)
+	JNC_BEGIN_TYPE ("jnc.Recognizer", StdApiSlot_Recognizer)
 		JNC_CONSTRUCTOR (&Recognizer::construct)
 		JNC_AUTOGET_PROPERTY ("m_automatonFunc", &Recognizer::setAutomatonFunc)
 		JNC_FUNCTION ("reset", &Recognizer::reset)
@@ -42,7 +42,6 @@ protected:
 	uint_t* m_stateFlagTable;
 	uintptr_t* m_transitionTable;
 	uintptr_t m_stateId;
-	size_t m_offset;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
 	
@@ -52,6 +51,8 @@ public:
 	size_t m_lexemeOffset;
 	size_t m_lexemeLength;
 	size_t m_lexemeLengthLimit;
+
+	size_t m_currentOffset;
 
 public:
 	void

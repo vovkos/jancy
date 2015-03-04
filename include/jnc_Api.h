@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_Module.h"
+#include "jnc_StdLibApiSlots.h"
 
 namespace jnc {
 

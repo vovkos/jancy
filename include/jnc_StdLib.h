@@ -46,11 +46,14 @@ public:
 		JNC_STD_FUNCTION (StdFunction_StrCmp, strCmp)
 		JNC_STD_FUNCTION (StdFunction_StriCmp, striCmp)
 		JNC_STD_FUNCTION (StdFunction_StrChr, strChr)
+		JNC_STD_FUNCTION (StdFunction_StrCat, strCat)
+		JNC_STD_FUNCTION (StdFunction_StrDup, strDup)
 		JNC_STD_FUNCTION (StdFunction_MemCmp, memCmp)
 		JNC_STD_FUNCTION (StdFunction_MemChr, memChr)
 		JNC_STD_FUNCTION (StdFunction_MemCpy, memCpy)
 		JNC_STD_FUNCTION (StdFunction_MemSet, memSet)
 		JNC_STD_FUNCTION (StdFunction_MemCat, memCat)
+		JNC_STD_FUNCTION (StdFunction_MemDup, memDup)
 		JNC_STD_FUNCTION (StdFunction_Rand, rand)
 		JNC_STD_FUNCTION (StdFunction_Atoi, atoi)
 		JNC_STD_FUNCTION (StdFunction_Format, format)
@@ -245,6 +248,20 @@ public:
 		);
 
 	static
+	DataPtr 
+	strCat (
+		DataPtr ptr1,
+		DataPtr ptr2
+		);
+
+	static
+	DataPtr 
+	strDup (
+		DataPtr ptr,
+		size_t length
+		);
+
+	static
 	int
 	memCmp (
 		DataPtr ptr1,
@@ -283,6 +300,13 @@ public:
 		size_t size1,
 		DataPtr ptr2,
 		size_t size2
+		);
+
+	static
+	DataPtr
+	memDup (
+		DataPtr ptr,
+		size_t size
 		);
 
 	static

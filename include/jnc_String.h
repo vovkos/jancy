@@ -10,7 +10,7 @@ namespace jnc {
 
 struct StringRef
 {
-	JNC_BEGIN_TYPE ("jnc.StringRef", ApiSlot_jnc_StringRef)
+	JNC_BEGIN_TYPE ("jnc.StringRef", StdApiSlot_StringRef)
 	JNC_END_TYPE ()
 
 public:
@@ -23,7 +23,7 @@ public:
 
 struct String
 {
-	JNC_BEGIN_TYPE ("jnc.String", ApiSlot_jnc_String)
+	JNC_BEGIN_TYPE ("jnc.String", StdApiSlot_String)
 		JNC_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
 		JNC_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
 		JNC_FUNCTION ("copy", &String::copy_s1)
@@ -97,7 +97,7 @@ protected:
 class StringBuilder: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("jnc.StringBuilder", ApiSlot_jnc_StringBuilder)
+	JNC_BEGIN_CLASS ("jnc.StringBuilder", StdApiSlot_StringBuilder)
 		JNC_FUNCTION ("copy", &StringBuilder::copy)
 		JNC_FUNCTION ("append", &StringBuilder::append)
 	JNC_END_CLASS ()

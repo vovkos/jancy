@@ -13,6 +13,7 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
 	m_lexemeLengthLimit = 128;
+	m_currentOffset = 0;
 	
 	char* buffer = (char*) AXL_MEM_ALLOC (m_lexemeLengthLimit);
 
@@ -41,11 +42,11 @@ AXL_CDECL
 Recognizer::reset ()
 {
 	m_stateId = 0;
-	m_offset = 0;
 	m_lastAcceptStateId = -1;
 	m_lastAcceptLexemeLength = 0;
 	m_lexemeOffset = 0;
 	m_lexemeLength = 0;
+	m_currentOffset = 0;
 }
 
 bool 
@@ -80,7 +81,7 @@ Recognizer::writeImpl (
 	while (p < end)
 	{
 		uchar_t c = *p++;
-		m_offset++;
+		m_currentOffset++;
 
 		// append lexeme
 
@@ -162,7 +163,7 @@ Recognizer::rollback ()
 	uchar_t* chunk = (uchar_t*) m_lexeme.m_p + m_lastAcceptLexemeLength;
 	size_t chunkLength = m_lexemeLength - m_lastAcceptLexemeLength;
 
-	m_offset = m_lexemeOffset + m_lastAcceptLexemeLength;
+	m_currentOffset = m_lexemeOffset + m_lastAcceptLexemeLength;
 	m_lexemeLength = m_lastAcceptLexemeLength;
 
 	size_t savedLexemeLength = m_lexemeLength;
@@ -187,7 +188,7 @@ Recognizer::match (size_t stateId)
 
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
-	m_lexemeOffset = m_offset;
+	m_lexemeOffset = m_currentOffset;
 	m_lexemeLength = 0;
 	return true;
 }

@@ -240,6 +240,47 @@ StdLib::strChr (
 	return resultPtr;
 }
 
+DataPtr
+StdLib::strCat (
+	DataPtr ptr1,
+	DataPtr ptr2
+	)
+{
+	size_t length1 = strLen (ptr1);
+	size_t length2 = strLen (ptr2);
+
+	return memCat (ptr1, length1, ptr2, length2 + 1);
+}
+
+DataPtr
+StdLib::strDup (
+	DataPtr ptr,
+	size_t length
+	)
+{
+	if (length == -1)
+		length = strLen (ptr);
+
+	DataPtr resultPtr = { 0 };
+
+	char* p = (char*) AXL_MEM_ALLOC (length + 1);
+	if (!p)
+		return resultPtr;
+
+	p [length] = 0; // ensure zero-termination just in case
+
+	if (ptr.m_p)
+		memcpy (p, ptr.m_p, length);
+	else
+		memset (p, 0, length);
+
+	resultPtr.m_p = p;
+	resultPtr.m_rangeBegin = p;
+	resultPtr.m_rangeEnd = p + length;
+	resultPtr.m_object = jnc::getStaticObjHdr ();
+	return resultPtr;
+}
+
 int
 StdLib::memCmp (
 	DataPtr ptr1,
@@ -323,6 +364,32 @@ StdLib::memCat (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + totalSize;
+	resultPtr.m_object = jnc::getStaticObjHdr ();
+	return resultPtr;
+}
+
+DataPtr
+StdLib::memDup (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	DataPtr resultPtr = { 0 };
+
+	char* p = (char*) AXL_MEM_ALLOC (size + 1);
+	if (!p)
+		return resultPtr;
+
+	p [size] = 0; // ensure zero-termination just in case
+
+	if (ptr.m_p)
+		memcpy (p, ptr.m_p, size);
+	else
+		memset (p, 0, size);
+
+	resultPtr.m_p = p;
+	resultPtr.m_rangeBegin = p;
+	resultPtr.m_rangeEnd = p + size;
 	resultPtr.m_object = jnc::getStaticObjHdr ();
 	return resultPtr;
 }

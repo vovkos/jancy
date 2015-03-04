@@ -4,7 +4,7 @@
 
 enum ApiSlot
 {
-	ApiSlot_Widget,
+	ApiSlot_Widget = jnc::StdApiSlot__Count,
 	ApiSlot_Layout,
 	ApiSlot_Label,
 	ApiSlot_Button,

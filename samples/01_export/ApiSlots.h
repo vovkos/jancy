@@ -10,7 +10,7 @@
 
 enum ApiSlot
 {
-	ApiSlot_TestStruct,
+	ApiSlot_TestStruct = jnc::StdApiSlot__Count,
 	ApiSlot_TestClass,
 };
 

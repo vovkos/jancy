@@ -27,6 +27,20 @@ char const* strchr (
 	int c
 	);
 
+///; static char strcatSrc [] = 
+
+char const* strcat (
+	char const* p1,
+	char const* p2
+	);
+
+///; static char strdupSrc [] = 
+
+char const* strdup (
+	char const* p,
+	size_t length = -1
+	);
+
 ///; static char memcmpSrc [] = 
 
 int memcmp (
@@ -66,6 +80,13 @@ void* memcat (
 	size_t size1,
 	void const* p2,
 	size_t size2
+	);
+
+///; static char memdupSrc [] = 
+
+void* memdup (
+	void const* p,
+	size_t size
 	);
 
 ///; static char randSrc [] = 

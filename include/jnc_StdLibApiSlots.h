@@ -4,17 +4,19 @@ namespace jnc {
 
 //.............................................................................
 
-enum ApiSlot
+enum StdApiSlot
 {	
-	ApiSlot_jnc_Error,
-	ApiSlot_jnc_String,
-	ApiSlot_jnc_StringRef,
-	ApiSlot_jnc_StringBuilder,
-	ApiSlot_jnc_ConstBuffer,
-	ApiSlot_jnc_ConstBufferRef,
-	ApiSlot_jnc_BufferRef,
-	ApiSlot_jnc_Buffer,
-	ApiSlot_jnc_Recognizer,
+	StdApiSlot_Error,
+	StdApiSlot_String,
+	StdApiSlot_StringRef,
+	StdApiSlot_StringBuilder,
+	StdApiSlot_ConstBuffer,
+	StdApiSlot_ConstBufferRef,
+	StdApiSlot_BufferRef,
+	StdApiSlot_Buffer,
+	StdApiSlot_Recognizer,
+	
+	StdApiSlot__Count,
 };
 
 //.............................................................................

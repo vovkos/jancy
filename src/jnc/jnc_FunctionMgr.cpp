@@ -1007,6 +1007,16 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (strchrSrc),
 			StdNamespace_Global,
 		},
+		{                                        // StdFunction_StrCat,
+			strcatSrc,
+			lengthof (strcatSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_StrDup,
+			strdupSrc,
+			lengthof (strdupSrc),
+			StdNamespace_Global,
+		},
 		{                                        // StdFunction_MemCmp,
 			memcmpSrc,
 			lengthof (memcmpSrc),
@@ -1030,6 +1040,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 		{                                        // StdFunction_MemCat,
 			memcatSrc,
 			lengthof (memcatSrc),
+			StdNamespace_Global,
+		},
+		{                                        // StdFunction_MemDup,
+			memdupSrc,
+			lengthof (memdupSrc),
 			StdNamespace_Global,
 		},
 		{                                        // StdFunction_Rand,
@@ -1210,11 +1225,14 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_StrCmp:
 	case StdFunction_StriCmp:
 	case StdFunction_StrChr:
+	case StdFunction_StrCat:
+	case StdFunction_StrDup:
 	case StdFunction_MemCmp:
 	case StdFunction_MemChr:
 	case StdFunction_MemCpy:
 	case StdFunction_MemSet:
 	case StdFunction_MemCat:
+	case StdFunction_MemDup:
 	case StdFunction_Rand:
 	case StdFunction_Printf:
 	case StdFunction_Atoi:
@@ -1337,11 +1355,14 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		"strcmp",              // StdFunction_StrCmp,
 		"stricmp",             // StdFunction_StriCmp,
 		"strchr",              // StdFunction_StrChr,
+		"strcat",              // StdFunction_StrCat,
+		"strdup",              // StdFunction_StrDup,
 		"memcmp",              // StdFunction_MemCmp,
 		"memchr",              // StdFunction_MemChr,
 		"memcpy",              // StdFunction_MemCpy,
 		"memset",              // StdFunction_MemSet,
 		"memcat",              // StdFunction_MemCat,
+		"memdup",              // StdFunction_MemDup,
 		"rand",                // StdFunction_Rand,
 		"printf",              // StdFunction_Printf,
 		"atoi",                // StdFunction_Atoi,
