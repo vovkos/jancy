@@ -32,8 +32,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 A few words must be said about the data storage specifics for class variables or fields.
 As explained in the section dedicated to [classes](classes.html), a declaration of a class variable or field is not implicitly converted to a class pointer. It is actually an instruction that tells the compiler to create an instance of this class.
 
@@ -56,8 +56,8 @@ class C2
 
 </code>
 </div>
-
 <br>
+
 Global variables of class types are allocated statically, while local variables of class types are allocated on the GC heap by default, unless specified otherwise.
 
 <div class='new_frame snippet'>
@@ -122,5 +122,5 @@ foo (int x)
 </div>
 
 ---
-Proceed to Jancy [reactive programming](reactive.html)
+Proceed to Jancy [const correctness](const_correctness.html)
 </md>

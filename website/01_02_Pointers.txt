@@ -46,8 +46,8 @@ foo ()
 }
 </code>
 </div>
-
 <br>
+
 Pointer 'p' obviously passes the range check (it has not been changed!) but accessing this pointer will write to the dead and, possibly, re-allocated location. That happens because stack pointers become invalid even without modification, simply by running out of scope.
 
 To address this issue, Jancy pointer validators also maintain integer thread-local variable holding the target scope level. The Jancy runtime prevents storing an address with a higher scope level at the location with a lower scope level. 
@@ -76,8 +76,8 @@ foo ()
 }
 </code>
 </div>
-
 <br>
+
 Our safe pointers are not thread-safe. It's still possible to corrupt a pointer validator in a multi-threaded environment. Still, our solution covers a lot of bases and future Jancy versions will likely address the issue by preventing race conditions on pointer validators.
 
 Besides the normal data pointer with validators ("fat" or "safe" data pointers) Jancy also supports "thin" data pointers, which only hold the target address. This might be useful when writing performance-critical code, or for interoperability with the host C/C++ program. "Thin" pointers are not safe.
@@ -152,8 +152,8 @@ main ()
 
 </code>
 </div>
-
 <br>
+
 Function pointers can be "fat" or "thin". 
 Thin pointers are just like C/C++ function pointers: they simply hold the address of the code. 
 
@@ -173,8 +173,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 Unlike C/C++, the argument conversion is automated (Jancy compiler generates thunks as needed)
 
 <div class='new_frame snippet'>
@@ -194,8 +194,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 The true power comes with "fat" function pointers. Besides the code address, fat pointers also hold the address to the closure object, which stores the context captured at the moment of creating the function pointer.
 
 <div class='new_frame snippet'>
@@ -219,8 +219,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 Jancy also allows to capture arbitrary arguments in the closure through the use of partial application operator '~()'
 
 <div class='new_frame snippet'>
@@ -242,8 +242,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 You are free to skip arguments during the partial application. For example, you can make it so that the argument 3 comes from the closure, while arguments 1 and 2 come from the call.
 
 <div class='new_frame snippet'>
@@ -271,8 +271,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 Fat function pointers can be 'weak', meaning they do not retain some of the objects in the closure. 
 
 <div class='new_frame snippet'>
@@ -310,8 +310,8 @@ bar ()
 }
 </code>
 </div>
-
 <br>
+
 Currently it's only possible to weaken the parent object of the method (using the weak member operator '.weak'). Future Jancy releases will allow developers to explicitly define which captured arguments should be retained.
 
 ## Property Pointers
@@ -342,8 +342,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 Like with the function pointers, the argument conversion is automated (compiler generates thunks if needed).
 
 <div class='new_frame snippet'>
@@ -364,8 +364,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 Fat property pointers support partial application by capturing arguments in the closure.
 
 <div class='new_frame snippet'>
@@ -390,8 +390,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 It is also possible to capture index arguments in the closure, thus reducing dimensions of indexed properties or completely de-indexing them.
 Skipping indexes is OK, too.
 
@@ -426,8 +426,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 Like function pointers, property pointers can be 'weak', meaning that they do not retain selected objects in the closure from being collected by the garbage collector.
 
 <div class='new_frame snippet'>

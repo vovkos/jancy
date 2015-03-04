@@ -30,20 +30,20 @@ Admittedly, this approach definitely affords the developer a much lesser degree 
 
 On the positive side, this simplified binary model of friends vs aliens and opens up the possibility of dual modifiers, that is, the modifiers having one meaning for friends and another for aliens.
 
-## The dual modifier 'dconst'
+## The dual modifier 'readonly'
 
 One of the most common elements used in virtually every program is a read-only field. A class sets and modifies a field; all users of the class can only read this field. 
 
 Conventionally this is implemented by declaring a private field and a public getter.
 
-The implementation relying on dual modifiers looks a lot more natural, as it is compact -- Jancy's dual modifier 'dconst' is ignored by friends and means 'const' for aliens:
+The implementation relying on dual modifiers looks a lot more natural, as it is compact -- Jancy's dual modifier 'readonly' is ignored by friends and means 'const' for aliens:
                                                                                          
 <div class='new_frame snippet'>
 <code name="jancy">
 
 class C1
 {
-	int dconst m_readOnly;
+	int readonly m_readOnly;
 
 	foo ()
 	{

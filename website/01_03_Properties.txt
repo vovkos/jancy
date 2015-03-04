@@ -17,8 +17,8 @@ Jancy supports what we believe to be the most natural syntax for declaring prope
 int property g_simpleProp;
 </code>
 </div>
-
 <br>
+
 This syntax is ideal for declaring interfaces or when the developer prefers to follow the C++-style of placing definitions outside of a class:
 
 <div class='new_frame snippet'>
@@ -34,8 +34,8 @@ g_simpleProp.set (int x)
 }
 </code>
 </div>
-
 <br>
+
 Read-only properties can use a simple declaration syntax:
 
 <div class='new_frame snippet'>
@@ -48,8 +48,8 @@ int g_simpleReadOnlyProp.get ()
 }
 </code>
 </div>
-
 <br>
+
 For obvious reasons, this simple syntax is only possible if a property has no overloaded setters, in which case you should use the second method: full property declaration.
 
 ## Full Property Declarations
@@ -78,8 +78,8 @@ property g_prop
 }
 </code>
 </div>
-
 <br>
+
 A body of a method can be placed on the right (Java-style) or outside (C++-style).
 
 ## Indexed Properties
@@ -112,8 +112,8 @@ g_simpleProp.set (
 
 </code>
 </div>
-
 <br>
+
 A similar property declared using full syntax:
 
 <div class='new_frame snippet'>
@@ -155,8 +155,8 @@ property g_prop
 }
 </code>
 </div>
-
 <br>
+
 Accessing indexed properties looks like accessing arrays
 
 <div class='new_frame snippet'>
@@ -180,6 +180,7 @@ foo ()
 
 </code>
 </div>
+
 ## Autoget Properties
 
 In most cases a property getter is supposed to return a variable value or field, and all of the property logic is contained in the property setter. Jancy takes care of this common case by providing autoget properties. Such properties do not require a getter implementation: the compiler will access the data variable/field directly if possible, or otherwise generate a getter to access it.
@@ -198,8 +199,8 @@ g_simpleProp.set (int x)
 
 </code>
 </div>
-
 <br>
+
 The same property declared using full syntax:
 
 <div class='new_frame snippet'>
@@ -222,8 +223,8 @@ property g_prop
 }
 </code>
 </div>
-
 <br>
+
 Autoget and indexed property modifiers are mutually exclusive.
 
 ## Bindable Properties
@@ -264,8 +265,8 @@ int main ()
 }
 </code>
 </div>
-
 <br>
+
 Similar property declared using full syntax:
 
 <div class='new_frame snippet'>

@@ -23,50 +23,50 @@ opaque class Serial
 
 </code>
 </div>
-
 <br>
+
 The corresponding C++ implementation class would look somewhat like this:
 
 <div class='new_frame snippet'>
 <code name="jancy">
 
-class CSerial: public jnc::TIfaceHdr
+class Serial: public jnc::IfaceHdr
 {
 public:
-	JNC_API_BEGIN_CLASS ("io.Serial", EApiSlot_Serial)
-		JNC_API_AUTOGET_PROPERTY ("m_baudRate",    &CSerial::SetBaudRate)
-		JNC_API_AUTOGET_PROPERTY ("m_flowControl", &CSerial::SetFlowControl)
-		JNC_API_AUTOGET_PROPERTY ("m_dataBits",    &CSerial::SetDataBits)
-		JNC_API_AUTOGET_PROPERTY ("m_stopBits",    &CSerial::SetStopBits)
-		JNC_API_AUTOGET_PROPERTY ("m_parity",      &CSerial::SetParity)
+	JNC_BEGIN_CLASS ("io.Serial", ApiSlot_Serial)
+		JNC_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
+		JNC_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
+		JNC_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
+		JNC_AUTOGET_PROPERTY ("m_stopBits",    &Serial::setStopBits)
+		JNC_AUTOGET_PROPERTY ("m_parity",      &Serial::setParity)
 
 		// ...
 
-		JNC_API_OPERATOR_NEW (&CSerial::OperatorNew)
+		JNC_OPERATOR_NEW (&Serial::operatorNew)
 	JNC_API_END_CLASS ()
 
-	uint_t m_BaudRate;
-	axl::io::ESerialFlowControl m_FlowControl;
-	uint_t m_DataBits;
-	axl::io::ESerialStopBits m_StopBits;
-	axl::io::ESerialParity m_Parity;
+	uint_t m_baudRate;
+	axl::io::SerialFlowControl m_flowControl;
+	uint_t m_dataBits;
+	axl::io::SerialStopBits m_stopBits;
+	axl::io::SerialParity m_parity;
 
 	// ...
 
 protected:
 	// hidden implementation
 
-	axl::io::CSerial m_Serial;
-	mt::CLock m_IoLock;
-	uint_t m_IoFlags;
-	CIoThread m_IoThread;
+	axl::io::Serial m_serial;
+	mt::Lock m_ioLock;
+	uint_t m_ioFlags;
+	IoThread m_ioThread;
 
 };
 
 </code>
 </div>
-
 <br>
+
 Opaque classes can be neither derived from nor allocated statically, on stack, or as a class field member. This is because the Jancy compiler has no information about their full layout -- they are <i>opaque</i> after all.
 
 Opaque classes can only be allocated on the heap and only if their declaration includes 'operator new'. The developer can choose which opaque classes should be creatable and which ones should be exposed as non-creatable host interfaces.
@@ -106,6 +106,7 @@ opaque class ComboBox
 
 	// ...
 }
+
 </code>
 </div>
 
@@ -134,6 +135,64 @@ foo (int x)
 	default:
 		int i = 40; // still ok. you've got the idea
 	}
+}
+
+</code>
+</div>
+
+## Once
+
+Jancy provides an elegant syntax for lazy initialization. 
+Prefix the necessary piece of code with 'once' and the compiler will generate a thread-safe wrapper. The latter will ensure that this code executes once per each program run.
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	once initialize ();
+
+	// ...
+}
+
+</code>
+</div>
+<br>
+
+If your lazy initialization requires more than a single statement, enclose the entire block of your initialization code in a compound statement:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	once 
+	{
+		initializeTables ();
+		initializeMaps ();
+		initializeIo ();
+
+		// ...
+	}
+
+	// ...
+}
+
+</code>
+</div>
+<br>
+
+Jancy also provides a way to run the lazy initialization once per thread.
+Use 'thread once' to achieve this:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+foo ()
+{
+	thread once initializeThread (); 
+
+	// ...
 }
 
 </code>
@@ -210,11 +269,12 @@ class C1
 	}
 }
 
-extend C1
+extension ExtC1: C1
 {
 	bar ()
 	{
-		printf ("C1 (extend).bar () { m_x = %d }\n", m_x); // extension method has access to protected data
+		// extension method has access to protected data
+		printf ("C1 (extend).bar () { m_x = %d }\n", m_x); 
 	}
 
 	static baz ()
@@ -233,6 +293,9 @@ int main ()
 {
 	C1 c construct (100);
 	c.foo ();
+	
+	
+	
 	c.bar ();  // bar () is extension method
 
 	C1.baz (); // baz () is static extension method
@@ -245,12 +308,34 @@ int main ()
 
 ## Curly Initializers
 
-Jancy supports a method of assigning arbitrary aggregate values with curly initializers:
+Jancy supports a convenient method of assigning aggregate values with curly initializers:
+
+Classic C-style curly-intializers:
 
 <div class='new_frame snippet'>
 <code name="jancy">
 
-// something to curly-initialize
+int a [] = { 1, 2, 3 };	 
+
+</code>
+</div>
+<br>
+
+It's OK to skip elements leaving them zero-initialized:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+int b [10] = { ,, 3, 4,,, 7 }; 
+
+</code>
+</div>
+<br>
+
+You can use both index- and name-based addressing:
+
+<div class='new_frame snippet'>
+<code name="jancy">
 
 struct Point
 {
@@ -258,108 +343,30 @@ struct Point
 	int m_y;
 	int m_z;
 }
-
-//.............................................................................
-
-// entry point
-
-int main ()
-{
-	int a [] = { 1, 2, 3 };	 // classic C-style curly-intializers
-
-	printf ("a = { "); 
-
-	for (int i = 0; i < countof (a); i++)
-		printf ("%d, ", a [i]);
-
-	printf ("}\n");
-
-	int b [10] = { ,, 3, 4,,, 7 }; // can skip elements leaving them zero-initialized
-
-	printf ("b = { "); 
-
-	for (int i = 0; i < countof (b); i++)
-		printf ("%d, ", b [i]);
-
-	printf ("}\n");
-
-	Point point = { 10, m_z = 30 };  // can use both index- and name-based addressing
-	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
-
-	point = { , 200, 300 }; // can use curly-initializers in assignment operator after declaration
-	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
-
-	Point* point2 = new Point { m_y = 2000, m_z = 3000 }; // can use curly-initializers in new operator
-	printf ("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);
-
-	return 0;
-}
+	
+Point point = { 10, m_z = 30 };  
 
 </code>
 </div>
+<br>
 
-## 'onevent' Statement
-
-Sometimes, expressions don't quite cut it when it comes to describing what has to be done in response to a property change: e.g. running a cycle, or executing a sequence of statements. Using expressions in 'reactor' blocks might not provide enough control over which actions must be taken in response to what property change.  
-
-The 'onevent' declaration in 'reactor' blocks gives you fine-grained control over dependencies and at the same time frees you from manually binding/unbinding to/from events:
+You can also use curly-initializers in assignment operator after declaration:
 
 <div class='new_frame snippet'>
 <code name="jancy">
+	
+point = { , 200, 300 }; 
 
-bool bindable g_useDhcp;
-unsigned int32 bindable g_ip4;
-event g_onApplyIpSettings ();
+</code>
+</div>
+<br>
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+...or in a new operator:
 
-reactor g_ipReactor ()
-{
-	onevent (bindingof (g_useDhcp)) ()
-	{
-		if (g_useDhcp)
-		{		
-			printf ("using DHCP, disable IP-edit\n");
-		}
-		else
-		{
-			printf (
-				"using manual IP configuration (IP = %d.%d.%d.%d)\n",
-				(g_ip4 & 0xff000000) >> 24,
-				(g_ip4 & 0x00ff0000) >> 16,
-				(g_ip4 & 0x0000ff00) >> 8,
-				(g_ip4 & 0x000000ff)
-				);
-		}			
-	}
-
-	onevent (bindingof (g_ip4)) ()
-	{
-		g_useDhcp = false;
-	}
-
-	// onevent statement allows automatically binding to any events, not just 'onChanged'
-
-	onevent g_onApplyIpSettings ()
-	{
-		printf ("apply IP settings...\n");
-	}
-}
-
-//.............................................................................
-
-// entry point
-
-int main ()
-{
-	g_ipReactor.start ();
-
-	g_useDhcp = true;
-	g_ip4 = 0xc0a80105;
-	g_onApplyIpSettings ();
-
-	return 0;
-}
+<div class='new_frame snippet'>
+<code name="jancy">
+	
+Point* point2 = new Point { m_y = 2000, m_z = 3000 }; 
 
 </code>
 </div>

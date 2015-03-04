@@ -1,6 +1,6 @@
 <md>
 
-# Flag Enums
+# Bitflag Enums
 
 Jancy brings a couple of enhancements to the enumeration types as well. 
 
@@ -31,14 +31,14 @@ enum IcmpType: uint8_t
 
 </code>
 </div>
-
 <br>
-To simplify porting existing C/C++ code into Jancy we offer a 'cenum' variation, which behaves like a traditional C/C++ enum, i.e. it exposes the member identifier into the parent namespace.
+
+To simplify porting existing C/C++ code into Jancy we offer an 'exposed enum' variation, which behaves like a traditional C/C++ enum, i.e. it exposes the member identifier into the parent namespace.
 
 <div class='new_frame snippet'>
 <code name="jancy">
 
-cenum State
+exposed enum State
 {
 	State_Idle, // = 0
 	State_Connecting,
@@ -54,39 +54,39 @@ foo ()
 
 </code>
 </div>
-
 <br>
-Jancy also features so-called flag enums, or fenums, which are enumerations dedicated to describing a set of flags. A 'fenum' differs from a regular 'enum' in the following aspects:
+
+Jancy also features bitflag enums, which are enumerations dedicated to describing a set of bitflags. A 'bitflag enum' differs from a regular 'enum' in the following aspects:
 
 * It's automatic value assignment sequence is 1, 2, 4, 8,... thus describing bit positions
-* Bitwise OR operator '|' on two operands of matching 'fenum' types yields the same 'fenum' type
-* Bitwise AND operator '&' on 'fenum' and integer yields the same 'fenum' type 
-* It's OK to assign '0' to a 'fenum'
+* Bitwise OR operator '|' on two operands of matching 'bitflag enum' types yields the same 'bitflag enum' type
+* Bitwise AND operator '&' on 'bitflag enum' and integer yields the same 'bitflag enum' type 
+* It's OK to assign '0' to a 'bitflag enum'
 
-Like Jancy enums, fenums do not pollute the parent namespace.
+Like Jancy enums, bitflag enums do not pollute the parent namespace.
 
 <div class='new_frame snippet'>
 <code name="jancy">
 
-fenum OpenFlags
+bitflag enum OpenFlags
 {
 	ReadOnly,      // = 0x01
-	Exclusive = 0x20,
+	Exclusive         = 0x20,
 	DeleteOnClose, // = 0x40
 }
 
 foo ()
 {
-	OpenFlags flags = 0; // 0 is ok to assign to 'fenum'
+	OpenFlags flags = 0; // 0 is ok to assign to 'bitflag enum'
 	 
 	flags = OpenFlags.ReadOnly | OpenFlags.Exclusive | OpenFlags.DeleteOnClose;
 	flags &= ~OpenFlags.Exclusive;
-	flags = 200; // <-- error: cast int->fenum must be explicit
+	flags = 200; // <-- error: cast int->bitflag enum must be explicit
 }
 
 </code>
 </div>
 
 ---
-Proceed to Jancy [once statement](once.html)
+Proceed to Jancy [break-n](breakn.html)
 </md>

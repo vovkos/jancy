@@ -17,8 +17,8 @@ bool foo (int a) throws
 
 </code>
 </div>
-
 <br>
+
 If something more complex or non-standard is required, custom throw conditions can be employed: 
 
 <div class='new_frame snippet'>
@@ -32,8 +32,8 @@ int baz (int a) throws if (retval < 5)
 
 </code>
 </div>
-
 <br>
+
 If throw conditions match, the error code is automatically propagated:
 
 <div class='new_frame snippet'>
@@ -50,8 +50,8 @@ int bar (int a) throws if (retval < 5)
 
 </code>
 </div>
-
 <br>
+
 The 'try' operator shields an expression from 'throwing':
 
 <div class='new_frame snippet'>
@@ -59,8 +59,8 @@ The 'try' operator shields an expression from 'throwing':
 	int result = try baz (-5); 
 </code>
 </div>
-
 <br>
+
 The 'try' block shields a parent scope from 'throwing' even if this parent scope has no 'catch':
 
 <div class='new_frame snippet'>
@@ -80,9 +80,9 @@ foo ()
 }
 </code>
 </div>
-
 <br>
-'Catch' & 'finally' can be within any scope:
+
+'catch' & 'finally' can be within any scope:
 
 <div class='new_frame snippet'>
 <code name="jancy">
@@ -101,8 +101,8 @@ finally:
 
 </code>
 </div>
-
 <br>
+
 When calling a function, the developer can use either an error code check or exception semantics depending on what's more appropriate or convenient in each particular case.
 
 <div class='new_frame snippet'>
@@ -123,5 +123,5 @@ int main ()
 </div>
 
 ---
-Proceed to Jancy [access control model](dual_access.html)
+Proceed to Jancy [schedulers](schedulers.html)
 </md>

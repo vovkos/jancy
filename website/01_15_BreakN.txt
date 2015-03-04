@@ -15,18 +15,18 @@ int a [3] [4] =
 };
 
 for (size_t i = 0; i < countof (a); i++)
-for (size_t j = 0; j < countof (a [0]); j++)
-	if (a [i] [j] < 0)
-	{
-		// negative element is found, process it...
+	for (size_t j = 0; j < countof (a [0]); j++)
+		if (a [i] [j] < 0)
+		{
+			// negative element is found, process it...
 
-		break2; // exit 2 loops at once
-	}
+			break2; // exit 2 loops at once
+		}
 
 </code>
 </div>
-
 <br>
+
 You can use the same for breaking out of the switch statement and then out of the outer loop:
 
 <div class='new_frame snippet'>

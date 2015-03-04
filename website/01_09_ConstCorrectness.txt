@@ -31,8 +31,8 @@ transpose (
 
 </code>
 </div>
-
 <br>
+
 All non-static methods implicitly accept an extra 'this' argument, so it is necessary to be able to specify whether 'this' is const or not -- if yes, then such a method is called a <i>const method</i>. 
 
 Certain fields can be modified even from const methods (for example, various kinds of cache fields) -- these are <i>mutable fields</i>.

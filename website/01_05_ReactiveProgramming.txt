@@ -20,8 +20,8 @@ m_actionTable [ActionId.Disconnect].m_isEnabled = m_state != State.Closed;
 // ...
 </code>
 </div>
-
 <br>
+
 How does Jancy know where to use Excel-like execution and where to use the traditional imperative approach? 
 
 Reactors. 
@@ -42,8 +42,8 @@ reactor TcpConnectionSession.m_uiReactor ()
 
 </code>
 </div>
-
 <br>
+
 Reactors specify the boundaries of <i>where</i> to use the reactive approach. In addition you are also in full control of <i>when</i> to use it because reactors can be started and stopped as needed.
 
 <div class='new_frame snippet'>
@@ -58,10 +58,36 @@ TcpConnectionSession.construct ()
 
 </code>
 </div>
-
 <br>
+
+Sometimes, expressions don't quite cut it when it comes to describing what has to be done in response to a property change: e.g. running a cycle, or executing a sequence of statements. Using expressions in 'reactor' blocks might not provide enough control over which actions must be taken in response to what property change.  
+
+The 'onevent' declaration in 'reactor' blocks gives you fine-grained control over dependencies and at the same time frees you from manually binding/unbinding to/from events:
+
+<div class='new_frame snippet'>
+<code name="jancy">
+
+reactor g_myReactor ()
+{
+	onevent bindingof (g_state) ()
+	{
+		// handle state change
+	}
+
+	// onevent statement allows binding to any events, not just to 'onChanged' 
+
+	onevent g_onApplyIpSettings ()
+	{
+		// apply IP settings...
+	}
+}
+
+</code>
+</div>
+<br>
+
 All in all, reactors simplify UI programming by an order of magnitude.
 
 ---
-Proceed to Jancy [classes](classes.html)
+Proceed to Jancy [automatons](automatons.html)
 </md>

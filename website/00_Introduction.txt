@@ -1,8 +1,19 @@
 <div style="float:right; margin-left: 15px;margin-bottom:15px">
+
 <a href="/jancy/downloads.html"><img src="/images/ninja/jancy-maskot-350.png" 
 alt="Jancy" style="display:block;margin-left:auto;margin-right:auto;"></a>
-<a href="/jancy/downloads.html"><img src="/images/ninja/download.png" 
-style="display:block;margin:15px auto 0 auto"></a>
+
+<!--<a href="/jancy/downloads.html"><img src="/images/ninja/download.png" 
+style="display:block;margin:15px auto 0 auto"></a>-->
+
+
+<div style="margin:15px auto;display:table;border:1px solid #cccccc;border-radius:3px;background: linear-gradient(to top, #ebebeb, #ffffff);height:56px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,0.2)" onclick="window.location = '/jancy/downloads.html'">
+<div style="display:table-cell;vertical-align:middle;padding:0 15px">
+<img src="/images/down_button_icon.png">
+</div>
+<div style="display:table-cell;padding:0 15px 0 0;vertical-align:middle;vertical-align:middle;text-align:center;"><a style="font-family:Arial;font-size:17px;font-weight:bold;color:rgba(0,0,0,0.4);text-decoration:none;white-space:nowrap" href="/jancy/downloads.html">Download Jancy</a></div>
+</div>
+
 </div>
 
 <md>
@@ -31,18 +42,19 @@ We couldn't find such a language! So we created it. Meet Jancy.
 * Safe pointers and pointer arithmetic
 * Properties (the most comprehensive implementation thereof)
 * Multicasts and events (including weak events, which do not require to unsubscribe)
-* RAII (resource-acquisition-is-initialization) paradigm support
 * Reactive programming (one of the first implementations in a general-purpose imperative language)
+* Exception-style syntax over error code checks
+* Built-in regexp-based generator of incremental lexers/scanners
 
 ## Other notable features
 * Multiple inheritance support
 * Const-correctness support
+* RAII (resource-acquisition-is-initialization) paradigm support
 * Explicit stack allocation and thread-local storage
 * Weak pointers (that do not retain objects)
 * Partial application support for functions and properties
 * Scheduled function pointers
-* Exception-style syntax over error code checks
-* Flag enums
+* Bitflag enums
 * Perl-style formatting 
 * …and more
 

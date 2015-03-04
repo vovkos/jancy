@@ -21,9 +21,9 @@ class Scheduler
 
 </code>
 </div>
-
 <br>
-Note that even the schedule() method accepts a pointer to a function with no arguments, and you can schedule functions with arbitrary argument list, as arguments will be captured in the closure object.
+
+Note that even the 'schedule' method accepts a pointer to a function with no arguments, and you can schedule functions with arbitrary argument list, as arguments will be captured in the closure object.
 
 To assign a scheduler you use @ operator (at):
 
@@ -67,8 +67,8 @@ bar ()
 
 </code>
 </div>
-
 <br>
+
 Below is a real-life example (from our [IO Ninja](/ioninja/) software) of assigning a socket event handler (which gets fired from within the socket IO thread) and scheduling it to be called from the main UI thread:
 
 <div class='new_frame snippet'>
@@ -85,10 +85,9 @@ TcpListenerSession.construct (doc.PluginHost* pluginHost)
 	// ...
 }
 
-
 </code>
 </div>
 
 ---
-Proceed to Jancy [const correctness](const_correctness.html)
+Proceed to Jancy [dual access control model](dual_access.html)
 </md>

@@ -28,15 +28,15 @@ Jancy supports multicasts and events which allow accumulating function pointers 
 </md>
 </feature>
 
-<feature url="features/storage.html" caption="Data Storage Control &amp; RAII">
-<md>
-Like C/C++, Jancy supports explicit stack allocation and the RAII approach to resource management. Further, the developer is always in full control of what memory to use for the specific variable, field or temp: a static, stack, heap, thread-local-storage, or parent object memory block.
-</md>
-</feature>
-
 <feature url="features/reactive.html" caption="Reactive Programming">
 <md>
 Ever used Microsoft Excel before? Then you know the concept of writing a 'formula' which will be automatically re-evaluated when the referenced cells change. With Jancy you can do the same in your code -- and with full control of where and when to use this reactive paradigm. This is perfect for UI programming!
+</md>
+</feature>
+
+<feature url="features/automatons.html" caption="Automaton Functions">
+<md>
+Jancy provides a convenient way of tokenizing input streams -- that is, splitting a stream of characters into a token sequence. Specify regular expressions to define recognized lexemes and then simply write actions to execute when these lexemes are found in the input stream!
 </md>
 </feature>
 
@@ -49,6 +49,12 @@ Ever used Microsoft Excel before? Then you know the concept of writing a 'formul
 <feature url="features/classes.html" caption="Classes With Multiple Inheritance">
 <md>
 Besides standard class features such as constructors, destructors, virtual methods, and namespace member access control, Jancy also supports multiple inheritance, in- and out-of-class method implementation, operator overloading, in-place field initialization and preconstructors.
+</md>
+</feature>
+
+<feature url="features/storage.html" caption="Data Storage Control &amp; RAII">
+<md>
+Like C/C++, Jancy supports explicit stack allocation and the RAII approach to resource management. Further, the developer is always in full control of what memory to use for the specific variable, field or temp: a static, stack, heap, thread-local-storage, or parent object memory block.
 </md>
 </feature>
 
@@ -82,15 +88,9 @@ Beside traditional character literals, Jancy features two new kinds thereof. The
 </md>
 </feature>
 
-<feature url="features/fenums.html" caption="Flag Enums">
+<feature url="features/fenums.html" caption="Bitflag Enums">
 <md>
-Flag enums, or <i>fenums</i>, are just like enums... but for flag constants. Flag enums are missing in most modern languages and usually require some not-so-trivial workarounds. Jancy provides a solution for flag enums out-of-the-box. 
-</md>
-</feature>
-
-<feature url="features/once.html" caption="Once">
-<md>
-Jancy offers an elegant approach to writing lazy initialization code (that must be executed once per program run or once per thread). The traditional approach works too: Jancy ensures single execution of static constructors and initializers (and unlike C/C++, Jancy does so in a thread-safe way).
+Bitflag enums are just like enums... but for flag constants. Bitflag enums are missing in most modern languages and usually require some not-so-trivial workarounds. Jancy provides a solution for flag enums out-of-the-box. 
 </md>
 </feature>
 

@@ -94,8 +94,8 @@ C1.static construct ()
 
 </code>
 </div>
-
 <br>
+
 Jancy has pointers and, contrary to most managed languages, has no distinction between value-types and reference-types.
 
 What <i>is</i> a pointer, must <i>look like</i> a pointer. 
@@ -136,8 +136,8 @@ foo ()
 
 </code>
 </div>
-
 <br>
+
 Jancy has a small syntactic difference with regard to calling a constructor of a class variable or field. This is to address an inherent ambiguity of the C/C++ constructor invocation syntax:
 
 <div class='new_frame snippet'>
@@ -146,8 +146,8 @@ C1 a (); // <-- is it a function 'a' which returns C1?
          //     or a construction of variable 'a' of type C1?
 </code>
 </div>
-
 <br>
+
 This ambiguity is even trickier to handle in Jancy given the fact that Jancy does not enforce the 'declaration-before-usage' paradigm.
 To counter the ambiguity, Jancy introduces a slight syntax modification which fully resolves the issue:
 
@@ -275,8 +275,8 @@ override C3.baz (
 
 </code>
 </div>
-
 <br>
+
 Jancy provides keywords 'basetype' and 'basetype1'..'basetype9' to conveniently reference base types for construction or namespace resolution.
 
 <div class='new_frame snippet'>
@@ -327,5 +327,5 @@ class Derived:
 </div>
 
 ---
-Proceed to Jancy [schedulers](schedulers.html)
+Proceed to Jancy [data storage](storage.html)
 </md>
