@@ -188,7 +188,7 @@ Hopefully what you saw was:
 <div class='new_frame snippet'>
 
 <code>
-100% tests passed, 0 tests failed out of 38
+100% tests passed, 0 tests failed out of 40
 </code>
 
 </div>

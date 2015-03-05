@@ -22,7 +22,7 @@ bool automaton fooBar ()
 		
 		char const* numberString = recognizer.m_lexeme;
 
-	%% [ \r\n\t]*
+	%% [ \r\n\t]+
 		// ignore whitespace
 }
 
