@@ -897,7 +897,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (runtimeErrorSrc),
 			StdNamespace_Internal,
 		},
-		{ NULL },                                // StdFunction_CheckNullPtr,
 		{ NULL },                                // StdFunction_CheckScopeLevel,
 		{ NULL },                                // StdFunction_CheckScopeLevelDirect,
 		{ NULL },                                // StdFunction_CheckClassPtrScopeLevel,
@@ -1173,6 +1172,26 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (checkDataPtrRangeSrc_thin),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_TryCheckNullPtr_fat,
+			tryCheckNullPtrSrc_fat,
+			lengthof (tryCheckNullPtrSrc_fat),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_CheckNullPtr_fat,
+			checkNullPtrSrc_fat,
+			lengthof (checkNullPtrSrc_fat),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_TryCheckNullPtr_thin,
+			tryCheckNullPtrSrc_thin,
+			lengthof (tryCheckNullPtrSrc_thin),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_CheckNullPtr_thin,
+			checkNullPtrSrc_thin,
+			lengthof (checkNullPtrSrc_thin),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1183,10 +1202,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	switch (func)
 	{
-	case StdFunction_CheckNullPtr:
-		function = createCheckNullPtr ();
-		break;
-
 	case StdFunction_CheckScopeLevel:
 		function = createCheckScopeLevel ();
 		break;
@@ -1268,6 +1283,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_CheckDataPtrRange_fat:
 	case StdFunction_TryCheckDataPtrRange_thin:
 	case StdFunction_CheckDataPtrRange_thin:
+	case StdFunction_TryCheckNullPtr_fat:
+	case StdFunction_CheckNullPtr_fat:
+	case StdFunction_TryCheckNullPtr_thin:
+	case StdFunction_CheckNullPtr_thin:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
 			sourceTable [func].m_stdNamespace,
@@ -1348,7 +1367,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 	const char* nameTable [StdFunction__Count] =
 	{
 		NULL,                  // StdFunction_RuntimeError,
-		NULL,                  // StdFunction_CheckNullPtr,
 		NULL,                  // StdFunction_CheckScopeLevel,
 		NULL,                  // StdFunction_CheckScopeLevelDirect,
 		NULL,                  // StdFunction_CheckClassPtrScopeLevel,
@@ -1408,6 +1426,10 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_CheckDataPtrRange_fat,
 		NULL,                  // StdFunction_TryCheckDataPtrRange_thin,
 		NULL,                  // StdFunction_CheckDataPtrRange_thin,
+		NULL,                  // StdFunction_TryCheckNullPtr_fat,
+		NULL,                  // StdFunction_CheckNullPtr_fat,
+		NULL,                  // StdFunction_TryCheckNullPtr_thin,
+		NULL,                  // StdFunction_CheckNullPtr_thin,
 	};
 
 	const char* name = nameTable [func];
@@ -1419,43 +1441,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 	function->m_func = func;
 	m_lazyStdFunctionList.insertTail (function);
 	m_lazyStdFunctionArray [func] = function;
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckNullPtr ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getStdType (StdType_BytePtr),
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkNullPtr", functionType);
-
-	Value argValueArray [2];
-	internalPrologue (function, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-
-	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("iface_fail");
-	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("iface_success");
-
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
-
-	Value cmpValue;
-	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
-
-	m_module->m_llvmIrBuilder.runtimeError (argValue2);
-
-	m_module->m_controlFlowMgr.follow (successBlock);
-
-	internalEpilogue ();
-
 	return function;
 }
 

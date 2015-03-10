@@ -32,6 +32,52 @@ OperatorMgr::getDataRefObjHdr (
 }
 
 void
+OperatorMgr::checkPtr (
+	StdFunction stdTryCheckFunction,
+	StdFunction stdCheckFunction,
+	const Value* argValueArray,
+	size_t argCount
+	)
+{
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	bool canThrow = (scope->getFlags () & ScopeFlag_CanThrow) != 0;
+	bool isThrowLocked = m_module->m_controlFlowMgr.isThrowLocked ();
+
+	if (!canThrow && !isThrowLocked)
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdCheckFunction);
+
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunction->getType (),
+			argValueArray,
+			argCount,
+			NULL
+			);
+	}
+	else
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdTryCheckFunction);
+		FunctionType* checkFunctionType = checkFunction->getType ();
+
+		Value returnValue;
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunctionType,
+			argValueArray,
+			argCount,
+			&returnValue
+			);
+
+		if (!isThrowLocked)
+		{
+			bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
+			ASSERT (result);
+		}
+	}
+}
+
+void
 OperatorMgr::checkDataPtrRange_lean (
 	const Value& value,
 	size_t size
@@ -53,36 +99,12 @@ OperatorMgr::checkDataPtrRange_lean (
 		rangeEndValue,
 	};
 
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	if (!(scope->getFlags () & ScopeFlag_CanThrow))
-	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange_thin);
-
-		m_module->m_llvmIrBuilder.createCall (
-			checkFunction,
-			checkFunction->getType (),
-			argValueArray,
-			countof (argValueArray),
-			NULL
-			);
-	}
-	else
-	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryCheckDataPtrRange_thin);
-		FunctionType* checkFunctionType = checkFunction->getType ();
-
-		Value returnValue;
-		m_module->m_llvmIrBuilder.createCall (
-			checkFunction,
-			checkFunctionType,
-			argValueArray,
-			countof (argValueArray),
-			&returnValue
-			);
-
-		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
-		ASSERT (result);
-	}
+	checkPtr (
+		StdFunction_TryCheckDataPtrRange_thin,
+		StdFunction_CheckDataPtrRange_thin,
+		argValueArray,
+		countof (argValueArray)
+		);
 }
 
 void
@@ -99,35 +121,12 @@ OperatorMgr::checkDataPtrRange_fat (
 		sizeValue,
 	};
 
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	if (!(scope->getFlags () & ScopeFlag_CanThrow))
-	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange_fat);
-		m_module->m_llvmIrBuilder.createCall (
-			checkFunction,
-			checkFunction->getType (),
-			argValueArray,
-			countof (argValueArray), 
-			NULL
-			);
-	}
-	else
-	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryCheckDataPtrRange_fat);
-		FunctionType* checkFunctionType = checkFunction->getType ();
-
-		Value returnValue;
-		m_module->m_llvmIrBuilder.createCall (
-			checkFunction,
-			checkFunctionType,
-			argValueArray,
-			countof (argValueArray),
-			&returnValue
-			);
-
-		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
-		ASSERT (result);
-	}
+	checkPtr (
+		StdFunction_TryCheckDataPtrRange_fat,
+		StdFunction_CheckDataPtrRange_fat,
+		argValueArray,
+		countof (argValueArray)
+		);
 }
 
 void
@@ -245,63 +244,89 @@ OperatorMgr::checkClassPtrScopeLevel (
 }
 
 void
-OperatorMgr::checkClassPtrNull (const Value& value)
+OperatorMgr::checkNullPtr_thin (
+	const Value& rawValue,
+	TypeKind typeKind
+	)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
-
-	ClassPtrType* ptrType = (ClassPtrType*) value.getType ();
-	ClassPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-
-	if (ptrType->getFlags () & PtrTypeFlag_Safe)
-		return;
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null class pointer");
-
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
+	m_module->m_llvmIrBuilder.createBitCast (rawValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
+	Value argValueArray [] =
+	{
 		ptrValue,
-		Value (RuntimeErrorKind_NullClassPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
-		NULL
+		typeKindValue,
+	};
+
+	checkPtr (
+		StdFunction_TryCheckNullPtr_thin,
+		StdFunction_CheckNullPtr_thin,
+		argValueArray,
+		countof (argValueArray)
 		);
 }
 
 void
-OperatorMgr::checkFunctionPtrNull (const Value& value)
+OperatorMgr::checkNullPtr_fat (
+	const Value& value,
+	TypeKind typeKind
+	)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
+	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 
-	FunctionPtrType* ptrType = (FunctionPtrType*) value.getType ();
-	FunctionPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+	Value argValueArray [] =
+	{
+		value,
+		typeKindValue,
+	};
 
-	if (ptrType->getFlags () & PtrTypeFlag_Safe)
+	checkPtr (
+		StdFunction_TryCheckNullPtr_fat,
+		StdFunction_CheckNullPtr_fat,
+		argValueArray,
+		countof (argValueArray)
+		);
+}
+
+void
+OperatorMgr::checkNullPtr (const Value& value)
+{
+	Type* type = value.getType ();
+	
+	if (type->getFlags () & PtrTypeFlag_Safe)
 		return;
 
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null function pointer");
+	TypeKind typeKind = type->getTypeKind ();
 
-	Value ptrValue;
+	bool isThin;
 
-	if (ptrTypeKind == FunctionPtrTypeKind_Thin)
-		ptrValue = value;
+	switch (typeKind)
+	{
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		isThin = true;
+		break;
+
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		isThin = ((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Thin;
+		break;
+
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		isThin = ((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Thin;
+		break;
+
+	default:
+		ASSERT (false);
+	}
+
+	if (isThin)
+		checkNullPtr_thin (value, typeKind);
 	else
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
-
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
-
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
-		ptrValue,
-		Value (RuntimeErrorKind_NullFunctionPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
-		NULL
-		);
+		checkNullPtr_fat (value, typeKind);
 }
 
 void
@@ -319,39 +344,6 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 	Value closureValue;
 	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
-}
-
-void
-OperatorMgr::checkPropertyPtrNull (const Value& value)
-{
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
-
-	PropertyPtrType* ptrType = (PropertyPtrType*) value.getType ();
-	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-
-	if (ptrType->getFlags () & PtrTypeFlag_Safe)
-		return;
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check null property pointer");
-
-	Value ptrValue;
-
-	if (ptrTypeKind == PropertyPtrTypeKind_Thin)
-		ptrValue = value;
-	else
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
-
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckNullPtr);
-	
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
-		ptrValue,
-		Value (RuntimeErrorKind_NullPropertyPtr, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
-		NULL
-		);
 }
 
 void

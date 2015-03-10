@@ -288,7 +288,7 @@ OperatorMgr::getClassField (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 	ClassPtrType* opType = (ClassPtrType*) opValue.getType ();
 
-	checkClassPtrNull (opValue);
+	checkNullPtr (opValue);
 
 	ClassType* classType = (ClassType*) field->getParentNamespace ();
 

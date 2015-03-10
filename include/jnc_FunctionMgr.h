@@ -336,9 +336,6 @@ protected:
 		);
 
 	Function*
-	createCheckNullPtr ();
-
-	Function*
 	createCheckScopeLevel ();
 
 	Function*

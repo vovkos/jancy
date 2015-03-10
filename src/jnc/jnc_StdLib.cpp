@@ -742,17 +742,6 @@ StdLib::tryCheckDataPtrRange_thin (
 }
 
 void 
-StdLib::checkDataPtrRange_fat (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	bool result = tryCheckDataPtrRange_fat (ptr, size);
-	if (!result)
-		Runtime::runtimeError (err::getLastError ());
-}
-
-void 
 StdLib::checkDataPtrRange_thin (
 	void* p,
 	size_t size,
@@ -761,6 +750,50 @@ StdLib::checkDataPtrRange_thin (
 	)
 {
 	bool result = tryCheckDataPtrRange_thin (p, size, rangeBegin, rangeEnd);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+bool 
+StdLib::tryCheckNullPtr_thin (
+	void* p,
+	TypeKind typeKind
+	)
+{
+	if (p)
+		return true;
+
+	switch (typeKind)
+	{
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		err::setStringError ("null class pointer access");
+		break;
+
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		err::setStringError ("null function pointer access");
+		break;
+
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		err::setStringError ("null property pointer access");
+		break;
+
+	default:
+		err::setStringError ("null pointer access");
+	}
+
+	return false;
+}
+
+void
+StdLib::checkNullPtr_thin (
+	void* p,
+	TypeKind typeKind
+	)
+{
+	bool result = tryCheckNullPtr_thin (p, typeKind);
 	if (!result)
 		Runtime::runtimeError (err::getLastError ());
 }

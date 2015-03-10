@@ -202,6 +202,7 @@ TypeMgr::getStdType (StdType stdType)
 			lengthof (int64Fp64TypeSrc),
 			StdNamespace_Internal,
 		},
+
 		{                                    // StdType_Fp64Int64,
 			fp64Int64TypeSrc,
 			lengthof (fp64Int64TypeSrc),

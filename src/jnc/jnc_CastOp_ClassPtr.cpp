@@ -102,7 +102,7 @@ Cast_ClassPtr::llvmCast (
 	ClassType* dstClassType = dstType->getTargetType ();
 
 	if (dstType->getFlags () & PtrTypeFlag_Safe)
-		m_module->m_operatorMgr.checkClassPtrNull (opValue);
+		m_module->m_operatorMgr.checkNullPtr (opValue);
 
 	if (dstClassType->getClassTypeKind () == ClassTypeKind_StdObject ||
 		isMulticastToMulticast (srcType, dstType))

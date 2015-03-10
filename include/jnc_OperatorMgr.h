@@ -1489,6 +1489,14 @@ public:
 	// checks
 
 	void
+	checkPtr (
+		StdFunction stdTryCheckFunction,
+		StdFunction stdCheckFunction,
+		const Value* argValueArray,
+		size_t argCount
+		);
+
+	void
 	getDataRefObjHdr (
 		const Value& value,
 		Value* resultValue
@@ -1509,14 +1517,26 @@ public:
 		size_t size
 		);
 
+	void
+	checkNullPtr (const Value& value);
+
+	void
+	checkNullPtr_thin (
+		const Value& value,
+		TypeKind typeKind
+		);
+
+	void
+	checkNullPtr_fat (
+		const Value& value,
+		TypeKind typeKind
+		);
+
 	bool
 	checkDataPtrScopeLevel (
 		const Value& srcValue,
 		const Value& dstValue
 		); // can sometimes detect invalid assigns at compile time
-
-	void
-	checkClassPtrNull (const Value& value);
 
 	void
 	checkClassPtrScopeLevel (
@@ -1525,16 +1545,10 @@ public:
 		);
 
 	void
-	checkFunctionPtrNull (const Value& value);
-
-	void
 	checkFunctionPtrScopeLevel (
 		const Value& srcValue,
 		const Value& dstValue
 		);
-
-	void
-	checkPropertyPtrNull (const Value& value);
 
 	void
 	checkPropertyPtrScopeLevel (

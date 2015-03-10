@@ -384,6 +384,34 @@ void checkDataPtrRange_thin (
 	void thin const* rangeEnd
 	);
 
+///; static char tryCheckNullPtrSrc_fat [] = 
+
+bool tryCheckNullPtr_fat (
+	function* p (),
+	int typeKind
+	) throws;
+
+///; static char checkNullPtrSrc_fat [] = 
+
+void checkNullPtr_fat (
+	function* p (),
+	int typeKind
+	);
+
+///; static char tryCheckNullPtrSrc_thin [] = 
+
+bool tryCheckNullPtr_thin (
+	void thin const* p,
+	int typeKind
+	) throws;
+
+///; static char checkNullPtrSrc_thin [] = 
+
+void checkNullPtr_fat (
+	void thin const* p,
+	int typeKind
+	);
+
 ///;
 
 //.............................................................................

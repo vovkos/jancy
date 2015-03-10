@@ -78,7 +78,6 @@ getFunctionKindFlags (FunctionKind functionKind);
 enum StdFunction
 {
 	StdFunction_RuntimeError,
-	StdFunction_CheckNullPtr,
 	StdFunction_CheckScopeLevel,
 	StdFunction_CheckScopeLevelDirect,
 	StdFunction_CheckClassPtrScopeLevel,
@@ -138,6 +137,10 @@ enum StdFunction
 	StdFunction_CheckDataPtrRange_fat,
 	StdFunction_TryCheckDataPtrRange_thin,
 	StdFunction_CheckDataPtrRange_thin,
+	StdFunction_TryCheckNullPtr_fat,
+	StdFunction_CheckNullPtr_fat,
+	StdFunction_TryCheckNullPtr_thin,
+	StdFunction_CheckNullPtr_thin,
 	StdFunction__Count
 };
 

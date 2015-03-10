@@ -69,6 +69,8 @@ OperatorMgr::getPropertyVTable (
 		ASSERT (false);
 	}
 
+	checkNullPtr (opValue);
+
 	PropertyType* propertyType = ptrType->getTargetType ();
 	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();
 	Type* vtableType = stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ();

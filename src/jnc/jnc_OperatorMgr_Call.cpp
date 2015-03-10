@@ -535,7 +535,7 @@ OperatorMgr::callClosureFunctionPtr (
 	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType ();
 	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 
-	checkFunctionPtrNull (opValue);
+	checkNullPtr (opValue);
 
 	Value pfnValue;
 	Value ifaceValue;
