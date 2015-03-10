@@ -164,6 +164,9 @@ enum StdType
 	StdType_Fp64Fp64,   // for system V coercion
 	StdType_Int64Fp64,  // for system V coercion
 	StdType_Fp64Int64,  // for system V coercion
+
+	StdType_DataPtrStruct,
+
 	StdType__Count,
 };
 

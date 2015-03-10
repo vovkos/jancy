@@ -200,6 +200,7 @@ OperatorMgr::getStructField (
 	{
 		Value ptrValue;
 		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getTargetType ()->getDataPtrType_c (), &ptrValue);
 		getFieldPtrImpl (ptrValue, coord, ptrType, resultValue);
 		resultValue->setLeanDataPtrValidator (opValue);
 	}

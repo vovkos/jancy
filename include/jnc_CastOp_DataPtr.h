@@ -74,6 +74,7 @@ protected:
 		const Value& ptrValue, 
 		DataPtrType* srcType,
 		DataPtrType* dstType,
+		bool isFat,
 		Value* resultValue
 		);
 };

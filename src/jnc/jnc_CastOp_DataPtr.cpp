@@ -189,6 +189,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	const Value& ptrValue,
 	DataPtrType* srcType,
 	DataPtrType* dstType,
+	bool isFat,
 	Value* resultValue
 	)
 {
@@ -198,19 +199,30 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	if (offset == -1)
 		return false;
 
-	if (dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
+	if (isFat)
+		dstType = (DataPtrType*) m_module->m_typeMgr.getStdType (StdType_BytePtr);
+	else if (dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
 		dstType = dstType->getTargetType ()->getDataPtrType_c ();
 
 	if (!coord.m_llvmIndexArray.isEmpty ())
 	{
 		coord.m_llvmIndexArray.insert (0, 0);
+
+		srcType = srcType->getTargetType ()->getDataPtrType_c ();
+
+		Value tmpValue;
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, srcType, &tmpValue);
+
 		m_module->m_llvmIrBuilder.createGep (
-			ptrValue,
+			tmpValue,
 			coord.m_llvmIndexArray,
 			coord.m_llvmIndexArray.getCount (),
 			dstType,
-			resultValue
+			&tmpValue
 			);
+
+		if (isFat)
+			m_module->m_llvmIrBuilder.createBitCast (tmpValue, dstType, resultValue);
 
 		return true;
 	}
@@ -269,11 +281,13 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 2, NULL, &rangeEndValue);
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 3, NULL, &scopeLevelValue);
 
-	bool result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, &ptrValue);
+	bool result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
 	if (!result)
 		return false;
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
+
+	rtl::String s = ptrValue.getLlvmTypeString ();
 
 	Value tmpValue = type->getUndefValue ();
 	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, ptrValue, 0, NULL, &tmpValue);
@@ -326,7 +340,7 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
 
 	Value ptrValue;
-	bool result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, &ptrValue);
+	bool result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
 	if (!result)
 		return false;
 
@@ -383,7 +397,7 @@ Cast_DataPtr_Normal2Thin::llvmCast (
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
-	return getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
+	return getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, false, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -398,7 +412,7 @@ Cast_DataPtr_Lean2Thin::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	return getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, resultValue);
+	return getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, false, resultValue);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

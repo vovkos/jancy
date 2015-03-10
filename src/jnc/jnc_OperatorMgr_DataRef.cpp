@@ -137,7 +137,8 @@ OperatorMgr::prepareDataPtr (
 	}
 	else // EDataPtrType_Normal
 	{
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, resultType, &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, &ptrValue);
 
 		if (type->getFlags () & PtrTypeFlag_Safe)
 		{

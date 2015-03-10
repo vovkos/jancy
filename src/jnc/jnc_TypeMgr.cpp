@@ -237,6 +237,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = createObjHdrType ();
 		break;
 
+	case StdType_DataPtrStruct:
+		type = createDataPtrStructType ();
+		break;
+
 	case StdType_ObjHdrPtr:
 		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
 		break;
@@ -1924,20 +1928,7 @@ TypeMgr::getDataPtrType (
 StructType*
 TypeMgr::getDataPtrStructType (Type* dataType)
 {
-	DataPtrTypeTuple* tuple = getDataPtrTypeTuple (dataType);
-	if (tuple->m_ptrStructType)
-		return tuple->m_ptrStructType;
-
-	StructType* type = createUnnamedStructType ();
-	type->m_tag.format ("DataPtr <%s>", dataType->getTypeString ().cc ());
-	type->createField ("!m_p", dataType->getDataPtrType_c ());
-	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
-	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
-	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
-	type->ensureLayout ();
-
-	tuple->m_ptrStructType = type;
-	return type;
+	return (StructType*) getStdType (StdType_DataPtrStruct);
 }
 
 ClassPtrType*
@@ -2743,6 +2734,18 @@ TypeMgr::createVariableObjHdrType ()
 	StructType* type = createStructType ("VariableObjHdr", "jnc.VariableObjHdr");
 	type->createField ("!m_object", getStdType (StdType_ObjHdr));
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createDataPtrStructType ()
+{
+	StructType* type = createStructType ("DataPtr", "jnc.DataPtr");
+	type->createField ("!m_p", getStdType (StdType_BytePtr));
+	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
+	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
+	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
 	type->ensureLayout ();
 	return type;
 }

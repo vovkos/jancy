@@ -622,7 +622,7 @@ OperatorMgr::dynamicCastDataPtr (
 	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 2, NULL, &rangeEndValue);
 	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 3, NULL, &scopeLevelValue);
 
-	m_module->m_llvmIrBuilder.createBitCast (thinPtrValue, type->getTargetType ()->getDataPtrType_c (), &thinPtrValue);
+//	m_module->m_llvmIrBuilder.createBitCast (thinPtrValue, type->getTargetType ()->getDataPtrType_c (), &thinPtrValue);
 
 	Value tmpValue = type->getUndefValue ();
 	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, thinPtrValue, 0, NULL, &tmpValue);

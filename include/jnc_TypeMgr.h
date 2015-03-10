@@ -1011,6 +1011,9 @@ protected:
 
 	StructType*
 	createVariableObjHdrType ();
+
+	StructType*
+	createDataPtrStructType ();
 };
 
 //.............................................................................

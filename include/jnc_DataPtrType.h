@@ -106,7 +106,6 @@ protected:
 
 struct DataPtrTypeTuple: rtl::ListLink
 {
-	StructType* m_ptrStructType;
 	DataPtrType* m_ptrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x safe
 };
 
