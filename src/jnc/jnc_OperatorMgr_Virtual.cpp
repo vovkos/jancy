@@ -13,6 +13,8 @@ OperatorMgr::getClassVTable (
 	Value* resultValue
 	)
 {
+	checkNullPtr (opValue);
+
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ptrValue);
 	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &ptrValue);
