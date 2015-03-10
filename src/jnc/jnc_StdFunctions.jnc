@@ -407,7 +407,7 @@ bool tryCheckNullPtr_thin (
 
 ///; static char checkNullPtrSrc_thin [] = 
 
-void checkNullPtr_fat (
+void checkNullPtr_thin (
 	void thin const* p,
 	int typeKind
 	);

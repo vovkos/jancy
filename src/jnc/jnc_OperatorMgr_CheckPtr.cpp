@@ -321,6 +321,7 @@ OperatorMgr::checkNullPtr (const Value& value)
 
 	default:
 		ASSERT (false);
+		return;
 	}
 
 	if (isThin)

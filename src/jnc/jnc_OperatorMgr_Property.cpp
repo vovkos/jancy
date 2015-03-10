@@ -45,7 +45,9 @@ OperatorMgr::getPropertyVTable (
 	)
 {
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
-	
+
+	checkNullPtr (opValue);
+
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
@@ -68,8 +70,6 @@ OperatorMgr::getPropertyVTable (
 	default:
 		ASSERT (false);
 	}
-
-	checkNullPtr (opValue);
 
 	PropertyType* propertyType = ptrType->getTargetType ();
 	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();

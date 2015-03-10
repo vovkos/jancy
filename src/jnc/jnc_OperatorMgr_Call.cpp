@@ -535,8 +535,6 @@ OperatorMgr::callClosureFunctionPtr (
 	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType ();
 	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 
-	checkNullPtr (opValue);
-
 	Value pfnValue;
 	Value ifaceValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &pfnValue);
@@ -560,6 +558,8 @@ OperatorMgr::callImpl (
 		err::setFormatStringError ("cannot call automaton functions");
 		return false;
 	}
+
+	checkNullPtr (pfnValue);
 
 	bool result = castArgValueList (functionType, pfnValue.getClosure (), argValueList);
 	if (!result)
