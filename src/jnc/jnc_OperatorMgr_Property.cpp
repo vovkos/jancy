@@ -166,7 +166,7 @@ OperatorMgr::getPropertyGetter (
 	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
 		pfnValue, 
-		propertyType->getGetterType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		propertyType->getGetterType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
 		resultValue
 		);
 
@@ -311,7 +311,7 @@ OperatorMgr::getPropertySetter (
 	m_module->m_llvmIrBuilder.createGep2 (vtableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
 		pfnValue, 
-		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
 		resultValue
 		);
 
@@ -407,7 +407,7 @@ OperatorMgr::getPropertyBinder (
 	m_module->m_llvmIrBuilder.createGep2 (VTableValue, 0, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
 		pfnValue, 
-		propertyType->getBinderType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
+		propertyType->getBinderType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
 		resultValue
 		);
 
