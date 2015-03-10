@@ -717,6 +717,54 @@ StdLib::appendFmtLiteralStringImpl (
 	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 's', p);
 }
 
+bool 
+StdLib::tryCheckDataPtrRange_thin (
+	void* p,
+	size_t size,
+	void* rangeBegin,
+	void* rangeEnd
+	)
+{
+	if (!p)
+	{
+		err::setStringError ("null data pointer access");
+		return false;
+	}
+
+	if ((char*) p < (char*) rangeBegin || 
+		(char*) p + size >= (char*) rangeEnd)
+	{
+		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
+		return false;
+	}
+
+	return true;
+}
+
+void 
+StdLib::checkDataPtrRange_fat (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	bool result = tryCheckDataPtrRange_fat (ptr, size);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+void 
+StdLib::checkDataPtrRange_thin (
+	void* p,
+	size_t size,
+	void* rangeBegin,
+	void* rangeEnd
+	)
+{
+	bool result = tryCheckDataPtrRange_thin (p, size, rangeBegin, rangeEnd);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
 //.............................................................................
 
 } // namespace jnc {

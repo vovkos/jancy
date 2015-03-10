@@ -608,27 +608,11 @@ OperatorMgr::dynamicCastDataPtr (
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastDataPtr);
 
-	result = callOperator (function, ptrValue, typeValue, &ptrValue);
+	result = callOperator (function, ptrValue, typeValue, resultValue);
 	if (!result)
 		return false;
 
-	Value thinPtrValue;
-	Value rangeBeginValue;
-	Value rangeEndValue;
-	Value scopeLevelValue;
-
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 0, NULL, &thinPtrValue);
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 1, NULL, &rangeBeginValue);
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 2, NULL, &rangeEndValue);
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 3, NULL, &scopeLevelValue);
-
-//	m_module->m_llvmIrBuilder.createBitCast (thinPtrValue, type->getTargetType ()->getDataPtrType_c (), &thinPtrValue);
-
-	Value tmpValue = type->getUndefValue ();
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, thinPtrValue, 0, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeBeginValue, 1, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeEndValue, 2, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, scopeLevelValue, 3, type, resultValue);
+	resultValue->overrideType (type);
 	return true;
 }
 

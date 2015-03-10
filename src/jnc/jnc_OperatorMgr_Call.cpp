@@ -580,19 +580,9 @@ OperatorMgr::callImpl (
 	if (resultValue->getType ()->getFlags () & TypeFlag_GcRoot)
 		createTmpStackGcRoot (*resultValue);
 
-	if ((functionType->getFlags () & FunctionTypeFlag_Throws) &&
+	if ((functionType->getFlags () & FunctionTypeFlag_Throws) && 
 		!m_module->m_controlFlowMgr.isThrowLocked ())
 	{
-		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		if (!(scope->getFlags () & ScopeFlag_CanThrow))
-		{
-			err::setFormatStringError (
-				"cannot call throwing function from here ('%s' does not throw and there is no 'try' or 'catch')",
-				m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ()
-				);
-			return false;
-		}
-
 		result = m_module->m_controlFlowMgr.throwIf (*resultValue, functionType);
 		if (!result)
 			return false;

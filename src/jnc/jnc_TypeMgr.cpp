@@ -1925,12 +1925,6 @@ TypeMgr::getDataPtrType (
 	return type;
 }
 
-StructType*
-TypeMgr::getDataPtrStructType (Type* dataType)
-{
-	return (StructType*) getStdType (StdType_DataPtrStruct);
-}
-
 ClassPtrType*
 TypeMgr::getClassPtrType (
 	Namespace* anchorNamespace,

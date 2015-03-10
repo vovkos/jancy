@@ -82,7 +82,6 @@ enum StdFunction
 	StdFunction_CheckScopeLevel,
 	StdFunction_CheckScopeLevelDirect,
 	StdFunction_CheckClassPtrScopeLevel,
-	StdFunction_CheckDataPtrRange,
 	StdFunction_DynamicSizeOf,
 	StdFunction_DynamicCountOf,
 	StdFunction_DynamicCastDataPtr,
@@ -135,6 +134,10 @@ enum StdFunction
 	StdFunction_AssertionFailure,
 	StdFunction_AddStaticDestructor,
 	StdFunction_AddDestructor,
+	StdFunction_TryCheckDataPtrRange_fat,
+	StdFunction_CheckDataPtrRange_fat,
+	StdFunction_TryCheckDataPtrRange_thin,
+	StdFunction_CheckDataPtrRange_thin,
 	StdFunction__Count
 };
 

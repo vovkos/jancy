@@ -335,9 +335,19 @@ ControlFlowMgr::throwIf (
 	FunctionType* functionType
 	)
 {
-	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws);
+	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws && !isThrowLocked ());
 
 	bool result;
+
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	if (!(scope->getFlags () & ScopeFlag_CanThrow))
+	{
+		err::setFormatStringError (
+			"cannot call throwing function from here ('%s' does not throw and there is no 'try' or 'catch')",
+			m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ()
+			);
+		return false;
+	}
 
 	BasicBlock* throwBlock = createBlock ("throw_block");
 	BasicBlock* followBlock = createBlock ("follow_block");

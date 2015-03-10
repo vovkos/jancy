@@ -901,7 +901,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 		{ NULL },                                // StdFunction_CheckScopeLevel,
 		{ NULL },                                // StdFunction_CheckScopeLevelDirect,
 		{ NULL },                                // StdFunction_CheckClassPtrScopeLevel,
-		{ NULL },                                // StdFunction_CheckDataPtrRange,
 		{                                        // StdFunction_DynamicSizeOf,
 			dynamicSizeOfSrc,
 			lengthof (dynamicSizeOfSrc),
@@ -1154,6 +1153,26 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (addDestructorSrc),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_TryCheckDataPtrRange_fat,
+			tryCheckDataPtrRangeSrc_fat,
+			lengthof (tryCheckDataPtrRangeSrc_fat),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_CheckDataPtrRange_fat,
+			checkDataPtrRangeSrc_fat,
+			lengthof (checkDataPtrRangeSrc_fat),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_TryCheckDataPtrRange_thin,
+			tryCheckDataPtrRangeSrc_thin,
+			lengthof (tryCheckDataPtrRangeSrc_thin),
+			StdNamespace_Internal,
+		},
+		{                                       // StdFunction_CheckDataPtrRange_thin,
+			checkDataPtrRangeSrc_thin,
+			lengthof (checkDataPtrRangeSrc_thin),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1178,10 +1197,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	case StdFunction_CheckClassPtrScopeLevel:
 		function = createCheckClassPtrScopeLevel ();
-		break;
-
-	case StdFunction_CheckDataPtrRange:
-		function = createCheckDataPtrRange ();
 		break;
 
 	case StdFunction_MarkGcRoot:
@@ -1249,6 +1264,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AppendFmtLiteral_cb:
 	case StdFunction_AppendFmtLiteral_cbr:
 	case StdFunction_AppendFmtLiteral_br:
+	case StdFunction_TryCheckDataPtrRange_fat:
+	case StdFunction_CheckDataPtrRange_fat:
+	case StdFunction_TryCheckDataPtrRange_thin:
+	case StdFunction_CheckDataPtrRange_thin:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
 			sourceTable [func].m_stdNamespace,
@@ -1333,7 +1352,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_CheckScopeLevel,
 		NULL,                  // StdFunction_CheckScopeLevelDirect,
 		NULL,                  // StdFunction_CheckClassPtrScopeLevel,
-		NULL,                  // StdFunction_CheckDataPtrRange,
 		NULL,                  // StdFunction_DynamicSizeOf,
 		NULL,                  // StdFunction_DynamicCountOf,
 		NULL,                  // StdFunction_DynamicCastDataPtr,
@@ -1386,6 +1404,10 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		"assertionFailure",    // StdFunction_AssertionFailure,
 		"addStaticDestructor", // StdFunction_AddStaticDestructor,
 		"addDestructor",       // StdFunction_AddDestructor,
+		NULL,                  // StdFunction_TryCheckDataPtrRange_fat,
+		NULL,                  // StdFunction_CheckDataPtrRange_fat,
+		NULL,                  // StdFunction_TryCheckDataPtrRange_thin,
+		NULL,                  // StdFunction_CheckDataPtrRange_thin,
 	};
 
 	const char* name = nameTable [func];
@@ -1561,57 +1583,6 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	m_module->m_llvmIrBuilder.createGt_u (srcScopeLevelValue, argValue2, &cmpValue); // SrcScopeLevel > DstScopeLevel
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
 	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);
-
-	m_module->m_controlFlowMgr.follow (successBlock);
-
-	internalEpilogue ();
-
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckDataPtrRange ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getStdType (StdType_BytePtr),
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
-		m_module->m_typeMgr.getStdType (StdType_BytePtr),
-		m_module->m_typeMgr.getStdType (StdType_BytePtr),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRange", functionType);
-
-	Value argValueArray [4];
-	internalPrologue (function, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-	Value argValue3 = argValueArray [2];
-	Value argValue4 = argValueArray [3];
-
-	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("sptr_fail");
-	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("sptr_success");
-	BasicBlock* cmp2Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp2");
-	BasicBlock* cmp3Block = m_module->m_controlFlowMgr.createBlock ("sptr_cmp3");
-
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
-
-	Value cmpValue;
-	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, cmp2Block, cmp2Block);
-
-	m_module->m_llvmIrBuilder.createLt_u (argValue1, argValue3, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, cmp3Block, cmp3Block);
-
-	Value ptrEndValue;
-	m_module->m_llvmIrBuilder.createGep (argValue1, argValue2, NULL ,&ptrEndValue);
-	m_module->m_llvmIrBuilder.createGt_u (ptrEndValue, argValue4, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
-
-	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_DataPtrOutOfRange);
 
 	m_module->m_controlFlowMgr.follow (successBlock);
 

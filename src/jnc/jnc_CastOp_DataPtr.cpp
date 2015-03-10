@@ -272,28 +272,13 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 		m_module->m_operatorMgr.checkDataPtrRange (opValue);
 
 	Value ptrValue;
-	Value rangeBeginValue;
-	Value rangeEndValue;
-	Value scopeLevelValue;
-
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, NULL, &rangeBeginValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 2, NULL, &rangeEndValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 3, NULL, &scopeLevelValue);
 
 	bool result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
 	if (!result)
 		return false;
 
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
-
-	rtl::String s = ptrValue.getLlvmTypeString ();
-
-	Value tmpValue = type->getUndefValue ();
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, ptrValue, 0, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeBeginValue, 1, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeEndValue, 2, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, scopeLevelValue, 3, type, resultValue);
+	m_module->m_llvmIrBuilder.createInsertValue (opValue, ptrValue, 0, type, resultValue);
 	return true;
 }
 

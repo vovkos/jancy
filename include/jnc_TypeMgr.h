@@ -799,9 +799,6 @@ public:
 		return getDataPtrType (dataType, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
-	StructType*
-	getDataPtrStructType (Type* dataType);
-
 	ClassPtrType*
 	getClassPtrType (
 		Namespace* anchorNamespace,

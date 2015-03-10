@@ -70,6 +70,11 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_br, appendFmtLiteral_s)
+		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRange_fat, tryCheckDataPtrRange_fat)
+		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRange_thin, tryCheckDataPtrRange_thin)
+		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange_fat, checkDataPtrRange_fat)
+		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange_thin, checkDataPtrRange_thin)
+
 		JNC_STD_TYPE (StdType_Error, Error)
 		JNC_STD_TYPE (StdType_String, String)
 		JNC_STD_TYPE (StdType_StringRef, StringRef)
@@ -429,6 +434,41 @@ public:
 			stringRef.m_length
 			);
 	}
+
+	static
+	bool 
+	tryCheckDataPtrRange_fat (
+		DataPtr ptr,
+		size_t size
+		)
+	{
+		return tryCheckDataPtrRange_thin (ptr.m_p, size, ptr.m_rangeBegin, ptr.m_rangeEnd);
+	}
+
+	static
+	bool 
+	tryCheckDataPtrRange_thin (
+		void* p,
+		size_t size,
+		void* rangeBegin,
+		void* rangeEnd
+		);
+
+	static
+	void 
+	checkDataPtrRange_fat (
+		DataPtr ptr,
+		size_t size
+		);
+
+	static
+	void 
+	checkDataPtrRange_thin (
+		void* p,
+		size_t size,
+		void* rangeBegin,
+		void* rangeEnd
+		);
 
 protected:
 #if (_AXL_ENV == AXL_ENV_WIN)

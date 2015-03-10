@@ -103,56 +103,35 @@ OperatorMgr::getLeanDataPtrRange (
 	m_module->m_llvmIrBuilder.createExtractValue (validatorValue, 2, bytePtrType, rangeEndValue);		
 }
 
-bool
+void
 OperatorMgr::prepareDataPtr (
 	const Value& value,
 	Value* resultValue
 	)
 {
 	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
+
+	checkDataPtrRange (value);
+
 	DataPtrType* type = (DataPtrType*) value.getType ();
 	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
-
 	DataPtrType* resultType = type->getTargetType ()->getDataPtrType_c ();
 
-	Value ptrValue;
-	Value rangeBeginValue;	
-	Value rangeEndValue;	
-
-	if (ptrTypeKind == DataPtrTypeKind_Thin)
+	switch (ptrTypeKind)
 	{
+	case DataPtrTypeKind_Thin:
+	case DataPtrTypeKind_Lean:
 		resultValue->overrideType (value, resultType);
-		return true;
+		break;
+
+	case DataPtrTypeKind_Normal:
+		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, resultValue);
+		m_module->m_llvmIrBuilder.createBitCast (*resultValue, resultType, resultValue);
+		break;
+
+	default:
+		ASSERT (false);
 	}
-	else if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
-		if (type->getFlags () & PtrTypeFlag_Safe)
-		{
-			resultValue->overrideType (value, resultType);
-			return true;
-		}
-
-		ptrValue.overrideType (value, resultType);
-		getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
-	}
-	else // EDataPtrType_Normal
-	{
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, &ptrValue);
-
-		if (type->getFlags () & PtrTypeFlag_Safe)
-		{
-			*resultValue = ptrValue;
-			return true;
-		}
-
-		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &rangeBeginValue);
-		m_module->m_llvmIrBuilder.createExtractValue (value, 2, NULL, &rangeEndValue);
-	}
-
-	checkDataPtrRange (ptrValue, type->getTargetType ()->getSize (), rangeBeginValue, rangeEndValue);
-	*resultValue = ptrValue;
-	return true;
 }
 
 bool
@@ -163,16 +142,12 @@ OperatorMgr::loadDataRef (
 {
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataRef);
 	
-	bool result;
-	
 	DataPtrType* type = (DataPtrType*) opValue.getType ();
 
 	Type* targetType = type->getTargetType ();
 
 	Value ptrValue;
-	result = prepareDataPtr (opValue, &ptrValue);
-	if (!result)
-		return false;
+	prepareDataPtr (opValue, &ptrValue);
 
 	m_module->m_llvmIrBuilder.createLoad (
 		ptrValue, 
@@ -183,7 +158,7 @@ OperatorMgr::loadDataRef (
 
 	if (targetType->getTypeKind () == TypeKind_BitField)
 	{
-		result = extractBitField (
+		bool result = extractBitField (
 			*resultValue, 
 			(BitFieldType*) targetType,
 			resultValue
@@ -226,11 +201,12 @@ OperatorMgr::storeDataRef (
 
 	result = 
 		checkCastKind (rawSrcValue, castType) &&
-		castOperator (rawSrcValue, castType, &srcValue) &&
-		prepareDataPtr (dstValue, &ptrValue);
+		castOperator (rawSrcValue, castType, &srcValue);
 
 	if (!result)
 		return false;
+
+	prepareDataPtr (dstValue, &ptrValue);
 
 	switch (targetTypeKind)
 	{

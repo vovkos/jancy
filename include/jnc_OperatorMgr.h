@@ -238,16 +238,16 @@ public:
 	bool
 	prepareArgumentReturnValue (Value* value);
 
-	bool
+	void
 	prepareDataPtr (
 		const Value& value,
 		Value* resultValue
 		);
 
-	bool
+	void
 	prepareDataPtr (Value* value)
 	{
-		return prepareDataPtr (*value, value);
+		prepareDataPtr (*value, value);
 	}
 
 	// unary operators
@@ -1498,11 +1498,15 @@ public:
 	checkDataPtrRange (const Value& value);
 
 	void
-	checkDataPtrRange (
-		const Value& ptrValue,
-		size_t size,
-		const Value& rangeBeginValue,
-		const Value& rangeEndValue
+	checkDataPtrRange_lean (
+		const Value& value,
+		size_t size
+		);
+
+	void
+	checkDataPtrRange_fat (
+		const Value& value,
+		size_t size
 		);
 
 	bool

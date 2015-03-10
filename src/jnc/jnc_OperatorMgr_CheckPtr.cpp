@@ -32,19 +32,18 @@ OperatorMgr::getDataRefObjHdr (
 }
 
 void
-OperatorMgr::checkDataPtrRange (
-	const Value& rawPtrValue,
-	size_t size,
-	const Value& rangeBeginValue,
-	const Value& rangeEndValue
+OperatorMgr::checkDataPtrRange_lean (
+	const Value& value,
+	size_t size
 	)
 {
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check data pointer range");
-
-	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
-
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+	Value rangeBeginValue;
+	Value rangeEndValue;
+
+	getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
+	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
 	Value argValueArray [] =
 	{
@@ -54,15 +53,81 @@ OperatorMgr::checkDataPtrRange (
 		rangeEndValue,
 	};
 
-	Function* checkDataPtrRange = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	if (!(scope->getFlags () & ScopeFlag_CanThrow))
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange_thin);
 
-	m_module->m_llvmIrBuilder.createCall (
-		checkDataPtrRange,
-		checkDataPtrRange->getType (),
-		argValueArray,
-		countof (argValueArray),
-		NULL
-		);
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunction->getType (),
+			argValueArray,
+			countof (argValueArray),
+			NULL
+			);
+	}
+	else
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryCheckDataPtrRange_thin);
+		FunctionType* checkFunctionType = checkFunction->getType ();
+
+		Value returnValue;
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunctionType,
+			argValueArray,
+			countof (argValueArray),
+			&returnValue
+			);
+
+		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
+		ASSERT (result);
+	}
+}
+
+void
+OperatorMgr::checkDataPtrRange_fat (
+	const Value& value,
+	size_t size
+	)
+{
+	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+
+	Value argValueArray [] =
+	{
+		value,
+		sizeValue,
+	};
+
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	if (!(scope->getFlags () & ScopeFlag_CanThrow))
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckDataPtrRange_fat);
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunction->getType (),
+			argValueArray,
+			countof (argValueArray), 
+			NULL
+			);
+	}
+	else
+	{
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryCheckDataPtrRange_fat);
+		FunctionType* checkFunctionType = checkFunction->getType ();
+
+		Value returnValue;
+		m_module->m_llvmIrBuilder.createCall (
+			checkFunction,
+			checkFunctionType,
+			argValueArray,
+			countof (argValueArray),
+			&returnValue
+			);
+
+		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
+		ASSERT (result);
+	}
 }
 
 void
@@ -70,41 +135,27 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 {
 	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
 	DataPtrType* type = (DataPtrType*) value.getType ();
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
 
 	if (type->getFlags () & PtrTypeFlag_Safe)
 		return;
 
-	Value ptrValue;
-	Value rangeBeginValue;
-	Value rangeEndValue;
-
+	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
 	switch (ptrTypeKind)
 	{
 	case DataPtrTypeKind_Thin:
 		return;
 
 	case DataPtrTypeKind_Lean:
-		ptrValue = value;
-		getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
+		checkDataPtrRange_lean (value, type->getTargetType ()->getSize ());
 		break;
 
 	case DataPtrTypeKind_Normal:
-		m_module->m_llvmIrBuilder.createExtractValue (
-			value, 0, 
-			type->getTargetType ()->getDataPtrType_c (), 
-			&ptrValue
-			);
-
-		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &rangeBeginValue);
-		m_module->m_llvmIrBuilder.createExtractValue (value, 2, NULL, &rangeEndValue);
+		checkDataPtrRange_fat (value, type->getTargetType ()->getSize ());
 		break;
 
 	default:
 		ASSERT (false);
 	}
-
-	checkDataPtrRange (ptrValue, type->getTargetType ()->getSize (), rangeBeginValue, rangeEndValue);
 }
 
 bool

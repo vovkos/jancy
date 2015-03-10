@@ -352,6 +352,38 @@ size_t appendFmtLiteral_br (
 	BufferRef bufferRef
 	);
 
+///; static char tryCheckDataPtrRangeSrc_fat [] = 
+
+bool tryCheckDataPtrRange_fat (
+	void const* p,
+	size_t size
+	) throws;
+
+///; static char checkDataPtrRangeSrc_fat [] = 
+
+void checkDataPtrRange_fat (
+	void const* p,
+	size_t size
+	);
+
+///; static char tryCheckDataPtrRangeSrc_thin [] = 
+
+bool tryCheckDataPtrRange_thin (
+	void thin const* p,
+	size_t size,
+	void thin const* rangeBegin,
+	void thin const* rangeEnd
+	) throws;
+
+///; static char checkDataPtrRangeSrc_thin [] = 
+
+void checkDataPtrRange_thin (
+	void thin const* p,
+	size_t size,
+	void thin const* rangeBegin,
+	void thin const* rangeEnd
+	);
+
 ///;
 
 //.............................................................................

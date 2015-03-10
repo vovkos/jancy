@@ -619,7 +619,7 @@ MainWindow::run ()
 	return true;
 }
 
-MdiChild* MainWindow::createMdiChild()
+MdiChild* MainWindow::createMdiChild ()
 {
 	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
@@ -628,7 +628,7 @@ MdiChild* MainWindow::createMdiChild()
 	return child;
 }
 
-MdiChild* MainWindow::activeMdiChild()
+MdiChild* MainWindow::activeMdiChild ()
 {
 	 QMdiSubWindow* activeSubWindow = mdiArea->activeSubWindow();
 
@@ -641,7 +641,7 @@ MdiChild* MainWindow::activeMdiChild()
 	 return qobject_cast<MdiChild*>(activeSubWindow->widget());
 }
 
-QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath)
+QMdiSubWindow* MainWindow::findMdiSubWindow (const QString& filePath)
 {
 	QString canonicalFilePath = QFileInfo(filePath).canonicalFilePath();
 

@@ -42,12 +42,6 @@ DataPtrType::isConstPtrType ()
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
-StructType* 
-DataPtrType::getDataPtrStructType ()
-{
-	return m_module->m_typeMgr.getDataPtrStructType (m_targetType);
-}
-
 rtl::String
 DataPtrType::createSignature (
 	Type* baseType,
@@ -98,7 +92,7 @@ void
 DataPtrType::prepareLlvmType ()
 {
 	m_llvmType = 
-		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmType () :
+		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType (StdType_DataPtrStruct)->getLlvmType () : 
 		m_targetType->getTypeKind () != TypeKind_Void ? llvm::PointerType::get (m_targetType->getLlvmType (), 0) :
 		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmType ();
 }
@@ -107,7 +101,7 @@ void
 DataPtrType::prepareLlvmDiType ()
 {
 	m_llvmDiType = 
-		m_ptrTypeKind == DataPtrTypeKind_Normal ? getDataPtrStructType ()->getLlvmDiType () :
+		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType (StdType_DataPtrStruct)->getLlvmDiType () :
 		m_targetType->getTypeKind () != TypeKind_Void ? m_module->m_llvmDiBuilder.createPointerType (m_targetType) :
 		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmDiType ();
 }

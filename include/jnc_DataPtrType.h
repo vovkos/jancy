@@ -69,9 +69,6 @@ public:
 			this;			
 	}
 
-	StructType* 
-	getDataPtrStructType ();
-
 	static
 	rtl::String
 	createSignature (

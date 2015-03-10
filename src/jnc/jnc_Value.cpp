@@ -203,7 +203,7 @@ Value::getLlvmConst (
 	case TypeKind_DataRef:
 		if (((DataPtrType*) type)->getPtrTypeKind () == DataPtrTypeKind_Normal)
 		{
-			llvmConst = LlvmPodStruct::get (((DataPtrType*) type)->getDataPtrStructType (), p);
+			llvmConst = LlvmPodStruct::get ((StructType*) module->m_typeMgr.getStdType (StdType_DataPtrStruct), p);
 		}
 		else // thin or unsafe
 		{
