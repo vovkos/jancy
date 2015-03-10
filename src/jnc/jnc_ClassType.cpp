@@ -528,7 +528,7 @@ ClassType::addVirtualFunction (Function* function)
 	function->m_virtualOriginClassType = this;
 	function->m_classVTableIndex = m_vtable.getCount ();
 
-	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin);
+	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 	m_vtableStructType->createField (pointerType);
 	m_vtable.append (function);
 }

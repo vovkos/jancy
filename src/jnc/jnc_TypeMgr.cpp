@@ -2098,9 +2098,9 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 	type->m_tag.format ("%s.Vtbl", propertyType->getTypeString ().cc ());
 
 	if (propertyType->getFlags () & PropertyTypeFlag_Bindable)
-		type->createField ("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+		type->createField ("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
 
-	type->createField ("!m_getter", propertyType->m_getterType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+	type->createField ("!m_getter", propertyType->m_getterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
 
 	rtl::String setterFieldName;
 
@@ -2110,7 +2110,7 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 		setterFieldName.format ("!m_setter%d", i);
 
 		FunctionType* setterType = propertyType->m_setterType.getOverload (i);
-		type->createField (setterFieldName, setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+		type->createField (setterFieldName, setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
 	}
 
 	type->ensureLayout ();
