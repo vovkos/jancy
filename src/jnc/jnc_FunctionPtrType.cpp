@@ -33,12 +33,6 @@ FunctionPtrType::FunctionPtrType ()
 	m_multicastType = NULL;
 }
 
-StructType* 
-FunctionPtrType::getFunctionPtrStructType ()
-{
-	return m_module->m_typeMgr.getFunctionPtrStructType (m_targetType);
-}
-
 ClassType* 
 FunctionPtrType::getMulticastType ()
 {
@@ -107,16 +101,16 @@ FunctionPtrType::prepareTypeString ()
 void
 FunctionPtrType::prepareLlvmType ()
 {
-	m_llvmType = 
-		m_ptrTypeKind != FunctionPtrTypeKind_Thin ? getFunctionPtrStructType ()->getLlvmType () :
+	m_llvmType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ? 
+		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmType () :
 		llvm::PointerType::get (m_targetType->getLlvmType (), 0);
 }
 
 void
 FunctionPtrType::prepareLlvmDiType ()
 {
-	m_llvmDiType = 
-		m_ptrTypeKind != FunctionPtrTypeKind_Thin ? getFunctionPtrStructType ()->getLlvmDiType () :
+	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ? 
+		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmDiType () :
 		m_module->m_llvmDiBuilder.createPointerType (m_targetType);
 }
 

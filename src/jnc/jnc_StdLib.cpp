@@ -732,7 +732,7 @@ StdLib::tryCheckDataPtrRange_thin (
 	}
 
 	if ((char*) p < (char*) rangeBegin || 
-		(char*) p + size >= (char*) rangeEnd)
+		(char*) p + size > (char*) rangeEnd)
 	{
 		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
 		return false;

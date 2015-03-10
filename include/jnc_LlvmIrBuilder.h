@@ -1189,7 +1189,7 @@ public:
 
 	bool
 	createClosureFunctionPtr (
-		const Value& pfnValue,
+		const Value& ptrValue,
 		const Value& closureValue,
 		FunctionPtrType* resultType,
 		Value* resultValue
@@ -1197,7 +1197,7 @@ public:
 
 	bool
 	createClosurePropertyPtr (
-		const Value& thinPtrValue,
+		const Value& ptrValue,
 		const Value& closureValue,
 		PropertyPtrType* resultType,
 		Value* resultValue

@@ -86,9 +86,6 @@ public:
 	ClassType*
 	getMulticastType ();
 
-	StructType*
-	getFunctionPtrStructType ();
-
 	rtl::String
 	getTypeModifierString ();
 
@@ -133,7 +130,6 @@ protected:
 
 struct FunctionPtrTypeTuple: rtl::ListLink
 {
-	StructType* m_ptrStructType;
 	FunctionPtrType* m_ptrTypeArray [2] [3] [2]; // ref x kind x checked
 };
 

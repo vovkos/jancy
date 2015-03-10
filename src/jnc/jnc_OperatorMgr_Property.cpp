@@ -49,8 +49,6 @@ OperatorMgr::getPropertyVTable (
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-	Type* vtableType = ptrType->getTargetType ()->getVTableStructType ()->getDataPtrType_c ();
-
 	switch (ptrTypeKind)
 	{
 	case PropertyPtrTypeKind_Normal:
@@ -71,12 +69,19 @@ OperatorMgr::getPropertyVTable (
 		ASSERT (false);
 	}
 
+	PropertyType* propertyType = ptrType->getTargetType ();
+	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();
+	Type* vtableType = stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ();
+	Type* resultType = propertyType->getVTableStructType ()->getDataPtrType_c ();
 	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
 
+	Value vtableValue;
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, vtableType, resultValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &vtableValue);
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, closureType, &closureValue);
+	m_module->m_llvmIrBuilder.createBitCast (vtableValue, vtableType, resultValue);
 
+	resultValue->overrideType (resultType);
 	resultValue->setClosure (opValue.getClosure ());
 	resultValue->insertToClosureHead (closureValue);
 	return true;
@@ -292,8 +297,8 @@ OperatorMgr::getPropertySetter (
 
 	FunctionType* setterType = setterTypeOverload->getOverload (i);
 
-	Value VTableValue;
-	result = getPropertyVTable (opValue, &VTableValue);
+	Value vtableValue;
+	result = getPropertyVTable (opValue, &vtableValue);
 	if (!result)
 		return false;
 
@@ -301,14 +306,14 @@ OperatorMgr::getPropertySetter (
 	index += i;
 
 	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createGep2 (vtableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
 		pfnValue, 
 		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, ptrType->getFlags ()), 
 		resultValue
 		);
 
-	resultValue->setClosure (VTableValue.getClosure ());
+	resultValue->setClosure (vtableValue.getClosure ());
 	return true;
 }
 

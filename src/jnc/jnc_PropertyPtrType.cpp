@@ -43,12 +43,6 @@ PropertyPtrType::isConstPtrType ()
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
-StructType*
-PropertyPtrType::getPropertyPtrStructType ()
-{
-	return m_module->m_typeMgr.getPropertyPtrStructType (m_targetType);
-}
-
 rtl::String
 PropertyPtrType::createSignature (
 	PropertyType* propertyType,
@@ -106,16 +100,16 @@ PropertyPtrType::prepareTypeString ()
 void
 PropertyPtrType::prepareLlvmType ()
 {
-	m_llvmType =
-		m_ptrTypeKind != PropertyPtrTypeKind_Thin ? getPropertyPtrStructType ()->getLlvmType () :
+	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ? 
+		m_module->m_typeMgr.getStdType (StdType_PropertyPtrStruct)->getLlvmType () :
 		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmType ();
 }
 
 void
 PropertyPtrType::prepareLlvmDiType ()
 {
-	m_llvmDiType =
-		m_ptrTypeKind != PropertyPtrTypeKind_Thin ? getPropertyPtrStructType ()->getLlvmDiType () :
+	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ? 
+		m_module->m_typeMgr.getStdType (StdType_PropertyPtrStruct)->getLlvmDiType () :
 		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmDiType ();
 }
 

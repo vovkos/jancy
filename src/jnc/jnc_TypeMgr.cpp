@@ -241,6 +241,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = createDataPtrStructType ();
 		break;
 
+	case StdType_FunctionPtrStruct:
+		type = createFunctionPtrStructType ();
+		break;
+
 	case StdType_ObjHdrPtr:
 		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
 		break;
@@ -2029,39 +2033,6 @@ TypeMgr::getFunctionPtrType (
 	return type;
 }
 
-StructType*
-TypeMgr::getFunctionPtrStructType (FunctionType* functionType)
-{
-	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
-	if (tuple->m_ptrStructType)
-		return tuple->m_ptrStructType;
-
-	rtl::String signature;
-	signature.format ("SP%s", functionType->getSignature ().cc ());
-
-	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
-	if (it->m_value)
-	{
-		StructType* type = (StructType*) it->m_value;
-		ASSERT (type->m_signature == signature);
-		return type;
-	}
-
-	FunctionType* stdObjectMemberMethodType = functionType->getStdObjectMemberMethodType ();
-
-	StructType* type = createUnnamedStructType ();
-	type->m_tag.format ("FunctionPtr <%s>", functionType->getTypeString ().cc ());
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
-	type->createField ("!m_p", stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
-	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
-	type->ensureLayout ();
-
-	tuple->m_ptrStructType = type;
-	it->m_value = type;
-	return type;
-}
-
 PropertyPtrType*
 TypeMgr::getPropertyPtrType (
 	Namespace* anchorNamespace,
@@ -2144,39 +2115,6 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 	type->ensureLayout ();
 
 	propertyType->m_vtableStructType = type;
-	return type;
-}
-
-StructType*
-TypeMgr::getPropertyPtrStructType (PropertyType* propertyType)
-{
-	PropertyPtrTypeTuple* tuple = getPropertyPtrTypeTuple (propertyType);
-	if (tuple->m_ptrStructType)
-		return tuple->m_ptrStructType;
-
-	rtl::String signature;
-	signature.format ("SP%s", propertyType->getSignature ().cc ());
-
-	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
-	if (it->m_value)
-	{
-		StructType* type = (StructType*) it->m_value;
-		ASSERT (type->m_signature == signature);
-		return type;
-	}
-
-	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();
-
-	StructType* type = createUnnamedStructType ();
-	type->m_tag.format ("PropertyPtr <%s>", propertyType->getTypeString ().cc ());
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
-	type->createField ("!m_p", stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ());
-	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
-	type->ensureLayout ();
-
-	tuple->m_ptrStructType = type;
-	it->m_value = type;
 	return type;
 }
 
@@ -2740,6 +2678,16 @@ TypeMgr::createDataPtrStructType ()
 	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
 	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
 	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createFunctionPtrStructType ()
+{
+	StructType* type = createStructType ("FunctionPtr", "jnc.FunctionPtr");
+	type->createField ("!m_p", getStdType (StdType_BytePtr));
+	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
 	type->ensureLayout ();
 	return type;
 }

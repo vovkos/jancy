@@ -847,9 +847,6 @@ public:
 		return getFunctionPtrType (functionType, TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
-	StructType*
-	getFunctionPtrStructType (FunctionType* functionType);
-
 	PropertyPtrType*
 	getPropertyPtrType (
 		Namespace* anchorNamespace,
@@ -882,9 +879,6 @@ public:
 
 	StructType*
 	getPropertyVTableStructType (PropertyType* propertyType);
-
-	StructType*
-	getPropertyPtrStructType (PropertyType* propertyType);
 
 	NamedImportType*
 	getNamedImportType (
@@ -1011,6 +1005,9 @@ protected:
 
 	StructType*
 	createDataPtrStructType ();
+
+	StructType*
+	createFunctionPtrStructType ();
 };
 
 //.............................................................................

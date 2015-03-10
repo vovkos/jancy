@@ -92,9 +92,6 @@ public:
 			this;
 	}
 
-	StructType*
-	getPropertyPtrStructType ();
-
 	static
 	rtl::String
 	createSignature (
@@ -129,7 +126,6 @@ protected:
 
 struct PropertyPtrTypeTuple: rtl::ListLink
 {
-	StructType* m_ptrStructType;
 	PropertyPtrType* m_ptrTypeArray [2] [3] [3]; // ref x kind x unsafe / checked
 };
 

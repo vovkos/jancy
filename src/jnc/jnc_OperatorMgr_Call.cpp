@@ -530,18 +530,20 @@ OperatorMgr::callClosureFunctionPtr (
 {
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 
-	FunctionPtrType* functionPointerType = (FunctionPtrType*) opValue.getType ();
-	FunctionType* functionType = functionPointerType->getTargetType ();
+	FunctionPtrType* functionPtrType = (FunctionPtrType*) opValue.getType ();
+	FunctionType* functionType = functionPtrType->getTargetType ();
 	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType ();
+	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 
 	checkFunctionPtrNull (opValue);
 
 	Value pfnValue;
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
-	argValueList->insertHead (ifaceValue);
+	m_module->m_llvmIrBuilder.createBitCast (pfnValue, functionThinPtrType, &pfnValue);
 
+	argValueList->insertHead (ifaceValue);
 	return callImpl (pfnValue, abstractMethodType, argValueList, resultValue);
 }
 

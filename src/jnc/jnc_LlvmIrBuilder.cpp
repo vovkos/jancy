@@ -370,49 +370,41 @@ LlvmIrBuilder::createCall (
 
 bool
 LlvmIrBuilder::createClosureFunctionPtr (
-	const Value& rawPfnValue,
-	const Value& rawIfaceValue,
+	const Value& rawPtrValue,
+	const Value& rawClosureValue,
 	FunctionPtrType* resultType,
 	Value* resultValue
 	)
 {
-	LlvmScopeComment comment (this, "create closure function pointer");
+	Value ptrValue;
+	Value closureValue;
 
-	Value pfnValue;
-	Value ifaceValue;
+	createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	createBitCast (rawClosureValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
+
 	Value functionPtrValue = resultType->getUndefValue ();
-
-	FunctionType* stdObjectMemberMethodType = resultType->getTargetType ()->getStdObjectMemberMethodType ();
-
-	createBitCast (rawPfnValue, stdObjectMemberMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin), &pfnValue);
-	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
-
-	createInsertValue (functionPtrValue, pfnValue, 0, NULL, &functionPtrValue);
-	createInsertValue (functionPtrValue, ifaceValue, 1, resultType, resultValue);
+	createInsertValue (functionPtrValue, ptrValue, 0, NULL, &functionPtrValue);
+	createInsertValue (functionPtrValue, closureValue, 1, resultType, resultValue);
 	return true;
 }
 
 bool
 LlvmIrBuilder::createClosurePropertyPtr (
-	const Value& rawPfnValue,
-	const Value& rawIfaceValue,
+	const Value& rawPtrValue,
+	const Value& rawClosureValue,
 	PropertyPtrType* resultType,
 	Value* resultValue
 	)
 {
-	LlvmScopeComment comment (this, "create closure property pointer");
+	Value ptrValue;
+	Value closureValue;
 
-	Value pfnValue;
-	Value ifaceValue;
-	Value propertyPtrValue = resultType->getUndefValue ();
+	createBitCast (rawPtrValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	createBitCast (rawClosureValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
 
-	PropertyType* stdObjectMemberPropertyType = resultType->getTargetType ()->getStdObjectMemberPropertyType ();
-
-	createBitCast (rawPfnValue, stdObjectMemberPropertyType->getPropertyPtrType (PropertyPtrTypeKind_Thin), &pfnValue);
-	createBitCast (rawIfaceValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
-
-	createInsertValue (propertyPtrValue, pfnValue, 0, NULL, &propertyPtrValue);
-	createInsertValue (propertyPtrValue, ifaceValue, 1, resultType, resultValue);
+	Value functionPtrValue = resultType->getUndefValue ();
+	createInsertValue (functionPtrValue, ptrValue, 0, NULL, &functionPtrValue);
+	createInsertValue (functionPtrValue, closureValue, 1, resultType, resultValue);
 	return true;
 }
 
