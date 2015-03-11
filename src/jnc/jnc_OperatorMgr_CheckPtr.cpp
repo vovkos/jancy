@@ -40,6 +40,8 @@ OperatorMgr::checkPtr (
 	)
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope);
+
 	bool canThrow = (scope->getFlags () & ScopeFlag_CanThrow) != 0;
 	bool isThrowLocked = m_module->m_controlFlowMgr.isThrowLocked ();
 

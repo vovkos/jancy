@@ -27,6 +27,7 @@ protected:
 	struct NamespaceStackEntry
 	{
 		Namespace* m_namespace;
+		Scope* m_scope;
 		AccessKind m_accessKind;
 	};
 

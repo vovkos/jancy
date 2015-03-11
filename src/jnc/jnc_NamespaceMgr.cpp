@@ -173,13 +173,16 @@ NamespaceMgr::openNamespace (Namespace* nspace)
 	NamespaceStackEntry entry =
 	{
 		m_currentNamespace,
+		m_currentScope,
 		m_currentAccessKind
 	};
 
 	m_namespaceStack.append (entry);
 	m_currentNamespace = nspace;
-	m_currentScope = nspace->m_namespaceKind == NamespaceKind_Scope ? (Scope*) nspace : NULL;
 	m_currentAccessKind = AccessKind_Public; // always start with 'public'
+
+	if (nspace->m_namespaceKind == NamespaceKind_Scope)
+		m_currentScope =  (Scope*) nspace;
 }
 
 void
@@ -194,7 +197,7 @@ NamespaceMgr::closeNamespace ()
 		m_currentNamespace->m_usingSet.clear ();
 
 	m_currentNamespace = entry.m_namespace;
-	m_currentScope = m_currentNamespace->m_namespaceKind == NamespaceKind_Scope ? (Scope*) m_currentNamespace : NULL;
+	m_currentScope = entry.m_scope;
 	m_currentAccessKind = entry.m_accessKind;
 }
 
