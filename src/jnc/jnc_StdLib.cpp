@@ -718,7 +718,7 @@ StdLib::appendFmtLiteralStringImpl (
 }
 
 bool 
-StdLib::tryCheckDataPtrRange_thin (
+StdLib::tryCheckDataPtrRange (
 	void* p,
 	size_t size,
 	void* rangeBegin,
@@ -742,20 +742,20 @@ StdLib::tryCheckDataPtrRange_thin (
 }
 
 void 
-StdLib::checkDataPtrRange_thin (
+StdLib::checkDataPtrRange (
 	void* p,
 	size_t size,
 	void* rangeBegin,
 	void* rangeEnd
 	)
 {
-	bool result = tryCheckDataPtrRange_thin (p, size, rangeBegin, rangeEnd);
+	bool result = tryCheckDataPtrRange (p, size, rangeBegin, rangeEnd);
 	if (!result)
 		Runtime::runtimeError (err::getLastError ());
 }
 
 bool 
-StdLib::tryCheckNullPtr_thin (
+StdLib::tryCheckNullPtr (
 	void* p,
 	TypeKind typeKind
 	)
@@ -788,12 +788,12 @@ StdLib::tryCheckNullPtr_thin (
 }
 
 void
-StdLib::checkNullPtr_thin (
+StdLib::checkNullPtr (
 	void* p,
 	TypeKind typeKind
 	)
 {
-	bool result = tryCheckNullPtr_thin (p, typeKind);
+	bool result = tryCheckNullPtr (p, typeKind);
 	if (!result)
 		Runtime::runtimeError (err::getLastError ());
 }

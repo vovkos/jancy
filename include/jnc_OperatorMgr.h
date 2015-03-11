@@ -1506,31 +1506,7 @@ public:
 	checkDataPtrRange (const Value& value);
 
 	void
-	checkDataPtrRange_lean (
-		const Value& value,
-		size_t size
-		);
-
-	void
-	checkDataPtrRange_fat (
-		const Value& value,
-		size_t size
-		);
-
-	void
 	checkNullPtr (const Value& value);
-
-	void
-	checkNullPtr_thin (
-		const Value& value,
-		TypeKind typeKind
-		);
-
-	void
-	checkNullPtr_fat (
-		const Value& value,
-		TypeKind typeKind
-		);
 
 	bool
 	checkDataPtrScopeLevel (

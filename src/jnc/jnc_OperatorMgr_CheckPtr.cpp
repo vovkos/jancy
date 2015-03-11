@@ -80,18 +80,44 @@ OperatorMgr::checkPtr (
 }
 
 void
-OperatorMgr::checkDataPtrRange_lean (
-	const Value& value,
-	size_t size
-	)
+OperatorMgr::checkDataPtrRange (const Value& value)
 {
+	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
+	DataPtrType* type = (DataPtrType*) value.getType ();
+
+	if (type->getFlags () & PtrTypeFlag_Safe)
+		return;
+
 	Value ptrValue;
-	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 	Value rangeBeginValue;
 	Value rangeEndValue;
 
-	getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
-	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
+	switch (ptrTypeKind)
+	{
+	case DataPtrTypeKind_Thin:
+		return;
+
+	case DataPtrTypeKind_Lean:
+		getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
+		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+		break;
+
+	case DataPtrTypeKind_Normal:
+		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &rangeBeginValue);
+		m_module->m_llvmIrBuilder.createExtractValue (value, 2, NULL, &rangeEndValue);
+		break;
+
+	default:
+		ASSERT (false);
+		return;
+	}
+
+	Value sizeValue (
+		type->getTargetType ()->getSize (), 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
+		);
 
 	Value argValueArray [] =
 	{
@@ -102,61 +128,11 @@ OperatorMgr::checkDataPtrRange_lean (
 	};
 
 	checkPtr (
-		StdFunction_TryCheckDataPtrRange_thin,
-		StdFunction_CheckDataPtrRange_thin,
+		StdFunction_TryCheckDataPtrRange,
+		StdFunction_CheckDataPtrRange,
 		argValueArray,
 		countof (argValueArray)
 		);
-}
-
-void
-OperatorMgr::checkDataPtrRange_fat (
-	const Value& value,
-	size_t size
-	)
-{
-	Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
-
-	Value argValueArray [] =
-	{
-		value,
-		sizeValue,
-	};
-
-	checkPtr (
-		StdFunction_TryCheckDataPtrRange_fat,
-		StdFunction_CheckDataPtrRange_fat,
-		argValueArray,
-		countof (argValueArray)
-		);
-}
-
-void
-OperatorMgr::checkDataPtrRange (const Value& value)
-{
-	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
-	DataPtrType* type = (DataPtrType*) value.getType ();
-
-	if (type->getFlags () & PtrTypeFlag_Safe)
-		return;
-
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
-	switch (ptrTypeKind)
-	{
-	case DataPtrTypeKind_Thin:
-		return;
-
-	case DataPtrTypeKind_Lean:
-		checkDataPtrRange_lean (value, type->getTargetType ()->getSize ());
-		break;
-
-	case DataPtrTypeKind_Normal:
-		checkDataPtrRange_fat (value, type->getTargetType ()->getSize ());
-		break;
-
-	default:
-		ASSERT (false);
-	}
 }
 
 bool
@@ -246,53 +222,6 @@ OperatorMgr::checkClassPtrScopeLevel (
 }
 
 void
-OperatorMgr::checkNullPtr_thin (
-	const Value& rawValue,
-	TypeKind typeKind
-	)
-{
-	Value ptrValue;
-	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
-
-	m_module->m_llvmIrBuilder.createBitCast (rawValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-
-	Value argValueArray [] =
-	{
-		ptrValue,
-		typeKindValue,
-	};
-
-	checkPtr (
-		StdFunction_TryCheckNullPtr_thin,
-		StdFunction_CheckNullPtr_thin,
-		argValueArray,
-		countof (argValueArray)
-		);
-}
-
-void
-OperatorMgr::checkNullPtr_fat (
-	const Value& value,
-	TypeKind typeKind
-	)
-{
-	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
-
-	Value argValueArray [] =
-	{
-		value,
-		typeKindValue,
-	};
-
-	checkPtr (
-		StdFunction_TryCheckNullPtr_fat,
-		StdFunction_CheckNullPtr_fat,
-		argValueArray,
-		countof (argValueArray)
-		);
-}
-
-void
 OperatorMgr::checkNullPtr (const Value& value)
 {
 	Type* type = value.getType ();
@@ -326,10 +255,27 @@ OperatorMgr::checkNullPtr (const Value& value)
 		return;
 	}
 
+	Value ptrValue;
+	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+
 	if (isThin)
-		checkNullPtr_thin (value, typeKind);
+		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 	else
-		checkNullPtr_fat (value, typeKind);
+		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
+
+	Value argValueArray [] =
+	{
+		ptrValue,
+		typeKindValue,
+	};
+
+	checkPtr (
+		StdFunction_TryCheckNullPtr,
+		StdFunction_CheckNullPtr,
+		argValueArray,
+		countof (argValueArray)
+		);
+
 }
 
 void

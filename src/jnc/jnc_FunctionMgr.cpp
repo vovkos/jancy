@@ -1152,44 +1152,24 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (addDestructorSrc),
 			StdNamespace_Internal,
 		},
-		{                                       // StdFunction_TryCheckDataPtrRange_fat,
-			tryCheckDataPtrRangeSrc_fat,
-			lengthof (tryCheckDataPtrRangeSrc_fat),
+		{                                       // StdFunction_TryCheckDataPtrRange,
+			tryCheckDataPtrRangeSrc,
+			lengthof (tryCheckDataPtrRangeSrc),
 			StdNamespace_Internal,
 		},
-		{                                       // StdFunction_CheckDataPtrRange_fat,
-			checkDataPtrRangeSrc_fat,
-			lengthof (checkDataPtrRangeSrc_fat),
+		{                                       // StdFunction_CheckDataPtrRange,
+			checkDataPtrRangeSrc,
+			lengthof (checkDataPtrRangeSrc),
 			StdNamespace_Internal,
 		},
-		{                                       // StdFunction_TryCheckDataPtrRange_thin,
-			tryCheckDataPtrRangeSrc_thin,
-			lengthof (tryCheckDataPtrRangeSrc_thin),
+		{                                       // StdFunction_TryCheckNullPtr,
+			tryCheckNullPtrSrc,
+			lengthof (tryCheckNullPtrSrc),
 			StdNamespace_Internal,
 		},
-		{                                       // StdFunction_CheckDataPtrRange_thin,
-			checkDataPtrRangeSrc_thin,
-			lengthof (checkDataPtrRangeSrc_thin),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_TryCheckNullPtr_fat,
-			tryCheckNullPtrSrc_fat,
-			lengthof (tryCheckNullPtrSrc_fat),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_CheckNullPtr_fat,
-			checkNullPtrSrc_fat,
-			lengthof (checkNullPtrSrc_fat),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_TryCheckNullPtr_thin,
-			tryCheckNullPtrSrc_thin,
-			lengthof (tryCheckNullPtrSrc_thin),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_CheckNullPtr_thin,
-			checkNullPtrSrc_thin,
-			lengthof (checkNullPtrSrc_thin),
+		{                                       // StdFunction_CheckNullPtr,
+			checkNullPtrSrc,
+			lengthof (checkNullPtrSrc),
 			StdNamespace_Internal,
 		},
 	};
@@ -1279,14 +1259,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AppendFmtLiteral_cb:
 	case StdFunction_AppendFmtLiteral_cbr:
 	case StdFunction_AppendFmtLiteral_br:
-	case StdFunction_TryCheckDataPtrRange_fat:
-	case StdFunction_CheckDataPtrRange_fat:
-	case StdFunction_TryCheckDataPtrRange_thin:
-	case StdFunction_CheckDataPtrRange_thin:
-	case StdFunction_TryCheckNullPtr_fat:
-	case StdFunction_CheckNullPtr_fat:
-	case StdFunction_TryCheckNullPtr_thin:
-	case StdFunction_CheckNullPtr_thin:
+	case StdFunction_TryCheckDataPtrRange:
+	case StdFunction_CheckDataPtrRange:
+	case StdFunction_TryCheckNullPtr:
+	case StdFunction_CheckNullPtr:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
 			sourceTable [func].m_stdNamespace,
@@ -1422,14 +1398,10 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		"assertionFailure",    // StdFunction_AssertionFailure,
 		"addStaticDestructor", // StdFunction_AddStaticDestructor,
 		"addDestructor",       // StdFunction_AddDestructor,
-		NULL,                  // StdFunction_TryCheckDataPtrRange_fat,
-		NULL,                  // StdFunction_CheckDataPtrRange_fat,
-		NULL,                  // StdFunction_TryCheckDataPtrRange_thin,
-		NULL,                  // StdFunction_CheckDataPtrRange_thin,
-		NULL,                  // StdFunction_TryCheckNullPtr_fat,
-		NULL,                  // StdFunction_CheckNullPtr_fat,
-		NULL,                  // StdFunction_TryCheckNullPtr_thin,
-		NULL,                  // StdFunction_CheckNullPtr_thin,
+		NULL,                  // StdFunction_TryCheckDataPtrRange,
+		NULL,                  // StdFunction_CheckDataPtrRange,
+		NULL,                  // StdFunction_TryCheckNullPtr,
+		NULL,                  // StdFunction_CheckNullPtr,
 	};
 
 	const char* name = nameTable [func];

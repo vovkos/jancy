@@ -352,62 +352,34 @@ size_t appendFmtLiteral_br (
 	BufferRef bufferRef
 	);
 
-///; static char tryCheckDataPtrRangeSrc_fat [] = 
+///; static char tryCheckDataPtrRangeSrc [] = 
 
-bool tryCheckDataPtrRange_fat (
-	void const* p,
-	size_t size
-	) throws;
-
-///; static char checkDataPtrRangeSrc_fat [] = 
-
-void checkDataPtrRange_fat (
-	void const* p,
-	size_t size
-	);
-
-///; static char tryCheckDataPtrRangeSrc_thin [] = 
-
-bool tryCheckDataPtrRange_thin (
+bool tryCheckDataPtrRange (
 	void thin const* p,
 	size_t size,
 	void thin const* rangeBegin,
 	void thin const* rangeEnd
 	) throws;
 
-///; static char checkDataPtrRangeSrc_thin [] = 
+///; static char checkDataPtrRangeSrc [] = 
 
-void checkDataPtrRange_thin (
+void checkDataPtrRange (
 	void thin const* p,
 	size_t size,
 	void thin const* rangeBegin,
 	void thin const* rangeEnd
 	);
 
-///; static char tryCheckNullPtrSrc_fat [] = 
+///; static char tryCheckNullPtrSrc [] = 
 
-bool tryCheckNullPtr_fat (
-	function* p (),
-	int typeKind
-	) throws;
-
-///; static char checkNullPtrSrc_fat [] = 
-
-void checkNullPtr_fat (
-	function* p (),
-	int typeKind
-	);
-
-///; static char tryCheckNullPtrSrc_thin [] = 
-
-bool tryCheckNullPtr_thin (
+bool tryCheckNullPtr (
 	void thin const* p,
 	int typeKind
 	) throws;
 
-///; static char checkNullPtrSrc_thin [] = 
+///; static char checkNullPtrSrc [] = 
 
-void checkNullPtr_thin (
+void checkNullPtr (
 	void thin const* p,
 	int typeKind
 	);

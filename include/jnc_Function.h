@@ -133,14 +133,10 @@ enum StdFunction
 	StdFunction_AssertionFailure,
 	StdFunction_AddStaticDestructor,
 	StdFunction_AddDestructor,
-	StdFunction_TryCheckDataPtrRange_fat,
-	StdFunction_CheckDataPtrRange_fat,
-	StdFunction_TryCheckDataPtrRange_thin,
-	StdFunction_CheckDataPtrRange_thin,
-	StdFunction_TryCheckNullPtr_fat,
-	StdFunction_CheckNullPtr_fat,
-	StdFunction_TryCheckNullPtr_thin,
-	StdFunction_CheckNullPtr_thin,
+	StdFunction_TryCheckDataPtrRange,
+	StdFunction_CheckDataPtrRange,
+	StdFunction_TryCheckNullPtr,
+	StdFunction_CheckNullPtr,
 	StdFunction__Count
 };
 
