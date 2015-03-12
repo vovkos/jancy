@@ -32,8 +32,9 @@ dataPtrIncrementOperator (
 	else // EDataPtrType_Normal
 	{
 		Value ptrValue;
-		module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
-		module->m_llvmIrBuilder.createGep (ptrValue, opValue2, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getTargetType ()->getDataPtrType_c (), &ptrValue);
+		module->m_llvmIrBuilder.createGep(ptrValue, opValue2, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
 	}
 	
