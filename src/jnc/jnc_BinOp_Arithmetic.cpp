@@ -31,10 +31,15 @@ dataPtrIncrementOperator (
 	}
 	else // EDataPtrType_Normal
 	{
+		size_t size = opType->getTargetType()->getSize ();
+		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+
+		Value incValue;
+		module->m_operatorMgr.binaryOperator(BinOpKind_Mul, opValue2, sizeValue, &incValue);
+
 		Value ptrValue;
-		module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
-		module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getTargetType ()->getDataPtrType_c (), &ptrValue);
-		module->m_llvmIrBuilder.createGep(ptrValue, opValue2, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createGep(ptrValue, incValue, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
 	}
 	
