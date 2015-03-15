@@ -518,8 +518,8 @@ bool MainWindow::compile ()
 		module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&module) &&
 		module.jit () &&
-		runtime.create (16 * 1024, 16 * 1024) &&
-		runtime.addModule (&module); // 16K gc heap, 16K stack
+		runtime.create () &&
+		runtime.addModule (&module);
 
 	if (!result)
 	{

@@ -3,6 +3,7 @@ int main ()
 	printf ("main ()\n");
 
 	int* p;
+	p++;
 	*p = 10;
 
 	return 0;

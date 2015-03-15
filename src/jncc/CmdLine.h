@@ -129,12 +129,12 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_HeapSize,
 		"h", "heap-size", "<size>",
-		"Specify the size of GC heap (defaults to 16K)"
+		"Specify the limit of GC heap usage"
 		)
 	AXL_RTL_CMD_LINE_SWITCH (
 		CmdLineSwitchKind_StackSize,
 		"stack-size", "<size>",
-		"Specify the limit of stack usage by jancy (defaults to 16K)"
+		"Specify the limit of stack usage by Jancy script"
 		)
 AXL_RTL_END_CMD_LINE_SWITCH_TABLE ()
 

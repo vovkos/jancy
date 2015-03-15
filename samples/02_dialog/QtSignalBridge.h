@@ -39,11 +39,7 @@ public:
 
 public slots:
 	void 
-	onQtSignal ()
-	{
-		ASSERT (m_jncEvent);
-		m_jncEvent->call ();
-	}
+	onQtSignal ();
 };
 
 //.............................................................................

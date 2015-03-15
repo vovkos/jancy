@@ -7,8 +7,8 @@ CmdLine::CmdLine ()
 {
 	m_flags = 0;
 	m_serverPort = 0;
-	m_gcHeapSize = 16 * 1024;
-	m_stackSize = 16 * 1024;
+	m_gcHeapSize = jnc::StdRuntimeLimit_Heap;
+	m_stackSize = jnc::StdRuntimeLimit_Stack;
 }
 
 //.............................................................................

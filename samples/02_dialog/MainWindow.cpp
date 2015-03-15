@@ -131,7 +131,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
 
 	result = 
-		m_runtime.create (16 * 1024, 16 * 1024) &&
+		m_runtime.create () &&
 		m_runtime.addModule (&m_module); // 16K gc heap, 16K stack
 		m_runtime.startup ();
 

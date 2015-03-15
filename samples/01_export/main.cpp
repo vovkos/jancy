@@ -117,7 +117,7 @@ main (
 	jnc::ScopeThreadRuntime scopeRuntime (&runtime);
 
 	result = 
-		runtime.create (16 * 1024, 16 * 1024) &&
+		runtime.create () &&
 		runtime.addModule (&module); // 16K gc heap, 16K stack
 		runtime.startup ();
 

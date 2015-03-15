@@ -15,6 +15,18 @@ class Module;
 
 //.............................................................................
 
+enum StdRuntimeLimit
+{
+	StdRuntimeLimit_Heap = -1,
+#if (_AXL_CPU == AXL_CPU_X86)
+	StdRuntimeLimit_Stack = 2 * 1024 * 1024, // 2MB std stack limit
+#else
+	StdRuntimeLimit_Stack = 4 * 1024 * 1024, // 4MB std stack limit
+#endif
+};
+
+//.............................................................................
+
 enum CreateObjectFlag
 {
 	CreateObjectFlag_Prime     = 0x01,
@@ -114,8 +126,8 @@ public:
 
 	bool
 	create (
-		size_t heapLimit = -1,
-		size_t stackLimit = -1
+		size_t heapLimit = StdRuntimeLimit_Heap,
+		size_t stackLimit = StdRuntimeLimit_Stack
 		);
 
 	rtl::Array <Module*> 
