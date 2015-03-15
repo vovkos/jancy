@@ -205,12 +205,7 @@ Runtime::runtimeError (
 		errorString = "<UNDEF>";
 	}
 
-	runtimeError (err::formatStringError (
-		"RUNTIME ERROR: %s (code %x accessing data %x)",
-		errorString,
-		codeAddr,
-		dataAddr
-		));
+	runtimeError (err::createStringError (errorString));
 }
 
 void*

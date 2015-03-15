@@ -109,5 +109,6 @@
 #include "axl_mt_Thread.h"
 #include "axl_mt_TlsMgr.h"
 #include "axl_mt_TlsSlot.h"
+#include "axl_mt_LongJmpTry.h"
 
 using namespace axl;

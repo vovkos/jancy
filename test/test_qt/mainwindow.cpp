@@ -540,27 +540,20 @@ bool MainWindow::runFunction (jnc::Function* function, int* returnValue_o)
 	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool result = true;
-
-	try
+	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
 		int returnValue = pf ();
 		if (returnValue_o)
 			*returnValue_o = returnValue;
-
 	}
-	catch (err::Error error)
+	AXL_MT_LONG_JMP_CATCH ()
 	{
-		writeOutput ("ERROR: %s\n", error.getDescription ().cc ());
-		result = false;
+		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
+		return false;
 	}
-	catch (...)
-	{
-		writeOutput ("UNKNOWN EXCEPTION\n");
-		result = false;
-	}
+	AXL_MT_END_LONG_JMP_TRY ()
 
-	return result;
+	return true;
 }
 
 bool

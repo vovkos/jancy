@@ -135,27 +135,23 @@ main (
 
 	Error finalResult = Error_Success;
 
-	try
-	{
-		typedef void ConstructorProc ();
-		typedef int MainProc ();
+	typedef void ConstructorProc ();
+	typedef int MainProc ();
 
+	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	{
 		if (constructor)
 			((ConstructorProc*) constructor->getMachineCode ()) ();
 
 		int returnValue = ((MainProc*) mainFunction->getMachineCode ()) ();
 		printf ("'main' returned (%d)\n", returnValue);
 	}
-	catch (err::Error error)
+	AXL_MT_LONG_JMP_CATCH ()
 	{
-		printf ("Runtime error: %s\n", error.getDescription ().cc ());
+		printf ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
 		finalResult = Error_Runtime;
 	}
-	catch (...)
-	{
-		printf ("Unexpected runtime exception\n");
-		finalResult = Error_Runtime;
-	}
+	AXL_MT_END_LONG_JMP_TRY ()
 
 	printf ("Shutting down...\n");
 

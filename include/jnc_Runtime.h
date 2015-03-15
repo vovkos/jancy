@@ -154,7 +154,8 @@ public:
 	void
 	runtimeError (const err::Error& error)
 	{
-		throw error;
+		err::setError (error);
+		AXL_MT_LONG_JMP_THROW ();
 	}
 
 	// gc heap

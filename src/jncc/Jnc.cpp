@@ -293,21 +293,19 @@ Jnc::runFunction (
 	FFunction* pf = (FFunction*) function->getMachineCode ();
 	ASSERT (pf);
 
-	bool result = true;
-
-	try
+	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
 		int returnValue = pf ();
 		if (returnValue_o)
 			*returnValue_o = returnValue;
 	}
-	catch (err::Error error)
+	AXL_MT_LONG_JMP_CATCH ()
 	{
-		err::setError (error);
-		result = false;
+		return false;
 	}
+	AXL_MT_END_LONG_JMP_TRY ()
 
-	return result;
+	return true;
 }
 
 bool

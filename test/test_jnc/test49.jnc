@@ -1,22 +1,11 @@
-
-class C
-{
-	int m_x;
-
-	abstract foo ();
-	abstract bar ();
-}
-
 int main ()
 {
-	C* c;
-	c.foo ();
+	printf ("main ()\n");
+
+	int* p;
+	*p = 10;
 
 	return 0;
-
-catch:
-	printf ("error caught: %s\n", jnc.getLastError ().m_description);
-	return -1;
 }
 
 //.............................................................................

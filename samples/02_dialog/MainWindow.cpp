@@ -150,25 +150,22 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	if (destructor)
 		m_runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
 
-	try
-	{
-		typedef void ConstructorProc ();
-		typedef int MainProc (MyLayout*);
+	typedef void ConstructorProc ();
+	typedef int MainProc (MyLayout*);
 
+	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	{
 		if (constructor)
 			((ConstructorProc*) constructor->getMachineCode ()) ();
 
 		int returnValue = ((MainProc*) mainFunction->getMachineCode ()) (&m_layout);
 		output ("'main' returned (%d)\n", returnValue);
 	}
-	catch (err::Error error)
+	AXL_MT_LONG_JMP_CATCH ()
 	{
-		output ("Runtime error: %s\n", error.getDescription ().cc ());
+		output ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
 	}
-	catch (...)
-	{
-		output ("Unexpected runtime exception\n");
-	}
+	AXL_MT_END_LONG_JMP_TRY ()
 
 	output ("Done.\n");
 	return true;
