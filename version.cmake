@@ -1,6 +1,6 @@
 set (VERSION_MAJOR     1)
 set (VERSION_MINOR     5)
-set (VERSION_REVISION  1)
+set (VERSION_REVISION  2)
 set (VERSION_TAG)
 
 set (VERSION_FILE_SUFFIX "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
@@ -13,4 +13,4 @@ else ()
 endif ()
 
 set (VERSION_COMPANY   "Tibbo Technology Inc")
-set (VERSION_YEARS     "2007-2014")
+set (VERSION_YEARS     "2007-2015")
