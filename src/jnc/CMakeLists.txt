@@ -323,6 +323,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Type.h
 	${JANCY_INC_DIR}/jnc_TypeMgr.h
 	${JANCY_INC_DIR}/jnc_UnionType.h
+	${JANCY_INC_DIR}/jnc_VariantType.h
 	)
 
 set (
