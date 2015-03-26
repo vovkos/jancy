@@ -1172,6 +1172,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (checkNullPtrSrc),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_DynamicCastVariant,
+			dynamicCastVariantSrc,
+			lengthof (dynamicCastVariantSrc),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1263,6 +1268,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_CheckDataPtrRange:
 	case StdFunction_TryCheckNullPtr:
 	case StdFunction_CheckNullPtr:
+	case StdFunction_DynamicCastVariant:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
 			sourceTable [func].m_stdNamespace,
@@ -1402,6 +1408,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_CheckDataPtrRange,
 		NULL,                  // StdFunction_TryCheckNullPtr,
 		NULL,                  // StdFunction_CheckNullPtr,
+		NULL,                  // StdFunction_DynamicCastVariant,
 	};
 
 	const char* name = nameTable [func];

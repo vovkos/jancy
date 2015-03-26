@@ -25,6 +25,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_DynamicCountOf, dynamicCountOf)
 		JNC_STD_FUNCTION (StdFunction_DynamicCastDataPtr, dynamicCastDataPtr)
 		JNC_STD_FUNCTION (StdFunction_DynamicCastClassPtr, dynamicCastClassPtr)
+		JNC_STD_FUNCTION (StdFunction_DynamicCastVariant, dynamicCastVariant)
 		JNC_STD_FUNCTION (StdFunction_StrengthenClassPtr, strengthenClassPtr)
 		JNC_STD_FUNCTION (StdFunction_GcAllocate, gcAllocate)
 		JNC_STD_FUNCTION (StdFunction_GcTryAllocate, gcTryAllocate)
@@ -120,6 +121,14 @@ public:
 	dynamicCastClassPtr (
 		IfaceHdr* p,
 		ClassType* type
+		);
+
+	static
+	bool
+	dynamicCastVariant (
+		Variant variant,
+		Type* type,
+		void* buffer
 		);
 
 	static

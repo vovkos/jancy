@@ -104,11 +104,13 @@ OperatorMgr::OperatorMgr ()
 
 	// cast operators
 
-	m_stdCastOperatorTable [StdCastKind_Copy] = &m_cast_Copy;
-	m_stdCastOperatorTable [StdCastKind_SwapByteOrder] = &m_cast_SwapByteOrder;
-	m_stdCastOperatorTable [StdCastKind_PtrFromInt] = &m_cast_PtrFromInt;
-	m_stdCastOperatorTable [StdCastKind_Int] = &m_cast_Int;
-	m_stdCastOperatorTable [StdCastKind_Fp] = &m_cast_Fp;
+	m_stdCastOperatorTable [StdCast_Copy] = &m_cast_Copy;
+	m_stdCastOperatorTable [StdCast_SwapByteOrder] = &m_cast_SwapByteOrder;
+	m_stdCastOperatorTable [StdCast_PtrFromInt] = &m_cast_PtrFromInt;
+	m_stdCastOperatorTable [StdCast_Int] = &m_cast_Int;
+	m_stdCastOperatorTable [StdCast_Fp] = &m_cast_Fp;
+	m_stdCastOperatorTable [StdCast_FromVariant] = &m_cast_FromVariant;
+
 
 	for (size_t i = 0; i < TypeKind__Count; i++)
 		m_castOperatorTable [i] = &m_cast_Default;
@@ -123,6 +125,7 @@ OperatorMgr::OperatorMgr ()
 
 	m_castOperatorTable [TypeKind_Float]       = &m_cast_Fp;
 	m_castOperatorTable [TypeKind_Double]      = &m_cast_Fp;
+	m_castOperatorTable [TypeKind_Variant]     = &m_cast_Variant;
 	m_castOperatorTable [TypeKind_Array]       = &m_cast_Array;
 	m_castOperatorTable [TypeKind_Enum]        = &m_cast_Enum;
 	m_castOperatorTable [TypeKind_Struct]      = &m_cast_Struct;
@@ -133,6 +136,7 @@ OperatorMgr::OperatorMgr ()
 	m_castOperatorTable [TypeKind_FunctionRef] = &m_cast_FunctionRef;
 	m_castOperatorTable [TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
 	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
+	
 }
 
 Function*
@@ -523,7 +527,8 @@ OperatorMgr::castOperator (
 	if (!result)
 		return false;
 
-	if (opValue.getType ()->cmp (type) == 0) // identity, try to shortcut
+	Type* opType = opValue.getType ();
+	if (opType->cmp (type) == 0) // identity, try to shortcut
 	{
 		if (opValue.hasLlvmValue ())
 		{
@@ -539,6 +544,9 @@ OperatorMgr::castOperator (
 
 		// nope, need to go through full cast
 	}
+
+	if (opType->getTypeKind () == TypeKind_Variant)
+		return m_stdCastOperatorTable [StdCast_FromVariant]->cast (opValue, type, resultValue);
 
 	if (dynamism != OperatorDynamism_Dynamic)
 		return op->cast (opValue, type, resultValue);
@@ -724,10 +732,8 @@ OperatorMgr::getCastKind (
 	)
 {
 	if (rawOpValue.getValueKind () == ValueKind_Null)
-		return
-			(type->getTypeKindFlags () & TypeKindFlag_Ptr) ? CastKind_Implicit :
-			(type->getTypeKindFlags () & TypeKindFlag_Integer) ? CastKind_Explicit : CastKind_None;
-
+		return (type->getTypeKindFlags () & TypeKindFlag_Ptr) ? CastKind_Implicit : CastKind_None;
+	
 	TypeKind typeKind = type->getTypeKind ();
 	ASSERT ((size_t) typeKind < TypeKind__Count);
 
@@ -741,10 +747,11 @@ OperatorMgr::getCastKind (
 		op->getOpFlags ()
 		);
 
-	if (opValue.getType ()->cmp (type) == 0) // identity!
-		return CastKind_Identitiy;
-
-	return op->getCastKind (opValue, type);
+	Type* opType = opValue.getType ();
+	return 
+		opType->cmp (type) == 0 ? CastKind_Identitiy : 
+		opType->getTypeKind () == TypeKind_Variant ? CastKind_ImplicitCrossFamily :
+		op->getCastKind (opValue, type);
 }
 
 CastKind

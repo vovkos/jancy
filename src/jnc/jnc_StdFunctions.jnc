@@ -171,7 +171,7 @@ namespace jnci {
 
 void runtimeError (
 	int error,
-	uint8_t thin* codeAddress
+	void thin* codeAddress
 	);
 
 ///; static char dynamicSizeOfSrc [] = 
@@ -182,21 +182,29 @@ size_t dynamicSizeOf (void const* p);
 
 size_t dynamicCountOf (
 	void const* p,
-	uint8_t thin* type
+	void thin* type
 	);
 
 ///; static char dynamicCastDataPtrSrc [] = 
 
 void* dynamicCastDataPtr (
 	void const* p,
-	uint8_t thin* type
+	void thin* type
 	);
 
 ///; static char dynamicCastClassPtrSrc [] = 
 
 object* dynamicCastClassPtr (
 	object const* p,
-	uint8_t thin* type
+	void thin* type
+	);
+
+///; static char dynamicCastVariantSrc [] = 
+
+bool dynamicCastVariant (
+	variant v,
+	void thin* type,
+	void thin* buffer
 	);
 
 ///; static char strengthenClassPtrSrc [] = 
@@ -205,23 +213,23 @@ object* strengthenClassPtr (object weak* p);
 
 ///; static char gcAllocateSrc [] = 
 
-uint8_t thin* gcAllocate (
-	uint8_t thin* type,
+void thin* gcAllocate (
+	void thin* type,
 	size_t elementCount
 	);
 
 ///; static char gcTryAllocateSrc [] = 
 
-uint8_t thin* gcTryAllocate (
-	uint8_t thin* type,
+void thin* gcTryAllocate (
+	void thin* type,
 	size_t elementCount
 	);
 
 ///; static char markGcRootSrc [] = 
 
 void markGcRoot (
-	uint8_t thin* thin* p,
-	uint8_t thin* type
+	void thin* thin* p,
+	void thin* type
 	);
 
 ///; static char gcEnterSrc [] = 

@@ -14,9 +14,7 @@ namespace jnc {
 
 struct Variant
 {
-	Type* m_type;
-
-	union
+	union 
 	{
 		int8_t m_int8;
 		uint8_t m_int8_u;
@@ -31,13 +29,17 @@ struct Variant
 		double m_double;
 
 		void* m_p;
-		intptr_t (* m_func) (...);
-
-		DataPtr m_dataPtr;
 		IfaceHdr* m_classPtr;
+		DataPtr m_dataPtr;
 		FunctionPtr m_functionPtr;
 		PropertyPtr m_propertyPtr;
 	};
+
+#if (_AXL_PTR_SIZE == 4)
+	char m_padding [4]; // ensure the same layout regardless of pack factor
+#endif
+
+	Type* m_type;
 };
 
 //.............................................................................

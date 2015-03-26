@@ -166,12 +166,12 @@ Cast_IntFromBeInt::getCastOperators (
 
 	if (isEquivalentIntegerTypeKind (type->getTypeKind (), intermediateTypeKind))
 	{
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
+		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
 		return true;
 	}
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Int);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
 	*intermediateType = m_module->m_typeMgr.getPrimitiveType (intermediateTypeKind);
 	return true;
 }
@@ -193,12 +193,12 @@ Cast_BeInt::getCastOperators (
 
 	if (isEquivalentIntegerTypeKind (opValue.getType ()->getTypeKind (), intermediateTypeKind))
 	{
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
+		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
 		return true;
 	}
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Int);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
 	*intermediateType = m_module->m_typeMgr.getPrimitiveType (intermediateTypeKind);
 	return true;
 }
@@ -386,12 +386,12 @@ Cast_IntFromEnum::getCastOperators (
 
 	if (isEquivalentIntegerTypeKind (type->getTypeKind (), intermediateType->getTypeKind ()))
 	{
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
+		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
 		return true;
 	}
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Int);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -431,12 +431,12 @@ Cast_Enum::getCastOperators (
 
 	if (isEquivalentIntegerTypeKind (opValue.getType ()->getTypeKind (), intermediateType->getTypeKind ()))
 	{
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
+		*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
 		return true;
 	}
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Int);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -473,7 +473,7 @@ Cast_Int::getCastOperator (
 	case TypeKind_Int64:
 	case TypeKind_Int64_u:
 		return
-			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy) :
+			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy) :
 			srcSize > dstSize ? (CastOperator*) &m_trunc :
 			(getTypeKindFlags (srcTypeKind) & TypeKindFlag_Unsigned) ?
 				(CastOperator*) &m_ext_u :

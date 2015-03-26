@@ -194,6 +194,7 @@ set (
 	${JANCY_INC_DIR}/jnc_CastOp_Int.h
 	${JANCY_INC_DIR}/jnc_CastOp_PropertyPtr.h
 	${JANCY_INC_DIR}/jnc_CastOp_Struct.h
+	${JANCY_INC_DIR}/jnc_CastOp_Variant.h
 	${JANCY_INC_DIR}/jnc_OperatorMgr.h
 	${JANCY_INC_DIR}/jnc_UnOp.h
 	${JANCY_INC_DIR}/jnc_UnOp_Arithmetic.h
@@ -221,6 +222,7 @@ set (
 	jnc_CastOp_Int.cpp
 	jnc_CastOp_PropertyPtr.cpp
 	jnc_CastOp_Struct.cpp
+	jnc_CastOp_Variant.cpp
 	jnc_OperatorMgr.cpp
 	jnc_OperatorMgr_Call.cpp
 	jnc_OperatorMgr_CheckPtr.cpp

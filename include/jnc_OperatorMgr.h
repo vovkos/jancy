@@ -20,6 +20,7 @@
 #include "jnc_CastOp_Bool.h"
 #include "jnc_CastOp_Int.h"
 #include "jnc_CastOp_Fp.h"
+#include "jnc_CastOp_Variant.h"
 #include "jnc_CastOp_Array.h"
 #include "jnc_CastOp_Struct.h"
 #include "jnc_CastOp_DataPtr.h"
@@ -38,14 +39,15 @@ class Module;
 
 //.............................................................................
 
-enum StdCastKind
+enum StdCast
 {
-	StdCastKind_Copy,
-	StdCastKind_SwapByteOrder,
-	StdCastKind_PtrFromInt,
-	StdCastKind_Int,
-	StdCastKind_Fp,
-	StdCastKind__Count
+	StdCast_Copy,
+	StdCast_SwapByteOrder,
+	StdCast_PtrFromInt,
+	StdCast_Int,
+	StdCast_Fp,
+	StdCast_FromVariant,
+	StdCast__Count
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -147,6 +149,8 @@ protected:
 	Cast_Int m_cast_Int;
 	Cast_BeInt m_cast_BeInt;
 	Cast_Fp m_cast_Fp;
+	Cast_Variant m_cast_Variant;
+	Cast_FromVariant m_cast_FromVariant;
 	Cast_Array m_cast_Array;
 	Cast_Enum m_cast_Enum;
 	Cast_Struct m_cast_Struct;
@@ -163,7 +167,7 @@ protected:
 	UnaryOperator* m_unaryOperatorTable [UnOpKind__Count];
 	BinaryOperator* m_binaryOperatorTable [BinOpKind__Count];
 	CastOperator* m_castOperatorTable [TypeKind__Count];
-	CastOperator* m_stdCastOperatorTable [StdCastKind__Count];
+	CastOperator* m_stdCastOperatorTable [StdCast__Count];
 
 	rtl::BoxList <Value> m_tmpStackGcRootList;
 
@@ -418,9 +422,9 @@ public:
 	}
 
 	CastOperator*
-	getStdCastOperator (StdCastKind castKind)
+	getStdCastOperator (StdCast castKind)
 	{
-		ASSERT ((size_t) castKind < StdCastKind__Count);
+		ASSERT ((size_t) castKind < StdCast__Count);
 		return m_stdCastOperatorTable [castKind];
 	}
 

@@ -191,6 +191,10 @@ Value::getLlvmConst (
 		llvmConst = llvm::ConstantFP::get (type->getLlvmType (), doubleValue);
 		break;
 
+	case TypeKind_Variant:
+		llvmConst = LlvmPodStruct::get ((StructType*) module->m_typeMgr.getStdType (StdType_VariantStruct), p);
+		break;
+
 	case TypeKind_Array:
 		llvmConst = LlvmPodArray::get ((ArrayType*) type, p);
 		break;

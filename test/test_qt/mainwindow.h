@@ -148,24 +148,29 @@ class StdLib: public jnc::StdLib
 {
 public:
 	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunction_Printf,  &Printf)
+		JNC_STD_FUNCTION (jnc::StdFunction_Printf, &printf)
 //		JNC_TYPE (TestClassA)
 //		JNC_TYPE (TestClassB)
 //		JNC_TYPE (TestStruct)
 		JNC_LIB (jnc::StdLib)
-//		JNC_FUNCTION ("testPtr",  &testPtr)
+//		JNC_FUNCTION ("testPtr",     &testPtr)
+//		JNC_FUNCTION ("testVariant", &testVariant)
 	JNC_END_LIB ()
 
 	static
 	int
-	Printf (
-		const char* pFormat,
+	printf (
+		const char* format,
 		...
 		);
 
 	static
 	void
-	testPtr (jnc::DataPtr Ptr);
+	testPtr (jnc::DataPtr ptr);
+
+	static
+	void
+	testVariant (jnc::Variant variant);
 };
 
 //.............................................................................

@@ -246,6 +246,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = createFunctionPtrStructType ();
 		break;
 
+	case StdType_VariantStruct:
+		type = createVariantStructType ();
+		break;
+
 	case StdType_ObjHdrPtr:
 		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
 		break;
@@ -2489,6 +2493,12 @@ TypeMgr::setupAllPrimitiveTypes ()
 	setupPrimitiveType (TypeKind_Int64_beu, 8, "ibu8");
 	setupPrimitiveType (TypeKind_Float,     4, "f4");
 	setupPrimitiveType (TypeKind_Double,    8, "f8");
+
+	// variant requires special treatment
+
+	Type* type = &m_primitiveTypeArray [TypeKind_Variant];
+	type->m_flags = ModuleItemFlag_LayoutReady | TypeFlag_GcRoot;
+	type->m_alignment = 8;
 }
 
 void
@@ -2689,6 +2699,19 @@ TypeMgr::createFunctionPtrStructType ()
 	StructType* type = createStructType ("FunctionPtr", "jnc.FunctionPtr");
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createVariantStructType ()
+{
+	StructType* type = createStructType ("Variant", "jnc.Variant");
+	type->createField ("!m_data1", getPrimitiveType (TypeKind_Int64));
+	type->createField ("!m_data2", getPrimitiveType (TypeKind_Int_p));
+	type->createField ("!m_data3", getPrimitiveType (TypeKind_Int_p));
+	type->createField ("!m_data4", getPrimitiveType (TypeKind_Int_p));
+	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }

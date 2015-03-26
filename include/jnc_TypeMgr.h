@@ -1008,6 +1008,9 @@ protected:
 
 	StructType*
 	createFunctionPtrStructType ();
+
+	StructType*
+	createVariantStructType ();
 };
 
 //.............................................................................

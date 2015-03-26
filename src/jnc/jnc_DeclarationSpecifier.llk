@@ -144,8 +144,7 @@ type_specifier
 			}
 	|	TokenKind_Variant
 			{
-				err::setStringError ("'variant' type specifier is not yet supported");
-				return false;
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 			}
 	|	TokenKind_Object
 			{

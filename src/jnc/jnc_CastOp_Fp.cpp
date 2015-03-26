@@ -249,8 +249,8 @@ Cast_FpFromBeInt::getCastOperators (
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (opValue.getType ()->getTypeKind ());
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_SwapByteOrder);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Fp);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Fp);
 	*intermediateType = m_module->m_typeMgr.getPrimitiveType (intermediateTypeKind);
 	return true;
 }
@@ -270,8 +270,8 @@ Cast_FpFromEnum::getCastOperators (
 
 	Type* intermediateType = ((EnumType*) opValue.getType ())->getBaseType ();
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Fp);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Fp);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -320,7 +320,7 @@ Cast_Fp::getCastOperator (
 	case TypeKind_Float:
 	case TypeKind_Double:
 		return 
-			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCastKind_Copy) : 
+			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy) : 
 			srcSize > dstSize ? (CastOperator*) &m_trunc : 
 			(CastOperator*) &m_ext;
 

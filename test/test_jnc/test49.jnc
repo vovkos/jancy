@@ -1,10 +1,14 @@
+void testVariant (variant v);
+
 int main ()
 {
 	printf ("main ()\n");
 
-	int* p;
-	p++;
-	*p = 10;
+	int x = 150;
+	variant v = x;
+
+	uint8_t y = v;
+	printf ("y = %d\n", y);
 
 	return 0;
 }

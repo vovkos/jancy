@@ -137,6 +137,7 @@ enum StdFunction
 	StdFunction_CheckDataPtrRange,
 	StdFunction_TryCheckNullPtr,
 	StdFunction_CheckNullPtr,
+	StdFunction_DynamicCastVariant,
 	StdFunction__Count
 };
 

@@ -11,8 +11,8 @@ getTypeKindFlags (TypeKind typeKind)
 {
 	static uint_t flagTable [TypeKind__Count] =
 	{
-		0,                           // EType_Void
-		0,                           // EType_Variant
+		0,                          // EType_Void
+		0,                          // EType_Variant
 
 		TypeKindFlag_Numeric,       // EType_Bool
 
@@ -503,7 +503,7 @@ Type::prepareLlvmType ()
 		break;
 
 	case TypeKind_Variant:
-		ASSERT (false); // variants are not supported yet
+		m_llvmType = m_module->m_typeMgr.getStdType (StdType_VariantStruct)->getLlvmType ();
 		break;
 
 	case TypeKind_Bool:
@@ -693,6 +693,19 @@ Type::prepareLlvmDiType ()
 		diType->m_size,
 		diType->m_code
 		);
+}
+
+void
+Type::gcMark (
+	Runtime* runtime,
+	void* p
+	)
+{
+	ASSERT (m_typeKind == TypeKind_Variant);
+
+	Variant* variant = (Variant*) p;
+	if (variant->m_type && (variant->m_type->m_flags & TypeFlag_GcRoot))
+		variant->m_type->gcMark (runtime, p);
 }
 
 //.............................................................................

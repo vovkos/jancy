@@ -167,6 +167,7 @@ enum StdType
 	StdType_DataPtrStruct,
 	StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,
+	StdType_VariantStruct,
 	StdType__Count,
 };
 
@@ -637,10 +638,7 @@ public:
 	gcMark (
 		Runtime* runtime,
 		void* p
-		)
-	{
-		ASSERT (false);
-	}
+		);
 
 protected:
 	virtual

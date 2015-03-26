@@ -103,7 +103,7 @@ TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 //.............................................................................
 
 int
-StdLib::Printf (
+StdLib::printf (
 	const char* format,
 	...
 	)
@@ -116,6 +116,12 @@ void
 StdLib::testPtr (jnc::DataPtr ptr)
 {
 	printf ("StdLib::testPtr\n");
+}
+
+void
+StdLib::testVariant (jnc::Variant variant)
+{
+	printf ("StdLib::testVariant\n");
 }
 
 //.............................................................................

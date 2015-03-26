@@ -108,6 +108,22 @@ StdLib::dynamicCastClassPtr (
 	return p2;
 }
 
+bool
+StdLib::dynamicCastVariant (
+	Variant variant,
+	Type* type,
+	void* buffer
+	)
+{
+	Module* module = type->getModule ();
+
+	Value opValue (&variant, module->m_typeMgr.getPrimitiveType (TypeKind_Variant));
+	CastOperator* castOp = module->m_operatorMgr.getStdCastOperator (StdCast_FromVariant);
+
+	memset (buffer, 0, type->getSize ());
+	return castOp->constCast (opValue, type, buffer);
+}
+
 IfaceHdr*
 StdLib::strengthenClassPtr (IfaceHdr* p)
 {
