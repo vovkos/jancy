@@ -121,6 +121,7 @@ enum StdFunction
 	StdFunction_AppendFmtLiteral_i64,
 	StdFunction_AppendFmtLiteral_ui64,
 	StdFunction_AppendFmtLiteral_f,
+	StdFunction_AppendFmtLiteral_v,
 	StdFunction_AppendFmtLiteral_s,
 	StdFunction_AppendFmtLiteral_sr,
 	StdFunction_AppendFmtLiteral_cb,

@@ -1096,6 +1096,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (appendFmtLiteralSrc_f),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_AppendFmtLiteral_v,
+			appendFmtLiteralSrc_v,
+			lengthof (appendFmtLiteralSrc_v),
+			StdNamespace_Internal,
+		},
 		{                                       // StdFunction_AppendFmtLiteral_s,
 			appendFmtLiteralSrc_s,
 			lengthof (appendFmtLiteralSrc_s),
@@ -1259,6 +1264,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AppendFmtLiteral_i64:
 	case StdFunction_AppendFmtLiteral_ui64:
 	case StdFunction_AppendFmtLiteral_f:
+	case StdFunction_AppendFmtLiteral_v:
 	case StdFunction_AppendFmtLiteral_s:
 	case StdFunction_AppendFmtLiteral_sr:
 	case StdFunction_AppendFmtLiteral_cb:
@@ -1392,6 +1398,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_AppendFmtLiteral_i64,
 		NULL,                  // StdFunction_AppendFmtLiteral_ui64,
 		NULL,                  // StdFunction_AppendFmtLiteral_f,
+		NULL,                  // StdFunction_AppendFmtLiteral_v,
 		NULL,                  // StdFunction_AppendFmtLiteral_s,
 		NULL,                  // StdFunction_AppendFmtLiteral_sr,
 		NULL,                  // StdFunction_AppendFmtLiteral_cb,

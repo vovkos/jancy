@@ -314,10 +314,18 @@ size_t appendFmtLiteral_ui64 (
 
 ///; static char appendFmtLiteralSrc_f [] = 
 
-size_t appendFmtLiteral_ui64 (
+size_t appendFmtLiteral_f (
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	double value
+	);
+
+///; static char appendFmtLiteralSrc_v [] = 
+
+size_t appendFmtLiteral_v (
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	variant v
 	);
 
 ///; static char appendFmtLiteralSrc_s [] = 

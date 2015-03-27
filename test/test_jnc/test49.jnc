@@ -1,14 +1,15 @@
-void testVariant (variant v);
-
 int main ()
 {
 	printf ("main ()\n");
 
-	int x = 150;
-	variant v = x;
+	int x = 10;
 
-	uint8_t y = v;
-	printf ("y = %d\n", y);
+	variant v1 = x;
+	variant v2 = 3.1415;
+	variant v3 = "abc";
+	variant v4 = (char const*) "def";
+
+	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 
 	return 0;
 }

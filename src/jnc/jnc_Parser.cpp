@@ -2946,7 +2946,10 @@ Parser::appendFmtLiteralValue (
 	StdFunction appendFunc;
 
 	Type* type = srcValue.getType ();
-	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
+	TypeKind typeKind = type->getTypeKind ();
+	uint_t typeKindFlags = type->getTypeKindFlags ();
+
+	if (typeKindFlags & TypeKindFlag_Integer)
 	{
 		static StdFunction funcTable [2] [2] =
 		{
@@ -2955,13 +2958,17 @@ Parser::appendFmtLiteralValue (
 		};
 
 		size_t i1 = type->getSize () > 4;
-		size_t i2 = (type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0;
+		size_t i2 = (typeKindFlags & TypeKindFlag_Unsigned) != 0;
 
 		appendFunc = funcTable [i1] [i2];
 	}
-	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
+	else if (typeKindFlags & TypeKindFlag_Fp)
 	{
 		appendFunc = StdFunction_AppendFmtLiteral_f;
+	}
+	else if (typeKind == TypeKind_Variant)
+	{
+		appendFunc = StdFunction_AppendFmtLiteral_v;
 	}
 	else if (isCharArrayType (type) || isCharArrayRefType (type) || isCharPtrType (type))
 	{

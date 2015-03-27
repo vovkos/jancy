@@ -66,6 +66,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_i64, appendFmtLiteral_i64)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_f, appendFmtLiteral_f)
+		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_v, appendFmtLiteral_v)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_s, appendFmtLiteral_s)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_sr, appendFmtLiteral_sr)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
@@ -413,10 +414,18 @@ public:
 
 	static
 	size_t
+	appendFmtLiteral_v (
+		FmtLiteral* fmtLiteral,
+		const char* fmtSpecifier,
+		Variant variant
+		);
+
+	static
+	size_t
 	appendFmtLiteral_s (
 		FmtLiteral* fmtLiteral,
 		const char* fmtSpecifier,
-		StringRef string
+		String string
 		)
 	{
 		return appendFmtLiteralStringImpl (

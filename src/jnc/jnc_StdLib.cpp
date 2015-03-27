@@ -693,6 +693,121 @@ StdLib::appendFmtLiteral_p (
 }
 
 size_t
+StdLib::appendFmtLiteral_v (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	Variant variant
+	)
+{
+	bool result;
+
+	if (!variant.m_type)
+		return fmtLiteral->m_length;
+
+	Module* module = variant.m_type->getModule ();
+	TypeKind typeKind = variant.m_type->getTypeKind ();
+	uint_t typeKindFlags = variant.m_type->getTypeKindFlags ();
+
+	if (typeKindFlags & TypeKindFlag_Integer)
+	{
+		Value value (&variant, variant.m_type);
+
+		if (variant.m_type->getSize () > 4)
+		{
+			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int64);
+			if (!result)
+			{
+				ASSERT (false);
+				return fmtLiteral->m_length;
+			}
+
+			ASSERT (value.getValueKind () == ValueKind_Const);
+			int64_t x = *(int64_t*) value.getConstData ();
+
+			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+				appendFmtLiteral_ui64 (fmtLiteral, fmtSpecifier, x) :
+				appendFmtLiteral_i64 (fmtLiteral, fmtSpecifier, x);
+		}
+		else
+		{
+			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int32);
+			if (!result)
+			{
+				ASSERT (false);
+				return fmtLiteral->m_length;
+			}
+
+			ASSERT (value.getValueKind () == ValueKind_Const);
+			int32_t x = *(int32_t*) value.getConstData ();
+
+			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+				appendFmtLiteral_ui32 (fmtLiteral, fmtSpecifier, x) :
+				appendFmtLiteral_i32 (fmtLiteral, fmtSpecifier, x);
+		}
+	}
+	else if (typeKindFlags & TypeKindFlag_Fp)
+	{
+		return typeKind == TypeKind_Float ? 
+			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
+			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
+	}
+	else if (isCharArrayType (variant.m_type))
+	{
+		ArrayType* arrayType = (ArrayType*) variant.m_type;
+		size_t count = arrayType->getElementCount ();
+
+		char* p = (char*) &variant;
+
+		DataPtr ptr;
+		ptr.m_p = p;
+		ptr.m_rangeBegin = p;
+		ptr.m_rangeEnd = p + count;
+		ptr.m_object = getStaticObjHdr ();
+
+		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
+	}
+	else if (isCharPtrType (variant.m_type))
+	{
+		DataPtrType* ptrType = (DataPtrType*) variant.m_type;
+		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+		
+		DataPtr ptr = { 0 };
+
+		if (ptrTypeKind == DataPtrTypeKind_Normal)
+		{
+			ptr = *(DataPtr*) &variant;
+		}
+		else
+		{
+			ptr.m_p = variant.m_p;
+			ptr.m_rangeBegin = variant.m_p;
+			ptr.m_rangeEnd = (void*) (intptr_t) -1;
+			ptr.m_object = getStaticObjHdr ();
+		}
+
+		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
+	}
+	else
+	{
+		StdType stdType = variant.m_type->getStdType ();
+		switch (stdType)
+		{
+		case StdType_String:
+		case StdType_BufferRef:
+		case StdType_ConstBuffer:
+			return appendFmtLiteral_s (fmtLiteral, fmtSpecifier, *(String*) &variant);
+
+		case StdType_StringRef:
+		case StdType_ConstBufferRef:
+			return appendFmtLiteral_sr (fmtLiteral, fmtSpecifier, *(StringRef*) &variant);
+		}
+	}
+
+	char defaultString [] = "(variant)";
+	return appendFmtLiteral_a (fmtLiteral, defaultString, lengthof (defaultString));
+}
+
+size_t
 StdLib::appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
