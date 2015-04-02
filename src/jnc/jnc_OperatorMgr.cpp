@@ -732,7 +732,7 @@ OperatorMgr::getCastKind (
 	)
 {
 	if (rawOpValue.getValueKind () == ValueKind_Null)
-		return (type->getTypeKindFlags () & TypeKindFlag_Ptr) ? CastKind_Implicit : CastKind_None;
+		return (type->getTypeKindFlags () & TypeKindFlag_Nullable) ? CastKind_Implicit : CastKind_None;
 	
 	TypeKind typeKind = type->getTypeKind ();
 	ASSERT ((size_t) typeKind < TypeKind__Count);

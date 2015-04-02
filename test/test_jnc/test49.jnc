@@ -1,6 +1,14 @@
+struct Point 
+{
+	int m_x;
+	int m_y;
+}
+
 int main ()
 {
 	printf ("main ()\n");
+
+	Point point = null;
 
 	int x = 10;
 
@@ -8,6 +16,8 @@ int main ()
 	variant v2 = 3.1415;
 	variant v3 = "abc";
 	variant v4 = (char const*) "def";
+	variant v5 = null;
+
 
 	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 

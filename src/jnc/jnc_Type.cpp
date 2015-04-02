@@ -12,7 +12,7 @@ getTypeKindFlags (TypeKind typeKind)
 	static uint_t flagTable [TypeKind__Count] =
 	{
 		0,                          // EType_Void
-		0,                          // EType_Variant
+		TypeKindFlag_Nullable,      // EType_Variant
 
 		TypeKindFlag_Numeric,       // EType_Bool
 
@@ -77,8 +77,10 @@ getTypeKindFlags (TypeKind typeKind)
 		TypeKindFlag_Fp |           // EType_Double
 		TypeKindFlag_Numeric,
 
-		TypeKindFlag_Aggregate,     // EType_Array
-		0,                           // EType_BitField
+		TypeKindFlag_Aggregate |
+		TypeKindFlag_Nullable,      // EType_Array
+		
+		0,                          // EType_BitField
 
 		TypeKindFlag_Named |        // EType_Enum
 		TypeKindFlag_Integer |
@@ -86,11 +88,13 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_Aggregate |    // EType_Struct
 		TypeKindFlag_Derivable |
-		TypeKindFlag_Named,
+		TypeKindFlag_Named |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_Aggregate |    // EType_Union
 		TypeKindFlag_Derivable |
-		TypeKindFlag_Named,
+		TypeKindFlag_Named |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_Aggregate |    // EType_Class
 		TypeKindFlag_Derivable |
@@ -100,28 +104,32 @@ getTypeKindFlags (TypeKind typeKind)
 		TypeKindFlag_Code,          // EType_Property
 
 		TypeKindFlag_DataPtr |      // EType_DataPtr
-		TypeKindFlag_Ptr,
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_DataPtr |      // EType_DataRef
 		TypeKindFlag_Ptr |
 		TypeKindFlag_Ref,
 
 		TypeKindFlag_ClassPtr |     // EType_ClassPtr
-		TypeKindFlag_Ptr,
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_ClassPtr |     // EType_ClassRef
 		TypeKindFlag_Ptr |
 		TypeKindFlag_Ref,
 
 		TypeKindFlag_FunctionPtr |  // EType_FunctionPtr
-		TypeKindFlag_Ptr,
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_FunctionPtr |  // EType_FunctionRef
 		TypeKindFlag_Ptr |
 		TypeKindFlag_Ref,
 
 		TypeKindFlag_PropertyPtr |  // EType_PropertyPtr
-		TypeKindFlag_Ptr,
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_PropertyPtr |  // EType_PropertyRef
 		TypeKindFlag_Ptr |
@@ -130,7 +138,8 @@ getTypeKindFlags (TypeKind typeKind)
 		TypeKindFlag_Import,        // EType_NamedImport
 
 		TypeKindFlag_Import |       // EType_ImportPtr
-		TypeKindFlag_Ptr,
+		TypeKindFlag_Ptr |
+		TypeKindFlag_Nullable,
 
 		TypeKindFlag_Import |       // EType_ImportIntMod
 		TypeKindFlag_Integer |
