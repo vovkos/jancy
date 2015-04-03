@@ -117,8 +117,9 @@ Cast_DataPtr_Base::getCastKind (
 	bool isSrcPod = (srcDataType->getFlags () & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags () & TypeFlag_Pod) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
+	bool canCastToPod = isSrcPod || isDstConst || dstType->getPtrTypeKind () == DataPtrTypeKind_Thin;
 
-	if (dstDataType->getTypeKind () == TypeKind_Void && (isSrcPod || isDstConst))
+	if (dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return CastKind_Implicit;
 
 	if (srcDataType->getTypeKind () == TypeKind_Void && 
@@ -136,7 +137,7 @@ Cast_DataPtr_Base::getCastKind (
 
 	return 
 		isDstBase ? CastKind_Implicit :
-		isDstPod && (isSrcPod || isDstConst) ? CastKind_Explicit : 
+		isDstPod && canCastToPod ? CastKind_Explicit : 
 		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }
 
@@ -165,8 +166,9 @@ Cast_DataPtr_Base::getOffset (
 	bool isSrcPod = (srcDataType->getFlags () & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags () & TypeFlag_Pod) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
+	bool canCastToPod = isSrcPod || isDstConst || dstType->getPtrTypeKind () == DataPtrTypeKind_Thin;
 
-	if (dstDataType->getTypeKind () == TypeKind_Void && (isDstConst || isSrcPod))
+	if (dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return 0;
 
 	bool isDstBase = 
@@ -176,7 +178,7 @@ Cast_DataPtr_Base::getOffset (
 	if (isDstBase)
 		return coord->m_offset;
 
-	if (isDstPod && (isSrcPod || isDstConst))
+	if (isDstPod && canCastToPod)
 		return 0;
 
 	CastKind castKind = isDstDerivable? CastKind_Dynamic : CastKind_None;
