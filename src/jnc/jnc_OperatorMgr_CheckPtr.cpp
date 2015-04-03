@@ -208,7 +208,7 @@ OperatorMgr::checkClassPtrScopeLevel (
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
 
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
 
 	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckClassPtrScopeLevel);
 
@@ -291,7 +291,7 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 
@@ -308,7 +308,7 @@ OperatorMgr::checkPropertyPtrScopeLevel (
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 

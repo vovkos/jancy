@@ -181,7 +181,8 @@ class
 	ClassType* m_type;
 }
 class_specifier
-	:	TokenKind_Opaque $o?
+	:	resolver (TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
+		TokenKind_Opaque $o?
 		TokenKind_Class
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?

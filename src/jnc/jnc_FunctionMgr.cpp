@@ -1514,7 +1514,7 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdType_ObjectPtr),
+		m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr),
 		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
 	};
 
@@ -1532,7 +1532,7 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
 	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjectPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
 
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);

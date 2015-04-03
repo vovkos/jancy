@@ -464,12 +464,6 @@ Type::getSimpleFunctionArg (uint_t ptrTypeFlags)
 	return m_module->m_typeMgr.getSimpleFunctionArg (this, ptrTypeFlags);
 }
 
-ClassType*
-Type::getBoxClassType ()
-{
-	return m_module->m_typeMgr.getBoxClassType (this);
-}
-
 void
 Type::prepareTypeString ()
 {

@@ -81,7 +81,6 @@ enum TokenKind
 
 	TokenKind_Auto,
 	TokenKind_Void,
-	TokenKind_Object,
 	TokenKind_Variant,
 	TokenKind_Bool,
 	TokenKind_Int8,
@@ -257,7 +256,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Auto,         "auto")
 	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
-	AXL_LEX_TOKEN_NAME (TokenKind_Object,       "object")
 	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Bool,         "bool")
 	AXL_LEX_TOKEN_NAME (TokenKind_Int8,         "int8")

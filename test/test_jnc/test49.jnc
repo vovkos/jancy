@@ -18,6 +18,7 @@ int main ()
 	variant v4 = (char const*) "def";
 	variant v5 = null;
 
+	Point const* p = v5;
 
 	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 

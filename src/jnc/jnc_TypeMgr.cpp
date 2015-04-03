@@ -116,8 +116,8 @@ TypeMgr::getStdType (StdType stdType)
 		{ NULL },                            // StdType_ObjHdr,
 		{ NULL },                            // StdType_ObjHdrPtr,
 		{ NULL },                            // StdType_VariableObjHdr,
-		{ NULL },                            // StdType_ObjectClass,
-		{ NULL },                            // StdType_ObjectPtr,
+		{ NULL },                            // StdType_AbstractClass,
+		{ NULL },                            // StdType_AbstractClassPtr,
 		{ NULL },                            // StdType_SimpleFunction,
 		{ NULL },                            // StdType_SimpleMulticast,
 		{ NULL },                            // StdType_SimpleEventPtr,
@@ -258,12 +258,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariableObjHdrType ();
 		break;
 
-	case StdType_ObjectClass:
+	case StdType_AbstractClass:
 		type = createObjectType ();
 		break;
 
-	case StdType_ObjectPtr:
-		type = ((ClassType*) getStdType (StdType_ObjectClass))->getClassPtrType ();
+	case StdType_AbstractClassPtr:
+		type = ((ClassType*) getStdType (StdType_AbstractClass))->getClassPtrType ();
 		break;
 
 	case StdType_SimpleFunction:
@@ -350,8 +350,8 @@ TypeMgr::getLazyStdType (StdType stdType)
 		NULL,             // StdType_ObjHdr,
 		NULL,             // StdType_ObjHdrPtr,
 		NULL,             // StdType_VariableObjHdr,
-		NULL,             // StdType_ObjectClass,
-		NULL,             // StdType_ObjectPtr,
+		NULL,             // StdType_AbstractClass,
+		NULL,             // StdType_AbstractClassPtr,
 		NULL,             // StdType_SimpleFunction,
 		NULL,             // StdType_SimpleMulticast,
 		NULL,             // StdType_SimpleEventPtr,
@@ -922,33 +922,6 @@ TypeMgr::createClassType (
 	return type;
 }
 
-ClassType*
-TypeMgr::getBoxClassType (Type* baseType)
-{
-	if (baseType->m_boxClassType)
-		return baseType->m_boxClassType;
-
-	TypeKind baseTypeKind = baseType->getTypeKind ();
-	switch (baseTypeKind)
-	{
-	case TypeKind_Void:
-		err::setFormatStringError ("cannot create a box class for 'void'");
-		return NULL;
-
-	case TypeKind_Class:
-		return (ClassType*) baseType;
-	}
-
-	ClassType* type = createUnnamedClassType (ClassTypeKind_Box);
-	type->m_tag.format ("object <%s>", baseType->getTypeString ().cc ());
-	type->m_signature.format ("CB%s", baseType->getSignature ().cc ());
-	type->createField ("m_value", baseType);
-	type->ensureLayout ();
-
-	baseType->m_boxClassType = type;
-	return type;
-}
-
 FunctionArg*
 TypeMgr::createFunctionArg (
 	const rtl::String& name,
@@ -1262,7 +1235,7 @@ TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 	if (functionType->m_stdObjectMemberMethodType)
 		return functionType->m_stdObjectMemberMethodType;
 
-	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_AbstractClass);
 	functionType->m_stdObjectMemberMethodType = classType->getMemberMethodType (functionType);
 	return functionType->m_stdObjectMemberMethodType;
 }
@@ -1473,7 +1446,7 @@ TypeMgr::getStdObjectMemberPropertyType (PropertyType* propertyType)
 	if (propertyType->m_stdObjectMemberPropertyType)
 		return propertyType->m_stdObjectMemberPropertyType;
 
-	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_AbstractClass);
 	propertyType->m_stdObjectMemberPropertyType = classType->getMemberPropertyType (propertyType);
 	return propertyType->m_stdObjectMemberPropertyType;
 }
@@ -2642,8 +2615,7 @@ TypeMgr::parseStdType (
 ClassType*
 TypeMgr::createObjectType ()
 {
-	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
-	type->m_tag = "object";
+	ClassType* type = createClassType (ClassTypeKind_StdObject, "AbstractClass", "jnc.AbstractClass");
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
 	type->ensureLayout ();
 	return type;
@@ -2698,7 +2670,7 @@ TypeMgr::createFunctionPtrStructType ()
 {
 	StructType* type = createStructType ("FunctionPtr", "jnc.FunctionPtr");
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
-	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
+	type->createField ("!m_closure", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout ();
 	return type;
 }

@@ -353,6 +353,7 @@ set (
 	jnc_Type.cpp
 	jnc_TypeMgr.cpp
 	jnc_UnionType.cpp
+	jnc_VariantType.cpp
 	)
 
 source_group (

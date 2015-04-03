@@ -538,7 +538,7 @@ OperatorMgr::callClosureFunctionPtr (
 	Value pfnValue;
 	Value ifaceValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
 	m_module->m_llvmIrBuilder.createBitCast (pfnValue, functionThinPtrType, &pfnValue);
 
 	argValueList->insertHead (ifaceValue);

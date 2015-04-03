@@ -88,7 +88,7 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	Value pfnValue;
 	Value closureObjValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureObjValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureObjValue);
 
 	pfnValue.setClosure (opValue.getClosure ());
 	pfnValue.insertToClosureHead (closureObjValue);
@@ -114,7 +114,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock ("dead");
 	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("phi");
 
-	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+	Type* closureType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 	Value nullClosureValue = closureType->getZeroValue ();
 
 	Value closureValue;
@@ -281,7 +281,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkNoClosure (
 		true
 		);
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjectPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
 	m_module->m_llvmIrBuilder.createClosureFunctionPtr (thunkFunction, nullValue, dstPtrType, resultValue);
 	return true;
 }

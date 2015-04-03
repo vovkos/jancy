@@ -79,7 +79,6 @@ main := |*
 
 'auto'            |
 'void'            |
-'object'          |
 'variant'         |
 'bool'            |
 'int8'            |

@@ -141,8 +141,8 @@ enum StdType
 	StdType_ObjHdr,
 	StdType_ObjHdrPtr,
 	StdType_VariableObjHdr,
-	StdType_ObjectClass,
-	StdType_ObjectPtr,
+	StdType_AbstractClass,
+	StdType_AbstractClassPtr,
 	StdType_SimpleFunction,
 	StdType_SimpleMulticast,
 	StdType_SimpleEventPtr,
@@ -630,9 +630,6 @@ public:
 
 	FunctionArg*
 	getSimpleFunctionArg (uint_t ptrTypeFlags = 0);
-
-	ClassType*
-	getBoxClassType ();
 
 	virtual
 	void

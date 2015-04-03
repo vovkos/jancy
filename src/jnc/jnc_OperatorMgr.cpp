@@ -648,7 +648,7 @@ OperatorMgr::dynamicCastClassPtr (
 	}
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ptrValue);
 
 	Type* targetType = type->getTargetType ();
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
@@ -935,6 +935,8 @@ OperatorMgr::checkCastKind (
 	CastKind castKind = getCastKind (opValue, type);
 	if (castKind <= CastKind_Explicit)
 	{
+		getCastKind (opValue, type);
+
 		setCastError (opValue, type, castKind);
 		return false;
 	}

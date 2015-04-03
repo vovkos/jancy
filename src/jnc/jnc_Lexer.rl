@@ -135,7 +135,6 @@ main := |*
 
 'auto'           { createToken (TokenKind_Auto); };
 'void'           { createToken (TokenKind_Void); };
-'object'         { createToken (TokenKind_Object); };
 'variant'        { createToken (TokenKind_Variant); };
 'bool'           { createToken (TokenKind_Bool); };
 'int8'           { createToken (TokenKind_Int8); };

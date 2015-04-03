@@ -239,6 +239,13 @@ public:
 		return (void*) (m_const + 1);
 	}
 
+	bool
+	getBool () const
+	{
+		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (bool));
+		return *(bool*) getConstData ();
+	}
+
 	int
 	getInt () const
 	{

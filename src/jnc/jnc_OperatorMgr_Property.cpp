@@ -75,7 +75,7 @@ OperatorMgr::getPropertyVTable (
 	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType ();
 	Type* vtableType = stdObjectMemberPropertyType->getVTableStructType ()->getDataPtrType_c ();
 	Type* resultType = propertyType->getVTableStructType ()->getDataPtrType_c ();
-	Type* closureType = m_module->m_typeMgr.getStdType (StdType_ObjectPtr);
+	Type* closureType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 
 	Value vtableValue;
 	Value closureValue;
