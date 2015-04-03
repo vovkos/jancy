@@ -7,6 +7,7 @@
 #include "jnc_DataPtrType.h"
 #include "jnc_FunctionPtrType.h"
 #include "jnc_PropertyPtrType.h"
+#include "jnc_BinOp.h"
 
 namespace jnc {
 
@@ -41,6 +42,29 @@ struct Variant
 
 	Type* m_type;
 };
+
+AXL_SELECT_ANY Variant g_nullVariant = { 0 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+variantRelationalOperator (
+	BinOpKind opKind,
+	const Variant& op1,
+	const Variant& op2
+	);
+
+// the most used op
+
+inline
+bool
+isEqualVariant (
+	const Variant& op1,
+	const Variant& op2
+	)
+{
+	return variantRelationalOperator (BinOpKind_Eq, op1, op2);
+}
 
 //.............................................................................
 
