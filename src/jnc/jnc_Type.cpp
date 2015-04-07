@@ -437,6 +437,8 @@ Type::getUndefValue ()
 Value
 Type::getZeroValue ()
 {
+	#pragma AXL_TODO ("Type::getZeroValue () probably should return ValueKind_Const")
+
 	llvm::Value* llvmValue = llvm::Constant::getNullValue (getLlvmType ());
 	return Value (llvmValue, this);
 }
