@@ -84,14 +84,22 @@ Cast_FromVariant::constCast (
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Variant);
 	Variant* variant = (Variant*) opValue.getConstData ();
 	
-	if (variant->m_type->getSize () > sizeof (DataPtr))
+	Value tmpValue; 
+	if (!variant->m_type)
 	{
-		err::setFormatStringError ("invalid variant type '%s'", variant->m_type->getTypeString ().cc ());
-		return false;
+		tmpValue.setNull (type->getModule ());
+	}
+	else
+	{
+		if (variant->m_type->getSize () > sizeof (DataPtr))
+		{
+			err::setFormatStringError ("invalid variant type '%s'", variant->m_type->getTypeString ().cc ());
+			return false;
+		}
+
+		tmpValue.createConst (variant, variant->m_type);
 	}
 
-	Value tmpValue; 
-	tmpValue.createConst (variant, variant->m_type);
 	bool result = m_module->m_operatorMgr.castOperator (&tmpValue, type);
 	if (!result)
 		return false;
