@@ -146,6 +146,10 @@ Error const* setStringError (char const* string);
 
 Error const* getLastError ();
 
+///; static char throwSrc [] = 
+
+bool throw () throws;
+
 ///; static char formatSrc [] = 
 
 char const* cdecl format (

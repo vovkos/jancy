@@ -1127,6 +1127,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			StdNamespace_Internal,
 		},
 		{ NULL },                               // StdFunction_SimpleMulticastCall,
+		{                                       // StdFunction_Throw,
+			throwSrc,
+			lengthof (throwSrc),
+			StdNamespace_Jnc,
+		},
 		{                                       // StdFunction_GetLastError,
 			getLastErrorSrc,
 			lengthof (getLastErrorSrc),
@@ -1235,6 +1240,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_Sleep:
 	case StdFunction_GetTimestamp:
 	case StdFunction_GetCurrentThreadId:
+	case StdFunction_Throw:
 	case StdFunction_GetLastError:
 	case StdFunction_SetPosixError:
 	case StdFunction_SetStringError:
@@ -1405,6 +1411,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_AppendFmtLiteral_cbr,
 		NULL,                  // StdFunction_AppendFmtLiteral_br,
 		NULL,                  // StdFunction_SimpleMulticastCall,
+		"throw",               // StdFunction_Throw,
 		"getLastError",        // StdFunction_GetLastError,
 		"setPosixError",       // StdFunction_SetPosixError,
 		"setStringError",      // StdFunction_SetStringError,

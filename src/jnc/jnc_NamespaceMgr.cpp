@@ -109,6 +109,7 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Sleep)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetCurrentThreadId)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetTimestamp)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Throw)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetLastError)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_SetPosixError)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_SetStringError)) &&

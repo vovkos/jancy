@@ -37,6 +37,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_CreateThread, createThread)
 		JNC_STD_FUNCTION (StdFunction_Sleep, sleep)
 		JNC_STD_FUNCTION (StdFunction_GetTimestamp, getTimestamp)
+		JNC_STD_FUNCTION (StdFunction_Throw, forceThrow)
 		JNC_STD_FUNCTION (StdFunction_GetLastError, getLastError)
 		JNC_STD_FUNCTION (StdFunction_SetPosixError, setPosixError)
 		JNC_STD_FUNCTION (StdFunction_SetStringError, setStringError)
@@ -186,6 +187,13 @@ public:
 	getTimestamp ()
 	{
 		return g::getTimestamp ();
+	}
+
+	static
+	bool
+	forceThrow ()
+	{
+		return false;
 	}
 
 	static
