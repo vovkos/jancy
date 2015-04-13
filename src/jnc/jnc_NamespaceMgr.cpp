@@ -380,7 +380,7 @@ LibraryNamespace*
 NamespaceMgr::createLibraryNamespace (ClassType* libraryType)
 {
 	rtl::String name = "lib";
-	rtl::String qualifiedName = libraryType->getQualifiedName () + '.' + name;
+	rtl::String qualifiedName = libraryType->getQualifiedName () + (utf32_t) '.' + name;
 
 	LibraryNamespace* nspace = AXL_MEM_NEW (LibraryNamespace);
 	nspace->m_module = m_module;

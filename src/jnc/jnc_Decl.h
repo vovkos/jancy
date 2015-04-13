@@ -11,6 +11,8 @@
 
 namespace jnc {
 
+class Declarator;
+
 //.............................................................................
 
 class TypeModifiers

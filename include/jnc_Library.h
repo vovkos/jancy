@@ -29,9 +29,15 @@ public:
 		return loadImpl ((const char*) fileNamePtr.m_p);
 	}
 
+	bool
+	loadImpl (const char* fileName);
+
 	void
 	AXL_CDECL
-	release ();
+	release ()
+	{
+		getDynamicLibrary ()->release ();
+	}
 
 	void* 
 	AXL_CDECL
@@ -40,11 +46,15 @@ public:
 		return getFunctionImpl ((const char*) namePtr.m_p);
 	}
 
-	bool 
-	loadImpl (const char* fileName);
-
 	void* 
 	getFunctionImpl (const char* name);
+
+	mt::DynamicLibrary*
+	getDynamicLibrary ()
+	{
+		ASSERT (sizeof (mt::DynamicLibrary) == sizeof (m_handle));
+		return (mt::DynamicLibrary*) &m_handle;
+	}
 };
 
 //.............................................................................
