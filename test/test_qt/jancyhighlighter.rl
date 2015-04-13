@@ -34,6 +34,7 @@ main := |*
 'import'          |
 'namespace'       |
 'extension'       |
+'library'         |
 'using'           |
 'friend'          |
 'public'          |
@@ -59,6 +60,7 @@ main := |*
 'readonly'        |
 'volatile'        |
 'safe'            |
+'unsafe'          |
 'weak'            |
 'thin'            |
 'throws'          |
@@ -79,7 +81,6 @@ main := |*
 
 'auto'            |
 'void'            |
-'object'          |
 'variant'         |
 'bool'            |
 'int8'            |
@@ -91,7 +92,6 @@ main := |*
 'char'            |
 'int'             |
 'intptr'          |
-
 'enum'            |
 'struct'          |
 'union'           |

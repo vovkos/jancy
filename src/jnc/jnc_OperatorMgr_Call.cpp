@@ -538,7 +538,7 @@ OperatorMgr::callClosureFunctionPtr (
 	Value pfnValue;
 	Value ifaceValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
 	m_module->m_llvmIrBuilder.createBitCast (pfnValue, functionThinPtrType, &pfnValue);
 
 	argValueList->insertHead (ifaceValue);
@@ -553,9 +553,17 @@ OperatorMgr::callImpl (
 	Value* resultValue
 	)
 {
-	if (functionType->getFlags () & FunctionTypeFlag_Automaton)
+	uint_t flags = functionType->getFlags ();
+
+	if (flags & FunctionTypeFlag_Automaton)
 	{
 		err::setFormatStringError ("cannot call automaton functions");
+		return false;
+	}
+
+	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn ())
+	{
+		err::setFormatStringError ("can only call unsafe functions from unsafe regions");
 		return false;
 	}
 

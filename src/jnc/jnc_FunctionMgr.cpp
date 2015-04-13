@@ -313,6 +313,9 @@ FunctionMgr::prologue (
 		function->m_scope->m_usingSet.addExtensionNamespace (function->m_extensionNamespace);
 	}
 
+	if (function->m_type->getFlags () & FunctionTypeFlag_Unsafe)
+		m_module->m_operatorMgr.enterUnsafeRgn ();
+
 	// create entry block (gc roots come here)
 
 	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
@@ -473,6 +476,9 @@ FunctionMgr::epilogue ()
 
 		return false;
 	}
+
+	if (function->m_type->getFlags () & FunctionTypeFlag_Unsafe)
+		m_module->m_operatorMgr.leaveUnsafeRgn ();
 
 	m_module->m_namespaceMgr.closeScope ();
 	m_module->m_namespaceMgr.closeNamespace ();
@@ -1127,6 +1133,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			StdNamespace_Internal,
 		},
 		{ NULL },                               // StdFunction_SimpleMulticastCall,
+		{                                       // StdFunction_Throw,
+			throwSrc,
+			lengthof (throwSrc),
+			StdNamespace_Jnc,
+		},
 		{                                       // StdFunction_GetLastError,
 			getLastErrorSrc,
 			lengthof (getLastErrorSrc),
@@ -1182,6 +1193,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (dynamicCastVariantSrc),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_LazyGetLibraryFunctionAddr,
+			lazyGetLibraryFunctionSrc,
+			lengthof (lazyGetLibraryFunctionSrc),
+			StdNamespace_Internal,
+		},
 	};
 
 	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
@@ -1235,6 +1251,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_Sleep:
 	case StdFunction_GetTimestamp:
 	case StdFunction_GetCurrentThreadId:
+	case StdFunction_Throw:
 	case StdFunction_GetLastError:
 	case StdFunction_SetPosixError:
 	case StdFunction_SetStringError:
@@ -1274,6 +1291,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_CheckDataPtrRange:
 	case StdFunction_TryCheckNullPtr:
 	case StdFunction_CheckNullPtr:
+	case StdFunction_LazyGetLibraryFunction:
 	case StdFunction_DynamicCastVariant:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
@@ -1405,6 +1423,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_AppendFmtLiteral_cbr,
 		NULL,                  // StdFunction_AppendFmtLiteral_br,
 		NULL,                  // StdFunction_SimpleMulticastCall,
+		"throw",               // StdFunction_Throw,
 		"getLastError",        // StdFunction_GetLastError,
 		"setPosixError",       // StdFunction_SetPosixError,
 		"setStringError",      // StdFunction_SetStringError,
@@ -1416,6 +1435,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_TryCheckNullPtr,
 		NULL,                  // StdFunction_CheckNullPtr,
 		NULL,                  // StdFunction_DynamicCastVariant,
+		NULL,                  // StdFunction_LazyGetLibraryFunction,
 	};
 
 	const char* name = nameTable [func];
@@ -1514,7 +1534,7 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	Type* argTypeArray [] =
 	{
-		m_module->m_typeMgr.getStdType (StdType_ObjectPtr),
+		m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr),
 		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
 	};
 
@@ -1532,7 +1552,7 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
 
 	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjectPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
 
 	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);

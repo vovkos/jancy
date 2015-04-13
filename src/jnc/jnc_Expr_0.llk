@@ -438,7 +438,7 @@ primary_expr_0 <Value* $value>
 			}
 	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (m_module->m_typeMgr.getStdType (StdType_ObjectPtr));
+				$value->setType (m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr));
 			}
 	|	TokenKind_OffsetOf '(' expression_0 ')'
 			{

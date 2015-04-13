@@ -130,7 +130,7 @@ getCallConvSignature (CallConvKind callConvKind)
 {
 	static const char* stringTable [] =
 	{
-		"UСС",    // ECallConv_Undefined = 0,
+		"CC0",    // ECallConv_Undefined = 0,
 		"JM4",    // ECallConv_Jnccall_msc32,
 		"JM8",    // ECallConv_Jnccall_msc64,
 		"JG4",    // ECallConv_Jnccall_gcc32,

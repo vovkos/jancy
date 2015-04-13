@@ -119,6 +119,7 @@ statement
 	|	return_stmt
 	|	once_stmt
 	|	try_stmt
+	|	unsafe_stmt
 	|	assert_stmt
 	|	';'
 	;
@@ -320,12 +321,29 @@ try_stmt
 	:	TokenKind_Try
 		'{'
 			{
-				m_module->m_namespaceMgr.openTryScope ($1.m_pos);
+				m_module->m_namespaceMgr.openTryScope ($2.m_pos);
 				preCreateLandingPads ($2.m_data.m_integer | LandingPadFlag_Catch); // always catch
 			}
 		local_declaration*
 		'}'
 			{
+				m_module->m_namespaceMgr.closeScope ();
+			}
+	;
+
+unsafe_stmt
+	:	resolver (TokenKind_Unsafe '{')
+		TokenKind_Unsafe 
+		'{' $l
+			{
+				m_module->m_namespaceMgr.openScope ($l.m_pos);
+				m_module->m_operatorMgr.enterUnsafeRgn ();
+				preCreateLandingPads ($l.m_data.m_integer);
+			}
+		local_declaration*
+		'}'
+			{
+				m_module->m_operatorMgr.leaveUnsafeRgn ();
 				m_module->m_namespaceMgr.closeScope ();
 			}
 	;

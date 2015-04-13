@@ -10,6 +10,7 @@
 #include "jnc_String.h"
 #include "jnc_Buffer.h"
 #include "jnc_Recognizer.h"
+#include "jnc_Library.h"
 #include "jnc_MulticastLib.h"
 
 namespace jnc {
@@ -37,6 +38,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_CreateThread, createThread)
 		JNC_STD_FUNCTION (StdFunction_Sleep, sleep)
 		JNC_STD_FUNCTION (StdFunction_GetTimestamp, getTimestamp)
+		JNC_STD_FUNCTION (StdFunction_Throw, forceThrow)
 		JNC_STD_FUNCTION (StdFunction_GetLastError, getLastError)
 		JNC_STD_FUNCTION (StdFunction_SetPosixError, setPosixError)
 		JNC_STD_FUNCTION (StdFunction_SetStringError, setStringError)
@@ -76,6 +78,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange, checkDataPtrRange)
 		JNC_STD_FUNCTION (StdFunction_TryCheckNullPtr, tryCheckNullPtr)
 		JNC_STD_FUNCTION (StdFunction_CheckNullPtr, checkNullPtr)
+		JNC_STD_FUNCTION (StdFunction_LazyGetLibraryFunction, lazyGetLibraryFunction)
 		JNC_STD_TYPE (StdType_Error, Error)
 		JNC_STD_TYPE (StdType_String, String)
 		JNC_STD_TYPE (StdType_StringRef, StringRef)
@@ -85,6 +88,7 @@ public:
 		JNC_STD_TYPE (StdType_BufferRef, BufferRef)
 		JNC_STD_TYPE (StdType_Buffer, Buffer)
 		JNC_STD_TYPE (StdType_Recognizer, Recognizer)
+		JNC_STD_TYPE (StdType_Library, Library)
 		JNC_LIB (MulticastLib)
 	JNC_END_LIB ()
 
@@ -186,6 +190,13 @@ public:
 	getTimestamp ()
 	{
 		return g::getTimestamp ();
+	}
+
+	static
+	bool
+	forceThrow ()
+	{
+		return false;
 	}
 
 	static
@@ -482,6 +493,14 @@ public:
 	checkNullPtr (
 		void* p,
 		TypeKind typeKind
+		);
+
+	static
+	void* 
+	lazyGetLibraryFunction (
+		Library* library,
+		size_t index,
+		const char* name
 		);
 
 protected:

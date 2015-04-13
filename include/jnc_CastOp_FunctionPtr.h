@@ -32,6 +32,27 @@ public:
 
 //.............................................................................
 
+class Cast_FunctionPtr_FromDataPtr: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
+		);
+
+	virtual
+	bool
+	llvmCast (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//.............................................................................
+
 class Cast_FunctionPtr_Base: public CastOperator
 {
 public:
@@ -138,6 +159,7 @@ class Cast_FunctionPtr: public Cast_Master
 {
 protected:
 	Cast_FunctionPtr_FromMulticast m_fromMulticast;
+	Cast_FunctionPtr_FromDataPtr m_fromDataPtr;
 	Cast_FunctionPtr_FromFat m_fromFat;
 	Cast_FunctionPtr_Weak2Normal m_weak2Normal;
 	Cast_FunctionPtr_Thin2Fat m_thin2Fat;

@@ -86,7 +86,6 @@ enum DeclSuffixKind
 	DeclSuffixKind_Undefined = 0,
 	DeclSuffixKind_Array,
 	DeclSuffixKind_Function,
-	DeclSuffixKind_Throw,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,11 +96,13 @@ class DeclSuffix: public rtl::ListLink
 
 protected:
 	DeclSuffixKind m_suffixKind;
+	Declarator* m_declarator;
 
 public:
 	DeclSuffix ()
 	{
 		m_suffixKind = DeclSuffixKind_Undefined;
+		m_declarator = NULL;
 	}
 
 	virtual
@@ -113,6 +114,12 @@ public:
 	getSuffixKind ()
 	{
 		return m_suffixKind;
+	}
+
+	Declarator* 
+	getDeclarator ()
+	{
+		return m_declarator;
 	}
 };
 
@@ -176,6 +183,9 @@ public:
 	{
 		return m_functionTypeFlags;
 	}
+
+	bool
+	addFunctionTypeFlag (FunctionTypeFlag flag);
 };
 
 //.............................................................................
@@ -402,19 +412,8 @@ public:
 	DeclFunctionSuffix*
 	addFunctionSuffix ();
 
-	DeclSuffix*
-	addThrowSuffix ();
-	
 	bool
 	addBitFieldSuffix (size_t bitCount);
-
-	DeclSuffix*
-	getThrowSuffix ()
-	{
-		return !m_suffixList.isEmpty () && m_suffixList.getTail ()->getSuffixKind () == DeclSuffixKind_Throw ? 
-			*m_suffixList.getTail () : 
-			NULL;
-	}
 
 	void
 	deleteSuffix (DeclSuffix* suffix)

@@ -535,6 +535,42 @@ OperatorMgr::memberOperator (
 }
 
 bool
+OperatorMgr::getLibraryMember (
+	LibraryNamespace* library,
+	jnc::Closure* closure,
+	const char* name,
+	Value* resultValue
+	)
+{
+	ASSERT (closure && closure->isMemberClosure ());
+
+	Value memberValue;
+	bool result = getNamespaceMember (library, name, &memberValue);
+	if (!result || memberValue.getValueKind () != ValueKind_Function)
+		return result;
+
+	Function* function = memberValue.getFunction ();
+	size_t index = function->getLibraryTableIndex ();
+	name = function->getName (); // make sure name pointer stays valid (points to function, not token string)
+
+	Value ptrValue;
+	result = callOperator (
+		m_module->m_functionMgr.getStdFunction (StdFunction_LazyGetLibraryFunction),
+		closure->getThisValue (),
+		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+		Value (&name, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
+		&ptrValue
+		);
+
+	if (!result)
+		return false;
+
+	Type* resultType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, resultValue);
+	return true;
+}
+
+bool
 OperatorMgr::memberOperator (
 	const Value& rawOpValue,
 	const char* name,
@@ -542,7 +578,12 @@ OperatorMgr::memberOperator (
 	)
 {
 	if (rawOpValue.getValueKind () == ValueKind_Namespace)
-		return getNamespaceMember (rawOpValue.getNamespace (), name, resultValue);
+	{
+		Namespace* nspace = rawOpValue.getNamespace ();
+		return nspace->getNamespaceKind () == NamespaceKind_Library ?
+			getLibraryMember ((LibraryNamespace*) nspace, rawOpValue.getClosure (), name, resultValue) :
+			getNamespaceMember (nspace, name, resultValue);
+	}
 
 	Value opValue;
 	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepDataRef);

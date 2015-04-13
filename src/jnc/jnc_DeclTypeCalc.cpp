@@ -184,7 +184,6 @@ DeclTypeCalc::calcType (
 			break;
 
 		case DeclSuffixKind_Function:
-		case DeclSuffixKind_Throw:
 			if (m_typeModifiers & TypeModifier_Reactor)
 				type = getReactorType (type);
 			else
@@ -500,23 +499,9 @@ DeclTypeCalc::prepareReturnType (Type* type)
 FunctionType*
 DeclTypeCalc::getFunctionType (Type* returnType)
 {
-	uint_t typeFlags = 0;
-
-	if (m_suffix && m_suffix->getSuffixKind () == DeclSuffixKind_Throw)
-	{
-		typeFlags |= FunctionTypeFlag_Throws;
-		m_suffix--;
-	}
-
 	returnType = prepareReturnType (returnType);
 	if (!returnType)
 		return NULL;
-
-	if ((typeFlags & FunctionTypeFlag_Throws) && returnType->getTypeKind () == TypeKind_Void)
-	{
-		err::setFormatStringError ("void function cannot throw");
-		return NULL;
-	}
 
 	if (!m_suffix || m_suffix->getSuffixKind () != DeclSuffixKind_Function)
 	{
@@ -525,10 +510,19 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	}
 
 	DeclFunctionSuffix* suffix = (DeclFunctionSuffix*) *m_suffix--;
-	typeFlags |= suffix->getFunctionTypeFlags ();
+	uint_t typeFlags = suffix->getFunctionTypeFlags ();
+
+	if ((typeFlags & FunctionTypeFlag_Throws) && returnType->getTypeKind () == TypeKind_Void)
+	{
+		err::setFormatStringError ("void function cannot throw");
+		return NULL;
+	}
 
 	CallConvKind callConvKind = getCallConvKindFromModifiers (m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
+
+	if (m_typeModifiers & TypeModifier_Unsafe)
+		typeFlags |= FunctionTypeFlag_Unsafe;
 
 	if (m_typeModifiers & TypeModifier_Automaton) // automatons takes 2 implicit arguments
 	{
@@ -586,11 +580,6 @@ PropertyType*
 DeclTypeCalc::getPropertyType (Type* returnType)
 {
 	uint_t typeFlags = 0;
-	if (m_suffix && m_suffix->getSuffixKind () == DeclSuffixKind_Throw)
-	{
-		typeFlags |= PropertyTypeFlag_Throws;
-		m_suffix--;
-	}
 
 	returnType = prepareReturnType (returnType);
 	if (!returnType)
@@ -606,15 +595,7 @@ DeclTypeCalc::getPropertyType (Type* returnType)
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
 
 	if (m_typeModifiers & TypeModifier_Const)
-	{
-		if (typeFlags & PropertyTypeFlag_Throws)
-		{
-			err::setFormatStringError ("const property cannot throw");
-			return NULL;
-		}
-
 		typeFlags |= PropertyTypeFlag_Const;
-	}
 
 	if (m_typeModifiers & TypeModifier_Bindable)
 		typeFlags |= PropertyTypeFlag_Bindable;
@@ -727,15 +708,7 @@ DeclTypeCalc::getDataPtrType (Type* dataType)
 	DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal;
 
 	if (m_typeModifiers & TypeModifier_Thin)
-	{
-		if (m_typeModifiers & TypeModifier_Safe)
-		{
-			err::setFormatStringError ("'thin' data pointer cannot be 'safe'");
-			return NULL;
-		}
-
 		ptrTypeKind = DataPtrTypeKind_Thin;
-	}
 	
 	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 

@@ -99,6 +99,7 @@ TypeMgr::getStdType (StdType stdType)
 	#include "jnc_Buffer.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
 	#include "jnc_Recognizer.jnc.cpp"
+	#include "jnc_Library.jnc.cpp"
 
 	struct SourceRef
 	{
@@ -116,8 +117,8 @@ TypeMgr::getStdType (StdType stdType)
 		{ NULL },                            // StdType_ObjHdr,
 		{ NULL },                            // StdType_ObjHdrPtr,
 		{ NULL },                            // StdType_VariableObjHdr,
-		{ NULL },                            // StdType_ObjectClass,
-		{ NULL },                            // StdType_ObjectPtr,
+		{ NULL },                            // StdType_AbstractClass,
+		{ NULL },                            // StdType_AbstractClassPtr,
 		{ NULL },                            // StdType_SimpleFunction,
 		{ NULL },                            // StdType_SimpleMulticast,
 		{ NULL },                            // StdType_SimpleEventPtr,
@@ -135,6 +136,11 @@ TypeMgr::getStdType (StdType stdType)
 		{                                    // StdType_Recognizer,
 			recognizerTypeSrc,
 			lengthof (recognizerTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Library,
+			libraryTypeSrc,
+			lengthof (libraryTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_FmtLiteral,
@@ -215,7 +221,6 @@ TypeMgr::getStdType (StdType stdType)
 		return m_stdTypeArray [stdType];
 
 	Type* type;
-
 	switch (stdType)
 	{
 	case StdType_BytePtr:
@@ -258,12 +263,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariableObjHdrType ();
 		break;
 
-	case StdType_ObjectClass:
+	case StdType_AbstractClass:
 		type = createObjectType ();
 		break;
 
-	case StdType_ObjectPtr:
-		type = ((ClassType*) getStdType (StdType_ObjectClass))->getClassPtrType ();
+	case StdType_AbstractClassPtr:
+		type = ((ClassType*) getStdType (StdType_AbstractClass))->getClassPtrType ();
 		break;
 
 	case StdType_SimpleFunction:
@@ -283,13 +288,7 @@ TypeMgr::getStdType (StdType stdType)
 		break;
 
 	case StdType_Recognizer:		
-		type = (Type*) m_module->m_namespaceMgr.getGlobalNamespace ()->findItemByName ("jnc.Recognizer");
-		if (type)
-			break;
-
-		// else fall through
-
-	case StdType_ReactorBindSite:
+	case StdType_Library:
 	case StdType_Scheduler:
 	case StdType_Guid:
 	case StdType_Error:
@@ -300,6 +299,19 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_ConstBufferRef:
 	case StdType_BufferRef:
 	case StdType_Buffer:
+		{
+		GlobalNamespace* nspace = m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc);
+		const char* name = getStdTypeName (stdType);
+		ASSERT (name);
+
+		type = (Type*) nspace->findItemByName (name);
+		if (type)
+			break;
+		}
+
+		// else fall through
+
+	case StdType_ReactorBindSite:
 	case StdType_Int64Int64:
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
@@ -341,37 +353,7 @@ TypeMgr::getLazyStdType (StdType stdType)
 	if (m_lazyStdTypeArray [stdType])
 		return m_lazyStdTypeArray [stdType];
 
-	const char* nameTable [StdType__Count] =
-	{
-		NULL,             // StdType_BytePtr,
-		NULL,             // StdType_ByteConstPtr,
-		NULL,             // StdType_SimpleIfaceHdr,
-		NULL,             // StdType_SimpleIfaceHdrPtr,
-		NULL,             // StdType_ObjHdr,
-		NULL,             // StdType_ObjHdrPtr,
-		NULL,             // StdType_VariableObjHdr,
-		NULL,             // StdType_ObjectClass,
-		NULL,             // StdType_ObjectPtr,
-		NULL,             // StdType_SimpleFunction,
-		NULL,             // StdType_SimpleMulticast,
-		NULL,             // StdType_SimpleEventPtr,
-		NULL,             // StdType_Binder,
-		NULL,             // StdType_ReactorBindSite,
-		"Scheduler",      // StdType_Scheduler,
-		"Recognizer",     // StdType_Recognizer,
-		NULL,             // StdType_FmtLiteral,
-		"Guid",           // StdType_Guid
-		"Error",          // StdType_Error,
-		"String",         // StdType_String,
-		"StringRef",      // StdType_StringRef,
-		"StringBuilder",  // StdType_StringBuilder,
-		"ConstArray",     // StdType_ConstArray,
-		"ConstArrayRef",  // StdType_ConstArrayRef,
-		"ArrayRef",       // StdType_ArrayRef,
-		"Array",          // StdType_DynamicArray,
-	};
-
-	const char* name = nameTable [stdType];
+	const char* name = getStdTypeName (stdType);
 	ASSERT (name);
 
 	LazyStdType* type = AXL_MEM_NEW (LazyStdType);
@@ -922,33 +904,6 @@ TypeMgr::createClassType (
 	return type;
 }
 
-ClassType*
-TypeMgr::getBoxClassType (Type* baseType)
-{
-	if (baseType->m_boxClassType)
-		return baseType->m_boxClassType;
-
-	TypeKind baseTypeKind = baseType->getTypeKind ();
-	switch (baseTypeKind)
-	{
-	case TypeKind_Void:
-		err::setFormatStringError ("cannot create a box class for 'void'");
-		return NULL;
-
-	case TypeKind_Class:
-		return (ClassType*) baseType;
-	}
-
-	ClassType* type = createUnnamedClassType (ClassTypeKind_Box);
-	type->m_tag.format ("object <%s>", baseType->getTypeString ().cc ());
-	type->m_signature.format ("CB%s", baseType->getSignature ().cc ());
-	type->createField ("m_value", baseType);
-	type->ensureLayout ();
-
-	baseType->m_boxClassType = type;
-	return type;
-}
-
 FunctionArg*
 TypeMgr::createFunctionArg (
 	const rtl::String& name,
@@ -1262,7 +1217,7 @@ TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 	if (functionType->m_stdObjectMemberMethodType)
 		return functionType->m_stdObjectMemberMethodType;
 
-	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_AbstractClass);
 	functionType->m_stdObjectMemberMethodType = classType->getMemberMethodType (functionType);
 	return functionType->m_stdObjectMemberMethodType;
 }
@@ -1473,7 +1428,7 @@ TypeMgr::getStdObjectMemberPropertyType (PropertyType* propertyType)
 	if (propertyType->m_stdObjectMemberPropertyType)
 		return propertyType->m_stdObjectMemberPropertyType;
 
-	ClassType* classType = (ClassType*) getStdType (StdType_ObjectClass);
+	ClassType* classType = (ClassType*) getStdType (StdType_AbstractClass);
 	propertyType->m_stdObjectMemberPropertyType = classType->getMemberPropertyType (propertyType);
 	return propertyType->m_stdObjectMemberPropertyType;
 }
@@ -2009,6 +1964,9 @@ TypeMgr::getFunctionPtrType (
 
 	if (typeKind == TypeKind_FunctionPtr && ptrTypeKind != FunctionPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
+
+	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
+		flags &= ~PtrTypeFlag_Safe;
 
 	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
 
@@ -2642,8 +2600,7 @@ TypeMgr::parseStdType (
 ClassType*
 TypeMgr::createObjectType ()
 {
-	ClassType* type = createUnnamedClassType (ClassTypeKind_StdObject);
-	type->m_tag = "object";
+	ClassType* type = createClassType (ClassTypeKind_StdObject, "AbstractClass", "jnc.AbstractClass");
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
 	type->ensureLayout ();
 	return type;
@@ -2698,7 +2655,7 @@ TypeMgr::createFunctionPtrStructType ()
 {
 	StructType* type = createStructType ("FunctionPtr", "jnc.FunctionPtr");
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
-	type->createField ("!m_closure", getStdType (StdType_ObjectPtr));
+	type->createField ("!m_closure", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout ();
 	return type;
 }

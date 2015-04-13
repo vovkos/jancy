@@ -146,13 +146,9 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 			}
-	|	TokenKind_Object
+	|	TokenKind_Class
 			{
-				$.m_type = m_module->m_typeMgr.getStdType (StdType_ObjectClass);
-			}
-	|	TokenKind_Object '<' type_name '>'
-			{
-				$.m_type = m_module->m_typeMgr.getBoxClassType ($3.m_type);
+				$.m_type = m_module->m_typeMgr.getStdType (StdType_AbstractClass);
 			}
 	|	TokenKind_Bool
 			{
@@ -332,6 +328,10 @@ type_modifier
 	|	TokenKind_Safe
 			{
 				$.m_typeModifier = TypeModifier_Safe;
+			}
+	|	TokenKind_Unsafe
+			{
+				$.m_typeModifier = TypeModifier_Unsafe;
 			}
 	|	TokenKind_Cdecl
 			{

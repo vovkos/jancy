@@ -353,6 +353,7 @@ set (
 	jnc_Type.cpp
 	jnc_TypeMgr.cpp
 	jnc_UnionType.cpp
+	jnc_VariantType.cpp
 	)
 
 source_group (
@@ -457,6 +458,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Error.h
 	${JANCY_INC_DIR}/jnc_Buffer.h
 	${JANCY_INC_DIR}/jnc_String.h
+	${JANCY_INC_DIR}/jnc_Library.h
 	${JANCY_INC_DIR}/jnc_Recognizer.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	${JANCY_INC_DIR}/jnc_StdLib.h
@@ -471,6 +473,7 @@ set (
 	jnc_Error.cpp
 	jnc_Buffer.cpp
 	jnc_String.cpp
+	jnc_Library.cpp
 	jnc_Recognizer.cpp
 	jnc_StdLib.cpp
 	)
@@ -481,6 +484,7 @@ set (
 	jnc_StdFunctions.jnc
 	jnc_Buffer.jnc
 	jnc_String.jnc
+	jnc_Library.jnc
 	jnc_Recognizer.jnc
 	)
 
@@ -533,6 +537,12 @@ add_perl_step (
 	)
 
 add_perl_step (
+	jnc_Library.jnc.cpp
+	jnc_Library.jnc
+	jnc2cpp.pl
+	)
+
+add_perl_step (
 	jnc_Recognizer.jnc.cpp
 	jnc_Recognizer.jnc
 	jnc2cpp.pl
@@ -568,6 +578,7 @@ set (
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
 	${GEN_DIR}/jnc_Buffer.jnc.cpp
 	${GEN_DIR}/jnc_String.jnc.cpp
+	${GEN_DIR}/jnc_Library.jnc.cpp
 	${GEN_DIR}/jnc_Recognizer.jnc.cpp
 	)
 

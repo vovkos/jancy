@@ -351,8 +351,8 @@ void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::Function* pFunct
 	QString itemName;
 	itemName.sprintf (
 		"%s%s %s %s",
-		pType->getTypeModifierString ().cc (),
 		pType->getReturnType ()->getTypeString ().cc (),
+		pType->getTypeModifierString ().cc (),
 		Name.cc (),
 		pFunction->getType ()->getArgString ().cc ()
 		);

@@ -13,7 +13,7 @@ class BaseTypeCoord;
 
 //.............................................................................
 
-// array -> ptr
+// array -> data ptr
 
 class Cast_DataPtr_FromArray: public CastOperator
 {
@@ -31,6 +31,75 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
+		);
+
+	virtual
+	bool
+	llvmCast (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//.............................................................................
+
+// class ptr -> data ptr
+
+class Cast_DataPtr_FromClassPtr: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
+		);
+
+	virtual
+	bool
+	llvmCast (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//.............................................................................
+
+// function ptr -> data ptr
+
+class Cast_DataPtr_FromFunctionPtr: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
+		);
+
+	virtual
+	bool
+	llvmCast (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//.............................................................................
+
+// property ptr -> data ptr
+
+class Cast_DataPtr_FromPropertyPtr: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
 		);
 
 	virtual
@@ -193,6 +262,9 @@ class Cast_DataPtr: public Cast_Master
 {
 protected:
 	Cast_DataPtr_FromArray m_fromArray;
+	Cast_DataPtr_FromClassPtr m_fromClassPtr;
+	Cast_DataPtr_FromFunctionPtr m_fromFunctionPtr;
+	Cast_DataPtr_FromPropertyPtr m_fromPropertyPtr;
 	Cast_DataPtr_Normal2Normal m_normal2Normal;
 	Cast_DataPtr_Lean2Normal m_lean2Normal;
 	Cast_DataPtr_Normal2Thin m_normal2Thin;

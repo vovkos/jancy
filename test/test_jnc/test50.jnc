@@ -1,0 +1,31 @@
+typedef int stdcall MessageBox (
+	intptr hwnd,
+	char const thin* text,
+	char const thin* caption,
+	int flags
+	);
+
+int main ()
+{
+	printf ("main ()\n");
+
+	jnc.Library lib;
+	lib.load ("user32.dll");
+
+	MessageBox thin* messageBox;
+
+	unsafe
+	{
+		messageBox = (MessageBox thin*) lib.getFunction ("MessageBoxA");
+	}
+
+	messageBox (0, "Message Text", "Message Caption", 0x00000040);
+
+	return 0;
+
+catch:
+	printf ("error caught: %s\n", jnc.getLastError ().m_description);
+	return -1;
+}
+
+//.............................................................................

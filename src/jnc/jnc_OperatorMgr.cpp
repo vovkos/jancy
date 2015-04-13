@@ -136,7 +136,8 @@ OperatorMgr::OperatorMgr ()
 	m_castOperatorTable [TypeKind_FunctionRef] = &m_cast_FunctionRef;
 	m_castOperatorTable [TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
 	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
-	
+
+	m_unsafeEnterCount = 0;	
 }
 
 Function*
@@ -648,7 +649,7 @@ OperatorMgr::dynamicCastClassPtr (
 	}
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ptrValue);
 
 	Type* targetType = type->getTargetType ();
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
@@ -732,7 +733,7 @@ OperatorMgr::getCastKind (
 	)
 {
 	if (rawOpValue.getValueKind () == ValueKind_Null)
-		return (type->getTypeKindFlags () & TypeKindFlag_Ptr) ? CastKind_Implicit : CastKind_None;
+		return (type->getTypeKindFlags () & TypeKindFlag_Nullable) ? CastKind_Implicit : CastKind_None;
 	
 	TypeKind typeKind = type->getTypeKind ();
 	ASSERT ((size_t) typeKind < TypeKind__Count);

@@ -317,8 +317,6 @@ declarator_suffix <Declarator* $declarator>
 	:	array_suffix <$declarator>
 	|	resolver (function_suffix_rslv)
 		function_suffix <$declarator>
-	|	throws_suffix <$declarator>
-	|	post_declarator_modifier <$declarator>
 	|	resolver ({ return false; }) // prefer conditional-expr over type-name
 		bitfield_suffix <$declarator>
 	;
@@ -363,7 +361,7 @@ function_suffix <Declarator* $declarator>
 	{
 		m_storageKind = $prevStorageKind;
 	}
-	:	'(' function_formal_argument_list <$functionSuffix>? ')'
+	:	'(' function_formal_argument_list <$functionSuffix>? ')' function_modifier <$functionSuffix>*
 	;
 
 function_formal_argument_list <DeclFunctionSuffix* $functionSuffix>
@@ -401,12 +399,14 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-throws_suffix <Declarator* $declarator>
+function_modifier <DeclFunctionSuffix* $functionSuffix>
 	:	TokenKind_Throws
 			{
-				$declarator->addThrowSuffix ();
+				return $functionSuffix->addFunctionTypeFlag (FunctionTypeFlag_Throws);
+			}
+	|	TokenKind_Const
+			{
+				return $functionSuffix->getDeclarator ()->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
 			}
 	;
 	
@@ -416,15 +416,6 @@ bitfield_suffix <Declarator* $declarator>
 	:	':' TokenKind_Integer
 			{
 				return $declarator->addBitFieldSuffix ($2.m_data.m_integer);
-			}
-	;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-post_declarator_modifier <Declarator* $declarator>
-	:	TokenKind_Const
-			{
-				return $declarator->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
 			}
 	;
 

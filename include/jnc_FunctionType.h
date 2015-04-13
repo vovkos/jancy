@@ -27,7 +27,13 @@ enum FunctionTypeFlag
 	FunctionTypeFlag_Throws      = 0x020000,
 	FunctionTypeFlag_CoercedArgs = 0x040000,
 	FunctionTypeFlag_Automaton   = 0x080000,
+	FunctionTypeFlag_Unsafe      = 0x100000,
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+const char*
+getFunctionTypeFlagString (FunctionTypeFlag flag);
 
 //.............................................................................
 
@@ -174,6 +180,10 @@ public:
 		size_t argCount,
 		uint_t flags
 		);
+
+	static
+	rtl::String
+	createFlagSignature (uint_t flags);
 
 	static
 	rtl::String

@@ -31,6 +31,7 @@ enum NamespaceKind
 	NamespaceKind_Extension,
 	NamespaceKind_Property,
 	NamespaceKind_PropertyTemplate,
+	NamespaceKind_Library,
 	NamespaceKind__Count,
 };
 
@@ -278,6 +279,28 @@ public:
 	DerivableType* getType ()
 	{
 		return m_type;
+	}
+};
+
+//.............................................................................
+
+class LibraryNamespace: public GlobalNamespace
+{
+	friend class NamespaceMgr;
+
+protected:
+	ClassType* m_libraryType;
+
+public:
+	LibraryNamespace ()
+	{
+		m_namespaceKind = NamespaceKind_Library;
+		m_libraryType = NULL;
+	}
+
+	ClassType* getLibraryType ()
+	{
+		return m_libraryType;
 	}
 };
 

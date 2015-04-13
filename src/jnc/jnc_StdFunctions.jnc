@@ -146,6 +146,10 @@ Error const* setStringError (char const* string);
 
 Error const* getLastError ();
 
+///; static char throwSrc [] = 
+
+bool throw () throws;
+
 ///; static char formatSrc [] = 
 
 char const* cdecl format (
@@ -194,8 +198,8 @@ void* dynamicCastDataPtr (
 
 ///; static char dynamicCastClassPtrSrc [] = 
 
-object* dynamicCastClassPtr (
-	object const* p,
+class* dynamicCastClassPtr (
+	class const* p,
 	void thin* type
 	);
 
@@ -209,7 +213,7 @@ bool dynamicCastVariant (
 
 ///; static char strengthenClassPtrSrc [] = 
 
-object* strengthenClassPtr (object weak* p);
+class* strengthenClassPtr (class weak* p);
 
 ///; static char gcAllocateSrc [] = 
 
@@ -261,7 +265,7 @@ void addStaticDestructor (intptr dtor);
 
 void addDestructor (
 	intptr dtor,
-	object* obj
+	class* obj
 	);
 
 ///; static char appendFmtLiteralSrc_a [] = 
@@ -399,6 +403,14 @@ void checkNullPtr (
 	void thin const* p,
 	int typeKind
 	);
+
+///; static char lazyGetLibraryFunctionSrc [] = 
+
+void thin* lazyGetLibraryFunction (
+	jnc.Library* lib,
+	size_t index,
+	char thin const* name
+	) throws;
 
 ///;
 

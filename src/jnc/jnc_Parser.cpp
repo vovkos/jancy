@@ -27,6 +27,7 @@ Parser::Parser (Module* module)
 	m_reactionIndex = 0;
 	m_automatonSwitchBlock = NULL;
 	m_automatonReturnBlock = NULL;
+	m_libraryFunctionCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
@@ -307,11 +308,17 @@ Parser::setFunctionBody (
 	rtl::BoxList <Token>* tokenList
 	)
 {
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	if (nspace->getNamespaceKind () == NamespaceKind_Library)
+	{
+		err::setFormatStringError ("library function cannot have a body");
+		return false;
+	}
+
 	bool result = function->setBody (tokenList);
 	if (!result)
 		return false;
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	while (nspace)
 	{
 		function->m_usingSet.append (nspace->getUsingSet ());
@@ -473,7 +480,7 @@ Parser::openGlobalNamespace (
 	return nspace;
 }
 
-bool
+ExtensionNamespace*
 Parser::openExtensionNamespace (
 	const rtl::String& name,
 	Type* type,
@@ -490,11 +497,11 @@ Parser::openExtensionNamespace (
 
 	case TypeKind_NamedImport:
 		err::setFormatStringError ("type extensions for imports not supported yet");
-		return false;
+		return NULL;
 
 	default:
 		err::setFormatStringError ("'%s' cannot have a type extension", type->getTypeString ().cc ());
-		return false;
+		return NULL;
 	}
 
 	DerivableType* derivableType = (DerivableType*) type;
@@ -511,10 +518,10 @@ Parser::openExtensionNamespace (
 
 	bool result = currentNamespace->addItem (extensionNamespace);
 	if (!result)
-		return false;
+		return NULL;
 
 	m_module->m_namespaceMgr.openNamespace (extensionNamespace);
-	return true;
+	return extensionNamespace;
 }
 
 bool
@@ -583,8 +590,16 @@ Parser::declare (Declarator* declarator)
 {
 	m_lastDeclaredItem = NULL;
 
+	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Library;
+
 	if ((declarator->getTypeModifiers () & TypeModifier_Property) && m_storageKind != StorageKind_Typedef)
 	{
+		if (isLibrary)
+		{
+			err::setFormatStringError ("only functions can be part of library");
+			return false;			
+		}
+
 		// too early to calctype cause maybe this property has a body
 		// declare a typeless property for now
 
@@ -599,6 +614,12 @@ Parser::declare (Declarator* declarator)
 	DeclaratorKind declaratorKind = declarator->getDeclaratorKind ();
 	uint_t postModifiers = declarator->getPostDeclaratorModifiers ();
 	TypeKind typeKind = type->getTypeKind ();
+
+	if (isLibrary && typeKind != TypeKind_Function)
+	{
+		err::setFormatStringError ("only functions can be part of library");
+		return false;			
+	}
 
 	if (postModifiers != 0 && typeKind != TypeKind_Function)
 	{
@@ -883,7 +904,15 @@ Parser::declareFunction (
 	}
 
 	if (functionItem->getItemKind () == ModuleItemKind_Orphan)
+	{
+		if (namespaceKind == NamespaceKind_Library)
+		{
+			err::setFormatStringError ("illegal orphan in library '%s'", nspace->getQualifiedName ().cc ());
+			return false;
+		}
+
 		return true;
+	}
 
 	ASSERT (functionItem->getItemKind () == ModuleItemKind_Function);
 	Function* function = (Function*) functionItem;
@@ -934,6 +963,12 @@ Parser::declareFunction (
 
 	case NamespaceKind_Property:
 		return ((Property*) nspace)->addMethod (function);
+
+	case NamespaceKind_Library:
+		function->m_libraryTableIndex = m_libraryFunctionCount;
+		m_libraryFunctionCount++;
+
+		// and fall through
 
 	default:
 		if (postModifiers)
@@ -999,13 +1034,6 @@ Parser::declareProperty (
 		return prop->create (type);
 	}
 
-	DeclSuffix* throwSuffix = declarator->getThrowSuffix ();
-	if (throwSuffix)
-	{
-		prop->m_flags |= PropertyFlag_Throws;
-		declarator->deleteSuffix (throwSuffix);
-	}
-
 	if (declarator->getBaseType ()->getTypeKind () != TypeKind_Void ||
 		!declarator->getPointerPrefixList ().isEmpty () ||
 		!declarator->getSuffixList ().isEmpty ())
@@ -1021,15 +1049,7 @@ Parser::declareProperty (
 	}
 
 	if (declarator->getTypeModifiers () & TypeModifier_Const)
-	{
-		if (prop->m_flags & PropertyFlag_Throws)
-		{
-			err::setFormatStringError ("const property cannot throw");
-			return false;
-		}
-
 		prop->m_flags |= PropertyFlag_Const;
-	}
 
 	m_lastPropertyTypeModifiers.takeOver (declarator);
 	return true;
@@ -1829,6 +1849,59 @@ Parser::createClassType (
 
 	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
 	return classType;
+}
+
+ClassType*
+Parser::createLibraryType (const rtl::String& name)
+{
+	bool result;
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ClassType* classType;
+
+	rtl::String qualifiedName = nspace->createQualifiedName (name);
+	classType = m_module->m_typeMgr.createClassType (name, qualifiedName);
+
+	Type* baseType = m_module->m_typeMgr.getStdType (StdType_Library);
+	result = classType->addBaseType (baseType) != NULL;
+	if (!result)
+		return NULL;
+
+	result = nspace->addItem (classType);
+	if (!result)
+		return NULL;
+
+	LibraryNamespace* libraryNamespace = m_module->m_namespaceMgr.createLibraryNamespace (classType);
+
+	result = classType->addItem (libraryNamespace);
+	if (!result)
+		return NULL;
+
+	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
+	m_module->m_namespaceMgr.openNamespace (libraryNamespace);
+	m_libraryFunctionCount = 0;
+	return classType;
+}
+
+bool
+Parser::finalizeLibraryType ()
+{
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	ASSERT (nspace->getNamespaceKind () == NamespaceKind_Library);
+
+	LibraryNamespace* libraryNamespace = (LibraryNamespace*) nspace;
+	ClassType* libraryType = libraryNamespace->getLibraryType ();
+
+	if (!m_libraryFunctionCount)
+	{
+		err::setFormatStringError ("library '%s' has no any functions", libraryType->getQualifiedName ().cc ());
+		return false;
+	}
+
+	ArrayType* functionTableType = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getArrayType (m_libraryFunctionCount);
+	libraryType->createField (functionTableType);
+	m_module->m_namespaceMgr.closeNamespace ();
+	return true;
 }
 
 bool

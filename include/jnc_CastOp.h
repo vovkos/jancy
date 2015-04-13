@@ -34,6 +34,12 @@ setCastError (
 	CastKind castKind = CastKind_None
 	);
 
+err::Error
+setUnsafeCastError (
+	Type* srcType,
+	Type* dstType
+	);
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // these are sometimes needed for inlining casts before jnc_Module.h is include

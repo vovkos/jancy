@@ -128,6 +128,7 @@ enum StdFunction
 	StdFunction_AppendFmtLiteral_cbr,
 	StdFunction_AppendFmtLiteral_br,
 	StdFunction_SimpleMulticastCall,
+	StdFunction_Throw,
 	StdFunction_GetLastError,
 	StdFunction_SetPosixError,
 	StdFunction_SetStringError,
@@ -139,6 +140,7 @@ enum StdFunction
 	StdFunction_TryCheckNullPtr,
 	StdFunction_CheckNullPtr,
 	StdFunction_DynamicCastVariant,
+	StdFunction_LazyGetLibraryFunction,
 	StdFunction__Count
 };
 
@@ -242,7 +244,12 @@ protected:
 	// for virtual member methods
 
 	ClassType* m_virtualOriginClassType;
-	size_t m_classVTableIndex;
+
+	union
+	{
+		size_t m_classVTableIndex;
+		size_t m_libraryTableIndex;
+	};
 
 	// for property gettes/setters
 
@@ -336,6 +343,12 @@ public:
 	getClassVTableIndex ()
 	{
 		return m_classVTableIndex;
+	}
+
+	size_t
+	getLibraryTableIndex ()
+	{
+		return m_libraryTableIndex;
 	}
 
 	Property*

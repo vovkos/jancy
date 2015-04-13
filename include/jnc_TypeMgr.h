@@ -461,9 +461,6 @@ public:
 		return createClassType (ClassTypeKind_Normal, rtl::String (), rtl::String (), fieldAlignment, flags);
 	}
 
-	ClassType*
-	getBoxClassType (Type* baseType);
-
 	FunctionArg*
 	createFunctionArg (
 		const rtl::String& name,

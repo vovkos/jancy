@@ -85,7 +85,7 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
 	DataPtrType* type = (DataPtrType*) value.getType ();
 
-	if (type->getFlags () & PtrTypeFlag_Safe)
+	if (m_module->m_operatorMgr.isUnsafeRgn () || (type->getFlags () & PtrTypeFlag_Safe))
 		return;
 
 	Value ptrValue;
@@ -146,7 +146,7 @@ OperatorMgr::checkDataPtrScopeLevel (
 	DataPtrType* ptrType = (DataPtrType*) srcValue.getType ();
 	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 		
-	if (ptrTypeKind == DataPtrTypeKind_Thin) // in general case we can't deduce scope-level
+	if (m_module->m_operatorMgr.isUnsafeRgn () || ptrTypeKind == DataPtrTypeKind_Thin)
 		return true;
 
 	if (srcValue.getValueKind () == ValueKind_Variable && dstValue.getValueKind () == ValueKind_Variable)
@@ -202,13 +202,16 @@ OperatorMgr::checkClassPtrScopeLevel (
 {
 	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 
+	if (m_module->m_operatorMgr.isUnsafeRgn ())
+		return;
+
 	Value dstObjHdrValue;
 	getDataRefObjHdr (dstValue, &dstObjHdrValue);
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
 
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
 
 	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckClassPtrScopeLevel);
 
@@ -226,7 +229,7 @@ OperatorMgr::checkNullPtr (const Value& value)
 {
 	Type* type = value.getType ();
 	
-	if (type->getFlags () & PtrTypeFlag_Safe)
+	if (m_module->m_operatorMgr.isUnsafeRgn () || (type->getFlags () & PtrTypeFlag_Safe))
 		return;
 
 	TypeKind typeKind = type->getTypeKind ();
@@ -287,11 +290,11 @@ OperatorMgr::checkFunctionPtrScopeLevel (
 	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
 	FunctionPtrType* ptrType = (FunctionPtrType*) srcValue.getType ();
 
-	if (!ptrType->hasClosure ())
+	if (m_module->m_operatorMgr.isUnsafeRgn () || !ptrType->hasClosure ())
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 
@@ -304,11 +307,11 @@ OperatorMgr::checkPropertyPtrScopeLevel (
 	ASSERT (srcValue.getType ()->getTypeKind () == TypeKind_PropertyPtr);
 	PropertyPtrType* ptrType = (PropertyPtrType*) srcValue.getType ();
 
-	if (!ptrType->hasClosure ())
+	if (m_module->m_operatorMgr.isUnsafeRgn () || !ptrType->hasClosure ())
 		return;
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_ObjectPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
 }
 

@@ -34,7 +34,7 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 		0,                              // TypeModifier_Volatile   = 0x00000010,
 		TypeModifierMaskKind_PtrKind,   // TypeModifier_Weak       = 0x00000020,
 		TypeModifierMaskKind_PtrKind,   // TypeModifier_Thin       = 0x00000040,
-		TypeModifierMaskKind_PtrKind,   // TypeModifier_Safe       = 0x00000080,
+		TypeModifier_Unsafe,            // TypeModifier_Safe       = 0x00000080,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Cdecl      = 0x00000100,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Stdcall    = 0x00000200,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Array      = 0x00000400,
@@ -49,6 +49,7 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Reactor    = 0x00080000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Thiscall   = 0x00100000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Jnccall    = 0x00200000,
+		TypeModifier_Safe,              // TypeModifier_Unsafe     = 0x00400000,
 	};
 
 	// check duplicates
@@ -175,6 +176,21 @@ getPostDeclaratorModifierString (uint_t modifiers)
 	}
 
 	return string;
+}
+
+//.............................................................................
+
+bool
+DeclFunctionSuffix::addFunctionTypeFlag (FunctionTypeFlag flag)
+{
+	if (m_functionTypeFlags & flag)
+	{
+		err::setFormatStringError ("function modifier '%s' used more than once", getFunctionTypeFlagString (flag));
+		return false;
+	}
+
+	m_functionTypeFlags |= flag;
+	return true;
 }
 
 //.............................................................................
@@ -344,6 +360,7 @@ DeclArraySuffix*
 Declarator::addArraySuffix (rtl::BoxList <Token>* elementCountInitializer)
 {
 	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	suffix->m_declarator = this;
 	suffix->m_elementCountInitializer.takeOver (elementCountInitializer);
 	m_suffixList.insertTail (suffix);
 	return suffix;
@@ -353,6 +370,7 @@ DeclArraySuffix*
 Declarator::addArraySuffix (size_t elementCount)
 {
 	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	suffix->m_declarator = this;
 	suffix->m_elementCount = elementCount;
 	m_suffixList.insertTail (suffix);
 	return suffix;
@@ -362,15 +380,7 @@ DeclFunctionSuffix*
 Declarator::addFunctionSuffix ()
 {
 	DeclFunctionSuffix* suffix = AXL_MEM_NEW (DeclFunctionSuffix);
-	m_suffixList.insertTail (suffix);
-	return suffix;
-}
-
-DeclSuffix*
-Declarator::addThrowSuffix ()
-{
-	DeclSuffix* suffix = AXL_MEM_NEW (DeclSuffix);
-	suffix->m_suffixKind = DeclSuffixKind_Throw;
+	suffix->m_declarator = this;
 	m_suffixList.insertTail (suffix);
 	return suffix;
 }

@@ -170,6 +170,7 @@ protected:
 	CastOperator* m_stdCastOperatorTable [StdCast__Count];
 
 	rtl::BoxList <Value> m_tmpStackGcRootList;
+	intptr_t m_unsafeEnterCount;
 
 public:
 	OperatorMgr ();
@@ -184,6 +185,24 @@ public:
 	clear ()
 	{
 		m_tmpStackGcRootList.clear ();
+	}
+
+	void
+	enterUnsafeRgn ()
+	{
+		m_unsafeEnterCount++;
+	}
+
+	void
+	leaveUnsafeRgn ()
+	{
+		m_unsafeEnterCount--;
+	}
+
+	bool 
+	isUnsafeRgn ()
+	{
+		return m_unsafeEnterCount > 0;
 	}
 
 	void
@@ -1573,6 +1592,14 @@ protected:
 	bool
 	getNamespaceMemberType (
 		Namespace* nspace,
+		const char* name,
+		Value* resultValue
+		);
+
+	bool
+	getLibraryMember (
+		LibraryNamespace* library,
+		jnc::Closure* closure,
 		const char* name,
 		Value* resultValue
 		);

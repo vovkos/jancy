@@ -79,6 +79,7 @@ main := |*
 'import'         { createToken (TokenKind_Import); };
 'namespace'      { createToken (TokenKind_Namespace); };
 'extension'      { createToken (TokenKind_Extension); };
+'library'        { createToken (TokenKind_Library); };
 'using'          { createToken (TokenKind_Using); };
 'friend'         { createToken (TokenKind_Friend); };
 'public'         { createToken (TokenKind_Public); };
@@ -113,6 +114,7 @@ main := |*
 'weak'           { createToken (TokenKind_Weak); };
 'thin'           { createToken (TokenKind_Thin); };
 'safe'           { createToken (TokenKind_Safe); };
+'unsafe'         { createToken (TokenKind_Unsafe); };
 'throws'         { createToken (TokenKind_Throws); };
 'cdecl'          { createToken (TokenKind_Cdecl); };
 'stdcall'        { createToken (TokenKind_Stdcall); };
@@ -135,7 +137,6 @@ main := |*
 
 'auto'           { createToken (TokenKind_Auto); };
 'void'           { createToken (TokenKind_Void); };
-'object'         { createToken (TokenKind_Object); };
 'variant'        { createToken (TokenKind_Variant); };
 'bool'           { createToken (TokenKind_Bool); };
 'int8'           { createToken (TokenKind_Int8); };
