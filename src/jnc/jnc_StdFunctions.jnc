@@ -404,6 +404,14 @@ void checkNullPtr (
 	int typeKind
 	);
 
+///; static char lazyGetLibraryFunctionSrc [] = 
+
+void thin* lazyGetLibraryFunction (
+	jnc.Library* lib,
+	size_t index,
+	char thin const* name
+	) throws;
+
 ///;
 
 //.............................................................................

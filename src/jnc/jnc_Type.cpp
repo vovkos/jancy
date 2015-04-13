@@ -6,6 +6,46 @@ namespace jnc {
 
 //.............................................................................
 
+const char*
+getStdTypeName (StdType stdType)
+{
+	const char* nameTable [StdType__Count] =
+	{
+		NULL,             // StdType_BytePtr,
+		NULL,             // StdType_ByteConstPtr,
+		NULL,             // StdType_SimpleIfaceHdr,
+		NULL,             // StdType_SimpleIfaceHdrPtr,
+		NULL,             // StdType_ObjHdr,
+		NULL,             // StdType_ObjHdrPtr,
+		NULL,             // StdType_VariableObjHdr,
+		NULL,             // StdType_AbstractClass,
+		NULL,             // StdType_AbstractClassPtr,
+		NULL,             // StdType_SimpleFunction,
+		NULL,             // StdType_SimpleMulticast,
+		NULL,             // StdType_SimpleEventPtr,
+		NULL,             // StdType_Binder,
+		NULL,             // StdType_ReactorBindSite,
+		"Scheduler",      // StdType_Scheduler,
+		"Recognizer",     // StdType_Recognizer,
+		"Library",        // StdType_Library,
+		NULL,             // StdType_FmtLiteral,
+		"Guid",           // StdType_Guid
+		"Error",          // StdType_Error,
+		"String",         // StdType_String,
+		"StringRef",      // StdType_StringRef,
+		"StringBuilder",  // StdType_StringBuilder,
+		"ConstArray",     // StdType_ConstArray,
+		"ConstArrayRef",  // StdType_ConstArrayRef,
+		"ArrayRef",       // StdType_ArrayRef,
+		"Array",          // StdType_DynamicArray,
+	};
+
+	ASSERT ((size_t) stdType < StdType__Count);
+	return nameTable [stdType];
+}
+
+//.............................................................................
+
 uint_t
 getTypeKindFlags (TypeKind typeKind)
 {
@@ -237,6 +277,7 @@ getTypeModifierString (TypeModifier modifier)
 		"reactor",      // TypeModifier_Reactor     = 0x00080000,
 		"thiscall",     // TypeModifier_Thiscall    = 0x00100000,
 		"jnccall",      // TypeModifier_Jnccall     = 0x00200000,
+		"unsafe",       // TypeModifier_Unsafe      = 0x00400000,
 	};
 
 	size_t i = rtl::getLoBitIdx32 (modifier);
@@ -332,7 +373,7 @@ getPtrTypeFlagSignature (uint_t flags)
 	rtl::String signature;
 
 	if (flags & PtrTypeFlag_Safe)
-		signature = 's';
+		signature += 's';
 
 	if (flags & PtrTypeFlag_Const)
 		signature += 'c';

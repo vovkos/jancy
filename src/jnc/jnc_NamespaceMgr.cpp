@@ -47,6 +47,7 @@ NamespaceMgr::clear ()
 
 	m_globalNamespaceList.clear ();
 	m_extensionNamespaceList.clear ();
+	m_libraryNamespaceList.clear ();
 	m_scopeList.clear ();
 	m_orphanList.clear ();
 	m_namespaceStack.clear ();
@@ -95,6 +96,7 @@ NamespaceMgr::addStdItems ()
 		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Library)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_String)) &&
@@ -371,6 +373,23 @@ NamespaceMgr::createExtensionNamespace (
 	nspace->m_parentNamespace = parentNamespace;
 	nspace->m_type = type;
 	m_extensionNamespaceList.insertTail (nspace);
+	return nspace;
+}
+
+LibraryNamespace*
+NamespaceMgr::createLibraryNamespace (ClassType* libraryType)
+{
+	rtl::String name = "lib";
+	rtl::String qualifiedName = libraryType->getQualifiedName () + '.' + name;
+
+	LibraryNamespace* nspace = AXL_MEM_NEW (LibraryNamespace);
+	nspace->m_module = m_module;
+	nspace->m_name = name;
+	nspace->m_qualifiedName = qualifiedName;
+	nspace->m_tag = qualifiedName;
+	nspace->m_parentNamespace = libraryType;
+	nspace->m_libraryType = libraryType;
+	m_libraryNamespaceList.insertTail (nspace);
 	return nspace;
 }
 

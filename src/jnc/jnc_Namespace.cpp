@@ -60,6 +60,7 @@ getNamespaceKindString (NamespaceKind namespaceKind)
 		"extension-namespace",       // Namespace_Extension,
 		"property",                  // Namespace_Property,
 		"property-template",         // Namespace_PropertyTemplate,
+		"library",                   // Namespace_Library,
 	};
 
 	return (size_t) namespaceKind < NamespaceKind__Count ?

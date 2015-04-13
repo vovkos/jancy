@@ -99,6 +99,7 @@ TypeMgr::getStdType (StdType stdType)
 	#include "jnc_Buffer.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
 	#include "jnc_Recognizer.jnc.cpp"
+	#include "jnc_Library.jnc.cpp"
 
 	struct SourceRef
 	{
@@ -135,6 +136,11 @@ TypeMgr::getStdType (StdType stdType)
 		{                                    // StdType_Recognizer,
 			recognizerTypeSrc,
 			lengthof (recognizerTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Library,
+			libraryTypeSrc,
+			lengthof (libraryTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_FmtLiteral,
@@ -215,7 +221,6 @@ TypeMgr::getStdType (StdType stdType)
 		return m_stdTypeArray [stdType];
 
 	Type* type;
-
 	switch (stdType)
 	{
 	case StdType_BytePtr:
@@ -283,13 +288,7 @@ TypeMgr::getStdType (StdType stdType)
 		break;
 
 	case StdType_Recognizer:		
-		type = (Type*) m_module->m_namespaceMgr.getGlobalNamespace ()->findItemByName ("jnc.Recognizer");
-		if (type)
-			break;
-
-		// else fall through
-
-	case StdType_ReactorBindSite:
+	case StdType_Library:
 	case StdType_Scheduler:
 	case StdType_Guid:
 	case StdType_Error:
@@ -300,6 +299,19 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_ConstBufferRef:
 	case StdType_BufferRef:
 	case StdType_Buffer:
+		{
+		GlobalNamespace* nspace = m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc);
+		const char* name = getStdTypeName (stdType);
+		ASSERT (name);
+
+		type = (Type*) nspace->findItemByName (name);
+		if (type)
+			break;
+		}
+
+		// else fall through
+
+	case StdType_ReactorBindSite:
 	case StdType_Int64Int64:
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
@@ -341,37 +353,7 @@ TypeMgr::getLazyStdType (StdType stdType)
 	if (m_lazyStdTypeArray [stdType])
 		return m_lazyStdTypeArray [stdType];
 
-	const char* nameTable [StdType__Count] =
-	{
-		NULL,             // StdType_BytePtr,
-		NULL,             // StdType_ByteConstPtr,
-		NULL,             // StdType_SimpleIfaceHdr,
-		NULL,             // StdType_SimpleIfaceHdrPtr,
-		NULL,             // StdType_ObjHdr,
-		NULL,             // StdType_ObjHdrPtr,
-		NULL,             // StdType_VariableObjHdr,
-		NULL,             // StdType_AbstractClass,
-		NULL,             // StdType_AbstractClassPtr,
-		NULL,             // StdType_SimpleFunction,
-		NULL,             // StdType_SimpleMulticast,
-		NULL,             // StdType_SimpleEventPtr,
-		NULL,             // StdType_Binder,
-		NULL,             // StdType_ReactorBindSite,
-		"Scheduler",      // StdType_Scheduler,
-		"Recognizer",     // StdType_Recognizer,
-		NULL,             // StdType_FmtLiteral,
-		"Guid",           // StdType_Guid
-		"Error",          // StdType_Error,
-		"String",         // StdType_String,
-		"StringRef",      // StdType_StringRef,
-		"StringBuilder",  // StdType_StringBuilder,
-		"ConstArray",     // StdType_ConstArray,
-		"ConstArrayRef",  // StdType_ConstArrayRef,
-		"ArrayRef",       // StdType_ArrayRef,
-		"Array",          // StdType_DynamicArray,
-	};
-
-	const char* name = nameTable [stdType];
+	const char* name = getStdTypeName (stdType);
 	ASSERT (name);
 
 	LazyStdType* type = AXL_MEM_NEW (LazyStdType);
@@ -1982,6 +1964,9 @@ TypeMgr::getFunctionPtrType (
 
 	if (typeKind == TypeKind_FunctionPtr && ptrTypeKind != FunctionPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
+
+	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
+		flags &= ~PtrTypeFlag_Safe;
 
 	FunctionPtrTypeTuple* tuple = getFunctionPtrTypeTuple (functionType);
 

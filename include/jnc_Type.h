@@ -150,6 +150,7 @@ enum StdType
 	StdType_ReactorBindSite,
 	StdType_Scheduler,
 	StdType_Recognizer,
+	StdType_Library,
 	StdType_FmtLiteral,
 	StdType_Guid,
 	StdType_Error,
@@ -170,6 +171,11 @@ enum StdType
 	StdType_VariantStruct,
 	StdType__Count,
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+const char*
+getStdTypeName (StdType stdType);
 
 //.............................................................................
 
@@ -217,6 +223,7 @@ enum TypeModifier
 	TypeModifier_Reactor     = 0x00080000,
 	TypeModifier_Thiscall    = 0x00100000,
 	TypeModifier_Jnccall     = 0x00200000,
+	TypeModifier_Unsafe      = 0x00400000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -236,6 +243,7 @@ enum TypeModifierMaskKind
 	TypeModifierMaskKind_Function =
 		TypeModifier_Function |
 		TypeModifier_Automaton |
+		TypeModifier_Unsafe |
 		TypeModifierMaskKind_CallConv ,
 
 	TypeModifierMaskKind_Property =
@@ -344,7 +352,7 @@ enum TypeFlag
 enum PtrTypeFlag
 {
 	PtrTypeFlag_Safe      = 0x0010000, // all ptr
-	PtrTypeFlag_Unused    = 0x0020000, // unused
+	PtrTypeFlag_Unused    = 0x0020000, // all ptr
 	PtrTypeFlag_Const     = 0x0040000, // class & data ptr
 	PtrTypeFlag_ReadOnly  = 0x0080000, // class & data ptr
 	PtrTypeFlag_Volatile  = 0x0100000, // class & data ptr

@@ -1,0 +1,38 @@
+library User32
+{
+	int stdcall MessageBoxA (
+		intptr hwnd,
+		char const thin* text,
+		char const thin* caption,
+		int flags
+		);
+}
+
+library Msvcrt
+{
+	int cdecl printf (
+		char const thin* format,
+		...
+		);
+}
+	
+int main ()
+{
+	printf ("main ()\n");
+
+	User32 user32;
+	user32.load ("user32.dll");
+	user32.lib.MessageBoxA (0, "Message Text", "Message Caption", 0x00000040);
+
+	Msvcrt msvcrt;
+	msvcrt.load ("msvcrt.dll");
+	msvcrt.lib.printf ("hui govno i muravei!\n");
+
+	return 0;
+
+catch:
+	printf ("error caught: %s\n", jnc.getLastError ().m_description);
+	return -1;
+}
+
+//.............................................................................

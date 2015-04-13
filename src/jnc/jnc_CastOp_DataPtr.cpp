@@ -91,6 +91,163 @@ Cast_DataPtr_FromArray::llvmCast (
 //.............................................................................
 
 CastKind
+Cast_DataPtr_FromClassPtr::getCastKind (
+	const Value& opValue,
+	Type* type
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();	
+
+	return 
+		(srcType->getFlags () & PtrTypeFlag_Const) && !(srcType->getFlags () & PtrTypeFlag_Const) ? CastKind_None : 
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
+		CastKind_Explicit;
+}
+
+bool
+Cast_DataPtr_FromClassPtr::llvmCast (
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();	
+
+	if ((srcType->getFlags () & PtrTypeFlag_Const) && !(srcType->getFlags () & PtrTypeFlag_Const))
+	{
+		setCastError (opValue, type);
+		return false;
+	}
+
+	if (dstType->getPtrTypeKind () == DataPtrTypeKind_Thin)
+	{
+		err::setFormatStringError ("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
+		return false;
+	}
+
+	if (!m_module->m_operatorMgr.isUnsafeRgn ())
+	{
+		setUnsafeCastError (srcType, dstType);
+		return false;
+	}
+
+	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
+	return true;
+}
+
+//.............................................................................
+
+CastKind
+Cast_DataPtr_FromFunctionPtr::getCastKind (
+	const Value& opValue,
+	Type* type
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();	
+
+	return 
+		srcType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
+		CastKind_Explicit;
+}
+
+bool
+Cast_DataPtr_FromFunctionPtr::llvmCast (
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();	
+
+	if (srcType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ||
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
+	{
+		setCastError (opValue, type);
+		return false;
+	}
+
+	if (!m_module->m_operatorMgr.isUnsafeRgn ())
+	{
+		setUnsafeCastError (srcType, dstType);
+		return false;
+	}
+
+	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
+	return true;
+}
+
+//.............................................................................
+
+CastKind
+Cast_DataPtr_FromPropertyPtr::getCastKind (
+	const Value& opValue,
+	Type* type
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();	
+
+	return 
+		srcType->getPtrTypeKind () != PropertyPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
+		CastKind_Explicit;
+}
+
+bool
+Cast_DataPtr_FromPropertyPtr::llvmCast (
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
+	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*) type;
+	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();	
+
+	if (srcType->getPtrTypeKind () != PropertyPtrTypeKind_Thin ||
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
+	{
+		setCastError (opValue, type);
+		return false;
+	}
+
+	if (!m_module->m_operatorMgr.isUnsafeRgn ())
+	{
+		setUnsafeCastError (srcType, dstType);
+		return false;
+	}
+
+	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
+	return true;
+}
+//.............................................................................
+
+CastKind
 Cast_DataPtr_Base::getCastKind (
 	const Value& opValue,
 	Type* type
@@ -449,12 +606,32 @@ Cast_DataPtr::getCastOperator (
 	DataPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind ();
 
 	Type* srcType = opValue.getType ();
-	if (isArrayRefType (srcType) || srcType->getTypeKind () == TypeKind_Array)
-	{
+	if (isArrayRefType (srcType))
 		return &m_fromArray;
-	}
-	else if (!(srcType->getTypeKindFlags () & TypeKindFlag_DataPtr))
+
+	TypeKind typeKind = srcType->getTypeKind ();
+	switch (typeKind)
 	{
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef:
+		break;
+
+	case TypeKind_Array:
+		return &m_fromArray;
+
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		return &m_fromClassPtr;
+
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		return &m_fromFunctionPtr;
+
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		return &m_fromPropertyPtr;
+
+	default:
 		return NULL;
 	}
 

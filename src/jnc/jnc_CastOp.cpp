@@ -50,6 +50,19 @@ setCastError (
 		);
 }
 
+err::Error
+setUnsafeCastError (
+	Type* srcType,
+	Type* dstType
+	)
+{
+	return err::setFormatStringError (
+		"'%s' to '%s' cast is only permitted in unsafe regions", 
+		srcType->getTypeString ().cc (),
+		dstType->getTypeString ().cc ()
+		);
+}
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool

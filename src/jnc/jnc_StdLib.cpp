@@ -929,6 +929,40 @@ StdLib::checkNullPtr (
 		Runtime::runtimeError (err::getLastError ());
 }
 
+void* 
+StdLib::lazyGetLibraryFunction (
+	Library* library,
+	size_t index,
+	const char* name
+	)
+{
+	if (!library->m_handle)
+	{
+		err::setFormatStringError ("library '%s' is not loaded yet", library->m_object->m_classType->getQualifiedName ().cc ());
+		return NULL;
+	}
+
+	size_t librarySize = library->m_object->m_classType->getIfaceStructType ()->getSize ();
+	size_t functionCount = (librarySize - sizeof (Library)) / sizeof (void*);
+
+	if (index >= functionCount)
+	{
+		err::setFormatStringError ("index #%d out of range for library '%s'", index, library->m_object->m_classType->getQualifiedName ().cc ());
+		return NULL;
+	}
+
+	void** functionTable = (void**) (library + 1);
+	if (functionTable [index])
+		return functionTable [index];
+
+	void* function = library->getFunctionImpl (name);
+	if (!function)
+		return NULL;
+
+	functionTable [index] = function;
+	return function;
+}
+
 //.............................................................................
 
 } // namespace jnc {

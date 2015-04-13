@@ -329,6 +329,10 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Safe;
 			}
+	|	TokenKind_Unsafe
+			{
+				$.m_typeModifier = TypeModifier_Unsafe;
+			}
 	|	TokenKind_Cdecl
 			{
 				$.m_typeModifier = TypeModifier_Cdecl;

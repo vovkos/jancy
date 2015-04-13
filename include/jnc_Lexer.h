@@ -31,6 +31,7 @@ enum TokenKind
 	TokenKind_Import,
 	TokenKind_Namespace,
 	TokenKind_Extension,
+	TokenKind_Library,
 	TokenKind_Using,
 	TokenKind_Friend,
 	TokenKind_Public,
@@ -61,6 +62,7 @@ enum TokenKind
 	TokenKind_Weak,
 	TokenKind_Thin,
 	TokenKind_Safe,
+	TokenKind_Unsafe,
 	TokenKind_Throws,
 	TokenKind_Cdecl,
 	TokenKind_Stdcall,
@@ -206,6 +208,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Import,       "import")
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME (TokenKind_Extension,    "extension")
+	AXL_LEX_TOKEN_NAME (TokenKind_Library,      "library")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
 	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
@@ -236,6 +239,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Weak,         "weak")
 	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
 	AXL_LEX_TOKEN_NAME (TokenKind_Safe,         "safe")
+	AXL_LEX_TOKEN_NAME (TokenKind_Unsafe,       "unsafe")
 	AXL_LEX_TOKEN_NAME (TokenKind_Throws,       "throws")
 	AXL_LEX_TOKEN_NAME (TokenKind_Cdecl,        "cdecl")
 	AXL_LEX_TOKEN_NAME (TokenKind_Stdcall,      "stdcall")

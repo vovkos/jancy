@@ -20,7 +20,6 @@ enum PropertyTypeFlag
 {
 	PropertyTypeFlag_Const    = 0x010000,
 	PropertyTypeFlag_Bindable = 0x020000,
-	PropertyTypeFlag_Throws   = 0x040000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

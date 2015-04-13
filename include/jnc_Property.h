@@ -28,7 +28,6 @@ enum PropertyFlag
 {
 	PropertyFlag_Const    = 0x010000,
 	PropertyFlag_Bindable = 0x020000,
-	PropertyFlag_Throws   = 0x040000,
 	PropertyFlag_AutoGet  = 0x100000,
 	PropertyFlag_AutoSet  = 0x200000,
 };

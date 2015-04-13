@@ -42,6 +42,57 @@ Cast_FunctionPtr_FromMulticast::llvmCast (
 //.............................................................................
 
 CastKind
+Cast_FunctionPtr_FromDataPtr::getCastKind (
+	const Value& opValue,
+	Type* type
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
+
+	FunctionPtrType* dstType = (FunctionPtrType*) type;
+	DataPtrType* srcType = (DataPtrType*) opValue.getType ();	
+
+	return 
+		srcType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None : 
+		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
+		CastKind_Explicit;
+}
+
+bool
+Cast_FunctionPtr_FromDataPtr::llvmCast (
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
+	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
+
+	FunctionPtrType* dstType = (FunctionPtrType*) type;
+	DataPtrType* srcType = (DataPtrType*) opValue.getType ();	
+
+	if (srcType->getPtrTypeKind () != DataPtrTypeKind_Thin || 
+		dstType->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
+	{
+		setCastError (opValue, type);
+		return false;
+	}
+
+	if (!m_module->m_operatorMgr.isUnsafeRgn ())
+	{
+		setUnsafeCastError (srcType, dstType);
+		return false;
+	}
+
+	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
+	return true;
+}
+
+//.............................................................................
+
+CastKind
 Cast_FunctionPtr_Base::getCastKind (
 	const Value& opValue,
 	Type* type
@@ -415,12 +466,22 @@ Cast_FunctionPtr::getCastOperator (
 		return m_operatorTable [FunctionPtrTypeKind_Thin] [dstPtrTypeKind];
 	}
 
-	if (isClassPtrType (srcType, ClassTypeKind_Multicast))
+	TypeKind typeKind = srcType->getTypeKind ();
+	switch (typeKind)
 	{
-		return &m_fromMulticast;
-	}
-	else if (!(srcType->getTypeKindFlags () & TypeKindFlag_FunctionPtr))
-	{
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		break;
+
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		return isClassPtrType (srcType, ClassTypeKind_Multicast) ? &m_fromMulticast : NULL;
+
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef:
+		return &m_fromDataPtr;
+
+	default:
 		return NULL;
 	}
 

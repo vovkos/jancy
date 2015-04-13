@@ -6,6 +6,26 @@ namespace jnc {
 
 //.............................................................................
 
+const char*
+getFunctionTypeFlagString (FunctionTypeFlag flag)
+{
+	static const char* stringTable [] =
+	{
+		"vararg",     // FunctionTypeFlag_VarArg      = 0x010000,
+		"throws",     // FunctionTypeFlag_Throws      = 0x020000,
+		"coerced",    // FunctionTypeFlag_CoercedArgs = 0x040000,
+		"automaton",  // FunctionTypeFlag_Automaton   = 0x080000,
+		"unsafe",     // FunctionTypeFlag_Unsafe      = 0x100000,
+	};
+
+	size_t i = rtl::getLoBitIdx32 (flag >> 16);
+	return i < countof (stringTable) ?
+		stringTable [i] :
+		"undefined-function-flag";
+}
+
+//.............................................................................
+
 FunctionType::FunctionType ()
 {
 	m_typeKind = TypeKind_Function;
@@ -146,6 +166,20 @@ FunctionType::createArgSignature (
 }
 
 rtl::String
+FunctionType::createFlagSignature (uint_t flags)
+{
+	rtl::String string;
+
+	if (flags & FunctionTypeFlag_Automaton)
+		string += 'A';
+
+	if (flags & FunctionTypeFlag_Unsafe)
+		string += 'U';
+
+	return string;
+}
+
+rtl::String
 FunctionType::createSignature (
 	CallConv* callConv,
 	Type* returnType,
@@ -154,7 +188,8 @@ FunctionType::createSignature (
 	uint_t flags
 	)
 {
-	rtl::String string = (flags & FunctionTypeFlag_Automaton) ? "FA" : "FF";
+	rtl::String string = 'F';
+	string += createFlagSignature (flags);
 	string += getCallConvSignature (callConv->getCallConvKind ());
 	string += returnType->getSignature ();
 	string += createArgSignature (argTypeArray, argCount, flags);
@@ -170,7 +205,8 @@ FunctionType::createSignature (
 	uint_t flags
 	)
 {
-	rtl::String string = (flags & FunctionTypeFlag_Automaton) ? "FA" : "FF";
+	rtl::String string = 'F';
+	string += createFlagSignature (flags);
 	string += getCallConvSignature (callConv->getCallConvKind ());
 	string += returnType->getSignature ();
 	string += createArgSignature (argArray, argCount, flags);
@@ -249,6 +285,9 @@ FunctionType::getTypeModifierString ()
 		m_typeModifierString += ' ';
 	}
 
+	if (m_flags & FunctionTypeFlag_Unsafe)
+		m_typeModifierString += "unsafe ";
+
 	if (m_flags & FunctionTypeFlag_Automaton)
 		m_typeModifierString += "automaton ";
 
@@ -258,9 +297,9 @@ FunctionType::getTypeModifierString ()
 void
 FunctionType::prepareTypeString ()
 {
-	m_typeString = getTypeModifierString ();
 	m_typeString += m_returnType->getTypeString ();
-	m_typeString += ' ';
+	m_typeString += '-';
+	m_typeString += getTypeModifierString ();
 	m_typeString += getArgString ();
 }
 

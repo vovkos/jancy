@@ -67,7 +67,7 @@ extension_declaration
 					$2.m_data.m_string, 
 					$4.m_type,
 					$2.m_pos
-					);
+					) != NULL;
 			}
 		'{' named_type_block_declaration* '}'
 			{

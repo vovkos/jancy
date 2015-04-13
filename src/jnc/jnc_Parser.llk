@@ -125,6 +125,8 @@ Members
 	BasicBlock* m_automatonSwitchBlock;
 	BasicBlock* m_automatonReturnBlock;
 
+	size_t m_libraryFunctionCount;
+
 	// saved attributes
 
 	Value m_expressionValue;
@@ -248,7 +250,7 @@ Members2
 		const Token::Pos& pos
 		);
 
-	bool
+	ExtensionNamespace*
 	openExtensionNamespace (
 		const rtl::String& name,
 		Type* type,
@@ -350,6 +352,12 @@ Members2
 		size_t fieldAlignment,
 		uint_t flags
 		);
+
+	ClassType*
+	createLibraryType (const rtl::String& name);
+
+	bool
+	finalizeLibraryType ();
 
 	Property*
 	createProperty (

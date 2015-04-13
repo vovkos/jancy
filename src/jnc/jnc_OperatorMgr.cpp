@@ -136,7 +136,8 @@ OperatorMgr::OperatorMgr ()
 	m_castOperatorTable [TypeKind_FunctionRef] = &m_cast_FunctionRef;
 	m_castOperatorTable [TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
 	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
-	
+
+	m_unsafeEnterCount = 0;	
 }
 
 Function*
@@ -935,8 +936,6 @@ OperatorMgr::checkCastKind (
 	CastKind castKind = getCastKind (opValue, type);
 	if (castKind <= CastKind_Explicit)
 	{
-		getCastKind (opValue, type);
-
 		setCastError (opValue, type, castKind);
 		return false;
 	}

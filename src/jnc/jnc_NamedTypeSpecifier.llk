@@ -23,6 +23,10 @@ named_type_specifier
 			{
 				$.m_type = $1.m_type;
 			}
+	|	library_specifier
+			{
+				$.m_type = $1.m_type;
+			}
 	;
 
 start
@@ -198,6 +202,28 @@ class_specifier
 					return false;
 			}
 		named_type_block <$.m_type>
+	;
+
+//.............................................................................
+
+// class
+
+class
+{
+	ClassType* m_type;
+}
+library_specifier
+	:	TokenKind_Library TokenKind_Identifier
+			{
+				$.m_type = createLibraryType ($2.m_data.m_string);
+
+				if (!$.m_type)
+					return false;
+			}
+		'{' named_type_block_declaration* '}'
+			{
+				return finalizeLibraryType ();
+			}
 	;
 
 //.............................................................................

@@ -14,6 +14,7 @@ enum StdApiSlot
 	StdApiSlot_ConstBufferRef,
 	StdApiSlot_BufferRef,
 	StdApiSlot_Buffer,
+	StdApiSlot_Library,
 	StdApiSlot_Recognizer,
 	
 	StdApiSlot__Count,

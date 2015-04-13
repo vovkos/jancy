@@ -553,9 +553,17 @@ OperatorMgr::callImpl (
 	Value* resultValue
 	)
 {
-	if (functionType->getFlags () & FunctionTypeFlag_Automaton)
+	uint_t flags = functionType->getFlags ();
+
+	if (flags & FunctionTypeFlag_Automaton)
 	{
 		err::setFormatStringError ("cannot call automaton functions");
+		return false;
+	}
+
+	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn ())
+	{
+		err::setFormatStringError ("can only call unsafe functions from unsafe regions");
 		return false;
 	}
 
