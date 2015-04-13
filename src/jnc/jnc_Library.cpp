@@ -12,7 +12,9 @@ Library::loadImpl (const char* fileName)
 	bool result = getDynamicLibrary ()->load (fileName);
 	if (!result)
 	{
+#if (_AXL_ENV == AXL_ENV_WIN)
 		err::pushFormatStringError ("cannot load library '%s'", fileName);
+#endif
 		return false;
 	}
 
@@ -33,7 +35,9 @@ Library::getFunctionImpl (const char* name)
 	void* p = getDynamicLibrary ()->getFunction (name);
 	if (!p)
 	{
+#if (_AXL_ENV == AXL_ENV_WIN)
 		err::pushFormatStringError ("cannot get library function '%s'", name);
+#endif
 		return NULL;
 	}
 
