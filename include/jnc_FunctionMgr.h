@@ -343,6 +343,9 @@ protected:
 
 	Function*
 	createCheckClassPtrScopeLevel ();
+
+	Function*
+	createCheckVariantScopeLevel ();
 };
 
 //.............................................................................

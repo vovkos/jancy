@@ -553,17 +553,52 @@ OperatorMgr::getLibraryMember (
 	size_t index = function->getLibraryTableIndex ();
 	name = function->getName (); // make sure name pointer stays valid (points to function, not token string)
 
-	Value ptrValue;
-	result = callOperator (
-		m_module->m_functionMgr.getStdFunction (StdFunction_LazyGetLibraryFunction),
+	Value argValueArray [] = 
+	{
 		closure->getThisValue (),
 		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
 		Value (&name, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
-		&ptrValue
+	};
+
+	m_module->m_llvmIrBuilder.createBitCast (
+		argValueArray [0],
+		((ClassType*) m_module->m_typeMgr.getStdType (StdType_Library))->getClassPtrType (),
+		&argValueArray [0]
 		);
 
-	if (!result)
-		return false;
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope);
+
+	Value ptrValue;
+
+	if (!(scope->getFlags () & ScopeFlag_CanThrow))
+	{
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunction_LazyGetLibraryFunction);
+
+		m_module->m_llvmIrBuilder.createCall (
+			getterFunction,
+			getterFunction->getType (),
+			argValueArray,
+			countof (argValueArray),
+			&ptrValue
+			);
+	}
+	else
+	{
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryLazyGetLibraryFunction);
+		FunctionType* getterFunctionType = getterFunction->getType ();
+
+		m_module->m_llvmIrBuilder.createCall (
+			getterFunction,
+			getterFunctionType,
+			argValueArray,
+			countof (argValueArray),
+			&ptrValue
+			);
+
+		bool result = m_module->m_controlFlowMgr.throwIf (ptrValue, getterFunctionType);
+		ASSERT (result);
+	}
 
 	Type* resultType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, resultValue);

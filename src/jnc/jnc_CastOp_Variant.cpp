@@ -48,17 +48,32 @@ Cast_Variant::constCast (
 
 bool
 Cast_Variant::llvmCast (
-	const Value& opValue,
+	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
 	)
 {
 	ASSERT (type->getTypeKind () == TypeKind_Variant);
 
-	Type* opType = opValue.getType ();
-	bool result = checkOpType (opType);
-	if (!result)
-		return false;
+	bool result;
+		
+	Value opValue;
+
+	Type* opType = rawOpValue.getType ();
+	if ((opType->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
+		((DataPtrType*) opType)->getPtrTypeKind () == DataPtrTypeKind_Lean)
+	{
+		opType = ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (DataPtrTypeKind_Normal, opType->getFlags ());
+		m_module->m_operatorMgr.castOperator (rawOpValue, opType, &opValue);
+	}
+	else 
+	{
+		result = checkOpType (opType);
+		if (!result)
+			return false;
+
+		opValue = rawOpValue;
+	}
 	
 	Value opTypeValue (&opType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 	Value variantValue;

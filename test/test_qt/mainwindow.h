@@ -228,35 +228,36 @@ private:
 
 	jnc::Function* findGlobalFunction(const QString &name);
 
-	QMdiArea* mdiArea;
+private:
+	QMdiArea* m_mdiArea;
 	QString m_lastDir;
 
-	Output* output;
-	ModulePane* modulePane;
-	LlvmIr* llvmIr;
-	Disassembly* disassembly;
+	Output* m_output;
+	ModulePane* m_modulePane;
+	LlvmIr* m_llvmIr;
+	Disassembly* m_disassembly;
 
-	QMutex outputMutex;
-	QStringList outputQueue;
+	QMutex m_outputMutex;
+	QStringList m_outputQueue;
 
-	QMenu* fileMenu;
-	QMenu* editMenu;
-	QMenu* debugMenu;
-	QMenu* viewMenu;
+	QMenu* m_fileMenu;
+	QMenu* m_editMenu;
+	QMenu* m_debugMenu;
+	QMenu* m_viewMenu;
 
-	QToolBar* mainToolBar;
+	QToolBar* m_mainToolBar;
 
-	QAction* quitAction;
-	QAction* newFileAction;
-	QAction* openFileAction;
-	QAction* saveFileAction;
-	QAction* saveAsAction;
-	QAction* clearOutputAction;
-	QAction* compileAction;
-	QAction* runAction;
+	QAction* m_quitAction;
+	QAction* m_newFileAction;
+	QAction* m_openFileAction;
+	QAction* m_saveFileAction;
+	QAction* m_saveAsAction;
+	QAction* m_clearOutputAction;
+	QAction* m_compileAction;
+	QAction* m_runAction;
 
-	jnc::Module module;
-	jnc::Runtime runtime;
+	jnc::Module m_module;
+	jnc::Runtime m_runtime;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

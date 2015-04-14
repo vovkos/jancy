@@ -1555,6 +1555,12 @@ public:
 		const Value& dstValue
 		);
 
+	void
+	checkVariantScopeLevel (
+		const Value& srcValue,
+		const Value& dstValue
+		);
+
 protected:
 	// overloaded operators
 

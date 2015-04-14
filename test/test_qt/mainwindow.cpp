@@ -136,18 +136,18 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ASSERT (!g_mainWindow);
 	g_mainWindow = this;
 
-	createMdiArea();
-	setCentralWidget(mdiArea);
+	createMdiArea ();
+	setCentralWidget (m_mdiArea);
 
-	createActions();
-	createMenu();
-	createToolBars();
-	createPanes();
-	createStatusBar();
+	createActions ();
+	createMenu ();
+	createToolBars ();
+	createPanes ();
+	createStatusBar ();
 
-	readSettings();
+	readSettings ();
 
-	connect(
+	connect (
 		this, SIGNAL (outputSignal ()),
 		this, SLOT (outputSlot ()),
 		Qt::QueuedConnection
@@ -156,14 +156,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 void MainWindow::closeEvent(QCloseEvent* e)
 {
-	writeSettings();
+	writeSettings ();
+	m_mdiArea->closeAllSubWindows ();
 
-	mdiArea->closeAllSubWindows();
-	if (mdiArea->currentSubWindow()) {
+	if (m_mdiArea->currentSubWindow ())
 		e->ignore();
-	} else {
+	else
 		e->accept();
-	}
 }
 
 void MainWindow::newFile()
@@ -191,14 +190,20 @@ void MainWindow::openFile(QString filePath)
 	m_lastDir = QFileInfo (filePath).dir ().absolutePath ();
 
 	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
-	if(subWindow) {
-		mdiArea->setActiveSubWindow(subWindow);
-	} else {
+	if (subWindow) 
+	{
+		m_mdiArea->setActiveSubWindow(subWindow);
+	} 
+	else 
+	{
 		MdiChild* child = createMdiChild();
-		if (child->loadFile(filePath)) {
+		if (child->loadFile(filePath)) 
+		{
 			writeStatus("File loaded", 2000);
 			child->showMaximized();
-		} else {
+		} 
+		else 
+		{
 			child->close();
 		}
 	}
@@ -220,75 +225,67 @@ void MainWindow::saveAs()
 
 void MainWindow::createActions()
 {
-	newFileAction = new QAction(QIcon(":/Images/New"), "&New", this);
-	newFileAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
-	QObject::connect(newFileAction, SIGNAL(triggered()),
-		this, SLOT(newFile()));
+	m_newFileAction = new QAction(QIcon(":/Images/New"), "&New", this);
+	m_newFileAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+	QObject::connect(m_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
-	openFileAction = new QAction(QIcon(":/Images/Open"), "&Open", this);
-	QObject::connect(openFileAction, SIGNAL(triggered()),
-		this, SLOT(openFile()));
+	m_openFileAction = new QAction(QIcon(":/Images/Open"), "&Open", this);
+	QObject::connect(m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
-	saveFileAction = new QAction(QIcon(":/Images/Save"), "&Save", this);
-	saveFileAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
-	QObject::connect(saveFileAction, SIGNAL(triggered()),
-		this, SLOT(saveFile()));
+	m_saveFileAction = new QAction(QIcon(":/Images/Save"), "&Save", this);
+	m_saveFileAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+	QObject::connect(m_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 
-	saveAsAction = new QAction("S&ave as...", this);
-	QObject::connect(saveAsAction, SIGNAL(triggered()),
-		this, SLOT(saveAs()));
+	m_saveAsAction = new QAction("S&ave as...", this);
+	QObject::connect(m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-	quitAction = new QAction("&Exit", this);
-	QObject::connect(quitAction, SIGNAL(triggered()),
-		qApp, SLOT(quit()));
+	m_quitAction = new QAction("&Exit", this);
+	QObject::connect(m_quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-	clearOutputAction = new QAction("&Clear Output", this);
-	QObject::connect(clearOutputAction, SIGNAL(triggered()),
-		this, SLOT(clearOutput()));
+	m_clearOutputAction = new QAction("&Clear Output", this);
+	QObject::connect(m_clearOutputAction, SIGNAL(triggered()), this, SLOT(clearOutput()));
 
-	compileAction = new QAction(QIcon(":/Images/Compile"), "C&ompile", this);
-	compileAction->setShortcut(QKeySequence(Qt::Key_F7));
-	QObject::connect(compileAction, SIGNAL(triggered()),
-		this, SLOT(compile()));
+	m_compileAction = new QAction(QIcon(":/Images/Compile"), "C&ompile", this);
+	m_compileAction->setShortcut(QKeySequence(Qt::Key_F7));
+	QObject::connect(m_compileAction, SIGNAL(triggered()), this, SLOT(compile()));
 
-	runAction = new QAction(QIcon(":/Images/Run"), "&Run", this);
-	runAction->setShortcut(QKeySequence(Qt::Key_F5));
-	QObject::connect(runAction, SIGNAL(triggered()),
-		this, SLOT(run()));
+	m_runAction = new QAction(QIcon(":/Images/Run"), "&Run", this);
+	m_runAction->setShortcut(QKeySequence(Qt::Key_F5));
+	QObject::connect(m_runAction, SIGNAL(triggered()), this, SLOT(run()));
 }
 
 void MainWindow::createMenu()
 {
-	fileMenu = menuBar()->addMenu("&File");
-	fileMenu->addAction(newFileAction);
-	fileMenu->addAction(openFileAction);
-	fileMenu->addSeparator();
-	fileMenu->addAction(saveFileAction);
-	fileMenu->addAction(saveAsAction);
-	fileMenu->addSeparator();
-	fileMenu->addAction(quitAction);
+	m_fileMenu = menuBar()->addMenu("&File");
+	m_fileMenu->addAction(m_newFileAction);
+	m_fileMenu->addAction(m_openFileAction);
+	m_fileMenu->addSeparator();
+	m_fileMenu->addAction(m_saveFileAction);
+	m_fileMenu->addAction(m_saveAsAction);
+	m_fileMenu->addSeparator();
+	m_fileMenu->addAction(m_quitAction);
 
-	editMenu = menuBar()->addMenu("&Edit");
-	editMenu->addAction(clearOutputAction);
+	m_editMenu = menuBar()->addMenu("&Edit");
+	m_editMenu->addAction(m_clearOutputAction);
 
-	debugMenu = menuBar()->addMenu("&Debug");
-	debugMenu->addAction(compileAction);
-	debugMenu->addAction(runAction);
+	m_debugMenu = menuBar()->addMenu("&Debug");
+	m_debugMenu->addAction(m_compileAction);
+	m_debugMenu->addAction(m_runAction);
 
-	viewMenu = menuBar()->addMenu("&View");
+	m_viewMenu = menuBar()->addMenu("&View");
 }
 
 void MainWindow::createToolBars()
 {
-	mainToolBar = addToolBar("Main Toolbar");
-	mainToolBar->addAction(newFileAction);
-	mainToolBar->addAction(openFileAction);
-	mainToolBar->addAction(saveFileAction);
-	mainToolBar->addSeparator();
-	mainToolBar->addAction(compileAction);
-	mainToolBar->addAction(runAction);
+	m_mainToolBar = addToolBar("Main Toolbar");
+	m_mainToolBar->addAction(m_newFileAction);
+	m_mainToolBar->addAction(m_openFileAction);
+	m_mainToolBar->addAction(m_saveFileAction);
+	m_mainToolBar->addSeparator();
+	m_mainToolBar->addAction(m_compileAction);
+	m_mainToolBar->addAction(m_runAction);
 
-	viewMenu->addAction(mainToolBar->toggleViewAction());
+	m_viewMenu->addAction(m_mainToolBar->toggleViewAction());
 }
 
 void MainWindow::createStatusBar()
@@ -298,31 +295,31 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createMdiArea()
 {
-	mdiArea = new QMdiArea(this);
-	mdiArea->setViewMode(QMdiArea::TabbedView);
-	mdiArea->setTabShape(QTabWidget::Triangular);
-	mdiArea->setTabsClosable(true);
-	mdiArea->setTabsMovable(true);
+	m_mdiArea = new QMdiArea(this);
+	m_mdiArea->setViewMode(QMdiArea::TabbedView);
+	m_mdiArea->setTabShape(QTabWidget::Triangular);
+	m_mdiArea->setTabsClosable(true);
+	m_mdiArea->setTabsMovable(true);
 
-	QTabBar* tabBar = mdiArea->findChild<QTabBar*>();
+	QTabBar* tabBar = m_mdiArea->findChild<QTabBar*>();
 	if (tabBar)
 		tabBar->setExpanding(false);
 }
 
 void MainWindow::createPanes()
 {
-	output = new Output(this);
-	modulePane = new ModulePane(this);
-	llvmIr = new LlvmIr(this);
-	disassembly = new Disassembly(this);
+	m_output = new Output(this);
+	m_modulePane = new ModulePane(this);
+	m_llvmIr = new LlvmIr(this);
+	m_disassembly = new Disassembly(this);
 
-	addPane(output, "Output", Qt::BottomDockWidgetArea);
-	addPane(modulePane, "Module", Qt::RightDockWidgetArea);
+	addPane(m_output, "Output", Qt::BottomDockWidgetArea);
+	addPane(m_modulePane, "Module", Qt::RightDockWidgetArea);
 
-	QDockWidget* llvmIrDock = addPane(llvmIr, "LLVM IR",
+	QDockWidget* llvmIrDock = addPane(m_llvmIr, "LLVM IR",
 		Qt::RightDockWidgetArea);
 
-	QDockWidget* disassemblyDock = addPane(disassembly, "Disassembly",
+	QDockWidget* disassemblyDock = addPane(m_disassembly, "Disassembly",
 		Qt::RightDockWidgetArea);
 
 	tabifyDockWidget(llvmIrDock, disassemblyDock);
@@ -337,7 +334,7 @@ QDockWidget* MainWindow::addPane(QWidget* widget, const QString& title,
 
 	addDockWidget(dockArea, dockWidget);
 
-	viewMenu->addAction(dockWidget->toggleViewAction());
+	m_viewMenu->addAction(dockWidget->toggleViewAction());
 
 	return dockWidget;
 }
@@ -354,16 +351,16 @@ size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 
 	QString string = QString::fromUtf8 (text, length);
 
-	if (QApplication::instance()->thread () == QThread::currentThread () && outputQueue.empty ())
+	if (QApplication::instance()->thread () == QThread::currentThread () && m_outputQueue.empty ())
 	{
-		output->appendString (string);
-		output->repaint ();
+		m_output->appendString (string);
+		m_output->repaint ();
 	}
 	else
 	{
-		outputMutex.lock ();
-		outputQueue.append (string);
-		outputMutex.unlock ();
+		m_outputMutex.lock ();
+		m_outputQueue.append (string);
+		m_outputMutex.unlock ();
 
 		emit outputSignal ();
 	}
@@ -387,20 +384,20 @@ size_t MainWindow::writeOutput (const char* format, ...)
 
 void MainWindow::outputSlot ()
 {
-	outputMutex.lock ();
+	m_outputMutex.lock ();
 
-	while (!outputQueue.empty ())
+	while (!m_outputQueue.empty ())
 	{
-		QString string = outputQueue.takeFirst ();
-		outputMutex.unlock ();
+		QString string = m_outputQueue.takeFirst ();
+		m_outputMutex.unlock ();
 
-		output->appendString (string);
-		output->repaint ();
+		m_output->appendString (string);
+		m_output->repaint ();
 
-		outputMutex.lock ();
+		m_outputMutex.lock ();
 	}
 
-	outputMutex.unlock ();
+	m_outputMutex.unlock ();
 }
 
 MdiChild* MainWindow::findMdiChild(const QString& filePath)
@@ -430,7 +427,7 @@ void MainWindow::writeSettings()
 	QSettings s;
 
 	QStringList files;
-	foreach (QMdiSubWindow* subWindow, mdiArea->subWindowList())
+	foreach (QMdiSubWindow* subWindow, m_mdiArea->subWindowList())
 		if(MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget()))
 			files.append(child->file());
 
@@ -441,8 +438,7 @@ void MainWindow::writeSettings()
 jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	jnc::ModuleItem* item =
-		module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
+	jnc::ModuleItem* item = m_module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
 
 	if(!item)
 		return NULL;
@@ -455,7 +451,7 @@ jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 
 void MainWindow::clearOutput()
 {
-	output->clear();
+	m_output->clear();
 }
 
 //.............................................................................
@@ -482,22 +478,22 @@ bool MainWindow::compile ()
 #endif
 
 	QByteArray filePath = child->file().toUtf8 ();
-	module.create (filePath.data(), ModuleFlags);
+	m_module.create (filePath.data(), ModuleFlags);
 
 	writeOutput("Parsing...\n");
 
-	modulePane->clear ();
-	llvmIr->clear ();
-	disassembly->clear ();
+	m_modulePane->clear ();
+	m_llvmIr->clear ();
+	m_disassembly->clear ();
 
 	QByteArray source = child->toPlainText().toUtf8();
 
-	result = module.parse (
+	result = m_module.parse (
 		filePath.constData (),
 		source.constData (),
 		source.size ()
 		) &&
-		module.parseImports ();
+		m_module.parseImports ();
 
 	if (!result)
 	{
@@ -506,7 +502,7 @@ bool MainWindow::compile ()
 	}
 
 	writeOutput("Compiling...\n");
-	result = module.compile ();
+	result = m_module.compile ();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
@@ -515,17 +511,17 @@ bool MainWindow::compile ()
 
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
 
-	modulePane->build (&module, child);
-	llvmIr->build (&module);
+	m_modulePane->build (&m_module, child);
+	m_llvmIr->build (&m_module);
 
 	writeOutput("JITting...\n");
 
 	result =
-		module.createLlvmExecutionEngine () &&
-		StdLib::mapFunctions (&module) &&
-		module.jit () &&
-		runtime.create () &&
-		runtime.addModule (&module);
+		m_module.createLlvmExecutionEngine () &&
+		StdLib::mapFunctions (&m_module) &&
+		m_module.jit () &&
+		m_runtime.create () &&
+		m_runtime.addModule (&m_module);
 
 	if (!result)
 	{
@@ -533,7 +529,7 @@ bool MainWindow::compile ()
 		return false;
 	}
 
-	disassembly->build (&module);
+	m_disassembly->build (&m_module);
 
 	writeOutput ("Done.\n");
 	child->setCompilationNeeded (false);
@@ -587,17 +583,17 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-	jnc::ScopeThreadRuntime scopeRuntime (&runtime);
+	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
 
-	runtime.startup ();
+	m_runtime.startup ();
 
 	// constructor && destructor
 
-	jnc::Function* destructor = module.getDestructor ();
+	jnc::Function* destructor = m_module.getDestructor ();
 	if (destructor)
-		runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
+		m_runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
 
-	jnc::Function* constructor = module.getConstructor ();
+	jnc::Function* constructor = m_module.getConstructor ();
 	if (constructor)
 	{
 		result = runFunction (constructor);
@@ -612,7 +608,7 @@ MainWindow::run ()
 	if (!result)
 		return false;
 
-	runtime.shutdown ();
+	m_runtime.shutdown ();
 
 	writeOutput ("Done (retval = %d).\n", returnValue);
 	return true;
@@ -622,17 +618,17 @@ MdiChild* MainWindow::createMdiChild ()
 {
 	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
-	mdiArea->addSubWindow(child);
+	m_mdiArea->addSubWindow(child);
 
 	return child;
 }
 
 MdiChild* MainWindow::activeMdiChild ()
 {
-	 QMdiSubWindow* activeSubWindow = mdiArea->activeSubWindow();
+	 QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
 
-	 if (!activeSubWindow && !mdiArea->subWindowList().empty())
-		 activeSubWindow = mdiArea->subWindowList().at(0);
+	 if (!activeSubWindow && !m_mdiArea->subWindowList().empty())
+		 activeSubWindow = m_mdiArea->subWindowList().at(0);
 
 	 if (!activeSubWindow)
 		 return 0;
@@ -644,7 +640,7 @@ QMdiSubWindow* MainWindow::findMdiSubWindow (const QString& filePath)
 {
 	QString canonicalFilePath = QFileInfo(filePath).canonicalFilePath();
 
-	foreach (QMdiSubWindow* subWindow, mdiArea->subWindowList()) {
+	foreach (QMdiSubWindow* subWindow, m_mdiArea->subWindowList()) {
 		MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget());
 		if(child && child->file() == canonicalFilePath)
 			return subWindow;

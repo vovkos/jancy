@@ -74,10 +74,12 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_br, appendFmtLiteral_s)
+		JNC_STD_FUNCTION (StdFunction_CheckVariantScopeLevel, checkVariantScopeLevel)
 		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRange, tryCheckDataPtrRange)
 		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange, checkDataPtrRange)
 		JNC_STD_FUNCTION (StdFunction_TryCheckNullPtr, tryCheckNullPtr)
 		JNC_STD_FUNCTION (StdFunction_CheckNullPtr, checkNullPtr)
+		JNC_STD_FUNCTION (StdFunction_TryLazyGetLibraryFunction, tryLazyGetLibraryFunction)
 		JNC_STD_FUNCTION (StdFunction_LazyGetLibraryFunction, lazyGetLibraryFunction)
 		JNC_STD_TYPE (StdType_Error, Error)
 		JNC_STD_TYPE (StdType_String, String)
@@ -464,6 +466,20 @@ public:
 	}
 
 	static
+	void 
+	checkClassPtrScopeLevel (
+		IfaceHdr* iface,
+		ObjHdr* object
+		);
+
+	static
+	void 
+	checkVariantScopeLevel (
+		Variant variant,
+		ObjHdr* object
+		);
+
+	static
 	bool 
 	tryCheckDataPtrRange (
 		void* p,
@@ -493,6 +509,14 @@ public:
 	checkNullPtr (
 		void* p,
 		TypeKind typeKind
+		);
+
+	static
+	void* 
+	tryLazyGetLibraryFunction (
+		Library* library,
+		size_t index,
+		const char* name
 		);
 
 	static

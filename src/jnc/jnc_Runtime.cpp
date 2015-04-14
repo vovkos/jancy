@@ -57,8 +57,33 @@ Runtime::destroy ()
 		AXL_MEM_FREE (tls);
 	}
 
-	m_staticGcRootArray.clear ();
+	size_t count = m_gcMemBlockArray.getCount ();
+	for (intptr_t i = count - 1; i >= 0; i--)
+	{
+		ObjHdr* object = m_gcMemBlockArray [i];
+		void* block = (object->m_flags & ObjHdrFlag_DynamicArray) ?
+			(void*) ((size_t*) object - 1) :
+			object;
+
+		AXL_MEM_FREE (block);
+	}
+
+	m_gcState = GcState_Idle;
+	m_totalGcAllocSize = 0;
+	m_currentGcAllocSize = 0;
+	m_periodGcAllocSize = 0;
+	m_gcUnsafeThreadCount = 1;
+	m_currentGcRootArrayIdx = 0;
+
 	m_moduleArray.clear ();
+	m_gcObjectArray.clear ();
+	m_gcMemBlockArray.clear ();
+	m_gcPinTable.clear ();
+	m_gcDestructGuardList.clear ();
+	m_staticGcRootArray.clear ();
+	m_gcRootArray [0].clear ();
+	m_gcRootArray [1].clear ();
+	m_staticDestructList.clear ();
 }
 
 bool

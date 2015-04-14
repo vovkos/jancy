@@ -906,6 +906,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		{ NULL },                                // StdFunction_CheckScopeLevel,
 		{ NULL },                                // StdFunction_CheckScopeLevelDirect,
 		{ NULL },                                // StdFunction_CheckClassPtrScopeLevel,
+		{ NULL },                                // StdFunction_CheckVariantScopeLevel,
 		{                                        // StdFunction_DynamicSizeOf,
 			dynamicSizeOfSrc,
 			lengthof (dynamicSizeOfSrc),
@@ -1193,6 +1194,11 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (dynamicCastVariantSrc),
 			StdNamespace_Internal,
 		},
+		{                                       // StdFunction_TryLazyGetLibraryFunctionAddr,
+			tryLazyGetLibraryFunctionSrc,
+			lengthof (tryLazyGetLibraryFunctionSrc),
+			StdNamespace_Internal,
+		},
 		{                                       // StdFunction_LazyGetLibraryFunctionAddr,
 			lazyGetLibraryFunctionSrc,
 			lengthof (lazyGetLibraryFunctionSrc),
@@ -1218,6 +1224,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	case StdFunction_CheckClassPtrScopeLevel:
 		function = createCheckClassPtrScopeLevel ();
+		break;
+
+	case StdFunction_CheckVariantScopeLevel:
+		function = createCheckVariantScopeLevel ();
 		break;
 
 	case StdFunction_MarkGcRoot:
@@ -1291,8 +1301,9 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_CheckDataPtrRange:
 	case StdFunction_TryCheckNullPtr:
 	case StdFunction_CheckNullPtr:
-	case StdFunction_LazyGetLibraryFunction:
 	case StdFunction_DynamicCastVariant:
+	case StdFunction_TryLazyGetLibraryFunction:
+	case StdFunction_LazyGetLibraryFunction:
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
 			sourceTable [func].m_stdNamespace,
@@ -1376,6 +1387,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_CheckScopeLevel,
 		NULL,                  // StdFunction_CheckScopeLevelDirect,
 		NULL,                  // StdFunction_CheckClassPtrScopeLevel,
+		NULL,                  // StdFunction_CheckVariantScopeLevel,
 		NULL,                  // StdFunction_DynamicSizeOf,
 		NULL,                  // StdFunction_DynamicCountOf,
 		NULL,                  // StdFunction_DynamicCastDataPtr,
@@ -1435,6 +1447,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_TryCheckNullPtr,
 		NULL,                  // StdFunction_CheckNullPtr,
 		NULL,                  // StdFunction_DynamicCastVariant,
+		NULL,                  // StdFunction_TryLazyGetLibraryFunction,
 		NULL,                  // StdFunction_LazyGetLibraryFunction,
 	};
 
@@ -1579,6 +1592,21 @@ FunctionMgr::createCheckClassPtrScopeLevel ()
 
 	internalEpilogue ();
 
+	return function;
+}
+
+Function*
+FunctionMgr::createCheckVariantScopeLevel ()
+{
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+	Type* argTypeArray [] =
+	{
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant),
+		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
+	};
+
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
+	Function* function = createFunction (FunctionKind_Internal, "jnc.checkVariantScopeLevel", functionType);
 	return function;
 }
 

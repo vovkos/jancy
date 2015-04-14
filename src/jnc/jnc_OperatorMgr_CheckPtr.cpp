@@ -42,10 +42,7 @@ OperatorMgr::checkPtr (
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope);
 
-	bool canThrow = (scope->getFlags () & ScopeFlag_CanThrow) != 0;
-	bool isThrowLocked = m_module->m_controlFlowMgr.isThrowLocked ();
-
-	if (!canThrow && !isThrowLocked)
+	if (!(scope->getFlags () & ScopeFlag_CanThrow))
 	{
 		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdCheckFunction);
 
@@ -71,11 +68,8 @@ OperatorMgr::checkPtr (
 			&returnValue
 			);
 
-		if (!isThrowLocked)
-		{
-			bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
-			ASSERT (result);
-		}
+		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
+		ASSERT (result);
 	}
 }
 
@@ -313,6 +307,33 @@ OperatorMgr::checkPropertyPtrScopeLevel (
 	Value closureValue;
 	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 	checkClassPtrScopeLevel (closureValue, dstValue);
+}
+
+void
+OperatorMgr::checkVariantScopeLevel (
+	const Value& srcValue,
+	const Value& dstValue
+	)
+{
+	ASSERT (srcValue.getType ()->getTypeKind () == TypeKind_Variant);
+
+	if (m_module->m_operatorMgr.isUnsafeRgn ())
+		return;
+
+	Value dstObjHdrValue;
+	getDataRefObjHdr (dstValue, &dstObjHdrValue);
+
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
+
+	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckVariantScopeLevel);
+
+	m_module->m_llvmIrBuilder.createCall2 (
+		checkFunction,
+		checkFunction->getType (),
+		srcValue,
+		dstObjHdrValue,
+		NULL
+		);
 }
 
 //.............................................................................

@@ -15,6 +15,11 @@ library Msvcrt
 		...
 		);
 }
+
+foo (Msvcrt* msvcrt)
+{
+	msvcrt.lib.printf ("hui govno i muravei!\n");
+}
 	
 int main ()
 {
@@ -26,7 +31,8 @@ int main ()
 
 	Msvcrt msvcrt;
 	msvcrt.load ("msvcrt.dll");
-	msvcrt.lib.printf ("hui govno i muravei!\n");
+
+	foo (msvcrt);
 
 	return 0;
 

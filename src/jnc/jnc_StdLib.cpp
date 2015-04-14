@@ -848,6 +848,52 @@ StdLib::appendFmtLiteralStringImpl (
 	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 's', p);
 }
 
+void 
+StdLib::checkClassPtrScopeLevel (
+	IfaceHdr* iface,
+	ObjHdr* object
+	)
+{
+	if (iface && iface->m_object->m_scopeLevel > object->m_scopeLevel)
+		Runtime::runtimeError (RuntimeErrorKind_ScopeMismatch);
+}
+
+void 
+StdLib::checkVariantScopeLevel (
+	Variant variant,
+	ObjHdr* object
+	)
+{
+	TypeKind typeKind = variant.m_type ? variant.m_type->getTypeKind () : TypeKind_Void;
+	switch (typeKind)
+	{
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef:
+		if (((DataPtrType*) variant.m_type)->getPtrTypeKind () == DataPtrTypeKind_Normal &&
+			variant.m_dataPtr.m_object && variant.m_dataPtr.m_object->m_scopeLevel > object->m_scopeLevel)
+			Runtime::runtimeError (RuntimeErrorKind_ScopeMismatch, NULL, NULL);
+	
+		break;
+
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		checkClassPtrScopeLevel (variant.m_classPtr, object);
+		break;
+
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		if (((FunctionPtrType*) variant.m_type)->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
+			checkClassPtrScopeLevel (variant.m_functionPtr.m_closure, object);
+		break;
+
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		if (((FunctionPtrType*) variant.m_type)->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
+			checkClassPtrScopeLevel (variant.m_propertyPtr.m_closure, object);
+		break;
+	}
+}
+
 bool 
 StdLib::tryCheckDataPtrRange (
 	void* p,
@@ -930,7 +976,7 @@ StdLib::checkNullPtr (
 }
 
 void* 
-StdLib::lazyGetLibraryFunction (
+StdLib::tryLazyGetLibraryFunction (
 	Library* library,
 	size_t index,
 	const char* name
@@ -961,6 +1007,20 @@ StdLib::lazyGetLibraryFunction (
 
 	functionTable [index] = function;
 	return function;
+}
+
+void* 
+StdLib::lazyGetLibraryFunction (
+	Library* library,
+	size_t index,
+	const char* name
+	)
+{
+	void* p = tryLazyGetLibraryFunction (library, index, name);
+	if (!p)
+		Runtime::runtimeError (err::getLastError ());
+
+	return p;
 }
 
 //.............................................................................

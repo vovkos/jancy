@@ -335,7 +335,7 @@ ControlFlowMgr::throwIf (
 	FunctionType* functionType
 	)
 {
-	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws && !isThrowLocked ());
+	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws);
 
 	bool result;
 

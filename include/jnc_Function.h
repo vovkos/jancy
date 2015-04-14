@@ -81,6 +81,7 @@ enum StdFunction
 	StdFunction_CheckScopeLevel,
 	StdFunction_CheckScopeLevelDirect,
 	StdFunction_CheckClassPtrScopeLevel,
+	StdFunction_CheckVariantScopeLevel,
 	StdFunction_DynamicSizeOf,
 	StdFunction_DynamicCountOf,
 	StdFunction_DynamicCastDataPtr,
@@ -140,6 +141,7 @@ enum StdFunction
 	StdFunction_TryCheckNullPtr,
 	StdFunction_CheckNullPtr,
 	StdFunction_DynamicCastVariant,
+	StdFunction_TryLazyGetLibraryFunction,
 	StdFunction_LazyGetLibraryFunction,
 	StdFunction__Count
 };

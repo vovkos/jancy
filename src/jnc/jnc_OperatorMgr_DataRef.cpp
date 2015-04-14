@@ -229,6 +229,10 @@ OperatorMgr::storeDataRef (
 		checkPropertyPtrScopeLevel (srcValue, dstValue);
 		break;
 
+	case TypeKind_Variant:
+		checkVariantScopeLevel (srcValue, dstValue);
+		break;
+
 	case TypeKind_BitField:
 		m_module->m_llvmIrBuilder.createLoad (
 			ptrValue, 
