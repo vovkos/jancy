@@ -187,7 +187,7 @@ endmacro ()
 # test against official samples
 
 if (UNIX)
-	set (_FLAGS "--mcjit --run")
+	set (_FLAGS "--mcjit --debug-info --run")
 else ()
 	set (_FLAGS "--run")
 endif ()

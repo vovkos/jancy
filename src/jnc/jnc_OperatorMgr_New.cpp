@@ -545,6 +545,9 @@ OperatorMgr::evaluateAlias (
 {
 	Value prevThisValue = m_module->m_functionMgr.overrideThisValue (thisValue);
 	bool result = evaluateAlias (decl, tokenList, resultValue);
+	if (!result)
+		return false;
+
 	m_module->m_functionMgr.overrideThisValue (prevThisValue);
 	return true;
 }
