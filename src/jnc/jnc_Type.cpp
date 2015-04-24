@@ -598,6 +598,14 @@ Type::prepareLlvmType ()
 void
 Type::prepareLlvmDiType ()
 {
+	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);
+
+	if (m_typeKind == TypeKind_Variant)
+	{
+		m_llvmDiType = m_module->m_typeMgr.getStdType (StdType_VariantStruct)->getLlvmDiType ();
+		return;
+	}
+
 	struct LlvmDiType
 	{
 		const char* m_name;
@@ -730,8 +738,8 @@ Type::prepareLlvmDiType ()
 		},
 	};
 
-	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);
 	LlvmDiType* diType = &llvmDiTypeTable [m_typeKind];
+	ASSERT (diType->m_size);
 
 	m_llvmDiType = m_module->m_llvmDiBuilder.createBasicType (
 		diType->m_name,
