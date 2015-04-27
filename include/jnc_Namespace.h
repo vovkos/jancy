@@ -16,7 +16,9 @@ class ExtensionNamespace;
 class DerivableType;
 class EnumType;
 class EnumConst;
+class Const;
 class MemberCoord;
+class Value;
 
 struct DualPtrTypeTuple;
 
@@ -207,6 +209,12 @@ public:
 
 	size_t
 	addFunction (Function* function); // returns overload idx or -1 on error
+
+	Const*
+	createConst (
+		const rtl::String& name,
+		const Value& value
+		);
 
 	size_t
 	getItemCount ()

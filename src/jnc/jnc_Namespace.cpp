@@ -278,6 +278,25 @@ Namespace::addFunction (Function* function)
 	return ((Function*) oldItem)->addOverload (function);
 }
 
+Const*
+Namespace::createConst (
+	const rtl::String& name,
+	const Value& value
+	)
+{
+	ASSERT (value.getValueKind () == ValueKind_Const && value.getType ());
+
+	Module* module = value.getType ()->getModule ();
+	rtl::String qualifiedName = createQualifiedName (name);
+
+	Const* cnst = module->m_constMgr.createConst (name, qualifiedName, value);
+	bool result = addItem (cnst);
+	if (!result)
+		return NULL;
+
+	return cnst;
+}
+
 bool
 Namespace::exposeEnumConsts (EnumType* type)
 {

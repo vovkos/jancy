@@ -2548,6 +2548,10 @@ Parser::lookupIdentifier (
 			value
 			);
 
+	case ModuleItemKind_Const:
+		*value = ((Const*) item)->getValue ();
+		break;
+
 	case ModuleItemKind_Variable:
 		if (m_flags & Flag_ConstExpression)
 		{

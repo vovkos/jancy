@@ -15,8 +15,26 @@ ConstMgr::ConstMgr ()
 void
 ConstMgr::clear ()
 {
+	m_valueList.clear ();
 	m_constList.clear ();
 	m_unsafeLeanDataPtrValidator = ref::PtrKind_Null;
+}
+
+Const*
+ConstMgr::createConst (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	const Value& value
+	)
+{
+	Const* cnst = AXL_MEM_NEW (Const);
+	cnst->m_name = name;
+	cnst->m_qualifiedName = qualifiedName;
+	cnst->m_tag = qualifiedName;
+	cnst->m_value = value;
+	m_constList.insertTail (cnst);
+
+	return cnst;
 }
 
 LeanDataPtrValidator*

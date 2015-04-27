@@ -11,23 +11,23 @@ getModuleItemKindString (ModuleItemKind itemKind)
 {
 	static const char* stringTable [ModuleItemKind__Count] =
 	{
-		"undefined-module-item-kind",  // EModuleItem_Undefined = 0,
-		"namespace",                   // EModuleItem_Namespace,
-		"scope",                       // EModuleItem_Scope,
-		"type",                        // EModuleItem_Type,
-		"typedef",                     // EModuleItem_Typedef,
-		"alias",                       // EModuleItem_Alias,
-		"const",                       // EModuleItem_Const,
-		"variable",                    // EModuleItem_Variable,
-		"function-arg",                // EModuleItem_FunctionArg,
-		"function",                    // EModuleItem_Function,
-		"property",                    // EModuleItem_Property,
-		"property-template",           // EModuleItem_PropertyTemplate,
-		"enum-member",                 // EModuleItem_EnumConst,
-		"struct-member",               // EModuleItem_StructField,
-		"base-type-slot",              // EModuleItem_BaseTypeSlot,
-		"orphan",                      // EModuleItem_Orphan,
-		"lazy",                        // EModuleItem_Lazy,
+		"undefined-module-item-kind",  // ModuleItemKind_Undefined = 0,
+		"namespace",                   // ModuleItemKind_Namespace,
+		"scope",                       // ModuleItemKind_Scope,
+		"type",                        // ModuleItemKind_Type,
+		"typedef",                     // ModuleItemKind_Typedef,
+		"alias",                       // ModuleItemKind_Alias,
+		"const",                       // ModuleItemKind_Const,
+		"variable",                    // ModuleItemKind_Variable,
+		"function-arg",                // ModuleItemKind_FunctionArg,
+		"function",                    // ModuleItemKind_Function,
+		"property",                    // ModuleItemKind_Property,
+		"property-template",           // ModuleItemKind_PropertyTemplate,
+		"enum-member",                 // ModuleItemKind_EnumConst,
+		"struct-member",               // ModuleItemKind_StructField,
+		"base-type-slot",              // ModuleItemKind_BaseTypeSlot,
+		"orphan",                      // ModuleItemKind_Orphan,
+		"lazy",                        // ModuleItemKind_Lazy,
 	};
 
 	return (size_t) itemKind < ModuleItemKind__Count ?
@@ -42,19 +42,19 @@ getStorageKindString (StorageKind storageKind)
 {
 	static const char* stringTable [StorageKind__Count] =
 	{
-		"undefined-storage-class",  // EStorage_Undefined = 0,
-		"typedef",                  // EStorage_Typedef,
-		"alias",                    // EStorage_Alias,
-		"static",                   // EStorage_Static,
-		"thread",                   // EStorage_Thread,
-		"stack",                    // EStorage_Stack,
-		"heap",                     // EStorage_Heap,
-		"member",                   // EStorage_Member,
-		"abstract",                 // EStorage_Abstract,
-		"virtual",                  // EStorage_Virtual,
-		"override",                 // EStorage_Override,
-		"mutable",                  // EStorage_Mutable,
-		"this",                     // EStorage_This,
+		"undefined-storage-class",  // StorageKind_Undefined = 0,
+		"typedef",                  // StorageKind_Typedef,
+		"alias",                    // StorageKind_Alias,
+		"static",                   // StorageKind_Static,
+		"thread",                   // StorageKind_Thread,
+		"stack",                    // StorageKind_Stack,
+		"heap",                     // StorageKind_Heap,
+		"member",                   // StorageKind_Member,
+		"abstract",                 // StorageKind_Abstract,
+		"virtual",                  // StorageKind_Virtual,
+		"override",                 // StorageKind_Override,
+		"mutable",                  // StorageKind_Mutable,
+		"this",                     // StorageKind_This,
 	};
 
 	return (size_t) storageKind < StorageKind__Count ?
@@ -69,9 +69,9 @@ getAccessKindString (AccessKind accessKind)
 {
 	static const char* stringTable [AccessKind__Count] =
 	{
-		"undefined-access-kind", // EAccess_Undefined = 0,
-		"public",                // EAccess_Public,
-		"protected",             // EAccess_Protected,
+		"undefined-access-kind", // AccessKind_Undefined = 0,
+		"public",                // AccessKind_Public,
+		"protected",             // AccessKind_Protected,
 	};
 
 	return (size_t) accessKind < AccessKind__Count ?

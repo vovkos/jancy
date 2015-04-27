@@ -11,6 +11,28 @@ namespace jnc {
 
 //.............................................................................
 
+class Const: public UserModuleItem
+{
+	friend class ConstMgr;
+	
+protected:
+	Value m_value;
+	
+public:
+	Const ()
+	{
+		m_itemKind = ModuleItemKind_Const;
+	}
+
+	Value
+	getValue ()
+	{
+		return m_value;
+	}
+};
+
+//.............................................................................
+
 class ConstMgr
 {
 	friend class Module;
@@ -19,7 +41,8 @@ protected:
 	Module* m_module;
 
 	ref::Ptr <LeanDataPtrValidator> m_unsafeLeanDataPtrValidator;
-	rtl::BoxList <Value> m_constList;
+	rtl::BoxList <Value> m_valueList;
+	rtl::StdList <Const> m_constList;
 
 public:
 	ConstMgr ();
@@ -33,10 +56,17 @@ public:
 	void
 	clear ();
 
+	Const*
+	createConst (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		const Value& value
+		);
+
 	const Value& 
 	saveValue (const Value& value)
 	{
-		rtl::BoxIterator <Value> it = m_constList.insertTail (value);
+		rtl::BoxIterator <Value> it = m_valueList.insertTail (value);
 		return *it;
 	}
 
