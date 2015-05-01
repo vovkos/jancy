@@ -30,15 +30,16 @@ automaton_compound_stmt
 automaton_declaration
 	:	TokenKind_RegExpLiteral
 			{
-				return beginAutomatonRegExpBlock (
-					$1.m_data.m_string,
-					$1.m_pos
-					);
+				return automatonRegExp ($1.m_data.m_string, $1.m_pos);
 			}
-		local_declaration*
-			{
-				endAutomatonRegExpBlock ();
-			}
+	|		{
+				if (m_automatonState != AutomatonState_RegExpCase)
+				{
+					err::setStringError ("missing regexp condition");
+					return false;
+				}
+			}	
+		local_declaration+
 	;
 
 start

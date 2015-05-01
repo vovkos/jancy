@@ -25,6 +25,7 @@ Parser::Parser (Module* module)
 	m_reactionBindSiteCount = 0;
 	m_reactorTotalBindSiteCount = 0;
 	m_reactionIndex = 0;
+	m_automatonState = AutomatonState_Idle;
 	m_automatonSwitchBlock = NULL;
 	m_automatonReturnBlock = NULL;
 	m_libraryFunctionCount = 0;
@@ -2067,8 +2068,10 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 bool
 Parser::beginAutomatonFunction ()
 {
+	m_automatonState = AutomatonState_Idle;
 	m_automatonSwitchBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
 	m_automatonReturnBlock = m_module->m_controlFlowMgr.createBlock ("automaton_return_block");
+	m_automatonRegExpNameMgr.clear ();
 	m_automatonRegExp.clear ();
 	return true;
 }
@@ -2081,6 +2084,12 @@ Parser::finalizeAutomatonFunction ()
 
 	ClassType* recognizerType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Recognizer);
 	Type* recognizerPtrType = recognizerType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+
+	if (m_automatonState == AutomatonState_RegExpCase)
+	{
+		m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
+		m_module->m_namespaceMgr.closeScope ();
+	}
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
 
@@ -2103,7 +2112,7 @@ Parser::finalizeAutomatonFunction ()
 	size_t stateCount = stateArray.getCount ();
 
 	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (TypeKind_Int_u, stateCount);
-	Type* transitionTableType = m_module->m_typeMgr.getArrayType (TypeKind_SizeT, stateCount * 256);
+	Type* transitionTableType = m_module->m_typeMgr.getArrayType (TypeKind_SizeT, stateCount * fsm::TransitionTableCharCount);
 
 	Value stateFlagTableValue ((void*) NULL, stateFlagTableType);
 	Value transitionTableValue ((void*) NULL, transitionTableType);
@@ -2126,7 +2135,7 @@ Parser::finalizeAutomatonFunction ()
 		if (state->m_transitionList.isEmpty ())
 			*stateFlags |= RecognizerStateFlag_Final;
 
-		memset (transitionRow, -1, sizeof (size_t) * 256);
+		memset (transitionRow, -1, sizeof (size_t) * fsm::TransitionTableCharCount);
 
 		rtl::Iterator <fsm::DfaTransition> transitionIt = state->m_transitionList.getHead ();
 		for (; transitionIt; transitionIt++)
@@ -2135,7 +2144,8 @@ Parser::finalizeAutomatonFunction ()
 			switch (transition->m_matchCondition.m_conditionKind)
 			{
 			case fsm::MatchConditionKind_Char:
-				transitionRow [(uchar_t) transition->m_matchCondition.m_char] = transition->m_outState->m_id;
+				ASSERT (transition->m_matchCondition.m_char < fsm::TransitionTableCharCount);
+				transitionRow [transition->m_matchCondition.m_char] = transition->m_outState->m_id;
 				break;
 
 			case fsm::MatchConditionKind_CharSet:
@@ -2152,7 +2162,7 @@ Parser::finalizeAutomatonFunction ()
 		}
 
 		stateFlags++;
-		transitionRow += 256;
+		transitionRow += fsm::TransitionTableCharCount;
 	}
 
 	// generate switch 
@@ -2189,36 +2199,82 @@ Parser::finalizeAutomatonFunction ()
 	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonReturnBlock);	
-	Value retValue (true, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
+
+	Value retValue (
+		AutomatonResult_Continue, 
+		m_module->m_typeMgr.getStdType (StdType_AutomatonResult)
+		);
+
 	m_module->m_controlFlowMgr.ret (retValue);
 	return true;
 }
 
 bool
-Parser::beginAutomatonRegExpBlock (
-	const rtl::String& regExpSource,
+isNameValue (
+	const char* source,
+	rtl::String* name,
+	rtl::String* value
+	)
+{
+	const char* p = source;
+	while (isspace ((uchar_t) *p))
+		p++;
+
+	if (!isalpha ((uchar_t) *p) && *p != '_')
+		return false;
+
+	const char* nameBegin = p;
+	while (isalnum ((uchar_t) *p) || *p == '_')
+		p++;
+
+	const char* nameEnd = p;
+
+	while (isspace ((uchar_t) *p))
+		p++;
+
+	if (*p != '=')
+		return false;
+
+	name->copy (nameBegin, nameEnd - nameBegin);
+	value->copy (p + 1);
+	return true;
+}	
+
+bool
+Parser::automatonRegExp (
+	const rtl::String& source,
 	const Token::Pos& pos
 	)
 {
-	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp);
+	if (m_automatonState == AutomatonState_RegExpCase)
+	{
+		m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
+		m_module->m_namespaceMgr.closeScope ();
+	}
+
+	rtl::String name;
+	rtl::String value;
+	bool isRegExpNameDef = isNameValue (source, &name, &value);
+	if (isRegExpNameDef)
+	{
+		m_automatonRegExpNameMgr.addName (name, value);
+		m_automatonState = AutomatonState_Idle;
+		return true;
+	}
+
+	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp, &m_automatonRegExpNameMgr);
 	
 	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_regexp_block");
 	
-	bool result = regExpCompiler.incrementalCompile (regExpSource, block);
+	bool result = regExpCompiler.incrementalCompile (source, block);
 	if (!result)
 		return false;
 
 	m_module->m_namespaceMgr.openScope (pos);
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
 	block->markReachable ();
+	m_automatonState = AutomatonState_RegExpCase;
 	return true;
-}
-
-void
-Parser::endAutomatonRegExpBlock ()
-{
-	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
-	m_module->m_namespaceMgr.closeScope ();
 }
 
 bool

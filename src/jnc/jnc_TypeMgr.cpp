@@ -138,6 +138,11 @@ TypeMgr::getStdType (StdType stdType)
 			lengthof (recognizerTypeSrc),
 			StdNamespace_Jnc,
 		},
+		{                                    // StdType_AutomatonResult,
+			automatonResultTypeSrc,
+			lengthof (automatonResultTypeSrc),
+			StdNamespace_Jnc,
+		},
 		{                                    // StdType_Library,
 			libraryTypeSrc,
 			lengthof (libraryTypeSrc),
@@ -288,6 +293,7 @@ TypeMgr::getStdType (StdType stdType)
 		break;
 
 	case StdType_Recognizer:		
+	case StdType_AutomatonResult:
 	case StdType_Library:
 	case StdType_Scheduler:
 	case StdType_Guid:

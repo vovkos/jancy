@@ -150,6 +150,7 @@ enum StdType
 	StdType_ReactorBindSite,
 	StdType_Scheduler,
 	StdType_Recognizer,
+	StdType_AutomatonResult,
 	StdType_Library,
 	StdType_FmtLiteral,
 	StdType_Guid,

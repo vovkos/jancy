@@ -36,6 +36,17 @@ struct Error
 	char const* const property m_description;
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char automatonResultTypeSrc [] = 
+
+enum AutomatonResult
+{
+	Error    = -1,
+	Continue = 0,
+	Stop     = 1,
+}
+
 //.............................................................................
 
 ///---

@@ -64,6 +64,12 @@ Members
 		LandingPadFlag_Finally = 0x02,
 	};
 
+	enum AutomatonState
+	{
+		AutomatonState_Idle,
+		AutomatonState_RegExpCase,
+	};
+
 	struct CurlyInitializer
 	{
 		Value m_targetValue;
@@ -121,6 +127,8 @@ Members
 
 	Value m_curlyInitializerTargetValue;
 
+	AutomatonState m_automatonState;
+	fsm::StdRegExpNameMgr m_automatonRegExpNameMgr;
 	fsm::RegExp m_automatonRegExp;
 	BasicBlock* m_automatonSwitchBlock;
 	BasicBlock* m_automatonReturnBlock;
@@ -408,13 +416,10 @@ Members2
 	finalizeAutomatonFunction ();
 
 	bool
-	beginAutomatonRegExpBlock (
-		const rtl::String& regExpSource,
+	automatonRegExp (
+		const rtl::String& source,
 		const Token::Pos& pos
 		);
-
-	void
-	endAutomatonRegExpBlock ();
 
 	bool
 	callBaseTypeMemberConstructor (

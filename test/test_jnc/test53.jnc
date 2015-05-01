@@ -1,0 +1,26 @@
+//.............................................................................
+
+jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
+{
+	%% ws = [ \t\r\n]
+	%% dec = [0-9]
+
+	%% "abc" \s* \h+
+		printf ("lexeme: %s\n", recognizer.m_lexeme);
+}
+
+int main ()
+{	
+	printf ("main ()\n");
+
+	jnc.Recognizer recognizer (scanPacket);
+	recognizer.write ("abc 123");
+	recognizer.eof ();
+	return 0;
+
+catch:
+	printf ("error: %s\n", jnc.getLastError ().m_description);
+	return -1;
+}
+
+//.............................................................................

@@ -228,7 +228,8 @@ Function::compile ()
 	if (m_entryBlock) // already compiled
 		return true;
 
-	m_module->m_unitMgr.setCurrentUnit (m_itemDecl->getParentUnit ());
+	Unit* unit = m_itemDecl->getParentUnit ();
+	m_module->m_unitMgr.setCurrentUnit (unit);
 
 	// prologue
 
@@ -262,6 +263,26 @@ Function::compile ()
 	}
 	else if (m_type->getFlags () & FunctionTypeFlag_Automaton)
 	{
+		if (m_type->getReturnType ()->getStdType () != StdType_AutomatonResult)
+		{
+			err::setFormatStringError ("automaton function must return 'jnc.AutomatonResult'");
+			err::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+			return NULL;
+		}
+
+		rtl::Array <FunctionArg*> argArray = m_type->getArgArray ();
+		if (argArray.getCount () != 2 || 
+			(m_type->getFlags () & FunctionTypeFlag_VarArg) ||
+			(argArray [0]->getType ()->getTypeKind () != TypeKind_ClassPtr) ||
+			((ClassPtrType*) argArray [0]->getType ())->getTargetType ()->getStdType () != StdType_Recognizer)
+		{
+			err::setFormatStringError ("automaton function must take one argument of type 'jnc.Recognizer*'");
+			err::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+			return NULL;
+		}
+
+		ASSERT (argArray [1]->getType ()->getTypeKind () == TypeKind_Int);
+
 		startSymbol = SymbolKind_automaton_compound_stmt;
 	}
 
@@ -281,7 +302,6 @@ Function::compile ()
 }
 
 //.............................................................................
-
 
 ModuleItem*
 LazyStdFunction::getActualItem ()

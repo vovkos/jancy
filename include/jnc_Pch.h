@@ -97,6 +97,7 @@
 #include "axl_rtl_BoxList.h"
 #include "axl_rtl_ByteOrder.h"
 #include "axl_fsm_RegExp.h"
+#include "axl_fsm_StdRegExpNameMgr.h"
 #include "axl_enc_HexEncoding.h"
 #include "axl_enc_EscapeEncoding.h"
 #include "axl_rtl_HandleTable.h"

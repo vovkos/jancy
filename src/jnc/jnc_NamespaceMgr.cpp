@@ -96,6 +96,7 @@ NamespaceMgr::addStdItems ()
 		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_AutomatonResult)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Library)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&

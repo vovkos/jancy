@@ -27,6 +27,7 @@ getStdTypeName (StdType stdType)
 		NULL,             // StdType_ReactorBindSite,
 		"Scheduler",      // StdType_Scheduler,
 		"Recognizer",     // StdType_Recognizer,
+		"AutomatonResult", // StdType_AutomatonResult,
 		"Library",        // StdType_Library,
 		NULL,             // StdType_FmtLiteral,
 		"Guid",           // StdType_Guid
