@@ -77,8 +77,8 @@ Recognizer::write (
 	{
 		result = writeChar (fsm::PseudoChar_StartOfLine);
 		ASSERT (result != AutomatonResult_Error); // probably, invalid DFA
-
-		m_internalState = InternalState_Idle;
+		
+		m_internalState = InternalState_Started;
 	}
 
 	result = writeData ((uchar_t*) ptr.m_p, length);

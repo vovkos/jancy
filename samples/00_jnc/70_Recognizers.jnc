@@ -10,10 +10,7 @@
 
 //.............................................................................
 
-// our automaton compiles to a function with some implicit internal arguments,
-// one of which has type jnc.Recognizer* and is named 'recognizer'
-
-bool automaton fooBar ()
+jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
 {
 	%% "foo"
 		printf ("lexeme found: foo\n");
@@ -21,11 +18,11 @@ bool automaton fooBar ()
 	%% "bar"
 		printf ("lexeme found: bar\n");
 
-	%% [0-9]+
+	%% \d+
 		// you can access matched lexeme via recognizer.m_lexeme field
 		printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme); 
 
-	%% [ \r\n\t]*
+	%% \s+
 		// ignore whitespace
 }
 

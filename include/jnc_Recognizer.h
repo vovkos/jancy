@@ -64,8 +64,7 @@ public:
 	enum InternalState
 	{
 		InternalState_Idle = 0,
-		InternalState_Word,
-		InternalState_NotWord,
+		InternalState_Started,
 	};
 
 protected:
