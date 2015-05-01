@@ -271,17 +271,30 @@ Function::compile ()
 		}
 
 		rtl::Array <FunctionArg*> argArray = m_type->getArgArray ();
-		if (argArray.getCount () != 2 || 
+		size_t explicitArgCount = argArray.getCount ();
+		size_t recognizerArgIdx = 0;
+		
+		if (m_type->isMemberMethodType ())
+		{
+			explicitArgCount--;
+			recognizerArgIdx = 1;
+		}
+
+		ASSERT (recognizerArgIdx < explicitArgCount); // automaton at least has 'int state'
+		Type* recognizerArgType = argArray [recognizerArgIdx]->getType ();
+
+		if (explicitArgCount != 2 || 
 			(m_type->getFlags () & FunctionTypeFlag_VarArg) ||
-			(argArray [0]->getType ()->getTypeKind () != TypeKind_ClassPtr) ||
-			((ClassPtrType*) argArray [0]->getType ())->getTargetType ()->getStdType () != StdType_Recognizer)
+			(recognizerArgType->getTypeKind () != TypeKind_ClassPtr) ||
+			((ClassPtrType*) recognizerArgType)->getTargetType ()->getStdType () != StdType_Recognizer)
 		{
 			err::setFormatStringError ("automaton function must take one argument of type 'jnc.Recognizer*'");
 			err::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
 			return NULL;
 		}
 
-		ASSERT (argArray [1]->getType ()->getTypeKind () == TypeKind_Int);
+		ASSERT (recognizerArgIdx + 1 < argArray.getCount ());
+		ASSERT (argArray [recognizerArgIdx + 1]->getType ()->getTypeKind () == TypeKind_Int);
 
 		startSymbol = SymbolKind_automaton_compound_stmt;
 	}

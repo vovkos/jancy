@@ -1,12 +1,22 @@
 //.............................................................................
 
+jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
+{
+	%% "X" ('|' .*)?
+		printf ("PC (id = %s)\n", recognizer.m_lexeme + 1);
+
+	%% "PC" ('|' .*)?
+		printf ("PC (id = %s)\n", recognizer.m_lexeme + 2);
+}
+
 jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 {
-	%% ws = [ \t\r\n]
-	%% dec = [0-9]
+	%% "_?"
+		printf ("echo\n");
 
-	%% "abc" \s* \h+
-		printf ("lexeme: %s\n", recognizer.m_lexeme);
+	%% "_[" (\d+ '.')+ \d+ ']'
+		printf ("MAC: %s\n", recognizer.m_lexeme + 2);
+		recognizer.m_automatonFunc = scanCommand;
 }
 
 int main ()
@@ -14,7 +24,8 @@ int main ()
 	printf ("main ()\n");
 
 	jnc.Recognizer recognizer (scanPacket);
-	recognizer.write ("abc 123");
+	recognizer.write ("_?");
+	recognizer.write ("_[1.2.3.4.5.6]X|abcdef");
 	recognizer.eof ();
 	return 0;
 
