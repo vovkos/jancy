@@ -89,6 +89,9 @@ bool
 AXL_CDECL
 Recognizer::eof ()
 {
+	if (!m_lexemeLength) // just matched
+		return true;
+
 	AutomatonResult result = writeChar (fsm::PseudoChar_EndOfLine);
 	if (result != AutomatonResult_Continue)
 		return result != AutomatonResult_Error;

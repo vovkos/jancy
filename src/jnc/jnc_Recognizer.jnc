@@ -50,7 +50,17 @@ public:
 		) throws
 	{
 		reset ();
-		return try (write (p, length) && eof ());
+		return try write (p, length) && try eof ();
+	}
+
+	bool recognize (
+		AutomatonFunc* automatonFunc,
+		char const* p,
+		size_t length = -1
+		) throws
+	{
+		m_automatonFunc = automatonFunc;
+		return try recognize (p, length);
 	}
 }
 
