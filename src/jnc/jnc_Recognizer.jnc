@@ -29,7 +29,7 @@ public:
 	size_t m_currentOffset;     // can be adjusted
 
 public:
-	construct (AutomatonFunc* automatonFunc);
+	construct (AutomatonFunc* automatonFunc = null);
 
 	// incremental recognition
 
