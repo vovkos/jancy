@@ -7,8 +7,8 @@ CmdLine::CmdLine ()
 {
 	m_flags = 0;
 	m_serverPort = 0;
-	m_gcHeapSize = jnc::StdRuntimeLimit_Heap;
-	m_stackSize = jnc::StdRuntimeLimit_Stack;
+	m_gcPeriodSizeLimit = jnc::StdRuntimeLimit_GcPeriodSize;
+	m_stackSizeLimit = jnc::StdRuntimeLimit_StackSize;
 }
 
 //.............................................................................
@@ -128,19 +128,13 @@ CmdLineParser::onSwitch (
 
 		break;
 
-	case CmdLineSwitchKind_HeapSize:
-		m_cmdLine->m_gcHeapSize = parseSizeString (value);
-		if (!m_cmdLine->m_gcHeapSize)
-		{
-			err::setFormatStringError ("invalid GC heap size '%s'", value);
-			return false;
-		}
-
+	case CmdLineSwitchKind_GcPeriodSizeLimit:
+		m_cmdLine->m_gcPeriodSizeLimit = parseSizeString (value);
 		break;
 
-	case CmdLineSwitchKind_StackSize:
-		m_cmdLine->m_stackSize = parseSizeString (value);
-		if (!m_cmdLine->m_stackSize)
+	case CmdLineSwitchKind_StackSizeLimit:
+		m_cmdLine->m_stackSizeLimit = parseSizeString (value);
+		if (!m_cmdLine->m_stackSizeLimit)
 		{
 			err::setFormatStringError ("invalid stack size '%s'", value);
 			return false;

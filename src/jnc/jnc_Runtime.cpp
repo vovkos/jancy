@@ -11,30 +11,22 @@ namespace jnc {
 Runtime::Runtime ()
 {
 	m_gcState = GcState_Idle;
-	m_gcHeapLimit = -1;
-	m_totalGcAllocSize = 0;
-	m_currentGcAllocSize = 0;
-	m_periodGcAllocSize = 0;
-	m_periodGcAllocLimit = 16 * 1024;
+	m_gcTotalAllocSize = 0;
+	m_gcCurrentAllocSize = 0;
+	m_gcCurrentPeriodSize = 0;
 	m_gcUnsafeThreadCount = 1;
-	m_currentGcRootArrayIdx = 0;
-
-	m_stackLimit = -1;
+	m_gcCurrentRootArrayIdx = 0;
 	m_tlsSlot = -1;
 	m_tlsSize = 0;
+
+	m_stackSizeLimit = StdRuntimeLimit_StackSize;
+	m_gcPeriodSizeLimit = StdRuntimeLimit_GcPeriodSize;
 }
 
 bool
-Runtime::create (
-	size_t heapLimit,
-	size_t stackLimit
-	)
+Runtime::create ()
 {
 	destroy ();
-
-	m_gcHeapLimit = heapLimit;
-	m_stackLimit = stackLimit;
-
 	m_tlsSlot = getTlsMgr ()->createSlot ();
 	return true;
 }
@@ -69,18 +61,18 @@ Runtime::destroy ()
 	}
 
 	m_gcState = GcState_Idle;
-	m_totalGcAllocSize = 0;
-	m_currentGcAllocSize = 0;
-	m_periodGcAllocSize = 0;
+	m_gcTotalAllocSize = 0;
+	m_gcCurrentAllocSize = 0;
+	m_gcCurrentPeriodSize = 0;
 	m_gcUnsafeThreadCount = 1;
-	m_currentGcRootArrayIdx = 0;
+	m_gcCurrentRootArrayIdx = 0;
 
 	m_moduleArray.clear ();
 	m_gcObjectArray.clear ();
 	m_gcMemBlockArray.clear ();
 	m_gcPinTable.clear ();
 	m_gcDestructGuardList.clear ();
-	m_staticGcRootArray.clear ();
+	m_gcStaticRootArray.clear ();
 	m_gcRootArray [0].clear ();
 	m_gcRootArray [1].clear ();
 	m_staticDestructList.clear ();
@@ -96,15 +88,15 @@ Runtime::addModule (Module* module)
 	rtl::Array <Variable*> staticRootArray = module->m_variableMgr.getStaticGcRootArray ();
 	size_t count = staticRootArray.getCount ();
 
-	m_staticGcRootArray.setCount (count);
+	m_gcStaticRootArray.setCount (count);
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = staticRootArray [i];
 		void* p = llvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) variable->getLlvmAllocValue ());
 		ASSERT (p);
 
-		m_staticGcRootArray [i].m_p = p;
-		m_staticGcRootArray [i].m_type = variable->getType ();
+		m_gcStaticRootArray [i].m_p = p;
+		m_gcStaticRootArray [i].m_type = variable->getType ();
 	}
 
 	// tls
@@ -144,8 +136,8 @@ Runtime::shutdown ()
 	if (m_tlsSlot == -1)
 		return;
 
-	rtl::Array <GcRoot> saveStaticGcRootArray = m_staticGcRootArray;
-	m_staticGcRootArray.clear ();
+	rtl::Array <GcRoot> saveStaticGcRootArray = m_gcStaticRootArray;
+	m_gcStaticRootArray.clear ();
 
 	runGc ();
 
@@ -179,7 +171,7 @@ Runtime::shutdown ()
 
 	ASSERT (m_tlsList.isEmpty ());
 
-	m_staticGcRootArray = saveStaticGcRootArray; // recover
+	m_gcStaticRootArray = saveStaticGcRootArray; // recover
 }
 
 void
@@ -263,10 +255,10 @@ Runtime::gcTryAllocate (
 		size += sizeof (size_t);
 
 	waitGcIdleAndLock ();
-	if (m_periodGcAllocSize > m_periodGcAllocLimit)
+	if (m_gcCurrentPeriodSize > m_gcPeriodSizeLimit)
 	{
-	//	RunGc_l ();
-	//	WaitGcIdleAndLock ();
+		runGc_l ();
+		waitGcIdleAndLock ();
 	}
 
 	restoreGcLevel (prevGcLevel); // restore before unlocking
@@ -314,7 +306,9 @@ Runtime::gcTryAllocate (
 		p = object + 1;
 	}
 
-	m_periodGcAllocSize += size;
+	m_gcCurrentPeriodSize += size;
+	m_gcCurrentAllocSize += size;
+	m_gcTotalAllocSize += size;
 	m_gcMemBlockArray.append (object);
 	m_lock.unlock ();
 	return p;
@@ -379,7 +373,7 @@ Runtime::addGcRoot (
 	ASSERT (type->getFlags () & TypeFlag_GcRoot);
 
 	GcRoot root = { p, type };
-	m_gcRootArray [m_currentGcRootArrayIdx].append (root);
+	m_gcRootArray [m_gcCurrentRootArrayIdx].append (root);
 }
 
 void
@@ -424,27 +418,30 @@ Runtime::runGc_l ()
 		m_gcSafePointEvent.wait ();
 		m_lock.lock ();
 	}
-
+		
 	// 2) mark
 
 	m_gcState = GcState_Mark;
-
+	m_gcCurrentRootArrayIdx = 0;
 	m_gcRootArray [0].clear ();
-	m_currentGcRootArrayIdx = 0;
+
+	// 2.0) unmark objects
+
+	size_t count = m_gcObjectArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+		m_gcObjectArray [i]->m_flags &= ~ObjHdrFlag_GcMask;
 
 	// 2.1) add static roots
 
-	size_t count = m_staticGcRootArray.getCount ();
+	count = m_gcStaticRootArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		ASSERT (m_staticGcRootArray [i].m_type->getFlags () & TypeFlag_GcRoot);
+		ASSERT (m_gcStaticRootArray [i].m_type->getFlags () & TypeFlag_GcRoot);
 		addGcRoot (
-			m_staticGcRootArray [i].m_p,
-			m_staticGcRootArray [i].m_type
+			m_gcStaticRootArray [i].m_p,
+			m_gcStaticRootArray [i].m_type
 			);
 	}
-
-	// 2.2) add destructible roots
 
 	// 2.2) add stack roots
 
@@ -519,59 +516,57 @@ Runtime::runGc_l ()
 	{
 		GcDestructGuard* destructGuard = *it;
 
-		count = destructArray.getCount ();
+		count = destructGuard->m_destructArray->getCount ();
 		for (size_t i = 0; i < count; i++)
 		{
 			addGcRoot (
-				&destructArray [i],
-				destructArray [i]->m_object->m_classType->getClassPtrType ()
-				);
+				&(*destructGuard->m_destructArray) [i], 
+				(*destructGuard->m_destructArray) [i]->m_object->m_classType->getClassPtrType ());
 		}
 	}
 
 	gcMarkCycle ();
 
-	// 3) sweep
+	// 3) sweep (free memory blocks)
 
 	m_gcState = GcState_Sweep;
 
-	// 3.4) free memory blocks
+	size_t freeSize = 0;
 
 	count = m_gcMemBlockArray.getCount ();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
 		ObjHdr* object = m_gcMemBlockArray [i];
-		if (!(object->m_flags & ObjHdrFlag_GcWeakMark))
+		if (object->m_flags & ObjHdrFlag_GcWeakMark)
+			continue;
+
+		m_gcMemBlockArray.remove (i);
+
+		void* block;
+
+		if (object->m_flags & ObjHdrFlag_DynamicArray)
 		{
-			m_gcMemBlockArray.remove (i);
-
-			void* block = (object->m_flags & ObjHdrFlag_DynamicArray) ?
-				(void*) ((size_t*) object - 1) :
-				object;
-
-			AXL_MEM_FREE (block);
+			size_t* count = (size_t*) object - 1;
+			block = count;
+			freeSize += *count * object->m_type->getSize ();
 		}
 		else
 		{
-			object->m_flags &= ~ObjHdrFlag_GcMask; // unmark
+			block = object;
+			freeSize += object->m_type->getSize ();
 		}
-	}
 
-	// 3.5) unmark the remaining objects
-
-	count = m_gcObjectArray.getCount ();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
-		jnc::ObjHdr* object = m_gcObjectArray [i];
-		object->m_flags &= ~ObjHdrFlag_GcMask;
+		AXL_MEM_FREE (block);
 	}
 
 	// 4) gc run is done, resume all suspended threads
 
 	mt::atomicInc (&m_gcUnsafeThreadCount);
-	m_periodGcAllocSize = 0;
+	m_gcCurrentPeriodSize = 0;
+	m_gcCurrentAllocSize -= freeSize;
 	m_gcState = GcState_Idle;
 	m_gcIdleEvent.signal ();
+
 	m_lock.unlock ();
 
 	// 5) run destructors
@@ -585,14 +580,17 @@ Runtime::runGc_l ()
 			Function* destructor = iface->m_object->m_classType->getDestructor ();
 			ASSERT (destructor);
 
-			FObject_Destruct* pf = (FObject_Destruct*) destructor->getMachineCode ();
+			Object_Destruct* pf = (Object_Destruct*) destructor->getMachineCode ();
 			pf (iface);
 		}
+
+		// now we can remove this thread' destruct guard
 
 		m_lock.lock ();
 		m_gcDestructGuardList.remove (&destructGuard);
 		m_lock.unlock ();
 	}
+
 }
 
 void
@@ -600,11 +598,11 @@ Runtime::gcMarkCycle ()
 {
 	// mark breadth first
 
-	while (!m_gcRootArray [m_currentGcRootArrayIdx].isEmpty ())
+	while (!m_gcRootArray [m_gcCurrentRootArrayIdx].isEmpty ())
 	{
-		size_t prevGcRootArrayIdx =  m_currentGcRootArrayIdx;
-		m_currentGcRootArrayIdx = !m_currentGcRootArrayIdx;
-		m_gcRootArray [m_currentGcRootArrayIdx].clear ();
+		size_t prevGcRootArrayIdx =  m_gcCurrentRootArrayIdx;
+		m_gcCurrentRootArrayIdx = !m_gcCurrentRootArrayIdx;
+		m_gcRootArray [m_gcCurrentRootArrayIdx].clear ();
 
 		size_t count = m_gcRootArray [prevGcRootArrayIdx].getCount ();
 		for (size_t i = 0; i < count; i++)
@@ -759,7 +757,7 @@ Runtime::getTls ()
 		if (p0 >= p) // the opposite could happen, but it's stack-overflow-safe
 		{
 			size_t stackSize = p0 - p;
-			if (stackSize > m_stackLimit)
+			if (stackSize > m_stackSizeLimit)
 			{
 				StdLib::runtimeError (RuntimeErrorKind_StackOverflow, NULL);
 				ASSERT (false);
@@ -820,7 +818,7 @@ Runtime::createObject (
 
 	if (flags & CreateObjectFlag_Prime)
 	{
-		FObject_Prime* pfPrime = (FObject_Prime*) primer->getMachineCode ();
+		Object_Prime* pfPrime = (Object_Prime*) primer->getMachineCode ();
 		pfPrime (object, 0, object, 0);
 	}
 
@@ -832,7 +830,7 @@ Runtime::createObject (
 		if (!constructor)
 			return NULL;
 
-		FObject_Construct* pfConstruct = (FObject_Construct*) constructor->getMachineCode ();
+		Object_Construct* pfConstruct = (Object_Construct*) constructor->getMachineCode ();
 		pfConstruct (iface);
 	}
 

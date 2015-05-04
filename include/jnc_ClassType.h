@@ -391,7 +391,7 @@ class ObjBox:
 
 typedef
 void
-FObject_Prime (
+Object_Prime (
 	ObjHdr* object,
 	size_t scopeLevel,
 	ObjHdr* root,
@@ -400,11 +400,11 @@ FObject_Prime (
 
 typedef
 void
-FObject_Construct (IfaceHdr* iface);
+Object_Construct (IfaceHdr* iface);
 
 typedef
 void
-FObject_Destruct (IfaceHdr* iface);
+Object_Destruct (IfaceHdr* iface);
 
 //.............................................................................
 

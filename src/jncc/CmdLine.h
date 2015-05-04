@@ -21,8 +21,8 @@ struct CmdLine
 {
 	uint_t m_flags;
 	uint16_t m_serverPort;
-	size_t m_gcHeapSize;
-	size_t m_stackSize;
+	size_t m_stackSizeLimit;
+	size_t m_gcPeriodSizeLimit;
 
 	rtl::String m_srcFileName;
 	rtl::String m_srcNameOverride;
@@ -48,8 +48,8 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_Run,
 	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitchKind_Server,
-	CmdLineSwitchKind_HeapSize,
-	CmdLineSwitchKind_StackSize,
+	CmdLineSwitchKind_GcPeriodSizeLimit,
+	CmdLineSwitchKind_StackSizeLimit,
 	CmdLineSwitchKind_SrcNameOverride,
 };
 
@@ -126,15 +126,15 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		"run-function", "<function>",
 		"Run function <function> (implies JITting)"
 		)
-	AXL_RTL_CMD_LINE_SWITCH_2 (
-		CmdLineSwitchKind_HeapSize,
-		"h", "heap-size", "<size>",
-		"Specify the limit of GC heap usage"
+	AXL_RTL_CMD_LINE_SWITCH (
+		CmdLineSwitchKind_GcPeriodSizeLimit,
+		"gc-period-size-limit", "<size>",
+		"Specify the GC period size limit"
 		)
 	AXL_RTL_CMD_LINE_SWITCH (
-		CmdLineSwitchKind_StackSize,
-		"stack-size", "<size>",
-		"Specify the limit of stack usage by Jancy script"
+		CmdLineSwitchKind_StackSizeLimit,
+		"stack-size-limit", "<size>",
+		"Specify the stack size limit"
 		)
 AXL_RTL_END_CMD_LINE_SWITCH_TABLE ()
 

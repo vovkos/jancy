@@ -134,6 +134,9 @@ Jnc::run (
 
 	if (cmdLine->m_flags & JncFlag_RunFunction)
 	{
+		m_runtime.m_stackSizeLimit = cmdLine->m_stackSizeLimit;
+		m_runtime.m_gcPeriodSizeLimit = cmdLine->m_gcPeriodSizeLimit;
+
 		int returnValue;
 		result = runFunction (&returnValue);
 		if (!result)
@@ -185,7 +188,7 @@ Jnc::jit ()
 		m_module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&m_module) &&
 		m_module.jit () &&
-		m_runtime.create (m_cmdLine->m_gcHeapSize, m_cmdLine->m_stackSize) &&
+		m_runtime.create () &&
 		m_runtime.addModule (&m_module);
 }
 

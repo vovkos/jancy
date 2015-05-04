@@ -17,11 +17,18 @@ class Module;
 
 enum StdRuntimeLimit
 {
-	StdRuntimeLimit_Heap = -1,
-#if (_AXL_CPU == AXL_CPU_X86)
-	StdRuntimeLimit_Stack = 2 * 1024 * 1024, // 2MB std stack limit
+#ifdef _DEBUG
+	StdRuntimeLimit_GcPeriodSize = 0, // run gc on every allocation
+#elif (_AXL_CPU == AXL_CPU_X86)
+	StdRuntimeLimit_GcPeriodSize = 1 * 1024 * 1024, // 1MB gc period
 #else
-	StdRuntimeLimit_Stack = 4 * 1024 * 1024, // 4MB std stack limit
+	StdRuntimeLimit_GcPeriodSize = 2 * 1024 * 1024, // 2MB gc period
+#endif
+
+#if (_AXL_CPU == AXL_CPU_X86)
+	StdRuntimeLimit_StackSize = 2 * 1024 * 1024, // 2MB std stack 
+#else
+	StdRuntimeLimit_StackSize = 4 * 1024 * 1024, // 4MB std stack limit
 #endif
 };
 
@@ -89,11 +96,9 @@ protected:
 
 	volatile GcState m_gcState;
 
-	size_t m_gcHeapLimit;
-	size_t m_totalGcAllocSize;
-	size_t m_currentGcAllocSize;
-	size_t m_periodGcAllocLimit;
-	size_t m_periodGcAllocSize;
+	size_t m_gcTotalAllocSize;
+	size_t m_gcCurrentAllocSize;
+	size_t m_gcCurrentPeriodSize;
 
 	mt::NotificationEvent m_gcIdleEvent;
 	mt::NotificationEvent m_gcSafePointEvent;
@@ -103,18 +108,23 @@ protected:
 
 	rtl::HashTable <IfaceHdr*, rtl::HashId <IfaceHdr*> > m_gcPinTable;
 	rtl::AuxList <GcDestructGuard> m_gcDestructGuardList;
-	rtl::Array <GcRoot> m_staticGcRootArray;
+	rtl::Array <GcRoot> m_gcStaticRootArray;
 	rtl::Array <GcRoot> m_gcRootArray [2];
-	size_t m_currentGcRootArrayIdx;
+	size_t m_gcCurrentRootArrayIdx;
 
 	rtl::StdList <StaticDestruct> m_staticDestructList;
 
 	// tls
 
-	size_t m_stackLimit;
 	size_t m_tlsSlot;
 	size_t m_tlsSize;
 	rtl::AuxList <TlsHdr> m_tlsList;
+
+public:
+	// adjustable limits
+
+	size_t m_stackSizeLimit;
+	size_t m_gcPeriodSizeLimit;
 
 public:
 	Runtime ();
@@ -125,10 +135,7 @@ public:
 	}
 
 	bool
-	create (
-		size_t heapLimit = StdRuntimeLimit_Heap,
-		size_t stackLimit = StdRuntimeLimit_Stack
-		);
+	create ();
 
 	rtl::Array <Module*> 
 	getModuleArray ()
