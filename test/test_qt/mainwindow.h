@@ -155,6 +155,7 @@ public:
 		JNC_LIB (jnc::StdLib)
 //		JNC_FUNCTION ("testPtr",     &testPtr)
 //		JNC_FUNCTION ("testVariant", &testVariant)
+		JNC_FUNCTION ("qtWait", &qtWait)
 	JNC_END_LIB ()
 
 	static
@@ -171,6 +172,10 @@ public:
 	static
 	void
 	testVariant (jnc::Variant variant);
+
+	static
+	void
+	qtWait (uint_t msTime);
 };
 
 //.............................................................................

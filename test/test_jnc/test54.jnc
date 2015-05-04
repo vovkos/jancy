@@ -1,0 +1,56 @@
+void qtWait (uint_t timeMs);
+
+//.............................................................................
+
+class Foo
+{
+	intptr m_tid;
+	intptr m_oid;
+
+	construct (
+		intptr tid,
+		intptr oid
+		)
+	{
+		m_tid = tid;
+		m_oid = oid;
+		printf ("Foo.construct (this = %x) { m_tid =  %d; m_oid = %d; } \n", this, m_tid, m_oid);
+	}
+
+	destruct ()
+	{
+		printf ("Foo.destruct (this = %x) { m_tid =  %d; m_oid = %d; } \n", this, m_tid, m_oid);
+	}
+}
+
+threadProc ()
+{
+	intptr tid = jnc.getCurrentThreadId ();
+
+	printf ("+threadProc %d\n", tid);
+
+	for (intptr i = 0; i < 100; i++)
+	{
+		new Foo (tid, i);
+	}
+
+	printf ("-threadProc %d\n", tid);
+}
+
+int main ()
+{	
+	printf ("main ()\n");
+
+	jnc.createThread (threadProc);
+	jnc.createThread (threadProc);
+	jnc.createThread (threadProc);
+	jnc.createThread (threadProc);
+	jnc.createThread (threadProc);
+
+//	qtWait (5000);
+
+	printf ("exiting main...\n");
+	return 0; 
+}
+
+//.............................................................................

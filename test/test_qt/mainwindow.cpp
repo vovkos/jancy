@@ -124,6 +124,23 @@ StdLib::testVariant (jnc::Variant variant)
 	printf ("StdLib::testVariant\n");
 }
 
+void
+StdLib::qtWait (uint_t msTime)
+{
+	uint_t start = ::GetTickCount ();
+	
+	QEventLoop eventLoop;
+
+	for (;;)
+	{
+		uint_t now = ::GetTickCount ();
+		if (now - start > msTime)
+			break;
+
+		eventLoop.processEvents (QEventLoop::AllEvents, 100);
+	}
+}
+
 //.............................................................................
 
 MainWindow* g_mainWindow = NULL;
