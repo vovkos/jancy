@@ -127,14 +127,15 @@ StdLib::testVariant (jnc::Variant variant)
 void
 StdLib::qtWait (uint_t msTime)
 {
-	uint_t start = ::GetTickCount ();
+	uint64_t start = g::getTimestamp ();
+	uint64_t interval = msTime * 10000;
 	
 	QEventLoop eventLoop;
 
 	for (;;)
 	{
-		uint_t now = ::GetTickCount ();
-		if (now - start > msTime)
+		uint_t now = g::getTimestamp ();
+		if (now - start > interval)
 			break;
 
 		eventLoop.processEvents (QEventLoop::AllEvents, 100);
