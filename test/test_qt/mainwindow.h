@@ -155,7 +155,7 @@ public:
 		JNC_LIB (jnc::StdLib)
 //		JNC_FUNCTION ("testPtr",     &testPtr)
 //		JNC_FUNCTION ("testVariant", &testVariant)
-		JNC_FUNCTION ("qtWait", &qtWait)
+//		JNC_FUNCTION ("qtWait", &qtWait)
 	JNC_END_LIB ()
 
 	static
