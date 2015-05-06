@@ -2461,7 +2461,7 @@ TypeMgr::setupAllPrimitiveTypes ()
 	// variant requires special treatment
 
 	Type* type = &m_primitiveTypeArray [TypeKind_Variant];
-	type->m_flags = ModuleItemFlag_LayoutReady | TypeFlag_GcRoot;
+	type->m_flags = ModuleItemFlag_LayoutReady | TypeFlag_StructRet | TypeFlag_GcRoot;
 	type->m_alignment = 8;
 }
 

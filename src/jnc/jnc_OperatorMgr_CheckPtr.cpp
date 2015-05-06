@@ -323,7 +323,7 @@ OperatorMgr::checkVariantScopeLevel (
 	Value dstObjHdrValue;
 	getDataRefObjHdr (dstValue, &dstObjHdrValue);
 
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
+	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check variant scope level");
 
 	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckVariantScopeLevel);
 
