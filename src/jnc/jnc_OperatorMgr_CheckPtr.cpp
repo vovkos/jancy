@@ -326,14 +326,7 @@ OperatorMgr::checkVariantScopeLevel (
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check variant scope level");
 
 	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckVariantScopeLevel);
-
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
-		srcValue,
-		dstObjHdrValue,
-		NULL
-		);
+	m_module->m_operatorMgr.callOperator (checkFunction, srcValue, dstObjHdrValue);
 }
 
 //.............................................................................
