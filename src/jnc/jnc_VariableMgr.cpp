@@ -567,7 +567,8 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 		variable->m_llvmValue = variable->m_llvmAllocValue;
 
 		if (variable->m_initializer.isEmpty () ||
-			variable->m_initializer.getHead ()->m_token == '{')
+			variable->m_initializer.getHead ()->m_token == '{' ||
+			(variable->getType ()->getFlags () & TypeFlag_GcRoot))
 		{
 			m_module->m_llvmIrBuilder.createStore (variable->m_type->getZeroValue (), ptrValue);
 		}
