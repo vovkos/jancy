@@ -155,6 +155,8 @@ qt5_use_modules (02_dialog Widgets)
 
 if (WIN32)
 	copy_qt_dll_files (02_dialog Core Gui Widgets)
+elseif (UNIX)
+	add_qt_rpath_link ()
 endif ()
 
 set_pch (
