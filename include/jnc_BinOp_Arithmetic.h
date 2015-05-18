@@ -75,10 +75,10 @@ public:
 
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				resultValue->setConstInt32 (
-					T::constOpInt32 (
-						opValue1.getInt32 (), 
-						opValue2.getInt32 (), 
+				resultValue->setConstInt64 (
+					T::constOpInt64 (
+						opValue1.getInt64 (),
+						opValue2.getInt64 (),
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						), 
 					type

@@ -97,7 +97,7 @@ public:
 
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				resultValue->setConstInt32 (T::constOpInt32 (opValue.getInt32 ()), type);
+				resultValue->setConstInt64 (T::constOpInt64 (opValue.getInt64 ()), type);
 				break;
 
 			case TypeKind_Float:

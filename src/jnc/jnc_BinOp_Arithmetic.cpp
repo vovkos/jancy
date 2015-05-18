@@ -35,7 +35,7 @@ dataPtrIncrementOperator (
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 
 		Value incValue;
-		module->m_operatorMgr.binaryOperator(BinOpKind_Mul, opValue2, sizeValue, &incValue);
+		module->m_operatorMgr.binaryOperator (BinOpKind_Mul, opValue2, sizeValue, &incValue);
 
 		Value ptrValue;
 		module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
