@@ -138,6 +138,9 @@ strDup (
 	if (length == -1)
 		length = p ? strlen (p) : 0;
 
+	if (!length)
+		return g_nullPtr;
+
 	char* dst = (char*) AXL_MEM_ALLOC (length + 1);
 	memcpy (dst, p, length);
 	dst [length] = 0;

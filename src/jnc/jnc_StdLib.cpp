@@ -277,11 +277,12 @@ StdLib::strDup (
 	if (length == -1)
 		length = strLen (ptr);
 
-	DataPtr resultPtr = { 0 };
+	if (!length)
+		return g_nullPtr;
 
 	char* p = (char*) AXL_MEM_ALLOC (length + 1);
 	if (!p)
-		return resultPtr;
+		return g_nullPtr;
 
 	p [length] = 0; // ensure zero-termination just in case
 
@@ -290,6 +291,7 @@ StdLib::strDup (
 	else
 		memset (p, 0, length);
 
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + length;
