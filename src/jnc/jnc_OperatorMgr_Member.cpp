@@ -436,6 +436,57 @@ OperatorMgr::getNamedTypeMember (
 }
 
 bool
+OperatorMgr::getEnumTypeMemberType (
+	const Value& opValue,
+	EnumType* enumType,
+	const char* name,
+	Value* resultValue
+	)
+{
+	ModuleItem* member = enumType->findItem (name);
+	if (!member)
+	{
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().cc ());
+		return false;
+	}
+
+	Type* resultType = (enumType->getFlags () & EnumTypeFlag_BitFlag) ? 
+		enumType :
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+
+	resultValue->setType (resultType);
+	return true;
+}
+
+bool
+OperatorMgr::getEnumTypeMember (
+	const Value& opValue,
+	EnumType* enumType,
+	const char* name,
+	Value* resultValue
+	)
+{
+	ModuleItem* member = enumType->findItem (name);
+	if (!member)
+	{
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().cc ());
+		return false;
+	}
+
+	ASSERT (member->getItemKind () == ModuleItemKind_EnumConst);
+	EnumConst* enumConst = (EnumConst*) member;
+	Value memberValue (enumConst->getValue (), enumType);
+	BinOpKind binOpKind = (enumType->getFlags () & EnumTypeFlag_BitFlag) ? BinOpKind_BwAnd : BinOpKind_Eq;
+
+	return binaryOperator (
+		binOpKind,
+		opValue, 
+		memberValue,
+		resultValue
+		);
+}
+
+bool
 OperatorMgr::getMemberOperatorResultType (
 	const Value& rawOpValue,
 	const char* name,
@@ -471,6 +522,10 @@ OperatorMgr::getMemberOperatorResultType (
 	case TypeKind_ClassPtr:
 		prepareOperandType (&opValue);
 		return getNamedTypeMemberType (opValue, ((ClassPtrType*) type)->getTargetType (), name, resultValue);
+
+	case TypeKind_Enum:
+		prepareOperandType (&opValue);
+		return getEnumTypeMemberType (opValue, (EnumType*) type, name, resultValue);
 
 	default:
 		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
@@ -645,11 +700,16 @@ OperatorMgr::memberOperator (
 	case TypeKind_Struct:
 	case TypeKind_Union:
 		return getNamedTypeMember (opValue, (NamedType*) type, name, resultValue);
-
+		
 	case TypeKind_ClassPtr:
 		return
 			prepareOperand (&opValue) &&
 			getNamedTypeMember (opValue, ((ClassPtrType*) type)->getTargetType (), name, resultValue);
+
+	case TypeKind_Enum:
+		return
+			prepareOperand (&opValue) &&
+			getEnumTypeMember (opValue, (EnumType*) type, name, resultValue);
 
 	default:
 		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());

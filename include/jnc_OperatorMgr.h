@@ -1634,6 +1634,22 @@ protected:
 		);
 
 	bool
+	getEnumTypeMemberType (
+		const Value& opValue,
+		EnumType* enumType,
+		const char* name,
+		Value* resultValue
+		);
+
+	bool
+	getEnumTypeMember (
+		const Value& opValue,
+		EnumType* enumType,
+		const char* name,
+		Value* resultValue
+		);
+
+	bool
 	getClassVTable (
 		const Value& opValue,
 		ClassType* classType,
