@@ -11,6 +11,9 @@ int main ()
 {	
 	printf ("main ()\n");
 
+	static char buf [65535];
+	printf (buf);
+
 	FileFlags flags = FileFlags.ReadOnly | FileFlags.Exclusive;
 	if (flags.ReadOnly)
 	{

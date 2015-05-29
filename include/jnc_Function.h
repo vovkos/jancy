@@ -143,6 +143,9 @@ enum StdFunction
 	StdFunction_DynamicCastVariant,
 	StdFunction_TryLazyGetLibraryFunction,
 	StdFunction_LazyGetLibraryFunction,
+	StdFunction_LlvmMemcpy,
+	StdFunction_LlvmMemmove,
+	StdFunction_LlvmMemset,
 	StdFunction__Count
 };
 

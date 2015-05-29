@@ -729,6 +729,12 @@ public:
 		return prime (storageKind, ptrValue, type, Value (), resultValue);
 	}
 
+	void
+	zeroInitialize (
+		const Value& ptrValue,
+		Type* type
+		);
+
 	bool
 	construct (
 		const Value& opValue,

@@ -1204,9 +1204,15 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (lazyGetLibraryFunctionSrc),
 			StdNamespace_Internal,
 		},
+		{ NULL },                              // StdFunction_LlvmMemcpy
+		{ NULL },                              // StdFunction_LlvmMemmove
+		{ NULL },                              // StdFunction_LlvmMemset
 	};
 
-	Type* argTypeArray [8] = { 0 }; // 8 is enough for all the std functions
+	// 8 is enough for all the std functions
+
+	Type* argTypeArray [8] = { 0 }; 
+	llvm::Type* llvmArgTypeArray [8] = { 0 };
 
 	Type* returnType;
 	FunctionType* functionType;
@@ -1237,6 +1243,66 @@ FunctionMgr::getStdFunction (StdFunction func)
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.markGcRoot", functionType);
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (m_module->getLlvmModule (), llvm::Intrinsic::gcroot);
+		break;
+
+	case StdFunction_LlvmMemcpy:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [3] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [4] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 5);
+		function = createFunction (FunctionKind_Internal, "jnc.llvmMemcpy", functionType);
+
+		llvmArgTypeArray [0] = argTypeArray [0]->getLlvmType ();
+		llvmArgTypeArray [1] = argTypeArray [1]->getLlvmType ();
+		llvmArgTypeArray [2] = argTypeArray [2]->getLlvmType ();
+		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
+			m_module->getLlvmModule (), 
+			llvm::Intrinsic::memcpy,
+			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 3)
+			);
+		break;
+
+	case StdFunction_LlvmMemmove:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [3] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [4] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 5);
+		function = createFunction (FunctionKind_Internal, "jnc.llvmMemmove", functionType);
+
+		llvmArgTypeArray [0] = argTypeArray [0]->getLlvmType ();
+		llvmArgTypeArray [1] = argTypeArray [1]->getLlvmType ();
+		llvmArgTypeArray [2] = argTypeArray [2]->getLlvmType ();
+		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
+			m_module->getLlvmModule (), 
+			llvm::Intrinsic::memmove,
+			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 3)
+			);
+		break;
+
+	case StdFunction_LlvmMemset:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [3] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+		argTypeArray [4] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 5);
+		function = createFunction (FunctionKind_Internal, "jnc.llvmMemset", functionType);
+
+		llvmArgTypeArray [0] = argTypeArray [0]->getLlvmType ();
+		llvmArgTypeArray [1] = argTypeArray [2]->getLlvmType ();
+		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
+			m_module->getLlvmModule (), 
+			llvm::Intrinsic::memset,
+			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 2)
+			);
+
 		break;
 
 	case StdFunction_GetTls:
@@ -1449,6 +1515,9 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 		NULL,                  // StdFunction_DynamicCastVariant,
 		NULL,                  // StdFunction_TryLazyGetLibraryFunction,
 		NULL,                  // StdFunction_LazyGetLibraryFunction,
+		NULL,                  // StdFunction_LlvmMemcpy,
+		NULL,                  // StdFunction_LlvmMemmove,
+		NULL,                  // StdFunction_LlvmMemset,
 	};
 
 	const char* name = nameTable [func];

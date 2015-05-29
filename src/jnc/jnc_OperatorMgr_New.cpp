@@ -93,6 +93,40 @@ OperatorMgr::allocate (
 	return true;
 }
 
+void
+OperatorMgr::zeroInitialize (
+	const Value& ptrValue0,
+	Type* type
+	)
+{
+	if (type->getSize () < 64)
+	{
+		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), ptrValue0);
+		return;
+	}
+
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue0, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+
+	Value argValueArray [5] = 
+	{
+		ptrValue,
+		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8)),
+		Value (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value (type->getAlignment (), m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value ((int64_t) false, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
+	};
+
+	Function* llvmMemset = m_module->m_functionMgr.getStdFunction (StdFunction_LlvmMemset);
+	m_module->m_llvmIrBuilder.createCall (
+		llvmMemset,
+		llvmMemset->getType (),
+		argValueArray,
+		countof (argValueArray),
+		NULL
+		);
+}
+
 bool
 OperatorMgr::prime (
 	StorageKind storageKind,
@@ -104,7 +138,7 @@ OperatorMgr::prime (
 {
 	if (type->getTypeKind () != TypeKind_Class)
 	{
-		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), ptrValue);
+		zeroInitialize (ptrValue, type);
 
 		Value objHdrValue;
 		switch (storageKind)
