@@ -497,7 +497,7 @@ OperatorMgr::getMemberOperatorResultType (
 		return getNamespaceMemberType (rawOpValue.getNamespace (), name, resultValue);
 
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepDataRef);
+	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepEnum);
 
 	Type* type = opValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
@@ -676,7 +676,7 @@ OperatorMgr::memberOperator (
 	}
 
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepDataRef);
+	bool result = prepareOperand (rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepEnum);
 	if (!result)
 		return false;
 
