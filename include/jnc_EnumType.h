@@ -35,6 +35,13 @@ getEnumTypeFlagString (uint_t flags);
 
 //.............................................................................
 
+enum EnumConstFlag
+{
+	EnumConstFlag_ValueReady = 0x010000,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class EnumConst: 
 	public UserModuleItem,
 	public ModuleItemInitializer

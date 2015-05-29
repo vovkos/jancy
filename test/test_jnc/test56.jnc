@@ -1,26 +1,26 @@
 //.............................................................................
 
-bool foo ()
+enum State
 {
-	int a;
+	Closed,
+	Opened,
+	Bridged = Opened + 1
+} 
 
-	if (a)
-	{
-		return true;
-	}
-	else if (a)
-	{
-		return true;
-	}
-	else
-	{
-		return true;
-	}
+bitflag enum Flags
+{
+	ReadOnly,
+	Exclusive,
+	All = ReadOnly | Exclusive
 }
 
 int main ()
 {	
 	printf ("main ()\n");
+
+	printf ("State.Bridged = %d\n", State.Bridged);
+	printf ("Flags.All = 0x%x\n", Flags.All);
+	
 	return 0; 
 }
 

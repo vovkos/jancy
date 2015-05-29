@@ -124,6 +124,7 @@ EnumType::calcLayout ()
 			}
 
 			constIt->m_value = value;
+			constIt->m_flags |= EnumConstFlag_ValueReady;
 
 			uint8_t hiBitIdx = rtl::getHiBitIdx (value);
 			value = hiBitIdx != -1 ? 2 << hiBitIdx : 1;
@@ -149,6 +150,7 @@ EnumType::calcLayout ()
 			}
 
 			constIt->m_value = value;
+			constIt->m_flags |= EnumConstFlag_ValueReady;
 		}
 	}
 

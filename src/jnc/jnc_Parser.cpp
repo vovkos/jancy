@@ -2655,9 +2655,12 @@ Parser::lookupIdentifier (
 		break;
 
 	case ModuleItemKind_EnumConst:
-		result = ((EnumConst*) item)->getParentEnumType ()->ensureLayout ();
-		if (!result)
-			return false;
+		if (!(item->getFlags () & EnumConstFlag_ValueReady))
+		{
+			result = ((EnumConst*) item)->getParentEnumType ()->ensureLayout ();
+			if (!result)
+				return false;
+		}
 
 		value->setConstInt64 (
 			((EnumConst*) item)->getValue (),
