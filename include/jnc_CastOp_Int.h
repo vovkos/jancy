@@ -22,7 +22,7 @@ public:
 		Type* type
 		)
 	{
-		return CastKind_Explicit;
+		return CastKind_Implicit;
 	}
 
 	virtual
