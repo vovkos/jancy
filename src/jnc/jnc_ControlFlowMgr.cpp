@@ -81,31 +81,75 @@ ControlFlowMgr::addBlock (BasicBlock* block)
 	block->m_function = function;
 }
 
-void
+bool
 ControlFlowMgr::deleteUnreachableBlocks ()
 {
+	// llvm blocks might have references even when they are unreachable
+
+	rtl::StdList <BasicBlock> pendingDeleteList;
+
 	rtl::Iterator <BasicBlock> it = m_blockList.getHead ();
 	while (it)
 	{
-		if (it->m_flags & BasicBlockFlag_Reachable)
-		{
-			it++;
-			continue;
-		}
-
 		BasicBlock* block = *it;
 		it++;
 
-		if (block->m_function)
-			block->m_llvmBlock->eraseFromParent ();
-		else
-			delete block->m_llvmBlock;
+		if (!(block->m_flags & BasicBlockFlag_Reachable))
+		{
+			m_blockList.remove (block);
 
-		m_blockList.erase (block);
+			if (block->m_llvmBlock->hasOneUse ())
+			{
+				pendingDeleteList.insertTail (block);
+			}
+			else
+			{
+				if (block->m_function)
+					block->m_llvmBlock->eraseFromParent ();
+				else
+					delete block->m_llvmBlock;
+
+				AXL_MEM_DELETE (block);
+			}
+		}
 	}
 
 	m_unreachableBlock = NULL;
 	m_currentBlock = NULL;
+
+	while (!pendingDeleteList.isEmpty ())
+	{
+		bool isFixedPoint = true;
+
+		it = pendingDeleteList.getHead ();
+		while (it)
+		{
+			BasicBlock* block = *it;
+			it++;
+
+			if (block->m_llvmBlock->hasOneUse ())
+				continue;				
+
+			if (block->m_function)
+				block->m_llvmBlock->eraseFromParent ();
+			else
+				delete block->m_llvmBlock;
+
+			pendingDeleteList.erase (block);
+			isFixedPoint = false;
+		}
+
+		if (isFixedPoint && !pendingDeleteList.isEmpty ())
+		{
+			err::setFormatStringError (
+				"invalid control flow graph: %s is unreachable but has uses", 
+				pendingDeleteList.getHead ()->m_llvmBlock->getName ().begin ()
+				);
+			return false;
+		}
+	}
+
+	return true;
 }
 
 BasicBlock*

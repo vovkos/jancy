@@ -151,7 +151,7 @@ public:
 	void
 	markUnreachable (BasicBlock* block);
 
-	void
+	bool
 	deleteUnreachableBlocks ();
 
 	// jumps

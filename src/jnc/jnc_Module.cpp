@@ -525,7 +525,9 @@ Module::compile ()
 
 	// step 7: delete unreachable blocks
 
-	m_controlFlowMgr.deleteUnreachableBlocks ();
+	result = m_controlFlowMgr.deleteUnreachableBlocks ();
+	if (!result)
+		return false;
 
 	// step 8: finalize debug information
 

@@ -1,22 +1,26 @@
 //.............................................................................
 
-bitflag enum FileFlags
+bool foo ()
 {
-	ReadOnly,
-	Exclusive,
-	DeleteOnClose
+	int a;
+
+	if (a)
+	{
+		return true;
+	}
+	else if (a)
+	{
+		return true;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 int main ()
 {	
 	printf ("main ()\n");
-
-	FileFlags flags = FileFlags.ReadOnly | FileFlags.Exclusive;
-	if (flags.ReadOnly)
-	{
-		printf ("read-only is true\n");
-	}
-
 	return 0; 
 }
 
