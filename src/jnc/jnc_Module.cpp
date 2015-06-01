@@ -115,12 +115,18 @@ Module::createLlvmExecutionEngine ()
 
 		targetOptions.JITEmitDebugInfo = true;
 
-#if (_AXL_CPU == AXL_CPU_X86 && _AXL_ENV == AXL_ENV_POSIX)
+#if (_AXL_ENV == AXL_ENV_POSIX)
+		m_functionMap ["memset"] = (void*) memset;
+		m_functionMap ["memcpy"] = (void*) memcpy;
+		m_functionMap ["memmove"] = (void*) memmove;
+#	if (_AXL_CPU == AXL_CPU_X86)
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
 		m_functionMap ["__moddi3"]  = (void*) __moddi3;
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
+#	endif
 #endif
+
 	}
 
 	engineBuilder.setTargetOptions (targetOptions);
@@ -151,7 +157,9 @@ Module::mapFunction (
 
 	if (m_flags & ModuleFlag_McJit)
 	{
-		m_functionMap [llvmFunction->getName ().data ()] = p;
+		rtl::StringHashTableMapIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
+		ASSERT (!it->m_value); // mapped twice?
+		it->m_value = p;
 	}
 	else
 	{
