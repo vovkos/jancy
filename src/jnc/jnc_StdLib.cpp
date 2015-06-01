@@ -350,6 +350,8 @@ StdLib::memSet (
 	size_t size
 	)
 {
+	if (ptr.m_p)
+		memset (ptr.m_p, c, size);
 }
 
 DataPtr

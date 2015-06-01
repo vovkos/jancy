@@ -570,7 +570,7 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 			variable->m_initializer.getHead ()->m_token == '{' ||
 			(variable->getType ()->getFlags () & TypeFlag_GcRoot))
 		{
-			m_module->m_llvmIrBuilder.createStore (variable->m_type->getZeroValue (), ptrValue);
+			m_module->m_operatorMgr.zeroInitialize (ptrValue, variable->m_type);
 		}
 	}
 
