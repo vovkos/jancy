@@ -1311,6 +1311,34 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
 		break;
 
+	case StdFunction_StrLen:
+	case StdFunction_StrCmp:
+	case StdFunction_StriCmp:
+	case StdFunction_StrChr:
+	case StdFunction_StrCat:
+	case StdFunction_StrDup:
+	case StdFunction_MemCmp:
+	case StdFunction_MemChr:
+	case StdFunction_MemCpy:
+	case StdFunction_MemSet:
+	case StdFunction_MemCat:
+	case StdFunction_MemDup:
+	case StdFunction_Rand:
+	case StdFunction_Printf:
+	case StdFunction_Atoi:
+#if (_AXL_ENV == AXL_ENV_POSIX)
+		ASSERT (sourceTable [func].m_p);
+		function = parseStdFunction (
+			sourceTable [func].m_stdNamespace,
+			sourceTable [func].m_p,
+			sourceTable [func].m_length
+			);
+
+		ASSERT (!function->m_llvmFunction);
+		function->m_tag += "_jnc"; // as to avoid mapping conflicts
+		break;
+#endif
+
 	case StdFunction_RuntimeError:
 	case StdFunction_DynamicSizeOf:
 	case StdFunction_DynamicCountOf:
@@ -1334,21 +1362,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AssertionFailure:
 	case StdFunction_AddStaticDestructor:
 	case StdFunction_AddDestructor:
-	case StdFunction_StrLen:
-	case StdFunction_StrCmp:
-	case StdFunction_StriCmp:
-	case StdFunction_StrChr:
-	case StdFunction_StrCat:
-	case StdFunction_StrDup:
-	case StdFunction_MemCmp:
-	case StdFunction_MemChr:
-	case StdFunction_MemCpy:
-	case StdFunction_MemSet:
-	case StdFunction_MemCat:
-	case StdFunction_MemDup:
-	case StdFunction_Rand:
-	case StdFunction_Printf:
-	case StdFunction_Atoi:
 	case StdFunction_Format:
 	case StdFunction_AppendFmtLiteral_a:
 	case StdFunction_AppendFmtLiteral_p:
