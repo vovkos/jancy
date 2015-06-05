@@ -1724,18 +1724,6 @@ protected:
 		ClassPtrType* type,
 		Value* resultValue		
 		);
-
-	bool 
-	dynamicSizeOf (
-		const Value& opValue,
-		Value* resultValue		
-		);
-
-	bool 
-	dynamicCountOf (
-		const Value& opValue,
-		Value* resultValue		
-		);
 };
 
 //.............................................................................

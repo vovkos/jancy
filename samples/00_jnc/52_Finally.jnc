@@ -16,7 +16,7 @@ size_t foo (char const* s)
 {
 	printf ("foo (%s)\n", s);
 
-	size_t count = dynamic sizeof (*s);
+	size_t count = dynamic sizeof (s);
 
 	for (size_t i = 0; i < count; i++)
 	{

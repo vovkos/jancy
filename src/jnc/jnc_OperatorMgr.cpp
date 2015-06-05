@@ -667,65 +667,6 @@ OperatorMgr::dynamicCastClassPtr (
 	return true;
 }
 
-bool 
-OperatorMgr::dynamicSizeOf (
-	const Value& opValue,
-	Value* resultValue		
-	)
-{
-	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef ||
-		opValue.getValueKind () == ValueKind_Variable)
-	{
-		err::setFormatStringError ("dynamic sizeof is only applicable to references");
-		return false;
-	}
-
-	Value ptrValue;
-	bool result = castOperator (
-		opValue, 
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const), 
-		&ptrValue
-		) &&
-		unaryOperator (UnOpKind_Addr, &ptrValue);
-
-	if (!result)
-		return false;
-
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicSizeOf);
-	return callOperator (function, ptrValue, resultValue);
-}
-
-bool 
-OperatorMgr::dynamicCountOf (
-	const Value& opValue,
-	Value* resultValue		
-	)
-{
-	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef ||
-		opValue.getValueKind () == ValueKind_Variable)
-	{
-		err::setFormatStringError ("dynamic countof is only applicable to references");
-		return false;
-	}
-
-	Value ptrValue;
-	bool result = castOperator (
-		opValue, 
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const),
-		&ptrValue
-		) &&
-		unaryOperator (UnOpKind_Addr, &ptrValue);
-
-	if (!result)
-		return false;
-
-	Type* targetType = ((DataPtrType*) opValue.getType ())->getTargetType ();
-	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCountOf);
-	return callOperator (function, ptrValue, typeValue, resultValue);
-}
-
 CastKind
 OperatorMgr::getCastKind (
 	const Value& rawOpValue,
@@ -951,9 +892,12 @@ OperatorMgr::sizeofOperator (
 	)
 {
 	if (dynamism == OperatorDynamism_Dynamic)
-		return dynamicSizeOf (opValue, resultValue);
+	{
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicSizeOf);
+		return callOperator (function, opValue, resultValue);
+	}
 
-	Type* type = opValue.getType ();
+	Type* type = opValue.getType (); 
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
 
@@ -964,14 +908,31 @@ OperatorMgr::sizeofOperator (
 bool
 OperatorMgr::countofOperator (		
 	OperatorDynamism dynamism,
-	const Value& opValue,
+	const Value& rawOpValue,
 	Value* resultValue
 	)
 {
 	if (dynamism == OperatorDynamism_Dynamic)
-		return dynamicCountOf (opValue, resultValue);
+	{
+		Value opValue;
+		bool result = prepareOperand (rawOpValue, &opValue);
+		if (!result)
+			return false;
 
-	Type* type = opValue.getType ();
+		Type* type = opValue.getType ();
+		if (type->getTypeKind () != TypeKind_DataPtr)
+		{
+			err::setFormatStringError ("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().cc ());
+			return false;
+		}
+
+		type = ((DataPtrType*) type)->getTargetType ();
+		Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCountOf);
+		return callOperator (function, opValue, typeValue, resultValue);
+	}
+
+	Type* type = rawOpValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
 

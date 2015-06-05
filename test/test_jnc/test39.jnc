@@ -22,8 +22,8 @@ foo (void const* p)
 		return;
 	}
 
-	size_t size = dynamic sizeof (*b);
-	size_t count = dynamic countof (*b);
+	size_t size = dynamic sizeof (b);
+	size_t count = dynamic countof (b);
 
 	printf ("p is B: sizeof = %d, countof = %d\n", size, count);
 }
