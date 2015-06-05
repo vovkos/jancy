@@ -58,7 +58,7 @@ variantRelationalOperator (
 
 inline
 bool
-isEqualVariant (
+isVariantEqual (
 	const Variant& op1,
 	const Variant& op2
 	)
