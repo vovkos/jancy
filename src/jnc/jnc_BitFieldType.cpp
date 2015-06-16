@@ -33,9 +33,9 @@ BitFieldType::calcLayout ()
 		m_baseType = m_baseType_i->getActualType ();
 
 	TypeKind typeKind = m_baseType->getTypeKind ();
-	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_u)
+	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_beu)
 	{
-		err::setFormatStringError ("bit field can only be used with little-endian integer types");
+		err::setFormatStringError ("bit field can only be used with integer types");
 		return NULL;
 	}
 

@@ -227,12 +227,6 @@ protected:
 	getFieldOffset (size_t alignment);
 
 	size_t
-	getBitFieldBitOffset (
-		Type* type,
-		size_t bitCount
-		);
-
-	size_t
 	setFieldActualSize (size_t size);
 
 	ArrayType*

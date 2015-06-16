@@ -328,7 +328,43 @@ StructType::layoutBitField (
 	uint_t* llvmIndex
 	)
 {
-	size_t bitOffset = getBitFieldBitOffset (baseType, bitCount);
+	size_t baseBitCount = baseType->getSize () * 8;
+	if (bitCount > baseBitCount)
+	{
+		err::setFormatStringError ("type of bit field too small for number of bits");
+		return false;
+	}
+
+	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->getBaseType ()->cmp (baseType) == 0;
+
+	size_t bitOffset;
+	if (baseType->getTypeKindFlags () & TypeKindFlag_BigEndian)
+	{
+		if (!isMerged)
+		{
+			bitOffset = baseBitCount - bitCount;
+		}
+		else
+		{
+			size_t lastBitOffset = m_lastBitFieldType->getBitOffset ();
+			isMerged = lastBitOffset >= bitCount;
+			bitOffset = isMerged ? lastBitOffset - bitCount : baseBitCount - bitCount;
+		}
+	}
+	else			
+	{
+		if (!isMerged)
+		{
+			bitOffset = 0;
+		}
+		else
+		{
+			size_t lastBitOffset = m_lastBitFieldType->getBitOffset () + m_lastBitFieldType->getBitCount ();
+			isMerged = lastBitOffset + bitCount <= baseBitCount;
+			bitOffset = isMerged ? lastBitOffset : 0;
+		}
+	}
+
 	BitFieldType* type = m_module->m_typeMgr.getBitFieldType (baseType, bitOffset, bitCount);
 	if (!type)
 		return false;
@@ -336,7 +372,7 @@ StructType::layoutBitField (
 	*type_o = type;
 	m_lastBitFieldType = type;
 
-	if (bitOffset)
+	if (isMerged)
 	{
 		*offset_o = m_lastBitFieldOffset;
 		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount () - 1;
@@ -374,22 +410,6 @@ StructType::getFieldOffset (size_t alignment)
 		offset += alignment - mod;
 
 	return offset;
-}
-
-size_t
-StructType::getBitFieldBitOffset (
-	Type* type,
-	size_t bitCount
-	)
-{
-	if (!m_lastBitFieldType || m_lastBitFieldType->getBaseType ()->cmp (type) != 0)
-		return 0;
-
-	size_t lastBitOffset =
-		m_lastBitFieldType->getBitOffset () +
-		m_lastBitFieldType->getBitCount ();
-
-	return lastBitOffset + bitCount <= type->getSize () * 8 ? lastBitOffset : 0;
 }
 
 size_t
