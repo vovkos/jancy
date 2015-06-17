@@ -27,6 +27,8 @@ class StringHashTable
 		variant value
 		);
 
+	bool erase (char const* key);
+
 	property m_map
 	{
 		variant get (char const* key)
@@ -68,6 +70,8 @@ class VariantHashTable
 		variant key,
 		variant value
 		);
+
+	bool erase (variant key);
 
 	property m_map
 	{

@@ -16,6 +16,7 @@ public:
 		JNC_FUNCTION ("clear",  &StringHashTable::clear)
 		JNC_FUNCTION ("find", &StringHashTable::find_s)
 		JNC_FUNCTION ("insert", &StringHashTable::insert)
+		JNC_FUNCTION ("erase", &StringHashTable::erase)
 	JNC_END_TYPE ()
 
 public:
@@ -56,6 +57,13 @@ public:
 		(*m_hashTable) [(const char*) keyPtr.m_p] = value;
 		m_count = m_hashTable->getCount ();
 	}
+
+	bool
+	AXL_CDECL
+	erase (DataPtr keyPtr)
+	{
+		return m_hashTable->eraseByKey ((const char*) keyPtr.m_p);
+	}
 };
 
 //.............................................................................
@@ -68,6 +76,7 @@ public:
 		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
 		JNC_FUNCTION ("find", &VariantHashTable::find_s)
 		JNC_FUNCTION ("insert", &VariantHashTable::insert)
+		JNC_FUNCTION ("erase", &VariantHashTable::erase)
 	JNC_END_TYPE ()
 
 public:
@@ -110,6 +119,13 @@ public:
 	{
 		(*m_hashTable) [key] = value;
 		m_count = m_hashTable->getCount ();
+	}
+
+	bool
+	AXL_CDECL
+	erase (Variant key)
+	{
+		return m_hashTable->eraseByKey (key);
 	}
 };
 
