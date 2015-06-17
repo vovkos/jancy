@@ -1,0 +1,93 @@
+namespace jnc {
+
+///+++
+
+//.............................................................................
+
+///; static char stringHashTableTypeSrc [] = 
+
+class StringHashTable
+{
+	protected intptr m_impl;
+	size_t readonly m_count;
+
+	construct ();
+
+	clear ();
+	variant* find (char const* key) const;
+	
+	variant read (char const* key) const
+	{
+		variant* value = find (key);
+		return value ? *value : null;
+	}
+		
+	insert (
+		char const* key,
+		variant value
+		);
+
+	property m_map
+	{
+		variant get (char const* key)
+		{
+			return read (key);			
+		}
+
+		set (
+			char const* key,
+			variant value
+			)
+		{
+			insert (key, value);			
+		}
+	}
+}
+
+//.............................................................................
+
+///; static char variantHashTableTypeSrc [] = 
+
+class VariantHashTable
+{
+	protected intptr m_impl;
+	size_t readonly m_count;
+
+	construct ();
+
+	clear ();
+	variant* find (variant key) const;
+	
+	variant read (variant key) const
+	{
+		variant* value = find (key);
+		return value ? *value : null;
+	}
+		
+	insert (
+		variant key,
+		variant value
+		);
+
+	property m_map
+	{
+		variant get (variant key)
+		{
+			return read (key);			
+		}
+
+		set (
+			variant key,
+			variant value
+			)
+		{
+			insert (key, value);			
+		}
+	}
+}
+
+//.............................................................................
+
+///---
+
+} // namespace jnc {

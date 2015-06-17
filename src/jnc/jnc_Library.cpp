@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "jnc_Library.h"
-#include "jnc_StdLib.h"
 
 namespace jnc {
 

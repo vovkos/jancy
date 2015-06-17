@@ -18,13 +18,15 @@ struct Variant
 	union 
 	{
 		int8_t m_int8;
-		uint8_t m_int8_u;
+		uint8_t m_uint8;
 		int16_t m_int16;
-		uint16_t m_int16_u;
+		uint16_t m_uint16;
 		int32_t m_int32;
-		uint32_t m_int32_u;
+		uint32_t m_uint32;
 		int64_t m_int64;
-		uint64_t m_int64_u;
+		uint64_t m_uint64;
+		intptr_t m_intptr;
+		uintptr_t m_uintptr;
 
 		float m_float;
 		double m_double;
@@ -45,7 +47,7 @@ struct Variant
 
 AXL_SELECT_ANY Variant g_nullVariant = { 0 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 bool
 variantRelationalOperator (
@@ -53,6 +55,8 @@ variantRelationalOperator (
 	const Variant& op1,
 	const Variant& op2
 	);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // the most used op
 
@@ -65,6 +69,29 @@ isVariantEqual (
 {
 	return variantRelationalOperator (BinOpKind_Eq, op1, op2);
 }
+
+//.............................................................................
+
+class HashVariant
+{
+public:
+	uintptr_t
+	operator () (const Variant& variant);
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class CmpVariant 
+{
+public:
+	int operator () (
+		const Variant& variant1,
+		const Variant& variant2
+		)
+	{
+		return !isVariantEqual (variant1, variant2);
+	}
+};
 
 //.............................................................................
 

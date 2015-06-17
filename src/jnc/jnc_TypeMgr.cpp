@@ -96,6 +96,7 @@ Type*
 TypeMgr::getStdType (StdType stdType)
 {
 	#include "jnc_StdTypes.jnc.cpp"
+	#include "jnc_HashTable.jnc.cpp"
 	#include "jnc_Buffer.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
 	#include "jnc_Recognizer.jnc.cpp"
@@ -176,6 +177,16 @@ TypeMgr::getStdType (StdType stdType)
 		{                                    // StdType_StringBuilder,
 			stringBuilderTypeSrc,
 			lengthof (stringBuilderTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_StringHashTable,
+			stringHashTableTypeSrc,
+			lengthof (stringHashTableTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_VariantHashTable,
+			variantHashTableTypeSrc,
+			lengthof (variantHashTableTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_ConstBuffer,
@@ -301,6 +312,8 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_String:
 	case StdType_StringRef:
 	case StdType_StringBuilder:
+	case StdType_StringHashTable:
+	case StdType_VariantHashTable:
 	case StdType_ConstBuffer:
 	case StdType_ConstBufferRef:
 	case StdType_BufferRef:

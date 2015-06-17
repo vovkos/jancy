@@ -158,6 +158,8 @@ enum StdType
 	StdType_String,
 	StdType_StringRef,
 	StdType_StringBuilder,
+	StdType_StringHashTable,
+	StdType_VariantHashTable,
 	StdType_ConstBuffer,
 	StdType_ConstBufferRef,
 	StdType_BufferRef,

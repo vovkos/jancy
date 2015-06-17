@@ -46,4 +46,20 @@ variantRelationalOperator (
 
 //.............................................................................
 
+uintptr_t
+HashVariant::operator () (const Variant& variant)
+{
+	if (!variant.m_type)
+		return 0;
+
+	size_t size = variant.m_type->getSize ();
+	if (size <= sizeof (uintptr_t) || variant.m_type->getTypeKind () == TypeKind_DataPtr)
+		return variant.m_uintptr;
+
+	const void* p = size <= sizeof (DataPtr) ? &variant : variant.m_p;
+	return rtl::djb2 (p, size);
+}
+
+//.............................................................................
+
 } // namespace jnc {

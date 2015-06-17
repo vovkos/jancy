@@ -46,7 +46,7 @@ struct String
 	}
 
 	bool ensureZeroTerminated () throws;
-	String getZeroTerminatedString ();
+	String getZeroTerminatedString () const;
 
 	bool copy (StringRef src) throws;
 
@@ -95,8 +95,8 @@ struct StringRef
 
 	bool isZeroTerminated () const;	
 
-	String getString ();
-	String getZeroTerminatedString ();
+	String getString () const;
+	String getZeroTerminatedString () const;
 
 protected:
 	void setup (

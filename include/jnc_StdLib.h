@@ -7,6 +7,7 @@
 #include "jnc_Runtime.h"
 #include "jnc_Api.h"
 #include "jnc_Error.h"
+#include "jnc_HashTable.h"
 #include "jnc_String.h"
 #include "jnc_Buffer.h"
 #include "jnc_Recognizer.h"
@@ -85,6 +86,8 @@ public:
 		JNC_STD_TYPE (StdType_String, String)
 		JNC_STD_TYPE (StdType_StringRef, StringRef)
 		JNC_STD_TYPE (StdType_StringBuilder, StringBuilder)
+		JNC_STD_TYPE (StdType_StringHashTable, StringHashTable)
+		JNC_STD_TYPE (StdType_VariantHashTable, VariantHashTable)
 		JNC_STD_TYPE (StdType_ConstBuffer, ConstBuffer)
 		JNC_STD_TYPE (StdType_ConstBufferRef, ConstBufferRef)
 		JNC_STD_TYPE (StdType_BufferRef, BufferRef)
