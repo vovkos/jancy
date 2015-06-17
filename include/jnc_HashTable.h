@@ -63,7 +63,7 @@ public:
 class VariantHashTable: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE ("jnc.HashTable", StdApiSlot_VariantHashTable)
+	JNC_BEGIN_TYPE ("jnc.VariantHashTable", StdApiSlot_VariantHashTable)
 		JNC_CONSTRUCTOR (&VariantHashTable::construct)
 		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
 		JNC_FUNCTION ("find", &VariantHashTable::find_s)
