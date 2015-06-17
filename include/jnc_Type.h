@@ -160,6 +160,8 @@ enum StdType
 	StdType_StringBuilder,
 	StdType_StringHashTable,
 	StdType_VariantHashTable,
+	StdType_ListEntry,
+	StdType_List,
 	StdType_ConstBuffer,
 	StdType_ConstBufferRef,
 	StdType_BufferRef,

@@ -105,6 +105,8 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringBuilder)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringHashTable)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_VariantHashTable)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ListEntry)) &&
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_List)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBuffer)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBufferRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_BufferRef)) &&

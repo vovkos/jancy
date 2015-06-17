@@ -37,6 +37,8 @@ getStdTypeName (StdType stdType)
 		"StringBuilder",    // StdType_StringBuilder,
 		"StringHashTable",  // StdType_StringHashTable,
 		"VariantHashTable", // StdType_VariantHashTable,
+		"ListEntry",        // StdType_ListEntry,
+		"List",             // StdType_List,
 		"ConstArray",       // StdType_ConstArray,
 		"ConstArrayRef",    // StdType_ConstArrayRef,
 		"ArrayRef",         // StdType_ArrayRef,

@@ -12,6 +12,8 @@ enum StdApiSlot
 	StdApiSlot_StringBuilder,
 	StdApiSlot_StringHashTable,
 	StdApiSlot_VariantHashTable,
+	StdApiSlot_ListEntry,
+	StdApiSlot_List,
 	StdApiSlot_ConstBuffer,
 	StdApiSlot_ConstBufferRef,
 	StdApiSlot_BufferRef,

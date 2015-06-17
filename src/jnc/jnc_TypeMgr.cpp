@@ -96,9 +96,10 @@ Type*
 TypeMgr::getStdType (StdType stdType)
 {
 	#include "jnc_StdTypes.jnc.cpp"
-	#include "jnc_HashTable.jnc.cpp"
 	#include "jnc_Buffer.jnc.cpp"
 	#include "jnc_String.jnc.cpp"
+	#include "jnc_HashTable.jnc.cpp"
+	#include "jnc_List.jnc.cpp"
 	#include "jnc_Recognizer.jnc.cpp"
 	#include "jnc_Library.jnc.cpp"
 
@@ -187,6 +188,16 @@ TypeMgr::getStdType (StdType stdType)
 		{                                    // StdType_VariantHashTable,
 			variantHashTableTypeSrc,
 			lengthof (variantHashTableTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_ListEntry,
+			listEntryTypeSrc,
+			lengthof (listEntryTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_List,
+			listTypeSrc,
+			lengthof (listTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_ConstBuffer,
@@ -314,6 +325,8 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_StringBuilder:
 	case StdType_StringHashTable:
 	case StdType_VariantHashTable:
+	case StdType_ListEntry:
+	case StdType_List:
 	case StdType_ConstBuffer:
 	case StdType_ConstBufferRef:
 	case StdType_BufferRef:
@@ -1172,7 +1185,7 @@ TypeMgr::createUserFunctionType (
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		type->m_returnType_i = (ImportType*) returnType;
 
-	if (!m_module->m_namespaceMgr.getCurrentScope ())
+	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope ())
 	{
 		m_module->markForLayout (type, true);
 	}

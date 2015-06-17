@@ -1,0 +1,22 @@
+//.............................................................................
+
+int main ()
+{	
+	printf ("main ()\n");
+
+	jnc.List list;
+
+	for (int i = 1; i <= 10; i++)
+		list.insertTail (i * 10);
+
+	list.removeHead ();
+	list.removeTail ();
+
+	jnc.ListEntry* it = list.m_head;
+	for (; it; it = it.m_next)
+		printf ($"$(it.m_data)\n");
+
+	return 0; 
+}
+
+//.............................................................................
