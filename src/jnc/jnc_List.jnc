@@ -28,6 +28,11 @@ class List
 	clear ();
 	takeOver (List* list);
 
+	ListEntry* add (variant data)
+	{
+		return insertTail (data);
+	}
+
 	ListEntry* insertHead (variant data);
 	ListEntry* insertTail (variant data);
 
