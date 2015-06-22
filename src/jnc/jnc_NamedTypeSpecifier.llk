@@ -7,6 +7,11 @@ class
 	NamedType* m_type;
 }
 named_type_specifier
+	leave 
+	{
+		if (m_stage == StageKind_Pass2)
+			return $.m_type->ensureLayout ();
+	}
 	:	enum_specifier
 			{
 				$.m_type = $1.m_type;

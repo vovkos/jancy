@@ -381,7 +381,6 @@ FunctionMgr::createThisValue ()
 	ASSERT (function && function->isMember ());
 
 	Value thisArgValue = function->getType ()->getCallConv ()->getThisArgValue (function);
-
 	if (function->m_thisArgType->cmp (function->m_thisType) == 0)
 	{
 		if (function->m_thisType->getTypeKind () != TypeKind_DataPtr)
@@ -395,11 +394,11 @@ FunctionMgr::createThisValue ()
 				((DataPtrType*) thisArgValue.getType ())->getPtrTypeKind () == DataPtrTypeKind_Normal);
 
 			DataPtrType* ptrType = ((DataPtrType*) thisArgValue.getType ());
+			ptrType = ptrType->getTargetType ()->getDataPtrType (DataPtrTypeKind_Lean, ptrType->getFlags ());
 
 			Value ptrValue;
 			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 0, NULL, &ptrValue);
-
-			ptrType = ptrType->getTargetType ()->getDataPtrType (DataPtrTypeKind_Lean, ptrType->getFlags ());
+			m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, &ptrValue);
 			m_thisValue.setLeanDataPtr (ptrValue.getLlvmValue (), ptrType, thisArgValue);
 		}
 	}
