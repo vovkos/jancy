@@ -95,7 +95,7 @@ List::insertBefore (
 	entryPtr.m_rangeEnd = entry + 1;
 	entryPtr.m_object = getStaticObjHdr ();
 
-	self->insertAfterImpl (entryPtr, beforePtr);
+	self->insertBeforeImpl (entryPtr, beforePtr);
 	return entryPtr;
 }
 
