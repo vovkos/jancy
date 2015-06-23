@@ -98,7 +98,7 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 		{
 			m_blockList.remove (block);
 
-			if (block->m_llvmBlock->hasOneUse ())
+			if (!block->m_llvmBlock->use_empty ())
 			{
 				pendingDeleteList.insertTail (block);
 			}
@@ -127,8 +127,8 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 			BasicBlock* block = *it;
 			it++;
 
-			if (block->m_llvmBlock->hasOneUse ())
-				continue;				
+			if (!block->m_llvmBlock->use_empty ())
+				continue;
 
 			if (block->m_function)
 				block->m_llvmBlock->eraseFromParent ();

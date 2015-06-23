@@ -143,7 +143,7 @@ List::moveToTail (DataPtr entryPtr)
 	removeImpl (entry);
 	insertTailImpl (entryPtr);
 }
-	
+
 void
 AXL_CDECL
 List::moveBefore (

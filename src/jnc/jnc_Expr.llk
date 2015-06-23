@@ -260,13 +260,15 @@ logical_or_expr <Value* $value>
 						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
 						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
+						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
+							$opBlock2->markReachable (); 
 					}
 				}
 			logical_and_expr <&$opValue2>
 				{
 					if (m_stage != StageKind_ReactorStarter)
 						return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
-					else 
+					else
 						return 
 							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
 							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
@@ -291,13 +293,15 @@ logical_and_expr <Value* $value>
 						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
 						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
+						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
+							$opBlock2->markReachable (); 
 					}
 				}
 			inclusive_or_expr <&$opValue2>
 				{
 					if (m_stage != StageKind_ReactorStarter)
 						return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
-					else 
+					else
 						return 
 							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
 							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
