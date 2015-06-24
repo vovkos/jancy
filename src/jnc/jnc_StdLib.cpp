@@ -632,13 +632,13 @@ void
 StdLib::prepareFormatString (
 	rtl::String* formatString,
 	const char* fmtSpecifier,
-	char defaultType
+	const char* defaultType
 	)
 {
 	if (!fmtSpecifier)
 	{
-		char formatBuffer [2] = { '%', defaultType };
-		formatString->copy (formatBuffer, 2);
+		formatString->copy ('%');
+		formatString->append (defaultType);
 		return;
 	}
 
@@ -676,7 +676,7 @@ StdLib::appendFmtLiteral_p (
 
 	char buffer1 [256];
 	rtl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
-	prepareFormatString (&formatString, fmtSpecifier, 's');
+	prepareFormatString (&formatString, fmtSpecifier, "s");
 
 	char buffer2 [256];
 	rtl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
@@ -815,7 +815,7 @@ size_t
 StdLib::appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
-	char defaultType,
+	const char* defaultType,
 	...
 	)
 {
@@ -849,7 +849,7 @@ StdLib::appendFmtLiteralStringImpl (
 		p = string;
 	}
 
-	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 's', p);
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "s", p);
 }
 
 void 

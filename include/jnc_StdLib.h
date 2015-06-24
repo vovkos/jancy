@@ -384,7 +384,7 @@ public:
 		int32_t x
 		)
 	{
-		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'd', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "d", x);
 	}
 
 	static
@@ -395,7 +395,7 @@ public:
 		uint32_t x
 		)
 	{
-		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'u', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "u", x);
 	}
 
 	static
@@ -406,7 +406,7 @@ public:
 		int64_t x
 		)
 	{
-		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'd', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "lld", x);
 	}
 
 	static
@@ -417,7 +417,7 @@ public:
 		uint64_t x
 		)
 	{
-		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'u', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "llu", x);
 	}
 
 	static
@@ -428,7 +428,7 @@ public:
 		double x
 		)
 	{
-		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, 'f', x);
+		return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "f", x);
 	}
 
 	static
@@ -554,7 +554,7 @@ protected:
 	prepareFormatString (
 		rtl::String* formatString,
 		const char* fmtSpecifier,
-		char defaultType
+		const char* defaultType
 		);
 
 	static
@@ -562,7 +562,7 @@ protected:
 	appendFmtLiteralImpl (
 		FmtLiteral* fmtLiteral,
 		const char* fmtSpecifier,
-		char defaultType,
+		const char* defaultType,
 		...
 		);
 
