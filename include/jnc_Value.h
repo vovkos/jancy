@@ -56,13 +56,13 @@ protected:
 		size_t m_size;
 	};
 
-	class GetBufSize
+	class SizeOfBufHdr
 	{
 	public:
 		size_t
-		operator () (const BufHdr& hdr)
+		operator () (const BufHdr* hdr)
 		{
-			return sizeof (BufHdr) + hdr.m_size;
+			return sizeof (BufHdr) + hdr->m_size;
 		}
 	};
 
@@ -70,7 +70,7 @@ protected:
 	ValueKind m_valueKind;
 	Type* m_type;
 
-	ref::Buf <BufHdr, GetBufSize> m_const;
+	ref::Buf <BufHdr, SizeOfBufHdr> m_const;
 
 	union
 	{
