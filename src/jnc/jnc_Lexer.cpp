@@ -6,6 +6,90 @@ namespace jnc {
 
 //.............................................................................
 
+size_t 
+decodeByteString (
+	rtl::Array <char>* buffer,
+	int radix, // must be 2 or 16
+	const char* p,
+	size_t length
+	)
+{
+
+	ASSERT (radix == 2 || radix == 16);
+	
+	enum State
+	{
+		State_Space = 0,
+		State_Byte,
+	};
+
+	State state = State_Space;
+
+	if (length == -1)
+		length = rtl::StringDetails::calcLength (p);
+
+	buffer->clear ();
+	buffer->reserve (length / 2); // good estimate no matter the radix
+	
+	char byteBuffer [16] = { 0 }; // big enough to fit byte in any radix
+	char* byteEnd;
+	size_t byteLength;
+	
+	size_t maxByteLength = 16 / radix;
+
+	uchar_t x;
+
+	const char* end = p + length;
+	for (; p < end; p++)
+	{
+		bool_t isSpace = isspace(*p);
+
+		switch (state)
+		{
+		case State_Space:
+			if (isSpace)
+				break;
+
+			byteBuffer [0] = *p;
+			byteLength = 1;
+			state = State_Byte;
+			break;
+
+		case State_Byte:
+			if (!isSpace)
+			{
+				byteBuffer [byteLength++] = *p;
+				if (byteLength < maxByteLength)
+					break;
+			}
+
+			byteBuffer [byteLength] = 0;
+			x = (uchar_t) strtoul (byteBuffer, &byteEnd, radix);
+
+			if (byteEnd == &byteBuffer [byteLength])
+				buffer->append (x);
+			else
+				p = end; // not a propert byte string anymore, break the loop
+
+			state = State_Space;
+			break;
+		}
+	}
+
+	if (state == State_Byte)
+	{
+		byteBuffer [byteLength] = 0;
+		x = (uchar_t) strtoul (byteBuffer, &byteEnd, radix);
+
+		if (byteEnd == &byteBuffer [byteLength])
+			buffer->append (x);
+	}
+
+	return buffer->getCount ();
+}
+
+//.............................................................................
+
 Token*
 Lexer::createKeywordTokenEx (
 	int tokenKind,
@@ -38,11 +122,11 @@ Lexer::createStringToken (
 }
 
 Token*
-Lexer::createHexLiteralToken ()
+Lexer::createHexLiteralToken (int radix)
 {
 	Token* token = createToken (TokenKind_HexLiteral);
 	ASSERT (token->m_pos.m_length >= 4);
-	token->m_data.m_binData = enc::HexEncoding::decode (ts + 3, token->m_pos.m_length - 4);
+	decodeByteString (&token->m_data.m_binData, radix, ts + 3, token->m_pos.m_length - 4);
 	return token;
 }
 

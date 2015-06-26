@@ -149,8 +149,10 @@ main := |*
 id                  ;
 (lit_sq | lit_dq)   { colorize(ts, te, Qt::darkRed); };
 dec+                { colorize(ts, te, Qt::darkRed); };
-'0' [Xx] hex+       { colorize(ts, te, Qt::darkRed); };
-'0' [Xx] lit_dq     { colorize(ts, te, Qt::darkRed); };
+'0' [xX] hex+       { colorize(ts, te, Qt::darkRed); };
+'0' [bB] bin+       { colorize(ts, te, Qt::darkRed); };
+'0' [xX] lit_dq     { colorize(ts, te, Qt::darkRed); };
+'0' [bB] lit_dq     { colorize(ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize(ts, te, Qt::darkRed); };
 
 '%%' [^\n]*         { colorize(ts, te, Qt::darkRed); };

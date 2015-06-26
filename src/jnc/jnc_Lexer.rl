@@ -263,8 +263,10 @@ id               { createStringToken (TokenKind_Identifier); };
 lit_sq           { createCharToken (TokenKind_Integer); };
 lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
 dec+             { createIntegerToken (10); };
-'0' [xx] hex+    { createIntegerToken (16, 2); };
-'0' [xx] lit_dq  { createHexLiteralToken (); };
+'0' [xX] hex+    { createIntegerToken (16, 2); };
+'0' [bB] bin+    { createIntegerToken (2, 2); };
+'0' [xX] lit_dq  { createHexLiteralToken (16); };
+'0' [bB] lit_dq  { createHexLiteralToken (2); };
 dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 

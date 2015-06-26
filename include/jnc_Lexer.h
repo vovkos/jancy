@@ -403,7 +403,7 @@ protected:
 		);
 
 	Token*
-	createHexLiteralToken ();
+	createHexLiteralToken (int radix);
 
 	Token*
 	createCharToken (int tokenKind);
