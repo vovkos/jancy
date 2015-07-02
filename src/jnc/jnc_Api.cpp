@@ -10,9 +10,8 @@ primeInterface (
 	ClassType* type,
 	IfaceHdr* self,
 	void* vtable,
-	ObjHdr* object,
-	size_t scopeLevel,
-	ObjHdr* root,
+	Box* object,
+	Box* root,
 	uintptr_t flags
 	)
 {
@@ -33,7 +32,6 @@ primeInterface (
 			(IfaceHdr*) ((char*) self + slot->getOffset ()),
 			vtable ? (void**) vtable + slot->getVTableIndex () : NULL,
 			object,
-			scopeLevel,
 			root,
 			flags
 			);
@@ -49,14 +47,13 @@ primeInterface (
 		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
 		ClassType* fieldType = (ClassType*) field->getType ();
-		ObjHdr* fieldObjHdr = (ObjHdr*) ((char*) self + field->getOffset ());
+		Box* fieldBox = (Box*) ((char*) self + field->getOffset ());
 		void* fieldVTable = NULL; // pFieldType->GetVTablePtrValue ()
 
 		prime (
 			fieldType, 
 			fieldVTable,
-			fieldObjHdr,
-			scopeLevel,
+			fieldBox,
 			root,
 			flags
 			);
@@ -67,20 +64,18 @@ void
 prime (
 	ClassType* type,
 	void* vtable,
-	ObjHdr* object,
-	size_t scopeLevel,
-	ObjHdr* root,
+	Box* object,
+	Box* root,
 	uintptr_t flags
 	)
 {
 //	memset (pObject, 0, pType->GetSize ());
 
-	object->m_scopeLevel = scopeLevel;
 	object->m_root = root;
 	object->m_type = type;
 	object->m_flags = flags;
 
-	primeInterface (type, (IfaceHdr*) (object + 1), vtable, object, scopeLevel, root, flags);
+	primeInterface (type, (IfaceHdr*) (object + 1), vtable, object, root, flags);
 }
 
 //.............................................................................

@@ -7,7 +7,7 @@ namespace jnc {
 //.............................................................................
 
 void
-OperatorMgr::getLeanDataPtrObjHdr (
+OperatorMgr::getLeanDataPtrBox (
 	const Value& value,
 	Value* resultValue
 	)
@@ -17,7 +17,7 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	ValueKind valueKind = value.getValueKind ();
 	if (valueKind == ValueKind_Variable)
 	{	
-		*resultValue = value.getVariable ()->getObjHdr ();
+		*resultValue = value.getVariable ()->getBox ();
 		return;
 	}
 
@@ -26,12 +26,12 @@ OperatorMgr::getLeanDataPtrObjHdr (
 
 	if (scopeValidatorValue.getValueKind () == ValueKind_Variable)
 	{
-		*resultValue = scopeValidatorValue.getVariable ()->getObjHdr ();
+		*resultValue = scopeValidatorValue.getVariable ()->getBox ();
 		return;
 	}
 	
 	Type* scopeValidatorType = scopeValidatorValue.getType ();
-	Type* resultType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
+	Type* resultType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
 	if (scopeValidatorType->cmp (resultType) == 0)
 	{
 		*resultValue = scopeValidatorValue;
@@ -39,9 +39,10 @@ OperatorMgr::getLeanDataPtrObjHdr (
 	else if (scopeValidatorType->getTypeKind () == TypeKind_ClassPtr)
 	{
 		Type* ifaceHdrPtrType = m_module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr);
+
 		Value objHdrValue;
 		m_module->m_llvmIrBuilder.createBitCast (scopeValidatorValue, ifaceHdrPtrType, &objHdrValue);
-		m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &objHdrValue);
+		m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &objHdrValue); // root
 		m_module->m_llvmIrBuilder.createLoad (objHdrValue, resultType, resultValue);
 	}
 	else
@@ -208,32 +209,8 @@ OperatorMgr::storeDataRef (
 
 	prepareDataPtr (dstValue, &ptrValue);
 
-	switch (targetTypeKind)
+	if (targetTypeKind == TypeKind_BitField)
 	{
-	case TypeKind_DataPtr:
-		result = checkDataPtrScopeLevel (srcValue, dstValue);
-		if (!result)
-			return false;
-
-		break;
-
-	case TypeKind_ClassPtr:
-		checkClassPtrScopeLevel (srcValue, dstValue);
-		break;
-
-	case TypeKind_FunctionPtr:
-		checkFunctionPtrScopeLevel (srcValue, dstValue);
-		break;
-
-	case TypeKind_PropertyPtr:
-		checkPropertyPtrScopeLevel (srcValue, dstValue);
-		break;
-
-	case TypeKind_Variant:
-		checkVariantScopeLevel (srcValue, dstValue);
-		break;
-
-	case TypeKind_BitField:
 		m_module->m_llvmIrBuilder.createLoad (
 			ptrValue, 
 			castType,

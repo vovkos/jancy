@@ -98,18 +98,18 @@ enum TypeKind
 	// aliases
 
 #if (_AXL_PTR_BITNESS == 64)
-	TypeKind_Int_p    = TypeKind_Int64,
-	TypeKind_Int_pu   = TypeKind_Int64_u,
-	TypeKind_Int_pbe  = TypeKind_Int64_be,
-	TypeKind_Int_pbeu = TypeKind_Int64_beu,
+	TypeKind_IntPtr    = TypeKind_Int64,
+	TypeKind_IntPtr_u   = TypeKind_Int64_u,
+	TypeKind_IntPtrbe  = TypeKind_Int64_be,
+	TypeKind_IntPtrbeu = TypeKind_Int64_beu,
 #else
-	TypeKind_Int_p    = TypeKind_Int32,
-	TypeKind_Int_pu   = TypeKind_Int32_u,
-	TypeKind_Int_pbe  = TypeKind_Int32_be,
-	TypeKind_Int_pbeu = TypeKind_Int32_beu,
+	TypeKind_IntPtr    = TypeKind_Int32,
+	TypeKind_IntPtr_u   = TypeKind_Int32_u,
+	TypeKind_IntPtrbe  = TypeKind_Int32_be,
+	TypeKind_IntPtrbeu = TypeKind_Int32_beu,
 #endif
 
-	TypeKind_SizeT    = TypeKind_Int_pu,
+	TypeKind_SizeT    = TypeKind_IntPtr_u,
 	TypeKind_Int      = TypeKind_Int32,
 	TypeKind_Int_u    = TypeKind_Int32_u,
 	TypeKind_Char     = TypeKind_Int8,
@@ -138,9 +138,9 @@ enum StdType
 	StdType_ByteConstPtr,
 	StdType_SimpleIfaceHdr,
 	StdType_SimpleIfaceHdrPtr,
-	StdType_ObjHdr,
-	StdType_ObjHdrPtr,
-	StdType_VariableObjHdr,
+	StdType_Box,
+	StdType_BoxPtr,
+	StdType_VariableBox,
 	StdType_AbstractClass,
 	StdType_AbstractClassPtr,
 	StdType_SimpleFunction,
@@ -170,6 +170,7 @@ enum StdType
 	StdType_Fp64Fp64,   // for system V coercion
 	StdType_Int64Fp64,  // for system V coercion
 	StdType_Fp64Int64,  // for system V coercion
+	StdType_DataPtrValidator,
 	StdType_DataPtrStruct,
 	StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,

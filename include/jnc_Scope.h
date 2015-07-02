@@ -21,6 +21,7 @@ enum ScopeFlag
 	ScopeFlag_FinallyDefined = 0x0400,
 	ScopeFlag_CanThrow       = 0x0800, // function throws, or parent has catch
 	ScopeFlag_HasFinally     = 0x1000, // this scope or its parent has finally
+	ScopeFlag_FunctionScope  = 0x2000, // this scope is from compound_stmt
 };
 
 //.............................................................................
@@ -35,8 +36,6 @@ class Scope:
 	friend class Parser;
 
 protected:
-	size_t m_level;
-
 	Token::Pos m_pos;
 	Function* m_function;
 
@@ -56,16 +55,10 @@ public:
 public:
 	Scope ();
 
-	size_t
-	getLevel ()
-	{
-		return m_level;
-	}
-
 	bool
 	isFunctionScope ()
 	{
-		return m_level == 2;
+		return (m_flags & ScopeFlag_FunctionScope) != 0;
 	}
 
 	const Token::Pos*

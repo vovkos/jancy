@@ -127,7 +127,7 @@ getLlvmPtrConst (
 	int64_t integer = *(int64_t*) p;
 
 	llvm::Constant* llvmConst = llvm::ConstantInt::get (
-		type->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Int_pu)->getLlvmType (),
+		type->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u)->getLlvmType (),
 		llvm::APInt (sizeof (void*) * 8, integer, false)
 		);
 

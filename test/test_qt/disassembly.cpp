@@ -38,21 +38,23 @@ void Disassembly::addFunction(jnc::Function* function)
 {
 	jnc::FunctionType* pFunctionType = function->getType ();
 
+	void* p = function->getMachineCode ();
+	size_t size = function->getMachineCodeSize ();
+
 	appendFormat (
-		"%s %s %s %s\n",
+		"%s %s %s %s @%x (%d bytes)\n",
 		pFunctionType->getTypeModifierString ().cc (),
 		pFunctionType->getReturnType ()->getTypeString ().cc (),
 		function->m_tag.cc (),
-		pFunctionType->getArgString ().cc ()
+		pFunctionType->getArgString ().cc (),
+		p,
+		size
 		);
 
-	void* pf = function->getMachineCode ();
-	size_t Size = function->getMachineCodeSize ();
-
-	if (pf)
+	if (p)
 	{
-		jnc::Disassembler Dasm;
-		rtl::String s = Dasm.disassemble (pf, Size);
+		jnc::Disassembler dasm;
+		rtl::String s = dasm.disassemble (p, size);
 		appendFormat ("\n%s", s.cc ());
 	}
 }

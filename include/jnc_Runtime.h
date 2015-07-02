@@ -103,8 +103,8 @@ protected:
 	mt::NotificationEvent m_gcIdleEvent;
 	mt::NotificationEvent m_gcSafePointEvent;
 	volatile intptr_t m_gcUnsafeThreadCount;
-	rtl::Array <ObjHdr*> m_gcObjectArray;
-	rtl::Array <ObjHdr*> m_gcMemBlockArray;
+	rtl::Array <Box*> m_gcObjectArray;
+	rtl::Array <Box*> m_gcMemBlockArray;
 
 	rtl::HashTable <IfaceHdr*, rtl::HashId <IfaceHdr*> > m_gcPinTable;
 	rtl::AuxList <GcDestructGuard> m_gcDestructGuardList;
@@ -272,7 +272,7 @@ protected:
 
 	void
 	gcAddObject (
-		ObjHdr* object,
+		Box* object,
 		ClassType* type
 		);
 

@@ -7,7 +7,6 @@
 #include "jnc_Namespace.h"
 #include "jnc_Scope.h"
 #include "jnc_Orphan.h"
-#include "jnc_ScopeLevelStack.h"
 
 namespace jnc {
 
@@ -50,7 +49,6 @@ protected:
 	intptr_t m_sourcePosLockCount;
 
 	Value m_staticObjectValue;
-	ScopeLevelStack m_scopeLevelStack;
 
 public:
 	NamespaceMgr ();
@@ -128,23 +126,7 @@ public:
 	}
 
 	Value
-	getScopeLevel (size_t scopeLevel)
-	{
-		return scopeLevel ? 
-			m_scopeLevelStack.getScopeLevel (scopeLevel) : 
-			Value ((int64_t) 0, getSimpleType (TypeKind_SizeT, m_module));
-	}
-
-	Value
-	getCurrentScopeLevel ()
-	{
-		return m_currentScope ? 
-			getScopeLevel (m_currentScope->getLevel ()) : 
-			Value ((int64_t) 0, getSimpleType (TypeKind_SizeT, m_module));
-	}
-
-	Value
-	getStaticObjHdr ();
+	getStaticBox ();
 
 	void
 	openNamespace (Namespace* nspace);

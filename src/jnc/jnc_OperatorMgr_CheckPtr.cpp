@@ -7,7 +7,7 @@ namespace jnc {
 //.............................................................................
 
 void
-OperatorMgr::getDataRefObjHdr (
+OperatorMgr::getDataRefBox (
 	const Value& value,
 	Value* resultValue
 	)
@@ -18,14 +18,14 @@ OperatorMgr::getDataRefObjHdr (
 
 	if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		getLeanDataPtrObjHdr (value, resultValue);
+		getLeanDataPtrBox (value, resultValue);
 	}
 	else
 	{
 		m_module->m_llvmIrBuilder.createExtractValue (
 			value,
 			3,
-			m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
+			m_module->m_typeMgr.getStdType (StdType_BoxPtr),
 			resultValue
 			);
 	}
@@ -129,95 +129,6 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 		);
 }
 
-bool
-OperatorMgr::checkDataPtrScopeLevel (
-	const Value& srcValue,
-	const Value& dstValue
-	)
-{
-	ASSERT (srcValue.getType ()->getTypeKind () == TypeKind_DataPtr);
-
-	DataPtrType* ptrType = (DataPtrType*) srcValue.getType ();
-	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-		
-	if (m_module->m_operatorMgr.isUnsafeRgn () || ptrTypeKind == DataPtrTypeKind_Thin)
-		return true;
-
-	if (srcValue.getValueKind () == ValueKind_Variable && dstValue.getValueKind () == ValueKind_Variable)
-	{
-		if (srcValue.getVariable ()->getScopeLevel () > dstValue.getVariable ()->getScopeLevel ())
-		{
-			err::setFormatStringError ("data pointer scope level mismatch");
-			return false;
-		}
-
-		return true;
-	}
-
-	Value srcObjHdrValue;
-
-	if (ptrTypeKind == DataPtrTypeKind_Lean)
-		getLeanDataPtrObjHdr (srcValue, &srcObjHdrValue);
-	else
-		m_module->m_llvmIrBuilder.createExtractValue (srcValue, 3, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &srcObjHdrValue);
-
-	Function* checkFunction;
-	Value dstObjHdrValue;
-
-	if (dstValue.getValueKind () == ValueKind_Variable)
-	{
-		checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevelDirect);
-		dstObjHdrValue = m_module->m_namespaceMgr.getScopeLevel (dstValue.getVariable ()->getScopeLevel ());
-	}
-	else
-	{
-		checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckScopeLevel);
-		getDataRefObjHdr (dstValue, &dstObjHdrValue);
-	}
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check data pointer scope level");
-
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
-		srcObjHdrValue,
-		dstObjHdrValue,
-		NULL
-		);
-
-	return true;
-}
-
-void
-OperatorMgr::checkClassPtrScopeLevel (
-	const Value& srcValue,
-	const Value& dstValue
-	)
-{
-	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
-
-	if (m_module->m_operatorMgr.isUnsafeRgn ())
-		return;
-
-	Value dstObjHdrValue;
-	getDataRefObjHdr (dstValue, &dstObjHdrValue);
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check class scope level");
-
-	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createBitCast (srcValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
-
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckClassPtrScopeLevel);
-
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkFunction,
-		checkFunction->getType (),
-		ifaceValue,
-		dstObjHdrValue,
-		NULL
-		);
-}
-
 void
 OperatorMgr::checkNullPtr (const Value& value)
 {
@@ -273,60 +184,6 @@ OperatorMgr::checkNullPtr (const Value& value)
 		countof (argValueArray)
 		);
 
-}
-
-void
-OperatorMgr::checkFunctionPtrScopeLevel (
-	const Value& srcValue,
-	const Value& dstValue
-	)
-{
-	ASSERT (srcValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
-	FunctionPtrType* ptrType = (FunctionPtrType*) srcValue.getType ();
-
-	if (m_module->m_operatorMgr.isUnsafeRgn () || !ptrType->hasClosure ())
-		return;
-
-	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
-	checkClassPtrScopeLevel (closureValue, dstValue);
-}
-
-void
-OperatorMgr::checkPropertyPtrScopeLevel (
-	const Value& srcValue,
-	const Value& dstValue
-	)
-{
-	ASSERT (srcValue.getType ()->getTypeKind () == TypeKind_PropertyPtr);
-	PropertyPtrType* ptrType = (PropertyPtrType*) srcValue.getType ();
-
-	if (m_module->m_operatorMgr.isUnsafeRgn () || !ptrType->hasClosure ())
-		return;
-
-	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (srcValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
-	checkClassPtrScopeLevel (closureValue, dstValue);
-}
-
-void
-OperatorMgr::checkVariantScopeLevel (
-	const Value& srcValue,
-	const Value& dstValue
-	)
-{
-	ASSERT (srcValue.getType ()->getTypeKind () == TypeKind_Variant);
-
-	if (m_module->m_operatorMgr.isUnsafeRgn ())
-		return;
-
-	Value dstObjHdrValue;
-	getDataRefObjHdr (dstValue, &dstObjHdrValue);
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "check variant scope level");
-
-	Function* checkFunction = m_module->m_functionMgr.getStdFunction (StdFunction_CheckVariantScopeLevel);
-	m_module->m_operatorMgr.callOperator (checkFunction, srcValue, dstObjHdrValue);
 }
 
 //.............................................................................

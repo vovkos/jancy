@@ -122,10 +122,10 @@ PropertyPtrType::gcMark (
 	ASSERT (m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak);
 
 	PropertyPtr* ptr = (PropertyPtr*) p;
-	if (!ptr->m_closure || ptr->m_closure->m_object->m_scopeLevel)
+	if (!ptr->m_closure)
 		return;
 
-	ObjHdr* object = ptr->m_closure->m_object;
+	Box* object = ptr->m_closure->m_object;
 	if (m_ptrTypeKind == PropertyPtrTypeKind_Normal)
 		object->gcMarkObject (runtime);
 	else if (object->m_classType->getClassTypeKind () == ClassTypeKind_FunctionClosure)

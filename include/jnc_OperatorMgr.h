@@ -1490,7 +1490,7 @@ public:
 		);
 
 	void
-	getLeanDataPtrObjHdr (
+	getLeanDataPtrBox (
 		const Value& value,
 		Value* resultValue
 		);
@@ -1526,7 +1526,7 @@ public:
 		);
 
 	void
-	getDataRefObjHdr (
+	getDataRefBox (
 		const Value& value,
 		Value* resultValue
 		);
@@ -1536,36 +1536,6 @@ public:
 
 	void
 	checkNullPtr (const Value& value);
-
-	bool
-	checkDataPtrScopeLevel (
-		const Value& srcValue,
-		const Value& dstValue
-		); // can sometimes detect invalid assigns at compile time
-
-	void
-	checkClassPtrScopeLevel (
-		const Value& srcValue,
-		const Value& dstValue
-		);
-
-	void
-	checkFunctionPtrScopeLevel (
-		const Value& srcValue,
-		const Value& dstValue
-		);
-
-	void
-	checkPropertyPtrScopeLevel (
-		const Value& srcValue,
-		const Value& dstValue
-		);
-
-	void
-	checkVariantScopeLevel (
-		const Value& srcValue,
-		const Value& dstValue
-		);
 
 protected:
 	// overloaded operators

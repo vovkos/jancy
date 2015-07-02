@@ -20,7 +20,7 @@ public:
 	JNC_END_CLASS ()
 
 public: // these fields are accessible from Jancy
-	jnc::ObjBox <jnc::Multicast> m_onNegative;
+	jnc::ClassBox <jnc::Multicast> m_onNegative;
 	jnc::DataPtr m_propValue;
 
 protected: // opaque section

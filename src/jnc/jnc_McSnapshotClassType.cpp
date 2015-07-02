@@ -88,7 +88,7 @@ McSnapshotClassType::gcMark (
 	void* _p
 	)
 {
-	ObjHdr* object = (ObjHdr*) _p;
+	Box* object = (Box*) _p;
 	ASSERT (object->m_type == this);
 
 	McSnapshot* snapshot = (McSnapshot*) (object + 1);

@@ -78,7 +78,7 @@ dataPtrDifferenceOperator (
 	if (!result)
 		return false;
 
-	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 	Value diffValue;
 	Value sizeValue;

@@ -126,7 +126,12 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
 #	endif
 #endif
-
+	}
+	else
+	{
+		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
+		engineBuilder.setUseMCJIT (false);
+//		engineBuilder.setJITMemoryManager (jitMemoryMgr);
 	}
 
 	engineBuilder.setTargetOptions (targetOptions);

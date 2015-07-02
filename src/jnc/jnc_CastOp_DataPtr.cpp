@@ -58,7 +58,7 @@ Cast_DataPtr_FromArray::constCast (
 		ptr->m_p = p;
 		ptr->m_rangeBegin = p;
 		ptr->m_rangeEnd = (char*) p + srcType->getSize ();
-		ptr->m_object = getStaticObjHdr ();
+		ptr->m_object = getStaticBox ();
 	}
 	else // thin or lean
 	{
@@ -466,7 +466,7 @@ Cast_DataPtr_Lean2Normal::constCast (
 	dstPtr->m_p = (char*) src + offset;
 	dstPtr->m_rangeBegin = NULL;
 	dstPtr->m_rangeEnd = (void*) -1;
-	dstPtr->m_object = getStaticObjHdr ();
+	dstPtr->m_object = getStaticBox ();
 	return true;
 }
 
@@ -497,7 +497,7 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	if (type->getFlags () & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkDataPtrRange (opValue);
 
-	m_module->m_operatorMgr.getLeanDataPtrObjHdr (opValue, &objHdrValue);
+	m_module->m_operatorMgr.getLeanDataPtrBox (opValue, &objHdrValue);
 
 	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
 

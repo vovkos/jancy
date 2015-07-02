@@ -14,7 +14,7 @@ getPtrCmpOperatorOperandType (
 {
 	// TODO: check that we don't compare pointers of different typekinds
 
-	return opValue1.getType ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+	return opValue1.getType ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 }
 
 //.............................................................................

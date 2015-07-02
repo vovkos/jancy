@@ -20,10 +20,16 @@ class ClassType;
 class PropertyType;
 class ReactorClassType;
 class Property;
-class JitEventListener;
 class Scope;
 
 //.............................................................................
+
+enum FunctionFlag
+{
+	FunctionFlag_Gc = 0x010000,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum FunctionKind
 {
@@ -78,10 +84,6 @@ getFunctionKindFlags (FunctionKind functionKind);
 enum StdFunction
 {
 	StdFunction_RuntimeError,
-	StdFunction_CheckScopeLevel,
-	StdFunction_CheckScopeLevelDirect,
-	StdFunction_CheckClassPtrScopeLevel,
-	StdFunction_CheckVariantScopeLevel,
 	StdFunction_DynamicSizeOf,
 	StdFunction_DynamicCountOf,
 	StdFunction_DynamicCastDataPtr,
@@ -293,6 +295,12 @@ public:
 	getTypeOverload ()
 	{
 		return &m_typeOverload;
+	}
+
+	bool
+	isTlsRequired ()
+	{
+		return (m_flags & FunctionFlag_Gc) || !m_tlsVariableArray.isEmpty ();
 	}
 
 	bool

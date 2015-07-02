@@ -52,8 +52,8 @@ Runtime::destroy ()
 	size_t count = m_gcMemBlockArray.getCount ();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		ObjHdr* object = m_gcMemBlockArray [i];
-		void* block = (object->m_flags & ObjHdrFlag_DynamicArray) ?
+		Box* object = m_gcMemBlockArray [i];
+		void* block = (object->m_flags & BoxFlag_DynamicArray) ?
 			(void*) ((size_t*) object - 1) :
 			object;
 
@@ -250,7 +250,7 @@ Runtime::gcTryAllocate (
 	size_t prevGcLevel = gcMakeThreadSafe ();
 	ASSERT (prevGcLevel); // otherwise there is risk of losing return value
 
-	size_t size = sizeof (ObjHdr) + type->getSize () * elementCount;
+	size_t size = sizeof (Box) + type->getSize () * elementCount;
 	if (elementCount > 1)
 		size += sizeof (size_t);
 
@@ -272,12 +272,12 @@ Runtime::gcTryAllocate (
 
 	memset (block, 0, size);
 
-	ObjHdr* object;
+	Box* object;
 	void* p;
 
 	if (type->getTypeKind () == TypeKind_Class)
 	{
-		object = (ObjHdr*) block;
+		object = (Box*) block;
 		gcAddObject (object, (ClassType*) type);
 
 		// object will be primed by user code
@@ -290,16 +290,15 @@ Runtime::gcTryAllocate (
 		{
 			size_t* size = (size_t*) block;
 			*size = elementCount;
-			object = (ObjHdr*) (size + 1);
-			object->m_flags = ObjHdrFlag_DynamicArray;
+			object = (Box*) (size + 1);
+			object->m_flags = BoxFlag_DynamicArray;
 		}
 		else
 		{
-			object = (ObjHdr*) block;
+			object = (Box*) block;
 			object->m_flags = 0;
 		}
 
-		object->m_scopeLevel = 0;
 		object->m_root = object;
 		object->m_type = type;
 
@@ -343,7 +342,7 @@ gcTryAllocateOpaqueObject (
 
 void
 Runtime::gcAddObject (
-	ObjHdr* object,
+	Box* object,
 	ClassType* type
 	)
 {
@@ -356,7 +355,7 @@ Runtime::gcAddObject (
 		StructField* field = classFieldArray [i];
 		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
-		ObjHdr* childObject = (ObjHdr*) (p + field->getOffset ());
+		Box* childObject = (Box*) (p + field->getOffset ());
 		gcAddObject (childObject, (ClassType*) field->getType ());
 	}
 
@@ -383,9 +382,9 @@ Runtime::markGcLocalHeapRoot (
 	)
 {
 	if (type->getTypeKind () == TypeKind_Class)
-		((ObjHdr*) p)->gcMarkObject (this);
+		((Box*) p)->gcMarkObject (this);
 	else
-		((ObjHdr*) p - 1)->gcMarkData (this);
+		((Box*) p - 1)->gcMarkData (this);
 
 	if (type->getFlags () & TypeFlag_GcRoot)
 		addGcRoot (p, type);
@@ -429,7 +428,7 @@ Runtime::runGc_l ()
 
 	size_t count = m_gcObjectArray.getCount ();
 	for (size_t i = 0; i < count; i++)
-		m_gcObjectArray [i]->m_flags &= ~ObjHdrFlag_GcMask;
+		m_gcObjectArray [i]->m_flags &= ~BoxFlag_GcMask;
 
 	// 2.1) add static roots
 
@@ -491,12 +490,12 @@ Runtime::runGc_l ()
 	count = m_gcObjectArray.getCount ();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		jnc::ObjHdr* object = m_gcObjectArray [i];
+		jnc::Box* object = m_gcObjectArray [i];
 
-		if (!(object->m_flags & (ObjHdrFlag_GcMark | ObjHdrFlag_GcWeakMark_c)))
+		if (!(object->m_flags & (BoxFlag_GcMark | BoxFlag_GcWeakMark_c)))
 		{
 			m_gcObjectArray.remove (i);
-			object->m_flags |= ObjHdrFlag_Dead;
+			object->m_flags |= BoxFlag_Dead;
 
 			if (object->m_classType->getDestructor ())
 				destructArray.append ((IfaceHdr*) (object + 1));
@@ -536,15 +535,15 @@ Runtime::runGc_l ()
 	count = m_gcMemBlockArray.getCount ();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		ObjHdr* object = m_gcMemBlockArray [i];
-		if (object->m_flags & ObjHdrFlag_GcWeakMark)
+		Box* object = m_gcMemBlockArray [i];
+		if (object->m_flags & BoxFlag_GcWeakMark)
 			continue;
 
 		m_gcMemBlockArray.remove (i);
 
 		void* block;
 
-		if (object->m_flags & ObjHdrFlag_DynamicArray)
+		if (object->m_flags & BoxFlag_DynamicArray)
 		{
 			size_t* count = (size_t*) object - 1;
 			block = count;
@@ -580,7 +579,7 @@ Runtime::runGc_l ()
 			Function* destructor = iface->m_object->m_classType->getDestructor ();
 			ASSERT (destructor);
 
-			Object_Destruct* pf = (Object_Destruct*) destructor->getMachineCode ();
+			Class_Destruct* pf = (Class_Destruct*) destructor->getMachineCode ();
 			pf (iface);
 		}
 
@@ -810,7 +809,7 @@ Runtime::createObject (
 
 	gcEnter ();
 
-	ObjHdr* object = (ObjHdr*) gcAllocate (type);
+	Box* object = (Box*) gcAllocate (type);
 	if (!object)
 		return NULL;
 
@@ -818,8 +817,8 @@ Runtime::createObject (
 
 	if (flags & CreateObjectFlag_Prime)
 	{
-		Object_Prime* pfPrime = (Object_Prime*) primer->getMachineCode ();
-		pfPrime (object, 0, object, 0);
+		Class_Prime* prime = (Class_Prime*) primer->getMachineCode ();
+		prime (object, object, 0);
 	}
 
 	IfaceHdr* iface = (IfaceHdr*) (object + 1);
@@ -830,7 +829,7 @@ Runtime::createObject (
 		if (!constructor)
 			return NULL;
 
-		Object_Construct* pfConstruct = (Object_Construct*) constructor->getMachineCode ();
+		Class_Construct* pfConstruct = (Class_Construct*) constructor->getMachineCode ();
 		pfConstruct (iface);
 	}
 

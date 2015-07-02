@@ -363,9 +363,6 @@ protected:
 	addBlock (BasicBlock* block);
 
 	void
-	restoreScopeLevel ();
-
-	void
 	onLeaveScope (Scope* targetScope = NULL);
 
 	void

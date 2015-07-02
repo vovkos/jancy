@@ -116,9 +116,9 @@ TypeMgr::getStdType (StdType stdType)
 		{ NULL },                            // StdType_ByteConstPtr,
 		{ NULL },                            // StdType_SimpleIfaceHdr,
 		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
-		{ NULL },                            // StdType_ObjHdr,
-		{ NULL },                            // StdType_ObjHdrPtr,
-		{ NULL },                            // StdType_VariableObjHdr,
+		{ NULL },                            // StdType_Box,
+		{ NULL },                            // StdType_BoxPtr,
+		{ NULL },                            // StdType_VariableBox,
 		{ NULL },                            // StdType_AbstractClass,
 		{ NULL },                            // StdType_AbstractClassPtr,
 		{ NULL },                            // StdType_SimpleFunction,
@@ -266,8 +266,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = getStdType (StdType_SimpleIfaceHdr)->getDataPtrType_c ();
 		break;
 
-	case StdType_ObjHdr:
-		type = createObjHdrType ();
+	case StdType_Box:
+		type = createBoxType ();
+		break;
+
+	case StdType_DataPtrValidator:
+		type = createDataPtrValidatorType ();
 		break;
 
 	case StdType_DataPtrStruct:
@@ -282,12 +286,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariantStructType ();
 		break;
 
-	case StdType_ObjHdrPtr:
-		type = getStdType (StdType_ObjHdr)->getDataPtrType_c ();
+	case StdType_BoxPtr:
+		type = getStdType (StdType_Box)->getDataPtrType_c ();
 		break;
 
-	case StdType_VariableObjHdr:
-		type = createVariableObjHdrType ();
+	case StdType_VariableBox:
+		type = createVariableBoxType ();
 		break;
 
 	case StdType_AbstractClass:
@@ -910,7 +914,7 @@ TypeMgr::createClassType (
 	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
 	ifaceHdrStructType->createField ("!m_vtbl", vtableStructType->getDataPtrType_c ());
-	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
+	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_BoxPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
@@ -923,7 +927,7 @@ TypeMgr::createClassType (
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
 	classStructType->m_parentNamespace = type;
-	classStructType->createField ("!m_objectHdr", getStdType (StdType_ObjHdr));
+	classStructType->createField ("!m_objectHdr", getStdType (StdType_Box));
 	classStructType->createField ("!m_iface", ifaceStructType);
 
 	type->m_module = m_module;
@@ -1512,11 +1516,11 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	// fields
 
-	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_Int_p), 0, PtrTypeFlag_Volatile);
+	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
 	type->m_fieldArray [MulticastFieldKind_MaxCount] = type->createField ("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
 	type->m_fieldArray [MulticastFieldKind_Count] = type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
 	type->m_fieldArray [MulticastFieldKind_PtrArray] = type->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
-	type->m_fieldArray [MulticastFieldKind_HandleTable] = type->createField ("!m_handleTable", getPrimitiveType (TypeKind_Int_p));
+	type->m_fieldArray [MulticastFieldKind_HandleTable] = type->createField ("!m_handleTable", getPrimitiveType (TypeKind_IntPtr));
 
 	Type* argType;
 	Function* method;
@@ -1539,7 +1543,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray [MulticastMethodKind_Clear] = method;
 
-	returnType = getPrimitiveType (TypeKind_Int_p);
+	returnType = getPrimitiveType (TypeKind_IntPtr);
 	argType = functionPtrType;
 	methodType = getFunctionType (returnType, &argType, 1);
 
@@ -1553,7 +1557,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	type->m_methodArray [MulticastMethodKind_Add] = method;
 
 	returnType = functionPtrType;
-	argType = getPrimitiveType (TypeKind_Int_p);
+	argType = getPrimitiveType (TypeKind_IntPtr);
 	methodType = getFunctionType (returnType, &argType, 1);
 	method = type->createMethod (StorageKind_Member, "remove", methodType);
 	method->m_tag = isThin ? "jnc.multicastRemove_t" : "jnc.multicastRemove";
@@ -1661,8 +1665,8 @@ TypeMgr::createReactorType (
 
 	// fields
 
-	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p));
-	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p));
+	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
+	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
 
 	rtl::Array <Function*> virtualMethodArray = ifaceType->getVirtualMethodArray ();
 	ASSERT (virtualMethodArray.getCount () == 2);
@@ -2495,7 +2499,7 @@ void
 TypeMgr::setupStdTypedefArray ()
 {
 	setupStdTypedef (StdTypedef_uint_t,    TypeKind_Int_u,   "uint_t");
-	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_Int_pu,  "uintptr_t");
+	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_IntPtr_u,  "uintptr_t");
 	setupStdTypedef (StdTypedef_size_t,    TypeKind_SizeT,   "size_t");
 	setupStdTypedef (StdTypedef_uint8_t,   TypeKind_Int8_u,  "uint8_t");
 	setupStdTypedef (StdTypedef_uchar_t,   TypeKind_Int8_u,  "uchar_t");
@@ -2643,29 +2647,40 @@ TypeMgr::createSimpleIfaceHdrType ()
 {
 	StructType* type = createStructType ("SimpleIfaceHdr", "jnc.SimpleIfaceHdr");
 	type->createField ("!m_vtbl", getStdType (StdType_BytePtr));
-	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
+	type->createField ("!m_object", getStdType (StdType_BoxPtr));
 	type->ensureLayout ();
 	return type;
 }
 
 StructType*
-TypeMgr::createObjHdrType ()
+TypeMgr::createBoxType ()
 {
-	StructType* type = createStructType ("ObjHdr", "jnc.ObjHdr");
-	type->createField ("!m_scopeLevel", getPrimitiveType (TypeKind_SizeT));
+	StructType* type = createStructType ("Box", "jnc.Box");
 	type->createField ("!m_root", type->getDataPtrType_c ());
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
-	type->createField ("!m_flags", getPrimitiveType (TypeKind_Int_p));
+	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr));
+	type->createField ("!m_validatorCache", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }
 
 StructType*
-TypeMgr::createVariableObjHdrType ()
+TypeMgr::createVariableBoxType ()
 {
-	StructType* type = createStructType ("VariableObjHdr", "jnc.VariableObjHdr");
-	type->createField ("!m_object", getStdType (StdType_ObjHdr));
+	StructType* type = createStructType ("VariableBox", "jnc.VariableBox");
+	type->createField ("!m_object", getStdType (StdType_Box));
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createDataPtrValidatorType ()
+{
+	StructType* type = createStructType ("DataPtrValidator", "jnc.DataPtrValidator");
+	type->createField ("!m_object", getStdType (StdType_BoxPtr));
+	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
+	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }
@@ -2677,7 +2692,7 @@ TypeMgr::createDataPtrStructType ()
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
 	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
-	type->createField ("!m_object", getStdType (StdType_ObjHdrPtr));
+	type->createField ("!m_object", getStdType (StdType_BoxPtr));
 	type->ensureLayout ();
 	return type;
 }
@@ -2697,9 +2712,9 @@ TypeMgr::createVariantStructType ()
 {
 	StructType* type = createStructType ("Variant", "jnc.Variant");
 	type->createField ("!m_data1", getPrimitiveType (TypeKind_Int64));
-	type->createField ("!m_data2", getPrimitiveType (TypeKind_Int_p));
-	type->createField ("!m_data3", getPrimitiveType (TypeKind_Int_p));
-	type->createField ("!m_data4", getPrimitiveType (TypeKind_Int_p));
+	type->createField ("!m_data2", getPrimitiveType (TypeKind_IntPtr));
+	type->createField ("!m_data3", getPrimitiveType (TypeKind_IntPtr));
+	type->createField ("!m_data4", getPrimitiveType (TypeKind_IntPtr));
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;

@@ -245,16 +245,16 @@ NamedTypeBlock::callMemberFieldDestructors (const Value& thisValue)
 	module->m_llvmIrBuilder.createGep2 (objectPtrValue, 1, NULL, &objectPtrValue);
 	module->m_llvmIrBuilder.createLoad (objectPtrValue, NULL, &objectPtrValue);
 
-	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 	Value flagsValue;
-	module->m_llvmIrBuilder.createGep2 (objectPtrValue, 3, NULL, &flagsValue);
+	module->m_llvmIrBuilder.createGep2 (objectPtrValue, 2, NULL, &flagsValue);
 	module->m_llvmIrBuilder.createLoad (flagsValue, type, &flagsValue);
 
 	Value maskValue;
 	maskValue.setConstSizeT (
-		ObjHdrFlag_Static | ObjHdrFlag_Stack, 
-		module->m_typeMgr.getPrimitiveType (TypeKind_Int_p)
+		BoxFlag_Static | BoxFlag_Stack, 
+		module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)
 		);
 
 	Value andValue;

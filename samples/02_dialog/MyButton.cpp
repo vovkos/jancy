@@ -18,7 +18,7 @@ MyButton::operatorNew (
 	jnc::DataPtr textPtr
 	)
 {
-	jnc::ApiObjBox <MyButton>* button = (jnc::ApiObjBox <MyButton>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <MyButton>* button = (jnc::ApiClassBox <MyButton>*) jnc::StdLib::gcAllocate (type);
 	button->prime (type);	
 	button->construct (textPtr);
 	return button;

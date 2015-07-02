@@ -93,7 +93,7 @@ MulticastImpl::setCount (
 }
 
 struct McSnapshotObject:
-	ObjHdr,
+	Box,
 	McSnapshot
 {
 };
@@ -108,8 +108,7 @@ MulticastImpl::getSnapshot ()
 	MulticastClassType* multicastType = (MulticastClassType*) m_object->m_type;
 	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
 
-	McSnapshotObject* snapshot = (McSnapshotObject*) StdLib::gcAllocate (snapshotType);
-	snapshot->m_scopeLevel = 0;
+	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
 	snapshot->m_root = snapshot;
 	snapshot->m_type = snapshotType;
 	snapshot->m_object = snapshot;

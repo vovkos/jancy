@@ -17,7 +17,7 @@ MyCheckBox::operatorNew (
 	jnc::DataPtr textPtr
 	)
 {
-	jnc::ApiObjBox <MyCheckBox>* checkBox = (jnc::ApiObjBox <MyCheckBox>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <MyCheckBox>* checkBox = (jnc::ApiClassBox <MyCheckBox>*) jnc::StdLib::gcAllocate (type);
 	checkBox->prime (type);	
 	checkBox->construct (textPtr);
 	return checkBox;

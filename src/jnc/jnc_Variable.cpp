@@ -13,23 +13,22 @@ Variable::Variable ()
 	m_type_i = NULL;
 	m_ptrTypeFlags = 0;
 	m_scope = NULL;
-	m_scopeLevel = 0;
 	m_tlsField = NULL;
 	m_llvmValue = NULL;
 	m_llvmAllocValue = NULL;
-	m_llvmObjHdrValue = NULL;
+	m_llvmBoxValue = NULL;
 }
 
 Value
-Variable::getObjHdr ()
+Variable::getBox ()
 {
-	if (!m_llvmObjHdrValue)
+	if (!m_llvmBoxValue)
 	{
-		m_module->m_variableMgr.allocateVariableObjHdr (this);
-		ASSERT (m_llvmObjHdrValue);
+		m_module->m_variableMgr.allocateVariableBox (this);
+		ASSERT (m_llvmBoxValue);
 	}
 
-	return Value (m_llvmObjHdrValue, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr));
+	return Value (m_llvmBoxValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr));
 }
 
 bool

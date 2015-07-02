@@ -124,9 +124,13 @@ Function::Function ()
 void
 Function::markGc ()
 {
+	if (m_flags & FunctionFlag_Gc)
+		return;
+
 	llvm::Function* llvmFunction = getLlvmFunction ();
-	if (!llvmFunction->hasGC ())
-		llvmFunction->setGC ("jnc-shadow-stack");
+	ASSERT (!llvmFunction->hasGC ());
+	llvmFunction->setGC ("jnc-shadow-stack");
+	m_flags |= FunctionFlag_Gc;
 }
 
 bool

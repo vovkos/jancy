@@ -995,10 +995,13 @@ protected:
 	createSimpleIfaceHdrType ();
 
 	StructType*
-	createObjHdrType ();
+	createBoxType ();
+	
+	StructType*
+	createVariableBoxType ();
 
 	StructType*
-	createVariableObjHdrType ();
+	createDataPtrValidatorType ();
 
 	StructType*
 	createDataPtrStructType ();

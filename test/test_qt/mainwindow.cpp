@@ -35,7 +35,7 @@ TestClassB::enumGcRoots (
 TestClassB*
 TestClassB::operatorNew (jnc::ClassType* type)
 {
-	jnc::ApiObjBox <TestClassB>* test = (jnc::ApiObjBox <TestClassB>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <TestClassB>* test = (jnc::ApiClassBox <TestClassB>*) jnc::StdLib::gcAllocate (type);
 	test->prime (type);
 	return test;
 }

@@ -3022,7 +3022,7 @@ Parser::finalizeLiteral (
 		&sizeValue
 		);
 
-	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
+	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
 	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
 

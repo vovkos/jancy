@@ -16,9 +16,7 @@ class StructField;
 
 enum StdVariable
 {
-	StdVariable_ScopeLevel = 0,
 	StdVariable_GcShadowStackTop,
-
 	StdVariable__Count,
 };
 
@@ -37,14 +35,12 @@ protected:
 	ImportType* m_type_i;
 	uint_t m_ptrTypeFlags;
 	rtl::BoxList <Token> m_constructor;
-
 	Scope* m_scope;
-	size_t m_scopeLevel; // not necessarily m_scope->m_level
-
 	StructField* m_tlsField;
+
 	llvm::Value* m_llvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
 	llvm::Value* m_llvmAllocValue;
-	llvm::Value* m_llvmObjHdrValue;
+	llvm::Value* m_llvmBoxValue;
 	llvm::DIDescriptor m_llvmDiDescriptor; // DIVariable / DIGlobalVariable /
 
 public:
@@ -80,14 +76,8 @@ public:
 		return m_scope;
 	}
 
-	size_t
-	getScopeLevel ()
-	{
-		return m_scopeLevel;
-	}
-
 	Value
-	getObjHdr ();
+	getBox ();
 
 	StructField*
 	getTlsField ()

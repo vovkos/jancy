@@ -36,7 +36,6 @@ NamespaceMgr::NamespaceMgr ()
 	m_currentScope = NULL;
 	m_currentAccessKind = AccessKind_Public;
 	m_sourcePosLockCount = 0;
-	m_scopeLevelStack.m_module = m_module;
 }
 
 void
@@ -54,7 +53,6 @@ NamespaceMgr::clear ()
 	m_currentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
 	m_currentScope = NULL;
 	m_sourcePosLockCount = 0;
-	m_scopeLevelStack.clear ();
 	m_staticObjectValue.clear ();
 }
 
@@ -124,13 +122,13 @@ NamespaceMgr::addStdItems ()
 }
 
 Value
-NamespaceMgr::getStaticObjHdr ()
+NamespaceMgr::getStaticBox ()
 {
 	if (m_staticObjectValue)
 		return m_staticObjectValue;
 
-	static ObjHdr* staticObjHdr = jnc::getStaticObjHdr ();
-	m_staticObjectValue.createConst (&staticObjHdr, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr));
+	static Box* staticBox = jnc::getStaticBox ();
+	m_staticObjectValue.createConst (&staticBox, m_module->m_typeMgr.getStdType (StdType_BoxPtr));
 	return m_staticObjectValue;
 }
 
@@ -219,13 +217,12 @@ NamespaceMgr::openInternalScope ()
 	scope->m_module = m_module;
 	scope->m_destructList.m_module = m_module;
 	scope->m_function = function;
-	scope->m_level = m_currentScope ? m_currentScope->getLevel () + 1 : 1;
 	scope->m_parentNamespace = m_currentNamespace;
 
 	if (m_currentScope)
 		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_CanThrow | ScopeFlag_HasFinally);
 	else if (function->getType ()->getFlags () & FunctionTypeFlag_Throws)
-		scope->m_flags |= ScopeFlag_CanThrow;
+		scope->m_flags |= ScopeFlag_CanThrow | ScopeFlag_FunctionScope;
 
 	m_scopeList.insertTail (scope);
 
@@ -239,6 +236,9 @@ NamespaceMgr::openScope (const Token::Pos& pos)
 	Scope* parentScope = m_currentScope;
 	Scope* scope = openInternalScope ();
 	scope->m_pos = pos;
+
+	if (scope->m_parentNamespace == scope->m_function->getScope ())
+		scope->m_flags |= ScopeFlag_FunctionScope;
 
 	if (m_module->getFlags () & ModuleFlag_DebugInfo)
 		scope->m_llvmDiScope = (llvm::DIScope) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);

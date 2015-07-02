@@ -95,8 +95,6 @@ main := |*
 'alias'          { createToken (TokenKind_Alias); };
 'static'         { createToken (TokenKind_Static); };
 'thread'         { createToken (TokenKind_Thread); };
-'stack'          { createToken (TokenKind_Stack); };
-'heap'           { createToken (TokenKind_Heap); };
 'abstract'       { createToken (TokenKind_Abstract); };
 'virtual'        { createToken (TokenKind_Virtual); };
 'override'       { createToken (TokenKind_Override); };

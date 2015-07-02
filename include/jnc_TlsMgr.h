@@ -24,7 +24,6 @@ struct TlsHdr: public rtl::ListLink
 
 struct Tls // struct accessible from jancy
 {
-	size_t m_scopeLevel;
 	GcShadowStackFrame* m_gcShadowStackTop;
 
 	// followed by user TLS variables

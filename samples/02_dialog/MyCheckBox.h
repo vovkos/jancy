@@ -16,7 +16,7 @@ public:
 
 public: 
 	jnc::DataPtr m_text;
-	jnc::ObjBox <jnc::Multicast> m_onIsCheckedChanged;
+	jnc::ClassBox <jnc::Multicast> m_onIsCheckedChanged;
 	
 public:
 	QCheckBox* m_qtCheckBox;

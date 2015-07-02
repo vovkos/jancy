@@ -145,7 +145,7 @@ mapFunctions (jnc::Module* module) \
 	}
 
 #define JNC_OPAQUE_CLASS(cls, gcRootEnumProc) \
-	type->setupOpaqueClass (sizeof (jnc::ObjHdr) + sizeof (cls), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
+	type->setupOpaqueClass (sizeof (jnc::ClassBox <cls>), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
 
 #define JNC_OPERATOR_NEW(proc) \
 	function = type->getOperatorNew (); \
@@ -297,70 +297,67 @@ void
 prime (
 	ClassType* type,
 	void* vtable,
-	ObjHdr* object,
-	size_t scopeLevel,
-	ObjHdr* root,
+	Box* object,
+	Box* root,
 	uintptr_t flags
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class ApiObjBox:
-	public ObjHdr,
+class ApiClassBox:
+	public Box,
 	public T
 {
 public:
 	void
 	prime (
 		ClassType* type,
-		size_t scopeLevel,
-		ObjHdr* root,
-		uintptr_t flags = 0
+		Box* root,
+		uintptr_t flags
 		)
 	{
-		jnc::prime (type, T::getApiClassVTable (), this, scopeLevel, root, flags);
-	}
-
-	void
-	prime (
-		Module* module,
-		size_t scopeLevel,
-		ObjHdr* root,
-		uintptr_t flags = 0
-		)
-	{
-		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, scopeLevel, root, flags);
+		jnc::prime (type, T::getApiClassVTable (), this, root, flags);
 	}
 
 	void
 	prime (
 		ClassType* type,
-		ObjHdr* root
+		Box* root
 		)
 	{
-		prime (type, root->m_scopeLevel, root, root->m_flags);
+		prime (type, root, root->m_flags);
+	}
+
+	void
+	prime (ClassType* type)
+	{
+		prime (type, this, 0);
 	}
 
 	void
 	prime (
 		Module* module,
-		ObjHdr* root
+		Box* root,
+		uintptr_t flags
 		)
 	{
-		prime (T::getApiType (module), root->m_scopeLevel, root, root->m_flags);
+		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, root, flags);
 	}
 
 	void
-	prime (ClassType* type) // most common primer with scope level 0
+	prime (
+		Module* module,
+		Box* root
+		)
 	{
-		prime (type, 0, this, 0);
+		prime (T::getApiType (module), root, root->m_flags);
 	}
 
 	void
-	prime (Module* module) // most common primer with scope level 0
+	prime (Module* module)
 	{
-		prime (T::getApiType (module), 0, this, 0);
+		prime (T::getApiType (module), this, 0);
 	}
 };
 

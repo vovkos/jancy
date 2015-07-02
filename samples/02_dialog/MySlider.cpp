@@ -18,7 +18,7 @@ MySlider::operatorNew (
 	int maximum
 	)
 {
-	jnc::ApiObjBox <MySlider>* slider = (jnc::ApiObjBox <MySlider>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <MySlider>* slider = (jnc::ApiClassBox <MySlider>*) jnc::StdLib::gcAllocate (type);
 	slider->prime (type);	
 	slider->construct (minimum, maximum);
 	return slider;

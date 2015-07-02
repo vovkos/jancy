@@ -65,7 +65,7 @@ MulticastClassType::gcMark (
 	void* _p
 	)
 {
-	ObjHdr* object = (ObjHdr*) _p;
+	Box* object = (Box*) _p;
 	ASSERT (object->m_type == this);
 
 	Multicast* multicast = (Multicast*) (object + 1);

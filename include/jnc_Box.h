@@ -12,26 +12,26 @@ class Runtime;
 
 //.............................................................................
 
-enum ObjHdrFlag
+enum BoxFlag
 {
-	ObjHdrFlag_Dead         = 0x0001,
-	ObjHdrFlag_DynamicArray = 0x0002,
-	ObjHdrFlag_Variable     = 0x0004,
-	ObjHdrFlag_Static       = 0x0010,
-	ObjHdrFlag_Stack        = 0x0020,
-	ObjHdrFlag_GcMark       = 0x0100,
-	ObjHdrFlag_GcWeakMark   = 0x0200,
-	ObjHdrFlag_GcWeakMark_c = 0x0400,
-	ObjHdrFlag_GcRootsAdded = 0x0800,
-	ObjHdrFlag_GcMask       = 0x0f00,
+	BoxFlag_Dead         = 0x0001,
+	BoxFlag_DynamicArray = 0x0002,
+	BoxFlag_Variable     = 0x0004,
+	BoxFlag_Static       = 0x0010,
+	BoxFlag_Stack        = 0x0020,
+
+	BoxFlag_GcMark       = 0x0100,
+	BoxFlag_GcWeakMark   = 0x0200,
+	BoxFlag_GcWeakMark_c = 0x0400,
+	BoxFlag_GcRootsAdded = 0x0800,
+	BoxFlag_GcMask       = 0x0f00,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ObjHdr
+struct Box
 {
-	size_t m_scopeLevel; // if scope level != 0 and the object is not of class-type, then the rest can be omitted
-	ObjHdr* m_root;
+	Box* m_root;
 
 	union
 	{
@@ -40,6 +40,7 @@ struct ObjHdr
 	};
 
 	uintptr_t m_flags;
+	void* m_dataPtrValidatorCache;
 	
 	void 
 	gcMarkData (Runtime* runtime);
@@ -59,7 +60,7 @@ struct ObjHdr
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct VariableObjHdr: ObjHdr
+struct VariableBox: Box
 {
 	void* m_p;
 };
@@ -67,18 +68,17 @@ struct VariableObjHdr: ObjHdr
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-ObjHdr*
-getStaticObjHdr ()
+Box*
+getStaticBox ()
 {
-	static ObjHdr objHdr = 
+	static Box objHdr = 
 	{ 
-		0, 
 		&objHdr, 
 		NULL, 
-		ObjHdrFlag_Static | 
-		ObjHdrFlag_GcMark | 
-		ObjHdrFlag_GcWeakMark | 
-		ObjHdrFlag_GcRootsAdded
+		BoxFlag_Static | 
+		BoxFlag_GcMark | 
+		BoxFlag_GcWeakMark | 
+		BoxFlag_GcRootsAdded
 	};
 
 	return &objHdr;

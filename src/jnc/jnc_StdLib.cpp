@@ -45,8 +45,8 @@ StdLib::dynamicCastDataPtr (
 	if (!ptr.m_object)
 		return g_nullPtr;
 	
-	void* p = (ptr.m_object->m_flags  & (ObjHdrFlag_Stack | ObjHdrFlag_Static)) ?
-		((VariableObjHdr*) ptr.m_object)->m_p :
+	void* p = (ptr.m_object->m_flags  & (BoxFlag_Stack | BoxFlag_Static)) ?
+		((VariableBox*) ptr.m_object)->m_p :
 		ptr.m_object + 1;
 
 	if (ptr.m_p < p)
@@ -133,7 +133,7 @@ StdLib::strengthenClassPtr (IfaceHdr* p)
 	ClassTypeKind classTypeKind = p->m_object->m_classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ClosureClassType*) p->m_object->m_type)->strengthen (p) :
-		(!(p->m_object->m_flags & ObjHdrFlag_Dead)) ? p : NULL;
+		(!(p->m_object->m_flags & BoxFlag_Dead)) ? p : NULL;
 }
 
 void*
@@ -295,7 +295,7 @@ StdLib::strDup (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + length;
-	resultPtr.m_object = jnc::getStaticObjHdr ();
+	resultPtr.m_object = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -384,7 +384,7 @@ StdLib::memCat (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + totalSize;
-	resultPtr.m_object = jnc::getStaticObjHdr ();
+	resultPtr.m_object = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -410,7 +410,7 @@ StdLib::memDup (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + size;
-	resultPtr.m_object = jnc::getStaticObjHdr ();
+	resultPtr.m_object = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -517,7 +517,7 @@ StdLib::getErrorPtr (const err::ErrorData* errorData)
 	ptr.m_p = p;
 	ptr.m_rangeBegin = ptr.m_p;
 	ptr.m_rangeEnd = (char*) ptr.m_p + size;
-	ptr.m_object = jnc::getStaticObjHdr ();
+	ptr.m_object = jnc::getStaticBox ();
 
 	return ptr;
 }
@@ -580,7 +580,7 @@ StdLib::format (
 	ptr.m_p = p;
 	ptr.m_rangeBegin = ptr.m_p;
 	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
-	ptr.m_object = jnc::getStaticObjHdr ();
+	ptr.m_object = jnc::getStaticBox ();
 
 	return ptr;
 }
@@ -610,9 +610,6 @@ StdLib::appendFmtLiteral_a (
 
 	if (fmtLiteral->m_maxLength < newLength)
 	{
-		Module* module = runtime->getFirstModule ();
-		ASSERT (module);
-
 		size_t newMaxLength = rtl::getMinPower2Ge (newLength);
 		char* p = (char*) runtime->gcAllocate (newMaxLength + 1); // for zero-termination
 		memcpy (p, fmtLiteral->m_p, fmtLiteral->m_length);
@@ -766,7 +763,7 @@ StdLib::appendFmtLiteral_v (
 		ptr.m_p = p;
 		ptr.m_rangeBegin = p;
 		ptr.m_rangeEnd = p + count;
-		ptr.m_object = getStaticObjHdr ();
+		ptr.m_object = getStaticBox ();
 
 		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
 	}
@@ -786,7 +783,7 @@ StdLib::appendFmtLiteral_v (
 			ptr.m_p = variant.m_p;
 			ptr.m_rangeBegin = variant.m_p;
 			ptr.m_rangeEnd = (void*) (intptr_t) -1;
-			ptr.m_object = getStaticObjHdr ();
+			ptr.m_object = getStaticBox ();
 		}
 
 		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
@@ -850,52 +847,6 @@ StdLib::appendFmtLiteralStringImpl (
 	}
 
 	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "s", p);
-}
-
-void 
-StdLib::checkClassPtrScopeLevel (
-	IfaceHdr* iface,
-	ObjHdr* object
-	)
-{
-	if (iface && iface->m_object->m_scopeLevel > object->m_scopeLevel)
-		Runtime::runtimeError (RuntimeErrorKind_ScopeMismatch);
-}
-
-void 
-StdLib::checkVariantScopeLevel (
-	Variant variant,
-	ObjHdr* object
-	)
-{
-	TypeKind typeKind = variant.m_type ? variant.m_type->getTypeKind () : TypeKind_Void;
-	switch (typeKind)
-	{
-	case TypeKind_DataPtr:
-	case TypeKind_DataRef:
-		if (((DataPtrType*) variant.m_type)->getPtrTypeKind () == DataPtrTypeKind_Normal &&
-			variant.m_dataPtr.m_object && variant.m_dataPtr.m_object->m_scopeLevel > object->m_scopeLevel)
-			Runtime::runtimeError (RuntimeErrorKind_ScopeMismatch, NULL, NULL);
-	
-		break;
-
-	case TypeKind_ClassPtr:
-	case TypeKind_ClassRef:
-		checkClassPtrScopeLevel (variant.m_classPtr, object);
-		break;
-
-	case TypeKind_FunctionPtr:
-	case TypeKind_FunctionRef:
-		if (((FunctionPtrType*) variant.m_type)->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
-			checkClassPtrScopeLevel (variant.m_functionPtr.m_closure, object);
-		break;
-
-	case TypeKind_PropertyPtr:
-	case TypeKind_PropertyRef:
-		if (((FunctionPtrType*) variant.m_type)->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
-			checkClassPtrScopeLevel (variant.m_propertyPtr.m_closure, object);
-		break;
-	}
 }
 
 bool 

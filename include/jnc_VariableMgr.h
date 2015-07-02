@@ -39,7 +39,7 @@ protected:
 	rtl::Array <Variable*> m_tlsVariableArray;
 	rtl::Array <Variable*> m_tlsGcRootArray;
 	StructType* m_tlsStructType;
-	llvm::Value* m_llvmTlsObjHdrValue;
+	llvm::Value* m_llvmTlsBoxValue;
 
 	Variable* m_stdVariableArray [StdVariable__Count];
 
@@ -165,7 +165,7 @@ public:
 	allocateTlsVariable (Variable* variable);
 
 	void
-	allocateVariableObjHdr (Variable* variable);
+	allocateVariableBox (Variable* variable);
 
 	void
 	deallocateTlsVariableArray (
@@ -202,38 +202,24 @@ protected:
 	allocatePrimeInitializeNonStaticVariable (Variable* variable);
 
 	void
-	allocateStaticVariableObjHdr (Variable* variable);
+	allocateStaticVariableBox (Variable* variable);
 
 	void
-	allocateTlsVariableObjHdr (Variable* variable);
+	allocateTlsVariableBox (Variable* variable);
 
 	void
-	getHeapVariableObjHdr (Variable* variable);
+	getHeapVariableBox (Variable* variable);
 
 	void
-	allocateStackVariableObjHdr (Variable* variable);
+	allocateStackVariableBox (Variable* variable);
 
 	void
-	initializeVariableObjHdr (
+	initializeVariableBox (
 		const Value& objHdrValue,
-		const Value& scopeLevelValue,
 		Type* type,
 		uint_t flags,
 		const Value& ptrValue
 		);
-
-	void
-	initializeVariableObjHdr (
-		const Value& objHdrValue,
-		size_t scopeLevel,
-		Type* type,
-		uint_t flags,
-		const Value& ptrValue
-		)
-	{
-		Value scopeLevelValue (scopeLevel, getSimpleType (TypeKind_SizeT, m_module));
-		initializeVariableObjHdr (objHdrValue, scopeLevelValue, type, flags, ptrValue);
-	}
 
 	void
 	createStdVariables ();

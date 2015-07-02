@@ -148,7 +148,6 @@ set (
 	${JANCY_INC_DIR}/jnc_Orphan.h
 	${JANCY_INC_DIR}/jnc_QualifiedName.h
 	${JANCY_INC_DIR}/jnc_Scope.h
-	${JANCY_INC_DIR}/jnc_ScopeLevelStack.h
 	${JANCY_INC_DIR}/jnc_UsingSet.h
 	)
 
@@ -159,7 +158,6 @@ set (
 	jnc_Orphan.cpp
 	jnc_QualifiedName.cpp
 	jnc_Scope.cpp
-	jnc_ScopeLevelStack.cpp
 	jnc_UsingSet.cpp
 	)
 
@@ -373,9 +371,9 @@ set (
 	${JANCY_INC_DIR}/jnc_Closure.h
 	${JANCY_INC_DIR}/jnc_ConstMgr.h
 	${JANCY_INC_DIR}/jnc_DestructList.h
-	${JANCY_INC_DIR}/jnc_ObjHdr.h
 	${JANCY_INC_DIR}/jnc_LeanDataPtrValidator.h
 	${JANCY_INC_DIR}/jnc_Value.h
+	${JANCY_INC_DIR}/jnc_Box.h
 	)
 
 set (
@@ -383,9 +381,9 @@ set (
 	jnc_Closure.cpp
 	jnc_ConstMgr.cpp
 	jnc_DestructList.cpp
-	jnc_ObjHdr.cpp
 	jnc_LeanDataPtrValidator.cpp
 	jnc_Value.cpp
+	jnc_Box.cpp
 	)
 
 source_group (

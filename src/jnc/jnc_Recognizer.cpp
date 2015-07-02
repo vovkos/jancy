@@ -22,7 +22,7 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 	m_lexeme.m_p = buffer;
 	m_lexeme.m_rangeBegin = buffer;
 	m_lexeme.m_rangeEnd = buffer + m_lexemeLengthLimit;
-	m_lexeme.m_object = getStaticObjHdr ();
+	m_lexeme.m_object = getStaticBox ();
 
 	setAutomatonFunc (automatonFuncPtr);
 }

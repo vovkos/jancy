@@ -115,8 +115,8 @@ DataPtrType::gcMark (
 	if (m_ptrTypeKind == DataPtrTypeKind_Normal)
 	{
 		DataPtr* ptr = (DataPtr*) p;		
-		ObjHdr* object = ptr->m_object;
-		if (!object || object->m_scopeLevel)
+		Box* object = ptr->m_object;
+		if (!object)
 			return;
 
 		object->gcMarkData (runtime);
@@ -149,7 +149,7 @@ strDup (
 	ptr.m_p = dst;
 	ptr.m_rangeBegin = dst;
 	ptr.m_rangeEnd = dst + length + 1;
-	ptr.m_object = jnc::getStaticObjHdr ();
+	ptr.m_object = jnc::getStaticBox ();
 	return ptr;
 }
 

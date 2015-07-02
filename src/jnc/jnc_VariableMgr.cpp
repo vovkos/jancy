@@ -13,7 +13,7 @@ VariableMgr::VariableMgr ()
 	ASSERT (m_module);
 	
 	m_tlsStructType = NULL;
-	m_llvmTlsObjHdrValue = NULL;
+	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
 	createStdVariables ();
@@ -32,7 +32,7 @@ VariableMgr::clear ()
 	m_tlsVariableArray.clear ();
 	m_tlsGcRootArray.clear ();
 	m_tlsStructType = NULL;
-	m_llvmTlsObjHdrValue = NULL;
+	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
 	createStdVariables ();
@@ -57,15 +57,6 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 
 	switch (stdVariable)
 	{
-	case StdVariable_ScopeLevel:
-		variable = createVariable (
-			StorageKind_Thread,
-			"g_scopeLevel",
-			"jnc.g_scopeLevel",
-			m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
-			);
-		break;
-
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable (
 			StorageKind_Thread,
@@ -110,7 +101,6 @@ VariableMgr::createVariable (
 		ASSERT (scope);
 
 		variable->m_scope = scope;
-		variable->m_scopeLevel = scope->getLevel ();
 	}
 
 	if (constructor)
@@ -133,7 +123,6 @@ VariableMgr::createVariable (
 
 	case StorageKind_Thread:
 		m_tlsVariableArray.append (variable);
-		variable->m_scopeLevel = 1;
 		break;
 
 	case StorageKind_Stack:
@@ -334,7 +323,7 @@ VariableMgr::initializeGlobalStaticVariables ()
 	bool result;
 
 	Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
-	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 	size_t count = m_globalStaticVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -403,27 +392,27 @@ VariableMgr::allocatePrimeInitializeVariable (Variable* variable)
 }
 
 void
-VariableMgr::allocateVariableObjHdr (Variable* variable)
+VariableMgr::allocateVariableBox (Variable* variable)
 {
-	ASSERT (!variable->m_llvmObjHdrValue);
+	ASSERT (!variable->m_llvmBoxValue);
 
 	StorageKind storageKind = variable->m_storageKind;
 	switch (storageKind)
 	{
 	case StorageKind_Static:
-		allocateStaticVariableObjHdr (variable);
+		allocateStaticVariableBox (variable);
 		break;
 
 	case StorageKind_Thread:
-		allocateTlsVariableObjHdr (variable);
+		allocateTlsVariableBox (variable);
 		break;
 
 	case StorageKind_Heap:
-		getHeapVariableObjHdr (variable);
+		getHeapVariableBox (variable);
 		break;
 
 	case StorageKind_Stack:
-		allocateStackVariableObjHdr (variable);
+		allocateStackVariableBox (variable);
 		break;
 
 	default:
@@ -462,7 +451,7 @@ VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 		if (destructor)
 		{
 			Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
-			Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+			Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 			Value dtorValue;
 			result = 
@@ -595,9 +584,8 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 }
 
 void
-VariableMgr::initializeVariableObjHdr (
+VariableMgr::initializeVariableBox (
 	const Value& objHdrValue,
-	const Value& scopeLevelValue,
 	Type* type,
 	uint_t flags,
 	const Value& ptrValue
@@ -610,14 +598,12 @@ VariableMgr::initializeVariableObjHdr (
 	Value dstValue0, dstValue;
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &dstValue0);
 	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 0, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, dstValue);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 1, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (dstValue0, dstValue);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 2, NULL, &dstValue);
+	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 1, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (typeValue, dstValue);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 3, NULL, &dstValue);
+	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 2, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (
-		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_pu)), 
+		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u)), 
 		dstValue
 		);
 
@@ -635,7 +621,7 @@ VariableMgr::initializeVariableObjHdr (
 }
 
 void
-VariableMgr::allocateStaticVariableObjHdr (Variable* variable)
+VariableMgr::allocateStaticVariableBox (Variable* variable)
 {
 	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
 	m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
@@ -648,71 +634,69 @@ VariableMgr::allocateStaticVariableObjHdr (Variable* variable)
 	}
 	else
 	{
-		Type* type = m_module->m_typeMgr.getStdType (StdType_VariableObjHdr);
+		Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
 		llvmValue = createLlvmGlobalVariable (type, variable->m_tag + ":objHdr");
-		initializeVariableObjHdr (
+		initializeVariableBox (
 			llvmValue, 
-			0, 
 			type, 
-			ObjHdrFlag_Static | 
-			ObjHdrFlag_GcMark | 
-			ObjHdrFlag_GcWeakMark | 
-			ObjHdrFlag_GcRootsAdded,
+			BoxFlag_Static | 
+			BoxFlag_GcMark | 
+			BoxFlag_GcWeakMark | 
+			BoxFlag_GcRootsAdded,
 			variable->getLlvmValue ()
 			);
 	}
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep2 (llvmValue, 0, NULL, &ptrValue);
-	variable->m_llvmObjHdrValue = ptrValue.getLlvmValue ();
+	variable->m_llvmBoxValue = ptrValue.getLlvmValue ();
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
 }
 
 void
-VariableMgr::allocateTlsVariableObjHdr (Variable* variable)
+VariableMgr::allocateTlsVariableBox (Variable* variable)
 {
 	ASSERT (variable->m_type->getTypeKind () != TypeKind_Class);
-	if (m_llvmTlsObjHdrValue)
+	if (m_llvmTlsBoxValue)
 	{
-		variable->m_llvmObjHdrValue = m_llvmTlsObjHdrValue;
+		variable->m_llvmBoxValue = m_llvmTlsBoxValue;
 		return;
 	}
 
 	static void* null = NULL;
 	Value nullPtrValue (&null, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableObjHdr);
-	llvm::Value* llvmValue = createLlvmGlobalVariable (type, "jnc.g_tlsObjHdr");
-	initializeVariableObjHdr (
+	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
+	llvm::Value* llvmValue = createLlvmGlobalVariable (type, "jnc.g_tlsBox");
+	initializeVariableBox (
 		llvmValue, 
-		1, 
 		NULL, 
-		ObjHdrFlag_Static | 
-		ObjHdrFlag_GcMark | 
-		ObjHdrFlag_GcWeakMark | 
-		ObjHdrFlag_GcRootsAdded,
+		BoxFlag_Static | 
+		BoxFlag_GcMark | 
+		BoxFlag_GcWeakMark | 
+		BoxFlag_GcRootsAdded,
 		nullPtrValue
 		);
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep2 (llvmValue, 0, NULL, &ptrValue);
-	m_llvmTlsObjHdrValue = ptrValue.getLlvmValue ();
-	variable->m_llvmObjHdrValue = m_llvmTlsObjHdrValue;
+	m_llvmTlsBoxValue = ptrValue.getLlvmValue ();
+	variable->m_llvmBoxValue = m_llvmTlsBoxValue;
 }
 
 void
-VariableMgr::getHeapVariableObjHdr (Variable* variable)
+VariableMgr::getHeapVariableBox (Variable* variable)
 {
-	Type* type = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr);
+	Type* type = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
 
 	Value objHdrValue;
 	m_module->m_llvmIrBuilder.createBitCast (variable->m_llvmValue, type, &objHdrValue);
 	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, NULL, &objHdrValue);
-	variable->m_llvmObjHdrValue = objHdrValue.getLlvmValue ();
+	variable->m_llvmBoxValue = objHdrValue.getLlvmValue ();
 }
 
 void
-VariableMgr::allocateStackVariableObjHdr (Variable* variable)
+VariableMgr::allocateStackVariableBox (Variable* variable)
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
@@ -720,23 +704,22 @@ VariableMgr::allocateStackVariableObjHdr (Variable* variable)
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 	
 	Value objHdrValue;
-	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableObjHdr);
+	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
 	m_module->m_llvmIrBuilder.createAlloca (type, variable->m_tag + ":objHdr", NULL, &objHdrValue);
 
-	initializeVariableObjHdr (
+	initializeVariableBox (
 		objHdrValue, 
-		m_module->m_namespaceMgr.getScopeLevel (variable->m_scopeLevel), 
 		variable->m_type, 
-		ObjHdrFlag_Stack | 
-		ObjHdrFlag_GcMark | 
-		ObjHdrFlag_GcWeakMark | 
-		ObjHdrFlag_GcRootsAdded,
+		BoxFlag_Stack | 
+		BoxFlag_GcMark | 
+		BoxFlag_GcWeakMark | 
+		BoxFlag_GcRootsAdded,
 		variable->getLlvmValue ()
 		);
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &ptrValue);
-	variable->m_llvmObjHdrValue = ptrValue.getLlvmValue ();
+	variable->m_llvmBoxValue = ptrValue.getLlvmValue ();
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 }
 

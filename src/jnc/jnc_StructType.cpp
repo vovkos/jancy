@@ -481,8 +481,7 @@ StructType::gcMarkFmtLiteral (
 	if (!literal->m_p)
 		return;
 
-	ObjHdr* object = ((ObjHdr*) literal->m_p) - 1;
-	ASSERT (object->m_scopeLevel == 0);
+	Box* object = ((Box*) literal->m_p) - 1;
 	object->gcMarkData (runtime);
 }
 

@@ -76,7 +76,6 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_br, appendFmtLiteral_s)
-		JNC_STD_FUNCTION (StdFunction_CheckVariantScopeLevel, checkVariantScopeLevel)
 		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRange, tryCheckDataPtrRange)
 		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange, checkDataPtrRange)
 		JNC_STD_FUNCTION (StdFunction_TryCheckNullPtr, tryCheckNullPtr)
@@ -470,20 +469,6 @@ public:
 			stringRef.m_length
 			);
 	}
-
-	static
-	void 
-	checkClassPtrScopeLevel (
-		IfaceHdr* iface,
-		ObjHdr* object
-		);
-
-	static
-	void 
-	checkVariantScopeLevel (
-		Variant variant,
-		ObjHdr* object
-		);
 
 	static
 	bool 

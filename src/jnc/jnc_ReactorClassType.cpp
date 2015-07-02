@@ -285,7 +285,7 @@ ReactorClassType::compileStartMethod ()
 		m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_State], NULL, &stateValue) &&
 		m_module->m_operatorMgr.storeDataRef (
 			stateValue, 
-			Value ((int64_t) 1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p))
+			Value ((int64_t) 1, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr))
 			);
 
 	if (!result)
@@ -354,7 +354,7 @@ ReactorClassType::compileStopMethod ()
 
 	result = m_module->m_operatorMgr.storeDataRef (
 		stateValue, 
-		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p))
+		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr))
 		);
 
 	ASSERT (result);

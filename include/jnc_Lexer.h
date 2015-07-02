@@ -45,8 +45,6 @@ enum TokenKind
 	TokenKind_Alias,
 	TokenKind_Static,
 	TokenKind_Thread,
-	TokenKind_Stack,
-	TokenKind_Heap,
 	TokenKind_Abstract,
 	TokenKind_Virtual,
 	TokenKind_Override,
@@ -222,8 +220,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (TokenKind_Static,       "static")
 	AXL_LEX_TOKEN_NAME (TokenKind_Thread,       "thread")
-	AXL_LEX_TOKEN_NAME (TokenKind_Stack,        "stack")
-	AXL_LEX_TOKEN_NAME (TokenKind_Heap,         "heap")
 	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")
 	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
 	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")

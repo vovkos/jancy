@@ -24,7 +24,7 @@ TestClass::operatorNew (
 {
 	printf ("  TestClass::operatorNew (%d)\n", value);
 
-	jnc::ApiObjBox <TestClass>* object = (jnc::ApiObjBox <TestClass>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <TestClass>* object = (jnc::ApiClassBox <TestClass>*) jnc::StdLib::gcAllocate (type);
 	object->prime (type);
 	object->m_internalValue = value;
 	sprintf (object->m_internalData, "TestClass (%p)", (TestClass*) object);

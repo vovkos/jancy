@@ -15,7 +15,7 @@ public:
 
 public: 
 	jnc::DataPtr m_text;
-	jnc::ObjBox <jnc::Multicast> m_onClicked;
+	jnc::ClassBox <jnc::Multicast> m_onClicked;
 
 public:
 	QPushButton* m_qtButton;	

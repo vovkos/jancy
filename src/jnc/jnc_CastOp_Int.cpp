@@ -327,7 +327,7 @@ Cast_IntFromPtr::llvmCast (
 	else
 		ptrValue = opValue;
 
-	m_module->m_llvmIrBuilder.createPtrToInt (ptrValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p), &ptrValue);
+	m_module->m_llvmIrBuilder.createPtrToInt (ptrValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr), &ptrValue);
 	return m_module->m_operatorMgr.castOperator (ptrValue, type, resultValue);
 }
 
@@ -341,7 +341,7 @@ Cast_PtrFromInt::constCast (
 	)
 {
 	Value opValue;
-	bool result = m_module->m_operatorMgr.castOperator (rawOpValue, TypeKind_Int_p, &opValue);
+	bool result = m_module->m_operatorMgr.castOperator (rawOpValue, TypeKind_IntPtr, &opValue);
 	if (!result)
 		return false;
 
@@ -361,7 +361,7 @@ Cast_PtrFromInt::llvmCast (
 	)
 {
 	Value opValue;
-	bool result = m_module->m_operatorMgr.castOperator (rawOpValue, TypeKind_Int_p, &opValue);
+	bool result = m_module->m_operatorMgr.castOperator (rawOpValue, TypeKind_IntPtr, &opValue);
 	if (!result)
 		return false;
 

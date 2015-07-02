@@ -300,18 +300,6 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 	}
 }
 
-void
-ControlFlowMgr::restoreScopeLevel ()
-{
-	Value scopeLevelValue = m_module->m_functionMgr.getScopeLevel ();
-	if (!scopeLevelValue)
-		return;
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "restore scope level before return");
-	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
-	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, variable);
-}
-
 bool
 ControlFlowMgr::ret (const Value& value)
 {
@@ -334,7 +322,6 @@ ControlFlowMgr::ret (const Value& value)
 		}
 
 		onLeaveScope ();
-		restoreScopeLevel ();
 		m_module->m_llvmIrBuilder.createRet ();
 	}
 	else
@@ -359,7 +346,6 @@ ControlFlowMgr::ret (const Value& value)
 			m_module->m_operatorMgr.loadDataRef (variable, &returnValue);
 		}
 
-		restoreScopeLevel ();
 		functionType->getCallConv ()->ret (function, returnValue);
 	}
 

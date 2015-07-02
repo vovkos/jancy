@@ -88,14 +88,6 @@ storage_specifier
 			{
 				$.m_storageKind = StorageKind_Thread;
 			}
-	|	TokenKind_Stack
-			{
-				$.m_storageKind = StorageKind_Stack;
-			}
-	|	TokenKind_Heap
-			{
-				$.m_storageKind = StorageKind_Heap;
-			}
 	|	TokenKind_Abstract
 			{
 				$.m_storageKind = StorageKind_Abstract;
@@ -176,7 +168,7 @@ type_specifier
 			}
 	|	TokenKind_IntPtr
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 			}
 	|	TokenKind_Char
 			{

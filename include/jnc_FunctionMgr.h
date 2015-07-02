@@ -32,7 +32,6 @@ protected:
 
 		Namespace* m_currentNamespace;
 		Scope* m_currentScope;
-		ScopeLevelStack m_scopeLevelStack;
 
 		rtl::Array <BasicBlock*> m_returnBlockArray;
 		BasicBlock* m_currentBlock;
@@ -40,7 +39,6 @@ protected:
 		uint_t m_controlFlowMgrFlags;
 
 		Value m_thisValue;
-		Value m_scopeLevelValue;
 		rtl::BoxList <Value> m_tmpStackGcRootList;
 
 		llvm::DebugLoc m_llvmDebugLoc;
@@ -69,7 +67,6 @@ protected:
 	Function* m_currentFunction;
 
 	Value m_thisValue;
-	Value m_scopeLevelValue;
 
 	rtl::StdList <EmissionContext> m_emissionContextStack;
 
@@ -115,12 +112,6 @@ public:
 
 	Value
 	overrideThisValue (const Value& value);
-
-	Value
-	getScopeLevel ()
-	{
-		return m_scopeLevelValue;
-	}
 
 	void
 	clear ();
@@ -334,18 +325,6 @@ protected:
 		const char* source,
 		size_t length
 		);
-
-	Function*
-	createCheckScopeLevel ();
-
-	Function*
-	createCheckScopeLevelDirect ();
-
-	Function*
-	createCheckClassPtrScopeLevel ();
-
-	Function*
-	createCheckVariantScopeLevel ();
 };
 
 //.............................................................................

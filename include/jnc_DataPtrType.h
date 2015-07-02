@@ -8,7 +8,7 @@
 
 namespace jnc {
 
-struct ObjHdr;
+struct Box;
 
 //.............................................................................
 	
@@ -133,12 +133,19 @@ isArrayRefType (Type* type)
 // structure backing up fat data pointer, e.g.:
 // int* p;
 
+struct DataPtrValidator
+{
+	Box* m_object;
+	void* m_rangeBegin;
+	void* m_rangeEnd;
+};
+
 struct DataPtr
 {
 	void* m_p;
 	void* m_rangeBegin;
 	void* m_rangeEnd;
-	ObjHdr* m_object;
+	Box* m_object;
 };
 
 AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };

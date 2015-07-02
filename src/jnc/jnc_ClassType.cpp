@@ -743,9 +743,8 @@ ClassType::createPrimer ()
 	Type* argTypeArray [] =
 	{
 		getClassStructType ()->getDataPtrType_c (),
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),  // scope level
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), // root
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p)   // flags
+		m_module->m_typeMgr.getStdType (StdType_BoxPtr),   // root
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr) // flags
 	};
 
 	FunctionType* type = m_module->m_typeMgr.getFunctionType (argTypeArray, countof (argTypeArray));
@@ -760,20 +759,18 @@ ClassType::compilePrimer ()
 {
 	ASSERT (m_primer);
 
-	Value argValueArray [4];
+	Value argValueArray [3];
 	m_module->m_functionMgr.internalPrologue (m_primer, argValueArray, countof (argValueArray));
 
 	Value argValue1 = argValueArray [0];
 	Value argValue2 = argValueArray [1];
 	Value argValue3 = argValueArray [2];
-	Value argValue4 = argValueArray [3];
 
 	primeObject (
 		this,
 		argValueArray [0],
 		argValueArray [1],
-		argValueArray [2],
-		argValueArray [3]
+		argValueArray [2]
 		);
 
 	m_module->m_functionMgr.internalEpilogue ();
@@ -784,7 +781,6 @@ void
 ClassType::primeObject (
 	ClassType* classType,
 	const Value& opValue,
-	const Value& scopeLevelValue,
 	const Value& rootValue,
 	const Value& flagsValue
 	)
@@ -798,13 +794,10 @@ ClassType::primeObject (
 	m_module->m_llvmIrBuilder.createGep2 (opValue, 1, NULL, &ifaceValue);
 
 	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &fieldValue);
-	m_module->m_llvmIrBuilder.createStore (scopeLevelValue, fieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &fieldValue);
-
 	m_module->m_llvmIrBuilder.createStore (rootValue, fieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 2, NULL, &fieldValue);
+	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &fieldValue);
 	m_module->m_llvmIrBuilder.createStore (typeValue, fieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 3, NULL, &fieldValue);
+	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 2, NULL, &fieldValue);
 	m_module->m_llvmIrBuilder.createStore (flagsValue, fieldValue);
 
 	primeInterface (
@@ -812,7 +805,6 @@ ClassType::primeObject (
 		ifaceValue,
 		classType->m_vtablePtrValue,
 		objHdrValue,
-		scopeLevelValue,
 		rootValue,
 		flagsValue
 		);
@@ -824,7 +816,6 @@ ClassType::primeInterface (
 	const Value& opValue,
 	const Value& VTableValue,
 	const Value& objectValue,
-	const Value& scopeLevelValue,
 	const Value& rootValue,
 	const Value& flagsValue
 	)
@@ -832,7 +823,7 @@ ClassType::primeInterface (
 	// zero memory
 
 	m_module->m_llvmIrBuilder.createStore (classType->getIfaceStructType ()->getZeroValue (), opValue);
-
+	 
 	Value ifaceHdrValue;
 	Value VTableFieldValue;
 	Value objectFieldValue;
@@ -888,7 +879,6 @@ ClassType::primeInterface (
 			baseClassValue,
 			baseClassVTableValue,
 			objectValue,
-			scopeLevelValue,
 			rootValue,
 			flagsValue
 			);
@@ -915,11 +905,10 @@ ClassType::primeInterface (
 		Function* primer = classType->getPrimer ();
 		ASSERT (primer); // should have been checked during CalcLayout
 
-		m_module->m_llvmIrBuilder.createCall4 (
+		m_module->m_llvmIrBuilder.createCall3 (
 			primer,
 			primer->getType (),
 			fieldValue,
-			scopeLevelValue,
 			rootValue,
 			flagsValue,
 			NULL
@@ -933,7 +922,7 @@ ClassType::gcMark (
 	void* p
 	)
 {
-	ObjHdr* object = (ObjHdr*) p;
+	Box* object = (Box*) p;
 	ASSERT (object->m_type == this);
 
 	enumGcRootsImpl (runtime, (IfaceHdr*) (object + 1));

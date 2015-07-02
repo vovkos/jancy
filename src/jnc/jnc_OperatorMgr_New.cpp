@@ -144,11 +144,11 @@ OperatorMgr::prime (
 		switch (storageKind)
 		{
 		case StorageKind_Static:
-			objHdrValue = m_module->m_namespaceMgr.getStaticObjHdr ();
+			objHdrValue = m_module->m_namespaceMgr.getStaticBox ();
 			break;
 
 		case StorageKind_Heap:
-			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr), &objHdrValue);
+			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr), &objHdrValue);
 			m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
 			break;
 
@@ -187,11 +187,11 @@ OperatorMgr::prime (
 	switch (storageKind)
 	{
 	case StorageKind_Static:
-		flags |= ObjHdrFlag_Static;
+		flags |= BoxFlag_Static;
 		break;
 
 	case StorageKind_Stack:
-		flags |= ObjHdrFlag_Stack;
+		flags |= BoxFlag_Stack;
 		break;
 	}
 
@@ -205,26 +205,15 @@ OperatorMgr::prime (
 
 	Function* primer = classType->getPrimer ();
 
-	Value scopeLevelValue;
-	if (storageKind == StorageKind_Stack)
-	{
-		scopeLevelValue = m_module->m_namespaceMgr.getCurrentScopeLevel ();
-	}
-	else
-	{
-		scopeLevelValue.setConstSizeT (0, m_module);
-	}
-
 	Value rootValue;
 	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &rootValue);
 
-	m_module->m_llvmIrBuilder.createCall4 (
+	m_module->m_llvmIrBuilder.createCall3 (
 		primer,
 		primer->getType (),
 		ptrValue,
-		scopeLevelValue,
 		rootValue,
-		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p)),
+		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)),
 		NULL
 		);
 

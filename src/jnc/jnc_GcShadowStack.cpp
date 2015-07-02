@@ -138,7 +138,9 @@ GcShadowStack::performCustomLowering (llvm::Function& llvmFunction)
 	llvm::Instruction* llvmGetTls = llvmInst;
 
 	llvm::Instruction* llvmAnchor = function->getLlvmPostTlsPrologueInst ();
-	llvm::BasicBlock::iterator IP = llvmAnchor ? llvmAnchor : llvmGetTls;
+	ASSERT (llvmAnchor);
+
+	llvm::BasicBlock::iterator IP = llvmAnchor;
 
 	IRBuilder<> atEntry(IP->getParent(), IP);
 

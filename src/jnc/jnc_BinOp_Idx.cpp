@@ -73,7 +73,7 @@ BinOp_Idx::op (
 
 		if (baseType->getTypeKind () == TypeKind_Array)
 			return 
-				m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+				m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 				arrayIndexOperator (rawOpValue1, (ArrayType*) baseType, opValue2, resultValue);
 
 		result = m_module->m_operatorMgr.loadDataRef (rawOpValue1, &opValue1);
@@ -88,13 +88,13 @@ BinOp_Idx::op (
 	{
 	case TypeKind_DataPtr:
 		return 
-			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 			m_module->m_operatorMgr.binaryOperator (BinOpKind_Add, opValue1, opValue2, &opValue1) &&
 			m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, opValue1, resultValue);
 
 	case TypeKind_Array:
 		return 
-			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_Int_p) &&
+			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 			arrayIndexOperator (opValue1, (ArrayType*) opType1, opValue2, resultValue);
 
 	case TypeKind_PropertyRef:
@@ -144,7 +144,7 @@ BinOp_Idx::arrayIndexOperator (
 		if (opValue2.getValueKind () == ValueKind_Const)
 		{			
 			Value idxValue;
-			bool result = m_module->m_operatorMgr.castOperator (opValue2, TypeKind_Int_p, &idxValue);
+			bool result = m_module->m_operatorMgr.castOperator (opValue2, TypeKind_IntPtr, &idxValue);
 			if (!result)
 				return false;
 

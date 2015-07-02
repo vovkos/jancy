@@ -10,12 +10,13 @@
 #include "jnc_Property.h"
 #include "jnc_UnOp.h"
 #include "jnc_BinOp.h"
+#include "jnc_Box.h"
 
 namespace jnc {
 
 class ClassPtrType;
 struct ClassPtrTypeTuple;
-struct ObjHdr;
+struct Box;
 struct IfaceHdr;
 
 //.............................................................................
@@ -24,7 +25,6 @@ enum ClassTypeKind
 {
 	ClassTypeKind_Normal = 0,
 	ClassTypeKind_StdObject, // StdType_Object
-	ClassTypeKind_Box,
 	ClassTypeKind_Multicast,
 	ClassTypeKind_McSnapshot,
 	ClassTypeKind_Reactor,
@@ -321,7 +321,6 @@ protected:
 	primeObject (
 		ClassType* classType,
 		const Value& opValue,
-		const Value& scopeLevelValue,
 		const Value& rootValue,
 		const Value& flagsValue
 		);
@@ -332,7 +331,6 @@ protected:
 		const Value& opValue,
 		const Value& VTableValue,
 		const Value& objectValue,
-		const Value& scopeLevelValue,
 		const Value& rootValue,
 		const Value& flagsValue
 		);
@@ -371,7 +369,7 @@ isOpaqueClassType (Type* type)
 struct IfaceHdr
 {
 	void* m_vtable;
-	ObjHdr* m_object; // back pointer to master header
+	Box* m_object; // back pointer to master header
 
 	// followed by parents, then by iface data fields
 };
@@ -381,8 +379,8 @@ struct IfaceHdr
 // iface with master header
 
 template <typename T>
-class ObjBox:
-	public ObjHdr,
+class ClassBox:
+	public Box,
 	public T
 {
 };
@@ -391,20 +389,19 @@ class ObjBox:
 
 typedef
 void
-Object_Prime (
-	ObjHdr* object,
-	size_t scopeLevel,
-	ObjHdr* root,
+Class_Prime (
+	Box* object,
+	Box* root,
 	uintptr_t flags
 	);
 
 typedef
 void
-Object_Construct (IfaceHdr* iface);
+Class_Construct (IfaceHdr* iface);
 
 typedef
 void
-Object_Destruct (IfaceHdr* iface);
+Class_Destruct (IfaceHdr* iface);
 
 //.............................................................................
 

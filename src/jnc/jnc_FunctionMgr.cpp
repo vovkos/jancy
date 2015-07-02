@@ -39,7 +39,6 @@ FunctionMgr::clear ()
 	m_scheduleLauncherFunctionMap.clear ();
 	m_emissionContextStack.clear ();
 	m_thisValue.clear ();
-	m_scopeLevelValue.clear ();
 	m_staticConstructArray.clear ();
 
 	m_currentFunction = NULL;
@@ -53,7 +52,7 @@ FunctionMgr::callStaticConstructors ()
 	bool result;
 
 	Function* addDestructor = getStdFunction (StdFunction_AddStaticDestructor);
-	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_p);
+	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 	size_t count = m_staticConstructArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -184,12 +183,10 @@ FunctionMgr::pushEmissionContext ()
 	EmissionContext* context = AXL_MEM_NEW (EmissionContext);
 	context->m_currentFunction = m_currentFunction;
 	context->m_thisValue = m_thisValue;
-	context->m_scopeLevelValue = m_scopeLevelValue;
 	context->m_tmpStackGcRootList.takeOver (&m_module->m_operatorMgr.m_tmpStackGcRootList);
 
 	context->m_currentNamespace = m_module->m_namespaceMgr.m_currentNamespace;
 	context->m_currentScope = m_module->m_namespaceMgr.m_currentScope;
-	context->m_scopeLevelStack.takeOver (&m_module->m_namespaceMgr.m_scopeLevelStack);
 
 	context->m_returnBlockArray = m_module->m_controlFlowMgr.m_returnBlockArray;
 	context->m_currentBlock = m_module->m_controlFlowMgr.m_currentBlock;
@@ -199,7 +196,6 @@ FunctionMgr::pushEmissionContext ()
 
 	m_emissionContextStack.insertTail (context);
 
-	m_module->m_namespaceMgr.m_scopeLevelStack.clear ();
 	m_module->m_namespaceMgr.m_currentNamespace = m_module->m_namespaceMgr.getGlobalNamespace ();
 	m_module->m_namespaceMgr.m_currentScope = NULL;
 
@@ -214,7 +210,6 @@ FunctionMgr::pushEmissionContext ()
 
 	m_currentFunction = NULL;
 	m_thisValue.clear ();
-	m_scopeLevelValue.clear ();
 }
 
 void
@@ -227,8 +222,6 @@ FunctionMgr::popEmissionContext ()
 	{
 		m_currentFunction = NULL;
 		m_thisValue.clear ();
-		m_scopeLevelValue.clear ();
-		m_module->m_namespaceMgr.m_scopeLevelStack.clear ();
 		m_module->m_operatorMgr.m_tmpStackGcRootList.clear ();
 		return;
 	}
@@ -236,12 +229,10 @@ FunctionMgr::popEmissionContext ()
 	EmissionContext* context = m_emissionContextStack.removeTail ();
 	m_currentFunction = context->m_currentFunction;
 	m_thisValue = context->m_thisValue;
-	m_scopeLevelValue = context->m_scopeLevelValue;
 	m_module->m_operatorMgr.m_tmpStackGcRootList.takeOver (&context->m_tmpStackGcRootList);
 
 	m_module->m_namespaceMgr.m_currentNamespace = context->m_currentNamespace;
 	m_module->m_namespaceMgr.m_currentScope = context->m_currentScope;
-	m_module->m_namespaceMgr.m_scopeLevelStack.takeOver (&context->m_scopeLevelStack);
 
 	m_module->m_controlFlowMgr.m_returnBlockArray = context->m_returnBlockArray;
 	m_module->m_controlFlowMgr.setCurrentBlock (context->m_currentBlock);
@@ -331,11 +322,6 @@ FunctionMgr::prologue (
 		bool result = m_module->m_variableMgr.allocatePrimeStaticVariables ();
 		if (!result)
 			return false;
-	}
-	else // do not save / restore scope level in module constructor
-	{
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
-		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
 	}
 
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
@@ -497,7 +483,7 @@ FunctionMgr::internalPrologue (
 
 	m_currentFunction = function;
 
-	m_module->m_namespaceMgr.openInternalScope ();
+	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
 	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
 
 	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
@@ -507,13 +493,6 @@ FunctionMgr::internalPrologue (
 	entryBlock->markEntry ();
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-
-	if (function->m_functionKind != FunctionKind_ModuleConstructor) // do not save / restore scope level in module constructor
-	{
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
-		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &m_scopeLevelValue);
-	}
-
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
 	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
 	m_module->m_controlFlowMgr.m_flags = 0;
@@ -714,7 +693,7 @@ FunctionMgr::injectTlsPrologues ()
 	for (; functionIt; functionIt++)
 	{
 		Function* function = *functionIt;
-		if (function->getEntryBlock () && !function->getTlsVariableArray ().isEmpty ())
+		if (function->getEntryBlock () && function->isTlsRequired ())
 			injectTlsPrologue (function);
 	}
 
@@ -722,7 +701,7 @@ FunctionMgr::injectTlsPrologues ()
 	for (; thunkFunctionIt; thunkFunctionIt++)
 	{
 		Function* function = *thunkFunctionIt;
-		if (!function->getTlsVariableArray ().isEmpty ())
+		if (function->isTlsRequired ())
 			injectTlsPrologue (function);
 	}
 
@@ -730,7 +709,7 @@ FunctionMgr::injectTlsPrologues ()
 	for (; scheduleLauncherFunctionIt; scheduleLauncherFunctionIt++)
 	{
 		Function* function = *scheduleLauncherFunctionIt;
-		if (!function->getTlsVariableArray ().isEmpty ())
+		if (function->isTlsRequired ())
 			injectTlsPrologue (function);
 	}
 
@@ -743,13 +722,11 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	BasicBlock* block = function->getEntryBlock ();
 	ASSERT (block);
 
-	rtl::Array <TlsVariable> tlsVariableArray = function->getTlsVariableArray ();
-	ASSERT (!tlsVariableArray.isEmpty ());
-
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
 
 	llvm::BasicBlock::iterator llvmAnchor = block->getLlvmBlock ()->begin ();
 
+	#pragma AXL_TODO ("double-check if gc-enter is still inserted")
 	if (llvm::isa <llvm::CallInst> (llvmAnchor)) // skip gc-enter
 		llvmAnchor++;
 
@@ -761,6 +738,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 
 	// tls variables used in this function
 
+	rtl::Array <TlsVariable> tlsVariableArray = function->getTlsVariableArray ();
 	size_t count = tlsVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -801,14 +779,7 @@ public:
 
 	virtual
 	void
-	notifyObjectEmitted (const llvm::ObjectImage& LLvmObjectImage)
-	{
-		// printf ("NotifyObjectEmitted\n");
-	}
-
-	virtual
-	void
-	notifyFunctionEmitted (
+	NotifyFunctionEmitted (
 		const llvm::Function& llvmFunction,
 		void* p,
 		size_t size,
@@ -859,9 +830,7 @@ FunctionMgr::jitFunctions ()
 				continue;
 
 			void* p = llvmExecutionEngine->getPointerToFunction (function->getLlvmFunction ());
-			function->m_machineCode = p;
-
-			// ASSERT (pFunction->m_machineCode == p && pFunction->m_MachineCodeSize != 0);
+			ASSERT (function->m_machineCode == p && function->m_machineCodeSize != 0);
 		}
 
 		// for MC jitter this should do all the job
@@ -902,10 +871,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 			lengthof (runtimeErrorSrc),
 			StdNamespace_Internal,
 		},
-		{ NULL },                                // StdFunction_CheckScopeLevel,
-		{ NULL },                                // StdFunction_CheckScopeLevelDirect,
-		{ NULL },                                // StdFunction_CheckClassPtrScopeLevel,
-		{ NULL },                                // StdFunction_CheckVariantScopeLevel,
 		{                                        // StdFunction_DynamicSizeOf,
 			dynamicSizeOfSrc,
 			lengthof (dynamicSizeOfSrc),
@@ -1219,28 +1184,12 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	switch (func)
 	{
-	case StdFunction_CheckScopeLevel:
-		function = createCheckScopeLevel ();
-		break;
-
-	case StdFunction_CheckScopeLevelDirect:
-		function = createCheckScopeLevelDirect ();
-		break;
-
-	case StdFunction_CheckClassPtrScopeLevel:
-		function = createCheckClassPtrScopeLevel ();
-		break;
-
-	case StdFunction_CheckVariantScopeLevel:
-		function = createCheckVariantScopeLevel ();
-		break;
-
 	case StdFunction_MarkGcRoot:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getDataPtrType_c ();
 		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
-		function = createFunction (FunctionKind_Internal, "jnc.markGcRoot", functionType);
+		function = createFunction (FunctionKind_Internal, "jnc.llvmGcRoot", functionType);
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (m_module->getLlvmModule (), llvm::Intrinsic::gcroot);
 		break;
 
@@ -1462,10 +1411,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 	const char* nameTable [StdFunction__Count] =
 	{
 		NULL,                  // StdFunction_RuntimeError,
-		NULL,                  // StdFunction_CheckScopeLevel,
-		NULL,                  // StdFunction_CheckScopeLevelDirect,
-		NULL,                  // StdFunction_CheckClassPtrScopeLevel,
-		NULL,                  // StdFunction_CheckVariantScopeLevel,
 		NULL,                  // StdFunction_DynamicSizeOf,
 		NULL,                  // StdFunction_DynamicCountOf,
 		NULL,                  // StdFunction_DynamicCastDataPtr,
@@ -1541,153 +1486,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 	function->m_func = func;
 	m_lazyStdFunctionList.insertTail (function);
 	m_lazyStdFunctionArray [func] = function;
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckScopeLevel ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkScopeLevel", functionType);
-
-	Value argValueArray [2];
-	internalPrologue (function, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-
-	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
-	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
-
-	Function* checkScopeLevelDirect = getStdFunction (StdFunction_CheckScopeLevelDirect);
-	m_module->m_llvmIrBuilder.createCall2 (
-		checkScopeLevelDirect, 
-		checkScopeLevelDirect->getType (),
-		argValue1, 
-		argValue2, 
-		NULL
-		);
-
-	internalEpilogue ();
-
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckScopeLevelDirect ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkScopeLevelDirect", functionType);
-
-	Value argValueArray [2];
-	internalPrologue (function, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-
-	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("scope_nonull");
-	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("scope_fail");
-	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
-
-	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr)->getZeroValue ();
-
-	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
-
-	m_module->m_llvmIrBuilder.createGep2 (argValue1, 0, NULL, &argValue1);
-	m_module->m_llvmIrBuilder.createLoad (argValue1, NULL, &argValue1);
-	m_module->m_llvmIrBuilder.createGt_u (argValue1, argValue2, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
-	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);
-
-	m_module->m_controlFlowMgr.follow (successBlock);
-
-	internalEpilogue ();
-
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckClassPtrScopeLevel ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr),
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkClassPtrScopeLevel", functionType);
-
-	Value argValueArray [2];
-	internalPrologue (function, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-
-	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("scope_nonull");
-	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("scope_fail");
-	BasicBlock* successBlock = m_module->m_controlFlowMgr.createBlock ("scope_success");
-
-	Value cmpValue;
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
-
-	m_module->m_llvmIrBuilder.createEq_i (argValue1, nullValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, successBlock, noNullBlock, noNullBlock);
-
-	Type* ifaceHdrPtrType = m_module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr);
-
-	Value objPtrValue;
-	m_module->m_llvmIrBuilder.createBitCast (argValue1, ifaceHdrPtrType, &objPtrValue); // IfaceHdr*
-	m_module->m_llvmIrBuilder.createGep2 (objPtrValue, 1, NULL, &objPtrValue); // ObjHdr**
-	m_module->m_llvmIrBuilder.createLoad (objPtrValue, NULL, &objPtrValue);  // ObjHdr*
-
-	Value srcScopeLevelValue;
-	m_module->m_llvmIrBuilder.createGep2 (objPtrValue, 0, NULL, &srcScopeLevelValue);     // size_t* pScopeLevel
-	m_module->m_llvmIrBuilder.createLoad (srcScopeLevelValue, NULL, &srcScopeLevelValue); // size_t ScopeLevel
-
-	m_module->m_llvmIrBuilder.createGep2 (argValue2, 0, NULL, &argValue2);
-	m_module->m_llvmIrBuilder.createLoad (argValue2, NULL, &argValue2);
-
-	m_module->m_llvmIrBuilder.createGt_u (srcScopeLevelValue, argValue2, &cmpValue); // SrcScopeLevel > DstScopeLevel
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, failBlock, successBlock);
-	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_ScopeMismatch);
-
-	m_module->m_controlFlowMgr.follow (successBlock);
-
-	internalEpilogue ();
-
-	return function;
-}
-
-Function*
-FunctionMgr::createCheckVariantScopeLevel ()
-{
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-	Type* argTypeArray [] =
-	{
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant),
-		m_module->m_typeMgr.getStdType (StdType_ObjHdrPtr),
-	};
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, countof (argTypeArray));
-	Function* function = createFunction (FunctionKind_Internal, "jnc.checkVariantScopeLevel", functionType);
 	return function;
 }
 

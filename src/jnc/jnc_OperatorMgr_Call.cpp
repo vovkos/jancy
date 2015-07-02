@@ -573,13 +573,6 @@ OperatorMgr::callImpl (
 	if (!result)
 		return false;
 
-	if (m_module->m_functionMgr.getScopeLevel ())
-	{
-		Value scopeLevelValue = m_module->m_namespaceMgr.getCurrentScopeLevel ();
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_ScopeLevel);
-		m_module->m_llvmIrBuilder.createStore (scopeLevelValue, variable);
-	}
-
 	functionType->getCallConv ()->call (
 		pfnValue,
 		functionType,

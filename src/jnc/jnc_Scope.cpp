@@ -11,7 +11,6 @@ Scope::Scope ()
 	m_itemKind = ModuleItemKind_Scope;
 	m_namespaceKind = NamespaceKind_Scope;
 	m_itemDecl = this;
-	m_level = 1; // 0 is global
 	m_function = NULL;
 	m_breakBlock = NULL;
 	m_continueBlock = NULL;

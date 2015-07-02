@@ -108,10 +108,10 @@ ClassPtrType::gcMark (
 	)
 {
 	IfaceHdr* iface = *(IfaceHdr**) p;
-	if (!iface || iface->m_object->m_scopeLevel)
+	if (!iface)
 		return;
 
-	ObjHdr* object = iface->m_object;
+	Box* object = iface->m_object;
 	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
 		object->gcWeakMarkObject ();
 	else

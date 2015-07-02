@@ -5,7 +5,6 @@
 #pragma once
 
 #include "jnc_Type.h"
-#include "jnc_ObjHdr.h"
 
 namespace jnc {
 

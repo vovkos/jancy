@@ -51,7 +51,7 @@ String::copy (
 	m_ptr.m_p = p;
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + length + 1;
-	m_ptr.m_object = jnc::getStaticObjHdr ();
+	m_ptr.m_object = jnc::getStaticBox ();
 	m_length = length;
 	return true;
 }
@@ -123,7 +123,7 @@ StringBuilder::setLength (
 	m_ptr.m_p = p;
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + maxLength + 1;
-	m_ptr.m_object = jnc::getStaticObjHdr ();
+	m_ptr.m_object = jnc::getStaticBox ();
 
 	m_length = length;
 	m_maxLength = maxLength;

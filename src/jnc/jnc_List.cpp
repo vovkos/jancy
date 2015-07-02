@@ -52,7 +52,7 @@ List::insertHead (
 	entryPtr.m_p = entry;
 	entryPtr.m_rangeBegin = entry;
 	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_object = getStaticObjHdr ();
+	entryPtr.m_object = getStaticBox ();
 
 	self->insertHeadImpl (entryPtr);
 	return entryPtr;
@@ -72,7 +72,7 @@ List::insertTail (
 	entryPtr.m_p = entry;
 	entryPtr.m_rangeBegin = entry;
 	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_object = getStaticObjHdr ();
+	entryPtr.m_object = getStaticBox ();
 
 	self->insertTailImpl (entryPtr);
 	return entryPtr;
@@ -93,7 +93,7 @@ List::insertBefore (
 	entryPtr.m_p = entry;
 	entryPtr.m_rangeBegin = entry;
 	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_object = getStaticObjHdr ();
+	entryPtr.m_object = getStaticBox ();
 
 	self->insertBeforeImpl (entryPtr, beforePtr);
 	return entryPtr;
@@ -114,7 +114,7 @@ List::insertAfter (
 	entryPtr.m_p = entry;
 	entryPtr.m_rangeBegin = entry;
 	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_object = getStaticObjHdr ();
+	entryPtr.m_object = getStaticBox ();
 
 	self->insertAfterImpl (entryPtr, afterPtr);
 	return entryPtr;
