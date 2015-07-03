@@ -17,7 +17,7 @@ class Module;
 
 enum StdRuntimeLimit
 {
-#ifdef _DEBUG
+#ifdef _AXL_DEBUG
 	StdRuntimeLimit_GcPeriodSize = 0, // run gc on every allocation
 #elif (_AXL_CPU == AXL_CPU_X86)
 	StdRuntimeLimit_GcPeriodSize = 1 * 1024 * 1024, // 1MB gc period

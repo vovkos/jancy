@@ -99,12 +99,12 @@ enum TypeKind
 
 #if (_AXL_PTR_BITNESS == 64)
 	TypeKind_IntPtr    = TypeKind_Int64,
-	TypeKind_IntPtr_u   = TypeKind_Int64_u,
+	TypeKind_IntPtr_u  = TypeKind_Int64_u,
 	TypeKind_IntPtrbe  = TypeKind_Int64_be,
 	TypeKind_IntPtrbeu = TypeKind_Int64_beu,
 #else
 	TypeKind_IntPtr    = TypeKind_Int32,
-	TypeKind_IntPtr_u   = TypeKind_Int32_u,
+	TypeKind_IntPtr_u  = TypeKind_Int32_u,
 	TypeKind_IntPtrbe  = TypeKind_Int32_be,
 	TypeKind_IntPtrbeu = TypeKind_Int32_beu,
 #endif

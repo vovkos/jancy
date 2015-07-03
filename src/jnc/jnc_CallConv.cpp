@@ -37,7 +37,7 @@ getCallConvFlags (CallConvKind callConvKind)
 {
 	uint_t flagTable [] =
 	{
-		0,                       // ECallConv_Undefined = 0,
+		0,                      // ECallConv_Undefined = 0,
 		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc32,
 		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc64,
 		CallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc32,
