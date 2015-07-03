@@ -80,11 +80,22 @@ Module::create (
 	return true;
 }
 
-#if (_AXL_CPU == AXL_CPU_X86 && _AXL_ENV == AXL_ENV_POSIX)
+#if (_AXL_ENV == AXL_ENV_POSIX)
+#	if (_AXL_PTR_BITNESS == 64)
+int128_t
+lockTestAndSet (
+	volatile int128_t* dst,
+	int128_t src
+	)
+{
+    return __sync_lock_test_and_set_16 (dst, src);
+}
+#	else
 extern "C" int64_t __divdi3 (int64_t, int64_t);
 extern "C" int64_t __moddi3 (int64_t, int64_t);
 extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
+#	endif
 #endif
 
 bool
@@ -119,7 +130,9 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["memset"] = (void*) memset;
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
-#	if (_AXL_CPU == AXL_CPU_X86)
+#	if (_AXL_PTR_BITNESS == 64)
+		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
+#	else
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
 		m_functionMap ["__moddi3"]  = (void*) __moddi3;
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
