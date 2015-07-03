@@ -892,8 +892,8 @@ public:
 			opKind,
 			ptrValue.getLlvmValue (),
 			newValue.getLlvmValue (),
-			llvm::Acquire,
-			llvm::CrossThread
+			orderingKind,
+			syncKind
 			);
 
 		resultValue->setLlvmValue (inst, newValue.getType ());
