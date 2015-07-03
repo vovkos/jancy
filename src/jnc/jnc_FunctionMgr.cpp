@@ -766,15 +766,22 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	function->m_llvmPostTlsPrologueInst = llvmAnchor;
 }
 
+typedef rtl::HashTableMap <void*, size_t, rtl::HashId <void*> > PointerSizeMap;
+
 class JitEventListener: public llvm::JITEventListener
 {
 protected:
 	FunctionMgr* m_functionMgr;
+	PointerSizeMap* m_pointerSizeMap;
 
 public:
-	JitEventListener (FunctionMgr* functionMgr)
+	JitEventListener (
+		FunctionMgr* functionMgr,
+		PointerSizeMap* pointerSizeMap
+		)
 	{
 		m_functionMgr = functionMgr;
+		m_pointerSizeMap = pointerSizeMap;
 	}
 
 	virtual
@@ -791,6 +798,35 @@ public:
 		{
 			function->m_machineCode = p;
 			function->m_machineCodeSize = size;
+		}
+	}
+
+	virtual
+	void
+	NotifyObjectEmitted (const llvm::ObjectImage& objectImage)
+	{
+		llvm::error_code error;
+
+		llvm::object::symbol_iterator it = objectImage.begin_symbols ();
+		llvm::object::symbol_iterator end = objectImage.end_symbols ();
+
+		for (; it != end; it.increment (error))
+		{
+			const llvm::object::SymbolRef* symbol = &*it;
+
+			uint64_t address;
+			uint64_t size;
+
+			symbol->getAddress (address);
+			symbol->getSize (size);
+
+#ifdef _AXL_DEBUG
+			llvm::StringRef name;
+			symbol->getName (name);
+			printf ("%s @%llx (%lld bytes)\n", name.data (), address, size);
+#endif
+
+			(*m_pointerSizeMap) [(void*) address] = (size_t) size;
 		}
 	}
 };
@@ -815,9 +851,13 @@ FunctionMgr::jitFunctions ()
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler (llvmFatalErrorHandler);
 
-	JitEventListener jitEventListener (this);
+	PointerSizeMap pointerSizeMap;
+
+	JitEventListener jitEventListener (this, &pointerSizeMap);
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine ();
 	llvmExecutionEngine->RegisterJITEventListener (&jitEventListener);
+
+	bool isMcJit = (m_module->getFlags () & ModuleFlag_McJit) != 0;
 
 	try
 	{
@@ -825,15 +865,17 @@ FunctionMgr::jitFunctions ()
 		for (; functionIt; functionIt++)
 		{
 			Function* function = *functionIt;
-
 			if (!function->getEntryBlock ())
 				continue;
 
-			void* p = llvmExecutionEngine->getPointerToFunction (function->getLlvmFunction ());
-			ASSERT (function->m_machineCode == p && function->m_machineCodeSize != 0);
+			llvm::Function* llvmFunction = function->getLlvmFunction ();
+			function->m_machineCode = llvmExecutionEngine->getPointerToFunction (llvmFunction);
+			if (isMcJit)
+				function->m_machineCodeSize = pointerSizeMap [function->m_machineCode];
+
+			ASSERT (function->m_machineCode && function->m_machineCodeSize);
 		}
 
-		// for MC jitter this should do all the job
 		llvmExecutionEngine->finalizeObject ();
 	}
 	catch (err::Error error)
