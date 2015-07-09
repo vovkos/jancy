@@ -71,7 +71,7 @@ protected:
 	FunctionType* m_stdObjectMemberMethodType;
 	Function* m_abstractFunction;
 	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
-	ReactorClassType* m_reactorInterfaceType;
+	ReactorClassType* m_reactorIfaceType;
 
 public:
 	FunctionType ();

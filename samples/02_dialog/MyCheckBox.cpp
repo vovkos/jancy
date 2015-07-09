@@ -5,7 +5,7 @@
 
 void
 MyCheckBox::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	MyCheckBox* self
 	)
 {

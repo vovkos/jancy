@@ -121,17 +121,6 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Format));
 }
 
-Value
-NamespaceMgr::getStaticBox ()
-{
-	if (m_staticObjectValue)
-		return m_staticObjectValue;
-
-	static Box* staticBox = jnc::getStaticBox ();
-	m_staticObjectValue.createConst (&staticBox, m_module->m_typeMgr.getStdType (StdType_BoxPtr));
-	return m_staticObjectValue;
-}
-
 Orphan*
 NamespaceMgr::createOrphan (
 	OrphanKind orphanKind,
@@ -215,7 +204,6 @@ NamespaceMgr::openInternalScope ()
 
 	Scope* scope = AXL_MEM_NEW (Scope);
 	scope->m_module = m_module;
-	scope->m_destructList.m_module = m_module;
 	scope->m_function = function;
 	scope->m_parentNamespace = m_currentNamespace;
 
@@ -262,10 +250,7 @@ NamespaceMgr::closeScope ()
 	ASSERT (scope);
 
 	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-	{
-		scope->m_destructList.runDestructors ();
 		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
-	}
 
 	if (scope->m_flags & ScopeFlag_FinallyDefined)
 		m_module->m_controlFlowMgr.endFinally ();

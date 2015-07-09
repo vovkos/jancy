@@ -270,12 +270,12 @@ Jnc::printDisassembly ()
 			functionType->getArgString ().cc ()
 			);
 
-		void* pf = function->getMachineCode ();
+		void* p = function->getMachineCode ();
 		size_t size = function->getMachineCodeSize ();
 
-		if (pf)
+		if (p)
 		{
-			rtl::String s = dasm.disassemble (pf, size);
+			rtl::String s = dasm.disassemble (p, size);
 			m_outStream->printf ("\n%s", s.cc ());
 		}
 
@@ -291,14 +291,14 @@ Jnc::runFunction (
 {
 	typedef
 	int
-	FFunction ();
+	TargetFunc ();
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		int returnValue = pf ();
+		int returnValue = p ();
 		if (returnValue_o)
 			*returnValue_o = returnValue;
 	}

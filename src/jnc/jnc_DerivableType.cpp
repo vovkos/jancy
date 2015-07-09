@@ -484,7 +484,6 @@ DerivableType::compileDefaultDestructor ()
 
 	result =
 		callMemberPropertyDestructors (argValue) &&
-		callMemberFieldDestructors (argValue) &&
 		callBaseTypeDestructors (argValue);
 
 	if (!result)

@@ -42,7 +42,7 @@ public:
 	handle_t
 	multicastSet_t (
 		Multicast* multicast,
-		void* pf
+		void* p
 		);
 
 	static
@@ -56,7 +56,7 @@ public:
 	handle_t
 	multicastAdd_t (
 		Multicast* multicast,
-		void* pf
+		void* p
 		);
 
 	static

@@ -35,7 +35,7 @@ FunctionType::FunctionType ()
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
 	m_functionPtrTypeTuple = NULL;
-	m_reactorInterfaceType = NULL;
+	m_reactorIfaceType = NULL;
 }
 
 DerivableType*
@@ -118,7 +118,7 @@ FunctionType::compile ()
 	ASSERT (m_abstractFunction);
 
 	m_module->m_functionMgr.internalPrologue (m_abstractFunction);
-	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_AbstractFunction);
+//	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_AbstractFunction);
 	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;

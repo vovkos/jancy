@@ -56,9 +56,7 @@ Cast_DataPtr_FromArray::constCast (
 	{
 		DataPtr* ptr = (DataPtr*) dst;
 		ptr->m_p = p;
-		ptr->m_rangeBegin = p;
-		ptr->m_rangeEnd = (char*) p + srcType->getSize ();
-		ptr->m_object = getStaticBox ();
+		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, srcType, 1);
 	}
 	else // thin or lean
 	{
@@ -411,9 +409,7 @@ Cast_DataPtr_Normal2Normal::constCast (
 	DataPtr* dstPtr = (DataPtr*) dst;
 	DataPtr* srcPtr = (DataPtr*) opValue.getConstData ();
 	dstPtr->m_p = (char*) srcPtr->m_p + offset;
-	dstPtr->m_rangeBegin = srcPtr->m_rangeBegin;
-	dstPtr->m_rangeEnd = srcPtr->m_rangeEnd;
-	dstPtr->m_object = srcPtr->m_object;
+	dstPtr->m_validator = srcPtr->m_validator;
 	return true;
 }
 
@@ -453,20 +449,19 @@ Cast_DataPtr_Lean2Normal::constCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
-	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
+	DataPtrType* srcPtrType = (DataPtrType*) opValue.getType ();
+	ASSERT (srcPtrType->getPtrTypeKind () == DataPtrTypeKind_Lean);
 
-	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, NULL);
+	size_t offset = getOffset (srcPtrType, (DataPtrType*) type, NULL);
 	if (offset == -1)
 		return false;
 
 	DataPtr* dstPtr = (DataPtr*) dst;
-	const void* src = opValue.getConstData ();
+	void* src = opValue.getConstData ();
+	void* p = (char*) src + offset;
 
-	dstPtr->m_p = (char*) src + offset;
-	dstPtr->m_rangeBegin = NULL;
-	dstPtr->m_rangeEnd = (void*) -1;
-	dstPtr->m_object = getStaticBox ();
+	dstPtr->m_p = p;
+	dstPtr->m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, srcPtrType->getTargetType ());
 	return true;
 }
 
@@ -480,8 +475,8 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	DataPtrTypeKind srcPtrTypeKind = ((DataPtrType*) opValue.getType ())->getPtrTypeKind ();
-	ASSERT (srcPtrTypeKind == DataPtrTypeKind_Lean);
+	DataPtrType* srcPtrType = (DataPtrType*) opValue.getType ();
+	ASSERT (srcPtrType->getPtrTypeKind () == DataPtrTypeKind_Lean);
 
 	Value ptrValue;
 	bool result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);

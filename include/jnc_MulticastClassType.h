@@ -101,9 +101,9 @@ public:
 
 	virtual
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		);
 
 protected:
@@ -140,7 +140,7 @@ struct Multicast: IfaceHdr
 	Function*
 	getMethod (MulticastMethodKind method)
 	{
-		return ((MulticastClassType*) m_object->m_type)->getMethod (method);
+		return ((MulticastClassType*) m_box->m_type)->getMethod (method);
 	}
 
 	void

@@ -53,7 +53,7 @@ OperatorMgr::getVirtualMethod (
 	Value ptrValue;
 	getClassVTable (value, classType, &ptrValue);
 
-	// pf*
+	// p*
 
 	m_module->m_llvmIrBuilder.createGep2 (
 		ptrValue,
@@ -62,7 +62,7 @@ OperatorMgr::getVirtualMethod (
 		&ptrValue
 		);
 
-	// pf
+	// p
 
 	m_module->m_llvmIrBuilder.createLoad (
 		ptrValue,

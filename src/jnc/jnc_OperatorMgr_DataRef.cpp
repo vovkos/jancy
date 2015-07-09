@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_OperatorMgr.h"
+#include "jnc_LeanDataPtrValidator.h"
 #include "jnc_Module.h"
 
 namespace jnc {

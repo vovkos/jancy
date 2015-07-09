@@ -107,50 +107,23 @@ DataPtrType::prepareLlvmDiType ()
 }
 
 void
-DataPtrType::gcMark (
-	Runtime* runtime,
-	void* p
+DataPtrType::markGcRoots (
+	void* p,
+	GcHeap* gcHeap
 	)
 {
 	if (m_ptrTypeKind == DataPtrTypeKind_Normal)
 	{
 		DataPtr* ptr = (DataPtr*) p;		
-		Box* object = ptr->m_object;
-		if (!object)
+		if (!ptr->m_validator)
 			return;
 
-		object->gcMarkData (runtime);
+		ptr->m_validator->m_targetBox->gcMarkData (gcHeap);
 	}
 	else
 	{
 		#pragma AXL_TODO ("mark thin data pointer roots -- added by 'heap new'")
 	}
-}
-
-//.............................................................................
-
-DataPtr
-strDup (
-	const char* p,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = p ? strlen (p) : 0;
-
-	if (!length)
-		return g_nullPtr;
-
-	char* dst = (char*) AXL_MEM_ALLOC (length + 1);
-	memcpy (dst, p, length);
-	dst [length] = 0;
-
-	jnc::DataPtr ptr;
-	ptr.m_p = dst;
-	ptr.m_rangeBegin = dst;
-	ptr.m_rangeEnd = dst + length + 1;
-	ptr.m_object = jnc::getStaticBox ();
-	return ptr;
 }
 
 //.............................................................................

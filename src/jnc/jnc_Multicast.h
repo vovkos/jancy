@@ -20,7 +20,7 @@ public:
 	setHandler (FunctionPtr ptr);
 
 	handle_t
-	setHandler_t (void* pf);
+	setHandler_t (void* p);
 
 	handle_t
 	addHandler (FunctionPtr ptr)

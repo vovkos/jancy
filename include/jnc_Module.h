@@ -182,34 +182,34 @@ public:
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		Function* function,
-		void* pf
+		void* p
 		)
 	{
-		llvmExecutionEngine->addGlobalMapping (function->getLlvmFunction (), pf);
+		llvmExecutionEngine->addGlobalMapping (function->getLlvmFunction (), p);
 	}
 
 	void
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		StdFunction funcKind,
-		void* pf
+		void* p
 		)
 	{
-		setFunctionPointer (llvmExecutionEngine, m_functionMgr.getStdFunction (funcKind), pf);
+		setFunctionPointer (llvmExecutionEngine, m_functionMgr.getStdFunction (funcKind), p);
 	}
 
 	bool
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const char* name,
-		void* pf
+		void* p
 		);
 
 	bool
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const QualifiedName& name,
-		void* pf
+		void* p
 		);
 
 	void

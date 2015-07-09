@@ -136,120 +136,43 @@ OperatorMgr::prime (
 	Value* resultValue
 	)
 {
-	if (type->getTypeKind () != TypeKind_Class)
-	{
-		zeroInitialize (ptrValue, type);
+	ASSERT (type->getTypeKind () != TypeKind_Class);
 
-		Value objHdrValue;
-		switch (storageKind)
-		{
-		case StorageKind_Static:
-			objHdrValue = m_module->m_namespaceMgr.getStaticBox ();
-			break;
+	zeroInitialize (ptrValue, type);
 
-		case StorageKind_Heap:
-			m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr), &objHdrValue);
-			m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
-			break;
-
-		case StorageKind_Thread:
-		case StorageKind_Stack:
-			#pragma AXL_TODO ("cleanup the whole new/allocate/prime/initialize mess")
-			ASSERT (false);
-
-		default:
-			err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
-			return false;
-		}
-
-		Value sizeValue (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
-		if (elementCountValue)
-		{
-			bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
-			if (!result)
-				return false;
-		}
-
-		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (),
-			type->getDataPtrType (DataPtrTypeKind_Lean),
-			objHdrValue,
-			ptrValue,
-			sizeValue
-			);
-
-		return true;
-	}
-
-	ClassType* classType = (ClassType*) type;
-
-	uint_t flags = 0;
+	Value objHdrValue;
 	switch (storageKind)
 	{
 	case StorageKind_Static:
-		flags |= BoxFlag_Static;
+	case StorageKind_Heap:
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr), &objHdrValue);
+		m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
 		break;
 
+	case StorageKind_Thread:
 	case StorageKind_Stack:
-		flags |= BoxFlag_Stack;
-		break;
-	}
+		#pragma AXL_TODO ("cleanup the whole new/allocate/prime/initialize mess")
+		ASSERT (false);
 
-	if (!classType->isCreatable ())
-	{
-		err::setFormatStringError ("cannot instantiate '%s'", classType->getTypeString ().cc ());
+	default:
+		err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
 		return false;
 	}
 
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "prime object");
+	Value sizeValue (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+	if (elementCountValue)
+	{
+		bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
+		if (!result)
+			return false;
+	}
 
-	Function* primer = classType->getPrimer ();
-
-	Value rootValue;
-	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &rootValue);
-
-	m_module->m_llvmIrBuilder.createCall3 (
-		primer,
-		primer->getType (),
+	resultValue->setLeanDataPtr (
+		ptrValue.getLlvmValue (),
+		type->getDataPtrType (DataPtrTypeKind_Lean),
+		objHdrValue,
 		ptrValue,
-		rootValue,
-		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)),
-		NULL
-		);
-
-	Function* destructor = classType->getDestructor ();
-	if (storageKind != StorageKind_Stack || !destructor)
-	{
-		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
-		return true;
-	}
-
-	Variable* flagVariable = NULL;
-	if (m_module->m_controlFlowMgr.getFlags () & ControlFlowFlag_HasJump)
-	{
-		Function* function = m_module->m_functionMgr.getCurrentFunction ();
-		BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
-
-		flagVariable = m_module->m_variableMgr.createOnceFlagVariable (StorageKind_Stack);
-		m_module->m_variableMgr.allocatePrimeInitializeVariable (flagVariable);
-		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-
-		m_module->m_operatorMgr.binaryOperator (
-			BinOpKind_Assign,
-			flagVariable,
-			Value ((int64_t) 1, flagVariable->getType ())
-			);
-	}
-	else
-	{
-		m_module->m_llvmIrBuilder.createGep2 (ptrValue, 1, classType->getClassPtrType (), resultValue);
-	}
-
-	m_module->m_namespaceMgr.getCurrentScope ()->m_destructList.addDestructor (
-		destructor,
-		*resultValue,
-		flagVariable
+		sizeValue
 		);
 
 	return true;

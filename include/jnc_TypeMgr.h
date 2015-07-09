@@ -729,7 +729,7 @@ public:
 	getMulticastType (FunctionPtrType* functionPtrType);
 
 	ClassType*
-	getReactorInterfaceType (FunctionType* startMethodType);
+	getReactorIfaceType (FunctionType* startMethodType);
 
 	ReactorClassType*
 	createReactorType (
@@ -997,9 +997,6 @@ protected:
 	StructType*
 	createBoxType ();
 	
-	StructType*
-	createVariableBoxType ();
-
 	StructType*
 	createDataPtrValidatorType ();
 

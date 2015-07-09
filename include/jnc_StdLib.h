@@ -23,7 +23,6 @@ class StdLib
 {
 public:
 	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (StdFunction_RuntimeError, runtimeError)
 		JNC_STD_FUNCTION (StdFunction_DynamicSizeOf, dynamicSizeOf)
 		JNC_STD_FUNCTION (StdFunction_DynamicCountOf, dynamicCountOf)
 		JNC_STD_FUNCTION (StdFunction_DynamicCastDataPtr, dynamicCastDataPtr)
@@ -100,16 +99,6 @@ public:
 	JNC_END_LIB ()
 
 public:
-	static
-	void
-	runtimeError (
-		int error,
-		void* codeAddr
-		)
-	{
-		Runtime::runtimeError (error, codeAddr, NULL);
-	}
-
 	static
 	size_t
 	dynamicSizeOf (DataPtr ptr);
@@ -238,12 +227,12 @@ public:
 
 	static
 	void
-	addStaticDestructor (StaticDestructor *dtor);
+	addStaticDestructor (StaticDestruct* destruct);
 
 	static
 	void
 	addDestructor (
-		Destructor *dtor,
+		Destruct* destruct,
 		jnc::IfaceHdr* iface
 		);
 
@@ -523,11 +512,11 @@ protected:
 	static
 	DWORD
 	WINAPI
-	threadProc (PVOID context);
+	threadFunc (PVOID context);
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	static
 	void*
-	threadProc (void* context);
+	threadFunc (void* context);
 #endif
 
 	static
@@ -560,6 +549,14 @@ protected:
 		size_t length
 		);
 };
+
+//.............................................................................
+
+DataPtr
+strDup (
+	const char* p,
+	size_t length = -1
+	);
 
 //.............................................................................
 

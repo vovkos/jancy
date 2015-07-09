@@ -115,9 +115,9 @@ FunctionPtrType::prepareLlvmDiType ()
 }
 
 void
-FunctionPtrType::gcMark (
-	Runtime* runtime,
-	void* p
+FunctionPtrType::markGcRoots (
+	void* p,
+	GcHeap* gcHeap
 	)
 {
 	ASSERT (m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak);
@@ -126,11 +126,11 @@ FunctionPtrType::gcMark (
 	if (!ptr->m_closure)
 		return;
 
-	Box* object = ptr->m_closure->m_object;
+	Box* object = ptr->m_closure->m_box;
 	if (m_ptrTypeKind == FunctionPtrTypeKind_Normal)
-		object->gcMarkObject (runtime);
+		object->gcMarkObject (gcHeap);
 	else if (object->m_classType->getClassTypeKind () == ClassTypeKind_FunctionClosure)
-		object->gcWeakMarkClosureObject (runtime);
+		object->gcWeakMarkClosureObject (gcHeap);
 	else  // simple weak closure
 		object->gcWeakMarkObject ();
 }

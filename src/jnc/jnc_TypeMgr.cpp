@@ -118,7 +118,6 @@ TypeMgr::getStdType (StdType stdType)
 		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
 		{ NULL },                            // StdType_Box,
 		{ NULL },                            // StdType_BoxPtr,
-		{ NULL },                            // StdType_VariableBox,
 		{ NULL },                            // StdType_AbstractClass,
 		{ NULL },                            // StdType_AbstractClassPtr,
 		{ NULL },                            // StdType_SimpleFunction,
@@ -288,10 +287,6 @@ TypeMgr::getStdType (StdType stdType)
 
 	case StdType_BoxPtr:
 		type = getStdType (StdType_Box)->getDataPtrType_c ();
-		break;
-
-	case StdType_VariableBox:
-		type = createVariableBoxType ();
 		break;
 
 	case StdType_AbstractClass:
@@ -914,7 +909,7 @@ TypeMgr::createClassType (
 	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
 	ifaceHdrStructType->createField ("!m_vtbl", vtableStructType->getDataPtrType_c ());
-	ifaceHdrStructType->createField ("!m_object", getStdType (StdType_BoxPtr));
+	ifaceHdrStructType->createField ("!m_box", getStdType (StdType_BoxPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
@@ -1631,7 +1626,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 }
 
 ClassType*
-TypeMgr::getReactorInterfaceType (FunctionType* startMethodType)
+TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
 {
 	Type* returnType = startMethodType->getReturnType ();
 	if (returnType->getTypeKind () != TypeKind_Void)
@@ -1640,8 +1635,8 @@ TypeMgr::getReactorInterfaceType (FunctionType* startMethodType)
 		return NULL;
 	}
 
-	if (startMethodType->m_reactorInterfaceType)
-		return startMethodType->m_reactorInterfaceType;
+	if (startMethodType->m_reactorIfaceType)
+		return startMethodType->m_reactorIfaceType;
 
 	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
 	type->m_signature.format ("CA%s", startMethodType->getTypeString ().cc ());
@@ -2647,7 +2642,7 @@ TypeMgr::createSimpleIfaceHdrType ()
 {
 	StructType* type = createStructType ("SimpleIfaceHdr", "jnc.SimpleIfaceHdr");
 	type->createField ("!m_vtbl", getStdType (StdType_BytePtr));
-	type->createField ("!m_object", getStdType (StdType_BoxPtr));
+	type->createField ("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout ();
 	return type;
 }
@@ -2659,17 +2654,7 @@ TypeMgr::createBoxType ()
 	type->createField ("!m_root", type->getDataPtrType_c ());
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr));
-	type->createField ("!m_validatorCache", getStdType (StdType_BytePtr));
-	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::createVariableBoxType ()
-{
-	StructType* type = createStructType ("VariableBox", "jnc.VariableBox");
-	type->createField ("!m_object", getStdType (StdType_Box));
-	type->createField ("!m_p", getStdType (StdType_BytePtr));
+	type->createField ("!m_elementCount", getStdType (StdType_SizeT));
 	type->ensureLayout ();
 	return type;
 }
@@ -2678,7 +2663,8 @@ StructType*
 TypeMgr::createDataPtrValidatorType ()
 {
 	StructType* type = createStructType ("DataPtrValidator", "jnc.DataPtrValidator");
-	type->createField ("!m_object", getStdType (StdType_BoxPtr));
+	type->createField ("!m_validatorBox", getStdType (StdType_BoxPtr));
+	type->createField ("!m_targetBox", getStdType (StdType_BoxPtr));
 	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
 	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
@@ -2690,9 +2676,7 @@ TypeMgr::createDataPtrStructType ()
 {
 	StructType* type = createStructType ("DataPtr", "jnc.DataPtr");
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
-	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
-	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
-	type->createField ("!m_object", getStdType (StdType_BoxPtr));
+	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
 	return type;
 }

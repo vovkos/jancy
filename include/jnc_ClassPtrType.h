@@ -105,9 +105,9 @@ public:
 
 	virtual
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		);
 
 protected:

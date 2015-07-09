@@ -21,14 +21,14 @@ callFunction (
 {
 	typedef
 	RetVal
-	FFunction ();
+	TargetFunc ();
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		*retVal = pf ();
+		*retVal = p ();
 	}
 	AXL_MT_LONG_JMP_CATCH ()
 	{
@@ -54,14 +54,14 @@ callFunction (
 {
 	typedef
 	RetVal
-	FFunction (Arg);
+	TargetFunc (Arg);
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		*retVal = pf (arg);
+		*retVal = p (arg);
 	}
 	AXL_MT_LONG_JMP_CATCH ()
 	{
@@ -89,17 +89,17 @@ callFunction (
 {
 	typedef
 	RetVal
-	FFunction (
+	TargetFunc (
 		Arg1,
 		Arg2
 		);
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		*retVal = pf (arg1, arg2);
+		*retVal = p (arg1, arg2);
 	}
 	AXL_MT_LONG_JMP_CATCH ()
 	{
@@ -129,18 +129,18 @@ callFunction (
 {
 	typedef
 	RetVal
-	FFunction (
+	TargetFunc (
 		Arg1,
 		Arg2,
 		Arg3
 		);
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		*retVal = pf (arg1, arg2, arg3);
+		*retVal = p (arg1, arg2, arg3);
 	}
 	AXL_MT_LONG_JMP_CATCH ()
 	{
@@ -172,19 +172,19 @@ callFunction (
 {
 	typedef
 	RetVal
-	FFunction (
+	TargetFunc (
 		Arg1,
 		Arg2,
 		Arg3,
 		Arg4
 		);
 
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		*retVal = pf (arg1, arg2, arg3, arg4);
+		*retVal = p (arg1, arg2, arg3, arg4);
 	}
 	AXL_MT_LONG_JMP_CATCH ()
 	{

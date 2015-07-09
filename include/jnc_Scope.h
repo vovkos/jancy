@@ -5,12 +5,13 @@
 #pragma once
 
 #include "jnc_Namespace.h"
-#include "jnc_DestructList.h"
+#include "jnc_Value.h"
 
 namespace jnc {
 
 class BasicBlock;
 class Function;
+class Variable;
 
 //.............................................................................
 
@@ -50,7 +51,6 @@ public:
 	BasicBlock* m_finallyBlock;
 	Variable* m_finallyReturnAddress;
 	rtl::Array <BasicBlock*> m_finallyReturnBlockArray;
-	DestructList m_destructList;
 
 public:
 	Scope ();

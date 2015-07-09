@@ -7,8 +7,8 @@ CmdLine::CmdLine ()
 {
 	m_flags = 0;
 	m_serverPort = 0;
-	m_gcPeriodSizeLimit = jnc::StdRuntimeLimit_GcPeriodSize;
-	m_stackSizeLimit = jnc::StdRuntimeLimit_StackSize;
+	m_gcPeriodSizeLimit = jnc::GcDef_PeriodSizeLimit;
+	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
 }
 
 //.............................................................................

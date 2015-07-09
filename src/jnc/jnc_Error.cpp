@@ -19,7 +19,7 @@ Error::getDescription ()
 	ptr.m_p = p;
 	ptr.m_rangeBegin = ptr.m_p;
 	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
-	ptr.m_object = jnc::getStaticBox ();
+	ptr.m_box = jnc::getStaticBox ();
 
 	return ptr;
 }

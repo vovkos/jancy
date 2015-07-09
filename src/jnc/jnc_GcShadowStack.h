@@ -53,25 +53,4 @@ registerGcShadowStack (int);
 
 //.............................................................................
 
-// structure backing up shadow stack frame map
-
-struct GcShadowStackFrameMap
-{
-	size_t m_count;
-
-	// followed by array of type pointers
-};
-
-// structure backing up shadow stack frame
-
-struct GcShadowStackFrame
-{
-	GcShadowStackFrame* m_next;
-	GcShadowStackFrameMap* m_map;
-
-	// followed by array of root pointers
-};
-
-//.............................................................................
-
 } // namespace jnc 

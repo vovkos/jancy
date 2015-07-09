@@ -194,9 +194,6 @@ public:
 	callMemberFieldConstructors (const Value& thisValue);
 
 	bool
-	callMemberFieldDestructors (const Value& thisValue);
-
-	bool
 	callMemberPropertyConstructors (const Value& thisValue);
 
 	bool

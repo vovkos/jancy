@@ -83,9 +83,9 @@ McSnapshotClassType::compileCallMethod ()
 }
 
 void
-McSnapshotClassType::gcMark (
-	Runtime* runtime,
-	void* _p
+McSnapshotClassType::markGcRoots (
+	void* _p,
+	GcHeap* gcHeap
 	)
 {
 	Box* object = (Box*) _p;
@@ -99,7 +99,7 @@ McSnapshotClassType::gcMark (
 	size_t size = m_targetType->getSize ();
 
 	for (size_t i = 0; i < snapshot->m_count; i++, p += size)
-		runtime->addGcRoot (p, m_targetType);
+		gcHeap->addRoot (p, m_targetType);
 }
 
 //.............................................................................

@@ -54,10 +54,10 @@ MulticastLib::multicastSet (
 handle_t
 MulticastLib::multicastSet_t (
 	Multicast* multicast,
-	void* pf
+	void* p
 	)
 {
-	return ((MulticastImpl*) multicast)->setHandler_t (pf);
+	return ((MulticastImpl*) multicast)->setHandler_t (p);
 }
 
 handle_t
@@ -72,10 +72,10 @@ MulticastLib::multicastAdd (
 handle_t
 MulticastLib::multicastAdd_t (
 	Multicast* multicast,
-	void* pf
+	void* p
 	)
 {
-	return ((MulticastImpl*) multicast)->addHandler_t (pf);
+	return ((MulticastImpl*) multicast)->addHandler_t (p);
 }
 
 FunctionPtr

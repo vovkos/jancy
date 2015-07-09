@@ -1202,17 +1202,6 @@ public:
 		PropertyPtrType* resultType,
 		Value* resultValue
 		);
-
-	// runtime error
-
-	bool
-	runtimeError (const Value& errorValue);
-
-	bool
-	runtimeError (RuntimeErrorKind error)
-	{
-		return runtimeError (Value (error, getSimpleType (TypeKind_Int, m_module)));
-	}
 };
 
 //.............................................................................

@@ -102,20 +102,20 @@ ClassPtrType::prepareLlvmDiType ()
 }
 
 void
-ClassPtrType::gcMark (
-	Runtime* runtime,
-	void* p
+ClassPtrType::markGcRoots (
+	void* p,
+	GcHeap* gcHeap
 	)
 {
 	IfaceHdr* iface = *(IfaceHdr**) p;
 	if (!iface)
 		return;
 
-	Box* object = iface->m_object;
+	Box* object = iface->m_box;
 	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
 		object->gcWeakMarkObject ();
 	else
-		object->gcMarkObject (runtime);
+		object->gcMarkObject (gcHeap);
 }
 
 //.............................................................................

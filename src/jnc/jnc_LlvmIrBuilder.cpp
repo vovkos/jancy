@@ -408,26 +408,6 @@ LlvmIrBuilder::createClosurePropertyPtr (
 	return true;
 }
 
-bool
-LlvmIrBuilder::runtimeError (const Value& errorValue)
-{
-	Function* runtimeError = m_module->m_functionMgr.getStdFunction (StdFunction_RuntimeError);
-
-	// TODO: calc real code address
-
-	Value codeAddrValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
-
-	createCall2 (
-		runtimeError,
-		runtimeError->getType (),
-		errorValue,
-		codeAddrValue,
-		NULL
-		);
-
-	return true;
-}
-
 //.............................................................................
 
 } // namespace jnc {

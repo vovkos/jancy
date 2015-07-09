@@ -25,7 +25,7 @@ public:
 	static
 	void
 	enumGcRoots (
-		jnc::Runtime* runtime,
+		jnc::GcHeap* gcHeap,
 		MyLayout* self
 		);
 

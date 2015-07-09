@@ -5,7 +5,7 @@
 
 void
 MyLayout::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	MyLayout* self
 	)
 {

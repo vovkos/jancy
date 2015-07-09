@@ -17,7 +17,6 @@ getStdTypeName (StdType stdType)
 		NULL,               // StdType_SimpleIfaceHdrPtr,
 		NULL,               // StdType_Box,
 		NULL,               // StdType_BoxPtr,
-		NULL,               // StdType_VariableBox,
 		NULL,               // StdType_AbstractClass,
 		NULL,               // StdType_AbstractClassPtr,
 		NULL,               // StdType_SimpleFunction,
@@ -755,16 +754,16 @@ Type::prepareLlvmDiType ()
 }
 
 void
-Type::gcMark (
-	Runtime* runtime,
-	void* p
+Type::markGcRoots (
+	void* p,
+	GcHeap* gcHeap
 	)
 {
 	ASSERT (m_typeKind == TypeKind_Variant);
 
 	Variant* variant = (Variant*) p;
 	if (variant->m_type && (variant->m_type->m_flags & TypeFlag_GcRoot))
-		variant->m_type->gcMark (runtime, p);
+		variant->m_type->markGcRoots (p, gcHeap);
 }
 
 //.............................................................................

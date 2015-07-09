@@ -24,12 +24,12 @@ TestClassA::foo (int x)
 
 void
 TestClassB::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	TestClassB* self
 	)
 {
 //	if (self->m_hiddenIface)
-//		self->m_hiddenIface->m_object->gcMarkObject (runtime);
+//		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);
 }
 
 TestClassB*
@@ -556,13 +556,13 @@ bool MainWindow::compile ()
 
 bool MainWindow::runFunction (jnc::Function* function, int* returnValue_o)
 {
-	typedef int FFunction ();
-	FFunction* pf = (FFunction*) function->getMachineCode ();
-	ASSERT (pf);
+	typedef int TargetFunc ();
+	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
+	ASSERT (p);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
-		int returnValue = pf ();
+		int returnValue = p ();
 		if (returnValue_o)
 			*returnValue_o = returnValue;
 	}

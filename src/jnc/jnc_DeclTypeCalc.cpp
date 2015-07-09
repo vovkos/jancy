@@ -643,7 +643,7 @@ DeclTypeCalc::getReactorType (Type* returnType)
 		return NULL;
 
 	m_typeModifiers &= ~TypeModifier_Reactor;
-	return m_module->m_typeMgr.getReactorInterfaceType (startMethodType);
+	return m_module->m_typeMgr.getReactorIfaceType (startMethodType);
 }
 
 ClassType*

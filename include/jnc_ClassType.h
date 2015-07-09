@@ -60,9 +60,17 @@ getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind);
 
 typedef
 void
-ClassTypeGcRootEnumProc (
-	Runtime* runtime,
-	IfaceHdr* iface
+Class_ConstructFunc (IfaceHdr* iface);
+
+typedef
+void
+Class_DestructFunc (IfaceHdr* iface);
+
+typedef
+void
+Class_MarkOpaqueGcRootsFunc (
+	IfaceHdr* iface,
+	GcHeap* gcHeap
 	);
 
 //............................................................................
@@ -84,9 +92,8 @@ protected:
 	rtl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
 	rtl::Array <StructField*> m_classMemberFieldArray;
 
-	Function* m_primer;
 	Function* m_operatorNew;
-	ClassTypeGcRootEnumProc* m_gcRootEnumProc;
+	Class_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
 
 	rtl::Array <Function*> m_virtualMethodArray;
 	rtl::Array <Function*> m_overrideMethodArray;
@@ -177,27 +184,21 @@ public:
 	}
 
 	Function*
-	getPrimer ()
-	{
-		return m_primer;
-	}
-
-	Function*
 	getOperatorNew ()
 	{
 		return m_operatorNew;
 	}
 
-	ClassTypeGcRootEnumProc*
-	getGcRootEnumProc ()
+	Class_MarkOpaqueGcRootsFunc*
+	getMarkOpaqueGcRootsFunc ()
 	{
-		return m_gcRootEnumProc;
+		return m_markOpaqueGcRootsFunc;
 	}
 
 	void
 	setupOpaqueClass (
 		size_t size,
-		ClassTypeGcRootEnumProc* gcRootEnumProc
+		Class_MarkOpaqueGcRootsFunc* markOpaqueGcRootsFunc
 		);
 
 	virtual
@@ -257,16 +258,16 @@ public:
 
 	virtual
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		);
 
 protected:
 	void
-	enumGcRootsImpl (
-		Runtime* runtime,
-		IfaceHdr* iface
+	markGcRootsImpl (
+		IfaceHdr* iface,
+		GcHeap* gcHeap
 		);
 
 	virtual
@@ -313,30 +314,6 @@ protected:
 
 	void
 	createVTablePtr ();
-
-	void
-	createPrimer ();
-
-	void
-	primeObject (
-		ClassType* classType,
-		const Value& opValue,
-		const Value& rootValue,
-		const Value& flagsValue
-		);
-
-	void
-	primeInterface (
-		ClassType* classType,
-		const Value& opValue,
-		const Value& VTableValue,
-		const Value& objectValue,
-		const Value& rootValue,
-		const Value& flagsValue
-		);
-
-	bool
-	compilePrimer ();
 };
 
 //.............................................................................
@@ -369,14 +346,14 @@ isOpaqueClassType (Type* type)
 struct IfaceHdr
 {
 	void* m_vtable;
-	Box* m_object; // back pointer to master header
+	Box* m_box;
 
 	// followed by parents, then by iface data fields
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// iface with master header
+// iface inside a box
 
 template <typename T>
 class ClassBox:
@@ -384,24 +361,6 @@ class ClassBox:
 	public T
 {
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef
-void
-Class_Prime (
-	Box* object,
-	Box* root,
-	uintptr_t flags
-	);
-
-typedef
-void
-Class_Construct (IfaceHdr* iface);
-
-typedef
-void
-Class_Destruct (IfaceHdr* iface);
 
 //.............................................................................
 

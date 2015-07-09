@@ -423,10 +423,7 @@ FunctionMgr::epilogue ()
 		if (function->getProperty ())
 		{
 			Property* prop = function->getProperty ();
-
-			result =
-				prop->callMemberPropertyDestructors (m_thisValue) &&
-				prop->callMemberFieldDestructors (m_thisValue);
+			result = prop->callMemberPropertyDestructors (m_thisValue);
 		}
 		else
 		{
@@ -435,7 +432,6 @@ FunctionMgr::epilogue ()
 
 			result =
 				classType->callMemberPropertyDestructors (m_thisValue) &&
-				classType->callMemberFieldDestructors (m_thisValue) &&
 				classType->callBaseTypeDestructors (m_thisValue);
 		}
 
@@ -908,11 +904,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	static SourceRef sourceTable [StdFunction__Count] =
 	{
-		{	                                     // StdFunction_RuntimeError,
-			runtimeErrorSrc,
-			lengthof (runtimeErrorSrc),
-			StdNamespace_Internal,
-		},
 		{                                        // StdFunction_DynamicSizeOf,
 			dynamicSizeOfSrc,
 			lengthof (dynamicSizeOfSrc),
@@ -1329,7 +1320,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 		break;
 #endif
 
-	case StdFunction_RuntimeError:
 	case StdFunction_DynamicSizeOf:
 	case StdFunction_DynamicCountOf:
 	case StdFunction_DynamicCastDataPtr:
@@ -1452,7 +1442,6 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 
 	const char* nameTable [StdFunction__Count] =
 	{
-		NULL,                  // StdFunction_RuntimeError,
 		NULL,                  // StdFunction_DynamicSizeOf,
 		NULL,                  // StdFunction_DynamicCountOf,
 		NULL,                  // StdFunction_DynamicCastDataPtr,

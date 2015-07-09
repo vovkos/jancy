@@ -26,7 +26,7 @@ class LockScheduler: jnc.Scheduler
 foo (
 	int a,
 	int b,
-	function* completionProc (
+	function* completionFunc (
 		int, 
 		int
 		)
@@ -41,7 +41,7 @@ foo (
 
 	// call completion proc
 
-	completionProc (a, b);
+	completionFunc (a, b);
 }
 
 bar (int x)
@@ -70,7 +70,7 @@ int main ()
 	// use the @ (at) operator to create a scheduled pointer; the resulting 
 	// scheduled pointer has the same argument signature as the target function
 
-	function* completionProc (
+	function* completionFunc (
 		int,
 		int
 		) = onComplete @ scheduler; 
@@ -78,7 +78,7 @@ int main ()
 	// pass a scheduled function pointer as a completion routine and you can be
 	// sure that the target function will be called in the proper environment
 
-	foo (10, 20, completionProc);
+	foo (10, 20, completionFunc);
 
 	// naturally, it's also OK to schedule a function call immediately, without 
 	// saving a scheduled function pointer

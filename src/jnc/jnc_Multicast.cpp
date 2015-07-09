@@ -42,10 +42,10 @@ MulticastImpl::setHandler (FunctionPtr ptr)
 }
 
 handle_t
-MulticastImpl::setHandler_t (void* pf)
+MulticastImpl::setHandler_t (void* p)
 {
-	if (pf)
-		return setHandlerImpl (pf);
+	if (p)
+		return setHandlerImpl (p);
 
 	clear ();
 	return NULL;
@@ -104,14 +104,14 @@ MulticastImpl::getSnapshot ()
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ASSERT (m_object->m_classType->getClassTypeKind () == ClassTypeKind_Multicast);
-	MulticastClassType* multicastType = (MulticastClassType*) m_object->m_type;
+	ASSERT (m_box->m_classType->getClassTypeKind () == ClassTypeKind_Multicast);
+	MulticastClassType* multicastType = (MulticastClassType*) m_box->m_type;
 	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
 
 	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
 	snapshot->m_root = snapshot;
 	snapshot->m_type = snapshotType;
-	snapshot->m_object = snapshot;
+	snapshot->m_box = snapshot;
 	snapshot->m_flags = 0;
 
 	size_t size = multicastType->getTargetType ()->getSize () * m_count;

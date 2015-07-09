@@ -50,7 +50,7 @@ mapFunctions ( \
 	JNC_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
 
 #define JNC_END_TYPE() \
-	if (isOpaqueClassType (type) && !((jnc::ClassType*) type)->getGcRootEnumProc ()) \
+	if (isOpaqueClassType (type) && !((jnc::ClassType*) type)->getMarkOpaqueGcRootsFunc ()) \
 	{ \
 		err::setFormatStringError ("JNC_OPAQUE_CLASS is missing for '%s'", type->getTypeString ().cc ()); \
 		return false; \
@@ -144,8 +144,8 @@ mapFunctions (jnc::Module* module) \
 		JNC_MAP (overload, proc) \
 	}
 
-#define JNC_OPAQUE_CLASS(cls, gcRootEnumProc) \
-	type->setupOpaqueClass (sizeof (jnc::ClassBox <cls>), (jnc::ClassTypeGcRootEnumProc*) gcRootEnumProc);
+#define JNC_OPAQUE_CLASS(cls, markOpaqueGcRootsFunc) \
+	type->setupOpaqueClass (sizeof (jnc::ClassBox <cls>), (jnc::Class_MarkOpaqueGcRootsFunc*) markOpaqueGcRootsFunc);
 
 #define JNC_OPERATOR_NEW(proc) \
 	function = type->getOperatorNew (); \

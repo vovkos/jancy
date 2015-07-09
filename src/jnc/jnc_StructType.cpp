@@ -444,14 +444,14 @@ StructType::prepareLlvmDiType ()
 }
 
 void
-StructType::gcMark (
-	Runtime* runtime,
-	void* _p
+StructType::markGcRoots (
+	void* _p,
+	GcHeap* gcHeap
 	)
 {
 	if (m_stdType == StdType_FmtLiteral) // special handling
 	{
-		gcMarkFmtLiteral (runtime, (FmtLiteral*) _p);
+		gcMarkFmtLiteral (gcHeap, (FmtLiteral*) _p);
 		return;
 	}
 
@@ -461,20 +461,20 @@ StructType::gcMark (
 	for (size_t i = 0; i < count; i++)
 	{
 		BaseTypeSlot* slot = m_gcRootBaseTypeArray [i];
-		slot->getType ()->gcMark (runtime, p + slot->getOffset ());
+		slot->getType ()->markGcRoots (p + slot->getOffset (), gcHeap);
 	}
 
 	count = m_gcRootMemberFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		StructField* field = m_gcRootMemberFieldArray [i];
-		field->getType ()->gcMark (runtime, p + field->getOffset ());
+		field->getType ()->markGcRoots (p + field->getOffset (), gcHeap);
 	}
 }
 
 void
 StructType::gcMarkFmtLiteral (
-	Runtime* runtime,
+	GcHeap* gcHeap,
 	FmtLiteral* literal
 	)
 {
@@ -482,7 +482,7 @@ StructType::gcMarkFmtLiteral (
 		return;
 
 	Box* object = ((Box*) literal->m_p) - 1;
-	object->gcMarkData (runtime);
+	object->gcMarkData (gcHeap);
 }
 
 //.............................................................................

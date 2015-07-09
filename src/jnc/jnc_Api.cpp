@@ -6,7 +6,7 @@ namespace jnc {
 //.............................................................................
 
 void
-primeInterface (
+primeIface (
 	ClassType* type,
 	IfaceHdr* self,
 	void* vtable,
@@ -16,7 +16,7 @@ primeInterface (
 	)
 {
 	self->m_vtable = vtable;
-	self->m_object = object;
+	self->m_box = object;
 
 	// prime all the base types
 
@@ -27,7 +27,7 @@ primeInterface (
 		BaseTypeSlot* slot = baseTypePrimeArray [i];
 		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
 
-		primeInterface (
+		primeIface (
 			(ClassType*) slot->getType (),
 			(IfaceHdr*) ((char*) self + slot->getOffset ()),
 			vtable ? (void**) vtable + slot->getVTableIndex () : NULL,
@@ -64,18 +64,19 @@ void
 prime (
 	ClassType* type,
 	void* vtable,
-	Box* object,
+	Box* box,
 	Box* root,
 	uintptr_t flags
 	)
 {
-//	memset (pObject, 0, pType->GetSize ());
+	memset (box, 0, type->getSize ());
 
-	object->m_root = root;
-	object->m_type = type;
-	object->m_flags = flags;
+	box->m_root = root;
+	box->m_type = type;
+	box->m_flags = flags;
+	box->m_elementCount = 1;
 
-	primeInterface (type, (IfaceHdr*) (object + 1), vtable, object, root, flags);
+	primeIface (type, (IfaceHdr*) (box + 1), vtable, box, root, flags);
 }
 
 //.............................................................................

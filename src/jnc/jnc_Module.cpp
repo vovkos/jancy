@@ -88,7 +88,7 @@ lockTestAndSet (
 	int128_t src
 	)
 {
-    return __sync_lock_test_and_set_16 (dst, src);
+	return __sync_lock_test_and_set_16 (dst, src);
 }
 #	else
 extern "C" int64_t __divdi3 (int64_t, int64_t);
@@ -249,7 +249,7 @@ bool
 Module::setFunctionPointer (
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const char* name,
-	void* pf
+	void* p
 	)
 {
 	Function* function = getFunctionByName (name);
@@ -260,7 +260,7 @@ Module::setFunctionPointer (
 	if (!llvmFunction)
 		return false;
 
-	llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
+	llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
 	return true;
 }
 
@@ -268,7 +268,7 @@ bool
 Module::setFunctionPointer (
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const QualifiedName& name,
-	void* pf
+	void* p
 	)
 {
 	ModuleItem* item = m_namespaceMgr.getGlobalNamespace ()->findItem (name);
@@ -279,7 +279,7 @@ Module::setFunctionPointer (
 	if (!llvmFunction)
 		return false;
 
-	llvmExecutionEngine->addGlobalMapping (llvmFunction, pf);
+	llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
 	return true;
 }
 

@@ -391,35 +391,6 @@ VariableMgr::allocatePrimeInitializeVariable (Variable* variable)
 	}
 }
 
-void
-VariableMgr::allocateVariableBox (Variable* variable)
-{
-	ASSERT (!variable->m_llvmBoxValue);
-
-	StorageKind storageKind = variable->m_storageKind;
-	switch (storageKind)
-	{
-	case StorageKind_Static:
-		allocateStaticVariableBox (variable);
-		break;
-
-	case StorageKind_Thread:
-		allocateTlsVariableBox (variable);
-		break;
-
-	case StorageKind_Heap:
-		getHeapVariableBox (variable);
-		break;
-
-	case StorageKind_Stack:
-		allocateStackVariableBox (variable);
-		break;
-
-	default:
-		ASSERT (false);
-	}
-}
-
 bool
 VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 {
@@ -584,6 +555,94 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 }
 
 void
+VariableMgr::allocateTlsVariable (Variable* variable)
+{
+	Value ptrValue;
+	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (
+		variable->m_type,
+		variable->m_qualifiedName,
+		NULL,
+		&ptrValue
+		);
+
+	variable->m_llvmAllocValue = llvmAlloca;
+	variable->m_llvmValue = llvmAlloca;
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function);
+
+	function->addTlsVariable (variable);
+}
+
+void
+VariableMgr::deallocateTlsVariableArray (
+	const TlsVariable* array,
+	size_t count
+	)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = array [i].m_variable;
+		ASSERT (variable->m_llvmValue == array [i].m_llvmAlloca);
+
+		variable->m_llvmValue = NULL;
+		variable->m_llvmAllocValue = NULL;
+	}
+}
+
+void
+VariableMgr::restoreTlsVariableArray (
+	const TlsVariable* array,
+	size_t count
+	)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = array [i].m_variable;
+		llvm::AllocaInst* llvmAlloca = array [i].m_llvmAlloca;
+
+		variable->m_llvmValue = llvmAlloca;
+		variable->m_llvmAllocValue = llvmAlloca;
+	}
+}
+
+//.............................................................................
+
+} // namespace jnc {
+
+
+#if 0
+
+void
+VariableMgr::allocateVariableBox (Variable* variable)
+{
+	ASSERT (!variable->m_llvmBoxValue);
+
+	StorageKind storageKind = variable->m_storageKind;
+	switch (storageKind)
+	{
+	case StorageKind_Static:
+		allocateStaticVariableBox (variable);
+		break;
+
+	case StorageKind_Thread:
+		allocateTlsVariableBox (variable);
+		break;
+
+	case StorageKind_Heap:
+		getHeapVariableBox (variable);
+		break;
+
+	case StorageKind_Stack:
+		allocateStackVariableBox (variable);
+		break;
+
+	default:
+		ASSERT (false);
+	}
+}
+
+void
 VariableMgr::initializeVariableBox (
 	const Value& objHdrValue,
 	Type* type,
@@ -723,58 +782,4 @@ VariableMgr::allocateStackVariableBox (Variable* variable)
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 }
 
-void
-VariableMgr::allocateTlsVariable (Variable* variable)
-{
-	Value ptrValue;
-	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (
-		variable->m_type,
-		variable->m_qualifiedName,
-		NULL,
-		&ptrValue
-		);
-
-	variable->m_llvmAllocValue = llvmAlloca;
-	variable->m_llvmValue = llvmAlloca;
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function);
-
-	function->addTlsVariable (variable);
-}
-
-void
-VariableMgr::deallocateTlsVariableArray (
-	const TlsVariable* array,
-	size_t count
-	)
-{
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = array [i].m_variable;
-		ASSERT (variable->m_llvmValue == array [i].m_llvmAlloca);
-
-		variable->m_llvmValue = NULL;
-		variable->m_llvmAllocValue = NULL;
-	}
-}
-
-void
-VariableMgr::restoreTlsVariableArray (
-	const TlsVariable* array,
-	size_t count
-	)
-{
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = array [i].m_variable;
-		llvm::AllocaInst* llvmAlloca = array [i].m_llvmAlloca;
-
-		variable->m_llvmValue = llvmAlloca;
-		variable->m_llvmAllocValue = llvmAlloca;
-	}
-}
-
-//.............................................................................
-
-} // namespace jnc {
+#endif

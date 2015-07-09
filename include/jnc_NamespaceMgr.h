@@ -125,9 +125,6 @@ public:
 		return m_currentAccessKind;
 	}
 
-	Value
-	getStaticBox ();
-
 	void
 	openNamespace (Namespace* nspace);
 

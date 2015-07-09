@@ -38,9 +38,9 @@ public:
 
 	virtual 
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		)
 	{
 		ASSERT (false); // unions are POD and hence are never GC roots

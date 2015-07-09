@@ -83,7 +83,6 @@ getFunctionKindFlags (FunctionKind functionKind);
 
 enum StdFunction
 {
-	StdFunction_RuntimeError,
 	StdFunction_DynamicSizeOf,
 	StdFunction_DynamicCountOf,
 	StdFunction_DynamicCastDataPtr,

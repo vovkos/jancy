@@ -131,19 +131,19 @@ main (
 	jnc::Function* destructor = module.getDestructor ();
 
 	if (destructor)
-		runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
+		runtime.addStaticDestructor ((jnc::StaticDestruct*) destructor->getMachineCode ());
 
 	Error finalResult = Error_Success;
 
-	typedef void ConstructorProc ();
-	typedef int MainProc ();
+	typedef void ConstructorFunc ();
+	typedef int MainFunc ();
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
 		if (constructor)
-			((ConstructorProc*) constructor->getMachineCode ()) ();
+			((ConstructorFunc*) constructor->getMachineCode ()) ();
 
-		int returnValue = ((MainProc*) mainFunction->getMachineCode ()) ();
+		int returnValue = ((MainFunc*) mainFunction->getMachineCode ()) ();
 		printf ("'main' returned (%d)\n", returnValue);
 	}
 	AXL_MT_LONG_JMP_CATCH ()

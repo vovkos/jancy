@@ -290,7 +290,6 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	while (scope && scope != targetScope && scope->getFunction () == function)
 	{
-		scope->m_destructList.runDestructors ();
 		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
 
 		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlag_FinallyDefined))
@@ -420,7 +419,6 @@ ControlFlowMgr::throwIf (
 	if (catchScope)
 	{
 		onLeaveScope (catchScope);
-		catchScope->m_destructList.runDestructors (); // but don't nullify gc-root list
 		jump (catchScope->m_catchBlock);
 	}
 	else
@@ -484,8 +482,6 @@ ControlFlowMgr::catchLabel ()
 			return false;
 	}
 
-	scope->m_destructList.clear ();
-	
 	scope->m_catchFollowBlock = createBlock ("catch_follow");
 
 	if (scope->m_finallyBlock)
@@ -539,12 +535,6 @@ ControlFlowMgr::finallyLabel ()
 		if (!result)
 			return false;
 	}
-	else
-	{
-		scope->m_destructList.runDestructors (); // but don't nullify gc-root list
-	}
-
-	scope->m_destructList.clear ();
 
 	follow (scope->m_finallyBlock);
 	return true;

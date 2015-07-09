@@ -150,15 +150,15 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	if (destructor)
 		m_runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
 
-	typedef void ConstructorProc ();
-	typedef int MainProc (MyLayout*);
+	typedef void ConstructorFunc ();
+	typedef int MainFunc (MyLayout*);
 
 	AXL_MT_BEGIN_LONG_JMP_TRY ()
 	{
 		if (constructor)
-			((ConstructorProc*) constructor->getMachineCode ()) ();
+			((ConstructorFunc*) constructor->getMachineCode ()) ();
 
-		int returnValue = ((MainProc*) mainFunction->getMachineCode ()) (&m_layout);
+		int returnValue = ((MainFunc*) mainFunction->getMachineCode ()) (&m_layout);
 		output ("'main' returned (%d)\n", returnValue);
 	}
 	AXL_MT_LONG_JMP_CATCH ()

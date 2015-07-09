@@ -6,7 +6,6 @@
 
 #include "jnc_Variable.h"
 #include "jnc_Alias.h"
-#include "jnc_DestructList.h"
 
 namespace jnc {
 
@@ -165,9 +164,6 @@ public:
 	allocateTlsVariable (Variable* variable);
 
 	void
-	allocateVariableBox (Variable* variable);
-
-	void
 	deallocateTlsVariableArray (
 		const TlsVariable* array,
 		size_t count
@@ -200,26 +196,6 @@ protected:
 
 	bool
 	allocatePrimeInitializeNonStaticVariable (Variable* variable);
-
-	void
-	allocateStaticVariableBox (Variable* variable);
-
-	void
-	allocateTlsVariableBox (Variable* variable);
-
-	void
-	getHeapVariableBox (Variable* variable);
-
-	void
-	allocateStackVariableBox (Variable* variable);
-
-	void
-	initializeVariableBox (
-		const Value& objHdrValue,
-		Type* type,
-		uint_t flags,
-		const Value& ptrValue
-		);
 
 	void
 	createStdVariables ();

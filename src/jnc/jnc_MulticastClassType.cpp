@@ -60,9 +60,9 @@ MulticastClassType::compileCallMethod ()
 }
 
 void
-MulticastClassType::gcMark (
-	Runtime* runtime,
-	void* _p
+MulticastClassType::markGcRoots (
+	void* _p,
+	GcHeap* gcHeap
 	)
 {
 	Box* object = (Box*) _p;
@@ -76,7 +76,7 @@ MulticastClassType::gcMark (
 	size_t size = m_targetType->getSize ();
 
 	for (size_t i = 0; i < multicast->m_count; i++, p += size)
-		runtime->addGcRoot (p, m_targetType);
+		gcHeap->addRoot (p, m_targetType);
 }
 
 //.............................................................................
@@ -88,10 +88,10 @@ Multicast::call ()
 	
 	typedef 
 	void 
-	FCall (jnc::Multicast*);
+	CallFunc (jnc::Multicast*);
 
-	FCall* pf = (FCall*) method->getMachineCode ();
-	pf (this);
+	CallFunc* p = (CallFunc*) method->getMachineCode ();
+	p (this);
 }
 
 void
@@ -101,13 +101,13 @@ Multicast::call (intptr_t a)
 	
 	typedef 
 	void 
-	FCall (
+	CallFunc (
 		jnc::Multicast*, 
 		intptr_t
 		);
 
-	FCall* pf = (FCall*) method->getMachineCode ();
-	pf (this, a);
+	CallFunc* p = (CallFunc*) method->getMachineCode ();
+	p (this, a);
 }
 
 void
@@ -120,14 +120,14 @@ Multicast::call (
 	
 	typedef 
 	void 
-	FCall (
+	CallFunc (
 		jnc::Multicast*, 
 		intptr_t,
 		intptr_t
 		);
 
-	FCall* pf = (FCall*) method->getMachineCode ();
-	pf (this, a1, a2);	
+	CallFunc* p = (CallFunc*) method->getMachineCode ();
+	p (this, a1, a2);	
 }
 
 //.............................................................................

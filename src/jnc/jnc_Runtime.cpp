@@ -10,14 +10,174 @@ namespace jnc {
 
 Runtime::Runtime ()
 {
+	m_stackSizeLimit = RuntimeDef_StackSizeLimit;
+	m_tlsSize = 0;
+	m_state = State_Idle;
+	m_noThreadEvent.signal ();
+}
+
+bool
+Runtime::addModule (Module* module)
+{
+	ASSERT (m_state == State_Idle);
+
+	m_gcHeap.registerStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
+
+
+	size_t tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
+	if (!m_tlsSize)
+	{
+		m_tlsSize = tlsSize >= 1024 ? tlsSize : 1024; // reserve at least 1K for TLS
+	}
+	else if (m_tlsSize < tlsSize)
+	{
+		err::setFormatStringError ("dynamic grow of TLS is not yet supported");
+		return false;
+	}
+
+	m_moduleArray.append (module);
+	return true;
+}
+
+bool 
+Runtime::startup ()
+{
+	shutdown ();
+	m_state = State_Running;
+	m_noThreadEvent.signal ();
+	return true;
+}
+	
+void
+Runtime::shutdown ()
+{
+	m_lock.lock ();
+	if (m_state == State_Idle)
+	{
+		m_lock.unlock ();
+		return;
+	}
+
+	ASSERT (m_state == State_Running); // otherwise, concurrent shutdowns
+	m_state = State_ShuttingDown;
+	m_lock.unlock ();
+
+	for (;;)
+	{
+		ASSERT (!mt::getTlsSlotValue <Tls> ());
+		m_noThreadEvent.wait (); // wait for other threads
+
+		if (m_staticDestructorList.isEmpty ())
+		{
+			m_gcHeap.collect ();
+
+			if (m_staticDestructorList.isEmpty ())
+				break;
+		}
+
+		initializeThread ();
+
+		m_lock.lock ();
+
+		while (!m_staticDestructorList.isEmpty ())
+		{
+			StaticDestructor* destructor = m_staticDestructorList.removeTail ();
+			m_lock.unlock ();
+
+			if (destructor->m_iface)
+				destructor->m_destruct (destructor->m_iface);
+			else
+				destructor->m_staticDestruct ();
+
+			AXL_MEM_DELETE (destructor);
+
+			m_lock.lock ();
+		}
+
+		m_lock.unlock ();
+
+		uninitializeThread ();
+	}
+
+	m_state = State_Idle;
+	
+	ASSERT (m_tlsList.isEmpty ());
+	ASSERT (m_staticDestructorList.isEmpty ());
+	ASSERT (m_gcHeap.isEmpty ());
+}
+
+void
+Runtime::initializeThread ()
+{
+	size_t size = sizeof (Tls) + m_tlsSize;
+
+	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
+	tls->m_prev = mt::setTlsSlotValue <Tls> (tls);
+	tls->m_runtime = this;
+	tls->m_stackEpoch = alloca (1);
+
+	ASSERT (!tls->m_prev || tls->m_prev->m_runtime != this); // otherwise, double initialize
+
+	m_lock.lock ();
+	ASSERT (m_state == State_Running); // otherwise, creating threads during shutdown
+	
+	if (m_tlsList.isEmpty ())
+		m_noThreadEvent.reset ();
+	
+	m_tlsList.insertTail (tls);	
+	m_lock.unlock ();
+	
+	m_gcHeap.registerMutatorThread (&tls->m_gcThread);
+}
+
+void
+Runtime::uninitializeThread ()
+{
+	Tls* tls = mt::getTlsSlotValue <Tls> ();
+	ASSERT (tls && tls->m_runtime == this);
+
+	m_gcHeap.unregisterMutatorThread (&tls->m_gcThread);
+
+	m_lock.lock ();
+	m_tlsList.remove (tls);
+	
+	if (m_tlsList.isEmpty ())
+		m_noThreadEvent.signal ();
+	
+	m_lock.unlock ();
+	
+	mt::setTlsSlotValue <Tls> (tls->m_prev);
+	AXL_MEM_DELETE (tls);
+}
+
+void
+Runtime::checkStackOverflow ()
+{
+	Tls* tls = mt::getTlsSlotValue <Tls> ();
+	ASSERT (tls && tls->m_runtime == this);
+
+	char* p = (char*) _alloca (1);
+	ASSERT ((char*) tls->m_stackEpoch >= p);
+
+	size_t stackSize = (char*) tls->m_stackEpoch - p;
+	if (stackSize > m_stackSizeLimit)
+	{
+		err::Error error = err::formatStringError ("stack overflow (%dB)", stackSize);
+		runtimeError (error);
+		ASSERT (false);
+	}
+}
+
+//.............................................................................
+
+#if 0
+
+Runtime::Runtime ()
+{
 	m_gcState = GcState_Idle;
-	m_gcTotalAllocSize = 0;
-	m_gcCurrentAllocSize = 0;
-	m_gcCurrentPeriodSize = 0;
 	m_gcUnsafeThreadCount = 1;
 	m_gcCurrentRootArrayIdx = 0;
 	m_tlsSlot = -1;
-	m_tlsSize = 0;
 
 	m_stackSizeLimit = StdRuntimeLimit_StackSize;
 	m_gcPeriodSizeLimit = StdRuntimeLimit_GcPeriodSize;
@@ -27,6 +187,7 @@ bool
 Runtime::create ()
 {
 	destroy ();
+
 	m_tlsSlot = getTlsMgr ()->createSlot ();
 	return true;
 }
@@ -45,7 +206,7 @@ Runtime::destroy ()
 
 	while (!m_tlsList.isEmpty ())
 	{
-		TlsHdr* tls = m_tlsList.removeHead ();
+		Tls* tls = m_tlsList.removeHead ();
 		AXL_MEM_FREE (tls);
 	}
 
@@ -79,46 +240,10 @@ Runtime::destroy ()
 }
 
 bool
-Runtime::addModule (Module* module)
-{
-	llvm::ExecutionEngine* llvmExecutionEngine = module->getLlvmExecutionEngine ();
-
-	// static gc roots
-
-	rtl::Array <Variable*> staticRootArray = module->m_variableMgr.getStaticGcRootArray ();
-	size_t count = staticRootArray.getCount ();
-
-	m_gcStaticRootArray.setCount (count);
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = staticRootArray [i];
-		void* p = llvmExecutionEngine->getPointerToGlobal ((llvm::GlobalVariable*) variable->getLlvmAllocValue ());
-		ASSERT (p);
-
-		m_gcStaticRootArray [i].m_p = p;
-		m_gcStaticRootArray [i].m_type = variable->getType ();
-	}
-
-	// tls
-	
-	size_t tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
-	if (!m_tlsSize)
-	{
-		m_tlsSize = tlsSize >= 1024 ? tlsSize : 1024; // reserve at least 1K for TLS
-	}
-	else if (m_tlsSize < tlsSize)
-	{
-		err::setFormatStringError ("dynamic grow of TLS is not yet supported");
-		return false;
-	}
-
-	m_moduleArray.append (module);
-	return true;
-}
-
-bool
 Runtime::startup ()
 {
+	shutdown ();
+
 	// ensure correct state
 
 	m_gcState = GcState_Idle;
@@ -162,7 +287,7 @@ Runtime::shutdown ()
 
 	runGc (); 
 
-	TlsHdr* tls = getTlsMgr ()->nullifyTls (this);
+	Tls* tls = getTlsMgr ()->nullifyTls (this);
 	if (tls)
 	{
 		m_tlsList.remove (tls);
@@ -173,6 +298,7 @@ Runtime::shutdown ()
 
 	m_gcStaticRootArray = saveStaticGcRootArray; // recover
 }
+
 
 void
 Runtime::runtimeError (
@@ -444,10 +570,10 @@ Runtime::runGc_l ()
 
 	// 2.2) add stack roots
 
-	rtl::Iterator <TlsHdr> tlsIt = m_tlsList.getHead ();
+	rtl::Iterator <Tls> tlsIt = m_tlsList.getHead ();
 	for (; tlsIt; tlsIt++)
 	{
-		Tls* tls = (Tls*) (*tlsIt + 1);
+		Tls* tls = *tlsIt;
 
 		GcShadowStackFrame* stackFrame = tls->m_gcShadowStackTop;
 		for (; stackFrame; stackFrame = stackFrame->m_next)
@@ -520,7 +646,7 @@ Runtime::runGc_l ()
 		{
 			addGcRoot (
 				&(*destructGuard->m_destructArray) [i], 
-				(*destructGuard->m_destructArray) [i]->m_object->m_classType->getClassPtrType ());
+				(*destructGuard->m_destructArray) [i]->m_box->m_classType->getClassPtrType ());
 		}
 	}
 
@@ -576,11 +702,11 @@ Runtime::runGc_l ()
 		for (size_t i = 0; i < count; i++)
 		{
 			IfaceHdr* iface = destructArray [i];
-			Function* destructor = iface->m_object->m_classType->getDestructor ();
+			Function* destructor = iface->m_box->m_classType->getDestructor ();
 			ASSERT (destructor);
 
-			Class_Destruct* pf = (Class_Destruct*) destructor->getMachineCode ();
-			pf (iface);
+			Class_DestructFunc* p = (Class_DestructFunc*) destructor->getMachineCode ();
+			p (iface);
 		}
 
 		// now we can remove this thread' destruct guard
@@ -589,7 +715,6 @@ Runtime::runGc_l ()
 		m_gcDestructGuardList.remove (&destructGuard);
 		m_lock.unlock ();
 	}
-
 }
 
 void
@@ -607,7 +732,7 @@ Runtime::gcMarkCycle ()
 		for (size_t i = 0; i < count; i++)
 		{
 			const GcRoot* root = &m_gcRootArray [prevGcRootArrayIdx] [i];
-			root->m_type->gcMark (this, root->m_p);
+			root->m_type->markGcRoots (root->m_p, this);
 		}
 	}
 }
@@ -615,7 +740,7 @@ Runtime::gcMarkCycle ()
 void
 Runtime::gcEnter ()
 {
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	Tls* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls);
 
 	tls->m_gcLevel++;
@@ -630,7 +755,7 @@ Runtime::gcLeave ()
 {
 	ASSERT (m_gcState == GcState_Idle || m_gcState == GcState_WaitSafePoint);
 
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	Tls* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls && tls->m_gcLevel);
 
 	tls->m_gcLevel--;
@@ -646,7 +771,7 @@ Runtime::gcPulse ()
 	if (m_gcState != GcState_WaitSafePoint)
 		return;
 
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	Tls* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls);
 
 	if (tls->m_gcLevel)
@@ -694,7 +819,7 @@ Runtime::gcDecrementUnsafeThreadCount ()
 size_t
 Runtime::gcMakeThreadSafe ()
 {
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	Tls* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls);
 
 	if (!tls->m_gcLevel)
@@ -712,7 +837,7 @@ Runtime::restoreGcLevel (size_t prevGcLevel)
 	if (!prevGcLevel)
 		return;
 
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
+	Tls* tls = getTlsMgr ()->getTls (this);
 	ASSERT (tls);
 
 	tls->m_gcLevel = prevGcLevel;
@@ -734,64 +859,6 @@ Runtime::waitGcIdleAndLock ()
 		m_lock.unlock ();
 		m_gcIdleEvent.wait ();
 	}
-}
-
-TlsHdr*
-Runtime::getTls ()
-{
-	TlsHdr* tls = getTlsMgr ()->getTls (this);
-	ASSERT (tls);
-
-	// check for stack overflow
-
-	char* p = (char*) _alloca (1);
-
-	if (!tls->m_stackEpoch) // first time call
-	{
-		tls->m_stackEpoch = p;
-	}
-	else
-	{
-		char* p0 = (char*) tls->m_stackEpoch;
-		if (p0 >= p) // the opposite could happen, but it's stack-overflow-safe
-		{
-			size_t stackSize = p0 - p;
-			if (stackSize > m_stackSizeLimit)
-			{
-				StdLib::runtimeError (RuntimeErrorKind_StackOverflow, NULL);
-				ASSERT (false);
-			}
-		}
-	}
-
-	return tls;
-}
-
-TlsHdr*
-Runtime::createTls ()
-{
-	size_t size = sizeof (TlsHdr) + m_tlsSize;
-
-	TlsHdr* tls = (TlsHdr*) AXL_MEM_ALLOC (size);
-	memset (tls, 0, size);
-	tls->m_runtime = this;
-	tls->m_stackEpoch = NULL;
-
-	m_lock.lock ();
-	m_tlsList.insertTail (tls);
-	m_lock.unlock ();
-
-	return tls;
-}
-
-void
-Runtime::destroyTls (TlsHdr* tls)
-{
-	m_lock.lock ();
-	m_tlsList.remove (tls);
-	m_lock.unlock ();
-
-	AXL_MEM_FREE (tls);
 }
 
 IfaceHdr*
@@ -829,7 +896,7 @@ Runtime::createObject (
 		if (!constructor)
 			return NULL;
 
-		Class_Construct* pfConstruct = (Class_Construct*) constructor->getMachineCode ();
+		Class_ConstructFunc* pfConstruct = (Class_ConstructFunc*) constructor->getMachineCode ();
 		pfConstruct (iface);
 	}
 
@@ -883,6 +950,8 @@ Runtime::addDestructor (
 	m_staticDestructList.insertTail (destruct);
 	m_lock.unlock ();
 }
+
+#endif
 
 //.............................................................................
 

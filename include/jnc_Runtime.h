@@ -4,32 +4,187 @@
 
 #pragma once
 
-#include "jnc_TlsMgr.h"
+#include "jnc_GcHeap.h"
 #include "jnc_Value.h"
 #include "jnc_ClassType.h"
 #include "jnc_DataPtrType.h"
 
 namespace jnc {
 
+class Runtime;
+
+//.............................................................................
+
+enum RuntimeDef
+{
+#if (_AXL_CPU == AXL_CPU_X86)
+	RuntimeDef_StackSizeLimit = 2 * 1024 * 1024, // 2MB std stack 
+#else
+	RuntimeDef_StackSizeLimit = 4 * 1024 * 1024, // 4MB std stack limit
+#endif
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef 
+void
+StaticDestruct ();
+
+typedef 
+void
+Destruct (jnc::IfaceHdr* iface);
+
+//.............................................................................
+
+struct Tls: public rtl::ListLink
+{
+	Tls* m_prev;
+	Runtime* m_runtime;
+	GcMutatorThread m_gcThread;
+	void* m_stackEpoch;
+
+	// followed by user TLS variables
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Tls*
+getCurrentThreadTls ()
+{
+	return mt::getTlsSlotValue <Tls> ();
+}
+
+//.............................................................................
+
+class Runtime
+{
+protected:
+	enum State
+	{
+		State_Idle,
+		State_Running,
+		State_ShuttingDown,
+	};
+
+	struct StaticDestructor: rtl::ListLink
+	{
+		union
+		{
+			StaticDestruct* m_staticDestruct;
+			Destruct* m_destruct;
+		};
+
+		IfaceHdr* m_iface;
+	};
+
+protected:
+	mt::Lock m_lock;
+	rtl::Array <Module*> m_moduleArray;
+	State m_state;
+	mt::NotificationEvent m_noThreadEvent;
+	size_t m_tlsSize;
+	rtl::StdList <Tls> m_tlsList;
+	rtl::StdList <StaticDestructor> m_staticDestructorList;
+
+public:
+	GcHeap m_gcHeap;
+	size_t m_stackSizeLimit; // adjustable limits
+
+public:
+	Runtime ();
+	~Runtime ();
+
+	bool
+	addModule (Module* module);
+
+	bool 
+	startup ();
+	
+	void
+	shutdown ();
+
+	void 
+	initializeThread ();
+
+	void 
+	uninitializeThread ();
+
+	void
+	checkStackOverflow ();
+
+	void
+	addStaticDestructor (StaticDestruct* destruct);
+
+	void
+	addDestructor (
+		Destruct* destruct,
+		jnc::IfaceHdr* iface
+		);
+
+	static
+	void
+	runtimeError (const err::Error& error)
+	{
+		err::setError (error);
+		AXL_MT_LONG_JMP_THROW ();
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Runtime*
+getCurrentThreadRuntime ()
+{
+	return mt::getTlsSlotValue <Runtime> ();
+}
+
+//.............................................................................
+
+#define JNC_BEGIN(runtime) \
+	jnc::Runtime* __jncRuntime = (runtime); \
+	__jncRuntime->initializeThread (); \
+	JNC_GC_BEGIN() \
+	AXL_MT_BEGIN_LONG_JMP_TRY () \
+	
+#define JNC_CATCH() \
+	AXL_MT_LONG_JMP_CATCH ()
+
+#define JNC_END() \
+	AXL_MT_END_LONG_JMP_TRY () \
+	JNC_GC_END () \
+	__jncRuntime->uninitializeThread ();
+
+#if (_AXL_ENV == AXL_ENV_WIN)
+#	define JNC_GC_BEGIN(runtime) \
+	__try {
+
+#	define JNC_GC_END() \
+	} __except (__jncRuntime->m_gcHeap.handleSehException (GetExceptionCode (), GetExceptionInformation ())) { } \
+
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+#	define JNC_GC_BEGIN()
+#	define JNC_END()
+#endif
+
+#if 0
+
 class Module;
 
 //.............................................................................
 
-enum StdRuntimeLimit
-{
-#ifdef _AXL_DEBUG
-	StdRuntimeLimit_GcPeriodSize = 0, // run gc on every allocation
-#elif (_AXL_CPU == AXL_CPU_X86)
-	StdRuntimeLimit_GcPeriodSize = 1 * 1024 * 1024, // 1MB gc period
-#else
-	StdRuntimeLimit_GcPeriodSize = 2 * 1024 * 1024, // 2MB gc period
-#endif
 
-#if (_AXL_CPU == AXL_CPU_X86)
-	StdRuntimeLimit_StackSize = 2 * 1024 * 1024, // 2MB std stack 
-#else
-	StdRuntimeLimit_StackSize = 4 * 1024 * 1024, // 4MB std stack limit
-#endif
+//.............................................................................
+
+struct Tls: public rtl::ListLink
+{
+	Tls* m_prev;
+	Runtime* m_runtime;
+	GcMutatorThread m_gcThread;
+	void* m_stackEpoch;
+
+	// followed by user TLS variables
 };
 
 //.............................................................................
@@ -43,20 +198,10 @@ enum CreateObjectFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef 
-void
-StaticDestructor ();
-
-typedef 
-void
-Destructor (jnc::IfaceHdr* iface);
-
 //.............................................................................
 
 class Runtime
 {
-	friend class GcHeap;
-
 protected:
 	enum GcState
 	{
@@ -66,33 +211,12 @@ protected:
 		GcState_Sweep,
 	};
 
-	struct GcRoot
-	{
-		void* m_p;
-		Type* m_type;
-	};
-
-	struct GcDestructGuard: rtl::ListLink
-	{
-		rtl::Array <IfaceHdr*>* m_destructArray;
-	};
-
-	struct StaticDestruct: rtl::ListLink
-	{
-		union
-		{
-			StaticDestructor* m_staticDtor;
-			Destructor* m_dtor;
-		};
-
-		IfaceHdr* m_iface;
-	};
-
 protected:
-	mt::Lock m_lock;
 	rtl::Array <Module*> m_moduleArray;
 
 	// gc-heap
+
+	GcHeap m_gcHeap;
 
 	volatile GcState m_gcState;
 
@@ -112,19 +236,9 @@ protected:
 	rtl::Array <GcRoot> m_gcRootArray [2];
 	size_t m_gcCurrentRootArrayIdx;
 
-	rtl::StdList <StaticDestruct> m_staticDestructList;
-
 	// tls
 
 	size_t m_tlsSlot;
-	size_t m_tlsSize;
-	rtl::AuxList <TlsHdr> m_tlsList;
-
-public:
-	// adjustable limits
-
-	size_t m_stackSizeLimit;
-	size_t m_gcPeriodSizeLimit;
 
 public:
 	Runtime ();
@@ -133,9 +247,6 @@ public:
 	{
 		destroy ();
 	}
-
-	bool
-	create ();
 
 	rtl::Array <Module*> 
 	getModuleArray ()
@@ -152,6 +263,9 @@ public:
 	bool
 	addModule (Module* module);
 
+	bool
+	create ();
+
 	void
 	destroy ();
 
@@ -160,6 +274,12 @@ public:
 
 	void
 	shutdown ();
+	
+	void
+	initializeThread ();
+
+	void
+	uninitializeThread ();
 
 	static
 	void
@@ -238,17 +358,6 @@ public:
 	void
 	unpinObject (IfaceHdr* object);
 
-	// static destruct
-
-	void
-	addStaticDestructor (StaticDestructor *dtor);
-
-	void
-	addDestructor (
-		Destructor *dtor,
-		jnc::IfaceHdr* iface
-		);
-
 	// tls
 
 	size_t
@@ -257,14 +366,11 @@ public:
 		return m_tlsSlot;
 	}
 
-	TlsHdr*
+	Tls*
 	getTls ();
 
-	TlsHdr*
-	createTls ();
-
 	void
-	destroyTls (TlsHdr* tls);
+	destroyTls (Tls* tls);
 
 protected:
 	void
@@ -297,28 +403,7 @@ protected:
 
 //.............................................................................
 
-typedef mt::ScopeTlsSlot <Runtime> ScopeThreadRuntime;
-
-inline
-Runtime*
-getCurrentThreadRuntime ()
-{
-	return mt::getTlsSlotValue <Runtime> ();
-}
-
-//.............................................................................
-
-enum RuntimeErrorKind
-{
-	RuntimeErrorKind_OutOfMemory,
-	RuntimeErrorKind_StackOverflow,
-	RuntimeErrorKind_ScopeMismatch,
-	RuntimeErrorKind_DataPtrOutOfRange,
-	RuntimeErrorKind_NullClassPtr,
-	RuntimeErrorKind_NullFunctionPtr,
-	RuntimeErrorKind_NullPropertyPtr,
-	RuntimeErrorKind_AbstractFunction,
-};
+#endif
 
 //.............................................................................
 

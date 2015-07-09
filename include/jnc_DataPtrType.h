@@ -80,9 +80,9 @@ public:
 
 	virtual 
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		);
 
 protected:
@@ -135,22 +135,25 @@ isArrayRefType (Type* type)
 
 struct DataPtrValidator
 {
-	Box* m_object;
+	Box* m_validatorBox;
+	Box* m_targetBox;
 	void* m_rangeBegin;
 	void* m_rangeEnd;
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct DataPtr
 {
 	void* m_p;
-	void* m_rangeBegin;
-	void* m_rangeEnd;
-	Box* m_object;
+	DataPtrValidator* m_validator;
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 // structure backing up formatting literal
 
@@ -160,14 +163,6 @@ struct FmtLiteral
 	size_t m_maxLength;
 	size_t m_length;
 };
-
-//.............................................................................
-
-DataPtr
-strDup (
-	const char* p,
-	size_t length = -1
-	);
 
 //.............................................................................
 

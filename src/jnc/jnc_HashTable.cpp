@@ -19,7 +19,7 @@ StringHashTable::find_s (
 	ptr.m_p = &it->m_value;
 	ptr.m_rangeBegin = &it->m_value;
 	ptr.m_rangeEnd = &it->m_value + 1;
-	ptr.m_object = getStaticBox ();
+	ptr.m_box = getStaticBox ();
 	return ptr;
 }
 
@@ -39,7 +39,7 @@ VariantHashTable::find_s (
 	ptr.m_p = &it->m_value;
 	ptr.m_rangeBegin = &it->m_value;
 	ptr.m_rangeEnd = &it->m_value + 1;
-	ptr.m_object = getStaticBox ();
+	ptr.m_box = getStaticBox ();
 	return ptr;
 }
 

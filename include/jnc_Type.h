@@ -16,7 +16,7 @@ class PropertyType;
 class DataPtrType;
 class FunctionArg;
 class Value;
-class Runtime;
+class GcHeap;
 
 struct DataPtrTypeTuple;
 struct SimplePropertyTypeTuple;
@@ -140,7 +140,6 @@ enum StdType
 	StdType_SimpleIfaceHdrPtr,
 	StdType_Box,
 	StdType_BoxPtr,
-	StdType_VariableBox,
 	StdType_AbstractClass,
 	StdType_AbstractClassPtr,
 	StdType_SimpleFunction,
@@ -647,9 +646,9 @@ public:
 
 	virtual
 	void
-	gcMark (
-		Runtime* runtime,
-		void* p
+	markGcRoots (
+		void* p,
+		GcHeap* gcHeap
 		);
 
 protected:

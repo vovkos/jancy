@@ -112,9 +112,9 @@ ArrayType::calcLayout ()
 }
 
 void
-ArrayType::gcMark (
-	Runtime* runtime,
-	void* _p
+ArrayType::markGcRoots (
+	void* _p,
+	GcHeap* gcHeap
 	)
 {
 	ASSERT (m_flags & TypeFlag_GcRoot);
@@ -122,7 +122,7 @@ ArrayType::gcMark (
 	char* p = (char*) _p;
 	for (size_t i = 0; i < m_elementCount; i++)
 	{
-		m_elementType->gcMark (runtime, p);
+		m_elementType->markGcRoots (p, gcHeap);
 		p += m_elementType->getSize ();
 	}
 }

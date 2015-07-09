@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "jnc_Box.h"
 #include "jnc_ClosureClassType.h"
-#include "jnc_Runtime.h"
+#include "jnc_GcHeap.h"
 
 namespace jnc {
 
 //.............................................................................
 
 void 
-Box::gcMarkData (Runtime* runtime)
+Box::gcMarkData (GcHeap* gcHeap)
 {
 	m_root->m_flags |= BoxFlag_GcWeakMark;
 
@@ -20,22 +20,18 @@ Box::gcMarkData (Runtime* runtime)
 	if (!(m_type->getFlags () & TypeFlag_GcRoot))
 		return;
 
-	if (!(m_flags & BoxFlag_DynamicArray))
+	if (m_elementCount == 1)
 	{
-		if (m_type->getTypeKind () == TypeKind_Class)
-			runtime->addGcRoot (this, m_type);
-		else
-			runtime->addGcRoot (this + 1, m_type);
+		gcHeap->addRoot (m_type->getTypeKind () == TypeKind_Class ? this : this + 1, m_type);
 	}
 	else
 	{
 		ASSERT (m_type->getTypeKind () != TypeKind_Class);
 
 		char* p = (char*) (this + 1);		
-		size_t count = *((size_t*) this - 1);
-		for (size_t i = 0; i < count; i++)
+		for (size_t i = 0; i < m_elementCount; i++)
 		{
-			runtime->addGcRoot (p, m_type);
+			gcHeap->addRoot (p, m_type);
 			p += m_type->getSize  ();
 		}
 	}
@@ -52,7 +48,7 @@ Box::gcWeakMarkObject ()
 }
 
 void 
-Box::gcMarkObject (Runtime* runtime)
+Box::gcMarkObject (GcHeap* gcHeap)
 {
 	if (m_flags & BoxFlag_GcMark)
 		return;
@@ -61,7 +57,7 @@ Box::gcMarkObject (Runtime* runtime)
 	m_root->m_flags |= BoxFlag_GcWeakMark;
 
 	if (m_type->getTypeKind () == TypeKind_Class)
-		gcMarkClassMemberFields (runtime);
+		gcMarkClassMemberFields (gcHeap);
 
 	if (m_flags & BoxFlag_GcRootsAdded)
 		return;
@@ -71,11 +67,11 @@ Box::gcMarkObject (Runtime* runtime)
 	if (!(m_type->getFlags () & TypeFlag_GcRoot))
 		return;
 
-	runtime->addGcRoot (this, m_type);
+	gcHeap->addRoot (this, m_type);
 }
 
 void 
-Box::gcMarkClassMemberFields (Runtime* runtime)
+Box::gcMarkClassMemberFields (GcHeap* gcHeap)
 {
 	ASSERT (m_type->getTypeKind () == TypeKind_Class);
 	ClassType* classType = (ClassType*) m_type;
@@ -91,12 +87,12 @@ Box::gcMarkClassMemberFields (Runtime* runtime)
 			continue;
 
 		childBox->m_flags |= BoxFlag_GcMark | BoxFlag_GcWeakMark;
-		childBox->gcMarkClassMemberFields (runtime);
+		childBox->gcMarkClassMemberFields (gcHeap);
 	}
 }
 
 void
-Box::gcWeakMarkClosureObject (Runtime* runtime)
+Box::gcWeakMarkClosureObject (GcHeap* gcHeap)
 {
 	m_root->m_flags |= BoxFlag_GcWeakMark;
 	m_flags |= BoxFlag_GcMark;
@@ -109,7 +105,7 @@ Box::gcWeakMarkClosureObject (Runtime* runtime)
 	ClosureClassType* closureClassType = (ClosureClassType*) m_classType;
 	if (!closureClassType->getWeakMask ())
 	{
-		gcMarkObject (runtime);
+		gcMarkObject (gcHeap);
 		return;
 	}
 
@@ -127,7 +123,7 @@ Box::gcWeakMarkClosureObject (Runtime* runtime)
 		if (field->getFlags () & StructFieldFlag_WeakMasked)
 			type = getWeakPtrType (type);
 
-		type->gcMark (runtime, p + field->getOffset ());
+		type->markGcRoots (p + field->getOffset (), gcHeap);
 	}
 }
 

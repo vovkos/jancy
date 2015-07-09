@@ -5,7 +5,7 @@
 
 void
 MySlider::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	MySlider* self
 	)
 {

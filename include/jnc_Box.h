@@ -8,23 +8,20 @@
 
 namespace jnc {
 
-class Runtime;
+class GcHeap;
 
 //.............................................................................
 
 enum BoxFlag
 {
-	BoxFlag_Dead         = 0x0001,
-	BoxFlag_DynamicArray = 0x0002,
-	BoxFlag_Variable     = 0x0004,
-	BoxFlag_Static       = 0x0010,
-	BoxFlag_Stack        = 0x0020,
+	BoxFlag_Dead         = 0x01,
+	BoxFlag_Static       = 0x02,
 
-	BoxFlag_GcMark       = 0x0100,
-	BoxFlag_GcWeakMark   = 0x0200,
-	BoxFlag_GcWeakMark_c = 0x0400,
-	BoxFlag_GcRootsAdded = 0x0800,
-	BoxFlag_GcMask       = 0x0f00,
+	BoxFlag_GcMark       = 0x10,
+	BoxFlag_GcWeakMark   = 0x20,
+	BoxFlag_GcWeakMark_c = 0x40,
+	BoxFlag_GcRootsAdded = 0x80,
+	BoxFlag_GcMask       = 0xf0,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -40,49 +37,23 @@ struct Box
 	};
 
 	uintptr_t m_flags;
-	void* m_dataPtrValidatorCache;
+	size_t m_elementCount;
 	
 	void 
-	gcMarkData (Runtime* runtime);
+	gcMarkData (GcHeap* gcHeap);
 
 	void 
-	gcMarkObject (Runtime* runtime);
+	gcMarkObject (GcHeap* gcHeap);
 
 	void 
-	gcMarkClassMemberFields (Runtime* runtime);
+	gcMarkClassMemberFields (GcHeap* gcHeap);
 
 	void 
 	gcWeakMarkObject ();
 
 	void 
-	gcWeakMarkClosureObject (Runtime* runtime);
+	gcWeakMarkClosureObject (GcHeap* gcHeap);
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct VariableBox: Box
-{
-	void* m_p;
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-Box*
-getStaticBox ()
-{
-	static Box objHdr = 
-	{ 
-		&objHdr, 
-		NULL, 
-		BoxFlag_Static | 
-		BoxFlag_GcMark | 
-		BoxFlag_GcWeakMark | 
-		BoxFlag_GcRootsAdded
-	};
-
-	return &objHdr;
-}
 
 //.............................................................................
 

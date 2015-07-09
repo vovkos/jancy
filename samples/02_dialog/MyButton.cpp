@@ -6,7 +6,7 @@
 
 void
 MyButton::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	MyButton* self
 	)
 {

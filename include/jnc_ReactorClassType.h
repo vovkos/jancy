@@ -107,7 +107,6 @@ public:
 		// do not call CClass::Compile (it compiles default-constructor and default-destructor)
 
 		return
-			compilePrimer () &&
 			compileStartMethod () &&
 			compileStopMethod () &&
 			compileConstructor () &&

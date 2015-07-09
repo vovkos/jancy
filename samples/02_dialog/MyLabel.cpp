@@ -5,7 +5,7 @@
 
 void
 MyLabel::enumGcRoots (
-	jnc::Runtime* runtime,
+	jnc::GcHeap* gcHeap,
 	MyLabel* self
 	)
 {

@@ -39,7 +39,7 @@ ConstBuffer::copy (
 	m_ptr.m_p = p;
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + size + 1;
-	m_ptr.m_object = jnc::getStaticBox ();
+	m_ptr.m_box = jnc::getStaticBox ();
 	m_size = size;
 	return true;
 }
@@ -105,7 +105,7 @@ Buffer::setSize (
 	m_ptr.m_p = p;
 	m_ptr.m_rangeBegin = p;
 	m_ptr.m_rangeEnd = p + maxSize + 1;
-	m_ptr.m_object = jnc::getStaticBox ();
+	m_ptr.m_box = jnc::getStaticBox ();
 
 	m_size = size;
 	m_maxSize = maxSize;

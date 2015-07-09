@@ -38,9 +38,11 @@ protected:
 	Scope* m_scope;
 	StructField* m_tlsField;
 
-	llvm::Value* m_llvmValue; // AllocaInst* / GlobalVariable* / GEPInst*
-	llvm::Value* m_llvmAllocValue;
-	llvm::Value* m_llvmBoxValue;
+	llvm::Value* m_llvmAllocValue;     // GlobalVariable* / AllocaInst* / CallInst*
+	llvm::Value* m_llvmValue;          // GlobalVariable* / AllocaInst* / GEPInst*
+	llvm::Value* m_llvmBoxValue;       // GlobalVariable* / GEPInst*
+	llvm::Value* m_llvmValidatorValue; // GlobalVariable* / GEPInst*
+	
 	llvm::DIDescriptor m_llvmDiDescriptor; // DIVariable / DIGlobalVariable /
 
 public:

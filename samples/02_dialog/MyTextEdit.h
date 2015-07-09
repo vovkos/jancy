@@ -21,7 +21,7 @@ public:
 	static
 	void
 	enumGcRoots (
-		jnc::Runtime* runtime,
+		jnc::GcHeap* gcHeap,
 		MyTextEdit* self
 		);
 

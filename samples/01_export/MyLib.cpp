@@ -66,7 +66,7 @@ MyLib::setProp_0 (int x)
 	g_propValue.m_p = g_propBuffer;
 	g_propValue.m_rangeBegin = g_propBuffer;
 	g_propValue.m_rangeEnd = g_propBuffer + sizeof (g_propBuffer);
-	g_propValue.m_object = jnc::getStaticBox ();
+	g_propValue.m_box = jnc::getStaticBox ();
 }
 
 void
@@ -77,7 +77,7 @@ MyLib::setProp_1 (double x)
 	g_propValue.m_p = g_propBuffer;
 	g_propValue.m_rangeBegin = g_propBuffer;
 	g_propValue.m_rangeEnd = g_propBuffer + sizeof (g_propBuffer);
-	g_propValue.m_object = jnc::getStaticBox ();
+	g_propValue.m_box = jnc::getStaticBox ();
 }
 
 void

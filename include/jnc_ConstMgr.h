@@ -5,7 +5,8 @@
 #pragma once
 
 #include "jnc_Value.h"
-#include "jnc_LeanDataPtrValidator.h"
+#include "jnc_Box.h"
+#include "jnc_DataPtrType.h"
 
 namespace jnc {
 
@@ -38,11 +39,18 @@ class ConstMgr
 	friend class Module;
 
 protected:
+	struct ConstDataPtrValidator:
+		Box,
+		DataPtrValidator
+	{
+	};
+
+protected:
 	Module* m_module;
 
-	ref::Ptr <LeanDataPtrValidator> m_unsafeLeanDataPtrValidator;
 	rtl::BoxList <Value> m_valueList;
 	rtl::StdList <Const> m_constList;
+	rtl::BoxList <ConstDataPtrValidator> m_constDataPtrValidatorList;
 
 public:
 	ConstMgr ();
@@ -76,8 +84,12 @@ public:
 		size_t length = -1
 		);
 
-	LeanDataPtrValidator*
-	getUnsafeLeanDataPtrValidator ();
+	DataPtrValidator*
+	createConstDataPtrValidator (
+		void* p,
+		Type* type,
+		size_t count = 1
+		);
 };
 
 //.............................................................................

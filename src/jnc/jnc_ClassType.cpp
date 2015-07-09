@@ -14,22 +14,21 @@ ClassType::ClassType ()
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
 	m_vtableStructType = NULL;
-	m_primer = NULL;
 	m_operatorNew = NULL;
-	m_gcRootEnumProc = NULL;
+	m_markOpaqueGcRootsFunc = NULL;
 	m_classPtrTypeTuple = NULL;
 }
 
 void
 ClassType::setupOpaqueClass (
 	size_t size,
-	ClassTypeGcRootEnumProc* gcRootEnumProc
+	Class_MarkOpaqueGcRootsFunc* markOpaqueGcRootsFunc
 	)
 {
-	ASSERT ((m_flags & ClassTypeFlag_Opaque) && !m_gcRootEnumProc && size >= m_size);
+	ASSERT ((m_flags & ClassTypeFlag_Opaque) && !m_markOpaqueGcRootsFunc && size >= m_size);
 
 	m_size = size;
-	m_gcRootEnumProc = gcRootEnumProc;
+	m_markOpaqueGcRootsFunc = markOpaqueGcRootsFunc;
 }
 
 ClassPtrType*
@@ -511,9 +510,6 @@ ClassType::calcLayout ()
 			return false;
 	}
 
-	if (isCreatable ())
-		createPrimer ();
-
 	m_size = m_classStructType->getSize ();
 	m_alignment = m_classStructType->getAlignment ();
 	return true;
@@ -727,211 +723,27 @@ ClassType::compile ()
 			return false;
 	}
 
-	if (m_primer)
-	{
-		result = compilePrimer ();
-		if (!result)
-			return false;
-	}
-
 	return true;
 }
 
 void
-ClassType::createPrimer ()
-{
-	Type* argTypeArray [] =
-	{
-		getClassStructType ()->getDataPtrType_c (),
-		m_module->m_typeMgr.getStdType (StdType_BoxPtr),   // root
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr) // flags
-	};
-
-	FunctionType* type = m_module->m_typeMgr.getFunctionType (argTypeArray, countof (argTypeArray));
-	m_primer = m_module->m_functionMgr.createFunction (FunctionKind_Primer, type);
-	m_primer->m_tag = m_tag + ".prime";
-
-	m_module->markForCompile (this);
-}
-
-bool
-ClassType::compilePrimer ()
-{
-	ASSERT (m_primer);
-
-	Value argValueArray [3];
-	m_module->m_functionMgr.internalPrologue (m_primer, argValueArray, countof (argValueArray));
-
-	Value argValue1 = argValueArray [0];
-	Value argValue2 = argValueArray [1];
-	Value argValue3 = argValueArray [2];
-
-	primeObject (
-		this,
-		argValueArray [0],
-		argValueArray [1],
-		argValueArray [2]
-		);
-
-	m_module->m_functionMgr.internalEpilogue ();
-	return true;
-}
-
-void
-ClassType::primeObject (
-	ClassType* classType,
-	const Value& opValue,
-	const Value& rootValue,
-	const Value& flagsValue
+ClassType::markGcRoots (
+	void* p,
+	GcHeap* gcHeap
 	)
 {
-	Value fieldValue;
-	Value objHdrValue;
-	Value ifaceValue;
-	Value typeValue (&classType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Box* box = (Box*) p;
+	IfaceHdr* iface = (IfaceHdr*) (box + 1);
 
-	m_module->m_llvmIrBuilder.createGep2 (opValue, 0, NULL, &objHdrValue);
-	m_module->m_llvmIrBuilder.createGep2 (opValue, 1, NULL, &ifaceValue);
+	ASSERT (iface->m_box == box && box->m_classType == this);
 
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &fieldValue);
-	m_module->m_llvmIrBuilder.createStore (rootValue, fieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &fieldValue);
-	m_module->m_llvmIrBuilder.createStore (typeValue, fieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 2, NULL, &fieldValue);
-	m_module->m_llvmIrBuilder.createStore (flagsValue, fieldValue);
-
-	primeInterface (
-		classType,
-		ifaceValue,
-		classType->m_vtablePtrValue,
-		objHdrValue,
-		rootValue,
-		flagsValue
-		);
+	markGcRootsImpl (iface, gcHeap);
 }
 
 void
-ClassType::primeInterface (
-	ClassType* classType,
-	const Value& opValue,
-	const Value& VTableValue,
-	const Value& objectValue,
-	const Value& rootValue,
-	const Value& flagsValue
-	)
-{
-	// zero memory
-
-	m_module->m_llvmIrBuilder.createStore (classType->getIfaceStructType ()->getZeroValue (), opValue);
-	 
-	Value ifaceHdrValue;
-	Value VTableFieldValue;
-	Value objectFieldValue;
-
-	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ifaceHdrValue);
-	m_module->m_llvmIrBuilder.createGep2 (ifaceHdrValue, 0, NULL, &VTableFieldValue);
-	m_module->m_llvmIrBuilder.createGep2 (ifaceHdrValue, 1, NULL, &objectFieldValue);
-	m_module->m_llvmIrBuilder.createStore (VTableValue, VTableFieldValue);
-	m_module->m_llvmIrBuilder.createStore (objectValue, objectFieldValue);
-
-	// prime base types
-
-	size_t count = classType->m_baseTypePrimeArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		BaseTypeSlot* slot = classType->m_baseTypePrimeArray [i];
-		ASSERT (slot->m_type->getTypeKind () == TypeKind_Class);
-
-		ClassType* baseClassType = (ClassType*) slot->m_type;
-
-		Value baseClassValue;
-		m_module->m_llvmIrBuilder.createGep2 (
-			opValue,
-			slot->getLlvmIndex (),
-			NULL,
-			&baseClassValue
-			);
-
-		Value baseClassVTableValue;
-
-		if (!baseClassType->hasVTable ())
-		{
-			baseClassVTableValue = baseClassType->getVTableStructType ()->getDataPtrType_c ()->getZeroValue ();
-		}
-		else
-		{
-			m_module->m_llvmIrBuilder.createGep2 (
-				VTableValue,
-				slot->getVTableIndex (),
-				NULL,
-				&baseClassVTableValue
-				);
-
-			m_module->m_llvmIrBuilder.createBitCast (
-				baseClassVTableValue,
-				baseClassType->getVTableStructType ()->getDataPtrType_c (),
-				&baseClassVTableValue
-				);
-		}
-
-		primeInterface (
-			baseClassType,
-			baseClassValue,
-			baseClassVTableValue,
-			objectValue,
-			rootValue,
-			flagsValue
-			);
-	}
-
-	// prime class members fields
-
-	count = classType->m_classMemberFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		StructField* field = classType->m_classMemberFieldArray [i];
-
-		ASSERT (field->m_type->getTypeKind () == TypeKind_Class);
-		ClassType* classType = (ClassType*) field->m_type;
-
-		Value fieldValue;
-		m_module->m_llvmIrBuilder.createGep2 (
-			opValue,
-			field->getLlvmIndex (),
-			classType->getClassStructType ()->getDataPtrType_c (),
-			&fieldValue
-			);
-
-		Function* primer = classType->getPrimer ();
-		ASSERT (primer); // should have been checked during CalcLayout
-
-		m_module->m_llvmIrBuilder.createCall3 (
-			primer,
-			primer->getType (),
-			fieldValue,
-			rootValue,
-			flagsValue,
-			NULL
-			);
-	}
-}
-
-void
-ClassType::gcMark (
-	Runtime* runtime,
-	void* p
-	)
-{
-	Box* object = (Box*) p;
-	ASSERT (object->m_type == this);
-
-	enumGcRootsImpl (runtime, (IfaceHdr*) (object + 1));
-}
-
-void
-ClassType::enumGcRootsImpl (
-	Runtime* runtime,
-	IfaceHdr* iface
+ClassType::markGcRootsImpl (
+	IfaceHdr* iface,
+	GcHeap* gcHeap
 	)
 {
 	char* p = (char*) iface;
@@ -944,9 +756,9 @@ ClassType::enumGcRootsImpl (
 		char* p2  = p + slot->getOffset ();
 
 		if (type->getTypeKind () == TypeKind_Class)
-			((ClassType*) type)->enumGcRootsImpl (runtime, (IfaceHdr*) p2);
+			((ClassType*) type)->markGcRootsImpl ((IfaceHdr*) p2, gcHeap);
 		else
-			type->gcMark (runtime, p2);
+			type->markGcRoots (p2, gcHeap);
 	}
 
 	count = m_gcRootMemberFieldArray.getCount ();
@@ -956,13 +768,13 @@ ClassType::enumGcRootsImpl (
 		Type* type = field->getType ();
 		char* p2 = p + field->getOffset ();
 
-		type->gcMark (runtime, p2);
+		type->markGcRoots (p2, gcHeap);
 	}
 
-	if (m_gcRootEnumProc)
+	if (m_markOpaqueGcRootsFunc)
 	{
-		ASSERT (iface->m_object->m_type == this);
-		m_gcRootEnumProc (runtime, iface);
+		ASSERT (iface->m_box->m_type == this);
+		m_markOpaqueGcRootsFunc (iface, gcHeap);
 	}
 }
 

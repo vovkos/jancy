@@ -12,9 +12,9 @@ JitMemoryMgr::getPointerToNamedFunction (
 	bool abortOnFailure
 	)
 {
-	void* pf = m_module->findFunctionMapping (name.c_str ());
-	if (pf)
-		return pf;
+	void* p = m_module->findFunctionMapping (name.c_str ());
+	if (p)
+		return p;
 
 	if (abortOnFailure)
 	{
@@ -28,9 +28,9 @@ JitMemoryMgr::getPointerToNamedFunction (
 uint64_t
 JitMemoryMgr::getSymbolAddress (const std::string &name)
 {
-	void* pf = m_module->findFunctionMapping (name.c_str ());
-	if (pf)
-		return (uint64_t) pf;
+	void* p = m_module->findFunctionMapping (name.c_str ());
+	if (p)
+		return (uint64_t) p;
 
 	return 0;
 }

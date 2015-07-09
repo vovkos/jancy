@@ -51,12 +51,12 @@ int main ()
 	// unlike C/C++, the argument conversion is automated -- the compiler 
 	// will generate thunks when needed
 
-	typedef function FpProc (
+	typedef function FpFunc (
 		double, 
 		double
 		);
 
-	FpProc thin* f2 = (FpProc thin*) bar;
+	FpFunc thin* f2 = (FpFunc thin*) bar;
 	f2 (15.8, 7.1);
 
 	// unless explicitly specified otherwise, the function pointer is fat, i.e. 

@@ -12,7 +12,7 @@ StdLib::dynamicSizeOf (DataPtr ptr)
 {
 	size_t maxSize = (char*) ptr.m_rangeEnd > (char*) ptr.m_p ? (char*) ptr.m_rangeEnd - (char*) ptr.m_p : 0;
 
-	if (!ptr.m_object)
+	if (!ptr.m_box)
 		return maxSize;
 
 	#pragma AXL_TODO ("find field pointed to by ptr and calculate sizeof accordingly")
@@ -29,7 +29,7 @@ StdLib::dynamicCountOf (
 	size_t typeSize = type->getSize ();
 	size_t maxCount = maxSize / (typeSize ? typeSize : 1);
 
-	if (!ptr.m_object)
+	if (!ptr.m_box)
 		return maxCount;
 
 	#pragma AXL_TODO ("find field pointed to by ptr and calculate countof accordingly")
@@ -42,17 +42,17 @@ StdLib::dynamicCastDataPtr (
 	Type* type
 	)
 {
-	if (!ptr.m_object)
+	if (!ptr.m_box)
 		return g_nullPtr;
 	
-	void* p = (ptr.m_object->m_flags  & (BoxFlag_Stack | BoxFlag_Static)) ?
-		((VariableBox*) ptr.m_object)->m_p :
-		ptr.m_object + 1;
+	void* p = (ptr.m_box->m_flags  & (BoxFlag_Stack | BoxFlag_Static)) ?
+		((VariableBox*) ptr.m_box)->m_p :
+		ptr.m_box + 1;
 
 	if (ptr.m_p < p)
 		return g_nullPtr;
 
-	Type* srcType = ptr.m_object->m_type;
+	Type* srcType = ptr.m_box->m_type;
 	while (srcType->getTypeKind () == TypeKind_Array)
 	{
 		ArrayType* arrayType = (ArrayType*) srcType;
@@ -95,16 +95,16 @@ StdLib::dynamicCastClassPtr (
 	if (!p)
 		return NULL;
 
-	if (p->m_object->m_type->cmp (type) == 0)
+	if (p->m_box->m_type->cmp (type) == 0)
 		return p;
 
 	BaseTypeCoord coord;
-	bool result = p->m_object->m_classType->findBaseTypeTraverse (type, &coord);
+	bool result = p->m_box->m_classType->findBaseTypeTraverse (type, &coord);
 	if (!result)
 		return NULL;
 
-	IfaceHdr* p2 = (IfaceHdr*) ((uchar_t*) (p->m_object + 1) + coord.m_offset);
-	ASSERT (p2->m_object == p->m_object);
+	IfaceHdr* p2 = (IfaceHdr*) ((uchar_t*) (p->m_box + 1) + coord.m_offset);
+	ASSERT (p2->m_box == p->m_box);
 	return p2;
 }
 
@@ -130,10 +130,10 @@ StdLib::strengthenClassPtr (IfaceHdr* p)
 	if (!p)
 		return NULL;
 
-	ClassTypeKind classTypeKind = p->m_object->m_classType->getClassTypeKind ();
+	ClassTypeKind classTypeKind = p->m_box->m_classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
-		((ClosureClassType*) p->m_object->m_type)->strengthen (p) :
-		(!(p->m_object->m_flags & BoxFlag_Dead)) ? p : NULL;
+		((ClosureClassType*) p->m_box->m_type)->strengthen (p) :
+		(!(p->m_box->m_flags & BoxFlag_Dead)) ? p : NULL;
 }
 
 void*
@@ -295,7 +295,7 @@ StdLib::strDup (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + length;
-	resultPtr.m_object = jnc::getStaticBox ();
+	resultPtr.m_box = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -384,7 +384,7 @@ StdLib::memCat (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + totalSize;
-	resultPtr.m_object = jnc::getStaticBox ();
+	resultPtr.m_box = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -410,7 +410,7 @@ StdLib::memDup (
 	resultPtr.m_p = p;
 	resultPtr.m_rangeBegin = p;
 	resultPtr.m_rangeEnd = p + size;
-	resultPtr.m_object = jnc::getStaticBox ();
+	resultPtr.m_box = jnc::getStaticBox ();
 	return resultPtr;
 }
 
@@ -430,7 +430,7 @@ struct ThreadContext
 
 DWORD
 WINAPI
-StdLib::threadProc (PVOID rawContext)
+StdLib::threadFunc (PVOID rawContext)
 {
 	ThreadContext* context = (ThreadContext*) rawContext;
 	FunctionPtr ptr = context->m_ptr;
@@ -474,7 +474,7 @@ struct ThreadContext
 };
 
 void*
-StdLib::threadProc (void* rawContext)
+StdLib::threadFunc (void* rawContext)
 {
 	ThreadContext* context = (ThreadContext*) rawContext;
 	FunctionPtr ptr = context->m_ptr;
@@ -517,7 +517,7 @@ StdLib::getErrorPtr (const err::ErrorData* errorData)
 	ptr.m_p = p;
 	ptr.m_rangeBegin = ptr.m_p;
 	ptr.m_rangeEnd = (char*) ptr.m_p + size;
-	ptr.m_object = jnc::getStaticBox ();
+	ptr.m_box = jnc::getStaticBox ();
 
 	return ptr;
 }
@@ -580,7 +580,7 @@ StdLib::format (
 	ptr.m_p = p;
 	ptr.m_rangeBegin = ptr.m_p;
 	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
-	ptr.m_object = jnc::getStaticBox ();
+	ptr.m_box = jnc::getStaticBox ();
 
 	return ptr;
 }
@@ -763,7 +763,7 @@ StdLib::appendFmtLiteral_v (
 		ptr.m_p = p;
 		ptr.m_rangeBegin = p;
 		ptr.m_rangeEnd = p + count;
-		ptr.m_object = getStaticBox ();
+		ptr.m_box = getStaticBox ();
 
 		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
 	}
@@ -783,7 +783,7 @@ StdLib::appendFmtLiteral_v (
 			ptr.m_p = variant.m_p;
 			ptr.m_rangeBegin = variant.m_p;
 			ptr.m_rangeEnd = (void*) (intptr_t) -1;
-			ptr.m_object = getStaticBox ();
+			ptr.m_box = getStaticBox ();
 		}
 
 		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
@@ -939,16 +939,16 @@ StdLib::tryLazyGetLibraryFunction (
 {
 	if (!library->m_handle)
 	{
-		err::setFormatStringError ("library '%s' is not loaded yet", library->m_object->m_classType->getQualifiedName ().cc ());
+		err::setFormatStringError ("library '%s' is not loaded yet", library->m_box->m_classType->getQualifiedName ().cc ());
 		return NULL;
 	}
 
-	size_t librarySize = library->m_object->m_classType->getIfaceStructType ()->getSize ();
+	size_t librarySize = library->m_box->m_classType->getIfaceStructType ()->getSize ();
 	size_t functionCount = (librarySize - sizeof (Library)) / sizeof (void*);
 
 	if (index >= functionCount)
 	{
-		err::setFormatStringError ("index #%d out of range for library '%s'", index, library->m_object->m_classType->getQualifiedName ().cc ());
+		err::setFormatStringError ("index #%d out of range for library '%s'", index, library->m_box->m_classType->getQualifiedName ().cc ());
 		return NULL;
 	}
 
@@ -976,6 +976,32 @@ StdLib::lazyGetLibraryFunction (
 		Runtime::runtimeError (err::getLastError ());
 
 	return p;
+}
+
+//.............................................................................
+
+DataPtr
+strDup (
+	const char* p,
+	size_t length
+	)
+{
+	if (length == -1)
+		length = p ? strlen (p) : 0;
+
+	if (!length)
+		return g_nullPtr;
+
+	char* dst = (char*) AXL_MEM_ALLOC (length + 1);
+	memcpy (dst, p, length);
+	dst [length] = 0;
+
+	jnc::DataPtr ptr;
+	ptr.m_p = dst;
+	ptr.m_rangeBegin = dst;
+	ptr.m_rangeEnd = dst + length + 1;
+	ptr.m_box = jnc::getStaticBox ();
+	return ptr;
 }
 
 //.............................................................................

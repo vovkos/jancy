@@ -17,7 +17,7 @@ ConstMgr::clear ()
 {
 	m_valueList.clear ();
 	m_constList.clear ();
-	m_unsafeLeanDataPtrValidator = ref::PtrKind_Null;
+	m_constDataPtrValidatorList.clear ();
 }
 
 Const*
@@ -35,25 +35,6 @@ ConstMgr::createConst (
 	m_constList.insertTail (cnst);
 
 	return cnst;
-}
-
-LeanDataPtrValidator*
-ConstMgr::getUnsafeLeanDataPtrValidator ()
-{
-	if (m_unsafeLeanDataPtrValidator)
-		return m_unsafeLeanDataPtrValidator;
-
-	void* rangeBegin = NULL;
-
-	m_unsafeLeanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
-	m_unsafeLeanDataPtrValidator->m_sizeValue.setConstSizeT (-1, m_module);
-	m_unsafeLeanDataPtrValidator->m_scopeValidatorValue.setConstSizeT (0, m_module);
-	m_unsafeLeanDataPtrValidator->m_rangeBeginValue.createConst (
-		&rangeBegin, 
-		m_module->m_typeMgr.getStdType (StdType_BytePtr)
-		);
-
-	return m_unsafeLeanDataPtrValidator;
 }
 
 const Value& 

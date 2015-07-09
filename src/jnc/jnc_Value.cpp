@@ -3,6 +3,7 @@
 #include "jnc_Value.h"
 #include "jnc_Closure.h"
 #include "jnc_Module.h"
+#include "jnc_LeanDataPtrValidator.h"
 
 namespace jnc {
 
