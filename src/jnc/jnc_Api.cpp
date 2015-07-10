@@ -10,13 +10,12 @@ primeIface (
 	ClassType* type,
 	IfaceHdr* self,
 	void* vtable,
-	Box* object,
-	Box* root,
-	uintptr_t flags
+	Box* box,
+	Box* root
 	)
 {
 	self->m_vtable = vtable;
-	self->m_box = object;
+	self->m_box = box;
 
 	// prime all the base types
 
@@ -31,9 +30,8 @@ primeIface (
 			(ClassType*) slot->getType (),
 			(IfaceHdr*) ((char*) self + slot->getOffset ()),
 			vtable ? (void**) vtable + slot->getVTableIndex () : NULL,
-			object,
-			root,
-			flags
+			box,
+			root
 			);
 	}
 
@@ -54,8 +52,7 @@ primeIface (
 			fieldType, 
 			fieldVTable,
 			fieldBox,
-			root,
-			flags
+			root
 			);
 	}
 }
@@ -65,18 +62,18 @@ prime (
 	ClassType* type,
 	void* vtable,
 	Box* box,
-	Box* root,
-	uintptr_t flags
+	Box* root
 	)
 {
+	ASSERT (root <= box);
+
 	memset (box, 0, type->getSize ());
 
-	box->m_root = root;
 	box->m_type = type;
-	box->m_flags = flags;
-	box->m_elementCount = 1;
+	box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
+	box->m_rootOffset = (char*) root - (char*) box;
 
-	primeIface (type, (IfaceHdr*) (box + 1), vtable, box, root, flags);
+	primeIface (type, (IfaceHdr*) (box + 1), vtable, box, root);
 }
 
 //.............................................................................

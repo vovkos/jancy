@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "jnc_Box.h"
-#include "jnc_DataPtrType.h"
+#include "jnc_RuntimeStructs.h"
 
 namespace jnc {
 
 class Variable;
-struct IfaceHdr;
+class ClassType;
 
 //.............................................................................
 
@@ -24,38 +23,6 @@ enum GcDef
 	GcDef_PeriodSizeLimit = 2 * 1024 * 1024, // 2MB gc period
 #endif
 	GcDef_DataPtrValidatorPoolSize = 8,
-};
-
-//.............................................................................
-
-struct GcShadowStackFrameMap
-{
-	size_t m_count;
-
-	// followed by array of type pointers:
-	// Type* m_typeArray [];
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct GcShadowStackFrame
-{
-	GcShadowStackFrame* m_prev;
-	GcShadowStackFrameMap* m_map;
-
-	// followed by array of root pointers
-	// void* m_rootArray [];
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct GcMutatorThread: rtl::ListLink
-{
-	uint64_t m_threadId;
-	size_t m_enterSafeRegionCount;
-	GcShadowStackFrame* m_shadowStackTop;	
-	DataPtrValidator* m_dataPtrValidatorPoolBegin;
-	DataPtrValidator* m_dataPtrValidatorPoolEnd;
 };
 
 //.............................................................................
@@ -173,7 +140,7 @@ public:
 		);
 
 	DataPtrValidator*
-	createValidator (
+	createDataPtrValidator (
 		Box* box,
 		void* rangeBegin,
 		void* rangeEnd
@@ -221,6 +188,24 @@ public:
 		collect_l ();
 	}
 
+	// marking
+
+	static
+	void
+	weakMark (Box* box);
+
+	void
+	markData (
+		Type* type,
+		DataPtrValidator* validator
+		);
+
+	void
+	markClass (Box* box);
+
+	void
+	weakMarkClosureClass (Box* box);
+
 	void
 	addRoot (
 		void* p,
@@ -258,10 +243,7 @@ protected:
 	addClassBox_l (Box* box);
 
 	void
-	markLocalHeapRoot (
-		void* p,
-		Type* type
-		);
+	markClassFields (Box* box);
 
 	void
 	addShadowStackFrameRoots (GcShadowStackFrame* frame);

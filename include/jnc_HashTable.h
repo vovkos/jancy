@@ -3,6 +3,7 @@
 #include "jnc_DataPtrType.h"
 #include "jnc_Api.h"
 #include "jnc_StdLibApiSlots.h"
+#include "jnc_Variant.h"
 
 namespace jnc {
 

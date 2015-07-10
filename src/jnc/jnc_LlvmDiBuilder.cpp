@@ -308,7 +308,7 @@ LlvmDiBuilder::createDeclare (Variable* variable)
 	ASSERT (block && scope);
 
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare (
-		variable->getLlvmAllocValue (),
+		variable->getLlvmValue (),
 		(llvm::DIVariable) variable->getLlvmDiDescriptor (),
 		block->getLlvmBlock ()
 		);

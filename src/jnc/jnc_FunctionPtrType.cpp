@@ -126,13 +126,13 @@ FunctionPtrType::markGcRoots (
 	if (!ptr->m_closure)
 		return;
 
-	Box* object = ptr->m_closure->m_box;
+	Box* box = ptr->m_closure->m_box;
 	if (m_ptrTypeKind == FunctionPtrTypeKind_Normal)
-		object->gcMarkObject (gcHeap);
-	else if (object->m_classType->getClassTypeKind () == ClassTypeKind_FunctionClosure)
-		object->gcWeakMarkClosureObject (gcHeap);
+		gcHeap->markClass (box);
+	else if (isClassType (box->m_type, ClassTypeKind_FunctionClosure))
+		gcHeap->weakMarkClosureClass (box);
 	else  // simple weak closure
-		object->gcWeakMarkObject ();
+		gcHeap->weakMark (box);
 }
 
 //.............................................................................

@@ -112,18 +112,14 @@ DataPtrType::markGcRoots (
 	GcHeap* gcHeap
 	)
 {
-	if (m_ptrTypeKind == DataPtrTypeKind_Normal)
-	{
-		DataPtr* ptr = (DataPtr*) p;		
-		if (!ptr->m_validator)
-			return;
+	ASSERT (m_ptrTypeKind == DataPtrTypeKind_Normal);
 
-		ptr->m_validator->m_targetBox->gcMarkData (gcHeap);
-	}
-	else
-	{
-		#pragma AXL_TODO ("mark thin data pointer roots -- added by 'heap new'")
-	}
+	DataPtr* ptr = (DataPtr*) p;		
+	if (!ptr->m_validator)
+		return;
+
+	gcHeap->weakMark (ptr->m_validator->m_validatorBox);
+	gcHeap->markData (m_targetType, ptr->m_validator);
 }
 
 //.............................................................................

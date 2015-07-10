@@ -297,9 +297,8 @@ void
 prime (
 	ClassType* type,
 	void* vtable,
-	Box* object,
-	Box* root,
-	uintptr_t flags
+	Box* box,
+	Box* root
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

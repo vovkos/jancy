@@ -5,13 +5,10 @@
 #pragma once
 
 #include "jnc_GcHeap.h"
-#include "jnc_Value.h"
-#include "jnc_ClassType.h"
-#include "jnc_DataPtrType.h"
 
 namespace jnc {
 
-class Runtime;
+class Module;
 
 //.............................................................................
 
@@ -23,37 +20,6 @@ enum RuntimeDef
 	RuntimeDef_StackSizeLimit = 4 * 1024 * 1024, // 4MB std stack limit
 #endif
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef 
-void
-StaticDestruct ();
-
-typedef 
-void
-Destruct (jnc::IfaceHdr* iface);
-
-//.............................................................................
-
-struct Tls: public rtl::ListLink
-{
-	Tls* m_prev;
-	Runtime* m_runtime;
-	GcMutatorThread m_gcThread;
-	void* m_stackEpoch;
-
-	// followed by user TLS variables
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-Tls*
-getCurrentThreadTls ()
-{
-	return mt::getTlsSlotValue <Tls> ();
-}
 
 //.............................................................................
 
@@ -71,8 +37,8 @@ protected:
 	{
 		union
 		{
-			StaticDestruct* m_staticDestruct;
-			Destruct* m_destruct;
+			StaticDestructFunc* m_staticDestructFunc;
+			DestructFunc* m_destructFunc;
 		};
 
 		IfaceHdr* m_iface;
@@ -114,11 +80,11 @@ public:
 	checkStackOverflow ();
 
 	void
-	addStaticDestructor (StaticDestruct* destruct);
+	addStaticDestructor (StaticDestructFunc* destructFunc);
 
 	void
 	addDestructor (
-		Destruct* destruct,
+		DestructFunc* destructFunc,
 		jnc::IfaceHdr* iface
 		);
 
@@ -404,7 +370,5 @@ protected:
 //.............................................................................
 
 #endif
-
-//.............................................................................
 
 } // namespace jnc

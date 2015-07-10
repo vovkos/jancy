@@ -80,56 +80,5 @@ MulticastClassType::markGcRoots (
 }
 
 //.............................................................................
-
-void
-Multicast::call ()
-{
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (jnc::Multicast*);
-
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this);
-}
-
-void
-Multicast::call (intptr_t a)
-{
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (
-		jnc::Multicast*, 
-		intptr_t
-		);
-
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this, a);
-}
-
-void
-Multicast::call (
-	intptr_t a1,
-	intptr_t a2
-	)
-{
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (
-		jnc::Multicast*, 
-		intptr_t,
-		intptr_t
-		);
-
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this, a1, a2);	
-}
-
-//.............................................................................
 	
 } // namespace jnc {

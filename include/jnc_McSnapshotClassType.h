@@ -95,14 +95,4 @@ protected:
 
 //.............................................................................
 
-// multicast snapshot returns function pointer with this closure:
-
-struct McSnapshot: IfaceHdr
-{
-	size_t m_count;
-	void* m_ptrArray; // array of function closure or unsafe pointers
-};
-
-//.............................................................................
-
 } // namespace jnc {

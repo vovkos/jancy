@@ -111,11 +111,10 @@ ClassPtrType::markGcRoots (
 	if (!iface)
 		return;
 
-	Box* object = iface->m_box;
 	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
-		object->gcWeakMarkObject ();
+		gcHeap->weakMark (iface->m_box);
 	else
-		object->gcMarkObject (gcHeap);
+		gcHeap->markClass (iface->m_box);
 }
 
 //.............................................................................

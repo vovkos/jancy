@@ -5,7 +5,7 @@
 #pragma once
 
 #include "jnc_Value.h"
-#include "jnc_Box.h"
+#include "jnc_RuntimeStructs.h"
 #include "jnc_DataPtrType.h"
 
 namespace jnc {

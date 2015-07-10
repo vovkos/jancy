@@ -25,6 +25,7 @@ public: // tmp
 public:
 	ClosureClassType ()
 	{
+		m_flags |= ClassTypeFlag_Closure;
 		m_weakMask = 0;
 	}
 

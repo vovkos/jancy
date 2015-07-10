@@ -323,7 +323,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Type.h
 	${JANCY_INC_DIR}/jnc_TypeMgr.h
 	${JANCY_INC_DIR}/jnc_UnionType.h
-	${JANCY_INC_DIR}/jnc_VariantType.h
+	${JANCY_INC_DIR}/jnc_Variant.h
 	)
 
 set (
@@ -351,7 +351,6 @@ set (
 	jnc_Type.cpp
 	jnc_TypeMgr.cpp
 	jnc_UnionType.cpp
-	jnc_VariantType.cpp
 	)
 
 source_group (
@@ -372,7 +371,6 @@ set (
 	${JANCY_INC_DIR}/jnc_ConstMgr.h
 	${JANCY_INC_DIR}/jnc_LeanDataPtrValidator.h
 	${JANCY_INC_DIR}/jnc_Value.h
-	${JANCY_INC_DIR}/jnc_Box.h
 	)
 
 set (
@@ -381,7 +379,6 @@ set (
 	jnc_ConstMgr.cpp
 	jnc_LeanDataPtrValidator.cpp
 	jnc_Value.cpp
-	jnc_Box.cpp
 	)
 
 source_group (
@@ -424,6 +421,7 @@ source_group (
 
 set (
 	RUNTIME_H_LIST
+	${JANCY_INC_DIR}/jnc_RuntimeStructs.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
 	${JANCY_INC_DIR}/jnc_GcHeap.h
 	)
@@ -457,6 +455,7 @@ set (
 	${JANCY_INC_DIR}/jnc_List.h
 	${JANCY_INC_DIR}/jnc_Library.h
 	${JANCY_INC_DIR}/jnc_Recognizer.h
+	${JANCY_INC_DIR}/jnc_Variant.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	${JANCY_INC_DIR}/jnc_StdLib.h
 	jnc_Multicast.h
@@ -474,6 +473,7 @@ set (
 	jnc_List.cpp
 	jnc_Library.cpp
 	jnc_Recognizer.cpp
+	jnc_Variant.cpp
 	jnc_StdLib.cpp
 	)
 

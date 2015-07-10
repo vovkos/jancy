@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_FunctionPtrType.h"
-#include "jnc_PropertyPtrType.h"
+#include "jnc_RuntimeStructs.h"
 #include "jnc_BinOp.h"
 
 namespace jnc {

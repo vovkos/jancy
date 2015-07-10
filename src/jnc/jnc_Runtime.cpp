@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "jnc_Runtime.h"
 #include "jnc_Module.h"
-#include "jnc_StdLib.h"
-#include "jnc_GcShadowStack.h"
 
 namespace jnc {
 
@@ -22,7 +20,6 @@ Runtime::addModule (Module* module)
 	ASSERT (m_state == State_Idle);
 
 	m_gcHeap.registerStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
-
 
 	size_t tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
 	if (!m_tlsSize)
@@ -85,9 +82,9 @@ Runtime::shutdown ()
 			m_lock.unlock ();
 
 			if (destructor->m_iface)
-				destructor->m_destruct (destructor->m_iface);
+				destructor->m_destructFunc (destructor->m_iface);
 			else
-				destructor->m_staticDestruct ();
+				destructor->m_staticDestructFunc ();
 
 			AXL_MEM_DELETE (destructor);
 

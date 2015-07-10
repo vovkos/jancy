@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_McSnapshotClassType.h"
+#include "jnc_RuntimeStructs.h"
 
 namespace jnc {
 

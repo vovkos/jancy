@@ -147,14 +147,4 @@ protected:
 
 //.............................................................................
 
-// structure backing up reactor bind site in reactor class
-
-struct ReactorBindSite
-{
-	IfaceHdr* m_onChanged;
-	intptr_t m_cookie;
-};
-
-//.............................................................................
-
 } // namespace jnc {

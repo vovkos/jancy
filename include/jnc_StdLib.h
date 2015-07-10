@@ -227,12 +227,12 @@ public:
 
 	static
 	void
-	addStaticDestructor (StaticDestruct* destruct);
+	addStaticDestructor (StaticDestructFunc* destructFunc);
 
 	static
 	void
 	addDestructor (
-		Destruct* destruct,
+		DestructFunc* destructFunc,
 		jnc::IfaceHdr* iface
 		);
 

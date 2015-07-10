@@ -135,16 +135,4 @@ struct FunctionPtrTypeTuple: rtl::ListLink
 
 //.............................................................................
 
-// structure backing up fat function pointers, e.g.:
-// int function* pfTest (int, int);
-// int function weak* pfTest (int, int);
-
-struct FunctionPtr
-{
-	void* m_p;
-	IfaceHdr* m_closure;
-};
-
-//.............................................................................
-
 } // namespace jnc {

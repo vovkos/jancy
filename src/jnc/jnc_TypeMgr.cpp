@@ -2,6 +2,7 @@
 #include "jnc_TypeMgr.h"
 #include "jnc_Module.h"
 #include "jnc_DeclTypeCalc.h"
+#include "jnc_Variant.h"
 #include "jnc_Parser.llk.h"
 
 // it's very common for classes and structs to reference themselves
@@ -2654,7 +2655,7 @@ TypeMgr::createBoxType ()
 	type->createField ("!m_root", type->getDataPtrType_c ());
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr));
-	type->createField ("!m_elementCount", getStdType (StdType_SizeT));
+	type->createField ("!m_elementCount", getPrimitiveType (TypeKind_SizeT));
 	type->ensureLayout ();
 	return type;
 }

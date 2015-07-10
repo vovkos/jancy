@@ -481,8 +481,8 @@ StructType::gcMarkFmtLiteral (
 	if (!literal->m_p)
 		return;
 
-	Box* object = ((Box*) literal->m_p) - 1;
-	object->gcMarkData (gcHeap);
+	Box* box = ((Box*) literal->m_p) - 1;
+	gcHeap->weakMark (box);
 }
 
 //.............................................................................

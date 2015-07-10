@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "jnc_GcHeap.h"
-#include "jnc_Runtime.h"
+#include "jnc_Module.h"
 #include "jnc_Api.h"
 
 namespace jnc {
@@ -98,14 +98,14 @@ GcHeap::tryAllocateClass (ClassType* type)
 
 	Value vtableValue = type->getVTablePtrValue ();
 	void* vtable = vtableValue.getValueKind () == ValueKind_Variable ? 
-		type->getModule ()->getLlvmExecutionEngine ()->getPointerToGlobal ((llvm::GlobalVariable*) vtableValue.getVariable ()->getLlvmAllocValue ()) :
+		type->getModule ()->getLlvmExecutionEngine ()->getPointerToGlobal ((llvm::GlobalVariable*) vtableValue.getVariable ()->getLlvmValue ()) :
 		NULL;
 
 	Box* box = (Box*) AXL_MEM_ALLOC (size);
 	if (!box)
 		return NULL;
 
-	prime (type, vtable, box, box, 0);
+	prime (type, vtable, box, box);
 
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
@@ -119,11 +119,12 @@ GcHeap::tryAllocateClass (ClassType* type)
 void
 GcHeap::addClassBox_l (Box* box)
 {
-	ASSERT (box->m_type->getTypeKind () == TypeKind_Class && box->m_classType->getDestructor ());
+	ASSERT (box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* classType = (ClassType*) box->m_type;
 
 	char* p = (char*) (box + 1);
 
-	rtl::Array <StructField*> classFieldArray = box->m_classType->getClassMemberFieldArray ();
+	rtl::Array <StructField*> classFieldArray = classType->getClassMemberFieldArray ();
 	size_t count = classFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -146,25 +147,48 @@ GcHeap::tryAllocateData (
 	size_t count
 	)
 {
-	size_t dataSize = type->getSize () * count;
-	size_t allocSize = sizeof (Box) + sizeof (DataPtrValidator) + dataSize;
+	size_t dataSize = type->getSize ();
 
-	Box* box = (Box*) AXL_MEM_ALLOC (allocSize);
-	if (!box)
-		return NULL;
+	Box* box;
+	DataPtrValidator* validator;
 
-	memset (box, 0, allocSize);
-	box->m_elementCount = count;
-	box->m_type = type;
-	box->m_root = box;
+	if (count > 1)
+	{
+		dataSize *= count;
 
-	char* p = (char*) (box + 1);
+		size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
+		DynamicArrayBox* dynamicArrayBox = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
+		if (!dynamicArrayBox)
+			return NULL;
 
-	DataPtrValidator* validator = (DataPtrValidator*) (p + dataSize);
+		memset (dynamicArrayBox, 0, allocSize);
+		dynamicArrayBox->m_type = type;
+		dynamicArrayBox->m_flags = BoxFlag_DynamicArray | BoxFlag_StrongMark | BoxFlag_WeakMark;
+		dynamicArrayBox->m_count = count;
+
+		box = dynamicArrayBox;
+		validator = (DataPtrValidator*) (dynamicArrayBox + 1);
+	}
+	else
+	{
+		size_t allocSize = sizeof (Box) + sizeof (DataPtrValidator) + dataSize;
+		box = (Box*) AXL_MEM_ALLOC (allocSize);
+		if (!box)
+			return NULL;
+
+		memset (box, 0, allocSize);
+		box->m_type = type;
+		box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
+
+		validator = (DataPtrValidator*) (box + 1);
+	}
+
+	char* p = (char*) (validator + 1);
+
 	validator->m_validatorBox = box;
 	validator->m_targetBox = box;
 	validator->m_rangeBegin = p;
-	validator->m_rangeEnd = validator;
+	validator->m_rangeEnd = p + dataSize;
 
 	incrementAllocSizeAndLock (dataSize);
 	m_allocBoxArray.append (box);
@@ -208,7 +232,7 @@ GcHeap::allocate (
 }
 
 DataPtrValidator*
-GcHeap::createValidator (
+GcHeap::createDataPtrValidator (
 	Box* box,
 	void* rangeBegin,
 	void* rangeEnd
@@ -236,15 +260,15 @@ GcHeap::createValidator (
 	}
 	else
 	{
-		size_t allocSize = sizeof (Box) + sizeof (DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
+		size_t dataSize = sizeof (DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
+		size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
+		DynamicArrayBox* box = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
 
-		Box* box = (Box*) AXL_MEM_ALLOC (allocSize);
-		box->m_flags = 0;
-		box->m_elementCount = GcDef_DataPtrValidatorPoolSize;
 		box->m_type = m_dataPtrValidatorType;
-		box->m_root = box;
+		box->m_flags = BoxFlag_DynamicArray | BoxFlag_StrongMark | BoxFlag_WeakMark;
+		box->m_count = GcDef_DataPtrValidatorPoolSize;
 
-		incrementAllocSizeAndLock (allocSize);
+		incrementAllocSizeAndLock (dataSize);
 		m_allocBoxArray.append (box);
 		m_lock.unlock ();
 
@@ -282,7 +306,7 @@ GcHeap::registerStaticRootVariables (
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = variableArray [i];
-		llvm::GlobalVariable* llvmVariable = (llvm::GlobalVariable*) variable->getLlvmAllocValue ();
+		llvm::GlobalVariable* llvmVariable = (llvm::GlobalVariable*) variable->getLlvmValue ();
 		void* p = llvmExecutionEngine->getPointerToGlobal (llvmVariable);
 		ASSERT (p);
 
@@ -377,6 +401,121 @@ GcHeap::safePoint ()
 }
 
 void
+GcHeap::weakMark (Box* box)
+{
+	if (box->m_flags & (BoxFlag_StrongMark | BoxFlag_WeakMarkClosure | BoxFlag_WeakMark))
+		return;
+
+	box->m_flags |= BoxFlag_WeakMark;
+	if (box->m_rootOffset)
+	{
+		Box* root = (Box*) ((char*) box - box->m_rootOffset);
+		if (!(root->m_flags & BoxFlag_WeakMark))
+			root->m_flags |= BoxFlag_WeakMark;
+	}
+}
+
+void
+GcHeap::markData (
+	Type* type,
+	DataPtrValidator* validator
+	)
+{
+	Box* box = validator->m_targetBox;
+	if (box->m_flags & BoxFlag_StrongMark)
+		return;
+
+	weakMark (box);
+
+	if (!(type->getFlags () & TypeFlag_GcRoot))
+		return;
+
+	size_t size = type->getSize ();
+	char* p = (char*) validator->m_rangeBegin;
+	char* end = (char*) validator->m_rangeEnd;
+	
+	ASSERT ((end - p) % size == 0);
+
+	for (; p < end; p += size)
+		addRoot (p, type);
+}
+
+void
+GcHeap::markClass (Box* box)
+{
+	if (box->m_flags & BoxFlag_StrongMark)
+		return;
+
+	weakMark (box);
+	markClassFields (box);
+
+	box->m_flags |= BoxFlag_StrongMark;
+
+	if (box->m_type->getFlags () & TypeFlag_GcRoot)
+		addRoot (box, box->m_type);
+}
+
+void
+GcHeap::markClassFields (Box* box)
+{
+	ASSERT (box->m_type->getTypeKind () == TypeKind_Class);
+	
+	char* p0 = (char*) (box + 1);
+	ClassType* classType = (ClassType*) box->m_type;
+	rtl::Array <StructField*> classMemberFieldArray = classType->getClassMemberFieldArray ();
+	size_t count = classMemberFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		StructField* field = classMemberFieldArray [i];
+		Box* fieldBox = (Box*) (p0 + field->getOffset ());
+		ASSERT (fieldBox->m_type == field->getType ());
+
+		if (fieldBox->m_flags & BoxFlag_StrongMark)
+			continue;
+
+		fieldBox->m_flags |= BoxFlag_StrongMark | BoxFlag_WeakMark;
+		markClassFields (fieldBox);
+	}
+}
+
+void
+GcHeap::weakMarkClosureClass (Box* box)
+{
+	ASSERT (!box->m_rootOffset && box->m_type->getTypeKind () == TypeKind_Class);
+
+	if (box->m_flags & (BoxFlag_StrongMark | BoxFlag_WeakMarkClosure))
+		return;
+
+	ASSERT (isClosureClassType (box->m_type));
+	ClosureClassType* closureClassType = (ClosureClassType*) box->m_type;
+	if (!closureClassType->getWeakMask ())
+	{
+		markClass (box);
+		return;
+	}
+
+	weakMark (box);
+	box->m_flags |= BoxFlag_WeakMarkClosure;
+
+	char* p0 = (char*) (box + 1);
+
+	rtl::Array <StructField*> gcRootMemberFieldArray = closureClassType->getGcRootMemberFieldArray ();
+	size_t count = gcRootMemberFieldArray.getCount ();
+
+	for (size_t i = 0; i < count; i++)
+	{
+		StructField* field = gcRootMemberFieldArray [i];
+		Type* type = field->getType ();
+		ASSERT (type->getFlags () & TypeFlag_GcRoot);		
+
+		if (field->getFlags () & StructFieldFlag_WeakMasked)
+			type = getWeakPtrType (type);
+
+		addRoot (p0 + field->getOffset (), type);
+	}
+}
+
+void
 GcHeap::addRoot (
 	void* p,
 	Type* type
@@ -402,14 +541,15 @@ GcHeap::addShadowStackFrameRoots (GcShadowStackFrame* frame)
 			continue;
 
 		Type* type = typeArray [i];
-		if (type->getTypeKind () == TypeKind_DataPtr &&
-			((DataPtrType*) type)->getPtrTypeKind () == DataPtrTypeKind_Thin) // local heap variable
-		{
-			markLocalHeapRoot (p, ((DataPtrType*) type)->getTargetType ());
-		}
-		else
+		if (type->getTypeKind () != TypeKind_DataPtr ||
+			((DataPtrType*) type)->getPtrTypeKind () != DataPtrTypeKind_Thin) 
 		{
 			addRoot (p, type);
+		}
+		else // local heap variable
+		{
+			ASSERT (type->getTypeKind () != TypeKind_Class);
+			markData (type, (DataPtrValidator*) ((char*) p + type->getSize ()));
 		}
 	}
 }
@@ -451,11 +591,11 @@ GcHeap::collect_l ()
 
 	count = m_allocBoxArray.getCount ();
 	for (size_t i = 0; i < count; i++)
-		m_allocBoxArray [i]->m_flags &= ~BoxFlag_GcMask;
+		m_allocBoxArray [i]->m_flags &= ~BoxFlag_MarkMask;
 
 	count = m_classBoxArray.getCount ();
 	for (size_t i = 0; i < count; i++)
-		m_classBoxArray [i]->m_flags &= ~BoxFlag_GcMask;
+		m_classBoxArray [i]->m_flags &= ~BoxFlag_MarkMask;
 
 	// add static roots
 
@@ -483,7 +623,7 @@ GcHeap::collect_l ()
 
 	runMarkCycle ();
 
-	// mark unmarked class boxes as dead and schedule destruction
+	// remove unmarked class boxes and schedule destruction
 
 	char buffer [256];
 	rtl::Array <IfaceHdr*> destructArray (ref::BufKind_Stack, buffer, sizeof (buffer));
@@ -495,16 +635,15 @@ GcHeap::collect_l ()
 	{
 		Box* box = m_classBoxArray [i];
 		
-		if (box->m_flags & (BoxFlag_GcMark | BoxFlag_GcWeakMark_c))
+		if (box->m_flags & (BoxFlag_StrongMark | BoxFlag_WeakMarkClosure))
 		{
 			m_classBoxArray [dstIdx] = box;
 			dstIdx++;
 		}
 		else
 		{
-			box->m_flags |= BoxFlag_Dead;
-
-			if (box->m_classType->getDestructor ())
+			ClassType* classType = (ClassType*) box->m_type;
+			if (classType->getDestructor ())
 				destructArray.append ((IfaceHdr*) (box + 1));
 		}
 	}
@@ -524,12 +663,12 @@ GcHeap::collect_l ()
 	{
 		DestructGuard* destructGuard = *destructGuardIt;
 
+		IfaceHdr** iface = *destructGuard->m_destructArray;
 		count = destructGuard->m_destructArray->getCount ();
 		for (size_t i = 0; i < count; i++)
 		{
-			addRoot (
-				&(*destructGuard->m_destructArray) [i], 
-				(*destructGuard->m_destructArray) [i]->m_box->m_classType->getClassPtrType ());
+			ClassType* classType = (ClassType*) (*iface)->m_box->m_type;
+			addRoot (iface, classType);
 		}
 	}
 
@@ -547,14 +686,18 @@ GcHeap::collect_l ()
 	for (size_t i = 0; i < count; i++)
 	{
 		Box* box = m_allocBoxArray [i];
-		if (box->m_flags & BoxFlag_GcWeakMark)
+		if (box->m_flags & BoxFlag_WeakMark)
 		{
 			m_allocBoxArray [dstIdx] = box;
 			dstIdx++;
 		}
 		else
 		{
-			freeSize += box->m_elementCount * box->m_type->getSize ();
+			size_t size = box->m_type->getSize ();
+			if (box->m_flags & BoxFlag_DynamicArray)
+				size *= ((DynamicArrayBox*) box)->m_count;
+
+			freeSize += size;
 			AXL_MEM_FREE (box);
 		}
 	}
@@ -598,7 +741,8 @@ GcHeap::collect_l ()
 		for (size_t i = 0; i < count; i++)
 		{
 			IfaceHdr* iface = destructArray [i];
-			Function* destructor = iface->m_box->m_classType->getDestructor ();
+			ClassType* classType = (ClassType*) iface->m_box->m_type;
+			Function* destructor = classType->getDestructor ();
 			ASSERT (destructor);
 
 			Class_DestructFunc* p = (Class_DestructFunc*) destructor->getMachineCode ();
@@ -614,28 +758,13 @@ GcHeap::collect_l ()
 }
 
 void
-GcHeap::markLocalHeapRoot (
-	void* p,
-	Type* type
-	)
-{
-	if (type->getTypeKind () == TypeKind_Class)
-		((Box*) p)->gcMarkObject (this);
-	else
-		((Box*) p - 1)->gcMarkData (this);
-
-	if (type->getFlags () & TypeFlag_GcRoot)
-		type->markGcRoots (p, this);
-}
-
-void
 GcHeap::runMarkCycle ()
 {
 	// mark breadth first
 
 	while (!m_markRootArray [m_currentMarkRootArrayIdx].isEmpty ())
 	{
-		size_t prevGcRootArrayIdx =  m_currentMarkRootArrayIdx;
+		size_t prevGcRootArrayIdx = m_currentMarkRootArrayIdx;
 		m_currentMarkRootArrayIdx = !m_currentMarkRootArrayIdx;
 		m_markRootArray [m_currentMarkRootArrayIdx].clear ();
 

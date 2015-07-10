@@ -37,13 +37,11 @@ protected:
 	rtl::BoxList <Token> m_constructor;
 	Scope* m_scope;
 	StructField* m_tlsField;
-
-	llvm::Value* m_llvmAllocValue;     // GlobalVariable* / AllocaInst* / CallInst*
-	llvm::Value* m_llvmValue;          // GlobalVariable* / AllocaInst* / GEPInst*
-	llvm::Value* m_llvmBoxValue;       // GlobalVariable* / GEPInst*
-	llvm::Value* m_llvmValidatorValue; // GlobalVariable* / GEPInst*
 	
-	llvm::DIDescriptor m_llvmDiDescriptor; // DIVariable / DIGlobalVariable /
+	llvm::Value* m_llvmValue;                 // GlobalVariable* / AllocaInst* / GEPInst*
+	llvm::Value* m_llvmBoxValue;              // GlobalVariable* / CallInst*
+	llvm::Value* m_llvmDataPtrValidatorValue; // GlobalVariable* / GEPInst*	
+	llvm::DIDescriptor m_llvmDiDescriptor;    // DIVariable / DIGlobalVariable
 
 public:
 	Variable ();
@@ -94,17 +92,9 @@ public:
 		return m_llvmValue;
 	}
 
-	llvm::Value*
-	getLlvmAllocValue ()
-	{
-		ensureLlvmValue ();
-		return m_llvmAllocValue;
-	}
-
 	llvm::DIDescriptor
 	getLlvmDiDescriptor ()
 	{
-		ensureLlvmValue ();
 		return m_llvmDiDescriptor;
 	}
 

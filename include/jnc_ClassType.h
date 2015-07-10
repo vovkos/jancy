@@ -10,7 +10,6 @@
 #include "jnc_Property.h"
 #include "jnc_UnOp.h"
 #include "jnc_BinOp.h"
-#include "jnc_Box.h"
 
 namespace jnc {
 
@@ -40,6 +39,7 @@ enum ClassTypeFlag
 {
 	ClassTypeFlag_Abstract = 0x010000,
 	ClassTypeFlag_Opaque   = 0x020000,
+	ClassTypeFlag_Closure  = 0x040000,
 };
 
 //.............................................................................
@@ -339,28 +339,14 @@ isOpaqueClassType (Type* type)
 		(type->getFlags () & ClassTypeFlag_Opaque);
 }
 
-//.............................................................................
-
-// header of class iface
-
-struct IfaceHdr
+inline
+bool
+isClosureClassType (Type* type)
 {
-	void* m_vtable;
-	Box* m_box;
-
-	// followed by parents, then by iface data fields
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// iface inside a box
-
-template <typename T>
-class ClassBox:
-	public Box,
-	public T
-{
-};
+	return
+		type->getTypeKind () == TypeKind_Class &&
+		(type->getFlags () & ClassTypeFlag_Closure);
+}
 
 //.............................................................................
 

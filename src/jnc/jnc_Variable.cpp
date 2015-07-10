@@ -15,8 +15,8 @@ Variable::Variable ()
 	m_scope = NULL;
 	m_tlsField = NULL;
 	m_llvmValue = NULL;
-	m_llvmAllocValue = NULL;
 	m_llvmBoxValue = NULL;
+	m_llvmDataPtrValidatorValue = NULL;
 }
 
 Value
@@ -49,7 +49,6 @@ Variable::ensureLlvmValue ()
 	ASSERT (m_storageKind == StorageKind_Thread);
 	m_module->m_variableMgr.allocateTlsVariable (this);
 }
-
 
 //.............................................................................
 

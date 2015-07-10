@@ -735,7 +735,7 @@ ClassType::markGcRoots (
 	Box* box = (Box*) p;
 	IfaceHdr* iface = (IfaceHdr*) (box + 1);
 
-	ASSERT (iface->m_box == box && box->m_classType == this);
+	ASSERT (iface->m_box == box && box->m_type == this);
 
 	markGcRootsImpl (iface, gcHeap);
 }

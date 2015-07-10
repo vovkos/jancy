@@ -130,40 +130,4 @@ isArrayRefType (Type* type)
 
 //.............................................................................
 
-// structure backing up fat data pointer, e.g.:
-// int* p;
-
-struct DataPtrValidator
-{
-	Box* m_validatorBox;
-	Box* m_targetBox;
-	void* m_rangeBegin;
-	void* m_rangeEnd;
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct DataPtr
-{
-	void* m_p;
-	DataPtrValidator* m_validator;
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
-
-//.............................................................................
-
-// structure backing up formatting literal
-
-struct FmtLiteral
-{
-	char* m_p;
-	size_t m_maxLength;
-	size_t m_length;
-};
-
-//.............................................................................
-
 } // namespace jnc {

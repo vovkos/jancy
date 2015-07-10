@@ -142,16 +142,4 @@ isBindableType (Type* type)
 
 //.............................................................................
 
-// structure backing up property pointers, e.g.:
-// int property* pxTest;
-// int property weak* pxTest;
-
-struct PropertyPtr
-{
-	void** m_vtable;
-	IfaceHdr* m_closure;
-};
-
-//.............................................................................
-
 } // namespace jnc {
