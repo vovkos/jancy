@@ -17,7 +17,7 @@ MyLabel::operatorNew (
 	jnc::DataPtr textPtr
 	)
 {
-	jnc::ApiClassBox <MyLabel>* label = (jnc::ApiClassBox <MyLabel>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <MyLabel>* label = (jnc::ApiClassBox <MyLabel>*) jnc::StdLib::allocateClass (type);
 	label->prime (type);
 	label->construct (textPtr);
 	return label;

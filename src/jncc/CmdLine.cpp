@@ -101,10 +101,6 @@ CmdLineParser::onSwitch (
 		m_cmdLine->m_flags |= JncFlag_LlvmIr_c;
 		break;
 
-	case CmdLineSwitchKind_Disassembly:
-		m_cmdLine->m_flags |= JncFlag_Disassembly;
-		break;
-
 	case CmdLineSwitchKind_Run:
 		m_cmdLine->m_flags |= JncFlag_Jit;
 		m_cmdLine->m_flags |= JncFlag_RunFunction;

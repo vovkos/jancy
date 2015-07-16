@@ -4,7 +4,6 @@
 #include "output.h"
 #include "modulepane.h"
 #include "llvmir.h"
-#include "disassembly.h"
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
@@ -35,7 +34,7 @@ TestClassB::enumGcRoots (
 TestClassB*
 TestClassB::operatorNew (jnc::ClassType* type)
 {
-	jnc::ApiClassBox <TestClassB>* test = (jnc::ApiClassBox <TestClassB>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <TestClassB>* test = (jnc::ApiClassBox <TestClassB>*) jnc::StdLib::allocateClass (type);
 	test->prime (type);
 	return test;
 }
@@ -329,19 +328,10 @@ void MainWindow::createPanes()
 	m_output = new Output(this);
 	m_modulePane = new ModulePane(this);
 	m_llvmIr = new LlvmIr(this);
-	m_disassembly = new Disassembly(this);
 
 	addPane(m_output, "Output", Qt::BottomDockWidgetArea);
 	addPane(m_modulePane, "Module", Qt::RightDockWidgetArea);
-
-	QDockWidget* llvmIrDock = addPane(m_llvmIr, "LLVM IR",
-		Qt::RightDockWidgetArea);
-
-	QDockWidget* disassemblyDock = addPane(m_disassembly, "Disassembly",
-		Qt::RightDockWidgetArea);
-
-	tabifyDockWidget(llvmIrDock, disassemblyDock);
-	llvmIrDock->raise();
+	addPane(m_llvmIr, "LLVM IR", Qt::RightDockWidgetArea);
 }
 
 QDockWidget* MainWindow::addPane(QWidget* widget, const QString& title,
@@ -502,7 +492,6 @@ bool MainWindow::compile ()
 
 	m_modulePane->clear ();
 	m_llvmIr->clear ();
-	m_disassembly->clear ();
 
 	QByteArray source = child->toPlainText().toUtf8();
 
@@ -538,7 +527,6 @@ bool MainWindow::compile ()
 		m_module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&m_module) &&
 		m_module.jit () &&
-		m_runtime.create () &&
 		m_runtime.addModule (&m_module);
 
 	if (!result)
@@ -547,32 +535,8 @@ bool MainWindow::compile ()
 		return false;
 	}
 
-	m_disassembly->build (&m_module);
-
 	writeOutput ("Done.\n");
 	child->setCompilationNeeded (false);
-	return true;
-}
-
-bool MainWindow::runFunction (jnc::Function* function, int* returnValue_o)
-{
-	typedef int TargetFunc ();
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
-	{
-		int returnValue = p ();
-		if (returnValue_o)
-			*returnValue_o = returnValue;
-	}
-	AXL_MT_LONG_JMP_CATCH ()
-	{
-		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
-		return false;
-	}
-	AXL_MT_END_LONG_JMP_TRY ()
-
 	return true;
 }
 
@@ -601,30 +565,20 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
-
-	m_runtime.startup ();
-
-	// constructor && destructor
-
-	jnc::Function* destructor = m_module.getDestructor ();
-	if (destructor)
-		m_runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
-
-	jnc::Function* constructor = m_module.getConstructor ();
-	if (constructor)
+	result = m_runtime.startup ();
+	if (!result)
 	{
-		result = runFunction (constructor);
-		if (!result)
-			return false;
+		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
+		return false;
 	}
 
-	// main
-
 	int returnValue;
-	result = runFunction (mainFunction, &returnValue);
+	result = jnc::callFunction (mainFunction, &returnValue);
 	if (!result)
+	{
+		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
 		return false;
+	}
 
 	m_runtime.shutdown ();
 

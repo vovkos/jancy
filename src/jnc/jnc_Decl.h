@@ -15,6 +15,145 @@ class Declarator;
 
 //.............................................................................
 
+enum TypeModifier
+{
+	TypeModifier_Unsigned    = 0x00000001,
+	TypeModifier_BigEndian   = 0x00000002,
+	TypeModifier_Const       = 0x00000004,
+	TypeModifier_ReadOnly    = 0x00000008,
+	TypeModifier_Volatile    = 0x00000010,
+	TypeModifier_Weak        = 0x00000020,
+	TypeModifier_Thin        = 0x00000040,
+	TypeModifier_Safe        = 0x00000080,
+	TypeModifier_Cdecl       = 0x00000100,
+	TypeModifier_Stdcall     = 0x00000200,
+	TypeModifier_Array       = 0x00000400,
+	TypeModifier_Function    = 0x00000800,
+	TypeModifier_Property    = 0x00001000,
+	TypeModifier_Bindable    = 0x00002000,
+	TypeModifier_AutoGet     = 0x00004000,
+	TypeModifier_Indexed     = 0x00008000,
+	TypeModifier_Multicast   = 0x00010000,
+	TypeModifier_Event       = 0x00020000,
+	TypeModifier_Automaton   = 0x00040000,
+	TypeModifier_Reactor     = 0x00080000,
+	TypeModifier_Thiscall    = 0x00100000,
+	TypeModifier_Jnccall     = 0x00200000,
+	TypeModifier_Unsafe      = 0x00400000,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum TypeModifierMaskKind
+{
+	TypeModifierMaskKind_Integer =
+		TypeModifier_Unsigned |
+		TypeModifier_BigEndian,
+
+	TypeModifierMaskKind_CallConv =
+		TypeModifier_Cdecl |
+		TypeModifier_Stdcall |
+		TypeModifier_Thiscall |
+		TypeModifier_Jnccall,
+
+	TypeModifierMaskKind_Function =
+		TypeModifier_Function |
+		TypeModifier_Automaton |
+		TypeModifier_Unsafe |
+		TypeModifierMaskKind_CallConv ,
+
+	TypeModifierMaskKind_Property =
+		TypeModifier_Property |
+		TypeModifierMaskKind_CallConv |
+		TypeModifier_Const |
+		TypeModifier_Bindable |
+		TypeModifier_Indexed,
+
+	TypeModifierMaskKind_DataPtr =
+		TypeModifier_Safe |
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_Volatile |
+		TypeModifier_Thin,
+
+	TypeModifierMaskKind_ClassPtr =
+		TypeModifier_Safe |
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_Volatile |
+		TypeModifier_Event |
+		TypeModifier_Weak,
+
+	TypeModifierMaskKind_FunctionPtr =
+		TypeModifier_Safe |
+		TypeModifier_Weak |
+		TypeModifier_Thin,
+
+	TypeModifierMaskKind_PropertyPtr =
+		TypeModifier_Safe |
+		TypeModifier_Weak |
+		TypeModifier_Thin,
+
+	TypeModifierMaskKind_ImportPtr =
+		TypeModifierMaskKind_DataPtr |
+		TypeModifierMaskKind_ClassPtr |
+		TypeModifierMaskKind_FunctionPtr |
+		TypeModifierMaskKind_PropertyPtr,
+
+	TypeModifierMaskKind_DeclPtr =
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_Volatile |
+		TypeModifier_Event |
+		TypeModifier_Bindable |
+		TypeModifier_AutoGet,
+
+	TypeModifierMaskKind_PtrKind =
+		TypeModifier_Weak |
+		TypeModifier_Thin,
+
+	TypeModifierMaskKind_TypeKind =
+		TypeModifier_Function |
+		TypeModifier_Property |
+		TypeModifier_Multicast |
+		TypeModifier_Reactor,
+
+	TypeModifierMaskKind_Const =
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_Event,
+
+	TypeModifierMaskKind_Event =
+		TypeModifier_Event |
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifierMaskKind_TypeKind,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+TypeModifier
+getFirstTypeModifier (uint_t modifiers)
+{
+	return (TypeModifier) (1 << rtl::getLoBitIdx (modifiers));
+}
+
+const char*
+getTypeModifierString (TypeModifier modifier);
+
+rtl::String
+getTypeModifierString (uint_t modifiers);
+
+inline
+const char*
+getFirstTypeModifierString (uint_t modifiers)
+{
+	return getTypeModifierString (getFirstTypeModifier (modifiers));
+}
+
+//.............................................................................
+
 class TypeModifiers
 {
 protected:

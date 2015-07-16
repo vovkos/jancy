@@ -48,7 +48,6 @@ MyLib::setSimpleProp (int x)
 	g_simplePropValue = x;
 }
 
-char g_propBuffer [64] = { 0 };
 jnc::DataPtr g_propValue = { 0 };
 
 jnc::DataPtr 
@@ -62,22 +61,20 @@ void
 MyLib::setProp_0 (int x)
 {
 	printf ("  MyLib::setProp_0 (%d)\n", x);
-	sprintf (g_propBuffer, "%d", x);
-	g_propValue.m_p = g_propBuffer;
-	g_propValue.m_rangeBegin = g_propBuffer;
-	g_propValue.m_rangeEnd = g_propBuffer + sizeof (g_propBuffer);
-	g_propValue.m_box = jnc::getStaticBox ();
+	
+	char buffer [32];
+	int length = sprintf (buffer, "%d", x);
+	g_propValue = jnc::strDup (buffer, length);
 }
 
 void
 MyLib::setProp_1 (double x)
 {
 	printf ("  MyLib::setProp_1 (%f)\n", x);
-	sprintf (g_propBuffer, "%f", x);
-	g_propValue.m_p = g_propBuffer;
-	g_propValue.m_rangeBegin = g_propBuffer;
-	g_propValue.m_rangeEnd = g_propBuffer + sizeof (g_propBuffer);
-	g_propValue.m_box = jnc::getStaticBox ();
+
+	char buffer [32];
+	int length = sprintf (buffer, "%f", x);
+	g_propValue = jnc::strDup (buffer, length);
 }
 
 void

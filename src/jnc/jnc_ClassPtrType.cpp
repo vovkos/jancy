@@ -103,7 +103,7 @@ ClassPtrType::prepareLlvmDiType ()
 
 void
 ClassPtrType::markGcRoots (
-	void* p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {

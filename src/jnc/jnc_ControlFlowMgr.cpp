@@ -338,8 +338,6 @@ ControlFlowMgr::ret (const Value& value)
 		else
 		{
 			Variable* variable = m_module->m_variableMgr.createStackVariable ("savedReturnValue", returnType);
-			m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
-
 			m_module->m_operatorMgr.storeDataRef (variable, returnValue);
 			onLeaveScope ();
 			m_module->m_operatorMgr.loadDataRef (variable, &returnValue);

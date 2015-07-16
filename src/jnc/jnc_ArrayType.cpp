@@ -113,7 +113,7 @@ ArrayType::calcLayout ()
 
 void
 ArrayType::markGcRoots (
-	void* _p,
+	const void* _p,
 	GcHeap* gcHeap
 	)
 {

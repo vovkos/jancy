@@ -96,157 +96,11 @@ TypeMgr::clear ()
 Type*
 TypeMgr::getStdType (StdType stdType)
 {
-	#include "jnc_StdTypes.jnc.cpp"
-	#include "jnc_Buffer.jnc.cpp"
-	#include "jnc_String.jnc.cpp"
-	#include "jnc_HashTable.jnc.cpp"
-	#include "jnc_List.jnc.cpp"
-	#include "jnc_Recognizer.jnc.cpp"
-	#include "jnc_Library.jnc.cpp"
-
-	struct SourceRef
-	{
-		const char* m_p;
-		size_t m_length;
-		StdNamespace m_stdNamespace;
-	};
-
-	static SourceRef sourceTable [StdType__Count] =
-	{
-		{ NULL },                            // StdType_BytePtr,
-		{ NULL },                            // StdType_ByteConstPtr,
-		{ NULL },                            // StdType_SimpleIfaceHdr,
-		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
-		{ NULL },                            // StdType_Box,
-		{ NULL },                            // StdType_BoxPtr,
-		{ NULL },                            // StdType_AbstractClass,
-		{ NULL },                            // StdType_AbstractClassPtr,
-		{ NULL },                            // StdType_SimpleFunction,
-		{ NULL },                            // StdType_SimpleMulticast,
-		{ NULL },                            // StdType_SimpleEventPtr,
-		{ NULL },                            // StdType_Binder,
-		{                                    // StdType_ReactorBindSite,
-			reactorBindSiteTypeSrc,
-			lengthof (reactorBindSiteTypeSrc),
-			StdNamespace_Internal,
-		},
-		{                                    // StdType_Scheduler,
-			schedulerTypeSrc,
-			lengthof (schedulerTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_Recognizer,
-			recognizerTypeSrc,
-			lengthof (recognizerTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_AutomatonResult,
-			automatonResultTypeSrc,
-			lengthof (automatonResultTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_Library,
-			libraryTypeSrc,
-			lengthof (libraryTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_FmtLiteral,
-			fmtLiteralTypeSrc,
-			lengthof (fmtLiteralTypeSrc),
-			StdNamespace_Internal,
-		},
-		{                                    // StdType_Guid,
-			guidTypeSrc,
-			lengthof (guidTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_Error,
-			errorTypeSrc,
-			lengthof (errorTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_String,
-			stringTypeSrc,
-			lengthof (stringTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_StringRef,
-			stringRefTypeSrc,
-			lengthof (stringRefTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_StringBuilder,
-			stringBuilderTypeSrc,
-			lengthof (stringBuilderTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_StringHashTable,
-			stringHashTableTypeSrc,
-			lengthof (stringHashTableTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_VariantHashTable,
-			variantHashTableTypeSrc,
-			lengthof (variantHashTableTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_ListEntry,
-			listEntryTypeSrc,
-			lengthof (listEntryTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_List,
-			listTypeSrc,
-			lengthof (listTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_ConstBuffer,
-			constBufferTypeSrc,
-			lengthof (constBufferTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_ConstBufferRef,
-			constBufferRefTypeSrc,
-			lengthof (constBufferRefTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_BufferRef,
-			bufferRefTypeSrc,
-			lengthof (bufferRefTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_Buffer,
-			bufferTypeSrc,
-			lengthof (bufferTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{                                    // StdType_Int64Int64,
-			int64Int64TypeSrc,
-			lengthof (int64Int64TypeSrc),
-			StdNamespace_Internal,
-		},
-		{                                    // StdType_Fp64Fp64,
-			fp64Fp64TypeSrc,
-			lengthof (fp64Fp64TypeSrc),
-			StdNamespace_Internal,
-		},
-		{                                    // StdType_Int64Fp64,
-			int64Fp64TypeSrc,
-			lengthof (int64Fp64TypeSrc),
-			StdNamespace_Internal,
-		},
-
-		{                                    // StdType_Fp64Int64,
-			fp64Int64TypeSrc,
-			lengthof (fp64Int64TypeSrc),
-			StdNamespace_Internal,
-		},
-	};
-
 	ASSERT ((size_t) stdType < StdType__Count);
 	if (m_stdTypeArray [stdType])
 		return m_stdTypeArray [stdType];
 
+	const StdItemSource* source;
 	Type* type;
 	switch (stdType)
 	{
@@ -270,6 +124,26 @@ TypeMgr::getStdType (StdType stdType)
 		type = createBoxType ();
 		break;
 
+	case StdType_BoxPtr:
+		type = getStdType (StdType_Box)->getDataPtrType_c ();
+		break;
+
+	case StdType_DataBox:
+		type = createDataBoxType ();
+		break;
+
+	case StdType_DataBoxPtr:
+		type = getStdType (StdType_DataBox)->getDataPtrType_c ();
+		break;
+
+	case StdType_DynamicArrayBox:
+		type = createDynamicArrayBoxType ();
+		break;
+
+	case StdType_DynamicArrayBoxPtr:
+		type = getStdType (StdType_DynamicArrayBox)->getDataPtrType_c ();
+		break;
+
 	case StdType_DataPtrValidator:
 		type = createDataPtrValidatorType ();
 		break;
@@ -286,12 +160,8 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariantStructType ();
 		break;
 
-	case StdType_BoxPtr:
-		type = getStdType (StdType_Box)->getDataPtrType_c ();
-		break;
-
 	case StdType_AbstractClass:
-		type = createObjectType ();
+		type = createAbstractClassType ();
 		break;
 
 	case StdType_AbstractClassPtr:
@@ -348,20 +218,24 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
 	case StdType_Fp64Int64:
-		ASSERT (sourceTable [stdType].m_p);
+		source = getStdTypeSource (stdType);
+		ASSERT (source->m_p);
+
 		type = parseStdType (
-			sourceTable [stdType].m_stdNamespace,
-			sourceTable [stdType].m_p,
-			sourceTable [stdType].m_length
+			source->m_stdNamespace,
+			source->m_p,
+			source->m_length
 			);
 		break;
 
 	case StdType_FmtLiteral:
-		ASSERT (sourceTable [stdType].m_p);
+		source = getStdTypeSource (stdType);
+		ASSERT (source->m_p);
+
 		type = parseStdType (
-			sourceTable [stdType].m_stdNamespace,
-			sourceTable [stdType].m_p,
-			sourceTable [stdType].m_length
+			source->m_stdNamespace,
+			source->m_p,
+			source->m_length
 			);
 
 		type->m_flags |= TypeFlag_GcRoot;
@@ -1206,7 +1080,7 @@ TypeMgr::getMemberMethodType (
 	uint_t thisArgPtrTypeFlags
 	)
 {
-	if (!isClassType (parentType, ClassTypeKind_StdObject)) // std object members are miscellaneous closures
+	if (!isClassType (parentType, ClassTypeKind_Abstract)) // std object members are miscellaneous closures
 		thisArgPtrTypeFlags |= PtrTypeFlag_Safe;
 
 	Type* thisArgType = parentType->getThisArgType (thisArgPtrTypeFlags);
@@ -2494,19 +2368,19 @@ TypeMgr::setupAllPrimitiveTypes ()
 void
 TypeMgr::setupStdTypedefArray ()
 {
-	setupStdTypedef (StdTypedef_uint_t,    TypeKind_Int_u,   "uint_t");
-	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_IntPtr_u,  "uintptr_t");
-	setupStdTypedef (StdTypedef_size_t,    TypeKind_SizeT,   "size_t");
-	setupStdTypedef (StdTypedef_uint8_t,   TypeKind_Int8_u,  "uint8_t");
-	setupStdTypedef (StdTypedef_uchar_t,   TypeKind_Int8_u,  "uchar_t");
-	setupStdTypedef (StdTypedef_byte_t,    TypeKind_Int8_u,  "byte_t");
-	setupStdTypedef (StdTypedef_uint16_t,  TypeKind_Int16_u, "uint16_t");
-	setupStdTypedef (StdTypedef_ushort_t,  TypeKind_Int16_u, "ushort_t");
-	setupStdTypedef (StdTypedef_word_t,    TypeKind_Int16_u, "word_t");
-	setupStdTypedef (StdTypedef_uint32_t,  TypeKind_Int32_u, "uint32_t");
-	setupStdTypedef (StdTypedef_dword_t,   TypeKind_Int32_u, "dword_t");
-	setupStdTypedef (StdTypedef_uint64_t,  TypeKind_Int64_u, "uint64_t");
-	setupStdTypedef (StdTypedef_qword_t,   TypeKind_Int64_u, "qword_t");
+	setupStdTypedef (StdTypedef_uint_t,    TypeKind_Int_u,    "uint_t");
+	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_IntPtr_u, "uintptr_t");
+	setupStdTypedef (StdTypedef_size_t,    TypeKind_SizeT,    "size_t");
+	setupStdTypedef (StdTypedef_uint8_t,   TypeKind_Int8_u,   "uint8_t");
+	setupStdTypedef (StdTypedef_uchar_t,   TypeKind_Int8_u,   "uchar_t");
+	setupStdTypedef (StdTypedef_byte_t,    TypeKind_Int8_u,   "byte_t");
+	setupStdTypedef (StdTypedef_uint16_t,  TypeKind_Int16_u,  "uint16_t");
+	setupStdTypedef (StdTypedef_ushort_t,  TypeKind_Int16_u,  "ushort_t");
+	setupStdTypedef (StdTypedef_word_t,    TypeKind_Int16_u,  "word_t");
+	setupStdTypedef (StdTypedef_uint32_t,  TypeKind_Int32_u,  "uint32_t");
+	setupStdTypedef (StdTypedef_dword_t,   TypeKind_Int32_u,  "dword_t");
+	setupStdTypedef (StdTypedef_uint64_t,  TypeKind_Int64_u,  "uint64_t");
+	setupStdTypedef (StdTypedef_qword_t,   TypeKind_Int64_u,  "qword_t");
 }
 
 void
@@ -2630,9 +2504,9 @@ TypeMgr::parseStdType (
 }
 
 ClassType*
-TypeMgr::createObjectType ()
+TypeMgr::createAbstractClassType ()
 {
-	ClassType* type = createClassType (ClassTypeKind_StdObject, "AbstractClass", "jnc.AbstractClass");
+	ClassType* type = createClassType (ClassTypeKind_Abstract, "AbstractClass", "jnc.AbstractClass");
 	type->m_signature = "CO"; // special signature to ensure type equality between modules
 	type->ensureLayout ();
 	return type;
@@ -2652,10 +2526,29 @@ StructType*
 TypeMgr::createBoxType ()
 {
 	StructType* type = createStructType ("Box", "jnc.Box");
-	type->createField ("!m_root", type->getDataPtrType_c ());
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
-	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr));
-	type->createField ("!m_elementCount", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createDataBoxType ()
+{
+	StructType* type = createStructType ("DataBox", "jnc.DataBox");
+	type->createField ("!m_box", getStdType (StdType_Box));
+	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createDynamicArrayBoxType ()
+{
+	StructType* type = createStructType ("Box", "jnc.Box");
+	type->createField ("!m_box", getStdType (StdType_Box));
+	type->createField ("!m_count", getPrimitiveType (TypeKind_Int64_u));
+	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
 	return type;
 }
@@ -2667,7 +2560,7 @@ TypeMgr::createDataPtrValidatorType ()
 	type->createField ("!m_validatorBox", getStdType (StdType_BoxPtr));
 	type->createField ("!m_targetBox", getStdType (StdType_BoxPtr));
 	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
-	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
+	type->createField ("!m_rangeLength", getPrimitiveType (TypeKind_SizeT));
 	type->ensureLayout ();
 	return type;
 }

@@ -27,8 +27,6 @@ protected:
 	Module* m_module;
 	llvm::IRBuilder <>* m_llvmIrBuilder;
 
-	uint_t m_commentMdKind;
-
 public:
 	LlvmIrBuilder ();
 
@@ -49,42 +47,11 @@ public:
 		return m_llvmIrBuilder;
 	}
 
-	uint_t
-	getCommentMdKind ()
-	{
-		return m_commentMdKind;
-	}
-
 	void
 	create ();
 
 	void
 	clear ();
-
-	bool
-	createComment (
-		const char* format,
-		...
-		)
-	{
-		AXL_VA_DECL (va, format);
-		return createComment_va (format, va);
-	}
-
-	bool
-	createComment_va (
-		const char* format,
-		axl_va_list va
-		);
-
-	bool
-	createComment_0 (const char* text);
-
-	bool
-	createEmptyLine ()
-	{
-		return createComment_0 (NULL);
-	}
 
 	llvm::DebugLoc
 	getCurrentDebugLoc ()
@@ -1202,31 +1169,6 @@ public:
 		PropertyPtrType* resultType,
 		Value* resultValue
 		);
-};
-
-//.............................................................................
-
-class LlvmScopeComment
-{
-protected:
-	LlvmIrBuilder* m_llvmIrBuilder;
-
-public:
-	LlvmScopeComment (
-		LlvmIrBuilder* llvmIrBuilder,
-		const char* format,
-		...
-		)
-	{
-		AXL_VA_DECL (va, format);
-		llvmIrBuilder->createComment_va (format, va);
-		m_llvmIrBuilder = llvmIrBuilder;
-	}
-
-	~LlvmScopeComment ()
-	{
-		m_llvmIrBuilder->createEmptyLine ();
-	}
 };
 
 //.............................................................................

@@ -61,7 +61,7 @@ MulticastClassType::compileCallMethod ()
 
 void
 MulticastClassType::markGcRoots (
-	void* _p,
+	const void* _p,
 	GcHeap* gcHeap
 	)
 {

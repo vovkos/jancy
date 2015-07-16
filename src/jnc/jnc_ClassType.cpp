@@ -728,7 +728,7 @@ ClassType::compile ()
 
 void
 ClassType::markGcRoots (
-	void* p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {

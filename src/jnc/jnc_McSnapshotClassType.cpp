@@ -84,7 +84,7 @@ McSnapshotClassType::compileCallMethod ()
 
 void
 McSnapshotClassType::markGcRoots (
-	void* _p,
+	const void* _p,
 	GcHeap* gcHeap
 	)
 {

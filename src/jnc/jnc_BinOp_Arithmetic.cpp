@@ -27,7 +27,7 @@ dataPtrIncrementOperator (
 	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
 		module->m_llvmIrBuilder.createGep (opValue1, opValue2, resultType, resultValue);
-		resultValue->setLeanDataPtr (resultValue->getLlvmValue (), resultType, opValue1.getLeanDataPtrValidator ());
+		resultValue->setLeanDataPtr (resultValue->getLlvmValue (), resultType, opValue1);
 	}
 	else // EDataPtrType_Normal
 	{

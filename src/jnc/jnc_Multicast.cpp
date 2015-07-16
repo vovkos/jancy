@@ -155,14 +155,13 @@ MulticastImpl::getSnapshot ()
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ASSERT (m_box->m_classType->getClassTypeKind () == ClassTypeKind_Multicast);
+	ASSERT (isClassType (m_box->m_type, ClassTypeKind_Multicast));
 	MulticastClassType* multicastType = (MulticastClassType*) m_box->m_type;
 	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
 
 	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
-	snapshot->m_root = snapshot;
-	snapshot->m_type = snapshotType;
 	snapshot->m_box = snapshot;
+	snapshot->m_type = snapshotType;
 	snapshot->m_flags = 0;
 
 	size_t size = multicastType->getTargetType ()->getSize () * m_count;

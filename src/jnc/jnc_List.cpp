@@ -35,7 +35,10 @@ List::takeOver (List* list)
 	m_headPtr = list->m_headPtr;
 	m_tailPtr = list->m_tailPtr;
 	m_count = list->m_count;
-	list->clear ();
+
+	m_headPtr = g_nullPtr;
+	m_tailPtr = g_nullPtr;
+	m_count = 0;
 }
 
 DataPtr
@@ -44,15 +47,14 @@ List::insertHead (
 	Variant data
 	)
 {
-	ListEntry* entry = AXL_MEM_NEW (ListEntry);
+	DataBox* box = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) (box + 1);
 	entry->m_list = self;
 	entry->m_data = data;
 
 	DataPtr entryPtr;
 	entryPtr.m_p = entry;
-	entryPtr.m_rangeBegin = entry;
-	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_box = getStaticBox ();
+	entryPtr.m_validator = &box->m_validator;
 
 	self->insertHeadImpl (entryPtr);
 	return entryPtr;
@@ -64,15 +66,14 @@ List::insertTail (
 	Variant data
 	)
 {
-	ListEntry* entry = AXL_MEM_NEW (ListEntry);
+	DataBox* box = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) (box + 1);
 	entry->m_list = self;
 	entry->m_data = data;
 
 	DataPtr entryPtr;
 	entryPtr.m_p = entry;
-	entryPtr.m_rangeBegin = entry;
-	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_box = getStaticBox ();
+	entryPtr.m_validator = &box->m_validator;
 
 	self->insertTailImpl (entryPtr);
 	return entryPtr;
@@ -85,15 +86,14 @@ List::insertBefore (
 	DataPtr beforePtr
 	)
 {
-	ListEntry* entry = AXL_MEM_NEW (ListEntry);
+	DataBox* box = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) (box + 1);
 	entry->m_list = self;
 	entry->m_data = data;
 
 	DataPtr entryPtr;
 	entryPtr.m_p = entry;
-	entryPtr.m_rangeBegin = entry;
-	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_box = getStaticBox ();
+	entryPtr.m_validator = &box->m_validator;
 
 	self->insertBeforeImpl (entryPtr, beforePtr);
 	return entryPtr;
@@ -106,15 +106,14 @@ List::insertAfter (
 	DataPtr afterPtr
 	)
 {
-	ListEntry* entry = AXL_MEM_NEW (ListEntry);
+	DataBox* box = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) (box + 1);
 	entry->m_list = self;
 	entry->m_data = data;
 
 	DataPtr entryPtr;
 	entryPtr.m_p = entry;
-	entryPtr.m_rangeBegin = entry;
-	entryPtr.m_rangeEnd = entry + 1;
-	entryPtr.m_box = getStaticBox ();
+	entryPtr.m_validator = &box->m_validator;
 
 	self->insertAfterImpl (entryPtr, afterPtr);
 	return entryPtr;
@@ -191,6 +190,21 @@ List::remove (
 	entry->m_list = NULL;
 	
 	return entry->m_data;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+DataBox* 
+List::allocateListEntry ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Module* module = runtime->getFirstModule ();
+	ASSERT (module);
+
+	Type* type = module->m_typeMgr.getStdType (StdType_ListEntry);
+	return runtime->m_gcHeap.allocateData (type);
 }
 
 void

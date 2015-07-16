@@ -16,7 +16,6 @@ VariableMgr::VariableMgr ()
 	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
-	createStdVariables ();
 }
 
 void
@@ -30,19 +29,10 @@ VariableMgr::clear ()
 	m_globalStaticVariableArray.clear ();
 
 	m_tlsVariableArray.clear ();
-	m_tlsGcRootArray.clear ();
 	m_tlsStructType = NULL;
 	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
-	createStdVariables ();
-}
-
-void
-VariableMgr::createStdVariables ()
-{
-	for (size_t i = 0; i < StdVariable__Count; i++)
-		getStdVariable ((StdVariable) i);
 }
 
 Variable*
@@ -147,8 +137,8 @@ VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 {
 	return createVariable (
 		storageKind,
-		"once_flag",
-		"once_flag",
+		"onceFlag",
+		"onceFlag",
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32),
 		storageKind == StorageKind_Static ? PtrTypeFlag_Volatile : 0
 		);
@@ -157,8 +147,6 @@ VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 Variable*
 VariableMgr::createArgVariable (FunctionArg* arg)
 {
-	bool result;
-
 	Variable* variable = createStackVariable (
 		arg->getName (),
 		arg->getType (),
@@ -168,20 +156,6 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	variable->m_parentUnit = arg->getParentUnit ();
 	variable->m_pos = *arg->getPos ();
 	variable->m_flags |= ModuleItemFlag_User;
-
-	Value ptrValue;
-	result = m_module->m_operatorMgr.allocate (
-		StorageKind_Stack,
-		arg->getType (),
-		arg->getName (),
-		&ptrValue
-		);
-
-	if (!result)
-		return NULL;
-
-	variable->m_llvmAllocValue = ptrValue.getLlvmValue ();
-	variable->m_llvmValue = ptrValue.getLlvmValue ();
 
 	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
@@ -195,25 +169,6 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	}
 
 	return variable;
-}
-
-llvm::GlobalVariable*
-VariableMgr::createLlvmGlobalVariable (
-	Type* type,
-	const char* tag
-	)
-{
-	llvm::GlobalVariable* llvmValue = new llvm::GlobalVariable (
-		*m_module->getLlvmModule (),
-		type->getLlvmType (),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		(llvm::Constant*) type->getZeroValue ().getLlvmValue (),
-		tag
-		);
-
-	m_llvmGlobalVariableArray.append (llvmValue);
-	return llvmValue;
 }
 
 Alias*
@@ -274,6 +229,72 @@ VariableMgr::createTlsStructType ()
 }
 
 bool
+VariableMgr::allocateInitializeGlobalVariables ()
+{
+	bool result;
+
+	Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
+	Type* dtorType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+
+	size_t count = m_globalStaticVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = m_globalStaticVariableArray [i];
+		ASSERT (!variable->m_llvmValue);
+
+
+		if (variable->m_type->getTypeKind () == TypeKind_Class)
+		{
+			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
+			if (destructor)
+			{
+				Value dtorValue;
+				result = 
+					m_module->m_operatorMgr.castOperator (destructor, dtorType, &dtorValue) &&
+					m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
+
+				if (!result)
+					return false;
+			}
+		}
+
+		result = m_module->m_operatorMgr.parseInitializer (
+			variable,
+			variable->m_itemDecl->getParentUnit (),
+			variable->m_constructor,
+			variable->m_initializer
+			);
+
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+
+/*
+
+llvm::GlobalVariable*
+VariableMgr::createLlvmGlobalVariable (
+	Type* type,
+	const char* tag
+	)
+{
+	llvm::GlobalVariable* llvmValue = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		type->getLlvmType (),
+		false,
+		llvm::GlobalVariable::InternalLinkage,
+		(llvm::Constant*) type->getZeroValue ().getLlvmValue (),
+		tag
+		);
+
+	m_llvmGlobalVariableArray.append (llvmValue);
+	return llvmValue;
+}
+
+bool
 VariableMgr::allocatePrimeStaticVariables ()
 {
 	bool result;
@@ -313,48 +334,6 @@ VariableMgr::allocatePrimeStaticVariable (Variable* variable)
 
 	if (m_module->getFlags () & ModuleFlag_DebugInfo)
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createGlobalVariable (variable);
-
-	return true;
-}
-
-bool
-VariableMgr::initializeGlobalStaticVariables ()
-{
-	bool result;
-
-	Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
-	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
-
-	size_t count = m_globalStaticVariableArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = m_globalStaticVariableArray [i];
-
-		if (variable->m_type->getTypeKind () == TypeKind_Class)
-		{
-			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
-			if (destructor)
-			{
-				Value dtorValue;
-				result = 
-					m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
-					m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
-
-				if (!result)
-					return false;
-			}
-		}
-
-		result = m_module->m_operatorMgr.parseInitializer (
-			variable,
-			variable->m_itemDecl->getParentUnit (),
-			variable->m_constructor,
-			variable->m_initializer
-			);
-
-		if (!result)
-			return false;
-	}
 
 	return true;
 }
@@ -421,7 +400,7 @@ VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 		Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
 		if (destructor)
 		{
-			Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddDestructor);
+			Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
 			Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
 			Value dtorValue;
@@ -573,39 +552,7 @@ VariableMgr::allocateTlsVariable (Variable* variable)
 
 	function->addTlsVariable (variable);
 }
-
-void
-VariableMgr::deallocateTlsVariableArray (
-	const TlsVariable* array,
-	size_t count
-	)
-{
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = array [i].m_variable;
-		ASSERT (variable->m_llvmValue == array [i].m_llvmAlloca);
-
-		variable->m_llvmValue = NULL;
-		variable->m_llvmAllocValue = NULL;
-	}
-}
-
-void
-VariableMgr::restoreTlsVariableArray (
-	const TlsVariable* array,
-	size_t count
-	)
-{
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = array [i].m_variable;
-		llvm::AllocaInst* llvmAlloca = array [i].m_llvmAlloca;
-
-		variable->m_llvmValue = llvmAlloca;
-		variable->m_llvmAllocValue = llvmAlloca;
-	}
-}
-
+*/
 //.............................................................................
 
 } // namespace jnc {

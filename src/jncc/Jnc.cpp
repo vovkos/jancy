@@ -106,7 +106,7 @@ Jnc::run (
 		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (cmdLine->m_flags & (JncFlag_RunFunction | JncFlag_Disassembly))
+	if (cmdLine->m_flags & JncFlag_RunFunction)
 		cmdLine->m_flags |= JncFlag_Jit;
 
 	result = compile (srcName, src, srcSize);
@@ -129,13 +129,10 @@ Jnc::run (
 		}
 	}
 
-	if (cmdLine->m_flags & JncFlag_Disassembly)
-		printDisassembly ();
-
 	if (cmdLine->m_flags & JncFlag_RunFunction)
 	{
 		m_runtime.m_stackSizeLimit = cmdLine->m_stackSizeLimit;
-		m_runtime.m_gcPeriodSizeLimit = cmdLine->m_gcPeriodSizeLimit;
+		m_runtime.m_gcHeap.m_periodSizeLimit = cmdLine->m_gcPeriodSizeLimit;
 
 		int returnValue;
 		result = runFunction (&returnValue);
@@ -188,7 +185,6 @@ Jnc::jit ()
 		m_module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&m_module) &&
 		m_module.jit () &&
-		m_runtime.create () &&
 		m_runtime.addModule (&m_module);
 }
 
@@ -200,8 +196,6 @@ Jnc::printLlvmIr ()
 		m_outStream->printf ("%s", m_module.getLlvmIrString ().cc ());
 		return;
 	}
-
-	uint_t commentMdKind = m_module.m_llvmIrBuilder.getCommentMdKind ();
 
 	rtl::Iterator <jnc::Function> function = m_module.m_functionMgr.getFunctionList ().getHead ();
 	for (; function; function++)
@@ -230,85 +224,13 @@ Jnc::printLlvmIr ()
 			{
 				std::string string;
 				llvm::raw_string_ostream stream (string);
-
-				llvm::MDNode* mdComment = inst->getMetadata (commentMdKind);
-				if (mdComment)
-					inst->setMetadata (commentMdKind, NULL); // remove before print
-
 				inst->print (stream);
-
 				m_outStream->printf ("%s\n", string.c_str ());
-
-				if (mdComment)
-				{
-					inst->setMetadata (commentMdKind, mdComment); // restore
-					llvm::MDString* mdString = (llvm::MDString*) mdComment->getOperand (0);
-					m_outStream->printf ("\n  ; %s\n", mdString->getString ().data ());
-				}
 			}
 		}
 
 		m_outStream->printf ("\n........................................\n\n");
 	}
-}
-
-void
-Jnc::printDisassembly ()
-{
-	jnc::Disassembler dasm;
-
-	rtl::Iterator <jnc::Function> function = m_module.m_functionMgr.getFunctionList ().getHead ();
-	for (; function; function++)
-	{
-		jnc::FunctionType* functionType = function->getType ();
-
-		m_outStream->printf (
-			"%s %s %s %s\n",
-			functionType->getReturnType ()->getTypeString ().cc (),
-			functionType->getCallConv ()->getCallConvString (),
-			function->m_tag.cc (),
-			functionType->getArgString ().cc ()
-			);
-
-		void* p = function->getMachineCode ();
-		size_t size = function->getMachineCodeSize ();
-
-		if (p)
-		{
-			rtl::String s = dasm.disassemble (p, size);
-			m_outStream->printf ("\n%s", s.cc ());
-		}
-
-		m_outStream->printf ("\n........................................\n\n");
-	}
-}
-
-bool
-Jnc::runFunction (
-	jnc::Function* function,
-	int* returnValue_o
-	)
-{
-	typedef
-	int
-	TargetFunc ();
-
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
-	{
-		int returnValue = p ();
-		if (returnValue_o)
-			*returnValue_o = returnValue;
-	}
-	AXL_MT_LONG_JMP_CATCH ()
-	{
-		return false;
-	}
-	AXL_MT_END_LONG_JMP_TRY ()
-
-	return true;
 }
 
 bool
@@ -325,29 +247,13 @@ Jnc::runFunction (int* returnValue)
 
 	jnc::Function* function = (jnc::Function*) functionItem;
 
-	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
-
-	m_runtime.startup ();
-
-	jnc::Function* constructor = m_module.getConstructor ();
-	if (constructor)
-	{
-		result = runFunction (constructor);
-		if (!result)
-			return false;
-	}
-
-	result = runFunction (function, returnValue);
+	result = m_runtime.startup ();
 	if (!result)
 		return false;
 
-	jnc::Function* destructor = m_module.getDestructor ();
-	if (destructor)
-	{
-		result = runFunction (destructor);
-		if (!result)
-			return false;
-	}
+	result = jnc::callFunction (function, returnValue);
+	if (!result)
+		return false;
 
 	m_runtime.shutdown ();
 

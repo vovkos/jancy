@@ -10,7 +10,7 @@
 #include "jnc_ThunkFunction.h"
 #include "jnc_ThunkProperty.h"
 #include "jnc_PropertyTemplate.h"
-#include "jnc_NamespaceMgr.h"
+#include "jnc_StdFunction.h"
 #include "jnc_ClassType.h"
 
 namespace jnc {
@@ -26,30 +26,7 @@ class FunctionMgr
 	friend class Parser;
 
 protected:
-	struct EmissionContext: rtl::ListLink
-	{
-		Function* m_currentFunction;
-
-		Namespace* m_currentNamespace;
-		Scope* m_currentScope;
-
-		rtl::Array <BasicBlock*> m_returnBlockArray;
-		BasicBlock* m_currentBlock;
-		BasicBlock* m_unreachableBlock;
-		uint_t m_controlFlowMgrFlags;
-
-		Value m_thisValue;
-		rtl::BoxList <Value> m_tmpStackGcRootList;
-
-		llvm::DebugLoc m_llvmDebugLoc;
-	};
-
-protected:
 	Module* m_module;
-
-	// unfortunately LLVM does not provide a slot for back-pointer from llvm::Function, hence the map
-
-	rtl::HashTableMap <llvm::Function*, Function*, rtl::HashId <llvm::Function*> > m_llvmFunctionMap;
 
 	rtl::StdList <Function> m_functionList;
 	rtl::StdList <Property> m_propertyList;
@@ -64,14 +41,11 @@ protected:
 	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
 	rtl::Array <NamedTypeBlock*> m_staticConstructArray;
 
-	Function* m_currentFunction;
-
-	Value m_thisValue;
-
-	rtl::StdList <EmissionContext> m_emissionContextStack;
-
 	Function* m_stdFunctionArray [StdFunction__Count];
 	LazyStdFunction* m_lazyStdFunctionArray [StdFunction__Count];
+
+	Function* m_currentFunction;
+	Value m_thisValue;
 
 public:
 	FunctionMgr ();
@@ -90,13 +64,6 @@ public:
 
 	Function*
 	setCurrentFunction (Function* function);
-
-	Function*
-	findFunctionByLlvmFunction (llvm::Function* llvmFunction)
-	{
-		rtl::HashTableMapIterator <llvm::Function*, Function*> it = m_llvmFunctionMap.find (llvmFunction);
-		return it ? it->m_value : NULL;
-	}
 
 	Property*
 	getCurrentProperty ()
@@ -309,15 +276,7 @@ protected:
 	createThisValue ();
 
 	void
-	pushEmissionContext ();
-
-	void
-	popEmissionContext ();
-
-	void
 	injectTlsPrologue (Function* function);
-
-	// LLVM code support functions
 
 	Function*
 	parseStdFunction (

@@ -100,12 +100,6 @@ protected:
 	bool
 	runFunction (int* returnValue = NULL);
 
-	bool
-	runFunction (
-		jnc::Function* function,
-		int* returnValue = NULL
-		);
-
 	int
 	server ();
 

@@ -12,19 +12,13 @@ LlvmIrBuilder::LlvmIrBuilder ()
 	ASSERT (m_module);
 
 	m_llvmIrBuilder = NULL;
-
-	m_commentMdKind = 0;
 }
 
 void
 LlvmIrBuilder::create ()
 {
-	clear ();
-
+	ASSERT (!m_llvmIrBuilder);
 	m_llvmIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
-
-	if (m_module->getFlags () & ModuleFlag_IrComments)
-		m_commentMdKind = m_module->getLlvmContext ()->getMDKindID ("jnc.comment");
 }
 
 void
@@ -35,44 +29,6 @@ LlvmIrBuilder::clear ()
 
 	delete m_llvmIrBuilder;
 	m_llvmIrBuilder = NULL;
-}
-
-bool
-LlvmIrBuilder::createComment_va (
-	const char* format,
-	axl_va_list va
-	)
-{
-	if (!(m_module->getFlags () & ModuleFlag_IrComments))
-		return false;
-
-	char buffer [256];
-	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
-	string.format_va (format, va);
-
-	return createComment_0 (string);
-}
-
-bool
-LlvmIrBuilder::createComment_0 (const char* text)
-{
-	if (!(m_module->getFlags () & ModuleFlag_IrComments))
-		return false;
-
-	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
-	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
-
-	if (llvmBlock->getInstList ().empty ())
-	{
-		block->m_leadingComment = text;
-		return true;
-	}
-
-	llvm::Instruction* inst = &llvmBlock->getInstList ().back ();
-	llvm::MDString* mdString = llvm::MDString::get (*m_module->getLlvmContext (), text);
-	llvm::MDNode* mdNode = llvm::MDNode::get (*m_module->getLlvmContext (), llvm::ArrayRef <llvm::Value*> ((llvm::Value**) &mdString, 1));
-	inst->setMetadata (m_commentMdKind, mdNode);
-	return true;
 }
 
 llvm::SwitchInst*

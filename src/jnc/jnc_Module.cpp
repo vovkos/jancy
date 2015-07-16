@@ -66,8 +66,8 @@ Module::create (
 	m_name = name;
 
 	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
-	m_llvmModule = new llvm::Module ("jncc_module", *llvmContext);
-
+	m_llvmModule = new llvm::Module ("jncModule", *llvmContext);
+	
 	m_llvmIrBuilder.create ();
 
 	if (flags & ModuleFlag_DebugInfo)
@@ -599,16 +599,8 @@ Module::createDefaultConstructor ()
 
 	m_functionMgr.internalPrologue (function);
 
-	BasicBlock* block = m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-
-	result = m_variableMgr.allocatePrimeStaticVariables ();
-	if (!result)
-		return false;
-
-	m_controlFlowMgr.setCurrentBlock (block);
-
 	result = 
-		m_variableMgr.initializeGlobalStaticVariables () &&
+		m_variableMgr.allocateInitializeGlobalVariables () &&
 		m_functionMgr.callStaticConstructors ();
 
 	if (!result)

@@ -50,7 +50,7 @@ Cast_ClassPtr::getCastKind (
 	ClassType* dstClassType = dstType->getTargetType ();
 
 	return 
-		(dstClassType->getClassTypeKind () == ClassTypeKind_StdObject) ||	
+		(dstClassType->getClassTypeKind () == ClassTypeKind_Abstract) ||	
 		srcClassType->cmp (dstClassType) == 0 || 
 		isMulticastToMulticast (srcType, dstType) ||
 		srcClassType->findBaseTypeTraverse (dstClassType) ? 
@@ -83,8 +83,6 @@ Cast_ClassPtr::llvmCast (
 	if (srcType->getPtrTypeKind () == ClassPtrTypeKind_Weak &&
 		dstType->getPtrTypeKind () != ClassPtrTypeKind_Weak)
 	{
-		LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "strengthen class pointer");
-
 		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
 
 		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &opValue);
@@ -104,7 +102,7 @@ Cast_ClassPtr::llvmCast (
 	if (dstType->getFlags () & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkNullPtr (opValue);
 
-	if (dstClassType->getClassTypeKind () == ClassTypeKind_StdObject ||
+	if (dstClassType->getClassTypeKind () == ClassTypeKind_Abstract ||
 		isMulticastToMulticast (srcType, dstType))
 	{
 		m_module->m_llvmIrBuilder.createBitCast (opValue, dstType, resultValue);

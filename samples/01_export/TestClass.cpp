@@ -13,7 +13,7 @@ TestClass::enumGcRoots (
 	// mark opaque roots (no need to mark roots visible to jancy)
 
 	if (self->m_internalObject)
-		self->m_internalObject->m_box->gcMarkObject (gcHeap);
+		gcHeap->markClass (self->m_internalObject->m_box);
 }
 
 TestClass*
@@ -24,7 +24,7 @@ TestClass::operatorNew (
 {
 	printf ("  TestClass::operatorNew (%d)\n", value);
 
-	jnc::ApiClassBox <TestClass>* object = (jnc::ApiClassBox <TestClass>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <TestClass>* object = (jnc::ApiClassBox <TestClass>*) jnc::StdLib::allocateClass (type);
 	object->prime (type);
 	object->m_internalValue = value;
 	sprintf (object->m_internalData, "TestClass (%p)", (TestClass*) object);

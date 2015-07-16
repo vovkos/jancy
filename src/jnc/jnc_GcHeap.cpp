@@ -9,6 +9,7 @@ namespace jnc {
 
 GcHeap::GcHeap ()
 {
+	m_runtime = AXL_CONTAINING_RECORD (this, Runtime, m_gcHeap);
 	m_state = State_Idle;
 	m_handshakeCount = 0;
 	m_safeMutatorThreadCount = 0;
@@ -103,7 +104,10 @@ GcHeap::tryAllocateClass (ClassType* type)
 
 	Box* box = (Box*) AXL_MEM_ALLOC (size);
 	if (!box)
+	{
+		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
 		return NULL;
+	}
 
 	prime (type, vtable, box, box);
 
@@ -112,6 +116,19 @@ GcHeap::tryAllocateClass (ClassType* type)
 	addClassBox_l (box);
 
 	m_lock.unlock ();
+
+	return box;
+}
+
+Box* 
+GcHeap::allocateClass (ClassType* type)
+{
+	Box* box = tryAllocateClass (type);
+	if (!box)
+	{
+		Runtime::runtimeError (err::getLastError ());
+		ASSERT (false);
+	}
 
 	return box;
 }
@@ -141,54 +158,26 @@ GcHeap::addClassBox_l (Box* box)
 	m_classBoxArray.append (box); // after all the children
 }
 
-Box*
-GcHeap::tryAllocateData (
-	Type* type,
-	size_t count
-	)
+DataBox*
+GcHeap::tryAllocateData (Type* type)
 {
 	size_t dataSize = type->getSize ();
 
-	Box* box;
-	DataPtrValidator* validator;
-
-	if (count > 1)
+	size_t allocSize = sizeof (DataBox) + dataSize;
+	DataBox* box = (DataBox*) AXL_MEM_ALLOC (allocSize);
+	if (!box)
 	{
-		dataSize *= count;
-
-		size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
-		DynamicArrayBox* dynamicArrayBox = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
-		if (!dynamicArrayBox)
-			return NULL;
-
-		memset (dynamicArrayBox, 0, allocSize);
-		dynamicArrayBox->m_type = type;
-		dynamicArrayBox->m_flags = BoxFlag_DynamicArray | BoxFlag_StrongMark | BoxFlag_WeakMark;
-		dynamicArrayBox->m_count = count;
-
-		box = dynamicArrayBox;
-		validator = (DataPtrValidator*) (dynamicArrayBox + 1);
-	}
-	else
-	{
-		size_t allocSize = sizeof (Box) + sizeof (DataPtrValidator) + dataSize;
-		box = (Box*) AXL_MEM_ALLOC (allocSize);
-		if (!box)
-			return NULL;
-
-		memset (box, 0, allocSize);
-		box->m_type = type;
-		box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
-
-		validator = (DataPtrValidator*) (box + 1);
+		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
+		return NULL;
 	}
 
-	char* p = (char*) (validator + 1);
-
-	validator->m_validatorBox = box;
-	validator->m_targetBox = box;
-	validator->m_rangeBegin = p;
-	validator->m_rangeEnd = p + dataSize;
+	memset (box, 0, allocSize);
+	box->m_type = type;
+	box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
+	box->m_validator.m_validatorBox = box;
+	box->m_validator.m_targetBox = box;
+	box->m_validator.m_rangeBegin = box + 1;
+	box->m_validator.m_rangeLength = dataSize;
 
 	incrementAllocSizeAndLock (dataSize);
 	m_allocBoxArray.append (box);
@@ -196,46 +185,91 @@ GcHeap::tryAllocateData (
 	return box;
 }
 
-Box* 
-GcHeap::tryAllocate (
-	Type* type,
-	size_t count
-	)
+DataBox* 
+GcHeap::allocateData (Type* type)
 {
-	return type->getTypeKind () == TypeKind_Class ? 
-		tryAllocateClass ((ClassType*) type) :
-		tryAllocateData (type, count);
-}
-
-Box* 
-GcHeap::allocate (
-	Type* type,
-	size_t count
-	)
-{
-	Box* box = tryAllocate (type, count);
+	DataBox* box = tryAllocateData (type);
 	if (!box)
 	{
-		err::Error error = err::formatStringError (
-			count > 1 ? 
-				"not enough memory for '%s [%d]'" : 
-				"not enough memory for '%s'", 
-			type->getTypeString ().cc (), 
-			count
-			);
-
-		Runtime::runtimeError (error);
+		Runtime::runtimeError (err::getLastError ());
 		ASSERT (false);
 	}
 
 	return box;
 }
 
+DynamicArrayBox*
+GcHeap::tryAllocateArray (
+	Type* type,
+	size_t count
+	)
+{
+	size_t dataSize = type->getSize () * count;
+	size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
+
+	DynamicArrayBox* box = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
+	if (!box)
+	{
+		err::setFormatStringError ("not enough memory for '%s [%d]'", type->getTypeString ().cc (), count);
+		return NULL;
+	}
+
+	memset (box, 0, allocSize);
+	box->m_type = type;
+	box->m_flags = BoxFlag_DynamicArray | BoxFlag_StrongMark | BoxFlag_WeakMark;
+	box->m_count = count;
+	box->m_validator.m_validatorBox = box;
+	box->m_validator.m_targetBox = box;
+	box->m_validator.m_rangeBegin = box + 1;
+	box->m_validator.m_rangeLength = dataSize;
+
+	incrementAllocSizeAndLock (dataSize);
+	m_allocBoxArray.append (box);
+	m_lock.unlock ();
+	return box;
+}
+
+DynamicArrayBox* 
+GcHeap::allocateArray (
+	Type* type,
+	size_t count
+	)
+{
+	DynamicArrayBox* box = tryAllocateArray (type, count);
+	if (!box)
+	{
+		Runtime::runtimeError (err::getLastError ());
+		ASSERT (false);
+	}
+
+	return box;
+}
+
+DynamicArrayBox* 
+GcHeap::tryAllocateBuffer (size_t size)
+{
+	Module* module = m_runtime->getFirstModule ();
+	ASSERT (module);
+
+	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	return (DynamicArrayBox*) tryAllocateArray (type, size);
+}
+
+DynamicArrayBox* 
+GcHeap::allocateBuffer (size_t size)
+{
+	Module* module = m_runtime->getFirstModule ();
+	ASSERT (module);
+
+	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	return (DynamicArrayBox*) allocateArray (type, size);
+}
+
 DataPtrValidator*
 GcHeap::createDataPtrValidator (
 	Box* box,
 	void* rangeBegin,
-	void* rangeEnd
+	size_t rangeLength
 	)
 {
 	DataPtrValidator* validator;
@@ -261,8 +295,8 @@ GcHeap::createDataPtrValidator (
 	else
 	{
 		size_t dataSize = sizeof (DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
-		size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
-		DynamicArrayBox* box = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
+		size_t allocSize = sizeof (DynamicArrayBoxHdr) + dataSize;
+		DynamicArrayBoxHdr* box = (DynamicArrayBoxHdr*) AXL_MEM_ALLOC (allocSize);
 
 		box->m_type = m_dataPtrValidatorType;
 		box->m_flags = BoxFlag_DynamicArray | BoxFlag_StrongMark | BoxFlag_WeakMark;
@@ -282,7 +316,7 @@ GcHeap::createDataPtrValidator (
 
 	validator->m_targetBox = box;
 	validator->m_rangeBegin = rangeBegin;
-	validator->m_rangeEnd = rangeEnd;
+	validator->m_rangeLength = rangeLength;
 	return validator;
 }
 
@@ -337,7 +371,6 @@ GcHeap::registerMutatorThread (GcMutatorThread* thread)
 {
 	thread->m_threadId = mt::getCurrentThreadId ();
 	thread->m_enterSafeRegionCount = 0;
-	thread->m_shadowStackTop = NULL;
 	thread->m_dataPtrValidatorPoolBegin = NULL;
 	thread->m_dataPtrValidatorPoolEnd = NULL;
 
@@ -351,7 +384,9 @@ GcHeap::unregisterMutatorThread (GcMutatorThread* thread)
 {
 	ASSERT (thread->m_threadId == mt::getCurrentThreadId ());
 	ASSERT (thread->m_enterSafeRegionCount == 0);
-	ASSERT (thread->m_shadowStackTop == NULL);
+
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (thread + 1);
+	ASSERT (tlsVariableTable->m_shadowStackTop == NULL);
 
 	waitIdleAndLock (true);
 	m_mutatorThreadList.remove (thread);
@@ -432,7 +467,7 @@ GcHeap::markData (
 
 	size_t size = type->getSize ();
 	char* p = (char*) validator->m_rangeBegin;
-	char* end = (char*) validator->m_rangeEnd;
+	char* end = p + validator->m_rangeLength;
 	
 	ASSERT ((end - p) % size == 0);
 
@@ -517,7 +552,7 @@ GcHeap::weakMarkClosureClass (Box* box)
 
 void
 GcHeap::addRoot (
-	void* p,
+	const void* p,
 	Type* type
 	)
 {
@@ -614,7 +649,8 @@ GcHeap::collect_l ()
 	rtl::Iterator <GcMutatorThread> threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
-		GcShadowStackFrame* frame = threadIt->m_shadowStackTop;
+		TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (*threadIt + 1);
+		GcShadowStackFrame* frame = tlsVariableTable->m_shadowStackTop;
 		for (; frame; frame = frame->m_prev)
 			addShadowStackFrameRoots (frame);
 	}
@@ -695,7 +731,7 @@ GcHeap::collect_l ()
 		{
 			size_t size = box->m_type->getSize ();
 			if (box->m_flags & BoxFlag_DynamicArray)
-				size *= ((DynamicArrayBox*) box)->m_count;
+				size *= ((DynamicArrayBoxHdr*) box)->m_count;
 
 			freeSize += size;
 			AXL_MEM_FREE (box);

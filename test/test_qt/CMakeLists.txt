@@ -9,7 +9,6 @@
 
 set (
 	APP_H_LIST
-	disassembly.h
 	editor.h
 	highlighter.h
 	jancyhighlighter.h
@@ -23,7 +22,6 @@ set (
 
 set (
 	APP_CPP_LIST
-	disassembly.cpp
 	editor.cpp
 	highlighter.cpp
 	jancyhighlighter.cpp
@@ -86,7 +84,6 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 
 set (
 	MOC_H_LIST
-	disassembly.h
 	editor.h
 	highlighter.h
 	jancyhighlighter.h

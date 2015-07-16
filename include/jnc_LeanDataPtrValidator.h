@@ -8,58 +8,67 @@
 
 namespace jnc {
 
+class Variable;
+
 //.............................................................................
-
-enum LeanDataPtrValidatorKind
-{
-	LeanDataPtrValidatorKind_Undefined,
-	LeanDataPtrValidatorKind_Simple,
-	LeanDataPtrValidatorKind_Complex,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class LeanDataPtrValidator: public ref::RefCount
 {
 	friend class Value;
-	friend class ConstMgr;
+	friend class Variable;
 
 protected:
-	LeanDataPtrValidatorKind m_validatorKind;
+	size_t m_rangeLength;
 
-	Value m_scopeValidatorValue;
+	Value m_originValue;
+	Value m_boxValue;
 	Value m_rangeBeginValue;
-	Value m_sizeValue;
-
+	Value m_rangeLengthValue;
+	Value m_validatorValue;
+	
 public:
 	LeanDataPtrValidator ()
 	{
-		m_validatorKind = LeanDataPtrValidatorKind_Undefined;
+		m_rangeLength = 0;
 	}
 
-	LeanDataPtrValidatorKind 
-	getValidatorKind ()
+	bool
+	isDynamicRange ()
 	{
-		return m_validatorKind;
+		return m_rangeLength == 0;
+	}
+
+	bool
+	hasValidatorValue ()
+	{
+		return m_validatorValue;
 	}
 
 	Value 
-	getScopeValidator ()
+	getOriginValue ()
 	{
-		return m_scopeValidatorValue;
+		ASSERT (m_originValue); // never empty
+		return m_originValue;
 	}
 
 	Value 
-	getRangeBegin ()
+	getBoxValue ();
+
+	Value 
+	getRangeBeginValue ();
+
+	size_t 
+	getRangeLength ()
 	{
-		return m_rangeBeginValue;
+		ASSERT (m_rangeLength); // should be checked with isDynamicRange ()
+		return m_rangeLength;
 	}
 
-	Value
-	getSizeValue ()
-	{
-		return m_sizeValue;
-	}
+	Value 
+	getRangeLengthValue ();
+
+	Value 
+	getValidatorValue ();
 };
 
 //.............................................................................

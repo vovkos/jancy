@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-class Disassembly;
 class LlvmIr;
 class ModulePane;
 class Output;
@@ -220,8 +219,6 @@ private:
 	void createStatusBar();
 	void createMdiArea();
 
-	bool runFunction (jnc::Function* pFunction, int* pReturnValue = NULL);
-
 	void createPanes();
 	QDockWidget* addPane(QWidget* widget, const QString &title, Qt::DockWidgetArea dockArea);
 
@@ -240,7 +237,6 @@ private:
 	Output* m_output;
 	ModulePane* m_modulePane;
 	LlvmIr* m_llvmIr;
-	Disassembly* m_disassembly;
 
 	QMutex m_outputMutex;
 	QStringList m_outputQueue;

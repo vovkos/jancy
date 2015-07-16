@@ -29,18 +29,18 @@ ConstBuffer::copy (
 		return true;
 	}
 
-	char* p = (char*) AXL_MEM_ALLOC (size + 1);
-	if (!p)
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (size + 1);
+	if (!box)
 		return false;
 
+	char* p = (char*) (box + 1);
 	memcpy (p, ptr.m_p, size);
-	p [size] = 0;
 
 	m_ptr.m_p = p;
-	m_ptr.m_rangeBegin = p;
-	m_ptr.m_rangeEnd = p + size + 1;
-	m_ptr.m_box = jnc::getStaticBox ();
-	m_size = size;
+	m_ptr.m_validator = &box->m_validator;
 	return true;
 }
 
@@ -91,22 +91,21 @@ Buffer::setSize (
 		return true;
 	}
 
-	size_t maxSize = rtl::getMinPower2Gt (size);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	char* p = (char*) AXL_MEM_ALLOC (maxSize + 1);
-	if (!p)
+	size_t maxSize = rtl::getMinPower2Gt (size);
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
+	if (!box)
 		return false;
 
-	p [size] = 0;
+	char* p = (char*) (box + 1);
 
 	if (saveContents)
 		memcpy (p, m_ptr.m_p, m_size);
 
 	m_ptr.m_p = p;
-	m_ptr.m_rangeBegin = p;
-	m_ptr.m_rangeEnd = p + maxSize + 1;
-	m_ptr.m_box = jnc::getStaticBox ();
-
+	m_ptr.m_validator = &box->m_validator;
 	m_size = size;
 	m_maxSize = maxSize;
 	return true;

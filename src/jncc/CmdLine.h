@@ -10,7 +10,6 @@ enum JncFlag
 	JncFlag_LlvmIr_c    = 0x0008,
 	JncFlag_Jit         = 0x0010,
 	JncFlag_Jit_mc      = 0x0020,
-	JncFlag_Disassembly = 0x0040,
 	JncFlag_RunFunction = 0x0080,
 	JncFlag_Server      = 0x0100,
 	JncFlag_DebugInfo   = 0x0200,
@@ -44,7 +43,6 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_DebugInfo,
 	CmdLineSwitchKind_Jit,
 	CmdLineSwitchKind_McJit,
-	CmdLineSwitchKind_Disassembly,
 	CmdLineSwitchKind_Run,
 	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitchKind_Server,
@@ -110,11 +108,6 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		CmdLineSwitchKind_McJit,
 		"m", "mcjit", NULL,
 		"Use MC-JIT engine (does not work on Windows)"
-		)
-	AXL_RTL_CMD_LINE_SWITCH_3 (
-		CmdLineSwitchKind_Disassembly,
-		"d", "dasm", "disassembly", NULL,
-		"Emit disassembly of JITted code"
 		)
 	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_Run,

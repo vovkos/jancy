@@ -108,7 +108,7 @@ DataPtrType::prepareLlvmDiType ()
 
 void
 DataPtrType::markGcRoots (
-	void* p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {

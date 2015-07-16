@@ -16,13 +16,13 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 	m_lastAcceptStateId = -1;
 	m_lexemeLengthLimit = 128;
 	m_currentOffset = 0;
-	
-	char* buffer = (char*) AXL_MEM_ALLOC (m_lexemeLengthLimit);
 
-	m_lexeme.m_p = buffer;
-	m_lexeme.m_rangeBegin = buffer;
-	m_lexeme.m_rangeEnd = buffer + m_lexemeLengthLimit;
-	m_lexeme.m_box = getStaticBox ();
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DynamicArrayBox* box = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
+	m_lexeme.m_p = box + 1;
+	m_lexeme.m_validator = &box->m_validator;
 
 	setAutomatonFunc (automatonFuncPtr);
 }

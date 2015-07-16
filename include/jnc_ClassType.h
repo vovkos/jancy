@@ -23,7 +23,7 @@ struct IfaceHdr;
 enum ClassTypeKind
 {
 	ClassTypeKind_Normal = 0,
-	ClassTypeKind_StdObject, // StdType_Object
+	ClassTypeKind_Abstract, // class*
 	ClassTypeKind_Multicast,
 	ClassTypeKind_McSnapshot,
 	ClassTypeKind_Reactor,
@@ -111,7 +111,7 @@ public:
 	isCreatable ()
 	{
 		return
-			m_classTypeKind != ClassTypeKind_StdObject &&
+			m_classTypeKind != ClassTypeKind_Abstract &&
 			!(m_flags & (ClassTypeFlag_Abstract | ClassTypeFlag_Opaque));
 	}
 
@@ -259,7 +259,7 @@ public:
 	virtual
 	void
 	markGcRoots (
-		void* p,
+		const void* p,
 		GcHeap* gcHeap
 		);
 

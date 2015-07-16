@@ -48,19 +48,19 @@ Cast_DataPtr_FromArray::constCast (
 	DataPtrType* dstType = (DataPtrType*) type;
 
 	const Value& savedOpValue = m_module->m_constMgr.saveValue (opValue);
-	void* p = savedOpValue.getConstData ();
+	const void* p = savedOpValue.getConstData ();
 
 	#pragma AXL_TODO ("create a global constant holding the array")
 
 	if (dstType->getPtrTypeKind () == DataPtrTypeKind_Normal)
 	{
 		DataPtr* ptr = (DataPtr*) dst;
-		ptr->m_p = p;
-		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, srcType, 1);
+		ptr->m_p = (void*) p;
+		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, srcType);
 	}
 	else // thin or lean
 	{
-		*(void**) dst = p;
+		*(const void**) dst = p;
 	}
 
 	return true;
@@ -423,13 +423,19 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
+	bool result;
+
 	if (type->getFlags () & PtrTypeFlag_Safe)
-		m_module->m_operatorMgr.checkDataPtrRange (opValue);
+	{
+		result = m_module->m_operatorMgr.checkDataPtrRange (opValue);
+		if (!result)
+			return false;
+	}
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
 
-	bool result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
+	result = getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
 	if (!result)
 		return false;
 
@@ -457,10 +463,10 @@ Cast_DataPtr_Lean2Normal::constCast (
 		return false;
 
 	DataPtr* dstPtr = (DataPtr*) dst;
-	void* src = opValue.getConstData ();
-	void* p = (char*) src + offset;
+	const void* src = opValue.getConstData ();
+	const void* p = (char*) src + offset;
 
-	dstPtr->m_p = p;
+	dstPtr->m_p = (void*) p;
 	dstPtr->m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, srcPtrType->getTargetType ());
 	return true;
 }
@@ -475,32 +481,29 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
+	bool result;
+
 	DataPtrType* srcPtrType = (DataPtrType*) opValue.getType ();
 	ASSERT (srcPtrType->getPtrTypeKind () == DataPtrTypeKind_Lean);
 
 	Value ptrValue;
-	bool result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
+	result = getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, true, &ptrValue);
 	if (!result)
 		return false;
 
-	Value rangeBeginValue;
-	Value rangeEndValue;
-	Value objHdrValue;
-
-	m_module->m_operatorMgr.getLeanDataPtrRange (opValue, &rangeBeginValue, &rangeEndValue);
-
 	if (type->getFlags () & PtrTypeFlag_Safe)
-		m_module->m_operatorMgr.checkDataPtrRange (opValue);
+	{
+		result = m_module->m_operatorMgr.checkDataPtrRange (opValue);
+		if (!result)
+			return false;
+	}
 
-	m_module->m_operatorMgr.getLeanDataPtrBox (opValue, &objHdrValue);
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "create safe data pointer");
+	LeanDataPtrValidator* validator = opValue.getLeanDataPtrValidator ();
+	Value validatorValue = validator->getValidatorValue ();
 
 	Value tmpValue = type->getUndefValue ();
 	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, ptrValue, 0, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeBeginValue, 1, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, rangeEndValue, 2, NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, objHdrValue, 3, type, resultValue);
+	m_module->m_llvmIrBuilder.createInsertValue (tmpValue, validatorValue, 1, type, resultValue);
 	return true;
 }
 

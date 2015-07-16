@@ -312,36 +312,16 @@ public:
 	void
 	prime (
 		ClassType* type,
-		Box* root,
-		uintptr_t flags
-		)
-	{
-		jnc::prime (type, T::getApiClassVTable (), this, root, flags);
-	}
-
-	void
-	prime (
-		ClassType* type,
 		Box* root
 		)
 	{
-		prime (type, root, root->m_flags);
+		jnc::prime (type, T::getApiClassVTable (), this, root);
 	}
 
 	void
 	prime (ClassType* type)
 	{
-		prime (type, this, 0);
-	}
-
-	void
-	prime (
-		Module* module,
-		Box* root,
-		uintptr_t flags
-		)
-	{
-		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, root, flags);
+		prime (type, this);
 	}
 
 	void
@@ -350,13 +330,13 @@ public:
 		Box* root
 		)
 	{
-		prime (T::getApiType (module), root, root->m_flags);
+		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, root);
 	}
 
 	void
 	prime (Module* module)
 	{
-		prime (T::getApiType (module), this, 0);
+		prime (T::getApiType (module), this);
 	}
 };
 

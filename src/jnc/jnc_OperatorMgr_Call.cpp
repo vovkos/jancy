@@ -363,7 +363,6 @@ OperatorMgr::callOperatorVararg (
 		Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
 
 		return
-			m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&
 			storeDataRef (tmpVariable, value) &&
 			unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
 			callOperator (operatorVararg, tmpValue, resultValue);
@@ -595,9 +594,9 @@ OperatorMgr::callImpl (
 }
 
 void
-OperatorMgr::gcPulse ()
+OperatorMgr::gcSafePoint ()
 {
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_GcPulse);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_GcSafePoint);
 	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
 }
 

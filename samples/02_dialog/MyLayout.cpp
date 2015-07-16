@@ -17,8 +17,7 @@ MyLayout::operatorNew (
 	QBoxLayout::Direction direction
 	)
 {
-	jnc::ApiClassBox <MyLayout>* layout = (jnc::ApiClassBox <MyLayout>*) jnc::StdLib::gcAllocate (type);
-	layout->prime (type);	
+	jnc::ApiClassBox <MyLayout>* layout = (jnc::ApiClassBox <MyLayout>*) jnc::StdLib::allocateClass (type);
 	layout->construct (direction);
 	return layout;
 }

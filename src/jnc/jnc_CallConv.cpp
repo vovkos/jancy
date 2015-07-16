@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_CallConv.h"
+#include "jnc_Decl.h"
 #include "jnc_Module.h"
 
 namespace jnc {
@@ -29,8 +30,6 @@ getLlvmCallConv (CallConvKind callConvKind)
 		llvmCallConvTable [callConvKind] :
 		llvmCallConvTable [CallConvKind_Undefined];
 }
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 uint_t
 getCallConvFlags (CallConvKind callConvKind)
@@ -73,8 +72,6 @@ getCallConvFlags (CallConvKind callConvKind)
 		flagTable [CallConvKind_Undefined];
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 const char*
 getCallConvString (CallConvKind callConvKind)
 {
@@ -98,8 +95,6 @@ getCallConvString (CallConvKind callConvKind)
 		stringTable [CallConvKind_Undefined];
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 const char*
 getCallConvDisplayString (CallConvKind callConvKind)
 {
@@ -122,8 +117,6 @@ getCallConvDisplayString (CallConvKind callConvKind)
 		stringTable [callConvKind] :
 		stringTable [CallConvKind_Undefined];
 }
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
 getCallConvSignature (CallConvKind callConvKind)
@@ -149,8 +142,6 @@ getCallConvSignature (CallConvKind callConvKind)
 		stringTable [CallConvKind_Undefined];
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 CallConvKind
 getCallConvKindFromModifiers (uint_t modifiers)
 {
@@ -165,7 +156,6 @@ getCallConvKindFromModifiers (uint_t modifiers)
 		CallConvKind_Default;
 #endif
 }
-
 //.............................................................................
 
 CallConv::CallConv ()

@@ -8,6 +8,7 @@
 
 namespace jnc {
 
+class Runtime;
 class Variable;
 class ClassType;
 
@@ -41,7 +42,7 @@ protected:
 
 	struct Root
 	{
-		void* m_p;
+		const void* m_p;
 		Type* m_type;
 	};
 
@@ -51,6 +52,8 @@ protected:
 	};
 
 protected:
+	Runtime* m_runtime;
+
 	mt::Lock m_lock;
 	volatile State m_state;
 	mt::NotificationEvent m_idleEvent;
@@ -128,22 +131,40 @@ public:
 	// allocation methods
 
 	Box* 
-	tryAllocate (
-		Type* type,
-		size_t count = 1
-		);
+	tryAllocateClass (ClassType* type);
 
 	Box* 
-	allocate (
+	allocateClass (ClassType* type);
+
+	DataBox* 
+	tryAllocateData (Type* type);
+
+	DataBox* 
+	allocateData (Type* type);
+
+	DynamicArrayBox* 
+	tryAllocateArray (
 		Type* type,
-		size_t count = 1
+		size_t count
 		);
+
+	DynamicArrayBox* 
+	allocateArray (
+		Type* type,
+		size_t count
+		);
+
+	DynamicArrayBox* 
+	tryAllocateBuffer (size_t size);
+
+	DynamicArrayBox* 
+	allocateBuffer (size_t size);
 
 	DataPtrValidator*
 	createDataPtrValidator (
 		Box* box,
 		void* rangeBegin,
-		void* rangeEnd
+		size_t rangeLength
 		);
 
 	// management methods
@@ -208,7 +229,7 @@ public:
 
 	void
 	addRoot (
-		void* p,
+		const void* p,
 		Type* type
 		);
 
@@ -226,15 +247,6 @@ protected:
 
 	void
 	incrementAllocSizeAndLock (size_t size);
-
-	Box* 
-	tryAllocateClass (ClassType* type);
-
-	Box* 
-	tryAllocateData (
-		Type* type,
-		size_t count
-		);
 
 	void
 	collect_l ();

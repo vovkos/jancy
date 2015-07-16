@@ -104,16 +104,11 @@ Parser::preCreateLandingPads (uint_t flags)
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
 		scope->m_flags |= ScopeFlag_HasFinally;
 
-		rtl::String name = "finallyReturnAddr";
-		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
-		Variable* variable  = m_module->m_variableMgr.createStackVariable (name, type);
+		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);		
+		Variable* variable  = m_module->m_variableMgr.createStackVariable ("finallyReturnAddr", type);
 		ASSERT (variable->m_scope == scope);
 
 		scope->m_finallyReturnAddress = variable;
-
-		bool result = m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
-		if (!result)
-			return false;
 	}
 
 	return true;
@@ -1562,15 +1557,6 @@ Parser::declareData (
 		if (!result)
 			return false;
 
-		if (scope)
-		{
-			variable->m_scope = scope;
-
-			result = m_module->m_variableMgr.allocatePrimeInitializeVariable (variable);
-			if (!result)
-				return false;
-		}
-
 		if (nspace->getNamespaceKind () == NamespaceKind_Type &&
 			(!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ()))
 		{
@@ -1935,9 +1921,9 @@ Parser::addReactorBindSite (const Value& value)
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 	Variable* variable = m_module->m_variableMgr.createStackVariable ("onChanged", type);
 	
-	result = 
-		m_module->m_variableMgr.allocatePrimeInitializeVariable (variable) &&
-		m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
+	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
+	if (!result)
+		return false;
 
 	m_reactionBindSiteList.insertTail (variable);
 	return true;
@@ -2946,13 +2932,8 @@ Parser::finalizeLiteral (
 	}
 
 	Type* type = m_module->m_typeMgr.getStdType (StdType_FmtLiteral);
-	Value fmtLiteralValue;
-
-	result = m_module->m_operatorMgr.allocate (StorageKind_Stack, type, "fmtLiteral", &fmtLiteralValue);
-	if (!result)
-		return false;
-	
-	m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), fmtLiteralValue);
+	Variable* fmtLiteral = m_module->m_variableMgr.createStackVariable ("fmtLiteral", type);
+	Value fmtLiteralValue = fmtLiteral;
 
 	size_t offset = 0;
 

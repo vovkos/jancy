@@ -116,9 +116,7 @@ Function::Function ()
 	m_entryBlock = NULL;
 	m_scope = NULL;
 	m_llvmFunction = NULL;
-	m_llvmPostTlsPrologueInst = NULL;
 	m_machineCode = NULL;
-	m_machineCodeSize = 0;
 }
 
 void
@@ -129,7 +127,6 @@ Function::markGc ()
 
 	llvm::Function* llvmFunction = getLlvmFunction ();
 	ASSERT (!llvmFunction->hasGC ());
-	llvmFunction->setGC ("jnc-shadow-stack");
 	m_flags |= FunctionFlag_Gc;
 }
 
@@ -160,7 +157,6 @@ Function::getLlvmFunction ()
 		return m_llvmFunction;
 
 	m_llvmFunction = m_type->getCallConv ()->createLlvmFunction (m_type, m_tag);
-	m_module->m_functionMgr.m_llvmFunctionMap [m_llvmFunction] = this;
 	return m_llvmFunction;
 }
 
@@ -316,14 +312,6 @@ Function::compile ()
 		return false;
 
 	return true;
-}
-
-//.............................................................................
-
-ModuleItem*
-LazyStdFunction::getActualItem ()
-{
-	return m_module->m_functionMgr.getStdFunction (m_func);
 }
 
 //.............................................................................

@@ -1,53 +1,10 @@
 #include "pch.h"
 #include "jnc_Type.h"
-#include "jnc_Module.h"
 #include "jnc_Variant.h"
+#include "jnc_Decl.h"
+#include "jnc_Module.h"
 
 namespace jnc {
-
-//.............................................................................
-
-const char*
-getStdTypeName (StdType stdType)
-{
-	const char* nameTable [StdType__Count] =
-	{
-		NULL,               // StdType_BytePtr,
-		NULL,               // StdType_ByteConstPtr,
-		NULL,               // StdType_SimpleIfaceHdr,
-		NULL,               // StdType_SimpleIfaceHdrPtr,
-		NULL,               // StdType_Box,
-		NULL,               // StdType_BoxPtr,
-		NULL,               // StdType_AbstractClass,
-		NULL,               // StdType_AbstractClassPtr,
-		NULL,               // StdType_SimpleFunction,
-		NULL,               // StdType_SimpleMulticast,
-		NULL,               // StdType_SimpleEventPtr,
-		NULL,               // StdType_Binder,
-		NULL,               // StdType_ReactorBindSite,
-		"Scheduler",        // StdType_Scheduler,
-		"Recognizer",       // StdType_Recognizer,
-		"AutomatonResult",  // StdType_AutomatonResult,
-		"Library",          // StdType_Library,
-		NULL,               // StdType_FmtLiteral,
-		"Guid",             // StdType_Guid
-		"Error",            // StdType_Error,
-		"String",           // StdType_String,
-		"StringRef",        // StdType_StringRef,
-		"StringBuilder",    // StdType_StringBuilder,
-		"StringHashTable",  // StdType_StringHashTable,
-		"VariantHashTable", // StdType_VariantHashTable,
-		"ListEntry",        // StdType_ListEntry,
-		"List",             // StdType_List,
-		"ConstArray",       // StdType_ConstArray,
-		"ConstArrayRef",    // StdType_ConstArrayRef,
-		"ArrayRef",         // StdType_ArrayRef,
-		"Array",            // StdType_DynamicArray,
-	};
-
-	ASSERT ((size_t) stdType < StdType__Count);
-	return nameTable [stdType];
-}
 
 //.............................................................................
 
@@ -251,67 +208,6 @@ getLlvmTypeString (llvm::Type* llvmType)
 	llvm::raw_string_ostream stream (s);
 	llvmType->print (stream);
 	return stream.str ().c_str ();
-}
-
-//.............................................................................
-
-const char*
-getTypeModifierString (TypeModifier modifier)
-{
-	static const char* stringTable [] =
-	{
-		"unsigned",     // TypeModifier_Unsigned    = 0x00000001,
-		"bigendian",    // TypeModifier_BigEndian   = 0x00000002,
-		"const",        // TypeModifier_Const       = 0x00000004,
-		"readonly",     // TypeModifier_ReadOnly    = 0x00000008,
-		"volatile",     // TypeModifier_Volatile    = 0x00000010,
-		"weak",         // TypeModifier_Weak        = 0x00000020,
-		"thin",         // TypeModifier_Thin        = 0x00000040,
-		"safe",         // TypeModifier_Safe        = 0x00000080,
-		"cdecl",        // TypeModifier_Cdecl       = 0x00000100,
-		"stdcall",      // TypeModifier_Stdcall     = 0x00000200,
-		"array",        // TypeModifier_Array       = 0x00000400,
-		"function",     // TypeModifier_Function    = 0x00000800,
-		"property",     // TypeModifier_Property    = 0x00001000,
-		"bindable",     // TypeModifier_Bindable    = 0x00002000,
-		"autoget",      // TypeModifier_AutoGet     = 0x00004000,
-		"indexed",      // TypeModifier_Indexed     = 0x00008000,
-		"multicast",    // TypeModifier_Multicast   = 0x00010000,
-		"event",        // TypeModifier_Event       = 0x00020000,
-		"unused",       // TypeModifier_Unused      = 0x00040000,
-		"reactor",      // TypeModifier_Reactor     = 0x00080000,
-		"thiscall",     // TypeModifier_Thiscall    = 0x00100000,
-		"jnccall",      // TypeModifier_Jnccall     = 0x00200000,
-		"unsafe",       // TypeModifier_Unsafe      = 0x00400000,
-	};
-
-	size_t i = rtl::getLoBitIdx32 (modifier);
-	return i < countof (stringTable) ?
-		stringTable [i] :
-		"undefined-type-modifier";
-}
-
-rtl::String
-getTypeModifierString (uint_t modifiers)
-{
-	if (!modifiers)
-		return rtl::String ();
-
-	TypeModifier modifier = getFirstTypeModifier (modifiers);
-	rtl::String string = getTypeModifierString (modifier);
-	modifiers &= ~modifier;
-
-	while (modifiers)
-	{
-		modifier = getFirstTypeModifier (modifiers);
-
-		string += ' ';
-		string += getTypeModifierString (modifier);
-
-		modifiers &= ~modifier;
-	}
-
-	return string;
 }
 
 //.............................................................................
@@ -756,7 +652,7 @@ Type::prepareLlvmDiType ()
 
 void
 Type::markGcRoots (
-	void* p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {

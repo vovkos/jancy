@@ -39,10 +39,10 @@ class ConstMgr
 	friend class Module;
 
 protected:
-	struct ConstDataPtrValidator:
-		Box,
-		DataPtrValidator
+	struct ConstDataPtrValidatorEntry: rtl::ListLink
 	{
+		StaticDataBox m_box;
+		DataPtrValidator m_validator;
 	};
 
 protected:
@@ -50,7 +50,7 @@ protected:
 
 	rtl::BoxList <Value> m_valueList;
 	rtl::StdList <Const> m_constList;
-	rtl::BoxList <ConstDataPtrValidator> m_constDataPtrValidatorList;
+	rtl::StdList <ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
 
 public:
 	ConstMgr ();
@@ -86,9 +86,8 @@ public:
 
 	DataPtrValidator*
 	createConstDataPtrValidator (
-		void* p,
-		Type* type,
-		size_t count = 1
+		const void* p,
+		Type* type
 		);
 };
 

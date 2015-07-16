@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_ImportType.h"
+#include "jnc_Decl.h"
 #include "jnc_Module.h"
 
 namespace jnc {

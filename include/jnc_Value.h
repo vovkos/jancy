@@ -50,26 +50,8 @@ getValueKindString (ValueKind valueKind);
 class Value
 {
 protected:
-	struct BufHdr
-	{
-		size_t m_size;
-	};
-
-	class SizeOfBufHdr
-	{
-	public:
-		size_t
-		operator () (const BufHdr* hdr)
-		{
-			return sizeof (BufHdr) + hdr->m_size;
-		}
-	};
-
-protected:
 	ValueKind m_valueKind;
 	Type* m_type;
-
-	ref::Buf <BufHdr, SizeOfBufHdr> m_const;
 
 	union
 	{
@@ -82,10 +64,10 @@ protected:
 		StructField* m_field;
 	};
 
-	mutable llvm::Value* m_llvmValue;
-
+	rtl::Array <char> m_constData;
 	ref::Ptr <Closure> m_closure;
-	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	mutable ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	mutable llvm::Value* m_llvmValue;
 
 public:
 	Value ()
@@ -231,74 +213,81 @@ public:
 		return m_field;
 	}
 
-	void*
+	const void*
 	getConstData () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
-		return (void*) (m_const + 1);
+		return m_constData.ca ();
+	}
+
+	void*
+	getConstData ()
+	{
+		ASSERT (m_valueKind == ValueKind_Const);
+		return m_constData.a ();
 	}
 
 	bool
 	getBool () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (bool));
-		return *(bool*) getConstData ();
+		return *(const bool*) m_constData.ca ();
 	}
 
 	int
 	getInt () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int));
-		return *(int*) getConstData ();
+		return *(const int*) m_constData.ca ();
 	}
 
 	intptr_t
 	getIntPtr () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (intptr_t));
-		return *(intptr_t*) getConstData ();
+		return *(const intptr_t*) m_constData.ca ();
 	}
 
 	int32_t
 	getInt32 () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int32_t));
-		return *(int32_t*) getConstData ();
+		return *(const int32_t*) m_constData.ca ();
 	}
 
 	int64_t
 	getInt64 () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int64_t));
-		return *(int64_t*) getConstData ();
+		return *(const int64_t*) m_constData.ca ();
 	}
 
 	size_t
 	getSizeT () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (size_t));
-		return *(size_t*) getConstData ();
+		return *(const size_t*) m_constData.ca ();
 	}
 
 	size_t
 	getFieldOffset () const
 	{
 		ASSERT (m_valueKind == ValueKind_Field && m_type->getSize () >= sizeof (size_t));
-		return *(size_t*) getConstData ();
+		return *(const size_t*) m_constData.ca ();
 	}
 
 	float
 	getFloat () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (float));
-		return *(float*) getConstData ();
+		return *(const float*) m_constData.ca ();
 	}
 
 	double
 	getDouble () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (double));
-		return *(double*) getConstData ();
+		return *(const double*) m_constData.ca ();
 	}
 
 	bool
@@ -418,35 +407,23 @@ public:
 		);
 
 	LeanDataPtrValidator*
-	getLeanDataPtrValidator () const
-	{
-		return m_leanDataPtrValidator;
-	}
+	getLeanDataPtrValidator () const;
 
 	void
 	setLeanDataPtrValidator (LeanDataPtrValidator* validator);
 
 	void
-	setLeanDataPtrValidator (const Value& validatorValue);
-
-	void
-	setLeanDataPtrValidator (
-		const Value& scopeValidatorValue,
-		const Value& rangeBeginValue,
-		const Value& sizeValue
-		);
-
-	void
-	setLeanDataPtrValidator (
-		const Value& scopeValidatorValue,
-		const Value& rangeBeginValue,
-		size_t size,
-		Module* module
-		)
-	{
-		Value sizeValue (size, getSimpleType (TypeKind_SizeT, module));
-		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, sizeValue);
+	setLeanDataPtrValidator (const Value& originValue)
+	{	
+		setLeanDataPtrValidator (originValue.getLeanDataPtrValidator ());
 	}
+
+	void
+	setLeanDataPtrValidator (
+		const Value& originValue,
+		const Value& rangeBeginValue,
+		size_t rangeLength
+		);
 
 	void
 	setLeanDataPtr (
@@ -463,38 +440,24 @@ public:
 	setLeanDataPtr (
 		llvm::Value* llvmValue,
 		DataPtrType* type,
-		const Value& validatorValue
+		const Value& originValue
 		)
 	{
 		setLlvmValue (llvmValue, (Type*) type);
-		setLeanDataPtrValidator (validatorValue);
+		setLeanDataPtrValidator (originValue);
 	}
 
 	void
 	setLeanDataPtr (
 		llvm::Value* llvmValue,
 		DataPtrType* type,
-		const Value& scopeValidatorValue,
+		const Value& originValue,
 		const Value& rangeBeginValue,
-		const Value& sizeValue
+		size_t rangeLength
 		)
 	{
 		setLlvmValue (llvmValue, (Type*) type);
-		setLeanDataPtrValidator (scopeValidatorValue, rangeBeginValue, sizeValue);
-	}
-
-	void
-	setLeanDataPtr (
-		llvm::Value* llvmValue,
-		DataPtrType* type,
-		const Value& scopeValidatorValue,
-		const Value& rangeBeginValue,
-		size_t size,
-		Module* module
-		)
-	{
-		Value sizeValue (size, getSimpleType (TypeKind_SizeT, module));
-		setLeanDataPtr (llvmValue, type, scopeValidatorValue, rangeBeginValue, sizeValue);
+		setLeanDataPtrValidator (originValue, rangeBeginValue, rangeLength);
 	}
 
 	bool

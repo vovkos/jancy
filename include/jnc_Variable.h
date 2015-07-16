@@ -6,6 +6,7 @@
 
 #include "jnc_ImportType.h"
 #include "jnc_Scope.h"
+#include "jnc_LeanDataPtrValidator.h"
 
 namespace jnc {
 
@@ -19,7 +20,6 @@ enum StdVariable
 	StdVariable_GcShadowStackTop,
 	StdVariable__Count,
 };
-
 
 //.............................................................................
 
@@ -37,11 +37,9 @@ protected:
 	rtl::BoxList <Token> m_constructor;
 	Scope* m_scope;
 	StructField* m_tlsField;
-	
-	llvm::Value* m_llvmValue;                 // GlobalVariable* / AllocaInst* / GEPInst*
-	llvm::Value* m_llvmBoxValue;              // GlobalVariable* / CallInst*
-	llvm::Value* m_llvmDataPtrValidatorValue; // GlobalVariable* / GEPInst*	
-	llvm::DIDescriptor m_llvmDiDescriptor;    // DIVariable / DIGlobalVariable
+	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
+	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
 
 public:
 	Variable ();
@@ -76,22 +74,21 @@ public:
 		return m_scope;
 	}
 
-	Value
-	getBox ();
-
 	StructField*
 	getTlsField ()
 	{
 		return m_tlsField;
 	}
 
+	LeanDataPtrValidator*
+	getLeanDataPtrValidator ();
+
 	llvm::Value*
 	getLlvmValue ()
 	{
-		ensureLlvmValue ();
 		return m_llvmValue;
 	}
-
+	
 	llvm::DIDescriptor
 	getLlvmDiDescriptor ()
 	{
@@ -102,9 +99,6 @@ protected:
 	virtual
 	bool
 	calcLayout ();
-
-	void
-	ensureLlvmValue ();
 };
 
 //.............................................................................

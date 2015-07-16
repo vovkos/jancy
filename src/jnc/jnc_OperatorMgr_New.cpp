@@ -7,106 +7,20 @@ namespace jnc {
 
 //.............................................................................
 
-bool
-OperatorMgr::allocate (
-	StorageKind storageKind,
-	Type* type,
-	const Value& elementCountValue,
-	const char* tag,
-	Value* resultValue
-	)
-{
-	ASSERT (!elementCountValue || elementCountValue.getType ()->getTypeKind () == TypeKind_SizeT);
-
-	Type* ptrType = type->getDataPtrType_c ();
-
-	bool isNonConstSizeArray = elementCountValue && elementCountValue.getValueKind () != ValueKind_Const;
-	if (isNonConstSizeArray)
-	{
-		if (storageKind != StorageKind_Heap)
-		{
-			err::setFormatStringError ("cannot create non-const-sized arrays with '%s new'", getStorageKindString (storageKind));
-			return false;
-		}
-	}
-	else if (elementCountValue.getValueKind () == ValueKind_Const)
-	{
-		size_t count = elementCountValue.getSizeT ();
-		if (count > 1)
-			type = m_module->m_typeMgr.getArrayType (type, count);
-	}
-
-	Variable* variable;
-	Function* function;
-	BasicBlock* prevBlock;
-
-	Value typeValue;
-	Value ptrValue;
-
-	switch (storageKind)
-	{
-	case StorageKind_Static:
-		variable = m_module->m_variableMgr.createVariable (StorageKind_Static, tag, tag, type);
-
-		function = m_module->getConstructor ();
-		prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-		m_module->m_variableMgr.allocatePrimeStaticVariable (variable);
-		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-		resultValue->setVariable (variable);
-		return true;
-
-	case StorageKind_Thread:
-		variable = m_module->m_variableMgr.createVariable (StorageKind_Thread, tag, tag, type);
-		resultValue->setVariable (variable);
-		return true;
-
-	case StorageKind_Stack:
-		m_module->m_llvmIrBuilder.createAlloca (type, tag, ptrType, &ptrValue);
-
-		if (type->getFlags () & TypeFlag_GcRoot)
-			markStackGcRoot (ptrValue, type);
-		break;
-
-	case StorageKind_Heap:
-		function = m_module->m_functionMgr.getStdFunction (StdFunction_GcAllocate);
-
-		typeValue.createConst (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-
-		m_module->m_llvmIrBuilder.createCall2 (
-			function,
-			function->getType (),
-			typeValue,
-			isNonConstSizeArray ?
-				elementCountValue :
-				Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
-			&ptrValue
-			);
-
-		break;
-
-	default:
-		err::setFormatStringError ("invalid storage specifier '%s' in 'new' operator", getStorageKindString (storageKind));
-		return false;
-	}
-
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, resultValue);
-	return true;
-}
-
 void
-OperatorMgr::zeroInitialize (
-	const Value& ptrValue0,
-	Type* type
-	)
+OperatorMgr::zeroInitialize (const Value& value)
 {
-	if (type->getSize () < 64)
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
+	Type* type = ((DataPtrType*) value.getType ())->getTargetType ();
+
+	if (type->getSize () < OperatorMgrDef_StoreSizeLimit)
 	{
-		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), ptrValue0);
+		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), value);
 		return;
 	}
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue0, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
 	Value argValueArray [5] = 
 	{
@@ -125,57 +39,6 @@ OperatorMgr::zeroInitialize (
 		countof (argValueArray),
 		NULL
 		);
-}
-
-bool
-OperatorMgr::prime (
-	StorageKind storageKind,
-	const Value& ptrValue,
-	Type* type,
-	const Value& elementCountValue,
-	Value* resultValue
-	)
-{
-	ASSERT (type->getTypeKind () != TypeKind_Class);
-
-	zeroInitialize (ptrValue, type);
-
-	Value objHdrValue;
-	switch (storageKind)
-	{
-	case StorageKind_Static:
-	case StorageKind_Heap:
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr), &objHdrValue);
-		m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
-		break;
-
-	case StorageKind_Thread:
-	case StorageKind_Stack:
-		#pragma AXL_TODO ("cleanup the whole new/allocate/prime/initialize mess")
-		ASSERT (false);
-
-	default:
-		err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
-		return false;
-	}
-
-	Value sizeValue (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
-	if (elementCountValue)
-	{
-		bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
-		if (!result)
-			return false;
-	}
-
-	resultValue->setLeanDataPtr (
-		ptrValue.getLlvmValue (),
-		type->getDataPtrType (DataPtrTypeKind_Lean),
-		objHdrValue,
-		ptrValue,
-		sizeValue
-		);
-
-	return true;
 }
 
 bool
@@ -532,6 +395,8 @@ OperatorMgr::newOperator (
 {
 	bool result;
 
+	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+
 	if (isOpaqueClassType (type))
 	{
 		Function* operatorNew = ((ClassType*) type)->getOperatorNew ();
@@ -541,30 +406,50 @@ OperatorMgr::newOperator (
 			return false;
 		}
 
-		Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 		argList->insertHead (typeValue);
 		return callOperator (operatorNew, argList, resultValue);
 	}
 
-	Value elementCountValue;
+	Function* allocate;
+
+	Value argValueArray [2] =
+	{
+		typeValue
+	};
+	
+	size_t argCount = 1;
+
 	if (rawElementCountValue)
 	{
-		result = castOperator (rawElementCountValue, TypeKind_SizeT, &elementCountValue);
+		allocate = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateArray);
+
+		result = castOperator (rawElementCountValue, TypeKind_SizeT, &argValueArray [1]);
 		if (!result)
 			return false;
+
+		argCount = 2;
+	}
+	else if (type->getTypeKind () == TypeKind_Class)
+	{
+		allocate = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateClass);
+	}
+	else
+	{
+		allocate = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateData);
 	}
 
 	Value ptrValue;
-	result = allocate (StorageKind_Heap, type, elementCountValue, "new", &ptrValue);
-	if (!result)
-		return false;
+	m_module->m_llvmIrBuilder.createCall (
+		allocate,
+		allocate->getType (),
+		argValueArray,
+		argCount,
+		&ptrValue
+		);
 
 	markStackGcRoot (ptrValue, type->getDataPtrType_c (), true);
 
-	result = 
-		prime (StorageKind_Heap, ptrValue, type, elementCountValue, &ptrValue) &&
-		construct (ptrValue, argList);
-
+	result = construct (ptrValue, argList);
 	if (!result)
 		return false;
 
@@ -577,8 +462,6 @@ OperatorMgr::nullifyGcRootList (const rtl::ConstBoxList <Value>& list)
 {
 	if (list.isEmpty ())
 		return;
-
-	LlvmScopeComment comment (&m_module->m_llvmIrBuilder, "nullify gcroot list");
 
 	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
 
@@ -625,7 +508,7 @@ OperatorMgr::markStackGcRoot (
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	function->markGc ();
-
+/*
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 
 	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -668,9 +551,150 @@ OperatorMgr::markStackGcRoot (
 
 	Value bytePtrValue;
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, bytePtrType, &bytePtrValue);
-	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue);
+	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue); */
 }
 
 //.............................................................................
 
 } // namespace jnc {
+
+/*
+
+bool
+OperatorMgr::allocate (
+	StorageKind storageKind,
+	Type* type,
+	const Value& elementCountValue,
+	const char* tag,
+	Value* resultValue
+	)
+{
+	ASSERT (!elementCountValue || elementCountValue.getType ()->getTypeKind () == TypeKind_SizeT);
+
+	Type* ptrType = type->getDataPtrType_c ();
+
+	bool isNonConstSizeArray = elementCountValue && elementCountValue.getValueKind () != ValueKind_Const;
+	if (isNonConstSizeArray)
+	{
+		if (storageKind != StorageKind_Heap)
+		{
+			err::setFormatStringError ("cannot create non-const-sized arrays with '%s new'", getStorageKindString (storageKind));
+			return false;
+		}
+	}
+	else if (elementCountValue.getValueKind () == ValueKind_Const)
+	{
+		size_t count = elementCountValue.getSizeT ();
+		if (count > 1)
+			type = m_module->m_typeMgr.getArrayType (type, count);
+	}
+
+	Variable* variable;
+	Function* function;
+	BasicBlock* prevBlock;
+
+	Value typeValue;
+	Value ptrValue;
+
+	switch (storageKind)
+	{
+	case StorageKind_Static:
+		variable = m_module->m_variableMgr.createVariable (StorageKind_Static, tag, tag, type);
+
+		function = m_module->getConstructor ();
+		prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+		m_module->m_variableMgr.allocatePrimeStaticVariable (variable);
+		m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+		resultValue->setVariable (variable);
+		return true;
+
+	case StorageKind_Thread:
+		variable = m_module->m_variableMgr.createVariable (StorageKind_Thread, tag, tag, type);
+		resultValue->setVariable (variable);
+		return true;
+
+	case StorageKind_Stack:
+		m_module->m_llvmIrBuilder.createAlloca (type, tag, ptrType, &ptrValue);
+
+		if (type->getFlags () & TypeFlag_GcRoot)
+			markStackGcRoot (ptrValue, type);
+		break;
+
+	case StorageKind_Heap:
+		function = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateClass);
+
+		typeValue.createConst (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+
+		m_module->m_llvmIrBuilder.createCall2 (
+			function,
+			function->getType (),
+			typeValue,
+			isNonConstSizeArray ?
+				elementCountValue :
+				Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+			&ptrValue
+			);
+
+		break;
+
+	default:
+		err::setFormatStringError ("invalid storage specifier '%s' in 'new' operator", getStorageKindString (storageKind));
+		return false;
+	}
+
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, resultValue);
+	return true;
+}
+
+bool
+OperatorMgr::prime (
+	StorageKind storageKind,
+	const Value& ptrValue,
+	Type* type,
+	const Value& elementCountValue,
+	Value* resultValue
+	)
+{
+	ASSERT (type->getTypeKind () != TypeKind_Class);
+
+	zeroInitialize (ptrValue, type);
+
+	Value objHdrValue;
+	switch (storageKind)
+	{
+	case StorageKind_Static:
+	case StorageKind_Heap:
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr), &objHdrValue);
+		m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrValue.getType (), &objHdrValue);
+		break;
+
+	case StorageKind_Thread:
+	case StorageKind_Stack:
+		#pragma AXL_TODO ("cleanup the whole new/allocate/prime/initialize mess")
+		ASSERT (false);
+
+	default:
+		err::setFormatStringError ("cannot prime '%s' value", getStorageKindString (storageKind));
+		return false;
+	}
+
+	Value sizeValue (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+	if (elementCountValue)
+	{
+		bool result = binaryOperator (BinOpKind_Mul, &sizeValue, elementCountValue);
+		if (!result)
+			return false;
+	}
+
+	resultValue->setLeanDataPtr (
+		ptrValue.getLlvmValue (),
+		type->getDataPtrType (DataPtrTypeKind_Lean),
+		objHdrValue,
+		ptrValue,
+		sizeValue
+		);
+
+	return true;
+}
+
+ */

@@ -5,42 +5,49 @@ namespace jnc {
 
 //.............................................................................
 
-DataPtr
-StringHashTable::find_s (
-	StringHashTable* self,
-	DataPtr keyPtr
+void
+AXL_CDECL
+StringHashTable::insert (
+	DataPtr keyPtr,
+	Variant value
 	)
 {
-	rtl::StringHashTableMap <Variant>::Iterator it = self->m_hashTable->find ((const char*) keyPtr.m_p);
-	if (!it)
-		return g_nullPtr;
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	DataPtr ptr;
-	ptr.m_p = &it->m_value;
-	ptr.m_rangeBegin = &it->m_value;
-	ptr.m_rangeEnd = &it->m_value + 1;
-	ptr.m_box = getStaticBox ();
-	return ptr;
+	Type* type = runtime->getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	DataBox* box = (DataBox*) runtime->m_gcHeap.allocateData (type);
+
+	DataPtr valuePtr;
+	valuePtr.m_p = box + 1;
+	valuePtr.m_validator = &box->m_validator;
+
+	(*m_hashTable) [(const char*) keyPtr.m_p] = valuePtr;
+	m_count = m_hashTable->getCount ();
+
 }
 
 //.............................................................................
 
-DataPtr
-VariantHashTable::find_s (
-	VariantHashTable* self,
-	Variant key
+void
+AXL_CDECL
+VariantHashTable::insert (
+	Variant key,
+	Variant value
 	)
 {
-	VariantHashTableMap::Iterator it = self->m_hashTable->find (key);
-	if (!it)
-		return g_nullPtr;
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	DataPtr ptr;
-	ptr.m_p = &it->m_value;
-	ptr.m_rangeBegin = &it->m_value;
-	ptr.m_rangeEnd = &it->m_value + 1;
-	ptr.m_box = getStaticBox ();
-	return ptr;
+	Type* type = runtime->getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	DataBox* box = (DataBox*) runtime->m_gcHeap.tryAllocateData (type);
+
+	DataPtr valuePtr;
+	valuePtr.m_p = box + 1;
+	valuePtr.m_validator = &box->m_validator;
+
+	(*m_hashTable) [key] = valuePtr;
+	m_count = m_hashTable->getCount ();
 }
 
 //.............................................................................

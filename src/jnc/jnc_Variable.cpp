@@ -15,20 +15,21 @@ Variable::Variable ()
 	m_scope = NULL;
 	m_tlsField = NULL;
 	m_llvmValue = NULL;
-	m_llvmBoxValue = NULL;
-	m_llvmDataPtrValidatorValue = NULL;
 }
 
-Value
-Variable::getBox ()
+LeanDataPtrValidator*
+Variable::getLeanDataPtrValidator ()
 {
-	if (!m_llvmBoxValue)
-	{
-		m_module->m_variableMgr.allocateVariableBox (this);
-		ASSERT (m_llvmBoxValue);
-	}
+	if (m_leanDataPtrValidator)
+		return m_leanDataPtrValidator;
+	
+	Value originValue (this);
 
-	return Value (m_llvmBoxValue, m_module->m_typeMgr.getStdType (StdType_BoxPtr));
+	m_leanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
+	m_leanDataPtrValidator->m_originValue = originValue;
+	m_leanDataPtrValidator->m_rangeBeginValue = originValue;
+	m_leanDataPtrValidator->m_rangeLength = m_type->getSize ();
+	return m_leanDataPtrValidator;
 }
 
 bool
@@ -38,16 +39,6 @@ Variable::calcLayout ()
 		m_type = m_type_i->getActualType ();
 
 	return m_type->ensureLayout ();
-}
-
-void
-Variable::ensureLlvmValue ()
-{
-	if (m_llvmValue)
-		return;
-
-	ASSERT (m_storageKind == StorageKind_Thread);
-	m_module->m_variableMgr.allocateTlsVariable (this);
 }
 
 //.............................................................................

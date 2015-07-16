@@ -167,7 +167,7 @@ ControlFlowMgr::whileStmt_Condition (
 	const Token::Pos& pos
 	)
 {
-	m_module->m_operatorMgr.gcPulse ();
+	m_module->m_operatorMgr.gcSafePoint ();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
 	scope->m_breakBlock = stmt->m_followBlock;
@@ -199,7 +199,7 @@ ControlFlowMgr::doStmt_PreBody (
 	const Token::Pos& pos
 	)
 {
-	m_module->m_operatorMgr.gcPulse ();
+	m_module->m_operatorMgr.gcSafePoint ();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
 	scope->m_breakBlock = stmt->m_followBlock;
@@ -284,7 +284,7 @@ ControlFlowMgr::forStmt_PreBody (ForStmt* stmt)
 	stmt->m_scope->m_breakBlock = stmt->m_followBlock;
 	stmt->m_scope->m_continueBlock = stmt->m_conditionBlock;
 
-	m_module->m_operatorMgr.gcPulse ();
+	m_module->m_operatorMgr.gcSafePoint ();
 }
 
 void
@@ -320,7 +320,7 @@ ControlFlowMgr::onceStmt_Create (
 	if (storageKind == StorageKind_Static)
 	{
 		BasicBlock* block = m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
-		m_module->m_variableMgr.allocatePrimeStaticVariable (flagVariable);
+		m_module->m_operatorMgr.zeroInitialize (flagVariable);
 		m_module->m_controlFlowMgr.setCurrentBlock (block);
 	}
 

@@ -29,12 +29,16 @@ public:
 		JNC_STD_FUNCTION (StdFunction_DynamicCastClassPtr, dynamicCastClassPtr)
 		JNC_STD_FUNCTION (StdFunction_DynamicCastVariant, dynamicCastVariant)
 		JNC_STD_FUNCTION (StdFunction_StrengthenClassPtr, strengthenClassPtr)
-		JNC_STD_FUNCTION (StdFunction_GcAllocate, gcAllocate)
-		JNC_STD_FUNCTION (StdFunction_GcTryAllocate, gcTryAllocate)
-		JNC_STD_FUNCTION_FORCED (StdFunction_GcEnter, gcEnter)
-		JNC_STD_FUNCTION_FORCED (StdFunction_GcLeave, gcLeave)
-		JNC_STD_FUNCTION (StdFunction_GcPulse, gcPulse)
-		JNC_STD_FUNCTION (StdFunction_RunGc, runGc)
+
+		JNC_STD_FUNCTION (StdFunction_AllocateClass, allocateClass)
+		JNC_STD_FUNCTION (StdFunction_TryAllocateClass, tryAllocateClass)
+		JNC_STD_FUNCTION (StdFunction_AllocateData, allocateData)
+		JNC_STD_FUNCTION (StdFunction_TryAllocateData, tryAllocateData)
+		JNC_STD_FUNCTION (StdFunction_AllocateArray, allocateArray)
+		JNC_STD_FUNCTION (StdFunction_TryAllocateArray, tryAllocateArray)
+		JNC_STD_FUNCTION (StdFunction_GcSafePoint, gcSafePoint)		
+		JNC_STD_FUNCTION (StdFunction_CollectGarbage, collectGarbage)
+
 		JNC_STD_FUNCTION (StdFunction_GetCurrentThreadId, getCurrentThreadId)
 		JNC_STD_FUNCTION (StdFunction_CreateThread, createThread)
 		JNC_STD_FUNCTION (StdFunction_Sleep, sleep)
@@ -45,7 +49,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_SetStringError, setStringError)
 		JNC_STD_FUNCTION (StdFunction_AssertionFailure, assertionFailure)
 		JNC_STD_FUNCTION (StdFunction_AddStaticDestructor, addStaticDestructor)
-		JNC_STD_FUNCTION (StdFunction_AddDestructor, addDestructor)
+		JNC_STD_FUNCTION (StdFunction_AddStaticClassDestructor, addStaticClassDestructor)
 		JNC_STD_FUNCTION (StdFunction_StrLen, strLen)
 		JNC_STD_FUNCTION (StdFunction_StrCmp, strCmp)
 		JNC_STD_FUNCTION (StdFunction_StriCmp, striCmp)
@@ -62,6 +66,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_Atoi, atoi)
 		JNC_STD_FUNCTION (StdFunction_Format, format)
 		JNC_STD_FUNCTION (StdFunction_GetTls, getTls)
+
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_a, appendFmtLiteral_a)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_p, appendFmtLiteral_p)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_i32, appendFmtLiteral_i32)
@@ -75,12 +80,16 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cb, appendFmtLiteral_s)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
 		JNC_STD_FUNCTION (StdFunction_AppendFmtLiteral_br, appendFmtLiteral_s)
-		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRange, tryCheckDataPtrRange)
-		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRange, checkDataPtrRange)
+
+		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRangeDirect, tryCheckDataPtrRangeDirect)
+		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRangeDirect, checkDataPtrRangeDirect)
+		JNC_STD_FUNCTION (StdFunction_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
+		JNC_STD_FUNCTION (StdFunction_CheckDataPtrRangeIndirect, checkDataPtrRangeIndirect)
 		JNC_STD_FUNCTION (StdFunction_TryCheckNullPtr, tryCheckNullPtr)
 		JNC_STD_FUNCTION (StdFunction_CheckNullPtr, checkNullPtr)
 		JNC_STD_FUNCTION (StdFunction_TryLazyGetLibraryFunction, tryLazyGetLibraryFunction)
 		JNC_STD_FUNCTION (StdFunction_LazyGetLibraryFunction, lazyGetLibraryFunction)
+		
 		JNC_STD_TYPE (StdType_Error, Error)
 		JNC_STD_TYPE (StdType_String, String)
 		JNC_STD_TYPE (StdType_StringRef, StringRef)
@@ -101,7 +110,10 @@ public:
 public:
 	static
 	size_t
-	dynamicSizeOf (DataPtr ptr);
+	dynamicSizeOf (DataPtr ptr)
+	{
+		return ptr.m_validator ? ptr.m_validator->m_rangeLength : 0;
+	}
 
 	static
 	size_t
@@ -120,7 +132,7 @@ public:
 	static
 	IfaceHdr*
 	dynamicCastClassPtr (
-		IfaceHdr* p,
+		IfaceHdr* iface,
 		ClassType* type
 		);
 
@@ -134,41 +146,52 @@ public:
 
 	static
 	IfaceHdr*
-	strengthenClassPtr (IfaceHdr* p);
+	strengthenClassPtr (IfaceHdr* iface);
 
 	static
-	void*
-	gcAllocate (
-		Type* type,
-		size_t elementCount = 1
+	Box*
+	tryAllocateClass (ClassType* type);
+
+	static
+	Box*
+	allocateClass (ClassType* type);
+
+	static
+	DataBox*
+	tryAllocateData (Type* type);
+
+	static
+	DataBox*
+	allocateData (Type* type);
+
+	static
+	DynamicArrayBox*
+	tryAllocateArray (
+	Type* type,
+		size_t elementCount
 		);
 
 	static
-	void*
-	gcTryAllocate (
+	DynamicArrayBox*
+	allocateArray (
 		Type* type,
-		size_t elementCount = 1
+		size_t elementCount
 		);
 
 	static
 	void
-	gcEnter ();
+	gcSafePoint ();
 
 	static
 	void
-	gcLeave ();
-
-	static
-	void
-	gcPulse ();
-
-	static
-	void
-	runGc ();
+	collectGarbage ();
 
 	static
 	intptr_t
-	getCurrentThreadId ();
+	getCurrentThreadId ()
+	{
+		return (intptr_t) mt::getCurrentThreadId ();
+	}
 
 	static
 	bool
@@ -231,7 +254,7 @@ public:
 
 	static
 	void
-	addDestructor (
+	addStaticClassDestructor (
 		DestructFunc* destructFunc,
 		jnc::IfaceHdr* iface
 		);
@@ -362,7 +385,10 @@ public:
 		FmtLiteral* fmtLiteral,
 		const char* fmtSpecifier,
 		DataPtr ptr
-		);
+		)
+	{
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, strLen (ptr));
+	}
 
 	static
 	size_t
@@ -461,33 +487,47 @@ public:
 
 	static
 	bool 
-	tryCheckDataPtrRange (
-		void* p,
-		size_t size,
-		void* rangeBegin,
-		void* rangeEnd
+	tryCheckDataPtrRangeDirect (
+		const void* p,
+		const void* rangeBegin,
+		size_t rangeLength
 		);
 
 	static
 	void 
-	checkDataPtrRange (
-		void* p,
+	checkDataPtrRangeDirect (
+		const void* p,
+		const void* rangeBegin,
+		size_t rangeLength
+		);
+
+	static
+	bool 
+	tryCheckDataPtrRangeIndirect (
+		const void* p,
 		size_t size,
-		void* rangeBegin,
-		void* rangeEnd
+		DataPtrValidator* validator
+		);
+
+	static
+	void 
+	checkDataPtrRangeIndirect (
+		const void* p,
+		size_t size,
+		DataPtrValidator* validator
 		);
 
 	static
 	bool 
 	tryCheckNullPtr (
-		void* p,
+		const void* p,
 		TypeKind typeKind
 		);
 
 	static
 	void
 	checkNullPtr (
-		void* p,
+		const void* p,
 		TypeKind typeKind
 		);
 

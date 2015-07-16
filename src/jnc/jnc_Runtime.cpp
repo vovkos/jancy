@@ -36,13 +36,67 @@ Runtime::addModule (Module* module)
 	return true;
 }
 
+void
+Runtime::addStaticDestructor (StaticDestructFunc* func)
+{
+	StaticDestructor* destruct = AXL_MEM_NEW (StaticDestructor);
+	destruct->m_staticDestructFunc = func;
+	destruct->m_iface = NULL;
+
+	m_lock.lock ();
+	m_staticDestructorList.insertTail (destruct);
+	m_lock.unlock ();
+}
+
+void
+Runtime::addStaticClassDestructor (
+	DestructFunc* func,
+	jnc::IfaceHdr* iface
+	)
+{
+	StaticDestructor* destruct = AXL_MEM_NEW (StaticDestructor);
+	destruct->m_destructFunc = func;
+	destruct->m_iface = iface;
+
+	m_lock.lock ();
+	m_staticDestructorList.insertTail (destruct);
+	m_lock.unlock ();
+}
+
 bool 
 Runtime::startup ()
 {
 	shutdown ();
-	m_state = State_Running;
+
+	m_state = State_Running;	
 	m_noThreadEvent.signal ();
-	return true;
+
+	bool result = true;
+
+	JNC_BEGIN (this);
+	{
+		size_t count = m_moduleArray.getCount ();
+		for (size_t i = 0; i < count; i++)
+		{
+			Module* module = m_moduleArray [i];
+
+			Function* constructor = module->getConstructor ();
+			Function* destructor = module->getDestructor ();
+
+			if (destructor)
+				addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
+
+			ASSERT (constructor);
+			((StaticConstructFunc*) destructor->getMachineCode ()) ();
+		}
+	}
+	JNC_CATCH ()
+	{
+		result = false;
+	}
+	JNC_END ();
+
+	return result;
 }
 	
 void
@@ -108,12 +162,15 @@ Runtime::initializeThread ()
 {
 	size_t size = sizeof (Tls) + m_tlsSize;
 
+	Runtime* prevRuntime = mt::setTlsSlotValue <Runtime> (this);
+	ASSERT (prevRuntime != this); // otherwise, double initialize
+
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
 	tls->m_prev = mt::setTlsSlotValue <Tls> (tls);
 	tls->m_runtime = this;
 	tls->m_stackEpoch = alloca (1);
 
-	ASSERT (!tls->m_prev || tls->m_prev->m_runtime != this); // otherwise, double initialize
+	ASSERT (!tls->m_prev || tls->m_prev->m_runtime == prevRuntime);
 
 	m_lock.lock ();
 	ASSERT (m_state == State_Running); // otherwise, creating threads during shutdown
@@ -144,6 +201,8 @@ Runtime::uninitializeThread ()
 	m_lock.unlock ();
 	
 	mt::setTlsSlotValue <Tls> (tls->m_prev);
+	mt::setTlsSlotValue <Runtime> (tls->m_prev ? tls->m_prev->m_runtime : NULL);
+
 	AXL_MEM_DELETE (tls);
 }
 
@@ -742,7 +801,7 @@ Runtime::gcEnter ()
 
 	tls->m_gcLevel++;
 	if (tls->m_gcLevel > 1) // was already unsafe
-		gcPulse (); // pulse on enter only, no pulse on leave: might lose retval gcroot
+		gcSafePoint (); // pulse on enter only, no pulse on leave: might lose retval gcroot
 	else
 		gcIncrementUnsafeThreadCount ();
 }
@@ -761,7 +820,7 @@ Runtime::gcLeave ()
 }
 
 void
-Runtime::gcPulse ()
+Runtime::gcSafePoint ()
 {
 	ASSERT (m_gcState == GcState_Idle || m_gcState == GcState_WaitSafePoint);
 
@@ -918,33 +977,6 @@ Runtime::unpinObject (IfaceHdr* object)
 {
 	m_lock.lock ();
 	m_gcPinTable.eraseByKey (object);
-	m_lock.unlock ();
-}
-
-void
-Runtime::addStaticDestructor (StaticDestructor *dtor)
-{
-	StaticDestruct* destruct = AXL_MEM_NEW (StaticDestruct);
-	destruct->m_staticDtor = dtor;
-	destruct->m_iface = NULL;
-
-	m_lock.lock ();
-	m_staticDestructList.insertTail (destruct);
-	m_lock.unlock ();
-}
-
-void
-Runtime::addDestructor (
-	Destructor *dtor,
-	jnc::IfaceHdr* iface
-	)
-{
-	StaticDestruct* destruct = AXL_MEM_NEW (StaticDestruct);
-	destruct->m_dtor = dtor;
-	destruct->m_iface = iface;
-
-	m_lock.lock ();
-	m_staticDestructList.insertTail (destruct);
 	m_lock.unlock ();
 }
 

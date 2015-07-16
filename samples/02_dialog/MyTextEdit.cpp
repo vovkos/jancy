@@ -14,7 +14,7 @@ MyTextEdit::enumGcRoots (
 MyTextEdit*
 MyTextEdit::operatorNew (jnc::ClassType* type)
 {
-	jnc::ApiClassBox <MyTextEdit>* textEdit = (jnc::ApiClassBox <MyTextEdit>*) jnc::StdLib::gcAllocate (type);
+	jnc::ApiClassBox <MyTextEdit>* textEdit = (jnc::ApiClassBox <MyTextEdit>*) jnc::StdLib::allocateClass (type);
 	textEdit->prime (type);	
 	textEdit->construct ();
 	return textEdit;

@@ -8,6 +8,32 @@ namespace jnc {
 
 class Type;
 class Runtime;
+struct Box;
+
+//.............................................................................
+
+// structure backing up fat data pointer, e.g.:
+// int* p;
+
+struct DataPtrValidator
+{
+	Box* m_validatorBox;
+	Box* m_targetBox;
+	const void* m_rangeBegin;
+	size_t m_rangeLength;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DataPtr
+{
+	void* m_p;
+	DataPtrValidator* m_validator;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
 
 //.............................................................................
 
@@ -48,39 +74,28 @@ struct StaticDataBox: Box
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DynamicArrayBox: Box
+struct DynamicArrayBoxHdr: Box
 {
-	size_t m_count;
-
-#if (_AXL_PTR_BITNESS == 32)
-	uint32_t m_padding; // ensure 8-byte alignment
-#endif
-};
-
-//.............................................................................
-
-// structure backing up fat data pointer, e.g.:
-// int* p;
-
-struct DataPtrValidator
-{
-	Box* m_validatorBox;
-	Box* m_targetBox;
-	void* m_rangeBegin;
-	void* m_rangeEnd;
+	union
+	{
+		size_t m_count;
+		uint64_t m_padding; // ensure 8-byte alignment
+	};
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DataPtr
+struct DataBox: Box
 {
-	void* m_p;
-	DataPtrValidator* m_validator;
+	DataPtrValidator m_validator;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
+struct DynamicArrayBox: DynamicArrayBoxHdr
+{
+	DataPtrValidator m_validator;
+};
 
 //.............................................................................
 
@@ -106,6 +121,10 @@ class ClassBox:
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef 
+void
+StaticConstructFunc ();
 
 typedef 
 void
@@ -141,62 +160,6 @@ struct PropertyPtr
 
 //.............................................................................
 
-struct GcShadowStackFrameMap
-{
-	size_t m_count;
-
-	// followed by array of type pointers:
-	// Type* m_typeArray [];
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct GcShadowStackFrame
-{
-	GcShadowStackFrame* m_prev;
-	GcShadowStackFrameMap* m_map;
-
-	// followed by array of root pointers
-	// void* m_rootArray [];
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct GcMutatorThread: rtl::ListLink
-{
-	uint64_t m_threadId;
-	size_t m_enterSafeRegionCount;
-	GcShadowStackFrame* m_shadowStackTop;	
-	DataPtrValidator* m_dataPtrValidatorPoolBegin;
-	DataPtrValidator* m_dataPtrValidatorPoolEnd;
-};
-
-//.............................................................................
-
-struct Tls: public rtl::ListLink
-{
-	Tls* m_prev;
-	Runtime* m_runtime;
-	GcMutatorThread m_gcThread;
-	void* m_stackEpoch;
-
-	// followed by user TLS variables
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-Tls*
-getCurrentThreadTls ()
-{
-	return mt::getTlsSlotValue <Tls> ();
-}
-
-//.............................................................................
-
-
-//.............................................................................
-
 // multicast snapshot returns function pointer with this closure:
 
 struct McSnapshot: IfaceHdr
@@ -226,6 +189,67 @@ struct FmtLiteral
 	size_t m_maxLength;
 	size_t m_length;
 };
+
+//.............................................................................
+
+struct GcShadowStackFrameMap
+{
+	size_t m_count;
+
+	// followed by array of type pointers:
+	// Type* m_typeArray [];
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct GcShadowStackFrame
+{
+	GcShadowStackFrame* m_prev;
+	GcShadowStackFrameMap* m_map;
+
+	// followed by array of root pointers
+	// void* m_rootArray [];
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct GcMutatorThread: rtl::ListLink
+{
+	uint64_t m_threadId;
+	size_t m_enterSafeRegionCount;
+	DataPtrValidator* m_dataPtrValidatorPoolBegin;
+	DataPtrValidator* m_dataPtrValidatorPoolEnd;
+};
+
+//.............................................................................
+
+struct Tls: public rtl::ListLink
+{
+	Tls* m_prev;
+	Runtime* m_runtime;
+	void* m_stackEpoch;
+	GcMutatorThread m_gcThread;
+
+	// followed by TlsVariableTable
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TlsVariableTable
+{
+	GcShadowStackFrame* m_shadowStackTop;
+
+	// followed by user TLS variables 
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Tls*
+getCurrentThreadTls ()
+{
+	return mt::getTlsSlotValue <Tls> ();
+}
 
 //.............................................................................
 

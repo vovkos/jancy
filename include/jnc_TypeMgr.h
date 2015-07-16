@@ -988,14 +988,20 @@ protected:
 		);
 
 	ClassType*
-	createObjectType ();
+	createAbstractClassType ();
 
 	StructType*
 	createSimpleIfaceHdrType ();
 
 	StructType*
 	createBoxType ();
-	
+
+	StructType*
+	createDataBoxType ();
+
+	StructType*
+	createDynamicArrayBoxType ();
+
 	StructType*
 	createDataPtrValidatorType ();
 

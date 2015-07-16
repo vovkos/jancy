@@ -115,10 +115,9 @@ Cast_Struct::llvmCast (
 	m_recursionStopper = true;
 
 	Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
-	Value tmpValue;
 
+	Value tmpValue;
 	result = 
-		m_module->m_variableMgr.allocatePrimeInitializeVariable (tmpVariable) &&
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
 		m_module->m_operatorMgr.callOperator (constructor, tmpValue, opValue) &&
 		m_module->m_operatorMgr.loadDataRef (tmpVariable, resultValue);

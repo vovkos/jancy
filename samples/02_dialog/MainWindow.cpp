@@ -128,10 +128,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Running...\n");
 
-	jnc::ScopeThreadRuntime scopeRuntime (&m_runtime);
-
 	result = 
-		m_runtime.create () &&
 		m_runtime.addModule (&m_module); // 16K gc heap, 16K stack
 		m_runtime.startup ();
 
@@ -144,28 +141,13 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	m_layout.prime (&m_module);	
 	m_layout.construct (QBoxLayout::TopToBottom, m_body);
 
-	jnc::Function* constructor = m_module.getConstructor ();
-	jnc::Function* destructor = m_module.getDestructor ();
-
-	if (destructor)
-		m_runtime.addStaticDestructor ((jnc::StaticDestructor*) destructor->getMachineCode ());
-
-	typedef void ConstructorFunc ();
-	typedef int MainFunc (MyLayout*);
-
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
-	{
-		if (constructor)
-			((ConstructorFunc*) constructor->getMachineCode ()) ();
-
-		int returnValue = ((MainFunc*) mainFunction->getMachineCode ()) (&m_layout);
-		output ("'main' returned (%d)\n", returnValue);
-	}
-	AXL_MT_LONG_JMP_CATCH ()
+	int returnValue;
+	result = jnc::callFunction (mainFunction, &returnValue, &m_layout);
+	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
+		return false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
 
 	output ("Done.\n");
 	return true;

@@ -36,7 +36,6 @@ protected:
 	// tls variables
 
 	rtl::Array <Variable*> m_tlsVariableArray;
-	rtl::Array <Variable*> m_tlsGcRootArray;
 	StructType* m_tlsStructType;
 	llvm::Value* m_llvmTlsBoxValue;
 
@@ -79,12 +78,6 @@ public:
 	getTlsVariableArray ()
 	{
 		return m_tlsVariableArray;
-	}
-
-	rtl::Array <Variable*>
-	getTlsGcRootArray ()
-	{
-		return m_tlsGcRootArray;
 	}
 
 	StructType*
@@ -131,12 +124,6 @@ public:
 	Variable*
 	createArgVariable (FunctionArg* arg);
 
-	llvm::GlobalVariable*
-	createLlvmGlobalVariable (
-		Type* type,
-		const char* tag
-		);
-
 	Alias*
 	createAlias (
 		const rtl::String& name,
@@ -149,56 +136,14 @@ public:
 	createTlsStructType ();
 
 	bool
-	allocatePrimeStaticVariable (Variable* variable);
-
-	bool
-	allocatePrimeStaticVariables ();
-
-	bool
-	initializeGlobalStaticVariables ();
-
-	bool
-	allocatePrimeInitializeVariable (Variable* variable);
-
-	void
-	allocateTlsVariable (Variable* variable);
-
-	void
-	deallocateTlsVariableArray (
-		const TlsVariable* array,
-		size_t count
-		);
-
-	void
-	restoreTlsVariableArray (
-		const TlsVariable* array,
-		size_t count
-		);
-
-	void
-	deallocateTlsVariableArray (const rtl::Array <TlsVariable>& array)
-	{
-		deallocateTlsVariableArray (array, array.getCount ());
-	}
-
-	void
-	restoreTlsVariableArray (const rtl::Array <TlsVariable>& array)
-	{
-		restoreTlsVariableArray (array, array.getCount ());
-	}
+	allocateInitializeGlobalVariables ();
 
 protected:
-	bool
-	allocatePrimeInitializeStaticVariable (Variable* variable);
-
-	bool
-	allocatePrimeInitializeTlsVariable (Variable* variable);
-
-	bool
-	allocatePrimeInitializeNonStaticVariable (Variable* variable);
-
-	void
-	createStdVariables ();
+	llvm::GlobalVariable*
+	createLlvmGlobalVariable (
+		Type* type,
+		const char* tag
+		);
 };
 
 //.............................................................................

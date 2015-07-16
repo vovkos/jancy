@@ -173,11 +173,7 @@ BinOp_Idx::arrayIndexOperator (
 	{
 		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
 		m_module->m_llvmIrBuilder.createGep2 (opValue1, opValue2, ptrType, resultValue);
-
-		if (opValue1.getValueKind () == ValueKind_Variable)
-			resultValue->setLeanDataPtrValidator (opValue1);
-		else
-			resultValue->setLeanDataPtrValidator (opValue1.getLeanDataPtrValidator ());
+		resultValue->setLeanDataPtrValidator (opValue1.getLeanDataPtrValidator ());
 	}
 	else // EDataPtrType_Normal
 	{

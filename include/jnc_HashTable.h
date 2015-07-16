@@ -15,13 +15,16 @@ public:
 	JNC_BEGIN_TYPE ("jnc.StringHashTable", StdApiSlot_StringHashTable)
 		JNC_CONSTRUCTOR (&StringHashTable::construct)
 		JNC_FUNCTION ("clear",  &StringHashTable::clear)
-		JNC_FUNCTION ("find", &StringHashTable::find_s)
+		JNC_FUNCTION ("find", &StringHashTable::find)
 		JNC_FUNCTION ("insert", &StringHashTable::insert)
 		JNC_FUNCTION ("remove", &StringHashTable::remove)
 	JNC_END_TYPE ()
 
 public:
-	rtl::StringHashTableMap <Variant>* m_hashTable;
+	typedef rtl::StringHashTableMap <DataPtr> StringHashTableMap;
+
+public:
+	StringHashTableMap* m_hashTable;
 	size_t m_count;
 
 public:
@@ -29,7 +32,7 @@ public:
 	AXL_CDECL
 	construct ()
 	{
-		m_hashTable = AXL_MEM_NEW (rtl::StringHashTableMap <Variant>);
+		m_hashTable = AXL_MEM_NEW (StringHashTableMap);
 		m_count = 0;
 	}
 
@@ -43,21 +46,21 @@ public:
 
 	static
 	DataPtr
-	find_s (
+	find (
 		StringHashTable* self,
 		DataPtr keyPtr
-		);
+		)
+	{
+		StringHashTableMap::Iterator it = self->m_hashTable->find ((const char*) keyPtr.m_p);
+		return it ? it->m_value : g_nullPtr;
+	}
 
 	void
 	AXL_CDECL
 	insert (
 		DataPtr keyPtr,
 		Variant value
-		)
-	{
-		(*m_hashTable) [(const char*) keyPtr.m_p] = value;
-		m_count = m_hashTable->getCount ();
-	}
+		);
 
 	bool
 	AXL_CDECL
@@ -75,13 +78,13 @@ public:
 	JNC_BEGIN_TYPE ("jnc.VariantHashTable", StdApiSlot_VariantHashTable)
 		JNC_CONSTRUCTOR (&VariantHashTable::construct)
 		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
-		JNC_FUNCTION ("find", &VariantHashTable::find_s)
+		JNC_FUNCTION ("find", &VariantHashTable::find)
 		JNC_FUNCTION ("insert", &VariantHashTable::insert)
 		JNC_FUNCTION ("remove", &VariantHashTable::remove)
 	JNC_END_TYPE ()
 
 public:
-	typedef rtl::HashTableMap <Variant, Variant, HashVariant, CmpVariant> VariantHashTableMap;
+	typedef rtl::HashTableMap <Variant, DataPtr, HashVariant, CmpVariant> VariantHashTableMap;
 
 public:
 	VariantHashTableMap* m_hashTable;
@@ -106,21 +109,21 @@ public:
 
 	static
 	DataPtr
-	find_s (
+	find (
 		VariantHashTable* self,
 		Variant key
-		);
+		)
+	{
+		VariantHashTableMap::Iterator it = self->m_hashTable->find (key);
+		return it ? it->m_value : g_nullPtr;
+	}
 
 	void
 	AXL_CDECL
 	insert (
 		Variant key,
 		Variant value
-		)
-	{
-		(*m_hashTable) [key] = value;
-		m_count = m_hashTable->getCount ();
-	}
+		);
 
 	bool
 	AXL_CDECL

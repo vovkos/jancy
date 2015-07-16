@@ -109,7 +109,7 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBufferRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_BufferRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Buffer)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_RunGc)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CollectGarbage)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CreateThread)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Sleep)) &&
 		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetCurrentThreadId)) &&

@@ -23,8 +23,6 @@ void LlvmIr::addFunction(jnc::Function* function)
 		pFunctionType->getArgString ().cc ()
 		);
 
-	uint_t CommentMdKind = function->getModule ()->m_llvmIrBuilder.getCommentMdKind ();
-
 	llvm::Function* pLlvmFunction = function->getLlvmFunction ();
 	llvm::Function::BasicBlockListType& BlockList = pLlvmFunction->getBasicBlockList ();
 	llvm::Function::BasicBlockListType::iterator Block = BlockList.begin ();
@@ -43,10 +41,6 @@ void LlvmIr::addFunction(jnc::Function* function)
 
 			llvm::Instruction* pInst = Inst;
 
-			llvm::MDNode* pMdComment = pInst->getMetadata (CommentMdKind);
-			if (pMdComment)
-				pInst->setMetadata (CommentMdKind, NULL); // remove before print
-
 			pInst->print (Stream);
 
 			llvm::DebugLoc LlvmDebugLoc = pInst->getDebugLoc ();
@@ -54,18 +48,6 @@ void LlvmIr::addFunction(jnc::Function* function)
 				appendFormat ("%s\n", String.c_str ());
 			else
 				appendFormat ("%s (line: %d)\n", String.c_str (), LlvmDebugLoc.getLine ());
-
-			if (pMdComment)
-			{
-				pInst->setMetadata (CommentMdKind, pMdComment); // restore
-				llvm::MDString* pMdString = (llvm::MDString*) pMdComment->getOperand (0);
-				const char* pText = pMdString->getString ().data ();
-
-				if (pText && *pText)
-					appendFormat ("\n; %s\n", pText);
-				else
-					appendFormat ("\n", pText);
-			}
 		}
 	}
 }

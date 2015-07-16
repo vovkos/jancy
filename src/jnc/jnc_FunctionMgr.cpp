@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "jnc_FunctionMgr.h"
-#include "jnc_GcShadowStack.h"
 #include "jnc_Module.h"
 #include "jnc_Parser.llk.h"
 
@@ -18,14 +17,11 @@ FunctionMgr::FunctionMgr ()
 	m_currentFunction = NULL;
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
 	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
-
-	mt::callOnce (registerGcShadowStack, 0);
 }
 
 void
 FunctionMgr::clear ()
 {
-	m_llvmFunctionMap.clear ();
 	m_functionList.clear ();
 	m_propertyList.clear ();
 	m_propertyTemplateList.clear ();
@@ -37,7 +33,6 @@ FunctionMgr::clear ()
 	m_thunkPropertyMap.clear ();
 	m_lazyStdFunctionList.clear ();
 	m_scheduleLauncherFunctionMap.clear ();
-	m_emissionContextStack.clear ();
 	m_thisValue.clear ();
 	m_staticConstructArray.clear ();
 
@@ -52,7 +47,7 @@ FunctionMgr::callStaticConstructors ()
 	bool result;
 
 	Function* addDestructor = getStdFunction (StdFunction_AddStaticDestructor);
-	Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
+	Type* dtorType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	size_t count = m_staticConstructArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -64,7 +59,7 @@ FunctionMgr::callStaticConstructors ()
 		{
 			Value dtorValue;
 			result = 
-				m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
+				m_module->m_operatorMgr.castOperator (destructor, dtorType, &dtorValue) &&
 				m_module->m_operatorMgr.callOperator (addDestructor, dtorValue);
 
 			if (!result)
@@ -172,79 +167,6 @@ FunctionMgr::createPropertyTemplate ()
 	return propertyTemplate;
 }
 
-#pragma AXL_TODO ("get rid of emission context stack: postpone compilation of nested function")
-
-void
-FunctionMgr::pushEmissionContext ()
-{
-	if (!m_currentFunction)
-		return;
-
-	EmissionContext* context = AXL_MEM_NEW (EmissionContext);
-	context->m_currentFunction = m_currentFunction;
-	context->m_thisValue = m_thisValue;
-	context->m_tmpStackGcRootList.takeOver (&m_module->m_operatorMgr.m_tmpStackGcRootList);
-
-	context->m_currentNamespace = m_module->m_namespaceMgr.m_currentNamespace;
-	context->m_currentScope = m_module->m_namespaceMgr.m_currentScope;
-
-	context->m_returnBlockArray = m_module->m_controlFlowMgr.m_returnBlockArray;
-	context->m_currentBlock = m_module->m_controlFlowMgr.m_currentBlock;
-	context->m_unreachableBlock = m_module->m_controlFlowMgr.m_unreachableBlock;
-	context->m_controlFlowMgrFlags = m_module->m_controlFlowMgr.m_flags;
-	context->m_llvmDebugLoc = m_module->m_llvmIrBuilder.getCurrentDebugLoc ();
-
-	m_emissionContextStack.insertTail (context);
-
-	m_module->m_namespaceMgr.m_currentNamespace = m_module->m_namespaceMgr.getGlobalNamespace ();
-	m_module->m_namespaceMgr.m_currentScope = NULL;
-
-	m_module->m_controlFlowMgr.m_returnBlockArray.clear ();
-	m_module->m_controlFlowMgr.setCurrentBlock (NULL);
-	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
-	m_module->m_controlFlowMgr.m_flags = 0;
-	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
-	// m_pModule->m_LlvmIrBuilder.SetCurrentDebugLoc (m_pModule->m_LlvmDiBuilder.GetEmptyDebugLoc ());
-
-	m_module->m_variableMgr.deallocateTlsVariableArray (m_currentFunction->m_tlsVariableArray);
-
-	m_currentFunction = NULL;
-	m_thisValue.clear ();
-}
-
-void
-FunctionMgr::popEmissionContext ()
-{
-	ASSERT (m_currentFunction);
-	m_module->m_variableMgr.deallocateTlsVariableArray (m_currentFunction->m_tlsVariableArray);
-
-	if (m_emissionContextStack.isEmpty ())
-	{
-		m_currentFunction = NULL;
-		m_thisValue.clear ();
-		m_module->m_operatorMgr.m_tmpStackGcRootList.clear ();
-		return;
-	}
-
-	EmissionContext* context = m_emissionContextStack.removeTail ();
-	m_currentFunction = context->m_currentFunction;
-	m_thisValue = context->m_thisValue;
-	m_module->m_operatorMgr.m_tmpStackGcRootList.takeOver (&context->m_tmpStackGcRootList);
-
-	m_module->m_namespaceMgr.m_currentNamespace = context->m_currentNamespace;
-	m_module->m_namespaceMgr.m_currentScope = context->m_currentScope;
-
-	m_module->m_controlFlowMgr.m_returnBlockArray = context->m_returnBlockArray;
-	m_module->m_controlFlowMgr.setCurrentBlock (context->m_currentBlock);
-	m_module->m_controlFlowMgr.m_unreachableBlock = context->m_unreachableBlock;
-	m_module->m_controlFlowMgr.m_flags = context->m_controlFlowMgrFlags;
-	m_module->m_llvmIrBuilder.setCurrentDebugLoc (context->m_llvmDebugLoc);
-
-	AXL_MEM_DELETE (context);
-
-	m_module->m_variableMgr.restoreTlsVariableArray (m_currentFunction->m_tlsVariableArray);
-}
-
 bool
 FunctionMgr::fireOnChanged ()
 {
@@ -288,8 +210,6 @@ FunctionMgr::prologue (
 {
 	bool result;
 
-	pushEmissionContext ();
-
 	m_currentFunction = function;
 
 	// create scope
@@ -316,24 +236,14 @@ FunctionMgr::prologue (
 	entryBlock->markEntry ();
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-
-	if (function->m_functionKind == FunctionKind_ModuleConstructor)
-	{
-		bool result = m_module->m_variableMgr.allocatePrimeStaticVariables ();
-		if (!result)
-			return false;
-	}
-
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
 	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
 	m_module->m_controlFlowMgr.m_flags = 0; // clear jump flag
 
-	// save scope level
-
 	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
 		result = 
-			m_module->m_variableMgr.initializeGlobalStaticVariables () &&
+			m_module->m_variableMgr.allocateInitializeGlobalVariables () &&
 			callStaticConstructors ();
 
 		if (!result)
@@ -464,7 +374,8 @@ FunctionMgr::epilogue ()
 	m_module->m_namespaceMgr.closeScope ();
 	m_module->m_namespaceMgr.closeNamespace ();
 
-	popEmissionContext ();
+	m_currentFunction = NULL;
+	m_thisValue.clear ();
 	return true;
 }
 
@@ -475,8 +386,6 @@ FunctionMgr::internalPrologue (
 	size_t argCount
 	)
 {
-	pushEmissionContext ();
-
 	m_currentFunction = function;
 
 	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
@@ -527,7 +436,8 @@ FunctionMgr::internalEpilogue ()
 
 	m_module->m_namespaceMgr.closeScope ();
 
-	popEmissionContext ();
+	m_currentFunction = NULL;
+	m_thisValue.clear ();
 }
 
 Function*
@@ -719,18 +629,12 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	ASSERT (block);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
-
-	llvm::BasicBlock::iterator llvmAnchor = block->getLlvmBlock ()->begin ();
-
-	#pragma AXL_TODO ("double-check if gc-enter is still inserted")
-	if (llvm::isa <llvm::CallInst> (llvmAnchor)) // skip gc-enter
-		llvmAnchor++;
-
-	m_module->m_llvmIrBuilder.setInsertPoint (llvmAnchor);
+	m_module->m_llvmIrBuilder.setInsertPoint (block->getLlvmBlock ()->begin ());
 
 	Function* getTls = getStdFunction (StdFunction_GetTls);
+	
 	Value tlsValue;
-	llvmAnchor = m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
+	m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
 
 	// tls variables used in this function
 
@@ -752,80 +656,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	count = tlsVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 		tlsVariableArray [i].m_llvmAlloca->eraseFromParent ();
-
-	// skip all the gep's to get past tls prologue
-
-	llvmAnchor++;
-	while (llvm::isa <llvm::GetElementPtrInst> (llvmAnchor))
-		llvmAnchor++;
-
-	function->m_llvmPostTlsPrologueInst = llvmAnchor;
 }
-
-typedef rtl::HashTableMap <void*, size_t, rtl::HashId <void*> > PointerSizeMap;
-
-class JitEventListener: public llvm::JITEventListener
-{
-protected:
-	FunctionMgr* m_functionMgr;
-	PointerSizeMap* m_pointerSizeMap;
-
-public:
-	JitEventListener (
-		FunctionMgr* functionMgr,
-		PointerSizeMap* pointerSizeMap
-		)
-	{
-		m_functionMgr = functionMgr;
-		m_pointerSizeMap = pointerSizeMap;
-	}
-
-	virtual
-	void
-	NotifyFunctionEmitted (
-		const llvm::Function& llvmFunction,
-		void* p,
-		size_t size,
-		const EmittedFunctionDetails& details
-		)
-	{
-		Function* function = m_functionMgr->findFunctionByLlvmFunction ((llvm::Function*) &llvmFunction);
-		if (function)
-		{
-			function->m_machineCode = p;
-			function->m_machineCodeSize = size;
-		}
-	}
-
-	virtual
-	void
-	NotifyObjectEmitted (const llvm::ObjectImage& objectImage)
-	{
-		llvm::error_code error;
-
-		llvm::object::symbol_iterator it = objectImage.begin_symbols ();
-		llvm::object::symbol_iterator end = objectImage.end_symbols ();
-
-		for (; it != end; it.increment (error))
-		{
-			const llvm::object::SymbolRef* symbol = &*it;
-
-			uint64_t address;
-			uint64_t size;
-
-			symbol->getAddress (address);
-			symbol->getSize (size);
-
-#ifdef _AXL_DEBUG
-			llvm::StringRef name;
-			symbol->getName (name);
-			printf ("%s @%llx (%lld bytes)\n", name.data (), address, size);
-#endif
-
-			(*m_pointerSizeMap) [(void*) address] = (size_t) size;
-		}
-	}
-};
 
 void
 llvmFatalErrorHandler (
@@ -847,14 +678,8 @@ FunctionMgr::jitFunctions ()
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler (llvmFatalErrorHandler);
 
-	PointerSizeMap pointerSizeMap;
-
-	JitEventListener jitEventListener (this, &pointerSizeMap);
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine ();
-	llvmExecutionEngine->RegisterJITEventListener (&jitEventListener);
-
-	bool isMcJit = (m_module->getFlags () & ModuleFlag_McJit) != 0;
-
+	
 	try
 	{
 		rtl::Iterator <Function> functionIt = m_functionList.getHead ();
@@ -866,10 +691,6 @@ FunctionMgr::jitFunctions ()
 
 			llvm::Function* llvmFunction = function->getLlvmFunction ();
 			function->m_machineCode = llvmExecutionEngine->getPointerToFunction (llvmFunction);
-			if (isMcJit)
-				function->m_machineCodeSize = pointerSizeMap [function->m_machineCode];
-
-			ASSERT (function->m_machineCode && function->m_machineCodeSize);
 		}
 
 		llvmExecutionEngine->finalizeObject ();
@@ -877,11 +698,9 @@ FunctionMgr::jitFunctions ()
 	catch (err::Error error)
 	{
 		err::setFormatStringError ("LLVM jitting failed: %s", error->getDescription ().cc ());
-		llvmExecutionEngine->UnregisterJITEventListener (&jitEventListener);
 		return false;
 	}
 
-	llvmExecutionEngine->UnregisterJITEventListener (&jitEventListener);
 	return true;
 }
 
@@ -893,319 +712,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 	if (m_stdFunctionArray [func])
 		return m_stdFunctionArray [func];
 
-	#include "jnc_StdFunctions.jnc.cpp"
-
-	struct SourceRef
-	{
-		const char* m_p;
-		size_t m_length;
-		StdNamespace m_stdNamespace;
-	};
-
-	static SourceRef sourceTable [StdFunction__Count] =
-	{
-		{                                        // StdFunction_DynamicSizeOf,
-			dynamicSizeOfSrc,
-			lengthof (dynamicSizeOfSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_DynamicCountOf,
-			dynamicCountOfSrc,
-			lengthof (dynamicCountOfSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_DynamicCastDataPtr,
-			dynamicCastDataPtrSrc,
-			lengthof (dynamicCastDataPtrSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_DynamicCastClassPtr,
-			dynamicCastClassPtrSrc,
-			lengthof (dynamicCastClassPtrSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_StrengthenClassPtr,
-			strengthenClassPtrSrc,
-			lengthof (strengthenClassPtrSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_GcAllocate,
-			gcAllocateSrc,
-			lengthof (gcAllocateSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_GcTryAllocate,
-			gcTryAllocateSrc,
-			lengthof (gcTryAllocateSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_GcEnter,
-			gcEnterSrc,
-			lengthof (gcEnterSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_GcLeave,
-			gcLeaveSrc,
-			lengthof (gcLeaveSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_GcPulse,
-			gcPulseSrc,
-			lengthof (gcPulseSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_MarkGcRoot,
-			markGcRootSrc,
-			lengthof (markGcRootSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_RunGc,
-			runGcSrc,
-			lengthof (runGcSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_GetCurrentThreadId,
-			getCurrentThreadIdSrc,
-			lengthof (getCurrentThreadIdSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_CreateThread,
-			createThreadSrc,
-			lengthof (createThreadSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_Sleep,
-			sleepSrc,
-			lengthof (sleepSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_GetTimestamp,
-			getTimestampSrc,
-			lengthof (getTimestampSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_Format,
-			formatSrc,
-			lengthof (formatSrc),
-			StdNamespace_Jnc,
-		},
-		{                                        // StdFunction_StrLen,
-			strlenSrc,
-			lengthof (strlenSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_StrCmp,
-			strcmpSrc,
-			lengthof (strcmpSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_StriCmp,
-			stricmpSrc,
-			lengthof (stricmpSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_StrChr,
-			strchrSrc,
-			lengthof (strchrSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_StrCat,
-			strcatSrc,
-			lengthof (strcatSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_StrDup,
-			strdupSrc,
-			lengthof (strdupSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemCmp,
-			memcmpSrc,
-			lengthof (memcmpSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemChr,
-			memchrSrc,
-			lengthof (memchrSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemCpy,
-			memcpySrc,
-			lengthof (memcpySrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemSet,
-			memsetSrc,
-			lengthof (memsetSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemCat,
-			memcatSrc,
-			lengthof (memcatSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_MemDup,
-			memdupSrc,
-			lengthof (memdupSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_Rand,
-			randSrc,
-			lengthof (randSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_Printf,
-			printfSrc,
-			lengthof (printfSrc),
-			StdNamespace_Global,
-		},
-		{                                        // StdFunction_Atoi,
-			atoiSrc,
-			lengthof (atoiSrc),
-			StdNamespace_Global,
-		},
-		{ NULL },                                // StdFunction_GetTls,
-		{                                        // StdFunction_AppendFmtLiteral_a,
-			appendFmtLiteralSrc_a,
-			lengthof (appendFmtLiteralSrc_a),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_AppendFmtLiteral_p,
-			appendFmtLiteralSrc_p,
-			lengthof (appendFmtLiteralSrc_p),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_AppendFmtLiteral_i32,
-			appendFmtLiteralSrc_i32,
-			lengthof (appendFmtLiteralSrc_i32),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_AppendFmtLiteral_ui32,
-			appendFmtLiteralSrc_ui32,
-			lengthof (appendFmtLiteralSrc_ui32),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_AppendFmtLiteral_i64,
-			appendFmtLiteralSrc_i64,
-			lengthof (appendFmtLiteralSrc_i64),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunction_AppendFmtLiteral_ui64,
-			appendFmtLiteralSrc_ui64,
-			lengthof (appendFmtLiteralSrc_ui64),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_f,
-			appendFmtLiteralSrc_f,
-			lengthof (appendFmtLiteralSrc_f),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_v,
-			appendFmtLiteralSrc_v,
-			lengthof (appendFmtLiteralSrc_v),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_s,
-			appendFmtLiteralSrc_s,
-			lengthof (appendFmtLiteralSrc_s),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_sr,
-			appendFmtLiteralSrc_sr,
-			lengthof (appendFmtLiteralSrc_sr),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_cb,
-			appendFmtLiteralSrc_cb,
-			lengthof (appendFmtLiteralSrc_cb),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_cbr,
-			appendFmtLiteralSrc_cbr,
-			lengthof (appendFmtLiteralSrc_cbr),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AppendFmtLiteral_br,
-			appendFmtLiteralSrc_br,
-			lengthof (appendFmtLiteralSrc_br),
-			StdNamespace_Internal,
-		},
-		{ NULL },                               // StdFunction_SimpleMulticastCall,
-		{                                       // StdFunction_Throw,
-			throwSrc,
-			lengthof (throwSrc),
-			StdNamespace_Jnc,
-		},
-		{                                       // StdFunction_GetLastError,
-			getLastErrorSrc,
-			lengthof (getLastErrorSrc),
-			StdNamespace_Jnc,
-		},
-		{                                       // StdFunction_SetPosixError,
-			setPosixErrorSrc,
-			lengthof (setPosixErrorSrc),
-			StdNamespace_Jnc,
-		},
-		{                                       // StdFunction_SetStringError,
-			setStringErrorSrc,
-			lengthof (setStringErrorSrc),
-			StdNamespace_Jnc,
-		},
-		{                                       // StdFunction_AssertionFailure,
-			assertionFailureSrc,
-			lengthof (assertionFailureSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AddStaticDestructor,
-			addStaticDestructorSrc,
-			lengthof (addStaticDestructorSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_AddDestructor,
-			addDestructorSrc,
-			lengthof (addDestructorSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_TryCheckDataPtrRange,
-			tryCheckDataPtrRangeSrc,
-			lengthof (tryCheckDataPtrRangeSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_CheckDataPtrRange,
-			checkDataPtrRangeSrc,
-			lengthof (checkDataPtrRangeSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_TryCheckNullPtr,
-			tryCheckNullPtrSrc,
-			lengthof (tryCheckNullPtrSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_CheckNullPtr,
-			checkNullPtrSrc,
-			lengthof (checkNullPtrSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_DynamicCastVariant,
-			dynamicCastVariantSrc,
-			lengthof (dynamicCastVariantSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_TryLazyGetLibraryFunctionAddr,
-			tryLazyGetLibraryFunctionSrc,
-			lengthof (tryLazyGetLibraryFunctionSrc),
-			StdNamespace_Internal,
-		},
-		{                                       // StdFunction_LazyGetLibraryFunctionAddr,
-			lazyGetLibraryFunctionSrc,
-			lengthof (lazyGetLibraryFunctionSrc),
-			StdNamespace_Internal,
-		},
-		{ NULL },                              // StdFunction_LlvmMemcpy
-		{ NULL },                              // StdFunction_LlvmMemmove
-		{ NULL },                              // StdFunction_LlvmMemset
-	};
-
 	// 8 is enough for all the std functions
 
 	Type* argTypeArray [8] = { 0 }; 
@@ -1214,16 +720,52 @@ FunctionMgr::getStdFunction (StdFunction func)
 	Type* returnType;
 	FunctionType* functionType;
 	Function* function;
+	const StdItemSource* source;
 
 	switch (func)
 	{
-	case StdFunction_MarkGcRoot:
-		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getDataPtrType_c ();
-		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+	case StdFunction_TryAllocateClass:
+		returnType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateClass", functionType);
+		break;
+
+	case StdFunction_AllocateClass:
+		returnType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.allocateClass", functionType);
+		break;
+
+	case StdFunction_TryAllocateData:
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataBoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateData", functionType);
+		break;
+
+	case StdFunction_AllocateData:
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataBoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.allocateData", functionType);
+		break;
+
+	case StdFunction_TryAllocateArray:
+		returnType = m_module->m_typeMgr.getStdType (StdType_DynamicArrayBoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
-		function = createFunction (FunctionKind_Internal, "jnc.llvmGcRoot", functionType);
-		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (m_module->getLlvmModule (), llvm::Intrinsic::gcroot);
+		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateClass", functionType);
+		break;
+
+	case StdFunction_AllocateArray:
+		returnType = m_module->m_typeMgr.getStdType (StdType_DynamicArrayBoxPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.allocateArray", functionType);
 		break;
 
 	case StdFunction_LlvmMemcpy:
@@ -1324,13 +866,10 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_DynamicCountOf:
 	case StdFunction_DynamicCastDataPtr:
 	case StdFunction_DynamicCastClassPtr:
+	case StdFunction_DynamicCastVariant:
 	case StdFunction_StrengthenClassPtr:
-	case StdFunction_GcAllocate:
-	case StdFunction_GcTryAllocate:
-	case StdFunction_GcEnter:
-	case StdFunction_GcLeave:
-	case StdFunction_GcPulse:
-	case StdFunction_RunGc:
+	case StdFunction_GcSafePoint:
+	case StdFunction_CollectGarbage:
 	case StdFunction_CreateThread:
 	case StdFunction_Sleep:
 	case StdFunction_GetTimestamp:
@@ -1341,7 +880,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_SetStringError:
 	case StdFunction_AssertionFailure:
 	case StdFunction_AddStaticDestructor:
-	case StdFunction_AddDestructor:
+	case StdFunction_AddStaticClassDestructor:
 	case StdFunction_Format:
 	case StdFunction_AppendFmtLiteral_a:
 	case StdFunction_AppendFmtLiteral_p:
@@ -1356,18 +895,21 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AppendFmtLiteral_cb:
 	case StdFunction_AppendFmtLiteral_cbr:
 	case StdFunction_AppendFmtLiteral_br:
-	case StdFunction_TryCheckDataPtrRange:
-	case StdFunction_CheckDataPtrRange:
+	case StdFunction_TryCheckDataPtrRangeDirect:
+	case StdFunction_CheckDataPtrRangeDirect:
+	case StdFunction_TryCheckDataPtrRangeIndirect:
+	case StdFunction_CheckDataPtrRangeIndirect:
 	case StdFunction_TryCheckNullPtr:
 	case StdFunction_CheckNullPtr:
-	case StdFunction_DynamicCastVariant:
 	case StdFunction_TryLazyGetLibraryFunction:
 	case StdFunction_LazyGetLibraryFunction:
-		ASSERT (sourceTable [func].m_p);
+		source = getStdFunctionSource (func);
+			
+		ASSERT (source->m_p);
 		function = parseStdFunction (
-			sourceTable [func].m_stdNamespace,
-			sourceTable [func].m_p,
-			sourceTable [func].m_length
+			source->m_stdNamespace,
+			source->m_p,
+			source->m_length
 			);
 		break;
 
@@ -1440,75 +982,7 @@ FunctionMgr::getLazyStdFunction (StdFunction func)
 	if (m_lazyStdFunctionArray [func])
 		return m_lazyStdFunctionArray [func];
 
-	const char* nameTable [StdFunction__Count] =
-	{
-		NULL,                  // StdFunction_DynamicSizeOf,
-		NULL,                  // StdFunction_DynamicCountOf,
-		NULL,                  // StdFunction_DynamicCastDataPtr,
-		NULL,                  // StdFunction_DynamicCastClassPtr,
-		NULL,                  // StdFunction_StrengthenClassPtr,
-		NULL,                  // StdFunction_GcAllocate,
-		NULL,                  // StdFunction_GcTryAllocate,
-		NULL,                  // StdFunction_GcEnter,
-		NULL,                  // StdFunction_GcLeave,
-		NULL,                  // StdFunction_GcPulse,
-		NULL,                  // StdFunction_MarkGcRoot,
-		"runGc",               // StdFunction_RunGc,
-		"getCurrentThreadId",  // StdFunction_GetCurrentThreadId,
-		"createThread",        // StdFunction_CreateThread,
-		"sleep",               // StdFunction_Sleep,
-		"getTimestamp",        // StdFunction_GetTimestamp,
-		"format",              // StdFunction_Format,
-		"strlen",              // StdFunction_StrLen,
-		"strcmp",              // StdFunction_StrCmp,
-		"stricmp",             // StdFunction_StriCmp,
-		"strchr",              // StdFunction_StrChr,
-		"strcat",              // StdFunction_StrCat,
-		"strdup",              // StdFunction_StrDup,
-		"memcmp",              // StdFunction_MemCmp,
-		"memchr",              // StdFunction_MemChr,
-		"memcpy",              // StdFunction_MemCpy,
-		"memset",              // StdFunction_MemSet,
-		"memcat",              // StdFunction_MemCat,
-		"memdup",              // StdFunction_MemDup,
-		"rand",                // StdFunction_Rand,
-		"printf",              // StdFunction_Printf,
-		"atoi",                // StdFunction_Atoi,
-		NULL,                  // StdFunction_GetTls,
-		NULL,                  // StdFunction_AppendFmtLiteral_a,
-		NULL,                  // StdFunction_AppendFmtLiteral_p,
-		NULL,                  // StdFunction_AppendFmtLiteral_i32,
-		NULL,                  // StdFunction_AppendFmtLiteral_ui32,
-		NULL,                  // StdFunction_AppendFmtLiteral_i64,
-		NULL,                  // StdFunction_AppendFmtLiteral_ui64,
-		NULL,                  // StdFunction_AppendFmtLiteral_f,
-		NULL,                  // StdFunction_AppendFmtLiteral_v,
-		NULL,                  // StdFunction_AppendFmtLiteral_s,
-		NULL,                  // StdFunction_AppendFmtLiteral_sr,
-		NULL,                  // StdFunction_AppendFmtLiteral_cb,
-		NULL,                  // StdFunction_AppendFmtLiteral_cbr,
-		NULL,                  // StdFunction_AppendFmtLiteral_br,
-		NULL,                  // StdFunction_SimpleMulticastCall,
-		"throw",               // StdFunction_Throw,
-		"getLastError",        // StdFunction_GetLastError,
-		"setPosixError",       // StdFunction_SetPosixError,
-		"setStringError",      // StdFunction_SetStringError,
-		"assertionFailure",    // StdFunction_AssertionFailure,
-		"addStaticDestructor", // StdFunction_AddStaticDestructor,
-		"addDestructor",       // StdFunction_AddDestructor,
-		NULL,                  // StdFunction_TryCheckDataPtrRange,
-		NULL,                  // StdFunction_CheckDataPtrRange,
-		NULL,                  // StdFunction_TryCheckNullPtr,
-		NULL,                  // StdFunction_CheckNullPtr,
-		NULL,                  // StdFunction_DynamicCastVariant,
-		NULL,                  // StdFunction_TryLazyGetLibraryFunction,
-		NULL,                  // StdFunction_LazyGetLibraryFunction,
-		NULL,                  // StdFunction_LlvmMemcpy,
-		NULL,                  // StdFunction_LlvmMemmove,
-		NULL,                  // StdFunction_LlvmMemset,
-	};
-
-	const char* name = nameTable [func];
+	const char* name = getStdFunctionName (func);
 	ASSERT (name);
 
 	LazyStdFunction* function = AXL_MEM_NEW (LazyStdFunction);

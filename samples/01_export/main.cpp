@@ -114,11 +114,9 @@ main (
 	printf ("Running...\n");
 
 	jnc::Runtime runtime;
-	jnc::ScopeThreadRuntime scopeRuntime (&runtime);
 
 	result = 
-		runtime.create () &&
-		runtime.addModule (&module); // 16K gc heap, 16K stack
+		runtime.addModule (&module); 
 		runtime.startup ();
 
 	if (!result)
@@ -127,31 +125,15 @@ main (
 		return Error_Runtime;
 	}
 
-	jnc::Function* constructor = module.getConstructor ();
-	jnc::Function* destructor = module.getDestructor ();
-
-	if (destructor)
-		runtime.addStaticDestructor ((jnc::StaticDestruct*) destructor->getMachineCode ());
-
 	Error finalResult = Error_Success;
 
-	typedef void ConstructorFunc ();
-	typedef int MainFunc ();
-
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
-	{
-		if (constructor)
-			((ConstructorFunc*) constructor->getMachineCode ()) ();
-
-		int returnValue = ((MainFunc*) mainFunction->getMachineCode ()) ();
-		printf ("'main' returned (%d)\n", returnValue);
-	}
-	AXL_MT_LONG_JMP_CATCH ()
+	int returnValue;
+	result = jnc::callFunction (mainFunction, &returnValue);
+	if (!result)
 	{
 		printf ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
 		finalResult = Error_Runtime;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
 
 	printf ("Shutting down...\n");
 

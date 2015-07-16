@@ -115,7 +115,7 @@ PropertyPtrType::prepareLlvmDiType ()
 
 void
 PropertyPtrType::markGcRoots (
-	void* p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {

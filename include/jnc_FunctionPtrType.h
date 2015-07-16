@@ -101,7 +101,7 @@ public:
 	virtual
 	void
 	markGcRoots (
-		void* p,
+		const void* p,
 		GcHeap* gcHeap
 		);
 

@@ -7,31 +7,6 @@ namespace jnc {
 //.............................................................................
 
 void
-OperatorMgr::getDataRefBox (
-	const Value& value,
-	Value* resultValue
-	)
-{
-	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataRef);
-	DataPtrType* ptrType = (DataPtrType*) value.getType ();
-	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-
-	if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
-		getLeanDataPtrBox (value, resultValue);
-	}
-	else
-	{
-		m_module->m_llvmIrBuilder.createExtractValue (
-			value,
-			3,
-			m_module->m_typeMgr.getStdType (StdType_BoxPtr),
-			resultValue
-			);
-	}
-}
-
-void
 OperatorMgr::checkPtr (
 	StdFunction stdTryCheckFunction,
 	StdFunction stdCheckFunction,
@@ -73,60 +48,81 @@ OperatorMgr::checkPtr (
 	}
 }
 
-void
+bool
 OperatorMgr::checkDataPtrRange (const Value& value)
 {
-	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
-	DataPtrType* type = (DataPtrType*) value.getType ();
+	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 
-	if (m_module->m_operatorMgr.isUnsafeRgn () || (type->getFlags () & PtrTypeFlag_Safe))
-		return;
+	DataPtrType* type = (DataPtrType*) value.getType ();
+	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
+
+	if (m_module->m_operatorMgr.isUnsafeRgn () || 
+		(type->getFlags () & PtrTypeFlag_Safe) ||
+		ptrTypeKind == DataPtrTypeKind_Thin)
+		return true;
+
+	size_t targetSize = type->getTargetType ()->getSize ();	
 
 	Value ptrValue;
-	Value rangeBeginValue;
-	Value rangeEndValue;
+	Value validatorValue;
 
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
-	switch (ptrTypeKind)
+	if (ptrTypeKind == DataPtrTypeKind_Normal)
 	{
-	case DataPtrTypeKind_Thin:
-		return;
-
-	case DataPtrTypeKind_Lean:
-		getLeanDataPtrRange (value, &rangeBeginValue, &rangeEndValue);
-		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-		break;
-
-	case DataPtrTypeKind_Normal:
 		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &rangeBeginValue);
-		m_module->m_llvmIrBuilder.createExtractValue (value, 2, NULL, &rangeEndValue);
-		break;
-
-	default:
-		ASSERT (false);
-		return;
+		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &validatorValue);
 	}
+	else
+	{
+		ASSERT (ptrTypeKind == DataPtrTypeKind_Lean);
+		ptrValue = value;
 
-	Value sizeValue (
-		type->getTargetType ()->getSize (), 
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
-		);
+		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
+		if (validator->isDynamicRange ())
+		{
+			validatorValue = validator->getValidatorValue ();
+		}
+		else
+		{
+			size_t rangeLength = validator->getRangeLength ();
+			if (rangeLength < targetSize)
+			{
+				err::setFormatStringError ("'%s' fails range check", type->getTypeString ().cc ());
+				return false;
+			}
+
+			rangeLength -= targetSize;
+
+			Value argValueArray [] =
+			{
+				ptrValue,
+				validator->getRangeBeginValue (),
+				Value (rangeLength, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+			};
+
+			checkPtr (
+				StdFunction_TryCheckDataPtrRangeDirect,
+				StdFunction_CheckDataPtrRangeDirect,
+				argValueArray,
+				countof (argValueArray)
+				);
+		}
+	}
 
 	Value argValueArray [] =
 	{
 		ptrValue,
-		sizeValue,
-		rangeBeginValue,
-		rangeEndValue,
+		Value (targetSize, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+		validatorValue,
 	};
 
 	checkPtr (
-		StdFunction_TryCheckDataPtrRange,
-		StdFunction_CheckDataPtrRange,
+		StdFunction_TryCheckDataPtrRangeIndirect,
+		StdFunction_CheckDataPtrRangeIndirect,
 		argValueArray,
 		countof (argValueArray)
 		);
+
+	return true;
 }
 
 void

@@ -58,6 +58,14 @@ enum OperatorDynamism
 	OperatorDynamism_Dynamic,
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OperatorMgrDef
+{
+	OperatorMgrDef_StoreSizeLimit      = 64,
+	OperatorMgrDef_StackAllocSizeLimit = 128,
+};	 
+
 //.............................................................................
 
 class OperatorMgr
@@ -261,16 +269,16 @@ public:
 	bool
 	prepareArgumentReturnValue (Value* value);
 
-	void
+	bool
 	prepareDataPtr (
 		const Value& value,
 		Value* resultValue
 		);
 
-	void
+	bool
 	prepareDataPtr (Value* value)
 	{
-		prepareDataPtr (*value, value);
+		return prepareDataPtr (*value, value);
 	}
 
 	// unary operators
@@ -687,53 +695,8 @@ public:
 		return offsetofOperator (*value, value);
 	}
 
-	// new & delete operators
-
-	bool
-	allocate (
-		StorageKind storageKind,
-		Type* type,
-		const Value& elementCountValue,
-		const char* tag,
-		Value* resultValue
-		);
-
-	bool
-	allocate (
-		StorageKind storageKind,
-		Type* type,
-		const char* tag,
-		Value* resultValue
-		)
-	{
-		return allocate (storageKind, type, Value (), tag, resultValue);
-	}
-
-	bool
-	prime (
-		StorageKind storageKind,
-		const Value& ptrValue,
-		Type* type,
-		const Value& elementCountValue,
-		Value* resultValue
-		);
-
-	bool
-	prime (
-		StorageKind storageKind,
-		const Value& ptrValue,
-		Type* type,
-		Value* resultValue
-		)
-	{
-		return prime (storageKind, ptrValue, type, Value (), resultValue);
-	}
-
 	void
-	zeroInitialize (
-		const Value& ptrValue,
-		Type* type
-		);
+	zeroInitialize (const Value& value);
 
 	bool
 	construct (
@@ -1024,7 +987,7 @@ public:
 	}
 
 	void
-	gcPulse ();
+	gcSafePoint ();
 
 	// closure operators
 
@@ -1483,19 +1446,6 @@ public:
 		);
 
 	void
-	getLeanDataPtrRange (
-		const Value& value,
-		Value* rangeBeginValue,
-		Value* rangeEndValue
-		);
-
-	void
-	getLeanDataPtrBox (
-		const Value& value,
-		Value* resultValue
-		);
-
-	void
 	nullifyGcRootList (const rtl::ConstBoxList <Value>& list);
 
 	// closures
@@ -1525,13 +1475,7 @@ public:
 		size_t argCount
 		);
 
-	void
-	getDataRefBox (
-		const Value& value,
-		Value* resultValue
-		);
-
-	void
+	bool
 	checkDataPtrRange (const Value& value);
 
 	void

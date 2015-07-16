@@ -59,10 +59,35 @@ public:
 
 public:
 	Runtime ();
-	~Runtime ();
+
+	~Runtime ()
+	{
+		shutdown ();
+	}
+
+	rtl::Array <Module*> 
+	getModuleArray ()
+	{
+		return m_moduleArray;
+	}
+
+	Module* 
+	getFirstModule ()
+	{
+		return !m_moduleArray.isEmpty () ? m_moduleArray [0] : NULL;
+	}
 
 	bool
 	addModule (Module* module);
+
+	void
+	addStaticDestructor (StaticDestructFunc* destructFunc);
+
+	void
+	addStaticClassDestructor (
+		DestructFunc* destructFunc,
+		jnc::IfaceHdr* iface
+		);
 
 	bool 
 	startup ();
@@ -78,15 +103,6 @@ public:
 
 	void
 	checkStackOverflow ();
-
-	void
-	addStaticDestructor (StaticDestructFunc* destructFunc);
-
-	void
-	addDestructor (
-		DestructFunc* destructFunc,
-		jnc::IfaceHdr* iface
-		);
 
 	static
 	void
@@ -123,11 +139,11 @@ getCurrentThreadRuntime ()
 	__jncRuntime->uninitializeThread ();
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-#	define JNC_GC_BEGIN(runtime) \
+#	define JNC_GC_BEGIN() \
 	__try {
 
 #	define JNC_GC_END() \
-	} __except (__jncRuntime->m_gcHeap.handleSehException (GetExceptionCode (), GetExceptionInformation ())) { } \
+	} __except (__jncRuntime->m_gcHeap.handleSehException (GetExceptionCode (), GetExceptionInformation ())) { }
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 #	define JNC_GC_BEGIN()
@@ -281,7 +297,7 @@ public:
 	gcLeave ();
 
 	void
-	gcPulse ();
+	gcSafePoint ();
 
 	void*
 	gcAllocate (

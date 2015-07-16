@@ -8,32 +8,14 @@ namespace jnc {
 //.............................................................................
 
 size_t
-StdLib::dynamicSizeOf (DataPtr ptr)
-{
-	size_t maxSize = (char*) ptr.m_rangeEnd > (char*) ptr.m_p ? (char*) ptr.m_rangeEnd - (char*) ptr.m_p : 0;
-
-	if (!ptr.m_box)
-		return maxSize;
-
-	#pragma AXL_TODO ("find field pointed to by ptr and calculate sizeof accordingly")
-	return maxSize;
-}
-
-size_t
 StdLib::dynamicCountOf (
 	DataPtr ptr,
 	Type* type
 	)
 {
-	size_t maxSize = (char*) ptr.m_rangeEnd > (char*) ptr.m_p ? (char*) ptr.m_rangeEnd - (char*) ptr.m_p : 0;
+	size_t maxSize = ptr.m_validator ? ptr.m_validator->m_rangeLength : 0;
 	size_t typeSize = type->getSize ();
-	size_t maxCount = maxSize / (typeSize ? typeSize : 1);
-
-	if (!ptr.m_box)
-		return maxCount;
-
-	#pragma AXL_TODO ("find field pointed to by ptr and calculate countof accordingly")
-	return maxCount;
+	return maxSize / (typeSize ? typeSize : 1);
 }
 
 DataPtr
@@ -42,17 +24,15 @@ StdLib::dynamicCastDataPtr (
 	Type* type
 	)
 {
-	if (!ptr.m_box)
+	if (!ptr.m_validator)
 		return g_nullPtr;
 	
-	void* p = (ptr.m_box->m_flags  & (BoxFlag_Stack | BoxFlag_Static)) ?
-		((VariableBox*) ptr.m_box)->m_p :
-		ptr.m_box + 1;
-
+	Box* box = ptr.m_validator->m_targetBox;
+	void* p = (box->m_flags & BoxFlag_StaticData) ? ((StaticDataBox*) box)->m_p : box + 1;
 	if (ptr.m_p < p)
 		return g_nullPtr;
 
-	Type* srcType = ptr.m_box->m_type;
+	Type* srcType = box->m_type;
 	while (srcType->getTypeKind () == TypeKind_Array)
 	{
 		ArrayType* arrayType = (ArrayType*) srcType;
@@ -88,24 +68,26 @@ StdLib::dynamicCastDataPtr (
 
 IfaceHdr*
 StdLib::dynamicCastClassPtr (
-	IfaceHdr* p,
+	IfaceHdr* iface,
 	ClassType* type
 	)
 {
-	if (!p)
+	if (!iface)
 		return NULL;
 
-	if (p->m_box->m_type->cmp (type) == 0)
-		return p;
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* classType = (ClassType*) iface->m_box->m_type;
+	if (classType->cmp (type) == 0)
+		return iface;
 
 	BaseTypeCoord coord;
-	bool result = p->m_box->m_classType->findBaseTypeTraverse (type, &coord);
+	bool result = classType->findBaseTypeTraverse (type, &coord);
 	if (!result)
 		return NULL;
 
-	IfaceHdr* p2 = (IfaceHdr*) ((uchar_t*) (p->m_box + 1) + coord.m_offset);
-	ASSERT (p2->m_box == p->m_box);
-	return p2;
+	IfaceHdr* iface2 = (IfaceHdr*) ((uchar_t*) (iface->m_box + 1) + coord.m_offset);
+	ASSERT (iface2->m_box == iface->m_box);
+	return iface2;
 }
 
 bool
@@ -125,19 +107,58 @@ StdLib::dynamicCastVariant (
 }
 
 IfaceHdr*
-StdLib::strengthenClassPtr (IfaceHdr* p)
+StdLib::strengthenClassPtr (IfaceHdr* iface)
 {
-	if (!p)
+	if (!iface)
 		return NULL;
 
-	ClassTypeKind classTypeKind = p->m_box->m_classType->getClassTypeKind ();
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* classType = (ClassType*) iface->m_box->m_type;
+
+	ClassTypeKind classTypeKind = classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
-		((ClosureClassType*) p->m_box->m_type)->strengthen (p) :
-		(!(p->m_box->m_flags & BoxFlag_Dead)) ? p : NULL;
+		((ClosureClassType*) iface->m_box->m_type)->strengthen (iface) :
+		(iface->m_box->m_flags & BoxFlag_StrongMark) ? iface : NULL;
 }
 
-void*
-StdLib::gcAllocate (
+Box*
+StdLib::tryAllocateClass (ClassType* type)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	return runtime->m_gcHeap.tryAllocateClass (type);
+}
+
+Box*
+StdLib::allocateClass (ClassType* type)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	return runtime->m_gcHeap.allocateClass (type);
+}
+
+DataBox*
+StdLib::tryAllocateData (Type* type)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	return runtime->m_gcHeap.tryAllocateData (type);
+}
+
+DataBox*
+StdLib::allocateData (Type* type)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	return runtime->m_gcHeap.allocateData (type);
+}
+
+DynamicArrayBox*
+StdLib::tryAllocateArray (
 	Type* type,
 	size_t elementCount
 	)
@@ -145,11 +166,11 @@ StdLib::gcAllocate (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	return runtime->gcAllocate (type, elementCount);
+	return runtime->m_gcHeap.tryAllocateArray (type, elementCount);
 }
 
-void*
-StdLib::gcTryAllocate (
+DynamicArrayBox*
+StdLib::allocateArray (
 	Type* type,
 	size_t elementCount
 	)
@@ -157,53 +178,37 @@ StdLib::gcTryAllocate (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	return runtime->gcTryAllocate (type, elementCount);
+	return runtime->m_gcHeap.allocateArray (type, elementCount);
 }
 
 void
-StdLib::gcEnter ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-	runtime->gcEnter ();
-}
-
-void
-StdLib::gcLeave ()
+StdLib::gcSafePoint ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->gcLeave ();
+	runtime->m_gcHeap.safePoint ();
 }
 
 void
-StdLib::gcPulse ()
+StdLib::collectGarbage ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->gcPulse ();
-}
-
-void
-StdLib::runGc ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	runtime->runGc ();
+	runtime->m_gcHeap.collect ();
 }
 
 size_t
 StdLib::strLen (DataPtr ptr)
 {
-	char* p = (char*) ptr.m_p;
-	if (!p)
+	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
 		return 0;
 
-	char* p0 = p;
-	char* end = (char*) ptr.m_rangeEnd;
+	char* p0 = (char*) ptr.m_p;
+	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
+
+	char* p = p0;
 	while (*p && p < end)
 		p++;
 
@@ -277,26 +282,7 @@ StdLib::strDup (
 	if (length == -1)
 		length = strLen (ptr);
 
-	if (!length)
-		return g_nullPtr;
-
-	char* p = (char*) AXL_MEM_ALLOC (length + 1);
-	if (!p)
-		return g_nullPtr;
-
-	p [length] = 0; // ensure zero-termination just in case
-
-	if (ptr.m_p)
-		memcpy (p, ptr.m_p, length);
-	else
-		memset (p, 0, length);
-
-	DataPtr resultPtr;
-	resultPtr.m_p = p;
-	resultPtr.m_rangeBegin = p;
-	resultPtr.m_rangeEnd = p + length;
-	resultPtr.m_box = jnc::getStaticBox ();
-	return resultPtr;
+	return jnc::strDup ((const char*) ptr.m_p, length);
 }
 
 int
@@ -362,14 +348,15 @@ StdLib::memCat (
 	size_t size2
 	)
 {
-	DataPtr resultPtr = { 0 };
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
 	size_t totalSize = size1 + size2;
-	char* p = (char*) AXL_MEM_ALLOC (totalSize + 1);
-	if (!p)
-		return resultPtr;
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (totalSize);
+	if (!box)
+		return g_nullPtr;
 
-	p [totalSize] = 0; // ensure zero-termination just in case
+	char* p = (char*) (box + 1);
 
 	if (ptr1.m_p)
 		memcpy (p, ptr1.m_p, size1);
@@ -381,10 +368,9 @@ StdLib::memCat (
 	else
 		memset (p + size1, 0, size2);
 
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
-	resultPtr.m_rangeBegin = p;
-	resultPtr.m_rangeEnd = p + totalSize;
-	resultPtr.m_box = jnc::getStaticBox ();
+	resultPtr.m_validator = &box->m_validator;
 	return resultPtr;
 }
 
@@ -394,53 +380,49 @@ StdLib::memDup (
 	size_t size
 	)
 {
-	DataPtr resultPtr = { 0 };
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	char* p = (char*) AXL_MEM_ALLOC (size + 1);
-	if (!p)
-		return resultPtr;
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (size);
+	if (!box)
+		return g_nullPtr;
 
-	p [size] = 0; // ensure zero-termination just in case
+	char* p = (char*) (box + 1);
 
 	if (ptr.m_p)
 		memcpy (p, ptr.m_p, size);
 	else
 		memset (p, 0, size);
 
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
-	resultPtr.m_rangeBegin = p;
-	resultPtr.m_rangeEnd = p + size;
-	resultPtr.m_box = jnc::getStaticBox ();
+	resultPtr.m_validator = &box->m_validator;
 	return resultPtr;
-}
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-
-intptr_t
-StdLib::getCurrentThreadId ()
-{
-	return ::GetCurrentThreadId ();
 }
 
 struct ThreadContext
 {
 	FunctionPtr m_ptr;
 	Runtime* m_runtime;
+	mt::Event m_threadStartedEvent;
 };
+
+#if (_AXL_ENV == AXL_ENV_WIN)
 
 DWORD
 WINAPI
-StdLib::threadFunc (PVOID rawContext)
+StdLib::threadFunc (PVOID context0)
 {
-	ThreadContext* context = (ThreadContext*) rawContext;
-	FunctionPtr ptr = context->m_ptr;
-	Runtime* runtime = context->m_runtime;
-	AXL_MEM_DELETE (context);
+	ThreadContext* context = (ThreadContext*) context0;
+	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
 
-	ScopeThreadRuntime scopeRuntime (runtime);
-	getTlsMgr ()->getTls (runtime); // register thread right away
+	JNC_BEGIN (context->m_runtime);
+	context->m_threadStartedEvent.signal ();
+	
+	((void (__cdecl*) (IfaceHdr*)) context->m_ptr.m_p) (context->m_ptr.m_closure);
+	
+	JNC_END ();
 
-	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	return 0;
 }
 
@@ -450,41 +432,35 @@ StdLib::createThread (FunctionPtr ptr)
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ThreadContext* context = AXL_MEM_NEW (ThreadContext);
-	context->m_ptr = ptr;
-	context->m_runtime = runtime;
+	ThreadContext context;
+	context.m_ptr = ptr;
+	context.m_runtime = runtime;
 
 	DWORD threadId;
-	HANDLE h = ::CreateThread (NULL, 0, StdLib::threadProc, context, 0, &threadId);
+	HANDLE h = ::CreateThread (NULL, 0, StdLib::threadFunc, &context, 0, &threadId);
+
+	runtime->m_gcHeap.enterSafeRegion (); // pre-wait
+	context.m_threadStartedEvent.wait ();
+	runtime->m_gcHeap.leaveSafeRegion ();
+
 	return h != NULL;
 }
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 
-intptr_t
-StdLib::getCurrentThreadId ()
-{
-	return (intptr_t) pthread_self ();
-}
-
-struct ThreadContext
-{
-	FunctionPtr m_ptr;
-	Runtime* m_runtime;
-};
-
 void*
-StdLib::threadFunc (void* rawContext)
+StdLib::threadFunc (void* context0)
 {
-	ThreadContext* context = (ThreadContext*) rawContext;
-	FunctionPtr ptr = context->m_ptr;
-	Runtime* runtime = context->m_runtime;
-	AXL_MEM_DELETE (context);
+	ThreadContext* context = (ThreadContext*) context0;
+	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
 
-	ScopeThreadRuntime scopeRuntime (runtime);
-	getTlsMgr ()->getTls (runtime); // register thread right away
+	JNC_BEGIN (context->m_runtime);
+	context->m_threadStartedEvent.signal ();
+	
+	((void (__cdecl*) (IfaceHdr*)) context->m_ptr.m_p) (context->m_ptr.m_closure);
+	
+	JNC_END ();
 
-	((void (*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	return NULL;
 }
 
@@ -494,12 +470,17 @@ StdLib::createThread (FunctionPtr ptr)
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ThreadContext* context = AXL_MEM_NEW (ThreadContext);
-	context->m_ptr = ptr;
-	context->m_runtime = runtime;
+	ThreadContext context;
+	context.m_ptr = ptr;
+	context.m_runtime = runtime;
 
 	pthread_t thread;
-	int result = pthread_create (&thread, NULL, StdLib::threadProc, context);
+	int result = pthread_create (&thread, NULL, StdLib::threadFunc, &context);
+
+	runtime->m_gcHeap.enterSafeRegion (); // pre-wait
+	context.m_threadStartedEvent.wait ();
+	runtime->m_gcHeap.leaveSafeRegion ();
+
 	return result == 0;
 }
 
@@ -510,16 +491,20 @@ StdLib::getErrorPtr (const err::ErrorData* errorData)
 {
 	size_t size = errorData->m_size;
 
-	void* p = AXL_MEM_ALLOC (size);
-	memcpy (p , errorData, size);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	jnc::DataPtr ptr = { 0 };
-	ptr.m_p = p;
-	ptr.m_rangeBegin = ptr.m_p;
-	ptr.m_rangeEnd = (char*) ptr.m_p + size;
-	ptr.m_box = jnc::getStaticBox ();
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (size);
+	if (!box)
+		return g_nullPtr;
 
-	return ptr;
+	char* p = (char*) (box + 1);
+	memcpy (p, errorData, size);
+
+	jnc::DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = &box->m_validator;
+	return resultPtr;
 }
 
 void
@@ -539,24 +524,24 @@ StdLib::assertionFailure (
 }
 
 void
-StdLib::addStaticDestructor (StaticDestructor* dtor)
+StdLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->addStaticDestructor (dtor);
+	runtime->addStaticDestructor (destructFunc);
 }
 
 void
-StdLib::addDestructor (
-	Destructor* dtor,
+StdLib::addStaticClassDestructor (
+	DestructFunc* destructFunc,
 	jnc::IfaceHdr* iface
 	)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->addDestructor (dtor, iface);
+	runtime->addStaticClassDestructor (destructFunc, iface);
 }
 
 DataPtr
@@ -572,26 +557,29 @@ StdLib::format (
 	string.format_va ((const char*) formatStringPtr.m_p, va);
 	size_t length = string.getLength ();
 
-	char* p = (char*) AXL_MEM_ALLOC (length + 1);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	if (!box)
+		return g_nullPtr;
+
+	char* p = (char*) (box + 1);
 	memcpy (p, string.cc (), length);
-	p [length] = 0;
 
-	jnc::DataPtr ptr = { 0 };
-	ptr.m_p = p;
-	ptr.m_rangeBegin = ptr.m_p;
-	ptr.m_rangeEnd = (char*) ptr.m_p + length + 1;
-	ptr.m_box = jnc::getStaticBox ();
-
-	return ptr;
+	jnc::DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = &box->m_validator;
+	return resultPtr;
 }
 
 void*
 StdLib::getTls ()
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	Tls* tls = getCurrentThreadTls ();
+	ASSERT (tls);
 
-	return runtime->getTls () + 1;
+	return tls + 1;
 }
 
 size_t
@@ -611,7 +599,12 @@ StdLib::appendFmtLiteral_a (
 	if (fmtLiteral->m_maxLength < newLength)
 	{
 		size_t newMaxLength = rtl::getMinPower2Ge (newLength);
-		char* p = (char*) runtime->gcAllocate (newMaxLength + 1); // for zero-termination
+
+		DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+		if (!box)
+			return fmtLiteral->m_length;
+
+		char* p = (char*) (box + 1); // for zero-termination
 		memcpy (p, fmtLiteral->m_p, fmtLiteral->m_length);
 
 		fmtLiteral->m_p = p;
@@ -649,48 +642,6 @@ StdLib::prepareFormatString (
 	size_t length = formatString->getLength ();
 	if (!isalpha (formatString->cc () [length - 1]))
 		formatString->append (defaultType);
-}
-
-size_t
-StdLib::appendFmtLiteral_p (
-	FmtLiteral* fmtLiteral,
-	const char* fmtSpecifier,
-	DataPtr ptr
-	)
-{
-	if (!ptr.m_p)
-		return fmtLiteral->m_length;
-
-	char* p = (char*) ptr.m_p;
-	while (*p && p < ptr.m_rangeEnd)
-		p++;
-
-	if (!fmtSpecifier || !*fmtSpecifier)
-	{
-		size_t length = p - (char*) ptr.m_p;
-		return appendFmtLiteral_a (fmtLiteral, (char*) ptr.m_p, length);
-	}
-
-	char buffer1 [256];
-	rtl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
-	prepareFormatString (&formatString, fmtSpecifier, "s");
-
-	char buffer2 [256];
-	rtl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
-
-	if (p < ptr.m_rangeEnd) // null terminated
-	{
-		ASSERT (!*p);
-		string.format (formatString, ptr.m_p);
-	}
-	else
-	{
-		char buffer3 [256];
-		rtl::String nullTermString (ref::BufKind_Stack, buffer3, sizeof (buffer3));
-		string.format (formatString, nullTermString.cc ());
-	}
-
-	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 }
 
 size_t
@@ -756,37 +707,20 @@ StdLib::appendFmtLiteral_v (
 	{
 		ArrayType* arrayType = (ArrayType*) variant.m_type;
 		size_t count = arrayType->getElementCount ();
-
-		char* p = (char*) &variant;
-
-		DataPtr ptr;
-		ptr.m_p = p;
-		ptr.m_rangeBegin = p;
-		ptr.m_rangeEnd = p + count;
-		ptr.m_box = getStaticBox ();
-
-		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, (char*) &variant, count);
 	}
 	else if (isCharPtrType (variant.m_type))
 	{
 		DataPtrType* ptrType = (DataPtrType*) variant.m_type;
 		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 		
-		DataPtr ptr = { 0 };
-
 		if (ptrTypeKind == DataPtrTypeKind_Normal)
-		{
-			ptr = *(DataPtr*) &variant;
-		}
-		else
-		{
-			ptr.m_p = variant.m_p;
-			ptr.m_rangeBegin = variant.m_p;
-			ptr.m_rangeEnd = (void*) (intptr_t) -1;
-			ptr.m_box = getStaticBox ();
-		}
+			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
 
-		return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, ptr);
+		const char* p = (const char*) variant.m_p;
+		size_t length = strlen (p);
+
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, length);
 	}
 	else
 	{
@@ -837,6 +771,9 @@ StdLib::appendFmtLiteralStringImpl (
 	size_t length
 	)
 {
+	if (!fmtSpecifier)
+		return appendFmtLiteral_a (fmtLiteral, p, length);
+
 	char buffer [256];
 	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
 
@@ -850,11 +787,10 @@ StdLib::appendFmtLiteralStringImpl (
 }
 
 bool 
-StdLib::tryCheckDataPtrRange (
-	void* p,
-	size_t size,
-	void* rangeBegin,
-	void* rangeEnd
+StdLib::tryCheckDataPtrRangeDirect (
+	const void* p,
+	const void* rangeBegin,
+	size_t rangeLength
 	)
 {
 	if (!p)
@@ -863,8 +799,8 @@ StdLib::tryCheckDataPtrRange (
 		return false;
 	}
 
-	if ((char*) p < (char*) rangeBegin || 
-		(char*) p + size > (char*) rangeEnd)
+	char* rangeEnd;
+	if (p < rangeBegin ||  (char*) p > (rangeEnd = (char*) rangeBegin + rangeLength))
 	{
 		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
 		return false;
@@ -874,21 +810,66 @@ StdLib::tryCheckDataPtrRange (
 }
 
 void 
-StdLib::checkDataPtrRange (
-	void* p,
-	size_t size,
-	void* rangeBegin,
-	void* rangeEnd
+StdLib::checkDataPtrRangeDirect (
+	const void* p,
+	const void* rangeBegin,
+	size_t rangeLength
 	)
 {
-	bool result = tryCheckDataPtrRange (p, size, rangeBegin, rangeEnd);
+	bool result = tryCheckDataPtrRangeDirect (p, rangeBegin, rangeLength);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+bool 
+StdLib::tryCheckDataPtrRangeIndirect (
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+	)
+{
+	if (!validator)
+	{
+		err::setStringError ("null data pointer access");
+		return false;
+	}
+
+	if (validator->m_rangeLength < size)
+	{
+		err::setFormatStringError (
+			"data pointer [%x:%x] out of range [%x:%x]", 
+			p, 
+			(char*) p + size,
+			validator->m_rangeBegin, 
+			(char*) validator->m_rangeBegin + validator->m_rangeLength
+			);
+
+		return false;
+	}
+
+	return tryCheckDataPtrRangeDirect (
+		p, 
+		validator->m_rangeBegin, 
+		validator->m_rangeLength - size
+		);
+}
+
+
+void 
+StdLib::checkDataPtrRangeIndirect (
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+	)
+{
+	bool result = tryCheckDataPtrRangeIndirect (p, size, validator);
 	if (!result)
 		Runtime::runtimeError (err::getLastError ());
 }
 
 bool 
 StdLib::tryCheckNullPtr (
-	void* p,
+	const void* p,
 	TypeKind typeKind
 	)
 {
@@ -921,7 +902,7 @@ StdLib::tryCheckNullPtr (
 
 void
 StdLib::checkNullPtr (
-	void* p,
+	const void* p,
 	TypeKind typeKind
 	)
 {
@@ -937,18 +918,21 @@ StdLib::tryLazyGetLibraryFunction (
 	const char* name
 	)
 {
+	ASSERT (library->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* type = (ClassType*) library->m_box->m_type;
+
 	if (!library->m_handle)
 	{
-		err::setFormatStringError ("library '%s' is not loaded yet", library->m_box->m_classType->getQualifiedName ().cc ());
+		err::setFormatStringError ("library '%s' is not loaded yet", type->getQualifiedName ().cc ());
 		return NULL;
 	}
 
-	size_t librarySize = library->m_box->m_classType->getIfaceStructType ()->getSize ();
+	size_t librarySize = type->getIfaceStructType ()->getSize ();
 	size_t functionCount = (librarySize - sizeof (Library)) / sizeof (void*);
 
 	if (index >= functionCount)
 	{
-		err::setFormatStringError ("index #%d out of range for library '%s'", index, library->m_box->m_classType->getQualifiedName ().cc ());
+		err::setFormatStringError ("index #%d out of range for library '%s'", index, type->getQualifiedName ().cc ());
 		return NULL;
 	}
 
@@ -992,16 +976,24 @@ strDup (
 	if (!length)
 		return g_nullPtr;
 
-	char* dst = (char*) AXL_MEM_ALLOC (length + 1);
-	memcpy (dst, p, length);
-	dst [length] = 0;
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
 
-	jnc::DataPtr ptr;
-	ptr.m_p = dst;
-	ptr.m_rangeBegin = dst;
-	ptr.m_rangeEnd = dst + length + 1;
-	ptr.m_box = jnc::getStaticBox ();
-	return ptr;
+	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	if (!box)
+		return g_nullPtr;
+
+	char* dst = (char*) (box + 1);
+
+	if (p)
+		memcpy (dst, p, length);
+	else
+		memset (dst, 0, length);
+
+	DataPtr resultPtr;
+	resultPtr.m_p = dst;
+	resultPtr.m_validator = &box->m_validator;
+	return resultPtr;
 }
 
 //.............................................................................

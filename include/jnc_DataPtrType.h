@@ -81,7 +81,7 @@ public:
 	virtual 
 	void
 	markGcRoots (
-		void* p,
+		const void* p,
 		GcHeap* gcHeap
 		);
 
@@ -117,8 +117,6 @@ isCharPtrType (Type* type)
 		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Char;
 }
 
-//.............................................................................
-
 inline
 bool 
 isArrayRefType (Type* type)
@@ -126,6 +124,18 @@ isArrayRefType (Type* type)
 	return 
 		type->getTypeKind () == TypeKind_DataRef &&
 		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Array;
+}
+
+inline
+bool 
+isDataPtrType (
+	Type* type,
+	DataPtrTypeKind kind
+	)
+{
+	return 
+		(type->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
+		((DataPtrType*) type)->getPtrTypeKind () == kind;
 }
 
 //.............................................................................

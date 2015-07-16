@@ -114,9 +114,9 @@ namespace jnc {
 
 //.............................................................................
 
-///; static char runGcSrc [] = 
+///; static char collectGarbageSrc [] = 
 
-void runGc ();
+void collectGarbage ();
 
 ///; static char createThreadSrc [] = 
 
@@ -215,38 +215,9 @@ bool dynamicCastVariant (
 
 class* strengthenClassPtr (class weak* p);
 
-///; static char gcAllocateSrc [] = 
+///; static char gcSafePointSrc [] = 
 
-void thin* gcAllocate (
-	void thin* type,
-	size_t elementCount
-	);
-
-///; static char gcTryAllocateSrc [] = 
-
-void thin* gcTryAllocate (
-	void thin* type,
-	size_t elementCount
-	);
-
-///; static char markGcRootSrc [] = 
-
-void markGcRoot (
-	void thin* thin* p,
-	void thin* type
-	);
-
-///; static char gcEnterSrc [] = 
-
-void gcEnter ();
-
-///; static char gcLeaveSrc [] = 
-
-void gcLeave ();
-
-///; static char gcPulseSrc [] = 
-
-void gcPulse ();
+void gcSafePoint ();
 
 ///; static char assertionFailureSrc [] = 
 
@@ -259,12 +230,12 @@ void assertionFailure (
 
 ///; static char addStaticDestructorSrc [] = 
 
-void addStaticDestructor (intptr dtor);
+void addStaticDestructor (void thin* dtor);
 
-///; static char addDestructorSrc [] = 
+///; static char addStaticClassDestructorSrc [] = 
 
-void addDestructor (
-	intptr dtor,
+void addStaticClassDestructor (
+	void thin* dtor,
 	class* obj
 	);
 
@@ -372,22 +343,36 @@ size_t appendFmtLiteral_br (
 	BufferRef bufferRef
 	);
 
-///; static char tryCheckDataPtrRangeSrc [] = 
+///; static char tryCheckDataPtrRangeDirectSrc [] = 
 
-bool tryCheckDataPtrRange (
+bool tryCheckDataPtrRangeDirect (
 	void thin const* p,
-	size_t size,
 	void thin const* rangeBegin,
-	void thin const* rangeEnd
+	size_t rangeLength
 	) throws;
 
-///; static char checkDataPtrRangeSrc [] = 
+///; static char checkDataPtrRangeDirectSrc [] = 
 
-void checkDataPtrRange (
+void checkDataPtrRangeDirect (
+	void thin const* p,
+	void thin const* rangeBegin,
+	size_t rangeLength
+	);
+
+///; static char tryCheckDataPtrRangeIndirectSrc [] = 
+
+bool tryCheckDataPtrRangeIndirect (
 	void thin const* p,
 	size_t size,
-	void thin const* rangeBegin,
-	void thin const* rangeEnd
+	void thin const* validator
+	) throws;
+
+///; static char checkDataPtrRangeIndirectSrc [] = 
+
+void checkDataPtrRangeIndirect (
+	void thin const* p,
+	size_t size,
+	void thin const* validator
 	);
 
 ///; static char tryCheckNullPtrSrc [] = 

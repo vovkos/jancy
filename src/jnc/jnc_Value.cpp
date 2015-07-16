@@ -399,8 +399,8 @@ Value::setField (
 	m_valueKind = ValueKind_Field;
 	m_field = field;
 	m_type = type;
-	m_const.getBuffer (sizeof (BufHdr) + sizeof (size_t));
-	*(size_t*) getConstData () = baseOffset + field->getOffset ();
+	char* p = m_constData.getBuffer (sizeof (size_t));
+	*(size_t*) p = baseOffset + field->getOffset ();
 }
 
 void
@@ -426,36 +426,48 @@ Value::setLlvmValue (
 	m_llvmValue = llvmValue;
 }
 
+LeanDataPtrValidator*
+Value::getLeanDataPtrValidator () const
+{
+	if (m_leanDataPtrValidator)
+		return m_leanDataPtrValidator;
+
+	ASSERT (m_type->getTypeKindFlags () & TypeKind_DataPtr);
+
+	LeanDataPtrValidator* validator;
+
+	if (m_valueKind == ValueKind_Variable)
+	{
+		validator = m_variable->getLeanDataPtrValidator ();
+	}
+	else 
+	{
+		validator = AXL_REF_NEW (LeanDataPtrValidator);
+		validator->m_originValue = *this;
+	}
+
+	m_leanDataPtrValidator = validator;
+	return validator;
+}
+
 void
 Value::setLeanDataPtrValidator (LeanDataPtrValidator* validator)
 {
-	ASSERT (m_type->getTypeKindFlags () & TypeKindFlag_DataPtr);
-	ASSERT (((DataPtrType*) m_type)->getPtrTypeKind () == DataPtrTypeKind_Lean);
-
+	ASSERT (isDataPtrType (m_type, DataPtrTypeKind_Lean));
 	m_leanDataPtrValidator = validator;
 }
 
 void
-Value::setLeanDataPtrValidator (const Value& validatorValue)
-{
-	ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
-	validator->m_validatorKind = LeanDataPtrValidatorKind_Simple;
-	validator->m_scopeValidatorValue = validatorValue;
-	setLeanDataPtrValidator (validator);
-}
-
-void
 Value::setLeanDataPtrValidator (
-	const Value& scopeValidatorValue,
+	const Value& originValue,
 	const Value& rangeBeginValue,
-	const Value& sizeValue
+	size_t rangeLength
 	)
 {
 	ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
-	validator->m_validatorKind = LeanDataPtrValidatorKind_Complex;
-	validator->m_scopeValidatorValue = scopeValidatorValue;
+	validator->m_originValue = originValue;
 	validator->m_rangeBeginValue = rangeBeginValue;
-	validator->m_sizeValue = sizeValue;
+	validator->m_rangeLength = rangeLength;
 
 	setLeanDataPtrValidator (validator);
 }
@@ -471,18 +483,17 @@ Value::createConst (
 	size_t size = type->getSize ();
 	size_t allocSize = AXL_MAX (size, sizeof (int64_t)); // ensure int64 for GetLlvmConst ()
 
-	bool result = m_const.getBuffer (sizeof (BufHdr) + allocSize) != NULL;
-	if (!result)
+	char* dst = m_constData.getBuffer (allocSize);
+	if (!dst)
 		return false;
 
 	m_valueKind = ValueKind_Const;
 	m_type = type;
-	m_const->m_size = size;
 
 	if (p)
-		memcpy (getConstData (), p, size);
+		memcpy (dst, p, size);
 	else
-		memset (getConstData (), 0, size);
+		memset (dst, 0, size);
 
 	return true;
 }

@@ -76,7 +76,7 @@ set (
 	${JANCY_INC_DIR}/jnc_ScheduleLauncherFunction.h
 	${JANCY_INC_DIR}/jnc_ThunkFunction.h
 	${JANCY_INC_DIR}/jnc_ThunkProperty.h
-	jnc_GcShadowStack.h
+	${JANCY_INC_DIR}/jnc_StdFunction.h
 	)
 
 set (
@@ -90,7 +90,7 @@ set (
 	jnc_ScheduleLauncherFunction.cpp
 	jnc_ThunkFunction.cpp
 	jnc_ThunkProperty.cpp
-	jnc_GcShadowStack.cpp
+	jnc_StdFunction.cpp
 	)
 
 source_group (
@@ -149,6 +149,7 @@ set (
 	${JANCY_INC_DIR}/jnc_QualifiedName.h
 	${JANCY_INC_DIR}/jnc_Scope.h
 	${JANCY_INC_DIR}/jnc_UsingSet.h
+	${JANCY_INC_DIR}/jnc_StdNamespace.h
 	)
 
 set (
@@ -323,7 +324,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Type.h
 	${JANCY_INC_DIR}/jnc_TypeMgr.h
 	${JANCY_INC_DIR}/jnc_UnionType.h
-	${JANCY_INC_DIR}/jnc_Variant.h
+	${JANCY_INC_DIR}/jnc_StdType.h
 	)
 
 set (
@@ -351,6 +352,7 @@ set (
 	jnc_Type.cpp
 	jnc_TypeMgr.cpp
 	jnc_UnionType.cpp
+	jnc_StdType.cpp
 	)
 
 source_group (

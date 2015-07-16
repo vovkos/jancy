@@ -24,6 +24,17 @@ struct DualPtrTypeTuple;
 
 //.............................................................................
 
+enum
+{
+	TraverseKind_NoThis                = 0x01,
+	TraverseKind_NoBaseType            = 0x04,
+	TraverseKind_NoParentNamespace     = 0x08,
+	TraverseKind_NoUsingNamespaces     = 0x10,
+	TraverseKind_NoExtensionNamespaces = 0x20,
+};
+
+//.............................................................................
+
 enum NamespaceKind
 {
 	NamespaceKind_Undefined,
@@ -43,27 +54,6 @@ const char*
 getNamespaceKindString (NamespaceKind namespaceKind);
 
 //.............................................................................
-
-enum StdNamespace
-{
-	StdNamespace_Global,
-	StdNamespace_Jnc,
-	StdNamespace_Internal,
-	StdNamespace__Count,
-};
-
-//.............................................................................
-
-enum
-{
-	TraverseKind_NoThis                = 0x01,
-	TraverseKind_NoBaseType            = 0x04,
-	TraverseKind_NoParentNamespace     = 0x08,
-	TraverseKind_NoUsingNamespaces     = 0x10,
-	TraverseKind_NoExtensionNamespaces = 0x20,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Namespace: public ModuleItemDecl
 {
