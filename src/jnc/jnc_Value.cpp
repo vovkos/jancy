@@ -432,22 +432,9 @@ Value::getLeanDataPtrValidator () const
 	if (m_leanDataPtrValidator)
 		return m_leanDataPtrValidator;
 
-	ASSERT (m_type->getTypeKindFlags () & TypeKind_DataPtr);
-
-	LeanDataPtrValidator* validator;
-
-	if (m_valueKind == ValueKind_Variable)
-	{
-		validator = m_variable->getLeanDataPtrValidator ();
-	}
-	else 
-	{
-		validator = AXL_REF_NEW (LeanDataPtrValidator);
-		validator->m_originValue = *this;
-	}
-
-	m_leanDataPtrValidator = validator;
-	return validator;
+	ASSERT (m_valueKind == ValueKind_Variable);
+	m_leanDataPtrValidator = m_variable->getLeanDataPtrValidator ();
+	return m_leanDataPtrValidator;
 }
 
 void
@@ -458,18 +445,40 @@ Value::setLeanDataPtrValidator (LeanDataPtrValidator* validator)
 }
 
 void
+Value::setLeanDataPtrValidator (const Value& originValue)
+{
+	ASSERT (isDataPtrType (m_type, DataPtrTypeKind_Lean));
+
+	if (originValue.m_valueKind == ValueKind_Variable)
+	{
+		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator ();
+	}
+	else if (originValue.m_leanDataPtrValidator)
+	{
+		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
+	}
+	else
+	{
+		ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
+		validator->m_originValue = originValue;
+		m_leanDataPtrValidator = validator;
+	}
+}
+
+void
 Value::setLeanDataPtrValidator (
 	const Value& originValue,
 	const Value& rangeBeginValue,
 	size_t rangeLength
 	)
 {
+	ASSERT (isDataPtrType (m_type, DataPtrTypeKind_Lean));
+
 	ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
 	validator->m_originValue = originValue;
 	validator->m_rangeBeginValue = rangeBeginValue;
 	validator->m_rangeLength = rangeLength;
-
-	setLeanDataPtrValidator (validator);
+	m_leanDataPtrValidator = validator;
 }
 
 bool
@@ -508,7 +517,11 @@ Value::setCharArray (
 	if (!size)
 		size = 1;
 
-	Type* type = module->m_typeMgr.getArrayType (TypeKind_Char, size);
+	Type* type = module->m_typeMgr.getArrayType (
+		module->m_typeMgr.getPrimitiveType (TypeKind_Char), 
+		size
+		);
+
 	createConst (p, type);
 }
 

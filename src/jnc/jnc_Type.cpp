@@ -731,6 +731,14 @@ getModuleItemType (ModuleItem* item)
 
 //.............................................................................
 
+bool 
+isSafePtrType (Type* type)
+{
+	return 
+		(type->getTypeKindFlags () & TypeKindFlag_Ptr) && 
+		(type->getFlags () & PtrTypeFlag_Safe);
+}
+
 bool
 isWeakPtrType (Type* type)
 {

@@ -9,6 +9,7 @@
 namespace jnc {
 
 class Variable;
+class OperatorMgr;
 
 //.............................................................................
 
@@ -16,14 +17,13 @@ class LeanDataPtrValidator: public ref::RefCount
 {
 	friend class Value;
 	friend class Variable;
+	friend class VariableMgr;
+	friend class OperatorMgr;
 
 protected:
-	size_t m_rangeLength;
-
 	Value m_originValue;
-	Value m_boxValue;
 	Value m_rangeBeginValue;
-	Value m_rangeLengthValue;
+	size_t m_rangeLength;
 	Value m_validatorValue;
 	
 public:
@@ -44,18 +44,17 @@ public:
 		return m_validatorValue;
 	}
 
-	Value 
+	Value
 	getOriginValue ()
 	{
-		ASSERT (m_originValue); // never empty
 		return m_originValue;
 	}
 
 	Value 
-	getBoxValue ();
-
-	Value 
-	getRangeBeginValue ();
+	getRangeBeginValue ()
+	{
+		return m_rangeBeginValue;
+	}
 
 	size_t 
 	getRangeLength ()
@@ -63,9 +62,6 @@ public:
 		ASSERT (m_rangeLength); // should be checked with isDynamicRange ()
 		return m_rangeLength;
 	}
-
-	Value 
-	getRangeLengthValue ();
 
 	Value 
 	getValidatorValue ();

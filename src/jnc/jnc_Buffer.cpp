@@ -24,7 +24,7 @@ ConstBuffer::copy (
 {
 	if (!size)
 	{
-		m_ptr.m_p = (void*) "";
+		m_ptr = g_nullPtr;
 		m_size = 0;
 		return true;
 	}
@@ -32,15 +32,11 @@ ConstBuffer::copy (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (size + 1);
-	if (!box)
+	m_ptr = runtime->m_gcHeap.tryAllocateBuffer (size + 1);
+	if (!m_ptr.m_p)
 		return false;
 
-	char* p = (char*) (box + 1);
-	memcpy (p, ptr.m_p, size);
-
-	m_ptr.m_p = p;
-	m_ptr.m_validator = &box->m_validator;
+	memcpy (m_ptr.m_p, ptr.m_p, size);
 	return true;
 }
 
@@ -95,17 +91,14 @@ Buffer::setSize (
 	ASSERT (runtime);
 
 	size_t maxSize = rtl::getMinPower2Gt (size);
-	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
-	if (!box)
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
+	if (!newPtr.m_p)
 		return false;
 
-	char* p = (char*) (box + 1);
-
 	if (saveContents)
-		memcpy (p, m_ptr.m_p, m_size);
+		memcpy (newPtr.m_p, m_ptr.m_p, m_size);
 
-	m_ptr.m_p = p;
-	m_ptr.m_validator = &box->m_validator;
+	m_ptr = newPtr;
 	m_size = size;
 	m_maxSize = maxSize;
 	return true;

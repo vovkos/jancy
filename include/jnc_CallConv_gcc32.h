@@ -4,8 +4,6 @@
 
 #pragma once
 
-#define _JNC_CALLCONV_GCC32
-
 #include "jnc_CallConv.h"
 
 namespace jnc {

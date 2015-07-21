@@ -100,7 +100,7 @@ protected:
 	rtl::Array <Property*> m_virtualPropertyArray;
 
 	rtl::Array <Function*> m_vtable;
-	Value m_vtablePtrValue;
+	Variable* m_vtableVariable;
 
 	ClassPtrTypeTuple* m_classPtrTypeTuple;
 
@@ -246,10 +246,10 @@ public:
 		return m_vtableStructType;
 	}
 
-	Value
-	getVTablePtrValue ()
+	Variable*
+	getVTableVariable ()
 	{
-		return m_vtablePtrValue;
+		return m_vtableVariable;
 	}
 
 	virtual
@@ -313,7 +313,7 @@ protected:
 	overrideVirtualFunction (Function* function);
 
 	void
-	createVTablePtr ();
+	createVTableVariable ();
 };
 
 //.............................................................................
@@ -346,6 +346,15 @@ isClosureClassType (Type* type)
 	return
 		type->getTypeKind () == TypeKind_Class &&
 		(type->getFlags () & ClassTypeFlag_Closure);
+}
+
+inline
+bool
+isDestructibleClassType (Type* type)
+{
+	return
+		type->getTypeKind () == TypeKind_Class &&
+		((ClassType*) type)->getDestructor () != NULL;
 }
 
 //.............................................................................

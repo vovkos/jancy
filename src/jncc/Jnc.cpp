@@ -184,8 +184,7 @@ Jnc::jit ()
 	return
 		m_module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&m_module) &&
-		m_module.jit () &&
-		m_runtime.addModule (&m_module);
+		m_module.jit ();
 }
 
 void
@@ -247,11 +246,11 @@ Jnc::runFunction (int* returnValue)
 
 	jnc::Function* function = (jnc::Function*) functionItem;
 
-	result = m_runtime.startup ();
+	result = m_runtime.startup (&m_module);
 	if (!result)
 		return false;
 
-	result = jnc::callFunction (function, returnValue);
+	result = jnc::callFunction (&m_runtime, function, returnValue);
 	if (!result)
 		return false;
 

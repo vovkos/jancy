@@ -250,7 +250,7 @@ NamespaceMgr::closeScope ()
 	ASSERT (scope);
 
 	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
+		m_module->m_operatorMgr.nullifyGcRootList (scope->getStackGcRootList ());
 
 	if (scope->m_flags & ScopeFlag_FinallyDefined)
 		m_module->m_controlFlowMgr.endFinally ();

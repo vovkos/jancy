@@ -114,7 +114,7 @@ Cast_Struct::llvmCast (
 
 	m_recursionStopper = true;
 
-	Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
+	Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable ("tmpStruct", type);
 
 	Value tmpValue;
 	result = 

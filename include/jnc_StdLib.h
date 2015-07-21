@@ -30,13 +30,13 @@ public:
 		JNC_STD_FUNCTION (StdFunction_DynamicCastVariant, dynamicCastVariant)
 		JNC_STD_FUNCTION (StdFunction_StrengthenClassPtr, strengthenClassPtr)
 
-		JNC_STD_FUNCTION (StdFunction_AllocateClass, allocateClass)
+		JNC_STD_FUNCTION (StdFunction_PrimeStaticClass, primeStaticClass)
 		JNC_STD_FUNCTION (StdFunction_TryAllocateClass, tryAllocateClass)
-		JNC_STD_FUNCTION (StdFunction_AllocateData, allocateData)
+		JNC_STD_FUNCTION (StdFunction_AllocateClass, allocateClass)
 		JNC_STD_FUNCTION (StdFunction_TryAllocateData, tryAllocateData)
-		JNC_STD_FUNCTION (StdFunction_AllocateArray, allocateArray)
+		JNC_STD_FUNCTION (StdFunction_AllocateData, allocateData)
 		JNC_STD_FUNCTION (StdFunction_TryAllocateArray, tryAllocateArray)
-		JNC_STD_FUNCTION (StdFunction_GcSafePoint, gcSafePoint)		
+		JNC_STD_FUNCTION (StdFunction_AllocateArray, allocateArray)
 		JNC_STD_FUNCTION (StdFunction_CollectGarbage, collectGarbage)
 
 		JNC_STD_FUNCTION (StdFunction_GetCurrentThreadId, getCurrentThreadId)
@@ -149,38 +149,41 @@ public:
 	strengthenClassPtr (IfaceHdr* iface);
 
 	static
-	Box*
-	tryAllocateClass (ClassType* type);
-
-	static
-	Box*
-	allocateClass (ClassType* type);
-
-	static
-	DataBox*
-	tryAllocateData (Type* type);
-
-	static
-	DataBox*
-	allocateData (Type* type);
-
-	static
-	DynamicArrayBox*
-	tryAllocateArray (
-	Type* type,
-		size_t elementCount
+	void
+	primeStaticClass (
+		Box* box,
+		ClassType* type
 		);
 
 	static
-	DynamicArrayBox*
-	allocateArray (
+	IfaceHdr*
+	tryAllocateClass (ClassType* type);
+
+	static
+	IfaceHdr*
+	allocateClass (ClassType* type);
+
+	static
+	DataPtr
+	tryAllocateData (Type* type);
+
+	static
+	DataPtr
+	allocateData (Type* type);
+
+	static
+	DataPtr
+	tryAllocateArray (
 		Type* type,
 		size_t elementCount
 		);
 
 	static
-	void
-	gcSafePoint ();
+	DataPtr
+	allocateArray (
+		Type* type,
+		size_t elementCount
+		);
 
 	static
 	void

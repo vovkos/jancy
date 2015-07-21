@@ -11,21 +11,30 @@ ControlFlowMgr::ControlFlowMgr ()
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
-	m_flags = 0;
 	m_throwLockCount = 0;
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
+	m_savedReturnValueVariable = NULL;
 }
 
 void
 ControlFlowMgr::clear ()
 {
-	m_flags = 0;
 	m_throwLockCount = 0;
 	m_blockList.clear ();
 	m_returnBlockArray.clear ();
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
+	m_savedReturnValueVariable = NULL;
+}
+
+void 
+ControlFlowMgr::finalizeFunction ()
+{
+	m_returnBlockArray.clear ();
+	m_currentBlock = NULL;
+	m_unreachableBlock = NULL;
+	m_savedReturnValueVariable = NULL;
 }
 
 BasicBlock*
@@ -179,7 +188,6 @@ ControlFlowMgr::jump (
 	BasicBlock* followBlock
 	)
 {
-	m_flags |= ControlFlowFlag_HasJump;
 	block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
 	m_module->m_llvmIrBuilder.createBr (block);
@@ -217,7 +225,6 @@ ControlFlowMgr::conditionalJump (
 
 	uint_t reachableFlag = (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
-	m_flags |= ControlFlowFlag_HasJump;
 	thenBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 	elseBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 
@@ -290,7 +297,7 @@ ControlFlowMgr::onLeaveScope (Scope* targetScope)
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	while (scope && scope != targetScope && scope->getFunction () == function)
 	{
-		m_module->m_operatorMgr.nullifyGcRootList (scope->getGcRootList ());
+		m_module->m_operatorMgr.nullifyGcRootList (scope->getStackGcRootList ());
 
 		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlag_FinallyDefined))
 			jumpToFinally (scope);
@@ -337,10 +344,20 @@ ControlFlowMgr::ret (const Value& value)
 		}
 		else
 		{
-			Variable* variable = m_module->m_variableMgr.createStackVariable ("savedReturnValue", returnType);
-			m_module->m_operatorMgr.storeDataRef (variable, returnValue);
+			if (!m_savedReturnValueVariable)
+			{
+				BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
+				m_savedReturnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
+				if (returnType->getFlags () & TypeFlag_GcRoot)
+					m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Function, m_savedReturnValueVariable, returnType);
+
+				setCurrentBlock (prevBlock);
+
+				m_module->m_operatorMgr.storeDataRef (m_savedReturnValueVariable, returnValue);
+			}
+
 			onLeaveScope ();
-			m_module->m_operatorMgr.loadDataRef (variable, &returnValue);
+			m_module->m_operatorMgr.loadDataRef (m_savedReturnValueVariable, &returnValue);
 		}
 
 		functionType->getCallConv ()->ret (function, returnValue);
@@ -349,8 +366,6 @@ ControlFlowMgr::ret (const Value& value)
 	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlag_Return));
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append (m_currentBlock);
-
-	m_flags |= ControlFlowFlag_HasReturn;
 
 	setCurrentBlock (getUnreachableBlock ());
 	return true;
@@ -616,7 +631,7 @@ ControlFlowMgr::checkReturn ()
 	{
 		m_module->m_controlFlowMgr.ret ();
 	}
-	else if (!(m_module->m_controlFlowMgr.getFlags () & ControlFlowFlag_HasReturn))
+	else if (m_returnBlockArray.isEmpty ())
 	{
 		err::setFormatStringError (
 			"function '%s' must return a '%s' value",

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#define _JNC_CALLCONV
-
 #include "jnc_Value.h"
 #include "jnc_FunctionArg.h"
 

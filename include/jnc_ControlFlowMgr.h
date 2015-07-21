@@ -70,28 +70,20 @@ struct OnceStmt
 
 //.............................................................................
 
-enum ControlFlowFlag
-{
-	ControlFlowFlag_HasReturn = 1,
-	ControlFlowFlag_HasJump   = 2,
-};
-
-//.............................................................................
-
 class ControlFlowMgr
 {
 	friend class Module;
-	friend class FunctionMgr;
 
 protected:
 	Module* m_module;
 
 	rtl::StdList <BasicBlock> m_blockList;
 	rtl::Array <BasicBlock*> m_returnBlockArray;
+	Variable* m_savedReturnValueVariable;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
+	
 
-	uint_t m_flags;
 	intptr_t m_throwLockCount;
 
 public:
@@ -105,12 +97,6 @@ public:
 
 	void
 	clear ();
-
-	int
-	getFlags ()
-	{
-		return m_flags;
-	}
 
 	void
 	lockThrow ()
@@ -130,12 +116,6 @@ public:
 		return m_throwLockCount > 0;
 	}
 
-	void
-	resetJumpFlag ()
-	{
-		m_flags &= ~ControlFlowFlag_HasJump;
-	}
-
 	BasicBlock*
 	createBlock (const rtl::String& name);
 
@@ -153,6 +133,15 @@ public:
 
 	bool
 	deleteUnreachableBlocks ();
+
+	rtl::Array <BasicBlock*> 
+	getReturnBlockArray ()
+	{
+		return m_returnBlockArray;
+	}
+
+	void 
+	finalizeFunction ();
 
 	// jumps
 

@@ -48,7 +48,7 @@ int main ()
 	// c = null;
 
 	printf ("gc run...\n");
-	jnc.runGc ();
+	jnc.collectGarbage ();
 
 	// if the object was collected during the GC run, the corresponding entry 
 	// in the weak multicast will be automatically removed when getting the 

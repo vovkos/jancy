@@ -40,7 +40,7 @@ protected:
 	Token::Pos m_pos;
 	Function* m_function;
 
-	rtl::BoxList <Value> m_gcRootList;
+	rtl::BoxList <Value> m_gcStackRootList;
 	llvm::DIScope m_llvmDiScope;
 
 public:
@@ -80,15 +80,15 @@ public:
 	}
 
 	rtl::ConstBoxList <Value>
-	getGcRootList ()
+	getStackGcRootList ()
 	{
-		return m_gcRootList;
+		return m_gcStackRootList;
 	}
 
 	void
-	addToGcRootList (const Value& value)
+	addToStackGcRootList (const Value& value)
 	{
-		m_gcRootList.insertTail (value);
+		m_gcStackRootList.insertTail (value);
 	}
 
 	llvm::DIScope

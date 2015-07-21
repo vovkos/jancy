@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "jnc_Runtime.h"
 #include "jnc_Module.h"
+#include "jnc_CallFunction.h"
 
 namespace jnc {
 
@@ -12,28 +13,6 @@ Runtime::Runtime ()
 	m_tlsSize = 0;
 	m_state = State_Idle;
 	m_noThreadEvent.signal ();
-}
-
-bool
-Runtime::addModule (Module* module)
-{
-	ASSERT (m_state == State_Idle);
-
-	m_gcHeap.registerStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
-
-	size_t tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
-	if (!m_tlsSize)
-	{
-		m_tlsSize = tlsSize >= 1024 ? tlsSize : 1024; // reserve at least 1K for TLS
-	}
-	else if (m_tlsSize < tlsSize)
-	{
-		err::setFormatStringError ("dynamic grow of TLS is not yet supported");
-		return false;
-	}
-
-	m_moduleArray.append (module);
-	return true;
 }
 
 void
@@ -64,39 +43,27 @@ Runtime::addStaticClassDestructor (
 }
 
 bool 
-Runtime::startup ()
+Runtime::startup (Module* module)
 {
 	shutdown ();
 
+	m_tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
+	m_module = module;
 	m_state = State_Running;	
 	m_noThreadEvent.signal ();
+	m_gcHeap.registerStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
 
-	bool result = true;
+	void** gcSafePointTarget = (void**) module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTarget)->getStaticData ();
+	*gcSafePointTarget = m_gcHeap.getSafePointTarget ();
 
-	JNC_BEGIN (this);
-	{
-		size_t count = m_moduleArray.getCount ();
-		for (size_t i = 0; i < count; i++)
-		{
-			Module* module = m_moduleArray [i];
+	Function* destructor = module->getDestructor ();
+	if (destructor)
+		addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
 
-			Function* constructor = module->getConstructor ();
-			Function* destructor = module->getDestructor ();
-
-			if (destructor)
-				addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
-
-			ASSERT (constructor);
-			((StaticConstructFunc*) destructor->getMachineCode ()) ();
-		}
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ();
-
-	return result;
+	Function* constructor = module->getConstructor ();
+	ASSERT (constructor);
+	
+	return callVoidFunction (this, constructor);
 }
 	
 void
@@ -113,7 +80,7 @@ Runtime::shutdown ()
 	m_state = State_ShuttingDown;
 	m_lock.unlock ();
 
-	for (;;)
+	for (size_t i = 0; i < RuntimeDef_ShutdownIterationLimit; i++)
 	{
 		ASSERT (!mt::getTlsSlotValue <Tls> ());
 		m_noThreadEvent.wait (); // wait for other threads
@@ -123,7 +90,12 @@ Runtime::shutdown ()
 			m_gcHeap.collect ();
 
 			if (m_staticDestructorList.isEmpty ())
-				break;
+			{
+				if (m_gcHeap.isEmpty ())
+					break;
+				else
+					continue;
+			}
 		}
 
 		initializeThread ();
@@ -152,9 +124,9 @@ Runtime::shutdown ()
 
 	m_state = State_Idle;
 	
+	ASSERT (m_gcHeap.isEmpty ());
 	ASSERT (m_tlsList.isEmpty ());
 	ASSERT (m_staticDestructorList.isEmpty ());
-	ASSERT (m_gcHeap.isEmpty ());
 }
 
 void
@@ -166,22 +138,21 @@ Runtime::initializeThread ()
 	ASSERT (prevRuntime != this); // otherwise, double initialize
 
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
+	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with TLS first
+
 	tls->m_prev = mt::setTlsSlotValue <Tls> (tls);
 	tls->m_runtime = this;
 	tls->m_stackEpoch = alloca (1);
 
 	ASSERT (!tls->m_prev || tls->m_prev->m_runtime == prevRuntime);
 
-	m_lock.lock ();
-	ASSERT (m_state == State_Running); // otherwise, creating threads during shutdown
-	
+	m_lock.lock ();	
 	if (m_tlsList.isEmpty ())
 		m_noThreadEvent.reset ();
 	
 	m_tlsList.insertTail (tls);	
 	m_lock.unlock ();
 	
-	m_gcHeap.registerMutatorThread (&tls->m_gcThread);
 }
 
 void
@@ -190,7 +161,7 @@ Runtime::uninitializeThread ()
 	Tls* tls = mt::getTlsSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
-	m_gcHeap.unregisterMutatorThread (&tls->m_gcThread);
+	m_gcHeap.unregisterMutatorThread (&tls->m_gcMutatorThread);
 
 	m_lock.lock ();
 	m_tlsList.remove (tls);
@@ -498,14 +469,14 @@ Runtime::gcTryAllocate (
 void*
 Runtime::gcAllocate (size_t size)
 {
-	Type* type = getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	Type* type = getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
 	return gcAllocate (type, size);
 }
 
 void*
 Runtime::gcTryAllocate (size_t size)
 {
-	Type* type = getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
+	Type* type = getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Char);
 	return gcTryAllocate (type, size);
 }
 

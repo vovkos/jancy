@@ -36,9 +36,9 @@ List::takeOver (List* list)
 	m_tailPtr = list->m_tailPtr;
 	m_count = list->m_count;
 
-	m_headPtr = g_nullPtr;
-	m_tailPtr = g_nullPtr;
-	m_count = 0;
+	list->m_headPtr = g_nullPtr;
+	list->m_tailPtr = g_nullPtr;
+	list->m_count = 0;
 }
 
 DataPtr
@@ -47,15 +47,10 @@ List::insertHead (
 	Variant data
 	)
 {
-	DataBox* box = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) (box + 1);
+	DataPtr entryPtr = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-
-	DataPtr entryPtr;
-	entryPtr.m_p = entry;
-	entryPtr.m_validator = &box->m_validator;
-
 	self->insertHeadImpl (entryPtr);
 	return entryPtr;
 }
@@ -66,15 +61,10 @@ List::insertTail (
 	Variant data
 	)
 {
-	DataBox* box = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) (box + 1);
+	DataPtr entryPtr = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-
-	DataPtr entryPtr;
-	entryPtr.m_p = entry;
-	entryPtr.m_validator = &box->m_validator;
-
 	self->insertTailImpl (entryPtr);
 	return entryPtr;
 }
@@ -86,15 +76,10 @@ List::insertBefore (
 	DataPtr beforePtr
 	)
 {
-	DataBox* box = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) (box + 1);
+	DataPtr entryPtr = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-
-	DataPtr entryPtr;
-	entryPtr.m_p = entry;
-	entryPtr.m_validator = &box->m_validator;
-
 	self->insertBeforeImpl (entryPtr, beforePtr);
 	return entryPtr;
 }
@@ -106,15 +91,10 @@ List::insertAfter (
 	DataPtr afterPtr
 	)
 {
-	DataBox* box = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) (box + 1);
+	DataPtr entryPtr = allocateListEntry ();
+	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-
-	DataPtr entryPtr;
-	entryPtr.m_p = entry;
-	entryPtr.m_validator = &box->m_validator;
-
 	self->insertAfterImpl (entryPtr, afterPtr);
 	return entryPtr;
 }
@@ -194,13 +174,13 @@ List::remove (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataBox* 
+DataPtr
 List::allocateListEntry ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	Module* module = runtime->getFirstModule ();
+	Module* module = runtime->getModule ();
 	ASSERT (module);
 
 	Type* type = module->m_typeMgr.getStdType (StdType_ListEntry);

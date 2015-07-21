@@ -431,7 +431,7 @@ StructType::setFieldActualSize (size_t size)
 ArrayType*
 StructType::insertPadding (size_t size)
 {
-	ArrayType* type = m_module->m_typeMgr.getArrayType (TypeKind_Int8_u, size);
+	ArrayType* type = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Char), size);
 	m_llvmFieldTypeArray.append (type->getLlvmType ());
 	return type;
 }

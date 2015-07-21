@@ -64,9 +64,9 @@ declarator_qualifier <Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod (FunctionKind_Setter);
 			}
-	|	TokenKind_Preconstruct
+	|	TokenKind_PreConstruct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Preconstructor);
+				return $declarator->addUnnamedMethod (FunctionKind_PreConstructor);
 			}
 	|	TokenKind_Construct
 			{

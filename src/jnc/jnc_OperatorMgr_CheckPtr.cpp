@@ -74,10 +74,11 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	else
 	{
 		ASSERT (ptrTypeKind == DataPtrTypeKind_Lean);
-		ptrValue = value;
+		
+		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
-		if (validator->isDynamicRange ())
+		if (validator->isDynamicRange () || validator->hasValidatorValue ())
 		{
 			validatorValue = validator->getValidatorValue ();
 		}
@@ -92,10 +93,13 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 
 			rangeLength -= targetSize;
 
+			Value rangeBeginValue = validator->getRangeBeginValue ();
+			m_module->m_llvmIrBuilder.createBitCast (rangeBeginValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &rangeBeginValue);
+
 			Value argValueArray [] =
 			{
 				ptrValue,
-				validator->getRangeBeginValue (),
+				rangeBeginValue,
 				Value (rangeLength, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
 			};
 
@@ -105,6 +109,7 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 				argValueArray,
 				countof (argValueArray)
 				);
+			return true;
 		}
 	}
 

@@ -105,7 +105,7 @@ Parser::preCreateLandingPads (uint_t flags)
 		scope->m_flags |= ScopeFlag_HasFinally;
 
 		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);		
-		Variable* variable  = m_module->m_variableMgr.createStackVariable ("finallyReturnAddr", type);
+		Variable* variable  = m_module->m_variableMgr.createSimpleStackVariable ("finallyReturnAddr", type);
 		ASSERT (variable->m_scope == scope);
 
 		scope->m_finallyReturnAddress = variable;
@@ -634,6 +634,10 @@ Parser::declare (Declarator* declarator)
 	default:
 		switch (typeKind)
 		{
+		case TypeKind_Void:
+			err::setFormatStringError ("illegal use of type 'void'");
+			return false;
+
 		case TypeKind_Function:
 			return declareFunction (declarator, (FunctionType*) type);
 
@@ -1513,13 +1517,16 @@ Parser::declareData (
 				initializer
 				);
 
+			if (!variable)
+				return false;
+
 			assignDeclarationAttributes (variable, declarator->getPos ());
 
 			result = nspace->addItem (variable);
 			if (!result)
 				return false;
 
-			if (!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ())
+			if (variable->isInitializationNeeded ())
 				prop->m_initializedStaticFieldArray.append (variable);
 
 			dataItem = variable;
@@ -1557,8 +1564,7 @@ Parser::declareData (
 		if (!result)
 			return false;
 
-		if (nspace->getNamespaceKind () == NamespaceKind_Type &&
-			(!variable->getConstructor ().isEmpty () || !variable->getInitializer ().isEmpty ()))
+		if (nspace->getNamespaceKind () == NamespaceKind_Type)
 		{
 			NamedType* namedType = (NamedType*) nspace;
 			TypeKind namedTypeKind = namedType->getTypeKind ();
@@ -1568,12 +1574,49 @@ Parser::declareData (
 			case TypeKind_Class:
 			case TypeKind_Struct:
 			case TypeKind_Union:
-				((DerivableType*) namedType)->m_initializedStaticFieldArray.append (variable);
+				if (variable->isInitializationNeeded ())
+					((DerivableType*) namedType)->m_initializedStaticFieldArray.append (variable);
 				break;
 
 			default:
 				err::setFormatStringError ("field members are not allowed in '%s'", namedType->getTypeString ().cc ());
 				return false;
+			}
+		}
+		else if (scope)
+		{
+			switch (m_storageKind)
+			{
+			case StorageKind_Stack:
+			case StorageKind_Heap:
+				result = m_module->m_variableMgr.initializeVariable (variable);
+				if (!result)
+					return NULL;
+
+				break;
+
+			case StorageKind_Static:
+			case StorageKind_Thread:
+				if (!variable->isInitializationNeeded ())
+					break;
+
+				OnceStmt stmt;
+				m_module->m_controlFlowMgr.onceStmt_Create (&stmt, variable->m_pos, m_storageKind);
+
+				result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, variable->m_pos);
+				if (!result)
+					return NULL;
+
+				result = m_module->m_variableMgr.initializeVariable (variable);
+				if (!result)
+					return NULL;
+
+				Token::Pos pos = 
+					!variable->m_initializer.isEmpty () ? variable->m_initializer.getTail ()->m_pos :
+					!variable->m_constructor.isEmpty () ? variable->m_constructor.getTail ()->m_pos : 
+					variable->m_pos;
+
+				m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 			}
 		}
 	}
@@ -1638,6 +1681,20 @@ Parser::createFormalArg (
 	Type* type = declarator->calcType (&ptrTypeFlags);
 	if (!type)
 		return NULL;
+
+	TypeKind typeKind = type->getTypeKind ();
+	switch (typeKind)
+	{
+	case TypeKind_Void:
+	case TypeKind_Class:
+	case TypeKind_Function:
+	case TypeKind_Property:
+		err::setFormatStringError (
+			"function cannot accept '%s' as an argument",
+			type->getTypeString ().cc ()
+			);
+		return NULL;
+	}
 
 	if (m_storageKind)
 	{
@@ -1919,7 +1976,7 @@ Parser::addReactorBindSite (const Value& value)
 		return false;
 	
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
-	Variable* variable = m_module->m_variableMgr.createStackVariable ("onChanged", type);
+	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable ("onChanged", type);
 	
 	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 	if (!result)
@@ -1943,10 +2000,11 @@ Parser::finalizeReactor ()
 	return true;
 }
 
-bool
-Parser::finalizeReactorOnEventDeclaration (
+void
+Parser::reactorOnEventDeclaration (
 	rtl::BoxList <Value>* valueList,
-	Declarator* declarator
+	Declarator* declarator,
+	rtl::BoxList <Token>* tokenList
 	)
 {
 	ASSERT (m_reactorType);
@@ -1956,29 +2014,22 @@ Parser::finalizeReactorOnEventDeclaration (
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (suffix->getArgArray ());
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
-	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
+	reaction->m_function = m_reactorType->createUnnamedMethod (
+		StorageKind_Member, 
+		FunctionKind_Internal, 
+		functionType
+		);
+
+	reaction->m_function->setBody (tokenList);
 	reaction->m_bindSiteList.takeOver (valueList);
 	m_reactionList.insertTail (reaction);
-
-	return m_module->m_functionMgr.prologue (reaction->m_function, m_lastMatchedToken.m_pos);
 }
 
 bool
-Parser::finalizeReactorOnEventBody ()
-{
-	bool result = m_module->m_functionMgr.epilogue ();
-	if (!result)
-		return false;
-
-	m_reactionIndex++;
-	return true;
-}
-
-bool
-Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
+Parser::reactorExpressionStmt (rtl::BoxList <Token>* tokenList)
 {
 	ASSERT (m_reactorType);
-	ASSERT (!tokenList.isEmpty ());
+	ASSERT (!tokenList->isEmpty ());
 
 	bool result;
 
@@ -1988,7 +2039,7 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 	parser.m_stage = StageKind_ReactorStarter;
 	parser.m_reactorType = m_reactorType;
 
-	result = parser.parseTokenList (SymbolKind_expression, tokenList);
+	result = parser.parseTokenList (SymbolKind_expression, *tokenList);
 	if (!result)
 		return false;
 
@@ -1999,54 +2050,14 @@ Parser::reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList)
 	}
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType ();
+	
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
 	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
+	reaction->m_function->setBody (tokenList);
+	reaction->m_function->m_reactionIndex = m_reactionIndex;
 	reaction->m_bindSiteList.takeOver (&parser.m_reactionBindSiteList);
 	m_reactionList.insertTail (reaction);
 
-	result = m_module->m_functionMgr.prologue (reaction->m_function, tokenList.getHead ()->m_pos);
-	if (!result)
-		return false;
-
-	StructField* stateField = m_reactorType->getField (ReactorFieldKind_ReactionStateArray);
-
-	Value thisValue = m_module->m_functionMgr.getThisValue ();
-	ASSERT (thisValue);
-
-	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow_block");
-	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock ("return_block");
-
-	Value stateValue;
-	Value stateCmpValue;
-
-	result =
-		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
-		m_module->m_operatorMgr.binaryOperator (
-			BinOpKind_Idx, 
-			&stateValue, 
-			Value (m_reactionIndex, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))
-			) &&
-		m_module->m_controlFlowMgr.conditionalJump (stateValue, returnBlock, followBlock, followBlock) &&
-		m_module->m_operatorMgr.storeDataRef (
-			stateValue, 
-			Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
-			);
-	
-	parser.m_stage = StageKind_Pass2;
-	parser.m_reactorType = NULL;
-
-	result = 
-		parser.parseTokenList (SymbolKind_expression, tokenList) &&
-		m_module->m_operatorMgr.storeDataRef (
-			stateValue, 
-			Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
-			);
-
-	if (!result)
-		return false;
-	
-	m_module->m_controlFlowMgr.follow (returnBlock);
-	m_module->m_functionMgr.epilogue ();
 	m_reactionIndex++;
 	return true;
 }
@@ -2097,8 +2108,8 @@ Parser::finalizeAutomatonFunction ()
 	rtl::Array <fsm::DfaState*> stateArray = m_automatonRegExp.getDfaStateArray ();
 	size_t stateCount = stateArray.getCount ();
 
-	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (TypeKind_Int_u, stateCount);
-	Type* transitionTableType = m_module->m_typeMgr.getArrayType (TypeKind_SizeT, stateCount * fsm::TransitionTableCharCount);
+	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_u), stateCount);
+	Type* transitionTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), stateCount * fsm::TransitionTableCharCount);
 
 	Value stateFlagTableValue ((void*) NULL, stateFlagTableType);
 	Value transitionTableValue ((void*) NULL, transitionTableType);
@@ -2522,7 +2533,7 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 	if (!result)
 		return false;
 
-	Function* preconstructor = m_constructorType->getPreconstructor ();
+	Function* preconstructor = m_constructorType->getPreConstructor ();
 	if (!preconstructor)
 		return true;
 
@@ -2889,7 +2900,7 @@ Parser::finalizeLiteral_0 (
 		if (literal->m_isZeroTerminated)
 			literal->m_length++;
 
-		type = m_module->m_typeMgr.getArrayType (TypeKind_Char, literal->m_length);
+		type = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Char), literal->m_length);
 	}
 
 	resultValue->setType (type);
@@ -2932,7 +2943,11 @@ Parser::finalizeLiteral (
 	}
 
 	Type* type = m_module->m_typeMgr.getStdType (StdType_FmtLiteral);
-	Variable* fmtLiteral = m_module->m_variableMgr.createStackVariable ("fmtLiteral", type);
+	Variable* fmtLiteral = m_module->m_variableMgr.createSimpleStackVariable ("fmtLiteral", type);
+
+	result = m_module->m_variableMgr.initializeVariable (fmtLiteral);
+	ASSERT (result);
+
 	Value fmtLiteralValue = fmtLiteral;
 
 	size_t offset = 0;
@@ -2989,30 +3004,20 @@ Parser::finalizeLiteral (
 
 	Value ptrValue;
 	Value sizeValue;
-	Value objHdrValue;
 
 	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 0, NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
 
-	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 2, NULL, &sizeValue);
-	m_module->m_llvmIrBuilder.createLoad (sizeValue, NULL, &sizeValue);
-	m_module->m_llvmIrBuilder.createAdd_i (
-		sizeValue, 
-		Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)), 
-		NULL, 
-		&sizeValue
-		);
+	Type* validatorType = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
 
-	Type* objHdrPtrType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, objHdrPtrType, &objHdrValue);
-	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, objHdrPtrType, &objHdrValue);
+	Value validatorValue;
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, validatorType, &validatorValue);
+	m_module->m_llvmIrBuilder.createGep (validatorValue, -1, validatorType, &validatorValue);
 
 	resultValue->setLeanDataPtr (
 		ptrValue.getLlvmValue (),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
-		objHdrValue,
-		ptrValue,
-		sizeValue
+		validatorValue
 		);
 
 	return true;

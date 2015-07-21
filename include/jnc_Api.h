@@ -158,7 +158,7 @@ mapFunctions (jnc::Module* module) \
 	JNC_MAP (function, proc) \
 
 #define JNC_PRECONSTRUCTOR(proc) \
-	function = type->getPreconstructor (); \
+	function = type->getPreConstructor (); \
 	if (!function) \
 	{ \
 		err::setFormatStringError ("'%s' has no preconstructor", type->getTypeString ().cc ()); \
@@ -295,11 +295,22 @@ mapFunctions (jnc::Module* module) \
 
 void
 prime (
-	ClassType* type,
-	void* vtable,
 	Box* box,
-	Box* root
+	Box* root,
+	ClassType* type,
+	void* vtable = NULL // if null then vtable of clas type will be used
 	);
+
+inline
+void
+prime (
+	Box* box,
+	ClassType* type,
+	void* vtable = NULL // if null then vtable of clas type will be used
+	)
+{
+	prime (box, box, type, vtable);
+}
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -311,32 +322,32 @@ class ApiClassBox:
 public:
 	void
 	prime (
-		ClassType* type,
-		Box* root
+		Box* root,
+		ClassType* type
 		)
 	{
-		jnc::prime (type, T::getApiClassVTable (), this, root);
+		jnc::prime (this, root, type, T::getApiClassVTable ());
 	}
 
 	void
 	prime (ClassType* type)
 	{
-		prime (type, this);
+		prime (this, type);
 	}
 
 	void
 	prime (
-		Module* module,
-		Box* root
+		Box* root,
+		Module* module
 		)
 	{
-		jnc::prime (T::getApiType (module), T::getApiClassVTable (), this, root);
+		jnc::prime (this, root, T::getApiType (module), T::getApiClassVTable ());
 	}
 
 	void
 	prime (Module* module)
 	{
-		prime (T::getApiType (module), this);
+		prime (this, T::getApiType (module));
 	}
 };
 

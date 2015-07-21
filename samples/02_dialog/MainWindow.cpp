@@ -128,10 +128,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Running...\n");
 
-	result = 
-		m_runtime.addModule (&m_module); // 16K gc heap, 16K stack
-		m_runtime.startup ();
-
+	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
 		output ("%s\n", err::getLastError ()->getDescription ().cc ());
@@ -142,7 +139,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	m_layout.construct (QBoxLayout::TopToBottom, m_body);
 
 	int returnValue;
-	result = jnc::callFunction (mainFunction, &returnValue, &m_layout);
+	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, &m_layout);
 	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());

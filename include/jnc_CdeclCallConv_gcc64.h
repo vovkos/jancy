@@ -4,8 +4,6 @@
 
 #pragma once
 
-#define _JNC_CDECLCALLCONV_GCC64
-
 #include "jnc_CallConv.h"
 
 namespace jnc {

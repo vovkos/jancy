@@ -101,7 +101,6 @@ btm_construct_name
 statement
 	enter
 	{
-		m_module->m_controlFlowMgr.resetJumpFlag (); // 'stack new' is currently illegal in conditional expression
 		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
 	}
 	leave

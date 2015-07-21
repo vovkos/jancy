@@ -34,7 +34,7 @@ OperatorMgr::getPropertyVTable (
 	if (prop->isVirtual ())
 		return getVirtualProperty (prop, closure, resultValue);
 
-	*resultValue = prop->getVTablePtrValue ();
+	*resultValue = prop->getVTableVariable ();
 	return true;
 }
 

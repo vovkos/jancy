@@ -18,6 +18,7 @@ class StructField;
 enum StdVariable
 {
 	StdVariable_GcShadowStackTop,
+	StdVariable_GcSafePointTarget,
 	StdVariable__Count,
 };
 
@@ -28,6 +29,7 @@ class Variable:
 	public ModuleItemInitializer
 {
 	friend class VariableMgr;
+	friend class FunctionMgr;
 	friend class Parser;
 
 protected:
@@ -37,6 +39,7 @@ protected:
 	rtl::BoxList <Token> m_constructor;
 	Scope* m_scope;
 	StructField* m_tlsField;
+	void* m_staticData;
 	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
 	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
 	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
@@ -77,23 +80,27 @@ public:
 	StructField*
 	getTlsField ()
 	{
+		ASSERT (m_storageKind == StorageKind_Thread);
 		return m_tlsField;
 	}
+
+	void*
+	getStaticData ();
 
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator ();
 
 	llvm::Value*
-	getLlvmValue ()
-	{
-		return m_llvmValue;
-	}
+	getLlvmValue ();
 	
 	llvm::DIDescriptor
 	getLlvmDiDescriptor ()
 	{
 		return m_llvmDiDescriptor;
 	}
+
+	bool
+	isInitializationNeeded ();
 
 protected:
 	virtual

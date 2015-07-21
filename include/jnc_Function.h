@@ -24,13 +24,6 @@ class Scope;
 
 //.............................................................................
 
-enum FunctionFlag
-{
-	FunctionFlag_Gc = 0x010000,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum FunctionKind
 {
 	FunctionKind_Undefined = 0,
@@ -38,8 +31,7 @@ enum FunctionKind
 	FunctionKind_Getter,
 	FunctionKind_Setter,
 	FunctionKind_Binder,
-	FunctionKind_Primer,
-	FunctionKind_Preconstructor,
+	FunctionKind_PreConstructor,
 	FunctionKind_Constructor,
 	FunctionKind_Destructor,
 	FunctionKind_StaticConstructor,
@@ -189,7 +181,12 @@ protected:
 	// for property gettes/setters
 
 	Property* m_property;
-	size_t m_propertyVTableIndex;
+
+	union
+	{
+		size_t m_propertyVTableIndex;
+		size_t m_reactionIndex;
+	};
 
 	ExtensionNamespace* m_extensionNamespace;
 
@@ -224,7 +221,7 @@ public:
 	bool
 	isTlsRequired ()
 	{
-		return (m_flags & FunctionFlag_Gc) || !m_tlsVariableArray.isEmpty ();
+		return !m_tlsVariableArray.isEmpty ();
 	}
 
 	bool
@@ -320,9 +317,6 @@ public:
 
 	bool
 	setBody (rtl::BoxList <Token>* tokenList);
-
-	void
-	markGc ();
 
 	Scope*
 	getScope ()
@@ -459,6 +453,19 @@ public:
 	virtual
 	bool
 	compile ();
+
+protected:
+	bool
+	compileConstructorBody ();
+
+	bool
+	compileAutomatonBody ();
+
+	bool
+	compileReactionBody ();
+
+	bool
+	compileNormalBody ();
 };
 
 //.............................................................................

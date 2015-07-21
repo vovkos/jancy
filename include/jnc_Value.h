@@ -413,10 +413,7 @@ public:
 	setLeanDataPtrValidator (LeanDataPtrValidator* validator);
 
 	void
-	setLeanDataPtrValidator (const Value& originValue)
-	{	
-		setLeanDataPtrValidator (originValue.getLeanDataPtrValidator ());
-	}
+	setLeanDataPtrValidator (const Value& originValue);
 
 	void
 	setLeanDataPtrValidator (
@@ -446,7 +443,6 @@ public:
 		setLlvmValue (llvmValue, (Type*) type);
 		setLeanDataPtrValidator (originValue);
 	}
-
 	void
 	setLeanDataPtr (
 		llvm::Value* llvmValue,

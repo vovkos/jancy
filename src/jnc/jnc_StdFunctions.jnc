@@ -215,10 +215,6 @@ bool dynamicCastVariant (
 
 class* strengthenClassPtr (class weak* p);
 
-///; static char gcSafePointSrc [] = 
-
-void gcSafePoint ();
-
 ///; static char assertionFailureSrc [] = 
 
 void assertionFailure (
@@ -357,22 +353,6 @@ void checkDataPtrRangeDirect (
 	void thin const* p,
 	void thin const* rangeBegin,
 	size_t rangeLength
-	);
-
-///; static char tryCheckDataPtrRangeIndirectSrc [] = 
-
-bool tryCheckDataPtrRangeIndirect (
-	void thin const* p,
-	size_t size,
-	void thin const* validator
-	) throws;
-
-///; static char checkDataPtrRangeIndirectSrc [] = 
-
-void checkDataPtrRangeIndirect (
-	void thin const* p,
-	size_t size,
-	void thin const* validator
 	);
 
 ///; static char tryCheckNullPtrSrc [] = 

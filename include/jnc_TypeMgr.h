@@ -46,18 +46,17 @@ struct DualPtrTypeTuple: rtl::ListLink
 	ClassPtrTypeTuple* m_eventDClassPtrTypeTuple;
 };
 
+struct GcShadowStackFrameTypeTuple: rtl::ListLink
+{
+	StructType* m_frameType;
+	StructType* m_frameMapType;
+};
+
 //.............................................................................
 
 class TypeMgr
 {
 	friend class Module;
-
-protected:
-	struct GcShadowStackFrameTypePair
-	{
-		StructType* m_gcShadowStackFrameType;
-		StructType* m_gcShadowStackFrameMapType;
-	};
 
 protected:
 	Module* m_module;
@@ -114,10 +113,11 @@ protected:
 	rtl::StdList <FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
 	rtl::StdList <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
 	rtl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
+	rtl::StdList <GcShadowStackFrameTypeTuple> m_gcShadowStackFrameTypeTupleList;
 
+	rtl::HashTableMap <size_t, GcShadowStackFrameTypeTuple*, rtl::HashId <size_t> > m_gcShadowStackFrameTypeTupleMap;
 	rtl::StringHashTableMap <Type*> m_typeMap;
 
-	rtl::Array <GcShadowStackFrameTypePair> m_gcShadowStackFrameTypeArray;
 	rtl::Array <NamedImportType*> m_unresolvedNamedImportTypeArray;
 	rtl::Array <ImportPtrType*> m_unresolvedImportPtrTypeArray;
 	rtl::Array <ImportIntModType*> m_unresolvedImportIntModTypeArray;
@@ -354,15 +354,6 @@ public:
 		Type* elementType,
 		size_t elementCount
 		);
-
-	ArrayType*
-	getArrayType (
-		TypeKind elementTypeKind,
-		size_t elementCount
-		)
-	{
-		return getArrayType (getPrimitiveType (elementTypeKind), elementCount);
-	}
 
 	Typedef*
 	createTypedef (
@@ -900,10 +891,10 @@ public:
 	getCheckedPtrType (Type* type);
 
 	StructType*
-	getGcShadowStackFrameMapType (size_t rootCount);
+	getGcShadowStackFrameType (size_t gcRootCount);
 
 	StructType*
-	getGcShadowStackFrameType (size_t rootCount);
+	getGcShadowStackFrameMapType (size_t gcRootCount);
 
 protected:
 	DualPtrTypeTuple*
@@ -957,6 +948,9 @@ protected:
 		PropertyType* propertyType
 		);
 
+	GcShadowStackFrameTypeTuple*
+	getGcShadowStackFrameTypeTuple (size_t gcRootCount);
+
 	void
 	setupAllPrimitiveTypes ();
 
@@ -1001,6 +995,9 @@ protected:
 
 	StructType*
 	createDynamicArrayBoxType ();
+
+	StructType*
+	createStaticDataBoxType ();
 
 	StructType*
 	createDataPtrValidatorType ();

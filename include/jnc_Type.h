@@ -541,6 +541,9 @@ getModuleItemType (ModuleItem* item);
 
 //.............................................................................
 
+bool 
+isSafePtrType (Type* type);
+
 bool
 isWeakPtrType (Type* type);
 

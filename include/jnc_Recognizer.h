@@ -78,7 +78,7 @@ protected:
 	
 public:
 	FunctionPtr m_automatonFuncPtr;
-	DataPtr m_lexeme;
+	DataPtr m_lexemePtr;
 	size_t m_lexemeOffset;
 	size_t m_lexemeLength;
 	size_t m_lexemeLengthLimit;

@@ -64,7 +64,16 @@ enum OperatorMgrDef
 {
 	OperatorMgrDef_StoreSizeLimit      = 64,
 	OperatorMgrDef_StackAllocSizeLimit = 128,
-};	 
+};	
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StackGcRootKind
+{
+	StackGcRootKind_Temporary,
+	StackGcRootKind_Scope,
+	StackGcRootKind_Function,
+};
 
 //.............................................................................
 
@@ -177,7 +186,12 @@ protected:
 	CastOperator* m_castOperatorTable [TypeKind__Count];
 	CastOperator* m_stdCastOperatorTable [StdCast__Count];
 
+	// gc
+
+	rtl::Array <llvm::AllocaInst*> m_stackGcRootAllocaArray;
+	rtl::Array <Type*> m_stackGcRootTypeArray;
 	rtl::BoxList <Value> m_tmpStackGcRootList;
+
 	intptr_t m_unsafeEnterCount;
 
 public:
@@ -192,7 +206,8 @@ public:
 	void
 	clear ()
 	{
-		m_tmpStackGcRootList.clear ();
+		clearStackGcRoots (); 
+		m_unsafeEnterCount = 0;
 	}
 
 	void
@@ -213,6 +228,12 @@ public:
 		return m_unsafeEnterCount > 0;
 	}
 
+	bool
+	hasStackGcRoots ()
+	{
+		return !m_stackGcRootAllocaArray.isEmpty ();
+	}
+
 	void
 	nullifyTmpStackGcRootList ();
 
@@ -221,10 +242,16 @@ public:
 
 	void
 	markStackGcRoot (
+		StackGcRootKind kind,
 		const Value& ptrValue,
-		Type* type,
-		bool isTmpGcRoot = false
+		Type* type
 		);
+
+	void
+	createGcShadowStackFrame ();
+
+	void
+	clearStackGcRoots ();
 
 	// load reference, get property, enum->int, bool->int, array->ptr -- unless specified otherwise with Flags
 
@@ -762,6 +789,22 @@ public:
 		return type->getTypeKind () == TypeKind_Class ?
 			(Type*) ((ClassType*) type)->getClassPtrType () :
 			type->getDataPtrType ();
+	}
+
+	bool
+	gcHeapAllocate (
+		Type* type,
+		const Value& rawElementCountValue,
+		Value* resultValue
+		);
+
+	bool
+	gcHeapAllocate (
+		Type* type,
+		Value* resultValue
+		)
+	{
+		return gcHeapAllocate (type, Value (), resultValue);
 	}
 
 	bool

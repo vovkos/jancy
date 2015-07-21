@@ -288,7 +288,7 @@ DerivableType::addMethod (Function* function)
 
 	switch (functionKind)
 	{
-	case FunctionKind_Preconstructor:
+	case FunctionKind_PreConstructor:
 		target = &m_preconstructor;
 		break;
 

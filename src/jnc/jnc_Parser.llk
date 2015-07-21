@@ -24,8 +24,6 @@ ParserClassName = Parser;
 
 Includes
 {
-	#define _JNC_PARSER_H
-
 	#include "llk_Parser.h"
 	#include "jnc_Lexer.h"
 	#include "jnc_Module.h"
@@ -394,17 +392,15 @@ Members2
 	bool
 	finalizeReactor ();
 
-	bool
-	finalizeReactorOnEventDeclaration (
+	void
+	reactorOnEventDeclaration (
 		rtl::BoxList <Value>* valueList,
-		Declarator* declarator
+		Declarator* declarator,
+		rtl::BoxList <Token>* tokenList
 		);
 
 	bool
-	finalizeReactorOnEventBody ();
-
-	bool
-	reactorExpressionStmt (const rtl::ConstBoxList <Token>& tokenList);
+	reactorExpressionStmt (rtl::BoxList <Token>* tokenList);
 
 	bool
 	countReactionBindSites ();

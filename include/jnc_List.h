@@ -134,7 +134,7 @@ public:
 
 protected:
 	static
-	DataBox* 
+	DataPtr
 	allocateListEntry ();
 
 	void

@@ -26,6 +26,7 @@ Property::Property ():
 	m_parentClassVTableIndex = -1;
 
 	m_extensionNamespace = NULL;
+	m_vtableVariable = NULL;
 }
 
 bool
@@ -577,12 +578,12 @@ Property::calcLayout ()
 		m_vtable.append (setter);
 	}
 
-	createVTablePtr ();
+	createVTableVariable ();
 	return true;
 }
 
 void
-Property::createVTablePtr ()
+Property::createVTableVariable ()
 {
 	char buffer [256];
 	rtl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
@@ -602,24 +603,16 @@ Property::createVTablePtr ()
 
 	StructType* vtableStructType = m_type->getVTableStructType ();
 
-	llvm::Constant* llvmVTableConstant = llvm::ConstantStruct::get (
+	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get (
 		(llvm::StructType*) vtableStructType->getLlvmType (),
 		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
 		);
 
-	llvm::GlobalVariable* llvmVTableVariable = new llvm::GlobalVariable (
-		*m_module->getLlvmModule (),
-		vtableStructType->getLlvmType (),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		llvmVTableConstant,
-		(const char*) (m_tag + ".Vtbl")
-		);
-
-	m_vtablePtrValue.setLlvmValue (
-		llvmVTableVariable,
-		vtableStructType->getDataPtrType_c (),
-		ValueKind_Const
+	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable (
+		"m_vtable",
+		m_qualifiedName + ".m_vtable",
+		vtableStructType,
+		Value (llvmVTableConst, vtableStructType)
 		);
 }
 

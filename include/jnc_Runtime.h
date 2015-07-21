@@ -19,6 +19,7 @@ enum RuntimeDef
 #else
 	RuntimeDef_StackSizeLimit = 4 * 1024 * 1024, // 4MB std stack limit
 #endif
+	RuntimeDef_ShutdownIterationLimit = 3,
 };
 
 //.............................................................................
@@ -46,7 +47,7 @@ protected:
 
 protected:
 	mt::Lock m_lock;
-	rtl::Array <Module*> m_moduleArray;
+	Module* m_module;
 	State m_state;
 	mt::NotificationEvent m_noThreadEvent;
 	size_t m_tlsSize;
@@ -65,20 +66,11 @@ public:
 		shutdown ();
 	}
 
-	rtl::Array <Module*> 
-	getModuleArray ()
-	{
-		return m_moduleArray;
-	}
-
 	Module* 
-	getFirstModule ()
+	getModule ()
 	{
-		return !m_moduleArray.isEmpty () ? m_moduleArray [0] : NULL;
+		return m_module;
 	}
-
-	bool
-	addModule (Module* module);
 
 	void
 	addStaticDestructor (StaticDestructFunc* destructFunc);
@@ -90,7 +82,7 @@ public:
 		);
 
 	bool 
-	startup ();
+	startup (Module* module);
 	
 	void
 	shutdown ();
@@ -163,7 +155,7 @@ struct Tls: public rtl::ListLink
 {
 	Tls* m_prev;
 	Runtime* m_runtime;
-	GcMutatorThread m_gcThread;
+	GcMutatorThread m_gcMutatorThread;
 	void* m_stackEpoch;
 
 	// followed by user TLS variables
@@ -237,7 +229,7 @@ public:
 	}
 
 	Module* 
-	getFirstModule ()
+	getModule ()
 	{
 		return !m_moduleArray.isEmpty () ? m_moduleArray [0] : NULL;
 	}

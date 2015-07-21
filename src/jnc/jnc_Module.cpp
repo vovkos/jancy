@@ -36,6 +36,7 @@ Module::clear ()
 	m_calcLayoutArray.clear ();
 	m_compileArray.clear ();
 	m_apiItemArray.clear ();
+	m_llvmIrBuilder.clear ();
 	m_llvmDiBuilder.clear ();
 	m_sourceList.clear ();
 	m_functionMap.clear ();

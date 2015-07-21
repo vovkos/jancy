@@ -22,6 +22,8 @@ enum StdType
 	StdType_DataBoxPtr,
 	StdType_DynamicArrayBox,
 	StdType_DynamicArrayBoxPtr,
+	StdType_StaticDataBox,
+	StdType_StaticDataBoxPtr,
 	StdType_AbstractClass,
 	StdType_AbstractClassPtr,
 	StdType_SimpleFunction,
@@ -52,6 +54,7 @@ enum StdType
 	StdType_Int64Fp64,  // for system V coercion
 	StdType_Fp64Int64,  // for system V coercion
 	StdType_DataPtrValidator,
+	StdType_DataPtrValidatorPtr,
 	StdType_DataPtrStruct,
 	StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,

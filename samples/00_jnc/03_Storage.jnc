@@ -1,5 +1,5 @@
-// Jancy provides 'static', 'stack', 'thread' and 'heap' data storage for 
-// member fields and global/local variables.
+// Jancy provides 'static', 'stack', and 'thread' data storage for member 
+// fields and global/local variables.
 
 //.............................................................................
 
@@ -15,11 +15,6 @@ class C1
 
 	// thread int m_threadField2 = 3; // <-- error
 	// thread int m_threadField3 [4]; // <-- error
-
-	// member fields cannot use 'heap' or 'stack' storage
-
-	// heap int m_heapField;   // <-- error
-	// stack int m_stackField; // <-- error
 
 	construct (int x)
 	{
@@ -70,11 +65,6 @@ thread int g_threadGlobal;
 // thread int g_threadGlobal2 = 1; // <-- error
 // thread int g_threadGlobal3 [8]; // <-- error                                
 
-// global variables cannot use 'heap' or 'stack' storage
-
-// heap int g_heapGlobal;   // <-- error
-// stack int g_stackGlobal; // <-- error
-
 // When declaring a global class variable and initializing it with a 
 // constructor call the 'construct' keyword must be used. This is because Jancy
 // does not enforce declare-before-use paradigm at the global scope and, 
@@ -100,11 +90,6 @@ int main ()
 
 	thread int t = 200; 
 	
-	// 'heap' storage can be used to allocate large local variables in the 
-	// GC-heap (and thus avoid allocation on the stack)
-
-	heap char a [256]; 
-
 	// for local class variables the default storage is 'heap'
 
 	C2 c1 (1000); 

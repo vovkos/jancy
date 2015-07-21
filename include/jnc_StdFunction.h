@@ -20,13 +20,13 @@ enum StdFunction
 	StdFunction_DynamicCastVariant,
 	StdFunction_StrengthenClassPtr,
 	
+	StdFunction_PrimeStaticClass,	
 	StdFunction_TryAllocateClass,
 	StdFunction_AllocateClass,
 	StdFunction_TryAllocateData,
 	StdFunction_AllocateData,
 	StdFunction_TryAllocateArray,
 	StdFunction_AllocateArray,
-	StdFunction_GcSafePoint,
 
 	StdFunction_CollectGarbage,
 	StdFunction_GetCurrentThreadId,

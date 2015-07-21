@@ -115,10 +115,7 @@ main (
 
 	jnc::Runtime runtime;
 
-	result = 
-		runtime.addModule (&module); 
-		runtime.startup ();
-
+	result = runtime.startup (&module);
 	if (!result)
 	{
 		printf ("%s\n", err::getLastError ()->getDescription ().cc ());
@@ -128,7 +125,7 @@ main (
 	Error finalResult = Error_Success;
 
 	int returnValue;
-	result = jnc::callFunction (mainFunction, &returnValue);
+	result = jnc::callFunction (&runtime, mainFunction, &returnValue);
 	if (!result)
 	{
 		printf ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());

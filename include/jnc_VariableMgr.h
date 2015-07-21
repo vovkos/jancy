@@ -31,13 +31,10 @@ protected:
 	rtl::Array <Variable*> m_staticGcRootArray;
 	rtl::Array <Variable*> m_globalStaticVariableArray;
 
-	rtl::Array <llvm::GlobalVariable*> m_llvmGlobalVariableArray;
-
 	// tls variables
 
 	rtl::Array <Variable*> m_tlsVariableArray;
 	StructType* m_tlsStructType;
-	llvm::Value* m_llvmTlsBoxValue;
 
 	Variable* m_stdVariableArray [StdVariable__Count];
 
@@ -99,27 +96,29 @@ public:
 		);
 
 	Variable*
-	createStackVariable (
+	createSimpleStackVariable (
 		const rtl::String& name,
 		Type* type,
-		uint_t ptrTypeFlags = 0,
-		rtl::BoxList <Token>* constructor = NULL,
-		rtl::BoxList <Token>* initializer = NULL
+		uint_t ptrTypeFlags = 0
 		)
 	{
-		return createVariable (
-			StorageKind_Stack,
-			name,
-			name,
-			type,
-			ptrTypeFlags,
-			constructor,
-			initializer
-			);
+		return createVariable (StorageKind_Stack, name, name, type, ptrTypeFlags);
 	}
 
 	Variable*
+	createSimpleStaticVariable (
+		const rtl::String& name,
+		const rtl::String& qualifiedName,
+		Type* type,
+		const Value& value = Value (),
+		uint_t ptrTypeFlags = 0
+		);
+
+	Variable*
 	createOnceFlagVariable (StorageKind storageKind = StorageKind_Static);
+
+	Variable*
+	createStaticDataPtrValidatorVariable (Variable* variable);
 
 	Variable*
 	createArgVariable (FunctionArg* arg);
@@ -134,16 +133,26 @@ public:
 
 	bool
 	createTlsStructType ();
-
+	
 	bool
 	allocateInitializeGlobalVariables ();
+	
+	bool
+	initializeVariable (Variable* variable);
+
+	void
+	liftStackVariable (Variable* variable);
 
 protected:
 	llvm::GlobalVariable*
 	createLlvmGlobalVariable (
 		Type* type,
-		const char* tag
+		const char* tag,
+		const Value& initValue = Value ()
 		);
+
+	void
+	primeStaticClassVariable (Variable* variable);
 };
 
 //.............................................................................

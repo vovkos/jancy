@@ -130,6 +130,13 @@ OperatorMgr::getCdeclVarArgType (Type* type)
 			type = ((DataPtrType*) type)->getTargetType ();
 			break;
 
+		case TypeKind_ClassRef:
+			type = ((ClassPtrType*) type)->getTargetType ()->getClassPtrType (
+				((ClassPtrType*) type)->getPtrTypeKind (), 
+				type->getFlags () & PtrTypeFlag__AllMask
+				);
+			break;
+
 		case TypeKind_BitField:
 			type = ((BitFieldType*) type)->getBaseType ();
 			break;
@@ -360,7 +367,7 @@ OperatorMgr::callOperatorVararg (
 	}
 	else
 	{
-		Variable* tmpVariable = m_module->m_variableMgr.createStackVariable ("tmpStruct", type);
+		Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable ("tmpStruct", type);
 
 		return
 			storeDataRef (tmpVariable, value) &&
@@ -596,8 +603,19 @@ OperatorMgr::callImpl (
 void
 OperatorMgr::gcSafePoint ()
 {
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_GcSafePoint);
-	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
+	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTarget);
+	
+	Value ptrValue;
+	Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
+	m_module->m_llvmIrBuilder.createLoad (variable, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createRmw (
+		llvm::AtomicRMWInst::Xchg,
+		ptrValue,
+		value,
+		llvm::AcquireRelease,
+		llvm::CrossThread,
+		&value
+		);
 }
 
 //.............................................................................

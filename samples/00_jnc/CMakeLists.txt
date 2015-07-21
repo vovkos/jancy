@@ -13,7 +13,6 @@ set (
 	01_Classes.jnc
 	02_Inheritance.jnc
 	03_Storage.jnc
-	04_RAII.jnc
 	05_WeakClassPtr.jnc	
 	)
 
@@ -31,7 +30,6 @@ source_group (
 set (
 	DATA_PTR_JNC_LIST
 	10_DataPtrRange.jnc
-	11_DataPtrScope.jnc
 	12_ConstCorrectness.jnc
 	13_DynamicCast.jnc
 	14_DynamicSizeof.jnc

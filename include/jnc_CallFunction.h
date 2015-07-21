@@ -4,9 +4,8 @@
 
 #pragma once
 
-#define _JNC_CALLFUNCTION
-
 #include "jnc_Function.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 
@@ -15,6 +14,7 @@ namespace jnc {
 template <typename RetVal>
 bool
 callFunction (
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal
 	)
@@ -26,17 +26,19 @@ callFunction (
 	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
 	ASSERT (p);
 
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	bool result = true;
+
+	JNC_BEGIN (runtime)
 	{
 		*retVal = p ();
 	}
-	AXL_MT_LONG_JMP_CATCH ()
+	JNC_CATCH ()
 	{
-		return false;
+		result = false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	JNC_END ()
 
-	return true;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -47,6 +49,7 @@ template <
 	>
 bool
 callFunction (
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg arg
@@ -59,17 +62,19 @@ callFunction (
 	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
 	ASSERT (p);
 
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	bool result = true;
+
+	JNC_BEGIN (runtime)
 	{
 		*retVal = p (arg);
 	}
-	AXL_MT_LONG_JMP_CATCH ()
+	JNC_CATCH ()
 	{
-		return false;
+		result = false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	JNC_END ()
 
-	return true;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -81,6 +86,7 @@ template <
 	>
 bool
 callFunction (
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -97,17 +103,19 @@ callFunction (
 	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
 	ASSERT (p);
 
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	bool result = true;
+
+	JNC_BEGIN (runtime)
 	{
 		*retVal = p (arg1, arg2);
 	}
-	AXL_MT_LONG_JMP_CATCH ()
+	JNC_CATCH ()
 	{
-		return false;
+		result = false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	JNC_END ()
 
-	return true;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -120,6 +128,7 @@ template <
 	>
 bool
 callFunction (
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -138,17 +147,19 @@ callFunction (
 	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
 	ASSERT (p);
 
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	bool result = true;
+
+	JNC_BEGIN (runtime)
 	{
 		*retVal = p (arg1, arg2, arg3);
 	}
-	AXL_MT_LONG_JMP_CATCH ()
+	JNC_CATCH ()
 	{
-		return false;
+		result = false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	JNC_END ()
 
-	return true;
+	return result;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -162,6 +173,7 @@ template <
 	>
 bool
 callFunction (
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -182,38 +194,44 @@ callFunction (
 	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
 	ASSERT (p);
 
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
+	bool result = true;
+
+	JNC_BEGIN (runtime)
 	{
 		*retVal = p (arg1, arg2, arg3, arg4);
 	}
-	AXL_MT_LONG_JMP_CATCH ()
+	JNC_CATCH ()
 	{
-		return false;
+		result = false;
 	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	JNC_END ()
 
-	return true;
+	return result;
 }
 
 //.............................................................................
 
 inline
 bool
-callVoidFunction (Function* function)
+callVoidFunction (
+	Runtime* runtime,
+	Function* function
+	)
 {
 	int retVal;
-	return callFunction <int> (function, &retVal);
+	return callFunction <int> (runtime, function, &retVal);
 }
 
 template <typename Arg>
 bool
 callVoidFunction (
+	Runtime* runtime,
 	Function* function,
 	Arg arg
 	)
 {
 	int retVal;
-	return callFunction <int, Arg> (function, &retVal, arg);
+	return callFunction <int, Arg> (runtime, function, &retVal, arg);
 }
 
 template <
@@ -222,13 +240,20 @@ template <
 	>
 bool
 callVoidFunction (
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
 	int retVal;
-	return callFunction <int, Arg1, Arg2> (function, &retVal, arg1, arg2);
+	return callFunction <int, Arg1, Arg2> (
+		runtime,
+		function, 
+		&retVal, 
+		arg1, 
+		arg2
+		);
 }
 
 template <
@@ -238,6 +263,7 @@ template <
 	>
 bool
 callVoidFunction (
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -246,6 +272,7 @@ callVoidFunction (
 {
 	int retVal;
 	return callFunction <int, Arg1, Arg2, Arg3> (
+		runtime,
 		function,
 		&retVal,
 		arg1,
@@ -262,6 +289,7 @@ template <
 	>
 bool
 callVoidFunction (
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -271,6 +299,7 @@ callVoidFunction (
 {
 	int retVal;
 	return callFunction <int, Arg1, Arg2, Arg3, Arg4> (
+		runtime,
 		function,
 		&retVal,
 		arg1,

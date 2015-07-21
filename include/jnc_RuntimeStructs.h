@@ -45,6 +45,7 @@ enum BoxFlag
 	BoxFlag_WeakMark        = 0x01,
 	BoxFlag_WeakMarkClosure = 0x02,
 	BoxFlag_StrongMark      = 0x04,
+	BoxFlag_Zombie          = 0x08,
 	BoxFlag_StaticData      = 0x10,
 	BoxFlag_DynamicArray    = 0x20,
 
@@ -57,12 +58,13 @@ struct Box
 {
 	Type* m_type;
 
+	uintptr_t m_flags      : 8;
+
 #if (_AXL_PTR_BITNESS == 64)
 	uintptr_t m_rootOffset : 56;
 #else
 	uintptr_t m_rootOffset : 24; // more than enough
 #endif
-	uintptr_t m_flags      : 8;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -196,8 +198,7 @@ struct GcShadowStackFrameMap
 {
 	size_t m_count;
 
-	// followed by array of type pointers:
-	// Type* m_typeArray [];
+	// followed by gc root type array;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -207,8 +208,7 @@ struct GcShadowStackFrame
 	GcShadowStackFrame* m_prev;
 	GcShadowStackFrameMap* m_map;
 
-	// followed by array of root pointers
-	// void* m_rootArray [];
+	// followed by gc root array
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -228,7 +228,7 @@ struct Tls: public rtl::ListLink
 	Tls* m_prev;
 	Runtime* m_runtime;
 	void* m_stackEpoch;
-	GcMutatorThread m_gcThread;
+	GcMutatorThread m_gcMutatorThread;
 
 	// followed by TlsVariableTable
 };
@@ -249,6 +249,14 @@ Tls*
 getCurrentThreadTls ()
 {
 	return mt::getTlsSlotValue <Tls> ();
+}
+
+inline
+GcMutatorThread*
+getCurrentGcMutatorThread ()
+{
+	Tls* tls = getCurrentThreadTls ();
+	return tls ? &tls->m_gcMutatorThread : NULL;
 }
 
 //.............................................................................

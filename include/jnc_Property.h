@@ -65,7 +65,7 @@ protected:
 	DerivableType* m_parentType;
 	size_t m_parentClassVTableIndex;
 	rtl::Array <Function*> m_vtable;
-	Value m_vtablePtrValue;
+	Variable* m_vtableVariable;
 
 	ExtensionNamespace* m_extensionNamespace;
 
@@ -163,10 +163,10 @@ public:
 	bool
 	addProperty (Property* prop);
 
-	Value
-	getVTablePtrValue ()
+	Variable*
+	getVTableVariable ()
 	{
-		return m_vtablePtrValue;
+		return m_vtableVariable;
 	}
 
 	virtual 
@@ -190,7 +190,7 @@ protected:
 	calcLayout ();
 
 	void
-	createVTablePtr ();
+	createVTableVariable ();
 
 	Value
 	getAutoAccessorPropertyValue ();

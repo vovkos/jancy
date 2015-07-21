@@ -11,7 +11,6 @@ namespace jnc {
 class Namespace;
 class StructField;
 class Property;
-class Variable;
 class Value;
 
 //.............................................................................
@@ -35,7 +34,6 @@ protected:
 	rtl::Array <StructField*> m_initializedMemberFieldArray;
 
 	rtl::Array <StructField*> m_memberFieldConstructArray;
-	rtl::Array <StructField*> m_memberFieldDestructArray;
 	rtl::Array <Property*> m_memberPropertyConstructArray;
 	rtl::Array <Property*> m_memberPropertyDestructArray;
 
@@ -103,7 +101,7 @@ public:
 	}
 
 	Function*
-	getPreconstructor ()
+	getPreConstructor ()
 	{
 		return m_preconstructor;
 	}

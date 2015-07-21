@@ -13,9 +13,9 @@ VariableMgr::VariableMgr ()
 	ASSERT (m_module);
 	
 	m_tlsStructType = NULL;
-	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
+	getStdVariable (StdVariable_GcShadowStackTop); // this variable is required even if it's not used
 }
 
 void
@@ -30,9 +30,9 @@ VariableMgr::clear ()
 
 	m_tlsVariableArray.clear ();
 	m_tlsStructType = NULL;
-	m_llvmTlsBoxValue = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
+	getStdVariable (StdVariable_GcShadowStackTop); // this variable is required even if it's not used
 }
 
 Variable*
@@ -56,6 +56,15 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 			);
 		break;
 
+	case StdVariable_GcSafePointTarget:
+		variable = createVariable (
+			StorageKind_Static,
+			"g_gcSafePointTarget",
+			"jnc.g_gcSafePointTarget",
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getDataPtrType_c ()
+			);
+		break;
+
 	default:
 		ASSERT (false);
 		variable = NULL;
@@ -76,6 +85,8 @@ VariableMgr::createVariable (
 	rtl::BoxList <Token>* initializer
 	)
 {
+	bool result;
+
 	Variable* variable = AXL_MEM_NEW (Variable);
 	variable->m_module = m_module;
 	variable->m_name = name;
@@ -84,14 +95,7 @@ VariableMgr::createVariable (
 	variable->m_type = type;
 	variable->m_storageKind = storageKind;
 	variable->m_ptrTypeFlags = ptrTypeFlags;
-
-	if (storageKind == StorageKind_Stack)
-	{
-		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		ASSERT (scope);
-
-		variable->m_scope = scope;
-	}
+	variable->m_scope = m_module->m_namespaceMgr.getCurrentScope ();
 
 	if (constructor)
 		variable->m_constructor.takeOver (constructor);
@@ -101,14 +105,20 @@ VariableMgr::createVariable (
 
 	m_variableList.insertTail (variable);
 
+	Value ptrValue;
+
 	switch (storageKind)
 	{
 	case StorageKind_Static:
 		m_staticVariableArray.append (variable);
 
-		if (m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Global)
+		if (!m_module->m_namespaceMgr.getCurrentScope ())
+		{
 			m_globalStaticVariableArray.append (variable);
+			break;
+		}
 
+		variable->m_llvmValue = createLlvmGlobalVariable (type, qualifiedName);
 		break;
 
 	case StorageKind_Thread:
@@ -116,7 +126,16 @@ VariableMgr::createVariable (
 		break;
 
 	case StorageKind_Stack:
+		m_module->m_llvmIrBuilder.createAlloca (type, qualifiedName, NULL, &ptrValue);
+		variable->m_llvmValue = ptrValue.getLlvmValue ();
+		break;
+
 	case StorageKind_Heap:
+		result = m_module->m_operatorMgr.gcHeapAllocate (type, &ptrValue);
+		if (!result)
+			return NULL;
+		
+		variable->m_llvmValue = ptrValue.getLlvmValue ();
 		break;
 
 	default:
@@ -133,6 +152,138 @@ VariableMgr::createVariable (
 }
 
 Variable*
+VariableMgr::createSimpleStaticVariable (
+	const rtl::String& name,
+	const rtl::String& qualifiedName,
+	Type* type,
+	const Value& value,
+	uint_t ptrTypeFlags
+	)
+{
+	ASSERT (type->getTypeKind () != TypeKind_Class);
+
+	Variable* variable = AXL_MEM_NEW (Variable);
+	variable->m_module = m_module;
+	variable->m_name = name;
+	variable->m_qualifiedName = qualifiedName;
+	variable->m_tag = qualifiedName;
+	variable->m_type = type;
+	variable->m_storageKind = StorageKind_Static;
+	variable->m_ptrTypeFlags = ptrTypeFlags;
+	variable->m_scope = m_module->m_namespaceMgr.getCurrentScope ();
+	variable->m_llvmValue = createLlvmGlobalVariable (type, qualifiedName, value);
+
+	m_variableList.insertTail (variable);
+	return variable;
+}
+
+bool
+VariableMgr::initializeVariable (Variable* variable)
+{
+	switch (variable->m_storageKind)
+	{
+	case StorageKind_Static:
+		if (variable->m_type->getTypeKind () == TypeKind_Class)
+			primeStaticClassVariable (variable);
+		break;
+
+	case StorageKind_Thread:
+		break;
+
+	case StorageKind_Stack:
+		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
+		{
+			m_module->m_operatorMgr.zeroInitialize (variable);
+			m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variable, variable->m_type);
+		}
+		else if ((variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty ())
+		{
+			m_module->m_operatorMgr.zeroInitialize (variable);
+		}
+		break;
+
+	case StorageKind_Heap:
+		m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variable, variable->m_type->getDataPtrType_c ());
+		break;
+
+	default:
+		ASSERT (false);
+	};
+
+	return m_module->m_operatorMgr.parseInitializer (
+		variable,
+		variable->m_itemDecl->getParentUnit (),
+		variable->m_constructor,
+		variable->m_initializer
+		);
+}
+
+llvm::GlobalVariable*
+VariableMgr::createLlvmGlobalVariable (
+	Type* type,
+	const char* tag,
+	const Value& initValue
+	)
+{
+	llvm::Constant* llvmInitConstant = initValue ? 
+		(llvm::Constant*) initValue.getLlvmValue () :
+		(llvm::Constant*) type->getZeroValue ().getLlvmValue ();
+
+	return new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		type->getLlvmType (),
+		false,
+		llvm::GlobalVariable::InternalLinkage,
+		llvmInitConstant,
+		tag
+		);
+}
+
+void
+VariableMgr::primeStaticClassVariable (Variable* variable)
+{
+	ASSERT (variable->m_storageKind == StorageKind_Static && variable->m_type->getTypeKind () == TypeKind_Class);
+
+	Function* primeStaticClass = m_module->m_functionMgr.getStdFunction (StdFunction_PrimeStaticClass);
+
+	Value argValueArray [2];
+	m_module->m_llvmIrBuilder.createBitCast (
+		variable->m_llvmValue,  
+		m_module->m_typeMgr.getStdType (StdType_BoxPtr), 
+		&argValueArray [0]
+		);
+
+	argValueArray [1].createConst (
+		&variable->m_type, 
+		m_module->m_typeMgr.getStdType (StdType_BytePtr)
+		);
+
+	m_module->m_llvmIrBuilder.createCall (
+		primeStaticClass, 
+		primeStaticClass->getType (),
+		argValueArray, 
+		2,
+		NULL
+		);
+
+	Value ifaceValue;
+	m_module->m_llvmIrBuilder.createGep2 (variable->m_llvmValue, 1, NULL, &ifaceValue);
+	variable->m_llvmValue = ifaceValue.getLlvmValue ();
+
+	Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
+	if (destructor)
+	{
+		Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
+
+		Value argValueArray [2];
+
+		m_module->m_llvmIrBuilder.createBitCast (destructor, m_module->m_typeMgr.getStdType (StdType_BytePtr), &argValueArray [0]);
+		m_module->m_llvmIrBuilder.createBitCast (variable, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &argValueArray [1]);
+		m_module->m_llvmIrBuilder.createCall (addDestructor, addDestructor->getType (), argValueArray, countof (argValueArray), NULL);
+	}
+}
+
+Variable*
 VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 {
 	return createVariable (
@@ -145,9 +296,135 @@ VariableMgr::createOnceFlagVariable (StorageKind storageKind)
 }
 
 Variable*
+VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
+{
+	ASSERT (variable->m_storageKind == StorageKind_Static);
+
+	// create static box
+
+	StructType* boxType = (StructType*) m_module->m_typeMgr.getStdType (StdType_StaticDataBox);
+
+	uintptr_t flags = BoxFlag_StaticData | BoxFlag_StrongMark | BoxFlag_WeakMark;
+
+	Value variablePtrValue;
+	m_module->m_llvmIrBuilder.createBitCast (
+		variable, 
+		m_module->m_typeMgr.getStdType (StdType_BytePtr), 
+		&variablePtrValue
+		);
+
+	ASSERT (llvm::isa <llvm::Constant> (variablePtrValue.getLlvmValue ()));
+
+	llvm::Constant* llvmMemberArray [4];
+	llvmMemberArray [0] = Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type);
+	llvmMemberArray [1] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags);
+	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();
+
+	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get (
+		(llvm::StructType*) boxType->getLlvmType (),
+		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, 3)
+		);
+
+	rtl::String boxTag = variable->m_tag + ".box";
+
+	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		boxType->getLlvmType (),
+		false,
+		llvm::GlobalVariable::InternalLinkage,
+		llvmBoxConst,
+		boxTag.cc ()
+		);
+
+	// now validator
+
+	StructType* validatorType = (StructType*) m_module->m_typeMgr.getStdType (StdType_DataPtrValidator);
+
+	Value boxPtrValue;
+	m_module->m_llvmIrBuilder.createBitCast (
+		llvmBoxVariable, 
+		m_module->m_typeMgr.getStdType (StdType_BoxPtr), 
+		&boxPtrValue
+		);
+
+	size_t size = variable->m_type->getSize ();
+
+	ASSERT (llvm::isa <llvm::Constant> (boxPtrValue.getLlvmValue ()));
+
+	llvmMemberArray [0] = (llvm::Constant*) boxPtrValue.getLlvmValue ();
+	llvmMemberArray [1] = (llvm::Constant*) boxPtrValue.getLlvmValue ();
+	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();
+	llvmMemberArray [3] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), &size);
+
+	llvm::Constant* llvmValidatorConst = llvm::ConstantStruct::get (
+		(llvm::StructType*) validatorType->getLlvmType (),
+		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, 4)
+		);
+
+	rtl::String validatorTag = variable->m_tag + ".validator";
+
+	llvm::GlobalVariable* llvmValidatorVariable = new llvm::GlobalVariable (
+		*m_module->getLlvmModule (),
+		validatorType->getLlvmType (),
+		false,
+		llvm::GlobalVariable::InternalLinkage,
+		llvmValidatorConst,
+		validatorTag.cc ()
+		);
+
+	Variable* validatorVariable = AXL_MEM_NEW (Variable);
+	validatorVariable->m_module = m_module;
+	validatorVariable->m_name = validatorTag;
+	validatorVariable->m_qualifiedName = validatorTag;
+	validatorVariable->m_tag = validatorTag;
+	validatorVariable->m_type = validatorType;
+	validatorVariable->m_storageKind = StorageKind_Static;
+	validatorVariable->m_ptrTypeFlags = 0;
+	validatorVariable->m_scope = NULL;
+	validatorVariable->m_llvmValue = llvmValidatorVariable;
+	m_variableList.insertTail (validatorVariable);
+
+	return validatorVariable;
+}
+
+void
+VariableMgr::liftStackVariable (Variable* variable)
+{
+	ASSERT (variable->m_storageKind == StorageKind_Stack);
+	ASSERT (llvm::isa <llvm::AllocaInst> (variable->m_llvmValue));
+	ASSERT (variable->m_scope == m_module->m_namespaceMgr.getCurrentScope ());
+
+	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) (llvm::AllocaInst*) variable->m_llvmValue;
+	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	m_module->m_llvmIrBuilder.setInsertPoint (llvmAlloca);
+
+	Value typeValue (&variable->m_type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Value ptrValue;
+	Value variableValue;
+	Value validatorValue;
+
+	Function* allocate = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateData);
+	bool result = m_module->m_operatorMgr.callOperator (allocate, typeValue, &ptrValue);
+	ASSERT (result);
+
+	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 0, NULL, &variableValue);
+	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 1, NULL, &validatorValue);
+	m_module->m_llvmIrBuilder.createBitCast (variableValue, variable->m_type->getDataPtrType_c (), &variableValue);
+	m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variableValue, variable->m_type->getDataPtrType_c ());
+	m_module->m_llvmIrBuilder.setInsertPoint (currentBlock);
+
+	variable->m_llvmValue = variableValue.getLlvmValue ();
+	variable->m_leanDataPtrValidator->m_validatorValue = validatorValue;
+	variable->m_storageKind = StorageKind_Heap;
+
+	llvmAlloca->replaceAllUsesWith (variable->m_llvmValue);
+	llvmAlloca->eraseFromParent ();
+}
+
+Variable*
 VariableMgr::createArgVariable (FunctionArg* arg)
 {
-	Variable* variable = createStackVariable (
+	Variable* variable = createSimpleStackVariable (
 		arg->getName (),
 		arg->getType (),
 		arg->getPtrTypeFlags ()
@@ -168,6 +445,11 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 		m_module->m_llvmDiBuilder.createDeclare (variable);
 	}
 
+	// arg variables are not initialized (stored to directly), so mark gc root manually
+
+	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
+		m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Function, variable, variable->m_type);
+	
 	return variable;
 }
 
@@ -233,38 +515,15 @@ VariableMgr::allocateInitializeGlobalVariables ()
 {
 	bool result;
 
-	Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
-	Type* dtorType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
-
 	size_t count = m_globalStaticVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = m_globalStaticVariableArray [i];
 		ASSERT (!variable->m_llvmValue);
 
+		variable->m_llvmValue = createLlvmGlobalVariable (variable->m_type, variable->m_qualifiedName);
 
-		if (variable->m_type->getTypeKind () == TypeKind_Class)
-		{
-			Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
-			if (destructor)
-			{
-				Value dtorValue;
-				result = 
-					m_module->m_operatorMgr.castOperator (destructor, dtorType, &dtorValue) &&
-					m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
-
-				if (!result)
-					return false;
-			}
-		}
-
-		result = m_module->m_operatorMgr.parseInitializer (
-			variable,
-			variable->m_itemDecl->getParentUnit (),
-			variable->m_constructor,
-			variable->m_initializer
-			);
-
+		result = initializeVariable (variable);
 		if (!result)
 			return false;
 	}
@@ -272,27 +531,7 @@ VariableMgr::allocateInitializeGlobalVariables ()
 	return true;
 }
 
-
 /*
-
-llvm::GlobalVariable*
-VariableMgr::createLlvmGlobalVariable (
-	Type* type,
-	const char* tag
-	)
-{
-	llvm::GlobalVariable* llvmValue = new llvm::GlobalVariable (
-		*m_module->getLlvmModule (),
-		type->getLlvmType (),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		(llvm::Constant*) type->getZeroValue ().getLlvmValue (),
-		tag
-		);
-
-	m_llvmGlobalVariableArray.append (llvmValue);
-	return llvmValue;
-}
 
 bool
 VariableMgr::allocatePrimeStaticVariables ()
@@ -384,51 +623,6 @@ VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
 
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
 
-	// initialize within 'once' block
-
-	Token::Pos pos = *variable->getItemDecl ()->getPos ();
-
-	OnceStmt stmt;
-	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos);
-
-	result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos);
-	if (!result)
-		return false;
-
-	if (variable->m_type->getTypeKind () == TypeKind_Class)
-	{
-		Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
-		if (destructor)
-		{
-			Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
-			Type* intPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
-
-			Value dtorValue;
-			result = 
-				m_module->m_operatorMgr.castOperator (destructor, intPtrType, &dtorValue) &&
-				m_module->m_operatorMgr.callOperator (addDestructor, dtorValue, variable);
-
-			if (!result)
-				return false;
-		}
-	}
-
-	result = m_module->m_operatorMgr.parseInitializer (
-		variable,
-		variable->m_itemDecl->getParentUnit (),
-		variable->m_constructor,
-		variable->m_initializer
-		);
-
-	if (!result)
-		return false;
-
-	if (!variable->m_initializer.isEmpty ())
-		pos = variable->m_initializer.getTail ()->m_pos;
-	else if (!variable->m_constructor.isEmpty ())
-		pos = variable->m_constructor.getTail ()->m_pos;
-
-	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
 
 	return true;
 }
@@ -533,25 +727,6 @@ VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
 	return true;
 }
 
-void
-VariableMgr::allocateTlsVariable (Variable* variable)
-{
-	Value ptrValue;
-	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (
-		variable->m_type,
-		variable->m_qualifiedName,
-		NULL,
-		&ptrValue
-		);
-
-	variable->m_llvmAllocValue = llvmAlloca;
-	variable->m_llvmValue = llvmAlloca;
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function);
-
-	function->addTlsVariable (variable);
-}
 */
 //.............................................................................
 

@@ -15,7 +15,6 @@
 #include "jnc_UnitMgr.h"
 #include "jnc_LlvmIrBuilder.h"
 #include "jnc_LlvmDiBuilder.h"
-#include "jnc_CallFunction.h"
 
 namespace jnc {
 
@@ -389,12 +388,6 @@ public:
 
 	rtl::String
 	getLlvmIrString ();
-
-	bool
-	construct ()
-	{
-		return jnc::callVoidFunction (m_constructor);
-	}
 
 protected:
 	bool

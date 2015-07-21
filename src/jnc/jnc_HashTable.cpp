@@ -15,16 +15,11 @@ StringHashTable::insert (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	Type* type = runtime->getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
-	DataBox* box = (DataBox*) runtime->m_gcHeap.allocateData (type);
-
-	DataPtr valuePtr;
-	valuePtr.m_p = box + 1;
-	valuePtr.m_validator = &box->m_validator;
-
+	Type* type = runtime->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	DataPtr valuePtr = runtime->m_gcHeap.allocateData (type);
+	*(Variant*) valuePtr.m_p = value;
 	(*m_hashTable) [(const char*) keyPtr.m_p] = valuePtr;
 	m_count = m_hashTable->getCount ();
-
 }
 
 //.............................................................................
@@ -39,13 +34,9 @@ VariantHashTable::insert (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	Type* type = runtime->getFirstModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
-	DataBox* box = (DataBox*) runtime->m_gcHeap.tryAllocateData (type);
-
-	DataPtr valuePtr;
-	valuePtr.m_p = box + 1;
-	valuePtr.m_validator = &box->m_validator;
-
+	Type* type = runtime->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	DataPtr valuePtr = runtime->m_gcHeap.tryAllocateData (type);
+	*(Variant*) valuePtr.m_p = value;
 	(*m_hashTable) [key] = valuePtr;
 	m_count = m_hashTable->getCount ();
 }

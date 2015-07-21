@@ -7,15 +7,15 @@ namespace jnc {
 
 void
 primeIface (
-	ClassType* type,
-	IfaceHdr* self,
-	void* vtable,
 	Box* box,
-	Box* root
+	Box* root,
+	IfaceHdr* iface,
+	ClassType* type,
+	void* vtable
 	)
 {
-	self->m_vtable = vtable;
-	self->m_box = box;
+	iface->m_vtable = vtable;
+	iface->m_box = box;
 
 	// prime all the base types
 
@@ -25,13 +25,13 @@ primeIface (
 	{
 		BaseTypeSlot* slot = baseTypePrimeArray [i];
 		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
-
+		
 		primeIface (
-			(ClassType*) slot->getType (),
-			(IfaceHdr*) ((char*) self + slot->getOffset ()),
-			vtable ? (void**) vtable + slot->getVTableIndex () : NULL,
 			box,
-			root
+			root,
+			(IfaceHdr*) ((char*) iface + slot->getOffset ()),
+			(ClassType*) slot->getType (),
+			(void**) vtable + slot->getVTableIndex ()
 			);
 	}
 
@@ -45,35 +45,36 @@ primeIface (
 		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
 		ClassType* fieldType = (ClassType*) field->getType ();
-		Box* fieldBox = (Box*) ((char*) self + field->getOffset ());
-		void* fieldVTable = NULL; // pFieldType->GetVTablePtrValue ()
+		Box* fieldBox = (Box*) ((char*) iface + field->getOffset ());
 
 		prime (
-			fieldType, 
-			fieldVTable,
 			fieldBox,
-			root
+			root,
+			fieldType
 			);
 	}
 }
 
 void
 prime (
-	ClassType* type,
-	void* vtable,
 	Box* box,
-	Box* root
+	Box* root,
+	ClassType* type,
+	void* vtable
 	)
 {
 	ASSERT (root <= box);
+
+	if (!vtable)
+		vtable = type->getVTableVariable ()->getStaticData ();
 
 	memset (box, 0, type->getSize ());
 
 	box->m_type = type;
 	box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
-	box->m_rootOffset = (char*) root - (char*) box;
+	box->m_rootOffset = (char*) box - (char*) root;
 
-	primeIface (type, (IfaceHdr*) (box + 1), vtable, box, root);
+	primeIface (box, root, (IfaceHdr*) (box + 1), type, vtable);
 }
 
 //.............................................................................

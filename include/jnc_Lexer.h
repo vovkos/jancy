@@ -107,7 +107,7 @@ enum TokenKind
 
 	TokenKind_Get,
 	TokenKind_Set,
-	TokenKind_Preconstruct,
+	TokenKind_PreConstruct,
 	TokenKind_Construct,
 	TokenKind_Destruct,
 	TokenKind_Operator,
@@ -282,7 +282,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Get,          "get")
 	AXL_LEX_TOKEN_NAME (TokenKind_Set,          "set")
-	AXL_LEX_TOKEN_NAME (TokenKind_Preconstruct, "preconstruct")
+	AXL_LEX_TOKEN_NAME (TokenKind_PreConstruct, "preconstruct")
 	AXL_LEX_TOKEN_NAME (TokenKind_Construct,    "construct")
 	AXL_LEX_TOKEN_NAME (TokenKind_Destruct,     "destruct")
 	AXL_LEX_TOKEN_NAME (TokenKind_Operator,     "operator")

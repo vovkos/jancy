@@ -97,14 +97,7 @@ NamedTypeBlock::initializeStaticFields ()
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* staticField = m_initializedStaticFieldArray [i];
-
-		result = module->m_operatorMgr.parseInitializer (
-			staticField,
-			m_parent->getItemDecl ()->getParentUnit (),
-			staticField->getConstructor (),
-			staticField->getInitializer ()
-			);
-
+		result = module->m_variableMgr.initializeVariable (staticField);
 		if (!result)
 			return false;
 	}

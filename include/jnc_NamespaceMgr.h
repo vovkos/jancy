@@ -107,6 +107,12 @@ public:
 		return &m_stdNamespaceArray [stdNamespace];
 	}
 
+	bool
+	isGlobalNamespace ()
+	{
+		return m_currentNamespace->m_namespaceKind == NamespaceKind_Global;
+	}
+
 	Namespace*
 	getCurrentNamespace ()
 	{

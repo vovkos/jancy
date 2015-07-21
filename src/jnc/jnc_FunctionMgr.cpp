@@ -4,6 +4,7 @@
 #include "jnc_Parser.llk.h"
 
 // #define _JNC_NO_JIT
+// #define _JNC_NO_VERIFY
 
 namespace jnc {
 
@@ -33,10 +34,10 @@ FunctionMgr::clear ()
 	m_thunkPropertyMap.clear ();
 	m_lazyStdFunctionList.clear ();
 	m_scheduleLauncherFunctionMap.clear ();
-	m_thisValue.clear ();
 	m_staticConstructArray.clear ();
-
+	m_thisValue.clear ();
 	m_currentFunction = NULL;
+
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
 	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
 }
@@ -236,9 +237,10 @@ FunctionMgr::prologue (
 	entryBlock->markEntry ();
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	function->getType ()->getCallConv ()->createArgVariables (function);
+
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
-	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
-	m_module->m_controlFlowMgr.m_flags = 0; // clear jump flag
+	m_module->m_operatorMgr.gcSafePoint (); // first thing in body block
 
 	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
@@ -249,8 +251,6 @@ FunctionMgr::prologue (
 		if (!result)
 			return false;
 	}
-
-	function->getType ()->getCallConv ()->createArgVariables (function);
 
 	// 'this' arg
 
@@ -293,9 +293,11 @@ FunctionMgr::createThisValue ()
 			ptrType = ptrType->getTargetType ()->getDataPtrType (DataPtrTypeKind_Lean, ptrType->getFlags ());
 
 			Value ptrValue;
+			Value validatorValue;
 			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 0, NULL, &ptrValue);
+			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 1, NULL, &validatorValue);
 			m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, &ptrValue);
-			m_thisValue.setLeanDataPtr (ptrValue.getLlvmValue (), ptrType, thisArgValue);
+			m_thisValue.setLeanDataPtr (ptrValue.getLlvmValue (), ptrType, validatorValue);
 		}
 	}
 	else
@@ -353,6 +355,12 @@ FunctionMgr::epilogue ()
 	if (!result)
 		return false;
 
+	if (function->m_type->getFlags () & FunctionTypeFlag_Unsafe)
+		m_module->m_operatorMgr.leaveUnsafeRgn ();
+
+	finalizeFunction (function, true);
+
+#if (defined (_AXL_DEBUG) && !defined (_JNC_NO_VERIFY))
 	try
 	{
 		llvm::verifyFunction (*function->getLlvmFunction (), llvm::ReturnStatusAction);
@@ -367,16 +375,37 @@ FunctionMgr::epilogue ()
 
 		return false;
 	}
+#endif
 
-	if (function->m_type->getFlags () & FunctionTypeFlag_Unsafe)
-		m_module->m_operatorMgr.leaveUnsafeRgn ();
+	return true;
+}
+
+void
+FunctionMgr::finalizeFunction (
+	Function* function,
+	bool wasNamespaceOpened
+	)
+{
+	ASSERT (function == m_currentFunction);
+
+	if (m_module->m_operatorMgr.hasStackGcRoots ())
+	{
+		m_module->m_operatorMgr.createGcShadowStackFrame ();
+		m_module->m_operatorMgr.clearStackGcRoots ();
+	}
+
+	size_t count = function->m_tlsVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+		function->m_tlsVariableArray [i].m_variable->m_llvmValue = NULL;
 
 	m_module->m_namespaceMgr.closeScope ();
-	m_module->m_namespaceMgr.closeNamespace ();
 
+	if (wasNamespaceOpened)
+		m_module->m_namespaceMgr.closeNamespace ();
+
+	m_module->m_controlFlowMgr.finalizeFunction ();
 	m_currentFunction = NULL;
 	m_thisValue.clear ();
-	return true;
 }
 
 void
@@ -398,9 +427,6 @@ FunctionMgr::internalPrologue (
 	entryBlock->markEntry ();
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
-	m_module->m_controlFlowMgr.m_unreachableBlock = NULL;
-	m_module->m_controlFlowMgr.m_flags = 0;
 
 	if (function->isMember ())
 		createThisValue ();
@@ -415,6 +441,9 @@ FunctionMgr::internalPrologue (
 		for (size_t i = 0; i < argCount; i++, llvmArg++)
 			argValueArray [i] = callConv->getArgValue (argArray [i], llvmArg);
 	}
+
+	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
+	m_module->m_operatorMgr.gcSafePoint (); // first thing in body block
 }
 
 void
@@ -434,10 +463,7 @@ FunctionMgr::internalEpilogue ()
 		m_module->m_controlFlowMgr.ret (returnValue);
 	}
 
-	m_module->m_namespaceMgr.closeScope ();
-
-	m_currentFunction = NULL;
-	m_thisValue.clear ();
+	finalizeFunction (function, false);
 }
 
 Function*
@@ -724,48 +750,74 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	switch (func)
 	{
+	case StdFunction_PrimeStaticClass:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.primeStaticClass", functionType);
+		break;
+
 	case StdFunction_TryAllocateClass:
-		returnType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateClass", functionType);
 		break;
 
 	case StdFunction_AllocateClass:
-		returnType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateClass", functionType);
 		break;
 
 	case StdFunction_TryAllocateData:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataBoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateData", functionType);
 		break;
 
 	case StdFunction_AllocateData:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataBoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateData", functionType);
 		break;
 
 	case StdFunction_TryAllocateArray:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DynamicArrayBoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
-		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateClass", functionType);
+		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateArray", functionType);
 		break;
 
 	case StdFunction_AllocateArray:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DynamicArrayBoxPtr);
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateArray", functionType);
+		break;
+
+	case StdFunction_TryCheckDataPtrRangeIndirect:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [2] = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3, FunctionTypeFlag_Throws);
+		function = createFunction (FunctionKind_Internal, "jnc.tryCheckDataPtrRangeIndirect", functionType);
+		break;
+
+	case StdFunction_CheckDataPtrRangeIndirect:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [2] = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRangeIndirect", functionType);
 		break;
 
 	case StdFunction_LlvmMemcpy:
@@ -868,7 +920,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_DynamicCastClassPtr:
 	case StdFunction_DynamicCastVariant:
 	case StdFunction_StrengthenClassPtr:
-	case StdFunction_GcSafePoint:
 	case StdFunction_CollectGarbage:
 	case StdFunction_CreateThread:
 	case StdFunction_Sleep:
@@ -897,8 +948,6 @@ FunctionMgr::getStdFunction (StdFunction func)
 	case StdFunction_AppendFmtLiteral_br:
 	case StdFunction_TryCheckDataPtrRangeDirect:
 	case StdFunction_CheckDataPtrRangeDirect:
-	case StdFunction_TryCheckDataPtrRangeIndirect:
-	case StdFunction_CheckDataPtrRangeIndirect:
 	case StdFunction_TryCheckNullPtr:
 	case StdFunction_CheckNullPtr:
 	case StdFunction_TryLazyGetLibraryFunction:

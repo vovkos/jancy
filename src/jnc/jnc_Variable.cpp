@@ -14,6 +14,7 @@ Variable::Variable ()
 	m_ptrTypeFlags = 0;
 	m_scope = NULL;
 	m_tlsField = NULL;
+	m_staticData = NULL;
 	m_llvmValue = NULL;
 }
 
@@ -32,6 +33,45 @@ Variable::getLeanDataPtrValidator ()
 	return m_leanDataPtrValidator;
 }
 
+void*
+Variable::getStaticData ()
+{
+	ASSERT (m_storageKind == StorageKind_Static);
+	
+	if (m_staticData)
+		return m_staticData;
+		
+	llvm::GlobalVariable* llvmGlobalVariable = (llvm::GlobalVariable*) m_llvmValue;
+	ASSERT (llvm::isa <llvm::GlobalVariable> (m_llvmValue));
+
+	m_staticData = m_module->getLlvmExecutionEngine ()->getPointerToGlobal (llvmGlobalVariable);
+	return m_staticData;
+}
+
+llvm::Value*
+Variable::getLlvmValue ()
+{
+	if (m_llvmValue)
+		return m_llvmValue;
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function && m_storageKind == StorageKind_Thread);
+
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+
+	Value ptrValue;
+	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca (
+		m_type,
+		m_qualifiedName,
+		NULL,
+		&ptrValue
+		);
+
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
+	function->addTlsVariable (this);
+	return m_llvmValue;
+}
+
 bool
 Variable::calcLayout ()
 {
@@ -39,6 +79,15 @@ Variable::calcLayout ()
 		m_type = m_type_i->getActualType ();
 
 	return m_type->ensureLayout ();
+}
+
+bool
+Variable::isInitializationNeeded ()
+{
+	return 
+		!m_constructor.isEmpty () ||
+		!m_initializer.isEmpty () || 
+		m_type->getTypeKind () == TypeKind_Class; // static class variable
 }
 
 //.............................................................................

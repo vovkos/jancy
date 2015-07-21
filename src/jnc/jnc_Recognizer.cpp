@@ -20,10 +20,7 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	DynamicArrayBox* box = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
-	m_lexeme.m_p = box + 1;
-	m_lexeme.m_validator = &box->m_validator;
-
+	m_lexemePtr = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
 	setAutomatonFunc (automatonFuncPtr);
 }
 
@@ -166,7 +163,7 @@ Recognizer::writeChar (uint_t c)
 
 	if (c < 256) // not a pseudo-char
 	{
-		((uchar_t*) m_lexeme.m_p) [m_lexemeLength++] = c;
+		((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength++] = c;
 		if (m_lexemeLength >= m_lexemeLengthLimit)
 		{
 			err::setStringError ("lexeme too long");
@@ -214,7 +211,7 @@ Recognizer::rollback ()
 {
 	ASSERT (m_lastAcceptStateId != -1 && m_lastAcceptLexemeLength);
 	
-	uchar_t* chunk = (uchar_t*) m_lexeme.m_p + m_lastAcceptLexemeLength;
+	uchar_t* chunk = (uchar_t*) m_lexemePtr.m_p + m_lastAcceptLexemeLength;
 	size_t chunkLength = m_lexemeLength - m_lastAcceptLexemeLength;
 
 	m_currentOffset = m_lexemeOffset + m_lastAcceptLexemeLength;
@@ -232,12 +229,12 @@ Recognizer::match (size_t stateId)
 {
 	ASSERT (m_automatonFuncPtr.m_p);
 
-	uchar_t savedChar = ((uchar_t*) m_lexeme.m_p) [m_lexemeLength];
-	((uchar_t*) m_lexeme.m_p) [m_lexemeLength] = 0;
+	uchar_t savedChar = ((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength];
+	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = 0;
 
 	AutomatonResult result = ((AutomatonFunc*) m_automatonFuncPtr.m_p) (m_automatonFuncPtr.m_closure, this, stateId);
 	
-	((uchar_t*) m_lexeme.m_p) [m_lexemeLength] = savedChar;
+	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = savedChar;
 
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;

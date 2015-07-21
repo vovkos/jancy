@@ -432,6 +432,17 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 			return false;
 	}
 
+	BaseTypeCoord coord;
+	size_t offset = getOffset ((DataPtrType*) opValue.getType (), (DataPtrType*) type, &coord);
+	if (offset == -1)
+		return false;
+
+	if (!offset)
+	{
+		resultValue->overrideType (opValue, type);
+		return true;
+	}
+
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
 

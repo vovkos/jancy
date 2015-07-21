@@ -298,7 +298,7 @@ void
 FunctionType::prepareTypeString ()
 {
 	m_typeString += m_returnType->getTypeString ();
-	m_typeString += '-';
+	m_typeString += ' ';
 	m_typeString += getTypeModifierString ();
 	m_typeString += getArgString ();
 }

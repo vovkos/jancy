@@ -101,7 +101,7 @@ public:
 	bool
 	isEmpty ()
 	{
-		return m_currentAllocSize == 0;
+		return m_allocBoxArray.isEmpty ();
 	}
 
 	size_t 
@@ -128,36 +128,42 @@ public:
 		return m_currentPeriodSize;
 	}
 
+	void* 
+	getSafePointTarget ()
+	{
+		return m_guardPage;
+	}
+
 	// allocation methods
 
-	Box* 
+	IfaceHdr* 
 	tryAllocateClass (ClassType* type);
 
-	Box* 
+	IfaceHdr* 
 	allocateClass (ClassType* type);
 
-	DataBox* 
+	DataPtr
 	tryAllocateData (Type* type);
 
-	DataBox* 
+	DataPtr
 	allocateData (Type* type);
 
-	DynamicArrayBox* 
+	DataPtr
 	tryAllocateArray (
 		Type* type,
 		size_t count
 		);
 
-	DynamicArrayBox* 
+	DataPtr
 	allocateArray (
 		Type* type,
 		size_t count
 		);
 
-	DynamicArrayBox* 
+	DataPtr
 	tryAllocateBuffer (size_t size);
 
-	DynamicArrayBox* 
+	DataPtr 
 	allocateBuffer (size_t size);
 
 	DataPtrValidator*
@@ -205,8 +211,7 @@ public:
 	void
 	collect ()
 	{
-		waitIdleAndLock (true);
-		collect_l ();
+		collect_l (waitIdleAndLock ());
 	}
 
 	// marking
@@ -242,23 +247,20 @@ public:
 #endif
 
 protected:
-	void
-	waitIdleAndLock (bool isSafeRegion);
+	bool
+	waitIdleAndLock (); // return true if this thread is registered mutator thread
 
 	void
 	incrementAllocSizeAndLock (size_t size);
 
 	void
-	collect_l ();
+	collect_l (bool isMutatorThread);
 
 	void
 	addClassBox_l (Box* box);
 
 	void
 	markClassFields (Box* box);
-
-	void
-	addShadowStackFrameRoots (GcShadowStackFrame* frame);
 
 	void
 	runMarkCycle ();

@@ -17,6 +17,7 @@ ClassType::ClassType ()
 	m_operatorNew = NULL;
 	m_markOpaqueGcRootsFunc = NULL;
 	m_classPtrTypeTuple = NULL;
+	m_vtableVariable = NULL;
 }
 
 void
@@ -145,7 +146,7 @@ ClassType::addMethod (Function* function)
 	case FunctionKind_Internal:
 		return true;
 
-	case FunctionKind_Preconstructor:
+	case FunctionKind_PreConstructor:
 		target = &m_preconstructor;
 		break;
 
@@ -387,9 +388,6 @@ ClassType::calcLayout ()
 			}
 
 			m_classMemberFieldArray.append (field);
-
-			if (classType->getDestructor ())
-				m_memberFieldDestructArray.append (field);
 		}
 	}
 
@@ -479,7 +477,7 @@ ClassType::calcLayout ()
 
 	m_classStructType->ensureLayout ();
 
-	createVTablePtr ();
+	createVTableVariable ();
 
 	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 	{
@@ -502,7 +500,6 @@ ClassType::calcLayout ()
 
 	if (!m_destructor &&
 		(!m_baseTypeDestructArray.isEmpty () ||
-		!m_memberFieldDestructArray.isEmpty () ||
 		!m_memberPropertyDestructArray.isEmpty ()))
 	{
 		result = createDefaultMethod (FunctionKind_Destructor);
@@ -650,14 +647,8 @@ ClassType::overrideVirtualFunction (Function* function)
 }
 
 void
-ClassType::createVTablePtr ()
+ClassType::createVTableVariable ()
 {
-	if (m_vtable.isEmpty ())
-	{
-		m_vtablePtrValue = m_vtableStructType->getDataPtrType_c ()->getZeroValue ();
-		return;
-	}
-
 	char buffer [256];
 	rtl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
 
@@ -676,24 +667,16 @@ ClassType::createVTablePtr ()
 		llvmVTable [i] = function->getLlvmFunction ();
 	}
 
-	llvm::Constant* llvmVTableConstant = llvm::ConstantStruct::get (
+	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get (
 		(llvm::StructType*) m_vtableStructType->getLlvmType (),
 		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
 		);
 
-	llvm::GlobalVariable* llvmVTableVariable = new llvm::GlobalVariable (
-		*m_module->getLlvmModule (),
-		m_vtableStructType->getLlvmType (),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		llvmVTableConstant,
-		(const char*) (m_tag + ".m_vtbl")
-		);
-
-	m_vtablePtrValue.setLlvmValue (
-		llvmVTableVariable,
-		m_vtableStructType->getDataPtrType_c (),
-		ValueKind_Const
+	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable (
+		"m_vtable",
+		m_tag + ".m_vtable",
+		m_vtableStructType,
+		Value (llvmVTableConst, m_vtableStructType)
 		);
 }
 

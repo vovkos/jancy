@@ -44,16 +44,13 @@ String::copy (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
-	if (!box)
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	if (!newPtr.m_p)
 		return false;
 	
-	char* p = (char*) (box + 1);
-	memcpy (p, ptr.m_p, length);
-	p [length] = 0;
+	memcpy (newPtr.m_p, ptr.m_p, length);
 
-	m_ptr.m_p = p;
-	m_ptr.m_validator = &box->m_validator;
+	m_ptr = newPtr;
 	m_length = length;
 	return true;
 }
@@ -115,18 +112,14 @@ StringBuilder::setLength (
 	ASSERT (runtime);
 
 	size_t maxLength = rtl::getMinPower2Gt (length);
-	DynamicArrayBox* box = runtime->m_gcHeap.tryAllocateBuffer (maxLength + 1);
-	if (!box)
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxLength + 1);
+	if (!newPtr.m_p)
 		return false;
 
-	char* p = (char*) (box + 1);
-	p [length] = 0;
-
 	if (saveContents)
-		memcpy (p, m_ptr.m_p, m_length);
+		memcpy (newPtr.m_p, m_ptr.m_p, m_length);
 
-	m_ptr.m_p = p;
-	m_ptr.m_validator = &box->m_validator;
+	m_ptr = newPtr;
 	m_length = length;
 	m_maxLength = maxLength;
 	return true;

@@ -21,7 +21,7 @@ reactor_expression_stmt
 	}
 	:	expression_pass1 ';'
 			{
-				return reactorExpressionStmt ($1.m_tokenList);
+				return reactorExpressionStmt (&$1.m_tokenList);
 			}
 	;
 
@@ -30,13 +30,9 @@ reactor_onevent_stmt
 	{
 		Declarator $declarator;
 	}
-	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator>
+	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator> declaration_body_pass1
 			{
-				return finalizeReactorOnEventDeclaration (&$2.m_valueList, &$declarator);
-			}
-		compound_stmt
-			{
-				return finalizeReactorOnEventBody ();
+				reactorOnEventDeclaration (&$2.m_valueList, &$declarator, &$4.m_tokenList);
 			}
 	;
 

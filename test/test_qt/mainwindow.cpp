@@ -526,8 +526,7 @@ bool MainWindow::compile ()
 	result =
 		m_module.createLlvmExecutionEngine () &&
 		StdLib::mapFunctions (&m_module) &&
-		m_module.jit () &&
-		m_runtime.addModule (&m_module);
+		m_module.jit ();
 
 	if (!result)
 	{
@@ -565,7 +564,7 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-	result = m_runtime.startup ();
+	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
 		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
@@ -573,7 +572,7 @@ MainWindow::run ()
 	}
 
 	int returnValue;
-	result = jnc::callFunction (mainFunction, &returnValue);
+	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue);
 	if (!result)
 	{
 		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());

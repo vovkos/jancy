@@ -277,6 +277,12 @@ protected:
 
 	void
 	injectTlsPrologue (Function* function);
+	
+	void
+	finalizeFunction (
+		Function* function,
+		bool wasNamespaceOpened
+		);
 
 	Function*
 	parseStdFunction (

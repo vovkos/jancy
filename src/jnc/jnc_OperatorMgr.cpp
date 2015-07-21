@@ -140,6 +140,14 @@ OperatorMgr::OperatorMgr ()
 	m_unsafeEnterCount = 0;	
 }
 
+void
+OperatorMgr::clearStackGcRoots ()
+{
+	m_stackGcRootAllocaArray.clear ();
+	m_stackGcRootTypeArray.clear ();
+	m_tmpStackGcRootList.clear ();
+}
+
 Function*
 OperatorMgr::getOverloadedUnaryOperator (
 	UnOpKind opKind,

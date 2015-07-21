@@ -81,8 +81,8 @@ Orphan::getItemUnnamedMethod (ModuleItem* item)
 		DerivableType* type = (DerivableType*) item;
 		switch (m_functionKind)
 		{
-		case FunctionKind_Preconstructor:
-			return type->getPreconstructor ();
+		case FunctionKind_PreConstructor:
+			return type->getPreConstructor ();
 
 		case FunctionKind_Constructor:
 			return type->getConstructor ();

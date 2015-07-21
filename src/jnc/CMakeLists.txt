@@ -66,7 +66,6 @@ source_group (
 
 set (
 	FUNCTION_H_LIST
-	${JANCY_INC_DIR}/jnc_CallFunction.h
 	${JANCY_INC_DIR}/jnc_Disassembler.h
 	${JANCY_INC_DIR}/jnc_Function.h
 	${JANCY_INC_DIR}/jnc_FunctionMgr.h
@@ -423,6 +422,7 @@ source_group (
 
 set (
 	RUNTIME_H_LIST
+	${JANCY_INC_DIR}/jnc_CallFunction.h
 	${JANCY_INC_DIR}/jnc_RuntimeStructs.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
 	${JANCY_INC_DIR}/jnc_GcHeap.h

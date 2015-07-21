@@ -1,36 +1,10 @@
 #include "pch.h"
 #include "jnc_LeanDataPtrValidator.h"
+#include "jnc_Module.h"
 
 namespace jnc {
 
 //.............................................................................
-	
-Value 
-LeanDataPtrValidator::getBoxValue ()
-{
-	if (m_boxValue)
-		return m_boxValue;
-		
-	return m_boxValue;
-}
-
-Value 
-LeanDataPtrValidator::getRangeBeginValue ()
-{
-	if (m_rangeBeginValue)
-		return m_rangeBeginValue;
-
-	return m_rangeBeginValue;
-}
-
-Value 
-LeanDataPtrValidator::getRangeLengthValue ()
-{
-	if (m_rangeLengthValue)
-		return m_rangeLengthValue;
-
-	return m_rangeLengthValue;
-}
 
 Value 
 LeanDataPtrValidator::getValidatorValue ()
@@ -38,6 +12,49 @@ LeanDataPtrValidator::getValidatorValue ()
 	if (m_validatorValue)
 		return m_validatorValue;
 
+	ASSERT (m_originValue);
+	Module* module = m_originValue.getType ()->getModule ();
+
+	if (m_originValue.getValueKind () == ValueKind_Variable)
+	{
+		Variable* variable = m_originValue.getVariable ();
+		StorageKind storageKind = variable->getStorageKind ();
+		switch (storageKind)
+		{
+		case StorageKind_Static:
+			m_validatorValue = module->m_variableMgr.createStaticDataPtrValidatorVariable (variable);
+			break;
+
+		case StorageKind_Stack:
+			module->m_variableMgr.liftStackVariable (variable);
+			break;
+
+		default:
+			ASSERT (false);
+		}
+	}
+	else
+	{
+		DataPtrType* type = (DataPtrType*) m_originValue.getType ();
+		ASSERT (type->getTypeKindFlags () & TypeKindFlag_DataPtr);
+
+		if (type->getTargetType ()->getStdType () == StdType_DataPtrValidator)
+		{
+			m_validatorValue = m_originValue;
+		}
+		else
+		{
+			ASSERT (type->getPtrTypeKind () == DataPtrTypeKind_Normal);
+			module->m_llvmIrBuilder.createExtractValue (
+				m_originValue, 
+				1, 
+				module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr), 
+				&m_validatorValue
+				);
+		}
+	}
+
+	ASSERT (m_validatorValue);
 	return m_validatorValue;
 }
 

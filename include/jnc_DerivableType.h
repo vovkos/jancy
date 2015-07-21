@@ -213,7 +213,7 @@ public:
 	}
 
 	Function*
-	getPreconstructor ()
+	getPreConstructor ()
 	{
 		return m_preconstructor;
 	}
@@ -329,6 +329,17 @@ protected:
 		size_t baseTypeLevel
 		);
 };
+
+//.............................................................................
+
+inline
+bool
+isConstructibleType (Type* type)
+{
+	return 
+		(type->getTypeKindFlags () & TypeKindFlag_Derivable) &&
+		((DerivableType*) type)->getConstructor () != NULL;
+}
 
 //.............................................................................
 
