@@ -503,7 +503,7 @@ OperatorMgr::createTmpStackGcRoot (const Value& value)
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore (value, ptrValue);	
-	markStackGcRoot (StackGcRootKind_Temporary, ptrValue, type);
+	markStackGcRoot (ptrValue, type, StackGcRootKind_Temporary);
 }
 
 void
@@ -517,9 +517,10 @@ OperatorMgr::nullifyTmpStackGcRootList ()
 
 void
 OperatorMgr::markStackGcRoot (
-	StackGcRootKind kind,
 	const Value& ptrValue,
-	Type* type
+	Type* type,
+	StackGcRootKind kind,
+	Scope* scope
 	)
 {
 	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -537,8 +538,6 @@ OperatorMgr::markStackGcRoot (
 	m_stackGcRootAllocaArray.append (llvmAlloca);
 	m_stackGcRootTypeArray.append (type);
 
-	Scope* scope;
-
 	switch (kind)
 	{
 	case StackGcRootKind_Temporary:
@@ -546,8 +545,12 @@ OperatorMgr::markStackGcRoot (
 		break;
 
 	case StackGcRootKind_Scope:
-		scope = m_module->m_namespaceMgr.getCurrentScope ();
-		ASSERT (scope);
+		if (!scope)
+		{
+			scope = m_module->m_namespaceMgr.getCurrentScope ();
+			ASSERT (scope);
+		}
+
 		scope->addToStackGcRootList (gcRootValue);
 		break;
 

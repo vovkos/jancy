@@ -194,7 +194,7 @@ VariableMgr::initializeVariable (Variable* variable)
 		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_module->m_operatorMgr.zeroInitialize (variable);
-			m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variable, variable->m_type);
+			m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type);
 		}
 		else if ((variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty ())
 		{
@@ -203,7 +203,7 @@ VariableMgr::initializeVariable (Variable* variable)
 		break;
 
 	case StorageKind_Heap:
-		m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variable, variable->m_type->getDataPtrType_c ());
+		m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type->getDataPtrType_c ());
 		break;
 
 	default:
@@ -392,7 +392,6 @@ VariableMgr::liftStackVariable (Variable* variable)
 {
 	ASSERT (variable->m_storageKind == StorageKind_Stack);
 	ASSERT (llvm::isa <llvm::AllocaInst> (variable->m_llvmValue));
-	ASSERT (variable->m_scope == m_module->m_namespaceMgr.getCurrentScope ());
 
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) (llvm::AllocaInst*) variable->m_llvmValue;
 	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
@@ -410,7 +409,7 @@ VariableMgr::liftStackVariable (Variable* variable)
 	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 0, NULL, &variableValue);
 	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 1, NULL, &validatorValue);
 	m_module->m_llvmIrBuilder.createBitCast (variableValue, variable->m_type->getDataPtrType_c (), &variableValue);
-	m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Scope, variableValue, variable->m_type->getDataPtrType_c ());
+	m_module->m_operatorMgr.markStackGcRoot (variableValue, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
 	m_module->m_llvmIrBuilder.setInsertPoint (currentBlock);
 
 	variable->m_llvmValue = variableValue.getLlvmValue ();
@@ -433,7 +432,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	variable->m_parentUnit = arg->getParentUnit ();
 	variable->m_pos = *arg->getPos ();
 	variable->m_flags |= ModuleItemFlag_User;
-
+		
 	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
 	{
@@ -448,7 +447,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	// arg variables are not initialized (stored to directly), so mark gc root manually
 
 	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
-		m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Function, variable, variable->m_type);
+		m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type, StackGcRootKind_Function);
 	
 	return variable;
 }

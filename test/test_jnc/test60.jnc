@@ -1,69 +1,20 @@
-// Another useful kind of literal in Jancy is the formatting literal. It allows 
-// using perl-style-formatting from a C-style language.
-
 //.............................................................................
 
 // entry point
 
+int bindable g_state;
+
+int g_a;
+
+reactor g_reactor ()
+{
+	g_a = 
+		g_state == 10 ? 100 : 
+		g_state == 20 ? 200 : 300;
+}
+
 int main ()
 {
-	struct Color
-	{
-		char const* m_name;
-		uint_t m_value;
-	};
-
-	static Color colorTable [] = 
-	{
-		{ "black",   0x000000 },
-		{ "red",     0x800000 },
-		{ "green",   0x008000 },
-		{ "yellow",  0x808000 },
-		{ "blue",    0x000080 },
-		{ "magenta", 0x800080 },
-		{ "cyan",    0x008080 },
-		{ "white",   0xc0c0c0 },
-	};
-
-	for (size_t i = 0; i < countof (colorTable); i++)
-	{
-		char const* colorName = colorTable [i].m_name;
-
-		// formatting literal produces a dynamic char array in gc-heap
-
-		printf ($"color $i = $colorName\n");
-	}
-
-	size_t i = rand () % countof (colorTable);
-
-	// it's OK to use expressions in formatting literals
-
-	printf ($"random color = $(colorTable [i].m_name)\n");
-
-	// printf-style formatting specifiers are also supported
-
-	printf ($"color value  = #$(colorTable [i].m_value; 06x)\n");
-
-	// it's also OK to specify some of injected values (or all of them) in the 
-	// argument list of the formatting literal and reference them by index
-
-	printf (
-		$"rgb dec = (%1, %2, %3)\nrgb hex = (%(1;x), %(2;x), %(3;x))\n" (
-			(colorTable [i].m_value & 0xff0000) >> 16,
-			(colorTable [i].m_value & 0x00ff00) >> 8,
-			(colorTable [i].m_value & 0x0000ff)
-			)
-		);
-	
-	// last but not least, it's OK to concatenate all kinds of literals
-
-	printf (
-		"stats\n"
-		0x"e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 0d" 
-		$"size  = $(sizeof (colorTable))\n"
-		$"count = $(countof (colorTable))\n"
-		);
-
 	return 0;
 }
 

@@ -349,7 +349,7 @@ ControlFlowMgr::ret (const Value& value)
 				BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
 				m_savedReturnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
 				if (returnType->getFlags () & TypeFlag_GcRoot)
-					m_module->m_operatorMgr.markStackGcRoot (StackGcRootKind_Function, m_savedReturnValueVariable, returnType);
+					m_module->m_operatorMgr.markStackGcRoot (m_savedReturnValueVariable, returnType, StackGcRootKind_Function);
 
 				setCurrentBlock (prevBlock);
 

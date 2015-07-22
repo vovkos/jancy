@@ -37,6 +37,7 @@ public:
 		JNC_STD_FUNCTION (StdFunction_AllocateData, allocateData)
 		JNC_STD_FUNCTION (StdFunction_TryAllocateArray, tryAllocateArray)
 		JNC_STD_FUNCTION (StdFunction_AllocateArray, allocateArray)
+		JNC_STD_FUNCTION (StdFunction_CreateDataPtrValidator, createDataPtrValidator)
 		JNC_STD_FUNCTION (StdFunction_CollectGarbage, collectGarbage)
 
 		JNC_STD_FUNCTION (StdFunction_GetCurrentThreadId, getCurrentThreadId)
@@ -183,6 +184,14 @@ public:
 	allocateArray (
 		Type* type,
 		size_t elementCount
+		);
+
+	static
+	DataPtrValidator* 
+	createDataPtrValidator (
+		Box* box,
+		void* rangeBegin,
+		size_t rangeLength
 		);
 
 	static
@@ -599,6 +608,12 @@ DataPtr
 strDup (
 	const char* p,
 	size_t length = -1
+	);
+
+DataPtr
+memDup (
+	const void* p,
+	size_t size
 	);
 
 //.............................................................................

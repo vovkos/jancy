@@ -190,6 +190,19 @@ StdLib::allocateArray (
 	return runtime->m_gcHeap.allocateArray (type, elementCount);
 }
 
+DataPtrValidator* 
+StdLib::createDataPtrValidator (
+	Box* box,
+	void* rangeBegin,
+	size_t rangeLength
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	return runtime->m_gcHeap.createDataPtrValidator (box, rangeBegin, rangeLength);
+}
+
 void
 StdLib::collectGarbage ()
 {
@@ -968,11 +981,32 @@ strDup (
 
 	if (p)
 		memcpy (resultPtr.m_p, p, length);
-	else
-		memset (resultPtr.m_p, 0, length);
 
 	return resultPtr;
 }
+
+DataPtr
+memDup (
+	const void* p,
+	size_t size
+	)
+{
+	if (!size)
+		return g_nullPtr;
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
+	if (!resultPtr.m_p)
+		return g_nullPtr;
+
+	if (p)
+		memcpy (resultPtr.m_p, p, size);
+
+	return resultPtr;
+}
+
 
 //.............................................................................
 

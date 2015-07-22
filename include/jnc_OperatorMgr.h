@@ -242,9 +242,10 @@ public:
 
 	void
 	markStackGcRoot (
-		StackGcRootKind kind,
 		const Value& ptrValue,
-		Type* type
+		Type* type,
+		StackGcRootKind kind = StackGcRootKind_Scope,
+		Scope* scope = NULL
 		);
 
 	void

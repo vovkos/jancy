@@ -467,11 +467,10 @@ GcHeap::markData (
 	DataPtrValidator* validator
 	)
 {
-	Box* box = validator->m_targetBox;
-	if (box->m_flags & BoxFlag_StrongMark)
+	if (validator->m_targetBox->m_flags & BoxFlag_StrongMark)
 		return;
 
-	weakMark (box);
+	weakMark (validator->m_targetBox);
 
 	if (!(type->getFlags () & TypeFlag_GcRoot))
 		return;

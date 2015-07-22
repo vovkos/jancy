@@ -29,15 +29,36 @@ LeanDataPtrValidator::getValidatorValue ()
 			module->m_variableMgr.liftStackVariable (variable);
 			break;
 
+		case StorageKind_Heap:
+			ASSERT (false); // not yet
+			break;
+
 		default:
 			ASSERT (false);
 		}
 	}
-	else
+	else if (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
+	{
+		ASSERT (m_rangeBeginValue && m_rangeLength);
+
+		Function* createDataPtrValidator = module->m_functionMgr.getStdFunction (StdFunction_CreateDataPtrValidator);
+
+		Value argValueArray [3];
+		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &argValueArray [0]);
+		module->m_llvmIrBuilder.createBitCast (m_rangeBeginValue, module->m_typeMgr.getStdType (StdType_BytePtr), &argValueArray [1]);
+		argValueArray [2].setConstSizeT (m_rangeLength, module);
+
+		module->m_llvmIrBuilder.createCall (
+			createDataPtrValidator,
+			createDataPtrValidator->getType (),
+			argValueArray,
+			3,
+			&m_validatorValue
+			);		
+	}
+	else if (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr)
 	{
 		DataPtrType* type = (DataPtrType*) m_originValue.getType ();
-		ASSERT (type->getTypeKindFlags () & TypeKindFlag_DataPtr);
-
 		if (type->getTargetType ()->getStdType () == StdType_DataPtrValidator)
 		{
 			m_validatorValue = m_originValue;
@@ -52,6 +73,10 @@ LeanDataPtrValidator::getValidatorValue ()
 				&m_validatorValue
 				);
 		}
+	}
+	else
+	{
+		ASSERT (false);
 	}
 
 	ASSERT (m_validatorValue);

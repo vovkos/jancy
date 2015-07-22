@@ -1975,8 +1975,13 @@ Parser::addReactorBindSite (const Value& value)
 	if (!result)
 		return false;
 	
+	// create bind site variable in entry block
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable ("onChanged", type);
+	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 	
 	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 	if (!result)

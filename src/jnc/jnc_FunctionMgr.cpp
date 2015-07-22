@@ -802,6 +802,15 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.allocateArray", functionType);
 		break;
 
+	case StdFunction_CreateDataPtrValidator:
+		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.createDataPtrValidator", functionType);
+		break;
+
 	case StdFunction_TryCheckDataPtrRangeIndirect:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);

@@ -25,6 +25,7 @@ getStdFunctionName (StdFunction stdFunction)
 		NULL,                  // StdFunction_AllocateData,
 		NULL,                  // StdFunction_TryAllocateArray,
 		NULL,                  // StdFunction_AllocateArray,
+		NULL,                  // StdFunction_CreateDataPtrValidator,
 		
 		"collectGarbage",      // StdFunction_RunGc,
 		"getCurrentThreadId",  // StdFunction_GetCurrentThreadId,
@@ -135,6 +136,7 @@ getStdFunctionSource (StdFunction stdFunction)
 		{ NULL },                                // StdFunction_AllocateData,
 		{ NULL },                                // StdFunction_TryAllocateArray,
 		{ NULL },                                // StdFunction_AllocateArray,
+		{ NULL },                                // StdFunction_CreateDataPtrValidator,
 
 		{                                        // StdFunction_CollectGarbage,
 			collectGarbageSrc,

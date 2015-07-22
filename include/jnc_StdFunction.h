@@ -27,6 +27,7 @@ enum StdFunction
 	StdFunction_AllocateData,
 	StdFunction_TryAllocateArray,
 	StdFunction_AllocateArray,
+	StdFunction_CreateDataPtrValidator,
 
 	StdFunction_CollectGarbage,
 	StdFunction_GetCurrentThreadId,
