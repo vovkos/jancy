@@ -132,27 +132,31 @@ Runtime::shutdown ()
 void
 Runtime::initializeThread ()
 {
+	Tls* prevTls = mt::getTlsSlotValue <Tls> ();
+	if (prevTls && prevTls->m_runtime == this)
+	{
+		prevTls->m_initializeCount++;
+		return;
+	}
+
 	size_t size = sizeof (Tls) + m_tlsSize;
-
-	Runtime* prevRuntime = mt::setTlsSlotValue <Runtime> (this);
-	ASSERT (prevRuntime != this); // otherwise, double initialize
-
+	
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
 	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with TLS first
-
-	tls->m_prev = mt::setTlsSlotValue <Tls> (tls);
+	tls->m_prev = prevTls;
 	tls->m_runtime = this;
+	tls->m_initializeCount = 1;
 	tls->m_stackEpoch = alloca (1);
 
-	ASSERT (!tls->m_prev || tls->m_prev->m_runtime == prevRuntime);
+	mt::setTlsSlotValue <Tls> (tls);
+	mt::setTlsSlotValue <Runtime> (this);
 
 	m_lock.lock ();	
 	if (m_tlsList.isEmpty ())
 		m_noThreadEvent.reset ();
 	
 	m_tlsList.insertTail (tls);	
-	m_lock.unlock ();
-	
+	m_lock.unlock ();	
 }
 
 void
@@ -160,6 +164,9 @@ Runtime::uninitializeThread ()
 {
 	Tls* tls = mt::getTlsSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
+
+	if (--tls->m_initializeCount)
+		return;
 
 	m_gcHeap.unregisterMutatorThread (&tls->m_gcMutatorThread);
 

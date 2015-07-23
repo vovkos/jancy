@@ -227,6 +227,7 @@ struct Tls: public rtl::ListLink
 {
 	Tls* m_prev;
 	Runtime* m_runtime;
+	intptr_t m_initializeCount;
 	void* m_stackEpoch;
 	GcMutatorThread m_gcMutatorThread;
 
