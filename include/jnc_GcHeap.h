@@ -282,6 +282,13 @@ public:
 		Type* type
 		);
 
+	void
+	addRootArray (
+		const void* p,
+		Type* type,
+		size_t count
+		);
+
 #if (_AXL_ENV == AXL_ENV_WIN)
 	int 
 	handleSehException (

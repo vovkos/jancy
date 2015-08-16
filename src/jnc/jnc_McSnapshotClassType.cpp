@@ -94,12 +94,8 @@ McSnapshotClassType::markGcRoots (
 	McSnapshot* snapshot = (McSnapshot*) (object + 1);
 	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !snapshot->m_count)
 		return;
-
-	char* p = (char*) snapshot->m_ptrArray;
-	size_t size = m_targetType->getSize ();
-
-	for (size_t i = 0; i < snapshot->m_count; i++, p += size)
-		gcHeap->addRoot (p, m_targetType);
+	
+	gcHeap->addRootArray (snapshot->m_ptrArray, m_targetType, snapshot->m_count);
 }
 
 //.............................................................................

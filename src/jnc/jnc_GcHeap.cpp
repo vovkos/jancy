@@ -689,12 +689,7 @@ GcHeap::markData (Box* box)
 	else
 	{
 		DynamicArrayBox* arrayBox = (DynamicArrayBox*) box;		
-		size_t elementSize = box->m_type->getSize ();
-
-		char* p = (char*) (arrayBox + 1);
-		char* end = p + arrayBox->m_count * elementSize;
-		for (; p < end; p += elementSize)
-			addRoot (p, box->m_type);
+		addRootArray (arrayBox + 1, arrayBox->m_type, arrayBox->m_count);
 	}
 }
 
@@ -809,6 +804,28 @@ GcHeap::addRoot (
 			ASSERT (box->m_type == targetType);
 			markData (box);
 		}
+	}
+}
+
+void
+GcHeap::addRootArray (
+	const void* p0,
+	Type* type,
+	size_t count
+	)
+{
+	ASSERT (type->getTypeKind () != TypeKind_Class && (type->getFlags () & TypeFlag_GcRoot));
+
+	rtl::Array <Root>* markRootArray = &m_markRootArray [m_currentMarkRootArrayIdx];
+	size_t baseCount = markRootArray->getCount ();
+	markRootArray->setCount (baseCount + count);
+
+	const char* p = (const char*) p0;
+	for (size_t i = 0, j = baseCount; i < count; i++, j++)
+	{
+		(*markRootArray) [j].m_p = p;
+		(*markRootArray) [j].m_type = type;
+		p += type->getSize (); 
 	}
 }
 

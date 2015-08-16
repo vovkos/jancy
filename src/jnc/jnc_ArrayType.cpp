@@ -113,18 +113,12 @@ ArrayType::calcLayout ()
 
 void
 ArrayType::markGcRoots (
-	const void* _p,
+	const void* p,
 	GcHeap* gcHeap
 	)
 {
 	ASSERT (m_flags & TypeFlag_GcRoot);
-
-	char* p = (char*) _p;
-	for (size_t i = 0; i < m_elementCount; i++)
-	{
-		m_elementType->markGcRoots (p, gcHeap);
-		p += m_elementType->getSize ();
-	}
+	gcHeap->addRootArray (p, m_elementType, m_elementCount);
 }
 
 void

@@ -72,11 +72,7 @@ MulticastClassType::markGcRoots (
 	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !multicast->m_count)
 		return;
 
-	char* p = (char*) multicast->m_ptrArray;
-	size_t size = m_targetType->getSize ();
-
-	for (size_t i = 0; i < multicast->m_count; i++, p += size)
-		gcHeap->addRoot (p, m_targetType);
+	gcHeap->addRootArray (multicast->m_ptrArray, m_targetType, multicast->m_count);
 }
 
 //.............................................................................
