@@ -4,13 +4,12 @@ start
 compound_stmt
 	:	'{'
 			{
-				m_module->m_namespaceMgr.openScope ($1.m_pos);
-				preCreateLandingPads ($1.m_data.m_integer);
+				m_module->m_namespaceMgr.openScope ($1.m_pos, $1.m_data.m_integer);
 			}
 		local_declaration*
 		'}'
 			{
-				m_module->m_namespaceMgr.closeScope ();
+				return finalizeCompoundStmt ();
 			}
 	;
 
@@ -46,8 +45,7 @@ start
 constructor_compound_stmt
 	:	'{'
 			{
-				m_module->m_namespaceMgr.openScope ($1.m_pos);
-				preCreateLandingPads ($1.m_data.m_integer);
+				m_module->m_namespaceMgr.openScope ($1.m_pos, $1.m_data.m_integer);
 			}
 		btm_construct_stmt*
 			{
@@ -56,7 +54,7 @@ constructor_compound_stmt
 		local_declaration*
 		'}'
 			{
-				m_module->m_namespaceMgr.closeScope ();
+				finalizeCompoundStmt ();
 			}
 	;
 
@@ -165,9 +163,7 @@ switch_stmt
 	}
 	:	TokenKind_Switch '(' expression $e ')' '{' $l
 			{
-				return
-					m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, $e.m_value, $l.m_pos) &&
-					preCreateLandingPads ($l.m_data.m_integer);
+				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, $e.m_value, $l.m_pos);
 			}
 		switch_block_stmt <&$stmt>* '}'
 			{
@@ -178,11 +174,11 @@ switch_stmt
 switch_block_stmt <SwitchStmt* $stmt>
 	:	TokenKind_Case constant_integer_expr $e ':'
 			{
-				return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, $e.m_value, $1.m_pos);
+				return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, $e.m_value, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	TokenKind_Default ':'
 			{
-				return m_module->m_controlFlowMgr.switchStmt_Default ($stmt, $1.m_pos);
+				return m_module->m_controlFlowMgr.switchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	local_declaration
 	;
@@ -321,13 +317,12 @@ try_stmt
 	:	TokenKind_Try
 		'{'
 			{
-				m_module->m_namespaceMgr.openTryScope ($2.m_pos);
-				preCreateLandingPads ($2.m_data.m_integer | LandingPadFlag_Catch); // always catch
+				m_module->m_namespaceMgr.openScope ($2.m_pos, $2.m_data.m_integer | ScopeFlag_Try | ScopeFlag_CanThrow);
 			}
 		local_declaration*
 		'}'
 			{
-				m_module->m_namespaceMgr.closeScope ();
+				finalizeCompoundStmt ();
 			}
 	;
 
@@ -336,15 +331,14 @@ unsafe_stmt
 		TokenKind_Unsafe 
 		'{' $l
 			{
-				m_module->m_namespaceMgr.openScope ($l.m_pos);
 				m_module->m_operatorMgr.enterUnsafeRgn ();
-				preCreateLandingPads ($l.m_data.m_integer);
+				m_module->m_namespaceMgr.openScope ($l.m_pos, $l.m_data.m_integer | ScopeFlag_Unsafe);
 			}
 		local_declaration*
 		'}'
 			{
+				finalizeCompoundStmt ();
 				m_module->m_operatorMgr.leaveUnsafeRgn ();
-				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
@@ -371,14 +365,21 @@ assert_stmt
 catch_label
 	:	TokenKind_Catch ':'
 			{
-				return m_module->m_controlFlowMgr.catchLabel ();
+				return m_module->m_controlFlowMgr.catchLabel ($1.m_pos);
 			}
 	;
 
 finally_label
 	:	TokenKind_Finally ':'
 			{
-				return m_module->m_controlFlowMgr.finallyLabel ();
+				return m_module->m_controlFlowMgr.finallyLabel ($1.m_pos);
+			}
+	;
+
+nested_scope_label
+	:	TokenKind_NestedScope ':'
+			{
+				return m_module->m_controlFlowMgr.nestedScopeLabel ($1.m_pos, $1.m_data.m_integer);
 			}
 	;
 

@@ -84,37 +84,6 @@ Parser::parseTokenList (
 }
 
 bool
-Parser::preCreateLandingPads (uint_t flags)
-{
-	if (!flags)
-		return true;
-
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-
-	if (flags & LandingPadFlag_Catch)
-	{
-		ASSERT (!scope->m_catchBlock);
-		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
-		scope->m_flags |= ScopeFlag_CanThrow;
-	}
-
-	if (flags & LandingPadFlag_Finally)
-	{
-		ASSERT (!scope->m_finallyBlock);
-		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
-		scope->m_flags |= ScopeFlag_HasFinally;
-
-		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);		
-		Variable* variable  = m_module->m_variableMgr.createSimpleStackVariable ("finallyReturnAddr", type);
-		ASSERT (variable->m_scope == scope);
-
-		scope->m_finallyReturnAddress = variable;
-	}
-
-	return true;
-}
-
-bool
 Parser::isTypeSpecified ()
 {
 	if (m_typeSpecifierStack.isEmpty ())
@@ -2546,6 +2515,52 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 }
 
 bool
+Parser::finalizeCompoundStmt ()
+{
+	bool result;
+	
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	if (scope->m_flags & ScopeFlag_Catch)
+	{
+		result = m_module->m_controlFlowMgr.closeCatch ();
+		if (!result)
+			return false;
+	}
+	else if (scope->m_flags & ScopeFlag_Finally) 
+	{
+		result = m_module->m_controlFlowMgr.closeFinally ();
+		if (!result)
+			return false;
+	}
+	else if (scope->m_flags & ScopeFlag_Try) 
+	{
+		result = m_module->m_controlFlowMgr.closeTry ();
+		if (!result)
+			return false;
+	}
+	else
+	{
+		if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
+			m_module->m_operatorMgr.nullifyGcRootList (scope->getGcStackRootList ());
+
+		m_module->m_namespaceMgr.closeScope ();
+	}
+
+	if (scope->m_flags & ScopeFlag_Nested)
+	{
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+		ASSERT (scope && !(scope->m_flags & ScopeFlag_Nested)); // double-nested
+
+		if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
+			m_module->m_operatorMgr.nullifyGcRootList (scope->getGcStackRootList ());
+
+		m_module->m_namespaceMgr.closeScope ();
+	}
+
+	return true;
+}
+
+bool
 Parser::newOperator_0 (
 	Type* type,
 	Value* resultValue
@@ -3035,7 +3050,7 @@ Parser::appendFmtLiteralRawData (
 	size_t length
 	)
 {
-	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFunc_AppendFmtLiteral_a);
 
 	Value literalValue;
 	literalValue.setCharArray (p, length, m_module);
@@ -3070,7 +3085,7 @@ Parser::appendFmtLiteralValue (
 	if (!result)
 		return false;
 
-	StdFunction appendFunc;
+	StdFunc appendFunc;
 
 	Type* type = srcValue.getType ();
 	TypeKind typeKind = type->getTypeKind ();
@@ -3078,10 +3093,10 @@ Parser::appendFmtLiteralValue (
 
 	if (typeKindFlags & TypeKindFlag_Integer)
 	{
-		static StdFunction funcTable [2] [2] =
+		static StdFunc funcTable [2] [2] =
 		{
-			{ StdFunction_AppendFmtLiteral_i32, StdFunction_AppendFmtLiteral_ui32 },
-			{ StdFunction_AppendFmtLiteral_i64, StdFunction_AppendFmtLiteral_ui64 },
+			{ StdFunc_AppendFmtLiteral_i32, StdFunc_AppendFmtLiteral_ui32 },
+			{ StdFunc_AppendFmtLiteral_i64, StdFunc_AppendFmtLiteral_ui64 },
 		};
 
 		size_t i1 = type->getSize () > 4;
@@ -3091,15 +3106,15 @@ Parser::appendFmtLiteralValue (
 	}
 	else if (typeKindFlags & TypeKindFlag_Fp)
 	{
-		appendFunc = StdFunction_AppendFmtLiteral_f;
+		appendFunc = StdFunc_AppendFmtLiteral_f;
 	}
 	else if (typeKind == TypeKind_Variant)
 	{
-		appendFunc = StdFunction_AppendFmtLiteral_v;
+		appendFunc = StdFunc_AppendFmtLiteral_v;
 	}
 	else if (isCharArrayType (type) || isCharArrayRefType (type) || isCharPtrType (type))
 	{
-		appendFunc = StdFunction_AppendFmtLiteral_p;
+		appendFunc = StdFunc_AppendFmtLiteral_p;
 	}
 	else
 	{
@@ -3107,23 +3122,23 @@ Parser::appendFmtLiteralValue (
 		switch (stdType)
 		{
 		case StdType_String:
-			appendFunc = StdFunction_AppendFmtLiteral_s;
+			appendFunc = StdFunc_AppendFmtLiteral_s;
 			break;
 
 		case StdType_StringRef:
-			appendFunc = StdFunction_AppendFmtLiteral_sr;
+			appendFunc = StdFunc_AppendFmtLiteral_sr;
 			break;
 
 		case StdType_ConstBuffer:
-			appendFunc = StdFunction_AppendFmtLiteral_cb;
+			appendFunc = StdFunc_AppendFmtLiteral_cb;
 			break;
 
 		case StdType_ConstBufferRef:
-			appendFunc = StdFunction_AppendFmtLiteral_cbr;
+			appendFunc = StdFunc_AppendFmtLiteral_cbr;
 			break;
 
 		case StdType_BufferRef:
-			appendFunc = StdFunction_AppendFmtLiteral_br;
+			appendFunc = StdFunc_AppendFmtLiteral_br;
 			break;
 
 		default:
@@ -3171,7 +3186,7 @@ Parser::appendFmtLiteralBinValue (
 		return false;
 
 	Type* type = srcValue.getType ();
-	Function* append = m_module->m_functionMgr.getStdFunction (StdFunction_AppendFmtLiteral_a);
+	Function* append = m_module->m_functionMgr.getStdFunction (StdFunc_AppendFmtLiteral_a);
 	Type* argType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	Value sizeValue (
@@ -3238,7 +3253,7 @@ Parser::finalizeAssertStmt (
 	lineValue.setConstInt32 (pos.m_line, m_module);
 	conditionValue.setCharArray (conditionString, conditionString.getLength (), m_module);
 
-	Function* assertionFailure = m_module->m_functionMgr.getStdFunction (StdFunction_AssertionFailure);
+	Function* assertionFailure = m_module->m_functionMgr.getStdFunction (StdFunc_AssertionFailure);
 
 	rtl::BoxList <Value> argValueList;
 	argValueList.insertTail (fileNameValue);
@@ -3264,7 +3279,41 @@ Parser::finalizeAssertStmt (
 	return true;
 }
 
+void
+Parser::addScopeAnchorToken (
+	StmtPass1* stmt,
+	const Token& token
+	)
+{
+	rtl::BoxIterator <Token> it = stmt->m_tokenList.insertTail (token);
+	stmt->m_scopeAnchorToken = &*it;
+	stmt->m_scopeAnchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
+}
+
 //.............................................................................
 
 } // namespace jnc {
+
+/*
+
+bool
+Parser::preCreateLandingPads (uint_t flags)
+{
+	if (!flags)
+		return true;
+
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+
+	if (flags & LandingPadFlag_Catch)
+	{
+	}
+
+	if (flags & LandingPadFlag_Finally)
+	{
+	}
+
+	return true;
+}
+
+ */
 

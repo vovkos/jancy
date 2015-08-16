@@ -127,36 +127,4 @@ protected:
 
 //.............................................................................
 
-// structures backing up multicast, e.g.:
-// mutlicast OnFire ();
-
-struct Multicast: IfaceHdr
-{
-	volatile intptr_t m_lock;
-	size_t m_maxCount;
-	size_t m_count;
-	void* m_ptrArray; // array of function closure, weak or unsafe pointers
-	void* m_handleTable;
-
-	Function*
-	getMethod (MulticastMethodKind method)
-	{
-		return ((MulticastClassType*) m_box->m_type)->getMethod (method);
-	}
-
-	void
-	call ();
-
-	void
-	call (intptr_t a);
-
-	void
-	call (
-		intptr_t a1,
-		intptr_t a2
-		);
-};
-
-//.............................................................................
-
 } // namespace jnc {

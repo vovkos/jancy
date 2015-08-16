@@ -231,6 +231,12 @@ public:
 	}
 
 	bool
+	isVoid ()
+	{
+		return m_type->getReturnType ()->getTypeKind () == TypeKind_Void;
+	}
+
+	bool
 	isMember ()
 	{
 		return m_thisType != NULL;

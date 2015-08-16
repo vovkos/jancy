@@ -131,6 +131,7 @@ enum TokenKind
 	TokenKind_Try,
 	TokenKind_Catch,
 	TokenKind_Finally,
+	TokenKind_NestedScope,
 	TokenKind_Assert,
 
 	// pre-defined values
@@ -306,6 +307,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Try,          "try")
 	AXL_LEX_TOKEN_NAME (TokenKind_Catch,        "catch")
 	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
+	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")
 	AXL_LEX_TOKEN_NAME (TokenKind_Assert,       "assert")
 
 	// pre-defined values

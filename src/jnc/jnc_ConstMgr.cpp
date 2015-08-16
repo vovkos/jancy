@@ -58,7 +58,7 @@ ConstMgr::createConstDataPtrValidator (
 	)
 {
 	ConstDataPtrValidatorEntry* entry = AXL_MEM_NEW (ConstDataPtrValidatorEntry);
-	entry->m_box.m_flags = BoxFlag_StaticData | BoxFlag_StrongMark | BoxFlag_WeakMark;
+	entry->m_box.m_flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
 	entry->m_box.m_type = type;
 	entry->m_validator.m_validatorBox = &entry->m_box;
 	entry->m_validator.m_targetBox = &entry->m_box;

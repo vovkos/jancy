@@ -157,7 +157,6 @@ ReactorClassType::subscribe (const rtl::ConstList <Reaction>& reactionList)
 	return true;
 }
 
-
 bool
 ReactorClassType::callStopMethod ()
 {

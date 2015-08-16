@@ -84,7 +84,8 @@ bool
 ControlFlowMgr::switchStmt_Case (
 	SwitchStmt* stmt,
 	intptr_t value,
-	const Token::Pos& pos
+	const Token::Pos& pos,
+	uint_t scopeFlags
 	)
 {
 	rtl::HashTableMapIterator <intptr_t, BasicBlock*> it = stmt->m_caseMap.visit (value);
@@ -109,7 +110,8 @@ ControlFlowMgr::switchStmt_Case (
 bool
 ControlFlowMgr::switchStmt_Default (
 	SwitchStmt* stmt,
-	const Token::Pos& pos
+	const Token::Pos& pos,
+	uint_t scopeFlags
 	)
 {
 	if (stmt->m_defaultBlock)

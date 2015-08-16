@@ -9,7 +9,7 @@ class MyLib: public jnc::StdLib
 {
 public:
 	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunction_Printf,  &stdPrintf)
+		JNC_STD_FUNCTION (jnc::StdFunc_Printf,  &stdPrintf)
 		JNC_FUNCTION ("foo",  &foo_0)
 		JNC_OVERLOAD (&foo_1)
 		JNC_OVERLOAD (&foo_2)

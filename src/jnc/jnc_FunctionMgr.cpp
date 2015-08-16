@@ -47,7 +47,7 @@ FunctionMgr::callStaticConstructors ()
 {
 	bool result;
 
-	Function* addDestructor = getStdFunction (StdFunction_AddStaticDestructor);
+	Function* addDestructor = getStdFunction (StdFunc_AddStaticDestructor);
 	Type* dtorType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	size_t count = m_staticConstructArray.getCount ();
@@ -240,7 +240,14 @@ FunctionMgr::prologue (
 	function->getType ()->getCallConv ()->createArgVariables (function);
 
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
-	m_module->m_operatorMgr.gcSafePoint (); // first thing in body block
+
+	uint_t compileFlags = m_module->getCompileFlags ();
+
+	if (compileFlags & ModuleCompileFlag_CheckStackOverflowInPrologue)
+		m_module->m_operatorMgr.checkStackOverflow ();
+
+	if (compileFlags & ModuleCompileFlag_GcSafePointInPrologue)
+		m_module->m_operatorMgr.gcSafePoint ();
 
 	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
@@ -443,7 +450,14 @@ FunctionMgr::internalPrologue (
 	}
 
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
-	m_module->m_operatorMgr.gcSafePoint (); // first thing in body block
+
+	uint_t compileFlags = m_module->getCompileFlags ();
+
+	if (compileFlags & ModuleCompileFlag_CheckStackOverflowInInternalPrologue)
+		m_module->m_operatorMgr.checkStackOverflow ();
+
+	if (compileFlags & ModuleCompileFlag_GcSafePointInInternalPrologue)
+		m_module->m_operatorMgr.gcSafePoint ();
 }
 
 void
@@ -657,7 +671,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
 	m_module->m_llvmIrBuilder.setInsertPoint (block->getLlvmBlock ()->begin ());
 
-	Function* getTls = getStdFunction (StdFunction_GetTls);
+	Function* getTls = getStdFunction (StdFunc_GetTls);
 	
 	Value tlsValue;
 	m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
@@ -731,9 +745,9 @@ FunctionMgr::jitFunctions ()
 }
 
 Function*
-FunctionMgr::getStdFunction (StdFunction func)
+FunctionMgr::getStdFunction (StdFunc func)
 {
-	ASSERT ((size_t) func < StdFunction__Count);
+	ASSERT ((size_t) func < StdFunc__Count);
 
 	if (m_stdFunctionArray [func])
 		return m_stdFunctionArray [func];
@@ -750,7 +764,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 	switch (func)
 	{
-	case StdFunction_PrimeStaticClass:
+	case StdFunc_PrimeStaticClass:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
 		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -758,35 +772,35 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.primeStaticClass", functionType);
 		break;
 
-	case StdFunction_TryAllocateClass:
+	case StdFunc_TryAllocateClass:
 		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateClass", functionType);
 		break;
 
-	case StdFunction_AllocateClass:
+	case StdFunc_AllocateClass:
 		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateClass", functionType);
 		break;
 
-	case StdFunction_TryAllocateData:
+	case StdFunc_TryAllocateData:
 		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateData", functionType);
 		break;
 
-	case StdFunction_AllocateData:
+	case StdFunc_AllocateData:
 		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateData", functionType);
 		break;
 
-	case StdFunction_TryAllocateArray:
+	case StdFunc_TryAllocateArray:
 		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -794,7 +808,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateArray", functionType);
 		break;
 
-	case StdFunction_AllocateArray:
+	case StdFunc_AllocateArray:
 		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -802,7 +816,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.allocateArray", functionType);
 		break;
 
-	case StdFunction_CreateDataPtrValidator:
+	case StdFunc_CreateDataPtrValidator:
 		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
 		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -811,7 +825,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.createDataPtrValidator", functionType);
 		break;
 
-	case StdFunction_TryCheckDataPtrRangeIndirect:
+	case StdFunc_TryCheckDataPtrRangeIndirect:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -820,7 +834,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.tryCheckDataPtrRangeIndirect", functionType);
 		break;
 
-	case StdFunction_CheckDataPtrRangeIndirect:
+	case StdFunc_CheckDataPtrRangeIndirect:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -829,7 +843,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 		function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRangeIndirect", functionType);
 		break;
 
-	case StdFunction_LlvmMemcpy:
+	case StdFunc_LlvmMemcpy:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -849,7 +863,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 			);
 		break;
 
-	case StdFunction_LlvmMemmove:
+	case StdFunc_LlvmMemmove:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
@@ -869,7 +883,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 			);
 		break;
 
-	case StdFunction_LlvmMemset:
+	case StdFunc_LlvmMemset:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8);
@@ -889,27 +903,27 @@ FunctionMgr::getStdFunction (StdFunction func)
 
 		break;
 
-	case StdFunction_GetTls:
+	case StdFunc_GetTls:
 		returnType = m_module->m_variableMgr.getTlsStructType ()->getDataPtrType (DataPtrTypeKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
 		break;
 
-	case StdFunction_StrLen:
-	case StdFunction_StrCmp:
-	case StdFunction_StriCmp:
-	case StdFunction_StrChr:
-	case StdFunction_StrCat:
-	case StdFunction_StrDup:
-	case StdFunction_MemCmp:
-	case StdFunction_MemChr:
-	case StdFunction_MemCpy:
-	case StdFunction_MemSet:
-	case StdFunction_MemCat:
-	case StdFunction_MemDup:
-	case StdFunction_Rand:
-	case StdFunction_Printf:
-	case StdFunction_Atoi:
+	case StdFunc_StrLen:
+	case StdFunc_StrCmp:
+	case StdFunc_StriCmp:
+	case StdFunc_StrChr:
+	case StdFunc_StrCat:
+	case StdFunc_StrDup:
+	case StdFunc_MemCmp:
+	case StdFunc_MemChr:
+	case StdFunc_MemCpy:
+	case StdFunc_MemSet:
+	case StdFunc_MemCat:
+	case StdFunc_MemDup:
+	case StdFunc_Rand:
+	case StdFunc_Printf:
+	case StdFunc_Atoi:
 #if (_AXL_ENV == AXL_ENV_POSIX)
 		ASSERT (sourceTable [func].m_p);
 		function = parseStdFunction (
@@ -923,44 +937,45 @@ FunctionMgr::getStdFunction (StdFunction func)
 		break;
 #endif
 
-	case StdFunction_DynamicSizeOf:
-	case StdFunction_DynamicCountOf:
-	case StdFunction_DynamicCastDataPtr:
-	case StdFunction_DynamicCastClassPtr:
-	case StdFunction_DynamicCastVariant:
-	case StdFunction_StrengthenClassPtr:
-	case StdFunction_CollectGarbage:
-	case StdFunction_CreateThread:
-	case StdFunction_Sleep:
-	case StdFunction_GetTimestamp:
-	case StdFunction_GetCurrentThreadId:
-	case StdFunction_Throw:
-	case StdFunction_GetLastError:
-	case StdFunction_SetPosixError:
-	case StdFunction_SetStringError:
-	case StdFunction_AssertionFailure:
-	case StdFunction_AddStaticDestructor:
-	case StdFunction_AddStaticClassDestructor:
-	case StdFunction_Format:
-	case StdFunction_AppendFmtLiteral_a:
-	case StdFunction_AppendFmtLiteral_p:
-	case StdFunction_AppendFmtLiteral_i32:
-	case StdFunction_AppendFmtLiteral_ui32:
-	case StdFunction_AppendFmtLiteral_i64:
-	case StdFunction_AppendFmtLiteral_ui64:
-	case StdFunction_AppendFmtLiteral_f:
-	case StdFunction_AppendFmtLiteral_v:
-	case StdFunction_AppendFmtLiteral_s:
-	case StdFunction_AppendFmtLiteral_sr:
-	case StdFunction_AppendFmtLiteral_cb:
-	case StdFunction_AppendFmtLiteral_cbr:
-	case StdFunction_AppendFmtLiteral_br:
-	case StdFunction_TryCheckDataPtrRangeDirect:
-	case StdFunction_CheckDataPtrRangeDirect:
-	case StdFunction_TryCheckNullPtr:
-	case StdFunction_CheckNullPtr:
-	case StdFunction_TryLazyGetLibraryFunction:
-	case StdFunction_LazyGetLibraryFunction:
+	case StdFunc_DynamicSizeOf:
+	case StdFunc_DynamicCountOf:
+	case StdFunc_DynamicCastDataPtr:
+	case StdFunc_DynamicCastClassPtr:
+	case StdFunc_DynamicCastVariant:
+	case StdFunc_StrengthenClassPtr:
+	case StdFunc_CollectGarbage:
+	case StdFunc_CreateThread:
+	case StdFunc_Sleep:
+	case StdFunc_GetTimestamp:
+	case StdFunc_GetCurrentThreadId:
+	case StdFunc_Throw:
+	case StdFunc_GetLastError:
+	case StdFunc_SetPosixError:
+	case StdFunc_SetStringError:
+	case StdFunc_AssertionFailure:
+	case StdFunc_AddStaticDestructor:
+	case StdFunc_AddStaticClassDestructor:
+	case StdFunc_Format:
+	case StdFunc_AppendFmtLiteral_a:
+	case StdFunc_AppendFmtLiteral_p:
+	case StdFunc_AppendFmtLiteral_i32:
+	case StdFunc_AppendFmtLiteral_ui32:
+	case StdFunc_AppendFmtLiteral_i64:
+	case StdFunc_AppendFmtLiteral_ui64:
+	case StdFunc_AppendFmtLiteral_f:
+	case StdFunc_AppendFmtLiteral_v:
+	case StdFunc_AppendFmtLiteral_s:
+	case StdFunc_AppendFmtLiteral_sr:
+	case StdFunc_AppendFmtLiteral_cb:
+	case StdFunc_AppendFmtLiteral_cbr:
+	case StdFunc_AppendFmtLiteral_br:
+	case StdFunc_TryCheckDataPtrRangeDirect:
+	case StdFunc_CheckDataPtrRangeDirect:
+	case StdFunc_TryCheckNullPtr:
+	case StdFunc_CheckNullPtr:
+	case StdFunc_CheckStackOverflow:
+	case StdFunc_TryLazyGetLibraryFunction:
+	case StdFunc_LazyGetLibraryFunction:
 		source = getStdFunctionSource (func);
 			
 		ASSERT (source->m_p);
@@ -971,7 +986,7 @@ FunctionMgr::getStdFunction (StdFunction func)
 			);
 		break;
 
-	case StdFunction_SimpleMulticastCall:
+	case StdFunc_SimpleMulticastCall:
 		function = ((MulticastClassType*) m_module->m_typeMgr.getStdType (StdType_SimpleMulticast))->getMethod (MulticastMethodKind_Call);
 		break;
 
@@ -1033,9 +1048,9 @@ FunctionMgr::parseStdFunction (
 }
 
 LazyStdFunction*
-FunctionMgr::getLazyStdFunction (StdFunction func)
+FunctionMgr::getLazyStdFunction (StdFunc func)
 {
-	ASSERT ((size_t) func < StdFunction__Count);
+	ASSERT ((size_t) func < StdFunc__Count);
 
 	if (m_lazyStdFunctionArray [func])
 		return m_lazyStdFunctionArray [func];

@@ -43,13 +43,14 @@ AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
 enum BoxFlag
 {
 	BoxFlag_WeakMark        = 0x01,
-	BoxFlag_WeakMarkClosure = 0x02,
-	BoxFlag_StrongMark      = 0x04,
-	BoxFlag_Zombie          = 0x08,
-	BoxFlag_StaticData      = 0x10,
-	BoxFlag_DynamicArray    = 0x20,
+	BoxFlag_ClosureWeakMark = 0x02,
+	BoxFlag_DataMark        = 0x04,
+	BoxFlag_ClassMark       = 0x08,
+	BoxFlag_Zombie          = 0x10,
+	BoxFlag_StaticData      = 0x20,
+	BoxFlag_DynamicArray    = 0x40,
 
-	BoxFlag_MarkMask        = 0x07,
+	BoxFlag_MarkMask        = 0x0f,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -162,6 +163,71 @@ struct PropertyPtr
 
 //.............................................................................
 
+enum VariantField
+{
+	VariantField_Data1,
+	VariantField_Data2,
+#if (_AXL_PTR_SIZE == 4)
+	VariantField_Padding,
+#endif
+	VariantField_Type,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// structure backing up variants, e.g.:
+// variant v;
+
+struct Variant
+{
+	union 
+	{
+		int8_t m_int8;
+		uint8_t m_uint8;
+		int16_t m_int16;
+		uint16_t m_uint16;
+		int32_t m_int32;
+		uint32_t m_uint32;
+		int64_t m_int64;
+		uint64_t m_uint64;
+		intptr_t m_intptr;
+		uintptr_t m_uintptr;
+
+		float m_float;
+		double m_double;
+
+		void* m_p;
+		IfaceHdr* m_classPtr;
+		DataPtr m_dataPtr;
+		FunctionPtr m_functionPtr;
+		PropertyPtr m_propertyPtr;
+	};
+
+#if (_AXL_PTR_SIZE == 4)
+	char m_padding [4]; // ensure the same layout regardless of pack factor
+#endif
+
+	Type* m_type;
+};
+
+AXL_SELECT_ANY Variant g_nullVariant = { 0 };
+
+//.............................................................................
+
+// structures backing up multicast, e.g.:
+// mutlicast OnFire ();
+
+struct Multicast: IfaceHdr
+{
+	volatile intptr_t m_lock;
+	size_t m_maxCount;
+	size_t m_count;
+	void* m_ptrArray; // array of function closure, weak or unsafe pointers
+	void* m_handleTable;
+};
+
+//.............................................................................
+
 // multicast snapshot returns function pointer with this closure:
 
 struct McSnapshot: IfaceHdr
@@ -169,7 +235,6 @@ struct McSnapshot: IfaceHdr
 	size_t m_count;
 	void* m_ptrArray; // array of function closure or unsafe pointers
 };
-
 
 //.............................................................................
 
@@ -216,7 +281,8 @@ struct GcShadowStackFrame
 struct GcMutatorThread: rtl::ListLink
 {
 	uint64_t m_threadId;
-	size_t m_enterSafeRegionCount;
+	size_t m_waitRegionLevel;
+	size_t m_noCollectRegionLevel;
 	DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	DataPtrValidator* m_dataPtrValidatorPoolEnd;
 };

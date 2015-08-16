@@ -22,11 +22,23 @@ class Module;
 
 //.............................................................................
 
-enum ModuleFlag
+enum ModuleCompileFlag
 {
-	ModuleFlag_DebugInfo  = 0x0001,
-	ModuleFlag_IrComments = 0x0002,
-	ModuleFlag_McJit      = 0x0004,
+	ModuleCompileFlag_DebugInfo = 0x0001,
+	ModuleCompileFlag_McJit     = 0x0002,
+
+	ModuleCompileFlag_GcSafePointInPrologue                = 0x0010,
+	ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x0020,
+	ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x0040,
+	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x0080,
+
+	ModuleCompileFlag_StdFlags = 
+		ModuleCompileFlag_GcSafePointInPrologue | 
+		ModuleCompileFlag_GcSafePointInInternalPrologue |
+		ModuleCompileFlag_CheckStackOverflowInPrologue 
+#if (_AXL_ENV == AXL_ENV_POSIX)
+		| ModuleCompileFlag_McJit
+#endif
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -78,7 +90,7 @@ class Module: public PreModule
 protected:
 	rtl::String m_name;
 
-	uint_t m_flags;
+	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
 
 	rtl::BoxList <rtl::String> m_importList;
@@ -127,9 +139,9 @@ public:
 	}
 
 	uint_t
-	getFlags ()
+	getCompileFlags ()
 	{
-		return m_flags;
+		return m_compileFlags;
 	}
 
 	ModuleCompileState
@@ -190,7 +202,7 @@ public:
 	void
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
-		StdFunction funcKind,
+		StdFunc funcKind,
 		void* p
 		)
 	{
@@ -330,7 +342,7 @@ public:
 	bool
 	create (
 		const rtl::String& name,
-		uint_t flags = 0
+		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
 	bool

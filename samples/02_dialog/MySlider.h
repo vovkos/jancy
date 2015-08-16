@@ -8,7 +8,7 @@ class MySlider: public MyWidget
 {
 public:
 	JNC_BEGIN_CLASS ("Slider", ApiSlot_Slider)
-		JNC_OPAQUE_CLASS (MySlider, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MySlider, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_AUTOGET_PROPERTY ("m_minimum", &MySlider::setMinimum)
 		JNC_AUTOGET_PROPERTY ("m_maximum", &MySlider::setMaximum)
@@ -26,23 +26,16 @@ public:
 	QtSignalBridge* m_onValueChangedBridge;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MySlider* self
+	construct (
+		int minimum,
+		int maximum
 		);
 
 	static 
 	MySlider*
 	operatorNew (
 		jnc::ClassType* type,
-		int minimum,
-		int maximum
-		);
-
-	void
-	construct (
 		int minimum,
 		int maximum
 		);

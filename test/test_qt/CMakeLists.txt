@@ -164,6 +164,7 @@ endif ()
 include_directories (
 	${LLVM_INC_DIR}
 	${LLVM_INC_DIR_2}
+	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
@@ -172,6 +173,7 @@ include_directories (
 link_directories (
 	${AXL_LIB_DIR}
 	${LLVM_LIB_DIR}
+	${PCAP_LIB_DIR}
 	)
 
 add_executable (

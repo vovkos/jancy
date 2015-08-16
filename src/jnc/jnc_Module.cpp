@@ -11,7 +11,7 @@ Module::Module ()
 {
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
-	m_flags = 0;
+	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 
 	finalizeConstruction ();
@@ -51,19 +51,19 @@ Module::clear ()
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 
-	m_flags = 0;
+	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 }
 
 bool
 Module::create (
 	const rtl::String& name,
-	uint_t flags
+	uint_t compileFlags
 	)
 {
 	clear ();
 
-	m_flags = flags;
+	m_compileFlags = compileFlags;
 	m_name = name;
 
 	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
@@ -71,7 +71,7 @@ Module::create (
 	
 	m_llvmIrBuilder.create ();
 
-	if (flags & ModuleFlag_DebugInfo)
+	if (compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
 
 	bool result = m_namespaceMgr.addStdItems ();
@@ -115,7 +115,7 @@ Module::createLlvmExecutionEngine ()
 	targetOptions.JITExceptionHandling = true;
 #endif
 
-	if (m_flags & ModuleFlag_McJit)
+	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
 		engineBuilder.setUseMCJIT (true);
@@ -174,7 +174,7 @@ Module::mapFunction (
 {
 	llvm::Function* llvmFunction = function->getLlvmFunction ();
 
-	if (m_flags & ModuleFlag_McJit)
+	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		rtl::StringHashTableMapIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
 		ASSERT (!it->m_value); // mapped twice?
@@ -558,7 +558,7 @@ Module::compile ()
 
 	// step 8: finalize debug information
 
-	if (m_flags & ModuleFlag_DebugInfo)
+	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.finalize ();
 
 	m_compileState = ModuleCompileState_Compiled;
@@ -569,11 +569,9 @@ Module::compile ()
 bool
 Module::jit ()
 {
-	#pragma AXL_TODO ("move JITting logic to CModule")
+	#pragma AXL_TODO ("move JITting logic to Module")
 
 	ASSERT (m_compileState = ModuleCompileState_Compiled);
-
-	mt::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
 
 	m_compileState = ModuleCompileState_Jitting;
 	bool result = m_functionMgr.jitFunctions ();

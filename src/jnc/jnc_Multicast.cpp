@@ -7,71 +7,20 @@ namespace jnc {
 
 //.............................................................................
 
-void
-Multicast::call ()
+MulticastImpl::~MulticastImpl ()
 {
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (jnc::Multicast*);
+	dbg::trace ("MulticastImpl::~MulticastImpl (%x)\n", this);
 
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this);
-}
-
-void
-Multicast::call (intptr_t a)
-{
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (
-		jnc::Multicast*, 
-		intptr_t
-		);
-
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this, a);
-}
-
-void
-Multicast::call (
-	intptr_t a1,
-	intptr_t a2
-	)
-{
-	jnc::Function* method = getMethod (jnc::MulticastMethodKind_Call);
-	
-	typedef 
-	void 
-	CallFunc (
-		jnc::Multicast*, 
-		intptr_t,
-		intptr_t
-		);
-
-	CallFunc* p = (CallFunc*) method->getMachineCode ();
-	p (this, a1, a2);	
-}
-
-//.............................................................................
-
-void
-MulticastImpl::destruct ()
-{
 	if (m_handleTable)
-	{
 		AXL_MEM_DELETE ((rtl::HandleTable <size_t>*) m_handleTable);
-		m_handleTable = NULL;
-	}
 
 	if (m_ptrArray)
-	{
 		AXL_MEM_FREE (m_ptrArray);
-		m_handleTable = NULL;
-	}
+
+	m_handleTable = NULL;
+	m_ptrArray = NULL;
+	m_count = 0;
+	m_maxCount = 0;
 }
 
 void
@@ -143,12 +92,6 @@ MulticastImpl::setCount (
 	return true;
 }
 
-struct McSnapshotObject:
-	Box,
-	McSnapshot
-{
-};
-
 FunctionPtr
 MulticastImpl::getSnapshot ()
 {
@@ -158,11 +101,7 @@ MulticastImpl::getSnapshot ()
 	ASSERT (isClassType (m_box->m_type, ClassTypeKind_Multicast));
 	MulticastClassType* multicastType = (MulticastClassType*) m_box->m_type;
 	McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
-
-	McSnapshotObject* snapshot = AXL_MEM_NEW (McSnapshotObject);
-	snapshot->m_box = snapshot;
-	snapshot->m_type = snapshotType;
-	snapshot->m_flags = 0;
+	McSnapshot* snapshot = (McSnapshot*) runtime->m_gcHeap.allocateClass (snapshotType);
 
 	size_t size = multicastType->getTargetType ()->getSize () * m_count;
 	if (size)
@@ -196,8 +135,8 @@ MulticastImpl::getSnapshot ()
 	}
 
 	FunctionPtr ptr = { 0 };
-	ptr.m_closure = snapshot;
 	ptr.m_p = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
+	ptr.m_closure = snapshot;
 
 	ASSERT (ptr.m_p);
 	return ptr;
@@ -205,14 +144,15 @@ MulticastImpl::getSnapshot ()
 
 //.............................................................................
 
-void 
-McSnapshotImpl::destruct ()
+McSnapshotImpl::~McSnapshotImpl ()
 {
+	dbg::trace ("McSnapshotImpl::~McSnapshotImpl (%x)\n", this);
+
 	if (m_ptrArray)
-	{
 		AXL_MEM_FREE (m_ptrArray);
-		m_ptrArray = NULL;
-	}
+
+	m_ptrArray = NULL;
+	m_count = 0;
 }
 
 //.............................................................................

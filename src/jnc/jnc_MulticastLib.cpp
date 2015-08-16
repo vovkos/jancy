@@ -27,13 +27,13 @@ MulticastLib::mapFunctions (Module* module)
 void
 MulticastLib::multicastDestruct (Multicast* multicast)
 {
-	return ((MulticastImpl*) multicast)->destruct ();
+	((MulticastImpl*) multicast)->~MulticastImpl ();
 }
 
 void
 MulticastLib::mcSnapshotDestruct (McSnapshot* mcSnapshot)
 {
-	return ((McSnapshotImpl*) mcSnapshot)->destruct ();
+	((McSnapshotImpl*) mcSnapshot)->~McSnapshotImpl ();
 }
 
 void

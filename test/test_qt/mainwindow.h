@@ -147,7 +147,7 @@ class StdLib: public jnc::StdLib
 {
 public:
 	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunction_Printf, &printf)
+		JNC_STD_FUNCTION (jnc::StdFunc_Printf, &printf)
 //		JNC_TYPE (TestClassA)
 //		JNC_TYPE (TestClassB)
 //		JNC_TYPE (TestStruct)

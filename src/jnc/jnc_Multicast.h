@@ -10,8 +10,7 @@ namespace jnc {
 class MulticastImpl: public Multicast
 {
 public:
-	void
-	destruct ();
+	~MulticastImpl ();
 
 	void
 	clear ();
@@ -117,8 +116,7 @@ protected:
 class McSnapshotImpl: public McSnapshot
 {
 public:
-	void 
-	destruct ();
+	~McSnapshotImpl ();
 };
 
 //.............................................................................

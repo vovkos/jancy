@@ -11,90 +11,91 @@ namespace jnc {
 
 //.............................................................................
 
-enum StdFunction
+enum StdFunc
 {
-	StdFunction_DynamicSizeOf,
-	StdFunction_DynamicCountOf,
-	StdFunction_DynamicCastDataPtr,
-	StdFunction_DynamicCastClassPtr,
-	StdFunction_DynamicCastVariant,
-	StdFunction_StrengthenClassPtr,
+	StdFunc_DynamicSizeOf,
+	StdFunc_DynamicCountOf,
+	StdFunc_DynamicCastDataPtr,
+	StdFunc_DynamicCastClassPtr,
+	StdFunc_DynamicCastVariant,
+	StdFunc_StrengthenClassPtr,
 	
-	StdFunction_PrimeStaticClass,	
-	StdFunction_TryAllocateClass,
-	StdFunction_AllocateClass,
-	StdFunction_TryAllocateData,
-	StdFunction_AllocateData,
-	StdFunction_TryAllocateArray,
-	StdFunction_AllocateArray,
-	StdFunction_CreateDataPtrValidator,
+	StdFunc_PrimeStaticClass,	
+	StdFunc_TryAllocateClass,
+	StdFunc_AllocateClass,
+	StdFunc_TryAllocateData,
+	StdFunc_AllocateData,
+	StdFunc_TryAllocateArray,
+	StdFunc_AllocateArray,
+	StdFunc_CreateDataPtrValidator,
 
-	StdFunction_CollectGarbage,
-	StdFunction_GetCurrentThreadId,
-	StdFunction_CreateThread,
-	StdFunction_Sleep,
-	StdFunction_GetTimestamp,
-	StdFunction_Format,
-	StdFunction_StrLen,
-	StdFunction_StrCmp,
-	StdFunction_StriCmp,
-	StdFunction_StrChr,
-	StdFunction_StrCat,
-	StdFunction_StrDup,
-	StdFunction_MemCmp,
-	StdFunction_MemChr,
-	StdFunction_MemCpy,
-	StdFunction_MemSet,
-	StdFunction_MemCat,
-	StdFunction_MemDup,
-	StdFunction_Rand,
-	StdFunction_Printf,
-	StdFunction_Atoi,
-	StdFunction_GetTls,
+	StdFunc_CollectGarbage,
+	StdFunc_GetCurrentThreadId,
+	StdFunc_CreateThread,
+	StdFunc_Sleep,
+	StdFunc_GetTimestamp,
+	StdFunc_Format,
+	StdFunc_StrLen,
+	StdFunc_StrCmp,
+	StdFunc_StriCmp,
+	StdFunc_StrChr,
+	StdFunc_StrCat,
+	StdFunc_StrDup,
+	StdFunc_MemCmp,
+	StdFunc_MemChr,
+	StdFunc_MemCpy,
+	StdFunc_MemSet,
+	StdFunc_MemCat,
+	StdFunc_MemDup,
+	StdFunc_Rand,
+	StdFunc_Printf,
+	StdFunc_Atoi,
+	StdFunc_GetTls,
 
-	StdFunction_AppendFmtLiteral_a,
-	StdFunction_AppendFmtLiteral_p,
-	StdFunction_AppendFmtLiteral_i32,
-	StdFunction_AppendFmtLiteral_ui32,
-	StdFunction_AppendFmtLiteral_i64,
-	StdFunction_AppendFmtLiteral_ui64,
-	StdFunction_AppendFmtLiteral_f,
-	StdFunction_AppendFmtLiteral_v,
-	StdFunction_AppendFmtLiteral_s,
-	StdFunction_AppendFmtLiteral_sr,
-	StdFunction_AppendFmtLiteral_cb,
-	StdFunction_AppendFmtLiteral_cbr,
-	StdFunction_AppendFmtLiteral_br,
+	StdFunc_AppendFmtLiteral_a,
+	StdFunc_AppendFmtLiteral_p,
+	StdFunc_AppendFmtLiteral_i32,
+	StdFunc_AppendFmtLiteral_ui32,
+	StdFunc_AppendFmtLiteral_i64,
+	StdFunc_AppendFmtLiteral_ui64,
+	StdFunc_AppendFmtLiteral_f,
+	StdFunc_AppendFmtLiteral_v,
+	StdFunc_AppendFmtLiteral_s,
+	StdFunc_AppendFmtLiteral_sr,
+	StdFunc_AppendFmtLiteral_cb,
+	StdFunc_AppendFmtLiteral_cbr,
+	StdFunc_AppendFmtLiteral_br,
 	
-	StdFunction_SimpleMulticastCall,
-	StdFunction_Throw,
-	StdFunction_GetLastError,
-	StdFunction_SetPosixError,
-	StdFunction_SetStringError,
-	StdFunction_AssertionFailure,
-	StdFunction_AddStaticDestructor,
-	StdFunction_AddStaticClassDestructor,
-	StdFunction_TryCheckDataPtrRangeDirect,
-	StdFunction_CheckDataPtrRangeDirect,
-	StdFunction_TryCheckDataPtrRangeIndirect,
-	StdFunction_CheckDataPtrRangeIndirect,
-	StdFunction_TryCheckNullPtr,
-	StdFunction_CheckNullPtr,
-	StdFunction_TryLazyGetLibraryFunction,
-	StdFunction_LazyGetLibraryFunction,
-	StdFunction_LlvmMemcpy,
-	StdFunction_LlvmMemmove,
-	StdFunction_LlvmMemset,
-	StdFunction__Count
+	StdFunc_SimpleMulticastCall,
+	StdFunc_Throw,
+	StdFunc_GetLastError,
+	StdFunc_SetPosixError,
+	StdFunc_SetStringError,
+	StdFunc_AssertionFailure,
+	StdFunc_AddStaticDestructor,
+	StdFunc_AddStaticClassDestructor,
+	StdFunc_TryCheckDataPtrRangeDirect,
+	StdFunc_CheckDataPtrRangeDirect,
+	StdFunc_TryCheckDataPtrRangeIndirect,
+	StdFunc_CheckDataPtrRangeIndirect,
+	StdFunc_TryCheckNullPtr,
+	StdFunc_CheckNullPtr,
+	StdFunc_CheckStackOverflow,
+	StdFunc_TryLazyGetLibraryFunction,
+	StdFunc_LazyGetLibraryFunction,
+	StdFunc_LlvmMemcpy,
+	StdFunc_LlvmMemmove,
+	StdFunc_LlvmMemset,
+	StdFunc__Count
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-getStdFunctionName (StdFunction stdFunction);
+getStdFunctionName (StdFunc stdFunction);
 
 const StdItemSource*
-getStdFunctionSource (StdFunction stdFunction);
+getStdFunctionSource (StdFunc stdFunction);
 
 //.............................................................................
 
@@ -103,12 +104,12 @@ class LazyStdFunction: public LazyModuleItem
 	friend class FunctionMgr;
 
 protected:
-	StdFunction m_func;
+	StdFunc m_func;
 
 public:
 	LazyStdFunction ()
 	{
-		m_func = (StdFunction) -1;
+		m_func = (StdFunc) -1;
 	}
 
 	virtual

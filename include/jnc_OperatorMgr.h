@@ -1033,6 +1033,9 @@ public:
 	void
 	gcSafePoint ();
 
+	void
+	checkStackOverflow ();
+
 	// closure operators
 
 	Type*
@@ -1513,8 +1516,8 @@ public:
 
 	void
 	checkPtr (
-		StdFunction stdTryCheckFunction,
-		StdFunction stdCheckFunction,
+		StdFunc stdTryCheckFunction,
+		StdFunc stdCheckFunction,
 		const Value* argValueArray,
 		size_t argCount
 		);

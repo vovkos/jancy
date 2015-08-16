@@ -37,6 +37,7 @@ local_declaration
 	|	named_type_specifier
 	|	catch_label
 	|	finally_label
+	|	nested_scope_label
 	;
 
 //.............................................................................
@@ -199,6 +200,10 @@ local_item_declaration
 	{
 		preDeclaration ();
 	}
+	leave
+	{
+		m_module->m_operatorMgr.nullifyTmpStackGcRootList ();
+	}
 	:	item_declaration_w_specifier
 	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
 		item_declaration_wo_specifier
@@ -270,39 +275,51 @@ declaration_body_pass1
 	:	compound_stmt_pass1 <&$.m_tokenList>
 	;
 
-class
-{
-	Token* m_anchorToken;
-}
 compound_stmt_pass1 <rtl::BoxList <Token>* $tokenList>
-	:	'{' $l
+	local
+	{
+		StmtPass1 $stmt;
+	}
+	:	'{'
 			{
-				$.m_anchorToken = &*$tokenList->insertTail ($l);
-				$.m_anchorToken->m_data.m_integer = 0; // tokens can be reused, ensure cleanup
+				addScopeAnchorToken (&$stmt, $1);
 			}
-		statement_pass1 <$tokenList, $.m_anchorToken>*
+		statement_pass1 <&$stmt>*
 		'}' $r
 			{
+				$tokenList->insertListTail (&$stmt.m_tokenList);
 				$tokenList->insertTail ($r);
 			}
 	;
 
 noast
-statement_pass1 <rtl::BoxList <Token>* $tokenList, Token* $anchorToken>
-	:	compound_stmt_pass1 <$tokenList>
+statement_pass1 <StmtPass1* $stmt>
+	:	compound_stmt_pass1 <&(*$stmt).m_tokenList>
 	|	TokenKind_Catch
 			{
-				$tokenList->insertTail ($1);
-				$anchorToken->m_data.m_integer |= LandingPadFlag_Catch;
+				$stmt->m_tokenList.insertTail ($1);
+				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_CanThrow;
 			}
 	|	TokenKind_Finally
 			{
-				$tokenList->insertTail ($1);
-				$anchorToken->m_data.m_integer |= LandingPadFlag_Finally;
+				$stmt->m_tokenList.insertTail ($1);
+				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
+			}
+	|	TokenKind_NestedScope
+			{
+				addScopeAnchorToken ($stmt, $1);
+			}
+	|	TokenKind_Case
+			{
+				addScopeAnchorToken ($stmt, $1);
+			}
+	|	TokenKind_Default
+			{
+				addScopeAnchorToken ($stmt, $1);
 			}
 	|	any
 			{
-				$tokenList->insertTail ($1);
+				$stmt->m_tokenList.insertTail ($1);
 			}
 	;
 

@@ -480,13 +480,13 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	uint_t ModuleFlags = jnc::ModuleFlag_DebugInfo | jnc::ModuleFlag_McJit;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
 #else
-	uint_t ModuleFlags = 0;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
 #endif
 
 	QByteArray filePath = child->file().toUtf8 ();
-	m_module.create (filePath.data(), ModuleFlags);
+	m_module.create (filePath.data(), compileFlags);
 
 	writeOutput("Parsing...\n");
 
@@ -571,6 +571,8 @@ MainWindow::run ()
 		return false;
 	}
 
+	OutputDebugStringA ("MainWindow::before shutdown...\n");
+
 	int returnValue;
 	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue);
 	if (!result)
@@ -579,7 +581,11 @@ MainWindow::run ()
 		return false;
 	}
 
+	OutputDebugStringA ("MainWindow::before shutdown...\n");
+
 	m_runtime.shutdown ();
+
+	OutputDebugStringA ("MainWindow::after shutdown...\n");
 
 	writeOutput ("Done (retval = %d).\n", returnValue);
 	return true;

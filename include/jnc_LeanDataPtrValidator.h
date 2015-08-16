@@ -65,6 +65,16 @@ public:
 
 	Value 
 	getValidatorValue ();
+
+protected:
+	void
+	createValidator ();
+
+	void
+	createValidator (const Value& boxValue);
+
+	void
+	createClassFieldValidator ();
 };
 
 //.............................................................................

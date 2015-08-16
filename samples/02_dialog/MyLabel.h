@@ -8,7 +8,7 @@ class MyLabel: public MyWidget
 {
 public:
 	JNC_BEGIN_CLASS ("Label", ApiSlot_Label)
-		JNC_OPAQUE_CLASS (MyLabel, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MyLabel, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
 		JNC_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
@@ -26,12 +26,8 @@ public:
 	QLabel* m_qtLabel;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MyLabel* self
-		);
+	construct (jnc::DataPtr textPtr);
 
 	static 
 	MyLabel*
@@ -39,9 +35,6 @@ public:
 		jnc::ClassType* type,
 		jnc::DataPtr textPtr
 		);
-
-	void
-	construct (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

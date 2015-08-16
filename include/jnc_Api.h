@@ -50,7 +50,7 @@ mapFunctions ( \
 	JNC_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
 
 #define JNC_END_TYPE() \
-	if (isOpaqueClassType (type) && !((jnc::ClassType*) type)->getMarkOpaqueGcRootsFunc ()) \
+	if (isOpaqueClassType (type) && !(type->getFlags () & jnc::ClassTypeFlag_OpaqueReady)) \
 	{ \
 		err::setFormatStringError ("JNC_OPAQUE_CLASS is missing for '%s'", type->getTypeString ().cc ()); \
 		return false; \
@@ -177,7 +177,7 @@ mapFunctions (jnc::Module* module) \
 	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_DESTRUCTOR(proc) \
+#define JNC_DESTRUCTOR(cls) \
 	function = type->getDestructor (); \
 	if (!function) \
 	{ \
@@ -185,7 +185,7 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	} \
 	overloadIdx = 0; \
-	JNC_MAP (function, proc)
+	JNC_MAP (function, &jnc::destruct <cls>)
 
 #define JNC_UNARY_OPERATOR(opKind, proc) \
 	function = type->getUnaryOperator (opKind); \
@@ -298,7 +298,7 @@ prime (
 	Box* box,
 	Box* root,
 	ClassType* type,
-	void* vtable = NULL // if null then vtable of clas type will be used
+	void* vtable = NULL // if null then vtable of class type will be used
 	);
 
 inline
@@ -306,10 +306,17 @@ void
 prime (
 	Box* box,
 	ClassType* type,
-	void* vtable = NULL // if null then vtable of clas type will be used
+	void* vtable = NULL // if null then vtable of class type will be used
 	)
 {
 	prime (box, box, type, vtable);
+}
+
+template <typename T>
+void 
+destruct (T* p)
+{
+	p->~T ();
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -348,6 +355,12 @@ public:
 	prime (Module* module)
 	{
 		prime (this, T::getApiType (module));
+	}
+
+	void
+	defaultConstruct ()
+	{
+		new ((T*) this) T ();
 	}
 };
 

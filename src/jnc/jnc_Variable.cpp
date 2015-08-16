@@ -15,6 +15,7 @@ Variable::Variable ()
 	m_scope = NULL;
 	m_tlsField = NULL;
 	m_staticData = NULL;
+	m_llvmGlobalVariable = NULL;
 	m_llvmValue = NULL;
 }
 

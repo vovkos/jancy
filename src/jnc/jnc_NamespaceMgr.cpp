@@ -76,21 +76,21 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrLen)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StriCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrChr)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrCat)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_StrDup)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemChr)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCpy)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemSet)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemCat)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_MemDup)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Rand)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Printf)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Atoi)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrLen)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StriCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrChr)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrCat)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrDup)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCmp)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemChr)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCpy)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemSet)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCat)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemDup)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Rand)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Printf)) &&
+		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Atoi)) &&
 		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
@@ -109,16 +109,16 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBufferRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_BufferRef)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Buffer)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CollectGarbage)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_CreateThread)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Sleep)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetCurrentThreadId)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetTimestamp)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Throw)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_GetLastError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_SetPosixError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_SetStringError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunction_Format));
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_CollectGarbage)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_CreateThread)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Sleep)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetCurrentThreadId)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetTimestamp)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Throw)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetLastError)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_SetPosixError)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_SetStringError)) &&
+		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Format));
 }
 
 Orphan*
@@ -153,7 +153,7 @@ NamespaceMgr::resolveOrphans ()
 void
 NamespaceMgr::setSourcePos (const Token::Pos& pos)
 {
-	if (!(m_module->getFlags () & ModuleFlag_DebugInfo) ||
+	if (!(m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo) ||
 		!m_currentScope ||
 		m_sourcePosLockCount)
 		return;
@@ -208,9 +208,15 @@ NamespaceMgr::openInternalScope ()
 	scope->m_parentNamespace = m_currentNamespace;
 
 	if (m_currentScope)
-		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_CanThrow | ScopeFlag_HasFinally);
-	else if (function->getType ()->getFlags () & FunctionTypeFlag_Throws)
-		scope->m_flags |= ScopeFlag_CanThrow | ScopeFlag_FunctionScope;
+	{
+		scope->m_flags = m_currentScope->m_flags & (ScopeFlag_CanThrow | ScopeFlag_Finalizable); // propagate
+	}
+	else 
+	{
+		scope->m_flags = ScopeFlag_Function;
+		if (function->getType ()->getFlags () & FunctionTypeFlag_Throws)
+			scope->m_flags |= ScopeFlag_CanThrow;
+	}
 
 	m_scopeList.insertTail (scope);
 
@@ -219,47 +225,24 @@ NamespaceMgr::openInternalScope ()
 }
 
 Scope*
-NamespaceMgr::openScope (const Token::Pos& pos)
+NamespaceMgr::openScope (
+	const Token::Pos& pos,
+	uint_t flags	
+	)
 {
 	Scope* parentScope = m_currentScope;
 	Scope* scope = openInternalScope ();
 	scope->m_pos = pos;
+	scope->m_flags |= flags;
 
 	if (scope->m_parentNamespace == scope->m_function->getScope ())
-		scope->m_flags |= ScopeFlag_FunctionScope;
+		scope->m_flags |= ScopeFlag_Function;
 
-	if (m_module->getFlags () & ModuleFlag_DebugInfo)
+	if (m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo)
 		scope->m_llvmDiScope = (llvm::DIScope) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);
 
 	setSourcePos (pos);
 	return scope;
-}
-
-Scope*
-NamespaceMgr::openTryScope (const Token::Pos& pos)
-{
-	Scope* scope = openScope (pos);
-	scope->m_flags |= ScopeFlag_Try;
-	return scope;
-}
-
-void
-NamespaceMgr::closeScope ()
-{
-	Scope* scope = m_currentScope;
-	ASSERT (scope);
-
-	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		m_module->m_operatorMgr.nullifyGcRootList (scope->getStackGcRootList ());
-
-	if (scope->m_flags & ScopeFlag_FinallyDefined)
-		m_module->m_controlFlowMgr.endFinally ();
-	else if (scope->m_flags & ScopeFlag_CatchDefined)
-		m_module->m_controlFlowMgr.endCatch ();
-	else if (scope->m_flags & ScopeFlag_Try)
-		m_module->m_controlFlowMgr.endTry ();
-
-	closeNamespace ();
 }
 
 AccessKind
@@ -425,10 +408,14 @@ NamespaceMgr::findCatchScope ()
 	Scope* scope = m_currentScope;
 	for (; scope; scope = scope->getParentScope ())
 	{
-		if (scope->m_catchBlock)
+		if (scope->m_flags & (ScopeFlag_CatchAhead | ScopeFlag_Try))
 			break;
 	}
 
+	if (!scope || scope->m_catchBlock)
+		return scope;
+
+	scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
 	return scope;
 }
 

@@ -23,7 +23,14 @@ enum GcDef
 #else
 	GcDef_PeriodSizeLimit = 2 * 1024 * 1024, // 2MB gc period
 #endif
-	GcDef_DataPtrValidatorPoolSize = 8,
+
+#ifdef _AXL_DEBUG
+	GcDef_DataPtrValidatorPoolSize = 1, // don't use pool, allocate every time
+#else
+	GcDef_DataPtrValidatorPoolSize = 32,
+#endif
+
+	GcDef_ShutdownIterationLimit   = 3,
 };
 
 //.............................................................................
@@ -51,11 +58,23 @@ protected:
 		rtl::Array <IfaceHdr*>* m_destructArray;
 	};
 
+	struct StaticDestructor: rtl::ListLink
+	{
+		union
+		{
+			StaticDestructFunc* m_staticDestructFunc;
+			DestructFunc* m_destructFunc;
+		};
+
+		IfaceHdr* m_iface;
+	};
+
 protected:
 	Runtime* m_runtime;
 
 	mt::Lock m_lock;
 	volatile State m_state;
+	bool m_isShuttingDown;
 	mt::NotificationEvent m_idleEvent;
 
 	size_t m_currentAllocSize;
@@ -63,8 +82,11 @@ protected:
 	size_t m_peakAllocSize;
 	size_t m_currentPeriodSize;
 
+	rtl::StdList <StaticDestructor> m_staticDestructorList;
+
 	rtl::AuxList <GcMutatorThread> m_mutatorThreadList;
-	volatile size_t m_safeMutatorThreadCount;
+	volatile size_t m_waitingMutatorThreadCount;
+	volatile size_t m_noCollectMutatorThreadCount;
 	volatile size_t m_handshakeCount;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
@@ -79,11 +101,12 @@ protected:
 
 	rtl::Array <Box*> m_allocBoxArray;
 	rtl::Array <Box*> m_classBoxArray;
+	rtl::Array <Box*> m_destructibleClassBoxArray;
+	rtl::Array <Box*> m_postponeFreeBoxArray;
 	rtl::AuxList <DestructGuard> m_destructGuardList;
 	rtl::Array <Root> m_staticRootArray;
 	rtl::Array <Root> m_markRootArray [2];
 	size_t m_currentMarkRootArrayIdx;
-	Type* m_dataPtrValidatorType;
 
 public:
 	size_t m_periodSizeLimit; // adjustable limit
@@ -93,7 +116,7 @@ public:
 	
 	~GcHeap ()
 	{
-		ASSERT (isEmpty ()); // should be collected before runtime shutdown
+		ASSERT (isEmpty ()); // should be collected during runtime shutdown
 	}
 
 	// informational methods
@@ -102,6 +125,12 @@ public:
 	isEmpty ()
 	{
 		return m_allocBoxArray.isEmpty ();
+	}
+
+	Runtime*
+	getRuntime ()
+	{		
+		return m_runtime;
 	}
 
 	size_t 
@@ -129,7 +158,7 @@ public:
 	}
 
 	void* 
-	getSafePointTarget ()
+	getSafePointTrigger ()
 	{
 		return m_guardPage;
 	}
@@ -176,22 +205,10 @@ public:
 	// management methods
 
 	void
-	registerStaticRootVariables (		
-		Variable* const* variableArray,
-		size_t count
-		);
+	beginShutdown ();
 
 	void
-	registerStaticRootVariables (const rtl::Array <Variable*>& variableArray)
-	{
-		registerStaticRootVariables (variableArray, variableArray.getCount ());
-	}
-
-	void
-	registerStaticRoot (
-		void* p,
-		Type* type
-		);
+	finalizeShutdown ();
 
 	void
 	registerMutatorThread (GcMutatorThread* thread);
@@ -200,19 +217,49 @@ public:
 	unregisterMutatorThread (GcMutatorThread* thread);
 
 	void
-	enterSafeRegion ();
+	addStaticRootVariables (		
+		Variable* const* variableArray,
+		size_t count
+		);
 
 	void
-	leaveSafeRegion ();	
+	addStaticRootVariables (const rtl::Array <Variable*>& variableArray)
+	{
+		addStaticRootVariables (variableArray, variableArray.getCount ());
+	}
+
+	void
+	addStaticRoot (
+		void* p,
+		Type* type
+		);
+
+	void
+	addStaticDestructor (StaticDestructFunc* destructFunc);
+
+	void
+	addStaticClassDestructor (
+		DestructFunc* destructFunc,
+		jnc::IfaceHdr* iface
+		);
+
+	void
+	enterWaitRegion ();
+
+	void
+	leaveWaitRegion ();	
+
+	void
+	enterNoCollectRegion ();
+
+	void
+	leaveNoCollectRegion (bool canCollectNow);	
 
 	void
 	safePoint ();
 
 	void
-	collect ()
-	{
-		collect_l (waitIdleAndLock ());
-	}
+	collect ();
 
 	// marking
 
@@ -221,10 +268,7 @@ public:
 	weakMark (Box* box);
 
 	void
-	markData (
-		Type* type,
-		DataPtrValidator* validator
-		);
+	markData (Box* box);
 
 	void
 	markClass (Box* box);
@@ -254,6 +298,9 @@ protected:
 	incrementAllocSizeAndLock (size_t size);
 
 	void
+	incrementAllocSize_l (size_t size);
+
+	void
 	collect_l (bool isMutatorThread);
 
 	void
@@ -264,6 +311,12 @@ protected:
 
 	void
 	runMarkCycle ();
+
+	void
+	runDestructors (
+		IfaceHdr* const* ifaceArray,
+		size_t count
+		);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 	void

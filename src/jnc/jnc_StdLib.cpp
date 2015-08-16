@@ -118,7 +118,7 @@ StdLib::strengthenClassPtr (IfaceHdr* iface)
 	ClassTypeKind classTypeKind = classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ClosureClassType*) iface->m_box->m_type)->strengthen (iface) :
-		(iface->m_box->m_flags & BoxFlag_Zombie) ? NULL : iface;
+		(iface->m_box->m_flags & BoxFlag_ClassMark) ? iface : NULL;
 }
 
 void
@@ -420,15 +420,27 @@ StdLib::threadFunc (PVOID context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
+	jnc::FunctionPtr ptr = context->m_ptr;
 
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 	
-	((void (__cdecl*) (IfaceHdr*)) context->m_ptr.m_p) (context->m_ptr.m_closure);
+	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
 	JNC_END ();
 
 	return 0;
+}
+
+void
+StdLib::sleep (uint32_t msCount)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.enterWaitRegion ();
+	g::sleep (msCount);
+	runtime->m_gcHeap.leaveWaitRegion ();
 }
 
 bool
@@ -444,9 +456,9 @@ StdLib::createThread (FunctionPtr ptr)
 	DWORD threadId;
 	HANDLE h = ::CreateThread (NULL, 0, StdLib::threadFunc, &context, 0, &threadId);
 
-	runtime->m_gcHeap.enterSafeRegion (); // pre-wait
+	runtime->m_gcHeap.enterWaitRegion ();
 	context.m_threadStartedEvent.wait ();
-	runtime->m_gcHeap.leaveSafeRegion ();
+	runtime->m_gcHeap.leaveWaitRegion ();
 
 	return h != NULL;
 }
@@ -458,11 +470,12 @@ StdLib::threadFunc (void* context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
+	jnc::FunctionPtr ptr = context->m_ptr;
 
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 	
-	((void (__cdecl*) (IfaceHdr*)) context->m_ptr.m_p) (context->m_ptr.m_closure);
+	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
 	JNC_END ();
 
@@ -482,9 +495,9 @@ StdLib::createThread (FunctionPtr ptr)
 	pthread_t thread;
 	int result = pthread_create (&thread, NULL, StdLib::threadFunc, &context);
 
-	runtime->m_gcHeap.enterSafeRegion (); // pre-wait
+	runtime->m_gcHeap.enterWaitRegion ();
 	context.m_threadStartedEvent.wait ();
-	runtime->m_gcHeap.leaveSafeRegion ();
+	runtime->m_gcHeap.leaveWaitRegion ();
 
 	return result == 0;
 }
@@ -529,7 +542,7 @@ StdLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->addStaticDestructor (destructFunc);
+	runtime->m_gcHeap.addStaticDestructor (destructFunc);
 }
 
 void
@@ -541,7 +554,7 @@ StdLib::addStaticClassDestructor (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	runtime->addStaticClassDestructor (destructFunc, iface);
+	runtime->m_gcHeap.addStaticClassDestructor (destructFunc, iface);
 }
 
 DataPtr
@@ -905,6 +918,15 @@ StdLib::checkNullPtr (
 	bool result = tryCheckNullPtr (p, typeKind);
 	if (!result)
 		Runtime::runtimeError (err::getLastError ());
+}
+
+void
+StdLib::checkStackOverflow ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->checkStackOverflow ();
 }
 
 void* 

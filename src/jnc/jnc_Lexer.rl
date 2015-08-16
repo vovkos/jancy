@@ -206,6 +206,7 @@ main := |*
 'try'            { createToken (TokenKind_Try); };
 'catch'          { createToken (TokenKind_Catch); };
 'finally'        { createToken (TokenKind_Finally); };
+'nestedscope'    { createToken (TokenKind_NestedScope); };
 'assert'         { createToken (TokenKind_Assert); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

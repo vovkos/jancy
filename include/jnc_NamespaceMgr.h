@@ -148,13 +148,17 @@ public:
 	openInternalScope ();
 
 	Scope*
-	openScope (const Token::Pos& pos);
-
-	Scope*
-	openTryScope (const Token::Pos& pos);
+	openScope (
+		const Token::Pos& pos,
+		uint_t flags = 0
+		);
 
 	void
-	closeScope ();
+	closeScope ()
+	{
+		ASSERT (m_currentScope);
+		closeNamespace ();
+	}
 
 	AccessKind
 	getAccessKind (Namespace* nspace);

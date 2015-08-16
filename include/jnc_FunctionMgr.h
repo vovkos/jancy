@@ -41,8 +41,8 @@ protected:
 	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
 	rtl::Array <NamedTypeBlock*> m_staticConstructArray;
 
-	Function* m_stdFunctionArray [StdFunction__Count];
-	LazyStdFunction* m_lazyStdFunctionArray [StdFunction__Count];
+	Function* m_stdFunctionArray [StdFunc__Count];
+	LazyStdFunction* m_lazyStdFunctionArray [StdFunc__Count];
 
 	Function* m_currentFunction;
 	Value m_thisValue;
@@ -232,17 +232,17 @@ public:
 	// std functions
 
 	bool
-	isStdFunctionUsed (StdFunction func)
+	isStdFunctionUsed (StdFunc func)
 	{
-		ASSERT (func < StdFunction__Count);
+		ASSERT (func < StdFunc__Count);
 		return m_stdFunctionArray [func] != NULL;
 	}
 
 	Function*
-	getStdFunction (StdFunction func);
+	getStdFunction (StdFunc func);
 
 	LazyStdFunction*
-	getLazyStdFunction (StdFunction func);
+	getLazyStdFunction (StdFunc func);
 
 	Function*
 	getDirectThunkFunction (

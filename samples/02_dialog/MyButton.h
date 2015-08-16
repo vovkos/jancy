@@ -8,7 +8,7 @@ class MyButton: public MyWidget
 {
 public:
 	JNC_BEGIN_CLASS ("Button", ApiSlot_Button)
-		JNC_OPAQUE_CLASS (MyButton, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MyButton, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_AUTOGET_PROPERTY ("m_text", &MyButton::setText)
 	JNC_END_CLASS ()
@@ -22,12 +22,8 @@ public:
 	QtSignalBridge* m_onClickedBridge;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MyButton* self
-		);
+	construct (jnc::DataPtr textPtr);
 
 	static 
 	MyButton*
@@ -35,9 +31,6 @@ public:
 		jnc::ClassType* type,
 		jnc::DataPtr textPtr
 		);
-
-	void
-	construct (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

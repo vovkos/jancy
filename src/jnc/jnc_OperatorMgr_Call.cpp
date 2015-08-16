@@ -603,7 +603,7 @@ OperatorMgr::callImpl (
 void
 OperatorMgr::gcSafePoint ()
 {
-	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTarget);
+	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
 	
 	Value ptrValue;
 	Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
@@ -616,6 +616,13 @@ OperatorMgr::gcSafePoint ()
 		llvm::CrossThread,
 		&value
 		);
+}
+
+void
+OperatorMgr::checkStackOverflow ()
+{
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_CheckStackOverflow);
+	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
 }
 
 //.............................................................................

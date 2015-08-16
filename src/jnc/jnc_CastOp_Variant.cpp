@@ -84,7 +84,7 @@ Cast_Variant::llvmCast (
 	m_module->m_llvmIrBuilder.createBitCast (variantValue, opType->getDataPtrType_c (), &castValue);
 	m_module->m_llvmIrBuilder.createStore (opValue, castValue);
 	m_module->m_llvmIrBuilder.createLoad (variantValue, NULL, &variantValue);
-	m_module->m_llvmIrBuilder.createInsertValue (variantValue, opTypeValue, 4, type, resultValue);
+	m_module->m_llvmIrBuilder.createInsertValue (variantValue, opTypeValue, VariantField_Type, type, resultValue);
 	return true;
 }
 
@@ -138,7 +138,7 @@ Cast_FromVariant::llvmCast (
 	
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpValue", type->getDataPtrType_c (), &tmpValue);
 
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastVariant);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicCastVariant);
 	bool result = m_module->m_operatorMgr.callOperator (function, opValue, typeValue, tmpValue);
 	if (!result)
 		return false;

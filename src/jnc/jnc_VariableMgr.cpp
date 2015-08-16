@@ -56,11 +56,11 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 			);
 		break;
 
-	case StdVariable_GcSafePointTarget:
+	case StdVariable_GcSafePointTrigger:
 		variable = createVariable (
 			StorageKind_Static,
-			"g_gcSafePointTarget",
-			"jnc.g_gcSafePointTarget",
+			"g_gcSafePointTrigger",
+			"jnc.g_gcSafePointTrigger",
 			m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getDataPtrType_c ()
 			);
 		break;
@@ -118,7 +118,12 @@ VariableMgr::createVariable (
 			break;
 		}
 
-		variable->m_llvmValue = createLlvmGlobalVariable (type, qualifiedName);
+		variable->m_llvmGlobalVariable = createLlvmGlobalVariable (type, qualifiedName);
+		variable->m_llvmValue = variable->m_llvmGlobalVariable;
+		
+		if (type->getFlags () & TypeFlag_GcRoot)
+			m_staticGcRootArray.append (variable);
+
 		break;
 
 	case StorageKind_Thread:
@@ -171,7 +176,11 @@ VariableMgr::createSimpleStaticVariable (
 	variable->m_storageKind = StorageKind_Static;
 	variable->m_ptrTypeFlags = ptrTypeFlags;
 	variable->m_scope = m_module->m_namespaceMgr.getCurrentScope ();
-	variable->m_llvmValue = createLlvmGlobalVariable (type, qualifiedName, value);
+	variable->m_llvmGlobalVariable = createLlvmGlobalVariable (type, qualifiedName, value);
+	variable->m_llvmValue = variable->m_llvmGlobalVariable;
+
+	if (type->getFlags () & TypeFlag_GcRoot)	
+		m_staticGcRootArray.append (variable);
 
 	m_variableList.insertTail (variable);
 	return variable;
@@ -244,7 +253,7 @@ VariableMgr::primeStaticClassVariable (Variable* variable)
 {
 	ASSERT (variable->m_storageKind == StorageKind_Static && variable->m_type->getTypeKind () == TypeKind_Class);
 
-	Function* primeStaticClass = m_module->m_functionMgr.getStdFunction (StdFunction_PrimeStaticClass);
+	Function* primeStaticClass = m_module->m_functionMgr.getStdFunction (StdFunc_PrimeStaticClass);
 
 	Value argValueArray [2];
 	m_module->m_llvmIrBuilder.createBitCast (
@@ -273,7 +282,7 @@ VariableMgr::primeStaticClassVariable (Variable* variable)
 	Function* destructor = ((ClassType*) variable->m_type)->getDestructor ();
 	if (destructor)
 	{
-		Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunction_AddStaticClassDestructor);
+		Function* addDestructor = m_module->m_functionMgr.getStdFunction (StdFunc_AddStaticClassDestructor);
 
 		Value argValueArray [2];
 
@@ -304,7 +313,7 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 
 	StructType* boxType = (StructType*) m_module->m_typeMgr.getStdType (StdType_StaticDataBox);
 
-	uintptr_t flags = BoxFlag_StaticData | BoxFlag_StrongMark | BoxFlag_WeakMark;
+	uintptr_t flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
 
 	Value variablePtrValue;
 	m_module->m_llvmIrBuilder.createBitCast (
@@ -384,6 +393,7 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	validatorVariable->m_llvmValue = llvmValidatorVariable;
 	m_variableList.insertTail (validatorVariable);
 
+	variable->m_leanDataPtrValidator->m_validatorValue = validatorVariable;
 	return validatorVariable;
 }
 
@@ -402,7 +412,7 @@ VariableMgr::liftStackVariable (Variable* variable)
 	Value variableValue;
 	Value validatorValue;
 
-	Function* allocate = m_module->m_functionMgr.getStdFunction (StdFunction_AllocateData);
+	Function* allocate = m_module->m_functionMgr.getStdFunction (StdFunc_AllocateData);
 	bool result = m_module->m_operatorMgr.callOperator (allocate, typeValue, &ptrValue);
 	ASSERT (result);
 
@@ -433,7 +443,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	variable->m_pos = *arg->getPos ();
 	variable->m_flags |= ModuleItemFlag_User;
 		
-	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
+	if ((m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
 	{
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (
@@ -520,7 +530,11 @@ VariableMgr::allocateInitializeGlobalVariables ()
 		Variable* variable = m_globalStaticVariableArray [i];
 		ASSERT (!variable->m_llvmValue);
 
-		variable->m_llvmValue = createLlvmGlobalVariable (variable->m_type, variable->m_qualifiedName);
+		variable->m_llvmGlobalVariable = createLlvmGlobalVariable (variable->m_type, variable->m_qualifiedName);
+		variable->m_llvmValue = variable->m_llvmGlobalVariable;
+
+		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
+			m_staticGcRootArray.append (variable);
 
 		result = initializeVariable (variable);
 		if (!result)
@@ -530,377 +544,6 @@ VariableMgr::allocateInitializeGlobalVariables ()
 	return true;
 }
 
-/*
-
-bool
-VariableMgr::allocatePrimeStaticVariables ()
-{
-	bool result;
-
-	size_t count = m_staticVariableArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		Variable* variable = m_staticVariableArray [i];
-
-		result = allocatePrimeStaticVariable (variable);
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-VariableMgr::allocatePrimeStaticVariable (Variable* variable)
-{
-	ASSERT (variable->m_storageKind == StorageKind_Static);
-	ASSERT (m_module->m_controlFlowMgr.getCurrentBlock () == m_module->getConstructor ()->getEntryBlock ());
-
-	Type* type = variable->getType ();
-
-	variable->m_llvmAllocValue = createLlvmGlobalVariable (type, variable->getQualifiedName ());
-
-	Value ptrValue (variable->m_llvmAllocValue, type->getDataPtrType_c ());
-	bool result = m_module->m_operatorMgr.prime (StorageKind_Static, ptrValue, type, &ptrValue);
-	if (!result)
-		return false;
-
-	variable->m_llvmValue = ptrValue.getLlvmValue ();
-
-	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
-		m_staticGcRootArray.append (variable);
-
-	if (m_module->getFlags () & ModuleFlag_DebugInfo)
-		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createGlobalVariable (variable);
-
-	return true;
-}
-
-bool
-VariableMgr::allocatePrimeInitializeVariable (Variable* variable)
-{
-	Type* type = variable->getType ();
-
-	if ((type->getTypeKindFlags () & TypeKindFlag_Ptr) && 
-		(type->getFlags () & PtrTypeFlag_Safe) &&
-		variable->getInitializer ().isEmpty ())
-	{
-		err::setFormatStringError (
-			"missing initalizer for '%s' variable '%s'", 
-			type->getTypeString ().cc (),
-			variable->getQualifiedName ().cc ()
-			);
-
-		return false;
-	}
-
-	StorageKind storageKind = variable->m_storageKind;
-	switch (storageKind)
-	{
-	case StorageKind_Static:
-		return allocatePrimeInitializeStaticVariable (variable);
-
-	case StorageKind_Thread:
-		return allocatePrimeInitializeTlsVariable (variable);
-
-	default:
-		return allocatePrimeInitializeNonStaticVariable (variable);
-	}
-}
-
-bool
-VariableMgr::allocatePrimeInitializeStaticVariable (Variable* variable)
-{
-	bool result;
-
-	// allocate and prime in module constructor
-
-	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
-	m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
-
-	allocatePrimeStaticVariable (variable);
-
-	m_module->m_controlFlowMgr.setCurrentBlock (block);
-
-
-	return true;
-}
-
-bool
-VariableMgr::allocatePrimeInitializeTlsVariable (Variable* variable)
-{
-	bool result;
-
-	allocateTlsVariable (variable);
-
-	// initialize within 'once' block
-
-	Token::Pos pos = *variable->getItemDecl ()->getPos ();
-
-	OnceStmt stmt;
-	m_module->m_controlFlowMgr.onceStmt_Create (&stmt, pos, StorageKind_Thread);
-
-	result =
-		m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, pos) &&
-		m_module->m_operatorMgr.parseInitializer (
-			variable,
-			variable->m_itemDecl->getParentUnit (),
-			variable->m_constructor,
-			variable->m_initializer
-			);
-
-	if (!result)
-		return false;
-
-	if (!variable->m_initializer.isEmpty ())
-		pos = variable->m_initializer.getTail ()->m_pos;
-	else if (!variable->m_constructor.isEmpty ())
-		pos = variable->m_constructor.getTail ()->m_pos;
-
-	m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
-
-	return true;
-}
-
-bool
-VariableMgr::allocatePrimeInitializeNonStaticVariable (Variable* variable)
-{
-	bool result;
-
-	Value ptrValue;
-	result = m_module->m_operatorMgr.allocate (
-		variable->m_storageKind,
-		variable->m_type,
-		variable->m_tag,
-		&ptrValue
-		);
-
-	if (!result)
-		return false;
-	
-	if (variable->m_storageKind == StorageKind_Heap) // local heap variable
-		m_module->m_operatorMgr.markStackGcRoot (
-			ptrValue, 
-			variable->m_type->getDataPtrType_c ()
-			);
-
-	variable->m_llvmAllocValue = ptrValue.getLlvmValue ();
-
-	if (variable->m_type->getTypeKind () == TypeKind_Class)
-	{
-		result = m_module->m_operatorMgr.prime (variable->m_storageKind, ptrValue, variable->m_type, &ptrValue);
-		if (!result)
-			return false;
-
-		variable->m_llvmValue = ptrValue.getLlvmValue ();
-	}
-	else
-	{
-		variable->m_llvmValue = variable->m_llvmAllocValue;
-
-		if (variable->m_initializer.isEmpty () ||
-			variable->m_initializer.getHead ()->m_token == '{' ||
-			(variable->getType ()->getFlags () & TypeFlag_GcRoot))
-		{
-			m_module->m_operatorMgr.zeroInitialize (ptrValue, variable->m_type);
-		}
-	}
-
-	if ((m_module->getFlags () & ModuleFlag_DebugInfo) &&
-		(variable->getFlags () & ModuleItemFlag_User))
-	{
-		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (variable);
-		m_module->m_llvmDiBuilder.createDeclare (variable);
-	}
-
-	result = m_module->m_operatorMgr.parseInitializer (
-		variable,
-		variable->m_itemDecl->getParentUnit (),
-		variable->m_constructor,
-		variable->m_initializer
-		);
-
-	if (!result)
-		return false;
-
-	return true;
-}
-
-*/
 //.............................................................................
 
 } // namespace jnc {
-
-
-#if 0
-
-void
-VariableMgr::allocateVariableBox (Variable* variable)
-{
-	ASSERT (!variable->m_llvmBoxValue);
-
-	StorageKind storageKind = variable->m_storageKind;
-	switch (storageKind)
-	{
-	case StorageKind_Static:
-		allocateStaticVariableBox (variable);
-		break;
-
-	case StorageKind_Thread:
-		allocateTlsVariableBox (variable);
-		break;
-
-	case StorageKind_Heap:
-		getHeapVariableBox (variable);
-		break;
-
-	case StorageKind_Stack:
-		allocateStackVariableBox (variable);
-		break;
-
-	default:
-		ASSERT (false);
-	}
-}
-
-void
-VariableMgr::initializeVariableBox (
-	const Value& objHdrValue,
-	Type* type,
-	uint_t flags,
-	const Value& ptrValue
-	)
-{
-	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-
-	// obj hdr
-
-	Value dstValue0, dstValue;
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &dstValue0);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 0, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (dstValue0, dstValue);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 1, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (typeValue, dstValue);
-	m_module->m_llvmIrBuilder.createGep2 (dstValue0, 2, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (
-		Value (flags, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u)), 
-		dstValue
-		);
-
-	// variable ptr
-
-	Value srcPtrValue;
-	m_module->m_llvmIrBuilder.createBitCast (
-		ptrValue, 
-		m_module->m_typeMgr.getStdType (StdType_BytePtr),
-		&srcPtrValue
-		);
-
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 1, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (srcPtrValue, dstValue);
-}
-
-void
-VariableMgr::allocateStaticVariableBox (Variable* variable)
-{
-	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock ();
-	m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
-
-	llvm::Value* llvmValue;
-
-	if (variable->m_type->getTypeKind () == TypeKind_Class)
-	{
-		llvmValue = variable->m_llvmAllocValue;
-	}
-	else
-	{
-		Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
-		llvmValue = createLlvmGlobalVariable (type, variable->m_tag + ":objHdr");
-		initializeVariableBox (
-			llvmValue, 
-			type, 
-			BoxFlag_Static | 
-			BoxFlag_GcMark | 
-			BoxFlag_GcWeakMark | 
-			BoxFlag_GcRootsAdded,
-			variable->getLlvmValue ()
-			);
-	}
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep2 (llvmValue, 0, NULL, &ptrValue);
-	variable->m_llvmBoxValue = ptrValue.getLlvmValue ();
-	m_module->m_controlFlowMgr.setCurrentBlock (block);
-}
-
-void
-VariableMgr::allocateTlsVariableBox (Variable* variable)
-{
-	ASSERT (variable->m_type->getTypeKind () != TypeKind_Class);
-	if (m_llvmTlsBoxValue)
-	{
-		variable->m_llvmBoxValue = m_llvmTlsBoxValue;
-		return;
-	}
-
-	static void* null = NULL;
-	Value nullPtrValue (&null, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-
-	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
-	llvm::Value* llvmValue = createLlvmGlobalVariable (type, "jnc.g_tlsBox");
-	initializeVariableBox (
-		llvmValue, 
-		NULL, 
-		BoxFlag_Static | 
-		BoxFlag_GcMark | 
-		BoxFlag_GcWeakMark | 
-		BoxFlag_GcRootsAdded,
-		nullPtrValue
-		);
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep2 (llvmValue, 0, NULL, &ptrValue);
-	m_llvmTlsBoxValue = ptrValue.getLlvmValue ();
-	variable->m_llvmBoxValue = m_llvmTlsBoxValue;
-}
-
-void
-VariableMgr::getHeapVariableBox (Variable* variable)
-{
-	Type* type = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
-
-	Value objHdrValue;
-	m_module->m_llvmIrBuilder.createBitCast (variable->m_llvmValue, type, &objHdrValue);
-	m_module->m_llvmIrBuilder.createGep (objHdrValue, -1, NULL, &objHdrValue);
-	variable->m_llvmBoxValue = objHdrValue.getLlvmValue ();
-}
-
-void
-VariableMgr::allocateStackVariableBox (Variable* variable)
-{
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function);
-
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-	
-	Value objHdrValue;
-	Type* type = m_module->m_typeMgr.getStdType (StdType_VariableBox);
-	m_module->m_llvmIrBuilder.createAlloca (type, variable->m_tag + ":objHdr", NULL, &objHdrValue);
-
-	initializeVariableBox (
-		objHdrValue, 
-		variable->m_type, 
-		BoxFlag_Stack | 
-		BoxFlag_GcMark | 
-		BoxFlag_GcWeakMark | 
-		BoxFlag_GcRootsAdded,
-		variable->getLlvmValue ()
-		);
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &ptrValue);
-	variable->m_llvmBoxValue = ptrValue.getLlvmValue ();
-	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-}
-
-#endif

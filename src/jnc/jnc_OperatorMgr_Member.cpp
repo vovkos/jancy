@@ -628,7 +628,7 @@ OperatorMgr::getLibraryMember (
 
 	if (!(scope->getFlags () & ScopeFlag_CanThrow))
 	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunction_LazyGetLibraryFunction);
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_LazyGetLibraryFunction);
 
 		m_module->m_llvmIrBuilder.createCall (
 			getterFunction,
@@ -640,7 +640,7 @@ OperatorMgr::getLibraryMember (
 	}
 	else
 	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunction_TryLazyGetLibraryFunction);
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_TryLazyGetLibraryFunction);
 		FunctionType* getterFunctionType = getterFunction->getType ();
 
 		m_module->m_llvmIrBuilder.createCall (

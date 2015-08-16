@@ -10,7 +10,7 @@ public:
 	JNC_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
 		JNC_OPAQUE_CLASS (TestClass, &enumGcRoots)
 		JNC_OPERATOR_NEW (&operatorNew)
-		JNC_DESTRUCTOR (&TestClass::destruct)
+		JNC_DESTRUCTOR (TestClass)
 		JNC_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
 		JNC_BINARY_OPERATOR (jnc::BinOpKind_SubAssign, &TestClass::subAssign)
 		JNC_FUNCTION ("foo", &TestClass::foo_0)
@@ -29,12 +29,7 @@ protected: // opaque section
 	char m_internalData [256];
 
 public:
-	static
-	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		TestClass* self
-		);
+	~TestClass ();
 
 	static 
 	TestClass*
@@ -43,9 +38,12 @@ public:
 		int value
 		);
 
-	void 
-	AXL_CDECL
-	destruct ();
+	static
+	void
+	enumGcRoots (
+		jnc::GcHeap* gcHeap,
+		TestClass* self
+		);
 
 	int 
 	AXL_CDECL

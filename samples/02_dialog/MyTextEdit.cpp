@@ -4,27 +4,18 @@
 //.............................................................................
 
 void
-MyTextEdit::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	MyTextEdit* self
-	)
+MyTextEdit::construct ()
 {
+	m_qtLineEdit = new QLineEdit;
+	MyWidget::construct (m_qtLineEdit);
 }
 
 MyTextEdit*
 MyTextEdit::operatorNew (jnc::ClassType* type)
 {
-	jnc::ApiClassBox <MyTextEdit>* textEdit = (jnc::ApiClassBox <MyTextEdit>*) jnc::StdLib::allocateClass (type);
-	textEdit->prime (type);	
+	MyTextEdit* textEdit = (MyTextEdit*) jnc::StdLib::allocateClass (type);
 	textEdit->construct ();
 	return textEdit;
-}
-
-void
-MyTextEdit::construct ()
-{
-	m_qtLineEdit = new QLineEdit;
-	MyWidget::construct (m_qtLineEdit);
 }
 
 //.............................................................................

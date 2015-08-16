@@ -18,7 +18,7 @@ class StructField;
 enum StdVariable
 {
 	StdVariable_GcShadowStackTop,
-	StdVariable_GcSafePointTarget,
+	StdVariable_GcSafePointTrigger,
 	StdVariable__Count,
 };
 
@@ -41,6 +41,7 @@ protected:
 	StructField* m_tlsField;
 	void* m_staticData;
 	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
 	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
 	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
 
@@ -89,6 +90,12 @@ public:
 
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator ();
+
+	llvm::GlobalVariable*
+	getLlvmGlobalVariable ()
+	{
+		return m_llvmGlobalVariable;
+	}
 
 	llvm::Value*
 	getLlvmValue ();

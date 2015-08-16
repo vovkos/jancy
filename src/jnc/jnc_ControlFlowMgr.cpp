@@ -11,21 +11,30 @@ ControlFlowMgr::ControlFlowMgr ()
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
-	m_throwLockCount = 0;
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
-	m_savedReturnValueVariable = NULL;
+	m_returnBlock = NULL;
+	m_catchFinallyFollowBlock = NULL;
+	m_returnBlock = NULL;
+	m_finallyRouteIdxVariable = NULL;
+	m_returnValueVariable = NULL;
+	m_throwLockCount = 0;
+	m_finallyRouteCount = 0;
 }
 
 void
 ControlFlowMgr::clear ()
 {
-	m_throwLockCount = 0;
 	m_blockList.clear ();
 	m_returnBlockArray.clear ();
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
-	m_savedReturnValueVariable = NULL;
+	m_catchFinallyFollowBlock = NULL;
+	m_returnBlock = NULL;
+	m_finallyRouteIdxVariable = NULL;
+	m_returnValueVariable = NULL;
+	m_throwLockCount = 0;
+	m_finallyRouteCount = 0;
 }
 
 void 
@@ -34,15 +43,24 @@ ControlFlowMgr::finalizeFunction ()
 	m_returnBlockArray.clear ();
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
-	m_savedReturnValueVariable = NULL;
+	m_catchFinallyFollowBlock = NULL;
+	m_returnBlock = NULL;
+	m_finallyRouteIdxVariable = NULL;
+	m_returnValueVariable = NULL;
+	m_throwLockCount = 0;
+	m_finallyRouteCount = 0;
 }
 
 BasicBlock*
-ControlFlowMgr::createBlock (const rtl::String& name)
+ControlFlowMgr::createBlock (
+	const rtl::String& name,
+	uint_t flags
+	)
 {
 	BasicBlock* block = AXL_MEM_NEW (BasicBlock);
 	block->m_module = m_module;
 	block->m_name = name;
+	block->m_flags = 0;
 	block->m_llvmBlock = llvm::BasicBlock::Create (
 		*m_module->getLlvmContext (),
 		(const char*) name,
@@ -172,6 +190,64 @@ ControlFlowMgr::getUnreachableBlock ()
 	return m_unreachableBlock;
 }
 
+BasicBlock*
+ControlFlowMgr::getReturnBlock ()
+{
+	if (m_returnBlock)
+		return m_returnBlock;
+
+	m_returnBlock = createBlock ("return_block");
+	BasicBlock* prevBlock = setCurrentBlock (m_returnBlock);
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	FunctionType* functionType = function->getType ();
+	if (functionType->getReturnType ()->getTypeKind () == TypeKind_Void)
+	{
+		m_module->m_llvmIrBuilder.createRet ();
+	}
+	else
+	{
+		Value returnValue;
+		m_module->m_llvmIrBuilder.createLoad (getReturnValueVariable (), NULL, &returnValue);
+		functionType->getCallConv ()->ret (function, returnValue);
+	}
+
+	m_currentBlock->m_flags |= BasicBlockFlag_Return;
+	m_returnBlockArray.append (m_currentBlock);
+	
+	setCurrentBlock (prevBlock);
+	return m_returnBlock;
+}
+
+Variable* 
+ControlFlowMgr::getFinallyRouteIdxVariable ()
+{
+	if (m_finallyRouteIdxVariable)
+		return m_finallyRouteIdxVariable;
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());	
+	m_finallyRouteIdxVariable = m_module->m_variableMgr.createSimpleStackVariable ("finallyRouteIdx", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
+	setCurrentBlock (prevBlock);
+	return m_finallyRouteIdxVariable;
+}
+
+Variable* 
+ControlFlowMgr::getReturnValueVariable ()
+{
+	if (m_returnValueVariable)
+		return m_returnValueVariable;
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	Type* returnType = function->getType ()->getReturnType ();
+	ASSERT (returnType->getTypeKind () != TypeKind_Void);
+
+	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());	
+	m_returnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
+	setCurrentBlock (prevBlock);
+	return m_returnValueVariable;
+}
+
 void
 ControlFlowMgr::markUnreachable (BasicBlock* block)
 {
@@ -247,8 +323,7 @@ ControlFlowMgr::breakJump (size_t level)
 		return false;
 	}
 
-	onLeaveScope (targetScope);
-	jump (targetScope->m_breakBlock);
+	escapeScope (targetScope, targetScope->m_breakBlock);
 	return true;
 }
 
@@ -262,48 +337,73 @@ ControlFlowMgr::continueJump (size_t level)
 		return false;
 	}
 
-	onLeaveScope (targetScope);
-	jump (targetScope->m_continueBlock);
+	escapeScope (targetScope, targetScope->m_continueBlock);
 	return true;
 }
 
 void
-ControlFlowMgr::jumpToFinally (Scope* scope)
+ControlFlowMgr::escapeScope (
+	Scope* targetScope,
+	BasicBlock* targetBlock,
+	bool isThrow // during throw we have to nullify gc stack roots of target scope
+	)
 {
-	ASSERT (scope->m_finallyBlock);
-
-	BasicBlock* returnBlock = createBlock ("return_from_finally");
-	addBlock (returnBlock);
-
-	size_t returnBlockId = scope->m_finallyReturnBlockArray.getCount ();
-	Value finallyReturnValue;
-	finallyReturnValue.setConstInt32 ((uint32_t) returnBlockId, m_module);
-	m_module->m_operatorMgr.storeDataRef (scope->m_finallyReturnAddress, finallyReturnValue);
-	scope->m_finallyReturnBlockArray.append (returnBlock);
-	jump (scope->m_finallyBlock, returnBlock);
-
-	// return block will be jumped from 'finally', but we can mark it now:
-	// this way we can avoid extra loop in 'finally'
-
-	returnBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
-}
-
-void
-ControlFlowMgr::onLeaveScope (Scope* targetScope)
-{
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function);
-
+	size_t routeIdx = m_finallyRouteCount;
+	
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	while (scope && scope != targetScope && scope->getFunction () == function)
+	BasicBlock* firstFinallyBlock = NULL;
+	BasicBlock* prevFinallyBlock = NULL;
+	while (scope && scope != targetScope)
 	{
-		m_module->m_operatorMgr.nullifyGcRootList (scope->getStackGcRootList ());
+		m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
 
-		if (scope->m_finallyBlock && !(scope->m_flags & ScopeFlag_FinallyDefined))
-			jumpToFinally (scope);
+		if (scope->m_flags & ScopeFlag_FinallyAhead)
+		{
+			BasicBlock* finallyBlock = scope->getOrCreateFinallyBlock ();
+			if (!firstFinallyBlock)
+			{
+				firstFinallyBlock = finallyBlock;
+			}
+			else 
+			{
+				ASSERT (prevFinallyBlock);
+				prevFinallyBlock->m_finallyRouteMap [routeIdx] = finallyBlock;
+			}
+
+			prevFinallyBlock = finallyBlock;			
+		}
 
 		scope = scope->getParentScope ();
 	}
+
+	if (isThrow)
+		m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
+
+	if (!firstFinallyBlock)
+	{
+		if (targetBlock)
+			jump (targetBlock);
+
+		return;
+	}
+
+	BasicBlock* followBlock = NULL;
+
+	if (!targetBlock)
+	{
+		followBlock = createBlock ("finally_follow");
+		targetBlock = followBlock;
+	}
+
+	prevFinallyBlock->m_finallyRouteMap [routeIdx] = targetBlock;
+
+	Variable* routeIdxVariable = getFinallyRouteIdxVariable ();
+	Value routeIdxValue (routeIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
+	m_module->m_llvmIrBuilder.createStore (routeIdxValue, routeIdxVariable);
+	
+	jump (firstFinallyBlock, followBlock);
+
+	m_finallyRouteCount++;
 }
 
 bool
@@ -315,9 +415,11 @@ ControlFlowMgr::ret (const Value& value)
 	FunctionType* functionType = function->getType ();
 	Type* returnType = functionType->getReturnType ();
 
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+
 	if (!value)
 	{
-		if (function->getType ()->getReturnType ()->getTypeKind () != TypeKind_Void)
+		if (functionType->getReturnType ()->getTypeKind () != TypeKind_Void)
 		{
 			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
@@ -327,7 +429,13 @@ ControlFlowMgr::ret (const Value& value)
 			return false;
 		}
 
-		onLeaveScope ();
+		if (scope->m_flags & ScopeFlag_Finalizable)
+		{
+			escapeScope (NULL, getReturnBlock ());
+			return true;
+		}
+
+		escapeScope (NULL, NULL);
 		m_module->m_llvmIrBuilder.createRet ();
 	}
 	else
@@ -337,36 +445,20 @@ ControlFlowMgr::ret (const Value& value)
 		if (!result)
 			return false;
 
-		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		if (!(scope->getFlags () & ScopeFlag_HasFinally))
+		if (scope->getFlags () & ScopeFlag_Finalizable)
 		{
-			onLeaveScope ();
-		}
-		else
-		{
-			if (!m_savedReturnValueVariable)
-			{
-				BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
-				m_savedReturnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
-				if (returnType->getFlags () & TypeFlag_GcRoot)
-					m_module->m_operatorMgr.markStackGcRoot (m_savedReturnValueVariable, returnType, StackGcRootKind_Function);
-
-				setCurrentBlock (prevBlock);
-
-				m_module->m_operatorMgr.storeDataRef (m_savedReturnValueVariable, returnValue);
-			}
-
-			onLeaveScope ();
-			m_module->m_operatorMgr.loadDataRef (m_savedReturnValueVariable, &returnValue);
+			m_module->m_llvmIrBuilder.createStore (returnValue, getReturnValueVariable ());
+			escapeScope (NULL, getReturnBlock ());
+			return true;
 		}
 
+		escapeScope (NULL, NULL);
 		functionType->getCallConv ()->ret (function, returnValue);
 	}
 
 	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlag_Return));
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append (m_currentBlock);
-
 	setCurrentBlock (getUnreachableBlock ());
 	return true;
 }
@@ -399,7 +491,7 @@ ControlFlowMgr::throwIf (
 	Value indicatorValue;
 	if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
-		result = m_module->m_operatorMgr.unaryOperator (UnOpKind_LogNot, returnValue, &indicatorValue);
+		result = m_module->m_operatorMgr.castOperator (returnValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool), &indicatorValue);
 		if (!result)
 			return false;
 	}
@@ -407,7 +499,7 @@ ControlFlowMgr::throwIf (
 	{
 		Value zeroValue = returnType->getZeroValue ();
 
-		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Lt, returnValue, zeroValue, &indicatorValue);
+		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Ge, returnValue, zeroValue, &indicatorValue);
 		if (!result)
 			return false;
 	}
@@ -418,21 +510,19 @@ ControlFlowMgr::throwIf (
 		Value minusOneValue;
 		minusOneValue.createConst (&minusOne, returnType);
 
-		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, returnValue, minusOneValue, &indicatorValue);
+		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, returnValue, minusOneValue, &indicatorValue);
 		if (!result)
 			return false;
 	}
 
-	result = conditionalJump (indicatorValue, throwBlock, followBlock);
+	result = conditionalJump (indicatorValue, followBlock, throwBlock, throwBlock);
 	if (!result)
 		return false;
 
 	Scope* catchScope = m_module->m_namespaceMgr.findCatchScope ();
-
 	if (catchScope)
 	{
-		onLeaveScope (catchScope);
-		jump (catchScope->m_catchBlock);
+		escapeScope (catchScope, catchScope->m_catchBlock, true);
 	}
 	else
 	{
@@ -457,161 +547,254 @@ ControlFlowMgr::throwIf (
 		ret (throwValue);
 	}
 
-	follow (followBlock);
+	setCurrentBlock (followBlock);
 	return true;
 }
 
 bool
-ControlFlowMgr::catchLabel ()
+ControlFlowMgr::catchLabel (const Token::Pos& pos)
 {
 	bool result;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	if (scope->m_flags & ScopeFlag_CatchDefined)
+	ASSERT (!(scope->m_flags & ScopeFlag_Finally));
+
+	if (!(scope->m_flags & ScopeFlag_CatchAhead))
 	{
 		err::setFormatStringError ("'catch' is already defined");
 		return false;
 	}
-	
-	ASSERT (scope->m_catchBlock && !scope->m_catchFollowBlock);
-	if (scope->m_flags & ScopeFlag_FinallyDefined)
-	{
-		err::setFormatStringError ("'catch' cannot follow 'finally'");
-		return false;
-	}
 
-	if (!(scope->m_catchBlock->m_flags & BasicBlockFlag_Jumped))
+	if (!scope->m_catchBlock)
 	{
 		err::setFormatStringError ("useless 'catch'");
 		return false;
 	}
 
-	scope->m_flags |= ScopeFlag_CatchDefined;
-
-	if (scope->isFunctionScope ())
+	if (scope->m_flags & ScopeFlag_Function)
 	{
 		result = checkReturn ();
 		if (!result)
 			return false;
 	}
 
-	scope->m_catchFollowBlock = createBlock ("catch_follow");
+	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
+	{
+		if (scope->m_flags & ScopeFlag_FinallyAhead)
+		{
+			normalFinallyFlow ();
+		}
+		else
+		{
+			m_catchFinallyFollowBlock = createBlock ("catch_follow");
+			m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
+			jump (m_catchFinallyFollowBlock);
+		}
+	}
 
-	if (scope->m_finallyBlock)
-		jumpToFinally (scope);
+	m_module->m_namespaceMgr.closeScope ();
+	setCurrentBlock (scope->m_catchBlock);
 
-	jump (scope->m_catchFollowBlock, scope->m_catchBlock);
-	
-	// this scope cannot catch anymore
-
-	scope->m_catchBlock = NULL;
-
-	Scope* parentScope = scope->getParentScope ();
-	if (!parentScope || !(parentScope->m_flags & ScopeFlag_CanThrow))
-		scope->m_flags &= ~ScopeFlag_CanThrow;
-
+	Scope* catchScope = m_module->m_namespaceMgr.openScope (pos, ScopeFlag_Catch);
+	catchScope->m_flags |= scope->m_flags & (ScopeFlag_Nested | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable); // propagate
+	catchScope->m_finallyBlock = scope->m_finallyBlock; // propagate
 	return true;
 }
 
 bool
-ControlFlowMgr::finallyLabel ()
+ControlFlowMgr::closeCatch ()
+{
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT ((scope->m_flags & ScopeFlag_Catch) && !(scope->m_flags & ScopeFlag_FinallyAhead));
+
+	if (scope->m_flags & ScopeFlag_Function)
+	{
+		bool result = checkReturn ();
+		if (!result)
+			return false;
+	}
+	
+	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
+	{
+		ASSERT (m_catchFinallyFollowBlock);
+
+		m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
+		follow (m_catchFinallyFollowBlock);
+		m_catchFinallyFollowBlock = NULL; // used already
+	}
+
+	m_module->m_namespaceMgr.closeScope ();
+	return true;
+}
+
+bool
+ControlFlowMgr::finallyLabel (const Token::Pos& pos)
 {
 	bool result;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope && scope->m_finallyBlock);
+	if (scope->m_flags & ScopeFlag_CatchAhead)
+	{
+		err::setFormatStringError ("'finally' should follow 'catch'");
+		return false;
+	}
 
-	if (scope->m_flags & ScopeFlag_FinallyDefined)
+	if (!(scope->m_flags & ScopeFlag_FinallyAhead))
 	{
 		err::setFormatStringError ("'finally' is already defined");
 		return false;
 	}
 
-	if (scope->m_catchBlock && !(scope->m_flags & ScopeFlag_CatchDefined)) // try { } stmt
+	if (scope->m_flags & ScopeFlag_Function)
 	{
-		result = catchLabel ();
+		result = checkReturn ();
+		if (!result)
+			return false;
+
+	}
+	else if (scope->m_flags & ScopeFlag_Try) 
+	{
+		// inject empty catch
+
+		scope->m_flags |= ScopeFlag_CatchAhead;
+		result = catchLabel (pos);
 		if (!result)
 			return false;
 	}
 
-	if (!(scope->m_finallyBlock->m_flags & BasicBlockFlag_Jumped))
+	if (!scope->m_finallyBlock)
 	{
 		err::setFormatStringError ("useless 'finally'");
 		return false;
 	}
 
-	scope->m_flags |= ScopeFlag_FinallyDefined;
+	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
+		normalFinallyFlow ();
 
-	if (scope->isFunctionScope ())
+	m_module->m_namespaceMgr.closeScope ();
+	setCurrentBlock (scope->m_finallyBlock);
+
+	Scope* finallyScope = m_module->m_namespaceMgr.openScope (pos, ScopeFlag_Finally);
+	finallyScope->m_flags |= scope->m_flags & ScopeFlag_Nested; // propagate
+	finallyScope->m_finallyBlock = scope->m_finallyBlock; // propagate
+	return true;
+}
+
+bool
+ControlFlowMgr::closeFinally ()
+{
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	ASSERT (scope && (scope->m_flags & ScopeFlag_Finally) && scope->m_finallyBlock && m_finallyRouteIdxVariable);
+
+	m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
+
+	Value routeIdxValue;
+	m_module->m_operatorMgr.loadDataRef (m_finallyRouteIdxVariable, &routeIdxValue);
+
+	size_t count = scope->m_finallyBlock->m_finallyRouteMap.getCount ();
+	ASSERT (count);
+
+	char buffer1 [256];
+	rtl::Array <intptr_t> routeIdxArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	routeIdxArray.setCount (count);
+
+	char buffer2 [256];
+	rtl::Array <BasicBlock*> blockArray (ref::BufKind_Stack, buffer2, sizeof (buffer2));
+	blockArray.setCount (count);
+
+	rtl::HashTableMapIterator <size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead ();
+	for (size_t i = 0; it; it++, i++)
 	{
-		result = checkReturn ();
-		if (!result)
-			return false;
+		ASSERT (i < count);
+
+		routeIdxArray [i] = it->m_key;
+		blockArray [i] = it->m_value;
+		it->m_value->markReachable ();
 	}
 
-	follow (scope->m_finallyBlock);
+	m_module->m_llvmIrBuilder.createSwitch (
+		routeIdxValue,
+		blockArray [0], // something needs to be specified as default block
+		routeIdxArray,
+		blockArray,
+		count
+		);
+
+	if (m_catchFinallyFollowBlock)
+	{
+		setCurrentBlock (m_catchFinallyFollowBlock);
+		m_catchFinallyFollowBlock = NULL;
+	}
+	else
+	{
+		setCurrentBlock (getUnreachableBlock ());
+	}
+
+	m_module->m_namespaceMgr.closeScope ();
 	return true;
 }
 
 void
-ControlFlowMgr::endCatch ()
+ControlFlowMgr::normalFinallyFlow ()
 {
+	if (!m_catchFinallyFollowBlock)
+		m_catchFinallyFollowBlock = createBlock ("finally_follow");
+
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope && scope->m_catchFollowBlock);
-	
-	follow (scope->m_catchFollowBlock);	
+	ASSERT (scope->m_flags & ScopeFlag_FinallyAhead);
+
+	m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
+
+	ASSERT (m_catchFinallyFollowBlock);
+
+	size_t routeIdx = m_finallyRouteCount;
+
+	BasicBlock* finallyBlock = scope->getOrCreateFinallyBlock ();
+	finallyBlock->m_finallyRouteMap [routeIdx] = m_catchFinallyFollowBlock;
+
+	Variable* routeIdxVariable = getFinallyRouteIdxVariable ();
+	Value routeIdxValue (routeIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
+	m_module->m_llvmIrBuilder.createStore (routeIdxValue, routeIdxVariable);
+	jump (finallyBlock);
+
+	m_finallyRouteCount++;
 }
 
-void
-ControlFlowMgr::endFinally ()
+bool
+ControlFlowMgr::closeTry ()
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope && scope->m_finallyBlock && scope->m_finallyReturnAddress);
+	ASSERT (scope && (scope->m_flags & ScopeFlag_Try));
 
-	Value returnAddressValue;
-	m_module->m_operatorMgr.loadDataRef (scope->m_finallyReturnAddress, &returnAddressValue);
+	if (!scope->m_catchBlock)
+	{
+		err::setFormatStringError ("useless 'try'");
+		return false;
+	}
 
-	#pragma AXL_TODO ("switch to indirect-branch as soon as LLVM supports it on Windows")
-
-	size_t blockCount = scope->m_finallyReturnBlockArray.getCount ();
-	ASSERT (blockCount);
-
-	char buffer [256];
-	rtl::Array <intptr_t> intArray (ref::BufKind_Stack, buffer, sizeof (buffer));
-	intArray.setCount (blockCount);
-
-	for (size_t i = 0; i < blockCount; i++)
-		intArray [i] = i;
-
-	m_module->m_llvmIrBuilder.createSwitch (
-		returnAddressValue,
-		scope->m_finallyReturnBlockArray [0], // something needs to be specified as default block
-		intArray,
-		scope->m_finallyReturnBlockArray,
-		blockCount
-		);
-
-	setCurrentBlock (scope->m_catchFollowBlock ? scope->m_catchFollowBlock : getUnreachableBlock ());
+	return 
+		catchLabel (Token::Pos ()) &&
+		closeCatch (); 
 }
 
-void
-ControlFlowMgr::endTry ()
+bool
+ControlFlowMgr::nestedScopeLabel (
+	const Token::Pos& pos,
+	uint_t scopeFlags
+	)
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	
-	ASSERT (
-		scope && scope->m_catchBlock &&
-		(scope->getFlags () & ScopeFlag_Try) && 
-		!(scope->getFlags () & (ScopeFlag_CatchDefined | ScopeFlag_FinallyDefined))
-		);
+	ASSERT (scope);
 
-	if (!(scope->m_catchBlock->m_flags & BasicBlockFlag_Jumped))
-		return; // ignore useless try
+	if (scope->m_flags & (ScopeFlag_Try | ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
+	{
+		err::setFormatStringError ("'nestedscope' can only be used in regular scopes (not 'try', 'catch', 'finally' or 'nestedscope')");
+		return false;
+	}
 
-	bool result = catchLabel ();
-	ASSERT (result);
-
-	endCatch ();
+	Scope* nestedScope = m_module->m_namespaceMgr.openScope (pos, scopeFlags | ScopeFlag_Nested);
+	nestedScope->m_flags |= scope->m_flags & ScopeFlag_Function; // propagate
+	return true;
 }
 
 bool

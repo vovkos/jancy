@@ -481,7 +481,7 @@ StructType::gcMarkFmtLiteral (
 	if (!literal->m_p)
 		return;
 
-	Box* box = ((Box*) literal->m_p) - 1;
+	DynamicArrayBox* box = ((DynamicArrayBox*) literal->m_p) - 1;
 	gcHeap->weakMark (box);
 }
 

@@ -4,11 +4,13 @@
 //.............................................................................
 
 void
-MyLayout::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	MyLayout* self
+MyLayout::construct (
+	QBoxLayout::Direction direction,
+	QWidget* parent
 	)
 {
+	m_qtLayout = new QBoxLayout (direction, parent);
+	m_direction = direction;
 }
 
 MyLayout*
@@ -17,19 +19,9 @@ MyLayout::operatorNew (
 	QBoxLayout::Direction direction
 	)
 {
-	jnc::ApiClassBox <MyLayout>* layout = (jnc::ApiClassBox <MyLayout>*) jnc::StdLib::allocateClass (type);
+	MyLayout* layout = (MyLayout*) jnc::StdLib::allocateClass (type);
 	layout->construct (direction);
 	return layout;
-}
-
-void
-MyLayout::construct (
-	QBoxLayout::Direction direction,
-	QWidget* parent
-	)
-{
-	m_qtLayout = new QBoxLayout (direction, parent);
-	m_direction = direction;
 }
 
 void

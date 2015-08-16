@@ -449,13 +449,13 @@ Value::setLeanDataPtrValidator (const Value& originValue)
 {
 	ASSERT (isDataPtrType (m_type, DataPtrTypeKind_Lean));
 
-	if (originValue.m_valueKind == ValueKind_Variable)
-	{
-		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator ();
-	}
-	else if (originValue.m_leanDataPtrValidator)
+	if (originValue.m_leanDataPtrValidator)
 	{
 		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
+	}
+	else if (originValue.m_valueKind == ValueKind_Variable)
+	{
+		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator ();
 	}
 	else
 	{

@@ -119,7 +119,7 @@ DataPtrType::markGcRoots (
 		return;
 
 	gcHeap->weakMark (ptr->m_validator->m_validatorBox);
-	gcHeap->markData (m_targetType, ptr->m_validator);
+	gcHeap->markData (ptr->m_validator->m_targetBox);
 }
 
 //.............................................................................

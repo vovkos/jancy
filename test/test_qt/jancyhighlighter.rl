@@ -125,7 +125,7 @@ main := |*
 'try'             |
 'catch'           |
 'finally'         |
-'nested'          |
+'nestedscope'     |
 'assert'          |
 
 'basetype' [1-9]? |

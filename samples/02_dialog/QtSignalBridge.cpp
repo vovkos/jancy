@@ -4,20 +4,19 @@
 
 //.............................................................................
 
+QtSignalBridge::QtSignalBridge (QObject* parent):
+	QObject (parent)
+{
+	m_runtime = jnc::getCurrentThreadRuntime ();
+	ASSERT (m_runtime);
+
+	m_jncEvent = NULL;
+}
+
 void 
 QtSignalBridge::onQtSignal ()
 {
-	ASSERT (m_jncEvent);
-
-	AXL_MT_BEGIN_LONG_JMP_TRY ()
-	{
-		m_jncEvent->call ();
-	}
-	AXL_MT_LONG_JMP_CATCH ()
-	{
-		// ignore
-	}
-	AXL_MT_END_LONG_JMP_TRY ()
+	callMulticast (m_runtime, m_jncEvent);
 }
 
 //.............................................................................

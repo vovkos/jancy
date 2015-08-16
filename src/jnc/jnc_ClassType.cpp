@@ -26,10 +26,18 @@ ClassType::setupOpaqueClass (
 	Class_MarkOpaqueGcRootsFunc* markOpaqueGcRootsFunc
 	)
 {
-	ASSERT ((m_flags & ClassTypeFlag_Opaque) && !m_markOpaqueGcRootsFunc && size >= m_size);
+	ASSERT (
+		(m_flags & ClassTypeFlag_Opaque) && 
+		!(m_flags & ClassTypeFlag_OpaqueReady) && 
+		size >= m_size);
 
 	m_size = size;
 	m_markOpaqueGcRootsFunc = markOpaqueGcRootsFunc;
+
+	if (markOpaqueGcRootsFunc)
+		m_flags |= TypeFlag_GcRoot;
+
+	m_flags |= ClassTypeFlag_OpaqueReady;
 }
 
 ClassPtrType*
@@ -750,7 +758,7 @@ ClassType::markGcRootsImpl (
 		StructField* field = m_gcRootMemberFieldArray [i];
 		Type* type = field->getType ();
 		char* p2 = p + field->getOffset ();
-
+		
 		type->markGcRoots (p2, gcHeap);
 	}
 

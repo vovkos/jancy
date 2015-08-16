@@ -4,27 +4,6 @@
 //.............................................................................
 
 void
-MySlider::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	MySlider* self
-	)
-{
-}
-
-MySlider*
-MySlider::operatorNew (
-	jnc::ClassType* type,
-	int minimum,
-	int maximum
-	)
-{
-	jnc::ApiClassBox <MySlider>* slider = (jnc::ApiClassBox <MySlider>*) jnc::StdLib::allocateClass (type);
-	slider->prime (type);	
-	slider->construct (minimum, maximum);
-	return slider;
-}
-
-void
 MySlider::construct (
 	int minimum,
 	int maximum
@@ -38,6 +17,18 @@ MySlider::construct (
 
 	m_onValueChangedBridge = new QtSignalBridge;
 	m_onValueChangedBridge->connect (m_qtSlider, SIGNAL (valueChanged (int)), &m_onValueChanged);
+}
+
+MySlider*
+MySlider::operatorNew (
+	jnc::ClassType* type,
+	int minimum,
+	int maximum
+	)
+{
+	MySlider* slider = (MySlider*) jnc::StdLib::allocateClass (type);
+	slider->construct (minimum, maximum);
+	return slider;
 }
 
 //.............................................................................

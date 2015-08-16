@@ -8,7 +8,7 @@ class MyLayout: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS ("Layout", ApiSlot_Layout)
-		JNC_OPAQUE_CLASS (MyLayout, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MyLayout, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_FUNCTION ("addWidget", &MyLayout::addWidget)
 		JNC_FUNCTION ("addLayout", &MyLayout::addLayout)
@@ -22,11 +22,10 @@ public:
 	QBoxLayout* m_qtLayout;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MyLayout* self
+	construct (
+		QBoxLayout::Direction direction,
+		QWidget* parent = NULL
 		);
 
 	static 
@@ -34,12 +33,6 @@ public:
 	operatorNew (
 		jnc::ClassType* type,
 		QBoxLayout::Direction direction
-		);
-
-	void
-	construct (
-		QBoxLayout::Direction direction,
-		QWidget* parent = NULL
 		);
 
 	void

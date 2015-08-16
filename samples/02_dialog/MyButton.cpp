@@ -4,26 +4,6 @@
 
 //.............................................................................
 
-void
-MyButton::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	MyButton* self
-	)
-{
-}
-
-MyButton*
-MyButton::operatorNew (
-	jnc::ClassType* type,
-	jnc::DataPtr textPtr
-	)
-{
-	jnc::ApiClassBox <MyButton>* button = (jnc::ApiClassBox <MyButton>*) jnc::StdLib::allocateClass (type);
-	button->prime (type);	
-	button->construct (textPtr);
-	return button;
-}
-
 void 
 MyButton::construct (jnc::DataPtr textPtr)
 {
@@ -32,6 +12,17 @@ MyButton::construct (jnc::DataPtr textPtr)
 	setText (textPtr);
 	m_onClickedBridge = new QtSignalBridge;
 	m_onClickedBridge->connect (m_qtButton, SIGNAL (clicked ()), &m_onClicked);
+}
+
+MyButton*
+MyButton::operatorNew (
+	jnc::ClassType* type,
+	jnc::DataPtr textPtr
+	)
+{
+	MyButton* button = (MyButton*) jnc::StdLib::allocateClass (type);
+	button->construct (textPtr);
+	return button;
 }
 
 //.............................................................................

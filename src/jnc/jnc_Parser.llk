@@ -56,12 +56,6 @@ Members
 		AssignKind_BinOp,
 	};
 
-	enum LandingPadFlag
-	{
-		LandingPadFlag_Catch   = 0x01,
-		LandingPadFlag_Finally = 0x02,
-	};
-
 	enum AutomatonState
 	{
 		AutomatonState_Idle,
@@ -96,6 +90,12 @@ Members
 		size_t m_length;
 		bool m_isZeroTerminated;
 		bool m_isFmtLiteral;
+	};
+
+	struct StmtPass1
+	{
+		rtl::BoxList <Token> m_tokenList;
+		Token* m_scopeAnchorToken;
 	};
 
 	Module* m_module;
@@ -150,10 +150,7 @@ Members2
 		const rtl::ConstBoxList <Token>& tokenList,
 		bool isBuildingAst = false
 		);
-
-	bool
-	preCreateLandingPads (uint_t flags);
-
+			
 	NamedImportType*
 	getNamedImportType (
 		const QualifiedName& name,
@@ -451,6 +448,9 @@ Members2
 	finalizeBaseTypeMemberConstructBlock ();
 
 	bool
+	finalizeCompoundStmt ();
+
+	bool
 	lookupIdentifier (
 		const rtl::String& name,
 		const Token::Pos& pos,
@@ -527,6 +527,13 @@ Members2
 		const rtl::BoxList <Token>& conditionTokenList,
 		const Value& messageValue,
 		BasicBlock* continueBlock
+		);
+
+	static
+	void
+	addScopeAnchorToken (
+		StmtPass1* stmt,
+		const Token& token
 		);
 }
 

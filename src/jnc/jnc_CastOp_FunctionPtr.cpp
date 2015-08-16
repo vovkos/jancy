@@ -175,7 +175,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, closureValue, nullClosureValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, strengthenBlock, phiBlock);
 
-	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
+	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFunc_StrengthenClassPtr);
 
 	Value strengthenedClosureValue;
 	m_module->m_llvmIrBuilder.createCall (

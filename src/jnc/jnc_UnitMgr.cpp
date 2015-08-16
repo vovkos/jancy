@@ -40,7 +40,7 @@ UnitMgr::createUnit (const rtl::String& filePath)
 	unit->m_fileName = io::getFileName (filePath);
 	unit->m_dir = io::getDir  (filePath);
 
-	if (m_module->getFlags () & ModuleFlag_DebugInfo)
+	if (m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo)
 		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile (unit->m_fileName, unit->m_dir);
 
 	m_unitList.insertTail (unit);

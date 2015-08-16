@@ -175,35 +175,48 @@ OperatorMgr::getStructField (
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
-
-	DataPtrType* ptrType = field->getType ()->getDataPtrType (
-		field->getParentNamespace (),
-		TypeKind_DataRef,
-		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
-		ptrTypeFlags
-		);
-
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		getFieldPtrImpl (opValue, coord, ptrType, resultValue);
-	}
-	else if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
-		getFieldPtrImpl (opValue, coord, ptrType, resultValue);
+		DataPtrType* resultType = field->getType ()->getDataPtrType (
+			field->getParentNamespace (),
+			TypeKind_DataRef,
+			DataPtrTypeKind_Thin,
+			ptrTypeFlags
+			);
 
-		if (opValue.getValueKind () == ValueKind_Variable)
-			resultValue->setLeanDataPtrValidator (opValue);
-		else
-			resultValue->setLeanDataPtrValidator (opValue.getLeanDataPtrValidator ());
+		getFieldPtrImpl (opValue, coord, resultType, resultValue);
+		return true;
+	}
+	
+	Value ptrValue;
+	if (ptrTypeKind == DataPtrTypeKind_Lean)
+	{
+		getFieldPtrImpl (opValue, coord, NULL, &ptrValue);
 	}
 	else
 	{
-		Value ptrValue;
 		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getTargetType ()->getDataPtrType_c (), &ptrValue);
-		getFieldPtrImpl (ptrValue, coord, ptrType, resultValue);
-		resultValue->setLeanDataPtrValidator (opValue);
+		getFieldPtrImpl (ptrValue, coord, NULL, &ptrValue);
 	}
+
+	DataPtrType* resultType = field->getType ()->getDataPtrType (
+		field->getParentNamespace (),
+		TypeKind_DataRef,
+		DataPtrTypeKind_Lean,
+		ptrTypeFlags
+		);
+
+	if (opType->getTargetType ()->getFlags () & TypeFlag_Pod)
+		resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
+	else
+		resultValue->setLeanDataPtr (
+			ptrValue.getLlvmValue (), 
+			resultType, 
+			opValue, 
+			ptrValue, 
+			field->getType ()->getSize ()
+			);
 
 	return true;
 }

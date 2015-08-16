@@ -12,177 +12,141 @@ LeanDataPtrValidator::getValidatorValue ()
 	if (m_validatorValue)
 		return m_validatorValue;
 
+	createValidator ();
+	ASSERT (m_validatorValue);
+	return m_validatorValue;
+}
+
+void
+LeanDataPtrValidator::createValidator ()
+{
 	ASSERT (m_originValue);
+	if (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
+	{
+		createClassFieldValidator ();
+		return;
+	}
+
+	ASSERT (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	Module* module = m_originValue.getType ()->getModule ();
+	DataPtrType* originType = (DataPtrType*) m_originValue.getType ();
+	
+	Value originValidatorValue;
 
 	if (m_originValue.getValueKind () == ValueKind_Variable)
 	{
 		Variable* variable = m_originValue.getVariable ();
-		StorageKind storageKind = variable->getStorageKind ();
-		switch (storageKind)
+		LeanDataPtrValidator* originValidator = variable->getLeanDataPtrValidator ();
+
+		if (!originValidator->m_validatorValue)
 		{
-		case StorageKind_Static:
-			m_validatorValue = module->m_variableMgr.createStaticDataPtrValidatorVariable (variable);
-			break;
+			StorageKind storageKind = variable->getStorageKind ();
+			switch (storageKind)
+			{
+			case StorageKind_Static:
+				module->m_variableMgr.createStaticDataPtrValidatorVariable (variable);
+				break;
 
-		case StorageKind_Stack:
-			module->m_variableMgr.liftStackVariable (variable);
-			break;
+			case StorageKind_Stack:
+				module->m_variableMgr.liftStackVariable (variable);
+				break;
 
-		case StorageKind_Heap:
-			ASSERT (false); // not yet
-			break;
-
-		default:
-			ASSERT (false);
+			default:
+				ASSERT (false); // heap variables should already have validator value set
+			}
 		}
-	}
-	else if (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
+
+		originValidatorValue = originValidator->m_validatorValue;
+		ASSERT (originValidatorValue);
+	}	
+	else 
 	{
-		ASSERT (m_rangeBeginValue && m_rangeLength);
-
-		Function* createDataPtrValidator = module->m_functionMgr.getStdFunction (StdFunction_CreateDataPtrValidator);
-
-		Value argValueArray [3];
-		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &argValueArray [0]);
-		module->m_llvmIrBuilder.createBitCast (m_rangeBeginValue, module->m_typeMgr.getStdType (StdType_BytePtr), &argValueArray [1]);
-		argValueArray [2].setConstSizeT (m_rangeLength, module);
-
-		module->m_llvmIrBuilder.createCall (
-			createDataPtrValidator,
-			createDataPtrValidator->getType (),
-			argValueArray,
-			3,
-			&m_validatorValue
-			);		
-	}
-	else if (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr)
-	{
-		DataPtrType* type = (DataPtrType*) m_originValue.getType ();
-		if (type->getTargetType ()->getStdType () == StdType_DataPtrValidator)
+		if (originType->getTargetType ()->getStdType () == StdType_DataPtrValidator)
 		{
-			m_validatorValue = m_originValue;
+			originValidatorValue = m_originValue;
 		}
-		else
+		else if (originType->getPtrTypeKind () == DataPtrTypeKind_Lean)
 		{
-			ASSERT (type->getPtrTypeKind () == DataPtrTypeKind_Normal);
+			originValidatorValue = m_originValue.getLeanDataPtrValidator ()->getValidatorValue ();
+		}
+		else 
+		{
+			ASSERT (originType->getPtrTypeKind () == DataPtrTypeKind_Normal);
 			module->m_llvmIrBuilder.createExtractValue (
 				m_originValue, 
 				1, 
 				module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr), 
-				&m_validatorValue
+				&originValidatorValue
 				);
 		}
 	}
+
+	if (!m_rangeBeginValue || m_rangeBeginValue.getLlvmValue () == m_originValue.getLlvmValue ())
+	{
+		m_validatorValue = originValidatorValue;
+	}
+	else
+	{	
+		Value boxValue;
+		module->m_llvmIrBuilder.createGep2 (originValidatorValue, 1, NULL, &boxValue);
+		module->m_llvmIrBuilder.createLoad (boxValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &boxValue);
+		createValidator (boxValue);
+	}
+}
+
+void
+LeanDataPtrValidator::createValidator (const Value& boxValue)
+{
+	ASSERT (m_originValue && m_rangeBeginValue && m_rangeLength);
+
+	Module* module = m_originValue.getType ()->getModule ();
+	Function* createDataPtrValidator = module->m_functionMgr.getStdFunction (StdFunc_CreateDataPtrValidator);
+
+	Value argValueArray [3];
+	argValueArray [0] = boxValue;
+	module->m_llvmIrBuilder.createBitCast (m_rangeBeginValue, module->m_typeMgr.getStdType (StdType_BytePtr), &argValueArray [1]);
+	argValueArray [2].setConstSizeT (m_rangeLength, module);
+
+	module->m_llvmIrBuilder.createCall (
+		createDataPtrValidator,
+		createDataPtrValidator->getType (),
+		argValueArray,
+		3,
+		&m_validatorValue
+		);
+
+	module->m_operatorMgr.markStackGcRoot (
+		m_validatorValue, 
+		module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr),
+		StackGcRootKind_Temporary
+		);
+}
+
+void
+LeanDataPtrValidator::createClassFieldValidator ()
+{
+	ASSERT (m_originValue);
+
+	Module* module = m_originValue.getType ()->getModule ();
+
+	Value boxValue;
+	if (m_originValue.getValueKind () == ValueKind_Variable)
+	{
+		Value tmpValue;
+		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &tmpValue);
+		module->m_llvmIrBuilder.createGep (tmpValue, -1, module->m_typeMgr.getStdType (StdType_BoxPtr), &boxValue);
+	}
 	else
 	{
-		ASSERT (false);
+		Value tmpValue;
+		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr), &tmpValue);
+		module->m_llvmIrBuilder.createGep2 (tmpValue, 1, NULL, &tmpValue);
+		module->m_llvmIrBuilder.createLoad (tmpValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &boxValue);
 	}
 
-	ASSERT (m_validatorValue);
-	return m_validatorValue;
+	createValidator (boxValue);
 }
 
 //.............................................................................
 
 } // namespace jnc {
-
-/*
-
-void
-OperatorMgr::getLeanDataPtrBox (
-	const Value& value,
-	Value* resultValue
-	)
-{
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
-
-	ValueKind valueKind = value.getValueKind ();
-	if (valueKind == ValueKind_Variable)
-	{	
-		*resultValue = value.getVariable ()->getBox ();
-		return;
-	}
-
-	ASSERT (value.getLeanDataPtrValidator ());
-	Value scopeValidatorValue = value.getLeanDataPtrValidator ()->getScopeValidator ();
-
-	if (scopeValidatorValue.getValueKind () == ValueKind_Variable)
-	{
-		*resultValue = scopeValidatorValue.getVariable ()->getBox ();
-		return;
-	}
-	
-	Type* scopeValidatorType = scopeValidatorValue.getType ();
-	Type* resultType = m_module->m_typeMgr.getStdType (StdType_BoxPtr);
-	if (scopeValidatorType->cmp (resultType) == 0)
-	{
-		*resultValue = scopeValidatorValue;
-	}
-	else if (scopeValidatorType->getTypeKind () == TypeKind_ClassPtr)
-	{
-		Type* ifaceHdrPtrType = m_module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr);
-
-		Value objHdrValue;
-		m_module->m_llvmIrBuilder.createBitCast (scopeValidatorValue, ifaceHdrPtrType, &objHdrValue);
-		m_module->m_llvmIrBuilder.createGep2 (objHdrValue, 0, NULL, &objHdrValue); // root
-		m_module->m_llvmIrBuilder.createLoad (objHdrValue, resultType, resultValue);
-	}
-	else
-	{
-		ASSERT (scopeValidatorType->getTypeKindFlags () & TypeKindFlag_DataPtr);
-		ASSERT (((DataPtrType*) scopeValidatorType)->getPtrTypeKind () == DataPtrTypeKind_Normal);
-		m_module->m_llvmIrBuilder.createExtractValue (scopeValidatorValue, 3, resultType, resultValue);
-	}
-}
-
-void
-OperatorMgr::getLeanDataPtrRange (
-	const Value& value,
-	Value* rangeBeginValue,
-	Value* rangeEndValue
-	)
-{
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
-
-	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
-
-	ValueKind valueKind = value.getValueKind ();
-	if (valueKind == ValueKind_Variable)
-	{	
-		size_t size =  value.getVariable ()->getType ()->getSize ();
-		m_module->m_llvmIrBuilder.createBitCast (value, bytePtrType, rangeBeginValue);
-		m_module->m_llvmIrBuilder.createGep (*rangeBeginValue, size, bytePtrType, rangeEndValue);
-		return;
-	}
-
-	LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
-	ASSERT (validator);
-
-	if (validator->getValidatorKind () == LeanDataPtrValidatorKind_Complex)
-	{
-		m_module->m_llvmIrBuilder.createBitCast (validator->getRangeBegin (), bytePtrType, rangeBeginValue);
-		m_module->m_llvmIrBuilder.createGep (*rangeBeginValue, validator->getSizeValue (), bytePtrType, rangeEndValue);
-		return;
-	}
-
-	ASSERT (validator->getValidatorKind () == LeanDataPtrValidatorKind_Simple);
-	Value validatorValue = validator->getScopeValidator ();
-
-	if (validatorValue.getValueKind () == ValueKind_Variable)
-	{
-		size_t size = validatorValue.getVariable ()->getType ()->getSize ();
-		m_module->m_llvmIrBuilder.createBitCast (validatorValue, bytePtrType, rangeBeginValue);
-		m_module->m_llvmIrBuilder.createGep (*rangeBeginValue, size, bytePtrType, rangeEndValue);
-		return;
-	}
-
-	ASSERT (
-		(validatorValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
-		((DataPtrType*) validatorValue.getType ())->getPtrTypeKind () == DataPtrTypeKind_Normal);
-
-	m_module->m_llvmIrBuilder.createExtractValue (validatorValue, 1, bytePtrType, rangeBeginValue);
-	m_module->m_llvmIrBuilder.createExtractValue (validatorValue, 2, bytePtrType, rangeEndValue);		
-}
-
- */

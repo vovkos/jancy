@@ -8,7 +8,7 @@ class MyCheckBox: public MyWidget
 {
 public:
 	JNC_BEGIN_CLASS ("CheckBox", ApiSlot_CheckBox)
-		JNC_OPAQUE_CLASS (MyCheckBox, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MyCheckBox, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
 		JNC_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
@@ -23,12 +23,8 @@ public:
 	QtSignalBridge* m_onIsCheckedChangedBridge;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MyCheckBox* self
-		);
+	construct (jnc::DataPtr textPtr);
 
 	static 
 	MyCheckBox*
@@ -36,9 +32,6 @@ public:
 		jnc::ClassType* type,
 		jnc::DataPtr textPtr
 		);
-
-	void
-	construct (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

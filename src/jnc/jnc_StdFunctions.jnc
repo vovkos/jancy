@@ -369,6 +369,10 @@ void checkNullPtr (
 	int typeKind
 	);
 
+///; static char checkStackOverflowSrc [] = 
+
+void checkStackOverflow ();
+
 ///; static char tryLazyGetLibraryFunctionSrc [] = 
 
 void thin* tryLazyGetLibraryFunction (

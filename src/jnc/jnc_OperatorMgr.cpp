@@ -623,7 +623,7 @@ OperatorMgr::dynamicCastDataPtr (
 	Type* targetType = type->getTargetType ();
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastDataPtr);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicCastDataPtr);
 
 	result = callOperator (function, ptrValue, typeValue, resultValue);
 	if (!result)
@@ -662,7 +662,7 @@ OperatorMgr::dynamicCastClassPtr (
 	Type* targetType = type->getTargetType ();
 	Value typeValue (&targetType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCastClassPtr);
+	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicCastClassPtr);
 	m_module->m_llvmIrBuilder.createCall2 (
 		function,
 		function->getType (),
@@ -901,7 +901,7 @@ OperatorMgr::sizeofOperator (
 {
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
-		Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicSizeOf);
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicSizeOf);
 		return callOperator (function, opValue, resultValue);
 	}
 
@@ -936,7 +936,7 @@ OperatorMgr::countofOperator (
 
 		type = ((DataPtrType*) type)->getTargetType ();
 		Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-		Function* function = m_module->m_functionMgr.getStdFunction (StdFunction_DynamicCountOf);
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicCountOf);
 		return callOperator (function, opValue, typeValue, resultValue);
 	}
 

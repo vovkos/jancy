@@ -83,7 +83,7 @@ Cast_ClassPtr::llvmCast (
 	if (srcType->getPtrTypeKind () == ClassPtrTypeKind_Weak &&
 		dstType->getPtrTypeKind () != ClassPtrTypeKind_Weak)
 	{
-		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFunction_StrengthenClassPtr);
+		Function* strengthen = m_module->m_functionMgr.getStdFunction (StdFunc_StrengthenClassPtr);
 
 		m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &opValue);
 		m_module->m_llvmIrBuilder.createCall (

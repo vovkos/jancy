@@ -767,9 +767,6 @@ TypeMgr::createClassType (
 		m_classTypeList.insertTail (type);
 	}
 
-	if (flags & ClassTypeFlag_Opaque)
-		flags |= TypeFlag_GcRoot;
-
 	if (name.isEmpty ())
 	{
 		m_unnamedClassTypeCounter++;
@@ -796,7 +793,7 @@ TypeMgr::createClassType (
 
 	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
 	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
-	ifaceHdrStructType->createField ("!m_vtbl", vtableStructType->getDataPtrType_c ());
+	ifaceHdrStructType->createField ("!m_vtable", vtableStructType->getDataPtrType_c ());
 	ifaceHdrStructType->createField ("!m_box", getStdType (StdType_BoxPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
@@ -810,7 +807,7 @@ TypeMgr::createClassType (
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
 	classStructType->m_parentNamespace = type;
-	classStructType->createField ("!m_objectHdr", getStdType (StdType_Box));
+	classStructType->createField ("!m_box", getStdType (StdType_Box));
 	classStructType->createField ("!m_iface", ifaceStructType);
 
 	type->m_module = m_module;
@@ -2496,7 +2493,7 @@ StructType*
 TypeMgr::createSimpleIfaceHdrType ()
 {
 	StructType* type = createStructType ("SimpleIfaceHdr", "jnc.SimpleIfaceHdr");
-	type->createField ("!m_vtbl", getStdType (StdType_BytePtr));
+	type->createField ("!m_vtable", getStdType (StdType_BytePtr));
 	type->createField ("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout ();
 	return type;
@@ -2582,10 +2579,11 @@ StructType*
 TypeMgr::createVariantStructType ()
 {
 	StructType* type = createStructType ("Variant", "jnc.Variant");
-	type->createField ("!m_data1", getPrimitiveType (TypeKind_Int64));
+	type->createField ("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField ("!m_data2", getPrimitiveType (TypeKind_IntPtr));
-	type->createField ("!m_data3", getPrimitiveType (TypeKind_IntPtr));
-	type->createField ("!m_data4", getPrimitiveType (TypeKind_IntPtr));
+#if (_AXL_PTR_SIZE == 4)
+	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
+#endif
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
@@ -2629,51 +2627,3 @@ TypeMgr::getGcShadowStackFrameMapType (size_t gcRootCount)
 //.............................................................................
 
 } // namespace jnc {
-
-/* 
-
-StructType*
-TypeMgr::getGcShadowStackFrameMapType (size_t rootCount)
-{
-	ASSERT (rootCount);
-
-	size_t count = m_gcShadowStackFrameTypeArray.getCount ();
-	if (rootCount >= count)
-		m_gcShadowStackFrameTypeArray.setCount (rootCount + 1);
-
-	GcShadowStackFrameTypePair* pair = &m_gcShadowStackFrameTypeArray [rootCount];
-	if (pair->m_gcShadowStackFrameMapType)
-		return pair->m_gcShadowStackFrameMapType;
-
-	ArrayType* arrayType = getArrayType (getStdType (StdType_BytePtr), rootCount);
-	StructType* type = createStructType ("GcShadowStackFrameMap", "jnc.GcShadowStackFrameMap");
-	type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
-	type->createField ("!m_gcRootTypeArray", arrayType);
-	type->ensureLayout ();
-
-	pair->m_gcShadowStackFrameMapType = type;
-	return type;
-}
-
-StructType*
-TypeMgr::getGcShadowStackFrameType (size_t rootCount)
-{
-	StructType* mapType = getGcShadowStackFrameMapType (rootCount);
-
-	ASSERT (rootCount < m_gcShadowStackFrameTypeArray.getCount ());
-
-	GcShadowStackFrameTypePair* pair = &m_gcShadowStackFrameTypeArray [rootCount];
-	if (pair->m_gcShadowStackFrameType)
-		return pair->m_gcShadowStackFrameType;
-
-	StructType* type = createStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
-	type->createField ("!m_prev", getStdType (StdType_BytePtr));
-	type->createField ("!m_map", mapType->getDataPtrType_c ());
-	type->createField ("!m_gcRootArray", arrayType);
-	type->ensureLayout ();
-
-	pair->m_gcShadowStackFrameType = type;
-	return type;
-}
-
- */

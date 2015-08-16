@@ -6,6 +6,7 @@
 
 #include "jnc_Function.h"
 #include "jnc_Runtime.h"
+#include "jnc_MulticastClassType.h"
 
 namespace jnc {
 
@@ -13,9 +14,9 @@ namespace jnc {
 
 template <typename RetVal>
 bool
-callFunction (
+callFunctionImpl (
 	Runtime* runtime,
-	Function* function,
+	void* p,
 	RetVal* retVal
 	)
 {
@@ -23,14 +24,11 @@ callFunction (
 	RetVal
 	TargetFunc ();
 
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
 	bool result = true;
 
 	JNC_BEGIN (runtime)
 	{
-		*retVal = p ();
+		*retVal = ((TargetFunc*) p) ();
 	}
 	JNC_CATCH ()
 	{
@@ -41,16 +39,14 @@ callFunction (
 	return result;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 template <
 	typename RetVal,
 	typename Arg
 	>
 bool
-callFunction (
+callFunctionImpl (
 	Runtime* runtime,
-	Function* function,
+	void* p,
 	RetVal* retVal,
 	Arg arg
 	)
@@ -59,14 +55,11 @@ callFunction (
 	RetVal
 	TargetFunc (Arg);
 
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
 	bool result = true;
 
 	JNC_BEGIN (runtime)
 	{
-		*retVal = p (arg);
+		*retVal = ((TargetFunc*) p) (arg);
 	}
 	JNC_CATCH ()
 	{
@@ -77,17 +70,15 @@ callFunction (
 	return result;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 template <
 	typename RetVal,
 	typename Arg1,
 	typename Arg2
 	>
 bool
-callFunction (
+callFunctionImpl (
 	Runtime* runtime,
-	Function* function,
+	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2
@@ -100,14 +91,11 @@ callFunction (
 		Arg2
 		);
 
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
 	bool result = true;
 
 	JNC_BEGIN (runtime)
 	{
-		*retVal = p (arg1, arg2);
+		*retVal = ((TargetFunc*) p)  (arg1, arg2);
 	}
 	JNC_CATCH ()
 	{
@@ -118,8 +106,6 @@ callFunction (
 	return result;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 template <
 	typename RetVal,
 	typename Arg1,
@@ -127,9 +113,9 @@ template <
 	typename Arg3
 	>
 bool
-callFunction (
+callFunctionImpl (
 	Runtime* runtime,
-	Function* function,
+	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -144,14 +130,11 @@ callFunction (
 		Arg3
 		);
 
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
 	bool result = true;
 
 	JNC_BEGIN (runtime)
 	{
-		*retVal = p (arg1, arg2, arg3);
+		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3);
 	}
 	JNC_CATCH ()
 	{
@@ -162,7 +145,156 @@ callFunction (
 	return result;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+bool
+callFunctionImpl (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	typedef
+	RetVal
+	TargetFunc (
+		Arg1,
+		Arg2,
+		Arg3,
+		Arg4
+		);
+
+	bool result = true;
+
+	JNC_BEGIN (runtime)
+	{
+		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
+	}
+	JNC_CATCH ()
+	{
+		result = false;
+	}
+	JNC_END ()
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4,
+	typename Arg5
+	>
+bool
+callFunctionImpl (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4,
+	Arg5 arg5
+	)
+{
+	typedef
+	RetVal
+	TargetFunc (
+		Arg1,
+		Arg2,
+		Arg3,
+		Arg4,
+		Arg5
+		);
+
+	bool result = true;
+
+	JNC_BEGIN (runtime)
+	{
+		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
+	}
+	JNC_CATCH ()
+	{
+		result = false;
+	}
+	JNC_END ()
+
+	return result;
+}
+
+//.............................................................................
+
+template <typename RetVal>
+bool
+callFunction (
+	Runtime* runtime,
+	Function* function,
+	RetVal* retVal
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal);
+}
+
+template <
+	typename RetVal,
+	typename Arg
+	>
+bool
+callFunction (
+	Runtime* runtime,
+	Function* function,
+	RetVal* retVal,
+	Arg arg
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
+	>
+bool
+callFunction (
+	Runtime* runtime,
+	Function* function,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callFunction (
+	Runtime* runtime,
+	Function* function,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3);
+}
 
 template <
 	typename RetVal,
@@ -179,34 +311,10 @@ callFunction (
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
-	Arg3 arg4
+	Arg4 arg4
 	)
 {
-	typedef
-	RetVal
-	TargetFunc (
-		Arg1,
-		Arg2,
-		Arg3,
-		Arg4
-		);
-
-	TargetFunc* p = (TargetFunc*) function->getMachineCode ();
-	ASSERT (p);
-
-	bool result = true;
-
-	JNC_BEGIN (runtime)
-	{
-		*retVal = p (arg1, arg2, arg3, arg4);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
-
-	return result;
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
@@ -219,7 +327,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunction <int> (runtime, function, &retVal);
+	return callFunctionImpl (runtime, function->getMachineCode (), &retVal);
 }
 
 template <typename Arg>
@@ -231,7 +339,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunction <int, Arg> (runtime, function, &retVal, arg);
+	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg);
 }
 
 template <
@@ -247,13 +355,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunction <int, Arg1, Arg2> (
-		runtime,
-		function, 
-		&retVal, 
-		arg1, 
-		arg2
-		);
+	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2);
 }
 
 template <
@@ -271,14 +373,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunction <int, Arg1, Arg2, Arg3> (
-		runtime,
-		function,
-		&retVal,
-		arg1,
-		arg2,
-		arg3
-		);
+	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3);
 }
 
 template <
@@ -294,19 +389,254 @@ callVoidFunction (
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
-	Arg3 arg4
+	Arg4 arg4
 	)
 {
 	int retVal;
-	return callFunction <int, Arg1, Arg2, Arg3, Arg4> (
-		runtime,
-		function,
-		&retVal,
-		arg1,
-		arg2,
-		arg3,
-		arg4
-		);
+	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3, arg4);
+}
+
+//.............................................................................
+
+template <typename RetVal>
+bool
+callFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	RetVal* retVal
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, ptr.m_closure);
+}
+
+template <
+	typename RetVal,
+	typename Arg
+	>
+bool
+callFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	RetVal* retVal,
+	Arg arg
+	)
+{
+	return callFunctionImpl (runtime, function->getMachineCode (), retVal, ptr.m_closure, arg);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
+	>
+bool
+callFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	return callFunctionImpl (runtime, ptr.m_p,  retVal, ptr.m_closure, arg1, arg2);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+bool
+callFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+}
+
+//.............................................................................
+
+inline
+bool
+callVoidFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr
+	)
+{
+	int retVal;
+	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure);
+}
+
+template <typename Arg>
+bool
+callVoidFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	Arg arg
+	)
+{
+	int retVal;
+	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg);
+}
+
+template <
+	typename Arg1,
+	typename Arg2
+	>
+bool
+callVoidFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	int retVal;
+	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callVoidFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	int retVal;
+	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+bool
+callVoidFunctionPtr (
+	Runtime* runtime,
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	int retVal;
+	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+}
+
+//.............................................................................
+
+inline
+bool
+callMulticast (
+	Runtime* runtime,
+	Multicast* multicast
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	return callVoidFunction (runtime, method, multicast);
+}
+
+template <typename Arg>
+bool
+callMulticast (
+	Runtime* runtime,
+	Multicast* multicast,
+	Arg arg
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	return callVoidFunction (runtime, method, multicast, arg);
+}
+
+template <
+	typename Arg1,
+	typename Arg2
+	>
+bool
+callMulticast (
+	Runtime* runtime,
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	return callVoidFunction (runtime, method, multicast, arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callMulticast (
+	Runtime* runtime,
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	return callVoidFunction (runtime, method, multicast, arg1, arg2, arg3);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+bool
+callMulticast (
+	Runtime* runtime,
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	return callVoidFunction (runtime, method, multicast, arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................

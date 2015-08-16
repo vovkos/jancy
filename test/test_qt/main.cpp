@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "mainwindow.h"
 
+//.............................................................................
+
 int main (int argc, char* argv [])
 {
 	atexit (llvm::llvm_shutdown);
@@ -23,3 +25,5 @@ int main (int argc, char* argv [])
 
 	return app.exec ();
 }
+
+//.............................................................................

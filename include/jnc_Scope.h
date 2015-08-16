@@ -17,12 +17,16 @@ class Variable;
 
 enum ScopeFlag
 {
-	ScopeFlag_Try            = 0x0100,
-	ScopeFlag_CatchDefined   = 0x0200,
-	ScopeFlag_FinallyDefined = 0x0400,
-	ScopeFlag_CanThrow       = 0x0800, // function throws, or parent has catch
-	ScopeFlag_HasFinally     = 0x1000, // this scope or its parent has finally
-	ScopeFlag_FunctionScope  = 0x2000, // this scope is from compound_stmt
+	ScopeFlag_Function        = 0x000100,
+	ScopeFlag_Unsafe          = 0x000200,	
+	ScopeFlag_Try             = 0x000400,
+	ScopeFlag_Catch           = 0x000800,
+	ScopeFlag_Finally         = 0x001000,
+	ScopeFlag_Nested          = 0x002000,
+	ScopeFlag_CatchAhead      = 0x004000,
+	ScopeFlag_FinallyAhead    = 0x008000,	
+	ScopeFlag_CanThrow        = 0x010000, // function throws, scope or one of its parents has catch
+	ScopeFlag_Finalizable     = 0x020000, // scope or one of its parents has finally
 };
 
 //.............................................................................
@@ -47,19 +51,10 @@ public:
 	BasicBlock* m_breakBlock;
 	BasicBlock* m_continueBlock;
 	BasicBlock* m_catchBlock;
-	BasicBlock* m_catchFollowBlock;
 	BasicBlock* m_finallyBlock;
-	Variable* m_finallyReturnAddress;
-	rtl::Array <BasicBlock*> m_finallyReturnBlockArray;
 
 public:
 	Scope ();
-
-	bool
-	isFunctionScope ()
-	{
-		return (m_flags & ScopeFlag_FunctionScope) != 0;
-	}
 
 	const Token::Pos*
 	getPos ()
@@ -80,13 +75,13 @@ public:
 	}
 
 	rtl::ConstBoxList <Value>
-	getStackGcRootList ()
+	getGcStackRootList ()
 	{
 		return m_gcStackRootList;
 	}
 
 	void
-	addToStackGcRootList (const Value& value)
+	addToGcStackRootList (const Value& value)
 	{
 		m_gcStackRootList.insertTail (value);
 	}
@@ -96,6 +91,12 @@ public:
 	{
 		return m_llvmDiScope;
 	}
+
+	BasicBlock* 
+	getOrCreateCatchBlock ();
+
+	BasicBlock* 
+	getOrCreateFinallyBlock ();
 };
 
 //.............................................................................

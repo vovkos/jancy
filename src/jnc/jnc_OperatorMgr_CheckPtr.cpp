@@ -8,8 +8,8 @@ namespace jnc {
 
 void
 OperatorMgr::checkPtr (
-	StdFunction stdTryCheckFunction,
-	StdFunction stdCheckFunction,
+	StdFunc stdTryCheckFunction,
+	StdFunc stdCheckFunction,
 	const Value* argValueArray,
 	size_t argCount
 	)
@@ -104,8 +104,8 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 			};
 
 			checkPtr (
-				StdFunction_TryCheckDataPtrRangeDirect,
-				StdFunction_CheckDataPtrRangeDirect,
+				StdFunc_TryCheckDataPtrRangeDirect,
+				StdFunc_CheckDataPtrRangeDirect,
 				argValueArray,
 				countof (argValueArray)
 				);
@@ -121,8 +121,8 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	};
 
 	checkPtr (
-		StdFunction_TryCheckDataPtrRangeIndirect,
-		StdFunction_CheckDataPtrRangeIndirect,
+		StdFunc_TryCheckDataPtrRangeIndirect,
+		StdFunc_CheckDataPtrRangeIndirect,
 		argValueArray,
 		countof (argValueArray)
 		);
@@ -179,8 +179,8 @@ OperatorMgr::checkNullPtr (const Value& value)
 	};
 
 	checkPtr (
-		StdFunction_TryCheckNullPtr,
-		StdFunction_CheckNullPtr,
+		StdFunc_TryCheckNullPtr,
+		StdFunc_CheckNullPtr,
 		argValueArray,
 		countof (argValueArray)
 		);

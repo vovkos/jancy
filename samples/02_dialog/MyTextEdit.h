@@ -8,7 +8,7 @@ class MyTextEdit: public MyWidget
 {
 public:
 	JNC_BEGIN_CLASS ("TextEdit", ApiSlot_TextEdit)
-		JNC_OPAQUE_CLASS (MyTextEdit, &enumGcRoots)
+		JNC_OPAQUE_CLASS (MyTextEdit, NULL)
 		JNC_OPERATOR_NEW (&operatorNew)
 		JNC_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
 	JNC_END_CLASS ()
@@ -18,19 +18,12 @@ public:
 	QtSignalBridge* m_onTextChangedBridge;
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		MyTextEdit* self
-		);
+	construct ();
 
 	static 
 	MyTextEdit*
 	operatorNew (jnc::ClassType* type);
-
-	void
-	construct ();
 
 	static
 	jnc::DataPtr

@@ -159,14 +159,14 @@ Jnc::compile (
 {
 	bool result;
 
-	uint_t moduleFlags = 0;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
 	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
-		moduleFlags |= jnc::ModuleFlag_DebugInfo;
+		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 
 	if (m_cmdLine->m_flags & JncFlag_Jit_mc)
-		moduleFlags |= jnc::ModuleFlag_McJit;
+		compileFlags |= jnc::ModuleCompileFlag_McJit;
 
-	m_module.create ("jncc_module", moduleFlags);
+	m_module.create ("jncc_module", compileFlags);
 
 	result =
 		m_module.parse (fileName, source, length) &&

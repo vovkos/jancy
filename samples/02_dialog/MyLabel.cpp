@@ -4,11 +4,14 @@
 //.............................................................................
 
 void
-MyLabel::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	MyLabel* self
-	)
+MyLabel::construct (jnc::DataPtr textPtr)
 {
+	m_qtLabel = new QLabel;
+	MyWidget::construct (m_qtLabel);
+	m_color = -1;
+	m_backColor = -1;
+	m_alignment = m_qtLabel->alignment ();
+	setText (textPtr);
 }
 
 MyLabel*
@@ -17,22 +20,9 @@ MyLabel::operatorNew (
 	jnc::DataPtr textPtr
 	)
 {
-	jnc::ApiClassBox <MyLabel>* label = (jnc::ApiClassBox <MyLabel>*) jnc::StdLib::allocateClass (type);
-	label->prime (type);
+	MyLabel* label = (MyLabel*) jnc::StdLib::allocateClass (type);
 	label->construct (textPtr);
 	return label;
-}
-
-void
-MyLabel::construct (jnc::DataPtr textPtr)
-{
-	m_qtLabel = new QLabel;
-	m_color = -1;
-	m_backColor = -1;
-	m_alignment = m_qtLabel->alignment ();
-
-	MyWidget::construct (m_qtLabel);
-	setText (textPtr);
 }
 
 void

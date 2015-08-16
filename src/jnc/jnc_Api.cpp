@@ -71,7 +71,7 @@ prime (
 	memset (box, 0, type->getSize ());
 
 	box->m_type = type;
-	box->m_flags = BoxFlag_StrongMark | BoxFlag_WeakMark;
+	box->m_flags = BoxFlag_ClassMark | BoxFlag_DataMark | BoxFlag_WeakMark;
 	box->m_rootOffset = (char*) box - (char*) root;
 
 	primeIface (box, root, (IfaceHdr*) (box + 1), type, vtable);

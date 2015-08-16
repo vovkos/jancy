@@ -4,6 +4,11 @@
 
 //.............................................................................
 
+TestClass::~TestClass ()
+{
+	printf ("  TestClass::~TestClass ()\n");
+}
+
 void
 TestClass::enumGcRoots (
 	jnc::GcHeap* gcHeap,
@@ -29,13 +34,6 @@ TestClass::operatorNew (
 	object->m_internalValue = value;
 	sprintf (object->m_internalData, "TestClass (%p)", (TestClass*) object);
 	return object;
-}
-
-void
-AXL_CDECL
-TestClass::destruct ()
-{
-	printf ("  TestClass::destruct ()\n");
 }
 
 int 
@@ -92,7 +90,8 @@ TestClass::setInternalValue (int value)
 {
 	m_internalValue = value;
 	if (m_internalValue < 0)
-		m_onNegative.call ();
+		callMulticast (jnc::getCurrentThreadRuntime (), &m_onNegative);
+
 	return value;
 }
 

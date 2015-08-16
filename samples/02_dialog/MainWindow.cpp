@@ -139,7 +139,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	m_layout.construct (QBoxLayout::TopToBottom, m_body);
 
 	int returnValue;
-	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, &m_layout);
+	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::IfaceHdr*) &m_layout);
 	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());

@@ -7,14 +7,12 @@ class QtSignalBridge: public QObject
 	Q_OBJECT;
 
 protected:
+	jnc::Runtime* m_runtime;
 	jnc::Multicast* m_jncEvent;
 
 public:
-	QtSignalBridge (QObject* parent = NULL):
-		QObject (parent)
-	{
-	}
-
+	QtSignalBridge (QObject* parent = NULL);
+ 
 	QtSignalBridge (
 		QObject* sender,
 		const char* signal,

@@ -37,9 +37,10 @@ enum ClassTypeKind
 
 enum ClassTypeFlag
 {
-	ClassTypeFlag_Abstract = 0x010000,
-	ClassTypeFlag_Opaque   = 0x020000,
-	ClassTypeFlag_Closure  = 0x040000,
+	ClassTypeFlag_Abstract    = 0x010000,
+	ClassTypeFlag_Closure     = 0x020000,
+	ClassTypeFlag_Opaque      = 0x040000,
+	ClassTypeFlag_OpaqueReady = 0x100000,
 };
 
 //.............................................................................

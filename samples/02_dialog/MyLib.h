@@ -14,7 +14,7 @@ class MyLib: public jnc::StdLib
 {
 public:
 	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunction_Printf,  &stdPrintf)
+		JNC_STD_FUNCTION (jnc::StdFunc_Printf,  &stdPrintf)
 		JNC_TYPE (MyWidget)
 		JNC_TYPE (MyLayout)
 		JNC_TYPE (MyLabel)

@@ -79,12 +79,14 @@ protected:
 
 	rtl::StdList <BasicBlock> m_blockList;
 	rtl::Array <BasicBlock*> m_returnBlockArray;
-	Variable* m_savedReturnValueVariable;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
-	
-
+	BasicBlock* m_catchFinallyFollowBlock;
+	BasicBlock* m_returnBlock;
+	Variable* m_finallyRouteIdxVariable;
+	Variable* m_returnValueVariable;
 	intptr_t m_throwLockCount;
+	size_t m_finallyRouteCount;
 
 public:
 	ControlFlowMgr ();
@@ -117,7 +119,10 @@ public:
 	}
 
 	BasicBlock*
-	createBlock (const rtl::String& name);
+	createBlock (
+		const rtl::String& name,
+		uint_t flags = 0
+		);
 
 	BasicBlock*
 	getCurrentBlock ()
@@ -184,19 +189,25 @@ public:
 		);
 
 	bool
-	catchLabel ();
+	catchLabel (const Token::Pos& pos);
 
 	bool
-	finallyLabel ();
+	closeCatch ();
 
-	void
-	endCatch ();
+	bool
+	finallyLabel (const Token::Pos& pos);
 
-	void
-	endFinally ();
+	bool
+	closeFinally ();
 
-	void
-	endTry ();
+	bool
+	nestedScopeLabel (
+		const Token::Pos& pos,
+		uint_t scopeFlags
+		);
+
+	bool
+	closeTry ();
 
 	bool
 	checkReturn ();
@@ -238,13 +249,15 @@ public:
 	switchStmt_Case (
 		SwitchStmt* stmt,
 		intptr_t value,
-		const Token::Pos& pos
+		const Token::Pos& pos,
+		uint_t scopeFlags
 		);
 
 	bool
 	switchStmt_Default (
 		SwitchStmt* stmt,
-		const Token::Pos& pos
+		const Token::Pos& pos,
+		uint_t scopeFlags
 		);
 
 	void
@@ -352,13 +365,26 @@ protected:
 	addBlock (BasicBlock* block);
 
 	void
-	onLeaveScope (Scope* targetScope = NULL);
-
-	void
-	jumpToFinally (Scope* scope);
+	escapeScope (
+		Scope* targetScope,
+		BasicBlock* targetBlock,
+		bool isThrow = false // during throw we have to nullify gc stack roots of target scope
+		);
 
 	BasicBlock*
 	getUnreachableBlock ();
+
+	BasicBlock*
+	getReturnBlock ();
+
+	Variable* 
+	getFinallyRouteIdxVariable ();
+
+	Variable* 
+	getReturnValueVariable ();
+
+	void
+	normalFinallyFlow ();
 };
 
 //.............................................................................
