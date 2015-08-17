@@ -14,9 +14,9 @@ namespace jnc {
 enum MulticastFieldKind
 {
 	MulticastFieldKind_Lock,
-	MulticastFieldKind_MaxCount,
-	MulticastFieldKind_Count,
 	MulticastFieldKind_PtrArray,
+	MulticastFieldKind_Count,
+	MulticastFieldKind_MaxCount,
 	MulticastFieldKind_HandleTable,
 
 	MulticastFieldKind__Count,
@@ -99,13 +99,6 @@ public:
 			ClassType::compile () &&
 			compileCallMethod ();
 	}
-
-	virtual
-	void
-	markGcRoots (
-		const void* p,
-		GcHeap* gcHeap
-		);
 
 protected:
 	virtual

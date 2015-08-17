@@ -592,7 +592,7 @@ OperatorMgr::memberOperator (
 bool
 OperatorMgr::getLibraryMember (
 	LibraryNamespace* library,
-	jnc::Closure* closure,
+	Closure* closure,
 	const char* name,
 	Value* resultValue
 	)

@@ -13,8 +13,8 @@ namespace jnc {
 
 enum McSnapshotFieldKind
 {
-	McSnapshotFieldKind_Count,
 	McSnapshotFieldKind_PtrArray,
+	McSnapshotFieldKind_Count,
 
 	McSnapshotFieldKind__Count,
 };
@@ -76,13 +76,6 @@ public:
 			ClassType::compile () &&
 			compileCallMethod ();
 	}
-
-	virtual 
-	void
-	markGcRoots (
-		const void* p,
-		GcHeap* gcHeap
-		);	
 
 protected:
 	virtual 

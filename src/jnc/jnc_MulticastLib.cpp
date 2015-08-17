@@ -16,11 +16,6 @@ MulticastLib::mapFunctions (Module* module)
 	for (; mcType; mcType++)
 		mapMulticastMethods (module, *mcType);
 
-	rtl::ConstList <McSnapshotClassType> mcSnaphotTypeList = module->m_typeMgr.getMcSnapshotClassTypeList ();
-	rtl::Iterator <McSnapshotClassType> mcSnapshotType = mcSnaphotTypeList.getHead ();
-	for (; mcSnapshotType; mcSnapshotType++)
-		mapMcSnapshotMethods (module, *mcSnapshotType);
-
 	return true;
 }
 
@@ -28,12 +23,6 @@ void
 MulticastLib::multicastDestruct (Multicast* multicast)
 {
 	((MulticastImpl*) multicast)->~MulticastImpl ();
-}
-
-void
-MulticastLib::mcSnapshotDestruct (McSnapshot* mcSnapshot)
-{
-	((McSnapshotImpl*) mcSnapshot)->~McSnapshotImpl ();
 }
 
 void
@@ -147,16 +136,6 @@ MulticastLib::mapMulticastMethods (
 		function = multicastType->getMethod ((MulticastMethodKind) i);
 		module->mapFunction (function, m_multicastMethodTable [ptrTypeKind] [i]);
 	}
-}
-
-void
-MulticastLib::mapMcSnapshotMethods (
-	Module* module,
-	McSnapshotClassType* mcSnapshotType
-	)
-{
-	Function* function = mcSnapshotType->getDestructor ();
-	module->mapFunction (function, (void*) mcSnapshotDestruct);
 }
 
 //.............................................................................

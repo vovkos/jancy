@@ -17,10 +17,10 @@ class Scheduler
 
 struct Guid
 {
-	unsigned int32 m_data1;
-	unsigned int16 m_data2;
-	unsigned int16 m_data3;
-	unsigned int8 m_data4 [8];
+	uint32_t m_data1;
+	uint16_t m_data2;
+	uint16_t m_data3;
+	uint8_t m_data4 [8];
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -29,9 +29,9 @@ struct Guid
 
 struct Error
 {
-	unsigned int32 readonly m_size;
+	uint32_t readonly m_size;
 	Guid readonly m_guid;
-	unsigned int32 readonly m_code;
+	uint32_t readonly m_code;
 
 	char const* const property m_description;
 }
@@ -64,8 +64,8 @@ namespace jnci {
 struct FmtLiteral
 {
 	char const* m_p;
-	unsigned intptr m_maxLength;
-	unsigned intptr m_length;
+	size_t m_length;
+	size_t m_maxLength;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

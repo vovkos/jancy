@@ -77,23 +77,12 @@ public:
 	FunctionPtr
 	multicastGetSnapshot (Multicast* multicast);
 
-	static
-	void
-	mcSnapshotDestruct (McSnapshot* mcSnapshot);
-
 protected:
 	static
 	void
 	mapMulticastMethods (
 		Module* module,
 		MulticastClassType* multicastType
-		);
-
-	static
-	void
-	mapMcSnapshotMethods (
-		Module* module,
-		McSnapshotClassType* mcSnapshotType
 		);
 };
 

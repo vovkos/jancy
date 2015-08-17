@@ -77,8 +77,8 @@ ClosureClassType::buildArgValueList (
 		argValueList->insertTail (thunkArgValueArray [iThunk]);
 }
 
-jnc::IfaceHdr*
-ClosureClassType::strengthen (jnc::IfaceHdr* p)
+IfaceHdr*
+ClosureClassType::strengthen (IfaceHdr* p)
 {
 	if (!m_weakMask)
 		return p;
@@ -95,7 +95,7 @@ ClosureClassType::strengthen (jnc::IfaceHdr* p)
 
 		// only strengthen if source arg is weak, but target arg is strong
 
-		jnc::IfaceHdr* weakPtr = NULL;
+		IfaceHdr* weakPtr = NULL;
 
 		void* p2 = (char*) p + field->getOffset ();
 
@@ -106,19 +106,19 @@ ClosureClassType::strengthen (jnc::IfaceHdr* p)
 		{
 		case TypeKind_ClassPtr:
 			if (((ClassPtrType*) type)->getPtrTypeKind () == ClassPtrTypeKind_Normal)
-				weakPtr = *(jnc::IfaceHdr**) p2;
+				weakPtr = *(IfaceHdr**) p2;
 
 			break;
 
 		case TypeKind_FunctionPtr:
 			if (((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Normal)
-				weakPtr = ((jnc::FunctionPtr*) p2)->m_closure;
+				weakPtr = ((FunctionPtr*) p2)->m_closure;
 
 			break;
 
 		case TypeKind_PropertyPtr:
 			if (((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Normal)
-				weakPtr = ((jnc::PropertyPtr*) p2)->m_closure;
+				weakPtr = ((PropertyPtr*) p2)->m_closure;
 
 			break;
 		}

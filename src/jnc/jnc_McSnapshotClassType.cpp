@@ -40,62 +40,51 @@ McSnapshotClassType::compileCallMethod ()
 	for (size_t i = 1; i < argCount; i++)
 		argValueList.insertTail (argValueArray [i]);
 
+	Type* ptrType = m_targetType->getDataPtrType_c ();
+
+	Value ptrVariable;
+	Value ptrValue;
+	Value ptrEndValue;
+
+	int32_t ptrGepIdxArray [] = { 0, 1, 0 };
+	m_module->m_llvmIrBuilder.createAlloca (ptrType, "ptr", NULL, &ptrVariable);
+	m_module->m_llvmIrBuilder.createGep (argValueArray [0], ptrGepIdxArray, countof (ptrGepIdxArray), NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, &ptrValue);
+	m_module->m_llvmIrBuilder.createStore (ptrValue, ptrVariable);
+
 	Value countValue;
-	Value ptrPfnValue;
-	Value ptrPfnEndValue;
-	Value ptrPfnVariable;
 
-	Type* ptrPfnType = m_targetType->getDataPtrType_c ();
-	Type* sizeType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-
-	m_module->m_operatorMgr.getClassField (argValueArray [0], m_fieldArray [McSnapshotFieldKind_Count], NULL, &countValue);
-	m_module->m_operatorMgr.getClassField (argValueArray [0], m_fieldArray [McSnapshotFieldKind_PtrArray], NULL, &ptrPfnValue);
-
-	m_module->m_llvmIrBuilder.createAlloca (ptrPfnType, "ppf", NULL, &ptrPfnVariable);
-	m_module->m_llvmIrBuilder.createLoad (ptrPfnValue, ptrPfnValue.getType (), &ptrPfnValue);
+	int32_t countGepIdxArray [] = { 0, 2 };
+	m_module->m_llvmIrBuilder.createGep (argValueArray [0], countGepIdxArray, countof (countGepIdxArray), NULL, &countValue);
 	m_module->m_llvmIrBuilder.createLoad (countValue, countValue.getType (), &countValue);
-	m_module->m_llvmIrBuilder.createStore (ptrPfnValue, ptrPfnVariable);
-	m_module->m_llvmIrBuilder.createGep (ptrPfnValue, countValue, ptrPfnType, &ptrPfnEndValue);
+	m_module->m_llvmIrBuilder.createGep (ptrValue, countValue, ptrType, &ptrEndValue);
 
-	BasicBlock* conditionBlock = m_module->m_controlFlowMgr.createBlock ("mccall_cond");
-	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("mccall_loop");
-	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("mccall_follow");
+	BasicBlock* conditionBlock = m_module->m_controlFlowMgr.createBlock ("call_loop_cond");
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("call_loop_body");
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("call_loop_follow");
 
 	m_module->m_controlFlowMgr.follow (conditionBlock);
 
 	Value idxValue;
 	Value cmpValue;
-	m_module->m_llvmIrBuilder.createLoad (ptrPfnVariable, NULL, &ptrPfnValue);
-	m_module->m_llvmIrBuilder.createGe_u (ptrPfnValue, ptrPfnEndValue, &cmpValue);
+
+	m_module->m_llvmIrBuilder.createLoad (ptrVariable, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createGe_u (ptrValue, ptrEndValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, followBlock, bodyBlock, bodyBlock);
 
 	Value pfnValue;
-	m_module->m_llvmIrBuilder.createLoad (ptrPfnValue, m_targetType, &pfnValue);
+	
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, m_targetType, &pfnValue);
 	m_module->m_operatorMgr.callOperator (pfnValue, &argValueList);
 
-	m_module->m_llvmIrBuilder.createGep (ptrPfnValue, 1, ptrPfnType, &ptrPfnValue);
-	m_module->m_llvmIrBuilder.createStore (ptrPfnValue, ptrPfnVariable);
+	m_module->m_llvmIrBuilder.createGep (ptrValue, 1, ptrType, &ptrValue);
+	m_module->m_llvmIrBuilder.createStore (ptrValue, ptrVariable);
 	m_module->m_controlFlowMgr.jump (conditionBlock, followBlock);
 
 	m_module->m_functionMgr.internalEpilogue ();
 
 	return true;
-}
-
-void
-McSnapshotClassType::markGcRoots (
-	const void* _p,
-	GcHeap* gcHeap
-	)
-{
-	Box* object = (Box*) _p;
-	ASSERT (object->m_type == this);
-
-	McSnapshot* snapshot = (McSnapshot*) (object + 1);
-	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !snapshot->m_count)
-		return;
-	
-	gcHeap->addRootArray (snapshot->m_ptrArray, m_targetType, snapshot->m_count);
 }
 
 //.............................................................................

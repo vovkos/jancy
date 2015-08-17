@@ -1572,7 +1572,7 @@ protected:
 	bool
 	getLibraryMember (
 		LibraryNamespace* library,
-		jnc::Closure* closure,
+		Closure* closure,
 		const char* name,
 		Value* resultValue
 		);

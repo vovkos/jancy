@@ -420,7 +420,7 @@ StdLib::threadFunc (PVOID context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
-	jnc::FunctionPtr ptr = context->m_ptr;
+	FunctionPtr ptr = context->m_ptr;
 
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
@@ -470,7 +470,7 @@ StdLib::threadFunc (void* context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
-	jnc::FunctionPtr ptr = context->m_ptr;
+	FunctionPtr ptr = context->m_ptr;
 
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
@@ -548,7 +548,7 @@ StdLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 void
 StdLib::addStaticClassDestructor (
 	DestructFunc* destructFunc,
-	jnc::IfaceHdr* iface
+	IfaceHdr* iface
 	)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();

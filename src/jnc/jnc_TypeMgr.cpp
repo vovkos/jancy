@@ -1385,9 +1385,9 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	// fields
 
 	type->m_fieldArray [MulticastFieldKind_Lock] = type->createField ("!m_lock", getPrimitiveType (TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
-	type->m_fieldArray [MulticastFieldKind_MaxCount] = type->createField ("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
+	type->m_fieldArray [MulticastFieldKind_PtrArray] = type->createField ("!m_arrayPtr", functionPtrType->getDataPtrType ());
 	type->m_fieldArray [MulticastFieldKind_Count] = type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
-	type->m_fieldArray [MulticastFieldKind_PtrArray] = type->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
+	type->m_fieldArray [MulticastFieldKind_MaxCount] = type->createField ("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
 	type->m_fieldArray [MulticastFieldKind_HandleTable] = type->createField ("!m_handleTable", getPrimitiveType (TypeKind_IntPtr));
 
 	Type* argType;
@@ -1459,15 +1459,8 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 
 	// fields
 
+	snapshotType->m_fieldArray [McSnapshotFieldKind_PtrArray] = snapshotType->createField ("!m_arrayPtr", functionPtrType->getDataPtrType ());
 	snapshotType->m_fieldArray [McSnapshotFieldKind_Count] = snapshotType->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
-	snapshotType->m_fieldArray [McSnapshotFieldKind_PtrArray] = snapshotType->createField ("!m_ptrArray", functionPtrType->getDataPtrType_c ());
-
-	// destrutor
-
-	methodType = getFunctionType ();
-	method = snapshotType->createUnnamedMethod (StorageKind_Member, FunctionKind_Destructor, methodType);
-	method->m_flags |= ModuleItemFlag_User; // no need to generate default destructor
-	snapshotType->m_destructor = method;
 
 	// call method
 

@@ -50,8 +50,8 @@ public:
 	bool
 	compile () = 0;
 
-	jnc::IfaceHdr* 
-	strengthen (jnc::IfaceHdr* p);
+	IfaceHdr* 
+	strengthen (IfaceHdr* p);
 
 protected:
 	void

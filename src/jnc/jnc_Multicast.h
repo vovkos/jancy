@@ -62,8 +62,11 @@ protected:
 	handle_t
 	setHandlerImpl (T ptr)
 	{
-		setCount (1, sizeof (T));
-		*(T*) m_ptrArray = ptr;
+		bool result = setCount (1, sizeof (T));
+		if (!result)
+			return false;
+
+		*(T*) m_ptr.m_p = ptr;
 		rtl::HandleTable <size_t>* handleTable = getHandleTable ();
 		handleTable->clear ();
 		return handleTable->add (0);
@@ -74,8 +77,11 @@ protected:
 	addHandlerImpl (T ptr)
 	{
 		size_t i = m_count;
-		setCount (i + 1, sizeof (T));
-		*((T*) m_ptrArray + i) = ptr;
+		bool result = setCount (i + 1, sizeof (T));
+		if (!result)
+			return false;
+
+		*((T*) m_ptr.m_p + i) = ptr;
 		return getHandleTable ()->add (i);
 	}
 
@@ -98,10 +104,11 @@ protected:
 		size_t i = listIt->m_value;
 		ASSERT (i < m_count);
 
-		ptr = *((T*) m_ptrArray + i);
+		ptr = *((T*) m_ptr.m_p + i);
 
-		memmove (((T*) m_ptrArray + i), ((T*) m_ptrArray + i + 1),  (m_count - i) * sizeof (T));
+		memmove ((T*) m_ptr.m_p + i, (T*) m_ptr.m_p + i + 1,  (m_count - i) * sizeof (T));
 		m_count--;
+		memset ((T*) m_ptr.m_p + m_count, 0, sizeof (T));
 
 		for (listIt++; listIt; listIt++) 
 			listIt->m_value--;
@@ -109,14 +116,6 @@ protected:
 		handleTable->remove (mapIt);
 		return ptr;
 	}
-};
-
-//.............................................................................
-
-class McSnapshotImpl: public McSnapshot
-{
-public:
-	~McSnapshotImpl ();
 };
 
 //.............................................................................

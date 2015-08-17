@@ -32,7 +32,7 @@ public:
 	static
 	llvm::Constant*
 	get (
-		jnc::StructType* type,
+		StructType* type,
 		const void* p
 		)
 	{

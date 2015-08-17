@@ -11,7 +11,7 @@ Error::getDescription ()
 {
 	rtl::String string = err::ErrorData::getDescription ();
 	size_t length = string.getLength ();
-	return jnc::strDup (string, string.getLength ());
+	return strDup (string, string.getLength ());
 }
 
 //.............................................................................

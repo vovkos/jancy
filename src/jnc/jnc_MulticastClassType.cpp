@@ -59,22 +59,6 @@ MulticastClassType::compileCallMethod ()
 	return true;
 }
 
-void
-MulticastClassType::markGcRoots (
-	const void* _p,
-	GcHeap* gcHeap
-	)
-{
-	Box* object = (Box*) _p;
-	ASSERT (object->m_type == this);
-
-	Multicast* multicast = (Multicast*) (object + 1);
-	if (!(m_targetType->getFlags () & TypeFlag_GcRoot) || !multicast->m_count)
-		return;
-
-	gcHeap->addRootArray (multicast->m_ptrArray, m_targetType, multicast->m_count);
-}
-
 //.............................................................................
 	
 } // namespace jnc {

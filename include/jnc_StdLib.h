@@ -266,7 +266,7 @@ public:
 	void
 	addStaticClassDestructor (
 		DestructFunc* destructFunc,
-		jnc::IfaceHdr* iface
+		IfaceHdr* iface
 		);
 
 	static

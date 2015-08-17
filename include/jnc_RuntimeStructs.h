@@ -220,9 +220,10 @@ AXL_SELECT_ANY Variant g_nullVariant = { 0 };
 struct Multicast: IfaceHdr
 {
 	volatile intptr_t m_lock;
-	size_t m_maxCount;
+	DataPtr m_ptr; // array of function closure, weak or unsafe pointers
 	size_t m_count;
-	void* m_ptrArray; // array of function closure, weak or unsafe pointers
+	size_t m_maxCount;
+
 	void* m_handleTable;
 };
 
@@ -232,8 +233,8 @@ struct Multicast: IfaceHdr
 
 struct McSnapshot: IfaceHdr
 {
+	DataPtr m_ptr; // array of function closure or unsafe pointers
 	size_t m_count;
-	void* m_ptrArray; // array of function closure or unsafe pointers
 };
 
 //.............................................................................
@@ -253,8 +254,8 @@ struct ReactorBindSite
 struct FmtLiteral
 {
 	DataPtr m_ptr;
-	size_t m_maxLength;
 	size_t m_length;
+	size_t m_maxLength;
 };
 
 //.............................................................................
