@@ -231,12 +231,6 @@ protected:
 
 	ArrayType*
 	insertPadding (size_t size);
-
-	void
-	gcMarkFmtLiteral (
-		GcHeap* gcHeap,
-		FmtLiteral* literal
-		);
 };
 
 //.............................................................................

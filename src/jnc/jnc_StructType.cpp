@@ -449,12 +449,6 @@ StructType::markGcRoots (
 	GcHeap* gcHeap
 	)
 {
-	if (m_stdType == StdType_FmtLiteral) // special handling
-	{
-		gcMarkFmtLiteral (gcHeap, (FmtLiteral*) _p);
-		return;
-	}
-
 	char* p = (char*) _p;
 
 	size_t count = m_gcRootBaseTypeArray.getCount ();
@@ -470,19 +464,6 @@ StructType::markGcRoots (
 		StructField* field = m_gcRootMemberFieldArray [i];
 		field->getType ()->markGcRoots (p + field->getOffset (), gcHeap);
 	}
-}
-
-void
-StructType::gcMarkFmtLiteral (
-	GcHeap* gcHeap,
-	FmtLiteral* literal
-	)
-{
-	if (!literal->m_p)
-		return;
-
-	DynamicArrayBox* box = ((DynamicArrayBox*) literal->m_p) - 1;
-	gcHeap->weakMark (box);
 }
 
 //.............................................................................

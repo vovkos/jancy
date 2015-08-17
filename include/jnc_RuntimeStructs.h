@@ -252,7 +252,7 @@ struct ReactorBindSite
 
 struct FmtLiteral
 {
-	char* m_p;
+	DataPtr m_ptr;
 	size_t m_maxLength;
 	size_t m_length;
 };

@@ -63,9 +63,9 @@ namespace jnci {
 
 struct FmtLiteral
 {
-	char const thin* readonly m_p;
-	unsigned intptr readonly m_maxLength;
-	unsigned intptr readonly m_length;
+	char const* m_p;
+	unsigned intptr m_maxLength;
+	unsigned intptr m_length;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

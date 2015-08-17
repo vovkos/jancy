@@ -226,6 +226,7 @@ TypeMgr::getStdType (StdType stdType)
 
 		// else fall through
 
+	case StdType_FmtLiteral:
 	case StdType_ReactorBindSite:
 	case StdType_Int64Int64:
 	case StdType_Fp64Fp64:
@@ -239,19 +240,6 @@ TypeMgr::getStdType (StdType stdType)
 			source->m_p,
 			source->m_length
 			);
-		break;
-
-	case StdType_FmtLiteral:
-		source = getStdTypeSource (stdType);
-		ASSERT (source->m_p);
-
-		type = parseStdType (
-			source->m_stdNamespace,
-			source->m_p,
-			source->m_length
-			);
-
-		type->m_flags |= TypeFlag_GcRoot;
 		break;
 
 	default:

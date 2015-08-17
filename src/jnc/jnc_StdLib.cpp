@@ -612,18 +612,19 @@ StdLib::appendFmtLiteral_a (
 		if (!ptr.m_p)
 			return fmtLiteral->m_length;
 
-		memcpy (ptr.m_p, fmtLiteral->m_p, fmtLiteral->m_length);
+		if (fmtLiteral->m_length)
+			memcpy (ptr.m_p, fmtLiteral->m_ptr.m_p, fmtLiteral->m_length);
 
-		fmtLiteral->m_p = (char*) ptr.m_p;
+		fmtLiteral->m_ptr = ptr;
 		fmtLiteral->m_maxLength = newMaxLength;
 	}
 
-	memcpy (fmtLiteral->m_p + fmtLiteral->m_length, p, length);
+	char* dst = (char*) fmtLiteral->m_ptr.m_p;
+	memcpy (dst + fmtLiteral->m_length, p, length);
 	fmtLiteral->m_length += length;
-	fmtLiteral->m_p [fmtLiteral->m_length] = 0;
+	dst [fmtLiteral->m_length] = 0;
 
-	DataPtrValidator* validator = (DataPtrValidator*) fmtLiteral->m_p - 1;
-	validator->m_rangeLength = fmtLiteral->m_length;
+	fmtLiteral->m_ptr.m_validator->m_rangeLength = fmtLiteral->m_length; // adjust validator
 	return fmtLiteral->m_length;
 }
 

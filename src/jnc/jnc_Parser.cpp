@@ -2972,10 +2972,13 @@ Parser::finalizeLiteral (
 
 	size_t offset = 0;
 
-	rtl::Iterator <FmtSite> it = literal->m_fmtSiteList.getHead ();
-	for (; it; it++)
+	rtl::BitMap argUsageMap;
+	argUsageMap.setBitCount (argCount);
+
+	rtl::Iterator <FmtSite> siteIt = literal->m_fmtSiteList.getHead ();
+	for (; siteIt; siteIt++)
 	{
-		FmtSite* site = *it;
+		FmtSite* site = *siteIt;
 		Value* value;
 
 		if (site->m_index == -1)
@@ -2992,6 +2995,7 @@ Parser::finalizeLiteral (
 			}
 
 			value = argValueArray [i];
+			argUsageMap.setBit (i);
 		}
 
 		if (site->m_offset > offset)
@@ -3011,6 +3015,13 @@ Parser::finalizeLiteral (
 			return false;
 	}
 
+	size_t unusedArgIdx = argUsageMap.findBit (0, false);
+	if (unusedArgIdx < argCount)
+	{
+		err::setFormatStringError ("formatting literal argument %%%d is not used", unusedArgIdx + 1);
+		return false;
+	}
+
 	size_t endOffset = literal->m_binData.getCount ();
 	if (endOffset > offset)
 	{
@@ -3022,20 +3033,19 @@ Parser::finalizeLiteral (
 			);
 	}
 
-	Value ptrValue;
-	Value sizeValue;
-
-	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 0, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
-
 	Type* validatorType = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
 
+	Value fatPtrValue;
+	Value thinPtrValue;
 	Value validatorValue;
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, validatorType, &validatorValue);
-	m_module->m_llvmIrBuilder.createGep (validatorValue, -1, validatorType, &validatorValue);
+
+	m_module->m_llvmIrBuilder.createGep2 (fmtLiteralValue, 0, NULL, &fatPtrValue);
+	m_module->m_llvmIrBuilder.createLoad (fatPtrValue, NULL, &fatPtrValue);
+	m_module->m_llvmIrBuilder.createExtractValue (fatPtrValue, 0, NULL, &thinPtrValue);
+	m_module->m_llvmIrBuilder.createExtractValue (fatPtrValue, 1, validatorType, &validatorValue);
 
 	resultValue->setLeanDataPtr (
-		ptrValue.getLlvmValue (),
+		thinPtrValue.getLlvmValue (),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Lean),
 		validatorValue
 		);
