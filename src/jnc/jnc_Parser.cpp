@@ -2990,7 +2990,7 @@ Parser::finalizeLiteral (
 			size_t i = site->m_index - 1;
 			if (i >= argCount)
 			{
-				err::setFormatStringError ("formatting literal doesn't have argument %%%d\n", site->m_index);
+				err::setFormatStringError ("formatting literal doesn't have argument %%%d", site->m_index);
 				return false;
 			}
 
@@ -3008,6 +3008,12 @@ Parser::finalizeLiteral (
 				);
 
 			offset += length;
+		}
+
+		if (value->isEmpty ())
+		{
+			err::setFormatStringError ("formatting literals arguments cannot be skipped");
+			return false;
 		}
 
 		result = appendFmtLiteralValue (fmtLiteralValue, *value, site->m_fmtSpecifierString);
