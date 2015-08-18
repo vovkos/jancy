@@ -24,17 +24,11 @@ callFunctionImpl (
 	RetVal
 	TargetFunc ();
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p) ();
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p) ();
+	JNC_END_EX (&result)
 
 	return result;
 }
@@ -55,17 +49,11 @@ callFunctionImpl (
 	RetVal
 	TargetFunc (Arg);
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p) (arg);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p) (arg);
+	JNC_END_EX (&result)
 
 	return result;
 }
@@ -91,17 +79,11 @@ callFunctionImpl (
 		Arg2
 		);
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p)  (arg1, arg2);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p)  (arg1, arg2);
+	JNC_END_EX (&result)
 
 	return result;
 }
@@ -130,17 +112,11 @@ callFunctionImpl (
 		Arg3
 		);
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3);
+	JNC_END_EX (&result)
 
 	return result;
 }
@@ -172,17 +148,11 @@ callFunctionImpl (
 		Arg4
 		);
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
+	JNC_END_EX (&result)
 
 	return result;
 }
@@ -217,17 +187,11 @@ callFunctionImpl (
 		Arg5
 		);
 
-	bool result = true;
+	bool result;
 
 	JNC_BEGIN (runtime)
-	{
-		*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
-	}
-	JNC_CATCH ()
-	{
-		result = false;
-	}
-	JNC_END ()
+	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
+	JNC_END_EX (&result)
 
 	return result;
 }

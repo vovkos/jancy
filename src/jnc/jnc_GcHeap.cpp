@@ -607,6 +607,9 @@ GcHeap::enterNoCollectRegion ()
 	thread->m_noCollectRegionLevel = 1;
 	m_noCollectMutatorThreadCount++;
 	ASSERT (m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
+
+	dbg::trace ("GcHeap::enterNoCollectRegion () (tid = %x)\n", (uint_t) mt::getCurrentThreadId ());
+
 	m_lock.unlock ();			
 }
 
@@ -1062,9 +1065,6 @@ GcHeap::collect_l (bool isMutatorThread)
 				size *= ((DynamicArrayBoxHdr*) box)->m_count;
 
 			freeSize += size;
-
-			if (box->m_type->m_tag == "io.SocketEventParams")
-				dbg::trace ("freeing io.SocketEventParams %x\n", box);
 
 			if (isShuttingDown)
 				m_postponeFreeBoxArray.append (box);

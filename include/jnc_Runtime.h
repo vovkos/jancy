@@ -165,10 +165,18 @@ protected:
 #define JNC_CATCH() \
 	AXL_MT_LONG_JMP_CATCH ()
 
-#define JNC_END() \
-	AXL_MT_END_LONG_JMP_TRY () \
+#define JNC_END_IMPL() \
+	AXL_MT_END_LONG_JMP_TRY_EX (&___jncErs.m_result) \
 	__jncRuntime->uninitializeThread (&___jncErs); \
 	JNC_GC_END () \
+
+#define JNC_END() \
+	JNC_END_IMPL() \
+}
+
+#define JNC_END_EX(result) \
+	JNC_END_IMPL() \
+	*(result) = ___jncErs.m_result; \
 }
 
 //.............................................................................

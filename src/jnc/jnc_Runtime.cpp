@@ -89,9 +89,17 @@ restoreExceptionRecoverySnapshot (
 
 	ASSERT (
 		ers->m_initializeLevel == tls->m_initializeLevel &&
-		ers->m_waitRegionLevel == tls->m_gcMutatorThread.m_waitRegionLevel && 
-		ers->m_noCollectRegionLevel <= tls->m_gcMutatorThread.m_noCollectRegionLevel &&
-		ers->m_gcShadowStackTop >= tlsVariableTable->m_shadowStackTop
+		ers->m_waitRegionLevel == tls->m_gcMutatorThread.m_waitRegionLevel
+		);
+
+	ASSERT (
+		ers->m_noCollectRegionLevel == tls->m_gcMutatorThread.m_noCollectRegionLevel || 
+		!ers->m_result && ers->m_noCollectRegionLevel < tls->m_gcMutatorThread.m_noCollectRegionLevel
+		);
+
+	ASSERT (
+		ers->m_gcShadowStackTop == tlsVariableTable->m_shadowStackTop || 
+		!ers->m_result && (!ers->m_gcShadowStackTop || ers->m_gcShadowStackTop > tlsVariableTable->m_shadowStackTop)
 		);
 
 	tls->m_initializeLevel = ers->m_initializeLevel;

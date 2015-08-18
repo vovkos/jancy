@@ -335,6 +335,8 @@ struct ExceptionRecoverySnapshot
 	size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	GcShadowStackFrame* m_gcShadowStackTop;
+
+	bool m_result;
 };
 
 //.............................................................................
