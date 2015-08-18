@@ -1527,6 +1527,9 @@ Parser::declareData (
 			initializer
 			);
 
+		if (!variable)
+			return false;
+
 		assignDeclarationAttributes (variable, declarator->getPos ());
 
 		result = nspace->addItem (variable);
