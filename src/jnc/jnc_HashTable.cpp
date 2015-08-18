@@ -5,6 +5,15 @@ namespace jnc {
 
 //.............................................................................
 
+StringHashTable::~StringHashTable ()
+{
+	ASSERT (m_hashTable);
+
+	AXL_MEM_DELETE (m_hashTable);
+	m_hashTable = NULL;
+	m_count = 0;
+}
+
 void
 AXL_CDECL
 StringHashTable::insert (
@@ -23,6 +32,15 @@ StringHashTable::insert (
 }
 
 //.............................................................................
+
+VariantHashTable::~VariantHashTable ()
+{
+	ASSERT (m_hashTable);
+
+	AXL_MEM_DELETE (m_hashTable);
+	m_hashTable = NULL;
+	m_count = 0;
+}
 
 void
 AXL_CDECL

@@ -14,6 +14,7 @@ class StringHashTable: public IfaceHdr
 public:
 	JNC_BEGIN_TYPE ("jnc.StringHashTable", StdApiSlot_StringHashTable)
 		JNC_CONSTRUCTOR (&StringHashTable::construct)
+		JNC_DESTRUCTOR (StringHashTable)
 		JNC_FUNCTION ("clear",  &StringHashTable::clear)
 		JNC_FUNCTION ("find", &StringHashTable::find)
 		JNC_FUNCTION ("insert", &StringHashTable::insert)
@@ -35,6 +36,12 @@ public:
 		m_hashTable = AXL_MEM_NEW (StringHashTableMap);
 		m_count = 0;
 	}
+
+	~StringHashTable ();
+
+	void
+	AXL_CDECL
+	destruct ();
 
 	void
 	AXL_CDECL
@@ -77,6 +84,7 @@ class VariantHashTable: public IfaceHdr
 public:
 	JNC_BEGIN_TYPE ("jnc.VariantHashTable", StdApiSlot_VariantHashTable)
 		JNC_CONSTRUCTOR (&VariantHashTable::construct)
+		JNC_DESTRUCTOR (VariantHashTable)
 		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
 		JNC_FUNCTION ("find", &VariantHashTable::find)
 		JNC_FUNCTION ("insert", &VariantHashTable::insert)
@@ -98,6 +106,8 @@ public:
 		m_hashTable = AXL_MEM_NEW (VariantHashTableMap);
 		m_count = 0;
 	}
+
+	~VariantHashTable ();
 
 	void
 	AXL_CDECL

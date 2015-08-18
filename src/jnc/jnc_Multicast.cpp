@@ -14,14 +14,17 @@ MulticastImpl::~MulticastImpl ()
 		AXL_MEM_DELETE ((rtl::HandleTable <size_t>*) m_handleTable);
 		m_handleTable = NULL;
 	}
+
+	m_count = 0;
 }
 
 void
 MulticastImpl::clear ()
 {
-	m_count = 0;
 	if (m_handleTable)
 		((rtl::HandleTable <size_t>*) m_handleTable)->clear ();
+
+	m_count = 0;
 }
 
 handle_t

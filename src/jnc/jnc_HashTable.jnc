@@ -12,6 +12,7 @@ class StringHashTable
 	size_t readonly m_count;
 
 	construct ();
+	destruct ();
 
 	clear ();
 	variant* find (char const* key) const;
@@ -56,6 +57,7 @@ class VariantHashTable
 	size_t readonly m_count;
 
 	construct ();
+	destruct ();
 
 	clear ();
 	variant* find (variant key) const;
