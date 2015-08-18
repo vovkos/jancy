@@ -66,10 +66,10 @@ public:
 	shutdown ();
 
 	void 
-	initializeThread ();
+	initializeThread (ExceptionRecoverySnapshot* ers);
 
 	void 
-	uninitializeThread ();
+	uninitializeThread (ExceptionRecoverySnapshot* ers);
 
 	void
 	checkStackOverflow ();
@@ -157,8 +157,9 @@ protected:
 #define JNC_BEGIN(runtime) \
 { \
 	jnc::Runtime* __jncRuntime = (runtime); \
+	jnc::ExceptionRecoverySnapshot ___jncErs; \
 	JNC_GC_BEGIN() \
-	__jncRuntime->initializeThread (); \
+	__jncRuntime->initializeThread (&___jncErs); \
 	AXL_MT_BEGIN_LONG_JMP_TRY () \
 	
 #define JNC_CATCH() \
@@ -166,7 +167,7 @@ protected:
 
 #define JNC_END() \
 	AXL_MT_END_LONG_JMP_TRY () \
-	__jncRuntime->uninitializeThread (); \
+	__jncRuntime->uninitializeThread (&___jncErs); \
 	JNC_GC_END () \
 }
 

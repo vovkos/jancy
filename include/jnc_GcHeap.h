@@ -319,12 +319,6 @@ protected:
 	void
 	runMarkCycle ();
 
-	void
-	runDestructors (
-		IfaceHdr* const* ifaceArray,
-		size_t count
-		);
-
 #if (_AXL_ENV == AXL_ENV_POSIX)
 	void
 	installSignalHandlers ();

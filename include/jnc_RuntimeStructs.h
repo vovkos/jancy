@@ -294,7 +294,7 @@ struct Tls: public rtl::ListLink
 {
 	Tls* m_prev;
 	Runtime* m_runtime;
-	intptr_t m_initializeCount;
+	size_t m_initializeLevel;
 	void* m_stackEpoch;
 	GcMutatorThread m_gcMutatorThread;
 
@@ -326,6 +326,16 @@ getCurrentGcMutatorThread ()
 	Tls* tls = getCurrentThreadTls ();
 	return tls ? &tls->m_gcMutatorThread : NULL;
 }
+
+//.............................................................................
+
+struct ExceptionRecoverySnapshot
+{
+	size_t m_initializeLevel;
+	size_t m_waitRegionLevel;
+	size_t m_noCollectRegionLevel;
+	GcShadowStackFrame* m_gcShadowStackTop;
+};
 
 //.............................................................................
 

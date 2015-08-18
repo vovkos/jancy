@@ -66,22 +66,58 @@ Runtime::shutdown ()
 }
 
 void
-Runtime::initializeThread ()
+saveExceptionRecoverySnapshot (
+	ExceptionRecoverySnapshot* ers,
+	Tls* tls
+	)
+{
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
+
+	ers->m_initializeLevel = tls->m_initializeLevel;
+	ers->m_noCollectRegionLevel = tls->m_gcMutatorThread.m_noCollectRegionLevel;
+	ers->m_waitRegionLevel = tls->m_gcMutatorThread.m_waitRegionLevel;
+	ers->m_gcShadowStackTop = tlsVariableTable->m_shadowStackTop;
+}
+
+void
+restoreExceptionRecoverySnapshot (
+	ExceptionRecoverySnapshot* ers,
+	Tls* tls
+	)
+{
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
+
+	ASSERT (
+		ers->m_initializeLevel == tls->m_initializeLevel &&
+		ers->m_waitRegionLevel == tls->m_gcMutatorThread.m_waitRegionLevel && 
+		ers->m_noCollectRegionLevel <= tls->m_gcMutatorThread.m_noCollectRegionLevel &&
+		ers->m_gcShadowStackTop >= tlsVariableTable->m_shadowStackTop
+		);
+
+	tls->m_initializeLevel = ers->m_initializeLevel;
+	tls->m_gcMutatorThread.m_noCollectRegionLevel = ers->m_noCollectRegionLevel;
+	tls->m_gcMutatorThread.m_waitRegionLevel = ers->m_waitRegionLevel;
+	tlsVariableTable->m_shadowStackTop = ers->m_gcShadowStackTop;
+}
+
+void
+Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 {
 	Tls* prevTls = mt::getTlsSlotValue <Tls> ();
 	if (prevTls && prevTls->m_runtime == this)
 	{
-		prevTls->m_initializeCount++;
+		saveExceptionRecoverySnapshot (ers, prevTls);
+		prevTls->m_initializeLevel++;
 		return;
 	}
 
 	size_t size = sizeof (Tls) + m_tlsSize;
 	
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
-	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with TLS first
+	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with GC heap first
 	tls->m_prev = prevTls;
 	tls->m_runtime = this;
-	tls->m_initializeCount = 1;
+	tls->m_initializeLevel = 1;
 	tls->m_stackEpoch = alloca (1);
 
 	mt::setTlsSlotValue <Tls> (tls);
@@ -93,19 +129,29 @@ Runtime::initializeThread ()
 	
 	m_tlsList.insertTail (tls);	
 	m_lock.unlock ();	
+
+	memset (ers, 0, sizeof (ExceptionRecoverySnapshot));
 }
 
 void
-Runtime::uninitializeThread ()
+Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 {
 	Tls* tls = mt::getTlsSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
-	if (--tls->m_initializeCount) // still 
+	if (--tls->m_initializeLevel) // still 
 	{
+		restoreExceptionRecoverySnapshot (ers, tls);
 		m_gcHeap.safePoint ();
 		return;
 	}
+
+	ASSERT (
+		!ers->m_initializeLevel && 
+		!ers->m_waitRegionLevel && 
+		!ers->m_noCollectRegionLevel && 
+		!ers->m_gcShadowStackTop
+		);
 
 	m_gcHeap.unregisterMutatorThread (&tls->m_gcMutatorThread);
 

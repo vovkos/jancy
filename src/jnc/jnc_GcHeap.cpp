@@ -2,6 +2,7 @@
 #include "jnc_GcHeap.h"
 #include "jnc_Module.h"
 #include "jnc_Api.h"
+#include "jnc_CallFunction.h"
 
 namespace jnc {
 
@@ -394,14 +395,11 @@ GcHeap::finalizeShutdown ()
 		StaticDestructor* destructor = m_staticDestructorList.removeTail ();
 		m_lock.unlock ();
 
-		m_runtime->initializeThread ();
+		int retVal;
 
-		if (destructor->m_iface)
-			destructor->m_destructFunc (destructor->m_iface);
-		else
-			destructor->m_staticDestructFunc ();
-
-		m_runtime->uninitializeThread ();
+		bool result = destructor->m_iface ? 
+			callFunctionImpl (m_runtime, destructor->m_destructFunc, &retVal, destructor->m_iface) :
+			callFunctionImpl (m_runtime, destructor->m_staticDestructFunc, &retVal);
 
 		AXL_MEM_DELETE (destructor);
 
@@ -1116,7 +1114,24 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	if (!destructArray.isEmpty ())
 	{
-		runDestructors (destructArray, destructArray.getCount ());
+		count = destructArray.getCount ();
+		for (intptr_t i = count - 1; i >= 0; i--) // run in inversed order
+		{
+			IfaceHdr* iface = destructArray [i];
+			ClassType* classType = (ClassType*) iface->m_box->m_type;
+			Function* destructor = classType->getDestructor ();
+			ASSERT (destructor);
+
+			bool result = callVoidFunction (m_runtime, destructor, iface);
+			if (!result)
+			{
+				dbg::trace (
+					"runtime error in %s.destruct () : %s\n", 
+					classType->m_tag.cc (),
+					err::getLastErrorDescription ().cc ()
+					);
+			}
+		}
 
 		// now we can remove this thread' destruct guard
 
@@ -1125,28 +1140,6 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_destructGuardList.remove (&destructGuard);
 		m_lock.unlock ();
 	}
-}
-
-void
-GcHeap::runDestructors (
-	IfaceHdr* const* ifaceArray,
-	size_t count
-	)
-{
-	JNC_BEGIN (m_runtime)
-	{
-		for (intptr_t i = count - 1; i >= 0; i--) // run in inversed order
-		{
-			IfaceHdr* iface = ifaceArray [i];
-			ClassType* classType = (ClassType*) iface->m_box->m_type;
-			Function* destructor = classType->getDestructor ();
-			ASSERT (destructor);
-
-			Class_DestructFunc* p = (Class_DestructFunc*) destructor->getMachineCode ();
-			p (iface);
-		}
-	}
-	JNC_END ();
 }
 
 void
