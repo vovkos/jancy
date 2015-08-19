@@ -7,12 +7,11 @@
 class MyCheckBox: public MyWidget
 {
 public:
-	JNC_BEGIN_CLASS ("CheckBox", ApiSlot_CheckBox)
-		JNC_OPAQUE_CLASS (MyCheckBox, NULL)
-		JNC_OPERATOR_NEW (&operatorNew)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyCheckBox, "CheckBox", ApiSlot_CheckBox)
+		JNC_CONSTRUCTOR (&(jnc::construct <MyCheckBox, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
 		JNC_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public: 
 	jnc::DataPtr m_text;
@@ -23,15 +22,7 @@ public:
 	QtSignalBridge* m_onIsCheckedChangedBridge;
 
 public:
-	void
-	construct (jnc::DataPtr textPtr);
-
-	static 
-	MyCheckBox*
-	operatorNew (
-		jnc::ClassType* type,
-		jnc::DataPtr textPtr
-		);
+	MyCheckBox (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

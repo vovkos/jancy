@@ -120,7 +120,6 @@ IfaceHdr*
 GcHeap::tryAllocateClass (ClassType* type)
 {
 	size_t size = type->getSize ();
-
 	Box* box = (Box*) AXL_MEM_ALLOC (size);
 	if (!box)
 	{

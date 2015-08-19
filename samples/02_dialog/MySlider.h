@@ -7,13 +7,12 @@
 class MySlider: public MyWidget
 {
 public:
-	JNC_BEGIN_CLASS ("Slider", ApiSlot_Slider)
-		JNC_OPAQUE_CLASS (MySlider, NULL)
-		JNC_OPERATOR_NEW (&operatorNew)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (MySlider, "Slider", ApiSlot_Slider)
+		JNC_CONSTRUCTOR (&(jnc::construct <MySlider, int, int>))
 		JNC_AUTOGET_PROPERTY ("m_minimum", &MySlider::setMinimum)
 		JNC_AUTOGET_PROPERTY ("m_maximum", &MySlider::setMaximum)
 		JNC_PROPERTY ("m_value", &MySlider::getValue, &MySlider::setValue)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public: 
 	int m_minimum;
@@ -26,16 +25,7 @@ public:
 	QtSignalBridge* m_onValueChangedBridge;
 
 public:
-	void
-	construct (
-		int minimum,
-		int maximum
-		);
-
-	static 
-	MySlider*
-	operatorNew (
-		jnc::ClassType* type,
+	MySlider (
 		int minimum,
 		int maximum
 		);

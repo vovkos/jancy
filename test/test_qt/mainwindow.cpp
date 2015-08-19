@@ -31,20 +31,11 @@ TestClassB::enumGcRoots (
 //		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);
 }
 
-TestClassB*
-TestClassB::operatorNew (jnc::ClassType* type)
-{
-	jnc::ApiClassBox <TestClassB>* test = (jnc::ApiClassBox <TestClassB>*) jnc::StdLib::allocateClass (type);
-	test->prime (type);
-	return test;
-}
-
 void
 AXL_CDECL
 TestClassB::bar (int y)
 {
 	printf ("TestClassB::bar (%d)\n", y);
-	m_y = y;
 }
 
 //.............................................................................
@@ -486,7 +477,7 @@ bool MainWindow::compile ()
 #endif
 
 	QByteArray filePath = child->file().toUtf8 ();
-	m_module.create (filePath.data(), compileFlags);
+	m_module.create (filePath.data(), StdLib::getOpaqueClassTypeDb (), compileFlags);
 
 	writeOutput("Parsing...\n");
 

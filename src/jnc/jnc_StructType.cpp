@@ -237,14 +237,6 @@ StructType::calcLayout ()
 		}
 	}
 
-	llvm::StructType* llvmStructType = (llvm::StructType*) getLlvmType ();
-	llvmStructType->setBody (
-		llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount ()),
-		true
-		);
-
-	m_size = m_fieldAlignedSize;
-
 	if (m_structTypeKind == StructTypeKind_Normal)
 	{
 		if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
@@ -266,7 +258,61 @@ StructType::calcLayout ()
 				return false;
 		}
 	}
+	else if (
+		m_structTypeKind == StructTypeKind_IfaceStruct && 
+		(((ClassType*) m_parentNamespace)->getFlags () & ClassTypeFlag_Opaque)
+		)
+	{
+		ClassType* classType = (ClassType*) m_parentNamespace;
 
+		OpaqueClassTypeDb* opaqueClassTypeDb = m_module->getOpaqueClassTypeDb ();
+		const OpaqueClassTypeInfo* typeInfo = opaqueClassTypeDb ? opaqueClassTypeDb->getClassTypeInfo (classType) : NULL;
+		if (!typeInfo)
+		{
+			err::setFormatStringError ("opaque class type info is missing for '%s'", classType->getTypeString ().cc ());
+			return false;
+		}
+
+		if (typeInfo->m_size < m_fieldAlignedSize)
+		{
+			err::setFormatStringError (
+				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)", 
+				getTypeString ().cc (), 
+				typeInfo->m_size,
+				m_fieldAlignedSize
+				);
+
+			return false;
+		}
+
+		if (typeInfo->m_size > m_fieldAlignedSize)
+		{
+			ArrayType* opaqueDataType = m_module->m_typeMgr.getArrayType (
+				m_module->m_typeMgr.getPrimitiveType (TypeKind_Char),
+				typeInfo->m_size - m_fieldAlignedSize
+				);
+
+			StructField* field = createField (opaqueDataType);
+			result = layoutField (
+				field->m_type,
+				&field->m_offset,
+				&field->m_llvmIndex
+				);
+
+			ASSERT (result);
+		}
+
+		if (typeInfo->m_isNonCreatable)
+			classType->m_flags |= ClassTypeFlag_OpaqueNonCreatable;
+	}
+
+	llvm::StructType* llvmStructType = (llvm::StructType*) getLlvmType ();
+	llvmStructType->setBody (
+		llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount ()),
+		true
+		);
+
+	m_size = m_fieldAlignedSize;
 	return true;
 }
 

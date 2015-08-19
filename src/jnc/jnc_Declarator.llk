@@ -100,10 +100,6 @@ declarator_operator_qualifier <Declarator* $declarator>
 			{
 				return $declarator->addUnaryBinaryOperator ($1.m_unOpKind, $1.m_binOpKind);
 			}
-	|	TokenKind_New
-			{
-				return $declarator->addOperatorNew ();
-			}
 	|	TokenKind_Ellipsis
 			{
 				return $declarator->addOperatorVararg ();

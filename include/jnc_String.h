@@ -97,10 +97,10 @@ protected:
 class StringBuilder: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("jnc.StringBuilder", StdApiSlot_StringBuilder)
+	JNC_BEGIN_CLASS_TYPE ("jnc.StringBuilder", StdApiSlot_StringBuilder)
 		JNC_FUNCTION ("copy", &StringBuilder::copy)
 		JNC_FUNCTION ("append", &StringBuilder::append)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public:
 	DataPtr m_ptr;

@@ -7,14 +7,13 @@
 class MyLabel: public MyWidget
 {
 public:
-	JNC_BEGIN_CLASS ("Label", ApiSlot_Label)
-		JNC_OPAQUE_CLASS (MyLabel, NULL)
-		JNC_OPERATOR_NEW (&operatorNew)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyLabel, "Label", ApiSlot_Label)
+		JNC_CONSTRUCTOR (&(jnc::construct <MyLabel, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
 		JNC_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
 		JNC_AUTOGET_PROPERTY ("m_backColor", &MyLabel::setBackColor)
 		JNC_AUTOGET_PROPERTY ("m_alignment", &MyLabel::setAlignment)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public: 
 	jnc::DataPtr m_text;
@@ -26,15 +25,7 @@ public:
 	QLabel* m_qtLabel;
 
 public:
-	void
-	construct (jnc::DataPtr textPtr);
-
-	static 
-	MyLabel*
-	operatorNew (
-		jnc::ClassType* type,
-		jnc::DataPtr textPtr
-		);
+	MyLabel (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

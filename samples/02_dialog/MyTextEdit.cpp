@@ -3,19 +3,10 @@
 
 //.............................................................................
 
-void
-MyTextEdit::construct ()
+MyTextEdit::MyTextEdit ():
+	MyWidget (new QLineEdit)
 {
-	m_qtLineEdit = new QLineEdit;
-	MyWidget::construct (m_qtLineEdit);
-}
-
-MyTextEdit*
-MyTextEdit::operatorNew (jnc::ClassType* type)
-{
-	MyTextEdit* textEdit = (MyTextEdit*) jnc::StdLib::allocateClass (type);
-	textEdit->construct ();
-	return textEdit;
+	m_qtLineEdit = (QLineEdit*) m_handle;
 }
 
 //.............................................................................

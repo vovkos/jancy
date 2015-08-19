@@ -3,8 +3,7 @@
 
 //.............................................................................
 
-void 
-MyWidget::construct (QWidget* widget)
+MyWidget::MyWidget (QWidget* widget)
 {
 	m_handle = widget;
 

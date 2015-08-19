@@ -367,7 +367,6 @@ enum DeclaratorKind
 	DeclaratorKind_UnnamedMethod,
 	DeclaratorKind_UnaryBinaryOperator,
 	DeclaratorKind_CastOperator,
-	DeclaratorKind_OperatorNew,
 	DeclaratorKind_OperatorVararg,
 	DeclaratorKind_OperatorCdeclVararg,
 };
@@ -531,9 +530,6 @@ public:
 		UnOpKind unOpKind, 
 		BinOpKind binOpKind
 		);
-
-	bool
-	addOperatorNew ();
 
 	bool
 	addOperatorVararg ();

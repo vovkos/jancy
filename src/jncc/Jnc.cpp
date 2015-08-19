@@ -166,7 +166,7 @@ Jnc::compile (
 	if (m_cmdLine->m_flags & JncFlag_Jit_mc)
 		compileFlags |= jnc::ModuleCompileFlag_McJit;
 
-	m_module.create ("jncc_module", compileFlags);
+	m_module.create ("jncc_module", NULL, compileFlags);
 
 	result =
 		m_module.parse (fileName, source, length) &&

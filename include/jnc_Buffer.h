@@ -82,10 +82,10 @@ public:
 class Buffer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("jnc.Buffer", StdApiSlot_Buffer)
+	JNC_BEGIN_CLASS_TYPE ("jnc.Buffer", StdApiSlot_Buffer)
 		JNC_FUNCTION ("copy", &Buffer::copy)
 		JNC_FUNCTION ("append", &Buffer::append)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public:
 	DataPtr m_ptr;

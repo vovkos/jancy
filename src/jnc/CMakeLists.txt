@@ -458,6 +458,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Library.h
 	${JANCY_INC_DIR}/jnc_Recognizer.h
 	${JANCY_INC_DIR}/jnc_Variant.h
+	${JANCY_INC_DIR}/jnc_OpaqueClassTypeDb.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	${JANCY_INC_DIR}/jnc_StdLib.h
 	jnc_Multicast.h
@@ -476,6 +477,7 @@ set (
 	jnc_Library.cpp
 	jnc_Recognizer.cpp
 	jnc_Variant.cpp
+	jnc_OpaqueClassTypeDb.cpp
 	jnc_StdLib.cpp
 	)
 

@@ -135,8 +135,9 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	m_layout.prime (&m_module);	
-	m_layout.construct (QBoxLayout::TopToBottom, m_body);
+	jnc::ClassType* layoutType = jnc::ApiClassBox <MyLayout>::getApiType (&m_module);
+	m_layout = jnc::createClass <MyLayout> (&m_runtime, layoutType, QBoxLayout::TopToBottom);
+	m_body->setLayout (m_layout->m_qtLayout);
 
 	int returnValue;
 	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::IfaceHdr*) &m_layout);

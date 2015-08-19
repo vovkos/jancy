@@ -3,26 +3,14 @@
 
 //.............................................................................
 
-void
-MyLabel::construct (jnc::DataPtr textPtr)
+MyLabel::MyLabel (jnc::DataPtr textPtr):
+	MyWidget (new QLabel)
 {
-	m_qtLabel = new QLabel;
-	MyWidget::construct (m_qtLabel);
+	m_qtLabel = (QLabel*) m_handle;
 	m_color = -1;
 	m_backColor = -1;
 	m_alignment = m_qtLabel->alignment ();
 	setText (textPtr);
-}
-
-MyLabel*
-MyLabel::operatorNew (
-	jnc::ClassType* type,
-	jnc::DataPtr textPtr
-	)
-{
-	MyLabel* label = (MyLabel*) jnc::StdLib::allocateClass (type);
-	label->construct (textPtr);
-	return label;
 }
 
 void

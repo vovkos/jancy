@@ -5,6 +5,17 @@
 #..............................................................................
 
 add_subdirectory (jnc)
-add_subdirectory (jncc)
+
+
+option (
+	BUILD_JNCC
+	"Build jancy command line compiler"
+	ON
+	)
+
+if (BUILD_JNCC)
+	add_subdirectory (jncc)
+endif ()
+
 
 #..............................................................................

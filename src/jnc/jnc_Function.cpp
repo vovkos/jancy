@@ -30,7 +30,6 @@ getFunctionKindString (FunctionKind functionKind)
 		"cast-operator",            // FunctionKind_CastOperator,
 		"unary-operator",           // FunctionKind_UnaryOperator,
 		"binary-operator",          // FunctionKind_BinaryOperator,
-		"operator_new",             // FunctionKind_OperatorNew,
 		"operator_vararg",          // FunctionKind_OperatorVararg,
 		"operator_cdecl_vararg",    // FunctionKind_OperatorCdeclVararg,
 		"internal",                 // FunctionKind_Internal,
@@ -81,7 +80,6 @@ getFunctionKindFlags (FunctionKind functionKind)
 		FunctionKindFlag_NoOverloads |  // FunctionKind_UnaryOperator,
 		FunctionKindFlag_NoArgs,
 		0,                              // FunctionKind_BinaryOperator,
-		0,                              // FunctionKind_OperatorNew,
 		FunctionKindFlag_NoOverloads |  // FunctionKind_OperatorVararg,
 		FunctionKindFlag_NoArgs,
 		FunctionKindFlag_NoOverloads |  // FunctionKind_OperatorCdeclVararg,
@@ -171,15 +169,6 @@ Function::convertToMemberMethod (DerivableType* parentType)
 	ASSERT (!m_type->getArgArray ().isEmpty ());
 	m_thisArgType = m_type->getArgArray () [0]->getType ();
 	m_thisType = m_thisArgType;
-}
-
-void
-Function::convertToOperatorNew ()
-{
-	ASSERT (m_typeOverload.getOverloadCount () == 1);
-
-	m_type = m_module->m_typeMgr.getOperatorNewType (m_type);
-	m_typeOverload = m_type;
 }
 
 size_t

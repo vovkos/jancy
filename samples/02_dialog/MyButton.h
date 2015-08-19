@@ -7,11 +7,10 @@
 class MyButton: public MyWidget
 {
 public:
-	JNC_BEGIN_CLASS ("Button", ApiSlot_Button)
-		JNC_OPAQUE_CLASS (MyButton, NULL)
-		JNC_OPERATOR_NEW (&operatorNew)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyButton, "Button", ApiSlot_Button)
+		JNC_CONSTRUCTOR (&(jnc::construct <MyButton, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyButton::setText)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public: 
 	jnc::DataPtr m_text;
@@ -22,15 +21,7 @@ public:
 	QtSignalBridge* m_onClickedBridge;
 
 public:
-	void
-	construct (jnc::DataPtr textPtr);
-
-	static 
-	MyButton*
-	operatorNew (
-		jnc::ClassType* type,
-		jnc::DataPtr textPtr
-		);
+	MyButton (jnc::DataPtr textPtr);
 
 	void
 	AXL_CDECL

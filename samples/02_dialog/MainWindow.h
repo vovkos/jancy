@@ -13,7 +13,7 @@ protected:
 	jnc::Runtime m_runtime;
 	QWidget* m_body;
 	QPlainTextEdit* m_output;
-	jnc::ApiClassBox <MyLayout> m_layout;
+	MyLayout* m_layout;
 
 public:
 	MainWindow (QWidget* parent = NULL, Qt::WindowFlags flags = 0);

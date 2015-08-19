@@ -1126,24 +1126,6 @@ TypeMgr::getStdObjectMemberMethodType (FunctionType* functionType)
 	return functionType->m_stdObjectMemberMethodType;
 }
 
-FunctionType*
-TypeMgr::getOperatorNewType (FunctionType* functionType)
-{
-	ASSERT (functionType->m_flags & ModuleItemFlag_User);
-
-	FunctionArg* thisArg = getSimpleFunctionArg (getStdType (StdType_BytePtr));
-
-	rtl::Array <FunctionArg*> argArray = functionType->m_argArray;
-	argArray.insert (0, thisArg);
-
-	return createUserFunctionType (
-		functionType->m_callConv,
-		functionType->m_returnType,
-		argArray,
-		functionType->m_flags
-		);
-}
-
 PropertyType*
 TypeMgr::getPropertyType (
 	FunctionType* getterType,

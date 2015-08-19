@@ -30,9 +30,9 @@ enum ApiSlot
 class TestClassA: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("TestClassA", ApiSlot_TestClassA)
+	JNC_BEGIN_CLASS_TYPE ("TestClassA", ApiSlot_TestClassA)
 		JNC_FUNCTION ("foo", &TestClassA::foo)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public:
 	int m_x;
@@ -49,17 +49,16 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TestClassB: public TestClassA
+class TestClassB: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("TestClassB", ApiSlot_TestClassB)
-		JNC_OPAQUE_CLASS (TestClassB, &enumGcRoots)
-		JNC_OPERATOR_NEW (&operatorNew)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClassB, "TestClassB", ApiSlot_TestClassB)
+		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClassB::enumGcRoots)
 		JNC_FUNCTION ("bar", &TestClassB::bar)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public:
-	int m_y;
+	char m_data [256];
 
 public:
 	static
@@ -68,10 +67,6 @@ public:
 		jnc::GcHeap* gcHeap,
 		TestClassB* self
 		);
-
-	static 
-	TestClassB*
-	operatorNew (jnc::ClassType* type);
 
 	void
 	AXL_CDECL
@@ -149,7 +144,7 @@ public:
 	JNC_BEGIN_LIB ()
 		JNC_STD_FUNCTION (jnc::StdFunc_Printf, &printf)
 //		JNC_TYPE (TestClassA)
-//		JNC_TYPE (TestClassB)
+		JNC_TYPE (TestClassB)
 //		JNC_TYPE (TestStruct)
 		JNC_LIB (jnc::StdLib)
 //		JNC_FUNCTION ("testPtr",     &testPtr)
@@ -157,6 +152,10 @@ public:
 //		JNC_FUNCTION ("qtWait", &qtWait)
 	JNC_END_LIB ()
 
+	JNC_BEGIN_OPAQUE_CLASS_TYPE_DB ()
+		JNC_OPAQUE_CLASS_TYPE (TestClassB)
+	JNC_END_OPAQUE_CLASS_TYPE_DB ()
+	
 	static
 	int
 	printf (

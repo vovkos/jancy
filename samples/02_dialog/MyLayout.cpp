@@ -3,25 +3,10 @@
 
 //.............................................................................
 
-void
-MyLayout::construct (
-	QBoxLayout::Direction direction,
-	QWidget* parent
-	)
+MyLayout::MyLayout (QBoxLayout::Direction direction)
 {
-	m_qtLayout = new QBoxLayout (direction, parent);
+	m_qtLayout = new QBoxLayout (direction);
 	m_direction = direction;
-}
-
-MyLayout*
-MyLayout::operatorNew (
-	jnc::ClassType* type,
-	QBoxLayout::Direction direction
-	)
-{
-	MyLayout* layout = (MyLayout*) jnc::StdLib::allocateClass (type);
-	layout->construct (direction);
-	return layout;
 }
 
 void

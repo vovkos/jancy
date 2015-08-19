@@ -37,10 +37,10 @@ enum ClassTypeKind
 
 enum ClassTypeFlag
 {
-	ClassTypeFlag_Abstract    = 0x010000,
-	ClassTypeFlag_Closure     = 0x020000,
-	ClassTypeFlag_Opaque      = 0x040000,
-	ClassTypeFlag_OpaqueReady = 0x100000,
+	ClassTypeFlag_HasAbstractMethods = 0x010000,
+	ClassTypeFlag_Closure            = 0x020000,
+	ClassTypeFlag_Opaque             = 0x040000,
+	ClassTypeFlag_OpaqueNonCreatable = 0x100000,
 };
 
 //.............................................................................
@@ -81,6 +81,7 @@ class ClassType: public DerivableType
 	friend class TypeMgr;
 	friend class Parser;
 	friend class Property;
+	friend class StructType;
 
 protected:
 	ClassTypeKind m_classTypeKind;
@@ -93,7 +94,6 @@ protected:
 	rtl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
 	rtl::Array <StructField*> m_classMemberFieldArray;
 
-	Function* m_operatorNew;
 	Class_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
 
 	rtl::Array <Function*> m_virtualMethodArray;
@@ -107,14 +107,6 @@ protected:
 
 public:
 	ClassType ();
-
-	bool
-	isCreatable ()
-	{
-		return
-			m_classTypeKind != ClassTypeKind_Abstract &&
-			!(m_flags & (ClassTypeFlag_Abstract | ClassTypeFlag_Opaque));
-	}
 
 	ClassTypeKind
 	getClassTypeKind ()
@@ -184,23 +176,14 @@ public:
 		return (Type*) getClassPtrType (ClassPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
-	Function*
-	getOperatorNew ()
-	{
-		return m_operatorNew;
-	}
-
 	Class_MarkOpaqueGcRootsFunc*
 	getMarkOpaqueGcRootsFunc ()
 	{
 		return m_markOpaqueGcRootsFunc;
 	}
 
-	void
-	setupOpaqueClass (
-		size_t size,
-		Class_MarkOpaqueGcRootsFunc* markOpaqueGcRootsFunc
-		);
+	bool
+	setMarkOpaqueGcRootsFunc (Class_MarkOpaqueGcRootsFunc* func);
 
 	virtual
 	bool

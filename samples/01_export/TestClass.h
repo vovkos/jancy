@@ -7,17 +7,17 @@
 class TestClass: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS ("TestClass", ApiSlot_TestClass)
-		JNC_OPAQUE_CLASS (TestClass, &enumGcRoots)
-		JNC_OPERATOR_NEW (&operatorNew)
-		JNC_DESTRUCTOR (TestClass)
+	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClass, "TestClass", ApiSlot_TestClass)
+		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&enumGcRoots)
+		JNC_CONSTRUCTOR (&(jnc::construct <TestClass, int>))
+		JNC_DESTRUCTOR (&jnc::destruct <TestClass>)
 		JNC_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
 		JNC_BINARY_OPERATOR (jnc::BinOpKind_SubAssign, &TestClass::subAssign)
 		JNC_FUNCTION ("foo", &TestClass::foo_0)
 		JNC_OVERLOAD (&TestClass::foo_1)
 		JNC_OVERLOAD (&TestClass::foo_2)
 		JNC_PROPERTY ("m_prop", &TestClass::setProp, &TestClass::setProp)
-	JNC_END_CLASS ()
+	JNC_END_CLASS_TYPE ()
 
 public: // these fields are accessible from Jancy
 	jnc::ClassBox <jnc::Multicast> m_onNegative;
@@ -29,20 +29,15 @@ protected: // opaque section
 	char m_internalData [256];
 
 public:
+	TestClass (int value);
+
 	~TestClass ();
-
-	static 
-	TestClass*
-	operatorNew (
-		jnc::ClassType* type,
-		int value
-		);
-
+	
 	static
 	void
 	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		TestClass* self
+		TestClass* self,
+		jnc::GcHeap* gcHeap
 		);
 
 	int 

@@ -94,6 +94,14 @@ OperatorMgr::construct (
 		return true;
 	}
 
+	DerivableType* derivableType = (DerivableType*) type;
+	if (constructor->getAccessKind () != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind (derivableType) == AccessKind_Public)
+	{
+		err::setFormatStringError ("'%s.construct' is protected", derivableType->getQualifiedName ().cc ());
+		return false;
+	}
+
 	rtl::BoxList <Value> emptyArgList;
 	if (!argList)
 		argList = &emptyArgList;
@@ -387,12 +395,6 @@ OperatorMgr::gcHeapAllocate (
 {
 	bool result;
 
-	if (isOpaqueClassType (type))
-	{
-		err::setFormatStringError ("opaque classes can only be allocated with 'operator new'");
-		return false;
-	}
-
 	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 
 	Function* allocate;
@@ -403,6 +405,12 @@ OperatorMgr::gcHeapAllocate (
 
 	if (type->getTypeKind () == TypeKind_Class)
 	{
+		if (type->getFlags () & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
+		{
+			err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().cc ());
+			return false;
+		}
+
 		allocate = m_module->m_functionMgr.getStdFunction (StdFunc_AllocateClass);
 	}
 	else if (!rawElementCountValue)
@@ -444,20 +452,6 @@ OperatorMgr::newOperator (
 	)
 {
 	bool result;
-
-	if (isOpaqueClassType (type))
-	{
-		Function* operatorNew = ((ClassType*) type)->getOperatorNew ();
-		if (!operatorNew)
-		{
-			err::setFormatStringError ("opaque '%s' has no 'operator new'", type->getTypeString ().cc ());
-			return false;
-		}
-
-		Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-		argValueList->insertHead (typeValue);
-		return callOperator (operatorNew, argValueList, resultValue);
-	}
 
 	Value ptrValue;
 

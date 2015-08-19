@@ -42,7 +42,6 @@ enum FunctionKind
 	FunctionKind_CastOperator,
 	FunctionKind_UnaryOperator,
 	FunctionKind_BinaryOperator,
-	FunctionKind_OperatorNew,
 	FunctionKind_OperatorVararg,
 	FunctionKind_OperatorCdeclVararg,
 	FunctionKind_Internal,
@@ -305,9 +304,6 @@ public:
 
 	void
 	convertToMemberMethod (DerivableType* parentType);
-
-	void
-	convertToOperatorNew ();
 
 	bool
 	hasBody ()

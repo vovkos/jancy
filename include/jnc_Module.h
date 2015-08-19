@@ -13,6 +13,7 @@
 #include "jnc_ControlFlowMgr.h"
 #include "jnc_OperatorMgr.h"
 #include "jnc_UnitMgr.h"
+#include "jnc_OpaqueClassTypeDb.h"
 #include "jnc_LlvmIrBuilder.h"
 #include "jnc_LlvmDiBuilder.h"
 
@@ -92,6 +93,7 @@ protected:
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
+	OpaqueClassTypeDb* m_opaqueClassTypeDb;
 
 	rtl::BoxList <rtl::String> m_importList;
 	rtl::BoxList <rtl::String> m_shadowImportList;
@@ -148,6 +150,12 @@ public:
 	getCompileState ()
 	{
 		return m_compileState;
+	}
+
+	OpaqueClassTypeDb* 
+	getOpaqueClassTypeDb ()
+	{
+		return m_opaqueClassTypeDb;
 	}
 
 	llvm::LLVMContext*
@@ -342,6 +350,7 @@ public:
 	bool
 	create (
 		const rtl::String& name,
+		OpaqueClassTypeDb* opaqueClassTypeDb = NULL,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 

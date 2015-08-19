@@ -14,30 +14,9 @@ ClassType::ClassType ()
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
 	m_vtableStructType = NULL;
-	m_operatorNew = NULL;
 	m_markOpaqueGcRootsFunc = NULL;
 	m_classPtrTypeTuple = NULL;
 	m_vtableVariable = NULL;
-}
-
-void
-ClassType::setupOpaqueClass (
-	size_t size,
-	Class_MarkOpaqueGcRootsFunc* markOpaqueGcRootsFunc
-	)
-{
-	ASSERT (
-		(m_flags & ClassTypeFlag_Opaque) && 
-		!(m_flags & ClassTypeFlag_OpaqueReady) && 
-		size >= m_size);
-
-	m_size = size;
-	m_markOpaqueGcRootsFunc = markOpaqueGcRootsFunc;
-
-	if (markOpaqueGcRootsFunc)
-		m_flags |= TypeFlag_GcRoot;
-
-	m_flags |= ClassTypeFlag_OpaqueReady;
 }
 
 ClassPtrType*
@@ -97,6 +76,25 @@ ClassType::createFieldImpl (
 }
 
 bool
+ClassType::setMarkOpaqueGcRootsFunc (Class_MarkOpaqueGcRootsFunc* func)
+{
+	if (!(m_flags & ClassTypeFlag_Opaque))
+	{
+		err::setFormatStringError ("'%s' is not opaque and has no opaque gc roots", getTypeString ().cc ());
+		return false;
+	}
+
+	if (m_markOpaqueGcRootsFunc)
+	{
+		err::setFormatStringError ("mark opaque gc roots function is already set for '%s'", getTypeString ().cc ());
+		return false;
+	}
+
+	m_markOpaqueGcRootsFunc = func;
+	return true;
+}
+
+bool
 ClassType::addMethod (Function* function)
 {
 	StorageKind storageKind = function->getStorageKind ();
@@ -105,12 +103,6 @@ ClassType::addMethod (Function* function)
 	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
 
 	function->m_parentNamespace = this;
-
-	if (functionKind == FunctionKind_OperatorNew)
-	{
-		storageKind = StorageKind_Static;
-		function->convertToOperatorNew ();
-	}
 
 	if (storageKind == StorageKind_Undefined)
 		storageKind = StorageKind_Member;
@@ -201,19 +193,6 @@ ClassType::addMethod (Function* function)
 
 	case FunctionKind_CallOperator:
 		target = &m_callOperator;
-		break;
-
-	case FunctionKind_OperatorNew:
-		if (!(m_flags & ClassTypeFlag_Opaque))
-		{
-			err::setFormatStringError (
-				"'%s' is not opaque, 'operator new' is not needed",
-				getTypeString ().cc ()
-				);
-			return false;
-		}
-
-		target = &m_operatorNew;
 		break;
 
 	case FunctionKind_Reaction:
@@ -346,9 +325,9 @@ ClassType::calcLayout ()
 		}
 
 		ClassType* baseClassType = (ClassType*) slot->m_type;
-		if (baseClassType->m_flags & ClassTypeFlag_Opaque)
+		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable)
 		{
-			err::setFormatStringError ("cannot derive from opaque '%s'", baseClassType->getTypeString ().cc ());
+			err::setFormatStringError ("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString ().cc ());
 			return false;
 		}
 
@@ -389,7 +368,7 @@ ClassType::calcLayout ()
 		if (type->getTypeKind () == TypeKind_Class)
 		{
 			ClassType* classType = (ClassType*) type;
-			if (!classType->isCreatable ())
+			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
 			{
 				err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().cc ());
 				return false;
@@ -669,7 +648,7 @@ ClassType::createVTableVariable ()
 		if (function->getStorageKind () == StorageKind_Abstract)
 		{
 			function = function->getType ()->getAbstractFunction ();
-			m_flags |= ClassTypeFlag_Abstract;
+			m_flags |= ClassTypeFlag_HasAbstractMethods;
 		}
 
 		llvmVTable [i] = function->getLlvmFunction ();

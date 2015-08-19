@@ -9,10 +9,14 @@ namespace jnc {
 
 Module::Module ()
 {
-	m_llvmModule = NULL;
-	m_llvmExecutionEngine = NULL;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_opaqueClassTypeDb = NULL;
+
+	m_llvmModule = NULL;
+	m_llvmExecutionEngine = NULL;
+	m_constructor = NULL;
+	m_destructor = NULL;
 
 	finalizeConstruction ();
 }
@@ -46,25 +50,31 @@ Module::clear ()
 	else if (m_llvmModule)
 		delete m_llvmModule;
 
-	m_constructor = NULL;
-	m_destructor = NULL;
+	m_name.clear ();
+
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
+	m_constructor = NULL;
+	m_destructor = NULL;
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_opaqueClassTypeDb = NULL;
 }
 
 bool
 Module::create (
 	const rtl::String& name,
+	OpaqueClassTypeDb* opaqueClassTypeDb,
 	uint_t compileFlags
 	)
 {
 	clear ();
 
-	m_compileFlags = compileFlags;
 	m_name = name;
+	m_compileFlags = compileFlags;
+	m_compileState = ModuleCompileState_Idle;
+	m_opaqueClassTypeDb = opaqueClassTypeDb;
 
 	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
 	m_llvmModule = new llvm::Module ("jncModule", *llvmContext);

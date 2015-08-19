@@ -355,20 +355,6 @@ Declarator::addUnaryBinaryOperator (
 }
 
 bool
-Declarator::addOperatorNew ()
-{
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
-	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
-		return false;
-	}
-
-	m_declaratorKind = DeclaratorKind_OperatorNew;
-	m_functionKind = FunctionKind_OperatorNew;
-	return true;
-}
-
-bool
 Declarator::addOperatorVararg ()
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Named)

@@ -50,25 +50,15 @@ mapFunctions ( \
 	JNC_BEGIN_TYPE_EX(jnc::DerivableType, getApiDerivableType, name, slot)
 
 #define JNC_END_TYPE() \
-	if (isOpaqueClassType (type) && !(type->getFlags () & jnc::ClassTypeFlag_OpaqueReady)) \
-	{ \
-		err::setFormatStringError ("JNC_OPAQUE_CLASS is missing for '%s'", type->getTypeString ().cc ()); \
-		return false; \
-	} \
 	return true; \
 }
 
 //.............................................................................
 
-#define JNC_BEGIN_CLASS(name, slot) \
-jnc::IfaceHdr* \
-getRootIfaceHdr () \
-{ \
-	return (jnc::IfaceHdr*) (char*) this; \
-} \
-JNC_BEGIN_TYPE_EX (jnc::ClassType, getApiClassType, name, slot) \
+#define JNC_BEGIN_CLASS_TYPE(name, slot) \
+	JNC_BEGIN_TYPE_EX (jnc::ClassType, getApiClassType, name, slot) \
 
-#define JNC_END_CLASS() \
+#define JNC_END_CLASS_TYPE() \
 JNC_END_TYPE () \
 static \
 void* \
@@ -77,7 +67,7 @@ getApiClassVTable () \
 	return NULL; \
 }
 
-#define JNC_END_CLASS_BEGIN_VTABLE() \
+#define JNC_END_CLASS_TYPE_BEGIN_VTABLE() \
 JNC_END_TYPE () \
 static \
 void* \
@@ -96,6 +86,28 @@ getApiClassVTable () \
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+#define JNC_BEGIN_OPAQUE_CLASS_TYPE_EX(Type, name, slot, isNonCreatable) \
+static \
+const jnc::OpaqueClassTypeInfo* \
+getOpaqueClassTypeInfo () \
+{ \
+	static jnc::OpaqueClassTypeInfo typeInfo = \
+	{ \
+		sizeof (Type), \
+		isNonCreatable, \
+	}; \
+	return &typeInfo; \
+} \
+JNC_BEGIN_CLASS_TYPE (name, slot)
+
+#define JNC_BEGIN_OPAQUE_CLASS_TYPE(Type, name, slot) \
+	JNC_BEGIN_OPAQUE_CLASS_TYPE_EX (Type, name, slot, false)
+
+#define JNC_BEGIN_OPAQUE_CLASS_TYPE_NC(Type, name, slot) \
+	JNC_BEGIN_OPAQUE_CLASS_TYPE_EX (Type, name, slot, true)
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 #define JNC_BEGIN_LIB() \
 static \
 bool \
@@ -110,6 +122,28 @@ mapFunctions (jnc::Module* module) \
 #define JNC_END_LIB() \
 	return true; \
 }
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_OPAQUE_CLASS_TYPE_DB() \
+class ThisOpaqueClassTypeDb: public jnc::StdOpaqueClassTypeDb \
+{ \
+public: \
+	ThisOpaqueClassTypeDb () \
+	{
+
+#define JNC_END_OPAQUE_CLASS_TYPE_DB() \
+	} \
+}; \
+static \
+jnc::OpaqueClassTypeDb* \
+getOpaqueClassTypeDb () \
+{ \
+	return rtl::getSingleton <ThisOpaqueClassTypeDb> (); \
+}
+
+#define JNC_OPAQUE_CLASS_TYPE(Type) \
+	setOpaqueClassTypeInfo (Type::getApiTypeName (), Type::getOpaqueClassTypeInfo ());
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -144,18 +178,10 @@ mapFunctions (jnc::Module* module) \
 		JNC_MAP (overload, proc) \
 	}
 
-#define JNC_OPAQUE_CLASS(cls, markOpaqueGcRootsFunc) \
-	type->setupOpaqueClass (sizeof (jnc::ClassBox <cls>), (jnc::Class_MarkOpaqueGcRootsFunc*) markOpaqueGcRootsFunc);
-
-#define JNC_OPERATOR_NEW(proc) \
-	function = type->getOperatorNew (); \
-	if (!function) \
-	{ \
-		err::setFormatStringError ("'%s' has no operator new", type->getTypeString ().cc ()); \
-		return false; \
-	} \
-	overloadIdx = 0; \
-	JNC_MAP (function, proc) \
+#define JNC_MARK_OPAQUE_GC_ROOTS_FUNC(proc) \
+	result = type->setMarkOpaqueGcRootsFunc ((jnc::Class_MarkOpaqueGcRootsFunc*) proc); \
+	if (!result) \
+		return false;
 
 #define JNC_PRECONSTRUCTOR(proc) \
 	function = type->getPreConstructor (); \
@@ -177,7 +203,7 @@ mapFunctions (jnc::Module* module) \
 	overloadIdx = 0; \
 	JNC_MAP (function, proc)
 
-#define JNC_DESTRUCTOR(cls) \
+#define JNC_DESTRUCTOR(proc) \
 	function = type->getDestructor (); \
 	if (!function) \
 	{ \
@@ -185,7 +211,7 @@ mapFunctions (jnc::Module* module) \
 		return false; \
 	} \
 	overloadIdx = 0; \
-	JNC_MAP (function, &jnc::destruct <cls>)
+	JNC_MAP (function, proc)
 
 #define JNC_UNARY_OPERATOR(opKind, proc) \
 	function = type->getUnaryOperator (opKind); \
@@ -310,6 +336,78 @@ prime (
 	)
 {
 	prime (box, box, type, vtable);
+}
+
+template <typename T>
+void 
+construct (T* p)
+{
+	new (p) T ();
+}
+
+template <
+	typename T,
+	typename Arg
+	>
+void 
+construct (
+	T* p,
+	Arg arg
+	)
+{
+	new (p) T (arg);
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2
+	>
+void 
+construct (
+	T* p,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	new (p) T (arg1, arg2);
+}
+
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+void 
+construct (
+	T* p,
+	Arg1 a1,
+	Arg2 a2,
+	Arg3 a3
+	)
+{
+	new (p) T (arg1, arg2, arg3);
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+void 
+construct (
+	T* p,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	new (p) T (arg1, arg2, arg3, arg4);
 }
 
 template <typename T>

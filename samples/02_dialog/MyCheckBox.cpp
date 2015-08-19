@@ -3,26 +3,14 @@
 
 //.............................................................................
 
-void
-MyCheckBox::construct (jnc::DataPtr textPtr)
+MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
+	MyWidget (new QCheckBox)
 {
-	m_qtCheckBox = new QCheckBox;
-	MyWidget::construct (m_qtCheckBox);
+	m_qtCheckBox = (QCheckBox*) m_handle;
 	setText (textPtr);
 
 	m_onIsCheckedChangedBridge = new QtSignalBridge;
 	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), &m_onIsCheckedChanged);
-}
-
-MyCheckBox*
-MyCheckBox::operatorNew (
-	jnc::ClassType* type,
-	jnc::DataPtr textPtr
-	)
-{
-	MyCheckBox* checkBox = (MyCheckBox*) jnc::StdLib::allocateClass (type);
-	checkBox->construct (textPtr);
-	return checkBox;
 }
 
 //.............................................................................
