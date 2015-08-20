@@ -15,7 +15,7 @@ MySlider::MySlider (
 	setMaximum (maximum);
 
 	m_onValueChangedBridge = new QtSignalBridge;
-	m_onValueChangedBridge->connect (m_qtSlider, SIGNAL (valueChanged (int)), &m_onValueChanged);
+	m_onValueChangedBridge->connect (m_qtSlider, SIGNAL (valueChanged (int)), m_onValueChanged);
 }
 
 //.............................................................................

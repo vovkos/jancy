@@ -83,7 +83,7 @@ TestClass::setInternalValue (int value)
 {
 	m_internalValue = value;
 	if (m_internalValue < 0)
-		callMulticast (jnc::getCurrentThreadRuntime (), &m_onNegative);
+		callMulticast (jnc::getCurrentThreadRuntime (), m_onNegative);
 
 	return value;
 }

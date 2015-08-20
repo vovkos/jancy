@@ -10,7 +10,7 @@ MyButton::MyButton (jnc::DataPtr textPtr):
 	m_qtButton = (QPushButton*) m_handle;
 	setText (textPtr);
 	m_onClickedBridge = new QtSignalBridge;
-	m_onClickedBridge->connect (m_qtButton, SIGNAL (clicked ()), &m_onClicked);
+	m_onClickedBridge->connect (m_qtButton, SIGNAL (clicked ()), m_onClicked);
 }
 
 //.............................................................................

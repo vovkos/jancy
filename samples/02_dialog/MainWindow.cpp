@@ -135,8 +135,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	jnc::ClassType* layoutType = jnc::ApiClassBox <MyLayout>::getApiType (&m_module);
-	m_layout = jnc::createClass <MyLayout> (&m_runtime, layoutType, QBoxLayout::TopToBottom);
+	m_layout = jnc::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
 	m_body->setLayout (m_layout->m_qtLayout);
 
 	int returnValue;

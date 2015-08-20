@@ -10,7 +10,7 @@ MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
 	setText (textPtr);
 
 	m_onIsCheckedChangedBridge = new QtSignalBridge;
-	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), &m_onIsCheckedChanged);
+	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), m_onIsCheckedChanged);
 }
 
 //.............................................................................

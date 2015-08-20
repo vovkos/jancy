@@ -605,18 +605,16 @@ callMulticast (
 
 //.............................................................................
 
-template <typename Class>
-Class*
-createClass (
-	Runtime* runtime,
-	ClassType* type
-	)
+template <typename T>
+T*
+createClass (Runtime* runtime)
 {
 	bool result;
-	Class* p;
+	T* p;
+	ClassType* type = T::getApiType (runtime->getModule ());
 
 	JNC_BEGIN (runtime)
-	Class* p = runtime->m_gcHeap.allocateClass (type);
+	p = runtime->m_gcHeap.allocateClass (type);
 	jnc::construct (p);
 	JNC_END_EX (&result)
 
@@ -624,21 +622,21 @@ createClass (
 }
 
 template <
-	typename Class,
+	typename T,
 	typename Arg
 	>
-Class*
+T*
 createClass (
 	Runtime* runtime,
-	ClassType* type,
 	Arg arg
 	)
 {
 	bool result;
-	Class* p;
+	T* p;
+	ClassType* type = T::getApiType (runtime->getModule ());
 
 	JNC_BEGIN (runtime)
-	Class* p = (Class*) runtime->m_gcHeap.allocateClass (type);
+	p = (T*) runtime->m_gcHeap.allocateClass (type);
 	jnc::construct (p, arg);
 	JNC_END_EX (&result)
 
@@ -646,23 +644,23 @@ createClass (
 }
 
 template <
-	typename Class,
+	typename T,
 	typename Arg1,
 	typename Arg2
 	>
-Class*
+T*
 createClass (
 	Runtime* runtime,
-	ClassType* type,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
 	bool result;
-	Class* p;
+	T* p;
+	ClassType* type = T::getApiType (runtime->getModule ());
 
 	JNC_BEGIN (runtime)
-	Class* p = (Class*) runtime->m_gcHeap.allocateClass (type);
+	p = (T*) runtime->m_gcHeap.allocateClass (type);
 	jnc::construct (p, arg1, arg2);
 	JNC_END_EX (&result)
 
@@ -670,25 +668,25 @@ createClass (
 }
 
 template <
-	typename Class,
+	typename T,
 	typename Arg1,
 	typename Arg2,
 	typename Arg3
 	>
-Class*
+T*
 createClass (
 	Runtime* runtime,
-	ClassType* type,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
 	bool result;
-	Class* p;
+	T* p;
+	ClassType* type = T::getApiType (runtime->getModule ());
 
 	JNC_BEGIN (runtime)
-	Class* p = (Class*) runtime->m_gcHeap.allocateClass (type);
+	p = (T*) runtime->m_gcHeap.allocateClass (type);
 	jnc::construct (p, arg1, arg2, arg3);
 	JNC_END_EX (&result)
 
@@ -696,16 +694,15 @@ createClass (
 }
 
 template <
-	typename Class,
+	typename T,
 	typename Arg1,
 	typename Arg2,
 	typename Arg3,
 	typename Arg4
 	>
-Class*
+T*
 createClass (
 	Runtime* runtime,
-	ClassType* type,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
@@ -713,14 +710,33 @@ createClass (
 	)
 {
 	bool result;
-	Class* p;
+	T* p;
+	ClassType* type = T::getApiType (runtime->getModule ());
 
 	JNC_BEGIN (runtime)
-	Class* p = (Class*) runtime->m_gcHeap.allocateClass (type);
+	p = (T*) runtime->m_gcHeap.allocateClass (type);
 	jnc::construct (p, arg1, arg2, arg3, arg4);
 	JNC_END_EX (&result)
 
 	return result ? p : NULL;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+DataPtr
+createData (Runtime* runtime)
+{
+	bool result;
+	DataPtr ptr;
+	Type* type = T::getApiType (runtime->getModule ());
+
+	JNC_BEGIN (runtime)
+	ptr = runtime->m_gcHeap.allocateData (type);
+	jnc::construct ((T*) ptr.m_p);
+	JNC_END_EX (&result)
+
+	return result ? ptr : g_nullPtr;
 }
 
 //.............................................................................

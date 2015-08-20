@@ -62,7 +62,7 @@ mapFunctions ( \
 JNC_END_TYPE () \
 static \
 void* \
-getApiClassVTable () \
+getApiVTable () \
 { \
 	return NULL; \
 }
@@ -71,9 +71,9 @@ getApiClassVTable () \
 JNC_END_TYPE () \
 static \
 void* \
-getApiClassVTable () \
+getApiVTable () \
 { \
-	static void* VTable [] = \
+	static void* vtable [] = \
 	{
 
 #define JNC_VTABLE_FUNCTION(function) \
@@ -339,6 +339,29 @@ prime (
 }
 
 template <typename T>
+void
+prime (
+	Module* module,
+	ClassBox <T>* p,
+	Box* root
+	)
+{
+	prime (p, root, T::getApiType (module), T::getApiVTable ());
+}
+
+template <typename T>
+void
+prime (
+	Module* module,
+	ClassBox <T>* p
+	)
+{
+	prime (p, p, T::getApiType (module), T::getApiVTable ());
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
 void 
 construct (T* p)
 {
@@ -410,57 +433,14 @@ construct (
 	new (p) T (arg1, arg2, arg3, arg4);
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 template <typename T>
 void 
 destruct (T* p)
 {
 	p->~T ();
 }
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-template <typename T>
-class ApiClassBox:
-	public Box,
-	public T
-{
-public:
-	void
-	prime (
-		Box* root,
-		ClassType* type
-		)
-	{
-		jnc::prime (this, root, type, T::getApiClassVTable ());
-	}
-
-	void
-	prime (ClassType* type)
-	{
-		prime (this, type);
-	}
-
-	void
-	prime (
-		Box* root,
-		Module* module
-		)
-	{
-		jnc::prime (this, root, T::getApiType (module), T::getApiClassVTable ());
-	}
-
-	void
-	prime (Module* module)
-	{
-		prime (this, T::getApiType (module));
-	}
-
-	void
-	defaultConstruct ()
-	{
-		new ((T*) this) T ();
-	}
-};
 
 //.............................................................................
 

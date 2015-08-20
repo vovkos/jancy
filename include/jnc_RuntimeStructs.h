@@ -109,6 +109,10 @@ struct IfaceHdr
 	void* m_vtable;
 	Box* m_box;
 
+	IfaceHdr () // empty constructor to prevent C++ from touching iface headers after prime
+	{
+	}
+
 	// followed by parents, then by iface data fields
 };
 
@@ -117,10 +121,26 @@ struct IfaceHdr
 // iface inside a box
 
 template <typename T>
-class ClassBox:
-	public Box,
-	public T
+class ClassBox: public Box
 {
+protected:
+	char m_buffer [sizeof (T)];
+
+public:
+	T* p ()
+	{
+		return (T*) m_buffer;
+	}
+
+	operator T* ()
+	{
+		return p ();
+	}
+
+	T* operator -> ()
+	{
+		return p ();
+	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
