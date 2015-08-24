@@ -40,11 +40,13 @@ Variable::getStaticData ()
 	
 	if (m_staticData)
 		return m_staticData;
-		
-	llvm::GlobalVariable* llvmGlobalVariable = (llvm::GlobalVariable*) m_llvmValue;
-	ASSERT (llvm::isa <llvm::GlobalVariable> (m_llvmValue));
 
-	m_staticData = m_module->getLlvmExecutionEngine ()->getPointerToGlobal (llvmGlobalVariable);
+	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine ();
+
+	m_staticData = (m_module->getCompileFlags () & ModuleCompileFlag_McJit) ?
+		(void*) llvmExecutionEngine->getGlobalValueAddress (m_llvmGlobalVariable->getName ()) :
+		(void*) llvmExecutionEngine->getPointerToGlobal (m_llvmGlobalVariable);
+
 	return m_staticData;
 }
 

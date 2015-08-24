@@ -6,6 +6,10 @@
 
 #include "axl_g_Pch.h"
 
+#if (_AXL_ENV == AXL_ENV_POSIX)
+#	include <signal.h>
+#endif
+
 //.............................................................................
 
 // LLVM

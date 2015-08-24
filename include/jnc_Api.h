@@ -406,9 +406,9 @@ template <
 void 
 construct (
 	T* p,
-	Arg1 a1,
-	Arg2 a2,
-	Arg3 a3
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
 	)
 {
 	new (p) T (arg1, arg2, arg3);

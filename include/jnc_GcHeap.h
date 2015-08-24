@@ -96,7 +96,7 @@ protected:
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	io::psx::Mapping m_guardPage;
 	mt::psx::Sem m_handshakeSem; // only sems can be safely signalled from signal handlers
-	sigset_t m_signalWaitMask;
+	static sigset_t m_signalWaitMask;
 #endif
 
 	rtl::Array <Box*> m_allocBoxArray;
@@ -320,8 +320,11 @@ protected:
 	runMarkCycle ();
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
+	// signal handlers
+
+	static
 	void
-	installSignalHandlers ();
+	installSignalHandlers (int);
 
 	static
 	void

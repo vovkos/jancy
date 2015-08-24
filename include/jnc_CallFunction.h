@@ -6,6 +6,7 @@
 
 #include "jnc_Function.h"
 #include "jnc_Runtime.h"
+#include "jnc_Api.h"
 #include "jnc_MulticastClassType.h"
 
 namespace jnc {
@@ -370,7 +371,7 @@ callFunctionPtr (
 	RetVal* retVal
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, ptr.m_closure);
+	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure);
 }
 
 template <
@@ -385,7 +386,7 @@ callFunctionPtr (
 	Arg arg
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, ptr.m_closure, arg);
+	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg);
 }
 
 template <
@@ -402,7 +403,7 @@ callFunctionPtr (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p,  retVal, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2);
 }
 
 template <

@@ -405,12 +405,30 @@ StdLib::memDup (
 	return resultPtr;
 }
 
+void
+StdLib::sleep (uint32_t msCount)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.enterWaitRegion ();
+	g::sleep (msCount);
+	runtime->m_gcHeap.leaveWaitRegion ();
+}
+
 struct ThreadContext
 {
 	FunctionPtr m_ptr;
 	Runtime* m_runtime;
 	mt::Event m_threadStartedEvent;
 };
+
+// a small note on thread starting sequence
+
+// we must protect function closure object from being prematurely collected during passing it to the
+// newly created thread. to achieve that, createThread waits until thread func registers mutator 
+// thread with JNC_BEGIN macro. after mutator thread is registered, collection will not start until
+// we hit a safepoint within jancy thread, so we can resume host thread right after JNC_BEGIN.
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 
@@ -425,22 +443,11 @@ StdLib::threadFunc (PVOID context0)
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 	
-	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
+	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
 	JNC_END ();
 
 	return 0;
-}
-
-void
-StdLib::sleep (uint32_t msCount)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	runtime->m_gcHeap.enterWaitRegion ();
-	g::sleep (msCount);
-	runtime->m_gcHeap.leaveWaitRegion ();
 }
 
 bool
@@ -474,8 +481,8 @@ StdLib::threadFunc (void* context0)
 
 	JNC_BEGIN (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
-	
-	((void (__cdecl*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
+
+	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
 	JNC_END ();
 

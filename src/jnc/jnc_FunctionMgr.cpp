@@ -925,11 +925,13 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_Printf:
 	case StdFunc_Atoi:
 #if (_AXL_ENV == AXL_ENV_POSIX)
-		ASSERT (sourceTable [func].m_p);
+		source = getStdFunctionSource (func);
+		ASSERT (source->m_p);
+
 		function = parseStdFunction (
-			sourceTable [func].m_stdNamespace,
-			sourceTable [func].m_p,
-			sourceTable [func].m_length
+			source->m_stdNamespace,
+			source->m_p,
+			source->m_length
 			);
 
 		ASSERT (!function->m_llvmFunction);
@@ -976,9 +978,9 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_CheckStackOverflow:
 	case StdFunc_TryLazyGetLibraryFunction:
 	case StdFunc_LazyGetLibraryFunction:
-		source = getStdFunctionSource (func);
-			
+		source = getStdFunctionSource (func);			
 		ASSERT (source->m_p);
+
 		function = parseStdFunction (
 			source->m_stdNamespace,
 			source->m_p,

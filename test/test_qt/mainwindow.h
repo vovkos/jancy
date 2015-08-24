@@ -144,7 +144,7 @@ public:
 	JNC_BEGIN_LIB ()
 		JNC_STD_FUNCTION (jnc::StdFunc_Printf, &printf)
 //		JNC_TYPE (TestClassA)
-		JNC_TYPE (TestClassB)
+//		JNC_TYPE (TestClassB)
 //		JNC_TYPE (TestStruct)
 		JNC_LIB (jnc::StdLib)
 //		JNC_FUNCTION ("testPtr",     &testPtr)

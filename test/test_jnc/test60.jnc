@@ -1,20 +1,51 @@
 //.............................................................................
 
-// entry point
+// Jancy supports 'bindable' properties, which notify subscribers after they 
+// have changed. 
 
-int bindable g_state;
+// The firing of the bindable event must be done manually, unless the entire 
+// property is compiler-generated. In this latter case the property is called 
+// bindable data.
 
-int g_a;
+//.............................................................................
 
-reactor g_reactor ()
+// simple bindable property declaration syntax
+
+int autoget bindable property g_simpleProp;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// setter implementation
+
+g_simpleProp.set (int x)
 {
-	g_a = 
-		g_state == 10 ? 100 : 
-		g_state == 20 ? 200 : 300;
+	printf ("g_simpleProp.set (%d)\n", x);
+
+	if (m_value == x)
+		return;
+
+	m_value = x;
+	
+	// by default, the name of compiler-generated event is 'm_onChanged'
+
+	m_onChanged (); 
+}
+
+//.............................................................................
+
+onSimplePropChanged ()
+{
+	printf ("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
 }
 
 int main ()
 {
+	printf ("main ()\n");
+
+	bindingof (g_simpleProp) += onSimplePropChanged;
+	g_simpleProp = 100;
+	g_simpleProp = 100; // bindable event is not going to get fired
+
 	return 0;
 }
 

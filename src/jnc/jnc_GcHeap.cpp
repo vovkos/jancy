@@ -8,6 +8,8 @@ namespace jnc {
 
 //.............................................................................
 
+sigset_t GcHeap::m_signalWaitMask = { 0 };
+
 GcHeap::GcHeap ()
 {
 	m_runtime = AXL_CONTAINING_RECORD (this, Runtime, m_gcHeap);
@@ -27,7 +29,7 @@ GcHeap::GcHeap ()
 #if (_AXL_ENV == AXL_ENV_WIN)
 	m_guardPage.alloc (4 * 1024); // typical page size (OS will not give us less than that anyway)
 #elif (_AXL_ENV == AXL_ENV_POSIX)
-	m_guardPage = m_guardPage.map (
+	m_guardPage.map (
 		NULL,
 		4 * 1024,
 		PROT_READ | PROT_WRITE,
@@ -397,8 +399,8 @@ GcHeap::finalizeShutdown ()
 		int retVal;
 
 		bool result = destructor->m_iface ? 
-			callFunctionImpl (m_runtime, destructor->m_destructFunc, &retVal, destructor->m_iface) :
-			callFunctionImpl (m_runtime, destructor->m_staticDestructFunc, &retVal);
+			callFunctionImpl (m_runtime, (void*) destructor->m_destructFunc, &retVal, destructor->m_iface) :
+			callFunctionImpl (m_runtime, (void*) destructor->m_staticDestructFunc, &retVal);
 
 		AXL_MEM_DELETE (destructor);
 
@@ -454,8 +456,6 @@ GcHeap::addStaticRootVariables (
 	if (!count)
 		return;
 
-	llvm::ExecutionEngine* llvmExecutionEngine = variableArray [0]->getModule ()->getLlvmExecutionEngine ();
-
 	char buffer [256];
 	rtl::Array <Root> rootArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	rootArray.setCount (count);
@@ -464,10 +464,7 @@ GcHeap::addStaticRootVariables (
 	{
 		Variable* variable = variableArray [i];
 		
-		void* p = llvmExecutionEngine->getPointerToGlobal (variable->getLlvmGlobalVariable ());
-		ASSERT (p);
-
-		rootArray [i].m_p = p;
+		rootArray [i].m_p = variable->getStaticData ();
 		rootArray [i].m_type = variable->getType ();
 	}
 
@@ -520,7 +517,7 @@ void
 GcHeap::registerMutatorThread (GcMutatorThread* thread)
 {
 	bool isMutatorThread = waitIdleAndLock ();
-	ASSERT (!isMutatorThread); // we in the process of registering this thread
+	ASSERT (!isMutatorThread); // we are in the process of registering this thread
 
 	thread->m_threadId = mt::getCurrentThreadId ();
 	thread->m_waitRegionLevel = 0;
@@ -892,6 +889,8 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_guardPage.protect (PAGE_NOACCESS);
 		m_handshakeEvent.wait ();
 #elif (_AXL_ENV == AXL_ENV_POSIX)
+		static volatile int32_t installSignalHandlersFlag = 0;
+		mt::callOnce (installSignalHandlers, 0, &installSignalHandlersFlag);
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif
@@ -1082,7 +1081,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_guardPage.protect (PAGE_READWRITE);
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 		m_guardPage.protect (PROT_READ | PROT_WRITE);
-#endif*
+#endif
 		mt::atomicXchg (&m_handshakeCount, handshakeCount);
 		m_state = State_ResumeTheWorld;
 
@@ -1194,16 +1193,16 @@ GcHeap::handleSehException (
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 
 void
-GcHeap::installSignalHandlers ()
+GcHeap::installSignalHandlers (int)
 {
 	sigemptyset (&m_signalWaitMask); // don't block any signals when servicing SIGSEGV
 
+	struct sigaction prevSigAction;
 	struct sigaction sigAction = { 0 };
 	sigAction.sa_flags = SA_SIGINFO;
 	sigAction.sa_sigaction = signalHandler_SIGSEGV;
 	sigAction.sa_mask = m_signalWaitMask;
 
-	struct sigaction prevSigAction;
 	int result = sigaction (SIGSEGV, &sigAction, &prevSigAction);
 	ASSERT (result == 0);
 
@@ -1213,7 +1212,6 @@ GcHeap::installSignalHandlers ()
 	ASSERT (result == 0);
 }
 
-static
 void
 GcHeap::signalHandler_SIGSEGV (
 	int signal,
@@ -1221,23 +1219,31 @@ GcHeap::signalHandler_SIGSEGV (
 	void* context
 	)
 {
+	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	if (!runtime)
+		return;
+
+	GcHeap* self = &runtime->m_gcHeap;
+
 	if (signal != SIGSEGV || 
-		signalInfo->si_addr != g_gc->m_guardPage ||
-		g_gc->m_handshakeKind != HandshakeKind_StopTheWorld)
+		signalInfo->si_addr != self->m_guardPage ||
+		self->m_state != State_StopTheWorld)
 		return; // ignore
 
-	int32_t count = mt::atomicDec (&g_gc->m_handshakeCounter);
+	size_t count = mt::atomicDec (&self->m_handshakeCount);
 	if (!count)
-		g_gc->m_handshakeSem.post ();
+		self->m_handshakeSem.post ();
 
 	do
 	{
-		sigsuspend (&g_gc->m_signalWaitMask);
-	} while (g_gc->m_handshakeKind != HandshakeKind_ResumeTheWorld);
+		sigsuspend (&m_signalWaitMask);
+	} while (self->m_state != State_ResumeTheWorld);
 
-	count = mt::atomicDec (&g_gc->m_handshakeCounter);
+	count = mt::atomicDec (&self->m_handshakeCount);
 	if (!count)
-		g_gc->m_handshakeSem.post ();
+		self->m_handshakeSem.post ();
 }
 
 #endif

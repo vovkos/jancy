@@ -151,7 +151,7 @@ protected:
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 #	define JNC_GC_BEGIN()
-#	define JNC_END()
+#	define JNC_GC_END()
 #endif
 
 #define JNC_BEGIN(runtime) \

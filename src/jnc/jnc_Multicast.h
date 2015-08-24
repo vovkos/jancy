@@ -64,7 +64,7 @@ protected:
 	{
 		bool result = setCount (1, sizeof (T));
 		if (!result)
-			return false;
+			return NULL;
 
 		*(T*) m_ptr.m_p = ptr;
 		rtl::HandleTable <size_t>* handleTable = getHandleTable ();
@@ -79,7 +79,7 @@ protected:
 		size_t i = m_count;
 		bool result = setCount (i + 1, sizeof (T));
 		if (!result)
-			return false;
+			return NULL;
 
 		*((T*) m_ptr.m_p + i) = ptr;
 		return getHandleTable ()->add (i);
