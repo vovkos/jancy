@@ -1,50 +1,43 @@
-//.............................................................................
+// Jancy provides multi-level loop jumps with 'break-n' and 'continue-n'.
 
-// Jancy supports 'bindable' properties, which notify subscribers after they 
-// have changed. 
-
-// The firing of the bindable event must be done manually, unless the entire 
-// property is compiler-generated. In this latter case the property is called 
-// bindable data.
+// Ever wanted to exit two loops at once and do so neatly, without resorting 
+// to techniques being frowned upon, like using a 'goto'? If the answer is yes
+// then rejoyce! Jancy allows you to do just that.
 
 //.............................................................................
 
-// simple bindable property declaration syntax
-
-int autoget bindable property g_simpleProp;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// setter implementation
-
-g_simpleProp.set (int x)
-{
-	printf ("g_simpleProp.set (%d)\n", x);
-
-	if (m_value == x)
-		return;
-
-	m_value = x;
-	
-	// by default, the name of compiler-generated event is 'm_onChanged'
-
-	m_onChanged (); 
-}
-
-//.............................................................................
-
-onSimplePropChanged ()
-{
-	printf ("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
-}
+// entry point
 
 int main ()
 {
 	printf ("main ()\n");
 
-	bindingof (g_simpleProp) += onSimplePropChanged;
-	g_simpleProp = 100;
-	g_simpleProp = 100; // bindable event is not going to get fired
+	int a [3] [4] = 
+	{
+		{ 1,  2,  3,  4 },
+		{ 5,  6, -7,  8 },
+		{ 9, 10, 11, 12 },
+	};
+
+	bool isFound = false;
+
+	int i, j;
+
+	for (i = 0; i < countof (a); i++)
+		for (j = 0; j < countof (a [0]); j++)
+			if (a [i] [j] < 0)
+			{
+				isFound = true;			
+
+				// exit 2 loops at once
+
+				break2; 
+			}
+
+	if (isFound)
+		printf ("negative item found at [%d] [%d]: %d\n", i, j, a [i] [j]);
+	else
+		printf ("negative item not found\n");
 
 	return 0;
 }

@@ -133,6 +133,14 @@ enum TypeKind
 
 //.............................................................................
 
+enum TypeSizeLimit
+{
+	TypeSizeLimit_StoreSize      = 64,
+	TypeSizeLimit_StackAllocSize = 128,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum TypeFlag
 {
 	TypeFlag_Named     = 0x0100,
@@ -140,6 +148,7 @@ enum TypeFlag
 	TypeFlag_Pod       = 0x0400, // plain-old-data
 	TypeFlag_GcRoot    = 0x0800, // is or contains gc-traceable pointers
 	TypeFlag_StructRet = 0x1000, // return through hidden 1st arg (gcc32 callconv)
+	TypeFlag_NoStack   = 0x2000, // try to avoid allocation on stack
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

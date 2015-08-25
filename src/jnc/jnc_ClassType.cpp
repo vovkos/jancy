@@ -10,6 +10,7 @@ namespace jnc {
 ClassType::ClassType ()
 {
 	m_typeKind = TypeKind_Class;
+	m_flags = TypeFlag_NoStack;
 	m_ifaceHdrStructType = NULL;
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;

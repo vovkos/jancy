@@ -8,7 +8,9 @@ namespace jnc {
 
 //.............................................................................
 
+#if (_AXL_ENV == AXL_ENV_POSIX)
 sigset_t GcHeap::m_signalWaitMask = { 0 };
+#endif
 
 GcHeap::GcHeap ()
 {

@@ -13,7 +13,7 @@ OperatorMgr::zeroInitialize (const Value& value)
 	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	Type* type = ((DataPtrType*) value.getType ())->getTargetType ();
 
-	if (type->getSize () < OperatorMgrDef_StoreSizeLimit)
+	if (type->getSize () <= TypeSizeLimit_StoreSize)
 	{
 		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), value);
 		return;
@@ -454,7 +454,6 @@ OperatorMgr::newOperator (
 	bool result;
 
 	Value ptrValue;
-
 	result = gcHeapAllocate (type, rawElementCountValue, &ptrValue);
 	if (!result)
 		return false;

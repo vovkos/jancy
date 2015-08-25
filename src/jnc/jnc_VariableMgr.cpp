@@ -136,11 +136,9 @@ VariableMgr::createVariable (
 		break;
 
 	case StorageKind_Heap:
-		result = m_module->m_operatorMgr.gcHeapAllocate (type, &ptrValue);
+		result = allocateHeapVariable (variable);
 		if (!result)
-			return NULL;
-		
-		variable->m_llvmValue = ptrValue.getLlvmValue ();
+			return false;
 		break;
 
 	default:
@@ -197,6 +195,7 @@ VariableMgr::initializeVariable (Variable* variable)
 		break;
 
 	case StorageKind_Thread:
+	case StorageKind_Heap:
 		break;
 
 	case StorageKind_Stack:
@@ -209,10 +208,6 @@ VariableMgr::initializeVariable (Variable* variable)
 		{
 			m_module->m_operatorMgr.zeroInitialize (variable);
 		}
-		break;
-
-	case StorageKind_Heap:
-		m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type->getDataPtrType_c ());
 		break;
 
 	default:
@@ -393,8 +388,40 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	validatorVariable->m_llvmValue = llvmValidatorVariable;
 	m_variableList.insertTail (validatorVariable);
 
-	variable->m_leanDataPtrValidator->m_validatorValue = validatorVariable;
+	LeanDataPtrValidator* validator = variable->getLeanDataPtrValidator ();
+	validator->m_validatorValue = validatorVariable;
 	return validatorVariable;
+}
+
+bool
+VariableMgr::allocateHeapVariable (Variable* variable)
+{
+	Value ptrValue;
+	
+	bool result = m_module->m_operatorMgr.gcHeapAllocate (variable->m_type, &ptrValue);
+	if (!result)
+		return NULL;
+
+	if (variable->m_type->getTypeKind () == TypeKind_Class)
+	{
+		variable->m_llvmValue = ptrValue.getLlvmValue ();
+	}
+	else
+	{
+		Value variableValue;
+		Value validatorValue;
+
+		m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 0, NULL, &variableValue);
+		m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 1, NULL, &validatorValue);
+		m_module->m_llvmIrBuilder.createBitCast (variableValue, variable->m_type->getDataPtrType_c (), &variableValue);
+		variable->m_llvmValue = variableValue.getLlvmValue ();
+
+		LeanDataPtrValidator* validator = variable->getLeanDataPtrValidator ();
+		validator->m_validatorValue = validatorValue;
+	}
+
+	m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
+	return true;
 }
 
 void
@@ -403,28 +430,16 @@ VariableMgr::liftStackVariable (Variable* variable)
 	ASSERT (variable->m_storageKind == StorageKind_Stack);
 	ASSERT (llvm::isa <llvm::AllocaInst> (variable->m_llvmValue));
 
+	variable->m_storageKind = StorageKind_Heap;
+
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) (llvm::AllocaInst*) variable->m_llvmValue;
 	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
 	m_module->m_llvmIrBuilder.setInsertPoint (llvmAlloca);
-
-	Value typeValue (&variable->m_type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-	Value ptrValue;
-	Value variableValue;
-	Value validatorValue;
-
-	Function* allocate = m_module->m_functionMgr.getStdFunction (StdFunc_AllocateData);
-	bool result = m_module->m_operatorMgr.callOperator (allocate, typeValue, &ptrValue);
+	
+	bool result = allocateHeapVariable (variable);
 	ASSERT (result);
 
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 0, NULL, &variableValue);
-	m_module->m_llvmIrBuilder.createExtractValue (ptrValue, 1, NULL, &validatorValue);
-	m_module->m_llvmIrBuilder.createBitCast (variableValue, variable->m_type->getDataPtrType_c (), &variableValue);
-	m_module->m_operatorMgr.markStackGcRoot (variableValue, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
 	m_module->m_llvmIrBuilder.setInsertPoint (currentBlock);
-
-	variable->m_llvmValue = variableValue.getLlvmValue ();
-	variable->m_leanDataPtrValidator->m_validatorValue = validatorValue;
-	variable->m_storageKind = StorageKind_Heap;
 
 	llvmAlloca->replaceAllUsesWith (variable->m_llvmValue);
 	llvmAlloca->eraseFromParent ();

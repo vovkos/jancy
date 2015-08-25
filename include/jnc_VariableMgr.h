@@ -153,6 +153,9 @@ protected:
 
 	void
 	primeStaticClassVariable (Variable* variable);
+
+	bool
+	allocateHeapVariable (Variable* variable);
 };
 
 //.............................................................................

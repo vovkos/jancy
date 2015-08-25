@@ -24,7 +24,7 @@ Variable::getLeanDataPtrValidator ()
 {
 	if (m_leanDataPtrValidator)
 		return m_leanDataPtrValidator;
-	
+
 	Value originValue (this);
 	m_leanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
 	m_leanDataPtrValidator->m_originValue = originValue;

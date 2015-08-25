@@ -60,14 +60,6 @@ enum OperatorDynamism
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum OperatorMgrDef
-{
-	OperatorMgrDef_StoreSizeLimit      = 64,
-	OperatorMgrDef_StackAllocSizeLimit = 128,
-};	
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum StackGcRootKind
 {
 	StackGcRootKind_Temporary,

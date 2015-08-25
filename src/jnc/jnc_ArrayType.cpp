@@ -108,6 +108,9 @@ ArrayType::calcLayout ()
 	m_module->m_typeMgr.updateTypeSignature (this, signature);
 
 	m_size = m_elementType->getSize () * m_elementCount;
+	if (m_size > TypeSizeLimit_StackAllocSize)
+		m_flags |= TypeFlag_NoStack;
+
 	return true;
 }
 

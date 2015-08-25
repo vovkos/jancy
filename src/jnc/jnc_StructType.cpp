@@ -312,7 +312,10 @@ StructType::calcLayout ()
 		true
 		);
 
-	m_size = m_fieldAlignedSize;
+	m_size = m_fieldAlignedSize;	
+	if (m_size > TypeSizeLimit_StackAllocSize)
+		m_flags |= TypeFlag_NoStack;
+
 	return true;
 }
 

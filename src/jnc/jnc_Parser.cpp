@@ -1395,25 +1395,26 @@ Parser::declareData (
 	}
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	switch (m_storageKind)
+	StorageKind storageKind = m_storageKind;
+	switch (storageKind)
 	{
 	case StorageKind_Undefined:
 		switch (namespaceKind)
 		{
 		case NamespaceKind_Scope:
-			m_storageKind = type->getTypeKind () == TypeKind_Class ? StorageKind_Heap : StorageKind_Stack;
+			storageKind = (type->getFlags () & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
 			break;
 
 		case NamespaceKind_Type:
-			m_storageKind = StorageKind_Member;
+			storageKind = StorageKind_Member;
 			break;
 
 		case NamespaceKind_Property:
-			m_storageKind = ((Property*) nspace)->getParentType () ? StorageKind_Member : StorageKind_Static;
+			storageKind = ((Property*) nspace)->getParentType () ? StorageKind_Member : StorageKind_Static;
 			break;
 
 		default:
-			m_storageKind = StorageKind_Static;
+			storageKind = StorageKind_Static;
 		}
 
 		break;
@@ -1425,16 +1426,6 @@ Parser::declareData (
 		if (!scope && (!constructor->isEmpty () || !initializer->isEmpty ()))
 		{
 			err::setFormatStringError ("global 'thread' variables cannot have initializers");
-			return false;
-		}
-
-		break;
-
-	case StorageKind_Heap:
-	case StorageKind_Stack:
-		if (!scope)
-		{
-			err::setFormatStringError ("can only use '%s' storage specifier for local variables", getStorageKindString (m_storageKind));
 			return false;
 		}
 
@@ -1458,7 +1449,7 @@ Parser::declareData (
 		break;
 
 	default:
-		err::setFormatStringError ("invalid storage specifier '%s' for variable", getStorageKindString (m_storageKind));
+		err::setFormatStringError ("invalid storage specifier '%s' for variable", getStorageKindString (storageKind));
 		return false;
 	}
 
@@ -1466,7 +1457,7 @@ Parser::declareData (
 	{
 		Property* prop = (Property*) nspace;
 
-		if (m_storageKind == StorageKind_Member)
+		if (storageKind == StorageKind_Member)
 		{
 			dataItem = prop->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			if (!dataItem)
@@ -1477,7 +1468,7 @@ Parser::declareData (
 		else
 		{
 			Variable* variable = m_module->m_variableMgr.createVariable (
-				m_storageKind,
+				storageKind,
 				name,
 				nspace->createQualifiedName (name),
 				type,
@@ -1515,10 +1506,10 @@ Parser::declareData (
 		}
 
 	}
-	else if (m_storageKind != StorageKind_Member && m_storageKind != StorageKind_Mutable)
+	else if (storageKind != StorageKind_Member && storageKind != StorageKind_Mutable)
 	{
 		Variable* variable = m_module->m_variableMgr.createVariable (
-			m_storageKind,
+			storageKind,
 			name,
 			nspace->createQualifiedName (name),
 			type,
@@ -1557,7 +1548,7 @@ Parser::declareData (
 		}
 		else if (scope)
 		{
-			switch (m_storageKind)
+			switch (storageKind)
 			{
 			case StorageKind_Stack:
 			case StorageKind_Heap:
@@ -1573,7 +1564,7 @@ Parser::declareData (
 					break;
 
 				OnceStmt stmt;
-				m_module->m_controlFlowMgr.onceStmt_Create (&stmt, variable->m_pos, m_storageKind);
+				m_module->m_controlFlowMgr.onceStmt_Create (&stmt, variable->m_pos, storageKind);
 
 				result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, variable->m_pos);
 				if (!result)

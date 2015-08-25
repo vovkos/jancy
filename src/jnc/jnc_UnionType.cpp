@@ -152,6 +152,10 @@ UnionType::calcLayout ()
 
 	m_size = m_structType->getSize ();
 	m_alignment = m_structType->getAlignment ();
+
+	if (m_size > TypeSizeLimit_StackAllocSize)
+		m_flags |= TypeFlag_NoStack;
+
 	return true;
 }
 
