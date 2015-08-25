@@ -138,7 +138,7 @@ VariableMgr::createVariable (
 	case StorageKind_Heap:
 		result = allocateHeapVariable (variable);
 		if (!result)
-			return false;
+			return NULL;
 		break;
 
 	default:

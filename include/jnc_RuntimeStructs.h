@@ -109,10 +109,6 @@ struct IfaceHdr
 	void* m_vtable;
 	Box* m_box;
 
-	IfaceHdr () // empty constructor to prevent C++ from touching iface headers after prime
-	{
-	}
-
 	// followed by parents, then by iface data fields
 };
 

@@ -365,7 +365,7 @@ template <typename T>
 void 
 construct (T* p)
 {
-	new (p) T ();
+	new (p) T;
 }
 
 template <
