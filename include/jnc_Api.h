@@ -444,19 +444,20 @@ destruct (T* p)
 
 //.............................................................................
 
-// ensures no tail-padding (which might lead to ABI-incompatibility)
+// implicit tail-padding (might lead to ABI-incompatibility if omitted)
 
 #if (_AXL_CPP == AXL_CPP_MSC)
 
 template <typename T>
-class ApiBase: public T
+class ApiBaseTailPadding
 {
+	// microsoft compiler does not re-use tail padding
 };
 
 #else 
 
 template <typename T>
-class ApiBase: public T
+class ApiBaseTailPadding
 {
 private:
 	struct TailPaddingCheck: T
