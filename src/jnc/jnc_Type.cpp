@@ -729,6 +729,28 @@ getModuleItemType (ModuleItem* item)
 	}
 }
 
+Type*
+getDirectRefType (
+	Namespace* anchorNamespace,
+	Type* type,
+	uint_t ptrTypeFlags
+	)
+{
+	return type->getTypeKind () == TypeKind_Class ? 
+		(Type*) ((ClassType*) type)->getClassPtrType (
+			anchorNamespace,
+			TypeKind_ClassRef,
+			ClassPtrTypeKind_Normal,
+			ptrTypeFlags
+			) :
+		(Type*) type->getDataPtrType (
+			anchorNamespace,
+			TypeKind_DataRef,
+			DataPtrTypeKind_Lean,
+			ptrTypeFlags
+			);
+}
+
 //.............................................................................
 
 bool 

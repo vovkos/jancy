@@ -548,6 +548,23 @@ getSimpleType (
 Type*
 getModuleItemType (ModuleItem* item);
 
+Type*
+getDirectRefType (
+	Namespace* anchorNamespace,
+	Type* type,
+	uint_t ptrTypeFlags = 0
+	); // returns class ref or lean data ref
+
+inline
+Type*
+getDirectRefType (
+	Type* type,
+	uint_t ptrTypeFlags = 0
+	)
+{
+	return getDirectRefType (NULL, type, ptrTypeFlags);
+}
+
 //.............................................................................
 
 bool 

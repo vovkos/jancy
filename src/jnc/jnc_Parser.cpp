@@ -2749,7 +2749,7 @@ Parser::lookupIdentifierType (
 		break;
 
 	case ModuleItemKind_Variable:
-		value->setType (((Variable*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
+		value->setType (getDirectRefType (((Variable*) item)->getType ()));
 		break;
 
 	case ModuleItemKind_Alias:
@@ -2787,7 +2787,7 @@ Parser::lookupIdentifierType (
 		break;
 
 	case ModuleItemKind_StructField:
-		value->setType (((StructField*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
+		value->setType (getDirectRefType (((StructField*) item)->getType ()));
 		break;
 
 	default:

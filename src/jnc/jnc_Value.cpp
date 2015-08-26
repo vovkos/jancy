@@ -323,24 +323,11 @@ Value::setVariable (Variable* variable)
 	m_valueKind = ValueKind_Variable;
 	m_llvmValue = variable->getLlvmValue ();
 	m_variable = variable;
-
-	uint_t ptrTypeFlags = variable->getPtrTypeFlags () | PtrTypeFlag_Safe;
-
-	Type* type = variable->getType ();
-	if (type->getTypeKind () == TypeKind_Class)
-		m_type = ((ClassType*) type)->getClassPtrType (
-			variable->getParentNamespace (),
-			TypeKind_ClassRef,
-			ClassPtrTypeKind_Normal,
-			ptrTypeFlags
-			);
-	else
-		m_type = type->getDataPtrType (
-			variable->getParentNamespace (),
-			TypeKind_DataRef,
-			DataPtrTypeKind_Lean,
-			ptrTypeFlags
-			);
+	m_type = getDirectRefType (
+		variable->getParentNamespace (),
+		variable->getType (),
+		variable->getPtrTypeFlags () | PtrTypeFlag_Safe
+		);
 }
 
 void
