@@ -94,14 +94,14 @@ getCurrentThreadRuntime ()
 
 //.............................................................................
 
-class ScopedNoCollectGarbageRegion
+class ScopedNoCollectRegion
 {
 protected:
 	GcHeap* m_gcHeap;
 	bool m_canCollectOnLeave;
 
 public:
-	ScopedNoCollectGarbageRegion (
+	ScopedNoCollectRegion (
 		GcHeap* gcHeap,
 		bool canCollectOnLeave
 		)
@@ -109,7 +109,7 @@ public:
 		init (gcHeap, canCollectOnLeave);
 	}
 
-	ScopedNoCollectGarbageRegion (
+	ScopedNoCollectRegion (
 		Runtime* runtime,
 		bool canCollectOnLeave
 		)
@@ -117,12 +117,12 @@ public:
 		init (&runtime->m_gcHeap, canCollectOnLeave);
 	}
 
-	ScopedNoCollectGarbageRegion (bool canCollectOnLeave)
+	ScopedNoCollectRegion (bool canCollectOnLeave)
 	{
 		init (&getCurrentThreadRuntime ()->m_gcHeap, canCollectOnLeave);
 	}
 
-	~ScopedNoCollectGarbageRegion ()
+	~ScopedNoCollectRegion ()
 	{
 		m_gcHeap->leaveNoCollectRegion (m_canCollectOnLeave);
 	}
@@ -143,39 +143,49 @@ protected:
 //.............................................................................
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-#	define JNC_GC_BEGIN() \
+#	define JNC_BEGIN_GC_SITE() \
 	__try {
 
-#	define JNC_GC_END() \
+#	define JNC_END_GC_SITE() \
 	} __except (__jncRuntime->m_gcHeap.handleSehException (GetExceptionCode (), GetExceptionInformation ())) { }
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
-#	define JNC_GC_BEGIN()
-#	define JNC_GC_END()
+#	define JNC_BEGIN_GC_SITE()
+#	define JNC_END_GC_SITE()
 #endif
 
-#define JNC_BEGIN(runtime) \
+#define JNC_BEGIN_CALL_SITE(runtime) \
 { \
 	jnc::Runtime* __jncRuntime = (runtime); \
+	bool __jncIsNoCollectRegion = false; \
+	bool __jncCanCollectAtEnd = false; \
 	jnc::ExceptionRecoverySnapshot ___jncErs; \
-	JNC_GC_BEGIN() \
+	JNC_BEGIN_GC_SITE() \
 	__jncRuntime->initializeThread (&___jncErs); \
 	AXL_MT_BEGIN_LONG_JMP_TRY () \
-	
+
+#define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
+	JNC_BEGIN_CALL_SITE (runtime) \
+	__jncIsNoCollectRegion = true; \
+	__jncCanCollectAtEnd = canCollectAtEnd; \
+	__jncRuntime->m_gcHeap.enterNoCollectRegion ();
+
 #define JNC_CATCH() \
 	AXL_MT_LONG_JMP_CATCH ()
 
-#define JNC_END_IMPL() \
+#define JNC_END_CALL_SITE_IMPL() \
 	AXL_MT_END_LONG_JMP_TRY_EX (&___jncErs.m_result) \
+	if (__jncIsNoCollectRegion) \
+		__jncRuntime->m_gcHeap.leaveNoCollectRegion (__jncCanCollectAtEnd); \
 	__jncRuntime->uninitializeThread (&___jncErs); \
-	JNC_GC_END () \
+	JNC_END_GC_SITE () \
 
-#define JNC_END() \
-	JNC_END_IMPL() \
+#define JNC_END_CALL_SITE() \
+	JNC_END_CALL_SITE_IMPL() \
 }
 
-#define JNC_END_EX(result) \
-	JNC_END_IMPL() \
+#define JNC_END_CALL_SITE_EX(result) \
+	JNC_END_CALL_SITE_IMPL() \
 	*(result) = ___jncErs.m_result; \
 }
 

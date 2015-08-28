@@ -8,7 +8,7 @@ class MySlider: public MyWidget
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (MySlider, "Slider", ApiSlot_Slider)
-		JNC_CONSTRUCTOR (&(jnc::construct <MySlider, int, int>))
+		JNC_CONSTRUCTOR (&(rtl::construct <MySlider, int, int>))
 		JNC_AUTOGET_PROPERTY ("m_minimum", &MySlider::setMinimum)
 		JNC_AUTOGET_PROPERTY ("m_maximum", &MySlider::setMaximum)
 		JNC_PROPERTY ("m_value", &MySlider::getValue, &MySlider::setValue)

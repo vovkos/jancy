@@ -8,7 +8,7 @@ class MyLabel: public MyWidget
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyLabel, "Label", ApiSlot_Label)
-		JNC_CONSTRUCTOR (&(jnc::construct <MyLabel, jnc::DataPtr>))
+		JNC_CONSTRUCTOR (&(rtl::construct <MyLabel, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
 		JNC_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
 		JNC_AUTOGET_PROPERTY ("m_backColor", &MyLabel::setBackColor)

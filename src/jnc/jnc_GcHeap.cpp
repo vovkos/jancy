@@ -124,7 +124,7 @@ IfaceHdr*
 GcHeap::tryAllocateClass (ClassType* type)
 {
 	size_t size = type->getSize ();
-	Box* box = (Box*) AXL_MEM_ALLOC (size);
+	Box* box = (Box*) AXL_MEM_ALLOCATE (size);
 	if (!box)
 	{
 		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
@@ -185,25 +185,23 @@ GcHeap::addClassBox_l (Box* box)
 DataPtr
 GcHeap::tryAllocateData (Type* type)
 {
-	size_t dataSize = type->getSize ();
+	size_t size = type->getSize ();
 
-	size_t allocSize = sizeof (DataBox) + dataSize;
-	DataBox* box = (DataBox*) AXL_MEM_ALLOC (allocSize);
+	DataBox* box = AXL_MEM_NEW_EXTRA (DataBox, size);
 	if (!box)
 	{
 		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
 		return g_nullPtr;
 	}
 
-	memset (box, 0, allocSize);
 	box->m_type = type;
 	box->m_flags = BoxFlag_DataMark | BoxFlag_WeakMark;
 	box->m_validator.m_validatorBox = box;
 	box->m_validator.m_targetBox = box;
 	box->m_validator.m_rangeBegin = box + 1;
-	box->m_validator.m_rangeLength = dataSize;
+	box->m_validator.m_rangeLength = size;
 
-	incrementAllocSizeAndLock (dataSize);
+	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
 	m_lock.unlock ();
 
@@ -232,26 +230,24 @@ GcHeap::tryAllocateArray (
 	size_t count
 	)
 {
-	size_t dataSize = type->getSize () * count;
-	size_t allocSize = sizeof (DynamicArrayBox) + dataSize;
+	size_t size = type->getSize () * count;
 
-	DynamicArrayBox* box = (DynamicArrayBox*) AXL_MEM_ALLOC (allocSize);
+	DynamicArrayBox* box = AXL_MEM_NEW_EXTRA (DynamicArrayBox, size);
 	if (!box)
 	{
 		err::setFormatStringError ("not enough memory for '%s [%d]'", type->getTypeString ().cc (), count);
 		return g_nullPtr;
 	}
 
-	memset (box, 0, allocSize);
 	box->m_type = type;
 	box->m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 	box->m_count = count;
 	box->m_validator.m_validatorBox = box;
 	box->m_validator.m_targetBox = box;
 	box->m_validator.m_rangeBegin = box + 1;
-	box->m_validator.m_rangeLength = dataSize;
+	box->m_validator.m_rangeLength = size;
 
-	incrementAllocSizeAndLock (dataSize);
+	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
 	m_lock.unlock ();
 
@@ -328,17 +324,21 @@ GcHeap::createDataPtrValidator (
 	}
 	else
 	{
-		size_t dataSize = sizeof (DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
-		size_t allocSize = sizeof (DynamicArrayBoxHdr) + dataSize;
-		DynamicArrayBoxHdr* box = (DynamicArrayBoxHdr*) AXL_MEM_ALLOC (allocSize);
-		memset (box, 0, allocSize);
+		size_t size = sizeof (DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
+		
+		DynamicArrayBoxHdr* box = AXL_MEM_NEW_EXTRA (DynamicArrayBoxHdr, size);
+		if (!box)
+		{
+			Runtime::runtimeError (err::getLastError ());
+			ASSERT (false);
+		}
 
 		box->m_type = m_runtime->getModule ()->m_typeMgr.getStdType (StdType_DataPtrValidator);
 		box->m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 		box->m_rootOffset = 0;
 		box->m_count = GcDef_DataPtrValidatorPoolSize;
 
-		incrementAllocSizeAndLock (dataSize);
+		incrementAllocSizeAndLock (size);
 		m_allocBoxArray.append (box);
 		m_lock.unlock ();
 
@@ -401,8 +401,8 @@ GcHeap::finalizeShutdown ()
 		int retVal;
 
 		bool result = destructor->m_iface ? 
-			callFunctionImpl (m_runtime, (void*) destructor->m_destructFunc, &retVal, destructor->m_iface) :
-			callFunctionImpl (m_runtime, (void*) destructor->m_staticDestructFunc, &retVal);
+			callFunctionImpl_s (m_runtime, (void*) destructor->m_destructFunc, &retVal, destructor->m_iface) :
+			callFunctionImpl_s (m_runtime, (void*) destructor->m_staticDestructFunc, &retVal);
 
 		AXL_MEM_DELETE (destructor);
 

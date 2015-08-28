@@ -427,8 +427,8 @@ struct ThreadContext
 
 // we must protect function closure object from being prematurely collected during passing it to the
 // newly created thread. to achieve that, createThread waits until thread func registers mutator 
-// thread with JNC_BEGIN macro. after mutator thread is registered, collection will not start until
-// we hit a safepoint within jancy thread, so we can resume host thread right after JNC_BEGIN.
+// thread with JNC_BEGIN_CALL_SITE macro. after mutator thread is registered, collection will not start until
+// we hit a safepoint within jancy thread, so we can resume host thread right after JNC_BEGIN_CALL_SITE.
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 
@@ -440,12 +440,12 @@ StdLib::threadFunc (PVOID context0)
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
 	FunctionPtr ptr = context->m_ptr;
 
-	JNC_BEGIN (context->m_runtime);
+	JNC_BEGIN_CALL_SITE (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 	
 	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
-	JNC_END ();
+	JNC_END_CALL_SITE ();
 
 	return 0;
 }
@@ -479,12 +479,12 @@ StdLib::threadFunc (void* context0)
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
 	FunctionPtr ptr = context->m_ptr;
 
-	JNC_BEGIN (context->m_runtime);
+	JNC_BEGIN_CALL_SITE (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 
 	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
-	JNC_END ();
+	JNC_END_CALL_SITE ();
 
 	return NULL;
 }

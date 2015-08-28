@@ -8,7 +8,7 @@ class MyCheckBox: public MyWidget
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyCheckBox, "CheckBox", ApiSlot_CheckBox)
-		JNC_CONSTRUCTOR (&(jnc::construct <MyCheckBox, jnc::DataPtr>))
+		JNC_CONSTRUCTOR (&(rtl::construct <MyCheckBox, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
 		JNC_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
 	JNC_END_CLASS_TYPE ()

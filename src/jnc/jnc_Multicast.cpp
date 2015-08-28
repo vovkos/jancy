@@ -96,7 +96,7 @@ MulticastImpl::getSnapshot ()
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ScopedNoCollectGarbageRegion noCollectRegion (&runtime->m_gcHeap, false);
+	ScopedNoCollectRegion noCollectRegion (&runtime->m_gcHeap, false);
 
 	ASSERT (isClassType (m_box->m_type, ClassTypeKind_Multicast));
 	MulticastClassType* multicastType = (MulticastClassType*) m_box->m_type;

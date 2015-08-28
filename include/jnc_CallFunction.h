@@ -14,35 +14,23 @@ namespace jnc {
 //.............................................................................
 
 template <typename RetVal>
-bool
-callFunctionImpl (
-	Runtime* runtime,
-	void* p,
-	RetVal* retVal
-	)
+RetVal
+callFunctionImpl_u (void* p)
 {
 	typedef
 	RetVal
 	TargetFunc ();
 
-	bool result;
-
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p) ();
-	JNC_END_EX (&result)
-
-	return result;
+	return ((TargetFunc*) p) ();
 }
 
 template <
 	typename RetVal,
 	typename Arg
 	>
-bool
-callFunctionImpl (
-	Runtime* runtime,
+RetVal
+callFunctionImpl_u (
 	void* p,
-	RetVal* retVal,
 	Arg arg
 	)
 {
@@ -50,13 +38,7 @@ callFunctionImpl (
 	RetVal
 	TargetFunc (Arg);
 
-	bool result;
-
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p) (arg);
-	JNC_END_EX (&result)
-
-	return result;
+	return ((TargetFunc*) p) (arg);
 }
 
 template <
@@ -64,11 +46,9 @@ template <
 	typename Arg1,
 	typename Arg2
 	>
-bool
-callFunctionImpl (
-	Runtime* runtime,
+RetVal
+callFunctionImpl_u (
 	void* p,
-	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2
 	)
@@ -80,13 +60,7 @@ callFunctionImpl (
 		Arg2
 		);
 
-	bool result;
-
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p)  (arg1, arg2);
-	JNC_END_EX (&result)
-
-	return result;
+	return ((TargetFunc*) p)  (arg1, arg2);
 }
 
 template <
@@ -95,11 +69,9 @@ template <
 	typename Arg2,
 	typename Arg3
 	>
-bool
-callFunctionImpl (
-	Runtime* runtime,
+RetVal
+callFunctionImpl_u (
 	void* p,
-	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
@@ -113,13 +85,7 @@ callFunctionImpl (
 		Arg3
 		);
 
-	bool result;
-
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3);
-	JNC_END_EX (&result)
-
-	return result;
+	return ((TargetFunc*) p) (arg1, arg2, arg3);
 }
 
 template <
@@ -129,11 +95,9 @@ template <
 	typename Arg3,
 	typename Arg4
 	>
-bool
-callFunctionImpl (
-	Runtime* runtime,
+RetVal
+callFunctionImpl_u (
 	void* p,
-	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
@@ -149,13 +113,7 @@ callFunctionImpl (
 		Arg4
 		);
 
-	bool result;
-
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
-	JNC_END_EX (&result)
-
-	return result;
+	return ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
 }
 
 template <
@@ -166,11 +124,9 @@ template <
 	typename Arg4,
 	typename Arg5
 	>
-bool
-callFunctionImpl (
-	Runtime* runtime,
+RetVal
+callFunctionImpl_u (
 	void* p,
-	RetVal* retVal,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
@@ -188,11 +144,149 @@ callFunctionImpl (
 		Arg5
 		);
 
+	return ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename RetVal>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal
+	)
+{
 	bool result;
 
-	JNC_BEGIN (runtime)
-	*retVal = ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
-	JNC_END_EX (&result)
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg
+	>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg arg
+	)
+{
+	bool result;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p, arg);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
+	>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	bool result;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	bool result;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	bool result;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result;
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4,
+	typename Arg5
+	>
+bool
+callFunctionImpl_s (
+	Runtime* runtime,
+	void* p,
+	RetVal* retVal,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4,
+	Arg5 arg5
+	)
+{
+	bool result;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4, arg5);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result;
 }
@@ -207,7 +301,7 @@ callFunction (
 	RetVal* retVal
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), retVal);
 }
 
 template <
@@ -222,7 +316,7 @@ callFunction (
 	Arg arg
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), retVal, arg);
 }
 
 template <
@@ -239,7 +333,7 @@ callFunction (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), retVal, arg1, arg2);
 }
 
 template <
@@ -258,7 +352,7 @@ callFunction (
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3);
 }
 
 template <
@@ -279,7 +373,80 @@ callFunction (
 	Arg4 arg4
 	)
 {
-	return callFunctionImpl (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), retVal, arg1, arg2, arg3, arg4);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename RetVal>
+RetVal
+callFunction (Function* function)
+{
+	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode ());
+}
+
+template <
+	typename RetVal,
+	typename Arg
+	>
+RetVal
+callFunction (
+	Function* function,
+	Arg arg
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), sarg);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
+	>
+RetVal
+callFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), arg1, arg2);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+RetVal
+callFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), arg1, arg2, arg3);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+RetVal
+callFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	return callFunctionImpl_u <RetVal> (function->getMachineCode (), arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
@@ -292,7 +459,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, function->getMachineCode (), &retVal);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), &retVal);
 }
 
 template <typename Arg>
@@ -304,7 +471,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), &retVal, arg);
 }
 
 template <
@@ -320,7 +487,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), &retVal, arg1, arg2);
 }
 
 template <
@@ -338,7 +505,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3);
 }
 
 template <
@@ -358,7 +525,74 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s (runtime, function->getMachineCode (), &retVal, arg1, arg2, arg3, arg4);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+callVoidFunction (Function* function)
+{
+	callFunctionImpl_u <void> (function->getMachineCode ());
+}
+
+template <typename Arg>
+void
+callVoidFunction (
+	Function* function,
+	Arg arg
+	)
+{
+	callFunctionImpl_u <void> (function->getMachineCode (), arg);
+}
+
+template <
+	typename Arg1,
+	typename Arg2
+	>
+void
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	callFunctionImpl_u <void> (function->getMachineCode (), arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+void
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	callFunctionImpl_u <void> (function->getMachineCode (), arg1, arg2, arg3);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+void
+callVoidFunction (
+	Function* function,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	callFunctionImpl_u <void> (function->getMachineCode (), arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
@@ -371,7 +605,7 @@ callFunctionPtr (
 	RetVal* retVal
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure);
+	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure);
 }
 
 template <
@@ -386,7 +620,7 @@ callFunctionPtr (
 	Arg arg
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg);
+	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg);
 }
 
 template <
@@ -403,7 +637,7 @@ callFunctionPtr (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -422,7 +656,7 @@ callFunctionPtr (
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -443,7 +677,81 @@ callFunctionPtr (
 	Arg4 arg4
 	)
 {
-	return callFunctionImpl (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename RetVal>
+RetVal
+callFunctionPtr (FunctionPtr ptr)
+{
+	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure);
+}
+
+template <
+	typename RetVal,
+	typename Arg
+	>
+RetVal
+callFunctionPtr (
+	FunctionPtr ptr,
+	RetVal* retVal,
+	Arg arg
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2
+	>
+RetVal
+callFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+RetVal
+callFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+}
+
+template <
+	typename RetVal,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+RetVal
+callFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
@@ -456,7 +764,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure);
+	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure);
 }
 
 template <typename Arg>
@@ -468,7 +776,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg);
+	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg);
 }
 
 template <
@@ -484,7 +792,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -502,7 +810,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -522,7 +830,74 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+callVoidFunctionPtr (FunctionPtr ptr)
+{
+	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure);
+}
+
+template <typename Arg>
+void
+callVoidFunctionPtr (
+	FunctionPtr ptr,
+	Arg arg
+	)
+{
+	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg);
+}
+
+template <
+	typename Arg1,
+	typename Arg2
+	>
+void
+callVoidFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+void
+callVoidFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+void
+callVoidFunctionPtr (
+	FunctionPtr ptr,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
@@ -604,6 +979,78 @@ callMulticast (
 	return callVoidFunction (runtime, method, multicast, arg1, arg2, arg3, arg4);
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+callMulticast (Multicast* multicast)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	callVoidFunction (method, multicast);
+}
+
+template <typename Arg>
+void
+callMulticast (
+	Multicast* multicast,
+	Arg arg
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	callVoidFunction (method, multicast, arg);
+}
+
+template <
+	typename Arg1,
+	typename Arg2
+	>
+void
+callMulticast (
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	callVoidFunction (method, multicast, arg1, arg2);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+void
+callMulticast (
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	callVoidFunction (method, multicast, arg1, arg2, arg3);
+}
+
+template <
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+void
+callMulticast (
+	Multicast* multicast,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	Function* method = ((MulticastClassType*) multicast->m_box->m_type)->getMethod (MulticastMethodKind_Call);
+	callVoidFunction (method, multicast, arg1, arg2, arg3, arg4);
+}
+
 //.............................................................................
 
 template <typename T>
@@ -614,10 +1061,10 @@ createClass (Runtime* runtime)
 	T* p;
 	ClassType* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	p = runtime->m_gcHeap.allocateClass (type);
-	jnc::construct (p);
-	JNC_END_EX (&result)
+	rtl::construct (p);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? p : NULL;
 }
@@ -636,10 +1083,10 @@ createClass (
 	T* p;
 	ClassType* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	p = (T*) runtime->m_gcHeap.allocateClass (type);
-	jnc::construct (p, arg);
-	JNC_END_EX (&result)
+	rtl::construct (p, arg);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? p : NULL;
 }
@@ -660,10 +1107,10 @@ createClass (
 	T* p;
 	ClassType* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	p = (T*) runtime->m_gcHeap.allocateClass (type);
-	jnc::construct (p, arg1, arg2);
-	JNC_END_EX (&result)
+	rtl::construct (p, arg1, arg2);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? p : NULL;
 }
@@ -686,10 +1133,10 @@ createClass (
 	T* p;
 	ClassType* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	p = (T*) runtime->m_gcHeap.allocateClass (type);
-	jnc::construct (p, arg1, arg2, arg3);
-	JNC_END_EX (&result)
+	rtl::construct (p, arg1, arg2, arg3);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? p : NULL;
 }
@@ -714,15 +1161,117 @@ createClass (
 	T* p;
 	ClassType* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	p = (T*) runtime->m_gcHeap.allocateClass (type);
-	jnc::construct (p, arg1, arg2, arg3, arg4);
-	JNC_END_EX (&result)
+	rtl::construct (p, arg1, arg2, arg3, arg4);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? p : NULL;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+T*
+createClass ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	ClassType* type = T::getApiType (runtime->getModule ());
+	T* p = runtime->m_gcHeap.allocateClass (type);
+	rtl::construct (p);
+	
+	return p;
+}
+
+template <
+	typename T,
+	typename Arg
+	>
+T*
+createClass (Arg arg)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	ClassType* type = T::getApiType (runtime->getModule ());
+	T* p = (T*) runtime->m_gcHeap.allocateClass (type);
+	rtl::construct (p, arg);
+
+	return p;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2
+	>
+T*
+createClass (
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	ClassType* type = T::getApiType (runtime->getModule ());
+	T* p = (T*) runtime->m_gcHeap.allocateClass (type);
+	rtl::construct (p, arg1, arg2);
+
+	return p;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+T*
+createClass (
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	ClassType* type = T::getApiType (runtime->getModule ());
+	T* p = (T*) runtime->m_gcHeap.allocateClass (type);
+	rtl::construct (p, arg1, arg2, arg3);
+
+	return p;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+T*
+createClass (
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	ClassType* type = T::getApiType (runtime->getModule ());
+	T* p = (T*) runtime->m_gcHeap.allocateClass (type);
+	rtl::construct (p, arg1, arg2, arg3, arg4);
+
+	return p;
+}
+
+//.............................................................................
 
 template <typename T>
 DataPtr
@@ -732,12 +1281,214 @@ createData (Runtime* runtime)
 	DataPtr ptr;
 	Type* type = T::getApiType (runtime->getModule ());
 
-	JNC_BEGIN (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 	ptr = runtime->m_gcHeap.allocateData (type);
-	jnc::construct ((T*) ptr.m_p);
-	JNC_END_EX (&result)
+	rtl::construct ((T*) ptr.m_p);
+	JNC_END_CALL_SITE_EX (&result)
 
 	return result ? ptr : g_nullPtr;
+}
+
+template <
+	typename T,
+	typename Arg
+	>
+DataPtr
+createData (
+	Runtime* runtime,
+	Arg arg
+	)
+{
+	bool result;
+	DataPtr ptr;
+	Type* type = T::getApiType (runtime->getModule ());
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result ? ptr : g_nullPtr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2
+	>
+DataPtr
+createData (
+	Runtime* runtime,
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	bool result;
+	DataPtr ptr;
+	Type* type = T::getApiType (runtime->getModule ());
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result ? ptr : g_nullPtr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+DataPtr
+createData (
+	Runtime* runtime,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	bool result;
+	DataPtr ptr;
+	Type* type = T::getApiType (runtime->getModule ());
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result ? ptr : g_nullPtr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+DataPtr
+createData (
+	Runtime* runtime,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	bool result;
+	DataPtr ptr;
+	Type* type = T::getApiType (runtime->getModule ());
+
+	JNC_BEGIN_CALL_SITE (runtime)
+	ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
+	JNC_END_CALL_SITE_EX (&result)
+
+	return result ? ptr : g_nullPtr;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+DataPtr
+createData ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Type* type = T::getApiType (runtime->getModule ());
+	DataPtr ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p);
+
+	return ptr;
+}
+
+template <
+	typename T,
+	typename Arg
+	>
+DataPtr
+createData (Arg arg)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Type* type = T::getApiType (runtime->getModule ());
+	DataPtr ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg);
+
+	return ptr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2
+	>
+DataPtr
+createData (
+	Arg1 arg1,
+	Arg2 arg2
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Type* type = T::getApiType (runtime->getModule ());
+	DataPtr ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2);
+
+	return ptr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3
+	>
+DataPtr
+createData (
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Type* type = T::getApiType (runtime->getModule ());
+	DataPtr ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
+
+	return ptr;
+}
+
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4
+	>
+DataPtr
+createData (
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	Type* type = T::getApiType (runtime->getModule ());
+	DataPtr ptr = runtime->m_gcHeap.allocateData (type);
+	rtl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
+
+	return ptr;
 }
 
 //.............................................................................

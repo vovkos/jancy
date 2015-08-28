@@ -8,7 +8,7 @@ class MyButton: public MyWidget
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyButton, "Button", ApiSlot_Button)
-		JNC_CONSTRUCTOR (&(jnc::construct <MyButton, jnc::DataPtr>))
+		JNC_CONSTRUCTOR (&(rtl::construct <MyButton, jnc::DataPtr>))
 		JNC_AUTOGET_PROPERTY ("m_text", &MyButton::setText)
 	JNC_END_CLASS_TYPE ()
 

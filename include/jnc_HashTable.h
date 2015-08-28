@@ -13,8 +13,8 @@ class StringHashTable: public IfaceHdr
 {
 public:
 	JNC_BEGIN_TYPE ("jnc.StringHashTable", StdApiSlot_StringHashTable)
-		JNC_CONSTRUCTOR (&construct <StringHashTable>)
-		JNC_DESTRUCTOR (&destruct <StringHashTable>)
+		JNC_CONSTRUCTOR (&rtl::construct <StringHashTable>)
+		JNC_DESTRUCTOR (&rtl::destruct <StringHashTable>)
 		JNC_FUNCTION ("clear",  &StringHashTable::clear)
 		JNC_FUNCTION ("find", &StringHashTable::find)
 		JNC_FUNCTION ("insert", &StringHashTable::insert)
@@ -77,8 +77,8 @@ class VariantHashTable: public IfaceHdr
 {
 public:
 	JNC_BEGIN_TYPE ("jnc.VariantHashTable", StdApiSlot_VariantHashTable)
-		JNC_CONSTRUCTOR (&construct <VariantHashTable>)
-		JNC_DESTRUCTOR (&destruct <VariantHashTable>)
+		JNC_CONSTRUCTOR (&rtl::construct <VariantHashTable>)
+		JNC_DESTRUCTOR (&rtl::destruct <VariantHashTable>)
 		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
 		JNC_FUNCTION ("find", &VariantHashTable::find)
 		JNC_FUNCTION ("insert", &VariantHashTable::insert)

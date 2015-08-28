@@ -8,7 +8,7 @@ class MyTextEdit: public MyWidget
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyTextEdit, "TextEdit", ApiSlot_TextEdit)
-		JNC_CONSTRUCTOR (&jnc::construct <MyTextEdit>)
+		JNC_CONSTRUCTOR (&rtl::construct <MyTextEdit>)
 		JNC_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
 	JNC_END_CLASS_TYPE ()
 

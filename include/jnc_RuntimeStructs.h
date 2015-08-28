@@ -165,6 +165,10 @@ struct FunctionPtr
 	IfaceHdr* m_closure;
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AXL_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
+
 //.............................................................................
 
 // structure backing up property pointers, e.g.:
@@ -176,6 +180,10 @@ struct PropertyPtr
 	void** m_vtable;
 	IfaceHdr* m_closure;
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AXL_SELECT_ANY FunctionPtr g_nullPropertyPtr = { 0 };
 
 //.............................................................................
 
@@ -225,6 +233,8 @@ struct Variant
 
 	Type* m_type;
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SELECT_ANY Variant g_nullVariant = { 0 };
 
