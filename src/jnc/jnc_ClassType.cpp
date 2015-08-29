@@ -92,6 +92,7 @@ ClassType::setMarkOpaqueGcRootsFunc (Class_MarkOpaqueGcRootsFunc* func)
 	}
 
 	m_markOpaqueGcRootsFunc = func;
+	m_flags |= TypeFlag_GcRoot;
 	return true;
 }
 

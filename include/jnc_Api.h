@@ -81,7 +81,7 @@ getApiVTable () \
 
 #define JNC_END_VTABLE() \
 	}; \
-	return VTable; \
+	return vtable; \
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
