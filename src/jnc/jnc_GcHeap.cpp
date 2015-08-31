@@ -740,7 +740,8 @@ GcHeap::weakMarkClosureClass (Box* box)
 
 	ASSERT (isClosureClassType (box->m_type));
 	ClosureClassType* closureClassType = (ClosureClassType*) box->m_type;
-	if (!closureClassType->getWeakMask ())
+	size_t thisArgFieldIdx = closureClassType->getThisArgFieldIdx ();
+	if (thisArgFieldIdx == -1)
 	{
 		markClass (box);
 		return;
@@ -751,19 +752,21 @@ GcHeap::weakMarkClosureClass (Box* box)
 
 	char* p0 = (char*) (box + 1);
 
-	rtl::Array <StructField*> gcRootMemberFieldArray = closureClassType->getGcRootMemberFieldArray ();
-	size_t count = gcRootMemberFieldArray.getCount ();
+	// add this arg as weak pointer
+
+	StructField* thisArgField = closureClassType->getFieldByIndex (thisArgFieldIdx);
+	ASSERT (thisArgField && thisArgField->getType ()->getTypeKind () == TypeKind_ClassPtr);
+	ClassPtrType* weakPtrType = ((ClassPtrType*) (thisArgField->getType ()))->getWeakPtrType ();
+	addRoot (p0 + thisArgField->getOffset (), weakPtrType);
+
+	rtl::Array <StructField*> gcRootFieldArray = closureClassType->getGcRootMemberFieldArray ();
+	size_t count = gcRootFieldArray.getCount ();	
 
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = gcRootMemberFieldArray [i];
-		Type* type = field->getType ();
-		ASSERT (type->getFlags () & TypeFlag_GcRoot);		
-
-		if (field->getFlags () & StructFieldFlag_WeakMasked)
-			type = getWeakPtrType (type);
-
-		addRoot (p0 + field->getOffset (), type);
+		StructField* field = gcRootFieldArray [i];
+		if (field != thisArgField)
+			addRoot (p0 + field->getOffset (), field->getType ());
 	}
 }
 

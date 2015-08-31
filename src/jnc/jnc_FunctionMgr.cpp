@@ -184,7 +184,9 @@ FunctionMgr::fireOnChanged ()
 	if (function->m_thisType)
 	{
 		ASSERT (m_thisValue);
-		propertyValue.insertToClosureHead (m_thisValue);
+
+		Closure* closure = propertyValue.createClosure ();
+		closure->insertThisArgValue (m_thisValue);
 	}
 
 	Value onChanged;

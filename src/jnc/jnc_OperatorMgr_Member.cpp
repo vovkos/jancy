@@ -17,8 +17,9 @@ OperatorMgr::createMemberClosure (Value* value)
 
 	if (!result)
 		return false;
-
-	value->insertToClosureHead (thisValue);
+	
+	Closure* closure = value->createClosure ();
+	closure->insertThisArgValue (thisValue);
 	return true;
 }
 
@@ -430,8 +431,9 @@ OperatorMgr::getNamedTypeMember (
 			return false;
 		}
 	}
-
-	resultValue->insertToClosureHead (thisArgValue);
+	
+	Closure* closure = resultValue->createClosure ();
+	closure->insertThisArgValue (thisArgValue);
 	return true;
 }
 
@@ -610,7 +612,7 @@ OperatorMgr::getLibraryMember (
 
 	Value argValueArray [] = 
 	{
-		closure->getThisValue (),
+		closure->getThisArgValue (),
 		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
 		Value (&name, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
 	};
@@ -715,57 +717,6 @@ OperatorMgr::memberOperator (
 		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
 		return false;
 	}
-}
-
-ClassPtrType*
-OperatorMgr::getWeakenOperatorResultType (const Value& opValue)
-{
-	Type* opType = prepareOperandType (opValue);
-	if (opType->getTypeKind () != TypeKind_ClassPtr)
-	{
-		err::setFormatStringError ("'weak member' operator cannot be applied to '%s'", opType->getTypeString ().cc ());
-		return NULL;
-	}
-
-	ClassPtrType* resultType = ((ClassPtrType*) opType)->getWeakPtrType ();
-	return resultType;
-}
-
-bool
-OperatorMgr::getWeakenOperatorResultType (
-	const Value& opValue,
-	Value* resultValue
-	)
-{
-	Type* type = getWeakenOperatorResultType (opValue);
-	if (!type)
-		return false;
-
-	resultValue->setType (type);
-	return true;
-}
-
-bool
-OperatorMgr::weakenOperator (
-	const Value& rawOpValue,
-	Value* resultValue
-	)
-{
-	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue);
-	if (!result)
-		return false;
-
-	Type* opType = opValue.getType ();
-	if (opType->getTypeKind () != TypeKind_ClassPtr)
-	{
-		err::setFormatStringError ("'weak member' operator cannot be applied to '%s'", opType->getTypeString ().cc ());
-		return false;
-	}
-
-	ClassPtrType* resultType = ((ClassPtrType*) opType)->getWeakPtrType ();
-	resultValue->overrideType (opValue, resultType);
-	return true;
 }
 
 bool

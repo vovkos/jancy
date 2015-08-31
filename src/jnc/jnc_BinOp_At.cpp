@@ -49,12 +49,19 @@ BinOp_At::op (
 
 	resultValue->setFunction (launcher);
 
-	Closure* closure = resultValue->createClosure ();
-	closure->getArgValueList ()->insertTail (opValue1);
-	closure->getArgValueList ()->insertTail (schedulerValue);
+	Closure* resultClosure = resultValue->createClosure ();
+	resultClosure->getArgValueList ()->insertTail (opValue1);
+	resultClosure->getArgValueList ()->insertTail (schedulerValue);
 
-	if (opValue1.getClosure ())
-		closure->append (*opValue1.getClosure ()->getArgValueList ());
+	Closure* opClosure = opValue1.getClosure ();
+	if (opClosure)
+	{
+		resultClosure->append (*opClosure->getArgValueList ());
+
+		size_t thisArgIdx = opClosure->getThisArgIdx ();
+		if (thisArgIdx != -1)
+			resultClosure->setThisArgIdx (thisArgIdx + 2);
+	}
 
 	return true;
 }

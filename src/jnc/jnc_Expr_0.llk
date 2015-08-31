@@ -358,13 +358,7 @@ postfix_operator_0 <Value* $value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostDec, $value);
 			}
-	|	'.'
-		(TokenKind_Weak
-			{
-				return m_module->m_operatorMgr.getWeakenOperatorResultType ($value);
-			}
-		)?
-		member_operator_0 <$value>
+	|	'.'	member_operator_0 <$value>
 	|	TokenKind_Ptr 
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Ptr, $value);

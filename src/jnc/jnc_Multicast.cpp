@@ -115,30 +115,42 @@ MulticastImpl::getSnapshot ()
 	if (!snapshot->m_ptr.m_p)
 		return resultPtr;
 
+	size_t targetTypeSize = targetType->getSize ();
+
 	if (multicastType->getTargetType ()->getPtrTypeKind () != FunctionPtrTypeKind_Weak)
 	{
 		snapshot->m_count = m_count;
-		memcpy (snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetType->getSize ());
+		memcpy (snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetTypeSize);
+		return resultPtr;
 	}
-	else
+
+	FunctionPtr* dstPtr = (FunctionPtr*) snapshot->m_ptr.m_p;
+	FunctionPtr* srcPtr = (FunctionPtr*) m_ptr.m_p;
+	FunctionPtr* srcPtrEnd = srcPtr + m_count;
+
+	size_t aliveCount = 0;
+	for (; srcPtr < srcPtrEnd; srcPtr++)
 	{
-		FunctionPtr* dstPtr = (FunctionPtr*) snapshot->m_ptr.m_p;
-		FunctionPtr* srcPtr = (FunctionPtr*) m_ptr.m_p;
-		FunctionPtr* srcPtrEnd = srcPtr + m_count;
-
-		size_t aliveCount = 0;
-		for (; srcPtr < srcPtrEnd; srcPtr++)
+		if (StdLib::strengthenClassPtr (srcPtr->m_closure))
 		{
-			if (StdLib::strengthenClassPtr (srcPtr->m_closure))
-			{
-				*dstPtr = *srcPtr;
-				dstPtr++;
-				aliveCount++;
-			}
+			*dstPtr = *srcPtr;
+			dstPtr++;
+			aliveCount++;
 		}
-
-		snapshot->m_count = aliveCount;
 	}
+
+	if (aliveCount != m_count) // remove dead pointers from multicast
+	{
+		size_t oldSize = m_count * targetTypeSize;
+		size_t aliveSize = aliveCount * targetTypeSize;
+
+		memcpy (m_ptr.m_p, snapshot->m_ptr.m_p, aliveSize);
+		memset ((char*) m_ptr.m_p + aliveSize, 0, oldSize - aliveSize);
+
+		m_count = aliveCount;
+	}
+
+	snapshot->m_count = aliveCount;
 
 	return resultPtr;
 }

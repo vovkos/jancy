@@ -738,13 +738,7 @@ postfix_operator <Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PostDec, $value);
 			}
-	|	'.'
-		(TokenKind_Weak
-			{
-				return m_module->m_operatorMgr.weakenOperator ($value);
-			}
-		)?
-		member_operator <$value>
+	|	'.'	member_operator <$value>
 	|	TokenKind_Ptr
 			{
 				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Ptr, $value);

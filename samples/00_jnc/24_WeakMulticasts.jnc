@@ -40,7 +40,7 @@ int main ()
 
 	C1* c = new C1; 
 
-	wm += c.weak foo;
+	wm += c.foo;
 	
 	// if we lose the strong pointer then the object will get destructed on the 
 	// next GC run

@@ -84,8 +84,14 @@ OperatorMgr::getPropertyVTable (
 	m_module->m_llvmIrBuilder.createBitCast (vtableValue, vtableType, resultValue);
 
 	resultValue->overrideType (resultType);
-	resultValue->setClosure (opValue.getClosure ());
-	resultValue->insertToClosureHead (closureValue);
+
+	Closure* closure = opValue.getClosure ();
+	if (closure)
+		resultValue->setClosure (closure);
+	else
+		closure = resultValue->createClosure ();
+
+	closure->insertThisArgValue (closureValue);
 	return true;
 }
 

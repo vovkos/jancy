@@ -113,7 +113,9 @@ ReactorClassType::subscribe (const rtl::ConstList <Reaction>& reactionList)
 		{
 			Value eventValue = *value;
 			Value handlerValue = function;
-			handlerValue.insertToClosureHead (thisValue);
+
+			Closure* closure = handlerValue.createClosure ();
+			closure->insertThisArgValue (thisValue);
 
 			result = 
 				m_module->m_operatorMgr.prepareOperand (&eventValue) &&
@@ -164,7 +166,8 @@ ReactorClassType::callStopMethod ()
 	ASSERT (thisValue);
 
 	Value stopMethodValue = m_methodArray [ReactorMethodKind_Stop];
-	stopMethodValue.insertToClosureHead (thisValue);
+	Closure* closure = stopMethodValue.createClosure ();
+	closure->insertThisArgValue (thisValue);
 	return m_module->m_operatorMgr.callOperator (stopMethodValue);
 }
 

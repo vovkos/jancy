@@ -706,9 +706,11 @@ Property::getAutoAccessorPropertyValue ()
 	if (!isMember ())
 		return this;
 
-	Value value = this;
-	value.insertToClosureHead (m_module->m_functionMgr.getThisValue ());
-	return value;
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	Value propertyValue = this;	
+	Closure* closure = propertyValue.createClosure ();
+	closure->insertThisArgValue (thisValue);	
+	return propertyValue;
 }
 
 //.............................................................................

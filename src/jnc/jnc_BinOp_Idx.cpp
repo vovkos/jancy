@@ -203,7 +203,12 @@ BinOp_Idx::propertyIndexOperator (
 	)
 {
 	*resultValue = rawOpValue1;
-	resultValue->insertToClosureTail (rawOpValue2);
+
+	Closure* closure = resultValue->getClosure ();
+	if (!closure)
+		closure = resultValue->createClosure ();
+
+	closure->getArgValueList ()->insertTail (rawOpValue2);
 	return true;
 }
 

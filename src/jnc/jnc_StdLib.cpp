@@ -118,7 +118,7 @@ StdLib::strengthenClassPtr (IfaceHdr* iface)
 	ClassTypeKind classTypeKind = classType->getClassTypeKind ();
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ClosureClassType*) iface->m_box->m_type)->strengthen (iface) :
-		(iface->m_box->m_flags & BoxFlag_ClassMark) ? iface : NULL;
+		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Zombie) ? iface : NULL;
 }
 
 void

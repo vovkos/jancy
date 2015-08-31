@@ -19,12 +19,14 @@ ScheduleLauncherFunction::compile ()
 
 	m_module->m_functionMgr.internalPrologue (this, argValueArray, argCount);
 
+	Value functionPtrValue = argValueArray [0];
+	Value schedulerValue = argValueArray [1];
 	Value scheduleValue;
-	result = m_module->m_operatorMgr.memberOperator (argValueArray [1], "schedule", &scheduleValue);
+
+	result = m_module->m_operatorMgr.memberOperator (schedulerValue, "schedule", &scheduleValue);
 	if (!result)
 		return false;
 
-	Value functionPtrValue = argValueArray [0];
 	if (argCount > 2)
 	{
 		rtl::BoxList <Value> argList;

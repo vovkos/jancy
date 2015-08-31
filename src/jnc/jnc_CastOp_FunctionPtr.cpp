@@ -137,12 +137,17 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	FunctionPtrType* thinPtrType = srcFunctionType->getStdObjectMemberMethodType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin);
 
 	Value pfnValue;
-	Value closureObjValue;
+	Value closureValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureObjValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 
-	pfnValue.setClosure (opValue.getClosure ());
-	pfnValue.insertToClosureHead (closureObjValue);
+	Closure* closure = opValue.getClosure ();
+	if (closure)
+		pfnValue.setClosure (closure);
+	else
+		closure = pfnValue.createClosure ();
+
+	closure->insertThisArgValue (closureValue);
 
 	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }

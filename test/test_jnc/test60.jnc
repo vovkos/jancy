@@ -1,44 +1,56 @@
-// Jancy provides multi-level loop jumps with 'break-n' and 'continue-n'.
-
-// Ever wanted to exit two loops at once and do so neatly, without resorting 
-// to techniques being frowned upon, like using a 'goto'? If the answer is yes
-// then rejoyce! Jancy allows you to do just that.
-
 //.............................................................................
 
-// entry point
+class MyScheduler: jnc.Scheduler
+{
+	destruct ()
+	{
+		printf ("MyScheduler.destruct ()\n");
+	}
+
+	override schedule (function* func ())
+	{
+		printf ("+MyScheduler.schedule ()\n");
+		func ();
+		printf ("-MyScheduler.schedule ()\n");
+	}
+}
+
+class C1
+{
+	destruct ()
+	{
+		printf ("C1.destruct ()\n");
+	}
+
+	foo ()
+	{
+		printf ("C1.foo ()\n");
+	}
+}
 
 int main ()
 {
 	printf ("main ()\n");
 
-	int a [3] [4] = 
-	{
-		{ 1,  2,  3,  4 },
-		{ 5,  6, -7,  8 },
-		{ 9, 10, 11, 12 },
-	};
+	C1* c = new C1;
+	MyScheduler* scheduler = new MyScheduler;
 
-	bool isFound = false;
+	weak multicast mc () = c.foo @ scheduler;
 
-	int i, j;
+//	c = null;
+	scheduler = null;
 
-	for (i = 0; i < countof (a); i++)
-		for (j = 0; j < countof (a [0]); j++)
-			if (a [i] [j] < 0)
-			{
-				isFound = true;			
+	printf ("collecting garbage...\n");	
 
-				// exit 2 loops at once
+	jnc.collectGarbage ();
 
-				break2; 
-			}
+	printf ("calling multicast...\n");	
+	mc ();
 
-	if (isFound)
-		printf ("negative item found at [%d] [%d]: %d\n", i, j, a [i] [j]);
-	else
-		printf ("negative item not found\n");
+	printf ("collecting garbage again...\n");	
+	jnc.collectGarbage ();
 
+	
 	return 0;
 }
 

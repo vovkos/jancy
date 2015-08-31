@@ -71,7 +71,9 @@ Cast_PropertyPtr_FromDataPtr::llvmCast_DirectThunk (
 	if (dstPtrType->hasClosure ())
 	{
 		closureValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
-		propertyValue.insertToClosureHead (closureValue);
+		
+		Closure* closure = propertyValue.createClosure ();
+		closure->insertThisArgValue (closureValue);
 	}
 
 	return m_module->m_operatorMgr.castOperator (propertyValue, dstPtrType, resultValue);
@@ -143,12 +145,17 @@ Cast_PropertyPtr_FromFat::llvmCast (
 	PropertyPtrType* thinPtrType = srcPropertyType->getStdObjectMemberPropertyType ()->getPropertyPtrType (PropertyPtrTypeKind_Thin);
 
 	Value pfnValue;
-	Value closureObjValue;
+	Value closureValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureObjValue);
+	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
 
-	pfnValue.setClosure (opValue.getClosure ());
-	pfnValue.insertToClosureHead (closureObjValue);
+	Closure* closure = opValue.getClosure ();
+	if (closure)
+		pfnValue.setClosure (closure);
+	else
+		closure = pfnValue.createClosure ();
+
+	closure->insertThisArgValue (closureValue);
 
 	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }

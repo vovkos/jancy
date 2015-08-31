@@ -17,12 +17,18 @@ class PropertyPtrType;
 
 class Closure: public ref::RefCount
 {
-	friend class Value;
-
 protected:
 	rtl::BoxList <Value> m_argValueList;
+	Value* m_thisArgValue;
+	size_t m_thisArgIdx;
 
 public:
+	Closure ()
+	{
+		m_thisArgValue = NULL;
+		m_thisArgIdx = -1;
+	}
+
 	rtl::BoxList <Value>*
 	getArgValueList ()
 	{
@@ -32,18 +38,23 @@ public:
 	bool
 	isMemberClosure ()
 	{
-		return
-			!m_argValueList.isEmpty () &&
-			!m_argValueList.getHead ()->isEmpty () &&
-			m_argValueList.getHead ()->getType ()->getTypeKind () == TypeKind_ClassPtr;
+		return m_thisArgIdx != -1;
 	}
 
-	Value
-	getThisValue ()
+	size_t 
+	getThisArgIdx ()
 	{
-		ASSERT (isMemberClosure ());
-		return *m_argValueList.getHead ();
+		return m_thisArgIdx;
 	}
+	
+	Value
+	getThisArgValue ();
+
+	void 
+	setThisArgIdx (size_t thisArgIdx);
+
+	void
+	insertThisArgValue (const Value& thisValue);
 
 	bool
 	isSimpleClosure ()

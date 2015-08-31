@@ -733,7 +733,7 @@ public:
 		Type* const* argTypeArray,
 		const size_t* closureMap,
 		size_t argCount,
-		uint64_t weakMask
+		size_t thisArgIdx
 		);
 
 	PropertyClosureClassType*
@@ -743,7 +743,7 @@ public:
 		Type* const* argTypeArray,
 		const size_t* closureMap,
 		size_t argCount,
-		uint64_t weakMask
+		size_t thisArgIdx
 		);
 
 	DataClosureClassType*

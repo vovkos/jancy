@@ -331,12 +331,6 @@ public:
 		m_closure = ref::PtrKind_Null;
 	}
 
-	void
-	insertToClosureHead (const Value& value);
-
-	void
-	insertToClosureTail (const Value& value);
-
 	Type*
 	getClosureAwareType () const;
 

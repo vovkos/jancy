@@ -861,7 +861,7 @@ public:
 		)
 	{
 		return closure && closure->isMemberClosure () ?
-			evaluateAlias (decl, closure->getThisValue (), tokenList, resultValue) :
+			evaluateAlias (decl, closure->getThisArgValue (), tokenList, resultValue) :
 			evaluateAlias (decl, Value (), tokenList, resultValue);
 	}
 
@@ -1369,35 +1369,6 @@ public:
 		const Value& dstValue,
 		const Value& srcValue
 		);
-
-	// weakening
-
-	ClassPtrType*
-	getWeakenOperatorResultType (const Value& opValue);
-
-	bool
-	getWeakenOperatorResultType (
-		const Value& opValue,
-		Value* resultValue
-		);
-
-	bool
-	getWeakenOperatorResultType (Value* value)
-	{
-		return getWeakenOperatorResultType (*value, value);
-	}
-
-	bool
-	weakenOperator (
-		const Value& opValue,
-		Value* resultValue
-		);
-
-	bool
-	weakenOperator (Value* value)
-	{
-		return weakenOperator (*value, value);
-	}
 
 	// fields
 

@@ -15,13 +15,6 @@ struct FmtLiteral;
 
 //.............................................................................
 
-enum StructFieldFlag
-{
-	StructFieldFlag_WeakMasked = 0x010000,
-};
-
-//.............................................................................
-
 class StructField:
 	public UserModuleItem,
 	public ModuleItemInitializer

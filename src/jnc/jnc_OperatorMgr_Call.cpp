@@ -192,12 +192,13 @@ OperatorMgr::getCallOperatorResultType (
 		}
 
 		Value objValue = opValue;
-
-		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());
-		opValue.insertToClosureTail (objValue);
+		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());		
+		
+		Closure* closure = opValue.createClosure ();
+		closure->insertThisArgValue (objValue);
 	}
 
-	ref::Ptr <Closure> closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure ();
 	if (closure)
 	{
 		result = closure->apply (argValueList);
@@ -297,10 +298,12 @@ OperatorMgr::callOperator (
 		Value objValue = opValue;
 
 		opValue.setFunction (callOperator);
-		opValue.insertToClosureTail (objValue);
+
+		Closure* closure = opValue.createClosure ();
+		closure->insertThisArgValue (objValue);
 	}
 
-	ref::Ptr <Closure> closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure ();
 	if (closure)
 	{
 		result = closure->apply (argValueList);

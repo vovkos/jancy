@@ -227,24 +227,6 @@ Value::getLlvmConst (
 	return llvmConst;
 }
 
-void
-Value::insertToClosureHead (const Value& value)
-{
-	if (!m_closure)
-		m_closure = AXL_REF_NEW (Closure);
-	
-	m_closure->getArgValueList ()->insertHead (value);
-}
-
-void
-Value::insertToClosureTail (const Value& value)
-{
-	if (!m_closure)
-		m_closure = AXL_REF_NEW (Closure);
-
-	m_closure->getArgValueList ()->insertTail (value);
-}
-
 Closure*
 Value::createClosure ()
 {

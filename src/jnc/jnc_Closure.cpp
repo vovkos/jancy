@@ -6,6 +6,42 @@ namespace jnc {
 
 //.............................................................................
 
+Value
+Closure::getThisArgValue ()
+{
+	ASSERT (m_thisArgIdx != -1);
+
+	if (m_thisArgValue)
+		return *m_thisArgValue;
+
+	rtl::BoxIterator <Value> it = m_argValueList.getHead ();
+	for (size_t i = 0; i < m_thisArgIdx; i++)
+		it++;
+
+	m_thisArgValue = it.p ();
+	return *m_thisArgValue;
+}
+
+void 
+Closure::setThisArgIdx (size_t thisArgIdx)
+{
+	ASSERT (m_thisArgIdx == -1 && !m_thisArgValue); // only once	
+	ASSERT (thisArgIdx < m_argValueList.getCount ());
+
+	m_thisArgIdx = thisArgIdx;
+	m_thisArgValue = NULL;
+}
+
+void
+Closure::insertThisArgValue (const Value& value)
+{
+	ASSERT (m_thisArgIdx == -1 && !m_thisArgValue); // only once
+
+	rtl::BoxIterator <Value> it = m_argValueList.insertHead (value);
+	m_thisArgIdx = 0;
+	m_thisArgValue = it.p ();
+}
+
 size_t
 Closure::append (const rtl::ConstBoxList <Value>& argValueList)
 {
@@ -23,6 +59,7 @@ Closure::append (const rtl::ConstBoxList <Value>& argValueList)
 			break;
 
 		*internalArg = *externalArg;
+
 		internalArg++;
 		externalArg++;
 

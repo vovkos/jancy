@@ -1565,7 +1565,7 @@ TypeMgr::getFunctionClosureClassType (
 	Type* const* argTypeArray,
 	const size_t* closureMap,
 	size_t argCount,
-	uint64_t weakMask
+	size_t thisArgIdx
 	)
 {
 	rtl::String signature = ClosureClassType::createSignature (
@@ -1574,7 +1574,7 @@ TypeMgr::getFunctionClosureClassType (
 		argTypeArray,
 		closureMap,
 		argCount,
-		weakMask
+		thisArgIdx
 		);
 
 	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
@@ -1589,19 +1589,16 @@ TypeMgr::getFunctionClosureClassType (
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->m_closureMap.copy (closureMap, argCount);
-	type->m_weakMask = weakMask;
+	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
-	type->createField ("!m_target", targetType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+	type->createField ("m_target", targetType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
 
 	rtl::String argFieldName;
 
 	for (size_t i = 0; i < argCount; i++)
 	{
-		argFieldName.format ("!m_arg%d", i);
-
-		StructField* field = type->createField (argFieldName, argTypeArray [i]);
-		if (weakMask & (2 << i)) // account for field #0 function ptr
-			field->m_flags |= StructFieldFlag_WeakMasked;
+		argFieldName.format ("m_arg%d", i);
+		type->createField (argFieldName, argTypeArray [i]);
 	}
 
 	Function* thunkFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, "thunkFunction", thunkType);
@@ -1623,7 +1620,7 @@ TypeMgr::getPropertyClosureClassType (
 	Type* const* argTypeArray,
 	const size_t* closureMap,
 	size_t argCount,
-	uint64_t weakMask
+	size_t thisArgIdx
 	)
 {
 	rtl::String signature = ClosureClassType::createSignature (
@@ -1632,7 +1629,7 @@ TypeMgr::getPropertyClosureClassType (
 		argTypeArray,
 		closureMap,
 		argCount,
-		weakMask
+		thisArgIdx
 		);
 
 	rtl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
@@ -1647,19 +1644,16 @@ TypeMgr::getPropertyClosureClassType (
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->m_closureMap.copy (closureMap, argCount);
-	type->m_weakMask = weakMask;
+	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
-	type->createField ("!m_target", targetType->getPropertyPtrType (PropertyPtrTypeKind_Thin));
+	type->createField ("m_target", targetType->getPropertyPtrType (PropertyPtrTypeKind_Thin));
 
 	rtl::String argFieldName;
 
 	for (size_t i = 0; i < argCount; i++)
 	{
 		argFieldName.format ("m_arg%d", i);
-
-		StructField* field = type->createField (argFieldName, argTypeArray [i]);
-		if (weakMask & (2 << i)) // account for field #0 property ptr
-			field->m_flags |= StructFieldFlag_WeakMasked;
+		type->createField (argFieldName, argTypeArray [i]);
 	}
 
 	Property* thunkProperty = m_module->m_functionMgr.createProperty (PropertyKind_Normal, "m_thunkProperty");

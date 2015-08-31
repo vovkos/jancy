@@ -1,5 +1,5 @@
-// Function pointers can be 'weak', meaning that they do not retain some of the
-// objects captured in the closure from being collected by the GC.
+// Function pointers can be 'weak', meaning that they do not retain 'this'
+// argument captured in the closure from being collected by the GC.
 
 //.............................................................................
 
@@ -37,12 +37,7 @@ int main ()
 
 	C1* c = new C1;
 
-	// to make a function pointer weak specify which of the captured arguments 
-	// will be weakly referenced. 
-	
-	// in the current version of Jancy you can only make 'this' argument weak
-
-	function weak* wf (int, int) = c.weak foo ~(,, 3);
+	function weak* wf (int, int) = c.foo ~(,, 3);
 
 	// weak function pointers cannot be called
 

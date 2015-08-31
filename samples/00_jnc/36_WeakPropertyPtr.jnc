@@ -1,5 +1,5 @@
 // Just like with function pointers, property pointers can be 'weak', meaning 
-// that they do not retain some of the objects captured in the closure from 
+// that they do not retain 'this' argument captured in the closure from 
 // being collected by the GC.
 
 //.............................................................................
@@ -35,9 +35,7 @@ int main ()
 
 	C1* c = new C1;
 
-	// in the current version of Jancy you can only make 'this' argument weak
-
-	int property weak* wp = &c.weak m_foo;
+	int property weak* wp = &c.m_foo;
 
 	// weak property pointers cannot be used to get or set a property
 

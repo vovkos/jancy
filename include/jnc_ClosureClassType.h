@@ -16,23 +16,21 @@ class ClosureClassType: public ClassType
 {
 	friend class TypeMgr;
 
-protected:
-	uint64_t m_weakMask;
-
-public: // tmp
+public:
 	rtl::Array <size_t> m_closureMap;
+	size_t m_thisArgFieldIdx;
 
 public:
 	ClosureClassType ()
 	{
 		m_flags |= ClassTypeFlag_Closure;
-		m_weakMask = 0;
+		m_thisArgFieldIdx = -1;
 	}
 
-	uint64_t 
-	getWeakMask ()
+	size_t
+	getThisArgFieldIdx ()
 	{
-		return m_weakMask;
+		return m_thisArgFieldIdx;
 	}
 
 	static
@@ -43,7 +41,7 @@ public:
 		Type* const* argTypeArray,
 		const size_t* closureMap,
 		size_t closureArgCount,
-		uint64_t weakMask
+		size_t thisArgIdx
 		);
 
 	virtual 

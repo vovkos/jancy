@@ -15,13 +15,10 @@ ClosureClassType::createSignature (
 	Type* const* argTypeArray,
 	const size_t* closureMap,
 	size_t argCount,
-	uint64_t weakMask
+	size_t thisArgIdx
 	)
 {
 	rtl::String signature = "CF";
-
-	if (weakMask)
-		signature.appendFormat ("W%x-", weakMask);
 
 	signature.appendFormat (
 		"%s-%s(",
@@ -32,7 +29,7 @@ ClosureClassType::createSignature (
 	for (size_t i = 0; i < argCount; i++)
 		signature.appendFormat ("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().cc ());
 
-	signature.append (')');
+	signature.appendFormat ("::%d)", thisArgIdx);
 	return signature;
 }
 
@@ -80,56 +77,15 @@ ClosureClassType::buildArgValueList (
 IfaceHdr*
 ClosureClassType::strengthen (IfaceHdr* p)
 {
-	if (!m_weakMask)
+	if (m_thisArgFieldIdx == -1)
 		return p;
 
-	size_t count = m_ifaceStructType->getMemberFieldArray ().getCount ();
+	StructField* field = getFieldByIndex (m_thisArgFieldIdx);
+	ASSERT (field && field->getType ()->getTypeKind () == TypeKind_ClassPtr);
 
-	uint64_t weakMask = m_weakMask;
-	while (weakMask)
-	{
-		size_t index = rtl::getLoBitIdx64 (weakMask);
+	void* p2 = (char*) p + field->getOffset ();
 
-		StructField* field = getFieldByIndex (index);
-		ASSERT (field && (field->getFlags () & StructFieldFlag_WeakMasked));
-
-		// only strengthen if source arg is weak, but target arg is strong
-
-		IfaceHdr* weakPtr = NULL;
-
-		void* p2 = (char*) p + field->getOffset ();
-
-		Type* type = field->getType ();
-		TypeKind typeKind = type->getTypeKind ();
-
-		switch (typeKind)
-		{
-		case TypeKind_ClassPtr:
-			if (((ClassPtrType*) type)->getPtrTypeKind () == ClassPtrTypeKind_Normal)
-				weakPtr = *(IfaceHdr**) p2;
-
-			break;
-
-		case TypeKind_FunctionPtr:
-			if (((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Normal)
-				weakPtr = ((FunctionPtr*) p2)->m_closure;
-
-			break;
-
-		case TypeKind_PropertyPtr:
-			if (((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Normal)
-				weakPtr = ((PropertyPtr*) p2)->m_closure;
-
-			break;
-		}
-
-		if (weakPtr && !StdLib::strengthenClassPtr (weakPtr))
-			return NULL;
-
-		weakMask &= ~(1 << index);
-	}
-
-	return p;
+	return StdLib::strengthenClassPtr (*(IfaceHdr**) p2) ? p : NULL;
 }
 
 //.............................................................................

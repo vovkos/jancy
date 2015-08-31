@@ -40,7 +40,7 @@ OperatorMgr::createClosureObject (
 	rtl::Array <Type*> closureArgTypeArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
 	rtl::Array <size_t> closureMap (ref::BufKind_Stack, buffer2, sizeof (buffer2));
 	size_t closureArgCount = 0;
-	uint64_t weakMask = 0;
+	size_t closureThisArgIdx = -1;
 
 	// build closure arg type array & closure map
 
@@ -48,6 +48,7 @@ OperatorMgr::createClosureObject (
 	if (closure)
 	{
 		closureArgCount = closure->getArgValueList ()->getCount ();
+		closureThisArgIdx = closure->getThisArgIdx ();
 
 		rtl::Array <FunctionArg*> srcArgArray = srcFunctionType->getArgArray ();
 		size_t srcArgCount = srcArgArray.getCount ();
@@ -70,10 +71,6 @@ OperatorMgr::createClosureObject (
 			if (closureArgValue->isEmpty ())
 				continue;
 
-			Type* type = closureArgValue->getType ();
-			if (isWeakPtrType (type))
-				weakMask |= (uint64_t) 2 << j; // account for function ptr field (at idx 0)
-
 			closureArgTypeArray [j] = srcArgArray [i]->getType ();
 			closureMap [j] = i;
 			j++;
@@ -94,7 +91,7 @@ OperatorMgr::createClosureObject (
 			closureArgTypeArray,
 			closureMap,
 			closureArgCount,
-			weakMask
+			closureThisArgIdx
 			);
 	}
 	else
@@ -107,7 +104,7 @@ OperatorMgr::createClosureObject (
 			closureArgTypeArray,
 			closureMap,
 			closureArgCount,
-			weakMask
+			closureThisArgIdx
 			);
 	}
 

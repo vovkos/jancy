@@ -39,8 +39,8 @@ enum ClassTypeFlag
 {
 	ClassTypeFlag_HasAbstractMethods = 0x010000,
 	ClassTypeFlag_Closure            = 0x020000,
-	ClassTypeFlag_Opaque             = 0x040000,
-	ClassTypeFlag_OpaqueNonCreatable = 0x100000,
+	ClassTypeFlag_Opaque             = 0x100000,
+	ClassTypeFlag_OpaqueNonCreatable = 0x200000,
 };
 
 //.............................................................................
