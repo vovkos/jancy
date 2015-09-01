@@ -18,15 +18,12 @@ TestClass::~TestClass ()
 }
 
 void
-TestClass::enumGcRoots (
-	TestClass* self,
-	jnc::GcHeap* gcHeap
-	)
+TestClass::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	// mark opaque roots (no need to mark roots visible to jancy)
 
-	if (self->m_internalObject)
-		gcHeap->markClass (self->m_internalObject->m_box);
+	if (m_internalObject)
+		gcHeap->markClass (m_internalObject->m_box);
 }
 
 int 

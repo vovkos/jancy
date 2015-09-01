@@ -53,7 +53,7 @@ class TestClassB: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClassB, "TestClassB", ApiSlot_TestClassB)
-		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClassB::enumGcRoots)
+		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClassB::markOpaqueGcRoots)
 		JNC_FUNCTION ("bar", &TestClassB::bar)
 	JNC_END_CLASS_TYPE ()
 
@@ -61,12 +61,9 @@ public:
 	char m_data [256];
 
 public:
-	static
 	void
-	enumGcRoots (
-		jnc::GcHeap* gcHeap,
-		TestClassB* self
-		);
+	AXL_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	void
 	AXL_CDECL

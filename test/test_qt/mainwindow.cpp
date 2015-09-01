@@ -22,10 +22,8 @@ TestClassA::foo (int x)
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-TestClassB::enumGcRoots (
-	jnc::GcHeap* gcHeap,
-	TestClassB* self
-	)
+AXL_CDECL
+TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 //	if (self->m_hiddenIface)
 //		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);

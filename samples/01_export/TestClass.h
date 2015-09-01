@@ -8,7 +8,7 @@ class TestClass: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClass, "TestClass", ApiSlot_TestClass)
-		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&enumGcRoots)
+		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClass::markOpaqueGcRoots)
 		JNC_CONSTRUCTOR (&(rtl::construct <TestClass, int>))
 		JNC_DESTRUCTOR (&rtl::destruct <TestClass>)
 		JNC_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
@@ -33,12 +33,9 @@ public:
 
 	~TestClass ();
 	
-	static
 	void
-	enumGcRoots (
-		TestClass* self,
-		jnc::GcHeap* gcHeap
-		);
+	AXL_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	int 
 	AXL_CDECL

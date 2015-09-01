@@ -179,7 +179,7 @@ getOpaqueClassTypeDb () \
 	}
 
 #define JNC_MARK_OPAQUE_GC_ROOTS_FUNC(proc) \
-	result = type->setMarkOpaqueGcRootsFunc ((jnc::Class_MarkOpaqueGcRootsFunc*) proc); \
+	result = type->setMarkOpaqueGcRootsFunc ((jnc::Class_MarkOpaqueGcRootsFunc*) pvoid_cast (proc)); \
 	if (!result) \
 		return false;
 
