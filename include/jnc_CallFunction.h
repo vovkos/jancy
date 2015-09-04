@@ -382,7 +382,7 @@ template <typename RetVal>
 RetVal
 callFunction (Function* function)
 {
-	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode ());
+	return callFunctionImpl_u <RetVal> (function->getMachineCode ());
 }
 
 template <
@@ -395,7 +395,7 @@ callFunction (
 	Arg arg
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), sarg);
+	return callFunctionImpl_u <RetVal> (function->getMachineCode (), arg);
 }
 
 template <
@@ -410,7 +410,7 @@ callFunction (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), arg1, arg2);
+	return callFunctionImpl_u <RetVal> (function->getMachineCode (), arg1, arg2);
 }
 
 template <
@@ -427,7 +427,7 @@ callFunction (
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, function->getMachineCode (), arg1, arg2, arg3);
+	return callFunctionImpl_u <RetVal> (function->getMachineCode (), arg1, arg2, arg3);
 }
 
 template <
@@ -686,7 +686,7 @@ template <typename RetVal>
 RetVal
 callFunctionPtr (FunctionPtr ptr)
 {
-	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure);
+	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure);
 }
 
 template <
@@ -700,7 +700,7 @@ callFunctionPtr (
 	Arg arg
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg);
+	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg);
 }
 
 template <
@@ -715,7 +715,7 @@ callFunctionPtr (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -732,7 +732,7 @@ callFunctionPtr (
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -751,7 +751,7 @@ callFunctionPtr (
 	Arg4 arg4
 	)
 {
-	return callFunctionImpl_u <RetVal> (runtime, ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //.............................................................................
