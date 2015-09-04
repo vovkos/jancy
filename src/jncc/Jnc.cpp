@@ -132,7 +132,8 @@ Jnc::run (
 	if (cmdLine->m_flags & JncFlag_RunFunction)
 	{
 		m_runtime.m_stackSizeLimit = cmdLine->m_stackSizeLimit;
-		m_runtime.m_gcHeap.m_periodSizeLimit = cmdLine->m_gcPeriodSizeLimit;
+		m_runtime.m_gcHeap.m_allocSizeTrigger = cmdLine->m_gcAllocSizeTrigger;
+		m_runtime.m_gcHeap.m_periodSizeTrigger = cmdLine->m_gcPeriodSizeTrigger;
 
 		int returnValue;
 		result = runFunction (&returnValue);

@@ -20,13 +20,11 @@ GcHeap::GcHeap ()
 	m_handshakeCount = 0;
 	m_waitingMutatorThreadCount = 0;
 	m_noCollectMutatorThreadCount = 0;
-	m_totalAllocSize = 0;
-	m_peakAllocSize = 0;
-	m_currentAllocSize = 0;
-	m_currentPeriodSize = 0;
 	m_currentMarkRootArrayIdx = 0;
-	m_periodSizeLimit = GcDef_PeriodSizeLimit;
+	m_allocSizeTrigger = GcDef_AllocSizeTrigger;
+	m_periodSizeTrigger = GcDef_PeriodSizeTrigger;
 	m_idleEvent.signal ();
+	memset (&m_stats, 0, sizeof (m_stats));
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 	m_guardPage.alloc (4 * 1024); // typical page size (OS will not give us less than that anyway)
@@ -40,6 +38,31 @@ GcHeap::GcHeap ()
 		0
 		);
 #endif
+}
+
+void 
+GcHeap::getStats (GcStats* stats)
+{
+	m_lock.lock (); // no need to wait for idle to just get stats
+	*stats = m_stats;
+	m_lock.unlock ();
+}
+
+void
+GcHeap::startup (Module* module)
+{
+	ASSERT (m_state == State_Idle);
+
+	memset (&m_stats, 0, sizeof (m_stats));
+
+	addStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
+
+	void** gcSafePointTrigger = (void**) module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger)->getStaticData ();
+	*gcSafePointTrigger = m_guardPage;
+
+	Function* destructor = module->getDestructor ();
+	if (destructor)
+		addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
 }
 
 // locking
@@ -94,12 +117,12 @@ GcHeap::waitIdleAndLock ()
 void
 GcHeap::incrementAllocSize_l (size_t size)
 {
-	m_totalAllocSize += size;
-	m_currentAllocSize += size;
-	m_currentPeriodSize += size;
+	m_stats.m_totalAllocSize += size;
+	m_stats.m_currentAllocSize += size;
+	m_stats.m_currentPeriodSize += size;
 
-	if (m_currentAllocSize > m_peakAllocSize)
-		m_peakAllocSize = m_currentAllocSize;
+	if (m_stats.m_currentAllocSize > m_stats.m_peakAllocSize)
+		m_stats.m_peakAllocSize = m_stats.m_currentAllocSize;
 }
 
 void
@@ -110,8 +133,9 @@ GcHeap::incrementAllocSizeAndLock (size_t size)
 	                           // otherwise there is risk of loosing new object	
 
 	incrementAllocSize_l (size);
-
-	if (m_currentPeriodSize > m_periodSizeLimit && !m_noCollectMutatorThreadCount)
+	
+	if ((m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger) && 
+		!m_noCollectMutatorThreadCount)
 	{
 		collect_l (isMutatorThread);
 		waitIdleAndLock ();
@@ -630,7 +654,8 @@ GcHeap::leaveNoCollectRegion (bool canCollectNow)
 
 	dbg::trace ("GcHeap::leaveNoCollectRegion (%d) (tid = %x)\n", canCollectNow, (uint_t) mt::getCurrentThreadId ());
 
-	if (!m_noCollectMutatorThreadCount && canCollectNow && m_currentPeriodSize > m_periodSizeLimit)
+	if (!m_noCollectMutatorThreadCount && canCollectNow && 
+		(m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger))
 		collect_l (isMutatorThread);
 	else
 		m_lock.unlock ();
@@ -846,6 +871,9 @@ void
 GcHeap::collect_l (bool isMutatorThread)
 {
 	ASSERT (!m_noCollectMutatorThreadCount && m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
+
+	m_stats.m_totalCollectCount++;
+	m_stats.m_lastCollectTime = g::getTimestamp ();
 
 	bool isShuttingDown = m_isShuttingDown;
 
@@ -1105,11 +1133,14 @@ GcHeap::collect_l (bool isMutatorThread)
 	// go to idle state
 
 	dbg::trace ("--- GcHeap::collect_l ()\n");
-
+	
 	m_lock.lock ();
 	m_state = State_Idle;
-	m_currentAllocSize -= freeSize;
-	m_currentPeriodSize = 0;
+	m_stats.m_currentAllocSize -= freeSize;
+	m_stats.m_currentPeriodSize = 0;
+	m_stats.m_lastCollectFreeSize = freeSize;
+	m_stats.m_lastCollectTimeTaken = g::getTimestamp () - m_stats.m_lastCollectTime;
+	m_stats.m_totalCollectTimeTaken += m_stats.m_lastCollectTimeTaken;
 	m_idleEvent.signal ();
 	m_lock.unlock ();
 

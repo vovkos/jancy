@@ -21,7 +21,8 @@ struct CmdLine
 	uint_t m_flags;
 	uint16_t m_serverPort;
 	size_t m_stackSizeLimit;
-	size_t m_gcPeriodSizeLimit;
+	size_t m_gcAllocSizeTrigger;
+	size_t m_gcPeriodSizeTrigger;
 
 	rtl::String m_srcFileName;
 	rtl::String m_srcNameOverride;
@@ -46,7 +47,8 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_Run,
 	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitchKind_Server,
-	CmdLineSwitchKind_GcPeriodSizeLimit,
+	CmdLineSwitchKind_GcAllocSizeTrigger,
+	CmdLineSwitchKind_GcPeriodSizeTrigger,
 	CmdLineSwitchKind_StackSizeLimit,
 	CmdLineSwitchKind_SrcNameOverride,
 };
@@ -120,9 +122,14 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		"Run function <function> (implies JITting)"
 		)
 	AXL_RTL_CMD_LINE_SWITCH (
-		CmdLineSwitchKind_GcPeriodSizeLimit,
-		"gc-period-size-limit", "<size>",
-		"Specify the GC period size limit"
+		CmdLineSwitchKind_GcAllocSizeTrigger,
+		"gc-alloc-size-trigger", "<size>",
+		"Specify the GC alloc size trigger"
+		)
+	AXL_RTL_CMD_LINE_SWITCH (
+		CmdLineSwitchKind_GcPeriodSizeTrigger,
+		"gc-period-size-trigger", "<size>",
+		"Specify the GC period size trigger"
 		)
 	AXL_RTL_CMD_LINE_SWITCH (
 		CmdLineSwitchKind_StackSizeLimit,

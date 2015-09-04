@@ -9,6 +9,7 @@
 namespace jnc {
 
 class Runtime;
+class Module;
 class Variable;
 class ClassType;
 
@@ -16,12 +17,13 @@ class ClassType;
 
 enum GcDef
 {
+	GcDef_AllocSizeTrigger  = -1, // use period only
 #ifdef _AXL_DEBUG
-	GcDef_PeriodSizeLimit = 0, // run gc on every allocation
+	GcDef_PeriodSizeTrigger = 0, // run gc on every allocation
 #elif (_AXL_CPU == AXL_CPU_X86)
-	GcDef_PeriodSizeLimit = 1 * 1024 * 1024, // 1MB gc period
+	GcDef_PeriodSizeTrigger = 1 * 1024 * 1024,  // 1MB gc period
 #else
-	GcDef_PeriodSizeLimit = 2 * 1024 * 1024, // 2MB gc period
+	GcDef_PeriodSizeTrigger = 2 * 1024 * 1024, // 2MB gc period
 #endif
 
 #ifdef _AXL_DEBUG
@@ -34,6 +36,21 @@ enum GcDef
 };
 
 //.............................................................................
+
+struct GcStats
+{
+	size_t m_currentAllocSize;
+	size_t m_totalAllocSize;
+	size_t m_peakAllocSize;
+	size_t m_currentPeriodSize;
+	size_t m_totalCollectCount;
+	size_t m_lastCollectFreeSize;
+	uint64_t m_lastCollectTime;
+	uint64_t m_lastCollectTimeTaken;
+	uint64_t m_totalCollectTimeTaken;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class GcHeap
 {
@@ -75,13 +92,8 @@ protected:
 	mt::Lock m_lock;
 	volatile State m_state;
 	bool m_isShuttingDown;
+	GcStats m_stats;
 	mt::NotificationEvent m_idleEvent;
-
-	size_t m_currentAllocSize;
-	size_t m_totalAllocSize;
-	size_t m_peakAllocSize;
-	size_t m_currentPeriodSize;
-
 	rtl::StdList <StaticDestructor> m_staticDestructorList;
 
 	rtl::AuxList <GcMutatorThread> m_mutatorThreadList;
@@ -109,7 +121,10 @@ protected:
 	size_t m_currentMarkRootArrayIdx;
 
 public:
-	size_t m_periodSizeLimit; // adjustable limit
+	// adjustable triggers
+
+	size_t m_allocSizeTrigger; 
+	size_t m_periodSizeTrigger;
 
 public:
 	GcHeap ();
@@ -131,36 +146,6 @@ public:
 	getRuntime ()
 	{		
 		return m_runtime;
-	}
-
-	size_t 
-	getCurrentAllocSize ()
-	{		
-		return m_currentAllocSize;
-	}
-
-	size_t 
-	getTotalAllocSize ()
-	{		
-		return m_totalAllocSize;
-	}
-
-	size_t 
-	getPeakAllocSize ()
-	{		
-		return m_peakAllocSize;
-	}
-
-	size_t 
-	getCurrentPeriodSize ()
-	{		
-		return m_currentPeriodSize;
-	}
-
-	void* 
-	getSafePointTrigger ()
-	{
-		return m_guardPage;
 	}
 
 	// allocation methods
@@ -203,6 +188,12 @@ public:
 		);
 
 	// management methods
+
+	void 
+	getStats (GcStats* stats);
+
+	void
+	startup (Module* module);
 
 	void
 	beginShutdown ();

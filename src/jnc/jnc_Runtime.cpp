@@ -24,14 +24,8 @@ Runtime::startup (Module* module)
 	m_module = module;
 	m_state = State_Running;	
 	m_noThreadEvent.signal ();
-	m_gcHeap.addStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
 
-	void** gcSafePointTrigger = (void**) module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger)->getStaticData ();
-	*gcSafePointTrigger = m_gcHeap.getSafePointTrigger ();
-
-	Function* destructor = module->getDestructor ();
-	if (destructor)
-		m_gcHeap.addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
+	m_gcHeap.startup (module);
 
 	Function* constructor = module->getConstructor ();
 	ASSERT (constructor);
