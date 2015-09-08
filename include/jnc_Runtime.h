@@ -170,8 +170,11 @@ protected:
 	__jncCanCollectAtEnd = canCollectAtEnd; \
 	__jncRuntime->m_gcHeap.enterNoCollectRegion ();
 
-#define JNC_CATCH() \
+#define JNC_CALL_SITE_CATCH() \
 	AXL_MT_LONG_JMP_CATCH ()
+
+#define JNC_CALL_SITE_FINALLY() \
+	AXL_MT_LONG_JMP_FINALLY ()
 
 #define JNC_END_CALL_SITE_IMPL() \
 	AXL_MT_END_LONG_JMP_TRY_EX (&___jncErs.m_result) \

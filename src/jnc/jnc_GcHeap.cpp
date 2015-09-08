@@ -94,11 +94,14 @@ GcHeap::waitIdleAndLock ()
 			m_lock.lock ();
 		}
 		
-		if (m_state != State_Idle) // some collection phase other than stop the world
+		if (m_state != State_Idle) 
 		{
+			// some collection phase other than stop the world			
+			// we can safely mark ourselves as waiting-mutator
+
 			thread->m_waitRegionLevel = 1;
 			m_waitingMutatorThreadCount++;
-				
+
 			do 
 			{
 				m_lock.unlock ();
