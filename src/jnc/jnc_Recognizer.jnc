@@ -21,12 +21,12 @@ protected:
 
 public:
 	AutomatonFunc* autoget property m_automatonFunc;
+	size_t autoget property m_lexemeLengthLimit;
+	size_t autoget property m_currentOffset;
 
 	char const* readonly m_lexeme;
 	size_t readonly m_lexemeOffset;
 	size_t readonly m_lexemeLength;	
-	size_t m_lexemeLengthLimit; // can be adjusted
-	size_t m_currentOffset;     // can be adjusted
 
 public:
 	construct (AutomatonFunc* automatonFunc = null);

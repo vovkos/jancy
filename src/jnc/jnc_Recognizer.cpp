@@ -38,6 +38,37 @@ Recognizer::setAutomatonFunc (FunctionPtr automatonFuncPtr)
 
 void
 AXL_CDECL
+Recognizer::setLexemeLengthLimit (size_t length)
+{
+	if (length <= m_lexemeLengthLimit)
+		return;
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DataPtr ptr = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
+	if (m_lexemeLength)
+		memcpy (ptr.m_p, m_lexemePtr.m_p, m_lexemeLength);
+
+	m_lexemePtr = ptr;
+	m_lexemeLengthLimit = length;
+}
+
+void
+AXL_CDECL
+Recognizer::setCurrentOffset (size_t offset)
+{
+	intptr_t delta = offset - m_currentOffset;
+
+	if (delta)
+	{
+		m_currentOffset = offset;
+		m_lexemeOffset += delta;
+	}
+}
+
+void
+AXL_CDECL
 Recognizer::reset ()
 {
 	m_internalState = InternalState_Idle;

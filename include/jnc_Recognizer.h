@@ -55,6 +55,8 @@ public:
 	JNC_BEGIN_TYPE ("jnc.Recognizer", StdApiSlot_Recognizer)
 		JNC_CONSTRUCTOR (&Recognizer::construct)
 		JNC_AUTOGET_PROPERTY ("m_automatonFunc", &Recognizer::setAutomatonFunc)
+		JNC_AUTOGET_PROPERTY ("m_lexemeLengthLimit", &Recognizer::setLexemeLengthLimit)
+		JNC_AUTOGET_PROPERTY ("m_currentOffset", &Recognizer::setCurrentOffset)
 		JNC_FUNCTION ("reset", &Recognizer::reset)
 		JNC_FUNCTION ("write", &Recognizer::write)
 		JNC_FUNCTION ("eof", &Recognizer::eof)
@@ -78,11 +80,12 @@ protected:
 	
 public:
 	FunctionPtr m_automatonFuncPtr;
+	size_t m_lexemeLengthLimit;
+	size_t m_currentOffset;
+
 	DataPtr m_lexemePtr;
 	size_t m_lexemeOffset;
 	size_t m_lexemeLength;
-	size_t m_lexemeLengthLimit;
-	size_t m_currentOffset;
 
 public:
 	void
@@ -92,6 +95,14 @@ public:
 	void
 	AXL_CDECL
 	setAutomatonFunc (FunctionPtr automatonFuncPtr);
+
+	void
+	AXL_CDECL
+	setLexemeLengthLimit (size_t length);
+
+	void
+	AXL_CDECL
+	setCurrentOffset (size_t offset);
 
 	void
 	AXL_CDECL

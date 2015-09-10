@@ -1207,12 +1207,12 @@ GcHeap::handleSehException (
 	EXCEPTION_POINTERS* exceptionPointers
 	) 
 {
-	GcMutatorThread* thread = getCurrentGcMutatorThread ();
-	ASSERT (thread && !thread->m_waitRegionLevel);
-
 	if (code != EXCEPTION_ACCESS_VIOLATION || 
 		exceptionPointers->ExceptionRecord->ExceptionInformation [1] != (uintptr_t) m_guardPage.p ())
 		return EXCEPTION_CONTINUE_SEARCH;
+
+	GcMutatorThread* thread = getCurrentGcMutatorThread ();
+	ASSERT (thread && !thread->m_waitRegionLevel);
 
 	int32_t count = mt::atomicDec (&m_handshakeCount);
 	ASSERT (m_state == State_StopTheWorld && count >= 0);
