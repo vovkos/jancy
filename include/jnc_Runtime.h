@@ -178,7 +178,7 @@ protected:
 
 #define JNC_END_CALL_SITE_IMPL() \
 	AXL_MT_END_LONG_JMP_TRY_EX (&___jncErs.m_result) \
-	if (__jncIsNoCollectRegion) \
+	if (__jncIsNoCollectRegion && ___jncErs.m_result) \
 		__jncRuntime->m_gcHeap.leaveNoCollectRegion (__jncCanCollectAtEnd); \
 	__jncRuntime->uninitializeThread (&___jncErs); \
 	JNC_END_GC_SITE () \
