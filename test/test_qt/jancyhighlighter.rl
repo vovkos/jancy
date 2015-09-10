@@ -17,6 +17,7 @@ bin    = [01];
 id     = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws     = [ \t\r]+;
 nl     = '\n';
+lc_nl  = '\\' '\r'? nl;
 esc    = '\\' [^\n];
 lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
@@ -156,9 +157,8 @@ dec+                { colorize(ts, te, Qt::darkRed); };
 '0' [bB] lit_dq     { colorize(ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize(ts, te, Qt::darkRed); };
 
-'%%' [^\n]*         { colorize(ts, te, Qt::darkRed); };
-'//' [^\n]*         { colorize(ts, te, Qt::darkGray); };
-
+'%%'                { colorize(ts, te, Qt::darkRed); fgoto regexp; };
+'//' any*           { colorize(ts, te, Qt::darkGray); };
 '/*'                { colorize(ts, te, Qt::darkGray); fgoto comment; };
 
 ws | nl             ;
@@ -173,9 +173,20 @@ any                 ;
 
 comment := |*
 
-'\n'                { colorize(ts, te, Qt::darkGray); };
-any                 { colorize(ts, te, Qt::darkGray); };
 '*/'                { colorize(ts, te, Qt::darkGray); fgoto main; };
+any                 { colorize(ts, te, Qt::darkGray); };
+
+*|;
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# regexp machine
+#
+
+regexp := |*
+
+any* '\\'           { colorize(ts, te, Qt::darkRed); };
+any*                { colorize(ts, te, Qt::darkRed); fgoto main; };
 
 *|;
 
@@ -185,6 +196,7 @@ any                 { colorize(ts, te, Qt::darkGray); };
 
 #define BLOCK_STATE_NONE	0
 #define BLOCK_STATE_COMMENT 1
+#define BLOCK_STATE_REGEXP  2
 
 void JancyHighlighter::ragelInit()
 {
@@ -198,27 +210,47 @@ void JancyHighlighter::ragelExec()
 
 int JancyHighlighter::getRagelState(int blockState)
 {
+
 	switch (blockState)
 	{
-		case 1:
-			return jancy_lexer_en_comment;
-	}
+	case BLOCK_STATE_COMMENT:
+		return jancy_lexer_en_comment;
 
-	return jancy_lexer_en_main;
+	case BLOCK_STATE_REGEXP:
+		return jancy_lexer_en_regexp;
+
+	default:
+		return jancy_lexer_en_main;
+	}
 }
 
 void JancyHighlighter::ragelExecPreEvent(int &ragelState)
 {
 	setCurrentBlockState(BLOCK_STATE_NONE);
 
-	if (previousBlockState() == BLOCK_STATE_COMMENT)
+	int prevBlockState = previousBlockState();	
+	switch (prevBlockState)
+	{
+	case BLOCK_STATE_COMMENT:
 		ragelState = jancy_lexer_en_comment;
+
+	case BLOCK_STATE_REGEXP:
+		ragelState = jancy_lexer_en_regexp;
+	}
 }
 
 void JancyHighlighter::ragelExecPostEvent(int ragelState)
 {
-	if (ragelState == jancy_lexer_en_comment)
+	switch (ragelState)
+	{
+	case jancy_lexer_en_comment:
 		setCurrentBlockState(BLOCK_STATE_COMMENT);
+		break;
+
+	case jancy_lexer_en_regexp:
+		setCurrentBlockState(BLOCK_STATE_REGEXP);
+		break;
+	}
 }
 
 //.............................................................................

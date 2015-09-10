@@ -38,6 +38,7 @@ bin    = [01];
 id     = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws     = [ \t\r]+;
 nl     = '\n' @{ newLine (p + 1); };
+lc_nl  = '\\' '\r'? nl;
 esc    = '\\' [^\n];
 lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
@@ -252,7 +253,8 @@ main := |*
 
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
 
-'%%' [^\n]*      { createStringToken (TokenKind_RegExpLiteral, 2); };
+'%%' ([^\n] | lc_nl)*
+                 { createStringToken (TokenKind_RegExpLiteral, 2); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -284,6 +286,7 @@ any              { createErrorToken (ts [0]); };
 *|;
 
 }%%
+	
 
 //.............................................................................
 
