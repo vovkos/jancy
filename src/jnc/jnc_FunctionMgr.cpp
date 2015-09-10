@@ -1029,7 +1029,7 @@ FunctionMgr::parseStdFunction (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("parse std function error: %s\n", err::getLastError ()->getDescription ().cc ());
+			dbg::trace ("parse std function error: %s\n", err::getLastErrorDescription ().cc ());
 			ASSERT (false);
 		}
 

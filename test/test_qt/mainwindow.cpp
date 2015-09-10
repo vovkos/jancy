@@ -493,7 +493,7 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -501,7 +501,7 @@ bool MainWindow::compile ()
 	result = m_module.compile ();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -519,7 +519,7 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastError ()->getDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -556,7 +556,7 @@ MainWindow::run ()
 	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
-		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastError ()->getDescription ().cc ());
+		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -565,7 +565,7 @@ MainWindow::run ()
 	if (result)
 		writeOutput ("'main' returned %d.\n", returnValue);
 	else
-		writeOutput ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
+		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
 	
 	writeOutput ("Shutting down...\n");
 	m_runtime.shutdown ();

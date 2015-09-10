@@ -69,7 +69,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	bool result = file.open (fileName, io::FileFlag_ReadOnly);
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -85,7 +85,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -94,7 +94,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = m_module.compile ();
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -115,14 +115,14 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = m_module.jit ();
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
 	jnc::Function* mainFunction = m_module.getFunctionByName ("main");
 	if (!mainFunction)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -131,7 +131,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
-		output ("%s\n", err::getLastError ()->getDescription ().cc ());
+		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
@@ -142,7 +142,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::IfaceHdr*) &m_layout);
 	if (!result)
 	{
-		output ("Runtime error: %s\n", err::getLastError ()->getDescription ().cc ());
+		output ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 

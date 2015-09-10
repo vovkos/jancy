@@ -89,7 +89,7 @@ Jnc::run (
 			outStream->printf (
 				"cannot open '%s': %s\n",
 				cmdLine->m_srcFileName.cc (), // thanks a lot gcc
-				err::getLastError ()->getDescription ().cc ()
+				err::getLastErrorDescription ().cc ()
 				);
 			return JncErrorKind_IoFailure;
 		}
@@ -112,7 +112,7 @@ Jnc::run (
 	result = compile (srcName, src, srcSize);
 	if (!result)
 	{
-		outStream->printf ("%s\n", err::getLastError ()->getDescription ().cc ());
+		outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
 		return JncErrorKind_CompileFailure;
 	}
 
@@ -124,7 +124,7 @@ Jnc::run (
 		result = jit ();
 		if (!result)
 		{
-			outStream->printf ("%s\n", err::getLastError ()->getDescription ().cc ());
+			outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
 			return JncErrorKind_CompileFailure;
 		}
 	}
@@ -139,7 +139,7 @@ Jnc::run (
 		result = runFunction (&returnValue);
 		if (!result)
 		{
-			outStream->printf ("%s\n", err::getLastError ()->getDescription ().cc ());
+			outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
 			return JncErrorKind_RunFailure;
 		}
 
@@ -367,7 +367,7 @@ Jnc::client (
 	result = parser.parse (cmdLineString, cmdLineString.getLength ());
 	if (!result)
 	{
-		socketOut.printf ("error parsing command line: %s\n", err::getLastError ()->getDescription ().cc ());
+		socketOut.printf ("error parsing command line: %s\n", err::getLastErrorDescription ().cc ());
 		return JncErrorKind_InvalidCmdLine;
 	}
 

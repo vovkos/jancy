@@ -2402,7 +2402,7 @@ TypeMgr::parseStdType (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("parse std type error: %s\n", err::getLastError ()->getDescription ().cc ());
+			dbg::trace ("parse std type error: %s\n", err::getLastErrorDescription ().cc ());
 			ASSERT (false);
 		}
 
