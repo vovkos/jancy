@@ -1,4 +1,3 @@
-
 #include "pch.h"
 #include "jnc_Recognizer.h"
 #include "jnc_StdLib.h"
@@ -87,8 +86,6 @@ Recognizer::write (
 	size_t length
 	)
 {
-	AutomatonResult result;
-
 	if (!m_automatonFuncPtr.m_p)
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
@@ -102,14 +99,9 @@ Recognizer::write (
 		return true;
 
 	if (m_internalState == InternalState_Idle)
-	{
-		result = writeChar (fsm::PseudoChar_StartOfLine);
-		ASSERT (result != AutomatonResult_Error); // probably, invalid DFA
-		
 		m_internalState = InternalState_Started;
-	}
 
-	result = writeData ((uchar_t*) ptr.m_p, length);
+	AutomatonResult result = writeData ((uchar_t*) ptr.m_p, length);
 	return result != AutomatonResult_Error;
 }
 
@@ -117,13 +109,6 @@ bool
 AXL_CDECL
 Recognizer::eof ()
 {
-	if (!m_lexemeLength) // just matched
-		return true;
-
-	AutomatonResult result = writeChar (fsm::PseudoChar_EndOfLine);
-	if (result != AutomatonResult_Continue)
-		return result != AutomatonResult_Error;
-
 	for (;;)
 	{
 		if (!m_lexemeLength) // just matched
@@ -138,7 +123,7 @@ Recognizer::eof ()
 		if (m_lastAcceptLexemeLength >= m_lexemeLength)
 			return match (m_lastAcceptStateId) != AutomatonResult_Error;
 
-		result = rollback ();
+		AutomatonResult result = rollback ();
 		if (result != AutomatonResult_Continue)
 			return result != AutomatonResult_Error;
 	}
@@ -157,31 +142,11 @@ Recognizer::writeData (
 	while (p < end)
 	{
 		uchar_t c = *p++;
+		m_currentOffset++;
 
-		if (c != '\r' || c != '\n')
-		{
-			m_currentOffset++;
-
-			result = writeChar (c);
-			if (result != AutomatonResult_Continue)
-				return result;
-		}
-		else
-		{
-			result = writeChar (fsm::PseudoChar_EndOfLine);
-			if (result != AutomatonResult_Continue)
-				return result;
-
-			m_currentOffset++;
-
-			result = writeChar (c);
-			if (result != AutomatonResult_Continue)
-				return result;
-
-			result = writeChar (fsm::PseudoChar_StartOfLine);
-			if (result != AutomatonResult_Continue)
-				return result;
-		}
+		result = writeChar (c);
+		if (result != AutomatonResult_Continue)
+			return result;
 	}
 	
 	return AutomatonResult_Continue;
@@ -202,7 +167,7 @@ Recognizer::writeChar (uint_t c)
 		}
 	}
 
-	size_t newStateId = m_transitionTable [m_stateId * fsm::TransitionTableCharCount + c];
+	size_t newStateId = m_transitionTable [m_stateId * 256 + c];
 	if (newStateId != -1)
 	{
 		result = gotoState (newStateId);

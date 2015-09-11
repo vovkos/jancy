@@ -2077,7 +2077,7 @@ Parser::finalizeAutomatonFunction ()
 	size_t stateCount = stateArray.getCount ();
 
 	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_u), stateCount);
-	Type* transitionTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), stateCount * fsm::TransitionTableCharCount);
+	Type* transitionTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), stateCount * 256);
 
 	Value stateFlagTableValue ((void*) NULL, stateFlagTableType);
 	Value transitionTableValue ((void*) NULL, transitionTableType);
@@ -2095,12 +2095,12 @@ Parser::finalizeAutomatonFunction ()
 		{
 			*stateFlags |= RecognizerStateFlag_Accept;
 			caseMap [state->m_id] = (BasicBlock*) state->m_acceptContext;
+
+			if (state->m_transitionList.isEmpty ())
+				*stateFlags |= RecognizerStateFlag_Final;
 		}
 
-		if (state->m_transitionList.isEmpty ())
-			*stateFlags |= RecognizerStateFlag_Final;
-
-		memset (transitionRow, -1, sizeof (size_t) * fsm::TransitionTableCharCount);
+		memset (transitionRow, -1, sizeof (size_t) * 256);
 
 		rtl::Iterator <fsm::DfaTransition> transitionIt = state->m_transitionList.getHead ();
 		for (; transitionIt; transitionIt++)
@@ -2109,7 +2109,7 @@ Parser::finalizeAutomatonFunction ()
 			switch (transition->m_matchCondition.m_conditionKind)
 			{
 			case fsm::MatchConditionKind_Char:
-				ASSERT (transition->m_matchCondition.m_char < fsm::TransitionTableCharCount);
+				ASSERT (transition->m_matchCondition.m_char < 256);
 				transitionRow [transition->m_matchCondition.m_char] = transition->m_outState->m_id;
 				break;
 
@@ -2127,7 +2127,7 @@ Parser::finalizeAutomatonFunction ()
 		}
 
 		stateFlags++;
-		transitionRow += fsm::TransitionTableCharCount;
+		transitionRow += 256;
 	}
 
 	// generate switch 

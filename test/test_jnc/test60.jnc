@@ -2,7 +2,7 @@
 
 jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
 {
-	%% "foo"
+	%% "foo" | "bar" | "fooo"
 		printf (
 			"lexeme found: lexeme ofs = %d, len = %d, cur ofs = %d\n",
 			recognizer.m_lexemeOffset,
@@ -23,11 +23,10 @@ int main ()
 
 	jnc.Recognizer recognizer (fooBar);
 
-	recognizer.m_currentOffset = -10;
-	try recognizer.write ("hui abc fo");
+	try recognizer.write ("foo");
+	try recognizer.write ("o");
 
-	recognizer.m_currentOffset = -5;
-	try recognizer.write ("o bar");
+	// eof not needed
 
 	return 0;
 }
