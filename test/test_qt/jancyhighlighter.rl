@@ -144,22 +144,22 @@ main := |*
 'bindingof'       |
 'dynamic'
 
-)                   { colorize(ts, te, Qt::blue); };
+)                   { colorize (ts, te, Qt::blue); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 id                  ;
-(lit_sq | lit_dq)   { colorize(ts, te, Qt::darkRed); };
-dec+                { colorize(ts, te, Qt::darkRed); };
-'0' [xX] hex+       { colorize(ts, te, Qt::darkRed); };
-'0' [bB] bin+       { colorize(ts, te, Qt::darkRed); };
-'0' [xX] lit_dq     { colorize(ts, te, Qt::darkRed); };
-'0' [bB] lit_dq     { colorize(ts, te, Qt::darkRed); };
-'$' lit_dq          { colorize(ts, te, Qt::darkRed); };
+(lit_sq | lit_dq)   { colorize (ts, te, Qt::darkRed); };
+dec+                { colorize (ts, te, Qt::darkRed); };
+'0' [xX] hex+       { colorize (ts, te, Qt::darkRed); };
+'0' [bB] bin+       { colorize (ts, te, Qt::darkRed); };
+'0' [xX] lit_dq     { colorize (ts, te, Qt::darkRed); };
+'0' [bB] lit_dq     { colorize (ts, te, Qt::darkRed); };
+'$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
-'%%'                { colorize(ts, te, Qt::darkRed); fgoto regexp; };
-'//' any*           { colorize(ts, te, Qt::darkGray); };
-'/*'                { colorize(ts, te, Qt::darkGray); fgoto comment; };
+'%%'                { colorize (ts, te, Qt::darkRed); fgoto regexp; };
+'//' any*           { colorize (ts, te, Qt::darkGray); };
+'/*'                { colorize (ts, te, Qt::darkGray); fgoto comment; };
 
 ws | nl             ;
 any                 ;
@@ -173,8 +173,8 @@ any                 ;
 
 comment := |*
 
-'*/'                { colorize(ts, te, Qt::darkGray); fgoto main; };
-any                 { colorize(ts, te, Qt::darkGray); };
+'*/'                { colorize (ts, te, Qt::darkGray); fgoto main; };
+any                 { colorize (ts, te, Qt::darkGray); };
 
 *|;
 
@@ -185,8 +185,8 @@ any                 { colorize(ts, te, Qt::darkGray); };
 
 regexp := |*
 
-any* '\\'           { colorize(ts, te, Qt::darkRed); };
-any*                { colorize(ts, te, Qt::darkRed); fgoto main; };
+any* '\\'           { colorize (ts, te, Qt::darkRed); };
+any*                { colorize (ts, te, Qt::darkRed); fgoto main; };
 
 *|;
 
@@ -198,57 +198,43 @@ any*                { colorize(ts, te, Qt::darkRed); fgoto main; };
 #define BLOCK_STATE_COMMENT 1
 #define BLOCK_STATE_REGEXP  2
 
-void JancyHighlighter::ragelInit()
+void JancyHighlighter::ragelInit ()
 {
 	%% write init;
 }
 
-void JancyHighlighter::ragelExec()
+void JancyHighlighter::ragelExec ()
 {
 	%% write exec;
 }
 
-int JancyHighlighter::getRagelState(int blockState)
+void JancyHighlighter::ragelExecPreEvent (int &ragelState)
 {
+	setCurrentBlockState (BLOCK_STATE_NONE);
 
-	switch (blockState)
-	{
-	case BLOCK_STATE_COMMENT:
-		return jancy_lexer_en_comment;
-
-	case BLOCK_STATE_REGEXP:
-		return jancy_lexer_en_regexp;
-
-	default:
-		return jancy_lexer_en_main;
-	}
-}
-
-void JancyHighlighter::ragelExecPreEvent(int &ragelState)
-{
-	setCurrentBlockState(BLOCK_STATE_NONE);
-
-	int prevBlockState = previousBlockState();	
+	int prevBlockState = previousBlockState ();	
 	switch (prevBlockState)
 	{
 	case BLOCK_STATE_COMMENT:
 		ragelState = jancy_lexer_en_comment;
+		break;
 
 	case BLOCK_STATE_REGEXP:
 		ragelState = jancy_lexer_en_regexp;
+		break;
 	}
 }
 
-void JancyHighlighter::ragelExecPostEvent(int ragelState)
+void JancyHighlighter::ragelExecPostEvent (int ragelState)
 {
 	switch (ragelState)
 	{
 	case jancy_lexer_en_comment:
-		setCurrentBlockState(BLOCK_STATE_COMMENT);
+		setCurrentBlockState (BLOCK_STATE_COMMENT);
 		break;
 
 	case jancy_lexer_en_regexp:
-		setCurrentBlockState(BLOCK_STATE_REGEXP);
+		setCurrentBlockState (BLOCK_STATE_REGEXP);
 		break;
 	}
 }

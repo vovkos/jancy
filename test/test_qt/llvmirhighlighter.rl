@@ -119,15 +119,4 @@ void LlvmIrHighlighter::ragelExec()
 	%% write exec;
 }
 
-int LlvmIrHighlighter::getRagelState(int blockState)
-{
-	switch (blockState)
-	{
-		case 1:
-			return llvmir_lexer_en_main;
-	}
-
-	return llvmir_lexer_en_main;
-}
-
 //.............................................................................

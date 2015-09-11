@@ -13,7 +13,6 @@ public:
 protected:
 	void ragelInit();
 	void ragelExec();
-	int getRagelState(int blockState);
 	
 	void ragelExecPreEvent(int &ragelState);
 	void ragelExecPostEvent(int ragelState);

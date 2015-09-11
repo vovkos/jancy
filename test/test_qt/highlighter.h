@@ -17,7 +17,6 @@ protected:
 
 	virtual void ragelInit() = 0;
 	virtual void ragelExec() = 0;
-	virtual int getRagelState(int blockState) = 0;
 
 	int cs;
 	int act;
