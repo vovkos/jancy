@@ -32,6 +32,7 @@ getStdTypeName (StdType stdType)
 		"Scheduler",        // StdType_Scheduler,
 		"Recognizer",       // StdType_Recognizer,
 		"AutomatonResult",  // StdType_AutomatonResult,
+		"AutomatonFunc",    // StdType_AutomatonFunc,
 		"Library",          // StdType_Library,
 		NULL,               // StdType_FmtLiteral,
 		"Guid",             // StdType_Guid
@@ -104,6 +105,7 @@ getStdTypeSource (StdType stdType)
 			lengthof (automatonResultTypeSrc),
 			StdNamespace_Jnc,
 		},
+		{ NULL },                            // StdType_AutomatonFunc,
 		{                                    // StdType_Library,
 			libraryTypeSrc,
 			lengthof (libraryTypeSrc),

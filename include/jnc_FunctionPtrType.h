@@ -120,10 +120,7 @@ protected:
 
 	virtual
 	bool
-	calcLayout ()
-	{
-		return m_targetType->ensureLayout ();	
-	}
+	calcLayout ();
 };
 
 //.............................................................................

@@ -103,6 +103,8 @@ TypeMgr::getStdType (StdType stdType)
 
 	const StdItemSource* source;
 	Type* type;
+	Type* argTypeArray [8];
+
 	switch (stdType)
 	{
 	case StdType_BytePtr:
@@ -195,6 +197,18 @@ TypeMgr::getStdType (StdType stdType)
 
 	case StdType_Binder:
 		type = getFunctionType (getStdType (StdType_SimpleEventPtr), NULL, 0);
+		break;
+
+	case StdType_AutomatonFunc:
+		argTypeArray [0] = ((ClassType*) getStdType (StdType_Recognizer))->getClassPtrType ();
+		argTypeArray [1] = getPrimitiveType (TypeKind_Int);
+
+		type = getFunctionType (
+			getStdType (StdType_AutomatonResult), 
+			argTypeArray, 
+			2,
+			FunctionTypeFlag_Automaton
+			);
 		break;
 
 	case StdType_Recognizer:		
@@ -1866,6 +1880,18 @@ TypeMgr::getFunctionPtrType (
 
 	m_functionPtrTypeList.insertTail (type);
 	tuple->m_ptrTypeArray [i1] [i2] [i3] = type;
+
+	if (!m_module->m_namespaceMgr.getCurrentScope ())
+	{
+		m_module->markForLayout (type, true);
+	}
+	else
+	{
+		bool result = type->ensureLayout ();
+		if (!result)
+			return NULL;
+	}
+
 	return type;
 }
 

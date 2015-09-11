@@ -135,6 +135,26 @@ FunctionPtrType::markGcRoots (
 		gcHeap->weakMark (box);
 }
 
+bool
+FunctionPtrType::calcLayout ()
+{
+	bool result = m_targetType->ensureLayout ();	
+	if (!result)
+		return false;
+
+	// update signature
+
+	rtl::String signature = createSignature (
+		m_targetType,
+		m_typeKind,
+		m_ptrTypeKind,
+		m_flags
+		);
+
+	m_module->m_typeMgr.updateTypeSignature (this, signature);
+	return true;
+}
+
 //.............................................................................
 
 } // namespace jnc {

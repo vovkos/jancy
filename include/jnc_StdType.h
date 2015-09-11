@@ -34,6 +34,7 @@ enum StdType
 	StdType_Scheduler,
 	StdType_Recognizer,
 	StdType_AutomatonResult,
+	StdType_AutomatonFunc,
 	StdType_Library,
 	StdType_FmtLiteral,
 	StdType_Guid,

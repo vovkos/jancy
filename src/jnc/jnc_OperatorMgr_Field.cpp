@@ -393,12 +393,43 @@ OperatorMgr::getPropertyField (
 		ASSERT (false);
 	}
 
+	ASSERT (opValue.getValueKind () == ValueKind_Property);
 	ASSERT (member->getItemKind () == ModuleItemKind_StructField);
+
+	Property* prop = opValue.getProperty ();
+
 	Closure* closure = opValue.getClosure ();
 	ASSERT (closure);
-
+	
 	Value parentValue = *closure->getArgValueList ()->getHead ();
-	return getField (parentValue, (StructField*) member, resultValue);
+	Type* parentValueType = parentValue.getType ();
+
+	DerivableType* parentType = prop->getParentType ();
+	ASSERT (parentType);
+
+	Type* parentPtrType;
+	if (parentType->getTypeKind () == TypeKind_Class)
+	{
+		parentPtrType = ((ClassType*) parentType)->getClassPtrType (
+			ClassPtrTypeKind_Normal, 
+			parentValueType->getFlags ()
+			);
+	}
+	else
+	{
+		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags () & TypeKindFlag_DataPtr) ?
+			((DataPtrType*) parentValueType)->getPtrTypeKind () :
+			DataPtrTypeKind_Normal;
+
+		parentPtrType = parentType->getDataPtrType (
+			ptrTypeKind, 
+			parentValueType->getFlags ()
+			);
+	}
+
+	return 
+		castOperator (&parentValue, parentPtrType) &&
+		getField (parentValue, (StructField*) member, resultValue);
 }
 
 //.............................................................................

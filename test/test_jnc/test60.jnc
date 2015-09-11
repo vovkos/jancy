@@ -1,32 +1,32 @@
 //.............................................................................
 
-jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
-{
-	%% "foo" | "bar" | "fooo"
-		printf (
-			"lexeme found: lexeme ofs = %d, len = %d, cur ofs = %d\n",
-			recognizer.m_lexemeOffset,
-			recognizer.m_lexemeLength,
-			recognizer.m_currentOffset
-			);
+typedef function MyFunc (A* a);
 
-	%% .
+class A
+{
+	foo ()
+	{
+		printf ("A.foo (%x)\n", this);
+
+		MyFunc* f = bar;
+
+		
+
+		f (new A);
+	}	
+
+	bar ()
+	{
+		printf ("A.bar (%x)\n", this);
+	}
 }
 
 //.............................................................................
 
-// entry point
-
 int main ()
 {
-	printf ("main ()\n");
-
-	jnc.Recognizer recognizer (fooBar);
-
-	try recognizer.write ("foo");
-	try recognizer.write ("o");
-
-	// eof not needed
+	A a;
+	a.foo ();
 
 	return 0;
 }
