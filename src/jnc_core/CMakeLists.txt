@@ -646,7 +646,7 @@ source_group (
 
 #..............................................................................
 #
-# jnc library
+# jnc_core library
 #
 
 include_directories (
@@ -660,7 +660,7 @@ include_directories (
 	)
 
 add_library (
-	jnc
+	jnc_core
 	${PCH_H}
 	${PCH_CPP}
 	${JNC_PCH_H}
@@ -699,7 +699,7 @@ add_library (
 	)
 
 set_pch (
-	jnc
+	jnc_core
 	${PCH_H}
 	${PCH_CPP}
 	)

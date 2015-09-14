@@ -94,7 +94,7 @@ set_target_properties (
 	
 target_link_libraries (
 	01_export
-	jnc
+	jnc_core
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

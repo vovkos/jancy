@@ -91,7 +91,7 @@ source_group (
 
 #..............................................................................
 #
-# jncc jancy compiler
+# jnc_app jancy compiler
 #
 
 include_directories (
@@ -116,7 +116,7 @@ llvm_map_components_to_libraries (
 	)
 
 add_executable (
-	jncc
+	jnc_app
 	${PCH_H}
 	${PCH_CPP}
 	${APP_H_LIST}
@@ -126,14 +126,14 @@ add_executable (
 	)
 
 set_target_properties (
-	jncc
+	jnc_app
 	PROPERTIES
 	OUTPUT_NAME jancy
 	)
 
 target_link_libraries (
-	jncc
-	jnc
+	jnc_app
+	jnc_core
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}
@@ -141,19 +141,19 @@ target_link_libraries (
 
 if (WIN32)
 	target_link_libraries (
-		jncc
+		jnc_app
 		ws2_32
 		)
 elseif (UNIX)
 	target_link_libraries (
-		jncc
+		jnc_app
 		rt
 		pthread
 		)
 endif ()
 
 set_pch (
-	jncc
+	jnc_app	
 	${PCH_H}
 	${PCH_CPP}
 	)
@@ -163,7 +163,7 @@ set_pch (
 # macro for running jancy compiler on specified list of test source files
 
 macro (
-add_jncc_tests
+add_jancy_tests
 	_FLAGS
 	_DIR
 	# ...
@@ -192,7 +192,7 @@ else ()
 	set (_FLAGS "--run")
 endif ()
 
-add_jncc_tests (
+add_jancy_tests (
 	${_FLAGS}
 	${JANCY_SAMPLE_DIR}
 	${JANCY_SAMPLE_LIST}

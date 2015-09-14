@@ -4,17 +4,17 @@
 
 #..............................................................................
 
-add_subdirectory (jnc)
+add_subdirectory (jnc_core)
 
 
 option (
-	BUILD_JNCC
-	"Build jancy command line compiler"
+	BUILD_JNC_APP
+	"Build jancy command line application"
 	ON
 	)
 
-if (BUILD_JNCC)
-	add_subdirectory (jncc)
+if (BUILD_JNC_APP)
+	add_subdirectory (jnc_app)
 endif ()
 
 

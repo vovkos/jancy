@@ -201,7 +201,7 @@ llvm_map_components_to_libraries (
 
 target_link_libraries (
 	test_qt
-	jnc
+	jnc_core
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

@@ -143,6 +143,7 @@ llvm_map_components_to_libraries (
 
 target_link_libraries (
 	test_mfc
+	jnc_core
 	axl_core
 	axl_io
 	axl_jnc
