@@ -15,6 +15,20 @@ Runtime::Runtime ()
 	m_noThreadEvent.signal ();
 }
 
+bool
+Runtime::setStackSizeLimit (size_t sizeLimit)
+{
+	if (sizeLimit < RuntimeDef_MinStackSizeLimit)
+	{
+		err::setError (err::SystemErrorCode_InvalidParameter);
+		return false;
+	}
+
+	m_stackSizeLimit = sizeLimit;
+	return true;
+}
+
+
 bool 
 Runtime::startup (Module* module)
 {

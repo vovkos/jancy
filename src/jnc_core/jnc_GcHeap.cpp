@@ -48,6 +48,23 @@ GcHeap::getStats (GcStats* stats)
 	m_lock.unlock ();
 }
 
+void 
+GcHeap::setSizeTriggers (
+	size_t allocSizeTrigger,
+	size_t periodSizeTrigger
+	)
+{
+	bool isMutatorThread = waitIdleAndLock ();
+
+	m_allocSizeTrigger = allocSizeTrigger;
+	m_periodSizeTrigger = periodSizeTrigger;
+
+	if (isCollectionTriggered_l ())
+		collect_l (isMutatorThread);
+	else
+		m_lock.unlock ();
+}
+
 void
 GcHeap::startup (Module* module)
 {
@@ -117,6 +134,14 @@ GcHeap::waitIdleAndLock ()
 	return isMutatorThread;
 }
 
+bool
+GcHeap::isCollectionTriggered_l ()
+{
+	return 
+		m_noCollectMutatorThreadCount == 0 &&
+		(m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger);
+}
+
 void
 GcHeap::incrementAllocSize_l (size_t size)
 {
@@ -137,8 +162,7 @@ GcHeap::incrementAllocSizeAndLock (size_t size)
 
 	incrementAllocSize_l (size);
 	
-	if ((m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger) && 
-		!m_noCollectMutatorThreadCount)
+	if (isCollectionTriggered_l ())
 	{
 		collect_l (isMutatorThread);
 		waitIdleAndLock ();
@@ -657,8 +681,7 @@ GcHeap::leaveNoCollectRegion (bool canCollectNow)
 
 	dbg::trace ("GcHeap::leaveNoCollectRegion (%d) (tid = %x)\n", canCollectNow, (uint_t) mt::getCurrentThreadId ());
 
-	if (!m_noCollectMutatorThreadCount && canCollectNow && 
-		(m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger))
+	if (canCollectNow && isCollectionTriggered_l ())
 		collect_l (isMutatorThread);
 	else
 		m_lock.unlock ();

@@ -15,9 +15,11 @@ class Module;
 enum RuntimeDef
 {
 #if (_AXL_PTR_SIZE == 8)
-	RuntimeDef_StackSizeLimit = 1 * 1024 * 1024, // 1MB std stack limit
+	RuntimeDef_StackSizeLimit    = 1 * 1024 * 1024, // 1MB std stack limit
+	RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack 
 #else
-	RuntimeDef_StackSizeLimit = 512 * 1024, // 512KB std stack 
+	RuntimeDef_StackSizeLimit    = 512 * 1024,      // 512KB std stack 
+	RuntimeDef_MinStackSizeLimit = 16 * 1024,       // 16KB min stack 
 #endif
 };
 
@@ -41,9 +43,10 @@ protected:
 	size_t m_tlsSize;
 	rtl::StdList <Tls> m_tlsList;
 
+	size_t m_stackSizeLimit; // adjustable limits
+
 public:
 	GcHeap m_gcHeap;
-	size_t m_stackSizeLimit; // adjustable limits
 
 public:
 	Runtime ();
@@ -58,6 +61,15 @@ public:
 	{
 		return m_module;
 	}
+
+	size_t 
+	getStackSizeLimit ()
+	{
+		return m_stackSizeLimit;
+	}
+
+	bool
+	setStackSizeLimit (size_t sizeLimit);
 
 	bool 
 	startup (Module* module);

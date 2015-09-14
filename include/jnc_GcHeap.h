@@ -120,7 +120,6 @@ protected:
 	rtl::Array <Root> m_markRootArray [2];
 	size_t m_currentMarkRootArrayIdx;
 
-public:
 	// adjustable triggers
 
 	size_t m_allocSizeTrigger; 
@@ -191,6 +190,12 @@ public:
 
 	void 
 	getStats (GcStats* stats);
+
+	void 
+	setSizeTriggers (
+		size_t allocSizeTrigger,
+		size_t periodSizeTrigger
+		);
 
 	void
 	startup (Module* module);
@@ -289,6 +294,9 @@ public:
 #endif
 
 protected:
+	bool
+	isCollectionTriggered_l ();
+
 	bool
 	waitIdleAndLock (); // return true if this thread is registered mutator thread
 
