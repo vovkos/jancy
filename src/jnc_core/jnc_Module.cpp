@@ -107,6 +107,7 @@ extern "C" int64_t __moddi3 (int64_t, int64_t);
 extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
 #	endif
+
 #endif
 
 bool
@@ -153,9 +154,44 @@ Module::createLlvmExecutionEngine ()
 	}
 	else
 	{
-		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
+#if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU == AXL_CPU_AMD64)
+		// legacy JIT uses relative call to __chkstk
+		// it worked just fine before windows 10 which loads ntdll.dll too far away
+
+		// the fix should go to LLVM, of course, but 
+		// a) applying a patch to LLVM before building Jancy would be a pain in the ass
+		// b) legacy JIT is a gonner anyway
+
+		// therefore, a simple workaround is used: allocate a proxy for __chkstk 
+		// which would reside close enough to the generated code
+
+		void* chkstk = ::GetProcAddress (::GetModuleHandleA ("ntdll.dll"), "__chkstk");
+		if (!chkstk)
+		{
+			err::setFormatStringError ("__chkstk is not found");
+			return false;
+		}
+
+		llvm::JITMemoryManager* jitMemoryMgr = llvm::JITMemoryManager::CreateDefaultMemManager ();
+		engineBuilder.setJITMemoryManager (jitMemoryMgr);
+		uchar_t* p = jitMemoryMgr->allocateCodeSection (128, 0, 0, llvm::StringRef ());
+
+		// mov r11, __chkstk 
+
+		p [0] = 0x49;
+		p [1] = 0xbb;
+		*(void**) (p + 2) = chkstk;
+
+		// jmp r11
+
+		p [10] = 0x41;
+		p [11] = 0xff;
+		p [12] = 0xe3;
+		
+		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
+#endif
+
 		engineBuilder.setUseMCJIT (false);
-//		engineBuilder.setJITMemoryManager (jitMemoryMgr);
 	}
 
 	engineBuilder.setTargetOptions (targetOptions);

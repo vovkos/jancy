@@ -38,6 +38,7 @@
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/CallSite.h"
+#include "llvm/Support/DynamicLibrary.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include "llvm/PassManager.h"
