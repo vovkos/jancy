@@ -8,10 +8,19 @@
 
 namespace jnc {
 
+
 //.............................................................................
 
 class CdeclCallConv_gcc64: public CallConv
 {
+public:
+	enum ArgFlag
+	{
+		ArgFlag_ByVal   = 0x01,
+		ArgFlag_Coerced = 0x02,
+	};
+
+
 public:
 	CdeclCallConv_gcc64 ()
 	{
@@ -19,8 +28,8 @@ public:
 	}
 
 	virtual
-	llvm::FunctionType*
-	getLlvmFunctionType (FunctionType* functionType);
+	void
+	prepareFunctionType (FunctionType* functionType);
 
 	virtual
 	llvm::Function*
@@ -48,8 +57,9 @@ public:
 	virtual
 	Value
 	getArgValue (
-		FunctionArg* arg,
-		llvm::Value* llvmValue
+		llvm::Value* llvmValue,
+		FunctionType* functionType,
+		size_t argIdx
 		);
 
 	virtual

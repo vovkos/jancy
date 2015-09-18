@@ -6,8 +6,8 @@ namespace jnc {
 
 //.............................................................................
 
-llvm::FunctionType*
-CdeclCallConv_msc64::getLlvmFunctionType (FunctionType* functionType)
+void
+CdeclCallConv_msc64::prepareFunctionType (FunctionType* functionType)
 {
 	Type* returnType = functionType->getReturnType ();
 	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
@@ -60,7 +60,7 @@ CdeclCallConv_msc64::getLlvmFunctionType (FunctionType* functionType)
 	if (hasCoercedArgs)
 		functionType->m_flags |= FunctionTypeFlag_CoercedArgs;
 
-	return llvm::FunctionType::get (
+	functionType->m_llvmType = llvm::FunctionType::get (
 		returnType->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
@@ -200,11 +200,12 @@ CdeclCallConv_msc64::getThisArgValue (Function* function)
 
 Value
 CdeclCallConv_msc64::getArgValue (
-	FunctionArg* arg,
-	llvm::Value* llvmValue
+	llvm::Value* llvmValue,
+	FunctionType* functionType,
+	size_t argIdx
 	)
 {
-	Type* type = arg->getType ();
+	Type* type = functionType->m_argArray [argIdx]->getType ();
 
 	if (!(type->getFlags () & TypeFlag_StructRet))
 		return Value (llvmValue, type);

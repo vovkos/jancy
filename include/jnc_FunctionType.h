@@ -25,9 +25,10 @@ enum FunctionTypeFlag
 {
 	FunctionTypeFlag_VarArg      = 0x010000,
 	FunctionTypeFlag_Throws      = 0x020000,
-	FunctionTypeFlag_CoercedArgs = 0x040000,
-	FunctionTypeFlag_Automaton   = 0x080000,
-	FunctionTypeFlag_Unsafe      = 0x100000,
+	FunctionTypeFlag_ByValArgs   = 0x040000,
+	FunctionTypeFlag_CoercedArgs = 0x080000,
+	FunctionTypeFlag_Automaton   = 0x100000,
+	FunctionTypeFlag_Unsafe      = 0x200000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,6 +57,9 @@ class FunctionType: public Type
 {
 	friend class TypeMgr;
 	friend class ClassType;
+	friend class CallConv;
+	friend class CallConv_msc32;
+	friend class CallConv_gcc32;
 	friend class CdeclCallConv_msc64;
 	friend class CdeclCallConv_gcc64;
 
@@ -64,6 +68,7 @@ protected:
 	Type* m_returnType;
 	ImportType* m_returnType_i;
 	rtl::Array <FunctionArg*> m_argArray;
+	rtl::Array <uint_t> m_argFlagArray; // args can be shared between func types
 	rtl::String m_argSignature;
 	rtl::String m_typeModifierString;
 	rtl::String m_argString;
@@ -98,6 +103,12 @@ public:
 	getArgArray ()
 	{
 		return m_argArray;
+	}
+
+	rtl::Array <uint_t>
+	getArgFlagArray ()
+	{
+		return m_argFlagArray;
 	}
 
 	rtl::String

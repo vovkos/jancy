@@ -19,8 +19,8 @@ public:
 	}
 
 	virtual
-	llvm::FunctionType*
-	getLlvmFunctionType (FunctionType* functionType);
+	void
+	prepareFunctionType (FunctionType* functionType);
 
 	virtual
 	void
@@ -41,8 +41,9 @@ public:
 	virtual
 	Value
 	getArgValue (
-		FunctionArg* arg,
-		llvm::Value* llvmValue
+		llvm::Value* llvmValue,
+		FunctionType* functionType,
+		size_t argIdx
 		);
 
 	virtual

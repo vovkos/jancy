@@ -166,8 +166,8 @@ CallConv::CallConv ()
 	m_callConvKind = CallConvKind_Undefined;
 }
 
-llvm::FunctionType*
-CallConv::getLlvmFunctionType (FunctionType* functionType)
+void
+CallConv::prepareFunctionType (FunctionType* functionType)
 {
 	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 	size_t argCount = argArray.getCount ();
@@ -179,7 +179,7 @@ CallConv::getLlvmFunctionType (FunctionType* functionType)
 	for (size_t i = 0; i < argCount; i++)
 		llvmArgTypeArray [i] = argArray [i]->getType ()->getLlvmType ();
 
-	return llvm::FunctionType::get (
+	functionType->m_llvmType = llvm::FunctionType::get (
 		functionType->getReturnType ()->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
@@ -239,6 +239,17 @@ CallConv::getThisArgValue (Function* function)
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
 	return Value (llvmArg, function->getThisArgType ());
+}
+
+Value
+CallConv::getArgValue (
+	llvm::Value* llvmValue,
+	FunctionType* functionType,
+	size_t argIdx
+	)
+{
+	FunctionArg* arg = functionType->m_argArray [argIdx];
+	return Value (llvmValue, arg->getType ());
 }
 
 void

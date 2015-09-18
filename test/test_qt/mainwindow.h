@@ -65,9 +65,16 @@ public:
 	AXL_CDECL
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
-	void
+	bool
 	AXL_CDECL
-	bar (int y);
+	bar (
+		jnc::DataPtr ptr1,
+		jnc::DataPtr ptr2,
+		jnc::DataPtr ptr3,
+		jnc::DataPtr ptr4,
+		int a,
+		int b
+		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

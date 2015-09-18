@@ -306,7 +306,8 @@ FunctionType::prepareTypeString ()
 void
 FunctionType::prepareLlvmType ()
 {
-	m_llvmType = m_callConv->getLlvmFunctionType (this);
+	m_callConv->prepareFunctionType (this);
+	ASSERT (m_llvmType);
 }
 
 void

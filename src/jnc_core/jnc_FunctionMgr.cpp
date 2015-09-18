@@ -443,12 +443,11 @@ FunctionMgr::internalPrologue (
 	if (argCount)
 	{
 		llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
-		rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
-
-		CallConv* callConv = function->getType ()->getCallConv ();
+		FunctionType* functionType = function->getType ();
+		CallConv* callConv = functionType->getCallConv ();
 
 		for (size_t i = 0; i < argCount; i++, llvmArg++)
-			argValueArray [i] = callConv->getArgValue (argArray [i], llvmArg);
+			argValueArray [i] = callConv->getArgValue (llvmArg, functionType, i);
 	}
 
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);

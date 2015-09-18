@@ -16,16 +16,18 @@ CdeclCallConv_gcc64::getArgCoerceType (Type* type)
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
 }
 
-llvm::FunctionType*
-CdeclCallConv_gcc64::getLlvmFunctionType (FunctionType* functionType)
+void
+CdeclCallConv_gcc64::prepareFunctionType (FunctionType* functionType)
 {
 	Type* returnType = functionType->getReturnType ();
 	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 	size_t argCount = argArray.getCount ();
+	size_t argRegCount = 6; // rdi, rsi, rdx, rcx, r8, r9
 
 	char buffer [256];
 	rtl::Array <llvm::Type*> llvmArgTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	llvmArgTypeArray.setCount (argCount);
+	functionType->m_argFlagArray.setCount (argCount);
 
 	size_t j = 0;
 
@@ -37,6 +39,7 @@ CdeclCallConv_gcc64::getLlvmFunctionType (FunctionType* functionType)
 			llvmArgTypeArray.setCount (argCount);
 			llvmArgTypeArray [0] = returnType->getDataPtrType_c ()->getLlvmType ();
 			j = 1;
+			argRegCount--;
 
 			returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		}
@@ -46,31 +49,47 @@ CdeclCallConv_gcc64::getLlvmFunctionType (FunctionType* functionType)
 		}
 	}
 
+	bool hasByValArgs = false;
 	bool hasCoercedArgs = false;
 
 	for (size_t i = 0; j < argCount; i++, j++)
 	{
 		Type* type = argArray [i]->getType ();
+		size_t size = type->getSize ();
+		size_t regCount = size > sizeof (uint64_t) ? 2 : 1;
+
+		llvm::Type* llvmType;
+
 		if (!(type->getFlags () & TypeFlag_StructRet))
 		{
-			llvmArgTypeArray [j] = type->getLlvmType ();
+			llvmType = type->getLlvmType ();
+			if (argRegCount)
+				argRegCount--;
 		}
-		else if (type->getSize () > sizeof (uint64_t) * 2) // pass in memory
+		else if (size > sizeof (uint64_t) * 2 || argRegCount < regCount) // pass on stack
 		{
-			llvmArgTypeArray [j] = type->getDataPtrType_c ()->getLlvmType ();
-			hasCoercedArgs = true;
+			llvmType = type->getDataPtrType_c ()->getLlvmType ();
+			functionType->m_argFlagArray [i] = ArgFlag_ByVal;
+			hasByValArgs = true;
 		}
 		else // coerce
 		{
-			llvmArgTypeArray [j] = getArgCoerceType (type)->getLlvmType ();
+			llvmType = getArgCoerceType (type)->getLlvmType ();
+			functionType->m_argFlagArray [i] = ArgFlag_Coerced;
+			argRegCount -= regCount;
 			hasCoercedArgs = true;
 		}
+
+		llvmArgTypeArray [j] = llvmType;
 	}
+
+	if (hasByValArgs)
+		functionType->m_flags |= FunctionTypeFlag_ByValArgs;
 
 	if (hasCoercedArgs)
 		functionType->m_flags |= FunctionTypeFlag_CoercedArgs;
 
-	return llvm::FunctionType::get (
+	functionType->m_llvmType = llvm::FunctionType::get (
 		returnType->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
@@ -85,9 +104,10 @@ CdeclCallConv_gcc64::createLlvmFunction (
 {
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction (functionType, tag);
 
+	Type* returnType = functionType->getReturnType ();
+
 	size_t j = 1;
 
-	Type* returnType = functionType->getReturnType ();
 	if ((returnType->getFlags () & TypeFlag_StructRet) &&
 		returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 	{
@@ -95,19 +115,15 @@ CdeclCallConv_gcc64::createLlvmFunction (
 		j = 2;
 	}
 
-	if (functionType->getFlags () & FunctionTypeFlag_CoercedArgs)
+	if (functionType->getFlags () & FunctionTypeFlag_ByValArgs)
 	{
 		rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 		size_t argCount = argArray.getCount ();
 
 		for (size_t i = 0; i < argCount; i++, j++)
 		{
-			Type* type = argArray [i]->getType ();
-			if ((type->getFlags () & TypeFlag_StructRet) &&
-				type->getSize () > sizeof (uint64_t) * 2) // pass in memory
-			{
+			if (functionType->m_argFlagArray [i] & ArgFlag_ByVal)
 				llvmFunction->addAttribute (j, llvm::Attribute::ByVal);
-			}
 		}
 	}
 
@@ -124,13 +140,14 @@ CdeclCallConv_gcc64::call (
 {
 	Type* returnType = functionType->getReturnType ();
 
-	if (!(functionType->getFlags () & FunctionTypeFlag_CoercedArgs) &&
-		!(returnType->getFlags () & TypeFlag_StructRet))
+	if (!(returnType->getFlags () & TypeFlag_StructRet) &&
+		!(functionType->getFlags () & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs | FunctionTypeFlag_VarArg)))
 	{
 		CallConv::call (calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
 
+	size_t argRegCount = 6; // rdi, rsi, rdx, rcx, r8, r9
 
 	Value tmpReturnValue;
 
@@ -145,35 +162,42 @@ CdeclCallConv_gcc64::call (
 			);
 
 		argValueList->insertHead (tmpReturnValue);
+		argRegCount--;
 	}
 
 	unsigned j = 1;
 	char buffer [256];
 	rtl::Array <unsigned> byValArgIdxArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
-	if (functionType->getFlags () & FunctionTypeFlag_CoercedArgs)
+	rtl::BoxIterator <Value> it = argValueList->getHead ();
+	for (; it; it++, j++)
 	{
-		rtl::BoxIterator <Value> it = argValueList->getHead ();
-		for (; it; it++, j++)
+		Type* type = it->getType ();
+		if (!(type->getFlags () & TypeFlag_StructRet))
 		{
-			Type* type = it->getType ();
-			if (!(type->getFlags () & TypeFlag_StructRet))
-				continue;
+			if (argRegCount)
+				argRegCount--;
 
-			if (type->getSize () > sizeof (uint64_t) * 2) // pass in memory
-			{
-				Value tmpValue;
-				m_module->m_llvmIrBuilder.createAlloca (type, "tmpArg", NULL, &tmpValue);
-				m_module->m_llvmIrBuilder.createStore (*it, tmpValue);
+			continue;
+		}
 
-				*it = tmpValue;
-				byValArgIdxArray.append (j);
-			}
-			else // coerce
-			{
-				Type* coerceType = getArgCoerceType (type);
-				m_module->m_operatorMgr.forceCast (it.p (), coerceType);
-			}
+		size_t size = type->getSize ();
+		size_t regCount = size > sizeof (uint64_t) ? 2 : 1;
+
+		if (size > sizeof (uint64_t) * 2 || argRegCount < regCount) // pass on stack
+		{
+			Value tmpValue;
+			m_module->m_llvmIrBuilder.createAlloca (type, "tmpArg", NULL, &tmpValue);
+			m_module->m_llvmIrBuilder.createStore (*it, tmpValue);
+
+			*it = tmpValue;
+			byValArgIdxArray.append (j);
+		}
+		else // coerce
+		{
+			Type* coerceType = getArgCoerceType (type);
+			m_module->m_operatorMgr.forceCast (it.p (), coerceType);
+			argRegCount -= regCount;
 		}
 	}
 
@@ -254,25 +278,27 @@ CdeclCallConv_gcc64::getThisArgValue (Function* function)
 
 Value
 CdeclCallConv_gcc64::getArgValue (
-	FunctionArg* arg,
-	llvm::Value* llvmValue
+	llvm::Value* llvmValue,
+	FunctionType* functionType,
+	size_t argIdx
 	)
 {
-	Type* type = arg->getType ();
-
-	if (!(type->getFlags () & TypeFlag_StructRet))
-		return Value (llvmValue, type);
+	Type* type = functionType->m_argArray [argIdx]->getType ();
+	uint_t flags = functionType->m_argFlagArray [argIdx];
 
 	Value value;
-
-	if (type->getSize () > sizeof (uint64_t) * 2) // passed in memory
+	if (flags & ArgFlag_ByVal)
 	{
 		m_module->m_llvmIrBuilder.createLoad (llvmValue, type, &value);
 	}
-	else // coerce
+	else if (flags & ArgFlag_Coerced)
 	{
 		Type* coerceType = getArgCoerceType (type);
 		m_module->m_operatorMgr.forceCast (Value (llvmValue, coerceType), type, &value);
+	}
+	else
+	{
+		value.setLlvmValue (llvmValue, type);
 	}
 
 	return value;
@@ -281,7 +307,8 @@ CdeclCallConv_gcc64::getArgValue (
 void
 CdeclCallConv_gcc64::createArgVariables (Function* function)
 {
-	Type* returnType = function->getType ()->getReturnType ();
+	FunctionType* functionType = function->getType ();
+	Type* returnType = functionType->getReturnType ();
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
 	if ((returnType->getFlags () & TypeFlag_StructRet) &&
@@ -295,8 +322,9 @@ CdeclCallConv_gcc64::createArgVariables (Function* function)
 		llvmArg++;
 	}
 
-	rtl::Array <FunctionArg*> argArray = function->getType ()->getArgArray ();
+	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 	size_t argCount = argArray.getCount ();
+
 	for (; i < argCount; i++, llvmArg++)
 	{
 		FunctionArg* arg = argArray [i];
@@ -306,7 +334,7 @@ CdeclCallConv_gcc64::createArgVariables (Function* function)
 		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
 		function->getScope ()->addItem (argVariable);
 
-		Value argValue = CdeclCallConv_gcc64::getArgValue (arg, llvmArg);
+		Value argValue = getArgValue (llvmArg, functionType, i);
 		m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
 	}
 }

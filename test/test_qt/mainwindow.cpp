@@ -29,11 +29,23 @@ TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 //		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);
 }
 
-void
+bool
 AXL_CDECL
-TestClassB::bar (int y)
+TestClassB::bar (
+	jnc::DataPtr ptr1,
+	jnc::DataPtr ptr2,
+	jnc::DataPtr ptr3,
+	jnc::DataPtr ptr4,
+	int a,
+	int b
+	)
 {
-	printf ("TestClassB::bar (%d)\n", y);
+	const char* p1 = (const char*) ptr1.m_p;
+	const char* p2 = (const char*) ptr2.m_p;
+	const char* p3 = (const char*) ptr3.m_p;
+	const char* p4 = (const char*) ptr4.m_p;
+
+	printf ("TestClassB::bar ()\n");
 }
 
 //.............................................................................

@@ -14,8 +14,8 @@ class CallConv_gcc32: public CallConv
 {
 public:
 	virtual
-	llvm::FunctionType*
-	getLlvmFunctionType (FunctionType* functionType);
+	void
+	prepareFunctionType (FunctionType* functionType);
 
 	virtual
 	llvm::Function*

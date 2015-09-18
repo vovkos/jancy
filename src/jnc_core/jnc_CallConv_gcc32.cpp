@@ -6,12 +6,15 @@ namespace jnc {
 
 //.............................................................................
 
-llvm::FunctionType*
-CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
+void
+CallConv_gcc32::prepareFunctionType (FunctionType* functionType)
 {
 	Type* returnType = functionType->getReturnType ();
 	if (!(returnType->getFlags () & TypeFlag_StructRet))
-		return CallConv::getLlvmFunctionType (functionType);
+	{
+		CallConv::prepareFunctionType (functionType);
+		return;
+	}
 
 	rtl::Array <FunctionArg*> argArray = functionType->getArgArray ();
 	size_t argCount = argArray.getCount () + 1;
@@ -25,7 +28,7 @@ CallConv_gcc32::getLlvmFunctionType (FunctionType* functionType)
 	for (size_t i = 0, j = 1; j < argCount; i++, j++)
 		llvmArgTypeArray [j] = argArray [i]->getType ()->getLlvmType ();
 
-	return llvm::FunctionType::get (
+	functionType->m_llvmType = llvm::FunctionType::get (
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getLlvmType (),
 		llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags () & FunctionTypeFlag_VarArg) != 0
