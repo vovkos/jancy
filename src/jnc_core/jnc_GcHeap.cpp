@@ -573,6 +573,7 @@ GcHeap::registerMutatorThread (GcMutatorThread* thread)
 	ASSERT (!isMutatorThread); // we are in the process of registering this thread
 
 	thread->m_threadId = mt::getCurrentThreadId ();
+	thread->m_isSafePoint = false;
 	thread->m_waitRegionLevel = 0;
 	thread->m_noCollectRegionLevel = 0;
 	thread->m_dataPtrValidatorPoolBegin = NULL;
@@ -617,6 +618,9 @@ GcHeap::enterWaitRegion ()
 	thread->m_waitRegionLevel = 1;
 	m_waitingMutatorThreadCount++;
 	ASSERT (m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
+
+	dbg::trace ("GcHeap::enterWaitRegion () (tid = %x)\n", (uint_t) mt::getCurrentThreadId ());
+
 	m_lock.unlock ();			
 }
 
@@ -636,6 +640,9 @@ GcHeap::leaveWaitRegion ()
 	ASSERT (!isMutatorThread);
 	thread->m_waitRegionLevel = 0;
 	m_waitingMutatorThreadCount--;
+
+	dbg::trace ("GcHeap::leaveWaitRegion () (tid = %x)\n", (uint_t) mt::getCurrentThreadId ());
+
 	m_lock.unlock ();
 }
 
@@ -913,7 +920,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	}
 
 	dbg::trace (
-		"+++ GcHeap::collect_l (tid: %x; isMutator: %d; mutatorCount = %d; waitingMutatorThreadCount = %d, handshakeCount = %d)\n", 
+		"+++ GcHeap::collect_l (tid = %x; isMutator = %d; mutatorCount = %d; waitingMutatorThreadCount = %d, handshakeCount = %d)\n",
 		(uint_t) mt::getCurrentThreadId (),
 		isMutatorThread,
 		m_mutatorThreadList.getCount (),
@@ -921,11 +928,13 @@ GcHeap::collect_l (bool isMutatorThread)
 		handshakeCount
 		);
 
-	rtl::Iterator <GcMutatorThread> _threadIt = m_mutatorThreadList.getHead ();
-	for (; _threadIt; _threadIt++)
+	rtl::Iterator <GcMutatorThread> threadIt = m_mutatorThreadList.getHead ();
+	for (; threadIt; threadIt++)
 	{
-		GcMutatorThread* thread = *_threadIt;
-		dbg::trace ("   *** mutator (thread: %x, tid: %x, wait = %d)\n", thread,  (uint_t) thread->m_threadId, thread->m_waitRegionLevel);
+		dbg::trace ("   *** mutator (tid = %x; wait = %d)\n",
+			(uint_t) threadIt->m_threadId,
+			threadIt->m_waitRegionLevel
+			);
 	}
 
 	if (!handshakeCount)
@@ -991,7 +1000,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	rtl::Array <StructField*> tlsRootFieldArray = tlsType->getGcRootMemberFieldArray ();
 	size_t tlsRootFieldCount = tlsRootFieldArray.getCount ();
 
-	rtl::Iterator <GcMutatorThread> threadIt = m_mutatorThreadList.getHead ();
+	threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
 		GcMutatorThread* thread = *threadIt;
@@ -1030,6 +1039,8 @@ GcHeap::collect_l (bool isMutatorThread)
 	// run mark cycle
 
 	runMarkCycle ();
+
+	dbg::trace ("   ... GcHeap::collect_l () -- mark complete\n");
 
 	// schedule destruction for unmarked class boxes
 
@@ -1132,6 +1143,8 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	m_allocBoxArray.setCount (dstIdx);
 
+	dbg::trace ("   ... GcHeap::collect_l () -- sweep complete\n");
+
 	// resume the world
 
 	if (handshakeCount)
@@ -1148,18 +1161,29 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_resumeEvent.signal ();
 		m_handshakeEvent.wait ();
 #elif (_AXL_ENV == AXL_ENV_POSIX)
-		threadIt = m_mutatorThreadList.getHead ();
-		for (; threadIt; threadIt++)
-			pthread_kill (threadIt->m_threadId, SIGUSR1); // resume
 
-		m_handshakeSem.wait ();
+		for (;;) // we need a loop -- sigsuspend can lose per-thread signals
+		{
+			bool result;
+
+			threadIt = m_mutatorThreadList.getHead ();
+			for (; threadIt; threadIt++)
+			{
+				if (threadIt->m_isSafePoint)
+					pthread_kill (threadIt->m_threadId, SIGUSR1); // resume
+			}
+
+			result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
+			if (result)
+				break;
+		};
 #endif
 	}
 
+	dbg::trace ("   ... GcHeap::collect_l () -- the world is resumed\n");
+
 	// go to idle state
 
-	dbg::trace ("--- GcHeap::collect_l ()\n");
-	
 	m_lock.lock ();
 	m_state = State_Idle;
 	m_stats.m_currentAllocSize -= freeSize;
@@ -1169,6 +1193,8 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_stats.m_totalCollectTimeTaken += m_stats.m_lastCollectTimeTaken;
 	m_idleEvent.signal ();
 	m_lock.unlock ();
+
+	dbg::trace ("--- GcHeap::collect_l ()\n");
 
 	// 5) run destructors
 
@@ -1237,6 +1263,8 @@ GcHeap::handleSehException (
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
 	ASSERT (thread && !thread->m_waitRegionLevel);
 
+	thread->m_isSafePoint = true;
+
 	int32_t count = mt::atomicDec (&m_handshakeCount);
 	ASSERT (m_state == State_StopTheWorld && count >= 0);
 	if (!count)
@@ -1244,6 +1272,7 @@ GcHeap::handleSehException (
 
 	m_resumeEvent.wait ();
 
+	thread->m_isSafePoint = false;
 	count = mt::atomicDec (&m_handshakeCount);
 	ASSERT (m_state == State_ResumeTheWorld && count >= 0);
 	if (!count)
@@ -1283,18 +1312,21 @@ GcHeap::signalHandler_SIGSEGV (
 {
 	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
 
-	Runtime* runtime = getCurrentThreadRuntime ();
-	if (!runtime)
+	Tls* tls = getCurrentThreadTls ();
+	if (!tls)
 		return;
 
-	GcHeap* self = &runtime->m_gcHeap;
+	GcMutatorThread* thread = &tls->m_gcMutatorThread;
+	GcHeap* self = &tls->m_runtime->m_gcHeap;
 
 	if (signal != SIGSEGV || 
-		signalInfo->si_addr != self->m_guardPage ||
-		self->m_state != State_StopTheWorld)
+		signalInfo->si_addr != self->m_guardPage)
 		return; // ignore
 
+	thread->m_isSafePoint = true;
+
 	size_t count = mt::atomicDec (&self->m_handshakeCount);
+	ASSERT (self->m_state == State_StopTheWorld && count >= 0);
 	if (!count)
 		self->m_handshakeSem.post ();
 
@@ -1303,7 +1335,9 @@ GcHeap::signalHandler_SIGSEGV (
 		sigsuspend (&m_signalWaitMask);
 	} while (self->m_state != State_ResumeTheWorld);
 
+	thread->m_isSafePoint = false;
 	count = mt::atomicDec (&self->m_handshakeCount);
+	ASSERT (count >= 0);
 	if (!count)
 		self->m_handshakeSem.post ();
 }

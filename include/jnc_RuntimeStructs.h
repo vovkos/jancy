@@ -308,6 +308,7 @@ struct GcShadowStackFrame
 struct GcMutatorThread: rtl::ListLink
 {
 	uint64_t m_threadId;
+	volatile bool m_isSafePoint;
 	size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	DataPtrValidator* m_dataPtrValidatorPoolBegin;
