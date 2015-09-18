@@ -46,6 +46,8 @@ TestClassB::bar (
 	const char* p4 = (const char*) ptr4.m_p;
 
 	printf ("TestClassB::bar ()\n");
+
+	return true;
 }
 
 //.............................................................................
