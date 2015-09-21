@@ -107,7 +107,7 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 	AXL_RTL_CMD_LINE_SWITCH (
 		CmdLineSwitchKind_SimpleGcSafePoint,
 		"simple-gc-safe-point", NULL,
-		"Use simple GC safe point call (rather than write barrier)"
+		"Use simple GC safe-point call (rather than write barrier)"
 		)
 
 	AXL_RTL_CMD_LINE_SWITCH_GROUP ("Runtime options")

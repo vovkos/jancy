@@ -963,6 +963,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_lock.unlock ();
 
 		m_handshakeEvent.wait ();
+		m_state = State_Mark;
 	}
 	else
 	{
@@ -986,7 +987,6 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif
-
 		m_state = State_Mark;
 	}
 
