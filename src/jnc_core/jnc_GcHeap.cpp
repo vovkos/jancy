@@ -1352,7 +1352,7 @@ GcHeap::signalHandler_SIGSEGV (
 {
 	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
 
-	Tls* tls = getCurrentThreadRuntime ();
+	Tls* tls = getCurrentThreadTls ();
 	if (!tls)
 		return;
 
@@ -1365,21 +1365,21 @@ GcHeap::signalHandler_SIGSEGV (
 	GcMutatorThread* thread = &tls->m_gcMutatorThread;
 	thread->m_isSafePoint = true;
 
-	size_t count = mt::atomicDec (&m_handshakeCount);
-	ASSERT (m_state == State_StopTheWorld && count >= 0);
+	size_t count = mt::atomicDec (&self->m_handshakeCount);
+	ASSERT (self->m_state == State_StopTheWorld && count >= 0);
 	if (!count)
-		m_handshakeSem.post ();
+		self->m_handshakeSem.post ();
 
 	do
 	{
-		sigsuspend (&m_signalWaitMask);
-	} while (m_state != State_ResumeTheWorld);
+		sigsuspend (&self->m_signalWaitMask);
+	} while (self->m_state != State_ResumeTheWorld);
 	
 	thread->m_isSafePoint = false;
-	count = mt::atomicDec (&m_handshakeCount);
+	count = mt::atomicDec (&self->m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
-		m_handshakeSem.post ();
+		self->m_handshakeSem.post ();
 }
 
 #endif // _AXL_ENV == AXL_ENV_POSIX
