@@ -89,28 +89,24 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitchKind_McJit:
-		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_flags |= JncFlag_Jit_mc;
+		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_McJit;
 		break;
 
 	case CmdLineSwitchKind_LlvmIr:
 		m_cmdLine->m_flags |= JncFlag_LlvmIr;
 		break;
 
-	case CmdLineSwitchKind_LlvmIrComments:
-		m_cmdLine->m_flags |= JncFlag_LlvmIr;
-		m_cmdLine->m_flags |= JncFlag_LlvmIr_c;
+	case CmdLineSwitchKind_SimpleGcSafePoint:
+		m_cmdLine->m_flags |= JncFlag_SimpleGcSafePoint;
 		break;
 
 	case CmdLineSwitchKind_Run:
-		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_flags |= JncFlag_RunFunction;
+		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
 		m_cmdLine->m_functionName = "main";
 		break;
 
 	case CmdLineSwitchKind_RunFunction:
-		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_flags |= JncFlag_RunFunction;
+		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
 		m_cmdLine->m_functionName = value;
 		break;
 

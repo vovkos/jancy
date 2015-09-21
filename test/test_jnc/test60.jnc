@@ -1,23 +1,8 @@
-//.............................................................................
-
-typedef function MyFunc (A* a);
-
-class A
+foo ()
 {
-	foo ()
+	for (int i = 0; i < 10; i++)
 	{
-		printf ("A.foo (%x)\n", this);
-
-		MyFunc* f = bar;
-
-		
-
-		f (new A);
-	}	
-
-	bar ()
-	{
-		printf ("A.bar (%x)\n", this);
+		new int;
 	}
 }
 
@@ -25,8 +10,11 @@ class A
 
 int main ()
 {
-	A a;
-	a.foo ();
+	jnc.createThread (foo);
+	jnc.createThread (foo);
+	jnc.createThread (foo);
+	jnc.createThread (foo);
+	jnc.createThread (foo);
 
 	return 0;
 }

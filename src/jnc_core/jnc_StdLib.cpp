@@ -212,6 +212,15 @@ StdLib::collectGarbage ()
 	runtime->m_gcHeap.collect ();
 }
 
+void
+StdLib::gcSafePoint ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.safePoint ();
+}
+
 size_t
 StdLib::strLen (DataPtr ptr)
 {

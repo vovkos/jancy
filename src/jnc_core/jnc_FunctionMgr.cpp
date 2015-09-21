@@ -910,6 +910,12 @@ FunctionMgr::getStdFunction (StdFunc func)
 		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
 		break;
 
+	case StdFunc_GcSafePoint:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.gcSafePoint", functionType);
+		break;
+
 	case StdFunc_StrLen:
 	case StdFunc_StrCmp:
 	case StdFunc_StriCmp:

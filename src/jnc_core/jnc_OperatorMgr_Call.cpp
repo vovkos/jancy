@@ -606,19 +606,27 @@ OperatorMgr::callImpl (
 void
 OperatorMgr::gcSafePoint ()
 {
-	Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
+	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleGcSafePoint)
+	{
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_GcSafePoint);
+		m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
+	}
+	else
+	{
+		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
 	
-	Value ptrValue;
-	Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
-	m_module->m_llvmIrBuilder.createLoad (variable, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createRmw (
-		llvm::AtomicRMWInst::Xchg,
-		ptrValue,
-		value,
-		llvm::AcquireRelease,
-		llvm::CrossThread,
-		&value
-		);
+		Value ptrValue;
+		Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
+		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createRmw (
+			llvm::AtomicRMWInst::Xchg,
+			ptrValue,
+			value,
+			llvm::AcquireRelease,
+			llvm::CrossThread,
+			&value
+			);
+	}
 }
 
 void

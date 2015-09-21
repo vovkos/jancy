@@ -2,7 +2,6 @@ $state = 0;
 
 while (chomp (my $s = <>))
 {
-
 	if ($s =~ m/\/\/\//)
 	{
 		$body = $';

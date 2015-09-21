@@ -106,9 +106,6 @@ Jnc::run (
 		return JncErrorKind_InvalidCmdLine;
 	}
 
-	if (cmdLine->m_flags & JncFlag_RunFunction)
-		cmdLine->m_flags |= JncFlag_Jit;
-
 	result = compile (srcName, src, srcSize);
 	if (!result)
 	{
@@ -166,10 +163,13 @@ Jnc::compile (
 	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
 		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 
-	if (m_cmdLine->m_flags & JncFlag_Jit_mc)
+	if (m_cmdLine->m_flags & JncFlag_McJit)
 		compileFlags |= jnc::ModuleCompileFlag_McJit;
 
-	m_module.create ("jncc_module", NULL, compileFlags);
+	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
+		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+
+	m_module.create ("jnc_module", NULL, compileFlags);
 
 	result =
 		m_module.parse (fileName, source, length) &&
@@ -193,46 +193,7 @@ Jnc::jit ()
 void
 Jnc::printLlvmIr ()
 {
-	if (!(m_cmdLine->m_flags & JncFlag_LlvmIr_c))
-	{
-		m_outStream->printf ("%s", m_module.getLlvmIrString ().cc ());
-		return;
-	}
-
-	rtl::Iterator <jnc::Function> function = m_module.m_functionMgr.getFunctionList ().getHead ();
-	for (; function; function++)
-	{
-		jnc::FunctionType* functionType = function->getType ();
-
-		m_outStream->printf ("%s %s %s %s\n",
-			functionType->getReturnType ()->getTypeString ().cc (),
-			functionType->getCallConv ()->getCallConvString (),
-			function->m_tag.cc (),
-			functionType->getArgString ().cc ()
-			);
-
-		llvm::Function* llvmFunction = function->getLlvmFunction ();
-		llvm::Function::BasicBlockListType& blockList = llvmFunction->getBasicBlockList ();
-		llvm::Function::BasicBlockListType::iterator block = blockList.begin ();
-
-		for (; block != blockList.end (); block++)
-		{
-			std::string name = block->getName ();
-			m_outStream->printf ("%s:\n", name.c_str ());
-
-			llvm::BasicBlock::InstListType& instList = block->getInstList ();
-			llvm::BasicBlock::InstListType::iterator inst = instList.begin ();
-			for (; inst != instList.end (); inst++)
-			{
-				std::string string;
-				llvm::raw_string_ostream stream (string);
-				inst->print (stream);
-				m_outStream->printf ("%s\n", string.c_str ());
-			}
-		}
-
-		m_outStream->printf ("\n........................................\n\n");
-	}
+	m_outStream->printf ("%s", m_module.getLlvmIrString ().cc ());
 }
 
 bool

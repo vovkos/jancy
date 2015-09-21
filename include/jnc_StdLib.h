@@ -39,6 +39,7 @@ public:
 		JNC_STD_FUNCTION (StdFunc_AllocateArray, allocateArray)
 		JNC_STD_FUNCTION (StdFunc_CreateDataPtrValidator, createDataPtrValidator)
 		JNC_STD_FUNCTION (StdFunc_CollectGarbage, collectGarbage)
+		JNC_STD_FUNCTION (StdFunc_GcSafePoint, gcSafePoint)
 
 		JNC_STD_FUNCTION (StdFunc_GetCurrentThreadId, getCurrentThreadId)
 		JNC_STD_FUNCTION (StdFunc_CreateThread, createThread)
@@ -198,6 +199,10 @@ public:
 	static
 	void
 	collectGarbage ();
+
+	static
+	void
+	gcSafePoint ();
 
 	static
 	intptr_t

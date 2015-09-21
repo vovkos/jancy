@@ -28,8 +28,9 @@ enum StdFunc
 	StdFunc_TryAllocateArray,
 	StdFunc_AllocateArray,
 	StdFunc_CreateDataPtrValidator,
-
 	StdFunc_CollectGarbage,
+	StdFunc_GcSafePoint,
+
 	StdFunc_GetCurrentThreadId,
 	StdFunc_CreateThread,
 	StdFunc_Sleep,

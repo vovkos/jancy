@@ -4,16 +4,16 @@
 
 enum JncFlag
 {
-	JncFlag_Help        = 0x0001,
-	JncFlag_Version     = 0x0002,
-	JncFlag_LlvmIr      = 0x0004,
-	JncFlag_LlvmIr_c    = 0x0008,
-	JncFlag_Jit         = 0x0010,
-	JncFlag_Jit_mc      = 0x0020,
-	JncFlag_RunFunction = 0x0080,
-	JncFlag_Server      = 0x0100,
-	JncFlag_DebugInfo   = 0x0200,
-	JncFlag_StdInSrc    = 0x0400,
+	JncFlag_Help              = 0x0001,
+	JncFlag_Version           = 0x0002,
+	JncFlag_LlvmIr            = 0x0004,
+	JncFlag_Jit               = 0x0010,
+	JncFlag_McJit             = 0x0020,
+	JncFlag_SimpleGcSafePoint = 0x0040,
+	JncFlag_RunFunction       = 0x0080,
+	JncFlag_Server            = 0x0100,
+	JncFlag_DebugInfo         = 0x0200,
+	JncFlag_StdInSrc          = 0x0400,
 };
 
 struct CmdLine
@@ -40,10 +40,10 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_Version,
 	CmdLineSwitchKind_StdInSrc,
 	CmdLineSwitchKind_LlvmIr,
-	CmdLineSwitchKind_LlvmIrComments,
 	CmdLineSwitchKind_DebugInfo,
 	CmdLineSwitchKind_Jit,
 	CmdLineSwitchKind_McJit,
+	CmdLineSwitchKind_SimpleGcSafePoint,
 	CmdLineSwitchKind_Run,
 	CmdLineSwitchKind_RunFunction = rtl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitchKind_Server,
@@ -83,24 +83,17 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		"Override source name (defaults to full-path/'stdin')"
 		)
 
-	AXL_RTL_CMD_LINE_SWITCH_GROUP ("LLVM IR options")
+	AXL_RTL_CMD_LINE_SWITCH_GROUP ("Compilation options")
 	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_LlvmIr,
 		"l", "llvm-ir", NULL,
 		"Emit LLVM IR (lli-compatible)"
 		)
 	AXL_RTL_CMD_LINE_SWITCH_2 (
-		CmdLineSwitchKind_LlvmIrComments,
-		"c", "llvm-ir-comments", NULL,
-		"Emit LLVM IR (manual mode w/ comments)"
-		)
-	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_DebugInfo,
 		"g", "debug-info", NULL,
 		"Generate debug information (does not work with legacy JIT)"
 		)
-
-	AXL_RTL_CMD_LINE_SWITCH_GROUP ("JIT options")
 	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_Jit,
 		"j", "jit", NULL,
@@ -111,7 +104,14 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		"m", "mcjit", NULL,
 		"Use MC-JIT engine (does not work on Windows)"
 		)
-	AXL_RTL_CMD_LINE_SWITCH_2 (
+	AXL_RTL_CMD_LINE_SWITCH (
+		CmdLineSwitchKind_SimpleGcSafePoint,
+		"simple-gc-safe-point", NULL,
+		"Use simple GC safe point call (rather than write barrier)"
+		)
+
+	AXL_RTL_CMD_LINE_SWITCH_GROUP ("Runtime options")
+		AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_Run,
 		"r", "run", NULL,
 		"Run function 'main' (implies JITting)"

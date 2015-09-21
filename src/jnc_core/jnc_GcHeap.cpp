@@ -16,7 +16,7 @@ GcHeap::GcHeap ()
 {
 	m_runtime = AXL_CONTAINING_RECORD (this, Runtime, m_gcHeap);
 	m_state = State_Idle;
-	m_isShuttingDown = false;
+	m_flags = 0;
 	m_handshakeCount = 0;
 	m_waitingMutatorThreadCount = 0;
 	m_noCollectMutatorThreadCount = 0;
@@ -71,11 +71,19 @@ GcHeap::startup (Module* module)
 	ASSERT (m_state == State_Idle);
 
 	memset (&m_stats, 0, sizeof (m_stats));
+	m_flags = 0;
+
+	if (module->getCompileFlags () & ModuleCompileFlag_SimpleGcSafePoint)
+	{
+		m_flags |= GcHeapFlag_SimpleSafePoint;
+	}
+	else
+	{
+		Variable* safePointTriggerVariable = module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
+		*(void**) safePointTriggerVariable->getStaticData () = m_guardPage;
+	}
 
 	addStaticRootVariables (module->m_variableMgr.getStaticGcRootArray ());
-
-	void** gcSafePointTrigger = (void**) module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger)->getStaticData ();
-	*gcSafePointTrigger = m_guardPage;
 
 	Function* destructor = module->getDestructor ();
 	if (destructor)
@@ -418,7 +426,7 @@ GcHeap::beginShutdown ()
 	bool isMutatorThread = waitIdleAndLock ();
 	ASSERT (!isMutatorThread);
 	
-	m_isShuttingDown = true;  // this will prevent boxes from being actually freed
+	m_flags |= GcHeapFlag_ShuttingDown;  // this will prevent boxes from being actually freed
 
 	// initial collect
 
@@ -440,7 +448,7 @@ void
 GcHeap::finalizeShutdown ()
 {
 	bool isMutatorThread = waitIdleAndLock ();
-	ASSERT (!isMutatorThread && m_isShuttingDown);
+	ASSERT (!isMutatorThread && (m_flags & GcHeapFlag_ShuttingDown));
 	
 	// static destructors
 
@@ -477,7 +485,7 @@ GcHeap::finalizeShutdown ()
 
 	rtl::Array <Box*> postponeFreeBoxArray = m_postponeFreeBoxArray;
 	m_postponeFreeBoxArray.clear ();
-	m_isShuttingDown = false;
+	m_flags &= ~GcHeapFlag_ShuttingDown;
 	m_lock.unlock ();
 
 	size_t count = postponeFreeBoxArray.getCount ();
@@ -702,7 +710,10 @@ GcHeap::safePoint ()
 	ASSERT (thread && thread->m_waitRegionLevel == 0); // otherwise we may finish handshake prematurely
 #endif
 
-	mt::atomicXchg ((volatile int32_t*) m_guardPage.p (), 0); // we need a fence, hence atomicXchg
+	if (!(m_flags & GcHeapFlag_SimpleSafePoint))
+		mt::atomicXchg ((volatile int32_t*) m_guardPage.p (), 0); // we need a fence, hence atomicXchg
+	else if (m_state == State_StopTheWorld)
+		parkAtSafePoint (); // parkAtSafePoint will force a fence with atomicDec
 }
 
 void
@@ -908,7 +919,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_stats.m_totalCollectCount++;
 	m_stats.m_lastCollectTime = g::getTimestamp ();
 
-	bool isShuttingDown = m_isShuttingDown;
+	bool isShuttingDown = (m_flags & GcHeapFlag_ShuttingDown) != 0;
 
 	// stop the world
 	
@@ -943,25 +954,39 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 	}
-	else
+	else if (m_flags & GcHeapFlag_SimpleSafePoint)
 	{
-#if (_AXL_ENV == AXL_ENV_WIN)
 		m_resumeEvent.reset ();
-#endif
 		mt::atomicXchg (&m_handshakeCount, handshakeCount);
 		m_state = State_StopTheWorld;
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 
+		m_handshakeEvent.wait ();
+	}
+	else
+	{
 #if (_AXL_ENV == AXL_ENV_WIN)
+		m_resumeEvent.reset ();
+		mt::atomicXchg (&m_handshakeCount, handshakeCount);
+		m_state = State_StopTheWorld;
+		m_idleEvent.reset ();
+		m_lock.unlock ();
+
 		m_guardPage.protect (PAGE_NOACCESS);
 		m_handshakeEvent.wait ();
 #elif (_AXL_ENV == AXL_ENV_POSIX)
+		mt::atomicXchg (&m_handshakeCount, handshakeCount);
+		m_state = State_StopTheWorld;
+		m_idleEvent.reset ();
+		m_lock.unlock ();
+
 		static volatile int32_t installSignalHandlersFlag = 0;
 		mt::callOnce (installSignalHandlers, 0, &installSignalHandlersFlag);
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif
+
 		m_state = State_Mark;
 	}
 
@@ -1149,35 +1174,43 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	if (handshakeCount)
 	{
-#if (_AXL_ENV == AXL_ENV_WIN)	
-		m_guardPage.protect (PAGE_READWRITE);
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-		m_guardPage.protect (PROT_READ | PROT_WRITE);
-#endif
-		mt::atomicXchg (&m_handshakeCount, handshakeCount);
-		m_state = State_ResumeTheWorld;
-
-#if (_AXL_ENV == AXL_ENV_WIN)	
-		m_resumeEvent.signal ();
-		m_handshakeEvent.wait ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-
-		for (;;) // we need a loop -- sigsuspend can lose per-thread signals
+		if (m_flags & GcHeapFlag_SimpleSafePoint)
 		{
-			bool result;
+			mt::atomicXchg (&m_handshakeCount, handshakeCount);
+			m_state = State_ResumeTheWorld;
+			m_resumeEvent.signal ();
+			m_handshakeEvent.wait ();
+		}
+		else
+		{
+#if (_AXL_ENV == AXL_ENV_WIN)
+			m_guardPage.protect (PAGE_READWRITE);
+			mt::atomicXchg (&m_handshakeCount, handshakeCount);
+			m_state = State_ResumeTheWorld;
+			m_resumeEvent.signal ();
+			m_handshakeEvent.wait ();
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+			m_guardPage.protect (PROT_READ | PROT_WRITE);
+			mt::atomicXchg (&m_handshakeCount, handshakeCount);
+			m_state = State_ResumeTheWorld;
 
-			threadIt = m_mutatorThreadList.getHead ();
-			for (; threadIt; threadIt++)
+			for (;;) // we need a loop -- sigsuspend can lose per-thread signals
 			{
-				if (threadIt->m_isSafePoint)
-					pthread_kill (threadIt->m_threadId, SIGUSR1); // resume
-			}
+				bool result;
 
-			result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
-			if (result)
-				break;
-		};
+				threadIt = m_mutatorThreadList.getHead ();
+				for (; threadIt; threadIt++)
+				{
+					if (threadIt->m_isSafePoint)
+						pthread_kill (threadIt->m_threadId, SIGUSR1); // resume
+				}
+
+				result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
+				if (result)
+					break;
+			}
 #endif
+		}
 	}
 
 	dbg::trace ("   ... GcHeap::collect_l () -- the world is resumed\n");
@@ -1248,6 +1281,29 @@ GcHeap::runMarkCycle ()
 	}
 }
 
+void
+GcHeap::parkAtSafePoint ()
+{
+	GcMutatorThread* thread = getCurrentGcMutatorThread ();
+	ASSERT (thread && !thread->m_waitRegionLevel);
+
+	thread->m_isSafePoint = true;
+
+	int32_t count = mt::atomicDec (&m_handshakeCount);
+	ASSERT (m_state == State_StopTheWorld && count >= 0);
+	if (!count)
+		m_handshakeEvent.signal ();
+
+	m_resumeEvent.wait ();
+	ASSERT (m_state == State_ResumeTheWorld);
+
+	thread->m_isSafePoint = false;
+	count = mt::atomicDec (&m_handshakeCount);
+	ASSERT (count >= 0);
+	if (!count)
+		m_handshakeEvent.signal ();
+}
+
 #if (_AXL_ENV == AXL_ENV_WIN)
 
 int 
@@ -1260,23 +1316,7 @@ GcHeap::handleSehException (
 		exceptionPointers->ExceptionRecord->ExceptionInformation [1] != (uintptr_t) m_guardPage.p ())
 		return EXCEPTION_CONTINUE_SEARCH;
 
-	GcMutatorThread* thread = getCurrentGcMutatorThread ();
-	ASSERT (thread && !thread->m_waitRegionLevel);
-
-	thread->m_isSafePoint = true;
-
-	int32_t count = mt::atomicDec (&m_handshakeCount);
-	ASSERT (m_state == State_StopTheWorld && count >= 0);
-	if (!count)
-		m_handshakeEvent.signal ();
-
-	m_resumeEvent.wait ();
-
-	thread->m_isSafePoint = false;
-	count = mt::atomicDec (&m_handshakeCount);
-	ASSERT (m_state == State_ResumeTheWorld && count >= 0);
-	if (!count)
-		m_handshakeEvent.signal ();
+	parkAtSafePoint ();
 
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
@@ -1312,37 +1352,37 @@ GcHeap::signalHandler_SIGSEGV (
 {
 	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
 
-	Tls* tls = getCurrentThreadTls ();
+	Tls* tls = getCurrentThreadRuntime ();
 	if (!tls)
 		return;
 
-	GcMutatorThread* thread = &tls->m_gcMutatorThread;
 	GcHeap* self = &tls->m_runtime->m_gcHeap;
 
 	if (signal != SIGSEGV || 
 		signalInfo->si_addr != self->m_guardPage)
 		return; // ignore
 
+	GcMutatorThread* thread = &tls->m_gcMutatorThread;
 	thread->m_isSafePoint = true;
 
-	size_t count = mt::atomicDec (&self->m_handshakeCount);
-	ASSERT (self->m_state == State_StopTheWorld && count >= 0);
+	size_t count = mt::atomicDec (&m_handshakeCount);
+	ASSERT (m_state == State_StopTheWorld && count >= 0);
 	if (!count)
-		self->m_handshakeSem.post ();
+		m_handshakeSem.post ();
 
 	do
 	{
 		sigsuspend (&m_signalWaitMask);
-	} while (self->m_state != State_ResumeTheWorld);
-
+	} while (m_state != State_ResumeTheWorld);
+	
 	thread->m_isSafePoint = false;
-	count = mt::atomicDec (&self->m_handshakeCount);
+	count = mt::atomicDec (&m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
-		self->m_handshakeSem.post ();
+		m_handshakeSem.post ();
 }
 
-#endif
+#endif // _AXL_ENV == AXL_ENV_POSIX
 
 //.............................................................................
 

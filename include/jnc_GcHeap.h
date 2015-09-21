@@ -50,6 +50,14 @@ struct GcStats
 	uint64_t m_totalCollectTimeTaken;
 };
 
+//.............................................................................
+
+enum GcHeapFlag
+{
+	GcHeapFlag_SimpleSafePoint = 0x01,
+	GcHeapFlag_ShuttingDown    = 0x02,
+};
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class GcHeap
@@ -91,7 +99,7 @@ protected:
 
 	mt::Lock m_lock;
 	volatile State m_state;
-	bool m_isShuttingDown;
+	volatile uint_t m_flags;
 	GcStats m_stats;
 	mt::NotificationEvent m_idleEvent;
 	rtl::StdList <StaticDestructor> m_staticDestructorList;
@@ -101,10 +109,11 @@ protected:
 	volatile size_t m_noCollectMutatorThreadCount;
 	volatile size_t m_handshakeCount;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
 	mt::Event m_handshakeEvent;
-	mem::win::VirtualMemory m_guardPage;
 	mt::NotificationEvent m_resumeEvent;
+
+#if (_AXL_ENV == AXL_ENV_WIN)
+	mem::win::VirtualMemory m_guardPage;
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	io::psx::Mapping m_guardPage;
 	mt::psx::Sem m_handshakeSem; // only sems can be safely signalled from signal handlers
@@ -318,9 +327,10 @@ protected:
 	void
 	runMarkCycle ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-	// signal handlers
+	void
+	parkAtSafePoint ();
 
+#if (_AXL_ENV == AXL_ENV_POSIX) // signal handlers
 	static
 	void
 	installSignalHandlers (int);

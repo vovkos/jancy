@@ -25,9 +25,9 @@ class Module;
 
 enum ModuleCompileFlag
 {
-	ModuleCompileFlag_DebugInfo = 0x0001,
-	ModuleCompileFlag_McJit     = 0x0002,
-
+	ModuleCompileFlag_DebugInfo                            = 0x0001,
+	ModuleCompileFlag_McJit                                = 0x0002,
+	ModuleCompileFlag_SimpleGcSafePoint                    = 0x0004,
 	ModuleCompileFlag_GcSafePointInPrologue                = 0x0010,
 	ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x0020,
 	ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x0040,
@@ -37,7 +37,12 @@ enum ModuleCompileFlag
 		ModuleCompileFlag_GcSafePointInPrologue | 
 		ModuleCompileFlag_GcSafePointInInternalPrologue |
 		ModuleCompileFlag_CheckStackOverflowInPrologue 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU != AXL_CPU_X86)
+		// SEH on amd64/ia64 relies on being able to walk the stack which is not as 
+		// reliable as frame-based SEH on x86. therefore, use write barrier for 
+		// safe points on windows if and only if it's x86 
+		| ModuleCompileFlag_SimpleGcSafePoint
+#elif (_AXL_ENV == AXL_ENV_POSIX)
 		| ModuleCompileFlag_McJit
 #endif
 };

@@ -27,7 +27,8 @@ getStdFunctionName (StdFunc stdFunction)
 		NULL,                  // StdFunc_AllocateArray,
 		NULL,                  // StdFunc_CreateDataPtrValidator,
 		
-		"collectGarbage",      // StdFunc_RunGc,
+		"collectGarbage",      // StdFunc_CollectGarbage,
+		"gcSafePoint",         // StdFunc_GcSafePoint,
 		"getCurrentThreadId",  // StdFunc_GetCurrentThreadId,
 		"createThread",        // StdFunc_CreateThread,
 		"sleep",               // StdFunc_Sleep,
@@ -144,6 +145,7 @@ getStdFunctionSource (StdFunc stdFunction)
 			lengthof (collectGarbageSrc),
 			StdNamespace_Jnc,
 		},
+		{ NULL },                                // StdFunc_GcSafePoint,
 		{                                        // StdFunc_GetCurrentThreadId,
 			getCurrentThreadIdSrc,
 			lengthof (getCurrentThreadIdSrc),
