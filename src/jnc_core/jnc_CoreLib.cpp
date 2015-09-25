@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "jnc_StdLib.h"
+#include "jnc_CoreLib.h"
 #include "jnc_Module.h"
 #include "jnc_Runtime.h"
 
@@ -8,7 +8,7 @@ namespace jnc {
 //.............................................................................
 
 size_t
-StdLib::dynamicCountOf (
+CoreLib::dynamicCountOf (
 	DataPtr ptr,
 	Type* type
 	)
@@ -19,7 +19,7 @@ StdLib::dynamicCountOf (
 }
 
 DataPtr
-StdLib::dynamicCastDataPtr (
+CoreLib::dynamicCastDataPtr (
 	DataPtr ptr,
 	Type* type
 	)
@@ -67,7 +67,7 @@ StdLib::dynamicCastDataPtr (
 }
 
 IfaceHdr*
-StdLib::dynamicCastClassPtr (
+CoreLib::dynamicCastClassPtr (
 	IfaceHdr* iface,
 	ClassType* type
 	)
@@ -91,7 +91,7 @@ StdLib::dynamicCastClassPtr (
 }
 
 bool
-StdLib::dynamicCastVariant (
+CoreLib::dynamicCastVariant (
 	Variant variant,
 	Type* type,
 	void* buffer
@@ -107,7 +107,7 @@ StdLib::dynamicCastVariant (
 }
 
 IfaceHdr*
-StdLib::strengthenClassPtr (IfaceHdr* iface)
+CoreLib::strengthenClassPtr (IfaceHdr* iface)
 {
 	if (!iface)
 		return NULL;
@@ -122,7 +122,7 @@ StdLib::strengthenClassPtr (IfaceHdr* iface)
 }
 
 void
-StdLib::primeStaticClass (
+CoreLib::primeStaticClass (
 	Box* box,
 	ClassType* type
 	)
@@ -131,7 +131,7 @@ StdLib::primeStaticClass (
 }
 
 IfaceHdr*
-StdLib::tryAllocateClass (ClassType* type)
+CoreLib::tryAllocateClass (ClassType* type)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -140,7 +140,7 @@ StdLib::tryAllocateClass (ClassType* type)
 }
 
 IfaceHdr*
-StdLib::allocateClass (ClassType* type)
+CoreLib::allocateClass (ClassType* type)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -149,7 +149,7 @@ StdLib::allocateClass (ClassType* type)
 }
 
 DataPtr
-StdLib::tryAllocateData (Type* type)
+CoreLib::tryAllocateData (Type* type)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -158,7 +158,7 @@ StdLib::tryAllocateData (Type* type)
 }
 
 DataPtr
-StdLib::allocateData (Type* type)
+CoreLib::allocateData (Type* type)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -167,7 +167,7 @@ StdLib::allocateData (Type* type)
 }
 
 DataPtr
-StdLib::tryAllocateArray (
+CoreLib::tryAllocateArray (
 	Type* type,
 	size_t elementCount
 	)
@@ -179,7 +179,7 @@ StdLib::tryAllocateArray (
 }
 
 DataPtr
-StdLib::allocateArray (
+CoreLib::allocateArray (
 	Type* type,
 	size_t elementCount
 	)
@@ -191,7 +191,7 @@ StdLib::allocateArray (
 }
 
 DataPtrValidator* 
-StdLib::createDataPtrValidator (
+CoreLib::createDataPtrValidator (
 	Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -204,7 +204,7 @@ StdLib::createDataPtrValidator (
 }
 
 void
-StdLib::collectGarbage ()
+CoreLib::collectGarbage ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -213,7 +213,7 @@ StdLib::collectGarbage ()
 }
 
 void
-StdLib::gcSafePoint ()
+CoreLib::gcSafePoint ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -222,7 +222,7 @@ StdLib::gcSafePoint ()
 }
 
 size_t
-StdLib::strLen (DataPtr ptr)
+CoreLib::strLen (DataPtr ptr)
 {
 	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
 		return 0;
@@ -238,7 +238,7 @@ StdLib::strLen (DataPtr ptr)
 }
 
 int
-StdLib::strCmp (
+CoreLib::strCmp (
 	DataPtr ptr1,
 	DataPtr ptr2
 	)
@@ -253,7 +253,7 @@ StdLib::strCmp (
 }
 
 int
-StdLib::striCmp (
+CoreLib::striCmp (
 	DataPtr ptr1,
 	DataPtr ptr2
 	)
@@ -268,7 +268,7 @@ StdLib::striCmp (
 }
 
 DataPtr 
-StdLib::strChr (
+CoreLib::strChr (
 	DataPtr ptr,
 	int c
 	)
@@ -284,7 +284,7 @@ StdLib::strChr (
 }
 
 DataPtr
-StdLib::strCat (
+CoreLib::strCat (
 	DataPtr ptr1,
 	DataPtr ptr2
 	)
@@ -296,7 +296,7 @@ StdLib::strCat (
 }
 
 DataPtr
-StdLib::strDup (
+CoreLib::strDup (
 	DataPtr ptr,
 	size_t length
 	)
@@ -308,7 +308,7 @@ StdLib::strDup (
 }
 
 int
-StdLib::memCmp (
+CoreLib::memCmp (
 	DataPtr ptr1,
 	DataPtr ptr2,
 	size_t size
@@ -324,7 +324,7 @@ StdLib::memCmp (
 }
 
 DataPtr 
-StdLib::memChr (
+CoreLib::memChr (
 	DataPtr ptr,
 	int c,
 	size_t size
@@ -341,7 +341,7 @@ StdLib::memChr (
 }
 
 void
-StdLib::memCpy (
+CoreLib::memCpy (
 	DataPtr dstPtr,
 	DataPtr srcPtr,
 	size_t size
@@ -352,7 +352,7 @@ StdLib::memCpy (
 }
 
 void
-StdLib::memSet (
+CoreLib::memSet (
 	DataPtr ptr,
 	int c,
 	size_t size
@@ -363,7 +363,7 @@ StdLib::memSet (
 }
 
 DataPtr
-StdLib::memCat (
+CoreLib::memCat (
 	DataPtr ptr1,
 	size_t size1,
 	DataPtr ptr2,
@@ -394,7 +394,7 @@ StdLib::memCat (
 }
 
 DataPtr
-StdLib::memDup (
+CoreLib::memDup (
 	DataPtr ptr,
 	size_t size
 	)
@@ -415,7 +415,7 @@ StdLib::memDup (
 }
 
 void
-StdLib::sleep (uint32_t msCount)
+CoreLib::sleep (uint32_t msCount)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -443,7 +443,7 @@ struct ThreadContext
 
 DWORD
 WINAPI
-StdLib::threadFunc (PVOID context0)
+CoreLib::threadFunc (PVOID context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
@@ -460,7 +460,7 @@ StdLib::threadFunc (PVOID context0)
 }
 
 bool
-StdLib::createThread (FunctionPtr ptr)
+CoreLib::createThread (FunctionPtr ptr)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -470,7 +470,7 @@ StdLib::createThread (FunctionPtr ptr)
 	context.m_runtime = runtime;
 
 	DWORD threadId;
-	HANDLE h = ::CreateThread (NULL, 0, StdLib::threadFunc, &context, 0, &threadId);
+	HANDLE h = ::CreateThread (NULL, 0, CoreLib::threadFunc, &context, 0, &threadId);
 
 	runtime->m_gcHeap.enterWaitRegion ();
 	context.m_threadStartedEvent.wait ();
@@ -482,7 +482,7 @@ StdLib::createThread (FunctionPtr ptr)
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 
 void*
-StdLib::threadFunc (void* context0)
+CoreLib::threadFunc (void* context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
@@ -499,7 +499,7 @@ StdLib::threadFunc (void* context0)
 }
 
 bool
-StdLib::createThread (FunctionPtr ptr)
+CoreLib::createThread (FunctionPtr ptr)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -509,7 +509,7 @@ StdLib::createThread (FunctionPtr ptr)
 	context.m_runtime = runtime;
 
 	pthread_t thread;
-	int result = pthread_create (&thread, NULL, StdLib::threadFunc, &context);
+	int result = pthread_create (&thread, NULL, CoreLib::threadFunc, &context);
 
 	runtime->m_gcHeap.enterWaitRegion ();
 	context.m_threadStartedEvent.wait ();
@@ -521,7 +521,7 @@ StdLib::createThread (FunctionPtr ptr)
 #endif
 
 DataPtr
-StdLib::getErrorPtr (const err::ErrorData* errorData)
+CoreLib::getErrorPtr (const err::ErrorData* errorData)
 {
 	size_t size = errorData->m_size;
 
@@ -537,7 +537,7 @@ StdLib::getErrorPtr (const err::ErrorData* errorData)
 }
 
 void
-StdLib::assertionFailure (
+CoreLib::assertionFailure (
 	const char* fileName,
 	int line,
 	const char* condition,
@@ -553,7 +553,7 @@ StdLib::assertionFailure (
 }
 
 void
-StdLib::addStaticDestructor (StaticDestructFunc* destructFunc)
+CoreLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -562,7 +562,7 @@ StdLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 }
 
 void
-StdLib::addStaticClassDestructor (
+CoreLib::addStaticClassDestructor (
 	DestructFunc* destructFunc,
 	IfaceHdr* iface
 	)
@@ -574,7 +574,7 @@ StdLib::addStaticClassDestructor (
 }
 
 DataPtr
-StdLib::format (
+CoreLib::format (
 	DataPtr formatStringPtr,
 	...
 	)
@@ -598,7 +598,7 @@ StdLib::format (
 }
 
 void*
-StdLib::getTls ()
+CoreLib::getTls ()
 {
 	Tls* tls = getCurrentThreadTls ();
 	ASSERT (tls);
@@ -607,7 +607,7 @@ StdLib::getTls ()
 }
 
 size_t
-StdLib::appendFmtLiteral_a (
+CoreLib::appendFmtLiteral_a (
 	FmtLiteral* fmtLiteral,
 	const char* p,
 	size_t length
@@ -645,7 +645,7 @@ StdLib::appendFmtLiteral_a (
 }
 
 void
-StdLib::prepareFormatString (
+CoreLib::prepareFormatString (
 	rtl::String* formatString,
 	const char* fmtSpecifier,
 	const char* defaultType
@@ -671,7 +671,7 @@ StdLib::prepareFormatString (
 }
 
 size_t
-StdLib::appendFmtLiteral_v (
+CoreLib::appendFmtLiteral_v (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	Variant variant
@@ -769,7 +769,7 @@ StdLib::appendFmtLiteral_v (
 }
 
 size_t
-StdLib::appendFmtLiteralImpl (
+CoreLib::appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	const char* defaultType,
@@ -790,7 +790,7 @@ StdLib::appendFmtLiteralImpl (
 }
 
 size_t
-StdLib::appendFmtLiteralStringImpl (
+CoreLib::appendFmtLiteralStringImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	const char* p,
@@ -813,7 +813,7 @@ StdLib::appendFmtLiteralStringImpl (
 }
 
 bool 
-StdLib::tryCheckDataPtrRangeDirect (
+CoreLib::tryCheckDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
 	size_t rangeLength
@@ -836,7 +836,7 @@ StdLib::tryCheckDataPtrRangeDirect (
 }
 
 void 
-StdLib::checkDataPtrRangeDirect (
+CoreLib::checkDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
 	size_t rangeLength
@@ -848,7 +848,7 @@ StdLib::checkDataPtrRangeDirect (
 }
 
 bool 
-StdLib::tryCheckDataPtrRangeIndirect (
+CoreLib::tryCheckDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
@@ -882,7 +882,7 @@ StdLib::tryCheckDataPtrRangeIndirect (
 
 
 void 
-StdLib::checkDataPtrRangeIndirect (
+CoreLib::checkDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
@@ -894,7 +894,7 @@ StdLib::checkDataPtrRangeIndirect (
 }
 
 bool 
-StdLib::tryCheckNullPtr (
+CoreLib::tryCheckNullPtr (
 	const void* p,
 	TypeKind typeKind
 	)
@@ -927,7 +927,7 @@ StdLib::tryCheckNullPtr (
 }
 
 void
-StdLib::checkNullPtr (
+CoreLib::checkNullPtr (
 	const void* p,
 	TypeKind typeKind
 	)
@@ -938,7 +938,7 @@ StdLib::checkNullPtr (
 }
 
 void
-StdLib::checkStackOverflow ()
+CoreLib::checkStackOverflow ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -947,7 +947,7 @@ StdLib::checkStackOverflow ()
 }
 
 void* 
-StdLib::tryLazyGetLibraryFunction (
+CoreLib::tryLazyGetLibraryFunction (
 	Library* library,
 	size_t index,
 	const char* name
@@ -984,7 +984,7 @@ StdLib::tryLazyGetLibraryFunction (
 }
 
 void* 
-StdLib::lazyGetLibraryFunction (
+CoreLib::lazyGetLibraryFunction (
 	Library* library,
 	size_t index,
 	const char* name

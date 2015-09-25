@@ -5,7 +5,7 @@
 #..............................................................................
 
 add_subdirectory (jnc_core)
-
+add_subdirectory (jnc_std)
 
 option (
 	BUILD_JNC_APP

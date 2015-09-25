@@ -19,7 +19,7 @@ namespace jnc {
 
 //.............................................................................
 
-class StdLib
+class CoreLib
 {
 public:
 	JNC_BEGIN_LIB ()

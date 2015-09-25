@@ -2,6 +2,9 @@
 
 //.............................................................................
 
+import "jnc_std.jncx"
+import "jnc_std_String.jnc"
+
 // entry point
 
 int main ()

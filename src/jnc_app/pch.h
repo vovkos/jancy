@@ -30,7 +30,6 @@ getsockerror ()
 
 // Jancy
 
-#include "jnc_StdLib.h"
 #include "jnc_Disassembler.h"
 #include "jnc_Module.h"
 #include "jnc_Runtime.h"

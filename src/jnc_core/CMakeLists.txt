@@ -443,68 +443,56 @@ source_group (
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# stdlib folder
+# corelib folder
 #
 
 set (
-	STDLIB_H_LIST
+	CORELIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Api.h
-	${JANCY_INC_DIR}/jnc_MulticastLib.h
-	${JANCY_INC_DIR}/jnc_Error.h
-	${JANCY_INC_DIR}/jnc_Buffer.h
-	${JANCY_INC_DIR}/jnc_String.h
-	${JANCY_INC_DIR}/jnc_HashTable.h
-	${JANCY_INC_DIR}/jnc_List.h
-	${JANCY_INC_DIR}/jnc_Library.h
-	${JANCY_INC_DIR}/jnc_Recognizer.h
 	${JANCY_INC_DIR}/jnc_Variant.h
 	${JANCY_INC_DIR}/jnc_OpaqueClassTypeDb.h
 	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
-	${JANCY_INC_DIR}/jnc_StdLib.h
+	jnc_CoreLib.h
+	jnc_FmtLiteralLib.h
+	jnc_MulticastLib.h
 	jnc_Multicast.h
+	jnc_Library.h
+	jnc_Recognizer.h
 	)
 
 set (
-	STDLIB_CPP_LIST
+	CORELIB_CPP_LIST
 	jnc_Api.cpp
-	jnc_Multicast.cpp
-	jnc_MulticastLib.cpp
-	jnc_Error.cpp
-	jnc_Buffer.cpp
-	jnc_String.cpp
-	jnc_HashTable.cpp
-	jnc_List.cpp
-	jnc_Library.cpp
-	jnc_Recognizer.cpp
 	jnc_Variant.cpp
 	jnc_OpaqueClassTypeDb.cpp
-	jnc_StdLib.cpp
+	jnc_FmtLiteralLib.cpp
+	jnc_CoreLib.cpp
+	jnc_MulticastLib.cpp
+	jnc_Multicast.cpp
+	jnc_Library.cpp
+	jnc_Recognizer.cpp
 	)
 
 set (
-	STDLIB_JNC_LIST
+	CORELIB_JNC_LIST
 	jnc_StdTypes.jnc
 	jnc_StdFunctions.jnc
-	jnc_Buffer.jnc
-	jnc_String.jnc
-	jnc_HashTable.jnc
-	jnc_List.jnc
 	jnc_Library.jnc
 	jnc_Recognizer.jnc
 	)
 
 set (
-	STDLIB_PL_LIST
+	CORELIB_PL_LIST
 	jnc2cpp.pl
 	)
 	
 source_group (
-	stdlib
+	corelib
 	FILES
-	${STDLIB_H_LIST}
-	${STDLIB_CPP_LIST}
-	${STDLIB_JNC_LIST}
-	${STDLIB_PL_LIST}
+	${CORELIB_H_LIST}
+	${CORELIB_CPP_LIST}
+	${CORELIB_JNC_LIST}
+	${CORELIB_PL_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -515,56 +503,34 @@ source_group (
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
 
+set (JNC2CPP_PL ${CMAKE_CURRENT_SOURCE_DIR}/jnc2cpp.pl)
+
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_StdTypes.jnc.cpp
 	jnc_StdTypes.jnc
-	jnc2cpp.pl
+	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_StdFunctions.jnc.cpp
 	jnc_StdFunctions.jnc
-	jnc2cpp.pl
-	)
-
-add_perl_step (
-	jnc_Buffer.jnc.cpp
-	jnc_Buffer.jnc
-	jnc2cpp.pl
-	)
-
-add_perl_step (
-	jnc_String.jnc.cpp
-	jnc_String.jnc
-	jnc2cpp.pl
-	)
-
-add_perl_step (
-	jnc_HashTable.jnc.cpp
-	jnc_HashTable.jnc
-	jnc2cpp.pl
-	)
-
-add_perl_step (
-	jnc_List.jnc.cpp
-	jnc_List.jnc
-	jnc2cpp.pl
+	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_Library.jnc.cpp
 	jnc_Library.jnc
-	jnc2cpp.pl
+	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_Recognizer.jnc.cpp
 	jnc_Recognizer.jnc
-	jnc2cpp.pl
+	${JNC2CPP_PL}
 	)
-	
+
 add_ragel_step (
 	jnc_Lexer.rl.cpp
 	jnc_Lexer.rl
@@ -593,8 +559,6 @@ set (
 	GEN_PL_CPP_LIST
 	${GEN_DIR}/jnc_StdTypes.jnc.cpp
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
-	${GEN_DIR}/jnc_Buffer.jnc.cpp
-	${GEN_DIR}/jnc_String.jnc.cpp
 	${GEN_DIR}/jnc_Library.jnc.cpp
 	${GEN_DIR}/jnc_Recognizer.jnc.cpp
 	)
@@ -688,10 +652,10 @@ add_library (
 	${VARIABLE_CPP_LIST}
 	${RUNTIME_H_LIST}
 	${RUNTIME_CPP_LIST}
-	${STDLIB_H_LIST}
-	${STDLIB_CPP_LIST}
-	${STDLIB_JNC_LIST}
-	${STDLIB_PL_LIST}
+	${CORELIB_H_LIST}
+	${CORELIB_CPP_LIST}
+	${CORELIB_JNC_LIST}
+	${CORELIB_PL_LIST}
 	${GEN_PL_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
