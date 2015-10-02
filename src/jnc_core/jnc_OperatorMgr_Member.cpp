@@ -593,7 +593,7 @@ OperatorMgr::memberOperator (
 
 bool
 OperatorMgr::getLibraryMember (
-	LibraryNamespace* library,
+	DynamicLibNamespace* library,
 	Closure* closure,
 	const char* name,
 	Value* resultValue
@@ -619,7 +619,7 @@ OperatorMgr::getLibraryMember (
 
 	m_module->m_llvmIrBuilder.createBitCast (
 		argValueArray [0],
-		((ClassType*) m_module->m_typeMgr.getStdType (StdType_Library))->getClassPtrType (),
+		((ClassType*) m_module->m_typeMgr.getStdType (StdType_DynamicLib))->getClassPtrType (),
 		&argValueArray [0]
 		);
 
@@ -630,7 +630,7 @@ OperatorMgr::getLibraryMember (
 
 	if (!(scope->getFlags () & ScopeFlag_CanThrow))
 	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_LazyGetLibraryFunction);
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_LazyGetDynamicLibFunction);
 
 		m_module->m_llvmIrBuilder.createCall (
 			getterFunction,
@@ -642,7 +642,7 @@ OperatorMgr::getLibraryMember (
 	}
 	else
 	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_TryLazyGetLibraryFunction);
+		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_TryLazyGetDynamicLibFunction);
 		FunctionType* getterFunctionType = getterFunction->getType ();
 
 		m_module->m_llvmIrBuilder.createCall (
@@ -672,8 +672,8 @@ OperatorMgr::memberOperator (
 	if (rawOpValue.getValueKind () == ValueKind_Namespace)
 	{
 		Namespace* nspace = rawOpValue.getNamespace ();
-		return nspace->getNamespaceKind () == NamespaceKind_Library ?
-			getLibraryMember ((LibraryNamespace*) nspace, rawOpValue.getClosure (), name, resultValue) :
+		return nspace->getNamespaceKind () == NamespaceKind_DynamicLib ?
+			getLibraryMember ((DynamicLibNamespace*) nspace, rawOpValue.getClosure (), name, resultValue) :
 			getNamespaceMember (nspace, name, resultValue);
 	}
 

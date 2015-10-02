@@ -18,21 +18,12 @@ struct Point
 
 //.............................................................................
 
-enum ApiSlot
-{
-	ApiSlot_TestClassA,
-	ApiSlot_TestClassB,
-	ApiSlot_TestStruct,
-};
-
-//.............................................................................
-
 class TestClassA: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE ("TestClassA", ApiSlot_TestClassA)
-		JNC_FUNCTION ("foo", &TestClassA::foo)
-	JNC_END_CLASS_TYPE ()
+	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassA", -1, -1)
+		JNC_MAP_FUNCTION ("foo", &TestClassA::foo)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public:
 	int m_x;
@@ -52,10 +43,11 @@ public:
 class TestClassB: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClassB, "TestClassB", ApiSlot_TestClassB)
-		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClassB::markOpaqueGcRoots)
-		JNC_FUNCTION ("bar", &TestClassB::bar)
-	JNC_END_CLASS_TYPE ()
+	JNC_OPAQUE_CLASS_TYPE_INFO (TestClassB, &TestClassB::markOpaqueGcRoots)
+
+	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassB", -1, -1)
+		JNC_MAP_FUNCTION ("bar", &TestClassB::bar)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public:
 	char m_data [256];
@@ -82,15 +74,15 @@ public:
 class TestStruct
 {
 public:
-	JNC_BEGIN_TYPE ("TestStruct", ApiSlot_TestStruct)
-		JNC_CONSTRUCTOR (&TestStruct::construct_0)
-		JNC_OVERLOAD (&TestStruct::construct_1)
-		JNC_OVERLOAD (&TestStruct::construct_2)
+	JNC_BEGIN_TYPE_MAP ("TestStruct", -1, -1)
+		JNC_MAP_CONSTRUCTOR (&TestStruct::construct_0)
+		JNC_MAP_OVERLOAD (&TestStruct::construct_1)
+		JNC_MAP_OVERLOAD (&TestStruct::construct_2)
 
-		JNC_FUNCTION ("foo", &TestStruct::foo_0)
-		JNC_OVERLOAD (&TestStruct::foo_1)
-		JNC_OVERLOAD (&TestStruct::foo_2)
-	JNC_END_TYPE ()
+		JNC_MAP_FUNCTION ("foo", &TestStruct::foo_0)
+		JNC_MAP_OVERLOAD (&TestStruct::foo_1)
+		JNC_MAP_OVERLOAD (&TestStruct::foo_2)
+	JNC_END_TYPE_MAP ()
 
 public:
 	int m_x;
@@ -142,23 +134,22 @@ public:
 
 //.............................................................................
 
-class StdLib: public jnc::StdLib
+class TestLib: public jnc::ExtensionLib
 {
 public:
-	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunc_Printf, &printf)
-//		JNC_TYPE (TestClassA)
-//		JNC_TYPE (TestClassB)
-//		JNC_TYPE (TestStruct)
-		JNC_LIB (jnc::StdLib)
-//		JNC_FUNCTION ("testPtr",     &testPtr)
-//		JNC_FUNCTION ("testVariant", &testVariant)
-//		JNC_FUNCTION ("qtWait", &qtWait)
-	JNC_END_LIB ()
-
-	JNC_BEGIN_OPAQUE_CLASS_TYPE_DB ()
-		JNC_OPAQUE_CLASS_TYPE (TestClassB)
-	JNC_END_OPAQUE_CLASS_TYPE_DB ()
+	JNC_BEGIN_LIB_MAP ()
+		JNC_MAP_FUNCTION ("printf", &TestLib::printf)
+//		JNC_MAP_TYPE (TestClassA)
+//		JNC_MAP_TYPE (TestClassB)
+//		JNC_MAP_TYPE (TestStruct)
+//		JNC_MAP_FUNCTION ("testPtr",     &testPtr)
+//		JNC_MAP_FUNCTION ("testVariant", &testVariant)
+//		JNC_MAP_FUNCTION ("qtWait", &qtWait)
+	JNC_END_LIB_MAP ()
+	
+	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY ("TestClassB", TestClassB)
+	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 	
 	static
 	int

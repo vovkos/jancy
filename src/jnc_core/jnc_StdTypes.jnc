@@ -13,31 +13,6 @@ class Scheduler
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char guidTypeSrc [] = 
-
-struct Guid
-{
-	uint32_t m_data1;
-	uint16_t m_data2;
-	uint16_t m_data3;
-	uint8_t m_data4 [8];
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-///; static char errorTypeSrc [] = 
-
-struct Error
-{
-	uint32_t readonly m_size;
-	Guid readonly m_guid;
-	uint32_t readonly m_code;
-
-	char const* const property m_description;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 ///; static char automatonResultTypeSrc [] = 
 
 enum AutomatonResult

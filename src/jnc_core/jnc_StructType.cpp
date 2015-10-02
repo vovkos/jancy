@@ -265,8 +265,7 @@ StructType::calcLayout ()
 	{
 		ClassType* classType = (ClassType*) m_parentNamespace;
 
-		OpaqueClassTypeDb* opaqueClassTypeDb = m_module->getOpaqueClassTypeDb ();
-		const OpaqueClassTypeInfo* typeInfo = opaqueClassTypeDb ? opaqueClassTypeDb->getClassTypeInfo (classType) : NULL;
+		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo (classType->getQualifiedName ());
 		if (!typeInfo)
 		{
 			err::setFormatStringError ("opaque class type info is missing for '%s'", classType->getTypeString ().cc ());
@@ -300,6 +299,12 @@ StructType::calcLayout ()
 				);
 
 			ASSERT (result);
+		}
+
+		if (typeInfo->m_markOpaqueGcRootsFunc)
+		{
+			classType->m_markOpaqueGcRootsFunc = typeInfo->m_markOpaqueGcRootsFunc;
+			classType->m_flags |= TypeFlag_GcRoot;
 		}
 
 		if (typeInfo->m_isNonCreatable)

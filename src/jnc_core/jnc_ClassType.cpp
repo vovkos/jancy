@@ -77,26 +77,6 @@ ClassType::createFieldImpl (
 }
 
 bool
-ClassType::setMarkOpaqueGcRootsFunc (Class_MarkOpaqueGcRootsFunc* func)
-{
-	if (!(m_flags & ClassTypeFlag_Opaque))
-	{
-		err::setFormatStringError ("'%s' is not opaque and has no opaque gc roots", getTypeString ().cc ());
-		return false;
-	}
-
-	if (m_markOpaqueGcRootsFunc)
-	{
-		err::setFormatStringError ("mark opaque gc roots function is already set for '%s'", getTypeString ().cc ());
-		return false;
-	}
-
-	m_markOpaqueGcRootsFunc = func;
-	m_flags |= TypeFlag_GcRoot;
-	return true;
-}
-
-bool
 ClassType::addMethod (Function* function)
 {
 	StorageKind storageKind = function->getStorageKind ();

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_Api.h"
-#include "jnc_StdLibApiSlots.h"
+#include "jnc_StdLibSlots.h"
 
 namespace jnc {
 
@@ -10,8 +8,8 @@ namespace jnc {
 
 struct StringRef
 {
-	JNC_BEGIN_TYPE ("jnc.StringRef", StdApiSlot_StringRef)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.StringRef", g_stdLibSlot, StdLibTypeSlot_StringRef)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;
@@ -23,12 +21,12 @@ public:
 
 struct String
 {
-	JNC_BEGIN_TYPE ("jnc.String", StdApiSlot_String)
-		JNC_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
-		JNC_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-		JNC_FUNCTION ("copy", &String::copy_s1)
-		JNC_OVERLOAD (&String::copy_s2)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.String", g_stdLibSlot, StdLibTypeSlot_String)
+		JNC_MAP_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
+		JNC_MAP_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
+		JNC_MAP_FUNCTION ("copy", &String::copy_s1)
+		JNC_MAP_OVERLOAD (&String::copy_s2)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;
@@ -97,10 +95,10 @@ protected:
 class StringBuilder: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE ("jnc.StringBuilder", StdApiSlot_StringBuilder)
-		JNC_FUNCTION ("copy", &StringBuilder::copy)
-		JNC_FUNCTION ("append", &StringBuilder::append)
-	JNC_END_CLASS_TYPE ()
+	JNC_BEGIN_CLASS_TYPE_MAP ("jnc.StringBuilder", g_stdLibSlot, StdLibTypeSlot_StringBuilder)
+		JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
+		JNC_MAP_FUNCTION ("append", &StringBuilder::append)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;

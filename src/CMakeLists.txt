@@ -8,6 +8,16 @@ add_subdirectory (jnc_core)
 add_subdirectory (jnc_std)
 
 option (
+	BUILD_JNC_IO
+	"Build jancy IO extension library"
+	ON
+	)
+
+if (BUILD_JNC_IO)
+	add_subdirectory (jnc_io)
+endif ()
+
+option (
 	BUILD_JNC_APP
 	"Build jancy command line application"
 	ON

@@ -142,22 +142,20 @@ ModuleItem::ensureLayout ()
 
 //.............................................................................
 
-Type*
-verifyModuleItemIsType (
-	ModuleItem* item,
+ModuleItem*
+verifyModuleItemKind (
+	ModuleItem* item, 
+	ModuleItemKind itemKind,
 	const char* name
 	)
 {
-	if (!item)
-		return NULL;
-
-	if (item->getItemKind () != ModuleItemKind_Type)
+	if (item->getItemKind () != itemKind)
 	{
-		err::setFormatStringError ("'%s' is not a type", name);
+		err::setFormatStringError ("'%s' is not a %s", name, getModuleItemKindString (itemKind));
 		return NULL;
 	}
 
-	return (Type*) item;
+	return item;
 }
 
 DerivableType*
@@ -166,13 +164,13 @@ verifyModuleItemIsDerivableType (
 	const char* name
 	)
 {
-	if (!item)
+	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+	if (!type)
 		return NULL;
 
-	if (item->getItemKind () != ModuleItemKind_Type || 
-		!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Derivable))
+	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' is not a derivable type", name);
+		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ());
 		return NULL;
 	}
 
@@ -185,53 +183,17 @@ verifyModuleItemIsClassType (
 	const char* name
 	)
 {
-	if (!item)
+	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+	if (!type)
 		return NULL;
 
-	if (item->getItemKind () != ModuleItemKind_Type || 
-		((Type*) item)->getTypeKind () != TypeKind_Class)
+	if (type->getTypeKind () != TypeKind_Class)
 	{
-		err::setFormatStringError ("'%s' is not a class", name);
+		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ());
 		return NULL;
 	}
 
 	return (ClassType*) item;
-}
-
-Function*
-verifyModuleItemIsFunction (
-	ModuleItem* item,
-	const char* name
-	)
-{
-	if (!item)
-		return NULL;
-
-	if (item->getItemKind () != ModuleItemKind_Function)
-	{
-		err::setFormatStringError ("'%s' is not a function", name);
-		return NULL;
-	}
-
-	return (Function*) item;
-}
-
-Property*
-verifyModuleItemIsProperty (
-	ModuleItem* item,
-	const char* name
-	)
-{
-	if (!item)
-		return NULL;
-
-	if (item->getItemKind () != ModuleItemKind_Property)
-	{
-		err::setFormatStringError ("'%s' is not a property", name);
-		return NULL;
-	}
-
-	return (Property*) item;
 }
 
 //.............................................................................

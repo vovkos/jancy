@@ -125,6 +125,12 @@ add_executable (
 	${GEN_H_LIST}
 	)
 
+set_pch (
+	jnc_app	
+	${PCH_H}
+	${PCH_CPP}
+	)
+
 set_target_properties (
 	jnc_app
 	PROPERTIES
@@ -134,6 +140,7 @@ set_target_properties (
 target_link_libraries (
 	jnc_app
 	jnc_core
+	jnc_std
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}
@@ -151,12 +158,6 @@ elseif (UNIX)
 		pthread
 		)
 endif ()
-
-set_pch (
-	jnc_app	
-	${PCH_H}
-	${PCH_CPP}
-	)
 
 #..............................................................................
 

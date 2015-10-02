@@ -44,7 +44,7 @@ enum NamespaceKind
 	NamespaceKind_Extension,
 	NamespaceKind_Property,
 	NamespaceKind_PropertyTemplate,
-	NamespaceKind_Library,
+	NamespaceKind_DynamicLib,
 	NamespaceKind__Count,
 };
 
@@ -116,39 +116,73 @@ public:
 	getItemByName (const char* name);
 
 	Type*
+	findTypeByName (const char* name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsType (item, name) : NULL;
+	}
+
+	Type*
 	getTypeByName (const char* name)
 	{
-		return verifyModuleItemIsType (getItemByName (name), name);
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsType (item, name) : NULL;
+	}
+
+	DerivableType*
+	findDerivableTypeByName (const char* name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
 	}
 
 	DerivableType*
 	getDerivableTypeByName (const char* name)
 	{
-		return verifyModuleItemIsDerivableType (getItemByName (name), name);
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
+	}
+
+	ClassType*
+	findClassTypeByName (const char* name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsClassType (item, name) : NULL;
 	}
 
 	ClassType*
 	getClassTypeByName (const char* name)
 	{
-		return verifyModuleItemIsClassType (getItemByName (name), name);
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsClassType (item, name) : NULL;
+	}
+
+	Function*
+	findFunctionByName (const char* name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsFunction (item, name) : NULL;
 	}
 
 	Function*
 	getFunctionByName (const char* name)
 	{
-		return verifyModuleItemIsFunction (getItemByName (name), name);
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsFunction (item, name) : NULL;
 	}
 
-	Function*
-	getFunctionByName (
-		const char* name,
-		size_t overloadIdx
-		);
+	Property*
+	findPropertyByName (const char* name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsProperty (item, name) : NULL;
+	}
 
 	Property*
 	getPropertyByName (const char* name)
 	{
-		return verifyModuleItemIsProperty (getItemByName (name), name);
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsProperty (item, name) : NULL;
 	}
 
 	ModuleItem*
@@ -282,23 +316,23 @@ public:
 
 //.............................................................................
 
-class LibraryNamespace: public GlobalNamespace
+class DynamicLibNamespace: public GlobalNamespace
 {
 	friend class NamespaceMgr;
 
 protected:
-	ClassType* m_libraryType;
+	ClassType* m_dynamicLibType;
 
 public:
-	LibraryNamespace ()
+	DynamicLibNamespace ()
 	{
-		m_namespaceKind = NamespaceKind_Library;
-		m_libraryType = NULL;
+		m_namespaceKind = NamespaceKind_DynamicLib;
+		m_dynamicLibType = NULL;
 	}
 
 	ClassType* getLibraryType ()
 	{
-		return m_libraryType;
+		return m_dynamicLibType;
 	}
 };
 

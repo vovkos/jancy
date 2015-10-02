@@ -1,20 +1,14 @@
-foo ()
-{
-	for (int i = 0; i < 10; i++)
-	{
-		new int;
-	}
-}
-
 //.............................................................................
+
+import "io.jncx"
+
+import "jnc_Socket.jnc"
 
 int main ()
 {
-	jnc.createThread (foo);
-	jnc.createThread (foo);
-	jnc.createThread (foo);
-	jnc.createThread (foo);
-	jnc.createThread (foo);
+	printf ("main ()\n");
+
+	jnc.Socket* socket = new jnc.Socket;	
 
 	return 0;
 }

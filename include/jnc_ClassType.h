@@ -74,6 +74,15 @@ Class_MarkOpaqueGcRootsFunc (
 	GcHeap* gcHeap
 	);
 
+//.............................................................................
+
+struct OpaqueClassTypeInfo
+{
+	size_t m_size;
+	Class_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
+	bool m_isNonCreatable;
+};
+
 //............................................................................
 
 class ClassType: public DerivableType
@@ -181,9 +190,6 @@ public:
 	{
 		return m_markOpaqueGcRootsFunc;
 	}
-
-	bool
-	setMarkOpaqueGcRootsFunc (Class_MarkOpaqueGcRootsFunc* func);
 
 	virtual
 	bool

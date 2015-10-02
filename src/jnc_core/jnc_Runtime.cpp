@@ -205,4 +205,143 @@ Runtime::checkStackOverflow ()
 
 //.............................................................................
 
+void
+primeIface (
+	Box* box,
+	Box* root,
+	IfaceHdr* iface,
+	ClassType* type,
+	void* vtable
+	)
+{
+	iface->m_vtable = vtable;
+	iface->m_box = box;
+
+	// prime all the base types
+
+	rtl::Array <BaseTypeSlot*> baseTypePrimeArray = type->getBaseTypePrimeArray ();
+	size_t count = baseTypePrimeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		BaseTypeSlot* slot = baseTypePrimeArray [i];
+		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
+		
+		primeIface (
+			box,
+			root,
+			(IfaceHdr*) ((char*) iface + slot->getOffset ()),
+			(ClassType*) slot->getType (),
+			(void**) vtable + slot->getVTableIndex ()
+			);
+	}
+
+	// prime all the class fields
+
+	rtl::Array <StructField*> fieldPrimeArray = type->getClassMemberFieldArray ();
+	count = fieldPrimeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		StructField* field = fieldPrimeArray [i];
+		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
+
+		ClassType* fieldType = (ClassType*) field->getType ();
+		Box* fieldBox = (Box*) ((char*) iface + field->getOffset ());
+
+		prime (
+			fieldBox,
+			root,
+			fieldType
+			);
+	}
+}
+
+void
+prime (
+	Box* box,
+	Box* root,
+	ClassType* type,
+	void* vtable
+	)
+{
+	ASSERT (root <= box);
+
+	if (!vtable)
+		vtable = type->getVTableVariable ()->getStaticData ();
+
+	memset (box, 0, type->getSize ());
+
+	box->m_type = type;
+	box->m_flags = BoxFlag_ClassMark | BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_rootOffset = (char*) box - (char*) root;
+
+	primeIface (box, root, (IfaceHdr*) (box + 1), type, vtable);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t
+strLen (DataPtr ptr)
+{
+	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
+		return 0;
+
+	char* p0 = (char*) ptr.m_p;
+	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
+
+	char* p = p0;
+	while (*p && p < end)
+		p++;
+
+	return p - p0;
+}
+
+DataPtr
+strDup (
+	const char* p,
+	size_t length
+	)
+{
+	if (length == -1)
+		length = p ? strlen (p) : 0;
+
+	if (!length)
+		return g_nullPtr;
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	if (!resultPtr.m_p)
+		return g_nullPtr;
+
+	if (p)
+		memcpy (resultPtr.m_p, p, length);
+
+	return resultPtr;
+}
+
+DataPtr
+memDup (
+	const void* p,
+	size_t size
+	)
+{
+	if (!size)
+		return g_nullPtr;
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
+	if (!resultPtr.m_p)
+		return g_nullPtr;
+
+	if (p)
+		memcpy (resultPtr.m_p, p, size);
+
+	return resultPtr;
+}
+
+//.............................................................................
+
 } // namespace jnc

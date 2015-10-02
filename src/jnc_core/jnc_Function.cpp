@@ -143,7 +143,13 @@ Function::getLlvmFunction ()
 	if (m_llvmFunction)
 		return m_llvmFunction;
 
-	m_llvmFunction = m_type->getCallConv ()->createLlvmFunction (m_type, m_tag);
+#if (_AXL_ENV == AXL_ENV_POSIX)
+	rtl::String llvmName = '!' + m_tag; // as to avoid linking conflicts
+#else
+	rtl::String llvmName = m_tag;
+#endif
+
+	m_llvmFunction = m_type->getCallConv ()->createLlvmFunction (m_type, llvmName);
 	return m_llvmFunction;
 }
 

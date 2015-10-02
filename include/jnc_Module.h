@@ -13,9 +13,10 @@
 #include "jnc_ControlFlowMgr.h"
 #include "jnc_OperatorMgr.h"
 #include "jnc_UnitMgr.h"
-#include "jnc_OpaqueClassTypeDb.h"
 #include "jnc_LlvmIrBuilder.h"
 #include "jnc_LlvmDiBuilder.h"
+#include "jnc_ExtensionLibMgr.h"
+#include "jnc_ImportMgr.h"
 
 namespace jnc {
 
@@ -32,11 +33,13 @@ enum ModuleCompileFlag
 	ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x0020,
 	ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x0040,
 	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x0080,
+	ModuleCompileFlag_StdLib                               = 0x0100,
 
 	ModuleCompileFlag_StdFlags = 
 		ModuleCompileFlag_GcSafePointInPrologue | 
 		ModuleCompileFlag_GcSafePointInInternalPrologue |
-		ModuleCompileFlag_CheckStackOverflowInPrologue 
+		ModuleCompileFlag_CheckStackOverflowInPrologue |
+		ModuleCompileFlag_StdLib 
 #if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU != AXL_CPU_X86)
 		// SEH on amd64/ia64 relies on being able to walk the stack which is not as 
 		// reliable as frame-based SEH on x86. therefore, use write barrier for 
@@ -98,27 +101,19 @@ protected:
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
-	OpaqueClassTypeDb* m_opaqueClassTypeDb;
-
-	rtl::BoxList <rtl::String> m_importList;
-	rtl::BoxList <rtl::String> m_shadowImportList;
-	rtl::StringHashTable m_importSet;
 
 	Function* m_constructor;
 	Function* m_destructor;
 
 	rtl::Array <ModuleItem*> m_calcLayoutArray;
 	rtl::Array <ModuleItem*> m_compileArray;
-	rtl::Array <ModuleItem*> m_apiItemArray;
-	rtl::BoxList <rtl::String> m_sourceList;
+	rtl::BoxList <rtl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	rtl::StringHashTableMap <void*> m_functionMap;
 
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
 public:
-	rtl::BoxList <rtl::String> m_importDirList;
-
 	TypeMgr m_typeMgr;
 	AttributeMgr m_attributeMgr;
 	NamespaceMgr m_namespaceMgr;
@@ -128,6 +123,8 @@ public:
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
 	UnitMgr m_unitMgr;
+	ExtensionLibMgr m_extensionLibMgr;
+	ImportMgr m_importMgr;
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
 
@@ -155,12 +152,6 @@ public:
 	getCompileState ()
 	{
 		return m_compileState;
-	}
-
-	OpaqueClassTypeDb* 
-	getOpaqueClassTypeDb ()
-	{
-		return m_opaqueClassTypeDb;
 	}
 
 	llvm::LLVMContext*
@@ -245,117 +236,9 @@ public:
 	void
 	markForCompile (ModuleItem* item);
 
-	ModuleItem*
-	getItemByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
-	}
-
-	Type*
-	getTypeByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getTypeByName (name);
-	}
-
-	DerivableType*
-	getDerivableTypeByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getDerivableTypeByName (name);
-	}
-
-	ClassType*
-	getClassTypeByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getClassTypeByName (name);
-	}
-
-	Function*
-	getFunctionByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name);
-	}
-
-	Function*
-	getFunctionByName (
-		const char* name,
-		size_t overloadIdx
-		)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name, overloadIdx);
-	}
-
-	Property*
-	getPropertyByName (const char* name)
-	{
-		return m_namespaceMgr.getGlobalNamespace ()->getPropertyByName (name);
-	}
-
-	ModuleItem*
-	getApiItem (
-		size_t slot,
-		const char* name
-		);
-
-	Type*
-	getApiType (
-		size_t slot,
-		const char* name
-		)
-	{
-		return verifyModuleItemIsType (getApiItem (slot, name), name);
-	}
-
-	DerivableType*
-	getApiDerivableType (
-		size_t slot,
-		const char* name
-		)
-	{
-		return verifyModuleItemIsDerivableType (getApiItem (slot, name), name);
-	}
-
-	ClassType*
-	getApiClassType (
-		size_t slot,
-		const char* name
-		)
-	{
-		return verifyModuleItemIsClassType (getApiItem (slot, name), name);
-	}
-
-	Function*
-	getApiFunction (
-		size_t slot,
-		const char* name
-		)
-	{
-		return verifyModuleItemIsFunction (getApiItem (slot, name), name);
-	}
-
-	Function*
-	getApiFunction (
-		size_t slot,
-		const char* name,
-		size_t overloadIdx
-		)
-	{
-		Function* function = getApiFunction (slot, name);
-		return function ? function->getOverload (overloadIdx) : NULL;
-	}
-
-	Property*
-	getApiProperty (
-		size_t slot,
-		const char* name
-		)
-	{
-		return verifyModuleItemIsProperty (getApiItem (slot, name), name);
-	}
-
 	bool
 	create (
 		const rtl::String& name,
-		OpaqueClassTypeDb* opaqueClassTypeDb = NULL,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
@@ -377,12 +260,6 @@ public:
 
 	bool
 	parseImports ();
-
-	bool
-	import (const char* fileName);
-
-	bool
-	link (Module* module);
 
 	bool
 	calcLayout ();

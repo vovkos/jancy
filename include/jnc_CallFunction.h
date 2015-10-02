@@ -6,7 +6,7 @@
 
 #include "jnc_Function.h"
 #include "jnc_Runtime.h"
-#include "jnc_Api.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_MulticastClassType.h"
 
 namespace jnc {

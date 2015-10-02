@@ -6,21 +6,21 @@ namespace jnc {
 
 //.............................................................................
 
-size_t
-StdLib::strLen (DataPtr ptr)
+void
+initStdLibSlot (ExtensionLibSlotDb* slotDb)
 {
-	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
-		return 0;
-
-	char* p0 = (char*) ptr.m_p;
-	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
-
-	char* p = p0;
-	while (*p && p < end)
-		p++;
-
-	return p - p0;
+	g_stdLibSlot = slotDb->getSlot (g_stdLibGuid);
 }
+
+ExtensionLib* 
+getStdLib (ExtensionLibSlotDb* slotDb)
+{
+	static int32_t onceFlag = 0;
+	mt::callOnce (initStdLibSlot, slotDb, &onceFlag);
+	return rtl::getSimpleSingleton <StdLib> ();
+}
+
+//.............................................................................
 
 int
 StdLib::strCmp (
@@ -321,6 +321,15 @@ StdLib::getErrorPtr (const err::ErrorData* errorData)
 	return resultPtr;
 }
 
+void
+StdLib::collectGarbage ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.collect ();
+}
+
 DataPtr
 StdLib::format (
 	DataPtr formatStringPtr,
@@ -342,55 +351,6 @@ StdLib::format (
 		return g_nullPtr;
 
 	memcpy (resultPtr.m_p, string.cc (), length);
-	return resultPtr;
-}
-
-//.............................................................................
-
-DataPtr
-strDup (
-	const char* p,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = p ? strlen (p) : 0;
-
-	if (!length)
-		return g_nullPtr;
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	if (p)
-		memcpy (resultPtr.m_p, p, length);
-
-	return resultPtr;
-}
-
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	)
-{
-	if (!size)
-		return g_nullPtr;
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	if (p)
-		memcpy (resultPtr.m_p, p, size);
-
 	return resultPtr;
 }
 

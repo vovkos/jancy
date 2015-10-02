@@ -218,16 +218,16 @@ class
 	ClassType* m_type;
 }
 library_specifier
-	:	TokenKind_Library TokenKind_Identifier
+	:	TokenKind_DynamicLib TokenKind_Identifier
 			{
-				$.m_type = createLibraryType ($2.m_data.m_string);
+				$.m_type = createDynamicLibType ($2.m_data.m_string);
 
 				if (!$.m_type)
 					return false;
 			}
 		'{' named_type_block_declaration* '}'
 			{
-				return finalizeLibraryType ();
+				return finalizeDynamicLibType ();
 			}
 	;
 

@@ -28,6 +28,8 @@ struct CmdLine
 	rtl::String m_srcNameOverride;
 	rtl::String m_functionName;
 
+	rtl::BoxList <rtl::String> m_importDirList;
+
 	CmdLine ();
 };
 
@@ -51,6 +53,7 @@ enum CmdLineSwitchKind
 	CmdLineSwitchKind_GcPeriodSizeTrigger,
 	CmdLineSwitchKind_StackSizeLimit,
 	CmdLineSwitchKind_SrcNameOverride,
+	CmdLineSwitchKind_ImportDir,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -84,6 +87,11 @@ AXL_RTL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitchKind)
 		)
 
 	AXL_RTL_CMD_LINE_SWITCH_GROUP ("Compilation options")
+	AXL_RTL_CMD_LINE_SWITCH_2 (
+		CmdLineSwitchKind_ImportDir,
+		"I", "import-dir", NULL,
+		"Add import directory"
+		)
 	AXL_RTL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitchKind_LlvmIr,
 		"l", "llvm-ir", NULL,

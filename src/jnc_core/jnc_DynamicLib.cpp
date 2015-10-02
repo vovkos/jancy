@@ -1,18 +1,18 @@
 #include "pch.h"
-#include "jnc_Library.h"
+#include "jnc_DynamicLib.h"
 
 namespace jnc {
 
 //.............................................................................
 
 bool 
-Library::loadImpl (const char* fileName)
+DynamicLib::loadImpl (const char* fileName)
 {
 	bool result = getDynamicLibrary ()->load (fileName);
 	if (!result)
 	{
 #if (_AXL_ENV == AXL_ENV_WIN)
-		err::pushFormatStringError ("cannot load library '%s'", fileName);
+		err::pushFormatStringError ("cannot load dynamiclib '%s'", fileName);
 #endif
 		return false;
 	}
@@ -21,7 +21,7 @@ Library::loadImpl (const char* fileName)
 }
 
 void* 
-Library::getFunctionImpl (const char* name)
+DynamicLib::getFunctionImpl (const char* name)
 {
 	ASSERT (sizeof (mt::DynamicLibrary) == sizeof (m_handle));
 
@@ -35,7 +35,7 @@ Library::getFunctionImpl (const char* name)
 	if (!p)
 	{
 #if (_AXL_ENV == AXL_ENV_WIN)
-		err::pushFormatStringError ("cannot get library function '%s'", name);
+		err::pushFormatStringError ("cannot get dynamiclib function '%s'", name);
 #endif
 		return NULL;
 	}

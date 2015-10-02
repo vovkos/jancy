@@ -136,7 +136,10 @@ Namespace::findItem (const char* name)
 
 	it->m_value = NULL; // many lazy std-types are parsed, so remove it from namespace
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
+	
 	item = lazyItem->getActualItem ();
+	if (!item)
+		return NULL;
 
 	if (!it->m_value)
 	{
@@ -227,16 +230,6 @@ Namespace::findItemTraverseImpl (
 	}
 
 	return NULL;
-}
-
-Function*
-Namespace::getFunctionByName (
-	const char* name,
-	size_t overloadIdx
-	)
-{
-	Function* function = getFunctionByName (name);
-	return function ? function->getOverload (overloadIdx) : NULL;
 }
 
 bool

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "jnc_String.h"
-#include "jnc_StdLib.h"
 
 namespace jnc {
 
@@ -32,7 +31,7 @@ String::copy (
 	)
 {
 	if (length == -1)
-		length = StdLib::strLen (ptr);
+		length = strLen (ptr);
 
 	if (!length)
 	{
@@ -65,7 +64,7 @@ StringBuilder::copy (
 	)
 {
 	if (length == -1)
-		length = StdLib::strLen (ptr);
+		length = strLen (ptr);
 
 	bool result = setLength (length, false);
 	if (!result)
@@ -83,7 +82,7 @@ StringBuilder::append (
 	)
 {
 	if (length == -1)
-		length = StdLib::strLen (ptr);
+		length = strLen (ptr);
 
 	size_t prevLength = m_length;
 

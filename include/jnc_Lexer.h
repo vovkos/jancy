@@ -31,7 +31,7 @@ enum TokenKind
 	TokenKind_Import,
 	TokenKind_Namespace,
 	TokenKind_Extension,
-	TokenKind_Library,
+	TokenKind_DynamicLib,
 	TokenKind_Using,
 	TokenKind_Friend,
 	TokenKind_Public,
@@ -207,7 +207,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Import,       "import")
 	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME (TokenKind_Extension,    "extension")
-	AXL_LEX_TOKEN_NAME (TokenKind_Library,      "library")
+	AXL_LEX_TOKEN_NAME (TokenKind_DynamicLib,   "dynamiclib")
 	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
 	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")

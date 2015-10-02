@@ -213,21 +213,8 @@ TypeMgr::getStdType (StdType stdType)
 
 	case StdType_Recognizer:		
 	case StdType_AutomatonResult:
-	case StdType_Library:
+	case StdType_DynamicLib:
 	case StdType_Scheduler:
-	case StdType_Guid:
-	case StdType_Error:
-	case StdType_String:
-	case StdType_StringRef:
-	case StdType_StringBuilder:
-	case StdType_StringHashTable:
-	case StdType_VariantHashTable:
-	case StdType_ListEntry:
-	case StdType_List:
-	case StdType_ConstBuffer:
-	case StdType_ConstBufferRef:
-	case StdType_BufferRef:
-	case StdType_Buffer:
 		{
 		GlobalNamespace* nspace = m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc);
 		const char* name = getStdTypeName (stdType);
@@ -247,11 +234,11 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_Int64Fp64:
 	case StdType_Fp64Int64:
 		source = getStdTypeSource (stdType);
-		ASSERT (source->m_p);
+		ASSERT (source->m_source);
 
 		type = parseStdType (
 			source->m_stdNamespace,
-			source->m_p,
+			source->m_source,
 			source->m_length
 			);
 		break;

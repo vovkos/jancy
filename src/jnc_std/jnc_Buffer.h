@@ -1,8 +1,6 @@
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_Api.h"
-#include "jnc_StdLibApiSlots.h"
+#include "jnc_StdLibSlots.h"
 
 namespace jnc {
 		
@@ -10,8 +8,8 @@ namespace jnc {
 
 struct ConstBufferRef
 {
-	JNC_BEGIN_TYPE ("jnc.ConstBufferRef", StdApiSlot_ConstBufferRef)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.ConstBufferRef", g_stdLibSlot, StdLibTypeSlot_ConstBufferRef)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;
@@ -23,10 +21,10 @@ public:
 
 struct ConstBuffer
 {
-	JNC_BEGIN_TYPE ("jnc.ConstBuffer", StdApiSlot_ConstBuffer)
-		JNC_FUNCTION ("copy", &ConstBuffer::copy_s1)
-		JNC_OVERLOAD (&ConstBuffer::copy_s2)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.ConstBuffer", g_stdLibSlot, StdLibTypeSlot_ConstBuffer)
+		JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
+		JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;
@@ -69,8 +67,8 @@ protected:
 
 struct BufferRef
 {
-	JNC_BEGIN_TYPE ("jnc.BufferRef", StdApiSlot_BufferRef)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.BufferRef", g_stdLibSlot, StdLibTypeSlot_BufferRef)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;
@@ -82,10 +80,10 @@ public:
 class Buffer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE ("jnc.Buffer", StdApiSlot_Buffer)
-		JNC_FUNCTION ("copy", &Buffer::copy)
-		JNC_FUNCTION ("append", &Buffer::append)
-	JNC_END_CLASS_TYPE ()
+	JNC_BEGIN_CLASS_TYPE_MAP ("jnc.Buffer", g_stdLibSlot, StdLibTypeSlot_Buffer)
+		JNC_MAP_FUNCTION ("copy", &Buffer::copy)
+		JNC_MAP_FUNCTION ("append", &Buffer::append)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public:
 	DataPtr m_ptr;

@@ -24,13 +24,12 @@ printUsage (OutStream* outStream);
 
 //.............................................................................
 
-class StdLib: public jnc::StdLib
+class JncLib: public jnc::ExtensionLib
 {
 public:
-	JNC_BEGIN_LIB ()
-		JNC_FUNCTION ("printf",  &printf)
-		JNC_LIB (jnc::StdLib)
-	JNC_END_LIB ()
+	JNC_BEGIN_LIB_MAP ()
+		JNC_MAP_FUNCTION ("printf",  &printf)
+	JNC_END_LIB_MAP ()
 
 	static
 	int

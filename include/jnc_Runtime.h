@@ -154,6 +154,63 @@ protected:
 
 //.............................................................................
 
+void
+prime (
+	Box* box,
+	Box* root,
+	ClassType* type,
+	void* vtable = NULL // if null then vtable of class type will be used
+	);
+
+inline
+void
+prime (
+	Box* box,
+	ClassType* type,
+	void* vtable = NULL // if null then vtable of class type will be used
+	)
+{
+	prime (box, box, type, vtable);
+}
+
+template <typename T>
+void
+prime (
+	Module* module,
+	ClassBox <T>* p,
+	Box* root
+	)
+{
+	prime (p, root, T::getApiType (module), T::getApiVTable ());
+}
+
+template <typename T>
+void
+prime (
+	Module* module,
+	ClassBox <T>* p
+	)
+{
+	prime (p, p, T::getApiType (module), T::getApiVTable ());
+}
+
+size_t 
+strLen (DataPtr ptr);
+
+DataPtr
+strDup (
+	const char* p,
+	size_t length = -1
+	);
+
+DataPtr
+memDup (
+	const void* p,
+	size_t size
+	);
+
+//.............................................................................
+
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	define JNC_BEGIN_GC_SITE() \
 	__try {

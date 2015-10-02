@@ -80,7 +80,7 @@ main := |*
 'import'         { createToken (TokenKind_Import); };
 'namespace'      { createToken (TokenKind_Namespace); };
 'extension'      { createToken (TokenKind_Extension); };
-'library'        { createToken (TokenKind_Library); };
+'dynamiclib'     { createToken (TokenKind_DynamicLib); };
 'using'          { createToken (TokenKind_Using); };
 'friend'         { createToken (TokenKind_Friend); };
 'public'         { createToken (TokenKind_Public); };
@@ -254,7 +254,7 @@ main := |*
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
 
 '%%' ([^\n] | lc_nl)*
-                 { createStringToken (TokenKind_RegExpLiteral, 2); };
+				 { createStringToken (TokenKind_RegExpLiteral, 2); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

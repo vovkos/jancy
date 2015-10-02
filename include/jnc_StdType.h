@@ -35,21 +35,8 @@ enum StdType
 	StdType_Recognizer,
 	StdType_AutomatonResult,
 	StdType_AutomatonFunc,
-	StdType_Library,
+	StdType_DynamicLib,
 	StdType_FmtLiteral,
-	StdType_Guid,
-	StdType_Error,
-	StdType_String,
-	StdType_StringRef,
-	StdType_StringBuilder,
-	StdType_StringHashTable,
-	StdType_VariantHashTable,
-	StdType_ListEntry,
-	StdType_List,
-	StdType_ConstBuffer,
-	StdType_ConstBufferRef,
-	StdType_BufferRef,
-	StdType_Buffer,
 	StdType_Int64Int64, // for system V coercion
 	StdType_Fp64Fp64,   // for system V coercion
 	StdType_Int64Fp64,  // for system V coercion

@@ -317,11 +317,22 @@ public:
 
 //.............................................................................
 
+ModuleItem* 
+verifyModuleItemKind (
+	ModuleItem* item, 
+	ModuleItemKind itemKind,
+	const char* name
+	);
+
+inline
 Type*
 verifyModuleItemIsType (
 	ModuleItem* item,
 	const char* name
-	);
+	)
+{
+	return (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+}
 
 DerivableType*
 verifyModuleItemIsDerivableType (
@@ -335,17 +346,26 @@ verifyModuleItemIsClassType (
 	const char* name
 	);
 
+inline
 Function*
-verifyModuleItemIsFunction (
+verifyModuleItemIsFunction (	
 	ModuleItem* item,
 	const char* name
-	);
+	)
 
+{
+	return (Function*) verifyModuleItemKind (item, ModuleItemKind_Function, name);
+}
+
+inline
 Property*
 verifyModuleItemIsProperty (
 	ModuleItem* item,
 	const char* name
-	);
+	)
+{
+	return (Property*) verifyModuleItemKind (item, ModuleItemKind_Property, name);
+}
 
 //.............................................................................
 

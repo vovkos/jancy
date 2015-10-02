@@ -4,60 +4,96 @@
 
 #pragma once
 
-#include "jnc_Runtime.h"
-#include "jnc_Api.h"
 #include "jnc_Error.h"
-#include "jnc_String.h"
-#include "jnc_HashTable.h"
-#include "jnc_List.h"
 #include "jnc_Buffer.h"
+#include "jnc_String.h"
+#include "jnc_List.h"
+#include "jnc_HashTable.h"
+
+#include "jnc_globals.jnc.cpp"
+#include "jnc_Error.jnc.cpp"
+#include "jnc_Buffer.jnc.cpp"
+#include "jnc_String.jnc.cpp"
+#include "jnc_List.jnc.cpp"
+#include "jnc_HashTable.jnc.cpp"
 
 namespace jnc {
 
 //.............................................................................
 
-class StdLib
+class StdLib: public ExtensionLib
 {
 public:
-	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (StdFunc_GetCurrentThreadId, getCurrentThreadId)
-		JNC_STD_FUNCTION (StdFunc_CreateThread, createThread)
-		JNC_STD_FUNCTION (StdFunc_Sleep, sleep)
-		JNC_STD_FUNCTION (StdFunc_GetTimestamp, getTimestamp)
-		JNC_STD_FUNCTION (StdFunc_Throw, forceThrow)
-		JNC_STD_FUNCTION (StdFunc_GetLastError, getLastError)
-		JNC_STD_FUNCTION (StdFunc_SetPosixError, setPosixError)
-		JNC_STD_FUNCTION (StdFunc_SetStringError, setStringError)
+	JNC_BEGIN_LIB_MAP ()
+		JNC_MAP_FUNCTION ("jnc.getCurrentThreadId", getCurrentThreadId)
+		JNC_MAP_FUNCTION ("jnc.createThread",       createThread)
+		JNC_MAP_FUNCTION ("jnc.sleep",              sleep)
+		JNC_MAP_FUNCTION ("jnc.getTimestamp",       getTimestamp)
+		JNC_MAP_FUNCTION ("jnc.throw",              forceThrow)
+		JNC_MAP_FUNCTION ("jnc.getLastError",       getLastError)
+		JNC_MAP_FUNCTION ("jnc.setPosixError",      setPosixError)
+		JNC_MAP_FUNCTION ("jnc.setStringError",     setStringError)
+		JNC_MAP_FUNCTION ("jnc.collectGarbage",     collectGarbage)
+		JNC_MAP_FUNCTION ("jnc.format",             format)
 		
-		JNC_STD_FUNCTION (StdFunc_StrLen, strLen)
-		JNC_STD_FUNCTION (StdFunc_StrCmp, strCmp)
-		JNC_STD_FUNCTION (StdFunc_StriCmp, striCmp)
-		JNC_STD_FUNCTION (StdFunc_StrChr, strChr)
-		JNC_STD_FUNCTION (StdFunc_StrCat, strCat)
-		JNC_STD_FUNCTION (StdFunc_StrDup, strDup)
-		JNC_STD_FUNCTION (StdFunc_MemCmp, memCmp)
-		JNC_STD_FUNCTION (StdFunc_MemChr, memChr)
-		JNC_STD_FUNCTION (StdFunc_MemCpy, memCpy)
-		JNC_STD_FUNCTION (StdFunc_MemSet, memSet)
-		JNC_STD_FUNCTION (StdFunc_MemCat, memCat)
-		JNC_STD_FUNCTION (StdFunc_MemDup, memDup)
-		JNC_STD_FUNCTION (StdFunc_Rand, rand)
-		JNC_STD_FUNCTION (StdFunc_Atoi, atoi)
-		JNC_STD_FUNCTION (StdFunc_Format, format)
+		JNC_MAP_FUNCTION ("strlen",  strLen)
+		JNC_MAP_FUNCTION ("strcmp",  strCmp)
+		JNC_MAP_FUNCTION ("stricmp", striCmp)
+		JNC_MAP_FUNCTION ("strchr",  strChr)
+		JNC_MAP_FUNCTION ("strcat",  strCat)
+		JNC_MAP_FUNCTION ("strdup",  strDup)
+		JNC_MAP_FUNCTION ("memcmp",  memCmp)
+		JNC_MAP_FUNCTION ("memchr",  memChr)
+		JNC_MAP_FUNCTION ("memcpy",  memCpy)
+		JNC_MAP_FUNCTION ("memset",  memSet)
+		JNC_MAP_FUNCTION ("memcat",  memCat)
+		JNC_MAP_FUNCTION ("memdup",  memDup)
+		JNC_MAP_FUNCTION ("rand",    rand)
+		JNC_MAP_FUNCTION ("atoi",    atoi)
 		
-		JNC_STD_TYPE (StdType_Error, Error)
-		JNC_STD_TYPE (StdType_String, String)
-		JNC_STD_TYPE (StdType_StringRef, StringRef)
-		JNC_STD_TYPE (StdType_StringBuilder, StringBuilder)
-		JNC_STD_TYPE (StdType_StringHashTable, StringHashTable)
-		JNC_STD_TYPE (StdType_VariantHashTable, VariantHashTable)
-		JNC_STD_TYPE (StdType_ListEntry, ListEntry)
-		JNC_STD_TYPE (StdType_List, List)
-		JNC_STD_TYPE (StdType_ConstBuffer, ConstBuffer)
-		JNC_STD_TYPE (StdType_ConstBufferRef, ConstBufferRef)
-		JNC_STD_TYPE (StdType_BufferRef, BufferRef)
-		JNC_STD_TYPE (StdType_Buffer, Buffer)
-	JNC_END_LIB ()
+/*
+
+#if (_AXL_ENV == AXL_ENV_POSIX)
+		source = getStdFunctionSource (func);
+		ASSERT (source->m_p);
+
+		function = parseStdFunction (
+			source->m_stdNamespace,
+			source->m_p,
+			source->m_length
+			);
+
+		ASSERT (!function->m_llvmFunction);
+		function->m_tag += "_jnc"; // as to avoid mapping conflicts
+		break;
+#endif
+
+ */
+		JNC_MAP_TYPE (Error)
+		JNC_MAP_TYPE (ConstBuffer)
+		JNC_MAP_TYPE (ConstBufferRef)
+		JNC_MAP_TYPE (BufferRef)
+		JNC_MAP_TYPE (Buffer)
+		JNC_MAP_TYPE (String)
+		JNC_MAP_TYPE (StringRef)
+		JNC_MAP_TYPE (StringBuilder)
+		JNC_MAP_TYPE (StringHashTable)
+		JNC_MAP_TYPE (VariantHashTable)
+		JNC_MAP_TYPE (List)
+		JNC_MAP_TYPE (ListEntry)
+	JNC_END_LIB_MAP ()
+
+	JNC_BEGIN_LIB_FORCED_EXPORT ()
+		JNC_LIB_FORCED_SOURCE_FILE ("jnc_globals.jnc", g_jnc_globalsSrc)
+		JNC_LIB_FORCED_SOURCE_FILE ("jnc_Error.jnc",   g_jnc_ErrorSrc)
+	JNC_END_LIB_FORCED_EXPORT ()
+
+	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
+		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("jnc_Buffer.jnc",    g_jnc_BufferSrc)
+		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("jnc_String.jnc",    g_jnc_StringSrc)
+		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("jnc_List.jnc",      g_jnc_ListSrc)
+		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("jnc_HashTable.jnc", g_jnc_HashTableSrc)
+	JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 public:
 	static
@@ -111,6 +147,10 @@ public:
 	}
 
 	static
+	void
+	collectGarbage ();
+
+	static
 	DataPtr
 	format (
 		DataPtr formatString,
@@ -119,7 +159,10 @@ public:
 
 	static
 	size_t
-	strLen (DataPtr ptr);
+	strLen (DataPtr ptr)
+	{
+		return jnc::strLen (ptr);
+	}
 
 	static
 	int
@@ -235,19 +278,10 @@ protected:
 	getErrorPtr (const err::ErrorData* errorData);
 };
 
-//.............................................................................
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-strDup (
-	const char* p,
-	size_t length = -1
-	);
-
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	);
+ExtensionLib* 
+getStdLib (ExtensionLibSlotDb* slotDb);
 
 //.............................................................................
 

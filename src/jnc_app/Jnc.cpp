@@ -4,7 +4,7 @@
 //.............................................................................
 
 int
-StdLib::printf (
+JncLib::printf (
 	const char* format,
 	...
 	)
@@ -169,10 +169,13 @@ Jnc::compile (
 	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
-	m_module.create ("jnc_module", NULL, compileFlags);
+	m_module.create ("jnc_module", compileFlags);
+	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
+	m_module.m_extensionLibMgr.addLib (rtl::getSimpleSingleton <JncLib> ());
 
 	result =
 		m_module.parse (fileName, source, length) &&
+		m_module.parseImports () &&
 		m_module.compile ();
 
 	if (!result)
@@ -186,7 +189,6 @@ Jnc::jit ()
 {
 	return
 		m_module.createLlvmExecutionEngine () &&
-		StdLib::mapFunctions (&m_module) &&
 		m_module.jit ();
 }
 

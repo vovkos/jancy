@@ -35,15 +35,12 @@ protected:
 	rtl::StdList <ThunkFunction> m_thunkFunctionList;
 	rtl::StdList <ThunkProperty> m_thunkPropertyList;
 	rtl::StdList <DataThunkProperty> m_dataThunkPropertyList;
-	rtl::StdList <LazyStdFunction> m_lazyStdFunctionList;
 	rtl::StringHashTableMap <Function*> m_thunkFunctionMap;
 	rtl::StringHashTableMap <Property*> m_thunkPropertyMap;
 	rtl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
 	rtl::Array <NamedTypeBlock*> m_staticConstructArray;
-
 	Function* m_stdFunctionArray [StdFunc__Count];
-	LazyStdFunction* m_lazyStdFunctionArray [StdFunc__Count];
-
+	
 	Function* m_currentFunction;
 	Value m_thisValue;
 
@@ -240,9 +237,6 @@ public:
 
 	Function*
 	getStdFunction (StdFunc func);
-
-	LazyStdFunction*
-	getLazyStdFunction (StdFunc func);
 
 	Function*
 	getDirectThunkFunction (

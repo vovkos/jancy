@@ -138,6 +138,10 @@ CmdLineParser::onSwitch (
 		}
 
 		break;
+
+	case CmdLineSwitchKind_ImportDir:
+		m_cmdLine->m_importDirList.insertTail (value);
+		break;
 	}
 
 	return true;

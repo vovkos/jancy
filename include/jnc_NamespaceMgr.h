@@ -36,7 +36,7 @@ protected:
 	GlobalNamespace m_stdNamespaceArray [StdNamespace__Count];
 	rtl::StdList <GlobalNamespace> m_globalNamespaceList;
 	rtl::StdList <ExtensionNamespace> m_extensionNamespaceList;
-	rtl::StdList <LibraryNamespace> m_libraryNamespaceList;
+	rtl::StdList <DynamicLibNamespace> m_dynamicLibNamespaceList;
 	rtl::StdList <Scope> m_scopeList;
 	rtl::StdList <Orphan> m_orphanList;
 
@@ -182,8 +182,8 @@ public:
 		Namespace* parentNamespace = NULL
 		);
 
-	LibraryNamespace*
-	createLibraryNamespace (ClassType* libraryType);
+	DynamicLibNamespace*
+	createDynamicLibNamespace (ClassType* dynamicLibType);
 
 	Scope*
 	findBreakScope (size_t level);

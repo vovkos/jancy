@@ -1,8 +1,6 @@
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_Api.h"
-#include "jnc_StdLibApiSlots.h"
+#include "jnc_StdLibSlots.h"
 #include "jnc_Variant.h"
 
 namespace jnc {
@@ -12,14 +10,14 @@ namespace jnc {
 class StringHashTable: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE ("jnc.StringHashTable", StdApiSlot_StringHashTable)
-		JNC_CONSTRUCTOR (&rtl::construct <StringHashTable>)
-		JNC_DESTRUCTOR (&rtl::destruct <StringHashTable>)
-		JNC_FUNCTION ("clear",  &StringHashTable::clear)
-		JNC_FUNCTION ("find", &StringHashTable::find)
-		JNC_FUNCTION ("insert", &StringHashTable::insert)
-		JNC_FUNCTION ("remove", &StringHashTable::remove)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.StringHashTable", g_stdLibSlot, StdLibTypeSlot_StringHashTable)
+		JNC_MAP_CONSTRUCTOR (&rtl::construct <StringHashTable>)
+		JNC_MAP_DESTRUCTOR (&rtl::destruct <StringHashTable>)
+		JNC_MAP_FUNCTION ("clear",  &StringHashTable::clear)
+		JNC_MAP_FUNCTION ("find", &StringHashTable::find)
+		JNC_MAP_FUNCTION ("insert", &StringHashTable::insert)
+		JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
+	JNC_END_TYPE_MAP ()
 
 public:
 	typedef rtl::StringHashTableMap <DataPtr> StringHashTableMap;
@@ -76,14 +74,14 @@ public:
 class VariantHashTable: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE ("jnc.VariantHashTable", StdApiSlot_VariantHashTable)
-		JNC_CONSTRUCTOR (&rtl::construct <VariantHashTable>)
-		JNC_DESTRUCTOR (&rtl::destruct <VariantHashTable>)
-		JNC_FUNCTION ("clear",  &VariantHashTable::clear)
-		JNC_FUNCTION ("find", &VariantHashTable::find)
-		JNC_FUNCTION ("insert", &VariantHashTable::insert)
-		JNC_FUNCTION ("remove", &VariantHashTable::remove)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.VariantHashTable", g_stdLibSlot, StdLibTypeSlot_VariantHashTable)
+		JNC_MAP_CONSTRUCTOR (&rtl::construct <VariantHashTable>)
+		JNC_MAP_DESTRUCTOR (&rtl::destruct <VariantHashTable>)
+		JNC_MAP_FUNCTION ("clear",  &VariantHashTable::clear)
+		JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
+		JNC_MAP_FUNCTION ("insert", &VariantHashTable::insert)
+		JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
+	JNC_END_TYPE_MAP ()
 
 public:
 	typedef rtl::HashTableMap <Variant, DataPtr, HashVariant, CmpVariant> VariantHashTableMap;

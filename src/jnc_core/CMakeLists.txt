@@ -114,6 +114,9 @@ set (
 	${JANCY_INC_DIR}/jnc_Module.h
 	${JANCY_INC_DIR}/jnc_ModuleItem.h
 	${JANCY_INC_DIR}/jnc_UnitMgr.h
+	${JANCY_INC_DIR}/jnc_ExtensionLib.h
+	${JANCY_INC_DIR}/jnc_ExtensionLibMgr.h
+	${JANCY_INC_DIR}/jnc_ImportMgr.h
 	)
 
 set (
@@ -126,6 +129,8 @@ set (
 	jnc_Module.cpp
 	jnc_ModuleItem.cpp
 	jnc_UnitMgr.cpp
+	jnc_ExtensionLibMgr.cpp
+	jnc_ImportMgr.cpp
 	)
 
 source_group (
@@ -448,28 +453,19 @@ source_group (
 
 set (
 	CORELIB_H_LIST
-	${JANCY_INC_DIR}/jnc_Api.h
 	${JANCY_INC_DIR}/jnc_Variant.h
-	${JANCY_INC_DIR}/jnc_OpaqueClassTypeDb.h
-	${JANCY_INC_DIR}/jnc_StdLibApiSlots.h
 	jnc_CoreLib.h
-	jnc_FmtLiteralLib.h
-	jnc_MulticastLib.h
 	jnc_Multicast.h
-	jnc_Library.h
+	jnc_DynamicLib.h
 	jnc_Recognizer.h
 	)
 
 set (
 	CORELIB_CPP_LIST
-	jnc_Api.cpp
 	jnc_Variant.cpp
-	jnc_OpaqueClassTypeDb.cpp
-	jnc_FmtLiteralLib.cpp
 	jnc_CoreLib.cpp
-	jnc_MulticastLib.cpp
 	jnc_Multicast.cpp
-	jnc_Library.cpp
+	jnc_DynamicLib.cpp
 	jnc_Recognizer.cpp
 	)
 
@@ -477,7 +473,7 @@ set (
 	CORELIB_JNC_LIST
 	jnc_StdTypes.jnc
 	jnc_StdFunctions.jnc
-	jnc_Library.jnc
+	jnc_DynamicLib.jnc
 	jnc_Recognizer.jnc
 	)
 
@@ -520,8 +516,8 @@ add_perl_step (
 	)
 
 add_perl_step (
-	jnc_Library.jnc.cpp
-	jnc_Library.jnc
+	jnc_DynamicLib.jnc.cpp
+	jnc_DynamicLib.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -556,10 +552,10 @@ add_bulldozer_double_step (
 pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
-	GEN_PL_CPP_LIST
+	GEN_JNC_CPP_LIST
 	${GEN_DIR}/jnc_StdTypes.jnc.cpp
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
-	${GEN_DIR}/jnc_Library.jnc.cpp
+	${GEN_DIR}/jnc_DynamicLib.jnc.cpp
 	${GEN_DIR}/jnc_Recognizer.jnc.cpp
 	)
 
@@ -578,14 +574,14 @@ set (
 	${GEN_DIR}/jnc_Parser.llk.cpp
 	)
 
-exclude_from_build (${GEN_PL_CPP_LIST})  # include "*.jnc.cpp" manually
+exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
 
 source_group (
 	gen
 	FILES
-	${GEN_PL_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
 	${GEN_LLK_CPP_LIST}
@@ -656,7 +652,7 @@ add_library (
 	${CORELIB_CPP_LIST}
 	${CORELIB_JNC_LIST}
 	${CORELIB_PL_LIST}
-	${GEN_PL_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
 	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output

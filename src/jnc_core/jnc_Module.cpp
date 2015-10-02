@@ -1,9 +1,16 @@
 #include "pch.h"
 #include "jnc_Module.h"
 #include "jnc_JitMemoryMgr.h"
+#include "jnc_CoreLib.h"
 #include "jnc_Parser.llk.h"
 
 namespace jnc {
+
+ExtensionLib* 
+getCoreLib (ExtensionLibSlotDb* slotDb);
+
+ExtensionLib* 
+getStdLib (ExtensionLibSlotDb* slotDb);
 
 //.............................................................................
 
@@ -11,7 +18,6 @@ Module::Module ()
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_opaqueClassTypeDb = NULL;
 
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
@@ -24,11 +30,6 @@ Module::Module ()
 void
 Module::clear ()
 {
-	m_importDirList.clear ();
-	m_importList.clear ();
-	m_shadowImportList.clear ();
-	m_importSet.clear ();
-
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
 	m_functionMgr.clear ();
@@ -39,11 +40,13 @@ Module::clear ()
 	m_unitMgr.clear ();
 	m_calcLayoutArray.clear ();
 	m_compileArray.clear ();
-	m_apiItemArray.clear ();
 	m_llvmIrBuilder.clear ();
 	m_llvmDiBuilder.clear ();
+	m_extensionLibMgr.clear ();
 	m_sourceList.clear ();
 	m_functionMap.clear ();
+	m_extensionLibMgr.clear ();
+	m_importMgr.clear ();
 
 	if (m_llvmExecutionEngine)
 		delete m_llvmExecutionEngine;
@@ -59,13 +62,11 @@ Module::clear ()
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_opaqueClassTypeDb = NULL;
 }
 
 bool
 Module::create (
 	const rtl::String& name,
-	OpaqueClassTypeDb* opaqueClassTypeDb,
 	uint_t compileFlags
 	)
 {
@@ -74,7 +75,6 @@ Module::create (
 	m_name = name;
 	m_compileFlags = compileFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_opaqueClassTypeDb = opaqueClassTypeDb;
 
 	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
 	m_llvmModule = new llvm::Module ("jncModule", *llvmContext);
@@ -83,6 +83,12 @@ Module::create (
 
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
+	
+	ExtensionLibSlotDb* slotDb = getExtensionLibSlotDb ();
+	m_extensionLibMgr.addLib (getCoreLib (slotDb));
+
+	if (compileFlags & ModuleCompileFlag_StdLib)
+		m_extensionLibMgr.addLib (getStdLib (slotDb));
 
 	bool result = m_namespaceMgr.addStdItems ();
 	if (!result)
@@ -235,25 +241,6 @@ Module::mapFunction (
 	function->m_machineCode = p;
 }
 
-ModuleItem*
-Module::getApiItem (
-	size_t slot,
-	const char* name
-	)
-{
-	size_t count = m_apiItemArray.getCount ();
-	if (count <= slot)
-		m_apiItemArray.setCount (slot + 1);
-
-	ModuleItem* item = m_apiItemArray [slot];
-	if (item)
-		return item;
-
-	item = getItemByName (name);
-	m_apiItemArray [slot] = item;
-	return item;
-}
-
 bool
 Module::setConstructor (Function* function)
 {
@@ -299,7 +286,7 @@ Module::setFunctionPointer (
 	void* p
 	)
 {
-	Function* function = getFunctionByName (name);
+	Function* function = m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name);
 	if (!function)
 		return false;
 
@@ -330,13 +317,6 @@ Module::setFunctionPointer (
 	return true;
 }
 
-bool
-Module::link (Module* module)
-{
-	err::setFormatStringError ("module link is not yet implemented");
-	return false;
-}
-
 void
 Module::markForLayout (
 	ModuleItem* item,
@@ -358,34 +338,6 @@ Module::markForCompile (ModuleItem* item)
 
 	item->m_flags |= ModuleItemFlag_NeedCompile;
 	m_compileArray.append (item);
-}
-
-bool
-Module::import (const char* fileName)
-{
-	Unit* unit = m_unitMgr.getCurrentUnit ();
-	ASSERT (unit);
-
-	rtl::String filePath = io::findFilePath (
-		fileName, 
-		unit->getDir (),
-		&m_importDirList,
-		false
-		);
-
-	if (filePath.isEmpty ())
-	{
-		err::setFormatStringError ("import '%s' not found", fileName);
-		return false;
-	}
-
-	rtl::StringHashTableIterator it = m_importSet.find (filePath);
-	if (it) // already
-		return true;
-	
-	m_importList.insertTail (filePath);
-	m_importSet.visit (filePath);
-	return true;
 }
 
 bool
@@ -435,17 +387,13 @@ Module::parse (
 bool
 Module::parseFile (const char* filePath)
 {
-	io::MappedFile file;
+	io::SimpleMappedFile file;
 	bool result = file.open (filePath, io::FileFlag_ReadOnly);
 	if (!result)
 		return false;
 
 	size_t length = (size_t) file.getSize ();
-	const char* p = (const char*) file.view (0, length);
-	if (!p)
-		return false;
-
-	rtl::String source (p, length);
+	rtl::String source ((const char*) file.p (), length);
 	m_sourceList.insertTail (source);
 	return parse (filePath, source, length);
 }
@@ -453,12 +401,19 @@ Module::parseFile (const char* filePath)
 bool
 Module::parseImports ()
 {
-	while (!m_importList.isEmpty ())
-	{
-		rtl::String filePath = m_importList.removeHead ();
-		m_shadowImportList.insertTail (filePath);
+	rtl::ConstList <Import> importList = m_importMgr.getImportList ();
+	rtl::Iterator <Import> importIt = importList.getHead ();
 
-		bool result = parseFile (filePath);
+	for (; importIt; importIt++)
+	{
+		bool result = importIt->m_importKind == ImportKind_Source ? 
+			parse (
+				importIt->m_filePath, 
+				importIt->m_source, 
+				importIt->m_source.getLength ()
+				) : 
+			parseFile (importIt->m_filePath);
+
 		if (!result)
 			return false;
 	}
@@ -615,12 +570,14 @@ Module::compile ()
 bool
 Module::jit ()
 {
-	#pragma AXL_TODO ("move JITting logic to Module")
-
 	ASSERT (m_compileState = ModuleCompileState_Compiled);
 
 	m_compileState = ModuleCompileState_Jitting;
-	bool result = m_functionMgr.jitFunctions ();
+	
+	bool result = 
+		m_extensionLibMgr.mapFunctions () &&
+		m_functionMgr.jitFunctions ();
+
 	if (!result)
 		return false;
 

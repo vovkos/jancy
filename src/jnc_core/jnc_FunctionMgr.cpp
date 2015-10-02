@@ -15,9 +15,8 @@ FunctionMgr::FunctionMgr ()
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
-	m_currentFunction = NULL;
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
-	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
+	m_currentFunction = NULL;
 }
 
 void
@@ -32,14 +31,12 @@ FunctionMgr::clear ()
 	m_dataThunkPropertyList.clear ();
 	m_thunkFunctionMap.clear ();
 	m_thunkPropertyMap.clear ();
-	m_lazyStdFunctionList.clear ();
 	m_scheduleLauncherFunctionMap.clear ();
 	m_staticConstructArray.clear ();
+	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
+
 	m_thisValue.clear ();
 	m_currentFunction = NULL;
-
-	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
-	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
 }
 
 bool
@@ -916,55 +913,15 @@ FunctionMgr::getStdFunction (StdFunc func)
 		function = createFunction (FunctionKind_Internal, "jnc.gcSafePoint", functionType);
 		break;
 
-	case StdFunc_StrLen:
-	case StdFunc_StrCmp:
-	case StdFunc_StriCmp:
-	case StdFunc_StrChr:
-	case StdFunc_StrCat:
-	case StdFunc_StrDup:
-	case StdFunc_MemCmp:
-	case StdFunc_MemChr:
-	case StdFunc_MemCpy:
-	case StdFunc_MemSet:
-	case StdFunc_MemCat:
-	case StdFunc_MemDup:
-	case StdFunc_Rand:
-	case StdFunc_Printf:
-	case StdFunc_Atoi:
-#if (_AXL_ENV == AXL_ENV_POSIX)
-		source = getStdFunctionSource (func);
-		ASSERT (source->m_p);
-
-		function = parseStdFunction (
-			source->m_stdNamespace,
-			source->m_p,
-			source->m_length
-			);
-
-		ASSERT (!function->m_llvmFunction);
-		function->m_tag += "_jnc"; // as to avoid mapping conflicts
-		break;
-#endif
-
 	case StdFunc_DynamicSizeOf:
 	case StdFunc_DynamicCountOf:
 	case StdFunc_DynamicCastDataPtr:
 	case StdFunc_DynamicCastClassPtr:
 	case StdFunc_DynamicCastVariant:
 	case StdFunc_StrengthenClassPtr:
-	case StdFunc_CollectGarbage:
-	case StdFunc_CreateThread:
-	case StdFunc_Sleep:
-	case StdFunc_GetTimestamp:
-	case StdFunc_GetCurrentThreadId:
-	case StdFunc_Throw:
-	case StdFunc_GetLastError:
-	case StdFunc_SetPosixError:
-	case StdFunc_SetStringError:
 	case StdFunc_AssertionFailure:
 	case StdFunc_AddStaticDestructor:
 	case StdFunc_AddStaticClassDestructor:
-	case StdFunc_Format:
 	case StdFunc_AppendFmtLiteral_a:
 	case StdFunc_AppendFmtLiteral_p:
 	case StdFunc_AppendFmtLiteral_i32:
@@ -973,24 +930,19 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_AppendFmtLiteral_ui64:
 	case StdFunc_AppendFmtLiteral_f:
 	case StdFunc_AppendFmtLiteral_v:
-	case StdFunc_AppendFmtLiteral_s:
-	case StdFunc_AppendFmtLiteral_sr:
-	case StdFunc_AppendFmtLiteral_cb:
-	case StdFunc_AppendFmtLiteral_cbr:
-	case StdFunc_AppendFmtLiteral_br:
 	case StdFunc_TryCheckDataPtrRangeDirect:
 	case StdFunc_CheckDataPtrRangeDirect:
 	case StdFunc_TryCheckNullPtr:
 	case StdFunc_CheckNullPtr:
 	case StdFunc_CheckStackOverflow:
-	case StdFunc_TryLazyGetLibraryFunction:
-	case StdFunc_LazyGetLibraryFunction:
+	case StdFunc_TryLazyGetDynamicLibFunction:
+	case StdFunc_LazyGetDynamicLibFunction:
 		source = getStdFunctionSource (func);			
-		ASSERT (source->m_p);
+		ASSERT (source->m_source);
 
 		function = parseStdFunction (
 			source->m_stdNamespace,
-			source->m_p,
+			source->m_source,
 			source->m_length
 			);
 		break;
@@ -1054,26 +1006,6 @@ FunctionMgr::parseStdFunction (
 	ASSERT (result);
 
 	return (Function*) item;
-}
-
-LazyStdFunction*
-FunctionMgr::getLazyStdFunction (StdFunc func)
-{
-	ASSERT ((size_t) func < StdFunc__Count);
-
-	if (m_lazyStdFunctionArray [func])
-		return m_lazyStdFunctionArray [func];
-
-	const char* name = getStdFunctionName (func);
-	ASSERT (name);
-
-	LazyStdFunction* function = AXL_MEM_NEW (LazyStdFunction);
-	function->m_module = m_module;
-	function->m_name = name;
-	function->m_func = func;
-	m_lazyStdFunctionList.insertTail (function);
-	m_lazyStdFunctionArray [func] = function;
-	return function;
 }
 
 //.............................................................................

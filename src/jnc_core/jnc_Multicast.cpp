@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "jnc_Multicast.h"
-#include "jnc_Runtime.h"
-#include "jnc_StdLib.h"
+#include "jnc_CoreLib.h"
 
 namespace jnc {
 
@@ -131,7 +130,7 @@ MulticastImpl::getSnapshot ()
 	size_t aliveCount = 0;
 	for (; srcPtr < srcPtrEnd; srcPtr++)
 	{
-		if (StdLib::strengthenClassPtr (srcPtr->m_closure))
+		if (CoreLib::strengthenClassPtr (srcPtr->m_closure))
 		{
 			*dstPtr = *srcPtr;
 			dstPtr++;

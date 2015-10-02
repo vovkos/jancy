@@ -5,112 +5,100 @@
 #pragma once
 
 #include "jnc_Runtime.h"
-#include "jnc_Api.h"
-#include "jnc_Error.h"
-#include "jnc_String.h"
-#include "jnc_HashTable.h"
-#include "jnc_List.h"
-#include "jnc_Buffer.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_Recognizer.h"
-#include "jnc_Library.h"
-#include "jnc_MulticastLib.h"
+#include "jnc_DynamicLib.h"
+#include "jnc_Multicast.h"
+
+#define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
+	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
+	{ \
+		function = module->m_functionMgr.getStdFunction (stdFuncKind); \
+		ASSERT (function); \
+		JNC_MAP (function, proc); \
+	}
+
+#define JNC_MAP_STD_TYPE(stdType, Type) \
+	if (module->m_typeMgr.isStdTypeUsed (stdType)) \
+	{ \
+		JNC_MAP_TYPE (Type); \
+	}
 
 namespace jnc {
-
+	
 //.............................................................................
 
-class CoreLib
+class CoreLib: public ExtensionLib
 {
+protected:
+	static void* m_multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1];
+
 public:
-	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (StdFunc_DynamicSizeOf, dynamicSizeOf)
-		JNC_STD_FUNCTION (StdFunc_DynamicCountOf, dynamicCountOf)
-		JNC_STD_FUNCTION (StdFunc_DynamicCastDataPtr, dynamicCastDataPtr)
-		JNC_STD_FUNCTION (StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
-		JNC_STD_FUNCTION (StdFunc_DynamicCastVariant, dynamicCastVariant)
-		JNC_STD_FUNCTION (StdFunc_StrengthenClassPtr, strengthenClassPtr)
+	JNC_BEGIN_LIB_MAP ()
+		// dynamic sizeof/countof/casts
 
-		JNC_STD_FUNCTION (StdFunc_PrimeStaticClass, primeStaticClass)
-		JNC_STD_FUNCTION (StdFunc_TryAllocateClass, tryAllocateClass)
-		JNC_STD_FUNCTION (StdFunc_AllocateClass, allocateClass)
-		JNC_STD_FUNCTION (StdFunc_TryAllocateData, tryAllocateData)
-		JNC_STD_FUNCTION (StdFunc_AllocateData, allocateData)
-		JNC_STD_FUNCTION (StdFunc_TryAllocateArray, tryAllocateArray)
-		JNC_STD_FUNCTION (StdFunc_AllocateArray, allocateArray)
-		JNC_STD_FUNCTION (StdFunc_CreateDataPtrValidator, createDataPtrValidator)
-		JNC_STD_FUNCTION (StdFunc_CollectGarbage, collectGarbage)
-		JNC_STD_FUNCTION (StdFunc_GcSafePoint, gcSafePoint)
+		JNC_MAP_STD_FUNCTION (StdFunc_DynamicSizeOf, dynamicSizeOf)
+		JNC_MAP_STD_FUNCTION (StdFunc_DynamicCountOf, dynamicCountOf)
+		JNC_MAP_STD_FUNCTION (StdFunc_DynamicCastDataPtr, dynamicCastDataPtr)
+		JNC_MAP_STD_FUNCTION (StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
+		JNC_MAP_STD_FUNCTION (StdFunc_DynamicCastVariant, dynamicCastVariant)
+		JNC_MAP_STD_FUNCTION (StdFunc_StrengthenClassPtr, strengthenClassPtr)
 
-		JNC_STD_FUNCTION (StdFunc_GetCurrentThreadId, getCurrentThreadId)
-		JNC_STD_FUNCTION (StdFunc_CreateThread, createThread)
-		JNC_STD_FUNCTION (StdFunc_Sleep, sleep)
-		JNC_STD_FUNCTION (StdFunc_GetTimestamp, getTimestamp)
-		JNC_STD_FUNCTION (StdFunc_Throw, forceThrow)
-		JNC_STD_FUNCTION (StdFunc_GetLastError, getLastError)
-		JNC_STD_FUNCTION (StdFunc_SetPosixError, setPosixError)
-		JNC_STD_FUNCTION (StdFunc_SetStringError, setStringError)
-		JNC_STD_FUNCTION (StdFunc_AssertionFailure, assertionFailure)
-		JNC_STD_FUNCTION (StdFunc_AddStaticDestructor, addStaticDestructor)
-		JNC_STD_FUNCTION (StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
-		JNC_STD_FUNCTION (StdFunc_StrLen, strLen)
-		JNC_STD_FUNCTION (StdFunc_StrCmp, strCmp)
-		JNC_STD_FUNCTION (StdFunc_StriCmp, striCmp)
-		JNC_STD_FUNCTION (StdFunc_StrChr, strChr)
-		JNC_STD_FUNCTION (StdFunc_StrCat, strCat)
-		JNC_STD_FUNCTION (StdFunc_StrDup, strDup)
-		JNC_STD_FUNCTION (StdFunc_MemCmp, memCmp)
-		JNC_STD_FUNCTION (StdFunc_MemChr, memChr)
-		JNC_STD_FUNCTION (StdFunc_MemCpy, memCpy)
-		JNC_STD_FUNCTION (StdFunc_MemSet, memSet)
-		JNC_STD_FUNCTION (StdFunc_MemCat, memCat)
-		JNC_STD_FUNCTION (StdFunc_MemDup, memDup)
-		JNC_STD_FUNCTION (StdFunc_Rand, rand)
-		JNC_STD_FUNCTION (StdFunc_Atoi, atoi)
-		JNC_STD_FUNCTION (StdFunc_Format, format)
-		JNC_STD_FUNCTION (StdFunc_GetTls, getTls)
+		// gc heap
 
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_a, appendFmtLiteral_a)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_p, appendFmtLiteral_p)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_i32, appendFmtLiteral_i32)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_ui32, appendFmtLiteral_ui32)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_i64, appendFmtLiteral_i64)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_f, appendFmtLiteral_f)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_v, appendFmtLiteral_v)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_s, appendFmtLiteral_s)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_sr, appendFmtLiteral_sr)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_cb, appendFmtLiteral_s)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_cbr, appendFmtLiteral_sr)
-		JNC_STD_FUNCTION (StdFunc_AppendFmtLiteral_br, appendFmtLiteral_s)
+		JNC_MAP_STD_FUNCTION (StdFunc_PrimeStaticClass, primeStaticClass)
+		JNC_MAP_STD_FUNCTION (StdFunc_TryAllocateClass, tryAllocateClass)
+		JNC_MAP_STD_FUNCTION (StdFunc_AllocateClass, allocateClass)
+		JNC_MAP_STD_FUNCTION (StdFunc_TryAllocateData, tryAllocateData)
+		JNC_MAP_STD_FUNCTION (StdFunc_AllocateData, allocateData)
+		JNC_MAP_STD_FUNCTION (StdFunc_TryAllocateArray, tryAllocateArray)
+		JNC_MAP_STD_FUNCTION (StdFunc_AllocateArray, allocateArray)
+		JNC_MAP_STD_FUNCTION (StdFunc_CreateDataPtrValidator, createDataPtrValidator)
+		JNC_MAP_STD_FUNCTION (StdFunc_GcSafePoint, gcSafePoint)
+		JNC_MAP_STD_FUNCTION (StdFunc_AddStaticDestructor, addStaticDestructor)
+		JNC_MAP_STD_FUNCTION (StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
+		JNC_MAP_STD_FUNCTION (StdFunc_GetTls, getTls)
 
-		JNC_STD_FUNCTION (StdFunc_TryCheckDataPtrRangeDirect, tryCheckDataPtrRangeDirect)
-		JNC_STD_FUNCTION (StdFunc_CheckDataPtrRangeDirect, checkDataPtrRangeDirect)
-		JNC_STD_FUNCTION (StdFunc_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
-		JNC_STD_FUNCTION (StdFunc_CheckDataPtrRangeIndirect, checkDataPtrRangeIndirect)
-		JNC_STD_FUNCTION (StdFunc_TryCheckNullPtr, tryCheckNullPtr)
-		JNC_STD_FUNCTION (StdFunc_CheckNullPtr, checkNullPtr)
-		JNC_STD_FUNCTION (StdFunc_CheckStackOverflow, checkStackOverflow)
-		JNC_STD_FUNCTION (StdFunc_TryLazyGetLibraryFunction, tryLazyGetLibraryFunction)
-		JNC_STD_FUNCTION (StdFunc_LazyGetLibraryFunction, lazyGetLibraryFunction)
+		// runtime checks
+
+		JNC_MAP_STD_FUNCTION (StdFunc_AssertionFailure, assertionFailure)		
+		JNC_MAP_STD_FUNCTION (StdFunc_TryCheckDataPtrRangeDirect, tryCheckDataPtrRangeDirect)
+		JNC_MAP_STD_FUNCTION (StdFunc_CheckDataPtrRangeDirect, checkDataPtrRangeDirect)
+		JNC_MAP_STD_FUNCTION (StdFunc_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
+		JNC_MAP_STD_FUNCTION (StdFunc_CheckDataPtrRangeIndirect, checkDataPtrRangeIndirect)
+		JNC_MAP_STD_FUNCTION (StdFunc_TryCheckNullPtr, tryCheckNullPtr)
+		JNC_MAP_STD_FUNCTION (StdFunc_CheckNullPtr, checkNullPtr)
+		JNC_MAP_STD_FUNCTION (StdFunc_CheckStackOverflow, checkStackOverflow)
 		
-		JNC_STD_TYPE (StdType_Error, Error)
-		JNC_STD_TYPE (StdType_String, String)
-		JNC_STD_TYPE (StdType_StringRef, StringRef)
-		JNC_STD_TYPE (StdType_StringBuilder, StringBuilder)
-		JNC_STD_TYPE (StdType_StringHashTable, StringHashTable)
-		JNC_STD_TYPE (StdType_VariantHashTable, VariantHashTable)
-		JNC_STD_TYPE (StdType_ListEntry, ListEntry)
-		JNC_STD_TYPE (StdType_List, List)
-		JNC_STD_TYPE (StdType_ConstBuffer, ConstBuffer)
-		JNC_STD_TYPE (StdType_ConstBufferRef, ConstBufferRef)
-		JNC_STD_TYPE (StdType_BufferRef, BufferRef)
-		JNC_STD_TYPE (StdType_Buffer, Buffer)
-		JNC_STD_TYPE (StdType_Recognizer, Recognizer)
-		JNC_STD_TYPE (StdType_Library, Library)
-		JNC_LIB (MulticastLib)
-	JNC_END_LIB ()
+		// dynamic libs
+
+		JNC_MAP_STD_FUNCTION (StdFunc_TryLazyGetDynamicLibFunction, tryLazyGetDynamicLibFunction)
+		JNC_MAP_STD_FUNCTION (StdFunc_LazyGetDynamicLibFunction, lazyGetDynamicLibFunction)		
+		
+		// formating literals
+
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_a, appendFmtLiteral_a)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_p, appendFmtLiteral_p)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_i32, appendFmtLiteral_i32)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_ui32, appendFmtLiteral_ui32)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_i64, appendFmtLiteral_i64)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_f, appendFmtLiteral_f)
+		JNC_MAP_STD_FUNCTION (StdFunc_AppendFmtLiteral_v, appendFmtLiteral_v)
+
+		// multicasts
+
+		JNC_MAP_HELPER (mapAllMulticastMethods)
+
+		// std types
+
+		JNC_MAP_STD_TYPE (StdType_Recognizer, Recognizer)
+		JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)	
+	JNC_END_LIB_MAP ()
 
 public:
+	// dynamic sizeof/countof/casts
+
 	static
 	size_t
 	dynamicSizeOf (DataPtr ptr)
@@ -150,6 +138,8 @@ public:
 	static
 	IfaceHdr*
 	strengthenClassPtr (IfaceHdr* iface);
+
+	// gc heap
 
 	static
 	void
@@ -198,70 +188,7 @@ public:
 
 	static
 	void
-	collectGarbage ();
-
-	static
-	void
 	gcSafePoint ();
-
-	static
-	intptr_t
-	getCurrentThreadId ()
-	{
-		return (intptr_t) mt::getCurrentThreadId ();
-	}
-
-	static
-	bool
-	createThread (FunctionPtr ptr);
-
-	static
-	void
-	sleep (uint32_t msCount);
-
-	static
-	uint64_t
-	getTimestamp ()
-	{
-		return g::getTimestamp ();
-	}
-
-	static
-	bool
-	forceThrow ()
-	{
-		return false;
-	}
-
-	static
-	DataPtr
-	getLastError ()
-	{
-		return getErrorPtr (err::getLastError ());
-	}
-
-	static
-	DataPtr
-	setPosixError (int code)
-	{
-		return getErrorPtr (err::setErrno (code));
-	}
-
-	static
-	DataPtr
-	setStringError (DataPtr stringPtr)
-	{
-		return getErrorPtr (err::setStringError ((const char*) stringPtr.m_p));
-	}
-
-	static
-	void
-	assertionFailure (
-		const char* fileName,
-		int line,
-		const char* condition,
-		const char* message
-		);
 
 	static
 	void
@@ -275,116 +202,90 @@ public:
 		);
 
 	static
-	DataPtr
-	format (
-		DataPtr formatString,
-		...
-		);
-
-	static
-	size_t
-	strLen (DataPtr ptr);
-
-	static
-	int
-	strCmp (
-		DataPtr ptr1,
-		DataPtr ptr2
-		);
-
-	static
-	int
-	striCmp (
-		DataPtr ptr1,
-		DataPtr ptr2
-		);
-
-	static
-	DataPtr 
-	strChr (
-		DataPtr ptr,
-		int c
-		);
-
-	static
-	DataPtr 
-	strCat (
-		DataPtr ptr1,
-		DataPtr ptr2
-		);
-
-	static
-	DataPtr 
-	strDup (
-		DataPtr ptr,
-		size_t length
-		);
-
-	static
-	int
-	memCmp (
-		DataPtr ptr1,
-		DataPtr ptr2,
-		size_t size
-		);
-
-	static
-	DataPtr 
-	memChr (
-		DataPtr ptr,
-		int c,
-		size_t size
-		);
-
-	static
-	void
-	memCpy (
-		DataPtr dstPtr,
-		DataPtr srcPtr,
-		size_t size
-		);
-
-	static
-	void
-	memSet (
-		DataPtr ptr,
-		int c,
-		size_t size
-		);
-
-	static
-	DataPtr
-	memCat (
-		DataPtr ptr1,
-		size_t size1,
-		DataPtr ptr2,
-		size_t size2
-		);
-
-	static
-	DataPtr
-	memDup (
-		DataPtr ptr,
-		size_t size
-		);
-
-	static
-	int
-	rand ()
-	{
-		return ::rand ();
-	}
-
-	static
-	int
-	atoi (DataPtr ptr)
-	{
-		return ptr.m_p ? ::atoi ((char*) ptr.m_p) : 0;
-	}
-
-	static
 	void*
 	getTls ();
+
+	// runtime checks
+
+	static
+	void
+	assertionFailure (
+		const char* fileName,
+		int line,
+		const char* condition,
+		const char* message
+		);
+
+	static
+	bool 
+	tryCheckDataPtrRangeDirect (
+		const void* p,
+		const void* rangeBegin,
+		size_t rangeLength
+		);
+
+	static
+	void 
+	checkDataPtrRangeDirect (
+		const void* p,
+		const void* rangeBegin,
+		size_t rangeLength
+		);
+
+	static
+	bool 
+	tryCheckDataPtrRangeIndirect (
+		const void* p,
+		size_t size,
+		DataPtrValidator* validator
+		);
+
+	static
+	void 
+	checkDataPtrRangeIndirect (
+		const void* p,
+		size_t size,
+		DataPtrValidator* validator
+		);
+
+	static
+	bool 
+	tryCheckNullPtr (
+		const void* p,
+		TypeKind typeKind
+		);
+
+	static
+	void
+	checkNullPtr (
+		const void* p,
+		TypeKind typeKind
+		);
+
+	static
+	void
+	checkStackOverflow ();
+
+	// dynamic libs
+
+	static
+	void* 
+	tryLazyGetDynamicLibFunction (
+		DynamicLib* lib,
+		size_t index,
+		const char* name
+		);
+
+	static
+	void* 
+	lazyGetDynamicLibFunction (
+		DynamicLib* lib,
+		size_t index,
+		const char* name
+		);
+
+
+	// formatting literals
 
 	static
 	size_t
@@ -468,119 +369,73 @@ public:
 		Variant variant
 		);
 
-	static
-	size_t
-	appendFmtLiteral_s (
-		FmtLiteral* fmtLiteral,
-		const char* fmtSpecifier,
-		String string
-		)
-	{
-		return appendFmtLiteralStringImpl (
-			fmtLiteral, 
-			fmtSpecifier, 
-			(const char*) string.m_ptr.m_p, 
-			string.m_length
-			);
-	}
-
-	static
-	size_t
-	appendFmtLiteral_sr (
-		FmtLiteral* fmtLiteral,
-		const char* fmtSpecifier,
-		StringRef stringRef
-		)
-	{
-		return appendFmtLiteralStringImpl (
-			fmtLiteral, 
-			fmtSpecifier, 
-			(const char*) stringRef.m_ptr.m_p, 
-			stringRef.m_length
-			);
-	}
-
-	static
-	bool 
-	tryCheckDataPtrRangeDirect (
-		const void* p,
-		const void* rangeBegin,
-		size_t rangeLength
-		);
-
-	static
-	void 
-	checkDataPtrRangeDirect (
-		const void* p,
-		const void* rangeBegin,
-		size_t rangeLength
-		);
-
-	static
-	bool 
-	tryCheckDataPtrRangeIndirect (
-		const void* p,
-		size_t size,
-		DataPtrValidator* validator
-		);
-
-	static
-	void 
-	checkDataPtrRangeIndirect (
-		const void* p,
-		size_t size,
-		DataPtrValidator* validator
-		);
-
-	static
-	bool 
-	tryCheckNullPtr (
-		const void* p,
-		TypeKind typeKind
-		);
+	// multicasts
 
 	static
 	void
-	checkNullPtr (
-		const void* p,
-		TypeKind typeKind
-		);
+	multicastDestruct (Multicast* multicast);
 
 	static
 	void
-	checkStackOverflow ();
+	multicastClear (Multicast* multicast);
 
 	static
-	void* 
-	tryLazyGetLibraryFunction (
-		Library* library,
-		size_t index,
-		const char* name
+	handle_t
+	multicastSet (
+		Multicast* multicast,
+		FunctionPtr ptr
 		);
 
 	static
-	void* 
-	lazyGetLibraryFunction (
-		Library* library,
-		size_t index,
-		const char* name
+	handle_t
+	multicastSet_t (
+		Multicast* multicast,
+		void* p
 		);
 
-protected:
-#if (_AXL_ENV == AXL_ENV_WIN)
 	static
-	DWORD
-	WINAPI
-	threadFunc (PVOID context);
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+	handle_t
+	multicastAdd (
+		Multicast* multicast,
+		FunctionPtr ptr
+		);
+
+	static
+	handle_t
+	multicastAdd_t (
+		Multicast* multicast,
+		void* p
+		);
+
+	static
+	FunctionPtr
+	multicastRemove (
+		Multicast* multicast,
+		handle_t handle
+		);
+
 	static
 	void*
-	threadFunc (void* context);
-#endif
+	multicastRemove_t (
+		Multicast* multicast,
+		handle_t handle
+		);
 
 	static
-	DataPtr
-	getErrorPtr (const err::ErrorData* errorData);
+	FunctionPtr
+	multicastGetSnapshot (Multicast* multicast);
+
+protected:
+	static
+	bool
+	mapAllMulticastMethods (Module* runtime);
+
+	static
+	void
+	mapMulticastMethods (
+		Module* module,
+		MulticastClassType* multicastType
+		);
 
 	static
 	void
@@ -609,19 +464,15 @@ protected:
 		);
 };
 
-//.............................................................................
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-strDup (
-	const char* p,
-	size_t length = -1
-	);
-
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	);
+inline
+ExtensionLib*
+getCoreLib (ExtensionLibSlotDb* slotDb)
+{
+	// no need to assign slot to corelib
+	return rtl::getSimpleSingleton <CoreLib> ();
+}
 
 //.............................................................................
 

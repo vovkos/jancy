@@ -4,7 +4,7 @@
 
 #..............................................................................
 #
-# stdlib folder
+# lib folder
 #
 
 set (
@@ -15,6 +15,7 @@ set (
 	jnc_HashTable.h
 	jnc_List.h
 	jnc_StdLib.h
+	jnc_StdLibSlots.h
 	)
 
 set (
@@ -29,6 +30,8 @@ set (
 
 set (
 	LIB_JNC_LIST
+	jnc_globals.jnc
+	jnc_Error.jnc
 	jnc_Buffer.jnc
 	jnc_String.jnc
 	jnc_HashTable.jnc
@@ -56,6 +59,18 @@ set (JNC2CPP_PL ${CMAKE_CURRENT_SOURCE_DIR}/../jnc_core/jnc2cpp.pl)
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
+	jnc_globals.jnc.cpp
+	jnc_globals.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
+	jnc_Error.jnc.cpp
+	jnc_Error.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
 	jnc_Buffer.jnc.cpp
 	jnc_Buffer.jnc
 	${JNC2CPP_PL}
@@ -78,23 +93,25 @@ add_perl_step (
 	jnc_List.jnc
 	${JNC2CPP_PL}
 	)
-	
+
 pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
-	GEN_CPP_LIST
+	GEN_JNC_CPP_LIST
+	${GEN_DIR}/jnc_globals.jnc.cpp
+	${GEN_DIR}/jnc_Error.jnc.cpp
 	${GEN_DIR}/jnc_Buffer.jnc.cpp
 	${GEN_DIR}/jnc_String.jnc.cpp
 	${GEN_DIR}/jnc_HashTable.jnc.cpp
 	${GEN_DIR}/jnc_List.jnc.cpp
 	)
 
-exclude_from_build (${GEN_CPP_LIST})  # include "*.jnc.cpp" manually
+exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 
 source_group (
 	gen
 	FILES
-	${GEN_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -123,7 +140,6 @@ include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	${CMAKE_CURRENT_LIST_DIR}
 	)
 
 add_library (
@@ -133,7 +149,7 @@ add_library (
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${LIB_JNC_LIST}
-	${GEN_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	)
 
 set_pch (

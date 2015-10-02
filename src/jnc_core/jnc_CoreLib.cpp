@@ -121,6 +121,8 @@ CoreLib::strengthenClassPtr (IfaceHdr* iface)
 		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Zombie) ? iface : NULL;
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 CoreLib::primeStaticClass (
 	Box* box,
@@ -204,352 +206,12 @@ CoreLib::createDataPtrValidator (
 }
 
 void
-CoreLib::collectGarbage ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	runtime->m_gcHeap.collect ();
-}
-
-void
 CoreLib::gcSafePoint ()
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	runtime->m_gcHeap.safePoint ();
-}
-
-size_t
-CoreLib::strLen (DataPtr ptr)
-{
-	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
-		return 0;
-
-	char* p0 = (char*) ptr.m_p;
-	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
-
-	char* p = p0;
-	while (*p && p < end)
-		p++;
-
-	return p - p0;
-}
-
-int
-CoreLib::strCmp (
-	DataPtr ptr1,
-	DataPtr ptr2
-	)
-{
-	if (ptr1.m_p == ptr2.m_p)
-		return 0;
-
-	return 
-		!ptr1.m_p ? -1 :
-		!ptr2.m_p ? 1 :
-		strcmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
-}
-
-int
-CoreLib::striCmp (
-	DataPtr ptr1,
-	DataPtr ptr2
-	)
-{
-	if (ptr1.m_p == ptr2.m_p)
-		return 0;
-
-	return 
-		!ptr1.m_p ? -1 :
-		!ptr2.m_p ? 1 :
-		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
-}
-
-DataPtr 
-CoreLib::strChr (
-	DataPtr ptr,
-	int c
-	)
-{
-	DataPtr resultPtr = { 0 };
-
-	if (!ptr.m_p)
-		return resultPtr;
-
-	resultPtr = ptr;
-	resultPtr.m_p = strchr ((char*) ptr.m_p, c);
-	return resultPtr;
-}
-
-DataPtr
-CoreLib::strCat (
-	DataPtr ptr1,
-	DataPtr ptr2
-	)
-{
-	size_t length1 = strLen (ptr1);
-	size_t length2 = strLen (ptr2);
-
-	return memCat (ptr1, length1, ptr2, length2 + 1);
-}
-
-DataPtr
-CoreLib::strDup (
-	DataPtr ptr,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = strLen (ptr);
-
-	return jnc::strDup ((const char*) ptr.m_p, length);
-}
-
-int
-CoreLib::memCmp (
-	DataPtr ptr1,
-	DataPtr ptr2,
-	size_t size
-	)
-{
-	if (ptr1.m_p == ptr2.m_p)
-		return 0;
-
-	return 
-		!ptr1.m_p ? -1 :
-		!ptr2.m_p ? 1 :
-		memcmp (ptr1.m_p, ptr2.m_p, size);
-}
-
-DataPtr 
-CoreLib::memChr (
-	DataPtr ptr,
-	int c,
-	size_t size
-	)
-{
-	DataPtr resultPtr = { 0 };
-
-	if (!ptr.m_p)
-		return resultPtr;
-
-	resultPtr = ptr;
-	resultPtr.m_p = memchr (ptr.m_p, c, size);
-	return resultPtr;
-}
-
-void
-CoreLib::memCpy (
-	DataPtr dstPtr,
-	DataPtr srcPtr,
-	size_t size
-	)
-{
-	if (dstPtr.m_p && srcPtr.m_p)
-		memcpy (dstPtr.m_p, srcPtr.m_p, size);
-}
-
-void
-CoreLib::memSet (
-	DataPtr ptr,
-	int c,
-	size_t size
-	)
-{
-	if (ptr.m_p)
-		memset (ptr.m_p, c, size);
-}
-
-DataPtr
-CoreLib::memCat (
-	DataPtr ptr1,
-	size_t size1,
-	DataPtr ptr2,
-	size_t size2
-	)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	size_t totalSize = size1 + size2;
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (totalSize);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	char* p = (char*) resultPtr.m_p;
-
-	if (ptr1.m_p)
-		memcpy (p, ptr1.m_p, size1);
-	else
-		memset (p, 0, size1);
-
-	if (ptr2.m_p)
-		memcpy (p + size1, ptr2.m_p, size2);
-	else
-		memset (p + size1, 0, size2);
-
-	return resultPtr;
-}
-
-DataPtr
-CoreLib::memDup (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	if (ptr.m_p)
-		memcpy (resultPtr.m_p, ptr.m_p, size);
-	else
-		memset (resultPtr.m_p, 0, size);
-
-	return resultPtr;
-}
-
-void
-CoreLib::sleep (uint32_t msCount)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	runtime->m_gcHeap.enterWaitRegion ();
-	g::sleep (msCount);
-	runtime->m_gcHeap.leaveWaitRegion ();
-}
-
-struct ThreadContext
-{
-	FunctionPtr m_ptr;
-	Runtime* m_runtime;
-	mt::Event m_threadStartedEvent;
-};
-
-// a small note on thread starting sequence
-
-// we must protect function closure object from being prematurely collected during passing it to the
-// newly created thread. to achieve that, createThread waits until thread func registers mutator 
-// thread with JNC_BEGIN_CALL_SITE macro. after mutator thread is registered, collection will not start until
-// we hit a safepoint within jancy thread, so we can resume host thread right after JNC_BEGIN_CALL_SITE.
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-
-DWORD
-WINAPI
-CoreLib::threadFunc (PVOID context0)
-{
-	ThreadContext* context = (ThreadContext*) context0;
-	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
-	FunctionPtr ptr = context->m_ptr;
-
-	JNC_BEGIN_CALL_SITE (context->m_runtime);
-	context->m_threadStartedEvent.signal ();
-	
-	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
-	
-	JNC_END_CALL_SITE ();
-
-	return 0;
-}
-
-bool
-CoreLib::createThread (FunctionPtr ptr)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	ThreadContext context;
-	context.m_ptr = ptr;
-	context.m_runtime = runtime;
-
-	DWORD threadId;
-	HANDLE h = ::CreateThread (NULL, 0, CoreLib::threadFunc, &context, 0, &threadId);
-
-	runtime->m_gcHeap.enterWaitRegion ();
-	context.m_threadStartedEvent.wait ();
-	runtime->m_gcHeap.leaveWaitRegion ();
-
-	return h != NULL;
-}
-
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-
-void*
-CoreLib::threadFunc (void* context0)
-{
-	ThreadContext* context = (ThreadContext*) context0;
-	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
-	FunctionPtr ptr = context->m_ptr;
-
-	JNC_BEGIN_CALL_SITE (context->m_runtime);
-	context->m_threadStartedEvent.signal ();
-
-	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
-	
-	JNC_END_CALL_SITE ();
-
-	return NULL;
-}
-
-bool
-CoreLib::createThread (FunctionPtr ptr)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	ThreadContext context;
-	context.m_ptr = ptr;
-	context.m_runtime = runtime;
-
-	pthread_t thread;
-	int result = pthread_create (&thread, NULL, CoreLib::threadFunc, &context);
-
-	runtime->m_gcHeap.enterWaitRegion ();
-	context.m_threadStartedEvent.wait ();
-	runtime->m_gcHeap.leaveWaitRegion ();
-
-	return result == 0;
-}
-
-#endif
-
-DataPtr
-CoreLib::getErrorPtr (const err::ErrorData* errorData)
-{
-	size_t size = errorData->m_size;
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	memcpy (resultPtr.m_p, errorData, size);
-	return resultPtr;
-}
-
-void
-CoreLib::assertionFailure (
-	const char* fileName,
-	int line,
-	const char* condition,
-	const char* message
-	)
-{
-	rtl::String string;
-	string.format ("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
-	if (message)
-		string.appendFormat ("; %s", message);
-
-	Runtime::runtimeError (err::createStringError (string, string.getLength ()));
 }
 
 void
@@ -573,30 +235,6 @@ CoreLib::addStaticClassDestructor (
 	runtime->m_gcHeap.addStaticClassDestructor (destructFunc, iface);
 }
 
-DataPtr
-CoreLib::format (
-	DataPtr formatStringPtr,
-	...
-	)
-{
-	AXL_VA_DECL (va, formatStringPtr);
-
-	char buffer [256];
-	rtl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
-	string.format_va ((const char*) formatStringPtr.m_p, va);
-	size_t length = string.getLength ();
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	memcpy (resultPtr.m_p, string.cc (), length);
-	return resultPtr;
-}
-
 void*
 CoreLib::getTls ()
 {
@@ -605,6 +243,213 @@ CoreLib::getTls ()
 
 	return tls + 1;
 }
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
+CoreLib::assertionFailure (
+	const char* fileName,
+	int line,
+	const char* condition,
+	const char* message
+	)
+{
+	rtl::String string;
+	string.format ("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
+	if (message)
+		string.appendFormat ("; %s", message);
+
+	Runtime::runtimeError (err::createStringError (string, string.getLength ()));
+}
+
+bool 
+CoreLib::tryCheckDataPtrRangeDirect (
+	const void* p,
+	const void* rangeBegin,
+	size_t rangeLength
+	)
+{
+	if (!p)
+	{
+		err::setStringError ("null data pointer access");
+		return false;
+	}
+
+	void* rangeEnd = rangeEnd = (char*) rangeBegin + rangeLength;
+	if (p < rangeBegin ||  p > rangeEnd)
+	{
+		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
+		return false;
+	}
+
+	return true;
+}
+
+void 
+CoreLib::checkDataPtrRangeDirect (
+	const void* p,
+	const void* rangeBegin,
+	size_t rangeLength
+	)
+{
+	bool result = tryCheckDataPtrRangeDirect (p, rangeBegin, rangeLength);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+bool 
+CoreLib::tryCheckDataPtrRangeIndirect (
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+	)
+{
+	if (!validator)
+	{
+		err::setStringError ("null data pointer access");
+		return false;
+	}
+
+	if (validator->m_rangeLength < size)
+	{
+		err::setFormatStringError (
+			"data pointer [%x:%x] out of range [%x:%x]", 
+			p, 
+			(char*) p + size,
+			validator->m_rangeBegin, 
+			(char*) validator->m_rangeBegin + validator->m_rangeLength
+			);
+
+		return false;
+	}
+
+	return tryCheckDataPtrRangeDirect (
+		p, 
+		validator->m_rangeBegin, 
+		validator->m_rangeLength - size
+		);
+}
+
+
+void 
+CoreLib::checkDataPtrRangeIndirect (
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+	)
+{
+	bool result = tryCheckDataPtrRangeIndirect (p, size, validator);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+bool 
+CoreLib::tryCheckNullPtr (
+	const void* p,
+	TypeKind typeKind
+	)
+{
+	if (p)
+		return true;
+
+	switch (typeKind)
+	{
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		err::setStringError ("null class pointer access");
+		break;
+
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
+		err::setStringError ("null function pointer access");
+		break;
+
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
+		err::setStringError ("null property pointer access");
+		break;
+
+	default:
+		err::setStringError ("null pointer access");
+	}
+
+	return false;
+}
+
+void
+CoreLib::checkNullPtr (
+	const void* p,
+	TypeKind typeKind
+	)
+{
+	bool result = tryCheckNullPtr (p, typeKind);
+	if (!result)
+		Runtime::runtimeError (err::getLastError ());
+}
+
+void
+CoreLib::checkStackOverflow ()
+{
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->checkStackOverflow ();
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void* 
+CoreLib::tryLazyGetDynamicLibFunction (
+	DynamicLib* lib,
+	size_t index,
+	const char* name
+	)
+{
+	ASSERT (lib->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* type = (ClassType*) lib->m_box->m_type;
+
+	if (!lib->m_handle)
+	{
+		err::setFormatStringError ("dynamiclib '%s' is not loaded yet", type->getQualifiedName ().cc ());
+		return NULL;
+	}
+
+	size_t librarySize = type->getIfaceStructType ()->getSize ();
+	size_t functionCount = (librarySize - sizeof (DynamicLib)) / sizeof (void*);
+
+	if (index >= functionCount)
+	{
+		err::setFormatStringError ("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ().cc ());
+		return NULL;
+	}
+
+	void** functionTable = (void**) (lib + 1);
+	if (functionTable [index])
+		return functionTable [index];
+
+	void* function = lib->getFunctionImpl (name);
+	if (!function)
+		return NULL;
+
+	functionTable [index] = function;
+	return function;
+}
+
+void* 
+CoreLib::lazyGetDynamicLibFunction (
+	DynamicLib* lib,
+	size_t index,
+	const char* name
+	)
+{
+	void* p = tryLazyGetDynamicLibFunction (lib, index, name);
+	if (!p)
+		Runtime::runtimeError (err::getLastError ());
+
+	return p;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 size_t
 CoreLib::appendFmtLiteral_a (
@@ -748,21 +593,6 @@ CoreLib::appendFmtLiteral_v (
 
 		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, length);
 	}
-	else
-	{
-		StdType stdType = variant.m_type->getStdType ();
-		switch (stdType)
-		{
-		case StdType_String:
-		case StdType_BufferRef:
-		case StdType_ConstBuffer:
-			return appendFmtLiteral_s (fmtLiteral, fmtSpecifier, *(String*) &variant);
-
-		case StdType_StringRef:
-		case StdType_ConstBufferRef:
-			return appendFmtLiteral_sr (fmtLiteral, fmtSpecifier, *(StringRef*) &variant);
-		}
-	}
 
 	char defaultString [] = "(variant)";
 	return appendFmtLiteral_a (fmtLiteral, defaultString, lengthof (defaultString));
@@ -812,240 +642,137 @@ CoreLib::appendFmtLiteralStringImpl (
 	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "s", p);
 }
 
-bool 
-CoreLib::tryCheckDataPtrRangeDirect (
-	const void* p,
-	const void* rangeBegin,
-	size_t rangeLength
-	)
-{
-	if (!p)
-	{
-		err::setStringError ("null data pointer access");
-		return false;
-	}
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	void* rangeEnd = rangeEnd = (char*) rangeBegin + rangeLength;
-	if (p < rangeBegin ||  p > rangeEnd)
-	{
-		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
-		return false;
-	}
+bool
+CoreLib::mapAllMulticastMethods (Module* module)
+{
+	rtl::ConstList <MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
+	rtl::Iterator <MulticastClassType> mcType = mcTypeList.getHead ();
+	for (; mcType; mcType++)
+		mapMulticastMethods (module, *mcType);
 
 	return true;
 }
 
-void 
-CoreLib::checkDataPtrRangeDirect (
-	const void* p,
-	const void* rangeBegin,
-	size_t rangeLength
-	)
+void
+CoreLib::multicastDestruct (Multicast* multicast)
 {
-	bool result = tryCheckDataPtrRangeDirect (p, rangeBegin, rangeLength);
-	if (!result)
-		Runtime::runtimeError (err::getLastError ());
-}
-
-bool 
-CoreLib::tryCheckDataPtrRangeIndirect (
-	const void* p,
-	size_t size,
-	DataPtrValidator* validator
-	)
-{
-	if (!validator)
-	{
-		err::setStringError ("null data pointer access");
-		return false;
-	}
-
-	if (validator->m_rangeLength < size)
-	{
-		err::setFormatStringError (
-			"data pointer [%x:%x] out of range [%x:%x]", 
-			p, 
-			(char*) p + size,
-			validator->m_rangeBegin, 
-			(char*) validator->m_rangeBegin + validator->m_rangeLength
-			);
-
-		return false;
-	}
-
-	return tryCheckDataPtrRangeDirect (
-		p, 
-		validator->m_rangeBegin, 
-		validator->m_rangeLength - size
-		);
-}
-
-
-void 
-CoreLib::checkDataPtrRangeIndirect (
-	const void* p,
-	size_t size,
-	DataPtrValidator* validator
-	)
-{
-	bool result = tryCheckDataPtrRangeIndirect (p, size, validator);
-	if (!result)
-		Runtime::runtimeError (err::getLastError ());
-}
-
-bool 
-CoreLib::tryCheckNullPtr (
-	const void* p,
-	TypeKind typeKind
-	)
-{
-	if (p)
-		return true;
-
-	switch (typeKind)
-	{
-	case TypeKind_ClassPtr:
-	case TypeKind_ClassRef:
-		err::setStringError ("null class pointer access");
-		break;
-
-	case TypeKind_FunctionPtr:
-	case TypeKind_FunctionRef:
-		err::setStringError ("null function pointer access");
-		break;
-
-	case TypeKind_PropertyPtr:
-	case TypeKind_PropertyRef:
-		err::setStringError ("null property pointer access");
-		break;
-
-	default:
-		err::setStringError ("null pointer access");
-	}
-
-	return false;
+	((MulticastImpl*) multicast)->~MulticastImpl ();
 }
 
 void
-CoreLib::checkNullPtr (
-	const void* p,
-	TypeKind typeKind
+CoreLib::multicastClear (Multicast* multicast)
+{
+	return ((MulticastImpl*) multicast)->clear ();
+}
+
+handle_t
+CoreLib::multicastSet (
+	Multicast* multicast,
+	FunctionPtr ptr
 	)
 {
-	bool result = tryCheckNullPtr (p, typeKind);
-	if (!result)
-		Runtime::runtimeError (err::getLastError ());
+	return ((MulticastImpl*) multicast)->setHandler (ptr);
 }
+
+handle_t
+CoreLib::multicastSet_t (
+	Multicast* multicast,
+	void* p
+	)
+{
+	return ((MulticastImpl*) multicast)->setHandler_t (p);
+}
+
+handle_t
+CoreLib::multicastAdd (
+	Multicast* multicast,
+	FunctionPtr ptr
+	)
+{
+	return ((MulticastImpl*) multicast)->addHandler (ptr);
+}
+
+handle_t
+CoreLib::multicastAdd_t (
+	Multicast* multicast,
+	void* p
+	)
+{
+	return ((MulticastImpl*) multicast)->addHandler_t (p);
+}
+
+FunctionPtr
+CoreLib::multicastRemove (
+	Multicast* multicast,
+	handle_t handle
+	)
+{
+	return ((MulticastImpl*) multicast)->removeHandler (handle);
+}
+
+void*
+CoreLib::multicastRemove_t (
+	Multicast* multicast,
+	handle_t handle
+	)
+{
+	return ((MulticastImpl*) multicast)->removeHandler_t (handle);
+}
+
+FunctionPtr
+CoreLib::multicastGetSnapshot (Multicast* multicast)
+{
+	return ((MulticastImpl*) multicast)->getSnapshot ();
+}
+
+void*
+CoreLib::m_multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1] =
+{
+	{
+		(void*) multicastClear,
+		(void*) multicastSet,
+		(void*) multicastAdd,
+		(void*) multicastRemove,
+		(void*) multicastGetSnapshot,
+	},
+
+	{
+		(void*) multicastClear,
+		(void*) multicastSet,
+		(void*) multicastAdd,
+		(void*) multicastRemove,
+		(void*) multicastGetSnapshot,
+	},
+
+	{
+		(void*) multicastClear,
+		(void*) multicastSet_t,
+		(void*) multicastAdd_t,
+		(void*) multicastRemove_t,
+		(void*) multicastGetSnapshot,
+	},
+};
 
 void
-CoreLib::checkStackOverflow ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	runtime->checkStackOverflow ();
-}
-
-void* 
-CoreLib::tryLazyGetLibraryFunction (
-	Library* library,
-	size_t index,
-	const char* name
+CoreLib::mapMulticastMethods (
+	Module* module,
+	MulticastClassType* multicastType
 	)
 {
-	ASSERT (library->m_box->m_type->getTypeKind () == TypeKind_Class);
-	ClassType* type = (ClassType*) library->m_box->m_type;
+	FunctionPtrTypeKind ptrTypeKind = multicastType->getTargetType ()->getPtrTypeKind ();
+	ASSERT (ptrTypeKind < FunctionPtrTypeKind__Count);
 
-	if (!library->m_handle)
+	Function* function = multicastType->getDestructor ();
+	module->mapFunction (function, (void*) multicastDestruct);
+
+	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++)
 	{
-		err::setFormatStringError ("library '%s' is not loaded yet", type->getQualifiedName ().cc ());
-		return NULL;
+		function = multicastType->getMethod ((MulticastMethodKind) i);
+		module->mapFunction (function, m_multicastMethodTable [ptrTypeKind] [i]);
 	}
-
-	size_t librarySize = type->getIfaceStructType ()->getSize ();
-	size_t functionCount = (librarySize - sizeof (Library)) / sizeof (void*);
-
-	if (index >= functionCount)
-	{
-		err::setFormatStringError ("index #%d out of range for library '%s'", index, type->getQualifiedName ().cc ());
-		return NULL;
-	}
-
-	void** functionTable = (void**) (library + 1);
-	if (functionTable [index])
-		return functionTable [index];
-
-	void* function = library->getFunctionImpl (name);
-	if (!function)
-		return NULL;
-
-	functionTable [index] = function;
-	return function;
 }
-
-void* 
-CoreLib::lazyGetLibraryFunction (
-	Library* library,
-	size_t index,
-	const char* name
-	)
-{
-	void* p = tryLazyGetLibraryFunction (library, index, name);
-	if (!p)
-		Runtime::runtimeError (err::getLastError ());
-
-	return p;
-}
-
-//.............................................................................
-
-DataPtr
-strDup (
-	const char* p,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = p ? strlen (p) : 0;
-
-	if (!length)
-		return g_nullPtr;
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	if (p)
-		memcpy (resultPtr.m_p, p, length);
-
-	return resultPtr;
-}
-
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	)
-{
-	if (!size)
-		return g_nullPtr;
-
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
-	if (!resultPtr.m_p)
-		return g_nullPtr;
-
-	if (p)
-		memcpy (resultPtr.m_p, p, size);
-
-	return resultPtr;
-}
-
 
 //.............................................................................
 

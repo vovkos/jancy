@@ -171,13 +171,6 @@ namespace jnci {
 
 //.............................................................................
 
-///; static char runtimeErrorSrc [] = 
-
-void runtimeError (
-	int error,
-	void thin* codeAddress
-	);
-
 ///; static char dynamicSizeOfSrc [] = 
 
 size_t dynamicSizeOf (void const* p);
@@ -299,46 +292,6 @@ size_t appendFmtLiteral_v (
 	variant v
 	);
 
-///; static char appendFmtLiteralSrc_s [] = 
-
-size_t appendFmtLiteral_s (
-	FmtLiteral thin* fmtLiteral,
-	char const thin* fmtSpecifier,
-	String string
-	);
-
-///; static char appendFmtLiteralSrc_sr [] = 
-
-size_t appendFmtLiteral_sr (
-	FmtLiteral thin* fmtLiteral,
-	char const thin* fmtSpecifier,
-	StringRef stringRef
-	);
-
-///; static char appendFmtLiteralSrc_cb [] = 
-
-size_t appendFmtLiteral_cb (
-	FmtLiteral thin* fmtLiteral,
-	char const thin* fmtSpecifier,
-	ConstBuffer buffer
-	);
-
-///; static char appendFmtLiteralSrc_cbr [] = 
-
-size_t appendFmtLiteral_cbr (
-	FmtLiteral thin* fmtLiteral,
-	char const thin* fmtSpecifier,
-	ConstBufferRef bufferRef
-	);
-
-///; static char appendFmtLiteralSrc_br [] = 
-
-size_t appendFmtLiteral_br (
-	FmtLiteral thin* fmtLiteral,
-	char const thin* fmtSpecifier,
-	BufferRef bufferRef
-	);
-
 ///; static char tryCheckDataPtrRangeDirectSrc [] = 
 
 bool tryCheckDataPtrRangeDirect (
@@ -373,18 +326,18 @@ void checkNullPtr (
 
 void checkStackOverflow ();
 
-///; static char tryLazyGetLibraryFunctionSrc [] = 
+///; static char tryLazyGetDynamicLibFunctionSrc [] = 
 
-void thin* tryLazyGetLibraryFunction (
-	jnc.Library* lib,
+void thin* tryLazyGetDynamicLibFunction (
+	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
 	) throws;
 
-///; static char lazyGetLibraryFunctionSrc [] = 
+///; static char lazyGetDynamicLibFunctionSrc [] = 
 
-void thin* lazyGetLibraryFunction (
-	jnc.Library* lib,
+void thin* lazyGetDynamicLibFunction (
+	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
 	);

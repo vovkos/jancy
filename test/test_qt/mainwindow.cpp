@@ -105,7 +105,7 @@ TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 //.............................................................................
 
 int
-StdLib::printf (
+TestLib::printf (
 	const char* format,
 	...
 	)
@@ -115,19 +115,19 @@ StdLib::printf (
 }
 
 void
-StdLib::testPtr (jnc::DataPtr ptr)
+TestLib::testPtr (jnc::DataPtr ptr)
 {
-	printf ("StdLib::testPtr\n");
+	printf ("TestLib::testPtr\n");
 }
 
 void
-StdLib::testVariant (jnc::Variant variant)
+TestLib::testVariant (jnc::Variant variant)
 {
-	printf ("StdLib::testVariant\n");
+	printf ("TestLib::testVariant\n");
 }
 
 void
-StdLib::qtWait (uint_t msTime)
+TestLib::qtWait (uint_t msTime)
 {
 	uint64_t start = g::getTimestamp ();
 	uint64_t interval = msTime * 10000;
@@ -488,8 +488,12 @@ bool MainWindow::compile ()
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
 #endif
 
-	QByteArray filePath = child->file().toUtf8 ();
-	m_module.create (filePath.data(), StdLib::getOpaqueClassTypeDb (), compileFlags);
+	QByteArray sourceFilePath = child->file().toUtf8 ();
+	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
+
+	m_module.create (sourceFilePath.data(), compileFlags);
+	m_module.m_extensionLibMgr.addLib (rtl::getSimpleSingleton <TestLib> ());
+	m_module.m_importMgr.m_importDirList.insertTail (appDir.constData ());
 
 	writeOutput("Parsing...\n");
 
@@ -499,7 +503,7 @@ bool MainWindow::compile ()
 	QByteArray source = child->toPlainText().toUtf8();
 
 	result = m_module.parse (
-		filePath.constData (),
+		sourceFilePath.constData (),
 		source.constData (),
 		source.size ()
 		) &&
@@ -528,7 +532,6 @@ bool MainWindow::compile ()
 
 	result =
 		m_module.createLlvmExecutionEngine () &&
-		StdLib::mapFunctions (&m_module) &&
 		m_module.jit ();
 
 	if (!result)

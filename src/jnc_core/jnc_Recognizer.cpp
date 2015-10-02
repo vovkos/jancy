@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "jnc_Recognizer.h"
-#include "jnc_StdLib.h"
 
 namespace jnc {
 
@@ -93,7 +92,7 @@ Recognizer::write (
 	}
 
 	if (length == -1)
-		length = StdLib::strLen (ptr);
+		length = strLen (ptr);
 
 	if (!length)
 		return true;

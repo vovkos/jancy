@@ -1,10 +1,10 @@
-namespace jnc {
-
 ///+++
 
-//.............................................................................
+/// AXL_SELECT_ANY char g_jnc_HashTableSrc [] = 
 
-///; static char stringHashTableTypeSrc [] = 
+namespace jnc {
+
+//.............................................................................
 
 class StringHashTable
 {
@@ -49,8 +49,6 @@ class StringHashTable
 
 //.............................................................................
 
-///; static char variantHashTableTypeSrc [] = 
-
 class VariantHashTable
 {
 	protected intptr m_impl;
@@ -94,6 +92,8 @@ class VariantHashTable
 
 //.............................................................................
 
-///---
-
 } // namespace jnc {
+
+///;
+
+///---

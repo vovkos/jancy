@@ -1,8 +1,6 @@
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_Api.h"
-#include "jnc_StdLibApiSlots.h"
+#include "jnc_StdLibSlots.h"
 
 namespace jnc {
 		
@@ -10,9 +8,9 @@ namespace jnc {
 
 struct Error: err::ErrorData
 {
-	JNC_BEGIN_TYPE ("jnc.Error", StdApiSlot_Error)
-		JNC_CONST_PROPERTY ("m_description", getDescription_s)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.Error", g_stdLibSlot, StdLibTypeSlot_Error)
+		JNC_MAP_CONST_PROPERTY ("m_description", getDescription_s)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr

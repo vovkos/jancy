@@ -4,9 +4,9 @@ namespace jnc {
 
 //.............................................................................
 
-///; static char libraryTypeSrc [] = 
+///; static char dynamicLibTypeSrc [] = 
 
-class Library
+class DynamicLib
 {
 	void thin* readonly m_handle;
 	

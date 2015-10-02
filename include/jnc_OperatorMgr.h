@@ -1534,7 +1534,7 @@ protected:
 
 	bool
 	getLibraryMember (
-		LibraryNamespace* library,
+		DynamicLibNamespace* library,
 		Closure* closure,
 		const char* name,
 		Value* resultValue

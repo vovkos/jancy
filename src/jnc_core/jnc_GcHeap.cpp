@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "jnc_GcHeap.h"
 #include "jnc_Module.h"
-#include "jnc_Api.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_CallFunction.h"
 
 namespace jnc {
@@ -982,8 +982,8 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 
-		static volatile int32_t installSignalHandlersFlag = 0;
-		mt::callOnce (installSignalHandlers, 0, &installSignalHandlersFlag);
+		static int32_t onceFlag = 0;
+		mt::callOnce (installSignalHandlers, 0, &onceFlag);
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif

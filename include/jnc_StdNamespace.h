@@ -20,7 +20,7 @@ enum StdNamespace
 
 struct StdItemSource
 {
-	const char* m_p;
+	const char* m_source;
 	size_t m_length;
 	StdNamespace m_stdNamespace;
 };

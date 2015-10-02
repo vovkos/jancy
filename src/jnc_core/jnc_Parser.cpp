@@ -28,7 +28,7 @@ Parser::Parser (Module* module)
 	m_automatonState = AutomatonState_Idle;
 	m_automatonSwitchBlock = NULL;
 	m_automatonReturnBlock = NULL;
-	m_libraryFunctionCount = 0;
+	m_dynamicLibFunctionCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
@@ -274,9 +274,9 @@ Parser::setFunctionBody (
 	)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
-	if (nspace->getNamespaceKind () == NamespaceKind_Library)
+	if (nspace->getNamespaceKind () == NamespaceKind_DynamicLib)
 	{
-		err::setFormatStringError ("library function cannot have a body");
+		err::setFormatStringError ("dynamiclib function cannot have a body");
 		return false;
 	}
 
@@ -555,7 +555,7 @@ Parser::declare (Declarator* declarator)
 {
 	m_lastDeclaredItem = NULL;
 
-	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_Library;
+	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_DynamicLib;
 
 	if ((declarator->getTypeModifiers () & TypeModifier_Property) && m_storageKind != StorageKind_Typedef)
 	{
@@ -874,9 +874,9 @@ Parser::declareFunction (
 
 	if (functionItem->getItemKind () == ModuleItemKind_Orphan)
 	{
-		if (namespaceKind == NamespaceKind_Library)
+		if (namespaceKind == NamespaceKind_DynamicLib)
 		{
-			err::setFormatStringError ("illegal orphan in library '%s'", nspace->getQualifiedName ().cc ());
+			err::setFormatStringError ("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName ().cc ());
 			return false;
 		}
 
@@ -933,9 +933,9 @@ Parser::declareFunction (
 	case NamespaceKind_Property:
 		return ((Property*) nspace)->addMethod (function);
 
-	case NamespaceKind_Library:
-		function->m_libraryTableIndex = m_libraryFunctionCount;
-		m_libraryFunctionCount++;
+	case NamespaceKind_DynamicLib:
+		function->m_libraryTableIndex = m_dynamicLibFunctionCount;
+		m_dynamicLibFunctionCount++;
 
 		// and fall through
 
@@ -1859,7 +1859,7 @@ Parser::createClassType (
 }
 
 ClassType*
-Parser::createLibraryType (const rtl::String& name)
+Parser::createDynamicLibType (const rtl::String& name)
 {
 	bool result;
 
@@ -1869,7 +1869,7 @@ Parser::createLibraryType (const rtl::String& name)
 	rtl::String qualifiedName = nspace->createQualifiedName (name);
 	classType = m_module->m_typeMgr.createClassType (name, qualifiedName);
 
-	Type* baseType = m_module->m_typeMgr.getStdType (StdType_Library);
+	Type* baseType = m_module->m_typeMgr.getStdType (StdType_DynamicLib);
 	result = classType->addBaseType (baseType) != NULL;
 	if (!result)
 		return NULL;
@@ -1878,35 +1878,35 @@ Parser::createLibraryType (const rtl::String& name)
 	if (!result)
 		return NULL;
 
-	LibraryNamespace* libraryNamespace = m_module->m_namespaceMgr.createLibraryNamespace (classType);
+	DynamicLibNamespace* dynamicLibNamespace = m_module->m_namespaceMgr.createDynamicLibNamespace (classType);
 
-	result = classType->addItem (libraryNamespace);
+	result = classType->addItem (dynamicLibNamespace);
 	if (!result)
 		return NULL;
 
 	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
-	m_module->m_namespaceMgr.openNamespace (libraryNamespace);
-	m_libraryFunctionCount = 0;
+	m_module->m_namespaceMgr.openNamespace (dynamicLibNamespace);
+	m_dynamicLibFunctionCount = 0;
 	return classType;
 }
 
 bool
-Parser::finalizeLibraryType ()
+Parser::finalizeDynamicLibType ()
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
-	ASSERT (nspace->getNamespaceKind () == NamespaceKind_Library);
+	ASSERT (nspace->getNamespaceKind () == NamespaceKind_DynamicLib);
 
-	LibraryNamespace* libraryNamespace = (LibraryNamespace*) nspace;
-	ClassType* libraryType = libraryNamespace->getLibraryType ();
+	DynamicLibNamespace* dynamicLibNamespace = (DynamicLibNamespace*) nspace;
+	ClassType* dynamicLibType = dynamicLibNamespace->getLibraryType ();
 
-	if (!m_libraryFunctionCount)
+	if (!m_dynamicLibFunctionCount)
 	{
-		err::setFormatStringError ("library '%s' has no any functions", libraryType->getQualifiedName ().cc ());
+		err::setFormatStringError ("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName ().cc ());
 		return false;
 	}
 
-	ArrayType* functionTableType = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getArrayType (m_libraryFunctionCount);
-	libraryType->createField (functionTableType);
+	ArrayType* functionTableType = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getArrayType (m_dynamicLibFunctionCount);
+	dynamicLibType->createField (functionTableType);
 	m_module->m_namespaceMgr.closeNamespace ();
 	return true;
 }
@@ -3128,33 +3128,8 @@ Parser::appendFmtLiteralValue (
 	}
 	else
 	{
-		StdType stdType = type->getStdType ();
-		switch (stdType)
-		{
-		case StdType_String:
-			appendFunc = StdFunc_AppendFmtLiteral_s;
-			break;
-
-		case StdType_StringRef:
-			appendFunc = StdFunc_AppendFmtLiteral_sr;
-			break;
-
-		case StdType_ConstBuffer:
-			appendFunc = StdFunc_AppendFmtLiteral_cb;
-			break;
-
-		case StdType_ConstBufferRef:
-			appendFunc = StdFunc_AppendFmtLiteral_cbr;
-			break;
-
-		case StdType_BufferRef:
-			appendFunc = StdFunc_AppendFmtLiteral_br;
-			break;
-
-		default:
-			err::setFormatStringError ("don't know how to format '%s'", type->getTypeString ().cc ());
-			return false;
-		}
+		err::setFormatStringError ("don't know how to format '%s'", type->getTypeString ().cc ());
+		return false;
 	}
 
 	Function* append = m_module->m_functionMgr.getStdFunction (appendFunc);

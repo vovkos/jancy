@@ -24,7 +24,9 @@ NamespaceMgr::NamespaceMgr ()
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
 	jnc->m_tag = jncName;
-	jnc->m_flags |= ModuleItemFlag_Sealed;
+	
+	// unseal for StdLib is now an extension lib
+	// jnc->m_flags |= ModuleItemFlag_Sealed;
 
 	internal->m_module = m_module;
 	internal->m_parentNamespace = global;
@@ -46,7 +48,7 @@ NamespaceMgr::clear ()
 
 	m_globalNamespaceList.clear ();
 	m_extensionNamespaceList.clear ();
-	m_libraryNamespaceList.clear ();
+	m_dynamicLibNamespaceList.clear ();
 	m_scopeList.clear ();
 	m_orphanList.clear ();
 	m_namespaceStack.clear ();
@@ -76,50 +78,12 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrLen)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StriCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrChr)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrCat)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_StrDup)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCmp)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemChr)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCpy)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemSet)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemCat)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_MemDup)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Rand)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Printf)) &&
-		global->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Atoi)) &&
 		global->addItem (jnc) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_AutomatonResult)) &&
 		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_AutomatonFunc)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Library)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Guid)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Error)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_String)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringRef)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringBuilder)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_StringHashTable)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_VariantHashTable)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ListEntry)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_List)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBuffer)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_ConstBufferRef)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_BufferRef)) &&
-		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_Buffer)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_CollectGarbage)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_CreateThread)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Sleep)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetCurrentThreadId)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetTimestamp)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Throw)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_GetLastError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_SetPosixError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_SetStringError)) &&
-		jnc->addItem (m_module->m_functionMgr.getLazyStdFunction (StdFunc_Format));
+		jnc->addItem (m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
 }
 
 Orphan*
@@ -350,20 +314,20 @@ NamespaceMgr::createExtensionNamespace (
 	return nspace;
 }
 
-LibraryNamespace*
-NamespaceMgr::createLibraryNamespace (ClassType* libraryType)
+DynamicLibNamespace*
+NamespaceMgr::createDynamicLibNamespace (ClassType* dynamicLibType)
 {
 	rtl::String name = "lib";
-	rtl::String qualifiedName = libraryType->getQualifiedName () + (utf32_t) '.' + name;
+	rtl::String qualifiedName = dynamicLibType->getQualifiedName () + (utf32_t) '.' + name;
 
-	LibraryNamespace* nspace = AXL_MEM_NEW (LibraryNamespace);
+	DynamicLibNamespace* nspace = AXL_MEM_NEW (DynamicLibNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
 	nspace->m_qualifiedName = qualifiedName;
 	nspace->m_tag = qualifiedName;
-	nspace->m_parentNamespace = libraryType;
-	nspace->m_libraryType = libraryType;
-	m_libraryNamespaceList.insertTail (nspace);
+	nspace->m_parentNamespace = dynamicLibType;
+	nspace->m_dynamicLibType = dynamicLibType;
+	m_dynamicLibNamespaceList.insertTail (nspace);
 	return nspace;
 }
 

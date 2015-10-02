@@ -1,10 +1,10 @@
-namespace jnc {
-
 ///+++
 
-//.............................................................................
+/// AXL_SELECT_ANY char g_jnc_BufferSrc [] = 
 
-///; static char constBufferTypeSrc [] = 
+namespace jnc {
+
+//.............................................................................
 
 struct ConstBuffer
 {
@@ -44,8 +44,6 @@ struct ConstBuffer
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-///; static char constBufferRefTypeSrc [] = 
 
 struct ConstBufferRef
 {
@@ -90,8 +88,6 @@ protected:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char bufferRefTypeSrc [] = 
-
 struct BufferRef
 {
 	void* readonly m_p;
@@ -126,8 +122,6 @@ protected:
 }
 
 //.............................................................................
-
-///; static char bufferTypeSrc [] = 
 
 class Buffer
 {
@@ -166,10 +160,10 @@ class Buffer
 	}
 }
 
-///;
-
 //.............................................................................
 
-///---
-
 } // namespace jnc {
+
+///;
+
+///---

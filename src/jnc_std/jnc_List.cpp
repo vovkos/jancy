@@ -183,7 +183,7 @@ List::allocateListEntry ()
 	Module* module = runtime->getModule ();
 	ASSERT (module);
 
-	Type* type = module->m_typeMgr.getStdType (StdType_ListEntry);
+	Type* type = NULL; // module->m_typeMgr.getStdType (StdType_ListEntry);
 	return runtime->m_gcHeap.allocateData (type);
 }
 

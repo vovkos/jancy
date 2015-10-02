@@ -1,9 +1,6 @@
 #pragma once
 
-#include "jnc_DataPtrType.h"
-#include "jnc_Api.h"
-#include "jnc_StdLibApiSlots.h"
-#include "jnc_Variant.h"
+#include "jnc_StdLibSlots.h"
 
 namespace jnc {
 
@@ -13,8 +10,8 @@ class List;
 
 struct ListEntry
 {
-	JNC_BEGIN_TYPE ("jnc.ListEntry", StdApiSlot_ListEntry)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.ListEntry", g_stdLibSlot, StdLibTypeSlot_ListEntry)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_nextPtr;
@@ -29,21 +26,21 @@ public:
 class List: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE ("jnc.List", StdApiSlot_List)
-		JNC_FUNCTION ("clear", &List::clear)
-		JNC_FUNCTION ("takeOver", &List::takeOver)
-		JNC_FUNCTION ("insertHead", &List::insertHead)
-		JNC_FUNCTION ("insertTail", &List::insertTail)
-		JNC_FUNCTION ("insertBefore", &List::insertBefore)
-		JNC_FUNCTION ("insertAfter", &List::insertAfter)
-		JNC_FUNCTION ("moveToHead", &List::moveToHead)
-		JNC_FUNCTION ("moveToTail", &List::moveToTail)
-		JNC_FUNCTION ("moveBefore", &List::moveBefore)
-		JNC_FUNCTION ("moveAfter", &List::moveAfter)
-		JNC_FUNCTION ("removeHead", &List::removeHead)
-		JNC_FUNCTION ("removeTail", &List::removeTail)
-		JNC_FUNCTION ("remove", &List::remove)
-	JNC_END_TYPE ()
+	JNC_BEGIN_TYPE_MAP ("jnc.List", g_stdLibSlot, StdLibTypeSlot_List)
+		JNC_MAP_FUNCTION ("clear", &List::clear)
+		JNC_MAP_FUNCTION ("takeOver", &List::takeOver)
+		JNC_MAP_FUNCTION ("insertHead", &List::insertHead)
+		JNC_MAP_FUNCTION ("insertTail", &List::insertTail)
+		JNC_MAP_FUNCTION ("insertBefore", &List::insertBefore)
+		JNC_MAP_FUNCTION ("insertAfter", &List::insertAfter)
+		JNC_MAP_FUNCTION ("moveToHead", &List::moveToHead)
+		JNC_MAP_FUNCTION ("moveToTail", &List::moveToTail)
+		JNC_MAP_FUNCTION ("moveBefore", &List::moveBefore)
+		JNC_MAP_FUNCTION ("moveAfter", &List::moveAfter)
+		JNC_MAP_FUNCTION ("removeHead", &List::removeHead)
+		JNC_MAP_FUNCTION ("removeTail", &List::removeTail)
+		JNC_MAP_FUNCTION ("remove", &List::remove)
+	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_headPtr;

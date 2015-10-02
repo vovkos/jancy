@@ -131,7 +131,7 @@ Members
 	BasicBlock* m_automatonSwitchBlock;
 	BasicBlock* m_automatonReturnBlock;
 
-	size_t m_libraryFunctionCount;
+	size_t m_dynamicLibFunctionCount;
 
 	// saved attributes
 
@@ -357,10 +357,10 @@ Members2
 		);
 
 	ClassType*
-	createLibraryType (const rtl::String& name);
+	createDynamicLibType (const rtl::String& name);
 
 	bool
-	finalizeLibraryType ();
+	finalizeDynamicLibType ();
 
 	Property*
 	createProperty (
