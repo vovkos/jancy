@@ -1,0 +1,40 @@
+///+++
+
+/// AXL_SELECT_ANY char g_std_ErrorSrc [] = 
+
+namespace std {
+
+//.............................................................................
+
+struct Guid
+{
+	uint32_t m_data1;
+	uint16_t m_data2;
+	uint16_t m_data3;
+	uint8_t m_data4 [8];
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct Error
+{
+	uint32_t readonly m_size;
+	Guid readonly m_guid;
+	uint32_t readonly m_code;
+
+	char const* const property m_description;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Error const* getLastError ();
+Error const* setPosixError (int errno);
+Error const* setStringError (char const* string);
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

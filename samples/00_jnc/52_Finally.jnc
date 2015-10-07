@@ -46,7 +46,7 @@ bool bar (int a) throws
 
 	if (a < 0)
 	{
-		jnc.setPosixError (22); // EINVAL
+		std.setPosixError (22); // EINVAL
 		return false;
 	}
 
@@ -74,7 +74,7 @@ int main ()
 		printf ("not supposed to get here\n");
 
 	catch:
-		printf ("error (%s)\n", jnc.getLastError ()->m_description);
+		printf ("error (%s)\n", std.getLastError ()->m_description);
 
 	finally:
 		printf ("try-block finalization");

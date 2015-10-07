@@ -1,0 +1,37 @@
+///+++
+
+///; AXL_SELECT_ANY char g_io_NamedPipeSrc [] = 
+
+import "io_FileStream.h"
+
+namespace io {
+
+//.............................................................................
+
+opaque class NamedPipe
+{
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool open (
+		char const* name,
+		size_t BackLog = 0		
+		) throws;
+
+	void close ();
+
+	FileStream* accept ();
+
+	event m_onIncomingConnection (uint_t syncId);
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

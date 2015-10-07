@@ -6,7 +6,7 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 
-#include "jnc_Pch.h"
+#include "jnc_ct_Pch.h"
 
 #undef min
 #undef max
@@ -34,9 +34,10 @@
 
 // Jancy
 
-#include "jnc_Module.h"
-#include "jnc_Runtime.h"
-#include "jnc_CallFunction.h"
+#include "jnc_ct_Module.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_rt_CallSite.h"
+#include "jnc_ext_ExtensionLib.h"
 
 using namespace axl;
 

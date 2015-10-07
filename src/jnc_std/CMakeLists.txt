@@ -9,33 +9,33 @@
 
 set (
 	LIB_H_LIST
-	jnc_Error.h
-	jnc_Buffer.h
-	jnc_String.h
-	jnc_HashTable.h
-	jnc_List.h
-	jnc_StdLib.h
-	jnc_StdLibSlots.h
+	jnc_std_Error.h
+	jnc_std_Buffer.h
+	jnc_std_String.h
+	jnc_std_HashTable.h
+	jnc_std_List.h
+	jnc_std_StdLib.h
+	jnc_std_StdLibGlobals.h
 	)
 
 set (
 	LIB_CPP_LIST
-	jnc_Error.cpp
-	jnc_Buffer.cpp
-	jnc_String.cpp
-	jnc_HashTable.cpp
-	jnc_List.cpp
-	jnc_StdLib.cpp
+	jnc_std_Error.cpp
+	jnc_std_Buffer.cpp
+	jnc_std_String.cpp
+	jnc_std_HashTable.cpp
+	jnc_std_List.cpp
+	jnc_std_StdLib.cpp
 	)
 
 set (
 	LIB_JNC_LIST
-	jnc_globals.jnc
-	jnc_Error.jnc
-	jnc_Buffer.jnc
-	jnc_String.jnc
-	jnc_HashTable.jnc
-	jnc_List.jnc
+	jnc_std_globals.jnc
+	jnc_std_Error.jnc
+	jnc_std_Buffer.jnc
+	jnc_std_String.jnc
+	jnc_std_HashTable.jnc
+	jnc_std_List.jnc
 	)
 
 source_group (
@@ -59,38 +59,38 @@ set (JNC2CPP_PL ${CMAKE_CURRENT_SOURCE_DIR}/../jnc_core/jnc2cpp.pl)
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
-	jnc_globals.jnc.cpp
-	jnc_globals.jnc
+	jnc_std_globals.jnc.cpp
+	jnc_std_globals.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_Error.jnc.cpp
-	jnc_Error.jnc
+	jnc_std_Error.jnc.cpp
+	jnc_std_Error.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_Buffer.jnc.cpp
-	jnc_Buffer.jnc
+	jnc_std_Buffer.jnc.cpp
+	jnc_std_Buffer.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_String.jnc.cpp
-	jnc_String.jnc
+	jnc_std_String.jnc.cpp
+	jnc_std_String.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_HashTable.jnc.cpp
-	jnc_HashTable.jnc
+	jnc_std_HashTable.jnc.cpp
+	jnc_std_HashTable.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_List.jnc.cpp
-	jnc_List.jnc
+	jnc_std_List.jnc.cpp
+	jnc_std_List.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -98,12 +98,12 @@ pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_globals.jnc.cpp
-	${GEN_DIR}/jnc_Error.jnc.cpp
-	${GEN_DIR}/jnc_Buffer.jnc.cpp
-	${GEN_DIR}/jnc_String.jnc.cpp
-	${GEN_DIR}/jnc_HashTable.jnc.cpp
-	${GEN_DIR}/jnc_List.jnc.cpp
+	${GEN_DIR}/jnc_std_globals.jnc.cpp
+	${GEN_DIR}/jnc_std_Error.jnc.cpp
+	${GEN_DIR}/jnc_std_Buffer.jnc.cpp
+	${GEN_DIR}/jnc_std_String.jnc.cpp
+	${GEN_DIR}/jnc_std_HashTable.jnc.cpp
+	${GEN_DIR}/jnc_std_List.jnc.cpp
 	)
 
 exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually

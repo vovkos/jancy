@@ -1,0 +1,55 @@
+///+++
+
+/// AXL_SELECT_ANY char g_io_SocketAddressResolverSrc [] = 
+
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//.............................................................................
+
+enum SocketAddressResolverEvent
+{
+	ResolveCompleted,
+	ResolveCancelled,
+	ResolveError,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SocketAddressResolverEventParams
+{
+	SocketAddressResolverEvent m_eventKind;
+	uint_t m_syncId;
+	SocketAddress const* m_addressTable;
+	size_t m_addressCount;
+	std.Error const* m_error;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class SocketAddressResolver
+{
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool resolve (
+		char const* name,
+		AddressFamily family = AddressFamily.Undefined
+		) throws;
+		
+	bool cancel (uint_t syncId);
+	cancelAll ();
+
+	event m_onResolverEvent (SocketAddressResolverEventParams const* params);
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

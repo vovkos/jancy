@@ -5,22 +5,21 @@
 
 //.............................................................................
 
-class MyLib: public jnc::StdLib
+class MyLib: public jnc::ext::ExtensionLib
 {
 public:
-	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunc_Printf,  &stdPrintf)
-		JNC_FUNCTION ("foo",  &foo_0)
-		JNC_OVERLOAD (&foo_1)
-		JNC_OVERLOAD (&foo_2)
-		JNC_PROPERTY ("g_simpleProp",  &getSimpleProp, &setSimpleProp)
-		JNC_PROPERTY ("g_prop",  &getProp, &setProp_0)
-		JNC_OVERLOAD (&setProp_1)
-		JNC_OVERLOAD (&setProp_2)
-		JNC_TYPE (TestStruct)
-		JNC_TYPE (TestClass)
-		JNC_LIB (jnc::StdLib)
-	JNC_END_LIB ()
+	JNC_BEGIN_LIB_MAP ()
+		JNC_MAP_FUNCTION ("printf", &stdPrintf)
+		JNC_MAP_FUNCTION ("foo",    &foo_0)
+		JNC_MAP_OVERLOAD (&foo_1)
+		JNC_MAP_OVERLOAD (&foo_2)
+		JNC_MAP_PROPERTY ("g_simpleProp",  &getSimpleProp, &setSimpleProp)
+		JNC_MAP_PROPERTY ("g_prop",  &getProp, &setProp_0)
+		JNC_MAP_OVERLOAD (&setProp_1)
+		JNC_MAP_OVERLOAD (&setProp_2)
+		JNC_MAP_TYPE (TestStruct)
+		JNC_MAP_TYPE (TestClass)
+	JNC_END_LIB_MAP ()
 
 	static
 	int
@@ -39,7 +38,7 @@ public:
 
 	static
 	void
-	foo_2 (jnc::DataPtr ptr);
+	foo_2 (jnc::rt::DataPtr ptr);
 
 	static
 	int
@@ -50,7 +49,7 @@ public:
 	setSimpleProp (int x);
 
 	static
-	jnc::DataPtr
+	jnc::rt::DataPtr
 	getProp ();
 
 	static
@@ -63,7 +62,12 @@ public:
 
 	static
 	void
-	setProp_2 (jnc::DataPtr ptr);
+	setProp_2 (jnc::rt::DataPtr ptr);
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MyLib*
+getMyLib (jnc::ext::ExtensionLibHost* host);
 
 //.............................................................................

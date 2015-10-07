@@ -12,9 +12,9 @@ LlvmIr::LlvmIr(QWidget *parent)
 	setupHighlighter();
 }
 
-void LlvmIr::addFunction(jnc::Function* function)
+void LlvmIr::addFunction(jnc::ct::Function* function)
 {
-	jnc::FunctionType* pFunctionType = function->getType ();
+	jnc::ct::FunctionType* pFunctionType = function->getType ();
 
 	appendFormat ("%s%s %s %s\n",
 		pFunctionType->getTypeModifierString ().cc (),
@@ -52,14 +52,14 @@ void LlvmIr::addFunction(jnc::Function* function)
 	}
 }
 
-bool LlvmIr::build(jnc::Module *module)
+bool LlvmIr::build(jnc::ct::Module *module)
 {
 	clear ();
 
 	appendText (module->getLlvmIrString ());
 
 /*
-	rtl::Iterator <jnc::Function> Function = module->m_functionMgr.getFunctionList ().getHead ();
+	sl::Iterator <jnc::ct::Function> Function = module->m_functionMgr.getFunctionList ().getHead ();
 	for (; Function; Function++)
 	{
 		addFunction (*Function);

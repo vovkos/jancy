@@ -3,7 +3,7 @@
 
 //.............................................................................
 
-MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
+MyCheckBox::MyCheckBox (jnc::rt::DataPtr textPtr):
 	MyWidget (new QCheckBox)
 {
 	m_qtCheckBox = (QCheckBox*) m_handle;

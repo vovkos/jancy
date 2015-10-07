@@ -18,13 +18,13 @@ bool foo (int a) throws
 
 	if (a < 0)
 	{
-		jnc.setPosixError (1); // EPERM
+		std.setPosixError (1); // EPERM
 		return false;
 	}
 
 	if (a > 100)
 	{
-		jnc.setStringError ("invalid argument");
+		std.setStringError ("invalid argument");
 		return false;
 	}
 
@@ -42,14 +42,14 @@ int main ()
 	bool result = try foo (-1);
 	if (!result)
 	{
-		printf ("foo failed (%s)\n", jnc.getLastError ().m_description);
+		printf ("foo failed (%s)\n", std.getLastError ().m_description);
 	}
 
 	foo (150);
 	return 0;
 
 catch:
-	printf ("error caught (%s)\n", jnc.getLastError ().m_description);
+	printf ("error caught (%s)\n", std.getLastError ().m_description);
 	return -1;
 }
 

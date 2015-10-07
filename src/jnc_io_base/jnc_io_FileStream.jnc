@@ -1,0 +1,97 @@
+///+++
+
+///; AXL_SELECT_ANY char g_io_FileStreamSrc [] = 
+
+import "io_MappedFile.jnc"
+
+namespace io {
+
+//.............................................................................
+
+enum FileStreamKind
+{
+	Unknown,
+	Disk,
+	Serial,
+	Pipe,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getFileStreamKindString (FileStreamKind kind)
+{
+	static char const* stringTable [] = 
+	{
+		"unknown device", // FileStreamKind.Unknown,
+		"disk file",      // FileStreamKind.Disk,
+		"serial device",  // FileStreamKind.Serial,
+		"pipe",           // FileStreamKind.Pipe,
+	};
+
+	return kind < countof (stringTable) ? 
+		stringTable [kind] : 
+		stringTable [0];
+}
+
+//.............................................................................
+
+enum FileStreamEvent
+{
+	Eof,
+	IncomingData,
+	ReadError,
+	TransmitBufferOverflow,
+	TransmitBufferReady,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct FileStreamEventParams
+{
+	FileStreamEvent m_eventKind;
+	uint_t m_syncId;
+	jnc.Error* m_error;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class FileStream
+{
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+	FileStreamKind readonly m_kind;
+
+	construct ();
+	destruct ();
+
+	bool open (
+		char const* name,
+		FileOpenFlags flags = 0
+		) throws;
+
+	void close ();
+
+	bool clear () throws; // only for disk files
+
+	size_t read (
+		void* p,
+		size_t size
+		) throws;
+
+	size_t write (
+		void const* p,
+		size_t size
+		) throws;
+
+	event m_onFileStreamEvent (FileStreamEventParams const* params);
+
+	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

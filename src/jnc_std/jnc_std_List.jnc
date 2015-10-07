@@ -1,0 +1,73 @@
+///+++
+
+/// AXL_SELECT_ANY char g_std_ListSrc [] = 
+
+namespace std {
+
+//.............................................................................
+
+///; static char listEntryTypeSrc [] = 
+
+struct ListEntry
+{
+	ListEntry* readonly m_next;
+	ListEntry* readonly m_prev;
+	intptr readonly m_validator;
+
+	variant m_data;
+}
+
+//.............................................................................
+
+class List
+{
+	ListEntry* readonly m_head;
+	ListEntry* readonly m_tail;
+	size_t readonly m_count;
+
+	clear ();
+	takeOver (List* list);
+
+	ListEntry* add (variant data)
+	{
+		return insertTail (data);
+	}
+
+	ListEntry* insertHead (variant data);
+	ListEntry* insertTail (variant data);
+
+	ListEntry* insertBefore (
+		variant item,
+		ListEntry* before
+		);
+
+	ListEntry* insertAfter (
+		variant item,
+		ListEntry* before
+		);
+
+	moveToHead (ListEntry* entry);
+	moveToTail (ListEntry* entry);
+
+	moveBefore (
+		ListEntry* entry,
+		ListEntry* before
+		);
+
+	moveAfter (
+		ListEntry* entry,
+		ListEntry* before
+		);
+		
+	variant removeHead ();
+	variant removeTail ();
+	variant remove (ListEntry* entry);
+}
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

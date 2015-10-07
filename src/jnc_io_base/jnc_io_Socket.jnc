@@ -1,0 +1,118 @@
+///+++
+
+/// AXL_SELECT_ANY char g_io_SocketSrc [] = 
+
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//.............................................................................
+
+enum SocketEvent
+{
+	ConnectCompleted,
+	ConnectCancelled,
+	ConnectError,
+	Disconnected,
+	IncomingData,
+	IncomingConnection,
+	TransmitBufferOverflow,
+	TransmitBufferReady,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SocketDisconnectEventFlags
+{
+	Reset,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SocketEventParams
+{
+	SocketEvent m_eventKind;
+	uint_t m_syncId;
+	uint_t m_flags;
+	std.Error const* m_error;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum SocketCloseKind
+{
+	Reset = 0,
+	Graceful,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class Socket
+{
+	SocketAddress const property m_address;
+	SocketAddress const property m_peerAddress;
+	
+	bool property m_isBroadcastEnabled;
+	bool property m_isNagleEnabled;
+	SocketCloseKind property m_closeKind;
+
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool open (
+		Protocol protocol,
+		AddressFamily family = AddressFamily.Ip4
+		) throws;
+
+	bool open (
+		Protocol protocol,
+		SocketAddress const* address
+		) throws;
+		
+	void close ();
+
+	bool connect (
+		SocketAddress const* address,
+		bool isSync = false
+		) throws;
+
+	bool listen (size_t backLog = 0) throws; // 0 -- default
+	Socket* accept (SocketAddress* address = null) throws;
+
+	size_t send (
+		void const* p,
+		size_t size
+		) throws;
+
+	size_t recv (
+		void* p,
+		size_t size
+		) throws;
+
+	size_t sendTo (
+		void const* p,
+		size_t size,
+		SocketAddress const* address
+		) throws;
+
+	size_t recvFrom (
+		void* p,
+		size_t size,
+		SocketAddress* address
+		) throws;
+
+	event m_onSocketEvent (SocketEventParams const* params);
+
+	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

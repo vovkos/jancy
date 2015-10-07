@@ -8,13 +8,33 @@ add_subdirectory (jnc_core)
 add_subdirectory (jnc_std)
 
 option (
-	BUILD_JNC_IO
-	"Build jancy IO extension library"
+	BUILD_JNC_IO_BASE
+	"Build jancy base IO (sockets, serial ports, files) extension library "
 	ON
 	)
 
-if (BUILD_JNC_IO)
-	add_subdirectory (jnc_io)
+if (BUILD_JNC_IO_BASE)
+	add_subdirectory (jnc_io_base)
+endif ()
+
+option (
+	BUILD_JNC_IO_SSH
+	"Build jancy SSH IO extension library"
+	ON
+	)
+
+if (BUILD_JNC_IO_SSH)
+	add_subdirectory (jnc_io_ssh)
+endif ()
+
+option (
+	BUILD_JNC_IO_PCAP
+	"Build jancy PCAP IO extension library"
+	ON
+	)
+
+if (BUILD_JNC_IO_PCAP)
+	add_subdirectory (jnc_io_pcap)
 endif ()
 
 option (
@@ -26,6 +46,5 @@ option (
 if (BUILD_JNC_APP)
 	add_subdirectory (jnc_app)
 endif ()
-
 
 #..............................................................................

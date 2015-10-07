@@ -10,20 +10,19 @@
 
 //.............................................................................
 
-class MyLib: public jnc::StdLib
+class MyLib: public jnc::ext::ExtensionLib
 {
 public:
-	JNC_BEGIN_LIB ()
-		JNC_STD_FUNCTION (jnc::StdFunc_Printf,  &stdPrintf)
-		JNC_TYPE (MyWidget)
-		JNC_TYPE (MyLayout)
-		JNC_TYPE (MyLabel)
-		JNC_TYPE (MyButton)
-		JNC_TYPE (MyCheckBox)
-		JNC_TYPE (MyTextEdit)
-		JNC_TYPE (MySlider)
-		JNC_LIB (jnc::StdLib)
-	JNC_END_LIB ()
+	JNC_BEGIN_LIB_MAP ()
+		JNC_MAP_FUNCTION ("printf",  &stdPrintf)
+		JNC_MAP_TYPE (MyWidget)
+		JNC_MAP_TYPE (MyLayout)
+		JNC_MAP_TYPE (MyLabel)
+		JNC_MAP_TYPE (MyButton)
+		JNC_MAP_TYPE (MyCheckBox)
+		JNC_MAP_TYPE (MyTextEdit)
+		JNC_MAP_TYPE (MySlider)
+	JNC_END_LIB_MAP ()
 
 	static
 	int
@@ -32,5 +31,10 @@ public:
 		...
 		);
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MyLib*
+getMyLib (jnc::ext::ExtensionLibHost* host);
 
 //.............................................................................

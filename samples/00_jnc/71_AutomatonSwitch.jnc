@@ -47,7 +47,7 @@ int main ()
 
 	bool result = try recognizer.recognize ("foo 'bar \\' bar' foo");
 	if (!result)
-		printf ("recognition error: %s\n", jnc.getLastError ().m_description);
+		printf ("recognition error: %s\n", std.getLastError ().m_description);
 
 	return 0;
 }

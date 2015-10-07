@@ -9,8 +9,8 @@
 
 set (
 	APP_H_LIST
-	ApiSlots.h
 	MyLib.h
+	MyLibGlobals.h
 	TestClass.h
 	TestStruct.h
 	)
@@ -95,6 +95,7 @@ set_target_properties (
 target_link_libraries (
 	01_export
 	jnc_core
+	jnc_std
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

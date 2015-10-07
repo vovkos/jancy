@@ -66,7 +66,7 @@ public:
 	{
 		ASSERT (m_socket != INVALID_SOCKET);
 
-		rtl::String string;
+		sl::String string;
 		string.format_va (format, va);
 		return send (m_socket, string, string.getLength (), 0);
 	}

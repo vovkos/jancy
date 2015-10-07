@@ -9,8 +9,8 @@
 
 set (
 	APP_H_LIST
-	ApiSlots.h
 	MyLib.h
+	MyLibGlobals.h
 	MyWidget.h
 	MyLayout.h
 	MyLabel.h
@@ -139,6 +139,7 @@ llvm_map_components_to_libraries (
 target_link_libraries (
 	02_dialog
 	jnc_core
+	jnc_std
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

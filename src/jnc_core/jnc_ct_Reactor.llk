@@ -1,0 +1,127 @@
+//.............................................................................
+
+start
+reactor_body
+	: '{' reactor_stmt+ '}'
+		{
+			return finalizeReactor ();
+		}
+	;
+
+reactor_stmt
+	:	reactor_expression_stmt
+	|	reactor_onevent_stmt
+	|	';'
+	;
+
+reactor_expression_stmt
+	enter
+	{
+		m_reactionBindSiteList.clear ();
+	}
+	:	expression_pass1 ';'
+			{
+				return reactorExpressionStmt (&$1.m_tokenList);
+			}
+	;
+
+reactor_onevent_stmt
+	local
+	{
+		Declarator $declarator;
+	}
+	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator> declaration_body_pass1
+			{
+				reactorOnEventDeclaration (&$2.m_valueList, &$declarator, &$4.m_tokenList);
+			}
+	;
+
+class 
+{
+	sl::BoxList <Value> m_valueList;
+}
+reactor_event_name
+	local 
+	{
+		sl::BoxList <Token> $tokenList;
+	}
+	:	'(' expression_list ')'
+			{
+				$.m_valueList.takeOver (&$2.m_valueList)
+			}
+	|	TokenKind_BindingOf '(' expression ')'
+			{
+				Value value;			
+				return 
+					m_module->m_operatorMgr.getPropertyOnChanged ($3.m_value, &value) &&
+					$.m_valueList.insertTail (value);
+			}
+	|	(any // anything until '('
+			{
+				$tokenList.insertTail ($1);
+			}
+		)+
+			{	
+				Value value;			
+				return 
+					m_module->m_operatorMgr.parseExpression (NULL, $tokenList, &value) && 
+					$.m_valueList.insertTail (value);
+			}
+	;
+
+//.............................................................................
+
+start
+reactor_body_0
+	:	'{' reactor_stmt_0+ '}'
+	;
+	
+reactor_stmt_0
+	:	reactor_expression_stmt_0
+	|	reactor_onevent_stmt_0
+	|	';'
+	;
+
+reactor_expression_stmt_0
+	:	expression_0 ';'
+			{
+				return countReactionBindSites ();
+			}
+	;
+
+reactor_onevent_stmt_0
+	local
+	{
+		Declarator $declarator;
+	}
+	enter
+	{
+		m_reactionBindSiteList.clear (); // clear bindsite list before processing expression list
+	}
+	:	TokenKind_OnEvent reactor_event_name_0 function_suffix <&$declarator>
+		reactor_compound_stmt_0
+			{
+				m_reactionIndex++;
+			}
+	;
+	
+reactor_compound_stmt_0
+	:	'{' (reactor_compound_stmt_0 | any)* '}'
+	;
+
+reactor_event_name_0
+	:	'(' expression_list_0 ')'
+		{
+			m_reactorTotalBindSiteCount += $2.m_valueList.getCount ();
+		}
+	|	TokenKind_BindingOf '(' expression_0 ')'
+			{
+				m_reactorTotalBindSiteCount++;
+			}
+	|	any+ // anything until '('
+			{
+				m_reactorTotalBindSiteCount++;
+			}
+	;
+
+//.............................................................................

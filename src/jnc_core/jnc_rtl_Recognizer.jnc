@@ -1,0 +1,75 @@
+namespace jnc {
+namespace ct {
+
+///+++
+
+//.............................................................................
+
+///; static char recognizerTypeSrc [] = 
+
+class Recognizer
+{
+	typedef AutomatonResult automaton AutomatonFunc (Recognizer* recognizer);
+
+protected:
+	uintptr_t m_internalState;
+	size_t m_stateCount;
+	uint_t thin* m_stateFlagTable;
+	uintptr_t thin* m_transitionTable; // m_stateCount x 256
+	uintptr_t m_stateId;
+	uintptr_t m_lastAcceptStateId;
+	size_t m_lastAcceptLexemeLength;
+
+public:
+	AutomatonFunc* autoget property m_automatonFunc;
+	size_t autoget property m_lexemeLengthLimit;
+	size_t autoget property m_currentOffset;
+
+	char const* readonly m_lexeme;
+	size_t readonly m_lexemeOffset;
+	size_t readonly m_lexemeLength;	
+
+public:
+	construct (AutomatonFunc* automatonFunc = null);
+
+	// incremental recognition
+
+	reset ();
+	
+	bool write (
+		char const* p,
+		size_t length = -1
+		) throws;
+
+	bool eof () throws;
+
+	// recognition in one-go
+
+	bool recognize (
+		char const* p,
+		size_t length = -1
+		) throws
+	{
+		reset ();
+		return try write (p, length) && try eof ();
+	}
+
+	bool recognize (
+		AutomatonFunc* automatonFunc,
+		char const* p,
+		size_t length = -1
+		) throws
+	{
+		m_automatonFunc = automatonFunc;
+		return try recognize (p, length);
+	}
+}
+
+///;
+
+//.............................................................................
+
+///---
+
+} // namespace ct
+} // namespace jnc

@@ -24,7 +24,7 @@ printUsage (OutStream* outStream);
 
 //.............................................................................
 
-class JncLib: public jnc::ExtensionLib
+class JncLib: public jnc::ext::ExtensionLib
 {
 public:
 	JNC_BEGIN_LIB_MAP ()
@@ -49,8 +49,8 @@ protected:
 	CmdLine* m_cmdLine;
 	OutStream* m_outStream;
 
-	jnc::Module m_module;
-	jnc::Runtime m_runtime;
+	jnc::ct::Module m_module;
+	jnc::rt::Runtime m_runtime;
 
 public:
 	Jnc ()

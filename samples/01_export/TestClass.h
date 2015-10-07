@@ -1,31 +1,32 @@
 #pragma once
 
-#include "ApiSlots.h"
+#include "MyLibGlobals.h"
 
 //.............................................................................
 
-class TestClass: public jnc::IfaceHdr
+class TestClass: public jnc::rt::IfaceHdr
 {
 public:
-	JNC_BEGIN_OPAQUE_CLASS_TYPE (TestClass, "TestClass", ApiSlot_TestClass)
-		JNC_MARK_OPAQUE_GC_ROOTS_FUNC (&TestClass::markOpaqueGcRoots)
-		JNC_CONSTRUCTOR (&(rtl::construct <TestClass, int>))
-		JNC_DESTRUCTOR (&rtl::destruct <TestClass>)
-		JNC_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
-		JNC_BINARY_OPERATOR (jnc::BinOpKind_SubAssign, &TestClass::subAssign)
-		JNC_FUNCTION ("foo", &TestClass::foo_0)
-		JNC_OVERLOAD (&TestClass::foo_1)
-		JNC_OVERLOAD (&TestClass::foo_2)
-		JNC_PROPERTY ("m_prop", &TestClass::setProp, &TestClass::setProp)
-	JNC_END_CLASS_TYPE ()
+	JNC_OPAQUE_CLASS_TYPE_INFO (TestClass, &TestClass::markOpaqueGcRoots)
+
+	JNC_BEGIN_CLASS_TYPE_MAP ("TestClass", g_myLibCacheSlot, MyLibTypeCacheSlot_TestClass)
+		JNC_MAP_CONSTRUCTOR (&(sl::construct <TestClass, int>))
+		JNC_MAP_DESTRUCTOR (&sl::destruct <TestClass>)
+		JNC_MAP_BINARY_OPERATOR (jnc::ct::BinOpKind_AddAssign, &TestClass::addAssign)
+		JNC_MAP_BINARY_OPERATOR (jnc::ct::BinOpKind_SubAssign, &TestClass::subAssign)
+		JNC_MAP_FUNCTION ("foo", &TestClass::foo_0)
+		JNC_MAP_OVERLOAD (&TestClass::foo_1)
+		JNC_MAP_OVERLOAD (&TestClass::foo_2)
+		JNC_MAP_PROPERTY ("m_prop", &TestClass::setProp, &TestClass::setProp)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public: // these fields are accessible from Jancy
-	jnc::ClassBox <jnc::Multicast> m_onNegative;
-	jnc::DataPtr m_propValue;
+	jnc::rt::ClassBox <jnc::rt::Multicast> m_onNegative;
+	jnc::rt::DataPtr m_propValue;
 
 protected: // opaque section
 	int m_internalValue;
-	jnc::IfaceHdr* m_internalObject;
+	jnc::rt::IfaceHdr* m_internalObject;
 	char m_internalData [256];
 
 public:
@@ -35,7 +36,7 @@ public:
 	
 	void
 	AXL_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
 
 	int 
 	AXL_CDECL
@@ -59,7 +60,7 @@ public:
 
 	void
 	AXL_CDECL
-	setProp (jnc::DataPtr ptr);
+	setProp (jnc::rt::DataPtr ptr);
 
 protected:
 	int

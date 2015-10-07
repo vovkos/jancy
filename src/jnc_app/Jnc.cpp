@@ -49,10 +49,10 @@ Jnc::run (
 	if (cmdLine->m_flags & JncFlag_Server)
 		return server ();
 
-	rtl::Array <char> stdInBuffer;
+	sl::Array <char> stdInBuffer;
 	io::SimpleMappedFile srcFile;
 
-	rtl::String srcName;
+	sl::String srcName;
 	const char* src;
 	size_t srcSize;
 
@@ -159,19 +159,19 @@ Jnc::compile (
 {
 	bool result;
 
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
+	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags;
 	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
-		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
+		compileFlags |= jnc::ct::ModuleCompileFlag_DebugInfo;
 
 	if (m_cmdLine->m_flags & JncFlag_McJit)
-		compileFlags |= jnc::ModuleCompileFlag_McJit;
+		compileFlags |= jnc::ct::ModuleCompileFlag_McJit;
 
 	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
-		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+		compileFlags |= jnc::ct::ModuleCompileFlag_SimpleGcSafePoint;
 
 	m_module.create ("jnc_module", compileFlags);
 	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
-	m_module.m_extensionLibMgr.addLib (rtl::getSimpleSingleton <JncLib> ());
+	m_module.m_extensionLibMgr.addLib (mt::getSimpleSingleton <JncLib> ());
 
 	result =
 		m_module.parse (fileName, source, length) &&
@@ -203,20 +203,20 @@ Jnc::runFunction (int* returnValue)
 {
 	bool result;
 
-	jnc::ModuleItem* functionItem = m_module.m_namespaceMgr.getGlobalNamespace ()->findItem (m_cmdLine->m_functionName);
-	if (!functionItem || functionItem->getItemKind () != jnc::ModuleItemKind_Function)
+	jnc::ct::ModuleItem* functionItem = m_module.m_namespaceMgr.getGlobalNamespace ()->findItem (m_cmdLine->m_functionName);
+	if (!functionItem || functionItem->getItemKind () != jnc::ct::ModuleItemKind_Function)
 	{
 		err::setFormatStringError ("'%s' is not found or not a function\n", m_cmdLine->m_functionName.cc ());
 		return false;
 	}
 
-	jnc::Function* function = (jnc::Function*) functionItem;
+	jnc::ct::Function* function = (jnc::ct::Function*) functionItem;
 
 	result = m_runtime.startup (&m_module);
 	if (!result)
 		return false;
 
-	result = jnc::callFunction (&m_runtime, function, returnValue);
+	result = jnc::rt::callFunction (&m_runtime, function, returnValue);
 	if (!result)
 		return false;
 
@@ -289,7 +289,7 @@ Jnc::client (
 {
 	int result;
 
-	rtl::String cmdLineString;
+	sl::String cmdLineString;
 
 	for (;;)
 	{

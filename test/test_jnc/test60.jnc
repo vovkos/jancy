@@ -1,14 +1,11 @@
 //.............................................................................
 
 import "io.jncx"
-
-import "jnc_Socket.jnc"
+import "io_Socket.jnc"
 
 int main ()
 {
 	printf ("main ()\n");
-
-	jnc.Socket* socket = new jnc.Socket;	
 
 	return 0;
 }

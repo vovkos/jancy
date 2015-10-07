@@ -61,7 +61,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	rtl::String fileName = (const utf16_t*) fileName_qt.unicode ();
+	sl::String fileName = (const utf16_t*) fileName_qt.unicode ();
 
 	output ("Opening '%s'...\n", fileName.cc ());
 
@@ -75,7 +75,11 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Parsing...\n");
 
-	m_module.create (fileName);
+	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
+
+	result = 
+		m_module.create (fileName) &&
+		m_module.m_extensionLibMgr.addLib (getMyLib (libHost));
 
 	result = m_module.parse (
 		fileName,
@@ -98,28 +102,20 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	output ("Mapping...\n");
-
-	result =
-		m_module.createLlvmExecutionEngine () &&
-		MyLib::mapFunctions (&m_module);
-
-	if (!result)
-	{
-		output ("%s\n", err::getLastErrorDescription ().cc ());
-		return false;
-	}
-
 	output ("JITting...\n");
 
-	result = m_module.jit ();
+	result = 
+		m_module.createLlvmExecutionEngine () &&
+		m_module.jit ();
+
 	if (!result)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
-	jnc::Function* mainFunction = m_module.getFunctionByName ("main");
+	jnc::ct::Namespace* nspace = m_module.m_namespaceMgr.getGlobalNamespace ();
+	jnc::ct::Function* mainFunction = nspace->getFunctionByName ("main");
 	if (!mainFunction)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
@@ -135,11 +131,11 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	m_layout = jnc::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
+	m_layout = jnc::rt::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
 	m_body->setLayout (m_layout->m_qtLayout);
 
 	int returnValue;
-	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::IfaceHdr*) &m_layout);
+	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::rt::IfaceHdr*) &m_layout);
 	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());

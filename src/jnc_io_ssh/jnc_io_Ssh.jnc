@@ -1,0 +1,96 @@
+///+++
+
+///; AXL_SELECT_ANY char g_io_sshSrc [] = 
+
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//.............................................................................
+
+enum SshEvent
+{
+	TcpConnectCompleted,
+	SshHandshakeCompleted,
+	SshAuthCompleted,
+	SshAuthError,
+	SshChannelOpened,
+	SshPtyRequested,
+	SshProcessStarted,
+	ConnectCompleted,
+	ConnectCancelled,
+	ConnectError,
+	Disconnected,
+	IncomingData,
+	TransmitBufferOverflow,
+	TransmitBufferReady,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SshEventParams
+{
+	SshEvent m_eventKind;
+	uint_t m_syncId;
+	jnc.Error const* m_error;
+}
+
+//.............................................................................
+
+opaque class SshChannel
+{
+	SocketAddress const property m_address;
+	SocketAddress const property m_peerAddress;
+
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool open (SocketAddress const* address = null) throws;
+	void close ();
+
+	bool connect (
+		SocketAddress const* address,
+		char const* userName,
+		char const* password,
+		char const* channelType = "session", // session, direct-tcpip, tcpip-forward, etc
+		char const* processType = "shell",   // shell, exec, subsystem, etc
+		char const* ptyType = "ansi",        // vanilla, ansi, xterm, vt102, etc
+		uint_t ptyWidth = 80,
+		uint_t ptyHeight = 24,
+		bool isSync = false
+		) throws;
+
+	bool authenticate (
+		char const* userName,
+		char const* password
+		) throws;
+		
+	bool resizePty (
+		uint_t width,
+		uint_t height,
+		bool isSync = false
+		);
+
+	size_t read (
+		void* p,
+		size_t size
+		) throws;
+
+	size_t write (
+		void const* p,
+		size_t size
+		) throws;
+
+	event m_onSshEvent (SshEventParams const* params);
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

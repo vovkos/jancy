@@ -31,6 +31,10 @@ while (chomp (my $s = <>))
 
 		if ($s !~ m/^[ \t]*$/)
 		{
+			# mask quotation marks with escapes
+
+			$s =~ s/(?<!\\)\"/\\\"/g;
+
 			print ("\"$s\\n\"\n");
 		}	
 	}	

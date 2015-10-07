@@ -18,7 +18,7 @@ TestClass::~TestClass ()
 }
 
 void
-TestClass::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+TestClass::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 {
 	// mark opaque roots (no need to mark roots visible to jancy)
 
@@ -69,7 +69,7 @@ TestClass::foo_2 (TestClass* src)
 
 void
 AXL_CDECL
-TestClass::setProp (jnc::DataPtr ptr)
+TestClass::setProp (jnc::rt::DataPtr ptr)
 {
 	printf ("  TestClass::setProp (%s)\n", ptr.m_p);
 	m_propValue = ptr;
@@ -80,7 +80,7 @@ TestClass::setInternalValue (int value)
 {
 	m_internalValue = value;
 	if (m_internalValue < 0)
-		callMulticast (jnc::getCurrentThreadRuntime (), m_onNegative);
+		callMulticast (jnc::rt::getCurrentThreadRuntime (), m_onNegative);
 
 	return value;
 }

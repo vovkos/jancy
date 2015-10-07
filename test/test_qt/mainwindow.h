@@ -18,7 +18,7 @@ struct Point
 
 //.............................................................................
 
-class TestClassA: public jnc::IfaceHdr
+class TestClassA: public jnc::rt::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassA", -1, -1)
@@ -40,7 +40,7 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TestClassB: public jnc::IfaceHdr
+class TestClassB: public jnc::rt::IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (TestClassB, &TestClassB::markOpaqueGcRoots)
@@ -55,15 +55,15 @@ public:
 public:
 	void
 	AXL_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
 
 	bool
 	AXL_CDECL
 	bar (
-		jnc::DataPtr ptr1,
-		jnc::DataPtr ptr2,
-		jnc::DataPtr ptr3,
-		jnc::DataPtr ptr4,
+		jnc::rt::DataPtr ptr1,
+		jnc::rt::DataPtr ptr2,
+		jnc::rt::DataPtr ptr3,
+		jnc::rt::DataPtr ptr4,
 		int a,
 		int b
 		);
@@ -92,13 +92,13 @@ public:
 	static
 	void
 	AXL_CDECL
-	construct_0 (jnc::DataPtr selfPtr);
+	construct_0 (jnc::rt::DataPtr selfPtr);
 
 	static
 	void
 	AXL_CDECL
 	construct_1 (
-		jnc::DataPtr selfPtr, 
+		jnc::rt::DataPtr selfPtr, 
 		int x
 		);
 
@@ -106,20 +106,20 @@ public:
 	void
 	AXL_CDECL
 	construct_2 (
-		jnc::DataPtr selfPtr, 
+		jnc::rt::DataPtr selfPtr, 
 		double y
 		);
 
 	static
 	void
 	AXL_CDECL
-	foo_0 (jnc::DataPtr selfPtr);
+	foo_0 (jnc::rt::DataPtr selfPtr);
 
 	static
 	void
 	AXL_CDECL
 	foo_1 (
-		jnc::DataPtr selfPtr, 
+		jnc::rt::DataPtr selfPtr, 
 		int x
 		);
 
@@ -127,14 +127,14 @@ public:
 	void
 	AXL_CDECL
 	foo_2 (
-		jnc::DataPtr selfPtr, 
+		jnc::rt::DataPtr selfPtr, 
 		double y
 		);
 };
 
 //.............................................................................
 
-class TestLib: public jnc::ExtensionLib
+class TestLib: public jnc::ext::ExtensionLib
 {
 public:
 	JNC_BEGIN_LIB_MAP ()
@@ -148,7 +148,7 @@ public:
 	JNC_END_LIB_MAP ()
 	
 	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY ("TestClassB", TestClassB)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (TestClassB)
 	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 	
 	static
@@ -160,11 +160,11 @@ public:
 
 	static
 	void
-	testPtr (jnc::DataPtr ptr);
+	testPtr (jnc::rt::DataPtr ptr);
 
 	static
 	void
-	testVariant (jnc::Variant variant);
+	testVariant (jnc::rt::Variant variant);
 
 	static
 	void
@@ -222,7 +222,7 @@ private:
 	void readSettings();
 	void writeSettings();
 
-	jnc::Function* findGlobalFunction(const QString &name);
+	jnc::ct::Function* findGlobalFunction(const QString &name);
 
 private:
 	QMdiArea* m_mdiArea;
@@ -251,8 +251,8 @@ private:
 	QAction* m_compileAction;
 	QAction* m_runAction;
 
-	jnc::Module m_module;
-	jnc::Runtime m_runtime;
+	jnc::ct::Module m_module;
+	jnc::rt::Runtime m_runtime;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

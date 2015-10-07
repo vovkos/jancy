@@ -1,0 +1,98 @@
+///+++
+
+///; AXL_SELECT_ANY char g_io_SocketAddressSrc [] = 
+
+namespace io {
+
+//.............................................................................
+
+enum AddressFamily: uint16_t
+{
+	Undefined = 0,
+	Ip4       = 2,
+///#if (_AXL_ENV == AXL_ENV_WIN)
+	Ip6       = 23,
+///#else
+	Ip6       = 10,
+///#endif
+}
+
+enum Protocol
+{
+	Tcp = 6,
+	Udp = 17,
+}
+
+//.............................................................................
+
+union Address_ip4
+{
+	bigendian uint32_t m_i32;
+	uint8_t m_i8 [4];	
+	
+	bool parse (char const* string) throws;
+	char const* getString () const;
+}
+
+union Address_ip6
+{
+	bigendian uint16_t m_i16 [8];
+	uint8_t m_i8 [16];
+
+	bool parse (char const* string) throws;
+	char const* getString () const;
+}
+
+//.............................................................................
+
+// socket address is network address plus transport info (matches sockaddr)
+
+alignment (2);
+
+struct SocketAddress_ip4
+{
+	AddressFamily m_family;
+	bigendian uint16_t m_port;
+	Address_ip4 m_address;
+
+	bool isEqual (SocketAddress_ip4 const* address);
+	bool isMatch (SocketAddress_ip4 const* filterAddress);
+	bool parse (char const* string) throws;
+	char const* getString () const;
+}
+
+struct SocketAddress_ip6
+{
+	AddressFamily m_family;	
+	bigendian uint16_t m_port;
+	uint32_t m_flow;
+	Address_ip6 m_address;
+	uint32_t m_scope;
+
+	bool isEqual (SocketAddress_ip6 const* address);
+	bool isMatch (SocketAddress_ip6 const* filterAddress);
+	bool parse (char const* string) throws;
+	char const* getString () const;
+}
+
+union SocketAddress
+{
+	AddressFamily m_family;	
+	SocketAddress_ip4 m_ip4;
+	SocketAddress_ip6 m_ip6;
+
+	bool isEqual (SocketAddress const* addr);
+	bool isMatch (SocketAddress const* filterAddress);
+	bool parse (char const* string) throws;
+	char const* getString () const;
+}
+
+alignment (default);
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---

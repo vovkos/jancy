@@ -45,7 +45,7 @@ main (
 
 	srand ((int) axl::g::getTimestamp ());
 	
-	rtl::String fileName = argv [1];
+	sl::String fileName = argv [1];
 
 	printf ("Opening '%s'...\n", fileName.cc ());
 
@@ -59,8 +59,12 @@ main (
 
 	printf ("Parsing...\n");
 
-	jnc::Module module;
-	module.create (fileName);
+	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
+
+	jnc::ct::Module module;
+	result =
+		module.create (fileName) &&
+		module.m_extensionLibMgr.addLib (getMyLib (libHost));
 
 	result = module.parse (
 		fileName,
@@ -83,28 +87,20 @@ main (
 		return Error_Compile;
 	}
 
-	printf ("Mapping...\n");
-
-	result =
-		module.createLlvmExecutionEngine () &&
-		MyLib::mapFunctions (&module);
-
-	if (!result)
-	{
-		printf ("%s\n", err::getLastErrorDescription ().cc ());
-		return Error_Compile;
-	}
-
 	printf ("JITting...\n");
 
-	result = module.jit ();
+	result = 
+		module.createLlvmExecutionEngine () &&
+		module.jit ();
+
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
 		return Error_Compile;
 	}
 
-	jnc::Function* mainFunction = module.getFunctionByName ("main");
+	jnc::ct::Namespace* nspace = module.m_namespaceMgr.getGlobalNamespace ();
+	jnc::ct::Function* mainFunction = nspace->getFunctionByName ("main");
 	if (!mainFunction)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -113,7 +109,7 @@ main (
 
 	printf ("Running...\n");
 
-	jnc::Runtime runtime;
+	jnc::rt::Runtime runtime;
 
 	result = runtime.startup (&module);
 	if (!result)
@@ -125,7 +121,7 @@ main (
 	Error finalResult = Error_Success;
 
 	int returnValue;
-	result = jnc::callFunction (&runtime, mainFunction, &returnValue);
+	result = jnc::rt::callFunction (&runtime, mainFunction, &returnValue);
 	if (!result)
 	{
 		printf ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());

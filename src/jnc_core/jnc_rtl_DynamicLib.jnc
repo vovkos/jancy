@@ -1,0 +1,40 @@
+namespace jnc {
+namespace ct {
+
+///+++
+
+//.............................................................................
+
+///; static char dynamicLibTypeSrc [] = 
+
+class DynamicLib
+{
+	void thin* readonly m_handle;
+	
+	property m_isOpen
+	{
+		bool get ()
+		{
+			return m_handle != null;
+		}
+	}
+
+	destruct ()
+	{
+		release ();
+	}
+
+	bool load (char const* fileName) throws;
+	void release ();
+
+	void thin* getFunction (char const* fileName) throws;
+}
+
+///;
+
+//.............................................................................
+
+///---
+
+} // namespace ct
+} // namespace jnc

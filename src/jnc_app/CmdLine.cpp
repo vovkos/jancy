@@ -7,9 +7,9 @@ CmdLine::CmdLine ()
 {
 	m_flags = 0;
 	m_serverPort = 0;
-	m_gcAllocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
-	m_gcPeriodSizeTrigger = jnc::GcDef_PeriodSizeTrigger;
-	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
+	m_gcAllocSizeTrigger = jnc::rt::GcDef_AllocSizeTrigger;
+	m_gcPeriodSizeTrigger = jnc::rt::GcDef_PeriodSizeTrigger;
+	m_stackSizeLimit = jnc::rt::RuntimeDef_StackSizeLimit;
 }
 
 //.............................................................................

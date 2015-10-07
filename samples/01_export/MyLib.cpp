@@ -4,6 +4,15 @@
 
 //.............................................................................
 
+MyLib*
+getMyLib (jnc::ext::ExtensionLibHost* host)
+{
+	g_myLibCacheSlot = host->getLibCacheSlot (g_myLibGuid);
+	return mt::getSimpleSingleton <MyLib> ();
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 int
 MyLib::stdPrintf (
 	const char* format,
@@ -27,7 +36,7 @@ MyLib::foo_1 (double x)
 }
 
 void
-MyLib::foo_2 (jnc::DataPtr ptr)
+MyLib::foo_2 (jnc::rt::DataPtr ptr)
 {
 	printf ("  MyLib::foo_2 (%s)\n", ptr.m_p);
 }
@@ -48,9 +57,9 @@ MyLib::setSimpleProp (int x)
 	g_simplePropValue = x;
 }
 
-jnc::DataPtr g_propValue = { 0 };
+jnc::rt::DataPtr g_propValue = { 0 };
 
-jnc::DataPtr 
+jnc::rt::DataPtr 
 MyLib::getProp ()
 {
 	printf ("  MyLib::getProp () => %s\n", g_propValue.m_p);
@@ -64,7 +73,7 @@ MyLib::setProp_0 (int x)
 	
 	char buffer [32];
 	int length = sprintf (buffer, "%d", x);
-	g_propValue = jnc::strDup (buffer, length);
+	g_propValue = jnc::rt::strDup (buffer, length);
 }
 
 void
@@ -74,11 +83,11 @@ MyLib::setProp_1 (double x)
 
 	char buffer [32];
 	int length = sprintf (buffer, "%f", x);
-	g_propValue = jnc::strDup (buffer, length);
+	g_propValue = jnc::rt::strDup (buffer, length);
 }
 
 void
-MyLib::setProp_2 (jnc::DataPtr ptr)
+MyLib::setProp_2 (jnc::rt::DataPtr ptr)
 {
 	printf ("  MyLib::setProp_2 (%s)\n", ptr.m_p);
 	g_propValue = ptr;

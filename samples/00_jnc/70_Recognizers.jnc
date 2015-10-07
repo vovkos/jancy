@@ -43,7 +43,7 @@ int main ()
 
 	bool result = try recognizer.recognize ("foo bar 100 baz");
 	if (!result)
-		printf ("recognition error: %s\n", jnc.getLastError ().m_description);
+		printf ("recognition error: %s\n", std.getLastError ().m_description);
 
 	// It's also OK to perform recognition incrementally, chunk by chunk.
 	// This is cructial when analyzing protocols operating over stream 
@@ -65,7 +65,7 @@ int main ()
 		recognizer.eof (); 
 
 	catch: 
-		printf ("recognition error: %s\n", jnc.getLastError ().m_description);
+		printf ("recognition error: %s\n", std.getLastError ().m_description);
 	}
 
 	return 0;

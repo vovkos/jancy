@@ -7,7 +7,7 @@
 QtSignalBridge::QtSignalBridge (QObject* parent):
 	QObject (parent)
 {
-	m_runtime = jnc::getCurrentThreadRuntime ();
+	m_runtime = jnc::rt::getCurrentThreadRuntime ();
 	ASSERT (m_runtime);
 
 	m_jncEvent = NULL;

@@ -1,18 +1,18 @@
 #pragma once
 
-#include "ApiSlots.h"
+#include "MyLibGlobals.h"
 #include "QtSignalBridge.h"
 
 //.............................................................................
 
-class MyWidget: public jnc::IfaceHdr
+class MyWidget: public jnc::rt::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE ("Widget", ApiSlot_Widget)
-		JNC_AUTOGET_PROPERTY ("m_isVisible", &MyWidget::setVisible)
-		JNC_AUTOGET_PROPERTY ("m_isEnabled", &MyWidget::setEnabled)
-		JNC_FUNCTION ("setSizePolicy", &MyWidget::setSizePolicy)
-	JNC_END_CLASS_TYPE ()
+	JNC_BEGIN_CLASS_TYPE_MAP ("Widget", g_myLibCacheSlot, MyLibTypeCacheSlot_Widget)
+		JNC_MAP_AUTOGET_PROPERTY ("m_isVisible", &MyWidget::setVisible)
+		JNC_MAP_AUTOGET_PROPERTY ("m_isEnabled", &MyWidget::setEnabled)
+		JNC_MAP_FUNCTION ("setSizePolicy", &MyWidget::setSizePolicy)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public: 
 	QWidget* m_handle;

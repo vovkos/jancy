@@ -7,10 +7,12 @@
 class MyTextEdit: public MyWidget
 {
 public:
-	JNC_BEGIN_OPAQUE_CLASS_TYPE (MyTextEdit, "TextEdit", ApiSlot_TextEdit)
-		JNC_CONSTRUCTOR (&rtl::construct <MyTextEdit>)
-		JNC_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
-	JNC_END_CLASS_TYPE ()
+	JNC_OPAQUE_CLASS_TYPE_INFO (MyTextEdit, NULL)
+
+	JNC_BEGIN_CLASS_TYPE_MAP ("TextEdit", g_myLibCacheSlot, MyLibTypeCacheSlot_TextEdit)
+		JNC_MAP_CONSTRUCTOR (&sl::construct <MyTextEdit>)
+		JNC_MAP_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
+	JNC_END_CLASS_TYPE_MAP ()
 
 public:
 	QLineEdit* m_qtLineEdit;
@@ -20,17 +22,17 @@ public:
 	MyTextEdit ();
 
 	static
-	jnc::DataPtr
+	jnc::rt::DataPtr
 	AXL_CDECL
 	getText (MyTextEdit* self)
 	{
 		QByteArray text = self->m_qtLineEdit->text ().toUtf8 ();
-		return jnc::strDup (text, text.length ());
+		return jnc::rt::strDup (text, text.length ());
 	}
 
 	void
 	AXL_CDECL
-	setText (jnc::DataPtr textPtr)
+	setText (jnc::rt::DataPtr textPtr)
 	{
 		m_qtLineEdit->setText ((const char*) textPtr.m_p);
 	}

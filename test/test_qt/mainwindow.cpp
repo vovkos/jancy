@@ -23,7 +23,7 @@ TestClassA::foo (int x)
 
 void
 AXL_CDECL
-TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+TestClassB::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 {
 //	if (self->m_hiddenIface)
 //		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);
@@ -32,10 +32,10 @@ TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 bool
 AXL_CDECL
 TestClassB::bar (
-	jnc::DataPtr ptr1,
-	jnc::DataPtr ptr2,
-	jnc::DataPtr ptr3,
-	jnc::DataPtr ptr4,
+	jnc::rt::DataPtr ptr1,
+	jnc::rt::DataPtr ptr2,
+	jnc::rt::DataPtr ptr3,
+	jnc::rt::DataPtr ptr4,
 	int a,
 	int b
 	)
@@ -54,7 +54,7 @@ TestClassB::bar (
 
 void
 AXL_CDECL
-TestStruct::construct_0 (jnc::DataPtr selfPtr)
+TestStruct::construct_0 (jnc::rt::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
@@ -62,7 +62,7 @@ TestStruct::construct_0 (jnc::DataPtr selfPtr)
 
 void
 AXL_CDECL
-TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
+TestStruct::construct_1 (jnc::rt::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
@@ -71,7 +71,7 @@ TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
 
 void
 AXL_CDECL
-TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
+TestStruct::construct_2 (jnc::rt::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
@@ -80,7 +80,7 @@ TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
 
 void
 AXL_CDECL
-TestStruct::foo_0 (jnc::DataPtr selfPtr)
+TestStruct::foo_0 (jnc::rt::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
@@ -88,7 +88,7 @@ TestStruct::foo_0 (jnc::DataPtr selfPtr)
 
 void
 AXL_CDECL
-TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
+TestStruct::foo_1 (jnc::rt::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
@@ -96,7 +96,7 @@ TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
 
 void
 AXL_CDECL
-TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
+TestStruct::foo_2 (jnc::rt::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
@@ -115,13 +115,13 @@ TestLib::printf (
 }
 
 void
-TestLib::testPtr (jnc::DataPtr ptr)
+TestLib::testPtr (jnc::rt::DataPtr ptr)
 {
 	printf ("TestLib::testPtr\n");
 }
 
 void
-TestLib::testVariant (jnc::Variant variant)
+TestLib::testVariant (jnc::rt::Variant variant)
 {
 	printf ("TestLib::testVariant\n");
 }
@@ -381,7 +381,7 @@ size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 
 size_t MainWindow::writeOutput_va(const char* format, va_list va)
 {
-	rtl::String text;
+	sl::String text;
 	text.format_va (format, va);
 	return writeOutputDirect (text, text.getLength ());
 }
@@ -446,18 +446,18 @@ void MainWindow::writeSettings()
 	s.setValue ("lastDir", m_lastDir);
 }
 
-jnc::Function* MainWindow::findGlobalFunction(const QString& name)
+jnc::ct::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	jnc::ModuleItem* item = m_module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
+	jnc::ct::ModuleItem* item = m_module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
 
 	if(!item)
 		return NULL;
 
-	if(item->getItemKind() != jnc::ModuleItemKind_Function)
+	if(item->getItemKind() != jnc::ct::ModuleItemKind_Function)
 		return NULL;
 
-	return (jnc::Function*)item;
+	return (jnc::ct::Function*)item;
 }
 
 void MainWindow::clearOutput()
@@ -483,16 +483,16 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
+	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags | jnc::ct::ModuleCompileFlag_DebugInfo;
 #else
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
+	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags;
 #endif
 
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
 
 	m_module.create (sourceFilePath.data(), compileFlags);
-	m_module.m_extensionLibMgr.addLib (rtl::getSimpleSingleton <TestLib> ());
+	m_module.m_extensionLibMgr.addLib (mt::getSimpleSingleton <TestLib> ());
 	m_module.m_importMgr.m_importDirList.insertTail (appDir.constData ());
 
 	writeOutput("Parsing...\n");
@@ -561,7 +561,7 @@ MainWindow::run ()
 			return false;
 	}
 
-	jnc::Function* mainFunction = findGlobalFunction ("main");
+	jnc::ct::Function* mainFunction = findGlobalFunction ("main");
 	if (!mainFunction)
 	{
 		writeOutput ("'main' is not found or not a function\n");
@@ -578,7 +578,7 @@ MainWindow::run ()
 	}
 
 	int returnValue;
-	result = jnc::callFunction (&m_runtime, mainFunction, &returnValue);
+	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue);
 	if (result)
 		writeOutput ("'main' returned %d.\n", returnValue);
 	else

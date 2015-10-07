@@ -23,7 +23,7 @@ printUsage (OutStream* outStream)
 {
 	printVersion (outStream);
 
-	rtl::String helpString = CmdLineSwitchTable::getHelpString ();
+	sl::String helpString = CmdLineSwitchTable::getHelpString ();
 	outStream->printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.cc ());
 }
 

@@ -1,0 +1,50 @@
+///+++
+
+///; AXL_SELECT_ANY char g_io_MappedFileSrc [] = 
+
+namespace io {
+
+//.............................................................................
+
+bitflag enum FileOpenFlags
+{
+	ReadOnly,
+	OpenExisting,
+	Exclusive,
+	ShareWrite,
+	DeleteOnClose,
+}
+
+//.............................................................................
+
+opaque class MappedFile
+{
+	size_t autoget property m_dynamicViewLimit;
+
+	bool readonly m_isOpen;
+	uint64_t autoget property m_size;
+
+	construct ();
+	destruct ();
+
+	bool open (
+		char const* name,
+		FileOpenFlags flags = 0
+		) throws;
+
+	void close ();
+
+	void* view (
+		uint64_t offset,
+		size_t size,
+		bool isPermanent = false
+		) throws;
+}
+
+//.............................................................................
+
+} // namespace io
+
+///;
+
+///---
