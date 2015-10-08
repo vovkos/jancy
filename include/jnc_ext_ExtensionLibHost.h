@@ -265,6 +265,27 @@ public:
 		) = 0;
 
 	virtual
+	void
+	gcWeakMark (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		) = 0;
+
+	virtual
+	void
+	gcMarkData (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		) = 0;
+
+	virtual
+	void
+	gcMarkClass (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		) = 0;
+
+	virtual
 	size_t 
 	strLen (rt::DataPtr ptr) = 0;
 
@@ -470,6 +491,7 @@ mapFunction (
 	g_extensionLibHost->mapFunction (module, function, p);
 }
 
+inline
 void
 addModuleSource (
 	Module* module,

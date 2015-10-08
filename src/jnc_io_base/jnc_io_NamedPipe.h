@@ -62,7 +62,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onIncomingConnectionEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 	sl::String_w m_pipeName;	
 	sl::Array <axl::io::win::NamedPipe> m_pipeArray;
 

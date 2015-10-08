@@ -107,7 +107,7 @@ protected:
 	jnc::rt::ClassBox <jnc::rt::Multicast> m_onSocketEvent;
 
 protected:
-	jnc::rt::RuntimeRef* m_runtime;
+	jnc::rt::Runtime* m_runtime;
 
 	axl::io::Socket m_socket;
 

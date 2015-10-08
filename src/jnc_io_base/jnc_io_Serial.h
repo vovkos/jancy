@@ -86,7 +86,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onSerialEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 	axl::io::Serial m_serial;
 	mt::Lock m_ioLock;
 	volatile uint_t m_ioFlags;

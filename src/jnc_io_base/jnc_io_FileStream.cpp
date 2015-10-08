@@ -8,7 +8,7 @@ namespace io {
 
 FileStream::FileStream ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 #if (_AXL_ENV == AXL_ENV_WIN)
 	m_incomingDataSize = 0;

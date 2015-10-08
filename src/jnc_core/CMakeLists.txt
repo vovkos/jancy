@@ -526,7 +526,7 @@ source_group (
 
 set (
 	PERL_PL_LIST
-	jnc2cpp.pl
+	${JNC2CPP_PL}
 	)
 
 source_group (
@@ -542,8 +542,6 @@ source_group (
 
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
-
-set (JNC2CPP_PL ${CMAKE_CURRENT_SOURCE_DIR}/jnc2cpp.pl)
 
 push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 

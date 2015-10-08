@@ -8,7 +8,7 @@ namespace io {
 	
 rt::DataPtr
 createNetworkAdapterAddress (
-	rt::RuntimeRef* runtime,
+	rt::Runtime* runtime,
 	const axl::io::NetworkAdapterAddress* srcAddress,
 	NetworkAdapterAddress* prevAddress
 	)
@@ -26,7 +26,7 @@ createNetworkAdapterAddress (
 
 rt::DataPtr
 createNetworkAdapterDesc (
-	rt::RuntimeRef* runtime,
+	rt::Runtime* runtime,
 	const axl::io::NetworkAdapterDesc* srcAdapter,
 	NetworkAdapterDesc* prevAdapter
 	)
@@ -64,7 +64,7 @@ createNetworkAdapterDescList (
 	rt::DataPtr addressCountPtr	
 	)
 {
-	rt::RuntimeRef* runtime = rt::getCurrentThreadRuntimeRef ();
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 
 	sl::StdList <axl::io::NetworkAdapterDesc> adapterList;
 	size_t adapterCount = axl::io::createNetworkAdapterDescList (&adapterList);

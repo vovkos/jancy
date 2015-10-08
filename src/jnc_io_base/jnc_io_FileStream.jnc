@@ -50,7 +50,7 @@ struct FileStreamEventParams
 {
 	FileStreamEvent m_eventKind;
 	uint_t m_syncId;
-	jnc.Error* m_error;
+	std.Error* m_error;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

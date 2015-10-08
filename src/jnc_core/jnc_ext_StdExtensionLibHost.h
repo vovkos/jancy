@@ -316,7 +316,7 @@ public:
 	virtual
 	rt::DataPtrValidator*
 	createDataPtrValidator (
-		rt::RuntimeRef* runtime,
+		rt::Runtime* runtime,
 		rt::Box* box,
 		void* rangeBegin,
 		size_t rangeLength
@@ -335,6 +335,36 @@ public:
 		)
 	{
 		return rt::primeClass (box, root, type, vtable);
+	}
+
+	virtual
+	void
+	gcWeakMark (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		)
+	{
+		gcHeap->weakMark (box);
+	}
+
+	virtual
+	void
+	gcMarkData (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		)
+	{
+		gcHeap->markData (box);
+	}
+
+	virtual
+	void
+	gcMarkClass (
+		rt::GcHeap* gcHeap,
+		rt::Box* box
+		)
+	{
+		gcHeap->markClass (box);
 	}
 
 	virtual

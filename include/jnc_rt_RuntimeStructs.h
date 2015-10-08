@@ -36,12 +36,12 @@ namespace rt {
 #ifdef _JNC_SHARED_EXTENSION_LIB
 
 typedef ext::Type    Type;
-typedef ext::Runtime RuntimeRef;
+typedef ext::Runtime Runtime;
 
 #else
 
 typedef ct::Type     Type;
-typedef Runtime      RuntimeRef;
+typedef Runtime      Runtime;
 
 #endif
 
@@ -345,7 +345,7 @@ struct GcMutatorThread: sl::ListLink
 struct Tls: public sl::ListLink
 {
 	Tls* m_prev;
-	RuntimeRef* m_runtime;
+	Runtime* m_runtime;
 	size_t m_initializeLevel;
 	void* m_stackEpoch;
 	GcMutatorThread m_gcMutatorThread;

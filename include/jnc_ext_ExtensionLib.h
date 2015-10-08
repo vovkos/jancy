@@ -49,11 +49,11 @@ public:
 
 typedef 
 ExtensionLib*
-GetExtensionLibFunc (ExtensionLibHost* host);
+ExtensionLibMainFunc (ExtensionLibHost* host);
 
 AXL_SELECT_ANY
 char
-g_getExtensionLibFuncName [] = "getJncExtensionLib";
+g_extensionLibMainFuncName [] = "jncExtensionLibMain";
 
 //.............................................................................
 
@@ -376,7 +376,7 @@ forcedExport (jnc::ext::Module* module) \
 	bool result = true;
 
 #define JNC_LIB_FORCED_SOURCE_FILE(name, sourceVar) \
-	module->m_importMgr.addSource (name, axl::sl::StringSlice (sourceVar, lengthof (sourceVar))); \
+	jnc::ext::addModuleSource (module, name, sourceVar, lengthof (sourceVar)); \
 
 #define JNC_END_LIB_FORCED_EXPORT() \
 	return true; \

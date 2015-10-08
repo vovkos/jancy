@@ -85,7 +85,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onPCapEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 	axl::io::PCap m_pcap;
 	mt::Lock m_ioLock;
 	sl::AuxList <Read> m_readList;

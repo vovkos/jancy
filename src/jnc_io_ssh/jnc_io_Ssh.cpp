@@ -8,7 +8,7 @@ namespace io {
 
 SshChannel::SshChannel ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_connectParams = NULL;
 	m_ioFlags = 0;
 	m_isOpen = false;

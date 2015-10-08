@@ -300,11 +300,12 @@ FunctionMgr::createThisValue ()
 
 			DataPtrType* ptrType = ((DataPtrType*) thisArgValue.getType ());
 			ptrType = ptrType->getTargetType ()->getDataPtrType (DataPtrTypeKind_Lean, ptrType->getFlags ());
+			Type* validatorType = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
 
 			Value ptrValue;
 			Value validatorValue;
 			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 0, NULL, &ptrValue);
-			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 1, NULL, &validatorValue);
+			m_module->m_llvmIrBuilder.createExtractValue (thisArgValue, 1, validatorType, &validatorValue);
 			m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, &ptrValue);
 			m_thisValue.setLeanDataPtr (ptrValue.getLlvmValue (), ptrType, validatorValue);
 		}

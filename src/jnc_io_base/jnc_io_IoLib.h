@@ -42,7 +42,19 @@ public:
 		JNC_MAP_TYPE (MappedFile)
 		JNC_MAP_TYPE (FileStream)
 		JNC_MAP_TYPE (NamedPipe)
+
+		JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", &createNetworkAdapterDescList)
+		JNC_MAP_FUNCTION ("io.createSerialPortDescList",     &createSerialPortDescList)
 	JNC_END_LIB_MAP ()
+
+	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Serial)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Socket)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
+	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_Serial.jnc", g_io_SerialSrc)
@@ -54,15 +66,6 @@ public:
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_FileStream.jnc", g_io_FileStreamSrc)
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_NamedPipe.jnc", g_io_NamedPipeSrc)
 	JNC_END_LIB_SOURCE_FILE_TABLE ()
-
-	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Serial)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Socket)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
-	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 };
 
 //.............................................................................

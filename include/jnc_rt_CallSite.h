@@ -37,15 +37,15 @@ namespace rt {
 
 #ifdef _JNC_SHARED_EXTENSION_LIB
 
-typedef ext::Runtime   RuntimeRef;
+typedef ext::Runtime   Runtime;
 typedef ext::Module    Module;
 typedef ext::Function  Function;
 typedef ext::Type      Type;
 typedef ext::ClassType ClassType;
 
 inline
-RuntimeRef* 
-getCurrentThreadRuntimeRef ()
+Runtime* 
+getCurrentThreadRuntime ()
 {
 	return ext::g_extensionLibHost->getCurrentThreadRuntime ();	
 }
@@ -53,7 +53,7 @@ getCurrentThreadRuntimeRef ()
 inline
 void
 initializeThread (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ExceptionRecoverySnapshot* ers
 	)
 {
@@ -63,7 +63,7 @@ initializeThread (
 inline
 void
 uninitializeThread (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ExceptionRecoverySnapshot* ers
 	)
 {
@@ -72,7 +72,7 @@ uninitializeThread (
 
 inline
 void
-enterNoCollectRegion (RuntimeRef* runtime)
+enterNoCollectRegion (Runtime* runtime)
 {
 	ext::g_extensionLibHost->enterNoCollectRegion (runtime);
 }
@@ -80,7 +80,7 @@ enterNoCollectRegion (RuntimeRef* runtime)
 inline
 void
 leaveNoCollectRegion (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	bool canCollectNow
 	)
 {
@@ -89,14 +89,14 @@ leaveNoCollectRegion (
 
 inline
 void
-enterWaitRegion (RuntimeRef* runtime)
+enterWaitRegion (Runtime* runtime)
 {
 	ext::g_extensionLibHost->enterWaitRegion (runtime);
 }
 
 inline
 void
-leaveWaitRegion (RuntimeRef* runtime)
+leaveWaitRegion (Runtime* runtime)
 {
 	ext::g_extensionLibHost->leaveWaitRegion (runtime);
 }
@@ -118,7 +118,7 @@ getMulticastCallMethodMachineCode (Multicast* multicast)
 inline
 IfaceHdr*
 allocateClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ClassType* type
 	)
 {
@@ -128,7 +128,7 @@ allocateClass (
 inline
 DataPtr
 allocateData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Type* type
 	)
 {
@@ -138,7 +138,7 @@ allocateData (
 inline
 rt::DataPtrValidator*
 createDataPtrValidator (
-	RuntimeRef* runtime,	
+	Runtime* runtime,	
 	rt::Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -157,6 +157,36 @@ primeClass (
 	)
 {
 	return ext::g_extensionLibHost->primeClass (box, root, type, vtable);
+}
+
+inline
+void
+gcWeakMark (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	ext::g_extensionLibHost->gcWeakMark (gcHeap, box);
+}
+
+inline
+void
+gcMarkData (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	ext::g_extensionLibHost->gcMarkData (gcHeap, box);
+}
+
+inline
+void
+gcMarkClass (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	ext::g_extensionLibHost->gcMarkClass (gcHeap, box);
 }
 
 inline
@@ -188,23 +218,15 @@ memDup (
 
 #else
 
-typedef Runtime       RuntimeRef;
 typedef ct::Module    Module;
 typedef ct::Function  Function;
 typedef ct::Type      Type;
 typedef ct::ClassType ClassType;
 
 inline
-RuntimeRef* 
-getCurrentThreadRuntimeRef ()
-{
-	return getCurrentThreadRuntime ();
-}
-
-inline
 void
 initializeThread (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ExceptionRecoverySnapshot* ers
 	)
 {
@@ -214,7 +236,7 @@ initializeThread (
 inline
 void
 uninitializeThread (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ExceptionRecoverySnapshot* ers
 	)
 {
@@ -223,7 +245,7 @@ uninitializeThread (
 
 inline
 void
-enterNoCollectRegion (RuntimeRef* runtime)
+enterNoCollectRegion (Runtime* runtime)
 {
 	runtime->m_gcHeap.enterNoCollectRegion ();
 }
@@ -231,7 +253,7 @@ enterNoCollectRegion (RuntimeRef* runtime)
 inline
 void
 leaveNoCollectRegion (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	bool canCollectNow
 	)
 {
@@ -240,14 +262,14 @@ leaveNoCollectRegion (
 
 inline
 void
-enterWaitRegion (RuntimeRef* runtime)
+enterWaitRegion (Runtime* runtime)
 {
 	runtime->m_gcHeap.enterWaitRegion ();
 }
 
 inline
 void
-leaveWaitRegion (RuntimeRef* runtime)
+leaveWaitRegion (Runtime* runtime)
 {
 	runtime->m_gcHeap.leaveWaitRegion ();
 }
@@ -269,7 +291,7 @@ getMulticastCallMethodMachineCode (Multicast* multicast)
 inline
 IfaceHdr*
 allocateClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ClassType* type
 	)
 {
@@ -279,7 +301,7 @@ allocateClass (
 inline
 DataPtr
 allocateData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Type* type
 	)
 {
@@ -289,7 +311,7 @@ allocateData (
 inline
 rt::DataPtrValidator*
 createDataPtrValidator (
-	RuntimeRef* runtime,	
+	Runtime* runtime,	
 	rt::Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -305,6 +327,36 @@ primeClass (
 	ClassType* type,
 	void* vtable = NULL // if null then vtable of class type will be used
 	);
+
+inline
+void
+gcWeakMark (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	gcHeap->weakMark (box);
+}
+
+inline
+void
+gcMarkData (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	gcHeap->markData (box);
+}
+
+inline
+void
+gcMarkClass (
+	GcHeap* gcHeap,
+	Box* box
+	)
+{
+	gcHeap->markClass (box);
+}
 
 size_t 
 strLen (DataPtr ptr);
@@ -348,7 +400,7 @@ primeClass (
 template <typename T>
 void
 primeClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ClassBox <T>* p,
 	Box* root
 	)
@@ -369,7 +421,7 @@ primeClass (
 template <typename T>
 void
 primeClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	ClassBox <T>* p
 	)
 {
@@ -381,12 +433,12 @@ primeClass (
 class ScopedNoCollectRegion
 {
 protected:
-	RuntimeRef* m_runtime;
+	Runtime* m_runtime;
 	bool m_canCollectOnLeave;
 
 public:
 	ScopedNoCollectRegion (
-		RuntimeRef* runtime,
+		Runtime* runtime,
 		bool canCollectOnLeave
 		)
 	{
@@ -395,7 +447,7 @@ public:
 
 	ScopedNoCollectRegion (bool canCollectOnLeave)
 	{
-		RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+		Runtime* runtime = getCurrentThreadRuntime ();
 		ASSERT (runtime);
 
 		init (runtime, canCollectOnLeave);
@@ -409,7 +461,7 @@ public:
 protected:
 	void
 	init (
-		RuntimeRef* runtime,
+		Runtime* runtime,
 		bool canCollectOnLeave
 		)
 	{
@@ -423,7 +475,7 @@ protected:
 
 #define JNC_BEGIN_CALL_SITE(runtime) \
 { \
-	jnc::rt::RuntimeRef* __jncRuntime = (runtime); \
+	jnc::rt::Runtime* __jncRuntime = (runtime); \
 	bool __jncIsNoCollectRegion = false; \
 	bool __jncCanCollectAtEnd = false; \
 	jnc::rt::ExceptionRecoverySnapshot ___jncErs; \
@@ -600,7 +652,7 @@ callFunctionImpl_u (
 template <typename RetVal>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal
 	)
@@ -620,7 +672,7 @@ template <
 	>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
 	Arg arg
@@ -642,7 +694,7 @@ template <
 	>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -666,7 +718,7 @@ template <
 	>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -692,7 +744,7 @@ template <
 	>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -720,7 +772,7 @@ template <
 	>
 bool
 callFunctionImpl_s (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -744,7 +796,7 @@ callFunctionImpl_s (
 template <typename RetVal>
 bool
 callFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal
 	)
@@ -759,7 +811,7 @@ template <
 	>
 bool
 callFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg arg
@@ -776,7 +828,7 @@ template <
 	>
 bool
 callFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -795,7 +847,7 @@ template <
 	>
 bool
 callFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -816,7 +868,7 @@ template <
 	>
 bool
 callFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -912,7 +964,7 @@ callFunction (
 inline
 bool
 callVoidFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function
 	)
 {
@@ -924,7 +976,7 @@ callVoidFunction (
 template <typename Arg>
 bool
 callVoidFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	Arg arg
 	)
@@ -940,7 +992,7 @@ template <
 	>
 bool
 callVoidFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2
@@ -958,7 +1010,7 @@ template <
 	>
 bool
 callVoidFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -978,7 +1030,7 @@ template <
 	>
 bool
 callVoidFunction (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1068,7 +1120,7 @@ callVoidFunction (
 template <typename RetVal>
 bool
 callFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal
 	)
@@ -1082,7 +1134,7 @@ template <
 	>
 bool
 callFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg arg
@@ -1098,7 +1150,7 @@ template <
 	>
 bool
 callFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -1116,7 +1168,7 @@ template <
 	>
 bool
 callFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -1136,7 +1188,7 @@ template <
 	>
 bool
 callFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg1 arg1,
@@ -1227,7 +1279,7 @@ callFunctionPtr (
 inline
 bool
 callVoidFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr
 	)
 {
@@ -1238,7 +1290,7 @@ callVoidFunctionPtr (
 template <typename Arg>
 bool
 callVoidFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg arg
 	)
@@ -1253,7 +1305,7 @@ template <
 	>
 bool
 callVoidFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2
@@ -1270,7 +1322,7 @@ template <
 	>
 bool
 callVoidFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1289,7 +1341,7 @@ template <
 	>
 bool
 callVoidFunctionPtr (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1373,7 +1425,7 @@ callVoidFunctionPtr (
 inline
 bool
 callMulticast (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Multicast* multicast
 	)
 {
@@ -1385,7 +1437,7 @@ callMulticast (
 template <typename Arg>
 bool
 callMulticast (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Multicast* multicast,
 	Arg arg
 	)
@@ -1401,7 +1453,7 @@ template <
 	>
 bool
 callMulticast (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2
@@ -1419,7 +1471,7 @@ template <
 	>
 bool
 callMulticast (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1439,7 +1491,7 @@ template <
 	>
 bool
 callMulticast (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1533,7 +1585,7 @@ callMulticast (
 
 template <typename T>
 T*
-createClass (RuntimeRef* runtime)
+createClass (Runtime* runtime)
 {
 	bool result;
 	T* p;
@@ -1553,7 +1605,7 @@ template <
 	>
 T*
 createClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg arg
 	)
 {
@@ -1576,7 +1628,7 @@ template <
 	>
 T*
 createClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2
 	)
@@ -1601,7 +1653,7 @@ template <
 	>
 T*
 createClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
@@ -1628,7 +1680,7 @@ template <
 	>
 T*
 createClass (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
@@ -1653,7 +1705,7 @@ template <typename T>
 T*
 createClass ()
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	ClassType* type = T::getType (runtime);
@@ -1670,7 +1722,7 @@ template <
 T*
 createClass (Arg arg)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	ClassType* type = T::getType (runtime);
@@ -1691,7 +1743,7 @@ createClass (
 	Arg2 arg2
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	ClassType* type = T::getType (runtime);
@@ -1714,7 +1766,7 @@ createClass (
 	Arg3 arg3
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	ClassType* type = T::getType (runtime);
@@ -1739,7 +1791,7 @@ createClass (
 	Arg4 arg4
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	ClassType* type = T::getType (runtime);
@@ -1753,7 +1805,7 @@ createClass (
 
 template <typename T>
 DataPtr
-createData (RuntimeRef* runtime)
+createData (Runtime* runtime)
 {
 	bool result;
 	DataPtr ptr;
@@ -1773,7 +1825,7 @@ template <
 	>
 DataPtr
 createData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg arg
 	)
 {
@@ -1796,7 +1848,7 @@ template <
 	>
 DataPtr
 createData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2
 	)
@@ -1821,7 +1873,7 @@ template <
 	>
 DataPtr
 createData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
@@ -1848,7 +1900,7 @@ template <
 	>
 DataPtr
 createData (
-	RuntimeRef* runtime,
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
@@ -1873,7 +1925,7 @@ template <typename T>
 DataPtr
 createData ()
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	Type* type = T::getType (runtime);
@@ -1890,7 +1942,7 @@ template <
 DataPtr
 createData (Arg arg)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	Type* type = T::getType (runtime);
@@ -1911,7 +1963,7 @@ createData (
 	Arg2 arg2
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	Type* type = T::getType (runtime);
@@ -1934,7 +1986,7 @@ createData (
 	Arg3 arg3
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	Type* type = T::getType (runtime);
@@ -1959,7 +2011,7 @@ createData (
 	Arg4 arg4
 	)
 {
-	RuntimeRef* runtime = getCurrentThreadRuntimeRef ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	Type* type = T::getType (runtime);

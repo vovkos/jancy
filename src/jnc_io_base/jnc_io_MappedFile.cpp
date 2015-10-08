@@ -8,7 +8,7 @@ namespace io {
 
 MappedFile::MappedFile ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_dynamicViewLimit = axl::io::MappedFile::DefaultsKind_MaxDynamicViewCount;
 	m_size = 0;
 	m_isOpen = false;

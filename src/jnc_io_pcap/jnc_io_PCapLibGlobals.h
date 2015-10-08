@@ -3,7 +3,7 @@
 namespace jnc {
 namespace ext {
 
-AXL_SELECT_ANY ext::ExtensionLibHost* g_extensionLibHost;
+AXL_SELECT_ANY ExtensionLibHost* g_extensionLibHost;
 
 } // namespace ext
 

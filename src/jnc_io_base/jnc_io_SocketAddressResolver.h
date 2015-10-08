@@ -76,7 +76,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onSocketAddressResolverEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 
 	mt::Lock m_ioLock;
 	uint_t m_ioFlags;

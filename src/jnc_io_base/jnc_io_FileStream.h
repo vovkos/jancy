@@ -104,7 +104,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onFileStreamEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 	axl::io::File m_file;
 
 	mt::Lock m_ioLock;

@@ -2,7 +2,7 @@
 
 ///; AXL_SELECT_ANY char g_io_NamedPipeSrc [] = 
 
-import "io_FileStream.h"
+import "io_FileStream.jnc"
 
 namespace io {
 

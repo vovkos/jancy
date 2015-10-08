@@ -32,7 +32,7 @@ struct SshEventParams
 {
 	SshEvent m_eventKind;
 	uint_t m_syncId;
-	jnc.Error const* m_error;
+	std.Error const* m_error;
 }
 
 //.............................................................................

@@ -138,7 +138,7 @@ protected:
 	rt::ClassBox <rt::Multicast> m_onSshChannelEvent;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 
 	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;

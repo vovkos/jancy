@@ -438,6 +438,7 @@ public:
 		setLlvmValue (llvmValue, (Type*) type);
 		setLeanDataPtrValidator (originValue);
 	}
+
 	void
 	setLeanDataPtr (
 		llvm::Value* llvmValue,

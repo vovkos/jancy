@@ -51,7 +51,7 @@ ImportMgr::addImport (const char* fileName)
 			return true;
 
 		m_extensionLibFilePathCache.insertTail (filePath);
-		return m_module->m_extensionLibMgr.loadDynamicLib (filePath);
+		return m_module->m_extensionLibMgr.loadDynamicLib (filePath) != NULL;
 	}
 
 	// source. search extension libs first

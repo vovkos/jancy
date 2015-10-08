@@ -8,7 +8,7 @@ namespace io {
 
 Socket::Socket ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;

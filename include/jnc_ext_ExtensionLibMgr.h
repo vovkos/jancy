@@ -34,7 +34,7 @@ public:
 	void
 	clear ();
 
-	bool
+	ExtensionLib*
 	loadDynamicLib (const char* fileName);
 
 	bool

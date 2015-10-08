@@ -1,5 +1,4 @@
 namespace jnc {
-namespace ct {
 
 ///+++
 
@@ -27,7 +26,6 @@ enum AutomatonResult
 
 ///---
 
-} // namespace ct
 } // namespace jnc
 
 namespace jnci {

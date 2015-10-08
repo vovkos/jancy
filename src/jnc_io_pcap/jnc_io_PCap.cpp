@@ -8,7 +8,7 @@ namespace io {
 
 PCap::PCap ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	memset (&m_filter, 0, sizeof (m_filter));
 	m_isPromiscious = false;
@@ -263,7 +263,7 @@ getIpFromSockAddr (const sockaddr* sockAddr)
 
 void
 setupPCapAddress (
-	rt::RuntimeRef* runtime,
+	rt::Runtime* runtime,
 	PCapAddress* address,
 	const pcap_addr* ifaceAddr
 	)
@@ -313,7 +313,7 @@ createPCapDeviceDescList (rt::DataPtr countPtr)
 	if (!ifaceList)
 		return rt::g_nullPtr;
 
-	rt::RuntimeRef* runtime = rt::getCurrentThreadRuntimeRef ();
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
 
 	rt::Type* deviceType = PCapDeviceDesc::getType (runtime);

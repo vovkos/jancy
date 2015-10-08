@@ -8,7 +8,7 @@ namespace io {
 
 SocketAddressResolver::SocketAddressResolver ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_syncId = 0;
 }

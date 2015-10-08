@@ -34,26 +34,30 @@ ExtensionLibMgr::addLib (ExtensionLib* lib)
 	return true;
 }
 
-bool
+ExtensionLib*
 ExtensionLibMgr::loadDynamicLib (const char* fileName)
 {
 	mt::DynamicLibrary* dynamicLib = m_dynamicLibList.insertTail ().p ();
 	bool result = dynamicLib->load (fileName);
 	if (!result)
-		return false;
+		return NULL;
 
-	GetExtensionLibFunc* getLibFunc = (GetExtensionLibFunc*) dynamicLib->getFunction (g_getExtensionLibFuncName);
-	if (!getLibFunc)
-		return false;
+	ExtensionLibMainFunc* mainFunc = (ExtensionLibMainFunc*) dynamicLib->getFunction (g_extensionLibMainFuncName);
+	if (!mainFunc)
+		return NULL;
 
-	ExtensionLib* extensionLib = getLibFunc (getStdExtensionLibHost ());
+	ExtensionLib* extensionLib = mainFunc (getStdExtensionLibHost ());
 	if (!extensionLib)
 	{
 		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
-		return false;
+		return NULL;
 	}
 	
-	return addLib (extensionLib);
+	result = addLib (extensionLib);
+	if (!result)
+		return NULL;
+
+	return extensionLib;
 }
 
 bool

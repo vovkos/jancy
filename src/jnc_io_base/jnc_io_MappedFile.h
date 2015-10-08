@@ -31,7 +31,7 @@ protected:
 	uint64_t m_size;
 
 protected:
-	rt::RuntimeRef* m_runtime;
+	rt::Runtime* m_runtime;
 	axl::io::MappedFile m_file;
 
 public:

@@ -8,7 +8,7 @@ namespace io {
 
 Serial::Serial ()
 {
-	m_runtime = rt::getCurrentThreadRuntimeRef ();
+	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;
@@ -354,7 +354,7 @@ typedef sl::Handle <HDEVINFO, DestroyDevInfoList, sl::MinusOne <HDEVINFO> > DevI
 
 rt::DataPtr
 createSerialPortDesc (
-	rt::RuntimeRef* runtime,
+	rt::Runtime* runtime,
 	HDEVINFO devInfoList,
 	PSP_DEVINFO_DATA devInfo
 	)
@@ -462,7 +462,7 @@ createSerialPortDescList (rt::DataPtr countPtr)
 	if (!result)
 		return rt::g_nullPtr;
 
-	rt::RuntimeRef* runtime = rt::getCurrentThreadRuntimeRef ();
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
 
 	rt::DataPtr portPtr = createSerialPortDesc (runtime, devInfoList, &devInfo);
@@ -498,7 +498,7 @@ createSerialPortDescList (rt::DataPtr countPtr)
 
 rt::DataPtr
 createSerialPortDesc (
-	rt::RuntimeRef* runtime,
+	rt::Runtime* runtime,
 	const char* portName
 	)
 {
@@ -522,7 +522,7 @@ createSerialPortDescList (rt::DataPtr countPtr)
 
 	size_t deviceCount = countof (deviceNameTable);
 
-	rt::RuntimeRef* runtime = rt::getCurrentThreadRuntimeRef ();
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
 
 	rt::DataPtr portPtr = createSerialPortDesc (runtime, deviceNameTable [0]);

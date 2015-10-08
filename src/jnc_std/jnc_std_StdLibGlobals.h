@@ -12,7 +12,6 @@ AXL_SL_DEFINE_GUID (
 	);
 
 AXL_SELECT_ANY size_t g_stdLibCacheSlot;
-AXL_SELECT_ANY ext::ExtensionLibHost* g_stdLibHost;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

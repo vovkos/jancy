@@ -6,8 +6,6 @@ namespace std {
 
 //.............................................................................
 
-///; static char listEntryTypeSrc [] = 
-
 struct ListEntry
 {
 	ListEntry* readonly m_next;
