@@ -139,8 +139,8 @@ set_target_properties (
 
 target_link_libraries (
 	jnc_app
-	jnc_core
 	jnc_std
+	jnc_core
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

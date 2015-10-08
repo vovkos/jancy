@@ -169,9 +169,17 @@ Jnc::compile (
 	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
 		compileFlags |= jnc::ct::ModuleCompileFlag_SimpleGcSafePoint;
 
-	m_module.create ("jnc_module", compileFlags);
+	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
+
+	result = 
+		m_module.create ("jnc_module", compileFlags) &&
+		m_module.m_extensionLibMgr.addLib (jnc::ext::getStdLib (libHost)) &&
+		m_module.m_extensionLibMgr.addLib (mt::getSimpleSingleton <JncLib> ());
+
+	if (!result)
+		return false;
+
 	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
-	m_module.m_extensionLibMgr.addLib (mt::getSimpleSingleton <JncLib> ());
 
 	result =
 		m_module.parse (fileName, source, length) &&

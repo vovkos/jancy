@@ -10,6 +10,7 @@ namespace jnc {
 namespace ext {
 
 class ExtensionLib;
+class ExtensionLibHost;
 struct OpaqueClassTypeInfo;
 
 //.............................................................................
@@ -56,6 +57,11 @@ public:
 		size_t itemCacheSlot
 		);
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ExtensionLib*
+getStdLib (ExtensionLibHost* host);
 
 //.............................................................................
 

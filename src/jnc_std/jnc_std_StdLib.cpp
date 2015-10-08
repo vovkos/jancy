@@ -2,23 +2,29 @@
 #include "jnc_std_StdLib.h"
 
 namespace jnc {
-namespace std {
+namespace ext {
 
 //.............................................................................
 
 void
-initStdLib (ext::ExtensionLibHost* host)
+initStdLib (ExtensionLibHost* host)
 {
-	g_stdLibCacheSlot = host->getLibCacheSlot (g_stdLibGuid);
+	std::g_stdLibCacheSlot = host->getLibCacheSlot (std::g_stdLibGuid);
 }
 
-ext::ExtensionLib* 
-getStdLib (ext::ExtensionLibHost* host)
+ExtensionLib*
+getStdLib (ExtensionLibHost* host)
 {
 	static int32_t onceFlag = 0;
 	mt::callOnce (initStdLib, host, &onceFlag);
-	return mt::getSimpleSingleton <StdLib> ();
+	return mt::getSimpleSingleton <std::StdLib> ();
 }
+
+//.............................................................................
+
+} // namespace ext
+
+namespace std {
 
 //.............................................................................
 
@@ -271,12 +277,12 @@ StdLib::threadFunc (void* context0)
 {
 	ThreadContext* context = (ThreadContext*) context0;
 	ASSERT (context && context->m_runtime && context->m_ptr.m_p);
-	FunctionPtr ptr = context->m_ptr;
+	rt::FunctionPtr ptr = context->m_ptr;
 
 	JNC_BEGIN_CALL_SITE (context->m_runtime);
 	context->m_threadStartedEvent.signal ();
 
-	((void (AXL_CDECL*) (IfaceHdr*)) ptr.m_p) (ptr.m_closure);
+	((void (AXL_CDECL*) (rt::IfaceHdr*)) ptr.m_p) (ptr.m_closure);
 	
 	JNC_END_CALL_SITE ();
 
@@ -284,7 +290,7 @@ StdLib::threadFunc (void* context0)
 }
 
 bool
-StdLib::createThread (FunctionPtr ptr)
+StdLib::createThread (rt::FunctionPtr ptr)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);

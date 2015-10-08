@@ -275,11 +275,6 @@ protected:
 	getErrorPtr (const err::ErrorHdr* error);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-ext::ExtensionLib* 
-getStdLib (ext::ExtensionLibHost* host);
-
 //.............................................................................
 
 } // namespace std

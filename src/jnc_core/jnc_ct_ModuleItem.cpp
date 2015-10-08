@@ -171,7 +171,7 @@ verifyModuleItemIsDerivableType (
 
 	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ());
+		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ().cc ());
 		return NULL;
 	}
 
@@ -190,7 +190,7 @@ verifyModuleItemIsClassType (
 
 	if (type->getTypeKind () != TypeKind_Class)
 	{
-		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ());
+		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ().cc ());
 		return NULL;
 	}
 

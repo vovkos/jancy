@@ -145,7 +145,8 @@ Function::getLlvmFunction ()
 		return m_llvmFunction;
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	sl::String llvmName = '!' + m_tag; // as to avoid linking conflicts
+	sl::String llvmName = "."; // as to avoid linking conflicts
+	llvmName += m_tag;
 #else
 	sl::String llvmName = m_tag;
 #endif

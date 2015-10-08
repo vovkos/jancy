@@ -1,12 +1,8 @@
 //.............................................................................
 
-import "io.jncx"
-import "io_Socket.jnc"
-
 int main ()
 {
 	printf ("main ()\n");
-
 	return 0;
 }
 

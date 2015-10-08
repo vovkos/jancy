@@ -9,6 +9,11 @@
 #	pragma comment (lib, "iphlpapi.lib")
 #	include <winioctl.h>
 #	include <setupapi.h>
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+#	include <ifaddrs.h>
+#	include <netdb.h>
+#	include <net/if.h>
+#	include <netinet/tcp.h>
 #endif
 
 #include "axl_io_Serial.h"
@@ -18,6 +23,8 @@
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	include "axl_io_win_NamedPipe.h"
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+#	include "axl_io_psx_Pipe.h"
 #endif
 
 #include "jnc_ext_ExtensionLib.h"

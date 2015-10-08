@@ -13,13 +13,6 @@ getCoreLib (ext::ExtensionLibHost* host);
 
 } // namespace rtl
 
-namespace std {
-
-ext::ExtensionLib* 
-getStdLib (ext::ExtensionLibHost* host);
-
-} // namespace std
-
 namespace ct {
 
 //.............................................................................
@@ -96,9 +89,6 @@ Module::create (
 	
 	ext::ExtensionLibHost* libHost = ext::getStdExtensionLibHost ();
 	m_extensionLibMgr.addLib (rtl::getCoreLib (libHost));
-
-	if (compileFlags & ModuleCompileFlag_StdLib)
-		m_extensionLibMgr.addLib (std::getStdLib (libHost));
 
 	bool result = m_namespaceMgr.addStdItems ();
 	if (!result)

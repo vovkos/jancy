@@ -138,8 +138,8 @@ llvm_map_components_to_libraries (
 
 target_link_libraries (
 	02_dialog
-	jnc_core
 	jnc_std
+	jnc_core
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

@@ -12,6 +12,10 @@
 
 #include "axl_io_Socket.h"
 
+#if (_AXL_ENV == AXL_ENV_POSIX)
+#	include "axl_io_psx_Pipe.h"
+#endif
+
 #include "jnc_ext_ExtensionLib.h"
 #include "jnc_rt_CallSite.h"
 

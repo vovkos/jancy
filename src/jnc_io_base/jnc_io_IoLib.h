@@ -11,7 +11,6 @@
 #include "jnc_io_NetworkAdapter.h"
 #include "jnc_io_MappedFile.h"
 #include "jnc_io_FileStream.h"
-#include "jnc_io_NamedPipe.h"
 
 #include "jnc_io_Serial.jnc.cpp"
 #include "jnc_io_Socket.jnc.cpp"
@@ -20,7 +19,11 @@
 #include "jnc_io_NetworkAdapter.jnc.cpp"
 #include "jnc_io_MappedFile.jnc.cpp"
 #include "jnc_io_FileStream.jnc.cpp"
-#include "jnc_io_NamedPipe.jnc.cpp"
+
+#if (_AXL_ENV == AXL_ENV_WIN)
+#	include "jnc_io_NamedPipe.h"
+#	include "jnc_io_NamedPipe.jnc.cpp"
+#endif
 
 namespace jnc {
 namespace io {
@@ -41,8 +44,9 @@ public:
 		JNC_MAP_TYPE (SocketAddressResolver)
 		JNC_MAP_TYPE (MappedFile)
 		JNC_MAP_TYPE (FileStream)
+#if (_AXL_ENV == AXL_ENV_WIN)
 		JNC_MAP_TYPE (NamedPipe)
-
+#endif
 		JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", &createNetworkAdapterDescList)
 		JNC_MAP_FUNCTION ("io.createSerialPortDescList",     &createSerialPortDescList)
 	JNC_END_LIB_MAP ()
@@ -53,7 +57,9 @@ public:
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
+#if (_AXL_ENV == AXL_ENV_WIN)
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
+#endif
 	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
@@ -64,7 +70,9 @@ public:
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_NetworkAdapter.jnc", g_io_NetworkAdapterSrc)
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_MappedFile.jnc", g_io_MappedFileSrc)
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_FileStream.jnc", g_io_FileStreamSrc)
+#if (_AXL_ENV == AXL_ENV_WIN)
 		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_NamedPipe.jnc", g_io_NamedPipeSrc)
+#endif
 	JNC_END_LIB_SOURCE_FILE_TABLE ()
 };
 

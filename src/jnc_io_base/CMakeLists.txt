@@ -140,7 +140,6 @@ set (
 	${GEN_DIR}/jnc_io_NetworkAdapter.jnc.cpp
 	${GEN_DIR}/jnc_io_MappedFile.jnc.cpp
 	${GEN_DIR}/jnc_io_FileStream.jnc.cpp
-	${GEN_DIR}/jnc_io_NamedPipe.jnc.cpp
 	)
 
 if (WIN32)
