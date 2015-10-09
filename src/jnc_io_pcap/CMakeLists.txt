@@ -113,6 +113,8 @@ set_pch (
 	${PCH_CPP}
 	)
 
+set (CMAKE_SHARED_LIBRARY_PREFIX)
+
 set_target_properties (
 	jnc_io_pcap
 	PROPERTIES
@@ -134,7 +136,7 @@ if (WIN32)
 		)
 elseif (UNIX)
 	target_link_libraries (
-		jnc_io_pcap		
+		jnc_io_pcap	
 		rt
 		pthread
 		pcap

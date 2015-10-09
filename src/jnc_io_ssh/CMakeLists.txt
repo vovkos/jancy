@@ -115,6 +115,8 @@ set_pch (
 	${PCH_CPP}
 	)
 
+set (CMAKE_SHARED_LIBRARY_PREFIX)
+
 set_target_properties (
 	jnc_io_ssh
 	PROPERTIES

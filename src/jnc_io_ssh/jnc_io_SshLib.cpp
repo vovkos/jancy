@@ -3,8 +3,9 @@
 
 //.............................................................................
 
+extern "C"
 AXL_EXPORT
-jnc::ext::ExtensionLib* 
+jnc::ext::ExtensionLib*
 jncExtensionLibMain (jnc::ext::ExtensionLibHost* host)
 {
 	jnc::ext::g_extensionLibHost = host;
