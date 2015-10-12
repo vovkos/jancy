@@ -7,13 +7,13 @@ namespace rtl {
 //.............................................................................
 
 bool 
-DynamicLib::loadImpl (const char* fileName)
+DynamicLib::openImpl (const char* fileName)
 {
-	bool result = getDynamicLibrary ()->load (fileName);
+	bool result = getDynamicLibrary ()->open (fileName);
 	if (!result)
 	{
 #if (_AXL_ENV == AXL_ENV_WIN)
-		err::pushFormatStringError ("cannot load dynamiclib '%s'", fileName);
+		err::pushFormatStringError ("cannot open dynamiclib '%s'", fileName);
 #endif
 		return false;
 	}

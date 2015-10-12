@@ -21,7 +21,7 @@ BitFieldType::prepareTypeString ()
 {
 	m_typeString.format (
 		"%s:%d:%d",
-		m_baseType->getTypeString ().cc (), // thanks a lot gcc
+		m_baseType->getTypeString ().cc (),
 		m_bitOffset,
 		m_bitOffset + m_bitCount
 		);

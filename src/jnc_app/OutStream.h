@@ -7,6 +7,13 @@ class OutStream
 public:
 	virtual
 	size_t
+	write (
+		const void* p,
+		size_t size
+		) = 0;
+
+	virtual
+	size_t
 	printf_va (
 		const char* format,
 		axl_va_list va
@@ -38,6 +45,17 @@ public:
 
 	virtual
 	size_t
+	write (
+		const void* p,
+		size_t size
+		)
+	{
+		ASSERT (m_file);
+		return fwrite (p, size, 1, m_file);
+	}
+
+	virtual
+	size_t
 	printf_va (
 		const char* format,
 		axl_va_list va
@@ -59,17 +77,21 @@ public:
 
 	virtual
 	size_t
-	printf_va (
-		const char* format,
-		axl_va_list va
+	write (
+		const void* p,
+		size_t size
 		)
 	{
 		ASSERT (m_socket != INVALID_SOCKET);
-
-		sl::String string;
-		string.format_va (format, va);
-		return send (m_socket, string, string.getLength (), 0);
+		return send (m_socket, (const char*) p, size, 0);
 	}
+
+	virtual
+	size_t
+	printf_va (
+		const char* format,
+		axl_va_list va
+		);
 };
 
 //.............................................................................

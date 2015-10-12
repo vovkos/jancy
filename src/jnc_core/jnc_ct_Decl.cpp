@@ -190,7 +190,7 @@ TypeSpecifier::setType (Type* type)
 	{
 		err::setFormatStringError (
 			"more than one type specifiers ('%s' and '%s')", 
-			m_type->getTypeString ().cc (), // thanks a lot gcc
+			m_type->getTypeString ().cc (),
 			type->getTypeString ().cc ()
 			);
 

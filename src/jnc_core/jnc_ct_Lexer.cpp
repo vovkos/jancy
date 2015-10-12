@@ -172,6 +172,111 @@ Lexer::createConstIntegerToken (int value)
 	return token;
 }
 
+// multi-line literals
+
+Token*
+Lexer::preCreateMlLiteralToken ()
+{
+	ASSERT (!m_mlLiteralToken);
+	m_mlLiteralToken = preCreateToken (0);
+	return m_mlLiteralToken;
+}
+
+size_t 
+getWsPrefixLength (
+	const char* p, 
+	size_t length
+	)
+{
+	const char* p0 = p;
+	const char* end = p + length;
+
+	for (; p < end; p++)
+	{
+		char c = *p;
+		if (c != ' ' && c != '\t' && c != '\r') 
+			break;
+	}
+
+	return p - p0;
+}
+
+bool
+normalizeMlLiteral (
+	sl::String* string,
+	const char* p,
+	size_t length,
+	const char* prefix,
+	size_t prefixLength
+	)
+{
+	ASSERT (length >= prefixLength);
+
+	string->clear ();
+
+	const char* end = p + length;
+	while (p < end)
+	{
+		size_t chunkLength = end - p;
+		ASSERT (chunkLength > prefixLength);
+
+		size_t linePrefixLength = getWsPrefixLength (p, chunkLength);
+
+		bool isEmpty = p [linePrefixLength] == '\n';
+		if (isEmpty)
+		{
+			if (linePrefixLength && p [linePrefixLength - 1] == '\r')
+				string->append ("\r\n", 2);
+			else
+				string->append ('\n');
+
+			p += linePrefixLength + 1;
+		}
+		else
+		{
+			if (linePrefixLength < prefixLength || memcmp (p, prefix, prefixLength) != 0)
+				return false;
+
+			p += prefixLength;
+
+			const char* nl = strchr (p, '\n');
+			ASSERT (nl);
+
+			string->append (p, nl - p + 1);
+			p = nl + 1;
+		}
+	}
+
+	return true;
+}
+
+Token*
+Lexer::createMlLiteralToken ()
+{
+	ASSERT (m_mlLiteralToken);
+	Token* token = m_mlLiteralToken;
+	m_mlLiteralToken = NULL;
+
+	size_t left = token->m_pos.m_length;
+	size_t right = te - ts;
+
+	token->m_token = TokenKind_Literal;
+	token->m_pos.m_length = te - token->m_pos.m_p;
+	ASSERT (token->m_pos.m_length >= left + right);
+
+	const char* p = token->m_pos.m_p + left;
+	size_t length = token->m_pos.m_length - (left + right);
+	
+	bool hasCommonPrefix = (right > 3 && ts [-1] == '\n') ? 
+		normalizeMlLiteral (&token->m_data.m_string, p, length, ts, right - 3) : 
+		false;
+
+	if (!hasCommonPrefix)
+		token->m_data.m_string.copy (p, length);
+
+	return token;
+}
+
 // formatting literals
 
 Token*
@@ -190,11 +295,10 @@ Lexer::createFmtLiteralToken (
 {
 	ASSERT (m_fmtLiteralToken);
 	Token* token = m_fmtLiteralToken;
+	m_fmtLiteralToken = NULL;
 
 	size_t left = token->m_pos.m_length;
 	size_t right = te - ts;
-
-	m_fmtLiteralToken = NULL;
 
 	token->m_pos.m_length = te - token->m_pos.m_p;
 	ASSERT (token->m_pos.m_length >= left + right);

@@ -50,7 +50,7 @@ BinOp_Idx::getResultType (
 		return getPropertyIndexResultType (opValue1, opValue2);
 
 	default:
-		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ()); // thanks a lot gcc
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ());
 		return NULL;
 	}
 }

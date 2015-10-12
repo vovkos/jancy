@@ -220,7 +220,7 @@ void ModulePane::addTypedef (QTreeWidgetItem *parent, jnc::ct::Typedef* typed)
 	QString name;
 	name.sprintf (
 		"typedef %s %s",
-		typed->getType ()->getTypeString ().cc (), // thanks a lot gcc
+		typed->getType ()->getTypeString ().cc (),
 		typed->getName ().cc ()
 		);
 

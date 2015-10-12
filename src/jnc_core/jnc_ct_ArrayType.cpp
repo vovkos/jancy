@@ -37,7 +37,7 @@ ArrayType::prepareTypeString ()
 
 	m_typeString.format (
 		m_elementCount == -1 ? "%s []" : "%s [%d]",
-		getRootType ()->getTypeString ().cc (), // thanks a lot gcc
+		getRootType ()->getTypeString ().cc (),
 		m_elementCount
 		);
 

@@ -33,7 +33,7 @@ Orphan::resolveOrphan ()
 	ModuleItem* item = m_parentNamespace->findItemTraverse (m_declaratorName);
 	if (!item)
 	{
-		err::setFormatStringError ("unresolved orphan '%s'", m_tag.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("unresolved orphan '%s'", m_tag.cc ());
 		return false;
 	}
 

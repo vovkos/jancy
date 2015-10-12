@@ -23,7 +23,7 @@ setCastError (
 		return err::setFormatStringError (
 			"not enough information to select one of %d overloads of '%s'",
 			function->getOverloadCount (),
-			function->m_tag.cc () // thanks a lot gcc
+			function->m_tag.cc ()
 			);
 	}
 

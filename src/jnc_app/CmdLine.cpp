@@ -52,7 +52,7 @@ parseSizeString (const char* string)
 bool
 CmdLineParser::onValue (const char* value)
 {
-	m_cmdLine->m_srcFileName = value;
+	m_cmdLine->m_fileName = value;
 	return true;
 }
 
@@ -64,53 +64,53 @@ CmdLineParser::onSwitch (
 {
 	switch (switchKind)
 	{
-	case CmdLineSwitchKind_Help:
+	case CmdLineSwitch_Help:
 		m_cmdLine->m_flags |= JncFlag_Help;
 		break;
 
-	case CmdLineSwitchKind_Version:
+	case CmdLineSwitch_Version:
 		m_cmdLine->m_flags |= JncFlag_Version;
 		break;
 
-	case CmdLineSwitchKind_StdInSrc:
+	case CmdLineSwitch_StdInSrc:
 		m_cmdLine->m_flags |= JncFlag_StdInSrc;
 		break;
 
-	case CmdLineSwitchKind_SrcNameOverride:
+	case CmdLineSwitch_SrcNameOverride:
 		m_cmdLine->m_srcNameOverride = value;
 		break;
 
-	case CmdLineSwitchKind_DebugInfo:
+	case CmdLineSwitch_DebugInfo:
 		m_cmdLine->m_flags |= JncFlag_DebugInfo;
 		break;
 
-	case CmdLineSwitchKind_Jit:
+	case CmdLineSwitch_Jit:
 		m_cmdLine->m_flags |= JncFlag_Jit;
 		break;
 
-	case CmdLineSwitchKind_McJit:
+	case CmdLineSwitch_McJit:
 		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_McJit;
 		break;
 
-	case CmdLineSwitchKind_LlvmIr:
+	case CmdLineSwitch_LlvmIr:
 		m_cmdLine->m_flags |= JncFlag_LlvmIr;
 		break;
 
-	case CmdLineSwitchKind_SimpleGcSafePoint:
+	case CmdLineSwitch_SimpleGcSafePoint:
 		m_cmdLine->m_flags |= JncFlag_SimpleGcSafePoint;
 		break;
 
-	case CmdLineSwitchKind_Run:
+	case CmdLineSwitch_Run:
 		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
 		m_cmdLine->m_functionName = "main";
 		break;
 
-	case CmdLineSwitchKind_RunFunction:
+	case CmdLineSwitch_RunFunction:
 		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
 		m_cmdLine->m_functionName = value;
 		break;
 
-	case CmdLineSwitchKind_Server:
+	case CmdLineSwitch_Server:
 		m_cmdLine->m_flags |= JncFlag_Server;
 		m_cmdLine->m_serverPort = atoi (value);
 		if (!m_cmdLine->m_serverPort)
@@ -121,15 +121,15 @@ CmdLineParser::onSwitch (
 
 		break;
 
-	case CmdLineSwitchKind_GcAllocSizeTrigger:
+	case CmdLineSwitch_GcAllocSizeTrigger:
 		m_cmdLine->m_gcAllocSizeTrigger = parseSizeString (value);
 		break;
 
-	case CmdLineSwitchKind_GcPeriodSizeTrigger:
+	case CmdLineSwitch_GcPeriodSizeTrigger:
 		m_cmdLine->m_gcPeriodSizeTrigger = parseSizeString (value);
 		break;
 
-	case CmdLineSwitchKind_StackSizeLimit:
+	case CmdLineSwitch_StackSizeLimit:
 		m_cmdLine->m_stackSizeLimit = parseSizeString (value);
 		if (!m_cmdLine->m_stackSizeLimit)
 		{
@@ -139,8 +139,17 @@ CmdLineParser::onSwitch (
 
 		break;
 
-	case CmdLineSwitchKind_ImportDir:
+	case CmdLineSwitch_ImportDir:
 		m_cmdLine->m_importDirList.insertTail (value);
+		break;
+
+	case CmdLineSwitch_ExtensionList:
+		m_cmdLine->m_flags |= JncFlag_Extension | JncFlag_ExtensionList;
+		break;
+
+	case CmdLineSwitch_ExtensionSrcFile:
+		m_cmdLine->m_flags |= JncFlag_Extension | JncFlag_ExtensionSrcFile;
+		m_cmdLine->m_extensionSrcFileName = value;
 		break;
 	}
 
@@ -156,9 +165,9 @@ CmdLineParser::finalize ()
 			JncFlag_Server |
 			JncFlag_StdInSrc
 			)) &&
-		m_cmdLine->m_srcFileName.isEmpty ())
+		m_cmdLine->m_fileName.isEmpty ())
 	{
-		err::setFormatStringError ("missing input (source-file-name or --stdin)");
+		err::setFormatStringError ("missing input (file-name or --stdin)");
 		return false;
 	}
 

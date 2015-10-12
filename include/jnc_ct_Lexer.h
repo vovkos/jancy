@@ -377,6 +377,7 @@ class Lexer: public lex::RagelLexer <Lexer, Token>
 	friend class lex::RagelLexer <Lexer, Token>;
 
 protected:
+	Token* m_mlLiteralToken;
 	Token* m_fmtLiteralToken;
 	sl::Array <intptr_t> m_parenthesesLevelStack;
 
@@ -384,6 +385,7 @@ public:
 	Lexer ()
 	{
 		m_fmtLiteralToken = NULL;
+		m_mlLiteralToken = NULL;
 	}
 
 protected:
@@ -418,6 +420,14 @@ protected:
 
 	Token*
 	createConstIntegerToken (int value);
+
+	// multi-line literals
+
+	Token*
+	preCreateMlLiteralToken ();
+
+	Token*
+	createMlLiteralToken ();
 
 	// formatting literals
 

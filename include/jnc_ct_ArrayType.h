@@ -74,7 +74,7 @@ public:
 		return sl::String::format_s (
 			"A%d%s",
 			elementCount,
-			elementType->getSignature ().cc () // thanks a lot gcc
+			elementType->getSignature ().cc ()
 			);
 	}
 

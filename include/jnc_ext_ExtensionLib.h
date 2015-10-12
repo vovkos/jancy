@@ -38,6 +38,23 @@ public:
 	}
 
 	virtual
+	size_t
+	getSourceFileCount ()
+	{
+		return 0;
+	}
+
+	virtual
+	size_t
+	getSourceFileNameTable (
+		const char** fileNameTable,
+		size_t count
+		)
+	{
+		return 0;
+	}
+
+	virtual
 	sl::StringSlice
 	findSourceFile (const char* fileName)
 	{
@@ -342,6 +359,29 @@ public: \
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Map) \
+virtual \
+size_t \
+getSourceFileCount () \
+{ \
+	Map* map = axl::mt::getSingleton <Map> (); \
+	return map->getCount (); \
+} \
+virtual \
+size_t \
+getSourceFileNameTable ( \
+	const char** fileNameTable, \
+	size_t count \
+	) \
+{ \
+	Map* map = axl::mt::getSingleton <Map> (); \
+	size_t maxCount = map->getCount (); \
+	if (count > maxCount) \
+		count = maxCount; \
+	axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = map->getHead (); \
+	for (size_t i = 0; i < count; i++, it++) \
+		fileNameTable [i] = it->m_key; \
+	return count; \
+} \
 virtual \
 axl::sl::StringSlice \
 findSourceFile (const char* fileName) \

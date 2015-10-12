@@ -69,7 +69,7 @@ main (
 	if (!result)
 	{
 		printf ("error parsing command line: %s\n", err::getLastErrorDescription ().cc ());
-		return JncErrorKind_InvalidCmdLine;
+		return JncError_InvalidCmdLine;
 	}
 
 	Jnc jnc;

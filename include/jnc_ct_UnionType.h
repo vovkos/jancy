@@ -63,7 +63,7 @@ protected:
 	void
 	prepareTypeString ()
 	{
-		m_typeString.format ("union %s", m_tag.cc ()); // thanks a lot gcc
+		m_typeString.format ("union %s", m_tag.cc ());
 	}
 
 	virtual 

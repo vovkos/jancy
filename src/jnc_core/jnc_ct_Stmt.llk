@@ -219,7 +219,7 @@ do_stmt
 			{
 				m_module->m_controlFlowMgr.doStmt_PostBody (&$stmt);
 			}
-		TokenKind_While '(' expression $e ')' ';'
+		TokenKind_While '(' expression $e ')'
 			{
 				return m_module->m_controlFlowMgr.doStmt_Condition (&$stmt, $e.m_value);
 			}

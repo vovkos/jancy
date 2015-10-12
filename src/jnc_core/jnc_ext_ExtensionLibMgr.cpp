@@ -38,7 +38,7 @@ ExtensionLib*
 ExtensionLibMgr::loadDynamicLib (const char* fileName)
 {
 	mt::DynamicLibrary* dynamicLib = m_dynamicLibList.insertTail ().p ();
-	bool result = dynamicLib->load (fileName);
+	bool result = dynamicLib->open (fileName);
 	if (!result)
 		return NULL;
 

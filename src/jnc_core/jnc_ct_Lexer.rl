@@ -46,6 +46,18 @@ lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# multi-line literal machine
+#
+
+lit_ml := |*
+
+ws? '>>>' { createMlLiteralToken (); fgoto main; };
+any       ;
+
+*|;
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # formatting literal machines
 #
 
@@ -252,6 +264,7 @@ main := |*
 '@='             { createToken (TokenKind_AtAssign); };
 '...'            { createToken (TokenKind_Ellipsis); };
 
+'<<<' '\r'? nl?  { preCreateMlLiteralToken (); fgoto lit_ml; };
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
 
 '%%' ([^\n] | lc_nl)*

@@ -110,7 +110,7 @@ DerivableType::getDefaultConstructor ()
 	m_defaultConstructor = m_constructor->chooseOverload (argList);
 	if (!m_defaultConstructor)
 	{
-		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().cc ()); // thanks a lot gcc
+		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().cc ());
 		return NULL;
 	}
 
@@ -146,7 +146,7 @@ DerivableType::addBaseType (Type* type)
 	{
 		err::setFormatStringError (
 			"'%s' is already a base type",
-			type->getTypeString ().cc () // thanks a lot gcc
+			type->getTypeString ().cc ()
 			);
 		return NULL;
 	}
@@ -198,7 +198,7 @@ DerivableType::resolveImportTypes ()
 		{
 			err::setFormatStringError (
 				"'%s' is already a base type",
-				type->getTypeString ().cc () // thanks a lot gcc
+				type->getTypeString ().cc ()
 				);
 			return false;
 		}

@@ -37,13 +37,13 @@ Jnc::run (
 	if (cmdLine->m_flags & JncFlag_Help)
 	{
 		printUsage (outStream);
-		return JncErrorKind_Success;
+		return JncError_Success;
 	}
 
 	if (cmdLine->m_flags & JncFlag_Version)
 	{
 		printVersion (outStream);
-		return JncErrorKind_Success;
+		return JncError_Success;
 	}
 
 	if (cmdLine->m_flags & JncFlag_Server)
@@ -81,36 +81,85 @@ Jnc::run (
 			m_cmdLine->m_srcNameOverride :
 			"stdin";
 	}
-	else if (!cmdLine->m_srcFileName.isEmpty ())
+	else if (cmdLine->m_fileName.isEmpty ())
 	{
-		result = srcFile.open (cmdLine->m_srcFileName, io::FileFlag_ReadOnly);
+		outStream->printf ("missing input (required file-name or --stdin)\n");
+		return JncError_InvalidCmdLine;
+	}
+	else if (!(cmdLine->m_flags & JncFlag_Extension))
+	{
+		result = srcFile.open (cmdLine->m_fileName, io::FileFlag_ReadOnly);
 		if (!result)
 		{
-			outStream->printf (
-				"cannot open '%s': %s\n",
-				cmdLine->m_srcFileName.cc (), // thanks a lot gcc
+			outStream->printf ("cannot open '%s': %s\n",
+				cmdLine->m_fileName.cc (),
 				err::getLastErrorDescription ().cc ()
 				);
-			return JncErrorKind_IoFailure;
+			return JncError_IoFailure;
 		}
 
 		src = (const char*) srcFile.p ();
 		srcSize = (size_t) srcFile.getSize ();
 		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
 			m_cmdLine->m_srcNameOverride :
-			io::getFullFilePath (cmdLine->m_srcFileName);
+			io::getFullFilePath (cmdLine->m_fileName);
 	}
 	else
 	{
-		outStream->printf ("missing input (required source-file-name or --stdin)\n");
-		return JncErrorKind_InvalidCmdLine;
+		mt::DynamicLibrary dynamicLib;
+		result = dynamicLib.open (cmdLine->m_fileName);
+		if (!result)
+		{
+			outStream->printf (
+				"cannot open '%s': %s\n",
+				cmdLine->m_fileName.cc (),
+				err::getLastErrorDescription ().cc ()
+				);
+			return JncError_IoFailure;
+		}
+		
+		jnc::ext::ExtensionLibMainFunc* mainFunc = (jnc::ext::ExtensionLibMainFunc*) dynamicLib.getFunction (jnc::ext::g_extensionLibMainFuncName);
+		jnc::ext::ExtensionLib* extensionLib = mainFunc ? mainFunc (jnc::ext::getStdExtensionLibHost ()) : NULL;
+		if (!extensionLib)
+		{
+			outStream->printf ("cannot get extension lib in '%s'", cmdLine->m_fileName.cc ());
+			return JncError_IoFailure;
+		}
+	
+		if (cmdLine->m_flags & JncFlag_ExtensionList)
+		{
+			size_t count = extensionLib->getSourceFileCount ();
+			sl::Array <const char*> fileNameTable (count);
+			count = extensionLib->getSourceFileNameTable (fileNameTable, count);
+			for (size_t i = 0; i < count; i++)
+				outStream->printf ("%s\n", fileNameTable [i]);
+		}
+
+		if (cmdLine->m_flags & JncFlag_ExtensionSrcFile)
+		{
+			sl::StringSlice source = extensionLib->findSourceFile (cmdLine->m_extensionSrcFileName);
+			if (source.isEmpty ())
+			{
+				outStream->printf (
+					"extension lib '%s' does not contain '%s'", 
+					cmdLine->m_fileName.cc (), 
+					cmdLine->m_extensionSrcFileName.cc ()
+					);
+				return JncError_IoFailure;
+			}
+
+
+			outStream->write (source, source.getLength ());
+		}
+
+		return JncError_Success;
 	}
 
 	result = compile (srcName, src, srcSize);
 	if (!result)
 	{
 		outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
-		return JncErrorKind_CompileFailure;
+		return JncError_CompileFailure;
 	}
 
 	if (cmdLine->m_flags & JncFlag_LlvmIr)
@@ -122,7 +171,7 @@ Jnc::run (
 		if (!result)
 		{
 			outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
-			return JncErrorKind_CompileFailure;
+			return JncError_CompileFailure;
 		}
 	}
 
@@ -139,13 +188,13 @@ Jnc::run (
 		if (!result)
 		{
 			outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
-			return JncErrorKind_RunFailure;
+			return JncError_RunFailure;
 		}
 
 		outStream->printf ("'%s' returned (%d).\n", cmdLine->m_functionName.cc (), returnValue);
 	}
 
-	return JncErrorKind_Success;
+	return JncError_Success;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -263,7 +312,7 @@ Jnc::server ()
 			err::Error (getsockerror ()).getDescription ().cc ()
 			);
 
-		return JncErrorKind_IoFailure;
+		return JncError_IoFailure;
 	}
 
 	listen (serverSock, 1);
@@ -310,7 +359,7 @@ Jnc::client (
 				inet_ntoa (sockAddr->sin_addr),
 				ntohs (sockAddr->sin_port)
 				);
-			return JncErrorKind_IoFailure;
+			return JncError_IoFailure;
 		}
 
 		char* p = strnchr (buffer, result, '\n');
@@ -341,13 +390,13 @@ Jnc::client (
 	if (!result)
 	{
 		socketOut.printf ("error parsing command line: %s\n", err::getLastErrorDescription ().cc ());
-		return JncErrorKind_InvalidCmdLine;
+		return JncError_InvalidCmdLine;
 	}
 
 	if (cmdLine.m_flags & JncFlag_Server)
 	{
 		socketOut.printf ("recursive server request\n");
-		return JncErrorKind_InvalidCmdLine;
+		return JncError_InvalidCmdLine;
 	}
 
 	Jnc jnc;

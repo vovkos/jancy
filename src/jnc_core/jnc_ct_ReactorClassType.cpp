@@ -38,7 +38,7 @@ ReactorClassType::calcLayout ()
 
 	if (m_body.isEmpty ())
 	{
-		err::setFormatStringError ("reactor '%s' has no body", m_tag.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("reactor '%s' has no body", m_tag.cc ());
 		return false;
 	}
 

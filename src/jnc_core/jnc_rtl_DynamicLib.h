@@ -11,8 +11,8 @@ class DynamicLib: public rt::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("jnc.DynamicLib", -1, -1)
-		JNC_MAP_FUNCTION ("release", &DynamicLib::release)
-		JNC_MAP_FUNCTION ("load", &DynamicLib::load)
+		JNC_MAP_FUNCTION ("open", &DynamicLib::open)
+		JNC_MAP_FUNCTION ("close", &DynamicLib::close)
 		JNC_MAP_FUNCTION ("getFunction", &DynamicLib::getFunction)
 	JNC_END_CLASS_TYPE_MAP ()
 
@@ -22,19 +22,19 @@ public:
 public:
 	bool 
 	AXL_CDECL
-	load (rt::DataPtr fileNamePtr)
+	open (rt::DataPtr fileNamePtr)
 	{
-		return loadImpl ((const char*) fileNamePtr.m_p);
+		return openImpl ((const char*) fileNamePtr.m_p);
 	}
 
 	bool
-	loadImpl (const char* fileName);
+	openImpl (const char* fileName);
 
 	void
 	AXL_CDECL
-	release ()
+	close ()
 	{
-		getDynamicLibrary ()->release ();
+		getDynamicLibrary ()->close ();
 	}
 
 	void* 

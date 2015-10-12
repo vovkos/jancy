@@ -3,6 +3,30 @@
 int main ()
 {
 	printf ("main ()\n");
+
+	for (int i = 0; i < 10; i++)
+	{
+		if (i % 5 == 0)
+			break;
+	}
+
+	const char* foo = <<<
+		hui
+		{
+			govno;
+		}
+		i 
+		{
+			muravei;
+		};
+
+		asdsa
+
+		dskjdf
+		>>>;
+
+	printf ("foo = %s", foo);
+
 	return 0;
 }
 

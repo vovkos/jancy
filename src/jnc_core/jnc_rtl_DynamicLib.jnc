@@ -21,11 +21,11 @@ class DynamicLib
 
 	destruct ()
 	{
-		release ();
+		close ();
 	}
 
-	bool load (char const* fileName) throws;
-	void release ();
+	bool open (char const* fileName) throws;
+	void close ();
 
 	void thin* getFunction (char const* fileName) throws;
 }

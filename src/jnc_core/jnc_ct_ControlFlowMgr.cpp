@@ -424,7 +424,7 @@ ControlFlowMgr::ret (const Value& value)
 		{
 			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
-				function->m_tag.cc (),  // thanks a lot gcc
+				function->m_tag.cc (), 
 				returnType->getTypeString ().cc ()
 				);
 			return false;

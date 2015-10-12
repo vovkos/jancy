@@ -56,7 +56,7 @@ OperatorMgr::getClosureOperatorResultType (
 	{
 		err::setFormatStringError (
 			"closure operator cannot be applied to '%s'",
-			opValue.getType ()->getTypeString ().cc () // thanks a lot gcc
+			opValue.getType ()->getTypeString ().cc ()
 			);
 		return NULL;
 	}

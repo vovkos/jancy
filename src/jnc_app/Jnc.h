@@ -5,13 +5,13 @@
 
 //.............................................................................
 
-enum JncErrorKind
+enum JncError
 {
-	JncErrorKind_Success = 0,
-	JncErrorKind_InvalidCmdLine,
-	JncErrorKind_IoFailure,
-	JncErrorKind_CompileFailure,
-	JncErrorKind_RunFailure,
+	JncError_Success = 0,
+	JncError_InvalidCmdLine,
+	JncError_IoFailure,
+	JncError_CompileFailure,
+	JncError_RunFailure,
 };
 
 //.............................................................................

@@ -227,7 +227,7 @@ FunctionType::getArgString ()
 	if (!m_argArray.isEmpty ())
 	{
 		FunctionArg* arg = m_argArray [0];
-		m_argString.appendFormat ("%s", arg->getType ()->getTypeString ().cc ()); // thanks a lot gcc
+		m_argString.appendFormat ("%s", arg->getType ()->getTypeString ().cc ());
 
 		if (arg->getStorageKind () == StorageKind_This)
 		{

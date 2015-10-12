@@ -166,7 +166,7 @@ protected:
 	void
 	prepareTypeString ()
 	{
-		m_typeString.format ("struct %s", m_tag.cc ()); // thanks a lot gcc
+		m_typeString.format ("struct %s", m_tag.cc ());
 	}
 
 	virtual

@@ -80,7 +80,7 @@ public:
 		return err::setFormatStringError (
 			"binary '%s' cannot be applied to '%s' and '%s'",
 			getBinOpKindString (m_opKind),
-			opType1->getTypeString ().cc (), // thanks a lot gcc
+			opType1->getTypeString ().cc (),
 			opType2->getTypeString ().cc ()
 			);
 	}

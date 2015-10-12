@@ -15,7 +15,7 @@ AttributeBlock::createAttribute (
 	sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.visit (name);
 	if (it->m_value)
 	{
-		err::setFormatStringError ("redefinition of attribute '%s'", name.cc ()); // thanks a lot gcc
+		err::setFormatStringError ("redefinition of attribute '%s'", name.cc ());
 		return NULL;
 	}
 
