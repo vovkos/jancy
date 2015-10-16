@@ -106,7 +106,7 @@ Jnc::run (
 	}
 	else
 	{
-		mt::DynamicLibrary dynamicLib;
+		sys::DynamicLibrary dynamicLib;
 		result = dynamicLib.open (cmdLine->m_fileName);
 		if (!result)
 		{

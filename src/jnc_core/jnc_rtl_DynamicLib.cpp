@@ -24,7 +24,7 @@ DynamicLib::openImpl (const char* fileName)
 void* 
 DynamicLib::getFunctionImpl (const char* name)
 {
-	ASSERT (sizeof (mt::DynamicLibrary) == sizeof (m_handle));
+	ASSERT (sizeof (sys::DynamicLibrary) == sizeof (m_handle));
 
 	if (!m_handle)
 	{

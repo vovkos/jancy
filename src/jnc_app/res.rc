@@ -1,4 +1,4 @@
-#include "Version.h"
+#include "version.h"
 
 1 VERSIONINFO 
 	FILEVERSION    VERSION_MAJOR, VERSION_MINOR, 0, VERSION_REVISION

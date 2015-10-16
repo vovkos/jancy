@@ -47,11 +47,11 @@ public:
 	void* 
 	getFunctionImpl (const char* name);
 
-	mt::DynamicLibrary*
+	sys::DynamicLibrary*
 	getDynamicLibrary ()
 	{
-		ASSERT (sizeof (mt::DynamicLibrary) == sizeof (m_handle));
-		return (mt::DynamicLibrary*) &m_handle;
+		ASSERT (sizeof (sys::DynamicLibrary) == sizeof (m_handle));
+		return (sys::DynamicLibrary*) &m_handle;
 	}
 };
 

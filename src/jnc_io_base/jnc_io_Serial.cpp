@@ -363,7 +363,7 @@ createSerialPortDesc (
 
 	// name
 
-	g::win::RegKeyHandle devRegKey = ::SetupDiOpenDevRegKey (
+	sys::win::RegKeyHandle devRegKey = ::SetupDiOpenDevRegKey (
 		devInfoList,
 		devInfo,
 		DICS_FLAG_GLOBAL,

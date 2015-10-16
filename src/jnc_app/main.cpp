@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Jnc.h"
-#include "Version.h"
+#include "version.h"
 
 #define _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 

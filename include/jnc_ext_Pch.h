@@ -39,7 +39,7 @@
 #include "axl_mt_TlsMgr.h"
 #include "axl_mt_TlsSlot.h"
 #include "axl_mt_LongJmpTry.h"
-#include "axl_mt_DynamicLibrary.h"
+#include "axl_sys_DynamicLibrary.h"
 #include "axl_mt_Singleton.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)

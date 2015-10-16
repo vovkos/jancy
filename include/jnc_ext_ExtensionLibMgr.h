@@ -20,7 +20,7 @@ class ExtensionLibMgr
 protected:
 	ct::Module* m_module;
 	sl::Array <ExtensionLib*> m_libArray;
-	sl::BoxList <mt::DynamicLibrary> m_dynamicLibList;
+	sl::BoxList <sys::DynamicLibrary> m_dynamicLibList;
 	sl::AutoPtrArray <sl::Array <ct::ModuleItem*> > m_itemCache;
 
 public:
