@@ -23,7 +23,10 @@ MappedFile::open (
 {
 	bool result = m_file.open ((const char*) namePtr.m_p, flags);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_size = m_file.getSize ();
 	return true;
@@ -38,15 +41,17 @@ MappedFile::view (
 	bool isPermanent
 	)
 {
-	rt::DataPtr ptr = { 0 };
-
 	void* p = self->m_file.view (offset, size, isPermanent);
 	if (!p)
-		return ptr;
+	{
+		ext::propagateLastError ();
+		return rt::g_nullPtr;
+	}
 	
 	// lifetime of the resulting view is not guaranteed
 	// but its the best we can do with the direct use of axl::io::MappedFile
 
+	rt::DataPtr ptr;
 	ptr.m_p = p;
 	ptr.m_validator = rt::createDataPtrValidator (self->m_runtime, self->m_box, p, size);
 	return ptr;

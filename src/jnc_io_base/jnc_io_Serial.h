@@ -126,10 +126,7 @@ public:
 	write (
 		rt::DataPtr ptr,
 		size_t size
-		)
-	{
-		return m_serial.write (ptr.m_p, size);
-	}
+		);
 
 	bool
 	AXL_CDECL

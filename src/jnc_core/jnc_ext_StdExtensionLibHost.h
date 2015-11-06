@@ -368,6 +368,13 @@ public:
 	}
 
 	virtual
+	void
+	setError (const err::ErrorHdr* errorHdr)
+	{
+		err::getErrorMgr ()->setError (errorHdr);
+	}
+
+	virtual
 	size_t 
 	strLen (rt::DataPtr ptr)
 	{

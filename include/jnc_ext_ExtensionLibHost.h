@@ -286,6 +286,10 @@ public:
 		) = 0;
 
 	virtual
+	void
+	setError (const err::ErrorHdr* errorHdr) = 0;
+
+	virtual
 	size_t 
 	strLen (rt::DataPtr ptr) = 0;
 
@@ -501,6 +505,27 @@ addModuleSource (
 	)
 {
 	g_extensionLibHost->addSource (module, fileName, source, length);
+}
+
+inline 
+void
+setError (const err::ErrorHdr* errorHdr)
+{
+	g_extensionLibHost->setError (errorHdr);
+}
+
+inline 
+void
+setError (const err::Error& error)
+{
+	g_extensionLibHost->setError (error);
+}
+
+inline 
+void
+propagateLastError ()
+{
+	g_extensionLibHost->setError (err::getLastError ());
 }
 
 #else

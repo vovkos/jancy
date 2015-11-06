@@ -255,12 +255,6 @@ protected:
 	err::Error
 	getLastSshError ();
 
-	err::Error
-	setLastSshError ()
-	{
-		return err::setError (getLastSshError ());
-	}
-
 	int
 	sshAsyncLoop (int result);
 };

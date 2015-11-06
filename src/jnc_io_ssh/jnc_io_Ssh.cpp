@@ -86,7 +86,10 @@ SshChannel::open (rt::DataPtr addressPtr)
 		!addressPtr.m_p || m_socket.bind ((sockaddr*) addressPtr.m_p);
 
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_isOpen = true;
 	m_readBuffer.setCount (4 * 1024); // 4K buffer for reading
@@ -151,12 +154,14 @@ SshChannel::connect (
 	bool isSync
 	)
 {
+	bool result;
+
 	m_ioLock.lock ();
 	if (m_ioFlags)
 	{
 		m_ioLock.unlock ();
 
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -176,12 +181,19 @@ SshChannel::connect (
 
 	if (!isSync)
 	{
-		bool result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
+		result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
 		if (!result)
+		{
+			ext::propagateLastError ();
 			return false;
+		}
 	}
 
-	return m_socket.connect ((sockaddr*) addressPtr.m_p);
+	result = m_socket.connect ((sockaddr*) addressPtr.m_p);
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 bool
@@ -196,7 +208,7 @@ SshChannel::authenticate (
 	{
 		m_ioLock.unlock ();
 
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -218,7 +230,7 @@ SshChannel::read (
 {
 	if (!m_sshChannel)
 	{
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return -1;
 	}
 
@@ -237,7 +249,7 @@ SshChannel::read (
 		rt::leaveWaitRegion (m_runtime);
 
 		if (read.m_result == -1)
-			err::setError (read.m_error);
+			ext::setError (read.m_error);
 
 		return read.m_result;
 	}
@@ -273,7 +285,7 @@ SshChannel::write (
 {
 	if (!m_sshChannel)
 	{
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return -1;
 	}
 
@@ -298,7 +310,7 @@ SshChannel::resizePty (
 {
 	if (!m_sshChannel)
 	{
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 	
@@ -309,7 +321,7 @@ SshChannel::resizePty (
 		result = libssh2_channel_request_pty_size (m_sshChannel, width, height);
 		if (result && result != LIBSSH2_ERROR_EAGAIN)
 		{
-			err::setError (getLastSshError ());
+			ext::setError (getLastSshError ());
 			return false;	
 		}
 	}
@@ -366,13 +378,13 @@ SshChannel::sshAsyncLoop (int result)
 
 	if (result != LIBSSH2_ERROR_EAGAIN)
 	{
-		err::setError (getLastSshError ());
+		ext::setError (getLastSshError ());
 		return result;	
 	}
 
 	if (m_ioFlags & IoFlag_Closing)
 	{
-		err::setError (err::Error (err::SystemErrorCode_Cancelled));
+		ext::setError (err::Error (err::SystemErrorCode_Cancelled));
 		return LIBSSH2_ERROR_CHANNEL_CLOSED;
 	}
 

@@ -53,7 +53,10 @@ NamedPipe::open (
 			);
 
 		if (!result)
+		{
+			ext::propagateLastError ();
 			return false;
+		}
 
 		pipeArray [i].attach (pipe.detach ());
 	}
@@ -99,7 +102,7 @@ NamedPipe::accept ()
 	m_ioLock.lock ();
 	if (!(m_ioFlags & IoFlag_Opened))
 	{
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return NULL;
 	}
 
@@ -127,7 +130,7 @@ NamedPipe::accept ()
 
 		if (accept.m_hPipe == INVALID_HANDLE_VALUE)
 		{
-			err::setError (accept.m_error);
+			ext::setError (accept.m_error);
 			return NULL;
 		}
 

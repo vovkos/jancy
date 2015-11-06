@@ -37,7 +37,10 @@ PCap::setFilter (rt::DataPtr filter)
 {
 	bool result = m_pcap.setFilter ((const char*) filter.m_p);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_filter = filter;
 	return true;
@@ -60,7 +63,10 @@ PCap::openDevice (
 		m_pcap.setFilter ((const char*) filter.m_p);
 
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_filter = filter;
 	m_isPromiscious = isPromiscious;
@@ -88,7 +94,10 @@ PCap::openFile (
 		m_pcap.setFilter ((const char*) filter.m_p);
 
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_filter = filter;
 	m_isPromiscious = false;
@@ -145,7 +154,7 @@ PCap::read (
 	rt::leaveWaitRegion (m_runtime);
 
 	if (read.m_result == -1)
-		err::setError (read.m_error);
+		ext::setError (read.m_error);
 
 	return read.m_result;
 }
@@ -305,10 +314,13 @@ createPCapDeviceDescList (rt::DataPtr countPtr)
 		*(size_t*) countPtr.m_p = 0;
 
 	pcap_if* ifaceList = NULL;
-	char error [PCAP_ERRBUF_SIZE] = { 0 };
-	int result = pcap_findalldevs (&ifaceList, error);
+	char errorBuffer [PCAP_ERRBUF_SIZE] = { 0 };
+	int result = pcap_findalldevs (&ifaceList, errorBuffer);
 	if (result == -1)
+	{
+		ext::setError (errorBuffer);
 		return rt::g_nullPtr;
+	}
 
 	if (!ifaceList)
 		return rt::g_nullPtr;

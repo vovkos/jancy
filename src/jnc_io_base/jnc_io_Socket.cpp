@@ -85,7 +85,11 @@ AXL_CDECL
 Socket::setBroadcastEnabled (bool isEnabled)
 {
 	int value = isEnabled;
-	return m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
+	bool result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 bool
@@ -102,7 +106,11 @@ AXL_CDECL
 Socket::setNagleEnabled (bool isEnabled)
 {
 	int value = !isEnabled;
-	return m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
+	bool result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 SocketCloseKind
@@ -124,7 +132,11 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 	linger value;
 	value.l_onoff = closeKind == SocketCloseKind_Reset;
 	value.l_linger = 0;
-	return m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
+	bool result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 bool
@@ -140,13 +152,19 @@ Socket::open (
 
 	bool result = m_socket.open (family, socketKind, protocol);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	if (addr)
 	{
 		result = m_socket.bind (addr);
 		if (!result)
+		{
+			ext::propagateLastError ();
 			return false;
+		}
 	}
 
 	m_isOpen = true;
@@ -202,12 +220,14 @@ Socket::connect (
 	bool isSync
 	)
 {
+	bool result;
+
 	m_ioLock.lock ();
 	if (m_ioFlags)
 	{
 		m_ioLock.unlock ();
 
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -217,24 +237,33 @@ Socket::connect (
 
 	if (!isSync)
 	{
-		bool result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
+		result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
 		if (!result)
+		{
+			ext::propagateLastError ();
 			return false;
+		}
 	}
 
-	return m_socket.connect ((sockaddr*) addressPtr.m_p);
+	result = m_socket.connect ((sockaddr*) addressPtr.m_p);
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 bool
 AXL_CDECL
 Socket::listen (size_t backLog)
 {
+	bool result;
+
 	m_ioLock.lock ();
 	if (m_ioFlags)
 	{
 		m_ioLock.unlock ();
 
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		ext::setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -242,7 +271,11 @@ Socket::listen (size_t backLog)
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
-	return m_socket.listen (backLog);
+	result = m_socket.listen (backLog);
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
 }
 
 Socket*
@@ -263,7 +296,9 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 
 	if (!result)
 	{
-		AXL_MEM_DELETE (connectionSocket);
+		ext::propagateLastError ();
+
+		AXL_MEM_DELETE (connectionSocket);		
 		return NULL;
 	}
 
@@ -283,6 +318,21 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 
 size_t
 AXL_CDECL
+Socket::send (
+	jnc::rt::DataPtr ptr,
+	size_t size
+	)
+{
+	size_t result = m_socket.send (ptr.m_p, size);
+
+	if (result == -1)
+		ext::propagateLastError ();
+
+	return result;
+}
+
+size_t
+AXL_CDECL
 Socket::recv (
 	jnc::rt::DataPtr ptr,
 	size_t size
@@ -296,6 +346,25 @@ Socket::recv (
 	wakeIoThread ();
 	m_ioLock.unlock ();
 #endif
+
+	if (result == -1)
+		ext::propagateLastError ();
+
+	return result;
+}
+
+size_t
+AXL_CDECL
+Socket::sendTo (
+	jnc::rt::DataPtr ptr,
+	size_t size,
+	jnc::rt::DataPtr addressPtr
+	)
+{
+	size_t result = m_socket.sendTo (ptr.m_p, size, (const sockaddr*) addressPtr.m_p);
+
+	if (result == -1)
+		ext::propagateLastError ();
 
 	return result;
 }
@@ -316,6 +385,9 @@ Socket::recvFrom (
 	wakeIoThread ();
 	m_ioLock.unlock ();
 #endif
+
+	if (result == -1)
+		ext::propagateLastError ();
 
 	return result;
 }

@@ -50,7 +50,10 @@ FileStream::open (
 #endif
 
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_isOpen = true;
 
@@ -182,7 +185,7 @@ FileStream::read (
 		rt::leaveWaitRegion (m_runtime);
 
 		if (read.m_result == -1)
-			err::setError (read.m_error);
+			ext::setError (read.m_error);
 
 		return read.m_result;
 	}
@@ -236,7 +239,12 @@ FileStream::write (
 	}
 
 	bool_t result = m_file.m_file.write (ptr.m_p, size, NULL, &overlapped);
-	return result ? m_file.m_file.getOverlappedResult (&overlapped) : -1;
+	size_t actualSize = result ? m_file.m_file.getOverlappedResult (&overlapped) : -1;
+
+	if (actualSize == -1)
+		ext::propagateLastError ();
+
+	return actualSize;
 }
 
 void

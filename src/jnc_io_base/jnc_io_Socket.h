@@ -208,10 +208,7 @@ public:
 	send (
 		jnc::rt::DataPtr ptr,
 		size_t size
-		)
-	{
-		return m_socket.send (ptr.m_p, size);
-	}
+		);
 
 	size_t
 	AXL_CDECL
@@ -226,10 +223,7 @@ public:
 		jnc::rt::DataPtr ptr,
 		size_t size,
 		jnc::rt::DataPtr addressPtr
-		)
-	{
-		return m_socket.sendTo (ptr.m_p, size, (const sockaddr*) addressPtr.m_p);
-	}
+		);
 
 	size_t
 	AXL_CDECL

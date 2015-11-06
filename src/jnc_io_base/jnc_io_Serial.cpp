@@ -52,7 +52,10 @@ Serial::open (rt::DataPtr namePtr)
 		m_serial.setSettings (&serialSettings);
 
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_isOpen = true;
 
@@ -122,7 +125,10 @@ Serial::setBaudRate (uint_t baudRate)
 	settings.m_baudRate = baudRate;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_BaudRate);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_baudRate = baudRate;
 	return true;
@@ -136,7 +142,10 @@ Serial::setDataBits (uint_t dataBits)
 	settings.m_dataBits = dataBits;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_DataBits);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_dataBits = dataBits;
 	return true;
@@ -150,7 +159,10 @@ Serial::setStopBits (axl::io::SerialStopBits stopBits)
 	settings.m_stopBits = stopBits;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_StopBits);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_stopBits = stopBits;
 	return true;
@@ -164,7 +176,10 @@ Serial::setParity (axl::io::SerialParity parity)
 	settings.m_parity = parity;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_Parity);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_parity = parity;
 	return true;
@@ -178,7 +193,10 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 	settings.m_flowControl = flowControl;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
 	if (!result)
+	{
+		ext::propagateLastError ();
 		return false;
+	}
 
 	m_flowControl = flowControl;
 	return true;
@@ -197,6 +215,24 @@ Serial::read (
 	m_ioFlags &= ~IoFlag_IncomingData;
 	wakeIoThread ();
 	m_ioLock.unlock ();
+
+	if (result == -1)
+		ext::propagateLastError ();
+
+	return result;
+}
+
+size_t
+AXL_CDECL
+Serial::write (
+	rt::DataPtr ptr,
+	size_t size
+	)
+{
+	size_t result = m_serial.write (ptr.m_p, size);
+
+	if (result == -1)
+		ext::propagateLastError ();
 
 	return result;
 }
