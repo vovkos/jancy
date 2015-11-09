@@ -4,10 +4,12 @@
 
 #..............................................................................
 
-set (JANCY_INC_DIR "@JANCY_ROOT_DIR@/include")
-set (JANCY_LIB_DIR "@JANCY_LIB_BASE_DIR@/${CONFIGURATION_SUFFIX}")
-set (JANCY_BIN_DIR "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}")
-set (JANCY_EXE     "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}/jancy")
-set (JNC2CPP_PL    "@JANCY_ROOT_DIR@/perl/jnc2cpp.pl")
+set (JANCY_INC_DIR      "@JANCY_ROOT_DIR@/include")
+set (JANCY_LIB_DIR      "@JANCY_LIB_BASE_DIR@/${CONFIGURATION_SUFFIX}")
+set (JANCY_LIB_BASE_DIR "@JANCY_LIB_BASE_DIR@")
+set (JANCY_BIN_DIR      "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}")
+set (JANCY_BIN_BASE_DIR "@JANCY_BIN_BASE_DIR@")
+set (JANCY_EXE          "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}/jancy")
+set (JNC2CPP_PL         "@JANCY_ROOT_DIR@/perl/jnc2cpp.pl")
 
 #..............................................................................
