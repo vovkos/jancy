@@ -134,7 +134,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 	tls->m_prev = prevTls;
 	tls->m_runtime = this;
 	tls->m_initializeLevel = 1;
-	tls->m_stackEpoch = alloca (1);
+	tls->m_stackEpoch = ers;
 
 	mt::setTlsSlotValue <Tls> (tls);
 	mt::setTlsSlotValue <Runtime> (this);
