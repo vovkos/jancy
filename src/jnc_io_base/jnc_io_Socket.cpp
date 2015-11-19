@@ -53,22 +53,22 @@ Socket::firePendingEvents ()
 {
 }
 
-axl::io::SockAddr
+SocketAddress
 AXL_CDECL
 Socket::getAddress (Socket* self)
 {
 	axl::io::SockAddr sockAddr;
 	self->m_socket.getAddress (&sockAddr);
-	return sockAddr;
+	return SocketAddress::fromSockAddr (sockAddr);
 }
 
-axl::io::SockAddr
+SocketAddress
 AXL_CDECL
 Socket::getPeerAddress (Socket* self)
 {
 	axl::io::SockAddr sockAddr;
 	self->m_socket.getPeerAddress (&sockAddr);
-	return sockAddr;
+	return SocketAddress::fromSockAddr (sockAddr);
 }
 
 bool
@@ -142,8 +142,8 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 bool
 Socket::open (
 	int protocol,
-	int family,
-	const sockaddr* addr
+	uint16_t family,
+	const SocketAddress* address
 	)
 {
 	close ();
@@ -157,9 +157,9 @@ Socket::open (
 		return false;
 	}
 
-	if (addr)
+	if (address)
 	{
-		result = m_socket.bind (addr);
+		result = m_socket.bind (address->getSockAddr ());
 		if (!result)
 		{
 			ext::propagateLastError ();
@@ -245,7 +245,8 @@ Socket::connect (
 		}
 	}
 
-	result = m_socket.connect ((sockaddr*) addressPtr.m_p);
+	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
+	result = m_socket.connect (address->getSockAddr ());
 	if (!result)
 		ext::propagateLastError ();
 
@@ -285,7 +286,8 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 	Socket* connectionSocket = (Socket*) jnc::rt::allocateClass (m_runtime, (jnc::rt::ClassType*) m_box->m_type);
 	sl::construct (connectionSocket);
 
-	bool result = m_socket.accept (&connectionSocket->m_socket, (axl::io::SockAddr*) addressPtr.m_p);
+	axl::io::SockAddr sockAddr;
+	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 	m_ioLock.lock ();
@@ -312,6 +314,9 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 
 	connectionSocket->m_ioThread.start ();
 	connectionSocket->wakeIoThread ();
+
+	if (addressPtr.m_p)
+		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);
 
 	return connectionSocket;
 }
@@ -361,8 +366,9 @@ Socket::sendTo (
 	jnc::rt::DataPtr addressPtr
 	)
 {
-	size_t result = m_socket.sendTo (ptr.m_p, size, (const sockaddr*) addressPtr.m_p);
-
+	axl::io::SockAddr sockAddr = ((const SocketAddress*) addressPtr.m_p)->getSockAddr ();
+	
+	size_t result = m_socket.sendTo (ptr.m_p, size, sockAddr);
 	if (result == -1)
 		ext::propagateLastError ();
 
@@ -377,7 +383,8 @@ Socket::recvFrom (
 	jnc::rt::DataPtr addressPtr
 	)
 {
-	size_t result = m_socket.recvFrom (ptr.m_p, size, (axl::io::SockAddr*) addressPtr.m_p);
+	axl::io::SockAddr sockAddr;
+	size_t result = m_socket.recvFrom (ptr.m_p, size, &sockAddr);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 	m_ioLock.lock ();
@@ -388,6 +395,9 @@ Socket::recvFrom (
 
 	if (result == -1)
 		ext::propagateLastError ();
+
+	if (addressPtr.m_p)
+		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);
 
 	return result;
 }

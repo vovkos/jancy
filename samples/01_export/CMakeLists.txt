@@ -101,7 +101,7 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
 	target_link_libraries (
 		01_export
 		rt

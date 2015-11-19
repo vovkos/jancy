@@ -1,33 +1,35 @@
 //.............................................................................
 
+threadFunc ()
+{
+	printf ("+threadFunc (%d)\n", std.getCurrentThreadId ());
+
+	for (int i = 0; i < 100; i++)
+		new int;
+
+	printf ("-threadFunc (%d)\n", std.getCurrentThreadId ());
+}
+
 int main ()
 {
 	printf ("main ()\n");
 
-	for (int i = 0; i < 10; i++)
-	{
-		if (i % 5 == 0)
-			break;
-	}
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
+	std.createThread (threadFunc);	
 
-	const char* foo = <<<
-		hui
-		{
-			govno;
-		}
-		i 
-		{
-			muravei;
-		};
-
-		asdsa
-
-		dskjdf
-		>>>;
-
-	printf ("foo = %s", foo);
-
+	std.sleep (500);
+	
 	return 0;
 }
 
 //.............................................................................
+

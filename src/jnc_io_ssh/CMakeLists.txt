@@ -124,6 +124,14 @@ set_target_properties (
 	SUFFIX .jncx
 	)
 
+if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	add_target_string_property (
+		jnc_io_ssh
+		COMPILE_FLAGS
+		"-fPIC"
+		)
+endif ()
+
 target_link_libraries (
 	jnc_io_ssh
 	axl_io
@@ -133,7 +141,7 @@ target_link_libraries (
 
 if (WIN32)
 	target_link_libraries (
-		jnc_io_ssh		
+		jnc_io_ssh
 		ws2_32
 		libssh2
 		libeay32MT
@@ -141,12 +149,18 @@ if (WIN32)
 		)
 elseif (UNIX)
 	target_link_libraries (
-		jnc_io_ssh		
+		jnc_io_ssh
 		ssh2
 		ssl
 		crypto
-		rt
 		)
+
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_io_ssh
+			rt
+			)
+	endif ()
 endif ()
 
 

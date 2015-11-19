@@ -241,6 +241,18 @@ Module::mapFunction (
 	function->m_machineCode = p;
 }
 
+void*
+Module::findFunctionMapping (const char* name)
+{
+#if (_AXL_ENV == AXL_ENV_POSIX && _AXL_POSIX == AXL_POSIX_DARWIN)
+	if (*(const uint16_t*) name == '._')
+		name++;
+#endif
+
+	sl::StringHashTableMapIterator <void*> it = m_functionMap.find (name);
+	return it ? it->m_value : NULL;
+}
+
 bool
 Module::setConstructor (Function* function)
 {

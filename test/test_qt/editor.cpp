@@ -5,11 +5,16 @@
 Editor::Editor(QWidget *parent)
 	: QPlainTextEdit(parent)
 {
-	QFont font ("Monospace", 9);
-	font.setStyleHint (QFont::TypeWriter);
-
+	QFont font ("Monospace", 12);
+	font.setFamily ("Courier");
+	font.setFixedPitch (true);
+	font.setKerning (false);
+	font.setStyleHint (
+		QFont::Monospace,
+		(QFont::StyleStrategy) (QFont::NoFontMerging | QFont::ForceIntegerMetrics)
+		);
+	
 	setFont(font);
-
 	setTabStopWidth(fontMetrics().width(' ') * 4);
 }
 

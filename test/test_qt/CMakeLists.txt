@@ -208,7 +208,7 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
 	target_link_libraries (
 		test_qt
 		rt

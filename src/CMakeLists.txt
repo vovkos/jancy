@@ -17,24 +17,28 @@ if (BUILD_JNC_IO_BASE)
 	add_subdirectory (jnc_io_base)
 endif ()
 
-option (
-	BUILD_JNC_IO_SSH
-	"Build jancy SSH IO extension library"
-	ON
-	)
+if (${LIBSSH2_FOUND})
+	option (
+		BUILD_JNC_IO_SSH
+		"Build jancy SSH IO extension library"
+		ON
+		)
 
-if (BUILD_JNC_IO_SSH)
-	add_subdirectory (jnc_io_ssh)
+	if (BUILD_JNC_IO_SSH)
+		add_subdirectory (jnc_io_ssh)
+	endif ()
 endif ()
 
-option (
-	BUILD_JNC_IO_PCAP
-	"Build jancy PCAP IO extension library"
-	ON
-	)
+if (${PCAP_FOUND})
+	option (
+		BUILD_JNC_IO_PCAP
+		"Build jancy PCAP IO extension library"
+		ON
+		)
 
-if (BUILD_JNC_IO_PCAP)
-	add_subdirectory (jnc_io_pcap)
+	if (BUILD_JNC_IO_PCAP)
+		add_subdirectory (jnc_io_pcap)
+	endif ()
 endif ()
 
 option (

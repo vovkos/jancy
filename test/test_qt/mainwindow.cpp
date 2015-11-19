@@ -115,9 +115,14 @@ TestLib::printf (
 }
 
 void
-TestLib::testPtr (jnc::rt::DataPtr ptr)
+TestLib::testPtr (
+	jnc::rt::DataPtr ptr,
+	jnc::rt::DataPtr ptr2
+	)
 {
 	printf ("TestLib::testPtr\n");
+
+	((axl::io::SockAddr*) ptr.m_p)->parse ((const char*) ptr2.m_p);
 }
 
 void
@@ -487,6 +492,8 @@ bool MainWindow::compile ()
 #else
 	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags;
 #endif
+
+//	compileFlags |= jnc::ct::ModuleCompileFlag_SimpleGcSafePoint;
 
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();

@@ -648,7 +648,7 @@ unary_operator_expr <Value* $value>
 	|	resolver (cast_operator_rslv)
 		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr <$value>
 			{
-				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.castOperator (dynamism, $value, $t.m_type);
 			}
 	|	TokenKind_New new_operator_type $t
@@ -806,17 +806,17 @@ primary_expr <Value* $value>
 			}
 	|	TokenKind_Dynamic $d? TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.sizeofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_Dynamic $d? TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.countofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_Dynamic $d? TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = isValidLocator ($d) ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.typeofOperator (dynamism, $t.m_value, $value);
 			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
@@ -853,7 +853,7 @@ literal <Value* $value>
 	}
 	:	literal_atom <&$literal>+ ('(' expression_or_empty_list $a ')')?
 			{
-				return finalizeLiteral (&$literal, isValidLocator ($a) ? &$a.m_valueList : NULL, $value);
+				return finalizeLiteral (&$literal, &$a ? &$a.m_valueList : NULL, $value);
 			}
 	;
 
@@ -870,7 +870,7 @@ literal_atom <Literal* $literal>
 			}
 	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier $s?
 			{
-				sl::String fmtSpecifier = isValidLocator ($s) ? $s.m_data.m_string : sl::String ();
+				sl::String fmtSpecifier = &$s ? $s.m_data.m_string : sl::String ();
 				return addFmtSite (
 					$literal, 
 					$1.m_data.m_string, 

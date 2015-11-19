@@ -154,9 +154,15 @@ if (WIN32)
 elseif (UNIX)
 	target_link_libraries (
 		jnc_app
-		rt
 		pthread
 		)
+
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_io_base
+			rt
+			)
+	endif ()
 endif ()
 
 #..............................................................................
@@ -170,7 +176,7 @@ add_jancy_tests
 	# ...
 	)
 
-	set (_JNCC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/jancy)
+	set (_JANCY_EXE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/jancy)
 	set (_FILE_NAME_LIST ${ARGN})
 	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
 
@@ -178,7 +184,7 @@ add_jancy_tests
 		add_test (
 			NAME ${_FILE_NAME}
 			WORKING_DIRECTORY ${_DIR}
-			COMMAND ${_JNCC} ${_FLAG_LIST} ${_FILE_NAME}
+			COMMAND ${_JANCY_EXE} ${_FLAG_LIST} ${_FILE_NAME}
 			)
 	endforeach ()
 endmacro ()

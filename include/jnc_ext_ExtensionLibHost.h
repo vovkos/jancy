@@ -247,6 +247,14 @@ public:
 		) = 0;
 
 	virtual
+	rt::DataPtr
+	allocateArray (
+		Runtime* runtime,
+		Type* type,
+		size_t count
+		) = 0;
+
+	virtual
 	rt::DataPtrValidator*
 	createDataPtrValidator (
 		Runtime* runtime,	

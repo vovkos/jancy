@@ -9,12 +9,8 @@ namespace io {
 enum AddressFamily: uint16_t
 {
 	Undefined = 0,
-	Ip4       = 2,
-///#if (_AXL_ENV == AXL_ENV_WIN)
-	Ip6       = 23,
-///#else
-	Ip6       = 10,
-///#endif
+	Ip4 = 2,
+	Ip6,
 }
 
 enum Protocol
@@ -25,6 +21,8 @@ enum Protocol
 
 //.............................................................................
 
+// matches in_addr
+
 union Address_ip4
 {
 	bigendian uint32_t m_i32;
@@ -33,6 +31,8 @@ union Address_ip4
 	bool parse (char const* string) throws;
 	char const* getString () const;
 }
+
+// matches in6_addr
 
 union Address_ip6
 {
@@ -45,8 +45,6 @@ union Address_ip6
 
 //.............................................................................
 
-// socket address is network address plus transport info (matches sockaddr)
-
 alignment (2);
 
 struct SocketAddress_ip4
@@ -54,6 +52,7 @@ struct SocketAddress_ip4
 	AddressFamily m_family;
 	bigendian uint16_t m_port;
 	Address_ip4 m_address;
+	char m_padding [8];
 
 	bool isEqual (SocketAddress_ip4 const* address);
 	bool isMatch (SocketAddress_ip4 const* filterAddress);

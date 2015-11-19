@@ -1182,7 +1182,7 @@ Parser::finalizeLastProperty (bool hasBody)
 		if (!m_lastPropertyGetterType)
 		{
 			err::setFormatStringError ("incomplete property: no 'get' method or autoget field");
-			return NULL;
+			return false;
 		}
 
 		Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, m_lastPropertyGetterType);
@@ -1195,7 +1195,7 @@ Parser::finalizeLastProperty (bool hasBody)
 	else if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp (prop->m_getter->getType ()) != 0)
 	{
 		err::setFormatStringError ("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString ().cc ());
-		return NULL;
+		return false;
 	}
 
 	// finalize setter
@@ -1555,7 +1555,7 @@ Parser::declareData (
 			case StorageKind_Heap:
 				result = m_module->m_variableMgr.initializeVariable (variable);
 				if (!result)
-					return NULL;
+					return false;
 
 				break;
 
@@ -1569,11 +1569,11 @@ Parser::declareData (
 
 				result = m_module->m_controlFlowMgr.onceStmt_PreBody (&stmt, variable->m_pos);
 				if (!result)
-					return NULL;
+					return false;
 
 				result = m_module->m_variableMgr.initializeVariable (variable);
 				if (!result)
-					return NULL;
+					return false;
 
 				Token::Pos pos = 
 					!variable->m_initializer.isEmpty () ? variable->m_initializer.getTail ()->m_pos :

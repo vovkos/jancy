@@ -139,6 +139,7 @@ class TestLib: public jnc::ext::ExtensionLib
 public:
 	JNC_BEGIN_LIB_MAP ()
 		JNC_MAP_FUNCTION ("printf", &TestLib::printf)
+
 //		JNC_MAP_TYPE (TestClassA)
 //		JNC_MAP_TYPE (TestClassB)
 //		JNC_MAP_TYPE (TestStruct)
@@ -160,7 +161,10 @@ public:
 
 	static
 	void
-	testPtr (jnc::rt::DataPtr ptr);
+	testPtr (
+		jnc::rt::DataPtr ptr,
+		jnc::rt::DataPtr ptr2
+		);
 
 	static
 	void

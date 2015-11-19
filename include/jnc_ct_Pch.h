@@ -124,7 +124,11 @@
 #	include "axl_mem_win_VirtualMemory.h"
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 #	include "axl_io_psx_Mapping.h"
-#	include "axl_mt_psx_Sem.h"
+#	if (_AXL_POSIX == AXL_POSIX_DARWIN)
+#		include "axl_mt_drw_Semaphore.h"
+#	else
+#		include "axl_mt_psx_Sem.h"
+#	endif
 #endif
 
 using namespace axl;

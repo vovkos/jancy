@@ -10,7 +10,6 @@ rt::DataPtr
 Error::getDescription ()
 {
 	sl::String string = err::ErrorHdr::getDescription ();
-	size_t length = string.getLength ();
 	return rt::strDup (string, string.getLength ());
 }
 

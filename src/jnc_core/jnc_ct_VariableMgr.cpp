@@ -401,7 +401,7 @@ VariableMgr::allocateHeapVariable (Variable* variable)
 	
 	bool result = m_module->m_operatorMgr.gcHeapAllocate (variable->m_type, &ptrValue);
 	if (!result)
-		return NULL;
+		return false;
 
 	if (variable->m_type->getTypeKind () == TypeKind_Class)
 	{

@@ -27,6 +27,8 @@ check_and_print_libs (
 		BULLDOZER
 	OPTIONAL 
 		QT
+		LIBSSH2
+		PCAP
 	)
 
 if (QT_FOUND)

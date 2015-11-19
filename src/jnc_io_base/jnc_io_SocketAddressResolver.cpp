@@ -53,7 +53,15 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 	params->m_syncId = syncId;
 		
 	if (addressCount)
-		params->m_addressPtr = rt::memDup (addressTable, sizeof (axl::io::SockAddr) * addressCount);
+	{
+		ext::Type* addressType = SocketAddress::getType (m_runtime);
+		params->m_addressPtr = rt::allocateArray (m_runtime, addressType, addressCount);
+
+		SocketAddress* dst = (SocketAddress*) params->m_addressPtr.m_p;
+		const axl::io::SockAddr* src = addressTable;
+		for (size_t i = 0; i < addressCount; i++, dst++, src++)
+			dst->setSockAddr (*src);
+	}
 
 	if (error)
 		params->m_errorPtr = rt::memDup (error, error->m_size);

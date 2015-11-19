@@ -94,7 +94,7 @@ EnumType::calcLayout ()
 	if (!(m_baseType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError ("enum base type must be integer type");
-		return NULL;
+		return false;
 	}
 
 	m_size = m_baseType->getSize ();
@@ -127,8 +127,7 @@ EnumType::calcLayout ()
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
 
-			uint8_t hiBitIdx = sl::getHiBitIdx (value);
-			value = hiBitIdx != -1 ? 2 << hiBitIdx : 1;
+			value = value ? 2 << sl::getHiBitIdx (value) : 1;
 		}
 	}
 	else

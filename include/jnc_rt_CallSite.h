@@ -105,7 +105,7 @@ inline
 void*
 getFunctionMachineCode (Function* function)
 {
-	ext::g_extensionLibHost->getFunctionMachineCode (function);
+	return ext::g_extensionLibHost->getFunctionMachineCode (function);
 }
 
 inline
@@ -133,6 +133,17 @@ allocateData (
 	)
 {
 	return ext::g_extensionLibHost->allocateData (runtime, type);
+}
+
+inline
+DataPtr
+allocateArray (
+	Runtime* runtime,
+	Type* type,
+	size_t count
+	)
+{
+	return ext::g_extensionLibHost->allocateArray (runtime, type, count);
 }
 
 inline
@@ -306,6 +317,17 @@ allocateData (
 	)
 {
 	return runtime->m_gcHeap.allocateData (type);
+}
+
+inline
+DataPtr
+allocateArray (
+	Runtime* runtime,
+	Type* type,
+	size_t count
+	)
+{
+	return runtime->m_gcHeap.allocateArray (type, count);
 }
 
 inline

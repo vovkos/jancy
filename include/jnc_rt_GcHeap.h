@@ -122,7 +122,11 @@ protected:
 	mem::win::VirtualMemory m_guardPage;
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	io::psx::Mapping m_guardPage;
-	mt::psx::Sem m_handshakeSem; // only sems can be safely signalled from signal handlers
+#	if (_AXL_POSIX == AXL_POSIX_DARWIN)
+	mt::drw::Semaphore m_handshakeSem; // mach semaphores can be safely signalled from signal handlers
+#	else
+	mt::psx::Sem m_handshakeSem; // POSIX sems can be safely signalled from signal handlers
+#	endif
 	static sigset_t m_signalWaitMask;
 #endif
 

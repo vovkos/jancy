@@ -275,7 +275,7 @@ OperatorMgr::getPropertySetter (
 	else if (ptrType->isConstPtrType ())
 	{
 		err::setFormatStringError ("'set' is inaccessible via 'const' property pointer");
-		return NULL;
+		return false;
 	}
 
 	if (opValue.getValueKind () == ValueKind_Property)
@@ -552,7 +552,7 @@ OperatorMgr::getPropertyOnChanged (
 		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
-		return NULL;
+		return false;
 	}
 
 	if (opValue.getValueKind () == ValueKind_Property)

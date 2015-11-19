@@ -616,7 +616,7 @@ set (
 	${GEN_DIR}/jnc_ct_Parser.llk.cpp
 	)
 
-exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
+exclude_from_build (${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
 exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
 
@@ -715,7 +715,7 @@ set_pch (
 	${PCH_CPP}
 	)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	add_target_string_property (
 		jnc_core
 		COMPILE_FLAGS

@@ -147,7 +147,7 @@ Closure::getArgTypeArray (
 	if (closureArgCount > argCount)
 	{
 		err::setFormatStringError ("closure with %d arguments for function with %d arguments", closureArgCount, argCount);
-		return NULL;
+		return false;
 	}
 
 	sl::BoxIterator <Value> closureArg = m_argValueList.getHead ();

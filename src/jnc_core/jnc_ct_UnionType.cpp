@@ -107,7 +107,7 @@ UnionType::calcLayout ()
 		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
 			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().cc ());
-			return NULL;
+			return false;
 		}
 
 		if (field->m_bitCount)

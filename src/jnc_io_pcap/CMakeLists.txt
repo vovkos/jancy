@@ -122,6 +122,14 @@ set_target_properties (
 	SUFFIX .jncx
 	)
 
+if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	add_target_string_property (
+		jnc_io_pcap
+		COMPILE_FLAGS
+		"-fPIC"
+		)
+endif ()
+
 target_link_libraries (
 	jnc_io_pcap
 	axl_io
@@ -136,11 +144,17 @@ if (WIN32)
 		)
 elseif (UNIX)
 	target_link_libraries (
-		jnc_io_pcap	
-		rt
+		jnc_io_pcap
 		pthread
 		pcap
 		)
+
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_io_pcap
+			rt
+			)
+	endif ()
 endif ()
 
 #..............................................................................

@@ -7,6 +7,17 @@ namespace io {
 
 //.............................................................................
 
+enum AddressFamily
+{
+	AddressFamily_Undefined = 0,
+	AddressFamily_Unused    = 1,
+	AddressFamily_Ip4       = 2, // AF_INET
+	AddressFamily_Ip6, // can be different
+	AddressFamily__Count,
+};
+
+//.............................................................................
+
 struct Address_ip4: public in_addr
 {
 	JNC_BEGIN_TYPE_MAP ("io.Address_ip4", g_ioLibCacheSlot, IoLibTypeCacheSlot_Address_ip4)
@@ -38,7 +49,7 @@ struct Address_ip4: public in_addr
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct Address_ip6: public in_addr
+struct Address_ip6: public in6_addr
 {
 	JNC_BEGIN_TYPE_MAP ("io.Address_ip6", g_ioLibCacheSlot, IoLibTypeCacheSlot_Address_ip6)
 		JNC_MAP_FUNCTION ("parse",     &Address_ip6::parse)
@@ -69,7 +80,7 @@ struct Address_ip6: public in_addr
 
 //.............................................................................
 
-struct SocketAddress_ip4: public in_addr
+struct SocketAddress_ip4: public sockaddr_in
 {
 	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip4", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress_ip4)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip4::isEqual)
@@ -128,7 +139,7 @@ struct SocketAddress_ip4: public in_addr
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SocketAddress_ip6: public in_addr
+struct SocketAddress_ip6: public sockaddr_in6
 {
 	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip6", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress_ip6)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip6::isEqual)
@@ -187,7 +198,7 @@ struct SocketAddress_ip6: public in_addr
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SocketAddress: public in_addr
+struct SocketAddress
 {
 	JNC_BEGIN_TYPE_MAP ("io.SocketAddress", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress::isEqual)
@@ -196,6 +207,13 @@ struct SocketAddress: public in_addr
 		JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
 	JNC_END_CLASS_TYPE_MAP ()
 	
+	union
+	{
+		uint16_t m_family;
+		sockaddr_in m_addr_ip4;
+		sockaddr_in6 m_addr_ip6;		
+	};
+
 	static 
 	bool
 	isEqual (
@@ -203,7 +221,7 @@ struct SocketAddress: public in_addr
 		rt::DataPtr addressPtr
 		)
 	{
-		return ((axl::io::SockAddr*) selfPtr.m_p)->isEqual ((const sockaddr*) addressPtr.m_p);
+		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isEqual ((const sockaddr*) addressPtr.m_p);
 	}
 
 	static 
@@ -213,7 +231,7 @@ struct SocketAddress: public in_addr
 		rt::DataPtr addressPtr
 		)
 	{
-		return ((axl::io::SockAddr*) selfPtr.m_p)->isMatch ((const sockaddr*) addressPtr.m_p);
+		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isMatch ((const sockaddr*) addressPtr.m_p);
 	}
 
 	static 
@@ -221,18 +239,25 @@ struct SocketAddress: public in_addr
 	parse (
 		rt::DataPtr selfPtr,
 		rt::DataPtr stringPtr
-		)
-	{
-		return ((axl::io::SockAddr*) selfPtr.m_p)->parse ((const char*) stringPtr.m_p);
-	}
+		);
 
 	static 
 	rt::DataPtr
 	getString (rt::DataPtr selfPtr)
 	{
-		sl::String string = ((const axl::io::SockAddr*) selfPtr.m_p)->getString ();
+		sl::String string = ((SocketAddress*) selfPtr.m_p)->getSockAddr ().getString ();
 		return rt::strDup (string, string.getLength ());
 	}
+
+	axl::io::SockAddr
+	getSockAddr () const;
+
+	void
+	setSockAddr (const axl::io::SockAddr& sockAddr);
+
+	static
+	SocketAddress
+	fromSockAddr (const axl::io::SockAddr& sockAddr);
 };
 
 //.............................................................................

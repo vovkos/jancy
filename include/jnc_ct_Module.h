@@ -282,11 +282,7 @@ public:
 		);
 
 	void*
-	findFunctionMapping (const char* name)
-	{
-		sl::StringHashTableMapIterator <void*> it = m_functionMap.find (name);
-		return it ? it->m_value : NULL;
-	}
+	findFunctionMapping (const char* name);
 
 	sl::String
 	getLlvmIrString ();

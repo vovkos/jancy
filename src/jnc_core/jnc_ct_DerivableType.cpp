@@ -211,7 +211,7 @@ DerivableType::resolveImportTypes ()
 				getTypeString ().cc (),
 				type->getTypeString ().cc ()
 				);
-			return NULL;
+			return false;
 		}
 
 		slot->m_type = (DerivableType*) type;

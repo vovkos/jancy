@@ -314,6 +314,17 @@ public:
 	}
 
 	virtual
+	rt::DataPtr
+	allocateArray (
+		Runtime* runtime,
+		Type* type,
+		size_t count
+		)
+	{
+		return runtime->m_gcHeap.allocateArray (type, count);
+	}
+
+	virtual
 	rt::DataPtrValidator*
 	createDataPtrValidator (
 		rt::Runtime* runtime,

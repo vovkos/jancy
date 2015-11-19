@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jnc_io_IoLibGlobals.h"
+#include "jnc_io_SocketAddress.h"
 
 namespace jnc {
 namespace io {
@@ -154,12 +155,12 @@ public:
 	setCloseKind (SocketCloseKind closeKind);	
 
 	static
-	axl::io::SockAddr
+	SocketAddress
 	AXL_CDECL
 	getAddress (Socket* self);
 
 	static
-	axl::io::SockAddr
+	SocketAddress
 	AXL_CDECL
 	getPeerAddress (Socket* self);
 
@@ -167,7 +168,7 @@ public:
 	AXL_CDECL
 	open_0 (
 		int protocol,
-		int family
+		uint16_t family
 		)
 	{
 		return open (protocol, family, NULL);
@@ -180,8 +181,8 @@ public:
 		jnc::rt::DataPtr addressPtr
 		)
 	{
-		const sockaddr* addr = (const sockaddr*) addressPtr.m_p;
-		return open (protocol, addr ? addr->sa_family : AF_INET, addr);
+		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
+		return open (protocol, address ? address->m_family : AddressFamily_Ip4, address);
 	}
 
 	void
@@ -241,8 +242,8 @@ protected:
 	bool
 	open (
 		int protocol,
-		int family,
-		const sockaddr* addr
+		uint16_t family,
+		const SocketAddress* address
 		);
 
 	void

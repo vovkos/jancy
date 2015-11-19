@@ -24,6 +24,7 @@ set (
 	LIB_CPP_LIST
 	jnc_io_Serial.cpp
 	jnc_io_Socket.cpp
+	jnc_io_SocketAddress.cpp
 	jnc_io_SocketAddressResolver.cpp
 	jnc_io_NetworkAdapter.cpp
 	jnc_io_MappedFile.cpp
@@ -214,6 +215,14 @@ set_target_properties (
 	SUFFIX .jncx
 	)
 
+if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	add_target_string_property (
+		jnc_io_base
+		COMPILE_FLAGS
+		"-fPIC"
+		)
+endif ()
+
 target_link_libraries (
 	jnc_io_base
 	axl_io
@@ -228,9 +237,15 @@ if (WIN32)
 elseif (UNIX)
 	target_link_libraries (
 		jnc_io_base		
-		rt
 		pthread
 		)
+
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_io_base
+			rt
+			)
+	endif ()
 endif ()
 
 #..............................................................................

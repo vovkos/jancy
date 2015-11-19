@@ -39,6 +39,8 @@
 #include "jnc_rt_CallSite.h"
 #include "jnc_ext_ExtensionLib.h"
 
+#include "axl_io_SockAddr.h"
+
 using namespace axl;
 
 #if (_AXL_ENV == AXL_ENV_WIN)

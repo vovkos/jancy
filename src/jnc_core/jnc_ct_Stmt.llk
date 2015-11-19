@@ -291,7 +291,7 @@ continue_stmt
 return_stmt
 	:	TokenKind_Return expression $e? ';'
 			{
-				return m_module->m_controlFlowMgr.ret (isValidLocator ($e) ? $e.m_value : Value ());
+				return m_module->m_controlFlowMgr.ret (&$e ? $e.m_value : Value ());
 			}
 	;
 
@@ -302,7 +302,7 @@ once_stmt
 	}
 	:	storage_specifier? TokenKind_Once
 			{
-				StorageKind storageKind = isValidLocator ($1) ? $1.m_storageKind : StorageKind_Static;
+				StorageKind storageKind = &$1 ? $1.m_storageKind : StorageKind_Static;
 				return
 					m_module->m_controlFlowMgr.onceStmt_Create (&$stmt, $2.m_pos, storageKind) &&
 					m_module->m_controlFlowMgr.onceStmt_PreBody (&$stmt, $2.m_pos);
@@ -356,7 +356,7 @@ assert_stmt
 			{
 				return finalizeAssertStmt (
 					$c.m_tokenList, 
-					isValidLocator ($m) ? $m.m_value : Value (),
+					&$m ? $m.m_value : Value (),
 					$continueBlock
 					);
 			}			

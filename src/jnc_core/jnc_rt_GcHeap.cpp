@@ -1212,7 +1212,7 @@ GcHeap::collect_l (bool isMutatorThread)
 				for (; threadIt; threadIt++)
 				{
 					if (threadIt->m_isSafePoint)
-						pthread_kill (threadIt->m_threadId, SIGUSR1); // resume
+						pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1); // resume
 				}
 
 				result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
@@ -1333,6 +1333,12 @@ GcHeap::handleSehException (
 
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 
+#if (_AXL_POSIX == AXL_POSIX_DARWIN)
+#	define JNC_SIGSEGV SIGBUS
+#else
+#	define JNC_SIGSEGV SIGSEGV
+#endif
+	
 void
 GcHeap::installSignalHandlers (int)
 {
@@ -1344,7 +1350,7 @@ GcHeap::installSignalHandlers (int)
 	sigAction.sa_sigaction = signalHandler_SIGSEGV;
 	sigAction.sa_mask = m_signalWaitMask;
 
-	int result = sigaction (SIGSEGV, &sigAction, &prevSigAction);
+	int result = sigaction (JNC_SIGSEGV, &sigAction, &prevSigAction);
 	ASSERT (result == 0);
 
 	sigAction.sa_flags = 0;
@@ -1360,6 +1366,8 @@ GcHeap::signalHandler_SIGSEGV (
 	void* context
 	)
 {
+	ASSERT (signal == JNC_SIGSEGV);
+	
 	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
 
 	Tls* tls = getCurrentThreadTls ();
@@ -1368,8 +1376,7 @@ GcHeap::signalHandler_SIGSEGV (
 
 	GcHeap* self = &tls->m_runtime->m_gcHeap;
 
-	if (signal != SIGSEGV || 
-		signalInfo->si_addr != self->m_guardPage)
+	if (signalInfo->si_addr != self->m_guardPage)
 		return; // ignore
 
 	GcMutatorThread* thread = &tls->m_gcMutatorThread;
@@ -1378,7 +1385,7 @@ GcHeap::signalHandler_SIGSEGV (
 	size_t count = mt::atomicDec (&self->m_handshakeCount);
 	ASSERT (self->m_state == State_StopTheWorld && count >= 0);
 	if (!count)
-		self->m_handshakeSem.post ();
+		self->m_handshakeSem.signal ();
 
 	do
 	{
@@ -1389,7 +1396,7 @@ GcHeap::signalHandler_SIGSEGV (
 	count = mt::atomicDec (&self->m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
-		self->m_handshakeSem.post ();
+		self->m_handshakeSem.signal ();
 }
 
 #endif // _AXL_ENV == AXL_ENV_POSIX

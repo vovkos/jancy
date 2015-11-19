@@ -67,8 +67,8 @@ enum_specifier
 		(':' type_name $b)?
 			{
 				$.m_type = createEnumType (
-					isValidLocator ($n) ? $n.m_data.m_string : sl::String (),
-					isValidLocator ($b) ? $b.m_type : NULL,
+					&$n ? $n.m_data.m_string : sl::String (),
+					&$b ? $b.m_type : NULL,
 					$.m_flags
 					);
 
@@ -112,7 +112,7 @@ enum_member <EnumType* $type>
 			{
 				EnumConst* member = $type->createConst (
 					$1.m_data.m_string,
-					isValidLocator ($i) ? &$i.m_tokenList : NULL
+					&$i ? &$i.m_tokenList : NULL
 					);
 
 				if (!member)
@@ -142,8 +142,8 @@ struct_specifier
 		(':' type_name_list $b)?
 			{
 				$.m_type = createStructType (
-					isValidLocator ($n) ? $n.m_data.m_string : sl::String (),
-					isValidLocator ($b) ? &$b.m_typeList : NULL,
+					&$n ? $n.m_data.m_string : sl::String (),
+					&$b ? &$b.m_typeList : NULL,
 					m_fieldAlignment
 					);
 
@@ -171,7 +171,7 @@ union_specifier
 		TokenKind_Identifier $n?
 			{
 				$.m_type = createUnionType (
-					isValidLocator ($n) ? $n.m_data.m_string : sl::String (),
+					&$n ? $n.m_data.m_string : sl::String (),
 					m_fieldAlignment
 					);
 
@@ -198,9 +198,9 @@ class_specifier
 			{
 				$.m_type = createClassType (
 					$n.m_data.m_string,
-					isValidLocator ($b) ? &$b.m_typeList : NULL,
+					&$b ? &$b.m_typeList : NULL,
 					m_fieldAlignment,
-					isValidLocator ($o) ? ClassTypeFlag_Opaque : 0
+					&$o ? ClassTypeFlag_Opaque : 0
 					);
 
 				if (!$.m_type)
