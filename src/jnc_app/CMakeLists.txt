@@ -159,7 +159,7 @@ elseif (UNIX)
 
 	if (NOT APPLE)
 		target_link_libraries (
-			jnc_io_base
+			jnc_app
 			rt
 			)
 	endif ()
