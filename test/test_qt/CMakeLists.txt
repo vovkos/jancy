@@ -208,7 +208,12 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-if (UNIX AND NOT APPLE)
+if (WIN32)
+	target_link_libraries (
+		test_qt
+		ws2_32
+		)
+elseif (UNIX AND NOT APPLE)
 	target_link_libraries (
 		test_qt
 		rt
