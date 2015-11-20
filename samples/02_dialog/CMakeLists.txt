@@ -156,7 +156,7 @@ qt5_use_modules (02_dialog Widgets)
 
 if (WIN32)
 	copy_qt_dll_files (02_dialog Core Gui Widgets)
-elseif (UNIX)
+elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
 

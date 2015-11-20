@@ -5,8 +5,11 @@
 Editor::Editor(QWidget *parent)
 	: QPlainTextEdit(parent)
 {
-	QFont font ("Monospace", 12);
-	font.setFamily ("Courier");
+#if (_AXL_POSIX == AXL_POSIX_DARWIN)
+	QFont font ("Menlo", 11);
+#else
+	QFont font ("Monospace", 10);
+#endif
 	font.setFixedPitch (true);
 	font.setKerning (false);
 	font.setStyleHint (

@@ -224,7 +224,7 @@ qt5_use_modules (test_qt Widgets)
 
 if (WIN32)
 	copy_qt_dll_files (test_qt Core Gui Widgets)
-elseif (UNIX)
+elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
 

@@ -142,15 +142,16 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 bool
 Socket::open (
 	int protocol,
-	uint16_t family,
+	uint16_t family_jnc,
 	const SocketAddress* address
 	)
 {
 	close ();
 
+	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
 	int socketKind = protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM;
 
-	bool result = m_socket.open (family, socketKind, protocol);
+	bool result = m_socket.open (family_s, socketKind, protocol);
 	if (!result)
 	{
 		ext::propagateLastError ();

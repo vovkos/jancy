@@ -392,6 +392,15 @@ SshChannel::sshAsyncLoop (int result)
 	return LIBSSH2_ERROR_EAGAIN;
 }
 
+err::Error
+getSshLastError (LIBSSH2_SESSION* sshSession)
+{
+	char* string;
+	int length;
+	libssh2_session_last_error (sshSession, &string, &length, false);
+	return err::Error (string, length);
+}
+	
 bool
 SshChannel::sshConnect ()
 {
@@ -410,7 +419,7 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
@@ -434,13 +443,10 @@ SshChannel::sshConnect ()
 		if (!result)
 			break;
 
+		fireSshEvent (SshEventKind_SshAuthError, getSshLastError (m_sshSession));
+	
 		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED)
-		{
-			fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
 			return false;
-		}
-
-		fireSshEvent (SshEventKind_SshAuthError, err::getLastError ());
 
 		m_ioLock.lock ();
 		m_ioFlags |= IoFlag_AuthError;
@@ -472,7 +478,7 @@ SshChannel::sshConnect ()
 
 	if (!channel)
 	{
-		fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
@@ -498,7 +504,7 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
@@ -518,7 +524,7 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
@@ -592,7 +598,7 @@ SshChannel::sshReadLoop ()
 			if (read)
 			{
 				read->m_result = -1;
-				read->m_error = err::getLastError ();
+				read->m_error = getSshLastError (m_sshSession);
 				read->m_completionEvent.signal ();
 			}
 
@@ -646,7 +652,7 @@ SshChannel::tcpConnect ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-			fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+				fireSshEvent (SshEventKind_ConnectError, err::getLastSystemError ());
 			return false;
 
 		case WAIT_OBJECT_0:
