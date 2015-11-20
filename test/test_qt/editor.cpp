@@ -8,7 +8,7 @@ Editor::Editor(QWidget *parent)
 #if (_AXL_POSIX == AXL_POSIX_DARWIN)
 	QFont font ("Menlo", 11);
 #else
-	QFont font ("Monospace", 10);
+	QFont font ("Monospace", 9);
 #endif
 	font.setFixedPitch (true);
 	font.setKerning (false);
