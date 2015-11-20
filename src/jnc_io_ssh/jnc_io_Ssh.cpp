@@ -652,7 +652,7 @@ SshChannel::tcpConnect ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-				fireSshEvent (SshEventKind_ConnectError, err::getLastSystemError ());
+			fireSshEvent (SshEventKind_ConnectError, err::Error (err::getLastSystemErrorCode ()));
 			return false;
 
 		case WAIT_OBJECT_0:
