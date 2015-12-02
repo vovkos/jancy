@@ -97,7 +97,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Compilation options")
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_ImportDir,
-		"I", "import-dir", NULL,
+		"I", "import-dir", "<dir>",
 		"Add import directory"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
@@ -134,8 +134,8 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_RunFunction,
-		"run-func", "run-function", "<function>",
-		"Run function <function> (implies JITting)"
+		"run-func", "runf", "<name>",
+		"Run function <name> (implies JITting)"
 		)
 	AXL_SL_CMD_LINE_SWITCH (
 		CmdLineSwitch_GcAllocSizeTrigger,

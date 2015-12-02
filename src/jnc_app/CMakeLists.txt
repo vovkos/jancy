@@ -112,7 +112,6 @@ llvm_map_components_to_libraries (
 	jit
 	native
 	MCJIT
-	MCDisassembler
 	)
 
 add_executable (

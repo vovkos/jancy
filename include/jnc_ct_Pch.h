@@ -58,7 +58,7 @@
 // we want to be able avoid that (i.e. if a libraries defines LLVM-dependent classes, but
 // application does not use those classes -- then why link to LLVM?)
 
-#ifndef _AXL_LLVM_NO_JIT
+#ifndef _JNC_LLVM_NO_JIT
 #	include "llvm/ExecutionEngine/JIT.h"
 #	include "llvm/ExecutionEngine/JITEventListener.h"
 #	include "llvm/ExecutionEngine/JITMemoryManager.h"
