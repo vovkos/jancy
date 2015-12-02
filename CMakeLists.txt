@@ -59,8 +59,16 @@ include (version.cmake)
 add_subdirectory (samples)
 add_subdirectory (src)
 
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/doc/CMakeLists.txt")
+	add_subdirectory (doc)
+endif ()	
+
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt")
 	add_subdirectory (test)
+endif ()	
+
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/tools/CMakeLists.txt")
+	add_subdirectory (tools)
 endif ()	
 	
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/package/CMakeLists.txt")

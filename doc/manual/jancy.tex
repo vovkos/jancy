@@ -6,6 +6,7 @@
 
 \usepackage{indentfirst}
 \usepackage{listings}
+\usepackage{courier}
 \usepackage[
 	bookmarks,
 	colorlinks=true,
@@ -20,19 +21,126 @@
 \setlength{\topsep}{0pt}
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{1em}
-\setlength{\parindent}{2em}
+\setlength{\parindent}{0em}
 \setlength{\partopsep}{0pt}
 
 \lstset{
-	basicstyle=\small\sffamily,
-	numbers=left,
- 	numberstyle=\tiny,
-	frame=tb,
+	basicstyle=\footnotesize\ttfamily,
+	keywordstyle=\bfseries,
+	numbers=none,
+	frame=single,
 	tabsize=4,
-	columns=fixed,
 	showstringspaces=false,
 	showtabs=false,
+	columns=fixed,
 	keepspaces,
+	language=C++,
+	keywords={
+		import,
+		namespace,
+		extension,
+		dynamiclib,
+		using,
+		friend,
+		public,
+		protected,
+		alignment,
+		setas,
+		typedef,
+		alias,
+		static,
+		thread,
+		abstract,
+		virtual,
+		override,
+		mutable,
+		unsigned,
+		bigendian,
+		const,
+		readonly,
+		volatile,
+		weak,
+		thin,
+		safe,
+		unsafe,
+		throws,
+		cdecl,
+		stdcall,
+		jnccall,
+		thiscall,
+		array,
+		function,
+		property,
+		bindable,
+		autoget,
+		indexed,
+		multicast,
+		event,
+		reactor,
+		automaton,
+		auto,
+		void,
+		variant,
+		bool,
+		int8,
+		int16,
+		int32,
+		int64,
+		float,
+		double,
+		int,
+		intptr,
+		char,
+		enum,
+		struct,
+		union,
+		class,
+		opaque,
+		exposed,
+		bitflag,
+		get,
+		set,
+		preconstruct,
+		construct,
+		destruct,
+		operator,
+		postfix,
+		new,
+		delete,
+		sizeof,
+		countof,
+		offsetof,
+		typeof,
+		bindingof,
+		dynamic,
+		if,
+		else,
+		for,
+		while,
+		do,
+		break,
+		break2,
+		continue,
+		continue2,
+		return,
+		switch,
+		case,
+		default,
+		once,
+		onevent,
+		try,
+		catch,
+		finally,
+		nestedscope,
+		assert,
+		basetype,
+		basetype1,
+		basetype2,
+		this,
+		true,
+		false,
+		null,
+	}
 }
 
 \title{Jancy\\Programmer's Manual}
@@ -47,13 +155,17 @@
 
 \chapter{Introduction}
 
+\section{Abstract}
+
+Jancy is a scripting programming language with LLVM back-end. Jancy offers a lot of convenient features for low-level IO (input-output) and UI (user-interface) programming which are not found in mainstream languages (and sometimes, nowhere else). This includes safe pointer arithmetics, high level of source-level and ABI compatibility with C/C++, reactive programming, built-in generator of incremental lexers/scanners and a lot more.
+
 \section{Motivation}
 
 Why create yet another programming language? Like, there isn't enough of them already?
 
-I have asked myself these questions hundreds of times, over and over again. I can name dozens of possible arguments against creating a new programming language. I understand all the difficulties a language creator is doomed to face before he can gather any meaningful number of users of the new language. And I still believe that creation of Jancy was justified. The truth is, Jancy was not created just to fix the infamous fatal flaw of other languages (aka, \emph{they didn't write it}). Of course, the passion to invent was a significant driving force, but there was \emph{practival} reasoning besides that. 
+I have asked myself these questions hundreds of times, over and over again. I can name dozens of possible arguments against creating a new programming language. I understand all the difficulties a language creator is doomed to face before he can gather any meaningful number of users of the new language. And I still believe that creation of Jancy was justified. The truth is, Jancy was not created just to fix the infamous fatal flaw of other languages (aka \emph{they didn't write it}). Of course, the passion to invent was a significant driving force, but there was \emph{practival} reasoning besides that. 
 
-During development of a product called IO Ninja (a universal all-in-one low-level IO debugger) we were looking for a scripting language with the support for safe pointers and safe pointer arithmetics. After not finding one, we basically had a choise of either settling for some existing alternative (like, embedded Python) -- or create a new language tailor-suited for this task. Create it both for ourselves, and for other developers who could be in need for a scripting language really good at handling binary data. Needless to say, we have chosen the later option -- otherwise, you would not be reading this manual.
+During development of a product called IO Ninja (a universal all-in-one low-level IO debugger) we were looking for a scripting language with the support for safe pointers and safe pointer arithmetics. After not finding one, we basically had a simple choice: either we settle for some existing scripting language without pointer arithmetics (say, embedded Python) or create a new scripting language -- tailor-suited for this task. Create it both for ourselves, and for other developers who could be in need for a scripting language really good at handling binary data. Needless to say, we have chosen the later option -- otherwise, you would not be reading this manual.
 
 Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy offers a long list of other useful features not found in most mainstream languages (and sometimes, nowhere else). So let's outline the distinguishing features of Jancy below. And for those of you wondering \emph{what's in a name}, Jancy is an acronym: [in-between] Java-and-C/C++.
 
@@ -96,7 +208,7 @@ Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy o
 
 \section{Hello World}
 
-Tradition dictates to start any language book with a \emph{Hello, World} program. If it works, don't fix it, so here you go:
+Tradition dictates to start any language book with a \emph{"Hello World"} program, so here we go:
 
 \begin{lstlisting}
 int main ()
@@ -108,46 +220,103 @@ int main ()
 
 No explanation is needed, I suppose? Keeping Jancy language syntax as close to C/C++/Java as possible was imperative, and I believe a very pleasant level of source compatibility was eventually achieved. Any experienced C++ or Java programmer should be able to read and understand most of Jancy code from the get-go, without any special training. Moreover, often times it is possible to simply copy-paste C/C++/Java code snippets into Jancy source files and compile them with little or no modifications.
 
-\section{Declarations}
+\section{Primitive Types}
 
-As noted earlier, syntax of declarations in Jancy is common for all the C-family languages and can be expressed with the following formula: \emph{specifier(s)-declarator(s)}. 
+System of primitive types in Jancy is a lot like the one in C/C++ with one exception: there is native support for integers with reversed byte-order (aka \emph{bigendians}). 
+
+Bigendians are widely used throughout most network protocol stacks and everyone who was ever involved in network programming knows two things: number one, it kind of clutters the programs to constantly reverse byte order manually with all these \emph{ntohs/htons/ntohl/htonl} calls. Even more importantly, number two -- it's \emph{sooo} easy to forget to reverse byte order, thus getting a program which compiles just fine but has a logical bug in it! Since bigendians are so abundant in networking, and Jancy is intended for low-level IO programmers, bigendians got native support in Jancy. 
+
+Below is a list of all primitive types in Jancy.
+
+\begin{itemize}
+\item void
+\item bool
+\item int8 (char)
+\item unsigned int8 (uint8\_t, byte\_t)
+\item int16 (short)
+\item unsigned int16 (uint16\_t)
+\item bigendian int16
+\item bigendian unsigned int16 
+\item int32 (int)
+\item unsigned int32 (uint32\_t)
+\item bigendian int32
+\item bigendian unsigned int32
+\item int64
+\item unsigned int64 (uint64\_t)
+\item bigendian int64
+\item bigendian unsigned int64
+\item intptr (int32/int64 -- depending on platform)
+\item unsigned intptr (uint32\_t/uint64\_t -- depending on platform)
+\item float
+\item double
+\end{itemize}
+
+\section{Simple Declarations}
+
+Syntax of declarations in Jancy is common for all the C-family languages and can be expressed with the following formula: \emph{specifier(s)-declarator(s)}.
 
 \begin{lstlisting}
-static int a, b;
+int a;
 \end{lstlisting}
 
-In example above \emph{static} is a storage specifier, \emph{int} is a type specifier and both \emph{a} and \emph{b} are declarators.
+In example above \emph{int} is a type specifier and \emph{a} is a declarators. This declaration creates a new integer variable (or field) named \emph{a} -- just like you would expect in C-world. Unlike C/C++ language though, any uninitialized variable in Jancy is \emph{zero-initialized}, so \emph{a} will be holding \emph{zero}.
 
-Jancy allows declaring quite sophisticated entities in one go (even more so than C/C++); therefore, declarations in Jancy can be rather complex and both both specifier and declarator parts can be composite. 
+Declaring \emph{functions} in Jancy is also similar to any C-family language:
+
+\begin{lstlisting}
+void foo (
+    int a, 
+    double b
+    )
+{
+    // ...
+}
+\end{lstlisting}
+
+This defines a function which return no value and takes two arguments of types \emph{int} and \emph{double} -- again, nothing unexpected here.
+
+It's important to say a couple of words on \emph{arrays}, however. In Java, C\#, D and other modern languages arrays are \emph{dynamically-sized}; in C/C++ compiler-generated arrays are \emph{fixed-sized} while dynamically-sized arrays are implemented as classes. Since being able to copy-paste C/C++ declarations of network protocol headers was crucial, Jancy adopts C/C++ model:
+
+\begin{lstlisting}
+int a [10] [20];
+\end{lstlisting}
+
+This declares a two-dimensional array of integers (10 rows and 20 columns) named \emph{a}. Now let's proceed to something more complex.
+
+\section{Advanced Declarations}
+
+Just like C/C++ (and even more so) Jancy allows declaring quite sophisticated entities in one go; therefore, declarations in Jancy can be rather complex, and both specifier and declarator can be composite. 
 
 Specifiers can contain:
 \begin{itemize}
-\item Access specifiers
-\item Storage specifiers
-\item Type specifiers
-\item Type modifiers
+\item Access specifiers (\emph{public} or \emph{protected})
+\item Storage specifiers (e.g. \emph{static}, \emph{typedef}, \emph{virtual} etc)
+\item Type specifiers (e.g. \emph{char}, \emph{int}, \emph{double} etc)
+\item Type modifiers (e.g. \emph{const}, \emph{volatile}, \emph{unsigned} etc)
 \end{itemize}
 
 Declarators can contain:
 \begin{itemize}
-\item Type modifiers
-\item Pointer prefixes
-\item Array suffixes
-\item Function suffixes
-\item Bitfied suffixes
-\item Initializers
-\item Function bodies
+\item Type modifiers (e.g. \emph{const}, \emph{volatile}, \emph{unsigned} etc)
+\item Pointer prefixes (*)
+\item Declarator identifiers (e.g. \emph{myVariable})
+\item Declarator special function kind (e.g. \emph{construct}, \emph{get}, \emph{set} etc)
+\item Array suffixes (e.g. \emph{[10]})
+\item Function suffixes (e.g. \emph{(int, double)})
+\item Bitfied suffixes (e.g. \emph{:10})
+\item Initializers (e.g. \emph{= 0})
+\item Function bodies  (e.g. \emph{\{ return 0; \}})
 \end{itemize}
 
-A more-or-less realistic example of a complex declaration could look like:
+A realistic example of a complex declaration could look like:
 
 \begin{lstlisting}
 static int const* function* a [2] () = { foo, bar };
 \end{lstlisting}
 
-This declares a static variable \emph{a} as an array of two elements of type \emph{pointer to a function which takes no arguments and returns a const-pointer to int} and initializes it with pointers to functions \emph{foo} and \emph{bar}.
+Here \emph{static} is a storage specifier, \emph{int} is a type specifier, \emph{const} and \emph{function} are type modifiers, two \emph{asterisks} are pointer prefixes, \emph{a} is a declarator name, \emph{[2]} is a array suffix, \emph{()} is a function suffix and \emph{= \{ foo, bar \}} is an initializer. This line declares a static variable \emph{a} as an array of two elements of type "pointer to a function which takes no arguments and returns a const-pointer to int" and initializes it with pointers to functions \emph{foo} and \emph{bar}. Wheh! Seriously, it's much easier to read the code than its explanation.
 
-C/C++ equivalent of the above example:
+C/C++ equivalent of the above example would look like:
 
 \begin{lstlisting}
 static int const* (*a [2]) () = { foo, bar };
@@ -157,6 +326,24 @@ Now, if we add one extra layer of function pointers, C/C++ falls short of declar
 
 \begin{lstlisting}
 static int const* function* function* a [2] () (int);
+\end{lstlisting}
+
+There are no nested declarators in Jancy. Nested declarators in C/C++ emerged as a solution (and in my personal opinion, not an elegant one) to the problem of resolving ambiguities in complex pointer-to-function declarations. Like you just saw, Jancy uses a different approach with type modifiers \emph{function}, \emph{property}, \emph{array}:
+
+\begin{lstlisting}
+int property* function* array* a [2] [3] ();
+\end{lstlisting}
+
+Here \emph{a} is an array of three elements of type \emph{pointer to array of two elements of type pointer to a function taking no arguments and returning a pointer to int property}. Speaking formally, the rules for reading Jancy declaration are as follows. First, you start unrolling declarator's pointer prefixes right-to-left. If type modifiers of a pointer prefix requires a suffix, you unroll the first suffix. After all pointer prefixes are unrolled, you unroll the remaining suffixes. 
+
+In reality, however, you are unlikely going to need mind-boggling declarations like the one above. It's always possible to split an overcomplicated declaration into two (or more) using good-old typedefs: just like in C/C++, Jancy declarations with \emph{typedef} storage specifier result in creation of a type alias:
+
+\begin{lstlisting}
+typedef double DoubleBinaryFunc (double, double);
+DoubleBinaryFunc* funcPtr; // use new typedef to declare a variable
+
+typedef int IntArray [10] [20];
+IntArray foo ();  // use new typedef as a retval type
 \end{lstlisting}
 
 There are other important differences with C/C++. In Jancy named type declaration is \emph{not} a type specifier. The following code, perfectly valid in C/C++ will produce an error in Jancy:
@@ -217,17 +404,7 @@ foo ()
 }
 \end{lstlisting}
 
-There are no nested declarators in Jancy. Nested declarators in C/C++ emerged as a solution (and in my opinion, not an elegant one) to the problem of resolving ambiguities in complex pointer-to-function declarations. Like it was demonstrated before, Jancy uses a different approach with type modifiers \emph{function}, \emph{property}, \emph{array}:
-
-\begin{lstlisting}
-int property* function* array* a [2] [3] ();
-\end{lstlisting}
-
-Here \emph{a} is an array of three elements of type \emph{pointer to array of two elements of type pointer to a function taking no arguments and returning a pointer to int property}. Basically, you start unrolling declarator's pointer prefixes first; if type modifiers of a pointer prefix requires a suffix, you unroll the first suffix. After all pointer prefixes are unrolled, you unroll the remaining suffixes. 
-
-In reality, however, you are unlikely to need mind-boggling declarations like that. It's always possible to split an overcomplicated declaration into two or more using good-old \emph{typedefs}.
-
-\subsection{Curly Initializers}
+\section{Curly Initializers}
 Jancy supports a convenient method of assigning aggregate values with curly initializers:
 
 Classic C-style curly-intializers:
@@ -267,32 +444,28 @@ point = { , 200, 300 };
 Point* point2 = new Point { m_y = 2000, m_z = 3000 };
 \end{lstlisting}
 
-\section{Typedefs}
+\section{Storage Specifiers}
 
-Variables can have following storage specifiers:
+Both global and local variables can have \emph{static} or \emph{thread} storage specifiers. \emph{static} means that the memory for variable is allocated at the program start and it stays there until the program terminates. \emph{thread}, on the other hand, means that variable is allocated from the thread local storage -- each thread in program has its own copy of such variable. To avoid unnecessary performance penalties during thread start, two limitations are imposed on \emph{thread} variables. The first limitation is: thread variables cannot have initializers; the second -- thread variables cannot be aggregate (e.g. class, struct, array etc). 
 
-\section{Variables, Fields, Functions}
+Now, what if you \emph{do} need an aggregate thead variable and/or a thread variable which needs to be initilized? The answer is simple -- use pointers:
 
-Variables can have following storage specifiers:
+\begin{lstlisting}
+thread MyClass* threadClass;
 
-\begin{itemize}
-\item static
-\item thread
-\end{itemize}
+// ...
 
-\emph{static} 
+if (!threadClass)
+	threadClass = new MyClass (10, 20, 30);
+\end{lstlisting}
 
-Fields can have following storage specifiers:
+There is one more storage class, which actually cannot be explicitly expressed with storage specifier -- \emph{local} storage. The actual memory for local storage can come from \emph{stack} or from \emph{GC-heap}, but the most important thing about local storage is this: every time intruction pointer goes through variable declaration, that will be a \emph{new} copy of local variable.
 
-\begin{itemize}
-\item static
-\item thread
-\item mutable
-\end{itemize}
+If storage specifier is omitted, then global variables get assigned \emph{static} storage class and local variables -- \emph{local} storage class.
 
-\emph{mutable} can only be applied to a field (more on that in \emph{Const-correctness}).
+Member fields of classes, structs and unions can have both \emph{static} and \emph{thread} storage specifiers -- the meaning of these are identical to what we have just discussed. Member fields can also have \emph{mutable} storage specifier, which means that this member field can be modified using \emph{const} pointer to the parent class/struct/union -- just like in C/C++.
 
-Functions can have following storage specifiers:
+Now let's talk about functions. Global functions always have \emph{static} storage class. Member functions, on the other hand, can have the following storage specifiers:
 
 \begin{itemize}
 \item static
@@ -301,7 +474,7 @@ Functions can have following storage specifiers:
 \item override
 \end{itemize}
 
-Type specifier can be omitted for \emph{void-functions}, so the following two declarations are identical:
+\emph{static} in respect to member functions mean that this function does not accept implict \emph{this} argument. Therefore, static functions cannot access any non-static member fileds. \emph{virtual}, \emph{abstract} and \emph{override} specifiers allow programmer to create virtual functions -- i.e. the functions which can be overriden in derived classes. Note that neither structs nor unions are not allowed to have virtual functions, only \emph{classes} do.
 
 \section{Properties}
 
@@ -313,7 +486,7 @@ Jancy provides two methods of declaring a property: simple and full.
 
 \subsection{Simple Declaration}
 
-Jancy supports what we believe to be the most natural syntax for declaring properties:
+Jancy supports what I believe to be the most natural syntax for declaring properties:
 
 \begin{lstlisting}
 int property g_simpleProp;
@@ -568,9 +741,20 @@ int main ()
 }
 \end{lstlisting}
 
-\section{Namespaces}
+\section{Global Namespaces}
 
-Bla-bla-bla
+Just like in C++ and C\#, Jancy features support for global namespaces. It is OK to open a nested namespace in one go; it is also OK to open and close the same namespace multiple times for adding new elements.
+
+\begin{lstlisting}
+namespace a.b.c {
+namespace d {
+
+} // namespace a.b.c.d
+} // namespace a.b.c 
+
+namespace a.b.c.d {
+} // namespace a.b.c.d 
+\end{lstlisting}
 
 \section{Extension Namespaces}
 Jancy offers a way to extend the functionality of existing classes with extension namespaces. An extension namespace declares additional methods which have access to all the members of the class that they extend. There are certain limitations imposed on the extension methods. These ensure that if your code runs without extension namespaces, then it runs exactly the same with the introduction of any extension namespace(s):
@@ -627,15 +811,14 @@ int main ()
 }
 \end{lstlisting}
 
-\section{Primitive Types and Arrays}
-
-Bla-bla-bla
-
 \section{Named Types}
 
 \subsection{Structs/Unions}
 
-Bla-bla-bla
+Jancy features structs and unions just the way C/C++ does with the following exceptions:
+
+
+
 
 \subsection{Classes}
 

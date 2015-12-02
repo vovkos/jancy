@@ -1,0 +1,22 @@
+@echo off
+
+rem ...........................................................................
+
+set ROOT_DIR="${JANCY_ROOT_DIR}"
+set THIS_DIR="${CMAKE_CURRENT_LIST_DIR}"
+set TMP_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+set LATEX_EXE="${LATEX_EXE}"
+
+set ROOT_DIR=%ROOT_DIR:/=\%
+set THIS_DIR=%THIS_DIR:/=\%
+set TMP_DIR=%TMP_DIR:/=\%
+set LATEX_EXE=%LATEX_EXE:/=\%
+
+rem compile twice to ensure table contents is up to date 
+
+%LATEX_EXE% -quiet -output-directory=%TMP_DIR% -aux-directory=%TMP_DIR% %THIS_DIR%\jancy.tex || exit
+%LATEX_EXE% -quiet -output-directory=%TMP_DIR% -aux-directory=%TMP_DIR% %THIS_DIR%\jancy.tex || exit
+
+copy %TMP_DIR%\jancy.pdf %ROOT_DIR%\doc\manual || exit
+
+rem ...........................................................................
