@@ -49,7 +49,7 @@ printSourceFile (
 		return -1;
 	}
 	
-	sl::StringSlice source = extensionLib->findSourceFile (sourceFileName);
+	sl::StringSlice source = extensionLib->findSourceFileContents (sourceFileName);
 	if (source.isEmpty ())
 	{
 		printf ("extension lib '%s' does not contain '%s'", fileName, sourceFileName);
@@ -81,10 +81,11 @@ printSourceFileList (const char* fileName)
 	}
 	
 	size_t count = extensionLib->getSourceFileCount ();
-	sl::Array <const char*> fileNameTable (count);
-	count = extensionLib->getSourceFileNameTable (fileNameTable, count);
 	for (size_t i = 0; i < count; i++)
-		printf ("%s\n", fileNameTable [i]);
+	{
+		const char* fileName = extensionLib->getSourceFileName (i);
+		printf ("%s\n", fileName);
+	}
 
 	return 0;
 }

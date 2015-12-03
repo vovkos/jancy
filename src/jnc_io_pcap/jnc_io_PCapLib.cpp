@@ -13,4 +13,10 @@ jncExtensionLibMain (jnc::ext::ExtensionLibHost* host)
 	return mt::getSimpleSingleton <jnc::io::PCapLib> ();
 }
 
+jnc::ext::ExtensionLib*
+getExtensionLib ()
+{
+	return mt::getSimpleSingleton <jnc::io::PCapLib> ();
+}
+
 //.............................................................................

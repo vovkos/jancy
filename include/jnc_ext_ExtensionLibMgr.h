@@ -45,7 +45,7 @@ public:
 	mapFunctions ();
 
 	sl::StringSlice
-	findSourceFile (const char* fileName);
+	findSourceFileContents (const char* fileName);
 
 	const OpaqueClassTypeInfo* 
 	findOpaqueClassTypeInfo (const char* qualifiedName);

@@ -56,7 +56,7 @@ ImportMgr::addImport (const char* fileName)
 
 	// source. search extension libs first
 
-	sl::StringSlice source = m_module->m_extensionLibMgr.findSourceFile (fileName);
+	sl::StringSlice source = m_module->m_extensionLibMgr.findSourceFileContents (fileName);
 	if (!source.isEmpty ())
 	{
 		addSource (fileName, source);

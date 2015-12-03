@@ -27,6 +27,7 @@ check_and_print_libs (
 		BULLDOZER
 	OPTIONAL 
 		QT
+		JDK
 		LIBSSH2
 		PCAP
 	)

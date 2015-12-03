@@ -76,13 +76,13 @@ ExtensionLibMgr::mapFunctions ()
 }
 
 sl::StringSlice
-ExtensionLibMgr::findSourceFile (const char* fileName)
+ExtensionLibMgr::findSourceFileContents (const char* fileName)
 {
 	size_t count = m_libArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		ExtensionLib* lib = m_libArray [i];
-		sl::StringSlice source = lib->findSourceFile (fileName);
+		sl::StringSlice source = lib->findSourceFileContents (fileName);
 		if (!source.isEmpty ())
 			return source;
 	}

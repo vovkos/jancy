@@ -229,6 +229,13 @@ target_link_libraries (
 	axl_core
 	)
 
+if (${JDK_FOUND})
+	target_link_libraries (
+		jnc_io_base
+		jnc_jni
+		)
+endif ()
+
 if (WIN32)
 	target_link_libraries (
 		jnc_io_base

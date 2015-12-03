@@ -139,6 +139,13 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
+if (${JDK_FOUND})
+	target_link_libraries (
+		jnc_io_ssh
+		jnc_jni
+		)
+endif ()
+
 if (WIN32)
 	target_link_libraries (
 		jnc_io_ssh

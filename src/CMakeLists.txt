@@ -7,6 +7,18 @@
 add_subdirectory (jnc_core)
 add_subdirectory (jnc_std)
 
+if (${JDK_FOUND})
+	option (
+		BUILD_JNC_JNI
+		"Build jancy JNI (Java Native Interface) bridge library"
+		ON
+		)
+
+	if (BUILD_JNC_JNI)
+		add_subdirectory (jnc_jni)
+	endif ()
+endif ()
+
 option (
 	BUILD_JNC_IO_BASE
 	"Build jancy base IO (sockets, serial ports, files) extension library "

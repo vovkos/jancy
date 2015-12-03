@@ -45,18 +45,22 @@ public:
 	}
 
 	virtual
-	size_t
-	getSourceFileNameTable (
-		const char** fileNameTable,
-		size_t count
-		)
+	const char*
+	getSourceFileName (size_t index)
 	{
-		return 0;
+		return NULL;
 	}
 
 	virtual
 	sl::StringSlice
-	findSourceFile (const char* fileName)
+	getSourceFileContents (size_t index)
+	{
+		return sl::StringSlice ();
+	}
+
+	virtual
+	sl::StringSlice
+	findSourceFileContents (const char* fileName)
 	{
 		return sl::StringSlice ();
 	}
@@ -358,49 +362,73 @@ public: \
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Map) \
+#define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Table) \
 virtual \
 size_t \
 getSourceFileCount () \
 { \
-	Map* map = axl::mt::getSingleton <Map> (); \
-	return map->getCount (); \
+	Table* table = axl::mt::getSingleton <Table> (); \
+	return table->getCount (); \
 } \
 virtual \
-size_t \
-getSourceFileNameTable ( \
-	const char** fileNameTable, \
-	size_t count \
-	) \
+const char* \
+getSourceFileName (size_t index) \
 { \
-	Map* map = axl::mt::getSingleton <Map> (); \
-	size_t maxCount = map->getCount (); \
-	if (count > maxCount) \
-		count = maxCount; \
-	axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = map->getHead (); \
-	for (size_t i = 0; i < count; i++, it++) \
-		fileNameTable [i] = it->m_key; \
-	return count; \
+	Table* table = axl::mt::getSingleton <Table> (); \
+	return table->getFileName (index); \
 } \
 virtual \
 axl::sl::StringSlice \
-findSourceFile (const char* fileName) \
+getSourceFileContents (size_t index) \
 { \
-	Map* map = axl::mt::getSingleton <Map> (); \
-	axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = map->find (fileName); \
-	return it ? it->m_value : axl::sl::StringSlice (); \
+	Table* table = axl::mt::getSingleton <Table> (); \
+	return table->getContents (index); \
 } \
-class Map: public axl::sl::StringHashTableMap <axl::sl::StringSlice> \
+virtual \
+axl::sl::StringSlice \
+findSourceFileContents (const char* fileName) \
 { \
+	Table* table = axl::mt::getSingleton <Table> (); \
+	return table->findContents (fileName); \
+} \
+class Table \
+{ \
+protected: \
+	axl::sl::StringHashTableMap <axl::sl::StringSlice> m_fileNameMap; \
+	axl::sl::Array <const char*> m_fileNameArray; \
+	axl::sl::Array <axl::sl::StringSlice> m_contentsArray; \
 public: \
-	Map () \
-	{ 
+	size_t \
+	getCount () \
+	{ \
+		return m_fileNameMap.getCount (); \
+	} \
+	const char* \
+	getFileName (size_t index) \
+	{ \
+		return index < m_fileNameArray.getCount () ? m_fileNameArray [index] : NULL; \
+	} \
+	axl::sl::StringSlice \
+	getContents (size_t index) \
+	{ \
+		return index < m_contentsArray.getCount () ? m_contentsArray [index] : axl::sl::StringSlice (); \
+	} \
+	axl::sl::StringSlice \
+	findContents (const char* fileName) \
+	{ \
+		axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = m_fileNameMap.find (fileName); \
+		return it ? it->m_value : axl::sl::StringSlice (); \
+	} \
+	Table () \
+	{
 
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE() \
-	JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX (SourceFileMap)
+	JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX (SourceFileTable)
 
 #define JNC_LIB_SOURCE_FILE_TABLE_ENTRY(fileName, sourceVar) \
-		visit (fileName)->m_value.copy (sourceVar, lengthof (sourceVar));
+		m_fileNameMap.visit (fileName)->m_value.copy (sourceVar, lengthof (sourceVar)); \
+		m_fileNameArray.append (fileName); \
+		m_contentsArray.append (axl::sl::StringSlice (sourceVar, lengthof (sourceVar)));
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	} \

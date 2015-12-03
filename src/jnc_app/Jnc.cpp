@@ -129,15 +129,16 @@ Jnc::run (
 		if (cmdLine->m_flags & JncFlag_ExtensionList)
 		{
 			size_t count = extensionLib->getSourceFileCount ();
-			sl::Array <const char*> fileNameTable (count);
-			count = extensionLib->getSourceFileNameTable (fileNameTable, count);
 			for (size_t i = 0; i < count; i++)
-				outStream->printf ("%s\n", fileNameTable [i]);
+			{
+				const char* fileName = extensionLib->getSourceFileName (i);
+				outStream->printf ("%s\n", fileName);
+			}
 		}
 
 		if (cmdLine->m_flags & JncFlag_ExtensionSrcFile)
 		{
-			sl::StringSlice source = extensionLib->findSourceFile (cmdLine->m_extensionSrcFileName);
+			sl::StringSlice source = extensionLib->findSourceFileContents (cmdLine->m_extensionSrcFileName);
 			if (source.isEmpty ())
 			{
 				outStream->printf (
