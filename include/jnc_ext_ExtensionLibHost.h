@@ -16,6 +16,8 @@
 namespace jnc {
 namespace ext {
 
+class ExtensionLib;
+
 #ifdef _JNC_SHARED_EXTENSION_LIB
 	
 // treat everything as opaque classes

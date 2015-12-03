@@ -4,7 +4,9 @@
 
 //.............................................................................
 
-public class JncExtensionLib
+package com.tibbo.jnc;
+
+public class ExtensionLib
 {
 	public native int sourceFileCount ();
 	public native String sourceFileName (int index);
@@ -24,7 +26,7 @@ public class JncExtensionLib
 			return;
 		}
 	
-		JncExtensionLib lib = new JncExtensionLib ();
+		ExtensionLib lib = new ExtensionLib ();
 		lib.load (args [0]);
 
 		int count = lib.sourceFileCount ();

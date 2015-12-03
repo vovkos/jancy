@@ -1,16 +1,27 @@
-#include "pch.h"
+// This file is part of AXL (R) Library
+// Tibbo Technology Inc (C) 2004-2013. All rights reserved
+// Author: Vladimir Gladkov
 
-extern "C" {
+#pragma once
+
+#ifndef _JNC_SHARED_EXTENSION_LIB
+#	error This file should only be included from shared extension libs.
+#endif
+
+#include "jnc_ext_ExtensionLib.h"
+
+//.............................................................................
 
 jnc::ext::ExtensionLib*
 getExtensionLib ();
 
-//.............................................................................
+extern "C" {
 
+inline
 JNIEXPORT 
 jint 
 JNICALL 
-Java_JncExtensionLib_sourceFileCount (
+Java_com_tibbo_jnc_ExtensionLib_sourceFileCount (
 	JNIEnv* env, 
 	jobject obj
 	)
@@ -19,10 +30,11 @@ Java_JncExtensionLib_sourceFileCount (
 	return (jint) lib->getSourceFileCount ();
 }
 
+inline
 JNIEXPORT 
 jstring 
 JNICALL 
-Java_JncExtensionLib_sourceFileName (
+Java_com_tibbo_jnc_ExtensionLib_sourceFileName (
 	JNIEnv* env, 
 	jobject obj, 
 	jint index
@@ -33,10 +45,11 @@ Java_JncExtensionLib_sourceFileName (
 	return env->NewStringUTF (fileName);
 }
 
+inline
 JNIEXPORT 
 jstring 
 JNICALL 
-Java_JncExtensionLib_sourceFileContents (
+Java_com_tibbo_jnc_ExtensionLib_sourceFileContents (
 	JNIEnv* env, 
 	jobject obj, 
 	jint index
@@ -47,10 +60,11 @@ Java_JncExtensionLib_sourceFileContents (
 	return env->NewStringUTF (source);
 }
 
+inline
 JNIEXPORT 
 jstring 
 JNICALL 
-Java_JncExtensionLib_findSourceFileContents (
+Java_com_tibbo_jnc_ExtensionLib_findSourceFileContents (
 	JNIEnv* env, 
 	jobject obj, 
 	jstring fileName_j

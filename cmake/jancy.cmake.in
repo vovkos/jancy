@@ -10,6 +10,6 @@ set (JANCY_LIB_BASE_DIR "@JANCY_LIB_BASE_DIR@")
 set (JANCY_BIN_DIR      "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}")
 set (JANCY_BIN_BASE_DIR "@JANCY_BIN_BASE_DIR@")
 set (JANCY_EXE          "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}/jancy")
-set (JNC2CPP_PL         "@JANCY_ROOT_DIR@/perl/jnc2cpp.pl")
+set (JNC2CPP_PL         "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
 
 #..............................................................................

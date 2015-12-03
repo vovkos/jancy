@@ -185,6 +185,15 @@ include_directories (
 	${GEN_DIR}
 	)
 
+if (${JDK_FOUND})
+	include_directories (
+		${JDK_INC_DIR}
+		${JDK_INC_DIR_2}
+		)
+
+	add_definitions (-D_JDK_FOUND)
+endif ()
+
 link_directories (
 	${AXL_LIB_DIR}
 	)
@@ -228,13 +237,6 @@ target_link_libraries (
 	axl_io
 	axl_core
 	)
-
-if (${JDK_FOUND})
-	target_link_libraries (
-		jnc_io_base
-		jnc_jni
-		)
-endif ()
 
 if (WIN32)
 	target_link_libraries (

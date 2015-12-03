@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "jnc_io_PCapLib.h"
 
+#ifdef _JDK_FOUND
+#	include "jnc_ext_JavaJniImpl.h"
+#endif
+
 //.............................................................................
 
 extern "C"
