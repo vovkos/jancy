@@ -1,5 +1,4 @@
 namespace jnc {
-namespace ct {
 
 ///+++
 
@@ -71,5 +70,4 @@ public:
 
 ///---
 
-} // namespace ct
 } // namespace jnc

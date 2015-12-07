@@ -1,5 +1,4 @@
 namespace jnc {
-namespace ct {
 
 ///+++
 
@@ -36,5 +35,4 @@ class DynamicLib
 
 ///---
 
-} // namespace ct
 } // namespace jnc
