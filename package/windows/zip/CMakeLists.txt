@@ -4,6 +4,8 @@
 
 #..............................................................................
 
+set (ZIP_TYPE 7z)
+
 configure_file (
 	build-zip.bat.in
 	build-zip.bat

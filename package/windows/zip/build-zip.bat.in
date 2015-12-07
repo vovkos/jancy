@@ -11,9 +11,10 @@ set ROOT_DIR=%ROOT_DIR:/=\%
 set OUT_DIR=%OUT_DIR:/=\%
 set ZIP_DIR=%ZIP_DIR:/=\%
 set ZIP_EXE=%ZIP_EXE:/=\%
+set ZIP_TYPE=7z
 
 set CONTENTS_DIR="%ZIP_DIR%\jancy-${VERSION_FILE_SUFFIX}"
-set OUT_FILE_NAME=jancy-src-${VERSION_FILE_SUFFIX}.zip
+set OUT_FILE_NAME=jancy-src-${VERSION_FILE_SUFFIX}.${ZIP_TYPE}
 set OUT_FILE_PATH=%OUT_DIR%\%OUT_FILE_NAME%
 
 echo Building archive %OUT_FILE_NAME%...
@@ -45,7 +46,7 @@ del %CONTENTS_DIR%\cmake\std\paths.cmake
 
 set PREV_DIR=%CD%
 cd %ZIP_DIR% || exit
-%ZIP_EXE% a -tzip -y %OUT_FILE_PATH% || exit
+%ZIP_EXE% a -t${ZIP_TYPE} -y %OUT_FILE_PATH% || exit
 cd %PREV_DIR% || exit
 
 rd /S /Q "%ZIP_DIR%"
