@@ -11,7 +11,6 @@ set (
 	LIB_H_LIST
 	jnc_io_Serial.h
 	jnc_io_Socket.h
-	jnc_io_SocketAddress.h
 	jnc_io_SocketAddressResolver.h
 	jnc_io_NetworkAdapter.h
 	jnc_io_MappedFile.h
@@ -24,7 +23,6 @@ set (
 	LIB_CPP_LIST
 	jnc_io_Serial.cpp
 	jnc_io_Socket.cpp
-	jnc_io_SocketAddress.cpp
 	jnc_io_SocketAddressResolver.cpp
 	jnc_io_NetworkAdapter.cpp
 	jnc_io_MappedFile.cpp
@@ -183,6 +181,7 @@ include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
+	../jnc_io_cmn
 	)
 
 if (${JDK_FOUND})
@@ -234,6 +233,7 @@ endif ()
 
 target_link_libraries (
 	jnc_io_base
+	jnc_io_cmn
 	axl_io
 	axl_core
 	)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jnc_io_SshLibGlobals.h"
+#include "jnc_io_SocketAddress.h"
 
 namespace jnc {
 namespace io {
@@ -53,6 +54,8 @@ enum SshEventKind
 	SshEventKind_ConnectCancelled,
 	SshEventKind_ConnectError,
 	SshEventKind_Disconnected,
+	SshEventKind_ReauthenticateInitiated,
+	SshEventKind_ReconnectInitiated,
 	SshEventKind_IncomingData,
 };
 
@@ -139,10 +142,13 @@ protected:
 
 protected:
 	rt::Runtime* m_runtime;
-
+	
 	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
+
+	jnc::io::SocketAddress m_localAddress;
+	jnc::io::SocketAddress m_remoteAddress;
 
 	ConnectParams* m_connectParams;
 

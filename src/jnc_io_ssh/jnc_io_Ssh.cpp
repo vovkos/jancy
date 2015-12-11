@@ -81,14 +81,23 @@ SshChannel::open (rt::DataPtr addressPtr)
 {
 	close ();
 
-	bool result =
-		m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP) &&
-		!addressPtr.m_p || m_socket.bind ((sockaddr*) addressPtr.m_p);
-
+	bool result = m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (!result)
 	{
 		ext::propagateLastError ();
 		return false;
+	}
+
+	if (addressPtr.m_p)
+	{
+		m_localAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
+
+		result = m_socket.bind (m_localAddress.getSockAddr ());
+		if (!result)
+		{
+			ext::propagateLastError ();
+			return false;
+		}
 	}
 
 	m_isOpen = true;
@@ -120,8 +129,8 @@ SshChannel::close ()
 	m_ioThread.waitAndClose ();
 	rt::leaveWaitRegion (m_runtime);
 
-
 	m_ioFlags = 0;
+	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
 	m_socket.close ();
 	m_sshChannel.close ();
 	m_sshSession.close ();
@@ -189,7 +198,8 @@ SshChannel::connect (
 		}
 	}
 
-	result = m_socket.connect ((sockaddr*) addressPtr.m_p);
+	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
+	result = m_socket.connect (m_remoteAddress.getSockAddr ());
 	if (!result)
 		ext::propagateLastError ();
 
@@ -427,6 +437,8 @@ SshChannel::sshConnect ()
 
 	// loop to give user a chance to re-authenticate
 
+	sl::String prevUserName = m_connectParams->m_userName;
+
 	for (;;)
 	{
 		do
@@ -443,10 +455,13 @@ SshChannel::sshConnect ()
 		if (!result)
 			break;
 
-		fireSshEvent (SshEventKind_SshAuthError, getSshLastError (m_sshSession));
-	
 		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED)
+		{
+			fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
 			return false;
+		}
+
+		fireSshEvent (SshEventKind_SshAuthError, getSshLastError (m_sshSession));
 
 		m_ioLock.lock ();
 		m_ioFlags |= IoFlag_AuthError;
@@ -454,8 +469,73 @@ SshChannel::sshConnect ()
 
 		sleepIoThread ();
 
+		m_ioLock.lock ();
+		m_ioFlags &= ~IoFlag_AuthError;
+		m_ioLock.unlock ();
+
 		if (m_ioFlags & IoFlag_Closing)
 			return false;
+
+		if (m_connectParams->m_userName == prevUserName)
+		{
+			fireSshEvent (SshEventKind_ReauthenticateInitiated);
+		}
+		else
+		{
+			// need to re-connect
+
+			prevUserName = m_connectParams->m_userName;
+			fireSshEvent (SshEventKind_ReconnectInitiated);
+
+			m_socket.close ();
+
+			result = m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			if (!result)
+			{
+				fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+				return false;
+			}
+
+			if (m_localAddress.m_family)
+			{
+				result = m_socket.bind (m_localAddress.getSockAddr ());
+				if (!result)
+				{
+					fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+					return false;
+				}
+			}
+
+			result = m_socket.connect (m_remoteAddress.getSockAddr ());
+			if (!result)
+			{
+				fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+				return false;
+			}
+
+			result = tcpConnect ();
+			if (!result)
+				return false;
+
+			sshSession = libssh2_session_init ();
+	
+			m_sshSession.attach (sshSession);
+			libssh2_session_set_blocking (m_sshSession, false);
+
+			do
+			{
+				result = libssh2_session_handshake (m_sshSession, m_socket.m_socket);
+				result = sshAsyncLoop (result);
+			} while (result == LIBSSH2_ERROR_EAGAIN);
+
+			if (result)
+			{
+				fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+				return false;
+			}
+
+			fireSshEvent (SshEventKind_SshHandshakeCompleted);
+		}
 	}
 
 	fireSshEvent (SshEventKind_SshAuthCompleted);

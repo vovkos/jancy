@@ -90,6 +90,7 @@ include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
+	../jnc_io_cmn
 	)
 
 if (${JDK_FOUND})
@@ -143,6 +144,7 @@ endif ()
 
 target_link_libraries (
 	jnc_io_ssh
+	jnc_io_cmn
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

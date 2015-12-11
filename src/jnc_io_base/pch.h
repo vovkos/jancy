@@ -1,6 +1,7 @@
 #pragma once
 
 #define _JNC_SHARED_EXTENSION_LIB 1
+#define _JNC_IO_BASE 1
 
 #include "jnc_ext_Pch.h"
 

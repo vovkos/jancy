@@ -21,6 +21,8 @@ enum SshEvent
 	ConnectCancelled,
 	ConnectError,
 	Disconnected,
+	ReauthenticateInitiated,
+	ReconnectInitiated,
 	IncomingData,
 	TransmitBufferOverflow,
 	TransmitBufferReady,
