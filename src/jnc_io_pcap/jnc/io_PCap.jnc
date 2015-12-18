@@ -1,7 +1,3 @@
-///+++
-
-///; AXL_SELECT_ANY char g_io_pcapSrc [] = 
-
 import "io_SocketAddress.jnc"
 
 namespace io {
@@ -92,7 +88,3 @@ PCapDeviceDesc const* createPCapDeviceDescList (size_t* count = null);
 //.............................................................................
 
 } // namespace io
-
-///;
-
-///---

@@ -20,48 +20,27 @@ set (
 	jnc_io_SshLib.cpp
 	)
 
-set (
-	LIB_JNC_LIST
-	jnc_io_Ssh.jnc
-	)
-
 source_group (
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# gen folder
+# jnc folder
 #
 
-set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${GEN_DIR})
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
-
-add_perl_step (
-	jnc_io_Ssh.jnc.cpp
-	jnc_io_Ssh.jnc
-	${JNC2CPP_PL}
-	)
-
-pop (CMAKE_CURRENT_BINARY_DIR)
-
 set (
-	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_io_Ssh.jnc.cpp
+	JNC_LIST
+	jnc/io_Ssh.jnc
 	)
-
-exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 
 source_group (
-	gen
+	jnc
 	FILES
-	${GEN_JNC_CPP_LIST}
+	${JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -89,18 +68,8 @@ include_directories (
 	${OPENSSL_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${GEN_DIR}
 	../jnc_io_cmn
 	)
-
-if (${JDK_FOUND})
-	include_directories (
-		${JDK_INC_DIR}
-		${JDK_INC_DIR_2}
-		)
-
-	add_definitions (-D_JDK_FOUND)
-endif ()
 
 link_directories (
 	${LIBSSH2_LIB_DIR}
@@ -115,7 +84,7 @@ add_library (
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
+	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 	)
 
@@ -130,8 +99,8 @@ set (CMAKE_SHARED_LIBRARY_PREFIX)
 set_target_properties (
 	jnc_io_ssh
 	PROPERTIES
-	OUTPUT_NAME io_ssh
-	SUFFIX .jncx
+	OUTPUT_NAME io_ssh-${TARGET_CPU}
+	SUFFIX .bin
 	)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -174,5 +143,20 @@ elseif (UNIX)
 	endif ()
 endif ()
 
+#..............................................................................
+#
+# io_ssh.jncx archive
+#
+
+set (BIN_DIR ${JANCY_BIN_BASE_DIR}/$(Configuration))
+
+add_custom_target (
+	jnc_io_ssh_jncx
+	ALL
+	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_ssh.jncx
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_ssh.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_ssh-${TARGET_CPU}.bin
+	DEPENDS
+	jnc_io_ssh
+	)
 
 #..............................................................................

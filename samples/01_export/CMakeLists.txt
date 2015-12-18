@@ -98,6 +98,7 @@ target_link_libraries (
 	jnc_core
 	axl_io
 	axl_core
+	axl_zip
 	${LLVM_LIB_LIST}
 	)
 

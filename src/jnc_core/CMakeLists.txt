@@ -152,7 +152,6 @@ set (
 	${JANCY_INC_DIR}/jnc_ext_ExtensionLib.h
 	${JANCY_INC_DIR}/jnc_ext_ExtensionLibMgr.h
 	${JANCY_INC_DIR}/jnc_ext_OpaqueClassTypeInfo.h
-	${JANCY_INC_DIR}/jnc_ext_JavaJniImpl.h
 	jnc_ext_StdExtensionLibHost.h
 	)
 

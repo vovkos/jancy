@@ -14,9 +14,6 @@ enum JncFlag
 	JncFlag_Server            = 0x0100,
 	JncFlag_DebugInfo         = 0x0200,
 	JncFlag_StdInSrc          = 0x0400,
-	JncFlag_Extension         = 0x1000,
-	JncFlag_ExtensionList     = 0x2000,
-	JncFlag_ExtensionSrcFile  = 0x4000,
 };
 
 struct CmdLine
@@ -51,8 +48,6 @@ enum CmdLineSwitch
 	CmdLineSwitch_McJit,
 	CmdLineSwitch_SimpleGcSafePoint,
 	CmdLineSwitch_Run,
-	CmdLineSwitch_ExtensionInfo,
-	CmdLineSwitch_ExtensionList,
 
 	CmdLineSwitch_RunFunction = sl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitch_Server,
@@ -61,7 +56,6 @@ enum CmdLineSwitch
 	CmdLineSwitch_StackSizeLimit,
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_ImportDir,
-	CmdLineSwitch_ExtensionSrcFile,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -151,25 +145,6 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_StackSizeLimit,
 		"stack-size-limit", "<size>",
 		"Specify the stack size limit"
-		)
-
-	AXL_SL_CMD_LINE_SWITCH_GROUP ("Extension (jncx) options")
-	AXL_SL_CMD_LINE_SWITCH_3 (
-		CmdLineSwitch_ExtensionList,
-		"x", "ext", "extension", NULL,
-		"Treat input file as extension"
-		)
-
-	AXL_SL_CMD_LINE_SWITCH (
-		CmdLineSwitch_ExtensionList,
-		"ext-list", NULL,
-		"List the contents of extension"
-		)
-
-	AXL_SL_CMD_LINE_SWITCH (
-		CmdLineSwitch_ExtensionSrcFile,
-		"ext-src", "<file>",
-		"Extract source file <file> from extension"
 		)
 AXL_SL_END_CMD_LINE_SWITCH_TABLE ()
 

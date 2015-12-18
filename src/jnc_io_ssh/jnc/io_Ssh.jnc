@@ -1,7 +1,3 @@
-///+++
-
-///; AXL_SELECT_ANY char g_io_sshSrc [] = 
-
 import "io_SocketAddress.jnc"
 
 namespace io {
@@ -92,7 +88,3 @@ opaque class SshChannel
 //.............................................................................
 
 } // namespace io
-
-///;
-
-///---

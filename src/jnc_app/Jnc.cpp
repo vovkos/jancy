@@ -86,7 +86,7 @@ Jnc::run (
 		outStream->printf ("missing input (required file-name or --stdin)\n");
 		return JncError_InvalidCmdLine;
 	}
-	else if (!(cmdLine->m_flags & JncFlag_Extension))
+	else
 	{
 		result = srcFile.open (cmdLine->m_fileName, io::FileFlag_ReadOnly);
 		if (!result)
@@ -103,57 +103,6 @@ Jnc::run (
 		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
 			m_cmdLine->m_srcNameOverride :
 			io::getFullFilePath (cmdLine->m_fileName);
-	}
-	else
-	{
-		sys::DynamicLibrary dynamicLib;
-		result = dynamicLib.open (cmdLine->m_fileName);
-		if (!result)
-		{
-			outStream->printf (
-				"cannot open '%s': %s\n",
-				cmdLine->m_fileName.cc (),
-				err::getLastErrorDescription ().cc ()
-				);
-			return JncError_IoFailure;
-		}
-		
-		jnc::ext::ExtensionLibMainFunc* mainFunc = (jnc::ext::ExtensionLibMainFunc*) dynamicLib.getFunction (jnc::ext::g_extensionLibMainFuncName);
-		jnc::ext::ExtensionLib* extensionLib = mainFunc ? mainFunc (jnc::ext::getStdExtensionLibHost ()) : NULL;
-		if (!extensionLib)
-		{
-			outStream->printf ("cannot get extension lib in '%s'", cmdLine->m_fileName.cc ());
-			return JncError_IoFailure;
-		}
-	
-		if (cmdLine->m_flags & JncFlag_ExtensionList)
-		{
-			size_t count = extensionLib->getSourceFileCount ();
-			for (size_t i = 0; i < count; i++)
-			{
-				const char* fileName = extensionLib->getSourceFileName (i);
-				outStream->printf ("%s\n", fileName);
-			}
-		}
-
-		if (cmdLine->m_flags & JncFlag_ExtensionSrcFile)
-		{
-			sl::StringSlice source = extensionLib->findSourceFileContents (cmdLine->m_extensionSrcFileName);
-			if (source.isEmpty ())
-			{
-				outStream->printf (
-					"extension lib '%s' does not contain '%s'", 
-					cmdLine->m_fileName.cc (), 
-					cmdLine->m_extensionSrcFileName.cc ()
-					);
-				return JncError_IoFailure;
-			}
-
-
-			outStream->write (source, source.getLength ());
-		}
-
-		return JncError_Success;
 	}
 
 	result = compile (srcName, src, srcSize);
@@ -223,8 +172,8 @@ Jnc::compile (
 
 	result = 
 		m_module.create ("jnc_module", compileFlags) &&
-		m_module.m_extensionLibMgr.addLib (jnc::ext::getStdLib (libHost)) &&
-		m_module.m_extensionLibMgr.addLib (mt::getSimpleSingleton <JncLib> ());
+		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost)) &&
+		m_module.m_extensionLibMgr.addStaticLib (mt::getSimpleSingleton <JncLib> ());
 
 	if (!result)
 		return false;

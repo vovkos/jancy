@@ -38,28 +38,7 @@ public:
 	}
 
 	virtual
-	size_t
-	getSourceFileCount ()
-	{
-		return 0;
-	}
-
-	virtual
-	const char*
-	getSourceFileName (size_t index)
-	{
-		return NULL;
-	}
-
-	virtual
-	sl::StringSlice
-	getSourceFileContents (size_t index)
-	{
-		return sl::StringSlice ();
-	}
-
-	virtual
-	sl::StringSlice
+	axl::sl::StringSlice
 	findSourceFileContents (const char* fileName)
 	{
 		return sl::StringSlice ();
@@ -364,57 +343,19 @@ public: \
 
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Table) \
 virtual \
-size_t \
-getSourceFileCount () \
-{ \
-	Table* table = axl::mt::getSingleton <Table> (); \
-	return table->getCount (); \
-} \
-virtual \
-const char* \
-getSourceFileName (size_t index) \
-{ \
-	Table* table = axl::mt::getSingleton <Table> (); \
-	return table->getFileName (index); \
-} \
-virtual \
-axl::sl::StringSlice \
-getSourceFileContents (size_t index) \
-{ \
-	Table* table = axl::mt::getSingleton <Table> (); \
-	return table->getContents (index); \
-} \
-virtual \
 axl::sl::StringSlice \
 findSourceFileContents (const char* fileName) \
 { \
 	Table* table = axl::mt::getSingleton <Table> (); \
-	return table->findContents (fileName); \
+	return table->find (fileName); \
 } \
 class Table \
 { \
 protected: \
 	axl::sl::StringHashTableMap <axl::sl::StringSlice> m_fileNameMap; \
-	axl::sl::Array <const char*> m_fileNameArray; \
-	axl::sl::Array <axl::sl::StringSlice> m_contentsArray; \
 public: \
-	size_t \
-	getCount () \
-	{ \
-		return m_fileNameMap.getCount (); \
-	} \
-	const char* \
-	getFileName (size_t index) \
-	{ \
-		return index < m_fileNameArray.getCount () ? m_fileNameArray [index] : NULL; \
-	} \
 	axl::sl::StringSlice \
-	getContents (size_t index) \
-	{ \
-		return index < m_contentsArray.getCount () ? m_contentsArray [index] : axl::sl::StringSlice (); \
-	} \
-	axl::sl::StringSlice \
-	findContents (const char* fileName) \
+	find (const char* fileName) \
 	{ \
 		axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = m_fileNameMap.find (fileName); \
 		return it ? it->m_value : axl::sl::StringSlice (); \
@@ -425,10 +366,8 @@ public: \
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE() \
 	JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX (SourceFileTable)
 
-#define JNC_LIB_SOURCE_FILE_TABLE_ENTRY(fileName, sourceVar) \
+#define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
 		m_fileNameMap.visit (fileName)->m_value.copy (sourceVar, lengthof (sourceVar)); \
-		m_fileNameArray.append (fileName); \
-		m_contentsArray.append (axl::sl::StringSlice (sourceVar, lengthof (sourceVar)));
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	} \
@@ -443,8 +382,11 @@ forcedExport (jnc::ext::Module* module) \
 { \
 	bool result = true;
 
-#define JNC_LIB_FORCED_SOURCE_FILE(name, sourceVar) \
-	jnc::ext::addModuleSource (module, name, sourceVar, lengthof (sourceVar)); \
+#define JNC_LIB_FORCED_IMPORT(fileName) \
+	jnc::ext::addModuleImport (module, fileName); \
+
+#define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
+	jnc::ext::addModuleSource (module, fileName, sourceVar, lengthof (sourceVar)); \
 
 #define JNC_END_LIB_FORCED_EXPORT() \
 	return true; \

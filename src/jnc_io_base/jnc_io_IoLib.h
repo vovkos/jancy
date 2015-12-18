@@ -12,17 +12,8 @@
 #include "jnc_io_MappedFile.h"
 #include "jnc_io_FileStream.h"
 
-#include "jnc_io_Serial.jnc.cpp"
-#include "jnc_io_Socket.jnc.cpp"
-#include "jnc_io_SocketAddress.jnc.cpp"
-#include "jnc_io_SocketAddressResolver.jnc.cpp"
-#include "jnc_io_NetworkAdapter.jnc.cpp"
-#include "jnc_io_MappedFile.jnc.cpp"
-#include "jnc_io_FileStream.jnc.cpp"
-
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	include "jnc_io_NamedPipe.h"
-#	include "jnc_io_NamedPipe.jnc.cpp"
 #endif
 
 namespace jnc {
@@ -61,19 +52,6 @@ public:
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
 #endif
 	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-
-	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_Serial.jnc", g_io_SerialSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_Socket.jnc", g_io_SocketSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_SocketAddress.jnc", g_io_SocketAddressSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_SocketAddressResolver.jnc", g_io_SocketAddressResolverSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_NetworkAdapter.jnc", g_io_NetworkAdapterSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_MappedFile.jnc", g_io_MappedFileSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_FileStream.jnc", g_io_FileStreamSrc)
-#if (_AXL_ENV == AXL_ENV_WIN)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("io_NamedPipe.jnc", g_io_NamedPipeSrc)
-#endif
-	JNC_END_LIB_SOURCE_FILE_TABLE ()
 };
 
 //.............................................................................

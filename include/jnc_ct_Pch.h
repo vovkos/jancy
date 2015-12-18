@@ -119,6 +119,7 @@
 #include "axl_mt_LongJmpTry.h"
 #include "axl_sys_DynamicLibrary.h"
 #include "axl_mt_Singleton.h"
+#include "axl_zip_ZipReader.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	include "axl_mem_win_VirtualMemory.h"

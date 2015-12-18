@@ -83,18 +83,18 @@ public:
 		JNC_MAP_TYPE (ListEntry)
 	JNC_END_LIB_MAP ()
 
+	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
+		JNC_LIB_SOURCE_FILE ("std_Error.jnc",     g_std_ErrorSrc)
+		JNC_LIB_SOURCE_FILE ("std_Buffer.jnc",    g_std_BufferSrc)
+		JNC_LIB_SOURCE_FILE ("std_String.jnc",    g_std_StringSrc)
+		JNC_LIB_SOURCE_FILE ("std_List.jnc",      g_std_ListSrc)
+		JNC_LIB_SOURCE_FILE ("std_HashTable.jnc", g_std_HashTableSrc)
+	JNC_END_LIB_SOURCE_FILE_TABLE ()
+
 	JNC_BEGIN_LIB_FORCED_EXPORT ()
 		JNC_LIB_FORCED_SOURCE_FILE ("std_globals.jnc", g_std_globalsSrc)
 		JNC_LIB_FORCED_SOURCE_FILE ("std_Error.jnc",   g_std_ErrorSrc)
 	JNC_END_LIB_FORCED_EXPORT ()
-
-	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("std_Error.jnc",     g_std_ErrorSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("std_Buffer.jnc",    g_std_BufferSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("std_String.jnc",    g_std_StringSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("std_List.jnc",      g_std_ListSrc)
-		JNC_LIB_SOURCE_FILE_TABLE_ENTRY ("std_HashTable.jnc", g_std_HashTableSrc)
-	JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 public:
 	static

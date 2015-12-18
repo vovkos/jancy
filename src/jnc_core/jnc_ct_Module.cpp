@@ -88,7 +88,7 @@ Module::create (
 		m_llvmDiBuilder.create ();
 	
 	ext::ExtensionLibHost* libHost = ext::getStdExtensionLibHost ();
-	m_extensionLibMgr.addLib (rtl::getCoreLib (libHost));
+	m_extensionLibMgr.addStaticLib (rtl::getCoreLib (libHost));
 
 	bool result = m_namespaceMgr.addStdItems ();
 	if (!result)

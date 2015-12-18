@@ -10,6 +10,7 @@ namespace jnc {
 namespace ext {
 
 class ExtensionLib;
+class ExtensionLib;
 class ExtensionLibHost;
 struct OpaqueClassTypeInfo;
 
@@ -18,13 +19,44 @@ struct OpaqueClassTypeInfo;
 class ExtensionLibMgr
 {
 protected:
+	struct DynamicLibSourceFile: public sl::ListLink
+	{
+		size_t m_index;
+		sl::String m_fileName;
+		sl::Array <char> m_contents;
+	};
+
+	struct DynamicLibEntry: public sl::ListLink
+	{
+		zip::ZipReader m_zipReader;
+		sl::String m_dynamicLibFilePath;
+		sys::DynamicLibrary m_dynamicLib;
+		sl::StringHashTableMap <DynamicLibSourceFile*> m_sourceFileMap;
+		sl::StdList <DynamicLibSourceFile> m_sourceFileList;
+	};
+
+	struct LibEntry
+	{
+		ExtensionLib* m_extensionLib;
+		DynamicLibEntry* m_dynamicLibEntry;
+	};
+
+protected:
 	ct::Module* m_module;
-	sl::Array <ExtensionLib*> m_libArray;
-	sl::BoxList <sys::DynamicLibrary> m_dynamicLibList;
+	sl::Array <LibEntry> m_libArray;
+	sl::StdList <DynamicLibEntry> m_dynamicLibList;
 	sl::AutoPtrArray <sl::Array <ct::ModuleItem*> > m_itemCache;
 
 public:
+	sl::String m_dynamicLibraryDir;
+
+public:
 	ExtensionLibMgr ();
+	
+	~ExtensionLibMgr ()
+	{
+		clear ();
+	}
 
 	ct::Module* 
 	getModule ()
@@ -35,11 +67,11 @@ public:
 	void
 	clear ();
 
-	ExtensionLib*
-	loadDynamicLib (const char* fileName);
+	bool
+	addStaticLib (ExtensionLib* lib);
 
 	bool
-	addLib (ExtensionLib* lib);
+	loadDynamicLib (const char* fileName);
 
 	bool
 	mapFunctions ();

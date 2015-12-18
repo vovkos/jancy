@@ -1,7 +1,3 @@
-///+++
-
-///; AXL_SELECT_ANY char g_io_NamedPipeSrc [] = 
-
 import "io_FileStream.jnc"
 
 namespace io {
@@ -18,7 +14,7 @@ opaque class NamedPipe
 
 	bool open (
 		char const* name,
-		size_t BackLog = 0		
+		size_t backLog = 0		
 		) throws;
 
 	void close ();
@@ -31,7 +27,3 @@ opaque class NamedPipe
 //.............................................................................
 
 } // namespace io
-
-///;
-
-///---

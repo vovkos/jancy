@@ -210,6 +210,16 @@ public:
 
 	virtual 
 	void
+	addImport (
+		Module* module,
+		const char* fileName
+		)
+	{
+		module->m_importMgr.addImport (fileName);
+	}
+
+	virtual 
+	void
 	addSource (
 		Module* module,
 		const char* fileName,

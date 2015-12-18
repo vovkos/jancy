@@ -1,33 +1,14 @@
+import "io_base.jncx"
+import "io_pcap.jncx"
+
 //.............................................................................
-
-threadFunc ()
-{
-	printf ("+threadFunc (%d)\n", std.getCurrentThreadId ());
-
-	for (int i = 0; i < 100; i++)
-		new int;
-
-	printf ("-threadFunc (%d)\n", std.getCurrentThreadId ());
-}
 
 int main ()
 {
 	printf ("main ()\n");
 
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
-	std.createThread (threadFunc);	
+	io.PCap pcap;
 
-	std.sleep (500);
-	
 	return 0;
 }
 

@@ -142,15 +142,6 @@ CmdLineParser::onSwitch (
 	case CmdLineSwitch_ImportDir:
 		m_cmdLine->m_importDirList.insertTail (value);
 		break;
-
-	case CmdLineSwitch_ExtensionList:
-		m_cmdLine->m_flags |= JncFlag_Extension | JncFlag_ExtensionList;
-		break;
-
-	case CmdLineSwitch_ExtensionSrcFile:
-		m_cmdLine->m_flags |= JncFlag_Extension | JncFlag_ExtensionSrcFile;
-		m_cmdLine->m_extensionSrcFileName = value;
-		break;
 	}
 
 	return true;

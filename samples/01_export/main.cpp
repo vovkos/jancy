@@ -64,8 +64,8 @@ main (
 	jnc::ct::Module module;
 	result =
 		module.create (fileName) &&
-		module.m_extensionLibMgr.addLib (jnc::ext::getStdLib (libHost));
-		module.m_extensionLibMgr.addLib (getMyLib (libHost));
+		module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
+		module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
 	result = module.parse (
 		fileName,

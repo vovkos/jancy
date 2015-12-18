@@ -30,17 +30,6 @@ set (
 	jnc_io_IoLib.cpp
 	)
 
-set (
-	LIB_JNC_LIST
-	jnc_io_Serial.jnc
-	jnc_io_Socket.jnc
-	jnc_io_SocketAddress.jnc
-	jnc_io_SocketAddressResolver.jnc
-	jnc_io_NetworkAdapter.jnc
-	jnc_io_MappedFile.jnc
-	jnc_io_FileStream.jnc
-	)
-
 if (WIN32)
 	set (
 		LIB_H_LIST
@@ -66,95 +55,36 @@ source_group (
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# gen folder
+# jnc folder
 #
 
-set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${GEN_DIR})
-
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
-
-add_perl_step (
-	jnc_io_Serial.jnc.cpp
-	jnc_io_Serial.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_Socket.jnc.cpp
-	jnc_io_Socket.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_SocketAddress.jnc.cpp
-	jnc_io_SocketAddress.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_SocketAddressResolver.jnc.cpp
-	jnc_io_SocketAddressResolver.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_NetworkAdapter.jnc.cpp
-	jnc_io_NetworkAdapter.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_MappedFile.jnc.cpp
-	jnc_io_MappedFile.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
-	jnc_io_FileStream.jnc.cpp
-	jnc_io_FileStream.jnc
-	${JNC2CPP_PL}
-	)
-
-if (WIN32)
-	add_perl_step (
-		jnc_io_NamedPipe.jnc.cpp
-		jnc_io_NamedPipe.jnc
-		${JNC2CPP_PL}
-		)
-endif ()
-
-pop (CMAKE_CURRENT_BINARY_DIR)
-
 set (
-	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_io_Serial.jnc.cpp
-	${GEN_DIR}/jnc_io_Socket.jnc.cpp
-	${GEN_DIR}/jnc_io_SocketAddress.jnc.cpp
-	${GEN_DIR}/jnc_io_NetworkAdapter.jnc.cpp
-	${GEN_DIR}/jnc_io_MappedFile.jnc.cpp
-	${GEN_DIR}/jnc_io_FileStream.jnc.cpp
+	JNC_LIST
+	jnc/io_Serial.jnc
+	jnc/io_Socket.jnc
+	jnc/io_SocketAddress.jnc
+	jnc/io_SocketAddressResolver.jnc
+	jnc/io_NetworkAdapter.jnc
+	jnc/io_MappedFile.jnc
+	jnc/io_FileStream.jnc
 	)
 
 if (WIN32)
 	set (
-		GEN_JNC_CPP_LIST
-		${GEN_JNC_CPP_LIST}
-		${GEN_DIR}/jnc_io_NamedPipe.jnc.cpp
+		JNC_LIST
+		${JNC_LIST}
+		jnc/io_NamedPipe.jnc
 		)
 endif ()
 
-exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
-
 source_group (
-	gen
+	jnc
 	FILES
-	${GEN_JNC_CPP_LIST}
+	${JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -180,18 +110,8 @@ source_group (
 include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${GEN_DIR}
 	../jnc_io_cmn
 	)
-
-if (${JDK_FOUND})
-	include_directories (
-		${JDK_INC_DIR}
-		${JDK_INC_DIR_2}
-		)
-
-	add_definitions (-D_JDK_FOUND)
-endif ()
 
 link_directories (
 	${AXL_LIB_DIR}
@@ -204,8 +124,7 @@ add_library (
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
-	${GEN_JNC_CPP_LIST}
+	${JNC_LIST}
 	)
 
 set_pch (
@@ -219,8 +138,8 @@ set (CMAKE_SHARED_LIBRARY_PREFIX)
 set_target_properties (
 	jnc_io_base
 	PROPERTIES
-	OUTPUT_NAME io_base
-	SUFFIX .jncx
+	OUTPUT_NAME io_base-${TARGET_CPU}
+	SUFFIX .bin
 	)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -256,5 +175,21 @@ elseif (UNIX)
 			)
 	endif ()
 endif ()
+
+#..............................................................................
+#
+# io_base.jncx archive
+#
+
+set (BIN_DIR ${JANCY_BIN_BASE_DIR}/$(Configuration))
+
+add_custom_target (
+	jnc_io_base_jncx
+	ALL
+	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_base.jncx
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_base-${TARGET_CPU}.bin
+	DEPENDS
+	jnc_io_base
+	)
 
 #..............................................................................

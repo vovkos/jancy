@@ -182,13 +182,20 @@ public:
 
 	virtual 
 	void
+	addImport (
+		Module* module,
+		const char* fileName
+		) = 0;
+
+	virtual 
+	void
 	addSource (
 		Module* module,
 		const char* fileName,
 		const char* source,
 		size_t size
 		) = 0;
-
+	
 	virtual 
 	Runtime*
 	getCurrentThreadRuntime () = 0;
@@ -507,6 +514,16 @@ mapFunction (
 
 inline
 void
+addModuleImport (
+	Module* module,
+	const char* fileName
+	)
+{
+	g_extensionLibHost->addImport (module, fileName);
+}
+
+inline
+void
 addModuleSource (
 	Module* module,
 	const char* fileName,
@@ -676,6 +693,16 @@ mapFunction (
 	)
 {
 	module->mapFunction (function, p);
+}
+
+inline
+void
+addModuleImport (
+	Module* module,
+	const char* fileName
+	)
+{
+	module->m_importMgr.addImport (fileName);
 }
 
 inline

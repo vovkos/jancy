@@ -25,9 +25,9 @@ check_and_print_libs (
 		LLVM
 		AXL
 		BULLDOZER
+		7Z
 	OPTIONAL 
 		QT
-		JDK
 		LIBSSH2
 		PCAP
 	)

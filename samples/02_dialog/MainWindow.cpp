@@ -79,8 +79,8 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	result = 
 		m_module.create (fileName) &&
-		m_module.m_extensionLibMgr.addLib (jnc::ext::getStdLib (libHost));
-		m_module.m_extensionLibMgr.addLib (getMyLib (libHost));
+		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
+		m_module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
 	result = m_module.parse (
 		fileName,

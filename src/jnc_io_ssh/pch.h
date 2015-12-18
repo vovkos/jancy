@@ -4,10 +4,6 @@
 
 #include "jnc_ext_Pch.h"
 
-#ifdef _JDK_FOUND
-#	include <jni.h>
-#endif
-
 #ifndef ssize_t
 #	define ssize_t intptr_t
 #endif

@@ -5,10 +5,6 @@
 
 #include "jnc_ext_Pch.h"
 
-#ifdef _JDK_FOUND
-#	include <jni.h>
-#endif
-
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	pragma comment (lib, "setupapi.lib")
 #	pragma comment (lib, "iphlpapi.lib")

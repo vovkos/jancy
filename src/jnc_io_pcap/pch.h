@@ -4,10 +4,6 @@
 
 #include "jnc_ext_Pch.h"
 
-#ifdef _JDK_FOUND
-#	include <jni.h>
-#endif
-
 #include <pcap/pcap.h>
 
 #include "axl_io_PCap.h"
