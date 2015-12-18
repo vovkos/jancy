@@ -34,15 +34,12 @@ ExtensionLibMgr::clear ()
 bool
 ExtensionLibMgr::addStaticLib (ExtensionLib* lib)
 {
-	bool result = lib->forcedExport (m_module);
-	if (!result)
-		return false;
-
 	LibEntry entry;
 	entry.m_extensionLib = lib;
 	entry.m_dynamicLibEntry = NULL;
 	m_libArray.append (entry);
-	return true;
+	
+	return lib->forcedExport (m_module);
 }
 
 bool
@@ -108,16 +105,13 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
 		return false;
 	}
-	
-	result = extensionLib->forcedExport (m_module);
-	if (!result)
-		return false;
 
 	LibEntry libEntry;
 	libEntry.m_extensionLib = extensionLib;
 	libEntry.m_dynamicLibEntry = entry;
 	m_libArray.append (libEntry);
-	return true;
+
+	return extensionLib->forcedExport (m_module);
 }
 
 bool

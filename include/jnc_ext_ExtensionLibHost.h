@@ -181,7 +181,7 @@ public:
 		) = 0;
 
 	virtual 
-	void
+	bool
 	addImport (
 		Module* module,
 		const char* fileName
@@ -513,13 +513,13 @@ mapFunction (
 }
 
 inline
-void
+bool
 addModuleImport (
 	Module* module,
 	const char* fileName
 	)
 {
-	g_extensionLibHost->addImport (module, fileName);
+	return g_extensionLibHost->addImport (module, fileName);
 }
 
 inline
@@ -696,13 +696,13 @@ mapFunction (
 }
 
 inline
-void
+bool
 addModuleImport (
 	Module* module,
 	const char* fileName
 	)
 {
-	module->m_importMgr.addImport (fileName);
+	return module->m_importMgr.addImport (fileName);
 }
 
 inline

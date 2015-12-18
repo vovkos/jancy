@@ -209,13 +209,13 @@ public:
 	}
 
 	virtual 
-	void
+	bool
 	addImport (
 		Module* module,
 		const char* fileName
 		)
 	{
-		module->m_importMgr.addImport (fileName);
+		return module->m_importMgr.addImport (fileName);
 	}
 
 	virtual 

@@ -383,7 +383,9 @@ forcedExport (jnc::ext::Module* module) \
 	bool result = true;
 
 #define JNC_LIB_FORCED_IMPORT(fileName) \
-	jnc::ext::addModuleImport (module, fileName); \
+	result = jnc::ext::addModuleImport (module, fileName); \
+	if (!result) \
+		return false;
 
 #define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
 	jnc::ext::addModuleSource (module, fileName, sourceVar, lengthof (sourceVar)); \
