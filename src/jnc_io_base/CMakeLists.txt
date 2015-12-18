@@ -181,7 +181,7 @@ endif ()
 # io_base.jncx archive
 #
 
-set (BIN_DIR ${JANCY_BIN_BASE_DIR}/$(Configuration))
+set (BIN_DIR ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX})
 
 add_custom_target (
 	jnc_io_base_jncx
