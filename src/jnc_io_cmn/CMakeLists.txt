@@ -65,7 +65,7 @@ set_pch (
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	add_target_string_property (
-		jnc_io_base
+		jnc_io_cmn
 		COMPILE_FLAGS
 		"-fPIC"
 		)

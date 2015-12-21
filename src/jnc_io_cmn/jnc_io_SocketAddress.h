@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _JNC_IO_BASE
-#	include "jnc_io_IoLibGlobals.h"
+#	include "../jnc_io_base/jnc_io_IoLibGlobals.h"
 #endif
 
 namespace jnc {
