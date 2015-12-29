@@ -212,7 +212,7 @@ StdLib::sleep (uint32_t msCount)
 	ASSERT (runtime);
 
 	runtime->m_gcHeap.enterWaitRegion ();
-	g::sleep (msCount);
+	sys::sleep (msCount);
 	runtime->m_gcHeap.leaveWaitRegion ();
 }
 

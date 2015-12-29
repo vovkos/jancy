@@ -927,7 +927,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	ASSERT (!m_noCollectMutatorThreadCount && m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
 
 	m_stats.m_totalCollectCount++;
-	m_stats.m_lastCollectTime = g::getTimestamp ();
+	m_stats.m_lastCollectTime = sys::getTimestamp ();
 
 	bool isShuttingDown = (m_flags & GcHeapFlag_ShuttingDown) != 0;
 
@@ -1232,7 +1232,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_stats.m_currentAllocSize -= freeSize;
 	m_stats.m_currentPeriodSize = 0;
 	m_stats.m_lastCollectFreeSize = freeSize;
-	m_stats.m_lastCollectTimeTaken = g::getTimestamp () - m_stats.m_lastCollectTime;
+	m_stats.m_lastCollectTimeTaken = sys::getTimestamp () - m_stats.m_lastCollectTime;
 	m_stats.m_totalCollectTimeTaken += m_stats.m_lastCollectTimeTaken;
 	m_idleEvent.signal ();
 	m_lock.unlock ();

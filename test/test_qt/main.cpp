@@ -13,7 +13,7 @@ int main (int argc, char* argv [])
 	llvm::InitializeNativeTargetDisassembler ();
 
 	err::registerParseErrorProvider ();
-	srand ((int) axl::g::getTimestamp ());
+	srand ((int) axl::sys::getTimestamp ());
 
 	QApplication app (argc, argv);
 	QCoreApplication::setOrganizationName ("Tibbo");

@@ -51,7 +51,7 @@ main (
 	llvm::InitializeNativeTargetDisassembler ();
 
 	err::registerParseErrorProvider ();
-	srand ((int) axl::g::getTimestamp ());
+	srand ((int) axl::sys::getTimestamp ());
 
 	FileOutStream stdOut;
 	CmdLine cmdLine;

@@ -134,14 +134,14 @@ TestLib::testVariant (jnc::rt::Variant variant)
 void
 TestLib::qtWait (uint_t msTime)
 {
-	uint64_t start = g::getTimestamp ();
+	uint64_t start = sys::getTimestamp ();
 	uint64_t interval = msTime * 10000;
 	
 	QEventLoop eventLoop;
 
 	for (;;)
 	{
-		uint_t now = g::getTimestamp ();
+		uint_t now = sys::getTimestamp ();
 		if (now - start > interval)
 			break;
 

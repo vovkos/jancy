@@ -398,7 +398,7 @@ SshChannel::sshAsyncLoop (int result)
 		return LIBSSH2_ERROR_CHANNEL_CLOSED;
 	}
 
-	g::sleep (10);
+	sys::sleep (10);
 	return LIBSSH2_ERROR_EAGAIN;
 }
 
@@ -670,7 +670,7 @@ SshChannel::sshReadLoop ()
 			if (result != LIBSSH2_ERROR_EAGAIN)
 				break;
 
-			g::sleep (10);
+			sys::sleep (10);
 		}
 
 		if (result < 0)

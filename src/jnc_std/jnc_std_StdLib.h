@@ -112,7 +112,7 @@ public:
 	uint64_t
 	getTimestamp ()
 	{
-		return g::getTimestamp ();
+		return sys::getTimestamp ();
 	}
 
 	static

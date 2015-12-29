@@ -86,7 +86,7 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		return false;
 	}
 
-	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.cc (), g::getTimestamp (), dynamicLibFileName.cc ());
+	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.cc (), sys::getTimestamp (), dynamicLibFileName.cc ());
 
 	result = 
 		entry->m_zipReader.extractFileToFile (dynamicLibFileIdx, entry->m_dynamicLibFilePath);

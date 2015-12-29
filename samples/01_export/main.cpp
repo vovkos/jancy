@@ -43,7 +43,7 @@ main (
 
 	err::registerParseErrorProvider ();
 
-	srand ((int) axl::g::getTimestamp ());
+	srand ((int) axl::sys::getTimestamp ());
 	
 	sl::String fileName = argv [1];
 
