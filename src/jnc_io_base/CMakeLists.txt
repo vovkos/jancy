@@ -174,6 +174,13 @@ elseif (UNIX)
 			rt
 			)
 	endif ()
+
+	if (LINUX)
+		target_link_libraries (
+			jnc_io_base
+			udev
+			)
+	endif ()
 endif ()
 
 #..............................................................................
