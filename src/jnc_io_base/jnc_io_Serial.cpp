@@ -379,6 +379,24 @@ Serial::ioThreadFunc ()
 
 		if (FD_ISSET (m_serial.m_serial, &readSet))
 		{
+			size_t incomingDataSize = m_serial.m_serial.getIncomingDataSize ();
+			if (incomingDataSize == -1)
+			{
+				err::Error error = err::getLastSystemErrorCode ();
+				fireSerialEvent (SerialEventKind_IoError, error);
+				return;
+			}
+
+			if (incomingDataSize == 0) 
+			{
+				// shouldn't actually be here -- if USB serial is disconnected, 
+				// Fd::getIncomingDataSize should fail with some kind of IO error
+				
+				err::Error error (EBADFD);
+				fireSerialEvent (SerialEventKind_IoError, error);
+				return;
+			}
+
 			m_ioLock.lock ();
 			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
 			m_ioFlags |= IoFlag_IncomingData;
