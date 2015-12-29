@@ -346,12 +346,20 @@ FileStream::readLoop ()
 
 		m_ioLock.unlock ();
 
-		size_t waitCount = 1;
-
-		OVERLAPPED overlapped = { 0 };
-
-		if (readBuffer)
+		if (!readBuffer)
 		{
+			DWORD waitResult = ::WaitForSingleObject (m_ioThreadEvent.m_event, INFINITE);
+			if (waitResult == WAIT_FAILED)
+			{
+				err::Error error = err::getLastSystemErrorCode ();
+				fireFileStreamEvent (FileStreamEventKind_IoError, error);
+				return;
+			}
+		}
+		else
+		{
+			OVERLAPPED overlapped = { 0 };
+
 			overlapped.hEvent = completionEvent.m_event;
 			overlapped.Offset = (DWORD) offset;
 			overlapped.OffsetHigh = (DWORD) (offset >> 32);
@@ -369,19 +377,30 @@ FileStream::readLoop ()
 				break;
 			}
 
-			waitCount = 2;
-		}
+			for (;;)
+			{
+				DWORD waitResult = ::WaitForMultipleObjects (2, waitTable, false, INFINITE);
+				if (waitResult == WAIT_FAILED)
+				{
+					err::Error error = err::getLastSystemErrorCode ();
+					fireFileStreamEvent (FileStreamEventKind_IoError, error);
+					return;
+				}
 
-		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitTable, false, INFINITE);
-		switch (waitResult)
-		{
-		case WAIT_FAILED:
-			return;
+				m_ioLock.lock ();
 
-		case WAIT_OBJECT_0:
-			break;
+				if (m_ioFlags & IoFlag_Closing)
+				{
+					m_ioLock.unlock ();
+					break;
+				}
 
-		case WAIT_OBJECT_0 + 1:
+				m_ioLock.unlock ();
+
+				if (waitResult == WAIT_OBJECT_0 + 1)
+					break;
+			}
+
 			readSize = m_file.m_file.getOverlappedResult (&overlapped);
 			if (readSize == -1)
 			{
@@ -394,7 +413,7 @@ FileStream::readLoop ()
 					read->m_completionEvent.signal ();
 				}
 
-				fireFileStreamEvent (FileStreamEventKind_ReadError, error);
+				fireFileStreamEvent (FileStreamEventKind_IoError, error);
 				return;
 			}
 
@@ -427,7 +446,6 @@ FileStream::readLoop ()
 			}
 
 			offset += readSize; // advance offset
-			break;
 		}
 	}
 }

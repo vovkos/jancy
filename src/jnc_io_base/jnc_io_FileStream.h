@@ -23,7 +23,7 @@ enum FileStreamEventKind
 {
 	FileStreamEventKind_Eof,
 	FileStreamEventKind_IncomingData,
-	FileStreamEventKind_ReadError,
+	FileStreamEventKind_IoError,
 	FileStreamEventKind_TransmitBufferOverflow,
 	FileStreamEventKind_TransmitBufferReady,
 };

@@ -10,9 +10,10 @@ namespace io {
 enum SerialEventKind
 {
 	SerialEventKind_IncomingData = 0,
-	SerialEventKind_StatusLineChanged,
+	SerialEventKind_IoError,
 	SerialEventKind_TransmitBufferOverflow,
 	SerialEventKind_TransmitBufferReady,
+	SerialEventKind_StatusLineChanged,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -26,6 +27,7 @@ struct SerialEventParams
 	uint_t m_syncId;
 	uint_t m_lines;
 	uint_t m_mask;
+	rt::DataPtr m_errorPtr;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -178,6 +180,12 @@ protected:
 		);
 
 	void
+	fireSerialEvent (
+		SerialEventKind eventKind,
+		err::ErrorHdr* error
+		);
+
+	void
 	ioThreadFunc ();
 
 	void
@@ -192,7 +200,7 @@ struct SerialPortDesc
 	JNC_END_TYPE_MAP ()
 
 	rt::DataPtr m_nextPtr;
-	rt::DataPtr m_namePtr;
+	rt::DataPtr m_deviceNamePtr;
 	rt::DataPtr m_descriptionPtr;
 };
 

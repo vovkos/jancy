@@ -44,9 +44,10 @@ bitflag enum SerialStatusLines
 enum SerialEvent
 {
 	IncomingData,
-	StatusLineChanged,
+	IoError,
 	TransmitBufferOverflow,
 	TransmitBufferReady,
+	StatusLineChanged,
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -57,6 +58,7 @@ struct SerialEventParams
 	uint_t m_syncId;
 	SerialStatusLines m_lines;
 	SerialStatusLines m_mask;
+	std.Error* m_error;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -103,39 +105,13 @@ opaque class Serial
 struct SerialPortDesc
 {
 	SerialPortDesc const* m_next;
-	char const* m_name;
+	char const* m_deviceName;
 	char const* m_description;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 SerialPortDesc const* createSerialPortDescList (size_t* count = null);
-
-gui.EnumProperty* createSerialPortProperty (
-	gui.PropertyGrid* propertyGrid,
-	char const* name,
-	char const* toolTipText,
-	SerialPortDesc const* portList,
-	size_t portCount
-	)
-{
-	gui.EnumPropertyOption* portOptionArray = new gui.EnumPropertyOption [portCount];
-	gui.EnumPropertyOption* portOption = portOptionArray;
-
-	io.SerialPortDesc const* port = portList;
-	for (; port; port = port->m_next, portOption++)
-	{
-		portOption.m_text = port->m_name;
-		portOption.m_value = 0;
-	}
-
-	return propertyGrid.createEnumProperty (
-		name,
-		toolTipText,
-		portOptionArray,
-		portCount
-		);
-}
 
 //.............................................................................
 

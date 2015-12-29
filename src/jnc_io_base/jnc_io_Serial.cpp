@@ -117,6 +117,26 @@ Serial::fireSerialEvent (
 	JNC_END_CALL_SITE ();
 }
 
+
+void
+Serial::fireSerialEvent (
+	SerialEventKind eventKind,
+	err::ErrorHdr* error
+	)
+{
+	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+
+	rt::DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
+	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
+	params->m_eventKind = eventKind;
+	params->m_syncId = m_syncId;
+	params->m_errorPtr = rt::memDup (error, error->m_size);
+
+	rt::callMulticast (m_onSerialEvent, paramsPtr);
+
+	JNC_END_CALL_SITE ();
+}
+
 bool
 AXL_CDECL
 Serial::setBaudRate (uint_t baudRate)
@@ -238,6 +258,7 @@ Serial::write (
 }
 
 #if (_AXL_ENV == AXL_ENV_WIN)
+
 void
 Serial::ioThreadFunc ()
 {
@@ -279,39 +300,40 @@ Serial::ioThreadFunc ()
 			m_serial.m_serial.wait (&event, &overlapped);
 
 		if (!result)
+		{
+			fireSerialEvent (SerialEventKind_IoError, err::getLastError ());
 			break;
+		}
 
 		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
-		switch (waitResult)
+		if (waitResult == WAIT_FAILED)
 		{
-		case WAIT_FAILED:
+			err::Error error = err::getLastSystemErrorCode ();
+			fireSerialEvent (SerialEventKind_IoError, error);
 			return;
+		}
 
-		case WAIT_OBJECT_0:
-			break;
+		if (waitResult != WAIT_OBJECT_0 + 1)
+			continue;
 
-		case WAIT_OBJECT_0 + 1:
-			if (event & EV_RXCHAR)
-			{
-				m_ioLock.lock ();
-				ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-				m_ioFlags |= IoFlag_IncomingData;
-				m_ioLock.unlock ();
+		if (event & EV_RXCHAR)
+		{
+			m_ioLock.lock ();
+			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
+			m_ioFlags |= IoFlag_IncomingData;
+			m_ioLock.unlock ();
 
-				fireSerialEvent (SerialEventKind_IncomingData);
-			}
+			fireSerialEvent (SerialEventKind_IncomingData);
+		}
 
-			if (event & (EV_CTS | EV_DSR | EV_RING | EV_RLSD))
-			{
-				uint_t lines = m_serial.getStatusLines ();
-				uint_t mask = lines ^ prevLines;
-				prevLines = lines;
+		if (event & (EV_CTS | EV_DSR | EV_RING | EV_RLSD))
+		{
+			uint_t lines = m_serial.getStatusLines ();
+			uint_t mask = lines ^ prevLines;
+			prevLines = lines;
 
-				if (mask)
-					fireSerialEvent (SerialEventKind_StatusLineChanged, lines, mask);
-			}
-
-			break;
+			if (mask)
+				fireSerialEvent (SerialEventKind_StatusLineChanged, lines, mask);
 		}
 	}
 }
@@ -370,155 +392,48 @@ Serial::ioThreadFunc ()
 
 //.............................................................................
 
-#if (_AXL_ENV == AXL_ENV_WIN)
-
-class DestroyDevInfoList
-{
-public:
-	void
-	operator () (HDEVINFO h)
-	{
-		::SetupDiDestroyDeviceInfoList (h);
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef sl::Handle <HDEVINFO, DestroyDevInfoList, sl::MinusOne <HDEVINFO> > DevInfoListHandle;
-
-//.............................................................................
-
 rt::DataPtr
 createSerialPortDesc (
 	rt::Runtime* runtime,
-	HDEVINFO devInfoList,
-	PSP_DEVINFO_DATA devInfo
+	axl::io::SerialPortDesc* portDesc
 	)
 {
-	int result;
-
-	// name
-
-	sys::win::RegKeyHandle devRegKey = ::SetupDiOpenDevRegKey (
-		devInfoList,
-		devInfo,
-		DICS_FLAG_GLOBAL,
-		0,
-		DIREG_DEV,
-		KEY_QUERY_VALUE
-		);
-
-	if (devRegKey == INVALID_HANDLE_VALUE)
-		return rt::g_nullPtr;
-
-	dword_t type = 0;
-	dword_t size = 0;
-
-	result = ::RegQueryValueExA (devRegKey, "PortName", NULL, &type, NULL, &size);
-	if (result != ERROR_SUCCESS)
-		return rt::g_nullPtr;
-
-	char buffer [256];
-	sl::Array <char> bufferString (ref::BufKind_Stack, buffer, sizeof (buffer));
-	bufferString.setCount (size);
-
-	result = ::RegQueryValueExA (
-		devRegKey,
-		"PortName",
-		NULL,
-		&type,
-		(byte_t*) bufferString.a (),
-		&size
-		);
-
-	if (result != ERROR_SUCCESS)
-		return rt::g_nullPtr;
-
 	rt::DataPtr portPtr = rt::createData <SerialPortDesc> (runtime);
 	SerialPortDesc* port = (SerialPortDesc*) portPtr.m_p;
-	port->m_namePtr = rt::strDup (bufferString);
-	port->m_descriptionPtr = port->m_namePtr;
+	port->m_deviceNamePtr = rt::strDup (portDesc->getDeviceName ());
+	port->m_descriptionPtr = rt::strDup (portDesc->getDescription ());
 
-	// description (optional)
-
-	result = ::SetupDiGetDeviceRegistryPropertyA (
-		devInfoList,
-		devInfo,
-		SPDRP_DEVICEDESC,
-		NULL,
-		NULL,
-		0,
-		&size
-		);
-
-	if (!result)
-		return portPtr;
-
-	bufferString.setCount (size);
-
-	result = ::SetupDiGetDeviceRegistryPropertyA (
-		devInfoList,
-		devInfo,
-		SPDRP_DEVICEDESC,
-		NULL,
-		(byte_t*) bufferString.a (),
-		size,
-		NULL
-		);
-
-	if (!result)
-		return portPtr;
-
-	port->m_descriptionPtr = rt::strDup (bufferString);
 	return portPtr;
 }
 
 rt::DataPtr
 createSerialPortDescList (rt::DataPtr countPtr)
 {
-	bool_t result;
+	sl::StdList <axl::io::SerialPortDesc> portList;
+	axl::io::createSerialPortDescList (&portList);
 
-	if (countPtr.m_p)
-		*(size_t*) countPtr.m_p = 0;
+	if (portList.isEmpty ())
+	{
+		if (countPtr.m_p)
+			*(size_t*) countPtr.m_p = 0;
 
-	GUID guid = GUID_DEVINTERFACE_COMPORT;
-	DevInfoListHandle devInfoList = ::SetupDiGetClassDevs (
-		&guid,
-		NULL,
-		NULL,
-		DIGCF_PRESENT | DIGCF_DEVICEINTERFACE
-		);
-
-	if (devInfoList == INVALID_HANDLE_VALUE)
 		return rt::g_nullPtr;
-
-	SP_DEVINFO_DATA devInfo;
-	devInfo.cbSize = sizeof (devInfo);
-	result = ::SetupDiEnumDeviceInfo (devInfoList, 0, &devInfo);
-	if (!result)
-		return rt::g_nullPtr;
+	}
 
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
 
-	rt::DataPtr portPtr = createSerialPortDesc (runtime, devInfoList, &devInfo);
-	if (!portPtr.m_p)
-		return rt::g_nullPtr;
+	sl::Iterator <axl::io::SerialPortDesc> it = portList.getHead ();
+
+	rt::DataPtr portPtr = createSerialPortDesc (runtime, *it);
 	
 	rt::DataPtr resultPtr = portPtr;
 	size_t count = 1;
 
 	SerialPortDesc* prevPort = (SerialPortDesc*) portPtr.m_p;
-	for (;;)
+	for (it++; it; it++)
 	{
-		result = ::SetupDiEnumDeviceInfo (devInfoList, count, &devInfo);
-		if (!result)
-			break;
-
-		portPtr = createSerialPortDesc (runtime, devInfoList, &devInfo);
-		if (!portPtr.m_p)
-			return resultPtr;
-
+		portPtr = createSerialPortDesc (runtime, *it);
 		prevPort->m_nextPtr = portPtr;
 		prevPort = (SerialPortDesc*) portPtr.m_p;
 		count++;
@@ -529,64 +444,6 @@ createSerialPortDescList (rt::DataPtr countPtr)
 
 	return resultPtr;
 }
-
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-
-rt::DataPtr
-createSerialPortDesc (
-	rt::Runtime* runtime,
-	const char* portName
-	)
-{
-	rt::DataPtr portPtr = rt::createData <SerialPortDesc> (runtime);
-	SerialPortDesc* port = (SerialPortDesc*) portPtr.m_p;
-	port->m_namePtr = rt::strDup (portName);
-	port->m_descriptionPtr = port->m_namePtr;
-	return portPtr;
-}
-
-rt::DataPtr
-createSerialPortDescList (rt::DataPtr countPtr)
-{
-	const char* deviceNameTable [] =
-	{
-		"/dev/ttyS0",
-		"/dev/ttyS1",
-		"/dev/ttyS2",
-		"/dev/ttyS3",
-	};
-
-	size_t deviceCount = countof (deviceNameTable);
-
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
-
-	rt::DataPtr portPtr = createSerialPortDesc (runtime, deviceNameTable [0]);
-	if (!portPtr.m_p)
-		return rt::g_nullPtr;
-
-	rt::DataPtr resultPtr = portPtr;
-	size_t count = 1;
-
-	SerialPortDesc* prevPort = (SerialPortDesc*) portPtr.m_p;
-	for (size_t i = 1; i < deviceCount; i++)
-	{
-		portPtr = createSerialPortDesc (runtime, deviceNameTable [i]);
-		if (!portPtr.m_p)
-			return resultPtr;
-
-		prevPort->m_nextPtr = portPtr;
-		prevPort = (SerialPortDesc*) portPtr.m_p;
-		count++;
-	}
-
-	if (countPtr.m_p)
-		*(size_t*) countPtr.m_p = count;
-
-	return resultPtr;
-}
-
-#endif
 
 //.............................................................................
 

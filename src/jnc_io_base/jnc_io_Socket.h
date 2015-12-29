@@ -16,6 +16,8 @@ enum SocketEventKind
 	SocketEventKind_Disconnected,
 	SocketEventKind_IncomingData,
 	SocketEventKind_IncomingConnection,
+	SocketEventKind_TransmitBufferOverflow,
+	SocketEventKind_TransmitBufferReady,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
