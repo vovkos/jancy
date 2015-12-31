@@ -96,9 +96,10 @@ target_link_libraries (
 	01_export
 	jnc_std
 	jnc_core
+	axl_zip
+	axl_fsm
 	axl_io
 	axl_core
-	axl_zip
 	${LLVM_LIB_LIST}
 	)
 

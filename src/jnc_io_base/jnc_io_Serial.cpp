@@ -391,8 +391,8 @@ Serial::ioThreadFunc ()
 			{
 				// shouldn't actually be here -- if USB serial is disconnected, 
 				// Fd::getIncomingDataSize should fail with some kind of IO error
-				
-				err::Error error (EBADFD);
+
+				err::Error error (ENXIO);
 				fireSerialEvent (SerialEventKind_IoError, error);
 				return;
 			}

@@ -203,9 +203,10 @@ target_link_libraries (
 	test_qt
 	jnc_std
 	jnc_core
+	axl_zip
+	axl_fsm
 	axl_io
 	axl_core
-	axl_zip
 	${LLVM_LIB_LIST}
 	)
 

@@ -140,9 +140,10 @@ target_link_libraries (
 	jnc_app
 	jnc_std
 	jnc_core
+	axl_zip
+	axl_fsm
 	axl_io
 	axl_core
-	axl_zip
 	${LLVM_LIB_LIST}
 	)
 

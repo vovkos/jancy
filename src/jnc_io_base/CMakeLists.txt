@@ -168,7 +168,19 @@ elseif (UNIX)
 		pthread
 		)
 
-	if (NOT APPLE)
+	if (APPLE)
+		find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library (IOKIT_FRAMEWORK IOKit)
+
+		target_link_libraries (
+			jnc_io_base
+			axl_iok
+			axl_cf
+			${CORE_FOUNDATION_FRAMEWORK}
+			${IOKIT_FRAMEWORK}
+			)
+
+	else ()
 		target_link_libraries (
 			jnc_io_base
 			rt
