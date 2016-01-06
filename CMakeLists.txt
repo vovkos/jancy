@@ -29,6 +29,7 @@ check_and_print_libs (
 	OPTIONAL 
 		QT
 		LIBSSH2
+		LIBUDEV
 		PCAP
 	)
 

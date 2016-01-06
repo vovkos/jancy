@@ -187,7 +187,7 @@ elseif (UNIX)
 			)
 	endif ()
 
-	if (LINUX)
+	if (LINUX AND LIBUDEV_FOUND)
 		target_link_libraries (
 			jnc_io_base
 			udev
