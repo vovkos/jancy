@@ -27,7 +27,7 @@ enum MulticastFieldKind
 enum MulticastMethodKind
 {
 	MulticastMethodKind_Clear,
-	MulticastMethodKind_Set,
+	MulticastMethodKind_Setup,
 	MulticastMethodKind_Add,
 	MulticastMethodKind_Remove,
 	MulticastMethodKind_GetSnapshot,

@@ -275,7 +275,8 @@ Cast_DataPtr_Base::getCastKind (
 	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
 	bool canCastToPod = isSrcPod || isDstConst || dstType->getPtrTypeKind () == DataPtrTypeKind_Thin;
 
-	if (dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
+	if (dstDataType->getStdType () == StdType_AbstractData ||
+		dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return CastKind_Implicit;
 
 	if (srcDataType->getTypeKind () == TypeKind_Void && 
@@ -324,7 +325,8 @@ Cast_DataPtr_Base::getOffset (
 	bool isDstDerivable = (dstDataType->getTypeKindFlags () & TypeKindFlag_Derivable) != 0;
 	bool canCastToPod = isSrcPod || isDstConst || dstType->getPtrTypeKind () == DataPtrTypeKind_Thin;
 
-	if (dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
+	if (dstDataType->getStdType () == StdType_AbstractData ||
+		dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return 0;
 
 	bool isDstBase = 

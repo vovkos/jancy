@@ -1,17 +1,31 @@
-import "io_base.jncx"
-import "io_Serial.jnc"
+struct Pod
+{
+	int m_a;
+	int m_b;
+}
+
+struct NonPod
+{
+	char* m_p1;
+	char* m_p2;
+}
 
 //.............................................................................
 
 int main ()
 {
-	printf ("main ()\n");
+	Pod pod;
+	NonPod nonPod;
 
-	io.Serial s;
-	try	s.open ("com1");
+	void* p0 = &pod;
+	anydata* p2 = &nonPod;
+
+	Pod* p3 = dynamic (Pod*) p2;
+	NonPod* p4 = dynamic (NonPod*) p2;
+
+	printf ("p0 = %p, p2 = %p, p3 = %p, p4 = %p\n", p0, p2, p3, p4);
 
 	return 0;
 }
 
 //.............................................................................
-

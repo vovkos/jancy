@@ -986,6 +986,9 @@ protected:
 	createAbstractClassType ();
 
 	StructType*
+	createAbstractDataType ();
+
+	StructType*
 	createSimpleIfaceHdrType ();
 
 	StructType*

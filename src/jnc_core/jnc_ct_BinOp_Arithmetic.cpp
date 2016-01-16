@@ -20,6 +20,12 @@ dataPtrIncrementOperator (
 	DataPtrType* opType = (DataPtrType*) opValue1.getType ();
 	DataPtrType* resultType = opType->getUnCheckedPtrType ();
 
+	if (opType->getTargetType ()->getStdType () == StdType_AbstractData)
+	{
+		err::setStringError ("pointer arithmetic is not applicable to 'anydata' pointers");
+		return false;
+	}
+
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
@@ -64,6 +70,11 @@ dataPtrDifferenceOperator (
 	if (targetType1->cmp (targetType2) != 0)
 	{
 		err::setFormatStringError ("pointer difference target types mismatch");
+		return false;
+	}
+	else if (targetType1->getStdType () == StdType_AbstractData)
+	{
+		err::setStringError ("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
 	}
 

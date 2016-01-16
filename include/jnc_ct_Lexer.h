@@ -103,6 +103,7 @@ enum TokenKind
 	TokenKind_Opaque,
 	TokenKind_Exposed,
 	TokenKind_BitFlag,
+	TokenKind_AnyData,
 
 	// special member methods
 
@@ -257,6 +258,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// type specifiers
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Auto,         "auto")
+	AXL_LEX_TOKEN_NAME (TokenKind_AnyData,      "anydata")
 	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
 	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Bool,         "bool")

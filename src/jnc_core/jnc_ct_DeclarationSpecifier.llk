@@ -142,6 +142,10 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getStdType (StdType_AbstractClass);
 			}
+	|	TokenKind_AnyData
+			{
+				$.m_type = m_module->m_typeMgr.getStdType (StdType_AbstractData);
+			}
 	|	TokenKind_Bool
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);

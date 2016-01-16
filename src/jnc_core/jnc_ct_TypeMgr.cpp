@@ -183,6 +183,14 @@ TypeMgr::getStdType (StdType stdType)
 		type = ((ClassType*) getStdType (StdType_AbstractClass))->getClassPtrType ();
 		break;
 
+	case StdType_AbstractData:
+		type = createAbstractDataType ();
+		break;
+
+	case StdType_AbstractDataPtr:
+		type = getStdType (StdType_AbstractData)->getDataPtrType ();
+		break;
+
 	case StdType_SimpleFunction:
 		type = getFunctionType (getPrimitiveType (TypeKind_Void), NULL, 0, 0);
 		break;
@@ -1395,10 +1403,10 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	argType = functionPtrType;
 	methodType = getFunctionType (returnType, &argType, 1);
 
-	method = type->createMethod (StorageKind_Member, "set", methodType);
+	method = type->createMethod (StorageKind_Member, "setup", methodType);
 	method->m_tag = isThin ? "jnc.multicastSet_t" : "jnc.multicastSet";
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
-	type->m_methodArray [MulticastMethodKind_Set] = method;
+	type->m_methodArray [MulticastMethodKind_Setup] = method;
 
 	method = type->createMethod (StorageKind_Member, "add", methodType);
 	method->m_tag = isThin ? "jnc.multicastAdd_t" : "jnc.multicastAdd";
@@ -1426,7 +1434,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	// overloaded operators
 
 	type->m_binaryOperatorTable.setCount (BinOpKind__Count);
-	type->m_binaryOperatorTable [BinOpKind_RefAssign] = type->m_methodArray [MulticastMethodKind_Set];
+	type->m_binaryOperatorTable [BinOpKind_RefAssign] = type->m_methodArray [MulticastMethodKind_Setup];
 	type->m_binaryOperatorTable [BinOpKind_AddAssign] = type->m_methodArray [MulticastMethodKind_Add];
 	type->m_binaryOperatorTable [BinOpKind_SubAssign] = type->m_methodArray [MulticastMethodKind_Remove];
 	type->m_callOperator = type->m_methodArray [MulticastMethodKind_Call];
@@ -2463,9 +2471,25 @@ TypeMgr::parseStdType (
 ClassType*
 TypeMgr::createAbstractClassType ()
 {
+	static sl::String typeString = "class";
+
 	ClassType* type = createClassType (ClassTypeKind_Abstract, "AbstractClass", "jnc.AbstractClass");
-	type->m_signature = "CO"; // special signature to ensure type equality between modules
+	type->m_typeString = typeString;
 	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createAbstractDataType ()
+{
+	static sl::String typeString = "anydata";
+
+	StructType* type = createStructType ("AbstractData", "jnc.AbstractData");
+	type->m_typeString = typeString;
+	type->createField ("!m_dummy", getStdType (StdType_AbstractClassPtr));
+	type->ensureLayout ();
+
+	ASSERT (!(type->m_flags & TypeFlag_Pod));
 	return type;
 }
 

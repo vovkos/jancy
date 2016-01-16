@@ -81,6 +81,7 @@ main := |*
 'automaton'       |
 
 'auto'            |
+'anydata'         |
 'void'            |
 'variant'         |
 'bool'            |

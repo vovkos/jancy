@@ -117,7 +117,8 @@ enum TypeModifierMaskKind
 		TypeModifier_Function |
 		TypeModifier_Property |
 		TypeModifier_Multicast |
-		TypeModifier_Reactor,
+		TypeModifier_Reactor |
+		TypeModifier_Automaton,
 
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |

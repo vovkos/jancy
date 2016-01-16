@@ -30,6 +30,8 @@ getStdTypeSource (StdType stdType)
 		{ NULL },                            // StdType_StaticDataBoxPtr,
 		{ NULL },                            // StdType_AbstractClass,
 		{ NULL },                            // StdType_AbstractClassPtr,
+		{ NULL },                            // StdType_AbstractData,
+		{ NULL },                            // StdType_AbstractDataPtr,
 		{ NULL },                            // StdType_SimpleFunction,
 		{ NULL },                            // StdType_SimpleMulticast,
 		{ NULL },                            // StdType_SimpleEventPtr,

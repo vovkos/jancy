@@ -72,7 +72,7 @@ enum TypeKind
 	// named types
 
 	TypeKind_Enum,                // E
-	TypeKind_Struct,              // SS/SP (struct/pointer struct)
+	TypeKind_Struct,              // S
 	TypeKind_Union,               // U
 	TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
 

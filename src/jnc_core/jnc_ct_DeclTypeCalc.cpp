@@ -137,6 +137,11 @@ DeclTypeCalc::calcType (
 		type = getIntegerType (type);
 		if (!type)
 			return NULL;
+	}	
+	else if (type->getStdType () == StdType_AbstractData)
+	{
+		err::setStringError ("can only use 'anydata' in pointer declaration");
+		return NULL;
 	}
 
 	if (m_typeModifiers & TypeModifier_Property)
@@ -447,6 +452,11 @@ DeclTypeCalc::getArrayType (Type* elementType)
 			if (!elementType)
 				return NULL;
 		}
+		else if (elementType->getStdType () == StdType_AbstractData)
+		{
+			err::setStringError ("can only use 'anydata' in pointer declaration");
+			return NULL;
+		}
 	}
 
 	m_typeModifiers &= ~TypeModifier_Array;
@@ -491,7 +501,14 @@ DeclTypeCalc::prepareReturnType (Type* type)
 		}
 
 		if (m_typeModifiers & TypeModifierMaskKind_Integer)
+		{
 			return getIntegerType (type);
+		}
+		else if (type->getStdType () == StdType_AbstractData)
+		{
+			err::setStringError ("can only use 'anydata' in pointer declaration");
+			return NULL;
+		}
 	}
 
 	return type;

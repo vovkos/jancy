@@ -28,6 +28,8 @@ enum StdType
 	StdType_StaticDataBoxPtr,
 	StdType_AbstractClass,
 	StdType_AbstractClassPtr,
+	StdType_AbstractData,
+	StdType_AbstractDataPtr,
 	StdType_SimpleFunction,
 	StdType_SimpleMulticast,
 	StdType_SimpleEventPtr,

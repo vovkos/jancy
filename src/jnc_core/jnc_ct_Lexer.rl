@@ -148,6 +148,7 @@ main := |*
 # type specifiers
 
 'auto'           { createToken (TokenKind_Auto); };
+'anydata'        { createToken (TokenKind_AnyData); };
 'void'           { createToken (TokenKind_Void); };
 'variant'        { createToken (TokenKind_Variant); };
 'bool'           { createToken (TokenKind_Bool); };
