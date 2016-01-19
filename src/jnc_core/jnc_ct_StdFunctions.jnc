@@ -177,6 +177,22 @@ void checkNullPtr (
 
 void checkStackOverflow ();
 
+///; static char checkDivByZeroSrc_i32 [] = 
+
+void checkDivByZero_i32 (int32 x);
+
+///; static char checkDivByZeroSrc_i64 [] = 
+
+void checkDivByZero_i64 (int64 x);
+
+///; static char checkDivByZeroSrc_f32 [] = 
+
+void checkDivByZero_f32 (float x);
+
+///; static char checkDivByZeroSrc_f64 [] = 
+
+void checkDivByZero_f64 (double x);
+
 ///; static char tryLazyGetDynamicLibFunctionSrc [] = 
 
 void thin* tryLazyGetDynamicLibFunction (

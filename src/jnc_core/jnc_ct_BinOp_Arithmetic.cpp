@@ -232,6 +232,9 @@ BinOp_Div::llvmOpInt (
 	bool isUnsigned
 	)
 {
+	if (m_module->getCompileFlags () & ModuleCompileFlag_CheckDivByZero)
+		m_module->m_operatorMgr.checkDivByZero (opValue2);
+
 	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createDiv_u (opValue1, opValue2, resultType, resultValue) :
 		m_module->m_llvmIrBuilder.createDiv_i (opValue1, opValue2, resultType, resultValue);
@@ -246,6 +249,9 @@ BinOp_Div::llvmOpFp (
 	Value* resultValue
 	)
 {
+	if (m_module->getCompileFlags () & ModuleCompileFlag_CheckDivByZero)
+		m_module->m_operatorMgr.checkDivByZero (opValue2);
+
 	return m_module->m_llvmIrBuilder.createDiv_f (opValue1, opValue2, resultType, resultValue);
 }
 
@@ -260,6 +266,9 @@ BinOp_Mod::llvmOpInt (
 	bool isUnsigned
 	)
 {
+	if (m_module->getCompileFlags () & ModuleCompileFlag_CheckDivByZero)
+		m_module->m_operatorMgr.checkDivByZero (opValue2);
+
 	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createMod_u (opValue1, opValue2, resultType, resultValue) :
 		m_module->m_llvmIrBuilder.createMod_i (opValue1, opValue2, resultType, resultValue);

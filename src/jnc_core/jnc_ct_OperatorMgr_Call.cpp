@@ -637,6 +637,34 @@ OperatorMgr::checkStackOverflow ()
 	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
 }
 
+void
+OperatorMgr::checkDivByZero (const Value& value)
+{
+	StdFunc checkFunc;
+
+	Type* type = value.getType ();
+	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
+	{
+		checkFunc = type->getSize () <= sizeof (uint32_t) ? 
+			StdFunc_CheckDivByZero_i32 :
+			StdFunc_CheckDivByZero_i64;
+	}
+	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
+	{
+		checkFunc = type->getSize () <= sizeof (float) ? 
+			StdFunc_CheckDivByZero_f32 :
+			StdFunc_CheckDivByZero_f64;
+	}
+	else
+	{
+		return;
+	}
+	
+	Function* function = m_module->m_functionMgr.getStdFunction (checkFunc);
+	bool result = m_module->m_operatorMgr.callOperator (function, value);
+	ASSERT (result);
+}
+
 //.............................................................................
 
 } // namespace ct

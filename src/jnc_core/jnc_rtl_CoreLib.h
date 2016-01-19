@@ -71,6 +71,10 @@ public:
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckNullPtr,              tryCheckNullPtr)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckNullPtr,                 checkNullPtr)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckStackOverflow,           checkStackOverflow)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_i32,           checkDivByZero_i32)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_i64,           checkDivByZero_i64)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f32,           checkDivByZero_f32)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f64,           checkDivByZero_f64)
 		
 		// dynamic libs
 
@@ -271,6 +275,22 @@ public:
 	static
 	void
 	checkStackOverflow ();
+
+	static
+	void
+	checkDivByZero_i32 (int32_t i);
+
+	static
+	void
+	checkDivByZero_i64 (int64_t i);
+
+	static
+	void
+	checkDivByZero_f32 (float f);
+
+	static
+	void
+	checkDivByZero_f64 (double f);
 
 	// dynamic libs
 

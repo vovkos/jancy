@@ -185,7 +185,6 @@ OperatorMgr::checkNullPtr (const Value& value)
 		argValueArray,
 		countof (argValueArray)
 		);
-
 }
 
 //.............................................................................

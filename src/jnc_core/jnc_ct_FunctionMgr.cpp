@@ -945,6 +945,10 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_TryCheckNullPtr:
 	case StdFunc_CheckNullPtr:
 	case StdFunc_CheckStackOverflow:
+	case StdFunc_CheckDivByZero_i32:
+	case StdFunc_CheckDivByZero_i64:
+	case StdFunc_CheckDivByZero_f32:
+	case StdFunc_CheckDivByZero_f64:
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
 		source = getStdFunctionSource (func);			

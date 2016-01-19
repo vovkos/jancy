@@ -1029,6 +1029,9 @@ public:
 	void
 	checkStackOverflow ();
 
+	void
+	checkDivByZero (const Value& value);
+
 	// closure operators
 
 	Type*
@@ -1476,7 +1479,7 @@ public:
 		Value* resultValue
 		);
 
-	// checks
+	// pointer checks
 
 	void
 	checkPtr (

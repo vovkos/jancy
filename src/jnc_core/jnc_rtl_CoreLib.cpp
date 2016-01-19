@@ -406,6 +406,46 @@ CoreLib::checkStackOverflow ()
 	runtime->checkStackOverflow ();
 }
 
+void
+CoreLib::checkDivByZero_i32 (int32_t i)
+{
+	if (!i)
+	{
+		err::setStringError ("integer division by zero");
+		rt::Runtime::runtimeError (err::getLastError ());
+	}
+}
+
+void
+CoreLib::checkDivByZero_i64 (int64_t i)
+{
+	if (!i)
+	{
+		err::setStringError ("integer division by zero");
+		rt::Runtime::runtimeError (err::getLastError ());
+	}
+}
+
+void
+CoreLib::checkDivByZero_f32 (float f)
+{
+	if (!f)
+	{
+		err::setStringError ("floating point division by zero");
+		rt::Runtime::runtimeError (err::getLastError ());
+	}
+}
+
+void
+CoreLib::checkDivByZero_f64 (double f)
+{
+	if (!f)
+	{
+		err::setStringError ("floating point division by zero");
+		rt::Runtime::runtimeError (err::getLastError ());
+	}
+}
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void* 
