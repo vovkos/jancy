@@ -320,17 +320,13 @@ declarator_suffix <Declarator* $declarator>
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 array_suffix <Declarator* $declarator>
-	:	'[' expression_pass1 ']'
-			{
-				$declarator->addArraySuffix (&$2.m_tokenList);
-			}
-	|	'[' TokenKind_Integer ']' // avoid reparsing where possible
-			{
-				$declarator->addArraySuffix ($2.m_data.m_integer);
-			}
-	|	'[' ']'
+	:	'[' ']'
 			{
 				$declarator->addArraySuffix (-1);
+			}
+	|	'[' expression_pass1 ']'
+			{
+				$declarator->addArraySuffix (&$2.m_tokenList);
 			}
 	;
 
