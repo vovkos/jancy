@@ -238,7 +238,7 @@ VariableMgr::initializeVariable (Variable* variable)
 		ASSERT (!initializeBlock->isEmpty ());
 
 		variable->m_llvmLiftInsertPoint = llvmBeforeStackInitialize ? 
-			++llvm::BasicBlock::iterator (llvmBeforeStackInitialize) :
+			(llvm::Instruction*) ++llvm::BasicBlock::iterator (llvmBeforeStackInitialize) :
 			&initializeBlock->getLlvmBlock ()->front ();
 	}
 
