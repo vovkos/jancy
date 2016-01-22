@@ -20,6 +20,9 @@ LlvmIrBuilder::create ()
 {
 	ASSERT (!m_llvmIrBuilder);
 	m_llvmIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
+	m_llvmAllocaBlock = llvm::BasicBlock::Create (*m_module->getLlvmContext (), "alloca_block", NULL);
+	m_llvmAllocaIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
+	m_llvmAllocaIrBuilder->SetInsertPoint (m_llvmAllocaBlock);
 }
 
 void
@@ -29,7 +32,20 @@ LlvmIrBuilder::clear ()
 		return;
 
 	delete m_llvmIrBuilder;
+	delete m_llvmAllocaIrBuilder;
+	delete m_llvmAllocaBlock;
+
 	m_llvmIrBuilder = NULL;
+	m_llvmAllocaIrBuilder = NULL;
+	m_llvmAllocaBlock = NULL;
+}
+
+void
+LlvmIrBuilder::moveAllAllocas (BasicBlock* block)
+{
+	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
+	llvmBlock->getInstList ().splice (llvmBlock->begin (), m_llvmAllocaBlock->getInstList ());
+	ASSERT (m_llvmAllocaBlock->empty ());
 }
 
 llvm::SwitchInst*
@@ -114,7 +130,6 @@ LlvmIrBuilder::createSwitch (
 	return inst;
 }
 
-
 llvm::PHINode*
 LlvmIrBuilder::createPhi (
 	const Value* valueArray,
@@ -168,7 +183,7 @@ LlvmIrBuilder::createAlloca (
 	Value* resultValue
 	)
 {
-	llvm::AllocaInst* inst = m_llvmIrBuilder->CreateAlloca (type->getLlvmType (), 0, name);
+	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca (type->getLlvmType (), 0, name);
 	resultValue->setLlvmValue (inst, resultType);
 	return inst;
 }

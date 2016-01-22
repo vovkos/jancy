@@ -25,6 +25,13 @@ enum StdVariable
 
 //.............................................................................
 
+enum VariableFlag
+{
+	VariableFlag_Arg = 0x010000,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class Variable: 
 	public UserModuleItem,
 	public ModuleItemInitializer
@@ -42,7 +49,12 @@ protected:
 	StructField* m_tlsField;
 	void* m_staticData;
 	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
-	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
+	union
+	{
+		llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
+		llvm::Instruction* m_llvmLiftInsertPoint;
+	};
+
 	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
 	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
 

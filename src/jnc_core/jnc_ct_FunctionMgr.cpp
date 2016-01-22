@@ -414,6 +414,7 @@ FunctionMgr::finalizeFunction (
 		m_module->m_namespaceMgr.closeNamespace ();
 
 	m_module->m_controlFlowMgr.finalizeFunction ();
+	m_module->m_llvmIrBuilder.moveAllAllocas (function->getEntryBlock ());
 	m_currentFunction = NULL;
 	m_thisValue.clear ();
 }

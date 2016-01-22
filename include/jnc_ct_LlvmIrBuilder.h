@@ -27,6 +27,8 @@ class LlvmIrBuilder
 protected:
 	Module* m_module;
 	llvm::IRBuilder <>* m_llvmIrBuilder;
+	llvm::IRBuilder <>* m_llvmAllocaIrBuilder;
+	llvm::BasicBlock* m_llvmAllocaBlock;
 
 public:
 	LlvmIrBuilder ();
@@ -53,6 +55,9 @@ public:
 
 	void
 	clear ();
+
+	void
+	moveAllAllocas (BasicBlock* block);
 
 	llvm::DebugLoc
 	getCurrentDebugLoc ()

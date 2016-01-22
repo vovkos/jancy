@@ -188,6 +188,9 @@ VariableMgr::createSimpleStaticVariable (
 bool
 VariableMgr::initializeVariable (Variable* variable)
 {
+	BasicBlock* initializeBlock;
+	llvm::Instruction* llvmBeforeStackInitialize = NULL;
+
 	switch (variable->m_storageKind)
 	{
 	case StorageKind_Static:
@@ -200,6 +203,10 @@ VariableMgr::initializeVariable (Variable* variable)
 		break;
 
 	case StorageKind_Stack:
+		initializeBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+		if (!initializeBlock->isEmpty ())
+			llvmBeforeStackInitialize = &m_module->m_controlFlowMgr.getCurrentBlock ()->getLlvmBlock ()->back ();
+		
 		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_module->m_operatorMgr.zeroInitialize (variable);
@@ -209,18 +216,33 @@ VariableMgr::initializeVariable (Variable* variable)
 		{
 			m_module->m_operatorMgr.zeroInitialize (variable);
 		}
+
 		break;
 
 	default:
 		ASSERT (false);
 	};
 
-	return m_module->m_operatorMgr.parseInitializer (
+	bool result =  m_module->m_operatorMgr.parseInitializer (
 		variable,
 		variable->m_itemDecl->getParentUnit (),
 		variable->m_constructor,
 		variable->m_initializer
 		);
+
+	if (!result)
+		return false;
+
+	if (variable->m_storageKind == StorageKind_Stack)
+	{
+		ASSERT (!initializeBlock->isEmpty ());
+
+		variable->m_llvmLiftInsertPoint = llvmBeforeStackInitialize ? 
+			++llvm::BasicBlock::iterator (llvmBeforeStackInitialize) :
+			&initializeBlock->getLlvmBlock ()->front ();
+	}
+
+	return true;
 }
 
 llvm::GlobalVariable*
@@ -433,9 +455,22 @@ VariableMgr::liftStackVariable (Variable* variable)
 
 	variable->m_storageKind = StorageKind_Heap;
 
-	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) (llvm::AllocaInst*) variable->m_llvmValue;
+	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) variable->m_llvmValue;
 	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
-	m_module->m_llvmIrBuilder.setInsertPoint (llvmAlloca);
+
+	if (variable->m_llvmLiftInsertPoint)
+	{
+		m_module->m_llvmIrBuilder.setInsertPoint (variable->m_llvmLiftInsertPoint);
+	}
+	else
+	{
+		ASSERT (variable->m_flags & VariableFlag_Arg);
+
+		Function* function = m_module->m_functionMgr.getCurrentFunction ();
+		llvm::BasicBlock* llvmEntryBlock = function->getEntryBlock ()->getLlvmBlock ();
+		llvm::Instruction* llvmFirstInstruction = &llvmEntryBlock->getInstList ().front ();
+		m_module->m_llvmIrBuilder.setInsertPoint (llvmFirstInstruction);
+	}
 	
 	bool result = allocateHeapVariable (variable);
 	ASSERT (result);
@@ -457,7 +492,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 
 	variable->m_parentUnit = arg->getParentUnit ();
 	variable->m_pos = *arg->getPos ();
-	variable->m_flags |= ModuleItemFlag_User;
+	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
 		
 	if ((m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
