@@ -10,10 +10,11 @@ enum JncFlag
 	JncFlag_Jit               = 0x0010,
 	JncFlag_McJit             = 0x0020,
 	JncFlag_SimpleGcSafePoint = 0x0040,
-	JncFlag_RunFunction       = 0x0080,
+	JncFlag_CompileOnly       = 0x0080,
 	JncFlag_Server            = 0x0100,
 	JncFlag_DebugInfo         = 0x0200,
 	JncFlag_StdInSrc          = 0x0400,
+	JncFlag_PrintReturnValue  = 0x0800,
 };
 
 struct CmdLine
@@ -42,12 +43,14 @@ enum CmdLineSwitch
 	CmdLineSwitch_Help,
 	CmdLineSwitch_Version,
 	CmdLineSwitch_StdInSrc,
+	CmdLineSwitch_CompileOnly,
+	CmdLineSwitch_Run,
+	CmdLineSwitch_PrintReturnValue,
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
 	CmdLineSwitch_Jit,
 	CmdLineSwitch_McJit,
 	CmdLineSwitch_SimpleGcSafePoint,
-	CmdLineSwitch_Run,
 
 	CmdLineSwitch_RunFunction = sl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitch_Server,
@@ -90,6 +93,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Compilation options")
 	AXL_SL_CMD_LINE_SWITCH_2 (
+		CmdLineSwitch_CompileOnly,
+		"c", "compile-only", NULL,
+		"Compile only (no run)"
+		)
+	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_ImportDir,
 		"I", "import-dir", "<dir>",
 		"Add import directory"
@@ -121,15 +129,20 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Runtime options")
-		AXL_SL_CMD_LINE_SWITCH_2 (
+	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_Run,
 		"r", "run", NULL,
-		"Run function 'main' (implies JITting)"
+		"Compile and run (default)"
+		)
+	AXL_SL_CMD_LINE_SWITCH_3 (
+		CmdLineSwitch_RunFunction,
+		"f", "runf", "run-func", "<name>",
+		"Override entry function (defaults to 'main')"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
-		CmdLineSwitch_RunFunction,
-		"run-func", "runf", "<name>",
-		"Run function <name> (implies JITting)"
+		CmdLineSwitch_PrintReturnValue,
+		"p", "print-retval", NULL,
+		"Print return value (rather than use it for exit-code)"
 		)
 	AXL_SL_CMD_LINE_SWITCH (
 		CmdLineSwitch_GcAllocSizeTrigger,
@@ -153,7 +166,7 @@ AXL_SL_END_CMD_LINE_SWITCH_TABLE ()
 class CmdLineParser: public sl::CmdLineParser <CmdLineParser, CmdLineSwitchTable>
 {
 	friend class sl::CmdLineParser <CmdLineParser, CmdLineSwitchTable>;
-
+		
 protected:
 	CmdLine* m_cmdLine;
 

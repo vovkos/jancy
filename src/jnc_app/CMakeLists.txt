@@ -195,9 +195,9 @@ endmacro ()
 # test against official samples
 
 if (UNIX)
-	set (_FLAGS "--mcjit --debug-info --run")
+	set (_FLAGS "--mcjit --debug-info --run --print-retval")
 else ()
-	set (_FLAGS "--run")
+	set (_FLAGS "--run --print-retval")
 endif ()
 
 add_jancy_tests (

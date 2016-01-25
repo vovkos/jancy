@@ -7,11 +7,11 @@
 
 enum JncError
 {
-	JncError_Success = 0,
-	JncError_InvalidCmdLine,
-	JncError_IoFailure,
-	JncError_CompileFailure,
-	JncError_RunFailure,
+	JncError_Success         = 0,
+	JncError_InvalidCmdLine  = -1,
+	JncError_IoFailure       = -2,
+	JncError_CompileFailure  = -3,
+	JncError_RunFailure      = -4,
 };
 
 //.............................................................................

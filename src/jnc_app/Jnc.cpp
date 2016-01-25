@@ -125,7 +125,7 @@ Jnc::run (
 		}
 	}
 
-	if (cmdLine->m_flags & JncFlag_RunFunction)
+	if (!(cmdLine->m_flags & JncFlag_CompileOnly))
 	{
 		m_runtime.setStackSizeLimit (cmdLine->m_stackSizeLimit);
 		m_runtime.m_gcHeap.setSizeTriggers (
@@ -141,7 +141,10 @@ Jnc::run (
 			return JncError_RunFailure;
 		}
 
-		outStream->printf ("'%s' returned (%d).\n", cmdLine->m_functionName.cc (), returnValue);
+		if (!(cmdLine->m_flags & JncFlag_PrintReturnValue))
+			return returnValue;
+
+		printf ("'%s' returned: %d\n", cmdLine->m_functionName.cc (), returnValue);
 	}
 
 	return JncError_Success;
@@ -218,12 +221,29 @@ Jnc::runFunction (int* returnValue)
 	}
 
 	jnc::ct::Function* function = (jnc::ct::Function*) functionItem;
+	jnc::ct::FunctionType* functionType = function->getType ();
+	jnc::ct::TypeKind returnTypeKind = functionType->getReturnType ()->getTypeKind ();
+	size_t argCount = functionType->getArgArray ().getCount ();
+	if (returnTypeKind != jnc::ct::TypeKind_Void && returnTypeKind != jnc::ct::TypeKind_Int || argCount)
+	{
+		err::setFormatStringError ("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.cc (), functionType->getTypeString ().cc ());
+		return false;
+	}
 
 	result = m_runtime.startup (&m_module);
 	if (!result)
 		return false;
 
-	result = jnc::rt::callFunction (&m_runtime, function, returnValue);
+	if (returnTypeKind == jnc::ct::TypeKind_Int)
+	{
+		jnc::rt::callFunction (&m_runtime, function, returnValue);
+	}
+	else
+	{
+		jnc::rt::callVoidFunction (&m_runtime, function);
+		*returnValue = 0;
+	}
+
 	if (!result)
 		return false;
 

@@ -7,6 +7,7 @@ CmdLine::CmdLine ()
 {
 	m_flags = 0;
 	m_serverPort = 0;
+	m_functionName = "main";
 	m_gcAllocSizeTrigger = jnc::rt::GcDef_AllocSizeTrigger;
 	m_gcPeriodSizeTrigger = jnc::rt::GcDef_PeriodSizeTrigger;
 	m_stackSizeLimit = jnc::rt::RuntimeDef_StackSizeLimit;
@@ -100,14 +101,31 @@ CmdLineParser::onSwitch (
 		m_cmdLine->m_flags |= JncFlag_SimpleGcSafePoint;
 		break;
 
+	case CmdLineSwitch_CompileOnly:
+		m_cmdLine->m_flags |= JncFlag_CompileOnly;
+		break;
+
 	case CmdLineSwitch_Run:
-		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
-		m_cmdLine->m_functionName = "main";
+		if (m_cmdLine->m_flags & JncFlag_CompileOnly)
+		{
+			err::setStringError ("conflicting flags (--compile-only/--run)");
+			return false;
+		}
+
 		break;
 
 	case CmdLineSwitch_RunFunction:
-		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_RunFunction;
+		if (m_cmdLine->m_flags & JncFlag_CompileOnly)
+		{
+			err::setStringError ("conflicting flags (--compile-only/--run-func)");
+			return false;
+		}
+
 		m_cmdLine->m_functionName = value;
+		break;
+
+	case CmdLineSwitch_PrintReturnValue:
+		m_cmdLine->m_flags |= JncFlag_PrintReturnValue;
 		break;
 
 	case CmdLineSwitch_Server:
@@ -151,16 +169,19 @@ bool
 CmdLineParser::finalize ()
 {
 	if (!(m_cmdLine->m_flags & (
-			JncFlag_Help |
-			JncFlag_Version |
-			JncFlag_Server |
-			JncFlag_StdInSrc
-			)) &&
+		JncFlag_Help |
+		JncFlag_Version |
+		JncFlag_Server |
+		JncFlag_StdInSrc
+		)) &&
 		m_cmdLine->m_fileName.isEmpty ())
 	{
 		err::setFormatStringError ("missing input (file-name or --stdin)");
 		return false;
 	}
+
+	if (!(m_cmdLine->m_flags & JncFlag_CompileOnly))
+		m_cmdLine->m_flags |= JncFlag_Jit;
 
 	return true;
 }

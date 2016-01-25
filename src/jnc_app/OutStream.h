@@ -59,7 +59,11 @@ public:
 	printf_va (
 		const char* format,
 		axl_va_list va
-		);
+		)
+	{
+		ASSERT (m_file);
+		return vfprintf (m_file, format, va.m_va);
+	}
 };
 
 //.............................................................................
