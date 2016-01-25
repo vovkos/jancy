@@ -25,11 +25,11 @@ struct CmdLine
 	size_t m_gcAllocSizeTrigger;
 	size_t m_gcPeriodSizeTrigger;
 
-	sl::String m_fileName;
 	sl::String m_srcNameOverride;
 	sl::String m_functionName;
 	sl::String m_extensionSrcFileName;
 
+	sl::BoxList <sl::String> m_fileNameList;
 	sl::BoxList <sl::String> m_importDirList;
 
 	CmdLine ();
@@ -88,7 +88,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_SrcNameOverride,
 		"n", "source-name", "<name>",
-		"Override source name (defaults to full-path/'stdin')"
+		"Override source name for STDIN (defaults 'stdin')"
 		)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Compilation options")

@@ -53,7 +53,7 @@ parseSizeString (const char* string)
 bool
 CmdLineParser::onValue (const char* value)
 {
-	m_cmdLine->m_fileName = value;
+	m_cmdLine->m_fileNameList.insertTail (value);
 	return true;
 }
 
@@ -174,7 +174,7 @@ CmdLineParser::finalize ()
 		JncFlag_Server |
 		JncFlag_StdInSrc
 		)) &&
-		m_cmdLine->m_fileName.isEmpty ())
+		m_cmdLine->m_fileNameList.isEmpty ())
 	{
 		err::setFormatStringError ("missing input (file-name or --stdin)");
 		return false;

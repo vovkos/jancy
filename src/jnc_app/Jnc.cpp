@@ -49,63 +49,7 @@ Jnc::run (
 	if (cmdLine->m_flags & JncFlag_Server)
 		return server ();
 
-	sl::Array <char> stdInBuffer;
-	io::SimpleMappedFile srcFile;
-
-	sl::String srcName;
-	const char* src;
-	size_t srcSize;
-
-	if (cmdLine->m_flags & JncFlag_StdInSrc)
-	{
-#if (_AXL_ENV == AXL_ENV_WIN)
-		int stdInFile = _fileno (stdin);
-#endif
-		for (;;)
-		{
-			char buffer [1024];
-#if (_AXL_ENV == AXL_ENV_WIN)
-			int result = _read (stdInFile, buffer, sizeof (buffer));
-#else
-			int result = read (STDIN_FILENO, buffer, sizeof (buffer));
-#endif
-			if (result <= 0)
-				break;
-
-			stdInBuffer.append (buffer, result);
-		}
-
-		src = stdInBuffer;
-		srcSize = stdInBuffer.getCount ();
-		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
-			m_cmdLine->m_srcNameOverride :
-			"stdin";
-	}
-	else if (cmdLine->m_fileName.isEmpty ())
-	{
-		outStream->printf ("missing input (required file-name or --stdin)\n");
-		return JncError_InvalidCmdLine;
-	}
-	else
-	{
-		result = srcFile.open (cmdLine->m_fileName, io::FileFlag_ReadOnly);
-		if (!result)
-		{
-			outStream->printf ("cannot open '%s': %s\n",
-				cmdLine->m_fileName.cc (),
-				err::getLastErrorDescription ().cc ()
-				);
-			return JncError_IoFailure;
-		}
-
-		src = (const char*) srcFile.p ();
-		srcSize = (size_t) srcFile.getSize ();
-		srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
-			m_cmdLine->m_srcNameOverride :
-			io::getFullFilePath (cmdLine->m_fileName);
-	}
-
-	result = compile (srcName, src, srcSize);
+	result = compile ();
 	if (!result)
 	{
 		outStream->printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -153,11 +97,7 @@ Jnc::run (
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-Jnc::compile (
-	const char* fileName,
-	const char* source,
-	size_t length
-	)
+Jnc::compile ()
 {
 	bool result;
 
@@ -183,15 +123,49 @@ Jnc::compile (
 
 	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
 
-	result =
-		m_module.parse (fileName, source, length) &&
+	if (m_cmdLine->m_flags & JncFlag_StdInSrc)
+	{
+#if (_AXL_ENV == AXL_ENV_WIN)
+		int stdInFile = _fileno (stdin);
+#endif
+		sl::Array <char> stdInBuffer;
+
+		for (;;)
+		{
+			char buffer [1024];
+#if (_AXL_ENV == AXL_ENV_WIN)
+			int result = _read (stdInFile, buffer, sizeof (buffer));
+#else
+			int result = read (STDIN_FILENO, buffer, sizeof (buffer));
+#endif
+			if (result <= 0)
+				break;
+
+			stdInBuffer.append (buffer, result);
+		}
+
+		const char* srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
+			m_cmdLine->m_srcNameOverride.cc () :
+			"stdin";
+
+		result = m_module.parse (srcName, stdInBuffer, stdInBuffer.getCount ());
+		if (!result)
+			return false;
+	}
+	else
+	{
+		sl::BoxIterator <sl::String> fileNameIt = m_cmdLine->m_fileNameList.getHead ();
+		for (; fileNameIt; fileNameIt++)
+		{
+			result = m_module.parseFile (*fileNameIt);
+			if (!result)
+				return false;
+		}
+	}
+
+	return 
 		m_module.parseImports () &&
 		m_module.compile ();
-
-	if (!result)
-		return false;
-
-	return true;
 }
 
 bool

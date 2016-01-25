@@ -81,11 +81,7 @@ public:
 
 protected:
 	bool
-	compile (
-		const char* fileName,
-		const char* source,
-		size_t length
-		);
+	compile ();
 
 	bool
 	jit ();
