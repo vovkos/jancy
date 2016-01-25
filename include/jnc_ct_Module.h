@@ -257,7 +257,16 @@ public:
 		);
 
 	bool
-	parseFile (const char* filePath);
+	parseFile (const char* filePath)
+	{
+		return parseFile (filePath, filePath);
+	}
+
+	bool
+	parseFile (
+		const char* filePath,
+		const char* nameOverride
+		);
 
 	bool
 	parseImports ();

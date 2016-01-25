@@ -155,6 +155,17 @@ Jnc::compile ()
 	else
 	{
 		sl::BoxIterator <sl::String> fileNameIt = m_cmdLine->m_fileNameList.getHead ();
+		ASSERT (fileNameIt);
+
+		if (!m_cmdLine->m_srcNameOverride.isEmpty ())
+		{
+			result = m_module.parseFile (*fileNameIt, m_cmdLine->m_srcNameOverride);
+			if (!result)
+				return false;
+
+			fileNameIt++;
+		}
+
 		for (; fileNameIt; fileNameIt++)
 		{
 			result = m_module.parseFile (*fileNameIt);

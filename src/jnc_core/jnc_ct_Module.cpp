@@ -397,7 +397,10 @@ Module::parse (
 }
 
 bool
-Module::parseFile (const char* filePath)
+Module::parseFile (
+	const char* filePath,
+	const char* nameOverride
+	)
 {
 	io::SimpleMappedFile file;
 	bool result = file.open (filePath, io::FileFlag_ReadOnly);
@@ -407,7 +410,7 @@ Module::parseFile (const char* filePath)
 	size_t length = (size_t) file.getSize ();
 	sl::String source ((const char*) file.p (), length);
 	m_sourceList.insertTail (source);
-	return parse (filePath, source, length);
+	return parse (nameOverride, source, length);
 }
 
 bool
