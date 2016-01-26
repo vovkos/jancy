@@ -12,7 +12,8 @@ namespace rtl {
 class MulticastImpl: public rt::Multicast
 {
 public:
-	~MulticastImpl ();
+	void
+	destruct ();
 
 	void
 	clear ();
