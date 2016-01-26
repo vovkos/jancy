@@ -708,7 +708,7 @@ CoreLib::mapAllMulticastMethods (ct::Module* module)
 void
 CoreLib::multicastDestruct (rt::Multicast* multicast)
 {
-	((MulticastImpl*) multicast)->~MulticastImpl ();
+	((MulticastImpl*) multicast)->destruct ();
 }
 
 void

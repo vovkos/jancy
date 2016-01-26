@@ -7,7 +7,8 @@ namespace rtl {
 
 //.............................................................................
 
-MulticastImpl::~MulticastImpl ()
+void
+MulticastImpl::destruct ()
 {
 	if (m_handleTable)
 	{
