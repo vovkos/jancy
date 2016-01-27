@@ -82,11 +82,9 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
 		m_module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
-	result = m_module.parse (
-		fileName,
-		(const char*) file.p (),
-		file.getSize ()
-		);
+	result = 
+		m_module.parse (fileName, (const char*) file.p (), file.getSize ()) &&
+		m_module.parseImports ();
 
 	if (!result)
 	{
@@ -125,6 +123,10 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Running...\n");
 
+	// disable GC in this sample (it doesn't implement opaque class marking)
+
+	m_runtime.m_gcHeap.setSizeTriggers (-1, -1);
+
 	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
@@ -136,7 +138,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	m_body->setLayout (m_layout->m_qtLayout);
 
 	int returnValue;
-	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue, (jnc::rt::IfaceHdr*) &m_layout);
+	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue, m_layout);
 	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());

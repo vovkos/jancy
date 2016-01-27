@@ -57,7 +57,7 @@ opaque class Layout
 	addLayout (Layout* layout);
 	addSpacer ();
 
-	Layout* operator new (Direction direction);
+	construct (Direction direction);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -81,7 +81,7 @@ opaque class Label: Widget
 	int autoget property m_backColor;
 	Alignment autoget property m_alignment;
 
-	Label* operator new (char const* text);
+	construct (char const* text);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -91,7 +91,7 @@ opaque class Button: Widget
 	char const* autoget property m_text;
 	event m_onClicked ();
 
-	Button* operator new (char const* text);
+	construct (char const* text);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -101,7 +101,7 @@ opaque class CheckBox: Widget
 	char const* autoget property m_text;
 	bool bindable property m_isChecked;
 
-	CheckBox* operator new (char const* text);
+	construct (char const* text);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,7 +110,7 @@ opaque class TextEdit: Widget
 {
 	char const* property m_text;
 
-	TextEdit* operator new ();
+	construct ();
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -121,7 +121,7 @@ opaque class Slider: Widget
 	int autoget property m_maximum;
 	int bindable property m_value;
 
-	Slider* operator new (
+	construct (
 		int minimum = 0,
 		int maximum = 100
 		);
@@ -218,6 +218,7 @@ int main (Layout* mainLayout)
 
 	printf ("Starting UI reactor...\n");
 	g_uiReactor.start ();
+
 	return 0;
 }
 
