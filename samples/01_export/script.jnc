@@ -57,7 +57,7 @@ opaque class TestClass
 {
 	event m_onNegative ();
 
-	TestClass* operator new (int value);
+	construct (int value);
 	destruct ();
 
 	int operator += (int delta);

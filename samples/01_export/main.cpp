@@ -67,11 +67,9 @@ main (
 		module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
 		module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
-	result = module.parse (
-		fileName,
-		(const char*) file.p (),
-		file.getSize ()
-		);
+	result = 
+		module.parse (fileName, (const char*) file.p (), file.getSize ()) &&
+		module.parseImports ();
 
 	if (!result)
 	{
