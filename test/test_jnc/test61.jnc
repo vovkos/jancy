@@ -1,11 +1,20 @@
 //.............................................................................
 
+struct Point
+{
+	int m_x;
+	int m_y;
+
+	construct ()
+	{	
+	}
+}
+
 int main ()
 {
 	printf ("main\n");
 
-	float x = 0;
-	float y = 10 / x;
+	Point point;
 
 	return 0;
 }

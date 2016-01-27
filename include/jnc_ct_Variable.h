@@ -52,7 +52,12 @@ protected:
 	union
 	{
 		llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
-		llvm::Instruction* m_llvmLiftInsertPoint;
+
+		struct
+		{
+			BasicBlock* m_stackInitializeBlock;
+			llvm::Instruction* m_llvmBeforeStackInitialize;
+		};
 	};
 
 	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*

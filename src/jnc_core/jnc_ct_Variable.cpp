@@ -17,6 +17,9 @@ Variable::Variable ()
 	m_tlsField = NULL;
 	m_staticData = NULL;
 	m_llvmGlobalVariable = NULL;
+	m_stackInitializeBlock = NULL;
+	m_llvmBeforeStackInitialize = NULL;
+
 	m_llvmValue = NULL;
 }
 

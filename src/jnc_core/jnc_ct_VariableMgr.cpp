@@ -188,9 +188,6 @@ VariableMgr::createSimpleStaticVariable (
 bool
 VariableMgr::initializeVariable (Variable* variable)
 {
-	BasicBlock* initializeBlock;
-	llvm::Instruction* llvmBeforeStackInitialize = NULL;
-
 	switch (variable->m_storageKind)
 	{
 	case StorageKind_Static:
@@ -203,9 +200,10 @@ VariableMgr::initializeVariable (Variable* variable)
 		break;
 
 	case StorageKind_Stack:
-		initializeBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
-		if (!initializeBlock->isEmpty ())
-			llvmBeforeStackInitialize = &m_module->m_controlFlowMgr.getCurrentBlock ()->getLlvmBlock ()->back ();
+		variable->m_stackInitializeBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+		variable->m_llvmBeforeStackInitialize = !variable->m_stackInitializeBlock->isEmpty () ? 
+			&m_module->m_controlFlowMgr.getCurrentBlock ()->getLlvmBlock ()->back () :
+			NULL;
 		
 		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		{
@@ -223,26 +221,12 @@ VariableMgr::initializeVariable (Variable* variable)
 		ASSERT (false);
 	};
 
-	bool result =  m_module->m_operatorMgr.parseInitializer (
+	return m_module->m_operatorMgr.parseInitializer (
 		variable,
 		variable->m_itemDecl->getParentUnit (),
 		variable->m_constructor,
 		variable->m_initializer
 		);
-
-	if (!result)
-		return false;
-
-	if (variable->m_storageKind == StorageKind_Stack)
-	{
-		ASSERT (!initializeBlock->isEmpty ());
-
-		variable->m_llvmLiftInsertPoint = llvmBeforeStackInitialize ? 
-			(llvm::Instruction*) ++llvm::BasicBlock::iterator (llvmBeforeStackInitialize) :
-			&initializeBlock->getLlvmBlock ()->front ();
-	}
-
-	return true;
 }
 
 llvm::GlobalVariable*
@@ -458,9 +442,13 @@ VariableMgr::liftStackVariable (Variable* variable)
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) variable->m_llvmValue;
 	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
 
-	if (variable->m_llvmLiftInsertPoint)
+	if (variable->m_stackInitializeBlock)
 	{
-		m_module->m_llvmIrBuilder.setInsertPoint (variable->m_llvmLiftInsertPoint);
+		llvm::Instruction* llvmInsertPoint = variable->m_llvmBeforeStackInitialize ? 
+			(llvm::Instruction*) ++llvm::BasicBlock::iterator (variable->m_llvmBeforeStackInitialize) :
+			&variable->m_stackInitializeBlock->getLlvmBlock ()->front ();
+
+		m_module->m_llvmIrBuilder.setInsertPoint (llvmInsertPoint);
 	}
 	else
 	{
