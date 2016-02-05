@@ -113,6 +113,7 @@ main := |*
 'virtual'        { createToken (TokenKind_Virtual); };
 'override'       { createToken (TokenKind_Override); };
 'mutable'        { createToken (TokenKind_Mutable); };
+'disposable'     { createToken (TokenKind_Disposable); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

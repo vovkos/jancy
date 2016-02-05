@@ -1,21 +1,41 @@
 //.............................................................................
 
-struct Point
+class Resource
 {
-	int m_x;
-	int m_y;
-
 	construct ()
-	{	
+	{
+		printf ("Resource.construct (%p)\n", this);
 	}
+
+	destruct ()
+	{
+		printf ("Resource.destruct (%p)\n", this);
+	}
+	
+	close ()
+	{
+		printf ("Resource.close (%p)\n", this);
+	}
+
+	alias dispose () = close;
 }
 
 int main ()
 {
 	printf ("main\n");
 
-	Point point;
+	{
+		disposable Resource resource1;
 
+		int i = 0;
+		if (i)
+			return -1;
+
+	finally:
+		printf ("finally\n");
+	}
+
+	printf ("hmmm\n");
 	return 0;
 }
 

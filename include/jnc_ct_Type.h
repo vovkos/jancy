@@ -565,6 +565,9 @@ getDirectRefType (
 
 //.............................................................................
 
+bool
+isDisposableType (Type* type);
+
 bool 
 isSafePtrType (Type* type);
 

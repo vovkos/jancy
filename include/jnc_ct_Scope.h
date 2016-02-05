@@ -45,6 +45,7 @@ protected:
 	Token::Pos m_pos;
 	Function* m_function;
 
+	sl::BoxList <Variable*> m_disposableVariableList;
 	sl::BoxList <Value> m_gcStackRootList;
 	llvm::DIScope m_llvmDiScope;
 
@@ -85,6 +86,18 @@ public:
 	addToGcStackRootList (const Value& value)
 	{
 		m_gcStackRootList.insertTail (value);
+	}
+
+	sl::ConstBoxList <Variable*>
+	getDisposableVariableList ()
+	{
+		return m_disposableVariableList;
+	}
+
+	void
+	addToDisposableVariableList (Variable* variable)
+	{
+		m_disposableVariableList.insertTail (variable);
 	}
 
 	llvm::DIScope
