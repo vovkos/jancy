@@ -64,16 +64,16 @@ set (
 	MainWindow.h
 	)
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp (
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 	)
 
-pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
-exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+axl_exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
 
 source_group (
 	gen
@@ -162,7 +162,7 @@ elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
 
-set_pch (
+axl_set_pch (
 	02_dialog
 	${PCH_H}
 	${PCH_CPP}

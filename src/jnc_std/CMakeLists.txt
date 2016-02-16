@@ -54,7 +54,7 @@ source_group (
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_std_globals.jnc.cpp
@@ -92,7 +92,7 @@ add_perl_step (
 	${JNC2CPP_PL}
 	)
 
-pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
@@ -104,7 +104,7 @@ set (
 	${GEN_DIR}/jnc_std_List.jnc.cpp
 	)
 
-exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
+axl_exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 
 source_group (
 	gen
@@ -150,14 +150,14 @@ add_library (
 	${GEN_JNC_CPP_LIST}
 	)
 
-set_pch (
+axl_set_pch (
 	jnc_std
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	add_target_string_property (
+	axl_add_target_string_property (
 		jnc_std
 		COMPILE_FLAGS
 		"-fPIC"

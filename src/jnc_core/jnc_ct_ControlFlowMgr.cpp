@@ -356,7 +356,6 @@ ControlFlowMgr::escapeScope (
 	BasicBlock* prevFinallyBlock = NULL;
 	while (scope && scope != targetScope)
 	{
-		m_module->m_operatorMgr.disposeDisposableVariableList (scope->m_disposableVariableList);
 		m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
 
 		if (scope->m_flags & ScopeFlag_FinallyAhead)
@@ -379,10 +378,7 @@ ControlFlowMgr::escapeScope (
 	}
 
 	if (isThrow)
-	{
-		m_module->m_operatorMgr.disposeDisposableVariableList (scope->m_disposableVariableList);
 		m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
-	}
 
 	if (!firstFinallyBlock)
 	{
@@ -748,7 +744,6 @@ ControlFlowMgr::normalFinallyFlow ()
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope->m_flags & ScopeFlag_FinallyAhead);
 
-	m_module->m_operatorMgr.disposeDisposableVariableList (scope->m_disposableVariableList);
 	m_module->m_operatorMgr.nullifyGcRootList (scope->m_gcStackRootList);
 
 	ASSERT (m_catchFinallyFollowBlock);

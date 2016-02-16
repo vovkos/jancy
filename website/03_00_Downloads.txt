@@ -5,7 +5,7 @@ Jancy is distributed as an open-source project. To use it, you have to build it.
 
 First, download the latest sources of Jancy and AXL (support library). There is no any actual difference between zip and tarball packages except for the line endings so it's up to you which one to use. Unpack them into locations of your choise. We will refer to these source directories (the ones containing subdirectories *cmake*, *include*, and *src* and the root *CMakeLists.txt* files) as *$JANCY_DIR* and *$AXL_DIR* respectively.
 
-Then download the latest release of Bulldozer parser generator. Choose a package suitable for your operating system and processor architecture. You don't need to actually *install* Bulldozer or add it to the *PATH* environment variable -- just unpack it somewehere. Once again, we will refer to the root directory of Bulldozer (the one containing subdirectories *bin*, *cmake*, *frame* etc) as *$BULLDOZER_DIR*.
+Then download the latest release of Graco parser generator. Choose a package suitable for your operating system and processor architecture. You don't need to actually *install* Graco or add it to the *PATH* environment variable -- just unpack it somewehere. Once again, we will refer to the root directory of Graco (the one containing subdirectories *bin*, *cmake*, *frame* etc) as *$GRACO_DIR*.
 
 When you are done, proceed to preparing Jancy [build prerequisites](downloads/build_prerequisites.html).
 
@@ -18,13 +18,13 @@ When you are done, proceed to preparing Jancy [build prerequisites](downloads/bu
 <file area="archive/axl" name="axl-src-5.3.2.tar.gz" date="auto" moreinfo="">AXL 5.3.2 &mdash; Linux line endings (LF)</file>
 </files_list>
 
-## Latest Bulldozer Release
+## Latest Graco Release
 
 <files_list noshow="vers" td_width="auto">
-<file area="archive/bulldozer/bulldozer-1.1.1" name="bulldozer-windows-1.1.1-x86.zip" date="auto" moreinfo="">Bulldozer 1.1.1 &mdash; Windows (32-bit ZIP archive)</file>
-<file area="archive/bulldozer/bulldozer-1.1.1" name="bulldozer-windows-1.1.1-amd64.zip" date="auto" moreinfo="">Bulldozer 1.1.1 &mdash; Windows (64-bit ZIP archive)</file>
-<file area="archive/bulldozer/bulldozer-1.1.1" name="bulldozer-linux-1.1.1-x86.tar.gz" date="auto" moreinfo="">Bulldozer 1.1.1 &mdash; Linux (32-bit tarball)</file>
-<file area="archive/bulldozer/bulldozer-1.1.1" name="bulldozer-linux-1.1.1-amd64.tar.gz" date="auto" moreinfo="">Bulldozer 1.1.1 &mdash; Linux (64-bit tarball)</file>
+<file area="archive/graco/graco-1.1.1" name="graco-windows-1.1.1-x86.zip" date="auto" moreinfo="">Graco 1.1.1 &mdash; Windows (32-bit ZIP archive)</file>
+<file area="archive/graco/graco-1.1.1" name="graco-windows-1.1.1-amd64.zip" date="auto" moreinfo="">Graco 1.1.1 &mdash; Windows (64-bit ZIP archive)</file>
+<file area="archive/graco/graco-1.1.1" name="graco-linux-1.1.1-x86.tar.gz" date="auto" moreinfo="">Graco 1.1.1 &mdash; Linux (32-bit tarball)</file>
+<file area="archive/graco/graco-1.1.1" name="graco-linux-1.1.1-amd64.tar.gz" date="auto" moreinfo="">Graco 1.1.1 &mdash; Linux (64-bit tarball)</file>
 </files_list>
 
 <br>
@@ -46,7 +46,7 @@ When you are done, proceed to preparing Jancy [build prerequisites](downloads/bu
     </tr>
 
     <tr valign="top" class="dark">
-    <td style='width:100%'><a href="http://tibbo.com/downloads/archive/bulldozer/" target="_blank">http://tibbo.com/downloads/archive/bulldozer/</a></td>
+    <td style='width:100%'><a href="http://tibbo.com/downloads/archive/graco/" target="_blank">http://tibbo.com/downloads/archive/graco/</a></td>
     </tr>
 </table>
 

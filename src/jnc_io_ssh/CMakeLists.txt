@@ -88,7 +88,7 @@ add_library (
 	${GEN_JNC_CPP_LIST}
 	)
 
-set_pch (
+axl_set_pch (
 	jnc_io_ssh
 	${PCH_H}
 	${PCH_CPP}
@@ -99,12 +99,12 @@ set (CMAKE_SHARED_LIBRARY_PREFIX)
 set_target_properties (
 	jnc_io_ssh
 	PROPERTIES
-	OUTPUT_NAME io_ssh-${TARGET_CPU}
+	OUTPUT_NAME io_ssh-${AXL_CPU}
 	SUFFIX .bin
 	)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	add_target_string_property (
+	axl_add_target_string_property (
 		jnc_io_ssh
 		COMPILE_FLAGS
 		"-fPIC"
@@ -154,7 +154,7 @@ add_custom_target (
 	jnc_io_ssh_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_ssh.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_ssh.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_ssh-${TARGET_CPU}.bin
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_ssh.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_ssh-${AXL_CPU}.bin
 	DEPENDS
 	jnc_io_ssh
 	)

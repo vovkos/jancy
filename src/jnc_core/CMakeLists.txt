@@ -1,4 +1,4 @@
-# This file is part of AXL (R) Library
+# This file is part of Jancy project 
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
@@ -543,7 +543,7 @@ source_group (
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_ct_StdTypes.jnc.cpp
@@ -574,7 +574,7 @@ add_ragel_step (
 	jnc_ct_Lexer.rl
 	)
 
-add_bulldozer_double_step (
+add_graco_double_step (
 	jnc_ct_Parser.llk.h
 	jnc_ct_Parser.llk.cpp
 	CppParser.h.in
@@ -591,7 +591,7 @@ add_bulldozer_double_step (
 	jnc_ct_Stmt.llk
 	)
 
-pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
@@ -616,9 +616,9 @@ set (
 	${GEN_DIR}/jnc_ct_Parser.llk.cpp
 	)
 
-exclude_from_build (${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
-exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
-exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
+axl_exclude_from_build (${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
+axl_exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+axl_exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
 
 source_group (
 	gen
@@ -660,7 +660,7 @@ include_directories (
 	${LLVM_INC_DIR}
 	${LLVM_INC_DIR_2}
 	${AXL_INC_DIR}
-	${BULLDOZER_INC_DIR}
+	${GRACO_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
 	${CMAKE_CURRENT_LIST_DIR}
@@ -709,14 +709,14 @@ add_library (
 	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
 	)
 
-set_pch (
+axl_set_pch (
 	jnc_core
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	add_target_string_property (
+	axl_add_target_string_property (
 		jnc_core
 		COMPILE_FLAGS
 		"-fPIC"

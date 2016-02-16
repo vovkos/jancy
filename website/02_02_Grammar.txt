@@ -2,7 +2,7 @@
 
 # Jancy Grammar
 
-Below you can check the full Jancy grammar for reference. This listing is auto-generated from *.llk files by Bulldozer parser generator, and is basically the actual Jancy grammar as it is used by the Jancy compiler but with all the actions, rule attributes and rule arguments removed for readability.
+Below you can check the full Jancy grammar for reference. This listing is auto-generated from *.llk files by Graco parser generator, and is basically the actual Jancy grammar as it is used by the Jancy compiler but with all the actions, rule attributes and rule arguments removed for readability.
 
 <div class='new_frame snippet'>
 <code name="llk" from="downloads/open/jnc/grammar/jancy.llk"/>

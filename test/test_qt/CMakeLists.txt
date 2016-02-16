@@ -95,7 +95,7 @@ set (
 	output.h
 	)
 
-push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp (
 	GEN_MOC_CPP_LIST
@@ -123,11 +123,11 @@ set (
 	${GEN_DIR}/llvmirhighlighter.rl.cpp
 	)
 
-pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
-exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
-exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
-exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+axl_exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+axl_exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
+axl_exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
 source_group (
 	gen
@@ -230,7 +230,7 @@ elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
 
-set_pch (
+axl_set_pch (
 	test_qt
 	${PCH_H}
 	${PCH_CPP}

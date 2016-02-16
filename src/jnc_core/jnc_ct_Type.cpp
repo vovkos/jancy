@@ -746,41 +746,6 @@ getDirectRefType (
 
 //.............................................................................
 
-bool
-isDisposableType (Type* type)
-{
-	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
-		return false;
-
-	DerivableType* derivableType = (DerivableType*) type;
-	ModuleItem* item = derivableType->findItem ("dispose");
-	if (!item)
-		return false;
-
-	FunctionType* functionType;
-
-	ModuleItemKind itemKind = item->getItemKind ();
-	switch (itemKind)
-	{
-	case ModuleItemKind_Function:
-		functionType = ((Function*) item)->getType ();
-		break;
-
-	case ModuleItemKind_Alias:
-		functionType = (FunctionType*) ((Alias*) item)->getType ();
-		if (functionType->getTypeKind () != TypeKind_Function)
-			return false;
-
-		break;
-
-	default:
-		return false;
-	}
-
-	#pragma AXL_TODO ("double-check function type")
-	return true;
-}
-
 bool 
 isSafePtrType (Type* type)
 {

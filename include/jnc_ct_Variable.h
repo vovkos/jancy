@@ -27,8 +27,7 @@ enum StdVariable
 
 enum VariableFlag
 {
-	VariableFlag_Arg        = 0x010000,
-	VariableFlag_Disposable = 0x020000,
+	VariableFlag_Arg = 0x010000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

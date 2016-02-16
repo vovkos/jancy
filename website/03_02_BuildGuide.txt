@@ -15,8 +15,8 @@ The path configuration is stored in *paths.cmake* file in *$AXL_DIR/cmake/std* a
 * `LLVM_CMAKE_DIR` points to generated LLVM cmake files (in build directory)
 * `QT_CMAKE_DIR` points to QT cmake files
 * `QT_DLL_DIR` points to QT DLL files (Windows only) 
-* `AXL_CMAKE_DIR` points to `$AXL_DIR/cmake/latest`
-* `BULLDOZER_CMAKE_DIR` points to `$BULLDOZER_DIR/cmake`
+* `AXL_CMAKE_DIR` points to `$AXL_DIR/cmake`
+* `GRACO_CMAKE_DIR` points to `$GRACO_DIR/cmake`
 * `PERL_EXE` points to Perl executable
 * `RAGEL_EXE` points to Ragel executable
 
@@ -27,7 +27,7 @@ The final *$JANCY_DIR/cmake/std/paths.cmake* might look something like:
 set (LLVM_VERSION      3.3)
 set (QT_VERSION        5.0.2)
 set (AXL_VERSION       5.3.2)
-set (BULLDOZER_VERSION 1.1.1)
+set (GRACO_VERSION     1.1.1)
 set (RAGEL_VERSION     6.7)
  
 set (LLVM_INC_DIR        "c:/Develop/llvm/llvm-${LLVM_VERSION}/include")
@@ -38,7 +38,7 @@ set (QT_CMAKE_DIR        "c:/Develop/qt/qt-${QT_VERSION}/build/qtbase/lib/cmake"
 set (QT_DLL_DIR          "c:/Develop/qt/qt-${QT_VERSION}/build/qtbase/lib")
 
 set (AXL_CMAKE_DIR       "c:/Develop/axl/axl-${AXL_VERSION}/cmake/latest")
-set (BULLDOZER_CMAKE_DIR "c:/Develop/bulldozer/bulldozer-${BULLDOZER_VERSION}/cmake")
+set (GRACO_CMAKE_DIR     "c:/Develop/graco/graco-${GRACO_VERSION}/cmake")
 
 set (PERL_EXE            "c:/Develop/ActivePerl/bin/perl.exe")
 set (RAGEL_EXE           "c:/Develop/ragel/ragel-${RAGEL_VERSION}/ragel.exe")

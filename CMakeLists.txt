@@ -1,5 +1,5 @@
 # This file is part of Jancy project
-# Tibbo Technology Inc (C) 2004-2013. All rights reserved
+# Tibbo Technology Inc (C) 2004-2016. All rights reserved
 # Author: Vladimir Gladkov
 
 #..............................................................................
@@ -8,43 +8,41 @@ project (jancy)
 
 cmake_minimum_required (VERSION 2.8)
 
-if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/std/master.cmake")
-	include ("${CMAKE_CURRENT_LIST_DIR}/cmake/std/master.cmake" NO_POLICY_SCOPE)
-elseif (EXISTS "${CMAKE_CURRENT_LIST_DIR}/../cmake/master.cmake")
-	include ("${CMAKE_CURRENT_LIST_DIR}/../cmake/master.cmake" NO_POLICY_SCOPE)
+include (cmake/axl_cmake.cmake NO_POLICY_SCOPE)
+
+if (${GRACO_CMAKE_DIR})
+	set (_GRACO_CMAKE_DIR ${GRACO_CMAKE_DIR})
 else ()
-	message (FATAL_ERROR "master.cmake could not be found")
+	set (_GRACO_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../graco/cmake)
 endif ()
 
-print_std_settings ()
-
-check_and_print_libs (
-	REQUIRED 
-		PERL
-		RAGEL
-		LLVM
-		AXL
-		BULLDOZER
-		7Z
-	OPTIONAL 
-		QT
-		LIBSSH2
-		LIBUDEV
-		PCAP
+set (
+	AXL_IMPORT_DIR_LIST
+	${AXL_IMPORT_DIR_LIST}
+	${CMAKE_CURRENT_LIST_DIR}/cmake
+	${_GRACO_CMAKE_DIR}
 	)
 
-if (QT_FOUND)
-	unset (Qt5Core_DIR    CACHE)
-	unset (Qt5Gui_DIR     CACHE)
-	unset (Qt5Widgets_DIR CACHE)
+axl_print_std_settings ()
 
-	include ("${QT_CMAKE_DIR}/Qt5Core/Qt5CoreConfig.cmake")
-	include ("${QT_CMAKE_DIR}/Qt5Widgets/Qt5WidgetsConfig.cmake")
+axl_import (
+	REQUIRED 
+		perl
+		ragel
+		llvm
+		axl
+		graco
+		7z
+	OPTIONAL 
+		qt
+		libssh2
+		openssl
+		pcap
+	)
+
+if (UNIX AND NOT APPLE)
+	axl_import (OPTIONAL libudev)
 endif ()
-
-include (${LLVM_CMAKE_DIR}/LLVMConfig.cmake)
-include (${AXL_CMAKE_DIR}/axl.cmake)
-include (${BULLDOZER_CMAKE_DIR}/bulldozer.cmake)
 
 #..............................................................................
 
@@ -55,8 +53,7 @@ set (JANCY_PACKAGE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/package)
 
 add_subdirectory (cmake)
 
-include (${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy.cmake)
-include (version.cmake)
+include (${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy_config.cmake)
 
 add_subdirectory (samples)
 add_subdirectory (src)

@@ -110,7 +110,7 @@ if (UNIX AND NOT APPLE)
 		)
 endif ()
 
-set_pch (
+axl_set_pch (
 	01_export
 	${PCH_H}
 	${PCH_CPP}

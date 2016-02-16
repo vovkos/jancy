@@ -487,33 +487,6 @@ OperatorMgr::nullifyGcRootList (const sl::ConstBoxList <Value>& list)
 	}
 }
 
-bool
-OperatorMgr::disposeDisposableVariableList (const sl::ConstBoxList <Variable*>& list)
-{
-	bool result;
-
-	if (list.isEmpty ())
-		return true;
-
-	sl::BoxIterator <Variable*> it = list.getTail ();
-	for (; it; it--)
-	{
-		Variable* variable = *it;
-		ASSERT (variable->getFlags () & VariableFlag_Disposable);
-
-		Value disposeValue;
-
-		result = 
-			memberOperator (variable, "dispose", &disposeValue) &&
-			callOperator (disposeValue);
-
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
 void
 OperatorMgr::createTmpStackGcRoot (const Value& value)
 {

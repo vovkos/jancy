@@ -5,21 +5,20 @@
 #..............................................................................
 
 configure_file (
-	jancy.cmake.in
-	jancy.cmake
+	jancy_config.cmake.in
+	jancy_config.cmake
 	@ONLY
 	)
 
-configure_file (
-	jancy.cmake.in
-	${CMAKE_CURRENT_LIST_DIR}/latest/jancy-${TARGET_CPU}.cmake
-	@ONLY
-	)
+if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../paths.cmake)
+	configure_file (
+		paths.cmake.template
+		${CMAKE_CURRENT_LIST_DIR}/../paths.cmake
+		COPYONLY
+		)
+endif ()
 
-configure_file (
-	jancy-latest.cmake.in
-	${CMAKE_CURRENT_LIST_DIR}/latest/jancy.cmake
-	@ONLY
-	)
+include (${CMAKE_CURRENT_BINARY_DIR}/jancy_config.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/../paths.cmake)
 
 #..............................................................................

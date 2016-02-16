@@ -151,7 +151,7 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-set_pch (
+axl_set_pch (
 	test_mfc
 	${PCH_H}
 	${PCH_CPP}

@@ -33,11 +33,6 @@ Module::Module ()
 void
 Module::clear ()
 {
-	if (m_llvmExecutionEngine)
-		delete m_llvmExecutionEngine;
-	else if (m_llvmModule)
-		delete m_llvmModule;
-
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
 	m_functionMgr.clear ();
@@ -55,6 +50,12 @@ Module::clear ()
 	m_functionMap.clear ();
 	m_extensionLibMgr.clear ();
 	m_importMgr.clear ();
+
+	if (m_llvmExecutionEngine)
+		delete m_llvmExecutionEngine;
+	else if (m_llvmModule)
+		delete m_llvmModule;
+
 	m_name.clear ();
 
 	m_llvmModule = NULL;
@@ -98,14 +99,14 @@ Module::create (
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 #	if (_AXL_PTR_BITNESS == 64)
-int128_t
+/*int128_t
 lockTestAndSet (
 	volatile int128_t* dst,
 	int128_t src
 	)
 {
 	return __sync_lock_test_and_set_16 (dst, src);
-}
+}*/
 #	else
 extern "C" int64_t __divdi3 (int64_t, int64_t);
 extern "C" int64_t __moddi3 (int64_t, int64_t);
@@ -148,7 +149,7 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
 #	if (_AXL_PTR_BITNESS == 64)
-		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
+//		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
 #	else
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
 		m_functionMap ["__moddi3"]  = (void*) __moddi3;

@@ -10,6 +10,10 @@ set (JANCY_LIB_BASE_DIR "@JANCY_LIB_BASE_DIR@")
 set (JANCY_BIN_DIR      "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}")
 set (JANCY_BIN_BASE_DIR "@JANCY_BIN_BASE_DIR@")
 set (JANCY_EXE          "@JANCY_BIN_BASE_DIR@/${CONFIGURATION_SUFFIX}/jancy")
+set (JANCY_CMAKE_DIR    "@CMAKE_CURRENT_LIST_DIR@")
+set (JANCY_CMAKE_DIR_2  "@CMAKE_CURRENT_BINARY_DIR@")
 set (JNC2CPP_PL         "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
+
+include ("@JANCY_ROOT_DIR@/version.cmake")
 
 #..............................................................................

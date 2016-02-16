@@ -78,7 +78,6 @@ enum StorageKind
 	StorageKind_Virtual,
 	StorageKind_Override,
 	StorageKind_Mutable,
-	StorageKind_Disposable,
 	StorageKind_This,
 	StorageKind__Count,
 };
