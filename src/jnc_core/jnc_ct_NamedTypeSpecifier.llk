@@ -94,16 +94,11 @@ enum_block <EnumType* $type>
 			{
 				m_module->m_namespaceMgr.openNamespace ($type);
 			}
-		enum_member_list <$type>
+		enum_member <$type> (',' enum_member <$type>)*
 		'}'
 			{
 				m_module->m_namespaceMgr.closeNamespace ();
 			}
-	;
-
-nullable
-enum_member_list <EnumType* $type>
-	:	enum_member <$type> (',' enum_member <$type>)*
 	;
 
 nullable

@@ -378,22 +378,27 @@ type_name_list
 attribute_block
 	:	'['
 			{
+				if (m_attributeBlock)
+				{
+					err::setStringError ("attribute block redefinition");
+					return false;
+				}
+
 				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock ();
 			}
-		attribute_declarator_list
+		attribute_declarator (',' attribute_declarator)* 
 		']'
 	;
 
 nullable
-attribute_declarator_list
-	:	attribute_declarator (',' attribute_declarator)*
-	;
-
-nullable
 attribute_declarator
-	:	TokenKind_Identifier ('=' expression_pass1)?
+	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				Attribute* attribute = m_attributeBlock->createAttribute ($1.m_data.m_string, NULL);
+				Attribute* attribute = m_attributeBlock->createAttribute (
+					$1.m_data.m_string, 
+					&$i ? &$i.m_tokenList : NULL
+					);
+
 				if (!attribute)
 					return false;
 

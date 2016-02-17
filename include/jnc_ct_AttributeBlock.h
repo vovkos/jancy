@@ -11,24 +11,26 @@ namespace ct {
 
 //.............................................................................
 
-class Attribute: public UserModuleItem
+class Attribute: 
+	public UserModuleItem,
+	public ModuleItemInitializer
 {
 	friend class AttributeBlock;
 
 protected:
-	Value* m_value;
+	Value m_value;
 
 public:
-	Attribute ()
-	{
-		m_value = NULL;
-	}
-
-	Value* 
+	Value 
 	getValue ()
 	{
 		return m_value;
 	}
+
+protected:
+	virtual
+	bool
+	calcLayout ();
 };
 
 //.............................................................................
@@ -71,7 +73,7 @@ public:
 	Attribute*
 	createAttribute (
 		const sl::String& name,
-		Value* value = NULL
+		sl::BoxList <Token>* initializer = NULL
 		);
 };
 
