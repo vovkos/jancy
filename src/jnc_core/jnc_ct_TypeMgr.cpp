@@ -281,7 +281,7 @@ TypeMgr::getLazyStdType (StdType stdType)
 void
 pushImportSrcPosError (NamedImportType* importType)
 {
-	err::pushSrcPosError (
+	lex::pushSrcPosError (
 		importType->getParentUnit ()->getFilePath (),
 		*importType->getPos ()
 		);

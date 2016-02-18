@@ -93,7 +93,7 @@ ArrayType::calcLayout ()
 		if (value <= 0)
 		{
 			err::setFormatStringError ("invalid array size '%d'\n", value);
-			err::pushSrcPosError (
+			lex::pushSrcPosError (
 				m_parentUnit->getFilePath (),
 				m_elementCountInitializer.getHead ()->m_pos
 				);

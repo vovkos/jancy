@@ -57,7 +57,7 @@ Parser::parseTokenList (
 		result = parseToken (&*token);
 		if (!result)
 		{
-			err::ensureSrcPosError (unit->getFilePath (), token->m_pos.m_line, token->m_pos.m_col);
+			lex::ensureSrcPosError (unit->getFilePath (), token->m_pos.m_line, token->m_pos.m_col);
 			return false;
 		}
 	}
@@ -77,7 +77,7 @@ Parser::parseTokenList (
 	result = parseToken (&eofToken);
 	if (!result)
 	{
-		err::ensureSrcPosError (unit->getFilePath (), eofToken.m_pos.m_line, eofToken.m_pos.m_col);
+		lex::ensureSrcPosError (unit->getFilePath (), eofToken.m_pos.m_line, eofToken.m_pos.m_col);
 		return false;
 	}
 
@@ -2582,7 +2582,7 @@ Parser::lookupIdentifier (
 	if (!item)
 	{
 		err::setFormatStringError ("undeclared identifier '%s'", name.cc ());
-		err::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
+		lex::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
 		return false;
 	}
 
@@ -2724,7 +2724,7 @@ Parser::lookupIdentifierType (
 	if (!item)
 	{
 		err::setFormatStringError ("undeclared identifier '%s'", name.cc ());
-		err::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
+		lex::pushSrcPosError (m_module->m_unitMgr.getCurrentUnit ()->getFilePath (), pos);
 		return false;
 	}
 

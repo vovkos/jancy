@@ -14,9 +14,9 @@ int main (int argc, char* argv [])
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-	err::registerParseErrorProvider ();
+	lex::registerParseErrorProvider ();
 
-	srand ((int) axl::sys::getTimestamp ());
+	srand ((int) sys::getTimestamp ());
 
 	QApplication app (argc, argv);
 	QCoreApplication::setOrganizationName ("Tibbo");

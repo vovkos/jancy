@@ -375,14 +375,14 @@ Module::parse (
 		if (token->m_token == TokenKind_Error)
 		{
 			err::setFormatStringError ("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-			err::pushSrcPosError (filePath, token->m_pos);
+			lex::pushSrcPosError (filePath, token->m_pos);
 			return false;
 		}
 
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			err::ensureSrcPosError (filePath, token->m_pos);
+			lex::ensureSrcPosError (filePath, token->m_pos);
 			return false;
 		}
 

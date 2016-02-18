@@ -41,9 +41,9 @@ main (
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-	err::registerParseErrorProvider ();
+	lex::registerParseErrorProvider ();
 
-	srand ((int) axl::sys::getTimestamp ());
+	srand ((int) sys::getTimestamp ());
 	
 	sl::String fileName = argv [1];
 

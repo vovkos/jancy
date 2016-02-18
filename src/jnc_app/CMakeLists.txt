@@ -143,6 +143,7 @@ target_link_libraries (
 	axl_zip
 	axl_fsm
 	axl_io
+	axl_lex
 	axl_core
 	${LLVM_LIB_LIST}
 	)

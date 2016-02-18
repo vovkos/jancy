@@ -99,7 +99,7 @@ set_target_properties (
 	SUFFIX .bin
 	)
 
-if (CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if (GCC)
 	axl_add_target_string_property (
 		jnc_io_pcap
 		COMPILE_FLAGS

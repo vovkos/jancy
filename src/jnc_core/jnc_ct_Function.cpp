@@ -273,7 +273,7 @@ Function::compileAutomatonBody ()
 	if (m_type->getReturnType ()->getStdType () != StdType_AutomatonResult)
 	{
 		err::setFormatStringError ("automaton function must return 'jnc.AutomatonResult'");
-		err::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
 		return false;
 	}
 
@@ -296,7 +296,7 @@ Function::compileAutomatonBody ()
 		((ClassPtrType*) recognizerArgType)->getTargetType ()->getStdType () != StdType_Recognizer)
 	{
 		err::setFormatStringError ("automaton function must take one argument of type 'jnc.Recognizer*'");
-		err::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
 		return false;
 	}
 

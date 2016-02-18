@@ -50,8 +50,8 @@ main (
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-	err::registerParseErrorProvider ();
-	srand ((int) axl::sys::getTimestamp ());
+	lex::registerParseErrorProvider ();
+	srand ((int) sys::getTimestamp ());
 
 	FileOutStream stdOut;
 	CmdLine cmdLine;
