@@ -23,7 +23,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 protected:
-	class IoThread: public mt::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
 		void
@@ -52,7 +52,7 @@ protected:
 	{
 		HANDLE m_hPipe;
 		err::Error m_error;
-		mt::Event m_completionEvent;
+		sys::Event m_completionEvent;
 	};
 
 protected:
@@ -66,13 +66,13 @@ protected:
 	sl::String_w m_pipeName;	
 	sl::Array <axl::io::win::NamedPipe> m_pipeArray;
 
-	mt::Lock m_ioLock;
+	sys::Lock m_ioLock;
 	uint_t m_ioFlags;
 	IoThread m_ioThread;
 	sl::Array <size_t> m_pendingAcceptArray;
 	sl::Array <size_t> m_listenArray;
 	sl::AuxList <Accept> m_acceptList;
-	mt::Event m_ioThreadEvent;
+	sys::Event m_ioThreadEvent;
 
 public:
 	NamedPipe ();

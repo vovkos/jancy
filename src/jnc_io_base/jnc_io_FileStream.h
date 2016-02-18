@@ -62,7 +62,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 protected:
-	class IoThread: public mt::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
 		void
@@ -92,7 +92,7 @@ protected:
 		size_t m_size;
 		size_t m_result;
 		err::Error m_error;
-		mt::Event m_completionEvent;
+		sys::Event m_completionEvent;
 	};
 #endif
 
@@ -107,12 +107,12 @@ protected:
 	rt::Runtime* m_runtime;
 	axl::io::File m_file;
 
-	mt::Lock m_ioLock;
+	sys::Lock m_ioLock;
 	uint_t m_ioFlags;
 	IoThread m_ioThread;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-	mt::Event m_ioThreadEvent;
+	sys::Event m_ioThreadEvent;
 	sl::Array <char> m_readBuffer;
 	size_t m_incomingDataSize;
 	sl::AuxList <Read> m_readList;

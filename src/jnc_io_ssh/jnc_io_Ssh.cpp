@@ -711,7 +711,7 @@ SshChannel::sshReadLoop ()
 bool
 SshChannel::tcpConnect ()
 {
-	mt::Event sshChannelEvent;
+	sys::Event sshChannelEvent;
 
 	bool result = m_socket.m_socket.wsaEventSelect (sshChannelEvent.m_event, FD_CONNECT);
 	if (!result)

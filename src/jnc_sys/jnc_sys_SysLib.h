@@ -101,7 +101,7 @@ public:
 	intptr_t
 	getCurrentThreadId ()
 	{
-		return (intptr_t) sys::getCurrentThreadId ();
+		return (intptr_t) mt::getCurrentThreadId ();
 	}
 
 	static

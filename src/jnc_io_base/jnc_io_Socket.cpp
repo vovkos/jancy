@@ -450,7 +450,7 @@ Socket::ioThreadFunc ()
 bool
 Socket::connectLoop ()
 {
-	mt::Event socketEvent;
+	sys::Event socketEvent;
 
 	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_CONNECT);
 	if (!result)
@@ -511,7 +511,7 @@ Socket::connectLoop ()
 void
 Socket::acceptLoop ()
 {
-	mt::Event socketEvent;
+	sys::Event socketEvent;
 
 	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_ACCEPT);
 	if (!result)
@@ -553,7 +553,7 @@ Socket::acceptLoop ()
 bool
 Socket::recvLoop ()
 {
-	mt::Event socketEvent;
+	sys::Event socketEvent;
 
 	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_READ | FD_CLOSE);
 	if (!result)

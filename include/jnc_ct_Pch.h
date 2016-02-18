@@ -111,23 +111,23 @@
 #include "axl_io_MappedFile.h"
 #include "axl_io_FilePathUtils.h"
 #include "axl_lex_RagelLexer.h"
-#include "axl_mt_Event.h"
-#include "axl_mt_Thread.h"
-#include "axl_mt_TlsMgr.h"
-#include "axl_mt_TlsSlot.h"
-#include "axl_mt_LongJmpTry.h"
+#include "axl_sys_Event.h"
+#include "axl_sys_Thread.h"
+#include "axl_sys_TlsMgr.h"
+#include "axl_sys_TlsSlot.h"
+#include "axl_sys_LongJmpTry.h"
 #include "axl_sys_DynamicLibrary.h"
-#include "axl_mt_Singleton.h"
+#include "axl_sl_Singleton.h"
 #include "axl_zip_ZipReader.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-#	include "axl_mem_win_VirtualMemory.h"
+#	include "axl_sys_win_VirtualMemory.h"
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 #	include "axl_io_psx_Mapping.h"
 #	if (_AXL_POSIX == AXL_POSIX_DARWIN)
-#		include "axl_mt_drw_Semaphore.h"
+#		include "axl_sys_drw_Semaphore.h"
 #	else
-#		include "axl_mt_psx_Sem.h"
+#		include "axl_sys_psx_Sem.h"
 #	endif
 #endif
 

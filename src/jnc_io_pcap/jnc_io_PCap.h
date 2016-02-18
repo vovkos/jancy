@@ -57,7 +57,7 @@ protected:
 		IoFlag_Eof     = 0x0020,
 	};
 
-	class IoThread: public mt::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
 		void
@@ -73,7 +73,7 @@ protected:
 		size_t m_size;
 		size_t m_result;
 		err::Error m_error;
-		mt::Event m_completeEvent;
+		sys::Event m_completeEvent;
 	};
 
 protected:
@@ -87,11 +87,11 @@ protected:
 protected:
 	rt::Runtime* m_runtime;
 	axl::io::PCap m_pcap;
-	mt::Lock m_ioLock;
+	sys::Lock m_ioLock;
 	sl::AuxList <Read> m_readList;
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
-	mt::Event m_ioThreadEvent;
+	sys::Event m_ioThreadEvent;
 
 public:
 	PCap ();

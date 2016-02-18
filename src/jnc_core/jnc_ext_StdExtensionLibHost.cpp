@@ -11,7 +11,7 @@ namespace ext {
 ExtensionLibHost*
 getStdExtensionLibHost ()
 {
-	return mt::getSingleton <StdExtensionLibHost> ();
+	return sl::getSingleton <StdExtensionLibHost> ();
 }
 
 //.............................................................................

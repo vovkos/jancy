@@ -16,8 +16,8 @@ ExtensionLib*
 getStdLib (ExtensionLibHost* host)
 {
 	static int32_t onceFlag = 0;
-	sl::callOnce (initStdLib, host, &onceFlag);
-	return sl::getSimpleSingleton <std::StdLib> ();
+	mt::callOnce (initStdLib, host, &onceFlag);
+	return mt::getSimpleSingleton <std::StdLib> ();
 }
 
 //.............................................................................
@@ -220,7 +220,7 @@ struct ThreadContext
 {
 	rt::FunctionPtr m_ptr;
 	rt::Runtime* m_runtime;
-	sys::Event m_threadStartedEvent;
+	mt::Event m_threadStartedEvent;
 };
 
 // a small note on thread starting sequence

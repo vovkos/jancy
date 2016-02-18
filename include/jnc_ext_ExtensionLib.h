@@ -319,7 +319,7 @@ virtual \
 const jnc::ext::OpaqueClassTypeInfo* \
 findOpaqueClassTypeInfo (const char* fileName) \
 { \
-	Map* map = axl::mt::getSingleton <Map> (); \
+	Map* map = axl::sl::getSingleton <Map> (); \
 	axl::sl::StringHashTableMapIterator <const jnc::ext::OpaqueClassTypeInfo*> it = map->find (fileName); \
 	return it ? it->m_value : NULL; \
 } \
@@ -346,7 +346,7 @@ virtual \
 axl::sl::StringSlice \
 findSourceFileContents (const char* fileName) \
 { \
-	Table* table = axl::mt::getSingleton <Table> (); \
+	Table* table = axl::sl::getSingleton <Table> (); \
 	return table->find (fileName); \
 } \
 class Table \

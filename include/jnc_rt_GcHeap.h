@@ -103,11 +103,11 @@ protected:
 protected:
 	Runtime* m_runtime;
 
-	mt::Lock m_lock;
+	sys::Lock m_lock;
 	volatile State m_state;
 	volatile uint_t m_flags;
 	GcStats m_stats;
-	mt::NotificationEvent m_idleEvent;
+	sys::NotificationEvent m_idleEvent;
 	sl::StdList <StaticDestructor> m_staticDestructorList;
 
 	sl::AuxList <GcMutatorThread> m_mutatorThreadList;
@@ -115,17 +115,17 @@ protected:
 	volatile size_t m_noCollectMutatorThreadCount;
 	volatile size_t m_handshakeCount;
 
-	mt::Event m_handshakeEvent;
-	mt::NotificationEvent m_resumeEvent;
+	sys::Event m_handshakeEvent;
+	sys::NotificationEvent m_resumeEvent;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-	mem::win::VirtualMemory m_guardPage;
+	sys::win::VirtualMemory m_guardPage;
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 	io::psx::Mapping m_guardPage;
 #	if (_AXL_POSIX == AXL_POSIX_DARWIN)
-	mt::drw::Semaphore m_handshakeSem; // mach semaphores can be safely signalled from signal handlers
+	sys::drw::Semaphore m_handshakeSem; // mach semaphores can be safely signalled from signal handlers
 #	else
-	mt::psx::Sem m_handshakeSem; // POSIX sems can be safely signalled from signal handlers
+	sys::psx::Sem m_handshakeSem; // POSIX sems can be safely signalled from signal handlers
 #	endif
 	static sigset_t m_signalWaitMask;
 #endif

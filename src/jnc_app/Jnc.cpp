@@ -116,7 +116,7 @@ Jnc::compile ()
 	result = 
 		m_module.create ("jnc_module", compileFlags) &&
 		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost)) &&
-		m_module.m_extensionLibMgr.addStaticLib (mt::getSimpleSingleton <JncLib> ());
+		m_module.m_extensionLibMgr.addStaticLib (sl::getSimpleSingleton <JncLib> ());
 
 	if (!result)
 		return false;

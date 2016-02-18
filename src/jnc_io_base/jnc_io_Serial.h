@@ -57,7 +57,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 protected:
-	class IoThread: public mt::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
 		void
@@ -90,12 +90,12 @@ protected:
 protected:
 	rt::Runtime* m_runtime;
 	axl::io::Serial m_serial;
-	mt::Lock m_ioLock;
+	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 	
 #if (_AXL_ENV == AXL_ENV_WIN)
-	mt::Event m_ioThreadEvent;
+	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
 #endif

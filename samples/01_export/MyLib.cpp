@@ -8,7 +8,7 @@ MyLib*
 getMyLib (jnc::ext::ExtensionLibHost* host)
 {
 	g_myLibCacheSlot = host->getLibCacheSlot (g_myLibGuid);
-	return mt::getSimpleSingleton <MyLib> ();
+	return sl::getSimpleSingleton <MyLib> ();
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

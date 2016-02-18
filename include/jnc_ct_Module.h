@@ -73,7 +73,7 @@ class PreModule
 protected:
 	PreModule ()
 	{
-		Module* prevModule = mt::setTlsSlotValue <Module> ((Module*) this);
+		Module* prevModule = sys::setTlsSlotValue <Module> ((Module*) this);
 		ASSERT (prevModule == NULL);
 	}
 
@@ -82,14 +82,14 @@ public:
 	Module* 
 	getCurrentConstructedModule ()
 	{
-		return mt::getTlsSlotValue <Module> ();
+		return sys::getTlsSlotValue <Module> ();
 	}
 
 protected:
 	void
 	finalizeConstruction ()
 	{
-		mt::setTlsSlotValue <Module> (NULL);
+		sys::setTlsSlotValue <Module> (NULL);
 	}
 };
 

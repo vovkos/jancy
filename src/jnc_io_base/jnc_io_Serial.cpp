@@ -264,7 +264,7 @@ Serial::ioThreadFunc ()
 {
 	ASSERT (m_serial.isOpen ());
 
-	mt::Event serialEvent;
+	sys::Event serialEvent;
 
 	HANDLE waitTable [] =
 	{

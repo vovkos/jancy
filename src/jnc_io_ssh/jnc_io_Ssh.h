@@ -97,7 +97,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 protected:
-	class IoThread: public mt::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
 		void
@@ -122,7 +122,7 @@ protected:
 		size_t m_size;
 		size_t m_result;
 		err::Error m_error;
-		mt::Event m_completionEvent;
+		sys::Event m_completionEvent;
 	};
 
 	struct ConnectParams
@@ -154,7 +154,7 @@ protected:
 
 	ConnectParams* m_connectParams;
 
-	mt::Lock m_ioLock;
+	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 
@@ -163,7 +163,7 @@ protected:
 	sl::AuxList <Read> m_readList;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-	mt::Event m_ioThreadEvent;
+	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
 #endif

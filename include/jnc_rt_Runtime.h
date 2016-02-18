@@ -35,10 +35,10 @@ protected:
 	};
 
 protected:
-	mt::Lock m_lock;
+	sys::Lock m_lock;
 	ct::Module* m_module;
 	State m_state;
-	mt::NotificationEvent m_noThreadEvent;
+	sys::NotificationEvent m_noThreadEvent;
 	size_t m_tlsSize;
 	sl::StdList <Tls> m_tlsList;
 
@@ -100,7 +100,7 @@ inline
 Runtime*
 getCurrentThreadRuntime ()
 {
-	return mt::getTlsSlotValue <Runtime> ();
+	return sys::getTlsSlotValue <Runtime> ();
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -109,7 +109,7 @@ inline
 Tls*
 getCurrentThreadTls ()
 {
-	return mt::getTlsSlotValue <Tls> ();
+	return sys::getTlsSlotValue <Tls> ();
 }
 
 //.............................................................................

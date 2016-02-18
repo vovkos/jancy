@@ -206,7 +206,7 @@ Module::createLlvmExecutionEngine ()
 	engineBuilder.setMArch ("x86");
 #endif
 
-	mt::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
+	sys::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
 
 	m_llvmExecutionEngine = engineBuilder.create ();
 	if (!m_llvmExecutionEngine)

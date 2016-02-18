@@ -503,7 +503,7 @@ bool MainWindow::compile ()
 	result = 
 		m_module.create (sourceFilePath.data(), compileFlags) &&
 		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost)) &&
-		m_module.m_extensionLibMgr.addStaticLib (mt::getSimpleSingleton <TestLib> ());
+		m_module.m_extensionLibMgr.addStaticLib (sl::getSimpleSingleton <TestLib> ());
 
 	m_module.m_importMgr.m_importDirList.insertTail (appDir.constData ());
 

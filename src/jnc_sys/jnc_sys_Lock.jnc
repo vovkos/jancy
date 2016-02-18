@@ -1,0 +1,99 @@
+///+++
+
+/// AXL_SELECT_ANY char g_std_HashTableSrc [] = 
+
+namespace std {
+
+//.............................................................................
+
+class StringHashTable
+{
+	protected intptr m_impl;
+	size_t readonly m_count;
+
+	construct ();
+	destruct ();
+
+	clear ();
+	variant* find (char const* key) const;
+	
+	variant read (char const* key) const
+	{
+		variant* value = find (key);
+		return value ? *value : null;
+	}
+		
+	insert (
+		char const* key,
+		variant value
+		);
+
+	bool remove (char const* key);
+
+	property m_map
+	{
+		variant get (char const* key)
+		{
+			return read (key);			
+		}
+
+		set (
+			char const* key,
+			variant value
+			)
+		{
+			insert (key, value);			
+		}
+	}
+}
+
+//.............................................................................
+
+class VariantHashTable
+{
+	protected intptr m_impl;
+	size_t readonly m_count;
+
+	construct ();
+	destruct ();
+
+	clear ();
+	variant* find (variant key) const;
+	
+	variant read (variant key) const
+	{
+		variant* value = find (key);
+		return value ? *value : null;
+	}
+		
+	insert (
+		variant key,
+		variant value
+		);
+
+	bool remove (variant key);
+
+	property m_map
+	{
+		variant get (variant key)
+		{
+			return read (key);			
+		}
+
+		set (
+			variant key,
+			variant value
+			)
+		{
+			insert (key, value);			
+		}
+	}
+}
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

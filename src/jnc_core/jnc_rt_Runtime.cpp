@@ -50,7 +50,7 @@ Runtime::startup (ct::Module* module)
 void
 Runtime::shutdown ()
 {
-	ASSERT (!mt::getTlsSlotValue <Tls> ());
+	ASSERT (!sys::getTlsSlotValue <Tls> ());
 
 	m_lock.lock ();
 	if (m_state == State_Idle)
@@ -119,7 +119,7 @@ restoreExceptionRecoverySnapshot (
 void
 Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 {
-	Tls* prevTls = mt::getTlsSlotValue <Tls> ();
+	Tls* prevTls = sys::getTlsSlotValue <Tls> ();
 	if (prevTls && prevTls->m_runtime == this)
 	{
 		saveExceptionRecoverySnapshot (ers, prevTls);
@@ -136,8 +136,8 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 	tls->m_initializeLevel = 1;
 	tls->m_stackEpoch = ers;
 
-	mt::setTlsSlotValue <Tls> (tls);
-	mt::setTlsSlotValue <Runtime> (this);
+	sys::setTlsSlotValue <Tls> (tls);
+	sys::setTlsSlotValue <Runtime> (this);
 
 	m_lock.lock ();	
 	if (m_tlsList.isEmpty ())
@@ -152,7 +152,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 void
 Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 {
-	Tls* tls = mt::getTlsSlotValue <Tls> ();
+	Tls* tls = sys::getTlsSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
 	if (--tls->m_initializeLevel) // still 
@@ -179,8 +179,8 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 	
 	m_lock.unlock ();
 	
-	mt::setTlsSlotValue <Tls> (tls->m_prev);
-	mt::setTlsSlotValue <Runtime> (tls->m_prev ? tls->m_prev->m_runtime : NULL);
+	sys::setTlsSlotValue <Tls> (tls->m_prev);
+	sys::setTlsSlotValue <Runtime> (tls->m_prev ? tls->m_prev->m_runtime : NULL);
 
 	AXL_MEM_DELETE (tls);
 }
@@ -188,7 +188,7 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 void
 Runtime::checkStackOverflow ()
 {
-	Tls* tls = mt::getTlsSlotValue <Tls> ();
+	Tls* tls = sys::getTlsSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
 	char* p = (char*) _alloca (1);

@@ -227,7 +227,7 @@ FileStream::write (
 	size_t size
 	)
 {
-	mt::Event completionEvent;
+	sys::Event completionEvent;
 	OVERLAPPED overlapped = { 0 };
 	overlapped.hEvent = completionEvent.m_event;
 
@@ -284,7 +284,7 @@ FileStream::ioThreadFunc ()
 void
 FileStream::readLoop ()
 {
-	mt::Event completionEvent;
+	sys::Event completionEvent;
 
 	HANDLE waitTable [] =
 	{

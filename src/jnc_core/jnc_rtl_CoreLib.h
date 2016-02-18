@@ -497,7 +497,7 @@ ext::ExtensionLib*
 getCoreLib (ext::ExtensionLibHost* host)
 {
 	// no need to assign slot to corelib
-	return mt::getSimpleSingleton <CoreLib> ();
+	return sl::getSimpleSingleton <CoreLib> ();
 }
 
 //.............................................................................

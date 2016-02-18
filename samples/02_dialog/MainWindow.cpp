@@ -40,8 +40,8 @@ MainWindow::MainWindow (
 	dockWidget->setWidget (m_output);
 	addDockWidget (Qt::BottomDockWidgetArea, dockWidget);
 
-	mt::setTlsSlotValue (&m_module);
-	mt::setTlsSlotValue (&m_runtime);
+	sys::setTlsSlotValue (&m_module);
+	sys::setTlsSlotValue (&m_runtime);
 }
 
 int MainWindow::output_va (const char* format, va_list va)

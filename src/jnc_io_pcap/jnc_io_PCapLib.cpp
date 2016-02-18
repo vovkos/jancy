@@ -10,13 +10,13 @@ jncExtensionLibMain (jnc::ext::ExtensionLibHost* host)
 {
 	jnc::ext::g_extensionLibHost = host;
 	jnc::io::g_pcapLibCacheSlot = host->getLibCacheSlot (jnc::io::g_pcapLibGuid);
-	return mt::getSimpleSingleton <jnc::io::PCapLib> ();
+	return sl::getSimpleSingleton <jnc::io::PCapLib> ();
 }
 
 jnc::ext::ExtensionLib*
 getExtensionLib ()
 {
-	return mt::getSimpleSingleton <jnc::io::PCapLib> ();
+	return sl::getSimpleSingleton <jnc::io::PCapLib> ();
 }
 
 //.............................................................................

@@ -173,7 +173,7 @@ NamedPipe::listenLoop ()
 	ASSERT (pipeCount);
 
 	char buffer1 [256];
-	sl::Array <mt::Event> eventArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	sl::Array <sys::Event> eventArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
 
 	char buffer2 [256];
 	sl::Array <OVERLAPPED> overlappedArray (ref::BufKind_Stack, buffer2, sizeof (buffer2));
