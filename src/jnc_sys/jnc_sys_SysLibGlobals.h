@@ -1,37 +1,29 @@
 #pragma once
 
 namespace jnc {
-namespace std {
+namespace sys {
 
 //.............................................................................
 
-// {CBC2E0EE-A7D5-4DE4-96E5-2A403C6B14B5}
+// {D8C0847C-93D5-4146-B795-5DB1A111855A}
 AXL_SL_DEFINE_GUID (
-	g_stdLibGuid,
-	0xcbc2e0ee, 0xa7d5, 0x4de4, 0x96, 0xe5, 0x2a, 0x40, 0x3c, 0x6b, 0x14, 0xb5
+	g_sysLibGuid,
+	0xd8c0847c, 0x93d5, 0x4146, 0xb7, 0x95, 0x5d, 0xb1, 0xa1, 0x11, 0x85, 0x5a
 	);
 
-AXL_SELECT_ANY size_t g_stdLibCacheSlot;
+AXL_SELECT_ANY size_t g_sysLibCacheSlot;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdLibTypeCacheSlot
+enum SysLibTypeCacheSlot
 {	
-	StdLibTypeCacheSlot_Error,
-	StdLibTypeCacheSlot_String,
-	StdLibTypeCacheSlot_StringRef,
-	StdLibTypeCacheSlot_StringBuilder,
-	StdLibTypeCacheSlot_StringHashTable,
-	StdLibTypeCacheSlot_VariantHashTable,
-	StdLibTypeCacheSlot_ListEntry,
-	StdLibTypeCacheSlot_List,
-	StdLibTypeCacheSlot_ConstBuffer,
-	StdLibTypeCacheSlot_ConstBufferRef,
-	StdLibTypeCacheSlot_BufferRef,
-	StdLibTypeCacheSlot_Buffer,
+	SysLibTypeCacheSlot_Lock,
+	SysLibTypeCacheSlot_Event,
+	SysLibTypeCacheSlot_Thread,
+	SysLibTypeCacheSlot_Timer,
 };
 
 //.............................................................................
 
-} // namespace std
+} // namespace sys
 } // namespace jnc

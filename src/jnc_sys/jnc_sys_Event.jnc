@@ -1,70 +1,23 @@
 ///+++
 
-/// AXL_SELECT_ANY char g_std_ListSrc [] = 
+/// AXL_SELECT_ANY char g_sys_EventSrc [] = 
 
-namespace std {
+namespace sys {
 
 //.............................................................................
 
-struct ListEntry
+opaque class Event
 {
-	ListEntry* readonly m_next;
-	ListEntry* readonly m_prev;
-	intptr readonly m_validator;
+	construct ();
+	destruct ();
 
-	variant m_data;
+	signal ();
+	bool wait (uint_t timeout = -1);
 }
 
 //.............................................................................
 
-class List
-{
-	ListEntry* readonly m_head;
-	ListEntry* readonly m_tail;
-	size_t readonly m_count;
-
-	clear ();
-	takeOver (List* list);
-
-	ListEntry* add (variant data)
-	{
-		return insertTail (data);
-	}
-
-	ListEntry* insertHead (variant data);
-	ListEntry* insertTail (variant data);
-
-	ListEntry* insertBefore (
-		variant item,
-		ListEntry* before
-		);
-
-	ListEntry* insertAfter (
-		variant item,
-		ListEntry* before
-		);
-
-	moveToHead (ListEntry* entry);
-	moveToTail (ListEntry* entry);
-
-	moveBefore (
-		ListEntry* entry,
-		ListEntry* before
-		);
-
-	moveAfter (
-		ListEntry* entry,
-		ListEntry* before
-		);
-		
-	variant removeHead ();
-	variant removeTail ();
-	variant remove (ListEntry* entry);
-}
-
-//.............................................................................
-
-} // namespace std
+} // namespace sys
 
 ///;
 

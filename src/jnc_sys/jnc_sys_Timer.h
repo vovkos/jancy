@@ -1,121 +1,46 @@
 #pragma once
 
 #include "jnc_ext_ExtensionLib.h"
-#include "jnc_std_StdLibGlobals.h"
+#include "jnc_sys_SysLibGlobals.h"
 
 namespace jnc {
-namespace std {
+namespace sys {
 		
 //.............................................................................
 
-struct ConstBufferRef
-{
-	JNC_BEGIN_TYPE_MAP ("std.ConstBufferRef", g_stdLibCacheSlot, StdLibTypeCacheSlot_ConstBufferRef)
-	JNC_END_TYPE_MAP ()
-
-public:
-	rt::DataPtr m_ptr;
-	size_t m_size;
-	bool m_isFinal;
-};
-
-//.............................................................................
-
-struct ConstBuffer
-{
-	JNC_BEGIN_TYPE_MAP ("std.ConstBuffer", g_stdLibCacheSlot, StdLibTypeCacheSlot_ConstBuffer)
-		JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
-		JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
-	JNC_END_TYPE_MAP ()
-
-public:
-	rt::DataPtr m_ptr;
-	size_t m_size;
-
-public:
-	bool 
-	copy (ConstBufferRef ref);
-
-	bool 
-	copy (
-		rt::DataPtr ptr,
-		size_t size
-		);
-
-protected:
-	static
-	bool 
-	copy_s1 (
-		rt::DataPtr selfPtr,
-		ConstBufferRef ref
-		)
-	{
-		return ((ConstBuffer*) selfPtr.m_p)->copy (ref);
-	}
-
-	static
-	bool 
-	copy_s2 (
-		rt::DataPtr selfPtr,
-		rt::DataPtr ptr,
-		size_t size
-		)
-	{
-		return ((ConstBuffer*) selfPtr.m_p)->copy (ptr, size);
-	}
-};
-
-//.............................................................................
-
-struct BufferRef
-{
-	JNC_BEGIN_TYPE_MAP ("std.BufferRef", g_stdLibCacheSlot, StdLibTypeCacheSlot_BufferRef)
-	JNC_END_TYPE_MAP ()
-
-public:
-	rt::DataPtr m_ptr;
-	size_t m_size;
-};
-
-//.............................................................................
-
-class Buffer: public rt::IfaceHdr
+class Timer: public rt::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("std.Buffer", g_stdLibCacheSlot, StdLibTypeCacheSlot_Buffer)
-		JNC_MAP_FUNCTION ("copy", &Buffer::copy)
-		JNC_MAP_FUNCTION ("append", &Buffer::append)
+	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Timer", g_sysLibCacheSlot, SysLibTypeCacheSlot_Timer)
+		JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
+		JNC_MAP_DESTRUCTOR (&sl::destruct <Timer>)
+		JNC_MAP_FUNCTION ("setTimer", &Timer::setTimer)
+		JNC_MAP_FUNCTION ("stop", &Timer::stop)
 	JNC_END_CLASS_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
-	size_t m_size;
-	size_t m_maxSize;
+//	axl::sys::Timer m_timer;
 
 public:
 	bool 
 	AXL_CDECL
-	copy (
-		rt::DataPtr ptr,
-		size_t size
-		);
+	setTimer (
+		rt::FunctionPtr ptr,
+		bool isPeriodic
+		)
+	{
+		return true;
+	}
 
-	bool 
+	void
 	AXL_CDECL
-	append (
-		rt::DataPtr ptr,
-		size_t size
-		);
+	stop ()
+	{
 
-protected:
-	bool
-	setSize (
-		size_t size,
-		bool saveContents
-		);
+	}
 };
 
 //.............................................................................
 
-} // namespace std
+} // namespace sys
 } // namespace jnc

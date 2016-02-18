@@ -13,8 +13,8 @@ set (
 	jnc_sys_Lock.h
 	jnc_sys_Thread.h
 	jnc_sys_Timer.h
-	jnc_sys_StdLib.h
-	jnc_sys_StdLibGlobals.h
+	jnc_sys_SysLib.h
+	jnc_sys_SysLibGlobals.h
 	)
 
 set (

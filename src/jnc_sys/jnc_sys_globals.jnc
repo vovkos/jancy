@@ -1,82 +1,8 @@
 ///+++
 
-/// AXL_SELECT_ANY char g_std_globalsSrc [] = 
+/// AXL_SELECT_ANY char g_sys_globalsSrc [] = 
 
-//.............................................................................
-
-size_t strlen (char const* p);
-
-int strcmp (
-	char const* p1,
-	char const* p2
-	);
-
-int stricmp (
-	char const* p1,
-	char const* p2
-	);
-
-char const* strchr (
-	char const* p,
-	int c
-	);
-
-char const* strcat (
-	char const* p1,
-	char const* p2
-	);
-
-char const* strdup (
-	char const* p,
-	size_t length = -1
-	);
-
-int memcmp (
-	void const* p1,
-	void const* p2,
-	size_t size
-	);
-
-void const* memchr (
-	void const* p,
-	int c,
-	size_t size
-	);
-
-void memcpy (
-	void* dst,
-	void const* src,
-	size_t size
-	);
-
-void memset (
-	void* p,
-	int c,
-	size_t size
-	);
-
-void* memcat (
-	void const* p1,
-	size_t size1,
-	void const* p2,
-	size_t size2
-	);
-
-void* memdup (
-	void const* p,
-	size_t size
-	);
-
-int rand ();
-
-int atoi (char const* p);
-
-intptr cdecl printf (
-	char const thin* fmtSpecifier,
-	...
-	);
-
-namespace std {
+namespace sys {
 
 //.............................................................................
 
@@ -88,16 +14,9 @@ void sleep (uint32_t msec);
 
 uint64_t getTimestamp ();
 
-bool throw () throws;
-
-char const* cdecl format (
-	char const* fmtSpecifier,
-	...
-	);
-
 //.............................................................................
 
-} // namespace std
+} // namespace sys
 
 ///;
 
