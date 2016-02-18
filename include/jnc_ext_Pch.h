@@ -45,7 +45,7 @@
 #	include "axl_sys_win_VirtualMemory.h"
 #elif (_AXL_ENV == AXL_ENV_POSIX)
 #	include "axl_io_psx_Mapping.h"
-#	include "axl_mt_psx_Sem.h"
+#	include "axl_sys_psx_Sem.h"
 #endif
 
 using namespace axl;
