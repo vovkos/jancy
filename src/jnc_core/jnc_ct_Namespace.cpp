@@ -76,6 +76,8 @@ Namespace::clear ()
 {
 	m_itemArray.clear ();
 	m_itemMap.clear ();
+	m_friendSet.clear ();
+	m_dualPtrTypeTupleMap.clear ();
 	m_usingSet.clear ();
 }
 
