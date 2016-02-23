@@ -109,7 +109,10 @@ protected:
 
 		ptr = *((T*) m_ptr.m_p + i);
 
-		memmove ((T*) m_ptr.m_p + i, (T*) m_ptr.m_p + i + 1,  (m_count - i) * sizeof (T));
+		size_t moveSize = (m_count - i - 1) * sizeof (T);
+		if (moveSize)
+			memmove ((T*) m_ptr.m_p + i, (T*) m_ptr.m_p + i + 1, moveSize);
+		
 		m_count--;
 		memset ((T*) m_ptr.m_p + m_count, 0, sizeof (T));
 
