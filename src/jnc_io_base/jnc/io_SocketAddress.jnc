@@ -24,7 +24,7 @@ union Address_ip4
 	bigendian uint32_t m_i32;
 	uint8_t m_i8 [4];	
 	
-	bool parse (char const* string) throws;
+	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
 
@@ -35,7 +35,7 @@ union Address_ip6
 	bigendian uint16_t m_i16 [8];
 	uint8_t m_i8 [16];
 
-	bool parse (char const* string) throws;
+	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
 
@@ -52,7 +52,7 @@ struct SocketAddress_ip4
 
 	bool isEqual (SocketAddress_ip4 const* address);
 	bool isMatch (SocketAddress_ip4 const* filterAddress);
-	bool parse (char const* string) throws;
+	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
 
@@ -66,7 +66,7 @@ struct SocketAddress_ip6
 
 	bool isEqual (SocketAddress_ip6 const* address);
 	bool isMatch (SocketAddress_ip6 const* filterAddress);
-	bool parse (char const* string) throws;
+	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
 
@@ -78,7 +78,7 @@ union SocketAddress
 
 	bool isEqual (SocketAddress const* addr);
 	bool isMatch (SocketAddress const* filterAddress);
-	bool parse (char const* string) throws;
+	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
 

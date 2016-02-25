@@ -41,6 +41,7 @@ enum TypeModifier
 	TypeModifier_Thiscall    = 0x00100000,
 	TypeModifier_Jnccall     = 0x00200000,
 	TypeModifier_Unsafe      = 0x00400000,
+	TypeModifier_ErrorCode   = 0x00800000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -61,7 +62,8 @@ enum TypeModifierMaskKind
 		TypeModifier_Function |
 		TypeModifier_Automaton |
 		TypeModifier_Unsafe |
-		TypeModifierMaskKind_CallConv ,
+		TypeModifier_ErrorCode |
+		TypeModifierMaskKind_CallConv,
 
 	TypeModifierMaskKind_Property =
 		TypeModifier_Property |

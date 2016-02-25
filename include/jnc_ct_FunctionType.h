@@ -25,7 +25,7 @@ struct FunctionPtrTypeTuple;
 enum FunctionTypeFlag
 {
 	FunctionTypeFlag_VarArg      = 0x010000,
-	FunctionTypeFlag_Throws      = 0x020000,
+	FunctionTypeFlag_ErrorCode   = 0x020000,
 	FunctionTypeFlag_ByValArgs   = 0x040000,
 	FunctionTypeFlag_CoercedArgs = 0x080000,
 	FunctionTypeFlag_Automaton   = 0x100000,

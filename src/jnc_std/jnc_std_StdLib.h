@@ -30,7 +30,6 @@ public:
 		JNC_MAP_FUNCTION ("std.createThread",       createThread)
 		JNC_MAP_FUNCTION ("std.getTimestamp",       getTimestamp)
 		JNC_MAP_FUNCTION ("std.sleep",              sleep)
-		JNC_MAP_FUNCTION ("std.throw",              forceThrow)
 		JNC_MAP_FUNCTION ("std.getLastError",       getLastError)
 		JNC_MAP_FUNCTION ("std.setPosixError",      setPosixError)
 		JNC_MAP_FUNCTION ("std.setStringError",     setStringError)
@@ -118,13 +117,6 @@ public:
 	static
 	void
 	sleep (uint32_t msCount);
-
-	static
-	bool
-	forceThrow ()
-	{
-		return false;
-	}
 
 	static
 	rt::DataPtr

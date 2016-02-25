@@ -88,8 +88,6 @@ void sleep (uint32_t msec);
 
 uint64_t getTimestamp ();
 
-bool throw () throws;
-
 char const* cdecl format (
 	char const* fmtSpecifier,
 	...

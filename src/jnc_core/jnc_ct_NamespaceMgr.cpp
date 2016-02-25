@@ -179,7 +179,7 @@ NamespaceMgr::openInternalScope ()
 	else 
 	{
 		scope->m_flags = ScopeFlag_Function;
-		if (function->getType ()->getFlags () & FunctionTypeFlag_Throws)
+		if (function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode)
 			scope->m_flags |= ScopeFlag_CanThrow;
 	}
 

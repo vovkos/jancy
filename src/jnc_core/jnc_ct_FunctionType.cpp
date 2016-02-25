@@ -13,7 +13,7 @@ getFunctionTypeFlagString (FunctionTypeFlag flag)
 	static const char* stringTable [] =
 	{
 		"vararg",     // FunctionTypeFlag_VarArg      = 0x010000,
-		"throws",     // FunctionTypeFlag_Throws      = 0x020000,
+		"errorcode",  // FunctionTypeFlag_ErrorCode   = 0x020000,
 		"coerced",    // FunctionTypeFlag_CoercedArgs = 0x040000,
 		"automaton",  // FunctionTypeFlag_Automaton   = 0x080000,
 		"unsafe",     // FunctionTypeFlag_Unsafe      = 0x100000,
@@ -268,9 +268,6 @@ FunctionType::getArgString ()
 	else
 		m_argString += "...)";
 
-	if (m_flags & FunctionTypeFlag_Throws)
-		m_argString += " throws";
-
 	return m_argString;
 }
 
@@ -279,6 +276,9 @@ FunctionType::getTypeModifierString ()
 {
 	if (!m_typeModifierString.isEmpty ())
 		return m_typeModifierString;
+
+	if (m_flags & FunctionTypeFlag_ErrorCode)
+		m_argString += "errorcode ";
 
 	if (!m_callConv->isDefault ())
 	{
@@ -325,6 +325,7 @@ FunctionType::calcLayout ()
 	if (m_returnType_i)
 	{
 		m_returnType = m_returnType_i->getActualType ();
+
 		// TODO: check for valid return type
 	}
 

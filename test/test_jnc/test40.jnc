@@ -1,6 +1,6 @@
 //.............................................................................
 
-bool bar () throws
+bool errorcode bar ()
 {
 	printf ("bar ()\n");
 	return false;

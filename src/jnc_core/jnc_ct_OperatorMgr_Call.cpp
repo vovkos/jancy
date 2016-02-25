@@ -593,7 +593,7 @@ OperatorMgr::callImpl (
 	if (resultValue->getType ()->getFlags () & TypeFlag_GcRoot)
 		createTmpStackGcRoot (*resultValue);
 
-	if ((functionType->getFlags () & FunctionTypeFlag_Throws) && 
+	if ((functionType->getFlags () & FunctionTypeFlag_ErrorCode) && 
 		!m_module->m_controlFlowMgr.isThrowLocked ())
 	{
 		result = m_module->m_controlFlowMgr.throwIf (*resultValue, functionType);

@@ -13,9 +13,9 @@ opaque class Thread
 	construct ();
 	destruct ();
 
-	bool start (function* func ()) throws;
+	bool errorcode start (function* func ());
 	bool wait (uint_t timeout);
-	bool kill () throws;
+	bool errorcode kill ();
 }
 
 //.............................................................................

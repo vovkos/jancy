@@ -528,16 +528,23 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	}
 
 	DeclFunctionSuffix* suffix = (DeclFunctionSuffix*) *m_suffix--;
-	uint_t typeFlags = suffix->getFunctionTypeFlags ();
-
-	if ((typeFlags & FunctionTypeFlag_Throws) && returnType->getTypeKind () == TypeKind_Void)
-	{
-		err::setFormatStringError ("void function cannot throw");
-		return NULL;
-	}
 
 	CallConvKind callConvKind = getCallConvKindFromModifiers (m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv (callConvKind);
+
+	uint_t typeFlags = suffix->getFunctionTypeFlags ();
+
+	if (m_typeModifiers & TypeModifier_ErrorCode)
+	{
+		if (returnType->getTypeKind () != TypeKind_NamedImport &&
+			!(returnType->getTypeKindFlags () & TypeKindFlag_ErrorCode))
+		{
+			err::setFormatStringError ("'%s' cannot be an error code", returnType->getTypeString ().cc ());
+			return NULL;
+		}
+
+		typeFlags |= FunctionTypeFlag_ErrorCode;
+	}
 
 	if (m_typeModifiers & TypeModifier_Unsafe)
 		typeFlags |= FunctionTypeFlag_Unsafe;

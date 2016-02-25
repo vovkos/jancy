@@ -33,6 +33,11 @@ Module::Module ()
 void
 Module::clear ()
 {
+	if (m_llvmExecutionEngine)
+		delete m_llvmExecutionEngine;
+	else if (m_llvmModule)
+		delete m_llvmModule;
+
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
 	m_functionMgr.clear ();
@@ -50,12 +55,6 @@ Module::clear ()
 	m_functionMap.clear ();
 	m_extensionLibMgr.clear ();
 	m_importMgr.clear ();
-
-	if (m_llvmExecutionEngine)
-		delete m_llvmExecutionEngine;
-	else if (m_llvmModule)
-		delete m_llvmModule;
-
 	m_name.clear ();
 
 	m_llvmModule = NULL;

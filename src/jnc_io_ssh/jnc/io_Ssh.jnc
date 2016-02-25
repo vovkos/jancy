@@ -46,10 +46,10 @@ opaque class SshChannel
 	construct ();
 	destruct ();
 
-	bool open (SocketAddress const* address = null) throws;
+	bool errorcode open (SocketAddress const* address = null);
 	void close ();
 
-	bool connect (
+	bool errorcode connect (
 		SocketAddress const* address,
 		char const* userName,
 		char const* password,
@@ -59,28 +59,28 @@ opaque class SshChannel
 		uint_t ptyWidth = 80,
 		uint_t ptyHeight = 24,
 		bool isSync = false
-		) throws;
+		);
 
-	bool authenticate (
+	bool errorcode authenticate (
 		char const* userName,
 		char const* password
-		) throws;
+		);
 		
-	bool resizePty (
+	bool errorcode resizePty (
 		uint_t width,
 		uint_t height,
 		bool isSync = false
 		);
 
-	size_t read (
+	size_t errorcode read (
 		void* p,
 		size_t size
-		) throws;
+		);
 
-	size_t write (
+	size_t errorcode write (
 		void const* p,
 		size_t size
-		) throws;
+		);
 
 	event m_onSshEvent (SshEventParams const* params);
 }

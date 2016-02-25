@@ -1,6 +1,6 @@
 //.............................................................................
 
-unsigned int foo (int x) throws 
+unsigned int errorcode foo (int x)
 {
 	return x;
 }

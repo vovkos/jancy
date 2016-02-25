@@ -45,15 +45,15 @@ struct String
 		return m_p && !m_p [m_length];
 	}
 
-	bool ensureZeroTerminated () throws;
+	bool errorcode ensureZeroTerminated ();
 	String getZeroTerminatedString () const;
 
-	bool copy (StringRef src) throws;
+	bool errorcode copy (StringRef src);
 
-	bool copy (
+	bool errorcode copy (
 		char const* p,
 		size_t length = -1
-		) throws;
+		);
 }
 
 //.............................................................................
@@ -117,25 +117,25 @@ class StringBuilder
 	size_t readonly m_length;
 	size_t readonly m_maxLength;
 
-	bool copy (StringRef src) throws
+	bool errorcode copy (StringRef src)
 	{
 		return try copy (src.m_p, src.m_length);
 	}
 	
-	bool copy (
+	bool errorcode copy (
 		char const* p,
 		size_t length = -1
-		) throws;
+		);
 
-	bool append (StringRef src) throws
+	bool errorcode append (StringRef src)
 	{
 		return try append (src.m_p, src.m_length);
 	}
 
-	bool append (
+	bool errorcode append (
 		char const* p,
 		size_t length = -1
-		) throws;
+		);
 
 	void operator := (StringRef src)
 	{

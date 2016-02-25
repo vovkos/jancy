@@ -31,10 +31,10 @@ opaque class SocketAddressResolver
 	construct ();
 	destruct ();
 
-	bool resolve (
+	bool errorcode resolve (
 		char const* name,
 		AddressFamily family = AddressFamily.Undefined
-		) throws;
+		);
 		
 	bool cancel (uint_t syncId);
 	cancelAll ();

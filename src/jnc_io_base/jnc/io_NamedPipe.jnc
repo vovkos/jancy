@@ -12,10 +12,10 @@ opaque class NamedPipe
 	construct ();
 	destruct ();
 
-	bool open (
+	bool errorcode open (
 		char const* name,
 		size_t backLog = 0		
-		) throws;
+		);
 
 	void close ();
 

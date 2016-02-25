@@ -127,7 +127,7 @@ main := |*
 'thin'           { createToken (TokenKind_Thin); };
 'safe'           { createToken (TokenKind_Safe); };
 'unsafe'         { createToken (TokenKind_Unsafe); };
-'throws'         { createToken (TokenKind_Throws); };
+'errorcode'      { createToken (TokenKind_ErrorCode); };
 'cdecl'          { createToken (TokenKind_Cdecl); };
 'stdcall'        { createToken (TokenKind_Stdcall); };
 'jnccall'        { createToken (TokenKind_Jnccall); };
@@ -219,6 +219,7 @@ main := |*
 'once'           { createToken (TokenKind_Once); };
 'onevent'        { createToken (TokenKind_OnEvent); };
 'try'            { createToken (TokenKind_Try); };
+'throw'          { createToken (TokenKind_Throw); };
 'catch'          { createToken (TokenKind_Catch); };
 'finally'        { createToken (TokenKind_Finally); };
 'nestedscope'    { createToken (TokenKind_NestedScope); };

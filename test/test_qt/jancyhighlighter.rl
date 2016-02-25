@@ -64,7 +64,7 @@ main := |*
 'unsafe'          |
 'weak'            |
 'thin'            |
-'throws'          |
+'errorcode'       |
 'cdecl'           |
 'stdcall'         |
 'thiscall'        |
@@ -125,6 +125,7 @@ main := |*
 'once'            |
 'onevent'         |
 'try'             |
+'throw'           |
 'catch'           |
 'finally'         |
 'nestedscope'     |

@@ -470,7 +470,7 @@ ControlFlowMgr::throwIf (
 	FunctionType* functionType
 	)
 {
-	ASSERT (functionType->getFlags () & FunctionTypeFlag_Throws);
+	ASSERT (functionType->getFlags () & FunctionTypeFlag_ErrorCode);
 
 	bool result;
 

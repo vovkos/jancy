@@ -11,12 +11,12 @@ opaque class Timer
 	construct ();
 	destruct ();
 
-	bool setTimer (
+	bool errorcode setTimer (
 		function* func (),
 		bool isPeriodic = false
-		) throws;
+		);
 
-	stop ();
+	void stop ();
 }
 
 //.............................................................................

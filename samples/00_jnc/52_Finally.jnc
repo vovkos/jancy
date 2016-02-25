@@ -40,7 +40,7 @@ finally:
 	printf ("foo () finalization\n");	
 }
 
-bool bar (int a) throws
+bool errorcode bar (int a)
 {
 	printf ("bar (%d)\n", a);
 

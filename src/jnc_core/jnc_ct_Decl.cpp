@@ -31,11 +31,12 @@ getTypeModifierString (TypeModifier modifier)
 		"indexed",      // TypeModifier_Indexed     = 0x00008000,
 		"multicast",    // TypeModifier_Multicast   = 0x00010000,
 		"event",        // TypeModifier_Event       = 0x00020000,
-		"unused",       // TypeModifier_Unused      = 0x00040000,
+		"automaton",    // TypeModifier_Automaton   = 0x00040000,
 		"reactor",      // TypeModifier_Reactor     = 0x00080000,
 		"thiscall",     // TypeModifier_Thiscall    = 0x00100000,
 		"jnccall",      // TypeModifier_Jnccall     = 0x00200000,
 		"unsafe",       // TypeModifier_Unsafe      = 0x00400000,
+		"errorcode",    // TypeModifier_ErrorCode   = 0x00800000,
 	};
 
 	size_t i = sl::getLoBitIdx32 (modifier);

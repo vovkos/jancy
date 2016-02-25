@@ -82,18 +82,18 @@ opaque class Serial
 	construct ();
 	destruct ();
 
-	bool open (char const* name) throws;
+	bool errorcode open (char const* name);
 	void close ();
 
-	size_t read (
+	size_t errorcode read (
 		void* p,
 		size_t size
-		) throws;
+		);
 
-	size_t write (
+	size_t errorcode write (
 		void const* p,
 		size_t Size
-		) throws;
+		);
 
 	event m_onSerialEvent (SerialEventParams const* params);
 }

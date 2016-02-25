@@ -242,6 +242,7 @@ enum TypeKindFlag
 	TypeKindFlag_Import       = 0x00010000,
 	TypeKindFlag_Code         = 0x00020000,
 	TypeKindFlag_Nullable     = 0x00040000,
+	TypeKindFlag_ErrorCode    = 0x00080000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

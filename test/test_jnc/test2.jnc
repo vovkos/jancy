@@ -2,13 +2,13 @@
 
 //.............................................................................
 
-bool foo (int x) throws
+bool errorcode foo (int x)
 {
 	printf ("foo ()\n");
 	return true;
 }
 
-int baz (int x) throws if (retval < 0)
+int errorcode baz (int x)
 {
 	printf ("baz ()\n");
 	return 0;

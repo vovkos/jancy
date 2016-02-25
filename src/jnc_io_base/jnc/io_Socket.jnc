@@ -58,47 +58,47 @@ opaque class Socket
 	construct ();
 	destruct ();
 
-	bool open (
+	bool errorcode open (
 		Protocol protocol,
 		AddressFamily family = AddressFamily.Ip4
-		) throws;
+		);
 
-	bool open (
+	bool errorcode open (
 		Protocol protocol,
 		SocketAddress const* address
-		) throws;
+		);
 		
 	void close ();
 
-	bool connect (
+	bool errorcode connect (
 		SocketAddress const* address,
 		bool isSync = false
-		) throws;
+		);
 
-	bool listen (size_t backLog = 0) throws; // 0 -- default
-	Socket* accept (SocketAddress* address = null) throws;
+	bool errorcode listen (size_t backLog = 0); // 0 -- default
+	Socket* errorcode accept (SocketAddress* address = null);
 
-	size_t send (
+	size_t errorcode send (
 		void const* p,
 		size_t size
-		) throws;
+		);
 
-	size_t recv (
+	size_t errorcode recv (
 		void* p,
 		size_t size
-		) throws;
+		);
 
-	size_t sendTo (
+	size_t errorcode sendTo (
 		void const* p,
 		size_t size,
 		SocketAddress const* address
-		) throws;
+		);
 
-	size_t recvFrom (
+	size_t errorcode recvFrom (
 		void* p,
 		size_t size,
 		SocketAddress* address
-		) throws;
+		);
 
 	event m_onSocketEvent (SocketEventParams const* params);
 

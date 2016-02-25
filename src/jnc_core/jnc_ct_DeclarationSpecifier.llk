@@ -385,6 +385,10 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Automaton;
 			}
+	|	TokenKind_ErrorCode
+			{
+				$.m_typeModifier = TypeModifier_ErrorCode;
+			}
 	;
 
 //.............................................................................

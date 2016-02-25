@@ -387,16 +387,12 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 			}
 	|	TokenKind_Ellipsis
 			{
-				$functionSuffix->m_functionTypeFlags |= FunctionTypeFlag_VarArg;
+				return $functionSuffix->addFunctionTypeFlag (FunctionTypeFlag_VarArg);
 			}
 	;
 
 function_modifier <DeclFunctionSuffix* $functionSuffix>
-	:	TokenKind_Throws
-			{
-				return $functionSuffix->addFunctionTypeFlag (FunctionTypeFlag_Throws);
-			}
-	|	TokenKind_Const
+	:	TokenKind_Const
 			{
 				return $functionSuffix->getDeclarator ()->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
 			}

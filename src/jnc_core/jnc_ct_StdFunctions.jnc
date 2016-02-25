@@ -145,11 +145,11 @@ size_t appendFmtLiteral_v (
 
 ///; static char tryCheckDataPtrRangeDirectSrc [] = 
 
-bool tryCheckDataPtrRangeDirect (
+bool errorcode tryCheckDataPtrRangeDirect (
 	void thin const* p,
 	void thin const* rangeBegin,
 	size_t rangeLength
-	) throws;
+	);
 
 ///; static char checkDataPtrRangeDirectSrc [] = 
 
@@ -161,10 +161,10 @@ void checkDataPtrRangeDirect (
 
 ///; static char tryCheckNullPtrSrc [] = 
 
-bool tryCheckNullPtr (
+bool errorcode tryCheckNullPtr (
 	void thin const* p,
 	int typeKind
-	) throws;
+	);
 
 ///; static char checkNullPtrSrc [] = 
 
@@ -195,11 +195,11 @@ void checkDivByZero_f64 (double x);
 
 ///; static char tryLazyGetDynamicLibFunctionSrc [] = 
 
-void thin* tryLazyGetDynamicLibFunction (
+void thin* errorcode tryLazyGetDynamicLibFunction (
 	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
-	) throws;
+	);
 
 ///; static char lazyGetDynamicLibFunctionSrc [] = 
 

@@ -12,7 +12,7 @@
 
 //.............................................................................
 
-bool foo (int a) throws
+bool errorcode foo (int a)
 {
 	printf ("foo (%d)\n", a);
 

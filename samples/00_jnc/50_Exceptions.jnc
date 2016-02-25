@@ -1,16 +1,12 @@
-// Jancy doesn't support throwable exceptions the way С++ or Java does. What
-// Jancy provides instead is a syntactic sugar over good old C-style error code
-// check model.
+// Jancy provides syntactic sugar over good old C-style error code check model.
+// It looks just like throwing and catching exceptions and frees the developer 
+// from the routine of constantly checking for error codes. 
 
-// This looks almost like throwing and catching exceptions and frees the 
-// developer from the routine of constantly checking for error codes. At the 
-// same time this model is much more transparent and predictable than the real 
-// exceptions. It is also extremely easy to support from the host C/C++ 
-// application.
+// This model allows the developer to choose between using error code checks or 
+// exception semantics when calling the very same function depending on what is 
+// more appropriate or convenient in each particular case!
 
-// Last but not least, this model allows the developer to choose between using 
-// error code checks or exception semantics when calling the very same function
-// depending on what is more appropriate or convenient in each particular case!
+// It is also extremely easy to support from the host C/C++  application.
 
 //.............................................................................
 
@@ -19,24 +15,24 @@
 enum Error
 {
 	Success  = 0,
-	TooHigh  = -1,
-	TooLow   = -2,
+	TooHigh  = -2,
+	TooLow   = -3,
 }
 
 //.............................................................................
 
-// A function marked by the 'throws' modifier will have its return value 
+// A function marked by the 'errorcode' modifier will have its return value 
 // interpreted as an error code. Intuitive error conditions are assumed: 
 // 'false' for bools, negative for signed integers, '-1' for unsigned integers.
 // Other types will be cast to 'bool' for error condition checking.
 
-int foo (int a) throws
+int errorcode foo (int a)
 {
 	printf ("foo (%d)\n", a);
 
 	if (a > 100)
 	{
-		printf ("arguent too high\n");
+		printf ("argument too high\n");
 		return Error.TooHigh;
 	}
 
@@ -51,13 +47,13 @@ int foo (int a) throws
 	return Error.Success;
 }
 
-// if the return types of the throwing functions match, the error code is 
+// if the return types of the errorcode functions match, the error code is 
 // automatically propagated down the call stack
 
-int bar (
+int errorcode bar (
 	int a,
 	int b	
-	) throws
+	)
 {
 	printf ("bar (%d, %d)\n", a, b);
 
@@ -75,8 +71,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// use the 'try' operator to shield an expression from throwing and 
-	// handling the error code manually...
+	// use 'try' operator to handle the error code manually...
 
 	int error = try bar (1, -150);
 	if (error < 0)

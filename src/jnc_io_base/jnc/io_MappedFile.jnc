@@ -23,18 +23,18 @@ opaque class MappedFile
 	construct ();
 	destruct ();
 
-	bool open (
+	bool errorcode open (
 		char const* name,
 		FileOpenFlags flags = 0
-		) throws;
+		);
 
 	void close ();
 
-	void* view (
+	void* errorcode view (
 		uint64_t offset,
 		size_t size,
 		bool isPermanent = false
-		) throws;
+		);
 }
 
 //.............................................................................

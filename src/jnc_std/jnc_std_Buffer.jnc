@@ -35,12 +35,12 @@ struct ConstBuffer
 		try copy (p, size);
 	}
 
-	bool copy (ConstBufferRef src) throws;
+	bool errorcode copy (ConstBufferRef src);
 
-	bool copy (
+	bool errorcode copy (
 		void const* p,
 		size_t size
-		) throws;
+		);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -129,25 +129,25 @@ class Buffer
 	size_t readonly m_size;
 	size_t readonly m_maxSize;
 
-	bool copy (ConstBufferRef buffer) throws
+	bool errorcode copy (ConstBufferRef buffer)
 	{
 		return try copy (buffer.m_p, buffer.m_size);
 	}
 
-	bool copy (
+	bool errorcode copy (
 		char const* p,
 		size_t size,
-		) throws;
+		);
 
-	bool append (ConstBufferRef buffer) throws
+	bool errorcode append (ConstBufferRef buffer)
 	{
 		return try append (buffer.m_p, buffer.m_size);
 	}
 
-	bool append (
+	bool errorcode append (
 		char const* p,
 		size_t size,
-		) throws;
+		);
 
 	void operator := (ConstBufferRef src)
 	{

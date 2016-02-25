@@ -62,7 +62,7 @@ enum TokenKind
 	TokenKind_Thin,
 	TokenKind_Safe,
 	TokenKind_Unsafe,
-	TokenKind_Throws,
+	TokenKind_ErrorCode,
 	TokenKind_Cdecl,
 	TokenKind_Stdcall,
 	TokenKind_Thiscall,
@@ -131,6 +131,7 @@ enum TokenKind
 	TokenKind_Once,
 	TokenKind_OnEvent,
 	TokenKind_Try,
+	TokenKind_Throw,
 	TokenKind_Catch,
 	TokenKind_Finally,
 	TokenKind_NestedScope,
@@ -239,7 +240,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
 	AXL_LEX_TOKEN_NAME (TokenKind_Safe,         "safe")
 	AXL_LEX_TOKEN_NAME (TokenKind_Unsafe,       "unsafe")
-	AXL_LEX_TOKEN_NAME (TokenKind_Throws,       "throws")
+	AXL_LEX_TOKEN_NAME (TokenKind_ErrorCode,    "errorcode")
 	AXL_LEX_TOKEN_NAME (TokenKind_Cdecl,        "cdecl")
 	AXL_LEX_TOKEN_NAME (TokenKind_Stdcall,      "stdcall")
 	AXL_LEX_TOKEN_NAME (TokenKind_Thiscall,     "thiscall")
@@ -308,6 +309,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Once,         "once")
 	AXL_LEX_TOKEN_NAME (TokenKind_OnEvent,      "onevent")
 	AXL_LEX_TOKEN_NAME (TokenKind_Try,          "try")
+	AXL_LEX_TOKEN_NAME (TokenKind_Throw,        "throw")
 	AXL_LEX_TOKEN_NAME (TokenKind_Catch,        "catch")
 	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
 	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")

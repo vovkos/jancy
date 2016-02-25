@@ -30,30 +30,30 @@ opaque class PCap
 	construct ();
 	destruct ();
 
-	bool openDevice (
+	bool errorcode openDevice (
 		char const* deviceName,
 		char const* filter = null,
 		bool isPromiscious = false
-		) throws;
+		);
 
-	bool openFile (
+	bool errorcode openFile (
 		char const* fileName,
 		char const* filter = null
-		) throws;
+		);
 		
 	void close ();
 	
-	bool setFilter (char const* filter) throws;
+	bool errorcode setFilter (char const* filter);
 
-	size_t write (
+	size_t errorcode write (
 		void const* p,
 		size_t size
-		) throws;
+		);
 
-	size_t read (
+	size_t errorcode read (
 		void* p,
 		size_t size
-		) throws;
+		);
 
 	event m_onPCapEvent (PCapEventParams const* params);
 }

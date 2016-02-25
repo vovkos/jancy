@@ -35,29 +35,29 @@ public:
 
 	reset ();
 	
-	bool write (
+	bool errorcode write (
 		char const* p,
 		size_t length = -1
-		) throws;
+		);
 
-	bool eof () throws;
+	bool errorcode eof ();
 
 	// recognition in one-go
 
-	bool recognize (
+	bool errorcode recognize (
 		char const* p,
 		size_t length = -1
-		) throws
+		)
 	{
 		reset ();
 		return try write (p, length) && try eof ();
 	}
 
-	bool recognize (
+	bool errorcode recognize (
 		AutomatonFunc* automatonFunc,
 		char const* p,
 		size_t length = -1
-		) throws
+		)
 	{
 		m_automatonFunc = automatonFunc;
 		return try recognize (p, length);

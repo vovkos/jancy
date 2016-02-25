@@ -23,10 +23,10 @@ class DynamicLib
 		close ();
 	}
 
-	bool open (char const* fileName) throws;
+	bool errorcode open (char const* fileName);
 	void close ();
 
-	void thin* getFunction (char const* fileName) throws;
+	void thin* errorcode getFunction (char const* fileName);
 }
 
 ///;

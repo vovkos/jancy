@@ -833,7 +833,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		argTypeArray [2] = m_module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr);
-		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3, FunctionTypeFlag_Throws);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3, FunctionTypeFlag_ErrorCode);
 		function = createFunction (FunctionKind_Internal, "jnc.tryCheckDataPtrRangeIndirect", functionType);
 		break;
 

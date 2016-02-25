@@ -17,62 +17,77 @@ getTypeKindFlags (TypeKind typeKind)
 		0,                          // EType_Void
 		TypeKindFlag_Nullable,      // EType_Variant
 
-		TypeKindFlag_Numeric,       // EType_Bool
+		TypeKindFlag_Numeric | 
+		TypeKindFlag_ErrorCode,     // EType_Bool
 
 		TypeKindFlag_Integer |      // EType_Int8
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int8_u
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Integer |      // EType_Int16
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int16_u
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Integer |      // EType_Int32
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int32_u
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Integer |      // EType_Int64
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int64_u
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_BigEndian |    // EType_Int16_be
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int16_beu
 		TypeKindFlag_BigEndian |
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_BigEndian |    // EType_Int32_be
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int32_beu
 		TypeKindFlag_BigEndian |
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_BigEndian |    // EType_Int64_be
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Unsigned |     // EType_Int64_beu
 		TypeKindFlag_BigEndian |
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Fp |           // EType_Float
 		TypeKindFlag_Numeric,
@@ -108,7 +123,8 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_DataPtr |      // EType_DataPtr
 		TypeKindFlag_Ptr |
-		TypeKindFlag_Nullable,
+		TypeKindFlag_Nullable |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_DataPtr |      // EType_DataRef
 		TypeKindFlag_Ptr |
@@ -116,7 +132,8 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_ClassPtr |     // EType_ClassPtr
 		TypeKindFlag_Ptr |
-		TypeKindFlag_Nullable,
+		TypeKindFlag_Nullable |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_ClassPtr |     // EType_ClassRef
 		TypeKindFlag_Ptr |
@@ -124,7 +141,8 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_FunctionPtr |  // EType_FunctionPtr
 		TypeKindFlag_Ptr |
-		TypeKindFlag_Nullable,
+		TypeKindFlag_Nullable |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_FunctionPtr |  // EType_FunctionRef
 		TypeKindFlag_Ptr |
@@ -132,7 +150,8 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_PropertyPtr |  // EType_PropertyPtr
 		TypeKindFlag_Ptr |
-		TypeKindFlag_Nullable,
+		TypeKindFlag_Nullable |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_PropertyPtr |  // EType_PropertyRef
 		TypeKindFlag_Ptr |
@@ -142,11 +161,13 @@ getTypeKindFlags (TypeKind typeKind)
 
 		TypeKindFlag_Import |       // EType_ImportPtr
 		TypeKindFlag_Ptr |
-		TypeKindFlag_Nullable,
+		TypeKindFlag_Nullable |
+		TypeKindFlag_ErrorCode,
 
 		TypeKindFlag_Import |       // EType_ImportIntMod
 		TypeKindFlag_Integer |
-		TypeKindFlag_Numeric,
+		TypeKindFlag_Numeric |
+		TypeKindFlag_ErrorCode,
 	};
 
 	return typeKind < TypeKind__Count ? flagTable [typeKind] : 0;

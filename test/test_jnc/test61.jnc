@@ -1,20 +1,14 @@
 //.............................................................................
 
-struct Point
+bool errorcode open ()
 {
-	int m_x;
-	int m_y;
-
-	construct ()
-	{	
-	}
 }
 
 int main ()
 {
 	printf ("main\n");
 
-	Point point;
+	bool result = file.open ();
 
 	return 0;
 }

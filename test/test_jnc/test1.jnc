@@ -10,7 +10,7 @@ struct Point
 
 class C
 {
-	bool foo (Point const* point) throws
+	bool errorcode foo (Point const* point)
 	{
 		printf ("foo ()\n");
 		return true;
