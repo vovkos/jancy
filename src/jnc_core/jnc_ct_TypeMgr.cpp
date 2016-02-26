@@ -175,6 +175,10 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariantStructType ();
 		break;
 
+	case StdType_SjljStruct:
+		type = createSjljStructType ();
+		break;
+
 	case StdType_AbstractClass:
 		type = createAbstractClassType ();
 		break;
@@ -2589,6 +2593,17 @@ TypeMgr::createVariantStructType ()
 	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
 #endif
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createSjljStructType ()
+{
+	ArrayType* arrayType = getArrayType (getPrimitiveType (TypeKind_Char), sizeof (jmp_buf));
+	StructType* type = createStructType ("Sjlj", "jnc.Sjlj");
+	type->createField ("!m_prev", type->getDataPtrType_c ());
+	type->createField ("!m_jmpBuf", arrayType);
 	type->ensureLayout ();
 	return type;
 }

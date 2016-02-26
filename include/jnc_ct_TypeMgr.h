@@ -1014,6 +1014,9 @@ protected:
 
 	StructType*
 	createVariantStructType ();
+
+	StructType*
+	createSjljStructType ();
 };
 
 //.............................................................................

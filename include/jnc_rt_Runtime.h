@@ -90,7 +90,7 @@ public:
 	runtimeError (const err::Error& error)
 	{
 		err::setError (error);
-		AXL_MT_LONG_JMP_THROW ();
+		AXL_SYS_SJLJ_THROW ();
 	}
 };
 

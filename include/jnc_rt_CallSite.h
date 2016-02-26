@@ -503,7 +503,7 @@ protected:
 	jnc::rt::ExceptionRecoverySnapshot ___jncErs; \
 	JNC_BEGIN_GC_SITE() \
 	jnc::rt::initializeThread (__jncRuntime, &___jncErs); \
-	AXL_MT_BEGIN_LONG_JMP_TRY () \
+	AXL_SYS_BEGIN_SJLJ_TRY () \
 
 #define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
 	JNC_BEGIN_CALL_SITE (runtime) \
@@ -512,13 +512,13 @@ protected:
 	jnc::rt::enterNoCollectRegion (__jncRuntime);
 
 #define JNC_CALL_SITE_CATCH() \
-	AXL_MT_LONG_JMP_CATCH ()
+	AXL_SYS_SJLJ_CATCH ()
 
 #define JNC_CALL_SITE_FINALLY() \
-	AXL_MT_LONG_JMP_FINALLY ()
+	AXL_SYS_SJLJ_FINALLY ()
 
 #define JNC_END_CALL_SITE_IMPL() \
-	AXL_MT_END_LONG_JMP_TRY_EX (&___jncErs.m_result) \
+	AXL_SYS_END_SJLJ_TRY_EX (&___jncErs.m_result) \
 	if (__jncIsNoCollectRegion && ___jncErs.m_result) \
 		jnc::rt::leaveNoCollectRegion (__jncRuntime, __jncCanCollectAtEnd); \
 	jnc::rt::uninitializeThread (__jncRuntime, &___jncErs); \

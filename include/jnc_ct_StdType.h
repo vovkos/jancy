@@ -51,6 +51,7 @@ enum StdType
 	StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,
 	StdType_VariantStruct,
+	StdType_SjljStruct,
 	StdType__Count,
 };
 
