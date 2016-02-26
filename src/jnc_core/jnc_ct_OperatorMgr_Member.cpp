@@ -404,6 +404,14 @@ OperatorMgr::getNamedTypeMember (
 		resultValue->setProperty ((Property*) member);
 		break;
 
+	case ModuleItemKind_Alias:
+		return evaluateAlias (
+			member->getItemDecl (),
+			opValue,
+			((Alias*) member)->getInitializer (),
+			resultValue
+			);
+
 	default:
 		err::setFormatStringError ("invalid member kind");
 		return false;

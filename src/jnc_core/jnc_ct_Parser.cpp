@@ -1388,6 +1388,7 @@ Parser::declareData (
 	}
 
 	ModuleItem* dataItem = NULL;
+	bool isDisposable = false;
 
 	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)))
 	{
@@ -1447,6 +1448,24 @@ Parser::declareData (
 			return false;
 		}
 
+		break;
+
+	case StorageKind_Disposable:
+		if (namespaceKind != NamespaceKind_Scope)
+		{
+			err::setFormatStringError ("'disposable' can only be applied to local variables");
+			return false;
+		}
+
+		if (!isDisposableType (type))
+		{
+			err::setFormatStringError ("'%s' is not a disposable type", type->getTypeString ());
+			return false;
+		}
+
+		storageKind = (type->getFlags () & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
+		m_storageKind = StorageKind_Undefined; // don't overwrite 
+		isDisposable = true;
 		break;
 
 	default:
@@ -1522,6 +1541,13 @@ Parser::declareData (
 		if (!variable)
 			return false;
 
+		if (isDisposable)
+		{
+			ASSERT (variable->m_scope);
+			variable->m_flags |= VariableFlag_Disposable;
+			scope->addToDisposableVariableList (variable);
+		}
+		
 		assignDeclarationAttributes (variable, declarator->getPos ());
 
 		result = nspace->addItem (variable);
@@ -2536,7 +2562,10 @@ Parser::finalizeCompoundStmt ()
 	else
 	{
 		if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
+		{
+			m_module->m_operatorMgr.disposeDisposableVariableList (scope->getDisposableVariableList ());
 			m_module->m_operatorMgr.nullifyGcRootList (scope->getGcStackRootList ());
+		}
 
 		m_module->m_namespaceMgr.closeScope ();
 	}

@@ -1462,6 +1462,9 @@ public:
 	void
 	nullifyGcRootList (const sl::ConstBoxList <Value>& list);
 
+	bool
+	disposeDisposableVariableList (const sl::ConstBoxList <Variable*>& list);
+
 	// closures
 
 	bool

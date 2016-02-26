@@ -50,6 +50,7 @@ enum TokenKind
 	TokenKind_Virtual,
 	TokenKind_Override,
 	TokenKind_Mutable,
+	TokenKind_Disposable,
 
 	// type modifiers
 
@@ -228,6 +229,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
 	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")
 	AXL_LEX_TOKEN_NAME (TokenKind_Mutable,      "mutable")
+	AXL_LEX_TOKEN_NAME (TokenKind_Disposable,   "disposable")
 
 	// type modifiers
 

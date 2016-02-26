@@ -104,6 +104,10 @@ storage_specifier
 			{
 				$.m_storageKind = StorageKind_Mutable;
 			}
+	|	TokenKind_Disposable
+			{
+				$.m_storageKind = StorageKind_Disposable;
+			}
 	;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

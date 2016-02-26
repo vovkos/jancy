@@ -1,15 +1,41 @@
 //.............................................................................
 
-bool errorcode open ()
+class Resource
 {
+	construct ()
+	{
+		printf ("Resource.construct (%p)\n", this);
+	}
+
+	destruct ()
+	{
+		printf ("Resource.destruct (%p)\n", this);
+	}
+	
+	close ()
+	{
+		printf ("Resource.close (%p)\n", this);
+	}
+
+	alias dispose () = close;
 }
 
 int main ()
 {
 	printf ("main\n");
 
-	bool result = file.open ();
+	{
+		disposable Resource resource1;
 
+		int i = 0;
+		if (i)
+			return -1;
+
+	finally:
+		printf ("finally\n");
+	}
+
+	printf ("hmmm\n");
 	return 0;
 }
 

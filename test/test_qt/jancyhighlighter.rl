@@ -53,6 +53,7 @@ main := |*
 'virtual'         |
 'override'        |
 'mutable'         |
+'disposable'      |
 
 'signed'          |
 'unsigned'        |

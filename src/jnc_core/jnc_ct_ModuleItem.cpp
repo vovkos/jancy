@@ -55,6 +55,7 @@ getStorageKindString (StorageKind storageKind)
 		"virtual",                  // StorageKind_Virtual,
 		"override",                 // StorageKind_Override,
 		"mutable",                  // StorageKind_Mutable,
+		"disposable",               // StorageKind_Disposable,
 		"this",                     // StorageKind_This,
 	};
 
