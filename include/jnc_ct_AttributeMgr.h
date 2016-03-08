@@ -13,7 +13,7 @@ class Module;
 
 //.............................................................................
 
-class AttributeMgr: public sl::ListLink
+class AttributeMgr
 {
 	friend class Module;
 

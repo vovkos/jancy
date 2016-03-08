@@ -1,0 +1,48 @@
+//.............................................................................
+
+class C
+{
+	construct ()
+	{
+		printf ("C.construct (%p)\n", this);
+	}
+
+	destruct ()
+	{
+		printf ("C.destruct (%p)\n", this);
+	}
+
+	dispose ()
+	{
+		printf ("C.dispose (%p)\n", this);
+	}
+}
+
+foo ()
+{
+	printf ("foo () is about to throw...\n");
+	std.setStringError ("foo error");
+	throw;
+}
+
+int main ()
+{
+	printf ("main\n");
+
+	disposable C c1;
+
+	foo ();
+
+	disposable C c2;
+
+	return 0;
+
+catch:
+	printf ("main catch\n");
+	return -1;
+
+finally:
+	printf ("main finally\n");
+}
+
+//.............................................................................

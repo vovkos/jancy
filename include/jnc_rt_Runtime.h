@@ -87,10 +87,14 @@ public:
 
 	static
 	void
+	dynamicThrow ();
+
+	static
+	void
 	runtimeError (const err::Error& error)
 	{
 		err::setError (error);
-		AXL_SYS_SJLJ_THROW ();
+		dynamicThrow ();
 	}
 };
 

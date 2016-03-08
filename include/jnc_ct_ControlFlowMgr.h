@@ -84,10 +84,11 @@ protected:
 	BasicBlock* m_unreachableBlock;
 	BasicBlock* m_catchFinallyFollowBlock;
 	BasicBlock* m_returnBlock;
+	BasicBlock* m_dynamicThrowBlock;
 	Variable* m_finallyRouteIdxVariable;
 	Variable* m_returnValueVariable;
 	intptr_t m_throwLockCount;
-	size_t m_finallyRouteCount;
+	size_t m_finallyRouteIdx;
 
 public:
 	ControlFlowMgr ();
@@ -174,6 +175,9 @@ public:
 	bool
 	continueJump (size_t level);
 
+	void
+	throwException ();
+
 	bool
 	ret (const Value& value);
 
@@ -184,30 +188,39 @@ public:
 	}
 
 	bool
-	throwIf (
+	throwExceptionIf (
 		const Value& returnValue,
 		FunctionType* type
+		);
+
+	void
+	setJmp (
+		BasicBlock* catchBlock,
+		Value* prevSjljValue
+		);
+
+	void
+	setJmpFinally (
+		BasicBlock* finallyBlock,
+		Value* prevSjljValue
 		);
 
 	bool
 	catchLabel (const Token::Pos& pos);
 
-	bool
+	void
 	closeCatch ();
 
 	bool
 	finallyLabel (const Token::Pos& pos);
 
-	bool
+	void
 	closeFinally ();
 
-	bool
-	nestedScopeLabel (
-		const Token::Pos& pos,
-		uint_t scopeFlags
-		);
+	void
+	closeDisposeFinally ();
 
-	bool
+	void
 	closeTry ();
 
 	bool
@@ -361,6 +374,9 @@ public:
 		const Token::Pos& pos
 		);
 
+	Variable* 
+	getFinallyRouteIdxVariable ();
+
 protected:
 	void
 	addBlock (BasicBlock* block);
@@ -368,8 +384,7 @@ protected:
 	void
 	escapeScope (
 		Scope* targetScope,
-		BasicBlock* targetBlock,
-		bool isThrow = false // during throw we have to nullify gc stack roots of target scope
+		BasicBlock* targetBlock
 		);
 
 	BasicBlock*
@@ -378,8 +393,9 @@ protected:
 	BasicBlock*
 	getReturnBlock ();
 
-	Variable* 
-	getFinallyRouteIdxVariable ();
+	BasicBlock*
+	getDynamicThrowBlock ();
+
 
 	Variable* 
 	getReturnValueVariable ();

@@ -45,6 +45,7 @@ Module::clear ()
 	m_constMgr.clear ();
 	m_controlFlowMgr.clear ();
 	m_operatorMgr.clear ();
+	m_gcShadowStackMgr.clear ();
 	m_unitMgr.clear ();
 	m_calcLayoutArray.clear ();
 	m_compileArray.clear ();
@@ -88,6 +89,8 @@ Module::create (
 	
 	ext::ExtensionLibHost* libHost = ext::getStdExtensionLibHost ();
 	m_extensionLibMgr.addStaticLib (rtl::getCoreLib (libHost));
+
+	m_variableMgr.createStdVariables ();
 
 	bool result = m_namespaceMgr.addStdItems ();
 	if (!result)
@@ -473,6 +476,8 @@ Module::processCompileArray ()
 			result = compileArray [i]->compile ();
 			if (!result)
 				return false;
+
+			ASSERT (!m_namespaceMgr.getCurrentScope ());
 		}
 	}
 

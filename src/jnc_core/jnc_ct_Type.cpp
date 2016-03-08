@@ -798,7 +798,7 @@ isDisposableType (Type* type)
 		return false;
 	}
 
-	#pragma AXL_TODO ("double-check function type")
+	#pragma AXL_TODO ("double-check function type - must be thiscall, no arguments")
 	return true;
 }
 

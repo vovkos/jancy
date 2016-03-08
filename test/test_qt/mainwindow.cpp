@@ -582,6 +582,7 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
+//	m_runtime.m_gcHeap.setSizeTriggers (-1, -1);
 	result = m_runtime.startup (&m_module);
 	if (!result)
 	{

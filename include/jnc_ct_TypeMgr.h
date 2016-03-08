@@ -47,12 +47,6 @@ struct DualPtrTypeTuple: sl::ListLink
 	ClassPtrTypeTuple* m_eventDClassPtrTypeTuple;
 };
 
-struct GcShadowStackFrameTypeTuple: sl::ListLink
-{
-	StructType* m_frameType;
-	StructType* m_frameMapType;
-};
-
 //.............................................................................
 
 class TypeMgr
@@ -114,9 +108,7 @@ protected:
 	sl::StdList <FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
 	sl::StdList <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
 	sl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
-	sl::StdList <GcShadowStackFrameTypeTuple> m_gcShadowStackFrameTypeTupleList;
 
-	sl::HashTableMap <size_t, GcShadowStackFrameTypeTuple*, sl::HashId <size_t> > m_gcShadowStackFrameTypeTupleMap;
 	sl::StringHashTableMap <Type*> m_typeMap;
 
 	sl::Array <NamedImportType*> m_unresolvedNamedImportTypeArray;
@@ -888,12 +880,6 @@ public:
 	Type*
 	getCheckedPtrType (Type* type);
 
-	StructType*
-	getGcShadowStackFrameType (size_t gcRootCount);
-
-	StructType*
-	getGcShadowStackFrameMapType (size_t gcRootCount);
-
 protected:
 	DualPtrTypeTuple*
 	getDualPtrTypeTuple (
@@ -945,9 +931,6 @@ protected:
 		Namespace* anchorNamespace,
 		PropertyType* propertyType
 		);
-
-	GcShadowStackFrameTypeTuple*
-	getGcShadowStackFrameTypeTuple (size_t gcRootCount);
 
 	void
 	setupAllPrimitiveTypes ();
@@ -1016,7 +999,10 @@ protected:
 	createVariantStructType ();
 
 	StructType*
-	createSjljStructType ();
+	createGcShadowStackFrameType ();
+
+	StructType*
+	createSjljFrameType ();
 };
 
 //.............................................................................

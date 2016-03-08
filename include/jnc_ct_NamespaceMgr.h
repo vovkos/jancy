@@ -14,7 +14,6 @@ namespace ct {
 class Module;
 class ClassType;
 
-
 //.............................................................................
 
 class NamespaceMgr
@@ -155,11 +154,10 @@ public:
 		);
 
 	void
-	closeScope ()
-	{
-		ASSERT (m_currentScope);
-		closeNamespace ();
-	}
+	closeScope ();
+
+	void
+	closeDisposableScope ();
 
 	AccessKind
 	getAccessKind (Namespace* nspace);

@@ -16,7 +16,6 @@ VariableMgr::VariableMgr ()
 	m_tlsStructType = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
-	getStdVariable (StdVariable_GcShadowStackTop); // this variable is required even if it's not used
 }
 
 void
@@ -33,7 +32,15 @@ VariableMgr::clear ()
 	m_tlsStructType = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
-	getStdVariable (StdVariable_GcShadowStackTop); // this variable is required even if it's not used
+}
+
+void
+VariableMgr::createStdVariables ()
+{
+	// these variables are required even if not used
+
+	getStdVariable (StdVariable_SjljFrame);
+	getStdVariable (StdVariable_GcShadowStackTop);
 }
 
 Variable*
@@ -48,12 +55,21 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 
 	switch (stdVariable)
 	{
+	case StdVariable_SjljFrame:
+		variable = createVariable (
+			StorageKind_Thread,
+			"g_sjljFrame",
+			"jnc.g_sjljFrame",
+			m_module->m_typeMgr.getStdType (StdType_SjljFrame)->getDataPtrType_c ()
+			);
+		break;
+
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable (
 			StorageKind_Thread,
 			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
-			m_module->m_typeMgr.getStdType (StdType_BytePtr)
+			m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame)->getDataPtrType_c ()
 			);
 		break;
 
@@ -134,6 +150,11 @@ VariableMgr::createVariable (
 	case StorageKind_Stack:
 		m_module->m_llvmIrBuilder.createAlloca (type, qualifiedName, NULL, &ptrValue);
 		variable->m_llvmValue = ptrValue.getLlvmValue ();
+		
+		m_module->m_llvmIrBuilder.saveInsertPoint (&variable->m_liftInsertPoint);
+
+		if (variable->m_scope && !variable->m_scope->m_firstStackVariable)
+			variable->m_scope->m_firstStackVariable = variable;
 		break;
 
 	case StorageKind_Heap:
@@ -200,15 +221,10 @@ VariableMgr::initializeVariable (Variable* variable)
 		break;
 
 	case StorageKind_Stack:
-		variable->m_stackInitializeBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
-		variable->m_llvmBeforeStackInitialize = !variable->m_stackInitializeBlock->isEmpty () ? 
-			&m_module->m_controlFlowMgr.getCurrentBlock ()->getLlvmBlock ()->back () :
-			NULL;
-		
 		if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		{
 			m_module->m_operatorMgr.zeroInitialize (variable);
-			m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type);
+			m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type);
 		}
 		else if ((variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty ())
 		{
@@ -227,6 +243,39 @@ VariableMgr::initializeVariable (Variable* variable)
 		variable->m_constructor,
 		variable->m_initializer
 		);
+}
+
+bool
+VariableMgr::finalizeDisposableVariable (Variable* variable)
+{
+	ASSERT (variable->m_scope && (variable->m_scope->getFlags () & ScopeFlag_Disposable));
+
+	bool result;
+
+	// we have to save pointer in entry block
+
+	Type* refType = variable->m_type->getTypeKind () == TypeKind_Class ? 
+		(Type*) ((ClassType*) variable->m_type)->getClassPtrType () : 
+		variable->m_type->getDataPtrType ();
+
+	Variable* refVariable = createSimpleStackVariable ("disposable_variable_ref", refType);
+	Value refValue;
+	result = 
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, variable, &refValue) &&
+		m_module->m_operatorMgr.storeDataRef (refVariable, refValue);
+
+	if (!result)
+		return false;
+
+	size_t count = variable->m_scope->addDisposableVariable (refVariable);
+
+	Variable* disposeLevelVariable = variable->m_scope->getDisposeLevelVariable ();
+	m_module->m_llvmIrBuilder.createStore (
+		Value (&count, disposeLevelVariable->m_type),
+		disposeLevelVariable
+		);
+
+	return true;
 }
 
 llvm::GlobalVariable*
@@ -427,7 +476,7 @@ VariableMgr::allocateHeapVariable (Variable* variable)
 		validator->m_validatorValue = validatorValue;
 	}
 
-	m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
+	m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
 	return true;
 }
 
@@ -436,34 +485,22 @@ VariableMgr::liftStackVariable (Variable* variable)
 {
 	ASSERT (variable->m_storageKind == StorageKind_Stack);
 	ASSERT (llvm::isa <llvm::AllocaInst> (variable->m_llvmValue));
-
-	variable->m_storageKind = StorageKind_Heap;
+	ASSERT (variable->m_liftInsertPoint);
 
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) variable->m_llvmValue;
-	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
+	variable->m_storageKind = StorageKind_Heap;
 
-	if (variable->m_stackInitializeBlock)
-	{
-		llvm::Instruction* llvmInsertPoint = variable->m_llvmBeforeStackInitialize ? 
-			(llvm::Instruction*) ++llvm::BasicBlock::iterator (variable->m_llvmBeforeStackInitialize) :
-			&variable->m_stackInitializeBlock->getLlvmBlock ()->front ();
-
-		m_module->m_llvmIrBuilder.setInsertPoint (llvmInsertPoint);
-	}
-	else
-	{
-		ASSERT (variable->m_flags & VariableFlag_Arg);
-
-		Function* function = m_module->m_functionMgr.getCurrentFunction ();
-		llvm::BasicBlock* llvmEntryBlock = function->getEntryBlock ()->getLlvmBlock ();
-		llvm::Instruction* llvmFirstInstruction = &llvmEntryBlock->getInstList ().front ();
-		m_module->m_llvmIrBuilder.setInsertPoint (llvmFirstInstruction);
-	}
+	LlvmIrInsertPoint prevInsertPoint;
+	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
+		variable->m_liftInsertPoint, 
+		&prevInsertPoint
+		);
 	
 	bool result = allocateHeapVariable (variable);
 	ASSERT (result);
 
-	m_module->m_llvmIrBuilder.setInsertPoint (currentBlock);
+	if (isInsertPointChanged)
+		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
 
 	llvmAlloca->replaceAllUsesWith (variable->m_llvmValue);
 	llvmAlloca->eraseFromParent ();
@@ -496,7 +533,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	// arg variables are not initialized (stored to directly), so mark gc root manually
 
 	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
-		m_module->m_operatorMgr.markStackGcRoot (variable, variable->m_type, StackGcRootKind_Function);
+		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type, StackGcRootKind_Function);
 	
 	return variable;
 }

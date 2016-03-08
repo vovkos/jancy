@@ -121,6 +121,8 @@ ControlFlowMgr::switchStmt_Default (
 		return false;
 	}
 
+	m_module->m_namespaceMgr.closeScope ();
+
 	BasicBlock* block = createBlock ("switch_default");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow (block);
@@ -271,7 +273,7 @@ ControlFlowMgr::forStmt_PostCondition (
 void
 ControlFlowMgr::forStmt_PreLoop (ForStmt* stmt)
 {
-	stmt->m_loopBlock = createBlock ("for_loop");
+	stmt->m_loopBlock = createBlock ("for_loop", m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 	setCurrentBlock (stmt->m_loopBlock);
 }
 
@@ -322,9 +324,9 @@ ControlFlowMgr::onceStmt_Create (
 
 	if (storageKind == StorageKind_Static)
 	{
-		BasicBlock* block = m_module->m_controlFlowMgr.setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
+		BasicBlock* block = setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
 		m_module->m_operatorMgr.zeroInitialize (flagVariable);
-		m_module->m_controlFlowMgr.setCurrentBlock (block);
+		setCurrentBlock (block);
 	}
 
 	onceStmt_Create (stmt, flagVariable);

@@ -51,7 +51,8 @@ enum StdType
 	StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,
 	StdType_VariantStruct,
-	StdType_SjljStruct,
+	StdType_GcShadowStackFrame,
+	StdType_SjljFrame,
 	StdType__Count,
 };
 

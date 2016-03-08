@@ -58,6 +58,9 @@ getStdFunctionSource (StdFunc stdFunc)
 		{ NULL },                                // StdFunc_CollectGarbage,
 		{ NULL },                                // StdFunc_GetTls,
 		
+		{ NULL },                                // StdFunc_SetJmp,
+		{ NULL },                                // StdFunc_DynamicThrow,
+
 		{                                        // StdFunc_AppendFmtLiteral_a,
 			appendFmtLiteralSrc_a,
 			lengthof (appendFmtLiteralSrc_a),

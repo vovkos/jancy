@@ -141,12 +141,10 @@ OperatorMgr::OperatorMgr ()
 	m_unsafeEnterCount = 0;	
 }
 
-void
-OperatorMgr::clearStackGcRoots ()
+void 
+OperatorMgr::clear ()
 {
-	m_stackGcRootAllocaArray.clear ();
-	m_stackGcRootTypeArray.clear ();
-	m_tmpStackGcRootList.clear ();
+	m_unsafeEnterCount = 0;
 }
 
 Function*

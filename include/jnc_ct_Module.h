@@ -12,6 +12,7 @@
 #include "jnc_ct_ConstMgr.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_OperatorMgr.h"
+#include "jnc_ct_GcShadowStackMgr.h"
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
@@ -123,6 +124,7 @@ public:
 	ConstMgr m_constMgr;
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
+	GcShadowStackMgr m_gcShadowStackMgr;
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ext::ExtensionLibMgr m_extensionLibMgr;

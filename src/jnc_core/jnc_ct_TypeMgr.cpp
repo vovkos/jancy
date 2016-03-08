@@ -68,8 +68,6 @@ TypeMgr::clear ()
 	m_functionPtrTypeTupleList.clear ();
 	m_propertyPtrTypeTupleList.clear ();
 	m_dualPtrTypeTupleList.clear ();
-	m_gcShadowStackFrameTypeTupleList.clear ();
-	m_gcShadowStackFrameTypeTupleMap.clear ();
 
 	m_typedefList.clear ();
 	m_lazyStdTypeList.clear ();
@@ -175,8 +173,12 @@ TypeMgr::getStdType (StdType stdType)
 		type = createVariantStructType ();
 		break;
 
-	case StdType_SjljStruct:
-		type = createSjljStructType ();
+	case StdType_GcShadowStackFrame:
+		type = createGcShadowStackFrameType ();
+		break;
+
+	case StdType_SjljFrame:
+		type = createSjljFrameType ();
 		break;
 
 	case StdType_AbstractClass:
@@ -2276,19 +2278,6 @@ TypeMgr::getConstDPropertyPtrTypeTuple (
 	return tuple;
 }
 
-GcShadowStackFrameTypeTuple*
-TypeMgr::getGcShadowStackFrameTypeTuple (size_t gcRootCount)
-{
-	sl::HashTableMapIterator <size_t, GcShadowStackFrameTypeTuple*> it = m_gcShadowStackFrameTypeTupleMap.visit (gcRootCount);
-	if (it->m_value)
-		return it->m_value;
-
-	GcShadowStackFrameTypeTuple* tuple = AXL_MEM_NEW (GcShadowStackFrameTypeTuple);
-	m_gcShadowStackFrameTypeTupleList.insertTail (tuple);
-	it->m_value = tuple;
-	return tuple;
-}
-
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -2598,48 +2587,24 @@ TypeMgr::createVariantStructType ()
 }
 
 StructType*
-TypeMgr::createSjljStructType ()
+TypeMgr::createGcShadowStackFrameType ()
+{
+	StructType* type = createStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
+	type->createField ("!m_prev", type->getDataPtrType_c ());
+	type->createField ("!m_map", getStdType (StdType_BytePtr));
+	type->createField ("!m_gcRootArray", getStdType (StdType_BytePtr)->getDataPtrType_c ());
+	type->createField ("!m_gcRootTypeArray", getStdType (StdType_BytePtr));
+	type->ensureLayout ();
+	return type;
+}
+
+StructType*
+TypeMgr::createSjljFrameType ()
 {
 	ArrayType* arrayType = getArrayType (getPrimitiveType (TypeKind_Char), sizeof (jmp_buf));
-	StructType* type = createStructType ("Sjlj", "jnc.Sjlj");
-	type->createField ("!m_prev", type->getDataPtrType_c ());
+	StructType* type = createStructType ("SjljFrame", "jnc.SjljFrame");
 	type->createField ("!m_jmpBuf", arrayType);
 	type->ensureLayout ();
-	return type;
-}
-
-StructType*
-TypeMgr::getGcShadowStackFrameType (size_t gcRootCount)
-{
-	GcShadowStackFrameTypeTuple* tuple = getGcShadowStackFrameTypeTuple (gcRootCount);
-	if (tuple->m_frameType)
-		return tuple->m_frameType;
-
-	ArrayType* arrayType = getArrayType (getStdType (StdType_BytePtr), gcRootCount);
-	StructType* type = createStructType ("GcShadowStackFrame", "jnc.GcShadowStackFrame");
-	type->createField ("!m_prev", getStdType (StdType_BytePtr));
-	type->createField ("!m_map", getStdType (StdType_BytePtr));
-	type->createField ("!m_gcRootArray", arrayType);
-	type->ensureLayout ();
-
-	tuple->m_frameType = type;
-	return type;
-}
-
-StructType*
-TypeMgr::getGcShadowStackFrameMapType (size_t gcRootCount)
-{
-	GcShadowStackFrameTypeTuple* tuple = getGcShadowStackFrameTypeTuple (gcRootCount);
-	if (tuple->m_frameMapType)
-		return tuple->m_frameMapType;
-
-	ArrayType* arrayType = getArrayType (getPrimitiveType (TypeKind_IntPtr_u), gcRootCount);
-	StructType* type = createStructType ("GcShadowStackFrameMap", "jnc.GcShadowStackFrameMap");
-	type->createField ("!m_count", getPrimitiveType (TypeKind_SizeT));
-	type->createField ("!m_gcRootTypeArray", arrayType);
-	type->ensureLayout ();
-
-	tuple->m_frameMapType = type;
 	return type;
 }
 

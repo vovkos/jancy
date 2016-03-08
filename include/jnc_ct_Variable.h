@@ -7,6 +7,7 @@
 #include "jnc_ct_ImportType.h"
 #include "jnc_ct_Scope.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
+#include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
 namespace ct {
@@ -18,6 +19,7 @@ class StructField;
 
 enum StdVariable
 {
+	StdVariable_SjljFrame,
 	StdVariable_GcShadowStackTop,
 	StdVariable_GcSafePointTrigger,
 	StdVariable__Count,
@@ -28,7 +30,6 @@ enum StdVariable
 enum VariableFlag
 {
 	VariableFlag_Arg        = 0x010000,
-	VariableFlag_Disposable = 0x020000,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -50,19 +51,12 @@ protected:
 	StructField* m_tlsField;
 	void* m_staticData;
 	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
-	union
-	{
-		llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
-
-		struct
-		{
-			BasicBlock* m_stackInitializeBlock;
-			llvm::Instruction* m_llvmBeforeStackInitialize;
-		};
-	};
-
+	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
 	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
 	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
+
+public:
+	LlvmIrInsertPoint m_liftInsertPoint;
 
 public:
 	Variable ();

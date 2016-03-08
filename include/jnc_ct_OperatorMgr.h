@@ -59,15 +59,6 @@ enum OperatorDynamism
 	OperatorDynamism_Dynamic,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum StackGcRootKind
-{
-	StackGcRootKind_Temporary,
-	StackGcRootKind_Scope,
-	StackGcRootKind_Function,
-};
-
 //.............................................................................
 
 class OperatorMgr
@@ -179,11 +170,7 @@ protected:
 	CastOperator* m_castOperatorTable [TypeKind__Count];
 	CastOperator* m_stdCastOperatorTable [StdCast__Count];
 
-	// gc
-
-	sl::Array <llvm::AllocaInst*> m_stackGcRootAllocaArray;
-	sl::Array <Type*> m_stackGcRootTypeArray;
-	sl::BoxList <Value> m_tmpStackGcRootList;
+	// unsafe blocks
 
 	intptr_t m_unsafeEnterCount;
 
@@ -196,12 +183,8 @@ public:
 		return m_module;
 	}
 
-	void
-	clear ()
-	{
-		clearStackGcRoots (); 
-		m_unsafeEnterCount = 0;
-	}
+	void 
+	clear ();
 
 	void
 	enterUnsafeRgn ()
@@ -215,37 +198,17 @@ public:
 		m_unsafeEnterCount--;
 	}
 
+	void
+	resetUnsafeRgn ()
+	{
+		m_unsafeEnterCount = 0;
+	}
+
 	bool 
 	isUnsafeRgn ()
 	{
 		return m_unsafeEnterCount > 0;
 	}
-
-	bool
-	hasStackGcRoots ()
-	{
-		return !m_stackGcRootAllocaArray.isEmpty ();
-	}
-
-	void
-	nullifyTmpStackGcRootList ();
-
-	void
-	createTmpStackGcRoot (const Value& value);
-
-	void
-	markStackGcRoot (
-		const Value& ptrValue,
-		Type* type,
-		StackGcRootKind kind = StackGcRootKind_Scope,
-		Scope* scope = NULL
-		);
-
-	void
-	createGcShadowStackFrame ();
-
-	void
-	clearStackGcRoots ();
 
 	// load reference, get property, enum->int, bool->int, array->ptr -- unless specified otherwise with Flags
 
@@ -718,6 +681,14 @@ public:
 
 	void
 	zeroInitialize (const Value& value);
+
+	llvm::CallInst*
+	memSet (
+		const Value& value,
+		char c,
+		size_t size,
+		size_t alignment
+		);
 
 	bool
 	construct (
@@ -1459,12 +1430,6 @@ public:
 		Value* resultValue
 		);
 
-	void
-	nullifyGcRootList (const sl::ConstBoxList <Value>& list);
-
-	bool
-	disposeDisposableVariableList (const sl::ConstBoxList <Variable*>& list);
-
 	// closures
 
 	bool
@@ -1486,8 +1451,8 @@ public:
 
 	void
 	checkPtr (
-		StdFunc stdTryCheckFunction,
 		StdFunc stdCheckFunction,
+		StdFunc stdTryCheckFunction,
 		const Value* argValueArray,
 		size_t argCount
 		);

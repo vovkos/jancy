@@ -254,6 +254,13 @@ CoreLib::getTls ()
 	return tls + 1;
 }
 
+void
+CoreLib::dynamicThrow()
+{
+	rt::Runtime::dynamicThrow ();
+	ASSERT (false);
+}
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void

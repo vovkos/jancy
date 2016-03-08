@@ -12,6 +12,7 @@ namespace ext {
 
 class Type;
 class Runtime;
+class GcShadowStackFrameMap;
 
 } // namespace ext
 
@@ -20,6 +21,7 @@ class Runtime;
 namespace ct {
 
 class Type;
+class GcShadowStackFrameMap;
 
 } // namespace ct
 
@@ -35,13 +37,14 @@ namespace rt {
 
 #ifdef _JNC_SHARED_EXTENSION_LIB
 
-typedef ext::Type    Type;
-typedef ext::Runtime Runtime;
+typedef ext::Type      Type;
+typedef ext::Runtime   Runtime;
+typedef ext::GcShadowStackFrameMap GcShadowStackFrameMap;
 
 #else
 
-typedef ct::Type     Type;
-typedef Runtime      Runtime;
+typedef ct::Type      Type;
+typedef ct::GcShadowStackFrameMap GcShadowStackFrameMap;
 
 #endif
 
@@ -311,21 +314,12 @@ struct FmtLiteral
 
 //.............................................................................
 
-struct GcShadowStackFrameMap
-{
-	size_t m_count;
-
-	// followed by gc root type array;
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct GcShadowStackFrame
 {
 	GcShadowStackFrame* m_prev;
 	GcShadowStackFrameMap* m_map;
-
-	// followed by gc root array
+	void** m_gcRootArray;     // stack array
+	Type** m_gcRootTypeArray; // global array
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -338,6 +332,13 @@ struct GcMutatorThread: sl::ListLink
 	size_t m_noCollectRegionLevel;
 	DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	DataPtrValidator* m_dataPtrValidatorPoolEnd;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SjljFrame
+{
+	jmp_buf m_jmpBuf;
 };
 
 //.............................................................................
@@ -357,7 +358,8 @@ struct Tls: public sl::ListLink
 
 struct TlsVariableTable
 {
-	GcShadowStackFrame* m_shadowStackTop;
+	SjljFrame* m_sjljFrame;
+	GcShadowStackFrame* m_gcShadowStackTop;
 
 	// followed by user TLS variables 
 };

@@ -1463,6 +1463,13 @@ Parser::declareData (
 			return false;
 		}
 
+		ASSERT (scope);
+		if (!(scope->getFlags () & ScopeFlag_Disposable))
+			scope = m_module->m_namespaceMgr.openScope (
+				declarator->getPos (), 
+				ScopeFlag_Disposable | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable | ScopeFlag_Nested
+				);
+
 		storageKind = (type->getFlags () & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
 		m_storageKind = StorageKind_Undefined; // don't overwrite 
 		isDisposable = true;
@@ -1543,9 +1550,9 @@ Parser::declareData (
 
 		if (isDisposable)
 		{
-			ASSERT (variable->m_scope);
-			variable->m_flags |= VariableFlag_Disposable;
-			scope->addToDisposableVariableList (variable);
+			result = m_module->m_variableMgr.finalizeDisposableVariable (variable);
+			if (!result)
+				return false;
 		}
 		
 		assignDeclarationAttributes (variable, declarator->getPos ());
@@ -2533,55 +2540,6 @@ Parser::finalizeBaseTypeMemberConstructBlock ()
 		return true;
 
 	return m_module->m_operatorMgr.callOperator (preconstructor, thisValue);
-}
-
-bool
-Parser::finalizeCompoundStmt ()
-{
-	bool result;
-	
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	if (scope->m_flags & ScopeFlag_Catch)
-	{
-		result = m_module->m_controlFlowMgr.closeCatch ();
-		if (!result)
-			return false;
-	}
-	else if (scope->m_flags & ScopeFlag_Finally) 
-	{
-		result = m_module->m_controlFlowMgr.closeFinally ();
-		if (!result)
-			return false;
-	}
-	else if (scope->m_flags & ScopeFlag_Try) 
-	{
-		result = m_module->m_controlFlowMgr.closeTry ();
-		if (!result)
-			return false;
-	}
-	else
-	{
-		if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		{
-			m_module->m_operatorMgr.disposeDisposableVariableList (scope->getDisposableVariableList ());
-			m_module->m_operatorMgr.nullifyGcRootList (scope->getGcStackRootList ());
-		}
-
-		m_module->m_namespaceMgr.closeScope ();
-	}
-
-	if (scope->m_flags & ScopeFlag_Nested)
-	{
-		Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-		ASSERT (scope && !(scope->m_flags & ScopeFlag_Nested)); // double-nested
-
-		if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-			m_module->m_operatorMgr.nullifyGcRootList (scope->getGcStackRootList ());
-
-		m_module->m_namespaceMgr.closeScope ();
-	}
-
-	return true;
 }
 
 bool

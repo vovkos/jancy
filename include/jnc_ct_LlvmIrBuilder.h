@@ -9,8 +9,7 @@
 #include "jnc_ct_DataPtrType.h"
 #include "jnc_ct_FunctionType.h"
 #include "jnc_ct_PropertyType.h"
-#include "jnc_ct_Variable.h"
-#include "jnc_rt_Runtime.h"
+#include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
 namespace ct {
@@ -93,6 +92,18 @@ public:
 	{
 		m_llvmIrBuilder->SetInsertPoint (llvmInst);
 	}
+
+	void
+	saveInsertPoint (LlvmIrInsertPoint* insertPoint);
+
+	void
+	restoreInsertPoint (const LlvmIrInsertPoint& insertPoint);
+
+	bool
+	restoreInsertPoint (
+		const LlvmIrInsertPoint& insertPoint,
+		LlvmIrInsertPoint* prevInsertPoint
+		);
 
 	llvm::UnreachableInst*
 	createUnreachable ()

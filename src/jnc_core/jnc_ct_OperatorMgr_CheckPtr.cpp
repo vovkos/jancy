@@ -9,8 +9,8 @@ namespace ct {
 
 void
 OperatorMgr::checkPtr (
-	StdFunc stdTryCheckFunction,
 	StdFunc stdCheckFunction,
+	StdFunc stdTryCheckFunction,
 	const Value* argValueArray,
 	size_t argCount
 	)
@@ -18,7 +18,7 @@ OperatorMgr::checkPtr (
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope);
 
-	if (!(scope->getFlags () & ScopeFlag_CanThrow))
+	if (!(scope->getFlags () & ScopeFlag_StaticThrow))
 	{
 		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdCheckFunction);
 
@@ -44,7 +44,7 @@ OperatorMgr::checkPtr (
 			&returnValue
 			);
 
-		bool result = m_module->m_controlFlowMgr.throwIf (returnValue, checkFunctionType);
+		bool result = m_module->m_controlFlowMgr.throwExceptionIf (returnValue, checkFunctionType);
 		ASSERT (result);
 	}
 }
@@ -105,8 +105,8 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 			};
 
 			checkPtr (
-				StdFunc_TryCheckDataPtrRangeDirect,
 				StdFunc_CheckDataPtrRangeDirect,
+				StdFunc_TryCheckDataPtrRangeDirect,
 				argValueArray,
 				countof (argValueArray)
 				);
@@ -122,8 +122,8 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	};
 
 	checkPtr (
-		StdFunc_TryCheckDataPtrRangeIndirect,
 		StdFunc_CheckDataPtrRangeIndirect,
+		StdFunc_TryCheckDataPtrRangeIndirect,
 		argValueArray,
 		countof (argValueArray)
 		);
@@ -180,8 +180,8 @@ OperatorMgr::checkNullPtr (const Value& value)
 	};
 
 	checkPtr (
-		StdFunc_TryCheckNullPtr,
 		StdFunc_CheckNullPtr,
+		StdFunc_TryCheckNullPtr,
 		argValueArray,
 		countof (argValueArray)
 		);

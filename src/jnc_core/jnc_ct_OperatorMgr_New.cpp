@@ -8,6 +8,36 @@ namespace ct {
 
 //.............................................................................
 
+llvm::CallInst*
+OperatorMgr::memSet (
+	const Value& value,
+	char c,
+	size_t size,
+	size_t alignment
+	)
+{
+	Value ptrValue;
+	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+
+	Value argValueArray [5] = 
+	{
+		ptrValue,
+		Value (c, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8)),
+		Value (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value (alignment, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value ((int64_t) false, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
+	};
+
+	Function* llvmMemset = m_module->m_functionMgr.getStdFunction (StdFunc_LlvmMemset);
+	return m_module->m_llvmIrBuilder.createCall (
+		llvmMemset,
+		llvmMemset->getType (),
+		argValueArray,
+		countof (argValueArray),
+		NULL
+		);
+}
+
 void
 OperatorMgr::zeroInitialize (const Value& value)
 {
@@ -15,31 +45,9 @@ OperatorMgr::zeroInitialize (const Value& value)
 	Type* type = ((DataPtrType*) value.getType ())->getTargetType ();
 
 	if (type->getSize () <= TypeSizeLimit_StoreSize)
-	{
 		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), value);
-		return;
-	}
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-
-	Value argValueArray [5] = 
-	{
-		ptrValue,
-		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8)),
-		Value (type->getSize (), m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
-		Value (type->getAlignment (), m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
-		Value ((int64_t) false, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
-	};
-
-	Function* llvmMemset = m_module->m_functionMgr.getStdFunction (StdFunc_LlvmMemset);
-	m_module->m_llvmIrBuilder.createCall (
-		llvmMemset,
-		llvmMemset->getType (),
-		argValueArray,
-		countof (argValueArray),
-		NULL
-		);
+	else
+		memSet (value, 0, type->getSize (), type->getAlignment ());
 }
 
 bool
@@ -458,231 +466,13 @@ OperatorMgr::newOperator (
 	result = gcHeapAllocate (type, rawElementCountValue, &ptrValue);
 	if (!result)
 		return false;
-	
-	createTmpStackGcRoot (ptrValue);
-	
+
 	result = construct (ptrValue, argValueList);
 	if (!result)
 		return false;
 
 	*resultValue = ptrValue;
 	return true;
-}
-
-void
-OperatorMgr::nullifyGcRootList (const sl::ConstBoxList <Value>& list)
-{
-	if (list.isEmpty ())
-		return;
-
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_BytePtr)->getZeroValue ();
-
-	sl::BoxIterator <Value> it = list.getTail ();
-	for (; it; it--)
-	{
-		Value value = *it;
-		ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr);
-
-		m_module->m_llvmIrBuilder.createStore (nullValue, value);
-	}
-}
-
-bool
-OperatorMgr::disposeDisposableVariableList (const sl::ConstBoxList <Variable*>& list)
-{
-	bool result;
-
-	if (list.isEmpty ())
-		return true;
-
-	sl::BoxIterator <Variable*> it = list.getTail ();
-	for (; it; it--)
-	{
-		Variable* variable = *it;
-		ASSERT (variable->getFlags () & VariableFlag_Disposable);
-
-		Value disposeValue;
-
-		result = 
-			memberOperator (variable, "dispose", &disposeValue) &&
-			callOperator (disposeValue);
-
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-void
-OperatorMgr::createTmpStackGcRoot (const Value& value)
-{
-	Type* type = value.getType ();
-	ASSERT (type->getFlags () & TypeFlag_GcRoot);
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createStore (value, ptrValue);	
-	markStackGcRoot (ptrValue, type, StackGcRootKind_Temporary);
-}
-
-void
-OperatorMgr::nullifyTmpStackGcRootList ()
-{
-	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		nullifyGcRootList (m_tmpStackGcRootList);
-
-	m_tmpStackGcRootList.clear ();
-}
-
-void
-OperatorMgr::markStackGcRoot (
-	const Value& ptrValue,
-	Type* type,
-	StackGcRootKind kind,
-	Scope* scope
-	)
-{
-	Type* bytePtrType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
-
-	Value gcRootValue;
-	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (
-		bytePtrType,
-		"gcRoot",
-		bytePtrType->getDataPtrType_c (),
-		&gcRootValue
-		);
-
-	ASSERT (gcRootValue.getLlvmValue () == llvmAlloca);
-
-	m_stackGcRootAllocaArray.append (llvmAlloca);
-	m_stackGcRootTypeArray.append (type);
-
-	switch (kind)
-	{
-	case StackGcRootKind_Temporary:
-		m_tmpStackGcRootList.insertTail (gcRootValue);
-		break;
-
-	case StackGcRootKind_Scope:
-		if (!scope)
-		{
-			scope = m_module->m_namespaceMgr.getCurrentScope ();
-			ASSERT (scope);
-		}
-
-		scope->addToGcStackRootList (gcRootValue);
-		break;
-
-	case StackGcRootKind_Function:
-		break; // this root will never be be nullified
-
-	default:
-		ASSERT (false);
-	}
-
-	Value bytePtrValue;
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, bytePtrType, &bytePtrValue);
-	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue);
-}
-
-void
-OperatorMgr::createGcShadowStackFrame ()
-{
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function);
-
-	// create shadow stack frame in the beginning of entry block (which dominates the whole body)
-
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-
-	m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
-	m_module->m_llvmIrBuilder.setInsertPoint (entryBlock->getLlvmBlock ()->begin ());
-
-	size_t count = m_stackGcRootAllocaArray.getCount ();
-	ASSERT (m_stackGcRootTypeArray.getCount () == count);
-
-	// prepare frame map const value
-
-	char buffer [256];
-	sl::Array <char> frameMapBuffer (ref::BufKind_Stack, buffer, sizeof (buffer));
-	frameMapBuffer.setCount (sizeof (rt::GcShadowStackFrameMap) + count * sizeof (void*));
-	rt::GcShadowStackFrameMap* frameMap = (rt::GcShadowStackFrameMap*) frameMapBuffer.a ();
-	frameMap->m_count = count;
-
-	Type** typeArray = (Type**) (frameMap + 1);
-	for (size_t i = 0; i < count; i++)
-		typeArray [i] = m_stackGcRootTypeArray [i];		
-
-	StructType* frameType = m_module->m_typeMgr.getGcShadowStackFrameType (count);
-	StructType* frameMapType = m_module->m_typeMgr.getGcShadowStackFrameMapType (count);
-
-	Value frameMapValue (frameMap, frameMapType);
-
-	// create frame and frame map variables
-
-	Variable* frameVariable = m_module->m_variableMgr.createSimpleStackVariable ("gcShadowStackFrame", frameType);
-	m_module->m_operatorMgr.zeroInitialize (frameVariable);
-	
-	Variable* frameMapVariable = m_module->m_variableMgr.createSimpleStaticVariable (
-		"gcShadowStackFrameMap",
-		function->m_tag + ".gcShadowStackFrameMap",
-		frameMapType,
-		frameMapValue
-		);
-
-	Value prevStackTopValue;
-	Variable* stackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
-	m_module->m_llvmIrBuilder.createLoad (stackTopVariable , NULL, &prevStackTopValue);
-
-	// initialize 
-
-	Value srcValue;
-	Value dstValue;
-
-	m_module->m_llvmIrBuilder.createGep2 (frameVariable, 0, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (prevStackTopValue, dstValue);
-	m_module->m_llvmIrBuilder.createBitCast (frameMapVariable, m_module->m_typeMgr.getStdType (StdType_BytePtr), &srcValue);
-	m_module->m_llvmIrBuilder.createGep2 (frameVariable, 1, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (srcValue, dstValue);
-	m_module->m_llvmIrBuilder.createBitCast (frameVariable, m_module->m_typeMgr.getStdType (StdType_BytePtr), &srcValue);
-	m_module->m_llvmIrBuilder.createStore (srcValue, stackTopVariable);
-
-	// replace alloca's with gep's (gep's go to entry block)
-
-	int32_t llvmGepIndexArray [3] = { 0, 2, };
-
-	for (size_t i = 0; i < count; i++)
-	{
-		llvm::AllocaInst* llvmAlloca = m_stackGcRootAllocaArray [i];
-
-		llvmGepIndexArray [2] = i;
-		m_module->m_llvmIrBuilder.createGep (frameVariable, llvmGepIndexArray, 3, NULL, &dstValue);
-		
-		llvmAlloca->replaceAllUsesWith (dstValue.getLlvmValue ());
-		llvmAlloca->eraseFromParent ();
-	}
-
-	m_stackGcRootAllocaArray.clear ();
-
-	// restore previous stack top before every ret
-
-	sl::Array <BasicBlock*> returnBlockArray = m_module->m_controlFlowMgr.getReturnBlockArray ();
-	count = returnBlockArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		BasicBlock* block = returnBlockArray [i];
-		llvm::TerminatorInst* llvmRet = block->getLlvmBlock ()->getTerminator ();
-		ASSERT (llvm::isa <llvm::ReturnInst> (llvmRet));
-
-		m_module->m_llvmIrBuilder.setInsertPoint (llvmRet);
-		m_module->m_llvmIrBuilder.createStore (prevStackTopValue, stackTopVariable);
-	}
-
-	// done 
-
-	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 }
 
 //.............................................................................

@@ -84,7 +84,7 @@ saveExceptionRecoverySnapshot (
 	ers->m_initializeLevel = tls->m_initializeLevel;
 	ers->m_noCollectRegionLevel = tls->m_gcMutatorThread.m_noCollectRegionLevel;
 	ers->m_waitRegionLevel = tls->m_gcMutatorThread.m_waitRegionLevel;
-	ers->m_gcShadowStackTop = tlsVariableTable->m_shadowStackTop;
+	ers->m_gcShadowStackTop = tlsVariableTable->m_gcShadowStackTop;
 }
 
 void
@@ -106,14 +106,14 @@ restoreExceptionRecoverySnapshot (
 		);
 
 	ASSERT (
-		ers->m_gcShadowStackTop == tlsVariableTable->m_shadowStackTop || 
-		!ers->m_result && (!ers->m_gcShadowStackTop || ers->m_gcShadowStackTop > tlsVariableTable->m_shadowStackTop)
+		ers->m_gcShadowStackTop == tlsVariableTable->m_gcShadowStackTop || 
+		!ers->m_result && (!ers->m_gcShadowStackTop || ers->m_gcShadowStackTop > tlsVariableTable->m_gcShadowStackTop)
 		);
 
 	tls->m_initializeLevel = ers->m_initializeLevel;
 	tls->m_gcMutatorThread.m_noCollectRegionLevel = ers->m_noCollectRegionLevel;
 	tls->m_gcMutatorThread.m_waitRegionLevel = ers->m_waitRegionLevel;
-	tlsVariableTable->m_shadowStackTop = ers->m_gcShadowStackTop;
+	tlsVariableTable->m_gcShadowStackTop = ers->m_gcShadowStackTop;
 }
 
 void
@@ -201,6 +201,21 @@ Runtime::checkStackOverflow ()
 		runtimeError (error);
 		ASSERT (false);
 	}
+}
+
+void
+Runtime::dynamicThrow ()
+{
+	rt::Tls* tls = rt::getCurrentThreadTls ();
+	ASSERT (tls);
+
+	rt::TlsVariableTable* tlsVariableTable = (rt::TlsVariableTable*) (tls + 1);
+	if (tlsVariableTable->m_sjljFrame)
+		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+	else
+		AXL_SYS_SJLJ_THROW ();
+
+	ASSERT (false);
 }
 
 //.............................................................................

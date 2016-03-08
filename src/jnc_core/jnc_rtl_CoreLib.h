@@ -61,6 +61,11 @@ public:
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_GetTls,                   getTls)
 
+		// exceptions
+
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,                   ::setjmp)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicThrow,             dynamicThrow)
+
 		// runtime checks
 
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_AssertionFailure,             assertionFailure)		
@@ -214,6 +219,12 @@ public:
 	static
 	void*
 	getTls ();
+
+	// exceptions
+
+	static
+	void
+	dynamicThrow();
 
 	// runtime checks
 

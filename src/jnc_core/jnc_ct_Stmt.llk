@@ -9,7 +9,7 @@ compound_stmt
 		local_declaration*
 		'}'
 			{
-				return finalizeCompoundStmt ();
+				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
@@ -54,7 +54,7 @@ constructor_compound_stmt
 		local_declaration*
 		'}'
 			{
-				finalizeCompoundStmt ();
+				m_module->m_namespaceMgr.closeScope ();
 			}
 	;
 
@@ -103,7 +103,7 @@ statement
 	}
 	leave
 	{
-		m_module->m_operatorMgr.nullifyTmpStackGcRootList ();
+		m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	}
 	:	compound_stmt
 	|	expression_stmt
@@ -117,6 +117,7 @@ statement
 	|	return_stmt
 	|	once_stmt
 	|	try_stmt
+	|	throw_stmt
 	|	unsafe_stmt
 	|	assert_stmt
 	|	';'
@@ -317,12 +318,19 @@ try_stmt
 	:	TokenKind_Try
 		'{'
 			{
-				m_module->m_namespaceMgr.openScope ($2.m_pos, $2.m_data.m_integer | ScopeFlag_Try | ScopeFlag_CanThrow);
+				m_module->m_namespaceMgr.openScope ($2.m_pos, $2.m_data.m_integer | ScopeFlag_Try);
 			}
 		local_declaration*
 		'}'
 			{
-				finalizeCompoundStmt ();
+				m_module->m_namespaceMgr.closeScope ();
+			}
+	;
+
+throw_stmt
+	:	TokenKind_Throw ';'
+			{
+				m_module->m_controlFlowMgr.throwException ();
 			}
 	;
 
@@ -337,7 +345,7 @@ unsafe_stmt
 		local_declaration*
 		'}'
 			{
-				finalizeCompoundStmt ();
+				m_module->m_namespaceMgr.closeScope ();
 				m_module->m_operatorMgr.leaveUnsafeRgn ();
 			}
 	;
@@ -379,7 +387,7 @@ finally_label
 nested_scope_label
 	:	TokenKind_NestedScope ':'
 			{
-				return m_module->m_controlFlowMgr.nestedScopeLabel ($1.m_pos, $1.m_data.m_integer);
+				return m_module->m_namespaceMgr.openScope ($1.m_pos, $1.m_data.m_integer | ScopeFlag_Nested) != NULL;
 			}
 	;
 

@@ -86,6 +86,59 @@ LlvmIrBuilder::setInsertPoint (BasicBlock* block)
 		m_llvmIrBuilder->SetInsertPoint (block->getLlvmBlock ()->getTerminator ());
 }
 
+void
+LlvmIrBuilder::saveInsertPoint (LlvmIrInsertPoint* insertPoint)
+{
+	insertPoint->m_llvmBlock = m_llvmIrBuilder->GetInsertBlock ();
+
+	if (insertPoint->m_llvmBlock->empty ())
+	{
+		insertPoint->m_llvmInstruction = NULL;
+	}
+	else
+	{
+		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint ();
+		insertPoint->m_llvmInstruction = 
+			llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ? --llvmInstIt : NULL :
+			&insertPoint->m_llvmBlock->back ();			
+	}
+}
+
+bool
+LlvmIrBuilder::restoreInsertPoint (
+	const LlvmIrInsertPoint& insertPoint,
+	LlvmIrInsertPoint* prevInsertPoint
+	)
+{
+	saveInsertPoint (prevInsertPoint);
+	if (insertPoint == *prevInsertPoint)
+		return false;
+
+	restoreInsertPoint (insertPoint);
+	return true;
+}
+
+void
+LlvmIrBuilder::restoreInsertPoint (const LlvmIrInsertPoint& insertPoint)
+{
+	ASSERT (insertPoint);
+
+	if (!insertPoint.m_llvmInstruction)
+	{
+		if (insertPoint.m_llvmBlock->empty ())	
+			m_llvmIrBuilder->SetInsertPoint (insertPoint.m_llvmBlock);
+		else
+			m_llvmIrBuilder->SetInsertPoint (&insertPoint.m_llvmBlock->front ());
+	}
+	else
+	{
+		if (insertPoint.m_llvmInstruction == &insertPoint.m_llvmBlock->back ())
+			m_llvmIrBuilder->SetInsertPoint (insertPoint.m_llvmBlock);
+		else
+			m_llvmIrBuilder->SetInsertPoint (++llvm::BasicBlock::iterator (insertPoint.m_llvmInstruction));
+	}
+}
+
 llvm::IndirectBrInst*
 LlvmIrBuilder::createIndirectBr (
 	const Value& value,

@@ -20,7 +20,7 @@ enum StdFunc
 	StdFunc_DynamicCastClassPtr,
 	StdFunc_DynamicCastVariant,
 	StdFunc_StrengthenClassPtr,
-	
+
 	StdFunc_PrimeStaticClass,	
 	StdFunc_TryAllocateClass,
 	StdFunc_AllocateClass,
@@ -32,6 +32,9 @@ enum StdFunc
 	StdFunc_GcSafePoint,
 	StdFunc_CollectGarbage,
 	StdFunc_GetTls,
+
+	StdFunc_SetJmp,
+	StdFunc_DynamicThrow,
 
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,

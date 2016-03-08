@@ -202,7 +202,7 @@ local_item_declaration
 	}
 	leave
 	{
-		m_module->m_operatorMgr.nullifyTmpStackGcRootList ();
+		m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	}
 	:	item_declaration_w_specifier
 	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
@@ -298,7 +298,7 @@ statement_pass1 <StmtPass1* $stmt>
 	|	TokenKind_Catch
 			{
 				$stmt->m_tokenList.insertTail ($1);
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_CanThrow;
+				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead;
 			}
 	|	TokenKind_Finally
 			{

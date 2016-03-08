@@ -51,6 +51,9 @@ public:
 	void
 	clear ();
 
+	void
+	createStdVariables ();
+
 	Variable*
 	getStdVariable (StdVariable variable);
 
@@ -123,7 +126,7 @@ public:
 
 	Variable*
 	createArgVariable (FunctionArg* arg);
-
+	
 	Alias*
 	createAlias (
 		const sl::String& name,
@@ -143,6 +146,9 @@ public:
 
 	void
 	liftStackVariable (Variable* variable);
+
+	bool
+	finalizeDisposableVariable (Variable* variable);
 
 protected:
 	llvm::GlobalVariable*

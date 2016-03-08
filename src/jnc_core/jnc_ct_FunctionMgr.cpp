@@ -398,25 +398,23 @@ FunctionMgr::finalizeFunction (
 {
 	ASSERT (function == m_currentFunction);
 
-	if (m_module->m_operatorMgr.hasStackGcRoots ())
-	{
-		m_module->m_operatorMgr.createGcShadowStackFrame ();
-		m_module->m_operatorMgr.clearStackGcRoots ();
-	}
-
-	size_t count = function->m_tlsVariableArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-		function->m_tlsVariableArray [i].m_variable->m_llvmValue = NULL;
-
+	m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	m_module->m_namespaceMgr.closeScope ();
 
 	if (wasNamespaceOpened)
 		m_module->m_namespaceMgr.closeNamespace ();
 
+	m_module->m_operatorMgr.resetUnsafeRgn ();
+	m_module->m_gcShadowStackMgr.finalizeFunction ();
 	m_module->m_controlFlowMgr.finalizeFunction ();
 	m_module->m_llvmIrBuilder.moveAllAllocas (function->getEntryBlock ());
-	m_currentFunction = NULL;
+
+	size_t count = function->m_tlsVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+		function->m_tlsVariableArray [i].m_variable->m_llvmValue = NULL;
+
 	m_thisValue.clear ();
+	m_currentFunction = NULL;
 }
 
 void
@@ -910,6 +908,19 @@ FunctionMgr::getStdFunction (StdFunc func)
 		returnType = m_module->m_variableMgr.getTlsStructType ()->getDataPtrType (DataPtrTypeKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.getTls", functionType);
+		break;
+
+	case StdFunc_SetJmp:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_SjljFrame)->getDataPtrType_c ();
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.setJmp", functionType);
+		break;
+
+	case StdFunc_DynamicThrow:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+		function = createFunction (FunctionKind_Internal, "jnc.dynamicThrow", functionType);
 		break;
 
 	case StdFunc_GcSafePoint:

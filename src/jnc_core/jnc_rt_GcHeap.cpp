@@ -1043,17 +1043,22 @@ GcHeap::collect_l (bool isMutatorThread)
 		// stack roots
 
 		TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (thread + 1);
-		GcShadowStackFrame* frame = tlsVariableTable->m_shadowStackTop;
+		GcShadowStackFrame* frame = tlsVariableTable->m_gcShadowStackTop;
 		for (; frame; frame = frame->m_prev)
 		{
-			void** rootArray = (void**) (frame + 1);
-			ct::Type** typeArray = (ct::Type**) (frame->m_map + 1);
-
-			for (size_t i = 0; i < frame->m_map->m_count; i++)
+			GcShadowStackFrameMap* frameMap = frame->m_map;
+			for (; frameMap; frameMap = frameMap->getPrev ())
 			{
-				void* p = rootArray [i];
-				if (p) // stack roots could be nullified
-					addRoot (p, typeArray [i]);
+				const size_t* indexArray = frameMap->getGcRootIndexArray ();
+				size_t count = frameMap->getGcRootCount ();
+
+				for (size_t i = 0; i < count; i++)
+				{
+					size_t j = indexArray [i];
+					void* p = frame->m_gcRootArray [j];
+					if (p)
+						addRoot (p, frame->m_gcRootTypeArray [j]);
+				}
 			}
 		}
 

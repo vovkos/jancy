@@ -637,34 +637,19 @@ OperatorMgr::getLibraryMember (
 
 	Value ptrValue;
 
-	if (!(scope->getFlags () & ScopeFlag_CanThrow))
-	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_LazyGetDynamicLibFunction);
+	Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_TryLazyGetDynamicLibFunction);
+	FunctionType* getterFunctionType = getterFunction->getType ();
 
-		m_module->m_llvmIrBuilder.createCall (
-			getterFunction,
-			getterFunction->getType (),
-			argValueArray,
-			countof (argValueArray),
-			&ptrValue
-			);
-	}
-	else
-	{
-		Function* getterFunction = m_module->m_functionMgr.getStdFunction (StdFunc_TryLazyGetDynamicLibFunction);
-		FunctionType* getterFunctionType = getterFunction->getType ();
+	m_module->m_llvmIrBuilder.createCall (
+		getterFunction,
+		getterFunctionType,
+		argValueArray,
+		countof (argValueArray),
+		&ptrValue
+		);
 
-		m_module->m_llvmIrBuilder.createCall (
-			getterFunction,
-			getterFunctionType,
-			argValueArray,
-			countof (argValueArray),
-			&ptrValue
-			);
-
-		bool result = m_module->m_controlFlowMgr.throwIf (ptrValue, getterFunctionType);
-		ASSERT (result);
-	}
+	result = m_module->m_controlFlowMgr.throwExceptionIf (ptrValue, getterFunctionType);
+	ASSERT (result);
 
 	Type* resultType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, resultValue);

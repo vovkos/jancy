@@ -114,10 +114,12 @@ set (
 	${JANCY_INC_DIR}/jnc_ct_AttributeMgr.h
 	${JANCY_INC_DIR}/jnc_ct_LlvmDiBuilder.h
 	${JANCY_INC_DIR}/jnc_ct_LlvmIrBuilder.h
+	${JANCY_INC_DIR}/jnc_ct_LlvmIrInsertPoint.h
 	${JANCY_INC_DIR}/jnc_ct_Module.h
 	${JANCY_INC_DIR}/jnc_ct_ModuleItem.h
 	${JANCY_INC_DIR}/jnc_ct_UnitMgr.h
 	${JANCY_INC_DIR}/jnc_ct_ImportMgr.h
+	${JANCY_INC_DIR}/jnc_ct_GcShadowStackMgr.h
 	jnc_ct_JitMemoryMgr.h
 	)
 
@@ -132,6 +134,7 @@ set (
 	jnc_ct_ModuleItem.cpp
 	jnc_ct_UnitMgr.cpp
 	jnc_ct_ImportMgr.cpp
+	jnc_ct_GcShadowStackMgr.cpp
 	)
 
 source_group (

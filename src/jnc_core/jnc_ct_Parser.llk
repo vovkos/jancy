@@ -448,9 +448,6 @@ Members2
 	finalizeBaseTypeMemberConstructBlock ();
 
 	bool
-	finalizeCompoundStmt ();
-
-	bool
 	lookupIdentifier (
 		const sl::String& name,
 		const Token::Pos& pos,
