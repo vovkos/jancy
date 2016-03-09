@@ -56,6 +56,7 @@ getStdFunctionSource (StdFunc stdFunc)
 
 		{ NULL },                                // StdFunc_GcSafePoint,
 		{ NULL },                                // StdFunc_CollectGarbage,
+		{ NULL },                                // StdFunc_SetGcShadowStackFrameMap,		
 		{ NULL },                                // StdFunc_GetTls,
 		
 		{ NULL },                                // StdFunc_SetJmp,

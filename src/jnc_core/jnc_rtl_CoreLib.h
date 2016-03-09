@@ -57,14 +57,15 @@ public:
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_CreateDataPtrValidator,   createDataPtrValidator)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_GcSafePoint,              gcSafePoint)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_CollectGarbage,           collectGarbage)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_SetGcShadowStackFrameMap, setGcShadowStackFrameMap)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticDestructor,      addStaticDestructor)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_GetTls,                   getTls)
 
 		// exceptions
 
-		JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,                   ::setjmp)
-		JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicThrow,             dynamicThrow)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,       ::setjmp)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicThrow, dynamicThrow)
 
 		// runtime checks
 
@@ -204,6 +205,14 @@ public:
 	static
 	void
 	collectGarbage ();
+
+	static
+	void
+	setGcShadowStackFrameMap (
+		rt::GcShadowStackFrame* frame,
+		rt::GcShadowStackFrameMap* map,
+		bool isOpen
+		);
 
 	static
 	void

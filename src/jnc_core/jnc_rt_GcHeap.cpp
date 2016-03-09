@@ -911,6 +911,30 @@ GcHeap::addRootArray (
 }
 
 void
+GcHeap::setFrameMap (
+	GcShadowStackFrame* frame,
+	GcShadowStackFrameMap* map,
+	bool isOpen
+	)
+{
+	frame->m_map = map;
+	if (!isOpen)
+		return;
+
+	// on open we also need to zero gc-roots
+
+	size_t count = map->getGcRootCount ();
+	ASSERT (map && count);
+
+	const size_t* indexArray = map->getGcRootIndexArray ();
+	size_t first = indexArray [0];
+	size_t last = indexArray [count - 1];
+	ASSERT (last >= first);
+
+	memset (frame->m_gcRootArray + first, 0, (last - first + 1) * sizeof (void*));
+}
+
+void
 GcHeap::collect ()
 {
 	bool isMutatorThread = waitIdleAndLock ();

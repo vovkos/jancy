@@ -276,6 +276,13 @@ public:
 	void
 	collect ();
 
+	void
+	setFrameMap (
+		GcShadowStackFrame* frame,
+		GcShadowStackFrameMap* map,
+		bool isOpen
+		);
+
 	// marking
 
 	static

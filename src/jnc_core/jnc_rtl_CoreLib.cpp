@@ -225,6 +225,19 @@ CoreLib::collectGarbage ()
 }
 
 void
+CoreLib::setGcShadowStackFrameMap (
+	rt::GcShadowStackFrame* frame,
+	rt::GcShadowStackFrameMap* map,
+	bool isOpen
+	)
+{
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.setFrameMap (frame, map, isOpen);
+}
+
+void
 CoreLib::addStaticDestructor (rt::StaticDestructFunc* destructFunc)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();

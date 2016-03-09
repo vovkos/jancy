@@ -72,8 +72,8 @@ protected:
 	sl::StdList <GcShadowStackFrameMap> m_frameMapList;
 	sl::StdList <RestoreFramePoint> m_restoreFramePointList;
 	Value m_gcRootArrayValue;
-	Value m_frameMapFieldValue;
 
+	Variable* m_frameVariable;
 	GcShadowStackFrameMap* m_currentFrameMap;
 	Scope* m_tmpGcRootScope;
 
@@ -116,6 +116,12 @@ public:
 		);
 
 protected:
+	void
+	setFrameMap (
+		GcShadowStackFrameMap* frameMap,
+		bool isOpen
+		);
+
 	void
 	preCreateFrame ();
 

@@ -1,13 +1,26 @@
-//.............................................................................
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "io_NetworkAdapter.jnc"
 
-foo ()
-{
-catch:
-}
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-def ()
+createNetworkAdapterOptionArray ()
 {
-	int* p;
+	size_t addressCount;
+	io.NetworkAdapterDesc const* adapterList = io.createNetworkAdapterDescList (null, &addressCount);
+	io.NetworkAdapterDesc const* adapter = adapterList;
+	io.NetworkAdapterAddress const* address = adapter->m_address;
+
+	for (; address; address = address->m_next)
+	{
+		printf (
+			"%s - %s\n",
+			adapter.m_description,
+			address.m_address.getString ()
+			);
+	}
+
+	printf ("done\n");
 }
 
 //.............................................................................
@@ -17,6 +30,9 @@ def ()
 int main ()
 {
 	printf ("main ()\n");
+
+	createNetworkAdapterOptionArray ();
+
 	return 0;
 }
 

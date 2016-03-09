@@ -935,6 +935,15 @@ FunctionMgr::getStdFunction (StdFunc func)
 		function = createFunction ("collectGarbage", "jnc.collectGarbage", functionType);
 		break;
 
+	case StdFunc_SetGcShadowStackFrameMap:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame)->getDataPtrType_c ();
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.setGcShadowStackFrameMap", functionType);
+		break;
+
 	case StdFunc_DynamicSizeOf:
 	case StdFunc_DynamicCountOf:
 	case StdFunc_DynamicCastDataPtr:

@@ -31,6 +31,7 @@ enum StdFunc
 	StdFunc_CreateDataPtrValidator,
 	StdFunc_GcSafePoint,
 	StdFunc_CollectGarbage,
+	StdFunc_SetGcShadowStackFrameMap, // sets frame-map and zeroes gc-roots
 	StdFunc_GetTls,
 
 	StdFunc_SetJmp,
