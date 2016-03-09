@@ -34,10 +34,11 @@ void
 GcShadowStackMgr::finalizeFunction ()
 {
 	m_restoreFramePointList.clear ();
+	m_tmpGcRootFrameMapInsertPoint.clear ();
 
-	if (m_gcRootTypeArray.isEmpty ())
+	if (!m_frameVariable)
 		return;
-	
+
 	finalizeFrame ();
 
 	m_gcRootArrayValue.clear ();
@@ -46,7 +47,6 @@ GcShadowStackMgr::finalizeFunction ()
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
 	m_tmpGcRootScope = NULL;
-	m_tmpGcRootFrameMapInsertPoint.clear ();
 }
 
 void
@@ -93,6 +93,7 @@ GcShadowStackMgr::releaseTmpGcRoots ()
 	
 	m_module->m_namespaceMgr.closeScope ();
 	m_tmpGcRootScope = NULL;
+	m_tmpGcRootFrameMapInsertPoint.clear ();
 }
 
 void
@@ -103,7 +104,7 @@ GcShadowStackMgr::markGcRoot (
 	Scope* scope
 	)
 {
-	if (!m_gcRootArrayValue)
+	if (!m_frameVariable)
 		preCreateFrame ();
 
 	switch (kind)
@@ -112,26 +113,25 @@ GcShadowStackMgr::markGcRoot (
 		if (!m_tmpGcRootScope)
 			m_tmpGcRootScope = m_module->m_namespaceMgr.openInternalScope ();
 
-		openFrameMap (m_tmpGcRootScope);
+		scope = m_tmpGcRootScope;
 		break;
 
 	case StackGcRootKind_Scope:
 		if (!scope)
-		{
 			scope = m_module->m_namespaceMgr.getCurrentScope ();
-			ASSERT (scope);
-		}
 
-		openFrameMap (scope);
 		break;
 
 	case StackGcRootKind_Function:
-		openFrameMap (m_module->m_functionMgr.getCurrentFunction ()->getScope ());
+		scope = m_module->m_functionMgr.getCurrentFunction ()->getScope ();
 		break;
 
 	default:
 		ASSERT (false);
 	}
+
+	ASSERT (scope);
+	openFrameMap (scope);
 
 	size_t index = m_gcRootTypeArray.getCount ();
 
@@ -165,10 +165,8 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	scope->m_gcShadowStackFrameMap = frameMap;
 	m_currentFrameMap = frameMap;
 
-	if (scope == m_tmpGcRootScope)
+	if (scope == m_tmpGcRootScope && m_tmpGcRootFrameMapInsertPoint)
 	{
-		ASSERT (m_tmpGcRootFrameMapInsertPoint);
-
 		// we need to set the map in the beginning of statemnt/declaration (cause of phi functions)
 
 		LlvmIrInsertPoint prevInsertPoint;
@@ -182,15 +180,8 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 		if (isInsertPointChanged)
 			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
 	}
-	else
+	else if (scope->m_firstStackVariable)
 	{
-		ASSERT (scope->m_firstStackVariable); 
-/*		if (!scope->m_firstStackVariable)
-		{
-			setFrameMap (frameMap, true);
-			return;
-		} */
-
 		// set the frame map before the very first variable init -- it could be lifted later (if not, no big deal)
 
 		LlvmIrInsertPoint prevInsertPoint;
@@ -206,6 +197,12 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	
 		if (isInsertPointChanged)
 			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+	}
+	else
+	{
+		// we are compiling some internal function (multicast call/reactor start/etc)
+
+		setFrameMap (frameMap, true);
 	}
 }
 
@@ -244,7 +241,7 @@ GcShadowStackMgr::addRestoreFramePoint (
 void
 GcShadowStackMgr::preCreateFrame ()
 {
-	ASSERT (!m_gcRootArrayValue && !m_frameVariable);
+	ASSERT (!m_frameVariable && !m_gcRootArrayValue);
 
 	Type* type = m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame); 
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable ("gcShadowStackFrame", type);

@@ -1,0 +1,109 @@
+// Multicasts are compiler-generated classes that allow to accumulate multiple 
+// function pointers and call them all at once. Just like with function 
+// pointers, multicasts can be thin or weak.
+
+//.............................................................................
+
+foo (int x)
+{
+	printf ("foo (%d)\n", x);
+}
+
+bar (
+	int x, 
+	int y	
+	)
+{
+	printf ("bar (%d, %d)\n", x, y);
+}
+
+baz (int x)
+{
+	printf ("baz (%d)\n", x);
+}
+
+//.............................................................................
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	// add 2 function pointers ('add' and '+=' may be used interchangeably)
+
+	multicast m (int);
+	m += foo;
+	m += bar ~(, 1000);
+
+	printf ("multicast call #1...\n");
+	m (5);
+
+	// events are merely special pointers to multicasts with restricted access 
+	// to multicast methods 'call', 'set', and 'clear'
+
+	event* e (int) = m;
+
+	// you can only add and remove handlers through an event pointer...
+	
+	e += baz;
+
+	// ...but not call it
+
+	// e (100); // <-- error
+
+	printf ("multicast call #2...\n");
+	m (15);
+
+	// '= null' will work also
+
+	m.clear (); 
+	
+	// Removal of pointers from the multicast is done differently compared to 
+	// C#. Jancy can create dynamic closures and generate thunks whenever 
+	// neccessary, so simple lookup on the function pointer would not be 
+	// possible in some cases. This is why the handle-table approach is used.
+
+	intptr cookie1 = e.add (foo); 
+	intptr cookie2 = e.add (bar ~(, 2000));
+
+	printf ("multicast call #3...\n");
+	m (25);
+	
+	// event pointer can be used to remove entries from the multicast
+
+	e -= cookie1; 
+
+	printf ("multicast call #4...\n");
+	m (35);
+	
+	// Converting from a multicast to a function pointer is somewhat ambiguous:
+	// should it be live or snapshot? In other words, if, after creating a 
+	// function pointer we modify the original multicast, should the function 
+	// pointer see the changes or not?
+
+	// to deal with this ambiguity, the multicast class provides the 
+	// 'getSnapshot' method
+
+	function* f1 (int) = m.getSnapshot ();
+
+	// converting to a function pointer implicitly yields a live pointer
+
+	function* f2 (int) = m; 
+
+	// modify the original multicast
+
+	m += foo;
+	m += baz;
+
+	printf ("snapshot pointer call...\n");
+	f1 (45);
+	
+	printf ("live pointer call...\n");
+	f2 (55);
+
+	return 0;
+}
+
+//.............................................................................
+
