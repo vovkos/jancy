@@ -27,6 +27,7 @@ GcShadowStackMgr::clear ()
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
 	m_tmpGcRootScope = NULL;
+	m_tmpGcRootFrameMapInsertPoint.clear ();
 }
 
 void
@@ -45,6 +46,7 @@ GcShadowStackMgr::finalizeFunction ()
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
 	m_tmpGcRootScope = NULL;
+	m_tmpGcRootFrameMapInsertPoint.clear ();
 }
 
 void
@@ -72,6 +74,13 @@ GcShadowStackMgr::createTmpGcRoot (const Value& value)
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore (value, ptrValue);	
 	markGcRoot (ptrValue, type, StackGcRootKind_Temporary);
+}
+
+void
+GcShadowStackMgr::saveTmpGcRootFrameMapInsertPoint ()
+{
+	ASSERT (!m_tmpGcRootScope);
+	m_module->m_llvmIrBuilder.saveInsertPoint (&m_tmpGcRootFrameMapInsertPoint);
 }
 
 void
@@ -156,27 +165,48 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	scope->m_gcShadowStackFrameMap = frameMap;
 	m_currentFrameMap = frameMap;
 
-	if (!scope->m_firstStackVariable)
+	if (scope == m_tmpGcRootScope)
 	{
+		ASSERT (m_tmpGcRootFrameMapInsertPoint);
+
+		// we need to set the map in the beginning of statemnt/declaration (cause of phi functions)
+
+		LlvmIrInsertPoint prevInsertPoint;
+		bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
+			m_tmpGcRootFrameMapInsertPoint, 
+			&prevInsertPoint
+			);
+
 		setFrameMap (frameMap, true);
-		return;
-	}
-
-	// set the frame map before the very first variable init -- it could be lifted later (if not, no big deal)
-
-	LlvmIrInsertPoint prevInsertPoint;
-	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
-		scope->m_firstStackVariable->m_liftInsertPoint, 
-		&prevInsertPoint
-		);
-
-	setFrameMap (frameMap, true);
-
-	// update lift insert point -- lift AFTER we've set the frame map
-	m_module->m_llvmIrBuilder.saveInsertPoint (&scope->m_firstStackVariable->m_liftInsertPoint);
 	
-	if (isInsertPointChanged)
-		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+		if (isInsertPointChanged)
+			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+	}
+	else
+	{
+		ASSERT (scope->m_firstStackVariable); 
+/*		if (!scope->m_firstStackVariable)
+		{
+			setFrameMap (frameMap, true);
+			return;
+		} */
+
+		// set the frame map before the very first variable init -- it could be lifted later (if not, no big deal)
+
+		LlvmIrInsertPoint prevInsertPoint;
+		bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
+			scope->m_firstStackVariable->m_liftInsertPoint, 
+			&prevInsertPoint
+			);
+
+		setFrameMap (frameMap, true);
+
+		// update lift insert point -- lift AFTER we've set the frame map
+		m_module->m_llvmIrBuilder.saveInsertPoint (&scope->m_firstStackVariable->m_liftInsertPoint);
+	
+		if (isInsertPointChanged)
+			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+	}
 }
 
 void

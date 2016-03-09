@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_ct_Value.h"
+#include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
 namespace ct {
@@ -76,6 +77,7 @@ protected:
 	Variable* m_frameVariable;
 	GcShadowStackFrameMap* m_currentFrameMap;
 	Scope* m_tmpGcRootScope;
+	LlvmIrInsertPoint m_tmpGcRootFrameMapInsertPoint;
 
 public:
 	GcShadowStackMgr ();
@@ -97,6 +99,9 @@ public:
 
 	void
 	createTmpGcRoot (const Value& value);
+
+	void
+	saveTmpGcRootFrameMapInsertPoint ();
 
 	void
 	releaseTmpGcRoots ();

@@ -18,7 +18,7 @@ struct LlvmIrInsertPoint
 
 	LlvmIrInsertPoint ()
 	{
-		setup (NULL, NULL);
+		clear ();
 	}
 
 	LlvmIrInsertPoint (
@@ -58,6 +58,12 @@ struct LlvmIrInsertPoint
 		return 
 			m_llvmBlock == insertPoint.m_llvmBlock &&
 			m_llvmInstruction == insertPoint.m_llvmInstruction;
+	}
+
+	void
+	clear ()
+	{
+		setup (NULL, NULL);
 	}
 
 	void

@@ -1,26 +1,33 @@
-import "io_base.jncx"
-import "io_SocketAddress.jnc"
-import "io_NetworkAdapter.jnc"
+//.............................................................................
+
+struct Foo
+{
+	char const* m_name;
+	char const* m_description;
+}
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-createNetworkAdapterOptionArray ()
+bar (
+	char const* a, 
+	char const* b
+	)
 {
-	size_t addressCount;
-	io.NetworkAdapterDesc const* adapterList = io.createNetworkAdapterDescList (null, &addressCount);
-	io.NetworkAdapterDesc const* adapter = adapterList;
-	io.NetworkAdapterAddress const* address = adapter->m_address;
+	printf ("a = %s; b = %s\n", a, b);
+}
 
-	for (; address; address = address->m_next)
-	{
-		printf (
-			"%s - %s\n",
-			adapter.m_description,
-			address.m_address.getString ()
-			);
-	}
+baz ()
+{
+	Foo* foo = new Foo;
+	foo.m_name = "name";
+	foo.m_description = "description";
 
-	printf ("done\n");
+	bool b = true;
+
+	bar (
+		b ? foo.m_name : foo.m_description,
+		b ? foo.m_description : foo.m_name
+		);
 }
 
 //.............................................................................
@@ -31,7 +38,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	createNetworkAdapterOptionArray ();
+	baz ();
 
 	return 0;
 }

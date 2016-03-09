@@ -1399,7 +1399,7 @@ GcHeap::signalHandler_SIGSEGV (
 {
 	ASSERT (signal == JNC_SIGSEGV);
 	
-	// while POSIX does not require that pthread_getspecific be async-signal-safe, in practice it is
+	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
 
 	Tls* tls = getCurrentThreadTls ();
 	if (!tls)
