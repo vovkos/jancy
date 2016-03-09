@@ -179,6 +179,8 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	
 		if (isInsertPointChanged)
 			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+
+		m_tmpGcRootFrameMapInsertPoint.clear ();
 	}
 	else if (scope->m_firstStackVariable)
 	{
@@ -192,9 +194,13 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 
 		setFrameMap (frameMap, true);
 
-		// update lift insert point -- lift AFTER we've set the frame map
+		// update both lift and tmp gc root frame map insert points
+
 		m_module->m_llvmIrBuilder.saveInsertPoint (&scope->m_firstStackVariable->m_liftInsertPoint);
-	
+
+		if (m_tmpGcRootFrameMapInsertPoint)
+			m_tmpGcRootFrameMapInsertPoint = scope->m_firstStackVariable->m_liftInsertPoint;
+
 		if (isInsertPointChanged)
 			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
 	}
