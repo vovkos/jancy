@@ -17,6 +17,7 @@ Scope::Scope ()
 	m_continueBlock = NULL;
 	m_catchBlock = NULL;
 	m_finallyBlock = NULL;
+	m_firstStackVariable = NULL;
 	m_gcShadowStackFrameMap = NULL;
 	m_firstStackVariable = NULL;
 }

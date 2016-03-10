@@ -215,6 +215,13 @@ FunctionMgr::prologue (
 
 	m_currentFunction = function;
 
+	// create entry block 
+
+	function->m_entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	function->m_entryBlock->markEntry ();
+
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_entryBlock);
+
 	// create scope
 
 	m_module->m_namespaceMgr.openNamespace (function->m_parentNamespace);
@@ -230,17 +237,10 @@ FunctionMgr::prologue (
 	if (function->m_type->getFlags () & FunctionTypeFlag_Unsafe)
 		m_module->m_operatorMgr.enterUnsafeRgn ();
 
-	// create entry block (gc roots come here)
 
-	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
-	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
-
-	function->m_entryBlock = entryBlock;
-	entryBlock->markEntry ();
-
-	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 	function->getType ()->getCallConv ()->createArgVariables (function);
 
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
 
 	uint_t compileFlags = m_module->getCompileFlags ();
@@ -398,7 +398,6 @@ FunctionMgr::finalizeFunction (
 {
 	ASSERT (function == m_currentFunction);
 
-	m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	m_module->m_namespaceMgr.closeScope ();
 
 	if (wasNamespaceOpened)
@@ -426,16 +425,14 @@ FunctionMgr::internalPrologue (
 {
 	m_currentFunction = function;
 
-	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
 	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
 
-	BasicBlock* entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
-	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
+	function->m_entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	function->m_entryBlock->markEntry ();
 
-	function->m_entryBlock = entryBlock;
-	entryBlock->markEntry ();
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_entryBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
 
 	if (function->isMember ())
 		createThisValue ();
@@ -450,6 +447,7 @@ FunctionMgr::internalPrologue (
 			argValueArray [i] = callConv->getArgValue (llvmArg, functionType, i);
 	}
 
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");
 	m_module->m_controlFlowMgr.jump (bodyBlock, bodyBlock);
 
 	uint_t compileFlags = m_module->getCompileFlags ();

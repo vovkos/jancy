@@ -167,8 +167,6 @@ NamespaceMgr::openInternalScope ()
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
 
-	m_module->m_gcShadowStackMgr.releaseTmpGcRoots (); // make sure tmp-gc-root-scope has no children
-
 	Scope* scope = AXL_MEM_NEW (Scope);
 	scope->m_module = m_module;
 	scope->m_function = function;
@@ -186,6 +184,10 @@ NamespaceMgr::openInternalScope ()
 		if (function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode)
 			scope->m_flags |= ScopeFlag_StaticThrow;
 	}
+
+	// if this scope creates any gc roots, frame map should be set before any of those
+
+	m_module->m_llvmIrBuilder.saveInsertPoint (&scope->m_gcShadowStackFrameMapInsertPoint);
 
 	m_scopeList.insertTail (scope);
 

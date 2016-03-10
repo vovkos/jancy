@@ -150,7 +150,6 @@ VariableMgr::createVariable (
 	case StorageKind_Stack:
 		m_module->m_llvmIrBuilder.createAlloca (type, qualifiedName, NULL, &ptrValue);
 		variable->m_llvmValue = ptrValue.getLlvmValue ();
-		
 		m_module->m_llvmIrBuilder.saveInsertPoint (&variable->m_liftInsertPoint);
 
 		if (variable->m_scope && !variable->m_scope->m_firstStackVariable)
@@ -476,7 +475,7 @@ VariableMgr::allocateHeapVariable (Variable* variable)
 		validator->m_validatorValue = validatorValue;
 	}
 
-	m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type->getDataPtrType_c (), StackGcRootKind_Scope, variable->m_scope);
+	m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type->getDataPtrType_c (), variable->m_scope);
 	return true;
 }
 
@@ -533,7 +532,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	// arg variables are not initialized (stored to directly), so mark gc root manually
 
 	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
-		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type, StackGcRootKind_Function);
+		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type);
 	
 	return variable;
 }

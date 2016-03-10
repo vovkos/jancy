@@ -13,7 +13,6 @@ GcShadowStackMgr::GcShadowStackMgr ()
 	ASSERT (m_module);
 
 	m_currentFrameMap = NULL;
-	m_tmpGcRootScope = NULL;
 }
 
 void
@@ -22,19 +21,15 @@ GcShadowStackMgr::clear ()
 	m_gcRootTypeArray.clear ();
 	m_frameMapList.clear ();
 	m_restoreFramePointList.clear ();
-	m_gcRootArrayValue.clear ();
-	
+	m_gcRootArrayValue.clear ();	
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
-	m_tmpGcRootScope = NULL;
-	m_tmpGcRootFrameMapInsertPoint.clear ();
 }
 
 void
 GcShadowStackMgr::finalizeFunction ()
 {
-	m_restoreFramePointList.clear ();
-	m_tmpGcRootFrameMapInsertPoint.clear ();
+	m_restoreFramePointList.clear (); // this list is built even when there are no gc-roots
 
 	if (!m_frameVariable)
 		return;
@@ -42,11 +37,9 @@ GcShadowStackMgr::finalizeFunction ()
 	finalizeFrame ();
 
 	m_gcRootArrayValue.clear ();
-	m_gcRootTypeArray.clear ();
-	
+	m_gcRootTypeArray.clear ();	
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
-	m_tmpGcRootScope = NULL;
 }
 
 void
@@ -73,64 +66,22 @@ GcShadowStackMgr::createTmpGcRoot (const Value& value)
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore (value, ptrValue);	
-	markGcRoot (ptrValue, type, StackGcRootKind_Temporary);
-}
-
-void
-GcShadowStackMgr::saveTmpGcRootFrameMapInsertPoint ()
-{
-	ASSERT (!m_tmpGcRootScope);
-	m_module->m_llvmIrBuilder.saveInsertPoint (&m_tmpGcRootFrameMapInsertPoint);
-}
-
-void
-GcShadowStackMgr::releaseTmpGcRoots ()
-{
-	if (!m_tmpGcRootScope)
-		return;
-
-	ASSERT (m_tmpGcRootScope == m_module->m_namespaceMgr.getCurrentScope ());
-	
-	m_module->m_namespaceMgr.closeScope ();
-	m_tmpGcRootScope = NULL;
-	m_tmpGcRootFrameMapInsertPoint.clear ();
+	markGcRoot (ptrValue, type);
 }
 
 void
 GcShadowStackMgr::markGcRoot (
 	const Value& ptrValue,
 	Type* type,
-	StackGcRootKind kind,
 	Scope* scope
 	)
 {
 	if (!m_frameVariable)
 		preCreateFrame ();
 
-	switch (kind)
-	{
-	case StackGcRootKind_Temporary:
-		if (!m_tmpGcRootScope)
-			m_tmpGcRootScope = m_module->m_namespaceMgr.openInternalScope ();
+	if (!scope)
+		scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-		scope = m_tmpGcRootScope;
-		break;
-
-	case StackGcRootKind_Scope:
-		if (!scope)
-			scope = m_module->m_namespaceMgr.getCurrentScope ();
-
-		break;
-
-	case StackGcRootKind_Function:
-		scope = m_module->m_functionMgr.getCurrentFunction ()->getScope ();
-		break;
-
-	default:
-		ASSERT (false);
-	}
-
-	ASSERT (scope);
 	openFrameMap (scope);
 
 	size_t index = m_gcRootTypeArray.getCount ();
@@ -165,51 +116,25 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	scope->m_gcShadowStackFrameMap = frameMap;
 	m_currentFrameMap = frameMap;
 
-	if (scope == m_tmpGcRootScope && m_tmpGcRootFrameMapInsertPoint)
-	{
-		// we need to set the map in the beginning of statemnt/declaration (cause of phi functions)
+	// we need to set the map in the beginning of scope
 
-		LlvmIrInsertPoint prevInsertPoint;
-		bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
-			m_tmpGcRootFrameMapInsertPoint, 
-			&prevInsertPoint
-			);
+	ASSERT (scope->m_gcShadowStackFrameMapInsertPoint);
 
-		setFrameMap (frameMap, true);
-	
-		if (isInsertPointChanged)
-			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+	LlvmIrInsertPoint prevInsertPoint;
+	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
+		scope->m_gcShadowStackFrameMapInsertPoint, 
+		&prevInsertPoint
+		);
 
-		m_tmpGcRootFrameMapInsertPoint.clear ();
-	}
-	else if (scope->m_firstStackVariable)
-	{
-		// set the frame map before the very first variable init -- it could be lifted later (if not, no big deal)
+	setFrameMap (frameMap, true);
 
-		LlvmIrInsertPoint prevInsertPoint;
-		bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
-			scope->m_firstStackVariable->m_liftInsertPoint, 
-			&prevInsertPoint
-			);
+	// if first stack variable lift point is the same, update it -- must lift AFTER frame map is set
 
-		setFrameMap (frameMap, true);
-
-		// update both lift and tmp gc root frame map insert points
-
+	if (scope->m_firstStackVariable && scope->m_firstStackVariable->m_liftInsertPoint == scope->m_gcShadowStackFrameMapInsertPoint)
 		m_module->m_llvmIrBuilder.saveInsertPoint (&scope->m_firstStackVariable->m_liftInsertPoint);
 
-		if (m_tmpGcRootFrameMapInsertPoint)
-			m_tmpGcRootFrameMapInsertPoint = scope->m_firstStackVariable->m_liftInsertPoint;
-
-		if (isInsertPointChanged)
-			m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
-	}
-	else
-	{
-		// we are compiling some internal function (multicast call/reactor start/etc)
-
-		setFrameMap (frameMap, true);
-	}
+	if (isInsertPointChanged)
+		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
 }
 
 void

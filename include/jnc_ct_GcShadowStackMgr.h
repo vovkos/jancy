@@ -46,15 +46,6 @@ public:
 
 //.............................................................................
 
-enum StackGcRootKind
-{
-	StackGcRootKind_Temporary,
-	StackGcRootKind_Scope,
-	StackGcRootKind_Function,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 class GcShadowStackMgr
 {
 	friend class Module;
@@ -76,8 +67,6 @@ protected:
 
 	Variable* m_frameVariable;
 	GcShadowStackFrameMap* m_currentFrameMap;
-	Scope* m_tmpGcRootScope;
-	LlvmIrInsertPoint m_tmpGcRootFrameMapInsertPoint;
 
 public:
 	GcShadowStackMgr ();
@@ -101,16 +90,9 @@ public:
 	createTmpGcRoot (const Value& value);
 
 	void
-	saveTmpGcRootFrameMapInsertPoint ();
-
-	void
-	releaseTmpGcRoots ();
-
-	void
 	markGcRoot (
 		const Value& ptrValue,
 		Type* type,
-		StackGcRootKind kind = StackGcRootKind_Scope,
 		Scope* scope = NULL
 		);
 
@@ -122,6 +104,9 @@ public:
 
 protected:
 	void
+	openFrameMap (Scope* scope);
+
+	void
 	setFrameMap (
 		GcShadowStackFrameMap* frameMap,
 		bool isOpen
@@ -132,9 +117,6 @@ protected:
 
 	void
 	finalizeFrame ();
-
-	void
-	openFrameMap (Scope* scope);
 };
 
 //.............................................................................

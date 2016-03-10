@@ -57,9 +57,10 @@ public:
 	BasicBlock* m_catchBlock;
 	BasicBlock* m_finallyBlock;
 
-	GcShadowStackFrameMap* m_gcShadowStackFrameMap;
-	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable init
 	Value m_prevSjljFrameValue;
+	LlvmIrInsertPoint m_gcShadowStackFrameMapInsertPoint;
+	GcShadowStackFrameMap* m_gcShadowStackFrameMap;
+	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable lift point
 
 public:
 	Scope ();

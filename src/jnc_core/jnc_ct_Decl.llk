@@ -199,11 +199,6 @@ local_item_declaration
 	enter
 	{
 		preDeclaration ();
-		m_module->m_gcShadowStackMgr.saveTmpGcRootFrameMapInsertPoint ();
-	}
-	leave
-	{
-		m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	}
 	:	item_declaration_w_specifier
 	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name

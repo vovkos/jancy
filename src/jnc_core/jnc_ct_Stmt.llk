@@ -100,11 +100,6 @@ statement
 	enter
 	{
 		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
-		m_module->m_gcShadowStackMgr.saveTmpGcRootFrameMapInsertPoint ();
-	}
-	leave
-	{
-		m_module->m_gcShadowStackMgr.releaseTmpGcRoots ();
 	}
 	:	compound_stmt
 	|	expression_stmt

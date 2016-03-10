@@ -118,8 +118,7 @@ LeanDataPtrValidator::createValidator (const Value& boxValue)
 
 	module->m_gcShadowStackMgr.markGcRoot (
 		m_validatorValue, 
-		module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr),
-		StackGcRootKind_Temporary
+		module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr)
 		);
 }
 
