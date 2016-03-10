@@ -1459,7 +1459,7 @@ Parser::declareData (
 
 		if (!isDisposableType (type))
 		{
-			err::setFormatStringError ("'%s' is not a disposable type", type->getTypeString ());
+			err::setFormatStringError ("'%s' is not a disposable type", type->getTypeString ().cc ());
 			return false;
 		}
 

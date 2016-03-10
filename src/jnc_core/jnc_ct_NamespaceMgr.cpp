@@ -241,7 +241,7 @@ NamespaceMgr::openScope (
 		if (parentScope->m_flags & (ScopeFlag_Try | ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
 		{
 			err::setFormatStringError ("'nestedscope' can only be used in regular scopes (not 'try', 'catch', 'finally' or 'nestedscope')");
-			return false;
+			return NULL;
 		}
 
 		scope->m_flags |= parentScope->m_flags & ScopeFlag_Function; // propagate function flag

@@ -99,7 +99,8 @@ LlvmIrBuilder::saveInsertPoint (LlvmIrInsertPoint* insertPoint)
 	{
 		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint ();
 		insertPoint->m_llvmInstruction = 
-			llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ? --llvmInstIt : NULL :
+			llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ? 
+			(llvm::Instruction*) --llvmInstIt : NULL :
 			&insertPoint->m_llvmBlock->back ();			
 	}
 }
