@@ -19,7 +19,6 @@ ControlFlowMgr::ControlFlowMgr ()
 	m_catchFinallyFollowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
-	m_throwLockCount = 0;
 	m_finallyRouteIdx = 0;
 }
 
@@ -35,7 +34,6 @@ ControlFlowMgr::clear ()
 	m_dynamicThrowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
-	m_throwLockCount = 0;
 	m_finallyRouteIdx = 0;
 }
 
@@ -50,7 +48,6 @@ ControlFlowMgr::finalizeFunction ()
 	m_dynamicThrowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
-	m_throwLockCount = 0;
 	m_finallyRouteIdx = 0;
 }
 
@@ -539,32 +536,67 @@ ControlFlowMgr::ret (const Value& value)
 	return true;
 }
 
+void
+ControlFlowMgr::beginTry (TryExpr* tryExpr)
+{
+	tryExpr->m_catchBlock = createBlock ("try_catch_block");
+	setJmp (tryExpr->m_catchBlock, &tryExpr->m_prevSjljFrameValue);
+}
+
+bool
+ControlFlowMgr::endTry (
+	TryExpr* tryExpr,
+	Value* value
+	)
+{
+	Value errorValue;
+	Type* type = value->getType ();
+
+	BasicBlock* prevBlock = m_currentBlock;
+	BasicBlock* phiBlock = createBlock ("try_phi_block");
+
+	if (type->getTypeKind () == ValueKind_Void)
+	{
+		value->setConstBool (true, m_module);
+		errorValue.setConstBool (false, m_module);
+	}
+	else if (type->getTypeKindFlags () & TypeKindFlag_Integer)
+	{
+		errorValue.setConstInt64 (-1, type);
+	}
+	else if (type->getTypeKindFlags () & TypeKindFlag_ErrorCode)
+	{
+		errorValue = type->getZeroValue ();
+	}
+	else
+	{
+		err::setFormatStringError ("'%s' cannot be used as error code", type->getTypeString ().cc ());
+		return false;
+	}
+
+	jump (phiBlock, tryExpr->m_catchBlock);
+	jump (phiBlock, phiBlock);	
+	m_module->m_llvmIrBuilder.createPhi (*value, prevBlock, errorValue, tryExpr->m_catchBlock, value);
+	return true;
+}
+
 bool
 ControlFlowMgr::throwExceptionIf (
 	const Value& returnValue,
 	FunctionType* functionType
 	)
 {
-	ASSERT (functionType->getFlags () & FunctionTypeFlag_ErrorCode);
-
 	bool result;
 
 	Type* returnType = functionType->getReturnType ();
+	ASSERT (
+		(functionType->getFlags () & FunctionTypeFlag_ErrorCode) &&
+		(returnType->getTypeKindFlags () & TypeKindFlag_ErrorCode));
 
 	Value indicatorValue;
 	if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
-		result = m_module->m_operatorMgr.castOperator (returnValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool), &indicatorValue);
-		if (!result)
-			return false;
-	}
-	else if (!(returnType->getTypeKindFlags () & TypeKindFlag_Unsigned))
-	{
-		Value zeroValue = returnType->getZeroValue ();
-
-		result = m_module->m_operatorMgr.binaryOperator (BinOpKind_Ge, returnValue, zeroValue, &indicatorValue);
-		if (!result)
-			return false;
+		indicatorValue = returnValue;
 	}
 	else
 	{
@@ -897,15 +929,6 @@ ControlFlowMgr::normalFinallyFlow ()
 	m_finallyRouteIdx++;
 
 	jump (scope->m_finallyBlock);
-}
-
-void
-ControlFlowMgr::closeTry ()
-{
-	bool result = catchLabel (Token::Pos ());
-	ASSERT (result);
-
-	closeCatch (); 
 }
 
 bool

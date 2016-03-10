@@ -312,13 +312,13 @@ once_stmt
 
 try_stmt
 	:	TokenKind_Try
-		'{'
 			{
-				m_module->m_namespaceMgr.openScope ($2.m_pos, $2.m_data.m_integer | ScopeFlag_Try);
+				m_module->m_namespaceMgr.openScope ($1.m_pos, ScopeFlag_CatchAhead);
 			}
-		local_declaration*
-		'}'
+		compound_stmt $s
 			{
+				bool result = m_module->m_controlFlowMgr.catchLabel ($s.m_lastToken.m_pos);
+				ASSERT (result);
 				m_module->m_namespaceMgr.closeScope ();
 			}
 	;

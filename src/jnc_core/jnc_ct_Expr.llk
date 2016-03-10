@@ -637,14 +637,7 @@ unary_operator_expr <Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PreDec, $value);
 			}
-	|	TokenKind_Try
-			{
-				m_module->m_controlFlowMgr.lockThrow ();
-			}
-		unary_expr <$value>
-			{
-				m_module->m_controlFlowMgr.unlockThrow ();
-			}
+	|	try_expr <$value>
 	|	resolver (cast_operator_rslv)
 		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr <$value>
 			{
@@ -665,6 +658,21 @@ unary_operator_expr <Value* $value>
 			{
 				err::setFormatStringError ("manual memory management is not supported yet");
 				return false;
+			}
+	;
+
+try_expr <Value* $value>
+	local
+	{
+		TryExpr $tryExpr;
+	}
+	:	TokenKind_Try
+			{
+				m_module->m_controlFlowMgr.beginTry (&$tryExpr);
+			}
+		unary_expr <$value>
+			{
+				return m_module->m_controlFlowMgr.endTry (&$tryExpr, $value);
 			}
 	;
 

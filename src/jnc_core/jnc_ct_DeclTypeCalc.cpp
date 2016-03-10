@@ -539,7 +539,7 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 		if (returnType->getTypeKind () != TypeKind_NamedImport &&
 			!(returnType->getTypeKindFlags () & TypeKindFlag_ErrorCode))
 		{
-			err::setFormatStringError ("'%s' cannot be an error code", returnType->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as error code", returnType->getTypeString ().cc ());
 			return NULL;
 		}
 

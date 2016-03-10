@@ -1,19 +1,33 @@
-char const* bar ()
+foo (bool b)
 {
-	int i = 10;
-	return $"bar $i";
+	printf ("foo ()\n");
+	if (b)
+	{
+		printf ("foo is about to throw...\n");
+		throw;
+	}
 }
 
 int main ()
 {
 	printf ("main ()\n");
 
-	char const* filterString = $"bar returned: '%1'" (bar ());
+	bool result = try foo (true);
+	printf ("result = %d\n", result);
 
-	printf ("filterString = %s\n", filterString);
+	try
+	{
+		printf ("before calling foo...\n");
+		foo (false);
+		foo (false);
+		foo (true);
+
+		result = true;
+	}
+
+	printf ("result = %d\n", result);
 
 	return 0;
 }
 
 //.............................................................................
-

@@ -240,9 +240,9 @@ NamespaceMgr::openScope (
 	
 	if (flags & ScopeFlag_Nested)
 	{
-		if (parentScope->m_flags & (ScopeFlag_Try | ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
+		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
 		{
-			err::setFormatStringError ("'nestedscope' can only be used in regular scopes (not 'try', 'catch', 'finally' or 'nestedscope')");
+			err::setFormatStringError ("'nestedscope' can only be used before other scope labels");
 			return NULL;
 		}
 
@@ -264,11 +264,6 @@ NamespaceMgr::closeScope ()
 	{
 		m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
 		m_module->m_controlFlowMgr.closeDisposeFinally ();
-	}
-	else if (flags & ScopeFlag_Try && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
-	{
-		m_currentScope->m_flags &= ~ScopeFlag_Try; // prevent recursion
-		m_module->m_controlFlowMgr.closeTry ();
 	}
 	else if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
 	{
@@ -448,14 +443,13 @@ NamespaceMgr::findCatchScope ()
 	Scope* scope = m_currentScope;
 	for (; scope; scope = scope->getParentScope ())
 	{
-		if (scope->m_flags & (ScopeFlag_CatchAhead | ScopeFlag_Try))
+		if (scope->m_flags & ScopeFlag_CatchAhead)
+		{
+			ASSERT (scope->m_catchBlock);
 			break;
+		}
 	}
 
-	if (!scope || scope->m_catchBlock)
-		return scope;
-
-	scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
 	return scope;
 }
 

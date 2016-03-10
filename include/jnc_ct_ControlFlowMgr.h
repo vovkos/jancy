@@ -69,6 +69,14 @@ struct OnceStmt
 	BasicBlock* m_followBlock;
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TryExpr
+{
+	BasicBlock* m_catchBlock;
+	Value m_prevSjljFrameValue;
+};
+
 //.............................................................................
 
 class ControlFlowMgr
@@ -87,7 +95,6 @@ protected:
 	BasicBlock* m_dynamicThrowBlock;
 	Variable* m_finallyRouteIdxVariable;
 	Variable* m_returnValueVariable;
-	intptr_t m_throwLockCount;
 	size_t m_finallyRouteIdx;
 
 public:
@@ -101,24 +108,6 @@ public:
 
 	void
 	clear ();
-
-	void
-	lockThrow ()
-	{
-		m_throwLockCount++;
-	}
-
-	void
-	unlockThrow ()
-	{
-		m_throwLockCount--;
-	}
-
-	bool
-	isThrowLocked ()
-	{
-		return m_throwLockCount > 0;
-	}
 
 	BasicBlock*
 	createBlock (
@@ -187,6 +176,15 @@ public:
 		return ret (Value ());
 	}
 
+	void
+	beginTry (TryExpr* tryExpr);
+
+	bool
+	endTry (
+		TryExpr* tryExpr,
+		Value* value
+		);
+
 	bool
 	throwExceptionIf (
 		const Value& returnValue,
@@ -219,9 +217,6 @@ public:
 
 	void
 	closeDisposeFinally ();
-
-	void
-	closeTry ();
 
 	bool
 	checkReturn ();
