@@ -18,7 +18,7 @@ OperatorMgr::checkPtr (
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (scope);
 
-	if (!(scope->getFlags () & ScopeFlag_StaticThrow))
+	if (!scope->canStaticThrow ())
 	{
 		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdCheckFunction);
 

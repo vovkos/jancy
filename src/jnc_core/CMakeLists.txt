@@ -50,6 +50,7 @@ set (
 	jnc_ct_BasicBlock.cpp
 	jnc_ct_ControlFlowMgr.cpp
 	jnc_ct_ControlFlowMgr_Stmt.cpp
+	jnc_ct_ControlFlowMgr_Eh.cpp
 	)
 
 source_group (

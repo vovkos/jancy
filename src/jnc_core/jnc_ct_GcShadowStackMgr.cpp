@@ -20,7 +20,6 @@ GcShadowStackMgr::clear ()
 {
 	m_gcRootTypeArray.clear ();
 	m_frameMapList.clear ();
-	m_restoreFramePointList.clear ();
 	m_gcRootArrayValue.clear ();	
 	m_frameVariable = NULL;
 	m_currentFrameMap = NULL;
@@ -29,8 +28,6 @@ GcShadowStackMgr::clear ()
 void
 GcShadowStackMgr::finalizeFunction ()
 {
-	m_restoreFramePointList.clear (); // this list is built even when there are no gc-roots
-
 	if (!m_frameVariable)
 		return;
 
@@ -158,18 +155,6 @@ GcShadowStackMgr::setFrameMap (
 }
 
 void
-GcShadowStackMgr::addRestoreFramePoint (
-	BasicBlock* block,
-	GcShadowStackFrameMap* frameMap
-	)
-{
-	RestoreFramePoint* restorePoint = AXL_MEM_NEW (RestoreFramePoint);
-	restorePoint->m_block = block;
-	restorePoint->m_frameMap = frameMap;
-	m_restoreFramePointList.insertTail (restorePoint);
-}
-
-void
 GcShadowStackMgr::preCreateFrame ()
 {
 	ASSERT (!m_frameVariable && !m_gcRootArrayValue);
@@ -178,7 +163,7 @@ GcShadowStackMgr::preCreateFrame ()
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable ("gcShadowStackFrame", type);
 
 	type = m_module->m_typeMgr.getStdType (StdType_BytePtr); 
-	m_module->m_llvmIrBuilder.createAlloca (type, "gcRootArray_tmp", NULL, &m_gcRootArrayValue);
+	m_module->m_llvmIrBuilder.createAlloca (type, "gcRootArray_tmp", type->getDataPtrType_c (), &m_gcRootArrayValue);
 
 	// m_gcRootArrayValue will be replaced later
 }
@@ -186,12 +171,11 @@ GcShadowStackMgr::preCreateFrame ()
 void
 GcShadowStackMgr::finalizeFrame ()
 {
+	ASSERT (m_frameVariable && m_gcRootArrayValue);
 	ASSERT (!m_currentFrameMap); // finalizeScope must have been called
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
-
-	// create shadow stack frame in the beginning of entry block (which dominates the whole body)
 
 	BasicBlock* entryBlock = function->getEntryBlock ();
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
@@ -225,6 +209,7 @@ GcShadowStackMgr::finalizeFrame ()
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) m_gcRootArrayValue.getLlvmValue ();
 	llvmAlloca->replaceAllUsesWith (gcRootArrayValue.getLlvmValue ());
 	llvmAlloca->eraseFromParent ();
+	m_gcRootArrayValue = gcRootArrayValue;
 
 	// get prev shadow stack top
 
@@ -277,16 +262,20 @@ GcShadowStackMgr::finalizeFrame ()
 		m_module->m_llvmIrBuilder.createStore (prevStackTopValue, stackTopVariable);
 	}
 
-	// restore current stack top at every restore point
+	// restore current stack top and frame map at every landing pad
 
-	sl::Iterator <RestoreFramePoint> it = m_restoreFramePointList.getHead ();
-	for (; it; it++)
+	sl::Array <BasicBlock*> landingPadBlockArray = m_module->m_controlFlowMgr.getLandingPadBlockArray ();
+	count = landingPadBlockArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		ASSERT (!it->m_block->getLlvmBlock ()->empty ());
-		m_module->m_llvmIrBuilder.setInsertPoint (it->m_block->getLlvmBlock ()->begin ());
+		BasicBlock* block = landingPadBlockArray [i];
+		Scope* scope = block->getLandingPadScope ();
+		ASSERT (scope && !block->getLlvmBlock ()->empty ());
+
+		m_module->m_llvmIrBuilder.setInsertPoint (block->getLlvmBlock ()->begin ());
 		m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
-		Value frameMapValue (&it->m_frameMap, type);
+		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
 		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
 	}
 

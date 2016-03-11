@@ -73,8 +73,9 @@ struct OnceStmt
 
 struct TryExpr
 {
+	TryExpr* m_prev;
 	BasicBlock* m_catchBlock;
-	Value m_prevSjljFrameValue;
+	size_t m_sjljFrameIdx;
 };
 
 //.............................................................................
@@ -88,14 +89,18 @@ protected:
 
 	sl::StdList <BasicBlock> m_blockList;
 	sl::Array <BasicBlock*> m_returnBlockArray;
+	sl::Array <BasicBlock*> m_landingPadBlockArray;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
 	BasicBlock* m_catchFinallyFollowBlock;
 	BasicBlock* m_returnBlock;
 	BasicBlock* m_dynamicThrowBlock;
-	Variable* m_finallyRouteIdxVariable;
 	Variable* m_returnValueVariable;
+	Variable* m_finallyRouteIdxVariable;
 	size_t m_finallyRouteIdx;
+	size_t m_sjljFrameCount;
+	Value m_sjljFrameArrayValue;
+	Value m_prevSjljFrameValue;
 
 public:
 	ControlFlowMgr ();
@@ -127,6 +132,12 @@ public:
 	void
 	markUnreachable (BasicBlock* block);
 
+	void
+	markLandingPad (
+		BasicBlock* block,
+		Scope* scope
+		);
+
 	bool
 	deleteUnreachableBlocks ();
 
@@ -134,6 +145,12 @@ public:
 	getReturnBlockArray ()
 	{
 		return m_returnBlockArray;
+	}
+
+	sl::Array <BasicBlock*> 
+	getLandingPadBlockArray ()
+	{
+		return m_landingPadBlockArray;
 	}
 
 	void 
@@ -164,9 +181,6 @@ public:
 	bool
 	continueJump (size_t level);
 
-	void
-	throwException ();
-
 	bool
 	ret (const Value& value);
 
@@ -175,6 +189,11 @@ public:
 	{
 		return ret (Value ());
 	}
+
+	bool
+	checkReturn ();
+
+	// exception handling
 
 	void
 	beginTry (TryExpr* tryExpr);
@@ -185,6 +204,9 @@ public:
 		Value* value
 		);
 
+	void
+	throwException ();
+
 	bool
 	throwExceptionIf (
 		const Value& returnValue,
@@ -194,32 +216,29 @@ public:
 	void
 	setJmp (
 		BasicBlock* catchBlock,
-		Value* prevSjljValue
+		size_t sjljFrameIdx
 		);
 
 	void
 	setJmpFinally (
 		BasicBlock* finallyBlock,
-		Value* prevSjljValue
+		size_t sjljFrameIdx
 		);
 
 	bool
 	catchLabel (const Token::Pos& pos);
 
 	void
-	closeCatch ();
+	finalizeCatchScope (Scope* scope);
 
 	bool
 	finallyLabel (const Token::Pos& pos);
 
 	void
-	closeFinally ();
+	finalizeFinallyScope (Scope* scope);
 
 	void
-	closeDisposeFinally ();
-
-	bool
-	checkReturn ();
+	finalizeDisposableScope (Scope* scope);
 
 	// if stmt
 
@@ -390,13 +409,21 @@ protected:
 
 	BasicBlock*
 	getDynamicThrowBlock ();
-
-
+	
 	Variable* 
 	getReturnValueVariable ();
 
 	void
 	normalFinallyFlow ();
+
+	void
+	preCreateSjljFrameArray ();
+
+	void
+	finalizeSjljFrameArray ();
+
+	void
+	setSjljFrame (size_t index);
 };
 
 //.............................................................................

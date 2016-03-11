@@ -12,6 +12,7 @@ BasicBlock::BasicBlock ()
 	m_module = NULL;
 	m_llvmBlock = NULL;
 	m_function = NULL;
+	m_landingPadScope = NULL;
 	m_flags = 0;
 }
 

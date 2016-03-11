@@ -175,14 +175,13 @@ NamespaceMgr::openInternalScope ()
 	if (m_currentScope)
 	{
 		// propagate parent scope traits
-		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_Finalizable | ScopeFlag_StaticThrow);
+		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_Finalizable | ScopeFlag_HasCatch);
+		scope->m_sjljFrameIdx = m_currentScope->m_sjljFrameIdx;
 		scope->m_gcShadowStackFrameMap = m_currentScope->m_gcShadowStackFrameMap;
 	}
 	else 
 	{
 		scope->m_flags = ScopeFlag_Function;
-		if (function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode)
-			scope->m_flags |= ScopeFlag_StaticThrow;
 	}
 
 	// if this scope creates any gc roots, frame map should be set before any of those
@@ -214,28 +213,30 @@ NamespaceMgr::openScope (
 
 	setSourcePos (pos);
 
-	if (flags & ScopeFlag_CatchAhead)
+	if (flags & ScopeFlag_Disposable)
 	{
-		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block", BasicBlockFlag_Catch);
-
-		if (ScopeFlag_FinallyAhead)
-			scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("catch_finally_block", BasicBlockFlag_Finally);
-
-		m_module->m_controlFlowMgr.setJmp (scope->m_catchBlock, &scope->m_prevSjljFrameValue);
-	}
-	else if (flags & ScopeFlag_Disposable)
-	{
-		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("dispose_finally_block", BasicBlockFlag_Finally);
-		m_module->m_controlFlowMgr.setJmpFinally (scope->m_finallyBlock, &scope->m_prevSjljFrameValue);
+		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("dispose_block");
+		scope->m_sjljFrameIdx++;
+		m_module->m_controlFlowMgr.setJmpFinally (scope->m_finallyBlock, scope->m_sjljFrameIdx);
 
 		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
 		scope->m_disposeLevelVariable = m_module->m_variableMgr.createSimpleStackVariable ("dispose_level", type);
 		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), scope->m_disposeLevelVariable);
 	}
+	else if (flags & ScopeFlag_CatchAhead)
+	{
+		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
+		scope->m_sjljFrameIdx++;
+		m_module->m_controlFlowMgr.setJmp (scope->m_catchBlock, scope->m_sjljFrameIdx);
+
+		if (ScopeFlag_FinallyAhead)
+			scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("catch_finally_block");
+	}
 	else if (flags & ScopeFlag_FinallyAhead)
 	{
-		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block", BasicBlockFlag_Finally);
-		m_module->m_controlFlowMgr.setJmpFinally (scope->m_finallyBlock, &scope->m_prevSjljFrameValue);
+		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock ("finally_block");
+		scope->m_sjljFrameIdx++;
+		m_module->m_controlFlowMgr.setJmpFinally (scope->m_finallyBlock, scope->m_sjljFrameIdx);
 	}
 	
 	if (flags & ScopeFlag_Nested)
@@ -263,19 +264,21 @@ NamespaceMgr::closeScope ()
 	if (flags & ScopeFlag_Disposable) 
 	{
 		m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
-		m_module->m_controlFlowMgr.closeDisposeFinally ();
+		m_module->m_controlFlowMgr.finalizeDisposableScope (m_currentScope);
 	}
 	else if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
 	{
-		m_module->m_controlFlowMgr.closeCatch ();
+		m_currentScope->m_flags &= ~ScopeFlag_Catch; // prevent recursion
+		m_module->m_controlFlowMgr.finalizeCatchScope (m_currentScope);
 	}
 	else if (flags & ScopeFlag_Finally) 
 	{
-		m_module->m_controlFlowMgr.closeFinally ();
+		m_currentScope->m_flags &= ~ScopeFlag_Finally; // prevent recursion
+		m_module->m_controlFlowMgr.finalizeFinallyScope (m_currentScope);
 	}
 
 	closeNamespace ();
-
+	
 	if ((flags & ScopeFlag_Nested) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
 		closeScope ();
 }
@@ -443,11 +446,8 @@ NamespaceMgr::findCatchScope ()
 	Scope* scope = m_currentScope;
 	for (; scope; scope = scope->getParentScope ())
 	{
-		if (scope->m_flags & ScopeFlag_CatchAhead)
-		{
-			ASSERT (scope->m_catchBlock);
+		if (scope->m_tryExpr || scope->m_catchBlock)
 			break;
-		}
 	}
 
 	return scope;

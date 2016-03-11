@@ -15,12 +15,11 @@ class Function;
 
 enum BasicBlockFlag
 {
-	BasicBlockFlag_Reachable = 0x01,
-	BasicBlockFlag_Jumped    = 0x02,
-	BasicBlockFlag_Entry     = 0x04,
-	BasicBlockFlag_Return    = 0x08,
-	BasicBlockFlag_Catch     = 0x10,
-	BasicBlockFlag_Finally   = 0x20,
+	BasicBlockFlag_Reachable  = 0x01,
+	BasicBlockFlag_Jumped     = 0x02,
+	BasicBlockFlag_Entry      = 0x04,
+	BasicBlockFlag_Return     = 0x08,
+	BasicBlockFlag_LandingPad = 0x10, // must restore sjlj frame and gc frame map
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,6 +34,7 @@ protected:
 
 	sl::String m_name;
 	Function* m_function;
+	Scope* m_landingPadScope;
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::DebugLoc m_llvmDebugLoc;
 
@@ -86,6 +86,12 @@ public:
 	getFunction ()
 	{
 		return m_function;
+	}
+
+	Scope*
+	getLandingPadScope ()
+	{
+		return m_landingPadScope;
 	}
 
 	llvm::BasicBlock*

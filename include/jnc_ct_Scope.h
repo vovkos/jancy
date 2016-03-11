@@ -15,6 +15,7 @@ class BasicBlock;
 class Function;
 class Variable;
 class GcShadowStackFrameMap;
+struct TryExpr;
 
 //.............................................................................
 
@@ -29,7 +30,7 @@ enum ScopeFlag
 	ScopeFlag_FinallyAhead = 0x004000,
 	ScopeFlag_Finalizable  = 0x010000, // scope or one of its parents has finally
 	ScopeFlag_Disposable   = 0x020000, // this scope contains disposable variables
-	ScopeFlag_StaticThrow  = 0x040000, // this scope or its parents have catch or function is errorcode
+	ScopeFlag_HasCatch     = 0x100000, // this scope or some of its parents have catch
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -55,8 +56,10 @@ public:
 	BasicBlock* m_continueBlock;
 	BasicBlock* m_catchBlock;
 	BasicBlock* m_finallyBlock;
+	
+	TryExpr* m_tryExpr;
+	size_t m_sjljFrameIdx;
 
-	Value m_prevSjljFrameValue;
 	LlvmIrInsertPoint m_gcShadowStackFrameMapInsertPoint;
 	GcShadowStackFrameMap* m_gcShadowStackFrameMap;
 	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable lift point
@@ -106,6 +109,9 @@ public:
 	{
 		return m_llvmDiScope;
 	}
+
+	bool
+	canStaticThrow ();
 };
 
 //.............................................................................

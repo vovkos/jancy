@@ -57,10 +57,11 @@ Variable::getLlvmValue ()
 	if (m_llvmValue)
 		return m_llvmValue;
 
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function && m_storageKind == StorageKind_Thread);
+	ASSERT (m_storageKind == StorageKind_Thread);
 
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (function->getEntryBlock ());
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	BasicBlock* entryBlock = function->getEntryBlock ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
 	Value ptrValue;
 	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca (

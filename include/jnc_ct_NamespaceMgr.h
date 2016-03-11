@@ -156,9 +156,6 @@ public:
 	void
 	closeScope ();
 
-	void
-	closeDisposableScope ();
-
 	AccessKind
 	getAccessKind (Namespace* nspace);
 

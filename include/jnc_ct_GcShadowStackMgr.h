@@ -51,18 +51,10 @@ class GcShadowStackMgr
 	friend class Module;
 
 protected:
-	struct RestoreFramePoint: sl::ListLink
-	{
-		BasicBlock* m_block;
-		GcShadowStackFrameMap* m_frameMap;
-	};
-
-protected:
 	Module* m_module;
 
 	sl::Array <Type*> m_gcRootTypeArray;
 	sl::StdList <GcShadowStackFrameMap> m_frameMapList;
-	sl::StdList <RestoreFramePoint> m_restoreFramePointList;
 	Value m_gcRootArrayValue;
 
 	Variable* m_frameVariable;
@@ -97,20 +89,14 @@ public:
 		);
 
 	void
-	addRestoreFramePoint (
-		BasicBlock* block,
-		GcShadowStackFrameMap* frameMap
+	setFrameMap (
+		GcShadowStackFrameMap* frameMap,
+		bool isOpen
 		);
 
 protected:
 	void
 	openFrameMap (Scope* scope);
-
-	void
-	setFrameMap (
-		GcShadowStackFrameMap* frameMap,
-		bool isOpen
-		);
 
 	void
 	preCreateFrame ();
