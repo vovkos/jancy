@@ -294,7 +294,7 @@ statement_pass1 <StmtPass1* $stmt>
 	|	TokenKind_Catch
 			{
 				$stmt->m_tokenList.insertTail ($1);
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead;
+				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
 			}
 	|	TokenKind_Finally
 			{

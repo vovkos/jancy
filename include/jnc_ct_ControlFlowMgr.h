@@ -135,7 +135,8 @@ public:
 	void
 	markLandingPad (
 		BasicBlock* block,
-		Scope* scope
+		Scope* scope,
+		LandingPadKind landingPadKind
 		);
 
 	bool
@@ -196,10 +197,10 @@ public:
 	// exception handling
 
 	void
-	beginTry (TryExpr* tryExpr);
+	beginTryOperator (TryExpr* tryExpr);
 
 	bool
-	endTry (
+	endTryOperator (
 		TryExpr* tryExpr,
 		Value* value
 		);
@@ -224,6 +225,9 @@ public:
 		BasicBlock* finallyBlock,
 		size_t sjljFrameIdx
 		);
+
+	void
+	finalizeTryScope (Scope* scope);
 
 	bool
 	catchLabel (const Token::Pos& pos);

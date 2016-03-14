@@ -69,6 +69,11 @@ public:
 		return m_module;
 	}
 
+	bool hasFrame ()
+	{
+		return m_frameVariable != NULL;
+	}
+
 	void
 	clear ();
 

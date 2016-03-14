@@ -126,7 +126,7 @@ ControlFlowMgr::setJmpFinally (
 }
 
 void
-ControlFlowMgr::beginTry (TryExpr* tryExpr)
+ControlFlowMgr::beginTryOperator (TryExpr* tryExpr)
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	tryExpr->m_prev = scope->m_tryExpr;
@@ -140,7 +140,7 @@ ControlFlowMgr::beginTry (TryExpr* tryExpr)
 }
 
 bool
-ControlFlowMgr::endTry (
+ControlFlowMgr::endTryOperator (
 	TryExpr* tryExpr,
 	Value* value
 	)
@@ -175,7 +175,7 @@ ControlFlowMgr::endTry (
 	setSjljFrame (tryExpr->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
 	jump (phiBlock, tryExpr->m_catchBlock);
 
-	markLandingPad (tryExpr->m_catchBlock, scope);
+	markLandingPad (tryExpr->m_catchBlock, scope, LandingPadKind_Exception);
 	jump (phiBlock, phiBlock);
 
 	m_module->m_llvmIrBuilder.createPhi (*value, prevBlock, errorValue, tryExpr->m_catchBlock, value);
@@ -240,6 +240,17 @@ ControlFlowMgr::throwExceptionIf (
 	return true;
 }
 
+void
+ControlFlowMgr::finalizeTryScope (Scope* scope)
+{
+	scope->m_flags |= ScopeFlag_CatchAhead;
+
+	bool result = catchLabel (Token::Pos ());
+	ASSERT (result);
+
+	finalizeCatchScope (scope);
+}
+
 bool
 ControlFlowMgr::catchLabel (const Token::Pos& pos)
 {
@@ -290,7 +301,7 @@ ControlFlowMgr::catchLabel (const Token::Pos& pos)
 
 	Scope* catchScope = m_module->m_namespaceMgr.openScope (pos, ScopeFlag_Catch);
 	catchScope->m_flags |= scope->m_flags & (ScopeFlag_Nested | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable); // propagate
-	markLandingPad (scope->m_catchBlock, catchScope);
+	markLandingPad (scope->m_catchBlock, catchScope, LandingPadKind_Exception);
 
 	if (scope->m_flags & ScopeFlag_FinallyAhead)
 	{
@@ -334,6 +345,13 @@ ControlFlowMgr::finallyLabel (const Token::Pos& pos)
 		return false;
 	}
 
+	if (scope->m_flags & ScopeFlag_Try)
+	{
+		scope->m_flags |= ScopeFlag_CatchAhead;
+		bool result = catchLabel (pos);
+		ASSERT (result);
+	}
+
 	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
 		normalFinallyFlow ();
 
@@ -346,7 +364,7 @@ ControlFlowMgr::finallyLabel (const Token::Pos& pos)
 	finallyScope->m_flags |= scope->m_flags & ScopeFlag_Nested; // propagate
 	finallyScope->m_finallyBlock = scope->m_finallyBlock; // to access finally route map
 
-	markLandingPad (scope->m_finallyBlock, finallyScope);
+	markLandingPad (scope->m_finallyBlock, finallyScope, LandingPadKind_Exception);
 
 	return true;
 }
@@ -567,7 +585,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 #if (_AXL_CPU == AXL_CPU_AMD64)
 	llvmAlloca->setAlignment (16);
 #endif
-
+	
 	// fixup all uses of sjlj frame array
 
 	ASSERT (llvm::isa <llvm::AllocaInst> (m_sjljFrameArrayValue.getLlvmValue ()));
@@ -576,6 +594,16 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	llvmAlloca->eraseFromParent ();
 
 	m_sjljFrameArrayValue = sjljFrameArrayValue;
+
+	// if this function has no gc shadow stack frame, we must also manually restore 
+	// previous gc shadow stack frame pointer on exception landing pads
+
+	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
+	Value prevGcShadowStackFrameValue;
+
+	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame ();
+	if (!hasGcShadowStackFrame)
+		m_module->m_llvmIrBuilder.createLoad (gcShadowStackTopVariable, NULL, &prevGcShadowStackFrameValue);
 
 	// restore sjlj frame at every landing pad
 
@@ -587,6 +615,11 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 
 		m_module->m_llvmIrBuilder.setInsertPoint (block->m_llvmBlock->begin ());
 		setSjljFrame (block->m_landingPadScope->m_sjljFrameIdx);
+
+		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr will not do it for us
+
+		if (!hasGcShadowStackFrame && block->m_landingPadKind == LandingPadKind_Exception)
+			m_module->m_llvmIrBuilder.createStore (prevGcShadowStackFrameValue, gcShadowStackTopVariable);
 	}
 
 	// done 

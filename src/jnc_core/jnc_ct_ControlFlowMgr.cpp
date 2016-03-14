@@ -259,18 +259,19 @@ ControlFlowMgr::markUnreachable (BasicBlock* block)
 void
 ControlFlowMgr::markLandingPad (
 	BasicBlock* block,
-	Scope* scope
+	Scope* scope,
+	LandingPadKind landingPadKind
 	)
 {
-	if (block->m_flags & BasicBlockFlag_LandingPad)
+	ASSERT (!block->m_landingPadKind || block->m_landingPadKind == landingPadKind);
+
+	if (!block->m_landingPadKind)
 	{
-		ASSERT (block->m_landingPadScope == scope);
-		return;
+		block->m_landingPadKind = landingPadKind;
+		m_landingPadBlockArray.append (block);
 	}
 
-	block->m_flags |= BasicBlockFlag_LandingPad;
-	block->m_landingPadScope = scope;
-	m_landingPadBlockArray.append (block);
+	block->m_landingPadScope = scope; // override scope anyway
 }
 
 void
@@ -401,7 +402,7 @@ ControlFlowMgr::escapeScope (
 		return;
 	}
 
-	markLandingPad (targetBlock, targetScope);
+	markLandingPad (targetBlock, targetScope, LandingPadKind_EscapeScope);
 
 	if (!firstFinallyBlock)
 	{

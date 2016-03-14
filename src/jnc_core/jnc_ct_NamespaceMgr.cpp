@@ -223,7 +223,7 @@ NamespaceMgr::openScope (
 		scope->m_disposeLevelVariable = m_module->m_variableMgr.createSimpleStackVariable ("dispose_level", type);
 		m_module->m_llvmIrBuilder.createStore (type->getZeroValue (), scope->m_disposeLevelVariable);
 	}
-	else if (flags & ScopeFlag_CatchAhead)
+	else if (flags & (ScopeFlag_Try | ScopeFlag_CatchAhead))
 	{
 		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock ("catch_block");
 		scope->m_sjljFrameIdx++;
@@ -265,6 +265,11 @@ NamespaceMgr::closeScope ()
 	{
 		m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
 		m_module->m_controlFlowMgr.finalizeDisposableScope (m_currentScope);
+	}
+	else if ((flags & ScopeFlag_Try) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
+	{
+		m_currentScope->m_flags &= ~ScopeFlag_Try; // prevent recursion
+		m_module->m_controlFlowMgr.finalizeTryScope (m_currentScope);
 	}
 	else if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
 	{

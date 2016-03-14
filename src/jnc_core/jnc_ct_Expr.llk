@@ -637,7 +637,7 @@ unary_operator_expr <Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PreDec, $value);
 			}
-	|	try_expr <$value>
+	|	try_operator_expr <$value>
 	|	resolver (cast_operator_rslv)
 		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr <$value>
 			{
@@ -661,18 +661,18 @@ unary_operator_expr <Value* $value>
 			}
 	;
 
-try_expr <Value* $value>
+try_operator_expr <Value* $value>
 	local
 	{
 		TryExpr $tryExpr;
 	}
 	:	TokenKind_Try
 			{
-				m_module->m_controlFlowMgr.beginTry (&$tryExpr);
+				m_module->m_controlFlowMgr.beginTryOperator (&$tryExpr);
 			}
 		unary_expr <$value>
 			{
-				return m_module->m_controlFlowMgr.endTry (&$tryExpr, $value);
+				return m_module->m_controlFlowMgr.endTryOperator (&$tryExpr, $value);
 			}
 	;
 

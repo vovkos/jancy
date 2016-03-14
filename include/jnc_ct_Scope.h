@@ -23,14 +23,15 @@ enum ScopeFlag
 {
 	ScopeFlag_Function     = 0x000100,
 	ScopeFlag_Unsafe       = 0x000200,
-	ScopeFlag_Catch        = 0x000400,
-	ScopeFlag_Finally      = 0x000800,
-	ScopeFlag_Nested       = 0x001000,
-	ScopeFlag_CatchAhead   = 0x002000,
-	ScopeFlag_FinallyAhead = 0x004000,
-	ScopeFlag_Finalizable  = 0x010000, // scope or one of its parents has finally
-	ScopeFlag_Disposable   = 0x020000, // this scope contains disposable variables
-	ScopeFlag_HasCatch     = 0x100000, // this scope or some of its parents have catch
+	ScopeFlag_Nested       = 0x000400,
+	ScopeFlag_Try          = 0x001000,
+	ScopeFlag_Catch        = 0x002000,
+	ScopeFlag_Finally      = 0x004000,
+	ScopeFlag_CatchAhead   = 0x020000,
+	ScopeFlag_FinallyAhead = 0x040000,
+	ScopeFlag_Finalizable  = 0x100000, // scope or one of its parents has finally
+	ScopeFlag_Disposable   = 0x200000, // this scope contains disposable variables
+	ScopeFlag_HasCatch     = 0x400000, // this scope or some of its parents have catch
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

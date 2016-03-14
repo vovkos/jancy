@@ -1,11 +1,13 @@
 //.............................................................................
 
-foo (bool b)
+foo (bool isError)
 {
 	printf ("foo ()\n");
-	if (b)
+
+	if (isError)
 	{
 		printf ("foo is about to throw...\n");
+		std.setStringError ("foo-error");
 		throw;
 	}
 }
@@ -25,13 +27,17 @@ int main ()
 		foo (true);
 
 		result = true;
+
+	finally:
+		printf ("try-finally\n", result);		
+		foo (true);
 	}
 
 	printf ("result = %d\n", result);
 	return 0;
 
 finally:
-	printf ("main finally\n");
+	printf ("main-finally\n");
 }
 
 //.............................................................................

@@ -19,7 +19,15 @@ enum BasicBlockFlag
 	BasicBlockFlag_Jumped     = 0x02,
 	BasicBlockFlag_Entry      = 0x04,
 	BasicBlockFlag_Return     = 0x08,
-	BasicBlockFlag_LandingPad = 0x10, // must restore sjlj frame and gc frame map
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum LandingPadKind
+{
+	LandingPadKind_None,
+	LandingPadKind_EscapeScope,
+	LandingPadKind_Exception,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -31,16 +39,17 @@ class BasicBlock: public sl::ListLink
 
 protected:
 	Module* m_module;
+	uint_t m_flags;
 
 	sl::String m_name;
 	Function* m_function;
-	Scope* m_landingPadScope;
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::DebugLoc m_llvmDebugLoc;
 
 	sl::HashTableMap <size_t, BasicBlock*, sl::HashId <size_t> > m_finallyRouteMap;
 
-	uint_t m_flags;
+	LandingPadKind m_landingPadKind;
+	Scope* m_landingPadScope;
 
 public:
 	BasicBlock ();
@@ -86,6 +95,12 @@ public:
 	getFunction ()
 	{
 		return m_function;
+	}
+
+	LandingPadKind
+	getLandingPadKind ()
+	{
+		return m_landingPadKind;
 	}
 
 	Scope*
