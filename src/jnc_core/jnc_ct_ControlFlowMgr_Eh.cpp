@@ -38,6 +38,22 @@ ControlFlowMgr::getFinallyRouteIdxVariable ()
 }
 
 void
+ControlFlowMgr::markLandingPad (
+	BasicBlock* block,
+	Scope* scope,
+	LandingPadKind landingPadKind
+	)
+{
+	ASSERT (landingPadKind >= block->m_landingPadKind); // escapeScope, then catchLabel/finallyLabel
+
+	if (!block->m_landingPadKind)
+		m_landingPadBlockArray.append (block);
+
+	block->m_landingPadKind = landingPadKind;
+	block->m_landingPadScope = scope;
+}
+
+void
 ControlFlowMgr::throwException ()
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
@@ -60,7 +76,7 @@ ControlFlowMgr::throwException ()
 		else
 		{
 			FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction ()->getType ();
-			ASSERT (!(currentFunctionType->getFlags () & FunctionTypeFlag_ErrorCode));
+			ASSERT (currentFunctionType->getFlags () & FunctionTypeFlag_ErrorCode);
 			Type* currentReturnType = currentFunctionType->getReturnType ();
 
 			Value throwValue;
