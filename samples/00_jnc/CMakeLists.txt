@@ -110,6 +110,7 @@ set (
 	50_Exceptions.jnc
 	51_Errors.jnc
 	52_Finally.jnc
+	53_Disposable.jnc
 	)
 
 source_group (
