@@ -117,26 +117,6 @@ class StringBuilder
 	size_t readonly m_length;
 	size_t readonly m_maxLength;
 
-	bool errorcode copy (StringRef src)
-	{
-		return try copy (src.m_p, src.m_length);
-	}
-	
-	bool errorcode copy (
-		char const* p,
-		size_t length = -1
-		);
-
-	bool errorcode append (StringRef src)
-	{
-		return try append (src.m_p, src.m_length);
-	}
-
-	bool errorcode append (
-		char const* p,
-		size_t length = -1
-		);
-
 	void operator := (StringRef src)
 	{
 		try copy (src);
@@ -145,6 +125,26 @@ class StringBuilder
 	void operator += (StringRef src)
 	{
 		try append (src);
+	}
+
+	bool errorcode copy (
+		char const* p,
+		size_t length = -1
+		);
+
+	bool errorcode copy (StringRef src)
+	{
+		return try copy (src.m_p, src.m_length);
+	}
+
+	bool errorcode append (
+		char const* p,
+		size_t length = -1
+		);
+
+	bool errorcode append (StringRef src)
+	{
+		return try append (src.m_p, src.m_length);
 	}
 }
 

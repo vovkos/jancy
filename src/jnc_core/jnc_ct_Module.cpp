@@ -620,13 +620,11 @@ Module::createDefaultConstructor ()
 
 	m_functionMgr.internalPrologue (function);
 
-	result = 
-		m_variableMgr.allocateInitializeGlobalVariables () &&
-		m_functionMgr.callStaticConstructors ();
-
+	result = m_variableMgr.allocateInitializeGlobalVariables ();
 	if (!result)
 		return false;
 
+	m_functionMgr.callStaticConstructors ();
 	m_functionMgr.internalEpilogue ();
 
 	return true;
