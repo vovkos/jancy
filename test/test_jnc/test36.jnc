@@ -1,11 +1,13 @@
+import "std_String.jnc"
+
 //.............................................................................
 
 int main ()
 {
 	printf ("main\n");
 
-	jnc.String s1 = "abc";
-	jnc.String s2 = "def";
+	std.String s1 = "abc";
+	std.String s2 = "def";
 
 	printf ("s1 = %s s2 = %s\n", s1, s2);
 

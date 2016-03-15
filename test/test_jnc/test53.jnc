@@ -29,7 +29,7 @@ int main ()
 	return 0;
 
 catch:
-	printf ("error: %s\n", jnc.getLastError ().m_description);
+	printf ("error: %s\n", std.getLastError ().m_description);
 	return -1; 
 }
 

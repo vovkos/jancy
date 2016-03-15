@@ -1,4 +1,4 @@
-library User32
+dynamiclib User32
 {
 	int stdcall MessageBoxA (
 		intptr hwnd,
@@ -6,9 +6,11 @@ library User32
 		char const thin* caption,
 		int flags
 		);
+
+	int stdcall MessageBeep (int type);
 }
 
-library Msvcrt
+dynamiclib Msvcrt
 {
 	int cdecl printf (
 		char const thin* format,
@@ -26,18 +28,19 @@ int main ()
 	printf ("main ()\n");
 
 	User32 user32;
-	user32.load ("user32.dll");
-	user32.lib.MessageBoxA (0, "Message Text", "Message Caption", 0x00000040);
+	user32.open ("user32.dll");
+//	user32.lib.MessageBoxA (0, "Message Text", "Message Caption", 0x00000040); // MB_ICONINFORMATION
+	user32.lib.MessageBeep (0x00000030); // MB_ICONEXCLAMATION
 
 	Msvcrt msvcrt;
-	msvcrt.load ("msvcrt.dll");
+	msvcrt.open ("msvcrt.dll");
 
 	foo (msvcrt);
 
 	return 0;
 
 catch:
-	printf ("error caught: %s\n", jnc.getLastError ().m_description);
+	printf ("error caught: %s\n", std.getLastError ().m_description);
 	return -1;
 }
 

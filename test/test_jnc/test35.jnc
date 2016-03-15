@@ -1,16 +1,18 @@
+import "std_String.jnc"
+
 //.............................................................................
 
 int main ()
 {
 	printf ("main\n");
 
-	jnc.StringBuilder stringBuilder;
+	std.StringBuilder stringBuilder;
 	stringBuilder := "hui ";
 	stringBuilder += "govno ";
 	stringBuilder += "i ";
 	stringBuilder += "muravei!";
 
-	jnc.String string = stringBuilder;
+	std.String string = stringBuilder;
 
 	printf ("string = '%s'\n", string.m_p);
 

@@ -1,5 +1,3 @@
-void qtWait (uint_t timeMs);
-
 //.............................................................................
 
 class Foo
@@ -25,7 +23,7 @@ class Foo
 
 threadProc ()
 {
-	intptr tid = jnc.getCurrentThreadId ();
+	intptr tid = std.getCurrentThreadId ();
 
 	printf ("+threadProc %d\n", tid);
 
@@ -41,13 +39,11 @@ int main ()
 {	
 	printf ("main ()\n");
 
-	jnc.createThread (threadProc);
-	jnc.createThread (threadProc);
-	jnc.createThread (threadProc);
-	jnc.createThread (threadProc);
-	jnc.createThread (threadProc);
-
-//	qtWait (5000);
+	std.createThread (threadProc);
+	std.createThread (threadProc);
+	std.createThread (threadProc);
+	std.createThread (threadProc);
+	std.createThread (threadProc);
 
 	printf ("exiting main...\n");
 	return 0; 

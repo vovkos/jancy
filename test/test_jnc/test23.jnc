@@ -4,7 +4,7 @@ class C1
 {
 	int m_Int;
 
-	autoev m_MyAutoEv ()
+	reactor m_MyAutoEv ()
 	{
 		m_Int = gx_MyProp * 2;
 	}
@@ -18,7 +18,7 @@ main ()
 	printf ("main ()\n");
 
 	C1 c;
-	c.m_MyAutoEv.Start ();
+	c.m_MyAutoEv.start ();
 
 	gx_MyProp = 12;
 
@@ -36,13 +36,5 @@ bar ()
 {
 	printf ("bar ()\n");
 }
-
-//.............................................................................
-
-int
-printf (
-	unsafe thin const char* pFormat,
-	unsafe ...
-	);
 
 //.............................................................................

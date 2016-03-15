@@ -1,4 +1,4 @@
-fenum OpenFlags
+bitflag enum OpenFlags
 {
 	ReadOnly,
 	Exclusive,

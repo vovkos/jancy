@@ -169,44 +169,42 @@ endif ()
 
 #..............................................................................
 
-# macro for running jancy compiler on specified list of test source files
-
 macro (
 add_jancy_tests
-	_FLAGS
-	_DIR
 	# ...
 	)
 
-	set (_JANCY_EXE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/jancy)
-	set (_FILE_NAME_LIST ${ARGN})
+	if (UNIX)
+		set (_FLAGS "--mcjit --debug-info --run --print-retval")
+	else ()
+		set (_FLAGS "--run --print-retval")
+	endif ()
+
 	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
+	
+	set (_FILE_NAME_LIST ${ARGN})
+	set (_IS_DIR FALSE)
+	set (_DIR)
 
 	foreach (_FILE_NAME ${_FILE_NAME_LIST})
-		add_test (
-			NAME ${_FILE_NAME}
-			WORKING_DIRECTORY ${_DIR}
-			COMMAND ${_JANCY_EXE} ${_FLAG_LIST} ${_FILE_NAME}
-			)
+		if (${_IS_DIR})
+			set (_DIR ${_FILE_NAME})
+			set (_IS_DIR FALSE)
+		elseif ("${_FILE_NAME}" STREQUAL "WORKING_DIRECTORY")
+			set (_IS_DIR TRUE)
+		elseif ("${_DIR}" STREQUAL "")
+			add_test (
+				NAME ${_FILE_NAME}
+				COMMAND $<TARGET_FILE:jnc_app> ${_FLAG_LIST} ${_FILE_NAME}
+				)
+		else ()
+			add_test (
+				NAME ${_FILE_NAME}
+				WORKING_DIRECTORY ${_DIR}
+				COMMAND $<TARGET_FILE:jnc_app> ${_FLAG_LIST} ${_FILE_NAME}
+				)
+		endif ()
 	endforeach ()
 endmacro ()
-
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-# test against official samples
-
-if (UNIX)
-	set (_FLAGS "--mcjit --debug-info --run --print-retval")
-else ()
-	set (_FLAGS "--run --print-retval")
-endif ()
-
-add_jancy_tests (
-	${_FLAGS}
-	${JANCY_SAMPLE_DIR}
-	${JANCY_SAMPLE_LIST}
-	)
-
-# later add more test files
 
 #..............................................................................

@@ -6,7 +6,7 @@ int main ()
 	int* p;
 
 	{
-		stack int x;
+		int x;
 		v = &x;
 	}
 

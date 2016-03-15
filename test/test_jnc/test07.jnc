@@ -2,8 +2,8 @@
 
 struct Point
 {
-	int m_x;
-	int m_y;
+	char m_x;
+	char m_y;
 }
 
 struct Line
@@ -16,7 +16,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	char const* p = jnc.format ("offset = %d\n", offsetof (Line.m_b.m_y));
+	char const* p = std.format ("offset = %d\n", offsetof (Line.m_b.m_y));
 	printf ("s = %s\n", p);
 
 	return 0;

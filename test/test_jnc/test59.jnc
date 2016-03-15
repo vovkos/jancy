@@ -1,28 +1,30 @@
+import "std_HashTable.jnc"
+
 //.............................................................................
 
 int main ()
 {	
 	printf ("main ()\n");
 
-	jnc.StringHashTable hashTable;
+	std.StringHashTable hashTable;
 	hashTable.insert ("first-name", "Vladimir");
-	hashTable.m_map ["last-name"]  = "Gladkov";
+	hashTable.m_map ["last-name"] = "Gladkov";
 
 	printf (
 		$"first-name = %1\nlast-name = %2\nmiddle-name found = %3\n" (
-			hashTable.read ("first-name"),
+			hashTable.find ("first-name"),
 			hashTable.m_map ["last-name"],
 			(bool) hashTable.find ("middle-name")
 			)
 		);
 
-	jnc.VariantHashTable hashTable2;
+	std.VariantHashTable hashTable2;
 	hashTable2.insert (1, "Vladimir");
 	hashTable2.m_map [2] = "Gladkov";
 
 	printf (
 		$"[1] -> %1\n[2] -> %2\n[3] found = %3\n" (
-			hashTable2.read (1),
+			hashTable2.find (1),
 			hashTable2.m_map [2],
 			(bool) hashTable2.find (3)
 			)

@@ -21,7 +21,7 @@ int main ()
 {
 	printf ("hello world!\n");
 
-	stack Point point;
+	Point point;
 
 	C c;
 	try c.foo (&point);

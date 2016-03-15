@@ -1,14 +1,24 @@
 //.............................................................................
 
-opaque class OpaqueTest
+class OpaqueTest
 {
-	OpaqueTest* operator new (
+	construct (
 		int x, 
 		int y
-		);
+		)
+	{
+		printf ("OpaqueTest.construct (%d, %d)\n", x, y);
+	}
 
-	void foo ();
-	void bar ();
+	void foo ()
+	{
+		printf ("OpaqueTest.foo ()\n");
+	}
+
+	void bar ()
+	{
+		printf ("OpaqueTest.bar ()\n");
+	}
 }
 
 int main ()

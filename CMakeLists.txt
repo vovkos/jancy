@@ -55,15 +55,18 @@ add_subdirectory (cmake)
 
 include (${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy_config.cmake)
 
-add_subdirectory (samples)
 add_subdirectory (src)
 
-if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/doc/CMakeLists.txt")
-	add_subdirectory (doc)
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/samples/CMakeLists.txt")
+	add_subdirectory (samples)
 endif ()	
 
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt")
 	add_subdirectory (test)
+endif ()	
+
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/doc/CMakeLists.txt")
+	add_subdirectory (doc)
 endif ()	
 
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/tools/CMakeLists.txt")

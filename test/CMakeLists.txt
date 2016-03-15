@@ -4,6 +4,8 @@
 
 #..............................................................................
 
+add_subdirectory (test_jnc)
+
 if (WIN32)
 	option (
 		BUILD_TEST_MFC
@@ -15,8 +17,6 @@ if (WIN32)
 		add_subdirectory (test_mfc)
 	endif ()
 endif ()
-
-#..............................................................................
 
 if (${QT_FOUND})
 	option (

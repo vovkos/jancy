@@ -1,6 +1,6 @@
 //.............................................................................
 
-bool automaton scanPacket ()
+jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 {
 	%% "open" [ \t]* [0-9]* [\r\n]
 		printf ("command = open\n%s\n", recognizer.m_lexeme);

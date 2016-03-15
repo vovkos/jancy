@@ -17,11 +17,18 @@ extension C1Ext: C1
 		printf ("C1Ext.bar () { m_x = %d }\n", m_x);
 	}
 
-	int autoget property m_prop;
+	int property m_prop;
+
+	int m_prop.get ()
+	{
+		printf ("C1Ext.m_prop.get () { m_x = %d }\n", m_x);
+		return m_x;
+	}
 
 	m_prop.set (int x)
 	{
-		printf ("C1Ext.set (%d) { m_x = %d }\n", x, m_x);		
+		printf ("C1Ext.set (%d) { m_x = %d }\n", x, m_x);
+		m_x = x;
 	}
 	
 }
@@ -33,8 +40,9 @@ int main ()
 	printf ("main\n");
 
 	C1 c;
-	//c.foo ();
+	c.foo ();
 	c.bar ();
+	c.m_prop = 100;
 
 	return 2;
 }

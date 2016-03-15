@@ -1,7 +1,5 @@
-typedef int stdcall MessageBox (
-	intptr hwnd,
-	char const thin* text,
-	char const thin* caption,
+typedef int stdcall SndPlaySound (
+	char const thin* name,
 	int flags
 	);
 
@@ -9,22 +7,21 @@ int main ()
 {
 	printf ("main ()\n");
 
-	jnc.Library lib;
-	lib.load ("user32.dll");
+	jnc.DynamicLib lib;
+	lib.open ("winmm.dll");
 
-	MessageBox thin* messageBox;
+	SndPlaySound thin* sndPlaySound;
 
 	unsafe
 	{
-		messageBox = (MessageBox thin*) lib.getFunction ("MessageBoxA");
+		sndPlaySound = (SndPlaySound thin*) lib.getFunction ("sndPlaySoundA");
 	}
 
-	messageBox (0, "Message Text", "Message Caption", 0x00000040);
-
+	sndPlaySound ("c:/windows/media/tada.wav", 0);
 	return 0;
 
 catch:
-	printf ("error caught: %s\n", jnc.getLastError ().m_description);
+	printf ("error caught: %s\n", std.getLastError ().m_description);
 	return -1;
 }
 

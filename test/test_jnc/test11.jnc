@@ -22,13 +22,13 @@ struct XxxEventParams
 
 struct XxxErrorEventParams: XxxEventParams
 {
-	jnc.Error const* m_error;
+	std.Error const* m_error;
 }
 
 int main ()
 {
 	XxxEventParams const* params;
-	(XxxErrorEventParams const*) params;
+	dynamic (XxxErrorEventParams const*) params;
 
 	return 0;
 }

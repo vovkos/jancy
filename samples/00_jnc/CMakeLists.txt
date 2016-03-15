@@ -206,18 +206,9 @@ set_target_properties (
 	FOLDER samples
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-set (
-	JANCY_SAMPLE_LIST
+add_jancy_tests (
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 	${FULL_JNC_LIST}
-	CACHE INTERNAL ""
 	)
 
-set (
-	JANCY_SAMPLE_DIR
-	${CMAKE_CURRENT_LIST_DIR}
-	CACHE INTERNAL ""
-	)
-	
 #..............................................................................

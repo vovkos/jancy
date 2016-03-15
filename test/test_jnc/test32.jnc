@@ -5,13 +5,29 @@ class TestClass
 	int m_x;
 	double m_y;
 
-	construct ();
-	construct (int x);
-	construct (double y);
+	construct ()
+	{
+	}
 
-	foo ();
-	foo (int x);
-	foo (double y);
+	construct (int x)
+	{
+	}
+
+	construct (double y)
+	{
+	}
+
+	foo ()
+	{
+	}
+
+	foo (int x)
+	{
+	}
+
+	foo (double y)
+	{
+	}
 }
 
 struct TestStruct
@@ -19,13 +35,29 @@ struct TestStruct
 	int m_x;
 	double m_y;
 
-	construct ();
-	construct (int x);
-	construct (double y);
+	construct ()
+	{
+	}
 
-	foo ();
-	foo (int x);
-	foo (double y);
+	construct (int x)
+	{
+	}
+
+	construct (double y)
+	{
+	}
+
+	foo ()
+	{
+	}
+
+	foo (int x)
+	{
+	}
+
+	foo (double y)
+	{
+	}
 }
 
 int main ()
