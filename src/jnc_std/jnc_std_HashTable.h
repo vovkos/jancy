@@ -12,49 +12,57 @@ namespace std {
 class StringHashTable: public rt::IfaceHdr
 {
 public:
+	JNC_OPAQUE_CLASS_TYPE_INFO (StringHashTable, &StringHashTable::markOpaqueGcRoots)
+
 	JNC_BEGIN_CLASS_TYPE_MAP ("std.StringHashTable", g_stdLibCacheSlot, StdLibTypeCacheSlot_StringHashTable)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <StringHashTable>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <StringHashTable>)
+		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &StringHashTable::isEmpty)
 		JNC_MAP_FUNCTION ("clear",  &StringHashTable::clear)
 		JNC_MAP_FUNCTION ("find", &StringHashTable::find)
 		JNC_MAP_FUNCTION ("insert", &StringHashTable::insert)
 		JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
 	JNC_END_CLASS_TYPE_MAP ()
 
-public:
-	typedef sl::StringHashTableMap <rt::DataPtr> StringHashTableMap;
-
-public:
-	StringHashTableMap* m_hashTable;
-	size_t m_count;
-
-public:
-	StringHashTable ()
+protected:
+	struct Entry: sl::ListLink
 	{
-		m_hashTable = AXL_MEM_NEW (StringHashTableMap);
-		m_count = 0;
-	}
+		rt::DataPtr m_keyPtr;
+		rt::Variant m_value;
+	};
 
-	~StringHashTable ();
+	typedef sl::StringHashTableMap <Entry*> StringHashTableMap;
+
+protected:
+	sl::StdList <Entry> m_list;
+	StringHashTableMap m_map;
+
+public:
+	void
+	AXL_CDECL
+	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+
+	bool 
+	AXL_CDECL
+	isEmpty ()
+	{
+		return m_list.isEmpty ();
+	}
 
 	void
 	AXL_CDECL
 	clear ()
 	{
-		m_hashTable->clear ();
-		m_count = 0;
+		m_list.clear ();
+		m_map.clear ();
 	}
 
-	static
-	rt::DataPtr
+	bool
+	AXL_CDECL
 	find (
-		StringHashTable* self,
-		rt::DataPtr keyPtr
-		)
-	{
-		StringHashTableMap::Iterator it = self->m_hashTable->find ((const char*) keyPtr.m_p);
-		return it ? it->m_value : rt::g_nullPtr;
-	}
+		rt::DataPtr keyPtr,
+		rt::DataPtr valuePtr
+		);
 
 	void
 	AXL_CDECL
@@ -65,10 +73,7 @@ public:
 
 	bool
 	AXL_CDECL
-	remove (rt::DataPtr keyPtr)
-	{
-		return m_hashTable->eraseByKey ((const char*) keyPtr.m_p);
-	}
+	remove (rt::DataPtr keyPtr);
 };
 
 //.............................................................................
@@ -76,49 +81,57 @@ public:
 class VariantHashTable: public rt::IfaceHdr
 {
 public:
+	JNC_OPAQUE_CLASS_TYPE_INFO (VariantHashTable, &VariantHashTable::markOpaqueGcRoots)
+
 	JNC_BEGIN_CLASS_TYPE_MAP ("std.VariantHashTable", g_stdLibCacheSlot, StdLibTypeCacheSlot_VariantHashTable)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <VariantHashTable>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <VariantHashTable>)
+		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &VariantHashTable::isEmpty)
 		JNC_MAP_FUNCTION ("clear",  &VariantHashTable::clear)
 		JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
 		JNC_MAP_FUNCTION ("insert", &VariantHashTable::insert)
 		JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
 	JNC_END_CLASS_TYPE_MAP ()
 
-public:
-	typedef sl::HashTableMap <rt::Variant, rt::DataPtr, rt::HashVariant, rt::CmpVariant> VariantHashTableMap;
-
-public:
-	VariantHashTableMap* m_hashTable;
-	size_t m_count;
-
-public:
-	VariantHashTable ()
+protected:
+	struct Entry: sl::ListLink
 	{
-		m_hashTable = AXL_MEM_NEW (VariantHashTableMap);
-		m_count = 0;
-	}
+		rt::Variant m_key;
+		rt::Variant m_value;
+	};
 
-	~VariantHashTable ();
+	typedef sl::HashTableMap <rt::Variant, Entry*, rt::HashVariant, rt::CmpVariant> VariantHashTableMap;
+
+protected:
+	sl::StdList <Entry> m_list;
+	VariantHashTableMap m_map;
+
+public:
+	void
+	AXL_CDECL
+	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+
+	bool
+	AXL_CDECL
+	isEmpty ()
+	{
+		return m_list.isEmpty ();
+	}
 
 	void
 	AXL_CDECL
 	clear ()
 	{
-		m_hashTable->clear ();
-		m_count = 0;
+		m_list.clear ();
+		m_map.clear ();
 	}
 
-	static
-	rt::DataPtr
+	bool
+	AXL_CDECL
 	find (
-		VariantHashTable* self,
-		rt::Variant key
-		)
-	{
-		VariantHashTableMap::Iterator it = self->m_hashTable->find (key);
-		return it ? it->m_value : rt::g_nullPtr;
-	}
+		rt::Variant key,
+		rt::DataPtr valuePtr
+		);
 
 	void
 	AXL_CDECL
@@ -129,10 +142,7 @@ public:
 
 	bool
 	AXL_CDECL
-	remove (rt::Variant key)
-	{
-		return m_hashTable->eraseByKey (key);
-	}
+	remove (rt::Variant key);
 };
 
 //.............................................................................

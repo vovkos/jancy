@@ -6,23 +6,27 @@ namespace std {
 
 //.............................................................................
 
-class StringHashTable
+opaque class StringHashTable
 {
-	protected intptr m_impl;
-	size_t readonly m_count;
-
 	construct ();
 	destruct ();
 
+	bool const property m_isEmpty;
+
 	clear ();
-	variant* find (char const* key) const;
-	
-	variant read (char const* key) const
+
+	bool find (
+		char const* key,
+		variant* value
+		) const;
+
+	variant find (char const* key) const
 	{
-		variant* value = find (key);
-		return value ? *value : null;
+		variant value;
+		find (key, &value);
+		return value;
 	}
-		
+	
 	insert (
 		char const* key,
 		variant value
@@ -34,7 +38,7 @@ class StringHashTable
 	{
 		variant get (char const* key)
 		{
-			return read (key);			
+			return find (key);			
 		}
 
 		set (
@@ -49,23 +53,27 @@ class StringHashTable
 
 //.............................................................................
 
-class VariantHashTable
+opaque class VariantHashTable
 {
-	protected intptr m_impl;
-	size_t readonly m_count;
-
 	construct ();
 	destruct ();
 
+	bool const property m_isEmpty;
+
 	clear ();
-	variant* find (variant key) const;
-	
-	variant read (variant key) const
+
+	bool find (
+		variant key,
+		variant* value		
+		) const;
+
+	variant find (variant key) const
 	{
-		variant* value = find (key);
-		return value ? *value : null;
+		variant value;
+		find (key, &value);
+		return value;
 	}
-		
+	
 	insert (
 		variant key,
 		variant value
@@ -77,7 +85,7 @@ class VariantHashTable
 	{
 		variant get (variant key)
 		{
-			return read (key);			
+			return find (key);			
 		}
 
 		set (

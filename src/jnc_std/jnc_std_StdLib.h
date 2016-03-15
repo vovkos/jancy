@@ -49,25 +49,7 @@ public:
 		JNC_MAP_FUNCTION ("memdup",  memDup)
 		JNC_MAP_FUNCTION ("rand",    rand)
 		JNC_MAP_FUNCTION ("atoi",    atoi)
-		
-/*
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-		source = getStdFunctionSource (func);
-		ASSERT (source->m_p);
-
-		function = parseStdFunction (
-			source->m_stdNamespace,
-			source->m_p,
-			source->m_length
-			);
-
-		ASSERT (!function->m_llvmFunction);
-		function->m_tag += "_jnc"; // as to avoid mapping conflicts
-		break;
-#endif
-
- */
 		JNC_MAP_TYPE (Error)
 		JNC_MAP_TYPE (ConstBuffer)
 		JNC_MAP_TYPE (ConstBufferRef)
@@ -89,6 +71,11 @@ public:
 		JNC_LIB_SOURCE_FILE ("std_List.jnc",      g_std_ListSrc)
 		JNC_LIB_SOURCE_FILE ("std_HashTable.jnc", g_std_HashTableSrc)
 	JNC_END_LIB_SOURCE_FILE_TABLE ()
+
+	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (StringHashTable)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (VariantHashTable)
+	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 	JNC_BEGIN_LIB_FORCED_EXPORT ()
 		JNC_LIB_FORCED_SOURCE_FILE ("std_globals.jnc", g_std_globalsSrc)
