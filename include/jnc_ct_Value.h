@@ -270,13 +270,6 @@ public:
 		return *(const size_t*) m_constData.ca ();
 	}
 
-	size_t
-	getFieldOffset () const
-	{
-		ASSERT (m_valueKind == ValueKind_Field && m_type->getSize () >= sizeof (size_t));
-		return *(const size_t*) m_constData.ca ();
-	}
-
 	float
 	getFloat () const
 	{
@@ -289,6 +282,13 @@ public:
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (double));
 		return *(const double*) m_constData.ca ();
+	}
+
+	size_t
+	getFieldOffset () const
+	{
+		ASSERT (m_valueKind == ValueKind_Field && m_constData.getCount () >= sizeof (size_t));
+		return *(const size_t*) m_constData.ca ();
 	}
 
 	bool
