@@ -670,6 +670,22 @@ Parser::declareTypedef (
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 
 	sl::String name = declarator->getName ()->getShortName ();
+
+	ModuleItem* prevItem = nspace->findItem (name);
+	if (prevItem)
+	{
+		if (prevItem->getItemKind () != ModuleItemKind_Typedef ||
+			((Typedef*) prevItem)->getType ()->cmp (type) != 0)
+		{
+			setRedefinitionError (name);
+			return false;
+		}
+
+		m_attributeBlock = NULL;
+		m_lastDeclaredItem = prevItem;
+		return true;
+	}
+
 	sl::String qualifiedName = nspace->createQualifiedName (name);
 
 	ModuleItem* item;
