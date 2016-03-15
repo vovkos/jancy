@@ -35,7 +35,7 @@ main := |*
 'import'          |
 'namespace'       |
 'extension'       |
-'library'         |
+'dynamiclib'      |
 'using'           |
 'friend'          |
 'public'          |
