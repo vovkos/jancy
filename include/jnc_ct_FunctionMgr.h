@@ -126,7 +126,7 @@ public:
 		m_staticConstructArray.append (namedTypeBlock);
 	}
 
-	bool
+	void
 	callStaticConstructors ();
 
 	Function*

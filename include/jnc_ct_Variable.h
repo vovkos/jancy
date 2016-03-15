@@ -52,8 +52,10 @@ protected:
 	void* m_staticData;
 	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
 	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
-	llvm::Value* m_llvmValue;               // GlobalVariable* / AllocaInst* / GEPInst*
+	llvm::Value* m_llvmValue;       // GlobalVariable* / AllocaInst* / GEPInst* / CallInst*
 	llvm::DIDescriptor m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
+
+	llvm::AllocaInst* m_llvmPreLiftValue; // we have to keep original allocas until the very end
 
 public:
 	LlvmIrInsertPoint m_liftInsertPoint;

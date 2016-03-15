@@ -23,11 +23,10 @@ VariableMgr::clear ()
 {
 	m_variableList.clear ();
 	m_aliasList.clear ();
-
 	m_staticVariableArray.clear ();
 	m_staticGcRootArray.clear ();
 	m_globalStaticVariableArray.clear ();
-
+	m_liftedStackVariableArray.clear ();
 	m_tlsVariableArray.clear ();
 	m_tlsStructType = NULL;
 
@@ -486,7 +485,7 @@ VariableMgr::liftStackVariable (Variable* variable)
 	ASSERT (llvm::isa <llvm::AllocaInst> (variable->m_llvmValue));
 	ASSERT (variable->m_liftInsertPoint);
 
-	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) variable->m_llvmValue;
+	variable->m_llvmPreLiftValue = (llvm::AllocaInst*) variable->m_llvmValue;
 	variable->m_storageKind = StorageKind_Heap;
 
 	LlvmIrInsertPoint prevInsertPoint;
@@ -501,8 +500,23 @@ VariableMgr::liftStackVariable (Variable* variable)
 	if (isInsertPointChanged)
 		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
 
-	llvmAlloca->replaceAllUsesWith (variable->m_llvmValue);
-	llvmAlloca->eraseFromParent ();
+	m_liftedStackVariableArray.append (variable);
+}
+
+void
+VariableMgr::finalizeLiftedStackVariables ()
+{
+	size_t count = m_liftedStackVariableArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = m_liftedStackVariableArray [i];
+		ASSERT (variable->m_llvmPreLiftValue);
+		variable->m_llvmPreLiftValue->replaceAllUsesWith (variable->m_llvmValue);
+		variable->m_llvmPreLiftValue->eraseFromParent ();
+		variable->m_llvmPreLiftValue = NULL;
+	}
+
+	m_liftedStackVariableArray.clear ();
 }
 
 Variable*

@@ -18,6 +18,7 @@ Variable::Variable ()
 	m_staticData = NULL;
 	m_llvmGlobalVariable = NULL;
 	m_llvmValue = NULL;
+	m_llvmPreLiftValue = NULL;
 }
 
 LeanDataPtrValidator*

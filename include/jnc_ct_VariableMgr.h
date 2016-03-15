@@ -25,20 +25,15 @@ protected:
 
 	sl::StdList <Variable> m_variableList;
 	sl::StdList <Alias> m_aliasList;
-
-	// static variables
-
 	sl::Array <Variable*> m_staticVariableArray;
 	sl::Array <Variable*> m_staticGcRootArray;
 	sl::Array <Variable*> m_globalStaticVariableArray;
-
-	// tls variables
-
+	sl::Array <Variable*> m_liftedStackVariableArray;
 	sl::Array <Variable*> m_tlsVariableArray;
 	StructType* m_tlsStructType;
 
 	Variable* m_stdVariableArray [StdVariable__Count];
-
+	
 public:
 	VariableMgr ();
 
@@ -53,6 +48,9 @@ public:
 
 	void
 	createStdVariables ();
+
+	void
+	finalizeLiftedStackVariables ();
 
 	Variable*
 	getStdVariable (StdVariable variable);

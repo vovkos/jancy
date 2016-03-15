@@ -42,11 +42,9 @@ FunctionMgr::clear ()
 	m_currentFunction = NULL;
 }
 
-bool
+void
 FunctionMgr::callStaticConstructors ()
 {
-	bool result;
-
 	Function* addDestructor = getStdFunction (StdFunc_AddStaticDestructor);
 	Type* dtorType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
@@ -59,23 +57,15 @@ FunctionMgr::callStaticConstructors ()
 		if (destructor)
 		{
 			Value dtorValue;
-			result = 
-				m_module->m_operatorMgr.castOperator (destructor, dtorType, &dtorValue) &&
-				m_module->m_operatorMgr.callOperator (addDestructor, dtorValue);
-
-			if (!result)
-				return false;
+			m_module->m_llvmIrBuilder.createBitCast (destructor, dtorType, &dtorValue);
+			m_module->m_llvmIrBuilder.createCall (addDestructor, addDestructor->getType (), dtorValue, NULL);
 		}
 
 		Function* constructor = namedTypeBlock->getStaticConstructor ();
 		ASSERT (constructor);
 
-		result = m_module->m_operatorMgr.callOperator (constructor);
-		if (!result)
-			return false;
+		m_module->m_llvmIrBuilder.createCall (constructor, constructor->getType (), NULL);
 	}
-
-	return true;
 }
 
 Value
@@ -253,12 +243,11 @@ FunctionMgr::prologue (
 
 	if (function->m_functionKind == FunctionKind_ModuleConstructor)
 	{
-		result = 
-			m_module->m_variableMgr.allocateInitializeGlobalVariables () &&
-			callStaticConstructors ();
-
+		result = m_module->m_variableMgr.allocateInitializeGlobalVariables ();
 		if (!result)
 			return false;
+
+		callStaticConstructors ();
 	}
 
 	// 'this' arg
@@ -404,6 +393,7 @@ FunctionMgr::finalizeFunction (
 		m_module->m_namespaceMgr.closeNamespace ();
 
 	m_module->m_operatorMgr.resetUnsafeRgn ();
+	m_module->m_variableMgr.finalizeLiftedStackVariables ();
 	m_module->m_gcShadowStackMgr.finalizeFunction ();
 	m_module->m_controlFlowMgr.finalizeFunction ();
 	m_module->m_llvmIrBuilder.moveAllAllocas (function->getEntryBlock ());
