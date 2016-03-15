@@ -189,14 +189,15 @@ CdeclCallConv_msc64::getThisArgValue (Function* function)
 {
 	ASSERT (function->isMember ());
 
-	Type* returnType = function->getType ()->getReturnType ();
-	if (!(returnType->getFlags () & TypeFlag_StructRet) ||
-		returnType->getSize () <= sizeof (uint64_t))
-		return CallConv::getThisArgValue (function);
+	FunctionType* functionType = function->getType ();
+	Type* returnType = functionType->getReturnType ();
 
-	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
-	llvmArg++;
-	return Value (llvmArg, function->getThisArgType ());
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
+	if ((returnType->getFlags () & TypeFlag_StructRet) && 
+		returnType->getSize () > sizeof (uint64_t))
+		llvmArg++;
+
+	return getArgValue (llvmArg, functionType, 0);
 }
 
 Value
