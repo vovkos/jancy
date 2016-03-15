@@ -648,7 +648,14 @@ CoreLib::appendFmtLiteral_v (
 	{
 		ct::ArrayType* arrayType = (ct::ArrayType*) variant.m_type;
 		size_t count = arrayType->getElementCount ();
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, (char*) &variant, count);
+		
+		// trim zero-termination
+
+		char* p = (char*) &variant;
+		while (count && p [count - 1] == 0)
+			count--;
+
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, count);
 	}
 	else if (isCharPtrType (variant.m_type))
 	{
