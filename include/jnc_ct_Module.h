@@ -261,7 +261,7 @@ public:
 	bool
 	parseFile (const char* filePath)
 	{
-		return parseFile (filePath, filePath);
+		return parseFile (filePath, io::getFullFilePath (filePath));
 	}
 
 	bool
