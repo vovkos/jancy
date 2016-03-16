@@ -173,13 +173,9 @@ StdLib::memCat (
 
 	if (ptr1.m_p)
 		memcpy (p, ptr1.m_p, size1);
-	else
-		memset (p, 0, size1);
 
 	if (ptr2.m_p)
 		memcpy (p + size1, ptr2.m_p, size2);
-	else
-		memset (p + size1, 0, size2);
 
 	return resultPtr;
 }
