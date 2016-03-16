@@ -75,6 +75,11 @@ Module::create (
 {
 	clear ();
 
+#ifdef _AXL_ASAN
+	// GC guard page safe points do not work with address sanitizer
+	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
+#endif		
+
 	m_name = name;
 	m_compileFlags = compileFlags;
 	m_compileState = ModuleCompileState_Idle;
