@@ -5,7 +5,7 @@ int main ()
 	char a [] = "abc";
 	char b [] = "defghi";
 
-	void* c = memcat (a, 3, b, 6);
+	void* c = memcat (a, 3, b, 7);
 	printf ("memcat = %s\n", c);	
 
 	char d [4];
