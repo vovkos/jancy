@@ -168,7 +168,7 @@ ControlFlowMgr::endTryOperator (
 
 	Value errorValue;
 	Type* type = value->getType ();
-	if (type->getTypeKind () == ValueKind_Void)
+	if (type->getTypeKind () == TypeKind_Void)
 	{
 		value->setConstBool (true, m_module);
 		errorValue.setConstBool (false, m_module);
