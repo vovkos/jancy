@@ -206,9 +206,11 @@ set_target_properties (
 	FOLDER samples
 	)
 
-add_jancy_tests (
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-	${FULL_JNC_LIST}
-	)
+if (${BUILD_JNC_APP})
+	add_jancy_tests (
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		${FULL_JNC_LIST}
+		)
+endif ()
 
 #..............................................................................
