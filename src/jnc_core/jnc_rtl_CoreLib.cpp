@@ -644,35 +644,54 @@ CoreLib::appendFmtLiteral_v (
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
 	}
-	else if (isCharArrayType (variant.m_type))
+
+	ct::Type* type;
+	const void* p;
+
+	if (typeKind != ct::TypeKind_DataRef)
 	{
-		ct::ArrayType* arrayType = (ct::ArrayType*) variant.m_type;
+		type = variant.m_type;
+		p = &variant;
+	}
+	else
+	{
+		type = ((ct::DataPtrType*) variant.m_type)->getTargetType ();
+		p = variant.m_dataPtr.m_p;
+	}
+
+	if (isCharArrayType (type))
+	{
+		ct::ArrayType* arrayType = (ct::ArrayType*) type;
 		size_t count = arrayType->getElementCount ();
-		
+		const char* c = (const char*) p;
+
 		// trim zero-termination
 
-		char* p = (char*) &variant;
-		while (count && p [count - 1] == 0)
+		while (count && c [count - 1] == 0)
 			count--;
 
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, count);
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, count);
 	}
-	else if (isCharPtrType (variant.m_type))
+	else if (isCharPtrType (type))
 	{
-		ct::DataPtrType* ptrType = (ct::DataPtrType*) variant.m_type;
+		ct::DataPtrType* ptrType = (ct::DataPtrType*) type;
 		ct::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 		
 		if (ptrTypeKind == ct::DataPtrTypeKind_Normal)
 			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(rt::DataPtr*) &variant);
 
-		const char* p = (const char*) variant.m_p;
+		const char* p = *(char**) p;
 		size_t length = strlen (p);
 
 		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, length);
 	}
-
-	char defaultString [] = "(variant)";
-	return appendFmtLiteral_a (fmtLiteral, defaultString, lengthof (defaultString));
+	else
+	{
+		sl::String string;
+		string.format ("(variant:%s)", type->getTypeString ().cc ());
+		
+		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+	}
 }
 
 size_t

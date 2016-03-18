@@ -8,23 +8,6 @@ namespace ct {
 
 //.............................................................................
 
-bool 
-Cast_Variant::checkOpType (Type* opType)
-{
-	if (opType->getSize () > sizeof (rt::DataPtr))
-	{
-		err::setFormatStringError (
-			"'%s' does not fit into 'variant' (current limit is %d bytes)", 
-			opType->getTypeString().cc (), 
-			sizeof (rt::DataPtr)
-			);
-
-		return false;
-	}
-
-	return true;
-}
-
 bool
 Cast_Variant::constCast (
 	const Value& opValue,
@@ -34,16 +17,28 @@ Cast_Variant::constCast (
 {
 	ASSERT (type->getTypeKind () == TypeKind_Variant);
 
-	Type* opType = opValue.getType ();
-	bool result = checkOpType (opType);
-	if (!result)
-		return false;
-
 	rt::Variant* variant = (rt::Variant*) dst;
 	memset (variant, 0, sizeof (rt::Variant));
 
-	const void* src = opValue.getConstData ();
-	memcpy (variant, src, opType->getSize ());
+	Type* opType = opValue.getType ();
+	if (opType->getSize () <= sizeof (rt::DataPtr))
+	{
+		memcpy (variant, opValue.getConstData (), opType->getSize ());
+	}
+	else // store it as reference
+	{
+		const void* p = m_module->m_constMgr.saveValue (opValue).getConstData ();
+
+		variant->m_dataPtr.m_p = (void*) p;
+		variant->m_dataPtr.m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, opType);
+		
+		opType = opType->getDataPtrType (
+			TypeKind_DataRef, 
+			DataPtrTypeKind_Normal, 
+			PtrTypeFlag_Const | PtrTypeFlag_Safe
+			);
+	}
+
 	variant->m_type = opType;
 	return true;
 }
@@ -65,16 +60,34 @@ Cast_Variant::llvmCast (
 	if ((opType->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
 		((DataPtrType*) opType)->getPtrTypeKind () == DataPtrTypeKind_Lean)
 	{
-		opType = ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (DataPtrTypeKind_Normal, opType->getFlags ());
+		opType = ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
+			opType->getTypeKind (), 
+			DataPtrTypeKind_Normal, 
+			opType->getFlags ()
+			);
+
 		m_module->m_operatorMgr.castOperator (rawOpValue, opType, &opValue);
 	}
-	else 
+	else if (opType->getSize () <= sizeof (rt::DataPtr))
 	{
-		result = checkOpType (opType);
+		opValue = rawOpValue;
+	}
+	else // store it as reference
+	{		
+		result = m_module->m_operatorMgr.gcHeapAllocate (opType, &opValue);
 		if (!result)
 			return false;
 
-		opValue = rawOpValue;
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getDataPtrType_c (), &ptrValue);
+		m_module->m_llvmIrBuilder.createStore (rawOpValue, ptrValue);
+
+		opType = opType->getDataPtrType (
+			TypeKind_DataRef, 
+			DataPtrTypeKind_Normal, 
+			PtrTypeFlag_Const | PtrTypeFlag_Safe
+			);
 	}
 	
 	Value opTypeValue (&opType, m_module->m_typeMgr.getStdType (StdType_BytePtr));

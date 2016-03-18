@@ -39,10 +39,6 @@ public:
 		Type* type,
 		Value* resultValue
 		);
-
-protected:
-	bool 
-	checkOpType (Type* opType);
 };
 
 //.............................................................................
