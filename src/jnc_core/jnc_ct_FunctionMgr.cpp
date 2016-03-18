@@ -910,6 +910,32 @@ FunctionMgr::getStdFunction (StdFunc func)
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.dynamicThrow", functionType);
 		break;
+		
+	case StdFunc_VariantUnaryOperator:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.variantUnaryOperator", functionType);
+		break;
+
+	case StdFunc_VariantBinaryOperator:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.variantBinaryOperator", functionType);
+		break;
+
+	case StdFunc_VariantRelationalOperator:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRangeIndirect", functionType);
+		break;
 
 	case StdFunc_GcSafePoint:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);

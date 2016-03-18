@@ -2,6 +2,7 @@
 #include "jnc_rtl_CoreLib.h"
 #include "jnc_ct_Module.h"
 #include "jnc_rt_Runtime.h"
+#include "jnc_rt_VariantUtils.h"
 
 namespace jnc {
 namespace rtl {
@@ -272,6 +273,37 @@ CoreLib::dynamicThrow()
 {
 	rt::Runtime::dynamicThrow ();
 	ASSERT (false);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+rt::Variant
+CoreLib::variantUnaryOperator (
+	int opKind,
+	rt::Variant op
+	)
+{
+	return rt::variantUnaryOperator ((ct::UnOpKind) opKind, op);
+}
+
+rt::Variant
+CoreLib::variantBinaryOperator (
+	int opKind,
+	rt::Variant op1,
+	rt::Variant op2
+	)
+{
+	return rt::variantBinaryOperator ((ct::BinOpKind) opKind, op1, op2);
+}
+
+bool
+CoreLib::variantRelationalOperator (
+	int opKind,
+	rt::Variant op1,
+	rt::Variant op2
+	)
+{
+	return rt::variantRelationalOperator ((ct::BinOpKind) opKind, op1, op2);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -663,7 +695,7 @@ CoreLib::appendFmtLiteral_v (
 	{
 		ct::ArrayType* arrayType = (ct::ArrayType*) type;
 		size_t count = arrayType->getElementCount ();
-		const char* c = (const char*) p;
+		const char* c = (char*) p;
 
 		// trim zero-termination
 
@@ -680,10 +712,10 @@ CoreLib::appendFmtLiteral_v (
 		if (ptrTypeKind == ct::DataPtrTypeKind_Normal)
 			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(rt::DataPtr*) &variant);
 
-		const char* p = *(char**) p;
-		size_t length = strlen (p);
+		const char* c = *(char**) p;
+		size_t length = strlen (c);
 
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, p, length);
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
 	}
 	else
 	{

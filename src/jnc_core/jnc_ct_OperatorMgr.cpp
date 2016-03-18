@@ -190,7 +190,10 @@ OperatorMgr::getUnaryOperatorResultType (
 
 	Value opValue;
 	prepareOperandType (rawOpValue, &opValue, op->getOpFlags ());
-	return op->getResultType (opValue);
+
+	return opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot ? 
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant) :
+		op->getResultType (opValue);
 }
 
 bool
@@ -234,9 +237,18 @@ OperatorMgr::unaryOperator (
 	UnaryOperator* op = m_unaryOperatorTable [opKind];
 	ASSERT (op);
 
-	return
-		prepareOperand (rawOpValue, &opValue, op->getOpFlags ()) &&
-		op->op (opValue, resultValue);
+	bool result = prepareOperand (rawOpValue, &opValue, op->getOpFlags ());
+	if (!result)
+		return false;
+
+	if (opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot)
+	{
+		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_VariantUnaryOperator);
+		Value opKindValue (opKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+		return callOperator (function, opKindValue, opValue, resultValue);
+	}
+
+	return op->op (opValue, resultValue);
 }
 
 Type*
@@ -257,6 +269,9 @@ OperatorMgr::getBinaryOperatorResultType (
 		return getCallOperatorResultType (function->getTypeOverload (), &argList);
 	}
 
+	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
+		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+
 	BinaryOperator* op = m_binaryOperatorTable [opKind];
 	ASSERT (op);
 
@@ -265,7 +280,11 @@ OperatorMgr::getBinaryOperatorResultType (
 	prepareOperandType (rawOpValue1, &opValue1, op->getOpFlags1 ());
 	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
 
-	return op->getResultType (opValue1, opValue2);
+	return 
+		(opValue1.getType ()->getTypeKind () == TypeKind_Variant || 
+		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind <= BinOpKind_Ge ? 
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant) :
+			op->getResultType (opValue1, opValue2);
 }
 
 bool
@@ -347,10 +366,29 @@ OperatorMgr::binaryOperator (
 	BinaryOperator* op = m_binaryOperatorTable [opKind];
 	ASSERT (op);
 
-	return
+	bool result =
 		prepareOperand (rawOpValue1, &opValue1, op->getOpFlags1 ()) &&
-		prepareOperand (rawOpValue2, &opValue2, op->getOpFlags2 ()) &&
-		op->op (opValue1, opValue2, resultValue);
+		prepareOperand (rawOpValue2, &opValue2, op->getOpFlags2 ());
+
+	if (!result)
+		return false;
+	
+	// printf
+
+	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
+		opValue2.getType ()->getTypeKind () == TypeKind_Variant)
+		&& opKind <= BinOpKind_Ge)
+	{
+		StdFunc stdFunc = opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge ? 
+			StdFunc_VariantRelationalOperator : 
+			StdFunc_VariantBinaryOperator;
+			
+		Function* function = m_module->m_functionMgr.getStdFunction (stdFunc);
+		Value opKindValue (opKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+		return callOperator (function, opKindValue, opValue1, opValue2, resultValue);
+	}
+
+	return op->op (opValue1, opValue2, resultValue);
 }
 
 Type*

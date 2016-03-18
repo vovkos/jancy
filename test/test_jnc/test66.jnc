@@ -1,0 +1,28 @@
+// test of storing large values in variants
+
+//.............................................................................
+
+int main ()
+{
+	printf ("main ()\n");
+
+	struct S
+	{
+		char a [128];
+	}
+
+	S s;
+	variant v0 = s;
+	printf ($"v0 = $v0\n");
+
+	variant v1 = "hui govno i muravei, muravei govno i hui";
+	printf ($"v1 = $v1\n");
+
+	char a [] = "hui govno i muravei, muravei govno i hui";
+	variant v2 = a;
+	printf ($"v2 = $v2\n");
+
+	return 0;
+}
+
+//.............................................................................

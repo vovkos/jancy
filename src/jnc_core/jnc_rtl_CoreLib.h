@@ -62,6 +62,12 @@ public:
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_GetTls,                   getTls)
 
+		// variant operators
+
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantUnaryOperator,      variantUnaryOperator)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantBinaryOperator,     variantBinaryOperator)
+		JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantRelationalOperator, variantRelationalOperator)
+
 		// exceptions
 
 		JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,       ::setjmp)
@@ -234,6 +240,31 @@ public:
 	static
 	void
 	dynamicThrow();
+
+	// variant operators
+
+	static
+	rt::Variant
+	variantUnaryOperator (
+		int opKind,
+		rt::Variant op
+		);
+
+	static
+	rt::Variant
+	variantBinaryOperator (
+		int opKind,
+		rt::Variant op1,
+		rt::Variant op2
+		);
+
+	static
+	bool
+	variantRelationalOperator (
+		int opKind,
+		rt::Variant op1,
+		rt::Variant op2
+		);
 
 	// runtime checks
 

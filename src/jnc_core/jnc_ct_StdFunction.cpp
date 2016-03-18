@@ -62,6 +62,10 @@ getStdFunctionSource (StdFunc stdFunc)
 		{ NULL },                                // StdFunc_SetJmp,
 		{ NULL },                                // StdFunc_DynamicThrow,
 
+		{ NULL },                                // StdFunc_VariantUnaryOperator,
+		{ NULL },                                // StdFunc_VariantBinaryOperator,
+		{ NULL },                                // StdFunc_VariantRelationalOperator,
+
 		{                                        // StdFunc_AppendFmtLiteral_a,
 			appendFmtLiteralSrc_a,
 			lengthof (appendFmtLiteralSrc_a),

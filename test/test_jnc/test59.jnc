@@ -7,7 +7,7 @@ int main ()
 	printf ("main ()\n");
 
 	std.StringHashTable hashTable;
-	hashTable.insert ("first-name", "Vova");
+	hashTable.insert ("first-name", "Vladimir");
 	hashTable.m_map ["last-name"] = "Gladkov";
 
 	printf (
@@ -19,7 +19,7 @@ int main ()
 		);
 
 	std.VariantHashTable hashTable2;
-	hashTable2.insert (1, "Vova");
+	hashTable2.insert (1, "Vladimir");
 	hashTable2.m_map [2] = "Gladkov";
 
 	printf (

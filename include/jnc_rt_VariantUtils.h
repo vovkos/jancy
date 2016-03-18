@@ -12,6 +12,19 @@ namespace rt {
 
 //.............................................................................
 
+Variant
+variantUnaryOperator (
+	ct::UnOpKind opKind,
+	const Variant& op
+	);
+
+Variant
+variantBinaryOperator (
+	ct::BinOpKind opKind,
+	const Variant& op1,
+	const Variant& op2
+	);
+
 bool
 variantRelationalOperator (
 	ct::BinOpKind opKind,

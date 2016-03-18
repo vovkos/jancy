@@ -37,6 +37,10 @@ enum StdFunc
 	StdFunc_SetJmp,
 	StdFunc_DynamicThrow,
 
+	StdFunc_VariantUnaryOperator,
+	StdFunc_VariantBinaryOperator,
+	StdFunc_VariantRelationalOperator,
+
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,
 	StdFunc_AppendFmtLiteral_i32,

@@ -1,0 +1,21 @@
+// test of simple operators applied to variants
+
+//.............................................................................
+
+int main ()
+{
+	printf ("main ()\n");
+
+	variant a = 10;
+
+	variant x = &a;
+
+	variant b = 20;
+	variant c = -(a + b) * a;
+
+	printf ($"a = $a; b = $b; c = $c\n");
+
+	return 0;
+}
+
+//.............................................................................
