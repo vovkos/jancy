@@ -5,10 +5,6 @@ declarator_list <TypeSpecifier* $typeSpecifier>
 	;
 
 full_declarator <TypeSpecifier* $typeSpecifier>
-	enter
-	{
-		return preDeclare ();
-	}
 	:	declarator $d <$typeSpecifier>
 		(TokenKind_Construct? arg_list_pass1 $c
 			{
@@ -47,6 +43,7 @@ declarator_name <Declarator* $declarator>
 	:	declarator_qualifier <$declarator>
 			{
 				$declarator->m_pos = $1.m_firstToken.m_pos;
+				$declarator->m_attributeBlock = popAttributeBlock ();
 			}
 		('.' declarator_qualifier <$declarator>)*
 	;

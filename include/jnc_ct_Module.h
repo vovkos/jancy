@@ -57,8 +57,8 @@ enum ModuleCompileFlag
 enum ModuleCompileState
 {
 	ModuleCompileState_Idle,
-	ModuleCompileState_Resolving,
 	ModuleCompileState_CalcLayout,
+	ModuleCompileState_LayoutCalculated,
 	ModuleCompileState_Compiling,
 	ModuleCompileState_Compiled,
 	ModuleCompileState_Jitting,
@@ -245,9 +245,6 @@ public:
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
-	bool
-	createLlvmExecutionEngine ();
-
 	void
 	clear ();
 
@@ -274,19 +271,19 @@ public:
 	parseImports ();
 
 	bool
+	resolve ();
+
+	bool
 	calcLayout ();
-
-	bool
-	processCompileArray ();
-
-	bool
-	postParseStdItem ();
 
 	bool
 	compile ();
 
 	bool
 	jit ();
+
+	bool
+	postParseStdItem ();
 
 	void
 	mapFunction (
@@ -302,7 +299,16 @@ public:
 
 protected:
 	bool
+	createLlvmExecutionEngine ();
+
+	bool
 	createDefaultConstructor ();
+
+	bool
+	processCalcLayoutArray ();
+
+	bool
+	processCompileArray ();
 };
 
 //.............................................................................

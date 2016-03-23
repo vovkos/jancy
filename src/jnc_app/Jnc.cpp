@@ -182,9 +182,7 @@ Jnc::compile ()
 bool
 Jnc::jit ()
 {
-	return
-		m_module.createLlvmExecutionEngine () &&
-		m_module.jit ();
+	return m_module.jit ();
 }
 
 void

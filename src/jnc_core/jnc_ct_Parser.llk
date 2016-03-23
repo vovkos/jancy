@@ -237,8 +237,18 @@ Members2
 	void
 	assignDeclarationAttributes (
 		ModuleItem* item,
-		const Token::Pos& pos
+		const Token::Pos& pos,
+		AttributeBlock* attributeBlock = NULL
 		);
+
+	void
+	assignDeclarationAttributes (
+		ModuleItem* item,
+		Declarator* declarator
+		)
+	{
+		assignDeclarationAttributes (item, declarator->m_pos, declarator->m_attributeBlock);
+	}
 
 	GlobalNamespace*
 	getGlobalNamespace (
@@ -267,8 +277,8 @@ Members2
 		const Token::Pos& pos
 		);
 
-	bool
-	preDeclare ();
+	AttributeBlock*
+	popAttributeBlock ();
 
 	bool
 	declare (Declarator* declarator);

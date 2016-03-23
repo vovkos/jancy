@@ -270,6 +270,7 @@ Declarator::Declarator ()
 	m_bitCount = 0;
 	m_postDeclaratorModifiers = 0;
 	m_baseType = NULL;
+	m_attributeBlock = NULL;
 }
 
 void

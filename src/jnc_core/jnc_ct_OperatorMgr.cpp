@@ -279,9 +279,6 @@ OperatorMgr::getBinaryOperatorResultType (
 		return getCallOperatorResultType (function->getTypeOverload (), &argList);
 	}
 
-	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
-		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
-
 	BinaryOperator* op = m_binaryOperatorTable [opKind];
 	ASSERT (op);
 
@@ -291,6 +288,9 @@ OperatorMgr::getBinaryOperatorResultType (
 	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
 
 #ifndef _JNC_NO_VARIANT_OPERATORS
+	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
+		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+
 	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant || 
 		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind <= BinOpKind_Ge)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);

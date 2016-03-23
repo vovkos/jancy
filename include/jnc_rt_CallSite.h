@@ -1609,127 +1609,6 @@ template <typename T>
 T*
 createClass (Runtime* runtime)
 {
-	bool result;
-	T* p;
-	ClassType* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	p = (T*) allocateClass (runtime, type);
-	sl::construct (p);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? p : NULL;
-}
-
-template <
-	typename T,
-	typename Arg
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg arg
-	)
-{
-	bool result;
-	T* p;
-	ClassType* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? p : NULL;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2
-	)
-{
-	bool result;
-	T* p;
-	ClassType* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? p : NULL;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3
-	)
-{
-	bool result;
-	T* p;
-	ClassType* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2, arg3);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? p : NULL;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3,
-	typename Arg4
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3,
-	Arg4 arg4
-	)
-{
-	bool result;
-	T* p;
-	ClassType* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2, arg3, arg4);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? p : NULL;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-template <typename T>
-T*
-createClass ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	ClassType* type = T::getType (runtime);
 	T* p = (T*) allocateClass (runtime, type);
 	sl::construct (p);
@@ -1742,11 +1621,11 @@ template <
 	typename Arg
 	>
 T*
-createClass (Arg arg)
+createClass (
+	Runtime* runtime,
+	Arg arg
+	)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	ClassType* type = T::getType (runtime);
 	T* p = (T*) allocateClass (runtime, type);
 	sl::construct (p, arg);
@@ -1761,13 +1640,11 @@ template <
 	>
 T*
 createClass (
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	ClassType* type = T::getType (runtime);
 	T* p = (T*) allocateClass (runtime, type);
 	sl::construct (p, arg1, arg2);
@@ -1783,14 +1660,12 @@ template <
 	>
 T*
 createClass (
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	ClassType* type = T::getType (runtime);
 	T* p = (T*) allocateClass (runtime, type);
 	sl::construct (p, arg1, arg2, arg3);
@@ -1807,15 +1682,13 @@ template <
 	>
 T*
 createClass (
+	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3,
 	Arg4 arg4
 	)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	ClassType* type = T::getType (runtime);
 	T* p = (T*) allocateClass (runtime, type);
 	sl::construct (p, arg1, arg2, arg3, arg4);
@@ -1829,16 +1702,11 @@ template <typename T>
 DataPtr
 createData (Runtime* runtime)
 {
-	bool result;
-	DataPtr ptr;
 	Type* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	ptr = allocateData (runtime, type);
+	DataPtr ptr = allocateData (runtime, type);
 	sl::construct ((T*) ptr.m_p);
-	JNC_END_CALL_SITE_EX (&result)
 
-	return result ? ptr : g_nullPtr;
+	return ptr;
 }
 
 template <
@@ -1851,16 +1719,11 @@ createData (
 	Arg arg
 	)
 {
-	bool result;
-	DataPtr ptr;
 	Type* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	ptr = allocateData (runtime, type);
+	DataPtr ptr = allocateData (runtime, type);
 	sl::construct ((T*) ptr.m_p, arg);
-	JNC_END_CALL_SITE_EX (&result)
 
-	return result ? ptr : g_nullPtr;
+	return ptr;
 }
 
 template <
@@ -1875,16 +1738,11 @@ createData (
 	Arg2 arg2
 	)
 {
-	bool result;
-	DataPtr ptr;
 	Type* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	ptr = allocateData (runtime, type);
+	DataPtr ptr = allocateData (runtime, type);
 	sl::construct ((T*) ptr.m_p, arg1, arg2);
-	JNC_END_CALL_SITE_EX (&result)
 
-	return result ? ptr : g_nullPtr;
+	return ptr;
 }
 
 template <
@@ -1901,16 +1759,11 @@ createData (
 	Arg3 arg3
 	)
 {
-	bool result;
-	DataPtr ptr;
 	Type* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	ptr = allocateData (runtime, type);
+	DataPtr ptr = allocateData (runtime, type);
 	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
-	JNC_END_CALL_SITE_EX (&result)
 
-	return result ? ptr : g_nullPtr;
+	return ptr;
 }
 
 template <
@@ -1929,113 +1782,6 @@ createData (
 	Arg4 arg4
 	)
 {
-	bool result;
-	DataPtr ptr;
-	Type* type = T::getType (runtime);
-
-	JNC_BEGIN_CALL_SITE (runtime)
-	ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
-	JNC_END_CALL_SITE_EX (&result)
-
-	return result ? ptr : g_nullPtr;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-template <typename T>
-DataPtr
-createData ()
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg
-	>
-DataPtr
-createData (Arg arg)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2
-	>
-DataPtr
-createData (
-	Arg1 arg1,
-	Arg2 arg2
-	)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3
-	>
-DataPtr
-createData (
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3
-	)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3,
-	typename Arg4
-	>
-DataPtr
-createData (
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3,
-	Arg4 arg4
-	)
-{
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
 	Type* type = T::getType (runtime);
 	DataPtr ptr = allocateData (runtime, type);
 	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);

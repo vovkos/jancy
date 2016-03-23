@@ -2443,7 +2443,7 @@ TypeMgr::parseStdType (
 	ASSERT (type);
 
 	ModuleCompileState state = m_module->getCompileState ();
-	if (state > ModuleCompileState_Resolving && m_parseStdTypeLevel == 1)
+	if (state > ModuleCompileState_LayoutCalculated && m_parseStdTypeLevel == 1)
 	{
 		result = m_module->postParseStdItem ();
 		ASSERT (result);

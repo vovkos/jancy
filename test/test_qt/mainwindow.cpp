@@ -542,10 +542,7 @@ bool MainWindow::compile ()
 
 	writeOutput("JITting...\n");
 
-	result =
-		m_module.createLlvmExecutionEngine () &&
-		m_module.jit ();
-
+	result = m_module.jit ();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription ().cc ());

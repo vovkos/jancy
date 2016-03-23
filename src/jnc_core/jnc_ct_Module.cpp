@@ -448,6 +448,126 @@ Module::calcLayout ()
 {
 	bool result;
 
+	ASSERT (m_compileState < ModuleCompileState_LayoutCalculated);
+	m_compileState = ModuleCompileState_CalcLayout;
+
+	// resolve imports & orphans
+
+	result =
+		m_typeMgr.resolveImportTypes () &&
+		m_namespaceMgr.resolveOrphans ();
+
+	if (!result)
+		return false;
+
+	// calc layout
+
+	result = processCalcLayoutArray ();
+	if (!result)
+		return false;
+
+	m_compileState = ModuleCompileState_LayoutCalculated;
+	return true;
+}
+
+bool
+Module::compile ()
+{
+	bool result;
+
+	ASSERT (m_compileState < ModuleCompileState_Compiled);
+	if (m_compileState < ModuleCompileState_LayoutCalculated)
+	{
+		result = calcLayout ();
+		if (!result)
+			return false;
+	}
+
+	m_compileState = ModuleCompileState_Compiling;
+
+	// ensure module constructor (always! cause static variable might appear during compilation)
+
+	if (m_constructor)
+	{
+		if (!m_constructor->hasBody ())
+		{
+			err::setFormatStringError ("unresolved module constructor");
+			return false;
+		}
+
+		result = m_constructor->compile ();
+		if (!result)
+			return false;
+	}
+	else
+	{
+		result = createDefaultConstructor ();
+		if (!result)
+			return false;
+	}
+
+	// compile the rest
+
+	result = processCompileArray ();
+	if (!result)
+		return false;
+
+	// deal with tls
+
+	result =
+		m_variableMgr.createTlsStructType () &&
+		m_functionMgr.injectTlsPrologues ();
+
+	if (!result)
+		return false;
+
+	// delete unreachable blocks
+
+	result = m_controlFlowMgr.deleteUnreachableBlocks ();
+	if (!result)
+		return false;
+
+	// finalize debug information
+
+	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
+		m_llvmDiBuilder.finalize ();
+
+	m_compileState = ModuleCompileState_Compiled;
+	return true;
+}
+
+bool
+Module::jit ()
+{
+	bool result;
+
+	ASSERT (m_compileState < ModuleCompileState_Jitted);
+	if (m_compileState < ModuleCompileState_Compiled)
+	{
+		result = compile ();
+		if (!result)
+			return false;
+	}
+
+	m_compileState = ModuleCompileState_Jitting;
+	
+	result = 
+		createLlvmExecutionEngine () &&
+		m_extensionLibMgr.mapFunctions () &&
+		m_functionMgr.jitFunctions ();
+
+	if (!result)
+		return false;
+
+	m_compileState = ModuleCompileState_Jitted;
+	return true;
+}
+
+bool
+Module::processCalcLayoutArray ()
+{
+	bool result;
+
 	while (!m_calcLayoutArray.isEmpty ()) // new items could be added in process
 	{
 		sl::Array <ModuleItem*> calcLayoutArray = m_calcLayoutArray;
@@ -498,7 +618,7 @@ Module::postParseStdItem ()
 
 	if (m_compileState > ModuleCompileState_CalcLayout)
 	{
-		result = calcLayout ();
+		result = processCalcLayoutArray ();
 		if (!result)
 			return false;
 
@@ -512,103 +632,6 @@ Module::postParseStdItem ()
 
 	return true;
 }
-
-bool
-Module::compile ()
-{
-	bool result;
-
-	// step 1: resolve imports & orphans
-
-	m_compileState = ModuleCompileState_Resolving;
-
-	result =
-		m_typeMgr.resolveImportTypes () &&
-		m_namespaceMgr.resolveOrphans ();
-
-	if (!result)
-		return false;
-
-	// step 2: calc layout
-
-	m_compileState = ModuleCompileState_CalcLayout;
-
-	result = calcLayout ();
-	if (!result)
-		return false;
-
-	// step 3: ensure module constructor (always! cause static variable might appear during compilation)
-
-	m_compileState = ModuleCompileState_Compiling;
-
-	if (m_constructor)
-	{
-		if (!m_constructor->hasBody ())
-		{
-			err::setFormatStringError ("unresolved module constructor");
-			return false;
-		}
-
-		result = m_constructor->compile ();
-		if (!result)
-			return false;
-	}
-	else
-	{
-		result = createDefaultConstructor ();
-		if (!result)
-			return false;
-	}
-
-	// step 4: compile the rest
-
-	result = processCompileArray ();
-	if (!result)
-		return false;
-
-	// step 6: deal with tls
-
-	result =
-		m_variableMgr.createTlsStructType () &&
-		m_functionMgr.injectTlsPrologues ();
-
-	if (!result)
-		return false;
-
-	// step 7: delete unreachable blocks
-
-	result = m_controlFlowMgr.deleteUnreachableBlocks ();
-	if (!result)
-		return false;
-
-	// step 8: finalize debug information
-
-	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
-		m_llvmDiBuilder.finalize ();
-
-	m_compileState = ModuleCompileState_Compiled;
-
-	return true;
-}
-
-bool
-Module::jit ()
-{
-	ASSERT (m_compileState = ModuleCompileState_Compiled);
-
-	m_compileState = ModuleCompileState_Jitting;
-	
-	bool result = 
-		m_extensionLibMgr.mapFunctions () &&
-		m_functionMgr.jitFunctions ();
-
-	if (!result)
-		return false;
-
-	m_compileState = ModuleCompileState_Jitted;
-	return true;
-}
-
 bool
 Module::createDefaultConstructor ()
 {

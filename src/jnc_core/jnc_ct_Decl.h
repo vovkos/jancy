@@ -393,6 +393,7 @@ protected:
 	size_t m_bitCount;
 	uint_t m_postDeclaratorModifiers;
 	Type* m_baseType;
+	AttributeBlock* m_attributeBlock;
 
 	sl::StdList <DeclPointerPrefix> m_pointerPrefixList;
 	sl::StdList <DeclSuffix> m_suffixList;
@@ -478,6 +479,12 @@ public:
 	getBaseType ()
 	{
 		return m_baseType;
+	}
+
+	AttributeBlock* 
+	getAttributeBlock ()
+	{
+		return m_attributeBlock;
 	}
 
 	sl::ConstList <DeclPointerPrefix> 

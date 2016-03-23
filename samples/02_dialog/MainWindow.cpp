@@ -103,10 +103,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("JITting...\n");
 
-	result = 
-		m_module.createLlvmExecutionEngine () &&
-		m_module.jit ();
-
+	result = m_module.jit ();
 	if (!result)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());

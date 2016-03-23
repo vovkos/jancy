@@ -88,10 +88,7 @@ main (
 
 	printf ("JITting...\n");
 
-	result = 
-		module.createLlvmExecutionEngine () &&
-		module.jit ();
-
+	result = module.jit ();
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());

@@ -541,14 +541,12 @@ Parser::useNamespace (
 	return true;
 }
 
-bool
-Parser::preDeclare ()
+AttributeBlock*
+Parser::popAttributeBlock ()
 {
-	if (!m_lastDeclaredItem || m_lastDeclaredItem->getItemKind () != ModuleItemKind_Property)
-		return true;
-
-	Property* prop = (Property*) m_lastDeclaredItem;
-	return true;
+	AttributeBlock* attributeBlock = m_attributeBlock;
+	m_attributeBlock = NULL;
+	return attributeBlock;
 }
 
 bool
@@ -625,7 +623,8 @@ Parser::declare (Declarator* declarator)
 void
 Parser::assignDeclarationAttributes (
 	ModuleItem* item,
-	const Token::Pos& pos
+	const Token::Pos& pos,
+	AttributeBlock* attributeBlock
 	)
 {
 	ModuleItemDecl* decl = item->getItemDecl ();
@@ -643,11 +642,9 @@ Parser::assignDeclarationAttributes (
 	decl->m_pos = pos;
 	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
-	decl->m_attributeBlock = m_attributeBlock;
+	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock ();
 
 	item->m_flags |= ModuleItemFlag_User;
-
-	m_attributeBlock = NULL;
 	m_lastDeclaredItem = item;
 }
 
@@ -704,7 +701,7 @@ Parser::declareTypedef (
 	if (!item)
 		return false;
 
-	assignDeclarationAttributes (item, declarator->getPos ());
+	assignDeclarationAttributes (item, declarator);
 
 	result = nspace->addItem (name, item);
 	if (!result)
@@ -747,7 +744,7 @@ Parser::declareAlias (
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
 	Alias* alias = m_module->m_variableMgr.createAlias (name, qualifiedName, type, initializer);
-	assignDeclarationAttributes (alias, declarator->getPos ());
+	assignDeclarationAttributes (alias, declarator);
 
 	result = nspace->addItem (alias);
 	if (!result)
@@ -857,7 +854,7 @@ Parser::declareFunction (
 	functionName->m_declaratorName = *declarator->getName ();
 	functionItem->m_tag = nspace->createQualifiedName (functionName->m_declaratorName);
 
-	assignDeclarationAttributes (functionItem, declarator->getPos ());
+	assignDeclarationAttributes (functionItem, declarator);
 
 	if (postModifiers & PostDeclaratorModifier_Const)
 		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
@@ -1337,12 +1334,12 @@ Parser::declareReactor (
 
 		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Reactor, start->getType ());
 		oprhan->m_declaratorName = *declarator->getName ();
-		assignDeclarationAttributes (oprhan, declarator->getPos ());
+		assignDeclarationAttributes (oprhan, declarator);
 	}
 	else
 	{
 		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ReactorClassType*) type, (ClassType*) parentType);
-		assignDeclarationAttributes (type, declarator->getPos ());
+		assignDeclarationAttributes (type, declarator);
 		result = declareData (declarator, type, ptrTypeFlags);
 		if (!result)
 			return false;
@@ -1506,7 +1503,7 @@ Parser::declareData (
 			if (!dataItem)
 				return false;
 
-			assignDeclarationAttributes (dataItem, declarator->getPos ());
+			assignDeclarationAttributes (dataItem, declarator);
 		}
 		else
 		{
@@ -1523,7 +1520,7 @@ Parser::declareData (
 			if (!variable)
 				return false;
 
-			assignDeclarationAttributes (variable, declarator->getPos ());
+			assignDeclarationAttributes (variable, declarator);
 
 			result = nspace->addItem (variable);
 			if (!result)
@@ -1571,7 +1568,7 @@ Parser::declareData (
 				return false;
 		}
 		
-		assignDeclarationAttributes (variable, declarator->getPos ());
+		assignDeclarationAttributes (variable, declarator);
 
 		result = nspace->addItem (variable);
 		if (!result)
@@ -1664,7 +1661,7 @@ Parser::declareData (
 		if (!field)
 			return false;
 
-		assignDeclarationAttributes (field, declarator->getPos ());
+		assignDeclarationAttributes (field, declarator);
 	}
 
 	return true;
@@ -1732,7 +1729,7 @@ Parser::createFormalArg (
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
 	FunctionArg* arg = m_module->m_typeMgr.createFunctionArg (name, type, ptrTypeFlags, initializer);
-	assignDeclarationAttributes (arg, declarator->getPos ());
+	assignDeclarationAttributes (arg, declarator);
 
 	argSuffix->m_argArray.append (arg);
 
