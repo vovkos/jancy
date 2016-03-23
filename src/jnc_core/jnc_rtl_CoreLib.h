@@ -119,10 +119,7 @@ public:
 
 	static
 	size_t
-	dynamicSizeOf (rt::DataPtr ptr)
-	{
-		return ptr.m_validator ? ptr.m_validator->m_rangeLength : 0;
-	}
+	dynamicSizeOf (rt::DataPtr ptr);
 
 	static
 	size_t

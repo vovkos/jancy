@@ -10,12 +10,23 @@ namespace rtl {
 //.............................................................................
 
 size_t
+CoreLib::dynamicSizeOf (rt::DataPtr ptr)
+{
+	if (!ptr.m_validator)
+		return 0;
+
+	char* p = (char*) ptr.m_p;
+	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
+	return p < end ? end - p : 0;
+}
+
+size_t
 CoreLib::dynamicCountOf (
 	rt::DataPtr ptr,
 	ct::Type* type
 	)
 {
-	size_t maxSize = ptr.m_validator ? ptr.m_validator->m_rangeLength : 0;
+	size_t maxSize = dynamicSizeOf (ptr);
 	size_t typeSize = type->getSize ();
 	return maxSize / (typeSize ? typeSize : 1);
 }

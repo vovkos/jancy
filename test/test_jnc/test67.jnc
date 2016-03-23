@@ -1,15 +1,434 @@
+/*
+//.............................................................................
+//
+// Packet definitions for standard protocols
+//
 
-[ fooAttr ]
+namespace io {
 
-void foo (int fooArg)
+//.............................................................................
+
+enum EthernetType: uint16_t
 {
+	Ip  = 0x0008,
+	Arp = 0x0608,
+	Ip6 = 0xdd86,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct EthernetHdr
+{
+	uint8_t m_dstAddress [6];
+	uint8_t m_srcAddress [6];
+	EthernetType m_type;
 }
 
 //.............................................................................
 
+struct ArpHdr
+{
+	uint16_t m_hardwareType;
+	uint16_t m_protocolType;
+	uint8_t m_hardwareLength;
+	uint8_t m_protocolLength;
+	uint16_t m_operation;
+}
+
+//.............................................................................
+
+enum IpProtocol: uint8_t
+{
+	Icmp = 1,
+	Tcp  = 6,
+	Udp  = 17,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum IpFlags
+{		
+	Mf = 0x01,
+	Df = 0x02,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IpHdr
+{
+	uint8_t m_headerLength: 4;
+	uint8_t m_version: 4;
+	uint8_t m_typeOfService;
+	bigendian uint16_t m_totalLength;
+	uint16_t m_identification;
+	bigendian uint16_t m_flags: 3;
+	bigendian uint16_t m_fragmentOffset: 13;
+	uint8_t m_timeToLive;
+	IpProtocol m_protocol;
+	bigendian uint16_t m_headerChecksum;
+	bigendian uint32_t m_srcAddress;
+	bigendian uint32_t m_dstAddress;
+}
+
+struct Ip6Hdr
+{
+	uint32_t m_flowLabel: 20;
+	uint32_t m_trafficClass: 8;
+	uint32_t m_version: 4;
+	bigendian uint16_t m_payloadLength;
+	uint8_t m_nextHeader;
+	uint8_t m_hopLimit;
+	uint16_t m_srcAddress [8];
+	uint16_t m_dstAddress [8];
+}
+
+struct IpPseudoHdr
+{
+	bigendian uint32_t m_srcAddress;
+	bigendian uint32_t m_dstAddress;
+	uint8_t m_zero;
+	uint8_t m_protocol;
+	bigendian uint16_t m_length;
+}
+
+//.............................................................................
+
+enum IcmpType: uint8_t
+{
+	EchoReply               = 0,
+	DestinationUnreachable  = 3,
+	SourceQuench            = 4,
+	Redirect                = 5,
+	Echo                    = 8,
+	RouterAdvertisement     = 9,
+	RouterSelection         = 10,
+	TimeExceeded            = 11,
+	ParameterProblem        = 12,
+	TimestampRequest        = 13,
+	TimestampReply          = 14,
+	InformationRequest      = 15,
+	InformationReply        = 16,
+	AddressMaskRequest      = 17,
+	AddressMaskReply        = 18,
+	TraceRoute              = 30,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IcmpHdr
+{
+	IcmpType m_type;
+	uint8_t m_code; 
+	bigendian uint16_t m_checksum;
+	bigendian uint16_t m_id;
+	bigendian uint16_t m_seqNumber;
+}
+
+//.............................................................................
+
+bitflag enum TcpFlags: uint8_t
+{
+	Fin,
+	Syn,
+	Rst,
+	Psh,
+	Ack,
+	Urg,
+	Bog,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TcpHdr
+{
+	bigendian uint16_t m_srcPort;
+	bigendian uint16_t m_dstPort;
+	bigendian uint32_t m_seqNumber;
+	bigendian uint32_t m_ackNumber;
+	uint8_t m_reserved: 4;
+	uint8_t m_dataOffset: 4;
+	TcpFlags m_flags;
+	bigendian uint16_t m_window;
+	bigendian uint16_t m_checksum;
+	bigendian uint16_t m_urgentData;
+	
+	[ packetTemplateAction ]
+
+	calcChecksum ()
+	{		
+		size_t size = dynamic sizeof (this);		
+	}	
+}
+
+//.............................................................................
+ 
+struct UdpHdr
+{
+	bigendian uint16_t m_srcPort;
+	bigendian uint16_t m_dstPort;
+	bigendian uint16_t m_length;
+	bigendian uint16_t m_checksum;
+	
+	[ packetTemplateAction ]
+
+	calcChecksum ()
+	{
+		size_t size = dynamic sizeof (this);		
+	}
+}
+
+//.............................................................................
+
+
+
+} // namespace io {
+
+//.............................................................................
+//
+// Packet header definitions for TCP/IP protocol stack
+//
+
+alignment (1);
+
+//.............................................................................
+
+struct EthernetFrame
+{
+	io.EthernetHdr m_ethernet;
+}
+
+struct ArpFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.ArpHdr m_arp;
+}
+
+struct IpFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.IpHdr m_ip;
+
+	[ packetTemplateAction ]
+
+	initialize ()
+	{
+		initializeEthernetIpHdr (&m_ethernet, &m_ip, (io.IpProtocol) 0);
+	}	
+	
+	[ packetTemplateAction ]
+
+	calcLength ()
+	{		
+		m_ip.m_totalLength = dynamic sizeof (&m_ip);
+	}	
+	
+	[ packetTemplateAction ]
+
+	calcChecksum ()
+	{		
+		m_ip.m_headerChecksum = 0;
+		m_ip.m_headerChecksum = calcIpHdrChecksum (&m_ip);
+	}	
+}
+
+struct IcmpFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.IpHdr m_ip;
+	io.IcmpHdr m_icmp;
+
+	[ packetTemplateAction ]
+
+	initialize ()
+	{
+		initializeEthernetIpHdr (&m_ethernet, &m_ip, io.IpProtocol.Icmp);
+		m_icmp = null;
+	}	
+	
+	[ packetTemplateAction ]
+
+	calcLength ()
+	{		
+		m_ip.m_totalLength = dynamic sizeof (&m_ip);
+	}	
+
+	[ packetTemplateAction ]
+	
+	calcChecksum ()
+	{		
+		m_ip.m_headerChecksum = 0;
+		m_ip.m_headerChecksum = calcIpHdrChecksum (&m_ip);
+	}	
+}
+
+struct TcpFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.IpHdr m_ip;
+	io.TcpHdr m_tcp;
+	
+	[ packetTemplateAction ]
+
+	initialize ()
+	{
+		initializeEthernetIpHdr (&m_ethernet, &m_ip, io.IpProtocol.Tcp);
+		m_tcp = null;
+	}
+
+	[ packetTemplateAction ]
+
+	calcLength ()
+	{		
+		m_ip.m_totalLength = dynamic sizeof (&m_ip);
+	}	
+
+	[ packetTemplateAction ]
+
+	calcChecksum ()
+	{	
+		m_ip.m_headerChecksum = 0;
+		m_ip.m_headerChecksum = calcIpHdrChecksum (&m_ip);
+		m_tcp.m_checksum = 0;
+		m_tcp.m_checksum = calcTcpUdpChecksum (&m_ip, &m_tcp, dynamic sizeof (&m_tcp));
+	}	
+}
+
+struct UdpFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.IpHdr m_ip;
+	io.UdpHdr m_udp;
+
+	[ packetTemplateAction ]
+
+	initialize ()
+	{
+		initializeEthernetIpHdr (&m_ethernet, &m_ip, io.IpProtocol.Udp);
+		m_udp = null;
+	}
+	
+	[ packetTemplateAction ]
+
+	calcLength ()
+	{		
+		m_ip.m_totalLength = dynamic sizeof (&m_ip);
+		m_udp.m_length = dynamic sizeof (&m_udp);
+	}	
+	
+	[ packetTemplateAction ]
+	
+	calcChecksum ()
+	{		
+		m_ip.m_headerChecksum = 0;
+		m_ip.m_headerChecksum = calcIpHdrChecksum (&m_ip);
+		m_udp.m_checksum = 0;
+		m_udp.m_checksum = calcTcpUdpChecksum (&m_ip, &m_udp, dynamic sizeof (&m_udp));
+	}	
+}
+
+//.............................................................................
+
+initializeEthernetIpHdr (
+	io.EthernetHdr* ethernetHdr,
+	io.IpHdr* ipHdr,
+	io.IpProtocol protocol
+	)
+{
+	*ethernetHdr = null;
+	ethernetHdr.m_type = io.EthernetType.Ip;
+
+	*ipHdr = null;	
+	ipHdr.m_version = 4;
+	ipHdr.m_headerLength = 5;
+	ipHdr.m_totalLength = dynamic sizeof (ipHdr);
+	ipHdr.m_timeToLive = 128;
+	ipHdr.m_protocol = protocol;
+}
+
+uint_t calcChecksum16 (
+	const void* p0, 
+	size_t size
+	) 
+{
+	uint16_t const* p = (uint16_t const*) p0;
+	void const* end = p0 + size;
+
+	uint_t checksum = 0;
+	
+	for (; p < end; p++)
+		checksum += *p;
+  
+	if (size & 1) 
+		checksum += *(uint8_t const*) p;
+
+	return checksum;
+}
+
+uint16_t adjustIpCheckSum (uint_t checksum) 
+{
+	checksum = (checksum >> 16) + (checksum & 0xffff);
+	checksum += checksum >> 16;
+	return ~checksum;
+}
+
+uint16_t calcIpHdrChecksum (io.IpHdr const* ipHdr)
+{
+	size_t size = ipHdr.m_headerLength * 4;
+	size_t maxSize = dynamic sizeof (ipHdr);
+	
+	if (size > maxSize)
+		size = maxSize;
+	
+	uint_t checksum = calcChecksum16 (ipHdr, size);
+	return adjustIpCheckSum (checksum);
+}
+
+uint16_t calcTcpUdpChecksum (
+	io.IpHdr const* ipHdr,
+	void const* p, 
+	size_t size
+	)
+{
+	io.IpPseudoHdr pseudoHdr;
+	pseudoHdr.m_srcAddress = ipHdr.m_srcAddress;
+	pseudoHdr.m_dstAddress = ipHdr.m_dstAddress;
+	pseudoHdr.m_zero = 0;
+	pseudoHdr.m_protocol = ipHdr.m_protocol;
+	pseudoHdr.m_length = size;
+
+	uint_t checksum = 
+		calcChecksum16 (&pseudoHdr, sizeof (pseudoHdr)) + 
+		calcChecksum16 (p, size);
+
+	return adjustIpCheckSum (checksum);
+}
+*/
+//.............................................................................
+
+struct Point
+{
+	int m_x;
+	int m_y;
+}
+
+struct MultiPoint
+{
+	Point m_a;
+	Point m_b;
+}
+
 int main ()
 {
 	printf ("main ()\n");
+
+	MultiPoint* p = new MultiPoint;
+
+	printf (
+		"sizeof (a) = %d; sizeof (b) = %d\n", 
+		dynamic sizeof (&p.m_a),
+		dynamic sizeof (&p.m_b)
+		);
+
 	return 0;
 }
 
