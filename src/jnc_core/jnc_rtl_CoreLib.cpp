@@ -16,7 +16,7 @@ CoreLib::dynamicSizeOf (rt::DataPtr ptr)
 		return 0;
 
 	char* p = (char*) ptr.m_p;
-	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
+	char* end = (char*) ptr.m_validator->m_rangeEnd;
 	return p < end ? end - p : 0;
 }
 
@@ -348,7 +348,7 @@ CoreLib::tryCheckDataPtrRangeDirect (
 		return false;
 	}
 
-	void* rangeEnd = rangeEnd = (char*) rangeBegin + rangeLength;
+	void* rangeEnd = (char*) rangeBegin + rangeLength;
 	if (p < rangeBegin ||  p > rangeEnd)
 	{
 		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
@@ -377,30 +377,20 @@ CoreLib::tryCheckDataPtrRangeIndirect (
 	rt::DataPtrValidator* validator
 	)
 {
-	if (!validator)
+	if (!p || !validator)
 	{
 		err::setStringError ("null data pointer access");
 		return false;
 	}
 
-	if (validator->m_rangeLength < size)
+	void* end = (char*) p + size;
+	if (p < validator->m_rangeBegin || end > validator->m_rangeEnd)
 	{
-		err::setFormatStringError (
-			"data pointer [%x:%x] out of range [%x:%x]", 
-			p, 
-			(char*) p + size,
-			validator->m_rangeBegin, 
-			(char*) validator->m_rangeBegin + validator->m_rangeLength
-			);
-
+		err::setFormatStringError ("data pointer %x out of range [%x:%x]", p, validator->m_rangeBegin, validator->m_rangeEnd);
 		return false;
 	}
 
-	return tryCheckDataPtrRangeDirect (
-		p, 
-		validator->m_rangeBegin, 
-		validator->m_rangeLength - size
-		);
+	return true;
 }
 
 
@@ -598,7 +588,10 @@ CoreLib::appendFmtLiteral_a (
 	fmtLiteral->m_length += length;
 	dst [fmtLiteral->m_length] = 0;
 
-	fmtLiteral->m_ptr.m_validator->m_rangeLength = fmtLiteral->m_length; // adjust validator
+	// adjust validator
+
+	rt::DataPtrValidator* validator = fmtLiteral->m_ptr.m_validator;
+	validator->m_rangeEnd = (char*) validator->m_rangeBegin + fmtLiteral->m_length;
 	return fmtLiteral->m_length;
 }
 

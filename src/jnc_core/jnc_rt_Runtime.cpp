@@ -301,7 +301,7 @@ strLen (DataPtr ptr)
 		return 0;
 
 	char* p0 = (char*) ptr.m_p;
-	char* end = (char*) ptr.m_validator->m_rangeBegin + ptr.m_validator->m_rangeLength;
+	char* end = (char*) ptr.m_validator->m_rangeEnd;
 
 	char* p = p0;
 	while (p < end && *p)

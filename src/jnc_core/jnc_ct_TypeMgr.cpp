@@ -2547,7 +2547,7 @@ TypeMgr::createDataPtrValidatorType ()
 	type->createField ("!m_validatorBox", getStdType (StdType_BoxPtr));
 	type->createField ("!m_targetBox", getStdType (StdType_BoxPtr));
 	type->createField ("!m_rangeBegin", getStdType (StdType_BytePtr));
-	type->createField ("!m_rangeLength", getPrimitiveType (TypeKind_SizeT));
+	type->createField ("!m_rangeEnd", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }

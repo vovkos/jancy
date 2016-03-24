@@ -365,13 +365,23 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	uintptr_t flags = rt::BoxFlag_StaticData | rt::BoxFlag_DataMark | rt::BoxFlag_WeakMark;
 
 	Value variablePtrValue;
+	Value variableEndPtrValue;
+
 	m_module->m_llvmIrBuilder.createBitCast (
 		variable, 
 		m_module->m_typeMgr.getStdType (StdType_BytePtr), 
 		&variablePtrValue
 		);
 
+	m_module->m_llvmIrBuilder.createGep (
+		variablePtrValue, 
+		variable->m_type->getSize (), 
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
+		&variableEndPtrValue
+		);
+
 	ASSERT (llvm::isa <llvm::Constant> (variablePtrValue.getLlvmValue ()));
+	ASSERT (llvm::isa <llvm::Constant> (variableEndPtrValue.getLlvmValue ()));
 
 	llvm::Constant* llvmMemberArray [4];
 	llvmMemberArray [0] = Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type);
@@ -405,14 +415,12 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 		&boxPtrValue
 		);
 
-	size_t size = variable->m_type->getSize ();
-
 	ASSERT (llvm::isa <llvm::Constant> (boxPtrValue.getLlvmValue ()));
 
 	llvmMemberArray [0] = (llvm::Constant*) boxPtrValue.getLlvmValue ();
 	llvmMemberArray [1] = (llvm::Constant*) boxPtrValue.getLlvmValue ();
 	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();
-	llvmMemberArray [3] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), &size);
+	llvmMemberArray [3] = (llvm::Constant*) variableEndPtrValue.getLlvmValue ();
 
 	llvm::Constant* llvmValidatorConst = llvm::ConstantStruct::get (
 		(llvm::StructType*) validatorType->getLlvmType (),

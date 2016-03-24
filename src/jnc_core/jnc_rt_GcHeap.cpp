@@ -268,7 +268,7 @@ GcHeap::tryAllocateData (ct::Type* type)
 	box->m_validator.m_validatorBox = box;
 	box->m_validator.m_targetBox = box;
 	box->m_validator.m_rangeBegin = box + 1;
-	box->m_validator.m_rangeLength = size;
+	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
 
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
@@ -314,7 +314,7 @@ GcHeap::tryAllocateArray (
 	box->m_validator.m_validatorBox = box;
 	box->m_validator.m_targetBox = box;
 	box->m_validator.m_rangeBegin = box + 1;
-	box->m_validator.m_rangeLength = size;
+	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
 
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
@@ -424,7 +424,7 @@ GcHeap::createDataPtrValidator (
 
 	validator->m_targetBox = box;
 	validator->m_rangeBegin = rangeBegin;
-	validator->m_rangeLength = rangeLength;
+	validator->m_rangeEnd = (char*) rangeBegin + rangeLength;
 	return validator;
 }
 

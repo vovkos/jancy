@@ -64,7 +64,7 @@ ConstMgr::createConstDataPtrValidator (
 	entry->m_validator.m_validatorBox = &entry->m_box;
 	entry->m_validator.m_targetBox = &entry->m_box;
 	entry->m_validator.m_rangeBegin = p;
-	entry->m_validator.m_rangeLength = type->getSize ();
+	entry->m_validator.m_rangeEnd = (char*) p + type->getSize ();
 	m_constDataPtrValidatorList.insertTail (entry);
 
 	return &entry->m_validator;

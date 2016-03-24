@@ -60,7 +60,7 @@ struct DataPtrValidator
 	Box* m_validatorBox;
 	Box* m_targetBox;
 	const void* m_rangeBegin;
-	size_t m_rangeLength;
+	const void* m_rangeEnd;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
