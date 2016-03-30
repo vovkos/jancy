@@ -377,7 +377,7 @@ FileStream::readLoop ()
 				break;
 			}
 
-			for (;;)
+			for (;;) // cycle is needed case main thread can add new reads to m_readList
 			{
 				DWORD waitResult = ::WaitForMultipleObjects (2, waitTable, false, INFINITE);
 				if (waitResult == WAIT_FAILED)
@@ -392,7 +392,7 @@ FileStream::readLoop ()
 				if (m_ioFlags & IoFlag_Closing)
 				{
 					m_ioLock.unlock ();
-					break;
+					return;
 				}
 
 				m_ioLock.unlock ();
