@@ -78,6 +78,8 @@ ControlFlowMgr::switchStmt_Condition (
 
 	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
 	scope->m_breakBlock = stmt->m_followBlock;
+
+	m_module->m_namespaceMgr.openScope (pos);
 	return true;
 }
 
@@ -103,8 +105,7 @@ ControlFlowMgr::switchStmt_Case (
 	follow (block);
 	it->m_value = block;
 
-	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
-	scope->m_breakBlock = stmt->m_followBlock;
+	m_module->m_namespaceMgr.openScope (pos);
 	return true;
 }
 
@@ -128,14 +129,14 @@ ControlFlowMgr::switchStmt_Default (
 	follow (block);
 	stmt->m_defaultBlock = block;
 
-	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
-	scope->m_breakBlock = stmt->m_followBlock;
+	m_module->m_namespaceMgr.openScope (pos);
 	return true;
 }
 
 void
 ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 {
+	m_module->m_namespaceMgr.closeScope ();
 	m_module->m_namespaceMgr.closeScope ();
 	follow (stmt->m_followBlock);
 

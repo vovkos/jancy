@@ -279,8 +279,10 @@ GcShadowStackMgr::finalizeFrame ()
 		if (block->getLandingPadKind () == LandingPadKind_Exception)
 			m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
-		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
-		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
+//		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
+//		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
+	
+		setFrameMap (scope->m_gcShadowStackFrameMap, false); // easier to see in llvm ir
 	}
 
 	// done 
