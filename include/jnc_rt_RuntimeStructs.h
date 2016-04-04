@@ -152,20 +152,20 @@ struct IfaceHdr
 	// followed by parents, then by iface data fields
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 // iface inside a box
 
-template <typename T>
-class ClassBox: public Box
-{
-protected:
-	char m_buffer [sizeof (T)];
+// since in C++03 we can't get alignof T, we need to provide multiple boxes for
+// all kinds of alignments (1, 2, 4, 8)
 
+template <typename T>
+class ClassBoxBase: public Box
+{
 public:
 	T* p ()
 	{
-		return (T*) m_buffer;
+		return (T*) (this + 1);
 	}
 
 	operator T* ()
@@ -179,7 +179,62 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#pragma pack (push, 1)
+
+template <typename T>
+class ClassBox_align1: public ClassBoxBase <T>
+{
+protected:
+	char m_buffer [sizeof (T)];
+};
+
+#pragma pack (2)
+
+template <typename T>
+class ClassBox_align2: public ClassBoxBase <T>
+{
+protected:
+	char m_buffer [sizeof (T)];
+};
+
+#pragma pack (4)
+
+template <typename T>
+class ClassBox_align4: public ClassBoxBase <T>
+{
+protected:
+	char m_buffer [sizeof (T)];
+};
+
+#pragma pack (8)
+
+template <typename T>
+class ClassBox_align8: public ClassBoxBase <T>
+{
+protected:
+#if (_AXL_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
+	char m_buffer [sizeof (T)];
+#else
+	union
+	{
+		char m_buffer [sizeof (T)];
+		int64_t m_align8; // otherwise, we need an 8-byte field
+	};
+#endif
+};
+
+#pragma pack (pop)
+
+// default -- ptr-sized alignment
+
+template <typename T>
+class ClassBox: public ClassBoxBase <T>
+{
+protected:
+	char m_buffer [sizeof (T)];
+};
+
+//.............................................................................
 
 typedef 
 void

@@ -412,7 +412,7 @@ template <typename T>
 void
 primeClass (
 	Module* module,
-	ClassBox <T>* p,
+	ClassBoxBase <T>* p,
 	Box* root
 	)
 {
@@ -423,7 +423,7 @@ template <typename T>
 void
 primeClass (
 	Runtime* runtime,
-	ClassBox <T>* p,
+	ClassBoxBase <T>* p,
 	Box* root
 	)
 {
@@ -434,7 +434,7 @@ template <typename T>
 void
 primeClass (
 	Module* module,
-	ClassBox <T>* p
+	ClassBoxBase <T>* p
 	)
 {
 	primeClass (p, p, T::getType (module), T::getVTable ());
@@ -444,7 +444,7 @@ template <typename T>
 void
 primeClass (
 	Runtime* runtime,
-	ClassBox <T>* p
+	ClassBoxBase <T>* p
 	)
 {
 	primeClass (p, p, T::getType (runtime), T::getVTable ());
