@@ -186,7 +186,7 @@ class ClassBox_align1: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-};
+} AXL_GCC_MSC_STRUCT;
 
 #pragma pack (2)
 
@@ -195,7 +195,7 @@ class ClassBox_align2: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-};
+} AXL_GCC_MSC_STRUCT;
 
 #pragma pack (4)
 
@@ -204,7 +204,7 @@ class ClassBox_align4: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-};
+} AXL_GCC_MSC_STRUCT;
 
 #pragma pack (8)
 
@@ -219,13 +219,13 @@ protected:
 	{
 		char m_buffer [sizeof (T)];
 		int64_t m_align8; // otherwise, we need an 8-byte field
-	};
+	} AXL_GCC_MSC_STRUCT;
 #endif
-};
+} AXL_GCC_MSC_STRUCT;
 
 #pragma pack (pop)
 
-// default -- ptr-sized alignment
+// default alignment
 
 template <typename T>
 class ClassBox: public ClassBoxBase <T>
