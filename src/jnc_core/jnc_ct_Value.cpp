@@ -158,28 +158,49 @@ Value::getLlvmConst (
 		integer = *(int8_t*) p != 0;
 		llvmConst = llvm::ConstantInt::get (
 			type->getLlvmType (),
-			llvm::APInt (1, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
+			llvm::APInt (1, integer)
 			);
 		break;
 
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
+		integer = *(int8_t*) p;
+		llvmConst = llvm::ConstantInt::get (
+			type->getLlvmType (),
+			llvm::APInt (8, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
+			);
+		break;
+
 	case TypeKind_Int16:
 	case TypeKind_Int16_u:
-	case TypeKind_Int32:
-	case TypeKind_Int32_u:
-	case TypeKind_Int64:
-	case TypeKind_Int64_u:
 	case TypeKind_Int16_be:
 	case TypeKind_Int16_beu:
+		integer = *(int16_t*) p;
+		llvmConst = llvm::ConstantInt::get (
+			type->getLlvmType (),
+			llvm::APInt (16, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
+			);
+		break;
+	
+	case TypeKind_Int32:
+	case TypeKind_Int32_u:
 	case TypeKind_Int32_be:
 	case TypeKind_Int32_beu:
+		integer = *(int32_t*) p;
+		llvmConst = llvm::ConstantInt::get (
+			type->getLlvmType (),
+			llvm::APInt (32, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
+			);
+		break;
+
+	case TypeKind_Int64:
+	case TypeKind_Int64_u:
 	case TypeKind_Int64_be:
 	case TypeKind_Int64_beu:
 		integer = *(int64_t*) p;
 		llvmConst = llvm::ConstantInt::get (
 			type->getLlvmType (),
-			llvm::APInt (type->getSize () * 8, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
+			llvm::APInt (64, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
 			);
 		break;
 
