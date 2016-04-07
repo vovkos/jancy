@@ -320,6 +320,9 @@ public:
 #endif
 
 protected:
+	GcMutatorThread*
+	getCurrentGcMutatorThread ();
+
 	bool
 	isCollectionTriggered_l ();
 

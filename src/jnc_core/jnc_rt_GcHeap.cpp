@@ -8,16 +8,6 @@ namespace rt {
 
 //.............................................................................
 
-inline
-GcMutatorThread*
-getCurrentGcMutatorThread ()
-{
-	Tls* tls = getCurrentThreadTls ();
-	return tls ? &tls->m_gcMutatorThread : NULL;
-}
-
-//.............................................................................
-
 #if (_AXL_ENV == AXL_ENV_POSIX)
 sigset_t GcHeap::m_signalWaitMask = { 0 };
 #endif
@@ -56,6 +46,13 @@ GcHeap::getStats (GcStats* stats)
 	m_lock.lock (); // no need to wait for idle to just get stats
 	*stats = m_stats;
 	m_lock.unlock ();
+}
+
+GcMutatorThread*
+GcHeap::getCurrentGcMutatorThread ()
+{
+	Tls* tls = getCurrentThreadTls ();
+	return tls && tls->m_runtime == m_runtime ? &tls->m_gcMutatorThread : NULL;
 }
 
 void 
