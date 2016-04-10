@@ -1286,8 +1286,6 @@ GcHeap::collect_l (bool isMutatorThread)
 					err::getLastErrorDescription ().cc ()
 					);
 			}
-
-			primeClass (iface->m_box, classType); // re-prime after destruct
 		}
 
 		// now we can remove this thread' destruct guard
