@@ -26,6 +26,7 @@
 #include <QSlider>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QList>
 
 // Jancy
 

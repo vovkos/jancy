@@ -11,6 +11,7 @@ public:
 	
 	JNC_BEGIN_CLASS_TYPE_MAP ("Label", g_myLibCacheSlot, MyLibTypeCacheSlot_Label)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLabel, jnc::rt::DataPtr>))
+		JNC_MAP_DESTRUCTOR (&sl::destruct <MyLabel>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
 		JNC_MAP_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
 		JNC_MAP_AUTOGET_PROPERTY ("m_backColor", &MyLabel::setBackColor)
@@ -28,6 +29,11 @@ public:
 
 public:
 	MyLabel (jnc::rt::DataPtr textPtr);
+	
+	~MyLabel ()
+	{
+		delete m_qtLabel;
+	}
 
 	void
 	AXL_CDECL

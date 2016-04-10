@@ -22,6 +22,7 @@ MainWindow::MainWindow (
 {
 	ASSERT (!g_mainWindow);
 	g_mainWindow = this;
+	m_layout = NULL;
 
 	m_body = new QWidget (this);
 	m_body->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -120,10 +121,6 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Running...\n");
 
-	// disable GC in this sample (it doesn't implement opaque class marking)
-
-	m_runtime.m_gcHeap.setSizeTriggers (-1, -1);
-
 	result = m_runtime.startup (&m_module);
 	if (!result)
 	{
@@ -131,8 +128,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	m_layout = jnc::rt::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
-	m_body->setLayout (m_layout->m_qtLayout);
+	createLayout ();
 
 	int returnValue;
 	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue, m_layout);
@@ -144,6 +140,18 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Done.\n");
 	return true;
+}
+
+void MainWindow::createLayout ()
+{
+	m_runtime.m_gcHeap.addStaticRoot (&m_layout, m_module.m_typeMgr.getStdType (jnc::ct::StdType_AbstractClassPtr));
+
+	JNC_BEGIN_CALL_SITE (&m_runtime)
+
+	m_layout = jnc::rt::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
+	m_body->setLayout (m_layout->m_qtLayout);
+
+	JNC_END_CALL_SITE ()
 }
 
 void MainWindow::closeEvent (QCloseEvent* e)

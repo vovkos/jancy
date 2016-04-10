@@ -36,6 +36,8 @@ public:
 
 protected:
 	virtual void closeEvent (QCloseEvent* e);
+
+	void createLayout ();
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

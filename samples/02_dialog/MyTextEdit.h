@@ -11,6 +11,7 @@ public:
 
 	JNC_BEGIN_CLASS_TYPE_MAP ("TextEdit", g_myLibCacheSlot, MyLibTypeCacheSlot_TextEdit)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <MyTextEdit>)
+		JNC_MAP_DESTRUCTOR (&sl::destruct <MyTextEdit>)
 		JNC_MAP_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
 	JNC_END_CLASS_TYPE_MAP ()
 
@@ -20,6 +21,12 @@ public:
 
 public:
 	MyTextEdit ();
+
+	~MyTextEdit ()
+	{
+		delete m_qtLineEdit;
+		delete m_onTextChangedBridge;
+	}
 
 	static
 	jnc::rt::DataPtr

@@ -11,6 +11,7 @@ public:
 	
 	JNC_BEGIN_CLASS_TYPE_MAP ("Slider", g_myLibCacheSlot, MyLibTypeCacheSlot_Slider)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MySlider, int, int>))
+		JNC_MAP_DESTRUCTOR (&sl::destruct <MySlider>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_minimum", &MySlider::setMinimum)
 		JNC_MAP_AUTOGET_PROPERTY ("m_maximum", &MySlider::setMaximum)
 		JNC_MAP_PROPERTY ("m_value", &MySlider::getValue, &MySlider::setValue)
@@ -31,6 +32,12 @@ public:
 		int minimum,
 		int maximum
 		);
+
+	~MySlider ()
+	{
+		delete m_qtSlider;
+		delete m_onValueChangedBridge;
+	}
 
 	void
 	AXL_CDECL

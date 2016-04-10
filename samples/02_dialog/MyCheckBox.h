@@ -11,6 +11,7 @@ public:
 
 	JNC_BEGIN_CLASS_TYPE_MAP ("CheckBox", g_myLibCacheSlot, MyLibTypeCacheSlot_CheckBox)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyCheckBox, jnc::rt::DataPtr>))
+		JNC_MAP_DESTRUCTOR (&sl::destruct <MyCheckBox>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
 		JNC_MAP_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
 	JNC_END_CLASS_TYPE_MAP ()
@@ -25,6 +26,12 @@ public:
 
 public:
 	MyCheckBox (jnc::rt::DataPtr textPtr);
+	
+	~MyCheckBox ()
+	{
+		delete m_qtCheckBox;
+		delete m_onIsCheckedChangedBridge;
+	}
 
 	void
 	AXL_CDECL
