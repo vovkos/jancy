@@ -733,7 +733,7 @@ public:
 	parseConstIntegerExpression (
 		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
-		intptr_t* integer
+		int64_t* integer
 		);
 
 	bool

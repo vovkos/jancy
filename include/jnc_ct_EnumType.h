@@ -52,7 +52,7 @@ class EnumConst:
 
 protected:
 	EnumType* m_parentEnumType;
-	intptr_t m_value;
+	int64_t m_value;
 
 public:
 	EnumConst ()
@@ -68,7 +68,7 @@ public:
 		return m_parentEnumType;
 	}
 
-	intptr_t
+	int64_t
 	getValue ()
 	{
 		return m_value;

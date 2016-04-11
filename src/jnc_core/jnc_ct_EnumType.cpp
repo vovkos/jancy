@@ -107,7 +107,7 @@ EnumType::calcLayout ()
 
 	if (m_flags & EnumTypeFlag_BitFlag)
 	{
-		intptr_t value = 1;
+		int64_t value = 1;
 
 		sl::Iterator <EnumConst> constIt = m_constList.getHead ();
 		for (; constIt; constIt++)
@@ -124,15 +124,23 @@ EnumType::calcLayout ()
 					return false;
 			}
 
+#if (_AXL_PTR_SIZE == 4)
+			if (value > 0xffffffff && m_baseType->getSize () < 8)
+			{
+				err::setFormatStringError ("enum const '%lld' is too big", value);
+				return false;
+			}
+#endif
+
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
 
-			value = value ? 2 << sl::getHiBitIdx (value) : 1;
+			value = value ? 2 << sl::getHiBitIdx64 (value) : 1;
 		}
 	}
 	else
 	{
-		intptr_t value = 0;
+		int64_t value = 0;
 
 		sl::Iterator <EnumConst> constIt = m_constList.getHead ();
 		for (; constIt; constIt++, value++)
@@ -148,6 +156,14 @@ EnumType::calcLayout ()
 				if (!result)
 					return false;
 			}
+
+#if (_AXL_PTR_SIZE == 4)
+			if (value > 0xffffffff && m_baseType->getSize () < 8)
+			{
+				err::setFormatStringError ("enum const '%lld' is too big", value);
+				return false;
+			}
+#endif
 
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;

@@ -7,7 +7,7 @@ enum: uint64_t
 
 enum
 {
-	MinInterFrameDelay32 = 0x1ffffffff,
+	MinInterFrameDelay32 = 0xffffffff,
 }
 	
 int main ()
@@ -15,7 +15,7 @@ int main ()
 	printf ("main ()\n");
 
 	printf ("MinInterFrameDelay   = %llx\n", MinInterFrameDelay);
-	printf ("MinInterFrameDelay32 = %llx\n", MinInterFrameDelay32);
+	printf ("MinInterFrameDelay32 = %x\n", MinInterFrameDelay32);
 
 	return 0;
 }

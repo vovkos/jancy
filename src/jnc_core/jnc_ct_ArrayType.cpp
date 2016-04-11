@@ -81,7 +81,7 @@ ArrayType::calcLayout ()
 		ASSERT (m_parentUnit && m_parentNamespace);
 		m_module->m_namespaceMgr.openNamespace (m_parentNamespace);
 
-		intptr_t value = 0;
+		int64_t value = 0;
 		result = m_module->m_operatorMgr.parseConstIntegerExpression (
 			m_parentUnit,
 			m_elementCountInitializer,
@@ -93,7 +93,7 @@ ArrayType::calcLayout ()
 
 		if (value <= 0)
 		{
-			err::setFormatStringError ("invalid array size '%d'\n", value);
+			err::setFormatStringError ("invalid array size '%lld'\n", value);
 			lex::pushSrcPosError (
 				m_parentUnit->getFilePath (),
 				m_elementCountInitializer.getHead ()->m_pos
@@ -102,7 +102,20 @@ ArrayType::calcLayout ()
 			return false;
 		}
 
-		m_elementCount = value;
+#if (_AXL_PTR_SIZE == 4)
+		if (value >= (uint32_t) -1)
+		{
+			err::setFormatStringError ("array size '%lld' is too big\n", value);
+			lex::pushSrcPosError (
+				m_parentUnit->getFilePath (),
+				m_elementCountInitializer.getHead ()->m_pos
+				);
+			
+			return false;
+		}
+#endif
+
+		m_elementCount = (size_t) value;
 		m_module->m_namespaceMgr.closeNamespace ();
 	}
 
