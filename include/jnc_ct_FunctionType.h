@@ -220,6 +220,10 @@ public:
 	}
 
 	virtual
+	sl::String
+	getDeclarationString (const char* name);
+
+	virtual
 	bool
 	compile ();
 

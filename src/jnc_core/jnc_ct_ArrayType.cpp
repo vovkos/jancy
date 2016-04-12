@@ -31,24 +31,48 @@ ArrayType::getRootType ()
 	return m_rootType;
 }
 
-void
-ArrayType::prepareTypeString ()
+sl::String
+ArrayType::getDimensionString ()
 {
 	sl::String string;
 
-	m_typeString.format (
-		m_elementCount == -1 ? "%s []" : "%s [%d]",
-		getRootType ()->getTypeString ().cc (),
-		m_elementCount
-		);
+	if (m_elementCount == -1)
+		string = "[]";
+	else 
+		string.format ("[%d]", m_elementCount);
 
 	Type* elementType = m_elementType;
 	while (elementType->getTypeKind () == TypeKind_Array)
 	{
 		ArrayType* arrayType = (ArrayType*) elementType;
-		m_typeString.appendFormat (" [%d]", arrayType->m_elementCount);
+		string.appendFormat (" [%d]", arrayType->m_elementCount);
 		elementType = arrayType->m_elementType;
 	}
+
+	return string;
+}
+
+void
+ArrayType::prepareTypeString ()
+{
+	Type* rootType = getRootType ();
+
+	m_typeString = rootType->getTypeString ();
+	m_typeString += ' ';
+	m_typeString += getDimensionString ();
+}
+
+sl::String
+ArrayType::getDeclarationString (const char* name)
+{
+	Type* rootType = getRootType ();
+
+	sl::String string = rootType->getTypeString ();
+	string += ' ';
+	string += name;
+	string += ' ';
+	string += getDimensionString ();
+	return string;
 }
 
 bool

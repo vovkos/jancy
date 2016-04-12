@@ -169,6 +169,25 @@ PropertyType::prepareTypeString ()
 	}
 }
 
+sl::String
+PropertyType::getDeclarationString (const char* name)
+{
+	Type* returnType = getReturnType ();
+
+	sl::String string = returnType->getTypeString ();
+	string += ' ';
+	string += getTypeModifierString ();
+	string += "property ";
+	string += name;
+
+	if (isIndexed ())
+	{
+		string += ' ';
+		string += m_getterType->getArgString ();
+	}
+
+	return string;
+}
 //.............................................................................
 
 } // namespace ct

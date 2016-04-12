@@ -402,6 +402,10 @@ public:
 		return ct::getLlvmTypeString (getLlvmType ());
 	}
 
+	virtual
+	sl::String
+	getDeclarationString (const char* name);
+
 	llvm::Type*
 	getLlvmType ();
 

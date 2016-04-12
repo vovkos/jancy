@@ -79,21 +79,27 @@ public:
 	}
 
 	virtual
+	sl::String
+	getDeclarationString (const char* name);
+
+	virtual
 	void
 	markGcRoots (
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
 
-
 protected:
 	virtual
 	bool
 	calcLayout ();
-
+	
 	virtual
 	void
 	prepareTypeString ();
+
+	sl::String
+	getDimensionString ();
 
 	virtual
 	void

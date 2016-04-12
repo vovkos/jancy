@@ -181,7 +181,7 @@ public:
 
 	sl::String
 	getTypeModifierString ();
-
+	
 	static
 	sl::String
 	createSignature (
@@ -189,6 +189,10 @@ public:
 		const FunctionTypeOverload& setterType,
 		uint_t flags
 		);
+
+	virtual
+	sl::String
+	getDeclarationString (const char* name);
 
 protected:
 	virtual

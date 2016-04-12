@@ -364,6 +364,15 @@ Type::getTypeString ()
 	return m_typeString;
 }
 
+sl::String
+Type::getDeclarationString (const char* name)
+{
+	sl::String string = getTypeString ();
+	string += ' ';
+	string += name;
+	return string;
+}
+
 llvm::Type*
 Type::getLlvmType ()
 {

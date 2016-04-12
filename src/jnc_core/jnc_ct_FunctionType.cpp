@@ -298,10 +298,22 @@ FunctionType::getTypeModifierString ()
 void
 FunctionType::prepareTypeString ()
 {
-	m_typeString += m_returnType->getTypeString ();
+	m_typeString = m_returnType->getTypeString ();
 	m_typeString += ' ';
 	m_typeString += getTypeModifierString ();
 	m_typeString += getArgString ();
+}
+
+sl::String
+FunctionType::getDeclarationString (const char* name)
+{
+	sl::String string = m_returnType->getTypeString ();
+	string += ' ';
+	string += getTypeModifierString ();
+	string += name;
+	string += ' ';
+	string += getArgString ();
+	return string;
 }
 
 void
