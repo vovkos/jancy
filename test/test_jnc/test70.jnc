@@ -1,0 +1,111 @@
+//.............................................................................
+
+// NetBios Name Service
+
+enum NbnsOpcode
+{
+	Query        = 0,
+	Registration = 5,
+	Release      = 6,
+	Wack         = 7,
+	Refresh      = 8,
+}
+
+bitflag enum NbnsFlags
+{
+	Broadcast           = 0x01,
+	RecursionAvilable   = 0x08,
+	RecursionDesired    = 0x10,
+	Truncated           = 0x20,
+	AuthoritativeAnswer = 0x40,
+}
+
+struct NbnsHdr
+{
+	bigendian uint16_t m_transactionId;
+	bigendian uint16_t m_isResponse : 1;
+	bigendian uint16_t m_opcode     : 4;
+	bigendian uint16_t m_flags      : 7;
+	bigendian uint16_t m_rcode      : 4;
+	bigendian uint16_t m_questionCount;
+	bigendian uint16_t m_answerRecordCount;
+	bigendian uint16_t m_authorityRecordCount;
+	bigendian uint16_t m_additionalRecordCount;
+}
+
+enum NbnsQuestionType
+{
+	General    = 0x0020,
+	NodeStatus = 0x0021,
+}
+
+enum NbnsQuestionClass
+{
+	Internet = 0x0001,
+}
+
+struct NbnsQuestion
+{
+	uint8_t m_nameLength; // 32 (0x20)
+	char m_name [32];
+	char m_null;
+	
+	bigendian uint16_t m_type;
+	bigendian uint16_t m_class;
+}
+
+encodeNetBiosName (
+	char* buffer,
+	const char* name
+	)
+{
+	size_t i = 0;
+	size_t j = 0;
+
+	for (; i < 16; i++)
+	{
+		uchar_t c = name [i];
+		if (!c)
+			break;
+		
+		buffer [j++] = 'A' + (c >> 4);
+		buffer [j++] = 'A' + (c & 0x0f);
+	}
+
+	while (j < 32)
+	{
+		buffer [j++] = 'A' + (' ' >> 4);
+		buffer [j++] = 'A' + (' ' & 0x0f);
+	}	
+}	
+
+struct NbnsNameQueryReq
+{
+	NbnsHdr m_hdr;
+	NbnsQuestion m_question;
+
+	[ packetTemplateAction ]	
+	void initialize (char const* name)
+	{
+		m_hdr = null;
+		m_hdr.m_isResponse = true;
+		m_hdr.m_flags = NbnsFlags.Broadcast | NbnsFlags.RecursionDesired;
+		m_hdr.m_questionCount = 1;
+		
+		m_question = null;
+		m_question.m_nameLength = 32;
+		m_question.m_type = NbnsQuestionType.General;
+		m_question.m_class = NbnsQuestionClass.Internet;
+		encodeNetBiosName (m_question.m_name, name);
+	}
+}
+
+//.............................................................................
+	
+int main ()
+{
+	printf ("main ()\n");
+	return 0;
+}
+
+//.............................................................................

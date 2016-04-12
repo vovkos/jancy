@@ -96,12 +96,16 @@ CastOperator::cast (
 {
 	if (opValue.getValueKind () == ValueKind_Const) // try const-cast
 	{
-		bool result = 
-			resultValue->createConst (NULL, type) &&
-			constCast (opValue, type, resultValue->getConstData ());
+		char buffer [256];
+		sl::Array <char> constData (ref::BufKind_Stack, buffer, sizeof (buffer));
+		constData.setCount (type->getSize ());
 
+		bool result = constCast (opValue, type, constData);
 		if (result)
+		{
+			resultValue->createConst (constData, type);
 			return true;
+		}
 	}
 
 	// if const-cast is not available or fails, do full cast
