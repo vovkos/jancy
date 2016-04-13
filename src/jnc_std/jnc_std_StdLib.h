@@ -49,6 +49,8 @@ public:
 		JNC_MAP_FUNCTION ("memdup",  memDup)
 		JNC_MAP_FUNCTION ("rand",    rand)
 		JNC_MAP_FUNCTION ("atoi",    atoi)
+		JNC_MAP_FUNCTION ("toupper", toUpper)
+		JNC_MAP_FUNCTION ("tolower", toLower)
 
 		JNC_MAP_TYPE (Error)
 		JNC_MAP_TYPE (ConstBuffer)
@@ -235,6 +237,20 @@ public:
 	atoi (rt::DataPtr ptr)
 	{
 		return ptr.m_p ? ::atoi ((char*) ptr.m_p) : 0;
+	}
+
+	static
+	uint32_t
+	toUpper (uint32_t c)
+	{
+		return enc::utfToUpper (c);
+	}
+
+	static
+	uint32_t
+	toLower (uint32_t c)
+	{
+		return enc::utfToLower (c);
 	}
 
 protected:

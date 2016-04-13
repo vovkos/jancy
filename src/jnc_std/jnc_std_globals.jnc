@@ -69,6 +69,11 @@ void* memdup (
 
 int rand ();
 
+// UTF-32
+
+uint32_t toupper (uint32_t c);
+uint32_t tolower (uint32_t c);
+
 int atoi (char const* p);
 
 intptr cdecl printf (
