@@ -363,7 +363,7 @@ void MainWindow::writeStatus(const QString& text, int timeout)
 size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 {
 	if (length == -1)
-		length = strlen (text);
+		length = axl_strlen (text);
 
 	QString string = QString::fromUtf8 (text, length);
 

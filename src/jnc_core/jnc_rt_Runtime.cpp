@@ -317,7 +317,7 @@ strDup (
 	)
 {
 	if (length == -1)
-		length = p ? strlen (p) : 0;
+		length = axl_strlen (p);
 
 	if (!length)
 		return g_nullPtr;

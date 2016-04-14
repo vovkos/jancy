@@ -500,6 +500,18 @@ Value::createConst (
 
 void
 Value::setCharArray (
+	const char* p,
+	Module* module
+	)
+{
+	if (!p)
+		setEmptyCharArray (module);
+	else
+		setCharArray (p, strlen (p) + 1, module);
+}
+
+void
+Value::setCharArray (
 	const void* p,
 	size_t size,
 	Module* module

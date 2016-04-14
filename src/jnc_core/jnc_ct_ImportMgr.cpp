@@ -35,7 +35,7 @@ ImportMgr::addImport (const char* fileName)
 		ExtensionLibSuffixLength = lengthof (extensionLibSuffix)
 	};
 
-	size_t length = strlen (fileName);
+	size_t length = axl_strlen (fileName);
 	bool isExtensionLib = length >= ExtensionLibSuffixLength && memcmp (
 		fileName + length - ExtensionLibSuffixLength, 
 		extensionLibSuffix, 

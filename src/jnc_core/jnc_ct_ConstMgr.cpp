@@ -45,10 +45,15 @@ ConstMgr::saveLiteral (
 	)
 {
 	if (length == -1)
-		length = strlen (p);
+		length = axl_strlen (p);
 
 	Value value;
-	value.setCharArray (p, length + 1, m_module);
+
+	if (!length)
+		value.setEmptyCharArray (m_module);
+	else
+		value.setCharArray (p, length + 1, m_module);
+
 	return saveValue (value);
 }
 

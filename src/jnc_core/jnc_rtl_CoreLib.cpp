@@ -717,7 +717,7 @@ CoreLib::appendFmtLiteral_v (
 			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(rt::DataPtr*) &variant);
 
 		const char* c = *(char**) p;
-		size_t length = strlen (c);
+		size_t length = axl_strlen (c);
 
 		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
 	}

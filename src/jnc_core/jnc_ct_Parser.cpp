@@ -3145,7 +3145,7 @@ Parser::appendFmtLiteralValue (
 	Value fmtSpecifierValue;
 	if (!fmtSpecifierString.isEmpty ())
 	{
-		fmtSpecifierValue.setCharArray (fmtSpecifierString, fmtSpecifierString.getLength () + 1, m_module);
+		fmtSpecifierValue.setCharArray (fmtSpecifierString, m_module);
 		m_module->m_operatorMgr.castOperator (&fmtSpecifierValue, m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c ());
 	}
 	else
@@ -3236,9 +3236,9 @@ Parser::finalizeAssertStmt (
 	Value lineValue;
 	Value conditionValue;
 	
-	fileNameValue.setCharArray (fileName, fileName.getLength (), m_module);
+	fileNameValue.setCharArray (fileName, m_module);
 	lineValue.setConstInt32 (pos.m_line, m_module);
-	conditionValue.setCharArray (conditionString, conditionString.getLength (), m_module);
+	conditionValue.setCharArray (conditionString, m_module);
 
 	Function* assertionFailure = m_module->m_functionMgr.getStdFunction (StdFunc_AssertionFailure);
 

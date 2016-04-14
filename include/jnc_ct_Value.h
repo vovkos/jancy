@@ -562,13 +562,28 @@ public:
 	}
 
 	void
+	setEmptyCharArray (Module* module)
+	{
+		setCharArray ("", 1, module);
+	}
+
+	void
 	setCharArray (
-		const char* p,
+		const sl::String& string,
 		Module* module
 		)
 	{
-		setCharArray (p, strlen (p) + 1, module);
+		if (string.isEmpty ())
+			setEmptyCharArray (module);
+		else
+			setCharArray (string, string.getLength () + 1, module);
 	}
+
+	void
+	setCharArray (
+		const char* p,
+		Module* module
+		);
 
 	void
 	setCharArray (
