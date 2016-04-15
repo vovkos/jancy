@@ -237,7 +237,7 @@ void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::ct::EnumConst *membe
 
 void ModulePane::addValue (QTreeWidgetItem *parent, const char* name, jnc::ct::Type* type, jnc::ct::ModuleItem* moduleItem)
 {
-	QString itemName = type->getDeclarationString (name);
+	QString itemName = type->getDeclarationString (name).cc ();
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void *) moduleItem));
 
@@ -339,7 +339,7 @@ void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::ct::Function* pF
 		pFunction->getName () :
 		sl::String (jnc::ct::getFunctionKindString (pFunction->getFunctionKind ()));
 
-	QString itemName = pType->getDeclarationString (Name);
+	QString itemName = pType->getDeclarationString (Name).cc ();
 	QTreeWidgetItem *item = insertItem (itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void *)(jnc::ct::ModuleItem*) pFunction));
 }
