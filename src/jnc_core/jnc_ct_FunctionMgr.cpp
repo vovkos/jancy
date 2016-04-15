@@ -434,7 +434,21 @@ FunctionMgr::internalPrologue (
 		CallConv* callConv = functionType->getCallConv ();
 
 		for (size_t i = 0; i < argCount; i++, llvmArg++)
-			argValueArray [i] = callConv->getArgValue (llvmArg, functionType, i);
+		{
+			Value argValue = callConv->getArgValue (llvmArg, functionType, i);
+			argValueArray [i] = argValue;
+
+			#pragma AXL_TODO ("remove arg GC roots and instead add all user-allocated data to some kind of call-site-root-set")
+
+			Type* argType = argValue.getType ();
+			if (argType->getFlags () & TypeFlag_GcRoot)
+			{
+				Value argVariable;
+				m_module->m_llvmIrBuilder.createAlloca (argType, "gcRoot", NULL, &argVariable);
+				m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
+				m_module->m_gcShadowStackMgr.markGcRoot (argVariable, argType);
+			}
+		}
 	}
 
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock ("function_body");

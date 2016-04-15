@@ -32,19 +32,7 @@ ScheduleLauncherFunction::compile ()
 	{
 		sl::BoxList <Value> argList;
 		for (size_t i = 2; i < argCount; i++)
-		{
-			Value argValue = argValueArray [i];
-			argList.insertTail (argValue);
-
-			Type* argType = argValue.getType ();
-			if (argType->getFlags () & TypeFlag_GcRoot)
-			{
-				Value argVariable;
-				m_module->m_llvmIrBuilder.createAlloca (argType, "gcRoot", NULL, &argVariable);
-				m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
-				m_module->m_gcShadowStackMgr.markGcRoot (argVariable, argType);
-			}
-		}
+			argList.insertTail (argValueArray [i]);
 
 		result = m_module->m_operatorMgr.closureOperator (&functionPtrValue, &argList);
 		if (!result)
