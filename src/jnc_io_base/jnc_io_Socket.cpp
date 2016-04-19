@@ -143,7 +143,8 @@ bool
 Socket::open (
 	int protocol,
 	uint16_t family_jnc,
-	const SocketAddress* address
+	const SocketAddress* address,
+	bool isReusableAddress
 	)
 {
 	close ();
@@ -156,6 +157,17 @@ Socket::open (
 	{
 		ext::propagateLastError ();
 		return false;
+	}
+
+	if (isReusableAddress)
+	{
+		int value = isReusableAddress;
+		result = m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &value, sizeof (value));
+		if (!result)
+		{
+			ext::propagateLastError ();
+			return false;
+		}
 	}
 
 	if (address)

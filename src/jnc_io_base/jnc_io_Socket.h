@@ -180,11 +180,12 @@ public:
 	AXL_CDECL
 	open_1 (
 		int protocol,
-		jnc::rt::DataPtr addressPtr
+		jnc::rt::DataPtr addressPtr,
+		bool isReusableAddress
 		)
 	{
 		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
-		return open (protocol, address ? address->m_family : AddressFamily_Ip4, address);
+		return open (protocol, address ? address->m_family : AddressFamily_Ip4, address, isReusableAddress);
 	}
 
 	void
@@ -245,7 +246,8 @@ protected:
 	open (
 		int protocol,
 		uint16_t family,
-		const SocketAddress* address
+		const SocketAddress* address,
+		bool isReusableAddress = false
 		);
 
 	void

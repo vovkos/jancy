@@ -65,7 +65,8 @@ opaque class Socket
 
 	bool errorcode open (
 		Protocol protocol,
-		SocketAddress const* address
+		SocketAddress const* address,
+		bool isReusableAddress = false
 		);
 		
 	void close ();
