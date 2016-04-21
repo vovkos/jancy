@@ -5,6 +5,7 @@ namespace io {
 bitflag enum FileOpenFlags
 {
 	ReadOnly,
+	WriteOnly,
 	OpenExisting,
 	Exclusive,
 	ShareWrite,

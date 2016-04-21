@@ -35,18 +35,14 @@ if (WIN32)
 		LIB_H_LIST
 		${LIB_H_LIST}
 		jnc_io_NamedPipe.h
+		jnc_io_Mailslot.h
 		)
 
 	set (
 		LIB_CPP_LIST
 		${LIB_CPP_LIST}
 		jnc_io_NamedPipe.cpp
-		)
-
-	set (
-		LIB_JNC_LIST
-		${LIB_JNC_LIST}
-		jnc_io_NamedPipe.jnc
+		jnc_io_Mailslot.cpp
 		)
 endif ()
 
@@ -78,6 +74,7 @@ if (WIN32)
 		JNC_LIST
 		${JNC_LIST}
 		jnc/io_NamedPipe.jnc
+		jnc/io_Mailslot.jnc
 		)
 endif ()
 

@@ -1,187 +1,104 @@
 #include "pch.h"
-#include "jnc_io_FileStream.h"
+#include "jnc_io_Mailslot.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
-FileStream::FileStream ()
+Mailslot::Mailslot ()
 {
 	m_runtime = rt::getCurrentThreadRuntime ();
 	m_ioFlags = 0;
-#if (_AXL_ENV == AXL_ENV_WIN)
 	m_incomingDataSize = 0;
-#endif
 	m_isOpen = false;
 	m_syncId = 0;
-	m_fileStreamKind = FileStreamKind_Unknown;
-}
-
-void
-FileStream::wakeIoThread ()
-{
-#if (_AXL_ENV == AXL_ENV_WIN)
-	m_ioThreadEvent.signal ();
-#else
-	m_selfPipe.write (" ", 1);
-#endif
 }
 
 bool
 AXL_CDECL
-FileStream::open (
-	rt::DataPtr namePtr,
-	uint_t openFlags
-	)
+Mailslot::open (rt::DataPtr namePtr)
 {
-	bool result;
-
 	close ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-	// force asynchronous and restore blocking mode later
-
-	result =
-		m_file.open ((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous) &&
-		m_file.m_file.setBlockingMode (true);
-#else
-	result = m_file.open ((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous);
-#endif
-
-	if (!result)
+	sl::String_w name = "\\\\.\\mailslot\\";
+	name += (const char*) namePtr.m_p;
+	
+	HANDLE mailslot = ::CreateMailslotW (name, 0, -1, NULL);
+	if (mailslot == INVALID_HANDLE_VALUE)
 	{
-		ext::propagateLastError ();
+		ext::setError (::GetLastError ());
 		return false;
 	}
 
+	m_file.m_file.attach (mailslot);
 	m_isOpen = true;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+	m_ioThreadEvent.reset ();
+	m_readBuffer.setCount (Const_ReadBufferSize);
+	m_incomingDataSize = 0;
 
-	dword_t type = ::GetFileType (m_file.m_file);
-	switch (type)
-	{
-	case FILE_TYPE_CHAR:
-		m_fileStreamKind = FileStreamKind_Serial;
-		break;
-
-	case FILE_TYPE_DISK:
-		m_fileStreamKind = FileStreamKind_Disk;
-		break;
-
-	case FILE_TYPE_PIPE:
-		m_fileStreamKind = FileStreamKind_Pipe;
-		break;
-
-	default:
-		m_fileStreamKind = FileStreamKind_Unknown;
-	};
-
-	if (openFlags & axl::io::FileFlag_WriteOnly)
-	{
-		m_ioFlags = IoFlag_Opened | IoFlag_WriteOnly;
-	}
-	else
-	{
-		m_ioThreadEvent.reset ();
-		m_readBuffer.setCount (Const_ReadBufferSize);
-		m_incomingDataSize = 0;
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-		m_selfPipe.create ();
-#endif
-	
-		m_ioFlags = IoFlag_Opened;
-		m_ioThread.start ();
-	}
-
+	m_ioFlags = 0;
+	m_ioThread.start ();
 	return true;
 }
 
 void
 AXL_CDECL
-FileStream::close ()
+Mailslot::close ()
 {
 	if (!m_file.isOpen ())
 		return;
 
 	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_Opened;
 	m_ioFlags |= IoFlag_Closing;
-	wakeIoThread ();
+	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
 
 	rt::enterWaitRegion (m_runtime);
 	m_ioThread.waitAndClose ();
 	rt::leaveWaitRegion (m_runtime);
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-	m_selfPipe.close ();
-#endif
-
 	m_file.close ();
 	m_ioFlags = 0;
-#if (_AXL_ENV == AXL_ENV_WIN)
 	m_incomingDataSize = 0;
-#endif
 	m_isOpen = false;
 	m_syncId++;
 }
 
-bool
-AXL_CDECL
-FileStream::clear ()
-{
-	return m_file.setSize (0);
-}
-
 void
-AXL_CDECL
-FileStream::firePendingEvents ()
-{
-}
-
-void
-FileStream::fireFileStreamEvent (
-	FileStreamEventKind eventKind,
+Mailslot::fireMailslotEvent (
+	MailslotEventKind eventKind,
 	const err::ErrorHdr* error
 	)
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <FileStreamEventParams> (m_runtime);
-	FileStreamEventParams* params = (FileStreamEventParams*) paramsPtr.m_p;
+	rt::DataPtr paramsPtr = rt::createData <MailslotEventParams> (m_runtime);
+	MailslotEventParams* params = (MailslotEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 
 	if (error)
 		params->m_errorPtr = rt::memDup (error, error->m_size);
 
-	rt::callMulticast (m_onFileStreamEvent, paramsPtr);
+	rt::callMulticast (m_onMailslotEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
 
-#if (_AXL_ENV == AXL_ENV_WIN)
-
 size_t
 AXL_CDECL
-FileStream::read (
+Mailslot::read (
 	rt::DataPtr ptr,
 	size_t size
 	)
 {
 	m_ioLock.lock ();
-	if (m_ioFlags & IoFlag_WriteOnly)
-	{
-		m_ioLock.unlock ();
-		ext::setError (err::SystemErrorCode_AccessDenied);
-		return -1;
-	}
-	else if (m_ioFlags & IoFlag_IncomingData)
+	if (m_ioFlags & IoFlag_IncomingData)
 	{
 		size_t result = readImpl (ptr.m_p, size);
-		wakeIoThread ();
+		m_ioThreadEvent.signal ();
 		m_ioLock.unlock ();
 
 		return result;
@@ -192,7 +109,7 @@ FileStream::read (
 		read.m_buffer = ptr.m_p;
 		read.m_size = size;
 		m_readList.insertTail (&read);
-		wakeIoThread ();
+		m_ioThreadEvent.signal ();
 		m_ioLock.unlock ();
 
 		rt::enterWaitRegion (m_runtime);
@@ -207,7 +124,7 @@ FileStream::read (
 }
 
 size_t
-FileStream::readImpl (
+Mailslot::readImpl (
 	void* p,
 	size_t size
 	)
@@ -235,35 +152,8 @@ FileStream::readImpl (
 	return copySize;
 }
 
-size_t
-AXL_CDECL
-FileStream::write (
-	rt::DataPtr ptr,
-	size_t size
-	)
-{
-	sys::Event completionEvent;
-	OVERLAPPED overlapped = { 0 };
-	overlapped.hEvent = completionEvent.m_event;
-
-	if (m_fileStreamKind == FileStreamKind_Disk)
-	{
-		uint64_t offset = m_file.getSize ();
-		overlapped.Offset = (DWORD) offset;
-		overlapped.OffsetHigh = (DWORD) (offset >> 32);
-	}
-
-	bool_t result = m_file.m_file.write (ptr.m_p, size, NULL, &overlapped);
-	size_t actualSize = result ? m_file.m_file.getOverlappedResult (&overlapped) : -1;
-
-	if (actualSize == -1)
-		ext::propagateLastError ();
-
-	return actualSize;
-}
-
 void
-FileStream::ioThreadFunc ()
+Mailslot::ioThreadFunc ()
 {
 	ASSERT (m_file.isOpen ());
 
@@ -297,7 +187,7 @@ FileStream::ioThreadFunc ()
 
 
 void
-FileStream::readLoop ()
+Mailslot::readLoop ()
 {
 	sys::Event completionEvent;
 
@@ -334,7 +224,7 @@ FileStream::readLoop ()
 			}
 			else
 			{
-				fireFileStreamEvent (FileStreamEventKind_IncomingData);
+				fireMailslotEvent (MailslotEventKind_IncomingData);
 			}
 
 			m_ioFlags &= ~IoFlag_RemainingData;
@@ -367,7 +257,7 @@ FileStream::readLoop ()
 			if (waitResult == WAIT_FAILED)
 			{
 				err::Error error = err::getLastSystemErrorCode ();
-				fireFileStreamEvent (FileStreamEventKind_IoError, error);
+				fireMailslotEvent (MailslotEventKind_IoError, error);
 				return;
 			}
 		}
@@ -398,7 +288,7 @@ FileStream::readLoop ()
 				if (waitResult == WAIT_FAILED)
 				{
 					err::Error error = err::getLastSystemErrorCode ();
-					fireFileStreamEvent (FileStreamEventKind_IoError, error);
+					fireMailslotEvent (MailslotEventKind_IoError, error);
 					return;
 				}
 
@@ -428,7 +318,7 @@ FileStream::readLoop ()
 					read->m_completionEvent.signal ();
 				}
 
-				fireFileStreamEvent (FileStreamEventKind_IoError, error);
+				fireMailslotEvent (MailslotEventKind_IoError, error);
 				return;
 			}
 
@@ -451,11 +341,12 @@ FileStream::readLoop ()
 
 				if (readSize)
 				{
-					fireFileStreamEvent (FileStreamEventKind_IncomingData);
+					fireMailslotEvent (MailslotEventKind_IncomingData);
 				}
 				else
 				{
-					fireFileStreamEvent (FileStreamEventKind_Eof);
+					err::Error error (err::SystemErrorCode_InvalidDeviceState);
+					fireMailslotEvent (MailslotEventKind_IoError, error);
 					return;
 				}
 			}
@@ -464,94 +355,6 @@ FileStream::readLoop ()
 		}
 	}
 }
-
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-
-size_t
-AXL_CDECL
-FileStream::read (
-	rt::DataPtr ptr,
-	size_t size
-	)
-{
-	size_t result = m_file.read (ptr.m_p, size);
-
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingData;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-
-	return result;
-}
-
-size_t
-AXL_CDECL
-FileStream::write (
-	rt::DataPtr ptr,
-	size_t size
-	)
-{
-	return m_file.write (ptr.m_p, size);
-}
-
-void
-FileStream::ioThreadFunc ()
-{
-	ASSERT (m_file.isOpen ());
-
-	int result;
-	int selectFd = AXL_MAX (m_file.m_file, m_selfPipe.m_readFile) + 1;
-
-	// read/write loop
-
-	for (;;)
-	{
-		fd_set readSet = { 0 };
-
-		FD_SET (m_selfPipe.m_readFile, &readSet);
-
-		m_ioLock.lock ();
-
-		if (m_ioFlags & IoFlag_Closing)
-		{
-			m_ioLock.unlock ();
-			break;
-		}
-
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
-			FD_SET (m_file.m_file, &readSet);
-
-		m_ioLock.unlock ();
-
-		result = select (selectFd, &readSet, NULL, NULL, NULL);
-		if (result == -1)
-			break;
-
-		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
-		{
-			char buffer [256];
-			m_selfPipe.read (buffer, sizeof (buffer));
-		}
-
-		if (FD_ISSET (m_file.m_file, &readSet))
-		{
-			size_t incomingDataSize = m_file.m_file.getIncomingDataSize ();
-			if (incomingDataSize == -1 || !incomingDataSize) // error or end-of-file
-			{
-				fireFileStreamEvent (FileStreamEventKind_Eof);
-				break;
-			}
-
-			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-			m_ioFlags |= IoFlag_IncomingData;
-			m_ioLock.unlock ();
-
-			fireFileStreamEvent (FileStreamEventKind_IncomingData);
-		}
-	}
-}
-#endif
 
 //.............................................................................
 

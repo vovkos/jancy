@@ -81,6 +81,7 @@ protected:
 	{
 		IoFlag_Opened        = 0x0001,
 		IoFlag_Closing       = 0x0002,
+		IoFlag_WriteOnly     = 0x0004,
 		IoFlag_IncomingData  = 0x0010,
 		IoFlag_RemainingData = 0x0020,
 	};

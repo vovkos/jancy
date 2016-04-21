@@ -41,6 +41,8 @@ enum IoLibTypeCacheSlot
 	IoLibTypeCacheSlot_FileStream,
 	IoLibTypeCacheSlot_FileStreamEventParams,
 	IoLibTypeCacheSlot_NamedPipe,
+	IoLibTypeCacheSlot_Mailslot,
+	IoLibTypeCacheSlot_MailslotEventParams,
 };
 
 //.............................................................................

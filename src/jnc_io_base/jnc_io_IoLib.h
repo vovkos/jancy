@@ -14,6 +14,7 @@
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	include "jnc_io_NamedPipe.h"
+#	include "jnc_io_Mailslot.h"
 #endif
 
 namespace jnc {
@@ -37,6 +38,7 @@ public:
 		JNC_MAP_TYPE (FileStream)
 #if (_AXL_ENV == AXL_ENV_WIN)
 		JNC_MAP_TYPE (NamedPipe)
+		JNC_MAP_TYPE (Mailslot)
 #endif
 		JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", &createNetworkAdapterDescList)
 		JNC_MAP_FUNCTION ("io.createSerialPortDescList",     &createSerialPortDescList)
@@ -50,6 +52,7 @@ public:
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
 #if (_AXL_ENV == AXL_ENV_WIN)
 		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Mailslot)
 #endif
 	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 };
