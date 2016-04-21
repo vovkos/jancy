@@ -354,6 +354,15 @@ public:
 	void
 	clear ();
 
+	bool
+	isZero () const
+	{
+		return 
+			m_valueKind == ValueKind_Const &&
+			m_type->getTypeKind () == TypeKind_Int8 && 
+			*(char*) m_constData.ca () == 0;
+	}
+
 	void
 	setVoid (Module* module);
 

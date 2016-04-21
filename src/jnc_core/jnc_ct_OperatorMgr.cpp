@@ -404,6 +404,27 @@ OperatorMgr::binaryOperator (
 }
 
 Type*
+getConditionalNumericOperatorResultType (
+	const Value& trueValue,
+	Type* trueType,
+	const Value& falseValue,
+	Type* falseType
+	)
+{
+	if (trueType->getTypeKind () == TypeKind_Enum &&
+		(trueType->getFlags () & EnumTypeFlag_BitFlag) && 
+		falseValue.isZero ())
+		return trueType;
+
+	if (falseType->getTypeKind () == TypeKind_Enum &&
+		(falseType->getFlags () & EnumTypeFlag_BitFlag) && 
+		trueValue.isZero ())
+		return falseType;
+
+	return getArithmeticOperatorResultType (trueType, falseType);
+}
+
+Type*
 OperatorMgr::getConditionalOperatorResultType (
 	const Value& trueValue,
 	const Value& falseValue
@@ -441,8 +462,8 @@ OperatorMgr::getConditionalOperatorResultType (
 		resultType =
 			trueType->cmp (falseType) == 0 ? trueType :
 			(trueType->getTypeKindFlags () & falseType->getTypeKindFlags () & TypeKindFlag_Numeric) ?
-				getArithmeticOperatorResultType (trueType, falseType) :
-				m_module->m_operatorMgr.prepareOperandType (trueType);
+				getConditionalNumericOperatorResultType (trueValue, trueType, falseValue, falseType) :
+				prepareOperandType (trueType);
 	}
 
 	// if it's a lean data pointer, fatten it

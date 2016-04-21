@@ -45,6 +45,9 @@ getArithmeticOperatorResultType (Type* opType)
 		// no change
 		break;
 
+	case TypeKind_Enum:
+		return getArithmeticOperatorResultType (((EnumType*) opType)->getBaseType ());
+
 	default:
 		return NULL;
 	}

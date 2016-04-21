@@ -412,9 +412,7 @@ Cast_Enum::getCastKind (
 
 	return
 		(((EnumType*) type)->getFlags () & EnumTypeFlag_BitFlag) &&
-		opValue.getValueKind () == ValueKind_Const &&
-		opValue.getType ()->getTypeKind () == TypeKind_Int8 &&
-		*(char*) opValue.getConstData () == 0 ? CastKind_Implicit : CastKind_Explicit;
+		opValue.isZero () ? CastKind_Implicit : CastKind_Explicit;
 }
 
 bool
