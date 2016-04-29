@@ -58,7 +58,6 @@ FileStream::open (
 	m_isOpen = true;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
-
 	dword_t type = ::GetFileType (m_file.m_file);
 	switch (type)
 	{
@@ -77,6 +76,7 @@ FileStream::open (
 	default:
 		m_fileStreamKind = FileStreamKind_Unknown;
 	};
+#endif
 
 	if (openFlags & axl::io::FileFlag_WriteOnly)
 	{
@@ -84,6 +84,7 @@ FileStream::open (
 	}
 	else
 	{
+#if (_AXL_ENV == AXL_ENV_WIN)
 		m_ioThreadEvent.reset ();
 		m_readBuffer.setCount (Const_ReadBufferSize);
 		m_incomingDataSize = 0;
