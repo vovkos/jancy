@@ -12,6 +12,7 @@ Socket::Socket ()
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;
+	m_family = 0;
 }
 
 void
@@ -113,6 +114,35 @@ Socket::setNagleEnabled (bool isEnabled)
 	return result;
 }
 
+bool
+AXL_CDECL 
+Socket::isRawHdrIncluded ()
+{
+	int value = 0;
+	
+	bool result = m_family == AF_INET6 ? 
+		m_socket.getOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
+		m_socket.getOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
+
+	return result && value == 0;
+}
+
+bool
+AXL_CDECL 
+Socket::setRawHdrIncluded (bool isIncluded)
+{
+	int value = isIncluded;
+
+	bool result = m_family == AF_INET6 ? 
+		m_socket.setOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
+		m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
+
+	if (!result)
+		ext::propagateLastError ();
+
+	return result;
+}
+
 SocketCloseKind
 AXL_CDECL
 Socket::getCloseKind ()
@@ -140,8 +170,9 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 }
 
 bool
-Socket::open (
+Socket::openImpl (
 	int protocol,
+	int socketKind,
 	uint16_t family_jnc,
 	const SocketAddress* address,
 	bool isReusableAddress
@@ -150,7 +181,6 @@ Socket::open (
 	close ();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
-	int socketKind = protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM;
 
 	bool result = m_socket.open (family_s, socketKind, protocol);
 	if (!result)
@@ -181,6 +211,7 @@ Socket::open (
 	}
 
 	m_isOpen = true;
+	m_family = family_s;
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 	m_ioThreadEvent.reset ();

@@ -64,9 +64,11 @@ public:
 		JNC_MAP_CONST_PROPERTY ("m_peerAddress",  &Socket::getPeerAddress)
 		JNC_MAP_PROPERTY ("m_isBroadcastEnabled", &Socket::isBroadcastEnabled, &Socket::setBroadcastEnabled)
 		JNC_MAP_PROPERTY ("m_isNagleEnabled",     &Socket::isNagleEnabled, &Socket::setNagleEnabled)
+		JNC_MAP_PROPERTY ("m_isRawHdrIncluded",   &Socket::isRawHdrIncluded, &Socket::setRawHdrIncluded)
 		JNC_MAP_PROPERTY ("m_closeKind",          &Socket::getCloseKind, &Socket::setCloseKind)
 		JNC_MAP_FUNCTION ("open",     &Socket::open_0)
 		JNC_MAP_OVERLOAD (&Socket::open_1)
+		JNC_MAP_FUNCTION ("openRaw",  &Socket::openRaw)
 		JNC_MAP_FUNCTION ("close",    &Socket::close)
 		JNC_MAP_FUNCTION ("connect",  &Socket::connect)
 		JNC_MAP_FUNCTION ("listen",   &Socket::listen)
@@ -124,6 +126,8 @@ protected:
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
 #endif
 
+	int m_family;
+
 public:
 	Socket ();
 
@@ -147,6 +151,14 @@ public:
 	bool
 	AXL_CDECL 
 	setNagleEnabled (bool isEnabled);	
+
+	bool
+	AXL_CDECL 
+	isRawHdrIncluded ();	
+
+	bool
+	AXL_CDECL 
+	setRawHdrIncluded (bool isIncluded);	
 
 	SocketCloseKind
 	AXL_CDECL 
@@ -173,7 +185,7 @@ public:
 		uint16_t family
 		)
 	{
-		return open (protocol, family, NULL);
+		return openImpl (protocol, protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM, family, NULL);
 	}
 
 	bool
@@ -185,7 +197,22 @@ public:
 		)
 	{
 		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
-		return open (protocol, address ? address->m_family : AddressFamily_Ip4, address, isReusableAddress);
+		return openImpl (
+			protocol, 
+			protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM,
+			address ? address->m_family : AddressFamily_Ip4, address, 
+			isReusableAddress
+			);
+	}
+
+	bool
+	AXL_CDECL
+	openRaw (
+		int protocol,
+		uint16_t family
+		)
+	{
+		return openImpl (protocol, SOCK_RAW, family, NULL);
 	}
 
 	void
@@ -243,8 +270,9 @@ public:
 
 protected:
 	bool
-	open (
+	openImpl (
 		int protocol,
+		int socketKind,
 		uint16_t family,
 		const SocketAddress* address,
 		bool isReusableAddress = false

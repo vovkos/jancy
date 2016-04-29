@@ -50,6 +50,7 @@ opaque class Socket
 	
 	bool property m_isBroadcastEnabled;
 	bool property m_isNagleEnabled;
+	bool property m_isRawHdrIncluded;
 	SocketCloseKind property m_closeKind;
 
 	bool readonly m_isOpen;
@@ -67,6 +68,11 @@ opaque class Socket
 		Protocol protocol,
 		SocketAddress const* address,
 		bool isReusableAddress = false
+		);
+
+	bool errorcode openRaw (
+		Protocol protocol,
+		AddressFamily family = AddressFamily.Ip4
 		);
 		
 	void close ();
