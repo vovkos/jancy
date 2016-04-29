@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "jnc_io_Socket.h"
 
+#if (_AXL_ENV == AXL_ENV_POSIX)
+#	define IPV6_HDRINCL IP_HDRINCL
+#endif
+
 namespace jnc {
 namespace io {
 
