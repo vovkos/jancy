@@ -26,10 +26,7 @@ public:
 public:
 	void
 	AXL_CDECL
-	lock ()
-	{
-		m_lock.lock ();
-	}
+	lock ();
 
 	void
 	AXL_CDECL

@@ -33,10 +33,7 @@ public:
 
 	bool
 	AXL_CDECL
-	wait (uint_t timeout)
-	{
-		return m_event.signal ();
-	}
+	wait (uint_t timeout);
 };
 
 //.............................................................................
