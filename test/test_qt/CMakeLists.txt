@@ -201,6 +201,7 @@ llvm_map_components_to_libraries (
 
 target_link_libraries (
 	test_qt
+	jnc_sys
 	jnc_std
 	jnc_core
 	axl_zip

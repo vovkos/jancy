@@ -85,14 +85,6 @@ namespace std {
 
 //.............................................................................
 
-uintptr_t getCurrentThreadId ();
-
-bool createThread (function* threadFunc ());
-
-void sleep (uint32_t msec);
-
-uint64_t getTimestamp ();
-
 char const* cdecl format (
 	char const* fmtSpecifier,
 	...

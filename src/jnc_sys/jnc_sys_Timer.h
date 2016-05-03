@@ -11,33 +11,63 @@ namespace sys {
 class Timer: public rt::IfaceHdr
 {
 public:
+	JNC_OPAQUE_CLASS_TYPE_INFO (Timer, NULL)
+
 	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Timer", g_sysLibCacheSlot, SysLibTypeCacheSlot_Timer)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Timer>)
-		JNC_MAP_FUNCTION ("setTimer", &Timer::setTimer)
+		JNC_MAP_FUNCTION ("start", &Timer::start)
 		JNC_MAP_FUNCTION ("stop", &Timer::stop)
 	JNC_END_CLASS_TYPE_MAP ()
 
-public:
-//	axl::sys::Timer m_timer;
+protected:
+	class ThreadImpl: public axl::sys::ThreadImpl <ThreadImpl>
+	{
+	public:
+		void
+		threadFunc ()
+		{
+			AXL_CONTAINING_RECORD (this, Timer, m_thread)->threadFunc ();
+		}
+	};
 
 public:
+	rt::FunctionPtr m_timerFuncPtr;
+
+protected:
+	jnc::rt::Runtime* m_runtime;
+	ThreadImpl m_thread;
+	axl::sys::Event m_stopEvent;
+	uint64_t m_dueTime;
+	uint_t m_interval;
+
+public:
+	Timer ()
+	{
+		m_runtime = rt::getCurrentThreadRuntime ();
+		ASSERT (m_runtime);
+	}
+
+	~Timer ()
+	{
+		stop ();
+	}
+
 	bool 
 	AXL_CDECL
-	setTimer (
+	start (
 		rt::FunctionPtr ptr,
-		bool isPeriodic
-		)
-	{
-		return true;
-	}
+		uint64_t dueTime,
+		uint_t interval
+		);
 
 	void
 	AXL_CDECL
-	stop ()
-	{
+	stop ();
 
-	}
+protected:
+	void
+	threadFunc ();
 };
 
 //.............................................................................

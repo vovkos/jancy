@@ -60,8 +60,9 @@ struct GcStats
 
 enum GcHeapFlag
 {
-	GcHeapFlag_SimpleSafePoint = 0x01,
-	GcHeapFlag_ShuttingDown    = 0x02,
+	GcHeapFlag_SimpleSafePoint         = 0x01,
+	GcHeapFlag_ShuttingDown            = 0x02,
+	GcHeapFlag_TerminateDestructThread = 0x04,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -84,11 +85,6 @@ protected:
 		ct::Type* m_type;
 	};
 
-	struct DestructGuard: sl::ListLink
-	{
-		sl::Array <IfaceHdr*>* m_destructArray;
-	};
-
 	struct StaticDestructor: sl::ListLink
 	{
 		union
@@ -101,6 +97,17 @@ protected:
 	};
 
 protected:
+	class DestructThread: public axl::sys::ThreadImpl <DestructThread>
+	{
+	public:
+		void
+		threadFunc ()
+		{
+			AXL_CONTAINING_RECORD (this, GcHeap, m_destructThread)->destructThreadFunc ();
+		}
+	};
+
+protected:
 	Runtime* m_runtime;
 
 	sys::Lock m_lock;
@@ -109,12 +116,17 @@ protected:
 	GcStats m_stats;
 	sys::NotificationEvent m_idleEvent;
 	sl::StdList <StaticDestructor> m_staticDestructorList;
+	sl::Array <IfaceHdr*> m_dynamicDestructArray;
+
+	DestructThread m_destructThread;
 
 	sl::AuxList <GcMutatorThread> m_mutatorThreadList;
 	volatile size_t m_waitingMutatorThreadCount;
 	volatile size_t m_noCollectMutatorThreadCount;
 	volatile size_t m_handshakeCount;
 
+	sys::Event m_destructEvent;
+	sys::NotificationEvent m_noDestructorEvent;
 	sys::Event m_handshakeEvent;
 	sys::NotificationEvent m_resumeEvent;
 
@@ -134,7 +146,6 @@ protected:
 	sl::Array <Box*> m_classBoxArray;
 	sl::Array <Box*> m_destructibleClassBoxArray;
 	sl::Array <Box*> m_postponeFreeBoxArray;
-	sl::AuxList <DestructGuard> m_destructGuardList;
 	sl::Array <Root> m_staticRootArray;
 	sl::Array <Root> m_markRootArray [2];
 	size_t m_currentMarkRootArrayIdx;
@@ -216,7 +227,7 @@ public:
 		size_t periodSizeTrigger
 		);
 
-	void
+	bool
 	startup (ct::Module* module);
 
 	void
@@ -320,6 +331,9 @@ public:
 #endif
 
 protected:
+	void
+	destructThreadFunc ();
+
 	GcMutatorThread*
 	getCurrentGcMutatorThread ();
 
@@ -346,6 +360,9 @@ protected:
 
 	void
 	runMarkCycle ();
+
+	void
+	runDestructCycle_l ();
 
 	void
 	parkAtSafePoint ();

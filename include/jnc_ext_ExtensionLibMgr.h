@@ -95,6 +95,9 @@ public:
 ExtensionLib*
 getStdLib (ExtensionLibHost* host);
 
+ExtensionLib*
+getSysLib (ExtensionLibHost* host);
+
 //.............................................................................
 
 } // namespace ext

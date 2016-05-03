@@ -8,14 +8,16 @@ namespace sys {
 
 opaque class Thread
 {
+	protected function* m_threadFunc ();
 	uintptr_t readonly m_threadId;
 
 	construct ();
 	destruct ();
 
 	bool errorcode start (function* func ());
-	bool wait (uint_t timeout);
-	bool errorcode kill ();
+	bool wait (uint_t timeout = -1);
+	void waitAndClose (uint_t timeout = -1);
+	bool terminate ();
 }
 
 //.............................................................................

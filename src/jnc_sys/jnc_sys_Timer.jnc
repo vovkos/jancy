@@ -8,15 +8,44 @@ namespace sys {
 
 opaque class Timer
 {
+	protected function* m_timerFunc ();
+
 	construct ();
 	destruct ();
 
-	bool errorcode setTimer (
+	bool errorcode start (
 		function* func (),
-		bool isPeriodic = false
+		uint64_t dueTime,
+		uint_t interval
 		);
 
 	void stop ();
+
+	bool errorcode startDueTimer (
+		function* func (),
+		uint64_t dueTime
+		)
+	{
+		return start (func, dueTime, 0);
+	}
+
+	bool errorcode startPeriodicTimer (
+		function* func (),
+		uint_t interval
+		)
+	{
+		uint64_t dueTime = sys.getTimestamp () + interval * 10000;
+		return start (func, dueTime, interval);
+	}
+
+	bool errorcode startSingleShotTimer (
+		function* func (),
+		uint_t delay
+		)
+	{
+		uint64_t dueTime = sys.getTimestamp () + delay * 10000;
+		return start (func, dueTime, 0);
+	}
 }
 
 //.............................................................................

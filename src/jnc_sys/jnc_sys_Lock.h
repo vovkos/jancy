@@ -11,6 +11,8 @@ namespace sys {
 class Lock: public rt::IfaceHdr
 {
 public:
+	JNC_OPAQUE_CLASS_TYPE_INFO (Lock, NULL)
+
 	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Lock", g_sysLibCacheSlot, SysLibTypeCacheSlot_Lock)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Lock>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Lock>)

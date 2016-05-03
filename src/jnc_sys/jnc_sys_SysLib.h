@@ -25,7 +25,6 @@ class SysLib: public ext::ExtensionLib
 public:
 	JNC_BEGIN_LIB_MAP ()
 		JNC_MAP_FUNCTION ("sys.getCurrentThreadId", getCurrentThreadId)
-		JNC_MAP_FUNCTION ("sys.createThread",       createThread)
 		JNC_MAP_FUNCTION ("sys.getTimestamp",       getTimestamp)
 		JNC_MAP_FUNCTION ("sys.sleep",              sleep)
 
@@ -34,6 +33,13 @@ public:
 		JNC_MAP_TYPE (Thread)
 		JNC_MAP_TYPE (Timer)
 	JNC_END_LIB_MAP ()
+
+	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Lock)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Event)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Thread)
+		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Timer)
+	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 	JNC_BEGIN_LIB_SOURCE_FILE_TABLE ()
 		JNC_LIB_SOURCE_FILE ("sys_Lock.jnc",    g_sys_LockSrc)
@@ -55,10 +61,6 @@ public:
 	}
 
 	static
-	bool
-	createThread (rt::FunctionPtr ptr);
-
-	static
 	uint64_t
 	getTimestamp ()
 	{
@@ -68,18 +70,6 @@ public:
 	static
 	void
 	sleep (uint32_t msCount);
-
-protected:
-#if (_AXL_ENV == AXL_ENV_WIN)
-	static
-	DWORD
-	WINAPI
-	threadFunc (PVOID context);
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-	static
-	void*
-	threadFunc (void* context);
-#endif
 };
 
 //.............................................................................

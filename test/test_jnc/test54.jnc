@@ -1,3 +1,5 @@
+import "sys_Thread.jnc"
+
 //.............................................................................
 
 class Foo
@@ -23,7 +25,7 @@ class Foo
 
 threadProc ()
 {
-	intptr tid = std.getCurrentThreadId ();
+	intptr tid = sys.getCurrentThreadId ();
 
 	printf ("+threadProc %d\n", tid);
 
@@ -39,14 +41,16 @@ int main ()
 {	
 	printf ("main ()\n");
 
-	std.createThread (threadProc);
-	std.createThread (threadProc);
-	std.createThread (threadProc);
-	std.createThread (threadProc);
-	std.createThread (threadProc);
+	sys.Thread* threadTable [10];
+	for (size_t i = 0; i < countof (threadTable); i++)
+	{
+		threadTable [i] = new sys.Thread;
+		threadTable [i].start (threadProc);
+	}
 
 	printf ("exiting main...\n");
 	return 0; 
 }
 
 //.............................................................................
+

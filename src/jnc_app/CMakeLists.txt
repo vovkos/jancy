@@ -139,6 +139,7 @@ set_target_properties (
 target_link_libraries (
 	jnc_app
 	jnc_std
+	jnc_sys
 	jnc_core
 	axl_zip
 	axl_fsm

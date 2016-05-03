@@ -11,6 +11,8 @@ namespace sys {
 class Event: public rt::IfaceHdr
 {
 public:
+	JNC_OPAQUE_CLASS_TYPE_INFO (Event, NULL)
+	
 	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Event", g_sysLibCacheSlot, SysLibTypeCacheSlot_Event)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Event>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Event>)

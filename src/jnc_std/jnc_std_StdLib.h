@@ -26,10 +26,6 @@ class StdLib: public ext::ExtensionLib
 {
 public:
 	JNC_BEGIN_LIB_MAP ()
-		JNC_MAP_FUNCTION ("std.getCurrentThreadId", getCurrentThreadId)
-		JNC_MAP_FUNCTION ("std.createThread",       createThread)
-		JNC_MAP_FUNCTION ("std.getTimestamp",       getTimestamp)
-		JNC_MAP_FUNCTION ("std.sleep",              sleep)
 		JNC_MAP_FUNCTION ("std.getLastError",       getLastError)
 		JNC_MAP_FUNCTION ("std.setPosixError",      setPosixError)
 		JNC_MAP_FUNCTION ("std.setStringError",     setStringError)
@@ -85,28 +81,6 @@ public:
 	JNC_END_LIB_FORCED_EXPORT ()
 
 public:
-	static
-	intptr_t
-	getCurrentThreadId ()
-	{
-		return (intptr_t) sys::getCurrentThreadId ();
-	}
-
-	static
-	bool
-	createThread (rt::FunctionPtr ptr);
-
-	static
-	uint64_t
-	getTimestamp ()
-	{
-		return sys::getTimestamp ();
-	}
-
-	static
-	void
-	sleep (uint32_t msCount);
-
 	static
 	rt::DataPtr
 	getLastError ()

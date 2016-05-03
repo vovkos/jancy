@@ -72,7 +72,7 @@ GcHeap::setSizeTriggers (
 		m_lock.unlock ();
 }
 
-void
+bool
 GcHeap::startup (ct::Module* module)
 {
 	ASSERT (m_state == State_Idle);
@@ -95,6 +95,8 @@ GcHeap::startup (ct::Module* module)
 	ct::Function* destructor = module->getDestructor ();
 	if (destructor)
 		addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
+
+	return m_destructThread.start ();
 }
 
 // locking
@@ -437,18 +439,8 @@ GcHeap::beginShutdown ()
 
 	// initial collect
 
-	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++)
-	{
-		m_staticRootArray.clear (); // drop roots before every collect
-		collect_l (false);
-
-		waitIdleAndLock ();
-
-		if (m_allocBoxArray.isEmpty ())
-			break;
-	}
-
-	m_lock.unlock ();
+	m_staticRootArray.clear (); // drop roots
+	collect_l (false);
 }
 
 void
@@ -456,37 +448,22 @@ GcHeap::finalizeShutdown ()
 {
 	bool isMutatorThread = waitIdleAndLock ();
 	ASSERT (!isMutatorThread && (m_flags & GcHeapFlag_ShuttingDown));
-	
-	// static destructors
 
-	while (!m_staticDestructorList.isEmpty ())
-	{
-		StaticDestructor* destructor = m_staticDestructorList.removeTail ();
-		m_lock.unlock ();
+	// wait for destruct thread
 
-		int retVal;
+	m_flags |= GcHeapFlag_TerminateDestructThread;
+	m_destructEvent.signal ();
+	m_lock.unlock ();
 
-		bool result = destructor->m_iface ? 
-			callFunctionImpl_s (m_runtime, (void*) destructor->m_destructFunc, &retVal, destructor->m_iface) :
-			callFunctionImpl_s (m_runtime, (void*) destructor->m_staticDestructFunc, &retVal);
-
-		AXL_MEM_DELETE (destructor);
-
-		waitIdleAndLock ();
-	}
+	m_destructThread.waitAndClose ();
 
 	// final collect
 
-	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++)
-	{
-		m_staticRootArray.clear (); // drop roots before every collect
-		collect_l (false);
+	waitIdleAndLock ();
+	m_staticRootArray.clear (); // drop roots 
+	collect_l (false);
 
-		waitIdleAndLock ();
-
-		if (m_allocBoxArray.isEmpty ())
-			break;
-	}
+	waitIdleAndLock ();
 
 	// postponed free
 
@@ -501,18 +478,25 @@ GcHeap::finalizeShutdown ()
 
 	// everything should be empty now (if destructors don't play hardball)
 
-	ASSERT (!m_noCollectMutatorThreadCount && !m_waitingMutatorThreadCount);
-	ASSERT (m_allocBoxArray.isEmpty () && m_classBoxArray.isEmpty ());
+	ASSERT (
+		!m_noCollectMutatorThreadCount && 
+		!m_waitingMutatorThreadCount &&
+		m_staticDestructorList.isEmpty () &&
+		m_dynamicDestructArray.isEmpty () &&
+		m_allocBoxArray.isEmpty () && 
+		m_classBoxArray.isEmpty ()
+		);
 
 	// force-clear anyway
 
 	m_noCollectMutatorThreadCount = 0;
 	m_waitingMutatorThreadCount = 0;
 
+	m_staticDestructorList.clear ();
+	m_dynamicDestructArray.clear ();
 	m_allocBoxArray.clear ();
 	m_classBoxArray.clear ();
 	m_destructibleClassBoxArray.clear ();
-	m_destructGuardList.clear ();
 }
 
 void
@@ -1105,9 +1089,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	// schedule destruction for unmarked class boxes
 
-	char buffer [256];
-	sl::Array <IfaceHdr*> destructArray (ref::BufKind_Stack, buffer, sizeof (buffer));
-	DestructGuard destructGuard;
+	sl::Array <IfaceHdr*> destructArray;
 
 	size_t dstIdx = 0;
 	count = m_destructibleClassBoxArray.getCount ();
@@ -1132,28 +1114,19 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	m_destructibleClassBoxArray.setCount (dstIdx);
 
-	// add destruct guard for this thread
-
 	if (!destructArray.isEmpty ())
-	{
-		destructGuard.m_destructArray = &destructArray;
-		m_destructGuardList.insertTail (&destructGuard);
-	}
-	
-	if (!m_destructGuardList.isEmpty ())
-	{
-		sl::Iterator <DestructGuard> destructGuardIt = m_destructGuardList.getHead ();
-		for (; destructGuardIt; destructGuardIt++)
-		{
-			DestructGuard* destructGuard = *destructGuardIt;
+		m_dynamicDestructArray.append (destructArray);
 
-			IfaceHdr** iface = *destructGuard->m_destructArray;
-			count = destructGuard->m_destructArray->getCount ();
-			for (size_t i = 0; i < count; i++, iface++)
-			{
-				ct::ClassType* classType = (ct::ClassType*) (*iface)->m_box->m_type;
-				addRoot (iface, classType->getClassPtrType ());
-			}
+	// mark all class boxes scheduled for destruction
+
+	if (!m_dynamicDestructArray.isEmpty ())
+	{
+		size_t count = m_dynamicDestructArray.getCount ();
+		IfaceHdr** iface = m_dynamicDestructArray;
+		for (size_t i = 0; i < count; i++, iface++)
+		{
+			ct::ClassType* classType = (ct::ClassType*) (*iface)->m_box->m_type;
+			addRoot (iface, classType->getClassPtrType ());
 		}
 				
 		runMarkCycle ();
@@ -1264,37 +1237,6 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_lock.unlock ();
 
 	dbg::trace ("--- GcHeap::collect_l ()\n");
-
-	// 5) run destructors
-
-	if (!destructArray.isEmpty ())
-	{
-		count = destructArray.getCount ();
-		for (intptr_t i = count - 1; i >= 0; i--) // run in inversed order
-		{
-			IfaceHdr* iface = destructArray [i];
-			ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
-			ct::Function* destructor = classType->getDestructor ();
-			ASSERT (destructor);
-
-			bool result = callVoidFunction (m_runtime, destructor, iface);
-			if (!result)
-			{
-				dbg::trace (
-					"runtime error in %s.destruct () : %s\n", 
-					classType->m_tag.cc (),
-					err::getLastErrorDescription ().cc ()
-					);
-			}
-		}
-
-		// now we can remove this thread' destruct guard
-
-		bool isStillMutatorThread = waitIdleAndLock ();
-		ASSERT (isStillMutatorThread == isMutatorThread);
-		m_destructGuardList.remove (&destructGuard);
-		m_lock.unlock ();
-	}
 }
 
 void
@@ -1315,6 +1257,80 @@ GcHeap::runMarkCycle ()
 			root->m_type->markGcRoots (root->m_p, this);
 		}
 	}
+}
+
+void
+GcHeap::runDestructCycle_l ()
+{
+	while (!m_dynamicDestructArray.isEmpty ())
+	{
+		IfaceHdr* iface = m_dynamicDestructArray [0];
+		m_lock.unlock ();
+
+		ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
+		ct::Function* destructor = classType->getDestructor ();
+		ASSERT (destructor);
+
+		bool result = callVoidFunction (m_runtime, destructor, iface);
+		if (!result)
+		{
+			dbg::trace (
+				"runtime error in %s.destruct () : %s\n", 
+				classType->m_tag.cc (),
+				err::getLastErrorDescription ().cc ()
+				);
+		}
+
+		waitIdleAndLock ();
+		m_dynamicDestructArray.remove (0);
+	}
+}
+
+void
+GcHeap::destructThreadFunc ()
+{
+	for (;;)
+	{
+		m_destructEvent.wait ();
+
+		waitIdleAndLock ();
+		if (m_flags & GcHeapFlag_TerminateDestructThread)
+			break;
+
+		runDestructCycle_l ();
+		m_lock.unlock ();
+	}
+
+	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++)
+	{
+		runDestructCycle_l ();
+
+		while (!m_staticDestructorList.isEmpty ())
+		{
+			StaticDestructor* destructor = m_staticDestructorList.removeTail ();
+			m_lock.unlock ();
+
+			int retVal;
+
+			bool result = destructor->m_iface ? 
+				callFunctionImpl_s (m_runtime, (void*) destructor->m_destructFunc, &retVal, destructor->m_iface) :
+				callFunctionImpl_s (m_runtime, (void*) destructor->m_staticDestructFunc, &retVal);
+
+			AXL_MEM_DELETE (destructor);
+
+			waitIdleAndLock ();
+		}
+
+		m_staticRootArray.clear (); // drop roots before every collect
+		collect_l (false);
+
+		waitIdleAndLock ();
+
+		if (m_allocBoxArray.isEmpty ())
+			break;
+	}
+
+	m_lock.unlock ();
 }
 
 void
