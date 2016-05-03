@@ -47,7 +47,7 @@ getStorageKindString (StorageKind storageKind)
 		"typedef",                  // StorageKind_Typedef,
 		"alias",                    // StorageKind_Alias,
 		"static",                   // StorageKind_Static,
-		"thread",                   // StorageKind_Thread,
+		"threadlocal",              // StorageKind_Tls,
 		"stack",                    // StorageKind_Stack,
 		"heap",                     // StorageKind_Heap,
 		"member",                   // StorageKind_Member,

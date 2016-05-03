@@ -1,10 +1,10 @@
 // Jancy features a nice and clean approach to the lazy initialization problem 
 // with the 'once' statement: just prefix any statement (including a compound 
-// statement '{ ... }') with 'once' or 'thread once' and it will be executed 
+// statement '{ ... }') with 'once' or 'threadlocal once' and it will be executed 
 // once per each program run (or once per each thread run).
 
-// Static or thread variable construction and initialization is also guaranteed
-// to be executed once per program run (or once per thread run).
+// Static or thread-local variable construction and initialization is also 
+// guaranteed to be executed once per program run (or once per thread run).
 
 // Lazy initialization is guaranteed to be thread-safe. The compiler generates 
 // output code similar to boost::call_once ().

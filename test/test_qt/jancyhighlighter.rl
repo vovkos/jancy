@@ -46,7 +46,7 @@ main := |*
 'typedef'         |
 'alias'           |
 'static'          |
-'thread'          |
+'threadlocal'     |
 'stack'           |
 'heap'            |
 'abstract'        |

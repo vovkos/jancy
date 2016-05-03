@@ -96,7 +96,7 @@ public:
 	StructField*
 	getTlsField ()
 	{
-		ASSERT (m_storageKind == StorageKind_Thread);
+		ASSERT (m_storageKind == StorageKind_Tls);
 		return m_tlsField;
 	}
 

@@ -1437,10 +1437,10 @@ Parser::declareData (
 	case StorageKind_Static:
 		break;
 
-	case StorageKind_Thread:
+	case StorageKind_Tls:
 		if (!scope && (!constructor->isEmpty () || !initializer->isEmpty ()))
 		{
-			err::setFormatStringError ("global 'thread' variables cannot have initializers");
+			err::setFormatStringError ("global 'threadlocal' variables cannot have initializers");
 			return false;
 		}
 
@@ -1606,7 +1606,7 @@ Parser::declareData (
 				break;
 
 			case StorageKind_Static:
-			case StorageKind_Thread:
+			case StorageKind_Tls:
 				if (!variable->isInitializationNeeded ())
 					break;
 

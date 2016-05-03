@@ -58,7 +58,7 @@ Variable::getLlvmValue ()
 	if (m_llvmValue)
 		return m_llvmValue;
 
-	ASSERT (m_storageKind == StorageKind_Thread);
+	ASSERT (m_storageKind == StorageKind_Tls);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	BasicBlock* entryBlock = function->getEntryBlock ();

@@ -70,7 +70,7 @@ enum StorageKind
 	StorageKind_Alias,
 	StorageKind_Typedef,
 	StorageKind_Static,
-	StorageKind_Thread,
+	StorageKind_Tls,
 	StorageKind_Stack,
 	StorageKind_Heap,
 	StorageKind_Member,

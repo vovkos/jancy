@@ -314,9 +314,9 @@ ControlFlowMgr::onceStmt_Create (
 {
 	Variable* flagVariable;
 
-	if (storageKind != StorageKind_Static && storageKind != StorageKind_Thread)
+	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls)
 	{
-		err::setFormatStringError ("'%s once' is illegal (only 'static' or 'thread' is allowed)", getStorageKindString (storageKind));
+		err::setFormatStringError ("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString (storageKind));
 		return false;
 	}
 
@@ -353,7 +353,7 @@ ControlFlowMgr::onceStmt_PreBody (
 	bool result;
 
 	StorageKind storageKind = stmt->m_flagVariable->getStorageKind ();
-	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Thread);
+	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Tls);
 
 	m_module->m_namespaceMgr.setSourcePos (pos);
 
@@ -361,7 +361,7 @@ ControlFlowMgr::onceStmt_PreBody (
 
 	Value value;
 
-	if (storageKind == StorageKind_Thread)
+	if (storageKind == StorageKind_Tls)
 	{
 		BasicBlock* bodyBlock = createBlock ("once_body");
 
@@ -434,14 +434,14 @@ ControlFlowMgr::onceStmt_PostBody (
 	)
 {
 	StorageKind storageKind = stmt->m_flagVariable->getStorageKind ();
-	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Thread);
+	ASSERT (storageKind == StorageKind_Static || storageKind == StorageKind_Tls);
 
 	Type* type = stmt->m_flagVariable->getType ();
 
 	m_module->m_namespaceMgr.closeScope ();
 	m_module->m_namespaceMgr.setSourcePos (pos);
 
-	if (storageKind == StorageKind_Thread)
+	if (storageKind == StorageKind_Tls)
 	{
 		m_module->m_llvmIrBuilder.createStore (
 			Value ((int64_t) 2, type),

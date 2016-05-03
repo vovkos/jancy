@@ -108,7 +108,7 @@ main := |*
 'typedef'        { createToken (TokenKind_Typedef); };
 'alias'          { createToken (TokenKind_Alias); };
 'static'         { createToken (TokenKind_Static); };
-'thread'         { createToken (TokenKind_Thread); };
+'threadlocal'    { createToken (TokenKind_ThreadLocal); };
 'abstract'       { createToken (TokenKind_Abstract); };
 'virtual'        { createToken (TokenKind_Virtual); };
 'override'       { createToken (TokenKind_Override); };

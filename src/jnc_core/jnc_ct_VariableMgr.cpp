@@ -56,7 +56,7 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 	{
 	case StdVariable_SjljFrame:
 		variable = createVariable (
-			StorageKind_Thread,
+			StorageKind_Tls,
 			"g_sjljFrame",
 			"jnc.g_sjljFrame",
 			m_module->m_typeMgr.getStdType (StdType_SjljFrame)->getDataPtrType_c ()
@@ -65,7 +65,7 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable (
-			StorageKind_Thread,
+			StorageKind_Tls,
 			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
 			m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame)->getDataPtrType_c ()
@@ -142,7 +142,7 @@ VariableMgr::createVariable (
 
 		break;
 
-	case StorageKind_Thread:
+	case StorageKind_Tls:
 		m_tlsVariableArray.append (variable);
 		break;
 
@@ -214,7 +214,7 @@ VariableMgr::initializeVariable (Variable* variable)
 			primeStaticClassVariable (variable);
 		break;
 
-	case StorageKind_Thread:
+	case StorageKind_Tls:
 	case StorageKind_Heap:
 		break;
 
@@ -601,7 +601,7 @@ VariableMgr::createTlsStructType ()
 
 		if (variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate)
 		{
-			err::setFormatStringError ("'thread' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().cc ());
+			err::setFormatStringError ("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().cc ());
 			return false;
 		}
 

@@ -84,9 +84,9 @@ storage_specifier
 			{
 				$.m_storageKind = StorageKind_Static;
 			}
-	|	TokenKind_Thread
+	|	TokenKind_ThreadLocal
 			{
-				$.m_storageKind = StorageKind_Thread;
+				$.m_storageKind = StorageKind_Tls;
 			}
 	|	TokenKind_Abstract
 			{
