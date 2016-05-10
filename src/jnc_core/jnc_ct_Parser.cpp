@@ -2283,8 +2283,8 @@ Parser::automatonRegExp (
 	if (!result)
 		return false;
 
-	m_module->m_namespaceMgr.openScope (pos);
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
+	m_module->m_namespaceMgr.openScope (pos);
 	block->markReachable ();
 	m_automatonState = AutomatonState_RegExpCase;
 	return true;
