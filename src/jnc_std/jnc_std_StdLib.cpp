@@ -64,13 +64,38 @@ StdLib::strChr (
 	int c
 	)
 {
-	rt::DataPtr resultPtr = { 0 };
-
 	if (!ptr.m_p)
-		return resultPtr;
+		return rt::g_nullPtr;
 
-	resultPtr = ptr;
-	resultPtr.m_p = strchr ((char*) ptr.m_p, c);
+	char* p = strchr ((char*) ptr.m_p, c);
+	if (!p)
+		return rt::g_nullPtr;
+
+	rt::DataPtr resultPtr;
+	resultPtr.m_p = 
+	resultPtr.m_validator = ptr.m_validator;
+	return resultPtr;
+}
+
+rt::DataPtr 
+StdLib::strStr (
+	rt::DataPtr ptr1,
+	rt::DataPtr ptr2
+	)
+{
+	if (!ptr1.m_p)
+		return rt::g_nullPtr;
+
+	if (!ptr2.m_p)
+		return ptr1;
+
+	char* p = strstr ((char*) ptr1.m_p, (char*) ptr2.m_p);
+	if (!p)
+		return rt::g_nullPtr;
+
+	rt::DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
 
@@ -121,13 +146,40 @@ StdLib::memChr (
 	size_t size
 	)
 {
-	rt::DataPtr resultPtr = { 0 };
-
 	if (!ptr.m_p)
-		return resultPtr;
+		return rt::g_nullPtr;
 
-	resultPtr = ptr;
-	resultPtr.m_p = memchr (ptr.m_p, c, size);
+	void* p = memchr (ptr.m_p, c, size);
+	if (!p)
+		return rt::g_nullPtr;
+
+	rt::DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr.m_validator;
+	return resultPtr;
+}
+
+rt::DataPtr 
+StdLib::memMem (
+	rt::DataPtr ptr1,
+	size_t size1,
+	rt::DataPtr ptr2,
+	size_t size2
+	)
+{
+	if (!ptr1.m_p)
+		return rt::g_nullPtr;
+
+	if (!ptr2.m_p)
+		return ptr1;
+
+	void* p = sl::memMem (ptr1.m_p, size1, ptr2.m_p, size2);
+	if (!p)
+		return rt::g_nullPtr;
+
+	rt::DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
 

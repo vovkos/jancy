@@ -35,10 +35,12 @@ public:
 		JNC_MAP_FUNCTION ("strcmp",  strCmp)
 		JNC_MAP_FUNCTION ("stricmp", striCmp)
 		JNC_MAP_FUNCTION ("strchr",  strChr)
+		JNC_MAP_FUNCTION ("strstr",  strStr)
 		JNC_MAP_FUNCTION ("strcat",  strCat)
 		JNC_MAP_FUNCTION ("strdup",  strDup)
 		JNC_MAP_FUNCTION ("memcmp",  memCmp)
 		JNC_MAP_FUNCTION ("memchr",  memChr)
+		JNC_MAP_FUNCTION ("memmem",  memMem)
 		JNC_MAP_FUNCTION ("memcpy",  memCpy)
 		JNC_MAP_FUNCTION ("memset",  memSet)
 		JNC_MAP_FUNCTION ("memcat",  memCat)
@@ -139,6 +141,13 @@ public:
 
 	static
 	rt::DataPtr 
+	strStr (
+		rt::DataPtr ptr1,
+		rt::DataPtr ptr2
+		);
+
+	static
+	rt::DataPtr 
 	strCat (
 		rt::DataPtr ptr1,
 		rt::DataPtr ptr2
@@ -165,6 +174,15 @@ public:
 		rt::DataPtr ptr,
 		int c,
 		size_t size
+		);
+
+	static
+	rt::DataPtr 
+	memMem (
+		rt::DataPtr ptr1,
+		size_t size1,
+		rt::DataPtr ptr2,
+		size_t size2
 		);
 
 	static

@@ -21,6 +21,11 @@ char const* strchr (
 	int c
 	);
 
+char const* strstr (
+	char const* p1,
+	char const* p2
+	);
+
 char const* strcat (
 	char const* p1,
 	char const* p2
@@ -41,6 +46,13 @@ void const* memchr (
 	void const* p,
 	int c,
 	size_t size
+	);
+
+void const* memmem (
+	void const* p1,
+	size_t size1,
+	void const* p2,
+	size_t size2
 	);
 
 void memcpy (
