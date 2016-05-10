@@ -1,0 +1,30 @@
+import "sys_Event.jnc"
+import "sys_Timer.jnc"
+
+//.............................................................................
+
+sys.Event g_event;
+
+foo ()
+{
+	printf ("foo ()\n");
+	g_event.signal ();
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+
+	sys.Timer timer;
+	timer.startSingleShotTimer (foo, 3000);
+
+	printf ("waiting...\n");
+	g_event.wait ();
+
+
+	printf ("done\n");
+	return 0;
+}
+
+//.............................................................................

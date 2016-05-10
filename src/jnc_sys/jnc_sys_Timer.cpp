@@ -55,7 +55,7 @@ Timer::threadFunc ()
 	if (m_dueTime > timestamp)
 	{
 		uint_t delay = (uint_t) ((m_dueTime - timestamp) / 10000);
-		result = m_stopEvent.wait (m_interval);
+		result = m_stopEvent.wait (delay);
 		if (result)
 			return;
 	}
