@@ -39,11 +39,16 @@ Timer::stop ()
 {
 	m_stopEvent.signal ();
 
-	rt::enterWaitRegion (m_runtime);
-	m_thread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
-		
+	if (m_thread.getThreadId () != axl::sys::getCurrentThreadId ())
+	{
+		rt::enterWaitRegion (m_runtime);
+		m_thread.waitAndClose ();
+		rt::leaveWaitRegion (m_runtime);
+	}
+
 	m_timerFuncPtr = rt::g_nullFunctionPtr;
+	m_dueTime = 0;
+	m_interval = 0;
 }
 
 void
