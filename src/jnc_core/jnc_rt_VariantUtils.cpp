@@ -119,6 +119,14 @@ HashVariant::operator () (const Variant& variant)
 		return 0;
 
 	size_t size = variant.m_type->getSize ();
+
+	if (variant.m_type->getTypeKindFlags () & ct::TypeKindFlag_BigEndian)
+	{
+		uint64_t result = 0;
+		axl::sl::swapByteOrder (&result, &variant.m_int64, size);
+		return (uintptr_t) result;		
+	}
+
 	if (size <= sizeof (uintptr_t) || variant.m_type->getTypeKind () == ct::TypeKind_DataPtr)
 		return variant.m_uintptr;
 
