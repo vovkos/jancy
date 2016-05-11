@@ -153,11 +153,16 @@ void
 Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 {
 	Tls* tls = sys::getTlsSlotValue <Tls> ();
-	ASSERT (tls && tls->m_runtime == this);
+	ASSERT (
+		tls && 
+		tls->m_runtime == this && 
+		tls->m_initializeLevel == ers->m_initializeLevel + 1
+		);
 
-	if (--tls->m_initializeLevel) // still 
+	restoreExceptionRecoverySnapshot (ers, tls);
+
+	if (tls->m_initializeLevel) // this thread was nested-initialized
 	{
-		restoreExceptionRecoverySnapshot (ers, tls);
 		m_gcHeap.safePoint ();
 		return;
 	}
