@@ -96,7 +96,7 @@ restoreExceptionRecoverySnapshot (
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
 
 	ASSERT (
-		ers->m_initializeLevel == tls->m_initializeLevel &&
+		ers->m_initializeLevel == tls->m_initializeLevel - 1 &&
 		ers->m_waitRegionLevel == tls->m_gcMutatorThread.m_waitRegionLevel
 		);
 
@@ -153,11 +153,7 @@ void
 Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 {
 	Tls* tls = sys::getTlsSlotValue <Tls> ();
-	ASSERT (
-		tls && 
-		tls->m_runtime == this && 
-		tls->m_initializeLevel == ers->m_initializeLevel + 1
-		);
+	ASSERT (tls && tls->m_runtime == this);
 
 	restoreExceptionRecoverySnapshot (ers, tls);
 
