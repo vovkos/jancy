@@ -349,7 +349,7 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	if (m_flags & IoFlag_Asynchronous)
+	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
 		m_ioFlags &= ~IoFlag_IncomingConnection;
@@ -859,12 +859,6 @@ Socket::sendRecvLoop ()
 		m_ioLock.lock ();
 
 		if (m_ioFlags & IoFlag_Closing)
-		{
-			m_ioLock.unlock ();
-			return true;
-		}
-
-		if (m_ioFlags & IoFlag_Waiting)
 		{
 			m_ioLock.unlock ();
 			return true;
