@@ -288,7 +288,7 @@ void
 ControlFlowMgr::forStmt_PreBody (ForStmt* stmt)
 {
 	stmt->m_scope->m_breakBlock = stmt->m_followBlock;
-	stmt->m_scope->m_continueBlock = stmt->m_conditionBlock;
+	stmt->m_scope->m_continueBlock = stmt->m_loopBlock;
 
 	m_module->m_operatorMgr.gcSafePoint ();
 }
