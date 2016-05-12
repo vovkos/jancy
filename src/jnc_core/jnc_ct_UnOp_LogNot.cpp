@@ -49,6 +49,9 @@ UnOp_LogNot::op (
 	case TypeKind_PropertyPtr:
 		return ptrOperator (opValue, resultValue);
 
+	case TypeKind_Variant:
+		return variantOperator (opValue, resultValue);
+
 	default:
 		setOperatorError (opValue);
 		return false;
@@ -77,6 +80,19 @@ UnOp_LogNot::ptrOperator (
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 	return zeroCmpOperator (ptrValue, resultValue);
+}
+
+bool
+UnOp_LogNot::variantOperator (
+	const Value& opValue,
+	Value* resultValue
+	)
+{
+	Value boolValue;
+	
+	return 
+		m_module->m_operatorMgr.castOperator (opValue, TypeKind_Bool, &boolValue) &&
+		zeroCmpOperator (boolValue, resultValue);
 }
 
 //.............................................................................

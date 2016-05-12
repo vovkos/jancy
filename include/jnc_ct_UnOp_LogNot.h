@@ -42,6 +42,12 @@ protected:
 		const Value& opValue,
 		Value* resultValue
 		);
+
+	bool
+	variantOperator (
+		const Value& opValue,
+		Value* resultValue
+		);
 };
 
 //.............................................................................

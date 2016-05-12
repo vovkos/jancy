@@ -1,0 +1,38 @@
+//.............................................................................
+
+int main ()
+{
+	printf ("main ()\n");
+
+	variant v;
+
+	v = false;
+	printf ($"v = $v\n");
+
+	if (v)
+		printf ("if (v)\n");
+	else
+		printf ("else (v)\n");
+
+	if (!v)
+		printf ("if (!v)\n");
+	else
+		printf ("else (!v)\n");
+
+	v = 2;
+	printf ($"v = $v\n");
+
+	if (v)
+		printf ("if (v)\n");
+	else
+		printf ("else (v)\n");
+
+	if (!v)
+		printf ("if (!v)\n");
+	else
+		printf ("else (!v)\n");
+
+	return 0;
+}
+
+//.............................................................................
