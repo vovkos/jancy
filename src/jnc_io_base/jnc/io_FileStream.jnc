@@ -36,7 +36,6 @@ enum FileStreamEvent
 	Eof,
 	IncomingData,
 	IoError,
-	TransmitBufferOverflow,
 	TransmitBufferReady,
 }
 

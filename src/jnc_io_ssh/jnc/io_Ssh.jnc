@@ -20,7 +20,6 @@ enum SshEvent
 	ReauthenticateInitiated,
 	ReconnectInitiated,
 	IncomingData,
-	TransmitBufferOverflow,
 	TransmitBufferReady,
 }
 

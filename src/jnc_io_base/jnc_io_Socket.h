@@ -16,7 +16,6 @@ enum SocketEventKind
 	SocketEventKind_Disconnected,
 	SocketEventKind_IncomingData,
 	SocketEventKind_IncomingConnection,
-	SocketEventKind_TransmitBufferOverflow,
 	SocketEventKind_TransmitBufferReady,
 };
 
@@ -50,6 +49,15 @@ enum SocketCloseKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum SocketOpenFlag
+{
+	SocketOpenFlag_Raw          = 0x01,
+	SocketOpenFlag_Asynchronous = 0x02,
+	SocketOpenFlag_ReuseAddress = 0x04,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class Socket: public rt::IfaceHdr
 {
 	friend class IoThread;
@@ -68,7 +76,6 @@ public:
 		JNC_MAP_PROPERTY ("m_closeKind",          &Socket::getCloseKind, &Socket::setCloseKind)
 		JNC_MAP_FUNCTION ("open",     &Socket::open_0)
 		JNC_MAP_OVERLOAD (&Socket::open_1)
-		JNC_MAP_FUNCTION ("openRaw",  &Socket::openRaw)
 		JNC_MAP_FUNCTION ("close",    &Socket::close)
 		JNC_MAP_FUNCTION ("connect",  &Socket::connect)
 		JNC_MAP_FUNCTION ("listen",   &Socket::listen)
@@ -93,15 +100,17 @@ protected:
 
 	enum IoFlag
 	{
-		IoFlag_Udp        = 0x0001,
-		IoFlag_Connected  = 0x0002,
-		IoFlag_Closing    = 0x0010,
-		IoFlag_Connecting = 0x0020,
-		IoFlag_Listening  = 0x0040,
+		IoFlag_Asynchronous          = 0x0001,
+		IoFlag_Udp                   = 0x0002,
+		IoFlag_Connected             = 0x0004,
+		IoFlag_Closing               = 0x0010,
+		IoFlag_Connecting            = 0x0020,
+		IoFlag_Listening             = 0x0040,
+		IoFlag_WaitingTransmitBuffer = 0x0080,
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-		IoFlag_IncomingData       = 0x0100,
-		IoFlag_IncomingConnection = 0x0200,
+		IoFlag_IncomingData          = 0x0100,
+		IoFlag_IncomingConnection    = 0x0200,
 #endif
 	};
 
@@ -177,15 +186,16 @@ public:
 	SocketAddress
 	AXL_CDECL
 	getPeerAddress (Socket* self);
-
+	
 	bool
 	AXL_CDECL
 	open_0 (
+		uint16_t family,
 		int protocol,
-		uint16_t family
+		uint_t flags
 		)
 	{
-		return openImpl (protocol, protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM, family, NULL);
+		return openImpl (family, protocol, NULL, flags);
 	}
 
 	bool
@@ -193,26 +203,11 @@ public:
 	open_1 (
 		int protocol,
 		jnc::rt::DataPtr addressPtr,
-		bool isReusableAddress
+		uint_t flags
 		)
 	{
 		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
-		return openImpl (
-			protocol, 
-			protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM,
-			address ? address->m_family : AddressFamily_Ip4, address, 
-			isReusableAddress
-			);
-	}
-
-	bool
-	AXL_CDECL
-	openRaw (
-		int protocol,
-		uint16_t family
-		)
-	{
-		return openImpl (protocol, SOCK_RAW, family, NULL);
+		return openImpl (address ? address->m_family : AddressFamily_Ip4, protocol, address, flags);
 	}
 
 	void
@@ -221,10 +216,7 @@ public:
 
 	bool
 	AXL_CDECL
-	connect (
-		jnc::rt::DataPtr addressPtr,
-		bool isSync
-		);
+	connect (jnc::rt::DataPtr addressPtr);
 
 	bool
 	AXL_CDECL
@@ -271,11 +263,10 @@ public:
 protected:
 	bool
 	openImpl (
-		int protocol,
-		int socketKind,
 		uint16_t family,
+		int protocol,
 		const SocketAddress* address,
-		bool isReusableAddress = false
+		uint_t flags
 		);
 
 	void
@@ -298,7 +289,13 @@ protected:
 	acceptLoop ();
 
 	bool
-	recvLoop ();
+	sendRecvLoop ();
+
+	size_t
+	postSend (
+		size_t size,
+		size_t result
+		);
 };
 
 //.............................................................................

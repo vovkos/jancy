@@ -57,7 +57,6 @@ enum SshEventKind
 	SshEventKind_ReauthenticateInitiated,
 	SshEventKind_ReconnectInitiated,
 	SshEventKind_IncomingData,
-	SshEventKind_TransmitBufferOverflow,
 	SshEventKind_TransmitBufferReady,
 };
 

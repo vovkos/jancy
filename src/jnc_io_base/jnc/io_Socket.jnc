@@ -12,7 +12,6 @@ enum SocketEvent
 	Disconnected,
 	IncomingData,
 	IncomingConnection,
-	TransmitBufferOverflow,
 	TransmitBufferReady,
 }
 
@@ -43,6 +42,15 @@ enum SocketCloseKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum SocketOpenFlags
+{
+	Raw,
+	Asynchronous,
+	ReuseAddress,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class Socket
 {
 	SocketAddress const property m_address;
@@ -60,27 +68,28 @@ opaque class Socket
 	destruct ();
 
 	bool errorcode open (
+		AddressFamily family,
 		Protocol protocol,
-		AddressFamily family = AddressFamily.Ip4
+		SocketOpenFlags flags = 0
 		);
 
 	bool errorcode open (
 		Protocol protocol,
 		SocketAddress const* address,
-		bool isReusableAddress = false
+		SocketOpenFlags flags = 0
 		);
 
-	bool errorcode openRaw (
+	bool errorcode open (
 		Protocol protocol,
-		AddressFamily family = AddressFamily.Ip4
-		);
+		SocketOpenFlags flags = 0
+		)
+	{
+		return open (AddressFamily.Ip4, protocol, flags);
+	}
 		
 	void close ();
 
-	bool errorcode connect (
-		SocketAddress const* address,
-		bool isSync = false
-		);
+	bool errorcode connect (SocketAddress const* address);
 
 	bool errorcode listen (size_t backLog = 0); // 0 -- default
 	Socket* errorcode accept (SocketAddress* address = null);

@@ -175,16 +175,18 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 
 bool
 Socket::openImpl (
-	int protocol,
-	int socketKind,
 	uint16_t family_jnc,
+	int protocol,
 	const SocketAddress* address,
-	bool isReusableAddress
+	uint_t flags
 	)
 {
 	close ();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
+	int socketKind = 
+		(flags & SocketOpenFlag_Raw) ? SOCK_RAW :
+		protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM;
 
 	bool result = m_socket.open (family_s, socketKind, protocol);
 	if (!result)
@@ -193,9 +195,9 @@ Socket::openImpl (
 		return false;
 	}
 
-	if (isReusableAddress)
+	if (flags & SocketOpenFlag_ReuseAddress)
 	{
-		int value = isReusableAddress;
+		int value = true;
 		result = m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &value, sizeof (value));
 		if (!result)
 		{
@@ -217,20 +219,35 @@ Socket::openImpl (
 	m_isOpen = true;
 	m_family = family_s;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
-	m_ioThreadEvent.reset ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-	m_selfPipe.create ();
-#endif
-
 	if (protocol == IPPROTO_UDP)
 	{
 		m_ioFlags |= IoFlag_Udp;
 		setBroadcastEnabled (true);
-		wakeIoThread (); // it's ok to wake before start
 	}
 
-	m_ioThread.start ();
+	if (flags & SocketOpenFlag_Asynchronous)
+	{
+		m_ioFlags |= IoFlag_Asynchronous;
+
+		result = m_socket.setBlockingMode (false);
+		if (!result)
+		{
+			ext::propagateLastError ();
+			return false;
+		}
+	
+#if (_AXL_ENV == AXL_ENV_WIN)
+		m_ioThreadEvent.reset ();
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+		m_selfPipe.create ();
+#endif
+
+		if (protocol == IPPROTO_UDP)
+			wakeIoThread (); // it's ok to wake before start
+
+		m_ioThread.start ();
+	}
+
 	return true;
 }
 
@@ -241,56 +258,48 @@ Socket::close ()
 	if (!m_socket.isOpen ())
 		return;
 
-	m_ioLock.lock ();
-	m_ioFlags |= IoFlag_Closing;
-	wakeIoThread ();
-	m_ioLock.unlock ();
+	if (m_ioFlags & IoFlag_Asynchronous)
+	{
+		m_ioLock.lock ();
+		m_ioFlags |= IoFlag_Closing;
+		wakeIoThread ();
+		m_ioLock.unlock ();
 
-	jnc::rt::enterWaitRegion (m_runtime);
-	m_ioThread.waitAndClose ();
-	jnc::rt::leaveWaitRegion (m_runtime);
-
-	m_ioFlags = 0;
-	m_socket.close ();
+		jnc::rt::enterWaitRegion (m_runtime);
+		m_ioThread.waitAndClose ();
+		jnc::rt::leaveWaitRegion (m_runtime);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	m_selfPipe.close ();
+		m_selfPipe.close ();
 #endif
+	}
 
+	m_socket.close ();
+
+	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId++;
 }
 
 bool
 AXL_CDECL
-Socket::connect (
-	jnc::rt::DataPtr addressPtr,
-	bool isSync
-	)
+Socket::connect (jnc::rt::DataPtr addressPtr)
 {
 	bool result;
 
-	m_ioLock.lock ();
-	if (m_ioFlags)
+	if (m_ioFlags & IoFlag_Asynchronous)
 	{
-		m_ioLock.unlock ();
-
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
-		return false;
-	}
-
-	m_ioFlags |= IoFlag_Connecting;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-
-	if (!isSync)
-	{
-		result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
-		if (!result)
+		m_ioLock.lock ();
+		if (m_ioFlags & ~IoFlag_Asynchronous)
 		{
-			ext::propagateLastError ();
+			m_ioLock.unlock ();
+			ext::setError (err::SystemErrorCode_InvalidDeviceState);
 			return false;
 		}
+
+		m_ioFlags |= IoFlag_Connecting;
+		wakeIoThread ();
+		m_ioLock.unlock ();
 	}
 
 	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
@@ -307,18 +316,20 @@ Socket::listen (size_t backLog)
 {
 	bool result;
 
-	m_ioLock.lock ();
-	if (m_ioFlags)
+	if (m_ioFlags & IoFlag_Asynchronous)
 	{
+		m_ioLock.lock ();
+		if (m_ioFlags & ~IoFlag_Asynchronous)
+		{
+			m_ioLock.unlock ();
+			ext::setError (err::SystemErrorCode_InvalidDeviceState);
+			return false;
+		}
+
+		m_ioFlags |= IoFlag_Listening;
+		wakeIoThread ();
 		m_ioLock.unlock ();
-
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
-		return false;
 	}
-
-	m_ioFlags |= IoFlag_Listening;
-	wakeIoThread ();
-	m_ioLock.unlock ();
 
 	result = m_socket.listen (backLog);
 	if (!result)
@@ -338,10 +349,13 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingConnection;
-	wakeIoThread ();
-	m_ioLock.unlock ();
+	if (m_flags & IoFlag_Asynchronous)
+	{
+		m_ioLock.lock ();
+		m_ioFlags &= ~IoFlag_IncomingConnection;
+		wakeIoThread ();
+		m_ioLock.unlock ();
+	}
 #endif
 
 	if (!result)
@@ -352,21 +366,71 @@ Socket::accept (jnc::rt::DataPtr addressPtr)
 		return NULL;
 	}
 
-	connectionSocket->m_ioFlags = IoFlag_Connected;
 	connectionSocket->setCloseKind (getCloseKind ());
 	connectionSocket->setNagleEnabled (isNagleEnabled ());
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-	connectionSocket->m_selfPipe.create ();
-#endif
+	if (m_ioFlags & IoFlag_Asynchronous)
+	{
+		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected;
 
-	connectionSocket->m_ioThread.start ();
-	connectionSocket->wakeIoThread ();
+#if (_AXL_ENV == AXL_ENV_POSIX)
+		connectionSocket->m_selfPipe.create ();
+#endif
+		connectionSocket->m_ioThread.start ();
+		connectionSocket->wakeIoThread ();
+	}
 
 	if (addressPtr.m_p)
 		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);
 
 	return connectionSocket;
+}
+
+size_t
+Socket::postSend (
+	size_t size,
+	size_t result
+	)
+{
+	if (!(m_ioFlags & IoFlag_Asynchronous))
+	{
+		if (result == -1)
+			ext::propagateLastError ();
+
+		return result;
+	}
+
+	if (result == -1)
+	{
+		err::Error error = err::getLastError ();
+
+#if (_AXL_ENV == AXL_ENV_WIN)
+		if (error->m_code != WSAEWOULDBLOCK)
+#elif (_AXL_ENV == AXL_ENV_POSIX)
+		if (error->m_code != EWOULDBLOCK && error->m_code != EAGAIN)
+#endif
+		{
+			ext::setError (error);
+			return -1;
+		}
+
+		result = 0;
+	}
+
+	if (result < size)
+	{
+		m_ioLock.lock ();
+		if (!(m_ioFlags & IoFlag_WaitingTransmitBuffer))
+		{
+			m_ioFlags |= IoFlag_WaitingTransmitBuffer;
+			wakeIoThread ();
+		}
+
+		m_ioLock.unlock ();
+	}
+
+	return result;
+
 }
 
 size_t
@@ -377,11 +441,7 @@ Socket::send (
 	)
 {
 	size_t result = m_socket.send (ptr.m_p, size);
-
-	if (result == -1)
-		ext::propagateLastError ();
-
-	return result;
+	return postSend (size, result);
 }
 
 size_t
@@ -394,10 +454,13 @@ Socket::recv (
 	size_t result = m_socket.recv (ptr.m_p, size);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingData;
-	wakeIoThread ();
-	m_ioLock.unlock ();
+	if (m_ioFlags & IoFlag_Asynchronous)
+	{
+		m_ioLock.lock ();
+		m_ioFlags &= ~IoFlag_IncomingData;
+		wakeIoThread ();
+		m_ioLock.unlock ();
+	}
 #endif
 
 	if (result == -1)
@@ -415,12 +478,8 @@ Socket::sendTo (
 	)
 {
 	axl::io::SockAddr sockAddr = ((const SocketAddress*) addressPtr.m_p)->getSockAddr ();
-	
 	size_t result = m_socket.sendTo (ptr.m_p, size, sockAddr);
-	if (result == -1)
-		ext::propagateLastError ();
-
-	return result;
+	return postSend (size, result);
 }
 
 size_t
@@ -435,10 +494,13 @@ Socket::recvFrom (
 	size_t result = m_socket.recvFrom (ptr.m_p, size, &sockAddr);
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingData;
-	wakeIoThread ();
-	m_ioLock.unlock ();
+	if (m_ioFlags & IoFlag_Asynchronous)
+	{
+		m_ioLock.lock ();
+		m_ioFlags &= ~IoFlag_IncomingData;
+		wakeIoThread ();
+		m_ioLock.unlock ();
+	}
 #endif
 
 	if (result == -1)
@@ -469,11 +531,11 @@ Socket::ioThreadFunc ()
 	}
 	else if (ioFlags & IoFlag_Udp)
 	{
-		recvLoop ();
+		sendRecvLoop ();
 	}
 	else if (ioFlags & IoFlag_Connected)
 	{
-		bool result = recvLoop ();
+		bool result = sendRecvLoop ();
 		uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
 		fireSocketEvent (SocketEventKind_Disconnected, flags);
 	}
@@ -485,7 +547,7 @@ Socket::ioThreadFunc ()
 	{
 		if (connectLoop ())
 		{
-			bool result = recvLoop ();
+			bool result = sendRecvLoop ();
 			uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
 			fireSocketEvent (SocketEventKind_Disconnected, flags);
 		}
@@ -544,7 +606,6 @@ Socket::connectLoop ()
 				}
 				else
 				{
-					m_socket.setBlockingMode (true); // turn blocking mode back on
 					fireSocketEvent (SocketEventKind_ConnectCompleted);
 					return true;
 				}
@@ -598,13 +659,9 @@ Socket::acceptLoop ()
 }
 
 bool
-Socket::recvLoop ()
+Socket::sendRecvLoop ()
 {
 	sys::Event socketEvent;
-
-	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_READ | FD_CLOSE);
-	if (!result)
-		return false;
 
 	HANDLE waitTable [] =
 	{
@@ -614,6 +671,23 @@ Socket::recvLoop ()
 
 	for (;;)
 	{
+		uint_t eventMask = FD_READ | FD_CLOSE;
+		m_ioLock.lock ();
+		if (m_ioFlags & IoFlag_Closing)
+		{
+			m_ioLock.unlock ();
+			return true;
+		}
+
+		if (m_ioFlags & IoFlag_WaitingTransmitBuffer)
+			eventMask |= FD_WRITE;
+
+		m_ioLock.unlock ();
+
+		bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, eventMask);
+		if (!result)
+			return false;
+
 		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
 		switch (waitResult)
 		{
@@ -621,7 +695,7 @@ Socket::recvLoop ()
 			return false;
 
 		case WAIT_OBJECT_0:
-			return true;
+			break;
 
 		case WAIT_OBJECT_0 + 1:
 			WSANETWORKEVENTS networkEvents;
@@ -647,6 +721,20 @@ Socket::recvLoop ()
 
 				if (incomingDataSize != 0)
 					fireSocketEvent (SocketEventKind_IncomingData);
+			}
+
+			if (networkEvents.lNetworkEvents & FD_WRITE)
+			{
+				int error = networkEvents.iErrorCode [FD_WRITE_BIT];
+				if (error)
+					return false;
+
+				m_ioLock.lock ();
+				ASSERT (m_ioFlags & IoFlag_WaitingTransmitBuffer);
+				m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
+				m_ioLock.unlock ();
+
+				fireSocketEvent (SocketEventKind_TransmitBufferReady);
 			}
 
 			break;
@@ -753,7 +841,7 @@ Socket::acceptLoop ()
 }
 
 bool
-Socket::recvLoop ()
+Socket::sendRecvLoop ()
 {
 	int result;
 	int selectFd = AXL_MAX (m_socket.m_socket, m_selfPipe.m_readFile) + 1;
@@ -763,6 +851,8 @@ Socket::recvLoop ()
 	for (;;)
 	{
 		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
+		fd_set* writeSetPtr = NULL;
 
 		FD_SET (m_selfPipe.m_readFile, &readSet);
 
@@ -774,12 +864,24 @@ Socket::recvLoop ()
 			return true;
 		}
 
+		if (m_ioFlags & IoFlag_Waiting)
+		{
+			m_ioLock.unlock ();
+			return true;
+		}
+
 		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
 			FD_SET (m_socket.m_socket, &readSet);
 
+		if (m_ioFlags & IoFlag_WaitingTransmitBuffer)
+		{
+			FD_SET (m_socket.m_socket, &writeSet);
+			writeSetPtr = &writeSet;
+		}
+
 		m_ioLock.unlock ();
 
-		result = select (selectFd, &readSet, NULL, NULL, NULL);
+		result = select (selectFd, &readSet, writeSetPtr, NULL, NULL);
 		if (result == -1)
 			return false;
 
@@ -804,6 +906,16 @@ Socket::recvLoop ()
 			m_ioLock.lock ();
 			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
 			m_ioFlags |= IoFlag_IncomingData;
+			m_ioLock.unlock ();
+
+			fireSocketEvent (SocketEventKind_IncomingData);
+		}
+
+		if (FD_ISSET (m_socket.m_socket, &writeSet))
+		{
+			m_ioLock.lock ();
+			ASSERT (m_ioFlags & IoFlag_WaitingTransmitBuffer);
+			m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
 			m_ioLock.unlock ();
 
 			fireSocketEvent (SocketEventKind_IncomingData);

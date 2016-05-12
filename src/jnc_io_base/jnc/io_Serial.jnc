@@ -45,7 +45,6 @@ enum SerialEvent
 {
 	IncomingData,
 	IoError,
-	TransmitBufferOverflow,
 	TransmitBufferReady,
 	StatusLineChanged,
 }

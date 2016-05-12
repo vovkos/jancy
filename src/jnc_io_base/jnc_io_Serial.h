@@ -11,7 +11,6 @@ enum SerialEventKind
 {
 	SerialEventKind_IncomingData = 0,
 	SerialEventKind_IoError,
-	SerialEventKind_TransmitBufferOverflow,
 	SerialEventKind_TransmitBufferReady,
 	SerialEventKind_StatusLineChanged,
 };
