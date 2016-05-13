@@ -103,6 +103,7 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 
 	if (scope->m_gcShadowStackFrameMap != prevFrameMap) // this scope already has its own frame map
 	{
+		ASSERT (scope->m_gcShadowStackFrameMap);
 		m_currentFrameMap = scope->m_gcShadowStackFrameMap;
 		return;
 	}
@@ -112,6 +113,18 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	m_frameMapList.insertTail (frameMap);
 	scope->m_gcShadowStackFrameMap = frameMap;
 	m_currentFrameMap = frameMap;
+
+	// also update all the nested scopes in the scope stack 
+
+	Scope* childScope = m_module->m_namespaceMgr.getCurrentScope ();
+	while (childScope != scope)
+	{
+		if (childScope->m_gcShadowStackFrameMap == prevFrameMap)
+			childScope->m_gcShadowStackFrameMap = frameMap;
+
+		childScope = childScope->getParentScope ();
+		ASSERT (childScope);
+	}
 
 	// we need to set the map in the beginning of scope
 

@@ -1,0 +1,61 @@
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+
+//.............................................................................
+
+struct Foo
+{
+	int m_foo;
+
+	char const* foo ()
+	{
+		printf ("+Foo.m_foo = %d\n", m_foo);
+		jnc.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map  
+		printf ("-Foo.m_foo = %d\n", m_foo);
+		return null;
+	}
+}
+
+foo ()
+{
+	Foo foo;
+	foo.m_foo = 137;
+
+	// this test demonstrated incorrect gc frame map structure
+	// parent scope had no roots, then we enter one or more rootless scopes,	
+	// and then we lift variable from the parent scope and create some temp roots
+
+	// the solution is to propagate frame map down the stack after lift
+
+	{{{
+		foo.foo ();
+	}}}
+}
+
+io.Address_ip4 g_address = { 0x7f000001 };
+
+bar ()
+{
+	io.SocketAddress address;
+	address.m_family = io.AddressFamily.Ip4;
+	address.m_ip4.m_address = g_address;
+	address.m_ip4.m_port = 137;
+
+	for (int i = 0; i <= 255; i++)
+	{
+		address.m_ip4.m_address.m_i8 [3] = i;
+		printf ($"probing $(address.getString ())...\n");
+	}
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	foo ();
+	bar ();
+
+	return 0;
+}
+
+//.............................................................................
