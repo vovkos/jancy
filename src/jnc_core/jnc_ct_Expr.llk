@@ -812,20 +812,29 @@ primary_expr <Value* $value>
 			{
 				$value->setNull (m_module);
 			}
-	|	TokenKind_Dynamic $d? TokenKind_SizeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.sizeofOperator (dynamism, $t.m_value, $value);
+				return m_module->m_operatorMgr.sizeofOperator (OperatorDynamism_Static, $t.m_value, $value);
 			}
-	|	TokenKind_Dynamic $d? TokenKind_CountOf '(' type_name_or_expr $t ')'
+	|	TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.countofOperator (dynamism, $t.m_value, $value);
+				return m_module->m_operatorMgr.countofOperator (OperatorDynamism_Static, $t.m_value, $value);
 			}
-	|	TokenKind_Dynamic $d? TokenKind_TypeOf '(' type_name_or_expr $t ')'
+	|	TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
-				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.typeofOperator (dynamism, $t.m_value, $value);
+				return m_module->m_operatorMgr.typeofOperator (OperatorDynamism_Static, $t.m_value, $value);
+			}
+	|	TokenKind_Dynamic TokenKind_SizeOf '(' expression $e ')'
+			{
+				return m_module->m_operatorMgr.sizeofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
+			}
+	|	TokenKind_Dynamic TokenKind_CountOf '(' expression $e ')'
+			{
+				return m_module->m_operatorMgr.countofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
+			}
+	|	TokenKind_Dynamic TokenKind_TypeOf '(' expression $e ')'
+			{
+				return m_module->m_operatorMgr.typeofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
 			{
@@ -848,7 +857,7 @@ type_name_or_expr
 			{
 				$.m_value = $1.m_type;
 			}
-	|	expression
+	|	expression_0
 			{
 				$.m_value = $1.m_value;
 			}
