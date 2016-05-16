@@ -175,10 +175,10 @@ add_jancy_tests
 	# ...
 	)
 
+	set (_FLAGS "--print-retval -I ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX}")
+
 	if (UNIX)
-		set (_FLAGS "--mcjit --debug-info --run --print-retval")
-	else ()
-		set (_FLAGS "--run --print-retval")
+		set (_FLAGS "${_FLAGS} --mcjit --debug-info")
 	endif ()
 
 	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
