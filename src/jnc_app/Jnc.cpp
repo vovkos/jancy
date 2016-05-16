@@ -123,6 +123,7 @@ Jnc::compile ()
 		return false;
 
 	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
+	m_module.m_importMgr.m_importDirList.insertTail (io::getExeDir ());
 
 	if (m_cmdLine->m_flags & JncFlag_StdInSrc)
 	{

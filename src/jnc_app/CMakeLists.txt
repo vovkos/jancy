@@ -175,7 +175,7 @@ add_jancy_tests
 	# ...
 	)
 
-	set (_FLAGS "--print-retval -I ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX}")
+	set (_FLAGS "--print-retval")
 
 	if (UNIX)
 		set (_FLAGS "${_FLAGS} --mcjit --debug-info")
