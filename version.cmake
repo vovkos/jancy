@@ -1,3 +1,5 @@
+#..............................................................................
+
 set (JANCY_VERSION_MAJOR     1)
 set (JANCY_VERSION_MINOR     7)
 set (JANCY_VERSION_REVISION  0)
@@ -12,5 +14,11 @@ else ()
 	set (JANCY_VERSION_TAG_SUFFIX)
 endif ()
 
+string (TIMESTAMP JANCY_VERSION_YEAR  "%Y")
+string (TIMESTAMP JANCY_VERSION_MONTH "%m")
+string (TIMESTAMP JANCY_VERSION_DAY   "%d")
+
 set (JANCY_VERSION_COMPANY   "Tibbo Technology Inc")
-set (JANCY_VERSION_YEARS     "2007-2015")
+set (JANCY_VERSION_YEARS     "2007-${JANCY_VERSION_YEAR}")
+
+#..............................................................................
