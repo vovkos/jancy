@@ -100,7 +100,7 @@ set_target_properties (
 	)
 
 if (GCC)
-	axl_add_target_string_property (
+	axl_append_target_string_property (
 		jnc_io_pcap
 		COMPILE_FLAGS
 		"-fPIC"
