@@ -59,7 +59,6 @@ source_group (
 include_directories (
 	${AXL_INC_DIR}
 	${LLVM_INC_DIR}
-	${LLVM_INC_DIR_2}
 	${JANCY_INC_DIR}
 	)
 

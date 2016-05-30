@@ -10,15 +10,4 @@ configure_file (
 	@ONLY
 	)
 
-if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../paths.cmake)
-	configure_file (
-		paths.cmake.template
-		${CMAKE_CURRENT_LIST_DIR}/../paths.cmake
-		COPYONLY
-		)
-endif ()
-
-include (${CMAKE_CURRENT_BINARY_DIR}/jancy_config.cmake)
-include (${CMAKE_CURRENT_LIST_DIR}/../paths.cmake)
-
 #..............................................................................

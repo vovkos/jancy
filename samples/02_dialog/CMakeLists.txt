@@ -107,7 +107,6 @@ endif ()
 
 include_directories (
 	${LLVM_INC_DIR}
-	${LLVM_INC_DIR_2}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}

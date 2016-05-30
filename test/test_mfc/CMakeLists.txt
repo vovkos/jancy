@@ -111,14 +111,8 @@ source_group (
 # test_mfc compiler test
 #
 
-include_directories (
-	${PATH_LLVM_INC_DIR}
-	${PATH_LLVM_INC_DIR_2}
-	)
-
-link_directories (
-	${PATH_LLVM_LIB_DIR}/$(Configuation)
-	)
+include_directories (${PATH_LLVM_INC_DIR})
+link_directories (${PATH_LLVM_LIB_DIR}/$(Configuation))
 
 set (CMAKE_MFC_FLAG 1)
 

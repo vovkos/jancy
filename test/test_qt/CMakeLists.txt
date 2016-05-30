@@ -163,7 +163,6 @@ endif ()
 
 include_directories (
 	${LLVM_INC_DIR}
-	${LLVM_INC_DIR_2}
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}

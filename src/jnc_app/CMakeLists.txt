@@ -52,7 +52,7 @@ source_group (
 #
 
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+file (MAKE_DIRECTORY ${GEN_DIR})
 
 axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
@@ -96,7 +96,6 @@ source_group (
 
 include_directories (
 	${LLVM_INC_DIR}
-	${LLVM_INC_DIR_2}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
