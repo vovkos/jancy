@@ -165,15 +165,15 @@ Why create yet another programming language? Like, there isn't enough of them al
 
 I have asked myself these questions hundreds of times, over and over again. I can name dozens of possible arguments against creating a new programming language. I understand all the difficulties a language creator is doomed to face before he can gather any meaningful number of users of the new language. And I still believe that creation of Jancy was justified. The truth is, Jancy was not created just to fix the infamous fatal flaw of other languages (aka \emph{they didn't write it}). Of course, the passion to invent was a significant driving force, but there was \emph{practival} reasoning besides that. 
 
-During development of a product called IO Ninja (a universal all-in-one low-level IO debugger) we were looking for a scripting language with the support for safe pointers and safe pointer arithmetics. After not finding one, we basically had a simple choice: either we settle for some existing scripting language without pointer arithmetics (say, embedded Python) or create a new scripting language -- tailor-suited for this task. Create it both for ourselves, and for other developers who could be in need for a scripting language really good at handling binary data. Needless to say, we have chosen the later option -- otherwise, you would not be reading this manual.
+During development of a product called IO Ninja (a universal all-in-one low-level IO debugger) we were looking for a scripting language with the support for safe pointers and safe pointer arithmetics. After not finding one, we basically had a simple choice: either we settle for some existing scripting language without safe pointer arithmetics (say, embedded Python) or create a new scripting language -- tailor-suited for this task. Create it both for ourselves, and for other developers who could be in need for a scripting language really good at handling binary data. Needless to say, we had chosen the later option -- otherwise, you would not be reading this manual.
 
-Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy offers a long list of other useful features not found in most mainstream languages (and sometimes, nowhere else). So let's outline the distinguishing features of Jancy below. And for those of you wondering \emph{what's in a name}, Jancy is an acronym: [in-between] Java-and-C/C++.
+Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy offers a long list of other useful but rarely found facilities. So let's outline the distinguishing features of Jancy below. And for those of you wondering \emph{what's in a name}, Jancy is an acronym: [in-between] Java-and-C.
 
 \section{Design Principles}
 
 \begin{itemize}
 \item Object-oriented scripting language for IO and UI programming with C-family syntax
-\item ABI (application-binary-interface) compatibility with C/C++
+\item ABI (application-binary-interface) compatibility with C
 \item Automatic memory management via accurate GC (garbage collection)
 \item LLVM (Low Level Virtual Machine) as a back-end
 \end{itemize}
@@ -182,7 +182,7 @@ Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy o
 
 \begin{itemize}
 \item Safe pointers and pointer arithmetic
-\item Unprecedented (for scripting languages) level of source compatibility with C/C++ 
+\item Unprecedented for scripting languages source-level compatibility with C
 \item Built-in Reactive Programming support
 \item Built-in regexp-based generator of incremental lexers/scanners
 \end{itemize}
@@ -191,12 +191,12 @@ Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy o
 
 \begin{itemize}
 \item Exception-style syntax over error code checks
-\item Properties (the most comprehensive implementation thereof)
+\item Properties -- the most comprehensive implementation thereof
 \item Multicasts and events (including weak events, which do not require to unsubscribe)
 \item Multiple inheritance
 \item Const-correctness
 \item Thread local storage
-\item Weak pointers (that do not retain objects)
+\item Weak pointers (do not retain objects)
 \item Partial application for functions and properties
 \item Scheduled function pointers
 \item Bitflag enums
@@ -208,7 +208,7 @@ Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy o
 
 \section{Hello World}
 
-Tradition dictates to start any language book with a \emph{"Hello World"} program, so here we go:
+Tradition dictates to start any language book with a \emph{"Hello World"} program, so I'm not going to re-invent the wheel in this paricular case:
 
 \begin{lstlisting}
 int main ()
@@ -218,7 +218,7 @@ int main ()
 }
 \end{lstlisting}
 
-No explanation is needed, I suppose? Keeping Jancy language syntax as close to C/C++/Java as possible was imperative, and I believe a very pleasant level of source compatibility was eventually achieved. Any experienced C++ or Java programmer should be able to read and understand most of Jancy code from the get-go, without any special training. Moreover, often times it is possible to simply copy-paste C/C++/Java code snippets into Jancy source files and compile them with little or no modifications.
+No explanation is needed, I suppose? Keeping Jancy language syntax as close to C/C++/Java as possible was imperative, and I believe a very pleasant level of source-level compatibility was eventually achieved. Any experienced C, C++ or Java programmer should be able to read and understand most of Jancy code from the get-go, without any special training. Moreover, often times it is possible to simply copy-paste C/C++/Java code snippets into Jancy source files and compile them with little to no modifications.
 
 \section{Primitive Types}
 
@@ -250,6 +250,10 @@ Below is a list of all primitive types in Jancy.
 \item float
 \item double
 \end{itemize}
+
+\section{POD and non-POD Types}
+
+An important concept in Jancy is the notion of a POD (plain-old-data) type.
 
 \section{Simple Declarations}
 
@@ -459,7 +463,7 @@ if (!threadClass)
 	threadClass = new MyClass (10, 20, 30);
 \end{lstlisting}
 
-There is one more storage class, which actually cannot be explicitly expressed with storage specifier -- \emph{local} storage. The actual memory for local storage can come from \emph{stack} or from \emph{GC-heap}, but the most important thing about local storage is this: every time intruction pointer goes through variable declaration, that will be a \emph{new} copy of local variable.
+There is one more storage class, which actually cannot be explicitly expressed with storage specifier -- \emph{local} storage. The actual memory for local storage can come from \emph{stack} or from \emph{GC-heap}, but the most important thing about local storage is this: every time intruction pointer goes through a variable declaration, this will be a \emph{new} copy of the local variable.
 
 If storage specifier is omitted, then global variables get assigned \emph{static} storage class and local variables -- \emph{local} storage class.
 
@@ -547,7 +551,7 @@ property g_prop
 A body of a method can be placed on the right (Java-style) or outside (C++-style).
 
 \subsection{Indexed Properties}
-Jancy also supports \emph{indexed} properties, which are properties with array semantics. Accessors for such properties accept additional index arguments. Unlike with real arrays, a property index doesn't have to be of the integer type, nor does it mean \emph{index} exclusively -- it is up to the developer how to use it.
+Jancy also supports \emph{indexed} properties, which are properties with array semantics. Accessors for such properties accept additional index arguments, but unlike a real array index, a property index doesn't have to be of the integer type, nor does it mean \emph{index} exclusively -- it is up to the developer how to use it.
 
 Simple indexed property declaration syntax:
 
@@ -816,7 +820,6 @@ int main ()
 \subsection{Structs/Unions}
 
 Jancy features structs and unions just the way C/C++ does with the following exceptions:
-
 
 
 

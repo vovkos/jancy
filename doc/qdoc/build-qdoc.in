@@ -1,0 +1,3 @@
+${ECHO_OFF}
+${QDOC_EXE} ${CMAKE_CURRENT_BINARY_DIR}/jancy_api.qdocconf
+${QDOC_EXE} ${CMAKE_CURRENT_BINARY_DIR}/jancy_std.qdocconf

@@ -19,6 +19,8 @@ set (
 	7Z_EXE
 	PERL_EXE
 	RAGEL_EXE
+	DOXYGEN_EXE
+	QDOC_EXE
 	)
 
 set (
