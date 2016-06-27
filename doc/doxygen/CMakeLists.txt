@@ -18,7 +18,7 @@ if (WIN32)
 		)
 else ()
 	axl_configure_file_w_permissions (
-		build-doxygen.sh.in
+		build-doxygen.in
 		build-doxygen.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE

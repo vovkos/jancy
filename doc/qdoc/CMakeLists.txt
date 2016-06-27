@@ -23,7 +23,7 @@ if (WIN32)
 		)
 else ()
 	axl_configure_file_w_permissions (
-		build-qdoc.sh.in
+		build-qdoc.in
 		build-qdoc.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
