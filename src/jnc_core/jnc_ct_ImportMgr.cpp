@@ -56,7 +56,7 @@ ImportMgr::addImport (const char* fileName)
 
 	// source. search extension libs first
 
-	sl::StringSlice source = m_module->m_extensionLibMgr.findSourceFileContents (fileName);
+	sl::StringRef source = m_module->m_extensionLibMgr.findSourceFileContents (fileName);
 	if (!source.isEmpty ())
 	{
 		addSource (fileName, source);
@@ -81,7 +81,7 @@ ImportMgr::addImport (const char* fileName)
 void
 ImportMgr::addSource (
 	const sl::String& filePath,
-	const sl::StringSlice& source
+	const sl::StringRef& source
 	)
 {
 	sl::StringHashTableMapIterator <bool> it = m_importFilePathMap.visit (filePath);

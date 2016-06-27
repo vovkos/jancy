@@ -93,7 +93,7 @@ set (
 
 set (
 	FUNCTION_JNC_LIST
-	jnc_ct_StdFunctions.jnc
+	jnc/jnc_ct_StdFunctions.jnc
 	)
 
 source_group (
@@ -395,7 +395,7 @@ set (
 
 set (
 	TYPE_JNC_LIST
-	jnc_ct_StdTypes.jnc
+	jnc/jnc_ct_StdTypes.jnc
 	)
 
 source_group (
@@ -511,8 +511,8 @@ set (
 
 set (
 	RTL_JNC_LIST
-	jnc_rtl_DynamicLib.jnc
-	jnc_rtl_Recognizer.jnc
+	jnc/jnc_rtl_DynamicLib.jnc
+	jnc/jnc_rtl_Recognizer.jnc
 	)
 	
 source_group (
@@ -551,25 +551,25 @@ axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_ct_StdTypes.jnc.cpp
-	jnc_ct_StdTypes.jnc
+	jnc/jnc_ct_StdTypes.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_ct_StdFunctions.jnc.cpp
-	jnc_ct_StdFunctions.jnc
+	jnc/jnc_ct_StdFunctions.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_rtl_DynamicLib.jnc.cpp
-	jnc_rtl_DynamicLib.jnc
+	jnc/jnc_rtl_DynamicLib.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_rtl_Recognizer.jnc.cpp
-	jnc_rtl_Recognizer.jnc
+	jnc/jnc_rtl_Recognizer.jnc
 	${JNC2CPP_PL}
 	)
 

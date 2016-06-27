@@ -28,11 +28,11 @@ set (
 
 set (
 	LIB_JNC_LIST
-	jnc_sys_globals.jnc
-	jnc_sys_Event.jnc
-	jnc_sys_Lock.jnc
-	jnc_sys_Thread.jnc
-	jnc_sys_Timer.jnc
+	jnc/jnc_sys_globals.jnc
+	jnc/jnc_sys_Event.jnc
+	jnc/jnc_sys_Lock.jnc
+	jnc/jnc_sys_Thread.jnc
+	jnc/jnc_sys_Timer.jnc
 	)
 
 source_group (
@@ -55,31 +55,31 @@ axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_sys_globals.jnc.cpp
-	jnc_sys_globals.jnc
+	jnc/jnc_sys_globals.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_sys_Event.jnc.cpp
-	jnc_sys_Event.jnc
+	jnc/jnc_sys_Event.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_sys_Lock.jnc.cpp
-	jnc_sys_Lock.jnc
+	jnc/jnc_sys_Lock.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_sys_Thread.jnc.cpp
-	jnc_sys_Thread.jnc
+	jnc/jnc_sys_Thread.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_sys_Timer.jnc.cpp
-	jnc_sys_Timer.jnc
+	jnc/jnc_sys_Timer.jnc
 	${JNC2CPP_PL}
 	)
 

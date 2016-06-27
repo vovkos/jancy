@@ -128,7 +128,7 @@ ExtensionLibMgr::mapFunctions ()
 	return true;
 }
 
-sl::StringSlice
+sl::StringRef
 ExtensionLibMgr::findSourceFileContents (const char* fileName)
 {
 	size_t count = m_libArray.getCount ();
@@ -138,7 +138,7 @@ ExtensionLibMgr::findSourceFileContents (const char* fileName)
 
 		// do findSourceFileContents even for dynamic libs (chance to override source)
 
-		sl::StringSlice contents = libEntry->m_extensionLib->findSourceFileContents (fileName);
+		sl::StringRef contents = libEntry->m_extensionLib->findSourceFileContents (fileName);
 		if (!contents.isEmpty ())
 			return contents;
 
@@ -156,10 +156,10 @@ ExtensionLibMgr::findSourceFileContents (const char* fileName)
 			sourceFile->m_contents.append (0); // ensure zero-termination
 		}
 
-		return sl::StringSlice (sourceFile->m_contents, sourceFile->m_contents.getCount () - 1);
+		return sl::StringRef (sourceFile->m_contents, sourceFile->m_contents.getCount () - 1);
 	}
 
-	return sl::StringSlice ();
+	return sl::StringRef ();
 }
 
 const OpaqueClassTypeInfo*

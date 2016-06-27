@@ -19,6 +19,6 @@ string (TIMESTAMP JANCY_VERSION_MONTH "%m")
 string (TIMESTAMP JANCY_VERSION_DAY   "%d")
 
 set (JANCY_VERSION_COMPANY   "Tibbo Technology Inc")
-set (JANCY_VERSION_YEARS     "2007-${JANCY_VERSION_YEAR}")
+set (JANCY_VERSION_YEARS     "2012-${JANCY_VERSION_YEAR}")
 
 #..............................................................................

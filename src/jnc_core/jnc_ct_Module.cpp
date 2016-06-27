@@ -414,7 +414,7 @@ Module::parseFile (
 	if (!result)
 		return false;
 
-	size_t length = (size_t) file.getSize ();
+	size_t length = file.getMappingSize ();
 	sl::String source ((const char*) file.p (), length);
 	m_sourceList.insertTail (source);
 	return parse (nameOverride, source, length);

@@ -227,7 +227,7 @@ public:
 		size_t length
 		)
 	{
-		module->m_importMgr.addSource (fileName, axl::sl::StringSlice (source, length));
+		module->m_importMgr.addSource (fileName, axl::sl::StringRef (source, length));
 	}
 
 	virtual 

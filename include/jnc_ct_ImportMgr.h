@@ -23,7 +23,7 @@ struct Import: sl::ListLink
 {
 	ImportKind m_importKind;
 	sl::String m_filePath;
-	sl::StringSlice m_source;
+	sl::StringRef m_source;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -72,7 +72,7 @@ public:
 	void
 	addSource (
 		const sl::String& filePath,
-		const sl::StringSlice& source
+		const sl::StringRef& source
 		);
 
 protected:

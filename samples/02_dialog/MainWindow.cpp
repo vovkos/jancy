@@ -84,7 +84,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		m_module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
 	result = 
-		m_module.parse (fileName, (const char*) file.p (), file.getSize ()) &&
+		m_module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
 		m_module.parseImports ();
 
 	if (!result)

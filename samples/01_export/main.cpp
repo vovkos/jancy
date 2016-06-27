@@ -68,7 +68,7 @@ main (
 		module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
 
 	result = 
-		module.parse (fileName, (const char*) file.p (), file.getSize ()) &&
+		module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
 		module.parseImports ();
 
 	if (!result)

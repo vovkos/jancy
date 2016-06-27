@@ -38,10 +38,10 @@ public:
 	}
 
 	virtual
-	axl::sl::StringSlice
+	axl::sl::StringRef
 	findSourceFileContents (const char* fileName)
 	{
-		return sl::StringSlice ();
+		return sl::StringRef ();
 	}
 };
 
@@ -343,7 +343,7 @@ public: \
 
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Table) \
 virtual \
-axl::sl::StringSlice \
+axl::sl::StringRef \
 findSourceFileContents (const char* fileName) \
 { \
 	Table* table = axl::sl::getSingleton <Table> (); \
@@ -352,13 +352,13 @@ findSourceFileContents (const char* fileName) \
 class Table \
 { \
 protected: \
-	axl::sl::StringHashTableMap <axl::sl::StringSlice> m_fileNameMap; \
+	axl::sl::StringHashTableMap <axl::sl::StringRef> m_fileNameMap; \
 public: \
-	axl::sl::StringSlice \
+	axl::sl::StringRef \
 	find (const char* fileName) \
 	{ \
-		axl::sl::StringHashTableMapIterator <axl::sl::StringSlice> it = m_fileNameMap.find (fileName); \
-		return it ? it->m_value : axl::sl::StringSlice (); \
+		axl::sl::StringHashTableMapIterator <axl::sl::StringRef> it = m_fileNameMap.find (fileName); \
+		return it ? it->m_value : axl::sl::StringRef (); \
 	} \
 	Table () \
 	{
@@ -367,7 +367,7 @@ public: \
 	JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX (SourceFileTable)
 
 #define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
-		m_fileNameMap.visit (fileName)->m_value.copy (sourceVar, lengthof (sourceVar)); \
+		m_fileNameMap [fileName] = axl::sl::StringRef (sourceVar, lengthof (sourceVar)); \
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	} \

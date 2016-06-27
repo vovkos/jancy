@@ -14,11 +14,9 @@
 #include "axl_mem_Block.h"
 #include "axl_err_Errno.h"
 #include "axl_sl_List.h"
-#include "axl_sl_ArraySlice.h"
 #include "axl_sl_ArrayList.h"
 #include "axl_sl_AutoPtrArray.h"
 #include "axl_sl_BitMap.h"
-#include "axl_sl_StringSlice.h"
 #include "axl_sl_StringCache.h"
 #include "axl_sl_StringHashTable.h"
 #include "axl_sl_CmdLineParser.h"
@@ -40,6 +38,7 @@
 #include "axl_sys_SjljTry.h"
 #include "axl_sys_DynamicLibrary.h"
 #include "axl_sl_Singleton.h"
+#include "axl_sl_Construct.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	include "axl_sys_win_VirtualMemory.h"

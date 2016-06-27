@@ -76,7 +76,7 @@ public:
 	bool
 	mapFunctions ();
 
-	sl::StringSlice
+	sl::StringRef
 	findSourceFileContents (const char* fileName);
 
 	const OpaqueClassTypeInfo* 

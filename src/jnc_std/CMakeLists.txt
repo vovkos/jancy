@@ -30,12 +30,12 @@ set (
 
 set (
 	LIB_JNC_LIST
-	jnc_std_globals.jnc
-	jnc_std_Error.jnc
-	jnc_std_Buffer.jnc
-	jnc_std_String.jnc
-	jnc_std_HashTable.jnc
-	jnc_std_List.jnc
+	jnc/jnc_std_globals.jnc
+	jnc/jnc_std_Error.jnc
+	jnc/jnc_std_Buffer.jnc
+	jnc/jnc_std_String.jnc
+	jnc/jnc_std_HashTable.jnc
+	jnc/jnc_std_List.jnc
 	)
 
 source_group (
@@ -58,37 +58,37 @@ axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_std_globals.jnc.cpp
-	jnc_std_globals.jnc
+	jnc/jnc_std_globals.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_std_Error.jnc.cpp
-	jnc_std_Error.jnc
+	jnc/jnc_std_Error.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_std_Buffer.jnc.cpp
-	jnc_std_Buffer.jnc
+	jnc/jnc_std_Buffer.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_std_String.jnc.cpp
-	jnc_std_String.jnc
+	jnc/jnc_std_String.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_std_HashTable.jnc.cpp
-	jnc_std_HashTable.jnc
+	jnc/jnc_std_HashTable.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_std_List.jnc.cpp
-	jnc_std_List.jnc
+	jnc/jnc_std_List.jnc
 	${JNC2CPP_PL}
 	)
 

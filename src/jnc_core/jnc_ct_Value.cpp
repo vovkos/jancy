@@ -389,9 +389,9 @@ Value::setField (
 
 	m_valueKind = ValueKind_Field;
 	m_field = field;
-	m_type = type;
-	char* p = m_constData.getBuffer (sizeof (size_t));
-	*(size_t*) p = baseOffset + field->getOffset ();
+	m_type = type;	
+	m_constData.setCount (sizeof (size_t));
+	*(size_t*) m_constData.a () = baseOffset + field->getOffset ();
 }
 
 void
@@ -483,17 +483,17 @@ Value::createConst (
 	size_t size = type->getSize ();
 	size_t allocSize = AXL_MAX (size, sizeof (int64_t)); // ensure int64 for GetLlvmConst ()
 
-	char* dst = m_constData.getBuffer (allocSize);
-	if (!dst)
+	bool result = m_constData.setCount (allocSize);
+	if (!result)
 		return false;
 
 	m_valueKind = ValueKind_Const;
 	m_type = type;
 
 	if (p)
-		memcpy (dst, p, size);
+		memcpy (m_constData, p, size);
 	else
-		memset (dst, 0, size);
+		memset (m_constData, 0, size);
 
 	return true;
 }
