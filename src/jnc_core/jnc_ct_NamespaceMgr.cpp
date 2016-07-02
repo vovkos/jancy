@@ -396,7 +396,7 @@ DynamicLibNamespace*
 NamespaceMgr::createDynamicLibNamespace (ClassType* dynamicLibType)
 {
 	sl::String name = "lib";
-	sl::String qualifiedName = dynamicLibType->getQualifiedName () + (utf32_t) '.' + name;
+	sl::String qualifiedName = dynamicLibType->getQualifiedName () + "." + name;
 
 	DynamicLibNamespace* nspace = AXL_MEM_NEW (DynamicLibNamespace);
 	nspace->m_module = m_module;
