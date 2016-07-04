@@ -10,8 +10,8 @@
 set (
 	APP_H_LIST
 	CmdLine.h
-	Jnc.h
-	OutStream.h
+	JncLib.h
+	JncApp.h
 	version.h.in
 	)
 
@@ -19,8 +19,8 @@ set (
 	APP_CPP_LIST
 	main.cpp
 	CmdLine.cpp
-	Jnc.cpp
-	OutStream.cpp
+	JncLib.cpp
+	JncApp.cpp
 	)
 
 source_group (

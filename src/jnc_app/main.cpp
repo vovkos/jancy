@@ -1,15 +1,27 @@
 #include "pch.h"
-#include "Jnc.h"
+#include "JncApp.h"
+#include "CmdLine.h"
 #include "version.h"
 
 #define _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 
 //.............................................................................
 
-void
-printVersion (OutStream* outStream)
+enum JncError
 {
-	outStream->printf (
+	JncError_Success         = 0,
+	JncError_InvalidCmdLine  = -1,
+	JncError_IoFailure       = -2,
+	JncError_CompileFailure  = -3,
+	JncError_RunFailure      = -4,
+};
+
+//.............................................................................
+
+void
+printVersion ()
+{
+	printf (
 		"Jancy v%d.%d.%d (%s%s)\n",
 		VERSION_MAJOR,
 		VERSION_MINOR,
@@ -20,12 +32,12 @@ printVersion (OutStream* outStream)
 }
 
 void
-printUsage (OutStream* outStream)
+printUsage ()
 {
-	printVersion (outStream);
+	printVersion ();
 
 	sl::String helpString = CmdLineSwitchTable::getHelpString ();
-	outStream->printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.cc ());
+	printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.cc ());
 }
 
 //.............................................................................
@@ -54,14 +66,13 @@ main (
 	lex::registerParseErrorProvider ();
 	srand ((int) sys::getTimestamp ());
 
-	FileOutStream stdOut;
 	CmdLine cmdLine;
 	CmdLineParser parser (&cmdLine);
 
 #ifdef _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 	if (argc < 2)
 	{
-		printUsage (&stdOut);
+		printUsage ();
 		return 0;
 	}
 #endif
@@ -73,8 +84,72 @@ main (
 		return JncError_InvalidCmdLine;
 	}
 
-	Jnc jnc;
-	return jnc.run (&cmdLine, &stdOut);
+	if (cmdLine.m_flags & JncFlag_Help)
+	{
+		printUsage ();
+	}
+	else if (cmdLine.m_flags & JncFlag_Version)
+	{
+		printVersion ();
+	}
+	else
+	{
+		JncApp app (&cmdLine);
+
+		result = 
+			app.initialize () &&
+			app.parse ();
+
+		if (!result)
+		{
+			printf ("%s\n", err::getLastErrorDescription ().cc ());
+			return JncError_CompileFailure;
+		}
+
+		if (cmdLine.m_flags & JncFlag_Documentation)
+			app.generateDocumentation ();
+
+		if (cmdLine.m_flags & JncFlag_Compile)
+		{
+			result = app.compile ();
+			if (!result)
+			{
+				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				return JncError_CompileFailure;
+			}
+		}
+
+		if (cmdLine.m_flags & JncFlag_LlvmIr)
+			app.printLlvmIr ();
+
+		if (cmdLine.m_flags & JncFlag_Jit)
+		{
+			result = app.jit ();
+			if (!result)
+			{
+				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				return JncError_CompileFailure;
+			}
+		}
+
+		if (cmdLine.m_flags & JncFlag_Run)
+		{
+			int returnValue;
+			result = app.runFunction (&returnValue);
+			if (!result)
+			{
+				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				return JncError_RunFailure;
+			}
+
+			if (!(cmdLine.m_flags & JncFlag_PrintReturnValue))
+				return returnValue;
+
+			printf ("'%s' returned: %d\n", cmdLine.m_functionName.cc (), returnValue);
+		}
+	}
+
+	return JncError_Success;
 }
 
 //.............................................................................

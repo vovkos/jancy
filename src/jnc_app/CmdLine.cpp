@@ -5,8 +5,7 @@
 
 CmdLine::CmdLine ()
 {
-	m_flags = 0;
-	m_serverPort = 0;
+	m_flags = JncFlag_Run;
 	m_functionName = "main";
 	m_gcAllocSizeTrigger = jnc::rt::GcDef_AllocSizeTrigger;
 	m_gcPeriodSizeTrigger = jnc::rt::GcDef_PeriodSizeTrigger;
@@ -83,15 +82,15 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_Jit:
-		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_Jit;
 		break;
 
 	case CmdLineSwitch_McJit:
-		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_McJit;
+		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_Jit | JncFlag_McJit;
 		break;
 
 	case CmdLineSwitch_LlvmIr:
-		m_cmdLine->m_flags |= JncFlag_LlvmIr;
+		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_LlvmIr;
 		break;
 
 	case CmdLineSwitch_SimpleGcSafePoint:
@@ -99,41 +98,21 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_CompileOnly:
-		m_cmdLine->m_flags |= JncFlag_CompileOnly;
+	case CmdLineSwitch_Documentation:
+		m_cmdLine->m_flags &= ~JncFlag_Run;
 		break;
 
 	case CmdLineSwitch_Run:
-		if (m_cmdLine->m_flags & JncFlag_CompileOnly)
-		{
-			err::setStringError ("conflicting flags (--compile-only/--run)");
-			return false;
-		}
-
+		m_cmdLine->m_flags |= JncFlag_Run;
 		break;
 
 	case CmdLineSwitch_RunFunction:
-		if (m_cmdLine->m_flags & JncFlag_CompileOnly)
-		{
-			err::setStringError ("conflicting flags (--compile-only/--run-func)");
-			return false;
-		}
-
+		m_cmdLine->m_flags |= JncFlag_Run;
 		m_cmdLine->m_functionName = value;
 		break;
 
 	case CmdLineSwitch_PrintReturnValue:
 		m_cmdLine->m_flags |= JncFlag_PrintReturnValue;
-		break;
-
-	case CmdLineSwitch_Server:
-		m_cmdLine->m_flags |= JncFlag_Server;
-		m_cmdLine->m_serverPort = atoi (value);
-		if (!m_cmdLine->m_serverPort)
-		{
-			err::setFormatStringError ("invalid server TCP port '%s'", value);
-			return false;
-		}
-
 		break;
 
 	case CmdLineSwitch_GcAllocSizeTrigger:
@@ -157,6 +136,10 @@ CmdLineParser::onSwitch (
 	case CmdLineSwitch_ImportDir:
 		m_cmdLine->m_importDirList.insertTail (value);
 		break;
+
+	case CmdLineSwitch_OutputDir:
+		m_cmdLine->m_outputDir = value;
+		break;
 	}
 
 	return true;
@@ -168,7 +151,6 @@ CmdLineParser::finalize ()
 	if (!(m_cmdLine->m_flags & (
 		JncFlag_Help |
 		JncFlag_Version |
-		JncFlag_Server |
 		JncFlag_StdInSrc
 		)) &&
 		m_cmdLine->m_fileNameList.isEmpty ())
@@ -177,7 +159,7 @@ CmdLineParser::finalize ()
 		return false;
 	}
 
-	if (!(m_cmdLine->m_flags & JncFlag_CompileOnly))
+	if (m_cmdLine->m_flags & JncFlag_Run)
 		m_cmdLine->m_flags |= JncFlag_Jit;
 
 	return true;

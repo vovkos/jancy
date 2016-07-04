@@ -7,11 +7,12 @@ enum JncFlag
 	JncFlag_Help              = 0x0001,
 	JncFlag_Version           = 0x0002,
 	JncFlag_LlvmIr            = 0x0004,
+	JncFlag_Compile           = 0x0008,
 	JncFlag_Jit               = 0x0010,
 	JncFlag_McJit             = 0x0020,
 	JncFlag_SimpleGcSafePoint = 0x0040,
-	JncFlag_CompileOnly       = 0x0080,
-	JncFlag_Server            = 0x0100,
+	JncFlag_Run               = 0x0080,
+	JncFlag_Documentation     = 0x0100,
 	JncFlag_DebugInfo         = 0x0200,
 	JncFlag_StdInSrc          = 0x0400,
 	JncFlag_PrintReturnValue  = 0x0800,
@@ -20,7 +21,6 @@ enum JncFlag
 struct CmdLine
 {
 	uint_t m_flags;
-	uint16_t m_serverPort;
 	size_t m_stackSizeLimit;
 	size_t m_gcAllocSizeTrigger;
 	size_t m_gcPeriodSizeTrigger;
@@ -28,6 +28,7 @@ struct CmdLine
 	sl::String m_srcNameOverride;
 	sl::String m_functionName;
 	sl::String m_extensionSrcFileName;
+	sl::String m_outputDir;
 
 	sl::BoxList <sl::String> m_fileNameList;
 	sl::BoxList <sl::String> m_importDirList;
@@ -51,14 +52,15 @@ enum CmdLineSwitch
 	CmdLineSwitch_Jit,
 	CmdLineSwitch_McJit,
 	CmdLineSwitch_SimpleGcSafePoint,
+	CmdLineSwitch_Documentation,
 
 	CmdLineSwitch_RunFunction = sl::CmdLineSwitchFlag_HasValue,
-	CmdLineSwitch_Server,
 	CmdLineSwitch_GcAllocSizeTrigger,
 	CmdLineSwitch_GcPeriodSizeTrigger,
 	CmdLineSwitch_StackSizeLimit,
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_ImportDir,
+	CmdLineSwitch_OutputDir,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -75,11 +77,6 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		"v", "version", NULL,
 		"Display compiler version"
 		)
-	AXL_SL_CMD_LINE_SWITCH_2 (
-		CmdLineSwitch_Server,
-		"s", "server", "<port>",
-		"Run compiler server on TCP port <port>"
-		)
 	AXL_SL_CMD_LINE_SWITCH (
 		CmdLineSwitch_StdInSrc,
 		"stdin", NULL,
@@ -88,7 +85,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_SrcNameOverride,
 		"n", "source-name", "<name>",
-		"Override source name for STDIN (defaults 'stdin')"
+		"Override source name for STDIN (defaults to 'stdin')"
 		)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Compilation options")
@@ -97,10 +94,20 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		"c", "compile-only", NULL,
 		"Compile only (no run)"
 		)
+	AXL_SL_CMD_LINE_SWITCH_3 (
+		CmdLineSwitch_Documentation,
+		"d", "doc", "documentation", NULL,
+		"Generate documentation"
+		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_ImportDir,
 		"I", "import-dir", "<dir>",
 		"Add import directory"
+		)
+	AXL_SL_CMD_LINE_SWITCH_2 (
+		CmdLineSwitch_OutputDir,
+		"O", "output-dir", "<dir>",
+		"Specify output directory"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_LlvmIr,

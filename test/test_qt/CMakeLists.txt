@@ -18,6 +18,7 @@ set (
 	mdichild.h
 	modulepane.h
 	output.h
+	testlib.h
 	)
 
 set (
@@ -32,6 +33,7 @@ set (
 	mdichild.cpp
 	modulepane.cpp
 	output.cpp
+	testlib.cpp
 	)
 
 set (
