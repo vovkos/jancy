@@ -270,6 +270,13 @@ public:
 		return true;
 	}
 
+	virtual
+	sl::StringRef
+	generateDocumentation (const sl::StringRef& outputDir)
+	{
+		return sl::StringRef ();
+	}
+
 protected:
 	virtual
 	bool

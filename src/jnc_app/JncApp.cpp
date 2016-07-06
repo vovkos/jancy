@@ -149,6 +149,17 @@ JncApp::runFunction (int* returnValue)
 bool
 JncApp::generateDocumentation ()
 {
+	jnc::ct::GlobalNamespace* nspace = m_module.m_namespaceMgr.getGlobalNamespace ();
+	sl::String documentation = nspace->generateDocumentation (m_cmdLine->m_outputDir);
+	if (documentation.isEmpty ())
+	{
+		err::setStringError ("module does not contain any documentable items");
+		return false;
+	}
+
+	io::File indexFile;
+	indexFile.open (m_cmdLine->m_outputDir + "/index.xml");
+	indexFile.write (documentation.cc (), documentation.getLength ());
 	return true;
 }
 

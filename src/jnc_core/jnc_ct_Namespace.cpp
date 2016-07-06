@@ -311,5 +311,42 @@ Namespace::exposeEnumConsts (EnumType* type)
 
 //.............................................................................
 
+GlobalNamespace::GlobalNamespace ()
+{
+	m_itemKind = ModuleItemKind_Namespace;
+	m_namespaceKind = NamespaceKind_Global;
+	m_itemDecl = this;
+}
+
+sl::StringRef
+GlobalNamespace::generateDocumentation (const sl::StringRef& outputDir)
+{
+	sl::String resultDocumentation;
+
+	size_t count = m_itemArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		jnc::ct::ModuleItem* item = m_itemArray [i];
+
+		sl::String itemDocumentation = item->generateDocumentation (outputDir);
+		if (itemDocumentation.isEmpty ())
+			continue;
+		
+		jnc::ct::ModuleItemKind itemKind = item->getItemKind ();
+		if (itemKind == jnc::ct::ModuleItemKind_Namespace ||
+			itemKind == jnc::ct::ModuleItemKind_Type)
+		{
+			io::File compoundFile;
+		}
+		else
+		{
+		}
+	}
+
+	return resultDocumentation;
+}
+
+//.............................................................................
+
 } // namespace ct
 } // namespace jnc

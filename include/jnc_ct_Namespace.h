@@ -285,12 +285,11 @@ class GlobalNamespace:
 	friend class NamespaceMgr;
 
 public:
-	GlobalNamespace ()
-	{
-		m_itemKind = ModuleItemKind_Namespace;
-		m_namespaceKind = NamespaceKind_Global;
-		m_itemDecl = this;
-	}
+	GlobalNamespace ();
+
+	virtual
+	sl::StringRef
+	generateDocumentation (const sl::StringRef& outputDir);
 };
 
 //.............................................................................
