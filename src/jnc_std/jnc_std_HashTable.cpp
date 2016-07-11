@@ -24,23 +24,23 @@ StringHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 bool
 AXL_CDECL
 StringHashTable::find (
-	rt::DataPtr keyPtr,
-	rt::DataPtr valuePtr
+	DataPtr keyPtr,
+	DataPtr valuePtr
 	)
 {
 	StringHashTableMap::Iterator it = m_map.find ((const char*) keyPtr.m_p);
 	if (!it)
 		return false;
 
-	*(rt::Variant*) valuePtr.m_p = it->m_value->m_value;
+	*(Variant*) valuePtr.m_p = it->m_value->m_value;
 	return true;
 }
 
 void
 AXL_CDECL
 StringHashTable::insert (
-	rt::DataPtr keyPtr,
-	rt::Variant value
+	DataPtr keyPtr,
+	Variant value
 	)
 {
 	StringHashTableMap::Iterator it = m_map.visit ((const char*) keyPtr.m_p);
@@ -59,7 +59,7 @@ StringHashTable::insert (
 
 bool
 AXL_CDECL
-StringHashTable::remove (rt::DataPtr keyPtr)
+StringHashTable::remove (DataPtr keyPtr)
 {
 	StringHashTableMap::Iterator it = m_map.find ((const char*) keyPtr.m_p);
 	if (!it)
@@ -89,23 +89,23 @@ VariantHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 bool
 AXL_CDECL
 VariantHashTable::find (
-	rt::Variant key,
-	rt::DataPtr valuePtr
+	Variant key,
+	DataPtr valuePtr
 	)
 {
 	VariantHashTableMap::Iterator it = m_map.find (key);
 	if (!it)
 		return false;
 
-	*(rt::Variant*) valuePtr.m_p = it->m_value->m_value;
+	*(Variant*) valuePtr.m_p = it->m_value->m_value;
 	return true;
 }
 
 void
 AXL_CDECL
 VariantHashTable::insert (
-	rt::Variant key,
-	rt::Variant value
+	Variant key,
+	Variant value
 	)
 {
 	VariantHashTableMap::Iterator it = m_map.visit (key);
@@ -124,7 +124,7 @@ VariantHashTable::insert (
 
 bool
 AXL_CDECL
-VariantHashTable::remove (rt::Variant key)
+VariantHashTable::remove (Variant key)
 {
 	VariantHashTableMap::Iterator it = m_map.find (key);
 	if (!it)

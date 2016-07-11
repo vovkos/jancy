@@ -8,8 +8,8 @@ namespace io {
 
 bool
 SocketAddress::parse (
-	rt::DataPtr selfPtr,
-	rt::DataPtr stringPtr
+	DataPtr selfPtr,
+	DataPtr stringPtr
 	)
 {
 	axl::io::SockAddr sockAddr;

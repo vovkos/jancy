@@ -15,13 +15,13 @@ struct Error: err::ErrorHdr
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr
+	DataPtr
 	getDescription ();
 
 protected:
 	static
-	rt::DataPtr
-	getDescription_s (rt::DataPtr selfPtr)
+	DataPtr
+	getDescription_s (DataPtr selfPtr)
 	{
 		return ((Error*) selfPtr.m_p)->getDescription ();
 	}

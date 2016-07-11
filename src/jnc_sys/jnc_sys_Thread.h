@@ -8,7 +8,7 @@ namespace sys {
 
 //.............................................................................
 	
-class Thread: public rt::IfaceHdr
+class Thread: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Thread, NULL)
@@ -34,7 +34,7 @@ protected:
 	};
 
 public:
-	rt::FunctionPtr m_threadFuncPtr;
+	FunctionPtr m_threadFuncPtr;
 	uintptr_t m_threadId;
 
 protected:
@@ -55,7 +55,7 @@ public:
 
 	bool
 	AXL_CDECL
-	start (rt::FunctionPtr ptr);
+	start (FunctionPtr ptr);
 
 	bool
 	AXL_CDECL

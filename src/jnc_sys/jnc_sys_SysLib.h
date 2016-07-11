@@ -9,11 +9,11 @@
 #include "jnc_sys_Thread.h"
 #include "jnc_sys_Timer.h"
 
-#include "jnc_sys_globals.jnc.cpp"
-#include "jnc_sys_Lock.jnc.cpp"
-#include "jnc_sys_Event.jnc.cpp"
-#include "jnc_sys_Thread.jnc.cpp"
-#include "jnc_sys_Timer.jnc.cpp"
+#include "sys_globals.jnc.cpp"
+#include "sys_Lock.jnc.cpp"
+#include "sys_Event.jnc.cpp"
+#include "sys_Thread.jnc.cpp"
+#include "sys_Timer.jnc.cpp"
 
 namespace jnc {
 namespace sys {

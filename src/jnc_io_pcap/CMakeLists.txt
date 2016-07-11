@@ -67,6 +67,7 @@ include_directories (
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	)
 
 link_directories (
@@ -109,6 +110,7 @@ endif ()
 
 target_link_libraries (
 	jnc_io_pcap
+	jnc_api_dynamic
 	axl_io
 	axl_core
 	${LLVM_LIB_LIST}

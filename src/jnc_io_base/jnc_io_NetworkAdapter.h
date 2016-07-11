@@ -12,7 +12,7 @@ struct NetworkAdapterAddress
 	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterAddress", g_ioLibCacheSlot, IoLibTypeCacheSlot_NetworkAdapterAddress)
 	JNC_END_TYPE_MAP ()
 
-	rt::DataPtr m_nextPtr;
+	DataPtr m_nextPtr;
 	axl::io::SockAddr m_address;
 	size_t m_netMaskBitCount;
 };
@@ -24,22 +24,22 @@ struct NetworkAdapterDesc
 	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterDesc", g_ioLibCacheSlot, IoLibTypeCacheSlot_NetworkAdapterDesc)
 	JNC_END_TYPE_MAP ()
 
-	rt::DataPtr m_nextPtr;
-	rt::DataPtr m_namePtr;
-	rt::DataPtr m_descriptionPtr;
+	DataPtr m_nextPtr;
+	DataPtr m_namePtr;
+	DataPtr m_descriptionPtr;
 	uint_t m_type;
 	uint_t m_flags;
 	uint8_t m_mac [6];
-	rt::DataPtr m_addressPtr;
+	DataPtr m_addressPtr;
 	size_t m_addressCount;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-rt::DataPtr
+DataPtr
 createNetworkAdapterDescList (
-	rt::DataPtr adapterCountPtr,
-	rt::DataPtr addressCountPtr	
+	DataPtr adapterCountPtr,
+	DataPtr addressCountPtr	
 	);
 
 //.............................................................................

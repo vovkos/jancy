@@ -8,7 +8,7 @@ namespace sys {
 
 bool
 AXL_CDECL
-Thread::start (rt::FunctionPtr ptr)
+Thread::start (FunctionPtr ptr)
 {
 	bool result;
 
@@ -28,7 +28,7 @@ Thread::start (rt::FunctionPtr ptr)
 	result = m_thread.start ();
 	if (!result)
 	{
-		m_threadFuncPtr = rt::g_nullFunctionPtr;
+		m_threadFuncPtr = g_nullFunctionPtr;
 		return false;
 	}
 
@@ -57,7 +57,7 @@ Thread::waitAndClose (uint_t timeout)
 	rt::leaveWaitRegion (m_runtime);
 
 
-	m_threadFuncPtr = rt::g_nullFunctionPtr;
+	m_threadFuncPtr = g_nullFunctionPtr;
 }
 
 //.............................................................................

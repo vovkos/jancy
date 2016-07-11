@@ -8,7 +8,7 @@ namespace sys {
 
 //.............................................................................
 
-class Event: public rt::IfaceHdr
+class Event: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Event, NULL)

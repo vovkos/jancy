@@ -69,7 +69,7 @@ TestClass::foo_2 (TestClass* src)
 
 void
 AXL_CDECL
-TestClass::setProp (jnc::rt::DataPtr ptr)
+TestClass::setProp (jnc::DataPtr ptr)
 {
 	printf ("  TestClass::setProp (%s)\n", ptr.m_p);
 	m_propValue = ptr;

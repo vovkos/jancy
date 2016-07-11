@@ -23,14 +23,14 @@ struct SocketAddressResolverEventParams
 
 	SocketAddressResolverEventKind m_eventKind;
 	uint_t m_syncId;
-	rt::DataPtr m_addressPtr;
+	DataPtr m_addressPtr;
 	size_t m_addressCount;
-	rt::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //.............................................................................
 
-class SocketAddressResolver: public jnc::rt::IfaceHdr
+class SocketAddressResolver: public jnc::IfaceHdr
 {
 	friend class IoThread;
 
@@ -73,7 +73,7 @@ protected:
 protected:
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onSocketAddressResolverEvent;
+	ClassBox <Multicast> m_onSocketAddressResolverEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -101,7 +101,7 @@ public:
 	bool
 	AXL_CDECL
 	resolve (
-		rt::DataPtr namePtr,
+		DataPtr namePtr,
 		uint16_t addrFamily
 		);
 

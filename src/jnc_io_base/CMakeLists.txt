@@ -107,6 +107,7 @@ source_group (
 include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	../jnc_io_cmn
 	)
 
@@ -150,6 +151,7 @@ endif ()
 target_link_libraries (
 	jnc_io_base
 	jnc_io_cmn
+	jnc_api_dynamic
 	axl_io
 	axl_core
 	)

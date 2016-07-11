@@ -47,6 +47,7 @@ source_group (
 include_directories (
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	)
 
 add_library (

@@ -14,7 +14,7 @@ struct Point
 
 //.............................................................................
 
-class TestClassA: public jnc::rt::IfaceHdr
+class TestClassA: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassA", -1, -1)
@@ -36,7 +36,7 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TestClassB: public jnc::rt::IfaceHdr
+class TestClassB: public jnc::IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (TestClassB, &TestClassB::markOpaqueGcRoots)
@@ -56,10 +56,10 @@ public:
 	bool
 	AXL_CDECL
 	bar (
-		jnc::rt::DataPtr ptr1,
-		jnc::rt::DataPtr ptr2,
-		jnc::rt::DataPtr ptr3,
-		jnc::rt::DataPtr ptr4,
+		jnc::DataPtr ptr1,
+		jnc::DataPtr ptr2,
+		jnc::DataPtr ptr3,
+		jnc::DataPtr ptr4,
 		int a,
 		int b
 		);
@@ -88,13 +88,13 @@ public:
 	static
 	void
 	AXL_CDECL
-	construct_0 (jnc::rt::DataPtr selfPtr);
+	construct_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
 	AXL_CDECL
 	construct_1 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		int x
 		);
 
@@ -102,20 +102,20 @@ public:
 	void
 	AXL_CDECL
 	construct_2 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		double y
 		);
 
 	static
 	void
 	AXL_CDECL
-	foo_0 (jnc::rt::DataPtr selfPtr);
+	foo_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
 	AXL_CDECL
 	foo_1 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		int x
 		);
 
@@ -123,7 +123,7 @@ public:
 	void
 	AXL_CDECL
 	foo_2 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		double y
 		);
 };
@@ -158,13 +158,13 @@ public:
 	static
 	void
 	testPtr (
-		jnc::rt::DataPtr ptr,
-		jnc::rt::DataPtr ptr2
+		jnc::DataPtr ptr,
+		jnc::DataPtr ptr2
 		);
 
 	static
 	void
-	testVariant (jnc::rt::Variant variant);
+	testVariant (jnc::Variant variant);
 
 	static
 	void

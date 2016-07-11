@@ -14,8 +14,8 @@ List::clear ()
 	for (; entry; entry = (ListEntry*) entry->m_nextPtr.m_p)
 		entry->m_list = NULL;
 
-	m_headPtr = rt::g_nullPtr;
-	m_tailPtr = rt::g_nullPtr;
+	m_headPtr = g_nullPtr;
+	m_tailPtr = g_nullPtr;
 	m_count = 0;
 }
 
@@ -37,18 +37,18 @@ List::takeOver (List* list)
 	m_tailPtr = list->m_tailPtr;
 	m_count = list->m_count;
 
-	list->m_headPtr = rt::g_nullPtr;
-	list->m_tailPtr = rt::g_nullPtr;
+	list->m_headPtr = g_nullPtr;
+	list->m_tailPtr = g_nullPtr;
 	list->m_count = 0;
 }
 
-rt::DataPtr
+DataPtr
 List::insertHead (
 	List* self,
-	rt::Variant data
+	Variant data
 	)
 {
-	rt::DataPtr entryPtr = allocateListEntry ();
+	DataPtr entryPtr = allocateListEntry ();
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
@@ -56,13 +56,13 @@ List::insertHead (
 	return entryPtr;
 }
 
-rt::DataPtr
+DataPtr
 List::insertTail (
 	List* self,
-	rt::Variant data
+	Variant data
 	)
 {
-	rt::DataPtr entryPtr = allocateListEntry ();
+	DataPtr entryPtr = allocateListEntry ();
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
@@ -70,14 +70,14 @@ List::insertTail (
 	return entryPtr;
 }
 
-rt::DataPtr
+DataPtr
 List::insertBefore (
 	List* self,
-	rt::Variant data,
-	rt::DataPtr beforePtr
+	Variant data,
+	DataPtr beforePtr
 	)
 {
-	rt::DataPtr entryPtr = allocateListEntry ();
+	DataPtr entryPtr = allocateListEntry ();
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
@@ -85,14 +85,14 @@ List::insertBefore (
 	return entryPtr;
 }
 
-rt::DataPtr
+DataPtr
 List::insertAfter (
 	List* self,
-	rt::Variant data,
-	rt::DataPtr afterPtr
+	Variant data,
+	DataPtr afterPtr
 	)
 {
-	rt::DataPtr entryPtr = allocateListEntry ();
+	DataPtr entryPtr = allocateListEntry ();
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
@@ -102,7 +102,7 @@ List::insertAfter (
 
 void
 AXL_CDECL
-List::moveToHead (rt::DataPtr entryPtr)
+List::moveToHead (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	if (!entry || entry->m_list != this)
@@ -114,7 +114,7 @@ List::moveToHead (rt::DataPtr entryPtr)
 
 void
 AXL_CDECL
-List::moveToTail (rt::DataPtr entryPtr)
+List::moveToTail (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	if (!entry || entry->m_list != this)
@@ -127,8 +127,8 @@ List::moveToTail (rt::DataPtr entryPtr)
 void
 AXL_CDECL
 List::moveBefore (
-	rt::DataPtr entryPtr,
-	rt::DataPtr beforePtr
+	DataPtr entryPtr,
+	DataPtr beforePtr
 	)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
@@ -142,8 +142,8 @@ List::moveBefore (
 void
 AXL_CDECL
 List::moveAfter (
-	rt::DataPtr entryPtr,
-	rt::DataPtr afterPtr
+	DataPtr entryPtr,
+	DataPtr afterPtr
 	)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
@@ -154,20 +154,20 @@ List::moveAfter (
 	insertAfterImpl (entryPtr, afterPtr);
 }
 
-rt::Variant
+Variant
 List::remove (
 	List* self,
-	rt::DataPtr entryPtr
+	DataPtr entryPtr
 	)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	if (!entry || entry->m_list != self)
-		return rt::g_nullVariant;
+		return g_nullVariant;
 
 	self->removeImpl (entry);
 
-	entry->m_prevPtr = rt::g_nullPtr;
-	entry->m_nextPtr = rt::g_nullPtr;
+	entry->m_prevPtr = g_nullPtr;
+	entry->m_nextPtr = g_nullPtr;
 	entry->m_list = NULL;
 	
 	return entry->m_data;
@@ -175,7 +175,7 @@ List::remove (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-rt::DataPtr
+DataPtr
 List::allocateListEntry ()
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
@@ -189,12 +189,12 @@ List::allocateListEntry ()
 }
 
 void
-List::insertHeadImpl (rt::DataPtr entryPtr)
+List::insertHeadImpl (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	ASSERT (entry->m_list == this);
 
-	entry->m_prevPtr = rt::g_nullPtr;
+	entry->m_prevPtr = g_nullPtr;
 	entry->m_nextPtr = m_headPtr;
 
 	if (m_headPtr.m_p)
@@ -207,13 +207,13 @@ List::insertHeadImpl (rt::DataPtr entryPtr)
 }
 
 void
-List::insertTailImpl (rt::DataPtr entryPtr)
+List::insertTailImpl (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
 	ASSERT (entry->m_list == this);
 
 	entry->m_prevPtr = m_tailPtr;
-	entry->m_nextPtr = rt::g_nullPtr;
+	entry->m_nextPtr = g_nullPtr;
 
 	if (m_tailPtr.m_p)
 		((ListEntry*) m_tailPtr.m_p)->m_nextPtr = entryPtr;
@@ -226,8 +226,8 @@ List::insertTailImpl (rt::DataPtr entryPtr)
 
 void
 List::insertBeforeImpl (
-	rt::DataPtr entryPtr,
-	rt::DataPtr beforePtr
+	DataPtr entryPtr,
+	DataPtr beforePtr
 	)
 {
 	if (!beforePtr.m_p)
@@ -253,8 +253,8 @@ List::insertBeforeImpl (
 
 void
 List::insertAfterImpl (
-	rt::DataPtr entryPtr,
-	rt::DataPtr afterPtr
+	DataPtr entryPtr,
+	DataPtr afterPtr
 	)
 {
 	if (!afterPtr.m_p)

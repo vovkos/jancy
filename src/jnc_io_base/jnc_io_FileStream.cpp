@@ -31,7 +31,7 @@ FileStream::wakeIoThread ()
 bool
 AXL_CDECL
 FileStream::open (
-	rt::DataPtr namePtr,
+	DataPtr namePtr,
 	uint_t openFlags
 	)
 {
@@ -150,7 +150,7 @@ FileStream::fireFileStreamEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <FileStreamEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <FileStreamEventParams> (m_runtime);
 	FileStreamEventParams* params = (FileStreamEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -168,7 +168,7 @@ FileStream::fireFileStreamEvent (
 size_t
 AXL_CDECL
 FileStream::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -239,7 +239,7 @@ FileStream::readImpl (
 size_t
 AXL_CDECL
 FileStream::write (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -471,7 +471,7 @@ FileStream::readLoop ()
 size_t
 AXL_CDECL
 FileStream::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -488,7 +488,7 @@ FileStream::read (
 size_t
 AXL_CDECL
 FileStream::write (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {

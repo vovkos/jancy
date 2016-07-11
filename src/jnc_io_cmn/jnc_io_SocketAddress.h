@@ -32,8 +32,8 @@ struct Address_ip4: public in_addr
 	static 
 	bool
 	parse (
-		rt::DataPtr selfPtr,
-		rt::DataPtr stringPtr
+		DataPtr selfPtr,
+		DataPtr stringPtr
 		)
 	{
 		return axl::io::parseAddr_ip4 (
@@ -43,8 +43,8 @@ struct Address_ip4: public in_addr
 	}
 
 	static 
-	rt::DataPtr
-	getString (rt::DataPtr selfPtr)
+	DataPtr
+	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getAddrString_ip4 ((const in_addr*) selfPtr.m_p);
 		return rt::strDup (string, string.getLength ());
@@ -65,8 +65,8 @@ struct Address_ip6: public in6_addr
 	static 
 	bool
 	parse (
-		rt::DataPtr selfPtr,
-		rt::DataPtr stringPtr
+		DataPtr selfPtr,
+		DataPtr stringPtr
 		)
 	{
 		return axl::io::parseAddr_ip6 (
@@ -76,8 +76,8 @@ struct Address_ip6: public in6_addr
 	}
 
 	static 
-	rt::DataPtr
-	getString (rt::DataPtr selfPtr)
+	DataPtr
+	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getAddrString_ip6 ((const in6_addr*) selfPtr.m_p);
 		return rt::strDup (string, string.getLength ());
@@ -100,8 +100,8 @@ struct SocketAddress_ip4: public sockaddr_in
 	static 
 	bool
 	isEqual (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return axl::io::isSockAddrEqual_ip4 (
@@ -113,8 +113,8 @@ struct SocketAddress_ip4: public sockaddr_in
 	static 
 	bool
 	isMatch (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return axl::io::isSockAddrMatch_ip4 (
@@ -126,8 +126,8 @@ struct SocketAddress_ip4: public sockaddr_in
 	static 
 	bool
 	parse (
-		rt::DataPtr selfPtr,
-		rt::DataPtr stringPtr
+		DataPtr selfPtr,
+		DataPtr stringPtr
 		)
 	{
 		return axl::io::parseSockAddr_ip4 (
@@ -137,8 +137,8 @@ struct SocketAddress_ip4: public sockaddr_in
 	}
 
 	static 
-	rt::DataPtr
-	getString (rt::DataPtr selfPtr)
+	DataPtr
+	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getSockAddrString_ip4 ((const sockaddr_in*) selfPtr.m_p);
 		return rt::strDup (string, string.getLength ());
@@ -161,8 +161,8 @@ struct SocketAddress_ip6: public sockaddr_in6
 	static 
 	bool
 	isEqual (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return axl::io::isSockAddrEqual_ip6 (
@@ -174,8 +174,8 @@ struct SocketAddress_ip6: public sockaddr_in6
 	static 
 	bool
 	isMatch (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return axl::io::isSockAddrMatch_ip6 (
@@ -187,8 +187,8 @@ struct SocketAddress_ip6: public sockaddr_in6
 	static 
 	bool
 	parse (
-		rt::DataPtr selfPtr,
-		rt::DataPtr stringPtr
+		DataPtr selfPtr,
+		DataPtr stringPtr
 		)
 	{
 		return axl::io::parseSockAddr_ip6 (
@@ -198,8 +198,8 @@ struct SocketAddress_ip6: public sockaddr_in6
 	}
 
 	static 
-	rt::DataPtr
-	getString (rt::DataPtr selfPtr)
+	DataPtr
+	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getSockAddrString_ip6 ((const sockaddr_in6*) selfPtr.m_p);
 		return rt::strDup (string, string.getLength ());
@@ -229,8 +229,8 @@ struct SocketAddress
 	static 
 	bool
 	isEqual (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isEqual ((const sockaddr*) addressPtr.m_p);
@@ -239,8 +239,8 @@ struct SocketAddress
 	static 
 	bool
 	isMatch (
-		rt::DataPtr selfPtr,
-		rt::DataPtr addressPtr
+		DataPtr selfPtr,
+		DataPtr addressPtr
 		)
 	{
 		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isMatch ((const sockaddr*) addressPtr.m_p);
@@ -249,13 +249,13 @@ struct SocketAddress
 	static 
 	bool
 	parse (
-		rt::DataPtr selfPtr,
-		rt::DataPtr stringPtr
+		DataPtr selfPtr,
+		DataPtr stringPtr
 		);
 
 	static 
-	rt::DataPtr
-	getString (rt::DataPtr selfPtr)
+	DataPtr
+	getString (DataPtr selfPtr)
 	{
 		sl::String string = ((SocketAddress*) selfPtr.m_p)->getSockAddr ().getString ();
 		return rt::strDup (string, string.getLength ());

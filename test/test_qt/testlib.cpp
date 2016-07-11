@@ -25,10 +25,10 @@ TestClassB::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 bool
 AXL_CDECL
 TestClassB::bar (
-	jnc::rt::DataPtr ptr1,
-	jnc::rt::DataPtr ptr2,
-	jnc::rt::DataPtr ptr3,
-	jnc::rt::DataPtr ptr4,
+	jnc::DataPtr ptr1,
+	jnc::DataPtr ptr2,
+	jnc::DataPtr ptr3,
+	jnc::DataPtr ptr4,
 	int a,
 	int b
 	)
@@ -47,7 +47,7 @@ TestClassB::bar (
 
 void
 AXL_CDECL
-TestStruct::construct_0 (jnc::rt::DataPtr selfPtr)
+TestStruct::construct_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
@@ -55,7 +55,7 @@ TestStruct::construct_0 (jnc::rt::DataPtr selfPtr)
 
 void
 AXL_CDECL
-TestStruct::construct_1 (jnc::rt::DataPtr selfPtr, int x)
+TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
@@ -64,7 +64,7 @@ TestStruct::construct_1 (jnc::rt::DataPtr selfPtr, int x)
 
 void
 AXL_CDECL
-TestStruct::construct_2 (jnc::rt::DataPtr selfPtr, double y)
+TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
@@ -73,7 +73,7 @@ TestStruct::construct_2 (jnc::rt::DataPtr selfPtr, double y)
 
 void
 AXL_CDECL
-TestStruct::foo_0 (jnc::rt::DataPtr selfPtr)
+TestStruct::foo_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
@@ -81,7 +81,7 @@ TestStruct::foo_0 (jnc::rt::DataPtr selfPtr)
 
 void
 AXL_CDECL
-TestStruct::foo_1 (jnc::rt::DataPtr selfPtr, int x)
+TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
@@ -89,7 +89,7 @@ TestStruct::foo_1 (jnc::rt::DataPtr selfPtr, int x)
 
 void
 AXL_CDECL
-TestStruct::foo_2 (jnc::rt::DataPtr selfPtr, double y)
+TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 	printf ("TestStruct::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
@@ -109,8 +109,8 @@ TestLib::printf (
 
 void
 TestLib::testPtr (
-	jnc::rt::DataPtr ptr,
-	jnc::rt::DataPtr ptr2
+	jnc::DataPtr ptr,
+	jnc::DataPtr ptr2
 	)
 {
 	printf ("TestLib::testPtr\n");
@@ -119,7 +119,7 @@ TestLib::testPtr (
 }
 
 void
-TestLib::testVariant (jnc::rt::Variant variant)
+TestLib::testVariant (jnc::Variant variant)
 {
 	printf ("TestLib::testVariant\n");
 }

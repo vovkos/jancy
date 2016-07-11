@@ -44,7 +44,7 @@ SshChannel::fireSshEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <SshEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <SshEventParams> (m_runtime);
 	SshEventParams* params = (SshEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -77,7 +77,7 @@ SshChannel::getPeerAddress ()
 
 bool
 AXL_CDECL
-SshChannel::open (rt::DataPtr addressPtr)
+SshChannel::open (DataPtr addressPtr)
 {
 	close ();
 
@@ -152,12 +152,12 @@ SshChannel::close ()
 bool
 AXL_CDECL
 SshChannel::connect (
-	rt::DataPtr addressPtr,
-	rt::DataPtr userNamePtr,
-	rt::DataPtr passwordPtr,
-	rt::DataPtr channelTypePtr,
-	rt::DataPtr processTypePtr,
-	rt::DataPtr ptyTypePtr,
+	DataPtr addressPtr,
+	DataPtr userNamePtr,
+	DataPtr passwordPtr,
+	DataPtr channelTypePtr,
+	DataPtr processTypePtr,
+	DataPtr ptyTypePtr,
 	uint_t ptyWidth,
 	uint_t ptyHeight,
 	bool isSync
@@ -209,8 +209,8 @@ SshChannel::connect (
 bool
 AXL_CDECL
 SshChannel::authenticate (
-	rt::DataPtr userNamePtr,
-	rt::DataPtr passwordPtr
+	DataPtr userNamePtr,
+	DataPtr passwordPtr
 	)
 {
 	m_ioLock.lock ();
@@ -234,7 +234,7 @@ SshChannel::authenticate (
 size_t
 AXL_CDECL
 SshChannel::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -289,7 +289,7 @@ SshChannel::read (
 size_t
 AXL_CDECL
 SshChannel::write (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {

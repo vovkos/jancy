@@ -17,7 +17,7 @@ MappedFile::MappedFile ()
 bool
 AXL_CDECL
 MappedFile::open (
-	rt::DataPtr namePtr,
+	DataPtr namePtr,
 	uint_t flags
 	)
 {
@@ -32,7 +32,7 @@ MappedFile::open (
 	return true;
 }
 
-rt::DataPtr
+DataPtr
 AXL_CDECL
 MappedFile::view (
 	MappedFile* self,
@@ -45,13 +45,13 @@ MappedFile::view (
 	if (!p)
 	{
 		ext::propagateLastError ();
-		return rt::g_nullPtr;
+		return g_nullPtr;
 	}
 	
 	// lifetime of the resulting view is not guaranteed
 	// but its the best we can do with the direct use of axl::io::MappedFile
 
-	rt::DataPtr ptr;
+	DataPtr ptr;
 	ptr.m_p = p;
 	ptr.m_validator = rt::createDataPtrValidator (self->m_runtime, self->m_box, p, size);
 	return ptr;

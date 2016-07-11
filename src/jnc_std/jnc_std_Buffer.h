@@ -14,7 +14,7 @@ struct ConstBufferRef
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_size;
 	bool m_isFinal;
 };
@@ -29,7 +29,7 @@ struct ConstBuffer
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_size;
 
 public:
@@ -38,7 +38,7 @@ public:
 
 	bool 
 	copy (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
@@ -46,7 +46,7 @@ protected:
 	static
 	bool 
 	copy_s1 (
-		rt::DataPtr selfPtr,
+		DataPtr selfPtr,
 		ConstBufferRef ref
 		)
 	{
@@ -56,8 +56,8 @@ protected:
 	static
 	bool 
 	copy_s2 (
-		rt::DataPtr selfPtr,
-		rt::DataPtr ptr,
+		DataPtr selfPtr,
+		DataPtr ptr,
 		size_t size
 		)
 	{
@@ -73,13 +73,13 @@ struct BufferRef
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_size;
 };
 
 //.............................................................................
 
-class Buffer: public rt::IfaceHdr
+class Buffer: public IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("std.Buffer", g_stdLibCacheSlot, StdLibTypeCacheSlot_Buffer)
@@ -88,7 +88,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_size;
 	size_t m_maxSize;
 
@@ -96,14 +96,14 @@ public:
 	bool 
 	AXL_CDECL
 	copy (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	bool 
 	AXL_CDECL
 	append (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 

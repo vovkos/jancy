@@ -17,7 +17,7 @@ Mailslot::Mailslot ()
 
 bool
 AXL_CDECL
-Mailslot::open (rt::DataPtr namePtr)
+Mailslot::open (DataPtr namePtr)
 {
 	close ();
 
@@ -74,7 +74,7 @@ Mailslot::fireMailslotEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <MailslotEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <MailslotEventParams> (m_runtime);
 	MailslotEventParams* params = (MailslotEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -90,7 +90,7 @@ Mailslot::fireMailslotEvent (
 size_t
 AXL_CDECL
 Mailslot::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {

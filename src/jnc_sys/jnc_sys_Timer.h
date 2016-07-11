@@ -8,7 +8,7 @@ namespace sys {
 		
 //.............................................................................
 
-class Timer: public rt::IfaceHdr
+class Timer: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Timer, NULL)
@@ -32,7 +32,7 @@ protected:
 	};
 
 public:
-	rt::FunctionPtr m_timerFuncPtr;
+	FunctionPtr m_timerFuncPtr;
 
 protected:
 	jnc::rt::Runtime* m_runtime;
@@ -56,7 +56,7 @@ public:
 	bool 
 	AXL_CDECL
 	start (
-		rt::FunctionPtr ptr,
+		FunctionPtr ptr,
 		uint64_t dueTime,
 		uint_t interval
 		);

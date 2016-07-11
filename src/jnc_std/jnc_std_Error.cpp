@@ -6,7 +6,7 @@ namespace std {
 
 //.............................................................................
 
-rt::DataPtr
+DataPtr
 Error::getDescription ()
 {
 	sl::String string = err::ErrorHdr::getDescription ();

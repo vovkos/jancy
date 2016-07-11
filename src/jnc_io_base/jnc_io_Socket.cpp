@@ -38,7 +38,7 @@ Socket::fireSocketEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	jnc::rt::DataPtr paramsPtr = jnc::rt::createData <SocketEventParams> (m_runtime);
+	jnc::DataPtr paramsPtr = jnc::rt::createData <SocketEventParams> (m_runtime);
 	SocketEventParams* params = (SocketEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -283,7 +283,7 @@ Socket::close ()
 
 bool
 AXL_CDECL
-Socket::connect (jnc::rt::DataPtr addressPtr)
+Socket::connect (jnc::DataPtr addressPtr)
 {
 	bool result;
 
@@ -340,7 +340,7 @@ Socket::listen (size_t backLog)
 
 Socket*
 AXL_CDECL
-Socket::accept (jnc::rt::DataPtr addressPtr)
+Socket::accept (jnc::DataPtr addressPtr)
 {
 	Socket* connectionSocket = (Socket*) jnc::rt::allocateClass (m_runtime, (jnc::rt::ClassType*) m_box->m_type);
 	sl::construct (connectionSocket);
@@ -436,7 +436,7 @@ Socket::postSend (
 size_t
 AXL_CDECL
 Socket::send (
-	jnc::rt::DataPtr ptr,
+	jnc::DataPtr ptr,
 	size_t size
 	)
 {
@@ -447,7 +447,7 @@ Socket::send (
 size_t
 AXL_CDECL
 Socket::recv (
-	jnc::rt::DataPtr ptr,
+	jnc::DataPtr ptr,
 	size_t size
 	)
 {
@@ -472,9 +472,9 @@ Socket::recv (
 size_t
 AXL_CDECL
 Socket::sendTo (
-	jnc::rt::DataPtr ptr,
+	jnc::DataPtr ptr,
 	size_t size,
-	jnc::rt::DataPtr addressPtr
+	jnc::DataPtr addressPtr
 	)
 {
 	axl::io::SockAddr sockAddr = ((const SocketAddress*) addressPtr.m_p)->getSockAddr ();
@@ -485,9 +485,9 @@ Socket::sendTo (
 size_t
 AXL_CDECL
 Socket::recvFrom (
-	jnc::rt::DataPtr ptr,
+	jnc::DataPtr ptr,
 	size_t size,
-	jnc::rt::DataPtr addressPtr
+	jnc::DataPtr addressPtr
 	)
 {
 	axl::io::SockAddr sockAddr;

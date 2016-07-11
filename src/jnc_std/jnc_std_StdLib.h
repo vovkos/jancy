@@ -10,12 +10,12 @@
 #include "jnc_std_List.h"
 #include "jnc_std_HashTable.h"
 
-#include "jnc_std_globals.jnc.cpp"
-#include "jnc_std_Error.jnc.cpp"
-#include "jnc_std_Buffer.jnc.cpp"
-#include "jnc_std_String.jnc.cpp"
-#include "jnc_std_List.jnc.cpp"
-#include "jnc_std_HashTable.jnc.cpp"
+#include "std_globals.jnc.cpp"
+#include "std_Error.jnc.cpp"
+#include "std_Buffer.jnc.cpp"
+#include "std_String.jnc.cpp"
+#include "std_List.jnc.cpp"
+#include "std_HashTable.jnc.cpp"
 
 namespace jnc {
 namespace std {
@@ -26,10 +26,11 @@ class StdLib: public ext::ExtensionLib
 {
 public:
 	JNC_BEGIN_LIB_MAP ()
-		JNC_MAP_FUNCTION ("std.getLastError",       getLastError)
-		JNC_MAP_FUNCTION ("std.setPosixError",      setPosixError)
-		JNC_MAP_FUNCTION ("std.setStringError",     setStringError)
-		JNC_MAP_FUNCTION ("std.format",             format)
+		JNC_MAP_FUNCTION ("std.getLastError",   getLastError)
+		JNC_MAP_FUNCTION ("std.setPosixError",  setPosixError)
+		JNC_MAP_FUNCTION ("std.setStringError", setStringError)
+		JNC_MAP_FUNCTION ("std.format",         format)
+		JNC_MAP_FUNCTION ("std.collectGarbage", collectGarbage)
 		
 		JNC_MAP_FUNCTION ("strlen",  strLen)
 		JNC_MAP_FUNCTION ("strcmp",  strCmp)
@@ -84,36 +85,40 @@ public:
 
 public:
 	static
-	rt::DataPtr
+	DataPtr
 	getLastError ()
 	{
 		return getErrorPtr (err::getLastError ());
 	}
 
 	static
-	rt::DataPtr
+	DataPtr
 	setPosixError (int code)
 	{
 		return getErrorPtr (err::setErrno (code));
 	}
 
 	static
-	rt::DataPtr
-	setStringError (rt::DataPtr stringPtr)
+	DataPtr
+	setStringError (DataPtr stringPtr)
 	{
 		return getErrorPtr (err::setStringError ((const char*) stringPtr.m_p));
 	}
 
 	static
-	rt::DataPtr
+	DataPtr
 	format (
-		rt::DataPtr formatString,
+		DataPtr formatString,
 		...
 		);
 
 	static
+	void
+	collectGarbage ();
+
+	static
 	size_t
-	strLen (rt::DataPtr ptr)
+	strLen (DataPtr ptr)
 	{
 		return rt::strLen (ptr);
 	}
@@ -121,99 +126,99 @@ public:
 	static
 	int
 	strCmp (
-		rt::DataPtr ptr1,
-		rt::DataPtr ptr2
+		DataPtr ptr1,
+		DataPtr ptr2
 		);
 
 	static
 	int
 	striCmp (
-		rt::DataPtr ptr1,
-		rt::DataPtr ptr2
+		DataPtr ptr1,
+		DataPtr ptr2
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	strChr (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		int c
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	strStr (
-		rt::DataPtr ptr1,
-		rt::DataPtr ptr2
+		DataPtr ptr1,
+		DataPtr ptr2
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	strCat (
-		rt::DataPtr ptr1,
-		rt::DataPtr ptr2
+		DataPtr ptr1,
+		DataPtr ptr2
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	strDup (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t length
 		);
 
 	static
 	int
 	memCmp (
-		rt::DataPtr ptr1,
-		rt::DataPtr ptr2,
+		DataPtr ptr1,
+		DataPtr ptr2,
 		size_t size
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	memChr (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		int c,
 		size_t size
 		);
 
 	static
-	rt::DataPtr 
+	DataPtr 
 	memMem (
-		rt::DataPtr ptr1,
+		DataPtr ptr1,
 		size_t size1,
-		rt::DataPtr ptr2,
+		DataPtr ptr2,
 		size_t size2
 		);
 
 	static
 	void
 	memCpy (
-		rt::DataPtr dstPtr,
-		rt::DataPtr srcPtr,
+		DataPtr dstPtr,
+		DataPtr srcPtr,
 		size_t size
 		);
 
 	static
 	void
 	memSet (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		int c,
 		size_t size
 		);
 
 	static
-	rt::DataPtr
+	DataPtr
 	memCat (
-		rt::DataPtr ptr1,
+		DataPtr ptr1,
 		size_t size1,
-		rt::DataPtr ptr2,
+		DataPtr ptr2,
 		size_t size2
 		);
 
 	static
-	rt::DataPtr
+	DataPtr
 	memDup (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
@@ -226,7 +231,7 @@ public:
 
 	static
 	int
-	atoi (rt::DataPtr ptr)
+	atoi (DataPtr ptr)
 	{
 		return ptr.m_p ? ::atoi ((char*) ptr.m_p) : 0;
 	}
@@ -258,7 +263,7 @@ protected:
 #endif
 
 	static
-	rt::DataPtr
+	DataPtr
 	getErrorPtr (const err::ErrorHdr* error);
 };
 

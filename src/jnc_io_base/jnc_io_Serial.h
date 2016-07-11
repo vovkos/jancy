@@ -26,12 +26,12 @@ struct SerialEventParams
 	uint_t m_syncId;
 	uint_t m_lines;
 	uint_t m_mask;
-	rt::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Serial: public rt::IfaceHdr
+class Serial: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -84,7 +84,7 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onSerialEvent;
+	ClassBox <Multicast> m_onSerialEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -109,7 +109,7 @@ public:
 
 	bool
 	AXL_CDECL
-	open (rt::DataPtr namePtr);
+	open (DataPtr namePtr);
 
 	void
 	AXL_CDECL
@@ -118,14 +118,14 @@ public:
 	size_t
 	AXL_CDECL
 	read (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	write (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
@@ -198,15 +198,15 @@ struct SerialPortDesc
 	JNC_BEGIN_TYPE_MAP ("io.SerialPortDesc", g_ioLibCacheSlot, IoLibTypeCacheSlot_SerialPortDesc)
 	JNC_END_TYPE_MAP ()
 
-	rt::DataPtr m_nextPtr;
-	rt::DataPtr m_deviceNamePtr;
-	rt::DataPtr m_descriptionPtr;
+	DataPtr m_nextPtr;
+	DataPtr m_deviceNamePtr;
+	DataPtr m_descriptionPtr;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-rt::DataPtr
-createSerialPortDescList (rt::DataPtr countPtr);
+DataPtr
+createSerialPortDescList (DataPtr countPtr);
 
 //.............................................................................
 

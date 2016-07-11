@@ -168,6 +168,7 @@ include_directories (
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
@@ -204,7 +205,10 @@ target_link_libraries (
 	test_qt
 	jnc_sys
 	jnc_std
-	jnc_core
+	jnc_rtl
+	jnc_ct
+	jnc_rt
+	jnc_api
 	axl_zip
 	axl_fsm
 	axl_io

@@ -26,7 +26,7 @@ struct PCapEventParams
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class PCap: public rt::IfaceHdr
+class PCap: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -77,12 +77,12 @@ protected:
 	};
 
 protected:
-	rt::DataPtr m_filter;
+	DataPtr m_filter;
 	bool m_isPromiscious;
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onPCapEvent;
+	ClassBox <Multicast> m_onPCapEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -103,21 +103,21 @@ public:
 
 	bool
 	AXL_CDECL
-	setFilter (rt::DataPtr filter);
+	setFilter (DataPtr filter);
 
 	bool
 	AXL_CDECL
 	openDevice (
-		rt::DataPtr deviceName,
-		rt::DataPtr filter,
+		DataPtr deviceName,
+		DataPtr filter,
 		bool isPromiscious = false
 		);
 
 	bool
 	AXL_CDECL
 	openFile (
-		rt::DataPtr fileName,
-		rt::DataPtr filter
+		DataPtr fileName,
+		DataPtr filter
 		);
 
 	void
@@ -127,14 +127,14 @@ public:
 	size_t
 	AXL_CDECL
 	read (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	write (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		)
 	{
@@ -159,7 +159,7 @@ struct PCapAddress
 	JNC_BEGIN_TYPE_MAP ("io.PCapAddress", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCapAddress)
 	JNC_END_TYPE_MAP ()
 
-	rt::DataPtr m_nextPtr;
+	DataPtr m_nextPtr;
 
 	uint32_t m_address;
 	uint32_t m_mask;
@@ -173,17 +173,17 @@ struct PCapDeviceDesc
 	JNC_BEGIN_TYPE_MAP ("io.PCapDeviceDesc", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCapDeviceDesc)
 	JNC_END_TYPE_MAP ()
 
-	rt::DataPtr m_nextPtr;
-	rt::DataPtr m_namePtr;
-	rt::DataPtr m_descriptionPtr;
+	DataPtr m_nextPtr;
+	DataPtr m_namePtr;
+	DataPtr m_descriptionPtr;
 	PCapAddress m_address;
 	uint_t m_flags;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-rt::DataPtr
-createPCapDeviceDescList (rt::DataPtr countPtr);
+DataPtr
+createPCapDeviceDescList (DataPtr countPtr);
 
 //.............................................................................
 

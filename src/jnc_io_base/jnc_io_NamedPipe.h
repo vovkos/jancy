@@ -7,7 +7,7 @@ namespace io {
 
 //.............................................................................
 
-class NamedPipe: public rt::IfaceHdr
+class NamedPipe: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -59,7 +59,7 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onIncomingConnectionEvent;
+	ClassBox <Multicast> m_onIncomingConnectionEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -85,7 +85,7 @@ public:
 	bool
 	AXL_CDECL
 	open (
-		rt::DataPtr namePtr,
+		DataPtr namePtr,
 		size_t backLog
 		);
 

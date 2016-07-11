@@ -29,7 +29,7 @@ public:
 	}
 
 	static
-	jnc::rt::DataPtr
+	jnc::DataPtr
 	AXL_CDECL
 	getText (MyTextEdit* self)
 	{
@@ -39,7 +39,7 @@ public:
 
 	void
 	AXL_CDECL
-	setText (jnc::rt::DataPtr textPtr)
+	setText (jnc::DataPtr textPtr)
 	{
 		m_qtLineEdit->setText ((const char*) textPtr.m_p);
 	}

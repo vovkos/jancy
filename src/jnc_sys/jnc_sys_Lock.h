@@ -8,7 +8,7 @@ namespace sys {
 
 //.............................................................................
 
-class Lock: public rt::IfaceHdr
+class Lock: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Lock, NULL)

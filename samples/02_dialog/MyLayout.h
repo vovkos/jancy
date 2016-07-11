@@ -4,7 +4,7 @@
 
 //.............................................................................
 
-class MyLayout: public jnc::rt::IfaceHdr
+class MyLayout: public jnc::IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyLayout, &MyLayout::markOpaqueGcRoots)

@@ -14,7 +14,7 @@ struct StringRef
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_length;
 	bool m_isFinal;
 };
@@ -31,7 +31,7 @@ struct String
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_length;
 
 public:
@@ -51,21 +51,21 @@ public:
 
 	bool 
 	copy (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t length
 		);
 
 protected:
 	static
 	bool 
-	ensureZeroTerminated_s (rt::DataPtr selfPtr)
+	ensureZeroTerminated_s (DataPtr selfPtr)
 	{
 		return ((String*) selfPtr.m_p)->ensureZeroTerminated ();
 	}
 
 	static
 	String 
-	getZeroTerminatedString_s (rt::DataPtr selfPtr)
+	getZeroTerminatedString_s (DataPtr selfPtr)
 	{
 		return ((String*) selfPtr.m_p)->getZeroTerminatedString ();
 	}
@@ -73,7 +73,7 @@ protected:
 	static
 	bool 
 	copy_s1 (
-		rt::DataPtr selfPtr,
+		DataPtr selfPtr,
 		StringRef ref
 		)
 	{
@@ -83,8 +83,8 @@ protected:
 	static
 	bool 
 	copy_s2 (
-		rt::DataPtr selfPtr,
-		rt::DataPtr ptr,
+		DataPtr selfPtr,
+		DataPtr ptr,
 		size_t length
 		)
 	{
@@ -94,7 +94,7 @@ protected:
 
 //.............................................................................
 
-class StringBuilder: public rt::IfaceHdr
+class StringBuilder: public IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("std.StringBuilder", g_stdLibCacheSlot, StdLibTypeCacheSlot_StringBuilder)
@@ -103,7 +103,7 @@ public:
 	JNC_END_CLASS_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_ptr;
+	DataPtr m_ptr;
 	size_t m_length;
 	size_t m_maxLength;
 
@@ -111,14 +111,14 @@ public:
 	bool 
 	AXL_CDECL
 	copy (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t length
 		);
 
 	bool 
 	AXL_CDECL
 	append (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t length
 		);
 

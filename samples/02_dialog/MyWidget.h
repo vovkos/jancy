@@ -5,7 +5,7 @@
 
 //.............................................................................
 
-class MyWidget: public jnc::rt::IfaceHdr
+class MyWidget: public jnc::IfaceHdr
 {
 public:
 	JNC_BEGIN_CLASS_TYPE_MAP ("Widget", g_myLibCacheSlot, MyLibTypeCacheSlot_Widget)

@@ -35,7 +35,7 @@ Serial::wakeIoThread ()
 
 bool
 AXL_CDECL
-Serial::open (rt::DataPtr namePtr)
+Serial::open (DataPtr namePtr)
 {
 	close ();
 
@@ -105,7 +105,7 @@ Serial::fireSerialEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -126,7 +126,7 @@ Serial::fireSerialEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -225,7 +225,7 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 size_t
 AXL_CDECL
 Serial::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -245,7 +245,7 @@ Serial::read (
 size_t
 AXL_CDECL
 Serial::write (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -410,13 +410,13 @@ Serial::ioThreadFunc ()
 
 //.............................................................................
 
-rt::DataPtr
+DataPtr
 createSerialPortDesc (
 	rt::Runtime* runtime,
 	axl::io::SerialPortDesc* portDesc
 	)
 {
-	rt::DataPtr portPtr = rt::createData <SerialPortDesc> (runtime);
+	DataPtr portPtr = rt::createData <SerialPortDesc> (runtime);
 	SerialPortDesc* port = (SerialPortDesc*) portPtr.m_p;
 	port->m_deviceNamePtr = rt::strDup (portDesc->getDeviceName ());
 	port->m_descriptionPtr = rt::strDup (portDesc->getDescription ());
@@ -424,8 +424,8 @@ createSerialPortDesc (
 	return portPtr;
 }
 
-rt::DataPtr
-createSerialPortDescList (rt::DataPtr countPtr)
+DataPtr
+createSerialPortDescList (DataPtr countPtr)
 {
 	sl::StdList <axl::io::SerialPortDesc> portList;
 	axl::io::createSerialPortDescList (&portList);
@@ -435,7 +435,7 @@ createSerialPortDescList (rt::DataPtr countPtr)
 		if (countPtr.m_p)
 			*(size_t*) countPtr.m_p = 0;
 
-		return rt::g_nullPtr;
+		return g_nullPtr;
 	}
 
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
@@ -443,9 +443,9 @@ createSerialPortDescList (rt::DataPtr countPtr)
 
 	sl::Iterator <axl::io::SerialPortDesc> it = portList.getHead ();
 
-	rt::DataPtr portPtr = createSerialPortDesc (runtime, *it);
+	DataPtr portPtr = createSerialPortDesc (runtime, *it);
 	
-	rt::DataPtr resultPtr = portPtr;
+	DataPtr resultPtr = portPtr;
 	size_t count = 1;
 
 	SerialPortDesc* prevPort = (SerialPortDesc*) portPtr.m_p;

@@ -21,7 +21,7 @@ PCap::firePCapEvent (PCapEventKind eventKind)
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <PCapEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <PCapEventParams> (m_runtime);
 	PCapEventParams* params = (PCapEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
@@ -33,7 +33,7 @@ PCap::firePCapEvent (PCapEventKind eventKind)
 
 bool
 AXL_CDECL
-PCap::setFilter (rt::DataPtr filter)
+PCap::setFilter (DataPtr filter)
 {
 	bool result = m_pcap.setFilter ((const char*) filter.m_p);
 	if (!result)
@@ -49,8 +49,8 @@ PCap::setFilter (rt::DataPtr filter)
 bool
 AXL_CDECL
 PCap::openDevice (
-	rt::DataPtr deviceName,
-	rt::DataPtr filter,
+	DataPtr deviceName,
+	DataPtr filter,
 	bool isPromiscious
 	)
 {
@@ -81,8 +81,8 @@ PCap::openDevice (
 bool
 AXL_CDECL
 PCap::openFile (
-	rt::DataPtr fileName,
-	rt::DataPtr filter
+	DataPtr fileName,
+	DataPtr filter
 	)
 {
 	bool result;
@@ -130,7 +130,7 @@ PCap::close ()
 size_t
 AXL_CDECL
 PCap::read (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -296,7 +296,7 @@ setupPCapAddress (
 		if (!ifaceAddr->addr || ifaceAddr->addr->sa_family != AF_INET)
 			continue;
 
-		rt::DataPtr addressPtr = rt::allocateData (runtime, addressType);
+		DataPtr addressPtr = rt::allocateData (runtime, addressType);
 		address = (PCapAddress*) addressPtr.m_p;
 		address->m_address = getIpFromSockAddr (ifaceAddr->addr);
 		address->m_mask = getIpFromSockAddr (ifaceAddr->netmask);
@@ -307,8 +307,8 @@ setupPCapAddress (
 	}
 }
 
-rt::DataPtr
-createPCapDeviceDescList (rt::DataPtr countPtr)
+DataPtr
+createPCapDeviceDescList (DataPtr countPtr)
 {
 	if (countPtr.m_p)
 		*(size_t*) countPtr.m_p = 0;
@@ -319,11 +319,11 @@ createPCapDeviceDescList (rt::DataPtr countPtr)
 	if (result == -1)
 	{
 		ext::setError (errorBuffer);
-		return rt::g_nullPtr;
+		return g_nullPtr;
 	}
 
 	if (!ifaceList)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
@@ -334,13 +334,13 @@ createPCapDeviceDescList (rt::DataPtr countPtr)
 
 	pcap_if* iface = ifaceList;
 
-	rt::DataPtr devicePtr = rt::allocateData (runtime, deviceType);
+	DataPtr devicePtr = rt::allocateData (runtime, deviceType);
 	PCapDeviceDesc* device = (PCapDeviceDesc*) devicePtr.m_p;
 	device->m_namePtr = rt::strDup (iface->name);
 	device->m_descriptionPtr = rt::strDup (iface->description);
 	setupPCapAddress (runtime, &device->m_address, iface->addresses);
 
-	rt::DataPtr resultPtr = devicePtr;
+	DataPtr resultPtr = devicePtr;
 
 	PCapDeviceDesc* prevDevice = device;
 	for (iface = iface->next; iface; iface = iface->next, count++)

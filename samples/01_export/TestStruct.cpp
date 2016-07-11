@@ -4,7 +4,7 @@
 //.............................................................................
 
 void
-TestStruct::construct_0 (jnc::rt::DataPtr selfPtr)
+TestStruct::construct_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 
@@ -15,7 +15,7 @@ TestStruct::construct_0 (jnc::rt::DataPtr selfPtr)
 
 void
 TestStruct::construct_1 (
-	jnc::rt::DataPtr selfPtr, 
+	jnc::DataPtr selfPtr, 
 	int x,
 	int y
 	)
@@ -28,7 +28,7 @@ TestStruct::construct_1 (
 }
 
 void
-TestStruct::foo_0 (jnc::rt::DataPtr selfPtr)
+TestStruct::foo_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
 
@@ -40,7 +40,7 @@ TestStruct::foo_0 (jnc::rt::DataPtr selfPtr)
 
 void
 TestStruct::foo_1 (
-	jnc::rt::DataPtr selfPtr, 
+	jnc::DataPtr selfPtr, 
 	int x,
 	int y
 	)
@@ -54,8 +54,8 @@ TestStruct::foo_1 (
 
 void
 TestStruct::foo_2 (
-	jnc::rt::DataPtr selfPtr, 
-	jnc::rt::DataPtr srcPtr
+	jnc::DataPtr selfPtr, 
+	jnc::DataPtr srcPtr
 	)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;

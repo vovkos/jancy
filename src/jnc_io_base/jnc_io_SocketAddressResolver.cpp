@@ -47,7 +47,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	rt::DataPtr paramsPtr = rt::createData <SocketAddressResolverEventParams> (m_runtime);
+	DataPtr paramsPtr = rt::createData <SocketAddressResolverEventParams> (m_runtime);
 	SocketAddressResolverEventParams* params = (SocketAddressResolverEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = syncId;
@@ -74,7 +74,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 bool
 AXL_CDECL
 SocketAddressResolver::resolve (
-	rt::DataPtr namePtr,
+	DataPtr namePtr,
 	uint16_t addrFamily
 	)
 {

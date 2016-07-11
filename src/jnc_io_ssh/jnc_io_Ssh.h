@@ -69,12 +69,12 @@ struct SshEventParams
 
 	SshEventKind m_eventKind;
 	uint_t m_syncId;
-	rt::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //.............................................................................
 
-class SshChannel: public rt::IfaceHdr
+class SshChannel: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -139,7 +139,7 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onSshChannelEvent;
+	ClassBox <Multicast> m_onSshChannelEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -185,7 +185,7 @@ public:
 
 	bool
 	AXL_CDECL
-	open (rt::DataPtr address);
+	open (DataPtr address);
 
 	void
 	AXL_CDECL
@@ -194,12 +194,12 @@ public:
 	bool
 	AXL_CDECL
 	connect (
-		rt::DataPtr address,
-		rt::DataPtr userName,
-		rt::DataPtr password,
-		rt::DataPtr channelType,
-		rt::DataPtr processType,
-		rt::DataPtr ptyType,
+		DataPtr address,
+		DataPtr userName,
+		DataPtr password,
+		DataPtr channelType,
+		DataPtr processType,
+		DataPtr ptyType,
 		uint_t ptyWidth,
 		uint_t ptyHeight,
 		bool isSync
@@ -208,8 +208,8 @@ public:
 	bool
 	AXL_CDECL
 	authenticate (
-		rt::DataPtr userName,
-		rt::DataPtr password
+		DataPtr userName,
+		DataPtr password
 		);
 
 	bool
@@ -223,14 +223,14 @@ public:
 	size_t
 	AXL_CDECL
 	read (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	write (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 

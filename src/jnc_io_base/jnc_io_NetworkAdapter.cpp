@@ -6,14 +6,14 @@ namespace io {
 
 //.............................................................................
 	
-rt::DataPtr
+DataPtr
 createNetworkAdapterAddress (
 	rt::Runtime* runtime,
 	const axl::io::NetworkAdapterAddress* srcAddress,
 	NetworkAdapterAddress* prevAddress
 	)
 {
-	rt::DataPtr addressPtr = rt::createData <NetworkAdapterAddress> (runtime);
+	DataPtr addressPtr = rt::createData <NetworkAdapterAddress> (runtime);
 	NetworkAdapterAddress* address = (NetworkAdapterAddress*) addressPtr.m_p;
 	address->m_address = srcAddress->m_address;
 	address->m_netMaskBitCount = srcAddress->m_netMaskBitCount;
@@ -24,14 +24,14 @@ createNetworkAdapterAddress (
 	return addressPtr;
 }
 
-rt::DataPtr
+DataPtr
 createNetworkAdapterDesc (
 	rt::Runtime* runtime,
 	const axl::io::NetworkAdapterDesc* srcAdapter,
 	NetworkAdapterDesc* prevAdapter
 	)
 {
-	rt::DataPtr adapterPtr = rt::createData <NetworkAdapterDesc> (runtime);
+	DataPtr adapterPtr = rt::createData <NetworkAdapterDesc> (runtime);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*) adapterPtr.m_p;
 	adapter->m_type = srcAdapter->getType ();
 	adapter->m_flags = srcAdapter->getFlags ();
@@ -48,7 +48,7 @@ createNetworkAdapterDesc (
 
 	sl::Iterator <axl::io::NetworkAdapterAddress> it = addressList.getHead ();
 	
-	rt::DataPtr addressPtr = createNetworkAdapterAddress (runtime, *it, NULL);
+	DataPtr addressPtr = createNetworkAdapterAddress (runtime, *it, NULL);
 	adapter->m_addressPtr = addressPtr;
 	adapter->m_addressCount = addressList.getCount ();
 
@@ -58,10 +58,10 @@ createNetworkAdapterDesc (
 	return adapterPtr;
 }
 
-rt::DataPtr
+DataPtr
 createNetworkAdapterDescList (
-	rt::DataPtr adapterCountPtr,
-	rt::DataPtr addressCountPtr	
+	DataPtr adapterCountPtr,
+	DataPtr addressCountPtr	
 	)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
@@ -77,7 +77,7 @@ createNetworkAdapterDescList (
 		if (addressCountPtr.m_p)
 			*(size_t*) addressCountPtr.m_p = 0;
 
-		return rt::g_nullPtr;
+		return g_nullPtr;
 	}
 
 	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
@@ -87,11 +87,11 @@ createNetworkAdapterDescList (
 	size_t addressCount = 0;
 	NetworkAdapterDesc* prevAdapter = NULL;
 
-	rt::DataPtr adapterPtr = createNetworkAdapterDesc (runtime, *it, NULL);
+	DataPtr adapterPtr = createNetworkAdapterDesc (runtime, *it, NULL);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*) adapterPtr.m_p;
 	addressCount += adapter->m_addressCount;
 
-	rt::DataPtr resultPtr = adapterPtr;
+	DataPtr resultPtr = adapterPtr;
 
 	for (it++; it; it++)
 	{

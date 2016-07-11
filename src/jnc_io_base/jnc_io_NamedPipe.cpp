@@ -17,7 +17,7 @@ NamedPipe::NamedPipe ()
 bool
 AXL_CDECL
 NamedPipe::open (
-	rt::DataPtr namePtr,
+	DataPtr namePtr,
 	size_t backLog
 	)
 {

@@ -27,12 +27,12 @@ String::copy (StringRef ref)
 
 bool
 String::copy (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t length
 	)
 {
 	if (length == -1)
-		length = strLen (ptr);
+		length = rt::strLen (ptr);
 
 	if (!length)
 	{
@@ -44,7 +44,7 @@ String::copy (
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	rt::DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
 	if (!newPtr.m_p)
 		return false;
 	
@@ -60,12 +60,12 @@ String::copy (
 bool
 AXL_CDECL
 StringBuilder::copy (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t length
 	)
 {
 	if (length == -1)
-		length = strLen (ptr);
+		length = rt::strLen (ptr);
 
 	bool result = setLength (length, false);
 	if (!result)
@@ -78,12 +78,12 @@ StringBuilder::copy (
 bool
 AXL_CDECL
 StringBuilder::append (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t length
 	)
 {
 	if (length == -1)
-		length = strLen (ptr);
+		length = rt::strLen (ptr);
 
 	size_t prevLength = m_length;
 
@@ -112,7 +112,7 @@ StringBuilder::setLength (
 	ASSERT (runtime);
 
 	size_t maxLength = sl::getMinPower2Gt (length);
-	rt::DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxLength + 1);
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxLength + 1);
 	if (!newPtr.m_p)
 		return false;
 

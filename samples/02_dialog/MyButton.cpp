@@ -4,7 +4,7 @@
 
 //.............................................................................
 
-MyButton::MyButton (jnc::rt::DataPtr textPtr):
+MyButton::MyButton (jnc::DataPtr textPtr):
 	MyWidget (new QPushButton)
 {
 	m_qtButton = (QPushButton*) m_handle;

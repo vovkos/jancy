@@ -9,7 +9,7 @@ namespace sys {
 bool 
 AXL_CDECL
 Timer::start (
-	rt::FunctionPtr ptr,
+	FunctionPtr ptr,
 	uint64_t dueTime,
 	uint_t interval
 	)
@@ -26,7 +26,7 @@ Timer::start (
 	result = m_thread.start ();
 	if (!result)
 	{
-		m_timerFuncPtr = rt::g_nullFunctionPtr;
+		m_timerFuncPtr = g_nullFunctionPtr;
 		return false;
 	}
 
@@ -46,7 +46,7 @@ Timer::stop ()
 		rt::leaveWaitRegion (m_runtime);
 	}
 
-	m_timerFuncPtr = rt::g_nullFunctionPtr;
+	m_timerFuncPtr = g_nullFunctionPtr;
 	m_dueTime = 0;
 	m_interval = 0;
 }

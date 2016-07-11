@@ -42,7 +42,7 @@ public:
 
 	static
 	void
-	foo_2 (jnc::rt::DataPtr ptr);
+	foo_2 (jnc::DataPtr ptr);
 
 	static
 	int
@@ -53,7 +53,7 @@ public:
 	setSimpleProp (int x);
 
 	static
-	jnc::rt::DataPtr
+	jnc::DataPtr
 	getProp ();
 
 	static
@@ -66,7 +66,7 @@ public:
 
 	static
 	void
-	setProp_2 (jnc::rt::DataPtr ptr);
+	setProp_2 (jnc::DataPtr ptr);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

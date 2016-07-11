@@ -24,12 +24,12 @@ struct MailslotEventParams
 
 	MailslotEventKind m_eventKind;
 	uint_t m_syncId;
-	rt::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //.............................................................................
 
-class Mailslot: public rt::IfaceHdr
+class Mailslot: public IfaceHdr
 {
 	friend class IoThread;
 	friend class NamedPipe;
@@ -82,7 +82,7 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	rt::ClassBox <rt::Multicast> m_onMailslotEvent;
+	ClassBox <Multicast> m_onMailslotEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -107,7 +107,7 @@ public:
 
 	bool
 	AXL_CDECL
-	open (rt::DataPtr namePtr);
+	open (DataPtr namePtr);
 
 	void
 	AXL_CDECL
@@ -116,7 +116,7 @@ public:
 	size_t
 	AXL_CDECL
 	read (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 

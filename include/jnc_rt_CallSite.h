@@ -5,7 +5,7 @@
 #pragma once
 
 #ifdef _JNC_SHARED_EXTENSION_LIB
-#	include "jnc_rt_RuntimeStructs.h"
+#	include "jnc_RuntimeStructs.h"
 #	include "jnc_ext_ExtensionLibHost.h"
 #else
 #	include "jnc_ct_Function.h"
@@ -147,10 +147,10 @@ allocateArray (
 }
 
 inline
-rt::DataPtrValidator*
+DataPtrValidator*
 createDataPtrValidator (
 	Runtime* runtime,	
-	rt::Box* box,
+	Box* box,
 	void* rangeBegin,
 	size_t rangeLength
 	)
@@ -331,10 +331,10 @@ allocateArray (
 }
 
 inline
-rt::DataPtrValidator*
+DataPtrValidator*
 createDataPtrValidator (
 	Runtime* runtime,	
-	rt::Box* box,
+	Box* box,
 	void* rangeBegin,
 	size_t rangeLength
 	)
@@ -500,7 +500,7 @@ protected:
 	jnc::rt::Runtime* __jncRuntime = (runtime); \
 	bool __jncIsNoCollectRegion = false; \
 	bool __jncCanCollectAtEnd = false; \
-	jnc::rt::ExceptionRecoverySnapshot ___jncErs; \
+	jnc::ExceptionRecoverySnapshot ___jncErs; \
 	JNC_BEGIN_GC_SITE() \
 	jnc::rt::initializeThread (__jncRuntime, &___jncErs); \
 	AXL_SYS_BEGIN_SJLJ_TRY () \
@@ -530,7 +530,7 @@ protected:
 
 #define JNC_END_CALL_SITE_EX(result) \
 	JNC_END_CALL_SITE_IMPL() \
-	*(result) = ___jncErs.m_result; \
+	*(result) = ___jncErs.m_result != 0; \
 }
 
 //.............................................................................

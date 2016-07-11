@@ -21,7 +21,7 @@ public:
 	int m_minimum;
 	int m_maximum;
 	
-	jnc::rt::ClassBox <jnc::rt::Multicast> m_onValueChanged;
+	jnc::ClassBox <jnc::Multicast> m_onValueChanged;
 	
 public:
 	QSlider* m_qtSlider;

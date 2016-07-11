@@ -7,7 +7,7 @@ namespace io {
 
 //.............................................................................
 
-class MappedFile: public rt::IfaceHdr
+class MappedFile: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -48,7 +48,7 @@ public:
 	bool
 	AXL_CDECL
 	open (
-		rt::DataPtr namePtr,
+		DataPtr namePtr,
 		uint_t flags
 		);
 
@@ -60,7 +60,7 @@ public:
 	}
 
 	static
-	rt::DataPtr
+	DataPtr
 	AXL_CDECL
 	view (
 		MappedFile* self,

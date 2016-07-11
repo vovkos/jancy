@@ -8,7 +8,7 @@ class QtSignalBridge: public QObject
 
 protected:
 	jnc::rt::Runtime* m_runtime;
-	jnc::rt::Multicast* m_jncEvent;
+	jnc::Multicast* m_jncEvent;
 
 public:
 	QtSignalBridge (QObject* parent = NULL);
@@ -16,7 +16,7 @@ public:
 	QtSignalBridge (
 		QObject* sender,
 		const char* signal,
-		jnc::rt::Multicast* jncEvent,
+		jnc::Multicast* jncEvent,
 		QObject* parent = NULL
 		):
 		QObject (parent)
@@ -28,7 +28,7 @@ public:
 	connect (
 		QObject* sender,
 		const char* signal,
-		jnc::rt::Multicast* jncEvent
+		jnc::Multicast* jncEvent
 		)
 	{
 		m_jncEvent = jncEvent;

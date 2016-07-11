@@ -26,21 +26,31 @@ set (
 	jnc_sys_SysLib.cpp
 	)
 
-set (
-	LIB_JNC_LIST
-	jnc/jnc_sys_globals.jnc
-	jnc/jnc_sys_Event.jnc
-	jnc/jnc_sys_Lock.jnc
-	jnc/jnc_sys_Thread.jnc
-	jnc/jnc_sys_Timer.jnc
-	)
-
 source_group (
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# jnc folder
+#
+
+set (
+	JNC_LIST
+	jnc/sys_globals.jnc
+	jnc/sys_Event.jnc
+	jnc/sys_Lock.jnc
+	jnc/sys_Thread.jnc
+	jnc/sys_Timer.jnc
+	)
+
+source_group (
+	jnc
+	FILES
+	${JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -54,32 +64,32 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
-	jnc_sys_globals.jnc.cpp
-	jnc/jnc_sys_globals.jnc
+	sys_globals.jnc.cpp
+	jnc/sys_globals.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_sys_Event.jnc.cpp
-	jnc/jnc_sys_Event.jnc
+	sys_Event.jnc.cpp
+	jnc/sys_Event.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_sys_Lock.jnc.cpp
-	jnc/jnc_sys_Lock.jnc
+	sys_Lock.jnc.cpp
+	jnc/sys_Lock.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_sys_Thread.jnc.cpp
-	jnc/jnc_sys_Thread.jnc
+	sys_Thread.jnc.cpp
+	jnc/sys_Thread.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_sys_Timer.jnc.cpp
-	jnc/jnc_sys_Timer.jnc
+	sys_Timer.jnc.cpp
+	jnc/sys_Timer.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -87,11 +97,11 @@ axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_sys_globals.jnc.cpp
-	${GEN_DIR}/jnc_sys_Event.jnc.cpp
-	${GEN_DIR}/jnc_sys_Lock.jnc.cpp
-	${GEN_DIR}/jnc_sys_Thread.jnc.cpp
-	${GEN_DIR}/jnc_sys_Timer.jnc.cpp
+	${GEN_DIR}/sys_globals.jnc.cpp
+	${GEN_DIR}/sys_Event.jnc.cpp
+	${GEN_DIR}/sys_Lock.jnc.cpp
+	${GEN_DIR}/sys_Thread.jnc.cpp
+	${GEN_DIR}/sys_Timer.jnc.cpp
 	)
 
 axl_exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
@@ -126,6 +136,7 @@ include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
@@ -135,7 +146,7 @@ add_library (
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
+	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 	)
 

@@ -36,7 +36,7 @@ struct SocketEventParams
 	SocketEventKind m_eventKind;
 	uint_t m_syncId;
 	uint_t m_flags;
-	jnc::rt::DataPtr m_errorPtr;
+	jnc::DataPtr m_errorPtr;
 };
 
 //.............................................................................
@@ -58,7 +58,7 @@ enum SocketOpenFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Socket: public rt::IfaceHdr
+class Socket: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -118,7 +118,7 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	jnc::rt::ClassBox <jnc::rt::Multicast> m_onSocketEvent;
+	jnc::ClassBox <jnc::Multicast> m_onSocketEvent;
 
 protected:
 	jnc::rt::Runtime* m_runtime;
@@ -202,7 +202,7 @@ public:
 	AXL_CDECL
 	open_1 (
 		int protocol,
-		jnc::rt::DataPtr addressPtr,
+		jnc::DataPtr addressPtr,
 		uint_t flags
 		)
 	{
@@ -216,7 +216,7 @@ public:
 
 	bool
 	AXL_CDECL
-	connect (jnc::rt::DataPtr addressPtr);
+	connect (jnc::DataPtr addressPtr);
 
 	bool
 	AXL_CDECL
@@ -224,36 +224,36 @@ public:
 
 	Socket*
 	AXL_CDECL
-	accept (jnc::rt::DataPtr addressPtr);
+	accept (jnc::DataPtr addressPtr);
 
 	size_t
 	AXL_CDECL
 	send (
-		jnc::rt::DataPtr ptr,
+		jnc::DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	recv (
-		jnc::rt::DataPtr ptr,
+		jnc::DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	sendTo (
-		jnc::rt::DataPtr ptr,
+		jnc::DataPtr ptr,
 		size_t size,
-		jnc::rt::DataPtr addressPtr
+		jnc::DataPtr addressPtr
 		);
 
 	size_t
 	AXL_CDECL
 	recvFrom (
-		jnc::rt::DataPtr ptr,
+		jnc::DataPtr ptr,
 		size_t size,
-		jnc::rt::DataPtr addressPtr
+		jnc::DataPtr addressPtr
 		);
 
 	void

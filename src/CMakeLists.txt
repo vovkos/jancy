@@ -4,7 +4,10 @@
 
 #..............................................................................
 
-add_subdirectory (jnc_core)
+add_subdirectory (jnc_ct)
+add_subdirectory (jnc_rt)
+add_subdirectory (jnc_api)
+add_subdirectory (jnc_rtl)
 add_subdirectory (jnc_std)
 add_subdirectory (jnc_sys)
 add_subdirectory (jnc_io_cmn)

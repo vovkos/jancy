@@ -60,6 +60,7 @@ include_directories (
 	${AXL_INC_DIR}
 	${LLVM_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	)
 
 link_directories (
@@ -94,7 +95,10 @@ set_target_properties (
 target_link_libraries (
 	01_export
 	jnc_std
-	jnc_core
+	jnc_rtl
+	jnc_ct
+	jnc_rt
+	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io

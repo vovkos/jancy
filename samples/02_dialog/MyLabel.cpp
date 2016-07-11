@@ -3,7 +3,7 @@
 
 //.............................................................................
 
-MyLabel::MyLabel (jnc::rt::DataPtr textPtr):
+MyLabel::MyLabel (jnc::DataPtr textPtr):
 	MyWidget (new QLabel)
 {
 	m_qtLabel = (QLabel*) m_handle;

@@ -22,24 +22,24 @@ public:
 public:
 	static
 	void
-	construct_0 (jnc::rt::DataPtr selfPtr);
+	construct_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
 	construct_1 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		int x,
 		int y
 		);
 
 	static
 	void
-	foo_0 (jnc::rt::DataPtr selfPtr);
+	foo_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
 	foo_1 (
-		jnc::rt::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr, 
 		int x,
 		int y
 		);
@@ -47,8 +47,8 @@ public:
 	static
 	void
 	foo_2 (
-		jnc::rt::DataPtr selfPtr, 
-		jnc::rt::DataPtr srcPtr
+		jnc::DataPtr selfPtr, 
+		jnc::DataPtr srcPtr
 		);
 };
 

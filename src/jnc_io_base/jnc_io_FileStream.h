@@ -36,12 +36,12 @@ struct FileStreamEventParams
 
 	FileStreamEventKind m_eventKind;
 	uint_t m_syncId;
-	rt::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //.............................................................................
 
-class FileStream: public rt::IfaceHdr
+class FileStream: public IfaceHdr
 {
 	friend class IoThread;
 	friend class NamedPipe;
@@ -101,7 +101,7 @@ protected:
 	uint_t m_syncId;
 	FileStreamKind m_fileStreamKind;
 
-	rt::ClassBox <rt::Multicast> m_onFileStreamEvent;
+	ClassBox <Multicast> m_onFileStreamEvent;
 
 protected:
 	rt::Runtime* m_runtime;
@@ -131,7 +131,7 @@ public:
 	bool
 	AXL_CDECL
 	open (
-		rt::DataPtr namePtr,
+		DataPtr namePtr,
 		uint_t openFlags
 		);
 
@@ -146,14 +146,14 @@ public:
 	size_t
 	AXL_CDECL
 	read (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	write (
-		rt::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 

@@ -36,7 +36,7 @@ MyLib::foo_1 (double x)
 }
 
 void
-MyLib::foo_2 (jnc::rt::DataPtr ptr)
+MyLib::foo_2 (jnc::DataPtr ptr)
 {
 	printf ("  MyLib::foo_2 (%s)\n", ptr.m_p);
 }
@@ -57,9 +57,9 @@ MyLib::setSimpleProp (int x)
 	g_simplePropValue = x;
 }
 
-jnc::rt::DataPtr g_propValue = { 0 };
+jnc::DataPtr g_propValue = { 0 };
 
-jnc::rt::DataPtr 
+jnc::DataPtr 
 MyLib::getProp ()
 {
 	printf ("  MyLib::getProp () => %s\n", g_propValue.m_p);
@@ -87,7 +87,7 @@ MyLib::setProp_1 (double x)
 }
 
 void
-MyLib::setProp_2 (jnc::rt::DataPtr ptr)
+MyLib::setProp_2 (jnc::DataPtr ptr)
 {
 	printf ("  MyLib::setProp_2 (%s)\n", ptr.m_p);
 	g_propValue = ptr;

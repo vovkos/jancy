@@ -16,16 +16,16 @@ struct ListEntry
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_nextPtr;
-	rt::DataPtr m_prevPtr;
+	DataPtr m_nextPtr;
+	DataPtr m_prevPtr;
 	List* m_list;
 
-	rt::Variant m_data;
+	Variant m_data;
 };
 
 //.............................................................................
 
-class List: public rt::IfaceHdr
+class List: public IfaceHdr
 {
 public:
 	JNC_BEGIN_TYPE_MAP ("std.List", g_stdLibCacheSlot, StdLibTypeCacheSlot_List)
@@ -45,8 +45,8 @@ public:
 	JNC_END_TYPE_MAP ()
 
 public:
-	rt::DataPtr m_headPtr;
-	rt::DataPtr m_tailPtr;
+	DataPtr m_headPtr;
+	DataPtr m_tailPtr;
 	size_t m_count;
 
 public:
@@ -59,99 +59,99 @@ public:
 	takeOver (List* list);
 
 	static
-	rt::DataPtr
+	DataPtr
 	insertHead (
 		List* self,
-		rt::Variant data
+		Variant data
 		);
 
 	static
-	rt::DataPtr
+	DataPtr
 	insertTail (
 		List* self,
-		rt::Variant data
+		Variant data
 		);
 
 	static
-	rt::DataPtr
+	DataPtr
 	insertBefore (
 		List* self,
-		rt::Variant data,
-		rt::DataPtr beforePtr
+		Variant data,
+		DataPtr beforePtr
 		);
 
 	static
-	rt::DataPtr
+	DataPtr
 	insertAfter (
 		List* self,
-		rt::Variant data,
-		rt::DataPtr afterPtr
+		Variant data,
+		DataPtr afterPtr
 		);
 
 	void
 	AXL_CDECL
-	moveToHead (rt::DataPtr entryPtr);
+	moveToHead (DataPtr entryPtr);
 
 	void
 	AXL_CDECL
-	moveToTail (rt::DataPtr entryPtr);
+	moveToTail (DataPtr entryPtr);
 		
 	void
 	AXL_CDECL
 	moveBefore (
-		rt::DataPtr entryPtr,
-		rt::DataPtr beforePtr
+		DataPtr entryPtr,
+		DataPtr beforePtr
 		);
 
 	void
 	AXL_CDECL
 	moveAfter (
-		rt::DataPtr entryPtr,
-		rt::DataPtr afterPtr
+		DataPtr entryPtr,
+		DataPtr afterPtr
 		);
 
 	static
-	rt::Variant
+	Variant
 	removeHead (List* self)
 	{
 		return remove (self, self->m_headPtr);
 	}
 
 	static
-	rt::Variant
+	Variant
 	removeTail (List* self)
 	{
 		return remove (self, self->m_tailPtr);
 	}
 
 	static
-	rt::Variant
+	Variant
 	remove (
 		List* self,
-		rt::DataPtr entryPtr
+		DataPtr entryPtr
 		);
 
 protected:
 	static
-	rt::DataPtr
+	DataPtr
 	allocateListEntry ();
 
 	void
-	insertHeadImpl (rt::DataPtr entryPtr);
+	insertHeadImpl (DataPtr entryPtr);
 
 	void
-	insertTailImpl (rt::DataPtr entryPtr);
+	insertTailImpl (DataPtr entryPtr);
 
 	void
 	insertBeforeImpl (
-		rt::DataPtr entryPtr,
-		rt::DataPtr beforePtr
+		DataPtr entryPtr,
+		DataPtr beforePtr
 		);
 
 	void
 	insertAfterImpl (
-		rt::DataPtr entryPtr,
-		rt::DataPtr afterPtr
+		DataPtr entryPtr,
+		DataPtr afterPtr
 		);
 
 	void

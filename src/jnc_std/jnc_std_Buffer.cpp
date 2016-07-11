@@ -19,13 +19,13 @@ ConstBuffer::copy (ConstBufferRef ref)
 
 bool
 ConstBuffer::copy (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
 	if (!size)
 	{
-		m_ptr = rt::g_nullPtr;
+		m_ptr = g_nullPtr;
 		m_size = 0;
 		return true;
 	}
@@ -46,7 +46,7 @@ ConstBuffer::copy (
 bool
 AXL_CDECL
 Buffer::copy (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -61,7 +61,7 @@ Buffer::copy (
 bool
 AXL_CDECL
 Buffer::append (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -92,7 +92,7 @@ Buffer::setSize (
 	ASSERT (runtime);
 
 	size_t maxSize = sl::getMinPower2Gt (size);
-	rt::DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
+	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
 	if (!newPtr.m_p)
 		return false;
 

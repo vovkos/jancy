@@ -28,22 +28,32 @@ set (
 	jnc_std_StdLib.cpp
 	)
 
-set (
-	LIB_JNC_LIST
-	jnc/jnc_std_globals.jnc
-	jnc/jnc_std_Error.jnc
-	jnc/jnc_std_Buffer.jnc
-	jnc/jnc_std_String.jnc
-	jnc/jnc_std_HashTable.jnc
-	jnc/jnc_std_List.jnc
-	)
-
 source_group (
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# jnc folder
+#
+
+set (
+	JNC_LIST
+	jnc/std_globals.jnc
+	jnc/std_Error.jnc
+	jnc/std_Buffer.jnc
+	jnc/std_String.jnc
+	jnc/std_HashTable.jnc
+	jnc/std_List.jnc
+	)
+
+source_group (
+	jnc
+	FILES
+	${JNC_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -57,38 +67,38 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
-	jnc_std_globals.jnc.cpp
-	jnc/jnc_std_globals.jnc
+	std_globals.jnc.cpp
+	jnc/std_globals.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_std_Error.jnc.cpp
-	jnc/jnc_std_Error.jnc
+	std_Error.jnc.cpp
+	jnc/std_Error.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_std_Buffer.jnc.cpp
-	jnc/jnc_std_Buffer.jnc
+	std_Buffer.jnc.cpp
+	jnc/std_Buffer.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_std_String.jnc.cpp
-	jnc/jnc_std_String.jnc
+	std_String.jnc.cpp
+	jnc/std_String.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_std_HashTable.jnc.cpp
-	jnc/jnc_std_HashTable.jnc
+	std_HashTable.jnc.cpp
+	jnc/std_HashTable.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	jnc_std_List.jnc.cpp
-	jnc/jnc_std_List.jnc
+	std_List.jnc.cpp
+	jnc/std_List.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -96,12 +106,12 @@ axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_std_globals.jnc.cpp
-	${GEN_DIR}/jnc_std_Error.jnc.cpp
-	${GEN_DIR}/jnc_std_Buffer.jnc.cpp
-	${GEN_DIR}/jnc_std_String.jnc.cpp
-	${GEN_DIR}/jnc_std_HashTable.jnc.cpp
-	${GEN_DIR}/jnc_std_List.jnc.cpp
+	${GEN_DIR}/std_globals.jnc.cpp
+	${GEN_DIR}/std_Error.jnc.cpp
+	${GEN_DIR}/std_Buffer.jnc.cpp
+	${GEN_DIR}/std_String.jnc.cpp
+	${GEN_DIR}/std_HashTable.jnc.cpp
+	${GEN_DIR}/std_List.jnc.cpp
 	)
 
 axl_exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
@@ -136,6 +146,7 @@ include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
@@ -145,7 +156,7 @@ add_library (
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	${LIB_JNC_LIST}
+	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 	)
 

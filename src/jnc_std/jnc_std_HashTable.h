@@ -9,7 +9,7 @@ namespace std {
 
 //.............................................................................
 
-class StringHashTable: public rt::IfaceHdr
+class StringHashTable: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (StringHashTable, &StringHashTable::markOpaqueGcRoots)
@@ -27,8 +27,8 @@ public:
 protected:
 	struct Entry: sl::ListLink
 	{
-		rt::DataPtr m_keyPtr;
-		rt::Variant m_value;
+		DataPtr m_keyPtr;
+		Variant m_value;
 	};
 
 	typedef sl::StringHashTableMap <Entry*> StringHashTableMap;
@@ -60,25 +60,25 @@ public:
 	bool
 	AXL_CDECL
 	find (
-		rt::DataPtr keyPtr,
-		rt::DataPtr valuePtr
+		DataPtr keyPtr,
+		DataPtr valuePtr
 		);
 
 	void
 	AXL_CDECL
 	insert (
-		rt::DataPtr keyPtr,
-		rt::Variant value
+		DataPtr keyPtr,
+		Variant value
 		);
 
 	bool
 	AXL_CDECL
-	remove (rt::DataPtr keyPtr);
+	remove (DataPtr keyPtr);
 };
 
 //.............................................................................
 
-class VariantHashTable: public rt::IfaceHdr
+class VariantHashTable: public IfaceHdr
 {
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (VariantHashTable, &VariantHashTable::markOpaqueGcRoots)
@@ -96,11 +96,11 @@ public:
 protected:
 	struct Entry: sl::ListLink
 	{
-		rt::Variant m_key;
-		rt::Variant m_value;
+		Variant m_key;
+		Variant m_value;
 	};
 
-	typedef sl::HashTableMap <rt::Variant, Entry*, rt::HashVariant, rt::CmpVariant> VariantHashTableMap;
+	typedef sl::HashTableMap <Variant, Entry*, rt::HashVariant, rt::CmpVariant> VariantHashTableMap;
 
 protected:
 	sl::StdList <Entry> m_list;
@@ -129,20 +129,20 @@ public:
 	bool
 	AXL_CDECL
 	find (
-		rt::Variant key,
-		rt::DataPtr valuePtr
+		Variant key,
+		DataPtr valuePtr
 		);
 
 	void
 	AXL_CDECL
 	insert (
-		rt::Variant key,
-		rt::Variant value
+		Variant key,
+		Variant value
 		);
 
 	bool
 	AXL_CDECL
-	remove (rt::Variant key);
+	remove (Variant key);
 };
 
 //.............................................................................

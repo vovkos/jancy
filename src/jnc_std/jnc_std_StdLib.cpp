@@ -30,8 +30,8 @@ namespace std {
 
 int
 StdLib::strCmp (
-	rt::DataPtr ptr1,
-	rt::DataPtr ptr2
+	DataPtr ptr1,
+	DataPtr ptr2
 	)
 {
 	if (ptr1.m_p == ptr2.m_p)
@@ -45,8 +45,8 @@ StdLib::strCmp (
 
 int
 StdLib::striCmp (
-	rt::DataPtr ptr1,
-	rt::DataPtr ptr2
+	DataPtr ptr1,
+	DataPtr ptr2
 	)
 {
 	if (ptr1.m_p == ptr2.m_p)
@@ -58,51 +58,51 @@ StdLib::striCmp (
 		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
 }
 
-rt::DataPtr 
+DataPtr 
 StdLib::strChr (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	int c
 	)
 {
 	if (!ptr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	char* p = strchr ((char*) ptr.m_p, c);
 	if (!p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
-	rt::DataPtr resultPtr;
+	DataPtr resultPtr;
 	resultPtr.m_p = 
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
 
-rt::DataPtr 
+DataPtr 
 StdLib::strStr (
-	rt::DataPtr ptr1,
-	rt::DataPtr ptr2
+	DataPtr ptr1,
+	DataPtr ptr2
 	)
 {
 	if (!ptr1.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	if (!ptr2.m_p)
 		return ptr1;
 
 	char* p = strstr ((char*) ptr1.m_p, (char*) ptr2.m_p);
 	if (!p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
-	rt::DataPtr resultPtr;
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
 	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
 
-rt::DataPtr
+DataPtr
 StdLib::strCat (
-	rt::DataPtr ptr1,
-	rt::DataPtr ptr2
+	DataPtr ptr1,
+	DataPtr ptr2
 	)
 {
 	size_t length1 = strLen (ptr1);
@@ -111,9 +111,9 @@ StdLib::strCat (
 	return memCat (ptr1, length1, ptr2, length2 + 1);
 }
 
-rt::DataPtr
+DataPtr
 StdLib::strDup (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t length
 	)
 {
@@ -125,8 +125,8 @@ StdLib::strDup (
 
 int
 StdLib::memCmp (
-	rt::DataPtr ptr1,
-	rt::DataPtr ptr2,
+	DataPtr ptr1,
+	DataPtr ptr2,
 	size_t size
 	)
 {
@@ -139,45 +139,45 @@ StdLib::memCmp (
 		memcmp (ptr1.m_p, ptr2.m_p, size);
 }
 
-rt::DataPtr 
+DataPtr 
 StdLib::memChr (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	int c,
 	size_t size
 	)
 {
 	if (!ptr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	void* p = memchr (ptr.m_p, c, size);
 	if (!p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
-	rt::DataPtr resultPtr;
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
 
-rt::DataPtr 
+DataPtr 
 StdLib::memMem (
-	rt::DataPtr ptr1,
+	DataPtr ptr1,
 	size_t size1,
-	rt::DataPtr ptr2,
+	DataPtr ptr2,
 	size_t size2
 	)
 {
 	if (!ptr1.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	if (!ptr2.m_p)
 		return ptr1;
 
 	void* p = sl::memMem (ptr1.m_p, size1, ptr2.m_p, size2);
 	if (!p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
-	rt::DataPtr resultPtr;
+	DataPtr resultPtr;
 	resultPtr.m_p = p;
 	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
@@ -185,8 +185,8 @@ StdLib::memMem (
 
 void
 StdLib::memCpy (
-	rt::DataPtr dstPtr,
-	rt::DataPtr srcPtr,
+	DataPtr dstPtr,
+	DataPtr srcPtr,
 	size_t size
 	)
 {
@@ -196,7 +196,7 @@ StdLib::memCpy (
 
 void
 StdLib::memSet (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	int c,
 	size_t size
 	)
@@ -205,11 +205,11 @@ StdLib::memSet (
 		memset (ptr.m_p, c, size);
 }
 
-rt::DataPtr
+DataPtr
 StdLib::memCat (
-	rt::DataPtr ptr1,
+	DataPtr ptr1,
 	size_t size1,
-	rt::DataPtr ptr2,
+	DataPtr ptr2,
 	size_t size2
 	)
 {
@@ -217,9 +217,9 @@ StdLib::memCat (
 	ASSERT (runtime);
 
 	size_t totalSize = size1 + size2;
-	rt::DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (totalSize);
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (totalSize);
 	if (!resultPtr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	char* p = (char*) resultPtr.m_p;
 
@@ -232,18 +232,18 @@ StdLib::memCat (
 	return resultPtr;
 }
 
-rt::DataPtr
+DataPtr
 StdLib::memDup (
-	rt::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	rt::DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
 	if (!resultPtr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	if (ptr.m_p)
 		memcpy (resultPtr.m_p, ptr.m_p, size);
@@ -253,23 +253,23 @@ StdLib::memDup (
 	return resultPtr;
 }
 
-rt::DataPtr
+DataPtr
 StdLib::getErrorPtr (const err::ErrorHdr* error)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	rt::DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (error->m_size);
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (error->m_size);
 	if (!resultPtr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	memcpy (resultPtr.m_p, error, error->m_size);
 	return resultPtr;
 }
 
-rt::DataPtr
+DataPtr
 StdLib::format (
-	rt::DataPtr formatStringPtr,
+	DataPtr formatStringPtr,
 	...
 	)
 {
@@ -283,12 +283,21 @@ StdLib::format (
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	rt::DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
 	if (!resultPtr.m_p)
-		return rt::g_nullPtr;
+		return g_nullPtr;
 
 	memcpy (resultPtr.m_p, string.cc (), length);
 	return resultPtr;
+}
+
+void
+StdLib::collectGarbage ()
+{
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	runtime->m_gcHeap.collect ();
 }
 
 //.............................................................................
