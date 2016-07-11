@@ -2,111 +2,46 @@
 
 #include "jnc_RuntimeStructs.h"
 
-typedef struct jnc_ModuleItem jnc_ModuleItem;
-typedef struct jnc_ClassType jnc_ClassType;
-
 //.............................................................................
 
+JNC_EXTERN_C
 jnc_ModuleItem*
 jnc_Runtime_findModuleItem (
-	jnc_Runtime* self,
+	jnc_Runtime* runtime,
 	const char* name,
-	size_t libCacheSlot,
+	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	);
 
+JNC_EXTERN_C
 void
 jnc_Runtime_initializeThread (
-	jnc_Runtime* self,
+	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
 	);
 
+JNC_EXTERN_C
 void
 jnc_Runtime_uninitializeThread (
-	jnc_Runtime* self,
+	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
 	);
 
-void
-jnc_Runtime_enterNoCollectRegion (jnc_Runtime* self);
+JNC_EXTERN_C
+jnc_GcHeap*
+jnc_Runtime_getGcHeap (jnc_Runtime* runtime);
 
-void
-jnc_Runtime_leaveNoCollectRegion (
-	jnc_Runtime* self,
-	int canCollectNow
-	);
-
-void
-jnc_Runtime_enterWaitRegion (jnc_Runtime* self);
-
-void
-jnc_Runtime_leaveWaitRegion (jnc_Runtime* self);
-
-jnc_IfaceHdr*
-jnc_Runtime_allocateClass (
-	jnc_Runtime* self,
-	jnc_ClassType* type
-	);
-
-jnc_DataPtr
-jnc_Runtime_allocateData (
-	jnc_Runtime* self,
-	jnc_Type* type
-	);
-
-jnc_DataPtr
-jnc_Runtime_allocateArray (
-	jnc_Runtime* self,
-	jnc_Type* type,
-	size_t count
-	);
-
-jnc_DataPtrValidator*
-jnc_Runtime_createDataPtrValidator (
-	jnc_Runtime* self,	
-	jnc_Box* box,
-	void* rangeBegin,
-	size_t rangeLength
-	);
-
-void
-jnc_Runtime_gcWeakMark (
-	jnc_Runtime* self,	
-	jnc_Box* box
-	);
-
-void
-jnc_Runtime_gcMarkData (
-	jnc_Runtime* self,	
-	jnc_Box* box
-	);
-
-void
-jnc_Runtime_gcMarkClass (
-	jnc_Runtime* self,	
-	jnc_Box* box
-	);
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-int 
-jnc_Runtime_handleGcSehException (
-	jnc_Runtime* self,
-	uint_t code, 
-	EXCEPTION_POINTERS* exceptionPointers
-	);
-#endif // _AXL_ENV
-
+#if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Runtime
 {
-#ifdef __cplusplus
 	jnc_ModuleItem*
 	findModuleItem (
 		const char* name,
-		size_t libCacheSlot,
+		const jnc_Guid* libGuid,
 		size_t itemCacheSlot
 		)
 	{
-		return jnc_Runtime_findModuleItem (this, name, libCacheSlot, itemCacheSlot);
+		return jnc_Runtime_findModuleItem (this, name, libGuid, itemCacheSlot);
 	}
 
 	void
@@ -121,108 +56,41 @@ struct jnc_Runtime
 		jnc_Runtime_uninitializeThread (this, ers);
 	}
 
-	void
-	enterNoCollectRegion ()
+	jnc_GcHeap*
+	getGcHeap ()
 	{
-		jnc_Runtime_enterNoCollectRegion (this);
+		return jnc_Runtime_getGcHeap (this);
 	}
-
-	void
-	leaveNoCollectRegion (bool canCollectNow)
-	{
-		jnc_Runtime_leaveNoCollectRegion (this, canCollectNow);
-	}
-
-	void
-	enterWaitRegion ()
-	{
-		jnc_Runtime_enterWaitRegion (this);
-	}
-
-	void
-	leaveWaitRegion ()
-	{
-		jnc_Runtime_leaveWaitRegion (this);
-	}
-
-	jnc_IfaceHdr*
-	allocateClass (jnc_ClassType* type)
-	{
-		return jnc_Runtime_allocateClass (this, type);
-	}
-
-	jnc_DataPtr
-	allocateData (jnc_Type* type)
-	{
-		return jnc_Runtime_allocateData (this, type);
-	}
-
-	jnc_DataPtr
-	allocateArray (
-		jnc_Type* type,
-		size_t count
-		)
-	{
-		return jnc_Runtime_allocateArray (this, type, count);
-	}
-
-	jnc_DataPtrValidator*
-	createDataPtrValidator (
-		jnc_Box* box,
-		void* rangeBegin,
-		size_t rangeLength
-		)
-	{
-		return jnc_Runtime_createDataPtrValidator (this, box, rangeBegin, rangeLength);
-	}
-
-	void
-	gcWeakMark (jnc_Box* box)
-	{
-		jnc_Runtime_gcWeakMark (this, box);
-	}
-
-	void
-	gcMarkData (jnc_Box* box)
-	{
-		jnc_Runtime_gcMarkData (this, box);
-	}
-
-	void
-	gcMarkClass (
-		jnc_Box* box
-		)
-	{
-		jnc_Runtime_gcMarkClass (this, box);
-	}
-
-#	if (_AXL_ENV == AXL_ENV_WIN)
-	int 
-	handleGcSehException (
-		uint_t code, 
-		EXCEPTION_POINTERS* exceptionPointers
-		)
-	{
-		return jnc_Runtime_handleGcSehException (this, code, exceptionPointers);
-	}
-#	endif // _AXL_ENV
-#endif // __cplusplus
 };
+#endif // _JNC_CORE
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ();
 
+JNC_EXTERN_C
+void
+jnc_primeClass (
+	jnc_Box* box,
+	jnc_Box* root,
+	jnc_ClassType* type,
+	void* vtable = NULL // if null then vtable of class type will be used
+	);
+
+JNC_EXTERN_C
 size_t 
 jnc_strLen (jnc_DataPtr ptr);
 
+JNC_EXTERN_C
 jnc_DataPtr
 jnc_strDup (
 	const char* p,
 	size_t length = -1
 	);
 
+JNC_EXTERN_C
 jnc_DataPtr
 jnc_memDup (
 	const void* p,
@@ -248,12 +116,27 @@ getCurrentThreadRuntime ()
 	return jnc_getCurrentThreadRuntime ();
 }
 
+
+inline 
+void
+primeClass (
+	jnc_Box* box,
+	jnc_Box* root,
+	jnc_ClassType* type,
+	void* vtable = NULL // if null then vtable of class type will be used
+	)
+{
+	jnc_primeClass (box, root, type, vtable);
+}
+
+inline
 size_t 
 strLen (DataPtr ptr)
 {
 	return jnc_strLen (ptr);
 }
 
+inline
 DataPtr
 strDup (
 	const char* p,
@@ -263,6 +146,7 @@ strDup (
 	return jnc_strDup (p, length);
 }
 
+inline
 DataPtr
 memDup (
 	const void* p,

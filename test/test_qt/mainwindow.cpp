@@ -359,12 +359,10 @@ bool MainWindow::compile ()
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
 
-	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
-
 	result = 
 		m_module.create (sourceFilePath.data(), compileFlags) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost)) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getSysLib (libHost)) &&
+		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ()) &&
+		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getSysLib ()) &&
 		m_module.m_extensionLibMgr.addStaticLib (sl::getSimpleSingleton <TestLib> ());
 
 	m_module.m_importMgr.m_importDirList.insertTail (appDir.constData ());

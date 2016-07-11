@@ -59,13 +59,11 @@ main (
 
 	printf ("Parsing...\n");
 
-	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
-
 	jnc::ct::Module module;
 	result =
 		module.create (fileName) &&
-		module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
-		module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
+		module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ());
+		module.m_extensionLibMgr.addStaticLib (getMyLib ());
 
 	result = 
 		module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&

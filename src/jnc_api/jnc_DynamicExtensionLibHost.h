@@ -4,23 +4,18 @@
 
 #pragma once
 
-#include "jnc_Error.h"
-#include "jnc_DerivableType.h"
-#include "jnc_Function.h"
-#include "jnc_Property.h"
-#include "jnc_Namespace.h"
-#include "jnc_Module.h"
-#include "jnc_Runtime.h"
+#include "jnc_RuntimeStructs.h"
+#include "jnc_OpKind.h"
 
 //.............................................................................
 
-typedef struct jnc_Error_FuncTable jnc_Error_FuncTable;
-typedef struct jnc_DerivableType_FuncTable jnc_DerivableType_FuncTable;
-typedef struct jnc_Function_FuncTable jnc_Function_FuncTable;
-typedef struct jnc_Property_FuncTable jnc_Property_FuncTable;
-typedef struct jnc_Namespace_FuncTable jnc_Namespace_FuncTable;
-typedef struct jnc_Module_FuncTable jnc_Module_FuncTable;
-typedef struct jnc_Runtime_FuncTable jnc_Runtime_FuncTable;
+typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
+typedef struct jnc_DerivableTypeFuncTable jnc_DerivableTypeFuncTable;
+typedef struct jnc_FunctionFuncTable jnc_FunctionFuncTable;
+typedef struct jnc_PropertyFuncTable jnc_PropertyFuncTable;
+typedef struct jnc_NamespaceFuncTable jnc_NamespaceFuncTable;
+typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
+typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //.............................................................................
@@ -34,10 +29,6 @@ jnc_GetLastErrorFunc ();
 typedef
 void
 jnc_SetErrorFunc (jnc_Error* error);
-
-typedef
-void
-jnc_PropagateLastErrorFunc ();
 
 // DerivableType
 
@@ -82,37 +73,32 @@ typedef
 jnc_Namespace*
 jnc_DerivableType_GetNamespaceFunc (jnc_DerivableType* type);
 
-typedef
-void
-jnc_PrimeClassFunc (
-	jnc_Box* box,
-	jnc_Box* root,
-	jnc_ClassType* type,
-	void* vtable
-	);
-
 // Function
 
 typedef
 jnc_Function*
 jnc_Function_GetOverloadFunc (
-	jnc_Function* self,
+	jnc_Function* function,
 	size_t overloadIdx
 	);
 
 typedef
 void*
-jnc_Function_GetMachineCodeFunc (jnc_Function* self);
+jnc_Function_GetMachineCodeFunc (jnc_Function* function);
+
+typedef
+jnc_Function*
+jnc_GetMulticastCallMethodFunc (jnc_Multicast* multicast);
 
 // Property
 
 typedef
 jnc_Function*
-jnc_Property_GetGetterFunc (jnc_Property* self);
+jnc_Property_GetGetterFunc (jnc_Property* prop);
 
 typedef
 jnc_Function*
-jnc_Property_GetSetterFunc (jnc_Property* self);
+jnc_Property_GetSetterFunc (jnc_Property* prop);
 
 // Namespace
 
@@ -134,21 +120,21 @@ jnc_Namespace_FindPropertyFunc (
 
 typedef
 jnc_Namespace*
-jnc_Module_GetGlobalNamespaceFunc (jnc_Module* self);
+jnc_Module_GetGlobalNamespaceFunc (jnc_Module* module);
 
 typedef
 jnc_ModuleItem*
 jnc_Module_FindItemFunc (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* name,
-	size_t libCacheSlot,
+	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	);
 
 typedef
 void
 jnc_Module_MapFunctionFunc (
-	jnc_Module* self,
+	jnc_Module* module,
 	jnc_Function* function,
 	void* p
 	);
@@ -156,17 +142,31 @@ jnc_Module_MapFunctionFunc (
 typedef
 bool
 jnc_Module_AddImportFunc (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* fileName
 	);
 
 typedef
 void
 jnc_Module_AddSourceFunc (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* fileName,
 	const char* source,
 	size_t size
+	);
+
+typedef
+jnc_DerivableType*
+jnc_VerifyModuleItemIsDerivableTypeFunc (
+	jnc_ModuleItem* item,
+	const char* name
+	);
+
+typedef
+jnc_ClassType*
+jnc_VerifyModuleItemIsClassTypeFunc (
+	jnc_ModuleItem* item,
+	const char* name
 	);
 
 // Runtime
@@ -174,71 +174,108 @@ jnc_Module_AddSourceFunc (
 typedef
 jnc_ModuleItem*
 jnc_Runtime_FindModuleItemFunc (
-	jnc_Runtime* self,
+	jnc_Runtime* module,
 	const char* name,
-	size_t libCacheSlot,
+	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	);
 
 typedef
 void
 jnc_Runtime_InitializeThreadFunc (
-	jnc_Runtime* self,
+	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
 	);
 
 typedef
 void
 jnc_Runtime_UninitializeThreadFunc (
-	jnc_Runtime* self,
+	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
 	);
 
 typedef
-void
-jnc_Runtime_EnterNoCollectRegionFunc (jnc_Runtime* self);
+jnc_GcHeap*
+jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
+
+typedef
+jnc_Runtime*
+jnc_GetCurrentThreadRuntimeFunc ();
 
 typedef
 void
-jnc_Runtime_LeaveNoCollectRegionFunc (
-	jnc_Runtime* self,
+jnc_PrimeClassFunc (
+	jnc_Box* box,
+	jnc_Box* root,
+	jnc_ClassType* type,
+	void* vtable
+	);
+
+typedef
+size_t 
+jnc_StrLenFunc (jnc_DataPtr ptr);
+
+typedef
+jnc_DataPtr
+jnc_StrDupFunc (
+	const char* p,
+	size_t length
+	);
+
+typedef
+jnc_DataPtr
+jnc_MemDupFunc (
+	const void* p,
+	size_t size
+	);
+
+// GcHeap
+
+typedef
+void
+jnc_GcHeap_EnterNoCollectRegionFunc (jnc_GcHeap* gcHeap);
+
+typedef
+void
+jnc_GcHeap_LeaveNoCollectRegionFunc (
+	jnc_GcHeap* gcHeap,
 	int canCollectNow
 	);
 
 typedef
 void
-jnc_Runtime_EnterWaitRegionFunc (jnc_Runtime* self);
+jnc_GcHeap_EnterWaitRegionFunc (jnc_GcHeap* gcHeap);
 
 typedef
 void
-jnc_Runtime_LeaveWaitRegionFunc (jnc_Runtime* self);
+jnc_GcHeap_LeaveWaitRegionFunc (jnc_GcHeap* gcHeap);
 
 typedef
 jnc_IfaceHdr*
-jnc_Runtime_AllocateClassFunc (
-	jnc_Runtime* self,
+jnc_GcHeap_AllocateClassFunc (
+	jnc_GcHeap* gcHeap,
 	jnc_ClassType* type
 	);
 
 typedef
 jnc_DataPtr
-jnc_Runtime_AllocateDataFunc (
-	jnc_Runtime* self,
+jnc_GcHeap_AllocateDataFunc (
+	jnc_GcHeap* gcHeap,
 	jnc_Type* type
 	);
 
 typedef
 jnc_DataPtr
-jnc_Runtime_AllocateArrayFunc (
-	jnc_Runtime* self,
+jnc_GcHeap_AllocateArrayFunc (
+	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t count
 	);
 
 typedef
 jnc_DataPtrValidator*
-jnc_Runtime_CreateDataPtrValidatorFunc (
-	jnc_Runtime* self,	
+jnc_GcHeap_CreateDataPtrValidatorFunc (
+	jnc_GcHeap* gcHeap,	
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -246,74 +283,69 @@ jnc_Runtime_CreateDataPtrValidatorFunc (
 
 typedef
 void
-jnc_Runtime_GcWeakMarkFunc (
-	jnc_Runtime* self,	
+jnc_GcHeap_GcWeakMarkFunc (
+	jnc_GcHeap* gcHeap,	
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_Runtime_GcMarkDataFunc (
-	jnc_Runtime* self,	
+jnc_GcHeap_GcMarkDataFunc (
+	jnc_GcHeap* gcHeap,	
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_Runtime_GcMarkClassFunc (
-	jnc_Runtime* self,	
+jnc_GcHeap_GcMarkClassFunc (
+	jnc_GcHeap* gcHeap,	
 	jnc_Box* box
 	);
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 typedef
 int 
-jnc_Runtime_HandleGcSehExceptionFunc (
-	jnc_Runtime* self,
+jnc_GcHeap_HandleGcSehExceptionFunc (
+	jnc_GcHeap* gcHeap,
 	uint_t code, 
 	EXCEPTION_POINTERS* exceptionPointers
 	);
 #endif // _AXL_ENV
 
-typedef
-jnc_Runtime*
-jnc_GetCurrentThreadRuntimeFunc ();
-
 //.............................................................................
 
-struct jnc_Error_FuncTable
+struct jnc_ErrorFuncTable
 {
 	jnc_GetLastErrorFunc* m_getLastErrorFunc;
 	jnc_SetErrorFunc* m_setErrorFunc;
-	jnc_PropagateLastErrorFunc* m_propagateLastErrorFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_DerivableType_FuncTable
+struct jnc_DerivableTypeFuncTable
 {
 	jnc_DerivableType_GetPreConstructorFunc* m_getPreConstructorFunc;
-	jnc_DerivableType_GetConstructorFunc* m_GetConstructorFunc;
-	jnc_DerivableType_GetDestructorFunc* m_GetDestructorFunc;
-	jnc_DerivableType_GetUnaryOperatorFunc* m_GetUnaryOperatorFunc;
-	jnc_DerivableType_GetBinaryOperatorFunc* m_GetBinaryOperatorFunc;
-	jnc_DerivableType_GetCallOperatorFunc* m_GetCallOperatorFunc;
-	jnc_DerivableType_GetCastOperatorFunc* m_GetCastOperatorFunc;
-	jnc_DerivableType_GetNamespaceFunc* m_GetNamespaceFunc;
-	jnc_PrimeClassFunc* m_primeClassFunc;
+	jnc_DerivableType_GetConstructorFunc* m_getConstructorFunc;
+	jnc_DerivableType_GetDestructorFunc* m_getDestructorFunc;
+	jnc_DerivableType_GetUnaryOperatorFunc* m_getUnaryOperatorFunc;
+	jnc_DerivableType_GetBinaryOperatorFunc* m_getBinaryOperatorFunc;
+	jnc_DerivableType_GetCallOperatorFunc* m_getCallOperatorFunc;
+	jnc_DerivableType_GetCastOperatorFunc* m_getCastOperatorFunc;
+	jnc_DerivableType_GetNamespaceFunc* m_getNamespaceFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Function_FuncTable
+struct jnc_FunctionFuncTable
 {
 	jnc_Function_GetOverloadFunc* m_getOverloadFunc;
 	jnc_Function_GetMachineCodeFunc* m_getMachineCodeFunc;
+	jnc_GetMulticastCallMethodFunc* m_getMulticastCallMethodFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Property_FuncTable
+struct jnc_PropertyFuncTable
 {
 	jnc_Property_GetGetterFunc* m_getGetterFunc;
 	jnc_Property_GetSetterFunc* m_getSetterFunc;
@@ -321,7 +353,7 @@ struct jnc_Property_FuncTable
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Namespace_FuncTable
+struct jnc_NamespaceFuncTable
 {
 	jnc_Namespace_FindFunctionFunc* m_findFunctionFunc;
 	jnc_Namespace_FindPropertyFunc* m_findPropertyFunc;
@@ -329,57 +361,126 @@ struct jnc_Namespace_FuncTable
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Module_FuncTable
+struct jnc_ModuleFuncTable
 {
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_FindItemFunc* m_findItemFunc;
 	jnc_Module_MapFunctionFunc* m_mapFunctionFunc;
 	jnc_Module_AddImportFunc* m_addImportFunc;
 	jnc_Module_AddSourceFunc* m_addSourceFunc;
+	jnc_VerifyModuleItemIsDerivableTypeFunc* m_verifyModuleItemIsDerivableTypeFunc;
+	jnc_VerifyModuleItemIsClassTypeFunc* m_verifyModuleItemIsClassTypeFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Runtime_FuncTable
+struct jnc_RuntimeFuncTable
 {
 	jnc_Runtime_FindModuleItemFunc* m_findModuleItemFunc;
 	jnc_Runtime_InitializeThreadFunc* m_initializeThreadFunc;
 	jnc_Runtime_UninitializeThreadFunc* m_uninitializeThreadFunc;
-	jnc_Runtime_EnterNoCollectRegionFunc* m_enterNoCollectRegionFunc;
-	jnc_Runtime_LeaveNoCollectRegionFunc* m_leaveNoCollectRegionFunc;
-	jnc_Runtime_EnterWaitRegionFunc* m_enterWaitRegionFunc;
-	jnc_Runtime_LeaveWaitRegionFunc* m_leaveWaitRegionFunc;
-	jnc_Runtime_AllocateClassFunc* m_allocateClassFunc;
-	jnc_Runtime_AllocateDataFunc* m_allocateDataFunc;
-	jnc_Runtime_AllocateArrayFunc* m_allocateArrayFunc;
-	jnc_Runtime_CreateDataPtrValidatorFunc* m_createDataPtrValidatorFunc;
-	jnc_Runtime_GcWeakMarkFunc* m_gcWeakMarkFunc;
-	jnc_Runtime_GcMarkDataFunc* m_gcMarkDataFunc;
-	jnc_Runtime_GcMarkClassFunc* m_gcMarkClassFunc;
-#if (_AXL_ENV == AXL_ENV_WIN)
-	jnc_Runtime_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
-#endif // _AXL_ENV
+	jnc_Runtime_GetGcHeapFunc* m_getGcHeapFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
+	jnc_PrimeClassFunc* m_primeClassFunc;
+	jnc_StrLenFunc* m_strLenFunc;
+	jnc_StrDupFunc* m_strDupFunc;
+	jnc_MemDupFunc* m_memDupFunc;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_GcHeapFuncTable
+{
+	jnc_GcHeap_EnterNoCollectRegionFunc* m_enterNoCollectRegionFunc;
+	jnc_GcHeap_LeaveNoCollectRegionFunc* m_leaveNoCollectRegionFunc;
+	jnc_GcHeap_EnterWaitRegionFunc* m_enterWaitRegionFunc;
+	jnc_GcHeap_LeaveWaitRegionFunc* m_leaveWaitRegionFunc;
+	jnc_GcHeap_AllocateClassFunc* m_allocateClassFunc;
+	jnc_GcHeap_AllocateDataFunc* m_allocateDataFunc;
+	jnc_GcHeap_AllocateArrayFunc* m_allocateArrayFunc;
+	jnc_GcHeap_CreateDataPtrValidatorFunc* m_createDataPtrValidatorFunc;
+	jnc_GcHeap_GcWeakMarkFunc* m_gcWeakMarkFunc;
+	jnc_GcHeap_GcMarkDataFunc* m_gcMarkDataFunc;
+	jnc_GcHeap_GcMarkClassFunc* m_gcMarkClassFunc;
+#if (_AXL_ENV == AXL_ENV_WIN)
+	jnc_GcHeap_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
+#endif // _AXL_ENV
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_DynamicExtensionLibHost
 {
-	jnc_Error_FuncTable* m_errorFuncTable;
-	jnc_DerivableType_FuncTable* m_derivableTypeFuncTable;
-	jnc_Function_FuncTable* m_functionFuncTable;
-	jnc_Property_FuncTable* m_propertyFuncTable;
-	jnc_Namespace_FuncTable* m_namespaceFuncTable;
-	jnc_Module_FuncTable* m_moduleFuncTable;
-	jnc_Runtime_FuncTable* m_runtimeFuncTable;
+	jnc_ErrorFuncTable* m_errorFuncTable;
+	jnc_DerivableTypeFuncTable* m_derivableTypeFuncTable;
+	jnc_FunctionFuncTable* m_functionFuncTable;
+	jnc_PropertyFuncTable* m_propertyFuncTable;
+	jnc_NamespaceFuncTable* m_namespaceFuncTable;
+	jnc_ModuleFuncTable* m_moduleFuncTable;
+	jnc_RuntimeFuncTable* m_runtimeFuncTable;
+	jnc_GcHeapFuncTable* m_gcHeapFuncTable;
 };
 
-#ifdef _JNC_DYNAMIC_EXTENSION_LIB
-extern jnc_DynamicExtensionLibHost* g_jnc_dynamicExtensionLibHost;
-#endif
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#ifdef __cplusplus
+
+namespace jnc {
 
 //.............................................................................
+
+typedef jnc_GetLastErrorFunc GetLastErrorFunc;
+typedef jnc_SetErrorFunc SetErrorFunc;
+typedef jnc_DerivableType_GetPreConstructorFunc GetPreConstructorFunc;
+typedef jnc_DerivableType_GetConstructorFunc DerivableType_GetConstructorFunc;
+typedef jnc_DerivableType_GetDestructorFunc DerivableType_GetDestructorFunc;
+typedef jnc_DerivableType_GetUnaryOperatorFunc DerivableType_GetUnaryOperatorFunc;
+typedef jnc_DerivableType_GetBinaryOperatorFunc DerivableType_GetBinaryOperatorFunc;
+typedef jnc_DerivableType_GetCallOperatorFunc DerivableType_GetCallOperatorFunc;
+typedef jnc_DerivableType_GetCastOperatorFunc DerivableType_GetCastOperatorFunc;
+typedef jnc_DerivableType_GetNamespaceFunc DerivableType_GetNamespaceFunc;
+typedef jnc_PrimeClassFunc PrimeClassFunc;
+typedef jnc_Function_GetOverloadFunc Function_GetOverloadFunc;
+typedef jnc_Function_GetMachineCodeFunc Function_GetMachineCodeFunc;
+typedef jnc_Property_GetGetterFunc Property_GetGetterFunc;
+typedef jnc_Property_GetSetterFunc Property_GetSetterFunc;
+typedef jnc_Namespace_FindFunctionFunc Namespace_FindFunctionFunc;
+typedef jnc_Namespace_FindPropertyFunc Namespace_FindPropertyFunc;
+typedef jnc_Module_GetGlobalNamespaceFunc Module_GetGlobalNamespaceFunc;
+typedef jnc_Module_FindItemFunc Module_FindItemFunc;
+typedef jnc_Module_MapFunctionFunc Module_MapFunctionFunc;
+typedef jnc_Module_AddImportFunc Module_AddImportFunc;
+typedef jnc_Module_AddSourceFunc Module_AddSourceFunc;
+typedef jnc_Runtime_FindModuleItemFunc Runtime_FindModuleItemFunc;
+typedef jnc_Runtime_InitializeThreadFunc Runtime_InitializeThreadFunc;
+typedef jnc_Runtime_UninitializeThreadFunc Runtime_UninitializeThreadFunc;
+typedef jnc_Runtime_GetGcHeapFunc Runtime_GetGcHeapFunc;
+typedef jnc_GetCurrentThreadRuntimeFunc GetCurrentThreadRuntimeFunc;
+typedef jnc_GcHeap_EnterNoCollectRegionFunc GcHeap_EnterNoCollectRegionFunc;
+typedef jnc_GcHeap_LeaveNoCollectRegionFunc GcHeap_LeaveNoCollectRegionFunc;
+typedef jnc_GcHeap_EnterWaitRegionFunc GcHeap_EnterWaitRegionFunc;
+typedef jnc_GcHeap_LeaveWaitRegionFunc GcHeap_LeaveWaitRegionFunc;
+typedef jnc_GcHeap_AllocateClassFunc GcHeap_AllocateClassFunc;
+typedef jnc_GcHeap_AllocateDataFunc GcHeap_AllocateDataFunc;
+typedef jnc_GcHeap_AllocateArrayFunc GcHeap_AllocateArrayFunc;
+typedef jnc_GcHeap_CreateDataPtrValidatorFunc GcHeap_CreateDataPtrValidatorFunc;
+typedef jnc_GcHeap_GcWeakMarkFunc GcHeap_GcWeakMarkFunc;
+typedef jnc_GcHeap_GcMarkDataFunc GcHeap_GcMarkDataFunc;
+typedef jnc_GcHeap_GcMarkClassFunc GcHeap_GcMarkClassFunc;
+typedef jnc_GcHeap_HandleGcSehExceptionFunc GcHeap_HandleGcSehExceptionFunc;
+
+typedef jnc_ErrorFuncTable ErrorFuncTable;
+typedef jnc_DerivableTypeFuncTable DerivableTypeFuncTable;
+typedef jnc_FunctionFuncTable FunctionFuncTable;
+typedef jnc_PropertyFuncTable PropertyFuncTable;
+typedef jnc_NamespaceFuncTable NamespaceFuncTable;
+typedef jnc_ModuleFuncTable ModuleFuncTable;
+typedef jnc_RuntimeFuncTable RuntimeFuncTable;
+typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;
+
+} // namespace jnc
+
+#endif // __cplusplus
 
 #if 0
 
@@ -501,77 +602,7 @@ getFunctionOverload (
 	return g_extensionLibHost->getFunctionOverload (function, overloadIdx);
 }
 
-inline 
-Function*
-getPropertyGetter (Property* prop)
-{
-	return g_extensionLibHost->getPropertyGetter (prop);
-}
 
-inline 
-Function*
-getPropertySetter (Property* prop)
-{
-	return g_extensionLibHost->getPropertySetter (prop);
-}
-
-inline 
-Function*
-getTypePreConstructor (DerivableType* type)
-{
-	return g_extensionLibHost->getTypePreConstructor (type);
-}
-
-inline 
-Function*
-getTypeConstructor (DerivableType* type)
-{
-	return g_extensionLibHost->getTypeConstructor (type);
-}
-
-inline 
-Function*
-getClassTypeDestructor (ClassType* type)
-{
-	return g_extensionLibHost->getClassTypeDestructor (type);
-}
-
-inline 
-Function*
-getTypeUnaryOperator (
-	DerivableType* type,
-	UnOpKind opKind	
-	)
-{
-	return g_extensionLibHost->getTypeUnaryOperator (type, opKind);
-}
-
-inline 
-Function*
-getTypeBinaryOperator (
-	DerivableType* type,
-	BinOpKind opKind	
-	)
-{
-	return g_extensionLibHost->getTypeBinaryOperator (type, opKind);
-}
-
-inline 
-Function*
-getTypeCallOperator (DerivableType* type)
-{
-	return g_extensionLibHost->getTypeCallOperator (type);
-}
-
-inline 
-Function*
-getTypeCastOperator (
-	DerivableType* type,
-	size_t idx
-	)
-{
-	return g_extensionLibHost->getTypeCastOperator (type, idx);
-}
 
 inline
 DerivableType*
@@ -716,15 +747,6 @@ getFunctionOverload (
 	size_t overloadIdx
 	);
 
-inline
-Function*
-getPropertyGetter (Property* prop)
-{
-	return prop->getGetter ();
-}
-
-Function*
-getPropertySetter (Property* prop);
 
 Function*
 getTypePreConstructor (DerivableType* type);

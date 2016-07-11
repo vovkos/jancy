@@ -1,49 +1,54 @@
 #pragma once
 
-#include "jnc_RuntimeStructs.h"
+#include "jnc_Def.h"
 #include "jnc_OpKind.h"
-
-typedef struct jnc_DerivableType jnc_DerivableType;
-typedef struct jnc_ClassType jnc_ClassType;
-typedef struct jnc_Function jnc_Function;
-typedef struct jnc_Namespace jnc_Namespace;
 
 //.............................................................................
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getPreConstructor (jnc_DerivableType* type);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getConstructor (jnc_DerivableType* type);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getDestructor (jnc_DerivableType* type);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind	
 	);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getBinaryOperator (
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
 	);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getCallOperator (jnc_DerivableType* type);
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getCastOperator (
 	jnc_DerivableType* type,
 	size_t idx
 	);
 
+JNC_EXTERN_C
 jnc_Namespace*
 jnc_DerivableType_getNamespace (jnc_DerivableType* type);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_DerivableType
 {
@@ -96,15 +101,7 @@ struct jnc_DerivableType
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-void
-jnc_primeClass (
-	jnc_Box* box,
-	jnc_Box* root,
-	jnc_ClassType* type,
-	void* vtable = NULL // if null then vtable of class type will be used
-	);
+#endif // _JNC_CORE
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -116,20 +113,6 @@ namespace jnc {
 
 typedef jnc_DerivableType DerivableType;
 typedef jnc_ClassType ClassType;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline 
-void
-primeClass (
-	jnc_Box* box,
-	jnc_Box* root,
-	jnc_ClassType* type,
-	void* vtable = NULL // if null then vtable of class type will be used
-	)
-{
-	jnc_primeClass (box, root, type, vtable);
-}
 
 //.............................................................................
 

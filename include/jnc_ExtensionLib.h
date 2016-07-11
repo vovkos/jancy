@@ -4,66 +4,128 @@
 
 #pragma once
 
-#include "jnc_OpaqueClassTypeInfo.h"
+#include "jnc_RuntimeStructs.h"
 
-#ifdef _JNC_DYNAMIC_EXTENSION_LIB
-#	include "jnc_DynamicExtensionLibHost.h"
-#endif
+typedef struct jnc_StringSlice jnc_StringSlice;
+typedef struct jnc_ExtensionLib jnc_ExtensionLib;
+typedef struct jnc_ExtensionLibFuncTable jnc_ExtensionLibFuncTable;
+typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //.............................................................................
+
+typedef
+int
+jnc_ExtensionLib_ForcedExportFunc (
+	jnc_ExtensionLib* self,	
+	jnc_Module* module
+	);
+
+typedef
+int
+jnc_ExtensionLib_MapFunctionsFunc (
+	jnc_ExtensionLib* self,	
+	jnc_Module* module
+	);
+
+typedef
+const jnc_OpaqueClassTypeInfo*
+jnc_ExtensionLib_FindOpaqueClassTypeInfo (
+	jnc_ExtensionLib* self,	
+	const char* qualifiedName
+	);
+
+typedef
+jnc_StringSlice
+jnc_ExtensionLib_FindSourceFileContentsFunc (
+	jnc_ExtensionLib* self,	
+	const char* fileName
+	);
+
+//.............................................................................
+
+struct jnc_ExtensionLibFuncTable
+{
+	jnc_ExtensionLib_ForcedExportFunc* m_forcedExportFunc;
+	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
+	jnc_ExtensionLib_FindOpaqueClassTypeInfo* m_findOpaqueClassTypeInfoFunc;
+	jnc_ExtensionLib_FindSourceFileContentsFunc* m_findSourceFileContentsFunc;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_ExtensionLib
+{
+	jnc_ExtensionLibFuncTable* m_funcTable;
+
+#ifdef __cplusplus
+	bool
+	forcedExport (jnc_Module* module)
+	{	
+		return m_funcTable->m_forcedExportFunc (this, module) != 0;
+	}
+
+	bool
+	mapFunctions (jnc_Module* module)
+	{
+		return m_funcTable->m_mapFunctionsFunc (this, module) != 0;
+	}
+
+	const jnc_OpaqueClassTypeInfo*
+	findOpaqueClassTypeInfo (const char* qualifiedName)
+	{
+		return m_funcTable->m_findOpaqueClassTypeInfoFunc (this, qualifiedName);
+	}
+
+	jnc_StringSlice
+	findSourceFileContents (const char* fileName)
+	{
+		return m_funcTable->m_findSourceFileContentsFunc (this,	fileName);
+	}
+#endif // __cplusplus
+};
+
+//.............................................................................
+
+typedef 
+jnc_ExtensionLib*
+jnc_DynamicExtensionLibMainFunc (jnc_DynamicExtensionLibHost* host);
+
+AXL_SELECT_ANY
+char
+jnc_g_dynamicExtensionLibMainFuncName [] = "jncExtensionLibMain";
+
+#ifdef _JNC_DYNAMIC_EXTENSION_LIB
+extern jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
+#else if (defined _JNC_CORE)
+extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
+#endif
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
-namespace ext {
 
 //.............................................................................
 
-class ExtensionLib
-{
-public:
-	virtual 
-	bool
-	forcedExport (Module* module)
-	{
-		return true;
-	}
+typedef jnc_StringSlice StringSlice;
+typedef jnc_ExtensionLib ExtensionLib;
+typedef jnc_ExtensionLibFuncTable ExtensionLibFuncTable;
+typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;
+typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
 
-	virtual 
-	bool
-	mapFunctions (Module* module)
-	{
-		return true;
-	}
-
-	virtual
-	const OpaqueClassTypeInfo*
-	findOpaqueClassTypeInfo (const char* qualifiedName)
-	{
-		return NULL;
-	}
-
-	virtual
-	axl::sl::StringRef
-	findSourceFileContents (const char* fileName)
-	{
-		return sl::StringRef ();
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef 
-ExtensionLib*
-ExtensionLibMainFunc (ExtensionLibHost* host);
-
-AXL_SELECT_ANY
-char
-g_extensionLibMainFuncName [] = "jncExtensionLibMain";
+typedef jnc_ExtensionLib_ForcedExportFunc ExtensionLib_ForcedExportFunc;
+typedef jnc_ExtensionLib_MapFunctionsFunc ExtensionLib_MapFunctionsFunc;
+typedef jnc_ExtensionLib_FindOpaqueClassTypeInfo ExtensionLib_FindOpaqueClassTypeInfo;
+typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileContentsFunc;
 
 //.............................................................................
+
+} // namespace jnc
+
+#endif __cplusplus
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #define JNC_BEGIN_TYPE_MAP_EX(Type, verify, name, libCacheSlot, typeCacheSlot) \
 static \
@@ -431,8 +493,3 @@ private:
 #endif
 
 //.............................................................................
-
-} // namespace ext
-} // namespace jnc
-
-#endif __cplusplus

@@ -4,14 +4,11 @@
 
 #pragma once
 
+#include "jnc_ExtensionLib.h"
 #include "jnc_ct_ModuleItem.h"
 
 namespace jnc {
-namespace ext {
-
-class ExtensionLib;
-class ExtensionLib;
-class ExtensionLibHost;
+namespace ct {
 
 //.............................................................................
 
@@ -84,7 +81,7 @@ public:
 	ct::ModuleItem*
 	findItem (
 		const char* name,
-		size_t libCacheSlot,
+		const sl::Guid& libGuid,
 		size_t itemCacheSlot
 		);
 };
@@ -92,12 +89,12 @@ public:
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ExtensionLib*
-getStdLib (ExtensionLibHost* host);
+getStdLib ();
 
 ExtensionLib*
-getSysLib (ExtensionLibHost* host);
+getSysLib ();
 
 //.............................................................................
 
-} // namespace ext
+} // namespace ct
 } // namespace jnc

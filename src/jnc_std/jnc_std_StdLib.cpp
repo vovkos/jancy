@@ -13,10 +13,8 @@ initStdLib (ExtensionLibHost* host)
 }
 
 ExtensionLib*
-getStdLib (ExtensionLibHost* host)
+getStdLib ()
 {
-	static int32_t onceFlag = 0;
-	sl::callOnce (initStdLib, host, &onceFlag);
 	return sl::getSimpleSingleton <std::StdLib> ();
 }
 

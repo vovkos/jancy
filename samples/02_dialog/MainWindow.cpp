@@ -76,12 +76,10 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Parsing...\n");
 
-	jnc::ext::ExtensionLibHost* libHost = jnc::ext::getStdExtensionLibHost ();
-
 	result = 
 		m_module.create (fileName) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib (libHost));
-		m_module.m_extensionLibMgr.addStaticLib (getMyLib (libHost));
+		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ());
+		m_module.m_extensionLibMgr.addStaticLib (getMyLib ());
 
 	result = 
 		m_module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&

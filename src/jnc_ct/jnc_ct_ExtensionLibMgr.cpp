@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "jnc_ct_ExtensionLibMgr.h"
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_ct_StdExtensionLibHost.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
-namespace ext {
+namespace ct {
 
 //.............................................................................
 
@@ -95,11 +93,11 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 	if (!result)
 		return false;
 
-	ExtensionLibMainFunc* mainFunc = (ExtensionLibMainFunc*) entry->m_dynamicLib.getFunction (g_extensionLibMainFuncName);
+	DynamicExtensionLibMainFunc* mainFunc = (DynamicExtensionLibMainFunc*) entry->m_dynamicLib.getFunction (jnc_g_dynamicExtensionLibMainFuncName);
 	if (!mainFunc)
 		return false;
 
-	ExtensionLib* extensionLib = mainFunc (getStdExtensionLibHost ());
+	ExtensionLib* extensionLib = mainFunc (&jnc_g_dynamicExtensionLibHostImpl);
 	if (!extensionLib)
 	{
 		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
@@ -138,9 +136,9 @@ ExtensionLibMgr::findSourceFileContents (const char* fileName)
 
 		// do findSourceFileContents even for dynamic libs (chance to override source)
 
-		sl::StringRef contents = libEntry->m_extensionLib->findSourceFileContents (fileName);
-		if (!contents.isEmpty ())
-			return contents;
+		StringSlice contents = libEntry->m_extensionLib->findSourceFileContents (fileName);
+		if (contents.m_p)
+			return sl::StringRef (contents.m_p, contents.m_length);
 
 		if (!libEntry->m_dynamicLibEntry)
 			continue;
@@ -176,16 +174,18 @@ ExtensionLibMgr::findOpaqueClassTypeInfo (const char* qualifiedName)
 	return NULL;
 }
 
+#if 0
+
 ct::ModuleItem*
 ExtensionLibMgr::findItem (
 	const char* name,
-	size_t libCacheSlot,
+	const sl::Guid& libGuid,
 	size_t itemCacheSlot
 	)
 {
 	ASSERT (m_module);
 
-	if (libCacheSlot == -1 || itemCacheSlot == -1) // no caching for this item
+	if (itemCacheSlot == -1) // no caching for this item
 		return m_module->m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
 
 	size_t count = m_itemCache.getCount ();
@@ -212,7 +212,9 @@ ExtensionLibMgr::findItem (
 	return item;	
 }
 
+#endif
+
 //.............................................................................
 
-} // namespace ext
+} // namespace ct
 } // namespace jnc

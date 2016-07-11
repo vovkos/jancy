@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "jnc_Def.h"
+
 typedef enum jnc_BoxFlag jnc_BoxFlag;
 typedef struct jnc_Box jnc_Box;
 typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
@@ -21,68 +23,11 @@ typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_Variant jnc_Variant;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
 typedef struct jnc_GcMutatorThread jnc_GcMutatorThread;
+typedef struct jnc_OpaqueClassTypeInfo jnc_OpaqueClassTypeInfo;
 typedef struct jnc_SjljFrame jnc_SjljFrame;
 typedef struct jnc_Tls jnc_Tls;
 typedef struct jnc_TlsVariableTable jnc_TlsVariableTable;
 typedef struct jnc_ExceptionRecoverySnapshot jnc_ExceptionRecoverySnapshot;
-
-//.............................................................................
-
-// inheriting which works for both C and C++
-
-#ifdef __cplusplus 
-#	define JNC_BEGIN_INHERITED_STRUCT(Struct, BaseStruct) \
-	struct Struct: BaseStruct {
-#else
-#	define JNC_BEGIN_INHERITED_STRUCT (Struct, BaseStruct) \
-	struct Struct { BaseStruct;
-#endif
-
-#define JNC_END_INHERITED_STRUCT() \
-	};
-
-//.............................................................................
-
-// when compiling core libraries, we want to use actual implementation classes
-// as to avoid unncecessary casts; otherwise, use opaque struct pointers
-
-#ifdef _JNC_CORE
-
-namespace jnc {
-namespace ct {
-
-class Type;
-class GcShadowStackFrameMap;
-
-} // namespace ct
-
-namespace rt {
-
-class Runtime;
-class GcHeap;
-
-} // namespace rt
-} // namespace jnc
-
-typedef axl::sl::ListLink jnc_ListLink;
-typedef jnc::ct::Type jnc_Type;
-typedef jnc::ct::GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
-typedef jnc::rt::Runtime jnc_Runtime;
-
-#else
-
-typedef struct jnc_ListLink jnc_ListLink;
-typedef struct jnc_Type jnc_Type;
-typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
-typedef struct jnc_Runtime jnc_Runtime;
-
-struct jnc_ListLink
-{
-	jnc_ListLink* m_next;
-	jnc_ListLink* m_prev;
-};
-
-#endif
 
 //.............................................................................
 
@@ -300,6 +245,24 @@ JNC_BEGIN_INHERITED_STRUCT (jnc_GcMutatorThread, jnc_ListLink)
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
 JNC_END_INHERITED_STRUCT ()
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef
+void
+jnc_MarkOpaqueGcRootsFunc (
+	jnc_IfaceHdr* iface,
+	jnc_GcHeap* gcHeap
+	);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_OpaqueClassTypeInfo
+{
+	size_t m_size;
+	jnc_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
+	bool m_isNonCreatable;
+};
+
 //.............................................................................
 
 struct jnc_SjljFrame
@@ -356,10 +319,10 @@ jnc_DestructFunc (jnc_IfaceHdr* iface);
 
 //.............................................................................
 
-AXL_SELECT_ANY jnc_DataPtr g_jnc_nullPtr = { 0 };
-AXL_SELECT_ANY jnc_FunctionPtr g_jnc_nullFunctionPtr = { 0 };
-AXL_SELECT_ANY jnc_FunctionPtr g_jnc_nullPropertyPtr = { 0 };
-AXL_SELECT_ANY jnc_Variant g_jnc_nullVariant = { 0 };
+AXL_SELECT_ANY jnc_DataPtr jnc_g_nullPtr = { 0 };
+AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
+AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
+AXL_SELECT_ANY jnc_Variant jnc_g_nullVariant = { 0 };
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -402,6 +365,8 @@ typedef jnc_FmtLiteral FmtLiteral;
 typedef jnc_Variant Variant;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;
 typedef jnc_GcMutatorThread GcMutatorThread;
+typedef jnc_MarkOpaqueGcRootsFunc MarkOpaqueGcRootsFunc;
+typedef jnc_OpaqueClassTypeInfo OpaqueClassTypeInfo;
 typedef jnc_SjljFrame SjljFrame;
 typedef jnc_Tls Tls;
 typedef jnc_TlsVariableTable TlsVariableTable;

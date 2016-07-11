@@ -10,7 +10,7 @@
 #include "jnc_ct_Property.h"
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
-#include "jnc_OpaqueClassTypeInfo.h"
+#include "jnc_RuntimeStructs.h"
 
 namespace jnc {
 namespace ct {

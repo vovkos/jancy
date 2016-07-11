@@ -1,53 +1,51 @@
 #pragma once
 
-#include "jnc_RuntimeStructs.h"
-
-typedef struct jnc_Module jnc_Module;
-typedef struct jnc_Namespace jnc_Namespace;
-typedef struct jnc_ModuleItem jnc_ModuleItem;
-typedef struct jnc_DerivableType jnc_DerivableType;
-typedef struct jnc_ClassType jnc_ClassType;
-typedef struct jnc_Function jnc_Function;
+#include "jnc_Def.h"
 
 //.............................................................................
 
+JNC_EXTERN_C
 jnc_Namespace*
-jnc_Module_getGlobalNamespace (jnc_Module* self);
+jnc_Module_getGlobalNamespace (jnc_Module* module);
 
+JNC_EXTERN_C
 jnc_ModuleItem*
 jnc_Module_findItem (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* name,
-	size_t libCacheSlot,
+	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	);
 
+JNC_EXTERN_C
 void
 jnc_Module_mapFunction (
-	jnc_Module* self,
+	jnc_Module* module,
 	jnc_Function* function,
 	void* p
 	);
 
+JNC_EXTERN_C
 bool
 jnc_Module_addImport (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* fileName
 	);
 
+JNC_EXTERN_C
 void
 jnc_Module_addSource (
-	jnc_Module* self,
+	jnc_Module* module,
 	const char* fileName,
 	const char* source,
-	size_t size
+	size_t length = -1
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+#if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Module
 {
-#ifdef __cplusplus
 	jnc_Namespace*
 	getGlobalNamespace ()
 	{
@@ -57,11 +55,11 @@ struct jnc_Module
 	jnc_ModuleItem*
 	findItem (
 		const char* name,
-		size_t libCacheSlot,
+		const jnc_Guid* libGuid,
 		size_t itemCacheSlot
 		)
 	{
-		return jnc_Module_findItem (this, name, libCacheSlot, itemCacheSlot);
+		return jnc_Module_findItem (this, name, libGuid, itemCacheSlot);
 	}
 
 	void
@@ -83,22 +81,24 @@ struct jnc_Module
 	addSource (
 		const char* fileName,
 		const char* source,
-		size_t size
+		size_t length = -1
 		)
 	{
-		jnc_Module_addSource (this, fileName, source, size);
+		jnc_Module_addSource (this, fileName, source, length);
 	}
-#endif // __cplusplus
 };
+#endif // _JNC_CORE
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 jnc_DerivableType*
 jnc_verifyModuleItemIsDerivableType (
 	jnc_ModuleItem* item,
 	const char* name
 	);
 
+JNC_EXTERN_C
 jnc_ClassType*
 jnc_verifyModuleItemIsClassType (
 	jnc_ModuleItem* item,

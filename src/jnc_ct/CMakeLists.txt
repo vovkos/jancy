@@ -116,6 +116,7 @@ set (
 	jnc_ct_ImportMgr.h
 	jnc_ct_GcShadowStackMgr.h
 	jnc_ct_JitMemoryMgr.h
+	jnc_ct_ExtensionLibMgr.h
 	)
 
 set (
@@ -130,6 +131,7 @@ set (
 	jnc_ct_UnitMgr.cpp
 	jnc_ct_ImportMgr.cpp
 	jnc_ct_GcShadowStackMgr.cpp
+	jnc_ct_ExtensionLibMgr.cpp
 	)
 
 source_group (
@@ -137,30 +139,6 @@ source_group (
 	FILES
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
-	)
-
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
-# extension folder
-#
-
-set (
-	EXTENSION_H_LIST
-	jnc_ct_ExtensionLibMgr.h
-	jnc_ct_StdExtensionLibHost.h
-	)
-
-set (
-	EXTENSION_CPP_LIST
-	jnc_ct_ExtensionLibMgr.cpp
-	jnc_ct_StdExtensionLibHost.cpp
-	)
-
-source_group (
-	extension
-	FILES
-	${EXTENSION_H_LIST}
-	${EXTENSION_CPP_LIST}
 	)
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -632,8 +610,6 @@ add_library (
 	${FUNCTION_CPP_LIST}
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
-	${EXTENSION_H_LIST}
-	${EXTENSION_CPP_LIST}
 	${NAMESPACE_H_LIST}
 	${NAMESPACE_CPP_LIST}
 	${OPERATOR_H_LIST}

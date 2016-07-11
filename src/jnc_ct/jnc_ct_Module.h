@@ -127,7 +127,7 @@ public:
 	GcShadowStackMgr m_gcShadowStackMgr;
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
-	ext::ExtensionLibMgr m_extensionLibMgr;
+	ExtensionLibMgr m_extensionLibMgr;
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
 

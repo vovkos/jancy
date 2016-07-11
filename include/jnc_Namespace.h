@@ -1,17 +1,17 @@
 #pragma once
 
-typedef struct jnc_Namespace jnc_Namespace;
-typedef struct jnc_Function jnc_Function;
-typedef struct jnc_Property jnc_Property;
+#include "jnc_Def.h"
 
 //.............................................................................
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
 	const char* name
 	);
 
+JNC_EXTERN_C
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
@@ -20,9 +20,9 @@ jnc_Namespace_findProperty (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+#if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Namespace
 {
-#ifdef __cplusplus
 	jnc_Function*
 	findFunction (const char* name)
 	{
@@ -34,8 +34,8 @@ struct jnc_Namespace
 	{
 		return jnc_Namespace_findProperty (this, name);
 	}
-#endif // __cplusplus
 };
+#endif // _JNC_CORE
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

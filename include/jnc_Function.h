@@ -1,20 +1,23 @@
 #pragma once
 
-typedef struct jnc_Function jnc_Function;
-typedef struct jnc_Multicast jnc_Multicast;
+#include "jnc_RuntimeStructs.h"
 
 //.............................................................................
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_Function_getOverload (
-	jnc_Function* self,
+	jnc_Function* function,
 	size_t overloadIdx
 	);
 
+JNC_EXTERN_C
 void*
-jnc_Function_getMachineCode (jnc_Function* self);
+jnc_Function_getMachineCode (jnc_Function* function);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Function
 {
@@ -33,8 +36,11 @@ struct jnc_Function
 #endif
 };
 
+#endif // _JNC_CORE
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 jnc_Function*
 jnc_getMulticastCallMethod (jnc_Multicast* multicast);
 

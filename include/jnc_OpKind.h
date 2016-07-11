@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "jnc_Def.h"
+
 typedef enum jnc_UnOpKind jnc_UnOpKind;
 typedef enum jnc_BinOpKind jnc_BinOpKind;
 
@@ -28,6 +30,7 @@ enum jnc_UnOpKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 const char*
 jnc_getUnOpKindString (jnc_UnOpKind opKind);
 
@@ -93,6 +96,7 @@ enum jnc_BinOpKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 const char*
 jnc_getBinOpKindString (jnc_BinOpKind opKind);
 
