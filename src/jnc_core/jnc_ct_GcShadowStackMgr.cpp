@@ -11,8 +11,6 @@ GcShadowStackMgr::GcShadowStackMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
-
-	m_currentFrameMap = NULL;
 }
 
 void
@@ -22,7 +20,6 @@ GcShadowStackMgr::clear ()
 	m_frameMapList.clear ();
 	m_gcRootArrayValue.clear ();	
 	m_frameVariable = NULL;
-	m_currentFrameMap = NULL;
 }
 
 void
@@ -36,22 +33,19 @@ GcShadowStackMgr::finalizeFunction ()
 	m_gcRootArrayValue.clear ();
 	m_gcRootTypeArray.clear ();	
 	m_frameVariable = NULL;
-	m_currentFrameMap = NULL;
 }
 
 void
 GcShadowStackMgr::finalizeScope (Scope* scope)
 {
 	Scope* parentScope = scope->getParentScope ();
-	GcShadowStackFrameMap* frameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL; 
+	GcShadowStackFrameMap* parentFrameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL; 
 
-	if (frameMap == m_currentFrameMap) // stays the same
+	if (parentFrameMap == scope->m_gcShadowStackFrameMap) // stays the same
 		return;
 
-	m_currentFrameMap = frameMap;
-
 	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		setFrameMap (frameMap, false);
+		setFrameMap (parentFrameMap, false);
 }
 
 void
@@ -79,7 +73,7 @@ GcShadowStackMgr::markGcRoot (
 	if (!scope)
 		scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	openFrameMap (scope);
+	GcShadowStackFrameMap* frameMap = openFrameMap (scope);
 
 	size_t index = m_gcRootTypeArray.getCount ();
 
@@ -91,11 +85,11 @@ GcShadowStackMgr::markGcRoot (
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, bytePtrType, &bytePtrValue);
 	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue);
 
-	m_currentFrameMap->m_gcRootIndexArray.append (index);
+	frameMap->m_gcRootIndexArray.append (index);
 	m_gcRootTypeArray.append (type);
 }
 
-void
+GcShadowStackFrameMap*
 GcShadowStackMgr::openFrameMap (Scope* scope)
 {
 	Scope* parentScope = scope->getParentScope ();
@@ -104,15 +98,13 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	if (scope->m_gcShadowStackFrameMap != prevFrameMap) // this scope already has its own frame map
 	{
 		ASSERT (scope->m_gcShadowStackFrameMap);
-		m_currentFrameMap = scope->m_gcShadowStackFrameMap;
-		return;
+		return scope->m_gcShadowStackFrameMap;
 	}
 
 	GcShadowStackFrameMap* frameMap = AXL_MEM_NEW (GcShadowStackFrameMap);
 	frameMap->m_prev = prevFrameMap;
 	m_frameMapList.insertTail (frameMap);
 	scope->m_gcShadowStackFrameMap = frameMap;
-	m_currentFrameMap = frameMap;
 
 	// also update all the nested scopes in the scope stack 
 
@@ -145,6 +137,8 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 
 	if (isInsertPointChanged)
 		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
+
+	return frameMap;
 }
 
 void
@@ -185,7 +179,6 @@ void
 GcShadowStackMgr::finalizeFrame ()
 {
 	ASSERT (m_frameVariable && m_gcRootArrayValue);
-	ASSERT (!m_currentFrameMap); // finalizeScope must have been called
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);

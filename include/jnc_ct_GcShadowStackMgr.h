@@ -58,7 +58,6 @@ protected:
 	Value m_gcRootArrayValue;
 
 	Variable* m_frameVariable;
-	GcShadowStackFrameMap* m_currentFrameMap;
 
 public:
 	GcShadowStackMgr ();
@@ -93,15 +92,15 @@ public:
 		Scope* scope = NULL
 		);
 
+protected:
+	GcShadowStackFrameMap*
+	openFrameMap (Scope* scope);
+
 	void
 	setFrameMap (
 		GcShadowStackFrameMap* frameMap,
 		bool isOpen
 		);
-
-protected:
-	void
-	openFrameMap (Scope* scope);
 
 	void
 	preCreateFrame ();
