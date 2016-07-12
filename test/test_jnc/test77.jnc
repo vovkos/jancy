@@ -1,0 +1,58 @@
+//.............................................................................
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+
+class TcpConnectionSession
+{
+	io.Socket m_socket;
+	io.SocketAddress m_remoteAddress;
+
+	void foo (io.SocketAddress const* remoteAddress);
+}
+
+void TcpConnectionSession.foo (io.SocketAddress const* remoteAddress)
+{
+	printf ("foo - 1\n");
+
+	{
+	io.SocketAddress localAddress;
+
+	{
+		int const* f;
+		localAddress.m_family = remoteAddress.m_family;
+
+		printf ("foo - 2\n");
+
+		m_socket.open (io.Protocol.Tcp, &localAddress, io.SocketOpenFlags.Asynchronous);
+
+		printf ("foo - 3\n");
+	}
+
+	m_remoteAddress = *remoteAddress;
+	
+	printf ("foo - 4\n");
+
+	char const* xxx = m_remoteAddress.getString ();
+	localAddress = m_socket.m_address;
+	}
+	
+	printf ("foo - 5\n");
+	new int;
+	printf ("foo - 6\n");
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	io.SocketAddress remoteAddress;
+	remoteAddress.m_family = io.AddressFamily.Ip4;
+
+	TcpConnectionSession session;
+	session.foo (&remoteAddress);
+
+	return 0;
+}
+
+//.............................................................................
