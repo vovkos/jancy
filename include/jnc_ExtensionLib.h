@@ -127,169 +127,163 @@ typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileC
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-#define JNC_BEGIN_TYPE_MAP_EX(Type, verify, name, libCacheSlot, typeCacheSlot) \
-static \
-Type* \
-getType (jnc::ext::Module* module) \
-{ \
-	jnc::ext::ModuleItem* item = jnc::ext::findModuleItem (module, name, libCacheSlot, typeCacheSlot); \
-	return item ? verify (item, name) : NULL; \
-} \
-static \
-Type* \
-getType (jnc::ext::Runtime* runtime) \
-{ \
-	jnc::ext::ModuleItem* item = jnc::ext::findModuleItem (runtime, name, libCacheSlot, typeCacheSlot); \
-	return item ? verify (item, name) : NULL; \
-} \
-static \
-const char* \
-getTypeName () \
-{ \
-	return name; \
-} \
-static \
-size_t \
-getLibCacheSlot () \
-{ \
-	return libCacheSlot; \
-} \
-static \
-size_t \
-getTypeCacheSlot () \
-{ \
-	return typeCacheSlot; \
-} \
-static \
-bool \
-mapFunctions ( \
-	jnc::ext::Module* module, \
-	bool isRequired \
-	) \
-{ \
-	bool result = true; \
-	jnc::ext::Function* function = NULL; \
-	size_t overloadIdx = 0; \
-	jnc::ext::Property* prop = NULL; \
-	Type* type = getType (module); \
-	if (!type) \
-		return isRequired ? false : true; \
-	jnc::ext::Namespace* nspace = jnc::ext::getTypeNamespace (type);
+#define JNC_DECLARE_TYPE_EX(JncType, TypePrefix) \
+	JncType* \
+	TypePrefix##_getType (jnc_Module* module); \
+	int \
+	TypePrefix##_mapFunctions ( \
+		jnc_Module* module, \
+		int isRequired \
+		);
 
-#define JNC_BEGIN_TYPE_MAP(name, libCacheSlot, typeCacheSlot) \
+#define JNC_DECLARE_TYPE(TypePrefix) \
+	JNC_DECLARE_TYPE_EX(jnc_DerivableType, TypePrefix)
+
+#define JNC_DECLARE_CLASS_TYPE(TypePrefix) \
+	JNC_DECLARE_TYPE_EX(jnc_ClassType, TypePrefix) \
+	void* \
+	TypePrefix##_getVTable (jnc_Module* module); \
+	const jnc_OpaqueClassTypeInfo* \
+	TypePrefix##_getOpaqueClassTypeInfo ();
+
+#define JNC_DECLARE_OPAQUE_CLASS_TYPE(TypePrefix) \
+	JNC_DECLARE_CLASS_TYPE(TypePrefix) \
+
+#define JNC_BEGIN_TYPE_MAP_EX(JncType, verify, TypePrefix, name, libGuid, cacheSlot) \
+	JncType* \
+	TypePrefix##_getType (jnc_Module* module) \
+	{ \
+		jnc_ModuleItem* item = jnc_Module_findItem (module, name, libGuid, cacheSlot); \
+		return item ? verify (item, name) : NULL; \
+	} \
+	int \
+	TypePrefix##_mapFunctions ( \
+		jnc_Module* module, \
+		int isRequired \
+		) \
+	{ \
+		int result = 1; \
+		jnc_Function* function = NULL; \
+		jnc_Property* prop = NULL; \
+		jnc_Namespace* nspace = NULL; \
+		size_t overloadIdx = 0; \
+		JncType* type = getType (module); \
+		if (!type) \
+			return !isRequired; \
+		nspace = jnc_DerivableType_getNamespace ((jnc_DerivableType*) type);
+
+#define JNC_BEGIN_TYPE_MAP(TypePrefix, name, libGuid, cacheSlot) \
 	JNC_BEGIN_TYPE_MAP_EX ( \
-		jnc::ext::DerivableType, \
-		jnc::ext::verifyModuleItemIsDerivableType, \
+		jnc_DerivableType, \
+		jnc_verifyModuleItemIsDerivableType, \
+		TypePrefix, \
 		name, \
-		libCacheSlot, \
-		typeCacheSlot \
+		libGuid, \
+		cacheSlot \
 		)
 
-#define JNC_END_TYPE_MAP() \
-	return true; \
-}
+#define JNC_END_TYPE_MAP(TypePrefix) \
+		return 1; \
+	}
 
 //.............................................................................
 
-#define JNC_BEGIN_CLASS_TYPE_MAP(name, libCacheSlot, typeCacheSlot) \
+#define JNC_BEGIN_CLASS_TYPE_MAP(TypePrefix, name, libGuid, cacheSlot) \
 	JNC_BEGIN_TYPE_MAP_EX ( \
-		jnc::ext::ClassType,  \
-		jnc::ext::verifyModuleItemIsClassType, \
+		jnc_ClassType,  \
+		jnc_verifyModuleItemIsClassType, \
+		TypePrefix, \
 		name, \
-		libCacheSlot, \
-		typeCacheSlot \
+		libGuid, \
+		cacheSlot \
 		)
 
-#define JNC_END_CLASS_TYPE_MAP() \
+#define JNC_END_CLASS_TYPE_MAP(TypePrefix) \
 	JNC_END_TYPE_MAP () \
-	static \
 	void* \
-	getVTable () \
+	TypePrefix##_getVTable () \
 	{ \
 		return NULL; \
 	}
 
-#define JNC_BEGIN_CLASS_TYPE_VTABLE() \
-JNC_END_TYPE_MAP () \
-static \
-void* \
-getVTable () \
-{ \
-	static void* vtable [] = \
-	{
+#define JNC_BEGIN_CLASS_TYPE_VTABLE(TypePrefix) \
+	JNC_END_TYPE_MAP () \
+	void* \
+	TypePrefix##_getVTable () \
+	{ \
+		static void* vtable [] = \
+		{
 
 #define JNC_CLASS_TYPE_VTABLE_ENTRY(function) \
-		pvoid_cast (function),
+			pvoid_cast (function),
 
 #define JNC_END_CLASS_TYPE_VTABLE() \
-	}; \
-	return vtable; \
-}
+		}; \
+		return vtable; \
+	}
 
-#define JNC_OPAQUE_CLASS_TYPE_INFO_EX(Type, markOpaqueGcRootsFunc, isNonCreatable) \
-static \
-const jnc::OpaqueClassTypeInfo* \
-getOpaqueClassTypeInfo () \
-{ \
-	static jnc::OpaqueClassTypeInfo typeInfo = \
+#define JNC_OPAQUE_CLASS_TYPE_INFO_EX(TypePrefix, Type, markOpaqueGcRootsFunc, isNonCreatable) \
+	const jnc_OpaqueClassTypeInfo* \
+	TypePrefix##_getOpaqueClassTypeInfo () \
 	{ \
-		sizeof (Type), \
-		(jnc::ext::MarkOpaqueGcRootsFunc*) pvoid_cast (markOpaqueGcRootsFunc), \
-		isNonCreatable, \
-	}; \
-	return &typeInfo; \
-} \
+		static jnc_OpaqueClassTypeInfo typeInfo = \
+		{ \
+			sizeof (Type), \
+			(jnc_MarkOpaqueGcRootsFunc*) pvoid_cast (markOpaqueGcRootsFunc), \
+			isNonCreatable, \
+		}; \
+		return &typeInfo; \
+	}
 
-#define JNC_OPAQUE_CLASS_TYPE_INFO(Type, markOpaqueGcRootsFunc) \
-	JNC_OPAQUE_CLASS_TYPE_INFO_EX (Type, markOpaqueGcRootsFunc, false)
+#define JNC_OPAQUE_CLASS_TYPE_INFO(TypePrefix, markOpaqueGcRootsFunc) \
+	JNC_OPAQUE_CLASS_TYPE_INFO_EX (TypePrefix, markOpaqueGcRootsFunc, 0)
 
-#define JNC_OPAQUE_CLASS_TYPE_INFO_NC(Type, markOpaqueGcRootsFunc) \
-	JNC_OPAQUE_CLASS_TYPE_INFO_EX (Type, markOpaqueGcRootsFunc, true)
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#define JNC_BEGIN_LIB_MAP() \
-virtual \
-bool \
-mapFunctions (jnc::ext::Module* module) \
-{ \
-	bool result = true; \
-	jnc::ext::Function* function = NULL; \
-	size_t overloadIdx = 0; \
-	jnc::ext::Property* prop = NULL; \
-	jnc::ext::Namespace* nspace = jnc::ext::getModuleGlobalNamespace (module);
-
-#define JNC_END_LIB_MAP() \
-	return true; \
-}
+#define JNC_OPAQUE_CLASS_TYPE_INFO_NC(TypePrefix, markOpaqueGcRootsFunc) \
+	JNC_OPAQUE_CLASS_TYPE_INFO_EX (TypePrefix, markOpaqueGcRootsFunc, 1)
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_MAP_TYPE_EX(Type, isRequired) \
-	result = Type::mapFunctions (module, isRequired); \
+#define JNC_BEGIN_LIB_MAP(LibPrefix) \
+	int \
+	LibPrefix##_mapFunctions (jnc_Module* module) \
+	{ \
+		int result = 1; \
+		jnc_Function* function = NULL; \
+		jnc_Property* prop = NULL; \
+		jnc_Namespace* nspace = jnc_Module_getGlobalNamespace (module); \
+		size_t overloadIdx = 0; \
+
+	#define JNC_END_LIB_MAP() \
+		return 1; \
+	}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_MAP_TYPE_EX(TypePrefix, isRequired) \
+	result = TypePrefix_##mapFunctions (module, isRequired); \
 	if (!result) \
-		return false;
+		return 0;
 
-#define JNC_MAP_TYPE(Type) \
-	JNC_MAP_TYPE_EX(Type, false)
+#define JNC_MAP_TYPE(TypePrefix) \
+	JNC_MAP_TYPE_EX(TypePrefix, 0)
 
-#define JNC_MAP_TYPE_REQ(Type) \
-	JNC_MAP_TYPE_EX(Type, true)
+#define JNC_MAP_TYPE_REQ(TypePrefix) \
+	JNC_MAP_TYPE_EX(TypePrefix, 1)
 
 #define JNC_MAP_HELPER(function) \
 	result = function (module); \
 	if (!result) \
-		return false;
+		return 0;
 
 #define JNC_MAP(function, p) \
-	jnc::ext::mapFunction (module, function, pvoid_cast (p));
+	jnc_Module_mapFunction (module, function, pvoid_cast (p));
 
 #define JNC_MAP_OVERLOAD(p) \
 	if (function) \
 	{ \
-		jnc::ext::Function* overload = jnc::ext::getFunctionOverload (function, ++overloadIdx); \
+		jnc_Function* overload = jnc_Function_getOverload (function, ++overloadIdx); \
 		if (!overload) \
-			return false; \
+			return 0; \
 		JNC_MAP (overload, p) \
 	}
 

@@ -5,13 +5,12 @@
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Runtime_findModuleItem (
-	jnc_Runtime* runtime,
-	const char* name,
-	const jnc_Guid* libGuid,
-	size_t itemCacheSlot
-	);
+jnc_Module*
+jnc_Runtime_getModule (jnc_Runtime* runtime);
+
+JNC_EXTERN_C
+jnc_GcHeap*
+jnc_Runtime_getGcHeap (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
 void
@@ -27,21 +26,19 @@ jnc_Runtime_uninitializeThread (
 	jnc_ExceptionRecoverySnapshot* ers
 	);
 
-JNC_EXTERN_C
-jnc_GcHeap*
-jnc_Runtime_getGcHeap (jnc_Runtime* runtime);
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Runtime
 {
-	jnc_ModuleItem*
-	findModuleItem (
-		const char* name,
-		const jnc_Guid* libGuid,
-		size_t itemCacheSlot
-		)
+	jnc_Module*
+	getModule ()
 	{
-		return jnc_Runtime_findModuleItem (this, name, libGuid, itemCacheSlot);
+		return jnc_Runtime_getModule (this);
+	}
+
+	jnc_GcHeap*
+	getGcHeap ()
+	{
+		return jnc_Runtime_getGcHeap (this);
 	}
 
 	void
@@ -54,12 +51,6 @@ struct jnc_Runtime
 	uninitializeThread (jnc_ExceptionRecoverySnapshot* ers)
 	{
 		jnc_Runtime_uninitializeThread (this, ers);
-	}
-
-	jnc_GcHeap*
-	getGcHeap ()
-	{
-		return jnc_Runtime_getGcHeap (this);
 	}
 };
 #endif // _JNC_CORE

@@ -14,15 +14,17 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Runtime_findModuleItem (
-	jnc_Runtime* runtime,
-	const char* name,
-	const jnc_Guid* libGuid,
-	size_t itemCacheSlot
-	)
+jnc_Module*
+jnc_Runtime_getModule (jnc_Runtime* runtime)
 {
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_findModuleItemFunc (runtime, name, libGuid, itemCacheSlot);
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getModuleFunc (runtime);
+}
+
+JNC_EXTERN_C
+jnc_GcHeap*
+jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getGcHeapFunc (runtime);
 }
 
 JNC_EXTERN_C
@@ -43,13 +45,6 @@ jnc_Runtime_uninitializeThread (
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_uninitializeThreadFunc (runtime, ers);
-}
-
-JNC_EXTERN_C
-jnc_GcHeap*
-jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getGcHeapFunc (runtime);
 }
 
 JNC_EXTERN_C
@@ -101,15 +96,17 @@ jnc_memDup (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Runtime_findModuleItem (
-	jnc_Runtime* runtime,
-	const char* name,
-	const jnc_Guid* libGuid,
-	size_t itemCacheSlot
-	)
+jnc_Module*
+jnc_Runtime_getModule (jnc_Runtime* runtime)
 {
-	return runtime->getModule ()->m_extensionLibMgr.findItem (name, *libGuid, itemCacheSlot);
+	return runtime->getModule ();
+}
+
+JNC_EXTERN_C
+jnc_GcHeap*
+jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
+{
+	return &runtime->m_gcHeap;
 }
 
 JNC_EXTERN_C
@@ -130,13 +127,6 @@ jnc_Runtime_uninitializeThread (
 	)
 {
 	runtime->uninitializeThread (ers);
-}
-
-JNC_EXTERN_C
-jnc_GcHeap*
-jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
-{
-	return &runtime->m_gcHeap;
 }
 
 JNC_EXTERN_C

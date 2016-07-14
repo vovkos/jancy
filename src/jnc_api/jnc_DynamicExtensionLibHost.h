@@ -172,13 +172,12 @@ jnc_VerifyModuleItemIsClassTypeFunc (
 // Runtime
 
 typedef
-jnc_ModuleItem*
-jnc_Runtime_FindModuleItemFunc (
-	jnc_Runtime* module,
-	const char* name,
-	const jnc_Guid* libGuid,
-	size_t itemCacheSlot
-	);
+jnc_Module*
+jnc_Runtime_GetModuleFunc (jnc_Runtime* runtime);
+
+typedef
+jnc_GcHeap*
+jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
 
 typedef
 void
@@ -193,10 +192,6 @@ jnc_Runtime_UninitializeThreadFunc (
 	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
 	);
-
-typedef
-jnc_GcHeap*
-jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
 
 typedef
 jnc_Runtime*
@@ -376,10 +371,10 @@ struct jnc_ModuleFuncTable
 
 struct jnc_RuntimeFuncTable
 {
-	jnc_Runtime_FindModuleItemFunc* m_findModuleItemFunc;
+	jnc_Runtime_GetModuleFunc* m_getModuleFunc;
+	jnc_Runtime_GetGcHeapFunc* m_getGcHeapFunc;
 	jnc_Runtime_InitializeThreadFunc* m_initializeThreadFunc;
 	jnc_Runtime_UninitializeThreadFunc* m_uninitializeThreadFunc;
-	jnc_Runtime_GetGcHeapFunc* m_getGcHeapFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_PrimeClassFunc* m_primeClassFunc;
 	jnc_StrLenFunc* m_strLenFunc;
@@ -451,10 +446,10 @@ typedef jnc_Module_FindItemFunc Module_FindItemFunc;
 typedef jnc_Module_MapFunctionFunc Module_MapFunctionFunc;
 typedef jnc_Module_AddImportFunc Module_AddImportFunc;
 typedef jnc_Module_AddSourceFunc Module_AddSourceFunc;
-typedef jnc_Runtime_FindModuleItemFunc Runtime_FindModuleItemFunc;
+typedef jnc_Runtime_GetModuleFunc Runtime_GetModuleFunc;
+typedef jnc_Runtime_GetGcHeapFunc Runtime_GetGcHeapFunc;
 typedef jnc_Runtime_InitializeThreadFunc Runtime_InitializeThreadFunc;
 typedef jnc_Runtime_UninitializeThreadFunc Runtime_UninitializeThreadFunc;
-typedef jnc_Runtime_GetGcHeapFunc Runtime_GetGcHeapFunc;
 typedef jnc_GetCurrentThreadRuntimeFunc GetCurrentThreadRuntimeFunc;
 typedef jnc_GcHeap_EnterNoCollectRegionFunc GcHeap_EnterNoCollectRegionFunc;
 typedef jnc_GcHeap_LeaveNoCollectRegionFunc GcHeap_LeaveNoCollectRegionFunc;

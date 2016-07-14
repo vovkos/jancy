@@ -69,10 +69,10 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 
 static jnc_RuntimeFuncTable g_runtimeFuncTable = 
 {
-	jnc_Runtime_findModuleItem,
+	jnc_Runtime_getModule,
+	jnc_Runtime_getGcHeap,
 	jnc_Runtime_initializeThread,
 	jnc_Runtime_uninitializeThread,
-	jnc_Runtime_getGcHeap,
 	jnc_getCurrentThreadRuntime,
 	jnc_primeClass,
 	jnc_strLen,
