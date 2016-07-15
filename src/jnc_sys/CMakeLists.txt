@@ -133,10 +133,8 @@ source_group (
 #
 
 include_directories (
-	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 

@@ -14,7 +14,7 @@ class MappedFile: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MappedFile, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.MappedFile", g_ioLibCacheSlot, IoLibTypeCacheSlot_MappedFile)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.MappedFile", g_ioLibCacheSlot, IoLibCacheSlot_MappedFile)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <MappedFile>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MappedFile>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_dynamicViewLimit", &MappedFile::setDynamicViewLimit)
@@ -22,7 +22,7 @@ public:
 		JNC_MAP_FUNCTION ("open",  &MappedFile::open)
 		JNC_MAP_FUNCTION ("close", &MappedFile::close)
 		JNC_MAP_FUNCTION ("view",  &MappedFile::view)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	size_t m_dynamicViewLimit;

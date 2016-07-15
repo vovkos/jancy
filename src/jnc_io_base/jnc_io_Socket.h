@@ -30,7 +30,7 @@ enum SocketDisconnectEventFlag
 
 struct SocketEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SocketEventParams", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.SocketEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SocketEventParams)
 	JNC_END_TYPE_MAP ()
 
 	SocketEventKind m_eventKind;
@@ -65,7 +65,7 @@ class Socket: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Socket, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.Socket", g_ioLibCacheSlot, IoLibTypeCacheSlot_Socket)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Socket", g_ioLibCacheSlot, IoLibCacheSlot_Socket)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Socket>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Socket>)
 		JNC_MAP_CONST_PROPERTY ("m_address",      &Socket::getAddress)
@@ -85,7 +85,7 @@ public:
 		JNC_MAP_FUNCTION ("sendTo",   &Socket::sendTo)
 		JNC_MAP_FUNCTION ("recvFrom", &Socket::recvFrom)
 		JNC_MAP_FUNCTION ("firePendingEvents", &Socket::firePendingEvents)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

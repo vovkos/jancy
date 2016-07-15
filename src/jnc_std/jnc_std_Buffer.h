@@ -10,7 +10,7 @@ namespace std {
 
 struct ConstBufferRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.ConstBufferRef", g_stdLibCacheSlot, StdLibTypeCacheSlot_ConstBufferRef)
+	JNC_BEGIN_TYPE_MAP ("std.ConstBufferRef", g_stdLibCacheSlot, StdLibCacheSlot_ConstBufferRef)
 	JNC_END_TYPE_MAP ()
 
 public:
@@ -23,7 +23,7 @@ public:
 
 struct ConstBuffer
 {
-	JNC_BEGIN_TYPE_MAP ("std.ConstBuffer", g_stdLibCacheSlot, StdLibTypeCacheSlot_ConstBuffer)
+	JNC_BEGIN_TYPE_MAP ("std.ConstBuffer", g_stdLibCacheSlot, StdLibCacheSlot_ConstBuffer)
 		JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
 		JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
 	JNC_END_TYPE_MAP ()
@@ -69,7 +69,7 @@ protected:
 
 struct BufferRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.BufferRef", g_stdLibCacheSlot, StdLibTypeCacheSlot_BufferRef)
+	JNC_BEGIN_TYPE_MAP ("std.BufferRef", g_stdLibCacheSlot, StdLibCacheSlot_BufferRef)
 	JNC_END_TYPE_MAP ()
 
 public:
@@ -82,10 +82,10 @@ public:
 class Buffer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("std.Buffer", g_stdLibCacheSlot, StdLibTypeCacheSlot_Buffer)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.Buffer", g_stdLibCacheSlot, StdLibCacheSlot_Buffer)
 		JNC_MAP_FUNCTION ("copy", &Buffer::copy)
 		JNC_MAP_FUNCTION ("append", &Buffer::append)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public:
 	DataPtr m_ptr;

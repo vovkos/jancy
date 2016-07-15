@@ -103,19 +103,4 @@ struct jnc_DerivableType
 
 #endif // _JNC_CORE
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-#ifdef __cplusplus
-
-namespace jnc {
-
 //.............................................................................
-
-typedef jnc_DerivableType DerivableType;
-typedef jnc_ClassType ClassType;
-
-//.............................................................................
-
-} // namespace jnc
-
-#endif // __cplusplus

@@ -46,6 +46,13 @@ jnc_GcHeap_allocateArray (
 	);
 
 JNC_EXTERN_C
+jnc_DataPtr
+jnc_GcHeap_allocateBuffer (
+	jnc_GcHeap* gcHeap,
+	size_t size
+	);
+
+JNC_EXTERN_C
 jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator (
 	jnc_GcHeap* gcHeap,	
@@ -133,6 +140,12 @@ struct jnc_GcHeap
 		return jnc_GcHeap_allocateArray (this, type, count);
 	}
 
+	jnc_DataPtr
+	allocateBuffer (size_t size)
+	{
+		return jnc_GcHeap_allocateBuffer (this, size);
+	}
+
 	jnc_DataPtrValidator*
 	createDataPtrValidator (
 		jnc_Box* box,
@@ -176,18 +189,4 @@ struct jnc_GcHeap
 };
 #endif // _JNC_CORE
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-#ifdef __cplusplus
-
-namespace jnc {
-
 //.............................................................................
-
-typedef jnc_GcHeap GcHeap;
-
-//.............................................................................
-
-} // namespace jnc
-
-#endif // __cplusplus

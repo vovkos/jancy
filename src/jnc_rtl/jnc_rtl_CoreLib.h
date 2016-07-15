@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
 #include "jnc_rtl_Recognizer.h"
 #include "jnc_rtl_DynamicLib.h"
 #include "jnc_rtl_Multicast.h"

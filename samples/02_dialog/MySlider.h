@@ -9,13 +9,13 @@ class MySlider: public MyWidget
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MySlider, NULL)
 	
-	JNC_BEGIN_CLASS_TYPE_MAP ("Slider", g_myLibCacheSlot, MyLibTypeCacheSlot_Slider)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("Slider", g_myLibCacheSlot, MyLibCacheSlot_Slider)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MySlider, int, int>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MySlider>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_minimum", &MySlider::setMinimum)
 		JNC_MAP_AUTOGET_PROPERTY ("m_maximum", &MySlider::setMaximum)
 		JNC_MAP_PROPERTY ("m_value", &MySlider::getValue, &MySlider::setValue)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: 
 	int m_minimum;

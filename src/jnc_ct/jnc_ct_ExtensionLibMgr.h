@@ -15,33 +15,44 @@ namespace ct {
 class ExtensionLibMgr
 {
 protected:
-	struct DynamicLibSourceFile: public sl::ListLink
+	struct SourceFile: sl::ListLink
 	{
-		size_t m_index;
-		sl::String m_fileName;
-		sl::Array <char> m_contents;
+		sl::StringRef m_fileName;
+		sl::StringRef m_contents;
+		zip::ZipReader* m_zipReader;
+		size_t m_zipIndex;
 	};
 
-	struct DynamicLibEntry: public sl::ListLink
+	struct DynamicLibEntry: sl::ListLink
 	{
+		ExtensionLib* m_lib;
 		zip::ZipReader m_zipReader;
 		sl::String m_dynamicLibFilePath;
 		sys::DynamicLibrary m_dynamicLib;
-		sl::StringHashTableMap <DynamicLibSourceFile*> m_sourceFileMap;
-		sl::StdList <DynamicLibSourceFile> m_sourceFileList;
 	};
 
-	struct LibEntry
+	struct ItemCacheEntry: sl::ListLink
 	{
-		ExtensionLib* m_extensionLib;
-		DynamicLibEntry* m_dynamicLibEntry;
+		sl::Guid m_libGuid;
+		sl::Array <ct::ModuleItem*> m_itemArray;
 	};
+
+	typedef sl::HashTableMap <
+		sl::Guid, 
+		ItemCacheEntry*, 
+		sl::HashDjb2 <sl::Guid>,
+		sl::CmpBin <sl::Guid>
+		> ItemCacheMap;
 
 protected:
 	ct::Module* m_module;
-	sl::Array <LibEntry> m_libArray;
+	sl::Array <ExtensionLib*> m_libArray;
 	sl::StdList <DynamicLibEntry> m_dynamicLibList;
-	sl::AutoPtrArray <sl::Array <ct::ModuleItem*> > m_itemCache;
+	sl::StdList <SourceFile> m_sourceFileList;
+	sl::StringHashTableMap <SourceFile*> m_sourceFileMap;
+	sl::StringHashTableMap <const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
+	sl::StdList <ItemCacheEntry> m_itemCache;
+	ItemCacheMap m_itemCacheMap;
 
 public:
 	sl::String m_dynamicLibraryDir;
@@ -63,7 +74,7 @@ public:
 	void
 	clear ();
 
-	bool
+	void
 	addStaticLib (ExtensionLib* lib);
 
 	bool
@@ -76,14 +87,33 @@ public:
 	findSourceFileContents (const char* fileName);
 
 	const OpaqueClassTypeInfo* 
-	findOpaqueClassTypeInfo (const char* qualifiedName);
+	findOpaqueClassTypeInfo (const char* qualifiedName)
+	{
+		sl::StringHashTableMapIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
+		return it ? it->m_value : NULL;
+	}
 
 	ct::ModuleItem*
 	findItem (
 		const char* name,
 		const sl::Guid& libGuid,
-		size_t itemCacheSlot
+		size_t cacheSlot
 		);
+
+	void
+	addSource (
+		const sl::StringRef& fileName,
+		const sl::StringRef& contents
+		);
+
+	void
+	addOpaqueClassTypeInfo (
+		const char* qualifiedName,
+		const OpaqueClassTypeInfo* info
+		)
+	{
+		m_opaqueClassTypeInfoMap [qualifiedName] = info;
+	}
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

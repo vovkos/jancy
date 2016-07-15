@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_ExtensionLib.h"
 
 namespace jnc {
 namespace rtl {
@@ -9,13 +9,6 @@ namespace rtl {
 
 class DynamicLib: public IfaceHdr
 {
-public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("jnc.DynamicLib", -1, -1)
-		JNC_MAP_FUNCTION ("open", &DynamicLib::open)
-		JNC_MAP_FUNCTION ("close", &DynamicLib::close)
-		JNC_MAP_FUNCTION ("getFunction", &DynamicLib::getFunction)
-	JNC_END_CLASS_TYPE_MAP ()
-
 public:
 	handle_t m_handle;
 
@@ -54,6 +47,15 @@ public:
 		return (sys::DynamicLibrary*) &m_handle;
 	}
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DECLARE_CLASS_TYPE (
+	DynamicLib, 
+	"jnc.DynamicLib", 
+	sl::g_nullGuid, 
+	-1
+	)
 
 //.............................................................................
 

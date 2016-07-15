@@ -31,7 +31,7 @@ enum FileStreamEventKind
 
 struct FileStreamEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.FileStreamEventParams", g_ioLibCacheSlot, IoLibTypeCacheSlot_FileStreamEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.FileStreamEventParams", g_ioLibCacheSlot, IoLibCacheSlot_FileStreamEventParams)
 	JNC_END_TYPE_MAP ()
 
 	FileStreamEventKind m_eventKind;
@@ -49,7 +49,7 @@ class FileStream: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (FileStream, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.FileStream", g_ioLibCacheSlot, IoLibTypeCacheSlot_FileStream)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.FileStream", g_ioLibCacheSlot, IoLibCacheSlot_FileStream)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <FileStream>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <FileStream>)
 		JNC_MAP_FUNCTION ("open",  &FileStream::open)
@@ -58,7 +58,7 @@ public:
 		JNC_MAP_FUNCTION ("read",  &FileStream::read)
 		JNC_MAP_FUNCTION ("write", &FileStream::write)
 		JNC_MAP_FUNCTION ("firePendingEvents", &FileStream::firePendingEvents)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

@@ -21,28 +21,28 @@ AXL_SELECT_ANY size_t g_ioLibCacheSlot;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum IoLibTypeCacheSlot
+enum IoLibCacheSlot
 {	
-	IoLibTypeCacheSlot_Serial,
-	IoLibTypeCacheSlot_SerialEventParams,
-	IoLibTypeCacheSlot_SerialPortDesc,
-	IoLibTypeCacheSlot_Address_ip4,
-	IoLibTypeCacheSlot_Address_ip6,
-	IoLibTypeCacheSlot_SocketAddress_ip4,
-	IoLibTypeCacheSlot_SocketAddress_ip6,
-	IoLibTypeCacheSlot_SocketAddress,
-	IoLibTypeCacheSlot_SocketAddressResolver,
-	IoLibTypeCacheSlot_SocketAddressResolverEventParams,
-	IoLibTypeCacheSlot_Socket,
-	IoLibTypeCacheSlot_SocketEventParams,
-	IoLibTypeCacheSlot_NetworkAdapterAddress,
-	IoLibTypeCacheSlot_NetworkAdapterDesc,
-	IoLibTypeCacheSlot_MappedFile,
-	IoLibTypeCacheSlot_FileStream,
-	IoLibTypeCacheSlot_FileStreamEventParams,
-	IoLibTypeCacheSlot_NamedPipe,
-	IoLibTypeCacheSlot_Mailslot,
-	IoLibTypeCacheSlot_MailslotEventParams,
+	IoLibCacheSlot_Serial,
+	IoLibCacheSlot_SerialEventParams,
+	IoLibCacheSlot_SerialPortDesc,
+	IoLibCacheSlot_Address_ip4,
+	IoLibCacheSlot_Address_ip6,
+	IoLibCacheSlot_SocketAddress_ip4,
+	IoLibCacheSlot_SocketAddress_ip6,
+	IoLibCacheSlot_SocketAddress,
+	IoLibCacheSlot_SocketAddressResolver,
+	IoLibCacheSlot_SocketAddressResolverEventParams,
+	IoLibCacheSlot_Socket,
+	IoLibCacheSlot_SocketEventParams,
+	IoLibCacheSlot_NetworkAdapterAddress,
+	IoLibCacheSlot_NetworkAdapterDesc,
+	IoLibCacheSlot_MappedFile,
+	IoLibCacheSlot_FileStream,
+	IoLibCacheSlot_FileStreamEventParams,
+	IoLibCacheSlot_NamedPipe,
+	IoLibCacheSlot_Mailslot,
+	IoLibCacheSlot_MailslotEventParams,
 };
 
 //.............................................................................

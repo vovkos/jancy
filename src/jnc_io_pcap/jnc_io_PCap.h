@@ -17,7 +17,7 @@ enum PCapEventKind
 
 struct PCapEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapEventParams", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCapEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.PCapEventParams", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapEventParams)
 	JNC_END_TYPE_MAP ()
 
 	PCapEventKind m_eventKind;
@@ -33,7 +33,7 @@ class PCap: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (PCap, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.PCap", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCap)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.PCap", g_pcapLibCacheSlot, PCapLibCacheSlot_PCap)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <PCap>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <PCap>)
 		JNC_MAP_FUNCTION ("openDevice",  &PCap::openDevice)
@@ -42,7 +42,7 @@ public:
 		JNC_MAP_FUNCTION ("setFilter",   &PCap::setFilter)
 		JNC_MAP_FUNCTION ("write",       &PCap::write)
 		JNC_MAP_FUNCTION ("read",        &PCap::read)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	enum DefKind
@@ -156,7 +156,7 @@ protected:
 
 struct PCapAddress
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapAddress", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCapAddress)
+	JNC_BEGIN_TYPE_MAP ("io.PCapAddress", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapAddress)
 	JNC_END_TYPE_MAP ()
 
 	DataPtr m_nextPtr;
@@ -170,7 +170,7 @@ struct PCapAddress
 
 struct PCapDeviceDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapDeviceDesc", g_pcapLibCacheSlot, PCapLibTypeCacheSlot_PCapDeviceDesc)
+	JNC_BEGIN_TYPE_MAP ("io.PCapDeviceDesc", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapDeviceDesc)
 	JNC_END_TYPE_MAP ()
 
 	DataPtr m_nextPtr;

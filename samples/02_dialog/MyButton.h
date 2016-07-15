@@ -9,11 +9,11 @@ class MyButton: public MyWidget
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyButton, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("Button", g_myLibCacheSlot, MyLibTypeCacheSlot_Button)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("Button", g_myLibCacheSlot, MyLibCacheSlot_Button)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyButton, jnc::DataPtr>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MyButton>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyButton::setText)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: 
 	jnc::DataPtr m_text;

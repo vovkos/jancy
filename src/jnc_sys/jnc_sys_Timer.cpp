@@ -6,6 +6,15 @@ namespace sys {
 
 //.............................................................................
 
+JNC_BEGIN_TYPE_FUNCTION_MAP (Timer)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <Timer>)
+	JNC_MAP_FUNCTION ("start", &Timer::start)
+	JNC_MAP_FUNCTION ("stop", &Timer::stop)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool 
 AXL_CDECL
 Timer::start (
@@ -41,9 +50,12 @@ Timer::stop ()
 
 	if (m_thread.getThreadId () != axl::sys::getCurrentThreadId ())
 	{
-		rt::enterWaitRegion (m_runtime);
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		ASSERT (gcHeap == getCurrentThreadGcHeap ());
+
+		gcHeap->enterWaitRegion ();
 		m_thread.waitAndClose ();
-		rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 	}
 
 	m_timerFuncPtr = g_nullFunctionPtr;
@@ -65,7 +77,7 @@ Timer::threadFunc ()
 			return;
 	}
 
-	rt::callVoidFunctionPtr (m_runtime, m_timerFuncPtr);
+	callVoidFunctionPtr (m_runtime, m_timerFuncPtr);
 
 	if (!m_interval || m_interval == -1)
 		return;
@@ -76,7 +88,7 @@ Timer::threadFunc ()
 		if (result)
 			break;
 
-		rt::callVoidFunctionPtr (m_runtime, m_timerFuncPtr);
+		callVoidFunctionPtr (m_runtime, m_timerFuncPtr);
 	}
 }
 

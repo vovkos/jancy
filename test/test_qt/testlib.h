@@ -17,9 +17,9 @@ struct Point
 class TestClassA: public jnc::IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassA", -1, -1)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("TestClassA", -1, -1)
 		JNC_MAP_FUNCTION ("foo", &TestClassA::foo)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public:
 	int m_x;
@@ -41,9 +41,9 @@ class TestClassB: public jnc::IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (TestClassB, &TestClassB::markOpaqueGcRoots)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("TestClassB", -1, -1)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("TestClassB", -1, -1)
 		JNC_MAP_FUNCTION ("bar", &TestClassB::bar)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public:
 	char m_data [256];

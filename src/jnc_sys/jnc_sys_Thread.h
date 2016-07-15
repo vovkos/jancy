@@ -1,7 +1,8 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_sys_SysLibGlobals.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace sys {
@@ -10,18 +11,6 @@ namespace sys {
 	
 class Thread: public IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Thread, NULL)
-
-	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Thread", g_sysLibCacheSlot, SysLibTypeCacheSlot_Thread)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Thread>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Thread>)
-		JNC_MAP_FUNCTION ("start", &Thread::start)
-		JNC_MAP_FUNCTION ("wait", &Thread::wait)
-		JNC_MAP_FUNCTION ("waitAndClose", &Thread::waitAndClose)
-		JNC_MAP_FUNCTION ("terminate", &Thread::terminate)
-	JNC_END_CLASS_TYPE_MAP ()
-
 protected:
 	class ThreadImpl: public axl::sys::ThreadImpl <ThreadImpl>
 	{
@@ -38,13 +27,13 @@ public:
 	uintptr_t m_threadId;
 
 protected:
-	jnc::rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	ThreadImpl m_thread;
 
 public:
 	Thread ()
 	{
-		m_runtime = rt::getCurrentThreadRuntime ();
+		m_runtime = getCurrentThreadRuntime ();
 		ASSERT (m_runtime);
 	}
 
@@ -76,9 +65,20 @@ protected:
 	void
 	threadFunc ()
 	{
-		rt::callVoidFunctionPtr (m_runtime, m_threadFuncPtr);
+		callVoidFunctionPtr (m_runtime, m_threadFuncPtr);
 	}
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (
+	Thread, 
+	"sys.Thread", 
+	g_sysLibGuid, 
+	SysLibCacheSlot_Thread,
+	Thread,
+	NULL
+	)
 
 //.............................................................................
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jnc_RuntimeStructs.h"
+#include "jnc_GcHeap.h"
 
 //.............................................................................
 
@@ -61,6 +62,14 @@ JNC_EXTERN_C
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ();
 
+inline
+jnc_GcHeap*
+jnc_getCurrentThreadGcHeap ()
+{
+	jnc_Runtime* runtime = jnc_getCurrentThreadRuntime ();
+	return runtime ? jnc_Runtime_getGcHeap (runtime) : NULL;
+}
+
 JNC_EXTERN_C
 void
 jnc_primeClass (
@@ -96,10 +105,6 @@ namespace jnc {
 
 //.............................................................................
 
-typedef jnc_Runtime Runtime;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 inline
 Runtime*
 getCurrentThreadRuntime ()
@@ -107,6 +112,12 @@ getCurrentThreadRuntime ()
 	return jnc_getCurrentThreadRuntime ();
 }
 
+inline
+GcHeap*
+getCurrentThreadGcHeap ()
+{
+	return jnc_getCurrentThreadGcHeap ();
+}
 
 inline 
 void

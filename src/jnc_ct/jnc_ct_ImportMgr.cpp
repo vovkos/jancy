@@ -59,7 +59,7 @@ ImportMgr::addImport (const char* fileName)
 	sl::StringRef source = m_module->m_extensionLibMgr.findSourceFileContents (fileName);
 	if (!source.isEmpty ())
 	{
-		addSource (fileName, source);
+		addImport (fileName, source);
 		return true;
 	}
 
@@ -79,7 +79,7 @@ ImportMgr::addImport (const char* fileName)
 }
 
 void
-ImportMgr::addSource (
+ImportMgr::addImport (
 	const sl::String& filePath,
 	const sl::StringRef& source
 	)

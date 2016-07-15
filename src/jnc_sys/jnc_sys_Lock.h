@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_sys_SysLibGlobals.h"
 
 namespace jnc {
@@ -10,16 +10,6 @@ namespace sys {
 
 class Lock: public IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Lock, NULL)
-
-	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Lock", g_sysLibCacheSlot, SysLibTypeCacheSlot_Lock)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Lock>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Lock>)
-		JNC_MAP_FUNCTION ("lock", &Lock::lock)
-		JNC_MAP_FUNCTION ("unlock", &Lock::unlock)
-	JNC_END_CLASS_TYPE_MAP ()
-
 public:
 	axl::sys::Lock m_lock;
 
@@ -35,6 +25,17 @@ public:
 		m_lock.unlock ();
 	}
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (
+	Lock, 
+	"sys.Lock", 
+	g_sysLibGuid, 
+	SysLibCacheSlot_Lock, 
+	Lock, 
+	NULL
+	)
 
 //.............................................................................
 

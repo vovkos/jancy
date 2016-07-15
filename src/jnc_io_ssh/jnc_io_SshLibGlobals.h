@@ -21,10 +21,10 @@ AXL_SELECT_ANY size_t g_sshLibCacheSlot;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SshLibTypeCacheSlot
+enum SshLibCacheSlot
 {	
-	SshLibTypeCacheSlot_SshChannel,
-	SshLibTypeCacheSlot_SshEventParams,
+	SshLibCacheSlot_SshChannel,
+	SshLibCacheSlot_SshEventParams,
 };
 
 //.............................................................................

@@ -12,7 +12,7 @@ class List;
 
 struct ListEntry
 {
-	JNC_BEGIN_TYPE_MAP ("std.ListEntry", g_stdLibCacheSlot, StdLibTypeCacheSlot_ListEntry)
+	JNC_BEGIN_TYPE_MAP ("std.ListEntry", g_stdLibCacheSlot, StdLibCacheSlot_ListEntry)
 	JNC_END_TYPE_MAP ()
 
 public:
@@ -28,7 +28,7 @@ public:
 class List: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE_MAP ("std.List", g_stdLibCacheSlot, StdLibTypeCacheSlot_List)
+	JNC_BEGIN_TYPE_MAP ("std.List", g_stdLibCacheSlot, StdLibCacheSlot_List)
 		JNC_MAP_FUNCTION ("clear", &List::clear)
 		JNC_MAP_FUNCTION ("takeOver", &List::takeOver)
 		JNC_MAP_FUNCTION ("insertHead", &List::insertHead)

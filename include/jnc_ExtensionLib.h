@@ -4,84 +4,32 @@
 
 #pragma once
 
-#include "jnc_RuntimeStructs.h"
+#include "jnc_Module.h"
 
-typedef struct jnc_StringSlice jnc_StringSlice;
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
-typedef struct jnc_ExtensionLibFuncTable jnc_ExtensionLibFuncTable;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //.............................................................................
 
 typedef
-int
-jnc_ExtensionLib_ForcedExportFunc (
-	jnc_ExtensionLib* self,	
-	jnc_Module* module
-	);
+void
+jnc_ExtensionLib_AddSourcesFunc (jnc_Module* module);
+
+typedef
+void
+jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc (jnc_Module* module);
 
 typedef
 int
-jnc_ExtensionLib_MapFunctionsFunc (
-	jnc_ExtensionLib* self,	
-	jnc_Module* module
-	);
-
-typedef
-const jnc_OpaqueClassTypeInfo*
-jnc_ExtensionLib_FindOpaqueClassTypeInfo (
-	jnc_ExtensionLib* self,	
-	const char* qualifiedName
-	);
-
-typedef
-jnc_StringSlice
-jnc_ExtensionLib_FindSourceFileContentsFunc (
-	jnc_ExtensionLib* self,	
-	const char* fileName
-	);
-
-//.............................................................................
-
-struct jnc_ExtensionLibFuncTable
-{
-	jnc_ExtensionLib_ForcedExportFunc* m_forcedExportFunc;
-	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
-	jnc_ExtensionLib_FindOpaqueClassTypeInfo* m_findOpaqueClassTypeInfoFunc;
-	jnc_ExtensionLib_FindSourceFileContentsFunc* m_findSourceFileContentsFunc;
-};
+jnc_ExtensionLib_MapFunctionsFunc (jnc_Module* module);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ExtensionLib
 {
-	jnc_ExtensionLibFuncTable* m_funcTable;
-
-#ifdef __cplusplus
-	bool
-	forcedExport (jnc_Module* module)
-	{	
-		return m_funcTable->m_forcedExportFunc (this, module) != 0;
-	}
-
-	bool
-	mapFunctions (jnc_Module* module)
-	{
-		return m_funcTable->m_mapFunctionsFunc (this, module) != 0;
-	}
-
-	const jnc_OpaqueClassTypeInfo*
-	findOpaqueClassTypeInfo (const char* qualifiedName)
-	{
-		return m_funcTable->m_findOpaqueClassTypeInfoFunc (this, qualifiedName);
-	}
-
-	jnc_StringSlice
-	findSourceFileContents (const char* fileName)
-	{
-		return m_funcTable->m_findSourceFileContentsFunc (this,	fileName);
-	}
-#endif // __cplusplus
+	jnc_ExtensionLib_AddSourcesFunc* m_addSourcesFunc;
+	jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc* m_addOpaqueClassTypeInfosFunc;
+	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
 };
 
 //.............................................................................
@@ -90,9 +38,11 @@ typedef
 jnc_ExtensionLib*
 jnc_DynamicExtensionLibMainFunc (jnc_DynamicExtensionLibHost* host);
 
-AXL_SELECT_ANY
+JNC_SELECT_ANY
 char
 jnc_g_dynamicExtensionLibMainFuncName [] = "jncExtensionLibMain";
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 extern jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
@@ -108,16 +58,12 @@ namespace jnc {
 
 //.............................................................................
 
-typedef jnc_StringSlice StringSlice;
-typedef jnc_ExtensionLib ExtensionLib;
-typedef jnc_ExtensionLibFuncTable ExtensionLibFuncTable;
-typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;
-typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
-
-typedef jnc_ExtensionLib_ForcedExportFunc ExtensionLib_ForcedExportFunc;
+typedef jnc_ExtensionLib_AddSourcesFunc ExtensionLib_AddSourcesFunc;
+typedef jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc ExtensionLib_AddOpaqueClassTypeInfosFunc;
 typedef jnc_ExtensionLib_MapFunctionsFunc ExtensionLib_MapFunctionsFunc;
-typedef jnc_ExtensionLib_FindOpaqueClassTypeInfo ExtensionLib_FindOpaqueClassTypeInfo;
-typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileContentsFunc;
+
+typedef jnc_ExtensionLib ExtensionLib;
+typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
 
 //.............................................................................
 
@@ -127,87 +73,143 @@ typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileC
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-#define JNC_DECLARE_TYPE_EX(JncType, TypePrefix) \
+#define JNC_DECLARE_LIB(LibPrefix) \
+	inline \
+	jnc_ExtensionLib* \
+	LibPrefix##_getLib () \
+	{ \
+		void \
+		LibPrefix##_addSources (jnc_Module* module); \
+		void \
+		LibPrefix##_addOpaqueClassTypeInfos (jnc_Module* module); \
+		int \
+		LibPrefix##_mapFunctions (jnc_Module* module); \
+		static jnc_ExtensionLib lib = \
+		{ \
+			LibPrefix##_addSources, \
+			LibPrefix##_addOpaqueClassTypeInfos, \
+			LibPrefix##_mapFunctions, \
+		}; \
+		return &lib; \
+	}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_LIB_SOURCE_FILE_TABLE(LibPrefix) \
+	void \
+	LibPrefix##_addSources (jnc_Module* module) \
+	{
+
+#define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
+		jnc_Module_addSource (module, 0, fileName, sourceVar, sizeof (sourceVar) - 1);
+
+#define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
+		jnc_Module_addSource (module, 1, fileName, sourceVar, sizeof (sourceVar) - 1);
+
+#define JNC_END_LIB_SOURCE_FILE_TABLE() \
+	}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(LibPrefix) \
+	void \
+	LibPrefix##_addOpaqueClassTypeInfos (jnc_Module* module) \
+	{
+
+#define JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(TypePrefix) \
+		jnc_Module_addOpaqueClassTypeInfo ( \
+			module, \
+			TypePrefix##_getQualifiedName (), \
+			TypePrefix##_getOpaqueClassTypeInfo () \
+			);
+
+#define JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE() \
+	}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_LIB_FUNCTION_MAP(LibPrefix) \
+	int \
+	LibPrefix##_mapFunctions (jnc_Module* module) \
+	{ \
+		int result = 1; \
+		jnc_Function* function = NULL; \
+		jnc_Property* prop = NULL; \
+		jnc_Namespace* nspace = jnc_Module_getGlobalNamespace (module); \
+		size_t overloadIdx = 0; \
+
+#define JNC_END_LIB_FUNCTION_MAP() \
+		return 1; \
+	}
+
+//.............................................................................
+
+#define JNC_DECLARE_TYPE_EX(TypePrefix, JncType, verify, qualifiedName, libGuid, cacheSlot) \
+	inline \
+	const char* \
+	TypePrefix##_getQualifiedName () \
+	{ \
+		return qualifiedName; \
+	} \
+	inline \
 	JncType* \
-	TypePrefix##_getType (jnc_Module* module); \
+	TypePrefix##_getType (jnc_Module* module) \
+	{ \
+		jnc_ModuleItem* item = jnc_Module_findItem (module, qualifiedName, &(libGuid), cacheSlot); \
+		return item ? verify (item, qualifiedName) : NULL; \
+	} \
 	int \
 	TypePrefix##_mapFunctions ( \
 		jnc_Module* module, \
 		int isRequired \
 		);
 
-#define JNC_DECLARE_TYPE(TypePrefix) \
-	JNC_DECLARE_TYPE_EX(jnc_DerivableType, TypePrefix)
-
-#define JNC_DECLARE_CLASS_TYPE(TypePrefix) \
-	JNC_DECLARE_TYPE_EX(jnc_ClassType, TypePrefix) \
-	void* \
-	TypePrefix##_getVTable (jnc_Module* module); \
-	const jnc_OpaqueClassTypeInfo* \
-	TypePrefix##_getOpaqueClassTypeInfo ();
-
-#define JNC_DECLARE_OPAQUE_CLASS_TYPE(TypePrefix) \
-	JNC_DECLARE_CLASS_TYPE(TypePrefix) \
-
-#define JNC_BEGIN_TYPE_MAP_EX(JncType, verify, TypePrefix, name, libGuid, cacheSlot) \
-	JncType* \
-	TypePrefix##_getType (jnc_Module* module) \
-	{ \
-		jnc_ModuleItem* item = jnc_Module_findItem (module, name, libGuid, cacheSlot); \
-		return item ? verify (item, name) : NULL; \
-	} \
-	int \
-	TypePrefix##_mapFunctions ( \
-		jnc_Module* module, \
-		int isRequired \
-		) \
-	{ \
-		int result = 1; \
-		jnc_Function* function = NULL; \
-		jnc_Property* prop = NULL; \
-		jnc_Namespace* nspace = NULL; \
-		size_t overloadIdx = 0; \
-		JncType* type = getType (module); \
-		if (!type) \
-			return !isRequired; \
-		nspace = jnc_DerivableType_getNamespace ((jnc_DerivableType*) type);
-
-#define JNC_BEGIN_TYPE_MAP(TypePrefix, name, libGuid, cacheSlot) \
-	JNC_BEGIN_TYPE_MAP_EX ( \
+#define JNC_DECLARE_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot) \
+	JNC_DECLARE_TYPE_EX ( \
+		TypePrefix, \
 		jnc_DerivableType, \
 		jnc_verifyModuleItemIsDerivableType, \
-		TypePrefix, \
-		name, \
+		qualifiedName, \
 		libGuid, \
 		cacheSlot \
 		)
 
-#define JNC_END_TYPE_MAP(TypePrefix) \
-		return 1; \
-	}
-
-//.............................................................................
-
-#define JNC_BEGIN_CLASS_TYPE_MAP(TypePrefix, name, libGuid, cacheSlot) \
-	JNC_BEGIN_TYPE_MAP_EX ( \
-		jnc_ClassType,  \
+#define JNC_DECLARE_CLASS_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot) \
+	JNC_DECLARE_TYPE_EX ( \
+		TypePrefix, \
+		jnc_ClassType, \
 		jnc_verifyModuleItemIsClassType, \
-		TypePrefix, \
-		name, \
+		qualifiedName, \
 		libGuid, \
 		cacheSlot \
-		)
-
-#define JNC_END_CLASS_TYPE_MAP(TypePrefix) \
-	JNC_END_TYPE_MAP () \
+		) \
 	void* \
-	TypePrefix##_getVTable () \
+	TypePrefix##_getVTable (jnc_Module* module);
+
+#define JNC_DECLARE_OPAQUE_CLASS_TYPE_EX(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, isNonCreatable) \
+	JNC_DECLARE_CLASS_TYPE (TypePrefix, qualifiedName, libGuid, cacheSlot) \
+	inline \
+	const jnc_OpaqueClassTypeInfo* \
+	TypePrefix##_getOpaqueClassTypeInfo () \
 	{ \
-		return NULL; \
+		static jnc_OpaqueClassTypeInfo typeInfo = \
+		{ \
+			sizeof (Type), \
+			(jnc_MarkOpaqueGcRootsFunc*) pvoid_cast (markOpaqueGcRootsFunc), \
+			isNonCreatable, \
+		}; \
+		return &typeInfo; \
 	}
+
+#define JNC_DECLARE_OPAQUE_CLASS_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
+	JNC_DECLARE_OPAQUE_CLASS_TYPE_EX (TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, 0)
+
+#define JNC_DECLARE_OPAQUE_CLASS_TYPE_NC(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
+	JNC_DECLARE_OPAQUE_CLASS_TYPE_EX (TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, 1)
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_CLASS_TYPE_VTABLE(TypePrefix) \
-	JNC_END_TYPE_MAP () \
 	void* \
 	TypePrefix##_getVTable () \
 	{ \
@@ -222,45 +224,33 @@ typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileC
 		return vtable; \
 	}
 
-#define JNC_OPAQUE_CLASS_TYPE_INFO_EX(TypePrefix, Type, markOpaqueGcRootsFunc, isNonCreatable) \
-	const jnc_OpaqueClassTypeInfo* \
-	TypePrefix##_getOpaqueClassTypeInfo () \
-	{ \
-		static jnc_OpaqueClassTypeInfo typeInfo = \
-		{ \
-			sizeof (Type), \
-			(jnc_MarkOpaqueGcRootsFunc*) pvoid_cast (markOpaqueGcRootsFunc), \
-			isNonCreatable, \
-		}; \
-		return &typeInfo; \
-	}
-
-#define JNC_OPAQUE_CLASS_TYPE_INFO(TypePrefix, markOpaqueGcRootsFunc) \
-	JNC_OPAQUE_CLASS_TYPE_INFO_EX (TypePrefix, markOpaqueGcRootsFunc, 0)
-
-#define JNC_OPAQUE_CLASS_TYPE_INFO_NC(TypePrefix, markOpaqueGcRootsFunc) \
-	JNC_OPAQUE_CLASS_TYPE_INFO_EX (TypePrefix, markOpaqueGcRootsFunc, 1)
-
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#define JNC_BEGIN_LIB_MAP(LibPrefix) \
+#define JNC_BEGIN_TYPE_FUNCTION_MAP(TypePrefix) \
 	int \
-	LibPrefix##_mapFunctions (jnc_Module* module) \
+	TypePrefix##_mapFunctions ( \
+		jnc_Module* module, \
+		int isRequired \
+		) \
 	{ \
 		int result = 1; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
-		jnc_Namespace* nspace = jnc_Module_getGlobalNamespace (module); \
+		jnc_Namespace* nspace = NULL; \
 		size_t overloadIdx = 0; \
+		jnc_DerivableType* type = (jnc_DerivableType*) TypePrefix##_getType (module); \
+		if (!type) \
+			return !isRequired; \
+		nspace = jnc_DerivableType_getNamespace (type);
 
-	#define JNC_END_LIB_MAP() \
+#define JNC_END_TYPE_FUNCTION_MAP() \
 		return 1; \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 #define JNC_MAP_TYPE_EX(TypePrefix, isRequired) \
-	result = TypePrefix_##mapFunctions (module, isRequired); \
+	result = TypePrefix##_mapFunctions (module, isRequired); \
 	if (!result) \
 		return 0;
 
@@ -269,11 +259,6 @@ typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileC
 
 #define JNC_MAP_TYPE_REQ(TypePrefix) \
 	JNC_MAP_TYPE_EX(TypePrefix, 1)
-
-#define JNC_MAP_HELPER(function) \
-	result = function (module); \
-	if (!result) \
-		return 0;
 
 #define JNC_MAP(function, p) \
 	jnc_Module_mapFunction (module, function, pvoid_cast (p));
@@ -288,175 +273,93 @@ typedef jnc_ExtensionLib_FindSourceFileContentsFunc ExtensionLib_FindSourceFileC
 	}
 
 #define JNC_MAP_PRECONSTRUCTOR(p) \
-	function = jnc::ext::getTypePreconstructor (type); \
+	function = jnc_DerivableType_getPreconstructor (type); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_CONSTRUCTOR(p) \
-	function = jnc::ext::getTypeConstructor (type); \
+	function = jnc_DerivableType_getConstructor (type); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_DESTRUCTOR(p) \
-	function = jnc::ext::getClassTypeDestructor (type); \
+	function = jnc_DerivableType_getDestructor (type); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_UNARY_OPERATOR(opKind, p) \
-	function = jnc::ext::getTypeUnaryOperator (type, opKind); \
+	function = jnc_DerivableType_getUnaryOperator (type, opKind); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_BINARY_OPERATOR(opKind, p) \
-	function = jnc::ext::getTypeBinaryOperator (type, opKind); \
+	function = jnc_DerivableType_getBinaryOperator (type, opKind); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_CALL_OPERATOR(p) \
-	function = jnc::ext::getClassType type->getCallOperator (opKind); \
+	function = jnc_DerivableType_getCallOperator (); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_CAST_OPERATOR(i, p) \
-	function = jnc::ext::getClassType type->getCastOperator (i); \
+	function = jnc_DerivableType_getCastOperator (i); \
 	if (!function) \
-		return false; \
+		return 0; \
 	overloadIdx = 0; \
 	JNC_MAP (function, p)
 
 #define JNC_MAP_FUNCTION(name, p) \
-	function = jnc::ext::findNamespaceFunction (nspace, name); \
+	function = jnc_Namespace_findFunction (nspace, name); \
 	if (function) \
 	{ \
 		overloadIdx = 0; \
 		JNC_MAP (function, p) \
 	}
 
-#define JNC_MAP_PROPERTY_SETTER(prop, p) \
-	function = jnc::ext::getPropertySetter (prop); \
-	if (!function) \
-		return false; \
-	overloadIdx = 0; \
-	JNC_MAP (function, p);
-
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
-	function = jnc::ext::getPropertyGetter (prop); \
+	function = jnc_Property_getGetter (prop); \
 	ASSERT (function); \
 	overloadIdx = 0; \
 	JNC_MAP (function, p);
 
+#define JNC_MAP_PROPERTY_SETTER(prop, p) \
+	function = jnc_Property_getSetter (prop); \
+	if (!function) \
+		return 0; \
+	overloadIdx = 0; \
+	JNC_MAP (function, p);
+
 #define JNC_MAP_PROPERTY(name, getter, setter) \
-	prop = jnc::ext::findNamespaceProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name); \
 	if (!prop) \
-		return false; \
+		return 0; \
 	JNC_MAP_PROPERTY_GETTER (prop, getter); \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);
 
 #define JNC_MAP_CONST_PROPERTY(name, getter) \
-	prop = jnc::ext::findNamespaceProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name); \
 	if (!prop) \
-		return false; \
+		return 0; \
 	JNC_MAP_PROPERTY_GETTER (prop, getter);
 
 #define JNC_MAP_AUTOGET_PROPERTY(name, setter) \
-	prop = jnc::ext::findNamespaceProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name); \
 	if (!prop) \
-		return false; \
+		return 0; \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#define JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE_EX(Map) \
-virtual \
-const jnc::OpaqueClassTypeInfo* \
-findOpaqueClassTypeInfo (const char* fileName) \
-{ \
-	Map* map = axl::sl::getSingleton <Map> (); \
-	axl::sl::StringHashTableMapIterator <const jnc::OpaqueClassTypeInfo*> it = map->find (fileName); \
-	return it ? it->m_value : NULL; \
-} \
-class Map: public axl::sl::StringHashTableMap <const jnc::OpaqueClassTypeInfo*> \
-{ \
-public: \
-	Map () \
-	{ 
-
-#define JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE() \
-	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE_EX (OpaqueClassTypeInfoMap)
-
-#define JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Type) \
-		visit (Type::getTypeName ())->m_value = Type::getOpaqueClassTypeInfo ();
-
-#define JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE() \
-	} \
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#define JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX(Table) \
-virtual \
-axl::sl::StringRef \
-findSourceFileContents (const char* fileName) \
-{ \
-	Table* table = axl::sl::getSingleton <Table> (); \
-	return table->find (fileName); \
-} \
-class Table \
-{ \
-protected: \
-	axl::sl::StringHashTableMap <axl::sl::StringRef> m_fileNameMap; \
-public: \
-	axl::sl::StringRef \
-	find (const char* fileName) \
-	{ \
-		axl::sl::StringHashTableMapIterator <axl::sl::StringRef> it = m_fileNameMap.find (fileName); \
-		return it ? it->m_value : axl::sl::StringRef (); \
-	} \
-	Table () \
-	{
-
-#define JNC_BEGIN_LIB_SOURCE_FILE_TABLE() \
-	JNC_BEGIN_LIB_SOURCE_FILE_TABLE_EX (SourceFileTable)
-
-#define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
-		m_fileNameMap [fileName] = axl::sl::StringRef (sourceVar, lengthof (sourceVar)); \
-
-#define JNC_END_LIB_SOURCE_FILE_TABLE() \
-	} \
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#define JNC_BEGIN_LIB_FORCED_EXPORT() \
-virtual \
-bool \
-forcedExport (jnc::ext::Module* module) \
-{ \
-	bool result = true;
-
-#define JNC_LIB_FORCED_IMPORT(fileName) \
-	result = jnc::ext::addModuleImport (module, fileName); \
-	if (!result) \
-		return false;
-
-#define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
-	jnc::ext::addModuleSource (module, fileName, sourceVar, lengthof (sourceVar)); \
-
-#define JNC_END_LIB_FORCED_EXPORT() \
-	return true; \
-}
 
 //.............................................................................
 

@@ -10,7 +10,7 @@ namespace std {
 
 struct Error: err::ErrorHdr
 {
-	JNC_BEGIN_TYPE_MAP ("std.Error", g_stdLibCacheSlot, StdLibTypeCacheSlot_Error)
+	JNC_BEGIN_TYPE_MAP ("std.Error", g_stdLibCacheSlot, StdLibCacheSlot_Error)
 		JNC_MAP_CONST_PROPERTY ("m_description", getDescription_s)
 	JNC_END_TYPE_MAP ()
 

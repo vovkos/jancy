@@ -6,6 +6,14 @@ namespace rtl {
 
 //.............................................................................
 
+JNC_BEGIN_TYPE_FUNCTION_MAP (DynamicLib)
+	JNC_MAP_FUNCTION ("open", &DynamicLib::open)
+	JNC_MAP_FUNCTION ("close", &DynamicLib::close)
+	JNC_MAP_FUNCTION ("getFunction", &DynamicLib::getFunction)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 bool 
 DynamicLib::openImpl (const char* fileName)
 {

@@ -26,6 +26,8 @@ enum RuntimeDef
 
 class Runtime
 {
+	friend class GcHeap;
+
 protected:
 	enum State
 	{
@@ -44,8 +46,8 @@ protected:
 
 	size_t m_stackSizeLimit; // adjustable limits
 
-public:
 	GcHeap m_gcHeap;
+
 
 public:
 	Runtime ();
@@ -59,6 +61,12 @@ public:
 	getModule ()
 	{
 		return m_module;
+	}
+
+	GcHeap*
+	getGcHeap ()
+	{
+		return &m_gcHeap;
 	}
 
 	size_t 

@@ -12,15 +12,15 @@ AXL_SELECT_ANY size_t g_myLibCacheSlot;
 
 //.............................................................................
 
-enum MyLibTypeCacheSlot
+enum MyLibCacheSlot
 {
-	MyLibTypeCacheSlot_Widget,
-	MyLibTypeCacheSlot_Layout,
-	MyLibTypeCacheSlot_Label,
-	MyLibTypeCacheSlot_Button,
-	MyLibTypeCacheSlot_CheckBox,
-	MyLibTypeCacheSlot_TextEdit,
-	MyLibTypeCacheSlot_Slider,
+	MyLibCacheSlot_Widget,
+	MyLibCacheSlot_Layout,
+	MyLibCacheSlot_Label,
+	MyLibCacheSlot_Button,
+	MyLibCacheSlot_CheckBox,
+	MyLibCacheSlot_TextEdit,
+	MyLibCacheSlot_Slider,
 };
 
 //.............................................................................

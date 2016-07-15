@@ -9,11 +9,11 @@ class MyTextEdit: public MyWidget
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyTextEdit, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("TextEdit", g_myLibCacheSlot, MyLibTypeCacheSlot_TextEdit)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("TextEdit", g_myLibCacheSlot, MyLibCacheSlot_TextEdit)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <MyTextEdit>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MyTextEdit>)
 		JNC_MAP_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public:
 	QLineEdit* m_qtLineEdit;

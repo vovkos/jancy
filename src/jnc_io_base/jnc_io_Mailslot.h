@@ -19,7 +19,7 @@ enum MailslotEventKind
 
 struct MailslotEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.MailslotEventParams", g_ioLibCacheSlot, IoLibTypeCacheSlot_MailslotEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.MailslotEventParams", g_ioLibCacheSlot, IoLibCacheSlot_MailslotEventParams)
 	JNC_END_TYPE_MAP ()
 
 	MailslotEventKind m_eventKind;
@@ -37,13 +37,13 @@ class Mailslot: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Mailslot, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.Mailslot", g_ioLibCacheSlot, IoLibTypeCacheSlot_Mailslot)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Mailslot", g_ioLibCacheSlot, IoLibCacheSlot_Mailslot)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Mailslot>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Mailslot>)
 		JNC_MAP_FUNCTION ("open",  &Mailslot::open)
 		JNC_MAP_FUNCTION ("close", &Mailslot::close)
 		JNC_MAP_FUNCTION ("read",  &Mailslot::read)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

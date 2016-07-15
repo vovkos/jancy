@@ -44,25 +44,27 @@ jnc_Module_mapFunction (
 }
 
 JNC_EXTERN_C
-bool
-jnc_Module_addImport (
-	jnc_Module* module,
-	const char* fileName
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addImportFunc (module, fileName);
-}
-
-JNC_EXTERN_C
 void
 jnc_Module_addSource (
 	jnc_Module* module,
+	int isForced,
 	const char* fileName,
 	const char* source,
 	size_t size
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc (module, fileName, source, size);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc (module, isForced, fileName, source, size);
+}
+
+JNC_EXTERN_C
+void
+jnc_Module_addOpaqueClassTypeInfo (
+	jnc_Module* module,
+	const char* qualifiedName,
+	const jnc_OpaqueClassTypeInfo* info
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addOpaqueClassTypeInfoFunc (module, qualifiedName, info);
 }
 
 JNC_EXTERN_C
@@ -118,25 +120,21 @@ jnc_Module_mapFunction (
 }
 
 JNC_EXTERN_C
-bool
-jnc_Module_addImport (
-	jnc_Module* module,
-	const char* fileName
-	)
-{
-	return module->m_importMgr.addImport (fileName);
-}
-
-JNC_EXTERN_C
 void
 jnc_Module_addSource (
 	jnc_Module* module,
+	int isForced,
 	const char* fileName,
 	const char* source,
 	size_t length
 	)
 {
-	module->m_importMgr.addSource (fileName, axl::sl::StringRef (source, length));
+	axl::sl::StringRef contents (source, length);
+
+	module->m_extensionLibMgr.addSource (fileName, contents);
+
+	if (isForced)
+		module->m_importMgr.addImport (fileName, contents);
 }
 
 JNC_EXTERN_C

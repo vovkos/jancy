@@ -15,20 +15,20 @@ AXL_SELECT_ANY size_t g_stdLibCacheSlot;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdLibTypeCacheSlot
+enum StdLibCacheSlot
 {	
-	StdLibTypeCacheSlot_Error,
-	StdLibTypeCacheSlot_String,
-	StdLibTypeCacheSlot_StringRef,
-	StdLibTypeCacheSlot_StringBuilder,
-	StdLibTypeCacheSlot_StringHashTable,
-	StdLibTypeCacheSlot_VariantHashTable,
-	StdLibTypeCacheSlot_ListEntry,
-	StdLibTypeCacheSlot_List,
-	StdLibTypeCacheSlot_ConstBuffer,
-	StdLibTypeCacheSlot_ConstBufferRef,
-	StdLibTypeCacheSlot_BufferRef,
-	StdLibTypeCacheSlot_Buffer,
+	StdLibCacheSlot_Error,
+	StdLibCacheSlot_String,
+	StdLibCacheSlot_StringRef,
+	StdLibCacheSlot_StringBuilder,
+	StdLibCacheSlot_StringHashTable,
+	StdLibCacheSlot_VariantHashTable,
+	StdLibCacheSlot_ListEntry,
+	StdLibCacheSlot_List,
+	StdLibCacheSlot_ConstBuffer,
+	StdLibCacheSlot_ConstBufferRef,
+	StdLibCacheSlot_BufferRef,
+	StdLibCacheSlot_Buffer,
 };
 
 //.............................................................................

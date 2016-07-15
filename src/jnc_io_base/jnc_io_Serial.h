@@ -19,7 +19,7 @@ enum SerialEventKind
 
 struct SerialEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SerialEventParams", g_ioLibCacheSlot, IoLibTypeCacheSlot_SerialEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.SerialEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SerialEventParams)
 	JNC_END_TYPE_MAP ()
 
 	SerialEventKind m_eventKind;
@@ -38,7 +38,7 @@ class Serial: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (Serial, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.Serial", g_ioLibCacheSlot, IoLibTypeCacheSlot_Serial)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Serial", g_ioLibCacheSlot, IoLibCacheSlot_Serial)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <Serial>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <Serial>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
@@ -53,7 +53,7 @@ public:
 		JNC_MAP_FUNCTION ("close", &Serial::close)
 		JNC_MAP_FUNCTION ("read",  &Serial::read)
 		JNC_MAP_FUNCTION ("write", &Serial::write)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -195,7 +195,7 @@ protected:
 
 struct SerialPortDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.SerialPortDesc", g_ioLibCacheSlot, IoLibTypeCacheSlot_SerialPortDesc)
+	JNC_BEGIN_TYPE_MAP ("io.SerialPortDesc", g_ioLibCacheSlot, IoLibCacheSlot_SerialPortDesc)
 	JNC_END_TYPE_MAP ()
 
 	DataPtr m_nextPtr;

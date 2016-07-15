@@ -18,10 +18,10 @@ AXL_SELECT_ANY size_t g_myLibCacheSlot;
 
 // This enum lists all the named types in API exported to jancy script.
 
-enum MyLibTypeCacheSlot
+enum MyLibCacheSlot
 {
-	MyLibTypeCacheSlot_TestStruct,
-	MyLibTypeCacheSlot_TestClass,
+	MyLibCacheSlot_TestStruct,
+	MyLibCacheSlot_TestClass,
 };
 
 //.............................................................................

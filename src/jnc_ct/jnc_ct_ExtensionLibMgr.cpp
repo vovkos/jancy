@@ -18,7 +18,6 @@ void
 ExtensionLibMgr::clear ()
 {
 	m_libArray.clear ();	
-	m_itemCache.clear ();
 
 	while (!m_dynamicLibList.isEmpty ())
 	{
@@ -27,17 +26,21 @@ ExtensionLibMgr::clear ()
 		io::deleteFile (entry->m_dynamicLibFilePath);
 		AXL_MEM_DELETE (entry);
 	}
+
+	m_sourceFileList.clear ();
+	m_sourceFileMap.clear ();
+	m_opaqueClassTypeInfoMap.clear ();
+	m_itemCache.clear ();
+	m_itemCacheMap.clear ();
 }
 
-bool
+void
 ExtensionLibMgr::addStaticLib (ExtensionLib* lib)
 {
-	LibEntry entry;
-	entry.m_extensionLib = lib;
-	entry.m_dynamicLibEntry = NULL;
-	m_libArray.append (entry);
+	m_libArray.append (lib);
 	
-	return lib->forcedExport (m_module);
+	lib->m_addSourcesFunc (m_module);
+	lib->m_addOpaqueClassTypeInfosFunc (m_module);
 }
 
 bool
@@ -70,11 +73,12 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		}
 		else if (length > lengthof (jncExt) && strcmp (fileName.cc () + length - lengthof (jncExt), jncExt) == 0)
 		{
-			DynamicLibSourceFile* sourceFile = AXL_MEM_NEW (DynamicLibSourceFile);
+			SourceFile* sourceFile = AXL_MEM_NEW (SourceFile);
 			sourceFile->m_fileName = fileName;
-			sourceFile->m_index = i;
-			entry->m_sourceFileList.insertTail (sourceFile);
-			entry->m_sourceFileMap [fileName] = sourceFile;
+			sourceFile->m_zipReader = &entry->m_zipReader;
+			sourceFile->m_zipIndex = i;
+			m_sourceFileList.insertTail (sourceFile);
+			m_sourceFileMap [fileName] = sourceFile;
 		}
 	}
 
@@ -97,19 +101,20 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 	if (!mainFunc)
 		return false;
 
-	ExtensionLib* extensionLib = mainFunc (&jnc_g_dynamicExtensionLibHostImpl);
-	if (!extensionLib)
+	ExtensionLib* lib = mainFunc (&jnc_g_dynamicExtensionLibHostImpl);
+	if (!lib)
 	{
 		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
 		return false;
 	}
 
-	LibEntry libEntry;
-	libEntry.m_extensionLib = extensionLib;
-	libEntry.m_dynamicLibEntry = entry;
-	m_libArray.append (libEntry);
+	entry->m_lib = lib;
+	m_libArray.append (lib);
 
-	return extensionLib->forcedExport (m_module);
+	lib->m_addSourcesFunc (m_module);
+	lib->m_addOpaqueClassTypeInfosFunc (m_module);
+
+	return true;
 }
 
 bool
@@ -118,7 +123,7 @@ ExtensionLibMgr::mapFunctions ()
 	size_t count = m_libArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		bool result = m_libArray [i].m_extensionLib->mapFunctions (m_module);
+		bool result = m_libArray [i]->m_mapFunctionsFunc (m_module) != 0;
 		if (!result)
 			return false;
 	}
@@ -129,90 +134,78 @@ ExtensionLibMgr::mapFunctions ()
 sl::StringRef
 ExtensionLibMgr::findSourceFileContents (const char* fileName)
 {
-	size_t count = m_libArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		LibEntry* libEntry = &m_libArray [i];
+	sl::StringHashTableMapIterator <SourceFile*> it = m_sourceFileMap.find (fileName);
+	if (!it)
+		return sl::StringRef ();
 
-		// do findSourceFileContents even for dynamic libs (chance to override source)
+	SourceFile* file = it->m_value;
 
-		StringSlice contents = libEntry->m_extensionLib->findSourceFileContents (fileName);
-		if (contents.m_p)
-			return sl::StringRef (contents.m_p, contents.m_length);
+	if (file->m_zipIndex == -1)
+		return file->m_contents;
 
-		if (!libEntry->m_dynamicLibEntry)
-			continue;
+	sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
+	contents.append (0); // ensure zero-termination
 
-		sl::StringHashTableMapIterator <DynamicLibSourceFile*> it = libEntry->m_dynamicLibEntry->m_sourceFileMap.find (fileName);
-		if (!it)
-			continue;
+	#pragma AXL_TODO ("add constructors for building axl::sl::String's off axl::sl::Array's")
+	file->m_contents = sl::String (contents, contents.getCount ());
+	file->m_zipReader = NULL;
+	file->m_zipIndex = -1;
 
-		DynamicLibSourceFile* sourceFile = it->m_value;
-		if (sourceFile->m_contents.isEmpty ())
-		{
-			sourceFile->m_contents = libEntry->m_dynamicLibEntry->m_zipReader.extractFileToMem (sourceFile->m_index);
-			sourceFile->m_contents.append (0); // ensure zero-termination
-		}
-
-		return sl::StringRef (sourceFile->m_contents, sourceFile->m_contents.getCount () - 1);
-	}
-
-	return sl::StringRef ();
+	return file->m_contents;
 }
-
-const OpaqueClassTypeInfo*
-ExtensionLibMgr::findOpaqueClassTypeInfo (const char* qualifiedName)
-{
-	size_t count = m_libArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		const OpaqueClassTypeInfo* typeInfo = m_libArray [i].m_extensionLib->findOpaqueClassTypeInfo (qualifiedName);
-		if (typeInfo)
-			return typeInfo;
-	}
-
-	return NULL;
-}
-
-#if 0
 
 ct::ModuleItem*
 ExtensionLibMgr::findItem (
 	const char* name,
 	const sl::Guid& libGuid,
-	size_t itemCacheSlot
+	size_t cacheSlot
 	)
 {
 	ASSERT (m_module);
 
-	if (itemCacheSlot == -1) // no caching for this item
+	if (cacheSlot == -1) // no caching for this item
 		return m_module->m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
 
-	size_t count = m_itemCache.getCount ();
-	if (count <= libCacheSlot)
-		m_itemCache.setCount (libCacheSlot + 1);
-
-	sl::Array <ModuleItem*>* itemArray = m_itemCache [libCacheSlot];
-	if (!itemArray)
+	ItemCacheEntry* entry;
+	ItemCacheMap::Iterator it = m_itemCacheMap.visit (libGuid);
+	if (it->m_value)
 	{
-		itemArray = AXL_MEM_NEW (sl::Array <ModuleItem*>);
-		m_itemCache [libCacheSlot] = itemArray;
+		entry = it->m_value;
+	}
+	else
+	{
+		entry = AXL_MEM_NEW (ItemCacheEntry);
+		m_itemCache.insertTail (entry);
+		it->m_value = entry;
 	}
 
-	count = itemArray->getCount ();
-	if (count <= itemCacheSlot)
-		itemArray->setCount (itemCacheSlot + 1);
+	size_t count = entry->m_itemArray.getCount ();
+	if (count <= cacheSlot)
+		entry->m_itemArray.setCount (cacheSlot + 1);
 
-	ModuleItem* item = (*itemArray) [itemCacheSlot];
+	ModuleItem* item = entry->m_itemArray [cacheSlot];
 	if (item)
 		return item;
 
 	item = m_module->m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
-	(*itemArray) [itemCacheSlot] = item;
+	entry->m_itemArray [cacheSlot] = item;
 	return item;	
 }
 
-#endif
+void
+ExtensionLibMgr::addSource (
+	const sl::StringRef& fileName,
+	const sl::StringRef& contents
+	)
+{
+	SourceFile* file = AXL_MEM_NEW (SourceFile);
+	file->m_fileName = fileName;
+	file->m_contents = contents;
+	file->m_zipReader = NULL;
+	file->m_zipIndex = -1;
+	m_sourceFileList.insertTail (file);
+	m_sourceFileMap [fileName] = file;
+}
 
 //.............................................................................
 

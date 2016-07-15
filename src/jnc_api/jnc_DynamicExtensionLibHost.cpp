@@ -36,15 +36,11 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 	jnc_getMulticastCallMethod,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 static jnc_PropertyFuncTable g_propertyFuncTable = 
 {
 	jnc_Property_getGetter,
 	jnc_Property_getSetter,
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static jnc_NamespaceFuncTable g_namespaceFuncTable = 
 {
@@ -52,20 +48,16 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 	jnc_Namespace_findProperty,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 static jnc_ModuleFuncTable g_moduleFuncTable = 
-{
+{	
 	jnc_Module_getGlobalNamespace,
 	jnc_Module_findItem,
 	jnc_Module_mapFunction,
-	jnc_Module_addImport,
 	jnc_Module_addSource,
+	jnc_Module_addOpaqueClassTypeInfo,
 	jnc_verifyModuleItemIsDerivableType,
 	jnc_verifyModuleItemIsClassType,
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static jnc_RuntimeFuncTable g_runtimeFuncTable = 
 {
@@ -79,8 +71,6 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_strDup,
 	jnc_memDup,
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 {

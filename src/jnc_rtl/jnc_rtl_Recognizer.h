@@ -50,17 +50,6 @@ enum RecognizerStateFlag
 class Recognizer: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("jnc.Recognizer", -1, -1)
-		JNC_MAP_CONSTRUCTOR (&Recognizer::construct)
-		JNC_MAP_AUTOGET_PROPERTY ("m_automatonFunc", &Recognizer::setAutomatonFunc)
-		JNC_MAP_AUTOGET_PROPERTY ("m_lexemeLengthLimit", &Recognizer::setLexemeLengthLimit)
-		JNC_MAP_AUTOGET_PROPERTY ("m_currentOffset", &Recognizer::setCurrentOffset)
-		JNC_MAP_FUNCTION ("reset", &Recognizer::reset)
-		JNC_MAP_FUNCTION ("write", &Recognizer::write)
-		JNC_MAP_FUNCTION ("eof", &Recognizer::eof)
-	JNC_END_CLASS_TYPE_MAP ()
-
-public:
 	enum InternalState
 	{
 		InternalState_Idle = 0,
@@ -136,6 +125,15 @@ protected:
 	AutomatonResult
 	match (size_t stateId);
 };
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DECLARE_CLASS_TYPE (
+	Recognizer, 
+	"jnc.Recognizer", 
+	sl::g_nullGuid, 
+	-1
+	)
 
 //.............................................................................
 

@@ -80,8 +80,6 @@ typedef jnc::ct::GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
 #else // _JNC_CORE
 
-typedef struct jnc_ListLink jnc_ListLink;
-typedef struct jnc_Guid jnc_Guid;
 typedef struct jnc_Error jnc_Error;
 typedef struct jnc_ModuleItem jnc_ModuleItem;
 typedef struct jnc_Namespace jnc_Namespace;
@@ -95,11 +93,32 @@ typedef struct jnc_Runtime jnc_Runtime;
 typedef struct jnc_GcHeap jnc_GcHeap;
 typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
+#	ifdef _AXL_SL_LISTBASE_H
+
+typedef axl::sl::ListLink jnc_ListLink;
+
+#	else // _AXL_SL_LISTBASE_H
+
+typedef struct jnc_ListLink jnc_ListLink;
+
 struct jnc_ListLink
 {
 	jnc_ListLink* m_next;
 	jnc_ListLink* m_prev;
 };
+
+#	endif // _AXL_SL_LISTBASE_H
+
+#	ifdef _AXL_SL_GUID_H
+
+typedef axl::sl::Guid jnc_Guid;
+
+#		define JNC_GUID_INITIALIZER AXL_SL_GUID_INITIALIZER
+#		define JNC_DEFINE_GUID AXL_SL_DEFINE_GUID
+
+#	else // _AXL_SL_GUID_H
+
+typedef struct jnc_Guid jnc_Guid;
 
 struct jnc_Guid
 {
@@ -123,24 +142,15 @@ struct jnc_Guid
 	};
 };
 
-#	define JNC_GUID_INITIALIZER(l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
-	{ { { l, s1, s2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } } }
+#		define JNC_GUID_INITIALIZER(l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
+			{ { { l, s1, s2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } } }
 
-#	define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
-	extern JNC_SELECT_ANY const jnc_Guid n = \
-		JNC_GUID_INITIALIZER (l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
-
-JNC_DEFINE_GUID (jnc_g_nullGuid, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
+#		define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
+			extern JNC_SELECT_ANY const jnc_Guid n = \
+			JNC_GUID_INITIALIZER (l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
+#	endif // _AXL_SL_GUID_H
 
 #endif // _JNC_CORE
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct jnc_StringSlice
-{
-	const char* m_p;
-	size_t m_length;
-};
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -150,11 +160,20 @@ namespace jnc {
 
 //.............................................................................
 
-typedef jnc_StringSlice StringSlice;
-typedef jnc_Guid Guid;
 typedef jnc_ListLink ListLink;
-
-JNC_DEFINE_GUID (g_nullGuid, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
+typedef jnc_Guid Guid;
+typedef jnc_Error Error;
+typedef jnc_ModuleItem ModuleItem;
+typedef jnc_Namespace Namespace;
+typedef jnc_Type Type;
+typedef jnc_DerivableType DerivableType;
+typedef jnc_ClassType ClassType;
+typedef jnc_Function Function;
+typedef jnc_Property Property;
+typedef jnc_Module Module;
+typedef jnc_Runtime Runtime;
+typedef jnc_GcHeap GcHeap;
+typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
 
 //.............................................................................
 

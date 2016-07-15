@@ -23,10 +23,10 @@ enum AddressFamily
 struct Address_ip4: public in_addr
 {
 #ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.Address_ip4", g_ioLibCacheSlot, IoLibTypeCacheSlot_Address_ip4)
+	JNC_BEGIN_TYPE_MAP ("io.Address_ip4", g_ioLibCacheSlot, IoLibCacheSlot_Address_ip4)
 		JNC_MAP_FUNCTION ("parse",     &Address_ip4::parse)
 		JNC_MAP_FUNCTION ("getString", &Address_ip4::getString)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 #endif // _JNC_IO_BASE
 
 	static 
@@ -56,10 +56,10 @@ struct Address_ip4: public in_addr
 struct Address_ip6: public in6_addr
 {
 #ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.Address_ip6", g_ioLibCacheSlot, IoLibTypeCacheSlot_Address_ip6)
+	JNC_BEGIN_TYPE_MAP ("io.Address_ip6", g_ioLibCacheSlot, IoLibCacheSlot_Address_ip6)
 		JNC_MAP_FUNCTION ("parse",     &Address_ip6::parse)
 		JNC_MAP_FUNCTION ("getString", &Address_ip6::getString)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 #endif // _JNC_IO_BASE
 	
 	static 
@@ -89,12 +89,12 @@ struct Address_ip6: public in6_addr
 struct SocketAddress_ip4: public sockaddr_in
 {
 #ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip4", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress_ip4)
+	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip4", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress_ip4)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip4::isEqual)
 		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip4::isMatch)
 		JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip4::parse)
 		JNC_MAP_FUNCTION ("getString", &SocketAddress_ip4::getString)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 #endif // _JNC_IO_BASE
 
 	static 
@@ -150,12 +150,12 @@ struct SocketAddress_ip4: public sockaddr_in
 struct SocketAddress_ip6: public sockaddr_in6
 {
 #ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip6", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress_ip6)
+	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip6", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress_ip6)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip6::isEqual)
 		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip6::isMatch)
 		JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip6::parse)
 		JNC_MAP_FUNCTION ("getString", &SocketAddress_ip6::getString)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 #endif // _JNC_IO_BASE
 	
 	static 
@@ -211,12 +211,12 @@ struct SocketAddress_ip6: public sockaddr_in6
 struct SocketAddress
 {
 #ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddress)
+	JNC_BEGIN_TYPE_MAP ("io.SocketAddress", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress)
 		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress::isEqual)
 		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress::isMatch)
 		JNC_MAP_FUNCTION ("parse",     &SocketAddress::parse)
 		JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 #endif // _JNC_IO_BASE
 	
 	union

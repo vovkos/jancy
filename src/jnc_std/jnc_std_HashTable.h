@@ -14,7 +14,7 @@ class StringHashTable: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (StringHashTable, &StringHashTable::markOpaqueGcRoots)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("std.StringHashTable", g_stdLibCacheSlot, StdLibTypeCacheSlot_StringHashTable)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.StringHashTable", g_stdLibCacheSlot, StdLibCacheSlot_StringHashTable)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <StringHashTable>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <StringHashTable>)
 		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &StringHashTable::isEmpty)
@@ -22,7 +22,7 @@ public:
 		JNC_MAP_FUNCTION ("find", &StringHashTable::find)
 		JNC_MAP_FUNCTION ("insert", &StringHashTable::insert)
 		JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	struct Entry: sl::ListLink
@@ -83,7 +83,7 @@ class VariantHashTable: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (VariantHashTable, &VariantHashTable::markOpaqueGcRoots)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("std.VariantHashTable", g_stdLibCacheSlot, StdLibTypeCacheSlot_VariantHashTable)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.VariantHashTable", g_stdLibCacheSlot, StdLibCacheSlot_VariantHashTable)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <VariantHashTable>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <VariantHashTable>)
 		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &VariantHashTable::isEmpty)
@@ -91,7 +91,7 @@ public:
 		JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
 		JNC_MAP_FUNCTION ("insert", &VariantHashTable::insert)
 		JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	struct Entry: sl::ListLink

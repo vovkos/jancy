@@ -21,12 +21,12 @@ AXL_SELECT_ANY size_t g_pcapLibCacheSlot;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum PCapLibTypeCacheSlot
+enum PCapLibCacheSlot
 {	
-	PCapLibTypeCacheSlot_PCap,
-	PCapLibTypeCacheSlot_PCapEventParams,
-	PCapLibTypeCacheSlot_PCapAddress,
-	PCapLibTypeCacheSlot_PCapDeviceDesc,
+	PCapLibCacheSlot_PCap,
+	PCapLibCacheSlot_PCapEventParams,
+	PCapLibCacheSlot_PCapAddress,
+	PCapLibCacheSlot_PCapDeviceDesc,
 };
 
 //.............................................................................

@@ -9,7 +9,7 @@ namespace io {
 
 struct NetworkAdapterAddress
 {
-	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterAddress", g_ioLibCacheSlot, IoLibTypeCacheSlot_NetworkAdapterAddress)
+	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterAddress", g_ioLibCacheSlot, IoLibCacheSlot_NetworkAdapterAddress)
 	JNC_END_TYPE_MAP ()
 
 	DataPtr m_nextPtr;
@@ -21,7 +21,7 @@ struct NetworkAdapterAddress
 
 struct NetworkAdapterDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterDesc", g_ioLibCacheSlot, IoLibTypeCacheSlot_NetworkAdapterDesc)
+	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterDesc", g_ioLibCacheSlot, IoLibCacheSlot_NetworkAdapterDesc)
 	JNC_END_TYPE_MAP ()
 
 	DataPtr m_nextPtr;

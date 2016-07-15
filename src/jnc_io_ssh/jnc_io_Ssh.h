@@ -64,7 +64,7 @@ enum SshEventKind
 
 struct SshEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SshEventParams", g_sshLibCacheSlot, SshLibTypeCacheSlot_SshEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.SshEventParams", g_sshLibCacheSlot, SshLibCacheSlot_SshEventParams)
 	JNC_END_TYPE_MAP ()
 
 	SshEventKind m_eventKind;
@@ -81,7 +81,7 @@ class SshChannel: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (SshChannel, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.SshChannel", g_sshLibCacheSlot, SshLibTypeCacheSlot_SshChannel)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.SshChannel", g_sshLibCacheSlot, SshLibCacheSlot_SshChannel)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <SshChannel>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <SshChannel>)
 		JNC_MAP_CONST_PROPERTY ("m_address",     &SshChannel::getAddress)
@@ -93,7 +93,7 @@ public:
 		JNC_MAP_FUNCTION ("resizePty",    &SshChannel::resizePty)
 		JNC_MAP_FUNCTION ("read",         &SshChannel::read)
 		JNC_MAP_FUNCTION ("write",        &SshChannel::write)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

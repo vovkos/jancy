@@ -6,6 +6,17 @@ namespace sys {
 
 //.............................................................................
 
+JNC_BEGIN_TYPE_FUNCTION_MAP (Thread)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <Thread>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <Thread>)
+	JNC_MAP_FUNCTION ("start", &Thread::start)
+	JNC_MAP_FUNCTION ("wait", &Thread::wait)
+	JNC_MAP_FUNCTION ("waitAndClose", &Thread::waitAndClose)
+	JNC_MAP_FUNCTION ("terminate", &Thread::terminate)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool
 AXL_CDECL
 Thread::start (FunctionPtr ptr)
@@ -41,9 +52,12 @@ Thread::wait (uint_t timeout)
 {
 	bool result;
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	ASSERT (gcHeap == getCurrentThreadGcHeap ());
+
+	gcHeap->enterWaitRegion ();
 	result = m_thread.wait (timeout);
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	return result;
 }
@@ -52,10 +66,12 @@ void
 AXL_CDECL
 Thread::waitAndClose (uint_t timeout)
 {
-	rt::enterWaitRegion (m_runtime);
-	m_thread.waitAndClose (timeout);
-	rt::leaveWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	ASSERT (gcHeap == getCurrentThreadGcHeap ());
 
+	gcHeap->enterWaitRegion ();
+	m_thread.waitAndClose (timeout);
+	gcHeap->leaveWaitRegion ();
 
 	m_threadFuncPtr = g_nullFunctionPtr;
 }

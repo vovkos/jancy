@@ -70,7 +70,7 @@ public:
 	addImport (const char* fileName);
 
 	void
-	addSource (
+	addImport (
 		const sl::String& filePath,
 		const sl::StringRef& source
 		);

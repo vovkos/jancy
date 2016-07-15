@@ -9,12 +9,12 @@ class MyCheckBox: public MyWidget
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyCheckBox, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("CheckBox", g_myLibCacheSlot, MyLibTypeCacheSlot_CheckBox)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("CheckBox", g_myLibCacheSlot, MyLibCacheSlot_CheckBox)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyCheckBox, jnc::DataPtr>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MyCheckBox>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
 		JNC_MAP_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: 
 	jnc::DataPtr m_text;

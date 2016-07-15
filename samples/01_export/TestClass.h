@@ -9,7 +9,7 @@ class TestClass: public jnc::IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (TestClass, &TestClass::markOpaqueGcRoots)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("TestClass", g_myLibCacheSlot, MyLibTypeCacheSlot_TestClass)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("TestClass", g_myLibCacheSlot, MyLibCacheSlot_TestClass)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <TestClass, int>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <TestClass>)
 		JNC_MAP_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
@@ -18,7 +18,7 @@ public:
 		JNC_MAP_OVERLOAD (&TestClass::foo_1)
 		JNC_MAP_OVERLOAD (&TestClass::foo_2)
 		JNC_MAP_PROPERTY ("m_prop", &TestClass::setProp, &TestClass::setProp)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: // these fields are accessible from Jancy
 	jnc::ClassBox <jnc::Multicast> m_onNegative;

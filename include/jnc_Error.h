@@ -39,16 +39,4 @@ jnc_getLastErrorDescription (
 	return jnc_getErrorDescription (jnc_getLastError (), buffer, bufferSize);
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-#ifdef __cplusplus
-
-namespace jnc {
-
 //.............................................................................
-
-//.............................................................................
-
-} // namespace jnc
-
-#endif // __cplusplus

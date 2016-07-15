@@ -9,13 +9,13 @@ class MyLayout: public jnc::IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyLayout, &MyLayout::markOpaqueGcRoots)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("Layout", g_myLibCacheSlot, MyLibTypeCacheSlot_Layout)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("Layout", g_myLibCacheSlot, MyLibCacheSlot_Layout)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLayout, QBoxLayout::Direction>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MyLayout>)
 		JNC_MAP_FUNCTION ("addWidget", &MyLayout::addWidget)
 		JNC_MAP_FUNCTION ("addLayout", &MyLayout::addLayout)
 		JNC_MAP_FUNCTION ("addSpacer", &MyLayout::addSpacer)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: 
 	QBoxLayout::Direction m_direction;

@@ -4,17 +4,8 @@
 
 #pragma once
 
-#ifdef _JNC_SHARED_EXTENSION_LIB
-#	include "jnc_RuntimeStructs.h"
-#	include "jnc_ext_ExtensionLibHost.h"
-#else
-#	include "jnc_ct_Function.h"
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_ct_MulticastClassType.h"
-#endif
-
-namespace jnc {
-namespace rt {
+#include "jnc_Runtime.h"
+#include "jnc_Function.h"
 
 //.............................................................................
 
@@ -22,380 +13,64 @@ namespace rt {
 #	define JNC_BEGIN_GC_SITE() \
 	__try {
 
-#	ifdef _JNC_SHARED_EXTENSION_LIB
-#		define JNC_END_GC_SITE() \
-	} __except (jnc::ext::g_extensionLibHost->handleGcSehException (__jncRuntime, GetExceptionCode (), GetExceptionInformation ())) { }
-#	else
-#		define JNC_END_GC_SITE() \
-	} __except (__jncRuntime->m_gcHeap.handleSehException (GetExceptionCode (), GetExceptionInformation ())) { }
-#endif
+#define JNC_END_GC_SITE() \
+	} __except (jnc_GcHeap_handleGcSehException ( \
+		__jncGcHeap, \
+		GetExceptionCode (), \
+		GetExceptionInformation () \
+		)) { }
 
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#else
 #	define JNC_BEGIN_GC_SITE()
 #	define JNC_END_GC_SITE()
 #endif
 
-#ifdef _JNC_SHARED_EXTENSION_LIB
+#define JNC_BEGIN_CALL_SITE(runtime) \
+{ \
+	jnc_Runtime* __jncRuntime = (runtime); \
+	jnc_GcHeap* __jncGcHeap = jnc_Runtime_getGcHeap (runtime); \
+	int __jncIsNoCollectRegion = 0; \
+	int __jncCanCollectAtEnd = 0; \
+	jnc_ExceptionRecoverySnapshot ___jncErs; \
+	JNC_BEGIN_GC_SITE() \
+	jnc_Runtime_initializeThread (__jncRuntime, &___jncErs); \
+	AXL_SYS_BEGIN_SJLJ_TRY () \
 
-typedef ext::Runtime   Runtime;
-typedef ext::Module    Module;
-typedef ext::Function  Function;
-typedef ext::Type      Type;
-typedef ext::ClassType ClassType;
+#define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
+	JNC_BEGIN_CALL_SITE (runtime) \
+	__jncIsNoCollectRegion = 1; \
+	__jncCanCollectAtEnd = canCollectAtEnd; \
+	jnc_GcHeap_enterNoCollectRegion (__jncGcHeap);
 
-inline
-Runtime* 
-getCurrentThreadRuntime ()
-{
-	return ext::g_extensionLibHost->getCurrentThreadRuntime ();	
+#define JNC_CALL_SITE_CATCH() \
+	AXL_SYS_SJLJ_CATCH ()
+
+#define JNC_CALL_SITE_FINALLY() \
+	AXL_SYS_SJLJ_FINALLY ()
+
+#define JNC_END_CALL_SITE_IMPL() \
+	AXL_SYS_END_SJLJ_TRY_EX (&___jncErs.m_result) \
+	if (__jncIsNoCollectRegion && ___jncErs.m_result) \
+		jnc_GcHeap_leaveNoCollectRegion (__jncGcHeap, __jncCanCollectAtEnd); \
+	jnc_Runtime_uninitializeThread (__jncRuntime, &___jncErs); \
+	JNC_END_GC_SITE () \
+
+#define JNC_END_CALL_SITE() \
+	JNC_END_CALL_SITE_IMPL() \
 }
 
-inline
-void
-initializeThread (
-	Runtime* runtime,
-	ExceptionRecoverySnapshot* ers
-	)
-{
-	ext::g_extensionLibHost->initializeRuntimeThread (runtime, ers);
+#define JNC_END_CALL_SITE_EX(result) \
+	JNC_END_CALL_SITE_IMPL() \
+	*(result) = ___jncErs.m_result != 0; \
 }
 
-inline
-void
-uninitializeThread (
-	Runtime* runtime,
-	ExceptionRecoverySnapshot* ers
-	)
-{
-	ext::g_extensionLibHost->uninitializeRuntimeThread (runtime, ers);
-}
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-inline
-void
-enterNoCollectRegion (Runtime* runtime)
-{
-	ext::g_extensionLibHost->enterNoCollectRegion (runtime);
-}
+#ifdef __cplusplus
 
-inline
-void
-leaveNoCollectRegion (
-	Runtime* runtime,
-	bool canCollectNow
-	)
-{
-	ext::g_extensionLibHost->leaveNoCollectRegion (runtime, canCollectNow);
-}
+namespace jnc {
 
-inline
-void
-enterWaitRegion (Runtime* runtime)
-{
-	ext::g_extensionLibHost->enterWaitRegion (runtime);
-}
-
-inline
-void
-leaveWaitRegion (Runtime* runtime)
-{
-	ext::g_extensionLibHost->leaveWaitRegion (runtime);
-}
-
-inline
-void*
-getFunctionMachineCode (Function* function)
-{
-	return ext::g_extensionLibHost->getFunctionMachineCode (function);
-}
-
-inline
-void*
-getMulticastCallMethodMachineCode (Multicast* multicast)
-{
-	return ext::g_extensionLibHost->getMulticastCallMethodMachineCode (multicast);
-}
-
-inline
-IfaceHdr*
-allocateClass (
-	Runtime* runtime,
-	ClassType* type
-	)
-{
-	return ext::g_extensionLibHost->allocateClass (runtime, type);
-}
-
-inline
-DataPtr
-allocateData (
-	Runtime* runtime,
-	Type* type
-	)
-{
-	return ext::g_extensionLibHost->allocateData (runtime, type);
-}
-
-inline
-DataPtr
-allocateArray (
-	Runtime* runtime,
-	Type* type,
-	size_t count
-	)
-{
-	return ext::g_extensionLibHost->allocateArray (runtime, type, count);
-}
-
-inline
-DataPtrValidator*
-createDataPtrValidator (
-	Runtime* runtime,	
-	Box* box,
-	void* rangeBegin,
-	size_t rangeLength
-	)
-{
-	return ext::g_extensionLibHost->createDataPtrValidator (runtime, box, rangeBegin, rangeLength);
-}
-
-inline
-void
-primeClass (
-	Box* box,
-	Box* root,
-	ClassType* type,
-	void* vtable = NULL // if null then vtable of class type will be used
-	)
-{
-	return ext::g_extensionLibHost->primeClass (box, root, type, vtable);
-}
-
-inline
-void
-gcWeakMark (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	ext::g_extensionLibHost->gcWeakMark (gcHeap, box);
-}
-
-inline
-void
-gcMarkData (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	ext::g_extensionLibHost->gcMarkData (gcHeap, box);
-}
-
-inline
-void
-gcMarkClass (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	ext::g_extensionLibHost->gcMarkClass (gcHeap, box);
-}
-
-inline
-size_t 
-strLen (DataPtr ptr)
-{
-	return ext::g_extensionLibHost->strLen (ptr);
-}
-
-inline
-DataPtr
-strDup (
-	const char* p,
-	size_t length = -1
-	)
-{
-	return ext::g_extensionLibHost->strDup (p, length);
-}
-
-inline
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	)
-{
-	return ext::g_extensionLibHost->memDup (p, size);
-}
-
-#else
-
-typedef ct::Module    Module;
-typedef ct::Function  Function;
-typedef ct::Type      Type;
-typedef ct::ClassType ClassType;
-
-inline
-void
-initializeThread (
-	Runtime* runtime,
-	ExceptionRecoverySnapshot* ers
-	)
-{
-	runtime->initializeThread (ers);
-}
-
-inline
-void
-uninitializeThread (
-	Runtime* runtime,
-	ExceptionRecoverySnapshot* ers
-	)
-{
-	runtime->uninitializeThread (ers);
-}
-
-inline
-void
-enterNoCollectRegion (Runtime* runtime)
-{
-	runtime->m_gcHeap.enterNoCollectRegion ();
-}
-
-inline
-void
-leaveNoCollectRegion (
-	Runtime* runtime,
-	bool canCollectNow
-	)
-{
-	runtime->m_gcHeap.leaveNoCollectRegion (canCollectNow);
-}
-
-inline
-void
-enterWaitRegion (Runtime* runtime)
-{
-	runtime->m_gcHeap.enterWaitRegion ();
-}
-
-inline
-void
-leaveWaitRegion (Runtime* runtime)
-{
-	runtime->m_gcHeap.leaveWaitRegion ();
-}
-inline
-void*
-getFunctionMachineCode (Function* function)
-{
-	return function->getMachineCode ();
-}
-
-inline
-void*
-getMulticastCallMethodMachineCode (Multicast* multicast)
-{
-	ct::MulticastClassType* type = (ct::MulticastClassType*) multicast->m_box->m_type;
-	return type->getMethod (ct::MulticastMethodKind_Call)->getMachineCode ();
-}
-
-inline
-IfaceHdr*
-allocateClass (
-	Runtime* runtime,
-	ClassType* type
-	)
-{
-	return runtime->m_gcHeap.allocateClass (type);
-}
-
-inline
-DataPtr
-allocateData (
-	Runtime* runtime,
-	Type* type
-	)
-{
-	return runtime->m_gcHeap.allocateData (type);
-}
-
-inline
-DataPtr
-allocateArray (
-	Runtime* runtime,
-	Type* type,
-	size_t count
-	)
-{
-	return runtime->m_gcHeap.allocateArray (type, count);
-}
-
-inline
-DataPtrValidator*
-createDataPtrValidator (
-	Runtime* runtime,	
-	Box* box,
-	void* rangeBegin,
-	size_t rangeLength
-	)
-{
-	return runtime->m_gcHeap.createDataPtrValidator (box, rangeBegin, rangeLength);
-}
-
-void
-primeClass (
-	Box* box,
-	Box* root,
-	ClassType* type,
-	void* vtable = NULL // if null then vtable of class type will be used
-	);
-
-inline
-void
-gcWeakMark (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	gcHeap->weakMark (box);
-}
-
-inline
-void
-gcMarkData (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	gcHeap->markData (box);
-}
-
-inline
-void
-gcMarkClass (
-	GcHeap* gcHeap,
-	Box* box
-	)
-{
-	gcHeap->markClass (box);
-}
-
-size_t 
-strLen (DataPtr ptr);
-
-DataPtr
-strDup (
-	const char* p,
-	size_t length = -1
-	);
-
-DataPtr
-memDup (
-	const void* p,
-	size_t size
-	);
-
-#endif
+//.............................................................................
 
 inline
 void
@@ -405,7 +80,7 @@ primeClass (
 	void* vtable = NULL // if null then vtable of class type will be used
 	)
 {
-	primeClass (box, box, type, vtable);
+	jnc_primeClass (box, box, type, vtable);
 }
 
 template <typename T>
@@ -455,83 +130,51 @@ primeClass (
 class ScopedNoCollectRegion
 {
 protected:
-	Runtime* m_runtime;
+	GcHeap* m_gcHeap;
 	bool m_canCollectOnLeave;
 
 public:
+	ScopedNoCollectRegion (
+		GcHeap* gcHeap,
+		bool canCollectOnLeave
+		)
+	{
+		init (gcHeap, canCollectOnLeave);
+	}
+
 	ScopedNoCollectRegion (
 		Runtime* runtime,
 		bool canCollectOnLeave
 		)
 	{
-		init (runtime, canCollectOnLeave);
+		init (runtime->getGcHeap (), canCollectOnLeave);
 	}
 
 	ScopedNoCollectRegion (bool canCollectOnLeave)
 	{
-		Runtime* runtime = getCurrentThreadRuntime ();
-		ASSERT (runtime);
+		GcHeap* gcHeap = getCurrentThreadGcHeap ();
+		ASSERT (gcHeap);
 
-		init (runtime, canCollectOnLeave);
+		init (gcHeap, canCollectOnLeave);
 	}
 
 	~ScopedNoCollectRegion ()
 	{
-		leaveNoCollectRegion (m_runtime, m_canCollectOnLeave);
+		m_gcHeap->leaveNoCollectRegion (m_canCollectOnLeave);
 	}
 
 protected:
 	void
 	init (
-		Runtime* runtime,
+		GcHeap* gcHeap,
 		bool canCollectOnLeave
 		)
 	{
-		m_runtime = runtime;
+		m_gcHeap = gcHeap;
 		m_canCollectOnLeave = canCollectOnLeave;
-		enterNoCollectRegion (runtime);
+		m_gcHeap->enterNoCollectRegion ();
 	}
 };
-
-//.............................................................................
-
-#define JNC_BEGIN_CALL_SITE(runtime) \
-{ \
-	jnc::rt::Runtime* __jncRuntime = (runtime); \
-	bool __jncIsNoCollectRegion = false; \
-	bool __jncCanCollectAtEnd = false; \
-	jnc::ExceptionRecoverySnapshot ___jncErs; \
-	JNC_BEGIN_GC_SITE() \
-	jnc::rt::initializeThread (__jncRuntime, &___jncErs); \
-	AXL_SYS_BEGIN_SJLJ_TRY () \
-
-#define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
-	JNC_BEGIN_CALL_SITE (runtime) \
-	__jncIsNoCollectRegion = true; \
-	__jncCanCollectAtEnd = canCollectAtEnd; \
-	jnc::rt::enterNoCollectRegion (__jncRuntime);
-
-#define JNC_CALL_SITE_CATCH() \
-	AXL_SYS_SJLJ_CATCH ()
-
-#define JNC_CALL_SITE_FINALLY() \
-	AXL_SYS_SJLJ_FINALLY ()
-
-#define JNC_END_CALL_SITE_IMPL() \
-	AXL_SYS_END_SJLJ_TRY_EX (&___jncErs.m_result) \
-	if (__jncIsNoCollectRegion && ___jncErs.m_result) \
-		jnc::rt::leaveNoCollectRegion (__jncRuntime, __jncCanCollectAtEnd); \
-	jnc::rt::uninitializeThread (__jncRuntime, &___jncErs); \
-	JNC_END_GC_SITE () \
-
-#define JNC_END_CALL_SITE() \
-	JNC_END_CALL_SITE_IMPL() \
-}
-
-#define JNC_END_CALL_SITE_EX(result) \
-	JNC_END_CALL_SITE_IMPL() \
-	*(result) = ___jncErs.m_result != 0; \
-}
 
 //.............................................................................
 
@@ -823,7 +466,7 @@ callFunction (
 	RetVal* retVal
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, retVal);
 }
 
@@ -839,7 +482,7 @@ callFunction (
 	Arg arg
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, retVal, arg);
 }
 
@@ -857,7 +500,7 @@ callFunction (
 	Arg2 arg2
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2);
 }
 
@@ -877,7 +520,7 @@ callFunction (
 	Arg3 arg3
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2, arg3);
 }
 
@@ -899,7 +542,7 @@ callFunction (
 	Arg4 arg4
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2, arg3, arg4);
 }
 
@@ -909,7 +552,7 @@ template <typename RetVal>
 RetVal
 callFunction (Function* function)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_u <RetVal> (p);
 }
 
@@ -923,7 +566,7 @@ callFunction (
 	Arg arg
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_u <RetVal> (p, arg);
 }
 
@@ -939,7 +582,7 @@ callFunction (
 	Arg2 arg2
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_u <RetVal> (p, arg1, arg2);
 }
 
@@ -957,7 +600,7 @@ callFunction (
 	Arg3 arg3
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3);
 }
 
@@ -977,7 +620,7 @@ callFunction (
 	Arg4 arg4
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4);
 }
 
@@ -991,7 +634,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, &retVal);
 }
 
@@ -1004,7 +647,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, &retVal, arg);
 }
 
@@ -1021,7 +664,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2);
 }
 
@@ -1040,7 +683,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2, arg3);
 }
 
@@ -1061,7 +704,7 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2, arg3, arg4);
 }
 
@@ -1071,7 +714,7 @@ inline
 void
 callVoidFunction (Function* function)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	callFunctionImpl_u <void> (p);
 }
 
@@ -1082,7 +725,7 @@ callVoidFunction (
 	Arg arg
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	callFunctionImpl_u <void> (p, arg);
 }
 
@@ -1097,7 +740,7 @@ callVoidFunction (
 	Arg2 arg2
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	callFunctionImpl_u <void> (p, arg1, arg2);
 }
 
@@ -1114,7 +757,7 @@ callVoidFunction (
 	Arg3 arg3
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	callFunctionImpl_u <void> (p, arg1, arg2, arg3);
 }
 
@@ -1133,7 +776,7 @@ callVoidFunction (
 	Arg4 arg4
 	)
 {
-	void* p = getFunctionMachineCode (function);
+	void* p = function->getMachineCode ();
 	callFunctionImpl_u <void> (p, arg1, arg2, arg3, arg4);
 }
 
@@ -1791,5 +1434,6 @@ createData (
 
 //.............................................................................
 
-} // namespace rt
 } // namespace jnc
+
+#endif // __cplusplus

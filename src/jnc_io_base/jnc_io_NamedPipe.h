@@ -14,13 +14,13 @@ class NamedPipe: public IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (NamedPipe, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.NamedPipe", g_ioLibCacheSlot, IoLibTypeCacheSlot_NamedPipe)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.NamedPipe", g_ioLibCacheSlot, IoLibCacheSlot_NamedPipe)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <NamedPipe>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <NamedPipe>)
 		JNC_MAP_FUNCTION ("open",   &NamedPipe::open)
 		JNC_MAP_FUNCTION ("close",  &NamedPipe::close)
 		JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

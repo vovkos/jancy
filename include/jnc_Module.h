@@ -1,6 +1,9 @@
 #pragma once
 
-#include "jnc_Def.h"
+#include "jnc_Namespace.h"
+#include "jnc_DerivableType.h"
+#include "jnc_Function.h"
+#include "jnc_Property.h"
 
 //.............................................................................
 
@@ -26,19 +29,21 @@ jnc_Module_mapFunction (
 	);
 
 JNC_EXTERN_C
-bool
-jnc_Module_addImport (
+void
+jnc_Module_addSource (
 	jnc_Module* module,
-	const char* fileName
+	int isForced,
+	const char* fileName,
+	const char* source,
+	size_t length = -1
 	);
 
 JNC_EXTERN_C
 void
-jnc_Module_addSource (
+jnc_Module_addOpaqueClassTypeInfo (
 	jnc_Module* module,
-	const char* fileName,
-	const char* source,
-	size_t length = -1
+	const char* qualifiedName,
+	const jnc_OpaqueClassTypeInfo* info
 	);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -68,13 +73,19 @@ struct jnc_Module
 		void* p
 		)
 	{
-		return jnc_Module_mapFunction (this, function, p);
+		jnc_Module_mapFunction (this, function, p);
 	}
 
-	bool
-	addImport (const char* fileName)
+
+	void
+	addSource (
+		bool isForced,
+		const char* fileName,
+		const char* source,
+		size_t length = -1
+		)
 	{
-		return jnc_Module_addImport (this, fileName);
+		jnc_Module_addSource (this, isForced, fileName, source, length);
 	}
 
 	void
@@ -84,7 +95,16 @@ struct jnc_Module
 		size_t length = -1
 		)
 	{
-		jnc_Module_addSource (this, fileName, source, length);
+		jnc_Module_addSource (this, false, fileName, source, length);
+	}
+
+	void
+	addOpaqueClassTypeInfo (
+		const char* qualifiedName,
+		const jnc_OpaqueClassTypeInfo* info
+		)
+	{
+		jnc_Module_addOpaqueClassTypeInfo (this, qualifiedName, info);
 	}
 };
 #endif // _JNC_CORE
@@ -112,11 +132,6 @@ jnc_verifyModuleItemIsClassType (
 namespace jnc {
 
 //.............................................................................
-
-typedef jnc_Module Module;
-typedef jnc_ModuleItem ModuleItem;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 jnc_DerivableType*

@@ -9,14 +9,14 @@ class MyLabel: public MyWidget
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (MyLabel, NULL)
 	
-	JNC_BEGIN_CLASS_TYPE_MAP ("Label", g_myLibCacheSlot, MyLibTypeCacheSlot_Label)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("Label", g_myLibCacheSlot, MyLibCacheSlot_Label)
 		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLabel, jnc::DataPtr>))
 		JNC_MAP_DESTRUCTOR (&sl::destruct <MyLabel>)
 		JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
 		JNC_MAP_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
 		JNC_MAP_AUTOGET_PROPERTY ("m_backColor", &MyLabel::setBackColor)
 		JNC_MAP_AUTOGET_PROPERTY ("m_alignment", &MyLabel::setAlignment)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public: 
 	jnc::DataPtr m_text;

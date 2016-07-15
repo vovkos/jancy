@@ -346,9 +346,7 @@ enum BoxFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef jnc_Type Type;
 typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
-typedef jnc_Runtime Runtime;
 typedef jnc_Box Box;
 typedef jnc_DataPtrValidator DataPtrValidator;
 typedef jnc_DataBox DataBox;

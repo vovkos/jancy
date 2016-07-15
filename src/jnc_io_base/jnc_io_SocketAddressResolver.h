@@ -18,7 +18,7 @@ enum SocketAddressResolverEventKind
 
 struct SocketAddressResolverEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddressResolverEventParams", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddressResolverEventParams)
+	JNC_BEGIN_TYPE_MAP ("io.SocketAddressResolverEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddressResolverEventParams)
 	JNC_END_TYPE_MAP ()
 
 	SocketAddressResolverEventKind m_eventKind;
@@ -37,13 +37,13 @@ class SocketAddressResolver: public jnc::IfaceHdr
 public:
 	JNC_OPAQUE_CLASS_TYPE_INFO (SocketAddressResolver, NULL)
 
-	JNC_BEGIN_CLASS_TYPE_MAP ("io.SocketAddressResolver", g_ioLibCacheSlot, IoLibTypeCacheSlot_SocketAddressResolver)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.SocketAddressResolver", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddressResolver)
 		JNC_MAP_CONSTRUCTOR (&sl::construct <SocketAddressResolver>)
 		JNC_MAP_DESTRUCTOR (&sl::destruct <SocketAddressResolver>)
 		JNC_MAP_FUNCTION ("resolve",   &SocketAddressResolver::resolve)
 		JNC_MAP_FUNCTION ("cancel",    &SocketAddressResolver::cancel)
 		JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>

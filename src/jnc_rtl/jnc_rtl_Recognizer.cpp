@@ -1,11 +1,23 @@
 #include "pch.h"
 #include "jnc_rtl_Recognizer.h"
-#include "jnc_rt_CallSite.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
 
 //.............................................................................
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Recognizer)
+	JNC_MAP_CONSTRUCTOR (&Recognizer::construct)
+	JNC_MAP_AUTOGET_PROPERTY ("m_automatonFunc", &Recognizer::setAutomatonFunc)
+	JNC_MAP_AUTOGET_PROPERTY ("m_lexemeLengthLimit", &Recognizer::setLexemeLengthLimit)
+	JNC_MAP_AUTOGET_PROPERTY ("m_currentOffset", &Recognizer::setCurrentOffset)
+	JNC_MAP_FUNCTION ("reset", &Recognizer::reset)
+	JNC_MAP_FUNCTION ("write", &Recognizer::write)
+	JNC_MAP_FUNCTION ("eof", &Recognizer::eof)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 AXL_CDECL
@@ -17,10 +29,10 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 	m_lexemeLengthLimit = 128;
 	m_currentOffset = 0;
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	m_lexemePtr = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
+	m_lexemePtr = gcHeap->allocateBuffer (m_lexemeLengthLimit);
 	setAutomatonFunc (automatonFuncPtr);
 }
 
@@ -43,10 +55,10 @@ Recognizer::setLexemeLengthLimit (size_t length)
 	if (length <= m_lexemeLengthLimit)
 		return;
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	DataPtr ptr = runtime->m_gcHeap.allocateBuffer (m_lexemeLengthLimit);
+	DataPtr ptr = gcHeap->allocateBuffer (m_lexemeLengthLimit);
 	if (m_lexemeLength)
 		memcpy (ptr.m_p, m_lexemePtr.m_p, m_lexemeLength);
 
@@ -94,7 +106,7 @@ Recognizer::write (
 	}
 
 	if (length == -1)
-		length = rt::strLen (ptr);
+		length = strLen (ptr);
 
 	if (!length)
 		return true;

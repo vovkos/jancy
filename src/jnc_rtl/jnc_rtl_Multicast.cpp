@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "jnc_rtl_Multicast.h"
-#include "jnc_rtl_CoreLib.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
@@ -71,16 +71,11 @@ MulticastImpl::setCount (
 		return true;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
-
-	ASSERT (isClassType (m_box->m_type, ct::ClassTypeKind_Multicast));
-	ct::MulticastClassType* multicastType = (ct::MulticastClassType*) m_box->m_type;
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
 	size_t maxCount = sl::getMinPower2Ge (count);
-	DataPtr ptr = runtime->m_gcHeap.tryAllocateArray (multicastType->getTargetType (), maxCount);
-	if (!ptr.m_p)
-		return false;
+	DataPtr ptr = gcHeap->allocateArray (getMulticastTargetType (this), maxCount);
 
 	if (m_count)
 		memcpy (ptr.m_p, m_ptr.m_p, m_count * ptrSize);
@@ -94,32 +89,28 @@ MulticastImpl::setCount (
 FunctionPtr
 MulticastImpl::getSnapshot ()
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
+	ScopedNoCollectRegion noCollectRegion (gcHeap, false);
 
-	ASSERT (isClassType (m_box->m_type, ct::ClassTypeKind_Multicast));
-	ct::MulticastClassType* multicastType = (ct::MulticastClassType*) m_box->m_type;
-	ct::McSnapshotClassType* snapshotType = multicastType->getSnapshotType ();
-	ct::FunctionPtrType* targetType = multicastType->getTargetType ();
-	McSnapshot* snapshot = (McSnapshot*) runtime->m_gcHeap.allocateClass (snapshotType);
+	ClassType* snapshotType = getMulticastSnapshotType (this);
+	Type* targetType = getMulticastTargetType (this);
+	bool isWeak = isMulticastWeak (this);
+	McSnapshot* snapshot = (McSnapshot*) gcHeap->allocateClass (snapshotType);
 
 	FunctionPtr resultPtr;
-	resultPtr.m_p = snapshotType->getMethod (ct::McSnapshotMethodKind_Call)->getMachineCode ();
+	resultPtr.m_p = getMcSnapshotCallMethodMachineCode (snapshot);
 	resultPtr.m_closure = snapshot;
 
 	if (!m_count)
 		return resultPtr;
 
-	snapshot->m_ptr = runtime->m_gcHeap.tryAllocateArray (targetType, m_count);
-	if (!snapshot->m_ptr.m_p)
-		return resultPtr;
+	snapshot->m_ptr = gcHeap->allocateArray (targetType, m_count);
 
-	size_t targetTypeSize = targetType->getSize ();
-
-	if (multicastType->getTargetType ()->getPtrTypeKind () != ct::FunctionPtrTypeKind_Weak)
+	if (!isWeak)
 	{
+		size_t targetTypeSize = jnc_Type_getSize (targetType);
 		snapshot->m_count = m_count;
 		memcpy (snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetTypeSize);
 		return resultPtr;
@@ -132,7 +123,9 @@ MulticastImpl::getSnapshot ()
 	size_t aliveCount = 0;
 	for (; srcPtr < srcPtrEnd; srcPtr++)
 	{
-		if (CoreLib::strengthenClassPtr (srcPtr->m_closure))
+		bool strengthenClassPtr (IfaceHdr*);
+
+		if (strengthenClassPtr (srcPtr->m_closure))
 		{
 			*dstPtr = *srcPtr;
 			dstPtr++;
@@ -142,8 +135,8 @@ MulticastImpl::getSnapshot ()
 
 	if (aliveCount != m_count) // remove dead pointers from multicast
 	{
-		size_t oldSize = m_count * targetTypeSize;
-		size_t aliveSize = aliveCount * targetTypeSize;
+		size_t oldSize = m_count * sizeof (FunctionPtr);
+		size_t aliveSize = aliveCount * sizeof (FunctionPtr);
 
 		memcpy (m_ptr.m_p, snapshot->m_ptr.m_p, aliveSize);
 		memset ((char*) m_ptr.m_p + aliveSize, 0, oldSize - aliveSize);

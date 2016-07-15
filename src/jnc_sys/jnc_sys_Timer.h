@@ -1,7 +1,8 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_ExtensionLib.h"
 #include "jnc_sys_SysLibGlobals.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace sys {
@@ -10,16 +11,6 @@ namespace sys {
 
 class Timer: public IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Timer, NULL)
-
-	JNC_BEGIN_CLASS_TYPE_MAP ("sys.Timer", g_sysLibCacheSlot, SysLibTypeCacheSlot_Timer)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Timer>)
-		JNC_MAP_FUNCTION ("start", &Timer::start)
-		JNC_MAP_FUNCTION ("stop", &Timer::stop)
-	JNC_END_CLASS_TYPE_MAP ()
-
 protected:
 	class ThreadImpl: public axl::sys::ThreadImpl <ThreadImpl>
 	{
@@ -35,7 +26,7 @@ public:
 	FunctionPtr m_timerFuncPtr;
 
 protected:
-	jnc::rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	ThreadImpl m_thread;
 	axl::sys::Event m_stopEvent;
 	uint64_t m_dueTime;
@@ -44,7 +35,7 @@ protected:
 public:
 	Timer ()
 	{
-		m_runtime = rt::getCurrentThreadRuntime ();
+		m_runtime = getCurrentThreadRuntime ();
 		ASSERT (m_runtime);
 	}
 
@@ -70,6 +61,17 @@ protected:
 	threadFunc ();
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (
+	Timer, 
+	"sys.Timer", 
+	g_sysLibGuid, 
+	SysLibCacheSlot_Timer,
+	Timer, 
+	NULL
+	)
+	
 //.............................................................................
 
 } // namespace sys

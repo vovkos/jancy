@@ -10,7 +10,7 @@ namespace std {
 
 struct StringRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.StringRef", g_stdLibCacheSlot, StdLibTypeCacheSlot_StringRef)
+	JNC_BEGIN_TYPE_MAP ("std.StringRef", g_stdLibCacheSlot, StdLibCacheSlot_StringRef)
 	JNC_END_TYPE_MAP ()
 
 public:
@@ -23,7 +23,7 @@ public:
 
 struct String
 {
-	JNC_BEGIN_TYPE_MAP ("std.String", g_stdLibCacheSlot, StdLibTypeCacheSlot_String)
+	JNC_BEGIN_TYPE_MAP ("std.String", g_stdLibCacheSlot, StdLibCacheSlot_String)
 		JNC_MAP_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
 		JNC_MAP_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
 		JNC_MAP_FUNCTION ("copy", &String::copy_s1)
@@ -97,10 +97,10 @@ protected:
 class StringBuilder: public IfaceHdr
 {
 public:
-	JNC_BEGIN_CLASS_TYPE_MAP ("std.StringBuilder", g_stdLibCacheSlot, StdLibTypeCacheSlot_StringBuilder)
+	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.StringBuilder", g_stdLibCacheSlot, StdLibCacheSlot_StringBuilder)
 		JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
 		JNC_MAP_FUNCTION ("append", &StringBuilder::append)
-	JNC_END_CLASS_TYPE_MAP ()
+	JNC_END_TYPE_FUNCTION_MAP ()
 
 public:
 	DataPtr m_ptr;
