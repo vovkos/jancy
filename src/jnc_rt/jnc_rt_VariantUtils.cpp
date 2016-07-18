@@ -28,7 +28,7 @@ variantUnaryOperator (
 		opValue, 
 		&resultValue
 		) && 
-		module->m_operatorMgr.castOperator (&resultValue, ct::TypeKind_Variant);
+		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Variant);
 	
 	return result ? *(Variant*) resultValue.getConstData () : g_nullVariant;
 }
@@ -67,7 +67,7 @@ variantBinaryOperator (
 		opValue2, 
 		&resultValue
 		) && 
-		module->m_operatorMgr.castOperator (&resultValue, ct::TypeKind_Variant);
+		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Variant);
 	
 	return result ? *(Variant*) resultValue.getConstData () : g_nullVariant;
 }
@@ -127,7 +127,7 @@ HashVariant::operator () (const Variant& variant)
 		return (uintptr_t) result;		
 	}
 
-	if (size <= sizeof (uintptr_t) || variant.m_type->getTypeKind () == ct::TypeKind_DataPtr)
+	if (size <= sizeof (uintptr_t) || variant.m_type->getTypeKind () == TypeKind_DataPtr)
 		return variant.m_uintptr;
 
 	const void* p = size <= sizeof (DataPtr) ? &variant : variant.m_p;

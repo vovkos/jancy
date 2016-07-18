@@ -1,35 +1,35 @@
 #pragma once
 
-#define _JNC_PROPERTY_H
+#define _JNC_ARRAYTYPE_H
 
-#include "jnc_Def.h"
+#include "jnc_Type.h"
 
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_Function*
-jnc_Property_getGetter (jnc_Property* prop);
+jnc_Type*
+jnc_ArrayType_getElementType (jnc_ArrayType* type);
 
 JNC_EXTERN_C
-jnc_Function*
-jnc_Property_getSetter (jnc_Property* prop);
+size_t
+jnc_ArrayType_getElementCount (jnc_ArrayType* type);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Property
+struct jnc_ArrayType: jnc_Type
 {
-	jnc_Function*
-	getGetter ()
+	jnc_Type*
+	getElementType ()
 	{
-		return jnc_Property_getGetter (this);
+		return jnc_ArrayType_getElementType (this);
 	}
 
-	jnc_Function*
-	getSetter ()
+	size_t
+	getElementCount ()
 	{
-		return jnc_Property_getSetter (this);
+		return jnc_ArrayType_getElementCount (this);
 	}
 };
 

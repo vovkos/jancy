@@ -30,13 +30,6 @@ jnc_Function_getMachineCode (jnc_Function* function)
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getMachineCodeFunc (function);
 }
 
-JNC_EXTERN_C
-jnc_Function*
-jnc_getMulticastCallMethod (jnc_Multicast* multicast)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getMulticastCallMethodFunc (multicast);
-}
-
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
@@ -61,15 +54,6 @@ void*
 jnc_Function_getMachineCode (jnc_Function* function)
 {
 	return function->getMachineCode ();
-}
-
-JNC_EXTERN_C
-jnc_Function*
-jnc_getMulticastCallMethod (jnc_Multicast* multicast)
-{
-	using namespace jnc;
-	ct::MulticastClassType* type = (ct::MulticastClassType*) multicast->m_box->m_type;
-	return type->getMethod (ct::MulticastMethodKind_Call);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

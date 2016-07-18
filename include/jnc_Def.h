@@ -1,5 +1,7 @@
 #pragma once
 
+#define _JNC_DEF_H
+
 //.............................................................................
 
 #ifdef _MSC_VER
@@ -42,7 +44,10 @@ namespace ct {
 class ModuleItem;
 class Namespace;
 class Type;
+class ArrayType;
 class DerivableType;
+class StructType;
+class UnionType;
 class ClassType;
 class Function;
 class Property;
@@ -65,7 +70,10 @@ typedef axl::err::ErrorHdr jnc_Error;
 typedef jnc::ct::ModuleItem jnc_ModuleItem;
 typedef jnc::ct::Namespace jnc_Namespace;
 typedef jnc::ct::Type jnc_Type;
+typedef jnc::ct::ArrayType jnc_ArrayType;
 typedef jnc::ct::DerivableType jnc_DerivableType;
+typedef jnc::ct::StructType jnc_StructType;
+typedef jnc::ct::UnionType jnc_UnionType;
 typedef jnc::ct::ClassType jnc_ClassType;
 typedef jnc::ct::Function jnc_Function;
 typedef jnc::ct::Property jnc_Property;
@@ -84,7 +92,10 @@ typedef struct jnc_Error jnc_Error;
 typedef struct jnc_ModuleItem jnc_ModuleItem;
 typedef struct jnc_Namespace jnc_Namespace;
 typedef struct jnc_Type jnc_Type;
+typedef struct jnc_ArrayType jnc_ArrayType;
 typedef struct jnc_DerivableType jnc_DerivableType;
+typedef struct jnc_StructType jnc_StructType;
+typedef struct jnc_UnionType jnc_UnionType;
 typedef struct jnc_ClassType jnc_ClassType;
 typedef struct jnc_Function jnc_Function;
 typedef struct jnc_Property jnc_Property;
@@ -166,7 +177,10 @@ typedef jnc_Error Error;
 typedef jnc_ModuleItem ModuleItem;
 typedef jnc_Namespace Namespace;
 typedef jnc_Type Type;
+typedef jnc_ArrayType ArrayType;
 typedef jnc_DerivableType DerivableType;
+typedef jnc_StructType StructType;
+typedef jnc_UnionType UnionType;
 typedef jnc_ClassType ClassType;
 typedef jnc_Function Function;
 typedef jnc_Property Property;

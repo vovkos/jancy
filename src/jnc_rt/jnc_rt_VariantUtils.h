@@ -5,7 +5,8 @@
 #pragma once
 
 #include "jnc_RuntimeStructs.h"
-#include "jnc_ct_BinOp.h"
+#include "jnc_Variant.h"
+#include "jnc_OpKind.h"
 
 namespace jnc {
 namespace rt {

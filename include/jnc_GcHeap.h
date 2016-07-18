@@ -1,5 +1,7 @@
 #pragma once
 
+#define _JNC_GCHEAP_H
+
 #include "jnc_RuntimeStructs.h"
 
 //.............................................................................

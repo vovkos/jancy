@@ -194,4 +194,16 @@ jnc_DerivableType_getNamespace (jnc_DerivableType* type)
 	return type;
 }
 
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_findBaseTypeOffset (
+	jnc_DerivableType* type,
+	jnc_Type* baseType
+	)
+{
+	jnc::ct::BaseTypeCoord coord;
+	bool result = type->findBaseTypeTraverse (baseType, &coord);
+	return result ? coord.m_offset : -1;
+}
+
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -226,7 +226,7 @@ GcHeap::allocateClass (ct::ClassType* type)
 void
 GcHeap::addClassBox_l (Box* box)
 {
-	ASSERT (box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (box->m_type->getTypeKind () == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*) box->m_type;
 
 	char* p = (char*) (box + 1);
@@ -239,7 +239,7 @@ GcHeap::addClassBox_l (Box* box)
 		Box* childBox = (Box*) (p + field->getOffset ());
 
 		ASSERT (
-			field->getType ()->getTypeKind () == ct::TypeKind_Class &&
+			field->getType ()->getTypeKind () == TypeKind_Class &&
 			childBox->m_type == field->getType ());
 
 		addClassBox_l (childBox);
@@ -348,7 +348,7 @@ GcHeap::tryAllocateBuffer (size_t size)
 	ct::Module* module = m_runtime->getModule ();
 	ASSERT (module);
 
-	ct::Type* type = module->m_typeMgr.getPrimitiveType (ct::TypeKind_Char);
+	ct::Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
 	return tryAllocateArray (type, size);
 }
 
@@ -358,7 +358,7 @@ GcHeap::allocateBuffer (size_t size)
 	ct::Module* module = m_runtime->getModule ();
 	ASSERT (module);
 
-	ct::Type* type = module->m_typeMgr.getPrimitiveType (ct::TypeKind_Char);
+	ct::Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_Char);
 	return allocateArray (type, size);
 }
 
@@ -738,7 +738,7 @@ GcHeap::markData (Box* box)
 		return;
 
 	ASSERT (!(box->m_flags & BoxFlag_StaticData));
-	if (box->m_type->getTypeKind () == ct::TypeKind_Class)
+	if (box->m_type->getTypeKind () == TypeKind_Class)
 	{
 		addRoot (box, box->m_type);
 	}
@@ -771,7 +771,7 @@ GcHeap::markClass (Box* box)
 void
 GcHeap::markClassFields (Box* box)
 {
-	ASSERT (box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (box->m_type->getTypeKind () == TypeKind_Class);
 	
 	char* p0 = (char*) (box + 1);
 	ct::ClassType* classType = (ct::ClassType*) box->m_type;
@@ -794,7 +794,7 @@ GcHeap::markClassFields (Box* box)
 void
 GcHeap::weakMarkClosureClass (Box* box)
 {
-	ASSERT (!box->m_rootOffset && box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (!box->m_rootOffset && box->m_type->getTypeKind () == TypeKind_Class);
 
 	if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
 		return;
@@ -816,7 +816,7 @@ GcHeap::weakMarkClosureClass (Box* box)
 	// add this arg as weak pointer
 
 	ct::StructField* thisArgField = closureClassType->getFieldByIndex (thisArgFieldIdx);
-	ASSERT (thisArgField && thisArgField->getType ()->getTypeKind () == ct::TypeKind_ClassPtr);
+	ASSERT (thisArgField && thisArgField->getType ()->getTypeKind () == TypeKind_ClassPtr);
 	ct::ClassPtrType* weakPtrType = ((ct::ClassPtrType*) (thisArgField->getType ()))->getWeakPtrType ();
 	addRoot (p0 + thisArgField->getOffset (), weakPtrType);
 
@@ -855,7 +855,7 @@ GcHeap::addRoot (
 			ASSERT (validator->m_validatorBox->m_type == targetType);
 			weakMark (validator->m_validatorBox);
 		}
-		else if (targetType->getTypeKind () == ct::TypeKind_Class)
+		else if (targetType->getTypeKind () == TypeKind_Class)
 		{
 			Box* box = ((Box*) p) - 1;
 			ASSERT (box->m_type == targetType);
@@ -877,7 +877,7 @@ GcHeap::addRootArray (
 	size_t count
 	)
 {
-	ASSERT (type->getTypeKind () != ct::TypeKind_Class && (type->getFlags () & ct::TypeFlag_GcRoot));
+	ASSERT (type->getTypeKind () != TypeKind_Class && (type->getFlags () & ct::TypeFlag_GcRoot));
 
 	sl::Array <Root>* markRootArray = &m_markRootArray [m_currentMarkRootArrayIdx];
 	size_t baseCount = markRootArray->getCount ();

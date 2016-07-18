@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define _JNC_RUNTIMESTRUCTS_H
+
 #include "jnc_Def.h"
 
 typedef enum jnc_BoxFlag jnc_BoxFlag;
@@ -16,11 +18,8 @@ typedef struct jnc_DataPtr jnc_DataPtr;
 typedef struct jnc_FunctionPtr jnc_FunctionPtr;
 typedef struct jnc_PropertyPtr jnc_PropertyPtr;
 typedef struct jnc_IfaceHdr jnc_IfaceHdr;
-typedef struct jnc_Multicast jnc_Multicast;
-typedef struct jnc_McSnapshot jnc_McSnapshot;
 typedef struct jnc_ReactorBindSite jnc_ReactorBindSite;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
-typedef struct jnc_Variant jnc_Variant;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
 typedef struct jnc_GcMutatorThread jnc_GcMutatorThread;
 typedef struct jnc_OpaqueClassTypeInfo jnc_OpaqueClassTypeInfo;
@@ -146,28 +145,6 @@ struct jnc_IfaceHdr
 
 //.............................................................................
 
-// structures backing up multicast, e.g.:
-// mutlicast onFire ();
-
-JNC_BEGIN_INHERITED_STRUCT (jnc_Multicast, jnc_IfaceHdr)
-	volatile intptr_t m_lock;
-	jnc_DataPtr m_ptr; // array of function closure, weak or unsafe pointers
-	size_t m_count;
-	size_t m_maxCount;
-	void* m_handleTable;
-JNC_END_INHERITED_STRUCT ()
-
-//.............................................................................
-
-// multicast snapshot returns function pointer with this closure:
-
-JNC_BEGIN_INHERITED_STRUCT (jnc_McSnapshot, jnc_IfaceHdr)
-	jnc_DataPtr m_ptr; // array of function closure or unsafe pointers
-	size_t m_count;
-JNC_END_INHERITED_STRUCT ()
-
-//.............................................................................
-
 // structure backing up reactor bind site in reactor class
 
 struct jnc_ReactorBindSite
@@ -185,43 +162,6 @@ struct jnc_FmtLiteral
 	jnc_DataPtr m_ptr;
 	size_t m_length;
 	size_t m_maxLength;
-};
-
-//.............................................................................
-
-// structure backing up variants, e.g.:
-// variant v;
-
-struct jnc_Variant
-{
-	union 
-	{
-		int8_t m_int8;
-		uint8_t m_uint8;
-		int16_t m_int16;
-		uint16_t m_uint16;
-		int32_t m_int32;
-		uint32_t m_uint32;
-		int64_t m_int64;
-		uint64_t m_uint64;
-		intptr_t m_intptr;
-		uintptr_t m_uintptr;
-
-		float m_float;
-		double m_double;
-
-		void* m_p;
-		jnc_IfaceHdr* m_classPtr;
-		jnc_DataPtr m_dataPtr;
-		jnc_FunctionPtr m_functionPtr;
-		jnc_PropertyPtr m_propertyPtr;
-	};
-
-#if (_AXL_PTR_SIZE == 4)
-	char m_padding [4]; // ensure the same layout regardless of pack factor
-#endif
-
-	jnc_Type* m_type;
 };
 
 //.............................................................................
@@ -322,7 +262,6 @@ jnc_DestructFunc (jnc_IfaceHdr* iface);
 AXL_SELECT_ANY jnc_DataPtr jnc_g_nullPtr = { 0 };
 AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
 AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
-AXL_SELECT_ANY jnc_Variant jnc_g_nullVariant = { 0 };
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -356,11 +295,8 @@ typedef jnc_DataPtr DataPtr;
 typedef jnc_FunctionPtr FunctionPtr;
 typedef jnc_PropertyPtr PropertyPtr;
 typedef jnc_IfaceHdr IfaceHdr;
-typedef jnc_Multicast Multicast;
-typedef jnc_McSnapshot McSnapshot;
 typedef jnc_ReactorBindSite ReactorBindSite;
 typedef jnc_FmtLiteral FmtLiteral;
-typedef jnc_Variant Variant;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;
 typedef jnc_GcMutatorThread GcMutatorThread;
 typedef jnc_MarkOpaqueGcRootsFunc MarkOpaqueGcRootsFunc;
@@ -376,9 +312,8 @@ typedef jnc_DestructFunc DestructFunc;
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
-AXL_SELECT_ANY jnc_FunctionPtr g_nullFunctionPtr = { 0 };
-AXL_SELECT_ANY jnc_PropertyPtr g_nullPropertyPtr = { 0 };
-AXL_SELECT_ANY jnc_Variant g_nullVariant = { 0 };
+AXL_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
+AXL_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
 
 //.............................................................................
 

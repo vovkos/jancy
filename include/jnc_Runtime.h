@@ -1,6 +1,10 @@
 #pragma once
 
+#define _JNC_RUNTIME_H
+
 #include "jnc_RuntimeStructs.h"
+#include "jnc_Multicast.h"
+#include "jnc_Variant.h"
 #include "jnc_GcHeap.h"
 
 //.............................................................................

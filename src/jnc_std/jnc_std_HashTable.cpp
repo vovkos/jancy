@@ -10,8 +10,8 @@ void
 AXL_CDECL
 StringHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 {
-	ct::Type* ptrType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (ct::TypeKind_Void)->getDataPtrType ();
-	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (ct::TypeKind_Variant);
+	ct::Type* ptrType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType ();
+	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 
 	sl::Iterator <Entry> it = m_list.getHead ();
 	for (; it; it++)
@@ -76,7 +76,7 @@ void
 AXL_CDECL
 VariantHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
 {
-	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (ct::TypeKind_Variant);
+	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 
 	sl::Iterator <Entry> it = m_list.getHead ();
 	for (; it; it++)

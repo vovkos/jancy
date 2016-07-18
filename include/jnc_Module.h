@@ -1,6 +1,9 @@
 #pragma once
 
+#define _JNC_MODULE_H
+
 #include "jnc_Namespace.h"
+#include "jnc_ArrayType.h"
 #include "jnc_DerivableType.h"
 #include "jnc_Function.h"
 #include "jnc_Property.h"

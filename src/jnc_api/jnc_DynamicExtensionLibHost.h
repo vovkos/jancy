@@ -1,19 +1,22 @@
-// This file is part of AXL (R) Library
-// Tibbo Technology Inc (C) 2004-2013. All rights reserved
-// Author: Vladimir Gladkov
-
 #pragma once
 
+#define _JNC_DYNAMICEXTENSIONLIBHOST_H
+
 #include "jnc_RuntimeStructs.h"
+#include "jnc_Multicast.h"
+#include "jnc_Variant.h"
 #include "jnc_OpKind.h"
 
 //.............................................................................
 
 typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
+typedef struct jnc_TypeFuncTable jnc_TypeFuncTable;
 typedef struct jnc_DerivableTypeFuncTable jnc_DerivableTypeFuncTable;
 typedef struct jnc_FunctionFuncTable jnc_FunctionFuncTable;
+typedef struct jnc_MulticastFuncTable jnc_MulticastFuncTable;
 typedef struct jnc_PropertyFuncTable jnc_PropertyFuncTable;
 typedef struct jnc_NamespaceFuncTable jnc_NamespaceFuncTable;
+typedef struct jnc_VariantFuncTable jnc_VariantFuncTable;
 typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
 typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
@@ -29,6 +32,12 @@ jnc_GetLastErrorFunc ();
 typedef
 void
 jnc_SetErrorFunc (jnc_Error* error);
+
+// Type
+
+typedef
+size_t
+jnc_Type_GetSizeFunc (jnc_Type* type);
 
 // DerivableType
 
@@ -86,9 +95,15 @@ typedef
 void*
 jnc_Function_GetMachineCodeFunc (jnc_Function* function);
 
+// Multicast
+
 typedef
 jnc_Function*
-jnc_GetMulticastCallMethodFunc (jnc_Multicast* multicast);
+jnc_Multicast_getCallMethodFunc (jnc_Multicast* multicast);
+
+typedef
+jnc_Function*
+jnc_McSnapshot_getCallMethodFunc (jnc_McSnapshot* multicast);
 
 // Property
 
@@ -115,6 +130,8 @@ jnc_Namespace_FindPropertyFunc (
 	jnc_Namespace* nspace,
 	const char* name
 	);
+
+// Variant
 
 // Module
 
@@ -319,6 +336,13 @@ struct jnc_ErrorFuncTable
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct jnc_TypeFuncTable
+{
+	jnc_Type_GetSizeFunc* m_getSizeFunc;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct jnc_DerivableTypeFuncTable
 {
 	jnc_DerivableType_GetPreConstructorFunc* m_getPreConstructorFunc;
@@ -337,7 +361,14 @@ struct jnc_FunctionFuncTable
 {
 	jnc_Function_GetOverloadFunc* m_getOverloadFunc;
 	jnc_Function_GetMachineCodeFunc* m_getMachineCodeFunc;
-	jnc_GetMulticastCallMethodFunc* m_getMulticastCallMethodFunc;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_MulticastFuncTable
+{
+	jnc_Multicast_getCallMethodFunc* m_getCallMethodFunc;
+	jnc_McSnapshot_getCallMethodFunc* m_getSnapshotCallMethodFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -356,6 +387,11 @@ struct jnc_NamespaceFuncTable
 	jnc_Namespace_FindPropertyFunc* m_findPropertyFunc;
 };
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_VariantFuncTable
+{
+};
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ModuleFuncTable
@@ -409,10 +445,13 @@ struct jnc_GcHeapFuncTable
 struct jnc_DynamicExtensionLibHost
 {
 	jnc_ErrorFuncTable* m_errorFuncTable;
+	jnc_TypeFuncTable* m_TypeFuncTable;
 	jnc_DerivableTypeFuncTable* m_derivableTypeFuncTable;
 	jnc_FunctionFuncTable* m_functionFuncTable;
 	jnc_PropertyFuncTable* m_propertyFuncTable;
+	jnc_MulticastFuncTable* m_multicastFuncTable;
 	jnc_NamespaceFuncTable* m_namespaceFuncTable;
+	jnc_VariantFuncTable* m_variantFuncTable;
 	jnc_ModuleFuncTable* m_moduleFuncTable;
 	jnc_RuntimeFuncTable* m_runtimeFuncTable;
 	jnc_GcHeapFuncTable* m_gcHeapFuncTable;

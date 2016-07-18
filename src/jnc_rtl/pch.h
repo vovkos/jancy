@@ -1,7 +1,7 @@
 #pragma once
 
-#include "jnc_ext_Pch.h"
+#include "jnc_ct_Pch.h"
 
-// #define _JNC_CORE
+#define _JNC_CORE
 
 using namespace axl;

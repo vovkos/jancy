@@ -1,6 +1,8 @@
 #pragma once
 
-#include "jnc_Def.h"
+#define _JNC_DERIVABLETYPE_H
+
+#include "jnc_Type.h"
 #include "jnc_OpKind.h"
 
 //.............................................................................
@@ -46,11 +48,18 @@ JNC_EXTERN_C
 jnc_Namespace*
 jnc_DerivableType_getNamespace (jnc_DerivableType* type);
 
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_findBaseTypeOffset (
+	jnc_DerivableType* type,
+	jnc_Type* baseType
+	);
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_DerivableType
+struct jnc_DerivableType: jnc_Type
 {
 	jnc_Function*
 	getPreConstructor ()
@@ -99,6 +108,24 @@ struct jnc_DerivableType
 	{
 		return jnc_DerivableType_getNamespace (this);
 	}
+
+	size_t
+	findBaseTypeOffset (jnc_Type* baseType)
+	{
+		return jnc_DerivableType_findBaseTypeOffset (this, baseType);
+	}
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_StructType: jnc_DerivableType
+{
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_ClassType: jnc_DerivableType
+{
 };
 
 #endif // _JNC_CORE

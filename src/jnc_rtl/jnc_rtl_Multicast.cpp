@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "jnc_rtl_Multicast.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_ct_Function.h"
+#include "jnc_Type.h"
 #include "jnc_CallSite.h"
 
 namespace jnc {
@@ -74,8 +77,9 @@ MulticastImpl::setCount (
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
+	Type* targetType = getTargetType ();
 	size_t maxCount = sl::getMinPower2Ge (count);
-	DataPtr ptr = gcHeap->allocateArray (getMulticastTargetType (this), maxCount);
+	DataPtr ptr = gcHeap->allocateArray (targetType, maxCount);
 
 	if (m_count)
 		memcpy (ptr.m_p, m_ptr.m_p, m_count * ptrSize);
@@ -94,13 +98,12 @@ MulticastImpl::getSnapshot ()
 
 	ScopedNoCollectRegion noCollectRegion (gcHeap, false);
 
-	ClassType* snapshotType = getMulticastSnapshotType (this);
-	Type* targetType = getMulticastTargetType (this);
-	bool isWeak = isMulticastWeak (this);
+	ClassType* snapshotType = getSnapshotType ();
+	Type* targetType = getTargetType ();
 	McSnapshot* snapshot = (McSnapshot*) gcHeap->allocateClass (snapshotType);
 
 	FunctionPtr resultPtr;
-	resultPtr.m_p = getMcSnapshotCallMethodMachineCode (snapshot);
+	resultPtr.m_p = snapshot->getCallMethod ()->getMachineCode ();
 	resultPtr.m_closure = snapshot;
 
 	if (!m_count)
@@ -108,9 +111,9 @@ MulticastImpl::getSnapshot ()
 
 	snapshot->m_ptr = gcHeap->allocateArray (targetType, m_count);
 
-	if (!isWeak)
+	if (!isWeak ())
 	{
-		size_t targetTypeSize = jnc_Type_getSize (targetType);
+		size_t targetTypeSize = targetType->getSize ();
 		snapshot->m_count = m_count;
 		memcpy (snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetTypeSize);
 		return resultPtr;

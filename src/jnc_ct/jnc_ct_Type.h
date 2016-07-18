@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "jnc_Type.h"
 #include "jnc_ct_Namespace.h"
 #include "jnc_ct_StdType.h"
 
@@ -28,114 +29,6 @@ class Value;
 struct DataPtrTypeTuple;
 struct SimplePropertyTypeTuple;
 struct FunctionArgTuple;
-
-//.............................................................................
-
-enum TypeKind
-{
-	// primitive types (completely identified by EType)
-
-	TypeKind_Void,                // v
-	TypeKind_Variant,             // z
-	TypeKind_Bool,                // b
-
-	// little-endian integers
-
-	TypeKind_Int8,                // is1
-	TypeKind_Int8_u,              // iu1
-	TypeKind_Int16,               // is2
-	TypeKind_Int16_u,             // iu2
-	TypeKind_Int32,               // is4
-	TypeKind_Int32_u,             // iu4
-	TypeKind_Int64,               // is8
-	TypeKind_Int64_u,             // iu8
-
-	// big-endian integers
-
-	TypeKind_Int16_be,            // ibs2
-	TypeKind_Int16_beu,           // ibu2
-	TypeKind_Int32_be,            // ibs4
-	TypeKind_Int32_beu,           // ibu4
-	TypeKind_Int64_be,            // ibs8
-	TypeKind_Int64_beu,           // ibu8
-
-	// floating point
-
-	TypeKind_Float,               // f4
-	TypeKind_Double,              // f8
-
-	// derived types
-
-	TypeKind_Array,               // A
-	TypeKind_BitField,            // B
-
-	// named types
-
-	TypeKind_Enum,                // E
-	TypeKind_Struct,              // S
-	TypeKind_Union,               // U
-	TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
-
-	// function types
-
-	TypeKind_Function,            // F
-	TypeKind_Property,            // X
-
-	// pointers & references
-
-	TypeKind_DataPtr,             // PD
-	TypeKind_DataRef,             // RD
-	TypeKind_ClassPtr,            // PC
-	TypeKind_ClassRef,            // RC
-	TypeKind_FunctionPtr,         // PF
-	TypeKind_FunctionRef,         // RF
-	TypeKind_PropertyPtr,         // PX
-	TypeKind_PropertyRef,         // RX
-
-	// import types (resolved after linkage)
-
-	TypeKind_NamedImport,         // ZN
-	TypeKind_ImportPtr,           // ZP
-	TypeKind_ImportIntMod,        // ZI
-
-	TypeKind__Count,
-	TypeKind__EndianDelta = TypeKind_Int16_be - TypeKind_Int16,
-	TypeKind__PrimitiveTypeCount = TypeKind_Double + 1,
-
-	// aliases
-
-#if (_AXL_PTR_BITNESS == 64)
-	TypeKind_IntPtr    = TypeKind_Int64,
-	TypeKind_IntPtr_u  = TypeKind_Int64_u,
-	TypeKind_IntPtrbe  = TypeKind_Int64_be,
-	TypeKind_IntPtrbeu = TypeKind_Int64_beu,
-#else
-	TypeKind_IntPtr    = TypeKind_Int32,
-	TypeKind_IntPtr_u  = TypeKind_Int32_u,
-	TypeKind_IntPtrbe  = TypeKind_Int32_be,
-	TypeKind_IntPtrbeu = TypeKind_Int32_beu,
-#endif
-
-	TypeKind_SizeT    = TypeKind_IntPtr_u,
-	TypeKind_Int      = TypeKind_Int32,
-	TypeKind_Int_u    = TypeKind_Int32_u,
-	TypeKind_Char     = TypeKind_Int8,
-	TypeKind_Char_u   = TypeKind_Int8_u,
-	TypeKind_Byte     = TypeKind_Int8_u,
-	TypeKind_Short    = TypeKind_Int16,
-	TypeKind_Short_u  = TypeKind_Int16_u,
-	TypeKind_Word     = TypeKind_Int16_u,
-	TypeKind_DWord    = TypeKind_Int32_u,
-	TypeKind_QWord    = TypeKind_Int64_u,
-
-#if (_AXL_CPP == AXL_CPP_GCC && _AXL_PTR_BITNESS == 64)
-	TypeKind_Long     = TypeKind_Int64,
-	TypeKind_Long_u   = TypeKind_Int64_u,
-#else
-	TypeKind_Long     = TypeKind_Int32,
-	TypeKind_Long_u   = TypeKind_Int32_u,
-#endif
-};
 
 //.............................................................................
 

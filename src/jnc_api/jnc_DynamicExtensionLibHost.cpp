@@ -1,10 +1,13 @@
 #include "pch.h"
 #include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Error.h"
+#include "jnc_Type.h"
 #include "jnc_DerivableType.h"
 #include "jnc_Function.h"
 #include "jnc_Property.h"
+#include "jnc_Multicast.h"
 #include "jnc_Namespace.h"
+#include "jnc_Variant.h"
 #include "jnc_Module.h"
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
@@ -15,6 +18,11 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 {
 	jnc_getLastError,
 	jnc_setError,
+};
+
+static jnc_TypeFuncTable g_typeFuncTable = 
+{
+	jnc_Type_getSize,
 };
 
 static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable = 
@@ -33,7 +41,12 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 {
 	jnc_Function_getOverload,
 	jnc_Function_getMachineCode,
-	jnc_getMulticastCallMethod,
+};
+
+static jnc_MulticastFuncTable g_multicastFuncTable = 
+{
+	jnc_Multicast_getCallMethod,
+	jnc_McSnapshot_getCallMethod,
 };
 
 static jnc_PropertyFuncTable g_propertyFuncTable = 
@@ -47,6 +60,8 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 	jnc_Namespace_findFunction,
 	jnc_Namespace_findProperty,
 };
+
+static jnc_VariantFuncTable g_variantFuncTable;
 
 static jnc_ModuleFuncTable g_moduleFuncTable = 
 {	
@@ -95,10 +110,13 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = 
 {
 	&g_errorFuncTable,
+	&g_typeFuncTable,
 	&g_derivableTypeFuncTable,
 	&g_functionFuncTable,
 	&g_propertyFuncTable,
+	&g_multicastFuncTable,
 	&g_namespaceFuncTable,
+	&g_variantFuncTable,
 	&g_moduleFuncTable,
 	&g_runtimeFuncTable,
 	&g_gcHeapFuncTable,

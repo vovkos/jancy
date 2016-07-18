@@ -13,10 +13,14 @@ set (
 	${JANCY_INC_DIR}/jnc_RuntimeStructs.h
 	${JANCY_INC_DIR}/jnc_OpKind.h
 	${JANCY_INC_DIR}/jnc_Error.h
+	${JANCY_INC_DIR}/jnc_Type.h
+	${JANCY_INC_DIR}/jnc_ArrayType.h
 	${JANCY_INC_DIR}/jnc_DerivableType.h
 	${JANCY_INC_DIR}/jnc_Function.h
 	${JANCY_INC_DIR}/jnc_Property.h
+	${JANCY_INC_DIR}/jnc_Multicast.h
 	${JANCY_INC_DIR}/jnc_Namespace.h
+	${JANCY_INC_DIR}/jnc_Variant.h
 	${JANCY_INC_DIR}/jnc_Module.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
 	${JANCY_INC_DIR}/jnc_GcHeap.h
@@ -30,10 +34,14 @@ set (
 	LIB_DYNAMIC_CPP_LIST
 	jnc_OpKind.cpp
 	jnc_Error.cpp
+	jnc_Type.cpp
+	jnc_ArrayType.cpp
 	jnc_DerivableType.cpp
 	jnc_Function.cpp
 	jnc_Property.cpp
+	jnc_Multicast.cpp
 	jnc_Namespace.cpp
+	jnc_Variant.cpp
 	jnc_Module.cpp
 	jnc_Runtime.cpp
 	jnc_GcHeap.cpp

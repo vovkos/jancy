@@ -3,6 +3,7 @@
 #include "jnc_ct_Module.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_rt_VariantUtils.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
@@ -10,7 +11,7 @@ namespace rtl {
 //.............................................................................
 
 size_t
-CoreLib::dynamicSizeOf (DataPtr ptr)
+dynamicSizeOf (DataPtr ptr)
 {
 	if (!ptr.m_validator)
 		return 0;
@@ -21,7 +22,7 @@ CoreLib::dynamicSizeOf (DataPtr ptr)
 }
 
 size_t
-CoreLib::dynamicCountOf (
+dynamicCountOf (
 	DataPtr ptr,
 	ct::Type* type
 	)
@@ -32,7 +33,7 @@ CoreLib::dynamicCountOf (
 }
 
 DataPtr
-CoreLib::dynamicCastDataPtr (
+dynamicCastDataPtr (
 	DataPtr ptr,
 	ct::Type* type
 	)
@@ -46,7 +47,7 @@ CoreLib::dynamicCastDataPtr (
 		return g_nullPtr;
 
 	ct::Type* srcType = box->m_type;
-	while (srcType->getTypeKind () == ct::TypeKind_Array)
+	while (srcType->getTypeKind () == TypeKind_Array)
 	{
 		ct::ArrayType* arrayType = (ct::ArrayType*) srcType;
 		srcType = arrayType->getElementType ();
@@ -67,7 +68,7 @@ CoreLib::dynamicCastDataPtr (
 
 	#pragma AXL_TODO ("find field pointed to by ptr and do cast accordingly")
 
-	if (srcType->getTypeKind () != ct::TypeKind_Struct)
+	if (srcType->getTypeKind () != TypeKind_Struct)
 		return g_nullPtr;
 
 	ct::BaseTypeCoord coord;
@@ -80,7 +81,7 @@ CoreLib::dynamicCastDataPtr (
 }
 
 IfaceHdr*
-CoreLib::dynamicCastClassPtr (
+dynamicCastClassPtr (
 	IfaceHdr* iface,
 	ct::ClassType* type
 	)
@@ -88,7 +89,7 @@ CoreLib::dynamicCastClassPtr (
 	if (!iface)
 		return NULL;
 
-	ASSERT (iface->m_box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
 	if (classType->cmp (type) == 0)
 		return iface;
@@ -104,7 +105,7 @@ CoreLib::dynamicCastClassPtr (
 }
 
 bool
-CoreLib::dynamicCastVariant (
+dynamicCastVariant (
 	Variant variant,
 	ct::Type* type,
 	void* buffer
@@ -112,7 +113,7 @@ CoreLib::dynamicCastVariant (
 {
 	ct::Module* module = type->getModule ();
 
-	ct::Value opValue (&variant, module->m_typeMgr.getPrimitiveType (ct::TypeKind_Variant));
+	ct::Value opValue (&variant, module->m_typeMgr.getPrimitiveType (TypeKind_Variant));
 	ct::CastOperator* castOp = module->m_operatorMgr.getStdCastOperator (ct::StdCast_FromVariant);
 
 	memset (buffer, 0, type->getSize ());
@@ -120,12 +121,12 @@ CoreLib::dynamicCastVariant (
 }
 
 IfaceHdr*
-CoreLib::strengthenClassPtr (IfaceHdr* iface)
+strengthenClassPtr (IfaceHdr* iface)
 {
 	if (!iface)
 		return NULL;
 
-	ASSERT (iface->m_box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
 
 	ct::ClassTypeKind classTypeKind = classType->getClassTypeKind ();
@@ -137,25 +138,25 @@ CoreLib::strengthenClassPtr (IfaceHdr* iface)
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CoreLib::primeStaticClass (
+primeStaticClass (
 	Box* box,
 	ct::ClassType* type
 	)
 {
-	rt::primeClass (box, type);
+	primeClass (box, type);
 }
 
 IfaceHdr*
-CoreLib::tryAllocateClass (ct::ClassType* type)
+tryAllocateClass (ct::ClassType* type)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.tryAllocateClass (type);
+	return gcHeap->tryAllocateClass (type);
 }
 
 IfaceHdr*
-CoreLib::allocateClass (ct::ClassType* type)
+allocateClass (ct::ClassType* type)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -164,7 +165,7 @@ CoreLib::allocateClass (ct::ClassType* type)
 }
 
 DataPtr
-CoreLib::tryAllocateData (ct::Type* type)
+tryAllocateData (ct::Type* type)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -173,7 +174,7 @@ CoreLib::tryAllocateData (ct::Type* type)
 }
 
 DataPtr
-CoreLib::allocateData (ct::Type* type)
+allocateData (ct::Type* type)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -182,7 +183,7 @@ CoreLib::allocateData (ct::Type* type)
 }
 
 DataPtr
-CoreLib::tryAllocateArray (
+tryAllocateArray (
 	ct::Type* type,
 	size_t elementCount
 	)
@@ -194,7 +195,7 @@ CoreLib::tryAllocateArray (
 }
 
 DataPtr
-CoreLib::allocateArray (
+allocateArray (
 	ct::Type* type,
 	size_t elementCount
 	)
@@ -206,7 +207,7 @@ CoreLib::allocateArray (
 }
 
 DataPtrValidator* 
-CoreLib::createDataPtrValidator (
+createDataPtrValidator (
 	Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -219,7 +220,7 @@ CoreLib::createDataPtrValidator (
 }
 
 void
-CoreLib::gcSafePoint ()
+gcSafePoint ()
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -228,7 +229,7 @@ CoreLib::gcSafePoint ()
 }
 
 void
-CoreLib::setGcShadowStackFrameMap (
+setGcShadowStackFrameMap (
 	GcShadowStackFrame* frame,
 	GcShadowStackFrameMap* map,
 	bool isOpen
@@ -241,7 +242,7 @@ CoreLib::setGcShadowStackFrameMap (
 }
 
 void
-CoreLib::addStaticDestructor (StaticDestructFunc* destructFunc)
+addStaticDestructor (StaticDestructFunc* destructFunc)
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -250,7 +251,7 @@ CoreLib::addStaticDestructor (StaticDestructFunc* destructFunc)
 }
 
 void
-CoreLib::addStaticClassDestructor (
+addStaticClassDestructor (
 	DestructFunc* destructFunc,
 	IfaceHdr* iface
 	)
@@ -262,7 +263,7 @@ CoreLib::addStaticClassDestructor (
 }
 
 void*
-CoreLib::getTls ()
+getTls ()
 {
 	Tls* tls = rt::getCurrentThreadTls ();
 	ASSERT (tls);
@@ -271,7 +272,7 @@ CoreLib::getTls ()
 }
 
 void
-CoreLib::dynamicThrow()
+dynamicThrow()
 {
 	rt::Runtime::dynamicThrow ();
 	ASSERT (false);
@@ -280,7 +281,7 @@ CoreLib::dynamicThrow()
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Variant
-CoreLib::variantUnaryOperator (
+variantUnaryOperator (
 	int opKind,
 	Variant op
 	)
@@ -289,7 +290,7 @@ CoreLib::variantUnaryOperator (
 }
 
 Variant
-CoreLib::variantBinaryOperator (
+variantBinaryOperator (
 	int opKind,
 	Variant op1,
 	Variant op2
@@ -299,7 +300,7 @@ CoreLib::variantBinaryOperator (
 }
 
 bool
-CoreLib::variantRelationalOperator (
+variantRelationalOperator (
 	int opKind,
 	Variant op1,
 	Variant op2
@@ -311,7 +312,7 @@ CoreLib::variantRelationalOperator (
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-CoreLib::assertionFailure (
+assertionFailure (
 	const char* fileName,
 	int line,
 	const char* condition,
@@ -327,7 +328,7 @@ CoreLib::assertionFailure (
 }
 
 bool 
-CoreLib::tryCheckDataPtrRangeDirect (
+tryCheckDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
 	size_t rangeLength
@@ -350,7 +351,7 @@ CoreLib::tryCheckDataPtrRangeDirect (
 }
 
 void 
-CoreLib::checkDataPtrRangeDirect (
+checkDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
 	size_t rangeLength
@@ -362,7 +363,7 @@ CoreLib::checkDataPtrRangeDirect (
 }
 
 bool 
-CoreLib::tryCheckDataPtrRangeIndirect (
+tryCheckDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
@@ -386,7 +387,7 @@ CoreLib::tryCheckDataPtrRangeIndirect (
 
 
 void 
-CoreLib::checkDataPtrRangeIndirect (
+checkDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
@@ -398,7 +399,7 @@ CoreLib::checkDataPtrRangeIndirect (
 }
 
 bool 
-CoreLib::tryCheckNullPtr (
+tryCheckNullPtr (
 	const void* p,
 	ct::TypeKind typeKind
 	)
@@ -408,18 +409,18 @@ CoreLib::tryCheckNullPtr (
 
 	switch (typeKind)
 	{
-	case ct::TypeKind_ClassPtr:
-	case ct::TypeKind_ClassRef:
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
 		err::setStringError ("null class pointer access");
 		break;
 
-	case ct::TypeKind_FunctionPtr:
-	case ct::TypeKind_FunctionRef:
+	case TypeKind_FunctionPtr:
+	case TypeKind_FunctionRef:
 		err::setStringError ("null function pointer access");
 		break;
 
-	case ct::TypeKind_PropertyPtr:
-	case ct::TypeKind_PropertyRef:
+	case TypeKind_PropertyPtr:
+	case TypeKind_PropertyRef:
 		err::setStringError ("null property pointer access");
 		break;
 
@@ -431,7 +432,7 @@ CoreLib::tryCheckNullPtr (
 }
 
 void
-CoreLib::checkNullPtr (
+checkNullPtr (
 	const void* p,
 	ct::TypeKind typeKind
 	)
@@ -442,7 +443,7 @@ CoreLib::checkNullPtr (
 }
 
 void
-CoreLib::checkStackOverflow ()
+checkStackOverflow ()
 {
 	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
 	ASSERT (runtime);
@@ -451,7 +452,7 @@ CoreLib::checkStackOverflow ()
 }
 
 void
-CoreLib::checkDivByZero_i32 (int32_t i)
+checkDivByZero_i32 (int32_t i)
 {
 	if (!i)
 	{
@@ -461,7 +462,7 @@ CoreLib::checkDivByZero_i32 (int32_t i)
 }
 
 void
-CoreLib::checkDivByZero_i64 (int64_t i)
+checkDivByZero_i64 (int64_t i)
 {
 	if (!i)
 	{
@@ -471,7 +472,7 @@ CoreLib::checkDivByZero_i64 (int64_t i)
 }
 
 void
-CoreLib::checkDivByZero_f32 (float f)
+checkDivByZero_f32 (float f)
 {
 	if (!f)
 	{
@@ -481,7 +482,7 @@ CoreLib::checkDivByZero_f32 (float f)
 }
 
 void
-CoreLib::checkDivByZero_f64 (double f)
+checkDivByZero_f64 (double f)
 {
 	if (!f)
 	{
@@ -493,13 +494,13 @@ CoreLib::checkDivByZero_f64 (double f)
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void* 
-CoreLib::tryLazyGetDynamicLibFunction (
+tryLazyGetDynamicLibFunction (
 	rtl::DynamicLib* lib,
 	size_t index,
 	const char* name
 	)
 {
-	ASSERT (lib->m_box->m_type->getTypeKind () == ct::TypeKind_Class);
+	ASSERT (lib->m_box->m_type->getTypeKind () == TypeKind_Class);
 	ct::ClassType* type = (ct::ClassType*) lib->m_box->m_type;
 
 	if (!lib->m_handle)
@@ -530,7 +531,7 @@ CoreLib::tryLazyGetDynamicLibFunction (
 }
 
 void* 
-CoreLib::lazyGetDynamicLibFunction (
+lazyGetDynamicLibFunction (
 	rtl::DynamicLib* lib,
 	size_t index,
 	const char* name
@@ -546,7 +547,7 @@ CoreLib::lazyGetDynamicLibFunction (
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 size_t
-CoreLib::appendFmtLiteral_a (
+appendFmtLiteral_a (
 	FmtLiteral* fmtLiteral,
 	const char* p,
 	size_t length
@@ -587,7 +588,7 @@ CoreLib::appendFmtLiteral_a (
 }
 
 void
-CoreLib::prepareFormatString (
+prepareFormatString (
 	sl::String* formatString,
 	const char* fmtSpecifier,
 	const char* defaultType
@@ -613,7 +614,7 @@ CoreLib::prepareFormatString (
 }
 
 size_t
-CoreLib::appendFmtLiteral_v (
+appendFmtLiteral_v (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	Variant variant
@@ -634,7 +635,7 @@ CoreLib::appendFmtLiteral_v (
 
 		if (variant.m_type->getSize () > 4)
 		{
-			result = module->m_operatorMgr.castOperator (&value, ct::TypeKind_Int64);
+			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int64);
 			if (!result)
 			{
 				ASSERT (false);
@@ -650,7 +651,7 @@ CoreLib::appendFmtLiteral_v (
 		}
 		else
 		{
-			result = module->m_operatorMgr.castOperator (&value, ct::TypeKind_Int32);
+			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int32);
 			if (!result)
 			{
 				ASSERT (false);
@@ -667,7 +668,7 @@ CoreLib::appendFmtLiteral_v (
 	}
 	else if (typeKindFlags & ct::TypeKindFlag_Fp)
 	{
-		return typeKind == ct::TypeKind_Float ? 
+		return typeKind == TypeKind_Float ? 
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
 	}
@@ -675,7 +676,7 @@ CoreLib::appendFmtLiteral_v (
 	ct::Type* type;
 	const void* p;
 
-	if (typeKind != ct::TypeKind_DataRef)
+	if (typeKind != TypeKind_DataRef)
 	{
 		type = variant.m_type;
 		p = &variant;
@@ -722,7 +723,7 @@ CoreLib::appendFmtLiteral_v (
 }
 
 size_t
-CoreLib::appendFmtLiteralImpl (
+appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	const char* defaultType,
@@ -743,7 +744,7 @@ CoreLib::appendFmtLiteralImpl (
 }
 
 size_t
-CoreLib::appendFmtLiteralStringImpl (
+appendFmtLiteralStringImpl (
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	const char* p,
@@ -768,7 +769,7 @@ CoreLib::appendFmtLiteralStringImpl (
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-CoreLib::mapAllMulticastMethods (ct::Module* module)
+mapAllMulticastMethods (ct::Module* module)
 {
 	sl::ConstList <ct::MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
 	sl::Iterator <ct::MulticastClassType> mcType = mcTypeList.getHead ();
@@ -779,19 +780,19 @@ CoreLib::mapAllMulticastMethods (ct::Module* module)
 }
 
 void
-CoreLib::multicastDestruct (Multicast* multicast)
+multicastDestruct (Multicast* multicast)
 {
 	((MulticastImpl*) multicast)->destruct ();
 }
 
 void
-CoreLib::multicastClear (Multicast* multicast)
+multicastClear (Multicast* multicast)
 {
 	return ((MulticastImpl*) multicast)->clear ();
 }
 
 handle_t
-CoreLib::multicastSet (
+multicastSet (
 	Multicast* multicast,
 	FunctionPtr ptr
 	)
@@ -800,7 +801,7 @@ CoreLib::multicastSet (
 }
 
 handle_t
-CoreLib::multicastSet_t (
+multicastSet_t (
 	Multicast* multicast,
 	void* p
 	)
@@ -809,7 +810,7 @@ CoreLib::multicastSet_t (
 }
 
 handle_t
-CoreLib::multicastAdd (
+multicastAdd (
 	Multicast* multicast,
 	FunctionPtr ptr
 	)
@@ -818,7 +819,7 @@ CoreLib::multicastAdd (
 }
 
 handle_t
-CoreLib::multicastAdd_t (
+multicastAdd_t (
 	Multicast* multicast,
 	void* p
 	)
@@ -827,7 +828,7 @@ CoreLib::multicastAdd_t (
 }
 
 FunctionPtr
-CoreLib::multicastRemove (
+multicastRemove (
 	Multicast* multicast,
 	handle_t handle
 	)
@@ -836,7 +837,7 @@ CoreLib::multicastRemove (
 }
 
 void*
-CoreLib::multicastRemove_t (
+multicastRemove_t (
 	Multicast* multicast,
 	handle_t handle
 	)
@@ -845,13 +846,13 @@ CoreLib::multicastRemove_t (
 }
 
 FunctionPtr
-CoreLib::multicastGetSnapshot (Multicast* multicast)
+multicastGetSnapshot (Multicast* multicast)
 {
 	return ((MulticastImpl*) multicast)->getSnapshot ();
 }
 
 void*
-CoreLib::m_multicastMethodTable [ct::FunctionPtrTypeKind__Count] [ct::MulticastMethodKind__Count - 1] =
+m_multicastMethodTable [ct::FunctionPtrTypeKind__Count] [ct::MulticastMethodKind__Count - 1] =
 {
 	{
 		(void*) multicastClear,
@@ -879,7 +880,7 @@ CoreLib::m_multicastMethodTable [ct::FunctionPtrTypeKind__Count] [ct::MulticastM
 };
 
 void
-CoreLib::mapMulticastMethods (
+mapMulticastMethods (
 	ct::Module* module,
 	ct::MulticastClassType* multicastType
 	)

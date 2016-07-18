@@ -1,8 +1,6 @@
-// This file is part of AXL (R) Library
-// Tibbo Technology Inc (C) 2004-2013. All rights reserved
-// Author: Vladimir Gladkov
-
 #pragma once
+
+#define _JNC_CALLSITE_H
 
 #include "jnc_Runtime.h"
 #include "jnc_Function.h"
@@ -1094,7 +1092,7 @@ callMulticast (
 	Multicast* multicast
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr);
 }
@@ -1107,7 +1105,7 @@ callMulticast (
 	Arg arg
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg);
 }
@@ -1124,7 +1122,7 @@ callMulticast (
 	Arg2 arg2
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2);
 }
@@ -1143,7 +1141,7 @@ callMulticast (
 	Arg3 arg3
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3);
 }
@@ -1164,7 +1162,7 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3, arg4);
 }
@@ -1175,7 +1173,7 @@ inline
 void
 callMulticast (Multicast* multicast)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr);
 }
@@ -1187,7 +1185,7 @@ callMulticast (
 	Arg arg
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg);
 }
@@ -1203,7 +1201,7 @@ callMulticast (
 	Arg2 arg2
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2);
 }
@@ -1221,7 +1219,7 @@ callMulticast (
 	Arg3 arg3
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3);
 }
@@ -1241,7 +1239,7 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = multicast->getCallMethod ()->getMachineCode ();
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3, arg4);
 }

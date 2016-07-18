@@ -110,7 +110,7 @@ JncApp::runFunction (int* returnValue)
 	jnc::ct::FunctionType* functionType = function->getType ();
 	jnc::ct::TypeKind returnTypeKind = functionType->getReturnType ()->getTypeKind ();
 	size_t argCount = functionType->getArgArray ().getCount ();
-	if (returnTypeKind != jnc::ct::TypeKind_Void && returnTypeKind != jnc::ct::TypeKind_Int || argCount)
+	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount)
 	{
 		err::setFormatStringError ("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.cc (), functionType->getTypeString ().cc ());
 		return false;
@@ -126,7 +126,7 @@ JncApp::runFunction (int* returnValue)
 	if (!result)
 		return false;
 
-	if (returnTypeKind == jnc::ct::TypeKind_Int)
+	if (returnTypeKind == jnc::TypeKind_Int)
 	{
 		jnc::rt::callFunction (&m_runtime, function, returnValue);
 	}

@@ -106,7 +106,7 @@ JNC_EXTERN_C
 jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 {
-	return &runtime->m_gcHeap;
+	return runtime->getGcHeap ();
 }
 
 JNC_EXTERN_C
@@ -158,7 +158,7 @@ primeIface (
 	for (size_t i = 0; i < count; i++)
 	{
 		ct::BaseTypeSlot* slot = baseTypePrimeArray [i];
-		ASSERT (slot->getType ()->getTypeKind () == ct::TypeKind_Class);
+		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
 		
 		primeIface (
 			box,
@@ -176,7 +176,7 @@ primeIface (
 	for (size_t i = 0; i < count; i++)
 	{
 		ct::StructField* field = fieldPrimeArray [i];
-		ASSERT (field->getType ()->getTypeKind () == ct::TypeKind_Class);
+		ASSERT (field->getType ()->getTypeKind () == TypeKind_Class);
 
 		ct::ClassType* fieldType = (ct::ClassType*) field->getType ();
 		Box* fieldBox = (Box*) ((char*) iface + field->getOffset ());
@@ -244,10 +244,10 @@ jnc_strDup (
 	if (!length)
 		return g_nullPtr;
 
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	DataPtr resultPtr = gcHeap->tryAllocateBuffer (length + 1);
 	if (!resultPtr.m_p)
 		return g_nullPtr;
 
@@ -269,10 +269,10 @@ jnc_memDup (
 	if (!size)
 		return g_nullPtr;
 
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	DataPtr resultPtr = runtime->m_gcHeap.tryAllocateBuffer (size);
+	DataPtr resultPtr = gcHeap->tryAllocateBuffer (size);
 	if (!resultPtr.m_p)
 		return g_nullPtr;
 

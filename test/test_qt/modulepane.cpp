@@ -200,16 +200,16 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::ct::Type *type)
 	jnc::ct::TypeKind typeKind = type->getTypeKind();
 	switch (typeKind)
 	{
-	case jnc::ct::TypeKind_Enum:
+	case jnc::TypeKind_Enum:
 		addEnumTypeMembers(item, (jnc::ct::EnumType *)type);
 		break;
 
-	case jnc::ct::TypeKind_Struct:
-	case jnc::ct::TypeKind_Union:
+	case jnc::TypeKind_Struct:
+	case jnc::TypeKind_Union:
 		addDerivableTypeMembers(item, (jnc::ct::StructType *)type);
 		break;
 
-	case jnc::ct::TypeKind_Class:
+	case jnc::TypeKind_Class:
 		addClassTypeMembers(item, (jnc::ct::ClassType *)type);
 		break;
 	}

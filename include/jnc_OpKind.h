@@ -1,8 +1,6 @@
-// This file is part of AXL (R) Library
-// Tibbo Technology Inc (C) 2004-2013. All rights reserved
-// Author: Vladimir Gladkov
-
 #pragma once
+
+#define _JNC_OPKIND_H
 
 #include "jnc_Def.h"
 
@@ -108,8 +106,10 @@ namespace jnc {
 
 //.............................................................................
 
-enum UnOpKind
-{
+typedef jnc_UnOpKind UnOpKind;
+
+
+const UnOpKind 
 	UnOpKind_Undefined = jnc_UnOpKind_Undefined,
 	UnOpKind_Plus      = jnc_UnOpKind_Plus,
 	UnOpKind_Minus     = jnc_UnOpKind_Minus,
@@ -122,8 +122,7 @@ enum UnOpKind
 	UnOpKind_PostInc   = jnc_UnOpKind_PostInc,
 	UnOpKind_PostDec   = jnc_UnOpKind_PostDec,
 	UnOpKind_Ptr       = jnc_UnOpKind_Ptr,
-	UnOpKind__Count    = jnc_UnOpKind__Count,
-};
+	UnOpKind__Count    = jnc_UnOpKind__Count;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -131,13 +130,14 @@ inline
 const char*
 getUnOpKindString (UnOpKind opKind)
 {
-	return jnc_getUnOpKindString ((jnc_UnOpKind) opKind);
+	return jnc_getUnOpKindString (opKind);
 }
 
 //.............................................................................
 
-enum BinOpKind
-{
+typedef enum jnc_BinOpKind BinOpKind;
+
+const BinOpKind
 	BinOpKind_Undefined = jnc_BinOpKind_Undefined,
 	BinOpKind_Add       = jnc_BinOpKind_Add,
 	BinOpKind_Sub       = jnc_BinOpKind_Sub,
@@ -173,8 +173,7 @@ enum BinOpKind
 	BinOpKind_OrAssign  = jnc_BinOpKind_OrAssign,
 	BinOpKind_AtAssign  = jnc_BinOpKind_AtAssign,
 	BinOpKind__Count    = jnc_BinOpKind__Count,
-	BinOpKind__OpAssignDelta = jnc_BinOpKind__OpAssignDelta,
-};
+	BinOpKind__OpAssignDelta = jnc_BinOpKind__OpAssignDelta;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -182,7 +181,7 @@ inline
 const char*
 getBinOpKindString (BinOpKind opKind)
 {
-	return jnc_getBinOpKindString ((jnc_BinOpKind) opKind);
+	return jnc_getBinOpKindString (opKind);
 }
 
 //.............................................................................
