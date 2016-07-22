@@ -3,6 +3,23 @@
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	TestStruct,
+	"TestStruct", 
+	g_myLibGuid, 
+	MyLibCacheSlot_TestStruct
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (TestStruct)
+	JNC_MAP_CONSTRUCTOR (&TestStruct::construct_0)
+	JNC_MAP_OVERLOAD (&TestStruct::construct_1)
+	JNC_MAP_FUNCTION ("foo", &TestStruct::foo_0)
+	JNC_MAP_OVERLOAD (&TestStruct::foo_1)
+	JNC_MAP_OVERLOAD (&TestStruct::foo_2)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 void
 TestStruct::construct_0 (jnc::DataPtr selfPtr)
 {

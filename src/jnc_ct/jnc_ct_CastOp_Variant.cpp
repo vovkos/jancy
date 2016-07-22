@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "jnc_ct_CastOp_Variant.h"
-#include "jnc_rt_VariantUtils.h"
+#include "jnc_Variant.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {

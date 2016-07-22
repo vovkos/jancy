@@ -164,11 +164,9 @@ if (MSVC)
 endif ()
 
 include_directories (
-	${LLVM_INC_DIR}
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
@@ -206,9 +204,9 @@ target_link_libraries (
 	jnc_sys
 	jnc_std
 	jnc_rtl
+	jnc_api_static
 	jnc_ct
 	jnc_rt
-	jnc_api
 	axl_zip
 	axl_fsm
 	axl_io

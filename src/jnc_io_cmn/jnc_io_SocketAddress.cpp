@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_io_SocketAddress.h"
+#include "../jnc_io_base/jnc_io_IoLib.h"
 
 namespace jnc {
 namespace io {
@@ -56,6 +57,82 @@ SocketAddress::fromSockAddr (const axl::io::SockAddr& sockAddr)
 	socketAddress.setSockAddr (sockAddr);
 	return socketAddress;
 }
+
+//.............................................................................
+
+JNC_DEFINE_TYPE (
+	Address_ip4,
+	"io.Address_ip4", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_Address_ip4
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip4)
+	JNC_MAP_FUNCTION ("parse",     &Address_ip4::parse)
+	JNC_MAP_FUNCTION ("getString", &Address_ip4::getString)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	Address_ip6,
+	"io.Address_ip6", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_Address_ip6
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip6)
+	JNC_MAP_FUNCTION ("parse",     &Address_ip6::parse)
+	JNC_MAP_FUNCTION ("getString", &Address_ip6::getString)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	SocketAddress_ip4,
+	"io.SocketAddress_ip4", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketAddress_ip4
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip4)
+	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip4::isEqual)
+	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip4::isMatch)
+	JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip4::parse)
+	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip4::getString)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	SocketAddress_ip6,
+	"io.SocketAddress_ip6", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketAddress_ip6
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip6)
+	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip6::isEqual)
+	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip6::isMatch)
+	JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip6::parse)
+	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip6::getString)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	SocketAddress,
+	"io.SocketAddress", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketAddress
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress)
+	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress::isEqual)
+	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress::isMatch)
+	JNC_MAP_FUNCTION ("parse",     &SocketAddress::parse)
+	JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 

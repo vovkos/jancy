@@ -7,6 +7,7 @@
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_QualifiedName.h"
 #include "jnc_ct_UsingSet.h"
+#include "jnc_Namespace.h"
 
 namespace jnc {
 namespace ct {
@@ -34,27 +35,7 @@ enum
 	TraverseKind_NoExtensionNamespaces = 0x20,
 };
 
-//.............................................................................
-
-enum NamespaceKind
-{
-	NamespaceKind_Undefined,
-	NamespaceKind_Global,
-	NamespaceKind_Scope,
-	NamespaceKind_Type,
-	NamespaceKind_Extension,
-	NamespaceKind_Property,
-	NamespaceKind_PropertyTemplate,
-	NamespaceKind_DynamicLib,
-	NamespaceKind__Count,
-};
-
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getNamespaceKindString (NamespaceKind namespaceKind);
-
-//.............................................................................
 
 class Namespace: public ModuleItemDecl
 {
@@ -285,7 +266,11 @@ class GlobalNamespace:
 	friend class NamespaceMgr;
 
 public:
-	GlobalNamespace ();
+	GlobalNamespace ()
+	{
+		m_itemKind = ModuleItemKind_Namespace;
+		m_namespaceKind = NamespaceKind_Global;
+	}
 
 	virtual
 	sl::StringRef

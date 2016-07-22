@@ -1,17 +1,15 @@
 #pragma once
 
-#include "jnc_ct_Pch.h"
+#include "jnc_ext_Pch.h"
 
 //.............................................................................
 
-// AXL & Jancy
+// Jancy
 
-#include "axl_io_MappedFile.h"
-
-#include "jnc_ct_Module.h"
-#include "jnc_rt_Runtime.h"
-#include "jnc_rt_CallSite.h"
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_Module.h"
+#include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
+#include "jnc_ExtensionLib.h"
 
 using namespace axl;
 

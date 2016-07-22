@@ -1,9 +1,28 @@
 #include "pch.h"
-#include "jnc_rtl_CoreLib.h"
-#include "jnc_ct_Module.h"
-#include "jnc_rt_Runtime.h"
-#include "jnc_rt_VariantUtils.h"
-#include "jnc_CallSite.h"
+#include "jnc_rtl_DynamicLib.h"
+#include "jnc_rtl_Multicast.h"
+#include "jnc_rtl_Recognizer.h"
+
+#ifdef _JNC_CORE
+#	include "jnc_rt_Runtime.h"
+#	include "jnc_ct_Module.h"
+#endif
+
+#include "jnc_Runtime.h"
+
+#define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
+	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
+	{ \
+		function = module->m_functionMgr.getStdFunction (stdFuncKind); \
+		ASSERT (function); \
+		JNC_MAP (function, proc); \
+	}
+
+#define JNC_MAP_STD_TYPE(stdType, Type) \
+	if (module->m_typeMgr.isStdTypeUsed (stdType)) \
+	{ \
+		JNC_MAP_TYPE (Type); \
+	}
 
 namespace jnc {
 namespace rtl {
@@ -24,7 +43,7 @@ dynamicSizeOf (DataPtr ptr)
 size_t
 dynamicCountOf (
 	DataPtr ptr,
-	ct::Type* type
+	Type* type
 	)
 {
 	size_t maxSize = dynamicSizeOf (ptr);
@@ -35,7 +54,7 @@ dynamicCountOf (
 DataPtr
 dynamicCastDataPtr (
 	DataPtr ptr,
-	ct::Type* type
+	Type* type
 	)
 {
 	if (!ptr.m_validator)
@@ -46,10 +65,10 @@ dynamicCastDataPtr (
 	if (ptr.m_p < p)
 		return g_nullPtr;
 
-	ct::Type* srcType = box->m_type;
+	Type* srcType = box->m_type;
 	while (srcType->getTypeKind () == TypeKind_Array)
 	{
-		ct::ArrayType* arrayType = (ct::ArrayType*) srcType;
+		ArrayType* arrayType = (ArrayType*) srcType;
 		srcType = arrayType->getElementType ();
 		
 		size_t srcTypeSize = srcType->getSize ();
@@ -71,35 +90,33 @@ dynamicCastDataPtr (
 	if (srcType->getTypeKind () != TypeKind_Struct)
 		return g_nullPtr;
 
-	ct::BaseTypeCoord coord;
-	bool result = ((ct::StructType*) srcType)->findBaseTypeTraverse (type, &coord);
-	if (!result)
+	size_t offset = ((StructType*) srcType)->findBaseTypeOffset (type);
+	if (offset == -1)
 		return g_nullPtr;
 
-	ptr.m_p = (char*) p + coord.m_offset;
+	ptr.m_p = (char*) p + offset;
 	return ptr;
 }
 
 IfaceHdr*
 dynamicCastClassPtr (
 	IfaceHdr* iface,
-	ct::ClassType* type
+	ClassType* type
 	)
 {
 	if (!iface)
 		return NULL;
 
 	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
-	ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
+	ClassType* classType = (ClassType*) iface->m_box->m_type;
 	if (classType->cmp (type) == 0)
 		return iface;
 
-	ct::BaseTypeCoord coord;
-	bool result = classType->findBaseTypeTraverse (type, &coord);
-	if (!result)
+	size_t offset = classType->findBaseTypeOffset (type);
+	if (offset == -1)
 		return NULL;
 
-	IfaceHdr* iface2 = (IfaceHdr*) ((uchar_t*) (iface->m_box + 1) + coord.m_offset);
+	IfaceHdr* iface2 = (IfaceHdr*) ((uchar_t*) (iface->m_box + 1) + offset);
 	ASSERT (iface2->m_box == iface->m_box);
 	return iface2;
 }
@@ -107,32 +124,17 @@ dynamicCastClassPtr (
 bool
 dynamicCastVariant (
 	Variant variant,
-	ct::Type* type,
+	Type* type,
 	void* buffer
 	)
 {
-	ct::Module* module = type->getModule ();
-
-	ct::Value opValue (&variant, module->m_typeMgr.getPrimitiveType (TypeKind_Variant));
-	ct::CastOperator* castOp = module->m_operatorMgr.getStdCastOperator (ct::StdCast_FromVariant);
-
-	memset (buffer, 0, type->getSize ());
-	return castOp->constCast (opValue, type, buffer);
+	return variant.cast (type, buffer);
 }
 
 IfaceHdr*
 strengthenClassPtr (IfaceHdr* iface)
 {
-	if (!iface)
-		return NULL;
-
-	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
-	ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
-
-	ct::ClassTypeKind classTypeKind = classType->getClassTypeKind ();
-	return classTypeKind == ct::ClassTypeKind_FunctionClosure || classTypeKind == ct::ClassTypeKind_PropertyClosure ?
-		((ct::ClosureClassType*) iface->m_box->m_type)->strengthen (iface) :
-		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Zombie) ? iface : NULL;
+	return jnc_strengthenClassPtr (iface);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -140,14 +142,14 @@ strengthenClassPtr (IfaceHdr* iface)
 void
 primeStaticClass (
 	Box* box,
-	ct::ClassType* type
+	ClassType* type
 	)
 {
 	primeClass (box, type);
 }
 
 IfaceHdr*
-tryAllocateClass (ct::ClassType* type)
+tryAllocateClass (ClassType* type)
 {
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
@@ -156,54 +158,54 @@ tryAllocateClass (ct::ClassType* type)
 }
 
 IfaceHdr*
-allocateClass (ct::ClassType* type)
+allocateClass (ClassType* type)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.allocateClass (type);
+	return gcHeap->allocateClass (type);
 }
 
 DataPtr
-tryAllocateData (ct::Type* type)
+tryAllocateData (Type* type)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.tryAllocateData (type);
+	return gcHeap->tryAllocateData (type);
 }
 
 DataPtr
-allocateData (ct::Type* type)
+allocateData (Type* type)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.allocateData (type);
+	return gcHeap->allocateData (type);
 }
 
 DataPtr
 tryAllocateArray (
-	ct::Type* type,
+	Type* type,
 	size_t elementCount
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.tryAllocateArray (type, elementCount);
+	return gcHeap->tryAllocateArray (type, elementCount);
 }
 
 DataPtr
 allocateArray (
-	ct::Type* type,
+	Type* type,
 	size_t elementCount
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.allocateArray (type, elementCount);
+	return gcHeap->allocateArray (type, elementCount);
 }
 
 DataPtrValidator* 
@@ -213,19 +215,19 @@ createDataPtrValidator (
 	size_t rangeLength
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	return runtime->m_gcHeap.createDataPtrValidator (box, rangeBegin, rangeLength);
+	return gcHeap->createDataPtrValidator (box, rangeBegin, rangeLength);
 }
 
 void
 gcSafePoint ()
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	runtime->m_gcHeap.safePoint ();
+	gcHeap->safePoint ();
 }
 
 void
@@ -235,19 +237,19 @@ setGcShadowStackFrameMap (
 	bool isOpen
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	runtime->m_gcHeap.setFrameMap (frame, map, isOpen);
+	gcHeap->setFrameMap (frame, map, isOpen);
 }
 
 void
 addStaticDestructor (StaticDestructFunc* destructFunc)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	runtime->m_gcHeap.addStaticDestructor (destructFunc);
+	gcHeap->addStaticDestructor (destructFunc);
 }
 
 void
@@ -256,16 +258,16 @@ addStaticClassDestructor (
 	IfaceHdr* iface
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	runtime->m_gcHeap.addStaticClassDestructor (destructFunc, iface);
+	gcHeap->addStaticClassDestructor (destructFunc, iface);
 }
 
 void*
 getTls ()
 {
-	Tls* tls = rt::getCurrentThreadTls ();
+	Tls* tls = getCurrentThreadTls ();
 	ASSERT (tls);
 
 	return tls + 1;
@@ -274,39 +276,8 @@ getTls ()
 void
 dynamicThrow()
 {
-	rt::Runtime::dynamicThrow ();
+	jnc::dynamicThrow ();
 	ASSERT (false);
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-Variant
-variantUnaryOperator (
-	int opKind,
-	Variant op
-	)
-{
-	return rt::variantUnaryOperator ((UnOpKind) opKind, op);
-}
-
-Variant
-variantBinaryOperator (
-	int opKind,
-	Variant op1,
-	Variant op2
-	)
-{
-	return rt::variantBinaryOperator ((BinOpKind) opKind, op1, op2);
-}
-
-bool
-variantRelationalOperator (
-	int opKind,
-	Variant op1,
-	Variant op2
-	)
-{
-	return rt::variantRelationalOperator ((BinOpKind) opKind, op1, op2);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -323,8 +294,9 @@ assertionFailure (
 	string.format ("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
 	if (message)
 		string.appendFormat ("; %s", message);
-
-	rt::Runtime::runtimeError (err::createStringError (string, string.getLength ()));
+	
+	err::setStringError (string, string.getLength ());
+	dynamicThrow ();
 }
 
 bool 
@@ -359,7 +331,7 @@ checkDataPtrRangeDirect (
 {
 	bool result = tryCheckDataPtrRangeDirect (p, rangeBegin, rangeLength);
 	if (!result)
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 }
 
 bool 
@@ -395,13 +367,13 @@ checkDataPtrRangeIndirect (
 {
 	bool result = tryCheckDataPtrRangeIndirect (p, size, validator);
 	if (!result)
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 }
 
 bool 
 tryCheckNullPtr (
 	const void* p,
-	ct::TypeKind typeKind
+	TypeKind typeKind
 	)
 {
 	if (p)
@@ -434,18 +406,18 @@ tryCheckNullPtr (
 void
 checkNullPtr (
 	const void* p,
-	ct::TypeKind typeKind
+	TypeKind typeKind
 	)
 {
 	bool result = tryCheckNullPtr (p, typeKind);
 	if (!result)
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 }
 
 void
 checkStackOverflow ()
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
 	runtime->checkStackOverflow ();
@@ -457,7 +429,7 @@ checkDivByZero_i32 (int32_t i)
 	if (!i)
 	{
 		err::setStringError ("integer division by zero");
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 	}
 }
 
@@ -467,7 +439,7 @@ checkDivByZero_i64 (int64_t i)
 	if (!i)
 	{
 		err::setStringError ("integer division by zero");
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 	}
 }
 
@@ -477,7 +449,7 @@ checkDivByZero_f32 (float f)
 	if (!f)
 	{
 		err::setStringError ("floating point division by zero");
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 	}
 }
 
@@ -487,7 +459,7 @@ checkDivByZero_f64 (double f)
 	if (!f)
 	{
 		err::setStringError ("floating point division by zero");
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 	}
 }
 
@@ -501,11 +473,11 @@ tryLazyGetDynamicLibFunction (
 	)
 {
 	ASSERT (lib->m_box->m_type->getTypeKind () == TypeKind_Class);
-	ct::ClassType* type = (ct::ClassType*) lib->m_box->m_type;
+	ClassType* type = (ClassType*) lib->m_box->m_type;
 
 	if (!lib->m_handle)
 	{
-		err::setFormatStringError ("dynamiclib '%s' is not loaded yet", type->getQualifiedName ().cc ());
+		err::setFormatStringError ("dynamiclib '%s' is not loaded yet", type->getQualifiedName ());
 		return NULL;
 	}
 
@@ -514,7 +486,7 @@ tryLazyGetDynamicLibFunction (
 
 	if (index >= functionCount)
 	{
-		err::setFormatStringError ("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ().cc ());
+		err::setFormatStringError ("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ());
 		return NULL;
 	}
 
@@ -539,7 +511,7 @@ lazyGetDynamicLibFunction (
 {
 	void* p = tryLazyGetDynamicLibFunction (lib, index, name);
 	if (!p)
-		rt::Runtime::runtimeError (err::getLastError ());
+		dynamicThrow ();
 
 	return p;
 }
@@ -553,8 +525,8 @@ appendFmtLiteral_a (
 	size_t length
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
 	size_t newLength = fmtLiteral->m_length + length;
 	if (newLength < 64)
@@ -564,7 +536,7 @@ appendFmtLiteral_a (
 	{
 		size_t newMaxLength = sl::getMinPower2Ge (newLength);
 
-		DataPtr ptr = runtime->m_gcHeap.tryAllocateBuffer (newMaxLength + 1);
+		DataPtr ptr = gcHeap->tryAllocateBuffer (newMaxLength + 1);
 		if (!ptr.m_p)
 			return fmtLiteral->m_length;
 
@@ -587,6 +559,7 @@ appendFmtLiteral_a (
 	return fmtLiteral->m_length;
 }
 
+static
 void
 prepareFormatString (
 	sl::String* formatString,
@@ -613,115 +586,7 @@ prepareFormatString (
 		formatString->append (defaultType);
 }
 
-size_t
-appendFmtLiteral_v (
-	FmtLiteral* fmtLiteral,
-	const char* fmtSpecifier,
-	Variant variant
-	)
-{
-	bool result;
-
-	if (!variant.m_type)
-		return fmtLiteral->m_length;
-
-	ct::Module* module = variant.m_type->getModule ();
-	ct::TypeKind typeKind = variant.m_type->getTypeKind ();
-	uint_t typeKindFlags = variant.m_type->getTypeKindFlags ();
-
-	if (typeKindFlags & ct::TypeKindFlag_Integer)
-	{
-		ct::Value value (&variant, variant.m_type);
-
-		if (variant.m_type->getSize () > 4)
-		{
-			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int64);
-			if (!result)
-			{
-				ASSERT (false);
-				return fmtLiteral->m_length;
-			}
-
-			ASSERT (value.getValueKind () == ct::ValueKind_Const);
-			int64_t x = *(int64_t*) value.getConstData ();
-
-			return (typeKindFlags & ct::TypeKindFlag_Unsigned) ? 
-				appendFmtLiteral_ui64 (fmtLiteral, fmtSpecifier, x) :
-				appendFmtLiteral_i64 (fmtLiteral, fmtSpecifier, x);
-		}
-		else
-		{
-			result = module->m_operatorMgr.castOperator (&value, TypeKind_Int32);
-			if (!result)
-			{
-				ASSERT (false);
-				return fmtLiteral->m_length;
-			}
-
-			ASSERT (value.getValueKind () == ct::ValueKind_Const);
-			int32_t x = *(int32_t*) value.getConstData ();
-
-			return (typeKindFlags & ct::TypeKindFlag_Unsigned) ? 
-				appendFmtLiteral_ui32 (fmtLiteral, fmtSpecifier, x) :
-				appendFmtLiteral_i32 (fmtLiteral, fmtSpecifier, x);
-		}
-	}
-	else if (typeKindFlags & ct::TypeKindFlag_Fp)
-	{
-		return typeKind == TypeKind_Float ? 
-			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
-			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
-	}
-
-	ct::Type* type;
-	const void* p;
-
-	if (typeKind != TypeKind_DataRef)
-	{
-		type = variant.m_type;
-		p = &variant;
-	}
-	else
-	{
-		type = ((ct::DataPtrType*) variant.m_type)->getTargetType ();
-		p = variant.m_dataPtr.m_p;
-	}
-
-	if (isCharArrayType (type))
-	{
-		ct::ArrayType* arrayType = (ct::ArrayType*) type;
-		size_t count = arrayType->getElementCount ();
-		const char* c = (char*) p;
-
-		// trim zero-termination
-
-		while (count && c [count - 1] == 0)
-			count--;
-
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, count);
-	}
-	else if (isCharPtrType (type))
-	{
-		ct::DataPtrType* ptrType = (ct::DataPtrType*) type;
-		ct::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-		
-		if (ptrTypeKind == ct::DataPtrTypeKind_Normal)
-			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
-
-		const char* c = *(char**) p;
-		size_t length = axl_strlen (c);
-
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
-	}
-	else
-	{
-		sl::String string;
-		string.format ("(variant:%s)", type->getTypeString ().cc ());
-		
-		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
-	}
-}
-
+static
 size_t
 appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
@@ -743,6 +608,7 @@ appendFmtLiteralImpl (
 	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 }
 
+static
 size_t
 appendFmtLiteralStringImpl (
 	FmtLiteral* fmtLiteral,
@@ -766,18 +632,183 @@ appendFmtLiteralStringImpl (
 	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "s", p);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bool
-mapAllMulticastMethods (ct::Module* module)
+static
+size_t
+appendFmtLiteral_p (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	DataPtr ptr
+	)
 {
-	sl::ConstList <ct::MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
-	sl::Iterator <ct::MulticastClassType> mcType = mcTypeList.getHead ();
-	for (; mcType; mcType++)
-		mapMulticastMethods (module, *mcType);
-
-	return true;
+	return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, strLen (ptr));
 }
+
+static
+size_t
+appendFmtLiteral_i32 (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	int32_t x
+	)
+{
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "d", x);
+}
+
+static
+size_t
+appendFmtLiteral_ui32 (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	uint32_t x
+	)
+{
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "u", x);
+}
+
+static
+size_t
+appendFmtLiteral_i64 (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	int64_t x
+	)
+{
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "lld", x);
+}
+
+static
+size_t
+appendFmtLiteral_ui64 (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	uint64_t x
+	)
+{
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "llu", x);
+}
+
+static
+size_t
+appendFmtLiteral_f (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	double x
+	)
+{
+	return appendFmtLiteralImpl (fmtLiteral, fmtSpecifier, "f", x);
+}
+
+size_t
+appendFmtLiteral_v (
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	Variant variant
+	)
+{
+	bool result;
+
+	if (!variant.m_type)
+		return fmtLiteral->m_length;
+
+	TypeKind typeKind = variant.m_type->getTypeKind ();
+	uint_t typeKindFlags = variant.m_type->getTypeKindFlags ();
+
+	if (typeKindFlags & TypeKindFlag_Integer)
+	{
+		Module* module = variant.m_type->getModule ();
+
+		char buffer [sizeof (int64_t)];
+
+		if (variant.m_type->getSize () > 4)
+		{
+			Type* targetType = module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
+			result = variant.cast (targetType, buffer);
+			if (!result)
+			{
+				ASSERT (false);
+				return fmtLiteral->m_length;
+			}
+
+			int64_t x = *(int64_t*) buffer;
+
+			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+				appendFmtLiteral_ui64 (fmtLiteral, fmtSpecifier, x) :
+				appendFmtLiteral_i64 (fmtLiteral, fmtSpecifier, x);
+		}
+		else
+		{
+			Type* targetType = module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+			result = variant.cast (targetType, buffer);
+			if (!result)
+			{
+				ASSERT (false);
+				return fmtLiteral->m_length;
+			}
+
+			int32_t x = *(int32_t*) buffer;
+
+			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+				appendFmtLiteral_ui32 (fmtLiteral, fmtSpecifier, x) :
+				appendFmtLiteral_i32 (fmtLiteral, fmtSpecifier, x);
+		}
+	}
+	else if (typeKindFlags & TypeKindFlag_Fp)
+	{
+		return typeKind == TypeKind_Float ? 
+			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
+			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
+	}
+
+	Type* type;
+	const void* p;
+
+	if (typeKind != TypeKind_DataRef)
+	{
+		type = variant.m_type;
+		p = &variant;
+	}
+	else
+	{
+		type = ((DataPtrType*) variant.m_type)->getTargetType ();
+		p = variant.m_dataPtr.m_p;
+	}
+
+	if (isCharArrayType (type))
+	{
+		ArrayType* arrayType = (ArrayType*) type;
+		size_t count = arrayType->getElementCount ();
+		const char* c = (char*) p;
+
+		// trim zero-termination
+
+		while (count && c [count - 1] == 0)
+			count--;
+
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, count);
+	}
+	else if (isCharPtrType (type))
+	{
+		DataPtrType* ptrType = (DataPtrType*) type;
+		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+		
+		if (ptrTypeKind == DataPtrTypeKind_Normal)
+			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
+
+		const char* c = *(char**) p;
+		size_t length = axl_strlen (c);
+
+		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
+	}
+	else
+	{
+		sl::String string;
+		string.format ("(variant:%s)", type->getTypeString ());
+		
+		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 multicastDestruct (Multicast* multicast)
@@ -851,52 +882,154 @@ multicastGetSnapshot (Multicast* multicast)
 	return ((MulticastImpl*) multicast)->getSnapshot ();
 }
 
-void*
-m_multicastMethodTable [ct::FunctionPtrTypeKind__Count] [ct::MulticastMethodKind__Count - 1] =
-{
-	{
-		(void*) multicastClear,
-		(void*) multicastSet,
-		(void*) multicastAdd,
-		(void*) multicastRemove,
-		(void*) multicastGetSnapshot,
-	},
-
-	{
-		(void*) multicastClear,
-		(void*) multicastSet,
-		(void*) multicastAdd,
-		(void*) multicastRemove,
-		(void*) multicastGetSnapshot,
-	},
-
-	{
-		(void*) multicastClear,
-		(void*) multicastSet_t,
-		(void*) multicastAdd_t,
-		(void*) multicastRemove_t,
-		(void*) multicastGetSnapshot,
-	},
-};
-
+static
 void
 mapMulticastMethods (
-	ct::Module* module,
-	ct::MulticastClassType* multicastType
+	Module* module,
+	MulticastClassType* multicastType
 	)
 {
-	ct::FunctionPtrTypeKind ptrTypeKind = multicastType->getTargetType ()->getPtrTypeKind ();
-	ASSERT (ptrTypeKind < ct::FunctionPtrTypeKind__Count);
+	static void* multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1] =
+	{
+		{
+			(void*) multicastClear,
+			(void*) multicastSet,
+			(void*) multicastAdd,
+			(void*) multicastRemove,
+			(void*) multicastGetSnapshot,
+		},
 
-	ct::Function* function = multicastType->getDestructor ();
+		{
+			(void*) multicastClear,
+			(void*) multicastSet,
+			(void*) multicastAdd,
+			(void*) multicastRemove,
+			(void*) multicastGetSnapshot,
+		},
+
+		{
+			(void*) multicastClear,
+			(void*) multicastSet_t,
+			(void*) multicastAdd_t,
+			(void*) multicastRemove_t,
+			(void*) multicastGetSnapshot,
+		},
+	};
+
+	FunctionPtrTypeKind ptrTypeKind = multicastType->getTargetType ()->getPtrTypeKind ();
+	ASSERT (ptrTypeKind < FunctionPtrTypeKind__Count);
+
+	Function* function = multicastType->getDestructor ();
 	module->mapFunction (function, (void*) multicastDestruct);
 
-	for (size_t i = 0; i < ct::MulticastMethodKind__Count - 1; i++)
+	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++)
 	{
-		function = multicastType->getMethod ((ct::MulticastMethodKind) i);
-		module->mapFunction (function, m_multicastMethodTable [ptrTypeKind] [i]);
+		function = multicastType->getMethod ((MulticastMethodKind) i);
+		module->mapFunction (function, multicastMethodTable [ptrTypeKind] [i]);
 	}
 }
+
+bool
+mapAllMulticastMethods (Module* module)
+{
+	sl::ConstList <ct::MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
+	sl::Iterator <ct::MulticastClassType> mcType = mcTypeList.getHead ();
+	for (; mcType; mcType++)
+		mapMulticastMethods (module, *mcType);
+
+	return true;
+}
+
+//.............................................................................
+
+JNC_DEFINE_LIB (jnc_CoreLib)
+
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_CoreLib)
+JNC_END_LIB_SOURCE_FILE_TABLE ()
+
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+
+JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
+	// dynamic sizeof/countof/casts
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicSizeOf,       dynamicSizeOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCountOf,      dynamicCountOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastDataPtr,  dynamicCastDataPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_StrengthenClassPtr,  strengthenClassPtr)
+
+	// gc heap
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_PrimeStaticClass,         primeStaticClass)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryAllocateClass,         tryAllocateClass)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AllocateClass,            allocateClass)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryAllocateData,          tryAllocateData)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AllocateData,             allocateData)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryAllocateArray,         tryAllocateArray)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AllocateArray,            allocateArray)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CreateDataPtrValidator,   createDataPtrValidator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_GcSafePoint,              gcSafePoint)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_SetGcShadowStackFrameMap, setGcShadowStackFrameMap)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticDestructor,      addStaticDestructor)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AddStaticClassDestructor, addStaticClassDestructor)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_GetTls,                   getTls)
+
+	// variant operators
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantUnaryOperator,      jnc_Variant_unaryOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantBinaryOperator,     jnc_Variant_binaryOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantRelationalOperator, jnc_Variant_relationalOperator)
+
+	// exceptions
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,       ::setjmp)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicThrow, dynamicThrow)
+
+	// runtime checks
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AssertionFailure,             assertionFailure)		
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckDataPtrRangeDirect,   tryCheckDataPtrRangeDirect)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDataPtrRangeDirect,      checkDataPtrRangeDirect)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDataPtrRangeIndirect,    checkDataPtrRangeIndirect)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckNullPtr,              tryCheckNullPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckNullPtr,                 checkNullPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckStackOverflow,           checkStackOverflow)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_i32,           checkDivByZero_i32)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_i64,           checkDivByZero_i64)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f32,           checkDivByZero_f32)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f64,           checkDivByZero_f64)
+		
+	// dynamic libs
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryLazyGetDynamicLibFunction, tryLazyGetDynamicLibFunction)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_LazyGetDynamicLibFunction,    lazyGetDynamicLibFunction)		
+		
+	// formating literals
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_a,    appendFmtLiteral_a)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_p,    appendFmtLiteral_p)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_i32,  appendFmtLiteral_i32)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_ui32, appendFmtLiteral_ui32)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_i64,  appendFmtLiteral_i64)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+
+	// multicasts
+
+	result = mapAllMulticastMethods (module);
+	if (!result)
+		return false;
+
+	// std types
+
+	JNC_MAP_STD_TYPE (StdType_Recognizer, Recognizer)
+	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)	
+
+JNC_END_LIB_FUNCTION_MAP ()
 
 //.............................................................................
 

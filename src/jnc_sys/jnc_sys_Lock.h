@@ -1,10 +1,11 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_sys_SysLibGlobals.h"
 
 namespace jnc {
 namespace sys {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Lock)
 
 //.............................................................................
 
@@ -25,17 +26,6 @@ public:
 		m_lock.unlock ();
 	}
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DECLARE_OPAQUE_CLASS_TYPE (
-	Lock, 
-	"sys.Lock", 
-	g_sysLibGuid, 
-	SysLibCacheSlot_Lock, 
-	Lock, 
-	NULL
-	)
 
 //.............................................................................
 

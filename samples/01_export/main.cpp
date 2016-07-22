@@ -28,6 +28,8 @@ main (
 	)
 #endif
 {
+	bool result;
+
 	printf ("Initializing...\n");
 	
 	if (argc < 2)
@@ -36,21 +38,30 @@ main (
 		return Error_CmdLine;
 	}
 
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
+	jnc::initialize ();
 
 	lex::registerParseErrorProvider ();
 
 	srand ((int) sys::getTimestamp ());
-	
+
 	sl::String fileName = argv [1];
+
+	jnc::AutoModule module;
+
+	result = module->initialize (fileName);
+	if (!result)
+	{
+		printf ("%s\n", err::getLastErrorDescription ().cc ());
+		return Error_Compile;
+	}
+
+	module->addStaticLib (jnc::StdLib_getLib ());
+	module->addStaticLib (MyLib_getLib ());
 
 	printf ("Opening '%s'...\n", fileName.cc ());
 
 	io::SimpleMappedFile file;
-	bool result = file.open (fileName, io::FileFlag_ReadOnly);
+	result = file.open (fileName, io::FileFlag_ReadOnly);
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -59,15 +70,9 @@ main (
 
 	printf ("Parsing...\n");
 
-	jnc::ct::Module module;
-	result =
-		module.create (fileName) &&
-		module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ());
-		module.m_extensionLibMgr.addStaticLib (getMyLib ());
-
 	result = 
-		module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
-		module.parseImports ();
+		module->parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
+		module->parseImports ();
 
 	if (!result)
 	{
@@ -77,7 +82,7 @@ main (
 
 	printf ("Compiling...\n");
 
-	result = module.compile ();
+	result = module->compile ();
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -86,15 +91,15 @@ main (
 
 	printf ("JITting...\n");
 
-	result = module.jit ();
+	result = module->jit ();
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
 		return Error_Compile;
 	}
 
-	jnc::ct::Namespace* nspace = module.m_namespaceMgr.getGlobalNamespace ();
-	jnc::ct::Function* mainFunction = nspace->getFunctionByName ("main");
+	jnc::Namespace* nspace = module->getGlobalNamespace ()->getNamespace ();
+	jnc::Function* mainFunction = nspace->findFunction ("main");
 	if (!mainFunction)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -103,9 +108,9 @@ main (
 
 	printf ("Running...\n");
 
-	jnc::rt::Runtime runtime;
+	jnc::AutoRuntime runtime;
 
-	result = runtime.startup (&module);
+	result = runtime->startup (module);
 	if (!result)
 	{
 		printf ("%s\n", err::getLastErrorDescription ().cc ());
@@ -115,7 +120,7 @@ main (
 	Error finalResult = Error_Success;
 
 	int returnValue;
-	result = jnc::rt::callFunction (&runtime, mainFunction, &returnValue);
+	result = jnc::callFunction (runtime, mainFunction, &returnValue);
 	if (!result)
 	{
 		printf ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
@@ -124,7 +129,7 @@ main (
 
 	printf ("Shutting down...\n");
 
-	runtime.shutdown ();
+	runtime->shutdown ();
 
 	printf ("Done.\n");
 

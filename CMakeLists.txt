@@ -13,6 +13,7 @@ include (cmake/axl_cmake.cmake NO_POLICY_SCOPE)
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 set (JANCY_ROOT_DIR     ${CMAKE_CURRENT_LIST_DIR})
+set (JANCY_SRC_DIR      ${CMAKE_CURRENT_LIST_DIR}/src)
 set (JANCY_LIB_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set (JANCY_BIN_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set (JANCY_DOC_DIR      ${CMAKE_CURRENT_BINARY_DIR}/doc)

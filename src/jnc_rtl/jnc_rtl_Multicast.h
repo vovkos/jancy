@@ -1,7 +1,6 @@
 #pragma once
 
 #include "jnc_RuntimeStructs.h"
-#include "jnc_Multicast.h"
 
 namespace jnc {
 namespace rtl {

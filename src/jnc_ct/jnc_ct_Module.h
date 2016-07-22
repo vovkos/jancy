@@ -22,49 +22,6 @@
 namespace jnc {
 namespace ct {
 
-class Module;
-
-//.............................................................................
-
-enum ModuleCompileFlag
-{
-	ModuleCompileFlag_DebugInfo                            = 0x0001,
-	ModuleCompileFlag_McJit                                = 0x0002,
-	ModuleCompileFlag_SimpleGcSafePoint                    = 0x0004,
-	ModuleCompileFlag_GcSafePointInPrologue                = 0x0010,
-	ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x0020,
-	ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x0040,
-	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x0080,
-	ModuleCompileFlag_CheckDivByZero                       = 0x0100,
-
-	ModuleCompileFlag_StdFlags = 
-		ModuleCompileFlag_GcSafePointInPrologue | 
-		ModuleCompileFlag_GcSafePointInInternalPrologue |
-		ModuleCompileFlag_CheckStackOverflowInPrologue |
-		ModuleCompileFlag_CheckDivByZero
-#if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU != AXL_CPU_X86)
-		// SEH on amd64/ia64 relies on being able to walk the stack which is not as 
-		// reliable as frame-based SEH on x86. therefore, use write barrier for 
-		// safe points on windows if and only if it's x86 
-		| ModuleCompileFlag_SimpleGcSafePoint
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-		| ModuleCompileFlag_McJit
-#endif
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum ModuleCompileState
-{
-	ModuleCompileState_Idle,
-	ModuleCompileState_CalcLayout,
-	ModuleCompileState_LayoutCalculated,
-	ModuleCompileState_Compiling,
-	ModuleCompileState_Compiled,
-	ModuleCompileState_Jitting,
-	ModuleCompileState_Jitted,
-};
-
 //.............................................................................
 
 // makes it convenient to initialize childs (especially operators)
@@ -74,7 +31,7 @@ class PreModule
 protected:
 	PreModule ()
 	{
-		Module* prevModule = sys::setTlsSlotValue <Module> ((Module*) this);
+		Module* prevModule = sys::setTlsPtrSlotValue <Module> ((Module*) this);
 		ASSERT (prevModule == NULL);
 	}
 
@@ -83,14 +40,14 @@ public:
 	Module* 
 	getCurrentConstructedModule ()
 	{
-		return sys::getTlsSlotValue <Module> ();
+		return sys::getTlsPtrSlotValue <Module> ();
 	}
 
 protected:
 	void
 	finalizeConstruction ()
 	{
-		sys::setTlsSlotValue <Module> (NULL);
+		sys::setTlsPtrSlotValue <Module> (NULL);
 	}
 };
 
@@ -138,7 +95,7 @@ public:
 	{
 		clear ();
 	}
-
+	
 	sl::String
 	getName ()
 	{
@@ -240,7 +197,7 @@ public:
 	markForCompile (ModuleItem* item);
 
 	bool
-	create (
+	initialize (
 		const sl::String& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
@@ -250,28 +207,16 @@ public:
 
 	bool
 	parse (
-		const char* filePath,
+		const char* fileName,
 		const char* source,
 		size_t length = -1
 		);
 
 	bool
-	parseFile (const char* filePath)
-	{
-		return parseFile (filePath, io::getFullFilePath (filePath));
-	}
-
-	bool
-	parseFile (
-		const char* filePath,
-		const char* nameOverride
-		);
+	parseFile (const char* fileName);
 
 	bool
 	parseImports ();
-
-	bool
-	resolve ();
 
 	bool
 	calcLayout ();

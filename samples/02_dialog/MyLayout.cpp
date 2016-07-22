@@ -1,5 +1,25 @@
 #include "pch.h"
 #include "MyLayout.h"
+#include "MyLib.h"
+
+//.............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	MyLayout, 
+	"Layout", 
+	g_myLibGuid, 
+	MyLibCacheSlot_Layout,
+	MyLayout, 
+	&MyLayout::markOpaqueGcRoots
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (MyLayout)
+	JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLayout, QBoxLayout::Direction>))
+	JNC_MAP_DESTRUCTOR (&sl::destruct <MyLayout>)
+	JNC_MAP_FUNCTION ("addWidget", &MyLayout::addWidget)
+	JNC_MAP_FUNCTION ("addLayout", &MyLayout::addLayout)
+	JNC_MAP_FUNCTION ("addSpacer", &MyLayout::addSpacer)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 
@@ -10,7 +30,7 @@ MyLayout::MyLayout (QBoxLayout::Direction direction)
 }
 
 void 
-MyLayout::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
+MyLayout::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	size_t count = m_childWidgetList.count ();
 	for (size_t i = 0; i < count; i++)

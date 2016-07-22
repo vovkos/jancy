@@ -5,22 +5,13 @@
 namespace jnc {
 namespace io {
 
+JNC_DECLARE_OPAQUE_CLASS_TYPE (NamedPipe)
+
 //.............................................................................
 
 class NamedPipe: public IfaceHdr
 {
 	friend class IoThread;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (NamedPipe, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.NamedPipe", g_ioLibCacheSlot, IoLibCacheSlot_NamedPipe)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <NamedPipe>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <NamedPipe>)
-		JNC_MAP_FUNCTION ("open",   &NamedPipe::open)
-		JNC_MAP_FUNCTION ("close",  &NamedPipe::close)
-		JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
-	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -62,7 +53,7 @@ protected:
 	ClassBox <Multicast> m_onIncomingConnectionEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	sl::String_w m_pipeName;	
 	sl::Array <axl::io::win::NamedPipe> m_pipeArray;
 

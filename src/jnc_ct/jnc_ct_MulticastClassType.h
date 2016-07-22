@@ -11,39 +11,6 @@ namespace ct {
 
 //.............................................................................
 
-enum MulticastFieldKind
-{
-	MulticastFieldKind_Lock,
-	MulticastFieldKind_PtrArray,
-	MulticastFieldKind_Count,
-	MulticastFieldKind_MaxCount,
-	MulticastFieldKind_HandleTable,
-
-	MulticastFieldKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum MulticastMethodKind
-{
-	MulticastMethodKind_Clear,
-	MulticastMethodKind_Setup,
-	MulticastMethodKind_Add,
-	MulticastMethodKind_Remove,
-	MulticastMethodKind_GetSnapshot,
-	MulticastMethodKind_Call,
-	MulticastMethodKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum MulticastMethodFlag
-{
-	MulticastMethodFlag_InaccessibleViaEventPtr = 0x010000,
-};
-
-//.............................................................................
-
 class MulticastClassType: public ClassType
 {
 	friend class TypeMgr;

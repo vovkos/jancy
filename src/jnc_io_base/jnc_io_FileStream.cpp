@@ -1,14 +1,50 @@
 #include "pch.h"
 #include "jnc_io_FileStream.h"
+#include "jnc_io_IoLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	FileStreamEventParams,
+	"io.FileStreamEventParams", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_FileStreamEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (FileStreamEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	FileStream, 
+	"io.FileStream", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_FileStream,
+	FileStream, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <FileStream>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <FileStream>)
+	JNC_MAP_FUNCTION ("open",  &FileStream::open)
+	JNC_MAP_FUNCTION ("close", &FileStream::close)
+	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
+	JNC_MAP_FUNCTION ("read",  &FileStream::read)
+	JNC_MAP_FUNCTION ("write", &FileStream::write)
+	JNC_MAP_FUNCTION ("firePendingEvents", &FileStream::firePendingEvents)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 FileStream::FileStream ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 #if (_AXL_ENV == AXL_ENV_WIN)
 	m_incomingDataSize = 0;
@@ -51,7 +87,7 @@ FileStream::open (
 
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -112,9 +148,10 @@ FileStream::close ()
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 	m_selfPipe.close ();
@@ -150,15 +187,15 @@ FileStream::fireFileStreamEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <FileStreamEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <FileStreamEventParams> (m_runtime);
 	FileStreamEventParams* params = (FileStreamEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 
 	if (error)
-		params->m_errorPtr = rt::memDup (error, error->m_size);
+		params->m_errorPtr = memDup (error, error->m_size);
 
-	rt::callMulticast (m_onFileStreamEvent, paramsPtr);
+	callMulticast (m_onFileStreamEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -176,7 +213,7 @@ FileStream::read (
 	if (m_ioFlags & IoFlag_WriteOnly)
 	{
 		m_ioLock.unlock ();
-		ext::setError (err::SystemErrorCode_AccessDenied);
+		setError (err::SystemErrorCode_AccessDenied);
 		return -1;
 	}
 	else if (m_ioFlags & IoFlag_IncomingData)
@@ -196,12 +233,13 @@ FileStream::read (
 		wakeIoThread ();
 		m_ioLock.unlock ();
 
-		rt::enterWaitRegion (m_runtime);
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		gcHeap->enterWaitRegion ();
 		read.m_completionEvent.wait ();
-		rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 
 		if (read.m_result == -1)
-			ext::setError (read.m_error);
+			setError (read.m_error);
 
 		return read.m_result;
 	}
@@ -258,7 +296,7 @@ FileStream::write (
 	size_t actualSize = result ? m_file.m_file.getOverlappedResult (&overlapped) : -1;
 
 	if (actualSize == -1)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return actualSize;
 }

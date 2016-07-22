@@ -47,7 +47,7 @@ int main ()
 	// c = null; 
 
 	printf ("gc run...\n");
-	jnc.collectGarbage ();
+	std.collectGarbage ();
 
 	// attempt to recover the strong pointer
 

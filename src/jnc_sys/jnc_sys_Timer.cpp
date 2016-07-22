@@ -1,10 +1,20 @@
 #include "pch.h"
 #include "jnc_sys_Timer.h"
+#include "jnc_sys_SysLib.h"
 
 namespace jnc {
 namespace sys {
 
 //.............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	Timer, 
+	"sys.Timer", 
+	g_sysLibGuid, 
+	SysLibCacheSlot_Timer,
+	Timer, 
+	NULL
+	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Timer)
 	JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
@@ -13,7 +23,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Timer)
 	JNC_MAP_FUNCTION ("stop", &Timer::stop)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 bool 
 AXL_CDECL

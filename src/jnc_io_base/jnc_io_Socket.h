@@ -1,10 +1,12 @@
 #pragma once
 
-#include "jnc_io_IoLibGlobals.h"
 #include "jnc_io_SocketAddress.h"
 
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_TYPE (SocketEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Socket)
 
 //.............................................................................
 
@@ -30,13 +32,12 @@ enum SocketDisconnectEventFlag
 
 struct SocketEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SocketEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SocketEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (SocketEventParams)
 
 	SocketEventKind m_eventKind;
 	uint_t m_syncId;
 	uint_t m_flags;
-	jnc::DataPtr m_errorPtr;
+	DataPtr m_errorPtr;
 };
 
 //.............................................................................
@@ -63,29 +64,7 @@ class Socket: public IfaceHdr
 	friend class IoThread;
 
 public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Socket, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Socket", g_ioLibCacheSlot, IoLibCacheSlot_Socket)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Socket>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Socket>)
-		JNC_MAP_CONST_PROPERTY ("m_address",      &Socket::getAddress)
-		JNC_MAP_CONST_PROPERTY ("m_peerAddress",  &Socket::getPeerAddress)
-		JNC_MAP_PROPERTY ("m_isBroadcastEnabled", &Socket::isBroadcastEnabled, &Socket::setBroadcastEnabled)
-		JNC_MAP_PROPERTY ("m_isNagleEnabled",     &Socket::isNagleEnabled, &Socket::setNagleEnabled)
-		JNC_MAP_PROPERTY ("m_isRawHdrIncluded",   &Socket::isRawHdrIncluded, &Socket::setRawHdrIncluded)
-		JNC_MAP_PROPERTY ("m_closeKind",          &Socket::getCloseKind, &Socket::setCloseKind)
-		JNC_MAP_FUNCTION ("open",     &Socket::open_0)
-		JNC_MAP_OVERLOAD (&Socket::open_1)
-		JNC_MAP_FUNCTION ("close",    &Socket::close)
-		JNC_MAP_FUNCTION ("connect",  &Socket::connect)
-		JNC_MAP_FUNCTION ("listen",   &Socket::listen)
-		JNC_MAP_FUNCTION ("accept",   &Socket::accept)
-		JNC_MAP_FUNCTION ("send",     &Socket::send)
-		JNC_MAP_FUNCTION ("recv",     &Socket::recv)
-		JNC_MAP_FUNCTION ("sendTo",   &Socket::sendTo)
-		JNC_MAP_FUNCTION ("recvFrom", &Socket::recvFrom)
-		JNC_MAP_FUNCTION ("firePendingEvents", &Socket::firePendingEvents)
-	JNC_END_TYPE_FUNCTION_MAP ()
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (Socket)
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -118,10 +97,10 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	jnc::ClassBox <jnc::Multicast> m_onSocketEvent;
+	ClassBox <Multicast> m_onSocketEvent;
 
 protected:
-	jnc::rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 
 	axl::io::Socket m_socket;
 
@@ -202,7 +181,7 @@ public:
 	AXL_CDECL
 	open_1 (
 		int protocol,
-		jnc::DataPtr addressPtr,
+		DataPtr addressPtr,
 		uint_t flags
 		)
 	{
@@ -216,7 +195,7 @@ public:
 
 	bool
 	AXL_CDECL
-	connect (jnc::DataPtr addressPtr);
+	connect (DataPtr addressPtr);
 
 	bool
 	AXL_CDECL
@@ -224,36 +203,36 @@ public:
 
 	Socket*
 	AXL_CDECL
-	accept (jnc::DataPtr addressPtr);
+	accept (DataPtr addressPtr);
 
 	size_t
 	AXL_CDECL
 	send (
-		jnc::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	recv (
-		jnc::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	AXL_CDECL
 	sendTo (
-		jnc::DataPtr ptr,
+		DataPtr ptr,
 		size_t size,
-		jnc::DataPtr addressPtr
+		DataPtr addressPtr
 		);
 
 	size_t
 	AXL_CDECL
 	recvFrom (
-		jnc::DataPtr ptr,
+		DataPtr ptr,
 		size_t size,
-		jnc::DataPtr addressPtr
+		DataPtr addressPtr
 		);
 
 	void

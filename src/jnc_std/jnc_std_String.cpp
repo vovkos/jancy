@@ -1,8 +1,52 @@
 #include "pch.h"
 #include "jnc_std_String.h"
+#include "jnc_std_StdLib.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace std {
+
+//.............................................................................
+
+JNC_DEFINE_TYPE (
+	StringRef, 
+	"std.StringRef", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_StringRef
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (StringRef)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	String, 
+	"std.String", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_String
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (String)
+	JNC_MAP_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
+	JNC_MAP_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
+	JNC_MAP_FUNCTION ("copy", &String::copy_s1)
+	JNC_MAP_OVERLOAD (&String::copy_s2)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_CLASS_TYPE (
+	StringBuilder, 
+	"std.StringBuilder", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_StringBuilder
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (StringBuilder)
+	JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
+	JNC_MAP_FUNCTION ("append", &StringBuilder::append)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 
@@ -32,7 +76,7 @@ String::copy (
 	)
 {
 	if (length == -1)
-		length = rt::strLen (ptr);
+		length = strLen (ptr);
 
 	if (!length)
 	{
@@ -41,13 +85,13 @@ String::copy (
 		return true;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (length + 1);
+	DataPtr newPtr = gcHeap->tryAllocateBuffer (length + 1);
 	if (!newPtr.m_p)
 		return false;
-	
+
 	memcpy (newPtr.m_p, ptr.m_p, length);
 
 	m_ptr = newPtr;
@@ -65,7 +109,7 @@ StringBuilder::copy (
 	)
 {
 	if (length == -1)
-		length = rt::strLen (ptr);
+		length = strLen (ptr);
 
 	bool result = setLength (length, false);
 	if (!result)
@@ -83,7 +127,7 @@ StringBuilder::append (
 	)
 {
 	if (length == -1)
-		length = rt::strLen (ptr);
+		length = strLen (ptr);
 
 	size_t prevLength = m_length;
 
@@ -108,11 +152,11 @@ StringBuilder::setLength (
 		return true;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
 	size_t maxLength = sl::getMinPower2Gt (length);
-	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxLength + 1);
+	DataPtr newPtr = gcHeap->tryAllocateBuffer (maxLength + 1);
 	if (!newPtr.m_p)
 		return false;
 

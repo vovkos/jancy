@@ -10,7 +10,6 @@
 set (
 	APP_H_LIST
 	MyLib.h
-	MyLibGlobals.h
 	TestClass.h
 	TestStruct.h
 	)
@@ -58,23 +57,12 @@ source_group (
 
 include_directories (
 	${AXL_INC_DIR}
-	${LLVM_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	)
 
 link_directories (
 	${AXL_LIB_DIR}
 	${LLVM_LIB_DIR}
-	${JANCY_LIB_DIR}
-	)
-
-llvm_map_components_to_libraries (
-	LLVM_LIB_LIST
-	jit
-	native
-	MCJIT
-	MCDisassembler
 	)
 
 add_executable (
@@ -92,6 +80,14 @@ set_target_properties (
 	FOLDER samples
 	)
 	
+llvm_map_components_to_libraries (
+	LLVM_LIB_LIST
+	jit
+	native
+	MCJIT
+	MCDisassembler
+	)
+
 target_link_libraries (
 	01_export
 	jnc_std

@@ -7,9 +7,9 @@ CmdLine::CmdLine ()
 {
 	m_flags = JncFlag_Run;
 	m_functionName = "main";
-	m_gcAllocSizeTrigger = jnc::rt::GcDef_AllocSizeTrigger;
-	m_gcPeriodSizeTrigger = jnc::rt::GcDef_PeriodSizeTrigger;
-	m_stackSizeLimit = jnc::rt::RuntimeDef_StackSizeLimit;
+	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
+	m_gcSizeTriggers.m_periodSizeTrigger = jnc::GcDef_PeriodSizeTrigger;
+	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
 }
 
 //.............................................................................
@@ -116,11 +116,11 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_GcAllocSizeTrigger:
-		m_cmdLine->m_gcAllocSizeTrigger = parseSizeString (value);
+		m_cmdLine->m_gcSizeTriggers.m_allocSizeTrigger = parseSizeString (value);
 		break;
 
 	case CmdLineSwitch_GcPeriodSizeTrigger:
-		m_cmdLine->m_gcPeriodSizeTrigger = parseSizeString (value);
+		m_cmdLine->m_gcSizeTriggers.m_periodSizeTrigger = parseSizeString (value);
 		break;
 
 	case CmdLineSwitch_StackSizeLimit:

@@ -12,7 +12,9 @@ namespace ct {
 
 //.............................................................................
 
-class Const: public UserModuleItem
+class Const: 
+	public ModuleItem,
+	public ModuleItemDecl
 {
 	friend class ConstMgr;
 	

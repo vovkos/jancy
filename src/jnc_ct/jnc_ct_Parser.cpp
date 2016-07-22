@@ -623,13 +623,11 @@ Parser::declare (Declarator* declarator)
 void
 Parser::assignDeclarationAttributes (
 	ModuleItem* item,
+	ModuleItemDecl* decl,
 	const Token::Pos& pos,
 	AttributeBlock* attributeBlock
 	)
 {
-	ModuleItemDecl* decl = item->getItemDecl ();
-	ASSERT (decl);
-
 	decl->m_accessKind = m_accessKind ?
 		m_accessKind :
 		m_module->m_namespaceMgr.getCurrentAccessKind ();
@@ -686,22 +684,25 @@ Parser::declareTypedef (
 	sl::String qualifiedName = nspace->createQualifiedName (name);
 
 	ModuleItem* item;
+	ModuleItemDecl* decl;
 
 	if (isClassType (type, ClassTypeKind_ReactorIface))
 	{
 		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ClassType*) type, NULL);
 		item = type;
+		decl = (ClassType*) type;
 	}
 	else
 	{
 		Typedef* tdef = m_module->m_typeMgr.createTypedef (name, qualifiedName, type);
 		item = tdef;
+		decl = tdef;
 	}
 
 	if (!item)
 		return false;
 
-	assignDeclarationAttributes (item, declarator);
+	assignDeclarationAttributes (item, decl, declarator);
 
 	result = nspace->addItem (name, item);
 	if (!result)
@@ -744,7 +745,7 @@ Parser::declareAlias (
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
 	Alias* alias = m_module->m_variableMgr.createAlias (name, qualifiedName, type, initializer);
-	assignDeclarationAttributes (alias, declarator);
+	assignDeclarationAttributes (alias, alias, declarator);
 
 	result = nspace->addItem (alias);
 	if (!result)
@@ -834,7 +835,8 @@ Parser::declareFunction (
 		return true;
 	}
 
-	UserModuleItem* functionItem;
+	ModuleItem* functionItem;
+	ModuleItemDecl* functionItemDecl;
 	FunctionName* functionName;
 
 	if (declarator->isQualified ())
@@ -842,19 +844,21 @@ Parser::declareFunction (
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Function, type);
 		orphan->m_functionKind = functionKind;
 		functionItem = orphan;
+		functionItemDecl = orphan;
 		functionName = orphan;
 	}
 	else
 	{
 		Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
 		functionItem = function;
+		functionItemDecl = function;
 		functionName = function;
 	}
 
 	functionName->m_declaratorName = *declarator->getName ();
 	functionItem->m_tag = nspace->createQualifiedName (functionName->m_declaratorName);
 
-	assignDeclarationAttributes (functionItem, declarator);
+	assignDeclarationAttributes (functionItem, functionItemDecl, declarator);
 
 	if (postModifiers & PostDeclaratorModifier_Const)
 		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
@@ -862,9 +866,9 @@ Parser::declareFunction (
 	switch (functionKind)
 	{
 	case FunctionKind_Named:
-		functionItem->m_name = declarator->getName ()->getShortName ();
-		functionItem->m_qualifiedName = nspace->createQualifiedName (functionItem->m_name);
-		functionItem->m_tag = functionItem->m_qualifiedName;
+		functionItemDecl->m_name = declarator->getName ()->getShortName ();
+		functionItemDecl->m_qualifiedName = nspace->createQualifiedName (functionItemDecl->m_name);
+		functionItem->m_tag = functionItemDecl->m_qualifiedName;
 		break;
 
 	case FunctionKind_UnaryOperator:
@@ -1072,7 +1076,7 @@ Parser::createProperty (
 	sl::String qualifiedName = nspace->createQualifiedName (name);
 	Property* prop = m_module->m_functionMgr.createProperty (name, qualifiedName);
 
-	assignDeclarationAttributes (prop, pos);
+	assignDeclarationAttributes (prop, prop, pos);
 
 	ExtensionNamespace* extensionNamespace;
 	DerivableType* extensionType;
@@ -1334,12 +1338,12 @@ Parser::declareReactor (
 
 		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Reactor, start->getType ());
 		oprhan->m_declaratorName = *declarator->getName ();
-		assignDeclarationAttributes (oprhan, declarator);
+		assignDeclarationAttributes (oprhan, oprhan, declarator);
 	}
 	else
 	{
 		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ReactorClassType*) type, (ClassType*) parentType);
-		assignDeclarationAttributes (type, declarator);
+		assignDeclarationAttributes (type, type, declarator);
 		result = declareData (declarator, type, ptrTypeFlags);
 		if (!result)
 			return false;
@@ -1400,7 +1404,6 @@ Parser::declareData (
 		}
 	}
 
-	ModuleItem* dataItem = NULL;
 	bool isDisposable = false;
 
 	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)))
@@ -1496,14 +1499,17 @@ Parser::declareData (
 	if (namespaceKind == NamespaceKind_Property)
 	{
 		Property* prop = (Property*) nspace;
+	 	ModuleItem* dataItem = NULL;
 
 		if (storageKind == StorageKind_Member)
 		{
-			dataItem = prop->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
-			if (!dataItem)
+			StructField* field = prop->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
+			if (!field)
 				return false;
 
-			assignDeclarationAttributes (dataItem, declarator);
+			assignDeclarationAttributes (field, field, declarator);
+
+			dataItem = field;
 		}
 		else
 		{
@@ -1520,7 +1526,7 @@ Parser::declareData (
 			if (!variable)
 				return false;
 
-			assignDeclarationAttributes (variable, declarator);
+			assignDeclarationAttributes (variable, variable, declarator);
 
 			result = nspace->addItem (variable);
 			if (!result)
@@ -1568,7 +1574,7 @@ Parser::declareData (
 				return false;
 		}
 		
-		assignDeclarationAttributes (variable, declarator);
+		assignDeclarationAttributes (variable, variable, declarator);
 
 		result = nspace->addItem (variable);
 		if (!result)
@@ -1661,7 +1667,7 @@ Parser::declareData (
 		if (!field)
 			return false;
 
-		assignDeclarationAttributes (field, declarator);
+		assignDeclarationAttributes (field, field, declarator);
 	}
 
 	return true;
@@ -1729,7 +1735,7 @@ Parser::createFormalArg (
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
 	FunctionArg* arg = m_module->m_typeMgr.createFunctionArg (name, type, ptrTypeFlags, initializer);
-	assignDeclarationAttributes (arg, declarator);
+	assignDeclarationAttributes (arg, arg, declarator);
 
 	argSuffix->m_argArray.append (arg);
 
@@ -1779,7 +1785,7 @@ Parser::createEnumType (
 			return NULL;
 	}
 
-	assignDeclarationAttributes (enumType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes (enumType, enumType, m_lastMatchedToken.m_pos);
 	return enumType;
 }
 
@@ -1825,7 +1831,7 @@ Parser::createStructType (
 			return NULL;
 	}
 
-	assignDeclarationAttributes (structType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes (structType, structType, m_lastMatchedToken.m_pos);
 	return structType;
 }
 
@@ -1856,7 +1862,7 @@ Parser::createUnionType (
 			return NULL;
 	}
 
-	assignDeclarationAttributes (unionType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes (unionType, unionType, m_lastMatchedToken.m_pos);
 	return unionType;
 }
 
@@ -1901,7 +1907,7 @@ Parser::createClassType (
 			return NULL;
 	}
 
-	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes (classType, classType, m_lastMatchedToken.m_pos);
 	return classType;
 }
 
@@ -1931,7 +1937,7 @@ Parser::createDynamicLibType (const sl::String& name)
 	if (!result)
 		return NULL;
 
-	assignDeclarationAttributes (classType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes (classType, classType, m_lastMatchedToken.m_pos);
 	m_module->m_namespaceMgr.openNamespace (dynamicLibNamespace);
 	m_dynamicLibFunctionCount = 0;
 	return classType;
@@ -2612,7 +2618,7 @@ Parser::lookupIdentifier (
 
 	case ModuleItemKind_Alias:
 		return m_module->m_operatorMgr.evaluateAlias (
-			item->getItemDecl (),
+			(Alias*) item,
 			((Alias*) item)->getInitializer (),
 			value
 			);

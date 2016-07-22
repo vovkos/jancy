@@ -12,6 +12,7 @@
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
 #include "jnc_ct_Variable.h"
+#include "jnc_Function.h"
 
 namespace jnc {
 namespace ct {
@@ -22,54 +23,6 @@ class PropertyType;
 class ReactorClassType;
 class Property;
 class Scope;
-
-//.............................................................................
-
-enum FunctionKind
-{
-	FunctionKind_Undefined = 0,
-	FunctionKind_Named,
-	FunctionKind_Getter,
-	FunctionKind_Setter,
-	FunctionKind_Binder,
-	FunctionKind_PreConstructor,
-	FunctionKind_Constructor,
-	FunctionKind_Destructor,
-	FunctionKind_StaticConstructor,
-	FunctionKind_StaticDestructor,
-	FunctionKind_ModuleConstructor,
-	FunctionKind_ModuleDestructor,
-	FunctionKind_CallOperator,
-	FunctionKind_CastOperator,
-	FunctionKind_UnaryOperator,
-	FunctionKind_BinaryOperator,
-	FunctionKind_OperatorVararg,
-	FunctionKind_OperatorCdeclVararg,
-	FunctionKind_Internal,
-	FunctionKind_Thunk,
-	FunctionKind_Reaction,
-	FunctionKind_ScheduleLauncher,
-	FunctionKind__Count
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum FunctionKindFlag
-{
-	FunctionKindFlag_NoStorage   = 0x01,
-	FunctionKindFlag_NoOverloads = 0x02,
-	FunctionKindFlag_NoArgs      = 0x04,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getFunctionKindString (FunctionKind functionKind);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-int
-getFunctionKindFlags (FunctionKind functionKind);
 
 //.............................................................................
 
@@ -142,7 +95,8 @@ public:
 //.............................................................................
 
 class Function:
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public FunctionName
 {
 	friend class Module;

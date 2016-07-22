@@ -1,19 +1,36 @@
 #include "pch.h"
 #include "jnc_io_NetworkAdapter.h"
+#include "jnc_io_IoLib.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
+
+JNC_DEFINE_TYPE (
+	NetworkAdapterAddress, 
+	"io.NetworkAdapterAddress", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_NetworkAdapterAddress
+	)
+
+JNC_DEFINE_TYPE (
+	NetworkAdapterDesc, 
+	"io.NetworkAdapterDesc", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_NetworkAdapterDesc
+	)
+
+//.............................................................................
 	
 DataPtr
 createNetworkAdapterAddress (
-	rt::Runtime* runtime,
+	Runtime* runtime,
 	const axl::io::NetworkAdapterAddress* srcAddress,
 	NetworkAdapterAddress* prevAddress
 	)
 {
-	DataPtr addressPtr = rt::createData <NetworkAdapterAddress> (runtime);
+	DataPtr addressPtr = createData <NetworkAdapterAddress> (runtime);
 	NetworkAdapterAddress* address = (NetworkAdapterAddress*) addressPtr.m_p;
 	address->m_address = srcAddress->m_address;
 	address->m_netMaskBitCount = srcAddress->m_netMaskBitCount;
@@ -26,17 +43,17 @@ createNetworkAdapterAddress (
 
 DataPtr
 createNetworkAdapterDesc (
-	rt::Runtime* runtime,
+	Runtime* runtime,
 	const axl::io::NetworkAdapterDesc* srcAdapter,
 	NetworkAdapterDesc* prevAdapter
 	)
 {
-	DataPtr adapterPtr = rt::createData <NetworkAdapterDesc> (runtime);
+	DataPtr adapterPtr = createData <NetworkAdapterDesc> (runtime);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*) adapterPtr.m_p;
 	adapter->m_type = srcAdapter->getType ();
 	adapter->m_flags = srcAdapter->getFlags ();
-	adapter->m_namePtr = rt::strDup (srcAdapter->getName ());
-	adapter->m_descriptionPtr = rt::strDup (srcAdapter->getDescription ());
+	adapter->m_namePtr = strDup (srcAdapter->getName ());
+	adapter->m_descriptionPtr = strDup (srcAdapter->getDescription ());
 	memcpy (adapter->m_mac, srcAdapter->getMac (), 6);
 
 	if (prevAdapter)
@@ -64,7 +81,7 @@ createNetworkAdapterDescList (
 	DataPtr addressCountPtr	
 	)
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 
 	sl::StdList <axl::io::NetworkAdapterDesc> adapterList;
 	size_t adapterCount = axl::io::createNetworkAdapterDescList (&adapterList);
@@ -80,7 +97,7 @@ createNetworkAdapterDescList (
 		return g_nullPtr;
 	}
 
-	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
+	ScopedNoCollectRegion noCollectRegion (runtime, false);
 
 	sl::Iterator <axl::io::NetworkAdapterDesc> it = adapterList.getHead ();
 

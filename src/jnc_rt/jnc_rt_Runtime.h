@@ -11,19 +11,6 @@ namespace rt {
 
 //.............................................................................
 
-enum RuntimeDef
-{
-#if (_AXL_PTR_SIZE == 8)
-	RuntimeDef_StackSizeLimit    = 1 * 1024 * 1024, // 1MB std stack limit
-	RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack 
-#else
-	RuntimeDef_StackSizeLimit    = 512 * 1024,      // 512KB std stack 
-	RuntimeDef_MinStackSizeLimit = 16 * 1024,       // 16KB min stack 
-#endif
-};
-
-//.............................................................................
-
 class Runtime
 {
 	friend class GcHeap;
@@ -47,7 +34,6 @@ protected:
 	size_t m_stackSizeLimit; // adjustable limits
 
 	GcHeap m_gcHeap;
-
 
 public:
 	Runtime ();
@@ -89,31 +75,14 @@ public:
 
 	void 
 	uninitializeThread (ExceptionRecoverySnapshot* ers);
-
+	
 	void
 	checkStackOverflow ();
 
 	static
 	void
 	dynamicThrow ();
-
-	static
-	void
-	runtimeError (const err::Error& error)
-	{
-		err::setError (error);
-		dynamicThrow ();
-	}
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-Runtime*
-getCurrentThreadRuntime ()
-{
-	return sys::getTlsSlotValue <Runtime> ();
-}
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -121,7 +90,15 @@ inline
 Tls*
 getCurrentThreadTls ()
 {
-	return sys::getTlsSlotValue <Tls> ();
+	return sys::getTlsPtrSlotValue <Tls> ();
+}
+
+inline
+Runtime*
+getCurrentThreadRuntime ()
+{
+	Tls* tls = getCurrentThreadTls ();
+	return tls ? tls->m_runtime : NULL;
 }
 
 //.............................................................................

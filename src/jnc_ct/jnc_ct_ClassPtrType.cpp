@@ -8,22 +8,6 @@ namespace ct {
 
 //.............................................................................
 
-const char*
-getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable [ClassPtrTypeKind__Count] = 
-	{
-		"strong", // EClassPtrType_Normal = 0,
-		"weak",   // EClassPtrType_Weak,
-	};
-
-	return (size_t) ptrTypeKind < ClassPtrTypeKind__Count ? 
-		stringTable [ptrTypeKind] : 
-		"undefined-class-ptr-kind";
-}
-
-//.............................................................................
-
 ClassPtrType::ClassPtrType ()
 {
 	m_typeKind = TypeKind_ClassPtr;

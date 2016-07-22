@@ -312,18 +312,10 @@ void MainWindow::writeSettings()
 	s.setValue ("lastDir", m_lastDir);
 }
 
-jnc::ct::Function* MainWindow::findGlobalFunction(const QString& name)
+jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	jnc::ct::ModuleItem* item = m_module.m_namespaceMgr.getGlobalNamespace()->findItem(nameBytes.data());
-
-	if(!item)
-		return NULL;
-
-	if(item->getItemKind() != jnc::ct::ModuleItemKind_Function)
-		return NULL;
-
-	return (jnc::ct::Function*)item;
+	return m_module->getGlobalNamespace()->getNamespace ()->findFunction (nameBytes.data());
 }
 
 void MainWindow::clearOutput()
@@ -349,23 +341,28 @@ bool MainWindow::compile ()
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
-	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags | jnc::ct::ModuleCompileFlag_DebugInfo;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
 #else
-	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
 #endif
 
-//	compileFlags |= jnc::ct::ModuleCompileFlag_SimpleGcSafePoint;
+//	compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
 
-	result = 
-		m_module.create (sourceFilePath.data(), compileFlags) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ()) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getSysLib ()) &&
-		m_module.m_extensionLibMgr.addStaticLib (sl::getSimpleSingleton <TestLib> ());
+	result = m_module->initialize (sourceFilePath.data(), compileFlags);
+	if (!result)
+	{
+		writeOutput("Initialize error: %s\n", err::getLastErrorDescription ().cc ());
+		return false;
+	}
+	
+	m_module->addStaticLib (jnc::StdLib_getLib ());
+	m_module->addStaticLib (jnc::SysLib_getLib ());
+	m_module->addStaticLib (TestLib_getLib ());
 
-	m_module.m_importMgr.m_importDirList.insertTail (appDir.constData ());
+	m_module->addImportDir (appDir.constData ());
 
 	writeOutput("Parsing...\n");
 
@@ -374,12 +371,12 @@ bool MainWindow::compile ()
 
 	QByteArray source = child->toPlainText().toUtf8();
 
-	result = m_module.parse (
+	result = m_module->parse (
 		sourceFilePath.constData (),
 		source.constData (),
 		source.size ()
 		) &&
-		m_module.parseImports ();
+		m_module->parseImports ();
 
 	if (!result)
 	{
@@ -388,7 +385,7 @@ bool MainWindow::compile ()
 	}
 
 	writeOutput("Compiling...\n");
-	result = m_module.compile ();
+	result = m_module->compile ();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
@@ -397,12 +394,12 @@ bool MainWindow::compile ()
 
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
 
-	m_modulePane->build (&m_module, child);
-	m_llvmIr->build (&m_module);
+	m_modulePane->build (m_module, child);
+	m_llvmIr->build (m_module);
 
 	writeOutput("JITting...\n");
 
-	result = m_module.jit ();
+	result = m_module->jit ();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
@@ -430,7 +427,7 @@ MainWindow::run ()
 			return false;
 	}
 
-	jnc::ct::Function* mainFunction = findGlobalFunction ("main");
+	jnc::Function* mainFunction = findGlobalFunction ("main");
 	if (!mainFunction)
 	{
 		writeOutput ("'main' is not found or not a function\n");
@@ -438,9 +435,9 @@ MainWindow::run ()
 	}
 
 	writeOutput ("Running...\n");
-
-//	m_runtime.m_gcHeap.setSizeTriggers (-1, -1);
-	result = m_runtime.startup (&m_module);
+		
+//	m_runtime->m_gcHeap.setSizeTriggers (-1, -1);
+	result = m_runtime->startup (m_module);
 	if (!result)
 	{
 		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().cc ());
@@ -448,14 +445,14 @@ MainWindow::run ()
 	}
 
 	int returnValue;
-	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue);
+	result = jnc::callFunction (m_runtime, mainFunction, &returnValue);
 	if (result)
 		writeOutput ("'main' returned %d.\n", returnValue);
 	else
 		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
 	
 	writeOutput ("Shutting down...\n");
-	m_runtime.shutdown ();
+	m_runtime->shutdown ();
 	writeOutput ("Done.\n");
 	return false;
 }

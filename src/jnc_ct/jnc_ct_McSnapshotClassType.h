@@ -12,25 +12,6 @@ namespace ct {
 
 //.............................................................................
 
-enum McSnapshotFieldKind
-{
-	McSnapshotFieldKind_PtrArray,
-	McSnapshotFieldKind_Count,
-
-	McSnapshotFieldKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum McSnapshotMethodKind
-{
-	McSnapshotMethodKind_Call,
-
-	McSnapshotMethodKind__Count,
-};
-
-//.............................................................................
-
 class McSnapshotClassType: public ClassType
 {
 	friend class TypeMgr;

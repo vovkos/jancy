@@ -1463,6 +1463,11 @@ public:
 	void
 	checkNullPtr (const Value& value);
 
+	// access check
+
+	bool
+	checkAccess (ModuleItemDecl* decl);
+
 protected:
 	// overloaded operators
 

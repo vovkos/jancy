@@ -1,20 +1,13 @@
 #pragma once
 
-#include "MyLibGlobals.h"
+#include "MyLib.h"
+
+JNC_DECLARE_TYPE (TestStruct)
 
 //.............................................................................
 
 struct TestStruct
 {
-public:
-	JNC_BEGIN_TYPE_MAP ("TestStruct", g_myLibCacheSlot, MyLibCacheSlot_TestStruct)
-		JNC_MAP_CONSTRUCTOR (&construct_0)
-		JNC_MAP_OVERLOAD (&construct_1)
-		JNC_MAP_FUNCTION ("foo", &foo_0)
-		JNC_MAP_OVERLOAD (&foo_1)
-		JNC_MAP_OVERLOAD (&foo_2)
-	JNC_END_TYPE_MAP ()
-
 public:
 	int m_x;
 	int m_y;

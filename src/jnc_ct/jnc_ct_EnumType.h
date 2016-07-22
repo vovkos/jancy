@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_ct_ImportType.h"
+#include "jnc_EnumType.h"
 
 namespace jnc {
 namespace ct {
@@ -12,14 +13,6 @@ namespace ct {
 class EnumType;
 
 //.............................................................................
-
-enum EnumTypeFlag
-{
-	EnumTypeFlag_Exposed = 0x010000,
-	EnumTypeFlag_BitFlag = 0x020000,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 EnumTypeFlag
@@ -44,7 +37,8 @@ enum EnumConstFlag
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class EnumConst: 
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public ModuleItemInitializer
 {
 	friend class EnumType;
@@ -86,6 +80,7 @@ protected:
 	Type* m_baseType;
 	ImportType* m_baseType_i;
 	sl::StdList <EnumConst> m_constList;
+	sl::Array <EnumConst*> m_constArray;
 
 public:
 	EnumType ();
@@ -102,10 +97,10 @@ public:
 		return m_baseType_i;
 	}
 
-	sl::ConstList <EnumConst>
-	getConstList ()
+	sl::Array <EnumConst*>
+	getConstArray ()
 	{
-		return m_constList;
+		return m_constArray;
 	}
 
 	EnumConst*

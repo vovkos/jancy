@@ -45,6 +45,7 @@ AttributeBlock::createAttribute (
 	}
 
 	m_attributeList.insertTail (attribute);
+	m_attributeArray.append (attribute);
 	it->m_value = attribute;
 	return attribute;
 }

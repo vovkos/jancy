@@ -75,6 +75,7 @@ EnumType::createConst (
 		enumConst->m_initializer.takeOver (initializer);
 
 	m_constList.insertTail (enumConst);
+	m_constArray.append (enumConst);
 
 	bool result = addItem (enumConst);
 	if (!result)
@@ -103,7 +104,7 @@ EnumType::calcLayout ()
 	// assign values to consts
 
 	m_module->m_namespaceMgr.openNamespace (this);
-	Unit* unit = m_itemDecl->getParentUnit ();
+	Unit* unit = getParentUnit ();
 
 	if (m_flags & EnumTypeFlag_BitFlag)
 	{

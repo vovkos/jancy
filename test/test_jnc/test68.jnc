@@ -18,7 +18,7 @@ int main ()
 		printf ("x -- case 0\n");
 
 		printf ("collect garbage #1\n");
-		jnc.collectGarbage ();
+		std.collectGarbage ();
 		break;
 
 	case 1:
@@ -32,7 +32,7 @@ int main ()
 	}
 
 	printf ("collect garbage #2\n");
-	jnc.collectGarbage ();
+	std.collectGarbage ();
 	return 0;
 }
 

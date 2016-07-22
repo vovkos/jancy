@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "jnc_io_Socket.h"
+#include "jnc_io_IoLib.h"
+#include "jnc_Error.h"
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 #	define IPV6_HDRINCL IP_HDRINCL
@@ -10,9 +12,54 @@ namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	SocketEventParams,
+	"io.SocketEventParams", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	Socket, 
+	"io.Socket", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_Socket,
+	Socket, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Socket)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <Socket>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <Socket>)
+	JNC_MAP_CONST_PROPERTY ("m_address",      &Socket::getAddress)
+	JNC_MAP_CONST_PROPERTY ("m_peerAddress",  &Socket::getPeerAddress)
+	JNC_MAP_PROPERTY ("m_isBroadcastEnabled", &Socket::isBroadcastEnabled, &Socket::setBroadcastEnabled)
+	JNC_MAP_PROPERTY ("m_isNagleEnabled",     &Socket::isNagleEnabled, &Socket::setNagleEnabled)
+	JNC_MAP_PROPERTY ("m_isRawHdrIncluded",   &Socket::isRawHdrIncluded, &Socket::setRawHdrIncluded)
+	JNC_MAP_PROPERTY ("m_closeKind",          &Socket::getCloseKind, &Socket::setCloseKind)
+	JNC_MAP_FUNCTION ("open",     &Socket::open_0)
+	JNC_MAP_OVERLOAD (&Socket::open_1)
+	JNC_MAP_FUNCTION ("close",    &Socket::close)
+	JNC_MAP_FUNCTION ("connect",  &Socket::connect)
+	JNC_MAP_FUNCTION ("listen",   &Socket::listen)
+	JNC_MAP_FUNCTION ("accept",   &Socket::accept)
+	JNC_MAP_FUNCTION ("send",     &Socket::send)
+	JNC_MAP_FUNCTION ("recv",     &Socket::recv)
+	JNC_MAP_FUNCTION ("sendTo",   &Socket::sendTo)
+	JNC_MAP_FUNCTION ("recvFrom", &Socket::recvFrom)
+	JNC_MAP_FUNCTION ("firePendingEvents", &Socket::firePendingEvents)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 Socket::Socket ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;
@@ -38,16 +85,16 @@ Socket::fireSocketEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	jnc::DataPtr paramsPtr = jnc::rt::createData <SocketEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <SocketEventParams> (m_runtime);
 	SocketEventParams* params = (SocketEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 	params->m_flags = flags;
 
 	if (error)
-		params->m_errorPtr = jnc::rt::memDup (error, error->m_size);
+		params->m_errorPtr = memDup (error, error->m_size);
 
-	jnc::rt::callMulticast (m_onSocketEvent, paramsPtr);
+	callMulticast (m_onSocketEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -92,7 +139,7 @@ Socket::setBroadcastEnabled (bool isEnabled)
 	int value = isEnabled;
 	bool result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -113,7 +160,7 @@ Socket::setNagleEnabled (bool isEnabled)
 	int value = !isEnabled;
 	bool result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -142,7 +189,7 @@ Socket::setRawHdrIncluded (bool isIncluded)
 		m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
 
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -168,7 +215,7 @@ Socket::setCloseKind (SocketCloseKind closeKind)
 	value.l_linger = 0;
 	bool result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -191,7 +238,7 @@ Socket::openImpl (
 	bool result = m_socket.open (family_s, socketKind, protocol);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -201,7 +248,7 @@ Socket::openImpl (
 		result = m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &value, sizeof (value));
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 	}
@@ -211,7 +258,7 @@ Socket::openImpl (
 		result = m_socket.bind (address->getSockAddr ());
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 	}
@@ -232,7 +279,7 @@ Socket::openImpl (
 		result = m_socket.setBlockingMode (false);
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 	
@@ -265,9 +312,10 @@ Socket::close ()
 		wakeIoThread ();
 		m_ioLock.unlock ();
 
-		jnc::rt::enterWaitRegion (m_runtime);
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		gcHeap->enterWaitRegion ();
 		m_ioThread.waitAndClose ();
-		jnc::rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
 		m_selfPipe.close ();
@@ -283,7 +331,7 @@ Socket::close ()
 
 bool
 AXL_CDECL
-Socket::connect (jnc::DataPtr addressPtr)
+Socket::connect (DataPtr addressPtr)
 {
 	bool result;
 
@@ -293,7 +341,7 @@ Socket::connect (jnc::DataPtr addressPtr)
 		if (m_ioFlags & ~IoFlag_Asynchronous)
 		{
 			m_ioLock.unlock ();
-			ext::setError (err::SystemErrorCode_InvalidDeviceState);
+			setError (err::SystemErrorCode_InvalidDeviceState);
 			return false;
 		}
 
@@ -305,7 +353,7 @@ Socket::connect (jnc::DataPtr addressPtr)
 	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
 	result = m_socket.connect (address->getSockAddr ());
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -322,7 +370,7 @@ Socket::listen (size_t backLog)
 		if (m_ioFlags & ~IoFlag_Asynchronous)
 		{
 			m_ioLock.unlock ();
-			ext::setError (err::SystemErrorCode_InvalidDeviceState);
+			setError (err::SystemErrorCode_InvalidDeviceState);
 			return false;
 		}
 
@@ -333,17 +381,16 @@ Socket::listen (size_t backLog)
 
 	result = m_socket.listen (backLog);
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
 
 Socket*
 AXL_CDECL
-Socket::accept (jnc::DataPtr addressPtr)
+Socket::accept (DataPtr addressPtr)
 {
-	Socket* connectionSocket = (Socket*) jnc::rt::allocateClass (m_runtime, (jnc::rt::ClassType*) m_box->m_type);
-	sl::construct (connectionSocket);
+	Socket* connectionSocket = createClass <Socket> (m_runtime);
 
 	axl::io::SockAddr sockAddr;
 	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
@@ -360,7 +407,7 @@ Socket::accept (jnc::DataPtr addressPtr)
 
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 
 		AXL_MEM_DELETE (connectionSocket);		
 		return NULL;
@@ -395,7 +442,7 @@ Socket::postSend (
 	if (!(m_ioFlags & IoFlag_Asynchronous))
 	{
 		if (result == -1)
-			ext::propagateLastError ();
+			propagateLastError ();
 
 		return result;
 	}
@@ -410,7 +457,7 @@ Socket::postSend (
 		if (error->m_code != EWOULDBLOCK && error->m_code != EAGAIN)
 #endif
 		{
-			ext::setError (error);
+			setError (error);
 			return -1;
 		}
 
@@ -436,7 +483,7 @@ Socket::postSend (
 size_t
 AXL_CDECL
 Socket::send (
-	jnc::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -447,7 +494,7 @@ Socket::send (
 size_t
 AXL_CDECL
 Socket::recv (
-	jnc::DataPtr ptr,
+	DataPtr ptr,
 	size_t size
 	)
 {
@@ -464,7 +511,7 @@ Socket::recv (
 #endif
 
 	if (result == -1)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -472,9 +519,9 @@ Socket::recv (
 size_t
 AXL_CDECL
 Socket::sendTo (
-	jnc::DataPtr ptr,
+	DataPtr ptr,
 	size_t size,
-	jnc::DataPtr addressPtr
+	DataPtr addressPtr
 	)
 {
 	axl::io::SockAddr sockAddr = ((const SocketAddress*) addressPtr.m_p)->getSockAddr ();
@@ -485,9 +532,9 @@ Socket::sendTo (
 size_t
 AXL_CDECL
 Socket::recvFrom (
-	jnc::DataPtr ptr,
+	DataPtr ptr,
 	size_t size,
-	jnc::DataPtr addressPtr
+	DataPtr addressPtr
 	)
 {
 	axl::io::SockAddr sockAddr;
@@ -504,7 +551,7 @@ Socket::recvFrom (
 #endif
 
 	if (result == -1)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	if (addressPtr.m_p)
 		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);

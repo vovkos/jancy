@@ -1,14 +1,68 @@
 #include "pch.h"
 #include "jnc_io_Serial.h"
+#include "jnc_io_IoLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	SerialEventParams,
+	"io.SerialEventParams", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SerialEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SerialEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	Serial,
+	"io.Serial", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_Serial,
+	Serial, 
+	NULL	
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <Serial>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <Serial>)
+	JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
+	JNC_MAP_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
+	JNC_MAP_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
+	JNC_MAP_AUTOGET_PROPERTY ("m_stopBits",    &Serial::setStopBits)
+	JNC_MAP_AUTOGET_PROPERTY ("m_parity",      &Serial::setParity)
+	JNC_MAP_AUTOGET_PROPERTY ("m_dtr",         &Serial::setDtr)
+	JNC_MAP_AUTOGET_PROPERTY ("m_rts",         &Serial::setRts)
+	JNC_MAP_CONST_PROPERTY   ("m_statusLines", &Serial::getStatusLines)
+	JNC_MAP_FUNCTION ("open",  &Serial::open)
+	JNC_MAP_FUNCTION ("close", &Serial::close)
+	JNC_MAP_FUNCTION ("read",  &Serial::read)
+	JNC_MAP_FUNCTION ("write", &Serial::write)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	SerialPortDesc,
+	"io.SerialPortDesc", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SerialPortDesc
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SerialPortDesc)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 Serial::Serial ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;
@@ -53,7 +107,7 @@ Serial::open (DataPtr namePtr)
 
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -81,9 +135,10 @@ Serial::close ()
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	m_ioFlags = 0;
 	m_serial.close ();
@@ -105,14 +160,14 @@ Serial::fireSerialEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 	params->m_lines = lines;
 	params->m_mask = mask;
 
-	rt::callMulticast (m_onSerialEvent, paramsPtr);
+	callMulticast (m_onSerialEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -126,13 +181,13 @@ Serial::fireSerialEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <SerialEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
-	params->m_errorPtr = rt::memDup (error, error->m_size);
+	params->m_errorPtr = memDup (error, error->m_size);
 
-	rt::callMulticast (m_onSerialEvent, paramsPtr);
+	callMulticast (m_onSerialEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -146,7 +201,7 @@ Serial::setBaudRate (uint_t baudRate)
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_BaudRate);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -163,7 +218,7 @@ Serial::setDataBits (uint_t dataBits)
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_DataBits);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -180,7 +235,7 @@ Serial::setStopBits (axl::io::SerialStopBits stopBits)
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_StopBits);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -197,7 +252,7 @@ Serial::setParity (axl::io::SerialParity parity)
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_Parity);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -214,7 +269,7 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -237,7 +292,7 @@ Serial::read (
 	m_ioLock.unlock ();
 
 	if (result == -1)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -252,7 +307,7 @@ Serial::write (
 	size_t result = m_serial.write (ptr.m_p, size);
 
 	if (result == -1)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -412,14 +467,14 @@ Serial::ioThreadFunc ()
 
 DataPtr
 createSerialPortDesc (
-	rt::Runtime* runtime,
+	Runtime* runtime,
 	axl::io::SerialPortDesc* portDesc
 	)
 {
-	DataPtr portPtr = rt::createData <SerialPortDesc> (runtime);
+	DataPtr portPtr = createData <SerialPortDesc> (runtime);
 	SerialPortDesc* port = (SerialPortDesc*) portPtr.m_p;
-	port->m_deviceNamePtr = rt::strDup (portDesc->getDeviceName ());
-	port->m_descriptionPtr = rt::strDup (portDesc->getDescription ());
+	port->m_deviceNamePtr = strDup (portDesc->getDeviceName ());
+	port->m_descriptionPtr = strDup (portDesc->getDescription ());
 
 	return portPtr;
 }
@@ -438,8 +493,8 @@ createSerialPortDescList (DataPtr countPtr)
 		return g_nullPtr;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ScopedNoCollectRegion noCollectRegion (runtime, false);
 
 	sl::Iterator <axl::io::SerialPortDesc> it = portList.getHead ();
 

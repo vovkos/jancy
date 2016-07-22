@@ -8,8 +8,8 @@ class JncApp
 {
 protected:
 	CmdLine* m_cmdLine;
-	jnc::ct::Module m_module;
-	jnc::rt::Runtime m_runtime;
+	jnc::AutoModule m_module;
+	jnc::AutoRuntime m_runtime;
 
 public:
 	JncApp (CmdLine* cmdLine)
@@ -26,19 +26,19 @@ public:
 	bool
 	compile ()
 	{
-		return m_module.compile ();
+		return m_module->compile ();
 	}
 
 	bool
 	jit ()
 	{
-		return m_module.jit ();
+		return m_module->jit ();
 	}
 
 	void
 	printLlvmIr ()
 	{
-		printf ("%s", m_module.getLlvmIrString ().cc ());
+		printf ("%s", m_module->getLlvmIrString_v ());
 	}
 
 	bool

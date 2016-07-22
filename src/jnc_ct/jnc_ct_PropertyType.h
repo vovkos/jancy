@@ -6,6 +6,7 @@
 
 #include "jnc_ct_FunctionTypeOverload.h"
 #include "jnc_ct_StructType.h"
+#include "jnc_PropertyType.h"
 
 namespace jnc {
 namespace ct {

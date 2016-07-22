@@ -13,7 +13,6 @@ Property::Property ():
 	m_itemKind = ModuleItemKind_Property;
 	m_namespaceKind = NamespaceKind_Property;
 	m_propertyKind = PropertyKind_Normal;
-	m_itemDecl = this;
 	m_type = NULL;
 
 	m_getter = NULL;

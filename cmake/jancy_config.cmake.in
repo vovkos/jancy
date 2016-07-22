@@ -4,12 +4,6 @@
 
 #..............................................................................
 
-set (
-	JANCY_INC_PRIVATE_DIR  
-	"@JANCY_ROOT_DIR@/src/jnc_ct"
-	"@JANCY_ROOT_DIR@/src/jnc_rt"
-	)
-
 set (JANCY_INC_DIR      "@JANCY_ROOT_DIR@/include")
 set (JANCY_LIB_DIR      "@JANCY_LIB_BASE_DIR@/${CONFIGURATION_SUFFIX}")
 set (JANCY_LIB_BASE_DIR "@JANCY_LIB_BASE_DIR@")

@@ -12,7 +12,8 @@ namespace ct {
 //.............................................................................
 
 class Attribute: 
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public ModuleItemInitializer
 {
 	friend class AttributeBlock;
@@ -35,7 +36,9 @@ protected:
 
 //.............................................................................
 
-class AttributeBlock: public UserModuleItem
+class AttributeBlock: 
+	public ModuleItem,
+	public ModuleItemDecl
 {
 	friend class AttributeMgr;
 
@@ -43,6 +46,7 @@ protected:
 	ModuleItem* m_parentItem;
 
 	sl::StdList <Attribute> m_attributeList;
+	sl::Array <Attribute*> m_attributeArray;
 	sl::StringHashTableMap <Attribute*> m_attributeMap; 
 
 public:
@@ -57,10 +61,10 @@ public:
 		return m_parentItem;
 	}
 
-	sl::ConstList <Attribute>
-	getAttributeList ()
+	sl::Array <Attribute*> 
+	getAttributeArray ()
 	{
-		return m_attributeList;
+		return m_attributeArray;
 	}
 
 	Attribute*

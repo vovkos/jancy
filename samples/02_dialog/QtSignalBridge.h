@@ -7,7 +7,7 @@ class QtSignalBridge: public QObject
 	Q_OBJECT;
 
 protected:
-	jnc::rt::Runtime* m_runtime;
+	jnc::Runtime* m_runtime;
 	jnc::Multicast* m_jncEvent;
 
 public:

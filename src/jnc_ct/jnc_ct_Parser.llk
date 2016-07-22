@@ -237,6 +237,7 @@ Members2
 	void
 	assignDeclarationAttributes (
 		ModuleItem* item,
+		ModuleItemDecl* decl,
 		const Token::Pos& pos,
 		AttributeBlock* attributeBlock = NULL
 		);
@@ -244,10 +245,11 @@ Members2
 	void
 	assignDeclarationAttributes (
 		ModuleItem* item,
+		ModuleItemDecl* itemDecl,
 		Declarator* declarator
 		)
 	{
-		assignDeclarationAttributes (item, declarator->m_pos, declarator->m_attributeBlock);
+		assignDeclarationAttributes (item, itemDecl, declarator->m_pos, declarator->m_attributeBlock);
 	}
 
 	GlobalNamespace*

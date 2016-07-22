@@ -6,6 +6,13 @@ namespace rtl {
 
 //.............................................................................
 
+JNC_DEFINE_CLASS_TYPE (
+	DynamicLib, 
+	"jnc.DynamicLib", 
+	sl::g_nullGuid, 
+	-1
+	)
+
 JNC_BEGIN_TYPE_FUNCTION_MAP (DynamicLib)
 	JNC_MAP_FUNCTION ("open", &DynamicLib::open)
 	JNC_MAP_FUNCTION ("close", &DynamicLib::close)

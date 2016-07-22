@@ -20,7 +20,9 @@ class Property;
 
 //.............................................................................
 
-class BaseTypeSlot: public UserModuleItem
+class BaseTypeSlot: 
+	public ModuleItem,
+	public ModuleItemDecl
 {
 	friend class DerivableType;
 	friend class StructType;
@@ -179,6 +181,12 @@ public:
 		return m_baseTypeList;
 	}
 
+	sl::Array <BaseTypeSlot*>
+	getBaseTypeArray ()
+	{
+		return m_baseTypeArray;
+	}
+
 	BaseTypeSlot*
 	getBaseTypeByIndex (size_t index);
 
@@ -200,6 +208,9 @@ public:
 	{
 		return findBaseTypeTraverseImpl (type, coord, 0);
 	}
+
+	size_t
+	findBaseTypeOffset (Type* type);
 
 	sl::Array <BaseTypeSlot*>
 	getGcRootBaseTypeArray ()

@@ -2,19 +2,12 @@
 
 #include "MyWidget.h"
 
+JNC_DECLARE_OPAQUE_CLASS_TYPE (MyTextEdit)
+
 //.............................................................................
 
 class MyTextEdit: public MyWidget
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (MyTextEdit, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("TextEdit", g_myLibCacheSlot, MyLibCacheSlot_TextEdit)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <MyTextEdit>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <MyTextEdit>)
-		JNC_MAP_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 public:
 	QLineEdit* m_qtLineEdit;
 	QtSignalBridge* m_onTextChangedBridge;
@@ -34,7 +27,7 @@ public:
 	getText (MyTextEdit* self)
 	{
 		QByteArray text = self->m_qtLineEdit->text ().toUtf8 ();
-		return jnc::rt::strDup (text, text.length ());
+		return jnc::strDup (text, text.length ());
 	}
 
 	void

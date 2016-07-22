@@ -17,7 +17,8 @@ struct FmtLiteral;
 //.............................................................................
 
 class StructField:
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public ModuleItemInitializer
 {
 	friend class TypeMgr;

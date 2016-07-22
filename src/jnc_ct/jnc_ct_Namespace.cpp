@@ -49,28 +49,6 @@ getItemNamespace (ModuleItem* item)
 
 //.............................................................................
 
-const char*
-getNamespaceKindString (NamespaceKind namespaceKind)
-{
-	static const char* stringTable [NamespaceKind__Count] =
-	{
-		"undefined-namespace-kind",  // Namespace_Undefined = 0,
-		"global-namespace",          // Namespace_Global,
-		"scope",                     // Namespace_Scope,
-		"named-type",                // Namespace_Type,
-		"extension-namespace",       // Namespace_Extension,
-		"property",                  // Namespace_Property,
-		"property-template",         // Namespace_PropertyTemplate,
-		"library",                   // Namespace_Library,
-	};
-
-	return (size_t) namespaceKind < NamespaceKind__Count ?
-		stringTable [namespaceKind] :
-		stringTable [NamespaceKind_Undefined];
-}
-
-//.............................................................................
-
 void
 Namespace::clear ()
 {
@@ -298,10 +276,13 @@ Namespace::exposeEnumConsts (EnumType* type)
 {
 	bool result;
 
-	sl::Iterator <EnumConst> constIt = type->getConstList ().getHead ();
-	for (; constIt; constIt++)
+	sl::Array <EnumConst*> constArray = type->getConstArray ();
+
+	size_t count = constArray.getCount ();
+	for (size_t i = 0; i < count; i++)
 	{
-		result = addItem (*constIt);
+		EnumConst* enumConst = constArray [i];
+		result = addItem (enumConst);
 		if (!result)
 			return false;
 	}
@@ -310,13 +291,6 @@ Namespace::exposeEnumConsts (EnumType* type)
 }
 
 //.............................................................................
-
-GlobalNamespace::GlobalNamespace ()
-{
-	m_itemKind = ModuleItemKind_Namespace;
-	m_namespaceKind = NamespaceKind_Global;
-	m_itemDecl = this;
-}
 
 sl::StringRef
 GlobalNamespace::generateDocumentation (const sl::StringRef& outputDir)
@@ -332,9 +306,9 @@ GlobalNamespace::generateDocumentation (const sl::StringRef& outputDir)
 		if (itemDocumentation.isEmpty ())
 			continue;
 		
-		jnc::ct::ModuleItemKind itemKind = item->getItemKind ();
-		if (itemKind == jnc::ct::ModuleItemKind_Namespace ||
-			itemKind == jnc::ct::ModuleItemKind_Type)
+		ModuleItemKind itemKind = item->getItemKind ();
+		if (itemKind == ModuleItemKind_Namespace ||
+			itemKind == ModuleItemKind_Type)
 		{
 			io::File compoundFile;
 		}

@@ -10,14 +10,8 @@ int main (int argc, char* argv [])
 	WSAStartup (0x0202, &WsaData);
 #endif
 
-	atexit (llvm::llvm_shutdown);
+	jnc::initialize ();
 
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
-
-	lex::registerParseErrorProvider ();
 	srand ((int) sys::getTimestamp ());
 
 	QApplication app (argc, argv);

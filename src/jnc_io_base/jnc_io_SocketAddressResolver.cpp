@@ -1,14 +1,46 @@
 #include "pch.h"
 #include "jnc_io_SocketAddressResolver.h"
+#include "jnc_io_IoLib.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	SocketAddressResolverEventParams,
+	"io.SocketAddressResolverEventParams", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketAddressResolverEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolverEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	SocketAddressResolver,
+	"io.SocketAddressResolver", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_SocketAddressResolver,
+	SocketAddressResolver,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolver)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <SocketAddressResolver>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <SocketAddressResolver>)
+	JNC_MAP_FUNCTION ("resolve",   &SocketAddressResolver::resolve)
+	JNC_MAP_FUNCTION ("cancel",    &SocketAddressResolver::cancel)
+	JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 SocketAddressResolver::SocketAddressResolver ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_syncId = 0;
 }
@@ -21,9 +53,10 @@ SocketAddressResolver::stopIoThread ()
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 }
 
 void
@@ -47,15 +80,15 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <SocketAddressResolverEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <SocketAddressResolverEventParams> (m_runtime);
 	SocketAddressResolverEventParams* params = (SocketAddressResolverEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = syncId;
 		
 	if (addressCount)
 	{
-		ext::Type* addressType = SocketAddress::getType (m_runtime);
-		params->m_addressPtr = rt::allocateArray (m_runtime, addressType, addressCount);
+		Type* addressType = SocketAddress::getType (m_runtime->getModule ());
+		params->m_addressPtr = m_runtime->getGcHeap ()->allocateArray (addressType, addressCount);
 
 		SocketAddress* dst = (SocketAddress*) params->m_addressPtr.m_p;
 		const axl::io::SockAddr* src = addressTable;
@@ -64,9 +97,9 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 	}
 
 	if (error)
-		params->m_errorPtr = rt::memDup (error, error->m_size);
+		params->m_errorPtr = memDup (error, error->m_size);
 
-	rt::callMulticast (m_onSocketAddressResolverEvent, paramsPtr);
+	callMulticast (m_onSocketAddressResolverEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }

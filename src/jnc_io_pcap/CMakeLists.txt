@@ -11,7 +11,6 @@ set (
 	LIB_H_LIST
 	jnc_io_PCap.h
 	jnc_io_PCapLib.h
-	jnc_io_PCapLibGlobals.h
 	)
 
 set (
@@ -67,7 +66,6 @@ include_directories (
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	)
 
 link_directories (
@@ -92,6 +90,12 @@ axl_set_pch (
 	)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX)
+
+target_compile_definitions (
+	jnc_io_pcap
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB
+	)
 
 set_target_properties (
 	jnc_io_pcap

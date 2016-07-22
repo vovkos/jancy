@@ -1,5 +1,26 @@
 #include "pch.h"
 #include "MyLabel.h"
+#include "MyLib.h"
+
+//.............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	MyLabel, 
+	"Label", 
+	g_myLibGuid, 
+	MyLibCacheSlot_Label,
+	MyLabel, 
+	NULL
+	)
+	
+JNC_BEGIN_TYPE_FUNCTION_MAP (MyLabel)
+	JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLabel, jnc::DataPtr>))
+	JNC_MAP_DESTRUCTOR (&sl::destruct <MyLabel>)
+	JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyLabel::setText)
+	JNC_MAP_AUTOGET_PROPERTY ("m_color", &MyLabel::setColor)
+	JNC_MAP_AUTOGET_PROPERTY ("m_backColor", &MyLabel::setBackColor)
+	JNC_MAP_AUTOGET_PROPERTY ("m_alignment", &MyLabel::setAlignment)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 

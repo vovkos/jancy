@@ -107,37 +107,5 @@ struct DataPtrTypeTuple: sl::ListLink
 
 //.............................................................................
 
-inline
-bool 
-isCharPtrType (Type* type)
-{
-	return 
-		type->getTypeKind () == TypeKind_DataPtr &&
-		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Char;
-}
-
-inline
-bool 
-isArrayRefType (Type* type)
-{
-	return 
-		type->getTypeKind () == TypeKind_DataRef &&
-		((DataPtrType*) type)->getTargetType ()->getTypeKind () == TypeKind_Array;
-}
-
-inline
-bool 
-isDataPtrType (
-	Type* type,
-	DataPtrTypeKind kind
-	)
-{
-	return 
-		(type->getTypeKindFlags () & TypeKindFlag_DataPtr) &&
-		((DataPtrType*) type)->getPtrTypeKind () == kind;
-}
-
-//.............................................................................
-
 } // namespace ct
 } // namespace jnc

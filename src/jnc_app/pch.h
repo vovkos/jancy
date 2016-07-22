@@ -1,6 +1,12 @@
 #pragma once
 
-#include "jnc_ct_Pch.h"
+#ifdef _JNC_CORE
+
+asdjkldjaskl jdsklj dsklj daskldjasklasd
+
+#endif
+
+#include "jnc_ext_Pch.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
 #	define getsockerror WSAGetLastError
@@ -30,10 +36,10 @@ getsockerror ()
 
 // Jancy
 
-#include "jnc_ct_Module.h"
-#include "jnc_rt_Runtime.h"
-#include "jnc_rt_CallSite.h"
-#include "jnc_ext_ExtensionLib.h"
+#include "jnc_Module.h"
+#include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
+#include "jnc_ExtensionLib.h"
 
 using namespace axl;
 

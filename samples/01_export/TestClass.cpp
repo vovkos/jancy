@@ -4,6 +4,28 @@
 
 //.............................................................................
 
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	TestClass,
+	"TestClass", 
+	g_myLibGuid, 
+	MyLibCacheSlot_TestClass,
+	TestClass, 
+	&TestClass::markOpaqueGcRoots
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (TestClass)
+	JNC_MAP_CONSTRUCTOR (&(sl::construct <TestClass, int>))
+	JNC_MAP_DESTRUCTOR (&sl::destruct <TestClass>)
+	JNC_MAP_BINARY_OPERATOR (jnc::BinOpKind_AddAssign, &TestClass::addAssign)
+	JNC_MAP_BINARY_OPERATOR (jnc::BinOpKind_SubAssign, &TestClass::subAssign)
+	JNC_MAP_FUNCTION ("foo", &TestClass::foo_0)
+	JNC_MAP_OVERLOAD (&TestClass::foo_1)
+	JNC_MAP_OVERLOAD (&TestClass::foo_2)
+	JNC_MAP_PROPERTY ("m_prop", &TestClass::setProp, &TestClass::setProp)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 TestClass::TestClass (int value)
 {
 	printf ("  TestClass::TestClass (%d)\n", value);
@@ -18,7 +40,7 @@ TestClass::~TestClass ()
 }
 
 void
-TestClass::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
+TestClass::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	// mark opaque roots (no need to mark roots visible to jancy)
 
@@ -80,7 +102,7 @@ TestClass::setInternalValue (int value)
 {
 	m_internalValue = value;
 	if (m_internalValue < 0)
-		callMulticast (jnc::rt::getCurrentThreadRuntime (), m_onNegative);
+		callMulticast (jnc::getCurrentThreadRuntime (), m_onNegative);
 
 	return value;
 }

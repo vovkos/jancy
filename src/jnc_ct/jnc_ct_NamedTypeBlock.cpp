@@ -10,15 +10,37 @@ namespace ct {
 NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
 {
 	m_parent = parent;
-	m_namespace = parent->getItemKind () == ModuleItemKind_Property ? 
-		(Namespace*) (Property*) parent :
-		(Namespace*) (DerivableType*) parent;
-
 	m_staticConstructor = NULL;
 	m_staticDestructor = NULL;
 	m_preconstructor = NULL;
 	m_constructor = NULL;
 	m_destructor = NULL;
+}
+
+Namespace* 
+NamedTypeBlock::getParentNamespaceImpl ()
+{
+	ASSERT (
+		m_parent->getItemKind () == ModuleItemKind_Property || 
+		m_parent->getItemKind () == ModuleItemKind_Type &&
+		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
+
+	return  m_parent->getItemKind () == ModuleItemKind_Property ? 
+		(Namespace*) (Property*) m_parent :
+		(Namespace*) (DerivableType*) m_parent;
+}
+
+Unit* 
+NamedTypeBlock::getParentUnitImpl ()
+{
+	ASSERT (
+		m_parent->getItemKind () == ModuleItemKind_Property || 
+		m_parent->getItemKind () == ModuleItemKind_Type &&
+		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
+
+	return  m_parent->getItemKind () == ModuleItemKind_Property ? 
+		((Property*) m_parent)->getParentUnit () :
+		((DerivableType*) m_parent)->getParentUnit ();
 }
 
 Function*
@@ -28,7 +50,7 @@ NamedTypeBlock::createMethod (
 	FunctionType* shortType
 	)
 {
-	sl::String qualifiedName = m_namespace->createQualifiedName (name);
+	sl::String qualifiedName = getParentNamespaceImpl ()->createQualifiedName (name);
 
 	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (FunctionKind_Named, shortType);
 	function->m_storageKind = storageKind;
@@ -55,7 +77,7 @@ NamedTypeBlock::createUnnamedMethod (
 	function->m_storageKind = storageKind;
 	function->m_tag.format (
 		"%s.%s", 
-		m_namespace->getQualifiedName ().cc (), 
+		getParentNamespaceImpl ()->getQualifiedName ().cc (), 
 		getFunctionKindString (functionKind)
 		);
 
@@ -73,7 +95,7 @@ NamedTypeBlock::createProperty (
 	PropertyType* shortType
 	)
 {
-	sl::String qualifiedName = m_namespace->createQualifiedName (name);
+	sl::String qualifiedName = getParentNamespaceImpl ()->createQualifiedName (name);
 
 	Property* prop = m_parent->getModule ()->m_functionMgr.createProperty (name, qualifiedName);
 
@@ -112,6 +134,7 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 	bool result;
 
 	Module* module = m_parent->getModule ();
+	Unit* parentUnit = getParentUnitImpl ();
 
 	size_t count = m_initializedMemberFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -125,7 +148,7 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 
 		result = module->m_operatorMgr.parseInitializer (
 			fieldValue,
-			m_parent->getItemDecl ()->getParentUnit (),
+			parentUnit,
 			field->m_constructor,
 			field->m_initializer
 			);

@@ -58,12 +58,8 @@ main (
 {
 	bool result;
 
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
+	jnc::initialize ();
 
-	lex::registerParseErrorProvider ();
 	srand ((int) sys::getTimestamp ());
 
 	CmdLine cmdLine;

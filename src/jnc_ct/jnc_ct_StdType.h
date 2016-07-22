@@ -6,57 +6,12 @@
 
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_StdNamespace.h"
+#include "jnc_Type.h"
 
 namespace jnc {
 namespace ct {
 
 //.............................................................................
-
-enum StdType
-{
-	StdType_BytePtr,
-	StdType_ByteConstPtr,
-	StdType_SimpleIfaceHdr,
-	StdType_SimpleIfaceHdrPtr,
-	StdType_Box,
-	StdType_BoxPtr,
-	StdType_DataBox,
-	StdType_DataBoxPtr,
-	StdType_DynamicArrayBox,
-	StdType_DynamicArrayBoxPtr,
-	StdType_StaticDataBox,
-	StdType_StaticDataBoxPtr,
-	StdType_AbstractClass,
-	StdType_AbstractClassPtr,
-	StdType_AbstractData,
-	StdType_AbstractDataPtr,
-	StdType_SimpleFunction,
-	StdType_SimpleMulticast,
-	StdType_SimpleEventPtr,
-	StdType_Binder,
-	StdType_ReactorBindSite,
-	StdType_Scheduler,
-	StdType_Recognizer,
-	StdType_AutomatonResult,
-	StdType_AutomatonFunc,
-	StdType_DynamicLib,
-	StdType_FmtLiteral,
-	StdType_Int64Int64, // for system V coercion
-	StdType_Fp64Fp64,   // for system V coercion
-	StdType_Int64Fp64,  // for system V coercion
-	StdType_Fp64Int64,  // for system V coercion
-	StdType_DataPtrValidator,
-	StdType_DataPtrValidatorPtr,
-	StdType_DataPtrStruct,
-	StdType_FunctionPtrStruct,
-	StdType_PropertyPtrStruct = StdType_FunctionPtrStruct,
-	StdType_VariantStruct,
-	StdType_GcShadowStackFrame,
-	StdType_SjljFrame,
-	StdType__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const StdItemSource*
 getStdTypeSource (StdType stdType);

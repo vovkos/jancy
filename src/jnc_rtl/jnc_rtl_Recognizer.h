@@ -7,6 +7,8 @@ namespace rtl {
 
 class Recognizer;
 
+JNC_DECLARE_CLASS_TYPE (Recognizer)
+
 //.............................................................................
 
 enum AutomatonResult
@@ -125,15 +127,6 @@ protected:
 	AutomatonResult
 	match (size_t stateId);
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DECLARE_CLASS_TYPE (
-	Recognizer, 
-	"jnc.Recognizer", 
-	sl::g_nullGuid, 
-	-1
-	)
 
 //.............................................................................
 

@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
 
 public:
 	MainWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-
+	
 	QSize sizeHint() const { return QSize(800, 600); }
 
 	void writeStatus(const QString &text, int timeout = 0);
@@ -57,7 +57,7 @@ private:
 	void readSettings();
 	void writeSettings();
 
-	jnc::ct::Function* findGlobalFunction(const QString &name);
+	jnc::Function* findGlobalFunction(const QString &name);
 
 private:
 	QMdiArea* m_mdiArea;
@@ -86,8 +86,8 @@ private:
 	QAction* m_compileAction;
 	QAction* m_runAction;
 
-	jnc::ct::Module m_module;
-	jnc::rt::Runtime m_runtime;
+	jnc::AutoModule m_module;
+	jnc::AutoRuntime m_runtime;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

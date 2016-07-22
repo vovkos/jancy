@@ -97,54 +97,6 @@ getPtrTypeFlagsFromModifiers (uint_t modifiers);
 
 //.............................................................................
 
-// data ptr
-
-enum DataPtrTypeKind
-{
-	DataPtrTypeKind_Normal = 0,
-	DataPtrTypeKind_Lean,
-	DataPtrTypeKind_Thin,
-	DataPtrTypeKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind);
-
-//.............................................................................
-
-// useful for simple checks
-
-enum TypeKindFlag
-{
-	TypeKindFlag_Integer      = 0x00000001,
-	TypeKindFlag_Unsigned     = 0x00000002,
-	TypeKindFlag_BigEndian    = 0x00000004,
-	TypeKindFlag_Fp           = 0x00000008,
-	TypeKindFlag_Numeric      = 0x00000010,
-	TypeKindFlag_Aggregate    = 0x00000020,
-	TypeKindFlag_Named        = 0x00000100,
-	TypeKindFlag_Derivable    = 0x00000200,
-	TypeKindFlag_DataPtr      = 0x00000400,
-	TypeKindFlag_ClassPtr     = 0x00000800,
-	TypeKindFlag_FunctionPtr  = 0x00001000,
-	TypeKindFlag_PropertyPtr  = 0x00002000,
-	TypeKindFlag_Ptr          = 0x00004000,
-	TypeKindFlag_Ref          = 0x00008000,
-	TypeKindFlag_Import       = 0x00010000,
-	TypeKindFlag_Code         = 0x00020000,
-	TypeKindFlag_Nullable     = 0x00040000,
-	TypeKindFlag_ErrorCode    = 0x00080000,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-uint_t
-getTypeKindFlags (TypeKind typeKind);
-
-//.............................................................................
-
 enum VariantField
 {
 	VariantField_Data1,
@@ -259,7 +211,7 @@ public:
 	uint_t
 	getTypeKindFlags ()
 	{
-		return ct::getTypeKindFlags (m_typeKind);
+		return jnc::getTypeKindFlags (m_typeKind);
 	}
 
 	StdType
@@ -400,13 +352,14 @@ public:
 	NamedType ()
 	{
 		m_namespaceKind = NamespaceKind_Type;
-		m_itemDecl = this;
 	}
 };
 
 //.............................................................................
 
-class Typedef: public UserModuleItem
+class Typedef: 
+	public ModuleItem,
+	public ModuleItemDecl
 {
 	friend class TypeMgr;
 

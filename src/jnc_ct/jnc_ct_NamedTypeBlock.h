@@ -20,7 +20,6 @@ class NamedTypeBlock
 {
 protected:
 	ModuleItem* m_parent; // derivable type or property
-	Namespace* m_namespace; 
 
 	sl::Array <Variable*> m_staticFieldArray;
 	sl::Array <StructField*> m_memberFieldArray;
@@ -199,6 +198,12 @@ public:
 	callMemberPropertyDestructors (const Value& thisValue);
 
 protected:
+	Namespace* 
+	getParentNamespaceImpl ();
+
+	Unit* 
+	getParentUnitImpl ();
+
 	virtual
 	StructField*
 	createFieldImpl (

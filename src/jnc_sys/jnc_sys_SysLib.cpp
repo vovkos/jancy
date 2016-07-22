@@ -39,9 +39,16 @@ sleep (uint32_t msCount)
 	gcHeap->leaveWaitRegion ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (SysLib)
+} // namespace sys
+} // namespace jnc
+
+using namespace jnc::sys;
+
+JNC_DEFINE_LIB (jnc_SysLib)
+
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_SysLib)
 	JNC_LIB_FORCED_SOURCE_FILE ("sys_globals.jnc", g_sys_globalsSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Lock.jnc",    g_sys_LockSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Event.jnc",   g_sys_EventSrc)
@@ -49,14 +56,14 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE (SysLib)
 	JNC_LIB_SOURCE_FILE ("sys_Timer.jnc",   g_sys_TimerSrc)
 JNC_END_LIB_SOURCE_FILE_TABLE ()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (SysLib)
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_SysLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Lock)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Event)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Thread)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Timer)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
-JNC_BEGIN_LIB_FUNCTION_MAP (SysLib)
+JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.getCurrentThreadId", getCurrentThreadId)
 	JNC_MAP_FUNCTION ("sys.getTimestamp",       getTimestamp)
 	JNC_MAP_FUNCTION ("sys.sleep",              sleep)
@@ -68,6 +75,3 @@ JNC_BEGIN_LIB_FUNCTION_MAP (SysLib)
 JNC_END_LIB_FUNCTION_MAP ()
 
 //.............................................................................
-
-} // namespace sys
-} // namespace jnc

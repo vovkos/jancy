@@ -1,8 +1,47 @@
 #include "pch.h"
 #include "jnc_std_List.h"
+#include "jnc_std_StdLib.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace std {
+
+//.............................................................................
+
+JNC_DEFINE_TYPE (
+	ListEntry,
+	"std.ListEntry", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_ListEntry
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (ListEntry)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_CLASS_TYPE (
+	List,
+	"std.List", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_List
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (List)
+	JNC_MAP_FUNCTION ("clear", &List::clear)
+	JNC_MAP_FUNCTION ("takeOver", &List::takeOver)
+	JNC_MAP_FUNCTION ("insertHead", &List::insertHead)
+	JNC_MAP_FUNCTION ("insertTail", &List::insertTail)
+	JNC_MAP_FUNCTION ("insertBefore", &List::insertBefore)
+	JNC_MAP_FUNCTION ("insertAfter", &List::insertAfter)
+	JNC_MAP_FUNCTION ("moveToHead", &List::moveToHead)
+	JNC_MAP_FUNCTION ("moveToTail", &List::moveToTail)
+	JNC_MAP_FUNCTION ("moveBefore", &List::moveBefore)
+	JNC_MAP_FUNCTION ("moveAfter", &List::moveAfter)
+	JNC_MAP_FUNCTION ("removeHead", &List::removeHead)
+	JNC_MAP_FUNCTION ("removeTail", &List::removeTail)
+	JNC_MAP_FUNCTION ("remove", &List::remove)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 
@@ -178,14 +217,10 @@ List::remove (
 DataPtr
 List::allocateListEntry ()
 {
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
+	Runtime* runtime = getCurrentThreadRuntime ();
 	ASSERT (runtime);
 
-	ct::Module* module = runtime->getModule ();
-	ASSERT (module);
-
-	ct::Type* type = ListEntry::getType (module);
-	return runtime->m_gcHeap.allocateData (type);
+	return createData <ListEntry> (runtime);
 }
 
 void

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "jnc_io_IoLibGlobals.h"
-
 namespace jnc {
 namespace io {
 
-class FileStream;
+JNC_DECLARE_TYPE (FileStreamEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (FileStream)
 
 //.............................................................................
 
@@ -31,8 +30,7 @@ enum FileStreamEventKind
 
 struct FileStreamEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.FileStreamEventParams", g_ioLibCacheSlot, IoLibCacheSlot_FileStreamEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (FileStreamEventParams)
 
 	FileStreamEventKind m_eventKind;
 	uint_t m_syncId;
@@ -47,18 +45,7 @@ class FileStream: public IfaceHdr
 	friend class NamedPipe;
 
 public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (FileStream, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.FileStream", g_ioLibCacheSlot, IoLibCacheSlot_FileStream)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <FileStream>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <FileStream>)
-		JNC_MAP_FUNCTION ("open",  &FileStream::open)
-		JNC_MAP_FUNCTION ("close", &FileStream::close)
-		JNC_MAP_FUNCTION ("clear", &FileStream::clear)
-		JNC_MAP_FUNCTION ("read",  &FileStream::read)
-		JNC_MAP_FUNCTION ("write", &FileStream::write)
-		JNC_MAP_FUNCTION ("firePendingEvents", &FileStream::firePendingEvents)
-	JNC_END_TYPE_FUNCTION_MAP ()
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (FileStream)
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -104,7 +91,7 @@ protected:
 	ClassBox <Multicast> m_onFileStreamEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	axl::io::File m_file;
 
 	sys::Lock m_ioLock;

@@ -22,8 +22,7 @@ struct CmdLine
 {
 	uint_t m_flags;
 	size_t m_stackSizeLimit;
-	size_t m_gcAllocSizeTrigger;
-	size_t m_gcPeriodSizeTrigger;
+	jnc::GcSizeTriggers m_gcSizeTriggers;
 
 	sl::String m_srcNameOverride;
 	sl::String m_functionName;

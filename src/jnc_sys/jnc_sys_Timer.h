@@ -1,12 +1,13 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_sys_SysLibGlobals.h"
 #include "jnc_CallSite.h"
 
 namespace jnc {
 namespace sys {
-		
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Timer)
+
 //.............................................................................
 
 class Timer: public IfaceHdr
@@ -61,17 +62,7 @@ protected:
 	threadFunc ();
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (
-	Timer, 
-	"sys.Timer", 
-	g_sysLibGuid, 
-	SysLibCacheSlot_Timer,
-	Timer, 
-	NULL
-	)
-	
 //.............................................................................
 
 } // namespace sys

@@ -15,11 +15,10 @@ public:
 	LlvmIr(QWidget *parent);
 	
 	QSize sizeHint() const { return QSize(300, 50); }	
-	bool build (jnc::ct::Module *module);
+	bool build (jnc::Module* module);
 
 private:
 	void setupHighlighter();
-	void addFunction(jnc::ct::Function* function);
 
 	LlvmIrHighlighter *highlighter;
 };

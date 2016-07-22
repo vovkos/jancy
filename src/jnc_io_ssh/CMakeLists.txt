@@ -11,7 +11,6 @@ set (
 	LIB_H_LIST
 	jnc_io_Ssh.h
 	jnc_io_SshLib.h
-	jnc_io_SshLibGlobals.h
 	)
 
 set (
@@ -68,7 +67,6 @@ include_directories (
 	${OPENSSL_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	../jnc_io_cmn
 	)
 
@@ -96,6 +94,12 @@ axl_set_pch (
 	)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX)
+
+target_compile_definitions (
+	jnc_io_ssh
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB
+	)
 
 set_target_properties (
 	jnc_io_ssh

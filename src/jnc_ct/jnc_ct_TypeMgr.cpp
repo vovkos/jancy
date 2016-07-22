@@ -2,8 +2,8 @@
 #include "jnc_ct_TypeMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_DeclTypeCalc.h"
-#include "jnc_rt_VariantUtils.h"
 #include "jnc_ct_Parser.llk.h"
+#include "jnc_Variant.h"
 
 // it's very common for classes and structs to reference themselves
 // in pointer fields, retvals, arguments etc

@@ -1,30 +1,20 @@
-// This file is part of AXL (R) Library
-// Tibbo Technology Inc (C) 2004-2013. All rights reserved
-// Author: Vladimir Gladkov
-
 #pragma once
-
-#include "jnc_io_Ssh.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
-class SshLib: public ext::ExtensionLib
-{
-public:
-	JNC_BEGIN_LIB_MAP ()
-		JNC_MAP_TYPE (SshChannel)
-	JNC_END_LIB_MAP ()
+// {5B43440D-8E4A-4EF5-AA23-D613210EB8E9}
+AXL_SL_DEFINE_GUID (
+	g_sshLibGuid,
+	0x5b43440d, 0x8e4a, 0x4ef5, 0xaa, 0x23, 0xd6, 0x13, 0x21, 0xe, 0xb8, 0xe9
+	);
 
-	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SshChannel)
-	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-
-	JNC_BEGIN_LIB_FORCED_EXPORT ()
-		JNC_LIB_FORCED_IMPORT ("io_Ssh.jnc")
-	JNC_END_LIB_FORCED_EXPORT ()
+enum SshLibCacheSlot
+{	
+	SshLibCacheSlot_SshChannel,
+	SshLibCacheSlot_SshEventParams,
 };
 
 //.............................................................................

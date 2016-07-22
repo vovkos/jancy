@@ -7,26 +7,6 @@ namespace ct {
 
 //.............................................................................
 
-const char*
-getFunctionTypeFlagString (FunctionTypeFlag flag)
-{
-	static const char* stringTable [] =
-	{
-		"vararg",     // FunctionTypeFlag_VarArg      = 0x010000,
-		"errorcode",  // FunctionTypeFlag_ErrorCode   = 0x020000,
-		"coerced",    // FunctionTypeFlag_CoercedArgs = 0x040000,
-		"automaton",  // FunctionTypeFlag_Automaton   = 0x080000,
-		"unsafe",     // FunctionTypeFlag_Unsafe      = 0x100000,
-	};
-
-	size_t i = sl::getLoBitIdx32 (flag >> 16);
-	return i < countof (stringTable) ?
-		stringTable [i] :
-		"undefined-function-flag";
-}
-
-//.............................................................................
-
 FunctionType::FunctionType ()
 {
 	m_typeKind = TypeKind_Function;

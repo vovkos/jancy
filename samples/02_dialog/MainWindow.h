@@ -9,8 +9,8 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 protected:
-	jnc::ct::Module m_module;
-	jnc::rt::Runtime m_runtime;
+	jnc::AutoModule m_module;
+	jnc::AutoRuntime m_runtime;
 	QWidget* m_body;
 	QPlainTextEdit* m_output;
 	MyLayout* m_layout;

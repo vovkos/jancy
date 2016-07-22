@@ -50,7 +50,7 @@ Runtime::startup (ct::Module* module)
 void
 Runtime::shutdown ()
 {
-	ASSERT (!sys::getTlsSlotValue <Tls> ());
+	ASSERT (!sys::getTlsPtrSlotValue <Tls> ());
 
 	m_lock.lock ();
 	if (m_state == State_Idle)
@@ -119,7 +119,7 @@ restoreExceptionRecoverySnapshot (
 void
 Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 {
-	Tls* prevTls = sys::getTlsSlotValue <Tls> ();
+	Tls* prevTls = sys::getTlsPtrSlotValue <Tls> ();
 	if (prevTls && prevTls->m_runtime == this)
 	{
 		saveExceptionRecoverySnapshot (ers, prevTls);
@@ -136,8 +136,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 	tls->m_initializeLevel = 1;
 	tls->m_stackEpoch = ers;
 
-	sys::setTlsSlotValue <Tls> (tls);
-	sys::setTlsSlotValue <Runtime> (this);
+	sys::setTlsPtrSlotValue <Tls> (tls);
 
 	m_lock.lock ();	
 	if (m_tlsList.isEmpty ())
@@ -152,7 +151,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 void
 Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 {
-	Tls* tls = sys::getTlsSlotValue <Tls> ();
+	Tls* tls = sys::getTlsPtrSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
 	restoreExceptionRecoverySnapshot (ers, tls);
@@ -180,8 +179,7 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 	
 	m_lock.unlock ();
 	
-	sys::setTlsSlotValue <Tls> (tls->m_prev);
-	sys::setTlsSlotValue <Runtime> (tls->m_prev ? tls->m_prev->m_runtime : NULL);
+	sys::setTlsPtrSlotValue <Tls> (tls->m_prev);
 
 	AXL_MEM_DELETE (tls);
 }
@@ -189,7 +187,7 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 void
 Runtime::checkStackOverflow ()
 {
-	Tls* tls = sys::getTlsSlotValue <Tls> ();
+	Tls* tls = sys::getTlsPtrSlotValue <Tls> ();
 	ASSERT (tls && tls->m_runtime == this);
 
 	char* p = (char*) _alloca (1);
@@ -198,8 +196,8 @@ Runtime::checkStackOverflow ()
 	size_t stackSize = (char*) tls->m_stackEpoch - p;
 	if (stackSize > m_stackSizeLimit)
 	{
-		err::Error error = err::formatStringError ("stack overflow (%dB)", stackSize);
-		runtimeError (error);
+		err::setFormatStringError ("stack overflow (%dB)", stackSize);
+		dynamicThrow ();
 		ASSERT (false);
 	}
 }

@@ -1,19 +1,19 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_std_StdLibGlobals.h"
+#include "jnc_ExtensionLib.h"
 
 namespace jnc {
 namespace std {
-		
+
+JNC_DECLARE_TYPE (ConstBufferRef)
+JNC_DECLARE_TYPE (ConstBuffer)
+JNC_DECLARE_TYPE (BufferRef)
+JNC_DECLARE_TYPE (Buffer)
+
 //.............................................................................
 
 struct ConstBufferRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.ConstBufferRef", g_stdLibCacheSlot, StdLibCacheSlot_ConstBufferRef)
-	JNC_END_TYPE_MAP ()
-
-public:
 	DataPtr m_ptr;
 	size_t m_size;
 	bool m_isFinal;
@@ -23,16 +23,9 @@ public:
 
 struct ConstBuffer
 {
-	JNC_BEGIN_TYPE_MAP ("std.ConstBuffer", g_stdLibCacheSlot, StdLibCacheSlot_ConstBuffer)
-		JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
-		JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
-	JNC_END_TYPE_MAP ()
-
-public:
 	DataPtr m_ptr;
 	size_t m_size;
 
-public:
 	bool 
 	copy (ConstBufferRef ref);
 
@@ -42,7 +35,6 @@ public:
 		size_t size
 		);
 
-protected:
 	static
 	bool 
 	copy_s1 (
@@ -69,10 +61,6 @@ protected:
 
 struct BufferRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.BufferRef", g_stdLibCacheSlot, StdLibCacheSlot_BufferRef)
-	JNC_END_TYPE_MAP ()
-
-public:
 	DataPtr m_ptr;
 	size_t m_size;
 };
@@ -81,12 +69,6 @@ public:
 
 class Buffer: public IfaceHdr
 {
-public:
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.Buffer", g_stdLibCacheSlot, StdLibCacheSlot_Buffer)
-		JNC_MAP_FUNCTION ("copy", &Buffer::copy)
-		JNC_MAP_FUNCTION ("append", &Buffer::append)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 public:
 	DataPtr m_ptr;
 	size_t m_size;

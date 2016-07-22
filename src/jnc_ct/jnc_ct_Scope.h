@@ -46,7 +46,6 @@ class Scope:
 	friend class Parser;
 
 protected:
-	Token::Pos m_pos;
 	Function* m_function;
 	Variable* m_disposeLevelVariable;
 	sl::Array <Variable*> m_disposableVariableArray;
@@ -67,12 +66,6 @@ public:
 
 public:
 	Scope ();
-
-	const Token::Pos*
-	getPos ()
-	{
-		return &m_pos;
-	}
 
 	Function*
 	getFunction ()

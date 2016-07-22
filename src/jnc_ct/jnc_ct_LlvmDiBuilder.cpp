@@ -89,7 +89,7 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 		unit->getLlvmDiFile (),
 		structType->m_tag.cc (),
 		unit->getLlvmDiFile (),
-		structType->getItemDecl ()->getPos ()->m_line + 1,
+		structType->getPos ()->m_line + 1,
 		structType->getSize () * 8,
 		structType->getAlignment () * 8,
 		0,
@@ -127,7 +127,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			unit->getLlvmDiFile (),
 			!name.isEmpty () ? name.cc () : "UnnamedBaseType",
 			unit->getLlvmDiFile (),
-			baseType->getItemDecl ()->getPos ()->m_line + 1,
+			baseType->getPos ()->m_line + 1,
 			baseType->getType ()->getSize () * 8,
 			baseType->getType ()->getAlignment () * 8,
 			baseType->getOffset () * 8,
@@ -145,7 +145,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			unit->getLlvmDiFile (),
 			!name.isEmpty () ? name.cc () : "m_unnamedField",
 			unit->getLlvmDiFile (),
-			field->getItemDecl ()->getPos ()->m_line + 1,
+			field->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
 			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
@@ -172,7 +172,7 @@ LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 		unit->getLlvmDiFile (),
 		unionType->m_tag.cc (),
 		unit->getLlvmDiFile (),
-		unionType->getItemDecl ()->getPos ()->m_line + 1,
+		unionType->getPos ()->m_line + 1,
 		unionType->getSize () * 8,
 		unionType->getAlignment () * 8,
 		0,
@@ -202,7 +202,7 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 			unit->getLlvmDiFile (),
 			!name.isEmpty () ? name.cc () : "m_unnamedField",
 			unit->getLlvmDiFile (),
-			field->getItemDecl ()->getPos ()->m_line + 1,
+			field->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
 			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
@@ -271,7 +271,7 @@ LlvmDiBuilder::createGlobalVariable (Variable* variable)
 	return m_llvmDiBuilder->createGlobalVariable (
 		variable->getQualifiedName ().cc (),
 		unit->getLlvmDiFile (),
-		variable->getItemDecl ()->getPos ()->m_line + 1,
+		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
 		true,
 		variable->getLlvmValue ()
@@ -293,7 +293,7 @@ LlvmDiBuilder::createLocalVariable (
 		scope->getLlvmDiScope (),
 		variable->getName ().cc (),
 		unit->getLlvmDiFile (),
-		variable->getItemDecl ()->getPos ()->m_line + 1,
+		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
 		true,
 		0, 0
@@ -315,7 +315,7 @@ LlvmDiBuilder::createDeclare (Variable* variable)
 		);
 
 	llvm::DebugLoc llvmDebugLoc = llvm::DebugLoc::get (
-		variable->getItemDecl ()->getPos ()->m_line + 1, 0,
+		variable->getPos ()->m_line + 1, 0,
 		scope->getLlvmDiScope ()
 		);
 
@@ -329,7 +329,7 @@ LlvmDiBuilder::createFunction (Function* function)
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
 	ASSERT (unit);
 
-	Token::Pos declPos = *function->getItemDecl ()->getPos ();
+	Token::Pos declPos = *function->getPos ();
 	Token::Pos scopePos = function->hasBody () ? function->getBody ().getHead ()->m_pos : declPos;
 
 	return m_llvmDiBuilder->createFunction (

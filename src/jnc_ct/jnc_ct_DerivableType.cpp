@@ -120,19 +120,11 @@ DerivableType::getDefaultConstructor ()
 BaseTypeSlot*
 DerivableType::getBaseTypeByIndex (size_t index)
 {
-	size_t count = m_baseTypeList.getCount ();
+	size_t count = m_baseTypeArray.getCount ();
 	if (index >= count)
 	{
 		err::setFormatStringError ("index '%d' is out of bounds", index);
 		return NULL;
-	}
-
-	if (m_baseTypeArray.getCount () != count)
-	{
-		m_baseTypeArray.setCount (count);
-		sl::Iterator <BaseTypeSlot> slot = m_baseTypeList.getHead ();
-		for (size_t i = 0; i < count; i++, slot++)
-			m_baseTypeArray [i] = *slot;
 	}
 
 	return m_baseTypeArray [index];
@@ -177,8 +169,17 @@ DerivableType::addBaseType (Type* type)
 	}
 
 	m_baseTypeList.insertTail (slot);
+	m_baseTypeArray.append (slot);
 	it->m_value = slot;
 	return slot;
+}
+
+size_t
+DerivableType::findBaseTypeOffset (Type* type)
+{
+	jnc::ct::BaseTypeCoord coord;
+	bool result = findBaseTypeTraverse (type, &coord);
+	return result ? coord.m_offset : -1;
 }
 
 bool

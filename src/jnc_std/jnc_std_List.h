@@ -1,21 +1,22 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_std_StdLibGlobals.h"
+#include "jnc_ExtensionLib.h"
+#include "jnc_Variant.h"
 
 namespace jnc {
 namespace std {
 
 class List;
 
+JNC_DECLARE_TYPE (ListEntry)
+JNC_DECLARE_CLASS_TYPE (List)
+
 //.............................................................................
 
 struct ListEntry
 {
-	JNC_BEGIN_TYPE_MAP ("std.ListEntry", g_stdLibCacheSlot, StdLibCacheSlot_ListEntry)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (ListEntry)
 
-public:
 	DataPtr m_nextPtr;
 	DataPtr m_prevPtr;
 	List* m_list;
@@ -28,21 +29,6 @@ public:
 class List: public IfaceHdr
 {
 public:
-	JNC_BEGIN_TYPE_MAP ("std.List", g_stdLibCacheSlot, StdLibCacheSlot_List)
-		JNC_MAP_FUNCTION ("clear", &List::clear)
-		JNC_MAP_FUNCTION ("takeOver", &List::takeOver)
-		JNC_MAP_FUNCTION ("insertHead", &List::insertHead)
-		JNC_MAP_FUNCTION ("insertTail", &List::insertTail)
-		JNC_MAP_FUNCTION ("insertBefore", &List::insertBefore)
-		JNC_MAP_FUNCTION ("insertAfter", &List::insertAfter)
-		JNC_MAP_FUNCTION ("moveToHead", &List::moveToHead)
-		JNC_MAP_FUNCTION ("moveToTail", &List::moveToTail)
-		JNC_MAP_FUNCTION ("moveBefore", &List::moveBefore)
-		JNC_MAP_FUNCTION ("moveAfter", &List::moveAfter)
-		JNC_MAP_FUNCTION ("removeHead", &List::removeHead)
-		JNC_MAP_FUNCTION ("removeTail", &List::removeTail)
-		JNC_MAP_FUNCTION ("remove", &List::remove)
-	JNC_END_TYPE_MAP ()
 
 public:
 	DataPtr m_headPtr;

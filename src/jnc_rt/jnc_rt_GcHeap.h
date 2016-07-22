@@ -4,57 +4,10 @@
 
 #pragma once
 
-#include "jnc_RuntimeStructs.h"
+#include "jnc_GcHeap.h"
 
 namespace jnc {
-namespace ct {
-
-class Module;
-class Variable;
-class ClassType;
-
-} // namespace ct
-
 namespace rt {
-
-class Runtime;
-
-//.............................................................................
-
-enum GcDef
-{
-	GcDef_AllocSizeTrigger  = -1, // use period only
-#ifdef _AXL_DEBUG
-	GcDef_PeriodSizeTrigger = 0, // run gc on every allocation
-#elif (_AXL_CPU == AXL_CPU_X86)
-	GcDef_PeriodSizeTrigger = 1 * 1024 * 1024,  // 1MB gc period
-#else
-	GcDef_PeriodSizeTrigger = 2 * 1024 * 1024, // 2MB gc period
-#endif
-
-#ifdef _AXL_DEBUG
-	GcDef_DataPtrValidatorPoolSize = 1, // don't use pool, allocate every time
-#else
-	GcDef_DataPtrValidatorPoolSize = 32,
-#endif
-
-	GcDef_ShutdownIterationLimit   = 3,
-};
-
-//.............................................................................
-
-struct GcStats
-{
-	size_t m_currentAllocSize;
-	size_t m_totalAllocSize;
-	size_t m_peakAllocSize;
-	size_t m_currentPeriodSize;
-	size_t m_totalCollectCount;
-	size_t m_lastCollectFreeSize;
-	uint64_t m_lastCollectTime;
-	uint64_t m_lastCollectTimeTaken;
-	uint64_t m_totalCollectTimeTaken;
-};
 
 //.............................................................................
 
@@ -222,10 +175,23 @@ public:
 	getStats (GcStats* stats);
 
 	void 
+	getSizeTriggers (GcSizeTriggers* triggers)
+	{
+		triggers->m_allocSizeTrigger = m_allocSizeTrigger;
+		triggers->m_periodSizeTrigger = m_periodSizeTrigger;
+	}
+
+	void 
 	setSizeTriggers (
 		size_t allocSizeTrigger,
 		size_t periodSizeTrigger
 		);
+
+	void 
+	setSizeTriggers (const GcSizeTriggers& triggers)
+	{
+		setSizeTriggers (triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
+	}
 
 	bool
 	startup (ct::Module* module);
@@ -256,7 +222,7 @@ public:
 
 	void
 	addStaticRoot (
-		void* p,
+		const void* p,
 		ct::Type* type
 		);
 

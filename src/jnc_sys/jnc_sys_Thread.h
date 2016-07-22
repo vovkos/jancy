@@ -1,11 +1,12 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_sys_SysLibGlobals.h"
 #include "jnc_CallSite.h"
 
 namespace jnc {
 namespace sys {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Thread)
 
 //.............................................................................
 	
@@ -68,17 +69,6 @@ protected:
 		callVoidFunctionPtr (m_runtime, m_threadFuncPtr);
 	}
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DECLARE_OPAQUE_CLASS_TYPE (
-	Thread, 
-	"sys.Thread", 
-	g_sysLibGuid, 
-	SysLibCacheSlot_Thread,
-	Thread,
-	NULL
-	)
 
 //.............................................................................
 

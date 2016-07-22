@@ -1,9 +1,13 @@
 #include "pch.h"
 #include "jnc_rtl_Multicast.h"
-#include "jnc_rt_Runtime.h"
-#include "jnc_ct_Function.h"
 #include "jnc_Type.h"
-#include "jnc_CallSite.h"
+
+#ifdef _JNC_CORE
+#	include "jnc_rt_Runtime.h"
+#	include "jnc_ct_Module.h"
+#endif
+
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace rtl {
@@ -77,7 +81,10 @@ MulticastImpl::setCount (
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
-	Type* targetType = getTargetType ();
+	MulticastClassType* type = (MulticastClassType*) m_box->m_type;
+	ASSERT (isClassType (type, ClassTypeKind_Multicast));
+
+	FunctionPtrType* targetType = type->getTargetType ();
 	size_t maxCount = sl::getMinPower2Ge (count);
 	DataPtr ptr = gcHeap->allocateArray (targetType, maxCount);
 
@@ -96,14 +103,17 @@ MulticastImpl::getSnapshot ()
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
+	MulticastClassType* type = (MulticastClassType*) m_box->m_type;
+	ASSERT (isClassType (type, ClassTypeKind_Multicast));
+
 	ScopedNoCollectRegion noCollectRegion (gcHeap, false);
 
-	ClassType* snapshotType = getSnapshotType ();
-	Type* targetType = getTargetType ();
+	McSnapshotClassType* snapshotType = type->getSnapshotType ();
+	FunctionPtrType* targetType = type->getTargetType ();
 	McSnapshot* snapshot = (McSnapshot*) gcHeap->allocateClass (snapshotType);
 
 	FunctionPtr resultPtr;
-	resultPtr.m_p = snapshot->getCallMethod ()->getMachineCode ();
+	resultPtr.m_p = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
 	resultPtr.m_closure = snapshot;
 
 	if (!m_count)
@@ -111,7 +121,7 @@ MulticastImpl::getSnapshot ()
 
 	snapshot->m_ptr = gcHeap->allocateArray (targetType, m_count);
 
-	if (!isWeak ())
+	if (targetType->getPtrTypeKind () != FunctionPtrTypeKind_Weak)
 	{
 		size_t targetTypeSize = targetType->getSize ();
 		snapshot->m_count = m_count;
@@ -126,8 +136,6 @@ MulticastImpl::getSnapshot ()
 	size_t aliveCount = 0;
 	for (; srcPtr < srcPtrEnd; srcPtr++)
 	{
-		bool strengthenClassPtr (IfaceHdr*);
-
 		if (strengthenClassPtr (srcPtr->m_closure))
 		{
 			*dstPtr = *srcPtr;

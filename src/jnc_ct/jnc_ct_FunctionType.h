@@ -6,6 +6,7 @@
 
 #include "jnc_ct_CallConv.h"
 #include "jnc_ct_FunctionArg.h"
+#include "jnc_FunctionType.h"
 
 namespace jnc {
 namespace ct {
@@ -19,38 +20,6 @@ class CdeclCallConv_msc64;
 class Function;
 
 struct FunctionPtrTypeTuple;
-
-//.............................................................................
-
-enum FunctionTypeFlag
-{
-	FunctionTypeFlag_VarArg      = 0x010000,
-	FunctionTypeFlag_ErrorCode   = 0x020000,
-	FunctionTypeFlag_ByValArgs   = 0x040000,
-	FunctionTypeFlag_CoercedArgs = 0x080000,
-	FunctionTypeFlag_Automaton   = 0x100000,
-	FunctionTypeFlag_Unsafe      = 0x200000,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getFunctionTypeFlagString (FunctionTypeFlag flag);
-
-//.............................................................................
-
-enum FunctionPtrTypeKind
-{
-	FunctionPtrTypeKind_Normal = 0,
-	FunctionPtrTypeKind_Weak,
-	FunctionPtrTypeKind_Thin,
-	FunctionPtrTypeKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 

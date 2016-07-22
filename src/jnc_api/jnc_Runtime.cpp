@@ -4,7 +4,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_DynamicExtensionLibHost.h"
 #	include "jnc_ExtensionLib.h"
-#elif (defined _JNC_CORE)
+#elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -12,6 +12,20 @@
 //.............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
+
+JNC_EXTERN_C
+jnc_Runtime*
+jnc_Runtime_create ()
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_createFunc ();
+}
+
+JNC_EXTERN_C
+void
+jnc_Runtime_destroy (jnc_Runtime* runtime)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_destroyFunc (runtime);
+}
 
 JNC_EXTERN_C
 jnc_Module*
@@ -25,6 +39,40 @@ jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getGcHeapFunc (runtime);
+}
+
+JNC_EXTERN_C
+size_t 
+jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getStackSizeLimitFunc (runtime);
+}
+
+JNC_EXTERN_C
+int
+jnc_Runtime_setStackSizeLimit (
+	jnc_Runtime* runtime,
+	size_t sizeLimit
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setStackSizeLimitFunc (runtime, sizeLimit);
+}
+
+JNC_EXTERN_C
+int
+jnc_Runtime_startup (
+	jnc_Runtime* runtime,
+	jnc_Module* module
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_startupFunc (runtime, module);
+}
+	
+JNC_EXTERN_C
+void
+jnc_Runtime_shutdown (jnc_Runtime* runtime)
+{
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_shutdownFunc (runtime);
 }
 
 JNC_EXTERN_C
@@ -48,6 +96,13 @@ jnc_Runtime_uninitializeThread (
 }
 
 JNC_EXTERN_C
+void
+jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
+{
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_checkStackOverflowFunc (runtime);
+}
+
+JNC_EXTERN_C
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ()
 {
@@ -60,7 +115,7 @@ jnc_primeClass (
 	jnc_Box* box,
 	jnc_Box* root,
 	jnc_ClassType* type,
-	void* vtable
+	const void* vtable
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_primeClassFunc (box, root, type, vtable);
@@ -96,6 +151,20 @@ jnc_memDup (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+jnc_Runtime*
+jnc_Runtime_create ()
+{
+	return AXL_MEM_NEW (jnc_Runtime);
+}
+
+JNC_EXTERN_C
+void
+jnc_Runtime_destroy (jnc_Runtime* runtime)
+{
+	return AXL_MEM_DELETE (runtime);
+}
+
+JNC_EXTERN_C
 jnc_Module*
 jnc_Runtime_getModule (jnc_Runtime* runtime)
 {
@@ -107,6 +176,40 @@ jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 {
 	return runtime->getGcHeap ();
+}
+
+JNC_EXTERN_C
+size_t 
+jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
+{
+	return runtime->getStackSizeLimit ();
+}
+
+JNC_EXTERN_C
+int
+jnc_Runtime_setStackSizeLimit (
+	jnc_Runtime* runtime,
+	size_t sizeLimit
+	)
+{
+	return runtime->setStackSizeLimit (sizeLimit);
+}
+
+JNC_EXTERN_C
+int
+jnc_Runtime_startup (
+	jnc_Runtime* runtime,
+	jnc_Module* module
+	)
+{
+	return runtime->startup (module);
+}
+	
+JNC_EXTERN_C
+void
+jnc_Runtime_shutdown (jnc_Runtime* runtime)
+{
+	return runtime->shutdown ();
 }
 
 JNC_EXTERN_C
@@ -130,10 +233,31 @@ jnc_Runtime_uninitializeThread (
 }
 
 JNC_EXTERN_C
+void
+jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
+{
+	return runtime->checkStackOverflow ();
+}
+
+JNC_EXTERN_C
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ()
 {
 	return jnc::rt::getCurrentThreadRuntime ();
+}
+
+JNC_EXTERN_C
+jnc_Tls*
+jnc_getCurrentThreadTls ()
+{
+	return jnc::rt::getCurrentThreadTls ();
+}
+
+JNC_EXTERN_C
+void
+jnc_dynamicThrow ()
+{
+	jnc::rt::Runtime::dynamicThrow ();
 }
 
 static
@@ -143,7 +267,7 @@ primeIface (
 	jnc_Box* root,
 	jnc_IfaceHdr* iface,
 	jnc_ClassType* type,
-	void* vtable
+	const void* vtable
 	)
 {
 	using namespace jnc;
@@ -195,7 +319,7 @@ jnc_primeClass (
 	jnc_Box* box,
 	jnc_Box* root,
 	jnc_ClassType* type,
-	void* vtable
+	const void* vtable
 	)
 {
 	ASSERT (root <= box);
@@ -210,6 +334,24 @@ jnc_primeClass (
 	box->m_rootOffset = (char*) box - (char*) root;
 
 	primeIface (box, root, (jnc_IfaceHdr*) (box + 1), type, vtable);
+}
+
+JNC_EXTERN_C
+jnc_IfaceHdr*
+jnc_strengthenClassPtr (jnc_IfaceHdr* iface)
+{
+	using namespace jnc;
+
+	if (!iface)
+		return NULL;
+
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ClassType* classType = (ClassType*) iface->m_box->m_type;
+	ClassTypeKind classTypeKind = classType->getClassTypeKind ();
+
+	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
+		((ct::ClosureClassType*) classType)->strengthen (iface) :
+		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Zombie) ? iface : NULL;
 }
 
 JNC_EXTERN_C

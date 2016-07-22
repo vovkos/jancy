@@ -1,60 +1,38 @@
-// This file is part of AXL (R) Library
-// Tibbo Technology Inc (C) 2004-2013. All rights reserved
-// Author: Vladimir Gladkov
-
 #pragma once
-
-#include "jnc_io_Serial.h"
-#include "jnc_io_Socket.h"
-#include "jnc_io_SocketAddress.h"
-#include "jnc_io_SocketAddressResolver.h"
-#include "jnc_io_NetworkAdapter.h"
-#include "jnc_io_MappedFile.h"
-#include "jnc_io_FileStream.h"
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-#	include "jnc_io_NamedPipe.h"
-#	include "jnc_io_Mailslot.h"
-#endif
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
-class IoLib: public ext::ExtensionLib
-{
-public:
-	JNC_BEGIN_LIB_MAP ()
-		JNC_MAP_TYPE (Serial)
-		JNC_MAP_TYPE (Socket)
-		JNC_MAP_TYPE (Address_ip4)
-		JNC_MAP_TYPE (Address_ip6)
-		JNC_MAP_TYPE (SocketAddress_ip4)
-		JNC_MAP_TYPE (SocketAddress_ip6)
-		JNC_MAP_TYPE (SocketAddress)
-		JNC_MAP_TYPE (SocketAddressResolver)
-		JNC_MAP_TYPE (MappedFile)
-		JNC_MAP_TYPE (FileStream)
-#if (_AXL_ENV == AXL_ENV_WIN)
-		JNC_MAP_TYPE (NamedPipe)
-		JNC_MAP_TYPE (Mailslot)
-#endif
-		JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", &createNetworkAdapterDescList)
-		JNC_MAP_FUNCTION ("io.createSerialPortDescList",     &createSerialPortDescList)
-	JNC_END_LIB_MAP ()
+// {362FF8E2-1BDD-4319-AF8F-AD86C3917AC5}
+AXL_SL_DEFINE_GUID (
+	g_ioLibGuid,
+	0x362ff8e2, 0x1bdd, 0x4319, 0xaf, 0x8f, 0xad, 0x86, 0xc3, 0x91, 0x7a, 0xc5
+	);
 
-	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Serial)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Socket)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
-#if (_AXL_ENV == AXL_ENV_WIN)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Mailslot)
-#endif
-	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+enum IoLibCacheSlot
+{	
+	IoLibCacheSlot_Serial,
+	IoLibCacheSlot_SerialEventParams,
+	IoLibCacheSlot_SerialPortDesc,
+	IoLibCacheSlot_Address_ip4,
+	IoLibCacheSlot_Address_ip6,
+	IoLibCacheSlot_SocketAddress_ip4,
+	IoLibCacheSlot_SocketAddress_ip6,
+	IoLibCacheSlot_SocketAddress,
+	IoLibCacheSlot_SocketAddressResolver,
+	IoLibCacheSlot_SocketAddressResolverEventParams,
+	IoLibCacheSlot_Socket,
+	IoLibCacheSlot_SocketEventParams,
+	IoLibCacheSlot_NetworkAdapterAddress,
+	IoLibCacheSlot_NetworkAdapterDesc,
+	IoLibCacheSlot_MappedFile,
+	IoLibCacheSlot_FileStream,
+	IoLibCacheSlot_FileStreamEventParams,
+	IoLibCacheSlot_NamedPipe,
+	IoLibCacheSlot_Mailslot,
+	IoLibCacheSlot_MailslotEventParams,
 };
 
 //.............................................................................

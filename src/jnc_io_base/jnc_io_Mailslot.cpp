@@ -1,14 +1,47 @@
 #include "pch.h"
 #include "jnc_io_Mailslot.h"
+#include "jnc_io_IoLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	MailslotEventParams,
+	"io.MailslotEventParams", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_MailslotEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (MailslotEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	Mailslot,
+	"io.Mailslot", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_Mailslot,
+	Mailslot, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Mailslot)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <Mailslot>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <Mailslot>)
+	JNC_MAP_FUNCTION ("open",  &Mailslot::open)
+	JNC_MAP_FUNCTION ("close", &Mailslot::close)
+	JNC_MAP_FUNCTION ("read",  &Mailslot::read)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 Mailslot::Mailslot ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_incomingDataSize = 0;
 	m_isOpen = false;
@@ -27,7 +60,8 @@ Mailslot::open (DataPtr namePtr)
 	HANDLE mailslot = ::CreateMailslotW (name, 0, -1, NULL);
 	if (mailslot == INVALID_HANDLE_VALUE)
 	{
-		ext::setError (::GetLastError ());
+		err::setLastSystemError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -55,9 +89,10 @@ Mailslot::close ()
 	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	m_file.close ();
 	m_ioFlags = 0;
@@ -74,15 +109,15 @@ Mailslot::fireMailslotEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <MailslotEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <MailslotEventParams> (m_runtime);
 	MailslotEventParams* params = (MailslotEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 
 	if (error)
-		params->m_errorPtr = rt::memDup (error, error->m_size);
+		params->m_errorPtr = memDup (error, error->m_size);
 
-	rt::callMulticast (m_onMailslotEvent, paramsPtr);
+	callMulticast (m_onMailslotEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -112,12 +147,16 @@ Mailslot::read (
 		m_ioThreadEvent.signal ();
 		m_ioLock.unlock ();
 
-		rt::enterWaitRegion (m_runtime);
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		gcHeap->enterWaitRegion ();
 		read.m_completionEvent.wait ();
-		rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 
 		if (read.m_result == -1)
-			ext::setError (read.m_error);
+		{
+			err::setError (read.m_error);
+			propagateLastError ();
+		}
 
 		return read.m_result;
 	}

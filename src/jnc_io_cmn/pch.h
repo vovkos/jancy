@@ -1,11 +1,10 @@
 #pragma once
 
-#define _JNC_SHARED_EXTENSION_LIB 1
+#define _JNC_DYNAMIC_EXTENSION_LIB
 
 #include "jnc_ext_Pch.h"
+#include "jnc_ExtensionLib.h"
 
 #include "axl_io_Socket.h"
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_rt_CallSite.h"
 
 using namespace axl;

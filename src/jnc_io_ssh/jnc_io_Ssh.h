@@ -1,12 +1,44 @@
 #pragma once
 
-#include "jnc_io_SshLibGlobals.h"
 #include "jnc_io_SocketAddress.h"
 
 namespace jnc {
 namespace io {
 
-class SshChannel;
+JNC_DECLARE_TYPE (SshEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
+
+//.............................................................................
+
+enum SshEventKind
+{
+	SshEventKind_TcpConnectCompleted = 0,
+	SshEventKind_SshHandshakeCompleted,
+	SshEventKind_SshAuthCompleted,
+	SshEventKind_SshAuthError,
+	SshEventKind_SshChannelOpened,
+	SshEventKind_SshPtyRequested,
+	SshEventKind_SshProcessStarted,
+	SshEventKind_ConnectCompleted,
+	SshEventKind_ConnectCancelled,
+	SshEventKind_ConnectError,
+	SshEventKind_Disconnected,
+	SshEventKind_ReauthenticateInitiated,
+	SshEventKind_ReconnectInitiated,
+	SshEventKind_IncomingData,
+	SshEventKind_TransmitBufferReady,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SshEventParams
+{
+	JNC_DECLARE_TYPE_STATIC_METHODS (SshEventParams)
+
+	SshEventKind m_eventKind;
+	uint_t m_syncId;
+	DataPtr m_errorPtr;
+};
 
 //.............................................................................
 
@@ -41,59 +73,9 @@ typedef sl::Handle <LIBSSH2_CHANNEL*, FreeLibSsh2Channel> SshChannelHandle;
 
 //.............................................................................
 
-enum SshEventKind
-{
-	SshEventKind_TcpConnectCompleted = 0,
-	SshEventKind_SshHandshakeCompleted,
-	SshEventKind_SshAuthCompleted,
-	SshEventKind_SshAuthError,
-	SshEventKind_SshChannelOpened,
-	SshEventKind_SshPtyRequested,
-	SshEventKind_SshProcessStarted,
-	SshEventKind_ConnectCompleted,
-	SshEventKind_ConnectCancelled,
-	SshEventKind_ConnectError,
-	SshEventKind_Disconnected,
-	SshEventKind_ReauthenticateInitiated,
-	SshEventKind_ReconnectInitiated,
-	SshEventKind_IncomingData,
-	SshEventKind_TransmitBufferReady,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct SshEventParams
-{
-	JNC_BEGIN_TYPE_MAP ("io.SshEventParams", g_sshLibCacheSlot, SshLibCacheSlot_SshEventParams)
-	JNC_END_TYPE_MAP ()
-
-	SshEventKind m_eventKind;
-	uint_t m_syncId;
-	DataPtr m_errorPtr;
-};
-
-//.............................................................................
-
 class SshChannel: public IfaceHdr
 {
 	friend class IoThread;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (SshChannel, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.SshChannel", g_sshLibCacheSlot, SshLibCacheSlot_SshChannel)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <SshChannel>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <SshChannel>)
-		JNC_MAP_CONST_PROPERTY ("m_address",     &SshChannel::getAddress)
-		JNC_MAP_CONST_PROPERTY ("m_peerAddress", &SshChannel::getPeerAddress)
-		JNC_MAP_FUNCTION ("open",         &SshChannel::open)
-		JNC_MAP_FUNCTION ("close",        &SshChannel::close)
-		JNC_MAP_FUNCTION ("connect",      &SshChannel::connect)
-		JNC_MAP_FUNCTION ("authenticate", &SshChannel::authenticate)
-		JNC_MAP_FUNCTION ("resizePty",    &SshChannel::resizePty)
-		JNC_MAP_FUNCTION ("read",         &SshChannel::read)
-		JNC_MAP_FUNCTION ("write",        &SshChannel::write)
-	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -142,7 +124,7 @@ protected:
 	ClassBox <Multicast> m_onSshChannelEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	
 	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;

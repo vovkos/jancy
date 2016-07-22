@@ -2,13 +2,13 @@
 
 #define _JNC_TYPE_H
 
-#include "jnc_Def.h"
+#include "jnc_ModuleItem.h"
 
 //.............................................................................
 
 enum jnc_TypeKind
 {
-	// primitive types (completely identified by EType)
+	// primitive types (completely identified by TypeKind)
 
 	jnc_TypeKind_Void,                // v
 	jnc_TypeKind_Variant,             // z
@@ -116,13 +116,129 @@ enum jnc_TypeKind
 
 //.............................................................................
 
+// useful for simple checks
+
+enum jnc_TypeKindFlag
+{
+	jnc_TypeKindFlag_Integer      = 0x00000001,
+	jnc_TypeKindFlag_Unsigned     = 0x00000002,
+	jnc_TypeKindFlag_BigEndian    = 0x00000004,
+	jnc_TypeKindFlag_Fp           = 0x00000008,
+	jnc_TypeKindFlag_Numeric      = 0x00000010,
+	jnc_TypeKindFlag_Aggregate    = 0x00000020,
+	jnc_TypeKindFlag_Named        = 0x00000100,
+	jnc_TypeKindFlag_Derivable    = 0x00000200,
+	jnc_TypeKindFlag_DataPtr      = 0x00000400,
+	jnc_TypeKindFlag_ClassPtr     = 0x00000800,
+	jnc_TypeKindFlag_FunctionPtr  = 0x00001000,
+	jnc_TypeKindFlag_PropertyPtr  = 0x00002000,
+	jnc_TypeKindFlag_Ptr          = 0x00004000,
+	jnc_TypeKindFlag_Ref          = 0x00008000,
+	jnc_TypeKindFlag_Import       = 0x00010000,
+	jnc_TypeKindFlag_Code         = 0x00020000,
+	jnc_TypeKindFlag_Nullable     = 0x00040000,
+	jnc_TypeKindFlag_ErrorCode    = 0x00080000,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+uint_t
+jnc_getTypeKindFlags (jnc_TypeKind typeKind);
+
+//.............................................................................
+
+// commonly used non-primitive types
+
+enum jnc_StdType
+{
+	jnc_StdType_BytePtr,
+	jnc_StdType_ByteConstPtr,
+	jnc_StdType_SimpleIfaceHdr,
+	jnc_StdType_SimpleIfaceHdrPtr,
+	jnc_StdType_Box,
+	jnc_StdType_BoxPtr,
+	jnc_StdType_DataBox,
+	jnc_StdType_DataBoxPtr,
+	jnc_StdType_DynamicArrayBox,
+	jnc_StdType_DynamicArrayBoxPtr,
+	jnc_StdType_StaticDataBox,
+	jnc_StdType_StaticDataBoxPtr,
+	jnc_StdType_AbstractClass,
+	jnc_StdType_AbstractClassPtr,
+	jnc_StdType_AbstractData,
+	jnc_StdType_AbstractDataPtr,
+	jnc_StdType_SimpleFunction,
+	jnc_StdType_SimpleMulticast,
+	jnc_StdType_SimpleEventPtr,
+	jnc_StdType_Binder,
+	jnc_StdType_ReactorBindSite,
+	jnc_StdType_Scheduler,
+	jnc_StdType_Recognizer,
+	jnc_StdType_AutomatonResult,
+	jnc_StdType_AutomatonFunc,
+	jnc_StdType_DynamicLib,
+	jnc_StdType_FmtLiteral,
+	jnc_StdType_Int64Int64, // for system V coercion
+	jnc_StdType_Fp64Fp64,   // for system V coercion
+	jnc_StdType_Int64Fp64,  // for system V coercion
+	jnc_StdType_Fp64Int64,  // for system V coercion
+	jnc_StdType_DataPtrValidator,
+	jnc_StdType_DataPtrValidatorPtr,
+	jnc_StdType_DataPtrStruct,
+	jnc_StdType_FunctionPtrStruct,
+	jnc_StdType_PropertyPtrStruct = jnc_StdType_FunctionPtrStruct,
+	jnc_StdType_VariantStruct,
+	jnc_StdType_GcShadowStackFrame,
+	jnc_StdType_SjljFrame,
+	jnc_StdType__Count,
+};
+
+//.............................................................................
+
+// data ptr
+
+enum jnc_DataPtrTypeKind
+{
+	jnc_DataPtrTypeKind_Normal = 0,
+	jnc_DataPtrTypeKind_Lean,
+	jnc_DataPtrTypeKind_Thin,
+	jnc_DataPtrTypeKind__Count,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+const char*
+jnc_getDataPtrTypeKindString (jnc_DataPtrTypeKind ptrTypeKind);
+
+//.............................................................................
+
 JNC_EXTERN_C
 jnc_TypeKind
 jnc_Type_getTypeKind (jnc_Type* type);
 
+inline
+uint_t
+jnc_Type_getTypeKindFlags (jnc_Type* type)
+{
+	jnc_TypeKind typeKind = jnc_Type_getTypeKind (type);
+	return jnc_getTypeKindFlags (typeKind);
+}
+
 JNC_EXTERN_C
 size_t
 jnc_Type_getSize (jnc_Type* type);
+
+JNC_EXTERN_C
+const char*
+jnc_Type_getTypeString (jnc_Type* type);
+
+JNC_EXTERN_C
+const char*
+jnc_Type_getDeclarationString_v (
+	jnc_Type* type,
+	const char* name
+	);
 
 JNC_EXTERN_C
 int
@@ -131,16 +247,38 @@ jnc_Type_cmp (
 	jnc_Type* type2
 	);
 
+JNC_EXTERN_C
+jnc_DataPtrType*
+jnc_Type_getDataPtrType (
+	jnc_Type* type,
+	jnc_DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+	);
+
+JNC_EXTERN_C
+void
+jnc_Type_markGcRoots (
+	jnc_Type* type,
+	const void* p,
+	jnc_GcHeap* gcHeap
+	);
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Type
+struct jnc_Type: jnc_ModuleItem
 {
 	jnc_TypeKind
 	getTypeKind ()
 	{
 		return jnc_Type_getTypeKind (this);
+	}
+
+	uint_t
+	getTypeKindFlags ()
+	{
+		return jnc_Type_getTypeKindFlags (this);
 	}
 
 	size_t
@@ -149,14 +287,169 @@ struct jnc_Type
 		return jnc_Type_getSize (this);
 	}
 
+	const char*
+	getTypeString ()
+	{
+		return jnc_Type_getTypeString (this);
+	}
+
+	const char*
+	getDeclarationString_v (const char* name)
+	{
+		return jnc_Type_getDeclarationString_v (this, name);
+	}
+
 	int
 	cmp (jnc_Type* type)
 	{
 		return jnc_Type_cmp (this, type);
 	}
+
+	jnc_DataPtrType*
+	getDataPtrType (
+		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
+		uint_t flags = 0
+		)
+	{
+		return jnc_Type_getDataPtrType (this, ptrTypeKind, flags);
+	}
+
+	void
+	markGcRoots (
+		const void* p,
+		jnc_GcHeap* gcHeap
+		)
+	{
+		jnc_Type_markGcRoots (this, p, gcHeap);
+	}
 };
 
 #endif // _JNC_CORE
+
+//.............................................................................
+
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_NamedType_getItemDecl (jnc_NamedType* type);
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_NamedType_getNamespace (jnc_NamedType* type);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_NamedType: jnc_Type
+{
+	jnc_ModuleItemDecl*
+	getItemDecl ()
+	{
+		return jnc_NamedType_getItemDecl (this);
+	}
+
+	jnc_Namespace*
+	getNamespace ()
+	{
+		return jnc_NamedType_getNamespace (this);
+	}
+};
+
+#endif // _JNC_CORE
+
+//.............................................................................
+
+JNC_EXTERN_C
+jnc_DataPtrTypeKind
+jnc_DataPtrType_getPtrTypeKind (jnc_DataPtrType* type);
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_DataPtrType_getTargetType (jnc_DataPtrType* type);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_DataPtrType: jnc_Type
+{
+	jnc_DataPtrTypeKind
+	getPtrTypeKind ()
+	{
+		return jnc_DataPtrType_getPtrTypeKind (this);
+	}
+
+	jnc_Type*
+	getTargetType ()
+	{
+		return jnc_DataPtrType_getTargetType (this);
+	}
+};
+
+#endif // _JNC_CORE
+
+//.............................................................................
+
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_Typedef_getItemDecl (jnc_Typedef* tdef);
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_Typedef_getType (jnc_Typedef* tdef);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_Typedef: jnc_ModuleItem
+{
+	jnc_ModuleItemDecl*
+	getItemDecl ()
+	{
+		return jnc_Typedef_getItemDecl (this);
+	}
+
+	jnc_Type*
+	getType ()
+	{
+		return jnc_Typedef_getType (this);
+	}
+};
+
+#endif // _JNC_CORE
+
+//.............................................................................
+
+inline
+bool 
+jnc_isCharPtrType (jnc_Type* type)
+{
+	return 
+		jnc_Type_getTypeKind (type) == jnc_TypeKind_DataPtr &&
+		jnc_Type_getTypeKind (jnc_DataPtrType_getTargetType ((jnc_DataPtrType*) type)) == jnc_TypeKind_Char;
+}
+
+inline
+bool 
+jnc_isArrayRefType (jnc_Type* type)
+{
+	return 
+		jnc_Type_getTypeKind (type) == jnc_TypeKind_DataRef &&
+		jnc_Type_getTypeKind (jnc_DataPtrType_getTargetType ((jnc_DataPtrType*) type)) == jnc_TypeKind_Array;
+}
+
+inline
+bool 
+jnc_isDataPtrType (
+	jnc_Type* type,
+	jnc_DataPtrTypeKind kind
+	)
+{
+	return 
+		(jnc_Type_getTypeKindFlags (type) & jnc_TypeKindFlag_DataPtr) &&
+		jnc_DataPtrType_getPtrTypeKind (((jnc_DataPtrType*) type)) == kind;
+}
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -228,6 +521,129 @@ const TypeKind
 	TypeKind_Long                = jnc_TypeKind_Int32,
 	TypeKind_Long_u              = jnc_TypeKind_Int32_u;
 
+//.............................................................................
+
+typedef jnc_TypeKindFlag TypeKindFlag;
+
+const TypeKindFlag
+	TypeKindFlag_Integer      = jnc_TypeKindFlag_Integer,
+	TypeKindFlag_Unsigned     = jnc_TypeKindFlag_Unsigned,
+	TypeKindFlag_BigEndian    = jnc_TypeKindFlag_BigEndian,
+	TypeKindFlag_Fp           = jnc_TypeKindFlag_Fp,
+	TypeKindFlag_Numeric      = jnc_TypeKindFlag_Numeric,
+	TypeKindFlag_Aggregate    = jnc_TypeKindFlag_Aggregate,
+	TypeKindFlag_Named        = jnc_TypeKindFlag_Named,
+	TypeKindFlag_Derivable    = jnc_TypeKindFlag_Derivable,
+	TypeKindFlag_DataPtr      = jnc_TypeKindFlag_DataPtr,
+	TypeKindFlag_ClassPtr     = jnc_TypeKindFlag_ClassPtr,
+	TypeKindFlag_FunctionPtr  = jnc_TypeKindFlag_FunctionPtr,
+	TypeKindFlag_PropertyPtr  = jnc_TypeKindFlag_PropertyPtr,
+	TypeKindFlag_Ptr          = jnc_TypeKindFlag_Ptr,
+	TypeKindFlag_Ref          = jnc_TypeKindFlag_Ref,
+	TypeKindFlag_Import       = jnc_TypeKindFlag_Import,
+	TypeKindFlag_Code         = jnc_TypeKindFlag_Code,
+	TypeKindFlag_Nullable     = jnc_TypeKindFlag_Nullable,
+	TypeKindFlag_ErrorCode    = jnc_TypeKindFlag_ErrorCode;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+uint_t
+getTypeKindFlags (TypeKind typeKind)
+{
+	return jnc_getTypeKindFlags (typeKind);
+}
+
+//.............................................................................
+
+typedef jnc_StdType StdType;
+
+const StdType
+	StdType_BytePtr             = jnc_StdType_BytePtr,
+	StdType_ByteConstPtr        = jnc_StdType_ByteConstPtr,
+	StdType_SimpleIfaceHdr      = jnc_StdType_SimpleIfaceHdr,
+	StdType_SimpleIfaceHdrPtr   = jnc_StdType_SimpleIfaceHdrPtr,
+	StdType_Box                 = jnc_StdType_Box,
+	StdType_BoxPtr              = jnc_StdType_BoxPtr,
+	StdType_DataBox             = jnc_StdType_DataBox,
+	StdType_DataBoxPtr          = jnc_StdType_DataBoxPtr,
+	StdType_DynamicArrayBox     = jnc_StdType_DynamicArrayBox,
+	StdType_DynamicArrayBoxPtr  = jnc_StdType_DynamicArrayBoxPtr,
+	StdType_StaticDataBox       = jnc_StdType_StaticDataBox,
+	StdType_StaticDataBoxPtr    = jnc_StdType_StaticDataBoxPtr,
+	StdType_AbstractClass       = jnc_StdType_AbstractClass,
+	StdType_AbstractClassPtr    = jnc_StdType_AbstractClassPtr,
+	StdType_AbstractData        = jnc_StdType_AbstractData,
+	StdType_AbstractDataPtr     = jnc_StdType_AbstractDataPtr,
+	StdType_SimpleFunction      = jnc_StdType_SimpleFunction,
+	StdType_SimpleMulticast     = jnc_StdType_SimpleMulticast,
+	StdType_SimpleEventPtr      = jnc_StdType_SimpleEventPtr,
+	StdType_Binder              = jnc_StdType_Binder,
+	StdType_ReactorBindSite     = jnc_StdType_ReactorBindSite,
+	StdType_Scheduler           = jnc_StdType_Scheduler,
+	StdType_Recognizer          = jnc_StdType_Recognizer,
+	StdType_AutomatonResult     = jnc_StdType_AutomatonResult,
+	StdType_AutomatonFunc       = jnc_StdType_AutomatonFunc,
+	StdType_DynamicLib          = jnc_StdType_DynamicLib,
+	StdType_FmtLiteral          = jnc_StdType_FmtLiteral,
+	StdType_Int64Int64          = jnc_StdType_Int64Int64,
+	StdType_Fp64Fp64            = jnc_StdType_Fp64Fp64,
+	StdType_Int64Fp64           = jnc_StdType_Int64Fp64,
+	StdType_Fp64Int64           = jnc_StdType_Fp64Int64,
+	StdType_DataPtrValidator    = jnc_StdType_DataPtrValidator,
+	StdType_DataPtrValidatorPtr = jnc_StdType_DataPtrValidatorPtr,
+	StdType_DataPtrStruct       = jnc_StdType_DataPtrStruct,
+	StdType_FunctionPtrStruct   = jnc_StdType_FunctionPtrStruct,
+	StdType_PropertyPtrStruct   = jnc_StdType_PropertyPtrStruct,
+	StdType_VariantStruct       = jnc_StdType_VariantStruct,
+	StdType_GcShadowStackFrame  = jnc_StdType_GcShadowStackFrame,
+	StdType_SjljFrame           = jnc_StdType_SjljFrame,
+	StdType__Count              = jnc_StdType__Count;
+
+//.............................................................................
+
+typedef jnc_DataPtrTypeKind DataPtrTypeKind;
+
+const DataPtrTypeKind
+	DataPtrTypeKind_Normal = jnc_DataPtrTypeKind_Normal,
+	DataPtrTypeKind_Lean   = jnc_DataPtrTypeKind_Lean,
+	DataPtrTypeKind_Thin   = jnc_DataPtrTypeKind_Thin,
+	DataPtrTypeKind__Count = jnc_DataPtrTypeKind__Count;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const char*
+getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
+{
+	return jnc_getDataPtrTypeKindString (ptrTypeKind);
+}
+
+//.............................................................................
+
+inline
+bool 
+isCharPtrType (Type* type)
+{
+	return jnc_isCharPtrType (type);
+}
+
+inline
+bool 
+isArrayRefType (Type* type)
+{
+	return jnc_isArrayRefType (type);
+}
+
+inline
+bool 
+isDataPtrType (
+	Type* type,
+	DataPtrTypeKind kind
+	)
+{
+	return jnc_isDataPtrType (type, kind);
+}
 
 //.............................................................................
 

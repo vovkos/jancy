@@ -2,22 +2,15 @@
 
 #include "MyWidget.h"
 
+JNC_DECLARE_OPAQUE_CLASS_TYPE (MyLayout)
+
 //.............................................................................
 
 class MyLayout: public jnc::IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (MyLayout, &MyLayout::markOpaqueGcRoots)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("Layout", g_myLibCacheSlot, MyLibCacheSlot_Layout)
-		JNC_MAP_CONSTRUCTOR (&(sl::construct <MyLayout, QBoxLayout::Direction>))
-		JNC_MAP_DESTRUCTOR (&sl::destruct <MyLayout>)
-		JNC_MAP_FUNCTION ("addWidget", &MyLayout::addWidget)
-		JNC_MAP_FUNCTION ("addLayout", &MyLayout::addLayout)
-		JNC_MAP_FUNCTION ("addSpacer", &MyLayout::addSpacer)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 public: 
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (MyLayout)
+
 	QBoxLayout::Direction m_direction;
 	
 public:
@@ -36,7 +29,7 @@ public:
 	}
 
 	void 
-	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	void
 	AXL_CDECL

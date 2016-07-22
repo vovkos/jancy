@@ -2,7 +2,7 @@
 #include "jnc_ct_ClosureClassType.h"
 #include "jnc_ct_Module.h"
 #include "jnc_rt_Runtime.h"
-#include "jnc_rtl_CoreLib.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace ct {
@@ -86,7 +86,7 @@ ClosureClassType::strengthen (IfaceHdr* p)
 
 	void* p2 = (char*) p + field->getOffset ();
 
-	return rtl::CoreLib::strengthenClassPtr (*(IfaceHdr**) p2) ? p : NULL;
+	return jnc::strengthenClassPtr (*(IfaceHdr**) p2) ? p : NULL;
 }
 
 //.............................................................................

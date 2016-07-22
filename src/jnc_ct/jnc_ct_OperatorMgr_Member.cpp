@@ -81,6 +81,19 @@ OperatorMgr::getThisValueType (Value* value)
 }
 
 bool
+OperatorMgr::checkAccess (ModuleItemDecl* decl)
+{
+	if (decl->getAccessKind () != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind (decl->getParentNamespace ()) == AccessKind_Public)
+	{
+		err::setFormatStringError ("'%s' is protected", decl->getQualifiedName ().cc ());
+		return false;
+	}
+
+	return true;
+}
+
+bool
 OperatorMgr::getNamespaceMemberType (
 	Namespace* nspace,
 	const char* name,
@@ -95,27 +108,20 @@ OperatorMgr::getNamespaceMemberType (
 		return false;
 	}
 
-	ModuleItemDecl* decl = item->getItemDecl ();
-	ASSERT (decl);
-
-	if (decl->getAccessKind () != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public)
-	{
-		err::setFormatStringError ("'%s.%s' is protected", nspace->getQualifiedName ().cc (), name);
-		return false;
-	}
-
 	bool result = true;
+	ModuleItemDecl* decl = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind ();
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace ((GlobalNamespace*) item);
+		decl = (GlobalNamespace*) item;
 		break;
 
 	case ModuleItemKind_Typedef:
 		item = ((Typedef*) item)->getType ();
+		result = checkAccess ((Typedef*) item);
 		// and fall through
 
 	case ModuleItemKind_Type:
@@ -126,47 +132,55 @@ OperatorMgr::getNamespaceMemberType (
 		}
 
 		resultValue->setNamespace ((NamedType*) item);
+		decl = (NamedType*) item;
 		break;
 
 	case ModuleItemKind_Alias:
 		resultValue->setType (((Alias*) item)->getType ());
+		decl = (Alias*) item;
 		break;
 
 	case ModuleItemKind_Variable:
 		resultValue->setType (((Variable*) item)->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean));
+		decl = (Variable*) item;
 		break;
 
 	case ModuleItemKind_Function:
 		resultValue->setFunctionTypeOverload (((Function*) item)->getTypeOverload ());
 		if (((Function*) item)->isMember ())
 			result = createMemberClosure (resultValue);
+
+		decl = (Function*) item;
 		break;
 
 	case ModuleItemKind_Property:
 		resultValue->setType (((Property*) item)->getType ()->getPropertyPtrType (TypeKind_PropertyRef, PropertyPtrTypeKind_Thin));
 		if (((Property*) item)->isMember ())
 			result = createMemberClosure (resultValue);
+
+		decl = (Property*) item;
 		break;
 
 	case ModuleItemKind_EnumConst:
 		resultValue->setType (((EnumConst*) item)->getParentEnumType ());
+		decl = (EnumConst*) item;
 		break;
 
 	case ModuleItemKind_StructField:
 		resultValue->setField ((StructField*) item, coord.m_offset);
+		decl = (StructField*) item;
 		break;
 
 	default:
-		result = false;
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
+		return false;
 	};
 
 	if (!result)
-	{
-		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
 		return false;
-	}
-
-	return true;
+	
+	ASSERT (decl);
+	return checkAccess (decl);
 }
 
 bool
@@ -183,27 +197,21 @@ OperatorMgr::getNamespaceMember (
 		return false;
 	}
 
-	ModuleItemDecl* decl = item->getItemDecl ();
-	ASSERT (decl);
-
-	if (decl->getAccessKind () != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public)
-	{
-		err::setFormatStringError ("'%s.%s' is protected", nspace->getQualifiedName ().cc (), name);
-		return false;
-	}
-
 	bool result = true;
+	ModuleItemDecl* decl = NULL;
+	Function* function;
 
 	ModuleItemKind itemKind = item->getItemKind ();
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace ((GlobalNamespace*) item);
+		decl = (GlobalNamespace*) item;
 		break;
 
 	case ModuleItemKind_Typedef:
 		item = ((Typedef*) item)->getType ();
+		result = checkAccess ((Typedef*) item);
 		// and fall through
 
 	case ModuleItemKind_Type:
@@ -214,21 +222,24 @@ OperatorMgr::getNamespaceMember (
 		}
 
 		resultValue->setNamespace ((NamedType*) item);
+		decl = (NamedType*) item;
 		break;
 
 	case ModuleItemKind_Alias:
-		return evaluateAlias (
-			item->getItemDecl (),
+		result = evaluateAlias (
+			(Alias*) item,
 			((Alias*) item)->getInitializer (),
 			resultValue
 			);
+		decl = (Alias*) item;
+		break;
 
 	case ModuleItemKind_Variable:
 		resultValue->setVariable ((Variable*) item);
+		decl = (Variable*) item;
 		break;
 
 	case ModuleItemKind_Function:
-		Function* function;
 		function = (Function*) item;
 
 		if (function->isVirtual ())
@@ -256,13 +267,15 @@ OperatorMgr::getNamespaceMember (
 			resultValue->setFunction (function);
 		}
 
+		decl = function;
 		break;
 
 	case ModuleItemKind_Property:
 		resultValue->setProperty ((Property*) item);
 		if (((Property*) item)->isMember ())
-			result = false; 
+			result = createMemberClosure (resultValue);
 
+		decl = (Property*) item;
 		break;
 
 	case ModuleItemKind_EnumConst:
@@ -274,19 +287,16 @@ OperatorMgr::getNamespaceMember (
 			((EnumConst*) item)->getValue (),
 			((EnumConst*) item)->getParentEnumType ()
 			);
+		decl = (EnumConst*) item;
 		break;
 
 	default:
-		result = false;
-	};
-
-	if (!result)
-	{
 		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
 		return false;
-	}
+	};
 
-	return true;
+	ASSERT (decl);
+	return checkAccess (decl);
 }
 
 bool
@@ -376,41 +386,39 @@ OperatorMgr::getNamedTypeMember (
 		return false;
 	}
 
-	ModuleItemDecl* decl = member->getItemDecl ();
-	ASSERT (decl);
-
-	if (decl->getAccessKind () != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind (coord.m_type) == AccessKind_Public)
-	{
-		err::setFormatStringError ("'%s.%s' is protected", coord.m_type->getQualifiedName ().cc (), name);
-		return false;
-	}
-
+	ModuleItemDecl* decl = NULL; 
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace ((GlobalNamespace*) member);
+		decl = (GlobalNamespace*) member;
 		break;
 
 	case ModuleItemKind_StructField:
-		return getField (opValue, (StructField*) member, &coord, resultValue);
+		return 
+			checkAccess ((StructField*) member) &&
+			getField (opValue, (StructField*) member, &coord, resultValue);
 
 	case ModuleItemKind_Function:
 		resultValue->setFunction ((Function*) member);
+		decl = (Function*) member;
 		break;
 
 	case ModuleItemKind_Property:
 		resultValue->setProperty ((Property*) member);
+		decl = (Property*) member;
 		break;
 
 	case ModuleItemKind_Alias:
-		return evaluateAlias (
-			member->getItemDecl (),
-			opValue,
-			((Alias*) member)->getInitializer (),
-			resultValue
-			);
+		return 
+			checkAccess ((Alias*) member) &&
+			evaluateAlias (
+				(Alias*) member,
+				opValue,
+				((Alias*) member)->getInitializer (),
+				resultValue
+				);
 
 	default:
 		err::setFormatStringError ("invalid member kind");

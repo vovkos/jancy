@@ -5,6 +5,8 @@
 namespace jnc {
 namespace rtl {
 
+JNC_DECLARE_CLASS_TYPE (DynamicLib)
+
 //.............................................................................
 
 class DynamicLib: public IfaceHdr
@@ -47,15 +49,6 @@ public:
 		return (sys::DynamicLibrary*) &m_handle;
 	}
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DECLARE_CLASS_TYPE (
-	DynamicLib, 
-	"jnc.DynamicLib", 
-	sl::g_nullGuid, 
-	-1
-	)
 
 //.............................................................................
 

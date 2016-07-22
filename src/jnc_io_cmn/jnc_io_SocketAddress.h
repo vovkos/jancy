@@ -1,11 +1,15 @@
 #pragma once
 
-#ifdef _JNC_IO_BASE
-#	include "../jnc_io_base/jnc_io_IoLibGlobals.h"
-#endif
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_TYPE (Address_ip4)
+JNC_DECLARE_TYPE (Address_ip6)
+JNC_DECLARE_TYPE (SocketAddress_ip4)
+JNC_DECLARE_TYPE (SocketAddress_ip6)
+JNC_DECLARE_TYPE (SocketAddress)
 
 //.............................................................................
 
@@ -22,12 +26,7 @@ enum AddressFamily
 
 struct Address_ip4: public in_addr
 {
-#ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.Address_ip4", g_ioLibCacheSlot, IoLibCacheSlot_Address_ip4)
-		JNC_MAP_FUNCTION ("parse",     &Address_ip4::parse)
-		JNC_MAP_FUNCTION ("getString", &Address_ip4::getString)
-	JNC_END_TYPE_FUNCTION_MAP ()
-#endif // _JNC_IO_BASE
+	JNC_DECLARE_TYPE_STATIC_METHODS (Address_ip4)
 
 	static 
 	bool
@@ -47,7 +46,7 @@ struct Address_ip4: public in_addr
 	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getAddrString_ip4 ((const in_addr*) selfPtr.m_p);
-		return rt::strDup (string, string.getLength ());
+		return strDup (string, string.getLength ());
 	}
 };
 
@@ -55,13 +54,8 @@ struct Address_ip4: public in_addr
 
 struct Address_ip6: public in6_addr
 {
-#ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.Address_ip6", g_ioLibCacheSlot, IoLibCacheSlot_Address_ip6)
-		JNC_MAP_FUNCTION ("parse",     &Address_ip6::parse)
-		JNC_MAP_FUNCTION ("getString", &Address_ip6::getString)
-	JNC_END_TYPE_FUNCTION_MAP ()
-#endif // _JNC_IO_BASE
-	
+	JNC_DECLARE_TYPE_STATIC_METHODS (Address_ip6)
+
 	static 
 	bool
 	parse (
@@ -80,7 +74,7 @@ struct Address_ip6: public in6_addr
 	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getAddrString_ip6 ((const in6_addr*) selfPtr.m_p);
-		return rt::strDup (string, string.getLength ());
+		return strDup (string, string.getLength ());
 	}
 };
 
@@ -88,14 +82,7 @@ struct Address_ip6: public in6_addr
 
 struct SocketAddress_ip4: public sockaddr_in
 {
-#ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip4", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress_ip4)
-		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip4::isEqual)
-		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip4::isMatch)
-		JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip4::parse)
-		JNC_MAP_FUNCTION ("getString", &SocketAddress_ip4::getString)
-	JNC_END_TYPE_FUNCTION_MAP ()
-#endif // _JNC_IO_BASE
+	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddress_ip4)
 
 	static 
 	bool
@@ -141,7 +128,7 @@ struct SocketAddress_ip4: public sockaddr_in
 	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getSockAddrString_ip4 ((const sockaddr_in*) selfPtr.m_p);
-		return rt::strDup (string, string.getLength ());
+		return strDup (string, string.getLength ());
 	}
 };
 
@@ -149,15 +136,8 @@ struct SocketAddress_ip4: public sockaddr_in
 
 struct SocketAddress_ip6: public sockaddr_in6
 {
-#ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress_ip6", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress_ip6)
-		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip6::isEqual)
-		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip6::isMatch)
-		JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip6::parse)
-		JNC_MAP_FUNCTION ("getString", &SocketAddress_ip6::getString)
-	JNC_END_TYPE_FUNCTION_MAP ()
-#endif // _JNC_IO_BASE
-	
+	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddress_ip6)
+
 	static 
 	bool
 	isEqual (
@@ -202,7 +182,7 @@ struct SocketAddress_ip6: public sockaddr_in6
 	getString (DataPtr selfPtr)
 	{
 		sl::String string = axl::io::getSockAddrString_ip6 ((const sockaddr_in6*) selfPtr.m_p);
-		return rt::strDup (string, string.getLength ());
+		return strDup (string, string.getLength ());
 	}
 };
 
@@ -210,15 +190,8 @@ struct SocketAddress_ip6: public sockaddr_in6
 
 struct SocketAddress
 {
-#ifdef _JNC_IO_BASE
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddress", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddress)
-		JNC_MAP_FUNCTION ("isEqual",   &SocketAddress::isEqual)
-		JNC_MAP_FUNCTION ("isMatch",   &SocketAddress::isMatch)
-		JNC_MAP_FUNCTION ("parse",     &SocketAddress::parse)
-		JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
-	JNC_END_TYPE_FUNCTION_MAP ()
-#endif // _JNC_IO_BASE
-	
+	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddress)
+
 	union
 	{
 		uint16_t m_family;
@@ -258,7 +231,7 @@ struct SocketAddress
 	getString (DataPtr selfPtr)
 	{
 		sl::String string = ((SocketAddress*) selfPtr.m_p)->getSockAddr ().getString ();
-		return rt::strDup (string, string.getLength ());
+		return strDup (string, string.getLength ());
 	}
 
 	axl::io::SockAddr

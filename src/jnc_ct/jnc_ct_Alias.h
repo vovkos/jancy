@@ -12,7 +12,8 @@ namespace ct {
 //.............................................................................
 
 class Alias: 
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public ModuleItemInitializer
 {
 	friend class VariableMgr;

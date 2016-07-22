@@ -6,16 +6,10 @@
 
 #include "jnc_ct_ImportType.h"
 #include "jnc_ct_DataPtrType.h"
+#include "jnc_ArrayType.h"
 
 namespace jnc {
 namespace ct {
-
-//.............................................................................
-
-enum ArrayTypeFlag
-{
-	ArrayTypeFlag_AutoSize = 0x010000,
-};
 
 //.............................................................................
 
@@ -113,35 +107,6 @@ protected:
 	void
 	prepareLlvmDiType ();
 };
-
-//.............................................................................
-
-inline
-bool
-isAutoSizeArrayType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_Array &&
-		(type->getFlags () & ArrayTypeFlag_AutoSize) != 0;
-}
-
-inline
-bool
-isCharArrayType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_Array &&
-		((ArrayType*) type)->getElementType ()->getTypeKind () == TypeKind_Char;
-}
-
-inline
-bool
-isCharArrayRefType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_DataRef &&
-		isCharArrayType (((DataPtrType*) type)->getTargetType ());
-}
 
 //.............................................................................
 

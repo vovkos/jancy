@@ -9,7 +9,6 @@
 
 set (
 	LIB_H_LIST
-	jnc_rtl_CoreLib.h
 	jnc_rtl_Multicast.h
 	jnc_rtl_DynamicLib.h
 	jnc_rtl_Recognizer.h
@@ -54,7 +53,8 @@ include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
+	${JANCY_SRC_DIR}/jnc_ct
+	${JANCY_SRC_DIR}/jnc_rt
 	${GEN_DIR}
 	)
 

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jnc_ct_Lexer.h"
+#include "jnc_ModuleItem.h"
 
 namespace jnc {
 namespace ct {
@@ -18,90 +19,6 @@ class DerivableType;
 class ClassType;
 class Function;
 class Property;
-
-//.............................................................................
-
-enum ModuleItemKind
-{
-	ModuleItemKind_Undefined = 0,
-	ModuleItemKind_Namespace,
-	ModuleItemKind_Scope,
-	ModuleItemKind_Type,
-	ModuleItemKind_Typedef,
-	ModuleItemKind_Alias,
-	ModuleItemKind_Const,
-	ModuleItemKind_Variable,
-	ModuleItemKind_FunctionArg,
-	ModuleItemKind_Function,
-	ModuleItemKind_Property,
-	ModuleItemKind_PropertyTemplate,
-	ModuleItemKind_EnumConst,
-	ModuleItemKind_StructField,
-	ModuleItemKind_BaseTypeSlot,
-	ModuleItemKind_Orphan,
-	ModuleItemKind_Lazy,
-	ModuleItemKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getModuleItemKindString (ModuleItemKind itemKind);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum ModuleItemFlag
-{
-	ModuleItemFlag_User         = 0x01,
-	ModuleItemFlag_NeedLayout   = 0x02,
-	ModuleItemFlag_NeedCompile  = 0x04,
-	ModuleItemFlag_InCalcLayout = 0x10,
-	ModuleItemFlag_LayoutReady  = 0x20,
-	ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
-	ModuleItemFlag_Sealed       = 0x80,
-};
-
-
-//.............................................................................
-
-enum StorageKind
-{
-	StorageKind_Undefined = 0,
-	StorageKind_Alias,
-	StorageKind_Typedef,
-	StorageKind_Static,
-	StorageKind_Tls,
-	StorageKind_Stack,
-	StorageKind_Heap,
-	StorageKind_Member,
-	StorageKind_Abstract,
-	StorageKind_Virtual,
-	StorageKind_Override,
-	StorageKind_Mutable,
-	StorageKind_Disposable,
-	StorageKind_This,
-	StorageKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getStorageKindString (StorageKind storageKind);
-
-//.............................................................................
-
-enum AccessKind
-{
-	AccessKind_Undefined = 0,
-	AccessKind_Public,
-	AccessKind_Protected,
-	AccessKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getAccessKindString (AccessKind accessKind);
 
 //.............................................................................
 
@@ -227,7 +144,6 @@ protected:
 	Module* m_module;
 	ModuleItemKind m_itemKind;
 	uint_t m_flags;
-	ModuleItemDecl* m_itemDecl;
 
 public:
 	sl::String m_tag;
@@ -251,12 +167,6 @@ public:
 	getFlags ()
 	{
 		return m_flags;
-	}
-
-	ModuleItemDecl*
-	getItemDecl ()
-	{
-		return m_itemDecl;
 	}
 
 	bool
@@ -284,19 +194,6 @@ protected:
 	{
 		ASSERT (false);
 		return true;
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class UserModuleItem:
-	public ModuleItem,
-	public ModuleItemDecl
-{
-public:
-	UserModuleItem ()
-	{
-		m_itemDecl = this;
 	}
 };
 

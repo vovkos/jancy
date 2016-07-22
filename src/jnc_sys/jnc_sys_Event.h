@@ -1,10 +1,11 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_sys_SysLibGlobals.h"
 
 namespace jnc {
 namespace sys {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Event)
 
 //.............................................................................
 
@@ -25,17 +26,6 @@ public:
 	AXL_CDECL
 	wait (uint_t timeout);
 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DECLARE_OPAQUE_CLASS_TYPE (
-	Event, 
-	"sys.Event", 
-	g_sysLibGuid, 
-	SysLibCacheSlot_Event, 
-	Event, 
-	NULL
-	)
 
 //.............................................................................
 

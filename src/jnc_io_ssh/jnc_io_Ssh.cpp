@@ -1,14 +1,53 @@
 #include "pch.h"
 #include "jnc_io_Ssh.h"
+#include "jnc_io_SshLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	SshEventParams,
+	"io.SshEventParams", 
+	g_sshLibGuid, 
+	SshLibCacheSlot_SshEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SshEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	SshChannel,  
+	"io.SshChannel", 
+	g_sshLibGuid, 
+	SshLibCacheSlot_SshChannel, 
+	SshChannel, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (SshChannel)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <SshChannel>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <SshChannel>)
+	JNC_MAP_CONST_PROPERTY ("m_address",     &SshChannel::getAddress)
+	JNC_MAP_CONST_PROPERTY ("m_peerAddress", &SshChannel::getPeerAddress)
+	JNC_MAP_FUNCTION ("open",         &SshChannel::open)
+	JNC_MAP_FUNCTION ("close",        &SshChannel::close)
+	JNC_MAP_FUNCTION ("connect",      &SshChannel::connect)
+	JNC_MAP_FUNCTION ("authenticate", &SshChannel::authenticate)
+	JNC_MAP_FUNCTION ("resizePty",    &SshChannel::resizePty)
+	JNC_MAP_FUNCTION ("read",         &SshChannel::read)
+	JNC_MAP_FUNCTION ("write",        &SshChannel::write)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 SshChannel::SshChannel ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_connectParams = NULL;
 	m_ioFlags = 0;
 	m_isOpen = false;
@@ -44,15 +83,15 @@ SshChannel::fireSshEvent (
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <SshEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <SshEventParams> (m_runtime);
 	SshEventParams* params = (SshEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 
 	if (error)
-		params->m_errorPtr = rt::memDup (error, error->m_size);
+		params->m_errorPtr = memDup (error, error->m_size);
 	
-	rt::callMulticast (m_onSshChannelEvent, paramsPtr);
+	callMulticast (m_onSshChannelEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -84,7 +123,7 @@ SshChannel::open (DataPtr addressPtr)
 	bool result = m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -95,7 +134,7 @@ SshChannel::open (DataPtr addressPtr)
 		result = m_socket.bind (m_localAddress.getSockAddr ());
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 	}
@@ -125,9 +164,10 @@ SshChannel::close ()
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	m_ioFlags = 0;
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
@@ -170,7 +210,7 @@ SshChannel::connect (
 	{
 		m_ioLock.unlock ();
 
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -193,7 +233,7 @@ SshChannel::connect (
 		result = m_socket.setBlockingMode (false); // temporarily turn on non-blocking mode
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 	}
@@ -201,7 +241,7 @@ SshChannel::connect (
 	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
 	result = m_socket.connect (m_remoteAddress.getSockAddr ());
 	if (!result)
-		ext::propagateLastError ();
+		propagateLastError ();
 
 	return result;
 }
@@ -218,7 +258,7 @@ SshChannel::authenticate (
 	{
 		m_ioLock.unlock ();
 
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
@@ -240,7 +280,7 @@ SshChannel::read (
 {
 	if (!m_sshChannel)
 	{
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return -1;
 	}
 
@@ -254,12 +294,13 @@ SshChannel::read (
 		wakeIoThread ();
 		m_ioLock.unlock ();
 
-		rt::enterWaitRegion (m_runtime);
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		gcHeap->enterWaitRegion ();
 		read.m_completionEvent.wait ();
-		rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 
 		if (read.m_result == -1)
-			ext::setError (read.m_error);
+			setError (read.m_error);
 
 		return read.m_result;
 	}
@@ -295,7 +336,7 @@ SshChannel::write (
 {
 	if (!m_sshChannel)
 	{
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return -1;
 	}
 
@@ -320,7 +361,7 @@ SshChannel::resizePty (
 {
 	if (!m_sshChannel)
 	{
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 	
@@ -331,7 +372,7 @@ SshChannel::resizePty (
 		result = libssh2_channel_request_pty_size (m_sshChannel, width, height);
 		if (result && result != LIBSSH2_ERROR_EAGAIN)
 		{
-			ext::setError (getLastSshError ());
+			setError (getLastSshError ());
 			return false;	
 		}
 	}
@@ -388,13 +429,13 @@ SshChannel::sshAsyncLoop (int result)
 
 	if (result != LIBSSH2_ERROR_EAGAIN)
 	{
-		ext::setError (getLastSshError ());
+		setError (getLastSshError ());
 		return result;	
 	}
 
 	if (m_ioFlags & IoFlag_Closing)
 	{
-		ext::setError (err::Error (err::SystemErrorCode_Cancelled));
+		setError (err::Error (err::SystemErrorCode_Cancelled));
 		return LIBSSH2_ERROR_CHANNEL_CLOSED;
 	}
 

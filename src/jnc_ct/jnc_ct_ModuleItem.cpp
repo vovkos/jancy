@@ -7,82 +7,6 @@ namespace ct {
 
 //.............................................................................
 
-const char*
-getModuleItemKindString (ModuleItemKind itemKind)
-{
-	static const char* stringTable [ModuleItemKind__Count] =
-	{
-		"undefined-module-item-kind",  // ModuleItemKind_Undefined = 0,
-		"namespace",                   // ModuleItemKind_Namespace,
-		"scope",                       // ModuleItemKind_Scope,
-		"type",                        // ModuleItemKind_Type,
-		"typedef",                     // ModuleItemKind_Typedef,
-		"alias",                       // ModuleItemKind_Alias,
-		"const",                       // ModuleItemKind_Const,
-		"variable",                    // ModuleItemKind_Variable,
-		"function-arg",                // ModuleItemKind_FunctionArg,
-		"function",                    // ModuleItemKind_Function,
-		"property",                    // ModuleItemKind_Property,
-		"property-template",           // ModuleItemKind_PropertyTemplate,
-		"enum-member",                 // ModuleItemKind_EnumConst,
-		"struct-member",               // ModuleItemKind_StructField,
-		"base-type-slot",              // ModuleItemKind_BaseTypeSlot,
-		"orphan",                      // ModuleItemKind_Orphan,
-		"lazy",                        // ModuleItemKind_Lazy,
-	};
-
-	return (size_t) itemKind < ModuleItemKind__Count ?
-		stringTable [itemKind] :
-		stringTable [ModuleItemKind_Undefined];
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getStorageKindString (StorageKind storageKind)
-{
-	static const char* stringTable [StorageKind__Count] =
-	{
-		"undefined-storage-class",  // StorageKind_Undefined = 0,
-		"typedef",                  // StorageKind_Typedef,
-		"alias",                    // StorageKind_Alias,
-		"static",                   // StorageKind_Static,
-		"threadlocal",              // StorageKind_Tls,
-		"stack",                    // StorageKind_Stack,
-		"heap",                     // StorageKind_Heap,
-		"member",                   // StorageKind_Member,
-		"abstract",                 // StorageKind_Abstract,
-		"virtual",                  // StorageKind_Virtual,
-		"override",                 // StorageKind_Override,
-		"mutable",                  // StorageKind_Mutable,
-		"disposable",               // StorageKind_Disposable,
-		"this",                     // StorageKind_This,
-	};
-
-	return (size_t) storageKind < StorageKind__Count ?
-		stringTable [storageKind] :
-		stringTable [StorageKind_Undefined];
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getAccessKindString (AccessKind accessKind)
-{
-	static const char* stringTable [AccessKind__Count] =
-	{
-		"undefined-access-kind", // AccessKind_Undefined = 0,
-		"public",                // AccessKind_Public,
-		"protected",             // AccessKind_Protected,
-	};
-
-	return (size_t) accessKind < AccessKind__Count ?
-		stringTable [accessKind] :
-		stringTable [AccessKind_Undefined];
-}
-
-//.............................................................................
-
 sl::String
 ModuleItemInitializer::getInitializerString ()
 {
@@ -112,7 +36,6 @@ ModuleItem::ModuleItem ()
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
 	m_flags = 0;
-	m_itemDecl = NULL;
 }
 
 bool

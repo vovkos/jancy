@@ -1,16 +1,16 @@
 #pragma once
 
-#include "jnc_io_IoLibGlobals.h"
-
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_TYPE (NetworkAdapterAddress)
+JNC_DECLARE_TYPE (NetworkAdapterDesc)
 
 //.............................................................................
 
 struct NetworkAdapterAddress
 {
-	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterAddress", g_ioLibCacheSlot, IoLibCacheSlot_NetworkAdapterAddress)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (NetworkAdapterAddress)
 
 	DataPtr m_nextPtr;
 	axl::io::SockAddr m_address;
@@ -21,8 +21,7 @@ struct NetworkAdapterAddress
 
 struct NetworkAdapterDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.NetworkAdapterDesc", g_ioLibCacheSlot, IoLibCacheSlot_NetworkAdapterDesc)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (NetworkAdapterDesc)
 
 	DataPtr m_nextPtr;
 	DataPtr m_namePtr;

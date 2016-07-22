@@ -4,9 +4,9 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_DynamicExtensionLibHost.h"
 #	include "jnc_ExtensionLib.h"
-#elif (defined _JNC_CORE)
-#	include "jnc_ct_DerivableType.h"
-#	include "jnc_ct_ClassType.h"
+#elif defined (_JNC_CORE)
+#	include "jnc_rt_Runtime.h"
+#	include "jnc_ct_Module.h"
 #endif
 
 //.............................................................................
@@ -79,6 +79,64 @@ jnc_DerivableType_getNamespace (jnc_DerivableType* type)
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
+
+JNC_EXTERN_C
+jnc_DerivableType*
+jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
+{
+	return baseType->getType ();
+}
+
+JNC_EXTERN_C
+size_t
+jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
+{
+	return baseType->getOffset ();
+}
+
+JNC_EXTERN_C
+size_t
+jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
+{
+	return baseType->getVTableIndex ();
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_DerivableType_getNamespace (jnc_DerivableType* type)
+{
+	return type;
+}
+
+JNC_EXTERN_C
+jnc_Function*
+jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type)
+{
+	jnc_Function* function = type->getStaticConstructor ();
+	if (!function)
+	{
+		err::setFormatStringError ("'%s' has no static constructor", type->getTypeString ().cc ());
+		return NULL;
+	}
+
+	return function;
+}
+
+JNC_EXTERN_C
+jnc_Function*
+jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type)
+{
+	jnc_Function* function = type->getStaticDestructor ();
+	if (!function)
+	{
+		err::setFormatStringError ("'%s' has no static destructor", type->getTypeString ().cc ());
+		return NULL;
+	}
+
+	return function;
+}
 
 JNC_EXTERN_C
 jnc_Function*
@@ -188,10 +246,20 @@ jnc_DerivableType_getCastOperator (
 }
 
 JNC_EXTERN_C
-jnc_Namespace*
-jnc_DerivableType_getNamespace (jnc_DerivableType* type)
+size_t 
+jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type)
 {
-	return type;
+	return type->getBaseTypeArray ().getCount ();
+}
+
+JNC_EXTERN_C
+jnc_BaseTypeSlot*
+jnc_DerivableType_getBaseType (
+	jnc_DerivableType* type,
+	size_t index
+	)
+{
+	return type->getBaseTypeArray () [index];
 }
 
 JNC_EXTERN_C
@@ -201,9 +269,58 @@ jnc_DerivableType_findBaseTypeOffset (
 	jnc_Type* baseType
 	)
 {
-	jnc::ct::BaseTypeCoord coord;
-	bool result = type->findBaseTypeTraverse (baseType, &coord);
-	return result ? coord.m_offset : -1;
+	return type->findBaseTypeOffset (baseType);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_getMemberFieldCount (jnc_DerivableType* type)
+{
+	return type->getMemberFieldArray ().getCount ();
+}
+
+JNC_EXTERN_C
+jnc_StructField*
+jnc_DerivableType_getMemberField (
+	jnc_DerivableType* type,
+	size_t index
+	)
+{
+	return type->getMemberFieldArray () [index];
+}
+
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_getMemberMethodCount (jnc_DerivableType* type)
+{
+	return type->getMemberMethodArray ().getCount ();
+}
+
+JNC_EXTERN_C
+jnc_Function*
+jnc_DerivableType_getMemberMethod (
+	jnc_DerivableType* type,
+	size_t index
+	)
+{
+	return type->getMemberMethodArray () [index];
+}
+
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_getMemberPropertyCount (jnc_DerivableType* type)
+{
+	return type->getMemberPropertyArray ().getCount ();
+}
+
+JNC_EXTERN_C
+jnc_Property*
+jnc_DerivableType_getMemberProperty (
+	jnc_DerivableType* type,
+	size_t index
+	)
+{
+	return type->getMemberPropertyArray () [index];
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

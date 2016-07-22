@@ -18,6 +18,8 @@ typedef struct jnc_DataPtr jnc_DataPtr;
 typedef struct jnc_FunctionPtr jnc_FunctionPtr;
 typedef struct jnc_PropertyPtr jnc_PropertyPtr;
 typedef struct jnc_IfaceHdr jnc_IfaceHdr;
+typedef struct jnc_Multicast jnc_Multicast;
+typedef struct jnc_McSnapshot jnc_McSnapshot;
 typedef struct jnc_ReactorBindSite jnc_ReactorBindSite;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
@@ -104,7 +106,7 @@ struct jnc_FunctionPtr
 
 struct jnc_PropertyPtr
 {
-	void** m_vtable;
+	const void* const* m_vtable;
 	jnc_IfaceHdr* m_closure;
 };
 
@@ -137,11 +139,33 @@ JNC_END_INHERITED_STRUCT ()
 
 struct jnc_IfaceHdr
 {
-	void* m_vtable;
+	const void* m_vtable;
 	jnc_Box* m_box;
 
 	// followed by parents, then by iface data fields
 };
+
+//.............................................................................
+
+// structure backing up multicasts, e.g.:
+// multicast f ();
+
+JNC_BEGIN_INHERITED_STRUCT (jnc_Multicast, jnc_IfaceHdr)
+	volatile intptr_t m_lock;
+	jnc_DataPtr m_ptr; // array of function closure, weak or unsafe pointers
+	size_t m_count;
+	size_t m_maxCount;
+	void* m_handleTable;
+JNC_END_INHERITED_STRUCT ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// multicast.getSnapshot method returns an instance of this class:
+
+JNC_BEGIN_INHERITED_STRUCT (jnc_McSnapshot, jnc_IfaceHdr)
+	jnc_DataPtr m_ptr; // array of function closure or unsafe pointers
+	size_t m_count;
+JNC_END_INHERITED_STRUCT ()
 
 //.............................................................................
 
@@ -295,6 +319,8 @@ typedef jnc_DataPtr DataPtr;
 typedef jnc_FunctionPtr FunctionPtr;
 typedef jnc_PropertyPtr PropertyPtr;
 typedef jnc_IfaceHdr IfaceHdr;
+typedef jnc_Multicast Multicast;
+typedef jnc_McSnapshot McSnapshot;
 typedef jnc_ReactorBindSite ReactorBindSite;
 typedef jnc_FmtLiteral FmtLiteral;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;

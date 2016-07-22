@@ -591,8 +591,8 @@ include_directories (
 	${AXL_INC_DIR}
 	${GRACO_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
-	${JANCY_ROOT_DIR}/src/jnc_rtl
+	${JANCY_SRC_DIR}/jnc_rt
+	${JANCY_SRC_DIR}/jnc_rtl
 	${GEN_DIR}
 	${CMAKE_CURRENT_LIST_DIR}
 	)

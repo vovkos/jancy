@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "jnc_ct_StdType.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rtl_CoreLib.h"
 
 namespace jnc {
 namespace ct {

@@ -23,7 +23,8 @@ enum OrphanKind
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Orphan:
-	public UserModuleItem,
+	public ModuleItem,
+	public ModuleItemDecl,
 	public FunctionName
 {
 	friend class NamespaceMgr;

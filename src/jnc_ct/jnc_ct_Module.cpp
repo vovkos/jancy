@@ -2,16 +2,25 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_JitMemoryMgr.h"
 #include "jnc_ct_Parser.llk.h"
-#include "jnc_rtl_CoreLib.h"
-#include "jnc_ct_StdExtensionLibHost.h"
 
 namespace jnc {
-namespace rtl {
 
-ext::ExtensionLib* 
-getCoreLib (ext::ExtensionLibHost* host);
+//.............................................................................
 
-} // namespace rtl
+axl::sl::String*
+getTlsStringBuffer ()
+{
+	static int32_t flag = 0;
+	sys::TlsSlot* slot = sl::getSimpleSingleton <sys::TlsSlot> (&flag);
+	
+	sl::String* oldStringBuffer = (sl::String*) sys::getTlsMgr ()->getSlotValue (*slot).p ();
+	if (oldStringBuffer)
+		return oldStringBuffer;
+		
+	ref::Ptr <sl::String> newStringBuffer = AXL_REF_NEW (ref::Box <sl::String>);
+	sys::getTlsMgr ()->setSlotValue (*slot, newStringBuffer);
+	return newStringBuffer;
+}
 
 namespace ct {
 
@@ -68,7 +77,7 @@ Module::clear ()
 }
 
 bool
-Module::create (
+Module::initialize (
 	const sl::String& name,
 	uint_t compileFlags
 	)
@@ -92,8 +101,7 @@ Module::create (
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
 	
-	ext::ExtensionLibHost* libHost = ext::getStdExtensionLibHost ();
-	m_extensionLibMgr.addStaticLib (rtl::getCoreLib (libHost));
+	m_extensionLibMgr.addStaticLib (jnc_CoreLib_getLib ());
 
 	m_variableMgr.createStdVariables ();
 
@@ -213,7 +221,7 @@ Module::createLlvmExecutionEngine ()
 	engineBuilder.setMArch ("x86");
 #endif
 
-	sys::ScopeTlsSlot <Module> scopeModule (this); // for GcShadowStack
+	sys::ScopedTlsPtrSlot <Module> scopeModule (this); // for GcShadowStack
 
 	m_llvmExecutionEngine = engineBuilder.create ();
 	if (!m_llvmExecutionEngine)
@@ -361,17 +369,17 @@ Module::markForCompile (ModuleItem* item)
 
 bool
 Module::parse (
-	const char* filePath,
+	const char* fileName,
 	const char* source,
 	size_t length
 	)
 {
 	bool result;
 
-	m_unitMgr.createUnit (filePath);
+	m_unitMgr.createUnit (fileName);
 
 	Lexer lexer;
-	lexer.create (filePath, source, length);
+	lexer.create (fileName, source, length);
 
 	Parser parser (this);
 	parser.create (Parser::StartSymbol, true);
@@ -382,14 +390,14 @@ Module::parse (
 		if (token->m_token == TokenKind_Error)
 		{
 			err::setFormatStringError ("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-			lex::pushSrcPosError (filePath, token->m_pos);
+			lex::pushSrcPosError (fileName, token->m_pos);
 			return false;
 		}
 
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			lex::ensureSrcPosError (filePath, token->m_pos);
+			lex::ensureSrcPosError (fileName, token->m_pos);
 			return false;
 		}
 
@@ -404,11 +412,10 @@ Module::parse (
 }
 
 bool
-Module::parseFile (
-	const char* filePath,
-	const char* nameOverride
-	)
+Module::parseFile (const char* fileName)
 {
+	sl::String filePath = io::getFullFilePath (fileName);
+
 	io::SimpleMappedFile file;
 	bool result = file.open (filePath, io::FileFlag_ReadOnly);
 	if (!result)
@@ -417,7 +424,7 @@ Module::parseFile (
 	size_t length = file.getMappingSize ();
 	sl::String source ((const char*) file.p (), length);
 	m_sourceList.insertTail (source);
-	return parse (nameOverride, source, length);
+	return parse (filePath, source, length);
 }
 
 bool

@@ -10,7 +10,6 @@
 set (
 	APP_H_LIST
 	MyLib.h
-	MyLibGlobals.h
 	MyWidget.h
 	MyLayout.h
 	MyLabel.h

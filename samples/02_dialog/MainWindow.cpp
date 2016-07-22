@@ -40,9 +40,6 @@ MainWindow::MainWindow (
 	QDockWidget* dockWidget = new QDockWidget ("Output", this);
 	dockWidget->setWidget (m_output);
 	addDockWidget (Qt::BottomDockWidgetArea, dockWidget);
-
-	sys::setTlsSlotValue (&m_module);
-	sys::setTlsSlotValue (&m_runtime);
 }
 
 int MainWindow::output_va (const char* format, va_list va)
@@ -74,16 +71,21 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
+	result = m_module->initialize (fileName);
+	if (!result)
+	{
+		output ("Initialize error: %s\n", err::getLastErrorDescription ().cc ());
+		return false;
+	}
+
 	output ("Parsing...\n");
+	
+	m_module->addStaticLib (jnc::StdLib_getLib ());
+	m_module->addStaticLib (MyLib_getLib ());
 
 	result = 
-		m_module.create (fileName) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ());
-		m_module.m_extensionLibMgr.addStaticLib (getMyLib ());
-
-	result = 
-		m_module.parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
-		m_module.parseImports ();
+		m_module->parse (fileName, (const char*) file.p (), file.getMappingSize ()) &&
+		m_module->parseImports ();
 
 	if (!result)
 	{
@@ -93,7 +95,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Compiling...\n");
 
-	result = m_module.compile ();
+	result = m_module->compile ();
 	if (!result)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
@@ -102,15 +104,15 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("JITting...\n");
 
-	result = m_module.jit ();
+	result = m_module->jit ();
 	if (!result)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
 		return false;
 	}
 
-	jnc::ct::Namespace* nspace = m_module.m_namespaceMgr.getGlobalNamespace ();
-	jnc::ct::Function* mainFunction = nspace->getFunctionByName ("main");
+	jnc::Namespace* nspace = m_module->getGlobalNamespace ()->getNamespace ();
+	jnc::Function* mainFunction = nspace->findFunction ("main");
 	if (!mainFunction)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
@@ -119,7 +121,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 	output ("Running...\n");
 
-	result = m_runtime.startup (&m_module);
+	result = m_runtime->startup (m_module);
 	if (!result)
 	{
 		output ("%s\n", err::getLastErrorDescription ().cc ());
@@ -129,7 +131,7 @@ bool MainWindow::runScript (const QString& fileName_qt)
 	createLayout ();
 
 	int returnValue;
-	result = jnc::rt::callFunction (&m_runtime, mainFunction, &returnValue, m_layout);
+	result = jnc::callFunction (m_runtime, mainFunction, &returnValue, m_layout);
 	if (!result)
 	{
 		output ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
@@ -142,11 +144,11 @@ bool MainWindow::runScript (const QString& fileName_qt)
 
 void MainWindow::createLayout ()
 {
-	m_runtime.m_gcHeap.addStaticRoot (&m_layout, m_module.m_typeMgr.getStdType (jnc::ct::StdType_AbstractClassPtr));
+	m_runtime->getGcHeap ()->addStaticRoot (&m_layout, m_module->getStdType (jnc::StdType_AbstractClassPtr));
 
-	JNC_BEGIN_CALL_SITE (&m_runtime)
+	JNC_BEGIN_CALL_SITE (m_runtime)
 
-	m_layout = jnc::rt::createClass <MyLayout> (&m_runtime, QBoxLayout::TopToBottom);
+	m_layout = jnc::createClass <MyLayout> (m_runtime, QBoxLayout::TopToBottom);
 	m_body->setLayout (m_layout->m_qtLayout);
 
 	JNC_END_CALL_SITE ()
@@ -155,7 +157,7 @@ void MainWindow::createLayout ()
 void MainWindow::closeEvent (QCloseEvent* e)
 {
 	output ("Shutting down...\n");
-	m_runtime.shutdown ();
+	m_runtime->shutdown ();
 }
 
 //.............................................................................

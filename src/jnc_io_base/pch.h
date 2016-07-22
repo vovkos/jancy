@@ -1,8 +1,5 @@
 #pragma once
 
-#define _JNC_SHARED_EXTENSION_LIB 1
-#define _JNC_IO_BASE 1
-
 #include "jnc_ext_Pch.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
@@ -28,7 +25,7 @@
 #	include "axl_io_psx_Pipe.h"
 #endif
 
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_rt_CallSite.h"
+#include "jnc_ExtensionLib.h"
+#include "jnc_CallSite.h"
 
 using namespace axl;

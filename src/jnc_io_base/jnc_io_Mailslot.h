@@ -1,11 +1,10 @@
 #pragma once
 
-#include "jnc_io_IoLibGlobals.h"
-
 namespace jnc {
 namespace io {
 
-class Mailslot;
+JNC_DECLARE_TYPE (MailslotEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Mailslot)
 
 //.............................................................................
 
@@ -19,8 +18,7 @@ enum MailslotEventKind
 
 struct MailslotEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.MailslotEventParams", g_ioLibCacheSlot, IoLibCacheSlot_MailslotEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (MailslotEventParams)
 
 	MailslotEventKind m_eventKind;
 	uint_t m_syncId;
@@ -33,18 +31,7 @@ class Mailslot: public IfaceHdr
 {
 	friend class IoThread;
 	friend class NamedPipe;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Mailslot, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Mailslot", g_ioLibCacheSlot, IoLibCacheSlot_Mailslot)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Mailslot>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Mailslot>)
-		JNC_MAP_FUNCTION ("open",  &Mailslot::open)
-		JNC_MAP_FUNCTION ("close", &Mailslot::close)
-		JNC_MAP_FUNCTION ("read",  &Mailslot::read)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
+	
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
@@ -85,7 +72,7 @@ protected:
 	ClassBox <Multicast> m_onMailslotEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	axl::io::File m_file;
 
 	sys::Lock m_ioLock;

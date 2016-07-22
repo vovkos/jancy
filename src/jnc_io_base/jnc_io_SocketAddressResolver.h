@@ -5,6 +5,9 @@
 namespace jnc {
 namespace io {
 
+JNC_DECLARE_TYPE (SocketAddressResolverEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (SocketAddressResolver)
+
 //.............................................................................
 
 enum SocketAddressResolverEventKind
@@ -18,8 +21,7 @@ enum SocketAddressResolverEventKind
 
 struct SocketAddressResolverEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SocketAddressResolverEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddressResolverEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddressResolverEventParams)
 
 	SocketAddressResolverEventKind m_eventKind;
 	uint_t m_syncId;
@@ -30,20 +32,9 @@ struct SocketAddressResolverEventParams
 
 //.............................................................................
 
-class SocketAddressResolver: public jnc::IfaceHdr
+class SocketAddressResolver: public IfaceHdr
 {
 	friend class IoThread;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (SocketAddressResolver, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.SocketAddressResolver", g_ioLibCacheSlot, IoLibCacheSlot_SocketAddressResolver)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <SocketAddressResolver>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <SocketAddressResolver>)
-		JNC_MAP_FUNCTION ("resolve",   &SocketAddressResolver::resolve)
-		JNC_MAP_FUNCTION ("cancel",    &SocketAddressResolver::cancel)
-		JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
-	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -76,7 +67,7 @@ protected:
 	ClassBox <Multicast> m_onSocketAddressResolverEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 
 	sys::Lock m_ioLock;
 	uint_t m_ioFlags;

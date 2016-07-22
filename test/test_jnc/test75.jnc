@@ -10,7 +10,7 @@ struct Foo
 	char const* foo ()
 	{
 		printf ("+Foo.m_foo = %d\n", m_foo);
-		jnc.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map  
+		std.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map  
 		printf ("-Foo.m_foo = %d\n", m_foo);
 		return null;
 	}

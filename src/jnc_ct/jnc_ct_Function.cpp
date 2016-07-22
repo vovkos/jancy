@@ -10,92 +10,6 @@ namespace ct {
 
 //.............................................................................
 
-const char*
-getFunctionKindString (FunctionKind functionKind)
-{
-	static const char* stringTable [FunctionKind__Count] =
-	{
-		"undefined-function-kind",  // FunctionKind_Undefined,
-		"named-function",           // FunctionKind_Named,
-		"get",                      // FunctionKind_Getter,
-		"set",                      // FunctionKind_Setter,
-		"bind",                     // FunctionKind_Binder,
-		"preconstruct",             // FunctionKind_PreConstructor,
-		"construct",                // FunctionKind_Constructor,
-		"destruct",                 // FunctionKind_Destructor,
-		"static construct",         // FunctionKind_StaticConstructor,
-		"static destruct",          // FunctionKind_StaticDestructor,
-		"module construct",         // FunctionKind_ModuleConstructor,
-		"module destruct",          // FunctionKind_ModuleDestructor,
-		"call-operator",            // FunctionKind_CallOperator,
-		"cast-operator",            // FunctionKind_CastOperator,
-		"unary-operator",           // FunctionKind_UnaryOperator,
-		"binary-operator",          // FunctionKind_BinaryOperator,
-		"operator_vararg",          // FunctionKind_OperatorVararg,
-		"operator_cdecl_vararg",    // FunctionKind_OperatorCdeclVararg,
-		"internal",                 // FunctionKind_Internal,
-		"thunk",                    // FunctionKind_Thunk,
-		"reaction",                 // FunctionKind_Reaction,
-		"schedule-launcher",        // FunctionKind_ScheduleLauncher,
-	};
-
-	return (size_t) functionKind < FunctionKind__Count ?
-		stringTable [functionKind] :
-		stringTable [FunctionKind_Undefined];
-}
-
-//.............................................................................
-
-int
-getFunctionKindFlags (FunctionKind functionKind)
-{
-	static int flagTable [FunctionKind__Count] =
-	{
-		0,                              // FunctionKind_Undefined,
-		0,                              // FunctionKind_Named,
-		FunctionKindFlag_NoOverloads,   // FunctionKind_Getter,
-		0,                              // FunctionKind_Setter,
-		0,                              // FunctionKind_Binder,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_PreConstructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoStorage,     // FunctionKind_Constructor,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_Destructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_StaticConstructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_StaticDestructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_ModuleConstructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoStorage   |  // FunctionKind_ModuleDestructor,
-		FunctionKindFlag_NoOverloads |
-		FunctionKindFlag_NoArgs,
-		0,                              // FunctionKind_CallOperator,
-		FunctionKindFlag_NoOverloads |  // FunctionKind_CastOperator,
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoOverloads |  // FunctionKind_UnaryOperator,
-		FunctionKindFlag_NoArgs,
-		0,                              // FunctionKind_BinaryOperator,
-		FunctionKindFlag_NoOverloads |  // FunctionKind_OperatorVararg,
-		FunctionKindFlag_NoArgs,
-		FunctionKindFlag_NoOverloads |  // FunctionKind_OperatorCdeclVararg,
-		FunctionKindFlag_NoArgs,
-		0,                              // FunctionKind_Internal,
-		0,                              // FunctionKind_Thunk,
-		0,                              // FunctionKind_Reaction,
-		0,                              // FunctionKind_ScheduleLauncher,
-	};
-
-	return functionKind >= 0 && functionKind < FunctionKind__Count ? flagTable [functionKind] : 0;
-}
-
-//.............................................................................
-
 Function::Function ()
 {
 	m_itemKind = ModuleItemKind_Function;
@@ -214,7 +128,7 @@ Function::compile ()
 	if (m_entryBlock) // already compiled
 		return true;
 
-	Unit* unit = m_itemDecl->getParentUnit ();
+	Unit* unit = getParentUnit ();
 	if (unit)
 		m_module->m_unitMgr.setCurrentUnit (unit);
 
@@ -267,13 +181,13 @@ Function::compileConstructorBody ()
 bool
 Function::compileAutomatonBody ()
 {
-	Unit* unit = m_itemDecl->getParentUnit ();
+	Unit* unit = getParentUnit ();
 	ASSERT (unit);
 
 	if (m_type->getReturnType ()->getStdType () != StdType_AutomatonResult)
 	{
 		err::setFormatStringError ("automaton function must return 'jnc.AutomatonResult'");
-		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *getPos ()));
 		return false;
 	}
 
@@ -296,7 +210,7 @@ Function::compileAutomatonBody ()
 		((ClassPtrType*) recognizerArgType)->getTargetType ()->getStdType () != StdType_Recognizer)
 	{
 		err::setFormatStringError ("automaton function must take one argument of type 'jnc.Recognizer*'");
-		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *m_itemDecl->getPos ()));
+		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *getPos ()));
 		return false;
 	}
 

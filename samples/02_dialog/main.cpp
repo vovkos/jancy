@@ -9,12 +9,7 @@
 
 int main (int argc, char* argv [])
 {
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
-
-	lex::registerParseErrorProvider ();
+	jnc::initialize ();
 
 	srand ((int) sys::getTimestamp ());
 

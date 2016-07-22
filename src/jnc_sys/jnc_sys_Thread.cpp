@@ -1,10 +1,20 @@
 #include "pch.h"
 #include "jnc_sys_Thread.h"
+#include "jnc_sys_SysLib.h"
 
 namespace jnc {
 namespace sys {
 
 //.............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	Thread, 
+	"sys.Thread", 
+	g_sysLibGuid, 
+	SysLibCacheSlot_Thread,
+	Thread,
+	NULL
+	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Thread)
 	JNC_MAP_CONSTRUCTOR (&sl::construct <Thread>)
@@ -15,7 +25,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Thread)
 	JNC_MAP_FUNCTION ("terminate", &Thread::terminate)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 bool
 AXL_CDECL

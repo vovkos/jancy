@@ -1,9 +1,12 @@
 #pragma once
 
-#include "jnc_io_PCapLibGlobals.h"
-
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_TYPE (PCapEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (PCap)
+JNC_DECLARE_TYPE (PCapAddress)
+JNC_DECLARE_TYPE (PCapDeviceDesc)
 
 //.............................................................................
 
@@ -17,32 +20,17 @@ enum PCapEventKind
 
 struct PCapEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapEventParams", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (PCapEventParams)
 
 	PCapEventKind m_eventKind;
 	uint_t m_syncId;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
 class PCap: public IfaceHdr
 {
 	friend class IoThread;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (PCap, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.PCap", g_pcapLibCacheSlot, PCapLibCacheSlot_PCap)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <PCap>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <PCap>)
-		JNC_MAP_FUNCTION ("openDevice",  &PCap::openDevice)
-		JNC_MAP_FUNCTION ("openFile",    &PCap::openFile)
-		JNC_MAP_FUNCTION ("close",       &PCap::close)
-		JNC_MAP_FUNCTION ("setFilter",   &PCap::setFilter)
-		JNC_MAP_FUNCTION ("write",       &PCap::write)
-		JNC_MAP_FUNCTION ("read",        &PCap::read)
-	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	enum DefKind
@@ -85,7 +73,7 @@ protected:
 	ClassBox <Multicast> m_onPCapEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	axl::io::PCap m_pcap;
 	sys::Lock m_ioLock;
 	sl::AuxList <Read> m_readList;
@@ -156,9 +144,6 @@ protected:
 
 struct PCapAddress
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapAddress", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapAddress)
-	JNC_END_TYPE_MAP ()
-
 	DataPtr m_nextPtr;
 
 	uint32_t m_address;
@@ -170,9 +155,6 @@ struct PCapAddress
 
 struct PCapDeviceDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.PCapDeviceDesc", g_pcapLibCacheSlot, PCapLibCacheSlot_PCapDeviceDesc)
-	JNC_END_TYPE_MAP ()
-
 	DataPtr m_nextPtr;
 	DataPtr m_namePtr;
 	DataPtr m_descriptionPtr;

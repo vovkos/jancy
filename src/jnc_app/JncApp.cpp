@@ -1,36 +1,49 @@
 #include "pch.h"
 #include "JncApp.h"
-#include "JncLib.h"
 #include "CmdLine.h"
+
+//.............................................................................
+
+JNC_DEFINE_LIB (JncLib)
+
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE (JncLib)
+JNC_END_LIB_SOURCE_FILE_TABLE ()
+
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (JncLib)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+
+JNC_BEGIN_LIB_FUNCTION_MAP (JncLib)
+	JNC_MAP_FUNCTION ("printf",  &printf)
+JNC_END_LIB_FUNCTION_MAP ()
 
 //.............................................................................
 
 bool
 JncApp::initialize ()
 {
-	bool result;
-
-	uint_t compileFlags = jnc::ct::ModuleCompileFlag_StdFlags;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
 	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
-		compileFlags |= jnc::ct::ModuleCompileFlag_DebugInfo;
+		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 
 	if (m_cmdLine->m_flags & JncFlag_McJit)
-		compileFlags |= jnc::ct::ModuleCompileFlag_McJit;
+		compileFlags |= jnc::ModuleCompileFlag_McJit;
 
 	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
-		compileFlags |= jnc::ct::ModuleCompileFlag_SimpleGcSafePoint;
+		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
-	result = 
-		m_module.create ("jnc_module", compileFlags) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getStdLib ()) &&
-		m_module.m_extensionLibMgr.addStaticLib (jnc::ext::getSysLib ()) &&
-		m_module.m_extensionLibMgr.addStaticLib (sl::getSimpleSingleton <JncLib> ());
-
+	bool result = m_module->initialize ("jnc_module", compileFlags);
 	if (!result)
 		return false;
 
-	m_module.m_importMgr.m_importDirList.copy (m_cmdLine->m_importDirList);
-	m_module.m_importMgr.m_importDirList.insertTail (io::getExeDir ());
+	m_module->addStaticLib (jnc::StdLib_getLib ());
+	m_module->addStaticLib (jnc::SysLib_getLib ());
+	m_module->addStaticLib (JncLib_getLib ());
+
+	sl::BoxIterator <sl::String> it = m_cmdLine->m_importDirList.getHead ();
+	for (; it; it++)
+		m_module->addImportDir (*it);
+
+	m_module->addImportDir (io::getExeDir ());
 
 	return true;
 }
@@ -65,7 +78,7 @@ JncApp::parse ()
 			m_cmdLine->m_srcNameOverride.cc () :
 			"stdin";
 
-		result = m_module.parse (srcName, stdInBuffer, stdInBuffer.getCount ());
+		result = m_module->parse (srcName, stdInBuffer, stdInBuffer.getCount ());
 		if (!result)
 			return false;
 	}
@@ -74,24 +87,15 @@ JncApp::parse ()
 		sl::BoxIterator <sl::String> fileNameIt = m_cmdLine->m_fileNameList.getHead ();
 		ASSERT (fileNameIt);
 
-		if (!m_cmdLine->m_srcNameOverride.isEmpty ())
-		{
-			result = m_module.parseFile (*fileNameIt, m_cmdLine->m_srcNameOverride);
-			if (!result)
-				return false;
-
-			fileNameIt++;
-		}
-
 		for (; fileNameIt; fileNameIt++)
 		{
-			result = m_module.parseFile (*fileNameIt);
+			result = m_module->parseFile (*fileNameIt);
 			if (!result)
 				return false;
 		}
 	}
 
-	return m_module.parseImports ();
+	return m_module->parseImports ();
 }
 
 bool
@@ -99,47 +103,44 @@ JncApp::runFunction (int* returnValue)
 {
 	bool result;
 
-	jnc::ct::ModuleItem* functionItem = m_module.m_namespaceMgr.getGlobalNamespace ()->findItem (m_cmdLine->m_functionName);
-	if (!functionItem || functionItem->getItemKind () != jnc::ct::ModuleItemKind_Function)
+	jnc::ModuleItem* functionItem = m_module->findItem (m_cmdLine->m_functionName);
+	if (!functionItem || functionItem->getItemKind () != jnc::ModuleItemKind_Function)
 	{
 		err::setFormatStringError ("'%s' is not found or not a function\n", m_cmdLine->m_functionName.cc ());
 		return false;
 	}
 
-	jnc::ct::Function* function = (jnc::ct::Function*) functionItem;
-	jnc::ct::FunctionType* functionType = function->getType ();
-	jnc::ct::TypeKind returnTypeKind = functionType->getReturnType ()->getTypeKind ();
-	size_t argCount = functionType->getArgArray ().getCount ();
+	jnc::Function* function = (jnc::Function*) functionItem;
+	jnc::FunctionType* functionType = function->getType ();
+	jnc::TypeKind returnTypeKind = functionType->getReturnType ()->getTypeKind ();
+	size_t argCount = functionType->getArgCount ();
 	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount)
 	{
-		err::setFormatStringError ("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.cc (), functionType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.cc (), functionType->getTypeString ());
 		return false;
 	}
 
-	m_runtime.setStackSizeLimit (m_cmdLine->m_stackSizeLimit);
-	m_runtime.m_gcHeap.setSizeTriggers (
-		m_cmdLine->m_gcAllocSizeTrigger,
-		m_cmdLine->m_gcPeriodSizeTrigger
-		);
+	m_runtime->setStackSizeLimit (m_cmdLine->m_stackSizeLimit);
+	m_runtime->getGcHeap ()->setSizeTriggers (&m_cmdLine->m_gcSizeTriggers);
 
-	result = m_runtime.startup (&m_module);
+	result = m_runtime->startup (m_module);
 	if (!result)
 		return false;
 
 	if (returnTypeKind == jnc::TypeKind_Int)
 	{
-		jnc::rt::callFunction (&m_runtime, function, returnValue);
+		jnc::callFunction (m_runtime, function, returnValue);
 	}
 	else
 	{
-		jnc::rt::callVoidFunction (&m_runtime, function);
+		jnc::callVoidFunction (m_runtime, function);
 		*returnValue = 0;
 	}
 
 	if (!result)
 		return false;
 
-	m_runtime.shutdown ();
+	m_runtime->shutdown ();
 
 	return true;
 }
@@ -147,8 +148,7 @@ JncApp::runFunction (int* returnValue)
 bool
 JncApp::generateDocumentation ()
 {
-	jnc::ct::GlobalNamespace* nspace = m_module.m_namespaceMgr.getGlobalNamespace ();
-	sl::String documentation = nspace->generateDocumentation (m_cmdLine->m_outputDir);
+/*	sl::String documentation = m_module->generateDocumentation (m_cmdLine->m_outputDir);
 	if (documentation.isEmpty ())
 	{
 		err::setStringError ("module does not contain any documentable items");
@@ -158,6 +158,8 @@ JncApp::generateDocumentation ()
 	io::File indexFile;
 	indexFile.open (m_cmdLine->m_outputDir + "/index.xml");
 	indexFile.write (documentation.cc (), documentation.getLength ());
+	return true; */
+
 	return true;
 }
 

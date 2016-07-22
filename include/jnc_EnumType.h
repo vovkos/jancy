@@ -1,0 +1,107 @@
+#pragma once
+
+#define _JNC_ENUMTYPE_H
+
+#include "jnc_Type.h"
+#include "jnc_RuntimeStructs.h"
+
+//.............................................................................
+
+enum jnc_EnumTypeFlag
+{
+	jnc_EnumTypeFlag_Exposed = 0x010000,
+	jnc_EnumTypeFlag_BitFlag = 0x020000,
+};
+
+//.............................................................................
+
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_EnumConst_getItemDecl (jnc_EnumConst* enumConst);
+
+JNC_EXTERN_C
+int64_t
+jnc_EnumConst_getValue (jnc_EnumConst* enumConst);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_EnumConst: jnc_ModuleItem
+{
+	jnc_ModuleItemDecl*
+	getItemDecl ()
+	{
+		return jnc_EnumConst_getItemDecl (this);
+	}
+
+	int64_t
+	getValue ()
+	{
+		return jnc_EnumConst_getValue (this);
+	}
+};
+
+#endif // _JNC_CORE
+
+//.............................................................................
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_EnumType_getBaseType (jnc_EnumType* type);
+
+JNC_EXTERN_C
+size_t
+jnc_EnumType_getConstCount (jnc_EnumType* type);
+
+JNC_EXTERN_C
+jnc_EnumConst*
+jnc_EnumType_getConst (
+	jnc_EnumType* type,
+	size_t index
+	);
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_EnumType: jnc_NamedType
+{
+	jnc_Type*
+	getBaseType ()
+	{
+		return jnc_EnumType_getBaseType (this);
+	}
+
+	size_t
+	getConstCount ()
+	{
+		return jnc_EnumType_getConstCount (this);
+	}
+
+	jnc_EnumConst*
+	getConst (size_t index)
+	{
+		return jnc_EnumType_getConst (this, index);
+	}
+};
+
+#endif // _JNC_CORE
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#ifdef __cplusplus
+
+namespace jnc {
+
+//.............................................................................
+
+typedef jnc_EnumTypeFlag EnumTypeFlag;
+
+const EnumTypeFlag
+	EnumTypeFlag_Exposed = jnc_EnumTypeFlag_Exposed,
+	EnumTypeFlag_BitFlag = jnc_EnumTypeFlag_BitFlag;
+
+//.............................................................................
+
+} // namespace jnc
+
+#endif // __cplusplus

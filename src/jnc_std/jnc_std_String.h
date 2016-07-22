@@ -1,19 +1,18 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_std_StdLibGlobals.h"
+#include "jnc_ExtensionLib.h"
 
 namespace jnc {
 namespace std {
+
+JNC_DECLARE_TYPE (StringRef)
+JNC_DECLARE_TYPE (String)
+JNC_DECLARE_CLASS_TYPE (StringBuilder)
 
 //.............................................................................
 
 struct StringRef
 {
-	JNC_BEGIN_TYPE_MAP ("std.StringRef", g_stdLibCacheSlot, StdLibCacheSlot_StringRef)
-	JNC_END_TYPE_MAP ()
-
-public:
 	DataPtr m_ptr;
 	size_t m_length;
 	bool m_isFinal;
@@ -23,18 +22,9 @@ public:
 
 struct String
 {
-	JNC_BEGIN_TYPE_MAP ("std.String", g_stdLibCacheSlot, StdLibCacheSlot_String)
-		JNC_MAP_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
-		JNC_MAP_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-		JNC_MAP_FUNCTION ("copy", &String::copy_s1)
-		JNC_MAP_OVERLOAD (&String::copy_s2)
-	JNC_END_TYPE_MAP ()
-
-public:
 	DataPtr m_ptr;
 	size_t m_length;
 
-public:
 	bool 
 	ensureZeroTerminated ()
 	{
@@ -55,7 +45,6 @@ public:
 		size_t length
 		);
 
-protected:
 	static
 	bool 
 	ensureZeroTerminated_s (DataPtr selfPtr)
@@ -96,12 +85,6 @@ protected:
 
 class StringBuilder: public IfaceHdr
 {
-public:
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.StringBuilder", g_stdLibCacheSlot, StdLibCacheSlot_StringBuilder)
-		JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
-		JNC_MAP_FUNCTION ("append", &StringBuilder::append)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 public:
 	DataPtr m_ptr;
 	size_t m_length;

@@ -1,8 +1,62 @@
 #include "pch.h"
 #include "jnc_std_Buffer.h"
+#include "jnc_std_StdLib.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace std {
+
+//.............................................................................
+
+JNC_DEFINE_TYPE (
+	ConstBufferRef, 
+	"std.ConstBufferRef", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_ConstBufferRef
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBufferRef)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	ConstBuffer, 
+	"std.ConstBuffer", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_ConstBuffer
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBuffer)
+	JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
+	JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	BufferRef, 
+	"std.BufferRef", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_BufferRef
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (BufferRef)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	Buffer, 
+	"std.Buffer", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_Buffer
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (Buffer)
+	JNC_MAP_FUNCTION ("copy", &Buffer::copy)
+	JNC_MAP_FUNCTION ("append", &Buffer::append)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //.............................................................................
 
@@ -30,10 +84,10 @@ ConstBuffer::copy (
 		return true;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	m_ptr = runtime->m_gcHeap.tryAllocateBuffer (size + 1);
+	m_ptr = gcHeap->tryAllocateBuffer (size + 1);
 	if (!m_ptr.m_p)
 		return false;
 
@@ -88,11 +142,11 @@ Buffer::setSize (
 		return true;
 	}
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
 	size_t maxSize = sl::getMinPower2Gt (size);
-	DataPtr newPtr = runtime->m_gcHeap.tryAllocateBuffer (maxSize + 1);
+	DataPtr newPtr = gcHeap->tryAllocateBuffer (maxSize + 1);
 	if (!newPtr.m_p)
 		return false;
 

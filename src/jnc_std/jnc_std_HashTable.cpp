@@ -1,17 +1,62 @@
 #include "pch.h"
 #include "jnc_std_HashTable.h"
+#include "jnc_std_StdLib.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace std {
 
 //.............................................................................
 
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	StringHashTable, 
+	"std.StringHashTable", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_StringHashTable, 
+	StringHashTable, 
+	&StringHashTable::markOpaqueGcRoots
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (StringHashTable)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <StringHashTable>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <StringHashTable>)
+	JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &StringHashTable::isEmpty)
+	JNC_MAP_FUNCTION ("clear",  &StringHashTable::clear)
+	JNC_MAP_FUNCTION ("find", &StringHashTable::find)
+	JNC_MAP_FUNCTION ("insert", &StringHashTable::insert)
+	JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	VariantHashTable, 
+	"std.VariantHashTable", 
+	g_stdLibGuid, 
+	StdLibCacheSlot_VariantHashTable,
+	VariantHashTable, 
+	&VariantHashTable::markOpaqueGcRoots
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (VariantHashTable)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <VariantHashTable>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <VariantHashTable>)
+	JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &VariantHashTable::isEmpty)
+	JNC_MAP_FUNCTION ("clear",  &VariantHashTable::clear)
+	JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
+	JNC_MAP_FUNCTION ("insert", &VariantHashTable::insert)
+	JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 void
 AXL_CDECL
-StringHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
+StringHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 {
-	ct::Type* ptrType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType ();
-	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	Module* module = gcHeap->getRuntime ()->getModule ();
+	Type* ptrType = module->getPrimitiveType (TypeKind_Void)->getDataPtrType ();
+	Type* variantType = module->getPrimitiveType (TypeKind_Variant);
 
 	sl::Iterator <Entry> it = m_list.getHead ();
 	for (; it; it++)
@@ -74,9 +119,10 @@ StringHashTable::remove (DataPtr keyPtr)
 
 void
 AXL_CDECL
-VariantHashTable::markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap)
+VariantHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 {
-	ct::Type* variantType = gcHeap->getRuntime ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+	Module* module = gcHeap->getRuntime ()->getModule ();
+	Type* variantType = module->getPrimitiveType (TypeKind_Variant);
 
 	sl::Iterator <Entry> it = m_list.getHead ();
 	for (; it; it++)

@@ -8,23 +8,6 @@ namespace ct {
 
 //.............................................................................
 
-const char*
-getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable [DataPtrTypeKind__Count] = 
-	{
-		"normal", // EDataPtrType_Normal = 0,
-		"lean",   // EDataPtrType_Lean,
-		"thin",   // EDataPtrType_Thin,
-	};
-		
-	return (size_t) ptrTypeKind < DataPtrTypeKind__Count ? 
-		stringTable [ptrTypeKind] : 
-		"undefined-data-ptr-kind";
-}
-
-//.............................................................................
-
 DataPtrType::DataPtrType ()
 {
 	m_typeKind = TypeKind_DataPtr;

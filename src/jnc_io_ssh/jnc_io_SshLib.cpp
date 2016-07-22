@@ -1,22 +1,41 @@
 #include "pch.h"
 #include "jnc_io_SshLib.h"
+#include "jnc_io_Ssh.h"
+
+namespace jnc {
+namespace io {
 
 //.............................................................................
 
-extern "C"
-AXL_EXPORT
-jnc::ext::ExtensionLib*
-jncExtensionLibMain (jnc::ext::ExtensionLibHost* host)
-{
-	jnc::ext::g_extensionLibHost = host;
-	jnc::io::g_sshLibCacheSlot = host->getLibCacheSlot (jnc::io::g_sshLibGuid);
-	return sl::getSimpleSingleton <jnc::io::SshLib> ();
-}
+JNC_DEFINE_LIB (SshLib)
 
-jnc::ext::ExtensionLib*
-getExtensionLib ()
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE (SshLib)
+	JNC_LIB_FORCED_IMPORT ("io_Ssh.jnc")
+JNC_END_LIB_SOURCE_FILE_TABLE ()
+
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (SshLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SshChannel)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+
+JNC_BEGIN_LIB_FUNCTION_MAP (SshLib)
+	JNC_MAP_TYPE (SshChannel)
+JNC_END_LIB_FUNCTION_MAP ()
+
+//.............................................................................
+
+} // namespace io
+} // namespace jnc
+
+
+jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
+
+JNC_EXTERN_C
+AXL_EXPORT
+jnc_ExtensionLib* 
+jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
-	return sl::getSimpleSingleton <jnc::io::SshLib> ();
+	jnc_g_dynamicExtensionLibHost = host;
+	return jnc::io::SshLib_getLib ();
 }
 
 //.............................................................................

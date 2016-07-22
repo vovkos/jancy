@@ -1,9 +1,11 @@
 #pragma once
 
-#include "jnc_io_IoLibGlobals.h"
-
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_TYPE (SerialEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Serial)
+JNC_DECLARE_TYPE (SerialPortDesc)
 
 //.............................................................................
 
@@ -19,8 +21,7 @@ enum SerialEventKind
 
 struct SerialEventParams
 {
-	JNC_BEGIN_TYPE_MAP ("io.SerialEventParams", g_ioLibCacheSlot, IoLibCacheSlot_SerialEventParams)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (SerialEventParams)
 
 	SerialEventKind m_eventKind;
 	uint_t m_syncId;
@@ -34,26 +35,6 @@ struct SerialEventParams
 class Serial: public IfaceHdr
 {
 	friend class IoThread;
-
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (Serial, NULL)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("io.Serial", g_ioLibCacheSlot, IoLibCacheSlot_Serial)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <Serial>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <Serial>)
-		JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
-		JNC_MAP_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
-		JNC_MAP_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
-		JNC_MAP_AUTOGET_PROPERTY ("m_stopBits",    &Serial::setStopBits)
-		JNC_MAP_AUTOGET_PROPERTY ("m_parity",      &Serial::setParity)
-		JNC_MAP_AUTOGET_PROPERTY ("m_dtr",         &Serial::setDtr)
-		JNC_MAP_AUTOGET_PROPERTY ("m_rts",         &Serial::setRts)
-		JNC_MAP_CONST_PROPERTY   ("m_statusLines", &Serial::getStatusLines)
-		JNC_MAP_FUNCTION ("open",  &Serial::open)
-		JNC_MAP_FUNCTION ("close", &Serial::close)
-		JNC_MAP_FUNCTION ("read",  &Serial::read)
-		JNC_MAP_FUNCTION ("write", &Serial::write)
-	JNC_END_TYPE_FUNCTION_MAP ()
 
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -87,7 +68,7 @@ protected:
 	ClassBox <Multicast> m_onSerialEvent;
 
 protected:
-	rt::Runtime* m_runtime;
+	Runtime* m_runtime;
 	axl::io::Serial m_serial;
 	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
@@ -195,8 +176,7 @@ protected:
 
 struct SerialPortDesc
 {
-	JNC_BEGIN_TYPE_MAP ("io.SerialPortDesc", g_ioLibCacheSlot, IoLibCacheSlot_SerialPortDesc)
-	JNC_END_TYPE_MAP ()
+	JNC_DECLARE_TYPE_STATIC_METHODS (SerialPortDesc)
 
 	DataPtr m_nextPtr;
 	DataPtr m_deviceNamePtr;

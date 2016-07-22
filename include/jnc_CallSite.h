@@ -4,6 +4,7 @@
 
 #include "jnc_Runtime.h"
 #include "jnc_Function.h"
+#include "jnc_ClassType.h"
 
 //.............................................................................
 
@@ -67,112 +68,6 @@
 #ifdef __cplusplus
 
 namespace jnc {
-
-//.............................................................................
-
-inline
-void
-primeClass (
-	Box* box,
-	ClassType* type,
-	void* vtable = NULL // if null then vtable of class type will be used
-	)
-{
-	jnc_primeClass (box, box, type, vtable);
-}
-
-template <typename T>
-void
-primeClass (
-	Module* module,
-	ClassBoxBase <T>* p,
-	Box* root
-	)
-{
-	primeClass (p, root, T::getType (module), T::getVTable ());
-}
-
-template <typename T>
-void
-primeClass (
-	Runtime* runtime,
-	ClassBoxBase <T>* p,
-	Box* root
-	)
-{
-	primeClass (p, root, T::getType (runtime), T::getVTable ());
-}
-
-template <typename T>
-void
-primeClass (
-	Module* module,
-	ClassBoxBase <T>* p
-	)
-{
-	primeClass (p, p, T::getType (module), T::getVTable ());
-}
-
-template <typename T>
-void
-primeClass (
-	Runtime* runtime,
-	ClassBoxBase <T>* p
-	)
-{
-	primeClass (p, p, T::getType (runtime), T::getVTable ());
-}
-
-//.............................................................................
-
-class ScopedNoCollectRegion
-{
-protected:
-	GcHeap* m_gcHeap;
-	bool m_canCollectOnLeave;
-
-public:
-	ScopedNoCollectRegion (
-		GcHeap* gcHeap,
-		bool canCollectOnLeave
-		)
-	{
-		init (gcHeap, canCollectOnLeave);
-	}
-
-	ScopedNoCollectRegion (
-		Runtime* runtime,
-		bool canCollectOnLeave
-		)
-	{
-		init (runtime->getGcHeap (), canCollectOnLeave);
-	}
-
-	ScopedNoCollectRegion (bool canCollectOnLeave)
-	{
-		GcHeap* gcHeap = getCurrentThreadGcHeap ();
-		ASSERT (gcHeap);
-
-		init (gcHeap, canCollectOnLeave);
-	}
-
-	~ScopedNoCollectRegion ()
-	{
-		m_gcHeap->leaveNoCollectRegion (m_canCollectOnLeave);
-	}
-
-protected:
-	void
-	init (
-		GcHeap* gcHeap,
-		bool canCollectOnLeave
-		)
-	{
-		m_gcHeap = gcHeap;
-		m_canCollectOnLeave = canCollectOnLeave;
-		m_gcHeap->enterNoCollectRegion ();
-	}
-};
 
 //.............................................................................
 
@@ -1086,13 +981,23 @@ callVoidFunctionPtr (
 //.............................................................................
 
 inline
+void*
+getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
+{
+	MulticastClassType* type = (MulticastClassType*) multicast->m_box->m_type;
+	return type->getMethod (MulticastMethodKind_Call)->getMachineCode ();
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
 bool
 callMulticast (
 	Runtime* runtime,
 	Multicast* multicast
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr);
 }
@@ -1105,7 +1010,7 @@ callMulticast (
 	Arg arg
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg);
 }
@@ -1122,7 +1027,7 @@ callMulticast (
 	Arg2 arg2
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2);
 }
@@ -1141,7 +1046,7 @@ callMulticast (
 	Arg3 arg3
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3);
 }
@@ -1162,7 +1067,7 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3, arg4);
 }
@@ -1173,7 +1078,7 @@ inline
 void
 callMulticast (Multicast* multicast)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr);
 }
@@ -1185,7 +1090,7 @@ callMulticast (
 	Arg arg
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg);
 }
@@ -1201,7 +1106,7 @@ callMulticast (
 	Arg2 arg2
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2);
 }
@@ -1219,7 +1124,7 @@ callMulticast (
 	Arg3 arg3
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3);
 }
@@ -1239,195 +1144,9 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = multicast->getCallMethod ()->getMachineCode ();
+	void* p = getMulticastCallMethodMachineCode (multicast);
 	FunctionPtr ptr = { p, multicast };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3, arg4);
-}
-
-//.............................................................................
-
-template <typename T>
-T*
-createClass (Runtime* runtime)
-{
-	ClassType* type = T::getType (runtime);
-	T* p = (T*) allocateClass (runtime, type);
-	sl::construct (p);
-	
-	return p;
-}
-
-template <
-	typename T,
-	typename Arg
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg arg
-	)
-{
-	ClassType* type = T::getType (runtime);
-	T* p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg);
-
-	return p;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2
-	)
-{
-	ClassType* type = T::getType (runtime);
-	T* p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2);
-
-	return p;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3
-	)
-{
-	ClassType* type = T::getType (runtime);
-	T* p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2, arg3);
-
-	return p;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3,
-	typename Arg4
-	>
-T*
-createClass (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3,
-	Arg4 arg4
-	)
-{
-	ClassType* type = T::getType (runtime);
-	T* p = (T*) allocateClass (runtime, type);
-	sl::construct (p, arg1, arg2, arg3, arg4);
-
-	return p;
-}
-
-//.............................................................................
-
-template <typename T>
-DataPtr
-createData (Runtime* runtime)
-{
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg
-	>
-DataPtr
-createData (
-	Runtime* runtime,
-	Arg arg
-	)
-{
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2
-	>
-DataPtr
-createData (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2
-	)
-{
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3
-	>
-DataPtr
-createData (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3
-	)
-{
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
-
-	return ptr;
-}
-
-template <
-	typename T,
-	typename Arg1,
-	typename Arg2,
-	typename Arg3,
-	typename Arg4
-	>
-DataPtr
-createData (
-	Runtime* runtime,
-	Arg1 arg1,
-	Arg2 arg2,
-	Arg3 arg3,
-	Arg4 arg4
-	)
-{
-	Type* type = T::getType (runtime);
-	DataPtr ptr = allocateData (runtime, type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
-
-	return ptr;
 }
 
 //.............................................................................

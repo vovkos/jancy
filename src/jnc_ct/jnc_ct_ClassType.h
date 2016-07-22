@@ -11,51 +11,13 @@
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
 #include "jnc_RuntimeStructs.h"
+#include "jnc_ClassType.h"
 
 namespace jnc {
 namespace ct {
 
 class ClassPtrType;
 struct ClassPtrTypeTuple;
-
-//.............................................................................
-
-enum ClassTypeKind
-{
-	ClassTypeKind_Normal = 0,
-	ClassTypeKind_Abstract, // class*
-	ClassTypeKind_Multicast,
-	ClassTypeKind_McSnapshot,
-	ClassTypeKind_Reactor,
-	ClassTypeKind_ReactorIface,
-	ClassTypeKind_FunctionClosure,
-	ClassTypeKind_PropertyClosure,
-	ClassTypeKind_DataClosure,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum ClassTypeFlag
-{
-	ClassTypeFlag_HasAbstractMethods = 0x010000,
-	ClassTypeFlag_Closure            = 0x020000,
-	ClassTypeFlag_Opaque             = 0x100000,
-	ClassTypeFlag_OpaqueNonCreatable = 0x200000,
-};
-
-//.............................................................................
-
-enum ClassPtrTypeKind
-{
-	ClassPtrTypeKind_Normal = 0,
-	ClassPtrTypeKind_Weak,
-	ClassPtrTypeKind__Count,
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind);
 
 //............................................................................
 
@@ -279,47 +241,6 @@ protected:
 	void
 	createVTableVariable ();
 };
-
-//.............................................................................
-
-inline
-bool
-isClassType (
-	Type* type,
-	ClassTypeKind classTypeKind
-	)
-{
-	return
-		type->getTypeKind () == TypeKind_Class &&
-		((ClassType*) type)->getClassTypeKind () == classTypeKind;
-}
-
-inline
-bool
-isOpaqueClassType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_Class &&
-		(type->getFlags () & ClassTypeFlag_Opaque);
-}
-
-inline
-bool
-isClosureClassType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_Class &&
-		(type->getFlags () & ClassTypeFlag_Closure);
-}
-
-inline
-bool
-isDestructibleClassType (Type* type)
-{
-	return
-		type->getTypeKind () == TypeKind_Class &&
-		((ClassType*) type)->getDestructor () != NULL;
-}
 
 //.............................................................................
 

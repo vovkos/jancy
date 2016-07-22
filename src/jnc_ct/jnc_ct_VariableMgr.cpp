@@ -237,7 +237,7 @@ VariableMgr::initializeVariable (Variable* variable)
 
 	return m_module->m_operatorMgr.parseInitializer (
 		variable,
-		variable->m_itemDecl->getParentUnit (),
+		variable->getParentUnit (),
 		variable->m_constructor,
 		variable->m_initializer
 		);

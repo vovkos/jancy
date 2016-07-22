@@ -384,7 +384,7 @@ OperatorMgr::getPropertyField (
 
 	case ModuleItemKind_Alias:
 		return evaluateAlias (
-			member->getItemDecl (),
+			(Alias*) member,
 			opValue.getClosure (),
 			((Alias*) member)->getInitializer (),
 			resultValue

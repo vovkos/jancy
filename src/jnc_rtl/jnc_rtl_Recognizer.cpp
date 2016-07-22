@@ -1,11 +1,23 @@
 #include "pch.h"
 #include "jnc_rtl_Recognizer.h"
-#include "jnc_CallSite.h"
+
+#ifdef _JNC_CORE
+#	include "jnc_rt_Runtime.h"
+#endif
+
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace rtl {
 
 //.............................................................................
+
+JNC_DEFINE_CLASS_TYPE (
+	Recognizer, 
+	"jnc.Recognizer", 
+	sl::g_nullGuid, 
+	-1
+	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Recognizer)
 	JNC_MAP_CONSTRUCTOR (&Recognizer::construct)

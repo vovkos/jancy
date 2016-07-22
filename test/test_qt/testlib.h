@@ -1,6 +1,22 @@
 #ifndef TESTLIB_H
 #define TESTLIB_H
 
+//.............................................................................
+
+// {384498AC-90AF-4634-B083-2A9B02D62680}
+
+JNC_DEFINE_GUID (
+	g_testLibGuid, 
+	0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
+	);
+
+enum TestLibCacheSlot
+{
+	TestLibCacheSlot_Point,
+	TestLibCacheSlot_TestClassA,
+	TestLibCacheSlot_TestClassB,
+	TestLibCacheSlot_TestStruct,
+};
 
 //.............................................................................
 
@@ -16,11 +32,6 @@ struct Point
 
 class TestClassA: public jnc::IfaceHdr
 {
-public:
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("TestClassA", -1, -1)
-		JNC_MAP_FUNCTION ("foo", &TestClassA::foo)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 public:
 	int m_x;
 
@@ -39,19 +50,12 @@ public:
 class TestClassB: public jnc::IfaceHdr
 {
 public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (TestClassB, &TestClassB::markOpaqueGcRoots)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("TestClassB", -1, -1)
-		JNC_MAP_FUNCTION ("bar", &TestClassB::bar)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
-public:
 	char m_data [256];
 
 public:
 	void
 	AXL_CDECL
-	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	bool
 	AXL_CDECL
@@ -69,17 +73,6 @@ public:
 
 class TestStruct
 {
-public:
-	JNC_BEGIN_TYPE_MAP ("TestStruct", -1, -1)
-		JNC_MAP_CONSTRUCTOR (&TestStruct::construct_0)
-		JNC_MAP_OVERLOAD (&TestStruct::construct_1)
-		JNC_MAP_OVERLOAD (&TestStruct::construct_2)
-
-		JNC_MAP_FUNCTION ("foo", &TestStruct::foo_0)
-		JNC_MAP_OVERLOAD (&TestStruct::foo_1)
-		JNC_MAP_OVERLOAD (&TestStruct::foo_2)
-	JNC_END_TYPE_MAP ()
-
 public:
 	int m_x;
 	double m_y;
@@ -130,45 +123,6 @@ public:
 
 //.............................................................................
 
-class TestLib: public jnc::ext::ExtensionLib
-{
-public:
-	JNC_BEGIN_LIB_MAP ()
-		JNC_MAP_FUNCTION ("printf", &TestLib::printf)
-
-//		JNC_MAP_TYPE (TestClassA)
-//		JNC_MAP_TYPE (TestClassB)
-//		JNC_MAP_TYPE (TestStruct)
-//		JNC_MAP_FUNCTION ("testPtr",     &testPtr)
-//		JNC_MAP_FUNCTION ("testVariant", &testVariant)
-//		JNC_MAP_FUNCTION ("qtWait", &qtWait)
-	JNC_END_LIB_MAP ()
-	
-	JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-		JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (TestClassB)
-	JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
-	
-	static
-	int
-	printf (
-		const char* format,
-		...
-		);
-
-	static
-	void
-	testPtr (
-		jnc::DataPtr ptr,
-		jnc::DataPtr ptr2
-		);
-
-	static
-	void
-	testVariant (jnc::Variant variant);
-
-	static
-	void
-	qtWait (uint_t msTime);
-};
+JNC_DECLARE_LIB (TestLib)
 
 #endif

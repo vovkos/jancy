@@ -11,14 +11,12 @@ set (
 	LIB_H_LIST
 	jnc_rt_Runtime.h
 	jnc_rt_GcHeap.h
-	jnc_rt_VariantUtils.h
 	)
 
 set (
 	LIB_CPP_LIST
 	jnc_rt_Runtime.cpp
 	jnc_rt_GcHeap.cpp
-	jnc_rt_VariantUtils.cpp
 	)
 
 source_group (
@@ -52,7 +50,7 @@ include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
+	${JANCY_SRC_DIR}/jnc_ct
 	${GEN_DIR}
 	)
 

@@ -4,7 +4,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_DynamicExtensionLibHost.h"
 #	include "jnc_ExtensionLib.h"
-#elif (defined _JNC_CORE)
+#elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -14,10 +14,20 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_Namespace*
+jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace (jnc_Module* module)
 {
 	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getGlobalNamespaceFunc (module);
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_Module_getPrimitiveType (
+	jnc_Module* module,
+	jnc_TypeKind typeKind
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getPrimitiveTypeFunc (module, typeKind);
 }
 
 JNC_EXTERN_C
@@ -58,6 +68,16 @@ jnc_Module_addSource (
 
 JNC_EXTERN_C
 void
+jnc_Module_addImport (
+	jnc_Module* module,
+	const char* fileName
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addImportFunc (module, fileName);
+}
+
+JNC_EXTERN_C
+void
 jnc_Module_addOpaqueClassTypeInfo (
 	jnc_Module* module,
 	const char* qualifiedName,
@@ -67,33 +87,79 @@ jnc_Module_addOpaqueClassTypeInfo (
 	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addOpaqueClassTypeInfoFunc (module, qualifiedName, info);
 }
 
-JNC_EXTERN_C
-jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType (
-	jnc_ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_verifyModuleItemIsDerivableTypeFunc (item, name);
-}
-
-JNC_EXTERN_C
-jnc_ClassType*
-jnc_verifyModuleItemIsClassType (
-	jnc_ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_verifyModuleItemIsClassTypeFunc (item, name);
-}
-
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_Namespace*
+jnc_Module* 
+jnc_Module_create ()
+{
+	return AXL_MEM_NEW (jnc_Module);
+}
+
+JNC_EXTERN_C
+void
+jnc_Module_destroy (jnc_Module* module)
+{
+	AXL_MEM_DELETE (module);
+}
+
+JNC_EXTERN_C
+void
+jnc_Module_clear (jnc_Module* module)
+{
+	module->clear ();
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_initialize (
+	jnc_Module* module,
+	const char* tag,
+	uint_t compileFlags
+	)
+{
+	return module->initialize (tag, compileFlags);
+}
+
+JNC_EXTERN_C
+uint_t
+jnc_Module_getCompileFlags (jnc_Module* module)
+{
+	return module->getCompileFlags ();
+}
+
+JNC_EXTERN_C
+jnc_ModuleCompileState
+jnc_Module_getCompileState (jnc_Module* module)
+{
+	return module->getCompileState ();
+}
+
+JNC_EXTERN_C
+jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace (jnc_Module* module)
 {
 	return module->m_namespaceMgr.getGlobalNamespace ();
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_Module_getPrimitiveType (
+	jnc_Module* module,
+	jnc_TypeKind typeKind
+	)
+{
+	return module->m_typeMgr.getPrimitiveType (typeKind);
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_Module_getStdType (
+	jnc_Module* module,
+	jnc_StdType stdType
+	)
+{
+	return module->m_typeMgr.getStdType (stdType);
 }
 
 JNC_EXTERN_C
@@ -138,23 +204,122 @@ jnc_Module_addSource (
 }
 
 JNC_EXTERN_C
-jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType (
-	jnc_ModuleItem* item,
-	const char* name
+void
+jnc_Module_addImportDir (
+	jnc_Module* module,
+	const char* dir
 	)
 {
-	return jnc::ct::verifyModuleItemIsDerivableType (item, name);
+	module->m_importMgr.m_importDirList.insertTail (dir);
 }
 
 JNC_EXTERN_C
-jnc_ClassType*
-jnc_verifyModuleItemIsClassType (
-	jnc_ModuleItem* item,
-	const char* name
+void
+jnc_Module_addImport (
+	jnc_Module* module,
+	const char* fileName
 	)
 {
-	return jnc::ct::verifyModuleItemIsClassType (item, name);
+	module->m_importMgr.addImport (fileName);
+}
+
+JNC_EXTERN_C
+void
+jnc_Module_addOpaqueClassTypeInfo (
+	jnc_Module* module,
+	const char* qualifiedName,
+	const jnc_OpaqueClassTypeInfo* info
+	)
+{
+	module->m_extensionLibMgr.addOpaqueClassTypeInfo (qualifiedName, info);
+}
+
+JNC_EXTERN_C
+void
+jnc_Module_addStaticLib (
+	jnc_Module* module,
+	jnc_ExtensionLib* lib
+	)
+{
+	module->m_extensionLibMgr.addStaticLib (lib);
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_parse (
+	jnc_Module* module,
+	const char* fileName,
+	const char* source,
+	size_t length
+	)
+{
+	return module->parse (fileName, source, length);
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_parseFile (
+	jnc_Module* module,
+	const char* fileName
+	)
+{
+	return module->parseFile (fileName);
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_parseImports (jnc_Module* module)
+{
+	return module->parseImports ();
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_calcLayout (jnc_Module* module)
+{
+	return module->calcLayout ();
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_compile (jnc_Module* module)
+{
+	return module->compile ();
+}
+
+JNC_EXTERN_C
+int
+jnc_Module_jit (jnc_Module* module)
+{
+	return module->jit ();
+}
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getLlvmIrString_v (jnc_Module* module)
+{
+	return *jnc::getTlsStringBuffer () = module->getLlvmIrString ();
+}
+
+JNC_EXTERN_C
+void
+jnc_initialize ()
+{
+#if 0 
+	// orginally there was no llvm_shutdown in ioninja-server
+	// so have to make sure it's not going to crash if we add it
+
+	atexit (llvm::llvm_shutdown);
+#endif
+
+	llvm::InitializeNativeTarget ();
+	llvm::InitializeNativeTargetAsmParser ();
+	llvm::InitializeNativeTargetAsmPrinter ();
+	llvm::InitializeNativeTargetDisassembler ();
+
+	LLVMLinkInJIT();
+
+	lex::registerParseErrorProvider ();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

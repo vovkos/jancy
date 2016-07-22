@@ -1,14 +1,74 @@
 #include "pch.h"
 #include "jnc_io_PCap.h"
+#include "jnc_io_PCapLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_TYPE (
+	PCapEventParams, 
+	"io.PCapEventParams", 
+	g_pcapLibGuid, 
+	PCapLibCacheSlot_PCapEventParams
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (PCapEventParams)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	PCap, 
+	"io.PCap", 
+	g_pcapLibGuid, 
+	PCapLibCacheSlot_PCap,
+	PCap, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (PCap)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <PCap>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <PCap>)
+	JNC_MAP_FUNCTION ("openDevice",  &PCap::openDevice)
+	JNC_MAP_FUNCTION ("openFile",    &PCap::openFile)
+	JNC_MAP_FUNCTION ("close",       &PCap::close)
+	JNC_MAP_FUNCTION ("setFilter",   &PCap::setFilter)
+	JNC_MAP_FUNCTION ("write",       &PCap::write)
+	JNC_MAP_FUNCTION ("read",        &PCap::read)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	PCapAddress,
+	"io.PCapAddress", 
+	g_pcapLibGuid, 
+	PCapLibCacheSlot_PCapAddress
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (PCapAddress)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_TYPE (
+	PCapDeviceDesc,
+	"io.PCapDeviceDesc", 
+	g_pcapLibGuid, 
+	PCapLibCacheSlot_PCapDeviceDesc
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (PCapDeviceDesc)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 PCap::PCap ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	memset (&m_filter, 0, sizeof (m_filter));
 	m_isPromiscious = false;
@@ -21,12 +81,12 @@ PCap::firePCapEvent (PCapEventKind eventKind)
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
-	DataPtr paramsPtr = rt::createData <PCapEventParams> (m_runtime);
+	DataPtr paramsPtr = createData <PCapEventParams> (m_runtime);
 	PCapEventParams* params = (PCapEventParams*) paramsPtr.m_p;
 	params->m_eventKind = eventKind;
 	params->m_syncId = m_syncId;
 
-	rt::callMulticast (m_onPCapEvent, paramsPtr);
+	callMulticast (m_onPCapEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -38,7 +98,7 @@ PCap::setFilter (DataPtr filter)
 	bool result = m_pcap.setFilter ((const char*) filter.m_p);
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -64,7 +124,7 @@ PCap::openDevice (
 
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -95,7 +155,7 @@ PCap::openFile (
 
 	if (!result)
 	{
-		ext::propagateLastError ();
+		propagateLastError ();
 		return false;
 	}
 
@@ -118,9 +178,10 @@ PCap::close ()
 	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	m_ioFlags = 0;
 	m_isOpen = false;
@@ -149,12 +210,13 @@ PCap::read (
 	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	read.m_completeEvent.wait ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	if (read.m_result == -1)
-		ext::setError (read.m_error);
+		setError (read.m_error);
 
 	return read.m_result;
 }
@@ -272,7 +334,7 @@ getIpFromSockAddr (const sockaddr* sockAddr)
 
 void
 setupPCapAddress (
-	rt::Runtime* runtime,
+	Runtime* runtime,
 	PCapAddress* address,
 	const pcap_addr* ifaceAddr
 	)
@@ -284,7 +346,8 @@ setupPCapAddress (
 	if (!ifaceAddr)
 		return; // no IP4 addresses found
 
-	rt::Type* addressType = PCapAddress::getType (runtime);
+	GcHeap* gcHeap = runtime->getGcHeap ();
+	Type* addressType = PCapAddress_getType (runtime->getModule ());
 
 	address->m_address = getIpFromSockAddr (ifaceAddr->addr);
 	address->m_mask = getIpFromSockAddr (ifaceAddr->netmask);
@@ -296,7 +359,7 @@ setupPCapAddress (
 		if (!ifaceAddr->addr || ifaceAddr->addr->sa_family != AF_INET)
 			continue;
 
-		DataPtr addressPtr = rt::allocateData (runtime, addressType);
+		DataPtr addressPtr = gcHeap->allocateData (addressType);
 		address = (PCapAddress*) addressPtr.m_p;
 		address->m_address = getIpFromSockAddr (ifaceAddr->addr);
 		address->m_mask = getIpFromSockAddr (ifaceAddr->netmask);
@@ -318,26 +381,27 @@ createPCapDeviceDescList (DataPtr countPtr)
 	int result = pcap_findalldevs (&ifaceList, errorBuffer);
 	if (result == -1)
 	{
-		ext::setError (errorBuffer);
+		err::setError (errorBuffer);
 		return g_nullPtr;
 	}
 
 	if (!ifaceList)
 		return g_nullPtr;
 
-	rt::Runtime* runtime = rt::getCurrentThreadRuntime ();
-	rt::ScopedNoCollectRegion noCollectRegion (runtime, false);
+	Runtime* runtime = getCurrentThreadRuntime ();
+	ScopedNoCollectRegion noCollectRegion (runtime, false);
 
-	rt::Type* deviceType = PCapDeviceDesc::getType (runtime);
+	GcHeap* gcHeap = runtime->getGcHeap ();
+	Type* deviceType = PCapDeviceDesc_getType (runtime->getModule ());
 
 	size_t count = 1;
 
 	pcap_if* iface = ifaceList;
 
-	DataPtr devicePtr = rt::allocateData (runtime, deviceType);
+	DataPtr devicePtr = gcHeap->allocateData (deviceType);
 	PCapDeviceDesc* device = (PCapDeviceDesc*) devicePtr.m_p;
-	device->m_namePtr = rt::strDup (iface->name);
-	device->m_descriptionPtr = rt::strDup (iface->description);
+	device->m_namePtr = strDup (iface->name);
+	device->m_descriptionPtr = strDup (iface->description);
 	setupPCapAddress (runtime, &device->m_address, iface->addresses);
 
 	DataPtr resultPtr = devicePtr;
@@ -345,10 +409,10 @@ createPCapDeviceDescList (DataPtr countPtr)
 	PCapDeviceDesc* prevDevice = device;
 	for (iface = iface->next; iface; iface = iface->next, count++)
 	{
-		devicePtr = rt::allocateData (runtime, deviceType);
+		devicePtr = gcHeap->allocateData (deviceType);
 		device = (PCapDeviceDesc*) devicePtr.m_p;
-		device->m_namePtr = rt::strDup (iface->name);
-		device->m_descriptionPtr = rt::strDup (iface->description);
+		device->m_namePtr = strDup (iface->name);
+		device->m_descriptionPtr = strDup (iface->description);
 		setupPCapAddress (runtime, &device->m_address, iface->addresses);
 
 		prevDevice->m_nextPtr = devicePtr;

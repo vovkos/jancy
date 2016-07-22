@@ -1,29 +1,18 @@
 #pragma once
 
-#include "jnc_ext_ExtensionLib.h"
-#include "jnc_std_StdLibGlobals.h"
-#include "jnc_rt_VariantUtils.h"
+#include "jnc_ExtensionLib.h"
+#include "jnc_Variant.h"
 
 namespace jnc {
 namespace std {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (StringHashTable)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
 
 //.............................................................................
 
 class StringHashTable: public IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (StringHashTable, &StringHashTable::markOpaqueGcRoots)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.StringHashTable", g_stdLibCacheSlot, StdLibCacheSlot_StringHashTable)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <StringHashTable>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <StringHashTable>)
-		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &StringHashTable::isEmpty)
-		JNC_MAP_FUNCTION ("clear",  &StringHashTable::clear)
-		JNC_MAP_FUNCTION ("find", &StringHashTable::find)
-		JNC_MAP_FUNCTION ("insert", &StringHashTable::insert)
-		JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 protected:
 	struct Entry: sl::ListLink
 	{
@@ -40,7 +29,7 @@ protected:
 public:
 	void
 	AXL_CDECL
-	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	bool 
 	AXL_CDECL
@@ -80,19 +69,6 @@ public:
 
 class VariantHashTable: public IfaceHdr
 {
-public:
-	JNC_OPAQUE_CLASS_TYPE_INFO (VariantHashTable, &VariantHashTable::markOpaqueGcRoots)
-
-	JNC_BEGIN_TYPE_FUNCTION_MAP ("std.VariantHashTable", g_stdLibCacheSlot, StdLibCacheSlot_VariantHashTable)
-		JNC_MAP_CONSTRUCTOR (&sl::construct <VariantHashTable>)
-		JNC_MAP_DESTRUCTOR (&sl::destruct <VariantHashTable>)
-		JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &VariantHashTable::isEmpty)
-		JNC_MAP_FUNCTION ("clear",  &VariantHashTable::clear)
-		JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
-		JNC_MAP_FUNCTION ("insert", &VariantHashTable::insert)
-		JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
-	JNC_END_TYPE_FUNCTION_MAP ()
-
 protected:
 	struct Entry: sl::ListLink
 	{
@@ -100,7 +76,7 @@ protected:
 		Variant m_value;
 	};
 
-	typedef sl::HashTableMap <Variant, Entry*, rt::HashVariant, rt::CmpVariant> VariantHashTableMap;
+	typedef sl::HashTableMap <Variant, Entry*, HashVariant, CmpVariant> VariantHashTableMap;
 
 protected:
 	sl::StdList <Entry> m_list;
@@ -109,7 +85,7 @@ protected:
 public:
 	void
 	AXL_CDECL
-	markOpaqueGcRoots (jnc::rt::GcHeap* gcHeap);
+	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	bool
 	AXL_CDECL

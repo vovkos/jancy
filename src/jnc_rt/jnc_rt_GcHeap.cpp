@@ -81,7 +81,7 @@ GcHeap::startup (ct::Module* module)
 	memset (&m_stats, 0, sizeof (m_stats));
 	m_flags = 0;
 
-	if (module->getCompileFlags () & ct::ModuleCompileFlag_SimpleGcSafePoint)
+	if (module->getCompileFlags () & ModuleCompileFlag_SimpleGcSafePoint)
 	{
 		m_flags |= GcHeapFlag_SimpleSafePoint;
 	}
@@ -216,7 +216,7 @@ GcHeap::allocateClass (ct::ClassType* type)
 	IfaceHdr* iface = tryAllocateClass (type);
 	if (!iface)
 	{
-		Runtime::runtimeError (err::getLastError ());
+		Runtime::dynamicThrow ();
 		ASSERT (false);
 	}
 
@@ -286,7 +286,7 @@ GcHeap::allocateData (ct::Type* type)
 	DataPtr ptr = tryAllocateData (type);
 	if (!ptr.m_p)
 	{
-		Runtime::runtimeError (err::getLastError ());
+		Runtime::dynamicThrow ();
 		ASSERT (false);
 	}
 
@@ -335,7 +335,7 @@ GcHeap::allocateArray (
 	DataPtr ptr = tryAllocateArray (type, count);
 	if (!ptr.m_p)
 	{
-		Runtime::runtimeError (err::getLastError ());
+		Runtime::dynamicThrow ();
 		ASSERT (false);
 	}
 
@@ -398,11 +398,11 @@ GcHeap::createDataPtrValidator (
 		DynamicArrayBox* box = AXL_MEM_NEW_EXTRA (DynamicArrayBox, size);
 		if (!box)
 		{
-			Runtime::runtimeError (err::getLastError ());
+			Runtime::dynamicThrow ();
 			ASSERT (false);
 		}
 
-		box->m_type = (jnc::Type*) m_runtime->getModule ()->m_typeMgr.getStdType (ct::StdType_DataPtrValidator);
+		box->m_type = (jnc::Type*) m_runtime->getModule ()->m_typeMgr.getStdType (StdType_DataPtrValidator);
 		box->m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 		box->m_rootOffset = 0;
 		box->m_count = GcDef_DataPtrValidatorPoolSize;
@@ -528,7 +528,7 @@ GcHeap::addStaticRootVariables (
 
 void
 GcHeap::addStaticRoot (
-	void* p,
+	const void* p,
 	ct::Type* type
 	)
 {
@@ -846,10 +846,10 @@ GcHeap::addRoot (
 	}
 	else // dynamic validator or heap variable
 	{
-		ASSERT (isDataPtrType (type, ct::DataPtrTypeKind_Thin));
+		ASSERT (isDataPtrType (type, DataPtrTypeKind_Thin));
 		ct::Type* targetType = ((ct::DataPtrType*) type)->getTargetType ();
 
-		if (targetType->getStdType () == ct::StdType_DataPtrValidator)
+		if (targetType->getStdType () == StdType_DataPtrValidator)
 		{
 			DataPtrValidator* validator = (DataPtrValidator*) p;
 			ASSERT (validator->m_validatorBox->m_type == targetType);

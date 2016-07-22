@@ -1,14 +1,35 @@
 #include "pch.h"
 #include "jnc_io_NamedPipe.h"
+#include "jnc_io_IoLib.h"
+#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
 
 //.............................................................................
 
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	NamedPipe, 
+	"io.NamedPipe", 
+	g_ioLibGuid, 
+	IoLibCacheSlot_NamedPipe,
+	NamedPipe, 
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
+	JNC_MAP_CONSTRUCTOR (&sl::construct <NamedPipe>)
+	JNC_MAP_DESTRUCTOR (&sl::destruct <NamedPipe>)
+	JNC_MAP_FUNCTION ("open",   &NamedPipe::open)
+	JNC_MAP_FUNCTION ("close",  &NamedPipe::close)
+	JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//.............................................................................
+
 NamedPipe::NamedPipe ()
 {
-	m_runtime = rt::getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
 	m_isOpen = false;
 	m_syncId = 0;
@@ -54,7 +75,7 @@ NamedPipe::open (
 
 		if (!result)
 		{
-			ext::propagateLastError ();
+			propagateLastError ();
 			return false;
 		}
 
@@ -85,9 +106,10 @@ NamedPipe::close ()
 	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
 
-	rt::enterWaitRegion (m_runtime);
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
-	rt::leaveWaitRegion (m_runtime);
+	gcHeap->leaveWaitRegion ();
 
 	m_pipeArray.clear ();
 	m_ioFlags = 0;
@@ -102,11 +124,14 @@ NamedPipe::accept ()
 	m_ioLock.lock ();
 	if (!(m_ioFlags & IoFlag_Opened))
 	{
-		ext::setError (err::SystemErrorCode_InvalidDeviceState);
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		propagateLastError ();
 		return NULL;
 	}
 
 	HANDLE hPipe;
+
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
 
 	if (!m_pendingAcceptArray.isEmpty ())
 	{
@@ -124,20 +149,23 @@ NamedPipe::accept ()
 		m_ioThreadEvent.signal ();
 		m_ioLock.unlock ();
 
-		rt::enterWaitRegion (m_runtime);
+		gcHeap->enterWaitRegion ();
 		accept.m_completionEvent.wait ();
-		rt::leaveWaitRegion (m_runtime);
+		gcHeap->leaveWaitRegion ();
 
 		if (accept.m_hPipe == INVALID_HANDLE_VALUE)
 		{
-			ext::setError (accept.m_error);
+			err::setError (accept.m_error);
+			propagateLastError ();
 			return NULL;
 		}
 
 		hPipe = accept.m_hPipe;
 	}
 
-	FileStream* fileStream = rt::createClass <FileStream> (m_runtime);
+	ClassType* type = FileStream_getType (m_runtime->getModule ());
+	FileStream* fileStream = (FileStream*) gcHeap->allocateClass (type);
+	sl::construct <FileStream > (fileStream);
 	fileStream->m_file.m_file.attach (hPipe);
 	fileStream->m_readBuffer.setCount (FileStream::Const_ReadBufferSize);
 	fileStream->m_isOpen = true;
@@ -263,7 +291,7 @@ NamedPipe::listenLoop ()
 				m_pendingAcceptArray.append (pipeIdx);
 				m_ioLock.unlock ();
 
-				rt::callMulticast (m_runtime, m_onIncomingConnectionEvent, m_syncId);
+				callMulticast (m_runtime, m_onIncomingConnectionEvent, m_syncId);
 
 				waitArray.remove (waitResult);
 				waitMapArray.remove (waitMapIdx);

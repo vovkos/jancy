@@ -321,7 +321,7 @@ ControlFlowMgr::onceStmt_Create (
 	}
 
 	flagVariable = m_module->m_variableMgr.createOnceFlagVariable (storageKind);
-	flagVariable->getItemDecl ()->m_pos = pos;
+	flagVariable->m_pos = pos;
 
 	if (storageKind == StorageKind_Static)
 	{
