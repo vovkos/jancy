@@ -147,7 +147,7 @@ ExtensionLibMgr::findSourceFileContents (const char* fileName)
 	contents.append (0); // ensure zero-termination
 
 	#pragma AXL_TODO ("add constructors for building axl::sl::String's off axl::sl::Array's")
-	file->m_contents = sl::String (contents, contents.getCount ());
+	file->m_contents = sl::String (contents, contents.getCount () - 1);
 	file->m_zipReader = NULL;
 	file->m_zipIndex = -1;
 
