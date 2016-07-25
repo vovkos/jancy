@@ -31,6 +31,33 @@ jnc_getClassPtrTypeKindString (jnc_ClassPtrTypeKind ptrTypeKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+jnc_ClassTypeKind
+jnc_ClassType_getClassTypeKind (jnc_ClassType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassTypeKindFunc (type);
+}
+
+JNC_EXTERN_C
+jnc_StructType*
+jnc_ClassType_getIfaceStructType (jnc_ClassType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getIfaceStructTypeFunc (type);
+}
+
+JNC_EXTERN_C
+jnc_ClassPtrType*
+jnc_ClassType_getClassPtrType (
+	jnc_ClassType* type,
+	jnc_ClassPtrTypeKind ptrTypeKind,
+	uint_t flags
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc (type, ptrTypeKind, flags);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
 jnc_FunctionPtrType*
 jnc_MulticastClassType_getTargetType (jnc_MulticastClassType* type)
 {
@@ -46,6 +73,8 @@ jnc_MulticastClassType_getMethod (
 {
 	return jnc_g_dynamicExtensionLibHost->m_multicastClassTypeFuncTable->m_getMethodFunc (type, method);
 }
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -78,6 +107,17 @@ jnc_StructType*
 jnc_ClassType_getIfaceStructType (jnc_ClassType* type)
 {
 	return type->getIfaceStructType ();
+}
+
+JNC_EXTERN_C
+jnc_ClassPtrType*
+jnc_ClassType_getClassPtrType (
+	jnc_ClassType* type,
+	jnc_ClassPtrTypeKind ptrTypeKind,
+	uint_t flags
+	)
+{
+	return type->getClassPtrType (ptrTypeKind, flags);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

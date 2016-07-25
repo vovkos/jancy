@@ -948,7 +948,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
-		function = createFunction (FunctionKind_Internal, "jnc.checkDataPtrRangeIndirect", functionType);
+		function = createFunction (FunctionKind_Internal, "jnc.variantRelationalOperator", functionType);
 		break;
 
 	case StdFunc_GcSafePoint:

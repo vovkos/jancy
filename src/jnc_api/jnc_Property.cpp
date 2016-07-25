@@ -14,6 +14,20 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_Property_getItemDecl (jnc_Property* prop)
+{
+	return jnc_g_dynamicExtensionLibHost->m_propertyFuncTable->m_getItemDeclFunc (prop);
+}
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_Property_getNamespace (jnc_Property* prop)
+{
+	return jnc_g_dynamicExtensionLibHost->m_propertyFuncTable->m_getNamespaceFunc (prop);
+}
+
+JNC_EXTERN_C
 jnc_PropertyType*
 jnc_Property_getType (jnc_Property* prop)
 {

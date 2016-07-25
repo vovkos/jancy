@@ -9,6 +9,7 @@ typedef struct jnc_Variant jnc_Variant;
 
 //.............................................................................
 
+JNC_EXTERN_C
 int
 jnc_Variant_cast (
 	const jnc_Variant* variant,
@@ -16,36 +17,44 @@ jnc_Variant_cast (
 	void* buffer
 	);
 
-jnc_Variant
+JNC_EXTERN_C
+int
 jnc_Variant_unaryOperator (
+	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
-	const jnc_Variant* variant
+	jnc_Variant* result
 	);
 
-jnc_Variant
+JNC_EXTERN_C
+int
 jnc_Variant_binaryOperator (
-	jnc_BinOpKind opKind,
 	const jnc_Variant* variant,
-	const jnc_Variant* variant2
+	const jnc_Variant* variant2,
+	jnc_BinOpKind opKind,
+	jnc_Variant* result
 	);
 
-bool
+JNC_EXTERN_C
+int
 jnc_Variant_relationalOperator (
-	jnc_BinOpKind opKind,
 	const jnc_Variant* variant,
-	const jnc_Variant* variant2
+	const jnc_Variant* variant2,
+	jnc_BinOpKind opKind,
+	int* result
 	);
 
 inline
-bool
+int
 jnc_Variant_isEqual (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2
 	)
 {
-	return jnc_Variant_relationalOperator (jnc_BinOpKind_Eq, variant, variant2);
+	int result = 0;
+	return jnc_Variant_relationalOperator (variant, variant2, jnc_BinOpKind_Eq, &result) && result;
 }
 
+JNC_EXTERN_C
 size_t 
 jnc_Variant_getHash (const jnc_Variant* variant);
 
@@ -92,34 +101,51 @@ struct jnc_Variant
 		return jnc_Variant_cast (this, type, buffer) != 0;
 	}
 
-	jnc_Variant
-	unaryOperator (jnc_UnOpKind opKind) const
-	{
-		return jnc_Variant_unaryOperator (opKind, this);
-	}
-
-	jnc_Variant
-	binaryOperator (
-		jnc_BinOpKind opKind,
-		const jnc_Variant* variant2
+	bool
+	unaryOperator (
+		jnc_UnOpKind opKind,
+		jnc_Variant* result
 		) const
 	{
-		return jnc_Variant_binaryOperator (opKind, this, variant2);
+		return jnc_Variant_unaryOperator (this, opKind, result) != 0;
+	}
+
+	bool
+	unaryOperator (jnc_UnOpKind opKind)
+	{
+		return jnc_Variant_unaryOperator (this, opKind, this) != 0;
+	}
+
+	bool
+	binaryOperator (
+		const jnc_Variant* variant2,
+		jnc_BinOpKind opKind,
+		jnc_Variant* result
+		) const
+	{
+		return jnc_Variant_binaryOperator (this, variant2, opKind, result) != 0;
+	}
+
+	bool
+	binaryOperator (
+		const jnc_Variant* variant2,
+		jnc_BinOpKind opKind
+		)
+	{
+		return jnc_Variant_binaryOperator (this, variant2, opKind, this) != 0;
 	}
 
 	bool
 	relationalOperator (
+		const jnc_Variant* variant2,
 		jnc_BinOpKind opKind,
-		const jnc_Variant* variant2
-		) const
-	{
-		return jnc_Variant_relationalOperator (opKind, this, variant2);
-	}
+		bool* result
+		) const;
 
 	bool
 	isEqual (const jnc_Variant* variant2) const
 	{
-		return jnc_Variant_isEqual (this, variant2);
+		return jnc_Variant_isEqual (this, variant2) != 0;
 	}
 
 	size_t 

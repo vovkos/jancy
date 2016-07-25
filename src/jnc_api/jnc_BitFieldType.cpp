@@ -13,6 +13,27 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
+JNC_EXTERN_C
+jnc_Type*
+jnc_BitFieldType_getBaseType (jnc_BitFieldType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBaseTypeFunc (type);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_BitFieldType_getBitOffset (jnc_BitFieldType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitOffsetFunc (type);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_BitFieldType_getBitCount (jnc_BitFieldType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitCountFunc (type);
+}
+
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C

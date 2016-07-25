@@ -280,6 +280,41 @@ dynamicThrow()
 	ASSERT (false);
 }
 
+jnc_Variant
+variantUnaryOperator (
+	int opKind,
+	jnc_Variant variant
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	variant.unaryOperator ((jnc_UnOpKind) opKind, &result);
+	return result;
+}
+
+jnc_Variant
+variantBinaryOperator (
+	int opKind,
+	jnc_Variant variant1,
+	jnc_Variant variant2
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	variant1.binaryOperator (&variant2, (jnc_BinOpKind) opKind, &result);
+	return result;
+}
+
+bool
+variantRelationalOperator (
+	int opKind,
+	jnc_Variant variant1,
+	jnc_Variant variant2
+	)
+{
+	bool result = false;
+	variant1.relationalOperator (&variant2, (jnc_BinOpKind) opKind, &result);
+	return result;
+}
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -978,9 +1013,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// variant operators
 
-	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantUnaryOperator,      jnc_Variant_unaryOperator)
-	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantBinaryOperator,     jnc_Variant_binaryOperator)
-	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantRelationalOperator, jnc_Variant_relationalOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantUnaryOperator,      variantUnaryOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantBinaryOperator,     variantBinaryOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantRelationalOperator, variantRelationalOperator)
 
 	// exceptions
 

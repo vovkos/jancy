@@ -34,6 +34,21 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_FunctionArg_getItemDecl (jnc_FunctionArg* arg)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionArgFuncTable->m_getItemDeclFunc (arg);
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_FunctionArg_getType (jnc_FunctionArg* arg)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionArgFuncTable->m_getTypeFunc (arg);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Type*
@@ -48,6 +63,36 @@ jnc_FunctionType_getArgCount (jnc_FunctionType* type)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getArgCountFunc (type);
 }
+
+JNC_EXTERN_C
+jnc_FunctionArg*
+jnc_FunctionType_getArg (
+	jnc_FunctionType* type,
+	size_t index	
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getArgFunc (type, index);
+}
+
+JNC_EXTERN_C
+jnc_FunctionPtrType*
+jnc_FunctionType_getFunctionPtrType (
+	jnc_FunctionType* type,
+	jnc_FunctionPtrTypeKind ptrTypeKind,
+	uint_t flags
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc (type, ptrTypeKind, flags);
+}
+
+JNC_EXTERN_C
+jnc_FunctionType*
+jnc_FunctionType_getShortType (jnc_FunctionType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getShortTypeFunc (type);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
@@ -105,6 +150,8 @@ jnc_FunctionType_getArg (
 	return type->getArgArray () [index];
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
 jnc_FunctionPtrType_getPtrTypeKind (jnc_FunctionPtrType* type)
@@ -118,7 +165,6 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 {
 	return type->getTargetType ();
 }
-
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*

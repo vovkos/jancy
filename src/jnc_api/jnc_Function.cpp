@@ -100,10 +100,45 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_Function_getItemDecl (jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getItemDeclFunc (function);
+}
+
+JNC_EXTERN_C
+jnc_FunctionKind
+jnc_Function_getFunctionKind (jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getFunctionKindFunc (function);
+}
+
+JNC_EXTERN_C
 jnc_FunctionType*
 jnc_Function_getType (jnc_Function* function)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getTypeFunc (function);
+}
+
+JNC_EXTERN_C
+int
+jnc_Function_isMember (jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isMemberFunc (function);
+}
+
+JNC_EXTERN_C
+int
+jnc_Function_isOverloaded (jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isOverloadedFunc (function);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_Function_getOverloadCount (jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getOverloadCountFunc (function);
 }
 
 JNC_EXTERN_C

@@ -35,6 +35,23 @@ jnc_getNamespaceKindString (jnc_NamespaceKind namespaceKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+size_t
+jnc_Namespace_getItemCount (jnc_Namespace* nspace)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_getItemCountFunc (nspace);
+}
+
+JNC_EXTERN_C
+jnc_ModuleItem*
+jnc_Namespace_getItem (
+	jnc_Namespace* nspace,
+	size_t index
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_getItemFunc (nspace, index);
+}
+
+JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
@@ -52,6 +69,16 @@ jnc_Namespace_findProperty (
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findPropertyFunc (nspace, name);
+}
+
+JNC_EXTERN_C
+jnc_ClassType*
+jnc_Namespace_findClassType (
+	jnc_Namespace* nspace,
+	const char* name
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findClassTypeFunc (nspace, name);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

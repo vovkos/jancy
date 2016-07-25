@@ -89,6 +89,78 @@ jnc_getAccessKindString (jnc_AccessKind accessKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+const char*
+jnc_ModuleItemDecl_getName (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getNameFunc (decl);
+}
+
+JNC_EXTERN_C
+const char*
+jnc_ModuleItemDecl_getQualifiedName (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getQualifiedNameFunc (decl);
+}
+
+JNC_EXTERN_C
+jnc_StorageKind
+jnc_ModuleItemDecl_getStorageKind (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getStorageKindFunc (decl);
+}
+
+JNC_EXTERN_C
+jnc_AccessKind
+jnc_ModuleItemDecl_getAccessKind (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getAccessKindFunc (decl);
+}
+
+JNC_EXTERN_C
+jnc_AttributeBlock*
+jnc_ModuleItemDecl_getAttributeBlock (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getAttributeBlockFunc (decl);
+}
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_ModuleItemDecl_getParentNamespace (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentNamespaceFunc (decl);
+}
+
+JNC_EXTERN_C
+jnc_Unit*
+jnc_ModuleItemDecl_getParentUnit (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentUnitFunc (decl);
+}
+
+JNC_EXTERN_C
+int
+jnc_ModuleItemDecl_getLine (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getLineFunc (decl);
+}
+
+JNC_EXTERN_C
+int
+jnc_ModuleItemDecl_getCol (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getColFunc (decl);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getOffsetFunc (decl);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
 jnc_Module*
 jnc_ModuleItem_getModule (jnc_ModuleItem* item)
 {
@@ -204,7 +276,6 @@ jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl)
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 
 JNC_EXTERN_C
 jnc_Module*

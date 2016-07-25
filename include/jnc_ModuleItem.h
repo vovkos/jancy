@@ -90,18 +90,6 @@ JNC_EXTERN_C
 const char*
 jnc_getAccessKindString (jnc_AccessKind accessKind);
 
-
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#if (!defined _JNC_CORE && defined __cplusplus)
-
-struct jnc_ModuleItemPos
-{
-};
-
-#endif // _JNC_CORE
-
 //.............................................................................
 
 JNC_EXTERN_C
