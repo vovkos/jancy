@@ -144,10 +144,12 @@ ExtensionLibMgr::findSourceFileContents (const char* fileName)
 		return file->m_contents;
 
 	sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
-	contents.append (0); // ensure zero-termination
+	size_t length = contents.getCount ();
 
-	#pragma AXL_TODO ("add constructors for building axl::sl::String's off axl::sl::Array's")
-	file->m_contents = sl::String (contents, contents.getCount () - 1);
+	contents.append (0); // ensure zero-termination -- not neccessarty, actually
+
+	#pragma AXL_TODO ("add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
+	file->m_contents = sl::String (contents, length);
 	file->m_zipReader = NULL;
 	file->m_zipIndex = -1;
 
