@@ -48,6 +48,11 @@ int main ()
 		threadTable [i].start (threadProc);
 	}
 
+	printf ("waiting for threads...\n");
+
+	for (size_t i = 0; i < countof (threadTable); i++)
+		threadTable [i].waitAndClose ();
+
 	printf ("exiting main...\n");
 	return 0; 
 }
