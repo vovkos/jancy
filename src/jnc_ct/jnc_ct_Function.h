@@ -411,6 +411,10 @@ public:
 	bool
 	compile ();
 
+	virtual
+	sl::String
+	generateDocumentation (const char* outputDir);
+
 protected:
 	bool
 	compileConstructorBody ();

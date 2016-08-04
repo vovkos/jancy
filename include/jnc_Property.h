@@ -6,17 +6,12 @@
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Property_getItemDecl (jnc_Property* prop);
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_Property_getNamespace (jnc_Property* prop);
-
-JNC_EXTERN_C
+inline
 jnc_PropertyType*
-jnc_Property_getType (jnc_Property* prop);
+jnc_Property_getType (jnc_Property* prop)
+{
+	return (jnc_PropertyType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) prop);
+}
 
 JNC_EXTERN_C
 jnc_Function*
@@ -32,18 +27,6 @@ jnc_Property_getSetter (jnc_Property* prop);
 
 struct jnc_Property: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_Property_getItemDecl (this);
-	}
-
-	jnc_Namespace*
-	getNamespace ()
-	{
-		return jnc_Property_getNamespace (this);
-	}
-
 	jnc_PropertyType*
 	getType ()
 	{

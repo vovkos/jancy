@@ -293,6 +293,10 @@ public:
 	bool
 	callBaseTypeDestructors (const Value& thisValue);
 
+	virtual
+	sl::String
+	generateDocumentation (const char* outputDir);
+
 protected:
 	ModuleItem*
 	findItemInExtensionNamespaces (const char* name);

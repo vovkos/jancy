@@ -14,13 +14,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_DerivableType*
-jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
-{
-	return jnc_g_dynamicExtensionLibHost->m_baseTypeSlotFuncTable->m_getTypeFunc (baseType);
-}
-
-JNC_EXTERN_C
 size_t
 jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 {
@@ -35,13 +28,6 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_DerivableType_getNamespace (jnc_DerivableType* type)
-{
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getNamespaceFunc (type);
-}
 
 JNC_EXTERN_C
 jnc_Function*
@@ -118,13 +104,6 @@ jnc_DerivableType_getCastOperator (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_DerivableType*
-jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
-{
-	return baseType->getType ();
-}
-
-JNC_EXTERN_C
 size_t
 jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 {
@@ -139,13 +118,6 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_DerivableType_getNamespace (jnc_DerivableType* type)
-{
-	return type;
-}
 
 JNC_EXTERN_C
 jnc_Function*

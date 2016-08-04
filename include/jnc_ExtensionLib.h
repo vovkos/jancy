@@ -127,7 +127,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
 		jnc_GlobalNamespace* global = jnc_Module_getGlobalNamespace (module); \
-		jnc_Namespace* nspace = jnc_GlobalNamespace_getNamespace (global); \
+		jnc_Namespace* nspace = jnc_ModuleItem_getNamespace ((jnc_ModuleItem*) global); \
 		size_t overloadIdx = 0; \
 
 #define JNC_END_LIB_FUNCTION_MAP() \
@@ -315,7 +315,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_DerivableType* type = (jnc_DerivableType*) TypePrefix##_getType (module); \
 		if (!type) \
 			return !isRequired; \
-		nspace = jnc_DerivableType_getNamespace (type);
+		nspace = jnc_ModuleItem_getNamespace ((jnc_ModuleItem*) type);
 
 #define JNC_END_TYPE_FUNCTION_MAP() \
 		return 1; \

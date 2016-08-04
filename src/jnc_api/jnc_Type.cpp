@@ -287,12 +287,12 @@ jnc_Type_getTypeString (jnc_Type* type)
 
 JNC_EXTERN_C
 const char*
-jnc_Type_getDeclarationString_v (
+jnc_Type_createDeclarationString_v (
 	jnc_Type* type,
 	const char* name
 	)
 {
-	return *jnc::getTlsStringBuffer () = type->getDeclarationString (name);
+	return *jnc::getTlsStringBuffer () = type->createDeclarationString (name);
 }
 
 JNC_EXTERN_C
@@ -330,22 +330,6 @@ jnc_Type_markGcRoots (
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_NamedType_getItemDecl (jnc_NamedType* type)
-{
-	return type;
-}
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_NamedType_getNamespace (jnc_NamedType* type)
-{
-	return type;
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
 jnc_DataPtrTypeKind
 jnc_DataPtrType_getPtrTypeKind (jnc_DataPtrType* type)
 {
@@ -357,22 +341,6 @@ jnc_Type*
 jnc_DataPtrType_getTargetType (jnc_DataPtrType* type)
 {
 	return type->getTargetType ();
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Typedef_getItemDecl (jnc_Typedef* tdef)
-{
-	return tdef;
-}
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_Typedef_getType (jnc_Typedef* tdef)
-{
-	return tdef->getType ();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

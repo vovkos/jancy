@@ -238,6 +238,9 @@ public:
 	bool
 	exposeEnumConsts (EnumType* member);
 
+	sl::String
+	generateMemberDocumentation (const char* outputDir);
+
 protected:
 	void
 	clear ();
@@ -273,8 +276,8 @@ public:
 	}
 
 	virtual
-	sl::StringRef
-	generateDocumentation (const sl::StringRef& outputDir);
+	sl::String
+	generateDocumentation (const char* outputDir);
 };
 
 //.............................................................................

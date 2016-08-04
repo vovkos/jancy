@@ -125,6 +125,10 @@ public:
 	bool
 	isInitializationNeeded ();
 
+	virtual
+	sl::String
+	generateDocumentation (const char* outputDir);
+
 protected:
 	virtual
 	bool

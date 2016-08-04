@@ -7,9 +7,12 @@
 
 //.............................................................................
 
-JNC_EXTERN_C
+inline
 jnc_DerivableType*
-jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
+{
+	return (jnc_DerivableType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) baseType);
+}
 
 JNC_EXTERN_C
 size_t
@@ -47,10 +50,6 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem
 #endif // _JNC_CORE
 
 //.............................................................................
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_DerivableType_getNamespace (jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
@@ -154,12 +153,6 @@ jnc_DerivableType_getMemberProperty (
 
 struct jnc_DerivableType: jnc_NamedType
 {
-	jnc_Namespace*
-	getNamespace ()
-	{
-		return jnc_DerivableType_getNamespace (this);
-	}
-
 	jnc_Function*
 	getStaticConstructor ()
 	{

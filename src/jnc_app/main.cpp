@@ -42,6 +42,8 @@ printUsage ()
 
 //.............................................................................
 
+#include <iostream>
+
 #if (_AXL_ENV == AXL_ENV_WIN)
 int
 wmain (
@@ -103,7 +105,14 @@ main (
 		}
 
 		if (cmdLine.m_flags & JncFlag_Documentation)
-			app.generateDocumentation ();
+		{
+			result = app.generateDocumentation ();
+			if (!result)
+			{
+				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				return JncError_CompileFailure;
+			}
+		}
 
 		if (cmdLine.m_flags & JncFlag_Compile)
 		{

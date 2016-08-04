@@ -81,22 +81,6 @@ jnc_Namespace_findClassType (
 	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findClassTypeFunc (nspace, name);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_GlobalNamespace_getItemDecl (jnc_GlobalNamespace* nspace)
-{
-	return jnc_g_dynamicExtensionLibHost->m_globalNamespaceFuncTable->m_getItemDeclFunc (nspace);
-}
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_GlobalNamespace_getNamespace (jnc_GlobalNamespace* nspace)
-{
-	return jnc_g_dynamicExtensionLibHost->m_globalNamespaceFuncTable->m_getNamespaceFunc (nspace);
-}
-
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
@@ -144,22 +128,6 @@ jnc_Namespace_findClassType (
 	)
 {
 	return nspace->findClassTypeByName (name);
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_GlobalNamespace_getItemDecl (jnc_GlobalNamespace* nspace)
-{
-	return nspace;
-}
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_GlobalNamespace_getNamespace (jnc_GlobalNamespace* nspace)
-{
-	return nspace;
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

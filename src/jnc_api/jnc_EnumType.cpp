@@ -14,13 +14,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_EnumConst_getItemDecl (jnc_EnumConst* enumConst)
-{
-	return jnc_g_dynamicExtensionLibHost->m_enumConstFuncTable->m_getItemDeclFunc (enumConst);
-}
-
-JNC_EXTERN_C
 int64_t
 jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
 {
@@ -54,13 +47,6 @@ jnc_EnumType_getConst (
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_EnumConst_getItemDecl (jnc_EnumConst* enumConst)
-{
-	return enumConst;
-}
 
 JNC_EXTERN_C
 int64_t

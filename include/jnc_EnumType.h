@@ -16,10 +16,6 @@ enum jnc_EnumTypeFlag
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_EnumConst_getItemDecl (jnc_EnumConst* enumConst);
-
-JNC_EXTERN_C
 int64_t
 jnc_EnumConst_getValue (jnc_EnumConst* enumConst);
 
@@ -29,12 +25,6 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst);
 
 struct jnc_EnumConst: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_EnumConst_getItemDecl (this);
-	}
-
 	int64_t
 	getValue ()
 	{

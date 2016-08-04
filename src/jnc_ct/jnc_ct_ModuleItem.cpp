@@ -29,13 +29,175 @@ ModuleItemDecl::ModuleItemDecl ()
 	m_attributeBlock = NULL;
 }
 
+sl::String
+ModuleItemDecl::createDoxLocationString ()
+{
+	sl::String string;
+
+	string.format ("<location file='%s' line='%d' col='%d'/>",
+		m_parentUnit->getFileName ().cc (),
+		m_pos.m_line + 1,
+		m_pos.m_col + 1
+		);
+
+	return string;
+}
+
 //.............................................................................
 
 ModuleItem::ModuleItem ()
 {
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
+	m_dox = NULL;
 	m_flags = 0;
+}
+
+ModuleItem::~ModuleItem ()
+{
+	if (m_dox)
+		AXL_MEM_DELETE (m_dox);
+}
+
+ModuleItemDecl*
+ModuleItem::getDecl ()
+{
+	switch (m_itemKind)
+	{
+	case ModuleItemKind_Namespace:
+		return (GlobalNamespace*) this;
+
+	case ModuleItemKind_Scope:
+		return (Scope*) this;
+
+	case ModuleItemKind_Type:
+		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ? 
+			(NamedType*) this :
+			NULL;
+
+	case ModuleItemKind_Typedef:
+		return (Typedef*) this;
+
+	case ModuleItemKind_Alias:
+		return (Alias*) this;
+
+	case ModuleItemKind_Const:
+		return (Const*) this;
+
+	case ModuleItemKind_Variable:
+		return (Variable*) this;
+
+	case ModuleItemKind_FunctionArg:
+		return (FunctionArg*) this;
+
+	case ModuleItemKind_Function:
+		return (Function*) this;
+
+	case ModuleItemKind_Property:
+		return (Property*) this;
+
+	case ModuleItemKind_PropertyTemplate:
+		return (PropertyTemplate*) this;
+
+	case ModuleItemKind_EnumConst:
+		return (EnumConst*) this;
+
+	case ModuleItemKind_StructField:
+		return (StructField*) this;
+
+	case ModuleItemKind_BaseTypeSlot:
+		return (BaseTypeSlot*) this;
+
+	case ModuleItemKind_Orphan:
+		return (Orphan*) this;
+
+	default:
+		return NULL;
+	}
+}
+
+Namespace*
+ModuleItem::getNamespace ()
+{
+	switch (m_itemKind)
+	{
+	case ModuleItemKind_Namespace:
+		return (GlobalNamespace*) this;
+
+	case ModuleItemKind_Scope:
+		return (Scope*) this;
+
+	case ModuleItemKind_Typedef:
+		return ((Typedef*) this)->getType ()->getNamespace ();
+
+	case ModuleItemKind_Type:
+		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ? 
+			(NamedType*) this :
+			NULL;
+
+	case ModuleItemKind_Property:
+		return (Property*) this;
+
+	case ModuleItemKind_PropertyTemplate:
+		return (PropertyTemplate*) this;
+
+	default:
+		return NULL;
+	}
+}
+
+Type*
+ModuleItem::getType ()
+{
+	using namespace jnc;
+
+	switch (m_itemKind)
+	{
+	case ModuleItemKind_Type:
+		return (ct::Type*) this;
+
+	case ModuleItemKind_Typedef:
+		return ((ct::Typedef*) this)->getType ();
+
+	case ModuleItemKind_Alias:
+		return ((ct::Alias*) this)->getType ();
+
+	case ModuleItemKind_Const:
+		return ((ct::Const*) this)->getValue ().getType ();
+
+	case ModuleItemKind_Variable:
+		return ((ct::Variable*) this)->getType ();
+
+	case ModuleItemKind_FunctionArg:
+		return ((ct::FunctionArg*) this)->getType ();
+
+	case ModuleItemKind_Function:
+		return ((ct::Function*) this)->getType ();
+
+	case ModuleItemKind_Property:
+		return ((ct::Property*) this)->getType ();
+
+	case ModuleItemKind_PropertyTemplate:
+		return ((ct::PropertyTemplate*) this)->calcType ();
+
+	case ModuleItemKind_EnumConst:
+		return ((ct::EnumConst*) this)->getParentEnumType ();
+
+	case ModuleItemKind_StructField:
+		return ((ct::StructField*) this)->getType ();
+
+	case ModuleItemKind_BaseTypeSlot:
+		return ((ct::BaseTypeSlot*) this)->getType ();
+
+	case ModuleItemKind_Orphan:
+		return ((ct::Orphan*) this)->getFunctionType ();
+
+	case ModuleItemKind_Lazy:
+		return jnc_ModuleItem_getType (((ct::LazyModuleItem*) this)->getActualItem ());
+
+	default:
+		return NULL;
+	}
 }
 
 bool
@@ -63,6 +225,44 @@ ModuleItem::ensureLayout ()
 
 	m_flags |= ModuleItemFlag_LayoutReady;
 	return true;
+}
+
+ModuleItemDox* 
+ModuleItem::getDox ()
+{
+	if (m_dox)
+		return m_dox;
+
+	m_dox = AXL_MEM_NEW (ModuleItemDox);
+	m_dox->m_refId = createDoxRefId ();
+	return m_dox;
+}
+
+sl::String
+ModuleItem::createDoxRefId ()
+{
+	#pragma AXL_TODO ("generate more meaningful doxygen refid")
+
+	sl::String refId = getModuleItemKindString (m_itemKind);
+	
+	return m_module->adjustDoxRefId (refId);
+}
+
+sl::String
+ModuleItem::createDoxDescriptionString ()
+{
+	sl::String string;
+	ModuleItemDox* dox = getDox ();
+
+	string.append ("<briefdescription>\n");
+	string.append (dox->getBriefDescription ());
+	string.append ("</briefdescription>\n");
+
+	string.append ("<detaileddescription>\n");
+	string.append (dox->getDetailedDescription ());
+	string.append ("</detaileddescription>\n");
+
+	return string;
 }
 
 //.............................................................................

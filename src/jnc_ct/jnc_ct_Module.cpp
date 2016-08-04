@@ -56,16 +56,17 @@ Module::clear ()
 	m_operatorMgr.clear ();
 	m_gcShadowStackMgr.clear ();
 	m_unitMgr.clear ();
-	m_calcLayoutArray.clear ();
-	m_compileArray.clear ();
-	m_llvmIrBuilder.clear ();
-	m_llvmDiBuilder.clear ();
-	m_extensionLibMgr.clear ();
-	m_sourceList.clear ();
-	m_functionMap.clear ();
 	m_extensionLibMgr.clear ();
 	m_importMgr.clear ();
+
 	m_name.clear ();
+	m_llvmIrBuilder.clear ();
+	m_llvmDiBuilder.clear ();
+	m_calcLayoutArray.clear ();
+	m_compileArray.clear ();
+	m_sourceList.clear ();
+	m_functionMap.clear ();
+	m_doxRefIdMap.clear ();
 
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
@@ -666,12 +667,29 @@ Module::createDefaultConstructor ()
 }
 
 sl::String
-Module::getLlvmIrString ()
+Module::createLlvmIrString ()
 {
 	::std::string string;
 	llvm::raw_string_ostream stream (string);
 	m_llvmModule->print (stream, NULL);
 	return string.c_str ();
+}
+
+sl::String
+Module::adjustDoxRefId (const sl::StringRef& refId)
+{
+	sl::StringHashTableMapIterator <size_t> it = m_doxRefIdMap.visit (refId);
+	if (!it->m_value) // no collisions
+	{
+		it->m_value = 2; // start with index 2
+		return refId;
+	}
+
+	sl::String adjustedRefId;
+	adjustedRefId.format ("%s_%d", refId.cc (), it->m_value);
+	
+	it->m_value++;
+	return adjustedRefId;
 }
 
 //.............................................................................

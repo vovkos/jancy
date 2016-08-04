@@ -38,7 +38,7 @@ private:
 
 	void addStructField(QTreeWidgetItem* parent, jnc::StructField* field)
 	{
-		addValue (parent, field->getItemDecl ()->getName (), field->getType (), field);
+		addValue (parent, field->getDecl ()->getName (), field->getType (), field);
 	}
 
 	MdiChild *document;

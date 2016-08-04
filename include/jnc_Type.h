@@ -235,7 +235,7 @@ jnc_Type_getTypeString (jnc_Type* type);
 
 JNC_EXTERN_C
 const char*
-jnc_Type_getDeclarationString_v (
+jnc_Type_createDeclarationString_v (
 	jnc_Type* type,
 	const char* name
 	);
@@ -294,9 +294,9 @@ struct jnc_Type: jnc_ModuleItem
 	}
 
 	const char*
-	getDeclarationString_v (const char* name)
+	createDeclarationString_v (const char* name)
 	{
-		return jnc_Type_getDeclarationString_v (this, name);
+		return jnc_Type_createDeclarationString_v (this, name);
 	}
 
 	int
@@ -328,31 +328,10 @@ struct jnc_Type: jnc_ModuleItem
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_NamedType_getItemDecl (jnc_NamedType* type);
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_NamedType_getNamespace (jnc_NamedType* type);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_NamedType: jnc_Type
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_NamedType_getItemDecl (this);
-	}
-
-	jnc_Namespace*
-	getNamespace ()
-	{
-		return jnc_NamedType_getNamespace (this);
-	}
 };
 
 #endif // _JNC_CORE
@@ -390,31 +369,10 @@ struct jnc_DataPtrType: jnc_Type
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Typedef_getItemDecl (jnc_Typedef* tdef);
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_Typedef_getType (jnc_Typedef* tdef);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Typedef: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_Typedef_getItemDecl (this);
-	}
-
-	jnc_Type*
-	getType ()
-	{
-		return jnc_Typedef_getType (this);
-	}
 };
 
 #endif // _JNC_CORE

@@ -713,6 +713,14 @@ Property::getAutoAccessorPropertyValue ()
 	return propertyValue;
 }
 
+sl::String
+Property::generateDocumentation (const char* outputDir)
+{
+	sl::String string;
+
+	return string;
+}
+
 //.............................................................................
 
 } // namespace ct

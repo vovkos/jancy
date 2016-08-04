@@ -198,7 +198,7 @@ Type::getTypeString ()
 }
 
 sl::String
-Type::getDeclarationString (const char* name)
+Type::createDeclarationString (const char* name)
 {
 	sl::String string = getTypeString ();
 	string += ' ';

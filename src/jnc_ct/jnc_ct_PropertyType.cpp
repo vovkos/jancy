@@ -170,7 +170,7 @@ PropertyType::prepareTypeString ()
 }
 
 sl::String
-PropertyType::getDeclarationString (const char* name)
+PropertyType::createDeclarationString (const char* name)
 {
 	Type* returnType = getReturnType ();
 

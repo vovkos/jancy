@@ -6,28 +6,15 @@
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Attribute_getItemDecl (jnc_Attribute* attribute);
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Attribute: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_Attribute_getItemDecl (this);
-	}
 };
 
 #endif // _JNC_CORE
 
 //.............................................................................
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_AttributeBlock_getItemDecl (jnc_AttributeBlock* block);
 
 JNC_EXTERN_C
 size_t
@@ -51,12 +38,6 @@ jnc_AttributeBlock_findAttribute (
 
 struct jnc_AttributeBlock: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_AttributeBlock_getItemDecl (this);
-	}
-
 	size_t
 	getAttributeCount ()
 	{

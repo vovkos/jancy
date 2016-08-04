@@ -4,11 +4,8 @@
 
 #..............................................................................
 
-add_subdirectory (doxygen)
-add_subdirectory (qdoc)
-
-if (WIN32)
-	add_subdirectory (latex)
+if (DOXYGEN_FOUND)
+	add_subdirectory (doxygen)
 endif ()
 
 #..............................................................................

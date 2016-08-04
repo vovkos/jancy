@@ -41,31 +41,10 @@ jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_FunctionArg_getItemDecl (jnc_FunctionArg* arg);
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_FunctionArg_getType (jnc_FunctionArg* arg);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_FunctionArg: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_FunctionArg_getItemDecl (this);
-	}
-
-	jnc_Type*
-	getType ()
-	{
-		return jnc_FunctionArg_getType (this);
-	}
 };
 
 #endif // _JNC_CORE

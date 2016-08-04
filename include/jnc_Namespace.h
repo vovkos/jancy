@@ -98,30 +98,9 @@ struct jnc_Namespace
 
 //.............................................................................
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_GlobalNamespace_getItemDecl (jnc_GlobalNamespace* nspace);
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_GlobalNamespace_getNamespace (jnc_GlobalNamespace* nspace);
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GlobalNamespace: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_GlobalNamespace_getItemDecl (this);
-	}
-
-	jnc_Namespace*
-	getNamespace ()
-	{
-		return jnc_GlobalNamespace_getNamespace (this);
-	}
 };
 #endif // _JNC_CORE
 

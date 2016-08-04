@@ -9,46 +9,6 @@ namespace ct {
 
 //.............................................................................
 
-Namespace*
-getItemNamespace (ModuleItem* item)
-{
-	ModuleItemKind itemKind = item->getItemKind ();
-	switch (itemKind)
-	{
-	case ModuleItemKind_Namespace:
-		return (GlobalNamespace*) item;
-
-	case ModuleItemKind_Property:
-		return (Property*) item;
-
-	case ModuleItemKind_Type:
-		break;
-
-	case ModuleItemKind_Typedef:
-		item = ((Typedef*) item)->getType ();
-		break;
-
-	default:
-		return NULL;
-	}
-
-	Type* type = (Type*) item;
-	TypeKind typeKind = type->getTypeKind ();
-	switch (typeKind)
-	{
-	case TypeKind_Enum:
-	case TypeKind_Struct:
-	case TypeKind_Union:
-	case TypeKind_Class:
-		return ((NamedType*) type);
-
-	default:
-		return NULL;
-	}
-}
-
-//.............................................................................
-
 void
 Namespace::clear ()
 {
@@ -142,7 +102,7 @@ Namespace::findItem (const QualifiedName& name)
 	sl::BoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = getItemNamespace (item);
+		Namespace* nspace = item->getNamespace ();
 		if (!nspace)
 			return NULL;
 
@@ -168,7 +128,7 @@ Namespace::findItemTraverse (
 	sl::BoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = getItemNamespace (item);
+		Namespace* nspace = item->getNamespace ();
 		if (!nspace)
 			return NULL;
 
@@ -290,30 +250,49 @@ Namespace::exposeEnumConsts (EnumType* type)
 	return true;
 }
 
-//.............................................................................
 
-sl::StringRef
-GlobalNamespace::generateDocumentation (const sl::StringRef& outputDir)
+sl::String
+Namespace::generateMemberDocumentation (const char* outputDir)
 {
+	static char xmlHdr [] = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n";
+
 	sl::String resultDocumentation;
 
 	size_t count = m_itemArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::ct::ModuleItem* item = m_itemArray [i];
+		ModuleItem* item = m_itemArray [i];
+		Namespace* itemNamespace = item->getNamespace ();
+		if (itemNamespace == this)
+			continue;
 
 		sl::String itemDocumentation = item->generateDocumentation (outputDir);
 		if (itemDocumentation.isEmpty ())
 			continue;
 		
 		ModuleItemKind itemKind = item->getItemKind ();
-		if (itemKind == ModuleItemKind_Namespace ||
-			itemKind == ModuleItemKind_Type)
+		if (itemKind != ModuleItemKind_Namespace &&
+			itemKind != ModuleItemKind_Type)
 		{
-			io::File compoundFile;
+			resultDocumentation.append (itemDocumentation);
+			resultDocumentation.append ('\n');
 		}
 		else
 		{
+			sl::String refId = item->getDox ()->getRefId ();
+			sl::String fileName = outputDir;
+			fileName += '/';
+			fileName += refId;
+			fileName += ".xml";
+			
+			io::File compoundFile;
+			compoundFile.open (fileName);
+			compoundFile.write (xmlHdr, lengthof (xmlHdr));
+			compoundFile.write (itemDocumentation, itemDocumentation.getLength ());
+
+			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
+			resultDocumentation.appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
+			resultDocumentation.append ('\n');
 		}
 	}
 
@@ -321,6 +300,25 @@ GlobalNamespace::generateDocumentation (const sl::StringRef& outputDir)
 }
 
 //.............................................................................
+
+sl::String
+GlobalNamespace::generateDocumentation (const char* outputDir)
+{
+	sl::String documentation;
+
+	documentation.format ("<compounddef kind='namespace' refid='%s'>\n", getDox ()->getRefId ().cc ());
+	documentation += Namespace::generateMemberDocumentation (outputDir);
+
+	documentation.append (createDoxDescriptionString ());
+	documentation.append (createDoxLocationString ());
+
+	documentation += "</compounddef>\n";
+	
+	return documentation;
+}
+
+//.............................................................................
+
 
 } // namespace ct
 } // namespace jnc

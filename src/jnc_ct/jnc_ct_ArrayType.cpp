@@ -63,7 +63,7 @@ ArrayType::prepareTypeString ()
 }
 
 sl::String
-ArrayType::getDeclarationString (const char* name)
+ArrayType::createDeclarationString (const char* name)
 {
 	Type* rootType = getRootType ();
 

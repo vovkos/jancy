@@ -285,7 +285,7 @@ FunctionType::prepareTypeString ()
 }
 
 sl::String
-FunctionType::getDeclarationString (const char* name)
+FunctionType::createDeclarationString (const char* name)
 {
 	sl::String string = m_returnType->getTypeString ();
 	string += ' ';

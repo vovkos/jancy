@@ -109,6 +109,10 @@ public:
 		sl::BoxList <Token>* initializer = NULL
 		);
 
+	virtual
+	sl::String
+	generateDocumentation (const char* outputDir);
+
 protected:
 	virtual 
 	void

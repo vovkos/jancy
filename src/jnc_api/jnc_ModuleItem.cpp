@@ -182,6 +182,37 @@ jnc_ModuleItem_getFlags (jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_ModuleItem_getDecl (jnc_ModuleItem* item)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getDeclFunc (item);
+}
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_ModuleItem_getNamespace (jnc_ModuleItem* item)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getNamespaceFunc (item);
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_ModuleItem_getType (jnc_ModuleItem* item)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getTypeFunc (item);
+}
+
+JNC_EXTERN_C
+const char*
+jnc_ModuleItem_generateDocumentation_v (
+	jnc_ModuleItem* item,
+	const char* outputDir
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_generateDocumentationFunc (item, outputDir);
+}
+
+JNC_EXTERN_C
 jnc_DerivableType*
 jnc_verifyModuleItemIsDerivableType (
 	jnc_ModuleItem* item,
@@ -297,6 +328,39 @@ jnc_ModuleItem_getFlags (jnc_ModuleItem* item)
 {
 	return item->getFlags ();
 }
+
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_ModuleItem_getDecl (jnc_ModuleItem* item)
+{
+	return item->getDecl ();
+}
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_ModuleItem_getNamespace (jnc_ModuleItem* item)
+{
+	return item->getNamespace ();
+}
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_ModuleItem_getType (jnc_ModuleItem* item)
+{
+	return item->getType ();
+}
+
+JNC_EXTERN_C
+const char*
+jnc_ModuleItem_generateDocumentation_v (
+	jnc_ModuleItem* item,
+	const char* outputDir
+	)
+{
+	return *jnc::getTlsStringBuffer () = item->generateDocumentation (outputDir);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_DerivableType*

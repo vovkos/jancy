@@ -193,7 +193,7 @@ public:
 
 	virtual
 	sl::String
-	getDeclarationString (const char* name);
+	createDeclarationString (const char* name);
 
 protected:
 	virtual

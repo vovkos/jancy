@@ -283,6 +283,50 @@ Function::compileNormalBody ()
 	return parser.parseTokenList (SymbolKind_compound_stmt, m_body, true);
 }
 
+sl::String
+Function::generateDocumentation (const char* outputDir)
+{
+	sl::String string;
+
+	string.appendFormat ("<memberdef kind='function' id='%s'", getDox ()->getRefId ().cc ());
+
+	if (m_accessKind != AccessKind_Public)
+		string.appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+
+	if (m_storageKind == StorageKind_Static)
+		string.append (" static='yes'");
+
+	if (isMember () && (m_thisArgTypeFlags & PtrTypeFlag_Const))
+		string.append (" const='yes'");
+
+	if (isVirtual ())
+		string.appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
+
+	string.appendFormat (">\n<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
+ 
+	sl::Array <FunctionArg*> argArray = m_type->getArgArray ();
+	size_t count = argArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		FunctionArg* arg = argArray [i];
+		string.appendFormat (
+			"<param>\n"
+			"    <type>%s</type>\n"
+			"    <declname>%s</declname>\n"
+			"</param>\n",
+			arg->getType ()->getDoxLinkedText ().cc (),
+			arg->getName ().cc ()
+			);
+	}
+
+	string.append (createDoxDescriptionString ());
+	string.append (createDoxLocationString ());
+
+	string.append ("\n</memberdef>\n");
+
+	return string;
+}
+
 //.............................................................................
 
 } // namespace ct

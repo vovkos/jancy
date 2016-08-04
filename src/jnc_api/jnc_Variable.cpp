@@ -13,35 +13,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Variable_getItemDecl (jnc_Variable* variable)
-{
-	return jnc_g_dynamicExtensionLibHost->m_variableFuncTable->m_getItemDeclFunc (variable);
-}
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_Variable_getType (jnc_Variable* variable)
-{
-	return jnc_g_dynamicExtensionLibHost->m_variableFuncTable->m_getTypeFunc (variable);
-}
-
 #else // _JNC_DYNAMIC_EXTENSION_LIB
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Variable_getItemDecl (jnc_Variable* variable)
-{
-	return variable;
-}
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_Variable_getType (jnc_Variable* variable)
-{
-	return variable->getType ();
-}
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 

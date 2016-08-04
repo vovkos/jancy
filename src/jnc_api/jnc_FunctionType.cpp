@@ -35,22 +35,6 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_FunctionArg_getItemDecl (jnc_FunctionArg* arg)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionArgFuncTable->m_getItemDeclFunc (arg);
-}
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_FunctionArg_getType (jnc_FunctionArg* arg)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionArgFuncTable->m_getTypeFunc (arg);
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
 jnc_Type*
 jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 {
@@ -109,22 +93,6 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_FunctionArg_getItemDecl (jnc_FunctionArg* arg)
-{
-	return arg;
-}
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_FunctionArg_getType (jnc_FunctionArg* arg)
-{
-	return arg->getType ();
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Type*

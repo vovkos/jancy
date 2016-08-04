@@ -72,7 +72,7 @@ public:
 
 //.............................................................................
 
-class ModuleItemDecl: public ModuleItemPos
+class ModuleItemDecl: public ModuleItemPos	
 {
 	friend class Parser;
 	friend class Namespace;
@@ -131,6 +131,41 @@ public:
 	{
 		return m_attributeBlock;
 	}
+
+	sl::String
+	createDoxLocationString ();
+};
+
+//.............................................................................
+
+class ModuleItemDox
+{
+	friend class Parser;
+	friend class ModuleItem;
+
+protected:
+	sl::String m_refId;
+	sl::String m_briefDescription;
+	sl::String m_detailedDescription;
+
+public:
+	sl::String 
+	getRefId ()
+	{
+		return m_refId;
+	}
+
+	sl::String 
+	getBriefDescription ()
+	{
+		return m_briefDescription;
+	}
+
+	sl::String 
+	getDetailedDescription ()
+	{		
+		return m_detailedDescription;
+	}	
 };
 
 //.............................................................................
@@ -143,6 +178,7 @@ class ModuleItem: public sl::ListLink
 protected:
 	Module* m_module;
 	ModuleItemKind m_itemKind;
+	ModuleItemDox* m_dox;
 	uint_t m_flags;
 
 public:
@@ -150,6 +186,7 @@ public:
 
 public:
 	ModuleItem ();
+	~ModuleItem ();
 
 	Module*
 	getModule ()
@@ -169,6 +206,15 @@ public:
 		return m_flags;
 	}
 
+	ModuleItemDecl*
+	getDecl ();
+
+	Namespace*
+	getNamespace ();
+
+	Type*
+	getType ();
+
 	bool
 	ensureLayout ();
 
@@ -181,11 +227,17 @@ public:
 	}
 
 	virtual
-	sl::StringRef
-	generateDocumentation (const sl::StringRef& outputDir)
+	sl::String
+	generateDocumentation (const char* outputDir)
 	{
-		return sl::StringRef ();
+		return sl::String ();
 	}
+
+	ModuleItemDox* 
+	getDox ();
+
+	sl::String
+	createDoxDescriptionString ();
 
 protected:
 	virtual
@@ -195,6 +247,10 @@ protected:
 		ASSERT (false);
 		return true;
 	}
+
+	virtual
+	sl::String
+	createDoxRefId ();
 };
 
 //.............................................................................

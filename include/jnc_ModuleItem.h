@@ -216,6 +216,25 @@ JNC_EXTERN_C
 uint_t
 jnc_ModuleItem_getFlags (jnc_ModuleItem* item);
 
+JNC_EXTERN_C
+jnc_ModuleItemDecl*
+jnc_ModuleItem_getDecl (jnc_ModuleItem* item);
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_ModuleItem_getNamespace (jnc_ModuleItem* item);
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_ModuleItem_getType (jnc_ModuleItem* item);
+
+JNC_EXTERN_C
+const char*
+jnc_ModuleItem_generateDocumentation_v (
+	jnc_ModuleItem* item,
+	const char* outputDir
+	);
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -238,6 +257,30 @@ struct jnc_ModuleItem
 	getFlags ()
 	{
 		return jnc_ModuleItem_getFlags (this);
+	}
+
+	jnc_ModuleItemDecl*
+	getDecl ()
+	{
+		return jnc_ModuleItem_getDecl (this);
+	}
+
+	jnc_Namespace*
+	getNamespace ()
+	{
+		return jnc_ModuleItem_getNamespace (this);
+	}
+
+	jnc_Type*
+	getType ()
+	{
+		return jnc_ModuleItem_getType (this);
+	}
+
+	const char*
+	generateDocumentation_v (const char* outputDir)
+	{
+		return jnc_ModuleItem_generateDocumentation_v (this, outputDir);
 	}
 };
 

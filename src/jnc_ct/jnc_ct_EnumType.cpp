@@ -176,6 +176,22 @@ EnumType::calcLayout ()
 	return true;
 }
 
+sl::String
+EnumType::generateDocumentation (const char* outputDir)
+{
+	sl::String documentation;
+
+	documentation.format ("<compounddef kind='enum' refid='%s'>\n", getDox ()->getRefId ().cc ());
+	documentation += Namespace::generateMemberDocumentation (outputDir);
+
+	documentation.append (createDoxDescriptionString ());
+	documentation.append (createDoxLocationString ());
+
+	documentation += "</compounddef>\n";
+	
+	return documentation;
+}
+
 //.............................................................................
 
 } // namespace ct

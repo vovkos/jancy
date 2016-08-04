@@ -706,6 +706,22 @@ DerivableType::findItemTraverseImpl (
 	return NULL;
 }
 
+sl::String
+DerivableType::generateDocumentation (const char* outputDir)
+{
+	sl::String documentation;
+
+	documentation.format ("<compounddef kind='class' refid='%s'>\n", getDox ()->getRefId ().cc ());
+	documentation += Namespace::generateMemberDocumentation (outputDir);
+
+	documentation.append (createDoxDescriptionString ());
+	documentation.append (createDoxLocationString ());
+
+	documentation += "</compounddef>\n";
+	
+	return documentation;
+}
+
 //.............................................................................
 
 } // namespace ct

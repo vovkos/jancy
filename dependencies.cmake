@@ -38,6 +38,7 @@ set (
 		libssh2
 		openssl
 		pcap
+		doxygen
 	)
 
 if (UNIX AND NOT APPLE)

@@ -100,24 +100,10 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Function_getItemDecl (jnc_Function* function)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getItemDeclFunc (function);
-}
-
-JNC_EXTERN_C
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getFunctionKindFunc (function);
-}
-
-JNC_EXTERN_C
-jnc_FunctionType*
-jnc_Function_getType (jnc_Function* function)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getTypeFunc (function);
 }
 
 JNC_EXTERN_C
@@ -161,24 +147,10 @@ jnc_Function_getMachineCode (jnc_Function* function)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Function_getItemDecl (jnc_Function* function)
-{
-	return function;
-}
-
-JNC_EXTERN_C
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function)
 {
 	return function->getFunctionKind ();
-}
-
-JNC_EXTERN_C
-jnc_FunctionType*
-jnc_Function_getType (jnc_Function* function)
-{
-	return function->getType ();
 }
 
 JNC_EXTERN_C

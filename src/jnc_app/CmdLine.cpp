@@ -7,6 +7,7 @@ CmdLine::CmdLine ()
 {
 	m_flags = JncFlag_Run;
 	m_functionName = "main";
+	m_outputDir = ".";
 	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
 	m_gcSizeTriggers.m_periodSizeTrigger = jnc::GcDef_PeriodSizeTrigger;
 	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
@@ -98,8 +99,12 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_CompileOnly:
+		m_cmdLine->m_flags &= ~JncFlag_Run;
+		break;
+
 	case CmdLineSwitch_Documentation:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
+		m_cmdLine->m_flags |= JncFlag_Documentation;
 		break;
 
 	case CmdLineSwitch_Run:

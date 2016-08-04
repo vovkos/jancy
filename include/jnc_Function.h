@@ -55,16 +55,15 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind);
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_Function_getItemDecl (jnc_Function* function);
-
-JNC_EXTERN_C
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function);
 
-JNC_EXTERN_C
+inline
 jnc_FunctionType*
-jnc_Function_getType (jnc_Function* function);
+jnc_Function_getType (jnc_Function* function)
+{
+	return (jnc_FunctionType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) function);
+}
 
 JNC_EXTERN_C
 int
@@ -96,12 +95,6 @@ jnc_Function_getMachineCode (jnc_Function* function);
 
 struct jnc_Function: jnc_ModuleItem
 {
-	jnc_ModuleItemDecl*
-	getItemDecl ()
-	{
-		return jnc_Function_getItemDecl (this);
-	}
-
 	jnc_FunctionKind
 	getFunctionKind ()
 	{

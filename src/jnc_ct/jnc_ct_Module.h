@@ -68,6 +68,7 @@ protected:
 	sl::Array <ModuleItem*> m_compileArray;
 	sl::BoxList <sl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	sl::StringHashTableMap <void*> m_functionMap;
+	sl::StringHashTableMap <size_t> m_doxRefIdMap;
 
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
@@ -240,7 +241,10 @@ public:
 	findFunctionMapping (const char* name);
 
 	sl::String
-	getLlvmIrString ();
+	createLlvmIrString ();
+
+	sl::String
+	adjustDoxRefId (const sl::StringRef& refId);
 
 protected:
 	bool

@@ -78,6 +78,11 @@ public:
 	{
 		return m_llvmIndex;
 	}
+
+	virtual
+	sl::String
+	generateDocumentation (const char* outputDir);
+
 };
 
 //.............................................................................

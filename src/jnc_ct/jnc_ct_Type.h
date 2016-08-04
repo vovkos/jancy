@@ -249,7 +249,14 @@ public:
 
 	virtual
 	sl::String
-	getDeclarationString (const char* name);
+	createDeclarationString (const char* name);
+
+	virtual
+	sl::String
+	getDoxLinkedText ()
+	{
+		return getTypeString ();
+	}
 
 	llvm::Type*
 	getLlvmType ();
