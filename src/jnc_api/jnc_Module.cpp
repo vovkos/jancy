@@ -302,6 +302,66 @@ jnc_Module_createLlvmIrString_v (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+int
+jnc_Module_generateDocumentation (
+	jnc_Module* module,
+	const char* outputDir
+	)
+{
+	static char indexFileHdr [] = 
+		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+		"<doxygenindex>\n";
+
+	static char indexFileTerm [] = "</doxygenindex>\n";
+
+	static char compoundFileHdr [] = 
+		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+		"<doxygen>\n";
+
+	static char compoundFileTerm [] = "</doxygen>\n";
+
+	bool result;
+		
+	result = 
+		module->calcLayout () && 
+		io::ensureDirExists (outputDir);
+
+	if (!result)
+		return false;
+
+	sl::String nspaceXml;
+	sl::String indexXml;
+
+	jnc::GlobalNamespace* nspace = module->m_namespaceMgr.getGlobalNamespace ();
+	
+	result = nspace->generateDocumentation (outputDir, &nspaceXml, &indexXml);
+	if (!result)
+		return false;
+
+	if (nspaceXml.isEmpty ())
+	{
+		err::setStringError ("module does not contain any documentable items");
+		return false;
+	}
+
+	sl::String refId = nspace->getDox ()->getRefId ();
+	sl::String nspaceFileName = sl::String (outputDir) + "/" + refId + ".xml";
+	sl::String indexFileName = sl::String (outputDir) + "/index.xml";	
+
+	io::File file;
+	return
+		file.open (nspaceFileName, io::FileFlag_Clear) &&
+		file.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
+		file.write (nspaceXml, nspaceXml.getLength ()) != -1 &&		
+		file.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1 &&
+		
+		file.open (indexFileName, io::FileFlag_Clear) &&
+		file.write (indexFileHdr, lengthof (indexFileHdr)) != -1 &&
+		file.write (indexXml, indexXml.getLength ()) != -1 &&
+		file.write (indexFileTerm, lengthof (indexFileTerm)) != -1;
+}
+
+JNC_EXTERN_C
 void
 jnc_initialize ()
 {

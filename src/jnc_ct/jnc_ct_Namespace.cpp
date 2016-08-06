@@ -250,13 +250,25 @@ Namespace::exposeEnumConsts (EnumType* type)
 	return true;
 }
 
-
-sl::String
-Namespace::generateMemberDocumentation (const char* outputDir)
+bool
+Namespace::generateMemberDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	static char xmlHdr [] = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n";
+	bool result;
 
-	sl::String resultDocumentation;
+	static char compoundFileHdr [] = 
+		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+		"<doxygen>\n";
+
+	static char compoundFileTerm [] = "</doxygen>\n";
+
+	itemXml->clear ();
+
+	sl::String sectionDef;
+	sl::String memberXml;
 
 	size_t count = m_itemArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -265,56 +277,98 @@ Namespace::generateMemberDocumentation (const char* outputDir)
 		Namespace* itemNamespace = item->getNamespace ();
 		if (itemNamespace == this)
 			continue;
+			
+		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
+		if (!result)
+			return false;
 
-		sl::String itemDocumentation = item->generateDocumentation (outputDir);
-		if (itemDocumentation.isEmpty ())
+		if (memberXml.isEmpty ())
 			continue;
 		
 		ModuleItemKind itemKind = item->getItemKind ();
 		if (itemKind != ModuleItemKind_Namespace &&
 			itemKind != ModuleItemKind_Type)
 		{
-			resultDocumentation.append (itemDocumentation);
-			resultDocumentation.append ('\n');
+			sectionDef.append (memberXml);
+			sectionDef.append ('\n');
 		}
 		else
 		{
 			sl::String refId = item->getDox ()->getRefId ();
-			sl::String fileName = outputDir;
-			fileName += '/';
-			fileName += refId;
-			fileName += ".xml";
+			sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
 			
 			io::File compoundFile;
-			compoundFile.open (fileName);
-			compoundFile.write (xmlHdr, lengthof (xmlHdr));
-			compoundFile.write (itemDocumentation, itemDocumentation.getLength ());
+			result = 
+				compoundFile.open (fileName, io::FileFlag_Clear) &&
+				compoundFile.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
+				compoundFile.write (memberXml, memberXml.getLength ()) != -1 &&
+				compoundFile.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1;
+
+			if (!result)
+				return false;
 
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			resultDocumentation.appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
-			resultDocumentation.append ('\n');
+			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
+			itemXml->append ('\n');
 		}
 	}
+	
+	if (!sectionDef.isEmpty ())
+	{
+		itemXml->append ("<sectiondef>\n");
+		itemXml->append (sectionDef);
+		itemXml->append ("</sectiondef>\n");
+	}
 
-	return resultDocumentation;
+	return true;
 }
 
 //.............................................................................
 
-sl::String
-GlobalNamespace::generateDocumentation (const char* outputDir)
+bool
+GlobalNamespace::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String documentation;
+	const char* kind;
+	const char* name;
 
-	documentation.format ("<compounddef kind='namespace' refid='%s'>\n", getDox ()->getRefId ().cc ());
-	documentation += Namespace::generateMemberDocumentation (outputDir);
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace ())
+	{
+		kind = "file";
+		name = "global";
+	}
+	else
+	{
+		kind = "namespace";
+		name = getQualifiedName ();
+	}
 
-	documentation.append (createDoxDescriptionString ());
-	documentation.append (createDoxLocationString ());
+	indexXml->appendFormat (
+		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
+		kind,
+		getDox ()->getRefId ().cc (), 
+		name		
+		);
 
-	documentation += "</compounddef>\n";
-	
-	return documentation;
+	itemXml->format (
+		"<compounddef kind='%s' id='%s'>\n"
+		"<compoundname>%s</compoundname>\n", 
+		kind,
+		getDox ()->getRefId ().cc (),
+		name		
+		);
+
+	sl::String memberXml;
+	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	itemXml->append (memberXml);
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
+	itemXml->append ("</compounddef>\n");
+
+	return true;
 }
 
 //.............................................................................

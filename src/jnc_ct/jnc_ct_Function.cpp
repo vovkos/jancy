@@ -283,33 +283,37 @@ Function::compileNormalBody ()
 	return parser.parseTokenList (SymbolKind_compound_stmt, m_body, true);
 }
 
-sl::String
-Function::generateDocumentation (const char* outputDir)
+bool
+Function::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String string;
-
-	string.appendFormat ("<memberdef kind='function' id='%s'", getDox ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='function' id='%s'", getDox ()->getRefId ().cc ());
 
 	if (m_accessKind != AccessKind_Public)
-		string.appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
-		string.append (" static='yes'");
+		itemXml->append (" static='yes'");
 
 	if (isMember () && (m_thisArgTypeFlags & PtrTypeFlag_Const))
-		string.append (" const='yes'");
+		itemXml->append (" const='yes'");
 
 	if (isVirtual ())
-		string.appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
+		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
-	string.appendFormat (">\n<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
+	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
+	itemXml->appendFormat ("<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
  
 	sl::Array <FunctionArg*> argArray = m_type->getArgArray ();
 	size_t count = argArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		FunctionArg* arg = argArray [i];
-		string.appendFormat (
+		itemXml->appendFormat (
 			"<param>\n"
 			"    <type>%s</type>\n"
 			"    <declname>%s</declname>\n"
@@ -319,12 +323,11 @@ Function::generateDocumentation (const char* outputDir)
 			);
 	}
 
-	string.append (createDoxDescriptionString ());
-	string.append (createDoxLocationString ());
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
+	itemXml->append ("\n</memberdef>\n");
 
-	string.append ("\n</memberdef>\n");
-
-	return string;
+	return true;
 }
 
 //.............................................................................

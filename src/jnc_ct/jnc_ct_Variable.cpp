@@ -95,32 +95,35 @@ Variable::isInitializationNeeded ()
 		m_type->getTypeKind () == TypeKind_Class; // static class variable
 }
 
-sl::String
-Variable::generateDocumentation (const char* outputDir)
+bool
+Variable::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String string;
-
-	string.appendFormat ("<memberdef kind='variable' id='%s'", getDox ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='variable' id='%s'", getDox ()->getRefId ().cc ());
 
 	if (m_accessKind != AccessKind_Public)
-		string.appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
-		string.append (" static='yes'");
+		itemXml->append (" static='yes'");
 	else if (m_storageKind == StorageKind_Tls)
-		string.append (" tls='yes'");
+		itemXml->append (" tls='yes'");
 	 
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
-		string.append (" const='yes'");
+		itemXml->append (" const='yes'");
 
-	string.appendFormat (">\n\t<type>%s</type>\n", m_type->getDoxLinkedText ().cc ());
+	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxLinkedText ().cc ());
  
-	string.append (createDoxDescriptionString ());
-	string.append (createDoxLocationString ());
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
 
-	string.append ("\n</memberdef>\n");
+	itemXml->append ("\n</memberdef>\n");
 
-	return string;
+	return true;
 }
 
 //.............................................................................

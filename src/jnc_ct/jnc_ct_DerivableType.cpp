@@ -706,20 +706,37 @@ DerivableType::findItemTraverseImpl (
 	return NULL;
 }
 
-sl::String
-DerivableType::generateDocumentation (const char* outputDir)
+bool
+DerivableType::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String documentation;
+	indexXml->appendFormat (
+		"<compound kind='class' refid='%s'><name>%s</name></compound>\n", 
+		getDox ()->getRefId ().cc (), 
+		getQualifiedName ().cc ()
+		);
 
-	documentation.format ("<compounddef kind='class' refid='%s'>\n", getDox ()->getRefId ().cc ());
-	documentation += Namespace::generateMemberDocumentation (outputDir);
+	sl::String memberXml;
+	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	if (!result)
+		return false;
 
-	documentation.append (createDoxDescriptionString ());
-	documentation.append (createDoxLocationString ());
+	itemXml->format (
+		"<compounddef kind='class' id='%s'>\n"
+		"<compoundname>%s</compoundname>\n", 
+		getDox ()->getRefId ().cc (),
+		m_name.cc ()
+		);
 
-	documentation += "</compounddef>\n";
+	itemXml->append (memberXml);
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
+	itemXml->append ("</compounddef>\n");
 	
-	return documentation;
+	return true;
 }
 
 //.............................................................................

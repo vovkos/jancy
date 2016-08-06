@@ -713,12 +713,16 @@ Property::getAutoAccessorPropertyValue ()
 	return propertyValue;
 }
 
-sl::String
-Property::generateDocumentation (const char* outputDir)
+bool
+Property::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String string;
+	itemXml->clear ();
 
-	return string;
+	return true;
 }
 
 //.............................................................................

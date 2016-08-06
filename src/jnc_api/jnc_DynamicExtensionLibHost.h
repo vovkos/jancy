@@ -93,13 +93,6 @@ jnc_Type*
 jnc_ModuleItem_GetTypeFunc (jnc_ModuleItem* item);
 
 typedef
-const char*
-jnc_ModuleItem_GenerateDocumentationFunc (
-	jnc_ModuleItem* item,
-	const char* outputDir
-	);
-
-typedef
 jnc_DerivableType*
 jnc_VerifyModuleItemIsDerivableTypeFunc (
 	jnc_ModuleItem* item,
@@ -915,7 +908,7 @@ struct jnc_ModuleItemFuncTable
 	jnc_ModuleItem_GetDeclFunc* m_getDeclFunc;
 	jnc_ModuleItem_GetNamespaceFunc* m_getNamespaceFunc;
 	jnc_ModuleItem_GetTypeFunc* m_getTypeFunc;
-	jnc_ModuleItem_GenerateDocumentationFunc* m_generateDocumentationFunc;
+
 	jnc_VerifyModuleItemIsDerivableTypeFunc* m_verifyModuleItemIsDerivableTypeFunc;
 	jnc_VerifyModuleItemIsClassTypeFunc* m_verifyModuleItemIsClassTypeFunc;
 };

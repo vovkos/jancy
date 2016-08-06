@@ -43,7 +43,6 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
 	jnc_ModuleItem_getDecl,
 	jnc_ModuleItem_getNamespace,
 	jnc_ModuleItem_getType,
-	jnc_ModuleItem_generateDocumentation_v,
 	jnc_verifyModuleItemIsDerivableType,
 	jnc_verifyModuleItemIsClassType,
 };

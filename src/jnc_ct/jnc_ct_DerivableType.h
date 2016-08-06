@@ -294,8 +294,12 @@ public:
 	callBaseTypeDestructors (const Value& thisValue);
 
 	virtual
-	sl::String
-	generateDocumentation (const char* outputDir);
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		);
 
 protected:
 	ModuleItem*

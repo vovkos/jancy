@@ -203,16 +203,6 @@ jnc_ModuleItem_getType (jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-const char*
-jnc_ModuleItem_generateDocumentation_v (
-	jnc_ModuleItem* item,
-	const char* outputDir
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_generateDocumentationFunc (item, outputDir);
-}
-
-JNC_EXTERN_C
 jnc_DerivableType*
 jnc_verifyModuleItemIsDerivableType (
 	jnc_ModuleItem* item,
@@ -348,16 +338,6 @@ jnc_Type*
 jnc_ModuleItem_getType (jnc_ModuleItem* item)
 {
 	return item->getType ();
-}
-
-JNC_EXTERN_C
-const char*
-jnc_ModuleItem_generateDocumentation_v (
-	jnc_ModuleItem* item,
-	const char* outputDir
-	)
-{
-	return *jnc::getTlsStringBuffer () = item->generateDocumentation (outputDir);
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

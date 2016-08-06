@@ -148,23 +148,7 @@ JncApp::runFunction (int* returnValue)
 bool
 JncApp::generateDocumentation ()
 {
-	bool result = io::ensureDirExists (m_cmdLine->m_outputDir);
-	if (!result)
-		return false;
-
-	const char* documentation = m_module->getGlobalNamespace ()->generateDocumentation_v (m_cmdLine->m_outputDir);
-	if (!documentation)
-	{
-		err::setStringError ("module does not contain any documentable items");
-		return false;
-	}
-
-	size_t length = strlen (documentation);
-
-	io::File indexFile;
-	return 
-		indexFile.open (m_cmdLine->m_outputDir + "/index.xml") &&
-		indexFile.write (documentation, length) != -1;
+	return m_module->generateDocumentation (m_cmdLine->m_outputDir);
 }
 
 //.............................................................................

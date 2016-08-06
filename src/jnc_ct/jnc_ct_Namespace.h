@@ -238,9 +238,6 @@ public:
 	bool
 	exposeEnumConsts (EnumType* member);
 
-	sl::String
-	generateMemberDocumentation (const char* outputDir);
-
 protected:
 	void
 	clear ();
@@ -257,6 +254,13 @@ protected:
 		const char* name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
+		);
+
+	bool
+	generateMemberDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
 		);
 };
 
@@ -276,8 +280,12 @@ public:
 	}
 
 	virtual
-	sl::String
-	generateDocumentation (const char* outputDir);
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		);
 };
 
 //.............................................................................

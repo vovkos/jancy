@@ -176,20 +176,37 @@ EnumType::calcLayout ()
 	return true;
 }
 
-sl::String
-EnumType::generateDocumentation (const char* outputDir)
+bool
+EnumType::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
 {
-	sl::String documentation;
-
-	documentation.format ("<compounddef kind='enum' refid='%s'>\n", getDox ()->getRefId ().cc ());
-	documentation += Namespace::generateMemberDocumentation (outputDir);
-
-	documentation.append (createDoxDescriptionString ());
-	documentation.append (createDoxLocationString ());
-
-	documentation += "</compounddef>\n";
+	indexXml->appendFormat (
+		"<compound kind='enum' refid='%s'><name>%s</name></compound>\n", 
+		getDox ()->getRefId ().cc (), 
+		getQualifiedName ().cc ()
+		);
 	
-	return documentation;
+	sl::String memberXml;
+	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	if (!result)
+		return false;
+
+	itemXml->format (
+		"<compounddef kind='enum' id='%s'>\n"
+		"<compoundname>%s</compoundname>\n", 
+		getDox ()->getRefId ().cc (),
+		m_name.cc ()
+		);
+
+	itemXml->append (memberXml);
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
+	itemXml->append ("</compounddef>\n");
+
+	return true;
 }
 
 //.............................................................................

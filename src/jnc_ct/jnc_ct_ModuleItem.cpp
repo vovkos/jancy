@@ -32,6 +32,9 @@ ModuleItemDecl::ModuleItemDecl ()
 sl::String
 ModuleItemDecl::createDoxLocationString ()
 {
+	if (!m_parentUnit)
+		return sl::String ();
+
 	sl::String string;
 
 	string.format ("<location file='%s' line='%d' col='%d'/>",
@@ -244,6 +247,7 @@ ModuleItem::createDoxRefId ()
 	#pragma AXL_TODO ("generate more meaningful doxygen refid")
 
 	sl::String refId = getModuleItemKindString (m_itemKind);
+	refId.replace ('-', '_');
 	
 	return m_module->adjustDoxRefId (refId);
 }

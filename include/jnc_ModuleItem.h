@@ -228,13 +228,6 @@ JNC_EXTERN_C
 jnc_Type*
 jnc_ModuleItem_getType (jnc_ModuleItem* item);
 
-JNC_EXTERN_C
-const char*
-jnc_ModuleItem_generateDocumentation_v (
-	jnc_ModuleItem* item,
-	const char* outputDir
-	);
-
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -275,12 +268,6 @@ struct jnc_ModuleItem
 	getType ()
 	{
 		return jnc_ModuleItem_getType (this);
-	}
-
-	const char*
-	generateDocumentation_v (const char* outputDir)
-	{
-		return jnc_ModuleItem_generateDocumentation_v (this, outputDir);
 	}
 };
 

@@ -193,6 +193,13 @@ int
 jnc_Module_jit (jnc_Module* module);
 
 JNC_EXTERN_C
+int
+jnc_Module_generateDocumentation (
+	jnc_Module* module,
+	const char* outputDir
+	);
+
+JNC_EXTERN_C
 const char*
 jnc_Module_createLlvmIrString_v (jnc_Module* module);
 
@@ -371,6 +378,12 @@ struct jnc_Module
 	createLlvmIrString_v ()
 	{
 		return jnc_Module_createLlvmIrString_v (this);
+	}
+
+	bool
+	generateDocumentation (const char* outputDir)
+	{
+		return jnc_Module_generateDocumentation (this, outputDir) != 0;
 	}
 };
 #endif // _JNC_CORE

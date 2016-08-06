@@ -132,6 +132,7 @@ public:
 		return m_attributeBlock;
 	}
 
+protected:
 	sl::String
 	createDoxLocationString ();
 };
@@ -227,17 +228,18 @@ public:
 	}
 
 	virtual
-	sl::String
-	generateDocumentation (const char* outputDir)
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		)
 	{
-		return sl::String ();
+		return true;
 	}
 
 	ModuleItemDox* 
 	getDox ();
-
-	sl::String
-	createDoxDescriptionString ();
 
 protected:
 	virtual
@@ -251,6 +253,9 @@ protected:
 	virtual
 	sl::String
 	createDoxRefId ();
+
+	sl::String
+	createDoxDescriptionString ();
 };
 
 //.............................................................................
