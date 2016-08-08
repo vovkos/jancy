@@ -25,6 +25,10 @@ jnc_ExtensionLib_MapFunctionsFunc (jnc_Module* module);
 
 struct jnc_ExtensionLib
 {
+	const jnc_Guid* m_guid;
+	const char* m_name;
+	const char* m_description;
+
 	jnc_ExtensionLib_AddSourcesFunc* m_addSourcesFunc;
 	jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc* m_addOpaqueClassTypeInfosFunc;
 	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
@@ -55,7 +59,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	jnc_ExtensionLib* \
 	LibPrefix##_getLib ();
 
-#define JNC_DEFINE_LIB(LibPrefix) \
+#define JNC_DEFINE_LIB(LibPrefix, libGuid, libName, libDescription) \
 	JNC_EXTERN_C \
 	void \
 	LibPrefix##_addSources (jnc_Module* module); \
@@ -71,6 +75,9 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	{ \
 		static jnc_ExtensionLib lib = \
 		{ \
+			&(libGuid), \
+			libName, \
+			libDescription, \
 			LibPrefix##_addSources, \
 			LibPrefix##_addOpaqueClassTypeInfos, \
 			LibPrefix##_mapFunctions, \
@@ -84,13 +91,14 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_EXTERN_C \
 	void \
 	LibPrefix##_addSources (jnc_Module* module) \
-	{
+	{ \
+		jnc_ExtensionLib* lib = LibPrefix##_getLib ();
 
 #define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
-		jnc_Module_addSource (module, 0, fileName, sourceVar, sizeof (sourceVar) - 1);
+		jnc_Module_addSource (module, 0, lib, fileName, sourceVar, sizeof (sourceVar) - 1);
 
 #define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
-		jnc_Module_addSource (module, 1, fileName, sourceVar, sizeof (sourceVar) - 1);
+		jnc_Module_addSource (module, 1, lib, fileName, sourceVar, sizeof (sourceVar) - 1);
 
 #define JNC_LIB_FORCED_IMPORT(fileName) \
 		jnc_Module_addImport (module, fileName);

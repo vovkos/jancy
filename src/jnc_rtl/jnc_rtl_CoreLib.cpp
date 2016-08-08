@@ -977,7 +977,18 @@ mapAllMulticastMethods (Module* module)
 
 //.............................................................................
 
-JNC_DEFINE_LIB (jnc_CoreLib)
+// {CFD9EA7A-35DE-4090-A83B-3D214B3FF358}
+JNC_DEFINE_GUID (
+	jnc_g_coreLibGuid, 
+	0xcfd9ea7a, 0x35de, 0x4090, 0xa8, 0x3b, 0x3d, 0x21, 0x4b, 0x3f, 0xf3, 0x58
+	);
+
+JNC_DEFINE_LIB (
+	jnc_CoreLib,
+	jnc_g_coreLibGuid,
+	"CoreLib",
+	"Jancy core extension library (RTL)"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_CoreLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()

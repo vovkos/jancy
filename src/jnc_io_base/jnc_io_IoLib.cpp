@@ -19,7 +19,12 @@ namespace io {
 
 //.............................................................................
 
-JNC_DEFINE_LIB (IoLib)
+JNC_DEFINE_LIB (
+	IoLib,
+	g_ioLibGuid,
+	"IoLib",
+	"Jancy standard IO extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (IoLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "jnc_ExtensionLib.h"
+
 namespace jnc {
 namespace ct {
 
@@ -22,6 +24,7 @@ enum ImportKind
 struct Import: sl::ListLink
 {
 	ImportKind m_importKind;
+	ExtensionLib* m_lib;
 	sl::String m_filePath;
 	sl::StringRef m_source;
 };
@@ -71,6 +74,7 @@ public:
 
 	void
 	addImport (
+		ExtensionLib* lib,
 		const sl::String& filePath,
 		const sl::StringRef& source
 		);

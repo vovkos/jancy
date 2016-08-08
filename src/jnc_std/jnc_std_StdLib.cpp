@@ -335,7 +335,12 @@ collectGarbage ()
 
 using namespace jnc::std;
 
-JNC_DEFINE_LIB (jnc_StdLib)
+JNC_DEFINE_LIB (
+	jnc_StdLib,
+	g_stdLibGuid,
+	"StdLib",
+	"Jancy standard extension library"
+	)
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.getLastError",   getLastError)

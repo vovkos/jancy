@@ -58,12 +58,13 @@ void
 jnc_Module_addSource (
 	jnc_Module* module,
 	int isForced,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t size
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc (module, isForced, fileName, source, size);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc (module, isForced, lib, fileName, source, size);
 }
 
 JNC_EXTERN_C
@@ -190,6 +191,7 @@ void
 jnc_Module_addSource (
 	jnc_Module* module,
 	int isForced,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
@@ -197,10 +199,10 @@ jnc_Module_addSource (
 {
 	axl::sl::StringRef contents (source, length);
 
-	module->m_extensionLibMgr.addSource (fileName, contents);
+	module->m_extensionLibMgr.addSource (lib, fileName, contents);
 
 	if (isForced)
-		module->m_importMgr.addImport (fileName, contents);
+		module->m_importMgr.addImport (lib, fileName, contents);
 }
 
 JNC_EXTERN_C
@@ -248,12 +250,13 @@ JNC_EXTERN_C
 int
 jnc_Module_parse (
 	jnc_Module* module,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
 	)
 {
-	return module->parse (fileName, source, length);
+	return module->parse (lib, fileName, source, length);
 }
 
 JNC_EXTERN_C

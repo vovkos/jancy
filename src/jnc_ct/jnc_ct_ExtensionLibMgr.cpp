@@ -131,29 +131,33 @@ ExtensionLibMgr::mapFunctions ()
 	return true;
 }
 
-sl::StringRef
-ExtensionLibMgr::findSourceFileContents (const char* fileName)
+bool
+ExtensionLibMgr::findSourceFileContents (
+	const char* fileName,
+	ExtensionLib** lib,
+	sl::StringRef* contents
+	)
 {
 	sl::StringHashTableMapIterator <SourceFile*> it = m_sourceFileMap.find (fileName);
 	if (!it)
-		return sl::StringRef ();
+		return false;
 
 	SourceFile* file = it->m_value;
 
-	if (file->m_zipIndex == -1)
-		return file->m_contents;
+	if (file->m_zipIndex != -1)
+	{
+		sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
+		size_t length = contents.getCount ();
 
-	sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
-	size_t length = contents.getCount ();
+		#pragma AXL_TODO ("add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
+		file->m_contents = sl::String (contents, length);
+		file->m_zipReader = NULL;
+		file->m_zipIndex = -1;
+	}
 
-	contents.append (0); // ensure zero-termination -- not neccessary, actually
-
-	#pragma AXL_TODO ("add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
-	file->m_contents = sl::String (contents, length);
-	file->m_zipReader = NULL;
-	file->m_zipIndex = -1;
-
-	return file->m_contents;
+	*lib = file->m_lib;
+	*contents = file->m_contents;
+	return true;
 }
 
 ct::ModuleItem*
@@ -196,11 +200,13 @@ ExtensionLibMgr::findItem (
 
 void
 ExtensionLibMgr::addSource (
+	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& contents
 	)
 {
 	SourceFile* file = AXL_MEM_NEW (SourceFile);
+	file->m_lib = lib;
 	file->m_fileName = fileName;
 	file->m_contents = contents;
 	file->m_zipReader = NULL;

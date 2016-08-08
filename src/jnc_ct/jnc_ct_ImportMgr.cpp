@@ -56,10 +56,12 @@ ImportMgr::addImport (const char* fileName)
 
 	// source. search extension libs first
 
-	sl::StringRef source = m_module->m_extensionLibMgr.findSourceFileContents (fileName);
-	if (!source.isEmpty ())
+	ExtensionLib* lib;
+	sl::StringRef source;
+	bool isFound = m_module->m_extensionLibMgr.findSourceFileContents (fileName, &lib, &source);
+	if (isFound)
 	{
-		addImport (fileName, source);
+		addImport (lib, fileName, source);
 		return true;
 	}
 
@@ -72,6 +74,7 @@ ImportMgr::addImport (const char* fileName)
 		return true;
 
 	Import* import = AXL_MEM_NEW (Import);
+	import->m_lib = NULL;
 	import->m_importKind = ImportKind_File;
 	import->m_filePath = filePath;
 	m_importList.insertTail (import);
@@ -80,6 +83,7 @@ ImportMgr::addImport (const char* fileName)
 
 void
 ImportMgr::addImport (
+	ExtensionLib* lib,
 	const sl::String& filePath,
 	const sl::StringRef& source
 	)
@@ -89,6 +93,7 @@ ImportMgr::addImport (
 		return; // already added
 
 	Import* import = AXL_MEM_NEW (Import);
+	import->m_lib = lib;
 	import->m_importKind = ImportKind_Source;
 	import->m_filePath = filePath;
 	import->m_source = source;

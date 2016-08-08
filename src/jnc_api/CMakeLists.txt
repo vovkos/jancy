@@ -30,6 +30,7 @@ set (
 	${JANCY_INC_DIR}/jnc_Property.h
 	${JANCY_INC_DIR}/jnc_Namespace.h
 	${JANCY_INC_DIR}/jnc_Variant.h
+	${JANCY_INC_DIR}/jnc_Unit.h
 	${JANCY_INC_DIR}/jnc_Module.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
 	${JANCY_INC_DIR}/jnc_GcHeap.h

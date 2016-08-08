@@ -20,6 +20,7 @@ class Unit: public sl::ListLink
 protected:
 	Module* m_module;
 
+	ExtensionLib* m_lib;
 	sl::String m_filePath;
 	sl::String m_fileName;
 	sl::String m_dir;
@@ -31,6 +32,12 @@ public:
 	getModule ()
 	{
 		return m_module;
+	}
+
+	ExtensionLib*
+	getLib ()
+	{
+		return m_lib;
 	}
 
 	sl::String
@@ -89,7 +96,10 @@ public:
 	setCurrentUnit (Unit* unit);
 
 	Unit*
-	createUnit (const sl::String& filePath);
+	createUnit (
+		ExtensionLib* lib,
+		const sl::String& filePath
+		);
 };
 
 //.............................................................................

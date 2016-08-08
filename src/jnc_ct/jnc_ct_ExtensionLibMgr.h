@@ -17,6 +17,7 @@ class ExtensionLibMgr
 protected:
 	struct SourceFile: sl::ListLink
 	{
+		ExtensionLib* m_lib;
 		sl::StringRef m_fileName;
 		sl::StringRef m_contents;
 		zip::ZipReader* m_zipReader;
@@ -83,8 +84,12 @@ public:
 	bool
 	mapFunctions ();
 
-	sl::StringRef
-	findSourceFileContents (const char* fileName);
+	bool
+	findSourceFileContents (
+		const char* fileName,
+		ExtensionLib** lib,
+		sl::StringRef* contents
+		);
 
 	const OpaqueClassTypeInfo* 
 	findOpaqueClassTypeInfo (const char* qualifiedName)
@@ -102,6 +107,7 @@ public:
 
 	void
 	addSource (
+		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& contents
 		);

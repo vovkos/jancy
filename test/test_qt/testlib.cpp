@@ -195,7 +195,12 @@ qtWait (uint_t msTime)
 
 //.............................................................................
 
-JNC_DEFINE_LIB (TestLib)
+JNC_DEFINE_LIB (
+	TestLib,
+	g_testLibGuid,
+	"TestLib",
+	"Jancy QT-based test utility extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (TestLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()

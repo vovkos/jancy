@@ -208,6 +208,7 @@ public:
 
 	bool
 	parse (
+		ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1

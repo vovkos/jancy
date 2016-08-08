@@ -33,10 +33,14 @@ UnitMgr::setCurrentUnit (Unit* unit)
 }
 
 Unit*
-UnitMgr::createUnit (const sl::String& filePath)
+UnitMgr::createUnit (
+	ExtensionLib* lib,
+	const sl::String& filePath
+	)
 {
 	Unit* unit = AXL_MEM_NEW (Unit);
 
+	unit->m_lib = lib;
 	unit->m_filePath = filePath;
 	unit->m_fileName = io::getFileName (filePath);
 	unit->m_dir = io::getDir  (filePath);

@@ -90,7 +90,12 @@ setProp_2 (jnc::DataPtr ptr)
 
 //.............................................................................
 
-JNC_DEFINE_LIB (MyLib)
+JNC_DEFINE_LIB (
+	MyLib,
+	g_myLibGuid,
+	"MyLib",
+	"Sample extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (MyLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()

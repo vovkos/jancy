@@ -14,6 +14,7 @@
 #include "jnc_StructType.h"
 #include "jnc_UnionType.h"
 #include "jnc_ClassType.h"
+#include "jnc_Unit.h"
 
 //.............................................................................
 
@@ -126,6 +127,7 @@ void
 jnc_Module_addSource (
 	jnc_Module* module,
 	int isForced,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length = -1
@@ -164,6 +166,7 @@ JNC_EXTERN_C
 int
 jnc_Module_parse (
 	jnc_Module* module,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
@@ -289,22 +292,24 @@ struct jnc_Module
 	void
 	addSource (
 		bool isForced,
+		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		jnc_Module_addSource (this, isForced, fileName, source, length);
+		jnc_Module_addSource (this, isForced, lib, fileName, source, length);
 	}
 
 	void
 	addSource (
+		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		jnc_Module_addSource (this, false, fileName, source, length);
+		jnc_Module_addSource (this, false, lib, fileName, source, length);
 	}
 
 	void
@@ -336,12 +341,23 @@ struct jnc_Module
 
 	bool
 	parse (
+		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		return jnc_Module_parse (this, fileName, source, length) != 0;
+		return jnc_Module_parse (this, lib, fileName, source, length) != 0;
+	}
+
+	bool
+	parse (
+		const char* fileName,
+		const char* source,
+		size_t length = -1
+		)
+	{
+		return jnc_Module_parse (this, NULL, fileName, source, length) != 0;
 	}
 
 	bool

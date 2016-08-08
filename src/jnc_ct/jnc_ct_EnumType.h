@@ -67,6 +67,14 @@ public:
 	{
 		return m_value;
 	}
+
+	virtual
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		);
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

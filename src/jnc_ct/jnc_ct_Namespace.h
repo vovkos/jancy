@@ -260,7 +260,8 @@ protected:
 	generateMemberDocumentation (
 		const char* outputDir,
 		sl::String* itemXml,
-		sl::String* indexXml
+		sl::String* indexXml,
+		bool useSectionDef
 		);
 };
 

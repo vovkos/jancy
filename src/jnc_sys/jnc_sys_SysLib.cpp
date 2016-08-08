@@ -46,7 +46,12 @@ sleep (uint32_t msCount)
 
 using namespace jnc::sys;
 
-JNC_DEFINE_LIB (jnc_SysLib)
+JNC_DEFINE_LIB (
+	jnc_SysLib,
+	g_sysLibGuid,
+	"SysLib",
+	"Jancy standard extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_SysLib)
 	JNC_LIB_FORCED_SOURCE_FILE ("sys_globals.jnc", g_sys_globalsSrc)

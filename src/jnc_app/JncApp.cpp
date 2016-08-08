@@ -4,7 +4,18 @@
 
 //.............................................................................
 
-JNC_DEFINE_LIB (JncLib)
+// {39B98823-0E9F-4C72-BC77-A254E855925F}
+JNC_DEFINE_GUID	(
+	g_jncLibGuid, 
+	0x39b98823, 0xe9f, 0x4c72, 0xbc, 0x77, 0xa2, 0x54, 0xe8, 0x55, 0x92, 0x5f
+	);
+
+JNC_DEFINE_LIB (
+	JncLib,
+	g_jncLibGuid,
+	"JncLib",
+	"Jancy CLI executable extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (JncLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()

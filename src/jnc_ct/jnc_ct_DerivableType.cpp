@@ -713,20 +713,26 @@ DerivableType::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	const char* kind = 
+		m_typeKind == TypeKind_Struct ? "struct" : 
+		m_typeKind == TypeKind_Union ? "union" : "class";
+
 	indexXml->appendFormat (
-		"<compound kind='class' refid='%s'><name>%s</name></compound>\n", 
+		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
+		kind,
 		getDox ()->getRefId ().cc (), 
 		getQualifiedName ().cc ()
 		);
 
 	sl::String memberXml;
-	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	if (!result)
 		return false;
 
 	itemXml->format (
-		"<compounddef kind='class' id='%s'>\n"
+		"<compounddef kind='%s' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n", 
+		kind,
 		getDox ()->getRefId ().cc (),
 		m_name.cc ()
 		);

@@ -254,7 +254,8 @@ bool
 Namespace::generateMemberDocumentation (
 	const char* outputDir,
 	sl::String* itemXml,
-	sl::String* indexXml
+	sl::String* indexXml,
+	bool useSectionDef
 	)
 {
 	bool result;
@@ -274,6 +275,14 @@ Namespace::generateMemberDocumentation (
 	for (size_t i = 0; i < count; i++)
 	{
 		ModuleItem* item = m_itemArray [i];
+		ModuleItemDecl* decl = item->getDecl ();
+		if (!decl)
+			continue;
+
+		Unit* unit = decl->getParentUnit ();
+		if (unit && unit->getLib ()) // don't document imported libraries
+			continue;
+
 		Namespace* itemNamespace = item->getNamespace ();
 		if (itemNamespace == this)
 			continue;
@@ -286,8 +295,12 @@ Namespace::generateMemberDocumentation (
 			continue;
 		
 		ModuleItemKind itemKind = item->getItemKind ();
-		if (itemKind != ModuleItemKind_Namespace &&
-			itemKind != ModuleItemKind_Type)
+
+		bool isCompoundFile = 
+			itemKind == ModuleItemKind_Namespace ||
+			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
+
+		if (!isCompoundFile)
 		{
 			sectionDef.append (memberXml);
 			sectionDef.append ('\n');
@@ -314,11 +327,16 @@ Namespace::generateMemberDocumentation (
 	}
 	
 	if (!sectionDef.isEmpty ())
-	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (sectionDef);
-		itemXml->append ("</sectiondef>\n");
-	}
+		if (!useSectionDef)
+		{
+			itemXml->append (sectionDef);
+		}
+		else
+		{
+			itemXml->append ("<sectiondef>\n");
+			itemXml->append (sectionDef);
+			itemXml->append ("</sectiondef>\n");
+		}
 
 	return true;
 }
@@ -362,7 +380,7 @@ GlobalNamespace::generateDocumentation (
 		);
 
 	sl::String memberXml;
-	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
 	itemXml->append (createDoxDescriptionString ());
 	itemXml->append (createDoxLocationString ());

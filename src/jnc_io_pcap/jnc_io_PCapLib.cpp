@@ -7,7 +7,12 @@ namespace io {
 
 //.............................................................................
 
-JNC_DEFINE_LIB (PCapLib)
+JNC_DEFINE_LIB (
+	PCapLib,
+	g_pcapLibGuid,
+	"PCapLib",
+	"Jancy libPCap wrapper extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (PCapLib)
 	JNC_LIB_FORCED_IMPORT ("io_PCap.jnc")

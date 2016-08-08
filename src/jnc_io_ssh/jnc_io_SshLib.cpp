@@ -7,7 +7,12 @@ namespace io {
 
 //.............................................................................
 
-JNC_DEFINE_LIB (SshLib)
+JNC_DEFINE_LIB (
+	SshLib,
+	g_sshLibGuid,
+	"SshLib",
+	"Jancy libSSH2 wrapper extension library"
+	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (SshLib)
 	JNC_LIB_FORCED_IMPORT ("io_Ssh.jnc")

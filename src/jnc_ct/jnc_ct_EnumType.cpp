@@ -42,6 +42,30 @@ getEnumTypeFlagString (uint_t flags)
 
 //.............................................................................
 
+bool
+EnumConst::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
+{
+	itemXml->format (
+		"<enumvalue id='%s'>\n"
+		"<name>%s</name>\n"
+		"<intializer> = %d</intializer>\n", 
+		getDox ()->getRefId ().cc (),
+		m_name.cc (),
+		getInitializerString ().cc ()
+		);
+
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append ("</enumvalue>\n");
+
+	return true;
+}
+
+//.............................................................................
+
 EnumType::EnumType ()
 {
 	m_typeKind = TypeKind_Enum;
@@ -68,8 +92,10 @@ EnumType::createConst (
 	)
 {
 	EnumConst* enumConst = AXL_MEM_NEW (EnumConst);
-	enumConst->m_name = name;
+	enumConst->m_module = m_module;
+	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;
+	enumConst->m_name = name;
 
 	if (initializer)
 		enumConst->m_initializer.takeOver (initializer);
@@ -183,20 +209,14 @@ EnumType::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	indexXml->appendFormat (
-		"<compound kind='enum' refid='%s'><name>%s</name></compound>\n", 
-		getDox ()->getRefId ().cc (), 
-		getQualifiedName ().cc ()
-		);
-	
 	sl::String memberXml;
-	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml);
+	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, false);
 	if (!result)
 		return false;
 
 	itemXml->format (
-		"<compounddef kind='enum' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n", 
+		"<memberdef kind='enum' id='%s'>\n"
+		"<name>%s</name>\n", 
 		getDox ()->getRefId ().cc (),
 		m_name.cc ()
 		);
@@ -204,7 +224,7 @@ EnumType::generateDocumentation (
 	itemXml->append (memberXml);
 	itemXml->append (createDoxDescriptionString ());
 	itemXml->append (createDoxLocationString ());
-	itemXml->append ("</compounddef>\n");
+	itemXml->append ("</memberdef>\n");
 
 	return true;
 }

@@ -370,6 +370,7 @@ Module::markForCompile (ModuleItem* item)
 
 bool
 Module::parse (
+	ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
@@ -377,7 +378,7 @@ Module::parse (
 {
 	bool result;
 
-	m_unitMgr.createUnit (fileName);
+	m_unitMgr.createUnit (lib, fileName);
 
 	Lexer lexer;
 	lexer.create (fileName, source, length);
@@ -425,7 +426,7 @@ Module::parseFile (const char* fileName)
 	size_t length = file.getMappingSize ();
 	sl::String source ((const char*) file.p (), length);
 	m_sourceList.insertTail (source);
-	return parse (filePath, source, length);
+	return parse (NULL, filePath, source, length);
 }
 
 bool
@@ -438,6 +439,7 @@ Module::parseImports ()
 	{
 		bool result = importIt->m_importKind == ImportKind_Source ? 
 			parse (
+				importIt->m_lib,
 				importIt->m_filePath, 
 				importIt->m_source, 
 				importIt->m_source.getLength ()

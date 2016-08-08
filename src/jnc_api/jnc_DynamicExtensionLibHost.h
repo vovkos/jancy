@@ -596,6 +596,7 @@ void
 jnc_Module_AddSourceFunc (
 	jnc_Module* module,
 	int isForced,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
@@ -634,6 +635,7 @@ typedef
 int
 jnc_Module_ParseFunc (
 	jnc_Module* module,
+	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
