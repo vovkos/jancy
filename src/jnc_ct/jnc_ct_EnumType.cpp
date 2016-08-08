@@ -51,12 +51,18 @@ EnumConst::generateDocumentation (
 {
 	itemXml->format (
 		"<enumvalue id='%s'>\n"
-		"<name>%s</name>\n"
-		"<intializer> = %d</intializer>\n", 
+		"<name>%s</name>\n",
 		getDox ()->getRefId ().cc (),
-		m_name.cc (),
-		getInitializerString ().cc ()
+		m_name.cc ()
 		);
+
+	if (!m_initializer.isEmpty ())
+	{
+		itemXml->appendFormat (
+			"<initializer>= %s</initializer>\n", 
+			getInitializerString ().cc ()
+			);
+	}
 
 	itemXml->append (createDoxDescriptionString ());
 	itemXml->append ("</enumvalue>\n");
