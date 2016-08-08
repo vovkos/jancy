@@ -48,7 +48,7 @@ jnc_g_dynamicExtensionLibMainFuncName [] = "jncDynamicExtensionLibMain";
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 extern jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
-#else if (defined _JNC_CORE)
+#elif (defined _JNC_CORE)
 extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #endif
 
@@ -515,5 +515,5 @@ SysLib_getLib ()
 
 } // namespace jnc
 
-#endif __cplusplus
+#endif // __cplusplus
 

@@ -134,12 +134,13 @@ set_target_properties (
 
 target_link_libraries (
 	jnc_app
-	jnc_sys
-	jnc_std
-	jnc_rtl
 	jnc_api_static
 	jnc_ct
 	jnc_rt
+	jnc_rtl
+	jnc_std
+	jnc_sys
+	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io

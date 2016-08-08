@@ -71,7 +71,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.getCurrentThreadId", getCurrentThreadId)
 	JNC_MAP_FUNCTION ("sys.getTimestamp",       getTimestamp)
-	JNC_MAP_FUNCTION ("sys.sleep",              sleep)
+	JNC_MAP_FUNCTION ("sys.sleep",              jnc::sys::sleep)
 
 	JNC_MAP_TYPE (Lock)
 	JNC_MAP_TYPE (Event)

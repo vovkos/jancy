@@ -322,11 +322,11 @@ void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::Function* functi
 {
 	jnc::FunctionType* type = function->getType ();
 
-	sl::String Name = function->getFunctionKind () == jnc::FunctionKind_Named ?
+	const char* name = function->getFunctionKind () == jnc::FunctionKind_Named ?
 		function->getDecl ()->getName () :
-		sl::String (jnc::getFunctionKindString (function->getFunctionKind ()));
+		jnc::getFunctionKindString (function->getFunctionKind ());
 
-	QString itemName = type->createDeclarationString_v (Name);
+	QString itemName = type->createDeclarationString_v (name);
 	QTreeWidgetItem *item = insertItem (itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void *)(jnc::ModuleItem*) function));
 }

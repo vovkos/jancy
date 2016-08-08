@@ -137,10 +137,11 @@ llvm_map_components_to_libraries (
 
 target_link_libraries (
 	02_dialog
-	jnc_std
-	jnc_rtl
+	jnc_api_static
 	jnc_ct
 	jnc_rt
+	jnc_rtl
+	jnc_std
 	jnc_api_static
 	axl_zip
 	axl_fsm

@@ -16,7 +16,6 @@ if (BUILD_SAMPLE_01_EXPORT)
 	add_subdirectory (01_export)
 endif ()
 
-
 if (${QT_FOUND})
 	option (
 		BUILD_SAMPLE_02_DIALOG

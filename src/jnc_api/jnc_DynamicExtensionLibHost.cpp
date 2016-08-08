@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "jnc_rt_Runtime.h"
+
 #include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Error.h"
 #include "jnc_Type.h"

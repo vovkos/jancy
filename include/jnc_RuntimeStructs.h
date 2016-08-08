@@ -8,7 +8,6 @@
 
 #include "jnc_Def.h"
 
-typedef enum jnc_BoxFlag jnc_BoxFlag;
 typedef struct jnc_Box jnc_Box;
 typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
 typedef struct jnc_DataBox jnc_DataBox;
@@ -47,6 +46,8 @@ enum jnc_BoxFlag
 
 	jnc_BoxFlag_MarkMask        = 0x0f,
 };
+
+typedef enum jnc_BoxFlag jnc_BoxFlag;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

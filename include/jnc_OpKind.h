@@ -4,9 +4,6 @@
 
 #include "jnc_Def.h"
 
-typedef enum jnc_UnOpKind jnc_UnOpKind;
-typedef enum jnc_BinOpKind jnc_BinOpKind;
-
 //.............................................................................
 
 enum jnc_UnOpKind
@@ -25,6 +22,8 @@ enum jnc_UnOpKind
 	jnc_UnOpKind_Ptr,
 	jnc_UnOpKind__Count,
 };
+
+typedef enum jnc_UnOpKind jnc_UnOpKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -91,6 +90,8 @@ enum jnc_BinOpKind
 	jnc_BinOpKind__Count,
 	jnc_BinOpKind__OpAssignDelta = jnc_BinOpKind_AddAssign - jnc_BinOpKind_Add,
 };
+
+typedef enum jnc_BinOpKind jnc_BinOpKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
