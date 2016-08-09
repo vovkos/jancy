@@ -31,8 +31,10 @@ struct CmdLine
 
 	sl::BoxList <sl::String> m_fileNameList;
 	sl::BoxList <sl::String> m_importDirList;
+	sl::BoxList <sl::String> m_sourceDirList;
 
 	CmdLine ();
+
 };
 
 //.............................................................................
@@ -60,6 +62,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_ImportDir,
 	CmdLineSwitch_OutputDir,
+	CmdLineSwitch_SourceDir,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,6 +100,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_Documentation,
 		"d", "doc", "documentation", NULL,
 		"Generate documentation"
+		)
+	AXL_SL_CMD_LINE_SWITCH_3 (
+		CmdLineSwitch_SourceDir,
+		"S", "src-dir", "source-dir", "<dir>",
+		"Add the directory with source files"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_ImportDir,

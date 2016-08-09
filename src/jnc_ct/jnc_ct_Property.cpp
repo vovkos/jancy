@@ -720,7 +720,23 @@ Property::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	itemXml->clear ();
+	itemXml->format ("<memberdef kind='property' id='%s'", getDox ()->getRefId ().cc ());
+
+	if (m_accessKind != AccessKind_Public)
+		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+
+	if (m_storageKind == StorageKind_Static)
+		itemXml->append (" static='yes'");
+
+	if (isVirtual ())
+		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
+
+	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
+
+	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxLocationString ());
+	itemXml->append ("\n</memberdef>\n");
 
 	return true;
 }

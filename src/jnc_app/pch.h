@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef _JNC_CORE
-
-asdjkldjaskl jdsklj dsklj daskldjasklasd
-
-#endif
-
 #include "jnc_ext_Pch.h"
 
 #if (_AXL_ENV == AXL_ENV_WIN)
@@ -40,6 +34,10 @@ getsockerror ()
 #include "jnc_Runtime.h"
 #include "jnc_CallSite.h"
 #include "jnc_ExtensionLib.h"
+
+// AXL
+
+#include "axl_io_FileEnumerator.h"
 
 using namespace axl;
 

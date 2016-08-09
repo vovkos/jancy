@@ -65,6 +65,8 @@ Module::clear ()
 	m_calcLayoutArray.clear ();
 	m_compileArray.clear ();
 	m_sourceList.clear ();
+	m_filePathList.clear ();
+	m_filePathMap.clear ();
 	m_functionMap.clear ();
 	m_doxRefIdMap.clear ();
 
@@ -418,6 +420,10 @@ Module::parseFile (const char* fileName)
 {
 	sl::String filePath = io::getFullFilePath (fileName);
 
+	sl::StringHashTableIterator it = m_filePathMap.find (filePath);
+	if (it)
+		return true; // already parsed
+
 	io::SimpleMappedFile file;
 	bool result = file.open (filePath, io::FileFlag_ReadOnly);
 	if (!result)
@@ -425,7 +431,11 @@ Module::parseFile (const char* fileName)
 
 	size_t length = file.getMappingSize ();
 	sl::String source ((const char*) file.p (), length);
+
 	m_sourceList.insertTail (source);
+	m_filePathList.insertTail (filePath);
+	m_filePathMap.visit (filePath);
+
 	return parse (NULL, filePath, source, length);
 }
 

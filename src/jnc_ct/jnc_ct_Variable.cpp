@@ -102,7 +102,10 @@ Variable::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='variable' id='%s'", getDox ()->getRefId ().cc ());
+	bool isMulticast = isClassType (m_type, ClassTypeKind_Multicast);
+	const char* kind = isMulticast ? "event" : "variable";
+
+	itemXml->format ("<memberdef kind='%s' id='%s'", kind, getDox ()->getRefId ().cc ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -118,6 +121,9 @@ Variable::generateDocumentation (
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxLinkedText ().cc ());
  
+	if (isMulticast)
+		((MulticastClassType*) m_type)->getFunctionType ()->generateArgDocumentation (itemXml);
+
 	itemXml->append (createDoxDescriptionString ());
 	itemXml->append (createDoxLocationString ());
 

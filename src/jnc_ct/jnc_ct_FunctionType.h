@@ -196,6 +196,9 @@ public:
 	bool
 	compile ();
 
+	void
+	generateArgDocumentation (sl::String* itemXml);
+
 protected:
 	virtual
 	void

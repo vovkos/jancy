@@ -394,6 +394,7 @@ Parser::getGlobalNamespace (
 	if (!item)
 	{
 		nspace = m_module->m_namespaceMgr.createGlobalNamespace (name, parentNamespace);
+		nspace->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
 		nspace->m_pos = pos;
 		parentNamespace->addItem (nspace);
 	}

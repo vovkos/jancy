@@ -145,7 +145,6 @@ Function::compile ()
 
 	// body
 
-
 	result = 
 		m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
 		m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
@@ -307,21 +306,8 @@ Function::generateDocumentation (
 	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
 	itemXml->appendFormat ("<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
- 
-	sl::Array <FunctionArg*> argArray = m_type->getArgArray ();
-	size_t count = argArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		FunctionArg* arg = argArray [i];
-		itemXml->appendFormat (
-			"<param>\n"
-			"    <type>%s</type>\n"
-			"    <declname>%s</declname>\n"
-			"</param>\n",
-			arg->getType ()->getDoxLinkedText ().cc (),
-			arg->getName ().cc ()
-			);
-	}
+
+	m_type->generateArgDocumentation (itemXml);
 
 	itemXml->append (createDoxDescriptionString ());
 	itemXml->append (createDoxLocationString ());

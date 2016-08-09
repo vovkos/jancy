@@ -42,6 +42,9 @@ JncApp::initialize ()
 	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
+	if (!(m_cmdLine->m_flags & JncFlag_Compile))
+		compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+
 	bool result = m_module->initialize ("jnc_module", compileFlags);
 	if (!result)
 		return false;

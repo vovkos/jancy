@@ -280,7 +280,7 @@ Namespace::generateMemberDocumentation (
 			continue;
 
 		Unit* unit = decl->getParentUnit ();
-		if (unit && unit->getLib ()) // don't document imported libraries
+		if (!unit || unit->getLib ()) // don't document imported libraries
 			continue;
 
 		Namespace* itemNamespace = item->getNamespace ();

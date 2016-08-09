@@ -67,6 +67,8 @@ protected:
 	sl::Array <ModuleItem*> m_calcLayoutArray;
 	sl::Array <ModuleItem*> m_compileArray;
 	sl::BoxList <sl::String> m_sourceList; // need to keep all sources in-memory during compilation
+	sl::BoxList <sl::String> m_filePathList;
+	sl::StringHashTable m_filePathMap;
 	sl::StringHashTableMap <void*> m_functionMap;
 	sl::StringHashTableMap <size_t> m_doxRefIdMap;
 

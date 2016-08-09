@@ -354,6 +354,27 @@ FunctionType::calcLayout ()
 	return true;
 }
 
+void
+FunctionType::generateArgDocumentation (sl::String* itemXml)
+{
+	size_t count = m_argArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		FunctionArg* arg = m_argArray [i];
+		if (arg->getStorageKind () == StorageKind_This)
+			continue;
+
+		itemXml->appendFormat (
+			"<param>\n"
+			"    <type>%s</type>\n"
+			"    <declname>%s</declname>\n"
+			"</param>\n",
+			arg->getType ()->getDoxLinkedText ().cc (),
+			arg->getName ().cc ()
+			);
+	}
+}
+
 //.............................................................................
 
 } // namespace ct

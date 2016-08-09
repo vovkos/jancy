@@ -28,6 +28,7 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x0040,
 	jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x0080,
 	jnc_ModuleCompileFlag_CheckDivByZero                       = 0x0100,
+	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x0200,
 
 	jnc_ModuleCompileFlag_StdFlags = 
 		jnc_ModuleCompileFlag_GcSafePointInPrologue | 
@@ -442,6 +443,7 @@ const ModuleCompileFlag
 	ModuleCompileFlag_CheckStackOverflowInPrologue         = jnc_ModuleCompileFlag_CheckStackOverflowInPrologue,
 	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue,
 	ModuleCompileFlag_CheckDivByZero                       = jnc_ModuleCompileFlag_CheckDivByZero,
+	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //.............................................................................

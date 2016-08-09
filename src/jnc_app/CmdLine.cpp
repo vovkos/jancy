@@ -142,6 +142,10 @@ CmdLineParser::onSwitch (
 		m_cmdLine->m_importDirList.insertTail (value);
 		break;
 
+	case CmdLineSwitch_SourceDir:
+		m_cmdLine->m_sourceDirList.insertTail (value);
+		break;
+
 	case CmdLineSwitch_OutputDir:
 		m_cmdLine->m_outputDir = value;
 		break;
@@ -153,6 +157,49 @@ CmdLineParser::onSwitch (
 bool
 CmdLineParser::finalize ()
 {
+	static char jncSuffix [] = ".jnc";
+
+	enum
+	{
+		JncSuffixLength = lengthof (jncSuffix)
+	};
+
+	sl::BoxIterator <sl::String> it = m_cmdLine->m_sourceDirList.getHead ();
+	for (; it; it++)
+	{
+		sl::String dir = *it;
+		if (dir.isEmpty ())
+			continue;
+
+		if (dir [dir.getLength () - 1])
+			dir += '/';
+
+		io::FileEnumerator fileEnum;
+		bool result = fileEnum.openDir (dir);
+		if (!result)
+		{
+			printf ("warning: %s\n", err::getLastErrorDescription ().cc ());
+			continue;
+		}
+
+		while (fileEnum.hasNextFile ())
+		{
+			sl::String filePath = dir + fileEnum.getNextFileName ();
+			if (io::isDir (filePath))
+				continue;
+	
+			size_t length = filePath.getLength ();
+			bool isJnc = length >= JncSuffixLength && memcmp (
+				filePath.cc () + length - JncSuffixLength,
+				jncSuffix, 
+				JncSuffixLength
+				) == 0;
+
+			if (isJnc)
+				m_cmdLine->m_fileNameList.insertTail (filePath);
+		}
+	}
+
 	if (!(m_cmdLine->m_flags & (
 		JncFlag_Help |
 		JncFlag_Version |
