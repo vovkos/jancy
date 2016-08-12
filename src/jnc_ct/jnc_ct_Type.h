@@ -253,7 +253,7 @@ public:
 
 	virtual
 	sl::String
-	getDoxLinkedText ()
+	getDoxyLinkedText ()
 	{
 		return getTypeString ();
 	}

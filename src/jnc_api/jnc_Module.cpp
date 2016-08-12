@@ -347,7 +347,7 @@ jnc_Module_generateDocumentation (
 		return false;
 	}
 
-	sl::String refId = nspace->getDox ()->getRefId ();
+	sl::String refId = nspace->getDoxyBlock ()->getRefId ();
 	sl::String nspaceFileName = sl::String (outputDir) + "/" + refId + ".xml";
 	sl::String indexFileName = sl::String (outputDir) + "/index.xml";	
 

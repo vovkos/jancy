@@ -107,8 +107,10 @@ Members
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;
+	DoxyBlock* m_doxyBlock;
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
+	sl::String m_doxyComment;
 
 	FunctionType* m_lastPropertyGetterType;
 	TypeModifiers m_lastPropertyTypeModifiers;
@@ -239,7 +241,8 @@ Members2
 		ModuleItem* item,
 		ModuleItemDecl* decl,
 		const Token::Pos& pos,
-		AttributeBlock* attributeBlock = NULL
+		AttributeBlock* attributeBlock = NULL,
+		DoxyBlock* doxyBlock = NULL
 		);
 
 	void
@@ -249,7 +252,7 @@ Members2
 		Declarator* declarator
 		)
 	{
-		assignDeclarationAttributes (item, itemDecl, declarator->m_pos, declarator->m_attributeBlock);
+		assignDeclarationAttributes (item, itemDecl, declarator->m_pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
 	}
 
 	GlobalNamespace*
@@ -281,6 +284,12 @@ Members2
 
 	AttributeBlock*
 	popAttributeBlock ();
+
+	DoxyBlock*
+	popDoxyBlock ();
+
+	void
+	addDoxyComment (const sl::String& comment);
 
 	bool
 	declare (Declarator* declarator);

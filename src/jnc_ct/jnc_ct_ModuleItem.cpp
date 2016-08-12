@@ -30,7 +30,7 @@ ModuleItemDecl::ModuleItemDecl ()
 }
 
 sl::String
-ModuleItemDecl::createDoxLocationString ()
+ModuleItemDecl::createDoxyLocationString ()
 {
 	if (!m_parentUnit)
 		return sl::String ();
@@ -52,14 +52,8 @@ ModuleItem::ModuleItem ()
 {
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
-	m_dox = NULL;
+	m_doxyBlock = NULL;
 	m_flags = 0;
-}
-
-ModuleItem::~ModuleItem ()
-{
-	if (m_dox)
-		AXL_MEM_DELETE (m_dox);
 }
 
 ModuleItemDecl*
@@ -230,41 +224,49 @@ ModuleItem::ensureLayout ()
 	return true;
 }
 
-ModuleItemDox* 
-ModuleItem::getDox ()
+DoxyBlock* 
+ModuleItem::getDoxyBlock ()
 {
-	if (m_dox)
-		return m_dox;
+	if (m_doxyBlock)
+		return m_doxyBlock;
 
-	m_dox = AXL_MEM_NEW (ModuleItemDox);
-	m_dox->m_refId = createDoxRefId ();
-	return m_dox;
+	m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+	m_doxyBlock->m_refId = createDoxyRefId ();
+	return m_doxyBlock;
 }
 
 sl::String
-ModuleItem::createDoxRefId ()
+ModuleItem::createDoxyRefId ()
 {
 	#pragma AXL_TODO ("generate more meaningful doxygen refid")
 
 	sl::String refId = getModuleItemKindString (m_itemKind);
 	refId.replace ('-', '_');
 	
-	return m_module->adjustDoxRefId (refId);
+	return m_module->m_doxyMgr.adjustDoxyRefId (refId);
 }
 
 sl::String
-ModuleItem::createDoxDescriptionString ()
+ModuleItem::createDoxyDescriptionString ()
 {
 	sl::String string;
-	ModuleItemDox* dox = getDox ();
+	DoxyBlock* doxyBlock = getDoxyBlock ();
 
-	string.append ("<briefdescription>\n");
-	string.append (dox->getBriefDescription ());
-	string.append ("</briefdescription>\n");
+	sl::String description = doxyBlock->getBriefDescription ();
+	if (!description.isEmpty ())
+	{
+		string.append ("<briefdescription><para>\n");
+		string.append (description);
+		string.append ("<para/></briefdescription>\n");
+	}
 
-	string.append ("<detaileddescription>\n");
-	string.append (dox->getDetailedDescription ());
-	string.append ("</detaileddescription>\n");
+	description = doxyBlock->getDetailedDescription ();
+	if (!description.isEmpty ())
+	{
+		string.append ("<detaileddescription><para>\n");
+		string.append (description);
+		string.append ("</para></detaileddescription>\n");
+	}
 
 	return string;
 }

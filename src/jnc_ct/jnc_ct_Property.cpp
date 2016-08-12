@@ -720,7 +720,7 @@ Property::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='property' id='%s'", getDox ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='property' id='%s'", getDoxyBlock ()->getRefId ().cc ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -732,10 +732,10 @@ Property::generateDocumentation (
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxLinkedText ().cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedText ().cc ());
 
-	itemXml->append (createDoxDescriptionString ());
-	itemXml->append (createDoxLocationString ());
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("\n</memberdef>\n");
 
 	return true;

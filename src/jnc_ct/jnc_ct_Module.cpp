@@ -56,8 +56,9 @@ Module::clear ()
 	m_operatorMgr.clear ();
 	m_gcShadowStackMgr.clear ();
 	m_unitMgr.clear ();
-	m_extensionLibMgr.clear ();
 	m_importMgr.clear ();
+	m_extensionLibMgr.clear ();
+	m_doxyMgr.clear ();
 
 	m_name.clear ();
 	m_llvmIrBuilder.clear ();
@@ -68,7 +69,6 @@ Module::clear ()
 	m_filePathList.clear ();
 	m_filePathMap.clear ();
 	m_functionMap.clear ();
-	m_doxRefIdMap.clear ();
 
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
@@ -385,24 +385,34 @@ Module::parse (
 	Lexer lexer;
 	lexer.create (fileName, source, length);
 
+	if (m_compileFlags & ModuleCompileFlag_Documentation)
+		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
+
 	Parser parser (this);
 	parser.create (Parser::StartSymbol, true);
 
 	for (;;)
 	{
 		const Token* token = lexer.getToken ();
-		if (token->m_token == TokenKind_Error)
+
+		switch (token->m_token)
 		{
+		case TokenKind_Error:
 			err::setFormatStringError ("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
 			lex::pushSrcPosError (fileName, token->m_pos);
 			return false;
-		}
 
-		result = parser.parseToken (token);
-		if (!result)
-		{
-			lex::ensureSrcPosError (fileName, token->m_pos);
-			return false;
+		case TokenKind_DoxyComment:
+			parser.addDoxyComment (token->m_data.m_string);
+			break;
+
+		default:
+			result = parser.parseToken (token);
+			if (!result)
+			{
+				lex::ensureSrcPosError (fileName, token->m_pos);
+				return false;
+			}
 		}
 
 		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
@@ -685,23 +695,6 @@ Module::createLlvmIrString ()
 	llvm::raw_string_ostream stream (string);
 	m_llvmModule->print (stream, NULL);
 	return string.c_str ();
-}
-
-sl::String
-Module::adjustDoxRefId (const sl::StringRef& refId)
-{
-	sl::StringHashTableMapIterator <size_t> it = m_doxRefIdMap.visit (refId);
-	if (!it->m_value) // no collisions
-	{
-		it->m_value = 2; // start with index 2
-		return refId;
-	}
-
-	sl::String adjustedRefId;
-	adjustedRefId.format ("%s_%d", refId.cc (), it->m_value);
-	
-	it->m_value++;
-	return adjustedRefId;
 }
 
 //.............................................................................

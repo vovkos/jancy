@@ -720,7 +720,7 @@ DerivableType::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
 		kind,
-		getDox ()->getRefId ().cc (), 
+		getDoxyBlock ()->getRefId ().cc (), 
 		getQualifiedName ().cc ()
 		);
 
@@ -733,13 +733,13 @@ DerivableType::generateDocumentation (
 		"<compounddef kind='%s' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n", 
 		kind,
-		getDox ()->getRefId ().cc (),
+		getDoxyBlock ()->getRefId ().cc (),
 		m_name.cc ()
 		);
 
 	itemXml->append (memberXml);
-	itemXml->append (createDoxDescriptionString ());
-	itemXml->append (createDoxLocationString ());
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 	
 	return true;

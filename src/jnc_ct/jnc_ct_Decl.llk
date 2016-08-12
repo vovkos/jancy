@@ -230,16 +230,18 @@ item_declaration_wo_specifier
 		declaration_terminator <NULL>
 	;
 
-// conflict at EToken_Identifier in global scope and in named type block
+// conflict at TokenKind_Identifier in global scope and in named type block
 // between qualified_type_name and declarator_name
 // prefer declarator_name if and only if this is a function
 
 item_declaration_wo_specifier_rslv
 	local
 	{
-		Declarator $declarator;
-	}
-	:	declarator_name <&$declarator> '(' // must be a function
+		Declarator $declarator; // dummy
+	}	
+	:	declarator_qualifier <&$declarator>
+		('.' declarator_qualifier <&$declarator>)*
+		'(' // must be a function
 	;
 
 //.............................................................................

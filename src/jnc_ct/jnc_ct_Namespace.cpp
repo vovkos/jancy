@@ -307,7 +307,7 @@ Namespace::generateMemberDocumentation (
 		}
 		else
 		{
-			sl::String refId = item->getDox ()->getRefId ();
+			sl::String refId = item->getDoxyBlock ()->getRefId ();
 			sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
 			
 			io::File compoundFile;
@@ -367,7 +367,7 @@ GlobalNamespace::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
 		kind,
-		getDox ()->getRefId ().cc (), 
+		getDoxyBlock ()->getRefId ().cc (), 
 		name		
 		);
 
@@ -375,15 +375,15 @@ GlobalNamespace::generateDocumentation (
 		"<compounddef kind='%s' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n", 
 		kind,
-		getDox ()->getRefId ().cc (),
+		getDoxyBlock ()->getRefId ().cc (),
 		name		
 		);
 
 	sl::String memberXml;
 	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
-	itemXml->append (createDoxDescriptionString ());
-	itemXml->append (createDoxLocationString ());
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 
 	return true;

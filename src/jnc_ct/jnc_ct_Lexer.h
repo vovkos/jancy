@@ -19,6 +19,7 @@ enum TokenKind
 	TokenKind_Integer,
 	TokenKind_Fp,
 	TokenKind_Literal,
+	TokenKind_DoxyComment,
 
 	// special literals
 
@@ -188,6 +189,15 @@ enum TokenKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum TokenChannelMask
+{
+	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
+	TokenChannelMask_DoxyComment = 0x02,
+	TokenChannelMask_All         = -1,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 	// common tokens
@@ -197,6 +207,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
 	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment,  "doxy-comment")
+
 	
 	// literal tokens
 
@@ -454,6 +466,9 @@ protected:
 
 	Token*
 	createFmtSpecifierToken ();
+
+	Token*
+	createDoxyCommentToken ();
 
 	void
 	onLeftParentheses ();

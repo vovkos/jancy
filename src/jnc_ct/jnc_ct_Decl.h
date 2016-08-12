@@ -394,6 +394,7 @@ protected:
 	uint_t m_postDeclaratorModifiers;
 	Type* m_baseType;
 	AttributeBlock* m_attributeBlock;
+	DoxyBlock* m_doxyBlock;
 
 	sl::StdList <DeclPointerPrefix> m_pointerPrefixList;
 	sl::StdList <DeclSuffix> m_suffixList;
@@ -485,6 +486,12 @@ public:
 	getAttributeBlock ()
 	{
 		return m_attributeBlock;
+	}
+
+	DoxyBlock* 
+	getDoxyBlock ()
+	{
+		return m_doxyBlock;
 	}
 
 	sl::ConstList <DeclPointerPrefix> 

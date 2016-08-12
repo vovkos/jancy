@@ -18,6 +18,7 @@
 #include "jnc_ct_LlvmDiBuilder.h"
 #include "jnc_ct_ImportMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
+#include "jnc_ct_DoxyMgr.h"
 
 namespace jnc {
 namespace ct {
@@ -70,7 +71,6 @@ protected:
 	sl::BoxList <sl::String> m_filePathList;
 	sl::StringHashTable m_filePathMap;
 	sl::StringHashTableMap <void*> m_functionMap;
-	sl::StringHashTableMap <size_t> m_doxRefIdMap;
 
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
@@ -88,6 +88,7 @@ public:
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;
+	DoxyMgr m_doxyMgr;
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
 
@@ -245,9 +246,6 @@ public:
 
 	sl::String
 	createLlvmIrString ();
-
-	sl::String
-	adjustDoxRefId (const sl::StringRef& refId);
 
 protected:
 	bool

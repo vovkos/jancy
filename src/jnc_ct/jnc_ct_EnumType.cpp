@@ -52,7 +52,7 @@ EnumConst::generateDocumentation (
 	itemXml->format (
 		"<enumvalue id='%s'>\n"
 		"<name>%s</name>\n",
-		getDox ()->getRefId ().cc (),
+		getDoxyBlock ()->getRefId ().cc (),
 		m_name.cc ()
 		);
 
@@ -64,7 +64,7 @@ EnumConst::generateDocumentation (
 			);
 	}
 
-	itemXml->append (createDoxDescriptionString ());
+	itemXml->append (createDoxyDescriptionString ());
 	itemXml->append ("</enumvalue>\n");
 
 	return true;
@@ -223,13 +223,13 @@ EnumType::generateDocumentation (
 	itemXml->format (
 		"<memberdef kind='enum' id='%s'>\n"
 		"<name>%s</name>\n", 
-		getDox ()->getRefId ().cc (),
+		getDoxyBlock ()->getRefId ().cc (),
 		m_name.cc ()
 		);
 
 	itemXml->append (memberXml);
-	itemXml->append (createDoxDescriptionString ());
-	itemXml->append (createDoxLocationString ());
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 
 	return true;

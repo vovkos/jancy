@@ -288,6 +288,13 @@ dec+             { createIntegerToken (10); };
 dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 
+'///' [^\n]*     { createDoxyCommentToken (); };
+'//!' [^\n]*     { createDoxyCommentToken (); };
+'/**' (any | nl)* :>> '*/'
+				 { createDoxyCommentToken (); };
+'/*!' (any | nl)* :>> '*/'
+				 { createDoxyCommentToken (); };
+
 '//' [^\n]*      ;
 '/*' (any | nl)* :>> '*/'
 				 ;
@@ -303,7 +310,6 @@ any              { createErrorToken (ts [0]); };
 *|;
 
 }%%
-	
 
 //.............................................................................
 

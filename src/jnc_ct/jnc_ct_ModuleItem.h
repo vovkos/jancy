@@ -19,6 +19,7 @@ class DerivableType;
 class ClassType;
 class Function;
 class Property;
+class DoxyBlock;
 
 //.............................................................................
 
@@ -134,39 +135,7 @@ public:
 
 protected:
 	sl::String
-	createDoxLocationString ();
-};
-
-//.............................................................................
-
-class ModuleItemDox
-{
-	friend class Parser;
-	friend class ModuleItem;
-
-protected:
-	sl::String m_refId;
-	sl::String m_briefDescription;
-	sl::String m_detailedDescription;
-
-public:
-	sl::String 
-	getRefId ()
-	{
-		return m_refId;
-	}
-
-	sl::String 
-	getBriefDescription ()
-	{
-		return m_briefDescription;
-	}
-
-	sl::String 
-	getDetailedDescription ()
-	{		
-		return m_detailedDescription;
-	}	
+	createDoxyLocationString ();
 };
 
 //.............................................................................
@@ -179,7 +148,7 @@ class ModuleItem: public sl::ListLink
 protected:
 	Module* m_module;
 	ModuleItemKind m_itemKind;
-	ModuleItemDox* m_dox;
+	DoxyBlock* m_doxyBlock;
 	uint_t m_flags;
 
 public:
@@ -187,7 +156,6 @@ public:
 
 public:
 	ModuleItem ();
-	~ModuleItem ();
 
 	Module*
 	getModule ()
@@ -238,8 +206,8 @@ public:
 		return true;
 	}
 
-	ModuleItemDox* 
-	getDox ();
+	DoxyBlock* 
+	getDoxyBlock ();
 
 protected:
 	virtual
@@ -252,10 +220,10 @@ protected:
 
 	virtual
 	sl::String
-	createDoxRefId ();
+	createDoxyRefId ();
 
 	sl::String
-	createDoxDescriptionString ();
+	createDoxyDescriptionString ();
 };
 
 //.............................................................................

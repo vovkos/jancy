@@ -114,9 +114,10 @@ set (
 	jnc_ct_ModuleItem.h
 	jnc_ct_UnitMgr.h
 	jnc_ct_ImportMgr.h
+	jnc_ct_ExtensionLibMgr.h
+	jnc_ct_DoxyMgr.h
 	jnc_ct_GcShadowStackMgr.h
 	jnc_ct_JitMemoryMgr.h
-	jnc_ct_ExtensionLibMgr.h
 	)
 
 set (
@@ -130,8 +131,9 @@ set (
 	jnc_ct_ModuleItem.cpp
 	jnc_ct_UnitMgr.cpp
 	jnc_ct_ImportMgr.cpp
-	jnc_ct_GcShadowStackMgr.cpp
 	jnc_ct_ExtensionLibMgr.cpp
+	jnc_ct_DoxyMgr.cpp
+	jnc_ct_GcShadowStackMgr.cpp
 	)
 
 source_group (
@@ -259,9 +261,10 @@ source_group (
 
 set (
 	PARSER_H_LIST
-	jnc_ct_Lexer.h
 	jnc_ct_Decl.h
 	jnc_ct_DeclTypeCalc.h
+	jnc_ct_Lexer.h
+	jnc_ct_DoxyLexer.h
 	)
 
 set (
@@ -270,11 +273,13 @@ set (
 	jnc_ct_DeclTypeCalc.cpp
 	jnc_ct_Lexer.cpp
 	jnc_ct_Parser.cpp
+	jnc_ct_DoxyLexer.cpp
 	)
 
 set (
 	PARSER_RL_LIST
 	jnc_ct_Lexer.rl
+	jnc_ct_DoxyLexer.rl
 	)
 
 set (
@@ -504,6 +509,11 @@ add_ragel_step (
 	jnc_ct_Lexer.rl
 	)
 
+add_ragel_step (
+	jnc_ct_DoxyLexer.rl.cpp
+	jnc_ct_DoxyLexer.rl
+	)
+
 add_graco_double_step (
 	jnc_ct_Parser.llk.h
 	jnc_ct_Parser.llk.cpp
@@ -535,6 +545,7 @@ set (
 set (
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jnc_ct_Lexer.rl.cpp
+	${GEN_DIR}/jnc_ct_DoxyLexer.rl.cpp
 	)
 	
 set (

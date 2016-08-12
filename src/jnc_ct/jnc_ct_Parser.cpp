@@ -3,6 +3,7 @@
 #include "jnc_ct_Parser.llk.cpp"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
+#include "jnc_ct_DoxyLexer.h"
 #include "jnc_rtl_Recognizer.h"
 
 namespace jnc {
@@ -20,6 +21,7 @@ Parser::Parser (Module* module)
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
+	m_doxyBlock = NULL;
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_reactorType = NULL;
@@ -550,6 +552,86 @@ Parser::popAttributeBlock ()
 	return attributeBlock;
 }
 
+DoxyBlock*
+Parser::popDoxyBlock ()
+{
+	DoxyBlock* doxyBlock = m_doxyBlock;
+	m_doxyBlock = NULL;
+	return doxyBlock;
+}
+
+void
+Parser::addDoxyComment (const sl::String& comment)
+{
+	DoxyBlock* block = NULL;
+	sl::String* target = NULL;
+
+	sl::String trimmedComment = comment;
+	trimmedComment.trim ();
+
+	DoxyLexer lexer;
+	lexer.create ("doxy", trimmedComment);
+
+	size_t offset = 0;
+	DoxyToken::Pos pos;
+
+	for (;;)
+	{
+		const DoxyToken* token = lexer.getToken ();
+		
+		if (token->m_token == DoxyTokenKind_Error)
+			return;
+
+		if (token->m_pos.m_offset > offset)
+		{
+			if (!target)
+			{
+				if (!block)
+					block = m_module->m_doxyMgr.createDoxyBlock ();
+
+				target = &block->m_detailedDescription;
+			}
+			
+			size_t length = token->m_pos.m_offset - offset;
+			target->append (trimmedComment.cc () + offset, length);
+		}
+
+		if (token->m_token == DoxyTokenKind_Eof)
+			break;
+
+		offset = token->m_pos.m_offset + token->m_pos.m_length;
+
+		switch (token->m_token)
+		{
+		case DoxyTokenKind_Enum:
+		case DoxyTokenKind_Struct:
+		case DoxyTokenKind_Union:
+		case DoxyTokenKind_Class:
+		case DoxyTokenKind_Fn:
+
+		case DoxyTokenKind_Page:
+		case DoxyTokenKind_Group:
+		case DoxyTokenKind_Section:
+		case DoxyTokenKind_SubSection:
+		case DoxyTokenKind_SubSubSection:
+		case DoxyTokenKind_Par:
+
+		case DoxyTokenKind_Title:
+		case DoxyTokenKind_InGroup:
+		case DoxyTokenKind_Brief:
+		case DoxyTokenKind_Snippet:
+		case DoxyTokenKind_Image:
+		case DoxyTokenKind_Sa:
+		case DoxyTokenKind_C:
+			break;
+		}
+
+		offset = pos.m_offset + pos.m_length;
+	}
+
+	m_doxyBlock = block;
+}
+
 bool
 Parser::declare (Declarator* declarator)
 {
@@ -626,7 +708,8 @@ Parser::assignDeclarationAttributes (
 	ModuleItem* item,
 	ModuleItemDecl* decl,
 	const Token::Pos& pos,
-	AttributeBlock* attributeBlock
+	AttributeBlock* attributeBlock,
+	DoxyBlock* doxyBlock
 	)
 {
 	decl->m_accessKind = m_accessKind ?
@@ -643,6 +726,7 @@ Parser::assignDeclarationAttributes (
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock ();
 
+	item->m_doxyBlock = doxyBlock ? doxyBlock : popDoxyBlock ();
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;
 }
@@ -678,6 +762,7 @@ Parser::declareTypedef (
 		}
 
 		m_attributeBlock = NULL;
+		m_doxyBlock = NULL;
 		m_lastDeclaredItem = prevItem;
 		return true;
 	}
@@ -3288,27 +3373,3 @@ Parser::addScopeAnchorToken (
 
 } // namespace ct
 } // namespace jnc
-
-/*
-
-bool
-Parser::preCreateLandingPads (uint_t flags)
-{
-	if (!flags)
-		return true;
-
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-
-	if (flags & LandingPadFlag_Catch)
-	{
-	}
-
-	if (flags & LandingPadFlag_Finally)
-	{
-	}
-
-	return true;
-}
-
- */
-

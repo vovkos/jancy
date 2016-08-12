@@ -29,7 +29,7 @@ StructField::generateDocumentation (
 	bool isMulticast = isClassType (m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";
 
-	itemXml->format ("<memberdef kind='%s' id='%s'", kind, getDox ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='%s' id='%s'", kind, getDoxyBlock ()->getRefId ().cc ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -43,13 +43,13 @@ StructField::generateDocumentation (
 		itemXml->append (" const='yes'");
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxLinkedText ().cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyLinkedText ().cc ());
 
 	if (isMulticast)
 		((MulticastClassType*) m_type)->getFunctionType ()->generateArgDocumentation (itemXml);
 
-	itemXml->append (createDoxDescriptionString ());
-	itemXml->append (createDoxLocationString ());
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
 
 	itemXml->append ("\n</memberdef>\n");
 

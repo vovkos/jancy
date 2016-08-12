@@ -359,6 +359,24 @@ Lexer::createFmtSpecifierToken ()
 	return ts < te ? createStringToken (TokenKind_FmtSpecifier) : NULL;
 }
 
+Token*
+Lexer::createDoxyCommentToken ()
+{
+	ASSERT (te - ts >= 3 && *ts == '/');
+	
+	size_t right = 0;
+
+	if (ts [1] == '*')
+	{
+		ASSERT (te [-1] == '/' && te [-2] == '*');
+		right = 2;
+	}
+
+	Token* token = createStringToken (TokenKind_DoxyComment, 3, right);
+	token->m_channelMask = TokenChannelMask_DoxyComment;
+	return NULL;
+}
+
 void
 Lexer::onLeftParentheses ()
 {

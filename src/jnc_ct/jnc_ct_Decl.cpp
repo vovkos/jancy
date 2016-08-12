@@ -271,6 +271,7 @@ Declarator::Declarator ()
 	m_postDeclaratorModifiers = 0;
 	m_baseType = NULL;
 	m_attributeBlock = NULL;
+	m_doxyBlock = NULL;
 }
 
 void
