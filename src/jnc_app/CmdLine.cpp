@@ -107,6 +107,10 @@ CmdLineParser::onSwitch (
 		m_cmdLine->m_flags |= JncFlag_Documentation;
 		break;
 
+	case CmdLineSwitch_StdLibDoc:
+		m_cmdLine->m_flags |= JncFlag_StdLibDoc;
+		break;
+
 	case CmdLineSwitch_Run:
 		m_cmdLine->m_flags |= JncFlag_Run;
 		break;

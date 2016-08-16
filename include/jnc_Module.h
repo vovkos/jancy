@@ -29,7 +29,8 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x0080,
 	jnc_ModuleCompileFlag_CheckDivByZero                       = 0x0100,
 	jnc_ModuleCompileFlag_Documentation                        = 0x0200,
-	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x0200,
+	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x0400,
+	jnc_ModuleCompileFlag_StdLibDoc                            = 0x0800,
 
 	jnc_ModuleCompileFlag_StdFlags = 
 		jnc_ModuleCompileFlag_GcSafePointInPrologue | 
@@ -74,7 +75,7 @@ void
 jnc_Module_clear (jnc_Module* module);
 
 JNC_EXTERN_C
-int
+void
 jnc_Module_initialize (
 	jnc_Module* module,
 	const char* tag,
@@ -232,13 +233,13 @@ struct jnc_Module
 		jnc_Module_clear (this);
 	}
 
-	bool
+	void
 	initialize (
 		const char* tag,
 		uint_t compileFlags = jnc_ModuleCompileFlag_StdFlags
 		)
 	{
-		return jnc_Module_initialize (this, tag, compileFlags) != 0;
+		jnc_Module_initialize (this, tag, compileFlags);
 	}
 
 	uint_t
@@ -446,6 +447,7 @@ const ModuleCompileFlag
 	ModuleCompileFlag_CheckDivByZero                       = jnc_ModuleCompileFlag_CheckDivByZero,
 	ModuleCompileFlag_Documentation                        = jnc_ModuleCompileFlag_Documentation,
 	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
+	ModuleCompileFlag_StdLibDoc                            = jnc_ModuleCompileFlag_StdLibDoc,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //.............................................................................

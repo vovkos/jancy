@@ -94,10 +94,7 @@ main (
 	{
 		JncApp app (&cmdLine);
 
-		result = 
-			app.initialize () &&
-			app.parse ();
-
+		result = app.parse ();
 		if (!result)
 		{
 			printf ("%s\n", err::getLastErrorDescription ().cc ());

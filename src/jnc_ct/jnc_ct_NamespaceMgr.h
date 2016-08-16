@@ -67,7 +67,7 @@ public:
 	void
 	clear ();
 
-	bool
+	void
 	addStdItems ();
 
 	Orphan*

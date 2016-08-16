@@ -12,13 +12,7 @@ protected:
 	jnc::AutoRuntime m_runtime;
 
 public:
-	JncApp (CmdLine* cmdLine)
-	{
-		m_cmdLine = cmdLine;
-	}
-
-	bool
-	initialize ();
+	JncApp (CmdLine* cmdLine);
 
 	bool
 	parse ();

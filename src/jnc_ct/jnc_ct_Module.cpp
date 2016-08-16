@@ -79,7 +79,7 @@ Module::clear ()
 	m_compileState = ModuleCompileState_Idle;
 }
 
-bool
+void
 Module::initialize (
 	const sl::String& name,
 	uint_t compileFlags
@@ -104,15 +104,12 @@ Module::initialize (
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
 	
-	m_extensionLibMgr.addStaticLib (jnc_CoreLib_getLib ());
-
-	m_variableMgr.createStdVariables ();
-
-	bool result = m_namespaceMgr.addStdItems ();
-	if (!result)
-		return false;
-
-	return true;
+	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
+	{
+		m_extensionLibMgr.addStaticLib (jnc_CoreLib_getLib ());
+		m_variableMgr.createStdVariables ();
+		m_namespaceMgr.addStdItems ();
+	}
 }
 
 #if (_AXL_ENV == AXL_ENV_POSIX)
@@ -403,7 +400,7 @@ Module::parse (
 			return false;
 
 		case TokenKind_DoxyComment:
-			parser.addDoxyComment (token->m_data.m_string);
+			parser.addDoxyComment (token->m_data.m_string.getTrimmedString ());
 			break;
 
 		default:

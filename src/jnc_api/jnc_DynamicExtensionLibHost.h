@@ -556,7 +556,7 @@ void
 jnc_Module_ClearFunc (jnc_Module* module);
 
 typedef
-int
+void
 jnc_Module_InitializeFunc (
 	jnc_Module* module,
 	const char* tag,

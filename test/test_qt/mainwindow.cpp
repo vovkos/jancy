@@ -351,13 +351,7 @@ bool MainWindow::compile ()
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
 
-	result = m_module->initialize (sourceFilePath.data(), compileFlags);
-	if (!result)
-	{
-		writeOutput("Initialize error: %s\n", err::getLastErrorDescription ().cc ());
-		return false;
-	}
-	
+	m_module->initialize (sourceFilePath.data(), compileFlags);
 	m_module->addStaticLib (jnc::StdLib_getLib ());
 	m_module->addStaticLib (jnc::SysLib_getLib ());
 	m_module->addStaticLib (TestLib_getLib ());

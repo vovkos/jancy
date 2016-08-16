@@ -112,14 +112,14 @@ jnc_Module_clear (jnc_Module* module)
 }
 
 JNC_EXTERN_C
-int
+void
 jnc_Module_initialize (
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
 	)
 {
-	return module->initialize (tag, compileFlags);
+	module->initialize (tag, compileFlags);
 }
 
 JNC_EXTERN_C

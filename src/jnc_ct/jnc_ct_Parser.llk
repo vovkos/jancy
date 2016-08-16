@@ -289,7 +289,7 @@ Members2
 	popDoxyBlock ();
 
 	void
-	addDoxyComment (const sl::String& comment);
+	addDoxyComment (const sl::StringRef& comment);
 
 	bool
 	declare (Declarator* declarator);

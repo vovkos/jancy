@@ -48,13 +48,7 @@ main (
 
 	jnc::AutoModule module;
 
-	result = module->initialize (fileName);
-	if (!result)
-	{
-		printf ("%s\n", err::getLastErrorDescription ().cc ());
-		return Error_Compile;
-	}
-
+	module->initialize (fileName);
 	module->addStaticLib (jnc::StdLib_getLib ());
 	module->addStaticLib (MyLib_getLib ());
 

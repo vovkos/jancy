@@ -200,7 +200,7 @@ public:
 	void
 	markForCompile (ModuleItem* item);
 
-	bool
+	void
 	initialize (
 		const sl::String& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags

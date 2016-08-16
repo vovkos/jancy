@@ -1,0 +1,17 @@
+//.............................................................................
+
+typedef unsigned int uint_t;
+typedef unsigned intptr uintptr_t;
+typedef unsigned intptr size_t;
+typedef unsigned int8 uint8_t;
+typedef unsigned int8 uchar_t;
+typedef unsigned int8 byte_t;
+typedef unsigned int16 uint16_t;
+typedef unsigned int16 ushort_t;
+typedef unsigned int16 word_t;
+typedef unsigned int32 uint32_t;
+typedef unsigned int32 dword_t;
+typedef unsigned int64 uint64_t;
+typedef unsigned int64 qword_t;
+
+//.............................................................................

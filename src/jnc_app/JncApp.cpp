@@ -29,40 +29,43 @@ JNC_END_LIB_FUNCTION_MAP ()
 
 //.............................................................................
 
-bool
-JncApp::initialize ()
+JncApp::JncApp (CmdLine* cmdLine)
 {
+	m_cmdLine = cmdLine;
+
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
-	if (m_cmdLine->m_flags & JncFlag_DebugInfo)
+	if (cmdLine->m_flags & JncFlag_DebugInfo)
 		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 
-	if (m_cmdLine->m_flags & JncFlag_McJit)
+	if (cmdLine->m_flags & JncFlag_McJit)
 		compileFlags |= jnc::ModuleCompileFlag_McJit;
 
-	if (m_cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
+	if (cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
-	if (m_cmdLine->m_flags & JncFlag_Documentation)
+	if (cmdLine->m_flags & JncFlag_Documentation)
 		compileFlags |= jnc::ModuleCompileFlag_Documentation;
 
-	if (!(m_cmdLine->m_flags & JncFlag_Compile))
+	if (cmdLine->m_flags & JncFlag_StdLibDoc)
+		compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
+
+	if (!(cmdLine->m_flags & JncFlag_Compile))
 		compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 
-	bool result = m_module->initialize ("jnc_module", compileFlags);
-	if (!result)
-		return false;
+	m_module->initialize ("jnc_module", compileFlags);
 
-	m_module->addStaticLib (jnc::StdLib_getLib ());
-	m_module->addStaticLib (jnc::SysLib_getLib ());
-	m_module->addStaticLib (JncLib_getLib ());
+	if (!(cmdLine->m_flags & JncFlag_StdLibDoc))
+	{
+		m_module->addStaticLib (jnc::StdLib_getLib ());
+		m_module->addStaticLib (jnc::SysLib_getLib ());
+		m_module->addStaticLib (JncLib_getLib ());
+	}
 
-	sl::BoxIterator <sl::String> it = m_cmdLine->m_importDirList.getHead ();
+	sl::BoxIterator <sl::String> it = cmdLine->m_importDirList.getHead ();
 	for (; it; it++)
 		m_module->addImportDir (*it);
 
 	m_module->addImportDir (io::getExeDir ());
-
-	return true;
 }
 
 bool

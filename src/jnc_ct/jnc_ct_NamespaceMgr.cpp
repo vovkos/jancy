@@ -25,7 +25,9 @@ NamespaceMgr::NamespaceMgr ()
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
 	jnc->m_tag = jncName;
-	jnc->m_flags |= ModuleItemFlag_Sealed;
+
+	if (!(m_module->getCompileFlags () & ModuleCompileFlag_StdLibDoc))
+		jnc->m_flags |= ModuleItemFlag_Sealed;
 
 	internal->m_module = m_module;
 	internal->m_parentNamespace = global;
@@ -57,13 +59,13 @@ NamespaceMgr::clear ()
 	m_staticObjectValue.clear ();
 }
 
-bool
+void
 NamespaceMgr::addStdItems ()
 {
 	GlobalNamespace* global = &m_stdNamespaceArray [StdNamespace_Global];
 	GlobalNamespace* jnc = &m_stdNamespaceArray [StdNamespace_Jnc];
 
-	return
+	bool result =
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uintptr_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_size_t)) &&
@@ -83,6 +85,8 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem ("AutomatonFunc", m_module->m_typeMgr.getLazyStdType (StdType_AutomatonFunc)) &&
 		jnc->addItem ("Recognizer", m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
 		jnc->addItem ("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
+
+	ASSERT (result);
 }
 
 Orphan*

@@ -71,15 +71,9 @@ bool MainWindow::runScript (const QString& fileName_qt)
 		return false;
 	}
 
-	result = m_module->initialize (fileName);
-	if (!result)
-	{
-		output ("Initialize error: %s\n", err::getLastErrorDescription ().cc ());
-		return false;
-	}
-
 	output ("Parsing...\n");
 	
+	m_module->initialize (fileName);
 	m_module->addStaticLib (jnc::StdLib_getLib ());
 	m_module->addStaticLib (MyLib_getLib ());
 

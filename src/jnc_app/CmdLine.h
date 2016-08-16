@@ -16,6 +16,7 @@ enum JncFlag
 	JncFlag_DebugInfo         = 0x0200,
 	JncFlag_StdInSrc          = 0x0400,
 	JncFlag_PrintReturnValue  = 0x0800,
+	JncFlag_StdLibDoc         = 0x1000,
 };
 
 struct CmdLine
@@ -54,6 +55,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_McJit,
 	CmdLineSwitch_SimpleGcSafePoint,
 	CmdLineSwitch_Documentation,
+	CmdLineSwitch_StdLibDoc,
 
 	CmdLineSwitch_RunFunction = sl::CmdLineSwitchFlag_HasValue,
 	CmdLineSwitch_GcAllocSizeTrigger,
@@ -140,6 +142,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_SimpleGcSafePoint,
 		"simple-gc-safe-point", NULL,
 		"Use simple GC safe-point call (rather than write barrier)"
+		)
+	AXL_SL_CMD_LINE_SWITCH (
+		CmdLineSwitch_StdLibDoc,
+		"std-lib-doc", NULL,
+		"Enable documentation of standard libraries"
 		)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("Runtime options")

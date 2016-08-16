@@ -227,11 +227,12 @@ ModuleItem::ensureLayout ()
 DoxyBlock* 
 ModuleItem::getDoxyBlock ()
 {
-	if (m_doxyBlock)
-		return m_doxyBlock;
+	if (!m_doxyBlock)
+		m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
 
-	m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
-	m_doxyBlock->m_refId = createDoxyRefId ();
+	if (m_doxyBlock->m_refId.isEmpty ())
+		m_doxyBlock->m_refId = createDoxyRefId ();
+
 	return m_doxyBlock;
 }
 

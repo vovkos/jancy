@@ -38,7 +38,13 @@ public:
 	getDetailedDescription ()
 	{		
 		return m_detailedDescription;
-	}	
+	}
+
+	bool
+	isDescriptionEmpty ()
+	{
+		return m_briefDescription.isEmpty () && m_detailedDescription.isEmpty ();
+	}
 };
 
 //.............................................................................

@@ -561,20 +561,15 @@ Parser::popDoxyBlock ()
 }
 
 void
-Parser::addDoxyComment (const sl::String& comment)
+Parser::addDoxyComment (const sl::StringRef& comment)
 {
-	DoxyBlock* block = NULL;
-	sl::String* target = NULL;
-
-	sl::String trimmedComment = comment;
-	trimmedComment.trim ();
+	DoxyBlock* block = m_doxyBlock ? m_doxyBlock : m_module->m_doxyMgr.createDoxyBlock ();
+	sl::String* target = &block->m_detailedDescription;
 
 	DoxyLexer lexer;
-	lexer.create ("doxy", trimmedComment);
+	lexer.create ("doxy", comment);
 
 	size_t offset = 0;
-	DoxyToken::Pos pos;
-
 	for (;;)
 	{
 		const DoxyToken* token = lexer.getToken ();
@@ -584,49 +579,60 @@ Parser::addDoxyComment (const sl::String& comment)
 
 		if (token->m_pos.m_offset > offset)
 		{
-			if (!target)
-			{
-				if (!block)
-					block = m_module->m_doxyMgr.createDoxyBlock ();
-
-				target = &block->m_detailedDescription;
-			}
-			
 			size_t length = token->m_pos.m_offset - offset;
-			target->append (trimmedComment.cc () + offset, length);
+			target->append (comment.cc () + offset, length);
 		}
 
 		if (token->m_token == DoxyTokenKind_Eof)
 			break;
 
-		offset = token->m_pos.m_offset + token->m_pos.m_length;
-
 		switch (token->m_token)
 		{
 		case DoxyTokenKind_Enum:
+			break;
 		case DoxyTokenKind_Struct:
+			break;
 		case DoxyTokenKind_Union:
+			break;
 		case DoxyTokenKind_Class:
+			break;
 		case DoxyTokenKind_Fn:
+			break;
 
 		case DoxyTokenKind_Page:
+			break;
 		case DoxyTokenKind_Group:
+			break;
 		case DoxyTokenKind_Section:
+			break;
 		case DoxyTokenKind_SubSection:
+			break;
 		case DoxyTokenKind_SubSubSection:
+			break;
 		case DoxyTokenKind_Par:
+			break;
 
 		case DoxyTokenKind_Title:
+			break;
 		case DoxyTokenKind_InGroup:
+			break;
+		
 		case DoxyTokenKind_Brief:
+			target = &block->m_briefDescription;
+			break;
+
 		case DoxyTokenKind_Snippet:
+			break;
 		case DoxyTokenKind_Image:
+			break;
 		case DoxyTokenKind_Sa:
+			break;
 		case DoxyTokenKind_C:
 			break;
 		}
 
-		offset = pos.m_offset + pos.m_length;
+		offset = token->m_pos.m_offset + token->m_pos.m_length;
+		lexer.nextToken ();
 	}
 
 	m_doxyBlock = block;
