@@ -136,7 +136,7 @@ class Buffer
 
 	bool errorcode copy (
 		char const* p,
-		size_t size,
+		size_t size
 		);
 
 	bool errorcode append (ConstBufferRef buffer)
@@ -146,7 +146,7 @@ class Buffer
 
 	bool errorcode append (
 		char const* p,
-		size_t size,
+		size_t size
 		);
 
 	void operator := (ConstBufferRef src)
