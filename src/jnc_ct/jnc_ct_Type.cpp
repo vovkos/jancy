@@ -529,6 +529,31 @@ Type::markGcRoots (
 
 //.............................................................................
 
+bool
+Typedef::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
+{
+	itemXml->format (
+		"<memberdef kind='typedef' id='%s'>\n"
+		"<name>%s</name>\n"
+		"<type>%s</type>\n", 
+		getDoxyBlock ()->getRefId ().cc (),
+		m_name.cc (),
+		m_type->getDoxyLinkedText ().cc ()
+		);
+
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
+	itemXml->append ("</memberdef>\n");
+
+	return true;
+}
+
+//.............................................................................
+
 Type*
 getSimpleType (
 	TypeKind typeKind,

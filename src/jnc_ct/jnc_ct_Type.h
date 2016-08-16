@@ -385,6 +385,14 @@ public:
 	{
 		return m_type;
 	}
+
+	virtual
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		);
 };
 
 //.............................................................................

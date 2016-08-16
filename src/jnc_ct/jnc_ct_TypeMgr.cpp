@@ -586,7 +586,7 @@ TypeMgr::createTypedef (
 	)
 {
 	Typedef* tdef = AXL_MEM_NEW (Typedef);
-	type->m_module = m_module;
+	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = qualifiedName;
 	tdef->m_tag = qualifiedName;
