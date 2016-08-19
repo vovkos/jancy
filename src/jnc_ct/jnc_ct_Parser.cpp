@@ -22,6 +22,8 @@ Parser::Parser (Module* module)
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
 	m_doxyBlock = NULL;
+	m_isDoxyBlockAssigned = false;
+	m_isDoxyBriefDescription = false;
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_reactorType = NULL;
@@ -555,87 +557,105 @@ Parser::popAttributeBlock ()
 DoxyBlock*
 Parser::popDoxyBlock ()
 {
-	DoxyBlock* doxyBlock = m_doxyBlock;
+	DoxyBlock* doxyBlock = m_isDoxyBlockAssigned ? NULL : m_doxyBlock; // only if unassigned
 	m_doxyBlock = NULL;
+	m_isDoxyBlockAssigned = false;
+	m_isDoxyBriefDescription = false;
 	return doxyBlock;
 }
 
 void
-Parser::addDoxyComment (const sl::StringRef& comment)
+Parser::addDoxyComment (
+	const sl::StringRef& comment,
+	const Token::Pos& pos,
+	bool canAppend
+	)
 {
-	DoxyBlock* block = m_doxyBlock ? m_doxyBlock : m_module->m_doxyMgr.createDoxyBlock ();
-	sl::String* target = &block->m_detailedDescription;
+	if (!m_doxyBlock || !canAppend)
+	{
+		m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+		m_isDoxyBriefDescription = false;
+	}
+
+	sl::String* description = m_isDoxyBriefDescription ? &m_doxyBlock->m_briefDescription : &m_doxyBlock->m_detailedDescription;
 
 	DoxyLexer lexer;
 	lexer.create ("doxy", comment);
+	lexer.setLineCol (pos.m_line, pos.m_col + 3); // doxygen comments always start with 3 characters: ///, //!, /** /*!
 
-	size_t offset = 0;
+	int lastTokenLine = -1;
+
 	for (;;)
 	{
 		const DoxyToken* token = lexer.getToken ();
+		const DoxyToken* nextToken;
 		
-		if (token->m_token == DoxyTokenKind_Error)
-			return;
-
-		if (token->m_pos.m_offset > offset)
-		{
-			size_t length = token->m_pos.m_offset - offset;
-			target->append (comment.cc () + offset, length);
-		}
-
-		if (token->m_token == DoxyTokenKind_Eof)
-			break;
-
 		switch (token->m_token)
 		{
+		case DoxyTokenKind_Error:
+			m_doxyBlock = NULL;
+			m_isDoxyBriefDescription = NULL;
+			return;
+
+		case DoxyTokenKind_Eof:
+			return;
+
 		case DoxyTokenKind_Enum:
-			break;
 		case DoxyTokenKind_Struct:
-			break;
 		case DoxyTokenKind_Union:
-			break;
 		case DoxyTokenKind_Class:
-			break;
 		case DoxyTokenKind_Fn:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			if (m_isDoxyBlockAssigned) // create a new one
+			{
+				m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+				m_isDoxyBriefDescription = false;
+				description = m_isDoxyBriefDescription ? &m_doxyBlock->m_briefDescription : &m_doxyBlock->m_detailedDescription;
+			}
+
+			m_module->m_doxyMgr.setDoxyBlockTarget (m_doxyBlock, nextToken->m_data.m_string.getTrimmedString ());
+			m_isDoxyBlockAssigned = true;
+			lexer.nextToken ();
 			break;
 
-		case DoxyTokenKind_Page:
-			break;
 		case DoxyTokenKind_Group:
 			break;
-		case DoxyTokenKind_Section:
-			break;
-		case DoxyTokenKind_SubSection:
-			break;
-		case DoxyTokenKind_SubSubSection:
-			break;
-		case DoxyTokenKind_Par:
+
+		case DoxyTokenKind_InGroup:
 			break;
 
 		case DoxyTokenKind_Title:
 			break;
-		case DoxyTokenKind_InGroup:
-			break;
-		
+	
 		case DoxyTokenKind_Brief:
-			target = &block->m_briefDescription;
+			m_isDoxyBriefDescription = true;
+			description = &m_doxyBlock->m_briefDescription;
 			break;
 
-		case DoxyTokenKind_Snippet:
+		case DoxyTokenKind_Text:
+			description->append (token->m_data.m_string);
 			break;
-		case DoxyTokenKind_Image:
-			break;
-		case DoxyTokenKind_Sa:
-			break;
-		case DoxyTokenKind_C:
+
+		case '\n':
+			if (lastTokenLine != token->m_pos.m_line && m_isDoxyBriefDescription && !description->isEmpty ()) // empty line ends brief description
+			{
+				m_isDoxyBriefDescription = false;
+				description = &m_doxyBlock->m_detailedDescription;
+			}
+			else if (!description->isEmpty ())
+			{
+				description->append ('\n');
+			}
+
 			break;
 		}
 
-		offset = token->m_pos.m_offset + token->m_pos.m_length;
+		lastTokenLine = token->m_pos.m_line;
 		lexer.nextToken ();
 	}
-
-	m_doxyBlock = block;
 }
 
 bool

@@ -18,6 +18,7 @@ DoxyMgr::clear ()
 {
 	m_doxyBlockList.clear ();
 	m_doxyRefIdMap.clear ();
+	m_targetList.clear ();
 }
 
 DoxyBlock* 
@@ -43,6 +44,42 @@ DoxyMgr::adjustDoxyRefId (const sl::StringRef& refId)
 	
 	it->m_value++;
 	return adjustedRefId;
+}
+
+void
+DoxyMgr::setDoxyBlockTarget (
+	DoxyBlock* block,
+	const sl::StringRef& targetName
+	)
+{
+	Target* retarget = AXL_MEM_NEW (Target);
+	retarget->m_block = block;
+	retarget->m_targetName = targetName;
+	m_targetList.insertTail (retarget);
+}
+
+bool
+DoxyMgr::resolveDoxyBlockTargets ()
+{
+	bool result = true;
+
+	GlobalNamespace* nspace = m_module->m_namespaceMgr.getGlobalNamespace ();
+
+	sl::Iterator <Target> it = m_targetList.getHead ();
+	for (; it; it++)
+	{
+		Target* target = *it;
+		ModuleItem* item = nspace->findItemByName (target->m_targetName);
+		if (!item)
+			result = false;
+
+		item->m_doxyBlock = target->m_block;
+	}
+
+	if (!result)		
+		err::setStringError ("documentation target(s) not found");
+
+	return result;
 }
 
 //.............................................................................

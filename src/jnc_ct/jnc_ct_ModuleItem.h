@@ -144,6 +144,7 @@ class ModuleItem: public sl::ListLink
 {
 	friend class Module;
 	friend class Parser;
+	friend class DoxyMgr;
 
 protected:
 	Module* m_module;

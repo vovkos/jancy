@@ -8,11 +8,16 @@ namespace ct {
 //.............................................................................
 
 DoxyToken*
-DoxyLexer::createKeywordToken (DoxyTokenKind tokenKind)
+DoxyLexer::createTextToken ()
 {
-	// create text token if any
+	size_t length = te - ts;
+	
+	sl::StringRef leftTrimmedString = sl::StringRef (ts, length).getLeftTrimmedString ();
 
-	return createToken (tokenKind);
+
+	Token* token = createToken (DoxyTokenKind_Text);
+	token->m_data.m_string.copy (ts, te - ts);
+	return token;
 }
 
 //.............................................................................

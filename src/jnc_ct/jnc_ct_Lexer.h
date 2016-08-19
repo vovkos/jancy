@@ -19,7 +19,10 @@ enum TokenKind
 	TokenKind_Integer,
 	TokenKind_Fp,
 	TokenKind_Literal,
-	TokenKind_DoxyComment,
+	TokenKind_DoxyComment1,
+	TokenKind_DoxyComment2,
+	TokenKind_DoxyComment3,
+	TokenKind_DoxyComment4,
 
 	// special literals
 
@@ -207,7 +210,11 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
 	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment,  "doxy-comment")
+	
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment1, "doxy-comment-1")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment2, "doxy-comment-2")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "doxy-comment-3")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "doxy-comment-4")
 
 	
 	// literal tokens
@@ -468,7 +475,7 @@ protected:
 	createFmtSpecifierToken ();
 
 	Token*
-	createDoxyCommentToken ();
+	createDoxyCommentToken (TokenKind tokenKind);
 
 	void
 	onLeftParentheses ();

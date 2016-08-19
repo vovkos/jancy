@@ -288,12 +288,12 @@ dec+             { createIntegerToken (10); };
 dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 
-'///' [^\n]*     { createDoxyCommentToken (); };
-'//!' [^\n]*     { createDoxyCommentToken (); };
+'///' [^\n]*     { createDoxyCommentToken (TokenKind_DoxyComment1); };
+'//!' [^\n]*     { createDoxyCommentToken (TokenKind_DoxyComment2); };
 '/**' (any | nl)* :>> '*/'
-				 { createDoxyCommentToken (); };
+				 { createDoxyCommentToken (TokenKind_DoxyComment3); };
 '/*!' (any | nl)* :>> '*/'
-				 { createDoxyCommentToken (); };
+				 { createDoxyCommentToken (TokenKind_DoxyComment4); };
 
 '//' [^\n]*      ;
 '/*' (any | nl)* :>> '*/'

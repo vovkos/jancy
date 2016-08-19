@@ -52,10 +52,18 @@ public:
 class DoxyMgr
 {
 protected:
+	struct Target: sl::ListLink
+	{
+		DoxyBlock* m_block;
+		sl::StringRef m_targetName;
+	};
+
+protected:
 	Module* m_module;
 
 	sl::StdList <DoxyBlock> m_doxyBlockList;
 	sl::StringHashTableMap <size_t> m_doxyRefIdMap;
+	sl::StdList <Target> m_targetList;
 	
 public:
 	DoxyMgr ();
@@ -80,6 +88,15 @@ public:
 
 	sl::String
 	adjustDoxyRefId (const sl::StringRef& refId);
+
+	void
+	setDoxyBlockTarget (
+		DoxyBlock* block,
+		const sl::StringRef& targetName
+		);
+
+	bool
+	resolveDoxyBlockTargets ();
 
 protected:
 };

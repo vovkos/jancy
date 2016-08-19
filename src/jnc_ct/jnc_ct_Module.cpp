@@ -391,7 +391,6 @@ Module::parse (
 	for (;;)
 	{
 		const Token* token = lexer.getToken ();
-
 		switch (token->m_token)
 		{
 		case TokenKind_Error:
@@ -399,8 +398,12 @@ Module::parse (
 			lex::pushSrcPosError (fileName, token->m_pos);
 			return false;
 
-		case TokenKind_DoxyComment:
-			parser.addDoxyComment (token->m_data.m_string.getTrimmedString ());
+		case TokenKind_DoxyComment1:
+		case TokenKind_DoxyComment2:
+		case TokenKind_DoxyComment3:
+		case TokenKind_DoxyComment4:
+			if (!(m_compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token->m_token - TokenKind_DoxyComment1))))
+				parser.addDoxyComment (token->m_data.m_string, token->m_pos, token->m_token <= TokenKind_DoxyComment2);
 			break;
 
 		default:

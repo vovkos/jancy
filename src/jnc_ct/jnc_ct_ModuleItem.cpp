@@ -258,7 +258,7 @@ ModuleItem::createDoxyDescriptionString ()
 	{
 		string.append ("<briefdescription><para>\n");
 		string.append (description);
-		string.append ("<para/></briefdescription>\n");
+		string.append ("</para></briefdescription>\n");
 	}
 
 	description = doxyBlock->getDetailedDescription ();

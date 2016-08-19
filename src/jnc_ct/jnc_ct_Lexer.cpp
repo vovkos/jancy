@@ -360,19 +360,19 @@ Lexer::createFmtSpecifierToken ()
 }
 
 Token*
-Lexer::createDoxyCommentToken ()
+Lexer::createDoxyCommentToken (TokenKind tokenKind)
 {
 	ASSERT (te - ts >= 3 && *ts == '/');
 	
 	size_t right = 0;
 
-	if (ts [1] == '*')
+	if (tokenKind >= TokenKind_DoxyComment3) // multiline c-style: /** or /*!
 	{
-		ASSERT (te [-1] == '/' && te [-2] == '*');
+		ASSERT (ts [1] == '*' && te [-1] == '/' && te [-2] == '*');
 		right = 2;
 	}
 
-	Token* token = createStringToken (TokenKind_DoxyComment, 3, right);
+	Token* token = createStringToken (tokenKind, 3, right);
 	token->m_channelMask = TokenChannelMask_DoxyComment;
 	return NULL;
 }

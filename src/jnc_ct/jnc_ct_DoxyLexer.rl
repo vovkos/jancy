@@ -14,33 +14,37 @@ write data;
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# definitions
+#
+
+# regular char (non-whitespace and non-escape)
+
+rc = [^ \t\r\n\\];
+ws = [ \t\r]+;
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # main machine
 #
 
 main := |*
 
-'\\enum'          { createKeywordToken (DoxyTokenKind_Enum); };
-'\\struct'        { createKeywordToken (DoxyTokenKind_Struct); };
-'\\union'         { createKeywordToken (DoxyTokenKind_Union); };
-'\\class'         { createKeywordToken (DoxyTokenKind_Class); };
-'\\fn'            { createKeywordToken (DoxyTokenKind_Fn); };
+'\\enum'          { createToken (DoxyTokenKind_Enum); };
+'\\struct'        { createToken (DoxyTokenKind_Struct); };
+'\\union'         { createToken (DoxyTokenKind_Union); };
+'\\class'         { createToken (DoxyTokenKind_Class); };
+'\\fn'            { createToken (DoxyTokenKind_Fn); };
+'\\group'         { createToken (DoxyTokenKind_Group); };
+'\\ingroup'       { createToken (DoxyTokenKind_InGroup); };
+'\\title'         { createToken (DoxyTokenKind_Title); };
+'\\brief'         { createToken (DoxyTokenKind_Brief); };
 
-'\\page'          { createKeywordToken (DoxyTokenKind_Page); };
-'\\group'         { createKeywordToken (DoxyTokenKind_Group); };
-'\\section'       { createKeywordToken (DoxyTokenKind_Section); };
-'\\subsection'    { createKeywordToken (DoxyTokenKind_SubSection); };
-'\\subsubsection' { createKeywordToken (DoxyTokenKind_SubSubSection); };
-'\\par'           { createKeywordToken (DoxyTokenKind_Par); };
+'\\' rc*          { createToken (DoxyTokenKind_OtherCommand); };
 
-'\\title'         { createKeywordToken (DoxyTokenKind_Title); };
-'\\ingroup'       { createKeywordToken (DoxyTokenKind_InGroup); };
-'\\brief'         { createKeywordToken (DoxyTokenKind_Brief); };
-'\\snippet'       { createKeywordToken (DoxyTokenKind_Snippet); };
-'\\image'         { createKeywordToken (DoxyTokenKind_Image); };
-'\\sa'            { createKeywordToken (DoxyTokenKind_Sa); };
-'\\c'             { createKeywordToken (DoxyTokenKind_C); };
+rc ([^\n\\]* rc)? { createTextToken (); };
 
-any               ;
+'\n'              { newLine (ts + 1), createToken ('\n'); };
+ws                ;
 
 *|;
 

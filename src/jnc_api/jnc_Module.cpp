@@ -332,6 +332,12 @@ jnc_Module_generateDocumentation (
 	if (!result)
 		return false;
 
+	result = module->m_doxyMgr.resolveDoxyBlockTargets ();
+	if (!result)
+	{
+		// generate a warning?
+	}
+
 	sl::String nspaceXml;
 	sl::String indexXml;
 

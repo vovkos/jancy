@@ -6,6 +6,7 @@
 CmdLine::CmdLine ()
 {
 	m_flags = JncFlag_Run;
+	m_doxyCommentFlags = 0;
 	m_functionName = "main";
 	m_outputDir = ".";
 	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
@@ -152,6 +153,12 @@ CmdLineParser::onSwitch (
 
 	case CmdLineSwitch_OutputDir:
 		m_cmdLine->m_outputDir = value;
+		break;
+
+	case CmdLineSwitch_DisableDoxyComment:
+		DoxyCommentMap::Iterator it = DoxyCommentMap::find (value);
+		if (it)
+			m_cmdLine->m_doxyCommentFlags |= it->m_value;
 		break;
 	}
 

@@ -44,7 +44,10 @@ JncApp::JncApp (CmdLine* cmdLine)
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
 	if (cmdLine->m_flags & JncFlag_Documentation)
+	{
 		compileFlags |= jnc::ModuleCompileFlag_Documentation;
+		compileFlags |= cmdLine->m_doxyCommentFlags;
+	}
 
 	if (cmdLine->m_flags & JncFlag_StdLibDoc)
 		compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;

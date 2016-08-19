@@ -108,6 +108,9 @@ Members
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;
 	DoxyBlock* m_doxyBlock;
+	bool m_isDoxyBlockAssigned;
+	bool m_isDoxyBriefDescription;
+
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
 	sl::String m_doxyComment;
@@ -289,7 +292,11 @@ Members2
 	popDoxyBlock ();
 
 	void
-	addDoxyComment (const sl::StringRef& comment);
+	addDoxyComment (
+		const sl::StringRef& comment,
+		const Token::Pos& pos,
+		bool canAppend
+		);
 
 	bool
 	declare (Declarator* declarator);
