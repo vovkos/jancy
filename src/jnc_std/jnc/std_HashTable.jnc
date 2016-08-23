@@ -1,6 +1,6 @@
 ///+++
 
-/// AXL_SELECT_ANY char g_std_HashTableSrc [] = 
+/// JNC_SELECT_ANY char g_std_HashTableSrc [] = 
 
 namespace std {
 

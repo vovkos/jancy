@@ -28,18 +28,18 @@ protected:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	isEmpty ()
 	{
 		return m_list.isEmpty ();
 	}
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	clear ()
 	{
 		m_list.clear ();
@@ -47,21 +47,21 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	find (
 		DataPtr keyPtr,
 		DataPtr valuePtr
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	insert (
 		DataPtr keyPtr,
 		Variant value
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	remove (DataPtr keyPtr);
 };
 
@@ -84,18 +84,18 @@ protected:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	isEmpty ()
 	{
 		return m_list.isEmpty ();
 	}
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	clear ()
 	{
 		m_list.clear ();
@@ -103,21 +103,21 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	find (
 		Variant key,
 		DataPtr valuePtr
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	insert (
 		Variant key,
 		Variant value
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	remove (Variant key);
 };
 

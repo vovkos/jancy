@@ -83,9 +83,9 @@ protected:
 	sys::Event m_handshakeEvent;
 	sys::NotificationEvent m_resumeEvent;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::win::VirtualMemory m_guardPage;
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 	io::psx::Mapping m_guardPage;
 #	if (_AXL_POSIX == AXL_POSIX_DARWIN)
 	sys::drw::Semaphore m_handshakeSem; // mach semaphores can be safely signalled from signal handlers
@@ -288,7 +288,7 @@ public:
 		size_t count
 		);
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	int 
 	handleSehException (
 		uint_t code, 
@@ -333,7 +333,7 @@ protected:
 	void
 	parkAtSafePoint ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX) // signal handlers
+#if (_JNC_ENV == JNC_ENV_POSIX) // signal handlers
 	static
 	void
 	installSignalHandlers (int);

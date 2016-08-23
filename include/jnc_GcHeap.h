@@ -4,20 +4,23 @@
 
 #include "jnc_RuntimeStructs.h"
 
+/// \addtogroup gc-heap
+/// @{
+
 //.............................................................................
 
 enum jnc_GcDef
 {
 	jnc_GcDef_AllocSizeTrigger  = -1, // use period only
-#ifdef _AXL_DEBUG
+#ifdef _JNC_DEBUG
 	jnc_GcDef_PeriodSizeTrigger = 0, // run gc on every allocation
-#elif (_AXL_CPU == AXL_CPU_X86)
+#elif (_JNC_CPU == JNC_CPU_X86)
 	jnc_GcDef_PeriodSizeTrigger = 1 * 1024 * 1024, // 1MB gc period
 #else
 	jnc_GcDef_PeriodSizeTrigger = 2 * 1024 * 1024, // 2MB gc period
 #endif
 
-#ifdef _AXL_DEBUG
+#ifdef _JNC_DEBUG
 	jnc_GcDef_DataPtrValidatorPoolSize = 1, // don't use pool, allocate every time
 #else
 	jnc_GcDef_DataPtrValidatorPoolSize = 32,
@@ -25,6 +28,8 @@ enum jnc_GcDef
 
 	jnc_GcDef_ShutdownIterationLimit   = 3,
 };
+
+typedef enum jnc_GcDef jnc_GcDef;
 
 //.............................................................................
 
@@ -56,28 +61,28 @@ jnc_Runtime*
 jnc_GcHeap_getRuntime (jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getStats (
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
 	);
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
 	);
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_setSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
 	);
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getStats (
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
@@ -203,7 +208,7 @@ jnc_GcHeap_tryAllocateBuffer (
 JNC_EXTERN_C
 jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -212,21 +217,21 @@ jnc_GcHeap_createDataPtrValidator (
 JNC_EXTERN_C
 void
 jnc_GcHeap_weakMark (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
 jnc_GcHeap_markData (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
 jnc_GcHeap_markClass (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
@@ -238,15 +243,15 @@ jnc_GcHeap_addRoot (
 	jnc_Type* type
 	);
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 JNC_EXTERN_C
-int 
+int
 jnc_GcHeap_handleGcSehException (
 	jnc_GcHeap* gcHeap,
-	uint_t code, 
+	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	);
-#endif // _AXL_ENV
+#endif // _JNC_ENV
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GcHeap
@@ -257,19 +262,19 @@ struct jnc_GcHeap
 		return jnc_GcHeap_getRuntime (this);
 	}
 
-	void 
+	void
 	getSizeTriggers (jnc_GcSizeTriggers* triggers)
 	{
 		jnc_GcHeap_getSizeTriggers (this, triggers);
 	}
 
-	void 
+	void
 	setSizeTriggers (const jnc_GcSizeTriggers* triggers)
 	{
 		jnc_GcHeap_setSizeTriggers (this, triggers);
 	}
 
-	void 
+	void
 	getStats (jnc_GcStats* stats)
 	{
 		jnc_GcHeap_getStats (this, stats);
@@ -436,16 +441,16 @@ struct jnc_GcHeap
 		jnc_GcHeap_addRoot (this, p, type);
 	}
 
-#	if (_AXL_ENV == AXL_ENV_WIN)
-	int 
+#	if (_JNC_ENV == JNC_ENV_WIN)
+	int
 	handleGcSehException (
-		uint_t code, 
+		uint_t code,
 		EXCEPTION_POINTERS* exceptionPointers
 		)
 	{
 		return jnc_GcHeap_handleGcSehException (this, code, exceptionPointers);
 	}
-#	endif // _AXL_ENV
+#	endif // _JNC_ENV
 };
 #endif // _JNC_CORE
 
@@ -473,3 +478,5 @@ typedef jnc_GcSizeTriggers GcSizeTriggers;
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

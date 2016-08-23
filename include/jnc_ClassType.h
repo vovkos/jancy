@@ -4,6 +4,10 @@
 
 #include "jnc_DerivableType.h"
 #include "jnc_FunctionType.h"
+#include "jnc_Function.h"
+
+/// \addtogroup class-type
+/// @{
 
 //.............................................................................
 
@@ -20,6 +24,8 @@ enum jnc_ClassTypeKind
 	jnc_ClassTypeKind_DataClosure,
 };
 
+typedef enum jnc_ClassTypeKind jnc_ClassTypeKind;
+
 //.............................................................................
 
 enum jnc_ClassTypeFlag
@@ -30,6 +36,8 @@ enum jnc_ClassTypeFlag
 	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x200000,
 };
 
+typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
+
 //.............................................................................
 
 enum jnc_ClassPtrTypeKind
@@ -38,6 +46,8 @@ enum jnc_ClassPtrTypeKind
 	jnc_ClassPtrTypeKind_Weak,
 	jnc_ClassPtrTypeKind__Count,
 };
+
+typedef enum jnc_ClassPtrTypeKind jnc_ClassPtrTypeKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -106,6 +116,10 @@ enum jnc_MulticastFieldKind
 	jnc_MulticastFieldKind__Count,
 };
 
+typedef enum jnc_MulticastFieldKind jnc_MulticastFieldKind;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum jnc_MulticastMethodKind
 {
 	jnc_MulticastMethodKind_Clear,
@@ -117,10 +131,16 @@ enum jnc_MulticastMethodKind
 	jnc_MulticastMethodKind__Count,
 };
 
+typedef enum jnc_MulticastMethodKind jnc_MulticastMethodKind;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum jnc_MulticastMethodFlag
 {
 	jnc_MulticastMethodFlag_InaccessibleViaEventPtr = 0x010000,
 };
+
+typedef enum jnc_MulticastMethodFlag jnc_MulticastMethodFlag;
 
 //.............................................................................
 
@@ -128,7 +148,7 @@ JNC_EXTERN_C
 jnc_FunctionPtrType*
 jnc_MulticastClassType_getTargetType (jnc_MulticastClassType* type);
 
-inline
+JNC_INLINE
 jnc_FunctionType*
 jnc_MulticastClassType_getFunctionType (jnc_MulticastClassType* type)
 {
@@ -179,6 +199,10 @@ enum jnc_McSnapshotFieldKind
 	jnc_McSnapshotFieldKind__Count,
 };
 
+typedef enum jnc_McSnapshotFieldKind jnc_McSnapshotFieldKind;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum jnc_McSnapshotMethodKind
 {
 	jnc_McSnapshotMethodKind_Call,
@@ -186,13 +210,15 @@ enum jnc_McSnapshotMethodKind
 	jnc_McSnapshotMethodKind__Count,
 };
 
+typedef enum jnc_McSnapshotMethodKind jnc_McSnapshotMethodKind;
+
 //.............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
 jnc_McSnapshotClassType_getTargetType (jnc_McSnapshotClassType* type);
 
-inline
+JNC_INLINE
 jnc_FunctionType*
 jnc_McSnapshotClassType_getFunctionType (jnc_McSnapshotClassType* type)
 {
@@ -235,7 +261,7 @@ struct jnc_McSnapshotClassType: jnc_ClassType
 
 //.............................................................................
 
-inline
+JNC_INLINE
 int
 jnc_isClassType (
 	jnc_Type* type,
@@ -247,7 +273,7 @@ jnc_isClassType (
 		jnc_ClassType_getClassTypeKind ((jnc_ClassType*) type) == classTypeKind;
 }
 
-inline
+JNC_INLINE
 int
 jnc_isOpaqueClassType (jnc_Type* type)
 {
@@ -256,7 +282,7 @@ jnc_isOpaqueClassType (jnc_Type* type)
 		(jnc_ModuleItem_getFlags ((jnc_ModuleItem*) type) & jnc_ClassTypeFlag_Opaque);
 }
 
-inline
+JNC_INLINE
 int
 jnc_isClosureClassType (jnc_Type* type)
 {
@@ -265,13 +291,23 @@ jnc_isClosureClassType (jnc_Type* type)
 		(jnc_ModuleItem_getFlags ((jnc_ModuleItem*) type) & jnc_ClassTypeFlag_Closure);
 }
 
-inline
+JNC_INLINE
 int
 jnc_isDestructibleClassType (jnc_Type* type)
 {
 	return
 		jnc_Type_getTypeKind (type) == jnc_TypeKind_Class &&
 		jnc_DerivableType_getDestructor ((jnc_DerivableType*) type) != NULL;
+}
+
+JNC_INLINE
+void*
+jnc_getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
+{
+	return jnc_Function_getMachineCode (jnc_MulticastClassType_getMethod (
+		(jnc_MulticastClassType*) multicast->m_box->m_type, 
+		jnc_MulticastMethodKind_Call
+		));
 }
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -316,7 +352,7 @@ const ClassPtrTypeKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
 {
@@ -365,7 +401,7 @@ const McSnapshotMethodKind
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 isClassType (
 	Type* type,
@@ -375,25 +411,32 @@ isClassType (
 	return jnc_isClassType (type, classTypeKind) != 0;
 }
 
-inline
+JNC_INLINE
 bool
 isOpaqueClassType (Type* type)
 {
 	return jnc_isOpaqueClassType (type) != 0;
 }
 
-inline
+JNC_INLINE
 bool
 isClosureClassType (Type* type)
 {
 	return jnc_isClosureClassType (type) != 0;
 }
 
-inline
+JNC_INLINE
 bool
 isDestructibleClassType (Type* type)
 {
 	return jnc_isDestructibleClassType (type) != 0;
+}
+
+JNC_INLINE
+void*
+getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
+{
+	return jnc_getMulticastCallMethodMachineCode (multicast);
 }
 
 //.............................................................................
@@ -401,3 +444,5 @@ isDestructibleClassType (Type* type)
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

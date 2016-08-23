@@ -16,14 +16,14 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	signal ()
 	{
 		m_event.signal ();
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	wait (uint_t timeout);
 };
 

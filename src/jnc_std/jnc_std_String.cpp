@@ -102,7 +102,7 @@ String::copy (
 //.............................................................................
 
 bool
-AXL_CDECL
+JNC_CDECL
 StringBuilder::copy (
 	DataPtr ptr,
 	size_t length
@@ -120,7 +120,7 @@ StringBuilder::copy (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 StringBuilder::append (
 	DataPtr ptr,
 	size_t length

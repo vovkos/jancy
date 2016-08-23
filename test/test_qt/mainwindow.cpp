@@ -8,8 +8,6 @@
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
-#include "axl_g_WarningSuppression.h"
-
 //.............................................................................
 
 MainWindow* g_mainWindow = NULL;
@@ -340,7 +338,7 @@ bool MainWindow::compile ()
 
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
 #else
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;

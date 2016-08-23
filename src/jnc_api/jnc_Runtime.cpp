@@ -97,6 +97,16 @@ jnc_Runtime_uninitializeThread (
 }
 
 JNC_EXTERN_C
+jnc_SjljFrame*
+jnc_Runtime_setSjljFrame (
+	jnc_Runtime* runtime,
+	jnc_SjljFrame* frame
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setSjljFrameFunc (runtime, frame);
+}
+
+JNC_EXTERN_C
 void
 jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 {
@@ -231,6 +241,16 @@ jnc_Runtime_uninitializeThread (
 	)
 {
 	runtime->uninitializeThread (ers);
+}
+
+JNC_EXTERN_C
+jnc_SjljFrame*
+jnc_Runtime_setSjljFrame (
+	jnc_Runtime* runtime,
+	jnc_SjljFrame* frame
+	)
+{
+	return runtime->setSjljFrame (frame);
 }
 
 JNC_EXTERN_C

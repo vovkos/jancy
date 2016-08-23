@@ -4,6 +4,9 @@
 
 #define _JNC_ERROR_H
 
+/// \addtogroup error-subsystem
+/// @{
+
 //.............................................................................
 
 JNC_EXTERN_C
@@ -15,7 +18,7 @@ void
 jnc_setError (jnc_Error* error);
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
-inline
+JNC_INLINE
 void
 jnc_propagateLastError ()
 {
@@ -24,21 +27,14 @@ jnc_propagateLastError ()
 #endif
 
 JNC_EXTERN_C
-size_t
-jnc_getErrorDescription (
-	jnc_Error* error,
-	char* buffer,
-	size_t bufferSize
-	);
+const char*
+jnc_getErrorDescription_v (jnc_Error* error);
 
-inline
-size_t
-jnc_getLastErrorDescription (
-	char* buffer,
-	size_t bufferSize
-	)
+JNC_INLINE
+const char*
+jnc_getLastErrorDescription_v ()
 {
-	return jnc_getErrorDescription (jnc_getLastError (), buffer, bufferSize);
+	return jnc_getErrorDescription_v (jnc_getLastError ());
 }
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -49,14 +45,14 @@ namespace jnc {
 
 //.............................................................................
 
-inline
+JNC_INLINE
 jnc_Error*
 getLastError ()
 {
 	return jnc_getLastError ();
 }
 
-inline
+JNC_INLINE
 void
 setError (jnc_Error* error)
 {
@@ -64,7 +60,7 @@ setError (jnc_Error* error)
 }
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
-inline
+JNC_INLINE
 void
 propagateLastError ()
 {
@@ -72,25 +68,18 @@ propagateLastError ()
 }
 #endif
 
-inline
-size_t
-getErrorDescription (
-	jnc_Error* error,
-	char* buffer,
-	size_t bufferSize
-	)
+JNC_INLINE
+const char*
+getErrorDescription_v (jnc_Error* error)
 {
-	return jnc_getErrorDescription (error, buffer, bufferSize);
+	return jnc_getErrorDescription_v (error);
 }
 
-inline
-size_t
-getLastErrorDescription (
-	char* buffer,
-	size_t bufferSize
-	)
+JNC_INLINE
+const char*
+getLastErrorDescription_v ()
 {
-	return jnc_getLastErrorDescription (buffer, bufferSize);
+	return jnc_getLastErrorDescription_v ();
 }
 
 //.............................................................................
@@ -98,3 +87,5 @@ getLastErrorDescription (
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

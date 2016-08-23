@@ -92,14 +92,14 @@ public:
 
 public:
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	copy (
 		DataPtr ptr,
 		size_t length
 		);
 
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	append (
 		DataPtr ptr,
 		size_t length

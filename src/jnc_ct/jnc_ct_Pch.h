@@ -6,7 +6,7 @@
 
 #include "axl_g_Pch.h"
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 #	include <signal.h>
 #endif
 
@@ -119,9 +119,9 @@
 #include "axl_sl_Construct.h"
 #include "axl_zip_ZipReader.h"
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 #	include "axl_sys_win_VirtualMemory.h"
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 #	include "axl_io_psx_Mapping.h"
 #	if (_AXL_POSIX == AXL_POSIX_DARWIN)
 #		include "axl_sys_drw_Semaphore.h"

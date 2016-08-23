@@ -17,7 +17,7 @@ JNC_EXTERN_C
 jnc_Error*
 jnc_getLastError ()
 {
-	return (jnc_Error*) (const err::ErrorHdr*) err::getLastError ();
+	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getLastErrorFunc ();
 }
 
 JNC_EXTERN_C
@@ -25,6 +25,13 @@ void
 jnc_setError (jnc_Error* error)
 {
 	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setErrorFunc (error);
+}
+
+JNC_EXTERN_C
+const char*
+jnc_getErrorDescription_v (jnc_Error* error)
+{
+	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getErrorDescriptionFunc (error);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -43,28 +50,13 @@ jnc_setError (jnc_Error* error)
 	err::setError ((err::ErrorHdr*) error);
 }
 
-#endif // _JNC_DYNAMIC_EXTENSION_LIB
-
 JNC_EXTERN_C
-size_t
-jnc_getErrorDescription (
-	jnc_Error* error,
-	char* buffer,
-	size_t bufferSize
-	)
+const char*
+jnc_getErrorDescription_v (jnc_Error* error)
 {
-	sl::String description = ((err::ErrorHdr*) error)->getDescription ();
-	size_t length = description.getLength ();
-
-	if (bufferSize == 0)
-		return length;
-
-	size_t copySize = AXL_MIN (bufferSize, length);
-	memcpy (buffer, description, copySize);
-	if (copySize < bufferSize)
-		buffer [copySize] = 0;
-
-	return copySize;
+	return *jnc::getTlsStringBuffer () = ((err::ErrorHdr*) error)->getDescription ();
 }
+
+#endif // _JNC_DYNAMIC_EXTENSION_LIB
 
 //.............................................................................

@@ -1,0 +1,10 @@
+/*!
+
+\defgroup array-type Array Type
+\ingroup type-subsystem
+
+\brief Array type is used to represents a one-dimensional sequence of elements of the same type.
+
+Just like in C, Jancy arraya are not dynamic. Compiler has to know the number of elements in array during compile-time.
+
+ */

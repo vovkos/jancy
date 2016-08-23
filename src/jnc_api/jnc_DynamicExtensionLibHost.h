@@ -20,6 +20,10 @@ typedef
 void
 jnc_SetErrorFunc (jnc_Error* error);
 
+typedef
+const char*
+jnc_getErrorDescriptionFunc (jnc_Error* error);
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ModuleItemDecl
@@ -723,6 +727,13 @@ jnc_Runtime_UninitializeThreadFunc (
 	);
 
 typedef
+jnc_SjljFrame*
+jnc_Runtime_SetSjljFrameFunc (
+	jnc_Runtime* runtime,
+	jnc_SjljFrame* frame
+	);
+
+typedef
 void
 jnc_Runtime_CheckStackOverflowFunc (jnc_Runtime* runtime);
 
@@ -866,7 +877,7 @@ jnc_GcHeap_MarkClassFunc (
 	jnc_Box* box
 	);
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 typedef
 int 
 jnc_GcHeap_HandleGcSehExceptionFunc (
@@ -874,7 +885,7 @@ jnc_GcHeap_HandleGcSehExceptionFunc (
 	uint_t code, 
 	EXCEPTION_POINTERS* exceptionPointers
 	);
-#endif // _AXL_ENV
+#endif // _JNC_ENV
 
 //.............................................................................
 
@@ -882,6 +893,7 @@ struct jnc_ErrorFuncTable
 {
 	jnc_GetLastErrorFunc* m_getLastErrorFunc;
 	jnc_SetErrorFunc* m_setErrorFunc;
+	jnc_getErrorDescriptionFunc* m_getErrorDescriptionFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1199,6 +1211,7 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_ShutdownFunc* m_shutdownFunc;
 	jnc_Runtime_InitializeThreadFunc* m_initializeThreadFunc;
 	jnc_Runtime_UninitializeThreadFunc* m_uninitializeThreadFunc;
+	jnc_Runtime_SetSjljFrameFunc* m_setSjljFrameFunc;
 	jnc_Runtime_CheckStackOverflowFunc* m_checkStackOverflowFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_PrimeClassFunc* m_primeClassFunc;
@@ -1232,9 +1245,9 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	jnc_GcHeap_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
-#endif // _AXL_ENV
+#endif // _JNC_ENV
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

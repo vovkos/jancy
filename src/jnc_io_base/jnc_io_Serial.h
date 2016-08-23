@@ -74,7 +74,7 @@ protected:
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 	
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
@@ -89,63 +89,63 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (DataPtr namePtr);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setBaudRate (uint_t baudRate);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setDataBits (uint_t dataBits);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setStopBits (axl::io::SerialStopBits stopBits);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setParity (axl::io::SerialParity parity);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setFlowControl (axl::io::SerialFlowControl flowControl);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setDtr (bool dtr)
 	{
 		return m_serial.setDtr (dtr);
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setRts (bool rts)
 	{
 		return m_serial.setRts (rts);
 	}
 
 	uint_t
-	AXL_CDECL
+	JNC_CDECL
 	getStatusLines ()
 	{
 		return m_serial.getStatusLines ();

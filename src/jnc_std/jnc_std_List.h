@@ -37,11 +37,11 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	clear ();
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	takeOver (List* list);
 
 	static
@@ -75,22 +75,22 @@ public:
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	moveToHead (DataPtr entryPtr);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	moveToTail (DataPtr entryPtr);
 		
 	void
-	AXL_CDECL
+	JNC_CDECL
 	moveBefore (
 		DataPtr entryPtr,
 		DataPtr beforePtr
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	moveAfter (
 		DataPtr entryPtr,
 		DataPtr afterPtr

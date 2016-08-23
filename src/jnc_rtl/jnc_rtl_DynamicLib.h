@@ -16,7 +16,7 @@ public:
 
 public:
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	open (DataPtr fileNamePtr)
 	{
 		return openImpl ((const char*) fileNamePtr.m_p);
@@ -26,14 +26,14 @@ public:
 	openImpl (const char* fileName);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ()
 	{
 		getDynamicLibrary ()->close ();
 	}
 
 	void* 
-	AXL_CDECL
+	JNC_CDECL
 	getFunction (DataPtr namePtr)
 	{
 		return getFunctionImpl ((const char*) namePtr.m_p);

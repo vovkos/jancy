@@ -44,19 +44,19 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	start (FunctionPtr ptr);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	wait (uint_t timeout);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	waitAndClose (uint_t timeout);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	terminate ()
 	{
 		return m_thread.terminate ();

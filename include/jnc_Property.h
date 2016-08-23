@@ -4,9 +4,12 @@
 
 #include "jnc_PropertyType.h"
 
+/// \addtogroup property
+/// @{
+
 //.............................................................................
 
-inline
+JNC_INLINE
 jnc_PropertyType*
 jnc_Property_getType (jnc_Property* prop)
 {
@@ -49,3 +52,5 @@ struct jnc_Property: jnc_ModuleItem
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

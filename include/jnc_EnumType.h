@@ -5,6 +5,9 @@
 #include "jnc_Type.h"
 #include "jnc_RuntimeStructs.h"
 
+/// \addtogroup enum-type
+/// @{
+
 //.............................................................................
 
 enum jnc_EnumTypeFlag
@@ -12,6 +15,8 @@ enum jnc_EnumTypeFlag
 	jnc_EnumTypeFlag_Exposed = 0x010000,
 	jnc_EnumTypeFlag_BitFlag = 0x020000,
 };
+
+typedef enum jnc_EnumTypeFlag jnc_EnumTypeFlag;
 
 //.............................................................................
 
@@ -95,3 +100,5 @@ const EnumTypeFlag
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

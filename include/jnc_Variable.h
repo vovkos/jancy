@@ -4,6 +4,9 @@
 
 #include "jnc_Type.h"
 
+/// \addtogroup variable
+/// @{
+
 //.............................................................................
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -15,3 +18,5 @@ struct jnc_Variable: jnc_ModuleItem
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

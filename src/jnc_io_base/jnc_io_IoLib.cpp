@@ -9,7 +9,7 @@
 #include "jnc_io_MappedFile.h"
 #include "jnc_io_FileStream.h"
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 #	include "jnc_io_NamedPipe.h"
 #	include "jnc_io_Mailslot.h"
 #endif
@@ -35,7 +35,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (IoLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Mailslot)
 #endif
@@ -52,7 +52,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (IoLib)
 	JNC_MAP_TYPE (SocketAddressResolver)
 	JNC_MAP_TYPE (MappedFile)
 	JNC_MAP_TYPE (FileStream)
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	JNC_MAP_TYPE (NamedPipe)
 	JNC_MAP_TYPE (Mailslot)
 #endif

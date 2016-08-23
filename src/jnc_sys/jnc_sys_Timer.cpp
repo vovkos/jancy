@@ -17,8 +17,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Timer)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Timer>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Timer>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Timer>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Timer>)
 	JNC_MAP_FUNCTION ("start", &Timer::start)
 	JNC_MAP_FUNCTION ("stop", &Timer::stop)
 JNC_END_TYPE_FUNCTION_MAP ()
@@ -26,7 +26,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 bool 
-AXL_CDECL
+JNC_CDECL
 Timer::start (
 	FunctionPtr ptr,
 	uint64_t dueTime,
@@ -53,7 +53,7 @@ Timer::start (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Timer::stop ()
 {
 	m_stopEvent.signal ();

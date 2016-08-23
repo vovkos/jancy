@@ -4,6 +4,9 @@
 
 #include "jnc_DerivableType.h"
 
+/// \addtogroup union-type
+/// @{
+
 //.............................................................................
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -15,3 +18,5 @@ struct jnc_UnionType: jnc_DerivableType
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

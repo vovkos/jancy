@@ -5,9 +5,12 @@
 #include "jnc_Type.h"
 #include "jnc_OpKind.h"
 
+/// \addtogroup derivable-type
+/// @{
+
 //.............................................................................
 
-inline
+JNC_INLINE
 jnc_DerivableType*
 jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
 {
@@ -75,7 +78,7 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
-	jnc_UnOpKind opKind	
+	jnc_UnOpKind opKind
 	);
 
 JNC_EXTERN_C
@@ -97,7 +100,7 @@ jnc_DerivableType_getCastOperator (
 	);
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type);
 
 JNC_EXTERN_C
@@ -207,7 +210,7 @@ struct jnc_DerivableType: jnc_NamedType
 		return jnc_DerivableType_getCastOperator (this, idx);
 	}
 
-	size_t 
+	size_t
 	getBaseTypeCount ()
 	{
 		return jnc_DerivableType_getBaseTypeCount (this);
@@ -265,3 +268,5 @@ struct jnc_DerivableType: jnc_NamedType
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

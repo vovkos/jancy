@@ -93,15 +93,15 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (DataPtr namePtr);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size

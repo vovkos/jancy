@@ -72,7 +72,7 @@ protected:
 		IoFlag_RemainingData = 0x0020,
 	};
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	struct Read: sl::ListLink
 	{
 		void* m_buffer;
@@ -98,7 +98,7 @@ protected:
 	uint_t m_ioFlags;
 	IoThread m_ioThread;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::Event m_ioThreadEvent;
 	sl::Array <char> m_readBuffer;
 	size_t m_incomingDataSize;
@@ -116,36 +116,36 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (
 		DataPtr namePtr,
 		uint_t openFlags
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	clear ();
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	firePendingEvents ();
 
 protected:
@@ -167,7 +167,7 @@ protected:
 	void
 	wakeIoThread ();
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	void
 	readLoop ();
 #endif

@@ -1,0 +1,12 @@
+/*!
+
+\defgroup module-subsystem Module Components
+
+ */
+
+/*!
+
+\defgroup module Module
+\ingroup module-subsystem
+
+ */

@@ -46,7 +46,7 @@ public:
 	}
 
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	start (
 		FunctionPtr ptr,
 		uint64_t dueTime,
@@ -54,7 +54,7 @@ public:
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	stop ();
 
 protected:

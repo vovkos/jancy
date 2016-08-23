@@ -78,34 +78,34 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	construct (FunctionPtr automatonFuncPtr);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	setAutomatonFunc (FunctionPtr automatonFuncPtr);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	setLexemeLengthLimit (size_t length);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	setCurrentOffset (size_t offset);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	reset ();
 	
 	bool 
-	AXL_CDECL
+	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t length
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	eof ();
 
 protected:

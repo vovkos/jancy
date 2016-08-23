@@ -4,6 +4,9 @@
 
 #include "jnc_ModuleItem.h"
 
+/// \addtogroup type
+/// @{
+
 //.............................................................................
 
 enum jnc_TypeKind
@@ -81,7 +84,7 @@ enum jnc_TypeKind
 
 	// aliases
 
-#if (_AXL_PTR_BITNESS == 64)
+#if (_JNC_PTR_BITNESS == 64)
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int64,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int64_u,
 	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int64_be,
@@ -105,7 +108,7 @@ enum jnc_TypeKind
 	jnc_TypeKind_DWord    = jnc_TypeKind_Int32_u,
 	jnc_TypeKind_QWord    = jnc_TypeKind_Int64_u,
 
-#if (_AXL_CPP == AXL_CPP_GCC && _AXL_PTR_BITNESS == 64)
+#if (_JNC_CPP == JNC_CPP_GCC && _JNC_PTR_BITNESS == 64)
 	jnc_TypeKind_Long     = jnc_TypeKind_Int64,
 	jnc_TypeKind_Long_u   = jnc_TypeKind_Int64_u,
 #else
@@ -113,6 +116,8 @@ enum jnc_TypeKind
 	jnc_TypeKind_Long_u   = jnc_TypeKind_Int32_u,
 #endif
 };
+
+typedef enum jnc_TypeKind jnc_TypeKind;
 
 //.............................................................................
 
@@ -139,6 +144,8 @@ enum jnc_TypeKindFlag
 	jnc_TypeKindFlag_Nullable     = 0x00040000,
 	jnc_TypeKindFlag_ErrorCode    = 0x00080000,
 };
+
+typedef enum jnc_TypeKindFlag jnc_TypeKindFlag;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -193,6 +200,8 @@ enum jnc_StdType
 	jnc_StdType__Count,
 };
 
+typedef enum jnc_StdType jnc_StdType;
+
 //.............................................................................
 
 // data ptr
@@ -204,6 +213,8 @@ enum jnc_DataPtrTypeKind
 	jnc_DataPtrTypeKind_Thin,
 	jnc_DataPtrTypeKind__Count,
 };
+
+typedef enum jnc_DataPtrTypeKind jnc_DataPtrTypeKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -217,7 +228,7 @@ JNC_EXTERN_C
 jnc_TypeKind
 jnc_Type_getTypeKind (jnc_Type* type);
 
-inline
+JNC_INLINE
 uint_t
 jnc_Type_getTypeKindFlags (jnc_Type* type)
 {
@@ -379,8 +390,8 @@ struct jnc_Typedef: jnc_ModuleItem
 
 //.............................................................................
 
-inline
-bool 
+JNC_INLINE
+int
 jnc_isCharPtrType (jnc_Type* type)
 {
 	return 
@@ -388,8 +399,8 @@ jnc_isCharPtrType (jnc_Type* type)
 		jnc_Type_getTypeKind (jnc_DataPtrType_getTargetType ((jnc_DataPtrType*) type)) == jnc_TypeKind_Char;
 }
 
-inline
-bool 
+JNC_INLINE
+int 
 jnc_isArrayRefType (jnc_Type* type)
 {
 	return 
@@ -397,8 +408,8 @@ jnc_isArrayRefType (jnc_Type* type)
 		jnc_Type_getTypeKind (jnc_DataPtrType_getTargetType ((jnc_DataPtrType*) type)) == jnc_TypeKind_Array;
 }
 
-inline
-bool 
+JNC_INLINE
+int
 jnc_isDataPtrType (
 	jnc_Type* type,
 	jnc_DataPtrTypeKind kind
@@ -505,7 +516,7 @@ const TypeKindFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 uint_t
 getTypeKindFlags (TypeKind typeKind)
 {
@@ -570,7 +581,7 @@ const DataPtrTypeKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 {
@@ -579,22 +590,22 @@ getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 
 //.............................................................................
 
-inline
-bool 
+JNC_INLINE
+int 
 isCharPtrType (Type* type)
 {
 	return jnc_isCharPtrType (type);
 }
 
-inline
-bool 
+JNC_INLINE
+int
 isArrayRefType (Type* type)
 {
 	return jnc_isArrayRefType (type);
 }
 
-inline
-bool 
+JNC_INLINE
+int
 isDataPtrType (
 	Type* type,
 	DataPtrTypeKind kind
@@ -608,3 +619,5 @@ isDataPtrType (
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

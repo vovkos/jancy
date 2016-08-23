@@ -3,8 +3,6 @@
 #include "mdichild.h"
 #include "moc_modulepane.cpp"
 
-#include "axl_g_WarningSuppression.h" // gcc loses warning suppresion from pch
-
 ModulePane::ModulePane(QWidget *parent)
 	: QTreeWidget(parent)
 {

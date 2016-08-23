@@ -87,7 +87,7 @@ protected:
 		IoFlag_Listening             = 0x0040,
 		IoFlag_WaitingTransmitBuffer = 0x0080,
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 		IoFlag_IncomingData          = 0x0100,
 		IoFlag_IncomingConnection    = 0x0200,
 #endif
@@ -108,7 +108,7 @@ protected:
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
@@ -125,49 +125,49 @@ public:
 	}
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	isBroadcastEnabled ();	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	setBroadcastEnabled (bool isEnabled);	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	isNagleEnabled ();	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	setNagleEnabled (bool isEnabled);	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	isRawHdrIncluded ();	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	setRawHdrIncluded (bool isIncluded);	
 
 	SocketCloseKind
-	AXL_CDECL 
+	JNC_CDECL 
 	getCloseKind ();	
 
 	bool
-	AXL_CDECL 
+	JNC_CDECL 
 	setCloseKind (SocketCloseKind closeKind);	
 
 	static
 	SocketAddress
-	AXL_CDECL
+	JNC_CDECL
 	getAddress (Socket* self);
 
 	static
 	SocketAddress
-	AXL_CDECL
+	JNC_CDECL
 	getPeerAddress (Socket* self);
 	
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open_0 (
 		uint16_t family,
 		int protocol,
@@ -178,7 +178,7 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open_1 (
 		int protocol,
 		DataPtr addressPtr,
@@ -190,37 +190,37 @@ public:
 	}
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	connect (DataPtr addressPtr);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	listen (size_t backLog);
 
 	Socket*
-	AXL_CDECL
+	JNC_CDECL
 	accept (DataPtr addressPtr);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	send (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	recv (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	sendTo (
 		DataPtr ptr,
 		size_t size,
@@ -228,7 +228,7 @@ public:
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	recvFrom (
 		DataPtr ptr,
 		size_t size,
@@ -236,7 +236,7 @@ public:
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	firePendingEvents ();
 
 protected:

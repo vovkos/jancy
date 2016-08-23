@@ -136,7 +136,7 @@ enum TypeModifierMaskKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 TypeModifier
 getFirstTypeModifier (uint_t modifiers)
 {
@@ -149,7 +149,7 @@ getTypeModifierString (TypeModifier modifier);
 sl::String
 getTypeModifierString (uint_t modifiers);
 
-inline
+JNC_INLINE
 const char*
 getFirstTypeModifierString (uint_t modifiers)
 {
@@ -342,7 +342,7 @@ enum PostDeclaratorModifier
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 PostDeclaratorModifier
 getFirstPostDeclaratorModifier (uint_t modifiers)
 {
@@ -355,7 +355,7 @@ getPostDeclaratorModifierString (PostDeclaratorModifier modifier);
 sl::String
 getPostDeclaratorModifierString (uint_t modifiers);
 
-inline
+JNC_INLINE
 const char* 
 getFirstPostDeclaratorModifierString (uint_t modifiers)
 {

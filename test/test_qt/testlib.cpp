@@ -56,7 +56,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 TestClassA::foo (int x)
 {
 	printf ("TestClassA::foo (%d)\n", x);
@@ -66,7 +66,7 @@ TestClassA::foo (int x)
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 //	if (self->m_hiddenIface)
@@ -74,7 +74,7 @@ TestClassB::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 TestClassB::bar (
 	jnc::DataPtr ptr1,
 	jnc::DataPtr ptr2,
@@ -97,7 +97,7 @@ TestClassB::bar (
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::construct_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
@@ -105,7 +105,7 @@ TestStruct::construct_0 (jnc::DataPtr selfPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
@@ -114,7 +114,7 @@ TestStruct::construct_1 (jnc::DataPtr selfPtr, int x)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
@@ -123,7 +123,7 @@ TestStruct::construct_2 (jnc::DataPtr selfPtr, double y)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::foo_0 (jnc::DataPtr selfPtr)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
@@ -131,7 +131,7 @@ TestStruct::foo_0 (jnc::DataPtr selfPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;
@@ -139,7 +139,7 @@ TestStruct::foo_1 (jnc::DataPtr selfPtr, int x)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 {
 	TestStruct* self = (TestStruct*) selfPtr.m_p;

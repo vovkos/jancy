@@ -4,10 +4,13 @@
 
 #include "jnc_Def.h"
 
+/// \addtogroup unit
+/// @{
+
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_ExtensionLib* 
+jnc_ExtensionLib*
 jnc_Unit_getLib (jnc_Unit* unit);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -16,7 +19,7 @@ jnc_Unit_getLib (jnc_Unit* unit);
 
 struct jnc_Unit
 {
-	jnc_ExtensionLib* 
+	jnc_ExtensionLib*
 	getLib ()
 	{
 		return jnc_Unit_getLib (this);
@@ -26,3 +29,5 @@ struct jnc_Unit
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

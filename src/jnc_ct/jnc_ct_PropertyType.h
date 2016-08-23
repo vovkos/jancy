@@ -26,7 +26,7 @@ enum PropertyTypeFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 PropertyTypeFlag
 getFirstPropertyTypeFlag (uint_t flags)
 {
@@ -39,7 +39,7 @@ getPropertyTypeFlagString (PropertyTypeFlag flag);
 sl::String
 getPropertyTypeFlagString (uint_t flags);
 
-inline
+JNC_INLINE
 const char*
 getFirstPropertyTypeFlagString (uint_t flags)
 {

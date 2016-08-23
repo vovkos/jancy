@@ -4,6 +4,9 @@
 
 #include "jnc_ModuleItem.h"
 
+/// \addtogroup namespace
+/// @{
+
 //.............................................................................
 
 enum jnc_NamespaceKind
@@ -18,6 +21,8 @@ enum jnc_NamespaceKind
 	jnc_NamespaceKind_DynamicLib,
 	jnc_NamespaceKind__Count,
 };
+
+typedef enum jnc_NamespaceKind jnc_NamespaceKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -127,7 +132,7 @@ const NamespaceKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getNamespaceKindString (NamespaceKind namespaceKind)
 {
@@ -135,7 +140,9 @@ getNamespaceKindString (NamespaceKind namespaceKind)
 }
 
 //.............................................................................
-	
+
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

@@ -8,6 +8,9 @@
 
 #include "jnc_Def.h"
 
+/// \addtogroup runtime-structs
+/// @{
+
 typedef struct jnc_Box jnc_Box;
 typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
 typedef struct jnc_DataBox jnc_DataBox;
@@ -57,7 +60,7 @@ struct jnc_Box
 
 	uintptr_t m_flags      : 8;
 
-#if (_AXL_PTR_BITNESS == 64)
+#if (_JNC_PTR_BITNESS == 64)
 	uintptr_t m_rootOffset : 56;
 #else
 	uintptr_t m_rootOffset : 24; // more than enough
@@ -120,7 +123,7 @@ JNC_BEGIN_INHERITED_STRUCT (jnc_DataBox, jnc_Box)
 JNC_END_INHERITED_STRUCT ()
 
 JNC_BEGIN_INHERITED_STRUCT (jnc_StaticDataBox, jnc_Box)
-	jnc_Box m_box;	
+	jnc_Box m_box;
 	void* m_p; // static data boxes are detached from the actual data
 JNC_END_INHERITED_STRUCT ()
 
@@ -203,7 +206,7 @@ struct jnc_GcShadowStackFrame
 
 JNC_BEGIN_INHERITED_STRUCT (jnc_GcMutatorThread, jnc_ListLink)
 	uint64_t m_threadId;
-	volatile bool m_isSafePoint;
+	volatile int m_isSafePoint;
 	size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
@@ -225,7 +228,7 @@ struct jnc_OpaqueClassTypeInfo
 {
 	size_t m_size;
 	jnc_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
-	bool m_isNonCreatable;
+	int m_isNonCreatable;
 };
 
 //.............................................................................
@@ -238,7 +241,7 @@ struct jnc_SjljFrame
 //.............................................................................
 
 JNC_BEGIN_INHERITED_STRUCT (jnc_Tls, jnc_ListLink)
-	jnc_Tls* m_prev;
+	jnc_Tls* m_prevTls;
 	jnc_Runtime* m_runtime;
 	size_t m_initializeLevel;
 	void* m_stackEpoch;
@@ -254,7 +257,7 @@ struct jnc_TlsVariableTable
 	jnc_SjljFrame* m_sjljFrame;
 	jnc_GcShadowStackFrame* m_gcShadowStackTop;
 
-	// followed by user-defined TLS variables 
+	// followed by user-defined TLS variables
 };
 
 //.............................................................................
@@ -270,23 +273,23 @@ struct jnc_ExceptionRecoverySnapshot
 
 //.............................................................................
 
-typedef 
+typedef
 void
 jnc_StaticConstructFunc ();
 
-typedef 
+typedef
 void
 jnc_StaticDestructFunc ();
 
-typedef 
+typedef
 void
 jnc_DestructFunc (jnc_IfaceHdr* iface);
 
 //.............................................................................
 
-AXL_SELECT_ANY jnc_DataPtr jnc_g_nullPtr = { 0 };
-AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
-AXL_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
+JNC_SELECT_ANY jnc_DataPtr jnc_g_nullPtr = { 0 };
+JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
+JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -338,9 +341,9 @@ typedef jnc_DestructFunc DestructFunc;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_SELECT_ANY DataPtr g_nullPtr = { 0 };
-AXL_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
-AXL_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
+JNC_SELECT_ANY DataPtr g_nullPtr = { 0 };
+JNC_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
+JNC_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
 
 //.............................................................................
 
@@ -376,7 +379,7 @@ class ClassBox_align1: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-} AXL_GCC_MSC_STRUCT;
+} JNC_GCC_MSC_STRUCT;
 
 #pragma pack (2)
 
@@ -385,7 +388,7 @@ class ClassBox_align2: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-} AXL_GCC_MSC_STRUCT;
+} JNC_GCC_MSC_STRUCT;
 
 #pragma pack (4)
 
@@ -394,7 +397,7 @@ class ClassBox_align4: public ClassBoxBase <T>
 {
 protected:
 	char m_buffer [sizeof (T)];
-} AXL_GCC_MSC_STRUCT;
+} JNC_GCC_MSC_STRUCT;
 
 #pragma pack (8)
 
@@ -402,16 +405,16 @@ template <typename T>
 class ClassBox_align8: public ClassBoxBase <T>
 {
 protected:
-#if (_AXL_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
+#if (_JNC_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
 	char m_buffer [sizeof (T)];
 #else
 	union
 	{
 		char m_buffer [sizeof (T)];
 		int64_t m_align8; // otherwise, we need an 8-byte field
-	} AXL_GCC_MSC_STRUCT;
+	} JNC_GCC_MSC_STRUCT;
 #endif
-} AXL_GCC_MSC_STRUCT;
+} JNC_GCC_MSC_STRUCT;
 
 #pragma pack (pop)
 
@@ -429,3 +432,5 @@ protected:
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

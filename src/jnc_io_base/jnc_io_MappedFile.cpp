@@ -18,8 +18,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (MappedFile)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <MappedFile>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <MappedFile>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <MappedFile>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <MappedFile>)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dynamicViewLimit", &MappedFile::setDynamicViewLimit)
 	JNC_MAP_AUTOGET_PROPERTY ("m_size", &MappedFile::setSize)
 	JNC_MAP_FUNCTION ("open",  &MappedFile::open)
@@ -38,7 +38,7 @@ MappedFile::MappedFile ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 MappedFile::open (
 	DataPtr namePtr,
 	uint_t flags
@@ -56,7 +56,7 @@ MappedFile::open (
 }
 
 DataPtr
-AXL_CDECL
+JNC_CDECL
 MappedFile::view (
 	MappedFile* self,
 	uint64_t offset,
@@ -83,7 +83,7 @@ MappedFile::view (
 }
 
 void
-AXL_CDECL 
+JNC_CDECL 
 MappedFile::setDynamicViewLimit (size_t limit)
 {
 	bool result = m_file.setup (limit, axl::io::MappedFile::DefaultsKind_ReadAheadSize);
@@ -92,7 +92,7 @@ MappedFile::setDynamicViewLimit (size_t limit)
 }
 
 void
-AXL_CDECL 
+JNC_CDECL 
 MappedFile::setSize (uint64_t size)
 {
 	bool result = m_file.setSize (size);

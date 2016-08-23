@@ -143,7 +143,7 @@ protected:
 	size_t m_incomingDataSize;
 	sl::AuxList <Read> m_readList;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
@@ -158,23 +158,23 @@ public:
 	}
 
 	axl::io::SockAddr
-	AXL_CDECL
+	JNC_CDECL
 	getAddress ();
 
 	axl::io::SockAddr
-	AXL_CDECL
+	JNC_CDECL
 	getPeerAddress ();
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (DataPtr address);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	connect (
 		DataPtr address,
 		DataPtr userName,
@@ -188,14 +188,14 @@ public:
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	authenticate (
 		DataPtr userName,
 		DataPtr password
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	resizePty (
 		uint_t ptyWidth,
 		uint_t ptyHeight,
@@ -203,14 +203,14 @@ public:
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size

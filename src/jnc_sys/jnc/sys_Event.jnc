@@ -1,6 +1,6 @@
 ///+++
 
-/// AXL_SELECT_ANY char g_sys_EventSrc [] = 
+/// JNC_SELECT_ANY char g_sys_EventSrc [] = 
 
 namespace sys {
 

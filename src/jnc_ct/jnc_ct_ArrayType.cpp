@@ -126,7 +126,7 @@ ArrayType::calcLayout ()
 			return false;
 		}
 
-#if (_AXL_PTR_SIZE == 4)
+#if (_JNC_PTR_SIZE == 4)
 		if (value >= (uint32_t) -1)
 		{
 			err::setFormatStringError ("array size '%lld' is too big\n", value);

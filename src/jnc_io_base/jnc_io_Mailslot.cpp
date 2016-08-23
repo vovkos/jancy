@@ -30,8 +30,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Mailslot)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Mailslot>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Mailslot>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Mailslot>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Mailslot>)
 	JNC_MAP_FUNCTION ("open",  &Mailslot::open)
 	JNC_MAP_FUNCTION ("close", &Mailslot::close)
 	JNC_MAP_FUNCTION ("read",  &Mailslot::read)
@@ -49,7 +49,7 @@ Mailslot::Mailslot ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Mailslot::open (DataPtr namePtr)
 {
 	close ();
@@ -78,7 +78,7 @@ Mailslot::open (DataPtr namePtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Mailslot::close ()
 {
 	if (!m_file.isOpen ())
@@ -123,7 +123,7 @@ Mailslot::fireMailslotEvent (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Mailslot::read (
 	DataPtr ptr,
 	size_t size

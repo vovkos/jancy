@@ -53,7 +53,7 @@ castOperator (
 	Value* resultValue
 	);
 
-inline
+JNC_INLINE
 bool
 castOperator (
 	Module* module,

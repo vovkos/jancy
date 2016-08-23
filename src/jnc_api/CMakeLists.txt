@@ -36,7 +36,7 @@ set (
 	${JANCY_INC_DIR}/jnc_GcHeap.h
 	${JANCY_INC_DIR}/jnc_ExtensionLib.h
 	${JANCY_INC_DIR}/jnc_CallSite.h
-	${JANCY_INC_DIR}/jnc_ext_Pch.h
+	${JANCY_INC_DIR}/jnc_Construct.h
 	jnc_DynamicExtensionLibHost.h
 	)
 

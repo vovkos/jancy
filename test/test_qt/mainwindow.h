@@ -92,7 +92,7 @@ private:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline MainWindow* getMainWindow ()
+JNC_INLINE MainWindow* getMainWindow ()
 {
 	extern MainWindow* g_mainWindow;
 	return g_mainWindow;

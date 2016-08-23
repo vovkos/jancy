@@ -16,11 +16,11 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	lock ();
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	unlock ()
 	{
 		m_lock.unlock ();

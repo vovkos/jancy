@@ -1,0 +1,121 @@
+// This sample demonstrates how to export functions, properties and types
+// into Jancy script.
+
+//.............................................................................
+
+// global function export demo
+
+foo (int);
+foo (double);
+foo (char const*);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// global property export demo
+
+int property g_simpleProp;
+
+property g_prop
+{
+	char const* get ();
+
+	set (int);
+	set (double);
+	set (char const*);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// struct export demo
+
+struct TestStruct
+{
+	int m_x;
+	int m_y;
+
+	construct ();
+	construct (
+		int x,
+		int y
+		);
+
+	foo ();
+	
+	foo (
+		int x,
+		int y
+		);
+
+	foo (TestStruct* src);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// opaque class export demo
+
+opaque class TestClass
+{
+	event m_onNegative ();
+
+	construct (int value);
+	destruct ();
+
+	int operator += (int delta);
+	int operator -= (int delta);
+
+	int foo ();
+	int foo (int value);
+	int foo (TestClass* src);
+
+	char const* autoget property m_prop;
+}
+
+//.............................................................................
+
+// event handler
+
+onNegative ()
+{
+	printf ("onNegative ()\n");
+}
+
+// entry point
+
+int main ()
+{
+	printf ("main ()\n");
+
+	foo (10);
+	foo (3.1415);
+	foo ("bambarbia");
+
+	g_simpleProp = 100;
+
+	printf ("g_simpleProp = %d\n", g_simpleProp);
+
+	g_prop = 200;
+	g_prop = 2.7182;
+
+	printf ("g_prop = %s\n", g_prop);
+
+	TestStruct s1;
+	TestStruct s2 (100, 200);
+	s1.foo (&s2);
+	s1.foo ();
+
+	printf ("s1 = { %d, %d }\n", s1.m_x, s1.m_y);
+
+	TestClass* c = new TestClass (1000);
+	c.m_onNegative += onNegative;
+	c += 10;
+	c -= 20;
+	c.foo ();
+	c.foo (-2000);
+	c.m_prop = "kergudu";
+	
+	printf ("c.m_prop = %s\n", c.m_prop);
+
+	return 0;
+}
+
+//.............................................................................

@@ -4,6 +4,9 @@
 
 #include "jnc_ModuleItem.h"
 
+/// \addtogroup attribute-block
+/// @{
+
 //.............................................................................
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -60,3 +63,5 @@ struct jnc_AttributeBlock: jnc_ModuleItem
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

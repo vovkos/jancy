@@ -3,7 +3,7 @@
 #include "jnc_io_IoLib.h"
 #include "jnc_Error.h"
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 #	define IPV6_HDRINCL IP_HDRINCL
 #endif
 
@@ -34,8 +34,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Socket)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Socket>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Socket>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Socket>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Socket>)
 	JNC_MAP_CONST_PROPERTY ("m_address",      &Socket::getAddress)
 	JNC_MAP_CONST_PROPERTY ("m_peerAddress",  &Socket::getPeerAddress)
 	JNC_MAP_PROPERTY ("m_isBroadcastEnabled", &Socket::isBroadcastEnabled, &Socket::setBroadcastEnabled)
@@ -69,7 +69,7 @@ Socket::Socket ()
 void
 Socket::wakeIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -100,13 +100,13 @@ Socket::fireSocketEvent (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Socket::firePendingEvents ()
 {
 }
 
 SocketAddress
-AXL_CDECL
+JNC_CDECL
 Socket::getAddress (Socket* self)
 {
 	axl::io::SockAddr sockAddr;
@@ -115,7 +115,7 @@ Socket::getAddress (Socket* self)
 }
 
 SocketAddress
-AXL_CDECL
+JNC_CDECL
 Socket::getPeerAddress (Socket* self)
 {
 	axl::io::SockAddr sockAddr;
@@ -124,7 +124,7 @@ Socket::getPeerAddress (Socket* self)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::isBroadcastEnabled ()
 {
 	int value = 0;
@@ -133,7 +133,7 @@ Socket::isBroadcastEnabled ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::setBroadcastEnabled (bool isEnabled)
 {
 	int value = isEnabled;
@@ -145,7 +145,7 @@ Socket::setBroadcastEnabled (bool isEnabled)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::isNagleEnabled ()
 {
 	int value = 0;
@@ -154,7 +154,7 @@ Socket::isNagleEnabled ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::setNagleEnabled (bool isEnabled)
 {
 	int value = !isEnabled;
@@ -166,7 +166,7 @@ Socket::setNagleEnabled (bool isEnabled)
 }
 
 bool
-AXL_CDECL 
+JNC_CDECL 
 Socket::isRawHdrIncluded ()
 {
 	int value = 0;
@@ -179,7 +179,7 @@ Socket::isRawHdrIncluded ()
 }
 
 bool
-AXL_CDECL 
+JNC_CDECL 
 Socket::setRawHdrIncluded (bool isIncluded)
 {
 	int value = isIncluded;
@@ -195,7 +195,7 @@ Socket::setRawHdrIncluded (bool isIncluded)
 }
 
 SocketCloseKind
-AXL_CDECL
+JNC_CDECL
 Socket::getCloseKind ()
 {
 	linger value = { 0 };
@@ -207,7 +207,7 @@ Socket::getCloseKind ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::setCloseKind (SocketCloseKind closeKind)
 {
 	linger value;
@@ -283,9 +283,9 @@ Socket::openImpl (
 			return false;
 		}
 	
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 		m_ioThreadEvent.reset ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		m_selfPipe.create ();
 #endif
 
@@ -299,7 +299,7 @@ Socket::openImpl (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Socket::close ()
 {
 	if (!m_socket.isOpen ())
@@ -317,7 +317,7 @@ Socket::close ()
 		m_ioThread.waitAndClose ();
 		gcHeap->leaveWaitRegion ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 		m_selfPipe.close ();
 #endif
 	}
@@ -330,7 +330,7 @@ Socket::close ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::connect (DataPtr addressPtr)
 {
 	bool result;
@@ -359,7 +359,7 @@ Socket::connect (DataPtr addressPtr)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Socket::listen (size_t backLog)
 {
 	bool result;
@@ -387,7 +387,7 @@ Socket::listen (size_t backLog)
 }
 
 Socket*
-AXL_CDECL
+JNC_CDECL
 Socket::accept (DataPtr addressPtr)
 {
 	Socket* connectionSocket = createClass <Socket> (m_runtime);
@@ -395,7 +395,7 @@ Socket::accept (DataPtr addressPtr)
 	axl::io::SockAddr sockAddr;
 	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -420,7 +420,7 @@ Socket::accept (DataPtr addressPtr)
 	{
 		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected;
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 		connectionSocket->m_selfPipe.create ();
 #endif
 		connectionSocket->m_ioThread.start ();
@@ -451,9 +451,9 @@ Socket::postSend (
 	{
 		err::Error error = err::getLastError ();
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 		if (error->m_code != WSAEWOULDBLOCK)
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		if (error->m_code != EWOULDBLOCK && error->m_code != EAGAIN)
 #endif
 		{
@@ -481,7 +481,7 @@ Socket::postSend (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Socket::send (
 	DataPtr ptr,
 	size_t size
@@ -492,7 +492,7 @@ Socket::send (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Socket::recv (
 	DataPtr ptr,
 	size_t size
@@ -500,7 +500,7 @@ Socket::recv (
 {
 	size_t result = m_socket.recv (ptr.m_p, size);
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -517,7 +517,7 @@ Socket::recv (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Socket::sendTo (
 	DataPtr ptr,
 	size_t size,
@@ -530,7 +530,7 @@ Socket::sendTo (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Socket::recvFrom (
 	DataPtr ptr,
 	size_t size,
@@ -540,7 +540,7 @@ Socket::recvFrom (
 	axl::io::SockAddr sockAddr;
 	size_t result = m_socket.recvFrom (ptr.m_p, size, &sockAddr);
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -564,9 +564,9 @@ Socket::ioThreadFunc ()
 {
 	ASSERT (m_socket.isOpen ());
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.wait ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 	char buffer [256];
 	m_selfPipe.read (buffer, sizeof (buffer));
 #endif
@@ -601,7 +601,7 @@ Socket::ioThreadFunc ()
 	}
 }
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 
 bool
 Socket::connectLoop ()

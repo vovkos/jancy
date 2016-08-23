@@ -74,18 +74,18 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (
 		DataPtr namePtr,
 		size_t backLog
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	FileStream*
-	AXL_CDECL
+	JNC_CDECL
 	accept ();
 
 protected:

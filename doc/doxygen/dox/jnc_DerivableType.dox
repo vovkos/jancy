@@ -1,0 +1,8 @@
+ /*!
+
+\defgroup derivable-type Derivable Type
+\ingroup type-subsystem
+
+\brief Derivable type is the base type for structs, unions and classes.
+
+ */

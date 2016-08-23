@@ -130,7 +130,7 @@ struct PropertyPtrTypeTuple: sl::ListLink
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 isBindableType (Type* type)
 {

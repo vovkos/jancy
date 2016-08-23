@@ -29,8 +29,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolver)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <SocketAddressResolver>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <SocketAddressResolver>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <SocketAddressResolver>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <SocketAddressResolver>)
 	JNC_MAP_FUNCTION ("resolve",   &SocketAddressResolver::resolve)
 	JNC_MAP_FUNCTION ("cancel",    &SocketAddressResolver::cancel)
 	JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
@@ -62,7 +62,7 @@ SocketAddressResolver::stopIoThread ()
 void
 SocketAddressResolver::wakeIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -105,7 +105,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SocketAddressResolver::resolve (
 	DataPtr namePtr,
 	uint16_t addrFamily
@@ -172,7 +172,7 @@ SocketAddressResolver::resolve (
 	{
 		m_ioFlags |= IoFlag_Running;
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 		m_selfPipe.create ();
 #endif
 		m_ioThread.start ();
@@ -184,7 +184,7 @@ SocketAddressResolver::resolve (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SocketAddressResolver::cancel (uint_t syncId)
 {
 	m_ioLock.lock ();
@@ -211,7 +211,7 @@ SocketAddressResolver::cancel (uint_t syncId)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 SocketAddressResolver::cancelAll ()
 {
 	m_ioLock.lock ();
@@ -255,9 +255,9 @@ SocketAddressResolver::ioThreadFunc ()
 
 		m_ioLock.unlock ();
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 		m_ioThreadEvent.wait ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		char buffer [256];
 		m_selfPipe.read (buffer, sizeof (buffer));
 #endif

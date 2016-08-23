@@ -30,8 +30,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <FileStream>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <FileStream>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <FileStream>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <FileStream>)
 	JNC_MAP_FUNCTION ("open",  &FileStream::open)
 	JNC_MAP_FUNCTION ("close", &FileStream::close)
 	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
@@ -46,7 +46,7 @@ FileStream::FileStream ()
 {
 	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_incomingDataSize = 0;
 #endif
 	m_isOpen = false;
@@ -57,7 +57,7 @@ FileStream::FileStream ()
 void
 FileStream::wakeIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -65,7 +65,7 @@ FileStream::wakeIoThread ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 FileStream::open (
 	DataPtr namePtr,
 	uint_t openFlags
@@ -75,7 +75,7 @@ FileStream::open (
 
 	close ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	// force asynchronous and restore blocking mode later
 
 	result =
@@ -93,7 +93,7 @@ FileStream::open (
 
 	m_isOpen = true;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	dword_t type = ::GetFileType (m_file.m_file);
 	switch (type)
 	{
@@ -120,11 +120,11 @@ FileStream::open (
 	}
 	else
 	{
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 		m_ioThreadEvent.reset ();
 		m_readBuffer.setCount (Const_ReadBufferSize);
 		m_incomingDataSize = 0;
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		m_selfPipe.create ();
 #endif
 	
@@ -136,7 +136,7 @@ FileStream::open (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 FileStream::close ()
 {
 	if (!m_file.isOpen ())
@@ -153,13 +153,13 @@ FileStream::close ()
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	m_selfPipe.close ();
 #endif
 
 	m_file.close ();
 	m_ioFlags = 0;
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_incomingDataSize = 0;
 #endif
 	m_isOpen = false;
@@ -167,14 +167,14 @@ FileStream::close ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 FileStream::clear ()
 {
 	return m_file.setSize (0);
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 FileStream::firePendingEvents ()
 {
 }
@@ -200,10 +200,10 @@ FileStream::fireFileStreamEvent (
 	JNC_END_CALL_SITE ();
 }
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 
 size_t
-AXL_CDECL
+JNC_CDECL
 FileStream::read (
 	DataPtr ptr,
 	size_t size
@@ -275,7 +275,7 @@ FileStream::readImpl (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 FileStream::write (
 	DataPtr ptr,
 	size_t size
@@ -504,10 +504,10 @@ FileStream::readLoop ()
 	}
 }
 
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 
 size_t
-AXL_CDECL
+JNC_CDECL
 FileStream::read (
 	DataPtr ptr,
 	size_t size
@@ -524,7 +524,7 @@ FileStream::read (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 FileStream::write (
 	DataPtr ptr,
 	size_t size

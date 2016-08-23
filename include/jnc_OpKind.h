@@ -4,6 +4,9 @@
 
 #include "jnc_Def.h"
 
+/// \addtogroup operators
+/// @{
+
 //.............................................................................
 
 enum jnc_UnOpKind
@@ -11,14 +14,14 @@ enum jnc_UnOpKind
 	jnc_UnOpKind_Undefined = 0,
 	jnc_UnOpKind_Plus,
 	jnc_UnOpKind_Minus,
-	jnc_UnOpKind_BwNot,	
+	jnc_UnOpKind_BwNot,
 	jnc_UnOpKind_Addr,
-	jnc_UnOpKind_Indir,	
+	jnc_UnOpKind_Indir,
 	jnc_UnOpKind_LogNot,
 	jnc_UnOpKind_PreInc,
 	jnc_UnOpKind_PreDec,
 	jnc_UnOpKind_PostInc,
-	jnc_UnOpKind_PostDec,	
+	jnc_UnOpKind_PostDec,
 	jnc_UnOpKind_Ptr,
 	jnc_UnOpKind__Count,
 };
@@ -36,18 +39,18 @@ jnc_getUnOpKindString (jnc_UnOpKind opKind);
 enum jnc_BinOpKind
 {
 	jnc_BinOpKind_Undefined = 0,
-	
+
 	// arithmetic
-	
+
 	jnc_BinOpKind_Add,
 	jnc_BinOpKind_Sub,
 	jnc_BinOpKind_Mul,
 	jnc_BinOpKind_Div,
-	jnc_BinOpKind_Mod,	
+	jnc_BinOpKind_Mod,
 	jnc_BinOpKind_Shl,
-	jnc_BinOpKind_Shr,	
+	jnc_BinOpKind_Shr,
 	jnc_BinOpKind_BwAnd,
-	jnc_BinOpKind_BwXor,	
+	jnc_BinOpKind_BwXor,
 	jnc_BinOpKind_BwOr,
 
 	// special ops
@@ -108,9 +111,9 @@ namespace jnc {
 //.............................................................................
 
 typedef jnc_UnOpKind UnOpKind;
+typedef jnc_BinOpKind BinOpKind;
 
-
-const UnOpKind 
+const UnOpKind
 	UnOpKind_Undefined = jnc_UnOpKind_Undefined,
 	UnOpKind_Plus      = jnc_UnOpKind_Plus,
 	UnOpKind_Minus     = jnc_UnOpKind_Minus,
@@ -124,19 +127,6 @@ const UnOpKind
 	UnOpKind_PostDec   = jnc_UnOpKind_PostDec,
 	UnOpKind_Ptr       = jnc_UnOpKind_Ptr,
 	UnOpKind__Count    = jnc_UnOpKind__Count;
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-const char*
-getUnOpKindString (UnOpKind opKind)
-{
-	return jnc_getUnOpKindString (opKind);
-}
-
-//.............................................................................
-
-typedef enum jnc_BinOpKind BinOpKind;
 
 const BinOpKind
 	BinOpKind_Undefined = jnc_BinOpKind_Undefined,
@@ -176,9 +166,16 @@ const BinOpKind
 	BinOpKind__Count    = jnc_BinOpKind__Count,
 	BinOpKind__OpAssignDelta = jnc_BinOpKind__OpAssignDelta;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//.............................................................................
 
-inline
+JNC_INLINE
+const char*
+getUnOpKindString (UnOpKind opKind)
+{
+	return jnc_getUnOpKindString (opKind);
+}
+
+JNC_INLINE
 const char*
 getBinOpKindString (BinOpKind opKind)
 {
@@ -190,3 +187,5 @@ getBinOpKindString (BinOpKind opKind)
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

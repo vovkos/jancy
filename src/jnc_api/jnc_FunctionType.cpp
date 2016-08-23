@@ -9,6 +9,12 @@
 #	include "jnc_ct_Module.h"
 #endif
 
+#ifndef ASSERT
+#	define ASSERT JNC_ASSERT
+#endif
+
+#include "axl_sl_BitIdx.h"
+
 //.............................................................................
 
 JNC_EXTERN_C
@@ -24,7 +30,7 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 		"unsafe",     // jnc_FunctionTypeFlag_Unsafe      = 0x100000,
 	};
 
-	size_t i = sl::getLoBitIdx32 (flag >> 16);
+	size_t i = axl::sl::getLoBitIdx32 (flag >> 16);
 	return i < countof (stringTable) ?
 		stringTable [i] :
 		"undefined-function-flag";

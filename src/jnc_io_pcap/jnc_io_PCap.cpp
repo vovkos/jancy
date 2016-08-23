@@ -30,8 +30,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (PCap)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <PCap>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <PCap>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <PCap>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <PCap>)
 	JNC_MAP_FUNCTION ("openDevice",  &PCap::openDevice)
 	JNC_MAP_FUNCTION ("openFile",    &PCap::openFile)
 	JNC_MAP_FUNCTION ("close",       &PCap::close)
@@ -92,7 +92,7 @@ PCap::firePCapEvent (PCapEventKind eventKind)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 PCap::setFilter (DataPtr filter)
 {
 	bool result = m_pcap.setFilter ((const char*) filter.m_p);
@@ -107,7 +107,7 @@ PCap::setFilter (DataPtr filter)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 PCap::openDevice (
 	DataPtr deviceName,
 	DataPtr filter,
@@ -139,7 +139,7 @@ PCap::openDevice (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 PCap::openFile (
 	DataPtr fileName,
 	DataPtr filter
@@ -170,7 +170,7 @@ PCap::openFile (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 PCap::close ()
 {
 	m_ioLock.lock ();
@@ -189,7 +189,7 @@ PCap::close ()
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 PCap::read (
 	DataPtr ptr,
 	size_t size
@@ -319,14 +319,14 @@ PCap::cancelAllReads_l ()
 
 //.............................................................................
 
-inline
+JNC_INLINE
 uint32_t
 getIpFromSockAddr (const sockaddr* sockAddr)
 {
 	return sockAddr && sockAddr->sa_family == AF_INET ?
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 		((const sockaddr_in*) sockAddr)->sin_addr.S_un.S_addr :
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		((const sockaddr_in*) sockAddr)->sin_addr.s_addr :
 #endif
 		0;

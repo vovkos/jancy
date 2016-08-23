@@ -30,8 +30,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Serial>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Serial>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Serial>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Serial>)
 	JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
 	JNC_MAP_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
@@ -80,7 +80,7 @@ Serial::Serial ()
 void
 Serial::wakeIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -88,7 +88,7 @@ Serial::wakeIoThread ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::open (DataPtr namePtr)
 {
 	close ();
@@ -113,9 +113,9 @@ Serial::open (DataPtr namePtr)
 
 	m_isOpen = true;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.reset ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 	m_selfPipe.create ();
 #endif
 
@@ -124,7 +124,7 @@ Serial::open (DataPtr namePtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Serial::close ()
 {
 	if (!m_serial.isOpen ())
@@ -143,7 +143,7 @@ Serial::close ()
 	m_ioFlags = 0;
 	m_serial.close ();
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	m_selfPipe.close ();
 #endif
 
@@ -193,7 +193,7 @@ Serial::fireSerialEvent (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::setBaudRate (uint_t baudRate)
 {
 	axl::io::SerialSettings settings;
@@ -210,7 +210,7 @@ Serial::setBaudRate (uint_t baudRate)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::setDataBits (uint_t dataBits)
 {
 	axl::io::SerialSettings settings;
@@ -227,7 +227,7 @@ Serial::setDataBits (uint_t dataBits)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::setStopBits (axl::io::SerialStopBits stopBits)
 {
 	axl::io::SerialSettings settings;
@@ -244,7 +244,7 @@ Serial::setStopBits (axl::io::SerialStopBits stopBits)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::setParity (axl::io::SerialParity parity)
 {
 	axl::io::SerialSettings settings;
@@ -261,7 +261,7 @@ Serial::setParity (axl::io::SerialParity parity)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 {
 	axl::io::SerialSettings settings;
@@ -278,7 +278,7 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Serial::read (
 	DataPtr ptr,
 	size_t size
@@ -298,7 +298,7 @@ Serial::read (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 Serial::write (
 	DataPtr ptr,
 	size_t size
@@ -312,7 +312,7 @@ Serial::write (
 	return result;
 }
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 
 void
 Serial::ioThreadFunc ()
@@ -392,7 +392,7 @@ Serial::ioThreadFunc ()
 		}
 	}
 }
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 void
 Serial::ioThreadFunc ()
 {

@@ -21,6 +21,7 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 {
 	jnc_getLastError,
 	jnc_setError,
+	jnc_getErrorDescription_v,
 };
 
 static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
@@ -265,6 +266,7 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_Runtime_shutdown,
 	jnc_Runtime_initializeThread,
 	jnc_Runtime_uninitializeThread,
+	jnc_Runtime_setSjljFrame,
 	jnc_Runtime_checkStackOverflow,
 	jnc_getCurrentThreadRuntime,
 	jnc_primeClass,
@@ -296,9 +298,9 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 	jnc_GcHeap_weakMark,
 	jnc_GcHeap_markData,
 	jnc_GcHeap_markClass,
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	jnc_GcHeap_handleGcSehException,
-#endif // _AXL_ENV
+#endif // _JNC_ENV
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

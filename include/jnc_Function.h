@@ -4,6 +4,9 @@
 
 #include "jnc_FunctionType.h"
 
+/// \addtogroup function
+/// @{
+
 //.............................................................................
 
 enum jnc_FunctionKind
@@ -33,6 +36,8 @@ enum jnc_FunctionKind
 	jnc_FunctionKind__Count
 };
 
+typedef enum jnc_FunctionKind jnc_FunctionKind;
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
@@ -47,6 +52,8 @@ enum jnc_FunctionKindFlag
 	jnc_FunctionKindFlag_NoArgs      = 0x04,
 };
 
+typedef enum jnc_FunctionKindFlag jnc_FunctionKindFlag;
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 uint_t
@@ -58,7 +65,7 @@ JNC_EXTERN_C
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function);
 
-inline
+JNC_INLINE
 jnc_FunctionType*
 jnc_Function_getType (jnc_Function* function)
 {
@@ -177,7 +184,7 @@ const FunctionKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getFunctionKindString (FunctionKind functionKind)
 {
@@ -195,7 +202,7 @@ const FunctionKindFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 uint_t
 getFunctionKindFlags (FunctionKind functionKind)
 {
@@ -207,3 +214,5 @@ getFunctionKindFlags (FunctionKind functionKind)
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

@@ -2578,7 +2578,7 @@ TypeMgr::createVariantStructType ()
 	StructType* type = createStructType ("Variant", "jnc.Variant");
 	type->createField ("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField ("!m_data2", getPrimitiveType (TypeKind_IntPtr));
-#if (_AXL_PTR_SIZE == 4)
+#if (_JNC_PTR_SIZE == 4)
 	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
 #endif
 	type->createField ("!m_type", getStdType (StdType_BytePtr));

@@ -69,7 +69,7 @@ enum PtrTypeFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 PtrTypeFlag
 getFirstPtrTypeFlag (uint_t flags)
 {
@@ -85,7 +85,7 @@ getPtrTypeFlagString (uint_t flags);
 sl::String
 getPtrTypeFlagSignature (uint_t flags);
 
-inline
+JNC_INLINE
 const char*
 getFirstPtrTypeFlagString (uint_t flags)
 {
@@ -101,7 +101,7 @@ enum VariantField
 {
 	VariantField_Data1,
 	VariantField_Data2,
-#if (_AXL_PTR_SIZE == 4)
+#if (_JNC_PTR_SIZE == 4)
 	VariantField_Padding,
 #endif
 	VariantField_Type,
@@ -125,7 +125,7 @@ getInt64TypeKind_u (uint64_t integer);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 TypeKind
 getBigEndianIntegerTypeKind (TypeKind typeKind)
 {
@@ -134,7 +134,7 @@ getBigEndianIntegerTypeKind (TypeKind typeKind)
 		typeKind;
 }
 
-inline
+JNC_INLINE
 TypeKind
 getLittleEndianIntegerTypeKind (TypeKind typeKind)
 {
@@ -143,7 +143,7 @@ getLittleEndianIntegerTypeKind (TypeKind typeKind)
 		typeKind;
 }
 
-inline
+JNC_INLINE
 TypeKind
 getUnsignedIntegerTypeKind (TypeKind typeKind)
 {
@@ -152,7 +152,7 @@ getUnsignedIntegerTypeKind (TypeKind typeKind)
 		typeKind;
 }
 
-inline
+JNC_INLINE
 TypeKind
 getSignedIntegerTypeKind (TypeKind typeKind)
 {
@@ -161,7 +161,7 @@ getSignedIntegerTypeKind (TypeKind typeKind)
 		typeKind;
 }
 
-inline
+JNC_INLINE
 bool
 isEquivalentIntegerTypeKind (
 	TypeKind typeKind1,
@@ -419,7 +419,7 @@ getDirectRefType (
 	uint_t ptrTypeFlags = 0
 	); // returns class ref or lean data ref
 
-inline
+JNC_INLINE
 Type*
 getDirectRefType (
 	Type* type,

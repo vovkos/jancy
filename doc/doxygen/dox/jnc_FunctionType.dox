@@ -1,0 +1,8 @@
+/*!
+
+\defgroup function-type Function Type
+\ingroup type-subsystem
+
+\brief Function type defines a signature of a function -- what it the calling convention, which type is the return value of, how many and which type of arguments a function accepts and so on.
+
+ */

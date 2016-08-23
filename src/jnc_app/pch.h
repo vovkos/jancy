@@ -1,14 +1,14 @@
 #pragma once
 
-#include "jnc_ext_Pch.h"
+#include "axl_g_Pch.h"
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 #	define getsockerror WSAGetLastError
 #	define socklen_t    int
 #	include <io.h>
 #	include <fcntl.h>
 
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #	include <netinet/ip.h>
@@ -17,7 +17,7 @@
 #	define INVALID_SOCKET (-1)
 #	define closesocket    close
 
-inline
+JNC_INLINE
 int
 getsockerror ()
 {
@@ -37,6 +37,11 @@ getsockerror ()
 
 // AXL
 
+#include "axl_sl_CmdLineParser.h"
+#include "axl_sl_Singleton.h"
+#include "axl_sl_BoxList.h"
+#include "axl_sys_Time.h"
+#include "axl_io_FilePathUtils.h"
 #include "axl_io_FileEnumerator.h"
 
 using namespace axl;

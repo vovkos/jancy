@@ -146,7 +146,7 @@ getCallConvSignature (CallConvKind callConvKind)
 CallConvKind
 getCallConvKindFromModifiers (uint_t modifiers)
 {
-#if (_AXL_CPU == AXL_CPU_X86)
+#if (_JNC_CPU == JNC_CPU_X86)
 	return
 		(modifiers & TypeModifier_Thiscall) ? CallConvKind_Thiscall :
 		(modifiers & TypeModifier_Stdcall) ? CallConvKind_Stdcall :

@@ -4,6 +4,9 @@
 
 #include "jnc_Module.h"
 
+/// \addtogroup extension-lib-subsystem
+/// @{
+
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
@@ -36,7 +39,7 @@ struct jnc_ExtensionLib
 
 //.............................................................................
 
-typedef 
+typedef
 jnc_ExtensionLib*
 jnc_DynamicExtensionLibMainFunc (jnc_DynamicExtensionLibHost* host);
 
@@ -224,7 +227,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		static jnc_OpaqueClassTypeInfo typeInfo = \
 		{ \
 			sizeof (Type), \
-			(jnc_MarkOpaqueGcRootsFunc*) pvoid_cast (markOpaqueGcRootsFunc), \
+			(jnc_MarkOpaqueGcRootsFunc*) jnc_pvoid_cast (markOpaqueGcRootsFunc), \
 			isNonCreatable, \
 		}; \
 		return &typeInfo; \
@@ -298,7 +301,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		{
 
 #define JNC_CLASS_TYPE_VTABLE_ENTRY(function) \
-			pvoid_cast (function),
+			jnc_pvoid_cast (function),
 
 #define JNC_END_CLASS_TYPE_VTABLE() \
 			NULL, \
@@ -343,7 +346,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP_TYPE_EX(TypePrefix, 1)
 
 #define JNC_MAP(function, p) \
-	jnc_Module_mapFunction (module, function, pvoid_cast (p));
+	jnc_Module_mapFunction (module, function, jnc_pvoid_cast (p));
 
 #define JNC_MAP_OVERLOAD(p) \
 	if (function) \
@@ -413,7 +416,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
 	function = jnc_Property_getGetter (prop); \
-	ASSERT (function); \
+	JNC_ASSERT (function); \
 	overloadIdx = 0; \
 	JNC_MAP (function, p);
 
@@ -453,7 +456,37 @@ JNC_DECLARE_LIB (jnc_SysLib)
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-#ifdef __cplusplus
+#ifndef __cplusplus
+
+#	define jnc_pvoid_cast(x) (x)
+
+#else // __cplusplus
+
+//.............................................................................
+
+// pvoid_cast is used for casting member function pointers to void*
+
+template <typename T>
+void*
+jnc_pvoid_cast (T x)
+{
+	JNC_ASSERT (sizeof (x) == sizeof (void*) || sizeof (x) == sizeof (void*) * 2);
+	return *(void**) &x;
+}
+
+#	if (_AXL_CPP != AXL_CPP_GCC)
+
+// this overload is to make sure it's ok to pvoid_cast (NULL) on 64-bit systems
+// gcc takes care of it automatically (it will not attempt to use 'int' for NULL)
+
+JNC_INLINE
+void*
+jnc_pvoid_cast (int x)
+{
+	return (void*) (intptr_t) x;
+}
+
+#	endif // AXL_CPP_GCC
 
 namespace jnc {
 
@@ -461,7 +494,7 @@ namespace jnc {
 
 // implicit tail-padding (might lead to ABI-incompatibility if omitted)
 
-#if (_AXL_CPP == AXL_CPP_MSC)
+#if (_JNC_CPP == JNC_CPP_MSC)
 
 template <typename T>
 class BaseTailPadding
@@ -469,7 +502,7 @@ class BaseTailPadding
 	// microsoft compiler does not re-use tail padding
 };
 
-#else 
+#else
 
 template <typename T>
 class BaseTailPadding
@@ -497,14 +530,14 @@ typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline 
+JNC_INLINE
 ExtensionLib*
 StdLib_getLib ()
 {
 	return jnc_StdLib_getLib ();
 }
 
-inline 
+JNC_INLINE
 ExtensionLib*
 SysLib_getLib ()
 {
@@ -517,3 +550,4 @@ SysLib_getLib ()
 
 #endif // __cplusplus
 
+/// @}

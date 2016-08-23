@@ -5,19 +5,25 @@
 #include "jnc_RuntimeStructs.h"
 #include "jnc_Variant.h"
 #include "jnc_GcHeap.h"
+#include "jnc_Construct.h"
+
+/// \addtogroup runtime
+/// @{
 
 //.............................................................................
 
 enum jnc_RuntimeDef
 {
-#if (_AXL_PTR_SIZE == 8)
+#if (_JNC_PTR_SIZE == 8)
 	jnc_RuntimeDef_StackSizeLimit    = 1 * 1024 * 1024, // 1MB std stack limit
-	jnc_RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack 
+	jnc_RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack
 #else
-	jnc_RuntimeDef_StackSizeLimit    = 512 * 1024,      // 512KB std stack 
-	jnc_RuntimeDef_MinStackSizeLimit = 16 * 1024,       // 16KB min stack 
+	jnc_RuntimeDef_StackSizeLimit    = 512 * 1024,      // 512KB std stack
+	jnc_RuntimeDef_MinStackSizeLimit = 16 * 1024,       // 16KB min stack
 #endif
 };
+
+typedef enum jnc_RuntimeDef jnc_RuntimeDef;
 
 //.............................................................................
 
@@ -38,7 +44,7 @@ jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
@@ -54,7 +60,7 @@ jnc_Runtime_startup (
 	jnc_Runtime* runtime,
 	jnc_Module* module
 	);
-	
+
 JNC_EXTERN_C
 void
 jnc_Runtime_shutdown (jnc_Runtime* runtime);
@@ -71,6 +77,13 @@ void
 jnc_Runtime_uninitializeThread (
 	jnc_Runtime* runtime,
 	jnc_ExceptionRecoverySnapshot* ers
+	);
+
+JNC_EXTERN_C
+jnc_SjljFrame*
+jnc_Runtime_setSjljFrame (
+	jnc_Runtime* runtime,
+	jnc_SjljFrame* frame
 	);
 
 JNC_EXTERN_C
@@ -107,7 +120,7 @@ struct jnc_Runtime
 		return jnc_Runtime_getGcHeap (this);
 	}
 
-	size_t 
+	size_t
 	getStackSizeLimit ()
 	{
 		return jnc_Runtime_getStackSizeLimit (this);
@@ -124,7 +137,7 @@ struct jnc_Runtime
 	{
 		return jnc_Runtime_startup (this, module) != 0;
 	}
-	
+
 	void
 	shutdown ()
 	{
@@ -157,7 +170,7 @@ JNC_EXTERN_C
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ();
 
-inline
+JNC_INLINE
 jnc_GcHeap*
 jnc_getCurrentThreadGcHeap ()
 {
@@ -179,7 +192,7 @@ jnc_primeClass (
 	jnc_Box* box,
 	jnc_Box* root,
 	jnc_ClassType* type,
-	const void* vtable = NULL // if null then vtable of class type will be used
+	const void* vtable // if null then vtable of class type will be used
 	);
 
 JNC_EXTERN_C
@@ -187,14 +200,14 @@ jnc_IfaceHdr*
 jnc_strengthenClassPtr (jnc_IfaceHdr* iface);
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_strLen (jnc_DataPtr ptr);
 
 JNC_EXTERN_C
 jnc_DataPtr
 jnc_strDup (
 	const char* p,
-	size_t length = -1
+	size_t length
 	);
 
 JNC_EXTERN_C
@@ -220,28 +233,28 @@ const RuntimeDef
 
 //.............................................................................
 
-inline
+JNC_INLINE
 Runtime*
 getCurrentThreadRuntime ()
 {
 	return jnc_getCurrentThreadRuntime ();
 }
 
-inline
+JNC_INLINE
 GcHeap*
 getCurrentThreadGcHeap ()
 {
 	return jnc_getCurrentThreadGcHeap ();
 }
 
-inline
+JNC_INLINE
 Tls*
 getCurrentThreadTls ()
 {
 	return jnc_getCurrentThreadTls ();
 }
 
-inline
+JNC_INLINE
 void
 dynamicThrow ()
 {
@@ -250,7 +263,7 @@ dynamicThrow ()
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline 
+JNC_INLINE
 void
 primeClass (
 	Box* box,
@@ -262,7 +275,7 @@ primeClass (
 	jnc_primeClass (box, root, type, vtable);
 }
 
-inline
+JNC_INLINE
 void
 primeClass (
 	Box* box,
@@ -296,7 +309,7 @@ primeClass (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 IfaceHdr*
 strengthenClassPtr (IfaceHdr* iface)
 {
@@ -309,8 +322,8 @@ createClass (Runtime* runtime)
 {
 	ClassType* type = T::getType (runtime->getModule ());
 	T* p = (T*) runtime->getGcHeap ()->allocateClass (type);
-	sl::construct (p);
-	
+	construct (p);
+
 	return p;
 }
 
@@ -326,7 +339,7 @@ createClass (
 {
 	ClassType* type = T::getType (runtime->getModule ());
 	T* p = (T*) runtime->getGcHeap ()->allocateClass (type);
-	sl::construct (p, arg);
+	construct (p, arg);
 
 	return p;
 }
@@ -345,7 +358,7 @@ createClass (
 {
 	ClassType* type = T::getType (runtime->getModule ());
 	T* p = (T*) runtime->getGcHeap ()->allocateClass (type);
-	sl::construct (p, arg1, arg2);
+	construct (p, arg1, arg2);
 
 	return p;
 }
@@ -366,7 +379,7 @@ createClass (
 {
 	ClassType* type = T::getType (runtime->getModule ());
 	T* p = (T*) runtime->getGcHeap ()->allocateClass (type);
-	sl::construct (p, arg1, arg2, arg3);
+	construct (p, arg1, arg2, arg3);
 
 	return p;
 }
@@ -389,7 +402,7 @@ createClass (
 {
 	ClassType* type = T::getType (runtime->getModule ());
 	T* p = (T*) runtime->getGcHeap ()->allocateClass (type);
-	sl::construct (p, arg1, arg2, arg3, arg4);
+	construct (p, arg1, arg2, arg3, arg4);
 
 	return p;
 }
@@ -402,7 +415,7 @@ createData (Runtime* runtime)
 {
 	Type* type = T::getType (runtime->getModule ());
 	DataPtr ptr = runtime->getGcHeap ()->allocateData (type);
-	sl::construct ((T*) ptr.m_p);
+	construct ((T*) ptr.m_p);
 
 	return ptr;
 }
@@ -419,7 +432,7 @@ createData (
 {
 	Type* type = T::getType (runtime->getModule ());
 	DataPtr ptr = runtime->getGcHeap ()->allocateData (type);
-	sl::construct ((T*) ptr.m_p, arg);
+	construct ((T*) ptr.m_p, arg);
 
 	return ptr;
 }
@@ -438,7 +451,7 @@ createData (
 {
 	Type* type = T::getType (runtime->getModule ());
 	DataPtr ptr = runtime->getGcHeap ()->allocateData (type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2);
+	construct ((T*) ptr.m_p, arg1, arg2);
 
 	return ptr;
 }
@@ -459,7 +472,7 @@ createData (
 {
 	Type* type = T::getType (runtime->getModule ());
 	DataPtr ptr = runtime->getGcHeap ()->allocateData (type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3);
+	construct ((T*) ptr.m_p, arg1, arg2, arg3);
 
 	return ptr;
 }
@@ -482,21 +495,21 @@ createData (
 {
 	Type* type = T::getType (runtime->getModule ());
 	DataPtr ptr = runtime->getGcHeap ()->allocateData (type);
-	sl::construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
+	construct ((T*) ptr.m_p, arg1, arg2, arg3, arg4);
 
 	return ptr;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
-size_t 
+JNC_INLINE
+size_t
 strLen (DataPtr ptr)
 {
 	return jnc_strLen (ptr);
 }
 
-inline
+JNC_INLINE
 DataPtr
 strDup (
 	const char* p,
@@ -506,7 +519,7 @@ strDup (
 	return jnc_strDup (p, length);
 }
 
-inline
+JNC_INLINE
 DataPtr
 memDup (
 	const void* p,
@@ -534,18 +547,18 @@ public:
 		if (m_runtime)
 			jnc_Runtime_destroy (m_runtime);
 	}
-	
+
 	operator Runtime* ()
 	{
 		return m_runtime;
 	}
 
-	Runtime* 
+	Runtime*
 	operator -> ()
 	{
 		return m_runtime;
 	}
-	
+
 	Runtime*
 	p ()
 	{
@@ -581,7 +594,7 @@ public:
 	ScopedNoCollectRegion (bool canCollectOnLeave)
 	{
 		GcHeap* gcHeap = getCurrentThreadGcHeap ();
-		ASSERT (gcHeap);
+		JNC_ASSERT (gcHeap);
 
 		init (gcHeap, canCollectOnLeave);
 	}
@@ -609,3 +622,5 @@ protected:
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

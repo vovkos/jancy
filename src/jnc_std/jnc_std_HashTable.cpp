@@ -18,8 +18,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (StringHashTable)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <StringHashTable>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <StringHashTable>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <StringHashTable>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <StringHashTable>)
 	JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &StringHashTable::isEmpty)
 	JNC_MAP_FUNCTION ("clear",  &StringHashTable::clear)
 	JNC_MAP_FUNCTION ("find", &StringHashTable::find)
@@ -39,8 +39,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (VariantHashTable)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <VariantHashTable>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <VariantHashTable>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <VariantHashTable>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <VariantHashTable>)
 	JNC_MAP_CONST_PROPERTY ("m_isEmpty",  &VariantHashTable::isEmpty)
 	JNC_MAP_FUNCTION ("clear",  &VariantHashTable::clear)
 	JNC_MAP_FUNCTION ("find", &VariantHashTable::find)
@@ -51,7 +51,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 StringHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 {
 	Module* module = gcHeap->getRuntime ()->getModule ();
@@ -67,7 +67,7 @@ StringHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 StringHashTable::find (
 	DataPtr keyPtr,
 	DataPtr valuePtr
@@ -82,7 +82,7 @@ StringHashTable::find (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 StringHashTable::insert (
 	DataPtr keyPtr,
 	Variant value
@@ -103,7 +103,7 @@ StringHashTable::insert (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 StringHashTable::remove (DataPtr keyPtr)
 {
 	StringHashTableMap::Iterator it = m_map.find ((const char*) keyPtr.m_p);
@@ -118,7 +118,7 @@ StringHashTable::remove (DataPtr keyPtr)
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 VariantHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 {
 	Module* module = gcHeap->getRuntime ()->getModule ();
@@ -133,7 +133,7 @@ VariantHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 VariantHashTable::find (
 	Variant key,
 	DataPtr valuePtr
@@ -148,7 +148,7 @@ VariantHashTable::find (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 VariantHashTable::insert (
 	Variant key,
 	Variant value
@@ -169,7 +169,7 @@ VariantHashTable::insert (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 VariantHashTable::remove (Variant key)
 {
 	VariantHashTableMap::Iterator it = m_map.find (key);

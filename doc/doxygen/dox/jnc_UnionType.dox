@@ -1,0 +1,10 @@
+/*!
+
+\defgroup union-type Union Type
+\ingroup type-subsystem
+
+\brief Union type represents a region of memory which can be interpreted as one type or another depending on some runtime conditions.
+
+Unions provide a convenient and at the same time efficient of re-using the same block of memory for different purposes.
+
+ */

@@ -25,22 +25,22 @@ public:
 	MappedFile ();
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	setDynamicViewLimit (size_t limit);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	setSize (uint64_t size);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	open (
 		DataPtr namePtr,
 		uint_t flags
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ()
 	{
 		m_file.close ();
@@ -48,7 +48,7 @@ public:
 
 	static
 	DataPtr
-	AXL_CDECL
+	JNC_CDECL
 	view (
 		MappedFile* self,
 		uint64_t offset,

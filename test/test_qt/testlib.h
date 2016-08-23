@@ -37,11 +37,11 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	destruct ();
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	foo (int x);
 };
 
@@ -54,11 +54,11 @@ public:
 
 public:
 	void
-	AXL_CDECL
+	JNC_CDECL
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	bar (
 		jnc::DataPtr ptr1,
 		jnc::DataPtr ptr2,
@@ -80,12 +80,12 @@ public:
 public:
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	construct_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	construct_1 (
 		jnc::DataPtr selfPtr, 
 		int x
@@ -93,7 +93,7 @@ public:
 
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	construct_2 (
 		jnc::DataPtr selfPtr, 
 		double y
@@ -101,12 +101,12 @@ public:
 
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	foo_0 (jnc::DataPtr selfPtr);
 
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	foo_1 (
 		jnc::DataPtr selfPtr, 
 		int x
@@ -114,7 +114,7 @@ public:
 
 	static
 	void
-	AXL_CDECL
+	JNC_CDECL
 	foo_2 (
 		jnc::DataPtr selfPtr, 
 		double y

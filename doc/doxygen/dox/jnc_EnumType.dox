@@ -1,0 +1,8 @@
+/*!
+
+\defgroup enum-type Enum Type
+\ingroup type-subsystem
+
+\brief Enum type defines a mnemonic identification for a set of integer values.
+
+ */

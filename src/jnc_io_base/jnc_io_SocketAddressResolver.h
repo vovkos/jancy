@@ -74,7 +74,7 @@ protected:
 	IoThread m_ioThread;
 	sl::StdList <Req> m_reqList;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
@@ -90,18 +90,18 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	resolve (
 		DataPtr namePtr,
 		uint16_t addrFamily
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	cancel (uint_t syncId);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	cancelAll ();
 
 protected:

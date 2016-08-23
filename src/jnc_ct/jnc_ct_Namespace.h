@@ -335,7 +335,7 @@ public:
 
 //.............................................................................
 
-inline
+JNC_INLINE
 err::Error
 setRedefinitionError (const char* name)
 {

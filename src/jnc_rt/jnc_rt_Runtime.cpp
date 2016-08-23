@@ -131,7 +131,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 	
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
 	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with GC heap first
-	tls->m_prev = prevTls;
+	tls->m_prevTls = prevTls;
 	tls->m_runtime = this;
 	tls->m_initializeLevel = 1;
 	tls->m_stackEpoch = ers;
@@ -179,7 +179,7 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 	
 	m_lock.unlock ();
 	
-	sys::setTlsPtrSlotValue <Tls> (tls->m_prev);
+	sys::setTlsPtrSlotValue <Tls> (tls->m_prevTls);
 
 	AXL_MEM_DELETE (tls);
 }
@@ -202,6 +202,12 @@ Runtime::checkStackOverflow ()
 	}
 }
 
+SjljFrame*
+Runtime::setSjljFrame (SjljFrame* frame)
+{
+	return sys::setTlsPtrSlotValue <SjljFrame> (frame);
+}
+
 void
 Runtime::dynamicThrow ()
 {
@@ -210,9 +216,15 @@ Runtime::dynamicThrow ()
 
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
 	if (tlsVariableTable->m_sjljFrame)
+	{
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+	}
 	else
-		AXL_SYS_SJLJ_THROW ();
+	{
+		SjljFrame* sjljFrame = sys::getTlsPtrSlotValue <SjljFrame> ();
+		ASSERT (sjljFrame);
+		longjmp (sjljFrame->m_jmpBuf, -1);
+	}
 
 	ASSERT (false);
 }

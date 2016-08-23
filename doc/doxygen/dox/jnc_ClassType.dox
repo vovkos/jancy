@@ -1,0 +1,10 @@
+/*!
+
+\defgroup class-type Class Type
+\ingroup type-subsystem
+
+\brief Class type is the type of the highest level of abstraction.
+
+Unlike structs and unions, classes can contain destructors and virtual functions.
+
+ */

@@ -98,7 +98,7 @@ ConstBuffer::copy (
 //.............................................................................
 
 bool
-AXL_CDECL
+JNC_CDECL
 Buffer::copy (
 	DataPtr ptr,
 	size_t size
@@ -113,7 +113,7 @@ Buffer::copy (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Buffer::append (
 	DataPtr ptr,
 	size_t size

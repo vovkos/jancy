@@ -4,6 +4,9 @@
 
 #include "jnc_DerivableType.h"
 
+/// \addtogroup struct-type
+/// @{
+
 //.............................................................................
 
 JNC_EXTERN_C
@@ -36,3 +39,5 @@ struct jnc_StructType: jnc_DerivableType
 #endif // _JNC_CORE
 
 //.............................................................................
+
+/// @}

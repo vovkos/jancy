@@ -1,0 +1,15 @@
+/*!
+
+\defgroup type-subsystem Types
+\ingroup module-subsystem
+
+ */
+
+ /*!
+
+\defgroup type Type
+\ingroup type-subsystem
+
+\brief Type is the root of type hierarchy in Jancy. All the other types are inherited from it.
+
+ */

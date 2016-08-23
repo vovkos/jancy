@@ -32,7 +32,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-AXL_CDECL
+JNC_CDECL
 Recognizer::construct (FunctionPtr automatonFuncPtr)
 {
 	m_internalState = InternalState_Idle;
@@ -49,7 +49,7 @@ Recognizer::construct (FunctionPtr automatonFuncPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Recognizer::setAutomatonFunc (FunctionPtr automatonFuncPtr)
 {
 	m_automatonFuncPtr = automatonFuncPtr;
@@ -61,7 +61,7 @@ Recognizer::setAutomatonFunc (FunctionPtr automatonFuncPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Recognizer::setLexemeLengthLimit (size_t length)
 {
 	if (length <= m_lexemeLengthLimit)
@@ -79,7 +79,7 @@ Recognizer::setLexemeLengthLimit (size_t length)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Recognizer::setCurrentOffset (size_t offset)
 {
 	intptr_t delta = offset - m_currentOffset;
@@ -92,7 +92,7 @@ Recognizer::setCurrentOffset (size_t offset)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Recognizer::reset ()
 {
 	m_internalState = InternalState_Idle;
@@ -105,7 +105,7 @@ Recognizer::reset ()
 }
 
 bool 
-AXL_CDECL
+JNC_CDECL
 Recognizer::write (
 	DataPtr ptr,
 	size_t length
@@ -131,7 +131,7 @@ Recognizer::write (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Recognizer::eof ()
 {
 	for (;;)

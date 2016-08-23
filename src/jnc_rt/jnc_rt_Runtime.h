@@ -79,6 +79,9 @@ public:
 	void
 	checkStackOverflow ();
 
+	SjljFrame*
+	setSjljFrame (SjljFrame* frame);
+
 	static
 	void
 	dynamicThrow ();
@@ -86,14 +89,14 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 Tls*
 getCurrentThreadTls ()
 {
 	return sys::getTlsPtrSlotValue <Tls> ();
 }
 
-inline
+JNC_INLINE
 Runtime*
 getCurrentThreadRuntime ()
 {

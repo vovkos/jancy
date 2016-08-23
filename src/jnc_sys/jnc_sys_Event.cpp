@@ -18,8 +18,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Event)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Event>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Event>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Event>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Event>)
 	JNC_MAP_FUNCTION ("signal", &Event::signal)
 	JNC_MAP_FUNCTION ("wait", &Event::wait)
 JNC_END_TYPE_FUNCTION_MAP ()
@@ -27,7 +27,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 bool
-AXL_CDECL
+JNC_CDECL
 Event::wait (uint_t timeout)
 {
 	bool result;

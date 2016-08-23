@@ -352,7 +352,7 @@ protected:
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 isConstructibleType (Type* type)
 {

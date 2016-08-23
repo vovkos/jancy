@@ -18,8 +18,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <NamedPipe>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <NamedPipe>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <NamedPipe>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <NamedPipe>)
 	JNC_MAP_FUNCTION ("open",   &NamedPipe::open)
 	JNC_MAP_FUNCTION ("close",  &NamedPipe::close)
 	JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
@@ -36,7 +36,7 @@ NamedPipe::NamedPipe ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 NamedPipe::open (
 	DataPtr namePtr,
 	size_t backLog
@@ -94,7 +94,7 @@ NamedPipe::open (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 NamedPipe::close ()
 {
 	if (!m_isOpen)
@@ -118,7 +118,7 @@ NamedPipe::close ()
 }
 
 FileStream*
-AXL_CDECL
+JNC_CDECL
 NamedPipe::accept ()
 {
 	m_ioLock.lock ();
@@ -165,7 +165,7 @@ NamedPipe::accept ()
 
 	ClassType* type = FileStream_getType (m_runtime->getModule ());
 	FileStream* fileStream = (FileStream*) gcHeap->allocateClass (type);
-	sl::construct <FileStream > (fileStream);
+	jnc::construct <FileStream > (fileStream);
 	fileStream->m_file.m_file.attach (hPipe);
 	fileStream->m_readBuffer.setCount (FileStream::Const_ReadBufferSize);
 	fileStream->m_isOpen = true;

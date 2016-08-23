@@ -6,9 +6,12 @@
 #include "jnc_Function.h"
 #include "jnc_ClassType.h"
 
+/// \addtogroup call-site
+/// @{
+
 //.............................................................................
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 #	define JNC_BEGIN_GC_SITE() \
 	__try {
 
@@ -28,12 +31,18 @@
 { \
 	jnc_Runtime* __jncRuntime = (runtime); \
 	jnc_GcHeap* __jncGcHeap = jnc_Runtime_getGcHeap (runtime); \
+	jnc_ExceptionRecoverySnapshot __jncErs; \
+	jnc_SjljFrame __jncSjljFrame; \
+	jnc_SjljFrame* __jncSjljPrevFrame; \
+	int __jncSjljBranch; \
 	int __jncIsNoCollectRegion = 0; \
 	int __jncCanCollectAtEnd = 0; \
-	jnc_ExceptionRecoverySnapshot ___jncErs; \
 	JNC_BEGIN_GC_SITE() \
-	jnc_Runtime_initializeThread (__jncRuntime, &___jncErs); \
-	AXL_SYS_BEGIN_SJLJ_TRY () \
+	jnc_Runtime_initializeThread (__jncRuntime, &__jncErs); \
+	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame (__jncRuntime, &__jncSjljFrame); \
+	__jncSjljBranch = setjmp (__jncSjljFrame.m_jmpBuf); \
+	if (!__jncSjljBranch) \
+	{
 
 #define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
 	JNC_BEGIN_CALL_SITE (runtime) \
@@ -42,16 +51,32 @@
 	jnc_GcHeap_enterNoCollectRegion (__jncGcHeap);
 
 #define JNC_CALL_SITE_CATCH() \
-	AXL_SYS_SJLJ_CATCH ()
+	} \
+	else \
+	{ \
+		{ \
+			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
+			JNC_ASSERT (prev == &__jncSjljFrame); \
+		}
 
 #define JNC_CALL_SITE_FINALLY() \
-	AXL_SYS_SJLJ_FINALLY ()
+	} \
+	{ \
+		{ \
+			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
+			JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
+		}
 
 #define JNC_END_CALL_SITE_IMPL() \
-	AXL_SYS_END_SJLJ_TRY_EX (&___jncErs.m_result) \
-	if (__jncIsNoCollectRegion && ___jncErs.m_result) \
+	} \
+	{ \
+		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
+		JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
+	} \
+	__jncErs.m_result = __jncSjljBranch == 0; \
+	if (__jncIsNoCollectRegion && __jncErs.m_result) \
 		jnc_GcHeap_leaveNoCollectRegion (__jncGcHeap, __jncCanCollectAtEnd); \
-	jnc_Runtime_uninitializeThread (__jncRuntime, &___jncErs); \
+	jnc_Runtime_uninitializeThread (__jncRuntime, &__jncErs); \
 	JNC_END_GC_SITE () \
 
 #define JNC_END_CALL_SITE() \
@@ -60,7 +85,7 @@
 
 #define JNC_END_CALL_SITE_EX(result) \
 	JNC_END_CALL_SITE_IMPL() \
-	*(result) = ___jncErs.m_result != 0; \
+	*(result) = __jncErs.m_result != 0; \
 }
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -519,7 +544,7 @@ callFunction (
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 callVoidFunction (
 	Runtime* runtime,
@@ -603,7 +628,7 @@ callVoidFunction (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 void
 callVoidFunction (Function* function)
 {
@@ -834,7 +859,7 @@ callFunctionPtr (
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 callVoidFunctionPtr (
 	Runtime* runtime,
@@ -913,7 +938,7 @@ callVoidFunctionPtr (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 void
 callVoidFunctionPtr (FunctionPtr ptr)
 {
@@ -980,17 +1005,7 @@ callVoidFunctionPtr (
 
 //.............................................................................
 
-inline
-void*
-getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
-{
-	MulticastClassType* type = (MulticastClassType*) multicast->m_box->m_type;
-	return type->getMethod (MulticastMethodKind_Call)->getMachineCode ();
-}
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
+JNC_INLINE
 bool
 callMulticast (
 	Runtime* runtime,
@@ -1074,7 +1089,7 @@ callMulticast (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 void
 callMulticast (Multicast* multicast)
 {
@@ -1154,3 +1169,5 @@ callMulticast (
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

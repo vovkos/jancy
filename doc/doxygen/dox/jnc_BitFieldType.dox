@@ -1,0 +1,8 @@
+/*!
+
+\defgroup bitfield-type Bitfield Type
+\ingroup type-subsystem
+
+\brief Bitfield type is used to describe a range of bits inside a struct or union.
+
+ */

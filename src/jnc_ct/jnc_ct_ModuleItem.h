@@ -260,7 +260,7 @@ verifyModuleItemKind (
 	const char* name
 	);
 
-inline
+JNC_INLINE
 Type*
 verifyModuleItemIsType (
 	ModuleItem* item,
@@ -282,7 +282,7 @@ verifyModuleItemIsClassType (
 	const char* name
 	);
 
-inline
+JNC_INLINE
 Function*
 verifyModuleItemIsFunction (	
 	ModuleItem* item,
@@ -293,7 +293,7 @@ verifyModuleItemIsFunction (
 	return (Function*) verifyModuleItemKind (item, ModuleItemKind_Function, name);
 }
 
-inline
+JNC_INLINE
 Property*
 verifyModuleItemIsProperty (
 	ModuleItem* item,

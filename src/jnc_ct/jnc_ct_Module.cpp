@@ -112,8 +112,8 @@ Module::initialize (
 	}
 }
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
-#	if (_AXL_PTR_BITNESS == 64)
+#if (_JNC_ENV == JNC_ENV_POSIX)
+#	if (_JNC_PTR_BITNESS == 64)
 /*int128_t
 lockTestAndSet (
 	volatile int128_t* dst,
@@ -159,11 +159,11 @@ Module::createLlvmExecutionEngine ()
 
 		targetOptions.JITEmitDebugInfo = true;
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 		m_functionMap ["memset"] = (void*) memset;
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
-#	if (_AXL_PTR_BITNESS == 64)
+#	if (_JNC_PTR_BITNESS == 64)
 //		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
 #	else
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
@@ -175,7 +175,7 @@ Module::createLlvmExecutionEngine ()
 	}
 	else
 	{
-#if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU == AXL_CPU_AMD64)
+#if (_JNC_ENV == JNC_ENV_WIN && _JNC_CPU == JNC_CPU_AMD64)
 		// legacy JIT uses relative call to __chkstk
 		// it worked just fine before windows 10 which loads ntdll.dll too far away
 
@@ -217,7 +217,7 @@ Module::createLlvmExecutionEngine ()
 
 	engineBuilder.setTargetOptions (targetOptions);
 
-#if (_AXL_CPU == AXL_CPU_X86)
+#if (_JNC_CPU == JNC_CPU_X86)
 	engineBuilder.setMArch ("x86");
 #endif
 
@@ -259,7 +259,7 @@ Module::mapFunction (
 void*
 Module::findFunctionMapping (const char* name)
 {
-#if (_AXL_ENV == AXL_ENV_POSIX && _AXL_POSIX == AXL_POSIX_DARWIN)
+#if (_JNC_ENV == JNC_ENV_POSIX && _AXL_POSIX == AXL_POSIX_DARWIN)
 	if (*(const uint16_t*) name == '._')
 		name++;
 #endif

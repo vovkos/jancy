@@ -46,7 +46,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 void
-AXL_CDECL
+JNC_CDECL
 List::clear ()
 {
 	ListEntry* entry = (ListEntry*) m_headPtr.m_p;
@@ -59,7 +59,7 @@ List::clear ()
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 List::takeOver (List* list)
 {
 	if (!list)
@@ -140,7 +140,7 @@ List::insertAfter (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 List::moveToHead (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
@@ -152,7 +152,7 @@ List::moveToHead (DataPtr entryPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 List::moveToTail (DataPtr entryPtr)
 {
 	ListEntry* entry = (ListEntry*) entryPtr.m_p;
@@ -164,7 +164,7 @@ List::moveToTail (DataPtr entryPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 List::moveBefore (
 	DataPtr entryPtr,
 	DataPtr beforePtr
@@ -179,7 +179,7 @@ List::moveBefore (
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 List::moveAfter (
 	DataPtr entryPtr,
 	DataPtr afterPtr

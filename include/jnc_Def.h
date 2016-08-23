@@ -2,21 +2,308 @@
 
 #define _JNC_DEF_H
 
+/// \addtogroup base-def
+/// @{
+
 //.............................................................................
 
-#ifdef _MSC_VER
-#	define JNC_SELECT_ANY __declspec (selectany)
-#elif (defined __GNUC__)
-#	define JNC_SELECT_ANY  __attribute__ ((weak))
-#else
-#	error unsupported compiler
+// standard C/C++ headers
+
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
+
+#if (_WIN32)
+#	define _CRT_SECURE_NO_WARNINGS  // useless warnings about "unsafe" string functions
+#	define _SCL_SECURE_NO_WARNINGS  // useless warnings about "unsafe" iterator operations
 #endif
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
+#	include <new>
+#endif
+
+#include <stddef.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#include <string.h>
+#include <ctype.h>
+#include <wchar.h>
+#include <wctype.h>
+#include <errno.h>
+
+//.............................................................................
+
+// Windows headers
+
+#if (_WIN32)
+#	ifndef _WIN32_WINNT             // Specifies that the minimum required platform is Windows Vista.
+#		define _WIN32_WINNT 0x0600  // Change this to the appropriate value to target other versions of Windows.
+#	endif
+#
+#	define WIN32_LEAN_AND_MEAN      // Exclude rarely-used stuff from Windows headers
+#	include <windows.h>
+#endif
+
+//.............................................................................
+
+// JNC_ASSERT
+
+#if (_WIN32)
+#	include <crtdbg.h>
+#	define JNC_ASSERT _ASSERTE
+#elif (__GNUC__)
+#	include <assert.h>
+#	define JNC_ASSERT assert
+#endif 
+
+//.............................................................................
+
+// C++ compiler ids
+
+#define JNC_CPP_MSC  1  // Microsoft Visual C++ compiler (cl.exe)
+#define JNC_CPP_GCC  2  // GNU C++ compiler
+#define JNC_CPP_ICC  3  // Intel C++ compiler
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#ifndef _JNC_CPP // detect C++ compiler
+#	ifdef _MSC_VER
+#		define _JNC_CPP JNC_CPP_MSC
+#	elif (defined __GNUC__)
+#		define _JNC_CPP JNC_CPP_GCC
+#	else
+#		error unsupported compiler
+#	endif
+#elif (_JNC_CPP != JNC_CPP_MSC && _JNC_CPP != JNC_CPP_GCC)
+#	error _JNC_CPP is set to unknown C++ compiler id
+#endif
+
+//.............................................................................
+
+// CPU arch ids
+
+#define JNC_CPU_X86   1  // Intel i386
+#define JNC_CPU_AMD64 2  // AMD64 / Intel x86_64
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#ifndef _JNC_CPU // detect CPU arch
+#	if (_JNC_CPP == JNC_CPP_MSC)
+#		if (defined _M_IX86)
+#			define _JNC_CPU JNC_CPU_X86
+#		elif (defined _M_AMD64)
+#			define _JNC_CPU JNC_CPU_AMD64
+#		endif
+#	elif (_JNC_CPP == JNC_CPP_GCC)
+#		if defined __i386__
+#			define _JNC_CPU JNC_CPU_X86
+#		elif defined __amd64__
+#			define _JNC_CPU JNC_CPU_AMD64
+#		endif
+#	endif
+#endif
+
+#if (_JNC_CPU == JNC_CPU_X86)
+#	define _JNC_CPU_STRING "x86"
+#elif (_JNC_CPU == JNC_CPU_AMD64)
+#	define _JNC_CPU_STRING "amd64"
+#else
+#	error _JNC_CPU is set to unknown CPU arch id
+#endif
+
+#if (_JNC_CPU == JNC_CPU_AMD64)
+#	define _JNC_PTR_BITNESS 64
+#	define _JNC_PTR_SIZE    8
+#else
+#	define _JNC_PTR_BITNESS 32
+#	define _JNC_PTR_SIZE    4
+#endif
+
+//.............................................................................
+
+// runtime environment ids
+
+#define JNC_ENV_WIN   1  // win32 / win64 user mode module
+#define JNC_ENV_NT    2  // NT native / kernel mode module
+#define JNC_ENV_POSIX 3  // Unix / Linux / MacOSX
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#ifndef _JNC_ENV
+#	if (_JNC_CPP == JNC_CPP_MSC)
+#		define _JNC_ENV JNC_ENV_WIN // default runtime environment is Win32 / Win64
+#	elif (_JNC_CPP == JNC_CPP_GCC)
+#		define _JNC_ENV JNC_ENV_POSIX
+#	endif
+#endif
+
+#if (_JNC_ENV < JNC_ENV_WIN || _JNC_ENV > JNC_ENV_POSIX)
+#	error _JNC_ENV is set to unknown runtime environment id
+#endif
+
+//.............................................................................
+
+// POSIX flavors
+
+#define JNC_POSIX_LINUX   1
+#define JNC_POSIX FREEBSD 2
+#define JNC_POSIX_DARWIN  3
+
+#if (_JNC_ENV != JNC_ENV_POSIX)
+#	undef _JNC_POSIX
+#else
+#	if (!defined _JNC_POSIX)
+#		ifdef __linux__
+#			define _JNC_POSIX JNC_POSIX_LINUX
+#		elif (defined __FreeBSD__)
+#			define _JNC_POSIX JNC_POSIX_FREEBSD
+#		elif (defined __APPLE__ && defined __MACH__)
+#			define _JNC_POSIX JNC_POSIX_DARWIN
+#		endif
+#	endif
+#
+#	if (_JNC_POSIX < JNC_POSIX_LINUX || _JNC_POSIX > JNC_POSIX_DARWIN)
+#		error _JNC_POSIX is set to unknown POSIX id
+#	endif
+#endif
+
+//.............................................................................
+
+#ifdef __cplusplus
 #	define JNC_EXTERN_C extern "C"
+#	define JNC_INLINE   inline
 #else
 #	define JNC_EXTERN_C
+#	define JNC_INLINE   __inline
 #endif
+
+#if (_JNC_CPP == JNC_CPP_MSC)
+#	define JNC_CDECL      __cdecl
+#	define JNC_STDCALL    __stdcall
+#	define JNC_SELECT_ANY __declspec (selectany)
+#	define JNC_NO_VTABLE  __declspec (novtable)
+#	define JNC_EXPORT     __declspec (dllexport)
+#
+#	ifdef _DEBUG
+#		define _JNC_DEBUG 1
+#		define _JNC_DEBUG_STRING "Debug"
+#		define _JNC_DEBUG_SUFFIX " Debug"
+#	else
+#		undef _JNC_DEBUG
+#		define _JNC_DEBUG_STRING ""
+#		define _JNC_DEBUG_SUFFIX ""
+#	endif
+#elif (_JNC_CPP == JNC_CPP_GCC)
+#	if (_JNC_CPU == JNC_CPU_X86)
+#		define JNC_CDECL   __attribute__ ((cdecl))
+#		define JNC_STDCALL __attribute__ ((stdcall))
+#	else
+#		define JNC_CDECL
+#		define JNC_STDCALL
+#	endif
+#	define JNC_SELECT_ANY  __attribute__ ((weak))
+#	define JNC_NO_VTABLE
+#	define JNC_EXPORT __attribute__ ((visibility ("default")))
+#
+#	ifdef NDEBUG
+#		undef _DEBUG
+#		undef _JNC_DEBUG
+#		define _JNC_DEBUG_STRING ""
+#		define _JNC_DEBUG_SUFFIX ""
+#	else
+#		define _DEBUG
+#		define _JNC_DEBUG 1
+#		define _JNC_DEBUG_STRING "Debug"
+#		define _JNC_DEBUG_SUFFIX " Debug"
+#	endif
+#endif
+
+//.............................................................................
+
+// gcc-specific attributes
+
+#if (_JNC_CPP == JNC_CPP_GCC)
+#	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
+#	define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
+#	define JNC_NO_ASAN __attribute__((no_sanitize_address))
+#	if (defined (__has_feature))
+#		if (__has_feature (address_sanitizer))
+#	 		define _JNC_ASAN 1
+#		endif
+#	elif (defined (__SANITIZE_ADDRESS__))
+# 		define _JNC_ASAN 1
+#	else
+#		undef _JNC_ASAN
+#	endif
+#else
+#	define JNC_GCC_ALIGN(n)
+#	define JNC_GCC_MSC_STRUCT
+#	undef _JNC_ASAN
+#	define JNC_NO_ASAN
+#endif
+
+//.............................................................................
+
+// common type aliases
+
+// stdint.h defines:
+//
+// int8_t
+// uint8_t
+// int16_t
+// uint16_t
+// int32_t
+// uint32_t
+// int64_t
+// uint64_t
+// intptr_t
+// uintptr_t
+
+typedef int               bool_t;
+typedef unsigned int      uint_t;
+typedef unsigned char     uchar_t;
+typedef unsigned short    ushort_t;
+typedef unsigned long     ulong_t;
+
+typedef uint8_t           byte_t;
+typedef uint16_t          word_t;
+typedef uint64_t          qword_t;
+
+#if (_JNC_CPP == JNC_CPP_MSC)
+typedef ulong_t           dword_t;
+#else
+typedef uint32_t          dword_t;
+#endif
+
+#if (_JNC_PTR_BITNESS == 64)
+#	if (_JNC_CPP == JNC_CPP_GCC)
+typedef __int128          int128_t;
+typedef unsigned __int128 uint128_t;
+typedef int128_t          intdptr_t;
+typedef uint128_t         uintdptr_t;
+#	endif
+#else
+typedef int64_t           intdptr_t;
+typedef uint64_t          uintdptr_t;
+#endif
+
+typedef void*             handle_t;
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef char              utf8_t;
+
+#if (WCHAR_MAX <= 0xffff)
+typedef wchar_t           utf16_t;
+typedef int32_t           utf32_t;
+#else
+typedef int16_t           utf16_t;
+typedef wchar_t           utf32_t;
+#endif
+
+//.............................................................................
 
 // inheriting which works for both C and C++
 
@@ -24,7 +311,7 @@
 #	define JNC_BEGIN_INHERITED_STRUCT(Struct, BaseStruct) \
 	struct Struct: BaseStruct {
 #else
-#	define JNC_BEGIN_INHERITED_STRUCT (Struct, BaseStruct) \
+#	define JNC_BEGIN_INHERITED_STRUCT(Struct, BaseStruct) \
 	struct Struct { BaseStruct;
 #endif
 
@@ -300,3 +587,5 @@ typedef jnc_GcSizeTriggers GcSizeTriggers;
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

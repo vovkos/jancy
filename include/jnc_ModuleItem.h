@@ -4,6 +4,9 @@
 
 #include "jnc_Def.h"
 
+/// \addtogroup module-item
+/// @{
+
 //.............................................................................
 
 enum jnc_ModuleItemKind
@@ -28,6 +31,8 @@ enum jnc_ModuleItemKind
 	jnc_ModuleItemKind__Count,
 };
 
+typedef enum jnc_ModuleItemKind jnc_ModuleItemKind;
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
@@ -46,6 +51,8 @@ enum jnc_ModuleItemFlag
 	jnc_ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
 	jnc_ModuleItemFlag_Sealed       = 0x80,
 };
+
+typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
 
 //.............................................................................
 
@@ -68,6 +75,8 @@ enum jnc_StorageKind
 	jnc_StorageKind__Count,
 };
 
+typedef enum jnc_StorageKind jnc_StorageKind;
+
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
@@ -83,6 +92,8 @@ enum jnc_AccessKind
 	jnc_AccessKind_Protected,
 	jnc_AccessKind__Count,
 };
+
+typedef enum jnc_AccessKind jnc_AccessKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -321,7 +332,7 @@ const ModuleItemKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getModuleItemKindString (ModuleItemKind itemKind)
 {
@@ -364,7 +375,7 @@ const StorageKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getStorageKindString (StorageKind storageKind)
 {
@@ -383,7 +394,7 @@ const AccessKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getAccessKindString (AccessKind accessKind)
 {
@@ -392,7 +403,7 @@ getAccessKindString (AccessKind accessKind)
 
 //.............................................................................
 
-inline
+JNC_INLINE
 jnc_DerivableType*
 verifyModuleItemIsDerivableType (
 	ModuleItem* item,
@@ -402,7 +413,7 @@ verifyModuleItemIsDerivableType (
 	return jnc_verifyModuleItemIsDerivableType (item, name);
 }
 
-inline
+JNC_INLINE
 jnc_ClassType*
 verifyModuleItemIsClassType (
 	ModuleItem* item,
@@ -417,3 +428,5 @@ verifyModuleItemIsClassType (
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

@@ -1,6 +1,6 @@
 ///+++
 
-/// AXL_SELECT_ANY char g_std_BufferSrc [] = 
+/// JNC_SELECT_ANY char g_std_BufferSrc [] = 
 
 namespace std {
 

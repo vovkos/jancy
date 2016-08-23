@@ -14,7 +14,7 @@ class EnumType;
 
 //.............................................................................
 
-inline
+JNC_INLINE
 EnumTypeFlag
 getFirstEnumTypeFlag (uint_t flags)
 {
@@ -151,7 +151,7 @@ protected:
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool 
 isBitFlagEnumType (Type* type)
 {

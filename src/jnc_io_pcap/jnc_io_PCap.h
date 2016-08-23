@@ -90,11 +90,11 @@ public:
 	}
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	setFilter (DataPtr filter);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	openDevice (
 		DataPtr deviceName,
 		DataPtr filter,
@@ -102,25 +102,25 @@ public:
 		);
 
 	bool
-	AXL_CDECL
+	JNC_CDECL
 	openFile (
 		DataPtr fileName,
 		DataPtr filter
 		);
 
 	void
-	AXL_CDECL
+	JNC_CDECL
 	close ();
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
-	AXL_CDECL
+	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size

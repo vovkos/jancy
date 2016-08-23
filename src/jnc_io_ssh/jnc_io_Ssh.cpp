@@ -30,8 +30,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SshChannel)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <SshChannel>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <SshChannel>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <SshChannel>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <SshChannel>)
 	JNC_MAP_CONST_PROPERTY ("m_address",     &SshChannel::getAddress)
 	JNC_MAP_CONST_PROPERTY ("m_peerAddress", &SshChannel::getPeerAddress)
 	JNC_MAP_FUNCTION ("open",         &SshChannel::open)
@@ -57,7 +57,7 @@ SshChannel::SshChannel ()
 void
 SshChannel::wakeIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -67,9 +67,9 @@ SshChannel::wakeIoThread ()
 void
 SshChannel::sleepIoThread ()
 {
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.wait ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 	char buffer [256];
 	m_selfPipe.read (buffer, sizeof (buffer));
 #endif
@@ -97,7 +97,7 @@ SshChannel::fireSshEvent (
 }
 
 axl::io::SockAddr
-AXL_CDECL
+JNC_CDECL
 SshChannel::getAddress ()
 {
 	axl::io::SockAddr sockAddr;
@@ -106,7 +106,7 @@ SshChannel::getAddress ()
 }
 
 axl::io::SockAddr
-AXL_CDECL
+JNC_CDECL
 SshChannel::getPeerAddress ()
 {
 	axl::io::SockAddr sockAddr;
@@ -115,7 +115,7 @@ SshChannel::getPeerAddress ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SshChannel::open (DataPtr addressPtr)
 {
 	close ();
@@ -142,9 +142,9 @@ SshChannel::open (DataPtr addressPtr)
 	m_isOpen = true;
 	m_readBuffer.setCount (4 * 1024); // 4K buffer for reading
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 	m_ioThreadEvent.reset ();
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 	m_selfPipe.create ();
 #endif
 
@@ -153,7 +153,7 @@ SshChannel::open (DataPtr addressPtr)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 SshChannel::close ()
 {
 	if (!m_socket.isOpen ())
@@ -181,7 +181,7 @@ SshChannel::close ()
 		m_connectParams = NULL;
 	}
 
-#if (_AXL_ENV == AXL_ENV_POSIX)
+#if (_JNC_ENV == JNC_ENV_POSIX)
 	m_selfPipe.close ();
 #endif
 
@@ -190,7 +190,7 @@ SshChannel::close ()
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SshChannel::connect (
 	DataPtr addressPtr,
 	DataPtr userNamePtr,
@@ -247,7 +247,7 @@ SshChannel::connect (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SshChannel::authenticate (
 	DataPtr userNamePtr,
 	DataPtr passwordPtr
@@ -272,7 +272,7 @@ SshChannel::authenticate (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 SshChannel::read (
 	DataPtr ptr,
 	size_t size
@@ -328,7 +328,7 @@ SshChannel::read (
 }
 
 size_t
-AXL_CDECL
+JNC_CDECL
 SshChannel::write (
 	DataPtr ptr,
 	size_t size
@@ -352,7 +352,7 @@ SshChannel::write (
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 SshChannel::resizePty (
 	uint_t width,
 	uint_t height,
@@ -747,7 +747,7 @@ SshChannel::sshReadLoop ()
 	}
 }
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 
 bool
 SshChannel::tcpConnect ()

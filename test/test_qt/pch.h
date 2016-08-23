@@ -6,7 +6,7 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 
-#include "jnc_ext_Pch.h"
+#include "axl_g_Pch.h"
 
 #undef min
 #undef max
@@ -40,10 +40,11 @@
 #include "jnc_CallSite.h"
 
 #include "axl_io_SockAddr.h"
+#include "axl_sys_Time.h"
 
 using namespace axl;
 
-#if (_AXL_ENV == AXL_ENV_WIN)
+#if (_JNC_ENV == JNC_ENV_WIN)
 
 // Memory Leak Detection
 
@@ -58,7 +59,7 @@ using namespace axl;
 #		endif
 #	endif
 
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #	include <netinet/ip.h>

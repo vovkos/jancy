@@ -16,6 +16,9 @@
 #include "jnc_ClassType.h"
 #include "jnc_Unit.h"
 
+/// \addtogroup module
+/// @{
+
 //.............................................................................
 
 enum jnc_ModuleCompileFlag
@@ -36,20 +39,22 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_DisableDoxyComment3                  = 0x4000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4                  = 0x8000,
 
-	jnc_ModuleCompileFlag_StdFlags = 
-		jnc_ModuleCompileFlag_GcSafePointInPrologue | 
+	jnc_ModuleCompileFlag_StdFlags =
+		jnc_ModuleCompileFlag_GcSafePointInPrologue |
 		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue |
 		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue |
 		jnc_ModuleCompileFlag_CheckDivByZero
-#if (_AXL_ENV == AXL_ENV_WIN && _AXL_CPU != AXL_CPU_X86)
-		// SEH on amd64/ia64 relies on being able to walk the stack which is not as 
-		// reliable as frame-based SEH on x86. therefore, use write barrier for 
-		// safe points on windows if and only if it's x86 
+#if (_JNC_ENV == JNC_ENV_WIN && _JNC_CPU != JNC_CPU_X86)
+		// SEH on amd64/ia64 relies on being able to walk the stack which is not as
+		// reliable as frame-based SEH on x86. therefore, use write barrier for
+		// safe points on windows if and only if it's x86
 		| jnc_ModuleCompileFlag_SimpleGcSafePoint
-#elif (_AXL_ENV == AXL_ENV_POSIX)
+#elif (_JNC_ENV == JNC_ENV_POSIX)
 		| jnc_ModuleCompileFlag_McJit
 #endif
 };
+
+typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 
 //.............................................................................
 
@@ -64,10 +69,12 @@ enum jnc_ModuleCompileState
 	jnc_ModuleCompileState_Jitted,
 };
 
+typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
+
 //.............................................................................
 
 JNC_EXTERN_C
-jnc_Module* 
+jnc_Module*
 jnc_Module_create ();
 
 JNC_EXTERN_C
@@ -137,7 +144,7 @@ jnc_Module_addSource (
 	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
-	size_t length = -1
+	size_t length
 	);
 
 JNC_EXTERN_C
@@ -219,7 +226,7 @@ jnc_Module_createLlvmIrString_v (jnc_Module* module);
 struct jnc_Module
 {
 	static
-	jnc_Module* 
+	jnc_Module*
 	create ()
 	{
 		return jnc_Module_create ();
@@ -429,7 +436,7 @@ typedef jnc_ModuleCompileState ModuleCompileState;
 
 const ModuleCompileState
 	ModuleCompileState_Idle             = jnc_ModuleCompileState_Idle,
-	ModuleCompileState_CalcLayout       = jnc_ModuleCompileState_CalcLayout, 
+	ModuleCompileState_CalcLayout       = jnc_ModuleCompileState_CalcLayout,
 	ModuleCompileState_LayoutCalculated = jnc_ModuleCompileState_LayoutCalculated,
 	ModuleCompileState_Compiling        = jnc_ModuleCompileState_Compiling,
 	ModuleCompileState_Compiled         = jnc_ModuleCompileState_Compiled,
@@ -476,18 +483,18 @@ public:
 		if (m_module)
 			jnc_Module_destroy (m_module);
 	}
-	
+
 	operator Module* ()
 	{
 		return m_module;
 	}
 
-	Module* 
+	Module*
 	operator -> ()
 	{
 		return m_module;
 	}
-	
+
 	Module*
 	p ()
 	{
@@ -497,7 +504,7 @@ public:
 
 //.............................................................................
 
-inline
+JNC_INLINE
 void
 initialize ()
 {
@@ -509,3 +516,5 @@ initialize ()
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

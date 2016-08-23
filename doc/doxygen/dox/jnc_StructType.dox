@@ -1,0 +1,8 @@
+/*!
+
+\defgroup struct-type Struct Type
+\ingroup type-subsystem
+
+\brief Struct type represents a tuple of zero or more fields.
+
+ */

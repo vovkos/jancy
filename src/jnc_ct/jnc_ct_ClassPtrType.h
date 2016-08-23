@@ -134,7 +134,7 @@ struct ClassPtrTypeTuple: sl::ListLink
 
 //.............................................................................
 
-inline
+JNC_INLINE
 bool
 isClassPtrType (
 	Type* type,

@@ -5,6 +5,9 @@
 #include "jnc_RuntimeStructs.h"
 #include "jnc_OpKind.h"
 
+/// \addtogroup variant
+/// @{
+
 typedef struct jnc_Variant jnc_Variant;
 
 //.............................................................................
@@ -43,7 +46,7 @@ jnc_Variant_relationalOperator (
 	int* result
 	);
 
-inline
+JNC_INLINE
 int
 jnc_Variant_isEqual (
 	const jnc_Variant* variant,
@@ -55,14 +58,14 @@ jnc_Variant_isEqual (
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Variant_getHash (const jnc_Variant* variant);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_Variant
 {
-	union 
+	union
 	{
 		int8_t m_int8;
 		uint8_t m_uint8;
@@ -85,7 +88,7 @@ struct jnc_Variant
 		jnc_PropertyPtr m_propertyPtr;
 	};
 
-#if (_AXL_PTR_SIZE == 4)
+#if (_JNC_PTR_SIZE == 4)
 	char m_padding [4]; // ensure the same layout regardless of pack factor
 #endif
 
@@ -148,7 +151,7 @@ struct jnc_Variant
 		return jnc_Variant_isEqual (this, variant2) != 0;
 	}
 
-	size_t 
+	size_t
 	getHash () const
 	{
 		return jnc_Variant_getHash (this);
@@ -158,7 +161,7 @@ struct jnc_Variant
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_SELECT_ANY jnc_Variant jnc_g_nullVariant = { 0 };
+JNC_SELECT_ANY jnc_Variant jnc_g_nullVariant = { 0 };
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -170,14 +173,14 @@ namespace jnc {
 
 typedef jnc_Variant Variant;
 
-AXL_SELECT_ANY Variant g_nullVariant = { 0 };
+JNC_SELECT_ANY Variant g_nullVariant = { 0 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class HashVariant
 {
 public:
-	size_t 
+	size_t
 	operator () (const Variant& variant)
 	{
 		return variant.getHash ();
@@ -186,7 +189,7 @@ public:
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CmpVariant 
+class CmpVariant
 {
 public:
 	int operator () (
@@ -203,3 +206,5 @@ public:
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}

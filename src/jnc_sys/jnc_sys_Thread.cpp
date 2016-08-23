@@ -17,8 +17,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Thread)
-	JNC_MAP_CONSTRUCTOR (&sl::construct <Thread>)
-	JNC_MAP_DESTRUCTOR (&sl::destruct <Thread>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Thread>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Thread>)
 	JNC_MAP_FUNCTION ("start", &Thread::start)
 	JNC_MAP_FUNCTION ("wait", &Thread::wait)
 	JNC_MAP_FUNCTION ("waitAndClose", &Thread::waitAndClose)
@@ -28,7 +28,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 bool
-AXL_CDECL
+JNC_CDECL
 Thread::start (FunctionPtr ptr)
 {
 	bool result;
@@ -57,7 +57,7 @@ Thread::start (FunctionPtr ptr)
 }
 
 bool
-AXL_CDECL
+JNC_CDECL
 Thread::wait (uint_t timeout)
 {
 	bool result;
@@ -73,7 +73,7 @@ Thread::wait (uint_t timeout)
 }
 
 void
-AXL_CDECL
+JNC_CDECL
 Thread::waitAndClose (uint_t timeout)
 {
 	GcHeap* gcHeap = m_runtime->getGcHeap ();

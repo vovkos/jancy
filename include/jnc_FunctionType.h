@@ -5,6 +5,9 @@
 #include "jnc_Type.h"
 #include "jnc_RuntimeStructs.h"
 
+/// \addtogroup function-type
+/// @{
+
 //.............................................................................
 
 enum jnc_FunctionTypeFlag
@@ -16,6 +19,8 @@ enum jnc_FunctionTypeFlag
 	jnc_FunctionTypeFlag_Automaton   = 0x100000,
 	jnc_FunctionTypeFlag_Unsafe      = 0x200000,
 };
+
+typedef enum jnc_FunctionTypeFlag jnc_FunctionTypeFlag;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -32,6 +37,8 @@ enum jnc_FunctionPtrTypeKind
 	jnc_FunctionPtrTypeKind_Thin,
 	jnc_FunctionPtrTypeKind__Count,
 };
+
+typedef enum jnc_FunctionPtrTypeKind jnc_FunctionPtrTypeKind;
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -171,7 +178,7 @@ const FunctionTypeFlag
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
+JNC_INLINE
 const char*
 getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 {
@@ -199,3 +206,5 @@ jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 } // namespace jnc
 
 #endif // __cplusplus
+
+/// @}
