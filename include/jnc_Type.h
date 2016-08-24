@@ -76,6 +76,10 @@ enum jnc_TypeKind
 	jnc_TypeKind_ImportPtr,           // ZP
 	jnc_TypeKind_ImportIntMod,        // ZI
 
+	// when generating documentation, we want to keep typedef shadow in declarations
+
+	jnc_TypeKind_TypedefShadow,       // T
+
 	// meta
 
 	jnc_TypeKind__Count,
@@ -469,6 +473,7 @@ const TypeKind
 	TypeKind_NamedImport         = jnc_TypeKind_NamedImport,
 	TypeKind_ImportPtr           = jnc_TypeKind_ImportPtr,
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
+	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__EndianDelta        = jnc_TypeKind__EndianDelta,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,

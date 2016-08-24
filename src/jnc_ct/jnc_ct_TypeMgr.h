@@ -95,6 +95,7 @@ protected:
 	sl::StdList <DataClosureClassType> m_dataClosureClassTypeList;
 	sl::StdList <MulticastClassType> m_multicastClassTypeList;
 	sl::StdList <McSnapshotClassType> m_mcSnapshotClassTypeList;
+	sl::StdList <TypedefShadowType> m_typedefShadowTypeList;
 
 	sl::StdList <Typedef> m_typedefList;
 	sl::StdList <LazyStdType> m_lazyStdTypeList;
@@ -354,6 +355,9 @@ public:
 		const sl::String& qualifiedName,
 		Type* type
 		);
+
+	TypedefShadowType*
+	createTypedefShadowType (Typedef* tdef);
 
 	EnumType*
 	createEnumType (

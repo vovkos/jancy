@@ -280,18 +280,18 @@ Type::prepareTypeString ()
 		"void",
 		"variant",
 		"bool",
-		"int8",
-		"unsigned int8",
+		"char",
+		"unsigned char",
 		"int16",
 		"unsigned int16",
-		"int32",
-		"unsigned int32",
+		"int",
+		"unsigned int",
 		"int64",
 		"unsigned int64",
 		"bigendian int16",
 		"unsigned bigendian int16",
-		"bigendian int32",
-		"unsigned bigendian int32",
+		"bigendian int",
+		"unsigned bigendian int",
 		"bigendian int64",
 		"unsigned bigendian int64",
 		"float",
@@ -392,14 +392,14 @@ Type::prepareLlvmDiType ()
 
 		// EType_Int8,
 		{
-			"int8",
+			"char",
 			llvm::dwarf::DW_ATE_signed_char,
 			1,
 		},
 
 		// EType_Int8_u,
 		{
-			"unsigned int8",
+			"unsigned char",
 			llvm::dwarf::DW_ATE_unsigned_char,
 			1,
 		},
@@ -420,14 +420,14 @@ Type::prepareLlvmDiType ()
 
 		// EType_Int32,
 		{
-			"int32",
+			"int",
 			llvm::dwarf::DW_ATE_signed,
 			4,
 		},
 
 		// EType_Int32_u,
 		{
-			"unsigned int32",
+			"unsigned int",
 			llvm::dwarf::DW_ATE_unsigned,
 			4,
 		},
@@ -497,7 +497,7 @@ Type::prepareLlvmDiType ()
 
 		// EType_Double,
 		{
-			"float",
+			"double",
 			llvm::dwarf::DW_ATE_float,
 			8,
 		},
@@ -528,6 +528,32 @@ Type::markGcRoots (
 }
 
 //.............................................................................
+
+bool
+TypedefShadowType::calcLayout ()
+{
+	Type* type = m_typedef->getType ();
+	bool result = type->ensureLayout ();
+	if (!result)
+		return false;
+
+	m_size = type->getSize ();
+	m_alignment = type->getAlignment ();
+	m_flags |= type->getFlags () & TypeFlag_Pod;
+	return true;
+}
+
+
+//.............................................................................
+
+TypedefShadowType*
+Typedef::getShadowType ()
+{
+	if (!m_shadowType)
+		m_shadowType = m_module->m_typeMgr.createTypedefShadowType (this);
+
+	return m_shadowType;
+}
 
 bool
 Typedef::generateDocumentation (

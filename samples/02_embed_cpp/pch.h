@@ -1,5 +1,8 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" string functions
+#define _SCL_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" iterators
+
 #include <memory>
 
 //.............................................................................

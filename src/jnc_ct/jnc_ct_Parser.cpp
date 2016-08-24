@@ -173,7 +173,9 @@ Parser::findType (
 		return (Type*) item;
 
 	case ModuleItemKind_Typedef:
-		return ((Typedef*) item)->getType ();
+		return (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ? 
+			((Typedef*) item)->getShadowType () :
+			((Typedef*) item)->getType ();
 
 	default:
 		return NULL;

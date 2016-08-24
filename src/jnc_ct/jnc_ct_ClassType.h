@@ -209,13 +209,6 @@ protected:
 
 	virtual
 	void
-	prepareTypeString ()
-	{
-		m_typeString.format ("class %s", m_tag.cc ());
-	}
-
-	virtual
-	void
 	prepareLlvmType ()
 	{
 		m_llvmType = getClassStructType ()->getLlvmType ();

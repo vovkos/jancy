@@ -174,13 +174,6 @@ protected:
 
 	virtual
 	void
-	prepareTypeString ()
-	{
-		m_typeString.format ("struct %s", m_tag.cc ());
-	}
-
-	virtual
-	void
 	prepareLlvmType ();
 
 	virtual

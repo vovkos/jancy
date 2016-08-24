@@ -47,13 +47,16 @@ JncApp::JncApp (CmdLine* cmdLine)
 	{
 		compileFlags |= jnc::ModuleCompileFlag_Documentation;
 		compileFlags |= cmdLine->m_doxyCommentFlags;
+
+		if (cmdLine->m_flags & JncFlag_StdLibDoc)
+			compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
+
+		if (!(cmdLine->m_flags & JncFlag_Compile))
+		{
+			compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+			compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
+		}
 	}
-
-	if (cmdLine->m_flags & JncFlag_StdLibDoc)
-		compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
-
-	if (!(cmdLine->m_flags & JncFlag_Compile))
-		compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 
 	m_module->initialize ("jnc_module", compileFlags);
 

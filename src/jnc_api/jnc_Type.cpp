@@ -170,6 +170,8 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
+
+		0,                              // jnc_TypeKind_TypedefShadow
 	};
 
 	return typeKind < jnc_TypeKind__Count ? flagTable [typeKind] : 0;

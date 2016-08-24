@@ -390,6 +390,9 @@ DeclTypeCalc::getIntegerType (Type* type)
 {
 	ASSERT (m_typeModifiers & TypeModifierMaskKind_Integer);
 
+	if (type->getTypeKind () == TypeKind_TypedefShadow)
+		type = ((TypedefShadowType*) type)->getTypedef ()->getType ();
+
 	if (type->getTypeKind () == TypeKind_NamedImport)
 		return getImportIntModType ((NamedImportType*) type);
 

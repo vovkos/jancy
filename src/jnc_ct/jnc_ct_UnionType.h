@@ -61,13 +61,6 @@ protected:
 
 	virtual 
 	void
-	prepareTypeString ()
-	{
-		m_typeString.format ("union %s", m_tag.cc ());
-	}
-
-	virtual 
-	void
 	prepareLlvmType ()
 	{
 		m_llvmType = getStructType ()->getLlvmType ();

@@ -60,6 +60,7 @@ TypeMgr::clear ()
 	m_dataClosureClassTypeList.clear ();
 	m_multicastClassTypeList.clear ();
 	m_mcSnapshotClassTypeList.clear ();
+	m_typedefShadowTypeList.clear ();
 
 	m_simplePropertyTypeTupleList.clear ();
 	m_functionArgTupleList.clear ();
@@ -337,7 +338,10 @@ TypeMgr::resolveImportTypes ()
 				break;
 
 			case ModuleItemKind_Typedef:
-				importType->m_actualType = ((Typedef*) item)->getType ();
+				importType->m_actualType = (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ? 
+					((Typedef*) item)->getShadowType () :
+					((Typedef*) item)->getType ();
+
 				if (importType->m_actualType->getTypeKind () == TypeKind_NamedImport)
 					superImportTypeArray.append (importType);
 				break;
@@ -594,6 +598,28 @@ TypeMgr::createTypedef (
 	m_typedefList.insertTail (tdef);
 
 	return tdef;
+}
+
+TypedefShadowType*
+TypeMgr::createTypedefShadowType (Typedef* tdef)
+{
+	TypedefShadowType* shadowType = AXL_MEM_NEW (TypedefShadowType);
+	shadowType->m_module = m_module;
+	shadowType->m_parentUnit = tdef->m_parentUnit;
+	shadowType->m_parentNamespace = tdef->m_parentNamespace;
+	shadowType->m_pos = tdef->m_pos;
+	shadowType->m_storageKind = tdef->m_storageKind;
+	shadowType->m_accessKind = tdef->m_accessKind;
+	shadowType->m_name = tdef->m_name;
+	shadowType->m_qualifiedName = tdef->m_qualifiedName;
+	shadowType->m_tag = tdef->m_tag;
+	shadowType->m_attributeBlock = tdef->m_attributeBlock;
+	shadowType->m_signature.format ("T%s", tdef->m_qualifiedName.cc ());
+	shadowType->m_typedef = tdef;
+
+	m_typedefShadowTypeList.insertTail (shadowType);
+
+	return shadowType;
 }
 
 EnumType*

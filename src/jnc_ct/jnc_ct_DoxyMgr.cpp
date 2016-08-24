@@ -71,7 +71,10 @@ DoxyMgr::resolveDoxyBlockTargets ()
 		Target* target = *it;
 		ModuleItem* item = nspace->findItemByName (target->m_targetName);
 		if (!item)
+		{
 			result = false;
+			continue;
+		}
 
 		item->m_doxyBlock = target->m_block;
 	}

@@ -23,6 +23,7 @@ class StructType;
 class ClassType;
 class PropertyType;
 class DataPtrType;
+class TypedefShadowType;
 class FunctionArg;
 class Value;
 
@@ -360,6 +361,13 @@ public:
 	{
 		m_namespaceKind = NamespaceKind_Type;
 	}
+
+	virtual
+	void
+	prepareTypeString ()
+	{
+		m_typeString = m_tag;
+	}
 };
 
 //.............................................................................
@@ -372,12 +380,14 @@ class Typedef:
 
 protected:
 	Type* m_type;
+	TypedefShadowType* m_shadowType;
 
 public:
 	Typedef ()
 	{
 		m_itemKind = ModuleItemKind_Typedef;
 		m_type  = NULL;
+		m_shadowType = NULL;
 	}
 
 	Type*
@@ -386,6 +396,9 @@ public:
 		return m_type;
 	}
 
+	TypedefShadowType*
+	getShadowType ();
+
 	virtual
 	bool
 	generateDocumentation (
@@ -393,6 +406,50 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class TypedefShadowType: 
+	public Type,
+	public ModuleItemDecl
+{
+	friend class TypeMgr;
+
+protected:
+	Typedef* m_typedef;
+
+public:
+	TypedefShadowType ()
+	{
+		m_typeKind = TypeKind_TypedefShadow;
+		m_typedef = NULL;
+	}
+
+	Typedef* 
+	getTypedef ()
+	{
+		return m_typedef;
+	}
+
+protected:
+	virtual
+	void
+	prepareTypeString ()
+	{
+		m_typeString = m_tag;
+	}
+
+	virtual
+	void
+	prepareLlvmType ()
+	{
+		m_llvmType = m_typedef->getType ()->getLlvmType ();
+	}
+
+	virtual
+	bool
+	calcLayout ();
 };
 
 //.............................................................................

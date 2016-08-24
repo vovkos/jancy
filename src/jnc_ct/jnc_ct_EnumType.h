@@ -128,10 +128,6 @@ public:
 protected:
 	virtual 
 	void
-	prepareTypeString ();
-
-	virtual 
-	void
 	prepareLlvmType ()
 	{
 		m_llvmType = m_baseType->getLlvmType ();

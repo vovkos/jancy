@@ -80,17 +80,6 @@ EnumType::EnumType ()
 	m_baseType_i = NULL;
 }
 
-void
-EnumType::prepareTypeString ()
-{
-	m_typeString = getEnumTypeFlagString (m_flags);
-
-	if (!m_typeString.isEmpty ())
-		m_typeString += ' ';
-
-	m_typeString.appendFormat ("enum %s", m_tag.cc ());
-}
-
 EnumConst*
 EnumType::createConst (
 	const sl::String& name,
@@ -123,6 +112,9 @@ EnumType::calcLayout ()
 
 	if (m_baseType_i)
 		m_baseType = m_baseType_i->getActualType ();
+
+	if (m_baseType->getTypeKind () == TypeKind_TypedefShadow)
+		m_baseType = ((TypedefShadowType*) m_baseType)->getTypedef ()->getType ();
 
 	if (!(m_baseType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
