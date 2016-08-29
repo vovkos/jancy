@@ -1,5 +1,8 @@
 import "io_SocketAddress.jnc"
 
+//! addtogroup socket
+//! @{
+
 namespace io {
 
 //.............................................................................
@@ -124,3 +127,11 @@ opaque class Socket
 //.............................................................................
 
 } // namespace io
+
+//! @}
+
+/*!
+
+\defgroup socket Socket Communications
+
+*/

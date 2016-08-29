@@ -591,6 +591,7 @@ Parser::addDoxyComment (
 	{
 		const DoxyToken* token = lexer.getToken ();
 		const DoxyToken* nextToken;
+		size_t i;
 		
 		switch (token->m_token)
 		{
@@ -624,12 +625,62 @@ Parser::addDoxyComment (
 			break;
 
 		case DoxyTokenKind_Group:
+		case DoxyTokenKind_DefGroup:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			i = nextToken->m_data.m_string.findOneOf (" \t");
+			if (i == -1)
+			{
+				m_doxyBlock = m_module->m_doxyMgr.getDoxyGroup (nextToken->m_data.m_string);
+			}
+			else
+			{
+				DoxyGroup* group = m_module->m_doxyMgr.getDoxyGroup (sl::StringRef (nextToken->m_data.m_string, i));
+				group->m_title = sl::StringRef (nextToken->m_data.m_string.cc () + i, nextToken->m_data.m_string.getLength () - i).getLeftTrimmedString ();
+
+				m_doxyBlock = group;
+			}
+
+			m_isDoxyBriefDescription = false;
+			lexer.nextToken ();
 			break;
 
 		case DoxyTokenKind_InGroup:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			if (!m_doxyBlock->m_group)
+			{
+				DoxyGroup* group = m_module->m_doxyMgr.getDoxyGroup (nextToken->m_data.m_string);
+				m_doxyBlock->m_group = group;
+				if (m_doxyBlock->getBlockKind () == DoxyBlockKind_Group)
+				{
+					DoxyGroup* innerGroup = (DoxyGroup*) m_doxyBlock;
+					innerGroup->m_parentGroupListIt = group->addGroup (innerGroup);
+				}
+			}
+
+			lexer.nextToken ();
+			break;
+
+		case DoxyTokenKind_AddToGroup:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			lexer.nextToken ();
 			break;
 
 		case DoxyTokenKind_Title:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			m_doxyBlock->m_title = nextToken->m_data.m_string;
+			lexer.nextToken ();
 			break;
 	
 		case DoxyTokenKind_Brief:

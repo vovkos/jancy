@@ -8,8 +8,19 @@ namespace jnc {
 namespace ct {
 
 class Module;
+class ModuleItem;
+class DoxyGroupLink;
+class DoxyGroup;
 
 //.............................................................................
+
+enum DoxyBlockKind
+{
+	DoxyBlockKind_Normal,
+	DoxyBlockKind_Group,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DoxyBlock: public sl::ListLink
 {
@@ -17,15 +28,42 @@ class DoxyBlock: public sl::ListLink
 	friend class ModuleItem;
 
 protected:
+	DoxyBlockKind m_blockKind;
+	DoxyGroup* m_group;
 	sl::String m_refId;
+	sl::String m_title;
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
 
 public:
+	DoxyBlock ()
+	{
+		m_blockKind = DoxyBlockKind_Normal;
+		m_group = NULL;
+	}
+
+	DoxyBlockKind 
+	getBlockKind ()
+	{
+		return m_blockKind;
+	}
+
+	DoxyGroup* 
+	getGroup ()
+	{
+		return m_group;
+	}
+
 	sl::String 
 	getRefId ()
 	{
 		return m_refId;
+	}
+
+	sl::String 
+	getTitle ()
+	{
+		return m_title;
 	}
 
 	sl::String 
@@ -45,6 +83,73 @@ public:
 	{
 		return m_briefDescription.isEmpty () && m_detailedDescription.isEmpty ();
 	}
+
+	sl::String
+	createDoxyDescriptionString ();
+};
+
+//.............................................................................
+
+class DoxyGroup: public DoxyBlock
+{
+	friend class Parser;
+	friend class DoxyMgr;
+	friend class DoxyGroupLink;
+
+protected:
+	sl::String m_name;
+	sl::Array <ModuleItem*> m_itemArray;
+	sl::BoxList <DoxyGroup*> m_groupList;
+	sl::BoxIterator <DoxyGroup*> m_parentGroupListIt;
+
+public:
+	DoxyGroup ()
+	{
+		m_blockKind = DoxyBlockKind_Group;
+	}
+
+	bool
+	isEmpty ()
+	{
+		return m_itemArray.isEmpty () && m_groupList.isEmpty ();
+	}
+
+	sl::String 
+	getName ()
+	{
+		return m_name;
+	}
+
+	sl::Array <ModuleItem*> 
+	getItemArray ()
+	{
+		return m_itemArray;
+	}
+
+	sl::ConstBoxList <DoxyGroup*> 
+	getGroupList ()
+	{
+		return m_groupList;
+	}
+
+	void
+	addItem (ModuleItem* item)
+	{
+		m_itemArray.append (item);
+	}
+
+	sl::BoxIterator <DoxyGroup*>
+	addGroup (DoxyGroup* group)
+	{
+		return m_groupList.insertTail (group);
+	}
+
+	bool
+	generateDocumentation (
+		const char* outputDir,
+		sl::String* itemXml,
+		sl::String* indexXml
+		);
 };
 
 //.............................................................................
@@ -62,7 +167,9 @@ protected:
 	Module* m_module;
 
 	sl::StdList <DoxyBlock> m_doxyBlockList;
+	sl::StdList <DoxyGroup> m_doxyGroupList;
 	sl::StringHashTableMap <size_t> m_doxyRefIdMap;
+	sl::StringHashTableMap <DoxyGroup*> m_doxyGroupMap;
 	sl::StdList <Target> m_targetList;
 	
 public:
@@ -83,6 +190,15 @@ public:
 		return m_doxyBlockList;
 	}
 
+	sl::ConstList <DoxyGroup>
+	getDoxyGroupList ()
+	{
+		return m_doxyGroupList;
+	}
+
+	DoxyGroup*
+	getDoxyGroup (const sl::StringRef& name);
+
 	DoxyBlock* 
 	createDoxyBlock ();
 
@@ -98,7 +214,14 @@ public:
 	bool
 	resolveDoxyBlockTargets ();
 
-protected:
+	void
+	deleteEmptyGroups ();
+
+	bool
+	generateGroupDocumentation (
+		const char* outputDir,
+		sl::String* indexXml
+		);
 };
 
 //.............................................................................

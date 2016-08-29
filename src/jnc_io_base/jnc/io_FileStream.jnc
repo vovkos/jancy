@@ -1,5 +1,8 @@
 import "io_MappedFile.jnc"
 
+//! addtogroup file-stream
+//! @{
+
 namespace io {
 
 //.............................................................................
@@ -86,3 +89,12 @@ opaque class FileStream
 //.............................................................................
 
 } // namespace io
+
+//! @}
+
+
+/*!
+
+\defgroup file-stream File Stream
+
+*/

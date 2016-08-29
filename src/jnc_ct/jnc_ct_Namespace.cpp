@@ -286,7 +286,7 @@ Namespace::generateMemberDocumentation (
 		Namespace* itemNamespace = item->getNamespace ();
 		if (itemNamespace == this)
 			continue;
-			
+		
 		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
 		if (!result)
 			return false;
@@ -294,8 +294,12 @@ Namespace::generateMemberDocumentation (
 		if (memberXml.isEmpty ())
 			continue;
 		
-		ModuleItemKind itemKind = item->getItemKind ();
+		DoxyBlock* doxyBlock = item->getDoxyBlock ();
+		DoxyGroup* doxyGroup = doxyBlock->getGroup ();
+		if (doxyGroup)
+			doxyGroup->addItem (item);
 
+		ModuleItemKind itemKind = item->getItemKind ();
 		bool isCompoundFile = 
 			itemKind == ModuleItemKind_Namespace ||
 			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
@@ -307,7 +311,7 @@ Namespace::generateMemberDocumentation (
 		}
 		else
 		{
-			sl::String refId = item->getDoxyBlock ()->getRefId ();
+			sl::String refId = doxyBlock->getRefId ();
 			sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
 			
 			io::File compoundFile;

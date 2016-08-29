@@ -250,26 +250,7 @@ ModuleItem::createDoxyRefId ()
 sl::String
 ModuleItem::createDoxyDescriptionString ()
 {
-	sl::String string;
-	DoxyBlock* doxyBlock = getDoxyBlock ();
-
-	sl::String description = doxyBlock->getBriefDescription ();
-	if (!description.isEmpty ())
-	{
-		string.append ("<briefdescription><para>\n");
-		string.append (description);
-		string.append ("</para></briefdescription>\n");
-	}
-
-	description = doxyBlock->getDetailedDescription ();
-	if (!description.isEmpty ())
-	{
-		string.append ("<detaileddescription><para>\n");
-		string.append (description);
-		string.append ("</para></detaileddescription>\n");
-	}
-
-	return string;
+	return getDoxyBlock ()->createDoxyDescriptionString ();
 }
 
 //.............................................................................

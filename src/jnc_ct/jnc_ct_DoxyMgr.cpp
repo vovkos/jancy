@@ -7,6 +7,96 @@ namespace ct {
 
 //.............................................................................
 
+sl::String
+DoxyBlock::createDoxyDescriptionString ()
+{
+	sl::String string;
+
+	if (!m_briefDescription.isEmpty ())
+	{
+		string.append ("<briefdescription><para>\n");
+		string.append (m_briefDescription);
+		string.append ("</para></briefdescription>\n");
+	}
+
+	if (!m_detailedDescription.isEmpty ())
+	{
+		string.append ("<detaileddescription><para>\n");
+		string.append (m_detailedDescription);
+		string.append ("</para></detaileddescription>\n");
+	}
+
+	return string;
+}
+
+//.............................................................................
+
+bool
+DoxyGroup::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
+{
+	indexXml->appendFormat (
+		"<compound kind='group' refid='%s'><name>%s</name></compound>\n", 
+		m_refId.cc (), 
+		m_name.cc ()
+		);
+
+	itemXml->format (
+		"<compounddef kind='group' id='%s'>\n"
+		"<compoundname>%s</compoundname>\n", 
+		m_refId.cc (), 
+		m_name.cc ()
+		);
+
+	size_t count = m_itemArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		ModuleItem* item = m_itemArray [i];
+		ModuleItemDecl* decl = item->getDecl ();
+		if (!decl)
+			continue;
+
+		ModuleItemKind itemKind = item->getItemKind ();
+
+		bool isCompoundFile = 
+			itemKind == ModuleItemKind_Namespace ||
+			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
+
+		sl::String refId = item->getDoxyBlock ()->getRefId ();
+
+		if (!isCompoundFile)
+		{
+			itemXml->appendFormat ("<memberdef id='%s'/>", refId.cc ());
+			itemXml->append ('\n');
+		}
+		else
+		{
+			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
+			sl::String refId = item->getDoxyBlock ()->getRefId ();
+			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
+			itemXml->append ('\n');
+		}
+	}
+
+	sl::BoxIterator <DoxyGroup*> groupIt = m_groupList.getHead ();
+	for (; groupIt; groupIt++)
+	{
+		DoxyGroup* group = *groupIt;
+		itemXml->appendFormat ("<innergroup refid='%s'/>", group->m_refId.cc ());
+		itemXml->append ('\n');
+	}
+
+	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append ("</compounddef>\n");
+
+	return true;
+}
+
+//.............................................................................
+
 DoxyMgr::DoxyMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
@@ -17,8 +107,29 @@ void
 DoxyMgr::clear ()
 {
 	m_doxyBlockList.clear ();
+	m_doxyGroupList.clear ();
 	m_doxyRefIdMap.clear ();
+	m_doxyGroupMap.clear ();
 	m_targetList.clear ();
+}
+
+DoxyGroup*
+DoxyMgr::getDoxyGroup (const sl::StringRef& name)
+{
+	sl::String refId;
+	refId.format ("group_%s", name.cc ());
+	refId.replace ('-', '_');
+
+	sl::StringHashTableMapIterator <DoxyGroup*> it = m_doxyGroupMap.visit (refId);
+	if (it->m_value)
+		return it->m_value;
+
+	DoxyGroup* group = AXL_MEM_NEW (DoxyGroup);
+	group->m_name = name;
+	group->m_refId = refId;
+	m_doxyGroupList.insertTail (group);
+	it->m_value = group;
+	return  group;
 }
 
 DoxyBlock* 
@@ -83,6 +194,75 @@ DoxyMgr::resolveDoxyBlockTargets ()
 		err::setStringError ("documentation target(s) not found");
 
 	return result;
+}
+
+void
+DoxyMgr::deleteEmptyGroups ()
+{
+	bool isGroupDeleted;
+
+	do
+	{
+		isGroupDeleted = false;
+
+		sl::Iterator <DoxyGroup> groupIt = m_doxyGroupList.getHead ();
+		while (groupIt)
+		{
+			sl::Iterator <DoxyGroup> nextIt = groupIt.getNext ();
+
+			if (groupIt->isEmpty ())
+			{
+				if (groupIt->m_group)
+					groupIt->m_group->m_groupList.remove (groupIt->m_parentGroupListIt);
+
+				m_doxyGroupMap.eraseByKey (groupIt->m_refId);
+				m_doxyGroupList.erase (groupIt);
+				isGroupDeleted = true;
+			}
+
+			groupIt = nextIt;
+		}
+	} while (isGroupDeleted);
+}
+
+bool
+DoxyMgr::generateGroupDocumentation (
+	const char* outputDir,
+	sl::String* indexXml
+	)
+{
+	bool result;
+
+	static char compoundFileHdr [] = 
+		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+		"<doxygen>\n";
+
+	static char compoundFileTerm [] = "</doxygen>\n";
+
+	sl::String itemXml;
+
+	sl::Iterator <DoxyGroup> groupIt = m_doxyGroupList.getHead ();
+	for (; groupIt; groupIt++)
+	{
+		result = groupIt->generateDocumentation (outputDir, &itemXml, indexXml);
+		if (!result)
+			return false;
+
+		sl::String refId = groupIt->getRefId ();
+		sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
+
+		io::File compoundFile;
+		result = 
+			compoundFile.open (fileName, io::FileFlag_Clear) &&
+			compoundFile.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
+			compoundFile.write (itemXml, itemXml.getLength ()) != -1 &&
+			compoundFile.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1;
+
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 //.............................................................................

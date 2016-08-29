@@ -15,6 +15,8 @@ enum DoxyTokenKind
 	DoxyTokenKind_Error = -1,
 	DoxyTokenKind_Text = 256,
 	DoxyTokenKind_OtherCommand,
+	DoxyTokenKind_OpeningBrace,
+	DoxyTokenKind_ClosingBrace,
 
 	DoxyTokenKind_Enum,
 	DoxyTokenKind_Struct,
@@ -22,7 +24,9 @@ enum DoxyTokenKind
 	DoxyTokenKind_Class,
 	DoxyTokenKind_Fn,
 	DoxyTokenKind_Group,
+	DoxyTokenKind_DefGroup,
 	DoxyTokenKind_InGroup,
+	DoxyTokenKind_AddToGroup,
 	DoxyTokenKind_Title,
 	DoxyTokenKind_Brief,
 };
@@ -35,6 +39,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Error,         "error")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Text,          "text")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_OtherCommand,  "other-command")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_OpeningBrace,  "@{")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_ClosingBrace,  "@}")
 
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Enum,          "\\enum")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Struct,        "\\struct")
@@ -42,7 +48,9 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Class,         "\\class")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Fn,            "\\fn")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Group,         "\\group")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_DefGroup,      "\\defgroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_InGroup,       "\\ingroup")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_AddToGroup,    "\\addtogroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Title,         "\\title")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Brief,         "\\brief")
 

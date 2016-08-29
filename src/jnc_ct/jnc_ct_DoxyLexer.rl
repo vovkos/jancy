@@ -35,11 +35,16 @@ main := |*
 '\\class'         { createToken (DoxyTokenKind_Class); };
 '\\fn'            { createToken (DoxyTokenKind_Fn); };
 '\\group'         { createToken (DoxyTokenKind_Group); };
+'\\defgroup'      { createToken (DoxyTokenKind_DefGroup); };
 '\\ingroup'       { createToken (DoxyTokenKind_InGroup); };
+'\\addtogroup'    { createToken (DoxyTokenKind_AddToGroup); };
 '\\title'         { createToken (DoxyTokenKind_Title); };
 '\\brief'         { createToken (DoxyTokenKind_Brief); };
 
 '\\' rc*          { createToken (DoxyTokenKind_OtherCommand); };
+
+'@{'              { createToken (DoxyTokenKind_OpeningBrace); };
+'@}'              { createToken (DoxyTokenKind_ClosingBrace); };
 
 rc ([^\n\\]* rc)? { createTextToken (); };
 
