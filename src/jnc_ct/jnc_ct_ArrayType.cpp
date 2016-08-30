@@ -13,7 +13,6 @@ ArrayType::ArrayType ()
 	m_typeKind = TypeKind_Array;
 	m_flags = TypeFlag_StructRet;
 	m_elementType = NULL;
-	m_elementType_i = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
 	m_parentUnit = NULL;
@@ -78,9 +77,6 @@ ArrayType::createDeclarationString (const char* name)
 bool
 ArrayType::calcLayout ()
 {
-	if (m_elementType_i)
-		m_elementType = m_elementType_i->getActualType ();
-
 	bool result = m_elementType->ensureLayout ();
 	if (!result)
 		return false;

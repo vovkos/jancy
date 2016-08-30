@@ -17,7 +17,6 @@ class BitFieldType: public Type
 
 protected:
 	Type* m_baseType;
-	ImportType* m_baseType_i;
 	size_t m_bitOffset;
 	size_t m_bitCount;
 
@@ -28,12 +27,6 @@ public:
 	getBaseType ()
 	{
 		return m_baseType;
-	}
-
-	ImportType*
-	getBaseType_i ()
-	{
-		return m_baseType_i;
 	}
 
 	size_t

@@ -529,22 +529,12 @@ Type::markGcRoots (
 
 //.............................................................................
 
-bool
-TypedefShadowType::calcLayout ()
+Typedef::Typedef ()
 {
-	Type* type = m_typedef->getType ();
-	bool result = type->ensureLayout ();
-	if (!result)
-		return false;
-
-	m_size = type->getSize ();
-	m_alignment = type->getAlignment ();
-	m_flags |= type->getFlags () & TypeFlag_Pod;
-	return true;
+	m_itemKind = ModuleItemKind_Typedef;
+	m_type = NULL;
+	m_shadowType = NULL;
 }
-
-
-//.............................................................................
 
 TypedefShadowType*
 Typedef::getShadowType ()

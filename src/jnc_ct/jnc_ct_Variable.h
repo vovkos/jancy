@@ -45,7 +45,6 @@ class Variable:
 
 protected:
 	Type* m_type;
-	ImportType* m_type_i;
 	uint_t m_ptrTypeFlags;
 	sl::BoxList <Token> m_constructor;
 	Scope* m_scope;
@@ -68,12 +67,6 @@ public:
 	getType ()
 	{
 		return m_type;
-	}
-
-	ImportType*
-	getType_i ()
-	{
-		return m_type_i;
 	}
 
 	uint_t
@@ -132,11 +125,6 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
-
-protected:
-	virtual
-	bool
-	calcLayout ();
 };
 
 //.............................................................................

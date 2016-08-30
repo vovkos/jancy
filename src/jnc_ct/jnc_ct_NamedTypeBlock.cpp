@@ -263,34 +263,6 @@ NamedTypeBlock::callMemberPropertyDestructors (const Value& thisValue)
 	return true;
 }
 
-bool
-NamedTypeBlock::resolveImportFields ()
-{
-	size_t count = m_importFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		StructField* field = m_importFieldArray [i];
-		ASSERT (field->m_type_i);
-
-		Type* type = field->m_type_i->getActualType ();
-		if (field->m_type->getTypeKindFlags () & TypeKindFlag_Code)
-		{
-			err::setFormatStringError ("'%s': illegal type for a field", type->getTypeString ().cc ());
-			return false;
-		}
-
-		field->m_type = type;
-		
-		if (field->m_bitCount)
-		{
-			ASSERT (field->m_bitFieldBaseType == field->m_type_i);
-			field->m_bitFieldBaseType = type;
-		}
-	}
-
-	return true;
-}
-
 //.............................................................................
 
 } // namespace ct

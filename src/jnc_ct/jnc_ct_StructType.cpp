@@ -11,7 +11,6 @@ StructField::StructField ()
 {
 	m_itemKind = ModuleItemKind_StructField;
 	m_type = NULL;
-	m_type_i = NULL;
 	m_ptrTypeFlags = 0;
 	m_bitFieldBaseType = NULL;
 	m_bitCount = 0;
@@ -120,12 +119,6 @@ StructType::createFieldImpl (
 			return NULL;
 	}
 
-	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-	{
-		field->m_type_i = (ImportType*) type;
-		m_importFieldArray.append (field);
-	}
-
 	m_memberFieldArray.append (field);
 	return field;
 }
@@ -164,24 +157,32 @@ StructType::calcLayout ()
 {
 	bool result;
 
-	result = resolveImportTypes ();
-	if (!result)
-		return false;
-
 	sl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
 	for (; slotIt; slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-
-		result = slot->m_type->ensureLayout ();
-		if (!result)
-			return false;
-
-		if (slot->m_type->getTypeKind () == TypeKind_Class)
+		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) || 
+			slot->m_type->getTypeKind () == TypeKind_Class)
 		{
 			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().cc ());
 			return false;
 		}
+
+		sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (slot->m_type->getSignature ());
+		if (it->m_value)
+		{
+			err::setFormatStringError (
+				"'%s' is already a base type",
+				slot->m_type->getTypeString ().cc ()
+				);
+			return false;
+		}
+
+		it->m_value = slot;
+
+		result = slot->m_type->ensureLayout ();
+		if (!result)
+			return false;
 
 		if (slot->m_type->getFlags () & TypeFlag_GcRoot)
 		{

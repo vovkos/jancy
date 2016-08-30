@@ -225,7 +225,7 @@ Parser::setSetAsType (Type* type)
 	derivableType->m_setAsType = type;
 	
 	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-		derivableType->m_setAsType_i = (ImportType*) type;
+		((ImportType*) type)->addFixup (&derivableType->m_setAsType);
 
 	return true;
 }

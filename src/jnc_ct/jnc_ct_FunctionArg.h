@@ -26,7 +26,6 @@ class FunctionArg:
 
 protected:
 	Type* m_type;
-	ImportType* m_type_i;
 	uint_t m_ptrTypeFlags;
 
 public:
@@ -38,22 +37,11 @@ public:
 		return m_type;
 	}
 
-	ImportType*
-	getType_i ()
-	{
-		return m_type_i;
-	}
-
 	uint_t
 	getPtrTypeFlags ()
 	{
 		return m_ptrTypeFlags;
 	}
-
-protected:
-	virtual
-	bool
-	calcLayout ();
 };
 
 //.............................................................................

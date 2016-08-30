@@ -86,7 +86,6 @@ class EnumType: public NamedType
 	
 protected:
 	Type* m_baseType;
-	ImportType* m_baseType_i;
 	sl::StdList <EnumConst> m_constList;
 	sl::Array <EnumConst*> m_constArray;
 
@@ -97,12 +96,6 @@ public:
 	getBaseType ()
 	{
 		return m_baseType;
-	}
-
-	ImportType*
-	getBaseType_i ()
-	{
-		return m_baseType_i;
 	}
 
 	sl::Array <EnumConst*>

@@ -12,7 +12,6 @@ FunctionType::FunctionType ()
 	m_typeKind = TypeKind_Function;
 	m_callConv = NULL;
 	m_returnType = NULL;
-	m_returnType_i = NULL;
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
 	m_functionPtrTypeTuple = NULL;
@@ -314,13 +313,6 @@ FunctionType::calcLayout ()
 {
 	bool result;
 
-	if (m_returnType_i)
-	{
-		m_returnType = m_returnType_i->getActualType ();
-
-		// TODO: check for valid return type
-	}
-
 	result = m_returnType->ensureLayout ();
 	if (!result)
 		return false;
@@ -328,7 +320,7 @@ FunctionType::calcLayout ()
 	size_t argCount = m_argArray.getCount ();
 	for (size_t i = 0; i < argCount; i++)
 	{
-		result = m_argArray [i]->ensureLayout ();
+		result = m_argArray [i]->getType ()->ensureLayout ();
 		if (!result)
 			return false;
 	}

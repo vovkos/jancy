@@ -278,6 +278,13 @@ jnc_Module_parseImports (jnc_Module* module)
 
 JNC_EXTERN_C
 int
+jnc_Module_link (jnc_Module* module)
+{
+	return module->link ();
+}
+
+JNC_EXTERN_C
+int
 jnc_Module_calcLayout (jnc_Module* module)
 {
 	return module->calcLayout ();
@@ -326,7 +333,7 @@ jnc_Module_generateDocumentation (
 	bool result;
 		
 	result = 
-		module->calcLayout () && 
+		module->link () && 
 		io::ensureDirExists (outputDir);
 
 	if (!result)
@@ -335,7 +342,7 @@ jnc_Module_generateDocumentation (
 	result = module->m_doxyMgr.resolveBlockTargets ();
 	if (!result)
 	{
-		// generate a warning?
+		// generate a warning about orphan doxy blocks?
 	}
 
 	sl::String nspaceXml;

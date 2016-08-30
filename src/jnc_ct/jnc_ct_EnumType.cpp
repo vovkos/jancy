@@ -77,7 +77,6 @@ EnumType::EnumType ()
 	m_typeKind = TypeKind_Enum;
 	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
-	m_baseType_i = NULL;
 }
 
 EnumConst*
@@ -109,12 +108,6 @@ bool
 EnumType::calcLayout ()
 {
 	bool result;
-
-	if (m_baseType_i)
-		m_baseType = m_baseType_i->getActualType ();
-
-	if (m_baseType->getTypeKind () == TypeKind_TypedefShadow)
-		m_baseType = ((TypedefShadowType*) m_baseType)->getTypedef ()->getType ();
 
 	if (!(m_baseType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{

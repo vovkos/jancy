@@ -31,7 +31,6 @@ class StructField:
 
 protected:
 	Type* m_type;
-	ImportType* m_type_i;
 	uint_t m_ptrTypeFlags;
 	sl::BoxList <Token> m_constructor;
 
@@ -47,12 +46,6 @@ public:
 	getType ()
 	{
 		return m_type;
-	}
-
-	ImportType*
-	getType_i ()
-	{
-		return m_type_i;
 	}
 
 	int

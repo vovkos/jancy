@@ -351,6 +351,8 @@ TypeMgr::resolveImportTypes ()
 				pushImportSrcPosError (importType);
 				return false;
 			}
+
+			importType->applyFixups ();
 		}
 
 		// eliminate super-imports and detect import loops
@@ -382,6 +384,8 @@ TypeMgr::resolveImportTypes ()
 				ImportType* importType = (ImportType*) type;
 				importType->m_actualType = externType;
 				importType->m_flags &= ~ImportTypeFlag_ImportLoop;
+				importType->applyFixups ();
+
 				type = importType->m_actualType;
 			}
 		}
@@ -402,6 +406,7 @@ TypeMgr::resolveImportTypes ()
 				return false;
 
 			importType->m_actualType = type;
+			importType->applyFixups ();
 		}
 
 		count = unresolvedImportPtrTypeArray.getCount ();
@@ -423,6 +428,7 @@ TypeMgr::resolveImportTypes ()
 				type = getCheckedPtrType (type);
 
 			importType->m_actualType = type;
+			importType->applyFixups ();
 		}
 	}
 
@@ -480,7 +486,7 @@ TypeMgr::getBitFieldType (
 
 	if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
 	{
-		type->m_baseType_i = (ImportType*) baseType;
+		((ImportType*) baseType)->addFixup (&type->m_baseType);
 		m_module->markForLayout (type, true);
 	}
 	else
@@ -503,7 +509,7 @@ TypeMgr::createAutoSizeArrayType (Type* elementType)
 	m_arrayTypeList.insertTail (type);
 
 	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_elementType_i = (ImportType*) elementType;
+		((ImportType*) elementType)->addFixup (&type->m_elementType);
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
 		m_module->markForLayout (type, true); // can't calclayout yet
@@ -526,7 +532,7 @@ TypeMgr::createArrayType (
 	m_arrayTypeList.insertTail (type);
 
 	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_elementType_i = (ImportType*) elementType;
+		((ImportType*) elementType)->addFixup (&type->m_elementType);
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
@@ -568,7 +574,7 @@ TypeMgr::getArrayType (
 
 	if (elementType->getTypeKindFlags () & TypeKindFlag_Import)
 	{
-		type->m_elementType_i = (ImportType*) elementType;
+		((ImportType*) elementType)->addFixup (&type->m_elementType);
 		m_module->markForLayout (type, true);
 	}
 	else
@@ -603,23 +609,22 @@ TypeMgr::createTypedef (
 TypedefShadowType*
 TypeMgr::createTypedefShadowType (Typedef* tdef)
 {
-	TypedefShadowType* shadowType = AXL_MEM_NEW (TypedefShadowType);
-	shadowType->m_module = m_module;
-	shadowType->m_parentUnit = tdef->m_parentUnit;
-	shadowType->m_parentNamespace = tdef->m_parentNamespace;
-	shadowType->m_pos = tdef->m_pos;
-	shadowType->m_storageKind = tdef->m_storageKind;
-	shadowType->m_accessKind = tdef->m_accessKind;
-	shadowType->m_name = tdef->m_name;
-	shadowType->m_qualifiedName = tdef->m_qualifiedName;
-	shadowType->m_tag = tdef->m_tag;
-	shadowType->m_attributeBlock = tdef->m_attributeBlock;
-	shadowType->m_signature.format ("T%s", tdef->m_qualifiedName.cc ());
-	shadowType->m_typedef = tdef;
+	TypedefShadowType* type = AXL_MEM_NEW (TypedefShadowType);
+	type->m_module = m_module;
+	type->m_parentUnit = tdef->m_parentUnit;
+	type->m_parentNamespace = tdef->m_parentNamespace;
+	type->m_pos = tdef->m_pos;
+	type->m_storageKind = tdef->m_storageKind;
+	type->m_accessKind = tdef->m_accessKind;
+	type->m_name = tdef->m_name;
+	type->m_qualifiedName = tdef->m_qualifiedName;
+	type->m_tag = tdef->m_tag;
+	type->m_attributeBlock = tdef->m_attributeBlock;
+	type->m_signature.format ("T%s", tdef->m_qualifiedName.cc ());
+	type->m_typedef = tdef;
+	m_typedefShadowTypeList.insertTail (type);
 
-	m_typedefShadowTypeList.insertTail (shadowType);
-
-	return shadowType;
+	return type;
 }
 
 EnumType*
@@ -662,7 +667,7 @@ TypeMgr::createEnumType (
 	m_enumTypeList.insertTail (type);
 
 	if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_baseType_i = (ImportType*) baseType;
+		((ImportType*) baseType)->addFixup (&type->m_baseType);
 
 	m_module->markForLayout (type, true);
 	return type;
@@ -868,20 +873,7 @@ TypeMgr::createFunctionArg (
 	m_functionArgList.insertTail (functionArg);
 
 	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-		functionArg->m_type_i = (ImportType*) type;
-
-	// all this should be calculated during CFunctionType::CalcLayout
-
-	//if (pType->GetTypeKindFlags () & ETypeKindFlag_Import)
-	//{
-	//	m_pModule->MarkForLayout (pFunctionArg);
-	//}
-	//else
-	//{
-	//	bool Result = pFunctionArg->EnsureLayout ();
-	//	if (!Result)
-	//		return NULL;
-	//}
+		((ImportType*) type)->addFixup (&functionArg->m_type);
 
 	return functionArg;
 }
@@ -911,6 +903,14 @@ TypeMgr::createStructField (
 		field->m_initializer.takeOver (initializer);
 
 	m_structFieldList.insertTail (field);
+
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
+	{
+		((ImportType*) type)->addFixup (&field->m_type);
+		if (bitCount)
+			((ImportType*) type)->addFixup (&field->m_bitFieldBaseType);
+	}
+
 	return field;
 }
 
@@ -980,7 +980,7 @@ TypeMgr::getFunctionType (
 	m_functionTypeList.insertTail (type);
 
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_returnType_i = (ImportType*) returnType;
+		((ImportType*) returnType)->addFixup (&type->m_returnType);
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
@@ -1047,7 +1047,7 @@ TypeMgr::getFunctionType (
 	m_functionTypeList.insertTail (type);
 
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_returnType_i = (ImportType*) returnType;
+		((ImportType*) returnType)->addFixup (&type->m_returnType);
 
 	if (!m_module->m_namespaceMgr.getCurrentScope ())
 	{
@@ -1093,7 +1093,7 @@ TypeMgr::createUserFunctionType (
 	m_functionTypeList.insertTail (type);
 
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
-		type->m_returnType_i = (ImportType*) returnType;
+		((ImportType*) returnType)->addFixup (&type->m_returnType);
 
 	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope ())
 	{

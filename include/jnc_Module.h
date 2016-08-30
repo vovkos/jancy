@@ -62,11 +62,9 @@ typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 enum jnc_ModuleCompileState
 {
 	jnc_ModuleCompileState_Idle,
-	jnc_ModuleCompileState_CalcLayout,
+	jnc_ModuleCompileState_Linked,
 	jnc_ModuleCompileState_LayoutCalculated,
-	jnc_ModuleCompileState_Compiling,
 	jnc_ModuleCompileState_Compiled,
-	jnc_ModuleCompileState_Jitting,
 	jnc_ModuleCompileState_Jitted,
 };
 
@@ -197,6 +195,10 @@ jnc_Module_parseFile (
 JNC_EXTERN_C
 int
 jnc_Module_parseImports (jnc_Module* module);
+
+JNC_EXTERN_C
+int
+jnc_Module_link (jnc_Module* module);
 
 JNC_EXTERN_C
 int
@@ -388,6 +390,12 @@ struct jnc_Module
 	}
 
 	bool
+	link ()
+	{
+		return jnc_Module_link (this) != 0;
+	}
+
+	bool
 	calcLayout ()
 	{
 		return jnc_Module_calcLayout (this) != 0;
@@ -437,11 +445,9 @@ typedef jnc_ModuleCompileState ModuleCompileState;
 
 const ModuleCompileState
 	ModuleCompileState_Idle             = jnc_ModuleCompileState_Idle,
-	ModuleCompileState_CalcLayout       = jnc_ModuleCompileState_CalcLayout,
+	ModuleCompileState_Linked           = jnc_ModuleCompileState_Linked,
 	ModuleCompileState_LayoutCalculated = jnc_ModuleCompileState_LayoutCalculated,
-	ModuleCompileState_Compiling        = jnc_ModuleCompileState_Compiling,
 	ModuleCompileState_Compiled         = jnc_ModuleCompileState_Compiled,
-	ModuleCompileState_Jitting          = jnc_ModuleCompileState_Jitting,
 	ModuleCompileState_Jitted           = jnc_ModuleCompileState_Jitted;
 
 //.............................................................................

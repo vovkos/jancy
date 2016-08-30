@@ -11,7 +11,6 @@ BitFieldType::BitFieldType ()
 	m_typeKind = TypeKind_BitField;
 	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
-	m_baseType_i = NULL;
 	m_bitOffset = 0;
 	m_bitCount = 0;
 }
@@ -30,9 +29,6 @@ BitFieldType::prepareTypeString ()
 bool
 BitFieldType::calcLayout ()
 {
-	if (m_baseType_i)
-		m_baseType = m_baseType_i->getActualType ();
-
 	TypeKind typeKind = m_baseType->getTypeKind ();
 	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_beu)
 	{

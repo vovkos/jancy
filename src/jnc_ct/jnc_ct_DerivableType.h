@@ -30,8 +30,6 @@ class BaseTypeSlot:
 
 protected:
 	DerivableType* m_type;
-	ImportType* m_type_i;
-
 	size_t m_offset;
 	size_t m_vtableIndex;
 	uint_t m_llvmIndex;
@@ -49,12 +47,6 @@ public:
 	getType ()
 	{
 		return m_type;
-	}
-
-	ImportType*
-	getType_i ()
-	{
-		return m_type_i;
 	}
 
 	size_t
@@ -136,13 +128,11 @@ protected:
 	sl::StringHashTableMap <BaseTypeSlot*> m_baseTypeMap;
 	sl::StdList <BaseTypeSlot> m_baseTypeList;
 	sl::Array <BaseTypeSlot*> m_baseTypeArray;
-	sl::Array <BaseTypeSlot*> m_importBaseTypeArray;
 	sl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
 	sl::Array <BaseTypeSlot*> m_baseTypeConstructArray;
 	sl::Array <BaseTypeSlot*> m_baseTypeDestructArray;
 
 	Type* m_setAsType;
-	ImportType* m_setAsType_i;
 	Function* m_defaultConstructor;
 	sl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
 
@@ -304,9 +294,6 @@ public:
 protected:
 	ModuleItem*
 	findItemInExtensionNamespaces (const char* name);
-
-	bool
-	resolveImportTypes ();
 
 	bool
 	createDefaultMethod (

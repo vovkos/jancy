@@ -262,12 +262,6 @@ ClassType::calcLayout ()
 {
 	bool result;
 
-	// resolve imports
-
-	result = resolveImportTypes ();
-	if (!result)
-		return false;
-
 	// layout base types
 
 	if (m_baseTypeList.isEmpty () || 
@@ -286,6 +280,23 @@ ClassType::calcLayout ()
 	for (size_t i = 0; slotIt; i++, slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
+		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable))
+		{
+			err::setFormatStringError ("'%s' cannot be a base type of a class", slot->m_type->getTypeString ().cc ());
+			return false;
+		}
+
+		sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (slot->m_type->getSignature ());
+		if (it->m_value)
+		{
+			err::setFormatStringError (
+				"'%s' is already a base type",
+				slot->m_type->getTypeString ().cc ()
+				);
+			return false;
+		}
+
+		it->m_value = slot;
 
 		DerivableType* type = slot->getType ();
 		result = type->ensureLayout ();

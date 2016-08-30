@@ -71,12 +71,6 @@ UnionType::createFieldImpl (
 			return NULL;
 	}
 
-	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-	{
-		field->m_type_i = (ImportType*) type;
-		m_importFieldArray.append (field);
-	}
-
 	m_memberFieldArray.append (field);
 	return field;
 }
@@ -85,10 +79,6 @@ bool
 UnionType::calcLayout ()
 {
 	bool result;
-
-	result = resolveImportTypes ();
-	if (!result)
-		return false;
 
 	Type* largestFieldType = NULL;
 	size_t largestAlignment = 0;

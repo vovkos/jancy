@@ -20,27 +20,19 @@ class Alias:
 
 protected:
 	Type* m_type;
-	ImportType* m_type_i;
 
 public:
-	Alias ();
+	Alias ()
+	{
+		m_itemKind = ModuleItemKind_Alias;
+		m_type = NULL;
+	}
 	
 	Type* 
 	getType ()
 	{
 		return m_type;
 	}
-
-	ImportType*
-	getType_i ()
-	{
-		return m_type_i;
-	}
-
-protected:
-	virtual
-	bool
-	calcLayout ();
 };
 
 //.............................................................................

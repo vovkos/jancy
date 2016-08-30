@@ -224,6 +224,9 @@ public:
 	parseImports ();
 
 	bool
+	link ();
+
+	bool
 	calcLayout ();
 
 	bool

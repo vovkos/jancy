@@ -8,6 +8,18 @@ namespace ct {
 
 //.............................................................................
 
+void
+ImportType::applyFixups ()
+{
+	ASSERT (m_actualType);
+
+	size_t count = m_fixupArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+		*m_fixupArray [i] = m_actualType;
+}
+
+//.............................................................................
+
 ImportPtrType*
 NamedImportType::getImportPtrType (
 	uint_t typeModifiers,

@@ -166,10 +166,7 @@ VariableMgr::createVariable (
 	}
 
 	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-	{
-		variable->m_type_i = (ImportType*) type;
-		m_module->markForLayout (variable);
-	}
+		((ImportType*) type)->addFixup (&variable->m_type);
 
 	return variable;
 }
@@ -579,10 +576,7 @@ VariableMgr::createAlias (
 	m_aliasList.insertTail (alias);
 
 	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-	{
-		alias->m_type_i = (ImportType*) type;
-		m_module->markForLayout (alias);
-	}
+		((ImportType*) type)->addFixup (&alias->m_type);
 
 	return alias;
 }

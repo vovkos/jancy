@@ -20,7 +20,6 @@ class ArrayType: public Type
 
 protected:
 	Type* m_elementType;
-	ImportType* m_elementType_i;
 	Type* m_rootType;
 	size_t m_elementCount;
 
@@ -35,12 +34,6 @@ public:
 	getElementType ()
 	{
 		return m_elementType;
-	}
-
-	ImportType*
-	getElementType_i ()
-	{
-		return m_elementType_i;
 	}
 
 	Type*

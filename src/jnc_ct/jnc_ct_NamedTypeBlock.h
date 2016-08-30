@@ -26,7 +26,6 @@ protected:
 	sl::Array <Function*> m_memberMethodArray;	
 	sl::Array <Property*> m_memberPropertyArray;
 
-	sl::Array <StructField*> m_importFieldArray;
 	sl::Array <StructField*> m_unnamedFieldArray;
 	sl::Array <StructField*> m_gcRootMemberFieldArray;
 
@@ -80,12 +79,6 @@ public:
 	getInitializedMemberFieldArray ()
 	{
 		return m_initializedMemberFieldArray;
-	}
-
-	sl::Array <StructField*>
-	getImportFieldArray ()
-	{
-		return m_importFieldArray;
 	}
 
 	sl::Array <StructField*>
@@ -214,9 +207,6 @@ protected:
 		sl::BoxList <Token>* constructor = NULL,
 		sl::BoxList <Token>* initializer = NULL
 		) = 0;
-
-	bool
-	resolveImportFields ();
 };
 
 //.............................................................................

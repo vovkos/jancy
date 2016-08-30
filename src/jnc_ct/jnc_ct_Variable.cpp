@@ -11,7 +11,6 @@ Variable::Variable ()
 {
 	m_itemKind = ModuleItemKind_Variable;
 	m_type = NULL;
-	m_type_i = NULL;
 	m_ptrTypeFlags = 0;
 	m_scope = NULL;
 	m_tlsField = NULL;
@@ -75,15 +74,6 @@ Variable::getLlvmValue ()
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 	function->addTlsVariable (this);
 	return m_llvmValue;
-}
-
-bool
-Variable::calcLayout ()
-{
-	if (m_type_i)
-		m_type = m_type_i->getActualType ();
-
-	return m_type->ensureLayout ();
 }
 
 bool

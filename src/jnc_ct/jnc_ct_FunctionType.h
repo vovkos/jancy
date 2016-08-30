@@ -36,7 +36,6 @@ class FunctionType: public Type
 protected:
 	CallConv* m_callConv;
 	Type* m_returnType;
-	ImportType* m_returnType_i;
 	sl::Array <FunctionArg*> m_argArray;
 	sl::Array <uint_t> m_argFlagArray; // args can be shared between func types
 	sl::String m_argSignature;
@@ -61,12 +60,6 @@ public:
 	getReturnType ()
 	{
 		return m_returnType;
-	}
-
-	ImportType*
-	getReturnType_i ()
-	{
-		return m_returnType_i;
 	}
 
 	sl::Array <FunctionArg*>

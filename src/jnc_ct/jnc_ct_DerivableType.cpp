@@ -11,7 +11,6 @@ BaseTypeSlot::BaseTypeSlot ()
 {
 	m_itemKind = ModuleItemKind_BaseTypeSlot;
 	m_type = NULL;
-	m_type_i = NULL;
 	m_offset = 0;
 	m_llvmIndex = -1;
 	m_vtableIndex = -1;
@@ -37,7 +36,6 @@ DerivableType::DerivableType ():
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 	m_setAsType = NULL;
-	m_setAsType_i = NULL;
 }
 
 FunctionType*
@@ -133,44 +131,15 @@ DerivableType::getBaseTypeByIndex (size_t index)
 BaseTypeSlot*
 DerivableType::addBaseType (Type* type)
 {
-	sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
-	if (it->m_value)
-	{
-		err::setFormatStringError (
-			"'%s' is already a base type",
-			type->getTypeString ().cc ()
-			);
-		return NULL;
-	}
-
 	BaseTypeSlot* slot = AXL_MEM_NEW (BaseTypeSlot);
 	slot->m_module = m_module;
+	slot->m_type = (DerivableType*) type;
 
-	TypeKind typeKind = type->getTypeKind ();
-	if (typeKind == TypeKind_NamedImport)
-	{
-		slot->m_type_i = (ImportType*) type;
-		m_importBaseTypeArray.append (slot);
-	}
-	else if (
-		(type->getTypeKindFlags () & TypeKindFlag_Derivable) &&
-		(typeKind != TypeKind_Class || m_typeKind == TypeKind_Class))
-	{
-		slot->m_type = (DerivableType*) type;
-	}
-	else
-	{
-		err::setFormatStringError (
-			"'%s' cannot be inherited from '%s'",
-			getTypeString ().cc (),
-			type->getTypeString ().cc ()
-			);
-		return NULL;
-	}
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
+		((ImportType*) type)->addFixup ((Type**) &slot->m_type);
 
 	m_baseTypeList.insertTail (slot);
 	m_baseTypeArray.append (slot);
-	it->m_value = slot;
 	return slot;
 }
 
@@ -180,75 +149,6 @@ DerivableType::findBaseTypeOffset (Type* type)
 	jnc::ct::BaseTypeCoord coord;
 	bool result = findBaseTypeTraverse (type, &coord);
 	return result ? coord.m_offset : -1;
-}
-
-bool
-DerivableType::resolveImportTypes ()
-{
-	// base types
-
-	size_t count = m_importBaseTypeArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		BaseTypeSlot* slot = m_importBaseTypeArray [i];
-		ASSERT (slot->m_type_i);
-
-		Type* type = slot->m_type_i->getActualType ();
-		sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (type->getSignature ());
-		if (it->m_value)
-		{
-			err::setFormatStringError (
-				"'%s' is already a base type",
-				type->getTypeString ().cc ()
-				);
-			return false;
-		}
-
-		if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
-			type->getTypeKind () == TypeKind_Class && m_typeKind != TypeKind_Class)
-		{
-			err::setFormatStringError (
-				"'%s' cannot be inherited from '%s'",
-				getTypeString ().cc (),
-				type->getTypeString ().cc ()
-				);
-			return false;
-		}
-
-		slot->m_type = (DerivableType*) type;
-		it->m_value = slot;
-	}
-
-	// fields
-
-	count = m_importFieldArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		StructField* field = m_importFieldArray [i];
-		ASSERT (field->m_type_i);
-
-		Type* type = field->m_type_i->getActualType ();
-		if (field->m_type->getTypeKindFlags () & TypeKindFlag_Code)
-		{
-			err::setFormatStringError ("'%s': illegal type for a field", type->getTypeString ().cc ());
-			return false;
-		}
-
-		field->m_type = type;
-		
-		if (field->m_bitCount)
-		{
-			ASSERT (field->m_bitFieldBaseType == field->m_type_i);
-			field->m_bitFieldBaseType = type;
-		}
-	}
-
-	// setas type
-
-	if (m_setAsType_i)
-		m_setAsType = m_setAsType_i->getActualType ();
-
-	return true;
 }
 
 bool
@@ -665,21 +565,12 @@ DerivableType::findItemTraverseImpl (
 		{
 			BaseTypeSlot* slot = *slotIt;
 
-			DerivableType* baseType = NULL;
-
-			if (slot->m_type)
+			DerivableType* baseType = slot->m_type;
+			if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
 			{
-				baseType = slot->m_type;
-			}
-			else if (slot->m_type_i && slot->m_type_i->isResolved ())
-			{
-				Type* actualType = slot->m_type_i->getActualType ();
-				if (actualType->getTypeKindFlags () & TypeKindFlag_Derivable)
-					baseType = (DerivableType*) actualType;
-			}
-
-			if (!baseType)
+				ASSERT (false);
 				return NULL;
+			}
 
 			item = baseType->findItemTraverseImpl (name, coord, flags, level + 1);
 			if (item)

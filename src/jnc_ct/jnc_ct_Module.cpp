@@ -474,14 +474,11 @@ Module::parseImports ()
 }
 
 bool
-Module::calcLayout ()
+Module::link ()
 {
 	bool result;
 
-	ASSERT (m_compileState < ModuleCompileState_LayoutCalculated);
-	m_compileState = ModuleCompileState_CalcLayout;
-
-	// resolve imports & orphans
+	ASSERT (m_compileState < ModuleCompileState_Linked);
 
 	result =
 		m_typeMgr.resolveImportTypes () &&
@@ -490,7 +487,22 @@ Module::calcLayout ()
 	if (!result)
 		return false;
 
-	// calc layout
+	m_compileState = ModuleCompileState_Linked;
+	return true;
+}
+
+bool
+Module::calcLayout ()
+{
+	bool result;
+
+	ASSERT (m_compileState < ModuleCompileState_LayoutCalculated);
+	if (m_compileState < ModuleCompileState_Linked)
+	{
+		result = link ();
+		if (!result)
+			return false;
+	}
 
 	result = processCalcLayoutArray ();
 	if (!result)
@@ -513,9 +525,7 @@ Module::compile ()
 			return false;
 	}
 
-	m_compileState = ModuleCompileState_Compiling;
-
-	// ensure module constructor (always! cause static variable might appear during compilation)
+	// ensure module constructor (unconditionally! static variable might appear during compilation)
 
 	if (m_constructor)
 	{
@@ -579,8 +589,6 @@ Module::jit ()
 			return false;
 	}
 
-	m_compileState = ModuleCompileState_Jitting;
-	
 	result = 
 		createLlvmExecutionEngine () &&
 		m_extensionLibMgr.mapFunctions () &&
@@ -646,7 +654,7 @@ Module::postParseStdItem ()
 	if (!result)
 		return false;
 
-	if (m_compileState > ModuleCompileState_CalcLayout)
+	if (m_compileState >= ModuleCompileState_LayoutCalculated)
 	{
 		result = processCalcLayoutArray ();
 		if (!result)

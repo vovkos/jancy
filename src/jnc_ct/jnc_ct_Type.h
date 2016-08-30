@@ -24,6 +24,7 @@ class ClassType;
 class PropertyType;
 class DataPtrType;
 class TypedefShadowType;
+class ImportType;
 class FunctionArg;
 class Value;
 
@@ -383,12 +384,7 @@ protected:
 	TypedefShadowType* m_shadowType;
 
 public:
-	Typedef ()
-	{
-		m_itemKind = ModuleItemKind_Typedef;
-		m_type  = NULL;
-		m_shadowType = NULL;
-	}
+	Typedef ();
 
 	Type*
 	getType ()
@@ -444,12 +440,23 @@ protected:
 	void
 	prepareLlvmType ()
 	{
-		m_llvmType = m_typedef->getType ()->getLlvmType ();
+		ASSERT (false);
+	}
+
+	virtual
+	void
+	prepareLlvmDiType ()
+	{
+		ASSERT (false);
 	}
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout ()
+	{
+		ASSERT (false);
+		return true;
+	}
 };
 
 //.............................................................................

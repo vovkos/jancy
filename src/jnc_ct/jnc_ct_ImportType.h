@@ -27,6 +27,7 @@ class ImportType: public Type
 
 protected:
 	Type* m_actualType;
+	sl::Array <Type**> m_fixupArray;
 
 public:
 	ImportType ()
@@ -46,6 +47,21 @@ public:
 		ASSERT (m_actualType);
 		return m_actualType;
 	}
+	
+	sl::Array <Type**> 
+	getFixupArray ()
+	{
+		return m_fixupArray;
+	}
+
+	void
+	addFixup (Type** type)
+	{
+		m_fixupArray.append (type);
+	}
+
+	void
+	applyFixups ();
 
 protected:
 	virtual
@@ -53,6 +69,21 @@ protected:
 	prepareLlvmType ()
 	{
 		ASSERT (false);
+	}
+
+	virtual
+	void
+	prepareLlvmDiType ()
+	{
+		ASSERT (false);
+	}
+
+	virtual
+	bool
+	calcLayout ()
+	{
+		ASSERT (false);
+		return true;
 	}
 };
 
