@@ -1,7 +1,7 @@
-//! addtogroup mailslot
-//! @{
-
 namespace io {
+
+//! \addtogroup file
+//! @{
 
 //.............................................................................
 
@@ -44,12 +44,6 @@ opaque class Mailslot
 
 //.............................................................................
 
-} // namespace io
-
 //! @}
 
-/*!
-
-\defgroup mailslot Mailslot
-
-*/
+} // namespace io

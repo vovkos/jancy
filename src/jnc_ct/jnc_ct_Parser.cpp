@@ -559,10 +559,31 @@ Parser::popAttributeBlock ()
 DoxyBlock*
 Parser::popDoxyBlock ()
 {
-	DoxyBlock* doxyBlock = m_isDoxyBlockAssigned ? NULL : m_doxyBlock; // only if unassigned
+	// only pick up unassigned non-group blocks
+
+	DoxyBlock* doxyBlock = 
+		!m_isDoxyBlockAssigned && 
+		m_doxyBlock &&
+		m_doxyBlock->getBlockKind () != DoxyBlockKind_Group ? 
+		m_doxyBlock : NULL;
+
 	m_doxyBlock = NULL;
 	m_isDoxyBlockAssigned = false;
 	m_isDoxyBriefDescription = false;
+
+	if (!m_doxyGroupStack.isEmpty ())
+	{
+		DoxyGroupStackEntry entry = m_doxyGroupStack.getBack ();
+		if (entry.m_namespace == m_module->m_namespaceMgr.getCurrentNamespace ())
+		{
+			if (!doxyBlock)
+				doxyBlock = m_module->m_doxyMgr.createBlock ();
+		
+			if (!doxyBlock->m_group)
+				doxyBlock->m_group = entry.m_group;
+		}
+	}
+
 	return doxyBlock;
 }
 
@@ -575,7 +596,7 @@ Parser::addDoxyComment (
 {
 	if (!m_doxyBlock || !canAppend)
 	{
-		m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+		m_doxyBlock = m_module->m_doxyMgr.createBlock ();
 		m_isDoxyBriefDescription = false;
 	}
 
@@ -614,18 +635,19 @@ Parser::addDoxyComment (
 
 			if (m_isDoxyBlockAssigned) // create a new one
 			{
-				m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+				m_doxyBlock = m_module->m_doxyMgr.createBlock ();
 				m_isDoxyBriefDescription = false;
 				description = m_isDoxyBriefDescription ? &m_doxyBlock->m_briefDescription : &m_doxyBlock->m_detailedDescription;
 			}
 
-			m_module->m_doxyMgr.setDoxyBlockTarget (m_doxyBlock, nextToken->m_data.m_string.getTrimmedString ());
+			m_module->m_doxyMgr.setBlockTarget (m_doxyBlock, nextToken->m_data.m_string.getTrimmedString ());
 			m_isDoxyBlockAssigned = true;
 			lexer.nextToken ();
 			break;
 
 		case DoxyTokenKind_Group:
 		case DoxyTokenKind_DefGroup:
+		case DoxyTokenKind_AddToGroup:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
 				break; // ignore
@@ -633,11 +655,11 @@ Parser::addDoxyComment (
 			i = nextToken->m_data.m_string.findOneOf (" \t");
 			if (i == -1)
 			{
-				m_doxyBlock = m_module->m_doxyMgr.getDoxyGroup (nextToken->m_data.m_string);
+				m_doxyBlock = m_module->m_doxyMgr.getGroup (nextToken->m_data.m_string);
 			}
 			else
 			{
-				DoxyGroup* group = m_module->m_doxyMgr.getDoxyGroup (sl::StringRef (nextToken->m_data.m_string, i));
+				DoxyGroup* group = m_module->m_doxyMgr.getGroup (sl::StringRef (nextToken->m_data.m_string, i));
 				group->m_title = sl::StringRef (nextToken->m_data.m_string.cc () + i, nextToken->m_data.m_string.getLength () - i).getLeftTrimmedString ();
 
 				m_doxyBlock = group;
@@ -654,7 +676,7 @@ Parser::addDoxyComment (
 
 			if (!m_doxyBlock->m_group)
 			{
-				DoxyGroup* group = m_module->m_doxyMgr.getDoxyGroup (nextToken->m_data.m_string);
+				DoxyGroup* group = m_module->m_doxyMgr.getGroup (nextToken->m_data.m_string);
 				m_doxyBlock->m_group = group;
 				if (m_doxyBlock->getBlockKind () == DoxyBlockKind_Group)
 				{
@@ -666,12 +688,19 @@ Parser::addDoxyComment (
 			lexer.nextToken ();
 			break;
 
-		case DoxyTokenKind_AddToGroup:
-			nextToken = lexer.getToken (1);
-			if (nextToken->m_token != DoxyTokenKind_Text)
-				break; // ignore
+		case DoxyTokenKind_OpeningBrace:
+			if (m_doxyBlock->getBlockKind () == DoxyBlockKind_Group)
+			{
+				DoxyGroupStackEntry entry;
+				entry.m_group = (DoxyGroup*) m_doxyBlock;
+				entry.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace ();
+				m_doxyGroupStack.append (entry);
+			}
 
-			lexer.nextToken ();
+			break;
+
+		case DoxyTokenKind_ClosingBrace:
+			m_doxyGroupStack.pop ();
 			break;
 
 		case DoxyTokenKind_Title:
@@ -805,7 +834,9 @@ Parser::assignDeclarationAttributes (
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock ();
 
-	item->m_doxyBlock = doxyBlock ? doxyBlock : popDoxyBlock ();
+	if (m_module->getCompileFlags () & ModuleCompileFlag_Documentation)
+		item->m_doxyBlock = doxyBlock ? doxyBlock : popDoxyBlock ();
+
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;
 }

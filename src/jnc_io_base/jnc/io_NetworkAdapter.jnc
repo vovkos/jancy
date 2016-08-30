@@ -1,7 +1,7 @@
-//! addtogroup network-adapter
-//! @{
-
 namespace io {
+
+//! \addtogroup network-adapter
+//! @{
 
 //.............................................................................
 
@@ -62,9 +62,9 @@ NetworkAdapterDesc const* createNetworkAdapterDescList (
 
 //.............................................................................
 
-} // namespace io
-
 //! @}
+
+} // namespace io
 
 /*!
 

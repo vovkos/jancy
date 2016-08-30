@@ -281,6 +281,10 @@ public:
 	}
 
 	virtual
+	sl::String
+	createDoxyRefId ();
+
+	virtual
 	bool
 	generateDocumentation (
 		const char* outputDir,

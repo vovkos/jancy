@@ -347,6 +347,24 @@ Namespace::generateMemberDocumentation (
 
 //.............................................................................
 
+sl::String
+GlobalNamespace::createDoxyRefId ()
+{
+	sl::String refId;
+	
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace ())
+	{
+		refId = "global_namespace";
+	}
+	else
+	{
+		refId.format ("namespace_%s", m_qualifiedName.cc ());
+		refId.makeLowerCase ();
+	}
+	
+	return m_module->m_doxyMgr.adjustRefId (refId);
+}
+
 bool
 GlobalNamespace::generateDocumentation (
 	const char* outputDir,

@@ -98,6 +98,12 @@ Members
 		Token* m_scopeAnchorToken;
 	};
 
+	struct DoxyGroupStackEntry
+	{
+		Namespace* m_namespace;
+		DoxyGroup* m_group;
+	};
+
 	Module* m_module;
 	StageKind m_stage;
 	uint_t m_flags;
@@ -108,12 +114,12 @@ Members
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;
 	DoxyBlock* m_doxyBlock;
+	sl::Array <DoxyGroupStackEntry> m_doxyGroupStack;
 	bool m_isDoxyBlockAssigned;
 	bool m_isDoxyBriefDescription;
 
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
-	sl::String m_doxyComment;
 
 	FunctionType* m_lastPropertyGetterType;
 	TypeModifiers m_lastPropertyTypeModifiers;

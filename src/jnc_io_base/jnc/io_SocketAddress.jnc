@@ -1,7 +1,7 @@
-//! addtogroup socket
-//! @{
-
 namespace io {
+
+//! \addtogroup socket
+//! @{
 
 //.............................................................................
 
@@ -90,10 +90,6 @@ alignment (default);
 
 //.............................................................................
 
+//! @}
+
 } // namespace io
-
-/*!
-
-\defgroup socket Socket Communications
-
-*/

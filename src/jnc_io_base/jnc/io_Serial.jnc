@@ -1,7 +1,7 @@
-//! addtogroup serial
-//! @{
-
 namespace io {
+
+//! \addtogroup serial
+//! @{
 
 //.............................................................................
 
@@ -117,9 +117,9 @@ SerialPortDesc const* createSerialPortDescList (size_t* count = null);
 
 //.............................................................................
 
-} // namespace io
-
 //! @}
+
+} // namespace io
 
 /*!
 

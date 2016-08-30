@@ -2,6 +2,9 @@ import "io_SocketAddress.jnc"
 
 namespace io {
 
+//! \addtogroup pcap
+//! @{
+
 //.............................................................................
 
 enum PCapEventKind
@@ -87,4 +90,12 @@ PCapDeviceDesc const* createPCapDeviceDescList (size_t* count = null);
 
 //.............................................................................
 
+//! @}
+
 } // namespace io
+
+/*!
+
+\defgroup pcap PCap (Packet Capturing Library)
+
+*/

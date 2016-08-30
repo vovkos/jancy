@@ -228,7 +228,7 @@ DoxyBlock*
 ModuleItem::getDoxyBlock ()
 {
 	if (!m_doxyBlock)
-		m_doxyBlock = m_module->m_doxyMgr.createDoxyBlock ();
+		m_doxyBlock = m_module->m_doxyMgr.createBlock ();
 
 	if (m_doxyBlock->m_refId.isEmpty ())
 		m_doxyBlock->m_refId = createDoxyRefId ();
@@ -239,12 +239,18 @@ ModuleItem::getDoxyBlock ()
 sl::String
 ModuleItem::createDoxyRefId ()
 {
-	#pragma AXL_TODO ("generate more meaningful doxygen refid")
-
 	sl::String refId = getModuleItemKindString (m_itemKind);
 	refId.replace ('-', '_');
+
+	if (!m_tag.isEmpty ())
+	{
+		refId.appendFormat ("_%s", m_tag.cc ());
+		refId.replace ('.', '_');
+	}
+
+	refId.makeLowerCase ();
 	
-	return m_module->m_doxyMgr.adjustDoxyRefId (refId);
+	return m_module->m_doxyMgr.adjustRefId (refId);
 }
 
 sl::String

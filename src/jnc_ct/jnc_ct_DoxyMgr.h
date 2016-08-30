@@ -24,6 +24,7 @@ enum DoxyBlockKind
 
 class DoxyBlock: public sl::ListLink
 {
+	friend class DoxyMgr;
 	friend class Parser;
 	friend class ModuleItem;
 
@@ -166,10 +167,10 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::StdList <DoxyBlock> m_doxyBlockList;
-	sl::StdList <DoxyGroup> m_doxyGroupList;
-	sl::StringHashTableMap <size_t> m_doxyRefIdMap;
-	sl::StringHashTableMap <DoxyGroup*> m_doxyGroupMap;
+	sl::StdList <DoxyBlock> m_blockList;
+	sl::StdList <DoxyGroup> m_groupList;
+	sl::StringHashTableMap <size_t> m_refIdMap;
+	sl::StringHashTableMap <DoxyGroup*> m_groupMap;
 	sl::StdList <Target> m_targetList;
 	
 public:
@@ -185,34 +186,34 @@ public:
 	clear ();
 
 	sl::ConstList <DoxyBlock>
-	getDoxyBlockList ()
+	getBlockList ()
 	{
-		return m_doxyBlockList;
+		return m_blockList;
 	}
 
 	sl::ConstList <DoxyGroup>
-	getDoxyGroupList ()
+	getGroupList ()
 	{
-		return m_doxyGroupList;
+		return m_groupList;
 	}
 
 	DoxyGroup*
-	getDoxyGroup (const sl::StringRef& name);
+	getGroup (const sl::StringRef& name);
 
 	DoxyBlock* 
-	createDoxyBlock ();
+	createBlock ();
 
 	sl::String
-	adjustDoxyRefId (const sl::StringRef& refId);
+	adjustRefId (const sl::StringRef& refId);
 
 	void
-	setDoxyBlockTarget (
+	setBlockTarget (
 		DoxyBlock* block,
 		const sl::StringRef& targetName
 		);
 
 	bool
-	resolveDoxyBlockTargets ();
+	resolveBlockTargets ();
 
 	void
 	deleteEmptyGroups ();

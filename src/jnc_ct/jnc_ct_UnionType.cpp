@@ -40,6 +40,7 @@ UnionType::createFieldImpl (
 		);
 
 	field->m_parentNamespace = this;
+	field->m_tag = m_tag + "." + name;
 
 	if (!field->m_constructor.isEmpty () ||
 		!field->m_initializer.isEmpty ())

@@ -2,6 +2,9 @@ import "io_SocketAddress.jnc"
 
 namespace io {
 
+//! \addtogroup ssh
+//! @{
+
 //.............................................................................
 
 enum SshEvent
@@ -86,4 +89,12 @@ opaque class SshChannel
 
 //.............................................................................
 
+//! @}
+
 } // namespace io
+
+/*!
+
+\defgroup ssh SSH Communications
+
+*/

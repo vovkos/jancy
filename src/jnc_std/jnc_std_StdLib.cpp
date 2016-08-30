@@ -29,13 +29,13 @@ atoi (DataPtr ptr)
 uint32_t
 toUpper (uint32_t c)
 {
-	return enc::utfToUpper (c);
+	return enc::utfToUpperCase (c);
 }
 
 uint32_t
 toLower (uint32_t c)
 {
-	return enc::utfToLower (c);
+	return enc::utfToLowerCase (c);
 }
 
 DataPtr

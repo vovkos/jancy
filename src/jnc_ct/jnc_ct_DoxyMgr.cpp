@@ -46,10 +46,14 @@ DoxyGroup::generateDocumentation (
 
 	itemXml->format (
 		"<compounddef kind='group' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n", 
+		"<compoundname>%s</compoundname>\n"
+		"<title>%s</title>\n", 
 		m_refId.cc (), 
-		m_name.cc ()
+		m_name.cc (),
+		m_title.cc ()
 		);
+
+	sl::String sectionDef;
 
 	size_t count = m_itemArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -69,8 +73,8 @@ DoxyGroup::generateDocumentation (
 
 		if (!isCompoundFile)
 		{
-			itemXml->appendFormat ("<memberdef id='%s'/>", refId.cc ());
-			itemXml->append ('\n');
+			sectionDef.appendFormat ("<memberdef id='%s'/>", refId.cc ());
+			sectionDef.append ('\n');
 		}
 		else
 		{
@@ -79,6 +83,13 @@ DoxyGroup::generateDocumentation (
 			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
 			itemXml->append ('\n');
 		}
+	}
+
+	if (!sectionDef.isEmpty ())
+	{
+		itemXml->append ("<sectiondef>\n");
+		itemXml->append (sectionDef);
+		itemXml->append ("</sectiondef>\n");
 	}
 
 	sl::BoxIterator <DoxyGroup*> groupIt = m_groupList.getHead ();
@@ -106,44 +117,45 @@ DoxyMgr::DoxyMgr ()
 void
 DoxyMgr::clear ()
 {
-	m_doxyBlockList.clear ();
-	m_doxyGroupList.clear ();
-	m_doxyRefIdMap.clear ();
-	m_doxyGroupMap.clear ();
+	m_blockList.clear ();
+	m_groupList.clear ();
+	m_refIdMap.clear ();
+	m_groupMap.clear ();
 	m_targetList.clear ();
 }
 
 DoxyGroup*
-DoxyMgr::getDoxyGroup (const sl::StringRef& name)
+DoxyMgr::getGroup (const sl::StringRef& name)
 {
+	sl::StringHashTableMapIterator <DoxyGroup*> it = m_groupMap.visit (name);
+	if (it->m_value)
+		return it->m_value;
+
 	sl::String refId;
 	refId.format ("group_%s", name.cc ());
 	refId.replace ('-', '_');
 
-	sl::StringHashTableMapIterator <DoxyGroup*> it = m_doxyGroupMap.visit (refId);
-	if (it->m_value)
-		return it->m_value;
-
 	DoxyGroup* group = AXL_MEM_NEW (DoxyGroup);
 	group->m_name = name;
-	group->m_refId = refId;
-	m_doxyGroupList.insertTail (group);
+	group->m_refId = adjustRefId (refId);		
+
+	m_groupList.insertTail (group);
 	it->m_value = group;
 	return  group;
 }
 
 DoxyBlock* 
-DoxyMgr::createDoxyBlock ()
+DoxyMgr::createBlock ()
 {
 	DoxyBlock* block = AXL_MEM_NEW (DoxyBlock);
-	m_doxyBlockList.insertTail (block);
+	m_blockList.insertTail (block);
 	return  block;
 }
 
 sl::String
-DoxyMgr::adjustDoxyRefId (const sl::StringRef& refId)
+DoxyMgr::adjustRefId (const sl::StringRef& refId)
 {
-	sl::StringHashTableMapIterator <size_t> it = m_doxyRefIdMap.visit (refId);
+	sl::StringHashTableMapIterator <size_t> it = m_refIdMap.visit (refId);
 	if (!it->m_value) // no collisions
 	{
 		it->m_value = 2; // start with index 2
@@ -158,7 +170,7 @@ DoxyMgr::adjustDoxyRefId (const sl::StringRef& refId)
 }
 
 void
-DoxyMgr::setDoxyBlockTarget (
+DoxyMgr::setBlockTarget (
 	DoxyBlock* block,
 	const sl::StringRef& targetName
 	)
@@ -170,7 +182,7 @@ DoxyMgr::setDoxyBlockTarget (
 }
 
 bool
-DoxyMgr::resolveDoxyBlockTargets ()
+DoxyMgr::resolveBlockTargets ()
 {
 	bool result = true;
 
@@ -186,7 +198,10 @@ DoxyMgr::resolveDoxyBlockTargets ()
 			result = false;
 			continue;
 		}
-
+		
+		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)
+			target->m_block->m_group = item->m_doxyBlock->m_group;
+		
 		item->m_doxyBlock = target->m_block;
 	}
 
@@ -205,7 +220,7 @@ DoxyMgr::deleteEmptyGroups ()
 	{
 		isGroupDeleted = false;
 
-		sl::Iterator <DoxyGroup> groupIt = m_doxyGroupList.getHead ();
+		sl::Iterator <DoxyGroup> groupIt = m_groupList.getHead ();
 		while (groupIt)
 		{
 			sl::Iterator <DoxyGroup> nextIt = groupIt.getNext ();
@@ -215,8 +230,8 @@ DoxyMgr::deleteEmptyGroups ()
 				if (groupIt->m_group)
 					groupIt->m_group->m_groupList.remove (groupIt->m_parentGroupListIt);
 
-				m_doxyGroupMap.eraseByKey (groupIt->m_refId);
-				m_doxyGroupList.erase (groupIt);
+				m_groupMap.eraseByKey (groupIt->m_name);
+				m_groupList.erase (groupIt);
 				isGroupDeleted = true;
 			}
 
@@ -241,7 +256,7 @@ DoxyMgr::generateGroupDocumentation (
 
 	sl::String itemXml;
 
-	sl::Iterator <DoxyGroup> groupIt = m_doxyGroupList.getHead ();
+	sl::Iterator <DoxyGroup> groupIt = m_groupList.getHead ();
 	for (; groupIt; groupIt++)
 	{
 		result = groupIt->generateDocumentation (outputDir, &itemXml, indexXml);

@@ -332,7 +332,7 @@ jnc_Module_generateDocumentation (
 	if (!result)
 		return false;
 
-	result = module->m_doxyMgr.resolveDoxyBlockTargets ();
+	result = module->m_doxyMgr.resolveBlockTargets ();
 	if (!result)
 	{
 		// generate a warning?

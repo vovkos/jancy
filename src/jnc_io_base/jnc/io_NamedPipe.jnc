@@ -2,6 +2,9 @@ import "io_FileStream.jnc"
 
 namespace io {
 
+//! \addtogroup file
+//! @{
+
 //.............................................................................
 
 opaque class NamedPipe
@@ -25,6 +28,8 @@ opaque class NamedPipe
 }
 
 //.............................................................................
+
+//! @}
 
 } // namespace io
 
