@@ -452,11 +452,7 @@ protected:
 
 	virtual
 	bool
-	calcLayout ()
-	{
-		ASSERT (false);
-		return true;
-	}
+	calcLayout ();
 };
 
 //.............................................................................

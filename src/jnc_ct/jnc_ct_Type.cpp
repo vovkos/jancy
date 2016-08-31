@@ -568,6 +568,18 @@ Typedef::generateDocumentation (
 	return true;
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+TypedefShadowType::calcLayout ()
+{
+	Type* type = m_typedef->getType ();
+	m_size = type->getSize ();
+	m_alignment = type->getAlignment ();
+	m_signature = type->getSignature ();
+	return true;
+}
+
 //.............................................................................
 
 Type*
