@@ -60,6 +60,8 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 	size_t dynamicLibFileIdx;
 	sl::String dynamicLibFileName;
 
+	sl::Iterator <SourceFile> sourceFileIt = m_sourceFileList.getTail (); // save source file iterator
+	
 	size_t count = entry->m_zipReader.getFileCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -107,6 +109,9 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
 		return false;
 	}
+
+	for (sourceFileIt++; sourceFileIt; sourceFileIt++)
+		sourceFileIt->m_lib = lib;
 
 	entry->m_lib = lib;
 	m_libArray.append (lib);
