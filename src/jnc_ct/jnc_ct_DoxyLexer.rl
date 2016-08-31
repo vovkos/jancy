@@ -48,7 +48,7 @@ main := |*
 
 rc ([^\n\\]* rc)? { createTextToken (); };
 
-'\n'              { newLine (ts + 1), createToken ('\n'); };
+'\n'              { createToken ('\n'), newLine (ts + 1); };
 ws                ;
 
 *|;
