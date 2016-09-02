@@ -1,0 +1,95 @@
+namespace io {
+
+//! \addtogroup socket
+//! @{
+
+//.............................................................................
+
+enum AddressFamily: uint16_t
+{
+	Undefined = 0,
+	Ip4 = 2,
+	Ip6,
+}
+
+enum Protocol
+{
+	Icmp = 1,
+	Tcp  = 6,
+	Udp  = 17,
+}
+
+//.............................................................................
+
+// matches in_addr
+
+union Address_ip4
+{
+	bigendian uint32_t m_i32;
+	uint8_t m_i8 [4];	
+	
+	bool errorcode parse (char const* string);
+	char const* getString () const;
+}
+
+// matches in6_addr
+
+union Address_ip6
+{
+	bigendian uint16_t m_i16 [8];
+	uint8_t m_i8 [16];
+
+	bool errorcode parse (char const* string);
+	char const* getString () const;
+}
+
+//.............................................................................
+
+alignment (2);
+
+struct SocketAddress_ip4
+{
+	AddressFamily m_family;
+	bigendian uint16_t m_port;
+	Address_ip4 m_address;
+	char m_padding [8];
+
+	bool isEqual (SocketAddress_ip4 const* address);
+	bool isMatch (SocketAddress_ip4 const* filterAddress);
+	bool errorcode parse (char const* string);
+	char const* getString () const;
+}
+
+struct SocketAddress_ip6
+{
+	AddressFamily m_family;	
+	bigendian uint16_t m_port;
+	uint32_t m_flow;
+	Address_ip6 m_address;
+	uint32_t m_scope;
+
+	bool isEqual (SocketAddress_ip6 const* address);
+	bool isMatch (SocketAddress_ip6 const* filterAddress);
+	bool errorcode parse (char const* string);
+	char const* getString () const;
+}
+
+union SocketAddress
+{
+	AddressFamily m_family;	
+	SocketAddress_ip4 m_ip4;
+	SocketAddress_ip6 m_ip6;
+
+	bool isEqual (SocketAddress const* addr);
+	bool isMatch (SocketAddress const* filterAddress);
+	bool errorcode parse (char const* string);
+	char const* getString () const;
+}
+
+alignment (default);
+
+//.............................................................................
+
+//! @}
+
+} // namespace io

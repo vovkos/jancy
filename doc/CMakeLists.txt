@@ -4,8 +4,16 @@
 
 #..............................................................................
 
-if (DOXYGEN_FOUND)
-	add_subdirectory (doxygen)
+if (SPHINX_FOUND)
+	add_subdirectory (language)
+
+	if (DOXYREST_FOUND)
+		add_subdirectory (stdlib)
+
+		if (DOXYGEN_FOUND)	
+			add_subdirectory (api)
+		endif ()
+	endif ()
 endif ()
 
 #..............................................................................

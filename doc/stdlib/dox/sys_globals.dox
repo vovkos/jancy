@@ -1,0 +1,23 @@
+///+++
+
+/// JNC_SELECT_ANY char g_sys_globalsSrc [] = 
+
+namespace sys {
+
+//.............................................................................
+
+uintptr_t getCurrentThreadId ();
+
+bool createThread (function* threadFunc ());
+
+void sleep (uint32_t msec);
+
+uint64_t getTimestamp ();
+
+//.............................................................................
+
+} // namespace sys
+
+///;
+
+///---

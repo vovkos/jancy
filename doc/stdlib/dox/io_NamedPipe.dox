@@ -1,0 +1,35 @@
+import "io_FileStream.jnc"
+
+namespace io {
+
+//! \addtogroup file
+//! @{
+
+//.............................................................................
+
+opaque class NamedPipe
+{
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool errorcode open (
+		char const* name,
+		size_t backLog = 0		
+		);
+
+	void close ();
+
+	FileStream* accept ();
+
+	event m_onIncomingConnection (uint_t syncId);
+}
+
+//.............................................................................
+
+//! @}
+
+} // namespace io
+

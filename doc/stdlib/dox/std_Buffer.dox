@@ -1,0 +1,169 @@
+///+++
+
+/// JNC_SELECT_ANY char g_std_BufferSrc [] = 
+
+namespace std {
+
+//.............................................................................
+
+struct ConstBuffer
+{
+	setas ConstBufferRef;
+
+	void const* readonly m_p;
+	size_t readonly m_size;
+
+	construct ()
+	{
+	}
+
+	construct (ConstBufferRef src)
+	{
+		try copy (src);
+	}
+
+	construct (Buffer const* src)
+	{
+		try copy (src.m_p, src.m_size);
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		try copy (p, size);
+	}
+
+	bool errorcode copy (ConstBufferRef src);
+
+	bool errorcode copy (
+		void const* p,
+		size_t size
+		);
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ConstBufferRef
+{
+	void const* readonly m_p;
+	size_t readonly m_size;
+	bool readonly m_isFinal;
+
+	construct ()
+	{
+	}
+
+	construct (ConstBuffer src)
+	{
+		setup (src.m_p, src.m_size, true);
+	}
+
+	construct (Buffer const* src)
+	{
+		setup (src.m_p, src.m_size, false);
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		setup (src.m_p, size, false);
+	}
+
+protected:
+	void setup (
+		char const* p,
+		size_t size,
+		bool isFinal
+		)
+	{
+		m_p = p;
+		m_size = size;
+		m_isFinal = isFinal;
+	}
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BufferRef
+{
+	void* readonly m_p;
+	size_t readonly m_size;
+
+	construct ()
+	{
+	}
+
+	construct (Buffer* src)
+	{
+		setup (src.m_p, src.m_size);
+	}
+
+	construct (
+		void const* p,
+		size_t size
+		)
+	{
+		setup (p, size);
+	}
+
+protected:
+	void setup (
+		char const* p,
+		size_t size
+		)
+	{
+		m_p = p;
+		m_size = size;
+	}
+}
+
+//.............................................................................
+
+class Buffer
+{
+	void* readonly m_p;
+	size_t readonly m_size;
+	size_t readonly m_maxSize;
+
+	bool errorcode copy (ConstBufferRef buffer)
+	{
+		return try copy (buffer.m_p, buffer.m_size);
+	}
+
+	bool errorcode copy (
+		char const* p,
+		size_t size
+		);
+
+	bool errorcode append (ConstBufferRef buffer)
+	{
+		return try append (buffer.m_p, buffer.m_size);
+	}
+
+	bool errorcode append (
+		char const* p,
+		size_t size
+		);
+
+	void operator := (ConstBufferRef src)
+	{
+		try copy (src);
+	}
+	
+	void operator += (ConstBufferRef src)
+	{
+		try append (src);
+	}
+}
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

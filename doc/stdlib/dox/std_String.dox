@@ -1,0 +1,157 @@
+///+++
+
+/// JNC_SELECT_ANY char g_std_StringSrc [] = 
+
+namespace std {
+
+//.............................................................................
+
+struct String
+{
+	setas StringRef;
+
+	char const* readonly m_p;
+	size_t readonly m_length;
+
+	construct ()
+	{
+	}
+
+	construct (StringRef src)
+	{
+		try copy (src);
+	}
+
+	construct (StringBuilder const* src)
+	{
+		try copy (src.m_p, src.m_length);
+	}
+
+	construct (
+		char const* p,
+		size_t length = -1
+		)
+	{
+		try copy (p, length);
+	}
+
+	char const thin* operator cdecl ... () const
+	{
+		return m_p;
+	}
+
+	bool isZeroTerminated () const
+	{
+		return m_p && !m_p [m_length];
+	}
+
+	bool errorcode ensureZeroTerminated ();
+	String getZeroTerminatedString () const;
+
+	bool errorcode copy (StringRef src);
+
+	bool errorcode copy (
+		char const* p,
+		size_t length = -1
+		);
+}
+
+//.............................................................................
+
+struct StringRef
+{
+	char const* readonly m_p;
+	size_t readonly m_length;
+	bool readonly m_isFinal;
+
+	construct ()
+	{
+	}
+
+	construct (String src)
+	{
+		setup (src.m_p, src.m_length, true);
+	}
+
+	construct (StringBuilder const* src)
+	{
+		setup (src.m_p, src.m_length, false);
+	}
+
+	construct (
+		char const* p,
+		size_t length = -1
+		)
+	{
+		setup (p, length != -1 ? length : strlen (p), false);
+	}
+
+	char const thin* operator cdecl ... () const
+	{
+		return m_p;
+	}
+
+	bool isZeroTerminated () const;	
+
+	String getString () const;
+	String getZeroTerminatedString () const;
+
+protected:
+	void setup (
+		char const* p,
+		size_t length,
+		bool isFinal
+		)
+	{
+		m_p = p;
+		m_length = length;
+		m_isFinal = isFinal;
+	}
+}
+
+//.............................................................................
+
+class StringBuilder
+{
+	char* readonly m_p;
+	size_t readonly m_length;
+	size_t readonly m_maxLength;
+
+	void operator := (StringRef src)
+	{
+		try copy (src);
+	}
+	
+	void operator += (StringRef src)
+	{
+		try append (src);
+	}
+
+	bool errorcode copy (
+		char const* p,
+		size_t length = -1
+		);
+
+	bool errorcode copy (StringRef src)
+	{
+		return try copy (src.m_p, src.m_length);
+	}
+
+	bool errorcode append (
+		char const* p,
+		size_t length = -1
+		);
+
+	bool errorcode append (StringRef src)
+	{
+		return try append (src.m_p, src.m_length);
+	}
+}
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

@@ -1,0 +1,101 @@
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//! \addtogroup pcap
+//! @{
+
+//.............................................................................
+
+enum PCapEventKind
+{
+	ReadyRead,
+	Eof,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PCapEventParams
+{
+	PCapEventKind m_eventKind;
+	uint_t m_syncId;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class PCap
+{
+	char const* readonly m_filter;
+	bool readonly m_isPromiscious;
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool errorcode openDevice (
+		char const* deviceName,
+		char const* filter = null,
+		bool isPromiscious = false
+		);
+
+	bool errorcode openFile (
+		char const* fileName,
+		char const* filter = null
+		);
+		
+	void close ();
+	
+	bool errorcode setFilter (char const* filter);
+
+	size_t errorcode write (
+		void const* p,
+		size_t size
+		);
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	event m_onPCapEvent (PCapEventParams const* params);
+}
+
+//.............................................................................
+
+// pcap device enumeration
+
+struct PCapAddress
+{
+	PCapAddress const* m_next;
+	Address_ip4 m_address;
+	Address_ip4 m_mask;
+	Address_ip4 m_broadcast;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PCapDeviceDesc
+{
+	PCapDeviceDesc const* m_next;
+	char const* m_name;
+	char const* m_description;
+	PCapAddress m_address;
+	uint_t m_flags;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+PCapDeviceDesc const* createPCapDeviceDescList (size_t* count = null);
+
+//.............................................................................
+
+//! @}
+
+} // namespace io
+
+/*!
+
+\defgroup pcap PCap (Packet Capturing Library)
+
+*/

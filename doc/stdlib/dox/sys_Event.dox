@@ -1,0 +1,24 @@
+///+++
+
+/// JNC_SELECT_ANY char g_sys_EventSrc [] = 
+
+namespace sys {
+
+//.............................................................................
+
+opaque class Event
+{
+	construct ();
+	destruct ();
+
+	signal ();
+	bool wait (uint_t timeout = -1);
+}
+
+//.............................................................................
+
+} // namespace sys
+
+///;
+
+///---

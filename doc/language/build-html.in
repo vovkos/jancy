@@ -1,0 +1,10 @@
+${SHELL_FILE_HDR}
+
+echo Building Jancy Language Reference HTML files at ${HTML_DIR}...
+
+${SPHINX_BUILD_EXE} ${SHELL_LINE_CONT}
+	-b html ${SHELL_LINE_CONT}
+	-d ${TMP_DIR}/sphinx-doctrees ${SHELL_LINE_CONT}
+	-c ${CMAKE_CURRENT_BINARY_DIR} ${SHELL_LINE_CONT}
+	${RST_DIR} ${SHELL_LINE_CONT}
+	${HTML_DIR}

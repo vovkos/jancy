@@ -1,0 +1,99 @@
+import "io_MappedFile.jnc"
+
+namespace io {
+
+//! \addtogroup file
+//! @{
+
+//.............................................................................
+
+enum FileStreamKind
+{
+	Unknown,
+	Disk,
+	Serial,
+	Pipe,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getFileStreamKindString (FileStreamKind kind)
+{
+	static char const* stringTable [] = 
+	{
+		"unknown device", // FileStreamKind.Unknown,
+		"disk file",      // FileStreamKind.Disk,
+		"serial device",  // FileStreamKind.Serial,
+		"pipe",           // FileStreamKind.Pipe,
+	};
+
+	return kind < countof (stringTable) ? 
+		stringTable [kind] : 
+		stringTable [0];
+}
+
+//.............................................................................
+
+enum FileStreamEvent
+{
+	Eof,
+	IncomingData,
+	IoError,
+	TransmitBufferReady,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct FileStreamEventParams
+{
+	FileStreamEvent m_eventKind;
+	uint_t m_syncId;
+	std.Error* m_error;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class FileStream
+{
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+	FileStreamKind readonly m_kind;
+
+	construct ();
+	destruct ();
+
+	bool errorcode open (
+		char const* name,
+		FileOpenFlags flags = 0
+		);
+
+	void close ();
+
+	bool errorcode clear (); // only for disk files
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	size_t errorcode write (
+		void const* p,
+		size_t size
+		);
+
+	event m_onFileStreamEvent (FileStreamEventParams const* params);
+
+	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
+}
+
+//! @}
+
+//.............................................................................
+
+} // namespace io
+
+/*!
+
+\defgroup file Generic File IO
+
+*/

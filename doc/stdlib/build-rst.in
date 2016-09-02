@@ -1,0 +1,25 @@
+${SHELL_FILE_HDR}
+
+echo Building Jancy Standard Library RST files at ${RST_DIR}...
+
+${JANCY_EXE} ${SHELL_LINE_CONT}
+	-d ${SHELL_LINE_CONT}
+	--std-lib-doc ${SHELL_LINE_CONT}
+	--no-doxy-comment /// ${SHELL_LINE_CONT}
+	-O ${XML_DIR} ${SHELL_LINE_CONT}
+	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_StdTypedefs.jnc ${SHELL_LINE_CONT}
+	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_DynamicLib.jnc ${SHELL_LINE_CONT}
+	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Recognizer.jnc ${SHELL_LINE_CONT}
+	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Scheduler.jnc ${SHELL_LINE_CONT}
+	-S ${JANCY_SRC_DIR}/jnc_std/jnc ${SHELL_LINE_CONT}
+	-S ${JANCY_SRC_DIR}/jnc_sys/jnc ${SHELL_LINE_CONT}
+	-I ${JANCY_SRC_DIR}/jnc_io_base/jnc ${SHELL_LINE_CONT}
+	-S ${JANCY_SRC_DIR}/jnc_io_base/jnc ${SHELL_LINE_CONT}
+	-S ${JANCY_SRC_DIR}/jnc_io_ssh/jnc ${SHELL_LINE_CONT}
+	-S ${JANCY_SRC_DIR}/jnc_io_pcap/jnc
+
+${DOXYREST_EXE} ${SHELL_LINE_CONT}
+	${XML_DIR}/index.xml ${SHELL_LINE_CONT}
+	-o ${RST_DIR}/global.rst ${SHELL_LINE_CONT}
+	-F ${DOXYREST_FRAME_DIR} ${SHELL_LINE_CONT}
+	-f c_global.rst.in

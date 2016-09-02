@@ -1,0 +1,113 @@
+///+++
+
+/// JNC_SELECT_ANY char g_std_globalsSrc [] = 
+
+//.............................................................................
+
+size_t strlen (char const* p);
+
+int strcmp (
+	char const* p1,
+	char const* p2
+	);
+
+int stricmp (
+	char const* p1,
+	char const* p2
+	);
+
+char const* strchr (
+	char const* p,
+	int c
+	);
+
+char const* strstr (
+	char const* p1,
+	char const* p2
+	);
+
+char const* strcat (
+	char const* p1,
+	char const* p2
+	);
+
+char const* strdup (
+	char const* p,
+	size_t length = -1
+	);
+
+int memcmp (
+	void const* p1,
+	void const* p2,
+	size_t size
+	);
+
+void const* memchr (
+	void const* p,
+	int c,
+	size_t size
+	);
+
+void const* memmem (
+	void const* p1,
+	size_t size1,
+	void const* p2,
+	size_t size2
+	);
+
+void memcpy (
+	void* dst,
+	void const* src,
+	size_t size
+	);
+
+void memset (
+	void* p,
+	int c,
+	size_t size
+	);
+
+void* memcat (
+	void const* p1,
+	size_t size1,
+	void const* p2,
+	size_t size2
+	);
+
+void* memdup (
+	void const* p,
+	size_t size
+	);
+
+int rand ();
+
+// UTF-32
+
+uint32_t toupper (uint32_t c);
+uint32_t tolower (uint32_t c);
+
+int atoi (char const* p);
+
+intptr cdecl printf (
+	char const thin* fmtSpecifier,
+	...
+	);
+
+namespace std {
+
+//.............................................................................
+
+char const* cdecl format (
+	char const* fmtSpecifier,
+	...
+	);
+
+void collectGarbage ();
+
+//.............................................................................
+
+} // namespace std
+
+///;
+
+///---

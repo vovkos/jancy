@@ -16,11 +16,12 @@ set (
 	QT_DLL_DIR
 	AXL_CMAKE_DIR
 	GRACO_CMAKE_DIR
+	DOXYREST_CMAKE_DIR
 	7Z_EXE
 	PERL_EXE
 	RAGEL_EXE
 	DOXYGEN_EXE
-	QDOC_EXE
+	SPHINX_BUILD_EXE
 	)
 
 set (
@@ -39,6 +40,8 @@ set (
 		openssl
 		pcap
 		doxygen
+		doxyrest
+		sphinx
 	)
 
 if (UNIX AND NOT APPLE)
@@ -51,11 +54,18 @@ else ()
 	set (_GRACO_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../graco/cmake)
 endif ()
 
+if (DOXYREST_CMAKE_DIR)
+	set (_DOXYREST_CMAKE_DIR ${DOXYREST_CMAKE_DIR})
+else ()
+	set (_DOXYREST_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../doxyrest/cmake)
+endif ()
+
 set (
 	AXL_IMPORT_DIR_LIST
 	
 	${CMAKE_CURRENT_LIST_DIR}/cmake
 	${_GRACO_CMAKE_DIR}
+	${_DOXYREST_CMAKE_DIR}
 	)
 
 #..............................................................................

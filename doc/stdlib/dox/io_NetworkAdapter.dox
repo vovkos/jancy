@@ -1,0 +1,73 @@
+namespace io {
+
+//! \addtogroup network-adapter
+//! @{
+
+//.............................................................................
+
+enum NetworkAdapterType
+{
+	Unknown = 0,
+	Loopback,
+	Ethernet,
+	Wireless,
+	Ppp,
+	TokenRing,
+	Slip,
+	Tunnel,
+	_Count,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum NetworkAdapterFlags
+{
+	Dhcp,
+	Ddns,
+	Broadcast,
+	Multicast,
+	Ip4,
+	Ip6,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct NetworkAdapterAddress
+{
+	NetworkAdapterAddress const* m_next;
+	SocketAddress m_address;
+	size_t m_netMaskBitCount;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct NetworkAdapterDesc
+{
+	NetworkAdapterDesc const* m_next;
+	char const* m_name;
+	char const* m_description;
+	NetworkAdapterType m_type;
+	NetworkAdapterFlags m_flags;
+	uint8_t m_mac [6];
+	NetworkAdapterAddress const* m_address;
+	size_t m_addressCount;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+NetworkAdapterDesc const* createNetworkAdapterDescList (
+	size_t* adapterCount = null,
+	size_t* addressCount = null
+	);
+
+//.............................................................................
+
+//! @}
+
+} // namespace io
+
+/*!
+
+\defgroup network-adapter Network Adapter Management
+
+*/

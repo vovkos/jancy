@@ -1,0 +1,49 @@
+namespace io {
+
+//! \addtogroup file
+//! @{
+
+//.............................................................................
+
+enum MailslotEvent
+{
+	IncomingData,
+	IoError,
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct MailslotEventParams
+{
+	MailslotEvent m_eventKind;
+	uint_t m_syncId;
+	std.Error* m_error;
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class Mailslot
+{
+	bool readonly m_isOpen;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	bool errorcode open (char const* name);
+
+	void close ();
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	event m_onMailslotEvent (MailslotEventParams const* params);
+}
+
+//.............................................................................
+
+//! @}
+
+} // namespace io
