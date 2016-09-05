@@ -259,7 +259,11 @@ latex_elements = {
      # 'figure_align': 'htbp',
 
     'classoptions': ',openany,oneside',
-    'babel': '\\usepackage[english]{babel}'
+    'babel': '\\usepackage[english]{babel}',
+    
+    'preamble': '''
+        \\usepackage{doxyrest}
+    '''    
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

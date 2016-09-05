@@ -15,7 +15,7 @@ echo Building ${DOC_NAME} PDF at ${PDF_DIR}...
 set PREV_DIR=%CD%
 cd ${TEX_DIR}
 
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE}
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE}
+"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
+"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
 	
 cd %PREV_DIR%

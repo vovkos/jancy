@@ -3,6 +3,9 @@
 set PDF_DIR="${PDF_DIR}"
 set PDF_DIR=%PDF_DIR:/=\%
 
+set DOXYREST_SPHINX_DIR="${DOXYREST_SPHINX_DIR}"
+set DOXYREST_SPHINX_DIR=%DOXYREST_SPHINX_DIR:/=\%
+
 if exist %PDF_DIR% (rd /S /Q %PDF_DIR% || exit)
 mkdir %PDF_DIR% || exit
 
@@ -15,7 +18,9 @@ echo Building ${DOC_NAME} PDF at ${PDF_DIR}...
 set PREV_DIR=%CD%
 cd ${TEX_DIR}
 
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE}
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE}
+copy %DOXYREST_SPHINX_DIR%\doxyrest.sty
+
+"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
+"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
 	
 cd %PREV_DIR%
