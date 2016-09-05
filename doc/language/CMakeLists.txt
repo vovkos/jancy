@@ -4,17 +4,64 @@
 
 #..............................................................................
 
+set (DOC_NAME "Jancy Language Manual")
+
 set (RST_DIR  ${CMAKE_CURRENT_LIST_DIR}/rst)
 set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
 set (TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
 set (PDF_DIR  ${CMAKE_CURRENT_BINARY_DIR}/pdf)
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
 
-#configure_file (
-#	rst/index.rst
-#	${RST_DIR}/index.rst
-#	COPYONLY
-#	)
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+set (
+	SPHINX_HTML_CMD_LINE
+	-b html
+	-d ${TMP_DIR}/sphinx-doctrees
+	-c ${CMAKE_CURRENT_BINARY_DIR}
+	${RST_DIR}
+	${HTML_DIR}
+	)
+
+set (
+	SPHINX_TEX_CMD_LINE
+	-b latex
+	-d ${TMP_DIR}/sphinx-doctrees
+	-c ${CMAKE_CURRENT_BINARY_DIR}
+	${RST_DIR}
+	${TEX_DIR}
+	)
+
+set (
+	LATEX_CMD_LINE
+	-quiet
+	-output-directory=${PDF_DIR}
+	-aux-directory=${TMP_DIR}
+	jancy_language.tex
+	)
+
+string (
+	REPLACE  
+	";" " "
+	SPHINX_HTML_CMD_LINE
+	"${SPHINX_HTML_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	SPHINX_TEX_CMD_LINE
+	"${SPHINX_TEX_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	LATEX_CMD_LINE
+	"${LATEX_CMD_LINE}"
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 configure_file (
 	conf.py.in
@@ -22,24 +69,18 @@ configure_file (
 	)
 
 if (WIN32)	
-	set (SHELL_FILE_HDR "@echo off")
-	set (SHELL_LINE_CONT "^")
-
 	configure_file (
-		build-html.in
+		build-html.bat.in
 		build-html.bat
 		)
 
 	configure_file (
-		build-pdf.in
+		build-pdf.bat.in
 		build-pdf.bat
 		)		
 else ()
-	set (SHELL_FILE_HDR "#!/bin/bash")
-	set (SHELL_LINE_CONT "\\")
-
 	axl_configure_file_w_permissions (
-		build-html.in
+		build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -47,7 +88,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-pdf.in
+		build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE

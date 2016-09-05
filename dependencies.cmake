@@ -22,6 +22,7 @@ set (
 	RAGEL_EXE
 	DOXYGEN_EXE
 	SPHINX_BUILD_EXE
+	PDFLATEX_EXE
 	)
 
 set (
@@ -42,30 +43,19 @@ set (
 		doxygen
 		doxyrest
 		sphinx
+		latex
 	)
 
 if (UNIX AND NOT APPLE)
 	set (AXL_IMPORT_LIST ${AXL_IMPORT_LIST} OPTIONAL libudev)
 endif ()
 
-if (GRACO_CMAKE_DIR)
-	set (_GRACO_CMAKE_DIR ${GRACO_CMAKE_DIR})
-else ()
-	set (_GRACO_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../graco/cmake)
-endif ()
-
-if (DOXYREST_CMAKE_DIR)
-	set (_DOXYREST_CMAKE_DIR ${DOXYREST_CMAKE_DIR})
-else ()
-	set (_DOXYREST_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../doxyrest/cmake)
-endif ()
-
 set (
 	AXL_IMPORT_DIR_LIST
 	
 	${CMAKE_CURRENT_LIST_DIR}/cmake
-	${_GRACO_CMAKE_DIR}
-	${_DOXYREST_CMAKE_DIR}
+	${GRACO_CMAKE_DIR}
+	${DOXYREST_CMAKE_DIR}
 	)
 
 #..............................................................................

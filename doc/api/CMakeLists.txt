@@ -4,6 +4,8 @@
 
 #..............................................................................
 
+set (DOC_NAME "Jancy API Reference")
+
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
 set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
@@ -11,15 +13,87 @@ set (TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
 set (PDF_DIR  ${CMAKE_CURRENT_BINARY_DIR}/pdf)
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
 
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+set (
+	DOXYGEN_CMD_LINE
+	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	)
+
+set (
+	DOXYREST_CMD_LINE
+	${XML_DIR}/index.xml
+	-o ${RST_DIR}/global.rst
+	-F ${DOXYREST_FRAME_DIR}
+	-f c_global.rst.in
+	)
+
+set (
+	SPHINX_HTML_CMD_LINE
+	-b html
+	-d ${TMP_DIR}/sphinx-doctrees
+	-c ${CMAKE_CURRENT_BINARY_DIR}
+	${RST_DIR}
+	${HTML_DIR}
+	)
+
+set (
+	SPHINX_TEX_CMD_LINE
+	-b latex
+	-d ${TMP_DIR}/sphinx-doctrees
+	-c ${CMAKE_CURRENT_BINARY_DIR}
+	${RST_DIR}
+	${TEX_DIR}
+	)
+
+set (
+	LATEX_CMD_LINE
+	-quiet
+	-output-directory=${PDF_DIR}
+	-aux-directory=${TMP_DIR}
+	jancy_api.tex
+	)
+
+string (
+	REPLACE  
+	";" " "
+	DOXYGEN_CMD_LINE
+	"${DOXYGEN_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	DOXYREST_CMD_LINE
+	"${DOXYREST_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	SPHINX_HTML_CMD_LINE
+	"${SPHINX_HTML_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	SPHINX_TEX_CMD_LINE
+	"${SPHINX_TEX_CMD_LINE}"
+	)
+
+string (
+	REPLACE  
+	";" " "
+	LATEX_CMD_LINE
+	"${LATEX_CMD_LINE}"
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 configure_file (
 	Doxyfile.in
 	Doxyfile
-	)
-
-configure_file (
-	rst/index.rst
-	${RST_DIR}/index.rst
-	COPYONLY
 	)
 
 configure_file (
@@ -28,32 +102,25 @@ configure_file (
 	)
 
 if (WIN32)	
-	set (SHELL_FILE_HDR "@echo off")
-	set (SHELL_LINE_CONT "^")
-
-	string (REPLACE "$(Configuration)" "%1" JANCY_EXE ${JANCY_EXE})
 	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE ${DOXYREST_EXE})
 	
 	configure_file (
-		build-rst.in
+		build-rst.bat.in
 		build-rst.bat
 		)
 
 	configure_file (
-		build-html.in
+		build-html.bat.in
 		build-html.bat
 		)
 
 	configure_file (
-		build-pdf.in
+		build-pdf.bat.in
 		build-pdf.bat
 		)		
 else ()
-	set (SHELL_FILE_HDR "#!/bin/bash")
-	set (SHELL_LINE_CONT "\\")
-
 	axl_configure_file_w_permissions (
-		build-rst.in
+		build-rst.sh.in
 		build-rst.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -61,7 +128,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-html.in
+		build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -69,7 +136,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-pdf.in
+		build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE

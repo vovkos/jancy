@@ -1,0 +1,22 @@
+@echo off
+
+set THIS_DIR="${CMAKE_CURRENT_LIST_DIR}"
+set RST_DIR="${RST_DIR}"
+
+set THIS_DIR=%THIS_DIR:/=\%
+set RST_DIR=%RST_DIR:/=\%
+
+if exist %RST_DIR% (rd /S /Q %RST_DIR% || exit)
+mkdir %RST_DIR% || exit
+
+echo Copying Jancy API RST files to ${RST_DIR}...
+
+xcopy /Y /Q /E %THIS_DIR%\rst\*.* %RST_DIR% || exit
+
+echo Building ${DOC_NAME} XML files at ${XML_DIR}...
+
+"${DOXYGEN_EXE}" ${DOXYGEN_CMD_LINE} || exit
+
+echo Building ${DOC_NAME} RST files at ${RST_DIR}...
+
+"${DOXYREST_EXE}" ${DOXYREST_CMD_LINE} || exit
