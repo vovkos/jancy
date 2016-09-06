@@ -4,7 +4,9 @@
 
 #..............................................................................
 
-set (DOC_NAME "Jancy Standard Library Reference")
+set (DOC_NAME      "Jancy Standard Library Reference")
+set (TEX_FILE_NAME jancy_stdlib.tex)
+set (PDF_FILE_NAME jancy_stdlib.pdf)
 
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
@@ -60,47 +62,41 @@ set (
 	)
 
 set (
-	LATEX_CMD_LINE
+	PDFLATEX_MIKTEX_CMD_LINE
 	-quiet
 	-output-directory=${PDF_DIR}
 	-aux-directory=${TMP_DIR}
-	jancy_stdlib.tex
+	${TEX_FILE_NAME}
 	)
 
-string (
-	REPLACE  
-	";" " "
+set (
+	PDFLATEX_TEXLIVE_CMD_LINE
+	-interaction=batchmode
+	-output-directory=${TMP_DIR}
+	${TEX_FILE_NAME}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+set (
+	CMD_LINE_VAR_LIST
+
 	JANCY_CMD_LINE
-	"${JANCY_CMD_LINE}"
-	)
-
-string (
-	REPLACE  
-	";" " "
 	DOXYREST_CMD_LINE
-	"${DOXYREST_CMD_LINE}"
-	)
-
-string (
-	REPLACE  
-	";" " "
 	SPHINX_HTML_CMD_LINE
-	"${SPHINX_HTML_CMD_LINE}"
-	)
-
-string (
-	REPLACE  
-	";" " "
 	SPHINX_TEX_CMD_LINE
-	"${SPHINX_TEX_CMD_LINE}"
+	PDFLATEX_MIKTEX_CMD_LINE
+	PDFLATEX_TEXLIVE_CMD_LINE
 	)
 
-string (
-	REPLACE  
-	";" " "
-	LATEX_CMD_LINE
-	"${LATEX_CMD_LINE}"
-	)
+foreach (_VAR ${CMD_LINE_VAR_LIST})
+	string (
+		REPLACE  
+		";" " "
+		${_VAR}
+		"${${_VAR}}"
+		)
+endforeach ()
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

@@ -1,4 +1,6 @@
-@echo off
+#!/bin/bash
+
+set -e
 
 echo Building ${DOC_NAME} HTML files at ${HTML_DIR}...
 

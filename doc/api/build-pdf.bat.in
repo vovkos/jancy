@@ -20,7 +20,7 @@ cd ${TEX_DIR}
 
 copy %DOXYREST_SPHINX_DIR%\doxyrest.sty
 
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
+"${PDFLATEX_EXE}" ${PDFLATEX_MIKTEX_CMD_LINE} || exit
+"${PDFLATEX_EXE}" ${PDFLATEX_MIKTEX_CMD_LINE} || exit
 	
 cd %PREV_DIR%

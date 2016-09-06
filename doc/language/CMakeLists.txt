@@ -4,7 +4,9 @@
 
 #..............................................................................
 
-set (DOC_NAME "Jancy Language Manual")
+set (DOC_NAME      "Jancy Language Manual")
+set (TEX_FILE_NAME jancy_language.tex)
+set (PDF_FILE_NAME jancy_language.pdf)
 
 set (RST_DIR  ${CMAKE_CURRENT_LIST_DIR}/rst)
 set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
@@ -33,33 +35,39 @@ set (
 	)
 
 set (
-	LATEX_CMD_LINE
+	PDFLATEX_MIKTEX_CMD_LINE
 	-quiet
 	-output-directory=${PDF_DIR}
 	-aux-directory=${TMP_DIR}
-	jancy_language.tex
+	${TEX_FILE_NAME}
 	)
 
-string (
-	REPLACE  
-	";" " "
+set (
+	PDFLATEX_TEXLIVE_CMD_LINE
+	-interaction=batchmode
+	-output-directory=${TMP_DIR}
+	${TEX_FILE_NAME}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+set (
+	CMD_LINE_VAR_LIST
+
 	SPHINX_HTML_CMD_LINE
-	"${SPHINX_HTML_CMD_LINE}"
-	)
-
-string (
-	REPLACE  
-	";" " "
 	SPHINX_TEX_CMD_LINE
-	"${SPHINX_TEX_CMD_LINE}"
+	PDFLATEX_MIKTEX_CMD_LINE
+	PDFLATEX_TEXLIVE_CMD_LINE
 	)
 
-string (
-	REPLACE  
-	";" " "
-	LATEX_CMD_LINE
-	"${LATEX_CMD_LINE}"
-	)
+foreach (_VAR ${CMD_LINE_VAR_LIST})
+	string (
+		REPLACE  
+		";" " "
+		${_VAR}
+		"${${_VAR}}"
+		)
+endforeach ()
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

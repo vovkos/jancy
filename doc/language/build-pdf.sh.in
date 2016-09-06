@@ -1,10 +1,6 @@
-@echo off
+#!/bin/bash
 
-set PDF_DIR="${PDF_DIR}"
-set PDF_DIR=%PDF_DIR:/=\%
-
-if exist %PDF_DIR% (rd /S /Q %PDF_DIR% || exit)
-mkdir %PDF_DIR% || exit
+set -e
 
 echo Building ${DOC_NAME} Latex files at ${TEX_DIR}...
 
@@ -12,10 +8,15 @@ echo Building ${DOC_NAME} Latex files at ${TEX_DIR}...
 
 echo Building ${DOC_NAME} PDF at ${PDF_DIR}...
 
-set PREV_DIR=%CD%
+PREV_DIR=`pwd`
 cd ${TEX_DIR}
+mkdir -p ${PDF_DIR}
 
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
-"${PDFLATEX_EXE}" ${LATEX_CMD_LINE} || exit
-	
-cd %PREV_DIR%
+cp ${DOXYREST_SPHINX_DIR}/doxyrest.sty .
+
+"${PDFLATEX_EXE}" ${PDFLATEX_TEXLIVE_CMD_LINE}
+"${PDFLATEX_EXE}" ${PDFLATEX_TEXLIVE_CMD_LINE}
+
+cp ${TMP_DIR}/${PDF_FILE_NAME} ${PDF_DIR}
+
+cd $PREV_DIR

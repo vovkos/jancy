@@ -1,5 +1,7 @@
-@echo off
+#!/bin/bash
 
-echo Building Jancy Standard Library HTML files at ${HTML_DIR}...
+set -e
+
+echo Building ${DOC_NAME} HTML files at ${HTML_DIR}...
 
 "${SPHINX_BUILD_EXE}" ${SPHINX_HTML_CMD_LINE}
