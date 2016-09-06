@@ -2,13 +2,12 @@
 
 #include "axl_g_Pch.h"
 
-#if (_JNC_ENV == JNC_ENV_WIN)
-#	define getsockerror WSAGetLastError
+#if (_AXL_ENV == AXL_ENV_WIN)
 #	define socklen_t    int
 #	include <io.h>
 #	include <fcntl.h>
 
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_AXL_ENV == AXL_ENV_POSIX)
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #	include <netinet/ip.h>
@@ -16,13 +15,6 @@
 #	define SOCKET         int
 #	define INVALID_SOCKET (-1)
 #	define closesocket    close
-
-JNC_INLINE
-int
-getsockerror ()
-{
-	return errno;
-}
 
 #endif
 

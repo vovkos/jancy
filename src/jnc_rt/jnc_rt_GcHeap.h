@@ -49,7 +49,6 @@ protected:
 		IfaceHdr* m_iface;
 	};
 
-protected:
 	class DestructThread: public axl::sys::ThreadImpl <DestructThread>
 	{
 	public:
@@ -60,6 +59,8 @@ protected:
 		}
 	};
 
+	typedef sl::AuxList <GcMutatorThread, GetGcMutatorThreadLink> MutatorThreadList;
+	
 protected:
 	Runtime* m_runtime;
 
@@ -73,7 +74,7 @@ protected:
 
 	DestructThread m_destructThread;
 
-	sl::AuxList <GcMutatorThread> m_mutatorThreadList;
+	MutatorThreadList m_mutatorThreadList;
 	volatile size_t m_waitingMutatorThreadCount;
 	volatile size_t m_noCollectMutatorThreadCount;
 	volatile size_t m_handshakeCount;

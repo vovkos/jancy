@@ -176,7 +176,7 @@
 #	define JNC_INLINE   inline
 #else
 #	define JNC_EXTERN_C
-#	define JNC_INLINE   __inline
+#	define JNC_INLINE   static __inline
 #endif
 
 #if (_JNC_CPP == JNC_CPP_MSC)
@@ -302,21 +302,6 @@ typedef int32_t           utf32_t;
 typedef int16_t           utf16_t;
 typedef wchar_t           utf32_t;
 #endif
-
-//.............................................................................
-
-// inheriting which works for both C and C++
-
-#ifdef __cplusplus 
-#	define JNC_BEGIN_INHERITED_STRUCT(Struct, BaseStruct) \
-	struct Struct: BaseStruct {
-#else
-#	define JNC_BEGIN_INHERITED_STRUCT(Struct, BaseStruct) \
-	struct Struct { BaseStruct;
-#endif
-
-#define JNC_END_INHERITED_STRUCT() \
-	};
 
 //.............................................................................
 
@@ -515,11 +500,17 @@ struct jnc_Guid
 	};
 };
 
+#		ifdef __cplusplus
+#			define JNC_GUID_SPECIFIER extern JNC_SELECT_ANY const
+#		else
+#			define JNC_GUID_SPECIFIER JNC_SELECT_ANY const
+#		endif
+
 #		define JNC_GUID_INITIALIZER(l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
 			{ { { l, s1, s2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } } }
 
 #		define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
-			extern JNC_SELECT_ANY const jnc_Guid n = \
+			JNC_GUID_SPECIFIER jnc_Guid n = \
 			JNC_GUID_INITIALIZER (l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
 #	endif // _AXL_SL_GUID_H
 

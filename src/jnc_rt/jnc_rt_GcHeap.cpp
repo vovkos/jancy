@@ -263,15 +263,15 @@ GcHeap::tryAllocateData (ct::Type* type)
 		return g_nullPtr;
 	}
 
-	box->m_type = type;
-	box->m_flags = BoxFlag_DataMark | BoxFlag_WeakMark;
-	box->m_validator.m_validatorBox = box;
-	box->m_validator.m_targetBox = box;
+	box->m_box.m_type = type;
+	box->m_box.m_flags = BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_validator.m_validatorBox = (Box*) box;
+	box->m_validator.m_targetBox = (Box*) box;
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
 
 	incrementAllocSizeAndLock (size);
-	m_allocBoxArray.append (box);
+	m_allocBoxArray.append ((Box*) box);
 	m_lock.unlock ();
 
 	DataPtr ptr;
@@ -308,16 +308,16 @@ GcHeap::tryAllocateArray (
 		return g_nullPtr;
 	}
 
-	box->m_type = type;
-	box->m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_box.m_type = type;
+	box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 	box->m_count = count;
-	box->m_validator.m_validatorBox = box;
-	box->m_validator.m_targetBox = box;
+	box->m_validator.m_validatorBox = (Box*) box;
+	box->m_validator.m_targetBox = (Box*) box;
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
 
 	incrementAllocSizeAndLock (size);
-	m_allocBoxArray.append (box);
+	m_allocBoxArray.append ((Box*) box);
 	m_lock.unlock ();
 
 	DataPtr ptr;
@@ -402,22 +402,22 @@ GcHeap::createDataPtrValidator (
 			ASSERT (false);
 		}
 
-		box->m_type = (jnc::Type*) m_runtime->getModule ()->m_typeMgr.getStdType (StdType_DataPtrValidator);
-		box->m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
-		box->m_rootOffset = 0;
+		box->m_box.m_type = (jnc::Type*) m_runtime->getModule ()->m_typeMgr.getStdType (StdType_DataPtrValidator);
+		box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
+		box->m_box.m_rootOffset = 0;
 		box->m_count = GcDef_DataPtrValidatorPoolSize;
 
 		incrementAllocSizeAndLock (size);
-		m_allocBoxArray.append (box);
+		m_allocBoxArray.append ((Box*) box);
 		m_lock.unlock ();
 
 		validator = &box->m_validator;
-		validator->m_validatorBox = box;
+		validator->m_validatorBox = (Box*) box;
 
 		if (GcDef_DataPtrValidatorPoolSize >= 2)
 		{
 			thread->m_dataPtrValidatorPoolBegin = validator + 1;
-			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = box;
+			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = (Box*) box;
 			thread->m_dataPtrValidatorPoolEnd = validator + GcDef_DataPtrValidatorPoolSize;
 		}
 	}
@@ -749,7 +749,7 @@ GcHeap::markData (Box* box)
 	else
 	{
 		DynamicArrayBox* arrayBox = (DynamicArrayBox*) box;		
-		addRootArray (arrayBox + 1, arrayBox->m_type, arrayBox->m_count);
+		addRootArray (arrayBox + 1, arrayBox->m_box.m_type, arrayBox->m_count);
 	}
 }
 
@@ -864,8 +864,8 @@ GcHeap::addRoot (
 		else
 		{
 			DataBox* box = ((DataBox*) p) - 1;
-			ASSERT (box->m_type == targetType);
-			markData (box);
+			ASSERT (box->m_box.m_type == targetType);
+			markData ((Box*) box);
 		}
 	}
 }
@@ -955,7 +955,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		handshakeCount
 		);
 
-	sl::Iterator <GcMutatorThread> threadIt = m_mutatorThreadList.getHead ();
+	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
 		dbg::trace ("   *** mutator (tid = %x; wait = %d)\n",

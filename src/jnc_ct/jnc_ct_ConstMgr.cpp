@@ -64,10 +64,11 @@ ConstMgr::createConstDataPtrValidator (
 	)
 {
 	ConstDataPtrValidatorEntry* entry = AXL_MEM_NEW (ConstDataPtrValidatorEntry);
-	entry->m_box.m_flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
-	entry->m_box.m_type = type;
-	entry->m_validator.m_validatorBox = &entry->m_box;
-	entry->m_validator.m_targetBox = &entry->m_box;
+	entry->m_box.m_box.m_flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
+	entry->m_box.m_box.m_type = type;
+	entry->m_box.m_p = (void*) p;
+	entry->m_validator.m_validatorBox = &entry->m_box.m_box;
+	entry->m_validator.m_targetBox = &entry->m_box.m_box;
 	entry->m_validator.m_rangeBegin = p;
 	entry->m_validator.m_rangeEnd = (char*) p + type->getSize ();
 	m_constDataPtrValidatorList.insertTail (entry);

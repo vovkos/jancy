@@ -1013,7 +1013,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	return callVoidFunctionPtr (runtime, ptr);
 }
 
@@ -1026,7 +1026,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	return callVoidFunctionPtr (runtime, ptr, arg);
 }
 
@@ -1043,7 +1043,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2);
 }
 
@@ -1062,7 +1062,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3);
 }
 
@@ -1083,7 +1083,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3, arg4);
 }
 
@@ -1094,7 +1094,7 @@ void
 callMulticast (Multicast* multicast)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	callVoidFunctionPtr (ptr);
 }
 
@@ -1106,7 +1106,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	callVoidFunctionPtr (ptr, arg);
 }
 
@@ -1122,7 +1122,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	callVoidFunctionPtr (ptr, arg1, arg2);
 }
 
@@ -1140,7 +1140,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3);
 }
 
@@ -1160,7 +1160,7 @@ callMulticast (
 	)
 {
 	void* p = getMulticastCallMethodMachineCode (multicast);
-	FunctionPtr ptr = { p, multicast };
+	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3, arg4);
 }
 

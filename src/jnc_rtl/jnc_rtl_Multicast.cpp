@@ -81,7 +81,7 @@ MulticastImpl::setCount (
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
-	MulticastClassType* type = (MulticastClassType*) m_box->m_type;
+	MulticastClassType* type = (MulticastClassType*) m_ifaceHdr.m_box->m_type;
 	ASSERT (isClassType (type, ClassTypeKind_Multicast));
 
 	FunctionPtrType* targetType = type->getTargetType ();
@@ -103,7 +103,7 @@ MulticastImpl::getSnapshot ()
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
-	MulticastClassType* type = (MulticastClassType*) m_box->m_type;
+	MulticastClassType* type = (MulticastClassType*) m_ifaceHdr.m_box->m_type;
 	ASSERT (isClassType (type, ClassTypeKind_Multicast));
 
 	ScopedNoCollectRegion noCollectRegion (gcHeap, false);
@@ -114,7 +114,7 @@ MulticastImpl::getSnapshot ()
 
 	FunctionPtr resultPtr;
 	resultPtr.m_p = snapshotType->getMethod (McSnapshotMethodKind_Call)->getMachineCode ();
-	resultPtr.m_closure = snapshot;
+	resultPtr.m_closure = (IfaceHdr*) snapshot;
 
 	if (!m_count)
 		return resultPtr;

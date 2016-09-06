@@ -118,16 +118,22 @@ struct jnc_PropertyPtr
 
 // specialized boxes
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_DataBox, jnc_Box)
+struct jnc_DataBox
+{
+	jnc_Box m_box;
 	jnc_DataPtrValidator m_validator;
-JNC_END_INHERITED_STRUCT ()
+};
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_StaticDataBox, jnc_Box)
+struct jnc_StaticDataBox
+{
 	jnc_Box m_box;
 	void* m_p; // static data boxes are detached from the actual data
-JNC_END_INHERITED_STRUCT ()
+};
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_DynamicArrayBox, jnc_Box)
+struct jnc_DynamicArrayBox
+{
+	jnc_Box m_box;
+	
 	union
 	{
 		size_t m_count;
@@ -135,7 +141,7 @@ JNC_BEGIN_INHERITED_STRUCT (jnc_DynamicArrayBox, jnc_Box)
 	};
 
 	jnc_DataPtrValidator m_validator; // when gcheap allocates validators, it re-uses this field
-JNC_END_INHERITED_STRUCT ()
+};
 
 //.............................................................................
 
@@ -154,22 +160,26 @@ struct jnc_IfaceHdr
 // structure backing up multicasts, e.g.:
 // multicast f ();
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_Multicast, jnc_IfaceHdr)
+struct jnc_Multicast
+{
+	jnc_IfaceHdr m_ifaceHdr;
 	volatile intptr_t m_lock;
 	jnc_DataPtr m_ptr; // array of function closure, weak or unsafe pointers
 	size_t m_count;
 	size_t m_maxCount;
 	void* m_handleTable;
-JNC_END_INHERITED_STRUCT ()
+};
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // multicast.getSnapshot method returns an instance of this class:
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_McSnapshot, jnc_IfaceHdr)
+struct jnc_McSnapshot
+{
+	jnc_IfaceHdr m_ifaceHdr;
 	jnc_DataPtr m_ptr; // array of function closure or unsafe pointers
 	size_t m_count;
-JNC_END_INHERITED_STRUCT ()
+};
 
 //.............................................................................
 
@@ -204,15 +214,17 @@ struct jnc_GcShadowStackFrame
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_GcMutatorThread, jnc_ListLink)
+struct jnc_GcMutatorThread
+{
+	jnc_ListLink m_link;
 	uint64_t m_threadId;
 	volatile int m_isSafePoint;
 	size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
-JNC_END_INHERITED_STRUCT ()
-
+};
+	
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef
@@ -240,7 +252,9 @@ struct jnc_SjljFrame
 
 //.............................................................................
 
-JNC_BEGIN_INHERITED_STRUCT (jnc_Tls, jnc_ListLink)
+struct jnc_Tls
+{
+	jnc_ListLink m_link;
 	jnc_Tls* m_prevTls;
 	jnc_Runtime* m_runtime;
 	size_t m_initializeLevel;
@@ -248,7 +262,7 @@ JNC_BEGIN_INHERITED_STRUCT (jnc_Tls, jnc_ListLink)
 	jnc_GcMutatorThread m_gcMutatorThread;
 
 	// followed by jnc_TlsVariableTable
-JNC_END_INHERITED_STRUCT ()
+};
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -344,6 +358,28 @@ typedef jnc_DestructFunc DestructFunc;
 JNC_SELECT_ANY DataPtr g_nullPtr = { 0 };
 JNC_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
 JNC_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
+
+//.............................................................................
+
+class GetGcMutatorThreadLink
+{
+public:
+	ListLink*
+	operator () (GcMutatorThread* thread)
+	{
+		return &thread->m_link;
+	}
+};
+
+class GetTlsLink
+{
+public:
+	ListLink*
+	operator () (Tls* tls)
+	{
+		return &tls->m_link;
+	}
+};
 
 //.............................................................................
 

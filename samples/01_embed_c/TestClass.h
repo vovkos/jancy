@@ -12,7 +12,7 @@ OnNegativeEventFunc (jnc_Multicast* multicast);
 
 struct TestClass
 {
-	jnc_IfaceHdr;
+	jnc_IfaceHdr m_ifaceHdr;
 
 	// these fields are accessible from Jancy
 	

@@ -305,7 +305,7 @@ void*
 jnc_getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
 {
 	return jnc_Function_getMachineCode (jnc_MulticastClassType_getMethod (
-		(jnc_MulticastClassType*) multicast->m_box->m_type, 
+		(jnc_MulticastClassType*) multicast->m_ifaceHdr.m_box->m_type, 
 		jnc_MulticastMethodKind_Call
 		));
 }
