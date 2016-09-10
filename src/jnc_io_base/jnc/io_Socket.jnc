@@ -7,7 +7,7 @@ namespace io {
 
 //.............................................................................
 
-enum SocketEvent
+enum SocketEventCode
 {
 	ConnectCompleted,
 	ConnectCancelled,
@@ -29,7 +29,7 @@ bitflag enum SocketDisconnectEventFlags
 
 struct SocketEventParams
 {
-	SocketEvent m_eventKind;
+	SocketEventCode m_eventCode;
 	uint_t m_syncId;
 	uint_t m_flags;
 	std.Error const* m_error;

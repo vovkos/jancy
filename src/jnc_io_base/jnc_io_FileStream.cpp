@@ -181,7 +181,7 @@ FileStream::firePendingEvents ()
 
 void
 FileStream::fireFileStreamEvent (
-	FileStreamEventKind eventKind,
+	FileStreamEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
@@ -189,7 +189,7 @@ FileStream::fireFileStreamEvent (
 
 	DataPtr paramsPtr = createData <FileStreamEventParams> (m_runtime);
 	FileStreamEventParams* params = (FileStreamEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 
 	if (error)
@@ -373,7 +373,7 @@ FileStream::readLoop ()
 			}
 			else
 			{
-				fireFileStreamEvent (FileStreamEventKind_IncomingData);
+				fireFileStreamEvent (FileStreamEventCode_IncomingData);
 			}
 
 			m_ioFlags &= ~IoFlag_RemainingData;
@@ -406,7 +406,7 @@ FileStream::readLoop ()
 			if (waitResult == WAIT_FAILED)
 			{
 				err::Error error = err::getLastSystemErrorCode ();
-				fireFileStreamEvent (FileStreamEventKind_IoError, error);
+				fireFileStreamEvent (FileStreamEventCode_IoError, error);
 				return;
 			}
 		}
@@ -437,7 +437,7 @@ FileStream::readLoop ()
 				if (waitResult == WAIT_FAILED)
 				{
 					err::Error error = err::getLastSystemErrorCode ();
-					fireFileStreamEvent (FileStreamEventKind_IoError, error);
+					fireFileStreamEvent (FileStreamEventCode_IoError, error);
 					return;
 				}
 
@@ -467,7 +467,7 @@ FileStream::readLoop ()
 					read->m_completionEvent.signal ();
 				}
 
-				fireFileStreamEvent (FileStreamEventKind_IoError, error);
+				fireFileStreamEvent (FileStreamEventCode_IoError, error);
 				return;
 			}
 
@@ -490,11 +490,11 @@ FileStream::readLoop ()
 
 				if (readSize)
 				{
-					fireFileStreamEvent (FileStreamEventKind_IncomingData);
+					fireFileStreamEvent (FileStreamEventCode_IncomingData);
 				}
 				else
 				{
-					fireFileStreamEvent (FileStreamEventKind_Eof);
+					fireFileStreamEvent (FileStreamEventCode_Eof);
 					return;
 				}
 			}
@@ -577,7 +577,7 @@ FileStream::ioThreadFunc ()
 			size_t incomingDataSize = m_file.m_file.getIncomingDataSize ();
 			if (incomingDataSize == -1 || !incomingDataSize) // error or end-of-file
 			{
-				fireFileStreamEvent (FileStreamEventKind_Eof);
+				fireFileStreamEvent (FileStreamEventCode_Eof);
 				break;
 			}
 
@@ -586,7 +586,7 @@ FileStream::ioThreadFunc ()
 			m_ioFlags |= IoFlag_IncomingData;
 			m_ioLock.unlock ();
 
-			fireFileStreamEvent (FileStreamEventKind_IncomingData);
+			fireFileStreamEvent (FileStreamEventCode_IncomingData);
 		}
 	}
 }

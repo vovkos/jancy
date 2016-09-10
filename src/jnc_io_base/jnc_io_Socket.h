@@ -10,15 +10,15 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (Socket)
 
 //.............................................................................
 
-enum SocketEventKind
+enum SocketEventCode
 {
-	SocketEventKind_ConnectCompleted = 0,
-	SocketEventKind_ConnectCancelled,
-	SocketEventKind_ConnectError,
-	SocketEventKind_Disconnected,
-	SocketEventKind_IncomingData,
-	SocketEventKind_IncomingConnection,
-	SocketEventKind_TransmitBufferReady,
+	SocketEventCode_ConnectCompleted = 0,
+	SocketEventCode_ConnectCancelled,
+	SocketEventCode_ConnectError,
+	SocketEventCode_Disconnected,
+	SocketEventCode_IncomingData,
+	SocketEventCode_IncomingConnection,
+	SocketEventCode_TransmitBufferReady,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -34,7 +34,7 @@ struct SocketEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SocketEventParams)
 
-	SocketEventKind m_eventKind;
+	SocketEventCode m_eventCode;
 	uint_t m_syncId;
 	uint_t m_flags;
 	DataPtr m_errorPtr;
@@ -250,7 +250,7 @@ protected:
 
 	void
 	fireSocketEvent (
-		SocketEventKind eventKind,
+		SocketEventCode eventCode,
 		uint_t flags = 0,
 		const err::ErrorHdr* error = NULL
 		);

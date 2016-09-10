@@ -30,7 +30,7 @@ enum SshEvent
 
 struct SshEventParams
 {
-	SshEvent m_eventKind;
+	SshEvent m_eventCode;
 	uint_t m_syncId;
 	std.Error const* m_error;
 }

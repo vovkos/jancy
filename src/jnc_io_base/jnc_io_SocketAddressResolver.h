@@ -10,11 +10,11 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (SocketAddressResolver)
 
 //.............................................................................
 
-enum SocketAddressResolverEventKind
+enum SocketAddressResolverEventCode
 {
-	SocketAddressResolverEventKind_ResolveCompleted = 0,
-	SocketAddressResolverEventKind_ResolveCancelled,
-	SocketAddressResolverEventKind_ResolveError,
+	SocketAddressResolverEventCode_ResolveCompleted = 0,
+	SocketAddressResolverEventCode_ResolveCancelled,
+	SocketAddressResolverEventCode_ResolveError,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -23,7 +23,7 @@ struct SocketAddressResolverEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddressResolverEventParams)
 
-	SocketAddressResolverEventKind m_eventKind;
+	SocketAddressResolverEventCode m_eventCode;
 	uint_t m_syncId;
 	DataPtr m_addressPtr;
 	size_t m_addressCount;
@@ -107,7 +107,7 @@ public:
 protected:
 	void
 	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventKind eventKind,
+		SocketAddressResolverEventCode eventCode,
 		uint_t syncId,
 		const axl::io::SockAddr* addressTable = NULL,
 		size_t addressCount = 0,
@@ -116,12 +116,12 @@ protected:
 
 	void
 	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventKind eventKind,
+		SocketAddressResolverEventCode eventCode,
 		uint_t syncId,
 		const err::ErrorHdr* error
 		)
 	{
-		fireSocketAddressResolverEvent (eventKind, syncId, NULL, 0, error);
+		fireSocketAddressResolverEvent (eventCode, syncId, NULL, 0, error);
 	}
 
 	void 

@@ -8,10 +8,10 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (Mailslot)
 
 //.............................................................................
 
-enum MailslotEventKind
+enum MailslotEventCode
 {
-	MailslotEventKind_IncomingData,
-	MailslotEventKind_IoError,
+	MailslotEventCode_IncomingData,
+	MailslotEventCode_IoError,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -20,7 +20,7 @@ struct MailslotEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (MailslotEventParams)
 
-	MailslotEventKind m_eventKind;
+	MailslotEventCode m_eventCode;
 	uint_t m_syncId;
 	DataPtr m_errorPtr;
 };
@@ -116,7 +116,7 @@ protected:
 
 	void
 	fireMailslotEvent (
-		MailslotEventKind eventKind,
+		MailslotEventCode eventCode,
 		const err::ErrorHdr* error = NULL
 		);
 

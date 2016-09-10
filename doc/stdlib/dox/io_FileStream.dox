@@ -34,7 +34,7 @@ char const* getFileStreamKindString (FileStreamKind kind)
 
 //.............................................................................
 
-enum FileStreamEvent
+enum FileStreamEventCode
 {
 	Eof,
 	IncomingData,
@@ -46,7 +46,7 @@ enum FileStreamEvent
 
 struct FileStreamEventParams
 {
-	FileStreamEvent m_eventKind;
+	FileStreamEventCode m_eventCode;
 	uint_t m_syncId;
 	std.Error* m_error;
 }

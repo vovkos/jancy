@@ -10,23 +10,23 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
 
 //.............................................................................
 
-enum SshEventKind
+enum SshEventCode
 {
-	SshEventKind_TcpConnectCompleted = 0,
-	SshEventKind_SshHandshakeCompleted,
-	SshEventKind_SshAuthCompleted,
-	SshEventKind_SshAuthError,
-	SshEventKind_SshChannelOpened,
-	SshEventKind_SshPtyRequested,
-	SshEventKind_SshProcessStarted,
-	SshEventKind_ConnectCompleted,
-	SshEventKind_ConnectCancelled,
-	SshEventKind_ConnectError,
-	SshEventKind_Disconnected,
-	SshEventKind_ReauthenticateInitiated,
-	SshEventKind_ReconnectInitiated,
-	SshEventKind_IncomingData,
-	SshEventKind_TransmitBufferReady,
+	SshEventCode_TcpConnectCompleted = 0,
+	SshEventCode_SshHandshakeCompleted,
+	SshEventCode_SshAuthCompleted,
+	SshEventCode_SshAuthError,
+	SshEventCode_SshChannelOpened,
+	SshEventCode_SshPtyRequested,
+	SshEventCode_SshProcessStarted,
+	SshEventCode_ConnectCompleted,
+	SshEventCode_ConnectCancelled,
+	SshEventCode_ConnectError,
+	SshEventCode_Disconnected,
+	SshEventCode_ReauthenticateInitiated,
+	SshEventCode_ReconnectInitiated,
+	SshEventCode_IncomingData,
+	SshEventCode_TransmitBufferReady,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,7 +35,7 @@ struct SshEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SshEventParams)
 
-	SshEventKind m_eventKind;
+	SshEventCode m_eventCode;
 	uint_t m_syncId;
 	DataPtr m_errorPtr;
 };
@@ -219,7 +219,7 @@ public:
 protected:
 	void
 	fireSshEvent (
-		SshEventKind eventKind,
+		SshEventCode eventCode,
 		const err::ErrorHdr* error = NULL
 		);
 

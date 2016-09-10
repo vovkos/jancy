@@ -153,7 +153,7 @@ Serial::close ()
 
 void
 Serial::fireSerialEvent (
-	SerialEventKind eventKind,
+	SerialEventCode eventCode,
 	uint_t lines,
 	uint_t mask
 	)
@@ -162,7 +162,7 @@ Serial::fireSerialEvent (
 
 	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 	params->m_lines = lines;
 	params->m_mask = mask;
@@ -175,7 +175,7 @@ Serial::fireSerialEvent (
 
 void
 Serial::fireSerialEvent (
-	SerialEventKind eventKind,
+	SerialEventCode eventCode,
 	err::ErrorHdr* error
 	)
 {
@@ -183,7 +183,7 @@ Serial::fireSerialEvent (
 
 	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 	params->m_errorPtr = memDup (error, error->m_size);
 
@@ -356,7 +356,7 @@ Serial::ioThreadFunc ()
 
 		if (!result)
 		{
-			fireSerialEvent (SerialEventKind_IoError, err::getLastError ());
+			fireSerialEvent (SerialEventCode_IoError, err::getLastError ());
 			break;
 		}
 
@@ -364,7 +364,7 @@ Serial::ioThreadFunc ()
 		if (waitResult == WAIT_FAILED)
 		{
 			err::Error error = err::getLastSystemErrorCode ();
-			fireSerialEvent (SerialEventKind_IoError, error);
+			fireSerialEvent (SerialEventCode_IoError, error);
 			return;
 		}
 
@@ -378,7 +378,7 @@ Serial::ioThreadFunc ()
 			m_ioFlags |= IoFlag_IncomingData;
 			m_ioLock.unlock ();
 
-			fireSerialEvent (SerialEventKind_IncomingData);
+			fireSerialEvent (SerialEventCode_IncomingData);
 		}
 
 		if (event & (EV_CTS | EV_DSR | EV_RING | EV_RLSD))
@@ -388,7 +388,7 @@ Serial::ioThreadFunc ()
 			prevLines = lines;
 
 			if (mask)
-				fireSerialEvent (SerialEventKind_StatusLineChanged, lines, mask);
+				fireSerialEvent (SerialEventCode_StatusLineChanged, lines, mask);
 		}
 	}
 }
@@ -438,7 +438,7 @@ Serial::ioThreadFunc ()
 			if (incomingDataSize == -1)
 			{
 				err::Error error = err::getLastSystemErrorCode ();
-				fireSerialEvent (SerialEventKind_IoError, error);
+				fireSerialEvent (SerialEventCode_IoError, error);
 				return;
 			}
 
@@ -448,7 +448,7 @@ Serial::ioThreadFunc ()
 				// Fd::getIncomingDataSize should fail with some kind of IO error
 
 				err::Error error (ENXIO);
-				fireSerialEvent (SerialEventKind_IoError, error);
+				fireSerialEvent (SerialEventCode_IoError, error);
 				return;
 			}
 
@@ -457,7 +457,7 @@ Serial::ioThreadFunc ()
 			m_ioFlags |= IoFlag_IncomingData;
 			m_ioLock.unlock ();
 
-			fireSerialEvent (SerialEventKind_IncomingData);
+			fireSerialEvent (SerialEventCode_IncomingData);
 		}
 	}
 }

@@ -7,7 +7,7 @@ namespace io {
 
 //.............................................................................
 
-enum PCapEventKind
+enum PcapEventCode
 {
 	ReadyRead,
 	Eof,
@@ -15,15 +15,15 @@ enum PCapEventKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PCapEventParams
+struct PcapEventParams
 {
-	PCapEventKind m_eventKind;
+	PcapEventCode m_eventCode;
 	uint_t m_syncId;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class PCap
+opaque class Pcap
 {
 	char const* readonly m_filter;
 	bool readonly m_isPromiscious;
@@ -58,16 +58,16 @@ opaque class PCap
 		size_t size
 		);
 
-	event m_onPCapEvent (PCapEventParams const* params);
+	event m_onPcapEvent (PcapEventParams const* params);
 }
 
 //.............................................................................
 
 // pcap device enumeration
 
-struct PCapAddress
+struct PcapAddress
 {
-	PCapAddress const* m_next;
+	PcapAddress const* m_next;
 	Address_ip4 m_address;
 	Address_ip4 m_mask;
 	Address_ip4 m_broadcast;
@@ -75,18 +75,18 @@ struct PCapAddress
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PCapDeviceDesc
+struct PcapDeviceDesc
 {
-	PCapDeviceDesc const* m_next;
+	PcapDeviceDesc const* m_next;
 	char const* m_name;
 	char const* m_description;
-	PCapAddress m_address;
+	PcapAddress m_address;
 	uint_t m_flags;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PCapDeviceDesc const* createPCapDeviceDescList (size_t* count = null);
+PcapDeviceDesc const* createPcapDeviceDescList (size_t* count = null);
 
 //.............................................................................
 
@@ -96,6 +96,6 @@ PCapDeviceDesc const* createPCapDeviceDescList (size_t* count = null);
 
 /*!
 
-\defgroup pcap PCap (Packet Capturing Library)
+\defgroup pcap Pcap (Packet Capturing Library)
 
 */

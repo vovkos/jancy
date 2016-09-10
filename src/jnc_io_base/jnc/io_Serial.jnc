@@ -44,7 +44,7 @@ bitflag enum SerialStatusLines
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SerialEvent
+enum SerialEventCode
 {
 	IncomingData,
 	IoError,
@@ -56,7 +56,7 @@ enum SerialEvent
 
 struct SerialEventParams
 {
-	SerialEvent m_eventKind;
+	SerialEventCode m_eventCode;
 	uint_t m_syncId;
 	SerialStatusLines m_lines;
 	SerialStatusLines m_mask;

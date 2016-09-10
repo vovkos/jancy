@@ -103,7 +103,7 @@ Mailslot::close ()
 
 void
 Mailslot::fireMailslotEvent (
-	MailslotEventKind eventKind,
+	MailslotEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
@@ -111,7 +111,7 @@ Mailslot::fireMailslotEvent (
 
 	DataPtr paramsPtr = createData <MailslotEventParams> (m_runtime);
 	MailslotEventParams* params = (MailslotEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 
 	if (error)
@@ -263,7 +263,7 @@ Mailslot::readLoop ()
 			}
 			else
 			{
-				fireMailslotEvent (MailslotEventKind_IncomingData);
+				fireMailslotEvent (MailslotEventCode_IncomingData);
 			}
 
 			m_ioFlags &= ~IoFlag_RemainingData;
@@ -296,7 +296,7 @@ Mailslot::readLoop ()
 			if (waitResult == WAIT_FAILED)
 			{
 				err::Error error = err::getLastSystemErrorCode ();
-				fireMailslotEvent (MailslotEventKind_IoError, error);
+				fireMailslotEvent (MailslotEventCode_IoError, error);
 				return;
 			}
 		}
@@ -327,7 +327,7 @@ Mailslot::readLoop ()
 				if (waitResult == WAIT_FAILED)
 				{
 					err::Error error = err::getLastSystemErrorCode ();
-					fireMailslotEvent (MailslotEventKind_IoError, error);
+					fireMailslotEvent (MailslotEventCode_IoError, error);
 					return;
 				}
 
@@ -357,7 +357,7 @@ Mailslot::readLoop ()
 					read->m_completionEvent.signal ();
 				}
 
-				fireMailslotEvent (MailslotEventKind_IoError, error);
+				fireMailslotEvent (MailslotEventCode_IoError, error);
 				return;
 			}
 
@@ -380,12 +380,12 @@ Mailslot::readLoop ()
 
 				if (readSize)
 				{
-					fireMailslotEvent (MailslotEventKind_IncomingData);
+					fireMailslotEvent (MailslotEventCode_IncomingData);
 				}
 				else
 				{
 					err::Error error (err::SystemErrorCode_InvalidDeviceState);
-					fireMailslotEvent (MailslotEventKind_IoError, error);
+					fireMailslotEvent (MailslotEventCode_IoError, error);
 					return;
 				}
 			}

@@ -11,12 +11,12 @@ JNC_DEFINE_GUID (
 	0x72c7158b, 0xf297, 0x4f88, 0x83, 0xa7, 0x96, 0xe7, 0xfb, 0x54, 0x8b, 0x29
 	);
 
-enum PCapLibCacheSlot
+enum PcapLibCacheSlot
 {	
-	PCapLibCacheSlot_PCap,
-	PCapLibCacheSlot_PCapEventParams,
-	PCapLibCacheSlot_PCapAddress,
-	PCapLibCacheSlot_PCapDeviceDesc,
+	PcapLibCacheSlot_Pcap,
+	PcapLibCacheSlot_PcapEventParams,
+	PcapLibCacheSlot_PcapAddress,
+	PcapLibCacheSlot_PcapDeviceDesc,
 };
 
 //.............................................................................

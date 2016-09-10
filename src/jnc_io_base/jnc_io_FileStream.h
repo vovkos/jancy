@@ -18,12 +18,12 @@ enum FileStreamKind
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum FileStreamEventKind
+enum FileStreamEventCode
 {
-	FileStreamEventKind_Eof,
-	FileStreamEventKind_IncomingData,
-	FileStreamEventKind_IoError,
-	FileStreamEventKind_TransmitBufferReady,
+	FileStreamEventCode_Eof,
+	FileStreamEventCode_IncomingData,
+	FileStreamEventCode_IoError,
+	FileStreamEventCode_TransmitBufferReady,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -32,7 +32,7 @@ struct FileStreamEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (FileStreamEventParams)
 
-	FileStreamEventKind m_eventKind;
+	FileStreamEventCode m_eventCode;
 	uint_t m_syncId;
 	DataPtr m_errorPtr;
 };
@@ -157,7 +157,7 @@ protected:
 
 	void
 	fireFileStreamEvent (
-		FileStreamEventKind eventKind,
+		FileStreamEventCode eventCode,
 		const err::ErrorHdr* error = NULL
 		);
 

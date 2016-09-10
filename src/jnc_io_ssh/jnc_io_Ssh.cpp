@@ -77,7 +77,7 @@ SshChannel::sleepIoThread ()
 
 void
 SshChannel::fireSshEvent (
-	SshEventKind eventKind,
+	SshEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
@@ -85,7 +85,7 @@ SshChannel::fireSshEvent (
 
 	DataPtr paramsPtr = createData <SshEventParams> (m_runtime);
 	SshEventParams* params = (SshEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 
 	if (error)
@@ -322,7 +322,7 @@ SshChannel::read (
 		m_incomingDataSize -= size;
 		m_ioLock.unlock ();
 
-		fireSshEvent (SshEventKind_IncomingData);
+		fireSshEvent (SshEventCode_IncomingData);
 		return size;
 	}
 }
@@ -404,7 +404,7 @@ SshChannel::ioThreadFunc ()
 	if (tcpConnect () && sshConnect ())
 	{
 		sshReadLoop ();
-		fireSshEvent (SshEventKind_Disconnected);
+		fireSshEvent (SshEventCode_Disconnected);
 	}
 }
 
@@ -470,11 +470,11 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+		fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
-	fireSshEvent (SshEventKind_SshHandshakeCompleted);
+	fireSshEvent (SshEventCode_SshHandshakeCompleted);
 
 	// loop to give user a chance to re-authenticate
 
@@ -498,11 +498,11 @@ SshChannel::sshConnect ()
 
 		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED)
 		{
-			fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+			fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 			return false;
 		}
 
-		fireSshEvent (SshEventKind_SshAuthError, getSshLastError (m_sshSession));
+		fireSshEvent (SshEventCode_SshAuthError, getSshLastError (m_sshSession));
 
 		m_ioLock.lock ();
 		m_ioFlags |= IoFlag_AuthError;
@@ -519,21 +519,21 @@ SshChannel::sshConnect ()
 
 		if (m_connectParams->m_userName == prevUserName)
 		{
-			fireSshEvent (SshEventKind_ReauthenticateInitiated);
+			fireSshEvent (SshEventCode_ReauthenticateInitiated);
 		}
 		else
 		{
 			// need to re-connect
 
 			prevUserName = m_connectParams->m_userName;
-			fireSshEvent (SshEventKind_ReconnectInitiated);
+			fireSshEvent (SshEventCode_ReconnectInitiated);
 
 			m_socket.close ();
 
 			result = m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if (!result)
 			{
-				fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+				fireSshEvent (SshEventCode_ConnectError, err::getLastError ());
 				return false;
 			}
 
@@ -542,7 +542,7 @@ SshChannel::sshConnect ()
 				result = m_socket.bind (m_localAddress.getSockAddr ());
 				if (!result)
 				{
-					fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+					fireSshEvent (SshEventCode_ConnectError, err::getLastError ());
 					return false;
 				}
 			}
@@ -550,7 +550,7 @@ SshChannel::sshConnect ()
 			result = m_socket.connect (m_remoteAddress.getSockAddr ());
 			if (!result)
 			{
-				fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+				fireSshEvent (SshEventCode_ConnectError, err::getLastError ());
 				return false;
 			}
 
@@ -571,15 +571,15 @@ SshChannel::sshConnect ()
 
 			if (result)
 			{
-				fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+				fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 				return false;
 			}
 
-			fireSshEvent (SshEventKind_SshHandshakeCompleted);
+			fireSshEvent (SshEventCode_SshHandshakeCompleted);
 		}
 	}
 
-	fireSshEvent (SshEventKind_SshAuthCompleted);
+	fireSshEvent (SshEventCode_SshAuthCompleted);
 
 	LIBSSH2_CHANNEL* channel;
 
@@ -599,14 +599,14 @@ SshChannel::sshConnect ()
 
 	if (!channel)
 	{
-		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+		fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
 	m_sshChannel.attach (channel);
 	libssh2_channel_set_blocking (m_sshChannel, false);
 
-	fireSshEvent (SshEventKind_SshChannelOpened);
+	fireSshEvent (SshEventCode_SshChannelOpened);
 
 	do
 	{
@@ -625,11 +625,11 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+		fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
-	fireSshEvent (SshEventKind_SshPtyRequested);
+	fireSshEvent (SshEventCode_SshPtyRequested);
 
 	do
 	{
@@ -645,12 +645,12 @@ SshChannel::sshConnect ()
 
 	if (result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, getSshLastError (m_sshSession));
+		fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 		return false;
 	}
 
-	fireSshEvent (SshEventKind_SshProcessStarted);
-	fireSshEvent (SshEventKind_ConnectCompleted);
+	fireSshEvent (SshEventCode_SshProcessStarted);
+	fireSshEvent (SshEventCode_ConnectCompleted);
 
 	AXL_MEM_DELETE (m_connectParams);
 	m_connectParams = NULL;
@@ -739,7 +739,7 @@ SshChannel::sshReadLoop ()
 			m_incomingDataSize = result;
 			m_ioLock.unlock ();
 
-			fireSshEvent (SshEventKind_IncomingData);
+			fireSshEvent (SshEventCode_IncomingData);
 
 			if (result == 0) // EOF
 				return;
@@ -757,7 +757,7 @@ SshChannel::tcpConnect ()
 	bool result = m_socket.m_socket.wsaEventSelect (sshChannelEvent.m_event, FD_CONNECT);
 	if (!result)
 	{
-		fireSshEvent (SshEventKind_ConnectError, err::getLastError ());
+		fireSshEvent (SshEventCode_ConnectError, err::getLastError ());
 		return false;
 	}
 
@@ -773,11 +773,11 @@ SshChannel::tcpConnect ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-			fireSshEvent (SshEventKind_ConnectError, err::Error (err::getLastSystemErrorCode ()));
+			fireSshEvent (SshEventCode_ConnectError, err::Error (err::getLastSystemErrorCode ()));
 			return false;
 
 		case WAIT_OBJECT_0:
-			fireSshEvent (SshEventKind_ConnectCancelled);
+			fireSshEvent (SshEventCode_ConnectCancelled);
 			return false;
 
 		case WAIT_OBJECT_0 + 1:
@@ -785,7 +785,7 @@ SshChannel::tcpConnect ()
 			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
 			if (!result)
 			{
-				fireSshEvent (SshEventKind_ConnectCancelled);
+				fireSshEvent (SshEventCode_ConnectCancelled);
 				return false;
 			}
 
@@ -794,13 +794,13 @@ SshChannel::tcpConnect ()
 				int error = networkEvents.iErrorCode [FD_CONNECT_BIT];
 				if (error)
 				{
-					fireSshEvent (SshEventKind_ConnectError, err::Error (error));
+					fireSshEvent (SshEventCode_ConnectError, err::Error (error));
 					return false;
 				}
 				else
 				{
 					m_socket.setBlockingMode (true); // turn blocking mode back on
-					fireSshEvent (SshEventKind_TcpConnectCompleted);
+					fireSshEvent (SshEventCode_TcpConnectCompleted);
 					return true;
 				}
 			}
@@ -831,13 +831,13 @@ SshChannel::tcpConnect ()
 		result = select (selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 		{
-			fireSshEvent (SshEventKind_ConnectError, err::Error (errno));
+			fireSshEvent (SshEventCode_ConnectError, err::Error (errno));
 			return false;
 		}
 
 		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
 		{
-			fireSshEvent (SshEventKind_ConnectCancelled);
+			fireSshEvent (SshEventCode_ConnectCancelled);
 			return false;
 		}
 
@@ -846,13 +846,13 @@ SshChannel::tcpConnect ()
 			int error = m_socket.getError ();
 			if (error)
 			{
-				fireSshEvent (SshEventKind_ConnectError, err::Error (error));
+				fireSshEvent (SshEventCode_ConnectError, err::Error (error));
 				return false;
 			}
 			else
 			{
 				m_socket.setBlockingMode (true); // turn blocking mode back on
-				fireSshEvent (SshEventKind_TcpConnectCompleted);
+				fireSshEvent (SshEventCode_TcpConnectCompleted);
 				return true;
 			}
 		}

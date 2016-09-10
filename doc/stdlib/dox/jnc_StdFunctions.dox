@@ -82,7 +82,7 @@ size_t appendFmtLiteral_p (
 size_t appendFmtLiteral_i32 (
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
-	int32 value
+	int32_t value
 	);
 
 ///; static char appendFmtLiteralSrc_ui32 [] = 
@@ -98,7 +98,7 @@ size_t appendFmtLiteral_ui32 (
 size_t appendFmtLiteral_i64 (
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
-	int64 value
+	int64_t value
 	);
 
 ///; static char appendFmtLiteralSrc_ui64 [] = 
@@ -161,11 +161,11 @@ void checkStackOverflow ();
 
 ///; static char checkDivByZeroSrc_i32 [] = 
 
-void checkDivByZero_i32 (int32 x);
+void checkDivByZero_i32 (int32_t x);
 
 ///; static char checkDivByZeroSrc_i64 [] = 
 
-void checkDivByZero_i64 (int64 x);
+void checkDivByZero_i64 (int64_t x);
 
 ///; static char checkDivByZeroSrc_f32 [] = 
 

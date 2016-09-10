@@ -5,7 +5,7 @@ namespace io {
 
 //.............................................................................
 
-enum MailslotEvent
+enum MailslotEventCode
 {
 	IncomingData,
 	IoError,
@@ -15,7 +15,7 @@ enum MailslotEvent
 
 struct MailslotEventParams
 {
-	MailslotEvent m_eventKind;
+	MailslotEventCode m_eventCode;
 	uint_t m_syncId;
 	std.Error* m_error;
 }

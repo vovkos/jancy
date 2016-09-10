@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "jnc_io_PCapLib.h"
-#include "jnc_io_PCap.h"
+#include "jnc_io_PcapLib.h"
+#include "jnc_io_Pcap.h"
 
 namespace jnc {
 namespace io {
@@ -8,23 +8,23 @@ namespace io {
 //.............................................................................
 
 JNC_DEFINE_LIB (
-	PCapLib,
+	PcapLib,
 	g_pcapLibGuid,
-	"PCapLib",
-	"Jancy libPCap wrapper extension library"
+	"PcapLib",
+	"Jancy libPcap wrapper extension library"
 	)
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (PCapLib)
-	JNC_LIB_FORCED_IMPORT ("io_PCap.jnc")
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE (PcapLib)
+	JNC_LIB_FORCED_IMPORT ("io_Pcap.jnc")
 JNC_END_LIB_SOURCE_FILE_TABLE ()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (PCapLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (PCap)
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (PcapLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Pcap)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
-JNC_BEGIN_LIB_FUNCTION_MAP (PCapLib)
-	JNC_MAP_TYPE (PCap)
-	JNC_MAP_FUNCTION ("io.createPCapDeviceDescList", &createPCapDeviceDescList)
+JNC_BEGIN_LIB_FUNCTION_MAP (PcapLib)
+	JNC_MAP_TYPE (Pcap)
+	JNC_MAP_FUNCTION ("io.createPcapDeviceDescList", &createPcapDeviceDescList)
 JNC_END_LIB_FUNCTION_MAP ()
 
 //.............................................................................
@@ -40,7 +40,7 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
 	jnc_g_dynamicExtensionLibHost = host;
-	return jnc::io::PCapLib_getLib ();
+	return jnc::io::PcapLib_getLib ();
 }
 
 //.............................................................................

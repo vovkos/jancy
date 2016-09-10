@@ -7,7 +7,7 @@ namespace io {
 
 //.............................................................................
 
-enum SocketAddressResolverEvent
+enum SocketAddressResolverEventCode
 {
 	ResolveCompleted,
 	ResolveCancelled,
@@ -18,7 +18,7 @@ enum SocketAddressResolverEvent
 
 struct SocketAddressResolverEventParams
 {
-	SocketAddressResolverEvent m_eventKind;
+	SocketAddressResolverEventCode m_eventCode;
 	uint_t m_syncId;
 	SocketAddress const* m_addressTable;
 	size_t m_addressCount;

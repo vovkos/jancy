@@ -1,6 +1,6 @@
 //.............................................................................
 
-enum XxxEvent
+enum XxxEventCode
 {
 	ConnectCompleted,
 	ConnectCancelled,
@@ -14,7 +14,7 @@ enum XxxEvent
 
 struct XxxEventParams
 {
-	XxxEvent m_eventKind;
+	XxxEventCode m_eventCode;
 	int m_syncId;
 }
 

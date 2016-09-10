@@ -78,7 +78,7 @@ Socket::wakeIoThread ()
 
 void
 Socket::fireSocketEvent (
-	SocketEventKind eventKind,
+	SocketEventCode eventCode,
 	uint_t flags,
 	const err::ErrorHdr* error
 	)
@@ -87,7 +87,7 @@ Socket::fireSocketEvent (
 
 	DataPtr paramsPtr = createData <SocketEventParams> (m_runtime);
 	SocketEventParams* params = (SocketEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 	params->m_flags = flags;
 
@@ -584,7 +584,7 @@ Socket::ioThreadFunc ()
 	{
 		bool result = sendRecvLoop ();
 		uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
-		fireSocketEvent (SocketEventKind_Disconnected, flags);
+		fireSocketEvent (SocketEventCode_Disconnected, flags);
 	}
 	else if (ioFlags & IoFlag_Listening)
 	{
@@ -596,7 +596,7 @@ Socket::ioThreadFunc ()
 		{
 			bool result = sendRecvLoop ();
 			uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
-			fireSocketEvent (SocketEventKind_Disconnected, flags);
+			fireSocketEvent (SocketEventCode_Disconnected, flags);
 		}
 	}
 }
@@ -611,7 +611,7 @@ Socket::connectLoop ()
 	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_CONNECT);
 	if (!result)
 	{
-		fireSocketEvent (SocketEventKind_ConnectError, 0, err::getLastError ());
+		fireSocketEvent (SocketEventCode_ConnectError, 0, err::getLastError ());
 		return false;
 	}
 
@@ -627,11 +627,11 @@ Socket::connectLoop ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-			fireSocketEvent (SocketEventKind_ConnectError, 0, err::getLastError ());
+			fireSocketEvent (SocketEventCode_ConnectError, 0, err::getLastError ());
 			return false;
 
 		case WAIT_OBJECT_0:
-			fireSocketEvent (SocketEventKind_ConnectCancelled);
+			fireSocketEvent (SocketEventCode_ConnectCancelled);
 			return false;
 
 		case WAIT_OBJECT_0 + 1:
@@ -639,7 +639,7 @@ Socket::connectLoop ()
 			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
 			if (!result)
 			{
-				fireSocketEvent (SocketEventKind_ConnectCancelled);
+				fireSocketEvent (SocketEventCode_ConnectCancelled);
 				return false;
 			}
 
@@ -648,12 +648,12 @@ Socket::connectLoop ()
 				int error = networkEvents.iErrorCode [FD_CONNECT_BIT];
 				if (error)
 				{
-					fireSocketEvent (SocketEventKind_ConnectError, 0, err::Error (error));
+					fireSocketEvent (SocketEventCode_ConnectError, 0, err::Error (error));
 					return false;
 				}
 				else
 				{
-					fireSocketEvent (SocketEventKind_ConnectCompleted);
+					fireSocketEvent (SocketEventCode_ConnectCompleted);
 					return true;
 				}
 			}
@@ -697,7 +697,7 @@ Socket::acceptLoop ()
 			{
 				int error = networkEvents.iErrorCode [FD_ACCEPT_BIT];
 				if (!error)
-					fireSocketEvent (SocketEventKind_IncomingConnection);
+					fireSocketEvent (SocketEventCode_IncomingConnection);
 			}
 
 			break;
@@ -767,7 +767,7 @@ Socket::sendRecvLoop ()
 					return false;
 
 				if (incomingDataSize != 0)
-					fireSocketEvent (SocketEventKind_IncomingData);
+					fireSocketEvent (SocketEventCode_IncomingData);
 			}
 
 			if (networkEvents.lNetworkEvents & FD_WRITE)
@@ -781,7 +781,7 @@ Socket::sendRecvLoop ()
 				m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
 				m_ioLock.unlock ();
 
-				fireSocketEvent (SocketEventKind_TransmitBufferReady);
+				fireSocketEvent (SocketEventCode_TransmitBufferReady);
 			}
 
 			break;
@@ -810,13 +810,13 @@ Socket::connectLoop ()
 		result = select (selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 		{
-			fireSocketEvent (SocketEventKind_ConnectError, 0, err::Error (errno));
+			fireSocketEvent (SocketEventCode_ConnectError, 0, err::Error (errno));
 			return false;
 		}
 
 		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
 		{
-			fireSocketEvent (SocketEventKind_ConnectCancelled);
+			fireSocketEvent (SocketEventCode_ConnectCancelled);
 			return false;
 		}
 
@@ -825,13 +825,13 @@ Socket::connectLoop ()
 			int error = m_socket.getError ();
 			if (error)
 			{
-				fireSocketEvent (SocketEventKind_ConnectError, 0, err::Error (error));
+				fireSocketEvent (SocketEventCode_ConnectError, 0, err::Error (error));
 				return false;
 			}
 			else
 			{
 				m_socket.setBlockingMode (true); // turn blocking mode back on
-				fireSocketEvent (SocketEventKind_ConnectCompleted);
+				fireSocketEvent (SocketEventCode_ConnectCompleted);
 				return true;
 			}
 		}
@@ -882,7 +882,7 @@ Socket::acceptLoop ()
 			m_ioFlags |= IoFlag_IncomingConnection;
 			m_ioLock.unlock ();
 
-			fireSocketEvent (SocketEventKind_IncomingConnection);
+			fireSocketEvent (SocketEventCode_IncomingConnection);
 		}
 	}
 }
@@ -949,7 +949,7 @@ Socket::sendRecvLoop ()
 			m_ioFlags |= IoFlag_IncomingData;
 			m_ioLock.unlock ();
 
-			fireSocketEvent (SocketEventKind_IncomingData);
+			fireSocketEvent (SocketEventCode_IncomingData);
 		}
 
 		if (FD_ISSET (m_socket.m_socket, &writeSet))
@@ -959,7 +959,7 @@ Socket::sendRecvLoop ()
 			m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
 			m_ioLock.unlock ();
 
-			fireSocketEvent (SocketEventKind_IncomingData);
+			fireSocketEvent (SocketEventCode_IncomingData);
 		}
 	}
 }

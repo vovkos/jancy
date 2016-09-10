@@ -9,12 +9,12 @@ JNC_DECLARE_TYPE (SerialPortDesc)
 
 //.............................................................................
 
-enum SerialEventKind
+enum SerialEventCode
 {
-	SerialEventKind_IncomingData = 0,
-	SerialEventKind_IoError,
-	SerialEventKind_TransmitBufferReady,
-	SerialEventKind_StatusLineChanged,
+	SerialEventCode_IncomingData = 0,
+	SerialEventCode_IoError,
+	SerialEventCode_TransmitBufferReady,
+	SerialEventCode_StatusLineChanged,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -23,7 +23,7 @@ struct SerialEventParams
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SerialEventParams)
 
-	SerialEventKind m_eventKind;
+	SerialEventCode m_eventCode;
 	uint_t m_syncId;
 	uint_t m_lines;
 	uint_t m_mask;
@@ -154,14 +154,14 @@ public:
 protected:
 	void
 	fireSerialEvent (
-		SerialEventKind eventKind,
+		SerialEventCode eventCode,
 		uint_t lines = 0,
 		uint_t mask = 0
 		);
 
 	void
 	fireSerialEvent (
-		SerialEventKind eventKind,
+		SerialEventCode eventCode,
 		err::ErrorHdr* error
 		);
 

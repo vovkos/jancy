@@ -3,32 +3,32 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (PCapEventParams)
-JNC_DECLARE_OPAQUE_CLASS_TYPE (PCap)
-JNC_DECLARE_TYPE (PCapAddress)
-JNC_DECLARE_TYPE (PCapDeviceDesc)
+JNC_DECLARE_TYPE (PcapEventParams)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Pcap)
+JNC_DECLARE_TYPE (PcapAddress)
+JNC_DECLARE_TYPE (PcapDeviceDesc)
 
 //.............................................................................
 
-enum PCapEventKind
+enum PcapEventCode
 {
-	PCapEventKind_ReadyRead = 0,
-	PCapEventKind_Eof,
+	PcapEventCode_ReadyRead = 0,
+	PcapEventCode_Eof,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PCapEventParams
+struct PcapEventParams
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (PCapEventParams)
+	JNC_DECLARE_TYPE_STATIC_METHODS (PcapEventParams)
 
-	PCapEventKind m_eventKind;
+	PcapEventCode m_eventCode;
 	uint_t m_syncId;
 };
 
 //.............................................................................
 
-class PCap: public IfaceHdr
+class Pcap: public IfaceHdr
 {
 	friend class IoThread;
 
@@ -51,7 +51,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, PCap, m_ioThread)->ioThreadFunc ();
+			AXL_CONTAINING_RECORD (this, Pcap, m_ioThread)->ioThreadFunc ();
 		}
 	};
 
@@ -70,11 +70,11 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 
-	ClassBox <Multicast> m_onPCapEvent;
+	ClassBox <Multicast> m_onPcapEvent;
 
 protected:
 	Runtime* m_runtime;
-	axl::io::PCap m_pcap;
+	axl::io::Pcap m_pcap;
 	sys::Lock m_ioLock;
 	sl::AuxList <Read> m_readList;
 	volatile uint_t m_ioFlags;
@@ -82,9 +82,9 @@ protected:
 	sys::Event m_ioThreadEvent;
 
 public:
-	PCap ();
+	Pcap ();
 
-	~PCap ()
+	~Pcap ()
 	{
 		close ();
 	}
@@ -131,7 +131,7 @@ public:
 
 protected:
 	void
-	firePCapEvent (PCapEventKind eventKind);
+	firePcapEvent (PcapEventCode eventCode);
 
 	void
 	ioThreadFunc ();
@@ -142,7 +142,7 @@ protected:
 
 //.............................................................................
 
-struct PCapAddress
+struct PcapAddress
 {
 	DataPtr m_nextPtr;
 
@@ -153,19 +153,19 @@ struct PCapAddress
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PCapDeviceDesc
+struct PcapDeviceDesc
 {
 	DataPtr m_nextPtr;
 	DataPtr m_namePtr;
 	DataPtr m_descriptionPtr;
-	PCapAddress m_address;
+	PcapAddress m_address;
 	uint_t m_flags;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-createPCapDeviceDescList (DataPtr countPtr);
+createPcapDeviceDescList (DataPtr countPtr);
 
 //.............................................................................
 

@@ -9,14 +9,14 @@
 
 set (
 	LIB_H_LIST
-	jnc_io_PCap.h
-	jnc_io_PCapLib.h
+	jnc_io_Pcap.h
+	jnc_io_PcapLib.h
 	)
 
 set (
 	LIB_CPP_LIST
-	jnc_io_PCap.cpp
-	jnc_io_PCapLib.cpp
+	jnc_io_Pcap.cpp
+	jnc_io_PcapLib.cpp
 	)
 
 source_group (
@@ -33,7 +33,7 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/io_PCap.jnc
+	jnc/io_Pcap.jnc
 	)
 
 source_group (

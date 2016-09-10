@@ -71,7 +71,7 @@ SocketAddressResolver::wakeIoThread ()
 
 void
 SocketAddressResolver::fireSocketAddressResolverEvent (
-	SocketAddressResolverEventKind eventKind,
+	SocketAddressResolverEventCode eventCode,
 	uint_t syncId,
 	const axl::io::SockAddr* addressTable,
 	size_t addressCount,
@@ -82,7 +82,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 
 	DataPtr paramsPtr = createData <SocketAddressResolverEventParams> (m_runtime);
 	SocketAddressResolverEventParams* params = (SocketAddressResolverEventParams*) paramsPtr.m_p;
-	params->m_eventKind = eventKind;
+	params->m_eventCode = eventCode;
 	params->m_syncId = syncId;
 		
 	if (addressCount)
@@ -121,7 +121,7 @@ SocketAddressResolver::resolve (
 		uint_t syncId = m_syncId++;
 		m_ioLock.unlock ();
 
-		fireSocketAddressResolverEvent (SocketAddressResolverEventKind_ResolveCompleted, syncId, &sockAddr, 1);
+		fireSocketAddressResolverEvent (SocketAddressResolverEventCode_ResolveCompleted, syncId, &sockAddr, 1);
 		return true;
 	}
 	
@@ -145,7 +145,7 @@ SocketAddressResolver::resolve (
 			m_ioLock.unlock ();
 
 			fireSocketAddressResolverEvent (
-				SocketAddressResolverEventKind_ResolveError,
+				SocketAddressResolverEventCode_ResolveError,
 				syncId,
 				err::Error ("invalid port string")
 				);
@@ -205,7 +205,7 @@ SocketAddressResolver::cancel (uint_t syncId)
 	m_reqList.erase (it);
 	m_ioLock.unlock ();
 
-	fireSocketAddressResolverEvent (SocketAddressResolverEventKind_ResolveCancelled, syncId);
+	fireSocketAddressResolverEvent (SocketAddressResolverEventCode_ResolveCancelled, syncId);
 
 	return true;
 }
@@ -223,7 +223,7 @@ SocketAddressResolver::cancelAll ()
 
 	sl::Iterator <Req> it = m_reqList.getHead ();
 	for (; it; it++)
-		fireSocketAddressResolverEvent (SocketAddressResolverEventKind_ResolveCancelled, it->m_syncId);
+		fireSocketAddressResolverEvent (SocketAddressResolverEventCode_ResolveCancelled, it->m_syncId);
 }
 
 void
@@ -274,7 +274,7 @@ SocketAddressResolver::processReq (Req* req)
 	if (!result)
 	{
 		fireSocketAddressResolverEvent (
-			SocketAddressResolverEventKind_ResolveError,
+			SocketAddressResolverEventCode_ResolveError,
 			req->m_syncId,
 			err::getLastError ()
 			);
@@ -289,7 +289,7 @@ SocketAddressResolver::processReq (Req* req)
 		addrArray [i].m_addr_ip4.sin_port = port;
 
 	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventKind_ResolveCompleted, 
+		SocketAddressResolverEventCode_ResolveCompleted, 
 		req->m_syncId, 
 		addrArray,
 		count
