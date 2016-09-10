@@ -30,10 +30,19 @@ ws = [ \t\r]+;
 main := |*
 
 '\\enum'          { createToken (DoxyTokenKind_Enum); };
+'\\enumvalue'     { createToken (DoxyTokenKind_EnumValue); };
 '\\struct'        { createToken (DoxyTokenKind_Struct); };
 '\\union'         { createToken (DoxyTokenKind_Union); };
 '\\class'         { createToken (DoxyTokenKind_Class); };
-'\\fn'            { createToken (DoxyTokenKind_Fn); };
+'\\var'           { createToken (DoxyTokenKind_Variable); };
+'\\variable'      { createToken (DoxyTokenKind_Variable); };
+'\\field'         { createToken (DoxyTokenKind_Field); };
+'\\fn'            { createToken (DoxyTokenKind_Function); };
+'\\function'      { createToken (DoxyTokenKind_Function); };
+'\\prop'          { createToken (DoxyTokenKind_Property); };
+'\\property'      { createToken (DoxyTokenKind_Property); };
+'\\event'         { createToken (DoxyTokenKind_Event); };
+'\\typedef'       { createToken (DoxyTokenKind_Typedef); };
 '\\group'         { createToken (DoxyTokenKind_Group); };
 '\\defgroup'      { createToken (DoxyTokenKind_DefGroup); };
 '\\ingroup'       { createToken (DoxyTokenKind_InGroup); };

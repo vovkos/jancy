@@ -19,10 +19,16 @@ enum DoxyTokenKind
 	DoxyTokenKind_ClosingBrace,
 
 	DoxyTokenKind_Enum,
+	DoxyTokenKind_EnumValue,
 	DoxyTokenKind_Struct,
 	DoxyTokenKind_Union,
 	DoxyTokenKind_Class,
-	DoxyTokenKind_Fn,
+	DoxyTokenKind_Variable,
+	DoxyTokenKind_Field,
+	DoxyTokenKind_Function,
+	DoxyTokenKind_Property,
+	DoxyTokenKind_Event,
+	DoxyTokenKind_Typedef,
 	DoxyTokenKind_Group,
 	DoxyTokenKind_DefGroup,
 	DoxyTokenKind_InGroup,
@@ -43,10 +49,16 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_ClosingBrace,  "@}")
 
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Enum,          "\\enum")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_EnumValue,     "\\enumvalue")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Struct,        "\\struct")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Union,         "\\union")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Class,         "\\class")
-	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Fn,            "\\fn")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Variable,      "\\variable")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Field,         "\\field")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Function,      "\\function")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Property,      "\\property")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Event,         "\\event")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Typedef,       "\\typedef")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Group,         "\\group")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_DefGroup,      "\\defgroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_InGroup,       "\\ingroup")

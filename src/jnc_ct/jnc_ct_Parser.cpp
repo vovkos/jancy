@@ -625,10 +625,16 @@ Parser::addDoxyComment (
 			return;
 
 		case DoxyTokenKind_Enum:
+		case DoxyTokenKind_EnumValue:
 		case DoxyTokenKind_Struct:
 		case DoxyTokenKind_Union:
 		case DoxyTokenKind_Class:
-		case DoxyTokenKind_Fn:
+		case DoxyTokenKind_Variable:
+		case DoxyTokenKind_Field:
+		case DoxyTokenKind_Function:
+		case DoxyTokenKind_Property:
+		case DoxyTokenKind_Event:
+		case DoxyTokenKind_Typedef:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
 				break; // ignore
