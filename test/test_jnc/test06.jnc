@@ -4,16 +4,6 @@ alignment (2);
 
 //.............................................................................
 
-typedef unsigned int    uint_t;
-typedef unsigned intptr size_t;
-typedef unsigned intptr uintptr_t;
-typedef unsigned int8   uint8_t;
-typedef unsigned int16  uint16_t;
-typedef unsigned int32  uint32_t;
-typedef unsigned int64  uint64_t;
-
-//.............................................................................
-
 enum Protocol
 {
 	Tcp = 6,

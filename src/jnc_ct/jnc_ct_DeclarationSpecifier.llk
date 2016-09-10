@@ -154,22 +154,6 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 			}
-	|	TokenKind_Int8
-			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8);
-			}
-	|	TokenKind_Int16
-			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int16);
-			}
-	|	TokenKind_Int32
-			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
-			}
-	|	TokenKind_Int64
-			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
-			}
 	|	TokenKind_Int
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
@@ -181,6 +165,14 @@ type_specifier
 	|	TokenKind_Char
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char);
+			}
+	|	TokenKind_Short
+			{
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Short);
+			}
+	|	TokenKind_Long
+			{
+				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Long);
 			}
 	|	TokenKind_Float
 			{

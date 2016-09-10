@@ -25,7 +25,7 @@ class Widget
 		Ignored = SizePolicyFlag.Shrink | SizePolicyFlag.Grow | SizePolicyFlag.Ignore
 	}
 
-	protected intptr m_handle;
+	protected intptr_t m_handle;
 	
 	SizePolicy readonly m_hsizePolicy;
 	SizePolicy readonly m_vsizePolicy;

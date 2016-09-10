@@ -1,3 +1,5 @@
+// don't use typedefs here!
+
 namespace jnci {
 
 ///+++
@@ -9,8 +11,8 @@ namespace jnci {
 struct FmtLiteral
 {
 	char const* m_p;
-	size_t m_length;
-	size_t m_maxLength;
+	unsigned intptr m_length;
+	unsigned intptr m_maxLength;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -29,8 +31,8 @@ struct ReactorBindSite
 
 struct Int64Int64
 {
-	int64 m_a;
-	int64 m_b;
+	long m_a;
+	long m_b;
 }
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -49,7 +51,7 @@ struct Fp64Fp64
 
 struct Int64Fp64
 {
-	int64 m_a;
+	long m_a;
 	double m_b;
 }
 
@@ -60,7 +62,7 @@ struct Int64Fp64
 struct Fp64Int64
 {
 	double m_a;
-	int64 m_b;
+	long m_b;
 }
 
 ///;

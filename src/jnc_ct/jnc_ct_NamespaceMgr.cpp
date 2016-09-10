@@ -67,16 +67,21 @@ NamespaceMgr::addStdItems ()
 
 	bool result =
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_intptr_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uintptr_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_size_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_int8_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint8_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uchar_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_byte_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_int16_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint16_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_ushort_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_word_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_int32_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint32_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_dword_t)) &&
+		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_int64_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_uint64_t)) &&
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
 		global->addItem (jnc) &&

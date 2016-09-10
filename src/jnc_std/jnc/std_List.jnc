@@ -10,7 +10,7 @@ struct ListEntry
 {
 	ListEntry* readonly m_next;
 	ListEntry* readonly m_prev;
-	intptr readonly m_validator;
+	intptr_t readonly m_validator;
 
 	variant m_data;
 }

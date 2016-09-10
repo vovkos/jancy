@@ -64,8 +64,8 @@ int main ()
 	// neccessary, so simple lookup on the function pointer would not be 
 	// possible in some cases. This is why the handle-table approach is used.
 
-	intptr cookie1 = e.add (foo); 
-	intptr cookie2 = e.add (bar ~(, 2000));
+	intptr_t cookie1 = e.add (foo); 
+	intptr_t cookie2 = e.add (bar ~(, 2000));
 
 	printf ("multicast call #3...\n");
 	m (25);

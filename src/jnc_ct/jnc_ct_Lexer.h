@@ -89,15 +89,13 @@ enum TokenKind
 	TokenKind_Void,
 	TokenKind_Variant,
 	TokenKind_Bool,
-	TokenKind_Int8,
-	TokenKind_Int16,
-	TokenKind_Int32,
-	TokenKind_Int64,
-	TokenKind_Float,
-	TokenKind_Double,
-	TokenKind_Char,
 	TokenKind_Int,
 	TokenKind_IntPtr,
+	TokenKind_Char,
+	TokenKind_Short,
+	TokenKind_Long,
+	TokenKind_Float,
+	TokenKind_Double,
 
 	// named type specifiers
 
@@ -284,15 +282,13 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
 	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Bool,         "bool")
-	AXL_LEX_TOKEN_NAME (TokenKind_Int8,         "int8")
-	AXL_LEX_TOKEN_NAME (TokenKind_Int16,        "int16")
-	AXL_LEX_TOKEN_NAME (TokenKind_Int32,        "int32")
-	AXL_LEX_TOKEN_NAME (TokenKind_Int64,        "int64")
-	AXL_LEX_TOKEN_NAME (TokenKind_Float,        "float")
-	AXL_LEX_TOKEN_NAME (TokenKind_Double,       "double")
-	AXL_LEX_TOKEN_NAME (TokenKind_Char,         "char")
 	AXL_LEX_TOKEN_NAME (TokenKind_Int,          "int")
 	AXL_LEX_TOKEN_NAME (TokenKind_IntPtr,       "intptr")
+	AXL_LEX_TOKEN_NAME (TokenKind_Char,         "char")
+	AXL_LEX_TOKEN_NAME (TokenKind_Short,        "short")
+	AXL_LEX_TOKEN_NAME (TokenKind_Long,         "long")
+	AXL_LEX_TOKEN_NAME (TokenKind_Float,        "float")
+	AXL_LEX_TOKEN_NAME (TokenKind_Double,       "double")
 
 	// named type specifiers
 

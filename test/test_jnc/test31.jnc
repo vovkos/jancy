@@ -4,9 +4,9 @@ int main ()
 {
 	printf ("main\n");
 
-	int64 x = 25, y = 10;
-	int64 z = x / y;
-	int64 w = x % y;
+	int64_t x = 25, y = 10;
+	int64_t z = x / y;
+	int64_t w = x % y;
 
 	return 10; 
 }

@@ -1,7 +1,7 @@
 dynamiclib User32
 {
 	int stdcall MessageBoxA (
-		intptr hwnd,
+		intptr_t hwnd,
 		char const thin* text,
 		char const thin* caption,
 		int flags

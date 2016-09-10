@@ -6,7 +6,7 @@ struct IpHdr
 	uint8_t m_b : 4;
 }
 
-typedef unsigned int8 uint8_t;
+typedef unsigned char uint8_t;
 
 int main ()
 {

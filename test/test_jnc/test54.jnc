@@ -4,12 +4,12 @@ import "sys_Thread.jnc"
 
 class Foo
 {
-	intptr m_tid;
-	intptr m_oid;
+	intptr_t m_tid;
+	intptr_t m_oid;
 
 	construct (
-		intptr tid,
-		intptr oid
+		intptr_t tid,
+		intptr_t oid
 		)
 	{
 		m_tid = tid;
@@ -25,11 +25,11 @@ class Foo
 
 threadProc ()
 {
-	intptr tid = sys.getCurrentThreadId ();
+	intptr_t tid = sys.getCurrentThreadId ();
 
 	printf ("+threadProc %d\n", tid);
 
-	for (intptr i = 0; i < 100; i++)
+	for (intptr_t i = 0; i < 100; i++)
 	{
 		new Foo (tid, i);
 	}

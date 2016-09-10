@@ -109,16 +109,10 @@ enum jnc_TypeKind
 	jnc_TypeKind_Short    = jnc_TypeKind_Int16,
 	jnc_TypeKind_Short_u  = jnc_TypeKind_Int16_u,
 	jnc_TypeKind_Word     = jnc_TypeKind_Int16_u,
-	jnc_TypeKind_DWord    = jnc_TypeKind_Int32_u,
-	jnc_TypeKind_QWord    = jnc_TypeKind_Int64_u,
-
-#if (_JNC_CPP == JNC_CPP_GCC && _JNC_PTR_BITNESS == 64)
 	jnc_TypeKind_Long     = jnc_TypeKind_Int64,
 	jnc_TypeKind_Long_u   = jnc_TypeKind_Int64_u,
-#else
-	jnc_TypeKind_Long     = jnc_TypeKind_Int32,
-	jnc_TypeKind_Long_u   = jnc_TypeKind_Int32_u,
-#endif
+	jnc_TypeKind_DWord    = jnc_TypeKind_Int32_u,
+	jnc_TypeKind_QWord    = jnc_TypeKind_Int64_u,
 };
 
 typedef enum jnc_TypeKind jnc_TypeKind;

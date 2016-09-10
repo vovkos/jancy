@@ -2340,16 +2340,21 @@ void
 TypeMgr::setupStdTypedefArray ()
 {
 	setupStdTypedef (StdTypedef_uint_t,    TypeKind_Int_u,    "uint_t");
+	setupStdTypedef (StdTypedef_intptr_t,  TypeKind_IntPtr,   "intptr_t");
 	setupStdTypedef (StdTypedef_uintptr_t, TypeKind_IntPtr_u, "uintptr_t");
 	setupStdTypedef (StdTypedef_size_t,    TypeKind_SizeT,    "size_t");
+	setupStdTypedef (StdTypedef_int8_t,    TypeKind_Int8,     "int8_t");
 	setupStdTypedef (StdTypedef_uint8_t,   TypeKind_Int8_u,   "uint8_t");
 	setupStdTypedef (StdTypedef_uchar_t,   TypeKind_Int8_u,   "uchar_t");
 	setupStdTypedef (StdTypedef_byte_t,    TypeKind_Int8_u,   "byte_t");
+	setupStdTypedef (StdTypedef_int16_t,   TypeKind_Int16,    "int16_t");
 	setupStdTypedef (StdTypedef_uint16_t,  TypeKind_Int16_u,  "uint16_t");
 	setupStdTypedef (StdTypedef_ushort_t,  TypeKind_Int16_u,  "ushort_t");
 	setupStdTypedef (StdTypedef_word_t,    TypeKind_Int16_u,  "word_t");
+	setupStdTypedef (StdTypedef_int32_t,   TypeKind_Int32,    "int32_t");
 	setupStdTypedef (StdTypedef_uint32_t,  TypeKind_Int32_u,  "uint32_t");
 	setupStdTypedef (StdTypedef_dword_t,   TypeKind_Int32_u,  "dword_t");
+	setupStdTypedef (StdTypedef_int64_t,   TypeKind_Int64,    "int64_t");
 	setupStdTypedef (StdTypedef_uint64_t,  TypeKind_Int64_u,  "uint64_t");
 	setupStdTypedef (StdTypedef_qword_t,   TypeKind_Int64_u,  "qword_t");
 }

@@ -88,7 +88,7 @@ uint32_t tolower (uint32_t c);
 
 int atoi (char const* p);
 
-intptr cdecl printf (
+intptr_t cdecl printf (
 	char const thin* fmtSpecifier,
 	...
 	);

@@ -2,24 +2,24 @@
 
 struct Params
 {
-	int8 m_a;
+	int8_t m_a;
 
 	union
 	{
-		int16 m_b;
+		int16_t m_b;
 
 		struct
 		{
-			int32 m_c;
-			int64 m_d;
+			int32_t m_c;
+			int64_t m_d;
 		}
 	}
 }
 
 	union Xxx
 	{
-		int32 m_c;
-		int64 m_d;
+		int32_t m_c;
+		int64_t m_d;
 	}
 
 int main ()
@@ -27,10 +27,10 @@ int main ()
 	printf ("main ()\n");
 
 	Params params;	
-	int64 d = params.m_d;
+	int64_t d = params.m_d;
 
 	Xxx xxx;
-	int32 c = xxx.m_c;
+	int32_t c = xxx.m_c;
 
 
 	

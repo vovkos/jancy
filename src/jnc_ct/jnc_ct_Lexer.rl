@@ -153,15 +153,13 @@ main := |*
 'void'           { createToken (TokenKind_Void); };
 'variant'        { createToken (TokenKind_Variant); };
 'bool'           { createToken (TokenKind_Bool); };
-'int8'           { createToken (TokenKind_Int8); };
-'int16'          { createToken (TokenKind_Int16); };
-'int32'          { createToken (TokenKind_Int32); };
-'int64'          { createToken (TokenKind_Int64); };
-'float'          { createToken (TokenKind_Float); };
-'double'         { createToken (TokenKind_Double); };
 'int'            { createToken (TokenKind_Int); };
 'intptr'         { createToken (TokenKind_IntPtr); };
 'char'           { createToken (TokenKind_Char); };
+'short'          { createToken (TokenKind_Short); };
+'long'           { createToken (TokenKind_Long); };
+'float'          { createToken (TokenKind_Float); };
+'double'         { createToken (TokenKind_Double); };
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
