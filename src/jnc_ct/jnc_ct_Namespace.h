@@ -171,7 +171,7 @@ public:
 	findItem (const char* name);
 
 	ModuleItem*
-	findItem (const sl::String& name)
+	findItem (const sl::StringRef& name)
 	{
 		return findItem (name.cc ());
 	}

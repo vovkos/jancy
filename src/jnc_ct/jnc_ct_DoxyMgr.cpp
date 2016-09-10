@@ -186,23 +186,36 @@ DoxyMgr::resolveBlockTargets ()
 {
 	bool result = true;
 
-	GlobalNamespace* nspace = m_module->m_namespaceMgr.getGlobalNamespace ();
+	GlobalNamespace* globalNspace = m_module->m_namespaceMgr.getGlobalNamespace ();
+	Namespace* prevNspace = NULL;
 
 	sl::Iterator <Target> it = m_targetList.getHead ();
 	for (; it; it++)
 	{
 		Target* target = *it;
-		ModuleItem* item = nspace->findItemByName (target->m_targetName);
+		
+		ModuleItem* item = prevNspace && target->m_targetName.find ('.') == -1 ?
+			prevNspace->findItem (target->m_targetName) :
+			NULL;
+
 		if (!item)
 		{
-			result = false;
-			continue;
+			item = globalNspace->findItemByName (target->m_targetName);
+			if (!item)
+			{
+				result = false;
+				continue;
+			}
 		}
-		
+
 		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)
 			target->m_block->m_group = item->m_doxyBlock->m_group;
 		
 		item->m_doxyBlock = target->m_block;
+
+		Namespace* itemNspace = item->getNamespace ();
+		if (itemNspace)
+			prevNspace = itemNspace;
 	}
 
 	if (!result)		
