@@ -169,11 +169,14 @@ bool
 CmdLineParser::finalize ()
 {
 	static char jncSuffix [] = ".jnc";
+	static char doxSuffix [] = ".dox";
 
 	enum
 	{
-		JncSuffixLength = lengthof (jncSuffix)
+		SuffixLength = lengthof (jncSuffix)
 	};
+
+	bool includeDox = (m_cmdLine->m_flags & JncFlag_Documentation) != 0;
 
 	sl::BoxIterator <sl::String> it = m_cmdLine->m_sourceDirList.getHead ();
 	for (; it; it++)
@@ -199,15 +202,17 @@ CmdLineParser::finalize ()
 			if (io::isDir (filePath))
 				continue;
 	
-			size_t length = filePath.getLength ();
-			bool isJnc = length >= JncSuffixLength && memcmp (
-				filePath.cc () + length - JncSuffixLength,
-				jncSuffix, 
-				JncSuffixLength
-				) == 0;
+			size_t length = filePath.getLength ();			
+			if (length < SuffixLength)
+				continue;
 
-			if (isJnc)
+			const char* suffix = filePath.cc () + length - SuffixLength;
+
+			if (memcmp (suffix, jncSuffix, SuffixLength) == 0 || 
+				includeDox && memcmp (suffix, doxSuffix, SuffixLength) == 0)
+			{
 				m_cmdLine->m_fileNameList.insertTail (filePath);
+			}
 		}
 	}
 
