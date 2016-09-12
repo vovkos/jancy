@@ -14,15 +14,15 @@ DoxyBlock::createDoxyDescriptionString ()
 
 	if (!m_briefDescription.isEmpty ())
 	{
-		string.append ("<briefdescription><para>\n");
-		string.append (m_briefDescription);
+		string.append ("<briefdescription><para>");
+		string.append (m_briefDescription.getTrimmedString ());
 		string.append ("</para></briefdescription>\n");
 	}
 
 	if (!m_detailedDescription.isEmpty ())
 	{
-		string.append ("<detaileddescription><para>\n");
-		string.append (m_detailedDescription);
+		string.append ("<detaileddescription><para>");
+		string.append (m_detailedDescription.getTrimmedString ());
 		string.append ("</para></detaileddescription>\n");
 	}
 
