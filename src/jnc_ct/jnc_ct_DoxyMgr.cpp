@@ -213,9 +213,12 @@ DoxyMgr::resolveBlockTargets ()
 		
 		item->m_doxyBlock = target->m_block;
 
-		Namespace* itemNspace = item->getNamespace ();
-		if (itemNspace)
-			prevNspace = itemNspace;
+		if (item->getItemKind () != ModuleItemKind_Property)
+		{
+			Namespace* itemNspace = item->getNamespace ();
+			if (itemNspace)
+				prevNspace = itemNspace;
+		}
 	}
 
 	if (!result)		
