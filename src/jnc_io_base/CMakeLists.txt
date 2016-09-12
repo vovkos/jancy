@@ -13,6 +13,7 @@ set (
 	jnc_io_Socket.h
 	jnc_io_SocketAddressResolver.h
 	jnc_io_NetworkAdapter.h
+	jnc_io_File.h
 	jnc_io_MappedFile.h
 	jnc_io_FileStream.h
 	jnc_io_IoLib.h
@@ -24,6 +25,7 @@ set (
 	jnc_io_Socket.cpp
 	jnc_io_SocketAddressResolver.cpp
 	jnc_io_NetworkAdapter.cpp
+	jnc_io_File.cpp
 	jnc_io_MappedFile.cpp
 	jnc_io_FileStream.cpp
 	jnc_io_IoLib.cpp
@@ -64,6 +66,7 @@ set (
 	jnc/io_SocketAddress.jnc
 	jnc/io_SocketAddressResolver.jnc
 	jnc/io_NetworkAdapter.jnc
+	jnc/io_File.jnc
 	jnc/io_MappedFile.jnc
 	jnc/io_FileStream.jnc
 	)

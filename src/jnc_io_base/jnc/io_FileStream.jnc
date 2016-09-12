@@ -1,4 +1,4 @@
-import "io_MappedFile.jnc"
+import "io_File.jnc"
 
 namespace io {
 

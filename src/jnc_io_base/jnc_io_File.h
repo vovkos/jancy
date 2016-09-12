@@ -3,25 +3,23 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MappedFile)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (File)
 
 //.............................................................................
 
-class MappedFile: public IfaceHdr
+class File: public IfaceHdr
 {
 	friend class IoThread;
 
 protected:
-	size_t m_dynamicViewLimit;
-
 	bool m_isOpen;
 
 protected:
 	Runtime* m_runtime;
-	axl::io::MappedFile m_file;
+	axl::io::File m_file;
 
 public:
-	MappedFile ();
+	File ();
 
 	void
 	JNC_CDECL
@@ -41,6 +39,20 @@ public:
 		return m_file.setSize (size);
 	}
 
+	uint64_t
+	JNC_CDECL
+	getPosition ()
+	{
+		return m_file.getPosition ();
+	}
+
+	bool
+	JNC_CDECL
+	setPosition (uint64_t offset)
+	{
+		return m_file.setPosition (offset);
+	}
+
 	bool
 	JNC_CDECL
 	open (
@@ -55,15 +67,25 @@ public:
 		m_file.close ();
 	}
 
-	static
-	DataPtr
+	size_t
 	JNC_CDECL
-	view (
-		MappedFile* self,
-		uint64_t offset,
-		size_t size,
-		bool isPermanent
-		);
+	read (
+		DataPtr ptr,
+		size_t size
+		)
+	{
+		return m_file.read (ptr.m_p, size);
+	}
+
+	size_t
+	JNC_CDECL
+	write (
+		DataPtr ptr,
+		size_t size
+		)
+	{
+		return m_file.write (ptr.m_p, size);
+	}
 };
 
 //.............................................................................

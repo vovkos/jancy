@@ -21,6 +21,7 @@ enum IoLibCacheSlot
 	IoLibCacheSlot_SocketEventParams,
 	IoLibCacheSlot_NetworkAdapterAddress,
 	IoLibCacheSlot_NetworkAdapterDesc,
+	IoLibCacheSlot_File,
 	IoLibCacheSlot_MappedFile,
 	IoLibCacheSlot_FileStream,
 	IoLibCacheSlot_FileStreamEventParams,

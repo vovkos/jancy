@@ -21,7 +21,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MappedFile)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <MappedFile>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <MappedFile>)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dynamicViewLimit", &MappedFile::setDynamicViewLimit)
-	JNC_MAP_AUTOGET_PROPERTY ("m_size", &MappedFile::setSize)
+	JNC_MAP_PROPERTY ("m_size", &MappedFile::getSize, &MappedFile::setSize)
 	JNC_MAP_FUNCTION ("open",  &MappedFile::open)
 	JNC_MAP_FUNCTION ("close", &MappedFile::close)
 	JNC_MAP_FUNCTION ("view",  &MappedFile::view)
@@ -33,7 +33,6 @@ MappedFile::MappedFile ()
 {
 	m_runtime = getCurrentThreadRuntime ();
 	m_dynamicViewLimit = axl::io::MappedFile::DefaultsKind_MaxDynamicViewCount;
-	m_size = 0;
 	m_isOpen = false;
 }
 
@@ -46,13 +45,9 @@ MappedFile::open (
 {
 	bool result = m_file.open ((const char*) namePtr.m_p, flags);
 	if (!result)
-	{
 		propagateLastError ();
-		return false;
-	}
 
-	m_size = m_file.getSize ();
-	return true;
+	return result;
 }
 
 DataPtr
@@ -89,15 +84,6 @@ MappedFile::setDynamicViewLimit (size_t limit)
 	bool result = m_file.setup (limit, axl::io::MappedFile::DefaultsKind_ReadAheadSize);
 	if (result)
 		m_dynamicViewLimit = limit;
-}
-
-void
-JNC_CDECL 
-MappedFile::setSize (uint64_t size)
-{
-	bool result = m_file.setSize (size);
-	if (result)
-		m_size = size;
 }
 
 //.............................................................................
