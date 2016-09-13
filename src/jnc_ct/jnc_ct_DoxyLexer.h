@@ -29,6 +29,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_Property,
 	DoxyTokenKind_Event,
 	DoxyTokenKind_Typedef,
+	DoxyTokenKind_Namespace,
 	DoxyTokenKind_Group,
 	DoxyTokenKind_DefGroup,
 	DoxyTokenKind_InGroup,
@@ -59,6 +60,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Property,      "\\property")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Event,         "\\event")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Typedef,       "\\typedef")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Namespace,     "\\namespace")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Group,         "\\group")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_DefGroup,      "\\defgroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_InGroup,       "\\ingroup")

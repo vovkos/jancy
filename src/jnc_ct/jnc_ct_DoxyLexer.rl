@@ -39,10 +39,12 @@ main := |*
 '\\field'         { createToken (DoxyTokenKind_Field); };
 '\\fn'            { createToken (DoxyTokenKind_Function); };
 '\\function'      { createToken (DoxyTokenKind_Function); };
+'\\method'        { createToken (DoxyTokenKind_Function); };
 '\\prop'          { createToken (DoxyTokenKind_Property); };
 '\\property'      { createToken (DoxyTokenKind_Property); };
 '\\event'         { createToken (DoxyTokenKind_Event); };
 '\\typedef'       { createToken (DoxyTokenKind_Typedef); };
+'\\namespace'     { createToken (DoxyTokenKind_Namespace); };
 '\\group'         { createToken (DoxyTokenKind_Group); };
 '\\defgroup'      { createToken (DoxyTokenKind_DefGroup); };
 '\\ingroup'       { createToken (DoxyTokenKind_InGroup); };
