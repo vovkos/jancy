@@ -1,0 +1,29 @@
+/*!
+
+\namespace sys
+
+	\brief Brief description for namespace sys
+
+	Detailed description for namespace sys
+
+*/
+
+/*!
+
+\fn sys.getCurrentThreadId
+
+	Detailed description for function sys.getCurrentThreadId
+
+\fn sys.createThread
+
+	Detailed description for function sys.createThread
+
+\fn sys.sleep
+
+	Detailed description for function sys.sleep
+
+\fn sys.getTimestamp
+
+	Detailed description for function sys.getTimestamp
+
+*/

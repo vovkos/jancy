@@ -1,0 +1,21 @@
+/*!
+
+\struct io.MailslotEventParams
+
+	\brief Brief description for struct io.MailslotEventParams
+
+	Detailed description for struct io.MailslotEventParams
+
+	\field m_eventCode
+
+		Detailed description for field m_eventCode
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\field m_error
+
+		Detailed description for field m_error
+
+*/

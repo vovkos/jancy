@@ -1,0 +1,41 @@
+/*!
+
+\struct io.SocketAddress_ip4
+
+	\brief Brief description for struct io.SocketAddress_ip4
+
+	Detailed description for struct io.SocketAddress_ip4
+
+	\field m_family
+
+		Detailed description for field m_family
+
+	\field m_port
+
+		Detailed description for field m_port
+
+	\field m_address
+
+		Detailed description for field m_address
+
+	\field m_padding
+
+		Detailed description for field m_padding
+
+	\fn isEqual
+
+		Detailed description for function isEqual
+
+	\fn isMatch
+
+		Detailed description for function isMatch
+
+	\fn parse
+
+		Detailed description for function parse
+
+	\fn getString
+
+		Detailed description for function getString
+
+*/

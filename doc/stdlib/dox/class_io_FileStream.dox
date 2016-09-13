@@ -1,0 +1,49 @@
+/*!
+
+\class io.FileStream
+
+	\brief Brief description for class io.FileStream
+
+	Detailed description for class io.FileStream
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\field m_kind
+
+		Detailed description for field m_kind
+
+	\event m_onFileStreamEvent
+
+		Detailed description for event m_onFileStreamEvent
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn clear
+
+		Detailed description for function clear
+
+	\fn read
+
+		Detailed description for function read
+
+	\fn write
+
+		Detailed description for function write
+
+	\fn firePendingEvents
+
+		Detailed description for function firePendingEvents
+
+*/

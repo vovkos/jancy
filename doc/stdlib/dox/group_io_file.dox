@@ -1,0 +1,19 @@
+/*!
+
+\defgroup file
+
+	\title Generic File IO
+
+	\brief Brief description for group file (Generic File IO)
+
+	Detailed description for group file (Generic File IO)
+
+*/
+
+/*!
+
+\fn io.getFileStreamKindString
+
+	Detailed description for function io.getFileStreamKindString
+
+*/

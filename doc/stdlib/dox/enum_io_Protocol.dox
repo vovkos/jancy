@@ -1,0 +1,21 @@
+/*!
+
+\enum io.Protocol
+
+	\brief Brief description for enum io.Protocol
+
+	Detailed description for enum io.Protocol
+
+	\enumvalue Icmp
+
+		Detailed description for enum value Icmp
+
+	\enumvalue Tcp
+
+		Detailed description for enum value Tcp
+
+	\enumvalue Udp
+
+		Detailed description for enum value Udp
+
+*/

@@ -1,0 +1,19 @@
+/*!
+
+\defgroup pcap
+
+	\title Pcap (Packet Capturing Library)
+
+	\brief Brief description for group pcap (Pcap (Packet Capturing Library))
+
+	Detailed description for group pcap (Pcap (Packet Capturing Library))
+
+*/
+
+/*!
+
+\fn io.createPcapDeviceDescList
+
+	Detailed description for function io.createPcapDeviceDescList
+
+*/

@@ -1,0 +1,17 @@
+/*!
+
+\class sys.Lock
+
+	\brief Brief description for class sys.Lock
+
+	Detailed description for class sys.Lock
+
+	\fn lock
+
+		Detailed description for function lock
+
+	\fn unlock
+
+		Detailed description for function unlock
+
+*/

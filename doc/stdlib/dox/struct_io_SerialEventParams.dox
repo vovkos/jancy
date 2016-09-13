@@ -1,0 +1,29 @@
+/*!
+
+\struct io.SerialEventParams
+
+	\brief Brief description for struct io.SerialEventParams
+
+	Detailed description for struct io.SerialEventParams
+
+	\field m_eventCode
+
+		Detailed description for field m_eventCode
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\field m_lines
+
+		Detailed description for field m_lines
+
+	\field m_mask
+
+		Detailed description for field m_mask
+
+	\field m_error
+
+		Detailed description for field m_error
+
+*/

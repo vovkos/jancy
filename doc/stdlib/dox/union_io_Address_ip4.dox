@@ -1,0 +1,25 @@
+/*!
+
+\union io.Address_ip4
+
+	\brief Brief description for union io.Address_ip4
+
+	Detailed description for union io.Address_ip4
+
+	\field m_i32
+
+		Detailed description for field m_i32
+
+	\field m_i8
+
+		Detailed description for field m_i8
+
+	\fn parse
+
+		Detailed description for function parse
+
+	\fn getString
+
+		Detailed description for function getString
+
+*/

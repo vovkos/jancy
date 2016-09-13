@@ -1,0 +1,25 @@
+/*!
+
+\struct std.Error
+
+	\brief Brief description for struct std.Error
+
+	Detailed description for struct std.Error
+
+	\field m_size
+
+		Detailed description for field m_size
+
+	\field m_guid
+
+		Detailed description for field m_guid
+
+	\field m_code
+
+		Detailed description for field m_code
+
+	\property m_description
+
+		Detailed description for property m_description
+
+*/

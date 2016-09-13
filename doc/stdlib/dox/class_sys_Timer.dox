@@ -1,0 +1,29 @@
+/*!
+
+\class sys.Timer
+
+	\brief Brief description for class sys.Timer
+
+	Detailed description for class sys.Timer
+
+	\fn start
+
+		Detailed description for function start
+
+	\fn stop
+
+		Detailed description for function stop
+
+	\fn startDueTimer
+
+		Detailed description for function startDueTimer
+
+	\fn startPeriodicTimer
+
+		Detailed description for function startPeriodicTimer
+
+	\fn startSingleShotTimer
+
+		Detailed description for function startSingleShotTimer
+
+*/

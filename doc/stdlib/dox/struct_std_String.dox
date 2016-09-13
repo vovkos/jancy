@@ -1,0 +1,33 @@
+/*!
+
+\struct std.String
+
+	\brief Brief description for struct std.String
+
+	Detailed description for struct std.String
+
+	\field m_p
+
+		Detailed description for field m_p
+
+	\field m_length
+
+		Detailed description for field m_length
+
+	\fn isZeroTerminated
+
+		Detailed description for function isZeroTerminated
+
+	\fn ensureZeroTerminated
+
+		Detailed description for function ensureZeroTerminated
+
+	\fn getZeroTerminatedString
+
+		Detailed description for function getZeroTerminatedString
+
+	\fn copy
+
+		Detailed description for function copy
+
+*/

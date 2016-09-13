@@ -1,0 +1,53 @@
+/*!
+
+\class io.Pcap
+
+	\brief Brief description for class io.Pcap
+
+	Detailed description for class io.Pcap
+
+	\field m_filter
+
+		Detailed description for field m_filter
+
+	\field m_isPromiscious
+
+		Detailed description for field m_isPromiscious
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\event m_onPcapEvent
+
+		Detailed description for event m_onPcapEvent
+
+	\fn openDevice
+
+		Detailed description for function openDevice
+
+	\fn openFile
+
+		Detailed description for function openFile
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn setFilter
+
+		Detailed description for function setFilter
+
+	\fn write
+
+		Detailed description for function write
+
+	\fn read
+
+		Detailed description for function read
+
+*/

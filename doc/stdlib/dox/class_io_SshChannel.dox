@@ -1,0 +1,57 @@
+/*!
+
+\class io.SshChannel
+
+	\brief Brief description for class io.SshChannel
+
+	Detailed description for class io.SshChannel
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\property m_address
+
+		Detailed description for property m_address
+
+	\property m_peerAddress
+
+		Detailed description for property m_peerAddress
+
+	\event m_onSshEvent
+
+		Detailed description for event m_onSshEvent
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn connect
+
+		Detailed description for function connect
+
+	\fn authenticate
+
+		Detailed description for function authenticate
+
+	\fn resizePty
+
+		Detailed description for function resizePty
+
+	\fn read
+
+		Detailed description for function read
+
+	\fn write
+
+		Detailed description for function write
+
+*/

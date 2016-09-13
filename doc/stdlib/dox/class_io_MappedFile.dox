@@ -1,0 +1,33 @@
+/*!
+
+\class io.MappedFile
+
+	\brief Brief description for class io.MappedFile
+
+	Detailed description for class io.MappedFile
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\property m_dynamicViewLimit
+
+		Detailed description for property m_dynamicViewLimit
+
+	\property m_size
+
+		Detailed description for property m_size
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn view
+
+		Detailed description for function view
+
+*/

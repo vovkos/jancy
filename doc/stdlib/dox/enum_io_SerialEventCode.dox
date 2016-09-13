@@ -1,0 +1,25 @@
+/*!
+
+\enum io.SerialEventCode
+
+	\brief Brief description for enum io.SerialEventCode
+
+	Detailed description for enum io.SerialEventCode
+
+	\enumvalue IncomingData
+
+		Detailed description for enum value IncomingData
+
+	\enumvalue IoError
+
+		Detailed description for enum value IoError
+
+	\enumvalue TransmitBufferReady
+
+		Detailed description for enum value TransmitBufferReady
+
+	\enumvalue StatusLineChanged
+
+		Detailed description for enum value StatusLineChanged
+
+*/

@@ -1,0 +1,17 @@
+/*!
+
+\enum io.SocketCloseKind
+
+	\brief Brief description for enum io.SocketCloseKind
+
+	Detailed description for enum io.SocketCloseKind
+
+	\enumvalue Reset
+
+		Detailed description for enum value Reset
+
+	\enumvalue Graceful
+
+		Detailed description for enum value Graceful
+
+*/

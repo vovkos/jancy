@@ -1,0 +1,45 @@
+/*!
+
+\enum io.NetworkAdapterType
+
+	\brief Brief description for enum io.NetworkAdapterType
+
+	Detailed description for enum io.NetworkAdapterType
+
+	\enumvalue Unknown
+
+		Detailed description for enum value Unknown
+
+	\enumvalue Loopback
+
+		Detailed description for enum value Loopback
+
+	\enumvalue Ethernet
+
+		Detailed description for enum value Ethernet
+
+	\enumvalue Wireless
+
+		Detailed description for enum value Wireless
+
+	\enumvalue Ppp
+
+		Detailed description for enum value Ppp
+
+	\enumvalue TokenRing
+
+		Detailed description for enum value TokenRing
+
+	\enumvalue Slip
+
+		Detailed description for enum value Slip
+
+	\enumvalue Tunnel
+
+		Detailed description for enum value Tunnel
+
+	\enumvalue _Count
+
+		Detailed description for enum value _Count
+
+*/

@@ -1,0 +1,19 @@
+/*!
+
+\defgroup network-adapter
+
+	\title Network Adapter Management
+
+	\brief Brief description for group network-adapter (Network Adapter Management)
+
+	Detailed description for group network-adapter (Network Adapter Management)
+
+*/
+
+/*!
+
+\fn io.createNetworkAdapterDescList
+
+	Detailed description for function io.createNetworkAdapterDescList
+
+*/

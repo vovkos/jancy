@@ -1,0 +1,37 @@
+/*!
+
+\class io.File
+
+	\brief Brief description for class io.File
+
+	Detailed description for class io.File
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\property m_size
+
+		Detailed description for property m_size
+
+	\property m_position
+
+		Detailed description for property m_position
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn read
+
+		Detailed description for function read
+
+	\fn write
+
+		Detailed description for function write
+
+*/

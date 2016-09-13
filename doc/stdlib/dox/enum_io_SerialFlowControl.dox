@@ -1,0 +1,21 @@
+/*!
+
+\enum io.SerialFlowControl
+
+	\brief Brief description for enum io.SerialFlowControl
+
+	Detailed description for enum io.SerialFlowControl
+
+	\enumvalue None
+
+		Detailed description for enum value None
+
+	\enumvalue RtsCts
+
+		Detailed description for enum value RtsCts
+
+	\enumvalue XOnXOff
+
+		Detailed description for enum value XOnXOff
+
+*/

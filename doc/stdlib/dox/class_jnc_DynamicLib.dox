@@ -1,0 +1,29 @@
+/*!
+
+\class jnc.DynamicLib
+
+	\brief Brief description for class jnc.DynamicLib
+
+	Detailed description for class jnc.DynamicLib
+
+	\field m_handle
+
+		Detailed description for field m_handle
+
+	\property m_isOpen
+
+		Detailed description for property m_isOpen
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn getFunction
+
+		Detailed description for function getFunction
+
+*/

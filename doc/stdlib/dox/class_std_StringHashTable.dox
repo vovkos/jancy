@@ -1,0 +1,33 @@
+/*!
+
+\class std.StringHashTable
+
+	\brief Brief description for class std.StringHashTable
+
+	Detailed description for class std.StringHashTable
+
+	\property m_isEmpty
+
+		Detailed description for property m_isEmpty
+
+	\property m_map
+
+		Detailed description for property m_map
+
+	\fn clear
+
+		Detailed description for function clear
+
+	\fn find
+
+		Detailed description for function find
+
+	\fn insert
+
+		Detailed description for function insert
+
+	\fn remove
+
+		Detailed description for function remove
+
+*/

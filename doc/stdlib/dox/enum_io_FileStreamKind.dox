@@ -1,0 +1,25 @@
+/*!
+
+\enum io.FileStreamKind
+
+	\brief Brief description for enum io.FileStreamKind
+
+	Detailed description for enum io.FileStreamKind
+
+	\enumvalue Unknown
+
+		Detailed description for enum value Unknown
+
+	\enumvalue Disk
+
+		Detailed description for enum value Disk
+
+	\enumvalue Serial
+
+		Detailed description for enum value Serial
+
+	\enumvalue Pipe
+
+		Detailed description for enum value Pipe
+
+*/

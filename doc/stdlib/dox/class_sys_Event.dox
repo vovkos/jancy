@@ -1,0 +1,17 @@
+/*!
+
+\class sys.Event
+
+	\brief Brief description for class sys.Event
+
+	Detailed description for class sys.Event
+
+	\fn signal
+
+		Detailed description for function signal
+
+	\fn wait
+
+		Detailed description for function wait
+
+*/

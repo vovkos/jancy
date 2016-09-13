@@ -33,8 +33,7 @@ set (
 	-S ${JANCY_SRC_DIR}/jnc_io_base/jnc
 	-S ${JANCY_SRC_DIR}/jnc_io_ssh/jnc
 	-S ${JANCY_SRC_DIR}/jnc_io_pcap/jnc
-	${CMAKE_CURRENT_LIST_DIR}/dox/io_File.dox
-	${CMAKE_CURRENT_LIST_DIR}/dox/io_FileStream.dox
+	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 	)
 
 set (

@@ -1,0 +1,33 @@
+/*!
+
+\class io.Mailslot
+
+	\brief Brief description for class io.Mailslot
+
+	Detailed description for class io.Mailslot
+
+	\field m_isOpen
+
+		Detailed description for field m_isOpen
+
+	\field m_syncId
+
+		Detailed description for field m_syncId
+
+	\event m_onMailslotEvent
+
+		Detailed description for event m_onMailslotEvent
+
+	\fn open
+
+		Detailed description for function open
+
+	\fn close
+
+		Detailed description for function close
+
+	\fn read
+
+		Detailed description for function read
+
+*/
