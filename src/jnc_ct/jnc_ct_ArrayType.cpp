@@ -31,7 +31,7 @@ ArrayType::getRootType ()
 }
 
 sl::String
-ArrayType::getDimensionString ()
+ArrayType::createDimensionString ()
 {
 	sl::String string;
 
@@ -51,16 +51,6 @@ ArrayType::getDimensionString ()
 	return string;
 }
 
-void
-ArrayType::prepareTypeString ()
-{
-	Type* rootType = getRootType ();
-
-	m_typeString = rootType->getTypeString ();
-	m_typeString += ' ';
-	m_typeString += getDimensionString ();
-}
-
 sl::String
 ArrayType::createDeclarationString (const char* name)
 {
@@ -70,7 +60,7 @@ ArrayType::createDeclarationString (const char* name)
 	string += ' ';
 	string += name;
 	string += ' ';
-	string += getDimensionString ();
+	string += createDimensionString ();
 	return string;
 }
 

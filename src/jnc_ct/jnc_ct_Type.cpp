@@ -192,7 +192,6 @@ Type::getTypeString ()
 		return m_typeString;
 
 	prepareTypeString ();
-
 	ASSERT (!m_typeString.isEmpty ());
 	return m_typeString;
 }
@@ -529,6 +528,23 @@ Type::markGcRoots (
 
 //.............................................................................
 
+sl::String
+NamedType::createDoxyLinkedText ()
+{
+	sl::String typeString = getTypeString ();
+
+	if (!m_parentUnit || m_parentUnit->getLib ()) // don't reference imported libraries
+		return typeString;
+
+	sl::String refId = getDoxyBlock ()->getRefId ();	
+
+	sl::String string;
+	string.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), typeString.cc ());
+	return string;
+}
+
+//.............................................................................
+
 Typedef::Typedef ()
 {
 	m_itemKind = ModuleItemKind_Typedef;
@@ -558,10 +574,10 @@ Typedef::generateDocumentation (
 		"<type>%s</type>\n", 
 		getDoxyBlock ()->getRefId ().cc (),
 		m_name.cc (),
-		m_type->getDoxyLinkedText ().cc ()
+		m_type->getDoxyBlock ()->getLinkedText ().cc ()
 		);
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

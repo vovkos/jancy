@@ -64,7 +64,7 @@ EnumConst::generateDocumentation (
 			);
 	}
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append ("</enumvalue>\n");
 
 	return true;
@@ -213,7 +213,7 @@ EnumType::generateDocumentation (
 		);
 
 	itemXml->append (memberXml);
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

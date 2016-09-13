@@ -31,17 +31,16 @@ class DoxyBlock: public sl::ListLink
 protected:
 	DoxyBlockKind m_blockKind;
 	DoxyGroup* m_group;
+	ModuleItem* m_item;
+
 	sl::String m_refId;
 	sl::String m_title;
+	sl::String m_linkedText;
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
 
 public:
-	DoxyBlock ()
-	{
-		m_blockKind = DoxyBlockKind_Normal;
-		m_group = NULL;
-	}
+	DoxyBlock ();
 
 	DoxyBlockKind 
 	getBlockKind ()
@@ -55,17 +54,23 @@ public:
 		return m_group;
 	}
 
-	sl::String 
-	getRefId ()
+	ModuleItem* 
+	getItem ()
 	{
-		return m_refId;
+		return m_item;
 	}
+
+	sl::String 
+	getRefId ();
 
 	sl::String 
 	getTitle ()
 	{
 		return m_title;
 	}
+
+	sl::String 
+	getLinkedText ();
 
 	sl::String 
 	getBriefDescription ()
@@ -86,7 +91,7 @@ public:
 	}
 
 	sl::String
-	createDoxyDescriptionString ();
+	createDescriptionString ();
 };
 
 //.............................................................................

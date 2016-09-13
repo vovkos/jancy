@@ -207,8 +207,15 @@ public:
 		return true;
 	}
 
+	virtual
+	sl::String
+	createDoxyRefId ();
+
 	DoxyBlock* 
 	getDoxyBlock ();
+
+	DoxyBlock* 
+	setDoxyBlock (DoxyBlock* block);
 
 protected:
 	virtual
@@ -218,13 +225,6 @@ protected:
 		ASSERT (false);
 		return true;
 	}
-
-	virtual
-	sl::String
-	createDoxyRefId ();
-
-	sl::String
-	createDoxyDescriptionString ();
 };
 
 //.............................................................................

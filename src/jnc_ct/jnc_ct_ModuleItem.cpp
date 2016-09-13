@@ -227,13 +227,24 @@ ModuleItem::ensureLayout ()
 DoxyBlock* 
 ModuleItem::getDoxyBlock ()
 {
-	if (!m_doxyBlock)
-		m_doxyBlock = m_module->m_doxyMgr.createBlock ();
+	if (m_doxyBlock)
+		return m_doxyBlock;
 
-	if (m_doxyBlock->m_refId.isEmpty ())
-		m_doxyBlock->m_refId = createDoxyRefId ();
-
+	m_doxyBlock = m_module->m_doxyMgr.createBlock ();
+	m_doxyBlock->m_item = this;
 	return m_doxyBlock;
+}
+
+DoxyBlock* 
+ModuleItem::setDoxyBlock (DoxyBlock* block)
+{
+	DoxyBlock* prevBlock = m_doxyBlock;
+	m_doxyBlock = block;
+	
+	if (block)
+		block->m_item = this;
+
+	return prevBlock;
 }
 
 sl::String
@@ -251,12 +262,6 @@ ModuleItem::createDoxyRefId ()
 	refId.makeLowerCase ();
 	
 	return m_module->m_doxyMgr.adjustRefId (refId);
-}
-
-sl::String
-ModuleItem::createDoxyDescriptionString ()
-{
-	return getDoxyBlock ()->createDoxyDescriptionString ();
 }
 
 //.............................................................................

@@ -732,9 +732,9 @@ Property::generateDocumentation (
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedText ().cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyBlock ()->getLinkedText ().cc ());
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("\n</memberdef>\n");
 

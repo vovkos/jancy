@@ -842,7 +842,7 @@ Parser::assignDeclarationAttributes (
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock ();
 
 	if (m_module->getCompileFlags () & ModuleCompileFlag_Documentation)
-		item->m_doxyBlock = doxyBlock ? doxyBlock : popDoxyBlock ();
+		item->setDoxyBlock (doxyBlock ? doxyBlock : popDoxyBlock ());
 
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;

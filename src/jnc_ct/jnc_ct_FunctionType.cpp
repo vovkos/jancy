@@ -361,7 +361,7 @@ FunctionType::generateArgDocumentation (sl::String* itemXml)
 			"    <type>%s</type>\n"
 			"    <declname>%s</declname>\n"
 			"</param>\n",
-			arg->getType ()->getDoxyLinkedText ().cc (),
+			arg->getType ()->getDoxyBlock ()->getLinkedText ().cc (),
 			arg->getName ().cc ()
 			);
 	}

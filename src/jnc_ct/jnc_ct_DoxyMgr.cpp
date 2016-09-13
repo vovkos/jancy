@@ -7,8 +7,43 @@ namespace ct {
 
 //.............................................................................
 
+DoxyBlock::DoxyBlock ()
+{
+	m_blockKind = DoxyBlockKind_Normal;
+	m_group = NULL;
+	m_item = NULL;
+}
+
+sl::String 
+DoxyBlock::getRefId ()
+{
+	if (!m_refId.isEmpty ())
+		return m_refId;
+
+	ASSERT (m_item);
+
+	m_refId = m_item->createDoxyRefId ();
+	return m_refId;
+}
+
+sl::String 
+DoxyBlock::getLinkedText ()
+{
+	if (!m_linkedText.isEmpty ())
+		return m_linkedText;
+
+	ASSERT (m_item);
+
+	if (m_item->getItemKind () != ModuleItemKind_Type)
+		m_linkedText = m_item->m_tag;
+	else
+		m_linkedText = ((Type*) m_item)->createDoxyLinkedText ();
+
+	return m_linkedText;
+}
+
 sl::String
-DoxyBlock::createDoxyDescriptionString ()
+DoxyBlock::createDescriptionString ()
 {
 	sl::String string;
 
@@ -100,7 +135,7 @@ DoxyGroup::generateDocumentation (
 		itemXml->append ('\n');
 	}
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (createDescriptionString ());
 	itemXml->append ("</compounddef>\n");
 
 	return true;
@@ -211,7 +246,7 @@ DoxyMgr::resolveBlockTargets ()
 		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)
 			target->m_block->m_group = item->m_doxyBlock->m_group;
 		
-		item->m_doxyBlock = target->m_block;
+		item->setDoxyBlock (target->m_block);
 
 		if (item->getItemKind () != ModuleItemKind_Property)
 		{

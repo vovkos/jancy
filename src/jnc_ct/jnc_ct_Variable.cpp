@@ -109,12 +109,12 @@ Variable::generateDocumentation (
 		itemXml->append (" const='yes'");
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyLinkedText ().cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
  
 	if (isMulticast)
 		((MulticastClassType*) m_type)->getFunctionType ()->generateArgDocumentation (itemXml);
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 
 	itemXml->append ("\n</memberdef>\n");

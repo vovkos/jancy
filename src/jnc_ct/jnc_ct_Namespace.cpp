@@ -404,7 +404,7 @@ GlobalNamespace::generateDocumentation (
 	sl::String memberXml;
 	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 

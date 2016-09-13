@@ -305,11 +305,11 @@ Function::generateDocumentation (
 
 	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
 	itemXml->appendFormat ("<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedText ().cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyBlock ()->getLinkedText ().cc ());
 
 	m_type->generateArgDocumentation (itemXml);
 
-	itemXml->append (createDoxyDescriptionString ());
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("\n</memberdef>\n");
 

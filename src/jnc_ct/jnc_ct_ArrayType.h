@@ -76,6 +76,13 @@ public:
 		rt::GcHeap* gcHeap
 		);
 
+	virtual
+	sl::String
+	createDoxyLinkedText ()
+	{
+		return getRootType ()->createDoxyLinkedText () + " " + createDimensionString ();
+	}
+
 protected:
 	virtual
 	bool
@@ -83,10 +90,13 @@ protected:
 	
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString ()
+	{
+		m_typeString = getRootType ()->getTypeString () + " " + createDimensionString ();
+	}
 
 	sl::String
-	getDimensionString ();
+	createDimensionString ();
 
 	virtual
 	void

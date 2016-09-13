@@ -52,24 +52,26 @@ DataPtrType::createSignature (
 	return signature;
 }
 
-void
-DataPtrType::prepareTypeString ()
+sl::String
+DataPtrType::createTypeStringSuffix ()
 {
-	m_typeString = m_targetType->getTypeString ();
+	sl::String string;
 
 	if (m_flags & PtrTypeFlag__AllMask)
 	{
-		m_typeString += ' ';
-		m_typeString += getPtrTypeFlagString (m_flags);
+		string += ' ';
+		string += getPtrTypeFlagString (m_flags);
 	}
 
 	if (m_ptrTypeKind != DataPtrTypeKind_Normal)
 	{
-		m_typeString += ' ';
-		m_typeString += getDataPtrTypeKindString (m_ptrTypeKind);
+		string += ' ';
+		string += getDataPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	m_typeString += m_typeKind == TypeKind_DataRef ? "&" : "*";
+	string += m_typeKind == TypeKind_DataRef ? "&" : "*";
+
+	return string;
 }
 
 void

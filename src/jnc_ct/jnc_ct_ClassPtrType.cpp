@@ -54,24 +54,25 @@ ClassPtrType::createSignature (
 	return signature;
 }
 
-void
-ClassPtrType::prepareTypeString ()
+sl::String
+ClassPtrType::createTypeStringSuffix ()
 {
-	m_typeString += m_targetType->getTypeString ();
+	sl::String string;
 
 	if (m_flags & PtrTypeFlag__AllMask)
 	{
-		m_typeString += ' ';
-		m_typeString += getPtrTypeFlagString (m_flags);
+		string += ' ';
+		string += getPtrTypeFlagString (m_flags);
 	}
 
 	if (m_ptrTypeKind != ClassPtrTypeKind_Normal)
 	{
-		m_typeString += ' ';
-		m_typeString += getClassPtrTypeKindString (m_ptrTypeKind);
+		string += ' ';
+		string += getClassPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	m_typeString += m_typeKind == TypeKind_ClassRef ? "&" : "*";
+	string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
+	return string;
 }
 
 void

@@ -255,7 +255,7 @@ public:
 
 	virtual
 	sl::String
-	getDoxyLinkedText ()
+	createDoxyLinkedText ()
 	{
 		return getTypeString ();
 	}
@@ -369,6 +369,10 @@ public:
 	{
 		m_typeString = m_tag;
 	}
+
+	virtual
+	sl::String
+	createDoxyLinkedText ();
 };
 
 //.............................................................................
