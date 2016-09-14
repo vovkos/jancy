@@ -84,6 +84,9 @@ protected:
 	DoxyToken*
 	createTextToken ();
 
+	DoxyToken*
+	createNewLineToken ();
+
 	// implemented in *.rl
 
 	void

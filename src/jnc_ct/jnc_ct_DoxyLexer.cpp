@@ -10,13 +10,18 @@ namespace ct {
 DoxyToken*
 DoxyLexer::createTextToken ()
 {
-	size_t length = te - ts;
-	
-	sl::StringRef leftTrimmedString = sl::StringRef (ts, length).getLeftTrimmedString ();
-
-
 	Token* token = createToken (DoxyTokenKind_Text);
 	token->m_data.m_string.copy (ts, te - ts);
+	return token;
+}
+
+DoxyToken*
+DoxyLexer::createNewLineToken ()
+{
+	ASSERT (*ts == '\n');
+
+	Token* token = createToken ('\n');
+	token->m_data.m_string.copy (ts + 1, te - ts - 1);
 	return token;
 }
 

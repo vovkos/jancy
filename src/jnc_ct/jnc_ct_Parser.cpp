@@ -725,7 +725,28 @@ Parser::addDoxyComment (
 			break;
 
 		case DoxyTokenKind_Text:
-			description->append (token->m_data.m_string);
+			if (description->isEmpty ())
+			{				
+				description->copy (token->m_data.m_string.getLeftTrimmedString ());
+				m_doxyFirstIndent = m_doxyIndent;
+			}
+			else
+			{
+				size_t indentLength = m_doxyIndent.getLength ();
+				size_t firstIndentLength = m_doxyFirstIndent.getLength ();
+				size_t commonIndentLength = AXL_MIN (indentLength, firstIndentLength);
+				
+				size_t i = 0;
+				for (; i < commonIndentLength; i++)
+					if (m_doxyIndent [i] != m_doxyFirstIndent [i])
+						break;
+
+				if (i < indentLength)
+					description->append (m_doxyIndent.cc () + i, indentLength - i);
+
+				description->append (token->m_data.m_string);
+			}
+
 			break;
 
 		case '\n':
@@ -739,6 +760,7 @@ Parser::addDoxyComment (
 				description->append ('\n');
 			}
 
+			m_doxyIndent = token->m_data.m_string;
 			break;
 		}
 

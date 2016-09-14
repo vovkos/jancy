@@ -117,6 +117,8 @@ Members
 	sl::Array <DoxyGroupStackEntry> m_doxyGroupStack;
 	bool m_isDoxyBlockAssigned;
 	bool m_isDoxyBriefDescription;
+	sl::String m_doxyFirstIndent;
+	sl::String m_doxyIndent;
 
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;

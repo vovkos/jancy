@@ -59,7 +59,7 @@ main := |*
 
 rc ([^\n\\]* rc)? { createTextToken (); };
 
-'\n'              { createToken ('\n'), newLine (ts + 1); };
+'\n' ws?          { createNewLineToken (), newLine (ts + 1); };
 ws                ;
 
 *|;
