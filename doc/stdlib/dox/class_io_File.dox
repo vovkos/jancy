@@ -4,7 +4,7 @@
 
 	\ingroup file
 
-	\brief The io.File class provides standard facilities for reading from and writing to files.
+	\brief The ``io.File`` class provides standard facilities for reading from and writing to files or devices.
 
 	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of working with a file looks something like this:
 
@@ -13,7 +13,7 @@
 	* Write to the file using ``write`` method;
 	* Close the file with ``close`` method.
 
-	If an instance of io.File class is being abandoned without calling ``close``, it will be closed automatically in io.File destructor -- which will happen whenever the Jancy Garbage Collector decides to sweep unused objects.
+	If an instance of ``io.File`` class is being abandoned without calling ``close``, it will be closed automatically in ``io.File.destruct`` -- which will happen whenever the Jancy Garbage Collector decides to sweep unused objects.
 
 	However, leaving this at Garbage Collector' discretion is undesirable, as it leads to undeterministic resource release -- file will be kept open for unknown period of time.
 
@@ -23,42 +23,46 @@
 
 		foo ()
 		{
-
 			// ...
 
 			disposable io.File file;
 			file.open ();
 
-			// work with file
-			// ...
-
-
+			// work with file...
 		} // <-- file.close () is guaranteed to be called upon exiting the scope
 
 
 	\field m_isOpen
 
-		Detailed description for field m_isOpen
+		Read-only field ``m_isOpen`` holds the open status for the file -- ``true`` if opened; ``false`` otherwise.
 
 	\property m_size
 
-		Detailed description for property m_size
+		Read-write property ``m_size`` is used for getting and setting file size.
+
+		Reading from this property returns current size of the file; writing to it sets new size. If setting new size fails, IO error supplied by operating system is set; then dynamic exception is thrown.
 
 	\property m_position
 
-		Detailed description for property m_position
+		Read-write property ``m_position`` is used for getting and setting current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
+
+		Reading from this property returns current read/write position in the file; writing to it sets new position. Behaviour of this property sequential devices (which do not support access at random-offset) is determined by the underlying operating system. If getting or setting position fails, IO error supplied by operating system is set; then dynamic exception is thrown.
 
 	\fn open
 
-		Detailed description for function open
+		Opens or creates a file or device.
+
+		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options.
+
+		If file or device could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 	\fn close
 
-		Detailed description for function close
+		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
 	\fn read
 
-		Detailed description for function read
+		Reads from file. The function accepts two
 
 	\fn write
 
