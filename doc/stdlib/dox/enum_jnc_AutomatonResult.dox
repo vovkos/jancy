@@ -2,20 +2,20 @@
 
 \enum jnc.AutomatonResult
 
-	\brief Brief description for enum jnc.AutomatonResult
+	\brief Brief description for enum ``jnc.AutomatonResult``
 
-	Detailed description for enum jnc.AutomatonResult
+	Detailed description for enum ``jnc.AutomatonResult``
 
 	\enumvalue Error
 
-		Detailed description for enum value Error
+		Detailed description for enum value ``Error``
 
 	\enumvalue Continue
 
-		Detailed description for enum value Continue
+		Detailed description for enum value ``Continue``
 
 	\enumvalue Stop
 
-		Detailed description for enum value Stop
+		Detailed description for enum value ``Stop``
 
 */

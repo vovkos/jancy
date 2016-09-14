@@ -2,16 +2,16 @@
 
 \struct std.BufferRef
 
-	\brief Brief description for struct std.BufferRef
+	\brief Brief description for struct ``std.BufferRef``
 
-	Detailed description for struct std.BufferRef
+	Detailed description for struct ``std.BufferRef``
 
 	\field m_p
 
-		Detailed description for field m_p
+		Detailed description for field ``m_p``
 
 	\field m_size
 
-		Detailed description for field m_size
+		Detailed description for field ``m_size``
 
 */

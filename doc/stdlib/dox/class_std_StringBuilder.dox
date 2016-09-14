@@ -2,28 +2,28 @@
 
 \class std.StringBuilder
 
-	\brief Brief description for class std.StringBuilder
+	\brief Brief description for class ``std.StringBuilder``
 
-	Detailed description for class std.StringBuilder
+	Detailed description for class ``std.StringBuilder``
 
 	\field m_p
 
-		Detailed description for field m_p
+		Detailed description for field ``m_p``
 
 	\field m_length
 
-		Detailed description for field m_length
+		Detailed description for field ``m_length``
 
 	\field m_maxLength
 
-		Detailed description for field m_maxLength
+		Detailed description for field ``m_maxLength``
 
 	\fn copy
 
-		Detailed description for function copy
+		Detailed description for function ``copy``
 
 	\fn append
 
-		Detailed description for function append
+		Detailed description for function ``append``
 
 */

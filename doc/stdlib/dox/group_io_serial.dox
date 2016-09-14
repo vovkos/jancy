@@ -4,9 +4,9 @@
 
 	\title Serial Communications
 
-	\brief Brief description for group serial (Serial Communications)
+	\brief Brief description for group ``serial`` (Serial Communications)
 
-	Detailed description for group serial (Serial Communications)
+	Detailed description for group ``serial`` (Serial Communications)
 
 */
 
@@ -14,6 +14,6 @@
 
 \fn io.createSerialPortDescList
 
-	Detailed description for function io.createSerialPortDescList
+	Detailed description for function ``io.createSerialPortDescList``
 
 */

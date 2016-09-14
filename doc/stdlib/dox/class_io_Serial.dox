@@ -2,68 +2,68 @@
 
 \class io.Serial
 
-	\brief Brief description for class io.Serial
+	\brief Brief description for class ``io.Serial``
 
-	Detailed description for class io.Serial
+	Detailed description for class ``io.Serial``
 
 	\field m_isOpen
 
-		Detailed description for field m_isOpen
+		Detailed description for field ``m_isOpen``
 
 	\field m_syncId
 
-		Detailed description for field m_syncId
+		Detailed description for field ``m_syncId``
 
 	\property m_baudRate
 
-		Detailed description for property m_baudRate
+		Detailed description for property ``m_baudRate``
 
 	\property m_flowControl
 
-		Detailed description for property m_flowControl
+		Detailed description for property ``m_flowControl``
 
 	\property m_dataBits
 
-		Detailed description for property m_dataBits
+		Detailed description for property ``m_dataBits``
 
 	\property m_stopBits
 
-		Detailed description for property m_stopBits
+		Detailed description for property ``m_stopBits``
 
 	\property m_parity
 
-		Detailed description for property m_parity
+		Detailed description for property ``m_parity``
 
 	\property m_statusLines
 
-		Detailed description for property m_statusLines
+		Detailed description for property ``m_statusLines``
 
 	\property m_dtr
 
-		Detailed description for property m_dtr
+		Detailed description for property ``m_dtr``
 
 	\property m_rts
 
-		Detailed description for property m_rts
+		Detailed description for property ``m_rts``
 
 	\event m_onSerialEvent
 
-		Detailed description for event m_onSerialEvent
+		Detailed description for event ``m_onSerialEvent``
 
 	\fn open
 
-		Detailed description for function open
+		Detailed description for function ``open``
 
 	\fn close
 
-		Detailed description for function close
+		Detailed description for function ``close``
 
 	\fn read
 
-		Detailed description for function read
+		Detailed description for function ``read``
 
 	\fn write
 
-		Detailed description for function write
+		Detailed description for function ``write``
 
 */

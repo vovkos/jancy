@@ -2,20 +2,20 @@
 
 \enum io.SocketOpenFlags
 
-	\brief Brief description for enum io.SocketOpenFlags
+	\brief Brief description for enum ``io.SocketOpenFlags``
 
-	Detailed description for enum io.SocketOpenFlags
+	Detailed description for enum ``io.SocketOpenFlags``
 
 	\enumvalue Raw
 
-		Detailed description for enum value Raw
+		Detailed description for enum value ``Raw``
 
 	\enumvalue Asynchronous
 
-		Detailed description for enum value Asynchronous
+		Detailed description for enum value ``Asynchronous``
 
 	\enumvalue ReuseAddress
 
-		Detailed description for enum value ReuseAddress
+		Detailed description for enum value ``ReuseAddress``
 
 */

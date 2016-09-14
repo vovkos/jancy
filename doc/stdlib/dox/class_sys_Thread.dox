@@ -2,28 +2,28 @@
 
 \class sys.Thread
 
-	\brief Brief description for class sys.Thread
+	\brief Brief description for class ``sys.Thread``
 
-	Detailed description for class sys.Thread
+	Detailed description for class ``sys.Thread``
 
 	\field m_threadId
 
-		Detailed description for field m_threadId
+		Detailed description for field ``m_threadId``
 
 	\fn start
 
-		Detailed description for function start
+		Detailed description for function ``start``
 
 	\fn wait
 
-		Detailed description for function wait
+		Detailed description for function ``wait``
 
 	\fn waitAndClose
 
-		Detailed description for function waitAndClose
+		Detailed description for function ``waitAndClose``
 
 	\fn terminate
 
-		Detailed description for function terminate
+		Detailed description for function ``terminate``
 
 */

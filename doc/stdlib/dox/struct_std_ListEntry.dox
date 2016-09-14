@@ -2,24 +2,24 @@
 
 \struct std.ListEntry
 
-	\brief Brief description for struct std.ListEntry
+	\brief Brief description for struct ``std.ListEntry``
 
-	Detailed description for struct std.ListEntry
+	Detailed description for struct ``std.ListEntry``
 
 	\field m_next
 
-		Detailed description for field m_next
+		Detailed description for field ``m_next``
 
 	\field m_prev
 
-		Detailed description for field m_prev
+		Detailed description for field ``m_prev``
 
 	\field m_validator
 
-		Detailed description for field m_validator
+		Detailed description for field ``m_validator``
 
 	\field m_data
 
-		Detailed description for field m_data
+		Detailed description for field ``m_data``
 
 */

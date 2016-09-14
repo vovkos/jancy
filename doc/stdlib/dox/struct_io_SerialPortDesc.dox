@@ -2,20 +2,20 @@
 
 \struct io.SerialPortDesc
 
-	\brief Brief description for struct io.SerialPortDesc
+	\brief Brief description for struct ``io.SerialPortDesc``
 
-	Detailed description for struct io.SerialPortDesc
+	Detailed description for struct ``io.SerialPortDesc``
 
 	\field m_next
 
-		Detailed description for field m_next
+		Detailed description for field ``m_next``
 
 	\field m_deviceName
 
-		Detailed description for field m_deviceName
+		Detailed description for field ``m_deviceName``
 
 	\field m_description
 
-		Detailed description for field m_description
+		Detailed description for field ``m_description``
 
 */

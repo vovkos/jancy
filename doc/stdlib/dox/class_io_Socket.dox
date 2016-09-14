@@ -2,84 +2,84 @@
 
 \class io.Socket
 
-	\brief Brief description for class io.Socket
+	\brief Brief description for class ``io.Socket``
 
-	Detailed description for class io.Socket
+	Detailed description for class ``io.Socket``
 
 	\field m_isOpen
 
-		Detailed description for field m_isOpen
+		Detailed description for field ``m_isOpen``
 
 	\field m_syncId
 
-		Detailed description for field m_syncId
+		Detailed description for field ``m_syncId``
 
 	\property m_address
 
-		Detailed description for property m_address
+		Detailed description for property ``m_address``
 
 	\property m_peerAddress
 
-		Detailed description for property m_peerAddress
+		Detailed description for property ``m_peerAddress``
 
 	\property m_isBroadcastEnabled
 
-		Detailed description for property m_isBroadcastEnabled
+		Detailed description for property ``m_isBroadcastEnabled``
 
 	\property m_isNagleEnabled
 
-		Detailed description for property m_isNagleEnabled
+		Detailed description for property ``m_isNagleEnabled``
 
 	\property m_isRawHdrIncluded
 
-		Detailed description for property m_isRawHdrIncluded
+		Detailed description for property ``m_isRawHdrIncluded``
 
 	\property m_closeKind
 
-		Detailed description for property m_closeKind
+		Detailed description for property ``m_closeKind``
 
 	\event m_onSocketEvent
 
-		Detailed description for event m_onSocketEvent
+		Detailed description for event ``m_onSocketEvent``
 
 	\fn open
 
-		Detailed description for function open
+		Detailed description for function ``open``
 
 	\fn close
 
-		Detailed description for function close
+		Detailed description for function ``close``
 
 	\fn connect
 
-		Detailed description for function connect
+		Detailed description for function ``connect``
 
 	\fn listen
 
-		Detailed description for function listen
+		Detailed description for function ``listen``
 
 	\fn accept
 
-		Detailed description for function accept
+		Detailed description for function ``accept``
 
 	\fn send
 
-		Detailed description for function send
+		Detailed description for function ``send``
 
 	\fn recv
 
-		Detailed description for function recv
+		Detailed description for function ``recv``
 
 	\fn sendTo
 
-		Detailed description for function sendTo
+		Detailed description for function ``sendTo``
 
 	\fn recvFrom
 
-		Detailed description for function recvFrom
+		Detailed description for function ``recvFrom``
 
 	\fn firePendingEvents
 
-		Detailed description for function firePendingEvents
+		Detailed description for function ``firePendingEvents``
 
 */

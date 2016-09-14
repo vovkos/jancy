@@ -2,24 +2,24 @@
 
 \struct std.Guid
 
-	\brief Brief description for struct std.Guid
+	\brief Brief description for struct ``std.Guid``
 
-	Detailed description for struct std.Guid
+	Detailed description for struct ``std.Guid``
 
 	\field m_data1
 
-		Detailed description for field m_data1
+		Detailed description for field ``m_data1``
 
 	\field m_data2
 
-		Detailed description for field m_data2
+		Detailed description for field ``m_data2``
 
 	\field m_data3
 
-		Detailed description for field m_data3
+		Detailed description for field ``m_data3``
 
 	\field m_data4
 
-		Detailed description for field m_data4
+		Detailed description for field ``m_data4``
 
 */

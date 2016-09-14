@@ -2,32 +2,32 @@
 
 \enum io.NetworkAdapterFlags
 
-	\brief Brief description for enum io.NetworkAdapterFlags
+	\brief Brief description for enum ``io.NetworkAdapterFlags``
 
-	Detailed description for enum io.NetworkAdapterFlags
+	Detailed description for enum ``io.NetworkAdapterFlags``
 
 	\enumvalue Dhcp
 
-		Detailed description for enum value Dhcp
+		Detailed description for enum value ``Dhcp``
 
 	\enumvalue Ddns
 
-		Detailed description for enum value Ddns
+		Detailed description for enum value ``Ddns``
 
 	\enumvalue Broadcast
 
-		Detailed description for enum value Broadcast
+		Detailed description for enum value ``Broadcast``
 
 	\enumvalue Multicast
 
-		Detailed description for enum value Multicast
+		Detailed description for enum value ``Multicast``
 
 	\enumvalue Ip4
 
-		Detailed description for enum value Ip4
+		Detailed description for enum value ``Ip4``
 
 	\enumvalue Ip6
 
-		Detailed description for enum value Ip6
+		Detailed description for enum value ``Ip6``
 
 */

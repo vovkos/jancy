@@ -2,36 +2,36 @@
 
 \union io.SocketAddress
 
-	\brief Brief description for union io.SocketAddress
+	\brief Brief description for union ``io.SocketAddress``
 
-	Detailed description for union io.SocketAddress
+	Detailed description for union ``io.SocketAddress``
 
 	\field m_family
 
-		Detailed description for field m_family
+		Detailed description for field ``m_family``
 
 	\field m_ip4
 
-		Detailed description for field m_ip4
+		Detailed description for field ``m_ip4``
 
 	\field m_ip6
 
-		Detailed description for field m_ip6
+		Detailed description for field ``m_ip6``
 
 	\fn isEqual
 
-		Detailed description for function isEqual
+		Detailed description for function ``isEqual``
 
 	\fn isMatch
 
-		Detailed description for function isMatch
+		Detailed description for function ``isMatch``
 
 	\fn parse
 
-		Detailed description for function parse
+		Detailed description for function ``parse``
 
 	\fn getString
 
-		Detailed description for function getString
+		Detailed description for function ``getString``
 
 */

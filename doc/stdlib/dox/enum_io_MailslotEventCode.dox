@@ -2,16 +2,16 @@
 
 \enum io.MailslotEventCode
 
-	\brief Brief description for enum io.MailslotEventCode
+	\brief Brief description for enum ``io.MailslotEventCode``
 
-	Detailed description for enum io.MailslotEventCode
+	Detailed description for enum ``io.MailslotEventCode``
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value IncomingData
+		Detailed description for enum value ``IncomingData``
 
 	\enumvalue IoError
 
-		Detailed description for enum value IoError
+		Detailed description for enum value ``IoError``
 
 */

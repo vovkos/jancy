@@ -2,68 +2,68 @@
 
 \enum io.SshEvent
 
-	\brief Brief description for enum io.SshEvent
+	\brief Brief description for enum ``io.SshEvent``
 
-	Detailed description for enum io.SshEvent
+	Detailed description for enum ``io.SshEvent``
 
 	\enumvalue TcpConnectCompleted
 
-		Detailed description for enum value TcpConnectCompleted
+		Detailed description for enum value ``TcpConnectCompleted``
 
 	\enumvalue SshHandshakeCompleted
 
-		Detailed description for enum value SshHandshakeCompleted
+		Detailed description for enum value ``SshHandshakeCompleted``
 
 	\enumvalue SshAuthCompleted
 
-		Detailed description for enum value SshAuthCompleted
+		Detailed description for enum value ``SshAuthCompleted``
 
 	\enumvalue SshAuthError
 
-		Detailed description for enum value SshAuthError
+		Detailed description for enum value ``SshAuthError``
 
 	\enumvalue SshChannelOpened
 
-		Detailed description for enum value SshChannelOpened
+		Detailed description for enum value ``SshChannelOpened``
 
 	\enumvalue SshPtyRequested
 
-		Detailed description for enum value SshPtyRequested
+		Detailed description for enum value ``SshPtyRequested``
 
 	\enumvalue SshProcessStarted
 
-		Detailed description for enum value SshProcessStarted
+		Detailed description for enum value ``SshProcessStarted``
 
 	\enumvalue ConnectCompleted
 
-		Detailed description for enum value ConnectCompleted
+		Detailed description for enum value ``ConnectCompleted``
 
 	\enumvalue ConnectCancelled
 
-		Detailed description for enum value ConnectCancelled
+		Detailed description for enum value ``ConnectCancelled``
 
 	\enumvalue ConnectError
 
-		Detailed description for enum value ConnectError
+		Detailed description for enum value ``ConnectError``
 
 	\enumvalue Disconnected
 
-		Detailed description for enum value Disconnected
+		Detailed description for enum value ``Disconnected``
 
 	\enumvalue ReauthenticateInitiated
 
-		Detailed description for enum value ReauthenticateInitiated
+		Detailed description for enum value ``ReauthenticateInitiated``
 
 	\enumvalue ReconnectInitiated
 
-		Detailed description for enum value ReconnectInitiated
+		Detailed description for enum value ``ReconnectInitiated``
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value IncomingData
+		Detailed description for enum value ``IncomingData``
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value TransmitBufferReady
+		Detailed description for enum value ``TransmitBufferReady``
 
 */

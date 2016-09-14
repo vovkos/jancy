@@ -2,24 +2,24 @@
 
 \enum io.FileStreamEventCode
 
-	\brief Brief description for enum io.FileStreamEventCode
+	\brief Brief description for enum ``io.FileStreamEventCode``
 
-	Detailed description for enum io.FileStreamEventCode
+	Detailed description for enum ``io.FileStreamEventCode``
 
 	\enumvalue Eof
 
-		Detailed description for enum value Eof
+		Detailed description for enum value ``Eof``
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value IncomingData
+		Detailed description for enum value ``IncomingData``
 
 	\enumvalue IoError
 
-		Detailed description for enum value IoError
+		Detailed description for enum value ``IoError``
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value TransmitBufferReady
+		Detailed description for enum value ``TransmitBufferReady``
 
 */

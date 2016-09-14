@@ -2,36 +2,36 @@
 
 \enum io.SocketEventCode
 
-	\brief Brief description for enum io.SocketEventCode
+	\brief Brief description for enum ``io.SocketEventCode``
 
-	Detailed description for enum io.SocketEventCode
+	Detailed description for enum ``io.SocketEventCode``
 
 	\enumvalue ConnectCompleted
 
-		Detailed description for enum value ConnectCompleted
+		Detailed description for enum value ``ConnectCompleted``
 
 	\enumvalue ConnectCancelled
 
-		Detailed description for enum value ConnectCancelled
+		Detailed description for enum value ``ConnectCancelled``
 
 	\enumvalue ConnectError
 
-		Detailed description for enum value ConnectError
+		Detailed description for enum value ``ConnectError``
 
 	\enumvalue Disconnected
 
-		Detailed description for enum value Disconnected
+		Detailed description for enum value ``Disconnected``
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value IncomingData
+		Detailed description for enum value ``IncomingData``
 
 	\enumvalue IncomingConnection
 
-		Detailed description for enum value IncomingConnection
+		Detailed description for enum value ``IncomingConnection``
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value TransmitBufferReady
+		Detailed description for enum value ``TransmitBufferReady``
 
 */

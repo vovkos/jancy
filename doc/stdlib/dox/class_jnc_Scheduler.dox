@@ -2,12 +2,12 @@
 
 \class jnc.Scheduler
 
-	\brief Brief description for class jnc.Scheduler
+	\brief Brief description for class ``jnc.Scheduler``
 
-	Detailed description for class jnc.Scheduler
+	Detailed description for class ``jnc.Scheduler``
 
 	\fn schedule
 
-		Detailed description for function schedule
+		Detailed description for function ``schedule``
 
 */

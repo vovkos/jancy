@@ -2,24 +2,24 @@
 
 \enum io.SerialStatusLines
 
-	\brief Brief description for enum io.SerialStatusLines
+	\brief Brief description for enum ``io.SerialStatusLines``
 
-	Detailed description for enum io.SerialStatusLines
+	Detailed description for enum ``io.SerialStatusLines``
 
 	\enumvalue Cts
 
-		Detailed description for enum value Cts
+		Detailed description for enum value ``Cts``
 
 	\enumvalue Dsr
 
-		Detailed description for enum value Dsr
+		Detailed description for enum value ``Dsr``
 
 	\enumvalue Ring
 
-		Detailed description for enum value Ring
+		Detailed description for enum value ``Ring``
 
 	\enumvalue Dcd
 
-		Detailed description for enum value Dcd
+		Detailed description for enum value ``Dcd``
 
 */

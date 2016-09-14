@@ -2,20 +2,20 @@
 
 \enum io.SerialStopBits
 
-	\brief Brief description for enum io.SerialStopBits
+	\brief Brief description for enum ``io.SerialStopBits``
 
-	Detailed description for enum io.SerialStopBits
+	Detailed description for enum ``io.SerialStopBits``
 
 	\enumvalue _1
 
-		Detailed description for enum value _1
+		Detailed description for enum value ``_1``
 
 	\enumvalue _15
 
-		Detailed description for enum value _15
+		Detailed description for enum value ``_15``
 
 	\enumvalue _2
 
-		Detailed description for enum value _2
+		Detailed description for enum value ``_2``
 
 */

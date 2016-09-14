@@ -2,20 +2,20 @@
 
 \enum io.SocketAddressResolverEventCode
 
-	\brief Brief description for enum io.SocketAddressResolverEventCode
+	\brief Brief description for enum ``io.SocketAddressResolverEventCode``
 
-	Detailed description for enum io.SocketAddressResolverEventCode
+	Detailed description for enum ``io.SocketAddressResolverEventCode``
 
 	\enumvalue ResolveCompleted
 
-		Detailed description for enum value ResolveCompleted
+		Detailed description for enum value ``ResolveCompleted``
 
 	\enumvalue ResolveCancelled
 
-		Detailed description for enum value ResolveCancelled
+		Detailed description for enum value ``ResolveCancelled``
 
 	\enumvalue ResolveError
 
-		Detailed description for enum value ResolveError
+		Detailed description for enum value ``ResolveError``
 
 */

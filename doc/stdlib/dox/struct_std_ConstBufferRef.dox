@@ -2,20 +2,20 @@
 
 \struct std.ConstBufferRef
 
-	\brief Brief description for struct std.ConstBufferRef
+	\brief Brief description for struct ``std.ConstBufferRef``
 
-	Detailed description for struct std.ConstBufferRef
+	Detailed description for struct ``std.ConstBufferRef``
 
 	\field m_p
 
-		Detailed description for field m_p
+		Detailed description for field ``m_p``
 
 	\field m_size
 
-		Detailed description for field m_size
+		Detailed description for field ``m_size``
 
 	\field m_isFinal
 
-		Detailed description for field m_isFinal
+		Detailed description for field ``m_isFinal``
 
 */

@@ -2,32 +2,32 @@
 
 \enum io.FileOpenFlags
 
-	\brief Brief description for enum io.FileOpenFlags
+	\brief Brief description for enum ``io.FileOpenFlags``
 
-	Detailed description for enum io.FileOpenFlags
+	Detailed description for enum ``io.FileOpenFlags``
 
 	\enumvalue ReadOnly
 
-		Detailed description for enum value ReadOnly
+		Detailed description for enum value ``ReadOnly``
 
 	\enumvalue WriteOnly
 
-		Detailed description for enum value WriteOnly
+		Detailed description for enum value ``WriteOnly``
 
 	\enumvalue OpenExisting
 
-		Detailed description for enum value OpenExisting
+		Detailed description for enum value ``OpenExisting``
 
 	\enumvalue Exclusive
 
-		Detailed description for enum value Exclusive
+		Detailed description for enum value ``Exclusive``
 
 	\enumvalue ShareWrite
 
-		Detailed description for enum value ShareWrite
+		Detailed description for enum value ``ShareWrite``
 
 	\enumvalue DeleteOnClose
 
-		Detailed description for enum value DeleteOnClose
+		Detailed description for enum value ``DeleteOnClose``
 
 */

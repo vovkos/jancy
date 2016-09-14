@@ -2,32 +2,32 @@
 
 \class std.VariantHashTable
 
-	\brief Brief description for class std.VariantHashTable
+	\brief Brief description for class ``std.VariantHashTable``
 
-	Detailed description for class std.VariantHashTable
+	Detailed description for class ``std.VariantHashTable``
 
 	\property m_isEmpty
 
-		Detailed description for property m_isEmpty
+		Detailed description for property ``m_isEmpty``
 
 	\property m_map
 
-		Detailed description for property m_map
+		Detailed description for property ``m_map``
 
 	\fn clear
 
-		Detailed description for function clear
+		Detailed description for function ``clear``
 
 	\fn find
 
-		Detailed description for function find
+		Detailed description for function ``find``
 
 	\fn insert
 
-		Detailed description for function insert
+		Detailed description for function ``insert``
 
 	\fn remove
 
-		Detailed description for function remove
+		Detailed description for function ``remove``
 
 */

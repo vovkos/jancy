@@ -2,28 +2,28 @@
 
 \class io.SocketAddressResolver
 
-	\brief Brief description for class io.SocketAddressResolver
+	\brief Brief description for class ``io.SocketAddressResolver``
 
-	Detailed description for class io.SocketAddressResolver
+	Detailed description for class ``io.SocketAddressResolver``
 
 	\field m_syncId
 
-		Detailed description for field m_syncId
+		Detailed description for field ``m_syncId``
 
 	\event m_onResolverEvent
 
-		Detailed description for event m_onResolverEvent
+		Detailed description for event ``m_onResolverEvent``
 
 	\fn resolve
 
-		Detailed description for function resolve
+		Detailed description for function ``resolve``
 
 	\fn cancel
 
-		Detailed description for function cancel
+		Detailed description for function ``cancel``
 
 	\fn cancelAll
 
-		Detailed description for function cancelAll
+		Detailed description for function ``cancelAll``
 
 */

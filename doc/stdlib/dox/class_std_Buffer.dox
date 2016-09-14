@@ -2,28 +2,28 @@
 
 \class std.Buffer
 
-	\brief Brief description for class std.Buffer
+	\brief Brief description for class ``std.Buffer``
 
-	Detailed description for class std.Buffer
+	Detailed description for class ``std.Buffer``
 
 	\field m_p
 
-		Detailed description for field m_p
+		Detailed description for field ``m_p``
 
 	\field m_size
 
-		Detailed description for field m_size
+		Detailed description for field ``m_size``
 
 	\field m_maxSize
 
-		Detailed description for field m_maxSize
+		Detailed description for field ``m_maxSize``
 
 	\fn copy
 
-		Detailed description for function copy
+		Detailed description for function ``copy``
 
 	\fn append
 
-		Detailed description for function append
+		Detailed description for function ``append``
 
 */

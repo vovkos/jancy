@@ -2,28 +2,28 @@
 
 \enum io.SerialParity
 
-	\brief Brief description for enum io.SerialParity
+	\brief Brief description for enum ``io.SerialParity``
 
-	Detailed description for enum io.SerialParity
+	Detailed description for enum ``io.SerialParity``
 
 	\enumvalue None
 
-		Detailed description for enum value None
+		Detailed description for enum value ``None``
 
 	\enumvalue Odd
 
-		Detailed description for enum value Odd
+		Detailed description for enum value ``Odd``
 
 	\enumvalue Even
 
-		Detailed description for enum value Even
+		Detailed description for enum value ``Even``
 
 	\enumvalue Mark
 
-		Detailed description for enum value Mark
+		Detailed description for enum value ``Mark``
 
 	\enumvalue Space
 
-		Detailed description for enum value Space
+		Detailed description for enum value ``Space``
 
 */

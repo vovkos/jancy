@@ -2,52 +2,52 @@
 
 \class jnc.Recognizer
 
-	\brief Brief description for class jnc.Recognizer
+	\brief Brief description for class ``jnc.Recognizer``
 
-	Detailed description for class jnc.Recognizer
+	Detailed description for class ``jnc.Recognizer``
 
 	\typedef AutomatonFunc
 
-		Detailed description for typedef AutomatonFunc
+		Detailed description for typedef ``AutomatonFunc``
 
 	\field m_lexeme
 
-		Detailed description for field m_lexeme
+		Detailed description for field ``m_lexeme``
 
 	\field m_lexemeOffset
 
-		Detailed description for field m_lexemeOffset
+		Detailed description for field ``m_lexemeOffset``
 
 	\field m_lexemeLength
 
-		Detailed description for field m_lexemeLength
+		Detailed description for field ``m_lexemeLength``
 
 	\property m_automatonFunc
 
-		Detailed description for property m_automatonFunc
+		Detailed description for property ``m_automatonFunc``
 
 	\property m_lexemeLengthLimit
 
-		Detailed description for property m_lexemeLengthLimit
+		Detailed description for property ``m_lexemeLengthLimit``
 
 	\property m_currentOffset
 
-		Detailed description for property m_currentOffset
+		Detailed description for property ``m_currentOffset``
 
 	\fn reset
 
-		Detailed description for function reset
+		Detailed description for function ``reset``
 
 	\fn write
 
-		Detailed description for function write
+		Detailed description for function ``write``
 
 	\fn eof
 
-		Detailed description for function eof
+		Detailed description for function ``eof``
 
 	\fn recognize
 
-		Detailed description for function recognize
+		Detailed description for function ``recognize``
 
 */

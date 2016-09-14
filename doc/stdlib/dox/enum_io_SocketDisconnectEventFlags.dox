@@ -2,12 +2,12 @@
 
 \enum io.SocketDisconnectEventFlags
 
-	\brief Brief description for enum io.SocketDisconnectEventFlags
+	\brief Brief description for enum ``io.SocketDisconnectEventFlags``
 
-	Detailed description for enum io.SocketDisconnectEventFlags
+	Detailed description for enum ``io.SocketDisconnectEventFlags``
 
 	\enumvalue Reset
 
-		Detailed description for enum value Reset
+		Detailed description for enum value ``Reset``
 
 */

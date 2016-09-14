@@ -2,16 +2,16 @@
 
 \enum io.PcapEventCode
 
-	\brief Brief description for enum io.PcapEventCode
+	\brief Brief description for enum ``io.PcapEventCode``
 
-	Detailed description for enum io.PcapEventCode
+	Detailed description for enum ``io.PcapEventCode``
 
 	\enumvalue ReadyRead
 
-		Detailed description for enum value ReadyRead
+		Detailed description for enum value ``ReadyRead``
 
 	\enumvalue Eof
 
-		Detailed description for enum value Eof
+		Detailed description for enum value ``Eof``
 
 */

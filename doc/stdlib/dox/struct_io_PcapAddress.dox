@@ -2,24 +2,24 @@
 
 \struct io.PcapAddress
 
-	\brief Brief description for struct io.PcapAddress
+	\brief Brief description for struct ``io.PcapAddress``
 
-	Detailed description for struct io.PcapAddress
+	Detailed description for struct ``io.PcapAddress``
 
 	\field m_next
 
-		Detailed description for field m_next
+		Detailed description for field ``m_next``
 
 	\field m_address
 
-		Detailed description for field m_address
+		Detailed description for field ``m_address``
 
 	\field m_mask
 
-		Detailed description for field m_mask
+		Detailed description for field ``m_mask``
 
 	\field m_broadcast
 
-		Detailed description for field m_broadcast
+		Detailed description for field ``m_broadcast``
 
 */

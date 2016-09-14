@@ -2,20 +2,20 @@
 
 \struct std.ConstBuffer
 
-	\brief Brief description for struct std.ConstBuffer
+	\brief Brief description for struct ``std.ConstBuffer``
 
-	Detailed description for struct std.ConstBuffer
+	Detailed description for struct ``std.ConstBuffer``
 
 	\field m_p
 
-		Detailed description for field m_p
+		Detailed description for field ``m_p``
 
 	\field m_size
 
-		Detailed description for field m_size
+		Detailed description for field ``m_size``
 
 	\fn copy
 
-		Detailed description for function copy
+		Detailed description for function ``copy``
 
 */

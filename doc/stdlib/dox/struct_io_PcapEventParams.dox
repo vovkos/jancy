@@ -2,16 +2,16 @@
 
 \struct io.PcapEventParams
 
-	\brief Brief description for struct io.PcapEventParams
+	\brief Brief description for struct ``io.PcapEventParams``
 
-	Detailed description for struct io.PcapEventParams
+	Detailed description for struct ``io.PcapEventParams``
 
 	\field m_eventCode
 
-		Detailed description for field m_eventCode
+		Detailed description for field ``m_eventCode``
 
 	\field m_syncId
 
-		Detailed description for field m_syncId
+		Detailed description for field ``m_syncId``
 
 */

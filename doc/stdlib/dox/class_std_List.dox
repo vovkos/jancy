@@ -2,76 +2,76 @@
 
 \class std.List
 
-	\brief Brief description for class std.List
+	\brief Brief description for class ``std.List``
 
-	Detailed description for class std.List
+	Detailed description for class ``std.List``
 
 	\field m_head
 
-		Detailed description for field m_head
+		Detailed description for field ``m_head``
 
 	\field m_tail
 
-		Detailed description for field m_tail
+		Detailed description for field ``m_tail``
 
 	\field m_count
 
-		Detailed description for field m_count
+		Detailed description for field ``m_count``
 
 	\fn clear
 
-		Detailed description for function clear
+		Detailed description for function ``clear``
 
 	\fn takeOver
 
-		Detailed description for function takeOver
+		Detailed description for function ``takeOver``
 
 	\fn add
 
-		Detailed description for function add
+		Detailed description for function ``add``
 
 	\fn insertHead
 
-		Detailed description for function insertHead
+		Detailed description for function ``insertHead``
 
 	\fn insertTail
 
-		Detailed description for function insertTail
+		Detailed description for function ``insertTail``
 
 	\fn insertBefore
 
-		Detailed description for function insertBefore
+		Detailed description for function ``insertBefore``
 
 	\fn insertAfter
 
-		Detailed description for function insertAfter
+		Detailed description for function ``insertAfter``
 
 	\fn moveToHead
 
-		Detailed description for function moveToHead
+		Detailed description for function ``moveToHead``
 
 	\fn moveToTail
 
-		Detailed description for function moveToTail
+		Detailed description for function ``moveToTail``
 
 	\fn moveBefore
 
-		Detailed description for function moveBefore
+		Detailed description for function ``moveBefore``
 
 	\fn moveAfter
 
-		Detailed description for function moveAfter
+		Detailed description for function ``moveAfter``
 
 	\fn removeHead
 
-		Detailed description for function removeHead
+		Detailed description for function ``removeHead``
 
 	\fn removeTail
 
-		Detailed description for function removeTail
+		Detailed description for function ``removeTail``
 
 	\fn remove
 
-		Detailed description for function remove
+		Detailed description for function ``remove``
 
 */

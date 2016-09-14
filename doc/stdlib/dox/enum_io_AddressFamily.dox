@@ -2,20 +2,20 @@
 
 \enum io.AddressFamily
 
-	\brief Brief description for enum io.AddressFamily
+	\brief Brief description for enum ``io.AddressFamily``
 
-	Detailed description for enum io.AddressFamily
+	Detailed description for enum ``io.AddressFamily``
 
 	\enumvalue Undefined
 
-		Detailed description for enum value Undefined
+		Detailed description for enum value ``Undefined``
 
 	\enumvalue Ip4
 
-		Detailed description for enum value Ip4
+		Detailed description for enum value ``Ip4``
 
 	\enumvalue Ip6
 
-		Detailed description for enum value Ip6
+		Detailed description for enum value ``Ip6``
 
 */
