@@ -32,12 +32,13 @@ Key Features
 * Unprecedented for scripting languages source-level compatibility with C
 * Built-in Reactive Programming support
 * Built-in regexp-based generator of incremental lexers/scanners
+* Deterministic resource release
+* Error handling model which allows both throw-catch semantics and error code checks (with the same function!)
 
 Other Notable Features
 ----------------------
 
-* Exception-style syntax over error code checks
-* Properties -- the most comprehensive implementation thereof
+* Properties (the most comprehensive implementation thereof)
 * Multicasts and events (including weak events, which do not require to unsubscribe)
 * Multiple inheritance
 * Const-correctness

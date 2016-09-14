@@ -23,3 +23,4 @@ Jancy Language
 	decl_access.rst
 	literals.rst
 	exceptions.rst
+	disposable.rst
