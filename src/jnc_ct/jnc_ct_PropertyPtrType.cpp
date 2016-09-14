@@ -98,6 +98,36 @@ PropertyPtrType::prepareTypeString ()
 	}
 }
 
+sl::String
+PropertyPtrType::createDoxyLinkedText ()
+{
+	sl::String string = m_targetType->getReturnType ()->getDoxyBlock ()->getLinkedText ();
+	string += ' ';
+	string += m_targetType->getTypeModifierString ();
+
+	if (m_flags & PtrTypeFlag__AllMask)
+	{
+		string += getPtrTypeFlagString (m_flags);
+		string += ' ';
+	}
+
+	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
+	{
+		string += getPropertyPtrTypeKindString (m_ptrTypeKind);
+		string += ' ';
+	}
+
+	string += m_typeKind == TypeKind_PropertyRef ? "property&" : "property*";
+
+	if (m_targetType->isIndexed ())
+	{
+		string += ' ';
+		string += m_targetType->getGetterType ()->createArgDoxyLinkedText ();
+	}
+
+	return string;
+}
+
 void
 PropertyPtrType::prepareLlvmType ()
 {

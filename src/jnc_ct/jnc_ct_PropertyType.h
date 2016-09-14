@@ -195,6 +195,10 @@ public:
 	sl::String
 	createDeclarationString (const char* name);
 
+	virtual
+	sl::String
+	createDoxyLinkedText ();
+
 protected:
 	virtual
 	void

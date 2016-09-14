@@ -206,7 +206,7 @@ FunctionType::getArgString ()
 	if (!m_argArray.isEmpty ())
 	{
 		FunctionArg* arg = m_argArray [0];
-		m_argString.appendFormat ("%s", arg->getType ()->getTypeString ().cc ());
+		m_argString += arg->getType ()->getTypeString ();
 
 		if (arg->getStorageKind () == StorageKind_This)
 		{
@@ -251,6 +251,60 @@ FunctionType::getArgString ()
 }
 
 sl::String
+FunctionType::createArgDoxyLinkedText ()
+{
+	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
+
+	sl::String argString = "(";
+
+	if (!m_argArray.isEmpty ())
+	{
+		FunctionArg* arg = m_argArray [0];
+		argString += arg->getType ()->getDoxyBlock ()->getLinkedText ();
+
+		if (arg->getStorageKind () == StorageKind_This)
+		{
+			argString += " this";
+		}
+		else if (isUserType)
+		{
+				if (!arg->getName ().isEmpty ())
+					argString.appendFormat (" %s", arg->getName ().cc ());
+
+				if (!arg->getInitializer ().isEmpty ())
+					argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
+		}
+
+		size_t argCount = m_argArray.getCount ();
+		for (size_t i = 1; i < argCount; i++)
+		{
+			arg = m_argArray [i];
+
+			argString.appendFormat (", %s", arg->getType ()->getDoxyBlock ()->getLinkedText ().cc ());
+
+			if (isUserType)
+			{
+				if (!arg->getName ().isEmpty ())
+					argString.appendFormat (" %s", arg->getName ().cc ());
+
+				if (!arg->getInitializer ().isEmpty ())
+					argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
+			}
+		}
+
+		if (m_flags & FunctionTypeFlag_VarArg)
+			argString += ", ";
+	}
+
+	if (!(m_flags & FunctionTypeFlag_VarArg))
+		argString += ")";
+	else
+		argString += "...)";
+
+	return argString;
+}
+
+sl::String
 FunctionType::getTypeModifierString ()
 {
 	if (!m_typeModifierString.isEmpty ())
@@ -281,6 +335,17 @@ FunctionType::prepareTypeString ()
 	m_typeString += ' ';
 	m_typeString += getTypeModifierString ();
 	m_typeString += getArgString ();
+}
+
+sl::String
+FunctionType::createDoxyLinkedText ()
+{
+	sl::String string = m_returnType->getDoxyBlock ()->getLinkedText ();
+	string += ' ';
+	string += getTypeModifierString ();
+	string += createArgDoxyLinkedText ();
+
+	return string;
 }
 
 sl::String

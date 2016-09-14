@@ -101,6 +101,10 @@ public:
 		);
 
 	virtual
+	sl::String
+	createDoxyLinkedText ();
+
+	virtual
 	void
 	markGcRoots (
 		const void* p,

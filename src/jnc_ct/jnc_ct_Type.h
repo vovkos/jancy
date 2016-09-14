@@ -432,6 +432,10 @@ public:
 		return m_typedef;
 	}
 
+	virtual
+	sl::String
+	createDoxyLinkedText ();
+
 protected:
 	virtual
 	void

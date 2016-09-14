@@ -169,6 +169,25 @@ PropertyType::prepareTypeString ()
 	}
 }
 
+sl::String 
+PropertyType::createDoxyLinkedText ()
+{
+	Type* returnType = getReturnType ();
+
+	sl::String string = returnType->getDoxyBlock ()->getLinkedText ();
+	string += ' ';
+	string += getTypeModifierString ();
+	string += "property";
+	
+	if (isIndexed ())
+	{
+		string += ' ';
+		string += m_getterType->createArgDoxyLinkedText ();
+	}
+
+	return string;
+}
+
 sl::String
 PropertyType::createDeclarationString (const char* name)
 {

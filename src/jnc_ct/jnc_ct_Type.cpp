@@ -586,6 +586,20 @@ Typedef::generateDocumentation (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+sl::String
+TypedefShadowType::createDoxyLinkedText ()
+{
+	Unit* unit = m_typedef->getParentUnit ();
+	if (!unit || unit->getLib ()) // don't reference imported libraries
+		return m_tag;	
+
+	sl::String refId = m_typedef->getDoxyBlock ()->getRefId ();	
+
+	sl::String string;
+	string.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
+	return string;
+}
+
 bool
 TypedefShadowType::calcLayout ()
 {

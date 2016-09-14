@@ -186,11 +186,18 @@ public:
 	createDeclarationString (const char* name);
 
 	virtual
+	sl::String
+	createDoxyLinkedText ();
+
+	virtual
 	bool
 	compile ();
 
 	void
 	generateArgDocumentation (sl::String* itemXml);
+
+	sl::String
+	createArgDoxyLinkedText ();
 
 protected:
 	virtual

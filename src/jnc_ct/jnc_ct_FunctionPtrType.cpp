@@ -99,6 +99,18 @@ FunctionPtrType::prepareTypeString ()
 	m_typeString += m_targetType->getArgString ();
 }
 
+sl::String
+FunctionPtrType::createDoxyLinkedText ()
+{
+	sl::String string = m_targetType->getReturnType ()->getDoxyBlock ()->getLinkedText ();
+	string += ' ';
+	string += getTypeModifierString ();
+	string += m_typeKind == TypeKind_FunctionRef ? "function& " : "function* ";
+	string += m_targetType->createArgDoxyLinkedText ();
+
+	return string;
+}
+
 void
 FunctionPtrType::prepareLlvmType ()
 {
