@@ -42,22 +42,43 @@ DoxyBlock::getLinkedText ()
 	return m_linkedText;
 }
 
+inline
+void
+appendXmlElementContents (
+	sl::String* string,
+	const sl::StringRef& contents
+	)
+{
+	if (contents.findOneOf ("<>") == -1)
+	{
+		string->append (contents);
+	}
+	else
+	{
+		string->append ("<![CDATA[");
+		string->append (contents);
+		string->append ("]]>");
+	}
+}
+
 sl::String
 DoxyBlock::createDescriptionString ()
 {
 	sl::String string;
 
+	m_briefDescription.trim ();
 	if (!m_briefDescription.isEmpty ())
 	{
 		string.append ("<briefdescription><para>");
-		string.append (m_briefDescription.getTrimmedString ());
+		appendXmlElementContents (&string, m_briefDescription);
 		string.append ("</para></briefdescription>\n");
 	}
 
+	m_detailedDescription.trim ();
 	if (!m_detailedDescription.isEmpty ())
 	{
 		string.append ("<detaileddescription><para>");
-		string.append (m_detailedDescription.getTrimmedString ());
+		appendXmlElementContents (&string, m_detailedDescription);
 		string.append ("</para></detaileddescription>\n");
 	}
 
