@@ -68,6 +68,10 @@
 
 	Detailed description for typedef uint64_t
 
+\typedef ulong_t
+
+	Detailed description for typedef ulong_t
+
 \typedef qword_t
 
 	Detailed description for typedef qword_t

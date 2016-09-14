@@ -2356,6 +2356,7 @@ TypeMgr::setupStdTypedefArray ()
 	setupStdTypedef (StdTypedef_dword_t,   TypeKind_Int32_u,  "dword_t");
 	setupStdTypedef (StdTypedef_int64_t,   TypeKind_Int64,    "int64_t");
 	setupStdTypedef (StdTypedef_uint64_t,  TypeKind_Int64_u,  "uint64_t");
+	setupStdTypedef (StdTypedef_ulong_t,   TypeKind_Int64_u,  "ulong_t");
 	setupStdTypedef (StdTypedef_qword_t,   TypeKind_Int64_u,  "qword_t");
 }
 

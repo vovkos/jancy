@@ -37,6 +37,7 @@ enum StdTypedef
 	StdTypedef_dword_t,
 	StdTypedef_int64_t,
 	StdTypedef_uint64_t,
+	StdTypedef_ulong_t,
 	StdTypedef_qword_t,
 	StdTypedef__Count,
 };
