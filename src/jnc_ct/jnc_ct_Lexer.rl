@@ -51,7 +51,9 @@ lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
 
 lit_ml := |*
 
-ws? '>>>' { createMlLiteralToken (); fgoto main; };
+(nl ws?)? '"""' 
+		  { createMlLiteralToken (); fgoto main; };
+nl        ;
 any       ;
 
 *|;
@@ -265,8 +267,14 @@ main := |*
 '@='             { createToken (TokenKind_AtAssign); };
 '...'            { createToken (TokenKind_Ellipsis); };
 
-'<<<' '\r'? nl?  { preCreateMlLiteralToken (); fgoto lit_ml; };
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
+'"""' (ws? '\r'? nl)?  
+				 { preCreateMlLiteralToken (); fgoto lit_ml; };
+
+'0' [xX] '"""'   { preCreateMlLiteralToken (16); fgoto lit_ml; };
+'0' [oO] '"""'   { preCreateMlLiteralToken (8); fgoto lit_ml; };
+'0' [bB] '"""'   { preCreateMlLiteralToken (2); fgoto lit_ml; };
+'0' [nNdD] '"""' { preCreateMlLiteralToken (10); fgoto lit_ml; };
 
 '%%' ([^\n] | lc_nl)*
 				 { createStringToken (TokenKind_RegExpLiteral, 2); };
@@ -279,10 +287,15 @@ id               { createStringToken (TokenKind_Identifier); };
 lit_sq           { createCharToken (TokenKind_Integer); };
 lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
 dec+             { createIntegerToken (10); };
+'0' oct+         { createIntegerToken (8); };
 '0' [xX] hex+    { createIntegerToken (16, 2); };
+'0' [oO] oct+    { createIntegerToken (8, 2); };
 '0' [bB] bin+    { createIntegerToken (2, 2); };
-'0' [xX] lit_dq  { createHexLiteralToken (16); };
-'0' [bB] lit_dq  { createHexLiteralToken (2); };
+'0' [xX] lit_dq  { createBinLiteralToken (16); };
+'0' [oO] lit_dq  { createBinLiteralToken (8); };
+'0' [bB] lit_dq  { createBinLiteralToken (2); };
+'0' [nNdD] lit_dq 
+				 { createBinLiteralToken (10); };
 dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 

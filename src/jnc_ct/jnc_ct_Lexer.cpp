@@ -10,13 +10,12 @@ namespace ct {
 size_t 
 decodeByteString (
 	sl::Array <char>* buffer,
-	int radix, // must be 2 or 16
+	int radix, // must be 2, 8, 10 or 16
 	const char* p,
 	size_t length
 	)
 {
-
-	ASSERT (radix == 2 || radix == 16);
+	ASSERT (radix == 2 || radix == 8 || radix == 10 || radix == 16);
 	
 	enum State
 	{
@@ -36,7 +35,7 @@ decodeByteString (
 	char* byteEnd;
 	size_t byteLength;
 	
-	size_t maxByteLength = 16 / radix;
+	size_t maxByteLength = radix == 16 ? 2 : radix == 2 ? 8 : 3;
 
 	uchar_t x;
 
@@ -91,6 +90,13 @@ decodeByteString (
 
 //.............................................................................
 
+Lexer::Lexer ()
+{
+	m_fmtLiteralToken = NULL;
+	m_mlLiteralToken = NULL;
+	m_mlBinLiteralTokenRadix = 0;
+}
+
 Token*
 Lexer::createKeywordTokenEx (
 	int tokenKind,
@@ -123,7 +129,7 @@ Lexer::createStringToken (
 }
 
 Token*
-Lexer::createHexLiteralToken (int radix)
+Lexer::createBinLiteralToken (int radix)
 {
 	Token* token = createToken (TokenKind_HexLiteral);
 	ASSERT (token->m_pos.m_length >= 4);
@@ -175,10 +181,11 @@ Lexer::createConstIntegerToken (int value)
 // multi-line literals
 
 Token*
-Lexer::preCreateMlLiteralToken ()
+Lexer::preCreateMlLiteralToken (int radix)
 {
 	ASSERT (!m_mlLiteralToken);
 	m_mlLiteralToken = preCreateToken (0);
+	m_mlBinLiteralTokenRadix = radix;
 	return m_mlLiteralToken;
 }
 
@@ -255,24 +262,36 @@ Lexer::createMlLiteralToken ()
 {
 	ASSERT (m_mlLiteralToken);
 	Token* token = m_mlLiteralToken;
+	int radix = m_mlBinLiteralTokenRadix;
+
 	m_mlLiteralToken = NULL;
+	m_mlBinLiteralTokenRadix = 0;
 
 	size_t left = token->m_pos.m_length;
 	size_t right = te - ts;
 
-	token->m_token = TokenKind_Literal;
 	token->m_pos.m_length = te - token->m_pos.m_p;
 	ASSERT (token->m_pos.m_length >= left + right);
 
 	const char* p = token->m_pos.m_p + left;
 	size_t length = token->m_pos.m_length - (left + right);
-	
-	bool hasCommonPrefix = (right > 3 && ts [-1] == '\n') ? 
-		normalizeMlLiteral (&token->m_data.m_string, p, length, ts, right - 3) : 
-		false;
 
-	if (!hasCommonPrefix)
-		token->m_data.m_string.copy (p, length);
+	if (radix)
+	{
+		token->m_token = TokenKind_HexLiteral;
+		decodeByteString (&token->m_data.m_binData, radix, p, length);
+	}
+	else
+	{
+		token->m_token = TokenKind_Literal;
+	
+		bool hasCommonPrefix = (right > 3 && ts [-1] == '\n') ? 
+			normalizeMlLiteral (&token->m_data.m_string, p, length, ts, right - 3) : 
+			false;
+
+		if (!hasCommonPrefix)
+			token->m_data.m_string.copy (p, length);
+	}
 
 	return token;
 }

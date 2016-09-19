@@ -398,16 +398,13 @@ class Lexer: public lex::RagelLexer <Lexer, Token>
 	friend class lex::RagelLexer <Lexer, Token>;
 
 protected:
-	Token* m_mlLiteralToken;
 	Token* m_fmtLiteralToken;
+	Token* m_mlLiteralToken;
+	int m_mlBinLiteralTokenRadix;
 	sl::Array <intptr_t> m_parenthesesLevelStack;
 
 public:
-	Lexer ()
-	{
-		m_fmtLiteralToken = NULL;
-		m_mlLiteralToken = NULL;
-	}
+	Lexer ();
 
 protected:
 	Token*
@@ -425,7 +422,7 @@ protected:
 		);
 
 	Token*
-	createHexLiteralToken (int radix);
+	createBinLiteralToken (int radix);
 
 	Token*
 	createCharToken (int tokenKind);
@@ -445,7 +442,7 @@ protected:
 	// multi-line literals
 
 	Token*
-	preCreateMlLiteralToken ();
+	preCreateMlLiteralToken (int radix = 0);
 
 	Token*
 	createMlLiteralToken ();

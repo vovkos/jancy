@@ -152,14 +152,19 @@ main := |*
 id                  ;
 (lit_sq | lit_dq)   { colorize (ts, te, Qt::darkRed); };
 dec+                { colorize (ts, te, Qt::darkRed); };
+'0' oct+            { colorize (ts, te, Qt::darkRed); };
 '0' [xX] hex+       { colorize (ts, te, Qt::darkRed); };
+'0' [oO] oct+       { colorize (ts, te, Qt::darkRed); };
 '0' [bB] bin+       { colorize (ts, te, Qt::darkRed); };
-'0' [xX] lit_dq     { colorize (ts, te, Qt::darkRed); };
-'0' [bB] lit_dq     { colorize (ts, te, Qt::darkRed); };
+'0' [nNdD] dec+     { colorize (ts, te, Qt::darkRed); };
+'0' [xXoObBnNdD] lit_dq     
+					{ colorize (ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
 '%%'                { colorize (ts, te, Qt::darkRed); fgoto regexp; };
-'<<<'               { colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
+'"""'               { colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
+'0' [xXoObBnNdD] '"""'               
+					{ colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
 
 '//' any*           { colorize (ts, te, Qt::darkGray); };
 '/*'                { colorize (ts, te, Qt::darkGray); fgoto comment; };
@@ -200,7 +205,7 @@ any*                { colorize (ts, te, Qt::darkRed); fgoto main; };
 
 lit_ml := |*
 
-'>>>'               { colorize (ts, te, Qt::darkRed); fgoto main; };
+'"""'               { colorize (ts, te, Qt::darkRed); fgoto main; };
 any                 { colorize (ts, te, Qt::darkRed); };
 
 *|;
