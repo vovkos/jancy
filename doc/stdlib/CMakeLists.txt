@@ -41,6 +41,7 @@ set (
 	${XML_DIR}/index.xml
 	-o ${RST_DIR}/global.rst
 	-F ${DOXYREST_FRAME_DIR}
+	-D g_language=jancy
 	-f c_global.rst.in
 	)
 
