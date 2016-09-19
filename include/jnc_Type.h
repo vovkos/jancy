@@ -484,10 +484,10 @@ const TypeKind
 	TypeKind_Short               = jnc_TypeKind_Short,
 	TypeKind_Short_u             = jnc_TypeKind_Short_u,
 	TypeKind_Word                = jnc_TypeKind_Word,
+	TypeKind_Long                = jnc_TypeKind_Long,
+	TypeKind_Long_u              = jnc_TypeKind_Long_u,
 	TypeKind_DWord               = jnc_TypeKind_Int32_u,
-	TypeKind_QWord               = jnc_TypeKind_Int64_u,
-	TypeKind_Long                = jnc_TypeKind_Int32,
-	TypeKind_Long_u              = jnc_TypeKind_Int32_u;
+	TypeKind_QWord               = jnc_TypeKind_Int64_u;
 
 //.............................................................................
 
