@@ -311,7 +311,7 @@ FunctionType::getTypeModifierString ()
 		return m_typeModifierString;
 
 	if (m_flags & FunctionTypeFlag_ErrorCode)
-		m_argString += "errorcode ";
+		m_typeModifierString += "errorcode ";
 
 	if (!m_callConv->isDefault ())
 	{
@@ -430,6 +430,13 @@ FunctionType::generateArgDocumentation (sl::String* itemXml)
 			arg->getName ().cc ()
 			);
 	}
+
+	if (m_flags & FunctionTypeFlag_VarArg)
+		itemXml->append (
+			"<param>\n"
+			"    <type>...</type>\n"
+			"</param>\n"
+			);
 }
 
 //.............................................................................

@@ -40,9 +40,15 @@ StructField::generateDocumentation (
 	 
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
 		itemXml->append (" const='yes'");
+	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
+		itemXml->append (" readonly='yes'");
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
+
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_ptrTypeFlags);
+	if (!ptrTypeFlagString.isEmpty ())
+		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", ptrTypeFlagString.cc ());
 
 	if (isMulticast)
 		((MulticastClassType*) m_type)->getFunctionType ()->generateArgDocumentation (itemXml);

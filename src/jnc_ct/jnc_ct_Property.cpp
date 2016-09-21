@@ -734,6 +734,10 @@ Property::generateDocumentation (
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyBlock ()->getLinkedText ().cc ());
 
+	sl::String modifierString = m_type->getTypeModifierString ();
+	if (!modifierString.isEmpty ())
+		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().cc ());
+
 	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
 	itemXml->append ("\n</memberdef>\n");
