@@ -267,6 +267,10 @@ pre.sample-code-block {
     background-color: #f0f0ff;
 }
 
+code.cref a {
+    color: #333;	
+}
+
 pre a {
     color: inherit;
     text-decoration: underline;
