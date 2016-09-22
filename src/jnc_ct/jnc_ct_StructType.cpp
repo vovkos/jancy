@@ -46,7 +46,7 @@ StructField::generateDocumentation (
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
 
-	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_ptrTypeFlags);
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_ptrTypeFlags & ~PtrTypeFlag_DualEvent);
 	if (!ptrTypeFlagString.isEmpty ())
 		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", ptrTypeFlagString.cc ());
 
