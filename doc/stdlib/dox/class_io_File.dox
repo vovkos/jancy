@@ -4,9 +4,9 @@
 
 	\ingroup file
 
-	\brief The ``io.File`` class provides standard facilities for reading from and writing to files or devices.
+	\brief The ``io.File`` class provides a standard synchronous interface for reading from and writing to files or devices.
 
-	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of working with a file looks something like this:
+	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of steps when working with a file looks something like this:
 
 	* Open a file with ``open`` method;
 	* Read from the file using ``read`` method;
@@ -19,7 +19,7 @@
 
 	An easy way for overcoming this problem is to always work with files using Jancy ``disposable`` storage specifier, like this:
 
-	.. code-block:: none
+	.. ref-code-block:: jnc
 
 		foo ()
 		{
@@ -34,17 +34,17 @@
 
 	\field m_isOpen
 
-		Read-only field ``m_isOpen`` holds the open status for the file -- ``true`` if opened; ``false`` otherwise.
+		Holds the open status for the file, i.e. ``true`` if opened; ``false`` otherwise.
 
 	\property m_size
 
-		Read-write property ``m_size`` is used for getting and setting file size.
+		This property is used for getting and setting file size.
 
 		Reading from this property returns current size of the file; writing to it sets new size. If setting new size fails, IO error supplied by operating system is set; then dynamic exception is thrown.
 
 	\property m_position
 
-		Read-write property ``m_position`` is used for getting and setting current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
+		This property is used for getting and setting current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
 
 		Reading from this property returns current read/write position in the file; writing to it sets new position. Behaviour of this property sequential devices (which do not support access at random-offset) is determined by the underlying operating system. If getting or setting position fails, IO error supplied by operating system is set; then dynamic exception is thrown.
 
@@ -62,10 +62,20 @@
 
 	\fn read
 
-		Reads from file. The function accepts two
+		Attempts to read up to ``size`` bytes from file into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+
+		If this function is called when there is no incoming data on the opened device, it blocks until either the data arrives, or the file is closed.
 
 	\fn write
 
-		Detailed description for function write
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` into the file.
+
+		Returns the actual amount of bytes written or ``-1`` if error occurs.
+
+		If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 */

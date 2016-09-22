@@ -8,11 +8,11 @@
 
 	\field m_isOpen
 
-		Detailed description for field ``m_isOpen``
+		Holds the open status for the SSH channel, i.e. ``true`` if opened; ``false`` otherwise.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID for the SSH channel. For details, please refer to :ref:`sync-id-explanation`.
 
 	\property m_address
 

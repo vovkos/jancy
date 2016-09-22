@@ -8,7 +8,7 @@
 
 	\field m_isOpen
 
-		Detailed description for field ``m_isOpen``
+		Holds the open status for the mapped file, i.e. ``true`` if opened; ``false`` otherwise.
 
 	\property m_dynamicViewLimit
 

@@ -8,7 +8,7 @@
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID for the socket address resolver. For details, please refer to :ref:`sync-id-explanation`.
 
 	\event m_onResolverEvent
 

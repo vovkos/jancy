@@ -2,32 +2,55 @@
 
 \class io.Mailslot
 
-	\brief Brief description for class ``io.Mailslot``
+	\ingroup file
 
-	Detailed description for class ``io.Mailslot``
+	\brief The ``io.Mailslot`` class provides high-level asynchronous streaming interface for the *server* side of Windows mailslots which are used, for example, in SMB (Server Message Blocks) protocol and Windows Computer Browser service.
+
+	For working from the *client* side of a mailslot, please use ``io.File`` class.
+
+	A typical sequence of steps when working with a mailslot looks something like this:
+
+	* Assign your event handler using ``m_onMailslotEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Open a mailslot with ``open`` method;
+	* When ``IncomingData`` event is fired, read from the mailslot using ``read`` method;
+	* Close the mailslot when no longer needed with ``close`` method.
 
 	\field m_isOpen
 
-		Detailed description for field ``m_isOpen``
+		Holds the open status for the mailslot, i.e. ``true`` if opened; ``false`` otherwise.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID for the mailslot. For details, please refer to :ref:`sync-id-explanation`.
 
 	\event m_onMailslotEvent
 
-		Detailed description for event ``m_onMailslotEvent``
+		This event is fired whenever an event occurs on the file stream.
+
+		For the list of possible events, refer to `io.MailslotEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.MailslotEventParams` which holds parameters of the particular event. ``m_syncId`` field of parameter strucutre should be used to discard events originating from the previous mailslot session.
 
 	\fn open
 
-		Detailed description for function ``open``
+		Opens or creates a mailslot.
+
+		The function accepts two arguments. The first one, ``name`` specifies the name of the mailslot. The second one, ``flags``, can be used to specify open options.
+
+		Returns ``true`` on success. If the mailslot could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 	\fn close
 
-		Detailed description for function ``close``
+		Closes a previously opened mailslot, does nothing if the mailslot is not opened. This function always succeeds.
 
 	\fn read
 
-		Detailed description for function ``read``
+		Attempts to read up to ``size`` bytes from the mailslot into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the mailslot is closed.
 
 */

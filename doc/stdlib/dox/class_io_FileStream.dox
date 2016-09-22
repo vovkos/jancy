@@ -2,48 +2,84 @@
 
 \class io.FileStream
 
-	\brief Brief description for class ``io.FileStream``
+	\ingroup file
+
+	\brief The ``io.FileStream`` class provides high-level asynchronous streaming interface for reading from and writing to files or devices.
+
+	Besides all the standard methods of ``io.File`` (like ``open``, ``read``, ``write`` etc) ``io.FileStream`` also notifies its clients of events occured on this file stream such as when data has arrived and could be read or when IO error occured. This allows for clean and convenient asynchronous event-driven IO programming.
+
+	A typical sequence of steps when working with a file stream looks something like this:
+
+	* Assign your event handler using ``m_onFileStreamEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Open a file stream with ``open`` method;
+	* When ``IncomingData`` event is fired, read from the file using ``read`` method;
+	* Write to the file stream using ``write`` method;
+	* Suspend writing if the return value of ``write`` is less than requested;
+	* Resume writing on ``TransmitBufferReady`` event;
+	* Close the file stream when no longer needed with ``close`` method.
 
 	Detailed description for class ``io.FileStream``
 
 	\field m_isOpen
 
-		Detailed description for field ``m_isOpen``
+		Holds the open status for the file, i.e. ``true`` if opened; ``false`` otherwise.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID for the file stream. For details, please refer to :ref:`sync-id-explanation`.
 
 	\field m_kind
 
-		Detailed description for field ``m_kind``
+		Specifies the type of the file stream (regular disk file, serial port etc). This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses Win32 function ``GetFileType``.
 
 	\event m_onFileStreamEvent
 
-		Detailed description for event ``m_onFileStreamEvent``
+		This event is fired whenever an event occurs on the file stream.
+
+		For the list of possible events, refer to `io.FileStreamEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.FileStreamEventParams` which holds parameters of the particular event. ``m_syncId`` field of parameter strucutre should be used to discard events originating from the previous file stream session.
 
 	\fn open
 
-		Detailed description for function ``open``
+		Opens or creates a file stream.
+
+		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options.
+
+		Returns ``true`` on success. If the file stream could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 	\fn close
 
-		Detailed description for function ``close``
+		Closes a previously opened file stream, does nothing if the file stream is not opened. This function always succeeds.
 
 	\fn clear
 
-		Detailed description for function ``clear``
+		Clears the file, destroying all its contents. This function is only applicable to regular disk file streams.
+
+		Returns ``true`` on success. If clear operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 	\fn read
 
-		Detailed description for function ``read``
+		Attempts to read up to ``size`` bytes from the file strean into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the file is closed, so its behavior resembles ``io.File.read``
 
 	\fn write
 
-		Detailed description for function ``write``
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` into the file stream.
+
+		Returns the actual amount of bytes written or ``-1`` if error occurs.
+
+		If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
 
 	\fn firePendingEvents
 
-		Detailed description for function ``firePendingEvents``
+		This function is deprecated and should be removed.
 
 */
