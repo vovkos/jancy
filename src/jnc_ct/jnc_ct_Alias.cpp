@@ -24,17 +24,14 @@ Alias::generateDocumentation (
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
  
-	if (!m_initializer.isEmpty ())
-	{
-		itemXml->appendFormat (
-			"<initializer>= %s</initializer>\n", 
-			getInitializerString ().cc ()
-			);
-	}
+	ASSERT (!m_initializer.isEmpty ());
+	itemXml->appendFormat (
+		"<initializer>= %s</initializer>\n", 
+		getInitializerString ().cc ()
+		);
 
 	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
-
 	itemXml->append ("\n</memberdef>\n");
 
 	return true;

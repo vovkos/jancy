@@ -57,12 +57,10 @@ EnumConst::generateDocumentation (
 		);
 
 	if (!m_initializer.isEmpty ())
-	{
 		itemXml->appendFormat (
 			"<initializer>= %s</initializer>\n", 
 			getInitializerString ().cc ()
 			);
-	}
 
 	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append ("</enumvalue>\n");

@@ -424,11 +424,18 @@ FunctionType::generateArgDocumentation (sl::String* itemXml)
 		itemXml->appendFormat (
 			"<param>\n"
 			"    <type>%s</type>\n"
-			"    <declname>%s</declname>\n"
-			"</param>\n",
+			"    <declname>%s</declname>\n",
 			arg->getType ()->getDoxyBlock ()->getLinkedText ().cc (),
 			arg->getName ().cc ()
 			);
+
+		if (!arg->getInitializer ().isEmpty ())
+			itemXml->appendFormat (
+				"    <defval>= %s</defval>\n", 
+				arg->getInitializerString ().cc ()
+				);
+
+		itemXml->append ("</param>\n");
 	}
 
 	if (m_flags & FunctionTypeFlag_VarArg)

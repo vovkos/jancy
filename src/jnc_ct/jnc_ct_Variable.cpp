@@ -119,16 +119,13 @@ Variable::generateDocumentation (
 		((MulticastClassType*) m_type)->getFunctionType ()->generateArgDocumentation (itemXml);
 
 	if (!m_initializer.isEmpty ())
-	{
 		itemXml->appendFormat (
 			"<initializer>= %s</initializer>\n", 
 			getInitializerString ().cc ()
 			);
-	}
 
 	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
-
 	itemXml->append ("\n</memberdef>\n");
 
 	return true;
