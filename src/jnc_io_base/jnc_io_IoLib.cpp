@@ -1,13 +1,14 @@
 #include "pch.h"
 #include "jnc_io_IoLib.h"
 
+#include "jnc_io_File.h"
+#include "jnc_io_MappedFile.h"
+#include "jnc_io_FileStream.h"
 #include "jnc_io_Serial.h"
 #include "jnc_io_Socket.h"
 #include "jnc_io_SocketAddress.h"
 #include "jnc_io_SocketAddressResolver.h"
 #include "jnc_io_NetworkAdapter.h"
-#include "jnc_io_MappedFile.h"
-#include "jnc_io_FileStream.h"
 
 #if (_JNC_ENV == JNC_ENV_WIN)
 #	include "jnc_io_NamedPipe.h"
@@ -30,11 +31,12 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE (IoLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (IoLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (File)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Serial)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Socket)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
 #if (_JNC_ENV == JNC_ENV_WIN)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Mailslot)
@@ -42,6 +44,9 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (IoLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (IoLib)
+	JNC_MAP_TYPE (File)
+	JNC_MAP_TYPE (FileStream)
+	JNC_MAP_TYPE (MappedFile)
 	JNC_MAP_TYPE (Serial)
 	JNC_MAP_TYPE (Socket)
 	JNC_MAP_TYPE (Address_ip4)
@@ -50,8 +55,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP (IoLib)
 	JNC_MAP_TYPE (SocketAddress_ip6)
 	JNC_MAP_TYPE (SocketAddress)
 	JNC_MAP_TYPE (SocketAddressResolver)
-	JNC_MAP_TYPE (MappedFile)
-	JNC_MAP_TYPE (FileStream)
 #if (_JNC_ENV == JNC_ENV_WIN)
 	JNC_MAP_TYPE (NamedPipe)
 	JNC_MAP_TYPE (Mailslot)
