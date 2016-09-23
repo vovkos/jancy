@@ -25,6 +25,7 @@ class DynamicLib
 
 	bool errorcode open (char const* fileName);
 	void close ();
+	alias dispose = close;
 
 	void thin* errorcode getFunction (char const* fileName);
 }
