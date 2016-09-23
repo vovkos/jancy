@@ -722,6 +722,9 @@ Parser::addDoxyComment (
 		case DoxyTokenKind_Brief:
 			m_isDoxyBriefDescription = true;
 			description = &m_doxyBlock->m_briefDescription;
+
+			if (!description->isEmpty ()) // user likely wants multi-paragraphed brief
+				description->append ('\n');
 			break;
 
 		case DoxyTokenKind_Text:
