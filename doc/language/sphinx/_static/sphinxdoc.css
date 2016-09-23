@@ -222,8 +222,9 @@ code.descname, code.descclassname, code.xref {
 }
 
 hr {
-    border: 1px solid #abc;
-    margin: 2em;
+    border-top: 0;
+    border-bottom: 1px solid #ddd;
+    margin: 0;
 }
 
 a code {
