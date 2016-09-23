@@ -21,7 +21,7 @@
 
 	\field m_syncId
 
-		Holds the synchronization ID for the mailslot. For details, please refer to :ref:`sync-id-explanation`.
+		Holds the synchronization ID for the mailslot. For details, please refer to :ref:`sync-id`.
 
 	\event m_onMailslotEvent
 
@@ -37,20 +37,24 @@
 
 		The function accepts a single argument, ``name``, which is used to specify the name of the mailslot.
 
-		Returns ``true`` on success. If the mailslot could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+		Returns ``true`` on success. If the mailslot could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+
 
 	\fn close
 
 		Closes a previously opened mailslot, does nothing if the mailslot is not opened. This function always succeeds.
 
+		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+
+
 	\fn read
 
 		Attempts to read up to ``size`` bytes from the mailslot into the buffer pointed to by ``p``.
 
-		Returns the actual amount of bytes read or ``-1`` if error occurs.
-
-		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+		Returns the actual amount of bytes read or ``-1`` if error occurs. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the mailslot is closed.
 
+	\alias dispose
+		Ensures ``io.Mailslot`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
 */

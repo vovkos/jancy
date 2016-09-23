@@ -30,16 +30,21 @@
 
 		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
 
-		If file could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+		If file could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 	\fn close
 
 		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
+		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+
 	\fn view
 
 		Provides access to the region of the file at ``offset`` and ``size`` bytes long. The final, third argument is used to specify whether the requested view should be *permanent* or *dynamic*.
 
-		Returns a pointer to the requested region, or ``null`` if mapping operation failed. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
+		Returns a pointer to the requested region, or ``null`` if mapping operation failed. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+
+	\alias dispose
+		Ensures ``io.MappedFile`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
 
 */

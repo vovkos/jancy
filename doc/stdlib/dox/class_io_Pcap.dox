@@ -2,17 +2,27 @@
 
 \class io.Pcap
 
-	\brief Brief description for class ``io.Pcap``
+	\brief This class provides high-level asynchronous interface for the Pcap (Packet Capture) library.
 
-	Detailed description for class ``io.Pcap``
+	Pcap library (called WinPcap on Windows) is de-facto the standard tool for capturing and injecting low-level network traffic.
+
+	A typical sequence of steps when working with ``io.Pcap`` looks something like this:
+
+	* Assign your event handler using ``m_onPcapEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Open a live capture using ``openDevice`` or a capture file (*.pcap) using ``openFile`` method;
+	* When ``ReadyRead`` event is fired, read packet using ``read`` method;
+	* If you opened a live capture, you can also inject packets with ``write`` method;
+	* Close Pcap object when no longer needed with ``close`` method.
+
+	For detailed description of the syntax used in Pcap capture filter expressions refer to: http://www.tcpdump.org/manpages/pcap-filter.7.html
 
 	\field m_filter
 
-		Detailed description for field ``m_filter``
+		Holds currently specified capture filter.
 
 	\field m_isPromiscious
 
-		Detailed description for field ``m_isPromiscious``
+		Holds ``true`` if network interface has been opened in promiscuos mode; ``false`` otherwise.
 
 	\field m_isOpen
 
@@ -20,34 +30,67 @@
 
 	\field m_syncId
 
-		Holds the synchronization ID for the Pcap object. For details, please refer to :ref:`sync-id-explanation`.
+		Holds the synchronization ID for the Pcap object. For details, please refer to :ref:`sync-id`.
 
 	\event m_onPcapEvent
 
-		Detailed description for event ``m_onPcapEvent``
+		This event is fired whenever an event occurs on the Pcap capture object.
+
+		For the list of possible events, refer to `io.PcapEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.PcapEventParams` which holds parameters of the particular event. ``m_syncId`` field of parameter strucutre should be used to discard events originating from the previous file stream session.
 
 	\fn openDevice
 
-		Detailed description for function ``openDevice``
+		Opens a network interface for Pcap capture.
+
+		The function accepts 3 arguments. The first one, ``deviceName``, is used to specify the device to start capture on. To obtain a list of available devices, use `io.createPcapDeviceDescList` function.
+
+		The second one, ``filter``, allows you to specify a capture filter which will be applied to incoming packets -- packets which do not pass the filter, will never be signalled via `ReadyRead` event and could not be read by ``read`` method.
+
+		The third and final parameter specifies whether to put interface in promiscuous mode.
+
+		Returns ``true`` on success. If live capture on specified device could not be opened, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 	\fn openFile
 
-		Detailed description for function ``openFile``
+		Opens a previously captured *.pcap file specified by ``fileName`` argument.
+
+		The second argument, ``filter``, has the same meaning as in ``openDevice`` method.
+
+		Returns ``true`` on success. If capture file could not be opened, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 	\fn close
 
-		Detailed description for function ``close``
+		Closes a previously opened live capture or a capture file, does nothing if Pcap is not opened. This function always succeeds.
+
+		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
 
 	\fn setFilter
 
-		Detailed description for function ``setFilter``
+		Allows you to change current capture filter without restarting the capture.
+
+		Returns ``true`` on success. If capture filter could not be changed, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 	\fn write
 
-		Detailed description for function ``write``
+		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as a packet on a currently opened device.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1``.
+
+		Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
 
 	\fn read
 
-		Detailed description for function ``read``
+		Reads the next packet into the buffer pointed to by ``p`` and ``size`` bytes long.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, function sets the error reported by Pcap and returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+
+		Normally you would call this function from within your event handler for ``ReadyRead`` event. If this function is called when there are no incoming pacets, it blocks until either a packet arrives, or Pcap is closed.
+
+	\alias dispose
+		Ensures ``io.Pcap`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
 
 */

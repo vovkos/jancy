@@ -12,7 +12,7 @@
 
 	\field m_syncId
 
-		Holds the synchronization ID for the serial port. For details, please refer to :ref:`sync-id-explanation`.
+		Holds the synchronization ID for the serial port. For details, please refer to :ref:`sync-id`.
 
 	\property m_baudRate
 
@@ -58,6 +58,8 @@
 
 		Detailed description for function ``close``
 
+		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+
 	\fn read
 
 		Detailed description for function ``read``
@@ -65,5 +67,8 @@
 	\fn write
 
 		Detailed description for function ``write``
+
+	\alias dispose
+		Ensures ``io.Serial`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
 
 */

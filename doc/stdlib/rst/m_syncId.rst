@@ -1,4 +1,4 @@
-.. _sync-id-explanation:
+.. _sync-id:
 
 m_syncId Model Explanation
 ==========================
