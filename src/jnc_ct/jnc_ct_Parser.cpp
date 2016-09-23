@@ -637,6 +637,7 @@ Parser::addDoxyComment (
 		case DoxyTokenKind_Event:
 		case DoxyTokenKind_Typedef:
 		case DoxyTokenKind_Namespace:
+		case DoxyTokenKind_Footnote:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
 				break; // ignore

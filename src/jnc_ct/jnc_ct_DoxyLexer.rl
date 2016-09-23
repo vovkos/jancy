@@ -52,6 +52,7 @@ main := |*
 '\\addtogroup'    { createToken (DoxyTokenKind_AddToGroup); };
 '\\title'         { createToken (DoxyTokenKind_Title); };
 '\\brief'         { createToken (DoxyTokenKind_Brief); };
+'\\footnote'      { createToken (DoxyTokenKind_Footnote); };
 
 '\\' rc*          { createToken (DoxyTokenKind_OtherCommand); };
 
