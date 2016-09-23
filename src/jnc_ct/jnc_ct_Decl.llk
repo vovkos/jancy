@@ -125,8 +125,8 @@ alignment_value
 	;
 
 setas_declaration
-	:	TokenKind_SetAs '='? type_name ';'
-	|	TokenKind_SetAs '(' type_name ')'
+	:	TokenKind_SetAs '='? setas_value ';'
+	|	TokenKind_SetAs '(' setas_value ')'
 	;
 
 setas_value
