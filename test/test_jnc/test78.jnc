@@ -1,17 +1,21 @@
+class Foo
+{
+	close ()
+	{
+		printf ("Foo.close ()\n");
+	}
+
+	alias dispose = close;
+}
+
 //.............................................................................
 
 int main ()
 {
 	printf ("main ()\n");
 
-	char const* s = 0n"""
-		97 98 99
-		100 101 102
-		13 10 0
+	disposable Foo foo;
 
-	""";
-
-	printf ("s:\n%s", s);
 
 	return 0;
 }

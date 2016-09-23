@@ -91,6 +91,7 @@ opaque class Socket
 	}
 		
 	void close ();
+	alias dispose = close;
 
 	bool errorcode connect (SocketAddress const* address);
 

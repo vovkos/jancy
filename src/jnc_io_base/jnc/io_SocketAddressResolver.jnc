@@ -40,7 +40,8 @@ opaque class SocketAddressResolver
 		);
 		
 	bool cancel (uint_t syncId);
-	cancelAll ();
+	void cancelAll ();
+	alias dispose = cancelAll;
 
 	event m_onResolverEvent (SocketAddressResolverEventParams const* params);
 }

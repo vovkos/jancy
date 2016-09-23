@@ -68,6 +68,7 @@ opaque class FileStream
 		);
 
 	void close ();
+	alias dispose = close;
 
 	bool errorcode clear (); // only for disk files
 

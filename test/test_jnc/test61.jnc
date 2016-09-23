@@ -17,7 +17,7 @@ class Resource
 		printf ("Resource.close (%p)\n", this);
 	}
 
-	alias dispose () = close;
+	alias dispose = close;
 }
 
 int main ()

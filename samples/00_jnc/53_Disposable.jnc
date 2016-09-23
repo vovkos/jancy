@@ -48,7 +48,7 @@ class Resource
 		m_resource = 0;
 	}
 
-	alias dispose () = release;
+	alias dispose = release;
 }
 
 //.............................................................................

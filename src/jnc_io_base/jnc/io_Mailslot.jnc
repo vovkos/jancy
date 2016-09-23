@@ -33,6 +33,7 @@ opaque class Mailslot
 	bool errorcode open (char const* name);
 
 	void close ();
+	alias dispose = close;
 
 	size_t errorcode read (
 		void* p,

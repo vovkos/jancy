@@ -32,6 +32,7 @@ opaque class File
 		);
 
 	void close ();
+	alias dispose = close;
 
 	size_t errorcode read (
 		void* p,

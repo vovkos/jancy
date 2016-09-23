@@ -21,6 +21,7 @@ opaque class NamedPipe
 		);
 
 	void close ();
+	alias dispose = close;
 
 	FileStream* accept ();
 
