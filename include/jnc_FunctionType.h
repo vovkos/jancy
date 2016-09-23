@@ -48,10 +48,31 @@ jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 
 //.............................................................................
 
+JNC_EXTERN_C
+int
+jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg);
+
+JNC_EXTERN_C
+const char*
+jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_FunctionArg: jnc_ModuleItem
 {
+	bool
+	hasDefaultValue ()
+	{
+		return jnc_FunctionArg_hasDefaultValue (this) != 0;
+	}
+
+	const char*
+	getDefaultValueString ()
+	{
+		return jnc_FunctionArg_getDefaultValueString_v (this);
+	}
 };
 
 #endif // _JNC_CORE

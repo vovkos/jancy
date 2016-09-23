@@ -33,6 +33,7 @@ private:
 	void addFunction(QTreeWidgetItem* parent, jnc::Function* function);
 	void addFunctionImpl(QTreeWidgetItem* parent, jnc::Function* function);
 	void addProperty(QTreeWidgetItem* parent, jnc::Property* prop);
+	void addAlias(QTreeWidgetItem* parent, jnc::Alias* alias);
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);
 	void addDerivableTypeMembers(QTreeWidgetItem* parent, jnc::DerivableType* type);
 

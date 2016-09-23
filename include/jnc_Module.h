@@ -4,6 +4,7 @@
 
 #include "jnc_AttributeBlock.h"
 #include "jnc_Namespace.h"
+#include "jnc_Alias.h"
 #include "jnc_Variable.h"
 #include "jnc_Function.h"
 #include "jnc_Property.h"

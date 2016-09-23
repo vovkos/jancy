@@ -7,6 +7,39 @@ namespace ct {
 
 //.............................................................................
 
+bool
+Alias::generateDocumentation (
+	const char* outputDir,
+	sl::String* itemXml,
+	sl::String* indexXml
+	)
+{
+	bool isMulticast = isClassType (m_type, ClassTypeKind_Multicast);
+
+	itemXml->format ("<memberdef kind='alias' id='%s'", getDoxyBlock ()->getRefId ().cc ());
+
+	if (m_accessKind != AccessKind_Public)
+		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+
+	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
+ 
+	if (!m_initializer.isEmpty ())
+	{
+		itemXml->appendFormat (
+			"<initializer>= %s</initializer>\n", 
+			getInitializerString ().cc ()
+			);
+	}
+
+	itemXml->append (getDoxyBlock ()->createDescriptionString ());
+	itemXml->append (createDoxyLocationString ());
+
+	itemXml->append ("\n</memberdef>\n");
+
+	return true;
+}
+
 //.............................................................................
 
 } // namespace ct

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "jnc_Variable.h"
+#include "jnc_Alias.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_DynamicExtensionLibHost.h"
@@ -16,17 +16,10 @@
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-int
-jnc_Variable_hasInitializer (jnc_Variable* variable)
-{
-	return !variable->getInitializer ().isEmpty ();
-}
-
-JNC_EXTERN_C
 const char*
-jnc_Variable_getInitializerString_v (jnc_Variable* variable)
+jnc_Alias_getInitializerString_v (jnc_Alias* alias)
 {
-	return *jnc::getTlsStringBuffer () = variable->getInitializerString ();
+	return *jnc::getTlsStringBuffer () = alias->getInitializerString ();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -39,7 +39,7 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column)
 	if(variant.isNull())
 		return;
 
-	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*) variant.value<void *>();
+	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*) variant.value <void*> ();
 	if (!decl)
 		return;
 
@@ -108,8 +108,7 @@ void ModulePane::addNamespace(QTreeWidgetItem *parent,
 		treeItem = insertItem(text, parent);
 	}
 
-	treeItem->setData(0, Qt::UserRole,
-		qVariantFromValue((void *)globalNamespace->getDecl ()));
+	treeItem->setData(0, Qt::UserRole, qVariantFromValue((void*) globalNamespace->getDecl ()));
 
 	jnc::Namespace* nspace = globalNamespace->getNamespace ();
 	size_t count = nspace->getItemCount();
@@ -166,6 +165,10 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 		// don't display lazy items
 		break;
 
+	case jnc::ModuleItemKind_Alias:
+		addAlias (parent, (jnc::Alias*) item);
+		break;
+
 	default:
 		name.sprintf("item %p of kind %d", item, itemKind);
 
@@ -202,7 +205,7 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 		break;
 	}
 
-	item->setData(0, Qt::UserRole, qVariantFromValue((void *)decl));
+	item->setData(0, Qt::UserRole, qVariantFromValue ((void*) decl));
 }
 
 void ModulePane::addTypedef (QTreeWidgetItem *parent, jnc::Typedef* tdef)
@@ -211,7 +214,7 @@ void ModulePane::addTypedef (QTreeWidgetItem *parent, jnc::Typedef* tdef)
 	name.sprintf ("typedef %s", tdef->getType ()->createDeclarationString_v (tdef->getDecl ()->getName ()));
 
 	QTreeWidgetItem *item = insertItem (name, parent);
-	item->setData (0, Qt::UserRole, qVariantFromValue((void *) (jnc::ModuleItem*) tdef));
+	item->setData (0, Qt::UserRole, qVariantFromValue((void*) tdef->getDecl ()));
 }
 
 void ModulePane::addVariable(QTreeWidgetItem *parent, jnc::Variable *variable)
@@ -221,15 +224,15 @@ void ModulePane::addVariable(QTreeWidgetItem *parent, jnc::Variable *variable)
 
 void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::EnumConst *member)
 {
-	QTreeWidgetItem *item = insertItem((const char *)member->getDecl ()->getName(), parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void *)member));
+	QTreeWidgetItem *item = insertItem((const char*) member->getDecl ()->getName(), parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*) member->getDecl ()));
 }
 
 void ModulePane::addValue (QTreeWidgetItem *parent, const char* name, jnc::Type* type, jnc::ModuleItem* moduleItem)
 {
 	QString itemName = type->createDeclarationString_v (name);
 	QTreeWidgetItem *item = insertItem(itemName, parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void *) moduleItem));
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*) moduleItem->getDecl ()));
 
 	if (jnc::isClassType (type, jnc::ClassTypeKind_Reactor))
 		addDerivableTypeMembers (item, (jnc::ClassType*) type);
@@ -326,13 +329,13 @@ void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::Function* functi
 
 	QString itemName = type->createDeclarationString_v (name);
 	QTreeWidgetItem *item = insertItem (itemName, parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void *)(jnc::ModuleItem*) function));
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*) function->getDecl ()));
 }
 
 void ModulePane::addProperty (QTreeWidgetItem *parent, jnc::Property* prop)
 {
 	QTreeWidgetItem *item = insertItem (prop->getDecl ()->getName (), parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void *)(jnc::ModuleItem*) prop));
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*) prop->getDecl ()));
 
 	jnc::Function* getter = prop->getGetter ();
 	jnc::Function* setter = prop->getSetter ();
@@ -343,4 +346,13 @@ void ModulePane::addProperty (QTreeWidgetItem *parent, jnc::Property* prop)
 		addFunction (item, setter);
 
 	expandItem (item);
+}
+
+void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias)
+{
+	QString name;
+	name.sprintf ("alias %s = %s", alias->getDecl ()->getName (), alias->getInitializerString_v ());
+
+	QTreeWidgetItem *item = insertItem (name, parent);
+	item->setData (0, Qt::UserRole, qVariantFromValue((void*) alias->getDecl ()));
 }

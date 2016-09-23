@@ -25,6 +25,7 @@ set (
 	${JANCY_INC_DIR}/jnc_StructType.h
 	${JANCY_INC_DIR}/jnc_UnionType.h
 	${JANCY_INC_DIR}/jnc_ClassType.h
+	${JANCY_INC_DIR}/jnc_Alias.h
 	${JANCY_INC_DIR}/jnc_Variable.h
 	${JANCY_INC_DIR}/jnc_Function.h
 	${JANCY_INC_DIR}/jnc_Property.h
@@ -56,6 +57,7 @@ set (
 	jnc_StructType.cpp
 	jnc_UnionType.cpp
 	jnc_ClassType.cpp
+	jnc_Alias.cpp
 	jnc_Variable.cpp
 	jnc_Function.cpp
 	jnc_Property.cpp

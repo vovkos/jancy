@@ -23,6 +23,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_Struct,
 	DoxyTokenKind_Union,
 	DoxyTokenKind_Class,
+	DoxyTokenKind_Alias,
 	DoxyTokenKind_Variable,
 	DoxyTokenKind_Field,
 	DoxyTokenKind_Function,
@@ -54,6 +55,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Struct,        "\\struct")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Union,         "\\union")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Class,         "\\class")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Alias,         "\\alias")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Variable,      "\\variable")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Field,         "\\field")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Function,      "\\function")

@@ -101,6 +101,22 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+int
+jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg)
+{
+	return !arg->getInitializer ().isEmpty ();
+}
+
+JNC_EXTERN_C
+const char*
+jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg)
+{
+	return *jnc::getTlsStringBuffer () = arg->getInitializerString ();
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
 jnc_Type*
 jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 {

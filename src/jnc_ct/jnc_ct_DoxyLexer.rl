@@ -34,6 +34,7 @@ main := |*
 '\\struct'        { createToken (DoxyTokenKind_Struct); };
 '\\union'         { createToken (DoxyTokenKind_Union); };
 '\\class'         { createToken (DoxyTokenKind_Class); };
+'\\alias'         { createToken (DoxyTokenKind_Alias); };
 '\\var'           { createToken (DoxyTokenKind_Variable); };
 '\\variable'      { createToken (DoxyTokenKind_Variable); };
 '\\field'         { createToken (DoxyTokenKind_Field); };

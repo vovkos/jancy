@@ -629,6 +629,7 @@ Parser::addDoxyComment (
 		case DoxyTokenKind_Struct:
 		case DoxyTokenKind_Union:
 		case DoxyTokenKind_Class:
+		case DoxyTokenKind_Alias:
 		case DoxyTokenKind_Variable:
 		case DoxyTokenKind_Field:
 		case DoxyTokenKind_Function:
