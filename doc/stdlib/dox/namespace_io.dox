@@ -2,12 +2,9 @@
 
 \namespace io
 
-	\brief Brief description for namespace ``io``
+	\brief This namespaces contains all IO-related classes and auxiliary types and functions.
 
-	Detailed description for namespace ``io``
-
-*/
-
-/*!
+	\brief For your convenience, documentation for all the members of ``namespace io`` is divided into the following categories:
 
 */
+

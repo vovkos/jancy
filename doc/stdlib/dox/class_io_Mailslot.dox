@@ -4,9 +4,9 @@
 
 	\ingroup file
 
-	\brief The ``io.Mailslot`` class provides high-level asynchronous streaming interface for the *server* side of Windows mailslots which are used, for example, in SMB (Server Message Blocks) protocol and Windows Computer Browser service.
+	\brief This class provides high-level asynchronous streaming interface for the *server* side of Windows mailslots which are used, for example, in SMB (Server Message Blocks) protocol and Windows Computer Browser service.
 
-	For working from the *client* side of a mailslot, please use ``io.File`` class.
+	For working from the *client* side of a mailslot, please use `io.File` class.
 
 	A typical sequence of steps when working with a mailslot looks something like this:
 
@@ -35,7 +35,7 @@
 
 		Opens or creates a mailslot.
 
-		The function accepts two arguments. The first one, ``name`` specifies the name of the mailslot. The second one, ``flags``, can be used to specify open options.
+		The function accepts a single argument, ``name``, which is used to specify the name of the mailslot.
 
 		Returns ``true`` on success. If the mailslot could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 

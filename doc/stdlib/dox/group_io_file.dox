@@ -4,9 +4,7 @@
 
 	\title Generic File IO
 
-	\brief Brief description for group ``file`` (Generic File IO)
-
-	Detailed description for group ``file`` (Generic File IO)
+	\brief This group contains classes and other auxillary types and functions for working with files and generic IO devices.
 
 */
 
@@ -14,6 +12,6 @@
 
 \fn io.getFileStreamKindString
 
-	Detailed description for function ``io.getFileStreamKindString``
+	Returns string representation of the ``kind`` argument. In case ``kind`` does not correspond to any known file stream kind (e.g. you have casted a random integer number to `io.FileStreamKind` enumeration type), string ``unknown device`` is returned.
 
 */

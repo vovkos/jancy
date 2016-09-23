@@ -2,9 +2,11 @@
 
 \class io.MappedFile
 
-	\brief Brief description for class ``io.MappedFile``
+	\brief This class provides high level mapped access to the contents of a regular disk files.
 
-	Detailed description for class ``io.MappedFile``
+	From the client point of view, ``io.MappedFile`` exposes the most natural interface imaginable: you just tell, I want to access a region of the file at *this* offset, and of *this* length. And you get a pointer to this region (or ``null`` if this could not be done). That's it! Actual mapping operations, aligning offsets and maintaining a database of previously mapped views is happening behind the stage.
+
+	Views provided by ``io.MappedFile`` can be *permanent* or *dynamic*. A pointer to a permanent view, as the name suggests, remains valid *all the time* while the file is open. Pointers to *dynamic* views, on the other hand, do expire. You can only access ``m_dynamicViewLimit`` views at the same time. Expiration queue is organized in FIFO (first-in-first-out) manner, but it is readjusted each time user requests access to the region with ``view`` method (last accessed view is moved to the tail of the expiration queue).
 
 	\field m_isOpen
 
@@ -12,22 +14,32 @@
 
 	\property m_dynamicViewLimit
 
-		Detailed description for property ``m_dynamicViewLimit``
+		Holds the maximum amount of *dynamic* views maintained in ``io.MappedFile`` internal database. Once dynamic view limit is exhausted, the dynamic view which has not been accessed *the longest*, is unmapped and released.
+
+		The required amount of dynamic view limit, of course, depends on the particular algorithm used to access regions of the file -- i.e. how many regions you need to access simultaneously.
 
 	\property m_size
 
-		Detailed description for property ``m_size``
+		This property is used for getting and setting file size.
+
+		Reading from this property returns current size of the file; writing to it sets new size. If setting new size fails, IO error supplied by operating system is set; then dynamic exception is thrown.
 
 	\fn open
 
-		Detailed description for function ``open``
+		Opens or creates a file, but no mappings are created.
+
+		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
+
+		If file could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 	\fn close
 
-		Detailed description for function ``close``
+		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
 	\fn view
 
-		Detailed description for function ``view``
+		Provides access to the region of the file at ``offset`` and ``size`` bytes long. The final, third argument is used to specify whether the requested view should be *permanent* or *dynamic*.
+
+		Returns a pointer to the requested region, or ``null`` if mapping operation failed. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
 */

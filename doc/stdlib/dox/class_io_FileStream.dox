@@ -4,7 +4,7 @@
 
 	\ingroup file
 
-	\brief The ``io.FileStream`` class provides high-level asynchronous streaming interface for reading from and writing to files or devices.
+	\brief This class provides high-level asynchronous streaming interface for reading from and writing to files or devices.
 
 	Besides all the standard methods of ``io.File`` (like ``open``, ``read``, ``write`` etc) ``io.FileStream`` also notifies its clients of events occured on this file stream such as when data has arrived and could be read or when IO error occured. This allows for clean and convenient asynchronous event-driven IO programming.
 
@@ -18,7 +18,6 @@
 	* Resume writing on ``TransmitBufferReady`` event;
 	* Close the file stream when no longer needed with ``close`` method.
 
-	Detailed description for class ``io.FileStream``
 
 	\field m_isOpen
 
@@ -30,7 +29,9 @@
 
 	\field m_kind
 
-		Specifies the type of the file stream (regular disk file, serial port etc). This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses Win32 function ``GetFileType``.
+		Specifies the type of the file stream (regular disk file, serial port etc). For the full list of supported file stream types, refer to `io.FileStreamKind`.
+
+		This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses Win32 function ``GetFileType``.
 
 	\event m_onFileStreamEvent
 
@@ -44,7 +45,7 @@
 
 		Opens or creates a file stream.
 
-		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options.
+		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
 
 		Returns ``true`` on success. If the file stream could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error.
 
