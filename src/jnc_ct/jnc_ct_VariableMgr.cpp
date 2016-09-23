@@ -567,6 +567,7 @@ VariableMgr::createAlias (
 	ASSERT (initializer);
 
 	Alias* alias = AXL_MEM_NEW (Alias);
+	alias->m_module = m_module;
 	alias->m_name = name;
 	alias->m_qualifiedName = qualifiedName;
 	alias->m_tag = qualifiedName;
