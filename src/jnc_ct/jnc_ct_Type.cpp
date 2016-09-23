@@ -715,7 +715,16 @@ isDisposableType (Type* type)
 	case ModuleItemKind_Alias:
 		functionType = (FunctionType*) ((Alias*) item)->getType ();
 		if (functionType->getTypeKind () != TypeKind_Function)
+		{
+			if (functionType->getTypeKind () == TypeKind_Void)
+			{ 
+				// alias was declared like this: alias dispose = close;
+				// since we don't do strict checks now anyway, let it go
+				break;
+			}
+
 			return false;
+		}
 
 		break;
 

@@ -236,7 +236,7 @@ qualified_type_name_rslv
 						$n.m_firstToken.m_pos
 						) != NULL;
 			}
-		('(' // we need this check if we are already in type_specifier_modifier_list
+		(('(' | '[' | '=') // declarator suffix detected
 			{
 				return false;
 			}
