@@ -62,6 +62,42 @@ source_group (
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# doxydoc folder
+#
+
+set (
+	DOXYDOC_H_LIST
+	jnc_ct_DoxyBlock.h
+	jnc_ct_DoxyGroup.h
+	jnc_ct_DoxyLexer.h
+	jnc_ct_DoxyParser.h
+	jnc_ct_DoxyMgr.h
+	)
+
+set (
+	DOXYDOC_CPP_LIST
+	jnc_ct_DoxyBlock.cpp
+	jnc_ct_DoxyGroup.cpp
+	jnc_ct_DoxyLexer.cpp
+	jnc_ct_DoxyParser.cpp
+	jnc_ct_DoxyMgr.cpp
+	)
+
+set (
+	DOXYDOC_RL_LIST
+	jnc_ct_DoxyLexer.rl
+	)
+
+source_group (
+	doxydoc
+	FILES
+	${DOXYDOC_H_LIST}
+	${DOXYDOC_CPP_LIST}
+	${DOXYDOC_RL_LIST}
+	)
+
+# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # function folder
 #
 
@@ -115,7 +151,6 @@ set (
 	jnc_ct_UnitMgr.h
 	jnc_ct_ImportMgr.h
 	jnc_ct_ExtensionLibMgr.h
-	jnc_ct_DoxyMgr.h
 	jnc_ct_GcShadowStackMgr.h
 	jnc_ct_JitMemoryMgr.h
 	)
@@ -132,7 +167,6 @@ set (
 	jnc_ct_UnitMgr.cpp
 	jnc_ct_ImportMgr.cpp
 	jnc_ct_ExtensionLibMgr.cpp
-	jnc_ct_DoxyMgr.cpp
 	jnc_ct_GcShadowStackMgr.cpp
 	)
 
@@ -264,7 +298,6 @@ set (
 	jnc_ct_Decl.h
 	jnc_ct_DeclTypeCalc.h
 	jnc_ct_Lexer.h
-	jnc_ct_DoxyLexer.h
 	)
 
 set (
@@ -273,13 +306,11 @@ set (
 	jnc_ct_DeclTypeCalc.cpp
 	jnc_ct_Lexer.cpp
 	jnc_ct_Parser.cpp
-	jnc_ct_DoxyLexer.cpp
 	)
 
 set (
 	PARSER_RL_LIST
 	jnc_ct_Lexer.rl
-	jnc_ct_DoxyLexer.rl
 	)
 
 set (
@@ -617,6 +648,9 @@ add_library (
 	${CALLCONV_CPP_LIST}
 	${CONTROLFLOW_H_LIST}
 	${CONTROLFLOW_CPP_LIST}
+	${DOXYDOC_H_LIST}
+	${DOXYDOC_CPP_LIST}
+	${DOXYDOC_RL_LIST}
 	${FUNCTION_H_LIST}
 	${FUNCTION_CPP_LIST}
 	${MODULE_H_LIST}

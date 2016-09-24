@@ -329,6 +329,17 @@ Namespace::generateMemberDocumentation (
 			itemXml->append ('\n');
 		}
 	}
+
+	count = m_footnoteArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		DoxyBlock* footnote = m_footnoteArray [i];
+
+		sectionDef.append ("<memberdef kind='footnote'>\n");
+		sectionDef.appendFormat ("<name>%s</name>\n", footnote->getRefId ().cc ());
+		sectionDef.append (footnote->createDescriptionString ());
+		sectionDef.append ("</memberdef>\n");
+	}
 	
 	if (!sectionDef.isEmpty ())
 		if (!useSectionDef)

@@ -385,6 +385,8 @@ Module::parse (
 	if (m_compileFlags & ModuleCompileFlag_Documentation)
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
 
+
+
 	Parser parser (this);
 	parser.create (Parser::StartSymbol, true);
 
@@ -403,7 +405,7 @@ Module::parse (
 		case TokenKind_DoxyComment3:
 		case TokenKind_DoxyComment4:
 			if (!(m_compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token->m_token - TokenKind_DoxyComment1))))
-				parser.addDoxyComment (token->m_data.m_string, token->m_pos, token->m_token <= TokenKind_DoxyComment2);
+				parser.m_doxyParser.addComment (token->m_data.m_string, token->m_pos, token->m_token <= TokenKind_DoxyComment2);
 			break;
 
 		default:

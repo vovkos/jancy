@@ -44,7 +44,7 @@ declarator_name <Declarator* $declarator>
 			{
 				$declarator->m_pos = $1.m_firstToken.m_pos;
 				$declarator->m_attributeBlock = popAttributeBlock ();
-				$declarator->m_doxyBlock = popDoxyBlock ();
+				$declarator->m_doxyBlock = m_doxyParser.popBlock ();
 			}
 		('.' declarator_qualifier <$declarator>)*
 	;

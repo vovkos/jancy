@@ -7,163 +7,6 @@ namespace ct {
 
 //.............................................................................
 
-DoxyBlock::DoxyBlock ()
-{
-	m_blockKind = DoxyBlockKind_Normal;
-	m_group = NULL;
-	m_item = NULL;
-}
-
-sl::String 
-DoxyBlock::getRefId ()
-{
-	if (!m_refId.isEmpty ())
-		return m_refId;
-
-	ASSERT (m_item);
-
-	m_refId = m_item->createDoxyRefId ();
-	return m_refId;
-}
-
-sl::String 
-DoxyBlock::getLinkedText ()
-{
-	if (!m_linkedText.isEmpty ())
-		return m_linkedText;
-
-	ASSERT (m_item);
-
-	if (m_item->getItemKind () != ModuleItemKind_Type)
-		m_linkedText = m_item->m_tag;
-	else
-		m_linkedText = ((Type*) m_item)->createDoxyLinkedText ();
-
-	return m_linkedText;
-}
-
-inline
-void
-appendXmlElementContents (
-	sl::String* string,
-	const sl::StringRef& contents
-	)
-{
-	if (contents.findOneOf ("<>") == -1)
-	{
-		string->append (contents);
-	}
-	else
-	{
-		string->append ("<![CDATA[");
-		string->append (contents);
-		string->append ("]]>");
-	}
-}
-
-sl::String
-DoxyBlock::createDescriptionString ()
-{
-	sl::String string;
-
-	m_briefDescription.trim ();
-	if (!m_briefDescription.isEmpty ())
-	{
-		string.append ("<briefdescription><para>");
-		appendXmlElementContents (&string, m_briefDescription);
-		string.append ("</para></briefdescription>\n");
-	}
-
-	m_detailedDescription.trim ();
-	if (!m_detailedDescription.isEmpty ())
-	{
-		string.append ("<detaileddescription><para>");
-		appendXmlElementContents (&string, m_detailedDescription);
-		string.append ("</para></detaileddescription>\n");
-	}
-
-	return string;
-}
-
-//.............................................................................
-
-bool
-DoxyGroup::generateDocumentation (
-	const char* outputDir,
-	sl::String* itemXml,
-	sl::String* indexXml
-	)
-{
-	indexXml->appendFormat (
-		"<compound kind='group' refid='%s'><name>%s</name></compound>\n", 
-		m_refId.cc (), 
-		m_name.cc ()
-		);
-
-	itemXml->format (
-		"<compounddef kind='group' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n"
-		"<title>%s</title>\n", 
-		m_refId.cc (), 
-		m_name.cc (),
-		m_title.cc ()
-		);
-
-	sl::String sectionDef;
-
-	size_t count = m_itemArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		ModuleItem* item = m_itemArray [i];
-		ModuleItemDecl* decl = item->getDecl ();
-		if (!decl)
-			continue;
-
-		ModuleItemKind itemKind = item->getItemKind ();
-
-		bool isCompoundFile = 
-			itemKind == ModuleItemKind_Namespace ||
-			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
-
-		sl::String refId = item->getDoxyBlock ()->getRefId ();
-
-		if (!isCompoundFile)
-		{
-			sectionDef.appendFormat ("<memberdef id='%s'/>", refId.cc ());
-			sectionDef.append ('\n');
-		}
-		else
-		{
-			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			sl::String refId = item->getDoxyBlock ()->getRefId ();
-			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
-			itemXml->append ('\n');
-		}
-	}
-
-	if (!sectionDef.isEmpty ())
-	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (sectionDef);
-		itemXml->append ("</sectiondef>\n");
-	}
-
-	sl::BoxIterator <DoxyGroup*> groupIt = m_groupList.getHead ();
-	for (; groupIt; groupIt++)
-	{
-		DoxyGroup* group = *groupIt;
-		itemXml->appendFormat ("<innergroup refid='%s'/>", group->m_refId.cc ());
-		itemXml->append ('\n');
-	}
-
-	itemXml->append (createDescriptionString ());
-	itemXml->append ("</compounddef>\n");
-
-	return true;
-}
-
-//.............................................................................
-
 DoxyMgr::DoxyMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
@@ -228,13 +71,15 @@ DoxyMgr::adjustRefId (const sl::StringRef& refId)
 void
 DoxyMgr::setBlockTarget (
 	DoxyBlock* block,
-	const sl::StringRef& targetName
+	DoxyTokenKind tokenKind,
+	const sl::StringRef& itemName
 	)
 {
-	Target* retarget = AXL_MEM_NEW (Target);
-	retarget->m_block = block;
-	retarget->m_targetName = targetName;
-	m_targetList.insertTail (retarget);
+	Target* target = AXL_MEM_NEW (Target);
+	target->m_block = block;
+	target->m_tokenKind = tokenKind;
+	target->m_itemName = itemName;
+	m_targetList.insertTail (target);
 }
 
 bool
@@ -249,14 +94,28 @@ DoxyMgr::resolveBlockTargets ()
 	for (; it; it++)
 	{
 		Target* target = *it;
-		
-		ModuleItem* item = prevNspace && target->m_targetName.find ('.') == -1 ?
-			prevNspace->findItem (target->m_targetName) :
+		if (target->m_tokenKind == DoxyTokenKind_Footnote)
+		{
+			if (!prevNspace)
+			{
+				result = false;
+			}
+			else
+			{
+				target->m_block->m_refId = target->m_itemName;
+				prevNspace->addFootnote (target->m_block);
+			}
+
+			continue; // not a item
+		}
+
+		ModuleItem* item = prevNspace && target->m_itemName.find ('.') == -1 ?
+			prevNspace->findItem (target->m_itemName) :
 			NULL;
 
 		if (!item)
 		{
-			item = globalNspace->findItemByName (target->m_targetName);
+			item = globalNspace->findItemByName (target->m_itemName);
 			if (!item)
 			{
 				result = false;

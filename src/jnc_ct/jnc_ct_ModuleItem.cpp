@@ -37,7 +37,7 @@ ModuleItemDecl::createDoxyLocationString ()
 
 	sl::String string;
 
-	string.format ("<location file='%s' line='%d' col='%d'/>",
+	string.format ("<location file='%s' line='%d' col='%d'/>\n",
 		m_parentUnit->getFileName ().cc (),
 		m_pos.m_line + 1,
 		m_pos.m_col + 1

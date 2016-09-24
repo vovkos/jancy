@@ -126,7 +126,7 @@ Variable::generateDocumentation (
 
 	itemXml->append (getDoxyBlock ()->createDescriptionString ());
 	itemXml->append (createDoxyLocationString ());
-	itemXml->append ("\n</memberdef>\n");
+	itemXml->append ("</memberdef>\n");
 
 	return true;
 }

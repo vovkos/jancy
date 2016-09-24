@@ -28,6 +28,7 @@ Includes
 	#include "jnc_ct_Lexer.h"
 	#include "jnc_ct_Module.h"
 	#include "jnc_ct_Decl.h"
+	#include "jnc_ct_DoxyParser.h"
 }
 
 CppIncludes
@@ -98,12 +99,6 @@ Members
 		Token* m_scopeAnchorToken;
 	};
 
-	struct DoxyGroupStackEntry
-	{
-		Namespace* m_namespace;
-		DoxyGroup* m_group;
-	};
-
 	Module* m_module;
 	StageKind m_stage;
 	uint_t m_flags;
@@ -113,18 +108,14 @@ Members
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
 	AttributeBlock* m_attributeBlock;
-	DoxyBlock* m_doxyBlock;
-	sl::Array <DoxyGroupStackEntry> m_doxyGroupStack;
-	bool m_isDoxyBlockAssigned;
-	bool m_isDoxyBriefDescription;
-	sl::String m_doxyFirstIndent;
-	sl::String m_doxyIndent;
 
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
 
 	FunctionType* m_lastPropertyGetterType;
 	TypeModifiers m_lastPropertyTypeModifiers;
+
+	DoxyParser m_doxyParser;
 
 	ReactorClassType* m_reactorType;
 	sl::StdList <Reaction> m_reactionList;
@@ -295,16 +286,6 @@ Members2
 
 	AttributeBlock*
 	popAttributeBlock ();
-
-	DoxyBlock*
-	popDoxyBlock ();
-
-	void
-	addDoxyComment (
-		const sl::StringRef& comment,
-		const Token::Pos& pos,
-		bool canAppend
-		);
 
 	bool
 	declare (Declarator* declarator);

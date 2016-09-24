@@ -3,7 +3,6 @@
 #include "jnc_ct_Parser.llk.cpp"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
-#include "jnc_ct_DoxyLexer.h"
 #include "jnc_rtl_Recognizer.h"
 
 namespace jnc {
@@ -11,7 +10,8 @@ namespace ct {
 
 //.............................................................................
 
-Parser::Parser (Module* module)
+Parser::Parser (Module* module):
+	m_doxyParser (module)
 {
 	m_module = module;
 	m_stage = StageKind_Pass1;
@@ -21,9 +21,6 @@ Parser::Parser (Module* module)
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
-	m_doxyBlock = NULL;
-	m_isDoxyBlockAssigned = false;
-	m_isDoxyBriefDescription = false;
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_reactorType = NULL;
@@ -556,224 +553,6 @@ Parser::popAttributeBlock ()
 	return attributeBlock;
 }
 
-DoxyBlock*
-Parser::popDoxyBlock ()
-{
-	// only pick up unassigned non-group blocks
-
-	DoxyBlock* doxyBlock = 
-		!m_isDoxyBlockAssigned && 
-		m_doxyBlock &&
-		m_doxyBlock->getBlockKind () != DoxyBlockKind_Group ? 
-		m_doxyBlock : NULL;
-
-	m_doxyBlock = NULL;
-	m_isDoxyBlockAssigned = false;
-	m_isDoxyBriefDescription = false;
-
-	if (!m_doxyGroupStack.isEmpty ())
-	{
-		DoxyGroupStackEntry entry = m_doxyGroupStack.getBack ();
-		if (entry.m_namespace == m_module->m_namespaceMgr.getCurrentNamespace ())
-		{
-			if (!doxyBlock)
-				doxyBlock = m_module->m_doxyMgr.createBlock ();
-		
-			if (!doxyBlock->m_group)
-				doxyBlock->m_group = entry.m_group;
-		}
-	}
-
-	return doxyBlock;
-}
-
-void
-Parser::addDoxyComment (
-	const sl::StringRef& comment,
-	const Token::Pos& pos,
-	bool canAppend
-	)
-{
-	if (!m_doxyBlock || !canAppend)
-	{
-		m_doxyBlock = m_module->m_doxyMgr.createBlock ();
-		m_isDoxyBriefDescription = false;
-	}
-
-	sl::String* description = m_isDoxyBriefDescription ? &m_doxyBlock->m_briefDescription : &m_doxyBlock->m_detailedDescription;
-
-	DoxyLexer lexer;
-	lexer.create ("doxy", comment);
-	lexer.setLineCol (pos.m_line, pos.m_col + 3); // doxygen comments always start with 3 characters: ///, //!, /** /*!
-
-	int lastTokenLine = -1;
-
-	for (;;)
-	{
-		const DoxyToken* token = lexer.getToken ();
-		const DoxyToken* nextToken;
-		size_t i;
-		
-		switch (token->m_token)
-		{
-		case DoxyTokenKind_Error:
-			m_doxyBlock = NULL;
-			m_isDoxyBriefDescription = NULL;
-			return;
-
-		case DoxyTokenKind_Eof:
-			return;
-
-		case DoxyTokenKind_Enum:
-		case DoxyTokenKind_EnumValue:
-		case DoxyTokenKind_Struct:
-		case DoxyTokenKind_Union:
-		case DoxyTokenKind_Class:
-		case DoxyTokenKind_Alias:
-		case DoxyTokenKind_Variable:
-		case DoxyTokenKind_Field:
-		case DoxyTokenKind_Function:
-		case DoxyTokenKind_Property:
-		case DoxyTokenKind_Event:
-		case DoxyTokenKind_Typedef:
-		case DoxyTokenKind_Namespace:
-		case DoxyTokenKind_Footnote:
-			nextToken = lexer.getToken (1);
-			if (nextToken->m_token != DoxyTokenKind_Text)
-				break; // ignore
-
-			if (m_isDoxyBlockAssigned) // create a new one
-			{
-				m_doxyBlock = m_module->m_doxyMgr.createBlock ();
-				m_isDoxyBriefDescription = false;
-				description = m_isDoxyBriefDescription ? &m_doxyBlock->m_briefDescription : &m_doxyBlock->m_detailedDescription;
-			}
-
-			m_module->m_doxyMgr.setBlockTarget (m_doxyBlock, nextToken->m_data.m_string.getTrimmedString ());
-			m_isDoxyBlockAssigned = true;
-			lexer.nextToken ();
-			break;
-
-		case DoxyTokenKind_Group:
-		case DoxyTokenKind_DefGroup:
-		case DoxyTokenKind_AddToGroup:
-			nextToken = lexer.getToken (1);
-			if (nextToken->m_token != DoxyTokenKind_Text)
-				break; // ignore
-
-			i = nextToken->m_data.m_string.findOneOf (" \t");
-			if (i == -1)
-			{
-				m_doxyBlock = m_module->m_doxyMgr.getGroup (nextToken->m_data.m_string);
-			}
-			else
-			{
-				DoxyGroup* group = m_module->m_doxyMgr.getGroup (sl::StringRef (nextToken->m_data.m_string, i));
-				group->m_title = sl::StringRef (nextToken->m_data.m_string.cc () + i, nextToken->m_data.m_string.getLength () - i).getLeftTrimmedString ();
-
-				m_doxyBlock = group;
-			}
-
-			m_isDoxyBriefDescription = false;
-			lexer.nextToken ();
-			break;
-
-		case DoxyTokenKind_InGroup:
-			nextToken = lexer.getToken (1);
-			if (nextToken->m_token != DoxyTokenKind_Text)
-				break; // ignore
-
-			if (!m_doxyBlock->m_group)
-			{
-				DoxyGroup* group = m_module->m_doxyMgr.getGroup (nextToken->m_data.m_string);
-				m_doxyBlock->m_group = group;
-				if (m_doxyBlock->getBlockKind () == DoxyBlockKind_Group)
-				{
-					DoxyGroup* innerGroup = (DoxyGroup*) m_doxyBlock;
-					innerGroup->m_parentGroupListIt = group->addGroup (innerGroup);
-				}
-			}
-
-			lexer.nextToken ();
-			break;
-
-		case DoxyTokenKind_OpeningBrace:
-			if (m_doxyBlock->getBlockKind () == DoxyBlockKind_Group)
-			{
-				DoxyGroupStackEntry entry;
-				entry.m_group = (DoxyGroup*) m_doxyBlock;
-				entry.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace ();
-				m_doxyGroupStack.append (entry);
-			}
-
-			break;
-
-		case DoxyTokenKind_ClosingBrace:
-			m_doxyGroupStack.pop ();
-			break;
-
-		case DoxyTokenKind_Title:
-			nextToken = lexer.getToken (1);
-			if (nextToken->m_token != DoxyTokenKind_Text)
-				break; // ignore
-
-			m_doxyBlock->m_title = nextToken->m_data.m_string;
-			lexer.nextToken ();
-			break;
-	
-		case DoxyTokenKind_Brief:
-			m_isDoxyBriefDescription = true;
-			description = &m_doxyBlock->m_briefDescription;
-
-			if (!description->isEmpty ()) // user likely wants multi-paragraphed brief
-				description->append ('\n');
-			break;
-
-		case DoxyTokenKind_Text:
-			if (description->isEmpty ())
-			{				
-				description->copy (token->m_data.m_string.getLeftTrimmedString ());
-				m_doxyFirstIndent = m_doxyIndent;
-			}
-			else
-			{
-				size_t indentLength = m_doxyIndent.getLength ();
-				size_t firstIndentLength = m_doxyFirstIndent.getLength ();
-				size_t commonIndentLength = AXL_MIN (indentLength, firstIndentLength);
-				
-				size_t i = 0;
-				for (; i < commonIndentLength; i++)
-					if (m_doxyIndent [i] != m_doxyFirstIndent [i])
-						break;
-
-				if (i < indentLength)
-					description->append (m_doxyIndent.cc () + i, indentLength - i);
-
-				description->append (token->m_data.m_string);
-			}
-
-			break;
-
-		case '\n':
-			if (lastTokenLine != token->m_pos.m_line && m_isDoxyBriefDescription && !description->isEmpty ()) // empty line ends brief description
-			{
-				m_isDoxyBriefDescription = false;
-				description = &m_doxyBlock->m_detailedDescription;
-			}
-			else if (!description->isEmpty ())
-			{
-				description->append ('\n');
-			}
-
-			m_doxyIndent = token->m_data.m_string;
-			break;
-		}
-
-		lastTokenLine = token->m_pos.m_line;
-		lexer.nextToken ();
-	}
-}
-
 bool
 Parser::declare (Declarator* declarator)
 {
@@ -869,7 +648,7 @@ Parser::assignDeclarationAttributes (
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock ();
 
 	if (m_module->getCompileFlags () & ModuleCompileFlag_Documentation)
-		item->setDoxyBlock (doxyBlock ? doxyBlock : popDoxyBlock ());
+		item->setDoxyBlock (doxyBlock ? doxyBlock : m_doxyParser.popBlock ());
 
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;
@@ -906,8 +685,10 @@ Parser::declareTypedef (
 		}
 
 		m_attributeBlock = NULL;
-		m_doxyBlock = NULL;
 		m_lastDeclaredItem = prevItem;
+
+		m_doxyParser.popBlock ();
+
 		return true;
 	}
 
