@@ -67,6 +67,7 @@ struct jnc_Variant
 {
 	union
 	{
+		//! \unnamed{union}
 		int8_t m_int8;
 		uint8_t m_uint8;
 		int16_t m_int16;
