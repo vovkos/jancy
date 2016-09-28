@@ -306,9 +306,9 @@ jnc_Module_jit (jnc_Module* module)
 
 JNC_EXTERN_C
 const char*
-jnc_Module_createLlvmIrString_v (jnc_Module* module)
+jnc_Module_getLlvmIrString_v (jnc_Module* module)
 {
-	return *jnc::getTlsStringBuffer () = module->createLlvmIrString ();
+	return *jnc::getTlsStringBuffer () = module->getLlvmIrString ();
 }
 
 JNC_EXTERN_C

@@ -27,22 +27,6 @@ DoxyBlock::getRefId ()
 	return m_refId;
 }
 
-sl::String 
-DoxyBlock::getLinkedText ()
-{
-	if (!m_linkedText.isEmpty ())
-		return m_linkedText;
-
-	ASSERT (m_item);
-
-	if (m_item->getItemKind () != ModuleItemKind_Type)
-		m_linkedText = m_item->m_tag;
-	else
-		m_linkedText = ((Type*) m_item)->createDoxyLinkedText ();
-
-	return m_linkedText;
-}
-
 inline
 void
 appendXmlElementContents (
@@ -63,7 +47,7 @@ appendXmlElementContents (
 }
 
 sl::String
-DoxyBlock::createDescriptionString ()
+DoxyBlock::getDescriptionString ()
 {
 	sl::String string;
 

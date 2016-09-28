@@ -42,6 +42,12 @@ public:
 	{
 		return m_ptrTypeFlags;
 	}
+
+	sl::String
+	getArgString ();
+
+	sl::String
+	getArgDoxyLinkedText ();
 };
 
 //.............................................................................

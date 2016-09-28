@@ -135,7 +135,7 @@ public:
 
 protected:
 	sl::String
-	createDoxyLocationString ();
+	getDoxyLocationString ();
 };
 
 //.............................................................................

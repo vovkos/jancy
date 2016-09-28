@@ -111,19 +111,19 @@ public:
 		rt::GcHeap* gcHeap
 		);
 
-	virtual
-	sl::String
-	createDoxyLinkedText ()
-	{
-		return m_targetType->createDoxyLinkedText () + createTypeStringSuffix ();
-	}
-
 protected:
 	virtual
 	void
 	prepareTypeString ()
 	{
-		m_typeString = m_targetType->getTypeString () + createTypeStringSuffix ();
+		getTypeStringTuple ()->m_typeStringPrefix = m_targetType->getTypeString () + getPointerStringSuffix ();
+	}
+
+	virtual
+	void
+	prepareDoxyLinkedText ()
+	{
+		getTypeStringTuple ()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix () + getPointerStringSuffix ();
 	}
 
 	virtual
@@ -135,7 +135,7 @@ protected:
 	prepareLlvmDiType ();
 
 	sl::String 
-	createTypeStringSuffix ();
+	getPointerStringSuffix ();
 };
 
 //.............................................................................

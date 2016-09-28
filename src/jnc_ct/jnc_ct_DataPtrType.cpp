@@ -52,8 +52,24 @@ DataPtrType::createSignature (
 	return signature;
 }
 
+void
+DataPtrType::prepareTypeString ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_typeStringPrefix = m_targetType->getTypeStringPrefix () + getPointerStringSuffix ();
+	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix ();
+}
+
+void
+DataPtrType::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix () + getPointerStringSuffix ();
+	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix ();
+}
+
 sl::String
-DataPtrType::createTypeStringSuffix ()
+DataPtrType::getPointerStringSuffix ()
 {
 	sl::String string;
 
@@ -68,6 +84,9 @@ DataPtrType::createTypeStringSuffix ()
 		string += ' ';
 		string += getDataPtrTypeKindString (m_ptrTypeKind);
 	}
+
+	if (m_targetType->getTypeKind () == TypeKind_Array)
+		string += " array";
 
 	string += m_typeKind == TypeKind_DataRef ? "&" : "*";
 

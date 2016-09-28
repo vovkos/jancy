@@ -2499,7 +2499,9 @@ TypeMgr::createAbstractClassType ()
 	static sl::String typeString = "class";
 
 	ClassType* type = createClassType (ClassTypeKind_Abstract, "AbstractClass", "jnc.AbstractClass");
-	type->m_typeString = typeString;
+	TypeStringTuple* tuple = type->getTypeStringTuple ();
+	tuple->m_typeStringPrefix = typeString;
+	tuple->m_doxyLinkedTextPrefix = typeString;
 	type->ensureLayout ();
 	return type;
 }
@@ -2510,7 +2512,9 @@ TypeMgr::createAbstractDataType ()
 	static sl::String typeString = "anydata";
 
 	StructType* type = createStructType ("AbstractData", "jnc.AbstractData");
-	type->m_typeString = typeString;
+	TypeStringTuple* tuple = type->getTypeStringTuple ();
+	tuple->m_typeStringPrefix = typeString;
+	tuple->m_doxyLinkedTextPrefix = typeString;
 	type->createField ("!m_dummy", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout ();
 

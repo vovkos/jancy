@@ -42,23 +42,25 @@ void
 ImportPtrType::prepareTypeString ()
 {
 	ASSERT (m_targetType);
+	TypeStringTuple* tuple = getTypeStringTuple ();
 
 	if (m_actualType)
 	{
-		m_typeString = m_actualType->getTypeString ();
+		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix ();
+		tuple->m_typeStringSuffix = m_actualType->getTypeStringSuffix ();
 		return;
 	}
 
-	m_typeString = "import ";
+	tuple->m_typeStringPrefix = "import ";
 
 	if (m_typeModifiers)
 	{
-		m_typeString += getTypeModifierString (m_typeModifiers);
-		m_typeString += ' ';
+		tuple->m_typeStringPrefix += getTypeModifierString (m_typeModifiers);
+		tuple->m_typeStringPrefix += ' ';
 	}
 
-	m_typeString += m_targetType->getQualifiedName ();
-	m_typeString += '*';
+	tuple->m_typeStringPrefix += m_targetType->getQualifiedName ();
+	tuple->m_typeStringPrefix += '*';
 }
 
 //.............................................................................
@@ -73,21 +75,23 @@ ImportIntModType::ImportIntModType ()
 void
 ImportIntModType::prepareTypeString ()
 {
+	TypeStringTuple* tuple = getTypeStringTuple ();
+
 	if (m_actualType)
 	{
-		m_typeString = m_actualType->getTypeString ();
+		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix ();
 		return;
 	}
 
-	m_typeString = "import ";
+	tuple->m_typeStringPrefix = "import ";
 
 	if (m_typeModifiers)
 	{
-		m_typeString += getTypeModifierString (m_typeModifiers);
-		m_typeString += ' ';
+		tuple->m_typeStringPrefix += getTypeModifierString (m_typeModifiers);
+		tuple->m_typeStringPrefix += ' ';
 	}
 
-	m_typeString += m_importType->getQualifiedName ();
+	tuple->m_typeStringPrefix += m_importType->getQualifiedName ();
 }
 
 //.............................................................................

@@ -19,8 +19,26 @@ McSnapshotClassType::McSnapshotClassType ()
 void
 McSnapshotClassType::prepareTypeString ()
 {
-	m_typeString = m_targetType->getTypeModifierString ();
-	m_typeString.appendFormat ("mcsnapshot %s", m_targetType->getTargetType ()->getArgString ().cc ());
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_typeStringPrefix = "mcsnapshot ";
+	tuple->m_typeStringPrefix += m_targetType->getTypeModifierString ();
+	tuple->m_typeStringSuffix = m_targetType->getTargetType ()->getTypeStringSuffix ();
+}
+
+void
+McSnapshotClassType::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyLinkedTextPrefix = "mcsnapshot ";
+	tuple->m_doxyLinkedTextPrefix += m_targetType->getTypeModifierString ();
+	tuple->m_doxyLinkedTextSuffix = m_targetType->getTargetType ()->getDoxyLinkedTextSuffix ();
+}
+
+void
+McSnapshotClassType::prepareDoxyTypeString ()
+{
+	Type::prepareDoxyTypeString ();
+	getTypeStringTuple ()->m_doxyTypeString += m_targetType->getTargetType ()->getDoxyArgString ();
 }
 
 bool

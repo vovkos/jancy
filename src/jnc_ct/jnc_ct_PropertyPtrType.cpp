@@ -73,59 +73,66 @@ PropertyPtrType::createSignature (
 void
 PropertyPtrType::prepareTypeString ()
 {
-	m_typeString = m_targetType->getReturnType ()->getTypeString ();
-	m_typeString += ' ';
-	m_typeString += m_targetType->getTypeModifierString ();
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	Type* returnType = m_targetType->getReturnType ();
+
+	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
 
 	if (m_flags & PtrTypeFlag__AllMask)
 	{
-		m_typeString += getPtrTypeFlagString (m_flags);
-		m_typeString += ' ';
+		tuple->m_typeStringPrefix += ' ';
+		tuple->m_typeStringPrefix += getPtrTypeFlagString (m_flags);
 	}
 
 	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
 	{
-		m_typeString += getPropertyPtrTypeKindString (m_ptrTypeKind);
-		m_typeString += ' ';
+		tuple->m_typeStringPrefix += ' ';
+		tuple->m_typeStringPrefix += getPropertyPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	m_typeString += m_typeKind == TypeKind_PropertyRef ? "property&" : "property*";
+	tuple->m_typeStringPrefix += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
 
 	if (m_targetType->isIndexed ())
-	{
-		m_typeString += ' ';
-		m_typeString += m_targetType->getGetterType ()->getArgString ();
-	}
+		tuple->m_typeStringSuffix += m_targetType->getGetterType ()->getTypeStringSuffix ();
+
+	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
 }
 
-sl::String
-PropertyPtrType::createDoxyLinkedText ()
+void
+PropertyPtrType::prepareDoxyLinkedText ()
 {
-	sl::String string = m_targetType->getReturnType ()->getDoxyBlock ()->getLinkedText ();
-	string += ' ';
-	string += m_targetType->getTypeModifierString ();
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	Type* returnType = m_targetType->getReturnType ();
+
+	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
 
 	if (m_flags & PtrTypeFlag__AllMask)
 	{
-		string += getPtrTypeFlagString (m_flags);
-		string += ' ';
+		tuple->m_doxyLinkedTextPrefix += ' ';
+		tuple->m_doxyLinkedTextPrefix += getPtrTypeFlagString (m_flags);
 	}
 
 	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
 	{
-		string += getPropertyPtrTypeKindString (m_ptrTypeKind);
-		string += ' ';
+		tuple->m_doxyLinkedTextPrefix += ' ';
+		tuple->m_doxyLinkedTextPrefix += getPropertyPtrTypeKindString (m_ptrTypeKind);
 	}
 
-	string += m_typeKind == TypeKind_PropertyRef ? "property&" : "property*";
+	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
 
 	if (m_targetType->isIndexed ())
-	{
-		string += ' ';
-		string += m_targetType->getGetterType ()->createArgDoxyLinkedText ();
-	}
+		tuple->m_doxyLinkedTextSuffix += m_targetType->getGetterType ()->getDoxyLinkedTextSuffix ();
 
-	return string;
+	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
+}
+
+void
+PropertyPtrType::prepareDoxyTypeString ()
+{
+	Type::prepareDoxyTypeString ();
+
+	if (m_targetType->isIndexed ())
+		getTypeStringTuple ()->m_doxyTypeString += m_targetType->getGetterType ()->getDoxyArgString ();
 }
 
 void

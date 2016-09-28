@@ -137,76 +137,72 @@ PropertyType::createSignature (
 sl::String
 PropertyType::getTypeModifierString ()
 {
-	if (!m_typeModifierString.isEmpty ())
-		return m_typeModifierString;
+	sl::String string;
 
 	if (m_flags & PropertyTypeFlag_Const)
-		m_typeModifierString += "const ";
+		string += "const ";
 
 	if (m_flags & PropertyTypeFlag_Bindable)
-		m_typeModifierString += "bindable ";
+		string += "bindable ";
 
 	if (isIndexed ())
-		m_typeModifierString += "indexed ";
+		string += "indexed ";
 
-	return m_typeModifierString;
+	if (!string.isEmpty ())
+		string.reduceLength (1);
+
+	return string;
 }
 
 void
 PropertyType::prepareTypeString ()
 {
+	TypeStringTuple* tuple = getTypeStringTuple ();
 	Type* returnType = getReturnType ();
 
-	m_typeString = returnType->getTypeString ();
-	m_typeString += ' ';
-	m_typeString += getTypeModifierString ();
-	m_typeString += "property";
+	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
+
+	sl::String modifierString = getTypeModifierString ();
+	if (!modifierString.isEmpty ())
+	{
+		tuple->m_typeStringPrefix += ' ';
+		tuple->m_typeStringPrefix += modifierString;
+	}
+
+	tuple->m_typeStringPrefix += " property";
 	
 	if (isIndexed ())
-	{
-		m_typeString += ' ';
-		m_typeString += m_getterType->getArgString ();
-	}
+		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix ();
+
+	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
 }
 
-sl::String 
-PropertyType::createDoxyLinkedText ()
+void
+PropertyType::prepareDoxyLinkedText ()
 {
+	TypeStringTuple* tuple = getTypeStringTuple ();
 	Type* returnType = getReturnType ();
 
-	sl::String string = returnType->getDoxyBlock ()->getLinkedText ();
-	string += ' ';
-	string += getTypeModifierString ();
-	string += "property";
+	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
+	tuple->m_doxyLinkedTextPrefix += ' ';
+	tuple->m_doxyLinkedTextPrefix += getTypeModifierString ();
+	tuple->m_doxyLinkedTextPrefix += "property";
 	
 	if (isIndexed ())
-	{
-		string += ' ';
-		string += m_getterType->createArgDoxyLinkedText ();
-	}
+		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix ();
 
-	return string;
+	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
 }
 
-sl::String
-PropertyType::createDeclarationString (const char* name)
+void
+PropertyType::prepareDoxyTypeString ()
 {
-	Type* returnType = getReturnType ();
-
-	sl::String string = returnType->getTypeString ();
-	string += ' ';
-	string += getTypeModifierString ();
-	string += "property ";
-	string += name;
+	Type::prepareDoxyTypeString ();
 
 	if (isIndexed ())
-	{
-		string += ' ';
-		string += m_getterType->getArgString ();
-	}
-
-	return string;
+		getTypeStringTuple ()->m_doxyTypeString += m_getterType->getDoxyArgString ();
 }
+
 //.............................................................................
 
 } // namespace ct

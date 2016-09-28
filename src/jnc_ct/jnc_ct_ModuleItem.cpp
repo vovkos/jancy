@@ -30,7 +30,7 @@ ModuleItemDecl::ModuleItemDecl ()
 }
 
 sl::String
-ModuleItemDecl::createDoxyLocationString ()
+ModuleItemDecl::getDoxyLocationString ()
 {
 	if (!m_parentUnit)
 		return sl::String ();

@@ -179,30 +179,111 @@ Type::Type ()
 	m_size = 0;
 	m_alignment = 1;
 	m_llvmType = NULL;
+	m_typeStringTuple = NULL;
 	m_simplePropertyTypeTuple = NULL;
 	m_functionArgTuple = NULL;
 	m_dataPtrTypeTuple = NULL;
 	m_boxClassType = NULL;
 }
 
-sl::String
-Type::getTypeString ()
+Type::~Type ()
 {
-	if (!m_typeString.isEmpty ())
-		return m_typeString;
+	if (m_typeStringTuple)
+		AXL_MEM_DELETE (m_typeStringTuple);
+}
 
-	prepareTypeString ();
-	ASSERT (!m_typeString.isEmpty ());
-	return m_typeString;
+TypeStringTuple*
+Type::getTypeStringTuple ()
+{
+	if (!m_typeStringTuple)
+		m_typeStringTuple = AXL_MEM_NEW (TypeStringTuple);
+
+	return m_typeStringTuple;
 }
 
 sl::String
-Type::createDeclarationString (const char* name)
+Type::getTypeString ()
 {
-	sl::String string = getTypeString ();
-	string += ' ';
-	string += name;
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_typeStringPrefix.isEmpty ())
+	{
+		prepareTypeString ();
+		ASSERT (!tuple->m_typeStringPrefix.isEmpty ());
+	}
+
+	sl::String string = tuple->m_typeStringPrefix;
+	if (!tuple->m_typeStringSuffix.isEmpty ())
+	{
+		string += ' ';
+		string += tuple->m_typeStringSuffix;
+	}
+
 	return string;
+}
+
+sl::String
+Type::getTypeStringPrefix ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_typeStringPrefix.isEmpty ())
+	{
+		prepareTypeString ();
+		ASSERT (!tuple->m_typeStringPrefix.isEmpty ());
+	}
+
+	return tuple->m_typeStringPrefix;
+}
+
+sl::String
+Type::getTypeStringSuffix ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_typeStringPrefix.isEmpty ()) // this is not a typo, we still need to check prefix string!
+	{
+		prepareTypeString ();
+		ASSERT (!tuple->m_typeStringPrefix.isEmpty ());
+	}
+
+	return tuple->m_typeStringSuffix;
+}
+
+sl::String
+Type::getDoxyTypeString ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_doxyTypeString.isEmpty ())
+	{
+		prepareDoxyTypeString ();
+		ASSERT (!tuple->m_doxyTypeString.isEmpty ());
+	}
+
+	return tuple->m_doxyTypeString;
+}
+
+sl::String
+Type::getDoxyLinkedTextPrefix ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_doxyLinkedTextPrefix.isEmpty ())
+	{
+		prepareDoxyLinkedText ();
+		ASSERT (!tuple->m_doxyLinkedTextPrefix.isEmpty ());
+	}
+
+	return tuple->m_doxyLinkedTextPrefix;
+}
+
+sl::String
+Type::getDoxyLinkedTextSuffix ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	if (tuple->m_doxyLinkedTextPrefix.isEmpty ()) // this is not a typo, we still need to check prefix string!
+	{
+		prepareDoxyLinkedText ();
+		ASSERT (!tuple->m_doxyLinkedTextPrefix.isEmpty ());
+	}
+
+	return tuple->m_doxyLinkedTextSuffix;
 }
 
 llvm::Type*
@@ -297,8 +378,35 @@ Type::prepareTypeString ()
 		"double",
 	};
 
-	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);
-	m_typeString = stringTable [m_typeKind];
+	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);	
+	getTypeStringTuple ()->m_typeStringPrefix = stringTable [m_typeKind];
+}
+
+void
+Type::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyLinkedTextPrefix = getTypeStringPrefix ();
+	tuple->m_doxyLinkedTextSuffix = getTypeStringSuffix ();
+}
+
+void
+Type::prepareDoxyTypeString ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyTypeString = "<type>";
+	tuple->m_doxyTypeString += getDoxyLinkedTextPrefix ();
+	tuple->m_doxyTypeString += "</type>\n";
+
+	#pragma AXL_TODO ("add compile-option for whether to use doxy-linked-text instead of plain-text")
+	
+	sl::String suffix = getTypeStringSuffix ();
+	if (!suffix.isEmpty ()) // suffix should be ready by now
+	{
+		tuple->m_doxyTypeString += "<argsstring>";
+		tuple->m_doxyTypeString += suffix;
+		tuple->m_doxyTypeString += "</argsstring>\n";
+	}
 }
 
 void
@@ -528,19 +636,17 @@ Type::markGcRoots (
 
 //.............................................................................
 
-sl::String
-NamedType::createDoxyLinkedText ()
+void
+NamedType::prepareDoxyLinkedText ()
 {
-	sl::String typeString = getTypeString ();
-
 	if (!m_parentUnit || m_parentUnit->getLib ()) // don't reference imported libraries
-		return typeString;
+	{
+		Type::prepareDoxyLinkedText ();
+		return;
+	}
 
 	sl::String refId = getDoxyBlock ()->getRefId ();	
-
-	sl::String string;
-	string.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), typeString.cc ());
-	return string;
+	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
 }
 
 //.............................................................................
@@ -570,15 +676,14 @@ Typedef::generateDocumentation (
 {
 	itemXml->format (
 		"<memberdef kind='typedef' id='%s'>\n"
-		"<name>%s</name>\n"
-		"<type>%s</type>\n", 
+		"<name>%s</name>\n",
 		getDoxyBlock ()->getRefId ().cc (),
-		m_name.cc (),
-		m_type->getDoxyBlock ()->getLinkedText ().cc ()
+		m_name.cc ()
 		);
-
-	itemXml->append (getDoxyBlock ()->createDescriptionString ());
-	itemXml->append (createDoxyLocationString ());
+	
+	itemXml->append (m_type->getDoxyTypeString ());
+	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 
 	return true;
@@ -586,18 +691,18 @@ Typedef::generateDocumentation (
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sl::String
-TypedefShadowType::createDoxyLinkedText ()
+void
+TypedefShadowType::prepareDoxyLinkedText ()
 {
 	Unit* unit = m_typedef->getParentUnit ();
 	if (!unit || unit->getLib ()) // don't reference imported libraries
-		return m_tag;	
+	{
+		Type::prepareDoxyLinkedText ();
+		return;
+	}
 
 	sl::String refId = m_typedef->getDoxyBlock ()->getRefId ();	
-
-	sl::String string;
-	string.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
-	return string;
+	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
 }
 
 bool

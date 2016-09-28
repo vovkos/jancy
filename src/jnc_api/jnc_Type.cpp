@@ -289,12 +289,16 @@ jnc_Type_getTypeString (jnc_Type* type)
 
 JNC_EXTERN_C
 const char*
-jnc_Type_createDeclarationString_v (
-	jnc_Type* type,
-	const char* name
-	)
-{
-	return *jnc::getTlsStringBuffer () = type->createDeclarationString (name);
+jnc_Type_getTypeStringPrefix (jnc_Type* type)
+{	
+	return type->getTypeStringPrefix ();
+}
+
+JNC_EXTERN_C
+const char*
+jnc_Type_getTypeStringSuffix (jnc_Type* type)
+{	
+	return type->getTypeStringSuffix ();
 }
 
 JNC_EXTERN_C

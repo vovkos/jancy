@@ -30,6 +30,22 @@ ArrayType::getRootType ()
 	return m_rootType;
 }
 
+void
+ArrayType::prepareTypeString ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_typeStringPrefix = getRootType ()->getTypeString ();
+	tuple->m_typeStringSuffix = createDimensionString ();
+}
+
+void
+ArrayType::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyLinkedTextPrefix = getRootType ()->getDoxyLinkedTextPrefix ();
+	tuple->m_doxyLinkedTextSuffix = createDimensionString ();
+}
+
 sl::String
 ArrayType::createDimensionString ()
 {
@@ -51,19 +67,6 @@ ArrayType::createDimensionString ()
 	return string;
 }
 
-sl::String
-ArrayType::createDeclarationString (const char* name)
-{
-	Type* rootType = getRootType ();
-
-	sl::String string = rootType->getTypeString ();
-	string += ' ';
-	string += name;
-	string += ' ';
-	string += createDimensionString ();
-	return string;
-}
-
 bool
 ArrayType::calcLayout ()
 {
@@ -74,7 +77,11 @@ ArrayType::calcLayout ()
 	// ensure update
 
 	m_rootType = NULL;
-	m_typeString.clear ();
+	if (m_typeStringTuple)
+	{
+		AXL_MEM_DELETE (m_typeStringTuple);
+		m_typeStringTuple = NULL;
+	}
 
 	uint_t rootTypeFlags = getRootType ()->getFlags ();
 	if (rootTypeFlags & TypeFlag_Pod)

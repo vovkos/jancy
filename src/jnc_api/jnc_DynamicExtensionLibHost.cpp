@@ -250,7 +250,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 	jnc_Module_calcLayout,
 	jnc_Module_compile,
 	jnc_Module_jit,
-	jnc_Module_createLlvmIrString_v,
+	jnc_Module_getLlvmIrString_v,
 
 };
 

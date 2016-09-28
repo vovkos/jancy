@@ -337,7 +337,7 @@ Namespace::generateMemberDocumentation (
 
 		sectionDef.append ("<memberdef kind='footnote'>\n");
 		sectionDef.appendFormat ("<name>%s</name>\n", footnote->getRefId ().cc ());
-		sectionDef.append (footnote->createDescriptionString ());
+		sectionDef.append (footnote->getDescriptionString ());
 		sectionDef.append ("</memberdef>\n");
 	}
 	
@@ -415,8 +415,8 @@ GlobalNamespace::generateDocumentation (
 	sl::String memberXml;
 	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
-	itemXml->append (getDoxyBlock ()->createDescriptionString ());
-	itemXml->append (createDoxyLocationString ());
+	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 
 	return true;

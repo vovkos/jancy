@@ -66,22 +66,11 @@ public:
 	}
 
 	virtual
-	sl::String
-	createDeclarationString (const char* name);
-
-	virtual
 	void
 	markGcRoots (
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
-
-	virtual
-	sl::String
-	createDoxyLinkedText ()
-	{
-		return getRootType ()->createDoxyLinkedText () + " " + createDimensionString ();
-	}
 
 protected:
 	virtual
@@ -90,10 +79,11 @@ protected:
 	
 	virtual
 	void
-	prepareTypeString ()
-	{
-		m_typeString = getRootType ()->getTypeString () + " " + createDimensionString ();
-	}
+	prepareTypeString ();
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
 
 	sl::String
 	createDimensionString ();

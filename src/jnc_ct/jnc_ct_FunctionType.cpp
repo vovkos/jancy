@@ -194,170 +194,128 @@ FunctionType::createSignature (
 }
 
 sl::String
-FunctionType::getArgString ()
-{
-	if (!m_argString.isEmpty ())
-		return m_argString;
-
-	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
-
-	m_argString = "(";
-
-	if (!m_argArray.isEmpty ())
-	{
-		FunctionArg* arg = m_argArray [0];
-		m_argString += arg->getType ()->getTypeString ();
-
-		if (arg->getStorageKind () == StorageKind_This)
-		{
-			m_argString += " this";
-		}
-		else if (isUserType)
-		{
-				if (!arg->getName ().isEmpty ())
-					m_argString.appendFormat (" %s", arg->getName ().cc ());
-
-				if (!arg->getInitializer ().isEmpty ())
-					m_argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
-		}
-
-		size_t argCount = m_argArray.getCount ();
-		for (size_t i = 1; i < argCount; i++)
-		{
-			arg = m_argArray [i];
-
-			m_argString.appendFormat (", %s", arg->getType ()->getTypeString ().cc ());
-
-			if (isUserType)
-			{
-				if (!arg->getName ().isEmpty ())
-					m_argString.appendFormat (" %s", arg->getName ().cc ());
-
-				if (!arg->getInitializer ().isEmpty ())
-					m_argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
-			}
-		}
-
-		if (m_flags & FunctionTypeFlag_VarArg)
-			m_argString += ", ";
-	}
-
-	if (!(m_flags & FunctionTypeFlag_VarArg))
-		m_argString += ")";
-	else
-		m_argString += "...)";
-
-	return m_argString;
-}
-
-sl::String
-FunctionType::createArgDoxyLinkedText ()
-{
-	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
-
-	sl::String argString = "(";
-
-	if (!m_argArray.isEmpty ())
-	{
-		FunctionArg* arg = m_argArray [0];
-		argString += arg->getType ()->getDoxyBlock ()->getLinkedText ();
-
-		if (arg->getStorageKind () == StorageKind_This)
-		{
-			argString += " this";
-		}
-		else if (isUserType)
-		{
-				if (!arg->getName ().isEmpty ())
-					argString.appendFormat (" %s", arg->getName ().cc ());
-
-				if (!arg->getInitializer ().isEmpty ())
-					argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
-		}
-
-		size_t argCount = m_argArray.getCount ();
-		for (size_t i = 1; i < argCount; i++)
-		{
-			arg = m_argArray [i];
-
-			argString.appendFormat (", %s", arg->getType ()->getDoxyBlock ()->getLinkedText ().cc ());
-
-			if (isUserType)
-			{
-				if (!arg->getName ().isEmpty ())
-					argString.appendFormat (" %s", arg->getName ().cc ());
-
-				if (!arg->getInitializer ().isEmpty ())
-					argString.appendFormat (" = %s", arg->getInitializerString ().cc ());
-			}
-		}
-
-		if (m_flags & FunctionTypeFlag_VarArg)
-			argString += ", ";
-	}
-
-	if (!(m_flags & FunctionTypeFlag_VarArg))
-		argString += ")";
-	else
-		argString += "...)";
-
-	return argString;
-}
-
-sl::String
 FunctionType::getTypeModifierString ()
 {
-	if (!m_typeModifierString.isEmpty ())
-		return m_typeModifierString;
+	sl::String string;
 
 	if (m_flags & FunctionTypeFlag_ErrorCode)
-		m_typeModifierString += "errorcode ";
+		string += "errorcode ";
 
 	if (!m_callConv->isDefault ())
 	{
-		m_typeModifierString = m_callConv->getCallConvDisplayString ();
-		m_typeModifierString += ' ';
+		string = m_callConv->getCallConvDisplayString ();
+		string += ' ';
 	}
 
 	if (m_flags & FunctionTypeFlag_Unsafe)
-		m_typeModifierString += "unsafe ";
+		string += "unsafe ";
 
 	if (m_flags & FunctionTypeFlag_Automaton)
-		m_typeModifierString += "automaton ";
+		string += "automaton ";
 
-	return m_typeModifierString;
+	if (!string.isEmpty ())
+		string.reduceLength (1);
+
+	return string;
 }
 
 void
 FunctionType::prepareTypeString ()
 {
-	m_typeString = m_returnType->getTypeString ();
-	m_typeString += ' ';
-	m_typeString += getTypeModifierString ();
-	m_typeString += getArgString ();
+	TypeStringTuple* tuple = getTypeStringTuple ();
+
+	tuple->m_typeStringPrefix = m_returnType->getTypeStringPrefix ();
+
+	sl::String modifierString = getTypeModifierString ();
+	if (!modifierString.isEmpty ())
+	{
+		tuple->m_typeStringPrefix += ' ';
+		tuple->m_typeStringPrefix += modifierString;
+	}
+
+	tuple->m_typeStringSuffix = "(";
+
+	if (!m_argArray.isEmpty ())
+	{
+		tuple->m_typeStringSuffix += m_argArray [0]->getArgString ();
+
+		size_t count = m_argArray.getCount ();
+		if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
+		{
+			ASSERT (count >= 2);
+			count--;
+		}
+
+		for (size_t i = 1; i < count; i++)
+		{
+			tuple->m_doxyLinkedTextSuffix += ", ";
+			tuple->m_typeStringSuffix += m_argArray [i]->getArgString ();
+		}
+
+		if (m_flags & FunctionTypeFlag_VarArg)
+			tuple->m_typeStringSuffix += ", ";
+	}
+
+	if (!(m_flags & FunctionTypeFlag_VarArg))
+		tuple->m_typeStringSuffix += ")";
+	else
+		tuple->m_typeStringSuffix += "...)";
+
+	tuple->m_typeStringSuffix += m_returnType->getTypeStringSuffix ();
 }
 
-sl::String
-FunctionType::createDoxyLinkedText ()
+void
+FunctionType::prepareDoxyLinkedText ()
 {
-	sl::String string = m_returnType->getDoxyBlock ()->getLinkedText ();
-	string += ' ';
-	string += getTypeModifierString ();
-	string += createArgDoxyLinkedText ();
+	TypeStringTuple* tuple = getTypeStringTuple ();
 
-	return string;
+	tuple->m_doxyLinkedTextPrefix = m_returnType->getDoxyLinkedTextPrefix ();
+
+	sl::String modifierString = getTypeModifierString ();
+	if (!modifierString.isEmpty ())
+	{
+		tuple->m_doxyLinkedTextPrefix += ' ';
+		tuple->m_doxyLinkedTextPrefix += getTypeModifierString ();
+	}
+
+	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
+
+	tuple->m_doxyLinkedTextSuffix = "(";
+
+	if (!m_argArray.isEmpty ())
+	{
+		tuple->m_doxyLinkedTextSuffix += m_argArray [0]->getArgDoxyLinkedText ();
+
+		size_t count = m_argArray.getCount ();
+		if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
+		{
+			ASSERT (count >= 2);
+			count--;
+		}
+
+		for (size_t i = 1; i < count; i++)
+		{
+			tuple->m_doxyLinkedTextSuffix += ", ";
+			tuple->m_doxyLinkedTextSuffix += m_argArray [i]->getArgDoxyLinkedText ();
+		}
+
+		if (m_flags & FunctionTypeFlag_VarArg)
+			tuple->m_doxyLinkedTextSuffix += ", ";
+	}
+
+	if (!(m_flags & FunctionTypeFlag_VarArg))
+		tuple->m_doxyLinkedTextSuffix += ")";
+	else
+		tuple->m_doxyLinkedTextSuffix += "...)";
+
+	tuple->m_doxyLinkedTextSuffix += m_returnType->getDoxyLinkedTextSuffix ();
 }
 
-sl::String
-FunctionType::createDeclarationString (const char* name)
+void
+FunctionType::prepareDoxyTypeString ()
 {
-	sl::String string = m_returnType->getTypeString ();
-	string += ' ';
-	string += getTypeModifierString ();
-	string += name;
-	string += ' ';
-	string += getArgString ();
-	return string;
+	Type::prepareDoxyTypeString ();
+	getTypeStringTuple ()->m_doxyTypeString += getDoxyArgString ();
 }
 
 void
@@ -411,39 +369,53 @@ FunctionType::calcLayout ()
 	return true;
 }
 
-void
-FunctionType::generateArgDocumentation (sl::String* itemXml)
+sl::String
+FunctionType::getDoxyArgString ()
 {
+	sl::String string;
+
 	size_t count = m_argArray.getCount ();
+	if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
+	{
+		ASSERT (count >= 2);
+		count--;
+	}
+
 	for (size_t i = 0; i < count; i++)
 	{
 		FunctionArg* arg = m_argArray [i];
 		if (arg->getStorageKind () == StorageKind_This)
 			continue;
 
-		itemXml->appendFormat (
+		Type* type = arg->getType ();
+
+		string.appendFormat (
 			"<param>\n"
-			"    <type>%s</type>\n"
-			"    <declname>%s</declname>\n",
-			arg->getType ()->getDoxyBlock ()->getLinkedText ().cc (),
-			arg->getName ().cc ()
+			"<declname>%s</declname>\n"
+			"<type>%s</type>\n"
+			"<array>%s</array>\n",
+			arg->getName ().cc (),
+			type->getDoxyLinkedTextPrefix ().cc (),
+			type->getTypeStringSuffix ().cc ()
 			);
 
 		if (!arg->getInitializer ().isEmpty ())
-			itemXml->appendFormat (
-				"    <defval>= %s</defval>\n", 
+			string.appendFormat (
+				"<defval>%s</defval>\n", 
 				arg->getInitializerString ().cc ()
 				);
 
-		itemXml->append ("</param>\n");
+		string.append ("</param>\n");
 	}
 
 	if (m_flags & FunctionTypeFlag_VarArg)
-		itemXml->append (
+		string.append (
 			"<param>\n"
-			"    <type>...</type>\n"
+			"<type>...</type>\n"
 			"</param>\n"
 			);
+
+	return string;
 }
 
 //.............................................................................

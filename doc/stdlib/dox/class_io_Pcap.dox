@@ -9,7 +9,7 @@
 	A typical sequence of steps when working with ``io.Pcap`` looks something like this:
 
 	* Assign your event handler using ``m_onPcapEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
-	* Open a live capture using ``openDevice`` or a capture file (*.pcap) using ``openFile`` method;
+	* Open a live capture using ``openDevice`` or a capture file (\*.pcap) using ``openFile`` method;
 	* When ``ReadyRead`` event is fired, read packet using ``read`` method;
 	* If you opened a live capture, you can also inject packets with ``write`` method;
 	* Close Pcap object when no longer needed with ``close`` method.
@@ -54,7 +54,7 @@
 
 	\fn openFile
 
-		Opens a previously captured *.pcap file specified by ``fileName`` argument.
+		Opens a previously captured \*.pcap file specified by ``fileName`` argument.
 
 		The second argument, ``filter``, has the same meaning as in ``openDevice`` method.
 

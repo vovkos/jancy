@@ -55,7 +55,7 @@ ClassPtrType::createSignature (
 }
 
 sl::String
-ClassPtrType::createTypeStringSuffix ()
+ClassPtrType::getPointerStringSuffix ()
 {
 	sl::String string;
 

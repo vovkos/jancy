@@ -670,7 +670,7 @@ jnc_Module_JitFunc (jnc_Module* module);
 
 typedef
 const char*
-jnc_Module_createLlvmIrStringFunc (jnc_Module* module);
+jnc_Module_getLlvmIrStringFunc (jnc_Module* module);
 
 // Runtime
 
@@ -1194,7 +1194,7 @@ struct jnc_ModuleFuncTable
 	jnc_Module_CalcLayoutFunc* m_calcLayoutFunc;
 	jnc_Module_CompileFunc* m_compileFunc;
 	jnc_Module_JitFunc* m_jitFunc;
-	jnc_Module_createLlvmIrStringFunc* m_createLlvmIrStringFunc;
+	jnc_Module_getLlvmIrStringFunc* m_getLlvmIrStringFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

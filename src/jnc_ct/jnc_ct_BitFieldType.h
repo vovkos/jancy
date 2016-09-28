@@ -64,6 +64,10 @@ protected:
 
 	virtual
 	void
+	prepareDoxyLinkedText ();
+
+	virtual
+	void
 	prepareLlvmType ()
 	{
 		m_llvmType = m_baseType->getLlvmType ();

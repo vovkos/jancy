@@ -16,7 +16,7 @@ bool LlvmIr::build(jnc::Module* module)
 {
 	clear ();
 
-	appendText (module->createLlvmIrString_v ());
+	appendText (module->getLlvmIrString_v ());
 
 	return true;
 }

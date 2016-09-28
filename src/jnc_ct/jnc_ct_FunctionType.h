@@ -39,8 +39,6 @@ protected:
 	sl::Array <FunctionArg*> m_argArray;
 	sl::Array <uint_t> m_argFlagArray; // args can be shared between func types
 	sl::String m_argSignature;
-	sl::String m_typeModifierString;
-	sl::String m_argString;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
 	Function* m_abstractFunction;
@@ -76,9 +74,6 @@ public:
 
 	sl::String
 	getArgSignature ();
-
-	sl::String
-	getArgString ();
 
 	sl::String
 	getTypeModifierString ();
@@ -182,27 +177,24 @@ public:
 	}
 
 	virtual
-	sl::String
-	createDeclarationString (const char* name);
-
-	virtual
-	sl::String
-	createDoxyLinkedText ();
-
-	virtual
 	bool
 	compile ();
 
-	void
-	generateArgDocumentation (sl::String* itemXml);
-
 	sl::String
-	createArgDoxyLinkedText ();
+	getDoxyArgString ();
 
 protected:
 	virtual
 	void
 	prepareTypeString ();
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
+
+	virtual
+	void
+	prepareDoxyTypeString ();
 
 	virtual
 	void

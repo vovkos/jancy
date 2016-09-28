@@ -44,12 +44,12 @@ enum TypeSizeLimit
 
 enum TypeFlag
 {
-	TypeFlag_Named     = 0x0100,
-	TypeFlag_Child     = 0x0200, // constructor has an implicit 'parent' arg
-	TypeFlag_Pod       = 0x0400, // plain-old-data
-	TypeFlag_GcRoot    = 0x0800, // is or contains gc-traceable pointers
-	TypeFlag_StructRet = 0x1000, // return through hidden 1st arg (gcc32 callconv)
-	TypeFlag_NoStack   = 0x2000, // try to avoid allocation on stack
+	TypeFlag_Named           = 0x0100,
+	TypeFlag_Child           = 0x0200, // constructor has an implicit 'parent' arg
+	TypeFlag_Pod             = 0x0400, // plain-old-data
+	TypeFlag_GcRoot          = 0x0800, // is or contains gc-traceable pointers
+	TypeFlag_StructRet       = 0x1000, // return through hidden 1st arg (gcc32 callconv)
+	TypeFlag_NoStack         = 0x2000, // try to avoid allocation on stack
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -180,6 +180,17 @@ getLlvmTypeString (llvm::Type* llvmType);
 
 //.............................................................................
 
+struct TypeStringTuple
+{
+	sl::String m_typeStringPrefix;
+	sl::String m_typeStringSuffix;
+	sl::String m_doxyTypeString;
+	sl::String m_doxyLinkedTextPrefix;
+	sl::String m_doxyLinkedTextSuffix;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class Type: public ModuleItem
 {
 	friend class TypeMgr;
@@ -192,17 +203,20 @@ protected:
 	size_t m_alignment;
 	sl::StringHashTableMapIterator <Type*> m_typeMapIt;
 	sl::String m_signature;
-	sl::String m_typeString;
+
 	llvm::Type* m_llvmType;
 	llvm::DIType m_llvmDiType;
 
-	ClassType* m_boxClassType;
+	TypeStringTuple* m_typeStringTuple;
 	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
 	FunctionArgTuple* m_functionArgTuple;
 	DataPtrTypeTuple* m_dataPtrTypeTuple;
+	ClassType* m_boxClassType;
 
 public:
 	Type ();
+
+	~Type ();
 
 	TypeKind
 	getTypeKind ()
@@ -244,20 +258,24 @@ public:
 	getTypeString ();
 
 	sl::String
+	getTypeStringPrefix ();
+
+	sl::String
+	getTypeStringSuffix ();
+
+	sl::String
+	getDoxyTypeString ();
+
+	sl::String
+	getDoxyLinkedTextPrefix ();
+
+	sl::String
+	getDoxyLinkedTextSuffix ();
+
+	sl::String
 	getLlvmTypeString ()
 	{
 		return ct::getLlvmTypeString (getLlvmType ());
-	}
-
-	virtual
-	sl::String
-	createDeclarationString (const char* name);
-
-	virtual
-	sl::String
-	createDoxyLinkedText ()
-	{
-		return getTypeString ();
 	}
 
 	llvm::Type*
@@ -328,9 +346,20 @@ public:
 		);
 
 protected:
+	TypeStringTuple*
+	getTypeStringTuple ();
+
 	virtual
 	void
 	prepareTypeString ();
+
+	virtual
+	void
+	prepareDoxyTypeString ();
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
 
 	virtual
 	void
@@ -363,16 +392,17 @@ public:
 		m_namespaceKind = NamespaceKind_Type;
 	}
 
+protected:
 	virtual
 	void
 	prepareTypeString ()
 	{
-		m_typeString = m_tag;
+		getTypeStringTuple ()->m_typeStringPrefix = m_tag;
 	}
 
 	virtual
-	sl::String
-	createDoxyLinkedText ();
+	void
+	prepareDoxyLinkedText ();
 };
 
 //.............................................................................
@@ -432,17 +462,17 @@ public:
 		return m_typedef;
 	}
 
-	virtual
-	sl::String
-	createDoxyLinkedText ();
-
 protected:
 	virtual
 	void
 	prepareTypeString ()
 	{
-		m_typeString = m_tag;
+		getTypeStringTuple ()->m_typeStringPrefix = m_tag;
 	}
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
 
 	virtual
 	void

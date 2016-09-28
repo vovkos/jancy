@@ -117,14 +117,11 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ()
-	{
-		m_typeString.format (
-			"reactor %s %s",
-			m_qualifiedName.cc (),
-			m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getArgString ().cc ()
-			);
-	}
+	prepareTypeString ();
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
 
 	virtual
 	bool

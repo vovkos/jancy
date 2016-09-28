@@ -699,7 +699,7 @@ Module::createDefaultConstructor ()
 }
 
 sl::String
-Module::createLlvmIrString ()
+Module::getLlvmIrString ()
 {
 	::std::string string;
 	llvm::raw_string_ostream stream (string);

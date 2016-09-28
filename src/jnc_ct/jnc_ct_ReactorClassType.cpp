@@ -17,6 +17,22 @@ ReactorClassType::ReactorClassType ()
 	memset (m_methodArray, 0, sizeof (m_methodArray));
 }
 
+void
+ReactorClassType::prepareTypeString ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_typeStringPrefix.format ("reactor %s", m_qualifiedName.cc ());
+	tuple->m_typeStringSuffix = m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getTypeStringSuffix ();
+}
+
+void
+ReactorClassType::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+	tuple->m_doxyLinkedTextPrefix.format ("reactor %s", m_qualifiedName.cc ());
+	tuple->m_doxyLinkedTextSuffix = m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getDoxyLinkedTextSuffix ();
+}
+
 bool
 ReactorClassType::setBody (sl::BoxList <Token>* tokenList)
 {

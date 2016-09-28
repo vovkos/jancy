@@ -75,7 +75,6 @@ protected:
 	PropertyPtrTypeTuple* m_propertyPtrTypeTuple;
 
 	sl::String m_bindableEventName;
-	sl::String m_typeModifierString;
 
 public:
 	PropertyType ();
@@ -191,18 +190,18 @@ public:
 		uint_t flags
 		);
 
-	virtual
-	sl::String
-	createDeclarationString (const char* name);
-
-	virtual
-	sl::String
-	createDoxyLinkedText ();
-
 protected:
 	virtual
 	void
 	prepareTypeString ();
+
+	virtual
+	void
+	prepareDoxyLinkedText ();
+
+	virtual
+	void
+	prepareDoxyTypeString ();
 
 	virtual
 	void

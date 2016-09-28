@@ -72,6 +72,14 @@ protected:
 	void
 	prepareTypeString ();
 
+	virtual 
+	void
+	prepareDoxyLinkedText ();
+
+	virtual 
+	void
+	prepareDoxyTypeString ();
+
 	virtual
 	bool
 	calcLayout ()

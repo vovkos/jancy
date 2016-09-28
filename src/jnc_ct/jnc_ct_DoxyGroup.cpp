@@ -76,7 +76,7 @@ DoxyGroup::generateDocumentation (
 		itemXml->append ('\n');
 	}
 
-	itemXml->append (createDescriptionString ());
+	itemXml->append (getDescriptionString ());
 	itemXml->append ("</compounddef>\n");
 
 	return true;

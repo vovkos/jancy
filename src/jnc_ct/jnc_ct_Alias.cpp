@@ -22,7 +22,7 @@ Alias::generateDocumentation (
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getDoxyBlock ()->getLinkedText ().cc ());
+	itemXml->append (m_type->getDoxyTypeString ());
  
 	ASSERT (!m_initializer.isEmpty ());
 	itemXml->appendFormat (
@@ -30,8 +30,8 @@ Alias::generateDocumentation (
 		getInitializerString ().cc ()
 		);
 
-	itemXml->append (getDoxyBlock ()->createDescriptionString ());
-	itemXml->append (createDoxyLocationString ());
+	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 
 	return true;

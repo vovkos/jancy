@@ -32,7 +32,6 @@ protected:
 
 	sl::String m_refId;
 	sl::String m_title;
-	sl::String m_linkedText;
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
 
@@ -67,9 +66,6 @@ public:
 	}
 
 	sl::String 
-	getLinkedText ();
-
-	sl::String 
 	getBriefDescription ()
 	{
 		return m_briefDescription;
@@ -88,7 +84,7 @@ public:
 	}
 
 	sl::String
-	createDescriptionString ();
+	getDescriptionString ();
 };
 
 //.............................................................................

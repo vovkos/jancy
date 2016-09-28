@@ -305,16 +305,9 @@ Function::generateDocumentation (
 
 	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
 	itemXml->appendFormat ("<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyBlock ()->getLinkedText ().cc ());
-
-	sl::String modifierString = m_type->getTypeModifierString ();
-	if (!modifierString.isEmpty ())
-		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().cc ());
-
-	m_type->generateArgDocumentation (itemXml);
-
-	itemXml->append (getDoxyBlock ()->createDescriptionString ());
-	itemXml->append (createDoxyLocationString ());
+	itemXml->append (m_type->getDoxyTypeString ());
+	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 
 	return true;

@@ -18,12 +18,19 @@ BitFieldType::BitFieldType ()
 void
 BitFieldType::prepareTypeString ()
 {
-	m_typeString.format (
-		"%s:%d:%d",
-		m_baseType->getTypeString ().cc (),
-		m_bitOffset,
-		m_bitOffset + m_bitCount
-		);
+	TypeStringTuple* tuple = getTypeStringTuple ();
+
+	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix ();
+	tuple->m_typeStringSuffix.format (":%d:%d", m_bitOffset, m_bitOffset + m_bitCount);
+}
+
+void
+BitFieldType::prepareDoxyLinkedText ()
+{
+	TypeStringTuple* tuple = getTypeStringTuple ();
+
+	tuple->m_typeStringPrefix = m_baseType->getDoxyLinkedTextPrefix ();
+	tuple->m_typeStringSuffix = getTypeStringSuffix ();
 }
 
 bool

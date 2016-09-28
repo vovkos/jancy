@@ -248,7 +248,7 @@ public:
 	findFunctionMapping (const char* name);
 
 	sl::String
-	createLlvmIrString ();
+	getLlvmIrString ();
 
 protected:
 	bool

@@ -64,6 +64,14 @@ protected:
 	void
 	prepareTypeString ();
 
+	virtual 
+	void
+	prepareDoxyLinkedText ();
+
+	virtual 
+	void
+	prepareDoxyTypeString ();
+
 	bool
 	compileCallMethod ();
 };

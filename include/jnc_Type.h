@@ -244,10 +244,11 @@ jnc_Type_getTypeString (jnc_Type* type);
 
 JNC_EXTERN_C
 const char*
-jnc_Type_createDeclarationString_v (
-	jnc_Type* type,
-	const char* name
-	);
+jnc_Type_getTypeStringPrefix (jnc_Type* type);
+
+JNC_EXTERN_C
+const char*
+jnc_Type_getTypeStringSuffix (jnc_Type* type);
 
 JNC_EXTERN_C
 int
@@ -303,9 +304,15 @@ struct jnc_Type: jnc_ModuleItem
 	}
 
 	const char*
-	createDeclarationString_v (const char* name)
+	getTypeStringPrefix ()
 	{
-		return jnc_Type_createDeclarationString_v (this, name);
+		return jnc_Type_getTypeStringPrefix (this);
+	}
+
+	const char*
+	getTypeStringSuffix ()
+	{
+		return jnc_Type_getTypeStringSuffix (this);
 	}
 
 	int

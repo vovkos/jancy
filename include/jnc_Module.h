@@ -222,7 +222,7 @@ jnc_Module_generateDocumentation (
 
 JNC_EXTERN_C
 const char*
-jnc_Module_createLlvmIrString_v (jnc_Module* module);
+jnc_Module_getLlvmIrString_v (jnc_Module* module);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -415,9 +415,9 @@ struct jnc_Module
 	}
 
 	const char*
-	createLlvmIrString_v ()
+	getLlvmIrString_v ()
 	{
-		return jnc_Module_createLlvmIrString_v (this);
+		return jnc_Module_getLlvmIrString_v (this);
 	}
 
 	bool

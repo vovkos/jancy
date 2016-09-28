@@ -32,7 +32,7 @@ public:
 	void
 	printLlvmIr ()
 	{
-		printf ("%s", m_module->createLlvmIrString_v ());
+		printf ("%s", m_module->getLlvmIrString_v ());
 	}
 
 	bool

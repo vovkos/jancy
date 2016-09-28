@@ -552,7 +552,7 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 	if (m_typeModifiers & TypeModifier_Unsafe)
 		typeFlags |= FunctionTypeFlag_Unsafe;
 
-	if (m_typeModifiers & TypeModifier_Automaton) // automatons takes 2 implicit arguments
+	if (m_typeModifiers & TypeModifier_Automaton) // automatons takes an implicit state argument
 	{
 		typeFlags |= FunctionTypeFlag_Automaton;
 		FunctionArg* stateArg = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)->getSimpleFunctionArg ();
