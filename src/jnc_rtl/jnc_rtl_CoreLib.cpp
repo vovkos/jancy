@@ -85,7 +85,7 @@ dynamicCastDataPtr (
 		return ptr;
 	}
 
-	#pragma AXL_TODO ("find field pointed to by ptr and do cast accordingly")
+	#pragma message (AXL_SRC_POS "TODO: find field pointed to by ptr and do cast accordingly")
 
 	if (srcType->getTypeKind () != TypeKind_Struct)
 		return g_nullPtr;
@@ -830,7 +830,7 @@ appendFmtLiteral_v (
 			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
 
 		const char* c = *(char**) p;
-		size_t length = axl_strlen (c);
+		size_t length = strlen_s (c);
 
 		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
 	}

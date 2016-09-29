@@ -89,7 +89,7 @@ struct jnc_Variant
 		jnc_PropertyPtr m_propertyPtr;
 	};
 
-#if (_JNC_PTR_SIZE == 4)
+#if (JNC_PTR_SIZE == 4)
 	char m_padding [4]; // ensure the same layout regardless of pack factor
 #endif
 

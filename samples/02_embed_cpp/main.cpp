@@ -14,7 +14,7 @@ enum Error
 
 //.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 std::auto_ptr <char>
 convertToUtf8 (
@@ -37,7 +37,7 @@ convertToUtf8 (
 
 //.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 int
 wmain (
 	int argc,
@@ -63,7 +63,7 @@ main (
 
 	jnc::initialize ();
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	std::auto_ptr <char> fileName_utf8 = convertToUtf8 (argv [1]);
 	const char* fileName = fileName_utf8.get ();
 #else

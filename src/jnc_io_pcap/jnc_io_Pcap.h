@@ -51,7 +51,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, Pcap, m_ioThread)->ioThreadFunc ();
+			containerof (this, Pcap, m_ioThread)->ioThreadFunc ();
 		}
 	};
 

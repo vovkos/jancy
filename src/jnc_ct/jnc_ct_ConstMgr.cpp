@@ -45,7 +45,7 @@ ConstMgr::saveLiteral (
 	)
 {
 	if (length == -1)
-		length = axl_strlen (p);
+		length = strlen_s (p);
 
 	Value value;
 

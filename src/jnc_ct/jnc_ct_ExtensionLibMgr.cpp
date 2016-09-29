@@ -154,7 +154,7 @@ ExtensionLibMgr::findSourceFileContents (
 		sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
 		size_t length = contents.getCount ();
 
-		#pragma AXL_TODO ("add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
+		#pragma message (AXL_SRC_POS "TODO: add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
 		file->m_contents = sl::String (contents, length);
 		file->m_zipReader = NULL;
 		file->m_zipIndex = -1;

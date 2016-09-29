@@ -19,7 +19,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, Timer, m_thread)->threadFunc ();
+			containerof (this, Timer, m_thread)->threadFunc ();
 		}
 	};
 

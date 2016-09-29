@@ -51,7 +51,7 @@ Cast_DataPtr_FromArray::constCast (
 	const Value& savedOpValue = m_module->m_constMgr.saveValue (opValue);
 	const void* p = savedOpValue.getConstData ();
 
-	#pragma AXL_TODO ("create a global constant holding the array")
+	#pragma message (AXL_SRC_POS "TODO: create a global constant holding the array")
 
 	if (dstType->getPtrTypeKind () == DataPtrTypeKind_Normal)
 	{

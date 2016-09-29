@@ -73,7 +73,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, Socket, m_ioThread)->ioThreadFunc ();
+			containerof (this, Socket, m_ioThread)->ioThreadFunc ();
 		}
 	};
 
@@ -87,7 +87,7 @@ protected:
 		IoFlag_Listening             = 0x0040,
 		IoFlag_WaitingTransmitBuffer = 0x0080,
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 		IoFlag_IncomingData          = 0x0100,
 		IoFlag_IncomingConnection    = 0x0200,
 #endif
@@ -108,7 +108,7 @@ protected:
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick

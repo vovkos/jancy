@@ -60,7 +60,7 @@ struct jnc_Box
 
 	uintptr_t m_flags      : 8;
 
-#if (_JNC_PTR_BITNESS == 64)
+#if (JNC_PTR_BITS == 64)
 	uintptr_t m_rootOffset : 56;
 #else
 	uintptr_t m_rootOffset : 24; // more than enough
@@ -442,7 +442,7 @@ template <typename T>
 class ClassBox_align8: public ClassBoxBase <T>
 {
 protected:
-#if (_JNC_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
+#if (JNC_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
 	char m_buffer [sizeof (T)];
 #else
 	union

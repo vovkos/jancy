@@ -10,7 +10,7 @@ namespace ct {
 Type*
 CdeclCallConv_gcc64::getArgCoerceType (Type* type)
 {
-	#pragma AXL_TODO ("implement proper coercion for structures with floating point fields")
+	#pragma message (AXL_SRC_POS "TODO: implement proper coercion for structures with floating point fields")
 
 	return type->getSize () > sizeof (uint64_t) ?
 		m_module->m_typeMgr.getStdType (StdType_Int64Int64) :

@@ -55,7 +55,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, GcHeap, m_destructThread)->destructThreadFunc ();
+			containerof (this, GcHeap, m_destructThread)->destructThreadFunc ();
 		}
 	};
 
@@ -84,11 +84,11 @@ protected:
 	sys::Event m_handshakeEvent;
 	sys::NotificationEvent m_resumeEvent;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	sys::win::VirtualMemory m_guardPage;
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	io::psx::Mapping m_guardPage;
-#	if (_AXL_POSIX == AXL_POSIX_DARWIN)
+#	if (_JNC_OS_DARWIN)
 	sys::drw::Semaphore m_handshakeSem; // mach semaphores can be safely signalled from signal handlers
 #	else
 	sys::psx::Sem m_handshakeSem; // POSIX sems can be safely signalled from signal handlers
@@ -289,7 +289,7 @@ public:
 		size_t count
 		);
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	int 
 	handleSehException (
 		uint_t code, 
@@ -334,7 +334,7 @@ protected:
 	void
 	parkAtSafePoint ();
 
-#if (_JNC_ENV == JNC_ENV_POSIX) // signal handlers
+#if (_JNC_OS_POSIX) // signal handlers
 	static
 	void
 	installSignalHandlers (int);

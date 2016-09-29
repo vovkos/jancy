@@ -428,7 +428,7 @@ OperatorMgr::getNamedTypeMember (
 	if (decl->getStorageKind () == StorageKind_Static)
 		return true;
 
-	#pragma AXL_TODO ("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
+	#pragma message (AXL_SRC_POS "TODO: remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
 
 	Value thisArgValue = opValue;
 	if (namedType->getTypeKind () != TypeKind_Class)

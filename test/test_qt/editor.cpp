@@ -5,7 +5,7 @@
 Editor::Editor(QWidget *parent)
 	: QPlainTextEdit(parent)
 {
-#if (_AXL_POSIX == AXL_POSIX_DARWIN)
+#if (_JNC_OS_DARWIN)
 	QFont font ("Menlo", 11);
 #else
 	QFont font ("Monospace", 9);

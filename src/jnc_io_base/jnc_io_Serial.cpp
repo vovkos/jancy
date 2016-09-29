@@ -80,7 +80,7 @@ Serial::Serial ()
 void
 Serial::wakeIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -113,9 +113,9 @@ Serial::open (DataPtr namePtr)
 
 	m_isOpen = true;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.reset ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	m_selfPipe.create ();
 #endif
 
@@ -143,7 +143,7 @@ Serial::close ()
 	m_ioFlags = 0;
 	m_serial.close ();
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	m_selfPipe.close ();
 #endif
 
@@ -312,7 +312,7 @@ Serial::write (
 	return result;
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 void
 Serial::ioThreadFunc ()
@@ -392,7 +392,7 @@ Serial::ioThreadFunc ()
 		}
 	}
 }
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 void
 Serial::ioThreadFunc ()
 {

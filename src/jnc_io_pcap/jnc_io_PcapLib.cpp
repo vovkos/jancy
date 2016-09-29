@@ -35,7 +35,7 @@ JNC_END_LIB_FUNCTION_MAP ()
 jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 
 JNC_EXTERN_C
-AXL_EXPORT
+JNC_EXPORT
 jnc_ExtensionLib* 
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {

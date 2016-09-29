@@ -90,10 +90,16 @@ set (PCH_H           pch.h)
 set (PCH_STATIC_CPP  pch_static.cpp)
 set (PCH_DYNAMIC_CPP pch_dynamic.cpp)
 
+set (
+	PCH_H_LIST
+	${PCH_H}
+	${JANCY_INC_DIR}/jnc_Pch.h
+	)
+
 source_group (
 	pch
 	FILES
-	${PCH_H}
+	${PCH_H_LIST}
 	${PCH_STATIC_CPP}
 	${PCH_DYNAMIC_CPP}
 	)
@@ -113,7 +119,7 @@ include_directories (
 
 add_library (
 	jnc_api_static
-	${PCH_H}
+	${PCH_H_LIST}
 	${PCH_STATIC_CPP}
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
@@ -137,7 +143,7 @@ endif ()
 
 add_library (
 	jnc_api_dynamic
-	${PCH_H}
+	${PCH_H_LIST}
 	${PCH_DYNAMIC_CPP}
 	${LIB_H_LIST}
 	${LIB_DYNAMIC_CPP_LIST}

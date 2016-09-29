@@ -324,9 +324,9 @@ uint32_t
 getIpFromSockAddr (const sockaddr* sockAddr)
 {
 	return sockAddr && sockAddr->sa_family == AF_INET ?
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		((const sockaddr_in*) sockAddr)->sin_addr.S_un.S_addr :
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		((const sockaddr_in*) sockAddr)->sin_addr.s_addr :
 #endif
 		0;

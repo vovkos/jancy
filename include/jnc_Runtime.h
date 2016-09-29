@@ -14,7 +14,7 @@
 
 enum jnc_RuntimeDef
 {
-#if (_JNC_PTR_SIZE == 8)
+#if (JNC_PTR_SIZE == 8)
 	jnc_RuntimeDef_StackSizeLimit    = 1 * 1024 * 1024, // 1MB std stack limit
 	jnc_RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack
 #else

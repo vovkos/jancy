@@ -458,7 +458,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast (
 	Value* resultValue
 	)
 {
-	#pragma AXL_TODO ("will only work for simple closures. redesign Thin2Normal to support 'weak'")
+	#pragma message (AXL_SRC_POS "TODO: will only work for simple closures. redesign Thin2Normal to support 'weak'")
 
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);

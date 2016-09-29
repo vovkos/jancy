@@ -19,7 +19,7 @@ CmdLine::CmdLine ()
 size_t
 parseSizeString (const char* string)
 {
-	size_t length = axl_strlen (string);
+	size_t length = strlen_s (string);
 	if (!length)
 		return 0;
 

@@ -87,7 +87,7 @@ Module::initialize (
 {
 	clear ();
 
-#ifdef _AXL_ASAN
+#if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif		
@@ -112,8 +112,8 @@ Module::initialize (
 	}
 }
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
-#	if (_JNC_PTR_BITNESS == 64)
+#if (_JNC_OS_POSIX)
+#	if (JNC_PTR_BITS == 64)
 /*int128_t
 lockTestAndSet (
 	volatile int128_t* dst,
@@ -159,11 +159,11 @@ Module::createLlvmExecutionEngine ()
 
 		targetOptions.JITEmitDebugInfo = true;
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 		m_functionMap ["memset"] = (void*) memset;
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
-#	if (_JNC_PTR_BITNESS == 64)
+#	if (JNC_PTR_BITS == 64)
 //		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
 #	else
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
@@ -175,7 +175,7 @@ Module::createLlvmExecutionEngine ()
 	}
 	else
 	{
-#if (_JNC_ENV == JNC_ENV_WIN && _JNC_CPU == JNC_CPU_AMD64)
+#if (_JNC_OS_WIN && _JNC_CPU_AMD64)
 		// legacy JIT uses relative call to __chkstk
 		// it worked just fine before windows 10 which loads ntdll.dll too far away
 
@@ -217,7 +217,7 @@ Module::createLlvmExecutionEngine ()
 
 	engineBuilder.setTargetOptions (targetOptions);
 
-#if (_JNC_CPU == JNC_CPU_X86)
+#if (_JNC_CPU_X86)
 	engineBuilder.setMArch ("x86");
 #endif
 
@@ -259,7 +259,7 @@ Module::mapFunction (
 void*
 Module::findFunctionMapping (const char* name)
 {
-#if (_JNC_ENV == JNC_ENV_POSIX && _AXL_POSIX == AXL_POSIX_DARWIN)
+#if (_JNC_OS_POSIX && _JNC_OS_DARWIN)
 	if (*(const uint16_t*) name == '._')
 		name++;
 #endif

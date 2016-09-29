@@ -16,7 +16,7 @@ typedef enum Error Error;
 
 //.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 const char*
 convertToUtf8 (
@@ -42,7 +42,7 @@ convertToUtf8 (
 
 //.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 int
 wmain (
 	int argc,
@@ -82,7 +82,7 @@ main (
 
 	jnc_initialize ();
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	fileName = convertToUtf8 (argv [1], -1);
 #else
 	fileName = argv [1];

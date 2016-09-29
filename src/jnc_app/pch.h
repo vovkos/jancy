@@ -1,23 +1,5 @@
 #pragma once
 
-#include "axl_g_Pch.h"
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-#	define socklen_t    int
-#	include <io.h>
-#	include <fcntl.h>
-
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/ip.h>
-#	include <arpa/inet.h>
-#	define SOCKET         int
-#	define INVALID_SOCKET (-1)
-#	define closesocket    close
-
-#endif
-
 //.............................................................................
 
 // Jancy
@@ -37,5 +19,9 @@
 #include "axl_io_FileEnumerator.h"
 
 using namespace axl;
+
+#if (_JNC_OS_WIN)
+#	include <io.h>
+#endif
 
 //.............................................................................

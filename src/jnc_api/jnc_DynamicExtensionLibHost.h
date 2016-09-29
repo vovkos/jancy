@@ -877,7 +877,7 @@ jnc_GcHeap_MarkClassFunc (
 	jnc_Box* box
 	);
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 typedef
 int 
 jnc_GcHeap_HandleGcSehExceptionFunc (
@@ -885,7 +885,7 @@ jnc_GcHeap_HandleGcSehExceptionFunc (
 	uint_t code, 
 	EXCEPTION_POINTERS* exceptionPointers
 	);
-#endif // _JNC_ENV
+#endif
 
 //.............................................................................
 
@@ -1245,9 +1245,9 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	jnc_GcHeap_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
-#endif // _JNC_ENV
+#endif // _JNC_OS_WIN
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

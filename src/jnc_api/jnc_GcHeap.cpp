@@ -212,7 +212,7 @@ jnc_GcHeap_markClass (
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_markClassFunc (gcHeap, box);
 }
 
-#	if (_JNC_ENV == JNC_ENV_WIN)
+#	if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int 
 jnc_GcHeap_handleGcSehException (
@@ -223,7 +223,7 @@ jnc_GcHeap_handleGcSehException (
 {
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_handleGcSehExceptionFunc (gcHeap, code, exceptionPointers);
 }
-#	endif // _JNC_ENV
+#	endif // _JNC_OS_WIN
 #else     // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
@@ -487,7 +487,7 @@ jnc_GcHeap_addRoot (
 	gcHeap->addRoot (p, type);
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int 
 jnc_GcHeap_handleGcSehException (
@@ -498,7 +498,7 @@ jnc_GcHeap_handleGcSehException (
 {
 	return gcHeap->handleSehException (code, exceptionPointers);
 }
-#	endif // _JNC_ENV
+#	endif // _JNC_OS_WIN
 #endif    // _JNC_DYNAMIC_EXTENSION_LIB
 
 //.............................................................................

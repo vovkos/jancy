@@ -402,7 +402,7 @@ jnc_strDup (
 	using namespace jnc;
 
 	if (length == -1)
-		length = axl_strlen (p);
+		length = strlen_s (p);
 
 	if (!length)
 		return g_nullPtr;

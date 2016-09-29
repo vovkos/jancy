@@ -46,7 +46,7 @@ FileStream::FileStream ()
 {
 	m_runtime = getCurrentThreadRuntime ();
 	m_ioFlags = 0;
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_incomingDataSize = 0;
 #endif
 	m_isOpen = false;
@@ -57,7 +57,7 @@ FileStream::FileStream ()
 void
 FileStream::wakeIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -75,7 +75,7 @@ FileStream::open (
 
 	close ();
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	// force asynchronous and restore blocking mode later
 
 	result =
@@ -93,7 +93,7 @@ FileStream::open (
 
 	m_isOpen = true;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	dword_t type = ::GetFileType (m_file.m_file);
 	switch (type)
 	{
@@ -120,11 +120,11 @@ FileStream::open (
 	}
 	else
 	{
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		m_ioThreadEvent.reset ();
 		m_readBuffer.setCount (Const_ReadBufferSize);
 		m_incomingDataSize = 0;
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		m_selfPipe.create ();
 #endif
 	
@@ -153,13 +153,13 @@ FileStream::close ()
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	m_selfPipe.close ();
 #endif
 
 	m_file.close ();
 	m_ioFlags = 0;
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_incomingDataSize = 0;
 #endif
 	m_isOpen = false;
@@ -200,7 +200,7 @@ FileStream::fireFileStreamEvent (
 	JNC_END_CALL_SITE ();
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 size_t
 JNC_CDECL
@@ -504,7 +504,7 @@ FileStream::readLoop ()
 	}
 }
 
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 
 size_t
 JNC_CDECL

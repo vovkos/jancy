@@ -24,7 +24,6 @@ ParserClassName = Parser;
 
 Includes
 {
-	#include "llk_Parser.h"
 	#include "jnc_ct_Lexer.h"
 	#include "jnc_ct_Module.h"
 	#include "jnc_ct_Decl.h"

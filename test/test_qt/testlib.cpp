@@ -155,7 +155,7 @@ printfToOutput (
 	)
 {
 	AXL_VA_DECL (va, format);
-	return (int) getMainWindow ()->writeOutput_va (format, va.m_va);
+	return (int) getMainWindow ()->writeOutput_va (format, va);
 }
 
 void

@@ -84,7 +84,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, SshChannel, m_ioThread)->ioThreadFunc ();
+			containerof (this, SshChannel, m_ioThread)->ioThreadFunc ();
 		}
 	};
 
@@ -143,7 +143,7 @@ protected:
 	size_t m_incomingDataSize;
 	sl::AuxList <Read> m_readList;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick

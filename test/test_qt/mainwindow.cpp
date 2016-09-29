@@ -222,7 +222,7 @@ void MainWindow::writeStatus(const QString& text, int timeout)
 size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 {
 	if (length == -1)
-		length = axl_strlen (text);
+		length = strlen_s (text);
 
 	QString string = QString::fromUtf8 (text, length);
 
@@ -338,7 +338,7 @@ bool MainWindow::compile ()
 
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
 #else
 	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;

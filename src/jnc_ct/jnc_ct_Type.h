@@ -103,7 +103,7 @@ enum VariantField
 {
 	VariantField_Data1,
 	VariantField_Data2,
-#if (_JNC_PTR_SIZE == 4)
+#if (JNC_PTR_SIZE == 4)
 	VariantField_Padding,
 #endif
 	VariantField_Type,

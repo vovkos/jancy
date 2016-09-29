@@ -1,13 +1,13 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" string functions
-#define _SCL_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" iterators
-
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 
-#undef min
-#undef max
+#if _WIN32
+#	define _CRT_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" string functions
+#	define _SCL_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" iterators
+#	define WIN32_LEAN_AND_MEAN     // prevent winsock.h vs winsock2.h conflict
+#endif
 
 // QT
 
@@ -34,7 +34,7 @@
 #include "jnc_ExtensionLib.h"
 #include "jnc_Error.h"
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 // Memory Leak Detection
 
@@ -49,7 +49,7 @@
 #		endif
 #	endif
 
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #	include <netinet/ip.h>

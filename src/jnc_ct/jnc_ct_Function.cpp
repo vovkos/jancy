@@ -58,7 +58,7 @@ Function::getLlvmFunction ()
 	if (m_llvmFunction)
 		return m_llvmFunction;
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	sl::String llvmName = "."; // as to avoid linking conflicts
 	llvmName += m_tag;
 #else

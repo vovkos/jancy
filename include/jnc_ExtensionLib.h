@@ -474,7 +474,7 @@ jnc_pvoid_cast (T x)
 	return *(void**) &x;
 }
 
-#	if (_AXL_CPP != AXL_CPP_GCC)
+#	if (!_JNC_CPP_GCC)
 
 // this overload is to make sure it's ok to pvoid_cast (NULL) on 64-bit systems
 // gcc takes care of it automatically (it will not attempt to use 'int' for NULL)
@@ -494,7 +494,7 @@ namespace jnc {
 
 // implicit tail-padding (might lead to ABI-incompatibility if omitted)
 
-#if (_JNC_CPP == JNC_CPP_MSC)
+#if (_JNC_CPP_MSC)
 
 template <typename T>
 class BaseTailPadding

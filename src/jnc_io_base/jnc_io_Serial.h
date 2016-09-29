@@ -43,7 +43,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, Serial, m_ioThread)->ioThreadFunc ();
+			containerof (this, Serial, m_ioThread)->ioThreadFunc ();
 		}
 	};
 
@@ -74,7 +74,7 @@ protected:
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 	
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick

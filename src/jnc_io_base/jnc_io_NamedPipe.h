@@ -20,7 +20,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, NamedPipe, m_ioThread)->ioThreadFunc ();
+			containerof (this, NamedPipe, m_ioThread)->ioThreadFunc ();
 		}
 	};
 

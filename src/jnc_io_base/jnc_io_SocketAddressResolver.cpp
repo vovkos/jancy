@@ -62,7 +62,7 @@ SocketAddressResolver::stopIoThread ()
 void
 SocketAddressResolver::wakeIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -172,7 +172,7 @@ SocketAddressResolver::resolve (
 	{
 		m_ioFlags |= IoFlag_Running;
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 		m_selfPipe.create ();
 #endif
 		m_ioThread.start ();
@@ -255,9 +255,9 @@ SocketAddressResolver::ioThreadFunc ()
 
 		m_ioLock.unlock ();
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		m_ioThreadEvent.wait ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		char buffer [256];
 		m_selfPipe.read (buffer, sizeof (buffer));
 #endif

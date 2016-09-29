@@ -9,13 +9,13 @@ namespace rt {
 
 //.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 sigset_t GcHeap::m_signalWaitMask = { 0 };
 #endif
 
 GcHeap::GcHeap ()
 {
-	m_runtime = AXL_CONTAINING_RECORD (this, Runtime, m_gcHeap);
+	m_runtime = containerof (this, Runtime, m_gcHeap);
 	m_state = State_Idle;
 	m_flags = 0;
 	m_handshakeCount = 0;
@@ -27,9 +27,9 @@ GcHeap::GcHeap ()
 	m_idleEvent.signal ();
 	memset (&m_stats, 0, sizeof (m_stats));
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_guardPage.alloc (4 * 1024); // typical page size (OS will not give us less than that anyway)
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	m_guardPage.map (
 		NULL,
 		4 * 1024,
@@ -983,7 +983,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	}
 	else
 	{
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		m_resumeEvent.reset ();
 		sys::atomicXchg (&m_handshakeCount, handshakeCount);
 		m_state = State_StopTheWorld;
@@ -992,7 +992,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 		m_guardPage.protect (PAGE_NOACCESS);
 		m_handshakeEvent.wait ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		sys::atomicXchg (&m_handshakeCount, handshakeCount);
 		m_state = State_StopTheWorld;
 		m_idleEvent.reset ();
@@ -1193,13 +1193,13 @@ GcHeap::collect_l (bool isMutatorThread)
 		}
 		else
 		{
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 			m_guardPage.protect (PAGE_READWRITE);
 			sys::atomicXchg (&m_handshakeCount, handshakeCount);
 			m_state = State_ResumeTheWorld;
 			m_resumeEvent.signal ();
 			m_handshakeEvent.wait ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 			m_guardPage.protect (PROT_READ | PROT_WRITE);
 			sys::atomicXchg (&m_handshakeCount, handshakeCount);
 			m_state = State_ResumeTheWorld;
@@ -1357,7 +1357,7 @@ GcHeap::parkAtSafePoint ()
 		m_handshakeEvent.signal ();
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 int 
 GcHeap::handleSehException (
@@ -1374,9 +1374,9 @@ GcHeap::handleSehException (
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
 
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 
-#if (_AXL_POSIX == AXL_POSIX_DARWIN)
+#if (_JNC_OS_DARWIN)
 #	define JNC_SIGSEGV SIGBUS
 #else
 #	define JNC_SIGSEGV SIGSEGV
@@ -1442,7 +1442,7 @@ GcHeap::signalHandler_SIGSEGV (
 		self->m_handshakeSem.signal ();
 }
 
-#endif // _JNC_ENV == JNC_ENV_POSIX
+#endif // _JNC_OS_POSIX
 
 //.............................................................................
 

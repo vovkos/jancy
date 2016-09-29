@@ -88,7 +88,7 @@ enum jnc_TypeKind
 
 	// aliases
 
-#if (_JNC_PTR_BITNESS == 64)
+#if (JNC_PTR_BITS == 64)
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int64,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int64_u,
 	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int64_be,

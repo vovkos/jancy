@@ -9,12 +9,6 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-#ifndef ASSERT
-#	define ASSERT JNC_ASSERT
-#endif
-
-#include "axl_sl_BitIdx.h"
-
 //.............................................................................
 
 JNC_EXTERN_C

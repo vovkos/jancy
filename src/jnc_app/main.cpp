@@ -26,8 +26,8 @@ printVersion ()
 		VERSION_MAJOR,
 		VERSION_MINOR,
 		VERSION_REVISION,
-		_JNC_CPU_STRING,
-		_JNC_DEBUG_SUFFIX
+		AXL_CPU_STRING,
+		AXL_DEBUG_SUFFIX
 		);
 }
 
@@ -44,7 +44,7 @@ printUsage ()
 
 #include <iostream>
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 int
 wmain (
 	int argc,

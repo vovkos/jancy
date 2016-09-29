@@ -3,7 +3,7 @@
 #include "jnc_io_IoLib.h"
 #include "jnc_Error.h"
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 #	define IPV6_HDRINCL IP_HDRINCL
 #endif
 
@@ -69,7 +69,7 @@ Socket::Socket ()
 void
 Socket::wakeIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -283,9 +283,9 @@ Socket::openImpl (
 			return false;
 		}
 	
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		m_ioThreadEvent.reset ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		m_selfPipe.create ();
 #endif
 
@@ -317,7 +317,7 @@ Socket::close ()
 		m_ioThread.waitAndClose ();
 		gcHeap->leaveWaitRegion ();
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 		m_selfPipe.close ();
 #endif
 	}
@@ -395,7 +395,7 @@ Socket::accept (DataPtr addressPtr)
 	axl::io::SockAddr sockAddr;
 	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -420,7 +420,7 @@ Socket::accept (DataPtr addressPtr)
 	{
 		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected;
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 		connectionSocket->m_selfPipe.create ();
 #endif
 		connectionSocket->m_ioThread.start ();
@@ -451,9 +451,9 @@ Socket::postSend (
 	{
 		err::Error error = err::getLastError ();
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		if (error->m_code != WSAEWOULDBLOCK)
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		if (error->m_code != EWOULDBLOCK && error->m_code != EAGAIN)
 #endif
 		{
@@ -500,7 +500,7 @@ Socket::recv (
 {
 	size_t result = m_socket.recv (ptr.m_p, size);
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -540,7 +540,7 @@ Socket::recvFrom (
 	axl::io::SockAddr sockAddr;
 	size_t result = m_socket.recvFrom (ptr.m_p, size, &sockAddr);
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
 		m_ioLock.lock ();
@@ -564,9 +564,9 @@ Socket::ioThreadFunc ()
 {
 	ASSERT (m_socket.isOpen ());
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.wait ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	char buffer [256];
 	m_selfPipe.read (buffer, sizeof (buffer));
 #endif
@@ -601,7 +601,7 @@ Socket::ioThreadFunc ()
 	}
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 bool
 Socket::connectLoop ()

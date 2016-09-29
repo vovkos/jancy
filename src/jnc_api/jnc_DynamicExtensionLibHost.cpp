@@ -298,9 +298,9 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 	jnc_GcHeap_weakMark,
 	jnc_GcHeap_markData,
 	jnc_GcHeap_markClass,
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	jnc_GcHeap_handleGcSehException,
-#endif // _JNC_ENV
+#endif // _JNC_OS_WIN
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -57,7 +57,7 @@ SshChannel::SshChannel ()
 void
 SshChannel::wakeIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
@@ -67,9 +67,9 @@ SshChannel::wakeIoThread ()
 void
 SshChannel::sleepIoThread ()
 {
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.wait ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	char buffer [256];
 	m_selfPipe.read (buffer, sizeof (buffer));
 #endif
@@ -142,9 +142,9 @@ SshChannel::open (DataPtr addressPtr)
 	m_isOpen = true;
 	m_readBuffer.setCount (4 * 1024); // 4K buffer for reading
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	m_ioThreadEvent.reset ();
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 	m_selfPipe.create ();
 #endif
 
@@ -181,7 +181,7 @@ SshChannel::close ()
 		m_connectParams = NULL;
 	}
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
+#if (_JNC_OS_POSIX)
 	m_selfPipe.close ();
 #endif
 
@@ -747,7 +747,7 @@ SshChannel::sshReadLoop ()
 	}
 }
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 
 bool
 SshChannel::tcpConnect ()

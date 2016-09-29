@@ -39,7 +39,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, Mailslot, m_ioThread)->ioThreadFunc ();
+			containerof (this, Mailslot, m_ioThread)->ioThreadFunc ();
 		}
 	};
 

@@ -81,7 +81,7 @@ JncApp::parse ()
 
 	if (m_cmdLine->m_flags & JncFlag_StdInSrc)
 	{
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 		int stdInFile = _fileno (stdin);
 #endif
 		sl::Array <char> stdInBuffer;
@@ -89,7 +89,7 @@ JncApp::parse ()
 		for (;;)
 		{
 			char buffer [1024];
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 			int size = _read (stdInFile, buffer, sizeof (buffer));
 #else
 			int size = read (STDIN_FILENO, buffer, sizeof (buffer));

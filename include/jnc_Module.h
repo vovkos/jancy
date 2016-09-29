@@ -46,12 +46,12 @@ enum jnc_ModuleCompileFlag
 		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue |
 		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue |
 		jnc_ModuleCompileFlag_CheckDivByZero
-#if (_JNC_ENV == JNC_ENV_WIN && _JNC_CPU != JNC_CPU_X86)
+#if (_JNC_OS_WIN && !_JNC_CPU_X86)
 		// SEH on amd64/ia64 relies on being able to walk the stack which is not as
 		// reliable as frame-based SEH on x86. therefore, use write barrier for
 		// safe points on windows if and only if it's x86
 		| jnc_ModuleCompileFlag_SimpleGcSafePoint
-#elif (_JNC_ENV == JNC_ENV_POSIX)
+#elif (_JNC_OS_POSIX)
 		| jnc_ModuleCompileFlag_McJit
 #endif
 };

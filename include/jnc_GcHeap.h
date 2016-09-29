@@ -14,7 +14,7 @@ enum jnc_GcDef
 	jnc_GcDef_AllocSizeTrigger  = -1, // use period only
 #ifdef _JNC_DEBUG
 	jnc_GcDef_PeriodSizeTrigger = 0, // run gc on every allocation
-#elif (_JNC_CPU == JNC_CPU_X86)
+#elif (JNC_PTR_SIZE == 4)
 	jnc_GcDef_PeriodSizeTrigger = 1 * 1024 * 1024, // 1MB gc period
 #else
 	jnc_GcDef_PeriodSizeTrigger = 2 * 1024 * 1024, // 2MB gc period
@@ -243,7 +243,7 @@ jnc_GcHeap_addRoot (
 	jnc_Type* type
 	);
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int
 jnc_GcHeap_handleGcSehException (
@@ -251,7 +251,7 @@ jnc_GcHeap_handleGcSehException (
 	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	);
-#endif // _JNC_ENV
+#endif
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GcHeap
@@ -441,7 +441,7 @@ struct jnc_GcHeap
 		jnc_GcHeap_addRoot (this, p, type);
 	}
 
-#	if (_JNC_ENV == JNC_ENV_WIN)
+#	if (_JNC_OS_WIN)
 	int
 	handleGcSehException (
 		uint_t code,
@@ -450,7 +450,7 @@ struct jnc_GcHeap
 	{
 		return jnc_GcHeap_handleGcSehException (this, code, exceptionPointers);
 	}
-#	endif // _JNC_ENV
+#	endif // _JNC_OS_WIN
 };
 #endif // _JNC_CORE
 

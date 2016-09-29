@@ -4,23 +4,61 @@
 
 #pragma once
 
-#include "axl_g_Pch.h"
+//.............................................................................
 
-#if (_JNC_ENV == JNC_ENV_POSIX)
-#	include <signal.h>
+// AXL
+
+#include "axl_mem_Block.h"
+#include "axl_err_Errno.h"
+#include "axl_sl_List.h"
+#include "axl_sl_ArrayList.h"
+#include "axl_sl_AutoPtrArray.h"
+#include "axl_sl_BitMap.h"
+#include "axl_sl_StringCache.h"
+#include "axl_sl_StringHashTable.h"
+#include "axl_sl_CmdLineParser.h"
+#include "axl_sl_BoxList.h"
+#include "axl_sl_ByteOrder.h"
+#include "axl_sl_HandleTable.h"
+#include "axl_sl_Singleton.h"
+#include "axl_sl_Construct.h"
+#include "axl_fsm_RegExp.h"
+#include "axl_fsm_StdRegExpNameMgr.h"
+#include "axl_enc_HexEncoding.h"
+#include "axl_enc_EscapeEncoding.h"
+#include "axl_io_FilePathUtils.h"
+#include "axl_io_MappedFile.h"
+#include "axl_io_FilePathUtils.h"
+#include "axl_lex_RagelLexer.h"
+#include "axl_sys_Time.h"
+#include "axl_sys_Event.h"
+#include "axl_sys_Thread.h"
+#include "axl_sys_TlsMgr.h"
+#include "axl_sys_TlsSlot.h"
+#include "axl_sys_SjljTry.h"
+#include "axl_sys_DynamicLibrary.h"
+#include "axl_zip_ZipReader.h"
+
+#if (_AXL_OS_WIN)
+#	include "axl_sys_win_VirtualMemory.h"
+#elif (_AXL_OS_POSIX)
+#	include "axl_io_psx_Mapping.h"
+#	if (_AXL_OS_DARWIN)
+#		include "axl_sys_drw_Semaphore.h"
+#	else
+#		include "axl_sys_psx_Sem.h"
+#	endif
 #endif
+
+using namespace axl;
 
 //.............................................................................
 
 // LLVM
 
-// warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
-// warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
-// warning C4624: destructor could not be generated because a base class destructor is inaccessible
-
-#pragma warning (disable: 4800)
-#pragma warning (disable: 4244)
-#pragma warning (disable: 4624)
+#pragma warning (disable: 4244) // warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
+#pragma warning (disable: 4624) // warning C4624: destructor could not be generated because a base class destructor is inaccessible
+#pragma warning (disable: 4800) // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
 
 #undef min
 #undef max
@@ -80,54 +118,14 @@
 
 #define LLVM_VERSION ((LLVM_VERSION_MAJOR << 8) | LLVM_VERSION_MINOR)
 
-#pragma warning (default: 4800)
 #pragma warning (default: 4244)
 #pragma warning (default: 4624)
+#pragma warning (default: 4800)
 
 //.............................................................................
 
-// AXL
-
-#include "axl_sys_Time.h"
-#include "axl_mem_Block.h"
-#include "axl_err_Errno.h"
-#include "axl_sl_List.h"
-#include "axl_sl_ArrayList.h"
-#include "axl_sl_AutoPtrArray.h"
-#include "axl_sl_BitMap.h"
-#include "axl_sl_StringCache.h"
-#include "axl_sl_StringHashTable.h"
-#include "axl_sl_CmdLineParser.h"
-#include "axl_sl_BoxList.h"
-#include "axl_sl_ByteOrder.h"
-#include "axl_sl_HandleTable.h"
-#include "axl_fsm_RegExp.h"
-#include "axl_fsm_StdRegExpNameMgr.h"
-#include "axl_enc_HexEncoding.h"
-#include "axl_enc_EscapeEncoding.h"
-#include "axl_io_FilePathUtils.h"
-#include "axl_io_MappedFile.h"
-#include "axl_io_FilePathUtils.h"
-#include "axl_lex_RagelLexer.h"
-#include "axl_sys_Event.h"
-#include "axl_sys_Thread.h"
-#include "axl_sys_TlsMgr.h"
-#include "axl_sys_TlsSlot.h"
-#include "axl_sys_SjljTry.h"
-#include "axl_sys_DynamicLibrary.h"
-#include "axl_sl_Singleton.h"
-#include "axl_sl_Construct.h"
-#include "axl_zip_ZipReader.h"
-
-#if (_AXL_ENV == AXL_ENV_WIN)
-#	include "axl_sys_win_VirtualMemory.h"
-#elif (_AXL_ENV == AXL_ENV_POSIX)
-#	include "axl_io_psx_Mapping.h"
-#	if (_AXL_POSIX == AXL_POSIX_DARWIN)
-#		include "axl_sys_drw_Semaphore.h"
-#	else
-#		include "axl_sys_psx_Sem.h"
-#	endif
+#if (_AXL_OS_POSIX)
+#	include <signal.h>
 #endif
 
-using namespace axl;
+//.............................................................................

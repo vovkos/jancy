@@ -598,7 +598,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca (arrayType, "sjljFrameArray", NULL, &sjljFrameArrayValue);
 	m_module->m_llvmIrBuilder.createBitCast (sjljFrameArrayValue, type->getDataPtrType_c (), &sjljFrameArrayValue);
 
-#if (_JNC_CPU == JNC_CPU_AMD64)
+#if (_JNC_CPU_AMD64)
 	llvmAlloca->setAlignment (16);
 #endif
 	

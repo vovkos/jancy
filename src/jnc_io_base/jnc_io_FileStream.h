@@ -54,7 +54,7 @@ protected:
 		void
 		threadFunc ()
 		{
-			AXL_CONTAINING_RECORD (this, FileStream, m_ioThread)->ioThreadFunc ();
+			containerof (this, FileStream, m_ioThread)->ioThreadFunc ();
 		}
 	};
 
@@ -72,7 +72,7 @@ protected:
 		IoFlag_RemainingData = 0x0020,
 	};
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	struct Read: sl::ListLink
 	{
 		void* m_buffer;
@@ -98,7 +98,7 @@ protected:
 	uint_t m_ioFlags;
 	IoThread m_ioThread;
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
 	sl::Array <char> m_readBuffer;
 	size_t m_incomingDataSize;
@@ -167,7 +167,7 @@ protected:
 	void
 	wakeIoThread ();
 
-#if (_JNC_ENV == JNC_ENV_WIN)
+#if (_JNC_OS_WIN)
 	void
 	readLoop ();
 #endif

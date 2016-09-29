@@ -26,7 +26,7 @@ decodeByteString (
 	State state = State_Space;
 
 	if (length == -1)
-		length = axl_strlen (p);
+		length = strlen_s (p);
 
 	buffer->clear ();
 	buffer->reserve (length / 2); // good estimate no matter the radix
