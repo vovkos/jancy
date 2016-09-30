@@ -232,7 +232,7 @@ LlvmDiBuilder::createArrayType (ArrayType* arrayType)
 		size_t elementCount = p->getElementCount ();
 		ASSERT (elementCount);
 
-		#pragma message (AXL_SRC_POS "TODO: seems like a bug in LLVM DiBuilder (should be ElementCount - 1)")
+		AXL_TODO ("seems like a bug in LLVM DiBuilder (should be ElementCount - 1)")
 		dimArray.append (m_llvmDiBuilder->getOrCreateSubrange (0, elementCount));
 
 		if (elementType->getTypeKind () != TypeKind_Array)

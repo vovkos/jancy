@@ -438,7 +438,7 @@ FunctionMgr::internalPrologue (
 			Value argValue = callConv->getArgValue (llvmArg, functionType, i);
 			argValueArray [i] = argValue;
 
-			#pragma message (AXL_SRC_POS "TODO: remove arg GC roots and instead add all user-allocated data to some kind of call-site-root-set")
+			AXL_TODO ("remove arg GC roots and instead add all user-allocated data to some kind of call-site-root-set")
 
 			Type* argType = argValue.getType ();
 			if (argType->getFlags () & TypeFlag_GcRoot)

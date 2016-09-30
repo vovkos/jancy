@@ -50,7 +50,7 @@ OperatorMgr::getFieldPtrImpl (
 	Value* resultValue
 	)
 {
-	#pragma message (AXL_SRC_POS "TODO: double check multiple levels of nested unnamed structs/unions")
+	AXL_TODO ("double check multiple levels of nested unnamed structs/unions")
 
 	if (coord->m_unionCoordArray.isEmpty ())
 	{

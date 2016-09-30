@@ -85,7 +85,7 @@ dynamicCastDataPtr (
 		return ptr;
 	}
 
-	#pragma message (AXL_SRC_POS "TODO: find field pointed to by ptr and do cast accordingly")
+	AXL_TODO ("find field pointed to by ptr and do cast accordingly")
 
 	if (srcType->getTypeKind () != TypeKind_Struct)
 		return g_nullPtr;

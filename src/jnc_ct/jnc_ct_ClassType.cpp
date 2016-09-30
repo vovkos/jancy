@@ -591,7 +591,7 @@ ClassType::overrideVirtualFunction (Function* function)
 		return false;
 	}
 
-	#pragma message (AXL_SRC_POS "TODO: virtual multipliers")
+	AXL_TODO ("virtual multipliers")
 
 	ClassPtrType* thisArgType = (ClassPtrType*) overridenFunction->m_type->getThisArgType ();
 	ASSERT (thisArgType->getTypeKind () == TypeKind_ClassPtr);

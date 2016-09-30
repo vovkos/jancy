@@ -134,7 +134,7 @@
 #	include <windows.h>
 #	include <crtdbg.h>
 #elif (_JNC_OS_POSIX)
-
+#	include <assert.h>
 #endif
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -149,16 +149,16 @@
 // common type aliases 
 
 // stdint.h already defines:
-//     int8_t
-//     uint8_t
-//     int16_t
-//     uint16_t
-//     int32_t
-//     uint32_t
-//     int64_t
-//     uint64_t
-//     intptr_t
-//     uintptr_t
+//   int8_t
+//   uint8_t
+//   int16_t
+//   uint16_t
+//   int32_t
+//   uint32_t
+//   int64_t
+//   uint64_t
+//   intptr_t
+//   uintptr_t
 
 typedef int               bool_t;
 typedef unsigned int      uint_t;

@@ -323,7 +323,7 @@ Type::getUndefValue ()
 Value
 Type::getZeroValue ()
 {
-	#pragma message (AXL_SRC_POS "TODO: Type::getZeroValue () probably should return ValueKind_Const")
+	AXL_TODO ("Type::getZeroValue () probably should return ValueKind_Const")
 
 	llvm::Value* llvmValue = llvm::Constant::getNullValue (getLlvmType ());
 	return Value (llvmValue, this);
@@ -398,7 +398,7 @@ Type::prepareDoxyTypeString ()
 	tuple->m_doxyTypeString += getDoxyLinkedTextPrefix ();
 	tuple->m_doxyTypeString += "</type>\n";
 
-	#pragma message (AXL_SRC_POS "TODO: add compile-option for whether to use doxy-linked-text instead of plain-text")
+	AXL_TODO ("add compile-option for whether to use doxy-linked-text instead of plain-text")
 	
 	sl::String suffix = getTypeStringSuffix ();
 	if (!suffix.isEmpty ()) // suffix should be ready by now
@@ -837,7 +837,7 @@ isDisposableType (Type* type)
 		return false;
 	}
 
-	#pragma message (AXL_SRC_POS "TODO: double-check function type - must be thiscall, no arguments")
+	AXL_TODO ("double-check function type - must be thiscall, no arguments")
 	return true;
 }
 

@@ -8,6 +8,7 @@ namespace jnc {
 namespace ct {
 
 class DoxyGroup;
+class ModuleItem;
 
 //.............................................................................
 
