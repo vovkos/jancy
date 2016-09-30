@@ -420,7 +420,7 @@ verifyModuleItemIsClassType (
 	const char* name
 	)
 {
-	jnc_verifyModuleItemIsClassType (item, name);
+	return jnc_verifyModuleItemIsClassType (item, name);
 }
 
 //.............................................................................

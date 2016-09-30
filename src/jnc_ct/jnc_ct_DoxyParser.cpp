@@ -21,10 +21,10 @@ DoxyParser::popBlock ()
 {
 	// only pick up unassigned non-group blocks
 
-	DoxyBlock* doxyBlock = 
-		!m_isBlockAssigned && 
+	DoxyBlock* doxyBlock =
+		!m_isBlockAssigned &&
 		m_block &&
-		m_block->getBlockKind () != DoxyBlockKind_Group ? 
+		m_block->getBlockKind () != DoxyBlockKind_Group ?
 		m_block : NULL;
 
 	m_block = NULL;
@@ -38,7 +38,7 @@ DoxyParser::popBlock ()
 		{
 			if (!doxyBlock)
 				doxyBlock = m_module->m_doxyMgr.createBlock ();
-		
+
 			if (!doxyBlock->m_group)
 				doxyBlock->m_group = entry.m_group;
 		}
@@ -73,12 +73,12 @@ DoxyParser::addComment (
 		const DoxyToken* token = lexer.getToken ();
 		const DoxyToken* nextToken;
 		size_t i;
-		
+
 		switch (token->m_token)
 		{
 		case DoxyTokenKind_Error:
 			m_block = NULL;
-			m_isBriefDescription = NULL;
+			m_isBriefDescription = false;
 			return;
 
 		case DoxyTokenKind_Eof:
@@ -180,7 +180,7 @@ DoxyParser::addComment (
 			m_block->m_title = nextToken->m_data.m_string;
 			lexer.nextToken ();
 			break;
-	
+
 		case DoxyTokenKind_Brief:
 			m_isBriefDescription = true;
 			description = &m_block->m_briefDescription;
@@ -191,7 +191,7 @@ DoxyParser::addComment (
 
 		case DoxyTokenKind_Text:
 			if (description->isEmpty ())
-			{				
+			{
 				description->copy (token->m_data.m_string.getLeftTrimmedString ());
 				m_firstIndent = m_indent;
 			}
@@ -200,7 +200,7 @@ DoxyParser::addComment (
 				size_t indentLength = m_indent.getLength ();
 				size_t firstIndentLength = m_firstIndent.getLength ();
 				size_t commonIndentLength = AXL_MIN (indentLength, firstIndentLength);
-				
+
 				size_t i = 0;
 				for (; i < commonIndentLength; i++)
 					if (m_indent [i] != m_firstIndent [i])
