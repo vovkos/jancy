@@ -2,6 +2,8 @@
 
 set -e
 
+mkdir -p ${PDF_DIR}
+
 echo Building ${DOC_NAME} Latex files at ${TEX_DIR}...
 
 "${SPHINX_BUILD_EXE}" ${SPHINX_TEX_CMD_LINE}
@@ -10,7 +12,6 @@ echo Building ${DOC_NAME} PDF at ${PDF_DIR}...
 
 PREV_DIR=`pwd`
 cd ${TEX_DIR}
-mkdir -p ${PDF_DIR}
 
 cp ${DOXYREST_SPHINX_DIR}/doxyrest.sty .
 
