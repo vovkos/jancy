@@ -46,7 +46,7 @@ bool errorcode bar (int a)
 
 	if (a < 0)
 	{
-		std.setPosixError (22); // EINVAL
+		std.setErrno (22); // EINVAL
 		return false;
 	}
 

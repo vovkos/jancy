@@ -708,7 +708,7 @@ llvmFatalErrorHandler (
 	bool shouldGenerateCrashDump
 	)
 {
-	throw err::createStringError (errorString.c_str ());
+	throw err::Error (errorString.c_str ());
 }
 
 bool

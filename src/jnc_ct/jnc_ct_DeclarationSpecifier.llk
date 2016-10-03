@@ -184,7 +184,7 @@ type_specifier
 			}
 	|	TokenKind_Auto
 			{
-				err::setStringError ("'auto' type specifier is not yet supported");
+				err::setError ("'auto' type specifier is not yet supported");
 				return false;
 			}
 	|	resolver (TokenKind_Property '{')

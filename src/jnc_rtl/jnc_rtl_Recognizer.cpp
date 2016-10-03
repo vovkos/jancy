@@ -141,7 +141,7 @@ Recognizer::eof ()
 
 		if (m_lastAcceptStateId == -1)
 		{
-			err::setStringError ("unrecognized lexeme");
+			err::setError ("unrecognized lexeme");
 			return false;
 		}
 
@@ -187,7 +187,7 @@ Recognizer::writeChar (uint_t c)
 		((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength++] = c;
 		if (m_lexemeLength >= m_lexemeLengthLimit)
 		{
-			err::setStringError ("lexeme too long");
+			err::setError ("lexeme too long");
 			return AutomatonResult_Error;
 		}
 	}
@@ -203,7 +203,7 @@ Recognizer::writeChar (uint_t c)
 	}
 	else
 	{
-		err::setStringError ("unrecognized lexeme");
+		err::setError ("unrecognized lexeme");
 		return AutomatonResult_Error;
 	}
 

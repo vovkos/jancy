@@ -22,7 +22,7 @@ dataPtrIncrementOperator (
 
 	if (opType->getTargetType ()->getStdType () == StdType_AbstractData)
 	{
-		err::setStringError ("pointer arithmetic is not applicable to 'anydata' pointers");
+		err::setError ("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
 	}
 
@@ -74,7 +74,7 @@ dataPtrDifferenceOperator (
 	}
 	else if (targetType1->getStdType () == StdType_AbstractData)
 	{
-		err::setStringError ("pointer arithmetic is not applicable to 'anydata' pointers");
+		err::setError ("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
 	}
 

@@ -28,8 +28,8 @@ struct Error
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Error const* getLastError ();
-Error const* setPosixError (int errno);
-Error const* setStringError (char const* string);
+setErrno (int errno);
+setError (char const* string);
 
 //.............................................................................
 

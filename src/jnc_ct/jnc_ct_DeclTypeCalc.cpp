@@ -140,7 +140,7 @@ DeclTypeCalc::calcType (
 	}	
 	else if (type->getStdType () == StdType_AbstractData)
 	{
-		err::setStringError ("can only use 'anydata' in pointer declaration");
+		err::setError ("can only use 'anydata' in pointer declaration");
 		return NULL;
 	}
 
@@ -457,7 +457,7 @@ DeclTypeCalc::getArrayType (Type* elementType)
 		}
 		else if (elementType->getStdType () == StdType_AbstractData)
 		{
-			err::setStringError ("can only use 'anydata' in pointer declaration");
+			err::setError ("can only use 'anydata' in pointer declaration");
 			return NULL;
 		}
 	}
@@ -509,7 +509,7 @@ DeclTypeCalc::prepareReturnType (Type* type)
 		}
 		else if (type->getStdType () == StdType_AbstractData)
 		{
-			err::setStringError ("can only use 'anydata' in pointer declaration");
+			err::setError ("can only use 'anydata' in pointer declaration");
 			return NULL;
 		}
 	}

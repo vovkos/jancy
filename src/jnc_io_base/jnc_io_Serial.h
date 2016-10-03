@@ -162,7 +162,7 @@ protected:
 	void
 	fireSerialEvent (
 		SerialEventCode eventCode,
-		err::ErrorHdr* error
+		const err::ErrorRef& error
 		);
 
 	void

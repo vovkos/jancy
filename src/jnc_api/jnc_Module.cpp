@@ -356,7 +356,7 @@ jnc_Module_generateDocumentation (
 
 	if (nspaceXml.isEmpty ())
 	{
-		err::setStringError ("module does not contain any documentable items");
+		err::setError ("module does not contain any documentable items");
 		return false;
 	}
 

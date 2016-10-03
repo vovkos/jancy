@@ -34,7 +34,7 @@ automaton_declaration
 	|		{
 				if (m_automatonState != AutomatonState_RegExpCase)
 				{
-					err::setStringError ("missing regexp condition");
+					err::setError ("missing regexp condition");
 					return false;
 				}
 			}	

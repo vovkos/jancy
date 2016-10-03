@@ -330,7 +330,7 @@ assertionFailure (
 	if (message)
 		string.appendFormat ("; %s", message);
 	
-	err::setStringError (string, string.getLength ());
+	err::setError (string, string.getLength ());
 	dynamicThrow ();
 }
 
@@ -343,7 +343,7 @@ tryCheckDataPtrRangeDirect (
 {
 	if (!p)
 	{
-		err::setStringError ("null data pointer access");
+		err::setError ("null data pointer access");
 		return false;
 	}
 
@@ -378,7 +378,7 @@ tryCheckDataPtrRangeIndirect (
 {
 	if (!p || !validator)
 	{
-		err::setStringError ("null data pointer access");
+		err::setError ("null data pointer access");
 		return false;
 	}
 
@@ -418,21 +418,21 @@ tryCheckNullPtr (
 	{
 	case TypeKind_ClassPtr:
 	case TypeKind_ClassRef:
-		err::setStringError ("null class pointer access");
+		err::setError ("null class pointer access");
 		break;
 
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:
-		err::setStringError ("null function pointer access");
+		err::setError ("null function pointer access");
 		break;
 
 	case TypeKind_PropertyPtr:
 	case TypeKind_PropertyRef:
-		err::setStringError ("null property pointer access");
+		err::setError ("null property pointer access");
 		break;
 
 	default:
-		err::setStringError ("null pointer access");
+		err::setError ("null pointer access");
 	}
 
 	return false;
@@ -463,7 +463,7 @@ checkDivByZero_i32 (int32_t i)
 {
 	if (!i)
 	{
-		err::setStringError ("integer division by zero");
+		err::setError ("integer division by zero");
 		dynamicThrow ();
 	}
 }
@@ -473,7 +473,7 @@ checkDivByZero_i64 (int64_t i)
 {
 	if (!i)
 	{
-		err::setStringError ("integer division by zero");
+		err::setError ("integer division by zero");
 		dynamicThrow ();
 	}
 }
@@ -483,7 +483,7 @@ checkDivByZero_f32 (float f)
 {
 	if (!f)
 	{
-		err::setStringError ("floating point division by zero");
+		err::setError ("floating point division by zero");
 		dynamicThrow ();
 	}
 }
@@ -493,7 +493,7 @@ checkDivByZero_f64 (double f)
 {
 	if (!f)
 	{
-		err::setStringError ("floating point division by zero");
+		err::setError ("floating point division by zero");
 		dynamicThrow ();
 	}
 }

@@ -58,16 +58,16 @@ getLastError ()
 	return getErrorPtr (err::getLastError ());
 }
 
-DataPtr
-setPosixError (int code)
+void
+setErrno (int code)
 {
-	return getErrorPtr (err::setErrno (code));
+	err::setErrno (code);
 }
 
-DataPtr
-setStringError (DataPtr stringPtr)
+void
+setError (DataPtr stringPtr)
 {
-	return getErrorPtr (err::setStringError ((const char*) stringPtr.m_p));
+	err::setError ((const char*) stringPtr.m_p);
 }
 
 int
@@ -344,8 +344,8 @@ JNC_DEFINE_LIB (
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.getLastError",   getLastError)
-	JNC_MAP_FUNCTION ("std.setPosixError",  setPosixError)
-	JNC_MAP_FUNCTION ("std.setStringError", setStringError)
+	JNC_MAP_FUNCTION ("std.setErrno",       setErrno)
+	JNC_MAP_FUNCTION ("std.setError",       setError)
 	JNC_MAP_FUNCTION ("std.format",         format)
 	JNC_MAP_FUNCTION ("std.collectGarbage", collectGarbage)
 		

@@ -137,7 +137,7 @@ DoxyMgr::resolveBlockTargets ()
 	}
 
 	if (!result)		
-		err::setStringError ("documentation target(s) not found");
+		err::setError ("documentation target(s) not found");
 
 	return result;
 }
@@ -161,7 +161,7 @@ DoxyMgr::deleteEmptyGroups ()
 				if (groupIt->m_group)
 					groupIt->m_group->m_groupList.remove (groupIt->m_parentGroupListIt);
 
-				m_groupMap.eraseByKey (groupIt->m_name);
+				m_groupMap.eraseKey (groupIt->m_name);
 				m_groupList.erase (groupIt);
 				isGroupDeleted = true;
 			}

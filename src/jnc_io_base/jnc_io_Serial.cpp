@@ -176,7 +176,7 @@ Serial::fireSerialEvent (
 void
 Serial::fireSerialEvent (
 	SerialEventCode eventCode,
-	err::ErrorHdr* error
+	const err::ErrorRef& error
 	)
 {
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
@@ -363,7 +363,7 @@ Serial::ioThreadFunc ()
 		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
 		if (waitResult == WAIT_FAILED)
 		{
-			err::Error error = err::getLastSystemErrorCode ();
+			err::Error error (err::getLastSystemErrorCode ());
 			fireSerialEvent (SerialEventCode_IoError, error);
 			return;
 		}

@@ -65,7 +65,7 @@ class GcHeap;
 
 typedef axl::sl::ListLink jnc_ListLink;
 typedef axl::sl::Guid jnc_Guid;
-typedef axl::err::ErrorHdr jnc_Error;
+typedef const axl::err::ErrorHdr jnc_Error;
 typedef jnc::ct::ModuleItemDecl jnc_ModuleItemDecl;
 typedef jnc::ct::ModuleItem jnc_ModuleItem;
 typedef jnc::ct::Attribute jnc_Attribute;

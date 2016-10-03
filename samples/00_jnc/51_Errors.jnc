@@ -18,13 +18,13 @@ bool errorcode foo (int a)
 
 	if (a < 0)
 	{
-		std.setPosixError (1); // EPERM
+		std.setErrno (1); // EPERM
 		return false;
 	}
 
 	if (a > 100)
 	{
-		std.setStringError ("invalid argument");
+		std.setError ("invalid argument");
 		return false;
 	}
 

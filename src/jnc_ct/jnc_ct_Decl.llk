@@ -378,7 +378,7 @@ attribute_block
 			{
 				if (m_attributeBlock)
 				{
-					err::setStringError ("attribute block redefinition");
+					err::setError ("attribute block redefinition");
 					return false;
 				}
 

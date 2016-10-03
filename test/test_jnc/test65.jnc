@@ -7,7 +7,7 @@ foo (bool isError)
 	if (isError)
 	{
 		printf ("foo is about to throw...\n");
-		std.setStringError ("foo-error");
+		std.setError ("foo-error");
 		throw;
 	}
 }

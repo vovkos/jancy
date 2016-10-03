@@ -47,14 +47,14 @@ JNC_EXTERN_C
 void
 jnc_setError (jnc_Error* error)
 {
-	err::setError ((err::ErrorHdr*) error);
+	err::setError (error);
 }
 
 JNC_EXTERN_C
 const char*
 jnc_getErrorDescription_v (jnc_Error* error)
 {
-	return *jnc::getTlsStringBuffer () = ((err::ErrorHdr*) error)->getDescription ();
+	return *jnc::getTlsStringBuffer () = error->getDescription ();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
