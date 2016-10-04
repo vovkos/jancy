@@ -232,7 +232,7 @@ void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::EnumConst *member)
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*) member->getDecl ()));
 }
 
-void ModulePane::addValue (QTreeWidgetItem *parent, const char* name, jnc::Type* type, jnc::ModuleItem* moduleItem)
+void ModulePane::addValue (QTreeWidgetItem *parent, const QString& name, jnc::Type* type, jnc::ModuleItem* moduleItem)
 {
 	QString itemName = QString ("%1 %2 %3").arg (type->getTypeStringPrefix ()).arg (name).arg (type->getTypeStringSuffix ());
 	QTreeWidgetItem *item = insertItem(itemName, parent);

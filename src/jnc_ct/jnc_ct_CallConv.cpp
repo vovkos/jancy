@@ -190,14 +190,14 @@ CallConv::prepareFunctionType (FunctionType* functionType)
 llvm::Function*
 CallConv::createLlvmFunction (
 	FunctionType* functionType,
-	const char* tag
+	const sl::StringRef& tag
 	)
 {
 	llvm::FunctionType* llvmType = (llvm::FunctionType*) functionType->getLlvmType ();
 	llvm::Function* llvmFunction = llvm::Function::Create (
 		llvmType,
 		llvm::Function::ExternalLinkage,
-		tag,
+		tag >> toLlvm,
 		m_module->getLlvmModule ()
 		);
 

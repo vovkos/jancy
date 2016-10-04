@@ -519,6 +519,17 @@ strDup (
 	return jnc_strDup (p, length);
 }
 
+#ifdef _AXL_SL_STRING_H
+
+JNC_INLINE
+DataPtr
+strDup (const axl::sl::StringRef& string)
+{
+	return jnc_strDup (string.cp (), string.getLength ());
+}
+
+#endif
+
 JNC_INLINE
 DataPtr
 memDup (

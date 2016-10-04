@@ -867,14 +867,14 @@ public:
 	bool
 	getMemberOperatorResultType (
 		const Value& opValue,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
 	getMemberOperatorResultType (
 		Value* value,
-		const char* name
+		const sl::StringRef& name
 		)
 	{
 		return getMemberOperatorResultType (*value, name, value);
@@ -883,14 +883,14 @@ public:
 	bool
 	memberOperator (
 		const Value& opValue,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
 	memberOperator (
 		Value* value,
-		const char* name
+		const sl::StringRef& name
 		)
 	{
 		return memberOperator (*value, name, value);
@@ -900,8 +900,8 @@ public:
 
 	void
 	callTraceFunction (
-		const char* functionName,
-		const char* string
+		const sl::StringRef& functionName,
+		const sl::StringRef& string
 		);
 
 	Type*
@@ -1505,7 +1505,7 @@ protected:
 	bool
 	getNamespaceMemberType (
 		Namespace* nspace,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
@@ -1513,14 +1513,14 @@ protected:
 	getLibraryMember (
 		DynamicLibNamespace* library,
 		Closure* closure,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
 	getNamespaceMember (
 		Namespace* nspace,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
@@ -1528,7 +1528,7 @@ protected:
 	getNamedTypeMemberType (
 		const Value& opValue,
 		NamedType* namedType,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
@@ -1536,7 +1536,7 @@ protected:
 	getNamedTypeMember (
 		const Value& opValue,
 		NamedType* namedType,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
@@ -1544,7 +1544,7 @@ protected:
 	getEnumTypeMemberType (
 		const Value& opValue,
 		EnumType* enumType,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 
@@ -1552,7 +1552,7 @@ protected:
 	getEnumTypeMember (
 		const Value& opValue,
 		EnumType* enumType,
-		const char* name,
+		const sl::StringRef& name,
 		Value* resultValue
 		);
 

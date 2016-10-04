@@ -43,11 +43,11 @@ public:
 		m_extensionNamespaceArray.append (nspace);
 	}
 
-	ModuleItem* findItem (const char* name);
+	ModuleItem* findItem (const sl::StringRef& name);
 	
 	ModuleItem* findExtensionItem (
 		NamedType* type,
-		const char* name
+		const sl::StringRef& name
 		);
 };
 

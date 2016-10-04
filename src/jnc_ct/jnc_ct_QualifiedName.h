@@ -20,12 +20,7 @@ public:
 	{
 	}
 
-	QualifiedName (const sl::String& name)
-	{
-		m_first = name;
-	}	
-
-	QualifiedName (const char* name)
+	QualifiedName (const sl::StringRef& name)
 	{
 		m_first = name;
 	}	
@@ -50,10 +45,10 @@ public:
 	}
 
 	void
-	parse (const char* name);
+	parse (const sl::StringRef& name);
 
 	void
-	addName (const sl::String& name);
+	addName (const sl::StringRef& name);
 
 	sl::String
 	removeLastName ();

@@ -98,7 +98,7 @@ public:
 	Unit*
 	createUnit (
 		ExtensionLib* lib,
-		const sl::String& filePath
+		const sl::StringRef& filePath
 		);
 };
 

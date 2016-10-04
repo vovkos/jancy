@@ -316,7 +316,7 @@ DeclTypeCalc::checkUnusedModifiers ()
 {
 	if (m_typeModifiers)
 	{
-		err::setFormatStringError ("unused modifier '%s'", getTypeModifierString (m_typeModifiers).cc ());
+		err::setFormatStringError ("unused modifier '%s'", getTypeModifierString (m_typeModifiers).sz ());
 		return false;
 	}
 
@@ -341,7 +341,7 @@ DeclTypeCalc::getPtrTypeFlags (
 	{
 		if (type->getTypeKindFlags () & TypeKindFlag_Code)
 		{
-			err::setFormatStringError ("'volatile' cannot be applied to '%s'", type->getTypeString ().cc ());
+			err::setFormatStringError ("'volatile' cannot be applied to '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -358,7 +358,7 @@ DeclTypeCalc::getPtrTypeFlags (
 	{
 		if (!isClassType (type, ClassTypeKind_Multicast))
 		{
-			err::setFormatStringError ("'bindable' cannot be applied to '%s'", type->getTypeString ().cc ());
+			err::setFormatStringError ("'bindable' cannot be applied to '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -399,8 +399,8 @@ DeclTypeCalc::getIntegerType (Type* type)
 	if (!(type->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError ("'%s' modifier cannot be applied to '%s'",
-			getTypeModifierString (m_typeModifiers & TypeModifierMaskKind_Integer).cc (),
-			type->getTypeString ().cc ()
+			getTypeModifierString (m_typeModifiers & TypeModifierMaskKind_Integer).sz (),
+			type->getTypeString ().sz ()
 			);
 		return NULL;
 	}
@@ -439,13 +439,13 @@ DeclTypeCalc::getArrayType (Type* elementType)
 	case TypeKind_Class:
 	case TypeKind_Function:
 	case TypeKind_Property:
-		err::setFormatStringError ("cannot create array of '%s'", elementType->getTypeString ().cc () );
+		err::setFormatStringError ("cannot create array of '%s'", elementType->getTypeString ().sz () );
 		return NULL;
 
 	default:
 		if (isAutoSizeArrayType (elementType))
 		{
-			err::setFormatStringError ("cannot create array of auto-size-array '%s'", elementType->getTypeString ().cc () );
+			err::setFormatStringError ("cannot create array of auto-size-array '%s'", elementType->getTypeString ().sz () );
 			return NULL;
 		}
 
@@ -492,14 +492,14 @@ DeclTypeCalc::prepareReturnType (Type* type)
 	case TypeKind_Property:
 		err::setFormatStringError (
 			"function cannot return '%s'",
-			type->getTypeString ().cc ()
+			type->getTypeString ().sz ()
 			);
 		return NULL;
 
 	default:
 		if (isAutoSizeArrayType (type))
 		{
-			err::setFormatStringError ("function cannot return auto-size-array '%s'", type->getTypeString ().cc () );
+			err::setFormatStringError ("function cannot return auto-size-array '%s'", type->getTypeString ().sz () );
 			return NULL;
 		}
 
@@ -542,7 +542,7 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 		if (returnType->getTypeKind () != TypeKind_NamedImport &&
 			!(returnType->getTypeKindFlags () & TypeKindFlag_ErrorCode))
 		{
-			err::setFormatStringError ("'%s' cannot be used as error code", returnType->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as error code", returnType->getTypeString ().sz ());
 			return NULL;
 		}
 

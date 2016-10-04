@@ -180,7 +180,7 @@ public:
 	bool
 	setFunctionPointer (
 		llvm::ExecutionEngine* llvmExecutionEngine,
-		const char* name,
+		const sl::StringRef& name,
 		void* p
 		);
 
@@ -202,7 +202,7 @@ public:
 
 	void
 	initialize (
-		const sl::String& name,
+		const sl::StringRef& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
@@ -212,13 +212,12 @@ public:
 	bool
 	parse (
 		ExtensionLib* lib,
-		const char* fileName,
-		const char* source,
-		size_t length = -1
+		const sl::StringRef& fileName,
+		const sl::StringRef& source
 		);
 
 	bool
-	parseFile (const char* fileName);
+	parseFile (const sl::StringRef& fileName);
 
 	bool
 	parseImports ();
@@ -245,7 +244,7 @@ public:
 		);
 
 	void*
-	findFunctionMapping (const char* name);
+	findFunctionMapping (const sl::StringRef& name);
 
 	sl::String
 	getLlvmIrString ();

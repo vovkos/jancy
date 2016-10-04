@@ -38,7 +38,7 @@ ModuleItemDecl::getDoxyLocationString ()
 	sl::String string;
 
 	string.format ("<location file='%s' line='%d' col='%d'/>\n",
-		m_parentUnit->getFileName ().cc (),
+		m_parentUnit->getFileName ().sz (),
 		m_pos.m_line + 1,
 		m_pos.m_col + 1
 		);
@@ -207,7 +207,7 @@ ModuleItem::ensureLayout ()
 
 	if (m_flags & ModuleItemFlag_InCalcLayout)
 	{
-		err::setFormatStringError ("can't calculate layout of '%s' due to recursion", m_tag.cc ());
+		err::setFormatStringError ("can't calculate layout of '%s' due to recursion", m_tag.sz ());
 		return false;
 	}
 
@@ -255,7 +255,7 @@ ModuleItem::createDoxyRefId ()
 
 	if (!m_tag.isEmpty ())
 	{
-		refId.appendFormat ("_%s", m_tag.cc ());
+		refId.appendFormat ("_%s", m_tag.sz ());
 		refId.replace ('.', '_');
 	}
 
@@ -270,7 +270,7 @@ ModuleItem*
 verifyModuleItemKind (
 	ModuleItem* item, 
 	ModuleItemKind itemKind,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	if (item->getItemKind () != itemKind)
@@ -285,7 +285,7 @@ verifyModuleItemKind (
 DerivableType*
 verifyModuleItemIsDerivableType (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
@@ -294,7 +294,7 @@ verifyModuleItemIsDerivableType (
 
 	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -304,7 +304,7 @@ verifyModuleItemIsDerivableType (
 ClassType*
 verifyModuleItemIsClassType (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
@@ -313,7 +313,7 @@ verifyModuleItemIsClassType (
 
 	if (type->getTypeKind () != TypeKind_Class)
 	{
-		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ().sz ());
 		return NULL;
 	}
 

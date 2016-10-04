@@ -315,7 +315,7 @@ format (
 	if (!resultPtr.m_p)
 		return g_nullPtr;
 
-	memcpy (resultPtr.m_p, string.cc (), length);
+	memcpy (resultPtr.m_p, string.sz (), length);
 	return resultPtr;
 }
 

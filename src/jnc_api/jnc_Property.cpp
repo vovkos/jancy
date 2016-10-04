@@ -43,7 +43,7 @@ jnc_Property_getSetter (jnc_Property* prop)
 	jnc_Function* function = prop->getSetter ();
 	if (!function)
 	{
-		err::setFormatStringError ("'%s' has no setter", prop->m_tag.cc ());
+		err::setFormatStringError ("'%s' has no setter", prop->m_tag.sz ());
 		return NULL;
 	}
 

@@ -79,9 +79,9 @@ FunctionMgr::overrideThisValue (const Value& value)
 Function*
 FunctionMgr::createFunction (
 	FunctionKind functionKind,
-	const sl::String& name,
-	const sl::String& qualifiedName,
-	const sl::String& tag,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	const sl::StringRef& tag,
 	FunctionType* type
 	)
 {
@@ -116,9 +116,9 @@ FunctionMgr::createFunction (
 Property*
 FunctionMgr::createProperty (
 	PropertyKind propertyKind,
-	const sl::String& name,
-	const sl::String& qualifiedName,
-	const sl::String& tag
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	const sl::StringRef& tag
 	)
 {
 	Property* prop;
@@ -368,8 +368,8 @@ FunctionMgr::epilogue ()
 	{
 		err::setFormatStringError (
 			"LLVM verification fail for '%s': %s",
-			function->m_tag.cc (),
-			error->getDescription ().cc ()
+			function->m_tag.sz (),
+			error->getDescription ().sz ()
 			);
 
 		return false;
@@ -506,7 +506,7 @@ FunctionMgr::getDirectThunkFunction (
 		"%c%x.%s",
 		signatureChar,
 		targetFunction,
-		thunkFunctionType->getSignature ().cc ()
+		thunkFunctionType->getSignature ().sz ()
 		);
 
 	sl::StringHashTableMapIterator <Function*> thunk = m_thunkFunctionMap.visit (signature);
@@ -540,7 +540,7 @@ FunctionMgr::getDirectThunkProperty (
 		"%c%x.%s",
 		hasUnusedClosure ? 'U' : 'D',
 		targetProperty,
-		thunkPropertyType->getSignature ().cc ()
+		thunkPropertyType->getSignature ().sz ()
 		);
 
 	sl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
@@ -576,7 +576,7 @@ FunctionMgr::getDirectDataThunkProperty (
 		"%c%x.%s",
 		hasUnusedClosure ? 'U' : 'D',
 		targetVariable,
-		thunkPropertyType->getSignature ().cc ()
+		thunkPropertyType->getSignature ().sz ()
 		);
 
 	sl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
@@ -740,7 +740,7 @@ FunctionMgr::jitFunctions ()
 	}
 	catch (err::Error error)
 	{
-		err::setFormatStringError ("LLVM jitting failed: %s", error->getDescription ().cc ());
+		err::setFormatStringError ("LLVM jitting failed: %s", error->getDescription ().sz ());
 		return false;
 	}
 
@@ -999,8 +999,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 
 		function = parseStdFunction (
 			source->m_stdNamespace,
-			source->m_source,
-			source->m_length
+			sl::StringRef (source->m_source, source->m_length)
 			);
 		break;
 
@@ -1020,14 +1019,13 @@ FunctionMgr::getStdFunction (StdFunc func)
 Function*
 FunctionMgr::parseStdFunction (
 	StdNamespace stdNamespace,
-	const char* source,
-	size_t length
+	const sl::StringRef& source
 	)
 {
 	bool result;
 
 	Lexer lexer;
-	lexer.create ("jnc_StdFunctions.jnc", source, length);
+	lexer.create ("jnc_StdFunctions.jnc", source);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
@@ -1043,7 +1041,7 @@ FunctionMgr::parseStdFunction (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("parse std function error: %s\n", err::getLastErrorDescription ().cc ());
+			dbg::trace ("parse std function error: %s\n", err::getLastErrorDescription ().sz ());
 			ASSERT (false);
 		}
 

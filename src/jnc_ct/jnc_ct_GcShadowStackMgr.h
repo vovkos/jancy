@@ -34,7 +34,7 @@ public:
 	const size_t*
 	getGcRootIndexArray ()
 	{
-		return m_gcRootIndexArray.ca ();
+		return m_gcRootIndexArray.cp ();
 	}
 
 	size_t

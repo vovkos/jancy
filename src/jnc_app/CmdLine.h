@@ -218,12 +218,12 @@ public:
 
 protected:
 	bool
-	onValue (const char* value);
+	onValue (const sl::StringRef& value);
 
 	bool
 	onSwitch (
 		SwitchKind switchKind,
-		const char* value
+		const sl::StringRef& value
 		);
 
 	bool

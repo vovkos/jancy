@@ -44,7 +44,7 @@ ExtensionLibMgr::addStaticLib (ExtensionLib* lib)
 }
 
 bool
-ExtensionLibMgr::loadDynamicLib (const char* fileName)
+ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 {
 	static char jncExt [] = ".jnc";
 	static char binExt [] = ".bin";
@@ -68,12 +68,12 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		sl::String fileName = entry->m_zipReader.getFileName (i);
 		size_t length = fileName.getLength ();
 
-		if (length > lengthof (binExt) && strcmp (fileName.cc () + length - lengthof (binExt), binExt) == 0)
+		if (fileName.isSuffix (binExt))
 		{
 			dynamicLibFileName = fileName;
 			dynamicLibFileIdx = i;
 		}
-		else if (length > lengthof (jncExt) && strcmp (fileName.cc () + length - lengthof (jncExt), jncExt) == 0)
+		else if (fileName.isSuffix (jncExt))
 		{
 			SourceFile* sourceFile = AXL_MEM_NEW (SourceFile);
 			sourceFile->m_fileName = fileName;
@@ -90,7 +90,7 @@ ExtensionLibMgr::loadDynamicLib (const char* fileName)
 		return false;
 	}
 
-	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.cc (), sys::getTimestamp (), dynamicLibFileName.cc ());
+	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.sz (), sys::getTimestamp (), dynamicLibFileName.sz ());
 
 	result = 
 		entry->m_zipReader.extractFileToFile (dynamicLibFileIdx, entry->m_dynamicLibFilePath);
@@ -138,7 +138,7 @@ ExtensionLibMgr::mapFunctions ()
 
 bool
 ExtensionLibMgr::findSourceFileContents (
-	const char* fileName,
+	const sl::StringRef& fileName,
 	ExtensionLib** lib,
 	sl::StringRef* contents
 	)
@@ -152,10 +152,7 @@ ExtensionLibMgr::findSourceFileContents (
 	if (file->m_zipIndex != -1)
 	{
 		sl::Array <char> contents = file->m_zipReader->extractFileToMem (file->m_zipIndex);
-		size_t length = contents.getCount ();
-
-		AXL_TODO ("add constructors for building axl::sl::StringRef's from axl::sl::ArrayRef's")
-		file->m_contents = sl::String (contents, length);
+		file->m_contents = sl::StringRef (contents.getHdr (), contents.cp (), contents.getCount ());
 		file->m_zipReader = NULL;
 		file->m_zipIndex = -1;
 	}
@@ -167,7 +164,7 @@ ExtensionLibMgr::findSourceFileContents (
 
 ct::ModuleItem*
 ExtensionLibMgr::findItem (
-	const char* name,
+	const sl::StringRef& name,
 	const sl::Guid& libGuid,
 	size_t cacheSlot
 	)

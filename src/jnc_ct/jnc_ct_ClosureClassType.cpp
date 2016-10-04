@@ -23,12 +23,12 @@ ClosureClassType::createSignature (
 
 	signature.appendFormat (
 		"%s-%s(",
-		targetType->getSignature ().cc (),
-		thunkType->getSignature ().cc ()
+		targetType->getSignature ().sz (),
+		thunkType->getSignature ().sz ()
 		);
 
 	for (size_t i = 0; i < argCount; i++)
-		signature.appendFormat ("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().cc ());
+		signature.appendFormat ("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().sz ());
 
 	signature.appendFormat ("::%d)", thisArgIdx);
 	return signature;
@@ -272,8 +272,8 @@ DataClosureClassType::createSignature (
 
 	signature.appendFormat (
 		"%s-%s",
-		targetType->getTypeString ().cc (),
-		thunkType->getTypeString ().cc ()
+		targetType->getTypeString ().sz (),
+		thunkType->getTypeString ().sz ()
 		);
 
 	return signature;

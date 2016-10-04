@@ -141,7 +141,7 @@ public:
 	void
 	updateTypeSignature (
 		Type* type,
-		const sl::String& signature
+		const sl::StringRef& signature
 		);
 
 	sl::ConstList <ArrayType>
@@ -351,8 +351,8 @@ public:
 
 	Typedef*
 	createTypedef (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		Type* type
 		);
 
@@ -361,8 +361,8 @@ public:
 
 	EnumType*
 	createEnumType (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		Type* baseType = NULL,
 		uint_t flags = 0
 		);
@@ -378,8 +378,8 @@ public:
 
 	StructType*
 	createStructType (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8
 		);
 
@@ -398,8 +398,8 @@ public:
 
 	UnionType*
 	createUnionType (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8
 		);
 
@@ -412,16 +412,16 @@ public:
 	ClassType*
 	createClassType (
 		ClassTypeKind classTypeKind,
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		);
 
 	ClassType*
 	createClassType (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
@@ -450,7 +450,7 @@ public:
 
 	FunctionArg*
 	createFunctionArg (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList <Token>* initializer = NULL
@@ -474,7 +474,7 @@ public:
 
 	StructField*
 	createStructField (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
@@ -717,8 +717,8 @@ public:
 
 	ReactorClassType*
 	createReactorType (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		ClassType* ifaceType,
 		ClassType* parentType
 		);
@@ -949,14 +949,14 @@ protected:
 	setupPrimitiveType (
 		TypeKind typeKind,
 		size_t size,
-		const char* signature
+		const sl::StringRef& signature
 		);
 
 	void
 	setupStdTypedef (
 		StdTypedef stdTypedef,
 		TypeKind typeKind,
-		const sl::String& name
+		const sl::StringRef& name
 		);
 
 	NamedType*
@@ -965,8 +965,7 @@ protected:
 	NamedType*
 	parseStdType (
 		StdNamespace stdNamespace,
-		const char* source,
-		size_t length
+		const sl::StringRef& source
 		);
 
 	ClassType*

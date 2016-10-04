@@ -30,7 +30,7 @@ OperatorMgr::getThisValue (Value* value)
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	if (!thisValue)
 	{
-		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ());
+		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.sz ());
 		return false;
 	}
 
@@ -60,7 +60,7 @@ OperatorMgr::getThisValueType (Value* value)
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	if (!function->isMember ())
 	{
-		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.cc ());
+		err::setFormatStringError ("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.sz ());
 		return false;
 	}
 
@@ -86,7 +86,7 @@ OperatorMgr::checkAccess (ModuleItemDecl* decl)
 	if (decl->getAccessKind () != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind (decl->getParentNamespace ()) == AccessKind_Public)
 	{
-		err::setFormatStringError ("'%s' is protected", decl->getQualifiedName ().cc ());
+		err::setFormatStringError ("'%s' is protected", decl->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -96,7 +96,7 @@ OperatorMgr::checkAccess (ModuleItemDecl* decl)
 bool
 OperatorMgr::getNamespaceMemberType (
 	Namespace* nspace,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -104,7 +104,7 @@ OperatorMgr::getNamespaceMemberType (
 	ModuleItem* item = nspace->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -127,7 +127,7 @@ OperatorMgr::getNamespaceMemberType (
 	case ModuleItemKind_Type:
 		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
-			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
 			return false;
 		}
 
@@ -172,7 +172,7 @@ OperatorMgr::getNamespaceMemberType (
 		break;
 
 	default:
-		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name);
 		return false;
 	};
 
@@ -186,14 +186,14 @@ OperatorMgr::getNamespaceMemberType (
 bool
 OperatorMgr::getNamespaceMember (
 	Namespace* nspace,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
 	ModuleItem* item = nspace->findItemTraverse (name, NULL, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -217,7 +217,7 @@ OperatorMgr::getNamespaceMember (
 	case ModuleItemKind_Type:
 		if (!(((Type*) item)->getTypeKindFlags () & TypeKindFlag_Named))
 		{
-			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
 			return false;
 		}
 
@@ -246,7 +246,7 @@ OperatorMgr::getNamespaceMember (
 		{
 			if (function->getStorageKind () == StorageKind_Abstract)
 			{
-				err::setFormatStringError ("'%s' is abstract", function->m_tag.cc ());
+				err::setFormatStringError ("'%s' is abstract", function->m_tag.sz ());
 				return false;
 			}
 
@@ -291,7 +291,7 @@ OperatorMgr::getNamespaceMember (
 		break;
 
 	default:
-		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().cc (), name);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name);
 		return false;
 	};
 
@@ -303,7 +303,7 @@ bool
 OperatorMgr::getNamedTypeMemberType (
 	const Value& opValue,
 	NamedType* namedType,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -311,7 +311,7 @@ OperatorMgr::getNamedTypeMemberType (
 	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -374,7 +374,7 @@ bool
 OperatorMgr::getNamedTypeMember (
 	const Value& opValue,
 	NamedType* namedType,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -382,7 +382,7 @@ OperatorMgr::getNamedTypeMember (
 	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -458,14 +458,14 @@ bool
 OperatorMgr::getEnumTypeMemberType (
 	const Value& opValue,
 	EnumType* enumType,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
 	ModuleItem* member = enumType->findItem (name);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -481,14 +481,14 @@ bool
 OperatorMgr::getEnumTypeMember (
 	const Value& opValue,
 	EnumType* enumType,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
 	ModuleItem* member = enumType->findItem (name);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -508,7 +508,7 @@ OperatorMgr::getEnumTypeMember (
 bool
 OperatorMgr::getMemberOperatorResultType (
 	const Value& rawOpValue,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -547,7 +547,7 @@ OperatorMgr::getMemberOperatorResultType (
 		return getEnumTypeMemberType (opValue, (EnumType*) type, name, resultValue);
 
 	default:
-		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 		return false;
 	}
 }
@@ -593,7 +593,7 @@ OperatorMgr::memberOperator (
 			return field && getUnionField (opValue, field, resultValue);
 
 		default:
-			err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().cc ());
+			err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -603,7 +603,7 @@ OperatorMgr::memberOperator (
 		return field && getClassField (opValue, field, NULL, resultValue);
 
 	default:
-		err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 		return false;
 	}
 }
@@ -612,7 +612,7 @@ bool
 OperatorMgr::getLibraryMember (
 	DynamicLibNamespace* library,
 	Closure* closure,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -625,13 +625,13 @@ OperatorMgr::getLibraryMember (
 
 	Function* function = memberValue.getFunction ();
 	size_t index = function->getLibraryTableIndex ();
-	name = function->getName (); // make sure name pointer stays valid (points to function, not token string)
+	const char* namePtr = function->getName (); // make sure name pointer stays valid (points to function, not token string)
 
 	Value argValueArray [] = 
 	{
 		closure->getThisArgValue (),
 		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
-		Value (&name, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
+		Value (&namePtr, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
 	};
 
 	m_module->m_llvmIrBuilder.createBitCast (
@@ -667,7 +667,7 @@ OperatorMgr::getLibraryMember (
 bool
 OperatorMgr::memberOperator (
 	const Value& rawOpValue,
-	const char* name,
+	const sl::StringRef& name,
 	Value* resultValue
 	)
 {
@@ -716,7 +716,7 @@ OperatorMgr::memberOperator (
 			getEnumTypeMember (opValue, (EnumType*) type, name, resultValue);
 
 	default:
-		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 		return false;
 	}
 }

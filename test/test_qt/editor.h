@@ -23,9 +23,9 @@ public:
 		insertPlainText (string);
 	}
 
-	void appendText (const char* text)
+	void appendText (const sl::StringRef& text)
 	{
-		appendString (QString::fromUtf8 (text));
+		appendString (QString::fromUtf8 (text.cp (), text.getLength ()));
 	}
 
 	void appendFormat_va (const char* format, va_list va)

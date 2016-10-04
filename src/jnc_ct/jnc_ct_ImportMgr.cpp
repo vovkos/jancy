@@ -22,26 +22,11 @@ ImportMgr::clear ()
 }
 
 bool
-ImportMgr::addImport (const char* fileName)
+ImportMgr::addImport (const sl::StringRef& fileName)
 {
 	sl::String filePath;
 
-	// extension lib or source?
-
-	static char extensionLibSuffix [] = ".jncx";
-	
-	enum
-	{
-		ExtensionLibSuffixLength = lengthof (extensionLibSuffix)
-	};
-
-	size_t length = strlen_s (fileName);
-	bool isExtensionLib = length >= ExtensionLibSuffixLength && memcmp (
-		fileName + length - ExtensionLibSuffixLength, 
-		extensionLibSuffix, 
-		ExtensionLibSuffixLength
-		) == 0;
-	
+	bool isExtensionLib = fileName.isSuffix (".jncx");
 	if (isExtensionLib)
 	{
 		FindResult findResult = findImportFile (fileName, &filePath);
@@ -84,7 +69,7 @@ ImportMgr::addImport (const char* fileName)
 void
 ImportMgr::addImport (
 	ExtensionLib* lib,
-	const sl::String& filePath,
+	const sl::StringRef& filePath,
 	const sl::StringRef& source
 	)
 {
@@ -103,7 +88,7 @@ ImportMgr::addImport (
 
 ImportMgr::FindResult
 ImportMgr::findImportFile (
-	const char* fileName,
+	const sl::StringRef& fileName,
 	sl::String* filePath_o
 	)
 {

@@ -9,8 +9,8 @@ namespace ct {
 
 void
 OperatorMgr::callTraceFunction (
-	const char* functionName,
-	const char* string
+	const sl::StringRef& functionName,
+	const sl::StringRef& string
 	)
 {
 	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace ()->findItem (functionName);
@@ -56,7 +56,7 @@ OperatorMgr::getClosureOperatorResultType (
 	{
 		err::setFormatStringError (
 			"closure operator cannot be applied to '%s'",
-			opValue.getType ()->getTypeString ().cc ()
+			opValue.getType ()->getTypeString ().sz ()
 			);
 		return NULL;
 	}
@@ -98,7 +98,7 @@ OperatorMgr::closureOperator (
 	{
 		err::setFormatStringError (
 			"closure operator cannot be applied to '%s'",
-			opValue.getType ()->getTypeString ().cc ()
+			opValue.getType ()->getTypeString ().sz ()
 			);
 		return false;
 	}
@@ -188,7 +188,7 @@ OperatorMgr::getCallOperatorResultType (
 		Function* callOperator = ((ClassPtrType*) opValue.getType ())->getTargetType ()->getCallOperator ();
 		if (!callOperator)
 		{
-			err::setFormatStringError ("cannot call '%s'", opValue.getType ()->getTypeString ().cc ());
+			err::setFormatStringError ("cannot call '%s'", opValue.getType ()->getTypeString ().sz ());
 			return NULL;
 		}
 
@@ -234,7 +234,7 @@ OperatorMgr::getCallOperatorResultType (
 		break;
 
 	default:
-		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().cc ());
+		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -286,7 +286,7 @@ OperatorMgr::callOperator (
 		Function* callOperator = ptrType->getTargetType ()->getCallOperator ();
 		if (!callOperator)
 		{
-			err::setFormatStringError ("cannot call '%s'", ptrType->getTypeString ().cc ());
+			err::setFormatStringError ("cannot call '%s'", ptrType->getTypeString ().sz ());
 			return false;
 		}
 
@@ -340,7 +340,7 @@ OperatorMgr::callOperator (
 	if (!(opType->getTypeKindFlags () & TypeKindFlag_FunctionPtr) ||
 		((FunctionPtrType*) opType)->getPtrTypeKind () == FunctionPtrTypeKind_Weak)
 	{
-		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().cc ());
+		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -409,7 +409,7 @@ OperatorMgr::castArgValueList (
 	}
 	else
 	{
-		err::setFormatStringError ("too many arguments in a call to '%s'", functionType->getTypeString ().cc ());
+		err::setFormatStringError ("too many arguments in a call to '%s'", functionType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -431,7 +431,7 @@ OperatorMgr::castArgValueList (
 				err::setFormatStringError (
 					"argument (%d) of '%s' has no default value",
 					i + 1,
-					functionType->getTypeString ().cc ()
+					functionType->getTypeString ().sz ()
 					);
 				return false;
 			}
@@ -464,7 +464,7 @@ OperatorMgr::castArgValueList (
 			err::setFormatStringError (
 				"argument (%d) of '%s' has no default value",
 				i + 1,
-				functionType->getTypeString ().cc ()
+				functionType->getTypeString ().sz ()
 				);
 			return false;
 		}

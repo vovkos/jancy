@@ -11,8 +11,7 @@ size_t
 decodeByteString (
 	sl::Array <char>* buffer,
 	int radix, // must be 2, 8, 10 or 16
-	const char* p,
-	size_t length
+	const sl::StringRef& string
 	)
 {
 	ASSERT (radix == 2 || radix == 8 || radix == 10 || radix == 16);
@@ -25,11 +24,8 @@ decodeByteString (
 
 	State state = State_Space;
 
-	if (length == -1)
-		length = strlen_s (p);
-
 	buffer->clear ();
-	buffer->reserve (length / 2); // good estimate no matter the radix
+	buffer->reserve (string.getLength () / 2); // good estimate no matter the radix
 	
 	char byteBuffer [16] = { 0 }; // big enough to fit byte in any radix
 	char* byteEnd;
@@ -39,7 +35,8 @@ decodeByteString (
 
 	uchar_t x;
 
-	const char* end = p + length;
+	const char* p = string.cp ();
+	const char* end = string.getEnd ();
 	for (; p < end; p++)
 	{
 		bool_t isSpace = isspace(*p);
@@ -121,9 +118,9 @@ Lexer::createStringToken (
 
 	size_t length = token->m_pos.m_length - (left + right);
 	if (useEscapeEncoding)
-		token->m_data.m_string = enc::EscapeEncoding::decode (ts + left, length);
+		token->m_data.m_string = enc::EscapeEncoding::decode (sl::StringRef (ts + left, length));
 	else
-		token->m_data.m_string.copy (ts + left, length);
+		token->m_data.m_string = sl::StringRef (ts + left, length);
 
 	return token;
 }
@@ -133,7 +130,7 @@ Lexer::createBinLiteralToken (int radix)
 {
 	Token* token = createToken (TokenKind_HexLiteral);
 	ASSERT (token->m_pos.m_length >= 4);
-	decodeByteString (&token->m_data.m_binData, radix, ts + 3, token->m_pos.m_length - 4);
+	decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (ts + 3, token->m_pos.m_length - 4));
 	return token;
 }
 
@@ -145,7 +142,7 @@ Lexer::createCharToken (int tokenKind)
 
 	char buffer [256];
 	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
-	enc::EscapeEncoding::decode (&string, ts + 1, token->m_pos.m_length - 2);
+	enc::EscapeEncoding::decode (&string, sl::StringRef (ts + 1, token->m_pos.m_length - 2));
 		
 	token->m_data.m_integer = string [0];
 	return token;
@@ -190,13 +187,11 @@ Lexer::preCreateMlLiteralToken (int radix)
 }
 
 size_t 
-getWsPrefixLength (
-	const char* p, 
-	size_t length
-	)
+getWsPrefixLength (const sl::StringRef& string)
 {
+	const char* p = string.cp ();
+	const char* end = string.getEnd ();
 	const char* p0 = p;
-	const char* end = p + length;
 
 	for (; p < end; p++)
 	{
@@ -211,23 +206,23 @@ getWsPrefixLength (
 bool
 normalizeMlLiteral (
 	sl::String* string,
-	const char* p,
-	size_t length,
-	const char* prefix,
-	size_t prefixLength
+	const sl::StringRef& source,
+	const sl::StringRef& prefix
 	)
 {
-	ASSERT (length >= prefixLength);
+	size_t prefixLength = prefix.getLength ();
+	ASSERT (source.getLength () >= prefixLength);
 
 	string->clear ();
 
-	const char* end = p + length;
+	const char* p = source.cp ();
+	const char* end = source.getEnd ();
 	while (p < end)
 	{
 		size_t chunkLength = end - p;
 		ASSERT (chunkLength > prefixLength);
 
-		size_t linePrefixLength = getWsPrefixLength (p, chunkLength);
+		size_t linePrefixLength = getWsPrefixLength (sl::StringRef (p, chunkLength));
 
 		bool isEmpty = p [linePrefixLength] == '\n';
 		if (isEmpty)
@@ -241,7 +236,7 @@ normalizeMlLiteral (
 		}
 		else
 		{
-			if (linePrefixLength < prefixLength || memcmp (p, prefix, prefixLength) != 0)
+			if (linePrefixLength < prefixLength || memcmp (p, prefix.cp (), prefixLength) != 0)
 				return false;
 
 			p += prefixLength;
@@ -279,18 +274,20 @@ Lexer::createMlLiteralToken ()
 	if (radix)
 	{
 		token->m_token = TokenKind_HexLiteral;
-		decodeByteString (&token->m_data.m_binData, radix, p, length);
+		decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (p, length));
 	}
 	else
 	{
 		token->m_token = TokenKind_Literal;
+		token->m_data.m_string = sl::StringRef (p, length);
 	
-		bool hasCommonPrefix = (right > 3 && ts [-1] == '\n') ? 
-			normalizeMlLiteral (&token->m_data.m_string, p, length, ts, right - 3) : 
-			false;
-
-		if (!hasCommonPrefix)
-			token->m_data.m_string.copy (p, length);
+		if (right > 3 && ts [-1] == '\n')
+		{
+			sl::String normalizedString;
+			bool hasCommonPrefix = normalizeMlLiteral (&normalizedString, sl::StringRef (p, length), sl::StringRef (ts, right - 3));
+			if (hasCommonPrefix)
+				token->m_data.m_string = normalizedString;
+		}
 	}
 
 	return token;
@@ -323,9 +320,10 @@ Lexer::createFmtLiteralToken (
 	ASSERT (token->m_pos.m_length >= left + right);
 
 	token->m_token = tokenKind;
-	token->m_data.m_string = enc::EscapeEncoding::decode (
+	token->m_data.m_string = enc::EscapeEncoding::decode (sl::StringRef (
 		token->m_pos.m_p + left,
-		token->m_pos.m_length - (left + right));
+		token->m_pos.m_length - (left + right)
+		));
 	token->m_data.m_integer = param;
 	return token;
 }

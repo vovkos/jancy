@@ -27,8 +27,8 @@ LlvmDiBuilder::create ()
 
 	m_llvmDiBuilder->createCompileUnit (
 		llvm::dwarf::DW_LANG_C99,
-		m_module->getName ().cc (),
-		io::getCurrentDir ().cc (),
+		m_module->getName ().sz (),
+		io::getCurrentDir ().sz (),
 		"jnc-1.0.0",
 		false, "", 1
 		);
@@ -87,7 +87,7 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 
 	return m_llvmDiBuilder->createStructType (
 		unit->getLlvmDiFile (),
-		structType->m_tag.cc (),
+		structType->m_tag.sz (),
 		unit->getLlvmDiFile (),
 		structType->getPos ()->m_line + 1,
 		structType->getSize () * 8,
@@ -125,7 +125,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (
 			unit->getLlvmDiFile (),
-			!name.isEmpty () ? name.cc () : "UnnamedBaseType",
+			!name.isEmpty () ? name.sz () : "UnnamedBaseType",
 			unit->getLlvmDiFile (),
 			baseType->getPos ()->m_line + 1,
 			baseType->getType ()->getSize () * 8,
@@ -143,7 +143,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (
 			unit->getLlvmDiFile (),
-			!name.isEmpty () ? name.cc () : "m_unnamedField",
+			!name.isEmpty () ? name.sz () : "m_unnamedField",
 			unit->getLlvmDiFile (),
 			field->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
@@ -170,7 +170,7 @@ LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 
 	return m_llvmDiBuilder->createUnionType (
 		unit->getLlvmDiFile (),
-		unionType->m_tag.cc (),
+		unionType->m_tag.sz (),
 		unit->getLlvmDiFile (),
 		unionType->getPos ()->m_line + 1,
 		unionType->getSize () * 8,
@@ -200,7 +200,7 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (
 			unit->getLlvmDiFile (),
-			!name.isEmpty () ? name.cc () : "m_unnamedField",
+			!name.isEmpty () ? name.sz () : "m_unnamedField",
 			unit->getLlvmDiFile (),
 			field->getPos ()->m_line + 1,
 			field->getType ()->getSize () * 8,
@@ -258,7 +258,7 @@ LlvmDiBuilder::createPointerType (Type* type)
 		type->getLlvmDiType (),
 		type->getSize () * 8,
 		type->getAlignment () * 8,
-		type->getTypeString ().cc ()
+		type->getTypeString ().sz ()
 		);
 }
 
@@ -269,7 +269,7 @@ LlvmDiBuilder::createGlobalVariable (Variable* variable)
 	ASSERT (unit);
 
 	return m_llvmDiBuilder->createGlobalVariable (
-		variable->getQualifiedName ().cc (),
+		variable->getQualifiedName ().sz (),
 		unit->getLlvmDiFile (),
 		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
@@ -291,7 +291,7 @@ LlvmDiBuilder::createLocalVariable (
 	return m_llvmDiBuilder->createLocalVariable (
 		tag,
 		scope->getLlvmDiScope (),
-		variable->getName ().cc (),
+		variable->getName ().sz (),
 		unit->getLlvmDiFile (),
 		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
@@ -334,8 +334,8 @@ LlvmDiBuilder::createFunction (Function* function)
 
 	return m_llvmDiBuilder->createFunction (
 		unit->getLlvmDiFile (),
-		function->m_tag.cc (),
-		function->m_tag.cc (), // linkage name
+		function->m_tag.sz (),
+		function->m_tag.sz (), // linkage name
 		unit->getLlvmDiFile (),
 		declPos.m_line + 1,
 		llvm::DICompositeType (function->getType ()->getLlvmDiType ()),

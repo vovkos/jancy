@@ -64,7 +64,7 @@ ControlFlowMgr::finalizeFunction ()
 
 BasicBlock*
 ControlFlowMgr::createBlock (
-	const sl::String& name,
+	const sl::StringRef& name,
 	uint_t flags
 	)
 {
@@ -74,7 +74,7 @@ ControlFlowMgr::createBlock (
 	block->m_flags = flags;
 	block->m_llvmBlock = llvm::BasicBlock::Create (
 		*m_module->getLlvmContext (),
-		(const char*) name,
+		name >> toLlvm,
 		NULL
 		);
 
@@ -426,8 +426,8 @@ ControlFlowMgr::ret (const Value& value)
 		{
 			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
-				function->m_tag.cc (), 
-				returnType->getTypeString ().cc ()
+				function->m_tag.sz (), 
+				returnType->getTypeString ().sz ()
 				);
 			return false;
 		}
@@ -487,8 +487,8 @@ ControlFlowMgr::checkReturn ()
 	{
 		err::setFormatStringError (
 			"function '%s' must return a '%s' value",
-			function->m_tag.cc (),
-			returnType->getTypeString ().cc ()
+			function->m_tag.sz (),
+			returnType->getTypeString ().sz ()
 			);
 		return false;
 	}
@@ -496,7 +496,7 @@ ControlFlowMgr::checkReturn ()
 	{
 		err::setFormatStringError (
 			"not all control paths in function '%s' return a value",
-			function->m_tag.cc ()
+			function->m_tag.sz ()
 			);
 		return false;
 	}

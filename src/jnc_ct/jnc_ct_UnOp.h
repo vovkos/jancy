@@ -86,7 +86,7 @@ public:
 		return err::setFormatStringError (
 			"unary '%s' cannot be applied to '%s'",
 			getUnOpKindString (m_opKind),
-			opType->getTypeString ().cc ()
+			opType->getTypeString ().sz ()
 			);
 	}
 

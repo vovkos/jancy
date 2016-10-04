@@ -23,7 +23,7 @@ public:
 	}
 
 	bool
-	openImpl (const char* fileName);
+	openImpl (const sl::StringRef& fileName);
 
 	void
 	JNC_CDECL
@@ -40,7 +40,7 @@ public:
 	}
 
 	void* 
-	getFunctionImpl (const char* name);
+	getFunctionImpl (const sl::StringRef& name);
 
 	sys::DynamicLibrary*
 	getDynamicLibrary ()

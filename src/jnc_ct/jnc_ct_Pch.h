@@ -14,7 +14,6 @@
 #include "axl_sl_ArrayList.h"
 #include "axl_sl_AutoPtrArray.h"
 #include "axl_sl_BitMap.h"
-#include "axl_sl_StringCache.h"
 #include "axl_sl_StringHashTable.h"
 #include "axl_sl_CmdLineParser.h"
 #include "axl_sl_BoxList.h"
@@ -127,5 +126,32 @@ using namespace axl;
 #if (_AXL_OS_POSIX)
 #	include <signal.h>
 #endif
+
+//.............................................................................
+
+// converstions for axl::sl::StringRef
+
+AXL_SELECT_ANY struct ToStl* toStl;
+AXL_SELECT_ANY struct ToLlvm* toLlvm;
+
+inline
+std::string
+operator >> (
+	const sl::StringRef& string, 
+	const ToStl*
+	)
+{
+	return std::string (string.cp (), string.getLength ());
+}
+
+inline
+llvm::StringRef
+operator >> (
+	const sl::StringRef& string, 
+	const ToLlvm*
+	)
+{
+	return llvm::StringRef (string.cp (), string.getLength ());
+}
 
 //.............................................................................

@@ -72,13 +72,7 @@ public:
 	}
 
 	sl::String
-	createQualifiedName (const char* name);
-
-	sl::String
-	createQualifiedName (const sl::String& name)
-	{
-		return createQualifiedName (name.cc ());
-	}
+	createQualifiedName (const sl::StringRef& name);
 
 	sl::String
 	createQualifiedName (const QualifiedName& name)
@@ -93,106 +87,90 @@ public:
 	}
 
 	ModuleItem*
-	findItemByName (const char* name);
+	findItemByName (const sl::StringRef& name);
 
 	ModuleItem*
-	getItemByName (const char* name);
+	getItemByName (const sl::StringRef& name);
 
 	Type*
-	findTypeByName (const char* name)
+	findTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = findItemByName (name);
 		return item ? verifyModuleItemIsType (item, name) : NULL;
 	}
 
 	Type*
-	getTypeByName (const char* name)
+	getTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = getItemByName (name);
 		return item ? verifyModuleItemIsType (item, name) : NULL;
 	}
 
 	DerivableType*
-	findDerivableTypeByName (const char* name)
+	findDerivableTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = findItemByName (name);
 		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
 	}
 
 	DerivableType*
-	getDerivableTypeByName (const char* name)
+	getDerivableTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = getItemByName (name);
 		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
 	}
 
 	ClassType*
-	findClassTypeByName (const char* name)
+	findClassTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = findItemByName (name);
 		return item ? verifyModuleItemIsClassType (item, name) : NULL;
 	}
 
 	ClassType*
-	getClassTypeByName (const char* name)
+	getClassTypeByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = getItemByName (name);
 		return item ? verifyModuleItemIsClassType (item, name) : NULL;
 	}
 
 	Function*
-	findFunctionByName (const char* name)
+	findFunctionByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = findItemByName (name);
 		return item ? verifyModuleItemIsFunction (item, name) : NULL;
 	}
 
 	Function*
-	getFunctionByName (const char* name)
+	getFunctionByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = getItemByName (name);
 		return item ? verifyModuleItemIsFunction (item, name) : NULL;
 	}
 
 	Property*
-	findPropertyByName (const char* name)
+	findPropertyByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = findItemByName (name);
 		return item ? verifyModuleItemIsProperty (item, name) : NULL;
 	}
 
 	Property*
-	getPropertyByName (const char* name)
+	getPropertyByName (const sl::StringRef& name)
 	{
 		ModuleItem* item = getItemByName (name);
 		return item ? verifyModuleItemIsProperty (item, name) : NULL;
 	}
 
 	ModuleItem*
-	findItem (const char* name);
-
-	ModuleItem*
-	findItem (const sl::StringRef& name)
-	{
-		return findItem (name.cc ());
-	}
+	findItem (const sl::StringRef& name);
 
 	ModuleItem*
 	findItem (const QualifiedName& name);
 
 	ModuleItem*
 	findItemTraverse (
-		const sl::String& name,
-		MemberCoord* coord = NULL,
-		uint_t flags = 0
-		)
-	{
-		return findItemTraverseImpl (name, coord, flags);
-	}
-
-	ModuleItem*
-	findItemTraverse (
-		const char* name,
+		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		)
@@ -225,7 +203,7 @@ public:
 
 	Const*
 	createConst (
-		const sl::String& name,
+		const sl::StringRef& name,
 		const Value& value
 		);
 
@@ -251,21 +229,21 @@ protected:
 
 	bool
 	addItem (
-		const char* name,
+		const sl::StringRef& name,
 		ModuleItem* item
 		);
 	
 	virtual
 	ModuleItem*
 	findItemTraverseImpl (
-		const char* name,
+		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		);
 
 	bool
 	generateMemberDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml,
 		bool useSectionDef
@@ -294,7 +272,7 @@ public:
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
@@ -348,7 +326,7 @@ public:
 
 JNC_INLINE
 err::Error
-setRedefinitionError (const char* name)
+setRedefinitionError (const sl::StringRef& name)
 {
 	return err::setFormatStringError ("redefinition of '%s'", name);
 }

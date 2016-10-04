@@ -22,13 +22,13 @@ JNC_END_TYPE_FUNCTION_MAP ()
 //.............................................................................
 
 bool 
-DynamicLib::openImpl (const char* fileName)
+DynamicLib::openImpl (const sl::StringRef& fileName)
 {
 	bool result = getDynamicLibrary ()->open (fileName);
 	if (!result)
 	{
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError ("cannot open dynamiclib '%s'", fileName);
+		err::pushFormatStringError ("cannot open dynamiclib '%s'", fileName.sz ());
 #endif
 		return false;
 	}
@@ -37,7 +37,7 @@ DynamicLib::openImpl (const char* fileName)
 }
 
 void* 
-DynamicLib::getFunctionImpl (const char* name)
+DynamicLib::getFunctionImpl (const sl::StringRef& name)
 {
 	ASSERT (sizeof (sys::DynamicLibrary) == sizeof (m_handle));
 
@@ -51,7 +51,7 @@ DynamicLib::getFunctionImpl (const char* name)
 	if (!p)
 	{
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError ("cannot get dynamiclib function '%s'", name);
+		err::pushFormatStringError ("cannot get dynamiclib function '%s'", name.sz ());
 #endif
 		return NULL;
 	}

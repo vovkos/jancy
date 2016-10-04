@@ -286,14 +286,14 @@ public:
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
 
 protected:
 	ModuleItem*
-	findItemInExtensionNamespaces (const char* name);
+	findItemInExtensionNamespaces (const sl::StringRef& name);
 
 	bool
 	createDefaultMethod (
@@ -320,7 +320,7 @@ protected:
 	virtual
 	ModuleItem*
 	findItemTraverseImpl (
-		const char* name,
+		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		)
@@ -330,7 +330,7 @@ protected:
 
 	ModuleItem*
 	findItemTraverseImpl (
-		const char* name,
+		const sl::StringRef& name,
 		MemberCoord* coord,
 		uint_t flags,
 		size_t baseTypeLevel

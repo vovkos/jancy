@@ -37,13 +37,13 @@ Function::setBody (sl::BoxList <Token>* tokenList)
 {
 	if (!m_body.isEmpty ())
 	{
-		err::setFormatStringError ("'%s' already has a body", m_tag.cc ());
+		err::setFormatStringError ("'%s' already has a body", m_tag.sz ());
 		return false;
 	}
 
 	if (m_storageKind == StorageKind_Abstract)
 	{
-		err::setFormatStringError ("'%s' is abstract and hence cannot have a body", m_tag.cc ());
+		err::setFormatStringError ("'%s' is abstract and hence cannot have a body", m_tag.sz ());
 		return false;
 	}
 
@@ -284,12 +284,12 @@ Function::compileNormalBody ()
 
 bool
 Function::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='function' id='%s'", getDoxyBlock ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='function' id='%s'", getDoxyBlock ()->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -304,7 +304,7 @@ Function::generateDocumentation (
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
-	itemXml->appendFormat ("<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat ("<name>%s</name>\n", m_name.sz ());
 	itemXml->append (m_type->getDoxyTypeString ());
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());

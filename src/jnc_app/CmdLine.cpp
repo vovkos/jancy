@@ -17,9 +17,9 @@ CmdLine::CmdLine ()
 //.............................................................................
 
 size_t
-parseSizeString (const char* string)
+parseSizeString (const sl::StringRef& string)
 {
-	size_t length = strlen_s (string);
+	size_t length = string.getLength ();
 	if (!length)
 		return 0;
 
@@ -43,13 +43,13 @@ parseSizeString (const char* string)
 		}
 	}
 
-	return strtoul (string, NULL, 10) * multiplier;
+	return strtoul (string.cp (), NULL, 10) * multiplier;
 }
 
 //.............................................................................
 
 bool
-CmdLineParser::onValue (const char* value)
+CmdLineParser::onValue (const sl::StringRef& value)
 {
 	m_cmdLine->m_fileNameList.insertTail (value);
 	return true;
@@ -58,7 +58,7 @@ CmdLineParser::onValue (const char* value)
 bool
 CmdLineParser::onSwitch (
 	SwitchKind switchKind,
-	const char* value
+	const sl::StringRef& value
 	)
 {
 	switch (switchKind)
@@ -192,7 +192,7 @@ CmdLineParser::finalize ()
 		bool result = fileEnum.openDir (dir);
 		if (!result)
 		{
-			printf ("warning: %s\n", err::getLastErrorDescription ().cc ());
+			printf ("warning: %s\n", err::getLastErrorDescription ().sz ());
 			continue;
 		}
 
@@ -206,7 +206,7 @@ CmdLineParser::finalize ()
 			if (length < SuffixLength)
 				continue;
 
-			const char* suffix = filePath.cc () + length - SuffixLength;
+			const char* suffix = filePath.sz () + length - SuffixLength;
 
 			if (memcmp (suffix, jncSuffix, SuffixLength) == 0 || 
 				includeDox && memcmp (suffix, doxSuffix, SuffixLength) == 0)

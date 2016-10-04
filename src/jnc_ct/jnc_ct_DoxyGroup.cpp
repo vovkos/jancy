@@ -9,24 +9,24 @@ namespace ct {
 
 bool
 DoxyGroup::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
 	indexXml->appendFormat (
 		"<compound kind='group' refid='%s'><name>%s</name></compound>\n", 
-		m_refId.cc (), 
-		m_name.cc ()
+		m_refId.sz (), 
+		m_name.sz ()
 		);
 
 	itemXml->format (
 		"<compounddef kind='group' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n"
 		"<title>%s</title>\n", 
-		m_refId.cc (), 
-		m_name.cc (),
-		m_title.cc ()
+		m_refId.sz (), 
+		m_name.sz (),
+		m_title.sz ()
 		);
 
 	sl::String sectionDef;
@@ -49,14 +49,14 @@ DoxyGroup::generateDocumentation (
 
 		if (!isCompoundFile)
 		{
-			sectionDef.appendFormat ("<memberdef id='%s'/>", refId.cc ());
+			sectionDef.appendFormat ("<memberdef id='%s'/>", refId.sz ());
 			sectionDef.append ('\n');
 		}
 		else
 		{
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
 			sl::String refId = item->getDoxyBlock ()->getRefId ();
-			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
+			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.sz ());
 			itemXml->append ('\n');
 		}
 	}
@@ -72,7 +72,7 @@ DoxyGroup::generateDocumentation (
 	for (; groupIt; groupIt++)
 	{
 		DoxyGroup* group = *groupIt;
-		itemXml->appendFormat ("<innergroup refid='%s'/>", group->m_refId.cc ());
+		itemXml->appendFormat ("<innergroup refid='%s'/>", group->m_refId.sz ());
 		itemXml->append ('\n');
 	}
 

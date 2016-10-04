@@ -125,7 +125,7 @@ public:
 
 	StructField*
 	createField (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
@@ -149,7 +149,7 @@ public:
 	Function*
 	createMethod (
 		StorageKind storageKind,
-		const sl::String& name,
+		const sl::StringRef& name,
 		FunctionType* shortType
 		);
 
@@ -163,7 +163,7 @@ public:
 	Property*
 	createProperty (
 		StorageKind storageKind,
-		const sl::String& name,
+		const sl::StringRef& name,
 		PropertyType* shortType
 		);
 
@@ -200,7 +200,7 @@ protected:
 	virtual
 	StructField*
 	createFieldImpl (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,

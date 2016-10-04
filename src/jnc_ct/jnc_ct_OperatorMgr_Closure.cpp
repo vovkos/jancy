@@ -56,7 +56,7 @@ OperatorMgr::createClosureObject (
 
 		if (closureArgCount > srcArgCount)
 		{
-			err::setFormatStringError ("closure is too big for '%s'", srcFunctionType->getTypeString ().cc ());
+			err::setFormatStringError ("closure is too big for '%s'", srcFunctionType->getTypeString ().sz ());
 			return false;
 		}
 

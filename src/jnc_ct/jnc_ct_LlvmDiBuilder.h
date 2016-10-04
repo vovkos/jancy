@@ -81,22 +81,22 @@ public:
 
 	llvm::DIFile
 	createFile (
-		const char* fileName,
-		const char* dir
+		const sl::StringRef& fileName,
+		const sl::StringRef& dir
 		)
 	{
-		return m_llvmDiBuilder->createFile (fileName, dir);
+		return m_llvmDiBuilder->createFile (fileName >> toLlvm, dir >> toLlvm);
 	}
 
 	llvm::DIType
 	createBasicType (
-		const char* name,
+		const sl::StringRef& name,
 		size_t size,
 		size_t alignment,
 		uint_t code
 		)
 	{
-		return m_llvmDiBuilder->createBasicType (name, size * 8, alignment * 8, code);
+		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, alignment * 8, code);
 	}
 
 	llvm::DIType

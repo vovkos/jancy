@@ -23,8 +23,8 @@ ConstMgr::clear ()
 
 Const*
 ConstMgr::createConst (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	const Value& value
 	)
 {
@@ -39,21 +39,10 @@ ConstMgr::createConst (
 }
 
 const Value& 
-ConstMgr::saveLiteral (
-	const char* p,
-	size_t length
-	)
+ConstMgr::saveLiteral (const sl::StringRef& string)
 {
-	if (length == -1)
-		length = strlen_s (p);
-
 	Value value;
-
-	if (!length)
-		value.setEmptyCharArray (m_module);
-	else
-		value.setCharArray (p, length + 1, m_module);
-
+	value.setCharArray (string, m_module);
 	return saveValue (value);
 }
 

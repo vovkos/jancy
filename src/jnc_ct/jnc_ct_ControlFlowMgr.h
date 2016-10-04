@@ -116,7 +116,7 @@ public:
 
 	BasicBlock*
 	createBlock (
-		const sl::String& name,
+		const sl::StringRef& name,
 		uint_t flags = 0
 		);
 

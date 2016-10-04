@@ -70,19 +70,19 @@ public:
 	}
 
 	bool
-	addImport (const char* fileName);
+	addImport (const sl::StringRef& fileName);
 
 	void
 	addImport (
 		ExtensionLib* lib,
-		const sl::String& filePath,
+		const sl::StringRef& filePath,
 		const sl::StringRef& source
 		);
 
 protected:
 	FindResult
 	findImportFile (
-		const char* fileName,
+		const sl::StringRef& fileName,
 		sl::String* filePath
 		);
 };

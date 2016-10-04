@@ -219,13 +219,8 @@ void MainWindow::writeStatus(const QString& text, int timeout)
 	statusBar()->showMessage(text, timeout);
 }
 
-size_t MainWindow::writeOutputDirect (const char* text, size_t length)
+size_t MainWindow::writeOutputDirect (const QString& string)
 {
-	if (length == -1)
-		length = strlen_s (text);
-
-	QString string = QString::fromUtf8 (text, length);
-
 	if (QApplication::instance()->thread () == QThread::currentThread () && m_outputQueue.empty ())
 	{
 		m_output->appendString (string);
@@ -240,14 +235,14 @@ size_t MainWindow::writeOutputDirect (const char* text, size_t length)
 		emit outputSignal ();
 	}
 
-	return length;
+	return string.length ();
 }
 
 size_t MainWindow::writeOutput_va(const char* format, va_list va)
 {
-	sl::String text;
-	text.format_va (format, va);
-	return writeOutputDirect (text, text.getLength ());
+	QString text;
+	text.vsprintf (format, va);
+	return writeOutputDirect (text);
 }
 
 size_t MainWindow::writeOutput (const char* format, ...)
@@ -372,7 +367,7 @@ bool MainWindow::compile ()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
@@ -380,7 +375,7 @@ bool MainWindow::compile ()
 	result = m_module->compile ();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
@@ -394,7 +389,7 @@ bool MainWindow::compile ()
 	result = m_module->jit ();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().cc ());
+		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
@@ -432,7 +427,7 @@ MainWindow::run ()
 	result = m_runtime->startup (m_module);
 	if (!result)
 	{
-		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().cc ());
+		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
@@ -441,7 +436,7 @@ MainWindow::run ()
 	if (result)
 		writeOutput ("'main' returned %d.\n", returnValue);
 	else
-		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().cc ());
+		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
 	
 	writeOutput ("Shutting down...\n");
 	m_runtime->shutdown ();

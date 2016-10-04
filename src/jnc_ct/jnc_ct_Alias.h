@@ -37,7 +37,7 @@ public:
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		);

@@ -138,7 +138,7 @@ public:
 		Namespace* anchorNamespace
 		)
 	{
-		return sl::String::format_s ("ZN%s", anchorNamespace->createQualifiedName (name).cc ());
+		return sl::String::format_s ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
 	}
 
 protected:
@@ -146,7 +146,7 @@ protected:
 	void
 	prepareTypeString ()
 	{
-		getTypeStringTuple ()->m_typeStringPrefix.format ("import %s", getQualifiedName ().cc ());
+		getTypeStringTuple ()->m_typeStringPrefix.format ("import %s", getQualifiedName ().sz ());
 	}
 };
 
@@ -201,7 +201,7 @@ public:
 	{
 		return sl::String::format_s (
 			"ZP%s:%d:%d",
-			importType->getQualifiedName ().cc (),
+			importType->getQualifiedName ().sz (),
 			typeModifiers,
 			flags
 			);
@@ -248,7 +248,7 @@ public:
 	{
 		return sl::String::format_s (
 			"ZI%s:%d:%d",
-			importType->getQualifiedName ().cc (),
+			importType->getQualifiedName ().sz (),
 			typeModifiers,
 			flags
 			);

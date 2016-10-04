@@ -71,7 +71,7 @@ public:
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
@@ -106,14 +106,14 @@ public:
 
 	EnumConst*
 	createConst (
-		const sl::String& name,
+		const sl::StringRef& name,
 		sl::BoxList <Token>* initializer = NULL
 		);
 
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		);

@@ -199,7 +199,7 @@ GcShadowStackMgr::finalizeFrame ()
 		"gcShadowStackTypeArray",
 		function->m_tag + ".gcShadowStackTypeArray",
 		type,
-		Value (m_gcRootTypeArray.ca (), type)
+		Value (m_gcRootTypeArray.cp (), type)
 		);
 
 	// create gc root array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)

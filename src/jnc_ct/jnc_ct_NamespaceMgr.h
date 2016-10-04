@@ -160,20 +160,20 @@ public:
 	getAccessKind (Namespace* nspace);
 
 	sl::String
-	createQualifiedName (const char* name)
+	createQualifiedName (const sl::StringRef& name)
 	{
 		return m_currentNamespace->createQualifiedName (name);
 	}
 
 	GlobalNamespace*
 	createGlobalNamespace (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
 		);
 
 	ExtensionNamespace*
 	createExtensionNamespace (
-		const sl::String& name,
+		const sl::StringRef& name,
 		DerivableType* type,
 		Namespace* parentNamespace = NULL
 		);

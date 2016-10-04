@@ -20,7 +20,7 @@ StructField::StructField ()
 
 bool
 StructField::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -28,7 +28,7 @@ StructField::generateDocumentation (
 	bool isMulticast = isClassType (m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";
 
-	itemXml->format ("<memberdef kind='%s' id='%s'", kind, getDoxyBlock ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='%s' id='%s'", kind, getDoxyBlock ()->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -43,15 +43,15 @@ StructField::generateDocumentation (
 	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
 		itemXml->append (" readonly='yes'");
 
-	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
+	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.sz ());
 	itemXml->append (m_type->getDoxyTypeString ());
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_ptrTypeFlags & ~PtrTypeFlag_DualEvent);
 	if (!ptrTypeFlagString.isEmpty ())
-		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", ptrTypeFlagString.cc ());
+		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz ());
 
 	if (!m_initializer.isEmpty ())
-		itemXml->appendFormat ("<initializer>= %s</initializer>\n", getInitializerString ().cc ());
+		itemXml->appendFormat ("<initializer>= %s</initializer>\n", getInitializerString ().sz ());
 
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
@@ -76,12 +76,12 @@ StructType::StructType ()
 void
 StructType::prepareLlvmType ()
 {
-	m_llvmType = llvm::StructType::create (*m_module->getLlvmContext (), m_tag.cc ());
+	m_llvmType = llvm::StructType::create (*m_module->getLlvmContext (), m_tag.sz ());
 }
 
 StructField*
 StructType::createFieldImpl (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
@@ -91,7 +91,7 @@ StructType::createFieldImpl (
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -169,7 +169,7 @@ StructType::calcLayout ()
 		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) || 
 			slot->m_type->getTypeKind () == TypeKind_Class)
 		{
-			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -178,7 +178,7 @@ StructType::calcLayout ()
 		{
 			err::setFormatStringError (
 				"'%s' is already a base type",
-				slot->m_type->getTypeString ().cc ()
+				slot->m_type->getTypeString ().sz ()
 				);
 			return false;
 		}
@@ -219,7 +219,7 @@ StructType::calcLayout ()
 
 		if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
 		{
-			err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -314,7 +314,7 @@ StructType::calcLayout ()
 		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo (classType->getQualifiedName ());
 		if (!typeInfo)
 		{
-			err::setFormatStringError ("opaque class type info is missing for '%s'", classType->getTypeString ().cc ());
+			err::setFormatStringError ("opaque class type info is missing for '%s'", classType->getTypeString ().sz ());
 			return false;
 		}
 
@@ -322,7 +322,7 @@ StructType::calcLayout ()
 		{
 			err::setFormatStringError (
 				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)", 
-				getTypeString ().cc (), 
+				getTypeString ().sz (), 
 				typeInfo->m_size,
 				m_fieldAlignedSize
 				);

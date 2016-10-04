@@ -46,7 +46,7 @@ NamedTypeBlock::getParentUnitImpl ()
 Function*
 NamedTypeBlock::createMethod (
 	StorageKind storageKind,
-	const sl::String& name,
+	const sl::StringRef& name,
 	FunctionType* shortType
 	)
 {
@@ -77,7 +77,7 @@ NamedTypeBlock::createUnnamedMethod (
 	function->m_storageKind = storageKind;
 	function->m_tag.format (
 		"%s.%s", 
-		getParentNamespaceImpl ()->getQualifiedName ().cc (), 
+		getParentNamespaceImpl ()->getQualifiedName ().sz (), 
 		getFunctionKindString (functionKind)
 		);
 
@@ -91,7 +91,7 @@ NamedTypeBlock::createUnnamedMethod (
 Property*
 NamedTypeBlock::createProperty (
 	StorageKind storageKind,
-	const sl::String& name,
+	const sl::StringRef& name,
 	PropertyType* shortType
 	)
 {

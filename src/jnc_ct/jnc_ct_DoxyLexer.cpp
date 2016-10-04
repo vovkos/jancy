@@ -11,7 +11,7 @@ DoxyToken*
 DoxyLexer::createTextToken ()
 {
 	Token* token = createToken (DoxyTokenKind_Text);
-	token->m_data.m_string.copy (ts, te - ts);
+	token->m_data.m_string = sl::StringRef (ts, te - ts);
 	return token;
 }
 
@@ -21,7 +21,7 @@ DoxyLexer::createNewLineToken ()
 	ASSERT (*ts == '\n');
 
 	Token* token = createToken ('\n');
-	token->m_data.m_string.copy (ts + 1, te - ts - 1);
+	token->m_data.m_string = sl::StringRef (ts + 1, te - ts - 1);
 	return token;
 }
 

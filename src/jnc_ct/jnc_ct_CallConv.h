@@ -155,7 +155,7 @@ public:
 	llvm::Function*
 	createLlvmFunction (
 		FunctionType* functionType,
-		const char* tag
+		const sl::StringRef& tag
 		);
 
 	virtual

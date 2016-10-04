@@ -88,7 +88,7 @@ public:
 		const Value& opValue2
 		)
 	{
-		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -100,7 +100,7 @@ public:
 		Value* resultValue
 		)
 	{
-		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
 		return false;
 	}
 };

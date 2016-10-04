@@ -29,7 +29,7 @@ private:
 	void addTypedef(QTreeWidgetItem* parent, jnc::Typedef* typed);
 	void addVariable(QTreeWidgetItem* parent, jnc::Variable* variable);
 	void addEnumConst(QTreeWidgetItem* parent, jnc::EnumConst* member);
-	void addValue(QTreeWidgetItem* parent, const char* name, jnc::Type* type, jnc::ModuleItem* item);
+	void addValue(QTreeWidgetItem* parent, const QString& name, jnc::Type* type, jnc::ModuleItem* item);
 	void addFunction(QTreeWidgetItem* parent, jnc::Function* function);
 	void addFunctionImpl(QTreeWidgetItem* parent, jnc::Function* function);
 	void addProperty(QTreeWidgetItem* parent, jnc::Property* prop);

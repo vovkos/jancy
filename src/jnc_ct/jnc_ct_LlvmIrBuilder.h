@@ -189,7 +189,7 @@ public:
 	llvm::AllocaInst*
 	createAlloca (
 		Type* type,
-		const char* name,
+		const sl::StringRef& name,
 		Type* resultType,
 		Value* resultValue
 		);

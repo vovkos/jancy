@@ -21,7 +21,7 @@ void
 ReactorClassType::prepareTypeString ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
-	tuple->m_typeStringPrefix.format ("reactor %s", m_qualifiedName.cc ());
+	tuple->m_typeStringPrefix.format ("reactor %s", m_qualifiedName.sz ());
 	tuple->m_typeStringSuffix = m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getTypeStringSuffix ();
 }
 
@@ -29,7 +29,7 @@ void
 ReactorClassType::prepareDoxyLinkedText ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
-	tuple->m_doxyLinkedTextPrefix.format ("reactor %s", m_qualifiedName.cc ());
+	tuple->m_doxyLinkedTextPrefix.format ("reactor %s", m_qualifiedName.sz ());
 	tuple->m_doxyLinkedTextSuffix = m_methodArray [ReactorMethodKind_Start]->getType ()->getShortType ()->getDoxyLinkedTextSuffix ();
 }
 
@@ -38,7 +38,7 @@ ReactorClassType::setBody (sl::BoxList <Token>* tokenList)
 {
 	if (!m_body.isEmpty ())
 	{
-		err::setFormatStringError ("'%s' already has a body", m_tag.cc ());
+		err::setFormatStringError ("'%s' already has a body", m_tag.sz ());
 		return false;
 	}
 
@@ -54,7 +54,7 @@ ReactorClassType::calcLayout ()
 
 	if (m_body.isEmpty ())
 	{
-		err::setFormatStringError ("reactor '%s' has no body", m_tag.cc ());
+		err::setFormatStringError ("reactor '%s' has no body", m_tag.sz ());
 		return false;
 	}
 

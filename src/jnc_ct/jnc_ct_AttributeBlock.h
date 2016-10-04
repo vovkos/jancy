@@ -68,7 +68,7 @@ public:
 	}
 
 	Attribute*
-	findAttribute (const char* name)
+	findAttribute (const sl::StringRef& name)
 	{
 		sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.find (name); 
 		return it ? it->m_value : NULL;
@@ -76,7 +76,7 @@ public:
 
 	Attribute*
 	createAttribute (
-		const sl::String& name,
+		const sl::StringRef& name,
 		sl::BoxList <Token>* initializer = NULL
 		);
 };

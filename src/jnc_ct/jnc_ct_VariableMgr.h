@@ -89,8 +89,8 @@ public:
 	Variable*
 	createVariable (
 		StorageKind storageKind,
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList <Token>* constructor = NULL,
@@ -99,7 +99,7 @@ public:
 
 	Variable*
 	createSimpleStackVariable (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0
 		)
@@ -109,8 +109,8 @@ public:
 
 	Variable*
 	createSimpleStaticVariable (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		Type* type,
 		const Value& value = Value (),
 		uint_t ptrTypeFlags = 0
@@ -127,8 +127,8 @@ public:
 	
 	Alias*
 	createAlias (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		Type* type,
 		sl::BoxList <Token>* initializer
 		);
@@ -152,7 +152,7 @@ protected:
 	llvm::GlobalVariable*
 	createLlvmGlobalVariable (
 		Type* type,
-		const char* tag,
+		const sl::StringRef& tag,
 		const Value& initValue = Value ()
 		);
 

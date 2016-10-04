@@ -19,7 +19,7 @@ public:
 
 	void writeStatus(const QString &text, int timeout = 0);
 	
-	size_t writeOutputDirect(const char* text, size_t length = -1);
+	size_t writeOutputDirect(const QString& text);
 	size_t writeOutput_va(const char* format, va_list va);
 	size_t writeOutput(const char* format, ...);
 

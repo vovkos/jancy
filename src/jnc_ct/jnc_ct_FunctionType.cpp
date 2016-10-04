@@ -394,15 +394,15 @@ FunctionType::getDoxyArgString ()
 			"<declname>%s</declname>\n"
 			"<type>%s</type>\n"
 			"<array>%s</array>\n",
-			arg->getName ().cc (),
-			type->getDoxyLinkedTextPrefix ().cc (),
-			type->getTypeStringSuffix ().cc ()
+			arg->getName ().sz (),
+			type->getDoxyLinkedTextPrefix ().sz (),
+			type->getTypeStringSuffix ().sz ()
 			);
 
 		if (!arg->getInitializer ().isEmpty ())
 			string.appendFormat (
 				"<defval>%s</defval>\n", 
-				arg->getInitializerString ().cc ()
+				arg->getInitializerString ().sz ()
 				);
 
 		string.append ("</param>\n");

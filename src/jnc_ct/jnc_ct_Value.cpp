@@ -391,7 +391,7 @@ Value::setField (
 	m_field = field;
 	m_type = type;	
 	m_constData.setCount (sizeof (size_t));
-	*(size_t*) m_constData.a () = baseOffset + field->getOffset ();
+	*(size_t*) m_constData.p () = baseOffset + field->getOffset ();
 }
 
 void
@@ -496,18 +496,6 @@ Value::createConst (
 		memset (m_constData, 0, size);
 
 	return true;
-}
-
-void
-Value::setCharArray (
-	const char* p,
-	Module* module
-	)
-{
-	if (!p)
-		setEmptyCharArray (module);
-	else
-		setCharArray (p, strlen (p) + 1, module);
 }
 
 void

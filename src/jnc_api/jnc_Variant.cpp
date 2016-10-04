@@ -61,9 +61,9 @@ jnc_Variant_relationalOperator (
 
 JNC_EXTERN_C
 size_t 
-jnc_Variant_getHash (const jnc_Variant* variant)
+jnc_Variant_hash (const jnc_Variant* variant)
 {
-	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_getHashFunc (variant);
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_hashFunc (variant);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -240,7 +240,7 @@ jnc_Variant_relationalOperator (
 
 JNC_EXTERN_C
 size_t 
-jnc_Variant_getHash (const jnc_Variant* variant)
+jnc_Variant_hash (const jnc_Variant* variant)
 {
 	using namespace jnc;
 	if (!variant->m_type)

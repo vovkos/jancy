@@ -51,7 +51,7 @@ public:
 	{
 		return sl::String::format_s (
 			"B%s:%d:%d",
-			baseType->getSignature ().cc (),
+			baseType->getSignature ().sz (),
 			bitOffset,
 			bitOffset + bitCount
 			);

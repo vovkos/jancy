@@ -7,7 +7,7 @@ namespace ct {
 
 //.............................................................................
 
-ModuleItem* UsingSet::findItem (const char* name)
+ModuleItem* UsingSet::findItem (const sl::StringRef& name)
 {
 	size_t count = m_globalNamespaceArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -22,7 +22,7 @@ ModuleItem* UsingSet::findItem (const char* name)
 	
 ModuleItem* UsingSet::findExtensionItem (
 	NamedType* type,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	size_t count = m_extensionNamespaceArray.getCount ();

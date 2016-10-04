@@ -93,8 +93,8 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 Variable*
 VariableMgr::createVariable (
 	StorageKind storageKind,
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	Type* type,
 	uint_t ptrTypeFlags,
 	sl::BoxList <Token>* constructor,
@@ -173,8 +173,8 @@ VariableMgr::createVariable (
 
 Variable*
 VariableMgr::createSimpleStaticVariable (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	Type* type,
 	const Value& value,
 	uint_t ptrTypeFlags
@@ -276,7 +276,7 @@ VariableMgr::finalizeDisposableVariable (Variable* variable)
 llvm::GlobalVariable*
 VariableMgr::createLlvmGlobalVariable (
 	Type* type,
-	const char* tag,
+	const sl::StringRef& tag,
 	const Value& initValue
 	)
 {
@@ -290,7 +290,7 @@ VariableMgr::createLlvmGlobalVariable (
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmInitConstant,
-		tag
+		tag >> toLlvm
 		);
 }
 
@@ -398,7 +398,7 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmBoxConst,
-		boxTag.cc ()
+		boxTag.sz ()
 		);
 
 	// now validator
@@ -432,7 +432,7 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmValidatorConst,
-		validatorTag.cc ()
+		validatorTag.sz ()
 		);
 
 	Variable* validatorVariable = AXL_MEM_NEW (Variable);
@@ -558,8 +558,8 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 
 Alias*
 VariableMgr::createAlias (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	Type* type,
 	sl::BoxList <Token>* initializer
 	)
@@ -596,7 +596,7 @@ VariableMgr::createTlsStructType ()
 
 		if (variable->m_type->getTypeKindFlags () & TypeKindFlag_Aggregate)
 		{
-			err::setFormatStringError ("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().cc ());
+			err::setFormatStringError ("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().sz ());
 			return false;
 		}
 

@@ -76,7 +76,7 @@ protected:
 		Variant m_value;
 	};
 
-	typedef sl::HashTableMap <Variant, Entry*, HashVariant, CmpVariant> VariantHashTableMap;
+	typedef sl::DuckTypeHashTableMap <Variant, Entry*> VariantHashTableMap;
 
 protected:
 	sl::StdList <Entry> m_list;

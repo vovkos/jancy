@@ -123,7 +123,7 @@ Cast_FromVariant::constCast (
 
 	if (variant->m_type->getSize () > sizeof (DataPtr))
 	{
-		err::setFormatStringError ("invalid variant type '%s'", variant->m_type->getTypeString ().cc ());
+		err::setFormatStringError ("invalid variant type '%s'", variant->m_type->getTypeString ().sz ());
 		return false;
 	}
 

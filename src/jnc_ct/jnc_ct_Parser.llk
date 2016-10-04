@@ -259,7 +259,7 @@ Members2
 	GlobalNamespace*
 	getGlobalNamespace (
 		GlobalNamespace* parentNamespace,
-		const sl::String& name,
+		const sl::StringRef& name,
 		const Token::Pos& pos
 		);
 
@@ -271,7 +271,7 @@ Members2
 
 	ExtensionNamespace*
 	openExtensionNamespace (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		const Token::Pos& pos
 		);
@@ -346,41 +346,41 @@ Members2
 
 	EnumType*
 	createEnumType (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* baseType,
 		uint_t flags
 		);
 
 	StructType*
 	createStructType (
-		const sl::String& name,
+		const sl::StringRef& name,
 		sl::BoxList <Type*>* baseTypeList,
 		size_t fieldAlignment
 		);
 
 	UnionType*
 	createUnionType (
-		const sl::String& name,
+		const sl::StringRef& name,
 		size_t fieldAlignment
 		);
 
 	ClassType*
 	createClassType (
-		const sl::String& name,
+		const sl::StringRef& name,
 		sl::BoxList <Type*>* baseTypeList,
 		size_t fieldAlignment,
 		uint_t flags
 		);
 
 	ClassType*
-	createDynamicLibType (const sl::String& name);
+	createDynamicLibType (const sl::StringRef& name);
 
 	bool
 	finalizeDynamicLibType ();
 
 	Property*
 	createProperty (
-		const sl::String& name,
+		const sl::StringRef& name,
 		const Token::Pos& pos
 		);
 
@@ -426,7 +426,7 @@ Members2
 
 	bool
 	automatonRegExp (
-		const sl::String& source,
+		const sl::StringRef& source,
 		const Token::Pos& pos
 		);
 
@@ -465,14 +465,14 @@ Members2
 
 	bool
 	lookupIdentifier (
-		const sl::String& name,
+		const sl::StringRef& name,
 		const Token::Pos& pos,
 		Value* value
 		);
 
 	bool
 	lookupIdentifierType (
-		const sl::String& name,
+		const sl::StringRef& name,
 		const Token::Pos& pos,
 		Value* value
 		);
@@ -480,7 +480,7 @@ Members2
 	bool
 	prepareCurlyInitializerNamedItem (
 		CurlyInitializer* initializer,
-		const char* name
+		const sl::StringRef& name
 		);
 
 	bool
@@ -492,11 +492,10 @@ Members2
 	bool
 	addFmtSite (
 		Literal* literal,
-		const char* p,
-		size_t length,
+		const sl::StringRef& string,
 		const Value& value,
 		bool isIndex,
-		const sl::String& fmtSpecifierString
+		const sl::StringRef& fmtSpecifierString
 		);
 
 	bool
@@ -523,7 +522,7 @@ Members2
 	appendFmtLiteralValue (
 		const Value& fmtLiteralValue,
 		const Value& rawSrcValue,
-		const sl::String& fmtSpecifierString
+		const sl::StringRef& fmtSpecifierString
 		);
 
 	bool

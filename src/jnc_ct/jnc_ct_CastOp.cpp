@@ -23,7 +23,7 @@ setCastError (
 		return err::setFormatStringError (
 			"not enough information to select one of %d overloads of '%s'",
 			function->getOverloadCount (),
-			function->m_tag.cc ()
+			function->m_tag.sz ()
 			);
 	}
 
@@ -46,8 +46,8 @@ setCastError (
 		
 	return err::setFormatStringError (
 		format,
-		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().cc (), 
-		dstType->getTypeString ().cc ()
+		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (), 
+		dstType->getTypeString ().sz ()
 		);
 }
 
@@ -59,8 +59,8 @@ setUnsafeCastError (
 {
 	return err::setFormatStringError (
 		"'%s' to '%s' cast is only permitted in unsafe regions", 
-		srcType->getTypeString ().cc (),
-		dstType->getTypeString ().cc ()
+		srcType->getTypeString ().sz (),
+		dstType->getTypeString ().sz ()
 		);
 }
 

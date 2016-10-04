@@ -132,9 +132,9 @@ public:
 	Function*
 	createFunction (
 		FunctionKind functionKind,
-		const sl::String& name,
-		const sl::String& qualifiedName,
-		const sl::String& tag,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		const sl::StringRef& tag,
 		FunctionType* type
 		);
 
@@ -150,7 +150,7 @@ public:
 	Function*
 	createFunction (
 		FunctionKind functionKind,
-		const sl::String& tag,
+		const sl::StringRef& tag,
 		FunctionType* type
 		)
 	{
@@ -159,8 +159,8 @@ public:
 
 	Function*
 	createFunction (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		FunctionType* type
 		)
 	{
@@ -170,9 +170,9 @@ public:
 	Property*
 	createProperty (
 		PropertyKind propertyKind,
-		const sl::String& name,
-		const sl::String& qualifiedName,
-		const sl::String& tag
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		const sl::StringRef& tag
 		);
 
 	Property*
@@ -184,7 +184,7 @@ public:
 	Property*
 	createProperty (
 		PropertyKind propertyKind,
-		const sl::String& tag
+		const sl::StringRef& tag
 		)
 	{
 		return createProperty (propertyKind, sl::String (), sl::String (), tag);
@@ -192,8 +192,8 @@ public:
 
 	Property*
 	createProperty (
-		const sl::String& name,
-		const sl::String& qualifiedName
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName
 		)
 	{
 		return createProperty (PropertyKind_Normal, name, qualifiedName, qualifiedName);
@@ -288,8 +288,7 @@ protected:
 	Function*
 	parseStdFunction (
 		StdNamespace stdNamespace,
-		const char* source,
-		size_t length
+		const sl::StringRef& source
 		);
 };
 

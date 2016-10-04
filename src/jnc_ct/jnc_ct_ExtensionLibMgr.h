@@ -38,12 +38,7 @@ protected:
 		sl::Array <ct::ModuleItem*> m_itemArray;
 	};
 
-	typedef sl::HashTableMap <
-		sl::Guid, 
-		ItemCacheEntry*, 
-		sl::HashDjb2 <sl::Guid>,
-		sl::CmpBin <sl::Guid>
-		> ItemCacheMap;
+	typedef sl::DuckTypeHashTableMap <sl::Guid, ItemCacheEntry*> ItemCacheMap;
 
 protected:
 	ct::Module* m_module;
@@ -79,20 +74,20 @@ public:
 	addStaticLib (ExtensionLib* lib);
 
 	bool
-	loadDynamicLib (const char* fileName);
+	loadDynamicLib (const sl::StringRef& fileName);
 
 	bool
 	mapFunctions ();
 
 	bool
 	findSourceFileContents (
-		const char* fileName,
+		const sl::StringRef& fileName,
 		ExtensionLib** lib,
 		sl::StringRef* contents
 		);
 
 	const OpaqueClassTypeInfo* 
-	findOpaqueClassTypeInfo (const char* qualifiedName)
+	findOpaqueClassTypeInfo (const sl::StringRef& qualifiedName)
 	{
 		sl::StringHashTableMapIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
 		return it ? it->m_value : NULL;
@@ -100,7 +95,7 @@ public:
 
 	ct::ModuleItem*
 	findItem (
-		const char* name,
+		const sl::StringRef& name,
 		const sl::Guid& libGuid,
 		size_t cacheSlot
 		);
@@ -114,7 +109,7 @@ public:
 
 	void
 	addOpaqueClassTypeInfo (
-		const char* qualifiedName,
+		const sl::StringRef& qualifiedName,
 		const OpaqueClassTypeInfo* info
 		)
 	{

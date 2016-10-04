@@ -59,7 +59,7 @@ jnc_Variant_isEqual (
 
 JNC_EXTERN_C
 size_t
-jnc_Variant_getHash (const jnc_Variant* variant);
+jnc_Variant_hash (const jnc_Variant* variant);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -152,10 +152,16 @@ struct jnc_Variant
 		return jnc_Variant_isEqual (this, variant2) != 0;
 	}
 
-	size_t
-	getHash () const
+	bool
+	isEqual (const jnc_Variant& variant2) const
 	{
-		return jnc_Variant_getHash (this);
+		return jnc_Variant_isEqual (this, &variant2) != 0;
+	}
+
+	size_t
+	hash () const
+	{
+		return jnc_Variant_hash (this);
 	}
 #endif // __cplusplus
 };
@@ -175,32 +181,6 @@ namespace jnc {
 typedef jnc_Variant Variant;
 
 JNC_SELECT_ANY Variant g_nullVariant = { 0 };
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class HashVariant
-{
-public:
-	size_t
-	operator () (const Variant& variant)
-	{
-		return variant.getHash ();
-	}
-};
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class CmpVariant
-{
-public:
-	int operator () (
-		const Variant& variant1,
-		const Variant& variant2
-		)
-	{
-		return !variant1.isEqual (&variant2);
-	}
-};
 
 //.............................................................................
 

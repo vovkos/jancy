@@ -325,7 +325,7 @@ TypeMgr::resolveImportTypes ()
 			ModuleItem* item = importType->m_anchorNamespace->findItemTraverse (importType->m_name);
 			if (!item)
 			{
-				err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().cc ());
+				err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().sz ());
 				pushImportSrcPosError (importType);
 				return false;
 			}
@@ -347,7 +347,7 @@ TypeMgr::resolveImportTypes ()
 				break;
 
 			default:
-				err::setFormatStringError ("'%s' is not a type", importType->getTypeString ().cc ());
+				err::setFormatStringError ("'%s' is not a type", importType->getTypeString ().sz ());
 				pushImportSrcPosError (importType);
 				return false;
 			}
@@ -369,7 +369,7 @@ TypeMgr::resolveImportTypes ()
 				ImportType* importType = (ImportType*) type;
 				if (importType->m_flags & ImportTypeFlag_ImportLoop)
 				{
-					err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().cc ());
+					err::setFormatStringError ("'%s': import loop detected", importType->getTypeString ().sz ());
 					pushImportSrcPosError (superImportType);
 					return false;
 				}
@@ -438,7 +438,7 @@ TypeMgr::resolveImportTypes ()
 void
 TypeMgr::updateTypeSignature (
 	Type* type,
-	const sl::String& signature
+	const sl::StringRef& signature
 	)
 {
 	if (type->m_signature == signature)
@@ -590,8 +590,8 @@ TypeMgr::getArrayType (
 
 Typedef*
 TypeMgr::createTypedef (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	Type* type
 	)
 {
@@ -620,7 +620,7 @@ TypeMgr::createTypedefShadowType (Typedef* tdef)
 	type->m_qualifiedName = tdef->m_qualifiedName;
 	type->m_tag = tdef->m_tag;
 	type->m_attributeBlock = tdef->m_attributeBlock;
-	type->m_signature.format ("T%s", tdef->m_qualifiedName.cc ());
+	type->m_signature.format ("T%s", tdef->m_qualifiedName.sz ());
 	type->m_typedef = tdef;
 	m_typedefShadowTypeList.insertTail (type);
 
@@ -629,8 +629,8 @@ TypeMgr::createTypedefShadowType (Typedef* tdef)
 
 EnumType*
 TypeMgr::createEnumType (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	Type* baseType,
 	uint_t flags
 	)
@@ -649,7 +649,7 @@ TypeMgr::createEnumType (
 	}
 	else
 	{
-		type->m_signature.format ("%s%s", signaturePrefix, qualifiedName.cc ());
+		type->m_signature.format ("%s%s", signaturePrefix, qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
@@ -675,8 +675,8 @@ TypeMgr::createEnumType (
 
 StructType*
 TypeMgr::createStructType (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment
 	)
 {
@@ -690,7 +690,7 @@ TypeMgr::createStructType (
 	}
 	else
 	{
-		type->m_signature.format ("S%s", qualifiedName.cc ());
+		type->m_signature.format ("S%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
@@ -710,8 +710,8 @@ TypeMgr::createStructType (
 
 UnionType*
 TypeMgr::createUnionType (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment
 	)
 {
@@ -725,7 +725,7 @@ TypeMgr::createUnionType (
 	}
 	else
 	{
-		type->m_signature.format ("U%s", qualifiedName.cc ());
+		type->m_signature.format ("U%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
@@ -742,7 +742,7 @@ TypeMgr::createUnionType (
 	unionStructType->m_parentNamespace = type;
 	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 	unionStructType->m_fieldAlignment = fieldAlignment;
-	unionStructType->m_tag.format ("%s.Struct", type->m_tag.cc ());
+	unionStructType->m_tag.format ("%s.Struct", type->m_tag.sz ());
 
 	type->m_module = m_module;
 	type->m_structType = unionStructType;
@@ -753,8 +753,8 @@ TypeMgr::createUnionType (
 ClassType*
 TypeMgr::createClassType (
 	ClassTypeKind classTypeKind,
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
 	)
@@ -806,7 +806,7 @@ TypeMgr::createClassType (
 	}
 	else
 	{
-		type->m_signature.format ("CC%s", qualifiedName.cc ());
+		type->m_signature.format ("CC%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_tag = qualifiedName;
@@ -820,23 +820,23 @@ TypeMgr::createClassType (
 	m_module->markForLayout (type, true); // before child structs
 
 	StructType* vtableStructType = createUnnamedStructType ();
-	vtableStructType->m_tag.format ("%s.VTable", type->m_tag.cc ());
+	vtableStructType->m_tag.format ("%s.VTable", type->m_tag.sz ());
 
 	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
-	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.cc ());
+	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.sz ());
 	ifaceHdrStructType->createField ("!m_vtable", vtableStructType->getDataPtrType_c ());
 	ifaceHdrStructType->createField ("!m_box", getStdType (StdType_BoxPtr));
 
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
-	ifaceStructType->m_tag.format ("%s.Iface", type->m_tag.cc ());
+	ifaceStructType->m_tag.format ("%s.Iface", type->m_tag.sz ());
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 	ifaceStructType->m_fieldAlignment = fieldAlignment;
 
 	StructType* classStructType = createUnnamedStructType (fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
-	classStructType->m_tag.format ("%s.Class", type->m_tag.cc ());
+	classStructType->m_tag.format ("%s.Class", type->m_tag.sz ());
 	classStructType->m_parentNamespace = type;
 	classStructType->createField ("!m_box", getStdType (StdType_Box));
 	classStructType->createField ("!m_iface", ifaceStructType);
@@ -853,7 +853,7 @@ TypeMgr::createClassType (
 
 FunctionArg*
 TypeMgr::createFunctionArg (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Type* type,
 	uint_t ptrTypeFlags,
 	sl::BoxList <Token>* initializer
@@ -880,7 +880,7 @@ TypeMgr::createFunctionArg (
 
 StructField*
 TypeMgr::createStructField (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
@@ -1394,7 +1394,7 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 	Type* returnType = functionPtrType->getTargetType ()->getReturnType ();
 	if (returnType->getTypeKind () != TypeKind_Void)
 	{
-		err::setFormatStringError ("multicast cannot only return 'void', not '%s'", returnType->getTypeString ().cc ());
+		err::setFormatStringError ("multicast cannot only return 'void', not '%s'", returnType->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -1517,7 +1517,7 @@ TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
 	Type* returnType = startMethodType->getReturnType ();
 	if (returnType->getTypeKind () != TypeKind_Void)
 	{
-		err::setFormatStringError ("reactor must return 'void', not '%s'", returnType->getTypeString ().cc ());
+		err::setFormatStringError ("reactor must return 'void', not '%s'", returnType->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -1525,7 +1525,7 @@ TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
 		return startMethodType->m_reactorIfaceType;
 
 	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
-	type->m_signature.format ("CA%s", startMethodType->getTypeString ().cc ());
+	type->m_signature.format ("CA%s", startMethodType->getTypeString ().sz ());
 	Function* starter = type->createMethod (StorageKind_Abstract, "start", startMethodType);
 	type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
 	type->m_callOperator = starter;
@@ -1534,8 +1534,8 @@ TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
 
 ReactorClassType*
 TypeMgr::createReactorType (
-	const sl::String& name,
-	const sl::String& qualifiedName,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
 	ClassType* ifaceType,
 	ClassType* parentType
 	)
@@ -1980,7 +1980,7 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 		return propertyType->m_vtableStructType;
 
 	StructType* type = createUnnamedStructType ();
-	type->m_tag.format ("%s.VTable", propertyType->getTypeString ().cc ());
+	type->m_tag.format ("%s.VTable", propertyType->getTypeString ().sz ());
 
 	if (propertyType->getFlags () & PropertyTypeFlag_Bindable)
 		type->createField ("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
@@ -2380,7 +2380,7 @@ void
 TypeMgr::setupPrimitiveType (
 	TypeKind typeKind,
 	size_t size,
-	const char* signature
+	const sl::StringRef& signature
 	)
 {
 	ASSERT (typeKind < TypeKind__PrimitiveTypeCount);
@@ -2404,7 +2404,7 @@ void
 TypeMgr::setupStdTypedef (
 	StdTypedef stdTypedef,
 	TypeKind typeKind,
-	const sl::String& name
+	const sl::StringRef& name
 	)
 {
 	ASSERT (stdTypedef < StdTypedef__Count);
@@ -2426,16 +2426,14 @@ TypeMgr::parseStdType (StdType stdType)
 
 	return parseStdType (
 		source->m_stdNamespace,
-		source->m_source,
-		source->m_length
+		sl::StringRef (source->m_source, source->m_length)
 		);
 }
 
 NamedType*
 TypeMgr::parseStdType (
 	StdNamespace stdNamespace,
-	const char* source,
-	size_t length
+	const sl::StringRef& source
 	)
 {
 	bool result;
@@ -2443,7 +2441,7 @@ TypeMgr::parseStdType (
 	m_parseStdTypeLevel++;
 
 	Lexer lexer;
-	lexer.create ("jnc_StdTypes.jnc", source, length);
+	lexer.create ("jnc_StdTypes.jnc", source);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
@@ -2458,7 +2456,7 @@ TypeMgr::parseStdType (
 		result = parser.parseToken (token);
 		if (!result)
 		{
-			dbg::trace ("parse std type error: %s\n", err::getLastErrorDescription ().cc ());
+			dbg::trace ("parse std type error: %s\n", err::getLastErrorDescription ().sz ());
 			ASSERT (false);
 		}
 

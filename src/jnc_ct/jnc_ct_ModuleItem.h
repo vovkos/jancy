@@ -199,7 +199,7 @@ public:
 	virtual
 	bool
 	generateDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 		)
@@ -257,14 +257,14 @@ ModuleItem*
 verifyModuleItemKind (
 	ModuleItem* item, 
 	ModuleItemKind itemKind,
-	const char* name
+	const sl::StringRef& name
 	);
 
 JNC_INLINE
 Type*
 verifyModuleItemIsType (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	return (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
@@ -273,20 +273,20 @@ verifyModuleItemIsType (
 DerivableType*
 verifyModuleItemIsDerivableType (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	);
 
 ClassType*
 verifyModuleItemIsClassType (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	);
 
 JNC_INLINE
 Function*
 verifyModuleItemIsFunction (	
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	)
 
 {
@@ -297,7 +297,7 @@ JNC_INLINE
 Property*
 verifyModuleItemIsProperty (
 	ModuleItem* item,
-	const char* name
+	const sl::StringRef& name
 	)
 {
 	return (Property*) verifyModuleItemKind (item, ModuleItemKind_Property, name);

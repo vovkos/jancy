@@ -417,7 +417,7 @@ SshChannel::getLastSshError ()
 	libssh2_session_last_error (m_sshSession, &errorString, &length, false);
 
 	err::Error error;
-	error.createStringError (errorString, length);
+	error.createStringError (sl::StringRef (errorString, length));
 	return error;
 }
 
@@ -449,7 +449,7 @@ getSshLastError (LIBSSH2_SESSION* sshSession)
 	char* string;
 	int length;
 	libssh2_session_last_error (sshSession, &string, &length, false);
-	return err::Error (string, length);
+	return err::Error (sl::StringRef (string, length));
 }
 	
 bool

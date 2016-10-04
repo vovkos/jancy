@@ -51,34 +51,24 @@ int MainWindow::output_va (const char* format, va_list va)
 	return string.length ();
 }
 
-bool MainWindow::runScript (const char* fileName)
+bool MainWindow::runScript (const QString& fileName)
 {
-	if (!fileName || !*fileName)
+	if (fileName.isEmpty ())
 	{
 		output ("usage: 02_dialog <script.jnc>\n");
 		return false;
 	}
 
-	output ("Opening '%s'...\n", fileName);
-
-	QFile file (fileName);
-	bool result = file.open (QFile::ReadOnly);
-	if (!result)
-	{
-		output ("%s\n", jnc::getLastErrorDescription_v ());
-		return false;
-	}
-
-	QByteArray source = file.readAll ();
+	QByteArray fileName_utf8 = fileName.toUtf8 ();
 
 	output ("Parsing...\n");
 	
-	m_module->initialize (fileName);
+	m_module->initialize (fileName_utf8.constBegin ());
 	m_module->addStaticLib (jnc::StdLib_getLib ());
 	m_module->addStaticLib (MyLib_getLib ());
 
-	result = 
-		m_module->parse (fileName, source.constData (), source.size ()) &&
+	bool result = 
+		m_module->parseFile (fileName_utf8.constBegin ()) &&
 		m_module->parseImports ();
 
 	if (!result)

@@ -54,7 +54,7 @@ DerivableType::getMemberPropertyType (PropertyType* shortType)
 }
 
 ModuleItem*
-DerivableType::findItemInExtensionNamespaces (const char* name)
+DerivableType::findItemInExtensionNamespaces (const sl::StringRef& name)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	while (nspace)
@@ -74,7 +74,7 @@ DerivableType::getFieldByIndex(size_t index)
 {
 	if (!m_baseTypeList.isEmpty ())
 	{
-		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -108,7 +108,7 @@ DerivableType::getDefaultConstructor ()
 	m_defaultConstructor = m_constructor->chooseOverload (argList);
 	if (!m_defaultConstructor)
 	{
-		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -166,7 +166,7 @@ DerivableType::addMethod (Function* function)
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
+			err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 			return false;
 		}
 
@@ -247,12 +247,12 @@ DerivableType::addMethod (Function* function)
 		err::setFormatStringError (
 			"invalid %s in '%s'",
 			getFunctionKindString (functionKind),
-			getTypeString ().cc ()
+			getTypeString ().sz ()
 			);
 		return false;
 	}
 
-	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
+	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -262,7 +262,7 @@ DerivableType::addMethod (Function* function)
 	{
 		err::setFormatStringError (
 			"'%s' already has '%s' method",
-			getTypeString ().cc (),
+			getTypeString ().sz (),
 			getFunctionKindString (functionKind)
 			);
 		return false;
@@ -319,7 +319,7 @@ DerivableType::createDefaultMethod (
 	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
 	Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
 	function->m_storageKind = storageKind;
-	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
+	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	bool result = addMethod (function);
 	if (!result)
@@ -489,7 +489,7 @@ DerivableType::findBaseTypeTraverseImpl (
 
 ModuleItem*
 DerivableType::findItemTraverseImpl (
-	const char* name,
+	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags,
 	size_t level
@@ -599,7 +599,7 @@ DerivableType::findItemTraverseImpl (
 
 bool
 DerivableType::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -611,8 +611,8 @@ DerivableType::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
 		kind,
-		getDoxyBlock ()->getRefId ().cc (), 
-		getQualifiedName ().cc ()
+		getDoxyBlock ()->getRefId ().sz (), 
+		getQualifiedName ().sz ()
 		);
 
 	sl::String memberXml;
@@ -624,8 +624,8 @@ DerivableType::generateDocumentation (
 		"<compounddef kind='%s' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n", 
 		kind,
-		getDoxyBlock ()->getRefId ().cc (),
-		m_name.cc ()
+		getDoxyBlock ()->getRefId ().sz (),
+		m_name.sz ()
 		);
 
 	itemXml->append (memberXml);

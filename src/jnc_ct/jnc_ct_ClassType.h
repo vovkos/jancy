@@ -199,7 +199,7 @@ protected:
 	virtual
 	StructField*
 	createFieldImpl (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,

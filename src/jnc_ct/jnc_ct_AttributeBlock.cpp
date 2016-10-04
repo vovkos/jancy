@@ -23,14 +23,14 @@ Attribute::calcLayout ()
 
 Attribute*
 AttributeBlock::createAttribute (
-	const sl::String& name,
+	const sl::StringRef& name,
 	sl::BoxList <Token>* initializer
 	)
 {
 	sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.visit (name);
 	if (it->m_value)
 	{
-		err::setFormatStringError ("redefinition of attribute '%s'", name.cc ());
+		err::setFormatStringError ("redefinition of attribute '%s'", name.sz ());
 		return NULL;
 	}
 

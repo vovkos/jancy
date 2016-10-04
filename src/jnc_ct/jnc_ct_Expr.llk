@@ -877,7 +877,7 @@ literal <Value* $value>
 literal_atom <Literal* $literal>
 	:	TokenKind_Literal
 			{
-				$literal->m_binData.append ($1.m_data.m_string, $1.m_data.m_string.getLength ());
+				$literal->m_binData.append ($1.m_data.m_string.cp (), $1.m_data.m_string.getLength ());
 				$literal->m_isZeroTerminated = true;
 			}
 	|	TokenKind_HexLiteral
@@ -891,7 +891,6 @@ literal_atom <Literal* $literal>
 				return addFmtSite (
 					$literal, 
 					$1.m_data.m_string, 
-					$1.m_data.m_string.getLength (),
 					$2.m_value, 
 					$1.m_data.m_integer != 0, 
 					fmtSpecifier

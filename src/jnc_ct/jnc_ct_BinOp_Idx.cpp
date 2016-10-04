@@ -50,7 +50,7 @@ BinOp_Idx::getResultType (
 		return getPropertyIndexResultType (opValue1, opValue2);
 
 	default:
-		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ());
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ());
 		return NULL;
 	}
 }
@@ -103,7 +103,7 @@ BinOp_Idx::op (
 		return propertyIndexOperator (opValue1, opValue2, resultValue);
 
 	default:
-		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().cc ()); 
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ()); 
 		return false;
 	}
 }
@@ -152,7 +152,7 @@ BinOp_Idx::arrayIndexOperator (
 			intptr_t i = idxValue.getSizeT ();
 			if (i < 0 || i >= (intptr_t) arrayType->getElementCount ())
 			{
-				err::setFormatStringError ("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString ().cc ());
+				err::setFormatStringError ("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString ().sz ());
 				return false;
 			}
 		}

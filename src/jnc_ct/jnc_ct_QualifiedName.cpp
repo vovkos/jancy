@@ -7,7 +7,7 @@ namespace ct {
 //.............................................................................
 
 void
-QualifiedName::addName (const sl::String& name)
+QualifiedName::addName (const sl::StringRef& name)
 {
 	if (m_first.isEmpty ())
 		m_first = name;
@@ -51,10 +51,11 @@ QualifiedName::getFullName () const
 }
 
 void
-QualifiedName::parse (const char* name)
+QualifiedName::parse (const sl::StringRef& name0)
 {
 	clear ();
 
+	const char* name = name0.sz ();
 	for (;;)
 	{
 		const char* dot = strchr (name, '.');
@@ -64,7 +65,7 @@ QualifiedName::parse (const char* name)
 			break;
 		}
 
-		addName (sl::String (name, dot - name));
+		addName (sl::StringRef (name, dot - name));
 		name = dot + 1;
 	}
 }

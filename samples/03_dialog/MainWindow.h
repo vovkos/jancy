@@ -23,7 +23,7 @@ public:
 		return QSize(800, 600); 
 	}
 
-	bool runScript (const char* fileName);
+	bool runScript (const QString& fileName);
 
 	int output_va (const char* format, va_list va);
 

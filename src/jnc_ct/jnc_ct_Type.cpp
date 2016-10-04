@@ -646,7 +646,7 @@ NamedType::prepareDoxyLinkedText ()
 	}
 
 	sl::String refId = getDoxyBlock ()->getRefId ();	
-	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
+	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.sz (), m_tag.sz ());
 }
 
 //.............................................................................
@@ -669,7 +669,7 @@ Typedef::getShadowType ()
 
 bool
 Typedef::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -677,8 +677,8 @@ Typedef::generateDocumentation (
 	itemXml->format (
 		"<memberdef kind='typedef' id='%s'>\n"
 		"<name>%s</name>\n",
-		getDoxyBlock ()->getRefId ().cc (),
-		m_name.cc ()
+		getDoxyBlock ()->getRefId ().sz (),
+		m_name.sz ()
 		);
 	
 	itemXml->append (m_type->getDoxyTypeString ());
@@ -702,7 +702,7 @@ TypedefShadowType::prepareDoxyLinkedText ()
 	}
 
 	sl::String refId = m_typedef->getDoxyBlock ()->getRefId ();	
-	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.cc (), m_tag.cc ());
+	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.sz (), m_tag.sz ());
 }
 
 bool

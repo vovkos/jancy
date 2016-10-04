@@ -68,8 +68,8 @@ public:
 
 	Const*
 	createConst (
-		const sl::String& name,
-		const sl::String& qualifiedName,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
 		const Value& value
 		);
 
@@ -81,10 +81,7 @@ public:
 	}
 
 	const Value& 
-	saveLiteral (
-		const char* p,
-		size_t length = -1
-		);
+	saveLiteral (const sl::StringRef& string);
 
 	DataPtrValidator*
 	createConstDataPtrValidator (

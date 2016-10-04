@@ -184,7 +184,7 @@ jnc_Function_getOverload (
 	jnc_Function* overload = function->getOverload (index);
 	if (!overload)
 	{
-		err::setFormatStringError ("'%s' has no overload #%d", function->getQualifiedName ().cc (), index);
+		err::setFormatStringError ("'%s' has no overload #%d", function->getQualifiedName ().sz (), index);
 		return NULL;
 	}
 

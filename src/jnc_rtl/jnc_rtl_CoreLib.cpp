@@ -330,7 +330,7 @@ assertionFailure (
 	if (message)
 		string.appendFormat ("; %s", message);
 	
-	err::setError (string, string.getLength ());
+	err::setError (string);
 	dynamicThrow ();
 }
 
@@ -512,7 +512,7 @@ tryLazyGetDynamicLibFunction (
 
 	if (!lib->m_handle)
 	{
-		err::setFormatStringError ("dynamiclib '%s' is not loaded yet", type->getQualifiedName ().cc ());
+		err::setFormatStringError ("dynamiclib '%s' is not loaded yet", type->getQualifiedName ().sz ());
 		return NULL;
 	}
 
@@ -521,7 +521,7 @@ tryLazyGetDynamicLibFunction (
 
 	if (index >= functionCount)
 	{
-		err::setFormatStringError ("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ().cc ());
+		err::setFormatStringError ("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ().sz ());
 		return NULL;
 	}
 
@@ -617,7 +617,7 @@ prepareFormatString (
 	formatString->append (fmtSpecifier);
 
 	size_t length = formatString->getLength ();
-	if (!isalpha (formatString->cc () [length - 1]))
+	if (!isalpha (formatString->sz () [length - 1]))
 		formatString->append (defaultType);
 }
 
@@ -837,7 +837,7 @@ appendFmtLiteral_v (
 	else
 	{
 		sl::String string;
-		string.format ("(variant:%s)", type->getTypeString ().cc ());
+		string.format ("(variant:%s)", type->getTypeString ().sz ());
 		
 		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 	}

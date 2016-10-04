@@ -358,7 +358,7 @@ NamespaceMgr::getAccessKind (Namespace* targetNamespace)
 
 GlobalNamespace*
 NamespaceMgr::createGlobalNamespace (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Namespace* parentNamespace
 	)
 {
@@ -379,7 +379,7 @@ NamespaceMgr::createGlobalNamespace (
 
 ExtensionNamespace*
 NamespaceMgr::createExtensionNamespace (
-	const sl::String& name,
+	const sl::StringRef& name,
 	DerivableType* type,
 	Namespace* parentNamespace
 	)

@@ -81,7 +81,7 @@ Module::clear ()
 
 void
 Module::initialize (
-	const sl::String& name,
+	const sl::StringRef& name,
 	uint_t compileFlags
 	)
 {
@@ -257,7 +257,7 @@ Module::mapFunction (
 }
 
 void*
-Module::findFunctionMapping (const char* name)
+Module::findFunctionMapping (const sl::StringRef& name)
 {
 #if (_JNC_OS_POSIX && _JNC_OS_DARWIN)
 	if (*(const uint16_t*) name == '._')
@@ -309,7 +309,7 @@ Module::setDestructor (Function* function)
 bool
 Module::setFunctionPointer (
 	llvm::ExecutionEngine* llvmExecutionEngine,
-	const char* name,
+	const sl::StringRef& name,
 	void* p
 	)
 {
@@ -370,9 +370,8 @@ Module::markForCompile (ModuleItem* item)
 bool
 Module::parse (
 	ExtensionLib* lib,
-	const char* fileName,
-	const char* source,
-	size_t length
+	const sl::StringRef& fileName,
+	const sl::StringRef& source
 	)
 {
 	bool result;
@@ -380,7 +379,7 @@ Module::parse (
 	m_unitMgr.createUnit (lib, fileName);
 
 	Lexer lexer;
-	lexer.create (fileName, source, length);
+	lexer.create (fileName, source);
 
 	if (m_compileFlags & ModuleCompileFlag_Documentation)
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
@@ -428,7 +427,7 @@ Module::parse (
 }
 
 bool
-Module::parseFile (const char* fileName)
+Module::parseFile (const sl::StringRef& fileName)
 {
 	sl::String filePath = io::getFullFilePath (fileName);
 
@@ -448,7 +447,7 @@ Module::parseFile (const char* fileName)
 	m_filePathList.insertTail (filePath);
 	m_filePathMap.visit (filePath);
 
-	return parse (NULL, filePath, source, length);
+	return parse (NULL, filePath, source);
 }
 
 bool
@@ -463,8 +462,7 @@ Module::parseImports ()
 			parse (
 				importIt->m_lib,
 				importIt->m_filePath, 
-				importIt->m_source, 
-				importIt->m_source.getLength ()
+				importIt->m_source
 				) : 
 			parseFile (importIt->m_filePath);
 

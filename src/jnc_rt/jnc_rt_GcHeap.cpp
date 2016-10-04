@@ -196,7 +196,7 @@ GcHeap::tryAllocateClass (ct::ClassType* type)
 	Box* box = (Box*) AXL_MEM_ALLOCATE (size);
 	if (!box)
 	{
-		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -259,7 +259,7 @@ GcHeap::tryAllocateData (ct::Type* type)
 	DataBox* box = AXL_MEM_NEW_EXTRA (DataBox, size);
 	if (!box)
 	{
-		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("not enough memory for '%s'", type->getTypeString ().sz ());
 		return g_nullPtr;
 	}
 
@@ -304,7 +304,7 @@ GcHeap::tryAllocateArray (
 	DynamicArrayBox* box = AXL_MEM_NEW_EXTRA (DynamicArrayBox, size);
 	if (!box)
 	{
-		err::setFormatStringError ("not enough memory for '%s [%d]'", type->getTypeString ().cc (), count);
+		err::setFormatStringError ("not enough memory for '%s [%d]'", type->getTypeString ().sz (), count);
 		return g_nullPtr;
 	}
 
@@ -1277,8 +1277,8 @@ GcHeap::runDestructCycle_l ()
 		{
 			dbg::trace (
 				"runtime error in %s.destruct () : %s\n", 
-				classType->m_tag.cc (),
-				err::getLastErrorDescription ().cc ()
+				classType->m_tag.sz (),
+				err::getLastErrorDescription ().sz ()
 				);
 		}
 

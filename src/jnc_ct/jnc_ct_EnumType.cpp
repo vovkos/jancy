@@ -44,7 +44,7 @@ getEnumTypeFlagString (uint_t flags)
 
 bool
 EnumConst::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -52,14 +52,14 @@ EnumConst::generateDocumentation (
 	itemXml->format (
 		"<enumvalue id='%s'>\n"
 		"<name>%s</name>\n",
-		getDoxyBlock ()->getRefId ().cc (),
-		m_name.cc ()
+		getDoxyBlock ()->getRefId ().sz (),
+		m_name.sz ()
 		);
 
 	if (!m_initializer.isEmpty ())
 		itemXml->appendFormat (
 			"<initializer>= %s</initializer>\n", 
-			getInitializerString ().cc ()
+			getInitializerString ().sz ()
 			);
 
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
@@ -79,7 +79,7 @@ EnumType::EnumType ()
 
 EnumConst*
 EnumType::createConst (
-	const sl::String& name,
+	const sl::StringRef& name,
 	sl::BoxList <Token>* initializer
 	)
 {
@@ -193,7 +193,7 @@ EnumType::calcLayout ()
 
 bool
 EnumType::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -206,8 +206,8 @@ EnumType::generateDocumentation (
 	itemXml->format (
 		"<memberdef kind='enum' id='%s'>\n"
 		"<name>%s</name>\n", 
-		getDoxyBlock ()->getRefId ().cc (),
-		m_name.cc ()
+		getDoxyBlock ()->getRefId ().sz (),
+		m_name.sz ()
 		);
 
 	itemXml->append (memberXml);

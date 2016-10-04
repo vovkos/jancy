@@ -128,8 +128,8 @@ DoxyParser::addComment (
 			}
 			else
 			{
-				DoxyGroup* group = m_module->m_doxyMgr.getGroup (sl::StringRef (nextToken->m_data.m_string, i));
-				group->m_title = sl::StringRef (nextToken->m_data.m_string.cc () + i, nextToken->m_data.m_string.getLength () - i).getLeftTrimmedString ();
+				DoxyGroup* group = m_module->m_doxyMgr.getGroup (nextToken->m_data.m_string.getSubString (0, i));
+				group->m_title = nextToken->m_data.m_string.getSubString (i + 1).getLeftTrimmedString ();
 
 				m_block = group;
 			}
@@ -207,7 +207,7 @@ DoxyParser::addComment (
 						break;
 
 				if (i < indentLength)
-					description->append (m_indent.cc () + i, indentLength - i);
+					description->append (m_indent.sz () + i, indentLength - i);
 
 				description->append (token->m_data.m_string);
 			}

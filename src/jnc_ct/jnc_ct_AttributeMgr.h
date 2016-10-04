@@ -42,7 +42,7 @@ public:
 
 	Attribute*
 	createAttribute (
-		const sl::String& name,
+		const sl::StringRef& name,
 		Value* value = NULL
 		);
 };

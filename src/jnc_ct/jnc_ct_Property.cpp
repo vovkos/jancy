@@ -132,7 +132,7 @@ Property::setOnChanged (ModuleItem* item)
 {
 	if (m_onChanged)
 	{
-		err::setFormatStringError ("'%s' already has 'bindable %s'", m_tag.cc (), m_onChanged->m_tag.cc ());
+		err::setFormatStringError ("'%s' already has 'bindable %s'", m_tag.sz (), m_onChanged->m_tag.sz ());
 		return false;
 	}
 
@@ -193,7 +193,7 @@ Property::setAutoGetValue (ModuleItem* item)
 {
 	if (m_autoGetValue)
 	{
-		err::setFormatStringError ("'%s' already has 'autoget %s'", m_tag.cc (), m_autoGetValue->m_tag.cc ());
+		err::setFormatStringError ("'%s' already has 'autoget %s'", m_tag.sz (), m_autoGetValue->m_tag.sz ());
 		return false;
 	}
 
@@ -213,7 +213,7 @@ Property::setAutoGetValue (ModuleItem* item)
 	{
 		if (m_getter->getType ()->getReturnType ()->cmp (type) != 0)
 		{
-			err::setFormatStringError ("'autoget %s' does not match property declaration", type->getTypeString ().cc ());
+			err::setFormatStringError ("'autoget %s' does not match property declaration", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -261,7 +261,7 @@ Property::createAutoGetValue (Type* type)
 
 StructField*
 Property::createFieldImpl (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
@@ -273,7 +273,7 @@ Property::createFieldImpl (
 
 	if (!(m_parentType->getTypeKindFlags () & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' cannot have field members", m_parentType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' cannot have field members", m_parentType->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -320,7 +320,7 @@ Property::addMethod (Function* function)
 		case StorageKind_Static:
 			if (thisArgTypeFlags)
 			{
-				err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
+				err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 				return false;
 			}
 
@@ -345,13 +345,13 @@ Property::addMethod (Function* function)
 
 			if (m_parentType->getTypeKind () != TypeKind_Class)
 			{
-				err::setFormatStringError ("virtual method cannot be added to '%s'", m_parentType->getTypeString ().cc ());
+				err::setFormatStringError ("virtual method cannot be added to '%s'", m_parentType->getTypeString ().sz ());
 				return false;
 			}
 
 			if (m_parentType->getFlags () & ModuleItemFlag_Sealed)
 			{
-				err::setFormatStringError ("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().cc ());
+				err::setFormatStringError ("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().sz ());
 				return false;
 			}
 
@@ -384,7 +384,7 @@ Property::addMethod (Function* function)
 
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError ("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).cc ());
+			err::setFormatStringError ("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 			return false;
 		}
 
@@ -447,7 +447,7 @@ Property::addMethod (Function* function)
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const)
 		{
-			err::setFormatStringError ("const property '%s' cannot have setters", m_tag.cc ());
+			err::setFormatStringError ("const property '%s' cannot have setters", m_tag.sz ());
 			return false;
 		}
 
@@ -469,12 +469,12 @@ Property::addMethod (Function* function)
 		err::setFormatStringError (
 			"invalid %s in '%s'",
 			getFunctionKindString (functionKind),
-			m_tag.cc ()
+			m_tag.sz ()
 			);
 		return false;
 	}
 
-	function->m_tag.format ("%s.%s", m_tag.cc (), getFunctionKindString (functionKind));
+	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -525,7 +525,7 @@ Property::addProperty (Property* prop)
 			err::setFormatStringError (
 				"'%s' property cannot be part of '%s'",
 				getStorageKindString (storageKind),
-				m_parentType->getTypeString ().cc ()
+				m_parentType->getTypeString ().sz ()
 				);
 			return false;
 		}
@@ -715,12 +715,12 @@ Property::getAutoAccessorPropertyValue ()
 
 bool
 Property::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='property' id='%s'", getDoxyBlock ()->getRefId ().cc ());
+	itemXml->format ("<memberdef kind='property' id='%s'", getDoxyBlock ()->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -731,12 +731,12 @@ Property::generateDocumentation (
 	if (isVirtual ())
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
-	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.cc ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedTextPrefix ().cc ());
+	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedTextPrefix ().sz ());
 
 	sl::String modifierString = m_type->getTypeModifierString ();
 	if (!modifierString.isEmpty ())
-		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().cc ());
+		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
 
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());

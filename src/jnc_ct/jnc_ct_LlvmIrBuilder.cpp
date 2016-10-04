@@ -232,12 +232,12 @@ LlvmIrBuilder::createPhi (
 llvm::AllocaInst*
 LlvmIrBuilder::createAlloca (
 	Type* type,
-	const char* name,
+	const sl::StringRef& name,
 	Type* resultType,
 	Value* resultValue
 	)
 {
-	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca (type->getLlvmType (), 0, name);
+	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca (type->getLlvmType (), 0, name >> toLlvm);
 	resultValue->setLlvmValue (inst, resultType);
 	return inst;
 }

@@ -82,7 +82,7 @@ public:
 
 	bool
 	generateGroupDocumentation (
-		const char* outputDir,
+		const sl::StringRef& outputDir,
 		sl::String* indexXml
 		);
 };

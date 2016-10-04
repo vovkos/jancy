@@ -16,7 +16,7 @@ UnionType::UnionType ()
 
 StructField*
 UnionType::createFieldImpl (
-	const sl::String& name,
+	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
@@ -26,7 +26,7 @@ UnionType::createFieldImpl (
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -49,8 +49,8 @@ UnionType::createFieldImpl (
 		{
 			err::setFormatStringError (
 				"'%s' already has initialized field '%s'",
-				type->getTypeString ().cc (),
-				m_initializedMemberFieldArray [0]->getName ().cc ()
+				type->getTypeString ().sz (),
+				m_initializedMemberFieldArray [0]->getName ().sz ()
 				);
 			return NULL;
 		}
@@ -97,7 +97,7 @@ UnionType::calcLayout ()
 
 		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
-			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().cc ());
+			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().sz ());
 			return false;
 		}
 

@@ -39,7 +39,7 @@ CallConv_gcc32::prepareFunctionType (FunctionType* functionType)
 llvm::Function*
 CallConv_gcc32::createLlvmFunction (
 	FunctionType* functionType,
-	const char* tag
+	const sl::StringRef& tag
 	)
 {
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction (functionType, tag);

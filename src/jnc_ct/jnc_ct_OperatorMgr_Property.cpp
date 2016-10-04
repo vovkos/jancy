@@ -58,7 +58,7 @@ OperatorMgr::getPropertyVTable (
 		break;
 
 	case PropertyPtrTypeKind_Weak:
-		err::setFormatStringError ("cannot invoke weak '%s'", ptrType->getTypeString ().cc ());
+		err::setFormatStringError ("cannot invoke weak '%s'", ptrType->getTypeString ().sz ());
 		return false;
 	
 	case PropertyPtrTypeKind_Thin:
@@ -210,7 +210,7 @@ OperatorMgr::getPropertySetterType (
 
 	if (propertyType->isReadOnly ())
 	{
-		err::setFormatStringError ("read-only '%s' has no 'set'", propertyType->getTypeString ().cc ());
+		err::setFormatStringError ("read-only '%s' has no 'set'", propertyType->getTypeString ().sz ());
 		return NULL;
 	}
 	else if (ptrType->isConstPtrType ())
@@ -269,7 +269,7 @@ OperatorMgr::getPropertySetter (
 
 	if (propertyType->isReadOnly ())
 	{
-		err::setFormatStringError ("read-only '%s' has no setter", propertyType->getTypeString ().cc ());
+		err::setFormatStringError ("read-only '%s' has no setter", propertyType->getTypeString ().sz ());
 		return false;
 	}
 	else if (ptrType->isConstPtrType ())
@@ -350,7 +350,7 @@ OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 
 	if (!(propertyType->getFlags () & PropertyTypeFlag_Bindable))
 	{
-		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -391,7 +391,7 @@ OperatorMgr::getPropertyBinder (
 
 	if (!(propertyType->getFlags () & PropertyTypeFlag_Bindable))
 	{
-		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no 'onchanged' binder", propertyType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -463,7 +463,7 @@ OperatorMgr::getPropertyAutoGetValueType (const Value& opValue)
 	if (opValue.getValueKind () != ValueKind_Property || 
 		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
-		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -500,7 +500,7 @@ OperatorMgr::getPropertyAutoGetValue (
 	if (opValue.getValueKind () != ValueKind_Property || 
 		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
-		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().sz ());
 		return false;
 	}
 
@@ -516,7 +516,7 @@ OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
 		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
-		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -551,7 +551,7 @@ OperatorMgr::getPropertyOnChanged (
 	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
 		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
-		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().sz ());
 		return false;
 	}
 

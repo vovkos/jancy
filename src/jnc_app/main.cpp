@@ -37,7 +37,7 @@ printUsage ()
 	printVersion ();
 
 	sl::String helpString = CmdLineSwitchTable::getHelpString ();
-	printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.cc ());
+	printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.sz ());
 }
 
 //.............................................................................
@@ -76,7 +76,7 @@ main (
 	result = parser.parse (argc, argv);
 	if (!result)
 	{
-		printf ("error parsing command line: %s\n", err::getLastErrorDescription ().cc ());
+		printf ("error parsing command line: %s\n", err::getLastErrorDescription ().sz ());
 		return JncError_InvalidCmdLine;
 	}
 
@@ -95,7 +95,7 @@ main (
 		result = app.parse ();
 		if (!result)
 		{
-			printf ("%s\n", err::getLastErrorDescription ().cc ());
+			printf ("%s\n", err::getLastErrorDescription ().sz ());
 			return JncError_CompileFailure;
 		}
 
@@ -104,7 +104,7 @@ main (
 			result = app.generateDocumentation ();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				printf ("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
@@ -114,7 +114,7 @@ main (
 			result = app.compile ();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				printf ("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
@@ -127,7 +127,7 @@ main (
 			result = app.jit ();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				printf ("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
@@ -138,14 +138,14 @@ main (
 			result = app.runFunction (&returnValue);
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().cc ());
+				printf ("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_RunFailure;
 			}
 
 			if (!(cmdLine.m_flags & JncFlag_PrintReturnValue))
 				return returnValue;
 
-			printf ("'%s' returned: %d\n", cmdLine.m_functionName.cc (), returnValue);
+			printf ("'%s' returned: %d\n", cmdLine.m_functionName.sz (), returnValue);
 		}
 	}
 

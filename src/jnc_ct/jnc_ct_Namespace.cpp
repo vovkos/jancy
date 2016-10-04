@@ -20,14 +20,14 @@ Namespace::clear ()
 }
 
 sl::String
-Namespace::createQualifiedName (const char* name)
+Namespace::createQualifiedName (const sl::StringRef& name)
 {
 	if (m_qualifiedName.isEmpty ())
 		return name;
 
 	sl::String qualifiedName = m_qualifiedName;
 
-	if (name && *name)
+	if (!name.isEmpty ())
 	{
 		qualifiedName.append ('.');
 		qualifiedName.append (name);
@@ -37,9 +37,9 @@ Namespace::createQualifiedName (const char* name)
 }
 
 ModuleItem*
-Namespace::findItemByName (const char* name)
+Namespace::findItemByName (const sl::StringRef& name)
 {
-	if (!strchr (name, '.'))
+	if (name.find ('.') == -1)
 		return findItem (name);
 
 	QualifiedName qualifiedName;
@@ -48,7 +48,7 @@ Namespace::findItemByName (const char* name)
 }
 
 ModuleItem*
-Namespace::getItemByName (const char* name)
+Namespace::getItemByName (const sl::StringRef& name)
 {
 	ModuleItem* item = findItemByName (name);
 
@@ -62,7 +62,7 @@ Namespace::getItemByName (const char* name)
 }
 
 ModuleItem*
-Namespace::findItem (const char* name)
+Namespace::findItem (const sl::StringRef& name)
 {
 	sl::StringHashTableMapIterator <ModuleItem*> it = m_itemMap.find (name);
 	if (!it)
@@ -142,7 +142,7 @@ Namespace::findItemTraverse (
 
 ModuleItem*
 Namespace::findItemTraverseImpl (
-	const char* name,
+	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags
 	)
@@ -175,7 +175,7 @@ Namespace::findItemTraverseImpl (
 
 bool
 Namespace::addItem (
-	const char* name,
+	const sl::StringRef& name,
 	ModuleItem* item
 	)
 {
@@ -214,7 +214,7 @@ Namespace::addFunction (Function* function)
 
 Const*
 Namespace::createConst (
-	const sl::String& name,
+	const sl::StringRef& name,
 	const Value& value
 	)
 {
@@ -252,7 +252,7 @@ Namespace::exposeEnumConsts (EnumType* type)
 
 bool
 Namespace::generateMemberDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml,
 	bool useSectionDef
@@ -325,7 +325,7 @@ Namespace::generateMemberDocumentation (
 				return false;
 
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.cc ());
+			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.sz ());
 			itemXml->append ('\n');
 		}
 	}
@@ -336,7 +336,7 @@ Namespace::generateMemberDocumentation (
 		DoxyBlock* footnote = m_footnoteArray [i];
 
 		sectionDef.append ("<memberdef kind='footnote'>\n");
-		sectionDef.appendFormat ("<name>%s</name>\n", footnote->getRefId ().cc ());
+		sectionDef.appendFormat ("<name>%s</name>\n", footnote->getRefId ().sz ());
 		sectionDef.append (footnote->getDescriptionString ());
 		sectionDef.append ("</memberdef>\n");
 	}
@@ -369,7 +369,7 @@ GlobalNamespace::createDoxyRefId ()
 	}
 	else
 	{
-		refId.format ("namespace_%s", m_qualifiedName.cc ());
+		refId.format ("namespace_%s", m_qualifiedName.sz ());
 		refId.makeLowerCase ();
 	}
 	
@@ -378,7 +378,7 @@ GlobalNamespace::createDoxyRefId ()
 
 bool
 GlobalNamespace::generateDocumentation (
-	const char* outputDir,
+	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
@@ -400,7 +400,7 @@ GlobalNamespace::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
 		kind,
-		getDoxyBlock ()->getRefId ().cc (), 
+		getDoxyBlock ()->getRefId ().sz (), 
 		name		
 		);
 
@@ -408,7 +408,7 @@ GlobalNamespace::generateDocumentation (
 		"<compounddef kind='%s' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n", 
 		kind,
-		getDoxyBlock ()->getRefId ().cc (),
+		getDoxyBlock ()->getRefId ().sz (),
 		name		
 		);
 

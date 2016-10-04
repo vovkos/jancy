@@ -640,7 +640,7 @@ OperatorMgr::castOperator (
 		return dynamicCastClassPtr (opValue, (ClassPtrType*) type, resultValue);
 
 	default:
-		err::setFormatStringError ("cannot dynamically cast to '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("cannot dynamically cast to '%s'", type->getTypeString ().sz ());
 		return false;
 	}
 }
@@ -668,8 +668,8 @@ OperatorMgr::dynamicCastDataPtr (
 	{
 		err::setFormatStringError (
 			"cannot dynamically cast '%s' to '%s'", 
-			opValue.getType ()->getTypeString ().cc (),
-			type->getTypeString ().cc ()
+			opValue.getType ()->getTypeString ().sz (),
+			type->getTypeString ().sz ()
 			);
 		return false;
 	}
@@ -714,8 +714,8 @@ OperatorMgr::dynamicCastClassPtr (
 	{
 		err::setFormatStringError (
 			"cannot dynamically cast '%s' to '%s'", 
-			opValue.getType ()->getTypeString ().cc (),
-			type->getTypeString ().cc ()
+			opValue.getType ()->getTypeString ().sz (),
+			type->getTypeString ().sz ()
 			);
 		return false;
 	}
@@ -1000,7 +1000,7 @@ OperatorMgr::countofOperator (
 		Type* type = opValue.getType ();
 		if (type->getTypeKind () != TypeKind_DataPtr)
 		{
-			err::setFormatStringError ("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().cc ());
+			err::setFormatStringError ("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -1016,7 +1016,7 @@ OperatorMgr::countofOperator (
 
 	if (type->getTypeKind () != TypeKind_Array)
 	{
-		err::setFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().cc ());
+		err::setFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().sz ());
 		return false;
 	}
 

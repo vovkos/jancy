@@ -1162,7 +1162,7 @@ struct jnc_VariantFuncTable
 	jnc_Variant_UnaryOperatorFunc* m_unaryOperatorFunc;
 	jnc_Variant_BinaryOperatorFunc* m_binaryOperatorFunc;
 	jnc_Variant_RelationalOperatorFunc* m_relationalOperatorFunc;
-	jnc_Variant_GetHashFunc* m_getHashFunc;
+	jnc_Variant_GetHashFunc* m_hashFunc;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

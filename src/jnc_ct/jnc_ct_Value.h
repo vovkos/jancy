@@ -218,77 +218,77 @@ public:
 	getConstData () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
-		return m_constData.ca ();
+		return m_constData.cp ();
 	}
 
 	void*
 	getConstData ()
 	{
 		ASSERT (m_valueKind == ValueKind_Const);
-		return m_constData.a ();
+		return m_constData.p ();
 	}
 
 	bool
 	getBool () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (bool));
-		return *(const bool*) m_constData.ca ();
+		return *(const bool*) m_constData.cp ();
 	}
 
 	int
 	getInt () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int));
-		return *(const int*) m_constData.ca ();
+		return *(const int*) m_constData.cp ();
 	}
 
 	intptr_t
 	getIntPtr () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (intptr_t));
-		return *(const intptr_t*) m_constData.ca ();
+		return *(const intptr_t*) m_constData.cp ();
 	}
 
 	int32_t
 	getInt32 () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int32_t));
-		return *(const int32_t*) m_constData.ca ();
+		return *(const int32_t*) m_constData.cp ();
 	}
 
 	int64_t
 	getInt64 () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int64_t));
-		return *(const int64_t*) m_constData.ca ();
+		return *(const int64_t*) m_constData.cp ();
 	}
 
 	size_t
 	getSizeT () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (size_t));
-		return *(const size_t*) m_constData.ca ();
+		return *(const size_t*) m_constData.cp ();
 	}
 
 	float
 	getFloat () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (float));
-		return *(const float*) m_constData.ca ();
+		return *(const float*) m_constData.cp ();
 	}
 
 	double
 	getDouble () const
 	{
 		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (double));
-		return *(const double*) m_constData.ca ();
+		return *(const double*) m_constData.cp ();
 	}
 
 	size_t
 	getFieldOffset () const
 	{
 		ASSERT (m_valueKind == ValueKind_Field && m_constData.getCount () >= sizeof (size_t));
-		return *(const size_t*) m_constData.ca ();
+		return *(const size_t*) m_constData.cp ();
 	}
 
 	bool
@@ -360,7 +360,7 @@ public:
 		return 
 			m_valueKind == ValueKind_Const &&
 			m_type->getTypeKind () == TypeKind_Int8 && 
-			*(char*) m_constData.ca () == 0;
+			*(char*) m_constData.cp () == 0;
 	}
 
 	void
@@ -578,21 +578,15 @@ public:
 
 	void
 	setCharArray (
-		const sl::String& string,
+		const sl::StringRef& string,
 		Module* module
 		)
 	{
 		if (string.isEmpty ())
 			setEmptyCharArray (module);
 		else
-			setCharArray (string, string.getLength () + 1, module);
+			setCharArray (string.sz (), string.getLength () + 1, module);
 	}
-
-	void
-	setCharArray (
-		const char* p,
-		Module* module
-		);
 
 	void
 	setCharArray (

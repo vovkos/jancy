@@ -256,7 +256,7 @@ jnc_Module_parse (
 	size_t length
 	)
 {
-	return module->parse (lib, fileName, source, length);
+	return module->parse (lib, fileName, sl::StringRef (source, length));
 }
 
 JNC_EXTERN_C

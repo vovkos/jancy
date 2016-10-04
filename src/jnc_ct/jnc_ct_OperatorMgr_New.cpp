@@ -72,7 +72,7 @@ OperatorMgr::construct (
 		break;
 
 	default:
-		err::setFormatStringError ("'%s' is not a pointer or reference", type->getTypeString ().cc ());
+		err::setFormatStringError ("'%s' is not a pointer or reference", type->getTypeString ().sz ());
 		return false;
 	}
 
@@ -96,7 +96,7 @@ OperatorMgr::construct (
 	{
 		if (argList && !argList->isEmpty ())
 		{
-			err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().cc ());
+			err::setFormatStringError ("'%s' has no constructor", type->getTypeString ().sz ());
 			return false;
 		}
 
@@ -107,7 +107,7 @@ OperatorMgr::construct (
 	if (constructor->getAccessKind () != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind (derivableType) == AccessKind_Public)
 	{
-		err::setFormatStringError ("'%s.construct' is protected", derivableType->getQualifiedName ().cc ());
+		err::setFormatStringError ("'%s.construct' is protected", derivableType->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -416,7 +416,7 @@ OperatorMgr::gcHeapAllocate (
 	{
 		if (type->getFlags () & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
 		{
-			err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().cc ());
+			err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
