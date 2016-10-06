@@ -529,7 +529,7 @@ DerivableType::findItemTraverseImpl (
 				item = type->findItemTraverseImpl (name, coord, flags | TraverseKind_NoParentNamespace, level + 1);
 				if (item)
 				{
-					if (coord)
+					if (coord && coord->m_type)
 					{
 						coord->m_offset += field->m_offset;
 						coord->m_llvmIndexArray [level] = field->m_llvmIndex;
@@ -575,7 +575,7 @@ DerivableType::findItemTraverseImpl (
 			item = baseType->findItemTraverseImpl (name, coord, flags, level + 1);
 			if (item)
 			{
-				if (coord)
+				if (coord && coord->m_type)
 				{
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
