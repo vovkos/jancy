@@ -57,22 +57,22 @@ public:
 		return m_item;
 	}
 
-	sl::String 
+	const sl::String&
 	getRefId ();
 
-	sl::String 
+	const sl::String&
 	getTitle ()
 	{
 		return m_title;
 	}
 
-	sl::String 
+	const sl::String&
 	getBriefDescription ()
 	{
 		return m_briefDescription;
 	}
 
-	sl::String 
+	const sl::String&
 	getDetailedDescription ()
 	{		
 		return m_detailedDescription;

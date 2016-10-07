@@ -65,7 +65,7 @@ public:
 		return m_list.isEmpty ();
 	}
 
-	sl::String 
+	const sl::String&
 	getFirstName () const
 	{
 		return m_first;
@@ -77,7 +77,7 @@ public:
 		return m_list;
 	}
 
-	sl::String
+	const sl::String&
 	getShortName () const
 	{
 		return !m_list.isEmpty () ? *m_list.getTail () : m_first;

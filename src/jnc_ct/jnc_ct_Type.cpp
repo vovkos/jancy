@@ -221,7 +221,7 @@ Type::getTypeString ()
 	return string;
 }
 
-sl::String
+const sl::String&
 Type::getTypeStringPrefix ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
@@ -234,7 +234,7 @@ Type::getTypeStringPrefix ()
 	return tuple->m_typeStringPrefix;
 }
 
-sl::String
+const sl::String&
 Type::getTypeStringSuffix ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
@@ -247,7 +247,7 @@ Type::getTypeStringSuffix ()
 	return tuple->m_typeStringSuffix;
 }
 
-sl::String
+const sl::String&
 Type::getDoxyTypeString ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
@@ -260,7 +260,7 @@ Type::getDoxyTypeString ()
 	return tuple->m_doxyTypeString;
 }
 
-sl::String
+const sl::String&
 Type::getDoxyLinkedTextPrefix ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
@@ -273,7 +273,7 @@ Type::getDoxyLinkedTextPrefix ()
 	return tuple->m_doxyLinkedTextPrefix;
 }
 
-sl::String
+const sl::String&
 Type::getDoxyLinkedTextSuffix ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();

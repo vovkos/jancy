@@ -15,7 +15,7 @@ DoxyBlock::DoxyBlock ()
 	m_item = NULL;
 }
 
-sl::String 
+const sl::String&
 DoxyBlock::getRefId ()
 {
 	if (!m_refId.isEmpty ())

@@ -67,7 +67,7 @@ public:
 		return m_initializer;
 	}
 
-	sl::String
+	const sl::String&
 	getInitializerString ();
 };
 
@@ -109,13 +109,13 @@ public:
 		return !m_name.isEmpty ();
 	}
 
-	sl::String
+	const sl::String&
 	getName ()
 	{
 		return m_name;
 	}
 
-	sl::String
+	const sl::String&
 	getQualifiedName ()
 	{
 		return m_qualifiedName;

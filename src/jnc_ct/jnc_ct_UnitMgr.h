@@ -40,19 +40,19 @@ public:
 		return m_lib;
 	}
 
-	sl::String
+	const sl::String&
 	getFilePath ()
 	{
 		return m_filePath;
 	}
 
-	sl::String
+	const sl::String&
 	getFileName ()
 	{
 		return m_fileName;
 	}
 
-	sl::String
+	const sl::String&
 	getDir ()
 	{
 		return m_dir;

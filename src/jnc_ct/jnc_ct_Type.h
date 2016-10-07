@@ -248,7 +248,7 @@ public:
 		return m_alignment;
 	}
 
-	sl::String
+	const sl::String&
 	getSignature ()
 	{
 		return m_signature;
@@ -257,19 +257,19 @@ public:
 	sl::String
 	getTypeString ();
 
-	sl::String
+	const sl::String&
 	getTypeStringPrefix ();
 
-	sl::String
+	const sl::String&
 	getTypeStringSuffix ();
 
-	sl::String
+	const sl::String&
 	getDoxyTypeString ();
 
-	sl::String
+	const sl::String&
 	getDoxyLinkedTextPrefix ();
 
-	sl::String
+	const sl::String&
 	getDoxyLinkedTextSuffix ();
 
 	sl::String

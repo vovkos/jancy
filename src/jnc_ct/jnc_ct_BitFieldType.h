@@ -49,7 +49,7 @@ public:
 		size_t bitCount
 		)
 	{
-		return sl::String::format_s (
+		return sl::formatString (
 			"B%s:%d:%d",
 			baseType->getSignature ().sz (),
 			bitOffset,

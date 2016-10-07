@@ -100,7 +100,7 @@ public:
 		clear ();
 	}
 	
-	sl::String
+	const sl::String&
 	getName ()
 	{
 		return m_name;

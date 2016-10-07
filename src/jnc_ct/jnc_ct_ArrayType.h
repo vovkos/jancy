@@ -58,7 +58,7 @@ public:
 		size_t elementCount
 		)
 	{
-		return sl::String::format_s (
+		return sl::formatString (
 			"A%d%s",
 			elementCount,
 			elementType->getSignature ().sz ()

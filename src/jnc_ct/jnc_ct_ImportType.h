@@ -119,7 +119,7 @@ public:
 		return m_name;
 	}
 
-	sl::String
+	const sl::String&
 	getQualifiedName ()
 	{
 		return m_qualifiedName;
@@ -138,7 +138,7 @@ public:
 		Namespace* anchorNamespace
 		)
 	{
-		return sl::String::format_s ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
+		return sl::formatString ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
 	}
 
 protected:
@@ -199,7 +199,7 @@ public:
 		uint_t flags
 		)
 	{
-		return sl::String::format_s (
+		return sl::formatString (
 			"ZP%s:%d:%d",
 			importType->getQualifiedName ().sz (),
 			typeModifiers,
@@ -246,7 +246,7 @@ public:
 		uint_t flags
 		)
 	{
-		return sl::String::format_s (
+		return sl::formatString (
 			"ZI%s:%d:%d",
 			importType->getQualifiedName ().sz (),
 			typeModifiers,

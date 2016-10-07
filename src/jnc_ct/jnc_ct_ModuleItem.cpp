@@ -7,13 +7,10 @@ namespace ct {
 
 //.............................................................................
 
-sl::String
+const sl::String&
 ModuleItemInitializer::getInitializerString ()
 {
-	if (m_initializer.isEmpty ())
-		return sl::String ();
-
-	if (m_initializerString.isEmpty ())
+	if (!m_initializer.isEmpty () && m_initializerString.isEmpty ())
 		m_initializerString = Token::getTokenListString (m_initializer);
 
 	return m_initializerString;

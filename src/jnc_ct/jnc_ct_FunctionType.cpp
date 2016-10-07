@@ -40,7 +40,7 @@ FunctionType::getThisTargetType ()
 	}
 }
 
-sl::String
+const sl::String&
 FunctionType::getArgSignature ()
 {
 	if (m_argSignature.isEmpty ())

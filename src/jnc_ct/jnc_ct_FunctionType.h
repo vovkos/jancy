@@ -72,7 +72,7 @@ public:
 		return m_argFlagArray;
 	}
 
-	sl::String
+	const sl::String&
 	getArgSignature ();
 
 	sl::String

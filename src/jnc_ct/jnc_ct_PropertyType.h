@@ -173,7 +173,7 @@ public:
 	StructType*
 	getVTableStructType ();
 
-	sl::String
+	const sl::String&
 	getBindableEventName ()
 	{
 		return m_bindableEventName;
