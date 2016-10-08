@@ -328,7 +328,7 @@ JNC_INLINE
 err::Error
 setRedefinitionError (const sl::StringRef& name)
 {
-	return err::setFormatStringError ("redefinition of '%s'", name);
+	return err::setFormatStringError ("redefinition of '%s'", name.sz ());
 }
 
 //.............................................................................

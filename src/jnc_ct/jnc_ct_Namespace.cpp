@@ -54,7 +54,7 @@ Namespace::getItemByName (const sl::StringRef& name)
 
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' not found", name);
+		err::setFormatStringError ("'%s' not found", name.sz ());
 		return NULL;
 	}
 

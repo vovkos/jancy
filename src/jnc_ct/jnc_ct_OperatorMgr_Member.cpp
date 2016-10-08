@@ -104,7 +104,7 @@ OperatorMgr::getNamespaceMemberType (
 	ModuleItem* item = nspace->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), nspace->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -172,7 +172,7 @@ OperatorMgr::getNamespaceMemberType (
 		break;
 
 	default:
-		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name.sz ());
 		return false;
 	};
 
@@ -193,7 +193,7 @@ OperatorMgr::getNamespaceMember (
 	ModuleItem* item = nspace->findItemTraverse (name, NULL, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, nspace->getQualifiedName ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), nspace->getQualifiedName ().sz ());
 		return false;
 	}
 
@@ -291,7 +291,7 @@ OperatorMgr::getNamespaceMember (
 		break;
 
 	default:
-		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name);
+		err::setFormatStringError ("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name.sz ());
 		return false;
 	};
 
@@ -311,7 +311,7 @@ OperatorMgr::getNamedTypeMemberType (
 	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), namedType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -382,7 +382,7 @@ OperatorMgr::getNamedTypeMember (
 	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, namedType->getTypeString ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), namedType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -444,7 +444,7 @@ OperatorMgr::getNamedTypeMember (
 		if ((member->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			((ClassPtrType*) opValue.getType ())->isEventPtrType ())
 		{
-			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", name);
+			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", name.sz ());
 			return false;
 		}
 	}
@@ -465,7 +465,7 @@ OperatorMgr::getEnumTypeMemberType (
 	ModuleItem* member = enumType->findItem (name);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), enumType->getTypeString ().sz ());
 		return false;
 	}
 
@@ -488,7 +488,7 @@ OperatorMgr::getEnumTypeMember (
 	ModuleItem* member = enumType->findItem (name);
 	if (!member)
 	{
-		err::setFormatStringError ("'%s' is not a member of '%s'", name, enumType->getTypeString ().sz ());
+		err::setFormatStringError ("'%s' is not a member of '%s'", name.sz (), enumType->getTypeString ().sz ());
 		return false;
 	}
 

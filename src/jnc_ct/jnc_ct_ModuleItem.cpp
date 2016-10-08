@@ -272,7 +272,7 @@ verifyModuleItemKind (
 {
 	if (item->getItemKind () != itemKind)
 	{
-		err::setFormatStringError ("'%s' is not a %s", name, getModuleItemKindString (itemKind));
+		err::setFormatStringError ("'%s' is not a %s", name.sz (), getModuleItemKindString (itemKind));
 		return NULL;
 	}
 

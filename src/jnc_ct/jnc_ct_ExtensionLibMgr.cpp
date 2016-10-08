@@ -86,7 +86,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 
 	if (dynamicLibFileIdx == -1)
 	{
-		err::setFormatStringError ("'%s' does not contain a dynamic library binary (*.bin)", fileName);
+		err::setFormatStringError ("'%s' does not contain a dynamic library binary (*.bin)", fileName.sz ());
 		return false;
 	}
 
@@ -106,7 +106,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	ExtensionLib* lib = mainFunc (&jnc_g_dynamicExtensionLibHostImpl);
 	if (!lib)
 	{
-		err::setFormatStringError ("cannot get extension lib in '%s'", fileName);
+		err::setFormatStringError ("cannot get extension lib in '%s'", fileName.sz ());
 		return false;
 	}
 

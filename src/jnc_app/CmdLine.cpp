@@ -137,7 +137,7 @@ CmdLineParser::onSwitch (
 		m_cmdLine->m_stackSizeLimit = parseSizeString (value);
 		if (!m_cmdLine->m_stackSizeLimit)
 		{
-			err::setFormatStringError ("invalid stack size '%s'", value);
+			err::setFormatStringError ("invalid stack size '%s'", value.sz ());
 			return false;
 		}
 

@@ -104,7 +104,7 @@ ImportMgr::findImportFile (
 
 	if (filePath.isEmpty ())
 	{
-		err::setFormatStringError ("import '%s' not found", fileName);
+		err::setFormatStringError ("import '%s' not found", fileName.sz ());
 		return FindResult_NotFound;
 	}
 
