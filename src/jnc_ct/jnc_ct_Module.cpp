@@ -259,12 +259,16 @@ Module::mapFunction (
 void*
 Module::findFunctionMapping (const sl::StringRef& name)
 {
-#if (_JNC_OS_POSIX && _JNC_OS_DARWIN)
-	if (*(const uint16_t*) name == '._')
-		name++;
+	sl::StringHashTableMapIterator <void*> it;
+
+#if (_JNC_OS_DARWIN)
+	it = *(const uint16_t*) name.cp () == '._' ?
+		m_functionMap.find (name.getSubString (1)) :
+		m_functionMap.find (name);
+#else
+	it = m_functionMap.find (name);
 #endif
 
-	sl::StringHashTableMapIterator <void*> it = m_functionMap.find (name);
 	return it ? it->m_value : NULL;
 }
 
