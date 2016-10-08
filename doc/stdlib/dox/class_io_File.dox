@@ -21,13 +21,15 @@
 
 		This property is used for getting and setting file size.
 
-		Reading from this property returns current size of the file; writing to it sets new size. If setting new size fails, IO error supplied by operating system is set; then dynamic exception is thrown.
+		Reading from this property returns current size of the file; writing to it sets new size [#f3]_.
 
 	\property m_position
 
 		This property is used for getting and setting current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
 
-		Reading from this property returns current read/write position in the file; writing to it sets new position. Behaviour of this property sequential devices (which do not support access at random-offset) is determined by the underlying operating system. If getting or setting position fails, IO error supplied by operating system is set; then dynamic exception is thrown.
+		Reading from this property returns current read/write position in the file; writing to it sets the new position [#f3]_.
+
+		Accessing this property for sequential devices (which do not support access at random-offset) likely results in exception being thrown (unless the underlying OS silently ignores position read/write and does not return any IO error).
 
 	\fn open
 
@@ -35,14 +37,14 @@
 
 		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
 
-		Returns ``true`` on success. If file or device could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns ``true`` on success. If file or device could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 
 
 	\fn close
 
 		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
-		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn read
 
@@ -50,7 +52,7 @@
 
 		Returns the actual amount of bytes read or ``-1`` if error occurs.
 
-		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
 		If this function is called when there is no incoming data on the opened device, it blocks until either the data arrives, or the file is closed.
 
@@ -58,11 +60,22 @@
 
 		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` into the file.
 
-		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1``.
-
-		Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
 	\alias dispose
-		Ensures ``io.File`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+
+		Effectively makes ``io.File`` a *disposable* class [#f2]_.
+
+	\footnote f1
+
+		You can use exception semantics to handle the errors return values of ``errorcode`` functions. For more details refer to :ref:`errorcode`.
+
+	\footnote f2
+
+		You can ensure timely invokation of ``close`` method with *disposable* pattern. For more details refer to :ref:`disposable`.
+
+	\footnote f3
+
+		If setting this property fails, IO error supplied by operating system is set; then exception is thrown.
 
 */
