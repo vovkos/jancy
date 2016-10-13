@@ -3,7 +3,7 @@
 #include "jnc_io_IoLib.h"
 #include "jnc_Error.h"
 
-#if (_JNC_OS_POSIX)
+#ifndef IPV6_HDRINCL
 #	define IPV6_HDRINCL IP_HDRINCL
 #endif
 

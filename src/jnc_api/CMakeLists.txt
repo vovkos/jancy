@@ -149,16 +149,16 @@ add_library (
 	${LIB_DYNAMIC_CPP_LIST}
 	)
 
+target_compile_definitions (
+	jnc_api_dynamic
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB
+	)
+
 axl_set_pch (
 	jnc_api_dynamic
 	${PCH_H}
 	${PCH_DYNAMIC_CPP}
-	)
-
-target_compile_definitions (
-	jnc_api_dynamic 
-	PUBLIC
-	-D_JNC_DYNAMIC_EXTENSION_LIB
 	)
 
 if (GCC)
