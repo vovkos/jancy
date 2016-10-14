@@ -108,14 +108,6 @@ set_target_properties (
 	SUFFIX .bin
 	)
 
-if (GCC)
-	axl_append_target_string_property (
-		jnc_io_ssh
-		COMPILE_FLAGS
-		"-fPIC"
-		)
-endif ()
-
 target_link_libraries (
 	jnc_io_ssh
 	jnc_io_cmn

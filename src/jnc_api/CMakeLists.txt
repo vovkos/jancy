@@ -131,14 +131,6 @@ axl_set_pch (
 	${PCH_STATIC_CPP}
 	)
 
-if (GCC)
-	axl_append_target_string_property (
-		jnc_api_static
-		COMPILE_FLAGS
-		"-fPIC"
-		)
-endif ()
-
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 add_library (
@@ -160,13 +152,5 @@ axl_set_pch (
 	${PCH_H}
 	${PCH_DYNAMIC_CPP}
 	)
-
-if (GCC)
-	axl_append_target_string_property (
-		jnc_api_dynamic
-		COMPILE_FLAGS
-		"-fPIC"
-		)
-endif ()
 
 #..............................................................................
