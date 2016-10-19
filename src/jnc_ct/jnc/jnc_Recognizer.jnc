@@ -2,9 +2,9 @@ namespace jnc {
 
 ///+++
 
-//.............................................................................
+//..............................................................................
 
-///; static char automatonResultTypeSrc [] = 
+///; static char automatonResultTypeSrc [] =
 
 enum AutomatonResult
 {
@@ -13,9 +13,9 @@ enum AutomatonResult
 	Stop     = 1,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char recognizerTypeSrc [] = 
+///; static char recognizerTypeSrc [] =
 
 class Recognizer
 {
@@ -37,7 +37,7 @@ public:
 
 	char const* readonly m_lexeme;
 	size_t readonly m_lexemeOffset;
-	size_t readonly m_lexemeLength;	
+	size_t readonly m_lexemeLength;
 
 public:
 	construct (AutomatonFunc* automatonFunc = null);
@@ -45,7 +45,7 @@ public:
 	// incremental recognition
 
 	reset ();
-	
+
 	bool errorcode write (
 		char const* p,
 		size_t length = -1
@@ -77,7 +77,7 @@ public:
 
 ///;
 
-//.............................................................................
+//..............................................................................
 
 ///---
 

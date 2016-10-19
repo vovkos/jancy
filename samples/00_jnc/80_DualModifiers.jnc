@@ -1,20 +1,20 @@
-// Jancy features dual modifiers, i.e. modifiers with a different meaning for 
-// aliens and friends of a namespace. 
+// Jancy features dual modifiers, i.e. modifiers with a different meaning for
+// aliens and friends of a namespace.
 
-// The dual modifier 'readonly' allows declaring types that behave like const 
-// for aliens and non-const for friends. This is designed for providing 
-// read-only access in a clean and natural way (instead of creating dummy 
+// The dual modifier 'readonly' allows declaring types that behave like const
+// for aliens and non-const for friends. This is designed for providing
+// read-only access in a clean and natural way (instead of creating dummy
 // properties with trivial getters as is usually the way in other languages).
 
-// The dual modifier 'event' allows declaring events or event pointers. Aliens 
+// The dual modifier 'event' allows declaring events or event pointers. Aliens
 // can only subscribe/unsubscribe (event semantics), while friends must be also
 // able to fire the event (multicast semantics).
 
-//.............................................................................
+//..............................................................................
 
 class C1
 {
-	// read-only field declared with the dual modifier readonly 
+	// read-only field declared with the dual modifier readonly
 
 	int readonly m_progress;
 
@@ -26,25 +26,25 @@ class C1
 	{
 		// insiders have write-access to m_progress
 
-		m_progress += 25; 
-	
+		m_progress += 25;
+
 		if (m_progress >= 100)
 		{
 			// insiders have multicast-access to m_onCompleted
 
-			m_onCompleted (); 
+			m_onCompleted ();
 		}
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 onCompleted ()
 {
 	printf ("onCompleted () -- work is finished\n");
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -56,7 +56,7 @@ int main ()
 
 	// aliens have event-access to C1.m_onCompleted...
 
-	c.m_onCompleted += onCompleted; 
+	c.m_onCompleted += onCompleted;
 
 	// ...but no multicast-access
 
@@ -68,7 +68,7 @@ int main ()
 
 		// outsiders have read-access to C1.m_x...
 
-		printf ("progress = %d%%\n", c.m_progress); 
+		printf ("progress = %d%%\n", c.m_progress);
 	}
 
 	// ...but no write-access
@@ -78,4 +78,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

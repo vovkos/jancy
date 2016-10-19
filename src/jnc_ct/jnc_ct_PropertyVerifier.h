@@ -10,13 +10,13 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class PropertyVerifier
 {
 protected:
 	sl::String m_indexArgSignature; // all accessors must have matching index arg signature
-	
+
 public:
 	bool
 	checkGetter (FunctionType* functionType)
@@ -28,21 +28,21 @@ public:
 	checkSetter (FunctionType* functionType);
 
 protected:
-	bool 
+	bool
 	checkIndexSignature (
 		FunctionKind functionKind,
 		FunctionType* functionType
 		);
 
 	static
-	sl::String 
+	sl::String
 	createIndexArgSignature (
 		FunctionKind functionKind,
 		FunctionType* functionType
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

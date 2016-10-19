@@ -10,17 +10,17 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-class Const: 
+class Const:
 	public ModuleItem,
 	public ModuleItemDecl
 {
 	friend class ConstMgr;
-	
+
 protected:
 	Value m_value;
-	
+
 public:
 	Const ()
 	{
@@ -34,7 +34,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class ConstMgr
 {
@@ -57,7 +57,7 @@ protected:
 public:
 	ConstMgr ();
 
-	Module* 
+	Module*
 	getModule ()
 	{
 		return m_module;
@@ -73,14 +73,14 @@ public:
 		const Value& value
 		);
 
-	const Value& 
+	const Value&
 	saveValue (const Value& value)
 	{
 		sl::BoxIterator <Value> it = m_valueList.insertTail (value);
 		return *it;
 	}
 
-	const Value& 
+	const Value&
 	saveLiteral (const sl::StringRef& string);
 
 	DataPtrValidator*
@@ -90,7 +90,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

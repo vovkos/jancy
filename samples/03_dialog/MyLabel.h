@@ -4,22 +4,22 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (MyLabel)
 
-//.............................................................................
+//..............................................................................
 
 class MyLabel: public MyWidget
 {
-public: 
+public:
 	jnc::DataPtr m_text;
 	int m_color;
 	int m_backColor;
 	Qt::Alignment m_alignment;
-	
+
 public:
 	QLabel* m_qtLabel;
 
 public:
 	MyLabel (jnc::DataPtr textPtr);
-	
+
 	~MyLabel ()
 	{
 		delete m_qtLabel;
@@ -36,7 +36,7 @@ public:
 	void
 	JNC_CDECL
 	setColor (int color)
-	{	
+	{
 		m_color = color;
 		updateStyleSheet ();
 	}
@@ -44,7 +44,7 @@ public:
 	void
 	JNC_CDECL
 	setBackColor (int color)
-	{	
+	{
 		m_backColor = color;
 		updateStyleSheet ();
 	}
@@ -52,7 +52,7 @@ public:
 	void
 	JNC_CDECL
 	setAlignment (Qt::Alignment alignment)
-	{	
+	{
 		m_alignment = alignment;
 		m_qtLabel->setAlignment (alignment);
 	}
@@ -62,4 +62,4 @@ protected:
 	updateStyleSheet ();
 };
 
-//.............................................................................
+//..............................................................................

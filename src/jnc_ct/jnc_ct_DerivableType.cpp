@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 BaseTypeSlot::BaseTypeSlot ()
 {
@@ -16,7 +16,7 @@ BaseTypeSlot::BaseTypeSlot ()
 	m_vtableIndex = -1;
 }
 
-//.............................................................................
+//..............................................................................
 
 BaseTypeCoord::BaseTypeCoord ():
 	m_llvmIndexArray (ref::BufKind_Field, m_buffer, sizeof (m_buffer))
@@ -26,7 +26,7 @@ BaseTypeCoord::BaseTypeCoord ():
 	m_vtableIndex = 0;
 }
 
-//.............................................................................
+//..............................................................................
 
 DerivableType::DerivableType ():
 	NamedTypeBlock (this)
@@ -604,14 +604,14 @@ DerivableType::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	const char* kind = 
-		m_typeKind == TypeKind_Struct ? "struct" : 
+	const char* kind =
+		m_typeKind == TypeKind_Struct ? "struct" :
 		m_typeKind == TypeKind_Union ? "union" : "class";
 
 	indexXml->appendFormat (
-		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
+		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (), 
+		getDoxyBlock ()->getRefId ().sz (),
 		getQualifiedName ().sz ()
 		);
 
@@ -622,7 +622,7 @@ DerivableType::generateDocumentation (
 
 	itemXml->format (
 		"<compounddef kind='%s' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n", 
+		"<compoundname>%s</compoundname>\n",
 		kind,
 		getDoxyBlock ()->getRefId ().sz (),
 		m_name.sz ()
@@ -632,11 +632,11 @@ DerivableType::generateDocumentation (
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
-	
+
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

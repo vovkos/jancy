@@ -3,7 +3,7 @@ namespace io {
 //! \addtogroup socket
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum AddressFamily: uint16_t
 {
@@ -19,15 +19,15 @@ enum Protocol
 	Udp  = 17,
 }
 
-//.............................................................................
+//..............................................................................
 
 // matches in_addr
 
 union Address_ip4
 {
 	bigendian uint32_t m_i32;
-	uint8_t m_i8 [4];	
-	
+	uint8_t m_i8 [4];
+
 	bool errorcode parse (char const* string);
 	char const* getString () const;
 }
@@ -43,7 +43,7 @@ union Address_ip6
 	char const* getString () const;
 }
 
-//.............................................................................
+//..............................................................................
 
 alignment (2);
 
@@ -62,7 +62,7 @@ struct SocketAddress_ip4
 
 struct SocketAddress_ip6
 {
-	AddressFamily m_family;	
+	AddressFamily m_family;
 	bigendian uint16_t m_port;
 	uint32_t m_flow;
 	Address_ip6 m_address;
@@ -76,7 +76,7 @@ struct SocketAddress_ip6
 
 union SocketAddress
 {
-	AddressFamily m_family;	
+	AddressFamily m_family;
 	SocketAddress_ip4 m_ip4;
 	SocketAddress_ip6 m_ip6;
 
@@ -88,7 +88,7 @@ union SocketAddress
 
 alignment (default);
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

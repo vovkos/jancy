@@ -5,7 +5,7 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_LIB (
 	SshLib,
@@ -26,7 +26,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (SshLib)
 	JNC_MAP_TYPE (SshChannel)
 JNC_END_LIB_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc
@@ -36,11 +36,11 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 
 JNC_EXTERN_C
 JNC_EXPORT
-jnc_ExtensionLib* 
+jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::SshLib_getLib ();
 }
 
-//.............................................................................
+//..............................................................................

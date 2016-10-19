@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_FunctionPtr_FromMulticast::getCastKind (
@@ -40,7 +40,7 @@ Cast_FunctionPtr_FromMulticast::llvmCast (
 		m_module->m_operatorMgr.castOperator (callValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_FunctionPtr_FromDataPtr::getCastKind (
@@ -52,11 +52,11 @@ Cast_FunctionPtr_FromDataPtr::getCastKind (
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	FunctionPtrType* dstType = (FunctionPtrType*) type;
-	DataPtrType* srcType = (DataPtrType*) opValue.getType ();	
+	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 
-	return 
-		srcType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
-		dstType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None : 
+	return
+		srcType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None :
+		dstType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None :
 		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
 }
@@ -72,9 +72,9 @@ Cast_FunctionPtr_FromDataPtr::llvmCast (
 	ASSERT (type->getTypeKind () == TypeKind_FunctionPtr);
 
 	FunctionPtrType* dstType = (FunctionPtrType*) type;
-	DataPtrType* srcType = (DataPtrType*) opValue.getType ();	
+	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 
-	if (srcType->getPtrTypeKind () != DataPtrTypeKind_Thin || 
+	if (srcType->getPtrTypeKind () != DataPtrTypeKind_Thin ||
 		dstType->getPtrTypeKind () != FunctionPtrTypeKind_Thin)
 	{
 		setCastError (opValue, type);
@@ -91,7 +91,7 @@ Cast_FunctionPtr_FromDataPtr::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_FunctionPtr_Base::getCastKind (
@@ -131,7 +131,7 @@ Cast_FunctionPtr_Base::getCastKind (
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FunctionPtr_FromFat::llvmCast (
@@ -164,7 +164,7 @@ Cast_FunctionPtr_FromFat::llvmCast (
 	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FunctionPtr_Weak2Normal::llvmCast (
@@ -231,7 +231,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast (
 	return m_module->m_operatorMgr.castOperator (intermediateValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FunctionPtr_Thin2Fat::llvmCast (
@@ -405,7 +405,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FunctionPtr_Thin2Thin::llvmCast (
@@ -448,7 +448,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Cast_FunctionPtr::Cast_FunctionPtr ()
 {
@@ -511,7 +511,7 @@ Cast_FunctionPtr::getCastOperator (
 	return m_operatorTable [srcPtrTypeKind] [dstPtrTypeKind];
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_FunctionRef::getCastKind (
@@ -559,7 +559,7 @@ Cast_FunctionRef::llvmCast (
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

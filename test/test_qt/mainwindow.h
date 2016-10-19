@@ -6,7 +6,7 @@ class ModulePane;
 class Output;
 class MdiChild;
 
-//.............................................................................
+//..............................................................................
 
 class MainWindow : public QMainWindow
 {
@@ -14,11 +14,11 @@ class MainWindow : public QMainWindow
 
 public:
 	MainWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-	
+
 	QSize sizeHint() const { return QSize(800, 600); }
 
 	void writeStatus(const QString &text, int timeout = 0);
-	
+
 	size_t writeOutputDirect(const QString& text);
 	size_t writeOutput_va(const char* format, va_list va);
 	size_t writeOutput(const char* format, ...);
@@ -90,7 +90,7 @@ private:
 	jnc::AutoRuntime m_runtime;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE MainWindow* getMainWindow ()
 {
@@ -98,6 +98,6 @@ JNC_INLINE MainWindow* getMainWindow ()
 	return g_mainWindow;
 }
 
-//.............................................................................
+//..............................................................................
 
 #endif

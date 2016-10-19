@@ -16,7 +16,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class FunctionMgr
 {
@@ -44,7 +44,7 @@ protected:
 
 	Function* m_stdFunctionArray [StdFunc__Count];
 	LazyStdFunction* m_lazyStdFunctionArray [StdFunc__Count];
-	
+
 	Function* m_currentFunction;
 	Value m_thisValue;
 
@@ -278,7 +278,7 @@ protected:
 
 	void
 	injectTlsPrologue (Function* function);
-	
+
 	void
 	finalizeFunction (
 		Function* function,
@@ -292,7 +292,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

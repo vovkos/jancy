@@ -32,7 +32,7 @@ typedef struct jnc_Tls jnc_Tls;
 typedef struct jnc_TlsVariableTable jnc_TlsVariableTable;
 typedef struct jnc_ExceptionRecoverySnapshot jnc_ExceptionRecoverySnapshot;
 
-//.............................................................................
+//..............................................................................
 
 // every class instance, every gc-allocated block and every static variable
 // whose address has been used by a safe pointer needs a box
@@ -52,7 +52,7 @@ enum jnc_BoxFlag
 
 typedef enum jnc_BoxFlag jnc_BoxFlag;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_Box
 {
@@ -67,7 +67,7 @@ struct jnc_Box
 #endif
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up fat data pointer, e.g.:
 // int* p;
@@ -78,7 +78,7 @@ struct jnc_DataPtr
 	jnc_DataPtrValidator* m_validator;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // metainfo used for range checking, dynamic casts etc
 
@@ -90,7 +90,7 @@ struct jnc_DataPtrValidator
 	const void* m_rangeEnd;
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up fat function pointers, e.g.:
 // int function* pfTest (int, int);
@@ -102,7 +102,7 @@ struct jnc_FunctionPtr
 	jnc_IfaceHdr* m_closure;
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up property pointers, e.g.:
 // int property* pxTest;
@@ -114,7 +114,7 @@ struct jnc_PropertyPtr
 	jnc_IfaceHdr* m_closure;
 };
 
-//.............................................................................
+//..............................................................................
 
 // specialized boxes
 
@@ -133,7 +133,7 @@ struct jnc_StaticDataBox
 struct jnc_DynamicArrayBox
 {
 	jnc_Box m_box;
-	
+
 	union
 	{
 		//! \unnamed{union}
@@ -144,7 +144,7 @@ struct jnc_DynamicArrayBox
 	jnc_DataPtrValidator m_validator; // when gcheap allocates validators, it re-uses this field
 };
 
-//.............................................................................
+//..............................................................................
 
 // header of class iface
 
@@ -156,7 +156,7 @@ struct jnc_IfaceHdr
 	// followed by parents, then by iface data fields
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up multicasts, e.g.:
 // multicast f ();
@@ -171,7 +171,7 @@ struct jnc_Multicast
 	void* m_handleTable;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // multicast.getSnapshot method returns an instance of this class:
 
@@ -182,7 +182,7 @@ struct jnc_McSnapshot
 	size_t m_count;
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up reactor bind site in reactor class
 
@@ -192,7 +192,7 @@ struct jnc_ReactorBindSite
 	intptr_t m_cookie;
 };
 
-//.............................................................................
+//..............................................................................
 
 // structure backing up formatting literal
 
@@ -203,7 +203,7 @@ struct jnc_FmtLiteral
 	size_t m_maxLength;
 };
 
-//.............................................................................
+//..............................................................................
 
 struct jnc_GcShadowStackFrame
 {
@@ -213,7 +213,7 @@ struct jnc_GcShadowStackFrame
 	jnc_Type** m_gcRootTypeArray; // global array
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_GcMutatorThread
 {
@@ -225,8 +225,8 @@ struct jnc_GcMutatorThread
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
 };
-	
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef
 void
@@ -235,7 +235,7 @@ jnc_MarkOpaqueGcRootsFunc (
 	jnc_GcHeap* gcHeap
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_OpaqueClassTypeInfo
 {
@@ -244,14 +244,14 @@ struct jnc_OpaqueClassTypeInfo
 	int m_isNonCreatable;
 };
 
-//.............................................................................
+//..............................................................................
 
 struct jnc_SjljFrame
 {
 	jmp_buf m_jmpBuf;
 };
 
-//.............................................................................
+//..............................................................................
 
 struct jnc_Tls
 {
@@ -265,7 +265,7 @@ struct jnc_Tls
 	// followed by jnc_TlsVariableTable
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_TlsVariableTable
 {
@@ -275,7 +275,7 @@ struct jnc_TlsVariableTable
 	// followed by user-defined TLS variables
 };
 
-//.............................................................................
+//..............................................................................
 
 struct jnc_ExceptionRecoverySnapshot
 {
@@ -286,7 +286,7 @@ struct jnc_ExceptionRecoverySnapshot
 	intptr_t m_result;
 };
 
-//.............................................................................
+//..............................................................................
 
 typedef
 void
@@ -300,19 +300,19 @@ typedef
 void
 jnc_DestructFunc (jnc_IfaceHdr* iface);
 
-//.............................................................................
+//..............................................................................
 
 JNC_SELECT_ANY jnc_DataPtr jnc_g_nullPtr = { 0 };
 JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
 JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 enum BoxFlag
 {
@@ -326,7 +326,7 @@ enum BoxFlag
 	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
 typedef jnc_Box Box;
@@ -354,13 +354,13 @@ typedef jnc_StaticConstructFunc StaticConstructFunc;
 typedef jnc_StaticDestructFunc StaticDestructFunc;
 typedef jnc_DestructFunc DestructFunc;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_SELECT_ANY DataPtr g_nullPtr = { 0 };
 JNC_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
 JNC_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
 
-//.............................................................................
+//..............................................................................
 
 class GetGcMutatorThreadLink
 {
@@ -382,7 +382,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 // iface inside a box
 
@@ -465,7 +465,7 @@ protected:
 	char m_buffer [sizeof (T)];
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

@@ -8,7 +8,7 @@ namespace io {
 JNC_DECLARE_TYPE (SocketEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Socket)
 
-//.............................................................................
+//..............................................................................
 
 enum SocketEventCode
 {
@@ -21,14 +21,14 @@ enum SocketEventCode
 	SocketEventCode_TransmitBufferReady,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum SocketDisconnectEventFlag
 {
 	SocketDisconnectEventFlag_Reset = 0x01,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketEventParams
 {
@@ -40,7 +40,7 @@ struct SocketEventParams
 	DataPtr m_errorPtr;
 };
 
-//.............................................................................
+//..............................................................................
 
 enum SocketCloseKind
 {
@@ -48,7 +48,7 @@ enum SocketCloseKind
 	SocketCloseKind_Graceful,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum SocketOpenFlag
 {
@@ -57,7 +57,7 @@ enum SocketOpenFlag
 	SocketOpenFlag_ReuseAddress = 0x04,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Socket: public IfaceHdr
 {
@@ -125,36 +125,36 @@ public:
 	}
 
 	bool
-	JNC_CDECL 
-	isBroadcastEnabled ();	
+	JNC_CDECL
+	isBroadcastEnabled ();
 
 	bool
-	JNC_CDECL 
-	setBroadcastEnabled (bool isEnabled);	
+	JNC_CDECL
+	setBroadcastEnabled (bool isEnabled);
 
 	bool
-	JNC_CDECL 
-	isNagleEnabled ();	
+	JNC_CDECL
+	isNagleEnabled ();
 
 	bool
-	JNC_CDECL 
-	setNagleEnabled (bool isEnabled);	
+	JNC_CDECL
+	setNagleEnabled (bool isEnabled);
 
 	bool
-	JNC_CDECL 
-	isRawHdrIncluded ();	
+	JNC_CDECL
+	isRawHdrIncluded ();
 
 	bool
-	JNC_CDECL 
-	setRawHdrIncluded (bool isIncluded);	
+	JNC_CDECL
+	setRawHdrIncluded (bool isIncluded);
 
 	SocketCloseKind
-	JNC_CDECL 
-	getCloseKind ();	
+	JNC_CDECL
+	getCloseKind ();
 
 	bool
-	JNC_CDECL 
-	setCloseKind (SocketCloseKind closeKind);	
+	JNC_CDECL
+	setCloseKind (SocketCloseKind closeKind);
 
 	static
 	SocketAddress
@@ -165,7 +165,7 @@ public:
 	SocketAddress
 	JNC_CDECL
 	getPeerAddress (Socket* self);
-	
+
 	bool
 	JNC_CDECL
 	open_0 (
@@ -277,7 +277,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

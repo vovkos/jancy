@@ -1,16 +1,16 @@
-// Jancy also supports so-called "indexed" properties, i.e. properties with 
-// semantics of arrays. Unlike with arrays, index arguments of indexed 
+// Jancy also supports so-called "indexed" properties, i.e. properties with
+// semantics of arrays. Unlike with arrays, index arguments of indexed
 // properties don't have to be of the integer type and don't actually have to
 // function as an index. Both the type and the indexing logic are left to the
 // developer.
 
-//.............................................................................
+//..............................................................................
 
 // simple indexed property declaration syntax
 
 int indexed property g_simpleProp (size_t i);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // accessors implementation
 
@@ -29,18 +29,18 @@ g_simpleProp.set (
 	g_x [i] = x;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // a global variable to store the property value
 
 int g_x [2];
 
-//.............................................................................
+//..............................................................................
 
 // a similar property declared using the full syntax
 
 property g_prop
-{	
+{
 	int m_x [2] [2];
 
 	// more than one index argument can be used...
@@ -79,7 +79,7 @@ property g_prop
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -103,4 +103,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

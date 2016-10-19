@@ -2,7 +2,7 @@
 // Tibbo Technology Inc (C) 2004-2015. All rights reserved
 // Author: Vladimir Gladkov
 
-#pragma once 
+#pragma once
 
 #define _JNC_CONSTRUCT_H
 
@@ -12,10 +12,10 @@
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 template <typename T>
-void 
+void
 construct (T* p)
 {
 	new (p) T;
@@ -25,7 +25,7 @@ template <
 	typename T,
 	typename Arg
 	>
-void 
+void
 construct (
 	T* p,
 	Arg arg
@@ -39,7 +39,7 @@ template <
 	typename Arg1,
 	typename Arg2
 	>
-void 
+void
 construct (
 	T* p,
 	Arg1 arg1,
@@ -55,7 +55,7 @@ template <
 	typename Arg2,
 	typename Arg3
 	>
-void 
+void
 construct (
 	T* p,
 	Arg1 arg1,
@@ -73,7 +73,7 @@ template <
 	typename Arg3,
 	typename Arg4
 	>
-void 
+void
 construct (
 	T* p,
 	Arg1 arg1,
@@ -86,13 +86,13 @@ construct (
 }
 
 template <typename T>
-void 
+void
 destruct (T* p)
 {
 	p->~T ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

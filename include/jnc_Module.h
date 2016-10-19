@@ -20,7 +20,7 @@
 /// \addtogroup module
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ModuleCompileFlag
 {
@@ -58,7 +58,7 @@ enum jnc_ModuleCompileFlag
 
 typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ModuleCompileState
 {
@@ -71,7 +71,7 @@ enum jnc_ModuleCompileState
 
 typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_Module*
@@ -224,7 +224,7 @@ JNC_EXTERN_C
 const char*
 jnc_Module_getLlvmIrString_v (jnc_Module* module);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Module
@@ -428,19 +428,19 @@ struct jnc_Module
 };
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 void
 jnc_initialize ();
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ModuleCompileState ModuleCompileState;
 
@@ -451,7 +451,7 @@ const ModuleCompileState
 	ModuleCompileState_Compiled         = jnc_ModuleCompileState_Compiled,
 	ModuleCompileState_Jitted           = jnc_ModuleCompileState_Jitted;
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
@@ -474,7 +474,7 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
-//.............................................................................
+//..............................................................................
 
 class AutoModule
 {
@@ -511,7 +511,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 void
@@ -520,7 +520,7 @@ initialize ()
 	jnc_initialize ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

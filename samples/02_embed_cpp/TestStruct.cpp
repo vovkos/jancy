@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "TestStruct.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	TestStruct,
-	"TestStruct", 
-	g_myLibGuid, 
+	"TestStruct",
+	g_myLibGuid,
 	MyLibCacheSlot_TestStruct
 	)
 
@@ -18,7 +18,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (TestStruct)
 	JNC_MAP_OVERLOAD (&TestStruct::foo_2)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 TestStruct::construct_0 (jnc::DataPtr selfPtr)
@@ -32,7 +32,7 @@ TestStruct::construct_0 (jnc::DataPtr selfPtr)
 
 void
 TestStruct::construct_1 (
-	jnc::DataPtr selfPtr, 
+	jnc::DataPtr selfPtr,
 	int x,
 	int y
 	)
@@ -57,7 +57,7 @@ TestStruct::foo_0 (jnc::DataPtr selfPtr)
 
 void
 TestStruct::foo_1 (
-	jnc::DataPtr selfPtr, 
+	jnc::DataPtr selfPtr,
 	int x,
 	int y
 	)
@@ -71,7 +71,7 @@ TestStruct::foo_1 (
 
 void
 TestStruct::foo_2 (
-	jnc::DataPtr selfPtr, 
+	jnc::DataPtr selfPtr,
 	jnc::DataPtr srcPtr
 	)
 {
@@ -83,4 +83,4 @@ TestStruct::foo_2 (
 	self->m_y = src->m_y;
 }
 
-//.............................................................................
+//..............................................................................

@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -91,7 +91,7 @@ jnc_Module_addOpaqueClassTypeInfo (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_Module* 
+jnc_Module*
 jnc_Module_create ()
 {
 	return AXL_MEM_NEW (jnc_Module);
@@ -318,22 +318,22 @@ jnc_Module_generateDocumentation (
 	const char* outputDir
 	)
 {
-	static char indexFileHdr [] = 
+	static char indexFileHdr [] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygenindex>\n";
 
 	static char indexFileTerm [] = "</doxygenindex>\n";
 
-	static char compoundFileHdr [] = 
+	static char compoundFileHdr [] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygen>\n";
 
 	static char compoundFileTerm [] = "</doxygen>\n";
 
 	bool result;
-		
-	result = 
-		module->link () && 
+
+	result =
+		module->link () &&
 		io::ensureDirExists (outputDir);
 
 	if (!result)
@@ -349,7 +349,7 @@ jnc_Module_generateDocumentation (
 	sl::String indexXml;
 
 	jnc::GlobalNamespace* nspace = module->m_namespaceMgr.getGlobalNamespace ();
-	
+
 	result = nspace->generateDocumentation (outputDir, &nspaceXml, &indexXml);
 	if (!result)
 		return false;
@@ -368,15 +368,15 @@ jnc_Module_generateDocumentation (
 
 	sl::String refId = nspace->getDoxyBlock ()->getRefId ();
 	sl::String nspaceFileName = sl::String (outputDir) + "/" + refId + ".xml";
-	sl::String indexFileName = sl::String (outputDir) + "/index.xml";	
+	sl::String indexFileName = sl::String (outputDir) + "/index.xml";
 
 	io::File file;
 	return
 		file.open (nspaceFileName, io::FileFlag_Clear) &&
 		file.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
-		file.write (nspaceXml, nspaceXml.getLength ()) != -1 &&		
+		file.write (nspaceXml, nspaceXml.getLength ()) != -1 &&
 		file.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1 &&
-		
+
 		file.open (indexFileName, io::FileFlag_Clear) &&
 		file.write (indexFileHdr, lengthof (indexFileHdr)) != -1 &&
 		file.write (indexXml, indexXml.getLength ()) != -1 &&
@@ -387,7 +387,7 @@ JNC_EXTERN_C
 void
 jnc_initialize ()
 {
-#if 0 
+#if 0
 	// orginally there was no llvm_shutdown in ioninja-server
 	// so have to make sure it's not going to crash if we add it
 
@@ -406,4 +406,4 @@ jnc_initialize ()
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

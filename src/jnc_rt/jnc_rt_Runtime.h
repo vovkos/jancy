@@ -9,7 +9,7 @@
 namespace jnc {
 namespace rt {
 
-//.............................................................................
+//..............................................................................
 
 class Runtime
 {
@@ -43,7 +43,7 @@ public:
 		shutdown ();
 	}
 
-	ct::Module* 
+	ct::Module*
 	getModule ()
 	{
 		return m_module;
@@ -55,7 +55,7 @@ public:
 		return &m_gcHeap;
 	}
 
-	size_t 
+	size_t
 	getStackSizeLimit ()
 	{
 		return m_stackSizeLimit;
@@ -64,18 +64,18 @@ public:
 	bool
 	setStackSizeLimit (size_t sizeLimit);
 
-	bool 
+	bool
 	startup (ct::Module* module);
-	
+
 	void
 	shutdown ();
 
-	void 
+	void
 	initializeThread (ExceptionRecoverySnapshot* ers);
 
-	void 
+	void
 	uninitializeThread (ExceptionRecoverySnapshot* ers);
-	
+
 	void
 	checkStackOverflow ();
 
@@ -87,7 +87,7 @@ public:
 	dynamicThrow ();
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 Tls*
@@ -104,7 +104,7 @@ getCurrentThreadRuntime ()
 	return tls ? tls->m_runtime : NULL;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rt
 } // namespace jnc

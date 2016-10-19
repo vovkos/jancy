@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
 {
@@ -17,28 +17,28 @@ NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
 	m_destructor = NULL;
 }
 
-Namespace* 
+Namespace*
 NamedTypeBlock::getParentNamespaceImpl ()
 {
 	ASSERT (
-		m_parent->getItemKind () == ModuleItemKind_Property || 
+		m_parent->getItemKind () == ModuleItemKind_Property ||
 		m_parent->getItemKind () == ModuleItemKind_Type &&
 		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
 
-	return  m_parent->getItemKind () == ModuleItemKind_Property ? 
+	return  m_parent->getItemKind () == ModuleItemKind_Property ?
 		(Namespace*) (Property*) m_parent :
 		(Namespace*) (DerivableType*) m_parent;
 }
 
-Unit* 
+Unit*
 NamedTypeBlock::getParentUnitImpl ()
 {
 	ASSERT (
-		m_parent->getItemKind () == ModuleItemKind_Property || 
+		m_parent->getItemKind () == ModuleItemKind_Property ||
 		m_parent->getItemKind () == ModuleItemKind_Type &&
 		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
 
-	return  m_parent->getItemKind () == ModuleItemKind_Property ? 
+	return  m_parent->getItemKind () == ModuleItemKind_Property ?
 		((Property*) m_parent)->getParentUnit () :
 		((DerivableType*) m_parent)->getParentUnit ();
 }
@@ -76,8 +76,8 @@ NamedTypeBlock::createUnnamedMethod (
 	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (functionKind, shortType);
 	function->m_storageKind = storageKind;
 	function->m_tag.format (
-		"%s.%s", 
-		getParentNamespaceImpl ()->getQualifiedName ().sz (), 
+		"%s.%s",
+		getParentNamespaceImpl ()->getQualifiedName ().sz (),
 		getFunctionKindString (functionKind)
 		);
 
@@ -263,7 +263,7 @@ NamedTypeBlock::callMemberPropertyDestructors (const Value& thisValue)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

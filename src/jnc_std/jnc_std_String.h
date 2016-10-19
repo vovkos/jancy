@@ -9,7 +9,7 @@ JNC_DECLARE_TYPE (StringRef)
 JNC_DECLARE_TYPE (String)
 JNC_DECLARE_CLASS_TYPE (StringBuilder)
 
-//.............................................................................
+//..............................................................................
 
 struct StringRef
 {
@@ -18,49 +18,49 @@ struct StringRef
 	bool m_isFinal;
 };
 
-//.............................................................................
+//..............................................................................
 
 struct String
 {
 	DataPtr m_ptr;
 	size_t m_length;
 
-	bool 
+	bool
 	ensureZeroTerminated ()
 	{
-		return !m_ptr.m_p || ((char*) m_ptr.m_p) [m_length] != 0 ? 
-			copy (m_ptr, m_length) : 
+		return !m_ptr.m_p || ((char*) m_ptr.m_p) [m_length] != 0 ?
+			copy (m_ptr, m_length) :
 			true;
 	}
 
-	String 
+	String
 	getZeroTerminatedString ();
 
-	bool 
+	bool
 	copy (StringRef ref);
 
-	bool 
+	bool
 	copy (
 		DataPtr ptr,
 		size_t length
 		);
 
 	static
-	bool 
+	bool
 	ensureZeroTerminated_s (DataPtr selfPtr)
 	{
 		return ((String*) selfPtr.m_p)->ensureZeroTerminated ();
 	}
 
 	static
-	String 
+	String
 	getZeroTerminatedString_s (DataPtr selfPtr)
 	{
 		return ((String*) selfPtr.m_p)->getZeroTerminatedString ();
 	}
 
 	static
-	bool 
+	bool
 	copy_s1 (
 		DataPtr selfPtr,
 		StringRef ref
@@ -70,7 +70,7 @@ struct String
 	}
 
 	static
-	bool 
+	bool
 	copy_s2 (
 		DataPtr selfPtr,
 		DataPtr ptr,
@@ -81,7 +81,7 @@ struct String
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class StringBuilder: public IfaceHdr
 {
@@ -91,14 +91,14 @@ public:
 	size_t m_maxLength;
 
 public:
-	bool 
+	bool
 	JNC_CDECL
 	copy (
 		DataPtr ptr,
 		size_t length
 		);
 
-	bool 
+	bool
 	JNC_CDECL
 	append (
 		DataPtr ptr,
@@ -113,7 +113,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

@@ -6,12 +6,12 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-const char* 
+const char*
 getPropertyTypeFlagString (PropertyTypeFlag flag)
 {
-	static const char* stringTable [] = 
+	static const char* stringTable [] =
 	{
 		"const",     // EPropertyTypeFlag_Const    = 0x010000,
 		"bindable",  // EPropertyTypeFlag_Bindable = 0x020000,
@@ -19,8 +19,8 @@ getPropertyTypeFlagString (PropertyTypeFlag flag)
 
 	size_t i = sl::getLoBitIdx32 (flag >> 16);
 
-	return i < countof (stringTable) ? 
-		stringTable [i] : 
+	return i < countof (stringTable) ?
+		stringTable [i] :
 		"undefined-property-type-flag";
 }
 
@@ -61,7 +61,7 @@ getPropertyTypeFlagsFromModifiers (uint_t modifiers)
 	return flags;
 }
 
-//.............................................................................
+//..............................................................................
 
 PropertyType::PropertyType ()
 {
@@ -75,7 +75,7 @@ PropertyType::PropertyType ()
 	m_propertyPtrTypeTuple = NULL;
 }
 
-PropertyPtrType* 
+PropertyPtrType*
 PropertyType::getPropertyPtrType (
 	Namespace* nspace,
 	TypeKind typeKind,
@@ -118,7 +118,7 @@ PropertyType::createSignature (
 	)
 {
 	sl::String string = "X";
-	
+
 	if (flags & PropertyTypeFlag_Bindable)
 		string += 'b';
 
@@ -170,7 +170,7 @@ PropertyType::prepareTypeString ()
 	}
 
 	tuple->m_typeStringPrefix += " property";
-	
+
 	if (isIndexed ())
 		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix ();
 
@@ -187,7 +187,7 @@ PropertyType::prepareDoxyLinkedText ()
 	tuple->m_doxyLinkedTextPrefix += ' ';
 	tuple->m_doxyLinkedTextPrefix += getTypeModifierString ();
 	tuple->m_doxyLinkedTextPrefix += "property";
-	
+
 	if (isIndexed ())
 		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix ();
 
@@ -203,7 +203,7 @@ PropertyType::prepareDoxyTypeString ()
 		getTypeStringTuple ()->m_doxyTypeString += m_getterType->getDoxyArgString ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

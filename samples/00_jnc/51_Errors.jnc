@@ -1,16 +1,16 @@
 // Unlike with C++ and Java, catching an error condition in Jancy with a catch
-// label doesn't provide any additional information on the nature of that 
+// label doesn't provide any additional information on the nature of that
 // error.
 
-// We suggest using Jancy's default error facilities for storing and retrieving 
+// We suggest using Jancy's default error facilities for storing and retrieving
 // the error information to/from thread-local storage. This is similar to POSIX
-// errno or Windows GetLastError approach (but not limited to an integer error 
+// errno or Windows GetLastError approach (but not limited to an integer error
 // code).
 
 // However, it is up to the developer to choose the suitable mechanism of error
 // reporting.
 
-//.............................................................................
+//..............................................................................
 
 bool errorcode foo (int a)
 {
@@ -31,7 +31,7 @@ bool errorcode foo (int a)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -53,4 +53,4 @@ catch:
 	return -1;
 }
 
-//.............................................................................
+//..............................................................................

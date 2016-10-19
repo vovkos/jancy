@@ -18,9 +18,9 @@ class ClassType;
 class Function;
 class Property;
 
-//.............................................................................
+//..............................................................................
 
-class BaseTypeSlot: 
+class BaseTypeSlot:
 	public ModuleItem,
 	public ModuleItemDecl
 {
@@ -68,7 +68,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class BaseTypeCoord
 {
@@ -87,7 +87,7 @@ public:
 	BaseTypeCoord ();
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // unfortunately, LLVM does not natively support unions
 // therefore, unnamed unions on the way to a member need special handling
@@ -98,7 +98,7 @@ struct UnionCoord
 	intptr_t m_level; // signed for simplier comparisons
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class MemberCoord: public BaseTypeCoord
 {
@@ -114,9 +114,9 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
-class DerivableType: 
+class DerivableType:
 	public NamedType,
 	public NamedTypeBlock
 {
@@ -337,18 +337,18 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 bool
 isConstructibleType (Type* type)
 {
-	return 
+	return
 		(type->getTypeKindFlags () & TypeKindFlag_Derivable) &&
 		((DerivableType*) type)->getConstructor () != NULL;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

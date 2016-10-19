@@ -9,24 +9,24 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 const char*
 jnc_getClassPtrTypeKindString (jnc_ClassPtrTypeKind ptrTypeKind)
 {
-	static const char* stringTable [jnc_ClassPtrTypeKind__Count] = 
+	static const char* stringTable [jnc_ClassPtrTypeKind__Count] =
 	{
 		"strong", // EClassPtrType_Normal = 0,
 		"weak",   // EClassPtrType_Weak,
 	};
 
-	return (size_t) ptrTypeKind < jnc_ClassPtrTypeKind__Count ? 
-		stringTable [ptrTypeKind] : 
+	return (size_t) ptrTypeKind < jnc_ClassPtrTypeKind__Count ?
+		stringTable [ptrTypeKind] :
 		"undefined-class-ptr-kind";
 }
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -55,7 +55,7 @@ jnc_ClassType_getClassPtrType (
 	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc (type, ptrTypeKind, flags);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -74,7 +74,7 @@ jnc_MulticastClassType_getMethod (
 	return jnc_g_dynamicExtensionLibHost->m_multicastClassTypeFuncTable->m_getMethodFunc (type, method);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -120,7 +120,7 @@ jnc_ClassType_getClassPtrType (
 	return type->getClassPtrType (ptrTypeKind, flags);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -139,7 +139,7 @@ jnc_MulticastClassType_getMethod (
 	return type->getMethod (method);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -160,4 +160,4 @@ jnc_McSnapshotClassType_getMethod (
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

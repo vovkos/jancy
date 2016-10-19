@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 size_t
 FunctionTypeOverload::findOverload (FunctionType* type) const

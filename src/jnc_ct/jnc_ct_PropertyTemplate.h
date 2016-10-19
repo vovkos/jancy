@@ -9,12 +9,12 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-// we need to keep namespaces for property templates cause other module items 
+// we need to keep namespaces for property templates cause other module items
 // could potentially have pointers to them via m_pParentNamespace
 
-class PropertyTemplate:	
+class PropertyTemplate:
 	public ModuleItem,
 	public Namespace
 {
@@ -30,7 +30,7 @@ protected:
 public:
 	PropertyTemplate ();
 
-	FunctionType* 
+	FunctionType*
 	getGetterType ()
 	{
 		return m_getterType;
@@ -52,7 +52,7 @@ public:
 	calcType ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

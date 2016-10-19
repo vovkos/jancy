@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataPtr_FromArray::getCastKind (
@@ -22,7 +22,7 @@ Cast_DataPtr_FromArray::getCastKind (
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Array);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
-	ArrayType* srcType = (ArrayType*) opValue.getType ();	
+	ArrayType* srcType = (ArrayType*) opValue.getType ();
 	DataPtrType* dstType = (DataPtrType*) type;
 
 	Type* arrayElementType = srcType->getElementType ();
@@ -78,7 +78,7 @@ Cast_DataPtr_FromArray::llvmCast (
 	{
 		Value ptrValue;
 
-		return 
+		return
 			m_module->m_operatorMgr.prepareOperand (opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
 			m_module->m_operatorMgr.castOperator (ptrValue, type, resultValue);
 	}
@@ -87,7 +87,7 @@ Cast_DataPtr_FromArray::llvmCast (
 	return false;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataPtr_FromClassPtr::getCastKind (
@@ -99,11 +99,11 @@ Cast_DataPtr_FromClassPtr::getCastKind (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();	
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
 
-	return 
-		(srcType->getFlags () & PtrTypeFlag_Const) && !(srcType->getFlags () & PtrTypeFlag_Const) ? CastKind_None : 
-		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+	return
+		(srcType->getFlags () & PtrTypeFlag_Const) && !(srcType->getFlags () & PtrTypeFlag_Const) ? CastKind_None :
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None :
 		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
 }
@@ -119,7 +119,7 @@ Cast_DataPtr_FromClassPtr::llvmCast (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();	
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
 
 	if ((srcType->getFlags () & PtrTypeFlag_Const) && !(srcType->getFlags () & PtrTypeFlag_Const))
 	{
@@ -143,7 +143,7 @@ Cast_DataPtr_FromClassPtr::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataPtr_FromFunctionPtr::getCastKind (
@@ -155,11 +155,11 @@ Cast_DataPtr_FromFunctionPtr::getCastKind (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();	
+	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();
 
-	return 
-		srcType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None : 
-		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+	return
+		srcType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ? CastKind_None :
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None :
 		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
 }
@@ -175,7 +175,7 @@ Cast_DataPtr_FromFunctionPtr::llvmCast (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();	
+	FunctionPtrType* srcType = (FunctionPtrType*) opValue.getType ();
 
 	if (srcType->getPtrTypeKind () != FunctionPtrTypeKind_Thin ||
 		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
@@ -194,7 +194,7 @@ Cast_DataPtr_FromFunctionPtr::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataPtr_FromPropertyPtr::getCastKind (
@@ -206,11 +206,11 @@ Cast_DataPtr_FromPropertyPtr::getCastKind (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();	
+	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();
 
-	return 
-		srcType->getPtrTypeKind () != PropertyPtrTypeKind_Thin ? CastKind_None : 
-		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None : 
+	return
+		srcType->getPtrTypeKind () != PropertyPtrTypeKind_Thin ? CastKind_None :
+		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin ? CastKind_None :
 		dstType->getTargetType ()->getTypeKind () == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
 }
@@ -226,7 +226,7 @@ Cast_DataPtr_FromPropertyPtr::llvmCast (
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
 	DataPtrType* dstType = (DataPtrType*) type;
-	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();	
+	PropertyPtrType* srcType = (PropertyPtrType*) opValue.getType ();
 
 	if (srcType->getPtrTypeKind () != PropertyPtrTypeKind_Thin ||
 		dstType->getPtrTypeKind () != DataPtrTypeKind_Thin)
@@ -244,7 +244,7 @@ Cast_DataPtr_FromPropertyPtr::llvmCast (
 	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
 	return true;
 }
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataPtr_Base::getCastKind (
@@ -257,7 +257,7 @@ Cast_DataPtr_Base::getCastKind (
 
 	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 	DataPtrType* dstType = (DataPtrType*) type;
-	
+
 	bool isSrcConst = srcType->isConstPtrType ();
 	bool isDstConst = dstType->isConstPtrType ();
 
@@ -279,7 +279,7 @@ Cast_DataPtr_Base::getCastKind (
 		dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return CastKind_Implicit;
 
-	if (srcDataType->getTypeKind () == TypeKind_Void && 
+	if (srcDataType->getTypeKind () == TypeKind_Void &&
 		(dstDataType->getTypeKind () == TypeKind_Int8 || dstDataType->getTypeKind () == TypeKind_Int8_u))
 		return CastKind_Implicit;
 
@@ -288,13 +288,13 @@ Cast_DataPtr_Base::getCastKind (
 		srcDataType->getSize () == dstDataType->getSize ())
 		return CastKind_Implicit;
 
-	bool isDstBase = 
-		srcDataType->getTypeKind () == TypeKind_Struct && 
+	bool isDstBase =
+		srcDataType->getTypeKind () == TypeKind_Struct &&
 		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType);
 
-	return 
+	return
 		isDstBase ? CastKind_Implicit :
-		isDstPod && canCastToPod ? CastKind_Explicit : 
+		isDstPod && canCastToPod ? CastKind_Explicit :
 		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }
 
@@ -329,8 +329,8 @@ Cast_DataPtr_Base::getOffset (
 		dstDataType->getTypeKind () == TypeKind_Void && canCastToPod)
 		return 0;
 
-	bool isDstBase = 
-		srcDataType->getTypeKind () == TypeKind_Struct && 
+	bool isDstBase =
+		srcDataType->getTypeKind () == TypeKind_Struct &&
 		((StructType*) srcDataType)->findBaseTypeTraverse (dstDataType, coord);
 
 	if (isDstBase)
@@ -354,7 +354,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	)
 {
 	BaseTypeCoord coord;
-	
+
 	size_t offset = getOffset (srcType, dstType, &coord);
 	if (offset == -1)
 		return false;
@@ -393,7 +393,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_DataPtr_Normal2Normal::constCast (
@@ -457,7 +457,7 @@ Cast_DataPtr_Normal2Normal::llvmCast (
 	return true;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 Cast_DataPtr_Lean2Normal::constCast (
@@ -521,7 +521,7 @@ Cast_DataPtr_Lean2Normal::llvmCast (
 	return true;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 Cast_DataPtr_Normal2Thin::constCast (
@@ -556,7 +556,7 @@ Cast_DataPtr_Normal2Thin::llvmCast (
 	return getOffsetUnsafePtrValue (ptrValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, false, resultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 Cast_DataPtr_Lean2Thin::llvmCast (
@@ -571,7 +571,7 @@ Cast_DataPtr_Lean2Thin::llvmCast (
 	return getOffsetUnsafePtrValue (opValue, (DataPtrType*) opValue.getType (), (DataPtrType*) type, false, resultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 Cast_DataPtr_Thin2Thin::constCast (
@@ -591,7 +591,7 @@ Cast_DataPtr_Thin2Thin::constCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Cast_DataPtr::Cast_DataPtr ()
 {
@@ -659,7 +659,7 @@ Cast_DataPtr::getCastOperator (
 	return m_operatorTable [srcPtrTypeKind] [dstPtrTypeKind];
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_DataRef::getCastKind (
@@ -707,7 +707,7 @@ Cast_DataRef::llvmCast (
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

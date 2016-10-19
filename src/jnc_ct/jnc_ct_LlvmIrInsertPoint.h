@@ -9,7 +9,7 @@ namespace ct {
 
 class BasicBlock;
 
-//.............................................................................
+//..............................................................................
 
 struct LlvmIrInsertPoint
 {
@@ -55,7 +55,7 @@ struct LlvmIrInsertPoint
 	bool
 	isEqual (const LlvmIrInsertPoint& insertPoint) const
 	{
-		return 
+		return
 			m_llvmBlock == insertPoint.m_llvmBlock &&
 			m_llvmInstruction == insertPoint.m_llvmInstruction;
 	}
@@ -77,7 +77,7 @@ struct LlvmIrInsertPoint
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

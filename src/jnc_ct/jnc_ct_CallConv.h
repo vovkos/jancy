@@ -12,7 +12,7 @@ namespace ct {
 
 class FunctionType;
 
-//.............................................................................
+//..............................................................................
 
 // jnccall is basically cdecl with the following 2 differences:
 // - arrays are passed by value (like if it were wrapped in a struct)
@@ -59,7 +59,7 @@ enum CallConvKind
 	CallConvKind_Default = CallConvKind_Jnccall,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum CallConvFlag
 {
@@ -80,7 +80,7 @@ enum CallConvFlag
 	CallConvFlag_Gcc          = 0x0200,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::CallingConv::ID
 getLlvmCallConv (CallConvKind callConvKind);
@@ -100,7 +100,7 @@ getCallConvSignature (CallConvKind callConvKind);
 CallConvKind
 getCallConvKindFromModifiers (uint_t modifiers);
 
-//.............................................................................
+//..............................................................................
 
 class CallConv
 {
@@ -201,7 +201,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

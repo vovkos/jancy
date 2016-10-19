@@ -4,12 +4,12 @@
 namespace jnc {
 namespace rtl {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_CLASS_TYPE (
-	DynamicLib, 
-	"jnc.DynamicLib", 
-	sl::g_nullGuid, 
+	DynamicLib,
+	"jnc.DynamicLib",
+	sl::g_nullGuid,
 	-1
 	)
 
@@ -19,9 +19,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (DynamicLib)
 	JNC_MAP_FUNCTION ("getFunction", &DynamicLib::getFunction)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
-bool 
+bool
 DynamicLib::openImpl (const sl::StringRef& fileName)
 {
 	bool result = getDynamicLibrary ()->open (fileName);
@@ -36,7 +36,7 @@ DynamicLib::openImpl (const sl::StringRef& fileName)
 	return true;
 }
 
-void* 
+void*
 DynamicLib::getFunctionImpl (const sl::StringRef& name)
 {
 	ASSERT (sizeof (sys::DynamicLibrary) == sizeof (m_handle));
@@ -59,7 +59,7 @@ DynamicLib::getFunctionImpl (const sl::StringRef& name)
 	return p;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

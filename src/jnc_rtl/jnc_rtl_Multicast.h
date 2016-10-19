@@ -4,8 +4,8 @@
 
 namespace jnc {
 namespace rtl {
-		
-//.............................................................................
+
+//..............................................................................
 
 class MulticastImpl: public Multicast
 {
@@ -40,7 +40,7 @@ public:
 		return removeHandlerImpl <FunctionPtr> (handle);
 	}
 
-	void* 
+	void*
 	removeHandler_t (handle_t handle)
 	{
 		return removeHandlerImpl <void*> (handle);
@@ -99,8 +99,8 @@ protected:
 		sl::HandleTable <size_t>::MapIterator mapIt = handleTable->find (handle);
 		if (!mapIt)
 			return ptr;
-	
-		sl::HandleTable <size_t>::ListIterator listIt = mapIt->m_value;	
+
+		sl::HandleTable <size_t>::ListIterator listIt = mapIt->m_value;
 
 		size_t i = listIt->m_value;
 		ASSERT (i < m_count);
@@ -110,11 +110,11 @@ protected:
 		size_t moveSize = (m_count - i - 1) * sizeof (T);
 		if (moveSize)
 			memmove ((T*) m_ptr.m_p + i, (T*) m_ptr.m_p + i + 1, moveSize);
-		
+
 		m_count--;
 		memset ((T*) m_ptr.m_p + m_count, 0, sizeof (T));
 
-		for (listIt++; listIt; listIt++) 
+		for (listIt++; listIt; listIt++)
 			listIt->m_value--;
 
 		handleTable->remove (mapIt);
@@ -122,7 +122,7 @@ protected:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

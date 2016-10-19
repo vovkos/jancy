@@ -12,7 +12,7 @@ namespace ct {
 
 class FunctionType;
 
-//.............................................................................
+//..............................................................................
 
 struct IfStmt
 {
@@ -21,7 +21,7 @@ struct IfStmt
 	BasicBlock* m_followBlock;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SwitchStmt
 {
@@ -32,7 +32,7 @@ struct SwitchStmt
 	sl::HashTableMap <intptr_t, BasicBlock*, axl::sl::HashId <intptr_t> > m_caseMap;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct WhileStmt
 {
@@ -41,7 +41,7 @@ struct WhileStmt
 	BasicBlock* m_followBlock;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct DoStmt
 {
@@ -50,7 +50,7 @@ struct DoStmt
 	BasicBlock* m_followBlock;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ForStmt
 {
@@ -61,7 +61,7 @@ struct ForStmt
 	BasicBlock* m_followBlock;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct OnceStmt
 {
@@ -69,7 +69,7 @@ struct OnceStmt
 	BasicBlock* m_followBlock;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct TryExpr
 {
@@ -78,7 +78,7 @@ struct TryExpr
 	size_t m_sjljFrameIdx;
 };
 
-//.............................................................................
+//..............................................................................
 
 class ControlFlowMgr
 {
@@ -142,19 +142,19 @@ public:
 	bool
 	deleteUnreachableBlocks ();
 
-	sl::Array <BasicBlock*> 
+	sl::Array <BasicBlock*>
 	getReturnBlockArray ()
 	{
 		return m_returnBlockArray;
 	}
 
-	sl::Array <BasicBlock*> 
+	sl::Array <BasicBlock*>
 	getLandingPadBlockArray ()
 	{
 		return m_landingPadBlockArray;
 	}
 
-	void 
+	void
 	finalizeFunction ();
 
 	// jumps
@@ -392,7 +392,7 @@ public:
 		const Token::Pos& pos
 		);
 
-	Variable* 
+	Variable*
 	getFinallyRouteIdxVariable ();
 
 protected:
@@ -413,8 +413,8 @@ protected:
 
 	BasicBlock*
 	getDynamicThrowBlock ();
-	
-	Variable* 
+
+	Variable*
 	getReturnValueVariable ();
 
 	void
@@ -430,7 +430,7 @@ protected:
 	setSjljFrame (size_t index);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

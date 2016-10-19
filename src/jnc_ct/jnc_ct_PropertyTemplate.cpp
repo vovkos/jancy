@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 PropertyTemplate::PropertyTemplate ()
 {
@@ -45,7 +45,7 @@ PropertyTemplate::addMethod (
 	}
 	else
 	{
-		result = 
+		result =
 			m_verifier.checkSetter (functionType) &&
 			m_setterType.addOverload (functionType) != -1;
 
@@ -68,7 +68,7 @@ PropertyTemplate::calcType ()
 	return m_module->m_typeMgr.getPropertyType (m_getterType, m_setterType, m_typeFlags);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

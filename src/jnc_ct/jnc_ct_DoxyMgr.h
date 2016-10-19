@@ -13,7 +13,7 @@ namespace ct {
 
 class Module;
 
-//.............................................................................
+//..............................................................................
 
 class DoxyMgr
 {
@@ -33,11 +33,11 @@ protected:
 	sl::StringHashTableMap <size_t> m_refIdMap;
 	sl::StringHashTableMap <DoxyGroup*> m_groupMap;
 	sl::StdList <Target> m_targetList;
-	
+
 public:
 	DoxyMgr ();
 
-	Module* 
+	Module*
 	getModule ()
 	{
 		return m_module;
@@ -61,7 +61,7 @@ public:
 	DoxyGroup*
 	getGroup (const sl::StringRef& name);
 
-	DoxyBlock* 
+	DoxyBlock*
 	createBlock ();
 
 	sl::String
@@ -69,7 +69,7 @@ public:
 
 	void
 	setBlockTarget (
-		DoxyBlock* block,		
+		DoxyBlock* block,
 		DoxyTokenKind tokenKind,
 		const sl::StringRef& itemName
 		);
@@ -87,7 +87,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -59,14 +59,14 @@ public:
 		return m_classTypeKind;
 	}
 
-	StructType* 
+	StructType*
 	getIfaceHdrStructType ()
 	{
 		ASSERT (m_ifaceHdrStructType);
 		return m_ifaceHdrStructType;
 	}
 
-	DataPtrType* 
+	DataPtrType*
 	getIfaceHdrPtrType ()
 	{
 		ASSERT (m_ifaceHdrStructType);
@@ -235,7 +235,7 @@ protected:
 	createVTableVariable ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

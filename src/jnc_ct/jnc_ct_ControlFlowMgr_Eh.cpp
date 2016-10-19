@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 BasicBlock*
 ControlFlowMgr::getDynamicThrowBlock ()
@@ -24,14 +24,14 @@ ControlFlowMgr::getDynamicThrowBlock ()
 	return m_dynamicThrowBlock;
 }
 
-Variable* 
+Variable*
 ControlFlowMgr::getFinallyRouteIdxVariable ()
 {
 	if (m_finallyRouteIdxVariable)
 		return m_finallyRouteIdxVariable;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());	
+	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
 	m_finallyRouteIdxVariable = m_module->m_variableMgr.createSimpleStackVariable ("finallyRouteIdx", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
 	setCurrentBlock (prevBlock);
 	return m_finallyRouteIdxVariable;
@@ -61,7 +61,7 @@ ControlFlowMgr::throwException ()
 	{
 		jump (getDynamicThrowBlock ());
 	}
-	else 
+	else
 	{
 		Scope* catchScope = m_module->m_namespaceMgr.findCatchScope ();
 		if (catchScope)
@@ -147,11 +147,11 @@ ControlFlowMgr::beginTryOperator (TryExpr* tryExpr)
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	tryExpr->m_prev = scope->m_tryExpr;
 	tryExpr->m_catchBlock = createBlock ("try_catch_block");
-	tryExpr->m_sjljFrameIdx = tryExpr->m_prev ? 
-		tryExpr->m_prev->m_sjljFrameIdx + 1 : 
+	tryExpr->m_sjljFrameIdx = tryExpr->m_prev ?
+		tryExpr->m_prev->m_sjljFrameIdx + 1 :
 		scope->m_sjljFrameIdx + 1;
 
-	setJmp (tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);	
+	setJmp (tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);
 	scope->m_tryExpr = tryExpr;
 }
 
@@ -186,7 +186,7 @@ ControlFlowMgr::endTryOperator (
 		err::setFormatStringError ("'%s' cannot be used as error code", type->getTypeString ().sz ());
 		return false;
 	}
-	
+
 	ASSERT (tryExpr->m_sjljFrameIdx != -1);
 	setSjljFrame (tryExpr->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
 	jump (phiBlock, tryExpr->m_catchBlock);
@@ -480,7 +480,7 @@ void ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 		Variable* variable = scope->m_disposableVariableArray [i];
 		Value disposeValue;
 
-		result = 
+		result =
 			m_module->m_operatorMgr.memberOperator (variable, "dispose", &disposeValue) &&
 			m_module->m_operatorMgr.callOperator (disposeValue);
 
@@ -493,7 +493,7 @@ void ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 
 	Value disposeLevelValue;
 	m_module->m_llvmIrBuilder.createLoad (
-		scope->m_disposeLevelVariable, 
+		scope->m_disposeLevelVariable,
 		scope->m_disposeLevelVariable->getType (),
 		&disposeLevelValue
 		);
@@ -505,7 +505,7 @@ void ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 		blockArray,
 		count
 		);
-	
+
 	setCurrentBlock (followBlock);
 
 	scope = m_module->m_namespaceMgr.getCurrentScope ();
@@ -561,11 +561,11 @@ ControlFlowMgr::preCreateSjljFrameArray ()
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
 	ASSERT (!m_sjljFrameArrayValue);
-	Type* type = m_module->m_typeMgr.getStdType (StdType_SjljFrame); 
+	Type* type = m_module->m_typeMgr.getStdType (StdType_SjljFrame);
 	m_module->m_llvmIrBuilder.createAlloca (
-		type, 
-		"sjljFrameArray_tmp", 
-		type->getDataPtrType_c (), 
+		type,
+		"sjljFrameArray_tmp",
+		type->getDataPtrType_c (),
 		&m_sjljFrameArrayValue
 		);
 
@@ -601,7 +601,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 #if (_JNC_CPU_AMD64)
 	llvmAlloca->setAlignment (16);
 #endif
-	
+
 	// fixup all uses of sjlj frame array
 
 	ASSERT (llvm::isa <llvm::AllocaInst> (m_sjljFrameArrayValue.getLlvmValue ()));
@@ -611,7 +611,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 
 	m_sjljFrameArrayValue = sjljFrameArrayValue;
 
-	// if this function has no gc shadow stack frame, we must also manually restore 
+	// if this function has no gc shadow stack frame, we must also manually restore
 	// previous gc shadow stack frame pointer on exception landing pads
 
 	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
@@ -638,12 +638,12 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 			m_module->m_llvmIrBuilder.createStore (prevGcShadowStackFrameValue, gcShadowStackTopVariable);
 	}
 
-	// done 
+	// done
 
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

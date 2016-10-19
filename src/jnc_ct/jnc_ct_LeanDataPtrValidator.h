@@ -12,7 +12,7 @@ namespace ct {
 class Variable;
 class OperatorMgr;
 
-//.............................................................................
+//..............................................................................
 
 class LeanDataPtrValidator: public ref::RefCount
 {
@@ -26,7 +26,7 @@ protected:
 	Value m_rangeBeginValue;
 	size_t m_rangeLength;
 	Value m_validatorValue;
-	
+
 public:
 	LeanDataPtrValidator ()
 	{
@@ -51,20 +51,20 @@ public:
 		return m_originValue;
 	}
 
-	Value 
+	Value
 	getRangeBeginValue ()
 	{
 		return m_rangeBeginValue;
 	}
 
-	size_t 
+	size_t
 	getRangeLength ()
 	{
 		ASSERT (m_rangeLength); // should be checked with isDynamicRange ()
 		return m_rangeLength;
 	}
 
-	Value 
+	Value
 	getValidatorValue ();
 
 protected:
@@ -78,7 +78,7 @@ protected:
 	createClassFieldValidator ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

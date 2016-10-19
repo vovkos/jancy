@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ClassPtrType::ClassPtrType ()
 {
@@ -21,18 +21,18 @@ ClassPtrType::ClassPtrType ()
 bool
 ClassPtrType::isConstPtrType ()
 {
-	return 
-		(m_flags & PtrTypeFlag_Const) != 0 || 
-		(m_flags & PtrTypeFlag_ReadOnly) != 0 && 
+	return
+		(m_flags & PtrTypeFlag_Const) != 0 ||
+		(m_flags & PtrTypeFlag_ReadOnly) != 0 &&
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
 bool
 ClassPtrType::isEventPtrType ()
 {
-	return 
-		(m_flags & PtrTypeFlag_Event) != 0 || 
-		(m_flags & PtrTypeFlag_DualEvent) != 0 && 
+	return
+		(m_flags & PtrTypeFlag_Event) != 0 ||
+		(m_flags & PtrTypeFlag_DualEvent) != 0 &&
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -103,7 +103,7 @@ ClassPtrType::markGcRoots (
 		gcHeap->markClass (iface->m_box);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

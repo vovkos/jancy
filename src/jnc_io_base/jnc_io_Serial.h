@@ -7,7 +7,7 @@ JNC_DECLARE_TYPE (SerialEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Serial)
 JNC_DECLARE_TYPE (SerialPortDesc)
 
-//.............................................................................
+//..............................................................................
 
 enum SerialEventCode
 {
@@ -17,7 +17,7 @@ enum SerialEventCode
 	SerialEventCode_StatusLineChanged,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SerialEventParams
 {
@@ -30,7 +30,7 @@ struct SerialEventParams
 	DataPtr m_errorPtr;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Serial: public IfaceHdr
 {
@@ -73,7 +73,7 @@ protected:
 	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
-	
+
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
 #else
@@ -166,7 +166,7 @@ protected:
 	wakeIoThread ();
 };
 
-//.............................................................................
+//..............................................................................
 
 struct SerialPortDesc
 {
@@ -177,12 +177,12 @@ struct SerialPortDesc
 	DataPtr m_descriptionPtr;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
 createSerialPortDescList (DataPtr countPtr);
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

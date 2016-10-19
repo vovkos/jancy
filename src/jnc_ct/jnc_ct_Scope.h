@@ -17,7 +17,7 @@ class Variable;
 class GcShadowStackFrameMap;
 struct TryExpr;
 
-//.............................................................................
+//..............................................................................
 
 enum ScopeFlag
 {
@@ -34,7 +34,7 @@ enum ScopeFlag
 	ScopeFlag_HasCatch     = 0x400000, // this scope or some of its parents have catch
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Scope:
 	public ModuleItem,
@@ -56,7 +56,7 @@ public:
 	BasicBlock* m_continueBlock;
 	BasicBlock* m_catchBlock;
 	BasicBlock* m_finallyBlock;
-	
+
 	TryExpr* m_tryExpr;
 	size_t m_sjljFrameIdx;
 
@@ -79,7 +79,7 @@ public:
 		return m_parentNamespace && m_parentNamespace->getNamespaceKind () == NamespaceKind_Scope ? (Scope*) m_parentNamespace : NULL;
 	}
 
-	Variable* 
+	Variable*
 	getDisposeLevelVariable ()
 	{
 		return m_disposeLevelVariable;
@@ -108,7 +108,7 @@ public:
 	canStaticThrow ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

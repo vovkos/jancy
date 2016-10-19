@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getArithmeticOperatorResultType (Type* opType)
@@ -27,7 +27,7 @@ getArithmeticOperatorResultType (Type* opType)
 	case TypeKind_Int32_beu:
 		typeKind = TypeKind_Int32_u;
 		break;
-	
+
 	case TypeKind_Int64_be:
 		typeKind = TypeKind_Int64;
 		break;
@@ -55,7 +55,7 @@ getArithmeticOperatorResultType (Type* opType)
 	return opType->getModule ()->m_typeMgr.getPrimitiveType (typeKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 UnOp_Minus::llvmOpInt (
@@ -77,7 +77,7 @@ UnOp_Minus::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createNeg_f (opValue, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 UnOp_BwNot::llvmOpInt (
@@ -89,7 +89,7 @@ UnOp_BwNot::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createNot (opValue, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

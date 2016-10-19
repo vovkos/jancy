@@ -12,7 +12,7 @@ class GlobalNamespace;
 class ExtensionNamespace;
 class NamedType;
 
-//.............................................................................
+//..............................................................................
 
 struct UsingSet
 {
@@ -44,14 +44,14 @@ public:
 	}
 
 	ModuleItem* findItem (const sl::StringRef& name);
-	
+
 	ModuleItem* findExtensionItem (
 		NamedType* type,
 		const sl::StringRef& name
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

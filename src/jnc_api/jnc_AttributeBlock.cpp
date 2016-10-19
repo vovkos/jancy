@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -40,7 +40,7 @@ jnc_AttributeBlock_findAttribute (
 	return jnc_g_dynamicExtensionLibHost->m_attributeBlockFuncTable->m_findAttributeFunc (block, name);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -73,4 +73,4 @@ jnc_AttributeBlock_findAttribute (
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

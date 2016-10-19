@@ -9,7 +9,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 OperatorMgr::OperatorMgr ()
 {
@@ -142,10 +142,10 @@ OperatorMgr::OperatorMgr ()
 	m_castOperatorTable [TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
 	m_castOperatorTable [TypeKind_PropertyRef] = &m_cast_PropertyRef;
 
-	m_unsafeEnterCount = 0;	
+	m_unsafeEnterCount = 0;
 }
 
-void 
+void
 OperatorMgr::clear ()
 {
 	m_unsafeEnterCount = 0;
@@ -196,7 +196,7 @@ OperatorMgr::getUnaryOperatorResultType (
 	prepareOperandType (rawOpValue, &opValue, op->getOpFlags ());
 
 #ifndef _JNC_NO_VARIANT_OPERATORS
-	return opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot ? 
+	return opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot ?
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant) :
 		op->getResultType (opValue);
 #endif
@@ -291,11 +291,11 @@ OperatorMgr::getBinaryOperatorResultType (
 	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 
-	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant || 
+	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
 		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind <= BinOpKind_Ge)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
-#endif		
-	
+#endif
+
 	return op->getResultType (opValue1, opValue2);
 }
 
@@ -390,10 +390,10 @@ OperatorMgr::binaryOperator (
 		opValue2.getType ()->getTypeKind () == TypeKind_Variant)
 		&& opKind <= BinOpKind_Ge)
 	{
-		StdFunc stdFunc = opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge ? 
-			StdFunc_VariantRelationalOperator : 
+		StdFunc stdFunc = opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge ?
+			StdFunc_VariantRelationalOperator :
 			StdFunc_VariantBinaryOperator;
-			
+
 		Function* function = m_module->m_functionMgr.getStdFunction (stdFunc);
 		Value opKindValue (opKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 		return callOperator (function, opKindValue, opValue1, opValue2, resultValue);
@@ -412,12 +412,12 @@ getConditionalNumericOperatorResultType (
 	)
 {
 	if (trueType->getTypeKind () == TypeKind_Enum &&
-		(trueType->getFlags () & EnumTypeFlag_BitFlag) && 
+		(trueType->getFlags () & EnumTypeFlag_BitFlag) &&
 		falseValue.isZero ())
 		return trueType;
 
 	if (falseType->getTypeKind () == TypeKind_Enum &&
-		(falseType->getFlags () & EnumTypeFlag_BitFlag) && 
+		(falseType->getFlags () & EnumTypeFlag_BitFlag) &&
 		trueValue.isZero ())
 		return falseType;
 
@@ -657,17 +657,17 @@ OperatorMgr::castOperator (
 	return castOperator (dynamism, opValue, type, resultValue);
 }
 
-bool 
+bool
 OperatorMgr::dynamicCastDataPtr (
 	const Value& opValue,
 	DataPtrType* type,
-	Value* resultValue		
+	Value* resultValue
 	)
 {
 	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
 	{
 		err::setFormatStringError (
-			"cannot dynamically cast '%s' to '%s'", 
+			"cannot dynamically cast '%s' to '%s'",
 			opValue.getType ()->getTypeString ().sz (),
 			type->getTypeString ().sz ()
 			);
@@ -682,8 +682,8 @@ OperatorMgr::dynamicCastDataPtr (
 
 	Value ptrValue;
 	bool result = castOperator (
-		opValue, 
-		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const), 
+		opValue,
+		m_module->m_typeMgr.getPrimitiveType (TypeKind_Void)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const),
 		&ptrValue
 		);
 
@@ -703,17 +703,17 @@ OperatorMgr::dynamicCastDataPtr (
 	return true;
 }
 
-bool 
+bool
 OperatorMgr::dynamicCastClassPtr (
 	const Value& opValue,
 	ClassPtrType* type,
-	Value* resultValue		
+	Value* resultValue
 	)
 {
 	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr))
 	{
 		err::setFormatStringError (
-			"cannot dynamically cast '%s' to '%s'", 
+			"cannot dynamically cast '%s' to '%s'",
 			opValue.getType ()->getTypeString ().sz (),
 			type->getTypeString ().sz ()
 			);
@@ -753,7 +753,7 @@ OperatorMgr::getCastKind (
 {
 	if (rawOpValue.getValueKind () == ValueKind_Null)
 		return (type->getTypeKindFlags () & TypeKindFlag_Nullable) ? CastKind_Implicit : CastKind_None;
-	
+
 	TypeKind typeKind = type->getTypeKind ();
 	ASSERT ((size_t) typeKind < TypeKind__Count);
 
@@ -768,8 +768,8 @@ OperatorMgr::getCastKind (
 		);
 
 	Type* opType = opValue.getType ();
-	return 
-		opType->cmp (type) == 0 ? CastKind_Identitiy : 
+	return
+		opType->cmp (type) == 0 ? CastKind_Identitiy :
 		opType->getTypeKind () == TypeKind_Variant ? CastKind_ImplicitCrossFamily :
 		op->getCastKind (opValue, type);
 }
@@ -835,7 +835,7 @@ OperatorMgr::getArgCastKind (
 
 		argCount--;
 	}
-	
+
 	CastKind worstCastKind = CastKind_Identitiy;
 
 	for (size_t i = 0; i < argCount; i++)
@@ -958,12 +958,12 @@ OperatorMgr::checkCastKind (
 		setCastError (opValue, type, castKind);
 		return false;
 	}
-	
+
 	return true;
 }
 
 bool
-OperatorMgr::sizeofOperator (		
+OperatorMgr::sizeofOperator (
 	OperatorDynamism dynamism,
 	const Value& opValue,
 	Value* resultValue
@@ -975,7 +975,7 @@ OperatorMgr::sizeofOperator (
 		return callOperator (function, opValue, resultValue);
 	}
 
-	Type* type = opValue.getType (); 
+	Type* type = opValue.getType ();
 	if (type->getTypeKind () == TypeKind_DataRef)
 		type = ((DataPtrType*) type)->getTargetType ();
 
@@ -984,7 +984,7 @@ OperatorMgr::sizeofOperator (
 }
 
 bool
-OperatorMgr::countofOperator (		
+OperatorMgr::countofOperator (
 	OperatorDynamism dynamism,
 	const Value& rawOpValue,
 	Value* resultValue
@@ -1025,7 +1025,7 @@ OperatorMgr::countofOperator (
 }
 
 bool
-OperatorMgr::typeofOperator (		
+OperatorMgr::typeofOperator (
 	OperatorDynamism dynamism,
 	const Value& opValue,
 	Value* resultValue
@@ -1316,7 +1316,7 @@ OperatorMgr::prepareOperand (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

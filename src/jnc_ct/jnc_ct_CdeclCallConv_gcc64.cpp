@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 CdeclCallConv_gcc64::getArgCoerceType (Type* type)
@@ -271,7 +271,7 @@ CdeclCallConv_gcc64::getThisArgValue (Function* function)
 	Type* returnType = functionType->getReturnType ();
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
-	if ((returnType->getFlags () & TypeFlag_StructRet) && 
+	if ((returnType->getFlags () & TypeFlag_StructRet) &&
 		returnType->getSize () > sizeof (uint64_t) * 2)
 		llvmArg++;
 
@@ -341,7 +341,7 @@ CdeclCallConv_gcc64::createArgVariables (Function* function)
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

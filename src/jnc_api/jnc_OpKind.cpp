@@ -1,47 +1,47 @@
 #include "pch.h"
 #include "jnc_OpKind.h"
 
-//.............................................................................
+//..............................................................................
 
 const char*
 jnc_getUnOpKindString (jnc_UnOpKind opKind)
 {
-	static const char* stringTable [jnc_UnOpKind__Count] = 
+	static const char* stringTable [jnc_UnOpKind__Count] =
 	{
 		"undefined-unary-operator",  // jnc_UnOpKind_Undefined = 0,
 		"+",                         // jnc_UnOpKind_Plus,
 		"-",                         // jnc_UnOpKind_Minus,
-		"~",                         // jnc_UnOpKind_BwNot,	
+		"~",                         // jnc_UnOpKind_BwNot,
 		"&",                         // jnc_UnOpKind_Addr,
-		"*",                         // jnc_UnOpKind_Indir,	
+		"*",                         // jnc_UnOpKind_Indir,
 		"!",                         // jnc_UnOpKind_LogNot,
 		"++",                        // jnc_UnOpKind_PreInc,
 		"--",                        // jnc_UnOpKind_PreDec,
 		"postfix ++",                // jnc_UnOpKind_PostInc,
-		"postfix --",                // jnc_UnOpKind_PostDec,	
+		"postfix --",                // jnc_UnOpKind_PostDec,
 		"->",                        // jnc_UnOpKind_Ptr,
 	};
 
-	return (size_t) opKind < jnc_UnOpKind__Count ? 
-		stringTable [opKind] : 
+	return (size_t) opKind < jnc_UnOpKind__Count ?
+		stringTable [opKind] :
 		stringTable [jnc_UnOpKind_Undefined];
 }
 
 const char*
 jnc_getBinOpKindString (jnc_BinOpKind opKind)
 {
-	static const char* stringTable [jnc_BinOpKind__Count] = 
+	static const char* stringTable [jnc_BinOpKind__Count] =
 	{
 		"undefined-binary-operator",  // jnc_BinOpKind_Undefined = 0,
 		"+",                          // jnc_BinOpKind_Add,
 		"-",                          // jnc_BinOpKind_Sub,
 		"*",                          // jnc_BinOpKind_Mul,
 		"/",                          // jnc_BinOpKind_Div,
-		"%",                          // jnc_BinOpKind_Mod,	
+		"%",                          // jnc_BinOpKind_Mod,
 		"<<",                         // jnc_BinOpKind_Shl,
-		">>",                         // jnc_BinOpKind_Shr,	
+		">>",                         // jnc_BinOpKind_Shr,
 		"&",                          // jnc_BinOpKind_BwAnd,
-		"^",                          // jnc_BinOpKind_BwXor,	
+		"^",                          // jnc_BinOpKind_BwXor,
 		"|",                          // jnc_BinOpKind_BwOr,
 		"@",                          // jnc_BinOpKind_At,
 		"[]",                         // jnc_BinOpKind_Idx,
@@ -68,10 +68,10 @@ jnc_getBinOpKindString (jnc_BinOpKind opKind)
 		"@=",                         // jnc_BinOpKind_AtAssign,
 	};
 
-	return (size_t) opKind < jnc_BinOpKind__Count ? 
-		stringTable [opKind] : 
+	return (size_t) opKind < jnc_BinOpKind__Count ?
+		stringTable [opKind] :
 		stringTable [jnc_BinOpKind_Undefined];
 }
 
-//.............................................................................
+//..............................................................................
 

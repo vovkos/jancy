@@ -8,7 +8,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class LlvmPodArray: public llvm::ConstantDataSequential
 {
@@ -25,7 +25,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class LlvmPodStruct: public llvm::ConstantStruct
 {
@@ -59,7 +59,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getValueKindString (ValueKind valueKind)
@@ -86,7 +86,7 @@ getValueKindString (ValueKind valueKind)
 		"undefined-value-kind";
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 Value::init ()
@@ -181,7 +181,7 @@ Value::getLlvmConst (
 			llvm::APInt (16, integer, !(type->getTypeKindFlags () & TypeKindFlag_Unsigned))
 			);
 		break;
-	
+
 	case TypeKind_Int32:
 	case TypeKind_Int32_u:
 	case TypeKind_Int32_be:
@@ -389,7 +389,7 @@ Value::setField (
 
 	m_valueKind = ValueKind_Field;
 	m_field = field;
-	m_type = type;	
+	m_type = type;
 	m_constData.setCount (sizeof (size_t));
 	*(size_t*) m_constData.p () = baseOffset + field->getOffset ();
 }
@@ -509,14 +509,14 @@ Value::setCharArray (
 		size = 1;
 
 	Type* type = module->m_typeMgr.getArrayType (
-		module->m_typeMgr.getPrimitiveType (TypeKind_Char), 
+		module->m_typeMgr.getPrimitiveType (TypeKind_Char),
 		size
 		);
 
 	createConst (p, type);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

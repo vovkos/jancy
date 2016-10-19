@@ -2,14 +2,14 @@
 #include "MyCheckBox.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	MyCheckBox, 
-	"CheckBox", 
-	g_myLibGuid, 
+	MyCheckBox,
+	"CheckBox",
+	g_myLibGuid,
 	MyLibCacheSlot_CheckBox,
-	MyCheckBox, 
+	MyCheckBox,
 	NULL
 	)
 
@@ -20,7 +20,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MyCheckBox)
 	JNC_MAP_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
 	MyWidget (new QCheckBox)
@@ -32,4 +32,4 @@ MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
 	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), m_onIsCheckedChanged);
 }
 
-//.............................................................................
+//..............................................................................

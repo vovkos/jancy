@@ -7,7 +7,7 @@ namespace io {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (NamedPipe)
 
-//.............................................................................
+//..............................................................................
 
 class NamedPipe: public IfaceHdr
 {
@@ -54,7 +54,7 @@ protected:
 
 protected:
 	Runtime* m_runtime;
-	sl::String_w m_pipeName;	
+	sl::String_w m_pipeName;
 	sl::Array <axl::io::win::NamedPipe> m_pipeArray;
 
 	sys::Lock m_ioLock;
@@ -96,7 +96,7 @@ protected:
 	listenLoop ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

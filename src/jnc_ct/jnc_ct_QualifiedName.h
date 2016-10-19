@@ -7,7 +7,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class QualifiedName
 {
@@ -23,19 +23,19 @@ public:
 	QualifiedName (const sl::StringRef& name)
 	{
 		m_first = name;
-	}	
+	}
 
 	QualifiedName (const QualifiedName& name)
 	{
 		copy (name);
-	}	
+	}
 
 	QualifiedName&
 	operator = (const QualifiedName& name)
 	{
 		copy (name);
 		return *this;
-	}	
+	}
 
 	void
 	clear ()
@@ -71,7 +71,7 @@ public:
 		return m_first;
 	}
 
-	sl::ConstBoxList <sl::String> 
+	sl::ConstBoxList <sl::String>
 	getNameList () const
 	{
 		return m_list;
@@ -93,7 +93,7 @@ public:
 	takeOver (QualifiedName* name);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

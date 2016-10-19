@@ -3,14 +3,14 @@
 #include "MyLib.h"
 #include "QtSignalBridge.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	MyButton,
-	"Button", 
-	g_myLibGuid, 
+	"Button",
+	g_myLibGuid,
 	MyLibCacheSlot_Button,
-	MyButton, 
+	MyButton,
 	NULL
 	)
 
@@ -20,7 +20,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MyButton)
 	JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyButton::setText)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MyButton::MyButton (jnc::DataPtr textPtr):
 	MyWidget (new QPushButton)
@@ -31,4 +31,4 @@ MyButton::MyButton (jnc::DataPtr textPtr):
 	m_onClickedBridge->connect (m_qtButton, SIGNAL (clicked ()), m_onClicked);
 }
 
-//.............................................................................
+//..............................................................................

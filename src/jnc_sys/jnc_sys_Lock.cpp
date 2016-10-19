@@ -6,14 +6,14 @@
 namespace jnc {
 namespace sys {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Lock, 
-	"sys.Lock", 
-	g_sysLibGuid, 
-	SysLibCacheSlot_Lock, 
-	Lock, 
+	Lock,
+	"sys.Lock",
+	g_sysLibGuid,
+	SysLibCacheSlot_Lock,
+	Lock,
 	NULL
 	)
 
@@ -24,7 +24,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Lock)
 	JNC_MAP_FUNCTION ("unlock", &Lock::unlock)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -38,7 +38,7 @@ Lock::lock ()
 	gcHeap->leaveWaitRegion ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace sys
 } // namespace jnc

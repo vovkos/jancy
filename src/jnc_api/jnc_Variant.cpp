@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -60,7 +60,7 @@ jnc_Variant_relationalOperator (
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Variant_hash (const jnc_Variant* variant)
 {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_hashFunc (variant);
@@ -111,16 +111,16 @@ jnc_Variant_unaryOperator (
 
 	ct::Value resultValue;
 	bool result = module->m_operatorMgr.unaryOperator (
-		opKind, 
-		opValue, 
+		opKind,
+		opValue,
 		&resultValue
-		) && 
+		) &&
 		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Variant);
-	
+
 	if (!result)
 		return false;
 
-	*resultVariant = *(Variant*) resultValue.getConstData (); 
+	*resultVariant = *(Variant*) resultValue.getConstData ();
 	return true;
 }
 
@@ -166,17 +166,17 @@ jnc_Variant_binaryOperator (
 
 	ct::Value resultValue;
 	bool result = module->m_operatorMgr.binaryOperator (
-		opKind, 
-		opValue1, 
-		opValue2, 
+		opKind,
+		opValue1,
+		opValue2,
 		&resultValue
-		) && 
+		) &&
 		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Variant);
-	
+
 	if (!result)
 		return 0;
 
-	*resultVariant = *(Variant*) resultValue.getConstData (); 
+	*resultVariant = *(Variant*) resultValue.getConstData ();
 	return 1;
 }
 
@@ -214,7 +214,7 @@ jnc_Variant_relationalOperator (
 	{
 		opValue2.createConst (variant2, variant2->m_type);
 	}
-	else 
+	else
 	{
 		ASSERT (variant->m_type);
 		opValue2.createConst (NULL, variant->m_type);
@@ -224,22 +224,22 @@ jnc_Variant_relationalOperator (
 
 	ct::Value resultValue;
 	bool result = module->m_operatorMgr.binaryOperator (
-		opKind, 
-		opValue1, 
-		opValue2, 
+		opKind,
+		opValue1,
+		opValue2,
 		&resultValue
-		) && 
+		) &&
 		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Bool);
 
 	if (!result)
 		return false;
 
-	*resultBool = *(bool*) resultValue.getConstData (); 
+	*resultBool = *(bool*) resultValue.getConstData ();
 	return 1;
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Variant_hash (const jnc_Variant* variant)
 {
 	using namespace jnc;
@@ -252,7 +252,7 @@ jnc_Variant_hash (const jnc_Variant* variant)
 	{
 		uint64_t result = 0;
 		axl::sl::swapByteOrder (&result, &variant->m_int64, size);
-		return (uintptr_t) result;		
+		return (uintptr_t) result;
 	}
 
 	if (size <= sizeof (uintptr_t) || variant->m_type->getTypeKind () == TypeKind_DataPtr)
@@ -264,7 +264,7 @@ jnc_Variant_hash (const jnc_Variant* variant)
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................
 
 bool
 jnc::Variant::relationalOperator (
@@ -281,4 +281,4 @@ jnc::Variant::relationalOperator (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................

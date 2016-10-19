@@ -23,7 +23,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 // makes it convenient to initialize childs (especially operators)
 
@@ -38,7 +38,7 @@ protected:
 
 public:
 	static
-	Module* 
+	Module*
 	getCurrentConstructedModule ()
 	{
 		return sys::getTlsPtrSlotValue <Module> ();
@@ -52,7 +52,7 @@ protected:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class Module: public PreModule
 {
@@ -99,7 +99,7 @@ public:
 	{
 		clear ();
 	}
-	
+
 	const sl::String&
 	getName ()
 	{
@@ -263,7 +263,7 @@ protected:
 	processCompileArray ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

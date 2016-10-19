@@ -7,7 +7,7 @@ namespace rtl {
 
 JNC_DECLARE_CLASS_TYPE (DynamicLib)
 
-//.............................................................................
+//..............................................................................
 
 class DynamicLib: public IfaceHdr
 {
@@ -15,7 +15,7 @@ public:
 	handle_t m_handle;
 
 public:
-	bool 
+	bool
 	JNC_CDECL
 	open (DataPtr fileNamePtr)
 	{
@@ -32,14 +32,14 @@ public:
 		getDynamicLibrary ()->close ();
 	}
 
-	void* 
+	void*
 	JNC_CDECL
 	getFunction (DataPtr namePtr)
 	{
 		return getFunctionImpl ((const char*) namePtr.m_p);
 	}
 
-	void* 
+	void*
 	getFunctionImpl (const sl::StringRef& name);
 
 	sys::DynamicLibrary*
@@ -50,7 +50,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

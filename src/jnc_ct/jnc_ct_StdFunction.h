@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 enum StdFunc
 {
@@ -21,7 +21,7 @@ enum StdFunc
 	StdFunc_DynamicCastVariant,
 	StdFunc_StrengthenClassPtr,
 
-	StdFunc_PrimeStaticClass,	
+	StdFunc_PrimeStaticClass,
 	StdFunc_TryAllocateClass,
 	StdFunc_AllocateClass,
 	StdFunc_TryAllocateData,
@@ -48,13 +48,13 @@ enum StdFunc
 	StdFunc_AppendFmtLiteral_ui64,
 	StdFunc_AppendFmtLiteral_f,
 	StdFunc_AppendFmtLiteral_v,
-	
+
 	StdFunc_SimpleMulticastCall,
 
 	StdFunc_AssertionFailure,
 	StdFunc_AddStaticDestructor,
 	StdFunc_AddStaticClassDestructor,
-	
+
 	StdFunc_TryCheckDataPtrRangeDirect,
 	StdFunc_CheckDataPtrRangeDirect,
 	StdFunc_TryCheckDataPtrRangeIndirect,
@@ -66,22 +66,22 @@ enum StdFunc
 	StdFunc_CheckDivByZero_i64,
 	StdFunc_CheckDivByZero_f32,
 	StdFunc_CheckDivByZero_f64,
-	
+
 	StdFunc_TryLazyGetDynamicLibFunction,
 	StdFunc_LazyGetDynamicLibFunction,
-	
+
 	StdFunc_LlvmMemcpy,
 	StdFunc_LlvmMemmove,
 	StdFunc_LlvmMemset,
 	StdFunc__Count
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const StdItemSource*
 getStdFunctionSource (StdFunc stdFunction);
 
-//.............................................................................
+//..............................................................................
 
 class LazyStdFunction: public LazyModuleItem
 {
@@ -101,7 +101,7 @@ public:
 	getActualItem ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

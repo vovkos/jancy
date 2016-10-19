@@ -27,7 +27,7 @@
 namespace jnc {
 namespace rtl {
 
-//.............................................................................
+//..............................................................................
 
 size_t
 dynamicSizeOf (DataPtr ptr)
@@ -59,7 +59,7 @@ dynamicCastDataPtr (
 {
 	if (!ptr.m_validator)
 		return g_nullPtr;
-	
+
 	Box* box = ptr.m_validator->m_targetBox;
 	void* p = (box->m_flags & BoxFlag_StaticData) ? ((StaticDataBox*) box)->m_p : box + 1;
 	if (ptr.m_p < p)
@@ -70,7 +70,7 @@ dynamicCastDataPtr (
 	{
 		ArrayType* arrayType = (ArrayType*) srcType;
 		srcType = arrayType->getElementType ();
-		
+
 		size_t srcTypeSize = srcType->getSize ();
 		if (!srcTypeSize)
 			srcTypeSize = 1;
@@ -137,7 +137,7 @@ strengthenClassPtr (IfaceHdr* iface)
 	return jnc_strengthenClassPtr (iface);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 primeStaticClass (
@@ -208,7 +208,7 @@ allocateArray (
 	return gcHeap->allocateArray (type, elementCount);
 }
 
-DataPtrValidator* 
+DataPtrValidator*
 createDataPtrValidator (
 	Box* box,
 	void* rangeBegin,
@@ -315,7 +315,7 @@ variantRelationalOperator (
 	return result;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 assertionFailure (
@@ -329,12 +329,12 @@ assertionFailure (
 	string.format ("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
 	if (message)
 		string.appendFormat ("; %s", message);
-	
+
 	err::setError (string);
 	dynamicThrow ();
 }
 
-bool 
+bool
 tryCheckDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
@@ -357,7 +357,7 @@ tryCheckDataPtrRangeDirect (
 	return true;
 }
 
-void 
+void
 checkDataPtrRangeDirect (
 	const void* p,
 	const void* rangeBegin,
@@ -369,7 +369,7 @@ checkDataPtrRangeDirect (
 		dynamicThrow ();
 }
 
-bool 
+bool
 tryCheckDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
@@ -393,7 +393,7 @@ tryCheckDataPtrRangeIndirect (
 }
 
 
-void 
+void
 checkDataPtrRangeIndirect (
 	const void* p,
 	size_t size,
@@ -405,7 +405,7 @@ checkDataPtrRangeIndirect (
 		dynamicThrow ();
 }
 
-bool 
+bool
 tryCheckNullPtr (
 	const void* p,
 	TypeKind typeKind
@@ -498,9 +498,9 @@ checkDivByZero_f64 (double f)
 	}
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void* 
+void*
 tryLazyGetDynamicLibFunction (
 	rtl::DynamicLib* lib,
 	size_t index,
@@ -537,7 +537,7 @@ tryLazyGetDynamicLibFunction (
 	return function;
 }
 
-void* 
+void*
 lazyGetDynamicLibFunction (
 	rtl::DynamicLib* lib,
 	size_t index,
@@ -551,7 +551,7 @@ lazyGetDynamicLibFunction (
 	return p;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 size_t
 appendFmtLiteral_a (
@@ -766,7 +766,7 @@ appendFmtLiteral_v (
 
 			int64_t x = *(int64_t*) buffer;
 
-			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+			return (typeKindFlags & TypeKindFlag_Unsigned) ?
 				appendFmtLiteral_ui64 (fmtLiteral, fmtSpecifier, x) :
 				appendFmtLiteral_i64 (fmtLiteral, fmtSpecifier, x);
 		}
@@ -782,14 +782,14 @@ appendFmtLiteral_v (
 
 			int32_t x = *(int32_t*) buffer;
 
-			return (typeKindFlags & TypeKindFlag_Unsigned) ? 
+			return (typeKindFlags & TypeKindFlag_Unsigned) ?
 				appendFmtLiteral_ui32 (fmtLiteral, fmtSpecifier, x) :
 				appendFmtLiteral_i32 (fmtLiteral, fmtSpecifier, x);
 		}
 	}
 	else if (typeKindFlags & TypeKindFlag_Fp)
 	{
-		return typeKind == TypeKind_Float ? 
+		return typeKind == TypeKind_Float ?
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(float*) &variant) :
 			appendFmtLiteral_f (fmtLiteral, fmtSpecifier, *(double*) &variant);
 	}
@@ -825,7 +825,7 @@ appendFmtLiteral_v (
 	{
 		DataPtrType* ptrType = (DataPtrType*) type;
 		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-		
+
 		if (ptrTypeKind == DataPtrTypeKind_Normal)
 			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
 
@@ -838,12 +838,12 @@ appendFmtLiteral_v (
 	{
 		sl::String string;
 		string.format ("(variant:%s)", type->getTypeString ().sz ());
-		
+
 		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
 	}
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 multicastDestruct (Multicast* multicast)
@@ -975,11 +975,11 @@ mapAllMulticastMethods (Module* module)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 // {CFD9EA7A-35DE-4090-A83B-3D214B3FF358}
 JNC_DEFINE_GUID (
-	jnc_g_coreLibGuid, 
+	jnc_g_coreLibGuid,
 	0xcfd9ea7a, 0x35de, 0x4090, 0xa8, 0x3b, 0x3d, 0x21, 0x4b, 0x3f, 0xf3, 0x58
 	);
 
@@ -1035,7 +1035,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// runtime checks
 
-	JNC_MAP_STD_FUNCTION (ct::StdFunc_AssertionFailure,             assertionFailure)		
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AssertionFailure,             assertionFailure)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckDataPtrRangeDirect,   tryCheckDataPtrRangeDirect)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDataPtrRangeDirect,      checkDataPtrRangeDirect)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
@@ -1047,12 +1047,12 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_i64,           checkDivByZero_i64)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f32,           checkDivByZero_f32)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_CheckDivByZero_f64,           checkDivByZero_f64)
-		
+
 	// dynamic libs
 
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_TryLazyGetDynamicLibFunction, tryLazyGetDynamicLibFunction)
-	JNC_MAP_STD_FUNCTION (ct::StdFunc_LazyGetDynamicLibFunction,    lazyGetDynamicLibFunction)		
-		
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_LazyGetDynamicLibFunction,    lazyGetDynamicLibFunction)
+
 	// formating literals
 
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_AppendFmtLiteral_a,    appendFmtLiteral_a)
@@ -1073,11 +1073,11 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	// std types
 
 	JNC_MAP_STD_TYPE (StdType_Recognizer, Recognizer)
-	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)	
+	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)
 
 JNC_END_LIB_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

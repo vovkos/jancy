@@ -11,7 +11,7 @@ namespace ct {
 
 class Module;
 
-//.............................................................................
+//..............................................................................
 
 enum ImportKind
 {
@@ -19,7 +19,7 @@ enum ImportKind
 	ImportKind_Source
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct Import: sl::ListLink
 {
@@ -29,7 +29,7 @@ struct Import: sl::ListLink
 	sl::StringRef m_source;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class ImportMgr
 {
@@ -47,14 +47,14 @@ protected:
 	sl::StdList <Import> m_importList;
 	sl::StringHashTableMap <bool> m_importFilePathMap;
 	sl::BoxList <sl::String> m_extensionLibFilePathCache;
-	
+
 public:
 	sl::BoxList <sl::String> m_importDirList;
 
 public:
 	ImportMgr ();
 
-	Module* 
+	Module*
 	getModule ()
 	{
 		return m_module;
@@ -87,7 +87,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

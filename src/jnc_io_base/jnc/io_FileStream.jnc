@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup file
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum FileStreamKind
 {
@@ -15,11 +15,11 @@ enum FileStreamKind
 	Pipe,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 char const* getFileStreamKindString (FileStreamKind kind)
 {
-	static char const* stringTable [] = 
+	static char const* stringTable [] =
 	{
 		"unknown device", // FileStreamKind.Unknown,
 		"disk file",      // FileStreamKind.Disk,
@@ -27,12 +27,12 @@ char const* getFileStreamKindString (FileStreamKind kind)
 		"pipe",           // FileStreamKind.Pipe,
 	};
 
-	return kind < countof (stringTable) ? 
-		stringTable [kind] : 
+	return kind < countof (stringTable) ?
+		stringTable [kind] :
 		stringTable [0];
 }
 
-//.............................................................................
+//..............................................................................
 
 enum FileStreamEventCode
 {
@@ -42,7 +42,7 @@ enum FileStreamEventCode
 	TransmitBufferReady,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct FileStreamEventParams
 {
@@ -51,7 +51,7 @@ struct FileStreamEventParams
 	std.Error* m_error;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class FileStream
 {
@@ -89,7 +89,7 @@ opaque class FileStream
 
 //! @}
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 

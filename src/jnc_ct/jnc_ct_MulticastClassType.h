@@ -9,7 +9,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class MulticastClassType: public ClassType
 {
@@ -72,11 +72,11 @@ protected:
 	void
 	prepareTypeString ();
 
-	virtual 
+	virtual
 	void
 	prepareDoxyLinkedText ();
 
-	virtual 
+	virtual
 	void
 	prepareDoxyTypeString ();
 
@@ -93,7 +93,7 @@ protected:
 	compileCallMethod ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

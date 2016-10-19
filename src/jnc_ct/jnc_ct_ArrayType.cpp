@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ArrayType::ArrayType ()
 {
@@ -53,7 +53,7 @@ ArrayType::createDimensionString ()
 
 	if (m_elementCount == -1)
 		string = "[]";
-	else 
+	else
 		string.format ("[%d]", m_elementCount);
 
 	Type* elementType = m_elementType;
@@ -115,7 +115,7 @@ ArrayType::calcLayout ()
 				m_parentUnit->getFilePath (),
 				m_elementCountInitializer.getHead ()->m_pos
 				);
-			
+
 			return false;
 		}
 
@@ -127,7 +127,7 @@ ArrayType::calcLayout ()
 				m_parentUnit->getFilePath (),
 				m_elementCountInitializer.getHead ()->m_pos
 				);
-			
+
 			return false;
 		}
 #endif
@@ -162,7 +162,7 @@ ArrayType::prepareLlvmDiType ()
 	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType (this);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

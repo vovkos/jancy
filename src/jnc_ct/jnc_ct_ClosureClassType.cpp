@@ -7,7 +7,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 sl::String
 ClosureClassType::createSignature (
@@ -89,7 +89,7 @@ ClosureClassType::strengthen (IfaceHdr* p)
 	return jnc::strengthenClassPtr (*(IfaceHdr**) p2) ? p : NULL;
 }
 
-//.............................................................................
+//..............................................................................
 
 FunctionClosureClassType::FunctionClosureClassType ()
 {
@@ -139,7 +139,7 @@ FunctionClosureClassType::compile ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 PropertyClosureClassType::PropertyClosureClassType ()
 {
@@ -254,7 +254,7 @@ PropertyClosureClassType::compileAccessor (Function* accessor)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 DataClosureClassType::DataClosureClassType ()
 {
@@ -357,7 +357,7 @@ DataClosureClassType::compileSetter (Function* setter)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

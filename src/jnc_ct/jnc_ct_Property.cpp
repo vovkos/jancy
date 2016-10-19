@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Property::Property ():
 	NamedTypeBlock (this)
@@ -707,9 +707,9 @@ Property::getAutoAccessorPropertyValue ()
 		return this;
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
-	Value propertyValue = this;	
+	Value propertyValue = this;
 	Closure* closure = propertyValue.createClosure ();
-	closure->insertThisArgValue (thisValue);	
+	closure->insertThisArgValue (thisValue);
 	return propertyValue;
 }
 
@@ -745,7 +745,7 @@ Property::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

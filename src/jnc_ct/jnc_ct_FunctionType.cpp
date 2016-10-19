@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 FunctionType::FunctionType ()
 {
@@ -401,7 +401,7 @@ FunctionType::getDoxyArgString ()
 
 		if (!arg->getInitializer ().isEmpty ())
 			string.appendFormat (
-				"<defval>%s</defval>\n", 
+				"<defval>%s</defval>\n",
 				arg->getInitializerString ().sz ()
 				);
 
@@ -418,7 +418,7 @@ FunctionType::getDoxyArgString ()
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

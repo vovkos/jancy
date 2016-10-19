@@ -14,7 +14,7 @@ namespace ct {
 class Module;
 class ClassType;
 
-//.............................................................................
+//..............................................................................
 
 class NamespaceMgr
 {
@@ -52,7 +52,7 @@ protected:
 
 public:
 	NamespaceMgr ();
-	
+
 	~NamespaceMgr ()
 	{
 		clear ();
@@ -100,7 +100,7 @@ public:
 		return &m_stdNamespaceArray [StdNamespace_Global];
 	}
 
-	GlobalNamespace* 
+	GlobalNamespace*
 	getStdNamespace (StdNamespace stdNamespace)
 	{
 		ASSERT (stdNamespace < StdNamespace__Count);
@@ -116,7 +116,7 @@ public:
 	Namespace*
 	getCurrentNamespace ()
 	{
-		return m_currentNamespace; 
+		return m_currentNamespace;
 	}
 
 	Scope*
@@ -191,7 +191,7 @@ public:
 	findCatchScope ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

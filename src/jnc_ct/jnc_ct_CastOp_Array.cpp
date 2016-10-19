@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_Array::getCastKind (
@@ -30,14 +30,14 @@ Cast_Array::getCastKind (
 	Type* srcElementType = srcArrayType->getElementType ();
 	size_t srcElementCount = srcArrayType->getElementCount ();
 
-	return 
-		dstElementType->cmp (srcElementType) == 0 || 
+	return
+		dstElementType->cmp (srcElementType) == 0 ||
 		(dstElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		(srcElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		dstElementType->getSize () == srcElementType->getSize() ?
-		srcElementCount <= dstElementCount ? 
-		CastKind_Implicit : 
-		CastKind_Explicit : 
+		srcElementCount <= dstElementCount ?
+		CastKind_Implicit :
+		CastKind_Explicit :
 		CastKind_None;
 }
 
@@ -60,7 +60,7 @@ Cast_Array::constCast (
 	ArrayType* srcArrayType = (ArrayType*) opType;
 	Type* srcElementType = srcArrayType->getElementType ();
 
-	if (dstElementType->cmp (srcElementType) == 0 || 
+	if (dstElementType->cmp (srcElementType) == 0 ||
 		(dstElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		(srcElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
 		dstElementType->getSize () == srcElementType->getSize())
@@ -70,7 +70,7 @@ Cast_Array::constCast (
 		memcpy (dst, opValue.getConstData (), AXL_MIN (srcSize, dstSize));
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -85,7 +85,7 @@ Cast_Array::llvmCast (
 	return false;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 BasicBlock::BasicBlock ()
 {
@@ -21,14 +21,14 @@ Value
 BasicBlock::getBlockAddressValue ()
 {
 	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get (m_function->getLlvmFunction (), m_llvmBlock);
-	
+
 	Value value;
 	value.setLlvmValue (llvmAddress, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-	return value;	
+	return value;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc
- 
+

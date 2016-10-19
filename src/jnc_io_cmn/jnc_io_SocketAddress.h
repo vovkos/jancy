@@ -11,7 +11,7 @@ JNC_DECLARE_TYPE (SocketAddress_ip4)
 JNC_DECLARE_TYPE (SocketAddress_ip6)
 JNC_DECLARE_TYPE (SocketAddress)
 
-//.............................................................................
+//..............................................................................
 
 enum AddressFamily
 {
@@ -22,13 +22,13 @@ enum AddressFamily
 	AddressFamily__Count,
 };
 
-//.............................................................................
+//..............................................................................
 
 struct Address_ip4: public in_addr
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (Address_ip4)
 
-	static 
+	static
 	bool
 	parse (
 		DataPtr selfPtr,
@@ -36,12 +36,12 @@ struct Address_ip4: public in_addr
 		)
 	{
 		return axl::io::parseAddr_ip4 (
-			(in_addr*) selfPtr.m_p, 
+			(in_addr*) selfPtr.m_p,
 			(const char*) stringPtr.m_p
 			);
 	}
 
-	static 
+	static
 	DataPtr
 	getString (DataPtr selfPtr)
 	{
@@ -50,13 +50,13 @@ struct Address_ip4: public in_addr
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct Address_ip6: public in6_addr
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (Address_ip6)
 
-	static 
+	static
 	bool
 	parse (
 		DataPtr selfPtr,
@@ -64,12 +64,12 @@ struct Address_ip6: public in6_addr
 		)
 	{
 		return axl::io::parseAddr_ip6 (
-			(in6_addr*) selfPtr.m_p, 
+			(in6_addr*) selfPtr.m_p,
 			(const char*) stringPtr.m_p
 			);
 	}
 
-	static 
+	static
 	DataPtr
 	getString (DataPtr selfPtr)
 	{
@@ -78,13 +78,13 @@ struct Address_ip6: public in6_addr
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 struct SocketAddress_ip4: public sockaddr_in
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddress_ip4)
 
-	static 
+	static
 	bool
 	isEqual (
 		DataPtr selfPtr,
@@ -92,12 +92,12 @@ struct SocketAddress_ip4: public sockaddr_in
 		)
 	{
 		return axl::io::isSockAddrEqual_ip4 (
-			(const sockaddr_in*) selfPtr.m_p, 
+			(const sockaddr_in*) selfPtr.m_p,
 			(const sockaddr_in*) addressPtr.m_p
 			);
 	}
 
-	static 
+	static
 	bool
 	isMatch (
 		DataPtr selfPtr,
@@ -105,12 +105,12 @@ struct SocketAddress_ip4: public sockaddr_in
 		)
 	{
 		return axl::io::isSockAddrMatch_ip4 (
-			(const sockaddr_in*) selfPtr.m_p, 
+			(const sockaddr_in*) selfPtr.m_p,
 			(const sockaddr_in*) addressPtr.m_p
 			);
 	}
 
-	static 
+	static
 	bool
 	parse (
 		DataPtr selfPtr,
@@ -118,12 +118,12 @@ struct SocketAddress_ip4: public sockaddr_in
 		)
 	{
 		return axl::io::parseSockAddr_ip4 (
-			(sockaddr_in*) selfPtr.m_p, 
+			(sockaddr_in*) selfPtr.m_p,
 			(const char*) stringPtr.m_p
 			);
 	}
 
-	static 
+	static
 	DataPtr
 	getString (DataPtr selfPtr)
 	{
@@ -132,13 +132,13 @@ struct SocketAddress_ip4: public sockaddr_in
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketAddress_ip6: public sockaddr_in6
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddress_ip6)
 
-	static 
+	static
 	bool
 	isEqual (
 		DataPtr selfPtr,
@@ -146,12 +146,12 @@ struct SocketAddress_ip6: public sockaddr_in6
 		)
 	{
 		return axl::io::isSockAddrEqual_ip6 (
-			(const sockaddr_in6*) selfPtr.m_p, 
+			(const sockaddr_in6*) selfPtr.m_p,
 			(const sockaddr_in6*) addressPtr.m_p
 			);
 	}
 
-	static 
+	static
 	bool
 	isMatch (
 		DataPtr selfPtr,
@@ -159,12 +159,12 @@ struct SocketAddress_ip6: public sockaddr_in6
 		)
 	{
 		return axl::io::isSockAddrMatch_ip6 (
-			(const sockaddr_in6*) selfPtr.m_p, 
+			(const sockaddr_in6*) selfPtr.m_p,
 			(const sockaddr_in6*) addressPtr.m_p
 			);
 	}
 
-	static 
+	static
 	bool
 	parse (
 		DataPtr selfPtr,
@@ -172,12 +172,12 @@ struct SocketAddress_ip6: public sockaddr_in6
 		)
 	{
 		return axl::io::parseSockAddr_ip6 (
-			(sockaddr_in6*) selfPtr.m_p, 
+			(sockaddr_in6*) selfPtr.m_p,
 			(const char*) stringPtr.m_p
 			);
 	}
 
-	static 
+	static
 	DataPtr
 	getString (DataPtr selfPtr)
 	{
@@ -186,7 +186,7 @@ struct SocketAddress_ip6: public sockaddr_in6
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketAddress
 {
@@ -196,10 +196,10 @@ struct SocketAddress
 	{
 		uint16_t m_family;
 		sockaddr_in m_addr_ip4;
-		sockaddr_in6 m_addr_ip6;		
+		sockaddr_in6 m_addr_ip6;
 	};
 
-	static 
+	static
 	bool
 	isEqual (
 		DataPtr selfPtr,
@@ -209,7 +209,7 @@ struct SocketAddress
 		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isEqual ((const sockaddr*) addressPtr.m_p);
 	}
 
-	static 
+	static
 	bool
 	isMatch (
 		DataPtr selfPtr,
@@ -219,14 +219,14 @@ struct SocketAddress
 		return ((SocketAddress*) selfPtr.m_p)->getSockAddr ().isMatch ((const sockaddr*) addressPtr.m_p);
 	}
 
-	static 
+	static
 	bool
 	parse (
 		DataPtr selfPtr,
 		DataPtr stringPtr
 		);
 
-	static 
+	static
 	DataPtr
 	getString (DataPtr selfPtr)
 	{
@@ -245,7 +245,7 @@ struct SocketAddress
 	fromSockAddr (const axl::io::SockAddr& sockAddr);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

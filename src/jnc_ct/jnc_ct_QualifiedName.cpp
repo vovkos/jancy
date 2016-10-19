@@ -4,7 +4,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 QualifiedName::addName (const sl::StringRef& name)
@@ -27,7 +27,7 @@ QualifiedName::removeLastName ()
 	}
 	else
 	{
-		name = m_list.removeTail ();		
+		name = m_list.removeTail ();
 	}
 
 	return name;
@@ -39,7 +39,7 @@ QualifiedName::getFullName () const
 	if (m_list.isEmpty ())
 		return m_first;
 
-	sl::String name = m_first;	
+	sl::String name = m_first;
 	sl::BoxIterator <sl::String> it = m_list.getHead ();
 	for (; it; it++)
 	{
@@ -89,7 +89,7 @@ QualifiedName::takeOver (QualifiedName* name)
 	name->clear ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

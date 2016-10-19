@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 start
 compound_stmt
@@ -15,11 +15,11 @@ compound_stmt
 
 start
 automaton_compound_stmt
-	:	'{' 
+	:	'{'
 			{
 				return beginAutomatonFunction ();
 			}
-		automaton_declaration* 
+		automaton_declaration*
 		'}'
 			{
 				return finalizeAutomatonFunction ();
@@ -37,7 +37,7 @@ automaton_declaration
 					err::setError ("missing regexp condition");
 					return false;
 				}
-			}	
+			}
 		local_declaration+
 	;
 
@@ -269,7 +269,7 @@ for_stmt_condition <ForStmt* $stmt>
 				m_module->m_controlFlowMgr.forStmt_NoCondition ($stmt);
 			}
 	;
-	
+
 
 break_stmt
 	:	TokenKind_Break ';'
@@ -311,7 +311,7 @@ once_stmt
 	;
 
 try_stmt
-	:	TokenKind_Try 
+	:	TokenKind_Try
 		'{'
 			{
 				m_module->m_namespaceMgr.openScope ($1.m_pos, ScopeFlag_Try | ScopeFlag_HasCatch | $2.m_data.m_integer);
@@ -332,7 +332,7 @@ throw_stmt
 
 unsafe_stmt
 	:	resolver (TokenKind_Unsafe '{')
-		TokenKind_Unsafe 
+		TokenKind_Unsafe
 		'{' $l
 			{
 				m_module->m_operatorMgr.enterUnsafeRgn ();
@@ -347,7 +347,7 @@ unsafe_stmt
 	;
 
 assert_stmt
-	local 
+	local
 	{
 		BasicBlock* $continueBlock;
 	}
@@ -359,11 +359,11 @@ assert_stmt
 		(',' expression $m)? ')'
 			{
 				return finalizeAssertStmt (
-					$c.m_tokenList, 
+					$c.m_tokenList,
 					&$m ? $m.m_value : Value (),
 					$continueBlock
 					);
-			}			
+			}
 	;
 
 catch_label
@@ -387,4 +387,4 @@ nested_scope_label
 			}
 	;
 
-//.............................................................................
+//..............................................................................

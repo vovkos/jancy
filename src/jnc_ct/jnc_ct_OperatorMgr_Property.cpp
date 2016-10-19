@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 OperatorMgr::getPropertyThinPtr (
@@ -60,7 +60,7 @@ OperatorMgr::getPropertyVTable (
 	case PropertyPtrTypeKind_Weak:
 		err::setFormatStringError ("cannot invoke weak '%s'", ptrType->getTypeString ().sz ());
 		return false;
-	
+
 	case PropertyPtrTypeKind_Thin:
 		if (opValue.getValueKind () == ValueKind_Property)
 			return getPropertyVTable (opValue.getProperty (), opValue.getClosure (), resultValue);
@@ -113,7 +113,7 @@ OperatorMgr::getPropertyGetterType (const Value& rawOpValue)
 		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
-		propertyType = ptrType->hasClosure () ? 
+		propertyType = ptrType->hasClosure () ?
 			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
 			ptrType->getTargetType ();
 	}
@@ -153,12 +153,12 @@ OperatorMgr::getPropertyGetter (
 		*resultValue = opValue.getProperty ()->getGetter ();
 		resultValue->setClosure (opValue.getClosure ());
 		return true;
-	}	
+	}
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
-	PropertyType* propertyType = ptrType->hasClosure () ? 
+	PropertyType* propertyType = ptrType->hasClosure () ?
 		ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
 		ptrType->getTargetType ();
 
@@ -172,8 +172,8 @@ OperatorMgr::getPropertyGetter (
 	Value pfnValue;
 	m_module->m_llvmIrBuilder.createGep2 (VTableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
-		pfnValue, 
-		propertyType->getGetterType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
+		pfnValue,
+		propertyType->getGetterType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
 		);
 
@@ -190,8 +190,8 @@ OperatorMgr::getPropertySetterType (
 	Value opValue;
 	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
-	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
+
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType;
 
@@ -203,7 +203,7 @@ OperatorMgr::getPropertySetterType (
 	{
 		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
-		propertyType = ptrType->hasClosure () ? 
+		propertyType = ptrType->hasClosure () ?
 			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
 			ptrType->getTargetType ();
 	}
@@ -260,10 +260,10 @@ OperatorMgr::getPropertySetter (
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
-	PropertyType* propertyType = ptrType->hasClosure () ? 
+	PropertyType* propertyType = ptrType->hasClosure () ?
 		ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
 		ptrType->getTargetType ();
 
@@ -295,7 +295,7 @@ OperatorMgr::getPropertySetter (
 			err::setFormatStringError ("no argument value to help choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 			return false;
 		}
-		
+
 		i = setterTypeOverload->chooseSetterOverload (argValue);
 		if (i == -1)
 		{
@@ -317,8 +317,8 @@ OperatorMgr::getPropertySetter (
 	Value pfnValue;
 	m_module->m_llvmIrBuilder.createGep2 (vtableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
-		pfnValue, 
-		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
+		pfnValue,
+		setterType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
 		);
 
@@ -340,10 +340,10 @@ OperatorMgr::getPropertyBinderType (const Value& rawOpValue)
 	}
 	else
 	{
-		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
+		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 		PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
-		propertyType = ptrType->hasClosure () ? 
+		propertyType = ptrType->hasClosure () ?
 			ptrType->getTargetType ()->getStdObjectMemberPropertyType () :
 			ptrType->getTargetType ();
 	}
@@ -368,7 +368,7 @@ OperatorMgr::getPropertyBinderType (
 		return false;
 
 	resultValue->setType (type);
-	return true;		
+	return true;
 }
 
 bool
@@ -384,7 +384,7 @@ OperatorMgr::getPropertyBinder (
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);	
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyType* propertyType = ptrType->getTargetType ();
@@ -413,8 +413,8 @@ OperatorMgr::getPropertyBinder (
 	Value pfnValue;
 	m_module->m_llvmIrBuilder.createGep2 (VTableValue, 0, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad (
-		pfnValue, 
-		propertyType->getBinderType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe), 
+		pfnValue,
+		propertyType->getBinderType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
 		);
 
@@ -438,7 +438,7 @@ OperatorMgr::getProperty (
 	}
 
 	Value getterValue;
-	return 
+	return
 		getPropertyGetter (opValue, &getterValue) &&
 		callOperator (getterValue, NULL, resultValue);
 }
@@ -452,7 +452,7 @@ OperatorMgr::setProperty (
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyRef);
 
 	Value setterValue;
-	return 
+	return
 		getPropertySetter (opValue, srcValue, &setterValue) &&
 		callOperator (setterValue, srcValue);
 }
@@ -460,7 +460,7 @@ OperatorMgr::setProperty (
 Type*
 OperatorMgr::getPropertyAutoGetValueType (const Value& opValue)
 {
-	if (opValue.getValueKind () != ValueKind_Property || 
+	if (opValue.getValueKind () != ValueKind_Property ||
 		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
 		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().sz ());
@@ -470,7 +470,7 @@ OperatorMgr::getPropertyAutoGetValueType (const Value& opValue)
 	Type* type;
 
 	ModuleItem* autoGetValue = opValue.getProperty ()->getAutoGetValue ();
-	type = autoGetValue->getItemKind () == ModuleItemKind_StructField ? 
+	type = autoGetValue->getItemKind () == ModuleItemKind_StructField ?
 		((StructField*) autoGetValue)->getType() :
 		((Variable*) autoGetValue)->getType();
 
@@ -497,7 +497,7 @@ OperatorMgr::getPropertyAutoGetValue (
 	Value* resultValue
 	)
 {
-	if (opValue.getValueKind () != ValueKind_Property || 
+	if (opValue.getValueKind () != ValueKind_Property ||
 		!(opValue.getProperty ()->getFlags () & PropertyFlag_AutoGet))
 	{
 		err::setFormatStringError ("'%s' has no autoget field", opValue.getType ()->getTypeString ().sz ());
@@ -513,7 +513,7 @@ OperatorMgr::getPropertyOnChangedType (const Value& rawOpValue)
 	Value opValue;
 	prepareOperandType (rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) ||
 		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().sz ());
@@ -548,7 +548,7 @@ OperatorMgr::getPropertyOnChanged (
 	if (!result)
 		return false;
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) || 
+	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr) ||
 		!(((PropertyPtrType*) opValue.getType ())->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable))
 	{
 		err::setFormatStringError ("'%s' has no bindable event", opValue.getType ()->getTypeString ().sz ());
@@ -559,12 +559,12 @@ OperatorMgr::getPropertyOnChanged (
 		return getPropertyField (opValue, opValue.getProperty ()->getOnChanged (), resultValue);
 
 	Value binderValue;
-	return 
+	return
 		getPropertyBinder (opValue, &binderValue) &&
 		callOperator (binderValue, NULL, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

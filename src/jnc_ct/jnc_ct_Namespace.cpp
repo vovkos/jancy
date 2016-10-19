@@ -7,7 +7,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 Namespace::clear ()
@@ -77,7 +77,7 @@ Namespace::findItem (const sl::StringRef& name)
 
 	it->m_value = NULL; // many lazy std-types are parsed, so remove it from namespace
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
-	
+
 	item = lazyItem->getActualItem ();
 	if (!item)
 		return NULL;
@@ -260,7 +260,7 @@ Namespace::generateMemberDocumentation (
 {
 	bool result;
 
-	static char compoundFileHdr [] = 
+	static char compoundFileHdr [] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygen>\n";
 
@@ -286,21 +286,21 @@ Namespace::generateMemberDocumentation (
 		Namespace* itemNamespace = item->getNamespace ();
 		if (itemNamespace == this)
 			continue;
-		
+
 		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
 		if (!result)
 			return false;
 
 		if (memberXml.isEmpty ())
 			continue;
-		
+
 		DoxyBlock* doxyBlock = item->getDoxyBlock ();
 		DoxyGroup* doxyGroup = doxyBlock->getGroup ();
 		if (doxyGroup)
 			doxyGroup->addItem (item);
 
 		ModuleItemKind itemKind = item->getItemKind ();
-		bool isCompoundFile = 
+		bool isCompoundFile =
 			itemKind == ModuleItemKind_Namespace ||
 			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
 
@@ -313,9 +313,9 @@ Namespace::generateMemberDocumentation (
 		{
 			sl::String refId = doxyBlock->getRefId ();
 			sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
-			
+
 			io::File compoundFile;
-			result = 
+			result =
 				compoundFile.open (fileName, io::FileFlag_Clear) &&
 				compoundFile.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
 				compoundFile.write (memberXml, memberXml.getLength ()) != -1 &&
@@ -340,7 +340,7 @@ Namespace::generateMemberDocumentation (
 		sectionDef.append (footnote->getDescriptionString ());
 		sectionDef.append ("</memberdef>\n");
 	}
-	
+
 	if (!sectionDef.isEmpty ())
 		if (!useSectionDef)
 		{
@@ -356,13 +356,13 @@ Namespace::generateMemberDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 sl::String
 GlobalNamespace::createDoxyRefId ()
 {
 	sl::String refId;
-	
+
 	if (this == m_module->m_namespaceMgr.getGlobalNamespace ())
 	{
 		refId = "global_namespace";
@@ -372,7 +372,7 @@ GlobalNamespace::createDoxyRefId ()
 		refId.format ("namespace_%s", m_qualifiedName.sz ());
 		refId.makeLowerCase ();
 	}
-	
+
 	return m_module->m_doxyMgr.adjustRefId (refId);
 }
 
@@ -398,18 +398,18 @@ GlobalNamespace::generateDocumentation (
 	}
 
 	indexXml->appendFormat (
-		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n", 
+		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (), 
-		name		
+		getDoxyBlock ()->getRefId ().sz (),
+		name
 		);
 
 	itemXml->format (
 		"<compounddef kind='%s' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n", 
+		"<compoundname>%s</compoundname>\n",
 		kind,
 		getDoxyBlock ()->getRefId ().sz (),
-		name		
+		name
 		);
 
 	sl::String memberXml;
@@ -422,7 +422,7 @@ GlobalNamespace::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 
 } // namespace ct

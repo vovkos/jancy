@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 DoxyMgr::DoxyMgr ()
 {
@@ -36,14 +36,14 @@ DoxyMgr::getGroup (const sl::StringRef& name)
 
 	DoxyGroup* group = AXL_MEM_NEW (DoxyGroup);
 	group->m_name = name;
-	group->m_refId = adjustRefId (refId);		
+	group->m_refId = adjustRefId (refId);
 
 	m_groupList.insertTail (group);
 	it->m_value = group;
 	return  group;
 }
 
-DoxyBlock* 
+DoxyBlock*
 DoxyMgr::createBlock ()
 {
 	DoxyBlock* block = AXL_MEM_NEW (DoxyBlock);
@@ -63,7 +63,7 @@ DoxyMgr::adjustRefId (const sl::StringRef& refId)
 
 	sl::String adjustedRefId;
 	adjustedRefId.format ("%s_%d", refId.sz (), it->m_value);
-	
+
 	it->m_value++;
 	return adjustedRefId;
 }
@@ -125,7 +125,7 @@ DoxyMgr::resolveBlockTargets ()
 
 		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)
 			target->m_block->m_group = item->m_doxyBlock->m_group;
-		
+
 		item->setDoxyBlock (target->m_block);
 
 		if (item->getItemKind () != ModuleItemKind_Property)
@@ -136,7 +136,7 @@ DoxyMgr::resolveBlockTargets ()
 		}
 	}
 
-	if (!result)		
+	if (!result)
 		err::setError ("documentation target(s) not found");
 
 	return result;
@@ -179,7 +179,7 @@ DoxyMgr::generateGroupDocumentation (
 {
 	bool result;
 
-	static char compoundFileHdr [] = 
+	static char compoundFileHdr [] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygen>\n";
 
@@ -198,7 +198,7 @@ DoxyMgr::generateGroupDocumentation (
 		sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
 
 		io::File compoundFile;
-		result = 
+		result =
 			compoundFile.open (fileName, io::FileFlag_Clear) &&
 			compoundFile.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
 			compoundFile.write (itemXml, itemXml.getLength ()) != -1 &&
@@ -211,7 +211,7 @@ DoxyMgr::generateGroupDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

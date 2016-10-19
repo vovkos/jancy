@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ControlFlowMgr::ControlFlowMgr ()
 {
@@ -14,7 +14,7 @@ ControlFlowMgr::ControlFlowMgr ()
 
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
-	m_returnBlock = NULL;	
+	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
@@ -32,7 +32,7 @@ ControlFlowMgr::clear ()
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
-	m_returnBlock = NULL;	
+	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
@@ -42,7 +42,7 @@ ControlFlowMgr::clear ()
 	m_prevSjljFrameValue.clear ();
 }
 
-void 
+void
 ControlFlowMgr::finalizeFunction ()
 {
 	if (m_sjljFrameArrayValue)
@@ -53,7 +53,7 @@ ControlFlowMgr::finalizeFunction ()
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
-	m_returnBlock = NULL;	
+	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
@@ -180,7 +180,7 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 		if (isFixedPoint && !pendingDeleteList.isEmpty ())
 		{
 			err::setFormatStringError (
-				"invalid control flow graph: %s is unreachable but has uses", 
+				"invalid control flow graph: %s is unreachable but has uses",
 				pendingDeleteList.getHead ()->m_llvmBlock->getName ().begin ()
 				);
 			return false;
@@ -225,12 +225,12 @@ ControlFlowMgr::getReturnBlock ()
 
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append (m_currentBlock);
-	
+
 	setCurrentBlock (prevBlock);
 	return m_returnBlock;
 }
 
-Variable* 
+Variable*
 ControlFlowMgr::getReturnValueVariable ()
 {
 	if (m_returnValueVariable)
@@ -240,7 +240,7 @@ ControlFlowMgr::getReturnValueVariable ()
 	Type* returnType = function->getType ()->getReturnType ();
 	ASSERT (returnType->getTypeKind () != TypeKind_Void);
 
-	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());	
+	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
 	m_returnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
 	setCurrentBlock (prevBlock);
 	return m_returnValueVariable;
@@ -346,7 +346,7 @@ ControlFlowMgr::escapeScope (
 	)
 {
 	size_t routeIdx = ++m_finallyRouteIdx;
-	
+
 	BasicBlock* firstFinallyBlock = NULL;
 	BasicBlock* prevFinallyBlock = NULL;
 
@@ -361,7 +361,7 @@ ControlFlowMgr::escapeScope (
 			{
 				firstFinallyBlock = scope->m_finallyBlock;
 			}
-			else 
+			else
 			{
 				ASSERT (prevFinallyBlock);
 				prevFinallyBlock->m_finallyRouteMap [routeIdx] = scope->m_finallyBlock;
@@ -376,11 +376,11 @@ ControlFlowMgr::escapeScope (
 	if (!targetBlock) // escape before normal return
 	{
 		ASSERT (!firstFinallyBlock); // if we have finally then we return via return-block
-		
+
 		scope = m_module->m_namespaceMgr.getCurrentScope ();
 		if (scope->m_sjljFrameIdx != -1)
 			setSjljFrame (-1);
-		
+
 		return;
 	}
 
@@ -405,7 +405,7 @@ ControlFlowMgr::escapeScope (
 	Variable* routeIdxVariable = getFinallyRouteIdxVariable ();
 	Value routeIdxValue (routeIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
 	m_module->m_llvmIrBuilder.createStore (routeIdxValue, routeIdxVariable);
-	
+
 	jump (firstFinallyBlock, followBlock);
 }
 
@@ -426,7 +426,7 @@ ControlFlowMgr::ret (const Value& value)
 		{
 			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
-				function->m_tag.sz (), 
+				function->m_tag.sz (),
 				returnType->getTypeString ().sz ()
 				);
 			return false;
@@ -504,7 +504,7 @@ ControlFlowMgr::checkReturn ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

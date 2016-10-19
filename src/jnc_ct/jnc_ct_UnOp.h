@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 enum OpFlag
 {
@@ -23,15 +23,15 @@ enum OpFlag
 	OpFlag_KeepEnum         = 0x40,
 	OpFlag_ArrayRefToPtr    = 0x80,
 	OpFlag_LoadArrayRef     = 0x100,
-	
-	OpFlag_KeepRef          = 
-		OpFlag_KeepDataRef | 
-		OpFlag_KeepClassRef | 
-		OpFlag_KeepFunctionRef | 
+
+	OpFlag_KeepRef          =
+		OpFlag_KeepDataRef |
+		OpFlag_KeepClassRef |
+		OpFlag_KeepFunctionRef |
 		OpFlag_KeepPropertyRef,
 };
 
-//.............................................................................
+//..............................................................................
 
 class UnaryOperator
 {
@@ -51,13 +51,13 @@ public:
 		return m_module;
 	}
 
-	UnOpKind 
+	UnOpKind
 	getOpKind ()
 	{
 		return m_opKind;
 	}
 
-	int 
+	int
 	getOpFlags ()
 	{
 		return m_opFlags;
@@ -97,7 +97,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

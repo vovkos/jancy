@@ -3,7 +3,7 @@
 #include "moc_MainWindow.cpp"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 static MainWindow* g_mainWindow = NULL;
 
@@ -12,12 +12,12 @@ MainWindow* getMainWindow ()
 	return g_mainWindow;
 }
 
-//.............................................................................
+//..............................................................................
 
 MainWindow::MainWindow (
-	QWidget *parent, 
+	QWidget *parent,
 	Qt::WindowFlags flags
-	): 
+	):
 	QMainWindow (parent, flags)
 {
 	Q_ASSERT (!g_mainWindow);
@@ -62,12 +62,12 @@ bool MainWindow::runScript (const QString& fileName)
 	QByteArray fileName_utf8 = fileName.toUtf8 ();
 
 	output ("Parsing...\n");
-	
+
 	m_module->initialize (fileName_utf8.constBegin ());
 	m_module->addStaticLib (jnc::StdLib_getLib ());
 	m_module->addStaticLib (MyLib_getLib ());
 
-	bool result = 
+	bool result =
 		m_module->parseFile (fileName_utf8.constBegin ()) &&
 		m_module->parseImports ();
 
@@ -144,4 +144,4 @@ void MainWindow::closeEvent (QCloseEvent* e)
 	m_runtime->shutdown ();
 }
 
-//.............................................................................
+//..............................................................................

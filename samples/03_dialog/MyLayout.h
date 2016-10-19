@@ -4,17 +4,17 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (MyLayout)
 
-//.............................................................................
+//..............................................................................
 
 class MyLayout: public jnc::IfaceHdr
 {
-public: 
+public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (MyLayout)
 
 	QBoxLayout::Direction m_direction;
-	
+
 public:
-	QBoxLayout* m_qtLayout;	
+	QBoxLayout* m_qtLayout;
 
 protected:
 	QList <MyWidget*> m_childWidgetList;
@@ -22,13 +22,13 @@ protected:
 
 public:
 	MyLayout (QBoxLayout::Direction direction);
-	
+
 	~MyLayout ()
 	{
 		delete m_qtLayout;
 	}
 
-	void 
+	void
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	void
@@ -44,4 +44,4 @@ public:
 	addSpacer ();
 };
 
-//.............................................................................
+//..............................................................................

@@ -11,18 +11,18 @@ namespace ct {
 
 class UnionType;
 
-//.............................................................................
+//..............................................................................
 
 // union cannot be a child, but it can be a parent
 
-class UnionType: public DerivableType 
+class UnionType: public DerivableType
 {
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
 	StructType* m_structType;
-	
+
 public:
 	UnionType ();
 
@@ -37,7 +37,7 @@ public:
 	bool
 	compile ();
 
-	virtual 
+	virtual
 	void
 	markGcRoots (
 		const void* p,
@@ -59,14 +59,14 @@ protected:
 		sl::BoxList <Token>* initializer = NULL
 		);
 
-	virtual 
+	virtual
 	void
 	prepareLlvmType ()
 	{
 		m_llvmType = getStructType ()->getLlvmType ();
 	}
-	
-	virtual 
+
+	virtual
 	void
 	prepareLlvmDiType ();
 
@@ -75,7 +75,7 @@ protected:
 	calcLayout ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -1,13 +1,13 @@
-// Jancy features the most natural syntax imaginable for declaring properties 
+// Jancy features the most natural syntax imaginable for declaring properties
 // with no overloaded setters.
 
-//.............................................................................
+//..............................................................................
 
 // we dare you to come up with a better syntax! ;)
 
 int property g_simpleProp;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // accessors implementation
 
@@ -22,14 +22,14 @@ g_simpleProp.set (int x)
 	printf ("g_simpleProp.set (%d)\n", x);
 }
 
-//.............................................................................
+//..............................................................................
 
 // read-only properties are called 'const-properties' in Jancy. This is because
 // 'readonly' has a special meaning (see dual modifiers for more).
 
 int const property g_simpleReadOnlyProp;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int g_simpleReadOnlyProp.get ()
 {
@@ -37,7 +37,7 @@ int g_simpleReadOnlyProp.get ()
 	return rand () % 3;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -58,4 +58,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

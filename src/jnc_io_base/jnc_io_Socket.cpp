@@ -10,26 +10,26 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	SocketEventParams,
-	"io.SocketEventParams", 
-	g_ioLibGuid, 
+	"io.SocketEventParams",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SocketEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Socket, 
-	"io.Socket", 
-	g_ioLibGuid, 
+	Socket,
+	"io.Socket",
+	g_ioLibGuid,
 	IoLibCacheSlot_Socket,
-	Socket, 
+	Socket,
 	NULL
 	)
 
@@ -55,7 +55,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Socket)
 	JNC_MAP_FUNCTION ("firePendingEvents", &Socket::firePendingEvents)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 Socket::Socket ()
 {
@@ -166,12 +166,12 @@ Socket::setNagleEnabled (bool isEnabled)
 }
 
 bool
-JNC_CDECL 
+JNC_CDECL
 Socket::isRawHdrIncluded ()
 {
 	int value = 0;
-	
-	bool result = m_family == AF_INET6 ? 
+
+	bool result = m_family == AF_INET6 ?
 		m_socket.getOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
 		m_socket.getOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
 
@@ -179,12 +179,12 @@ Socket::isRawHdrIncluded ()
 }
 
 bool
-JNC_CDECL 
+JNC_CDECL
 Socket::setRawHdrIncluded (bool isIncluded)
 {
 	int value = isIncluded;
 
-	bool result = m_family == AF_INET6 ? 
+	bool result = m_family == AF_INET6 ?
 		m_socket.setOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
 		m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
 
@@ -231,7 +231,7 @@ Socket::openImpl (
 	close ();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
-	int socketKind = 
+	int socketKind =
 		(flags & SocketOpenFlag_Raw) ? SOCK_RAW :
 		protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM;
 
@@ -282,7 +282,7 @@ Socket::openImpl (
 			propagateLastError ();
 			return false;
 		}
-	
+
 #if (_JNC_OS_WIN)
 		m_ioThreadEvent.reset ();
 #elif (_JNC_OS_POSIX)
@@ -409,7 +409,7 @@ Socket::accept (DataPtr addressPtr)
 	{
 		propagateLastError ();
 
-		AXL_MEM_DELETE (connectionSocket);		
+		AXL_MEM_DELETE (connectionSocket);
 		return NULL;
 	}
 
@@ -966,7 +966,7 @@ Socket::sendRecvLoop ()
 
 #endif
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

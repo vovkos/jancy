@@ -9,9 +9,9 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-class Attribute: 
+class Attribute:
 	public ModuleItem,
 	public ModuleItemDecl,
 	public ModuleItemInitializer
@@ -22,7 +22,7 @@ protected:
 	Value m_value;
 
 public:
-	Value 
+	Value
 	getValue ()
 	{
 		return m_value;
@@ -34,9 +34,9 @@ protected:
 	calcLayout ();
 };
 
-//.............................................................................
+//..............................................................................
 
-class AttributeBlock: 
+class AttributeBlock:
 	public ModuleItem,
 	public ModuleItemDecl
 {
@@ -47,7 +47,7 @@ protected:
 
 	sl::StdList <Attribute> m_attributeList;
 	sl::Array <Attribute*> m_attributeArray;
-	sl::StringHashTableMap <Attribute*> m_attributeMap; 
+	sl::StringHashTableMap <Attribute*> m_attributeMap;
 
 public:
 	AttributeBlock ()
@@ -61,7 +61,7 @@ public:
 		return m_parentItem;
 	}
 
-	sl::Array <Attribute*> 
+	sl::Array <Attribute*>
 	getAttributeArray ()
 	{
 		return m_attributeArray;
@@ -70,7 +70,7 @@ public:
 	Attribute*
 	findAttribute (const sl::StringRef& name)
 	{
-		sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.find (name); 
+		sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.find (name);
 		return it ? it->m_value : NULL;
 	}
 
@@ -81,7 +81,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

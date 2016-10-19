@@ -1,7 +1,7 @@
-// Another useful kind of literal in Jancy is the formatting literal. It allows 
+// Another useful kind of literal in Jancy is the formatting literal. It allows
 // using perl-style-formatting from a C-style language.
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -13,7 +13,7 @@ int main ()
 		uint_t m_value;
 	};
 
-	static Color colorTable [] = 
+	static Color colorTable [] =
 	{
 		{ "black",   0x000000 },
 		{ "red",     0x800000 },
@@ -44,7 +44,7 @@ int main ()
 
 	printf ($"color value  = #$(colorTable [i].m_value; 06x)\n");
 
-	// it's also OK to specify some of injected values (or all of them) in the 
+	// it's also OK to specify some of injected values (or all of them) in the
 	// argument list of the formatting literal and reference them by index
 
 	printf (
@@ -54,12 +54,12 @@ int main ()
 			(colorTable [i].m_value & 0x0000ff)
 			)
 		);
-	
+
 	// last but not least, it's OK to concatenate all kinds of literals
 
 	printf (
 		"stats\n"
-		0x"e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 0d" 
+		0x"e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 0d"
 		$"size  = $(sizeof (colorTable))\n"
 		$"count = $(countof (colorTable))\n"
 		);
@@ -67,4 +67,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

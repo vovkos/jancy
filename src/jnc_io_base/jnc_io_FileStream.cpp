@@ -6,26 +6,26 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	FileStreamEventParams,
-	"io.FileStreamEventParams", 
-	g_ioLibGuid, 
+	"io.FileStreamEventParams",
+	g_ioLibGuid,
 	IoLibCacheSlot_FileStreamEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (FileStreamEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	FileStream, 
-	"io.FileStream", 
-	g_ioLibGuid, 
+	FileStream,
+	"io.FileStream",
+	g_ioLibGuid,
 	IoLibCacheSlot_FileStream,
-	FileStream, 
+	FileStream,
 	NULL
 	)
 
@@ -40,7 +40,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
 	JNC_MAP_FUNCTION ("firePendingEvents", &FileStream::firePendingEvents)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 FileStream::FileStream ()
 {
@@ -127,7 +127,7 @@ FileStream::open (
 #elif (_JNC_OS_POSIX)
 		m_selfPipe.create ();
 #endif
-	
+
 		m_ioFlags = IoFlag_Opened;
 		m_ioThread.start ();
 	}
@@ -592,7 +592,7 @@ FileStream::ioThreadFunc ()
 }
 #endif
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

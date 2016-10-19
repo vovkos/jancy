@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class McSnapshotClassType: public ClassType
 {
@@ -24,26 +24,26 @@ protected:
 public:
 	McSnapshotClassType ();
 
-	FunctionPtrType* 
+	FunctionPtrType*
 	getTargetType ()
 	{
 		return m_targetType;
 	}
 
-	FunctionType* 
+	FunctionType*
 	getFunctionType ()
 	{
 		return m_targetType->getTargetType ();
 	}
 
-	StructField* 
+	StructField*
 	getField (McSnapshotFieldKind field)
 	{
 		ASSERT (field < McSnapshotFieldKind__Count);
 		return m_fieldArray [field];
 	}
 
-	Function* 
+	Function*
 	getMethod (McSnapshotMethodKind method)
 	{
 		ASSERT (method < McSnapshotMethodKind__Count);
@@ -54,21 +54,21 @@ public:
 	bool
 	compile ()
 	{
-		return 
+		return
 			ClassType::compile () &&
 			compileCallMethod ();
 	}
 
 protected:
-	virtual 
+	virtual
 	void
 	prepareTypeString ();
 
-	virtual 
+	virtual
 	void
 	prepareDoxyLinkedText ();
 
-	virtual 
+	virtual
 	void
 	prepareDoxyTypeString ();
 
@@ -76,7 +76,7 @@ protected:
 	compileCallMethod ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

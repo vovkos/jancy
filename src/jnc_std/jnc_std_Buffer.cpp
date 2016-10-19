@@ -6,24 +6,24 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
-	ConstBufferRef, 
-	"std.ConstBufferRef", 
-	g_stdLibGuid, 
+	ConstBufferRef,
+	"std.ConstBufferRef",
+	g_stdLibGuid,
 	StdLibCacheSlot_ConstBufferRef
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBufferRef)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
-	ConstBuffer, 
-	"std.ConstBuffer", 
-	g_stdLibGuid, 
+	ConstBuffer,
+	"std.ConstBuffer",
+	g_stdLibGuid,
 	StdLibCacheSlot_ConstBuffer
 	)
 
@@ -32,24 +32,24 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBuffer)
 	JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
-	BufferRef, 
-	"std.BufferRef", 
-	g_stdLibGuid, 
+	BufferRef,
+	"std.BufferRef",
+	g_stdLibGuid,
 	StdLibCacheSlot_BufferRef
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (BufferRef)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
-	Buffer, 
-	"std.Buffer", 
-	g_stdLibGuid, 
+	Buffer,
+	"std.Buffer",
+	g_stdLibGuid,
 	StdLibCacheSlot_Buffer
 	)
 
@@ -58,7 +58,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Buffer)
 	JNC_MAP_FUNCTION ("append", &Buffer::append)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 bool
 ConstBuffer::copy (ConstBufferRef ref)
@@ -95,7 +95,7 @@ ConstBuffer::copy (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 JNC_CDECL
@@ -159,7 +159,7 @@ Buffer::setSize (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

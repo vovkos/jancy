@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 declarator_list <TypeSpecifier* $typeSpecifier>
 	:	full_declarator <$typeSpecifier> (',' full_declarator <$typeSpecifier>)*
@@ -21,7 +21,7 @@ full_declarator <TypeSpecifier* $typeSpecifier>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -37,7 +37,7 @@ declarator <TypeSpecifier* $typeSpecifier>
 		declarator_suffix <&$.m_declarator>*
 	;
 
-//.............................................................................
+//..............................................................................
 
 declarator_name <Declarator* $declarator>
 	:	declarator_qualifier <$declarator>
@@ -108,7 +108,7 @@ declarator_operator_qualifier <Declarator* $declarator>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -287,7 +287,7 @@ operator_name
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 // prefix & suffix
 
@@ -304,7 +304,7 @@ declarator_prefix <Declarator* $declarator>
 		)*
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 noast
 declarator_suffix <Declarator* $declarator>
@@ -315,7 +315,7 @@ declarator_suffix <Declarator* $declarator>
 		bitfield_suffix <$declarator>
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 array_suffix <Declarator* $declarator>
 	:	'[' ']'
@@ -328,7 +328,7 @@ array_suffix <Declarator* $declarator>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 function_suffix_rslv
 	:	'(' ')'
@@ -395,8 +395,8 @@ function_modifier <DeclFunctionSuffix* $functionSuffix>
 				return $functionSuffix->getDeclarator ()->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
 			}
 	;
-	
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitfield_suffix <Declarator* $declarator>
 	:	':' TokenKind_Integer
@@ -405,4 +405,4 @@ bitfield_suffix <Declarator* $declarator>
 			}
 	;
 
-//.............................................................................
+//..............................................................................

@@ -6,7 +6,7 @@ namespace io {
 JNC_DECLARE_TYPE (FileStreamEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (FileStream)
 
-//.............................................................................
+//..............................................................................
 
 enum FileStreamKind
 {
@@ -16,7 +16,7 @@ enum FileStreamKind
 	FileStreamKind_Pipe,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum FileStreamEventCode
 {
@@ -26,7 +26,7 @@ enum FileStreamEventCode
 	FileStreamEventCode_TransmitBufferReady,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct FileStreamEventParams
 {
@@ -37,7 +37,7 @@ struct FileStreamEventParams
 	DataPtr m_errorPtr;
 };
 
-//.............................................................................
+//..............................................................................
 
 class FileStream: public IfaceHdr
 {
@@ -173,7 +173,7 @@ protected:
 #endif
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

@@ -11,7 +11,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class ClosureClassType: public ClassType
 {
@@ -45,11 +45,11 @@ public:
 		size_t thisArgIdx
 		);
 
-	virtual 
+	virtual
 	bool
 	compile () = 0;
 
-	IfaceHdr* 
+	IfaceHdr*
 	strengthen (IfaceHdr* p);
 
 protected:
@@ -62,7 +62,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class FunctionClosureClassType: public ClosureClassType
 {
@@ -80,12 +80,12 @@ public:
 		return m_thunkFunction;
 	}
 
-	virtual 
+	virtual
 	bool
 	compile ();
 };
 
-//.............................................................................
+//..............................................................................
 
 class PropertyClosureClassType: public ClosureClassType
 {
@@ -103,7 +103,7 @@ public:
 		return m_thunkProperty;
 	}
 
-	virtual 
+	virtual
 	bool
 	compile ();
 
@@ -112,7 +112,7 @@ protected:
 	compileAccessor (Function* accessor);
 };
 
-//.............................................................................
+//..............................................................................
 
 class DataClosureClassType: public ClassType
 {
@@ -137,7 +137,7 @@ public:
 		PropertyType* thunkType
 		);
 
-	virtual 
+	virtual
 	bool
 	compile ();
 
@@ -149,7 +149,7 @@ protected:
 	compileSetter (Function* setter);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 UnOp_Addr::getResultType (const Value& opValue)
@@ -17,7 +17,7 @@ UnOp_Addr::getResultType (const Value& opValue)
 	case TypeKind_DataRef:
 		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
 			((DataPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_DataPtr, 
+			TypeKind_DataPtr,
 			((DataPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -25,14 +25,14 @@ UnOp_Addr::getResultType (const Value& opValue)
 	case TypeKind_ClassRef:
 		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
 			((ClassPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_ClassPtr, 
+			TypeKind_ClassPtr,
 			((ClassPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
 
 	case TypeKind_FunctionRef:
 		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
-			TypeKind_FunctionPtr, 
+			TypeKind_FunctionPtr,
 			((FunctionPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -40,7 +40,7 @@ UnOp_Addr::getResultType (const Value& opValue)
 	case TypeKind_PropertyRef:
 		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
 			((PropertyPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_PropertyPtr, 
+			TypeKind_PropertyPtr,
 			((PropertyPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -60,12 +60,12 @@ UnOp_Addr::op (
 	Type* resultType = getResultType (opValue);
 	if (!resultType)
 		return false;
-	
+
 	resultValue->overrideType (opValue, resultType);
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Type*
 UnOp_Indir::getResultType (const Value& opValue)
@@ -77,7 +77,7 @@ UnOp_Indir::getResultType (const Value& opValue)
 	case TypeKind_DataPtr:
 		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
 			((DataPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_DataRef, 
+			TypeKind_DataRef,
 			((DataPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -85,14 +85,14 @@ UnOp_Indir::getResultType (const Value& opValue)
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
 			((ClassPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_ClassRef, 
+			TypeKind_ClassRef,
 			((ClassPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
 
 	case TypeKind_FunctionPtr:
 		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
-			TypeKind_FunctionRef, 
+			TypeKind_FunctionRef,
 			((FunctionPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -100,7 +100,7 @@ UnOp_Indir::getResultType (const Value& opValue)
 	case TypeKind_PropertyPtr:
 		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
 			((PropertyPtrType*) opType)->getAnchorNamespace (),
-			TypeKind_PropertyRef, 
+			TypeKind_PropertyRef,
 			((PropertyPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
 			);
@@ -120,12 +120,12 @@ UnOp_Indir::op (
 	Type* resultType = getResultType (opValue);
 	if (!resultType)
 		return false;
-	
+
 	resultValue->overrideType (opValue, resultType);
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

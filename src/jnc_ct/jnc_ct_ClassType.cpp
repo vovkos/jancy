@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ClassType::ClassType ()
 {
@@ -264,7 +264,7 @@ ClassType::calcLayout ()
 
 	// layout base types
 
-	if (m_baseTypeList.isEmpty () || 
+	if (m_baseTypeList.isEmpty () ||
 		m_baseTypeList.getHead ()->getType ()->getTypeKind () != TypeKind_Class)
 	{
 		m_ifaceStructType->addBaseType (m_ifaceHdrStructType);
@@ -519,9 +519,9 @@ ClassType::overrideVirtualFunction (Function* function)
 	ModuleItem* member = findItemTraverse (
 		function->m_declaratorName,
 		&coord,
-		TraverseKind_NoExtensionNamespaces | 
-		TraverseKind_NoParentNamespace | 
-		TraverseKind_NoUsingNamespaces | 
+		TraverseKind_NoExtensionNamespaces |
+		TraverseKind_NoParentNamespace |
+		TraverseKind_NoUsingNamespaces |
 		TraverseKind_NoThis
 		);
 
@@ -731,7 +731,7 @@ ClassType::markGcRootsImpl (
 		StructField* field = m_gcRootMemberFieldArray [i];
 		Type* type = field->getType ();
 		char* p2 = p + field->getOffset ();
-		
+
 		type->markGcRoots (p2, gcHeap);
 	}
 
@@ -742,7 +742,7 @@ ClassType::markGcRootsImpl (
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -8,11 +8,11 @@
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
-//.............................................................................
+//..............................................................................
 
 MainWindow* g_mainWindow = NULL;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
@@ -61,8 +61,8 @@ void MainWindow::openFile(QString filePath)
 	if (filePath.isEmpty())
 	{
 		filePath = QFileDialog::getOpenFileName(
-			this, 
-			"Open File", 
+			this,
+			"Open File",
 			m_lastDir,
 			"Jancy Files (*.jnc);;All Files (*.*)"
 			);
@@ -74,19 +74,19 @@ void MainWindow::openFile(QString filePath)
 	m_lastDir = QFileInfo (filePath).dir ().absolutePath ();
 
 	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
-	if (subWindow) 
+	if (subWindow)
 	{
 		m_mdiArea->setActiveSubWindow(subWindow);
-	} 
-	else 
+	}
+	else
 	{
 		MdiChild* child = createMdiChild();
-		if (child->loadFile(filePath)) 
+		if (child->loadFile(filePath))
 		{
 			writeStatus("File loaded", 2000);
 			child->showMaximized();
-		} 
-		else 
+		}
+		else
 		{
 			child->close();
 		}
@@ -316,7 +316,7 @@ void MainWindow::clearOutput()
 	m_output->clear();
 }
 
-//.............................................................................
+//..............................................................................
 
 bool MainWindow::compile ()
 {
@@ -422,7 +422,7 @@ MainWindow::run ()
 	}
 
 	writeOutput ("Running...\n");
-		
+
 //	m_runtime->m_gcHeap.setSizeTriggers (-1, -1);
 	result = m_runtime->startup (m_module);
 	if (!result)
@@ -437,7 +437,7 @@ MainWindow::run ()
 		writeOutput ("'main' returned %d.\n", returnValue);
 	else
 		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
-	
+
 	writeOutput ("Shutting down...\n");
 	m_runtime->shutdown ();
 	writeOutput ("Done.\n");
@@ -479,4 +479,4 @@ QMdiSubWindow* MainWindow::findMdiSubWindow (const QString& filePath)
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

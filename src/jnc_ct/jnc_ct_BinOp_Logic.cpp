@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 BinOp_LogAnd::getResultType (
@@ -16,7 +16,7 @@ BinOp_LogAnd::getResultType (
 	return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 }
 
-//.............................................................................
+//..............................................................................
 
 Type*
 BinOp_LogOr::getResultType (
@@ -27,7 +27,7 @@ BinOp_LogOr::getResultType (
 	return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

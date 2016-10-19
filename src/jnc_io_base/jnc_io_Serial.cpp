@@ -6,27 +6,27 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	SerialEventParams,
-	"io.SerialEventParams", 
-	g_ioLibGuid, 
+	"io.SerialEventParams",
+	g_ioLibGuid,
 	IoLibCacheSlot_SerialEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SerialEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Serial,
-	"io.Serial", 
-	g_ioLibGuid, 
+	"io.Serial",
+	g_ioLibGuid,
 	IoLibCacheSlot_Serial,
-	Serial, 
-	NULL	
+	Serial,
+	NULL
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
@@ -46,19 +46,19 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_FUNCTION ("write", &Serial::write)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	SerialPortDesc,
-	"io.SerialPortDesc", 
-	g_ioLibGuid, 
+	"io.SerialPortDesc",
+	g_ioLibGuid,
 	IoLibCacheSlot_SerialPortDesc
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SerialPortDesc)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 Serial::Serial ()
 {
@@ -472,9 +472,9 @@ Serial::ioThreadFunc ()
 				return;
 			}
 
-			if (incomingDataSize == 0) 
+			if (incomingDataSize == 0)
 			{
-				// shouldn't actually be here -- if USB serial is disconnected, 
+				// shouldn't actually be here -- if USB serial is disconnected,
 				// Fd::getIncomingDataSize should fail with some kind of IO error
 
 				err::Error error (ENXIO);
@@ -493,7 +493,7 @@ Serial::ioThreadFunc ()
 }
 #endif
 
-//.............................................................................
+//..............................................................................
 
 DataPtr
 createSerialPortDesc (
@@ -529,7 +529,7 @@ createSerialPortDescList (DataPtr countPtr)
 	sl::Iterator <axl::io::SerialPortDesc> it = portList.getHead ();
 
 	DataPtr portPtr = createSerialPortDesc (runtime, *it);
-	
+
 	DataPtr resultPtr = portPtr;
 	size_t count = 1;
 
@@ -548,7 +548,7 @@ createSerialPortDescList (DataPtr countPtr)
 	return resultPtr;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

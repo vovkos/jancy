@@ -2,14 +2,14 @@
 #include "MyLayout.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	MyLayout, 
-	"Layout", 
-	g_myLibGuid, 
+	MyLayout,
+	"Layout",
+	g_myLibGuid,
 	MyLibCacheSlot_Layout,
-	MyLayout, 
+	MyLayout,
 	&MyLayout::markOpaqueGcRoots
 	)
 
@@ -21,7 +21,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MyLayout)
 	JNC_MAP_FUNCTION ("addSpacer", &MyLayout::addSpacer)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MyLayout::MyLayout (QBoxLayout::Direction direction)
 {
@@ -29,7 +29,7 @@ MyLayout::MyLayout (QBoxLayout::Direction direction)
 	m_direction = direction;
 }
 
-void 
+void
 MyLayout::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	int count = m_childWidgetList.count ();
@@ -87,4 +87,4 @@ MyLayout::addSpacer ()
 	m_qtLayout->addSpacerItem (item);
 }
 
-//.............................................................................
+//..............................................................................

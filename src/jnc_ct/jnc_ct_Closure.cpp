@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Value
 Closure::getThisArgValue ()
@@ -23,10 +23,10 @@ Closure::getThisArgValue ()
 	return *m_thisArgValue;
 }
 
-void 
+void
 Closure::setThisArgIdx (size_t thisArgIdx)
 {
-	ASSERT (m_thisArgIdx == -1 && !m_thisArgValue); // only once	
+	ASSERT (m_thisArgIdx == -1 && !m_thisArgValue); // only once
 	ASSERT (thisArgIdx < m_argValueList.getCount ());
 
 	m_thisArgIdx = thisArgIdx;
@@ -261,7 +261,7 @@ Closure::getPropertyClosureType (PropertyPtrType* ptrType)
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

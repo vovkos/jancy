@@ -1,13 +1,13 @@
-// Jancy provides 'static' and 'threadlocal' data storage for member fields 
+// Jancy provides 'static' and 'threadlocal' data storage for member fields
 // and global/local variables.
 
-//.............................................................................
+//..............................................................................
 
 class C1
 {
 	// for member fields the default storage is parent memory block
 
-	int m_memberField; 
+	int m_memberField;
 	static int m_staticField = 2;
 	threadlocal int m_threadField;
 
@@ -28,21 +28,21 @@ class C1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 class C2
 {
-	// Jancy allows to allocate multiple class objects at once and on the same 
+	// Jancy allows to allocate multiple class objects at once and on the same
 	// memory block (like in C++)
 
-	C1 m_classField; 	                 
+	C1 m_classField;
 
 	construct (int x)
 	{
-		// if a member field requires construction this must be done in the 
+		// if a member field requires construction this must be done in the
 		// beginning of the constructor (much like with base type constructors)
 
-		m_classField.construct (x); 
+		m_classField.construct (x);
 
 		printf ("C2.construct (%d)\n", x);
 	}
@@ -53,27 +53,27 @@ class C2
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // for global variables the default storage is 'static'
 
-int g_staticGlobal; 
+int g_staticGlobal;
 threadlocal int g_threadGlobal;
 
 // global thread-local variables cannot be initialized or be aggregate
 
 // threadlocal int g_threadGlobal2 = 1; // <-- error
-// threadlocal int g_threadGlobal3 [8]; // <-- error                                
+// threadlocal int g_threadGlobal3 [8]; // <-- error
 
-// When declaring a global class variable and initializing it with a 
+// When declaring a global class variable and initializing it with a
 // constructor call the 'construct' keyword must be used. This is because Jancy
-// does not enforce declare-before-use paradigm at the global scope and, 
-// therefore, cannot resolve constructor call vs. function declaration grammar 
+// does not enforce declare-before-use paradigm at the global scope and,
+// therefore, cannot resolve constructor call vs. function declaration grammar
 // conflict in the most general case (i.e. 'A B (C)').
 
 C1 g_classGlobal construct (10);
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -83,27 +83,27 @@ int main ()
 
 	// for local non-class variables the default storage is 'stack'
 
-	int x; 
+	int x;
 	static int s = 100;
 
 	// local thread-local variables can be initialized...
 
-	threadlocal int t = 200; 
+	threadlocal int t = 200;
 
 	// ...but still cannot be aggregate
 
 	// threadlocal C2 c3 (3000); // <-- error
-	
+
 	// for local class variables the default storage is 'heap'
 
-	C2 c1 (1000); 
+	C2 c1 (1000);
 	static C2 c2 (2000);
 
 	// new operator uses 'heap' storage (allocates on gc-heap)
 
-	C2* c4 = new C2 (4000); 
+	C2* c4 = new C2 (4000);
 
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

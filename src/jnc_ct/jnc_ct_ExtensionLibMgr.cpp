@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ExtensionLibMgr::ExtensionLibMgr ()
 {
@@ -17,7 +17,7 @@ ExtensionLibMgr::ExtensionLibMgr ()
 void
 ExtensionLibMgr::clear ()
 {
-	m_libArray.clear ();	
+	m_libArray.clear ();
 
 	while (!m_dynamicLibList.isEmpty ())
 	{
@@ -38,7 +38,7 @@ void
 ExtensionLibMgr::addStaticLib (ExtensionLib* lib)
 {
 	m_libArray.append (lib);
-	
+
 	lib->m_addSourcesFunc (m_module);
 	lib->m_addOpaqueClassTypeInfosFunc (m_module);
 }
@@ -52,7 +52,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	bool result;
 
 	DynamicLibEntry* entry = AXL_MEM_NEW (DynamicLibEntry);
-	m_dynamicLibList.insertTail (entry);	
+	m_dynamicLibList.insertTail (entry);
 	result = entry->m_zipReader.openFile (fileName);
 	if (!result)
 		return false;
@@ -61,7 +61,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	sl::String dynamicLibFileName;
 
 	sl::Iterator <SourceFile> sourceFileIt = m_sourceFileList.getTail (); // save source file iterator
-	
+
 	size_t count = entry->m_zipReader.getFileCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -92,7 +92,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 
 	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.sz (), sys::getTimestamp (), dynamicLibFileName.sz ());
 
-	result = 
+	result =
 		entry->m_zipReader.extractFileToFile (dynamicLibFileIdx, entry->m_dynamicLibFilePath);
 		entry->m_dynamicLib.open (entry->m_dynamicLibFilePath);
 
@@ -197,7 +197,7 @@ ExtensionLibMgr::findItem (
 
 	item = m_module->m_namespaceMgr.getGlobalNamespace ()->getItemByName (name);
 	entry->m_itemArray [cacheSlot] = item;
-	return item;	
+	return item;
 }
 
 void
@@ -217,7 +217,7 @@ ExtensionLibMgr::addSource (
 	m_sourceFileMap [fileName] = file;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

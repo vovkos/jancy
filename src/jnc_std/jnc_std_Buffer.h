@@ -10,7 +10,7 @@ JNC_DECLARE_TYPE (ConstBuffer)
 JNC_DECLARE_TYPE (BufferRef)
 JNC_DECLARE_TYPE (Buffer)
 
-//.............................................................................
+//..............................................................................
 
 struct ConstBufferRef
 {
@@ -19,24 +19,24 @@ struct ConstBufferRef
 	bool m_isFinal;
 };
 
-//.............................................................................
+//..............................................................................
 
 struct ConstBuffer
 {
 	DataPtr m_ptr;
 	size_t m_size;
 
-	bool 
+	bool
 	copy (ConstBufferRef ref);
 
-	bool 
+	bool
 	copy (
 		DataPtr ptr,
 		size_t size
 		);
 
 	static
-	bool 
+	bool
 	copy_s1 (
 		DataPtr selfPtr,
 		ConstBufferRef ref
@@ -46,7 +46,7 @@ struct ConstBuffer
 	}
 
 	static
-	bool 
+	bool
 	copy_s2 (
 		DataPtr selfPtr,
 		DataPtr ptr,
@@ -57,7 +57,7 @@ struct ConstBuffer
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 struct BufferRef
 {
@@ -65,7 +65,7 @@ struct BufferRef
 	size_t m_size;
 };
 
-//.............................................................................
+//..............................................................................
 
 class Buffer: public IfaceHdr
 {
@@ -75,14 +75,14 @@ public:
 	size_t m_maxSize;
 
 public:
-	bool 
+	bool
 	JNC_CDECL
 	copy (
 		DataPtr ptr,
 		size_t size
 		);
 
-	bool 
+	bool
 	JNC_CDECL
 	append (
 		DataPtr ptr,
@@ -97,7 +97,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

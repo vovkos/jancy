@@ -2,7 +2,7 @@
 #include "QtSignalBridge.h"
 #include "moc_QtSignalBridge.cpp"
 
-//.............................................................................
+//..............................................................................
 
 QtSignalBridge::QtSignalBridge (QObject* parent):
 	QObject (parent)
@@ -13,10 +13,10 @@ QtSignalBridge::QtSignalBridge (QObject* parent):
 	m_jncEvent = NULL;
 }
 
-void 
+void
 QtSignalBridge::onQtSignal ()
 {
 	jnc::callMulticast (m_runtime, m_jncEvent);
 }
 
-//.............................................................................
+//..............................................................................

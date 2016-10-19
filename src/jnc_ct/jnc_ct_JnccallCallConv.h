@@ -15,7 +15,7 @@ namespace ct {
 // currently i dont handle differences between jnccall and cdecl
 // so, for now jnccall = cdecl
 
-//.............................................................................
+//..............................................................................
 
 class JnccallCallConv_msc32: public CdeclCallConv_msc32
 {
@@ -26,7 +26,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class JnccallCallConv_msc64: public CdeclCallConv_msc64
 {
@@ -37,7 +37,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class JnccallCallConv_gcc32: public CdeclCallConv_gcc32
 {
@@ -48,7 +48,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class JnccallCallConv_gcc64: public CdeclCallConv_gcc64
 {
@@ -59,7 +59,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

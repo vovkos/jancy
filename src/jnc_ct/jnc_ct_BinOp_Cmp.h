@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getPtrCmpOperatorOperandType (
@@ -18,7 +18,7 @@ getPtrCmpOperatorOperandType (
 	const Value& opValue2
 	);
 
-//.............................................................................
+//..............................................................................
 
 template <typename T>
 class BinOp_Cmp: public BinaryOperator
@@ -63,10 +63,10 @@ public:
 		Value opValue1;
 		Value opValue2;
 
-		bool result = 
+		bool result =
 			castOperator (m_module, rawOpValue1, type, &opValue1) &&
 			castOperator (m_module, rawOpValue2, type, &opValue2);
-		
+
 		if (!result)
 			return false;
 
@@ -79,10 +79,10 @@ public:
 			case TypeKind_Int32_u:
 				resultValue->setConstBool (
 					T::constOpInt32 (
-						opValue1.getInt32 (), 
-						opValue2.getInt32 (), 
+						opValue1.getInt32 (),
+						opValue2.getInt32 (),
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
-						), 
+						),
 					m_module
 					);
 				break;
@@ -91,8 +91,8 @@ public:
 			case TypeKind_Int64_u:
 				resultValue->setConstBool (
 					T::constOpInt32 (
-						opValue1.getInt32 (), 
-						opValue2.getInt32 (), 
+						opValue1.getInt32 (),
+						opValue2.getInt32 (),
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 						),
 					m_module
@@ -121,8 +121,8 @@ public:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
 				static_cast <T*> (this)->llvmOpInt (
-					opValue1, 
-					opValue2, 
+					opValue1,
+					opValue2,
 					resultValue,
 					(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
 					);
@@ -131,7 +131,7 @@ public:
 			case TypeKind_Float:
 			case TypeKind_Double:
 				static_cast <T*> (this)->llvmOpFp (
-					opValue1, 
+					opValue1,
 					opValue2,
 					resultValue
 					);
@@ -146,10 +146,10 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Eq: public BinOp_Cmp <BinOp_Eq>
-{	
+{
 public:
 	BinOp_Eq ()
 	{
@@ -162,7 +162,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 == opValue2;
 	}
@@ -214,10 +214,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Ne: public BinOp_Cmp <BinOp_Ne>
-{	
+{
 public:
 	BinOp_Ne ()
 	{
@@ -230,7 +230,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 != opValue2;
 	}
@@ -282,10 +282,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Lt: public BinOp_Cmp <BinOp_Lt>
-{	
+{
 public:
 	BinOp_Lt ()
 	{
@@ -298,7 +298,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 < (uint32_t) opValue2 : opValue1 < opValue2;
 	}
@@ -350,10 +350,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Le: public BinOp_Cmp <BinOp_Le>
-{	
+{
 public:
 	BinOp_Le ()
 	{
@@ -366,7 +366,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 <= (uint32_t) opValue2 : opValue1 <= opValue2;
 	}
@@ -418,10 +418,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Gt: public BinOp_Cmp <BinOp_Gt>
-{	
+{
 public:
 	BinOp_Gt ()
 	{
@@ -434,7 +434,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 > (uint32_t) opValue2 : opValue1 > opValue2;
 	}
@@ -486,10 +486,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Ge: public BinOp_Cmp <BinOp_Ge>
-{	
+{
 public:
 	BinOp_Ge ()
 	{
@@ -502,7 +502,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 >= (uint32_t) opValue2 : opValue1 >= opValue2;
 	}
@@ -554,7 +554,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

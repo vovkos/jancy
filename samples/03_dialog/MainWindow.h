@@ -2,7 +2,7 @@
 
 #include "MyLayout.h"
 
-//.............................................................................
+//..............................................................................
 
 class MainWindow : public QMainWindow
 {
@@ -17,10 +17,10 @@ protected:
 
 public:
 	MainWindow (QWidget* parent = NULL, Qt::WindowFlags flags = 0);
-	
-	QSize sizeHint() const 
-	{ 
-		return QSize(800, 600); 
+
+	QSize sizeHint() const
+	{
+		return QSize(800, 600);
 	}
 
 	bool runScript (const QString& fileName);
@@ -40,9 +40,9 @@ protected:
 	void createLayout ();
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 MainWindow* getMainWindow ();
 
-//.............................................................................
+//..............................................................................
 

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 UnOp_LogNot::getResultType (const Value& opValue)
@@ -89,13 +89,13 @@ UnOp_LogNot::variantOperator (
 	)
 {
 	Value boolValue;
-	
-	return 
+
+	return
 		m_module->m_operatorMgr.castOperator (opValue, TypeKind_Bool, &boolValue) &&
 		zeroCmpOperator (boolValue, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

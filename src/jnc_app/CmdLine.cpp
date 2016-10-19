@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CmdLine.h"
 
-//.............................................................................
+//..............................................................................
 
 CmdLine::CmdLine ()
 {
@@ -14,7 +14,7 @@ CmdLine::CmdLine ()
 	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
 }
 
-//.............................................................................
+//..............................................................................
 
 size_t
 parseSizeString (const sl::StringRef& string)
@@ -46,7 +46,7 @@ parseSizeString (const sl::StringRef& string)
 	return strtoul (string.cp (), NULL, 10) * multiplier;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 CmdLineParser::onValue (const sl::StringRef& value)
@@ -201,14 +201,14 @@ CmdLineParser::finalize ()
 			sl::String filePath = dir + fileEnum.getNextFileName ();
 			if (io::isDir (filePath))
 				continue;
-	
-			size_t length = filePath.getLength ();			
+
+			size_t length = filePath.getLength ();
 			if (length < SuffixLength)
 				continue;
 
 			const char* suffix = filePath.sz () + length - SuffixLength;
 
-			if (memcmp (suffix, jncSuffix, SuffixLength) == 0 || 
+			if (memcmp (suffix, jncSuffix, SuffixLength) == 0 ||
 				includeDox && memcmp (suffix, doxSuffix, SuffixLength) == 0)
 			{
 				m_cmdLine->m_fileNameList.insertTail (filePath);
@@ -233,4 +233,4 @@ CmdLineParser::finalize ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................

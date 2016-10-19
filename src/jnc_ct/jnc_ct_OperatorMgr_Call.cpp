@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 OperatorMgr::callTraceFunction (
@@ -133,7 +133,7 @@ OperatorMgr::getCdeclVarArgType (Type* type)
 
 		case TypeKind_ClassRef:
 			type = ((ClassPtrType*) type)->getTargetType ()->getClassPtrType (
-				((ClassPtrType*) type)->getPtrTypeKind (), 
+				((ClassPtrType*) type)->getPtrTypeKind (),
 				type->getFlags () & PtrTypeFlag__AllMask
 				);
 			break;
@@ -193,8 +193,8 @@ OperatorMgr::getCallOperatorResultType (
 		}
 
 		Value objValue = opValue;
-		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());		
-		
+		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());
+
 		Closure* closure = opValue.createClosure ();
 		closure->insertThisArgValue (objValue);
 	}
@@ -362,7 +362,7 @@ OperatorMgr::callOperatorVararg (
 
 	Type* valueType = value.getType ();
 
-	if (valueType->getTypeKind () == TypeKind_DataRef && 
+	if (valueType->getTypeKind () == TypeKind_DataRef &&
 		((DataPtrType*) valueType)->getTargetType () == type)
 	{
 		return
@@ -614,7 +614,7 @@ OperatorMgr::gcSafePoint ()
 	else
 	{
 		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
-	
+
 		Value ptrValue;
 		Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
 		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &ptrValue);
@@ -644,13 +644,13 @@ OperatorMgr::checkDivByZero (const Value& value)
 	Type* type = value.getType ();
 	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
 	{
-		checkFunc = type->getSize () <= sizeof (uint32_t) ? 
+		checkFunc = type->getSize () <= sizeof (uint32_t) ?
 			StdFunc_CheckDivByZero_i32 :
 			StdFunc_CheckDivByZero_i64;
 	}
 	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
 	{
-		checkFunc = type->getSize () <= sizeof (float) ? 
+		checkFunc = type->getSize () <= sizeof (float) ?
 			StdFunc_CheckDivByZero_f32 :
 			StdFunc_CheckDivByZero_f64;
 	}
@@ -658,13 +658,13 @@ OperatorMgr::checkDivByZero (const Value& value)
 	{
 		return;
 	}
-	
+
 	Function* function = m_module->m_functionMgr.getStdFunction (checkFunc);
 	bool result = m_module->m_operatorMgr.callOperator (function, value);
 	ASSERT (result);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

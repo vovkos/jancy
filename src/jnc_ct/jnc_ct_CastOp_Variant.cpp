@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_Variant::constCast (
@@ -31,10 +31,10 @@ Cast_Variant::constCast (
 
 		variant->m_dataPtr.m_p = (void*) p;
 		variant->m_dataPtr.m_validator = m_module->m_constMgr.createConstDataPtrValidator (p, opType);
-		
+
 		opType = opType->getDataPtrType (
-			TypeKind_DataRef, 
-			DataPtrTypeKind_Normal, 
+			TypeKind_DataRef,
+			DataPtrTypeKind_Normal,
 			PtrTypeFlag_Const | PtrTypeFlag_Safe
 			);
 	}
@@ -53,7 +53,7 @@ Cast_Variant::llvmCast (
 	ASSERT (type->getTypeKind () == TypeKind_Variant);
 
 	bool result;
-		
+
 	Value opValue;
 
 	Type* opType = rawOpValue.getType ();
@@ -61,8 +61,8 @@ Cast_Variant::llvmCast (
 		((DataPtrType*) opType)->getPtrTypeKind () == DataPtrTypeKind_Lean)
 	{
 		opType = ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
-			opType->getTypeKind (), 
-			DataPtrTypeKind_Normal, 
+			opType->getTypeKind (),
+			DataPtrTypeKind_Normal,
 			opType->getFlags ()
 			);
 
@@ -73,7 +73,7 @@ Cast_Variant::llvmCast (
 		opValue = rawOpValue;
 	}
 	else // store it as reference
-	{		
+	{
 		result = m_module->m_operatorMgr.gcHeapAllocate (opType, &opValue);
 		if (!result)
 			return false;
@@ -84,12 +84,12 @@ Cast_Variant::llvmCast (
 		m_module->m_llvmIrBuilder.createStore (rawOpValue, ptrValue);
 
 		opType = opType->getDataPtrType (
-			TypeKind_DataRef, 
-			DataPtrTypeKind_Normal, 
+			TypeKind_DataRef,
+			DataPtrTypeKind_Normal,
 			PtrTypeFlag_Const | PtrTypeFlag_Safe
 			);
 	}
-	
+
 	Value opTypeValue (&opType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 	Value variantValue;
 	Value castValue;
@@ -102,7 +102,7 @@ Cast_Variant::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FromVariant::constCast (
@@ -113,8 +113,8 @@ Cast_FromVariant::constCast (
 {
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Variant);
 	Variant* variant = (Variant*) opValue.getConstData ();
-	
-	Value tmpValue; 
+
+	Value tmpValue;
 	if (!variant->m_type)
 	{
 		memset (dst, 0, type->getSize ());
@@ -149,7 +149,7 @@ Cast_FromVariant::llvmCast (
 
 	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 	Value tmpValue;
-	
+
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpValue", type->getDataPtrType_c (), &tmpValue);
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicCastVariant);
@@ -161,7 +161,7 @@ Cast_FromVariant::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

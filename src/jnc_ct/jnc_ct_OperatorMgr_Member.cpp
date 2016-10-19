@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 OperatorMgr::createMemberClosure (Value* value)
@@ -18,7 +18,7 @@ OperatorMgr::createMemberClosure (Value* value)
 
 	if (!result)
 		return false;
-	
+
 	Closure* closure = value->createClosure ();
 	closure->insertThisArgValue (thisValue);
 	return true;
@@ -178,7 +178,7 @@ OperatorMgr::getNamespaceMemberType (
 
 	if (!result)
 		return false;
-	
+
 	ASSERT (decl);
 	return checkAccess (decl);
 }
@@ -331,7 +331,7 @@ OperatorMgr::getNamedTypeMemberType (
 
 		if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
 		{
-			resultValue->setField (field, baseOffset); 
+			resultValue->setField (field, baseOffset);
 			break;
 		}
 
@@ -344,7 +344,7 @@ OperatorMgr::getNamedTypeMemberType (
 			opValue.getType ()->getFlags ()
 			);
 
-		resultValue->setField (field, resultType, baseOffset); 
+		resultValue->setField (field, resultType, baseOffset);
 		break;
 		}
 
@@ -386,7 +386,7 @@ OperatorMgr::getNamedTypeMember (
 		return false;
 	}
 
-	ModuleItemDecl* decl = NULL; 
+	ModuleItemDecl* decl = NULL;
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
@@ -396,7 +396,7 @@ OperatorMgr::getNamedTypeMember (
 		break;
 
 	case ModuleItemKind_StructField:
-		return 
+		return
 			checkAccess ((StructField*) member) &&
 			getField (opValue, (StructField*) member, &coord, resultValue);
 
@@ -411,7 +411,7 @@ OperatorMgr::getNamedTypeMember (
 		break;
 
 	case ModuleItemKind_Alias:
-		return 
+		return
 			checkAccess ((Alias*) member) &&
 			evaluateAlias (
 				(Alias*) member,
@@ -448,7 +448,7 @@ OperatorMgr::getNamedTypeMember (
 			return false;
 		}
 	}
-	
+
 	Closure* closure = resultValue->createClosure ();
 	closure->insertThisArgValue (thisArgValue);
 	return true;
@@ -469,7 +469,7 @@ OperatorMgr::getEnumTypeMemberType (
 		return false;
 	}
 
-	Type* resultType = (enumType->getFlags () & EnumTypeFlag_BitFlag) ? 
+	Type* resultType = (enumType->getFlags () & EnumTypeFlag_BitFlag) ?
 		enumType :
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 
@@ -499,7 +499,7 @@ OperatorMgr::getEnumTypeMember (
 
 	return binaryOperator (
 		binOpKind,
-		opValue, 
+		opValue,
 		memberValue,
 		resultValue
 		);
@@ -578,9 +578,9 @@ OperatorMgr::memberOperator (
 		{
 		case TypeKind_Array:
 			return binaryOperator (
-				BinOpKind_Idx, 
-				opValue, 
-				Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)), 
+				BinOpKind_Idx,
+				opValue,
+				Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
 				resultValue
 				);
 
@@ -627,7 +627,7 @@ OperatorMgr::getLibraryMember (
 	size_t index = function->getLibraryTableIndex ();
 	const char* namePtr = function->getName (); // make sure name pointer stays valid (points to function, not token string)
 
-	Value argValueArray [] = 
+	Value argValueArray [] =
 	{
 		closure->getThisArgValue (),
 		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
@@ -704,7 +704,7 @@ OperatorMgr::memberOperator (
 	case TypeKind_Struct:
 	case TypeKind_Union:
 		return getNamedTypeMember (opValue, (NamedType*) type, name, resultValue);
-		
+
 	case TypeKind_ClassPtr:
 		return
 			prepareOperand (&opValue) &&
@@ -737,7 +737,7 @@ OperatorMgr::offsetofOperator (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

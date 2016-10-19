@@ -16,7 +16,7 @@ class ClassType;
 
 struct PropertyPtrTypeTuple;
 
-//.............................................................................
+//..............................................................................
 
 enum PropertyTypeFlag
 {
@@ -24,7 +24,7 @@ enum PropertyTypeFlag
 	PropertyTypeFlag_Bindable = 0x020000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 PropertyTypeFlag
@@ -46,7 +46,7 @@ getFirstPropertyTypeFlagString (uint_t flags)
 	return getPropertyTypeFlagString (getFirstPropertyTypeFlag (flags));
 }
 
-//.............................................................................
+//..............................................................................
 
 enum PropertyPtrTypeKind
 {
@@ -59,7 +59,7 @@ enum PropertyPtrTypeKind
 const char*
 getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind);
 
-//.............................................................................
+//..............................................................................
 
 class PropertyType: public Type
 {
@@ -181,7 +181,7 @@ public:
 
 	sl::String
 	getTypeModifierString ();
-	
+
 	static
 	sl::String
 	createSignature (
@@ -211,14 +211,14 @@ protected:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 struct SimplePropertyTypeTuple: sl::ListLink
 {
 	PropertyType* m_propertyTypeArray [3] [2] [2]; // call-conv-family x const x bindable
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

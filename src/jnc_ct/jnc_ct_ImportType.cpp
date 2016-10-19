@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 ImportType::applyFixups ()
@@ -18,7 +18,7 @@ ImportType::applyFixups ()
 		*m_fixupArray [i] = m_actualType;
 }
 
-//.............................................................................
+//..............................................................................
 
 ImportPtrType*
 NamedImportType::getImportPtrType (
@@ -29,7 +29,7 @@ NamedImportType::getImportPtrType (
 	return m_module->m_typeMgr.getImportPtrType (this, typeModifiers, flags);
 }
 
-//.............................................................................
+//..............................................................................
 
 ImportPtrType::ImportPtrType ()
 {
@@ -63,7 +63,7 @@ ImportPtrType::prepareTypeString ()
 	tuple->m_typeStringPrefix += '*';
 }
 
-//.............................................................................
+//..............................................................................
 
 ImportIntModType::ImportIntModType ()
 {
@@ -94,7 +94,7 @@ ImportIntModType::prepareTypeString ()
 	tuple->m_typeStringPrefix += m_importType->getQualifiedName ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

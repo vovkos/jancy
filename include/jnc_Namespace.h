@@ -7,7 +7,7 @@
 /// \addtogroup namespace
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_NamespaceKind
 {
@@ -24,13 +24,13 @@ enum jnc_NamespaceKind
 
 typedef enum jnc_NamespaceKind jnc_NamespaceKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getNamespaceKindString (jnc_NamespaceKind namespaceKind);
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 size_t
@@ -64,7 +64,7 @@ jnc_Namespace_findClassType (
 	const char* name
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Namespace
@@ -101,7 +101,7 @@ struct jnc_Namespace
 };
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GlobalNamespace: jnc_ModuleItem
@@ -109,13 +109,13 @@ struct jnc_GlobalNamespace: jnc_ModuleItem
 };
 #endif // _JNC_CORE
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_NamespaceKind NamespaceKind;
 
@@ -130,7 +130,7 @@ const NamespaceKind
 	NamespaceKind_DynamicLib       = jnc_NamespaceKind_DynamicLib,
 	NamespaceKind__Count           = jnc_NamespaceKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -139,7 +139,7 @@ getNamespaceKindString (NamespaceKind namespaceKind)
 	return jnc_getNamespaceKindString (namespaceKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

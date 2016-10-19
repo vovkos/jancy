@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup socket
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum SocketEventCode
 {
@@ -18,14 +18,14 @@ enum SocketEventCode
 	TransmitBufferReady,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum SocketDisconnectEventFlags
 {
 	Reset,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketEventParams
 {
@@ -35,7 +35,7 @@ struct SocketEventParams
 	std.Error const* m_error;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum SocketCloseKind
 {
@@ -43,7 +43,7 @@ enum SocketCloseKind
 	Graceful,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum SocketOpenFlags
 {
@@ -52,13 +52,13 @@ bitflag enum SocketOpenFlags
 	ReuseAddress,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Socket
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
-	
+
 	bool property m_isBroadcastEnabled;
 	bool property m_isNagleEnabled;
 	bool property m_isRawHdrIncluded;
@@ -89,7 +89,7 @@ opaque class Socket
 	{
 		return open (AddressFamily.Ip4, protocol, flags);
 	}
-		
+
 	void close ();
 	alias dispose = close;
 
@@ -125,7 +125,7 @@ opaque class Socket
 	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
 }
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

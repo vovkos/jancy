@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 OperatorMgr::prepareDataPtr (
@@ -50,7 +50,7 @@ OperatorMgr::loadDataRef (
 	)
 {
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataRef);
-	
+
 	bool result;
 
 	DataPtrType* type = (DataPtrType*) opValue.getType ();
@@ -62,16 +62,16 @@ OperatorMgr::loadDataRef (
 		return false;
 
 	m_module->m_llvmIrBuilder.createLoad (
-		ptrValue, 
-		targetType, 
-		resultValue, 
+		ptrValue,
+		targetType,
+		resultValue,
 		(type->getFlags () & PtrTypeFlag_Volatile) != 0
 		);
 
 	if (targetType->getTypeKind () == TypeKind_BitField)
 	{
 		result = extractBitField (
-			*resultValue, 
+			*resultValue,
 			(BitFieldType*) targetType,
 			resultValue
 			);
@@ -93,7 +93,7 @@ OperatorMgr::storeDataRef (
 
 	bool result;
 
-	DataPtrType* dstType = (DataPtrType*) dstValue.getType ();	
+	DataPtrType* dstType = (DataPtrType*) dstValue.getType ();
 	if (dstType->isConstPtrType ())
 	{
 		err::setError ("cannot store into const location");
@@ -103,15 +103,15 @@ OperatorMgr::storeDataRef (
 	Type* targetType = dstType->getTargetType ();
 	TypeKind targetTypeKind = targetType->getTypeKind ();
 
-	Type* castType = (targetTypeKind == TypeKind_BitField) ? 
-		((BitFieldType*) targetType)->getBaseType () : 
+	Type* castType = (targetTypeKind == TypeKind_BitField) ?
+		((BitFieldType*) targetType)->getBaseType () :
 		targetType;
 
 	Value ptrValue;
 	Value srcValue;
 	Value bfShadowValue;
 
-	result = 
+	result =
 		checkCastKind (rawSrcValue, castType) &&
 		castOperator (rawSrcValue, castType, &srcValue) &&
 		prepareDataPtr (dstValue, &ptrValue);
@@ -122,7 +122,7 @@ OperatorMgr::storeDataRef (
 	if (targetTypeKind == TypeKind_BitField)
 	{
 		m_module->m_llvmIrBuilder.createLoad (
-			ptrValue, 
+			ptrValue,
 			castType,
 			&bfShadowValue,
 			(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
@@ -130,7 +130,7 @@ OperatorMgr::storeDataRef (
 
 		result = mergeBitField (
 			srcValue,
-			bfShadowValue, 
+			bfShadowValue,
 			(BitFieldType*) targetType,
 			&srcValue
 			);
@@ -140,8 +140,8 @@ OperatorMgr::storeDataRef (
 	}
 
 	m_module->m_llvmIrBuilder.createStore (
-		srcValue, 
-		ptrValue, 
+		srcValue,
+		ptrValue,
 		(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
 		);
 
@@ -169,7 +169,7 @@ OperatorMgr::extractBitField (
 	Value maskValue (mask, type);
 	Value offsetValue (bitOffset, type);
 
-	result = 
+	result =
 		binaryOperator (BinOpKind_Shr, &value, offsetValue) &&
 		binaryOperator (BinOpKind_BwAnd, &value, maskValue);
 
@@ -184,7 +184,7 @@ OperatorMgr::extractBitField (
 		Value oneValue (1, type);
 
 		Value signExtValue;
-		result = 
+		result =
 			binaryOperator (BinOpKind_BwAnd, &signBitValue, value) &&
 			binaryOperator (BinOpKind_Sub, signBitValue, oneValue, &signExtValue) &&
 			unaryOperator (UnOpKind_BwNot, &signExtValue) &&
@@ -196,7 +196,7 @@ OperatorMgr::extractBitField (
 
 	return castOperator (value, baseType, resultValue);
 }
-	
+
 bool
 OperatorMgr::mergeBitField (
 	const Value& rawValue,
@@ -220,23 +220,23 @@ OperatorMgr::mergeBitField (
 	Value maskValue (mask, type);
 	Value offsetValue (bitOffset, type);
 
-	result = 
+	result =
 		binaryOperator (BinOpKind_Shl, &value, offsetValue) &&
 		binaryOperator (BinOpKind_BwAnd, value, maskValue, resultValue);
 
 	if (!result)
 		return false;
 
-	mask = ~((((uint64_t) 1 << bitCount) - 1) << bitOffset);	
+	mask = ~((((uint64_t) 1 << bitCount) - 1) << bitOffset);
 	maskValue.setConstInt64 (mask, type);
 
-	return 
+	return
 		binaryOperator (BinOpKind_BwAnd, &shadowValue, maskValue) &&
 		binaryOperator (BinOpKind_BwOr, &value, shadowValue) &&
 		castOperator (value, baseType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

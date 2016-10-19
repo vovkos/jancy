@@ -14,7 +14,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 TypeMgr::TypeMgr ()
 {
@@ -219,8 +219,8 @@ TypeMgr::getStdType (StdType stdType)
 		argTypeArray [1] = getPrimitiveType (TypeKind_Int);
 
 		type = getFunctionType (
-			getStdType (StdType_AutomatonResult), 
-			argTypeArray, 
+			getStdType (StdType_AutomatonResult),
+			argTypeArray,
 			2,
 			FunctionTypeFlag_Automaton
 			);
@@ -232,7 +232,7 @@ TypeMgr::getStdType (StdType stdType)
 			type = parseStdType (stdType);
 		break;
 
-	case StdType_Recognizer:		
+	case StdType_Recognizer:
 		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("Recognizer");
 		if (!type)
 			type = parseStdType (stdType);
@@ -338,7 +338,7 @@ TypeMgr::resolveImportTypes ()
 				break;
 
 			case ModuleItemKind_Typedef:
-				importType->m_actualType = (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ? 
+				importType->m_actualType = (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ?
 					((Typedef*) item)->getShadowType () :
 					((Typedef*) item)->getType ();
 
@@ -635,7 +635,7 @@ TypeMgr::createEnumType (
 	uint_t flags
 	)
 {
-	const char* signaturePrefix = (flags & EnumTypeFlag_BitFlag) ? 
+	const char* signaturePrefix = (flags & EnumTypeFlag_BitFlag) ?
 		(flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
 		(flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
 
@@ -2137,7 +2137,7 @@ TypeMgr::getCheckedPtrType (Type* type)
 	}
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DualPtrTypeTuple*
 TypeMgr::getDualPtrTypeTuple (
@@ -2304,7 +2304,7 @@ TypeMgr::getConstDPropertyPtrTypeTuple (
 	return tuple;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 TypeMgr::setupAllPrimitiveTypes ()
@@ -2642,7 +2642,7 @@ TypeMgr::createSjljFrameType ()
 	return type;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

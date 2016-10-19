@@ -1,12 +1,12 @@
 #pragma once
 
-// Allocation on GC heap requires type pointer but looking up type by name 
-// during every allocation request is unnecessary expensive. Much better 
-// approach is to cache types in a table after name lookup succeseeded. 
+// Allocation on GC heap requires type pointer but looking up type by name
+// during every allocation request is unnecessary expensive. Much better
+// approach is to cache types in a table after name lookup succeseeded.
 
 // The enum below lists all the named types in API exported to jancy script.
 
-//.............................................................................
+//..............................................................................
 
 // {1D64EF25-4DA8-41A2-B6E7-007405D3AC39}
 JNC_DEFINE_GUID (
@@ -20,8 +20,8 @@ enum MyLibCacheSlot
 	MyLibCacheSlot_TestClass,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DECLARE_LIB (MyLib)
 
-//.............................................................................
+//..............................................................................

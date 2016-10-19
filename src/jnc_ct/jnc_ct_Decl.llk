@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 // root declaration productions
 
@@ -40,7 +40,7 @@ local_declaration
 	|	nested_scope_label
 	;
 
-//.............................................................................
+//..............................................................................
 
 import_declaration
 	:	TokenKind_Import TokenKind_Literal
@@ -64,7 +64,7 @@ extension_declaration
 	:	TokenKind_Extension TokenKind_Identifier ':' type_name
 			{
 				return openExtensionNamespace (
-					$2.m_data.m_string, 
+					$2.m_data.m_string,
 					$4.m_type,
 					$2.m_pos
 					) != NULL;
@@ -130,7 +130,7 @@ setas_declaration
 	;
 
 setas_value
-	:	type_name 
+	:	type_name
 			{
 				return setSetAsType ($1.m_type);
 			}
@@ -140,7 +140,7 @@ setas_value
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 class
 {
@@ -167,12 +167,12 @@ class
 	sl::BoxList <QualifiedName> m_nameList;
 }
 qualified_name_list
-	:	qualified_name 
+	:	qualified_name
 			{
 				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
 				it->takeOver (&$1.m_name);
 			}
-		(',' qualified_name 
+		(',' qualified_name
 			{
 				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
 				it->takeOver (&$3.m_name);
@@ -180,7 +180,7 @@ qualified_name_list
 		)*
 	;
 
-//.............................................................................
+//..............................................................................
 
 // item declarations
 
@@ -222,7 +222,7 @@ item_declaration_wo_specifier
 	}
 	:	declarator_prefix <&$declarator>*
 		declarator_name <&$declarator>
-		function_suffix <&$declarator> 
+		function_suffix <&$declarator>
 		declarator_suffix <&$declarator>*
 			{
 				return declare (&$declarator);
@@ -238,13 +238,13 @@ item_declaration_wo_specifier_rslv
 	local
 	{
 		Declarator $declarator; // dummy
-	}	
+	}
 	:	declarator_qualifier <&$declarator>
 		('.' declarator_qualifier <&$declarator>)*
 		'(' // must be a function
 	;
 
-//.............................................................................
+//..............................................................................
 
 declaration_terminator <TypeSpecifier* $typeSpecifier>
 	leave
@@ -321,7 +321,7 @@ statement_pass1 <StmtPass1* $stmt>
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 // type names
 
@@ -369,7 +369,7 @@ type_name_list
 		)*
 	;
 
-//.............................................................................
+//..............................................................................
 
 // attributes
 
@@ -384,7 +384,7 @@ attribute_block
 
 				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock ();
 			}
-		attribute_declarator (',' attribute_declarator)* 
+		attribute_declarator (',' attribute_declarator)*
 		']'
 	;
 
@@ -393,7 +393,7 @@ attribute_declarator
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
 				Attribute* attribute = m_attributeBlock->createAttribute (
-					$1.m_data.m_string, 
+					$1.m_data.m_string,
 					&$i ? &$i.m_tokenList : NULL
 					);
 
@@ -405,4 +405,4 @@ attribute_declarator
 	|	epsilon
 	;
 
-//.............................................................................
+//..............................................................................

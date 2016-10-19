@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 const char*
@@ -30,7 +30,7 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 		"undefined-function-flag";
 }
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -52,7 +52,7 @@ JNC_EXTERN_C
 jnc_FunctionArg*
 jnc_FunctionType_getArg (
 	jnc_FunctionType* type,
-	size_t index	
+	size_t index
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getArgFunc (type, index);
@@ -76,7 +76,7 @@ jnc_FunctionType_getShortType (jnc_FunctionType* type)
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getShortTypeFunc (type);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
@@ -108,7 +108,7 @@ jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg)
 	return *jnc::getTlsStringBuffer () = arg->getInitializerString ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Type*
@@ -128,13 +128,13 @@ JNC_EXTERN_C
 jnc_FunctionArg*
 jnc_FunctionType_getArg (
 	jnc_FunctionType* type,
-	size_t index	
+	size_t index
 	)
 {
 	return type->getArgArray () [index];
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
@@ -170,4 +170,4 @@ jnc_FunctionType_getShortType (jnc_FunctionType* type)
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

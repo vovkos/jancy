@@ -3,7 +3,7 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 // {72C7158B-F297-4F88-83A7-96E7FB548B29}
 JNC_DEFINE_GUID (
@@ -12,14 +12,14 @@ JNC_DEFINE_GUID (
 	);
 
 enum PcapLibCacheSlot
-{	
+{
 	PcapLibCacheSlot_Pcap,
 	PcapLibCacheSlot_PcapEventParams,
 	PcapLibCacheSlot_PcapAddress,
 	PcapLibCacheSlot_PcapDeviceDesc,
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

@@ -1,6 +1,6 @@
 // This sample demonstrates reactive approach to UI programming.
 
-//.............................................................................
+//..............................................................................
 
 // basic widget classes
 
@@ -26,7 +26,7 @@ class Widget
 	}
 
 	protected intptr_t m_handle;
-	
+
 	SizePolicy readonly m_hsizePolicy;
 	SizePolicy readonly m_vsizePolicy;
 
@@ -34,25 +34,25 @@ class Widget
 		SizePolicy hpolicy,
 		SizePolicy vpolicy
 		);
-	
+
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Layout
 {
 	enum Direction
 	{
-		LeftToRight, 
-		RightToLeft, 
-		TopToBottom, 
+		LeftToRight,
+		RightToLeft,
+		TopToBottom,
 		BottomToTop,
-	}	
+	}
 
 	Direction readonly m_direction;
-	
+
 	addWidget (Widget* widget);
 	addLayout (Layout* layout);
 	addSpacer ();
@@ -61,7 +61,7 @@ opaque class Layout
 	destruct ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Label: Widget
 {
@@ -86,7 +86,7 @@ opaque class Label: Widget
 	destruct ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Button: Widget
 {
@@ -97,7 +97,7 @@ opaque class Button: Widget
 	destruct ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class CheckBox: Widget
 {
@@ -108,7 +108,7 @@ opaque class CheckBox: Widget
 	destruct ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class TextEdit: Widget
 {
@@ -118,7 +118,7 @@ opaque class TextEdit: Widget
 	destruct ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Slider: Widget
 {
@@ -134,7 +134,7 @@ opaque class Slider: Widget
 	destruct ();
 }
 
-//.............................................................................
+//..............................................................................
 
 // ui widgets
 
@@ -150,26 +150,26 @@ CheckBox* g_enablePrintCheckBox;
 TextEdit* g_textEdit;
 Button* g_printButton;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ui reactor
 
 int calcColorVolume (int color)
 {
-	return 
-		(color & 0xff) + 
-		((color >> 8) & 0xff) + 
+	return
+		(color & 0xff) +
+		((color >> 8) & 0xff) +
 		((color >> 16) & 0xff);
 }
 
 reactor g_uiReactor ()
 {
-	g_color = 
+	g_color =
 		(g_redSlider.m_value << 16) |
 		(g_greenSlider.m_value << 8) |
 		(g_blueSlider.m_value);
 
-	g_colorLabel.m_text = $"#$(g_color;06x)";		
+	g_colorLabel.m_text = $"#$(g_color;06x)";
 	g_colorLabel.m_backColor = g_color;
 	g_colorLabel.m_color = calcColorVolume (g_color) > 0x180 ? 0x000000 : 0xffffff;
 
@@ -182,7 +182,7 @@ reactor g_uiReactor ()
 	}
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // entry point
 
@@ -192,7 +192,7 @@ int main (Layout* mainLayout)
 
 	Layout* hlayout;
 	Layout* vlayout;
-	
+
 	hlayout = new Layout (Layout.Direction.LeftToRight);
 
 	vlayout = new Layout (Layout.Direction.TopToBottom);
@@ -229,4 +229,4 @@ int main (Layout* mainLayout)
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

@@ -5,8 +5,8 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
-	
+//..............................................................................
+
 bool
 BinOp_Assign::op (
 	const Value& opValue1,
@@ -17,7 +17,7 @@ BinOp_Assign::op (
 	*resultValue = opValue1;
 
 	TypeKind dstTypeKind = opValue1.getType ()->getTypeKind ();
-	
+
 	switch (dstTypeKind)
 	{
 	case TypeKind_DataRef:
@@ -35,7 +35,7 @@ BinOp_Assign::op (
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 BinOp_OpAssign::op (
@@ -51,12 +51,12 @@ BinOp_OpAssign::op (
 	BinOpKind opKind = (BinOpKind) (m_opKind - BinOpKind__OpAssignDelta);
 
 	Value RValue;
-	return 
+	return
 		m_module->m_operatorMgr.binaryOperator (opKind, opValue1, opValue2, &RValue) &&
 		m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, opValue1, RValue);
 }
-	
-//.............................................................................
+
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

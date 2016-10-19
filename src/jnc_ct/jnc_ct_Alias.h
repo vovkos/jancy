@@ -9,9 +9,9 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-class Alias: 
+class Alias:
 	public ModuleItem,
 	public ModuleItemDecl,
 	public ModuleItemInitializer
@@ -27,8 +27,8 @@ public:
 		m_itemKind = ModuleItemKind_Alias;
 		m_type = NULL;
 	}
-	
-	Type* 
+
+	Type*
 	getType ()
 	{
 		return m_type;
@@ -43,7 +43,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

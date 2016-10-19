@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 const char*
@@ -84,7 +84,7 @@ jnc_getAccessKindString (jnc_AccessKind accessKind)
 		stringTable [jnc_AccessKind_Undefined];
 }
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -158,7 +158,7 @@ jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl)
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getOffsetFunc (decl);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Module*
@@ -224,7 +224,7 @@ jnc_verifyModuleItemIsClassType (
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
@@ -296,7 +296,7 @@ jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl)
 	return decl->getPos ()->m_offset;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Module*
@@ -340,7 +340,7 @@ jnc_ModuleItem_getType (jnc_ModuleItem* item)
 	return item->getType ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_DerivableType*
@@ -364,4 +364,4 @@ jnc_verifyModuleItemIsClassType (
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

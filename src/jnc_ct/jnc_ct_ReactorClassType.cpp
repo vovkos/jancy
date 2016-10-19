@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ReactorClassType::ReactorClassType ()
 {
@@ -77,7 +77,7 @@ ReactorClassType::calcLayout ()
 	m_module->m_functionMgr.setCurrentFunction (prevFunction);
 
 	ASSERT (parser.m_reactorTotalBindSiteCount && parser.m_reactionIndex);
-	m_bindSiteCount = parser.m_reactorTotalBindSiteCount;	
+	m_bindSiteCount = parser.m_reactorTotalBindSiteCount;
 	m_reactionCount = parser.m_reactionIndex;
 
 	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
@@ -134,14 +134,14 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 			Closure* closure = handlerValue.createClosure ();
 			closure->insertThisArgValue (thisValue);
 
-			result = 
+			result =
 				m_module->m_operatorMgr.prepareOperand (&eventValue) &&
 				m_module->m_operatorMgr.prepareOperand (&handlerValue);
 
 			if (!result)
 				return false;
 
-			if (eventValue.getType ()->getTypeKind () == TypeKind_ClassRef) 
+			if (eventValue.getType ()->getTypeKind () == TypeKind_ClassRef)
 			{
 				result = m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, &eventValue); // turn into a pointer
 				ASSERT (result);
@@ -303,7 +303,7 @@ ReactorClassType::compileStartMethod ()
 	result =
 		m_module->m_operatorMgr.getField (thisValue, m_fieldArray [ReactorFieldKind_State], NULL, &stateValue) &&
 		m_module->m_operatorMgr.storeDataRef (
-			stateValue, 
+			stateValue,
 			Value ((int64_t) 1, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr))
 			);
 
@@ -372,7 +372,7 @@ ReactorClassType::compileStopMethod ()
 	}
 
 	result = m_module->m_operatorMgr.storeDataRef (
-		stateValue, 
+		stateValue,
 		Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr))
 		);
 
@@ -385,7 +385,7 @@ ReactorClassType::compileStopMethod ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

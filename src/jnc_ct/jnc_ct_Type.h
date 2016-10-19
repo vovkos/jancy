@@ -32,7 +32,7 @@ struct DataPtrTypeTuple;
 struct SimplePropertyTypeTuple;
 struct FunctionArgTuple;
 
-//.............................................................................
+//..............................................................................
 
 enum TypeSizeLimit
 {
@@ -40,7 +40,7 @@ enum TypeSizeLimit
 	TypeSizeLimit_StackAllocSize = 128,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum TypeFlag
 {
@@ -52,7 +52,7 @@ enum TypeFlag
 	TypeFlag_NoStack         = 0x2000, // try to avoid allocation on stack
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum PtrTypeFlag
 {
@@ -69,7 +69,7 @@ enum PtrTypeFlag
 	PtrTypeFlag__AllMask  = 0x1ff0000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 PtrTypeFlag
@@ -97,7 +97,7 @@ getFirstPtrTypeFlagString (uint_t flags)
 uint_t
 getPtrTypeFlagsFromModifiers (uint_t modifiers);
 
-//.............................................................................
+//..............................................................................
 
 enum VariantField
 {
@@ -109,7 +109,7 @@ enum VariantField
 	VariantField_Type,
 };
 
-//.............................................................................
+//..............................................................................
 
 // integer type utils
 
@@ -125,7 +125,7 @@ getInt64TypeKind (int64_t integer);
 TypeKind
 getInt64TypeKind_u (uint64_t integer);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 TypeKind
@@ -173,12 +173,12 @@ isEquivalentIntegerTypeKind (
 	return getSignedIntegerTypeKind (typeKind1) == getSignedIntegerTypeKind (typeKind2);
 }
 
-//.............................................................................
+//..............................................................................
 
 sl::String
 getLlvmTypeString (llvm::Type* llvmType);
 
-//.............................................................................
+//..............................................................................
 
 struct TypeStringTuple
 {
@@ -189,7 +189,7 @@ struct TypeStringTuple
 	sl::String m_doxyLinkedTextSuffix;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Type: public ModuleItem
 {
@@ -378,7 +378,7 @@ protected:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class NamedType:
 	public Type,
@@ -405,9 +405,9 @@ protected:
 	prepareDoxyLinkedText ();
 };
 
-//.............................................................................
+//..............................................................................
 
-class Typedef: 
+class Typedef:
 	public ModuleItem,
 	public ModuleItemDecl
 {
@@ -438,9 +438,9 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TypedefShadowType: 
+class TypedefShadowType:
 	public Type,
 	public ModuleItemDecl
 {
@@ -456,7 +456,7 @@ public:
 		m_typedef = NULL;
 	}
 
-	Typedef* 
+	Typedef*
 	getTypedef ()
 	{
 		return m_typedef;
@@ -493,7 +493,7 @@ protected:
 	calcLayout ();
 };
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getSimpleType (
@@ -527,12 +527,12 @@ getDirectRefType (
 	return getDirectRefType (NULL, type, ptrTypeFlags);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 isDisposableType (Type* type);
 
-bool 
+bool
 isSafePtrType (Type* type);
 
 bool
@@ -541,7 +541,7 @@ isWeakPtrType (Type* type);
 Type*
 getWeakPtrType (Type* type);
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

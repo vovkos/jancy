@@ -5,7 +5,7 @@
 namespace jnc {
 namespace sys {
 
-//.............................................................................
+//..............................................................................
 
 // {D8C0847C-93D5-4146-B795-5DB1A111855A}
 JNC_DEFINE_GUID (
@@ -14,14 +14,14 @@ JNC_DEFINE_GUID (
 	);
 
 enum SysLibCacheSlot
-{	
+{
 	SysLibCacheSlot_Lock,
 	SysLibCacheSlot_Event,
 	SysLibCacheSlot_Thread,
 	SysLibCacheSlot_Timer,
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace sys
 } // namespace jnc

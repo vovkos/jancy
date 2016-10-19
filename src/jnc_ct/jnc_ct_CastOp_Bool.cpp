@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_BoolFromZeroCmp::constCast (
@@ -16,7 +16,7 @@ Cast_BoolFromZeroCmp::constCast (
 {
 	const char* p = (const char*) opValue.getConstData ();
 	const char* end = p + opValue.getType ()->getSize ();
-	
+
 	bool result = false;
 
 	for (; p < end; p++)
@@ -43,7 +43,7 @@ Cast_BoolFromZeroCmp::llvmCast (
 	return m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, opValue, zeroValue, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_BoolFromPtr::llvmCast (
@@ -61,7 +61,7 @@ Cast_BoolFromPtr::llvmCast (
 }
 
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_IntFromBool::constCast (
@@ -92,7 +92,7 @@ Cast_IntFromBool::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastOperator*
 Cast_Bool::getCastOperator (
@@ -135,7 +135,7 @@ Cast_Bool::getCastOperator (
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

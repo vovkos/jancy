@@ -11,7 +11,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 template <typename T>
 class BinOp_Arithmetic: public BinaryOperator
@@ -43,17 +43,17 @@ public:
 	{
 		// BwOr overrides GetResultType, but here we need original one
 
-		Type* type = getArithmeticResultType (rawOpValue1, rawOpValue2); 
+		Type* type = getArithmeticResultType (rawOpValue1, rawOpValue2);
 		if (!type)
 			return false;
 
 		Value opValue1;
 		Value opValue2;
 
-		bool result = 
+		bool result =
 			castOperator (m_module, rawOpValue1, type, &opValue1) &&
 			castOperator (m_module, rawOpValue2, type, &opValue2);
-		
+
 		if (!result)
 			return false;
 
@@ -66,10 +66,10 @@ public:
 			case TypeKind_Int32_u:
 				resultValue->setConstInt32 (
 					T::constOpInt32 (
-						opValue1.getInt32 (), 
-						opValue2.getInt32 (), 
+						opValue1.getInt32 (),
+						opValue2.getInt32 (),
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
-						), 
+						),
 					type
 					);
 				break;
@@ -81,7 +81,7 @@ public:
 						opValue1.getInt64 (),
 						opValue2.getInt64 (),
 						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
-						), 
+						),
 					type
 					);
 				break;
@@ -108,8 +108,8 @@ public:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
 				static_cast <T*> (this)->llvmOpInt (
-					opValue1, 
-					opValue2, 
+					opValue1,
+					opValue2,
 					type,
 					resultValue,
 					(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
@@ -119,7 +119,7 @@ public:
 			case TypeKind_Float:
 			case TypeKind_Double:
 				static_cast <T*> (this)->llvmOpFp (
-					opValue1, 
+					opValue1,
 					opValue2,
 					type,
 					resultValue
@@ -156,11 +156,11 @@ protected:
 
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
 class BinOp_IntegerOnly: public BinOp_Arithmetic <T>
-{	
+{
 public:
 	enum
 	{
@@ -201,10 +201,10 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Add: public BinOp_Arithmetic <BinOp_Add>
-{	
+{
 public:
 	BinOp_Add ()
 	{
@@ -225,7 +225,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 + opValue2;
 	}
@@ -279,10 +279,10 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_Sub: public BinOp_Arithmetic <BinOp_Sub>
-{	
+{
 public:
 	BinOp_Sub ()
 	{
@@ -303,7 +303,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 - opValue2;
 	}
@@ -357,10 +357,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Mul: public BinOp_Arithmetic <BinOp_Mul>
-{	
+{
 public:
 	BinOp_Mul ()
 	{
@@ -373,7 +373,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 * opValue2;
 	}
@@ -427,10 +427,10 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_Div: public BinOp_Arithmetic <BinOp_Div>
-{	
+{
 public:
 	BinOp_Div ()
 	{
@@ -443,7 +443,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 / (uint32_t) opValue2 : opValue1 / opValue2;
 	}
@@ -497,10 +497,10 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_Mod: public BinOp_IntegerOnly <BinOp_Mod>
-{	
+{
 public:
 	BinOp_Mod ()
 	{
@@ -513,7 +513,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return isUnsigned ? (uint32_t) opValue1 % (uint32_t) opValue2 : opValue1 % opValue2;
 	}
@@ -539,10 +539,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_Shl: public BinOp_IntegerOnly <BinOp_Shl>
-{	
+{
 public:
 	BinOp_Shl ()
 	{
@@ -555,7 +555,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 << opValue2;
 	}
@@ -581,10 +581,10 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_Shr: public BinOp_IntegerOnly <BinOp_Shr>
-{	
+{
 public:
 	BinOp_Shr ()
 	{
@@ -597,7 +597,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 >> opValue2;
 	}
@@ -623,10 +623,10 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class BinOp_BwAnd: public BinOp_IntegerOnly <BinOp_BwAnd>
-{	
+{
 public:
 	BinOp_BwAnd ();
 
@@ -637,7 +637,7 @@ public:
 		const Value& opValue2
 		)
 	{
-		return 
+		return
 			isBitFlagEnumType (opValue1.getType ()) ? opValue1.getType () :
 			isBitFlagEnumType (opValue2.getType ()) ? opValue2.getType () :
 			getArithmeticResultType (opValue1, opValue2);
@@ -657,7 +657,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 & opValue2;
 	}
@@ -683,10 +683,10 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_BwOr: public BinOp_IntegerOnly <BinOp_BwOr>
-{	
+{
 public:
 	BinOp_BwOr ();
 
@@ -697,8 +697,8 @@ public:
 		const Value& opValue2
 		)
 	{
-		return isFlagEnumOpType (opValue1, opValue2) ? 
-			opValue1.getType () : 
+		return isFlagEnumOpType (opValue1, opValue2) ?
+			opValue1.getType () :
 			getArithmeticResultType (opValue1, opValue2);
 	}
 
@@ -716,7 +716,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 | opValue2;
 	}
@@ -752,10 +752,10 @@ public:
 
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BinOp_BwXor: public BinOp_IntegerOnly <BinOp_BwXor>
-{	
+{
 public:
 	BinOp_BwXor ()
 	{
@@ -768,7 +768,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		) 
+		)
 	{
 		return opValue1 ^ opValue2;
 	}
@@ -794,7 +794,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

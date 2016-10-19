@@ -1,40 +1,40 @@
-// 99% of the time a property getter simply returns the value of some internal 
-// field and all the property logic is actually contained in setter(s). 
+// 99% of the time a property getter simply returns the value of some internal
+// field and all the property logic is actually contained in setter(s).
 
 // Jancy supports so-called 'autoget' properties thus sparing the developer
-// from the routine of writing trivial getters - the compiler will generate 
-// both the field to store the property value and the getter to retrieve it. 
+// from the routine of writing trivial getters - the compiler will generate
+// both the field to store the property value and the getter to retrieve it.
 // The compiler will also bypass the getter completely whenever possible.
 
-//.............................................................................
+//..............................................................................
 
 // simple autoget property declaration syntax
 
 int autoget property g_simpleProp;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // setter implementation (no getter needed)
 
 g_simpleProp.set (int x)
 {
 	printf ("g_simpleProp.set (%d)\n", x);
-	
+
 	// by default, the name of a compiler-generated field is 'm_value'
 
-	m_value = x; 
+	m_value = x;
 }
 
-//.............................................................................
+//..............................................................................
 
 // similar property declared using full syntax
 
 property g_prop
-{	
-	// declaring a field with 'autoget' modifier implicitly makes the whole 
+{
+	// declaring a field with 'autoget' modifier implicitly makes the whole
 	// property autoget
 
-	int autoget m_x; 
+	int autoget m_x;
 
 	set (int x)
 	{
@@ -51,7 +51,7 @@ property g_prop
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -71,4 +71,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 BinOp_Idx::getResultType (
@@ -21,8 +21,8 @@ BinOp_Idx::getResultType (
 
 		if (baseType->getTypeKind () == TypeKind_Array)
 			return ((ArrayType*) baseType)->getElementType ()->getDataPtrType (
-				TypeKind_DataRef, 
-				ptrType->getPtrTypeKind (), 
+				TypeKind_DataRef,
+				ptrType->getPtrTypeKind (),
 				ptrType->getFlags ()
 				);
 
@@ -37,8 +37,8 @@ BinOp_Idx::getResultType (
 	case TypeKind_DataPtr:
 		ptrType = (DataPtrType*) opType1;
 		return ptrType->getTargetType ()->getDataPtrType (
-			TypeKind_DataRef, 
-			ptrType->getPtrTypeKind (), 
+			TypeKind_DataRef,
+			ptrType->getPtrTypeKind (),
 			ptrType->getFlags ()
 			);
 
@@ -73,7 +73,7 @@ BinOp_Idx::op (
 		Type* baseType = ((DataPtrType*) opType1)->getTargetType ();
 
 		if (baseType->getTypeKind () == TypeKind_Array)
-			return 
+			return
 				m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 				arrayIndexOperator (rawOpValue1, (ArrayType*) baseType, opValue2, resultValue);
 
@@ -88,13 +88,13 @@ BinOp_Idx::op (
 	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
-		return 
+		return
 			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 			m_module->m_operatorMgr.binaryOperator (BinOpKind_Add, opValue1, opValue2, &opValue1) &&
 			m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, opValue1, resultValue);
 
 	case TypeKind_Array:
-		return 
+		return
 			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 			arrayIndexOperator (opValue1, (ArrayType*) opType1, opValue2, resultValue);
 
@@ -103,7 +103,7 @@ BinOp_Idx::op (
 		return propertyIndexOperator (opValue1, opValue2, resultValue);
 
 	default:
-		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ()); 
+		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ());
 		return false;
 	}
 }
@@ -143,7 +143,7 @@ BinOp_Idx::arrayIndexOperator (
 	if (ptrTypeFlags & PtrTypeFlag_Safe)
 	{
 		if (opValue2.getValueKind () == ValueKind_Const)
-		{			
+		{
 			Value idxValue;
 			bool result = m_module->m_operatorMgr.castOperator (opValue2, TypeKind_IntPtr, &idxValue);
 			if (!result)
@@ -161,7 +161,7 @@ BinOp_Idx::arrayIndexOperator (
 			ptrTypeFlags &= ~PtrTypeFlag_Safe;
 		}
 	}
-	
+
 	Value ptrValue;
 
 	DataPtrTypeKind ptrTypeKind = opType1->getPtrTypeKind ();
@@ -187,7 +187,7 @@ BinOp_Idx::arrayIndexOperator (
 		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
 
 		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (), 
+			ptrValue.getLlvmValue (),
 			ptrType,
 			opValue1
 			);
@@ -224,7 +224,7 @@ BinOp_Idx::getPropertyIndexResultType (
 	return resultValue.getClosure ()->getClosureType (rawOpValue1.getType ());
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

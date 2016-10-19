@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 DoxyGroup::generateDocumentation (
@@ -15,16 +15,16 @@ DoxyGroup::generateDocumentation (
 	)
 {
 	indexXml->appendFormat (
-		"<compound kind='group' refid='%s'><name>%s</name></compound>\n", 
-		m_refId.sz (), 
+		"<compound kind='group' refid='%s'><name>%s</name></compound>\n",
+		m_refId.sz (),
 		m_name.sz ()
 		);
 
 	itemXml->format (
 		"<compounddef kind='group' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n"
-		"<title>%s</title>\n", 
-		m_refId.sz (), 
+		"<title>%s</title>\n",
+		m_refId.sz (),
 		m_name.sz (),
 		m_title.sz ()
 		);
@@ -41,7 +41,7 @@ DoxyGroup::generateDocumentation (
 
 		ModuleItemKind itemKind = item->getItemKind ();
 
-		bool isCompoundFile = 
+		bool isCompoundFile =
 			itemKind == ModuleItemKind_Namespace ||
 			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
 
@@ -82,7 +82,7 @@ DoxyGroup::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

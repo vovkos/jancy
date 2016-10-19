@@ -5,12 +5,12 @@
 namespace jnc {
 namespace sys {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Thread, 
-	"sys.Thread", 
-	g_sysLibGuid, 
+	Thread,
+	"sys.Thread",
+	g_sysLibGuid,
 	SysLibCacheSlot_Thread,
 	Thread,
 	NULL
@@ -25,7 +25,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Thread)
 	JNC_MAP_FUNCTION ("terminate", &Thread::terminate)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 bool
 JNC_CDECL
@@ -86,7 +86,7 @@ Thread::waitAndClose (uint_t timeout)
 	m_threadFuncPtr = g_nullFunctionPtr;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace sys
 } // namespace jnc

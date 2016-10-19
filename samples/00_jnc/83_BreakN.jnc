@@ -1,10 +1,10 @@
 // Jancy provides multi-level loop jumps with 'break-n' and 'continue-n'.
 
-// Ever wanted to exit two loops at once and do so neatly, without resorting 
+// Ever wanted to exit two loops at once and do so neatly, without resorting
 // to techniques being frowned upon, like using a 'goto'? If the answer is yes
 // then rejoyce! Jancy allows you to do just that.
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -12,7 +12,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	int a [3] [4] = 
+	int a [3] [4] =
 	{
 		{ 1,  2,  3,  4 },
 		{ 5,  6, -7,  8 },
@@ -27,11 +27,11 @@ int main ()
 		for (j = 0; j < countof (a [0]); j++)
 			if (a [i] [j] < 0)
 			{
-				isFound = true;			
+				isFound = true;
 
 				// exit 2 loops at once
 
-				break2; 
+				break2;
 			}
 
 	if (isFound)
@@ -42,4 +42,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

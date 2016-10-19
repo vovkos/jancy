@@ -10,7 +10,7 @@
 
 #include "jnc_Runtime.h"
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -43,7 +43,7 @@ jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getStackSizeLimitFunc (runtime);
@@ -68,7 +68,7 @@ jnc_Runtime_startup (
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_startupFunc (runtime, module);
 }
-	
+
 JNC_EXTERN_C
 void
 jnc_Runtime_shutdown (jnc_Runtime* runtime)
@@ -133,7 +133,7 @@ jnc_primeClass (
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_strLen (jnc_DataPtr ptr)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_strLenFunc (ptr);
@@ -190,7 +190,7 @@ jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 {
 	return runtime->getStackSizeLimit ();
@@ -215,7 +215,7 @@ jnc_Runtime_startup (
 {
 	return runtime->startup (module);
 }
-	
+
 JNC_EXTERN_C
 void
 jnc_Runtime_shutdown (jnc_Runtime* runtime)
@@ -304,7 +304,7 @@ primeIface (
 	{
 		ct::BaseTypeSlot* slot = baseTypePrimeArray [i];
 		ASSERT (slot->getType ()->getTypeKind () == TypeKind_Class);
-		
+
 		primeIface (
 			box,
 			root,
@@ -376,7 +376,7 @@ jnc_strengthenClassPtr (jnc_IfaceHdr* iface)
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_strLen (jnc_DataPtr ptr)
 {
 	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)

@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 McSnapshotClassType::McSnapshotClassType ()
 {
@@ -93,7 +93,7 @@ McSnapshotClassType::compileCallMethod ()
 	m_module->m_controlFlowMgr.conditionalJump (cmpValue, followBlock, bodyBlock, bodyBlock);
 
 	Value pfnValue;
-	
+
 	m_module->m_llvmIrBuilder.createLoad (ptrValue, m_targetType, &pfnValue);
 	m_module->m_operatorMgr.callOperator (pfnValue, &argValueList);
 
@@ -106,7 +106,7 @@ McSnapshotClassType::compileCallMethod ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

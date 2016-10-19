@@ -2,34 +2,34 @@ namespace jnci {
 
 ///+++
 
-//.............................................................................
+//..............................................................................
 
-///; static char dynamicSizeOfSrc [] = 
+///; static char dynamicSizeOfSrc [] =
 
 size_t dynamicSizeOf (void const* p);
 
-///; static char dynamicCountOfSrc [] = 
+///; static char dynamicCountOfSrc [] =
 
 size_t dynamicCountOf (
 	void const* p,
 	void thin* type
 	);
 
-///; static char dynamicCastDataPtrSrc [] = 
+///; static char dynamicCastDataPtrSrc [] =
 
 void* dynamicCastDataPtr (
 	void const* p,
 	void thin* type
 	);
 
-///; static char dynamicCastClassPtrSrc [] = 
+///; static char dynamicCastClassPtrSrc [] =
 
 class* dynamicCastClassPtr (
 	class const* p,
 	void thin* type
 	);
 
-///; static char dynamicCastVariantSrc [] = 
+///; static char dynamicCastVariantSrc [] =
 
 bool dynamicCastVariant (
 	variant v,
@@ -37,31 +37,31 @@ bool dynamicCastVariant (
 	void thin* buffer
 	);
 
-///; static char strengthenClassPtrSrc [] = 
+///; static char strengthenClassPtrSrc [] =
 
 class* strengthenClassPtr (class weak* p);
 
-///; static char assertionFailureSrc [] = 
+///; static char assertionFailureSrc [] =
 
 void assertionFailure (
 	char const thin* fileName,
-	int line, 
+	int line,
 	char const thin* condition,
 	char const thin* message
 	);
 
-///; static char addStaticDestructorSrc [] = 
+///; static char addStaticDestructorSrc [] =
 
 void addStaticDestructor (void thin* dtor);
 
-///; static char addStaticClassDestructorSrc [] = 
+///; static char addStaticClassDestructorSrc [] =
 
 void addStaticClassDestructor (
 	void thin* dtor,
 	class* obj
 	);
 
-///; static char appendFmtLiteralSrc_a [] = 
+///; static char appendFmtLiteralSrc_a [] =
 
 size_t appendFmtLiteral_a (
 	FmtLiteral thin* fmtLiteral,
@@ -69,7 +69,7 @@ size_t appendFmtLiteral_a (
 	size_t length
 	);
 
-///; static char appendFmtLiteralSrc_p [] = 
+///; static char appendFmtLiteralSrc_p [] =
 
 size_t appendFmtLiteral_p (
 	FmtLiteral thin* fmtLiteral,
@@ -77,7 +77,7 @@ size_t appendFmtLiteral_p (
 	char const* p
 	);
 
-///; static char appendFmtLiteralSrc_i32 [] = 
+///; static char appendFmtLiteralSrc_i32 [] =
 
 size_t appendFmtLiteral_i32 (
 	FmtLiteral thin* fmtLiteral,
@@ -85,7 +85,7 @@ size_t appendFmtLiteral_i32 (
 	int32_t value
 	);
 
-///; static char appendFmtLiteralSrc_ui32 [] = 
+///; static char appendFmtLiteralSrc_ui32 [] =
 
 size_t appendFmtLiteral_ui32 (
 	FmtLiteral thin* fmtLiteral,
@@ -93,7 +93,7 @@ size_t appendFmtLiteral_ui32 (
 	uint32_t value
 	);
 
-///; static char appendFmtLiteralSrc_i64 [] = 
+///; static char appendFmtLiteralSrc_i64 [] =
 
 size_t appendFmtLiteral_i64 (
 	FmtLiteral thin* fmtLiteral,
@@ -101,7 +101,7 @@ size_t appendFmtLiteral_i64 (
 	int64_t value
 	);
 
-///; static char appendFmtLiteralSrc_ui64 [] = 
+///; static char appendFmtLiteralSrc_ui64 [] =
 
 size_t appendFmtLiteral_ui64 (
 	FmtLiteral thin* fmtLiteral,
@@ -109,7 +109,7 @@ size_t appendFmtLiteral_ui64 (
 	uint64_t value
 	);
 
-///; static char appendFmtLiteralSrc_f [] = 
+///; static char appendFmtLiteralSrc_f [] =
 
 size_t appendFmtLiteral_f (
 	FmtLiteral thin* fmtLiteral,
@@ -117,7 +117,7 @@ size_t appendFmtLiteral_f (
 	double value
 	);
 
-///; static char appendFmtLiteralSrc_v [] = 
+///; static char appendFmtLiteralSrc_v [] =
 
 size_t appendFmtLiteral_v (
 	FmtLiteral thin* fmtLiteral,
@@ -125,7 +125,7 @@ size_t appendFmtLiteral_v (
 	variant v
 	);
 
-///; static char tryCheckDataPtrRangeDirectSrc [] = 
+///; static char tryCheckDataPtrRangeDirectSrc [] =
 
 bool errorcode tryCheckDataPtrRangeDirect (
 	void thin const* p,
@@ -133,7 +133,7 @@ bool errorcode tryCheckDataPtrRangeDirect (
 	size_t rangeLength
 	);
 
-///; static char checkDataPtrRangeDirectSrc [] = 
+///; static char checkDataPtrRangeDirectSrc [] =
 
 void checkDataPtrRangeDirect (
 	void thin const* p,
@@ -141,41 +141,41 @@ void checkDataPtrRangeDirect (
 	size_t rangeLength
 	);
 
-///; static char tryCheckNullPtrSrc [] = 
+///; static char tryCheckNullPtrSrc [] =
 
 bool errorcode tryCheckNullPtr (
 	void thin const* p,
 	int typeKind
 	);
 
-///; static char checkNullPtrSrc [] = 
+///; static char checkNullPtrSrc [] =
 
 void checkNullPtr (
 	void thin const* p,
 	int typeKind
 	);
 
-///; static char checkStackOverflowSrc [] = 
+///; static char checkStackOverflowSrc [] =
 
 void checkStackOverflow ();
 
-///; static char checkDivByZeroSrc_i32 [] = 
+///; static char checkDivByZeroSrc_i32 [] =
 
 void checkDivByZero_i32 (int32_t x);
 
-///; static char checkDivByZeroSrc_i64 [] = 
+///; static char checkDivByZeroSrc_i64 [] =
 
 void checkDivByZero_i64 (int64_t x);
 
-///; static char checkDivByZeroSrc_f32 [] = 
+///; static char checkDivByZeroSrc_f32 [] =
 
 void checkDivByZero_f32 (float x);
 
-///; static char checkDivByZeroSrc_f64 [] = 
+///; static char checkDivByZeroSrc_f64 [] =
 
 void checkDivByZero_f64 (double x);
 
-///; static char tryLazyGetDynamicLibFunctionSrc [] = 
+///; static char tryLazyGetDynamicLibFunctionSrc [] =
 
 void thin* errorcode tryLazyGetDynamicLibFunction (
 	jnc.DynamicLib* lib,
@@ -183,7 +183,7 @@ void thin* errorcode tryLazyGetDynamicLibFunction (
 	char thin const* name
 	);
 
-///; static char lazyGetDynamicLibFunctionSrc [] = 
+///; static char lazyGetDynamicLibFunctionSrc [] =
 
 void thin* lazyGetDynamicLibFunction (
 	jnc.DynamicLib* lib,
@@ -193,7 +193,7 @@ void thin* lazyGetDynamicLibFunction (
 
 ///;
 
-//.............................................................................
+//..............................................................................
 
 ///---
 

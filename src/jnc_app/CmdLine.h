@@ -1,6 +1,6 @@
 #pragma once
 
-//.............................................................................
+//..............................................................................
 
 enum JncFlag
 {
@@ -39,7 +39,7 @@ struct CmdLine
 
 };
 
-//.............................................................................
+//..............................................................................
 
 enum CmdLineSwitch
 {
@@ -68,7 +68,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_StackSizeLimit,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_GROUP ("General options")
@@ -188,7 +188,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		)
 AXL_SL_END_CMD_LINE_SWITCH_TABLE ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SL_BEGIN_STRING_HASH_TABLE_MAP (DoxyCommentMap, uint_t)
 	AXL_SL_HASH_TABLE_MAP_ENTRY ("///", jnc::ModuleCompileFlag_DisableDoxyComment1)
@@ -201,12 +201,12 @@ AXL_SL_BEGIN_STRING_HASH_TABLE_MAP (DoxyCommentMap, uint_t)
 	AXL_SL_HASH_TABLE_MAP_ENTRY ("4",   jnc::ModuleCompileFlag_DisableDoxyComment4)
 AXL_SL_END_STRING_HASH_TABLE_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class CmdLineParser: public sl::CmdLineParser <CmdLineParser, CmdLineSwitchTable>
 {
 	friend class sl::CmdLineParser <CmdLineParser, CmdLineSwitchTable>;
-		
+
 protected:
 	CmdLine* m_cmdLine;
 
@@ -230,4 +230,4 @@ protected:
 	finalize ();
 };
 
-//.............................................................................
+//..............................................................................

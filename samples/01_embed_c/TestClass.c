@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "TestClass.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	TestClass,
-	"TestClass", 
-	g_myLibGuid, 
+	"TestClass",
+	g_myLibGuid,
 	MyLibCacheSlot_TestClass,
-	TestClass, 
+	TestClass,
 	&TestClass_markOpaqueGcRoots
 	)
 
@@ -23,7 +23,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (TestClass)
 	JNC_MAP_PROPERTY ("m_prop", TestClass_setProp, TestClass_setProp)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 TestClass_construct (
@@ -71,7 +71,7 @@ TestClass_setInternalValue (
 	return value;
 }
 
-int 
+int
 TestClass_addAssign (
 	TestClass* self,
 	int delta
@@ -81,7 +81,7 @@ TestClass_addAssign (
 	return TestClass_setInternalValue (self, self->m_internalValue + delta);
 }
 
-int 
+int
 TestClass_subAssign (
 	TestClass* self,
 	int delta
@@ -129,4 +129,4 @@ TestClass_setProp (
 	self->m_propValue = ptr;
 }
 
-//.............................................................................
+//..............................................................................

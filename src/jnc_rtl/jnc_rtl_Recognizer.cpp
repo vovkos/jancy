@@ -10,12 +10,12 @@
 namespace jnc {
 namespace rtl {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_CLASS_TYPE (
-	Recognizer, 
-	"jnc.Recognizer", 
-	sl::g_nullGuid, 
+	Recognizer,
+	"jnc.Recognizer",
+	sl::g_nullGuid,
 	-1
 	)
 
@@ -29,7 +29,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Recognizer)
 	JNC_MAP_FUNCTION ("eof", &Recognizer::eof)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 JNC_CDECL
@@ -104,7 +104,7 @@ Recognizer::reset ()
 	m_currentOffset = 0;
 }
 
-bool 
+bool
 JNC_CDECL
 Recognizer::write (
 	DataPtr ptr,
@@ -114,7 +114,7 @@ Recognizer::write (
 	if (!m_automatonFuncPtr.m_p)
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		return false;	
+		return false;
 	}
 
 	if (length == -1)
@@ -156,7 +156,7 @@ Recognizer::eof ()
 
 AutomatonResult
 Recognizer::writeData (
-	uchar_t* p, 
+	uchar_t* p,
 	size_t length
 	)
 {
@@ -173,7 +173,7 @@ Recognizer::writeData (
 		if (result != AutomatonResult_Continue)
 			return result;
 	}
-	
+
 	return AutomatonResult_Continue;
 }
 
@@ -214,7 +214,7 @@ AutomatonResult
 Recognizer::gotoState (size_t stateId)
 {
 	m_stateId = stateId;
-			
+
 	uint_t flags = m_stateFlagTable [stateId];
 	if (!(flags & RecognizerStateFlag_Accept))
 		return AutomatonResult_Continue;
@@ -231,7 +231,7 @@ AutomatonResult
 Recognizer::rollback ()
 {
 	ASSERT (m_lastAcceptStateId != -1 && m_lastAcceptLexemeLength);
-	
+
 	uchar_t* chunk = (uchar_t*) m_lexemePtr.m_p + m_lastAcceptLexemeLength;
 	size_t chunkLength = m_lexemeLength - m_lastAcceptLexemeLength;
 
@@ -239,9 +239,9 @@ Recognizer::rollback ()
 	m_lexemeLength = m_lastAcceptLexemeLength;
 
 	AutomatonResult result = match (m_lastAcceptStateId);
-	return 
+	return
 		result != AutomatonResult_Continue ? result :
-		chunkLength ? writeData (chunk, chunkLength) : 
+		chunkLength ? writeData (chunk, chunkLength) :
 		AutomatonResult_Continue;
 }
 
@@ -254,7 +254,7 @@ Recognizer::match (size_t stateId)
 	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = 0;
 
 	AutomatonResult result = ((AutomatonFunc*) m_automatonFuncPtr.m_p) (m_automatonFuncPtr.m_closure, this, stateId);
-	
+
 	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = savedChar;
 
 	m_stateId = 0;
@@ -269,7 +269,7 @@ Recognizer::match (size_t stateId)
 	return result;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

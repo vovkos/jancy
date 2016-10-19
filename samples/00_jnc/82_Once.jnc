@@ -1,15 +1,15 @@
-// Jancy features a nice and clean approach to the lazy initialization problem 
-// with the 'once' statement: just prefix any statement (including a compound 
-// statement '{ ... }') with 'once' or 'threadlocal once' and it will be executed 
+// Jancy features a nice and clean approach to the lazy initialization problem
+// with the 'once' statement: just prefix any statement (including a compound
+// statement '{ ... }') with 'once' or 'threadlocal once' and it will be executed
 // once per each program run (or once per each thread run).
 
-// Static or thread-local variable construction and initialization is also 
+// Static or thread-local variable construction and initialization is also
 // guaranteed to be executed once per program run (or once per thread run).
 
-// Lazy initialization is guaranteed to be thread-safe. The compiler generates 
+// Lazy initialization is guaranteed to be thread-safe. The compiler generates
 // output code similar to boost::call_once ().
 
-//.............................................................................
+//..............................................................................
 
 class C1
 {
@@ -22,7 +22,7 @@ class C1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 int foo ()
 {
@@ -44,7 +44,7 @@ bar ()
 {
 	printf ("bar ()\n");
 
-	// static variable construction 
+	// static variable construction
 
 	static C1 c;
 
@@ -55,8 +55,8 @@ bar ()
 	// static variable initialization with 'once' statement
 
 	static int a [3];
-	
-	once 
+
+	once
 	{
 		printf ("foo.static once\n");
 		for (size_t i = 0; i < countof (a); i++)
@@ -65,7 +65,7 @@ bar ()
 
 	// call initialization procedure once
 
-	once initSomethingElse ();	
+	once initSomethingElse ();
 
 	// print values of static variables
 
@@ -77,11 +77,11 @@ bar ()
 
 	for (size_t i = 0; i < countof (a); i++)
 		printf ("%d, ", a [i]);
-	
+
 	printf ("}\n");
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -96,4 +96,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

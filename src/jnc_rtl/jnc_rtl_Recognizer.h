@@ -9,7 +9,7 @@ class Recognizer;
 
 JNC_DECLARE_CLASS_TYPE (Recognizer)
 
-//.............................................................................
+//..............................................................................
 
 enum AutomatonResult
 {
@@ -18,9 +18,9 @@ enum AutomatonResult
 	AutomatonResult_Stop     = 1,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef 
+typedef
 AutomatonResult
 AutomatonFunc (
 	IfaceHdr* closure,
@@ -28,7 +28,7 @@ AutomatonFunc (
 	uint_t request
 	);
 
-//.............................................................................
+//..............................................................................
 
 enum RecognizerField
 {
@@ -39,7 +39,7 @@ enum RecognizerField
 	RecognizerField__Count,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum RecognizerStateFlag
 {
@@ -47,7 +47,7 @@ enum RecognizerStateFlag
 	RecognizerStateFlag_Final  = 0x02,
 };
 
-//.............................................................................
+//..............................................................................
 
 class Recognizer: public IfaceHdr
 {
@@ -66,7 +66,7 @@ protected:
 	uintptr_t m_stateId;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
-	
+
 public:
 	FunctionPtr m_automatonFuncPtr;
 	size_t m_lexemeLengthLimit;
@@ -96,8 +96,8 @@ public:
 	void
 	JNC_CDECL
 	reset ();
-	
-	bool 
+
+	bool
 	JNC_CDECL
 	write (
 		DataPtr ptr,
@@ -111,7 +111,7 @@ public:
 protected:
 	AutomatonResult
 	writeData (
-		uchar_t* p, 
+		uchar_t* p,
 		size_t length
 		);
 
@@ -120,7 +120,7 @@ protected:
 
 	AutomatonResult
 	gotoState (size_t stateId);
-	
+
 	AutomatonResult
 	rollback ();
 
@@ -128,7 +128,7 @@ protected:
 	match (size_t stateId);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rtl
 } // namespace jnc

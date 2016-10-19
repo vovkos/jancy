@@ -12,7 +12,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 enum PropertyKind
 {
@@ -23,7 +23,7 @@ enum PropertyKind
 	PropertyKind__Count
 };
 
-//.............................................................................
+//..............................................................................
 
 enum PropertyFlag
 {
@@ -33,9 +33,9 @@ enum PropertyFlag
 	PropertyFlag_AutoSet  = 0x200000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Property: 
+class Property:
 	public ModuleItem,
 	public Namespace,
 	public NamedTypeBlock
@@ -57,7 +57,7 @@ protected:
 	Function* m_binder;
 
 	// member data is StructField or Variable
-	
+
 	ModuleItem* m_onChanged;
 	ModuleItem* m_autoGetValue;
 
@@ -75,31 +75,31 @@ protected:
 public:
 	Property ();
 
-	PropertyKind 
+	PropertyKind
 	getPropertyKind ()
 	{
 		return m_propertyKind;
 	}
 
-	PropertyType* 
+	PropertyType*
 	getType ()
 	{
 		return m_type;
 	}
 
-	Function* 
+	Function*
 	getGetter ()
 	{
 		return m_getter;
 	}
 
-	Function* 
+	Function*
 	getSetter ()
 	{
 		return m_setter;
 	}
 
-	Function* 
+	Function*
 	getBinder ()
 	{
 		return m_binder;
@@ -129,7 +129,7 @@ public:
 	bool
 	createAutoGetValue (Type* type);
 
-	DerivableType* 
+	DerivableType*
 	getParentType ()
 	{
 		return m_parentType;
@@ -147,7 +147,7 @@ public:
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
-	size_t 
+	size_t
 	getParentClassVTableIndex ()
 	{
 		return m_parentClassVTableIndex;
@@ -170,7 +170,7 @@ public:
 		return m_vtableVariable;
 	}
 
-	virtual 
+	virtual
 	bool
 	compile ();
 
@@ -204,17 +204,17 @@ protected:
 	Value
 	getAutoAccessorPropertyValue ();
 
-	bool 
+	bool
 	compileAutoGetter ();
 
-	bool 
+	bool
 	compileAutoSetter ();
 
-	bool 
+	bool
 	compileBinder ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

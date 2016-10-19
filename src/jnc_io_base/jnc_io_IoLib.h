@@ -3,10 +3,10 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 enum IoLibCacheSlot
-{	
+{
 	IoLibCacheSlot_Serial,
 	IoLibCacheSlot_SerialEventParams,
 	IoLibCacheSlot_SerialPortDesc,
@@ -36,7 +36,7 @@ JNC_DEFINE_GUID (
 	0x362ff8e2, 0x1bdd, 0x4319, 0xaf, 0x8f, 0xad, 0x86, 0xc3, 0x91, 0x7a, 0xc5
 	);
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

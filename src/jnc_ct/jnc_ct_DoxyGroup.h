@@ -9,7 +9,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class DoxyGroup: public DoxyBlock
 {
@@ -41,13 +41,13 @@ public:
 		return m_name;
 	}
 
-	sl::Array <ModuleItem*> 
+	sl::Array <ModuleItem*>
 	getItemArray ()
 	{
 		return m_itemArray;
 	}
 
-	sl::ConstBoxList <DoxyGroup*> 
+	sl::ConstBoxList <DoxyGroup*>
 	getGroupList ()
 	{
 		return m_groupList;
@@ -73,7 +73,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

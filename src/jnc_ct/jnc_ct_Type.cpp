@@ -6,7 +6,7 @@
 
 namespace jnc {
 namespace ct {
-//.............................................................................
+//..............................................................................
 
 TypeKind
 getInt32TypeKind (int32_t integer)
@@ -25,7 +25,7 @@ getInt32TypeKind_u (uint32_t integer)
 		integer <= INT8_MAX ? TypeKind_Int8 :
 		integer <= UINT8_MAX ? TypeKind_Int8_u :
 		integer <= INT16_MAX ? TypeKind_Int16 :
-		integer <= UINT16_MAX ? TypeKind_Int16_u : 
+		integer <= UINT16_MAX ? TypeKind_Int16_u :
 		integer <= INT32_MAX ? TypeKind_Int32 : TypeKind_Int32_u;
 }
 
@@ -54,7 +54,7 @@ getInt64TypeKind_u (uint64_t integer)
 		integer <= INT64_MAX ? TypeKind_Int64 : TypeKind_Int64_u;
 }
 
-//.............................................................................
+//..............................................................................
 
 sl::String
 getLlvmTypeString (llvm::Type* llvmType)
@@ -65,7 +65,7 @@ getLlvmTypeString (llvm::Type* llvmType)
 	return stream.str ().c_str ();
 }
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getPtrTypeFlagString (PtrTypeFlag flag)
@@ -169,7 +169,7 @@ getPtrTypeFlagsFromModifiers (uint_t modifiers)
 	return flags;
 }
 
-//.............................................................................
+//..............................................................................
 
 Type::Type ()
 {
@@ -378,7 +378,7 @@ Type::prepareTypeString ()
 		"double",
 	};
 
-	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);	
+	ASSERT (m_typeKind < TypeKind__PrimitiveTypeCount);
 	getTypeStringTuple ()->m_typeStringPrefix = stringTable [m_typeKind];
 }
 
@@ -399,7 +399,7 @@ Type::prepareDoxyTypeString ()
 	tuple->m_doxyTypeString += "</type>\n";
 
 	AXL_TODO ("add compile-option for whether to use doxy-linked-text instead of plain-text")
-	
+
 	sl::String suffix = getTypeStringSuffix ();
 	if (!suffix.isEmpty ()) // suffix should be ready by now
 	{
@@ -634,7 +634,7 @@ Type::markGcRoots (
 		variant->m_type->markGcRoots (p, gcHeap);
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 NamedType::prepareDoxyLinkedText ()
@@ -645,11 +645,11 @@ NamedType::prepareDoxyLinkedText ()
 		return;
 	}
 
-	sl::String refId = getDoxyBlock ()->getRefId ();	
+	sl::String refId = getDoxyBlock ()->getRefId ();
 	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.sz (), m_tag.sz ());
 }
 
-//.............................................................................
+//..............................................................................
 
 Typedef::Typedef ()
 {
@@ -680,7 +680,7 @@ Typedef::generateDocumentation (
 		getDoxyBlock ()->getRefId ().sz (),
 		m_name.sz ()
 		);
-	
+
 	itemXml->append (m_type->getDoxyTypeString ());
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
@@ -689,7 +689,7 @@ Typedef::generateDocumentation (
 	return true;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 TypedefShadowType::prepareDoxyLinkedText ()
@@ -701,7 +701,7 @@ TypedefShadowType::prepareDoxyLinkedText ()
 		return;
 	}
 
-	sl::String refId = m_typedef->getDoxyBlock ()->getRefId ();	
+	sl::String refId = m_typedef->getDoxyBlock ()->getRefId ();
 	getTypeStringTuple ()->m_doxyLinkedTextPrefix.format ("<ref refid=\"%s\">%s</ref>", refId.sz (), m_tag.sz ());
 }
 
@@ -715,7 +715,7 @@ TypedefShadowType::calcLayout ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getSimpleType (
@@ -780,7 +780,7 @@ getDirectRefType (
 	uint_t ptrTypeFlags
 	)
 {
-	return type->getTypeKind () == TypeKind_Class ? 
+	return type->getTypeKind () == TypeKind_Class ?
 		(Type*) ((ClassType*) type)->getClassPtrType (
 			anchorNamespace,
 			TypeKind_ClassRef,
@@ -795,7 +795,7 @@ getDirectRefType (
 			);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 isDisposableType (Type* type)
@@ -822,7 +822,7 @@ isDisposableType (Type* type)
 		if (functionType->getTypeKind () != TypeKind_Function)
 		{
 			if (functionType->getTypeKind () == TypeKind_Void)
-			{ 
+			{
 				// alias was declared like this: alias dispose = close;
 				// since we don't do strict checks now anyway, let it go
 				break;
@@ -841,11 +841,11 @@ isDisposableType (Type* type)
 	return true;
 }
 
-bool 
+bool
 isSafePtrType (Type* type)
 {
-	return 
-		(type->getTypeKindFlags () & TypeKindFlag_Ptr) && 
+	return
+		(type->getTypeKindFlags () & TypeKindFlag_Ptr) &&
 		(type->getFlags () & PtrTypeFlag_Safe);
 }
 
@@ -889,7 +889,7 @@ getWeakPtrType (Type* type)
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

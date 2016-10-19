@@ -4,7 +4,7 @@
 
 JNC_DECLARE_TYPE (TestStruct)
 
-//.............................................................................
+//..............................................................................
 
 struct TestStruct
 {
@@ -14,14 +14,14 @@ struct TestStruct
 
 typedef struct TestStruct TestStruct;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 TestStruct_construct_0 (jnc_DataPtr selfPtr);
 
 void
 TestStruct_construct_1 (
-	jnc_DataPtr selfPtr, 
+	jnc_DataPtr selfPtr,
 	int x,
 	int y
 	);
@@ -31,15 +31,15 @@ TestStruct_foo_0 (jnc_DataPtr selfPtr);
 
 void
 TestStruct_foo_1 (
-	jnc_DataPtr selfPtr, 
+	jnc_DataPtr selfPtr,
 	int x,
 	int y
 	);
 
 void
 TestStruct_foo_2 (
-	jnc_DataPtr selfPtr, 
+	jnc_DataPtr selfPtr,
 	jnc_DataPtr srcPtr
 	);
 
-//.............................................................................
+//..............................................................................

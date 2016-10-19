@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 DataPtrType::DataPtrType ()
 {
@@ -20,9 +20,9 @@ DataPtrType::DataPtrType ()
 bool
 DataPtrType::isConstPtrType ()
 {
-	return 
-		(m_flags & PtrTypeFlag_Const) != 0 || 
-		(m_flags & PtrTypeFlag_ReadOnly) != 0 && 
+	return
+		(m_flags & PtrTypeFlag_Const) != 0 ||
+		(m_flags & PtrTypeFlag_ReadOnly) != 0 &&
 		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
@@ -96,8 +96,8 @@ DataPtrType::getPointerStringSuffix ()
 void
 DataPtrType::prepareLlvmType ()
 {
-	m_llvmType = 
-		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType (StdType_DataPtrStruct)->getLlvmType () : 
+	m_llvmType =
+		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType (StdType_DataPtrStruct)->getLlvmType () :
 		m_targetType->getTypeKind () != TypeKind_Void ? llvm::PointerType::get (m_targetType->getLlvmType (), 0) :
 		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmType ();
 }
@@ -105,7 +105,7 @@ DataPtrType::prepareLlvmType ()
 void
 DataPtrType::prepareLlvmDiType ()
 {
-	m_llvmDiType = 
+	m_llvmDiType =
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType (StdType_DataPtrStruct)->getLlvmDiType () :
 		m_targetType->getTypeKind () != TypeKind_Void ? m_module->m_llvmDiBuilder.createPointerType (m_targetType) :
 		m_module->m_typeMgr.getStdType (StdType_BytePtr)->getLlvmDiType ();
@@ -119,7 +119,7 @@ DataPtrType::markGcRoots (
 {
 	ASSERT (m_ptrTypeKind == DataPtrTypeKind_Normal);
 
-	DataPtr* ptr = (DataPtr*) p;		
+	DataPtr* ptr = (DataPtr*) p;
 	if (!ptr->m_validator)
 		return;
 
@@ -127,7 +127,7 @@ DataPtrType::markGcRoots (
 	gcHeap->markData (ptr->m_validator->m_targetBox);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

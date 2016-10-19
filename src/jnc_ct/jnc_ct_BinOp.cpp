@@ -5,23 +5,23 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getBinOpKindString (BinOpKind opKind)
 {
-	static const char* stringTable [BinOpKind__Count] = 
+	static const char* stringTable [BinOpKind__Count] =
 	{
 		"undefined-binary-operator",  // EBinOp_Undefined = 0,
 		"+",                          // EBinOp_Add,
 		"-",                          // EBinOp_Sub,
 		"*",                          // EBinOp_Mul,
 		"/",                          // EBinOp_Div,
-		"%",                          // EBinOp_Mod,	
+		"%",                          // EBinOp_Mod,
 		"<<",                         // EBinOp_Shl,
-		">>",                         // EBinOp_Shr,	
+		">>",                         // EBinOp_Shr,
 		"&",                          // EBinOp_BwAnd,
-		"^",                          // EBinOp_BwXor,	
+		"^",                          // EBinOp_BwXor,
 		"|",                          // EBinOp_BwOr,
 		"@",                          // EBinOp_At,
 		"[]",                         // EBinOp_Idx,
@@ -48,12 +48,12 @@ getBinOpKindString (BinOpKind opKind)
 		"@=",                         // EBinOp_AtAssign,
 	};
 
-	return (size_t) opKind < BinOpKind__Count ? 
-		stringTable [opKind] : 
+	return (size_t) opKind < BinOpKind__Count ?
+		stringTable [opKind] :
 		stringTable [BinOpKind_Undefined];
 }
 
-//.............................................................................
+//..............................................................................
 
 BinaryOperator::BinaryOperator()
 {
@@ -79,7 +79,7 @@ BinaryOperator::getResultType (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

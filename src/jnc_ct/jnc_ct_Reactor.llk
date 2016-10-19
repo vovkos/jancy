@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 start
 reactor_body
@@ -36,12 +36,12 @@ reactor_onevent_stmt
 			}
 	;
 
-class 
+class
 {
 	sl::BoxList <Value> m_valueList;
 }
 reactor_event_name
-	local 
+	local
 	{
 		sl::BoxList <Token> $tokenList;
 	}
@@ -51,8 +51,8 @@ reactor_event_name
 			}
 	|	TokenKind_BindingOf '(' expression ')'
 			{
-				Value value;			
-				return 
+				Value value;
+				return
 					m_module->m_operatorMgr.getPropertyOnChanged ($3.m_value, &value) &&
 					$.m_valueList.insertTail (value);
 			}
@@ -61,21 +61,21 @@ reactor_event_name
 				$tokenList.insertTail ($1);
 			}
 		)+
-			{	
-				Value value;			
-				return 
-					m_module->m_operatorMgr.parseExpression (NULL, $tokenList, &value) && 
+			{
+				Value value;
+				return
+					m_module->m_operatorMgr.parseExpression (NULL, $tokenList, &value) &&
 					$.m_valueList.insertTail (value);
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 start
 reactor_body_0
 	:	'{' reactor_stmt_0+ '}'
 	;
-	
+
 reactor_stmt_0
 	:	reactor_expression_stmt_0
 	|	reactor_onevent_stmt_0
@@ -104,7 +104,7 @@ reactor_onevent_stmt_0
 				m_reactionIndex++;
 			}
 	;
-	
+
 reactor_compound_stmt_0
 	:	'{' (reactor_compound_stmt_0 | any)* '}'
 	;
@@ -124,4 +124,4 @@ reactor_event_name_0
 			}
 	;
 
-//.............................................................................
+//..............................................................................

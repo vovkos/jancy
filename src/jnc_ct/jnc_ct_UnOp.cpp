@@ -5,33 +5,33 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getUnOpKindString (UnOpKind opKind)
 {
-	static const char* stringTable [UnOpKind__Count] = 
+	static const char* stringTable [UnOpKind__Count] =
 	{
 		"undefined-unary-operator",  // EUnOp_Undefined = 0,
 		"+",                         // EUnOp_Plus,
 		"-",                         // EUnOp_Minus,
-		"~",                         // EUnOp_BwNot,	
+		"~",                         // EUnOp_BwNot,
 		"&",                         // EUnOp_Addr,
-		"*",                         // EUnOp_Indir,	
+		"*",                         // EUnOp_Indir,
 		"!",                         // EUnOp_LogNot,
 		"++",                        // EUnOp_PreInc,
 		"--",                        // EUnOp_PreDec,
 		"postfix ++",                // EUnOp_PostInc,
-		"postfix --",                // EUnOp_PostDec,	
+		"postfix --",                // EUnOp_PostDec,
 		"->",                        // EUnOp_Ptr,
 	};
 
-	return (size_t) opKind < UnOpKind__Count ? 
-		stringTable [opKind] : 
+	return (size_t) opKind < UnOpKind__Count ?
+		stringTable [opKind] :
 		stringTable [UnOpKind_Undefined];
 }
 
-//.............................................................................
+//..............................................................................
 
 UnaryOperator::UnaryOperator ()
 {
@@ -56,7 +56,7 @@ UnaryOperator::getResultType (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

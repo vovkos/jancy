@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 uint_t
 jnc_getTypeKindFlags (jnc_TypeKind typeKind)
@@ -19,7 +19,7 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 		0,                              // jnc_TypeKind_Void
 		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Variant
 
-		jnc_TypeKindFlag_Numeric | 
+		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_Bool
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8
@@ -99,7 +99,7 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 
 		jnc_TypeKindFlag_Aggregate |
 		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Array
-		
+
 		0,                              // jnc_TypeKind_BitField
 
 		jnc_TypeKindFlag_Named |        // jnc_TypeKind_Enum
@@ -181,19 +181,19 @@ JNC_EXTERN_C
 const char*
 jnc_getDataPtrTypeKindString (jnc_DataPtrTypeKind ptrTypeKind)
 {
-	static const char* stringTable [jnc_DataPtrTypeKind__Count] = 
+	static const char* stringTable [jnc_DataPtrTypeKind__Count] =
 	{
 		"normal", // EDataPtrType_Normal = 0,
 		"lean",   // EDataPtrType_Lean,
 		"thin",   // EDataPtrType_Thin,
 	};
-		
-	return (size_t) ptrTypeKind < jnc_DataPtrTypeKind__Count ? 
-		stringTable [ptrTypeKind] : 
+
+	return (size_t) ptrTypeKind < jnc_DataPtrTypeKind__Count ?
+		stringTable [ptrTypeKind] :
 		"undefined-data-ptr-kind";
 }
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -283,21 +283,21 @@ jnc_Type_getSize (jnc_Type* type)
 JNC_EXTERN_C
 const char*
 jnc_Type_getTypeString (jnc_Type* type)
-{	
+{
 	return type->getTypeString ();
 }
 
 JNC_EXTERN_C
 const char*
 jnc_Type_getTypeStringPrefix (jnc_Type* type)
-{	
+{
 	return type->getTypeStringPrefix ();
 }
 
 JNC_EXTERN_C
 const char*
 jnc_Type_getTypeStringSuffix (jnc_Type* type)
-{	
+{
 	return type->getTypeStringSuffix ();
 }
 
@@ -307,7 +307,7 @@ jnc_Type_cmp (
 	jnc_Type* type,
 	jnc_Type* type2
 	)
-{	
+{
 	return type->cmp (type2);
 }
 
@@ -318,7 +318,7 @@ jnc_Type_getDataPtrType (
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
-{	
+{
 	return type->getDataPtrType (ptrTypeKind, flags);
 }
 
@@ -333,7 +333,7 @@ jnc_Type_markGcRoots (
 	return type->markGcRoots (p, gcHeap);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_DataPtrTypeKind
@@ -351,4 +351,4 @@ jnc_DataPtrType_getTargetType (jnc_DataPtrType* type)
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

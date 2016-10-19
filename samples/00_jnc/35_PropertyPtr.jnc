@@ -1,21 +1,21 @@
-// Properties are present in many modern languages. Property pointers, on the 
-// other hand, require well-developed syntax and semantics of pointer 
+// Properties are present in many modern languages. Property pointers, on the
+// other hand, require well-developed syntax and semantics of pointer
 // declarations and operators, and these are usually lacking. Jancy is proud
 // to be one of the first languages with full support for property pointers.
 
 // Property pointers resemble and are closely related to function pointers.
-// Unlike function pointers, however, dealing with property pointers requires 
-// a careful application of address '&' and indirection '*' operators. This is 
-// due to the implicit invocation of property accessors and the ambiguity 
+// Unlike function pointers, however, dealing with property pointers requires
+// a careful application of address '&' and indirection '*' operators. This is
+// due to the implicit invocation of property accessors and the ambiguity
 // induced by this invocation (this ambiguity can't be automatically resolved).
 
-//.............................................................................
+//..............................................................................
 
 // simple autoget property
 
 int autoget property g_foo;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // accessor implementation
 
@@ -25,7 +25,7 @@ g_foo.set (int x)
 	m_value = x;
 }
 
-//.............................................................................
+//..............................................................................
 
 // simple indexed property
 
@@ -34,7 +34,7 @@ int indexed property g_baz (
 	size_t j
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // accessors implementation
 
@@ -57,15 +57,15 @@ g_baz.set (
 	g_bazTable [i] [j] = x;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // global variable to store the property value
 
 int g_bazTable [2] [2];
 
-//.............................................................................
+//..............................................................................
 
-// a class containing a property (which might look simple but is, in fact, 
+// a class containing a property (which might look simple but is, in fact,
 // indexed because of the implicit 'this' argument)
 
 class C1
@@ -79,7 +79,7 @@ class C1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -92,25 +92,25 @@ int main ()
 	int property thin* p1 = &g_foo;
 	*p1 = 10;
 
-	// like with function pointers, the argument conversion is automated -- 
+	// like with function pointers, the argument conversion is automated --
 	// the compiler will generate thunks when needed
 
 	typedef double property FpProp;
 	FpProp thin* p2 = (FpProp thin*) &g_foo;
 	*p2 = 15.8;
 
-	// like with function pointers, the property pointers can capture values of 
+	// like with function pointers, the property pointers can capture values of
 	// index arguments in the closure
 
 	C1 c;
 
 	// in this case the pointer to 'c' will be captured
 
-	int property* p3 = &c.m_bar; 
+	int property* p3 = &c.m_bar;
 
 	*p3 = 200;
-	
-	// use an index operator to capture index arguments in the closure, thus 
+
+	// use an index operator to capture index arguments in the closure, thus
 	// reducing dimensions of an indexed property or completely de-indexing it
 
 	int property* p4 = &(g_baz [0] [1]);
@@ -124,4 +124,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

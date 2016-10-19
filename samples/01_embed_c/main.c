@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 enum Error
 {
@@ -14,7 +14,7 @@ enum Error
 
 typedef enum Error Error;
 
-//.............................................................................
+//..............................................................................
 
 #if (_JNC_OS_WIN)
 
@@ -40,7 +40,7 @@ convertToUtf8 (
 
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #if (_JNC_OS_WIN)
 int
@@ -56,8 +56,8 @@ main (
 	)
 #endif
 {
-	typedef 
-	int 
+	typedef
+	int
 	MainFunc ();
 
 	int result;
@@ -72,7 +72,7 @@ main (
 	int returnValue;
 
 	printf ("Initializing...\n");
-	
+
 	if (argc < 2)
 	{
 		printf ("usage: 01_export <script.jnc>\n");
@@ -95,7 +95,7 @@ main (
 
 	printf ("Parsing '%s'...\n", fileName);
 
-	result = 
+	result =
 		jnc_Module_parseFile (module, fileName) &&
 		jnc_Module_parseImports (module);
 
@@ -164,7 +164,7 @@ main (
 	jnc_Runtime_shutdown (runtime);
 
 	printf ("Done.\n");
-	
+
 exit:
 	if (runtime)
 		jnc_Runtime_destroy (runtime);
@@ -178,4 +178,4 @@ exit:
 	return finalResult;
 }
 
-//.............................................................................
+//..............................................................................

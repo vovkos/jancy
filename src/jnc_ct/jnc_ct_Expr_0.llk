@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 start
 expression_save_value_0
@@ -10,14 +10,14 @@ expression_save_value_0
 
 class
 {
-	Value m_value;	
+	Value m_value;
 }
 start
 expression_0
 	:	conditional_expr_0 <&$.m_value>
 	;
 
-class 
+class
 {
 	Value m_value;
 }
@@ -63,24 +63,24 @@ expression_or_empty_list_0
 		)*
 	|		{
 				$.m_valueList.insertTail (Value ());
-			}	
+			}
 		(',' expression_or_empty_0 $e2
 			{
 				$.m_valueList.insertTail ($e2.m_value);
 			}
 		)+
-	|	epsilon 
+	|	epsilon
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 conditional_expr_0 <Value* $value>
-	local 
+	local
 	{
 		Value $trueValue;
 		Value $falseValue;
 	}
-	:	logical_or_expr_0 <$value> 
+	:	logical_or_expr_0 <$value>
 		('?' conditional_expr_0 <&$trueValue> ':' conditional_expr_0 <&$falseValue>
 			{
 				return m_module->m_operatorMgr.getConditionalOperatorResultType ($trueValue, $falseValue, $value);
@@ -93,7 +93,7 @@ logical_or_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	logical_and_expr_0 <$value> 
+	:	logical_and_expr_0 <$value>
 		(TokenKind_LogOr logical_and_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogAnd, $value, $opValue2);
@@ -106,7 +106,7 @@ logical_and_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	inclusive_or_expr_0 <$value> 
+	:	inclusive_or_expr_0 <$value>
 		(TokenKind_LogAnd inclusive_or_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogOr, $value, $opValue2);
@@ -119,7 +119,7 @@ inclusive_or_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	exclusive_or_expr_0 <$value> 
+	:	exclusive_or_expr_0 <$value>
 		('|' exclusive_or_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwOr, $value, $opValue2);
@@ -132,7 +132,7 @@ exclusive_or_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	and_expr_0 <$value> 
+	:	and_expr_0 <$value>
 		('^' and_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwXor, $value, $opValue2);
@@ -145,7 +145,7 @@ and_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	equality_expr_0 <$value> 
+	:	equality_expr_0 <$value>
 		('&' equality_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwAnd, $value, $opValue2);
@@ -158,7 +158,7 @@ equality_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	relational_expr_0 <$value> 
+	:	relational_expr_0 <$value>
 		(equality_operator $o relational_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
@@ -171,7 +171,7 @@ relational_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	shift_expr_0 <$value> 
+	:	shift_expr_0 <$value>
 		(relational_operator $o shift_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
@@ -184,7 +184,7 @@ shift_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	additive_expr_0 <$value> 
+	:	additive_expr_0 <$value>
 		(shift_operator $o additive_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
@@ -197,7 +197,7 @@ additive_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	multiplicative_expr_0 <$value> 
+	:	multiplicative_expr_0 <$value>
 		(additive_operator $o multiplicative_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
@@ -210,7 +210,7 @@ multiplicative_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	at_expr_0 <$value> 
+	:	at_expr_0 <$value>
 		(multiplicative_operator $o at_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
@@ -223,7 +223,7 @@ at_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	assignment_expr_0 <$value> 
+	:	assignment_expr_0 <$value>
 		('@' assignment_expr_0 <&$opValue2>
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_At, $value, $opValue2);
@@ -236,7 +236,7 @@ assignment_expr_0 <Value* $value>
 	{
 		Value $opValue2;
 	}
-	:	unary_expr_0 <$value> 
+	:	unary_expr_0 <$value>
 		(
 				{
 					if (m_stage == StageKind_ReactorScan)
@@ -250,62 +250,62 @@ assignment_expr_0 <Value* $value>
 	;
 
 unary_expr_0 <Value* $value>
-	:	postfix_expr_0 <$value> 
-	|	unary_operator_expr_0 <$value> 
+	:	postfix_expr_0 <$value>
+	|	unary_operator_expr_0 <$value>
 	;
 
 unary_operator_expr_0 <Value* $value>
-	leave 
+	leave
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
 			m_reactionBindSiteCount++;
 	}
-	:	'+' unary_expr_0 <$value> 
+	:	'+' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Plus, $value);
 			}
-	|	'-' unary_expr_0 <$value> 
+	|	'-' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Minus, $value);
 			}
-	|	'~' unary_expr_0 <$value> 
+	|	'~' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_BwNot, $value);
 			}
-	|	'&' unary_expr_0 <$value> 
+	|	'&' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, $value);
 			}
-	|	'*' unary_expr_0 <$value> 
+	|	'*' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Indir, $value);
 			}
-	|	'!' unary_expr_0 <$value> 
+	|	'!' unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_LogNot, $value);
 			}
-	|	TokenKind_Inc unary_expr_0 <$value> 
+	|	TokenKind_Inc unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreInc, $value);
 			}
-	|	TokenKind_Dec unary_expr_0 <$value> 
+	|	TokenKind_Dec unary_expr_0 <$value>
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreDec, $value);
 			}
-	|	TokenKind_Try unary_expr_0 <$value> 
+	|	TokenKind_Try unary_expr_0 <$value>
 			{
-				// try operator does not change type of value				
+				// try operator does not change type of value
 			}
-	|	resolver (cast_operator_rslv) 
-		'(' type_name $t ')' unary_expr_0 <$value> 
+	|	resolver (cast_operator_rslv)
+		'(' type_name $t ')' unary_expr_0 <$value>
 			{
 				$value->setType ($t.m_type);
 			}
 	|	storage_specifier $s? TokenKind_New new_operator_sype_0 $t
 			{
-				return newOperator_0 ($t.m_type, $value);			
+				return newOperator_0 ($t.m_type, $value);
 			}
-	|	TokenKind_Delete unary_expr_0 <$value> 
+	|	TokenKind_Delete unary_expr_0 <$value>
 			{
 				$value->setVoid (m_module);
 			}
@@ -333,7 +333,7 @@ postfix_expr_0 <Value* $value>
 	;
 
 postfix_operator_0 <Value* $value>
-	leave 
+	leave
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
 			m_reactionBindSiteCount++;
@@ -341,15 +341,15 @@ postfix_operator_0 <Value* $value>
 	:	'(' expression_or_empty_list_0 ')'
 			{
 				return m_module->m_operatorMgr.getCallOperatorResultType ($value, &$2.m_valueList);
-			}		
+			}
 	|	'~' '(' expression_or_empty_list_0 ')'
 			{
 				return m_module->m_operatorMgr.getClosureOperatorResultType ($value, &$3.m_valueList);
-			}		
+			}
 	|	'[' expression_or_empty_0 ']'
 			{
 				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_Idx, $value, $2.m_value);
-			}	
+			}
 	|	TokenKind_Inc
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostInc, $value);
@@ -359,7 +359,7 @@ postfix_operator_0 <Value* $value>
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostDec, $value);
 			}
 	|	'.'	member_operator_0 <$value>
-	|	TokenKind_Ptr 
+	|	TokenKind_Ptr
 			{
 				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Ptr, $value);
 			}
@@ -382,13 +382,13 @@ member_operator_0 <Value* $value>
 	;
 
 primary_expr_0 <Value* $value>
-	leave 
+	leave
 	{
 		if (m_stage == StageKind_ReactorScan && isBindableType ($value->getType ()))
 			m_reactionBindSiteCount++;
 	}
 	:	'(' conditional_expr_0 <$value> ')'
-	|	literal_0 <$value> 
+	|	literal_0 <$value>
 	|	TokenKind_BaseType
 			{
 				return getBaseType ($1.m_data.m_integer - 1, $value);
@@ -438,13 +438,13 @@ primary_expr_0 <Value* $value>
 			{
 				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			}
-	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')' 
+	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')'
 			{
 				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 type_name_or_expr_0
 	:	type_name
@@ -463,13 +463,13 @@ literal_0 <Value* $value>
 	;
 
 literal_atom_0 <Literal_0* $literal>
-	:	TokenKind_Literal 
+	:	TokenKind_Literal
 			{
 				$literal->m_length += $1.m_data.m_string.getLength ();
 				$literal->m_isZeroTerminated = true;
 			}
 	|	TokenKind_HexLiteral
-			{			
+			{
 				$literal->m_length += $1.m_data.m_binData.getCount ();
 				$literal->m_isZeroTerminated = false;
 			}
@@ -479,4 +479,4 @@ literal_atom_0 <Literal_0* $literal>
 			}
 	;
 
-//.............................................................................
+//..............................................................................

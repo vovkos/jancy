@@ -8,7 +8,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Function::Function ()
 {
@@ -99,7 +99,7 @@ Function::addOverload (Function* function)
 	size_t overloadIdx = m_typeOverload.addOverload (function->m_type);
 	if (overloadIdx == -1)
 		return -1;
-	
+
 	m_overloadArray.append (function);
 	ASSERT (overloadIdx == m_overloadArray.getCount ());
 	return overloadIdx;
@@ -145,7 +145,7 @@ Function::compile ()
 
 	// body
 
-	result = 
+	result =
 		m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
 		m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
 		(m_type->getFlags () & FunctionTypeFlag_Automaton) ? compileAutomatonBody () :
@@ -193,7 +193,7 @@ Function::compileAutomatonBody ()
 	sl::Array <FunctionArg*> argArray = m_type->getArgArray ();
 	size_t explicitArgCount = argArray.getCount ();
 	size_t recognizerArgIdx = 0;
-		
+
 	if (m_type->isMemberMethodType ())
 	{
 		explicitArgCount--;
@@ -203,7 +203,7 @@ Function::compileAutomatonBody ()
 	ASSERT (recognizerArgIdx < explicitArgCount); // automaton at least has 'int state'
 	Type* recognizerArgType = argArray [recognizerArgIdx]->getType ();
 
-	if (explicitArgCount != 2 || 
+	if (explicitArgCount != 2 ||
 		(m_type->getFlags () & FunctionTypeFlag_VarArg) ||
 		(recognizerArgType->getTypeKind () != TypeKind_ClassPtr) ||
 		((ClassPtrType*) recognizerArgType)->getTargetType ()->getStdType () != StdType_Recognizer)
@@ -225,10 +225,10 @@ bool
 Function::compileReactionBody ()
 {
 	bool result;
-	
+
 	ClassPtrType* thisArgType = (ClassPtrType*) m_type->getThisArgType ();
 	ASSERT (thisArgType->getTypeKindFlags () & TypeKindFlag_ClassPtr);
-	
+
 	ReactorClassType* reactorType = (ReactorClassType*) thisArgType->getTargetType ();
 	ASSERT (isClassType (reactorType, ClassTypeKind_Reactor));
 
@@ -246,29 +246,29 @@ Function::compileReactionBody ()
 	result =
 		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
 		m_module->m_operatorMgr.binaryOperator (
-			BinOpKind_Idx, 
-			&stateValue, 
+			BinOpKind_Idx,
+			&stateValue,
 			Value (m_reactionIndex, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))
 			) &&
 		m_module->m_controlFlowMgr.conditionalJump (stateValue, returnBlock, followBlock, followBlock) &&
 		m_module->m_operatorMgr.storeDataRef (
-			stateValue, 
+			stateValue,
 			Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
 			);
-	
+
 	Parser parser (m_module);
 	parser.m_stage = Parser::StageKind_Pass2;
 
-	result = 
+	result =
 		parser.parseTokenList (SymbolKind_expression, m_body) &&
 		m_module->m_operatorMgr.storeDataRef (
-			stateValue, 
+			stateValue,
 			Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
 			);
 
 	if (!result)
 		return false;
-	
+
 	m_module->m_controlFlowMgr.follow (returnBlock);
 	return true;
 }
@@ -313,7 +313,7 @@ Function::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

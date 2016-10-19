@@ -9,10 +9,10 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class BinaryOperator
-{	
+{
 	friend class OperatorMgr;
 
 protected:
@@ -30,7 +30,7 @@ public:
 		return m_module;
 	}
 
-	BinOpKind 
+	BinOpKind
 	getOpKind ()
 	{
 		return m_opKind;
@@ -71,7 +71,7 @@ public:
 		) = 0;
 
 	err::Error
-	setOperatorError (		
+	setOperatorError (
 		Type* opType1,
 		Type* opType2
 		)
@@ -85,7 +85,7 @@ public:
 	}
 
 	err::Error
-	setOperatorError (		
+	setOperatorError (
 		const Value& opValue1,
 		const Value& opValue2
 		)
@@ -94,7 +94,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

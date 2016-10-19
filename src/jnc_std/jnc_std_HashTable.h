@@ -9,7 +9,7 @@ namespace std {
 JNC_DECLARE_OPAQUE_CLASS_TYPE (StringHashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
 
-//.............................................................................
+//..............................................................................
 
 class StringHashTable: public IfaceHdr
 {
@@ -31,7 +31,7 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots (GcHeap* gcHeap);
 
-	bool 
+	bool
 	JNC_CDECL
 	isEmpty ()
 	{
@@ -65,7 +65,7 @@ public:
 	remove (DataPtr keyPtr);
 };
 
-//.............................................................................
+//..............................................................................
 
 class VariantHashTable: public IfaceHdr
 {
@@ -121,7 +121,7 @@ public:
 	remove (Variant key);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

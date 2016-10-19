@@ -18,7 +18,7 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 int
 atoi (DataPtr ptr)
@@ -80,13 +80,13 @@ memCmp (
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
-	return 
+	return
 		!ptr1.m_p ? -1 :
 		!ptr2.m_p ? 1 :
 		memcmp (ptr1.m_p, ptr2.m_p, size);
 }
 
-DataPtr 
+DataPtr
 memChr (
 	DataPtr ptr,
 	int c,
@@ -106,7 +106,7 @@ memChr (
 	return resultPtr;
 }
 
-DataPtr 
+DataPtr
 memMem (
 	DataPtr ptr1,
 	size_t size1,
@@ -209,7 +209,7 @@ strCmp (
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
-	return 
+	return
 		!ptr1.m_p ? -1 :
 		!ptr2.m_p ? 1 :
 		strcmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
@@ -224,13 +224,13 @@ striCmp (
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
-	return 
+	return
 		!ptr1.m_p ? -1 :
 		!ptr2.m_p ? 1 :
 		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
 }
 
-DataPtr 
+DataPtr
 strChr (
 	DataPtr ptr,
 	int c
@@ -244,12 +244,12 @@ strChr (
 		return g_nullPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p = 
+	resultPtr.m_p =
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
 
-DataPtr 
+DataPtr
 strStr (
 	DataPtr ptr1,
 	DataPtr ptr2
@@ -328,7 +328,7 @@ collectGarbage ()
 	gcHeap->collect ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc
@@ -348,7 +348,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.setError",       setError)
 	JNC_MAP_FUNCTION ("std.format",         format)
 	JNC_MAP_FUNCTION ("std.collectGarbage", collectGarbage)
-		
+
 	JNC_MAP_FUNCTION ("strlen",  jnc::strLen)
 	JNC_MAP_FUNCTION ("strcmp",  strCmp)
 	JNC_MAP_FUNCTION ("stricmp", striCmp)
@@ -396,4 +396,4 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_StdLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (VariantHashTable)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
-//.............................................................................
+//..............................................................................

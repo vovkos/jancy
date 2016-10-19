@@ -15,7 +15,7 @@ namespace ct {
 class Scope;
 class StructField;
 
-//.............................................................................
+//..............................................................................
 
 enum StdVariable
 {
@@ -25,16 +25,16 @@ enum StdVariable
 	StdVariable__Count,
 };
 
-//.............................................................................
+//..............................................................................
 
 enum VariableFlag
 {
 	VariableFlag_Arg        = 0x010000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Variable: 
+class Variable:
 	public ModuleItem,
 	public ModuleItemDecl,
 	public ModuleItemInitializer
@@ -108,7 +108,7 @@ public:
 
 	llvm::Value*
 	getLlvmValue ();
-	
+
 	llvm::DIDescriptor
 	getLlvmDiDescriptor ()
 	{
@@ -127,7 +127,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 // after compiling and generating LLVM IR, we need to calc layout of TLS struct type
 // then we can insert instructions to get TLS block in every function and then replace
@@ -139,7 +139,7 @@ struct TlsVariable
 	llvm::AllocaInst* m_llvmAlloca;
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

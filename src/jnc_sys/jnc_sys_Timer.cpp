@@ -5,14 +5,14 @@
 namespace jnc {
 namespace sys {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Timer, 
-	"sys.Timer", 
-	g_sysLibGuid, 
+	Timer,
+	"sys.Timer",
+	g_sysLibGuid,
 	SysLibCacheSlot_Timer,
-	Timer, 
+	Timer,
 	NULL
 	)
 
@@ -23,9 +23,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Timer)
 	JNC_MAP_FUNCTION ("stop", &Timer::stop)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
-bool 
+bool
 JNC_CDECL
 Timer::start (
 	FunctionPtr ptr,
@@ -36,7 +36,7 @@ Timer::start (
 	bool result;
 
 	stop ();
-	
+
 	m_timerFuncPtr = ptr;
 	m_dueTime = dueTime;
 	m_interval = interval;
@@ -102,7 +102,7 @@ Timer::threadFunc ()
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace sys
 } // namespace jnc

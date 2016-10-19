@@ -5,8 +5,8 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
-	
+//..............................................................................
+
 bool
 dataPtrIncrementOperator (
 	Module* module,
@@ -16,7 +16,7 @@ dataPtrIncrementOperator (
 	)
 {
 	ASSERT (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
-	
+
 	DataPtrType* opType = (DataPtrType*) opValue1.getType ();
 	DataPtrType* resultType = opType->getUnCheckedPtrType ();
 
@@ -49,9 +49,9 @@ dataPtrIncrementOperator (
 		module->m_llvmIrBuilder.createGep(ptrValue, incValue, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
 	}
-	
+
 	return true;
-}	
+}
 
 bool
 dataPtrDifferenceOperator (
@@ -63,10 +63,10 @@ dataPtrDifferenceOperator (
 {
 	ASSERT (rawOpValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
 	ASSERT (rawOpValue2.getType ()->getTypeKind () == TypeKind_DataPtr);
-	
+
 	Type* targetType1 = ((DataPtrType*) rawOpValue1.getType ())->getTargetType ();
 	Type* targetType2 = ((DataPtrType*) rawOpValue2.getType ())->getTargetType ();
-	
+
 	if (targetType1->cmp (targetType2) != 0)
 	{
 		err::setFormatStringError ("pointer difference target types mismatch");
@@ -83,7 +83,7 @@ dataPtrDifferenceOperator (
 	Value opValue1;
 	Value opValue2;
 
-	bool result = 
+	bool result =
 		module->m_operatorMgr.castOperator (rawOpValue1, bytePtrType, &opValue1) &&
 		module->m_operatorMgr.castOperator (rawOpValue2, bytePtrType, &opValue2);
 
@@ -104,7 +104,7 @@ dataPtrDifferenceOperator (
 	module->m_llvmIrBuilder.createDiv_i (diffValue, sizeValue, type, resultValue);
 	return true;
 }
-//.............................................................................
+//..............................................................................
 
 bool
 BinOp_Add::op (
@@ -113,11 +113,11 @@ BinOp_Add::op (
 	Value* resultValue
 	)
 {
-	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
+	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr &&
 		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 		return dataPtrIncrementOperator (m_module, opValue1, opValue2, resultValue);
 	else if (
-		opValue2.getType ()->getTypeKind () == TypeKind_DataPtr && 
+		opValue2.getType ()->getTypeKind () == TypeKind_DataPtr &&
 		(opValue1.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 		return dataPtrIncrementOperator (m_module, opValue2, opValue1, resultValue);
 	else
@@ -135,7 +135,7 @@ BinOp_Add::llvmOpInt (
 {
 	return m_module->m_llvmIrBuilder.createAdd_i (opValue1, opValue2, resultType, resultValue);
 }
-	
+
 llvm::Value*
 BinOp_Add::llvmOpFp (
 	const Value& opValue1,
@@ -147,7 +147,7 @@ BinOp_Add::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createAdd_f (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 BinOp_Sub::op (
@@ -156,11 +156,11 @@ BinOp_Sub::op (
 	Value* resultValue
 	)
 {
-	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr && 
+	if (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr &&
 		(opValue2.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		Value negOpValue2;
-		return 
+		return
 			m_module->m_operatorMgr.unaryOperator (UnOpKind_Minus, opValue2, &negOpValue2) &&
 			dataPtrIncrementOperator (m_module, opValue1, negOpValue2, resultValue);
 	}
@@ -184,7 +184,7 @@ BinOp_Sub::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createSub_i (opValue1, opValue2, resultType, resultValue);
 }
 
-	
+
 llvm::Value*
 BinOp_Sub::llvmOpFp (
 	const Value& opValue1,
@@ -196,7 +196,7 @@ BinOp_Sub::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createSub_f (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Mul::llvmOpInt (
@@ -209,7 +209,7 @@ BinOp_Mul::llvmOpInt (
 {
 	return m_module->m_llvmIrBuilder.createMul_i (opValue1, opValue2, resultType, resultValue);
 }
-	
+
 llvm::Value*
 BinOp_Mul::llvmOpFp (
 	const Value& opValue1,
@@ -221,7 +221,7 @@ BinOp_Mul::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createMul_f (opValue1, opValue2, resultType, resultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
 BinOp_Div::llvmOpInt (
@@ -240,7 +240,7 @@ BinOp_Div::llvmOpInt (
 		m_module->m_llvmIrBuilder.createDiv_i (opValue1, opValue2, resultType, resultValue);
 }
 
-	
+
 llvm::Value*
 BinOp_Div::llvmOpFp (
 	const Value& opValue1,
@@ -255,7 +255,7 @@ BinOp_Div::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createDiv_f (opValue1, opValue2, resultType, resultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
 BinOp_Mod::llvmOpInt (
@@ -274,7 +274,7 @@ BinOp_Mod::llvmOpInt (
 		m_module->m_llvmIrBuilder.createMod_i (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Shl::llvmOpInt (
@@ -288,7 +288,7 @@ BinOp_Shl::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createShl (opValue1, opValue2, resultType, resultValue);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Value*
 BinOp_Shr::llvmOpInt (
@@ -302,7 +302,7 @@ BinOp_Shr::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createShr (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 BinOp_BwAnd::BinOp_BwAnd ()
 {
@@ -322,7 +322,7 @@ BinOp_BwAnd::op (
 	Value opValue2;
 	Value tmpValue;
 
-	EnumType* enumType = 
+	EnumType* enumType =
 		isBitFlagEnumType (rawOpValue1.getType ()) ? (EnumType*) rawOpValue1.getType () :
 		isBitFlagEnumType (rawOpValue2.getType ()) ? (EnumType*) rawOpValue2.getType () : NULL;
 
@@ -330,13 +330,13 @@ BinOp_BwAnd::op (
 
 	if (!enumType)
 	{
-		return 
+		return
 			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
 			m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
 			BinOp_IntegerOnly <BinOp_BwAnd>::op (opValue1, opValue2, resultValue);
 	}
 
-	return 
+	return
 		m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
 		m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
 		BinOp_IntegerOnly <BinOp_BwAnd>::op (opValue1, opValue2, &tmpValue) &&
@@ -355,7 +355,7 @@ BinOp_BwAnd::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createAnd (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 BinOp_BwOr::BinOp_BwOr ()
 {
@@ -379,7 +379,7 @@ BinOp_BwOr::op (
 
 	if (!isFlagEnumOpType (rawOpValue1, rawOpValue2))
 	{
-		return 
+		return
 			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
 			m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
 			BinOp_IntegerOnly <BinOp_BwOr>::op (opValue1, opValue2, resultValue);
@@ -390,7 +390,7 @@ BinOp_BwOr::op (
 	opValue1.overrideType (rawOpValue1, enumType->getBaseType ());
 	opValue2.overrideType (rawOpValue2, enumType->getBaseType ());
 
-	return 
+	return
 		BinOp_IntegerOnly <BinOp_BwOr>::op (opValue1, opValue2, &tmpValue) &&
 		m_module->m_operatorMgr.castOperator (tmpValue, enumType, resultValue);
 }
@@ -407,7 +407,7 @@ BinOp_BwOr::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createOr (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_BwXor::llvmOpInt (
@@ -421,7 +421,7 @@ BinOp_BwXor::llvmOpInt (
 	return m_module->m_llvmIrBuilder.createXor (opValue1, opValue2, resultType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

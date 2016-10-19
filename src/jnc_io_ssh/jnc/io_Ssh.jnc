@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup ssh
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum SshEvent
 {
@@ -26,7 +26,7 @@ enum SshEvent
 	TransmitBufferReady,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SshEventParams
 {
@@ -35,7 +35,7 @@ struct SshEventParams
 	std.Error const* m_error;
 }
 
-//.............................................................................
+//..............................................................................
 
 opaque class SshChannel
 {
@@ -67,7 +67,7 @@ opaque class SshChannel
 		char const* userName,
 		char const* password
 		);
-		
+
 	bool errorcode resizePty (
 		uint_t width,
 		uint_t height,
@@ -87,7 +87,7 @@ opaque class SshChannel
 	event m_onSshEvent (SshEventParams const* params);
 }
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

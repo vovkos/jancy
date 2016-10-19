@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 isMulticastToMulticast (
@@ -28,7 +28,7 @@ isMulticastToMulticast (
 	return srcMcType->getTargetType ()->cmp (dstMcType->getTargetType ()) == 0;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_ClassPtr::getCastKind (
@@ -44,18 +44,18 @@ Cast_ClassPtr::getCastKind (
 	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
 	ClassPtrType* dstType = (ClassPtrType*) type;
 
-	if (srcType->isConstPtrType () && !dstType->isConstPtrType ()) 
+	if (srcType->isConstPtrType () && !dstType->isConstPtrType ())
 		return CastKind_None; // const vs non-const mismatch
 
 	ClassType* srcClassType = srcType->getTargetType ();
 	ClassType* dstClassType = dstType->getTargetType ();
 
-	return 
-		(dstClassType->getClassTypeKind () == ClassTypeKind_Abstract) ||	
-		srcClassType->cmp (dstClassType) == 0 || 
+	return
+		(dstClassType->getClassTypeKind () == ClassTypeKind_Abstract) ||
+		srcClassType->cmp (dstClassType) == 0 ||
 		isMulticastToMulticast (srcType, dstType) ||
-		srcClassType->findBaseTypeTraverse (dstClassType) ? 
-		CastKind_Implicit : 
+		srcClassType->findBaseTypeTraverse (dstClassType) ?
+		CastKind_Implicit :
 		CastKind_Dynamic;
 }
 
@@ -132,23 +132,23 @@ Cast_ClassPtr::llvmCast (
 	BasicBlock* noNullBlock = m_module->m_controlFlowMgr.createBlock ("iface_nonull");
 
 	Value cmpValue;
-	result = 
+	result =
 		m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, opValue, srcNullValue, &cmpValue) &&
 		m_module->m_controlFlowMgr.conditionalJump (cmpValue, phiBlock, noNullBlock, noNullBlock);
 
 	if (!result)
 		return false;
-	
+
 	coord.m_llvmIndexArray.insert (0, 0);
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep (
-		opValue, 
+		opValue,
 		coord.m_llvmIndexArray,
 		coord.m_llvmIndexArray.getCount (),
-		NULL, 
+		NULL,
 		&ptrValue
-		);		
+		);
 
 	m_module->m_controlFlowMgr.follow (phiBlock);
 
@@ -157,7 +157,7 @@ Cast_ClassPtr::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

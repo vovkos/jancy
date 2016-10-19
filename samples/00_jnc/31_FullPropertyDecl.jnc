@@ -1,8 +1,8 @@
 // Jancy also supports full property declaration syntax, which allows declaring
-// complex properties with overloaded setters, member fields, helper methods, 
+// complex properties with overloaded setters, member fields, helper methods,
 // constructors / destructors, etc.
 
-//.............................................................................
+//..............................................................................
 
 property g_prop
 {
@@ -15,24 +15,24 @@ property g_prop
 	}
 
 	set (int x);
-		
+
 	// overloaded setter
 
-	set (double x); 
+	set (double x);
 
 	// helper method
 
-	update () 
+	update ()
 	{
-		printf ("g_prop.update ()\n");	
+		printf ("g_prop.update ()\n");
 	}
 
 	// ...
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// like with classes, the implementation of methods may be placed outside of 
+// like with classes, the implementation of methods may be placed outside of
 // the property body
 
 g_prop.set (int x)
@@ -41,17 +41,17 @@ g_prop.set (int x)
 	m_x = x;
 
 	update ();
-}	
-		
+}
+
 g_prop.set (double x)
 {
 	printf ("g_prop.set (double %f)\n", x);
 	m_x = (int) x;
 
 	update ();
-}	
+}
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -67,4 +67,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

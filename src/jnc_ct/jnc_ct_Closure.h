@@ -14,7 +14,7 @@ class FunctionPtrType;
 class PropertyType;
 class PropertyPtrType;
 
-//.............................................................................
+//..............................................................................
 
 class Closure: public ref::RefCount
 {
@@ -42,16 +42,16 @@ public:
 		return m_thisArgIdx != -1;
 	}
 
-	size_t 
+	size_t
 	getThisArgIdx ()
 	{
 		return m_thisArgIdx;
 	}
-	
+
 	Value
 	getThisArgValue ();
 
-	void 
+	void
 	setThisArgIdx (size_t thisArgIdx);
 
 	void
@@ -89,7 +89,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -6,14 +6,14 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	StringHashTable, 
-	"std.StringHashTable", 
-	g_stdLibGuid, 
-	StdLibCacheSlot_StringHashTable, 
-	StringHashTable, 
+	StringHashTable,
+	"std.StringHashTable",
+	g_stdLibGuid,
+	StdLibCacheSlot_StringHashTable,
+	StringHashTable,
 	&StringHashTable::markOpaqueGcRoots
 	)
 
@@ -27,14 +27,14 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (StringHashTable)
 	JNC_MAP_FUNCTION ("remove", &StringHashTable::remove)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	VariantHashTable, 
-	"std.VariantHashTable", 
-	g_stdLibGuid, 
+	VariantHashTable,
+	"std.VariantHashTable",
+	g_stdLibGuid,
 	StdLibCacheSlot_VariantHashTable,
-	VariantHashTable, 
+	VariantHashTable,
 	&VariantHashTable::markOpaqueGcRoots
 	)
 
@@ -48,7 +48,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (VariantHashTable)
 	JNC_MAP_FUNCTION ("remove", &VariantHashTable::remove)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -115,7 +115,7 @@ StringHashTable::remove (DataPtr keyPtr)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -181,7 +181,7 @@ VariantHashTable::remove (Variant key)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

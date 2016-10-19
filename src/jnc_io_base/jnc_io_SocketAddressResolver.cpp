@@ -5,24 +5,24 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	SocketAddressResolverEventParams,
-	"io.SocketAddressResolverEventParams", 
-	g_ioLibGuid, 
+	"io.SocketAddressResolverEventParams",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddressResolverEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolverEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	SocketAddressResolver,
-	"io.SocketAddressResolver", 
-	g_ioLibGuid, 
+	"io.SocketAddressResolver",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddressResolver,
 	SocketAddressResolver,
 	NULL
@@ -36,7 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolver)
 	JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 SocketAddressResolver::SocketAddressResolver ()
 {
@@ -84,7 +84,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 	SocketAddressResolverEventParams* params = (SocketAddressResolverEventParams*) paramsPtr.m_p;
 	params->m_eventCode = eventCode;
 	params->m_syncId = syncId;
-		
+
 	if (addressCount)
 	{
 		Type* addressType = SocketAddress::getType (m_runtime->getModule ());
@@ -124,7 +124,7 @@ SocketAddressResolver::resolve (
 		fireSocketAddressResolverEvent (SocketAddressResolverEventCode_ResolveCompleted, syncId, &sockAddr, 1);
 		return true;
 	}
-	
+
 	sl::String nameString;
 	uint_t port;
 
@@ -289,14 +289,14 @@ SocketAddressResolver::processReq (Req* req)
 		addrArray [i].m_addr_ip4.sin_port = port;
 
 	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventCode_ResolveCompleted, 
-		req->m_syncId, 
+		SocketAddressResolverEventCode_ResolveCompleted,
+		req->m_syncId,
 		addrArray,
 		count
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getTypeModifierString (TypeModifier modifier)
@@ -68,7 +68,7 @@ getTypeModifierString (uint_t modifiers)
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 TypeModifiers::clear ()
@@ -88,8 +88,8 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 {
 	static
 	uint_t
-	antiModifierTable [] = 
-	{		
+	antiModifierTable [] =
+	{
 		0,                              // TypeModifier_Unsigned   = 0x00000001,
 		0,                              // TypeModifier_BigEndian  = 0x00000002,
 		TypeModifierMaskKind_Const,     // TypeModifier_Const      = 0x00000004,
@@ -102,7 +102,7 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Stdcall    = 0x00000200,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Array      = 0x00000400,
 		TypeModifierMaskKind_TypeKind & // TypeModifier_Function   = 0x00000800,
-			~TypeModifier_Function,  
+			~TypeModifier_Function,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Property   = 0x00001000,
 		0,                              // TypeModifier_Bindable   = 0x00002000,
 		TypeModifier_Indexed,           // TypeModifier_AutoGet    = 0x00004000,
@@ -110,7 +110,7 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Multicast  = 0x00010000,
 		TypeModifierMaskKind_Event,     // TypeModifier_Event      = 0x00020000,
 		TypeModifierMaskKind_TypeKind & // TypeModifier_Automaton  = 0x00040000,
-			~TypeModifier_Function,  
+			~TypeModifier_Function,
 		TypeModifierMaskKind_TypeKind,  // TypeModifier_Reactor    = 0x00080000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Thiscall   = 0x00100000,
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Jnccall    = 0x00200000,
@@ -184,7 +184,7 @@ TypeModifiers::checkAntiTypeModifiers (int modifierMask)
 	return false;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 TypeSpecifier::setType (Type* type)
@@ -192,7 +192,7 @@ TypeSpecifier::setType (Type* type)
 	if (m_type)
 	{
 		err::setFormatStringError (
-			"more than one type specifiers ('%s' and '%s')", 
+			"more than one type specifiers ('%s' and '%s')",
 			m_type->getTypeString ().sz (),
 			type->getTypeString ().sz ()
 			);
@@ -204,19 +204,19 @@ TypeSpecifier::setType (Type* type)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
-const char* 
+const char*
 getPostDeclaratorModifierString (PostDeclaratorModifier modifier)
 {
-	static const char* stringTable [] = 
+	static const char* stringTable [] =
 	{
 		"const",    // EPostDeclaratorModifier_Const  = 0x01,
 	};
 
 	size_t i  = sl::getLoBitIdx32 (modifier);
-	return i < countof (stringTable) ? 
-		stringTable [i] : 
+	return i < countof (stringTable) ?
+		stringTable [i] :
 		"undefined-post-declarator-modifier";
 }
 
@@ -243,7 +243,7 @@ getPostDeclaratorModifierString (uint_t modifiers)
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 DeclFunctionSuffix::addFunctionTypeFlag (FunctionTypeFlag flag)
@@ -258,7 +258,7 @@ DeclFunctionSuffix::addFunctionTypeFlag (FunctionTypeFlag flag)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Declarator::Declarator ()
 {
@@ -288,11 +288,11 @@ Declarator::setTypeSpecifier (
 
 	takeOver (typeSpecifier);
 
-	m_baseType = typeSpecifier->getType ();	
+	m_baseType = typeSpecifier->getType ();
 	if (!m_baseType)
 	{
-		m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ? 
-			module->m_typeMgr.getPrimitiveType (TypeKind_Int) : 
+		m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ?
+			module->m_typeMgr.getPrimitiveType (TypeKind_Int) :
 			module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 	}
 }
@@ -461,7 +461,7 @@ Declarator::calcTypeImpl (
 	return typeCalc.calcType (this, elementCountValue, flags);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

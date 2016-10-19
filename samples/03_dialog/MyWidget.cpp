@@ -2,12 +2,12 @@
 #include "MyWidget.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_CLASS_TYPE (
 	MyWidget,
-	"Widget", 
-	g_myLibGuid, 
+	"Widget",
+	g_myLibGuid,
 	MyLibCacheSlot_Widget
 	)
 
@@ -17,7 +17,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MyWidget)
 	JNC_MAP_FUNCTION ("setSizePolicy", &MyWidget::setSizePolicy)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MyWidget::MyWidget (QWidget* widget)
 {
@@ -56,4 +56,4 @@ MyWidget::setEnabled (bool value)
 	m_handle->setEnabled (value);
 }
 
-//.............................................................................
+//..............................................................................

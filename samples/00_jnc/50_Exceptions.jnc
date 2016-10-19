@@ -1,14 +1,14 @@
 // Jancy provides syntactic sugar over good old C-style error code check model.
-// It looks just like throwing and catching exceptions and frees the developer 
-// from the routine of constantly checking for error codes. 
+// It looks just like throwing and catching exceptions and frees the developer
+// from the routine of constantly checking for error codes.
 
-// This model allows the developer to choose between using error code checks or 
-// exception semantics when calling the very same function depending on what is 
+// This model allows the developer to choose between using error code checks or
+// exception semantics when calling the very same function depending on what is
 // more appropriate or convenient in each particular case!
 
 // It is also extremely easy to support from the host C/C++  application.
 
-//.............................................................................
+//..............................................................................
 
 // sample error code enumeration
 
@@ -19,10 +19,10 @@ enum Error
 	TooLow   = -3,
 }
 
-//.............................................................................
+//..............................................................................
 
-// A function marked by the 'errorcode' modifier will have its return value 
-// interpreted as an error code. Intuitive error conditions are assumed: 
+// A function marked by the 'errorcode' modifier will have its return value
+// interpreted as an error code. Intuitive error conditions are assumed:
 // 'false' for bools, negative for signed integers, '-1' for unsigned integers.
 // Other types will be cast to 'bool' for error condition checking.
 
@@ -47,12 +47,12 @@ int errorcode foo (int a)
 	return Error.Success;
 }
 
-// if the return types of the errorcode functions match, the error code is 
+// if the return types of the errorcode functions match, the error code is
 // automatically propagated down the call stack
 
 int errorcode bar (
 	int a,
-	int b	
+	int b
 	)
 {
 	printf ("bar (%d, %d)\n", a, b);
@@ -63,7 +63,7 @@ int errorcode bar (
 	return Error.Success;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -83,7 +83,7 @@ int main ()
 	bar (5, 150);
 	return 0;
 
-	// ...or use the 'catch' label to handle an error in the exception-style 
+	// ...or use the 'catch' label to handle an error in the exception-style
 	// manner
 
 catch:
@@ -91,4 +91,4 @@ catch:
 	return -1;
 }
 
-//.............................................................................
+//..............................................................................

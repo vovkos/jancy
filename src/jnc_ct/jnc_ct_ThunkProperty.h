@@ -9,7 +9,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class ThunkProperty: public Property
 {
@@ -30,7 +30,7 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DataThunkProperty: public Property
 {
@@ -44,18 +44,18 @@ public:
 	DataThunkProperty ();
 
 	virtual
-	bool 
+	bool
 	compile ();
 
 protected:
-	bool 
+	bool
 	compileGetter ();
 
-	bool 
+	bool
 	compileSetter (Function* setter);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

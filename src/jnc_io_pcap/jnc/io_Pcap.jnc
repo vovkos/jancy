@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup pcap
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum PcapEventCode
 {
@@ -13,7 +13,7 @@ enum PcapEventCode
 	Eof,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct PcapEventParams
 {
@@ -21,7 +21,7 @@ struct PcapEventParams
 	uint_t m_syncId;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Pcap
 {
@@ -43,9 +43,9 @@ opaque class Pcap
 		char const* fileName,
 		char const* filter = null
 		);
-		
+
 	void close ();
-	
+
 	bool errorcode setFilter (char const* filter);
 
 	size_t errorcode write (
@@ -61,7 +61,7 @@ opaque class Pcap
 	event m_onPcapEvent (PcapEventParams const* params);
 }
 
-//.............................................................................
+//..............................................................................
 
 // pcap device enumeration
 
@@ -73,7 +73,7 @@ struct PcapAddress
 	Address_ip4 m_broadcast;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct PcapDeviceDesc
 {
@@ -84,11 +84,11 @@ struct PcapDeviceDesc
 	uint_t m_flags;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 PcapDeviceDesc const* createPcapDeviceDescList (size_t* count = null);
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

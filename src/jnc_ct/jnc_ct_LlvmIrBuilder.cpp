@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 LlvmIrBuilder::LlvmIrBuilder ()
 {
@@ -98,10 +98,10 @@ LlvmIrBuilder::saveInsertPoint (LlvmIrInsertPoint* insertPoint)
 	else
 	{
 		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint ();
-		insertPoint->m_llvmInstruction = 
-			llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ? 
+		insertPoint->m_llvmInstruction =
+			llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ?
 			(llvm::Instruction*) --llvmInstIt : NULL :
-			&insertPoint->m_llvmBlock->back ();			
+			&insertPoint->m_llvmBlock->back ();
 	}
 }
 
@@ -126,7 +126,7 @@ LlvmIrBuilder::restoreInsertPoint (const LlvmIrInsertPoint& insertPoint)
 
 	if (!insertPoint.m_llvmInstruction)
 	{
-		if (insertPoint.m_llvmBlock->empty ())	
+		if (insertPoint.m_llvmBlock->empty ())
 			m_llvmIrBuilder->SetInsertPoint (insertPoint.m_llvmBlock);
 		else
 			m_llvmIrBuilder->SetInsertPoint (&insertPoint.m_llvmBlock->front ());
@@ -424,7 +424,7 @@ LlvmIrBuilder::createClosurePropertyPtr (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

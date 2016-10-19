@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 StructField::StructField ()
 {
@@ -37,7 +37,7 @@ StructField::generateDocumentation (
 		itemXml->append (" static='yes'");
 	else if (m_storageKind == StorageKind_Tls)
 		itemXml->append (" tls='yes'");
-	 
+
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
 		itemXml->append (" const='yes'");
 	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
@@ -60,7 +60,7 @@ StructField::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 StructType::StructType ()
 {
@@ -96,11 +96,11 @@ StructType::createFieldImpl (
 	}
 
 	StructField* field = m_module->m_typeMgr.createStructField (
-		name, 
-		type, 
-		bitCount, 
-		ptrTypeFlags, 
-		constructor, 
+		name,
+		type,
+		bitCount,
+		ptrTypeFlags,
+		constructor,
 		initializer
 		);
 
@@ -166,7 +166,7 @@ StructType::calcLayout ()
 	for (; slotIt; slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) || 
+		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
 			slot->m_type->getTypeKind () == TypeKind_Class)
 		{
 			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().sz ());
@@ -304,7 +304,7 @@ StructType::calcLayout ()
 		}
 	}
 	else if (
-		m_structTypeKind == StructTypeKind_IfaceStruct && 
+		m_structTypeKind == StructTypeKind_IfaceStruct &&
 		(((ClassType*) m_parentNamespace)->getFlags () & ClassTypeFlag_Opaque) &&
 		!(m_module->getCompileFlags () & ModuleCompileFlag_IgnoreOpaqueClassTypeInfo)
 		)
@@ -321,8 +321,8 @@ StructType::calcLayout ()
 		if (typeInfo->m_size < m_fieldAlignedSize)
 		{
 			err::setFormatStringError (
-				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)", 
-				getTypeString ().sz (), 
+				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)",
+				getTypeString ().sz (),
 				typeInfo->m_size,
 				m_fieldAlignedSize
 				);
@@ -363,7 +363,7 @@ StructType::calcLayout ()
 		true
 		);
 
-	m_size = m_fieldAlignedSize;	
+	m_size = m_fieldAlignedSize;
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;
 
@@ -451,7 +451,7 @@ StructType::layoutBitField (
 			bitOffset = isMerged ? lastBitOffset - bitCount : baseBitCount - bitCount;
 		}
 	}
-	else			
+	else
 	{
 		if (!isMerged)
 		{
@@ -566,7 +566,7 @@ StructType::markGcRoots (
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

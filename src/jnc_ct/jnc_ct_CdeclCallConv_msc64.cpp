@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 CdeclCallConv_msc64::prepareFunctionType (FunctionType* functionType)
@@ -193,7 +193,7 @@ CdeclCallConv_msc64::getThisArgValue (Function* function)
 	Type* returnType = functionType->getReturnType ();
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
-	if ((returnType->getFlags () & TypeFlag_StructRet) && 
+	if ((returnType->getFlags () & TypeFlag_StructRet) &&
 		returnType->getSize () > sizeof (uint64_t))
 		llvmArg++;
 
@@ -292,7 +292,7 @@ CdeclCallConv_msc64::createArgVariables (Function* function)
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

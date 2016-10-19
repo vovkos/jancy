@@ -1,8 +1,8 @@
 // Like Ragel, Jancy-generated recognizer support mixed-language documents.
-// Developer can switch languages at will, by adjusting the value of 
+// Developer can switch languages at will, by adjusting the value of
 // jnc.Recognizer.m_automatonFunc field at appropriate locations.
 
-//.............................................................................
+//..............................................................................
 
 // the first language recognizes lexeme 'foo'
 
@@ -35,7 +35,7 @@ jnc.AutomatonResult automaton bar (jnc.Recognizer* recognizer)
 		// ignore whitespace
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -52,4 +52,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

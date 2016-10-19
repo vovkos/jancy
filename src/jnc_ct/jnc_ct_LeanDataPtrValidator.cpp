@@ -5,9 +5,9 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-Value 
+Value
 LeanDataPtrValidator::getValidatorValue ()
 {
 	if (m_validatorValue)
@@ -31,7 +31,7 @@ LeanDataPtrValidator::createValidator ()
 	ASSERT (m_originValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
 	Module* module = m_originValue.getType ()->getModule ();
 	DataPtrType* originType = (DataPtrType*) m_originValue.getType ();
-	
+
 	Value originValidatorValue;
 
 	if (m_originValue.getValueKind () == ValueKind_Variable)
@@ -59,8 +59,8 @@ LeanDataPtrValidator::createValidator ()
 
 		originValidatorValue = originValidator->m_validatorValue;
 		ASSERT (originValidatorValue);
-	}	
-	else 
+	}
+	else
 	{
 		if (originType->getTargetType ()->getStdType () == StdType_DataPtrValidator)
 		{
@@ -70,13 +70,13 @@ LeanDataPtrValidator::createValidator ()
 		{
 			originValidatorValue = m_originValue.getLeanDataPtrValidator ()->getValidatorValue ();
 		}
-		else 
+		else
 		{
 			ASSERT (originType->getPtrTypeKind () == DataPtrTypeKind_Normal);
 			module->m_llvmIrBuilder.createExtractValue (
-				m_originValue, 
-				1, 
-				module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr), 
+				m_originValue,
+				1,
+				module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr),
 				&originValidatorValue
 				);
 		}
@@ -87,7 +87,7 @@ LeanDataPtrValidator::createValidator ()
 		m_validatorValue = originValidatorValue;
 	}
 	else
-	{	
+	{
 		Value boxValue;
 		module->m_llvmIrBuilder.createGep2 (originValidatorValue, 1, NULL, &boxValue);
 		module->m_llvmIrBuilder.createLoad (boxValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &boxValue);
@@ -117,7 +117,7 @@ LeanDataPtrValidator::createValidator (const Value& boxValue)
 		);
 
 	module->m_gcShadowStackMgr.markGcRoot (
-		m_validatorValue, 
+		m_validatorValue,
 		module->m_typeMgr.getStdType (StdType_DataPtrValidatorPtr)
 		);
 }
@@ -147,7 +147,7 @@ LeanDataPtrValidator::createClassFieldValidator ()
 	createValidator (boxValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

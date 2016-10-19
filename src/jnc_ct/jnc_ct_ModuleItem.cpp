@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const sl::String&
 ModuleItemInitializer::getInitializerString ()
@@ -16,7 +16,7 @@ ModuleItemInitializer::getInitializerString ()
 	return m_initializerString;
 }
 
-//.............................................................................
+//..............................................................................
 
 ModuleItemDecl::ModuleItemDecl ()
 {
@@ -43,7 +43,7 @@ ModuleItemDecl::getDoxyLocationString ()
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 ModuleItem::ModuleItem ()
 {
@@ -65,7 +65,7 @@ ModuleItem::getDecl ()
 		return (Scope*) this;
 
 	case ModuleItemKind_Type:
-		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ? 
+		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ?
 			(NamedType*) this :
 			NULL;
 
@@ -125,7 +125,7 @@ ModuleItem::getNamespace ()
 		return ((Typedef*) this)->getType ()->getNamespace ();
 
 	case ModuleItemKind_Type:
-		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ? 
+		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ?
 			(NamedType*) this :
 			NULL;
 
@@ -221,7 +221,7 @@ ModuleItem::ensureLayout ()
 	return true;
 }
 
-DoxyBlock* 
+DoxyBlock*
 ModuleItem::getDoxyBlock ()
 {
 	if (m_doxyBlock)
@@ -232,12 +232,12 @@ ModuleItem::getDoxyBlock ()
 	return m_doxyBlock;
 }
 
-DoxyBlock* 
+DoxyBlock*
 ModuleItem::setDoxyBlock (DoxyBlock* block)
 {
 	DoxyBlock* prevBlock = m_doxyBlock;
 	m_doxyBlock = block;
-	
+
 	if (block)
 		block->m_item = this;
 
@@ -257,15 +257,15 @@ ModuleItem::createDoxyRefId ()
 	}
 
 	refId.makeLowerCase ();
-	
+
 	return m_module->m_doxyMgr.adjustRefId (refId);
 }
 
-//.............................................................................
+//..............................................................................
 
 ModuleItem*
 verifyModuleItemKind (
-	ModuleItem* item, 
+	ModuleItem* item,
 	ModuleItemKind itemKind,
 	const sl::StringRef& name
 	)
@@ -317,7 +317,7 @@ verifyModuleItemIsClassType (
 	return (ClassType*) item;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

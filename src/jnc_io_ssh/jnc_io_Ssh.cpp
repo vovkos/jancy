@@ -6,26 +6,26 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	SshEventParams,
-	"io.SshEventParams", 
-	g_sshLibGuid, 
+	"io.SshEventParams",
+	g_sshLibGuid,
 	SshLibCacheSlot_SshEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (SshEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	SshChannel,  
-	"io.SshChannel", 
-	g_sshLibGuid, 
-	SshLibCacheSlot_SshChannel, 
-	SshChannel, 
+	SshChannel,
+	"io.SshChannel",
+	g_sshLibGuid,
+	SshLibCacheSlot_SshChannel,
+	SshChannel,
 	NULL
 	)
 
@@ -43,7 +43,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SshChannel)
 	JNC_MAP_FUNCTION ("write",        &SshChannel::write)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 SshChannel::SshChannel ()
 {
@@ -90,7 +90,7 @@ SshChannel::fireSshEvent (
 
 	if (error)
 		params->m_errorPtr = memDup (error, error->m_size);
-	
+
 	callMulticast (m_onSshChannelEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
@@ -364,7 +364,7 @@ SshChannel::resizePty (
 		setError (err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
-	
+
 	int result;
 
 	if (!isSync)
@@ -373,7 +373,7 @@ SshChannel::resizePty (
 		if (result && result != LIBSSH2_ERROR_EAGAIN)
 		{
 			setError (getLastSshError ());
-			return false;	
+			return false;
 		}
 	}
 	else
@@ -430,7 +430,7 @@ SshChannel::sshAsyncLoop (int result)
 	if (result != LIBSSH2_ERROR_EAGAIN)
 	{
 		setError (getLastSshError ());
-		return result;	
+		return result;
 	}
 
 	if (m_ioFlags & IoFlag_Closing)
@@ -451,14 +451,14 @@ getSshLastError (LIBSSH2_SESSION* sshSession)
 	libssh2_session_last_error (sshSession, &string, &length, false);
 	return err::Error (sl::StringRef (string, length));
 }
-	
+
 bool
 SshChannel::sshConnect ()
 {
 	int result;
 
 	LIBSSH2_SESSION* sshSession = libssh2_session_init ();
-	
+
 	m_sshSession.attach (sshSession);
 	libssh2_session_set_blocking (m_sshSession, false);
 
@@ -559,7 +559,7 @@ SshChannel::sshConnect ()
 				return false;
 
 			sshSession = libssh2_session_init ();
-	
+
 			m_sshSession.attach (sshSession);
 			libssh2_session_set_blocking (m_sshSession, false);
 
@@ -861,7 +861,7 @@ SshChannel::tcpConnect ()
 
 #endif
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

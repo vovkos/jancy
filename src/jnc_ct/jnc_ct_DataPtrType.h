@@ -9,12 +9,12 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
-	
+//..............................................................................
+
 class DataPtrType: public Type
 {
 	friend class TypeMgr;
-	
+
 protected:
 	DataPtrTypeKind m_ptrTypeKind;
 	Type* m_targetType;
@@ -35,7 +35,7 @@ public:
 		return m_targetType;
 	}
 
-	Namespace* 
+	Namespace*
 	getAnchorNamespace ()
 	{
 		return m_anchorNamespace;
@@ -47,25 +47,25 @@ public:
 	DataPtrType*
 	getCheckedPtrType ()
 	{
-		return !(m_flags & PtrTypeFlag_Safe) ?  
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) : 
-			this;			
+		return !(m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			this;
 	}
 
 	DataPtrType*
 	getUnCheckedPtrType ()
 	{
-		return (m_flags & PtrTypeFlag_Safe) ?  
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) : 
-			this;			
+		return (m_flags & PtrTypeFlag_Safe) ?
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			this;
 	}
 
 	DataPtrType*
 	getUnConstPtrType ()
 	{
-		return (m_flags & PtrTypeFlag_Const) ?  
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) : 
-			this;			
+		return (m_flags & PtrTypeFlag_Const) ?
+			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
+			this;
 	}
 
 	static
@@ -77,7 +77,7 @@ public:
 		uint_t flags
 		);
 
-	virtual 
+	virtual
 	void
 	markGcRoots (
 		const void* p,
@@ -93,26 +93,26 @@ protected:
 	void
 	prepareDoxyLinkedText ();
 
-	virtual 
+	virtual
 	void
 	prepareLlvmType ();
 
-	virtual 
+	virtual
 	void
 	prepareLlvmDiType ();
 
-	sl::String 
+	sl::String
 	getPointerStringSuffix ();
 };
 
-//.............................................................................
+//..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink
 {
 	DataPtrType* m_ptrTypeArray [2] [3] [2] [2] [2]; // ref x kind x const x volatile x safe
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 OperatorMgr::getField (
@@ -103,7 +103,7 @@ OperatorMgr::getFieldPtrImpl (
 	if (llvmIndexEnd > llvmIndex)
 	{
 		ASSERT (llvmIndex > coord->m_llvmIndexArray);
-		
+
 		llvmIndex--;
 		*llvmIndex = 0; // create initial 0
 
@@ -188,7 +188,7 @@ OperatorMgr::getStructField (
 		getFieldPtrImpl (opValue, coord, resultType, resultValue);
 		return true;
 	}
-	
+
 	Value ptrValue;
 	if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
@@ -212,10 +212,10 @@ OperatorMgr::getStructField (
 		resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
 	else
 		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (), 
-			resultType, 
-			opValue, 
-			ptrValue, 
+			ptrValue.getLlvmValue (),
+			resultType,
+			opValue,
+			ptrValue,
 			field->getType ()->getSize ()
 			);
 
@@ -401,7 +401,7 @@ OperatorMgr::getPropertyField (
 
 	Closure* closure = opValue.getClosure ();
 	ASSERT (closure);
-	
+
 	Value parentValue = *closure->getArgValueList ()->getHead ();
 	Type* parentValueType = parentValue.getType ();
 
@@ -412,7 +412,7 @@ OperatorMgr::getPropertyField (
 	if (parentType->getTypeKind () == TypeKind_Class)
 	{
 		parentPtrType = ((ClassType*) parentType)->getClassPtrType (
-			ClassPtrTypeKind_Normal, 
+			ClassPtrTypeKind_Normal,
 			parentValueType->getFlags ()
 			);
 	}
@@ -423,17 +423,17 @@ OperatorMgr::getPropertyField (
 			DataPtrTypeKind_Normal;
 
 		parentPtrType = parentType->getDataPtrType (
-			ptrTypeKind, 
+			ptrTypeKind,
 			parentValueType->getFlags ()
 			);
 	}
 
-	return 
+	return
 		castOperator (&parentValue, parentPtrType) &&
 		getField (parentValue, (StructField*) member, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

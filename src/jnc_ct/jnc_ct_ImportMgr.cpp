@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ImportMgr::ImportMgr ()
 {
@@ -63,7 +63,7 @@ ImportMgr::addImport (const sl::StringRef& fileName)
 	import->m_importKind = ImportKind_File;
 	import->m_filePath = filePath;
 	m_importList.insertTail (import);
-	return true;	
+	return true;
 }
 
 void
@@ -96,7 +96,7 @@ ImportMgr::findImportFile (
 	ASSERT (unit);
 
 	sl::String filePath = io::findFilePath (
-		fileName, 
+		fileName,
 		unit->getDir (),
 		&m_importDirList,
 		false
@@ -117,7 +117,7 @@ ImportMgr::findImportFile (
 	return FindResult_Found;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

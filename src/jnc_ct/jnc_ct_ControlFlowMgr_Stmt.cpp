@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 ControlFlowMgr::ifStmt_Create (IfStmt* stmt)
@@ -49,7 +49,7 @@ ControlFlowMgr::ifStmt_Follow (IfStmt* stmt)
 	follow (stmt->m_followBlock);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 ControlFlowMgr::switchStmt_Create (SwitchStmt* stmt)
@@ -155,7 +155,7 @@ ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 	setCurrentBlock (stmt->m_followBlock);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 ControlFlowMgr::whileStmt_Create (WhileStmt* stmt)
@@ -188,7 +188,7 @@ ControlFlowMgr::whileStmt_Follow (WhileStmt* stmt)
 	jump (stmt->m_conditionBlock, stmt->m_followBlock);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 ControlFlowMgr::doStmt_Create (DoStmt* stmt)
@@ -228,7 +228,7 @@ ControlFlowMgr::doStmt_Condition (
 	return conditionalJump (value, stmt->m_bodyBlock, stmt->m_followBlock, stmt->m_followBlock);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 ControlFlowMgr::forStmt_Create (ForStmt* stmt)
@@ -303,7 +303,7 @@ ControlFlowMgr::forStmt_PostBody (ForStmt* stmt)
 		markUnreachable (stmt->m_followBlock);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 ControlFlowMgr::onceStmt_Create (
@@ -464,7 +464,7 @@ ControlFlowMgr::onceStmt_PostBody (
 	follow (stmt->m_followBlock);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

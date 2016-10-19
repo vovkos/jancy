@@ -2,25 +2,25 @@
 // 'disposable' storage class.
 
 // C++ features absolutely the best approach to handling resources -- RAII.
-// It means resources are aquired during object construction and released 
+// It means resources are aquired during object construction and released
 // during destruction.
 
-// Classes in Jancy may have destructors, too. Therefore, all the necessary 
-// resource release operations (e.g. closing files, dropping connections, 
-// releasing locks etc) could be placed in destructors. The problem is, 
-// destructors in GC world are not called deterministically. First the 
-// Garbage Collector must decide it needs to free unreachable objects; then the 
-// mark stage must complete. Only then the destructor of an about-to-be-freed 
-// object will be called. Keeping resources acquired for that long is simply 
+// Classes in Jancy may have destructors, too. Therefore, all the necessary
+// resource release operations (e.g. closing files, dropping connections,
+// releasing locks etc) could be placed in destructors. The problem is,
+// destructors in GC world are not called deterministically. First the
+// Garbage Collector must decide it needs to free unreachable objects; then the
+// mark stage must complete. Only then the destructor of an about-to-be-freed
+// object will be called. Keeping resources acquired for that long is simply
 // not acceptable.
 
-// To remedy this problem, Jancy features duck-typed Disposable-pattern. All 
-// the variables (classes, structs or unions) declared using 'disposable' 
+// To remedy this problem, Jancy features duck-typed Disposable-pattern. All
+// the variables (classes, structs or unions) declared using 'disposable'
 // storage will have their 'dispose' method called upon exiting the scope. This
-// method will be called no matter which exit route is taken, be it normal 
+// method will be called no matter which exit route is taken, be it normal
 // control flow, return, break, throw, other exception(s) etc.
 
-//.............................................................................
+//..............................................................................
 
 class Resource
 {
@@ -40,10 +40,10 @@ class Resource
 	}
 
 	release ()
-	{	
+	{
 		if (!m_resource)
 			return;
-			
+
 		printf ("release resource #%d...\n", m_resource);
 		m_resource = 0;
 	}
@@ -51,7 +51,7 @@ class Resource
 	alias dispose = release;
 }
 
-//.............................................................................
+//..............................................................................
 
 foo ()
 {
@@ -67,7 +67,7 @@ int main ()
 
 	disposable Resource resource1 (1);
 	disposable Resource resource2 (2);
-	
+
 	Resource resource3 (3); // this resource will be released non-deterministically
 
 	foo ();
@@ -79,4 +79,4 @@ catch:
 	return -1;
 }
 
-//.............................................................................
+//..............................................................................

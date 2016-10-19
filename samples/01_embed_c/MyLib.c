@@ -3,7 +3,7 @@
 #include "TestStruct.h"
 #include "TestClass.h"
 
-//.............................................................................
+//..............................................................................
 
 // TODO: add a gc root for g_propValue
 
@@ -54,7 +54,7 @@ setSimpleProp (int x)
 	g_simplePropValue = x;
 }
 
-jnc_DataPtr 
+jnc_DataPtr
 getProp ()
 {
 	printf ("  getProp () => %s\n", g_propValue.m_p);
@@ -68,7 +68,7 @@ setProp_0 (int x)
 	size_t length;
 
 	printf ("  setProp_0 (%d)\n", x);
-	
+
 	length = sprintf (buffer, "%d", x);
 	g_propValue = jnc_strDup (buffer, length);
 }
@@ -92,7 +92,7 @@ setProp_2 (jnc_DataPtr ptr)
 	g_propValue = ptr;
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_LIB (
 	MyLib,
@@ -121,4 +121,4 @@ JNC_BEGIN_LIB_FUNCTION_MAP (MyLib)
 	JNC_MAP_TYPE (TestClass)
 JNC_END_LIB_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................

@@ -1,13 +1,13 @@
-// Jancy runtime uses data pointer validators for ensuring pointer safety. The 
-// developer can also access certain information in validators. This may come 
+// Jancy runtime uses data pointer validators for ensuring pointer safety. The
+// developer can also access certain information in validators. This may come
 // handy in certain situations.
 
-//.............................................................................
+//..............................................................................
 
 foo (char const* s)
 {
 	// 'dynamic sizeof' is only applicable to fat data pointers
-	
+
 	printf ("s = '%s'; length = %d\n", s, dynamic sizeof (s) - 1);
 }
 
@@ -22,10 +22,10 @@ int calcSum (int const* a)
 	for (size_t i = 0; i < count; i++)
 		result += a [i];
 
-	return result;		
+	return result;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -39,9 +39,9 @@ int main ()
 
 	int sum = calcSum (a);
 
-	printf ("sum = %d\n", sum);	
+	printf ("sum = %d\n", sum);
 
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

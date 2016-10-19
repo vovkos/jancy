@@ -6,26 +6,26 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
-	PcapEventParams, 
-	"io.PcapEventParams", 
-	g_pcapLibGuid, 
+	PcapEventParams,
+	"io.PcapEventParams",
+	g_pcapLibGuid,
 	PcapLibCacheSlot_PcapEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (PcapEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Pcap, 
-	"io.Pcap", 
-	g_pcapLibGuid, 
+	Pcap,
+	"io.Pcap",
+	g_pcapLibGuid,
 	PcapLibCacheSlot_Pcap,
-	Pcap, 
+	Pcap,
 	NULL
 	)
 
@@ -40,31 +40,31 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Pcap)
 	JNC_MAP_FUNCTION ("read",        &Pcap::read)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	PcapAddress,
-	"io.PcapAddress", 
-	g_pcapLibGuid, 
+	"io.PcapAddress",
+	g_pcapLibGuid,
 	PcapLibCacheSlot_PcapAddress
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (PcapAddress)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	PcapDeviceDesc,
-	"io.PcapDeviceDesc", 
-	g_pcapLibGuid, 
+	"io.PcapDeviceDesc",
+	g_pcapLibGuid,
 	PcapLibCacheSlot_PcapDeviceDesc
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (PcapDeviceDesc)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 Pcap::Pcap ()
 {
@@ -317,7 +317,7 @@ Pcap::cancelAllReads_l ()
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 uint32_t
@@ -427,7 +427,7 @@ createPcapDeviceDescList (DataPtr countPtr)
 	return resultPtr;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

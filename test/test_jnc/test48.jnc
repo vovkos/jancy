@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 char const* g_data;
 size_t g_dataOffset;
@@ -6,7 +6,7 @@ size_t g_dataOffset;
 jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
 {
 	%% '<' [^>]+ '>'
-		size_t length = recognizer.m_currentOffset - g_dataOffset;		
+		size_t length = recognizer.m_currentOffset - g_dataOffset;
 
 		char const* chunk = strdup (g_data, length);
 
@@ -21,26 +21,26 @@ jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
 }
 
 int main ()
-{	
+{
 	printf ("main ()\n");
 
 	jnc.Recognizer recognizer (scanCommand);
 
-	try 
+	try
 	{
 		g_data = "abc <ab";
 		g_dataOffset = 0;
 		recognizer.write (g_data, strlen (g_data));
 
-		size_t length = recognizer.m_currentOffset - g_dataOffset;		
+		size_t length = recognizer.m_currentOffset - g_dataOffset;
 		char const* chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "out> <gr> rr";
 		recognizer.write (g_data, strlen (g_data));
-	
-		length = recognizer.m_currentOffset - g_dataOffset;		
+
+		length = recognizer.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
@@ -48,7 +48,7 @@ int main ()
 		g_data = "ab <versi";
 		recognizer.write (g_data, strlen (g_data));
 
-		length = recognizer.m_currentOffset - g_dataOffset;		
+		length = recognizer.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
@@ -56,16 +56,16 @@ int main ()
 		g_data = "on> aboutb";
 		recognizer.write (g_data, strlen (g_data));
 
-		length = recognizer.m_currentOffset - g_dataOffset;		
+		length = recognizer.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
 		recognizer.eof ();
 	}
-	
+
 	printf ("\n");
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

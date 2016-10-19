@@ -6,14 +6,14 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	File,
-	"io.File", 
-	g_ioLibGuid, 
-	IoLibCacheSlot_File,	
-	File, 
+	"io.File",
+	g_ioLibGuid,
+	IoLibCacheSlot_File,
+	File,
 	NULL
 	)
 
@@ -28,7 +28,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (File)
 	JNC_MAP_FUNCTION ("write",  &File::write)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 File::File ()
 {
@@ -50,7 +50,7 @@ File::open (
 	return result;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

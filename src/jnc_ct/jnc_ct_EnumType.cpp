@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getEnumTypeFlagString (EnumTypeFlag flag)
@@ -40,7 +40,7 @@ getEnumTypeFlagString (uint_t flags)
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 EnumConst::generateDocumentation (
@@ -58,7 +58,7 @@ EnumConst::generateDocumentation (
 
 	if (!m_initializer.isEmpty ())
 		itemXml->appendFormat (
-			"<initializer>= %s</initializer>\n", 
+			"<initializer>= %s</initializer>\n",
 			getInitializerString ().sz ()
 			);
 
@@ -68,7 +68,7 @@ EnumConst::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 EnumType::EnumType ()
 {
@@ -205,7 +205,7 @@ EnumType::generateDocumentation (
 
 	itemXml->format (
 		"<memberdef kind='enum' id='%s'>\n"
-		"<name>%s</name>\n", 
+		"<name>%s</name>\n",
 		getDoxyBlock ()->getRefId ().sz (),
 		m_name.sz ()
 		);
@@ -218,7 +218,7 @@ EnumType::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

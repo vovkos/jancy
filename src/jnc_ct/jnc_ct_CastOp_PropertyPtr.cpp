@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_PropertyPtr_FromDataPtr::getCastKind (
@@ -72,7 +72,7 @@ Cast_PropertyPtr_FromDataPtr::llvmCast_DirectThunk (
 	if (dstPtrType->hasClosure ())
 	{
 		closureValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
-		
+
 		Closure* closure = propertyValue.createClosure ();
 		closure->insertThisArgValue (closureValue);
 	}
@@ -104,7 +104,7 @@ Cast_PropertyPtr_FromDataPtr::llvmCast_FullClosure (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_PropertyPtr_Base::getCastKind (
@@ -129,7 +129,7 @@ Cast_PropertyPtr_Base::getCastKind (
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_PropertyPtr_FromFat::llvmCast (
@@ -161,7 +161,7 @@ Cast_PropertyPtr_FromFat::llvmCast (
 	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_PropertyPtr_Thin2Fat::llvmCast (
@@ -342,7 +342,7 @@ Cast_PropertyPtr_Thin2Fat::createClosurePropertyPtr (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_PropertyPtr_Weak2Normal::llvmCast (
@@ -408,7 +408,7 @@ Cast_PropertyPtr_Weak2Normal::llvmCast (
 	intermediateValue.overrideType (intermediateType);
 	return m_module->m_operatorMgr.castOperator (intermediateValue, type, resultValue);}
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_PropertyPtr_Thin2Thin::llvmCast (
@@ -449,7 +449,7 @@ Cast_PropertyPtr_Thin2Thin::llvmCast (
 	return m_module->m_operatorMgr.getPropertyThinPtr (thunkProperty, NULL, ptrType, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 /*
 bool
 Cast_PropertyPtr_Thin2Weak::llvmCast (
@@ -479,7 +479,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast (
 }
 */
 
-//.............................................................................
+//..............................................................................
 
 Cast_PropertyPtr::Cast_PropertyPtr ()
 {
@@ -525,7 +525,7 @@ Cast_PropertyPtr::getCastOperator (
 	};
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_PropertyRef::getCastKind (
@@ -573,7 +573,7 @@ Cast_PropertyRef::llvmCast (
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

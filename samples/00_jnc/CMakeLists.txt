@@ -2,7 +2,7 @@
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
-#..............................................................................
+#...............................................................................
 #
 # base samples folder
 #
@@ -13,7 +13,7 @@ set (
 	01_Classes.jnc
 	02_Inheritance.jnc
 	03_Storage.jnc
-	05_WeakClassPtr.jnc	
+	05_WeakClassPtr.jnc
 	)
 
 source_group (
@@ -21,8 +21,8 @@ source_group (
 	FILES
 	${BASE_JNC_LIST}
 	)
-	
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # data ptr samples folder
 #
@@ -41,7 +41,7 @@ source_group (
 	${DATA_PTR_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # function ptr samples folder
 #
@@ -52,7 +52,7 @@ set (
 	21_WeakFunctionPtr.jnc
 	22_ScheduleOperator.jnc
 	23_Multicasts.jnc
-	24_WeakMulticasts.jnc	
+	24_WeakMulticasts.jnc
 	)
 
 source_group (
@@ -60,8 +60,8 @@ source_group (
 	FILES
 	${FUNCTION_PTR_JNC_LIST}
 	)
-	
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # property samples folder
 #
@@ -83,7 +83,7 @@ source_group (
 	${PROPERTY_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # reactive samples folder
 #
@@ -100,7 +100,7 @@ source_group (
 	${REACTIVE_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # exception samples folder
 #
@@ -119,7 +119,7 @@ source_group (
 	${EXCEPTION_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # literal samples folder
 #
@@ -136,7 +136,7 @@ source_group (
 	${LITERAL_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # automaton samples folder
 #
@@ -153,7 +153,7 @@ source_group (
 	${AUTOMATON_JNC_LIST}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # misc samples folder
 #
@@ -176,7 +176,7 @@ source_group (
 	${MISC_JNC_LIST}
 	)
 
-#..............................................................................
+#...............................................................................
 #
 # 00_jnc jancy script sample set
 #
@@ -213,4 +213,4 @@ if (${BUILD_JNC_APP})
 		)
 endif ()
 
-#..............................................................................
+#...............................................................................

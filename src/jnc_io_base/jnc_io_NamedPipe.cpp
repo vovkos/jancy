@@ -6,14 +6,14 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	NamedPipe, 
-	"io.NamedPipe", 
-	g_ioLibGuid, 
+	NamedPipe,
+	"io.NamedPipe",
+	g_ioLibGuid,
 	IoLibCacheSlot_NamedPipe,
-	NamedPipe, 
+	NamedPipe,
 	NULL
 	)
 
@@ -25,7 +25,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
 	JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 NamedPipe::NamedPipe ()
 {
@@ -51,7 +51,7 @@ NamedPipe::open (
 
 	if (backLog > Const_MaxBackLog)
 		backLog = Const_MaxBackLog;
-	
+
 	const char* name = (const char*) namePtr.m_p;
 
 	sl::String_w pipeName = name;
@@ -65,7 +65,7 @@ NamedPipe::open (
 		result = pipe.create (
 			pipeName,
 			PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-			PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 
+			PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
 			PIPE_UNLIMITED_INSTANCES,
 			Const_TxBufferSize,
 			Const_RxBufferSize,
@@ -84,7 +84,7 @@ NamedPipe::open (
 
 	m_pipeName = pipeName;
 	m_pipeArray = pipeArray;
-	pipeArray.release ();	
+	pipeArray.release ();
 	m_listenArray.clear ();
 	m_isOpen = true;
 	m_ioFlags = IoFlag_Opened;
@@ -183,7 +183,7 @@ NamedPipe::ioThreadFunc ()
 	sl::AuxList <Accept> acceptList;
 	acceptList.takeOver (&m_acceptList);
 	m_ioLock.unlock ();
-	
+
 	while (!acceptList.isEmpty ())
 	{
 		Accept* accept = acceptList.removeHead ();
@@ -232,7 +232,7 @@ NamedPipe::listenLoop ()
 		ASSERT (waitCount);
 
 		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitArray, false, -1);
-		
+
 		m_ioLock.lock ();
 		if (waitResult == WAIT_FAILED)
 		{
@@ -254,13 +254,13 @@ NamedPipe::listenLoop ()
 				result = m_pipeArray [pipeIdx].create (
 					m_pipeName,
 					PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-					PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 
+					PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
 					PIPE_UNLIMITED_INSTANCES,
 					Const_TxBufferSize,
 					Const_RxBufferSize,
 					Const_Timeout,
 					NULL
-					) && 
+					) &&
 					m_pipeArray [pipeIdx].connect (&overlappedArray [pipeIdx]);
 
 				if (result)
@@ -300,7 +300,7 @@ NamedPipe::listenLoop ()
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

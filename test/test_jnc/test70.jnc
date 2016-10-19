@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 // NetBios Name Service
 
@@ -49,7 +49,7 @@ struct NbnsQuestion
 	uint8_t m_nameLength; // 32 (0x20)
 	char m_name [32];
 	char m_null;
-	
+
 	bigendian uint16_t m_type;
 	bigendian uint16_t m_class;
 }
@@ -67,7 +67,7 @@ encodeNetBiosName (
 		uchar_t c = name [i];
 		if (!c)
 			break;
-		
+
 		buffer [j++] = 'A' + (c >> 4);
 		buffer [j++] = 'A' + (c & 0x0f);
 	}
@@ -76,22 +76,22 @@ encodeNetBiosName (
 	{
 		buffer [j++] = 'A' + (' ' >> 4);
 		buffer [j++] = 'A' + (' ' & 0x0f);
-	}	
-}	
+	}
+}
 
 struct NbnsNameQueryReq
 {
 	NbnsHdr m_hdr;
 	NbnsQuestion m_question;
 
-	[ packetTemplateAction ]	
+	[ packetTemplateAction ]
 	void initialize (char const* name)
 	{
 		m_hdr = null;
 		m_hdr.m_isResponse = true;
 		m_hdr.m_flags = NbnsFlags.Broadcast | NbnsFlags.RecursionDesired;
 		m_hdr.m_questionCount = 1;
-		
+
 		m_question = null;
 		m_question.m_nameLength = 32;
 		m_question.m_type = NbnsQuestionType.General;
@@ -100,12 +100,12 @@ struct NbnsNameQueryReq
 	}
 }
 
-//.............................................................................
-	
+//..............................................................................
+
 int main ()
 {
 	printf ("main ()\n");
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

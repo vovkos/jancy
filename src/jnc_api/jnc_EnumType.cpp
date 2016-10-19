@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -20,7 +20,7 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
 	return jnc_g_dynamicExtensionLibHost->m_enumConstFuncTable->m_getValueFunc (enumConst);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Type*
@@ -55,7 +55,7 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
 	return enumConst->getValue ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Type*
@@ -83,4 +83,4 @@ jnc_EnumType_getConst (
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

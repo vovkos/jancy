@@ -20,7 +20,7 @@ class ClassType;
 class Closure;
 class LeanDataPtrValidator;
 
-//.............................................................................
+//..............................................................................
 
 enum ValueKind
 {
@@ -41,12 +41,12 @@ enum ValueKind
 	ValueKind__Count,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
 getValueKindString (ValueKind valueKind);
 
-//.............................................................................
+//..............................................................................
 
 class Value
 {
@@ -357,9 +357,9 @@ public:
 	bool
 	isZero () const
 	{
-		return 
+		return
 			m_valueKind == ValueKind_Const &&
-			m_type->getTypeKind () == TypeKind_Int8 && 
+			m_type->getTypeKind () == TypeKind_Int8 &&
 			*(char*) m_constData.cp () == 0;
 	}
 
@@ -591,7 +591,7 @@ public:
 	void
 	setCharArray (
 		const void* p,
-		size_t count, 
+		size_t count,
 		Module* module
 		);
 
@@ -600,7 +600,7 @@ protected:
 	init ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

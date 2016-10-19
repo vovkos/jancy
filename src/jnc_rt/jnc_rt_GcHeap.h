@@ -9,7 +9,7 @@
 namespace jnc {
 namespace rt {
 
-//.............................................................................
+//..............................................................................
 
 enum GcHeapFlag
 {
@@ -18,7 +18,7 @@ enum GcHeapFlag
 	GcHeapFlag_TerminateDestructThread = 0x04,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class GcHeap
 {
@@ -60,7 +60,7 @@ protected:
 	};
 
 	typedef sl::AuxList <GcMutatorThread, GetGcMutatorThreadLink> MutatorThreadList;
-	
+
 protected:
 	Runtime* m_runtime;
 
@@ -106,12 +106,12 @@ protected:
 
 	// adjustable triggers
 
-	size_t m_allocSizeTrigger; 
+	size_t m_allocSizeTrigger;
 	size_t m_periodSizeTrigger;
 
 public:
 	GcHeap ();
-	
+
 	~GcHeap ()
 	{
 		ASSERT (isEmpty ()); // should be collected during runtime shutdown
@@ -127,16 +127,16 @@ public:
 
 	Runtime*
 	getRuntime ()
-	{		
+	{
 		return m_runtime;
 	}
 
 	// allocation methods
 
-	IfaceHdr* 
+	IfaceHdr*
 	tryAllocateClass (ct::ClassType* type);
 
-	IfaceHdr* 
+	IfaceHdr*
 	allocateClass (ct::ClassType* type);
 
 	DataPtr
@@ -160,7 +160,7 @@ public:
 	DataPtr
 	tryAllocateBuffer (size_t size);
 
-	DataPtr 
+	DataPtr
 	allocateBuffer (size_t size);
 
 	DataPtrValidator*
@@ -172,23 +172,23 @@ public:
 
 	// management methods
 
-	void 
+	void
 	getStats (GcStats* stats);
 
-	void 
+	void
 	getSizeTriggers (GcSizeTriggers* triggers)
 	{
 		triggers->m_allocSizeTrigger = m_allocSizeTrigger;
 		triggers->m_periodSizeTrigger = m_periodSizeTrigger;
 	}
 
-	void 
+	void
 	setSizeTriggers (
 		size_t allocSizeTrigger,
 		size_t periodSizeTrigger
 		);
 
-	void 
+	void
 	setSizeTriggers (const GcSizeTriggers& triggers)
 	{
 		setSizeTriggers (triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
@@ -210,7 +210,7 @@ public:
 	unregisterMutatorThread (GcMutatorThread* thread);
 
 	void
-	addStaticRootVariables (		
+	addStaticRootVariables (
 		ct::Variable* const* variableArray,
 		size_t count
 		);
@@ -240,7 +240,7 @@ public:
 	enterWaitRegion ();
 
 	void
-	leaveWaitRegion ();	
+	leaveWaitRegion ();
 
 	void
 	enterNoCollectRegion ();
@@ -290,9 +290,9 @@ public:
 		);
 
 #if (_JNC_OS_WIN)
-	int 
+	int
 	handleSehException (
-		uint_t code, 
+		uint_t code,
 		EXCEPTION_POINTERS* exceptionPointers
 		);
 #endif
@@ -356,7 +356,7 @@ protected:
 #endif
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rt
 } // namespace jnc

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const StdItemSource*
 getStdFunctionSource (StdFunc stdFunc)
@@ -55,9 +55,9 @@ getStdFunctionSource (StdFunc stdFunc)
 		{ NULL },                                // StdFunc_CreateDataPtrValidator,
 
 		{ NULL },                                // StdFunc_GcSafePoint,
-		{ NULL },                                // StdFunc_SetGcShadowStackFrameMap,		
+		{ NULL },                                // StdFunc_SetGcShadowStackFrameMap,
 		{ NULL },                                // StdFunc_GetTls,
-		
+
 		{ NULL },                                // StdFunc_SetJmp,
 		{ NULL },                                // StdFunc_DynamicThrow,
 
@@ -187,15 +187,15 @@ getStdFunctionSource (StdFunc stdFunc)
 	return &sourceTable [stdFunc];
 }
 
-//.............................................................................
-	
+//..............................................................................
+
 ModuleItem*
 LazyStdFunction::getActualItem ()
 {
 	return m_module->m_functionMgr.getStdFunction (m_func);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

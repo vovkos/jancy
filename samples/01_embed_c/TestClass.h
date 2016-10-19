@@ -4,9 +4,9 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (TestClass)
 
-//.............................................................................
+//..............................................................................
 
-typedef 
+typedef
 void
 OnNegativeEventFunc (jnc_Multicast* multicast);
 
@@ -15,7 +15,7 @@ struct TestClass
 	jnc_IfaceHdr m_ifaceHdr;
 
 	// these fields are accessible from Jancy
-	
+
 	struct
 	{
 		jnc_Box m_box;
@@ -33,7 +33,7 @@ struct TestClass
 
 typedef struct TestClass TestClass;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 TestClass_construct (
@@ -43,20 +43,20 @@ TestClass_construct (
 
 void
 TestClass_destruct (TestClass* self);
-	
+
 void
 TestClass_markOpaqueGcRoots (
 	TestClass* self,
 	jnc_GcHeap* gcHeap
 	);
 
-int 
+int
 TestClass_addAssign (
 	TestClass* self,
 	int delta
 	);
 
-int 
+int
 TestClass_subAssign (
 	TestClass* self,
 	int delta
@@ -83,4 +83,4 @@ TestClass_setProp (
 	jnc_DataPtr ptr
 	);
 
-//.............................................................................
+//..............................................................................

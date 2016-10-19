@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 UnionType::UnionType ()
 {
@@ -133,7 +133,7 @@ UnionType::calcLayout ()
 			return false;
 	}
 
-	if (!m_constructor && 
+	if (!m_constructor &&
 		(m_preconstructor ||
 		!m_initializedMemberFieldArray.isEmpty ()))
 	{
@@ -180,7 +180,7 @@ UnionType::prepareLlvmDiType ()
 	m_module->m_llvmDiBuilder.setUnionTypeBody (this);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

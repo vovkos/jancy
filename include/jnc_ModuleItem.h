@@ -7,7 +7,7 @@
 /// \addtogroup module-item
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ModuleItemKind
 {
@@ -33,13 +33,13 @@ enum jnc_ModuleItemKind
 
 typedef enum jnc_ModuleItemKind jnc_ModuleItemKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getModuleItemKindString (jnc_ModuleItemKind itemKind);
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ModuleItemFlag
 {
@@ -54,7 +54,7 @@ enum jnc_ModuleItemFlag
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_StorageKind
 {
@@ -77,13 +77,13 @@ enum jnc_StorageKind
 
 typedef enum jnc_StorageKind jnc_StorageKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getStorageKindString (jnc_StorageKind storageKind);
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_AccessKind
 {
@@ -95,13 +95,13 @@ enum jnc_AccessKind
 
 typedef enum jnc_AccessKind jnc_AccessKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getAccessKindString (jnc_AccessKind accessKind);
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 const char*
@@ -143,7 +143,7 @@ JNC_EXTERN_C
 size_t
 jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -213,7 +213,7 @@ struct jnc_ModuleItemDecl
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_Module*
@@ -239,7 +239,7 @@ JNC_EXTERN_C
 jnc_Type*
 jnc_ModuleItem_getType (jnc_ModuleItem* item);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -284,7 +284,7 @@ struct jnc_ModuleItem
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_DerivableType*
@@ -300,13 +300,13 @@ jnc_verifyModuleItemIsClassType (
 	const char* name
 	);
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ModuleItemKind ModuleItemKind;
 
@@ -330,7 +330,7 @@ const ModuleItemKind
 	ModuleItemKind_Lazy             = jnc_ModuleItemKind_Lazy,
 	ModuleItemKind__Count           = jnc_ModuleItemKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -339,7 +339,7 @@ getModuleItemKindString (ModuleItemKind itemKind)
 	return jnc_getModuleItemKindString (itemKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ModuleItemFlag ModuleItemFlag;
 
@@ -352,7 +352,7 @@ const ModuleItemFlag
 	ModuleItemFlag_Constructed  = jnc_ModuleItemFlag_Constructed,
 	ModuleItemFlag_Sealed       = jnc_ModuleItemFlag_Sealed;
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_StorageKind StorageKind;
 
@@ -373,7 +373,7 @@ const StorageKind
 	StorageKind_This       = jnc_StorageKind_This,
 	StorageKind__Count     = jnc_StorageKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -382,7 +382,7 @@ getStorageKindString (StorageKind storageKind)
 	return jnc_getStorageKindString (storageKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_AccessKind AccessKind;
 
@@ -392,7 +392,7 @@ const AccessKind
 	AccessKind_Protected = jnc_AccessKind_Protected,
 	AccessKind__Count    = jnc_AccessKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -401,7 +401,7 @@ getAccessKindString (AccessKind accessKind)
 	return jnc_getAccessKindString (accessKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 jnc_DerivableType*
@@ -423,7 +423,7 @@ verifyModuleItemIsClassType (
 	return jnc_verifyModuleItemIsClassType (item, name);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

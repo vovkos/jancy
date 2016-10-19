@@ -1,10 +1,10 @@
 ///+++
 
-/// JNC_SELECT_ANY char g_std_StringSrc [] = 
+/// JNC_SELECT_ANY char g_std_StringSrc [] =
 
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 struct String
 {
@@ -56,7 +56,7 @@ struct String
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 struct StringRef
 {
@@ -91,7 +91,7 @@ struct StringRef
 		return m_p;
 	}
 
-	bool isZeroTerminated () const;	
+	bool isZeroTerminated () const;
 
 	String getString () const;
 	String getZeroTerminatedString () const;
@@ -109,7 +109,7 @@ protected:
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 class StringBuilder
 {
@@ -121,7 +121,7 @@ class StringBuilder
 	{
 		try copy (src);
 	}
-	
+
 	void operator += (StringRef src)
 	{
 		try append (src);
@@ -148,7 +148,7 @@ class StringBuilder
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 

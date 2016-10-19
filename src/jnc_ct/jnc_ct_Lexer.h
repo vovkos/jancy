@@ -7,7 +7,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 enum TokenKind
 {
@@ -188,7 +188,7 @@ enum TokenKind
 	TokenKind_Ellipsis,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum TokenChannelMask
 {
@@ -197,7 +197,7 @@ enum TokenChannelMask
 	TokenChannelMask_All         = -1,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
@@ -208,13 +208,13 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
 	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
-	
+
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment1, "doxy-comment-1")
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment2, "doxy-comment-2")
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "doxy-comment-3")
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "doxy-comment-4")
 
-	
+
 	// literal tokens
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
@@ -234,7 +234,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
 	AXL_LEX_TOKEN_NAME (TokenKind_Alignment,    "alignment")
-	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")	
+	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")
 
 	// storage specifiers
 
@@ -381,7 +381,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 
 AXL_LEX_END_TOKEN_NAME_MAP ();
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class TokenData: public lex::StdTokenData
 {
@@ -391,7 +391,7 @@ public:
 
 typedef lex::RagelToken <TokenKind, TokenName, TokenData> Token;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Lexer: public lex::RagelLexer <Lexer, Token>
 {
@@ -494,7 +494,7 @@ protected:
 	exec ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

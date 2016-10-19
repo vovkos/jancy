@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind)
@@ -23,7 +23,7 @@ getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind)
 		"undefined-property-ptr-kind";
 }
 
-//.............................................................................
+//..............................................................................
 
 PropertyPtrType::PropertyPtrType ()
 {
@@ -138,7 +138,7 @@ PropertyPtrType::prepareDoxyTypeString ()
 void
 PropertyPtrType::prepareLlvmType ()
 {
-	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ? 
+	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType (StdType_PropertyPtrStruct)->getLlvmType () :
 		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmType ();
 }
@@ -146,7 +146,7 @@ PropertyPtrType::prepareLlvmType ()
 void
 PropertyPtrType::prepareLlvmDiType ()
 {
-	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ? 
+	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType (StdType_PropertyPtrStruct)->getLlvmDiType () :
 		m_targetType->getVTableStructType ()->getDataPtrType_c ()->getLlvmDiType ();
 }
@@ -172,7 +172,7 @@ PropertyPtrType::markGcRoots (
 		gcHeap->weakMark (box);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

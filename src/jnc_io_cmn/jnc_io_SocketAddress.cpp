@@ -5,7 +5,7 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 bool
 SocketAddress::parse (
@@ -14,7 +14,7 @@ SocketAddress::parse (
 	)
 {
 	axl::io::SockAddr sockAddr;
-	
+
 	bool result = sockAddr.parse ((const char*) stringPtr.m_p);
 	if (!result)
 		return false;
@@ -30,7 +30,7 @@ SocketAddress::getSockAddr () const
 
 	ASSERT (sizeof (SocketAddress) == sizeof (sockAddr));
 	memcpy (&sockAddr, this, sizeof (sockAddr));
-	
+
 	*(uint16_t*) &sockAddr = 0;
 	sockAddr.m_addr.sa_family = m_family == AddressFamily_Ip6 ?
 		AF_INET6 :
@@ -58,12 +58,12 @@ SocketAddress::fromSockAddr (const axl::io::SockAddr& sockAddr)
 	return socketAddress;
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	Address_ip4,
-	"io.Address_ip4", 
-	g_ioLibGuid, 
+	"io.Address_ip4",
+	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip4
 	)
 
@@ -72,12 +72,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip4)
 	JNC_MAP_FUNCTION ("getString", &Address_ip4::getString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	Address_ip6,
-	"io.Address_ip6", 
-	g_ioLibGuid, 
+	"io.Address_ip6",
+	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip6
 	)
 
@@ -86,12 +86,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip6)
 	JNC_MAP_FUNCTION ("getString", &Address_ip6::getString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	SocketAddress_ip4,
-	"io.SocketAddress_ip4", 
-	g_ioLibGuid, 
+	"io.SocketAddress_ip4",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip4
 	)
 
@@ -102,12 +102,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip4)
 	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip4::getString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	SocketAddress_ip6,
-	"io.SocketAddress_ip6", 
-	g_ioLibGuid, 
+	"io.SocketAddress_ip6",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip6
 	)
 
@@ -118,12 +118,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip6)
 	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip6::getString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
 	SocketAddress,
-	"io.SocketAddress", 
-	g_ioLibGuid, 
+	"io.SocketAddress",
+	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress
 	)
 
@@ -134,7 +134,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress)
 	JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

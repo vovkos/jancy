@@ -1,16 +1,16 @@
 // When it comes to describing what has to be done in response to a property
-// change the expressions are not always sufficient. For example, it may be 
+// change the expressions are not always sufficient. For example, it may be
 // necessary to run a for-loop cycle or execute a sequence of statements.
 
 // In addition, tracking changes of ALL bindable properties referenced from
 // an expression within a reactor can sometimes be too much. The developer may
 // need to have more control over what bindable properties or events to track.
 
-// The 'onevent' statement in the reactor block gives the developer 
+// The 'onevent' statement in the reactor block gives the developer
 // fine-grained control over dependencies and at the same time frees him from
 // the routine task of manually subscribing to events.
 
-//.............................................................................
+//..............................................................................
 
 bool bindable g_useDhcp;
 
@@ -19,7 +19,7 @@ uint32_t bindable g_routerIp4;
 
 event g_onApplyIpSettings ();
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 reactor g_ipReactor ()
 {
@@ -31,7 +31,7 @@ reactor g_ipReactor ()
 			printf ("using manual IP configuration\n");
 	}
 
-	// it's OK to specify multiple events to subscribe to 
+	// it's OK to specify multiple events to subscribe to
 
 	onevent (bindingof (g_ip4), bindingof (g_routerIp4)) ()
 	{
@@ -39,7 +39,7 @@ reactor g_ipReactor ()
 		g_useDhcp = false;
 	}
 
-	// the 'onevent' statement allows subscribing to any events, not just 
+	// the 'onevent' statement allows subscribing to any events, not just
 	// bindable ones
 
 	onevent g_onApplyIpSettings ()
@@ -51,7 +51,7 @@ reactor g_ipReactor ()
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -76,4 +76,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

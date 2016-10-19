@@ -8,7 +8,7 @@
 #include "jnc_Variant.h"
 #include "jnc_OpKind.h"
 
-//.............................................................................
+//..............................................................................
 
 // Error
 
@@ -24,7 +24,7 @@ typedef
 const char*
 jnc_getErrorDescriptionFunc (jnc_Error* error);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ModuleItemDecl
 
@@ -68,7 +68,7 @@ typedef
 size_t
 jnc_ModuleItemDecl_GetOffsetFunc (jnc_ModuleItemDecl* decl);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ModuleItem
 
@@ -110,7 +110,7 @@ jnc_VerifyModuleItemIsClassTypeFunc (
 	const char* name
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Attribute
 
@@ -134,7 +134,7 @@ jnc_AttributeBlock_FindAttributeFunc (
 	const char* name
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Namespace
 
@@ -170,15 +170,15 @@ jnc_Namespace_FindClassTypeFunc (
 	const char* name
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // GlobalNamespace
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Variable
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Function
 
@@ -209,7 +209,7 @@ typedef
 void*
 jnc_Function_GetMachineCodeFunc (jnc_Function* function);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Property
 
@@ -221,11 +221,11 @@ typedef
 jnc_Function*
 jnc_Property_GetSetterFunc (jnc_Property* prop);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Typedef
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Type
 
@@ -264,11 +264,11 @@ jnc_Type_MarkGcRootsFunc (
 	jnc_GcHeap* gcHeap
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // NamedType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // BaseTypeSlot
 
@@ -280,7 +280,7 @@ typedef
 size_t
 jnc_BaseTypeSlot_GetVTableIndexFunc (jnc_BaseTypeSlot* baseType);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // DerivableType
 
@@ -292,7 +292,7 @@ typedef
 jnc_Function*
 jnc_DerivableType_GetUnaryOperatorFunc (
 	jnc_DerivableType* type,
-	jnc_UnOpKind opKind	
+	jnc_UnOpKind opKind
 	);
 
 typedef
@@ -309,7 +309,7 @@ jnc_DerivableType_GetCastOperatorFunc (
 	size_t idx
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ArrayType
 
@@ -321,7 +321,7 @@ typedef
 size_t
 jnc_ArrayType_GetElementCountFunc (jnc_ArrayType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // BitFieldType
 
@@ -337,11 +337,11 @@ typedef
 size_t
 jnc_BitFieldType_GetBitCountFunc (jnc_BitFieldType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // FunctionArg
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // FunctionType
 
@@ -357,7 +357,7 @@ typedef
 jnc_FunctionArg*
 jnc_FunctionType_GetArgFunc (
 	jnc_FunctionType* type,
-	size_t index	
+	size_t index
 	);
 
 typedef
@@ -372,11 +372,11 @@ typedef
 jnc_FunctionType*
 jnc_FunctionType_GetShortTypeFunc (jnc_FunctionType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // PropertyType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // EnumConst
 
@@ -384,7 +384,7 @@ typedef
 int64_t
 jnc_EnumConst_GetValueFunc (jnc_EnumConst* enumConst);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // EnumType
 
@@ -403,7 +403,7 @@ jnc_EnumType_GetConstFunc (
 	size_t index
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // StructFieldFuncTable
 
@@ -411,15 +411,15 @@ typedef
 size_t
 jnc_StructField_GetOffsetFunc (jnc_StructField* field);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // StructType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // UnionType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ClassType
 
@@ -439,7 +439,7 @@ jnc_ClassType_GetClassPtrTypeFunc (
 	uint_t flags
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // MulticastClassType
 
@@ -454,7 +454,7 @@ jnc_MulticastClassType_GetMethodFunc (
 	jnc_MulticastMethodKind method
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // McSnapshotClassType
 
@@ -469,7 +469,7 @@ jnc_McSnapshotClassType_GetMethodFunc (
 	jnc_McSnapshotMethodKind method
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // DataPtrType
 
@@ -481,11 +481,11 @@ typedef
 jnc_Type*
 jnc_DataPtrType_GetTargetTypeFunc (jnc_DataPtrType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // ClassPtrType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // FunctionPtrType
 
@@ -497,11 +497,11 @@ typedef
 jnc_FunctionType*
 jnc_FunctionPtrType_GetTargetTypeFunc (jnc_FunctionPtrType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // PropertyPtrType
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Variant
 
@@ -540,15 +540,15 @@ jnc_Variant_RelationalOperatorFunc (
 	);
 
 typedef
-size_t 
+size_t
 jnc_Variant_GetHashFunc (const jnc_Variant* variant);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // Module
 
 typedef
-jnc_Module* 
+jnc_Module*
 jnc_Module_CreateFunc ();
 
 typedef
@@ -691,7 +691,7 @@ jnc_GcHeap*
 jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
 
 typedef
-size_t 
+size_t
 jnc_Runtime_GetStackSizeLimitFunc (jnc_Runtime* runtime);
 
 typedef
@@ -707,7 +707,7 @@ jnc_Runtime_StartupFunc (
 	jnc_Runtime* runtime,
 	jnc_Module* module
 	);
-	
+
 typedef
 void
 jnc_Runtime_ShutdownFunc (jnc_Runtime* runtime);
@@ -751,7 +751,7 @@ jnc_PrimeClassFunc (
 	);
 
 typedef
-size_t 
+size_t
 jnc_StrLenFunc (jnc_DataPtr ptr);
 
 typedef
@@ -775,21 +775,21 @@ jnc_Runtime*
 jnc_GcHeap_GetRuntimeFunc (jnc_GcHeap* gcHeap);
 
 typedef
-void 
+void
 jnc_GcHeap_GetStatsFunc (
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
 	);
 
 typedef
-void 
+void
 jnc_GcHeap_GetSizeTriggersFunc (
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
 	);
 
 typedef
-void 
+void
 jnc_GcHeap_SetSizeTriggersFunc (
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
@@ -850,7 +850,7 @@ jnc_GcHeap_AllocateBufferFunc (
 typedef
 jnc_DataPtrValidator*
 jnc_GcHeap_CreateDataPtrValidatorFunc (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -859,35 +859,35 @@ jnc_GcHeap_CreateDataPtrValidatorFunc (
 typedef
 void
 jnc_GcHeap_WeakMarkFunc (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
 jnc_GcHeap_MarkDataFunc (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
 jnc_GcHeap_MarkClassFunc (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 #if (_JNC_OS_WIN)
 typedef
-int 
+int
 jnc_GcHeap_HandleGcSehExceptionFunc (
 	jnc_GcHeap* gcHeap,
-	uint_t code, 
+	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	);
 #endif
 
-//.............................................................................
+//..............................................................................
 
 struct jnc_ErrorFuncTable
 {
@@ -896,7 +896,7 @@ struct jnc_ErrorFuncTable
 	jnc_getErrorDescriptionFunc* m_getErrorDescriptionFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ModuleItemDeclFuncTable
 {
@@ -912,7 +912,7 @@ struct jnc_ModuleItemDeclFuncTable
 	jnc_ModuleItemDecl_GetOffsetFunc* m_getOffsetFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ModuleItemFuncTable
 {
@@ -927,13 +927,13 @@ struct jnc_ModuleItemFuncTable
 	jnc_VerifyModuleItemIsClassTypeFunc* m_verifyModuleItemIsClassTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_AttributeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_AttributeBlockFuncTable
 {
@@ -942,7 +942,7 @@ struct jnc_AttributeBlockFuncTable
 	jnc_AttributeBlock_FindAttributeFunc* m_findAttributeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_NamespaceFuncTable
 {
@@ -953,13 +953,13 @@ struct jnc_NamespaceFuncTable
 	jnc_Namespace_FindClassTypeFunc* m_findClassTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_VariableFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_FunctionFuncTable
 {
@@ -971,7 +971,7 @@ struct jnc_FunctionFuncTable
 	jnc_Function_GetMachineCodeFunc* m_getMachineCodeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_PropertyFuncTable
 {
@@ -979,13 +979,13 @@ struct jnc_PropertyFuncTable
 	jnc_Property_GetSetterFunc* m_getSetterFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_TypedefFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_TypeFuncTable
 {
@@ -997,13 +997,13 @@ struct jnc_TypeFuncTable
 	jnc_Type_MarkGcRootsFunc* m_markGcRootsFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_NamedTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_BaseTypeSlotFuncTable
 {
@@ -1011,7 +1011,7 @@ struct jnc_BaseTypeSlotFuncTable
 	jnc_BaseTypeSlot_GetVTableIndexFunc* m_getVTableIndexFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_DerivableTypeFuncTable
 {
@@ -1026,7 +1026,7 @@ struct jnc_DerivableTypeFuncTable
 	jnc_DerivableType_GetCastOperatorFunc* m_getCastOperatorFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ArrayTypeFuncTable
 {
@@ -1034,7 +1034,7 @@ struct jnc_ArrayTypeFuncTable
 	jnc_ArrayType_GetElementCountFunc* m_GetElementCountFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_BitFieldTypeFuncTable
 {
@@ -1043,13 +1043,13 @@ struct jnc_BitFieldTypeFuncTable
 	jnc_BitFieldType_GetBitCountFunc* m_getBitCountFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_FunctionArgFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_FunctionTypeFuncTable
 {
@@ -1060,20 +1060,20 @@ struct jnc_FunctionTypeFuncTable
 	jnc_FunctionType_GetShortTypeFunc* m_getShortTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_PropertyTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_EnumConstFuncTable
 {
 	jnc_EnumConst_GetValueFunc* m_getValueFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_EnumTypeFuncTable
 {
@@ -1082,26 +1082,26 @@ struct jnc_EnumTypeFuncTable
 	jnc_EnumType_GetConstFunc* m_getConstFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_StructFieldFuncTable
 {
 	jnc_StructField_GetOffsetFunc* m_getOffsetFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_StructTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_UnionTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ClassTypeFuncTable
 {
@@ -1110,7 +1110,7 @@ struct jnc_ClassTypeFuncTable
 	jnc_ClassType_GetClassPtrTypeFunc* m_getClassPtrTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_MulticastClassTypeFuncTable
 {
@@ -1118,7 +1118,7 @@ struct jnc_MulticastClassTypeFuncTable
 	jnc_MulticastClassType_GetMethodFunc* m_getMethodFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_McSnapshotClassTypeFuncTable
 {
@@ -1126,7 +1126,7 @@ struct jnc_McSnapshotClassTypeFuncTable
 	jnc_McSnapshotClassType_GetMethodFunc* m_getMethodFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_DataPtrTypeFuncTable
 {
@@ -1134,13 +1134,13 @@ struct jnc_DataPtrTypeFuncTable
 	jnc_DataPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ClassPtrTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_FunctionPtrTypeFuncTable
 {
@@ -1148,13 +1148,13 @@ struct jnc_FunctionPtrTypeFuncTable
 	jnc_FunctionPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_PropertyPtrTypeFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_VariantFuncTable
 {
@@ -1165,13 +1165,13 @@ struct jnc_VariantFuncTable
 	jnc_Variant_GetHashFunc* m_hashFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_UnitFuncTable
 {
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ModuleFuncTable
 {
@@ -1197,7 +1197,7 @@ struct jnc_ModuleFuncTable
 	jnc_Module_getLlvmIrStringFunc* m_getLlvmIrStringFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_RuntimeFuncTable
 {
@@ -1220,7 +1220,7 @@ struct jnc_RuntimeFuncTable
 	jnc_MemDupFunc* m_memDupFunc;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_GcHeapFuncTable
 {
@@ -1250,7 +1250,7 @@ struct jnc_GcHeapFuncTable
 #endif // _JNC_OS_WIN
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_DynamicExtensionLibHost
 {
@@ -1292,4 +1292,4 @@ struct jnc_DynamicExtensionLibHost
 	jnc_GcHeapFuncTable* m_gcHeapFuncTable;
 };
 
-//.............................................................................
+//..............................................................................

@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 class
 {
@@ -43,7 +43,7 @@ primary_expr_pass1 <sl::BoxList <Token>* $tokenList>
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 // arg list is simplier cause we only need to count parentheses
 
@@ -72,7 +72,7 @@ arg_pass1 <sl::BoxList <Token>* $tokenList>
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 start
 expression_save_value
@@ -91,7 +91,7 @@ expression_or_empty_list_save_list
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -200,7 +200,7 @@ constant_integer_expr
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -241,7 +241,7 @@ conditional_expr <Value* $value>
 // important note: || and && operators are handled differently in reactor starter
 // this is done not to skip bind-sites due to short-circuit evaluation
 // however, this is a temporary solution: short circuit evaluation should be restored.
-// bind-sites which can be potentially skipped during reactor starter should be 'flagged' 
+// bind-sites which can be potentially skipped during reactor starter should be 'flagged'
 // and if they are really skipped, then binding should be delayed until they are finally executed
 
 logical_or_expr <Value* $value>
@@ -261,7 +261,7 @@ logical_or_expr <Value* $value>
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
 						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
 						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-							$opBlock2->markReachable (); 
+							$opBlock2->markReachable ();
 					}
 				}
 			logical_and_expr <&$opValue2>
@@ -269,7 +269,7 @@ logical_or_expr <Value* $value>
 					if (m_stage != StageKind_ReactorStarter)
 						return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
 					else
-						return 
+						return
 							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
 							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
 							m_module->m_operatorMgr.binaryOperator (BinOpKind_BwOr, $value, $opValue2);
@@ -294,7 +294,7 @@ logical_and_expr <Value* $value>
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
 						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
 						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-							$opBlock2->markReachable (); 
+							$opBlock2->markReachable ();
 					}
 				}
 			inclusive_or_expr <&$opValue2>
@@ -302,7 +302,7 @@ logical_and_expr <Value* $value>
 					if (m_stage != StageKind_ReactorStarter)
 						return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
 					else
-						return 
+						return
 							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
 							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
 							m_module->m_operatorMgr.binaryOperator (BinOpKind_BwAnd, $value, $opValue2);
@@ -846,7 +846,7 @@ primary_expr <Value* $value>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -889,16 +889,16 @@ literal_atom <Literal* $literal>
 			{
 				sl::String fmtSpecifier = &$s ? $s.m_data.m_string : sl::String ();
 				return addFmtSite (
-					$literal, 
-					$1.m_data.m_string, 
-					$2.m_value, 
-					$1.m_data.m_integer != 0, 
+					$literal,
+					$1.m_data.m_string,
+					$2.m_value,
+					$1.m_data.m_integer != 0,
 					fmtSpecifier
 					);
-			}		
+			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 start
 curly_initializer
@@ -958,4 +958,4 @@ curly_initializer_item <CurlyInitializer* $initializer>
 			}
 	;
 
-//.............................................................................
+//..............................................................................

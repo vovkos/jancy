@@ -1,5 +1,5 @@
 // Reactive programming is a programming paradigm offering tremendous help
-// for many programming tasks and is especially effective for UI programming. 
+// for many programming tasks and is especially effective for UI programming.
 
 // The idea behind the reactive programming is to automate the execution of
 // certain update actions in response to property changes. Imagine a complex
@@ -9,17 +9,17 @@
 // The traditional approach to creating such a dialog is to write multiple
 // event handlers responsible for updating dependent items.
 
-// Jancy makes it possible to write a single 'reactor' block where all the 
-// relations and dependencies are described in a declarative style. After the 
-// reactor start the Jancy runtime will automatically bind to, track property 
+// Jancy makes it possible to write a single 'reactor' block where all the
+// relations and dependencies are described in a declarative style. After the
+// reactor start the Jancy runtime will automatically bind to, track property
 // changes, and execute required updates.
 
-//.............................................................................
+//..............................................................................
 
 // update functions that need to be called when bindable properties change
 
 updatePurple (
-	int red, 
+	int red,
 	int blue,
 	int alpha
 	)
@@ -28,7 +28,7 @@ updatePurple (
 }
 
 updateYellow (
-	int red, 
+	int red,
 	int green,
 	int alpha
 	)
@@ -37,7 +37,7 @@ updateYellow (
 }
 
 updateCyan (
-	int green, 
+	int green,
 	int blue,
 	int alpha
 	)
@@ -45,7 +45,7 @@ updateCyan (
 	printf ("updateCyan (%x, %x, %x)\n", green, blue, alpha);
 }
 
-//.............................................................................
+//..............................................................................
 
 // 3 bindable data properties
 
@@ -55,30 +55,30 @@ int bindable g_blue;
 
 // this variable will be automatically updated by g_colorReactor
 
-int g_rgb; 
+int g_rgb;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // inside the reactor the developer writes expressions describing relations and
 // constraints; this is done in the declarative manner
 
 // upon starting the reactor the Jancy runtime binds to all bindable non-lvalue
-// properties referenced in the expressions inside the reactor and 
+// properties referenced in the expressions inside the reactor and
 // automatically re-evaluates all dependent expressions
 
-// if the required logic cannot be expressed by a simple expression, the 
+// if the required logic cannot be expressed by a simple expression, the
 // 'onevent' statement can be used (see the next sample)
 
 reactor g_colorReactor (int alpha)
 {
-	updatePurple (g_red, g_blue, alpha); 
+	updatePurple (g_red, g_blue, alpha);
 	updateYellow (g_red, g_green, alpha);
 	updateCyan (g_green, g_blue, alpha);
 
 	g_rgb = (g_red << 16) + (g_green << 8) + g_blue;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -86,13 +86,13 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// starting the reactor executes all expressions in this reactor block one 
+	// starting the reactor executes all expressions in this reactor block one
 	// time
 
 	g_colorReactor.start (5);
 
 	printf ("changing g_red...\n");
-	g_red = 0xab; 
+	g_red = 0xab;
 
 	printf ("changing g_green...\n");
 	g_green = 0xcd;
@@ -100,14 +100,14 @@ int main ()
 	// if the reactor is stopped now then the change of 'g_blue' below will not
 	// be handled
 
-	// g_colorReactor.stop (); 
+	// g_colorReactor.stop ();
 
 	printf ("changing g_blue...\n");
-	g_blue = 0xef; 
+	g_blue = 0xef;
 
 	printf ("g_rgb = #%06x\n", g_rgb);
 
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

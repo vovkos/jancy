@@ -38,7 +38,7 @@ namespace ct {
 
 class Module;
 
-//.............................................................................
+//..............................................................................
 
 enum StdCast
 {
@@ -51,7 +51,7 @@ enum StdCast
 	StdCast__Count
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum OperatorDynamism
 {
@@ -59,7 +59,7 @@ enum OperatorDynamism
 	OperatorDynamism_Dynamic,
 };
 
-//.............................................................................
+//..............................................................................
 
 class OperatorMgr
 {
@@ -183,7 +183,7 @@ public:
 		return m_module;
 	}
 
-	void 
+	void
 	clear ();
 
 	void
@@ -204,7 +204,7 @@ public:
 		m_unsafeEnterCount = 0;
 	}
 
-	bool 
+	bool
 	isUnsafeRgn ()
 	{
 		return m_unsafeEnterCount > 0;
@@ -566,10 +566,10 @@ public:
 		return castOperator (OperatorDynamism_Static, *value, typeKind, value);
 	}
 
-	// sizeof 
+	// sizeof
 
 	bool
-	sizeofOperator (		
+	sizeofOperator (
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
@@ -585,7 +585,7 @@ public:
 	}
 
 	bool
-	sizeofOperator (		
+	sizeofOperator (
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
@@ -602,7 +602,7 @@ public:
 	// countof
 
 	bool
-	countofOperator (		
+	countofOperator (
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
@@ -618,12 +618,12 @@ public:
 	}
 
 	bool
-	countofOperator (		
+	countofOperator (
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
-	{ 
-		return countofOperator (OperatorDynamism_Static, opValue, resultValue); 
+	{
+		return countofOperator (OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
@@ -631,11 +631,11 @@ public:
 	{
 		return countofOperator (OperatorDynamism_Static, *value, value);
 	}
-	
+
 	// typeof
 
 	bool
-	typeofOperator (		
+	typeofOperator (
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
@@ -651,7 +651,7 @@ public:
 	}
 
 	bool
-	typeofOperator (		
+	typeofOperator (
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
@@ -1612,22 +1612,22 @@ protected:
 	bool
 	deleteClassPtr (const Value& opValue);
 
-	bool 
+	bool
 	dynamicCastDataPtr (
 		const Value& opValue,
 		DataPtrType* type,
-		Value* resultValue		
+		Value* resultValue
 		);
 
-	bool 
+	bool
 	dynamicCastClassPtr (
 		const Value& opValue,
 		ClassPtrType* type,
-		Value* resultValue		
+		Value* resultValue
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

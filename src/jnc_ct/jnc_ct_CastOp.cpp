@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 err::Error
 setCastError (
@@ -43,10 +43,10 @@ setCastError (
 		format = "cannot convert from '%s' to '%s'";
 		break;
 	}
-		
+
 	return err::setFormatStringError (
 		format,
-		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (), 
+		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (),
 		dstType->getTypeString ().sz ()
 		);
 }
@@ -58,13 +58,13 @@ setUnsafeCastError (
 	)
 {
 	return err::setFormatStringError (
-		"'%s' to '%s' cast is only permitted in unsafe regions", 
+		"'%s' to '%s' cast is only permitted in unsafe regions",
 		srcType->getTypeString ().sz (),
 		dstType->getTypeString ().sz ()
 		);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
 castOperator (
@@ -77,7 +77,7 @@ castOperator (
 	return module->m_operatorMgr.castOperator (opValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 CastOperator::CastOperator()
 {
@@ -113,7 +113,7 @@ CastOperator::cast (
 	return llvmCast (opValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_Copy::constCast (
@@ -142,7 +142,7 @@ Cast_Copy::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_Master::getCastKind (
@@ -213,11 +213,11 @@ Cast_Master::llvmCast (
 		if (!result)
 			return false;
 	}
-		
+
 	return op->llvmCast (opValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_SuperMaster::getCastKind (
@@ -233,10 +233,10 @@ Cast_SuperMaster::getCastKind (
 	Type* intermediateType = NULL;
 
 	bool result = getCastOperators (
-		rawOpValue, 
+		rawOpValue,
 		type,
-		&operator1, 
-		&operator2, 
+		&operator1,
+		&operator2,
 		&intermediateType
 		);
 
@@ -251,9 +251,9 @@ Cast_SuperMaster::getCastKind (
 	if (opFlags1 != m_opFlags)
 		m_module->m_operatorMgr.prepareOperandType (&opValue, opFlags1);
 
-	if (!operator2) 
+	if (!operator2)
 		return operator1->getCastKind (opValue, type);
-	
+
 	CastKind castKind1 = operator1->getCastKind (opValue, intermediateType);
 	CastKind castKind2 = operator2->getCastKind (intermediateType, type);
 	return AXL_MIN (castKind1, castKind2);
@@ -271,10 +271,10 @@ Cast_SuperMaster::constCast (
 	Type* intermediateType = NULL;
 
 	bool result = getCastOperators (
-		rawOpValue, 
+		rawOpValue,
 		type,
-		&operator1, 
-		&operator2, 
+		&operator1,
+		&operator2,
 		&intermediateType
 		);
 
@@ -293,11 +293,11 @@ Cast_SuperMaster::constCast (
 			return false;
 	}
 
-	if (!operator2) 
+	if (!operator2)
 		return operator1->constCast (srcValue, type, dst);
 
 	Value tmpValue;
-	return 
+	return
 		tmpValue.createConst (NULL, intermediateType) &&
 		operator1->constCast (srcValue, intermediateType, tmpValue.getConstData ()) &&
 		operator2->constCast (tmpValue, type, dst);
@@ -315,10 +315,10 @@ Cast_SuperMaster::llvmCast (
 	Type* intermediateType = NULL;
 
 	bool result = getCastOperators (
-		rawOpValue, 
+		rawOpValue,
 		type,
-		&operator1, 
-		&operator2, 
+		&operator1,
+		&operator2,
 		&intermediateType
 		);
 
@@ -340,16 +340,16 @@ Cast_SuperMaster::llvmCast (
 			return false;
 	}
 
-	if (!operator2) 
+	if (!operator2)
 		return operator1->llvmCast (opValue, type, resultValue);
 
 	Value tmpValue;
-	return 
+	return
 		operator1->llvmCast (opValue, intermediateType, &tmpValue) &&
 		operator2->llvmCast (tmpValue, type, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

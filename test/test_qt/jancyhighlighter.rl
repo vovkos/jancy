@@ -1,11 +1,11 @@
-//.............................................................................
+//..............................................................................
 
 %%{
 
 machine jancy_lexer;
 write data;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # standard definitions
 #
@@ -22,14 +22,14 @@ esc    = '\\' [^\n];
 lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # main machine
 #
 
 main := |*
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 (
 'import'          |
@@ -147,7 +147,7 @@ main := |*
 
 )                   { colorize (ts, te, Qt::blue); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 id                  ;
 (lit_sq | lit_dq)   { colorize (ts, te, Qt::darkRed); };
@@ -157,13 +157,13 @@ dec+                { colorize (ts, te, Qt::darkRed); };
 '0' [oO] oct+       { colorize (ts, te, Qt::darkRed); };
 '0' [bB] bin+       { colorize (ts, te, Qt::darkRed); };
 '0' [nNdD] dec+     { colorize (ts, te, Qt::darkRed); };
-'0' [xXoObBnNdD] lit_dq     
+'0' [xXoObBnNdD] lit_dq
 					{ colorize (ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
 '%%'                { colorize (ts, te, Qt::darkRed); fgoto regexp; };
 '"""'               { colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
-'0' [xXoObBnNdD] '"""'               
+'0' [xXoObBnNdD] '"""'
 					{ colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
 
 '//' any*           { colorize (ts, te, Qt::darkGray); };
@@ -174,7 +174,7 @@ any                 ;
 
 *|;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # comment machine
 #
@@ -186,7 +186,7 @@ any                 { colorize (ts, te, Qt::darkGray); };
 
 *|;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # regexp machine
 #
@@ -198,7 +198,7 @@ any*                { colorize (ts, te, Qt::darkRed); fgoto main; };
 
 *|;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # multi-line literal machine
 #
@@ -212,7 +212,7 @@ any                 { colorize (ts, te, Qt::darkRed); };
 
 }%%
 
-//.............................................................................
+//..............................................................................
 
 #define BLOCK_STATE_NONE	0
 #define BLOCK_STATE_COMMENT 1
@@ -233,7 +233,7 @@ void JancyHighlighter::ragelExecPreEvent (int &ragelState)
 {
 	setCurrentBlockState (BLOCK_STATE_NONE);
 
-	int prevBlockState = previousBlockState ();	
+	int prevBlockState = previousBlockState ();
 	switch (prevBlockState)
 	{
 	case BLOCK_STATE_COMMENT:
@@ -268,4 +268,4 @@ void JancyHighlighter::ragelExecPostEvent (int ragelState)
 	}
 }
 
-//.............................................................................
+//..............................................................................

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 GcShadowStackMgr::GcShadowStackMgr ()
 {
@@ -18,7 +18,7 @@ GcShadowStackMgr::clear ()
 {
 	m_gcRootTypeArray.clear ();
 	m_frameMapList.clear ();
-	m_gcRootArrayValue.clear ();	
+	m_gcRootArrayValue.clear ();
 	m_frameVariable = NULL;
 }
 
@@ -31,7 +31,7 @@ GcShadowStackMgr::finalizeFunction ()
 	finalizeFrame ();
 
 	m_gcRootArrayValue.clear ();
-	m_gcRootTypeArray.clear ();	
+	m_gcRootTypeArray.clear ();
 	m_frameVariable = NULL;
 }
 
@@ -39,7 +39,7 @@ void
 GcShadowStackMgr::finalizeScope (Scope* scope)
 {
 	Scope* parentScope = scope->getParentScope ();
-	GcShadowStackFrameMap* parentFrameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL; 
+	GcShadowStackFrameMap* parentFrameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL;
 
 	if (parentFrameMap == scope->m_gcShadowStackFrameMap) // stays the same
 		return;
@@ -56,7 +56,7 @@ GcShadowStackMgr::createTmpGcRoot (const Value& value)
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createAlloca (type, "tmpGcRoot", NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createStore (value, ptrValue);	
+	m_module->m_llvmIrBuilder.createStore (value, ptrValue);
 	markGcRoot (ptrValue, type);
 }
 
@@ -106,7 +106,7 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 	m_frameMapList.insertTail (frameMap);
 	scope->m_gcShadowStackFrameMap = frameMap;
 
-	// also update all the nested scopes in the scope stack 
+	// also update all the nested scopes in the scope stack
 
 	Scope* childScope = m_module->m_namespaceMgr.getCurrentScope ();
 	while (childScope != scope)
@@ -124,7 +124,7 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 
 	LlvmIrInsertPoint prevInsertPoint;
 	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
-		scope->m_gcShadowStackFrameMapInsertPoint, 
+		scope->m_gcShadowStackFrameMapInsertPoint,
 		&prevInsertPoint
 		);
 
@@ -150,7 +150,7 @@ GcShadowStackMgr::setFrameMap (
 	ASSERT (m_frameVariable);
 
 	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_SetGcShadowStackFrameMap);
-	
+
 	m_module->m_llvmIrBuilder.createCall3 (
 		function,
 		function->getType (),
@@ -166,10 +166,10 @@ GcShadowStackMgr::preCreateFrame ()
 {
 	ASSERT (!m_frameVariable && !m_gcRootArrayValue);
 
-	Type* type = m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame); 
+	Type* type = m_module->m_typeMgr.getStdType (StdType_GcShadowStackFrame);
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable ("gcShadowStackFrame", type);
 
-	type = m_module->m_typeMgr.getStdType (StdType_BytePtr); 
+	type = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 	m_module->m_llvmIrBuilder.createAlloca (type, "gcRootArray_tmp", type->getDataPtrType_c (), &m_gcRootArrayValue);
 
 	// m_gcRootArrayValue will be replaced later
@@ -232,7 +232,7 @@ GcShadowStackMgr::finalizeFrame ()
 
 	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 0, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (prevStackTopValue, dstValue);
-	
+
 	// GcShadowStackFrame.m_map
 
 	Value frameMapFieldValue;
@@ -287,16 +287,16 @@ GcShadowStackMgr::finalizeFrame ()
 
 //		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
 //		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
-	
+
 		setFrameMap (scope->m_gcShadowStackFrameMap, false); // easier to see in llvm ir
 	}
 
-	// done 
+	// done
 
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

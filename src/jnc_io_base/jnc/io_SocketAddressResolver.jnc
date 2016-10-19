@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup socket
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum SocketAddressResolverEventCode
 {
@@ -14,7 +14,7 @@ enum SocketAddressResolverEventCode
 	ResolveError,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketAddressResolverEventParams
 {
@@ -25,7 +25,7 @@ struct SocketAddressResolverEventParams
 	std.Error const* m_error;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class SocketAddressResolver
 {
@@ -38,7 +38,7 @@ opaque class SocketAddressResolver
 		char const* name,
 		AddressFamily family = AddressFamily.Undefined
 		);
-		
+
 	bool cancel (uint_t syncId);
 	void cancelAll ();
 	alias dispose = cancelAll;
@@ -46,7 +46,7 @@ opaque class SocketAddressResolver
 	event m_onResolverEvent (SocketAddressResolverEventParams const* params);
 }
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

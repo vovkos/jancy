@@ -5,7 +5,7 @@ namespace io {
 //! \addtogroup file
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 opaque class NamedPipe
 {
@@ -17,7 +17,7 @@ opaque class NamedPipe
 
 	bool errorcode open (
 		char const* name,
-		size_t backLog = 0		
+		size_t backLog = 0
 		);
 
 	void close ();
@@ -28,7 +28,7 @@ opaque class NamedPipe
 	event m_onIncomingConnection (uint_t syncId);
 }
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

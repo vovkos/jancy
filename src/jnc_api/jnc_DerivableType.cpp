@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -27,7 +27,7 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 	return jnc_g_dynamicExtensionLibHost->m_baseTypeSlotFuncTable->m_getVTableIndexFunc (baseType);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Function*
@@ -68,7 +68,7 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
-	jnc_UnOpKind opKind	
+	jnc_UnOpKind opKind
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getUnaryOperatorFunc (type, opKind);
@@ -117,7 +117,7 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 	return baseType->getVTableIndex ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 jnc_Function*
@@ -193,7 +193,7 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
-	jnc_UnOpKind opKind	
+	jnc_UnOpKind opKind
 	)
 {
 	jnc_Function* function = type->getUnaryOperator ((jnc::UnOpKind) opKind);
@@ -255,7 +255,7 @@ jnc_DerivableType_getCastOperator (
 }
 
 JNC_EXTERN_C
-size_t 
+size_t
 jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type)
 {
 	return type->getBaseTypeArray ().getCount ();

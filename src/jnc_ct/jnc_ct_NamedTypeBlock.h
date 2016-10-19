@@ -14,7 +14,7 @@ class StructField;
 class Property;
 class Value;
 
-//.............................................................................
+//..............................................................................
 
 class NamedTypeBlock
 {
@@ -23,7 +23,7 @@ protected:
 
 	sl::Array <Variable*> m_staticFieldArray;
 	sl::Array <StructField*> m_memberFieldArray;
-	sl::Array <Function*> m_memberMethodArray;	
+	sl::Array <Function*> m_memberMethodArray;
 	sl::Array <Property*> m_memberPropertyArray;
 
 	sl::Array <StructField*> m_unnamedFieldArray;
@@ -191,10 +191,10 @@ public:
 	callMemberPropertyDestructors (const Value& thisValue);
 
 protected:
-	Namespace* 
+	Namespace*
 	getParentNamespaceImpl ();
 
-	Unit* 
+	Unit*
 	getParentUnitImpl ();
 
 	virtual
@@ -209,7 +209,7 @@ protected:
 		) = 0;
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

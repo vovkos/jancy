@@ -2,17 +2,17 @@
 #include "MyLabel.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	MyLabel, 
-	"Label", 
-	g_myLibGuid, 
+	MyLabel,
+	"Label",
+	g_myLibGuid,
 	MyLibCacheSlot_Label,
-	MyLabel, 
+	MyLabel,
 	NULL
 	)
-	
+
 JNC_BEGIN_TYPE_FUNCTION_MAP (MyLabel)
 	JNC_MAP_CONSTRUCTOR (&(jnc::construct <MyLabel, jnc::DataPtr>))
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <MyLabel>)
@@ -22,7 +22,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MyLabel)
 	JNC_MAP_AUTOGET_PROPERTY ("m_alignment", &MyLabel::setAlignment)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MyLabel::MyLabel (jnc::DataPtr textPtr):
 	MyWidget (new QLabel)
@@ -54,4 +54,4 @@ MyLabel::updateStyleSheet ()
 	m_qtLabel->setStyleSheet (styleSheet);
 }
 
-//.............................................................................
+//..............................................................................

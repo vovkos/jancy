@@ -4,21 +4,21 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (MyButton)
 
-//.............................................................................
+//..............................................................................
 
 class MyButton: public MyWidget
 {
-public: 
+public:
 	jnc::DataPtr m_text;
 	jnc::ClassBox <jnc::Multicast> m_onClicked;
 
 public:
-	QPushButton* m_qtButton;	
+	QPushButton* m_qtButton;
 	QtSignalBridge* m_onClickedBridge;
 
 public:
 	MyButton (jnc::DataPtr textPtr);
-	
+
 	~MyButton ()
 	{
 		delete m_qtButton;
@@ -34,4 +34,4 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................

@@ -7,7 +7,7 @@
 /// \addtogroup function
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_FunctionKind
 {
@@ -38,12 +38,12 @@ enum jnc_FunctionKind
 
 typedef enum jnc_FunctionKind jnc_FunctionKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
 jnc_getFunctionKindString (jnc_FunctionKind functionKind);
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_FunctionKindFlag
 {
@@ -54,12 +54,12 @@ enum jnc_FunctionKindFlag
 
 typedef enum jnc_FunctionKindFlag jnc_FunctionKindFlag;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 uint_t
 jnc_getFunctionKindFlags (jnc_FunctionKind functionKind);
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionKind
@@ -96,7 +96,7 @@ JNC_EXTERN_C
 void*
 jnc_Function_getMachineCode (jnc_Function* function);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -147,13 +147,13 @@ struct jnc_Function: jnc_ModuleItem
 
 #endif // _JNC_CORE
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_FunctionKind FunctionKind;
 
@@ -182,7 +182,7 @@ const FunctionKind
 	FunctionKind_ScheduleLauncher    = jnc_FunctionKind_ScheduleLauncher,
 	FunctionKind__Count              = jnc_FunctionKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -191,7 +191,7 @@ getFunctionKindString (FunctionKind functionKind)
 	return jnc_getFunctionKindString (functionKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_FunctionKindFlag FunctionKindFlag;
 
@@ -200,7 +200,7 @@ const FunctionKindFlag
 	FunctionKindFlag_NoOverloads = jnc_FunctionKindFlag_NoOverloads,
 	FunctionKindFlag_NoArgs      = jnc_FunctionKindFlag_NoArgs;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 uint_t
@@ -209,7 +209,7 @@ getFunctionKindFlags (FunctionKind functionKind)
 	return jnc_getFunctionKindFlags (functionKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

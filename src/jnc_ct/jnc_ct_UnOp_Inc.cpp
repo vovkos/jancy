@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 UnOp_PreInc::getResultType (const Value& opValue)
@@ -22,7 +22,7 @@ UnOp_PreInc::op (
 	Value oneValue;
 	oneValue.setConstInt32 (1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
-		
+
 	bool result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
 	if (!result)
 		return false;
@@ -31,7 +31,7 @@ UnOp_PreInc::op (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 Type*
 UnOp_PostInc::getResultType (const Value& opValue)
@@ -57,7 +57,7 @@ UnOp_PostInc::op (
 	Value oneValue;
 	oneValue.setConstInt32 (1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PostInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
-		
+
 	result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
 	if (!result)
 		return false;
@@ -66,7 +66,7 @@ UnOp_PostInc::op (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

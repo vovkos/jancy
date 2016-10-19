@@ -1,17 +1,17 @@
-// Jancy supports 'bindable' properties, which notify subscribers after they 
-// have changed. 
+// Jancy supports 'bindable' properties, which notify subscribers after they
+// have changed.
 
-// The firing of the bindable event must be done manually, unless the entire 
-// property is compiler-generated. In this latter case the property is called 
+// The firing of the bindable event must be done manually, unless the entire
+// property is compiler-generated. In this latter case the property is called
 // bindable data.
 
-//.............................................................................
+//..............................................................................
 
 // simple bindable property declaration syntax
 
 int autoget bindable property g_simpleProp;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // setter implementation
 
@@ -23,33 +23,33 @@ g_simpleProp.set (int x)
 		return;
 
 	m_value = x;
-	
+
 	// by default, the name of compiler-generated event is 'm_onChanged'
 
-	m_onChanged (); 
+	m_onChanged ();
 }
 
-//.............................................................................
+//..............................................................................
 
 // similar property declared using the full syntax
 
 property g_prop
-{	
-	// declaring a field with 'autoget' modifier implicitly makes the whole 
+{
+	// declaring a field with 'autoget' modifier implicitly makes the whole
 	// property autoget
 
-	autoget int m_x; 
+	autoget int m_x;
 
-	// declaring an event with 'bindable' modifier implicitly makes the whole 
+	// declaring an event with 'bindable' modifier implicitly makes the whole
 	// property bindable
 
-	bindable event m_e (); 
+	bindable event m_e ();
 
 	set (int x);
 	set (double x);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // setters implementation
 
@@ -75,14 +75,14 @@ g_prop.set (double x)
 	m_e ();
 }
 
-//.............................................................................
+//..............................................................................
 
-// bindable data is a wholly compiler-generated property with trivial getter 
+// bindable data is a wholly compiler-generated property with trivial getter
 // and setter - the sole purpose of bindable data is to track data changes
 
 int bindable g_data;
 
-//.............................................................................
+//..............................................................................
 
 // onChanged event handlers
 
@@ -101,7 +101,7 @@ onDataChanged ()
 	printf ("g_data has changed (new value = %d)\n", g_data);
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -128,4 +128,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

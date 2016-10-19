@@ -8,12 +8,12 @@
 #define new DEBUG_NEW
 #endif
 
-//.............................................................................
+//..............................................................................
 
-BOOL 
+BOOL
 ParseFileLineString (
-	LPCTSTR buffer, 
-	CString* pstrFile, 
+	LPCTSTR buffer,
+	CString* pstrFile,
 	int* pnLine
 	)
 {
@@ -36,7 +36,7 @@ ParseFileLineString (
 		while (isspace(*p))
 			p++;
 
-		if (*p == ':' || *p == 0) 
+		if (*p == ':' || *p == 0)
 			break;
 	}
 
@@ -53,7 +53,7 @@ ParseFileLineString (
 
 	if (strLine.IsEmpty())
 		return FALSE;
-	
+
 	TCHAR* pEnd;
 	*pnLine = _tcstol(strLine, &pEnd, 10);
 	if (pEnd == (LPCTSTR) strLine)
@@ -62,21 +62,21 @@ ParseFileLineString (
 	return TRUE;
 }
 
-//.............................................................................
+//..............................................................................
 
 BEGIN_MESSAGE_MAP(COutputPane, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-int COutputPane::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+int COutputPane::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	VERIFY(m_LogCtrl.Create(
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL |
-		ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_READONLY, 
+		ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_READONLY,
 		CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST));
 
 	m_LogCtrl.ModifyStyleEx(0, WS_EX_CLIENTEDGE);
@@ -87,12 +87,12 @@ int COutputPane::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-void COutputPane::OnSize(UINT nType, int cx, int cy) 
+void COutputPane::OnSize(UINT nType, int cx, int cy)
 {
 	m_LogCtrl.MoveWindow(0, 0, cx, cy);
 }
 
-BOOL COutputPane::PreTranslateMessage (MSG* pMsg) 
+BOOL COutputPane::PreTranslateMessage (MSG* pMsg)
 {
 	switch (pMsg->message)
 	{
@@ -103,15 +103,15 @@ BOOL COutputPane::PreTranslateMessage (MSG* pMsg)
 	return CDockablePane::PreTranslateMessage (pMsg);
 }
 
-BOOL COutputPane::OnLButtonDblClk () 
+BOOL COutputPane::OnLButtonDblClk ()
 {
 	int StartChar, StopChar;
 	m_LogCtrl.GetSel (StartChar, StopChar);
-	
+
 	int Line = m_LogCtrl.LineFromChar (StartChar);
 	TCHAR Buffer [1024] = { 0 };
 	m_LogCtrl.GetLine (Line, Buffer, sizeof (Buffer) - 1);
-	
+
 	CString FilePath;
 	BOOL Result = ParseFileLineString (Buffer, &FilePath, &Line);
 	if (!Result)
@@ -128,4 +128,4 @@ BOOL COutputPane::OnLButtonDblClk ()
 	return TRUE;
 }
 
-//.............................................................................
+//..............................................................................

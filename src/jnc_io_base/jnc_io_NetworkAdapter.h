@@ -6,7 +6,7 @@ namespace io {
 JNC_DECLARE_TYPE (NetworkAdapterAddress)
 JNC_DECLARE_TYPE (NetworkAdapterDesc)
 
-//.............................................................................
+//..............................................................................
 
 struct NetworkAdapterAddress
 {
@@ -17,7 +17,7 @@ struct NetworkAdapterAddress
 	size_t m_netMaskBitCount;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct NetworkAdapterDesc
 {
@@ -33,15 +33,15 @@ struct NetworkAdapterDesc
 	size_t m_addressCount;
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
 createNetworkAdapterDescList (
 	DataPtr adapterCountPtr,
-	DataPtr addressCountPtr	
+	DataPtr addressCountPtr
 	);
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

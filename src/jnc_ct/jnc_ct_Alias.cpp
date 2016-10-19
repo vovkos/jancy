@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 Alias::generateDocumentation (
@@ -23,10 +23,10 @@ Alias::generateDocumentation (
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.sz ());
 	itemXml->append (m_type->getDoxyTypeString ());
- 
+
 	ASSERT (!m_initializer.isEmpty ());
 	itemXml->appendFormat (
-		"<initializer>= %s</initializer>\n", 
+		"<initializer>= %s</initializer>\n",
 		getInitializerString ().sz ()
 		);
 
@@ -37,7 +37,7 @@ Alias::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -5,18 +5,18 @@
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 axl::sl::String*
 getTlsStringBuffer ()
 {
 	static int32_t flag = 0;
 	sys::TlsSlot* slot = sl::getSimpleSingleton <sys::TlsSlot> (&flag);
-	
+
 	sl::String* oldStringBuffer = (sl::String*) sys::getTlsMgr ()->getSlotValue (*slot).p ();
 	if (oldStringBuffer)
 		return oldStringBuffer;
-		
+
 	ref::Ptr <sl::String> newStringBuffer = AXL_REF_NEW (ref::Box <sl::String>);
 	sys::getTlsMgr ()->setSlotValue (*slot, newStringBuffer);
 	return newStringBuffer;
@@ -24,7 +24,7 @@ getTlsStringBuffer ()
 
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Module::Module ()
 {
@@ -90,7 +90,7 @@ Module::initialize (
 #if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
-#endif		
+#endif
 
 	m_name = name;
 	m_compileFlags = compileFlags;
@@ -98,12 +98,12 @@ Module::initialize (
 
 	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
 	m_llvmModule = new llvm::Module ("jncModule", *llvmContext);
-	
+
 	m_llvmIrBuilder.create ();
 
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.create ();
-	
+
 	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
 	{
 		m_extensionLibMgr.addStaticLib (jnc_CoreLib_getLib ());
@@ -179,11 +179,11 @@ Module::createLlvmExecutionEngine ()
 		// legacy JIT uses relative call to __chkstk
 		// it worked just fine before windows 10 which loads ntdll.dll too far away
 
-		// the fix should go to LLVM, of course, but 
+		// the fix should go to LLVM, of course, but
 		// a) applying a patch to LLVM before building Jancy would be a pain in the ass
 		// b) legacy JIT is a gonner anyway
 
-		// therefore, a simple workaround is used: allocate a proxy for __chkstk 
+		// therefore, a simple workaround is used: allocate a proxy for __chkstk
 		// which would reside close enough to the generated code
 
 		void* chkstk = ::GetProcAddress (::GetModuleHandleA ("ntdll.dll"), "__chkstk");
@@ -197,7 +197,7 @@ Module::createLlvmExecutionEngine ()
 		engineBuilder.setJITMemoryManager (jitMemoryMgr);
 		uchar_t* p = jitMemoryMgr->allocateCodeSection (128, 0, 0, llvm::StringRef ());
 
-		// mov r11, __chkstk 
+		// mov r11, __chkstk
 
 		p [0] = 0x49;
 		p [1] = 0xbb;
@@ -208,7 +208,7 @@ Module::createLlvmExecutionEngine ()
 		p [10] = 0x41;
 		p [11] = 0xff;
 		p [12] = 0xe3;
-		
+
 		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
 #endif
 
@@ -462,12 +462,12 @@ Module::parseImports ()
 
 	for (; importIt; importIt++)
 	{
-		bool result = importIt->m_importKind == ImportKind_Source ? 
+		bool result = importIt->m_importKind == ImportKind_Source ?
 			parse (
 				importIt->m_lib,
-				importIt->m_filePath, 
+				importIt->m_filePath,
 				importIt->m_source
-				) : 
+				) :
 			parseFile (importIt->m_filePath);
 
 		if (!result)
@@ -593,7 +593,7 @@ Module::jit ()
 			return false;
 	}
 
-	result = 
+	result =
 		createLlvmExecutionEngine () &&
 		m_extensionLibMgr.mapFunctions () &&
 		m_functionMgr.jitFunctions ();
@@ -616,7 +616,7 @@ Module::processCalcLayoutArray ()
 		m_calcLayoutArray.clear ();
 
 		size_t count = calcLayoutArray.getCount ();
-		for (size_t i = 0; i < calcLayoutArray.getCount (); i++) 
+		for (size_t i = 0; i < calcLayoutArray.getCount (); i++)
 		{
 			result = calcLayoutArray [i]->ensureLayout ();
 			if (!result)
@@ -638,7 +638,7 @@ Module::processCompileArray ()
 		m_compileArray.clear ();
 
 		size_t count = compileArray.getCount ();
-		for (size_t i = 0; i < compileArray.getCount (); i++) 
+		for (size_t i = 0; i < compileArray.getCount (); i++)
 		{
 			result = compileArray [i]->compile ();
 			if (!result)
@@ -709,7 +709,7 @@ Module::getLlvmIrString ()
 	return string.c_str ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

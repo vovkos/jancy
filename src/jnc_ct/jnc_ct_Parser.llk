@@ -8,7 +8,7 @@ import "jnc_ct_DeclarationSpecifier.llk";
 import "jnc_ct_Declarator.llk";
 import "jnc_ct_NamedTypeSpecifier.llk";
 
-//.............................................................................
+//..............................................................................
 
 lookahead = 2;
 
@@ -18,7 +18,7 @@ compilation_unit
 	: global_declaration*
 	;
 
-//.............................................................................
+//..............................................................................
 
 ParserClassName = Parser;
 
@@ -153,7 +153,7 @@ Members2
 		const sl::ConstBoxList <Token>& tokenList,
 		bool isBuildingAst = false
 		);
-			
+
 	NamedImportType*
 	getNamedImportType (
 		const QualifiedName& name,
@@ -534,7 +534,7 @@ Members2
 	BasicBlock*
 	assertCondition (const sl::BoxList <Token>& tokenList);
 
-	bool 
+	bool
 	finalizeAssertStmt (
 		const sl::BoxList <Token>& conditionTokenList,
 		const Value& messageValue,
@@ -561,4 +561,4 @@ CloseNamespace
 	} // namespace jnc
 .}
 
-//.............................................................................
+//..............................................................................

@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getArithmeticOperatorResultType (Type* opType);
@@ -22,7 +22,7 @@ getArithmeticOperatorResultType (const Value& opValue)
 	return getArithmeticOperatorResultType (opValue.getType ());
 }
 
-JNC_INLINE 
+JNC_INLINE
 Type*
 getArithmeticOperatorResultType (
 	Type* opType1,
@@ -30,8 +30,8 @@ getArithmeticOperatorResultType (
 	)
 {
 	return getArithmeticOperatorResultType (
-		opType1->getTypeKind () > opType2->getTypeKind () ? 
-			opType1 : 
+		opType1->getTypeKind () > opType2->getTypeKind () ?
+			opType1 :
 			opType2
 		);
 }
@@ -46,7 +46,7 @@ getArithmeticOperatorResultType (
 	return getArithmeticOperatorResultType (opValue1.getType (), opValue2.getType ());
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
 class UnOp_Arithmetic: public UnaryOperator
@@ -142,7 +142,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
 class UnOp_IntegerOnly: public UnOp_Arithmetic <T>
@@ -180,7 +180,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class UnOp_Plus: public UnOp_Arithmetic <UnOp_Plus>
 {
@@ -243,7 +243,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class UnOp_Minus: public UnOp_Arithmetic <UnOp_Minus>
 {
@@ -296,7 +296,7 @@ public:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 class UnOp_BwNot: public UnOp_IntegerOnly <UnOp_BwNot>
 {
@@ -329,7 +329,7 @@ public:
 
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

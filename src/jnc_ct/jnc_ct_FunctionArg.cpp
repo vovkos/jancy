@@ -4,7 +4,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 FunctionArg::FunctionArg ()
 {
@@ -29,7 +29,7 @@ FunctionArg::getArgString ()
 		string += ' ';
 		string += m_name;
 	}
-		
+
 	sl::String suffix = m_type->getTypeStringSuffix ();
 	if (!suffix.isEmpty ())
 	{
@@ -62,7 +62,7 @@ FunctionArg::getArgDoxyLinkedText ()
 		string += ' ';
 		string += m_name;
 	}
-		
+
 	sl::String suffix = m_type->getDoxyLinkedTextSuffix ();
 	if (!suffix.isEmpty ())
 	{
@@ -79,7 +79,7 @@ FunctionArg::getArgDoxyLinkedText ()
 	return string;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

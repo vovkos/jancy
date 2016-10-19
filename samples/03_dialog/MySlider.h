@@ -4,16 +4,16 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (MySlider)
 
-//.............................................................................
+//..............................................................................
 
 class MySlider: public MyWidget
 {
-public: 
+public:
 	int m_minimum;
 	int m_maximum;
-	
+
 	jnc::ClassBox <jnc::Multicast> m_onValueChanged;
-	
+
 public:
 	QSlider* m_qtSlider;
 	QtSignalBridge* m_onValueChangedBridge;
@@ -61,4 +61,4 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................

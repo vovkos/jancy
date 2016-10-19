@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Variable::Variable ()
 {
@@ -38,7 +38,7 @@ void*
 Variable::getStaticData ()
 {
 	ASSERT (m_storageKind == StorageKind_Static);
-	
+
 	if (m_staticData)
 		return m_staticData;
 
@@ -79,9 +79,9 @@ Variable::getLlvmValue ()
 bool
 Variable::isInitializationNeeded ()
 {
-	return 
+	return
 		!m_constructor.isEmpty () ||
-		!m_initializer.isEmpty () || 
+		!m_initializer.isEmpty () ||
 		m_type->getTypeKind () == TypeKind_Class; // static class variable
 }
 
@@ -104,7 +104,7 @@ Variable::generateDocumentation (
 		itemXml->append (" static='yes'");
 	else if (m_storageKind == StorageKind_Tls)
 		itemXml->append (" tls='yes'");
-	 
+
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
 		itemXml->append (" const='yes'");
 
@@ -125,7 +125,7 @@ Variable::generateDocumentation (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

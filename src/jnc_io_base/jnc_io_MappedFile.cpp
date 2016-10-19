@@ -6,14 +6,14 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	MappedFile,
-	"io.MappedFile", 
-	g_ioLibGuid, 
-	IoLibCacheSlot_MappedFile,	
-	MappedFile, 
+	"io.MappedFile",
+	g_ioLibGuid,
+	IoLibCacheSlot_MappedFile,
+	MappedFile,
 	NULL
 	)
 
@@ -27,7 +27,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MappedFile)
 	JNC_MAP_FUNCTION ("view",  &MappedFile::view)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MappedFile::MappedFile ()
 {
@@ -65,7 +65,7 @@ MappedFile::view (
 		propagateLastError ();
 		return g_nullPtr;
 	}
-	
+
 	// lifetime of the resulting view is not guaranteed
 	// but its the best we can do with the direct use of axl::io::MappedFile
 
@@ -78,7 +78,7 @@ MappedFile::view (
 }
 
 void
-JNC_CDECL 
+JNC_CDECL
 MappedFile::setDynamicViewLimit (size_t limit)
 {
 	bool result = m_file.setup (limit, axl::io::MappedFile::DefaultsKind_ReadAheadSize);
@@ -86,7 +86,7 @@ MappedFile::setDynamicViewLimit (size_t limit)
 		m_dynamicViewLimit = limit;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

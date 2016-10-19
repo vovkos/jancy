@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 void
 OperatorMgr::checkPtr (
@@ -57,12 +57,12 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	DataPtrType* type = (DataPtrType*) value.getType ();
 	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
 
-	if (m_module->m_operatorMgr.isUnsafeRgn () || 
+	if (m_module->m_operatorMgr.isUnsafeRgn () ||
 		(type->getFlags () & PtrTypeFlag_Safe) ||
 		ptrTypeKind == DataPtrTypeKind_Thin)
 		return true;
 
-	size_t targetSize = type->getTargetType ()->getSize ();	
+	size_t targetSize = type->getTargetType ()->getSize ();
 
 	Value ptrValue;
 	Value validatorValue;
@@ -75,7 +75,7 @@ OperatorMgr::checkDataPtrRange (const Value& value)
 	else
 	{
 		ASSERT (ptrTypeKind == DataPtrTypeKind_Lean);
-		
+
 		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
@@ -135,7 +135,7 @@ void
 OperatorMgr::checkNullPtr (const Value& value)
 {
 	Type* type = value.getType ();
-	
+
 	if (m_module->m_operatorMgr.isUnsafeRgn () || (type->getFlags () & PtrTypeFlag_Safe))
 		return;
 
@@ -187,7 +187,7 @@ OperatorMgr::checkNullPtr (const Value& value)
 		);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

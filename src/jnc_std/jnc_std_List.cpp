@@ -6,24 +6,24 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	ListEntry,
-	"std.ListEntry", 
-	g_stdLibGuid, 
+	"std.ListEntry",
+	g_stdLibGuid,
 	StdLibCacheSlot_ListEntry
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (ListEntry)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_CLASS_TYPE (
 	List,
-	"std.List", 
-	g_stdLibGuid, 
+	"std.List",
+	g_stdLibGuid,
 	StdLibCacheSlot_List
 	)
 
@@ -43,7 +43,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (List)
 	JNC_MAP_FUNCTION ("remove", &List::remove)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -208,11 +208,11 @@ List::remove (
 	entry->m_prevPtr = g_nullPtr;
 	entry->m_nextPtr = g_nullPtr;
 	entry->m_list = NULL;
-	
+
 	return entry->m_data;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
 List::allocateListEntry ()
@@ -334,7 +334,7 @@ List::removeImpl (ListEntry* entry)
 	m_count--;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

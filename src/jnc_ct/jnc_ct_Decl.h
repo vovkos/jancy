@@ -14,7 +14,7 @@ namespace ct {
 
 class Declarator;
 
-//.............................................................................
+//..............................................................................
 
 enum TypeModifier
 {
@@ -44,7 +44,7 @@ enum TypeModifier
 	TypeModifier_ErrorCode   = 0x00800000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum TypeModifierMaskKind
 {
@@ -134,7 +134,7 @@ enum TypeModifierMaskKind
 		TypeModifierMaskKind_TypeKind,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 TypeModifier
@@ -156,7 +156,7 @@ getFirstTypeModifierString (uint_t modifiers)
 	return getTypeModifierString (getFirstTypeModifier (modifiers));
 }
 
-//.............................................................................
+//..............................................................................
 
 class TypeModifiers
 {
@@ -175,7 +175,7 @@ public:
 	void
 	takeOver (TypeModifiers* src);
 
-	int 
+	int
 	getTypeModifiers ()
 	{
 		return m_typeModifiers;
@@ -192,7 +192,7 @@ protected:
 	checkAntiTypeModifiers (int modifierMask);
 };
 
-//.............................................................................
+//..............................................................................
 
 class TypeSpecifier: public TypeModifiers
 {
@@ -205,7 +205,7 @@ public:
 		m_type = NULL;
 	}
 
-	Type* 
+	Type*
 	getType ()
 	{
 		return m_type;
@@ -215,7 +215,7 @@ public:
 	setType (Type* type);
 };
 
-//.............................................................................
+//..............................................................................
 
 class DeclPointerPrefix:
 	public TypeModifiers,
@@ -224,7 +224,7 @@ class DeclPointerPrefix:
 	friend class Declarator;
 };
 
-//.............................................................................
+//..............................................................................
 
 enum DeclSuffixKind
 {
@@ -233,7 +233,7 @@ enum DeclSuffixKind
 	DeclSuffixKind_Function,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DeclSuffix: public sl::ListLink
 {
@@ -261,14 +261,14 @@ public:
 		return m_suffixKind;
 	}
 
-	Declarator* 
+	Declarator*
 	getDeclarator ()
 	{
 		return m_declarator;
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DeclArraySuffix: public DeclSuffix
 {
@@ -298,7 +298,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DeclFunctionSuffix: public DeclSuffix
 {
@@ -323,7 +323,7 @@ public:
 		return m_argArray;
 	}
 
-	int 
+	int
 	getFunctionTypeFlags ()
 	{
 		return m_functionTypeFlags;
@@ -333,14 +333,14 @@ public:
 	addFunctionTypeFlag (FunctionTypeFlag flag);
 };
 
-//.............................................................................
+//..............................................................................
 
 enum PostDeclaratorModifier
 {
 	PostDeclaratorModifier_Const = 0x01,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 PostDeclaratorModifier
@@ -349,20 +349,20 @@ getFirstPostDeclaratorModifier (uint_t modifiers)
 	return (PostDeclaratorModifier) (1 << sl::getLoBitIdx (modifiers));
 }
 
-const char* 
+const char*
 getPostDeclaratorModifierString (PostDeclaratorModifier modifier);
 
 sl::String
 getPostDeclaratorModifierString (uint_t modifiers);
 
 JNC_INLINE
-const char* 
+const char*
 getFirstPostDeclaratorModifierString (uint_t modifiers)
 {
 	return getPostDeclaratorModifierString (getFirstPostDeclaratorModifier (modifiers));
 }
 
-//.............................................................................
+//..............................................................................
 
 enum DeclaratorKind
 {
@@ -375,7 +375,7 @@ enum DeclaratorKind
 	DeclaratorKind_OperatorCdeclVararg,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Declarator: public TypeModifiers
 {
@@ -464,43 +464,43 @@ public:
 		return m_pos;
 	}
 
-	size_t 
+	size_t
 	getBitCount ()
 	{
 		return m_bitCount;
 	}
 
-	int 
+	int
 	getPostDeclaratorModifiers ()
 	{
 		return m_postDeclaratorModifiers;
 	}
 
-	Type* 
+	Type*
 	getBaseType ()
 	{
 		return m_baseType;
 	}
 
-	AttributeBlock* 
+	AttributeBlock*
 	getAttributeBlock ()
 	{
 		return m_attributeBlock;
 	}
 
-	DoxyBlock* 
+	DoxyBlock*
 	getDoxyBlock ()
 	{
 		return m_doxyBlock;
 	}
 
-	sl::ConstList <DeclPointerPrefix> 
+	sl::ConstList <DeclPointerPrefix>
 	getPointerPrefixList ()
 	{
 		return m_pointerPrefixList;
 	}
 
-	sl::ConstList <DeclSuffix> 
+	sl::ConstList <DeclSuffix>
 	getSuffixList ()
 	{
 		return m_suffixList;
@@ -545,7 +545,7 @@ public:
 
 	bool
 	addUnaryBinaryOperator (
-		UnOpKind unOpKind, 
+		UnOpKind unOpKind,
 		BinOpKind binOpKind
 		);
 
@@ -584,7 +584,7 @@ protected:
 		);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

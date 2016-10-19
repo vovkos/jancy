@@ -9,7 +9,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 FunctionMgr::FunctionMgr ()
 {
@@ -205,7 +205,7 @@ FunctionMgr::prologue (
 
 	m_currentFunction = function;
 
-	// create entry block 
+	// create entry block
 
 	function->m_entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
 	function->m_entryBlock->markEntry ();
@@ -262,7 +262,7 @@ FunctionMgr::prologue (
 		if (function->getProperty ())
 			function->getProperty ()->initializeStaticFields ();
 		else if (function->getParentType ())
-			function->getParentType ()->initializeStaticFields ();		
+			function->getParentType ()->initializeStaticFields ();
 	}
 
 	return true;
@@ -302,7 +302,7 @@ FunctionMgr::createThisValue ()
 	else
 	{
 		ASSERT (function->m_storageKind == StorageKind_Override);
-		
+
 		if (function->m_thisArgDelta == 0)
 		{
 			m_module->m_llvmIrBuilder.createBitCast (thisArgValue, function->m_thisType, &m_thisValue);
@@ -675,7 +675,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	m_module->m_llvmIrBuilder.setInsertPoint (block->getLlvmBlock ()->begin ());
 
 	Function* getTls = getStdFunction (StdFunc_GetTls);
-	
+
 	Value tlsValue;
 	m_module->m_llvmIrBuilder.createCall (getTls, getTls->getType (), &tlsValue);
 
@@ -722,7 +722,7 @@ FunctionMgr::jitFunctions ()
 	llvm::ScopedFatalErrorHandler scopeErrorHandler (llvmFatalErrorHandler);
 
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine ();
-	
+
 	try
 	{
 		sl::Iterator <Function> functionIt = m_functionList.getHead ();
@@ -757,7 +757,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 
 	// 8 is enough for all the std functions
 
-	Type* argTypeArray [8] = { 0 }; 
+	Type* argTypeArray [8] = { 0 };
 	llvm::Type* llvmArgTypeArray [8] = { 0 };
 
 	Type* returnType;
@@ -860,7 +860,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		llvmArgTypeArray [1] = argTypeArray [1]->getLlvmType ();
 		llvmArgTypeArray [2] = argTypeArray [2]->getLlvmType ();
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
-			m_module->getLlvmModule (), 
+			m_module->getLlvmModule (),
 			llvm::Intrinsic::memcpy,
 			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 3)
 			);
@@ -880,7 +880,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		llvmArgTypeArray [1] = argTypeArray [1]->getLlvmType ();
 		llvmArgTypeArray [2] = argTypeArray [2]->getLlvmType ();
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
-			m_module->getLlvmModule (), 
+			m_module->getLlvmModule (),
 			llvm::Intrinsic::memmove,
 			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 3)
 			);
@@ -899,7 +899,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		llvmArgTypeArray [0] = argTypeArray [0]->getLlvmType ();
 		llvmArgTypeArray [1] = argTypeArray [2]->getLlvmType ();
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration (
-			m_module->getLlvmModule (), 
+			m_module->getLlvmModule (),
 			llvm::Intrinsic::memset,
 			llvm::ArrayRef <llvm::Type*> (llvmArgTypeArray, 2)
 			);
@@ -924,7 +924,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.dynamicThrow", functionType);
 		break;
-		
+
 	case StdFunc_VariantUnaryOperator:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
@@ -994,7 +994,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_CheckDivByZero_f64:
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
-		source = getStdFunctionSource (func);			
+		source = getStdFunctionSource (func);
 		ASSERT (source->m_source);
 
 		function = parseStdFunction (
@@ -1079,7 +1079,7 @@ FunctionMgr::getLazyStdFunction (StdFunc func)
 	return function;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -8,7 +8,7 @@ namespace io {
 JNC_DECLARE_TYPE (SshEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
 
-//.............................................................................
+//..............................................................................
 
 enum SshEventCode
 {
@@ -29,7 +29,7 @@ enum SshEventCode
 	SshEventCode_TransmitBufferReady,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SshEventParams
 {
@@ -40,7 +40,7 @@ struct SshEventParams
 	DataPtr m_errorPtr;
 };
 
-//.............................................................................
+//..............................................................................
 
 class FreeLibSsh2Session
 {
@@ -53,7 +53,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class FreeLibSsh2Channel
 {
@@ -66,12 +66,12 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef sl::Handle <LIBSSH2_SESSION*, FreeLibSsh2Session> SshSessionHandle;
 typedef sl::Handle <LIBSSH2_CHANNEL*, FreeLibSsh2Channel> SshChannelHandle;
 
-//.............................................................................
+//..............................................................................
 
 class SshChannel: public IfaceHdr
 {
@@ -125,7 +125,7 @@ protected:
 
 protected:
 	Runtime* m_runtime;
-	
+
 	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
@@ -248,7 +248,7 @@ protected:
 	sshAsyncLoop (int result);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

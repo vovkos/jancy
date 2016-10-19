@@ -4,7 +4,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 PropertyVerifier::checkSetter (FunctionType* functionType)
@@ -25,7 +25,7 @@ PropertyVerifier::checkIndexSignature (
 	)
 {
 	ASSERT (functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
-	
+
 	sl::String indexArgSignature = createIndexArgSignature (functionKind, functionType);
 	if (m_indexArgSignature.isEmpty ())
 	{
@@ -63,7 +63,7 @@ PropertyVerifier::createIndexArgSignature (
 	return functionType->createArgSignature (argArray, argCount - 1, 0);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

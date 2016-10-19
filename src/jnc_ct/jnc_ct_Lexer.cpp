@@ -5,9 +5,9 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
-size_t 
+size_t
 decodeByteString (
 	sl::Array <char>* buffer,
 	int radix, // must be 2, 8, 10 or 16
@@ -15,7 +15,7 @@ decodeByteString (
 	)
 {
 	ASSERT (radix == 2 || radix == 8 || radix == 10 || radix == 16);
-	
+
 	enum State
 	{
 		State_Space = 0,
@@ -26,11 +26,11 @@ decodeByteString (
 
 	buffer->clear ();
 	buffer->reserve (string.getLength () / 2); // good estimate no matter the radix
-	
+
 	char byteBuffer [16] = { 0 }; // big enough to fit byte in any radix
 	char* byteEnd;
 	size_t byteLength;
-	
+
 	size_t maxByteLength = radix == 16 ? 2 : radix == 2 ? 8 : 3;
 
 	uchar_t x;
@@ -85,7 +85,7 @@ decodeByteString (
 	return buffer->getCount ();
 }
 
-//.............................................................................
+//..............................................................................
 
 Lexer::Lexer ()
 {
@@ -143,7 +143,7 @@ Lexer::createCharToken (int tokenKind)
 	char buffer [256];
 	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
 	enc::EscapeEncoding::decode (&string, sl::StringRef (ts + 1, token->m_pos.m_length - 2));
-		
+
 	token->m_data.m_integer = string [0];
 	return token;
 }
@@ -186,7 +186,7 @@ Lexer::preCreateMlLiteralToken (int radix)
 	return m_mlLiteralToken;
 }
 
-size_t 
+size_t
 getWsPrefixLength (const sl::StringRef& string)
 {
 	const char* p = string.cp ();
@@ -196,7 +196,7 @@ getWsPrefixLength (const sl::StringRef& string)
 	for (; p < end; p++)
 	{
 		char c = *p;
-		if (c != ' ' && c != '\t' && c != '\r') 
+		if (c != ' ' && c != '\t' && c != '\r')
 			break;
 	}
 
@@ -280,7 +280,7 @@ Lexer::createMlLiteralToken ()
 	{
 		token->m_token = TokenKind_Literal;
 		token->m_data.m_string = sl::StringRef (p, length);
-	
+
 		if (right > 3 && ts [-1] == '\n')
 		{
 			sl::String normalizedString;
@@ -380,7 +380,7 @@ Token*
 Lexer::createDoxyCommentToken (TokenKind tokenKind)
 {
 	ASSERT (te - ts >= 3 && *ts == '/');
-	
+
 	size_t right = 0;
 
 	if (tokenKind >= TokenKind_DoxyComment3) // multiline c-style: /** or /*!
@@ -450,7 +450,7 @@ Lexer::terminateFmtSpecifier ()
 	preCreateFmtLiteralToken ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

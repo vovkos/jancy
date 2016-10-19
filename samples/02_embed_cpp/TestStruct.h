@@ -4,7 +4,7 @@
 
 JNC_DECLARE_TYPE (TestStruct)
 
-//.............................................................................
+//..............................................................................
 
 struct TestStruct
 {
@@ -20,7 +20,7 @@ public:
 	static
 	void
 	construct_1 (
-		jnc::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr,
 		int x,
 		int y
 		);
@@ -32,7 +32,7 @@ public:
 	static
 	void
 	foo_1 (
-		jnc::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr,
 		int x,
 		int y
 		);
@@ -40,9 +40,9 @@ public:
 	static
 	void
 	foo_2 (
-		jnc::DataPtr selfPtr, 
+		jnc::DataPtr selfPtr,
 		jnc::DataPtr srcPtr
 		);
 };
 
-//.............................................................................
+//..............................................................................

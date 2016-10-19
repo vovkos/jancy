@@ -6,7 +6,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 llvm::CallInst*
 OperatorMgr::memSet (
@@ -19,7 +19,7 @@ OperatorMgr::memSet (
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
 
-	Value argValueArray [5] = 
+	Value argValueArray [5] =
 	{
 		ptrValue,
 		Value (c, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8)),
@@ -475,7 +475,7 @@ OperatorMgr::newOperator (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

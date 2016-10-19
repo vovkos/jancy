@@ -9,7 +9,7 @@
 /// \addtogroup call-site
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 #if (_JNC_OS_WIN)
 #	define JNC_BEGIN_GC_SITE() \
@@ -88,13 +88,13 @@
 	*(result) = __jncErs.m_result != 0; \
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 template <typename RetVal>
 RetVal
@@ -230,7 +230,7 @@ callFunctionImpl_u (
 	return ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 bool
@@ -374,7 +374,7 @@ callFunctionImpl_s (
 	return result;
 }
 
-//.............................................................................
+//..............................................................................
 
 template <typename RetVal>
 bool
@@ -464,7 +464,7 @@ callFunction (
 	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2, arg3, arg4);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 RetVal
@@ -542,7 +542,7 @@ callFunction (
 	return callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4);
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 bool
@@ -626,7 +626,7 @@ callVoidFunction (
 	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2, arg3, arg4);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 void
@@ -698,7 +698,7 @@ callVoidFunction (
 	callFunctionImpl_u <void> (p, arg1, arg2, arg3, arg4);
 }
 
-//.............................................................................
+//..............................................................................
 
 template <typename RetVal>
 bool
@@ -783,7 +783,7 @@ callFunctionPtr (
 	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 RetVal
@@ -857,7 +857,7 @@ callFunctionPtr (
 	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 bool
@@ -936,7 +936,7 @@ callVoidFunctionPtr (
 	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 void
@@ -1003,7 +1003,7 @@ callVoidFunctionPtr (
 	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 bool
@@ -1087,7 +1087,7 @@ callMulticast (
 	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3, arg4);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 void
@@ -1164,7 +1164,7 @@ callMulticast (
 	callVoidFunctionPtr (ptr, arg1, arg2, arg3, arg4);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

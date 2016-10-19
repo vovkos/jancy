@@ -21,7 +21,7 @@ class Function;
 class Property;
 class DoxyBlock;
 
-//.............................................................................
+//..............................................................................
 
 class ModuleItemPos
 {
@@ -50,7 +50,7 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 class ModuleItemInitializer
 {
@@ -71,9 +71,9 @@ public:
 	getInitializerString ();
 };
 
-//.............................................................................
+//..............................................................................
 
-class ModuleItemDecl: public ModuleItemPos	
+class ModuleItemDecl: public ModuleItemPos
 {
 	friend class Parser;
 	friend class Namespace;
@@ -138,7 +138,7 @@ protected:
 	getDoxyLocationString ();
 };
 
-//.............................................................................
+//..............................................................................
 
 class ModuleItem: public sl::ListLink
 {
@@ -211,10 +211,10 @@ public:
 	sl::String
 	createDoxyRefId ();
 
-	DoxyBlock* 
+	DoxyBlock*
 	getDoxyBlock ();
 
-	DoxyBlock* 
+	DoxyBlock*
 	setDoxyBlock (DoxyBlock* block);
 
 protected:
@@ -227,14 +227,14 @@ protected:
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 enum LazyModuleItemFlag
 {
 	LazyModuleItemFlag_Touched = 0x010000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class LazyModuleItem: public ModuleItem
 {
@@ -251,11 +251,11 @@ public:
 	getActualItem () = 0;
 };
 
-//.............................................................................
+//..............................................................................
 
-ModuleItem* 
+ModuleItem*
 verifyModuleItemKind (
-	ModuleItem* item, 
+	ModuleItem* item,
 	ModuleItemKind itemKind,
 	const sl::StringRef& name
 	);
@@ -284,7 +284,7 @@ verifyModuleItemIsClassType (
 
 JNC_INLINE
 Function*
-verifyModuleItemIsFunction (	
+verifyModuleItemIsFunction (
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
@@ -303,7 +303,7 @@ verifyModuleItemIsProperty (
 	return (Property*) verifyModuleItemKind (item, ModuleItemKind_Property, name);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

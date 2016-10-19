@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpTrunc::llvmCast (
@@ -18,7 +18,7 @@ Cast_FpTrunc::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpExt::llvmCast (
@@ -31,7 +31,7 @@ Cast_FpExt::llvmCast (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpFromInt::llvmCast (
@@ -76,7 +76,7 @@ Cast_FpFromInt::constCast_Fp32 (
 	)
 {
 	const void* src = opValue.getConstData ();
-	
+
 	size_t srcSize = opValue.getType ()->getSize ();
 	switch (srcSize)
 	{
@@ -108,7 +108,7 @@ Cast_FpFromInt::constCast_Fp64 (
 	)
 {
 	const void* src = opValue.getConstData ();
-	
+
 	size_t srcSize = opValue.getType ()->getSize ();
 	switch (srcSize)
 	{
@@ -133,7 +133,7 @@ Cast_FpFromInt::constCast_Fp64 (
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpFromInt_u::llvmCast (
@@ -178,7 +178,7 @@ Cast_FpFromInt_u::constCast_Fp32 (
 	)
 {
 	const void* src = opValue.getConstData ();
-	
+
 	size_t srcSize = opValue.getType ()->getSize ();
 	switch (srcSize)
 	{
@@ -210,7 +210,7 @@ Cast_FpFromInt_u::constCast_Fp64 (
 	)
 {
 	const void* src = opValue.getConstData ();
-	
+
 	size_t srcSize = opValue.getType ()->getSize ();
 	switch (srcSize)
 	{
@@ -235,7 +235,7 @@ Cast_FpFromInt_u::constCast_Fp64 (
 	}
 };
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpFromBeInt::getCastOperators (
@@ -256,7 +256,7 @@ Cast_FpFromBeInt::getCastOperators (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 Cast_FpFromEnum::getCastOperators (
@@ -277,7 +277,7 @@ Cast_FpFromEnum::getCastOperators (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 CastOperator*
 Cast_Fp::getCastOperator (
@@ -320,9 +320,9 @@ Cast_Fp::getCastOperator (
 
 	case TypeKind_Float:
 	case TypeKind_Double:
-		return 
-			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy) : 
-			srcSize > dstSize ? (CastOperator*) &m_trunc : 
+		return
+			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy) :
+			srcSize > dstSize ? (CastOperator*) &m_trunc :
 			(CastOperator*) &m_ext;
 
 	case TypeKind_Enum:
@@ -333,7 +333,7 @@ Cast_Fp::getCastOperator (
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 import "io_base.jncx"
 import "io_Socket.jnc"
@@ -30,13 +30,13 @@ void TcpConnectionSession.foo (io.SocketAddress const* remoteAddress)
 	}
 
 	m_remoteAddress = *remoteAddress;
-	
+
 	printf ("foo - 4\n");
 
 	char const* xxx = m_remoteAddress.getString ();
 	localAddress = m_socket.m_address;
 	}
-	
+
 	printf ("foo - 5\n");
 	new int;
 	printf ("foo - 6\n");
@@ -55,4 +55,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

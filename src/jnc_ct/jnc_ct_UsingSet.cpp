@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ModuleItem* UsingSet::findItem (const sl::StringRef& name)
 {
@@ -19,7 +19,7 @@ ModuleItem* UsingSet::findItem (const sl::StringRef& name)
 
 	return NULL;
 }
-	
+
 ModuleItem* UsingSet::findExtensionItem (
 	NamedType* type,
 	const sl::StringRef& name
@@ -40,7 +40,7 @@ ModuleItem* UsingSet::findExtensionItem (
 	return NULL;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

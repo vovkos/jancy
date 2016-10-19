@@ -10,7 +10,7 @@
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
-//.............................................................................
+//..............................................................................
 
 typedef
 void
@@ -24,7 +24,7 @@ typedef
 int
 jnc_ExtensionLib_MapFunctionsFunc (jnc_Module* module);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ExtensionLib
 {
@@ -37,7 +37,7 @@ struct jnc_ExtensionLib
 	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
 };
 
-//.............................................................................
+//..............................................................................
 
 typedef
 jnc_ExtensionLib*
@@ -47,7 +47,7 @@ JNC_SELECT_ANY
 char
 jnc_g_dynamicExtensionLibMainFuncName [] = "jncDynamicExtensionLibMain";
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 extern jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
@@ -55,7 +55,7 @@ extern jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #endif
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #define JNC_DECLARE_LIB(LibPrefix) \
 	JNC_EXTERN_C \
@@ -88,7 +88,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return &lib; \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_LIB_SOURCE_FILE_TABLE(LibPrefix) \
 	JNC_EXTERN_C \
@@ -109,7 +109,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(LibPrefix) \
 	JNC_EXTERN_C \
@@ -127,7 +127,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE() \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_LIB_FUNCTION_MAP(LibPrefix) \
 	JNC_EXTERN_C \
@@ -145,7 +145,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return 1; \
 	}
 
-//.............................................................................
+//..............................................................................
 
 #define JNC_DECLARE_TYPE_EX(TypePrefix, JncType) \
 	JNC_EXTERN_C \
@@ -181,7 +181,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	const jnc_OpaqueClassTypeInfo* \
 	TypePrefix##_getOpaqueClassTypeInfo ();
 
-//.............................................................................
+//..............................................................................
 
 #define JNC_DEFINE_TYPE_EX(TypePrefix, JncType, verify, qualifiedName, libGuid, cacheSlot) \
 	JNC_EXTERN_C \
@@ -239,7 +239,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_DEFINE_OPAQUE_CLASS_TYPE_NC(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
 	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX (TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, 1)
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_DECLARE_TYPE_STATIC_METHODS_EX(TypePrefix, JncType) \
 	static \
@@ -291,7 +291,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return TypePrefix##_getOpaqueClassTypeInfo (); \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_CLASS_TYPE_VTABLE(TypePrefix) \
 	const void* \
@@ -309,7 +309,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return vtable; \
 	}
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_TYPE_FUNCTION_MAP(TypePrefix) \
 	int \
@@ -332,7 +332,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return 1; \
 	}
 
-//.............................................................................
+//..............................................................................
 
 #define JNC_MAP_TYPE_EX(TypePrefix, isRequired) \
 	result = TypePrefix##_mapFunctions (module, isRequired); \
@@ -446,7 +446,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		return 0; \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);
 
-//.............................................................................
+//..............................................................................
 
 // standard libraries
 
@@ -454,7 +454,7 @@ JNC_DECLARE_LIB (jnc_CoreLib)
 JNC_DECLARE_LIB (jnc_StdLib)
 JNC_DECLARE_LIB (jnc_SysLib)
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifndef __cplusplus
 
@@ -462,7 +462,7 @@ JNC_DECLARE_LIB (jnc_SysLib)
 
 #else // __cplusplus
 
-//.............................................................................
+//..............................................................................
 
 // pvoid_cast is used for casting member function pointers to void*
 
@@ -490,7 +490,7 @@ jnc_pvoid_cast (int x)
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 // implicit tail-padding (might lead to ABI-incompatibility if omitted)
 
@@ -518,7 +518,7 @@ private:
 
 #endif
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ExtensionLib_AddSourcesFunc ExtensionLib_AddSourcesFunc;
 typedef jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc ExtensionLib_AddOpaqueClassTypeInfosFunc;
@@ -528,7 +528,7 @@ typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;
 typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 ExtensionLib*
@@ -544,7 +544,7 @@ SysLib_getLib ()
 	return jnc_SysLib_getLib ();
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

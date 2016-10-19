@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ThunkFunction::ThunkFunction ()
 {
@@ -13,7 +13,7 @@ ThunkFunction::ThunkFunction ()
 	m_targetFunction = NULL;
 }
 
-bool 
+bool
 ThunkFunction::compile ()
 {
 	ASSERT (m_targetFunction);
@@ -35,14 +35,14 @@ ThunkFunction::compile ()
 	llvm::Function::arg_iterator llvmArg = getLlvmFunction ()->arg_begin();
 
 	// skip the first thunk argument (if needed)
-	
+
 	if (thunkArgCount != targetArgCount)
 	{
 		ASSERT (thunkArgCount == targetArgCount + 1);
-		thunkArgArray.remove (0); 
+		thunkArgArray.remove (0);
 		llvmArg++;
 	}
-		
+
 	for (size_t i = 0; i < targetArgCount; i++, llvmArg++)
 	{
 		Value argValue (llvmArg, thunkArgArray [i]->getType ());
@@ -51,11 +51,11 @@ ThunkFunction::compile ()
 			return false;
 
 		argArray [i] = argValue;
-	}	
+	}
 
 	Value returnValue;
 	m_module->m_llvmIrBuilder.createCall (
-		m_targetFunction, 
+		m_targetFunction,
 		m_targetFunction->getType (),
 		argArray,
 		argArray.getCount (),
@@ -73,7 +73,7 @@ ThunkFunction::compile ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

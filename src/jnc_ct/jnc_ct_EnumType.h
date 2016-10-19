@@ -12,7 +12,7 @@ namespace ct {
 
 class EnumType;
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 EnumTypeFlag
@@ -27,16 +27,16 @@ getEnumTypeFlagString (EnumTypeFlag flag);
 sl::String
 getEnumTypeFlagString (uint_t flags);
 
-//.............................................................................
+//..............................................................................
 
 enum EnumConstFlag
 {
 	EnumConstFlag_ValueReady = 0x010000,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class EnumConst: 
+class EnumConst:
 	public ModuleItem,
 	public ModuleItemDecl,
 	public ModuleItemInitializer
@@ -77,13 +77,13 @@ public:
 		);
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class EnumType: public NamedType
 {
 	friend class TypeMgr;
 	friend class Parser;
-	
+
 protected:
 	Type* m_baseType;
 	sl::StdList <EnumConst> m_constList;
@@ -119,37 +119,37 @@ public:
 		);
 
 protected:
-	virtual 
+	virtual
 	void
 	prepareLlvmType ()
 	{
 		m_llvmType = m_baseType->getLlvmType ();
 	}
 
-	virtual 
+	virtual
 	void
 	prepareLlvmDiType ()
 	{
 		m_llvmDiType = m_baseType->getLlvmDiType ();
 	}
 
-	virtual 
+	virtual
 	bool
 	calcLayout ();
 };
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
-bool 
+bool
 isBitFlagEnumType (Type* type)
 {
-	return 
+	return
 		type->getTypeKind () == TypeKind_Enum &&
 		(((EnumType*) type)->getFlags () & EnumTypeFlag_BitFlag);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

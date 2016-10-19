@@ -10,7 +10,7 @@ namespace ct {
 class DoxyGroup;
 class ModuleItem;
 
-//.............................................................................
+//..............................................................................
 
 enum DoxyBlockKind
 {
@@ -18,7 +18,7 @@ enum DoxyBlockKind
 	DoxyBlockKind_Group,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DoxyBlock: public sl::ListLink
 {
@@ -39,19 +39,19 @@ protected:
 public:
 	DoxyBlock ();
 
-	DoxyBlockKind 
+	DoxyBlockKind
 	getBlockKind ()
 	{
 		return m_blockKind;
 	}
 
-	DoxyGroup* 
+	DoxyGroup*
 	getGroup ()
 	{
 		return m_group;
 	}
 
-	ModuleItem* 
+	ModuleItem*
 	getItem ()
 	{
 		return m_item;
@@ -74,7 +74,7 @@ public:
 
 	const sl::String&
 	getDetailedDescription ()
-	{		
+	{
 		return m_detailedDescription;
 	}
 
@@ -88,7 +88,7 @@ public:
 	getDescriptionString ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

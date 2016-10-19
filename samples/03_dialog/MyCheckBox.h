@@ -4,21 +4,21 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (MyCheckBox)
 
-//.............................................................................
+//..............................................................................
 
 class MyCheckBox: public MyWidget
 {
-public: 
+public:
 	jnc::DataPtr m_text;
 	jnc::ClassBox <jnc::Multicast> m_onIsCheckedChanged;
-	
+
 public:
 	QCheckBox* m_qtCheckBox;
 	QtSignalBridge* m_onIsCheckedChangedBridge;
 
 public:
 	MyCheckBox (jnc::DataPtr textPtr);
-	
+
 	~MyCheckBox ()
 	{
 		delete m_qtCheckBox;
@@ -48,4 +48,4 @@ public:
 	}
 };
 
-//.............................................................................
+//..............................................................................

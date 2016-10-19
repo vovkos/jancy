@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 class
 {
@@ -36,7 +36,7 @@ declaration_specifier <TypeSpecifier* $typeSpecifier>
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -65,7 +65,7 @@ type_specifier_modifier <TypeSpecifier* $typeSpecifier>
 			}
 	;
 
-//.............................................................................
+//..............................................................................
 
 class
 {
@@ -110,7 +110,7 @@ storage_specifier
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -127,7 +127,7 @@ access_specifier
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -201,13 +201,13 @@ type_specifier
 
 // expression vs item_declaration_w_specifier
 
-class 
+class
 {
 	size_t m_baseTypeIdx;
 	QualifiedName m_name;
 }
 basetype_qualified_name
-	:	TokenKind_BaseType	
+	:	TokenKind_BaseType
 			{
 				$.m_baseTypeIdx = $1.m_data.m_integer - 1;
 			}
@@ -228,11 +228,11 @@ qualified_type_name_rslv
 			}
 		basetype_qualified_name $n
 			{
-				return 
-					m_stage == StageKind_Pass1 || 
+				return
+					m_stage == StageKind_Pass1 ||
 					findType (
 						$n.m_baseTypeIdx,
-						$n.m_name, 
+						$n.m_name,
 						$n.m_firstToken.m_pos
 						) != NULL;
 			}
@@ -252,7 +252,7 @@ qualified_type_name
 			{
 				$.m_type = getType (
 					$1.m_baseTypeIdx,
-					$1.m_name, 
+					$1.m_name,
 					$1.m_firstToken.m_pos
 					);
 
@@ -282,7 +282,7 @@ property_template_specifier
 			}
 	;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -387,4 +387,4 @@ type_modifier
 			}
 	;
 
-//.............................................................................
+//..............................................................................

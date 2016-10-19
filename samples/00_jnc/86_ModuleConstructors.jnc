@@ -1,7 +1,7 @@
-// Jancy offers module constructors and destructors as a convenient way to 
+// Jancy offers module constructors and destructors as a convenient way to
 // write initialization and cleanup code for compilation units.
 
-//.............................................................................
+//..............................................................................
 
 class C1
 {
@@ -16,15 +16,15 @@ class C1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 // a global static variable with constructor & destructor
 
-C1 g_c; 
+C1 g_c;
 
 // a global static variable with initializer
 
-int g_x = foo (); 
+int g_x = foo ();
 
 int foo ()
 {
@@ -47,7 +47,7 @@ destruct ()
 	printf ("module.destruct ()\n");
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -57,4 +57,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

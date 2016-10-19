@@ -1,7 +1,7 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 
-//.............................................................................
+//..............................................................................
 
 struct Foo
 {
@@ -10,7 +10,7 @@ struct Foo
 	char const* foo ()
 	{
 		printf ("+Foo.m_foo = %d\n", m_foo);
-		std.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map  
+		std.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map
 		printf ("-Foo.m_foo = %d\n", m_foo);
 		return null;
 	}
@@ -22,7 +22,7 @@ foo ()
 	foo.m_foo = 137;
 
 	// this test demonstrated incorrect gc frame map structure
-	// parent scope had no roots, then we enter one or more rootless scopes,	
+	// parent scope had no roots, then we enter one or more rootless scopes,
 	// and then we lift variable from the parent scope and create some temp roots
 
 	// the solution is to propagate frame map down the stack after lift
@@ -58,4 +58,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

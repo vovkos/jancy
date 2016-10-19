@@ -8,7 +8,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Parser::Parser (Module* module):
 	m_doxyParser (module)
@@ -170,7 +170,7 @@ Parser::findType (
 		return (Type*) item;
 
 	case ModuleItemKind_Typedef:
-		return (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ? 
+		return (m_module->getCompileFlags () & ModuleCompileFlag_KeepTypedefShadow) ?
 			((Typedef*) item)->getShadowType () :
 			((Typedef*) item)->getType ();
 
@@ -217,10 +217,10 @@ Parser::setSetAsType (Type* type)
 	{
 		err::setFormatStringError ("setas redefinition for '%s'", derivableType->getTypeString ().sz ());
 		return false;
-	}	
+	}
 
 	derivableType->m_setAsType = type;
-	
+
 	if (type->getTypeKindFlags () & TypeKindFlag_Import)
 		((ImportType*) type)->addFixup (&derivableType->m_setAsType);
 
@@ -478,8 +478,8 @@ Parser::openExtensionNamespace (
 
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	ExtensionNamespace* extensionNamespace = m_module->m_namespaceMgr.createExtensionNamespace (
-		name, 
-		derivableType, 
+		name,
+		derivableType,
 		currentNamespace
 		);
 
@@ -502,7 +502,7 @@ Parser::useNamespace (
 	)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
-	
+
 	sl::BoxIterator <QualifiedName> it = nameList.getHead ();
 	for (; it; it++)
 	{
@@ -518,7 +518,7 @@ Parser::useNamespace (
 			err::setFormatStringError ("'%s' is not a namespace", it->getFullName ().sz ());
 			return false;
 		}
-		
+
 		GlobalNamespace* usedNamespace = (GlobalNamespace*) item;
 		if (usedNamespace->getNamespaceKind () != namespaceKind)
 		{
@@ -565,7 +565,7 @@ Parser::declare (Declarator* declarator)
 		if (isLibrary)
 		{
 			err::setFormatStringError ("only functions can be part of library");
-			return false;			
+			return false;
 		}
 
 		// too early to calctype cause maybe this property has a body
@@ -586,7 +586,7 @@ Parser::declare (Declarator* declarator)
 	if (isLibrary && typeKind != TypeKind_Function)
 	{
 		err::setFormatStringError ("only functions can be part of library");
-		return false;			
+		return false;
 	}
 
 	if (postModifiers != 0 && typeKind != TypeKind_Function)
@@ -1493,12 +1493,12 @@ Parser::declareData (
 		ASSERT (scope);
 		if (!(scope->getFlags () & ScopeFlag_Disposable))
 			scope = m_module->m_namespaceMgr.openScope (
-				declarator->getPos (), 
+				declarator->getPos (),
 				ScopeFlag_Disposable | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable | ScopeFlag_Nested
 				);
 
 		storageKind = (type->getFlags () & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
-		m_storageKind = StorageKind_Undefined; // don't overwrite 
+		m_storageKind = StorageKind_Undefined; // don't overwrite
 		isDisposable = true;
 		break;
 
@@ -1584,7 +1584,7 @@ Parser::declareData (
 			if (!result)
 				return false;
 		}
-		
+
 		assignDeclarationAttributes (variable, variable, declarator);
 
 		result = nspace->addItem (variable);
@@ -1638,9 +1638,9 @@ Parser::declareData (
 				if (!result)
 					return false;
 
-				Token::Pos pos = 
+				Token::Pos pos =
 					!variable->m_initializer.isEmpty () ? variable->m_initializer.getTail ()->m_pos :
-					!variable->m_constructor.isEmpty () ? variable->m_constructor.getTail ()->m_pos : 
+					!variable->m_constructor.isEmpty () ? variable->m_constructor.getTail ()->m_pos :
 					variable->m_pos;
 
 				m_module->m_controlFlowMgr.onceStmt_PostBody (&stmt, pos);
@@ -1990,7 +1990,7 @@ Parser::countReactionBindSites ()
 	return true;
 }
 
-bool 
+bool
 Parser::addReactorBindSite (const Value& value)
 {
 	ASSERT (m_stage == StageKind_ReactorStarter);
@@ -2001,7 +2001,7 @@ Parser::addReactorBindSite (const Value& value)
 	result = m_module->m_operatorMgr.getPropertyOnChanged (value, &onChangedValue);
 	if (!result)
 		return false;
-	
+
 	// create bind site variable in entry block
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
@@ -2010,7 +2010,7 @@ Parser::addReactorBindSite (const Value& value)
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable ("onChanged", type);
 	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-	
+
 	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 	if (!result)
 		return false;
@@ -2048,8 +2048,8 @@ Parser::reactorOnEventDeclaration (
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (suffix->getArgArray ());
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
 	reaction->m_function = m_reactorType->createUnnamedMethod (
-		StorageKind_Member, 
-		FunctionKind_Internal, 
+		StorageKind_Member,
+		FunctionKind_Internal,
 		functionType
 		);
 
@@ -2083,7 +2083,7 @@ Parser::reactorExpressionStmt (sl::BoxList <Token>* tokenList)
 	}
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType ();
-	
+
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
 	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
 	reaction->m_function->setBody (tokenList);
@@ -2195,7 +2195,7 @@ Parser::finalizeAutomatonFunction ()
 		transitionRow += 256;
 	}
 
-	// generate switch 
+	// generate switch
 
 	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonSwitchBlock);
 
@@ -2205,14 +2205,14 @@ Parser::finalizeAutomatonFunction ()
 		caseMap.getHead (),
 		caseMap.getCount ()
 		);
-	
+
 	// generate setup
 
 	m_module->m_controlFlowMgr.setCurrentBlock (automatonSetupBlock);
 	automatonSetupBlock->markReachable ();
-	
+
 	sl::Array <StructField*> fieldArray = recognizerType->getMemberFieldArray ();
-	
+
 	Value fieldValue;
 
 	bool result =
@@ -2228,10 +2228,10 @@ Parser::finalizeAutomatonFunction ()
 
 	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonReturnBlock);	
+	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonReturnBlock);
 
 	Value retValue (
-		rtl::AutomatonResult_Continue, 
+		rtl::AutomatonResult_Continue,
 		m_module->m_typeMgr.getStdType (StdType_AutomatonResult)
 		);
 
@@ -2268,7 +2268,7 @@ isNameValue (
 	name->copy (nameBegin, nameEnd - nameBegin);
 	value->copy (p + 1);
 	return true;
-}	
+}
 
 bool
 Parser::automatonRegExp (
@@ -2293,9 +2293,9 @@ Parser::automatonRegExp (
 	}
 
 	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp, &m_automatonRegExpNameMgr);
-	
+
 	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_regexp_block");
-	
+
 	bool result = regExpCompiler.incrementalCompile (source, block);
 	if (!result)
 		return false;
@@ -2360,7 +2360,7 @@ Parser::findBaseType (size_t baseTypeIdx)
 	DerivableType* parentType = function->getParentType ();
 	if (!parentType)
 		return NULL;
-	
+
 	BaseTypeSlot* slot = parentType->getBaseTypeByIndex (baseTypeIdx);
 	if (!slot)
 		return NULL;
@@ -3014,9 +3014,9 @@ Parser::finalizeLiteral (
 		{
 			size_t length = site->m_offset - offset;
 			appendFmtLiteralRawData (
-				fmtLiteralValue, 
+				fmtLiteralValue,
 				literal->m_binData + offset,
-				length 
+				length
 				);
 
 			offset += length;
@@ -3045,9 +3045,9 @@ Parser::finalizeLiteral (
 	{
 		size_t length = endOffset - offset;
 		appendFmtLiteralRawData (
-			fmtLiteralValue, 
+			fmtLiteralValue,
 			literal->m_binData + offset,
-			length 
+			length
 			);
 	}
 
@@ -3170,7 +3170,7 @@ Parser::appendFmtLiteralValue (
 	}
 
 	return m_module->m_operatorMgr.callOperator (
-		append, 
+		append,
 		fmtLiteralValue,
 		fmtSpecifierValue,
 		argValue
@@ -3193,7 +3193,7 @@ Parser::appendFmtLiteralBinValue (
 	Type* argType = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 
 	Value sizeValue (
-		type->getSize (), 
+		type->getSize (),
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)
 		);
 
@@ -3227,15 +3227,15 @@ Parser::assertCondition (const sl::BoxList <Token>& tokenList)
 
 	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock ("assert_fail");
 	BasicBlock* continueBlock = m_module->m_controlFlowMgr.createBlock ("assert_continue");
-	
-	result = m_module->m_controlFlowMgr.conditionalJump (conditionValue, continueBlock, failBlock, failBlock); 
+
+	result = m_module->m_controlFlowMgr.conditionalJump (conditionValue, continueBlock, failBlock, failBlock);
 	if (!result)
 		return NULL;
-	
+
 	return continueBlock;
 }
 
-bool 
+bool
 Parser::finalizeAssertStmt (
 	const sl::BoxList <Token>& conditionTokenList,
 	const Value& messageValue,
@@ -3251,7 +3251,7 @@ Parser::finalizeAssertStmt (
 	Value fileNameValue;
 	Value lineValue;
 	Value conditionValue;
-	
+
 	fileNameValue.setCharArray (fileName, m_module);
 	lineValue.setConstInt32 (pos.m_line, m_module);
 	conditionValue.setCharArray (conditionString, m_module);
@@ -3273,12 +3273,12 @@ Parser::finalizeAssertStmt (
 		nullValue.setNull (m_module);
 		argValueList.insertTail (nullValue);
 	}
-	
+
 	bool result = m_module->m_operatorMgr.callOperator (assertionFailure, &argValueList);
 	if (!result)
 		return false;
-		
-	m_module->m_controlFlowMgr.follow (continueBlock); 
+
+	m_module->m_controlFlowMgr.follow (continueBlock);
 	return true;
 }
 
@@ -3293,7 +3293,7 @@ Parser::addScopeAnchorToken (
 	stmt->m_scopeAnchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -6,26 +6,26 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
 	MailslotEventParams,
-	"io.MailslotEventParams", 
-	g_ioLibGuid, 
+	"io.MailslotEventParams",
+	g_ioLibGuid,
 	IoLibCacheSlot_MailslotEventParams
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (MailslotEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Mailslot,
-	"io.Mailslot", 
-	g_ioLibGuid, 
+	"io.Mailslot",
+	g_ioLibGuid,
 	IoLibCacheSlot_Mailslot,
-	Mailslot, 
+	Mailslot,
 	NULL
 	)
 
@@ -37,7 +37,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Mailslot)
 	JNC_MAP_FUNCTION ("read",  &Mailslot::read)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 Mailslot::Mailslot ()
 {
@@ -56,7 +56,7 @@ Mailslot::open (DataPtr namePtr)
 
 	sl::String_w name = "\\\\.\\mailslot\\";
 	name += (const char*) namePtr.m_p;
-	
+
 	HANDLE mailslot = ::CreateMailslotW (name, 0, -1, NULL);
 	if (mailslot == INVALID_HANDLE_VALUE)
 	{
@@ -395,7 +395,7 @@ Mailslot::readLoop ()
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

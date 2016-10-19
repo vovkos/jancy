@@ -6,7 +6,7 @@ namespace io {
 JNC_DECLARE_TYPE (MailslotEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Mailslot)
 
-//.............................................................................
+//..............................................................................
 
 enum MailslotEventCode
 {
@@ -14,7 +14,7 @@ enum MailslotEventCode
 	MailslotEventCode_IoError,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct MailslotEventParams
 {
@@ -25,13 +25,13 @@ struct MailslotEventParams
 	DataPtr m_errorPtr;
 };
 
-//.............................................................................
+//..............................................................................
 
 class Mailslot: public IfaceHdr
 {
 	friend class IoThread;
 	friend class NamedPipe;
-	
+
 protected:
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
@@ -127,7 +127,7 @@ protected:
 	readLoop ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

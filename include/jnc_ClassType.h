@@ -9,7 +9,7 @@
 /// \addtogroup class-type
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ClassTypeKind
 {
@@ -26,7 +26,7 @@ enum jnc_ClassTypeKind
 
 typedef enum jnc_ClassTypeKind jnc_ClassTypeKind;
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ClassTypeFlag
 {
@@ -38,7 +38,7 @@ enum jnc_ClassTypeFlag
 
 typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_ClassPtrTypeKind
 {
@@ -49,13 +49,13 @@ enum jnc_ClassPtrTypeKind
 
 typedef enum jnc_ClassPtrTypeKind jnc_ClassPtrTypeKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getClassPtrTypeKindString (jnc_ClassPtrTypeKind ptrTypeKind);
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_ClassTypeKind
@@ -73,7 +73,7 @@ jnc_ClassType_getClassPtrType (
 	uint_t flags
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -103,7 +103,7 @@ struct jnc_ClassType: jnc_DerivableType
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_MulticastFieldKind
 {
@@ -118,7 +118,7 @@ enum jnc_MulticastFieldKind
 
 typedef enum jnc_MulticastFieldKind jnc_MulticastFieldKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_MulticastMethodKind
 {
@@ -133,7 +133,7 @@ enum jnc_MulticastMethodKind
 
 typedef enum jnc_MulticastMethodKind jnc_MulticastMethodKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_MulticastMethodFlag
 {
@@ -142,7 +142,7 @@ enum jnc_MulticastMethodFlag
 
 typedef enum jnc_MulticastMethodFlag jnc_MulticastMethodFlag;
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -162,7 +162,7 @@ jnc_MulticastClassType_getMethod (
 	jnc_MulticastMethodKind method
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -189,7 +189,7 @@ struct jnc_MulticastClassType: jnc_ClassType
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_McSnapshotFieldKind
 {
@@ -201,7 +201,7 @@ enum jnc_McSnapshotFieldKind
 
 typedef enum jnc_McSnapshotFieldKind jnc_McSnapshotFieldKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_McSnapshotMethodKind
 {
@@ -212,7 +212,7 @@ enum jnc_McSnapshotMethodKind
 
 typedef enum jnc_McSnapshotMethodKind jnc_McSnapshotMethodKind;
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -232,7 +232,7 @@ jnc_McSnapshotClassType_getMethod (
 	jnc_McSnapshotMethodKind method
 	);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -259,7 +259,7 @@ struct jnc_McSnapshotClassType: jnc_ClassType
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 int
@@ -305,18 +305,18 @@ void*
 jnc_getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
 {
 	return jnc_Function_getMachineCode (jnc_MulticastClassType_getMethod (
-		(jnc_MulticastClassType*) multicast->m_ifaceHdr.m_box->m_type, 
+		(jnc_MulticastClassType*) multicast->m_ifaceHdr.m_box->m_type,
 		jnc_MulticastMethodKind_Call
 		));
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ClassTypeKind ClassTypeKind;
 
@@ -331,7 +331,7 @@ const ClassTypeKind
 	ClassTypeKind_PropertyClosure = jnc_ClassTypeKind_PropertyClosure,
 	ClassTypeKind_DataClosure     = jnc_ClassTypeKind_DataClosure;
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ClassTypeFlag ClassTypeFlag;
 
@@ -341,7 +341,7 @@ const ClassTypeFlag
 	ClassTypeFlag_Opaque             = jnc_ClassTypeFlag_Opaque,
 	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable;
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ClassPtrTypeKind ClassPtrTypeKind;
 
@@ -350,7 +350,7 @@ const ClassPtrTypeKind
 	ClassPtrTypeKind_Weak    = jnc_ClassPtrTypeKind_Weak,
 	ClassPtrTypeKind__Count  = jnc_ClassPtrTypeKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -359,12 +359,12 @@ getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
 	return jnc_getClassPtrTypeKindString (ptrTypeKind);
 }
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_MulticastFieldKind MulticastFieldKind;
 typedef jnc_MulticastMethodKind MulticastMethodKind;
 typedef jnc_MulticastMethodFlag MulticastMethodFlag;
-	
+
 const MulticastFieldKind
 	MulticastFieldKind_Lock        = jnc_MulticastFieldKind_Lock,
 	MulticastFieldKind_PtrArray    = jnc_MulticastFieldKind_PtrArray,
@@ -385,7 +385,7 @@ const MulticastMethodKind
 const MulticastMethodFlag
 	MulticastMethodFlag_InaccessibleViaEventPtr = jnc_MulticastMethodFlag_InaccessibleViaEventPtr;
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_McSnapshotFieldKind McSnapshotFieldKind;
 typedef jnc_McSnapshotMethodKind McSnapshotMethodKind;
@@ -399,7 +399,7 @@ const McSnapshotMethodKind
 	McSnapshotMethodKind_Call   = jnc_McSnapshotMethodKind_Call,
 	McSnapshotMethodKind__Count = jnc_McSnapshotMethodKind__Count;
 
-//.............................................................................
+//..............................................................................
 
 JNC_INLINE
 bool
@@ -439,7 +439,7 @@ getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
 	return jnc_getMulticastCallMethodMachineCode (multicast);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

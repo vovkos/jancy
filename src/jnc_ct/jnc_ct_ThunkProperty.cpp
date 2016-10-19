@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ThunkProperty::ThunkProperty ()
 {
@@ -23,12 +23,12 @@ ThunkProperty::create (
 	bool result;
 
 	m_targetProperty = targetProperty;
-	m_type = hasUnusedClosure ? 
-		thunkPropertyType->getStdObjectMemberPropertyType () : 
+	m_type = hasUnusedClosure ?
+		thunkPropertyType->getStdObjectMemberPropertyType () :
 		thunkPropertyType;
 
 	m_getter = m_module->m_functionMgr.getDirectThunkFunction (
-		targetProperty->getGetter (), 
+		targetProperty->getGetter (),
 		thunkPropertyType->getGetterType (),
 		hasUnusedClosure
 		);
@@ -52,7 +52,7 @@ ThunkProperty::create (
 			return false;
 
 		Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction (
-			overload, 
+			overload,
 			thunkFunctionType,
 			hasUnusedClosure
 			);
@@ -72,7 +72,7 @@ ThunkProperty::create (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 DataThunkProperty::DataThunkProperty ()
 {
@@ -80,7 +80,7 @@ DataThunkProperty::DataThunkProperty ()
 	m_targetVariable = NULL;
 }
 
-bool 
+bool
 DataThunkProperty::compile ()
 {
 	bool result = compileGetter ();
@@ -102,7 +102,7 @@ DataThunkProperty::compile ()
 	return true;
 }
 
-bool 
+bool
 DataThunkProperty::compileGetter ()
 {
 	m_module->m_functionMgr.internalPrologue (m_getter);
@@ -115,17 +115,17 @@ DataThunkProperty::compileGetter ()
 	return true;
 }
 
-bool 
+bool
 DataThunkProperty::compileSetter (Function* setter)
 {
 	Value srcValue;
-	
+
 	size_t argCount = setter->getType ()->getArgArray ().getCount ();
 	ASSERT (argCount == 1 || argCount == 2);
 
 	Value argValueArray [2];
 	m_module->m_functionMgr.internalPrologue (setter, argValueArray, argCount);
-	
+
 	bool result = m_module->m_operatorMgr.storeDataRef (m_targetVariable, argValueArray [argCount - 1]);
 	if (!result)
 		return false;
@@ -134,7 +134,7 @@ DataThunkProperty::compileSetter (Function* setter)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

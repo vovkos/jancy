@@ -8,7 +8,7 @@ namespace io {
 JNC_DECLARE_TYPE (SocketAddressResolverEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (SocketAddressResolver)
 
-//.............................................................................
+//..............................................................................
 
 enum SocketAddressResolverEventCode
 {
@@ -17,7 +17,7 @@ enum SocketAddressResolverEventCode
 	SocketAddressResolverEventCode_ResolveError,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SocketAddressResolverEventParams
 {
@@ -30,7 +30,7 @@ struct SocketAddressResolverEventParams
 	DataPtr m_errorPtr;
 };
 
-//.............................................................................
+//..............................................................................
 
 class SocketAddressResolver: public IfaceHdr
 {
@@ -124,7 +124,7 @@ protected:
 		fireSocketAddressResolverEvent (eventCode, syncId, NULL, 0, error);
 	}
 
-	void 
+	void
 	processReq (Req* req);
 
 	void
@@ -137,7 +137,7 @@ protected:
 	wakeIoThread ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

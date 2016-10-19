@@ -6,24 +6,24 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
-	StringRef, 
-	"std.StringRef", 
-	g_stdLibGuid, 
+	StringRef,
+	"std.StringRef",
+	g_stdLibGuid,
 	StdLibCacheSlot_StringRef
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (StringRef)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
-	String, 
-	"std.String", 
-	g_stdLibGuid, 
+	String,
+	"std.String",
+	g_stdLibGuid,
 	StdLibCacheSlot_String
 	)
 
@@ -34,12 +34,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (String)
 	JNC_MAP_OVERLOAD (&String::copy_s2)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_CLASS_TYPE (
-	StringBuilder, 
-	"std.StringBuilder", 
-	g_stdLibGuid, 
+	StringBuilder,
+	"std.StringBuilder",
+	g_stdLibGuid,
 	StdLibCacheSlot_StringBuilder
 	)
 
@@ -48,7 +48,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (StringBuilder)
 	JNC_MAP_FUNCTION ("append", &StringBuilder::append)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 String
 String::getZeroTerminatedString ()
@@ -99,7 +99,7 @@ String::copy (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 bool
 JNC_CDECL
@@ -169,7 +169,7 @@ StringBuilder::setLength (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

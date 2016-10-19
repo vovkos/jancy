@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 ConstMgr::ConstMgr ()
 {
@@ -38,7 +38,7 @@ ConstMgr::createConst (
 	return cnst;
 }
 
-const Value& 
+const Value&
 ConstMgr::saveLiteral (const sl::StringRef& string)
 {
 	Value value;
@@ -65,7 +65,7 @@ ConstMgr::createConstDataPtrValidator (
 	return &entry->m_validator;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

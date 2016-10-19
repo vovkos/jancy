@@ -1,4 +1,4 @@
-#..............................................................................
+#...............................................................................
 
 set (
 	AXL_PATH_LIST
@@ -27,15 +27,15 @@ set (
 
 set (
 	AXL_IMPORT_LIST
-	
-	REQUIRED 
+
+	REQUIRED
 		perl
 		ragel
 		llvm
 		axl
 		graco
 		7z
-	OPTIONAL 
+	OPTIONAL
 		qt
 		libssh2
 		openssl
@@ -52,10 +52,10 @@ endif ()
 
 set (
 	AXL_IMPORT_DIR_LIST
-	
+
 	${CMAKE_CURRENT_LIST_DIR}/cmake
 	${GRACO_CMAKE_DIR}
 	${DOXYREST_CMAKE_DIR}
 	)
 
-#..............................................................................
+#...............................................................................

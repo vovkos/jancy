@@ -6,7 +6,7 @@
 namespace jnc {
 namespace rt {
 
-//.............................................................................
+//..............................................................................
 
 Runtime::Runtime ()
 {
@@ -29,24 +29,24 @@ Runtime::setStackSizeLimit (size_t sizeLimit)
 	return true;
 }
 
-bool 
+bool
 Runtime::startup (ct::Module* module)
 {
 	shutdown ();
 
 	m_tlsSize = module->m_variableMgr.getTlsStructType ()->getSize ();
 	m_module = module;
-	m_state = State_Running;	
+	m_state = State_Running;
 	m_noThreadEvent.signal ();
 
 	ct::Function* constructor = module->getConstructor ();
 	ASSERT (constructor);
-	
-	return 
+
+	return
 		m_gcHeap.startup (module) &&
 		callVoidFunction (this, constructor);
 }
-	
+
 void
 Runtime::shutdown ()
 {
@@ -101,12 +101,12 @@ restoreExceptionRecoverySnapshot (
 		);
 
 	ASSERT (
-		ers->m_noCollectRegionLevel == tls->m_gcMutatorThread.m_noCollectRegionLevel || 
+		ers->m_noCollectRegionLevel == tls->m_gcMutatorThread.m_noCollectRegionLevel ||
 		!ers->m_result && ers->m_noCollectRegionLevel < tls->m_gcMutatorThread.m_noCollectRegionLevel
 		);
 
 	ASSERT (
-		ers->m_gcShadowStackTop == tlsVariableTable->m_gcShadowStackTop || 
+		ers->m_gcShadowStackTop == tlsVariableTable->m_gcShadowStackTop ||
 		!ers->m_result && (!ers->m_gcShadowStackTop || ers->m_gcShadowStackTop > tlsVariableTable->m_gcShadowStackTop)
 		);
 
@@ -128,7 +128,7 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 	}
 
 	size_t size = sizeof (Tls) + m_tlsSize;
-	
+
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
 	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with GC heap first
 	tls->m_prevTls = prevTls;
@@ -138,12 +138,12 @@ Runtime::initializeThread (ExceptionRecoverySnapshot* ers)
 
 	sys::setTlsPtrSlotValue <Tls> (tls);
 
-	m_lock.lock ();	
+	m_lock.lock ();
 	if (m_tlsList.isEmpty ())
 		m_noThreadEvent.reset ();
-	
-	m_tlsList.insertTail (tls);	
-	m_lock.unlock ();	
+
+	m_tlsList.insertTail (tls);
+	m_lock.unlock ();
 
 	memset (ers, 0, sizeof (ExceptionRecoverySnapshot));
 }
@@ -163,9 +163,9 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 	}
 
 	ASSERT (
-		!ers->m_initializeLevel && 
-		!ers->m_waitRegionLevel && 
-		!ers->m_noCollectRegionLevel && 
+		!ers->m_initializeLevel &&
+		!ers->m_waitRegionLevel &&
+		!ers->m_noCollectRegionLevel &&
 		!ers->m_gcShadowStackTop
 		);
 
@@ -173,12 +173,12 @@ Runtime::uninitializeThread (ExceptionRecoverySnapshot* ers)
 
 	m_lock.lock ();
 	m_tlsList.remove (tls);
-	
+
 	if (m_tlsList.isEmpty ())
 		m_noThreadEvent.signal ();
-	
+
 	m_lock.unlock ();
-	
+
 	sys::setTlsPtrSlotValue <Tls> (tls->m_prevTls);
 
 	AXL_MEM_DELETE (tls);
@@ -229,7 +229,7 @@ Runtime::dynamicThrow ()
 	ASSERT (false);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace rt
 } // namespace jnc

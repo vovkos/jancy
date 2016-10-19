@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Scope::Scope ()
 {
@@ -26,13 +26,13 @@ Scope::Scope ()
 bool
 Scope::canStaticThrow ()
 {
-	return 
+	return
 		m_tryExpr != NULL ||
 		(m_flags & ScopeFlag_HasCatch)  ||
 		(m_function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

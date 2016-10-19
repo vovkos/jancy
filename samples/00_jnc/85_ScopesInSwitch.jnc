@@ -1,8 +1,8 @@
-// Unlike in C++ or Java, Jancy encloses all the case blocks in a switch 
-// statement into implicit scopes. This means you are free to declare and 
+// Unlike in C++ or Java, Jancy encloses all the case blocks in a switch
+// statement into implicit scopes. This means you are free to declare and
 // initialize local variables within case blocks of a switch statement.
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -23,20 +23,20 @@ int main ()
 	case 1:
 		// no problem to re-declare 'i': we are in a different scope
 
-		int i = 20; 
-	
+		int i = 20;
+
 	case 2:
 		// no problem even when we fall-through from the previous case label
 
-		int i = 30; 
+		int i = 30;
 		result = i * 3;
 		break;
-		
-	default: 
-		// True programmers expect the unexpected! Nah, just kidding -- this 
+
+	default:
+		// True programmers expect the unexpected! Nah, just kidding -- this
 		// 'default' is utterly pointless. But it's still OK to declare locals.
 
-		int i = 40; 
+		int i = 40;
 		result = i * 4;
 	}
 
@@ -44,4 +44,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

@@ -8,7 +8,7 @@
 /// \addtogroup function-type
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_FunctionTypeFlag
 {
@@ -22,13 +22,13 @@ enum jnc_FunctionTypeFlag
 
 typedef enum jnc_FunctionTypeFlag jnc_FunctionTypeFlag;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag);
 
-//.............................................................................
+//..............................................................................
 
 enum jnc_FunctionPtrTypeKind
 {
@@ -40,13 +40,13 @@ enum jnc_FunctionPtrTypeKind
 
 typedef enum jnc_FunctionPtrTypeKind jnc_FunctionPtrTypeKind;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 int
@@ -56,7 +56,7 @@ JNC_EXTERN_C
 const char*
 jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -77,7 +77,7 @@ struct jnc_FunctionArg: jnc_ModuleItem
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_Type*
@@ -91,7 +91,7 @@ JNC_EXTERN_C
 jnc_FunctionArg*
 jnc_FunctionType_getArg (
 	jnc_FunctionType* type,
-	size_t index	
+	size_t index
 	);
 
 JNC_EXTERN_C
@@ -106,7 +106,7 @@ JNC_EXTERN_C
 jnc_FunctionType*
 jnc_FunctionType_getShortType (jnc_FunctionType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -148,7 +148,7 @@ struct jnc_FunctionType: jnc_Type
 
 #endif // _JNC_CORE
 
-//.............................................................................
+//..............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
@@ -158,7 +158,7 @@ JNC_EXTERN_C
 jnc_FunctionType*
 jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
@@ -179,13 +179,13 @@ struct jnc_FunctionPtrType: jnc_Type
 
 #endif // _JNC_CORE
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_FunctionTypeFlag FunctionTypeFlag;
 
@@ -197,7 +197,7 @@ const FunctionTypeFlag
 	FunctionTypeFlag_Automaton   = jnc_FunctionTypeFlag_Automaton,
 	FunctionTypeFlag_Unsafe      = jnc_FunctionTypeFlag_Unsafe;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 const char*
@@ -206,7 +206,7 @@ getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 	return jnc_getFunctionTypeFlagString (flag);
 }
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_FunctionPtrTypeKind FunctionPtrTypeKind;
 
@@ -216,13 +216,13 @@ const FunctionPtrTypeKind
 	FunctionPtrTypeKind_Thin   = jnc_FunctionPtrTypeKind_Thin,
 	FunctionPtrTypeKind__Count = jnc_FunctionPtrTypeKind__Count;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

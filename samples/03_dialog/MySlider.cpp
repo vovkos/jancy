@@ -2,17 +2,17 @@
 #include "MySlider.h"
 #include "MyLib.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	MySlider,
-	"Slider", 
-	g_myLibGuid, 
+	"Slider",
+	g_myLibGuid,
 	MyLibCacheSlot_Slider,
-	MySlider, 
+	MySlider,
 	NULL
 	)
-	
+
 JNC_BEGIN_TYPE_FUNCTION_MAP (MySlider)
 	JNC_MAP_CONSTRUCTOR (&(jnc::construct <MySlider, int, int>))
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <MySlider>)
@@ -21,7 +21,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MySlider)
 	JNC_MAP_PROPERTY ("m_value", &MySlider::getValue, &MySlider::setValue)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 MySlider::MySlider (
 	int minimum,
@@ -38,4 +38,4 @@ MySlider::MySlider (
 	m_onValueChangedBridge->connect (m_qtSlider, SIGNAL (valueChanged (int)), m_onValueChanged);
 }
 
-//.............................................................................
+//..............................................................................

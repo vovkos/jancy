@@ -2,7 +2,7 @@
 # Tibbo Technology Inc (C) 2004-2013. All rights reserved
 # Author: Vladimir Gladkov
 
-#..............................................................................
+#...............................................................................
 
 set (DOC_NAME      "Jancy Language Manual")
 set (TEX_FILE_NAME jancy_language.tex)
@@ -14,7 +14,7 @@ set (TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
 set (PDF_DIR  ${CMAKE_CURRENT_BINARY_DIR}/pdf)
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 set (
 	SPHINX_HTML_CMD_LINE
@@ -49,7 +49,7 @@ set (
 	${TEX_FILE_NAME}
 	)
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 set (
 	CMD_LINE_VAR_LIST
@@ -62,21 +62,21 @@ set (
 
 foreach (_VAR ${CMD_LINE_VAR_LIST})
 	string (
-		REPLACE  
+		REPLACE
 		";" " "
 		${_VAR}
 		"${${_VAR}}"
 		)
 endforeach ()
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 configure_file (
 	conf.py.in
 	conf.py
 	)
 
-if (WIN32)	
+if (WIN32)
 	configure_file (
 		build-html.bat.in
 		build-html.bat
@@ -85,7 +85,7 @@ if (WIN32)
 	configure_file (
 		build-pdf.bat.in
 		build-pdf.bat
-		)		
+		)
 else ()
 	axl_configure_file_w_permissions (
 		build-html.sh.in
@@ -103,5 +103,5 @@ else ()
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 endif ()
-	
-#..............................................................................
+
+#...............................................................................

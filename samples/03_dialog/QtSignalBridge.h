@@ -1,6 +1,6 @@
 #pragma once
 
-//.............................................................................
+//..............................................................................
 
 class QtSignalBridge: public QObject
 {
@@ -12,7 +12,7 @@ protected:
 
 public:
 	QtSignalBridge (QObject* parent = NULL);
- 
+
 	QtSignalBridge (
 		QObject* sender,
 		const char* signal,
@@ -24,7 +24,7 @@ public:
 		connect (sender, signal, jncEvent);
 	}
 
-	void 
+	void
 	connect (
 		QObject* sender,
 		const char* signal,
@@ -36,8 +36,8 @@ public:
 	}
 
 public slots:
-	void 
+	void
 	onQtSignal ();
 };
 
-//.............................................................................
+//..............................................................................

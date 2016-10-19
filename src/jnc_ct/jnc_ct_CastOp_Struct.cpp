@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 CastKind
 Cast_Struct::getCastKind (
@@ -40,7 +40,7 @@ Cast_Struct::getCastKind (
 
 		m_recursionStopper = false;
 
-		if (overload)	
+		if (overload)
 			return AXL_MIN (castKind, CastKind_ImplicitCrossFamily);
 	}
 
@@ -63,7 +63,7 @@ Cast_Struct::constCast (
 	bool result = srcStructType->findBaseTypeTraverse (type, &coord);
 	if (!result)
 		return false;
-	
+
 	memcpy (dst, (char*) opValue.getConstData () + coord.m_offset, type->getSize ());
 	return true;
 }
@@ -86,10 +86,10 @@ Cast_Struct::llvmCast (
 		if (result)
 		{
 			m_module->m_llvmIrBuilder.createExtractValue (
-				opValue, 
-				coord.m_llvmIndexArray, 
-				coord.m_llvmIndexArray.getCount (), 
-				type, 
+				opValue,
+				coord.m_llvmIndexArray,
+				coord.m_llvmIndexArray.getCount (),
+				type,
 				resultValue
 				);
 
@@ -104,13 +104,13 @@ Cast_Struct::llvmCast (
 	if (!constructor)
 	{
 		setCastError (opValue, type);
-		return false;	
+		return false;
 	}
 
 	if (m_recursionStopper)
 	{
 		setCastError (opValue, type);
-		return false;	
+		return false;
 	}
 
 	m_recursionStopper = true;
@@ -118,7 +118,7 @@ Cast_Struct::llvmCast (
 	Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable ("tmpStruct", type);
 
 	Value tmpValue;
-	result = 
+	result =
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
 		m_module->m_operatorMgr.callOperator (constructor, tmpValue, opValue) &&
 		m_module->m_operatorMgr.loadDataRef (tmpVariable, resultValue);
@@ -128,7 +128,7 @@ Cast_Struct::llvmCast (
 	return result;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

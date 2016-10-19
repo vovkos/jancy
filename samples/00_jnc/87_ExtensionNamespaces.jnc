@@ -1,8 +1,8 @@
-// Jancy provides a way to extend the functionality of existing types with 
-// extension namespaces. Extension namespaces declare additional methods and 
-// properties, which have access to all the members of the type they extend. 
+// Jancy provides a way to extend the functionality of existing types with
+// extension namespaces. Extension namespaces declare additional methods and
+// properties, which have access to all the members of the type they extend.
 
-//.............................................................................
+//..............................................................................
 
 class C1
 {
@@ -15,7 +15,7 @@ class C1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 extension C1Ext: C1
 {
@@ -23,7 +23,7 @@ extension C1Ext: C1
 
 	foo ()
 	{
-		printf ("C1Ext.foo () { m_x = %d }\n", m_x); 
+		printf ("C1Ext.foo () { m_x = %d }\n", m_x);
 	}
 
 	bar (int x);
@@ -35,29 +35,29 @@ extension C1Ext: C1
 
 	int property m_prop;
 
-	// fields, destructors and virtual methods cannot be added to extension 
+	// fields, destructors and virtual methods cannot be added to extension
 	// namespaces for obvious reasons: an extension should not alter a type
 	// but rather extend it
 
 	// int m_f;                      // <-- error
 	// abstract v1 ();               // <-- error
 	// int autoget property m_prop2; // <-- error
-	
-	// constructors and operators theoretically can be added, but this is not 
+
+	// constructors and operators theoretically can be added, but this is not
 	// currently supported -- only named methods and properties for now
-	
+
 	// construct (double x);    // <-- error
 	// int operator += (int x); // <-- error
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// extension methods can be implemented outside of extension just like other 
+// extension methods can be implemented outside of extension just like other
 // member methods
 
 C1Ext.bar (int x)
 {
-	printf ("C1Ext.bar (%d) { m_x = %d }\n", x, m_x); 
+	printf ("C1Ext.bar (%d) { m_x = %d }\n", x, m_x);
 	m_x = x;
 
 	// it's OK to refer to other extension methods, not just original ones
@@ -66,18 +66,18 @@ C1Ext.bar (int x)
 }
 
 int C1Ext.m_prop.get ()
-{	
-	printf ("C1Ext.m_prop.get () { m_x = %d }\n", m_x); 
+{
+	printf ("C1Ext.m_prop.get () { m_x = %d }\n", m_x);
 	return m_x;
-} 
-	
-C1Ext.m_prop.set (int x)
-{	
-	printf ("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x); 
-	m_x = x;
-} 
+}
 
-//.............................................................................
+C1Ext.m_prop.set (int x)
+{
+	printf ("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x);
+	m_x = x;
+}
+
+//..............................................................................
 
 // notify the compiler we want to use this particular extension
 
@@ -93,7 +93,7 @@ int main ()
 
 	// invoke extension member methods and properties
 
-	c.foo ();  
+	c.foo ();
 	c.bar (200);
 	C1.baz ();
 
@@ -103,4 +103,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

@@ -7,7 +7,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 enum DoxyTokenKind
 {
@@ -40,7 +40,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_Footnote,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 
@@ -74,11 +74,11 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 
 AXL_LEX_END_TOKEN_NAME_MAP ();
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef lex::RagelToken <DoxyTokenKind, DoxyTokenName, lex::StdTokenData> DoxyToken;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DoxyLexer: public lex::RagelLexer <DoxyLexer, DoxyToken>
 {
@@ -100,7 +100,7 @@ protected:
 	exec ();
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

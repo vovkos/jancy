@@ -1,4 +1,4 @@
-//.............................................................................
+//..............................................................................
 
 jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 {
@@ -15,12 +15,12 @@ jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 }
 
 int main ()
-{	
+{
 	printf ("main ()\n");
 
 	jnc.Recognizer recognizer (scanPacket);
 
-	try 
+	try
 	{
 		recognizer.write ("op");
 		recognizer.write ("en 12\ncon");
@@ -32,4 +32,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

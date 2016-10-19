@@ -5,14 +5,14 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 %%{
 
 machine jnc;
 write data;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # prepush / postpop (for fcall/fret)
 #
@@ -27,7 +27,7 @@ postpop
 	postPop ();
 }
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # standard definitions
 #
@@ -44,21 +44,21 @@ esc    = '\\' [^\n];
 lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # multi-line literal machine
 #
 
 lit_ml := |*
 
-(nl ws?)? '"""' 
+(nl ws?)? '"""'
 		  { createMlLiteralToken (); fgoto main; };
 nl        ;
 any       ;
 
 *|;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # formatting literal machines
 #
@@ -81,14 +81,14 @@ any          { ASSERT (false); fret; };
 
 *|;
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # main machine
 #
 
 main := |*
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # global declarations & pragmas
 
@@ -103,7 +103,7 @@ main := |*
 'alignment'      { createToken (TokenKind_Alignment); };
 'setas'          { createToken (TokenKind_SetAs); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # storage specifiers
 
@@ -117,7 +117,7 @@ main := |*
 'mutable'        { createToken (TokenKind_Mutable); };
 'disposable'     { createToken (TokenKind_Disposable); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type modifiers
 
@@ -146,7 +146,7 @@ main := |*
 'reactor'        { createToken (TokenKind_Reactor); };
 'automaton'      { createToken (TokenKind_Automaton); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type specifiers
 
@@ -163,7 +163,7 @@ main := |*
 'float'          { createToken (TokenKind_Float); };
 'double'         { createToken (TokenKind_Double); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # named type specifiers
 
@@ -175,7 +175,7 @@ main := |*
 'exposed'        { createToken (TokenKind_Exposed); };
 'bitflag'        { createToken (TokenKind_BitFlag); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # special member methods
 
@@ -187,7 +187,7 @@ main := |*
 'operator'       { createToken (TokenKind_Operator); };
 'postfix'        { createToken (TokenKind_Postfix); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # operators
 
@@ -200,7 +200,7 @@ main := |*
 'bindingof'      { createToken (TokenKind_BindingOf); };
 'dynamic'        { createToken (TokenKind_Dynamic); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # statements
 
@@ -226,7 +226,7 @@ main := |*
 'nestedscope'    { createToken (TokenKind_NestedScope); };
 'assert'         { createToken (TokenKind_Assert); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # pre-defined values
 
@@ -237,7 +237,7 @@ main := |*
 'false'          { createToken (TokenKind_False); };
 'null'           { createToken (TokenKind_Null); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # symbol tokens
 
@@ -268,7 +268,7 @@ main := |*
 '...'            { createToken (TokenKind_Ellipsis); };
 
 '$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
-'"""' (ws? '\r'? nl)?  
+'"""' (ws? '\r'? nl)?
 				 { preCreateMlLiteralToken (); fgoto lit_ml; };
 
 '0' [xX] '"""'   { preCreateMlLiteralToken (16); fgoto lit_ml; };
@@ -279,7 +279,7 @@ main := |*
 '%%' ([^\n] | lc_nl)*
 				 { createStringToken (TokenKind_RegExpLiteral, 2); };
 
-# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # common tokens
 
@@ -294,7 +294,7 @@ dec+             { createIntegerToken (10); };
 '0' [xX] lit_dq  { createBinLiteralToken (16); };
 '0' [oO] lit_dq  { createBinLiteralToken (8); };
 '0' [bB] lit_dq  { createBinLiteralToken (2); };
-'0' [nNdD] lit_dq 
+'0' [nNdD] lit_dq
 				 { createBinLiteralToken (10); };
 dec+ ('.' dec+) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
@@ -322,7 +322,7 @@ any              { createErrorToken (ts [0]); };
 
 }%%
 
-//.............................................................................
+//..............................................................................
 
 void
 Lexer::init ()
@@ -336,7 +336,7 @@ Lexer::exec ()
 	%% write exec;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

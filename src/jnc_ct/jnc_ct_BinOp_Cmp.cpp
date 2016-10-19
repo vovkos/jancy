@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 getPtrCmpOperatorOperandType (
@@ -18,7 +18,7 @@ getPtrCmpOperatorOperandType (
 	return opValue1.getType ()->getModule ()->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Eq::llvmOpInt (
@@ -41,7 +41,7 @@ BinOp_Eq::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createEq_f (opValue1, opValue2, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Ne::llvmOpInt (
@@ -63,8 +63,8 @@ BinOp_Ne::llvmOpFp (
 {
 	return m_module->m_llvmIrBuilder.createNe_f (opValue1, opValue2, resultValue);
 }
-	
-//.............................................................................
+
+//..............................................................................
 
 llvm::Value*
 BinOp_Lt::llvmOpInt (
@@ -74,7 +74,7 @@ BinOp_Lt::llvmOpInt (
 	bool isUnsigned
 	)
 {
-	return isUnsigned ? 
+	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createLt_u (opValue1, opValue2, resultValue) :
 		m_module->m_llvmIrBuilder.createLt_i (opValue1, opValue2, resultValue);
 }
@@ -89,7 +89,7 @@ BinOp_Lt::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createLt_f (opValue1, opValue2, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Le::llvmOpInt (
@@ -99,7 +99,7 @@ BinOp_Le::llvmOpInt (
 	bool isUnsigned
 	)
 {
-	return isUnsigned ? 
+	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createLe_u (opValue1, opValue2, resultValue) :
 		m_module->m_llvmIrBuilder.createLe_i (opValue1, opValue2, resultValue);
 }
@@ -114,7 +114,7 @@ BinOp_Le::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createLe_f (opValue1, opValue2, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Gt::llvmOpInt (
@@ -124,7 +124,7 @@ BinOp_Gt::llvmOpInt (
 	bool isUnsigned
 	)
 {
-	return isUnsigned ? 
+	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createGt_u (opValue1, opValue2, resultValue) :
 		m_module->m_llvmIrBuilder.createGt_i (opValue1, opValue2, resultValue);
 }
@@ -139,7 +139,7 @@ BinOp_Gt::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createGt_f (opValue1, opValue2, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 llvm::Value*
 BinOp_Ge::llvmOpInt (
@@ -149,7 +149,7 @@ BinOp_Ge::llvmOpInt (
 	bool isUnsigned
 	)
 {
-	return isUnsigned ? 
+	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createGe_u (opValue1, opValue2, resultValue) :
 		m_module->m_llvmIrBuilder.createGe_i (opValue1, opValue2, resultValue);
 }
@@ -164,7 +164,7 @@ BinOp_Ge::llvmOpFp (
 	return m_module->m_llvmIrBuilder.createGe_f (opValue1, opValue2, resultValue);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -4,7 +4,7 @@
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (TestClass)
 
-//.............................................................................
+//..............................................................................
 
 class TestClass: public jnc::IfaceHdr
 {
@@ -21,16 +21,16 @@ public:
 	TestClass (int value);
 
 	~TestClass ();
-	
+
 	void
 	JNC_CDECL
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
-	int 
+	int
 	JNC_CDECL
 	addAssign (int delta);
 
-	int 
+	int
 	JNC_CDECL
 	subAssign (int delta);
 
@@ -55,4 +55,4 @@ protected:
 	setInternalValue (int value);
 };
 
-//.............................................................................
+//..............................................................................

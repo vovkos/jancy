@@ -5,7 +5,7 @@
 namespace jnc {
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 // {CBC2E0EE-A7D5-4DE4-96E5-2A403C6B14B5}
 JNC_DEFINE_GUID (
@@ -14,7 +14,7 @@ JNC_DEFINE_GUID (
 	);
 
 enum StdLibCacheSlot
-{	
+{
 	StdLibCacheSlot_Error,
 	StdLibCacheSlot_String,
 	StdLibCacheSlot_StringRef,
@@ -29,7 +29,7 @@ enum StdLibCacheSlot
 	StdLibCacheSlot_Buffer,
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 } // namespace jnc

@@ -49,7 +49,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS // disable useless warnings about "unsafe" string functions
 
-//.............................................................................
+//..............................................................................
 
 // LLVM
 
@@ -60,8 +60,8 @@
 
 #pragma warning (disable: 4146)
 #pragma warning (disable: 4355)
-#pragma warning (disable: 4800) 
-#pragma warning (disable: 4244) 
+#pragma warning (disable: 4800)
+#pragma warning (disable: 4244)
 
 #undef min
 #undef max
@@ -84,7 +84,7 @@
 #include "llvm/ExecutionEngine/JITEventListener.h"
 
 #include "../lib/MC/MCDisassembler/EDDisassembler.h"
-#include "../lib/MC/MCDisassembler/EDInst.h" 
+#include "../lib/MC/MCDisassembler/EDInst.h"
 #include "../lib/MC/MCDisassembler/EDOperand.h"
 #include "../lib/MC/MCDisassembler/EDToken.h"
 
@@ -97,11 +97,11 @@
 #include "llvm/CodeGen/MachineCodeInfo.h"
 
 #pragma warning (default: 4146)
-#pragma warning (default: 4355) 
+#pragma warning (default: 4355)
 #pragma warning (default: 4800)
-#pragma warning (default: 4244) 
+#pragma warning (default: 4244)
 
-//.............................................................................
+//..............................................................................
 
 // AXL
 
@@ -126,12 +126,12 @@
 
 using namespace axl;
 
-//.............................................................................
+//..............................................................................
 
 #include <new>
 #include <typeinfo>
 
-__declspec (selectany) 
+__declspec (selectany)
 class CClearTypeInfoCache
 {
 public:
@@ -142,7 +142,7 @@ public:
 
 protected:
 	static
-	void 
+	void
 	ClearTypeInfoCache ()
 	{
 	   __type_info_node* & node = __type_info_root_node._Next;

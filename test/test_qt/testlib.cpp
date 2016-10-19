@@ -2,21 +2,21 @@
 #include "testlib.h"
 #include "mainwindow.h"
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
-	Point, 
-	"Point", 
-	g_testLibGuid, 
+	Point,
+	"Point",
+	g_testLibGuid,
 	TestLibCacheSlot_Point
 	)
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (
-	TestClassA, 
-	"TestClassA", 
-	g_testLibGuid, 
+	TestClassA,
+	"TestClassA",
+	g_testLibGuid,
 	TestLibCacheSlot_TestClassA
 	)
 
@@ -24,14 +24,14 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (TestClassA)
 	JNC_MAP_FUNCTION ("foo", &TestClassA::foo)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	TestClassB, 
-	"TestClassB", 
-	g_testLibGuid, 
+	TestClassB,
+	"TestClassB",
+	g_testLibGuid,
 	TestLibCacheSlot_TestClassB,
-	TestClassB, 
+	TestClassB,
 	&TestClassB::markOpaqueGcRoots
 	)
 
@@ -39,7 +39,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (TestClassB)
 	JNC_MAP_FUNCTION ("bar", &TestClassB::bar)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_DEFINE_TYPE (TestStruct, "TestStruct", g_testLibGuid, TestLibCacheSlot_TestStruct)
 
@@ -53,7 +53,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (TestStruct)
 	JNC_MAP_OVERLOAD (&TestStruct::foo_2)
 JNC_END_TYPE_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -63,7 +63,7 @@ TestClassA::foo (int x)
 	m_x = x;
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -94,7 +94,7 @@ TestClassB::bar (
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 void
 JNC_CDECL
@@ -146,7 +146,7 @@ TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 	printf ("TestStruct::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
 }
 
-//.............................................................................
+//..............................................................................
 
 int
 printfToOutput (
@@ -180,7 +180,7 @@ qtWait (uint_t msTime)
 {
 	uint64_t start = sys::getTimestamp ();
 	uint64_t interval = msTime * 10000;
-	
+
 	QEventLoop eventLoop;
 
 	for (;;)
@@ -193,7 +193,7 @@ qtWait (uint_t msTime)
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_LIB (
 	TestLib,
@@ -220,4 +220,4 @@ JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
 //		JNC_MAP_FUNCTION ("qtWait", &qtWait)
 JNC_END_LIB_FUNCTION_MAP ()
 
-//.............................................................................
+//..............................................................................

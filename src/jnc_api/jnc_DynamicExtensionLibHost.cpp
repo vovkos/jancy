@@ -15,9 +15,9 @@
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
 
-#//.............................................................................
+#//..............................................................................
 
-static jnc_ErrorFuncTable g_errorFuncTable = 
+static jnc_ErrorFuncTable g_errorFuncTable =
 {
 	jnc_getLastError,
 	jnc_setError,
@@ -61,7 +61,7 @@ static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable =
 	jnc_AttributeBlock_findAttribute,
 };
 
-static jnc_NamespaceFuncTable g_namespaceFuncTable = 
+static jnc_NamespaceFuncTable g_namespaceFuncTable =
 {
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
@@ -70,11 +70,11 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 	jnc_Namespace_findClassType,
 };
 
-static jnc_VariableFuncTable g_variableFuncTable = 
+static jnc_VariableFuncTable g_variableFuncTable =
 {
 };
 
-static jnc_FunctionFuncTable g_functionFuncTable = 
+static jnc_FunctionFuncTable g_functionFuncTable =
 {
 	jnc_Function_getFunctionKind,
 	jnc_Function_isMember,
@@ -84,17 +84,17 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 	jnc_Function_getMachineCode,
 };
 
-static jnc_PropertyFuncTable g_propertyFuncTable = 
+static jnc_PropertyFuncTable g_propertyFuncTable =
 {
 	jnc_Property_getGetter,
 	jnc_Property_getSetter,
 };
 
-static jnc_TypedefFuncTable g_typedefFuncTable = 
+static jnc_TypedefFuncTable g_typedefFuncTable =
 {
 };
 
-static jnc_TypeFuncTable g_typeFuncTable = 
+static jnc_TypeFuncTable g_typeFuncTable =
 {
 	jnc_Type_getTypeKind,
 	jnc_Type_getSize,
@@ -104,17 +104,17 @@ static jnc_TypeFuncTable g_typeFuncTable =
 	jnc_Type_markGcRoots,
 };
 
-static jnc_NamedTypeFuncTable g_namedTypeFuncTable = 
+static jnc_NamedTypeFuncTable g_namedTypeFuncTable =
 {
 };
 
-static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable = 
+static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable =
 {
 	jnc_BaseTypeSlot_getOffset,
 	jnc_BaseTypeSlot_getVTableIndex,
 };
 
-static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable = 
+static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
 {
 	jnc_DerivableType_getStaticConstructor,
 	jnc_DerivableType_getStaticDestructor,
@@ -140,7 +140,7 @@ static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable =
 	jnc_BitFieldType_getBitCount,
 };
 
-static jnc_FunctionArgFuncTable g_functionArgFuncTable = 
+static jnc_FunctionArgFuncTable g_functionArgFuncTable =
 {
 };
 
@@ -221,7 +221,7 @@ static jnc_PropertyPtrTypeFuncTable g_propertyPtrTypeFuncTable =
 {
 };
 
-static jnc_VariantFuncTable g_variantFuncTable = 
+static jnc_VariantFuncTable g_variantFuncTable =
 {
 };
 
@@ -229,8 +229,8 @@ static jnc_UnitFuncTable g_unitFuncTable =
 {
 };
 
-static jnc_ModuleFuncTable g_moduleFuncTable = 
-{	
+static jnc_ModuleFuncTable g_moduleFuncTable =
+{
 	jnc_Module_create,
 	jnc_Module_destroy,
 	jnc_Module_clear,
@@ -254,7 +254,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 
 };
 
-static jnc_RuntimeFuncTable g_runtimeFuncTable = 
+static jnc_RuntimeFuncTable g_runtimeFuncTable =
 {
 	jnc_Runtime_create,
 	jnc_Runtime_destroy,
@@ -303,9 +303,9 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 #endif // _JNC_OS_WIN
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = 
+jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 {
 	&g_errorFuncTable,
 	&g_moduleItemDeclFuncTable,
@@ -345,4 +345,4 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	&g_gcHeapFuncTable,
 };
 
-//.............................................................................
+//..............................................................................

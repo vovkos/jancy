@@ -3,7 +3,7 @@ namespace io {
 //! \addtogroup network-adapter
 //! @{
 
-//.............................................................................
+//..............................................................................
 
 enum NetworkAdapterType
 {
@@ -18,7 +18,7 @@ enum NetworkAdapterType
 	_Count,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum NetworkAdapterFlags
 {
@@ -30,7 +30,7 @@ bitflag enum NetworkAdapterFlags
 	Ip6,
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct NetworkAdapterAddress
 {
@@ -39,7 +39,7 @@ struct NetworkAdapterAddress
 	size_t m_netMaskBitCount;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct NetworkAdapterDesc
 {
@@ -53,14 +53,14 @@ struct NetworkAdapterDesc
 	size_t m_addressCount;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 NetworkAdapterDesc const* createNetworkAdapterDescList (
 	size_t* adapterCount = null,
 	size_t* addressCount = null
 	);
 
-//.............................................................................
+//..............................................................................
 
 //! @}
 

@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 Type*
 DeclTypeCalc::calcType (
@@ -137,7 +137,7 @@ DeclTypeCalc::calcType (
 		type = getIntegerType (type);
 		if (!type)
 			return NULL;
-	}	
+	}
 	else if (type->getStdType () == StdType_AbstractData)
 	{
 		err::setError ("can only use 'anydata' in pointer declaration");
@@ -719,7 +719,7 @@ DeclTypeCalc::getDataPtrType (Type* dataType)
 
 	if (m_typeModifiers & TypeModifier_Thin)
 		ptrTypeKind = DataPtrTypeKind_Thin;
-	
+
 	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 
 	m_typeModifiers &= ~TypeModifierMaskKind_DataPtr;
@@ -788,7 +788,7 @@ DeclTypeCalc::getImportIntModType (NamedImportType* importType)
 	return m_module->m_typeMgr.getImportIntModType (importType, typeModifiers);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

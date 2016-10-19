@@ -5,24 +5,24 @@
 namespace jnc {
 namespace io {
 
-//.............................................................................
+//..............................................................................
 
 JNC_DEFINE_TYPE (
-	NetworkAdapterAddress, 
-	"io.NetworkAdapterAddress", 
-	g_ioLibGuid, 
+	NetworkAdapterAddress,
+	"io.NetworkAdapterAddress",
+	g_ioLibGuid,
 	IoLibCacheSlot_NetworkAdapterAddress
 	)
 
 JNC_DEFINE_TYPE (
-	NetworkAdapterDesc, 
-	"io.NetworkAdapterDesc", 
-	g_ioLibGuid, 
+	NetworkAdapterDesc,
+	"io.NetworkAdapterDesc",
+	g_ioLibGuid,
 	IoLibCacheSlot_NetworkAdapterDesc
 	)
 
-//.............................................................................
-	
+//..............................................................................
+
 DataPtr
 createNetworkAdapterAddress (
 	Runtime* runtime,
@@ -64,7 +64,7 @@ createNetworkAdapterDesc (
 		return adapterPtr;
 
 	sl::Iterator <axl::io::NetworkAdapterAddress> it = addressList.getHead ();
-	
+
 	DataPtr addressPtr = createNetworkAdapterAddress (runtime, *it, NULL);
 	adapter->m_addressPtr = addressPtr;
 	adapter->m_addressCount = addressList.getCount ();
@@ -78,7 +78,7 @@ createNetworkAdapterDesc (
 DataPtr
 createNetworkAdapterDescList (
 	DataPtr adapterCountPtr,
-	DataPtr addressCountPtr	
+	DataPtr addressCountPtr
 	)
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
@@ -126,7 +126,7 @@ createNetworkAdapterDescList (
 	return resultPtr;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace io
 } // namespace jnc

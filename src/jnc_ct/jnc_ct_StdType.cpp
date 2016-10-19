@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const StdItemSource*
 getStdTypeSource (StdType stdType)
@@ -94,7 +94,7 @@ getStdTypeSource (StdType stdType)
 	return &sourceTable [stdType];
 }
 
-//.............................................................................
+//..............................................................................
 
 ModuleItem*
 LazyStdType::getActualItem ()
@@ -102,7 +102,7 @@ LazyStdType::getActualItem ()
 	return m_module->m_typeMgr.getStdType (m_stdType);
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

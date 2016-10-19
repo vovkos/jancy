@@ -6,13 +6,13 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 VariableMgr::VariableMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
-	
+
 	m_tlsStructType = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
@@ -136,7 +136,7 @@ VariableMgr::createVariable (
 
 		variable->m_llvmGlobalVariable = createLlvmGlobalVariable (type, qualifiedName);
 		variable->m_llvmValue = variable->m_llvmGlobalVariable;
-		
+
 		if (type->getFlags () & TypeFlag_GcRoot)
 			m_staticGcRootArray.append (variable);
 
@@ -194,7 +194,7 @@ VariableMgr::createSimpleStaticVariable (
 	variable->m_llvmGlobalVariable = createLlvmGlobalVariable (type, qualifiedName, value);
 	variable->m_llvmValue = variable->m_llvmGlobalVariable;
 
-	if (type->getFlags () & TypeFlag_GcRoot)	
+	if (type->getFlags () & TypeFlag_GcRoot)
 		m_staticGcRootArray.append (variable);
 
 	m_variableList.insertTail (variable);
@@ -249,13 +249,13 @@ VariableMgr::finalizeDisposableVariable (Variable* variable)
 
 	// we have to save pointer in entry block
 
-	Type* refType = variable->m_type->getTypeKind () == TypeKind_Class ? 
-		(Type*) ((ClassType*) variable->m_type)->getClassPtrType () : 
+	Type* refType = variable->m_type->getTypeKind () == TypeKind_Class ?
+		(Type*) ((ClassType*) variable->m_type)->getClassPtrType () :
 		variable->m_type->getDataPtrType ();
 
 	Variable* refVariable = createSimpleStackVariable ("disposable_variable_ref", refType);
 	Value refValue;
-	result = 
+	result =
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, variable, &refValue) &&
 		m_module->m_operatorMgr.storeDataRef (refVariable, refValue);
 
@@ -280,7 +280,7 @@ VariableMgr::createLlvmGlobalVariable (
 	const Value& initValue
 	)
 {
-	llvm::Constant* llvmInitConstant = initValue ? 
+	llvm::Constant* llvmInitConstant = initValue ?
 		(llvm::Constant*) initValue.getLlvmValue () :
 		(llvm::Constant*) type->getZeroValue ().getLlvmValue ();
 
@@ -303,20 +303,20 @@ VariableMgr::primeStaticClassVariable (Variable* variable)
 
 	Value argValueArray [2];
 	m_module->m_llvmIrBuilder.createBitCast (
-		variable->m_llvmValue,  
-		m_module->m_typeMgr.getStdType (StdType_BoxPtr), 
+		variable->m_llvmValue,
+		m_module->m_typeMgr.getStdType (StdType_BoxPtr),
 		&argValueArray [0]
 		);
 
 	argValueArray [1].createConst (
-		&variable->m_type, 
+		&variable->m_type,
 		m_module->m_typeMgr.getStdType (StdType_BytePtr)
 		);
 
 	m_module->m_llvmIrBuilder.createCall (
-		primeStaticClass, 
+		primeStaticClass,
 		primeStaticClass->getType (),
-		argValueArray, 
+		argValueArray,
 		2,
 		NULL
 		);
@@ -365,14 +365,14 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	Value variableEndPtrValue;
 
 	m_module->m_llvmIrBuilder.createBitCast (
-		variable, 
-		m_module->m_typeMgr.getStdType (StdType_BytePtr), 
+		variable,
+		m_module->m_typeMgr.getStdType (StdType_BytePtr),
 		&variablePtrValue
 		);
 
 	m_module->m_llvmIrBuilder.createGep (
-		variablePtrValue, 
-		variable->m_type->getSize (), 
+		variablePtrValue,
+		variable->m_type->getSize (),
 		m_module->m_typeMgr.getStdType (StdType_BytePtr),
 		&variableEndPtrValue
 		);
@@ -407,8 +407,8 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 
 	Value boxPtrValue;
 	m_module->m_llvmIrBuilder.createBitCast (
-		llvmBoxVariable, 
-		m_module->m_typeMgr.getStdType (StdType_BoxPtr), 
+		llvmBoxVariable,
+		m_module->m_typeMgr.getStdType (StdType_BoxPtr),
 		&boxPtrValue
 		);
 
@@ -456,7 +456,7 @@ bool
 VariableMgr::allocateHeapVariable (Variable* variable)
 {
 	Value ptrValue;
-	
+
 	bool result = m_module->m_operatorMgr.gcHeapAllocate (variable->m_type, &ptrValue);
 	if (!result)
 		return false;
@@ -495,10 +495,10 @@ VariableMgr::liftStackVariable (Variable* variable)
 
 	LlvmIrInsertPoint prevInsertPoint;
 	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint (
-		variable->m_liftInsertPoint, 
+		variable->m_liftInsertPoint,
 		&prevInsertPoint
 		);
-	
+
 	bool result = allocateHeapVariable (variable);
 	ASSERT (result);
 
@@ -536,7 +536,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	variable->m_parentUnit = arg->getParentUnit ();
 	variable->m_pos = *arg->getPos ();
 	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
-		
+
 	if ((m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
 	{
@@ -552,7 +552,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 
 	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type);
-	
+
 	return variable;
 }
 
@@ -636,7 +636,7 @@ VariableMgr::allocateInitializeGlobalVariables ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 const char*
 jnc_getFunctionKindString (jnc_FunctionKind functionKind)
@@ -45,7 +45,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 		stringTable [jnc_FunctionKind_Undefined];
 }
 
-//.............................................................................
+//..............................................................................
 
 uint_t
 jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
@@ -95,7 +95,7 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 	return (size_t) functionKind < jnc_FunctionKind__Count ? flagTable [functionKind] : 0;
 }
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -200,4 +200,4 @@ jnc_Function_getMachineCode (jnc_Function* function)
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

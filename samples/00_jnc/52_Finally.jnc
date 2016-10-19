@@ -1,16 +1,16 @@
-// The 'finally' clause is traditionally associated only with exception 
-// handling. In Jancy it has a wider application domain. After all, 
+// The 'finally' clause is traditionally associated only with exception
+// handling. In Jancy it has a wider application domain. After all,
 // finalization is not only needed when errors occur, right?
 
-// Supposing the developer wants to create a block of finalization code to be 
-// executed upon exiting a certain scope no matter what exit path is taken at 
+// Supposing the developer wants to create a block of finalization code to be
+// executed upon exiting a certain scope no matter what exit path is taken at
 // runtime. Why force him to create a 'try' block just for that (as Java would
 // force him to do)?
 
-// If you ever asked yourself this question then we have good news: in Jancy 
+// If you ever asked yourself this question then we have good news: in Jancy
 // the 'finally' block can be added to any given scope.
 
-//.............................................................................
+//..............................................................................
 
 size_t foo (char const* s)
 {
@@ -23,7 +23,7 @@ size_t foo (char const* s)
 		int c = s [i];
 		if (!c)
 			break;
-	
+
 		if (c == '\t')
 		{
 			printf ("TAB found at %d\n", i);
@@ -37,7 +37,7 @@ size_t foo (char const* s)
 	// nothing to do with exceptions here, just a 'finally' block
 
 finally:
-	printf ("foo () finalization\n");	
+	printf ("foo () finalization\n");
 }
 
 bool errorcode bar (int a)
@@ -53,7 +53,7 @@ bool errorcode bar (int a)
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -62,7 +62,7 @@ int main ()
 	printf ("main ()\n");
 
 	// traditional usage of 'finally'
-	
+
 	try
 	{
 		foo ("abc");
@@ -83,4 +83,4 @@ int main ()
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

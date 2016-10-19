@@ -1,10 +1,10 @@
 ///+++
 
-/// JNC_SELECT_ANY char g_std_HashTableSrc [] = 
+/// JNC_SELECT_ANY char g_std_HashTableSrc [] =
 
 namespace std {
 
-//.............................................................................
+//..............................................................................
 
 opaque class StringHashTable
 {
@@ -26,7 +26,7 @@ opaque class StringHashTable
 		find (key, &value);
 		return value;
 	}
-	
+
 	insert (
 		char const* key,
 		variant value
@@ -38,7 +38,7 @@ opaque class StringHashTable
 	{
 		variant get (char const* key)
 		{
-			return find (key);			
+			return find (key);
 		}
 
 		set (
@@ -46,12 +46,12 @@ opaque class StringHashTable
 			variant value
 			)
 		{
-			insert (key, value);			
+			insert (key, value);
 		}
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 opaque class VariantHashTable
 {
@@ -64,7 +64,7 @@ opaque class VariantHashTable
 
 	bool find (
 		variant key,
-		variant* value		
+		variant* value
 		) const;
 
 	variant find (variant key) const
@@ -73,7 +73,7 @@ opaque class VariantHashTable
 		find (key, &value);
 		return value;
 	}
-	
+
 	insert (
 		variant key,
 		variant value
@@ -85,7 +85,7 @@ opaque class VariantHashTable
 	{
 		variant get (variant key)
 		{
-			return find (key);			
+			return find (key);
 		}
 
 		set (
@@ -93,12 +93,12 @@ opaque class VariantHashTable
 			variant value
 			)
 		{
-			insert (key, value);			
+			insert (key, value);
 		}
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace std
 

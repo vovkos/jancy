@@ -5,7 +5,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 NamespaceMgr::NamespaceMgr ()
 {
@@ -158,7 +158,7 @@ NamespaceMgr::closeNamespace ()
 {
 	if (m_namespaceStack.isEmpty ())
 		return;
-	
+
 	NamespaceStackEntry entry = m_namespaceStack.getBackAndPop ();
 
 	if (m_currentNamespace->m_namespaceKind == NamespaceKind_Global) // for others not really needed
@@ -187,7 +187,7 @@ NamespaceMgr::openInternalScope ()
 		scope->m_sjljFrameIdx = m_currentScope->m_sjljFrameIdx;
 		scope->m_gcShadowStackFrameMap = m_currentScope->m_gcShadowStackFrameMap;
 	}
-	else 
+	else
 	{
 		scope->m_flags = ScopeFlag_Function;
 	}
@@ -205,7 +205,7 @@ NamespaceMgr::openInternalScope ()
 Scope*
 NamespaceMgr::openScope (
 	const Token::Pos& pos,
-	uint_t flags	
+	uint_t flags
 	)
 {
 	Scope* parentScope = m_currentScope;
@@ -246,7 +246,7 @@ NamespaceMgr::openScope (
 		scope->m_sjljFrameIdx++;
 		m_module->m_controlFlowMgr.setJmpFinally (scope->m_finallyBlock, scope->m_sjljFrameIdx);
 	}
-	
+
 	if (flags & ScopeFlag_Nested)
 	{
 		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
@@ -266,10 +266,10 @@ NamespaceMgr::closeScope ()
 {
 	ASSERT (m_currentScope);
 	m_module->m_gcShadowStackMgr.finalizeScope (m_currentScope);
-	
+
 	uint_t flags = m_currentScope->m_flags;
 
-	if (flags & ScopeFlag_Disposable) 
+	if (flags & ScopeFlag_Disposable)
 	{
 		m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
 		m_module->m_controlFlowMgr.finalizeDisposableScope (m_currentScope);
@@ -284,14 +284,14 @@ NamespaceMgr::closeScope ()
 		m_currentScope->m_flags &= ~ScopeFlag_Catch; // prevent recursion
 		m_module->m_controlFlowMgr.finalizeCatchScope (m_currentScope);
 	}
-	else if (flags & ScopeFlag_Finally) 
+	else if (flags & ScopeFlag_Finally)
 	{
 		m_currentScope->m_flags &= ~ScopeFlag_Finally; // prevent recursion
 		m_module->m_controlFlowMgr.finalizeFinallyScope (m_currentScope);
 	}
 
 	closeNamespace ();
-	
+
 	if ((flags & ScopeFlag_Nested) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
 		closeScope ();
 }
@@ -466,7 +466,7 @@ NamespaceMgr::findCatchScope ()
 	return scope;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

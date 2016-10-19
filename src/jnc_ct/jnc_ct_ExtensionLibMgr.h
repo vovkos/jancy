@@ -10,7 +10,7 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 class ExtensionLibMgr
 {
@@ -55,13 +55,13 @@ public:
 
 public:
 	ExtensionLibMgr ();
-	
+
 	~ExtensionLibMgr ()
 	{
 		clear ();
 	}
 
-	ct::Module* 
+	ct::Module*
 	getModule ()
 	{
 		return m_module;
@@ -86,7 +86,7 @@ public:
 		sl::StringRef* contents
 		);
 
-	const OpaqueClassTypeInfo* 
+	const OpaqueClassTypeInfo*
 	findOpaqueClassTypeInfo (const sl::StringRef& qualifiedName)
 	{
 		sl::StringHashTableMapIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
@@ -117,7 +117,7 @@ public:
 	}
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ExtensionLib*
 getStdLib ();
@@ -125,7 +125,7 @@ getStdLib ();
 ExtensionLib*
 getSysLib ();
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

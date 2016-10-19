@@ -1,21 +1,21 @@
-// Multiple inheritance is the unfairly abandoned tool, which allows for the 
+// Multiple inheritance is the unfairly abandoned tool, which allows for the
 // most natural way of implementation sharing.
 
-// Jancy uses the simple multiple inheritance model: multiple instances of 
+// Jancy uses the simple multiple inheritance model: multiple instances of
 // shared bases (if any). The infamous virtual multiple inheritance model of
-// C++ is not (and will not be) supported. 
+// C++ is not (and will not be) supported.
 
-//.............................................................................
+//..............................................................................
 
 class I1
 {
-	// virtual methods are declared using traditional keywords 'virtual', 
+	// virtual methods are declared using traditional keywords 'virtual',
 	// 'abstract' and 'override'
 
 	abstract foo ();
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class C1: I1
 {
@@ -30,7 +30,7 @@ class C1: I1
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 class I2
 {
@@ -39,10 +39,10 @@ class I2
 	abstract baz (
 		int x,
 		int y
-		); 
+		);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class C2: I2
 {
@@ -53,7 +53,7 @@ class C2: I2
 
 	override bar ()
 	{
-		printf ("C2.bar ()\n");		
+		printf ("C2.bar ()\n");
 	}
 
 	override baz (
@@ -61,11 +61,11 @@ class C2: I2
 		int y
 		)
 	{
-		printf ("C2.baz (%d, %d)\n", x, y);		
+		printf ("C2.baz (%d, %d)\n", x, y);
 	}
 }
 
-//.............................................................................
+//..............................................................................
 
 struct Point
 {
@@ -73,16 +73,16 @@ struct Point
 	int m_y;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // structs can be inherited from other structs or unions
 
-struct Point3D: Point 
+struct Point3D: Point
 {
 	int m_z;
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // unions, however, cannot
 
@@ -90,43 +90,43 @@ struct Point3D: Point
 // {
 // }
 
-//.............................................................................
+//..............................................................................
 
 // it's OK to inherit a class from multiple bases including structs and unions
 
 class C3:
 	C1,
 	C2,
-	Point 
+	Point
 {
 	construct (int a);
 
-	override baz (	
+	override baz (
 		int x,
 		int y
 		);
 }
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 C3.construct (int a)
 {
-	// if a base type requires construction this must be done in the beginning 
+	// if a base type requires construction this must be done in the beginning
 	// of the derived type constructor
-		
+
 	// keywords 'basetype', 'basetype1'..'basetype9' could be used to reference
 	// base types ('basetype' is equivalent to 'basetype1')
 
-	basetype1.construct (a * 10); 
-		
+	basetype1.construct (a * 10);
+
 	// traditional reference by name works too
 
-	C2.construct (a * 100); 
+	C2.construct (a * 100);
 
 	printf ("C3.construct (%d)\n", a);
 }
 
-// it's OK to use storage specifier in an out-of-class method implementation 
+// it's OK to use storage specifier in an out-of-class method implementation
 // (it must match the original one, of course)
 
 override C3.baz (
@@ -137,9 +137,9 @@ override C3.baz (
 	printf ("C3.baz (%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
-}	
+}
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -153,8 +153,8 @@ int main ()
 	c.baz (20, 30);
 
 	printf ("c = { %d, %d }\n", c.m_x, c.m_y);
-	
+
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................

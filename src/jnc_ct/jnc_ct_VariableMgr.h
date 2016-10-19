@@ -13,7 +13,7 @@ namespace ct {
 class ClassType;
 class Function;
 
-//.............................................................................
+//..............................................................................
 
 class VariableMgr
 {
@@ -33,7 +33,7 @@ protected:
 	StructType* m_tlsStructType;
 
 	Variable* m_stdVariableArray [StdVariable__Count];
-	
+
 public:
 	VariableMgr ();
 
@@ -124,7 +124,7 @@ public:
 
 	Variable*
 	createArgVariable (FunctionArg* arg);
-	
+
 	Alias*
 	createAlias (
 		const sl::StringRef& name,
@@ -135,10 +135,10 @@ public:
 
 	bool
 	createTlsStructType ();
-	
+
 	bool
 	allocateInitializeGlobalVariables ();
-	
+
 	bool
 	initializeVariable (Variable* variable);
 
@@ -163,7 +163,7 @@ protected:
 	allocateHeapVariable (Variable* variable);
 };
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

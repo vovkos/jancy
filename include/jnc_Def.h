@@ -7,7 +7,7 @@
 /// \addtogroup base-def
 /// @{
 
-//.............................................................................
+//..............................................................................
 
 // when compiling core libraries, we want to use actual implementation classes
 // as to avoid unncecessary casts; otherwise, use opaque struct pointers
@@ -156,7 +156,7 @@ typedef struct jnc_Runtime jnc_Runtime;
 typedef struct jnc_GcHeap jnc_GcHeap;
 typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #	ifdef _AXL_SL_LISTBASE_H
 
@@ -225,19 +225,19 @@ struct jnc_Guid
 
 #endif // _JNC_CORE
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_GcStats jnc_GcStats;
 typedef struct jnc_GcSizeTriggers jnc_GcSizeTriggers;
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
 
 namespace jnc {
 
-//.............................................................................
+//..............................................................................
 
 typedef jnc_ListLink ListLink;
 typedef jnc_Guid Guid;
@@ -283,7 +283,7 @@ typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;
 
-//.............................................................................
+//..............................................................................
 
 } // namespace jnc
 

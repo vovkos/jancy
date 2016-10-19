@@ -6,24 +6,24 @@
 namespace jnc {
 namespace ct {
 
-//.............................................................................
+//..............................................................................
 
 const char*
 getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind)
 {
-	static const char* stringTable [FunctionPtrTypeKind__Count] = 
+	static const char* stringTable [FunctionPtrTypeKind__Count] =
 	{
 		"closure",  // EFunctionPtrType_Normal = 0,
 		"weak",     // EFunctionPtrType_Weak,
 		"thin",     // EFunctionPtrType_Thin,
 	};
 
-	return (size_t) ptrTypeKind < FunctionPtrTypeKind__Count ? 
-		stringTable [ptrTypeKind] : 
+	return (size_t) ptrTypeKind < FunctionPtrTypeKind__Count ?
+		stringTable [ptrTypeKind] :
 		"undefined-function-ptr-kind";
 }
 
-//.............................................................................
+//..............................................................................
 
 FunctionPtrType::FunctionPtrType ()
 {
@@ -34,7 +34,7 @@ FunctionPtrType::FunctionPtrType ()
 	m_multicastType = NULL;
 }
 
-ClassType* 
+ClassType*
 FunctionPtrType::getMulticastType ()
 {
 	return m_module->m_typeMgr.getMulticastType (this);
@@ -96,7 +96,7 @@ FunctionPtrType::prepareTypeString ()
 	Type* returnType = m_targetType->getReturnType ();
 
 	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
-	
+
 	sl::String modifierString = getTypeModifierString ();
 	if (!modifierString.isEmpty ())
 	{
@@ -105,7 +105,7 @@ FunctionPtrType::prepareTypeString ()
 	}
 
 	tuple->m_typeStringPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
-	
+
 	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix ();
 	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
 }
@@ -126,7 +126,7 @@ FunctionPtrType::prepareDoxyLinkedText ()
 	}
 
 	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
-	
+
 	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix ();
 	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
 }
@@ -141,7 +141,7 @@ FunctionPtrType::prepareDoxyTypeString ()
 void
 FunctionPtrType::prepareLlvmType ()
 {
-	m_llvmType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ? 
+	m_llvmType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmType () :
 		llvm::PointerType::get (m_targetType->getLlvmType (), 0);
 }
@@ -149,7 +149,7 @@ FunctionPtrType::prepareLlvmType ()
 void
 FunctionPtrType::prepareLlvmDiType ()
 {
-	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ? 
+	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmDiType () :
 		m_module->m_llvmDiBuilder.createPointerType (m_targetType);
 }
@@ -178,7 +178,7 @@ FunctionPtrType::markGcRoots (
 bool
 FunctionPtrType::calcLayout ()
 {
-	bool result = m_targetType->ensureLayout ();	
+	bool result = m_targetType->ensureLayout ();
 	if (!result)
 		return false;
 
@@ -195,7 +195,7 @@ FunctionPtrType::calcLayout ()
 	return true;
 }
 
-//.............................................................................
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

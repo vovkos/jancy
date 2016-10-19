@@ -9,7 +9,7 @@
 #	include "jnc_ct_Module.h"
 #endif
 
-//.............................................................................
+//..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -21,7 +21,7 @@ jnc_GcHeap_getRuntime (jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getStats (
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
@@ -31,7 +31,7 @@ jnc_GcHeap_getStats (
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
@@ -41,7 +41,7 @@ jnc_GcHeap_getSizeTriggers (
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_setSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
@@ -173,7 +173,7 @@ jnc_GcHeap_tryAllocateBuffer (
 JNC_EXTERN_C
 jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -185,7 +185,7 @@ jnc_GcHeap_createDataPtrValidator (
 JNC_EXTERN_C
 void
 jnc_GcHeap_weakMark (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -195,7 +195,7 @@ jnc_GcHeap_weakMark (
 JNC_EXTERN_C
 void
 jnc_GcHeap_markData (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -205,7 +205,7 @@ jnc_GcHeap_markData (
 JNC_EXTERN_C
 void
 jnc_GcHeap_markClass (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -214,10 +214,10 @@ jnc_GcHeap_markClass (
 
 #	if (_JNC_OS_WIN)
 JNC_EXTERN_C
-int 
+int
 jnc_GcHeap_handleGcSehException (
 	jnc_GcHeap* gcHeap,
-	uint_t code, 
+	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	)
 {
@@ -234,7 +234,7 @@ jnc_GcHeap_getRuntime (jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getStats (
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
@@ -244,7 +244,7 @@ jnc_GcHeap_getStats (
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_getSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
@@ -254,7 +254,7 @@ jnc_GcHeap_getSizeTriggers (
 }
 
 JNC_EXTERN_C
-void 
+void
 jnc_GcHeap_setSizeTriggers (
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
@@ -437,7 +437,7 @@ jnc_GcHeap_tryAllocateBuffer (
 JNC_EXTERN_C
 jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
@@ -449,7 +449,7 @@ jnc_GcHeap_createDataPtrValidator (
 JNC_EXTERN_C
 void
 jnc_GcHeap_weakMark (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -459,7 +459,7 @@ jnc_GcHeap_weakMark (
 JNC_EXTERN_C
 void
 jnc_GcHeap_markData (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -469,7 +469,7 @@ jnc_GcHeap_markData (
 JNC_EXTERN_C
 void
 jnc_GcHeap_markClass (
-	jnc_GcHeap* gcHeap,	
+	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	)
 {
@@ -489,10 +489,10 @@ jnc_GcHeap_addRoot (
 
 #if (_JNC_OS_WIN)
 JNC_EXTERN_C
-int 
+int
 jnc_GcHeap_handleGcSehException (
 	jnc_GcHeap* gcHeap,
-	uint_t code, 
+	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	)
 {
@@ -501,4 +501,4 @@ jnc_GcHeap_handleGcSehException (
 #	endif // _JNC_OS_WIN
 #endif    // _JNC_DYNAMIC_EXTENSION_LIB
 
-//.............................................................................
+//..............................................................................

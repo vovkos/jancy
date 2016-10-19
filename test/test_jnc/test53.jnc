@@ -1,10 +1,10 @@
-//.............................................................................
+//..............................................................................
 
 jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 {
 	%% "_?"
 		printf ("echo\n");
-	
+
 	%% "_[" (\d+ '.')* \d+ ']'
 		printf ("MAC: %s\n", recognizer.m_lexeme);
 		recognizer.m_automatonFunc = scanCommand;
@@ -21,7 +21,7 @@ jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
 }
 
 int main ()
-{	
+{
 	printf ("main ()\n");
 
 	jnc.Recognizer recognizer (scanPacket);
@@ -30,7 +30,7 @@ int main ()
 
 catch:
 	printf ("error: %s\n", std.getLastError ().m_description);
-	return -1; 
+	return -1;
 }
 
-//.............................................................................
+//..............................................................................

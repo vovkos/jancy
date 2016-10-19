@@ -1,35 +1,35 @@
 // Jancy enums conceal member identifiers within the enum namespace thus
 // preventing the parent namespace pollution.
 
-// To simplify porting of existing C/C++ code Jancy also offers 'exposed' 
-// enums, which behave just like traditional C/C++ enums and expose member 
+// To simplify porting of existing C/C++ code Jancy also offers 'exposed'
+// enums, which behave just like traditional C/C++ enums and expose member
 // identifiers.
 
 // Yet another flavour of Jancy enums is the 'bitflag' enum, i.e. the enum
 // designed to be used to describe bit flags. Bitflag enums differ from
 // regular enums in the following aspects:
 //   * Automatic value assignment goes 1, 2, 4, 8, i.e. in the power of 2 steps
-//   * The bitwise OR operator '|' on two operands of matching bitflag enum 
+//   * The bitwise OR operator '|' on two operands of matching bitflag enum
 //     type yields the same bitflag enum type
 //   * It's OK to assign zero to a bitflag enum
 
-// By default the bitflag enums conceal member identifiers like normal enums 
-// do. The 'exposed' modifier can be applied to the bitflag enum to change 
+// By default the bitflag enums conceal member identifiers like normal enums
+// do. The 'exposed' modifier can be applied to the bitflag enum to change
 // that.
 
-// All enums in Jancy can be derived from integer types to specify how many 
+// All enums in Jancy can be derived from integer types to specify how many
 // bytes will a particular enum occupy in memory and whether it will be treated
 // as a signed or unsigned value.
 
-//.............................................................................
+//..............................................................................
 
 enum Color
 {
-	Red,    // = 0 
+	Red,    // = 0
 	Orange,
 	Yellow,
-	Green      = 15, 
-	Blue,   // = 16 
+	Green      = 15,
+	Blue,   // = 16
 	Purple,
 }
 
@@ -48,7 +48,7 @@ bitflag enum OpenFlags: uint8_t
 	DeleteOnClose, // = 0x40
 }
 
-//.............................................................................
+//..............................................................................
 
 // entry point
 
@@ -62,29 +62,29 @@ int main ()
 
 	// cast int -> enum must be explicit
 
-	// color = 0; // <-- error 
+	// color = 0; // <-- error
 
 	printf ("color = %d\n", color);
 
 	// exposed enum members need not be qualified...
 
-	State state = State_Connecting; 
+	State state = State_Connecting;
 
 	// ... but qualified names work also
-	
-	state = State.State_Disconnecting; 
+
+	state = State.State_Disconnecting;
 
 	// cast int -> exposed enum still must be explicit
 
-	// state = 100; // <-- error 
+	// state = 100; // <-- error
 
 	printf ("state = %d\n", state);
 
 	// you can bitwise OR bitflag enum members together
 
-	OpenFlags flags = 
-		OpenFlags.ReadOnly | 
-		OpenFlags.Exclusive | 
+	OpenFlags flags =
+		OpenFlags.ReadOnly |
+		OpenFlags.Exclusive |
 		OpenFlags.DeleteOnClose;
 
 	printf ("flags = 0x%x\n", flags);
@@ -95,9 +95,9 @@ int main ()
 
 	// ...but it is OK to assign '0'
 
-	flags = 0;  
+	flags = 0;
 
 	return 0;
 }
 
-//.............................................................................
+//..............................................................................
