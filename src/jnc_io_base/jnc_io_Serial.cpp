@@ -277,6 +277,36 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 	return true;
 }
 
+bool
+JNC_CDECL
+Serial::setDtr (bool dtr)
+{
+	bool result = m_serial.setDtr (dtr);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_dtr = dtr;
+	return true;
+}
+
+bool
+JNC_CDECL
+Serial::setRts (bool rts)
+{
+	bool result = m_serial.setRts (rts);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_rts = rts;
+	return true;
+}
+
 size_t
 JNC_CDECL
 Serial::read (

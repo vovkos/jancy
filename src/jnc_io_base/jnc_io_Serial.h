@@ -132,17 +132,11 @@ public:
 
 	bool
 	JNC_CDECL
-	setDtr (bool dtr)
-	{
-		return m_serial.setDtr (dtr);
-	}
+	setDtr (bool dtr);
 
 	bool
 	JNC_CDECL
-	setRts (bool rts)
-	{
-		return m_serial.setRts (rts);
-	}
+	setRts (bool rts);
 
 	uint_t
 	JNC_CDECL
