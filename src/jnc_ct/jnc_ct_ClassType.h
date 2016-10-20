@@ -19,7 +19,7 @@ namespace ct {
 class ClassPtrType;
 struct ClassPtrTypeTuple;
 
-//............................................................................
+//..............................................................................
 
 class ClassType: public DerivableType
 {
