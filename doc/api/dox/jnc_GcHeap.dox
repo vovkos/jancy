@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 /*!
 
 \defgroup gc-heap Garbage-Collected Heap
@@ -7,10 +18,10 @@
 dsjhdfkjs hkjhds fkjhdfs kjhdfsh fjdhjdskjf hdfs
 dfs jhdfskjh dfskj
 
-	* Item 1	
+	* Item 1
 	* Item 2
 	* Item 3
-	
+
 dfhdfkjhdfkjsh dfkjs
 
 djhdfkjhds
