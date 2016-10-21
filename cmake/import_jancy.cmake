@@ -22,6 +22,7 @@ if (_CONFIG_CMAKE)
 	axl_message ("    CMake files:" "${JANCY_CMAKE_DIR}")
 	axl_message ("    Includes:"    "${JANCY_INC_DIR}")
 	axl_message ("    Libraries:"   "${JANCY_LIB_DIR}")
+	axl_message ("    Sphinx exts:" "${JANCY_SPHINX_DIR}")
 
 	set (JANCY_FOUND TRUE)
 else ()

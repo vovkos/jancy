@@ -16,7 +16,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('${DOXYREST_SPHINX_DIR}'))
+sys.path.insert(1, os.path.abspath('${DOXYREST_SPHINX_DIR}'))
+sys.path.insert(1, os.path.abspath('${JANCY_SPHINX_DIR}'))
 
 # -- General configuration ------------------------------------------------
 
@@ -27,10 +28,10 @@ sys.path.insert(0, os.path.abspath('${DOXYREST_SPHINX_DIR}'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["doxyrest"]
+extensions = ['doxyrest', 'cpplexer']
 
 # disable permalinks
-html_add_permalinks = ""
+html_add_permalinks = ''
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['${CMAKE_CURRENT_LIST_DIR}/sphinx/_templates']

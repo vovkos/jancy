@@ -11,9 +11,7 @@
 
 from pygments.lexer import RegexLexer, include, bygroups, using, this, inherit, default, words
 from pygments.token import Text, Comment, Operator, Keyword, Name, String, Number, Punctuation, Error
-
-
-__all__ = ['JancyLexer']
+from sphinx.highlighting import lexers
 
 
 class JancyLexer(RegexLexer):
@@ -186,3 +184,13 @@ class JancyLexer(RegexLexer):
 
     def __init__(self, **options):
         RegexLexer.__init__(self, **options)
+
+
+def setup(app):
+    options = {}
+    options['stripnl'] = False
+    options['ensurenl'] = False
+    
+    lexer = JancyLexer(**options)
+    lexers['jnc'] = lexer
+    lexers['jancy'] = lexer
