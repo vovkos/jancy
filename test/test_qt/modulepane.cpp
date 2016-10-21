@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #include "pch.h"
 #include "modulepane.h"
 #include "mdichild.h"
@@ -185,7 +196,7 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 
 	QString toolTip = QString ("%1 (sizeof = %2)").arg (type->getTypeString ()).arg (type->getSize ());
 	item->setToolTip (0, toolTip);
-	
+
 	jnc::ModuleItemDecl* decl = NULL;
 	jnc::TypeKind typeKind = type->getTypeKind();
 	switch (typeKind)
@@ -211,9 +222,9 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 void ModulePane::addTypedef (QTreeWidgetItem *parent, jnc::Typedef* tdef)
 {
 	QString name;
-	name.sprintf ("typedef %s %s %s", 
-		tdef->getType ()->getTypeStringPrefix(), 
-		tdef->getDecl ()->getName (), 
+	name.sprintf ("typedef %s %s %s",
+		tdef->getType ()->getTypeStringPrefix(),
+		tdef->getDecl ()->getName (),
 		tdef->getType ()->getTypeStringSuffix()
 		);
 

@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Perhaps the most well known scenario in which weak pointers are necessary is
 // the event-subscriber pattern: usually the developer does not want a pointer
 // held by an event to prevent the subscriber from being collected. This leads

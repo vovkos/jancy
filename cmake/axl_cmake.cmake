@@ -1,3 +1,14 @@
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
+
 # to make use of AXL cmake build infrastructure, copy this dropper file into
 # your project directory and include it in master CMakeLists.txt like this:
 

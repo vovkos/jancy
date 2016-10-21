@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Properties are present in many modern languages. Property pointers, on the
 // other hand, require well-developed syntax and semantics of pointer
 // declarations and operators, and these are usually lacking. Jancy is proud

@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #include "pch.h"
 #include "mdichild.h"
 #include "jancyhighlighter.h"
@@ -52,7 +63,7 @@ bool MdiChild::loadFile(const QString& filePath)
 	setPlainText (QString::fromUtf8 (data));
 
 	QApplication::restoreOverrideCursor();
-	
+
 	setFile(filePath);
 
 	connect(document(), SIGNAL(contentsChanged()),
@@ -165,7 +176,7 @@ bool MdiChild::saveFile(const QString& filePath)
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	
+
 	QByteArray data = toPlainText ().toUtf8 ();
 	file.write (data);
 

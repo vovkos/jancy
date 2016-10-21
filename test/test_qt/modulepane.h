@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #ifndef _MODULEPANE_H
 #define _MODULEPANE_H
 
@@ -9,7 +20,7 @@ class ModulePane : public QTreeWidget
 
 public:
 	ModulePane(QWidget *parent);
-	
+
 	QSize sizeHint() const { return QSize(300, 50); }
 
 	bool build(jnc::Module* module, MdiChild* document);

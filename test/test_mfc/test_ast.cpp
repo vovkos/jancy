@@ -1,13 +1,13 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface 
-// (the "Fluent UI") and is provided only as referential material to supplement the 
-// Microsoft Foundation Classes Reference and related electronic documentation 
-// included with the MFC C++ library software.  
-// License terms to copy, use or distribute the Fluent UI are available separately.  
-// To learn more about our Fluent UI licensing program, please visit 
-// http://msdn.microsoft.com/officeui.
+//..............................................................................
 //
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
 
 // test_ast.cpp : Defines the class behaviors for the application.
 //
@@ -103,7 +103,7 @@ BOOL CAstApp::InitInstance()
 
 	EnableTaskbarInteraction(FALSE);
 
-	// AfxInitRichEdit2() is required to use RichEdit control	
+	// AfxInitRichEdit2() is required to use RichEdit control
 	// AfxInitRichEdit2();
 
 	// Standard initialization
@@ -161,7 +161,7 @@ BOOL CAstApp::InitInstance()
 	GetMainFrame ()->m_hAccelTable = LoadAccelerators (m_hInstance, MAKEINTRESOURCE (IDR_MAINFRAME));
 
 	// The one and only window has been initialized, so show and update it
-	
+
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
@@ -239,6 +239,3 @@ void CAstApp::SaveCustomState()
 }
 
 // CAstApp message handlers
-
-
-

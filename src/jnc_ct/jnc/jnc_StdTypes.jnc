@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // don't use typedefs here!
 
 namespace jnci {
@@ -72,4 +83,3 @@ struct Fp64Int64
 ///---
 
 } // namespace jnci {
-

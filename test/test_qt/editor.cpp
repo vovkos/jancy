@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #include "pch.h"
 #include "editor.h"
 #include "moc_editor.cpp"
@@ -16,7 +27,7 @@ Editor::Editor(QWidget *parent)
 		QFont::Monospace,
 		(QFont::StyleStrategy) (QFont::NoFontMerging | QFont::ForceIntegerMetrics)
 		);
-	
+
 	setFont(font);
 	setTabStopWidth(fontMetrics().width(' ') * 4);
 }

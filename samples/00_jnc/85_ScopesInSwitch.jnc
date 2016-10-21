@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Unlike in C++ or Java, Jancy encloses all the case blocks in a switch
 // statement into implicit scopes. This means you are free to declare and
 // initialize local variables within case blocks of a switch statement.

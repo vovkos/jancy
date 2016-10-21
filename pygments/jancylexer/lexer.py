@@ -1,3 +1,14 @@
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
+
 from pygments.lexer import RegexLexer, include, bygroups, using, this, inherit, default, words
 from pygments.token import Text, Comment, Operator, Keyword, Name, String, Number, Punctuation, Error
 
@@ -175,4 +186,3 @@ class JancyLexer(RegexLexer):
 
     def __init__(self, **options):
         RegexLexer.__init__(self, **options)
-

@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Jancy class is a special kind of data type. Actual user fields are preceded
 // with a header containing meta-data such as type, vtable pointer, root object
 // pointer, GC-related flags, etc.

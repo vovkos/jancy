@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #ifndef EDITOR_H
 #define EDITOR_H
 
@@ -12,8 +23,8 @@ public:
 		QColor *fore = 0);
 
 	void select(int startPos, int endPos);
-	void selectLine(int line, bool isHighlighted = false);	
-	void selectLineCol(int line, int col);	
+	void selectLine(int line, bool isHighlighted = false);
+	void selectLineCol(int line, int col);
 
 	int posFromLine(int line);
 

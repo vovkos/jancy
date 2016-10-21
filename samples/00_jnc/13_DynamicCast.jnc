@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Downcasting or casting to a pointer-to-char (or similar) type represents a
 // critical threat to security since this makes it possible to overwrite a
 // pointer validator with random data, thus damaging the validator itself.

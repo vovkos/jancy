@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #include "pch.h"
 #include "output.h"
 #include "mainwindow.h"
@@ -13,7 +24,7 @@ Output::Output(QWidget *parent)
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 	setLineWrapMode (QPlainTextEdit::NoWrap);
 }
- 
+
 void Output::mouseDoubleClickEvent(QMouseEvent *e)
 {
 	int documentLine;
@@ -21,7 +32,7 @@ void Output::mouseDoubleClickEvent(QMouseEvent *e)
 	QString filePath;
 
 	if(parseLine(textCursor(), documentLine, documentCol, filePath))
-	{	
+	{
 		MdiChild *child = getMainWindow()->findMdiChild(filePath);
 		if (child)
 		{
@@ -42,7 +53,7 @@ void Output::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 bool Output::parseLine(
-	const QTextCursor &cursor, 
+	const QTextCursor &cursor,
 	int &documentLine,
 	int &documentCol,
 	QString &filePath
@@ -58,7 +69,7 @@ bool Output::parseLine(
 	filePath = text.left(pos);
 	QString lineNumber = regExp.capturedTexts ().at (1);
 	QString colNumber = regExp.capturedTexts ().at (2);
-	
+
 	documentLine = lineNumber.toInt() - 1;
 	documentCol = colNumber.toInt() - 1;
 

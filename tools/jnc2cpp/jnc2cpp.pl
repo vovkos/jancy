@@ -1,3 +1,14 @@
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
+
 $state = 0;
 
 while (chomp (my $s = <>))
@@ -14,12 +25,12 @@ while (chomp (my $s = <>))
 		{
 			$state = 0;
 		}
-		else 
+		else
 		{
-			# inject as C++ snippet 
+			# inject as C++ snippet
 
 			print ("$body\n");
-		}		
+		}
 	}
 	elsif ($state)
 	{
@@ -36,6 +47,6 @@ while (chomp (my $s = <>))
 			$s =~ s/(?<!\\)\"/\\\"/g;
 
 			print ("\"$s\\n\"\n");
-		}	
-	}	
+		}
+	}
 }

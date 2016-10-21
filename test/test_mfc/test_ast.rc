@@ -1,5 +1,14 @@
-// Microsoft Visual C++ generated resource script.
+//..............................................................................
 //
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -517,4 +526,3 @@ LANGUAGE 9, 1
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-

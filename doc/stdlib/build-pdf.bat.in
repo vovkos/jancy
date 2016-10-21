@@ -1,3 +1,14 @@
+@rem ...........................................................................
+@rem
+@rem  This file is part of the Jancy toolkit.
+@rem
+@rem  Jancy is distributed under the MIT license.
+@rem  For details see accompanying license.txt file,
+@rem  the public copy of which is also available at:
+@rem  http://tibbo.com/downloads/archive/jancy/license.txt
+@rem
+@rem ...........................................................................
+
 @echo off
 
 set PDF_DIR="${PDF_DIR}"
@@ -21,5 +32,5 @@ copy %DOXYREST_SPHINX_DIR%\doxyrest.sty
 
 "${PDFLATEX_EXE}" ${PDFLATEX_MIKTEX_CMD_LINE} || exit
 "${PDFLATEX_EXE}" ${PDFLATEX_MIKTEX_CMD_LINE} || exit
-	
+
 cd %PREV_DIR%

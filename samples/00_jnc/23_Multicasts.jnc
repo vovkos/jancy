@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Multicasts are compiler-generated classes that allow to accumulate multiple
 // function pointers and call them all at once. Just like with function
 // pointers, multicasts can be thin or weak.
@@ -106,4 +117,3 @@ int main ()
 }
 
 //..............................................................................
-

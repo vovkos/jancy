@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 #ifndef _OUTPUT_H
 #define _OUTPUT_H
 
@@ -19,7 +30,7 @@ protected:
 
 private:
 	bool parseLine(
-		const QTextCursor &cursor, 
+		const QTextCursor &cursor,
 		int &documentLine,
 		int &documentCol,
 		QString &filePath

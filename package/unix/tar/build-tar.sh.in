@@ -1,4 +1,14 @@
 #!/bin/bash
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
 
 set -e
 
@@ -28,6 +38,6 @@ cp -rf $ROOT_DIR/test $CONTENTS_DIR
 cp -f $ROOT_DIR/CMakeLists.txt $CONTENTS_DIR
 cp -f $ROOT_DIR/version.cmake $CONTENTS_DIR
 
-chown -R root:$(id -gn root) $TAR_DIR 
+chown -R root:$(id -gn root) $TAR_DIR
 tar -cJf $OUT_FILE_PATH -C $TAR_DIR $TAR_SUB_DIR
 rm -rf $TAR_DIR

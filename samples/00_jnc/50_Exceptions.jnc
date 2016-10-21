@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 // Jancy provides syntactic sugar over good old C-style error code check model.
 // It looks just like throwing and catching exceptions and frees the developer
 // from the routine of constantly checking for error codes.
