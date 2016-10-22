@@ -190,7 +190,7 @@ def setup(app):
     options = {}
     options['stripnl'] = False
     options['ensurenl'] = False
-    
+
     lexer = JancyLexer(**options)
     lexers['jnc'] = lexer
     lexers['jancy'] = lexer

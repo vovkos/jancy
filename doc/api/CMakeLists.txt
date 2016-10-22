@@ -30,6 +30,7 @@ set (
 set (
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
+	-D g_hasNewLineAfterReturnType
 	-o ${RST_DIR}/global.rst
 	-F ${DOXYREST_FRAME_DIR}
 	-f c_global.rst.in
