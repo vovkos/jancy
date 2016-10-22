@@ -14,7 +14,7 @@ Extension Namespaces
 
 Jancy offers a way to extend the functionality of existing classes with extension namespaces. An extension namespace declares additional methods which have access to all the members of the class that they extend. There are certain limitations imposed on the extension methods. These ensure that if your code runs without extension namespaces, then it runs exactly the same with the introduction of any extension namespace(s):
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{

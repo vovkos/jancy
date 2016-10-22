@@ -20,7 +20,7 @@ Property pointers resemble and are closely related to function pointers. Dealing
 
 Like the function pointers, property pointers can be **thin** or **fat**. Thin property pointers hold a pointer to a property accessor table.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int autoget property g_prop;
 
@@ -37,7 +37,7 @@ Like the function pointers, property pointers can be **thin** or **fat**. Thin p
 
 Like with the function pointers, the argument conversion is automated (compiler generates thunks if needed).
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int autoget property g_prop;
 
@@ -58,7 +58,7 @@ Like with the function pointers, the argument conversion is automated (compiler 
 
 Fat property pointers support partial application by capturing arguments in the closure.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -79,7 +79,7 @@ Fat property pointers support partial application by capturing arguments in the 
 
 It is also possible to capture index arguments in the closure, thus reducing dimensions of indexed properties or completely de-indexing them. Skipping indexes is OK, too.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	property g_prop
 	{
@@ -109,7 +109,7 @@ It is also possible to capture index arguments in the closure, thus reducing dim
 
 Like function pointers, property pointers can be **weak**, meaning that they do not retain selected objects in the closure from being collected by the garbage collector.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{

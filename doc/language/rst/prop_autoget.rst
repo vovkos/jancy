@@ -16,7 +16,7 @@ In most cases a property getter is supposed to return a variable value or field,
 
 Simple syntax for declaring autoget property:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int autoget property g_simpleProp;
 
@@ -27,7 +27,7 @@ Simple syntax for declaring autoget property:
 
 The same property declared using full syntax:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	property g_prop
 	{

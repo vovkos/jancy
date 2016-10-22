@@ -49,7 +49,7 @@ Conventionally this is implemented by declaring a private field and a public get
 
 The implementation relying on dual modifiers looks a lot more natural, as it is compact -- Jancy's dual modifier ``readonly`` is ignored by friends and means ``const`` for aliens:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -77,7 +77,7 @@ The owner of an event must have the full control over this event, including the 
 
 The dual modifier ``event`` provides full multicast-access to friends and event-only access to aliens:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{

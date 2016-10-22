@@ -16,13 +16,13 @@ Multicasts are compiler-generated classes capable of accumulating function point
 
 A multicast stores function pointers, so a multicast declaration looks similar to a function pointer declaration (and just like a function pointer it can be thin, fat, or weak).
 
-.. code-block:: none
+.. code-block:: jnc
 
 	multicast m (int);
 
 A multicast class provides the following methods (this is for the multicast from the above example):
 
-.. code-block:: none
+.. code-block:: jnc
 
 	void clear ();
 	intptr setup (function* (int)); // returns cookie
@@ -35,7 +35,7 @@ The set() and add() methods return a cookie which can later be used to efficient
 
 Some of these methods have operator aliases:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	multicast m ();
 	m.setup (foo);     // same as: m = foo;
@@ -45,7 +45,7 @@ Some of these methods have operator aliases:
 
 The following example demonstrates some of the basic operations on multicasts:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (int x)
 	{
@@ -77,7 +77,7 @@ The following example demonstrates some of the basic operations on multicasts:
 
 Events are special pointers to multicasts. They restrict access to multicast methods ``call``, ``setup``, and ``clear``.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (int x)
 	{
@@ -96,7 +96,7 @@ Events are special pointers to multicasts. They restrict access to multicast met
 
 Declaring a variable or a field with the event type yields a dual access policy. Friends of the namespace have multicast access to it, aliens have event access only. Read more about the dual access control model here.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -129,7 +129,7 @@ Converting from a multicast to a function pointer is inherently ambiguous: shoul
 
 To deal with this ambiguity, Jancy multicast classes provide the getSnapshot () method. Casting a multicast to a function pointer implicitly yields a **live** pointer, while the getSnapshot () method returns a snapshot.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo ()
 	{

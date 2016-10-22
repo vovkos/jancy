@@ -16,7 +16,7 @@ Jancy brings a couple of enhancements to the enumeration types as well.
 
 In Jancy, traditional enums conceal member identifiers within their enum namespaces to prevent namespace pollution. Plus, Jancy enums can be derived from an integer type. This comes handy when declaring fields of protocol headers.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	enum IcmpType: uint8_t
 	{
@@ -43,7 +43,7 @@ Exposed Enums
 
 To simplify porting existing C/C++ code into Jancy we offer an **exposed enum** variation, which behaves like a traditional C/C++ enum, i.e. it exposes the member identifier into the parent namespace.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	exposed enum State
 	{
@@ -71,7 +71,7 @@ Jancy also features **bitflag enums**, which are enumerations dedicated to descr
 
 Like Jancy enums, bitflag enums do not pollute the parent namespace.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	bitflag enum OpenFlags
 	{

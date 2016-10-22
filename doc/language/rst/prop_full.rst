@@ -14,7 +14,7 @@ Full Property Declaration
 
 A full property declaration looks a lot like a declaration for a class. It implicitly opens a namespace and allows for overloaded setters, member fields, helper methods, constructors/destructors etc.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	property g_prop
 	{

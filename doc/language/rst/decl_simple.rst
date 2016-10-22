@@ -14,7 +14,7 @@ Simple Declarations
 
 Syntax of declarations in Jancy is common for all the C-family languages and can be expressed with the following formula: **specifier(s)-declarator(s)**.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int a;
 
@@ -22,7 +22,7 @@ In example above ``int`` is a type specifier and ``a`` is a declarator. This dec
 
 Declaring **functions** in Jancy is also similar to any C-family language:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	void foo (
 	    int a,
@@ -36,7 +36,7 @@ This defines a function which return no value and takes two arguments of types `
 
 It's important to say a couple of words on **arrays**, however. In Java, C\#, D and other modern languages arrays are **dynamically-sized**; in C/C++ compiler-generated arrays are **fixed-sized** while dynamically-sized arrays are implemented as classes. Since being able to copy-paste C/C++ declarations of network protocol headers was crucial, Jancy adopts C/C++ model:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int a [10] [20];
 

@@ -16,7 +16,7 @@ Jancy exceptions handling model applies a layer of syntactic sugar over good old
 
 A function marked by the ``errorcode`` modifier will have its return value interpreted as an error code. Intuitive defaults are assumed: ``false`` for bools, ``-1`` for integers integers and ``null`` for pointers.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	bool errorcode foo (int a)
 	{
@@ -26,7 +26,7 @@ A function marked by the ``errorcode`` modifier will have its return value inter
 
 If return values match, the error code is automatically propagated:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int errorcode foo (int a);
 
@@ -41,13 +41,13 @@ If return values match, the error code is automatically propagated:
 
 The ``try`` operator shields an expression from **throwing**:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int result = try baz (-5);
 
 The ``try`` block shields a parent scope from **throwing** even if this parent scope has no ``catch``:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo ()
 	{
@@ -65,7 +65,7 @@ The ``try`` block shields a parent scope from **throwing** even if this parent s
 
 ``catch`` and ``finally`` can be within any scope:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int errorcode bar (int a)
 	{
@@ -81,7 +81,7 @@ The ``try`` block shields a parent scope from **throwing** even if this parent s
 
 When calling a function, the developer can use either an error code check or exception semantics depending on what's more appropriate or convenient in each particular case.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int main ()
 	{

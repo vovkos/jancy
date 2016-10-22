@@ -16,7 +16,7 @@ Pointer arithmetic is not applicable to class pointers, therefore, class pointer
 
 Jancy provides built-in support for a special kind of class pointers: **weak**. These pointers do not affect the lifetime of an object. Obviously, weak class pointers cannot be used to access an object they point to and can only be cast to strong pointers. If this cast operation returns non-null value, the result can be used to access the object normally; otherwise, the object has already been destroyed.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{

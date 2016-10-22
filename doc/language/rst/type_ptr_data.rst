@@ -22,7 +22,7 @@ Since Jancy was conceived as the scripting language for our IO Ninja software, l
 
 As with many languages, the Jancy runtime doesn't allow access to data via a pointer that failed the range check. Unfortunately, range checks are not enough for stack data pointers:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo ()
 	{
@@ -48,7 +48,7 @@ To address this issue, Jancy pointer validators also maintain integer thread-loc
 
 Simply put, the approach used by Jancy is this: check the data range at the pointer access, check the scope level at the pointer assignment.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int* g_p;
 

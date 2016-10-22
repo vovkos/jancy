@@ -16,19 +16,19 @@ Jancy supports a convenient method of assigning aggregate values with curly init
 
 Classic C-style curly-intializers:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int a [] = { 1, 2, 3 };
 
 It's OK to skip elements leaving them zero-initialized:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int b [10] = { ,, 3, 4,,, 7 };
 
 You can use both index- and name-based addressing:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	struct Point
 	{
@@ -41,12 +41,12 @@ You can use both index- and name-based addressing:
 
 You can also use curly-initializers in assignment operator after declaration:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	point = { , 200, 300 };
 
 ...or in a new operator:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	Point* point2 = new Point { m_y = 2000, m_z = 3000 };

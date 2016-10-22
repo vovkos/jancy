@@ -22,32 +22,32 @@ Jancy has three kinds of literals:
 
 The first one is the good old C-style literal. It defines a statically allocated const char array.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	char a [] = "hello world";
 
 The second kind is the hex literal. This kind of literals allows for a nice and clean way of defining in-program const binary data blocks (i.e. icons, public keys etc) Just like C-literals, hex literals define a statically allocated const char array.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	char b [] = 0x"61 62 63 20 64 65 66 00";
 	// same as: char b [] = { 0x61, 0x62, 0x63, 0x20, 0x64, 0x65, 0x66, 0x00  }
 
 It's OK to use upper-case or lower-case and group hex codes with spaces to your liking (or not use spaces for grouping at all):
 
-.. code-block:: none
+.. code-block:: jnc
 
 	char c [] = 0x"696a 6b6c 6D6E 6F70 0000";
 
 Concatenating hex and C-literals can be used for removing trailing zeroes from C-literals thus producing non-zero-terminated literals:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	char d [] = "non-zero-terminated" 0x"";
 
 The third and last kind of Jancy literals is the formatting literal. Literals of this kind bring Perl-style formatting into our C-family language. A formatting literal produces a dynamically allocated char array on the GC heap:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int i = 100;
 
@@ -55,7 +55,7 @@ The third and last kind of Jancy literals is the formatting literal. Literals of
 
 Jancy allows the use of expressions and printf-style formatting:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int i = 100;
 	char a [] = "hello world";
@@ -65,7 +65,7 @@ Jancy allows the use of expressions and printf-style formatting:
 
 It's also OK to specify some of injected values (or all of them) in the argument list of the formatting literal and reference these values by index. You can even reference the same value multiple times to display it using different format specifiers:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	char const* c = $"rgb dec = (%1, %2, %3); rgb hex = (%(1;x), %(2;x), %(3;x))" (
 	    (colorTable [i].m_value & 0xff0000) >> 16,
@@ -75,7 +75,7 @@ It's also OK to specify some of injected values (or all of them) in the argument
 
 Last but not least, all literal kinds can be concatenated and combined. If the combination does not include formatting literals, then the result is a statically allocated const char array. If the combination includes formatting literals then it will produce a dynamically allocated char array on the GC heap:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int i = 100;
 	char a [] = "hello world";

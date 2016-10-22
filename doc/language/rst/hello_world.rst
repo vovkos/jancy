@@ -14,7 +14,7 @@ Hello World
 
 Tradition dictates to start any language book with a **"Hello World"** program, so I'm not going to re-invent the wheel in this paricular case:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int main ()
 	{

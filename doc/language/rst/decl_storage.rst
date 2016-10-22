@@ -16,7 +16,7 @@ Both global and local variables can have ``static`` or ``threadlocal`` storage s
 
 Now, what if you **do** need an aggregate thead variable and/or a thread variable which needs to be initilized? The answer is simple -- use pointers:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	threadlocal MyClass* threadClass;
 

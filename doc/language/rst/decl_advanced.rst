@@ -35,7 +35,7 @@ Declarators can contain:
 
 A realistic example of a complex declaration could look like:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	static int const* function* a [2] () = { foo, bar };
 
@@ -43,19 +43,19 @@ Here ``static`` is a storage specifier, ``int`` is a type specifier, ``const`` a
 
 C/C++ equivalent of the above example would look like:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	static int const* (*a [2]) () = { foo, bar };
 
 Now, if we add one extra layer of function pointers, C/C++ falls short of declaring it in one go (you will receive **function returns function** error); Jancy syntax still allows to do so (not like that could be crucial in any realistic scenario; just a small demonstration of flexibility):
 
-.. code-block:: none
+.. code-block:: jnc
 
 	static int const* function* function* a [2] () (int);
 
 There are no nested declarators in Jancy. Nested declarators in C/C++ emerged as a solution (and in my personal opinion, not an elegant one) to the problem of resolving ambiguities in complex pointer-to-function declarations. Like you just saw, Jancy uses a different approach with type modifiers ``function``, ``property``, ``array``:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int property* function* array* a [2] [3] ();
 
@@ -63,7 +63,7 @@ Here ``a`` is an array of three elements of type **pointer to array of two eleme
 
 In reality, however, you are unlikely going to need mind-boggling declarations like the one above. It's always possible to split an overcomplicated declaration into two (or more) using good-old typedefs: just like in C/C++, Jancy declarations with ``typedef`` storage specifier result in creation of a type alias:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	typedef double DoubleBinaryFunc (double, double);
 	DoubleBinaryFunc* funcPtr; // use new typedef to declare a variable
@@ -73,7 +73,7 @@ In reality, however, you are unlikely going to need mind-boggling declarations l
 
 There are other important differences with C/C++. In Jancy named type declaration is **not** a type specifier. The following code, perfectly valid in C/C++ will produce an error in Jancy:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	struct Point
 	{
@@ -83,7 +83,7 @@ There are other important differences with C/C++. In Jancy named type declaratio
 
 In Jancy you cannot declare a named type and immediatly use it to declare a variable or a field. Therefore, to fix previous example, we need to simply split a single declaration into two:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	struct Point
 	{
@@ -97,7 +97,7 @@ Note that declaration of a named type does not need to end with a semicolon (nee
 
 Jancy does not require **declaration-before-usage** at global scope. Therefore, there is no need to create so-called **forward declarations** of functions or types, so the following example will compile in Jancy, but not in C/C++:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	void foo ()
 	{
@@ -117,7 +117,7 @@ Jancy does not require **declaration-before-usage** at global scope. Therefore, 
 
 It is allowed to omit type specifier; ``void`` type is assumed in this case. This is done to unify rules applied to declaration of normal functions and **special** functions like **constructors**, **destructors**, **setters** etc. In Jancy the following two declarations are equivalent:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	void foo ()
 	{

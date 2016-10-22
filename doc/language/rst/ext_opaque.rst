@@ -14,7 +14,7 @@ Opaque Classes
 
 When implementing the interaction between your Jancy script and the host C/C++ application you will often need to hide the details of C++ implementation of classes exported to the Jancy namespace. Jancy simplifies the job by providing opaque classes.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	opaque class Serial
 	{
@@ -31,7 +31,7 @@ When implementing the interaction between your Jancy script and the host C/C++ a
 
 The corresponding C++ implementation class would look somewhat like this:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class Serial: public jnc::IfaceHdr
 	{

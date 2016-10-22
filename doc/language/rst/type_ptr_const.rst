@@ -18,7 +18,7 @@ Admittedly, const-correctness generally makes it harder to design interfaces and
 
 As in C++, use the ``const`` modifier to define a const-pointer.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	struct Point
 	{
@@ -44,7 +44,7 @@ Certain fields can be modified even from const methods (for example, various kin
 
 The syntax for declaring const methods and mutable fields has also been borrowed from C++:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{

@@ -16,7 +16,7 @@ Jancy also supports **indexed** properties, which are properties with array sema
 
 Simple indexed property declaration syntax:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int g_x [2];
 
@@ -39,7 +39,7 @@ Simple indexed property declaration syntax:
 
 A similar property declared using full syntax:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	property g_prop
 	{
@@ -78,7 +78,7 @@ A similar property declared using full syntax:
 
 Accessing indexed properties looks like accessing arrays
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int indexed property g_prop (
 	    unsigned i,

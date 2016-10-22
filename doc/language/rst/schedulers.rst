@@ -16,7 +16,7 @@ Jancy implements the concept of function pointer scheduling. When passing a func
 
 The scheduler is a built-in interface of the Jancy compiler:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	namespace jnc {
 
@@ -31,7 +31,7 @@ Note that even the ``schedule`` method accepts a pointer to a function with no a
 
 To assign a scheduler you use @ operator (at):
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class WorkerThread: jnc.Scheduler
 	{
@@ -69,7 +69,7 @@ To assign a scheduler you use @ operator (at):
 
 Below is a real-life example (from our IO Ninja software) of assigning a socket event handler (which gets fired from within the socket IO thread) and scheduling it to be called from the main UI thread:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	TcpListenerSession.construct (doc.PluginHost* pluginHost)
 	{

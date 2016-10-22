@@ -14,7 +14,7 @@ Global Namespaces
 
 Just like in C++ and C\#, Jancy features support for global namespaces. It is OK to open a nested namespace in one go; it is also OK to open and close the same namespace multiple times for adding new elements.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	namespace a.b.c {
 	namespace d {

@@ -14,7 +14,7 @@ switch
 
 Jancy encloses all the case blocks in switch statements into implicitly created scopes. This means you are free to create and use local variables in switch statements:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (int x)
 	{
@@ -38,7 +38,7 @@ Jancy encloses all the case blocks in switch statements into implicitly created 
 
 Multi-level breaks can be applied to switch statement as well. In example below **break2** is used to break out of the switch statment and then out of the outer loop:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	for (;;)
 	{

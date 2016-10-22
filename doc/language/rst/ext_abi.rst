@@ -34,7 +34,7 @@ The above brings simplicity and effectiveness to the application-script interact
 
 Consider the following example of mapping Jancy declarations to C++ implementation:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	opaque class Socket
 	{
@@ -60,7 +60,7 @@ Consider the following example of mapping Jancy declarations to C++ implementati
 
 The implementation in C/C++ would look something like:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class Socket: public jnc::IfaceHdr
 	{
@@ -114,7 +114,7 @@ The implementation in C/C++ would look something like:
 
 The described compatibility also means you can copy-paste C definitions of communication protocol headers (such as TCP, UDP, etc.). C is the de-facto standard of system programming and it’s possible to find C definition for virtually any protocol in existence. Need to use this protocol from Jancy for analysis, implementation, or testing? Copy-paste the definition of protocol headers into Jancy!
 
-.. code-block:: none
+.. code-block:: jnc
 
 	enum IpProtocol: uint8_t
 	{

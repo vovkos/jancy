@@ -20,7 +20,7 @@ Things are not so easy in common programming languages. UI widgets provide event
 
 Jancy brings the Excel-like automatic execution of a “formula” when values referred to by that formula change. Write a relation between two or more UI properties, and the updates will happen automatically.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	// ...
 	m_isTransmitEnabled = m_state == State.Connected;
@@ -33,7 +33,7 @@ Reactors.
 
 You declare dedicated sections of reactive code, or so-called reactors. Expressions within reactors behave like formulas in Excel and get automatically re-evaluated when bindable properties referred by the given expression change. All the dependency building, subscribing, and unsubscribing happens automatically behind the scenes.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	reactor TcpConnectionSession.m_uiReactor ()
 	{
@@ -46,7 +46,7 @@ You declare dedicated sections of reactive code, or so-called reactors. Expressi
 
 Reactors specify the boundaries of where to use the reactive approach. In addition you are also in full control of when to use it because reactors can be started and stopped as needed.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	TcpConnectionSession.construct ()
 	{
@@ -58,7 +58,7 @@ Sometimes, expressions don't quite cut it when it comes to describing what has t
 
 The **onevent** declaration in **reactor** blocks gives you fine-grained control over dependencies and at the same time frees you from manually binding/unbinding to/from events:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	reactor g_myReactor ()
 	{

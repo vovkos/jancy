@@ -16,7 +16,7 @@ Jancy features automaton functions to provide a built-in support for creating pr
 
 If you ever used tools like **Lex**, **Flex**, **Ragel** etc then you are already familiar with the idea. If not, then it is pretty simple, actually. First, you define a list of recognized lexemes in the form of regular expressions. Then you specify which actions to execute when these lexemes are found in the input stream. Jancy compiler will then automatically build a DFA to recognize your language.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
 	{
@@ -37,13 +37,13 @@ If you ever used tools like **Lex**, **Flex**, **Ragel** etc then you are alread
 
 Automaton functions cannot be directly called -- you need a recognizer object of type jnc.Recognizer to store the state of DFA and manage accumulation and matching of the input stream.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	jnc.Recognizer recognizer (fooBar);
 
 Class jnc.Recognizer features a method **recognize** to do recognition in one go:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	bool result = try recognizer.recognize ("foo bar 100 baz");
 	if (!result)
@@ -53,7 +53,7 @@ Class jnc.Recognizer features a method **recognize** to do recognition in one go
 
 Even more importantly, it's also OK to perform recognition incrementally -- chunk by chunk. This is cructial when analyzing protocols operating over stream transports like TCP or Serial, where it is not guaranteed that a message will be delivered as a whole and not as multiple segments.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	try
 	{
@@ -75,7 +75,7 @@ Like Ragel, Jancy-generated recognizer support mixed-language documents. Develop
 
 In the sample below the first automaton recognizes lexeme ``foo`` and switches to the second automaton upon discovering an opening apostrophe:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	jnc.AutomatonResult automaton foo (jnc.Recognizer* recognizer)
 	{
@@ -91,7 +91,7 @@ In the sample below the first automaton recognizes lexeme ``foo`` and switches t
 
 The second automaton recognizes lexeme ``bar`` and switches back to the first automaton when a closing apostrophe is found if and only if it's not escape-protected by a backslash prefix.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	jnc.AutomatonResult automaton bar (jnc.Recognizer* recognizer)
 	{

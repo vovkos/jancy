@@ -21,7 +21,7 @@ There are only 2 access specifiers in Jancy: public and protected (read more abo
 
 Both Java and C++ styles of declaring member access are supported. Contrary to most modern languages, the default access mode is public.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -40,7 +40,7 @@ Method Body Placement
 
 Jancy supports both Java and C++ styles of placing method bodies: it is up to developer to choose whether this will be **in-class** or **out-of-class** (i.e. in a different compilation unit).
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -68,7 +68,7 @@ Preconstructors are special methods that will be called before any of the overlo
 
 Constructor and destructor syntax is a bit different from most languages, as Jancy uses explicit keywords.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -105,7 +105,7 @@ A type of a class variable or a field does not get implicitly converted to a cla
 
 Member class fields get allocated on a parent memory block, global class variables get station allocation, local class variables are allocated on heap (unless explicitly specified otherwise).
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -136,14 +136,14 @@ Member class fields get allocated on a parent memory block, global class variabl
 
 Jancy has a small syntactic difference with regard to calling a constructor of a class variable or field. This is to address an inherent ambiguity of the C/C++ constructor invocation syntax:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	C1 a (); // is it a function 'a' which returns C1?
 	         //     or a construction of variable 'a' of type C1?
 
 This ambiguity is even trickier to handle in Jancy given the fact that Jancy does not enforce the **declaration-before-usage** paradigm. To counter the ambiguity, Jancy introduces a slight syntax modification which fully resolves the issue:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -166,7 +166,7 @@ Operator Overloading
 
 Jancy supports operator overloading. Like in C++, any unary, binary, cast or call operators can be overloaded.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -193,7 +193,7 @@ Multiple inheritance is an extremely useful and unfairly abandoned tool, which a
 
 Virtual methods are declared using keywords ``virtual``, ``abstract``, and ``override``.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class I1
 	{
@@ -259,7 +259,7 @@ Virtual methods are declared using keywords ``virtual``, ``abstract``, and ``ove
 
 Jancy provides keywords ``basetype`` and ``basetype1`` .. ``basetype9`` to conveniently reference base types for construction or namespace resolution.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class Base1
 	{

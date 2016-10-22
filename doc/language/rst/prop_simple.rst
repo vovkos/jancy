@@ -14,13 +14,13 @@ Simple Property Declaration
 
 Jancy supports what I believe to be the most natural syntax for declaring properties:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int property g_simpleProp;
 
 This syntax is ideal for declaring interfaces or when the developer prefers to follow the C++-style of placing definitions outside of a class:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int g_simpleProp.get ()
 	{
@@ -34,7 +34,7 @@ This syntax is ideal for declaring interfaces or when the developer prefers to f
 
 Const properties can use a simple declaration syntax:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int const property g_simpleReadOnlyProp;
 

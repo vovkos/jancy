@@ -14,7 +14,7 @@ break/continue
 
 Jancy features multi-level loop jumps. These are achieved with **break-n** and **continue-n**:
 
-.. code-block:: none
+.. code-block:: jnc
 
 	int a [3] [4] =
 	{

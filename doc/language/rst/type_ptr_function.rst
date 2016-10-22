@@ -16,7 +16,7 @@ Remember nested C language declarators of death needed to describe a pointer to 
 
 Nested declarators are evil! Fortunately, there are other ways to achieve the same result. Jancy uses a different approach, which is much easier to read while allowing to declare function pointers of arbitrary complexity.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo ()
 	{
@@ -46,7 +46,7 @@ Nested declarators are evil! Fortunately, there are other ways to achieve the sa
 
 Function pointers can be **fat** or **thin**. Thin pointers are just like C/C++ function pointers: they simply hold the address of the code.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (int a)
 	{
@@ -61,7 +61,7 @@ Function pointers can be **fat** or **thin**. Thin pointers are just like C/C++ 
 
 Unlike C/C++, the argument conversion is automated (Jancy compiler generates thunks as needed)
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (int a)
 	{
@@ -80,7 +80,7 @@ Unlike C/C++, the argument conversion is automated (Jancy compiler generates thu
 
 The true power comes with **fat** function pointers. Besides the code address, fat pointers also hold the address to the closure object, which stores the context captured at the moment of creating the function pointer.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -100,7 +100,7 @@ The true power comes with **fat** function pointers. Besides the code address, f
 
 Jancy also allows to capture arbitrary arguments in the closure through the use of partial application operator **~()**
 
-.. code-block:: none
+.. code-block:: jnc
 
 	foo (
 	    int x,
@@ -118,7 +118,7 @@ Jancy also allows to capture arbitrary arguments in the closure through the use 
 
 You are free to skip arguments during the partial application. For example, you can make it so that the argument 3 comes from the closure, while arguments 1 and 2 come from the call.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
@@ -142,7 +142,7 @@ You are free to skip arguments during the partial application. For example, you 
 
 Fat function pointers can be **weak**, meaning they do not retain some of the objects in the closure.
 
-.. code-block:: none
+.. code-block:: jnc
 
 	class C1
 	{
