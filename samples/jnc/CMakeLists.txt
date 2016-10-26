@@ -9,44 +9,23 @@
 #
 #...............................................................................
 
-#
-# jnc folder
-#
-
 file (
 	GLOB
-	TEST_JNC_LIST
+	SAMPLE_JNC_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-	test*.jnc
+	*.jnc
 	)
 
 source_group (
 	jnc
 	FILES
-	${TEST_JNC_LIST}
-	)
-
-#...............................................................................
-#
-# test_jnc jancy script sample set
-#
-
-add_custom_target (
-	test_jnc
-	SOURCES
-	${TEST_JNC_LIST}
-	)
-
-set_target_properties (
-	test_jnc
-	PROPERTIES
-	FOLDER test
+	${SAMPLE_JNC_LIST}
 	)
 
 if (${BUILD_JNC_APP})
 	add_jancy_tests (
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-		${TEST_JNC_LIST}
+		${SAMPLE_JNC_LIST}
 		)
 endif ()
 

@@ -114,7 +114,7 @@ source_group (
 
 #...............................................................................
 #
-# test_mfc compiler test
+# jnc_test_mfc compiler test
 #
 
 include_directories (${PATH_LLVM_INC_DIR})
@@ -123,7 +123,7 @@ link_directories (${PATH_LLVM_LIB_DIR}/$(Configuation))
 set (CMAKE_MFC_FLAG 1)
 
 add_executable (
-	test_mfc WIN32
+	jnc_test_mfc WIN32
 	${PCH_H}
 	${PCH_CPP}
 	${SRC_H_LIST}
@@ -142,7 +142,7 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	test_mfc
+	jnc_test_mfc
 	jnc_ct
 	jnc_rt
 	axl_core
@@ -153,13 +153,13 @@ target_link_libraries (
 	)
 
 axl_set_pch (
-	test_mfc
+	jnc_test_mfc
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 set_target_properties (
-	test_mfc
+	jnc_test_mfc
 	PROPERTIES
 	FOLDER test
 	LINKER_LANGUAGE C

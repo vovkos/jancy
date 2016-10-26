@@ -58,7 +58,7 @@ source_group (
 
 #...............................................................................
 #
-# 01_embed_c sample
+# jnc_sample_01_embed_c sample
 #
 
 include_directories (
@@ -71,7 +71,7 @@ link_directories (
 	)
 
 add_executable (
-	01_embed_c
+	jnc_sample_01_embed_c
 	${PCH_H}
 	${PCH_C}
 	${APP_H_LIST}
@@ -80,7 +80,7 @@ add_executable (
 	)
 
 set_target_properties (
-	01_embed_c
+	jnc_sample_01_embed_c
 	PROPERTIES
 	FOLDER samples
 	)
@@ -94,7 +94,7 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	01_embed_c
+	jnc_sample_01_embed_c
 	jnc_api_static
 	jnc_ct
 	jnc_rt
@@ -111,15 +111,22 @@ target_link_libraries (
 
 if (UNIX AND NOT APPLE)
 	target_link_libraries (
-		01_embed_c
+		jnc_sample_01_embed_c
 		rt
 		)
 endif ()
 
 axl_set_pch (
-	01_embed_c
+	jnc_sample_01_embed_c
 	${PCH_H}
 	${PCH_C}
+	)
+
+add_test (
+	NAME jnc_sample_01_embed_c
+	COMMAND
+		$<TARGET_FILE:jnc_sample_01_embed_c>
+		${CMAKE_CURRENT_LIST_DIR}/script.jnc
 	)
 
 #...............................................................................

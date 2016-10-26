@@ -9,30 +9,24 @@
 #
 #...............................................................................
 
-add_subdirectory (jnc)
+file (
+	GLOB
+	TEST_JNC_LIST
+	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+	test*.jnc
+	)
 
-if (WIN32)
-	option (
-		BUILD_JNC_TEST_MFC
-		"Build jnc_test_mfc"
-		OFF
+source_group (
+	jnc
+	FILES
+	${TEST_JNC_LIST}
+	)
+
+if (${BUILD_JNC_APP})
+	add_jancy_tests (
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		${TEST_JNC_LIST}
 		)
-
-	if (BUILD_JNC_TEST_MFC)
-		add_subdirectory (jnc_test_mfc)
-	endif ()
-endif ()
-
-if (${QT_FOUND})
-	option (
-		BUILD_JNC_TEST_QT
-		"Build jnc_test_qt"
-		ON
-		)
-
-	if (BUILD_JNC_TEST_QT)
-		add_subdirectory (jnc_test_qt)
-	endif ()
 endif ()
 
 #...............................................................................

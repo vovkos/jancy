@@ -45,6 +45,11 @@ public:
 		return output_va (format, va);
 	}
 
+	QString readOutput ()
+	{
+		return m_output->toPlainText ();
+	}
+
 protected:
 	virtual void closeEvent (QCloseEvent* e);
 

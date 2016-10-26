@@ -15,36 +15,37 @@
 
 set (
 	APP_H_LIST
-	MyLib.h
-	MyWidget.h
-	MyLayout.h
-	MyLabel.h
-	MyButton.h
-	MyCheckBox.h
-	MyTextEdit.h
-	MySlider.h
-	QtSignalBridge.h
-	MainWindow.h
+	editor.h
+	highlighter.h
+	jancyhighlighter.h
+	llvmir.h
+	llvmirhighlighter.h
+	mainwindow.h
+	mdichild.h
+	modulepane.h
+	output.h
+	testlib.h
 	)
 
 set (
 	APP_CPP_LIST
-	MyLib.cpp
-	MyWidget.cpp
-	MyLayout.cpp
-	MyLabel.cpp
-	MyButton.cpp
-	MyCheckBox.cpp
-	MyTextEdit.cpp
-	MySlider.cpp
-	QtSignalBridge.cpp
-	MainWindow.cpp
+	editor.cpp
+	highlighter.cpp
+	jancyhighlighter.cpp
+	llvmir.cpp
+	llvmirhighlighter.cpp
 	main.cpp
+	mainwindow.cpp
+	mdichild.cpp
+	modulepane.cpp
+	output.cpp
+	testlib.cpp
 	)
 
 set (
-	APP_JNC_LIST
-	script.jnc
+	APP_RL_LIST
+	jancyhighlighter.rl
+	llvmirhighlighter.rl
 	)
 
 source_group (
@@ -52,7 +53,33 @@ source_group (
 	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	${APP_JNC_LIST}
+	${APP_RL_LIST}
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# res folder
+#
+
+set (
+	RES_PNG_LIST
+	res/compile.png
+	res/new.png
+	res/open.png
+	res/run.png
+	res/save.png
+	)
+
+set (
+	RES_QRC_LIST
+	jancyedit.qrc
+	)
+
+source_group (
+	res
+	FILES
+	${RES_PNG_LIST}
+	${RES_QRC_LIST}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -65,8 +92,15 @@ file (MAKE_DIRECTORY ${GEN_DIR})
 
 set (
 	MOC_H_LIST
-	QtSignalBridge.h
-	MainWindow.h
+	editor.h
+	highlighter.h
+	jancyhighlighter.h
+	llvmir.h
+	llvmirhighlighter.h
+	mainwindow.h
+	mdichild.h
+	modulepane.h
+	output.h
 	)
 
 axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
@@ -76,13 +110,38 @@ qt5_wrap_cpp (
 	${MOC_H_LIST}
 	)
 
+qt5_add_resources (
+	GEN_QRC_CPP_LIST
+	${RES_QRC_LIST}
+	)
+
+add_ragel_step (
+	jancyhighlighter.rl.cpp
+	jancyhighlighter.rl
+	)
+
+add_ragel_step (
+	llvmirhighlighter.rl.cpp
+	llvmirhighlighter.rl
+	)
+
+set (
+	GEN_RL_CPP_LIST
+	${GEN_DIR}/jancyhighlighter.rl.cpp
+	${GEN_DIR}/llvmirhighlighter.rl.cpp
+	)
+
 axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 axl_exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+axl_exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
+axl_exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
 source_group (
 	gen
 	FILES
+	${GEN_RL_CPP_LIST}
+	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
 	)
 
@@ -103,7 +162,7 @@ source_group (
 
 #...............................................................................
 #
-# 03_dialog sample
+# jnc_test_qt compiler test
 #
 
 if (MSVC)
@@ -111,26 +170,31 @@ if (MSVC)
 endif ()
 
 include_directories (
-	${LLVM_INC_DIR}
+	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
 link_directories (
 	${AXL_LIB_DIR}
 	${LLVM_LIB_DIR}
+	${PCAP_LIB_DIR}
 	)
 
 add_executable (
-	03_dialog
+	jnc_test_qt
 	${PCH_H}
 	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	${APP_JNC_LIST}
+	${APP_RL_LIST}
+	${RES_PNG_LIST}
+	${RES_QRC_LIST}
+	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
+	${GEN_UI_H_LIST}
+	${GEN_RL_CPP_LIST}
 	)
 
 llvm_map_components_to_libraries (
@@ -142,11 +206,12 @@ llvm_map_components_to_libraries (
 	)
 
 target_link_libraries (
-	03_dialog
+	jnc_test_qt
 	jnc_api_static
 	jnc_ct
 	jnc_rt
 	jnc_rtl
+	jnc_sys
 	jnc_std
 	jnc_api_static
 	axl_zip
@@ -157,32 +222,37 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-if (UNIX AND NOT APPLE)
+if (WIN32)
 	target_link_libraries (
-		03_dialog
+		jnc_test_qt
+		ws2_32
+		)
+elseif (UNIX AND NOT APPLE)
+	target_link_libraries (
+		jnc_test_qt
 		rt
 		)
 endif ()
 
-qt5_use_modules (03_dialog Widgets)
+qt5_use_modules (jnc_test_qt Widgets)
 
 if (WIN32)
-	copy_qt_dll_files (03_dialog Core Gui Widgets)
+	copy_qt_dll_files (jnc_test_qt Core Gui Widgets)
 elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
 
 axl_set_pch (
-	03_dialog
+	jnc_test_qt
 	${PCH_H}
 	${PCH_CPP}
 	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 set_target_properties (
-	03_dialog
+	jnc_test_qt
 	PROPERTIES
-	FOLDER samples
+	FOLDER test
 	)
 
 #...............................................................................
