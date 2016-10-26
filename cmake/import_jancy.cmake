@@ -18,7 +18,7 @@ axl_find_file (
 if (_CONFIG_CMAKE)
 	include (${_CONFIG_CMAKE})
 
-	message (STATUS "Jancy paths:")
+	axl_message ("Jancy paths:")
 	axl_message ("    CMake files:" "${JANCY_CMAKE_DIR}")
 	axl_message ("    Includes:"    "${JANCY_INC_DIR}")
 	axl_message ("    Libraries:"   "${JANCY_LIB_DIR}")
