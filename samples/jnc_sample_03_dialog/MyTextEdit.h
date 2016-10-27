@@ -25,12 +25,7 @@ public:
 
 public:
 	MyTextEdit ();
-
-	~MyTextEdit ()
-	{
-		delete m_qtLineEdit;
-		delete m_onTextChangedBridge;
-	}
+	~MyTextEdit ();
 
 	static
 	jnc::DataPtr

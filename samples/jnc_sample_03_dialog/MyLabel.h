@@ -30,11 +30,7 @@ public:
 
 public:
 	MyLabel (jnc::DataPtr textPtr);
-
-	~MyLabel ()
-	{
-		delete m_qtLabel;
-	}
+	~MyLabel ();
 
 	void
 	JNC_CDECL

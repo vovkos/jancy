@@ -35,11 +35,7 @@ public:
 		int maximum
 		);
 
-	~MySlider ()
-	{
-		delete m_qtSlider;
-		delete m_onValueChangedBridge;
-	}
+	~MySlider ();
 
 	void
 	JNC_CDECL

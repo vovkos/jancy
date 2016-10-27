@@ -43,4 +43,12 @@ MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
 	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), m_onIsCheckedChanged);
 }
 
+MyCheckBox::~MyCheckBox ()
+{
+	if (!m_qtCheckBox->parent ())
+		delete m_qtCheckBox;
+
+	delete m_onIsCheckedChangedBridge;
+}
+
 //..............................................................................

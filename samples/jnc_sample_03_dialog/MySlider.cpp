@@ -49,4 +49,12 @@ MySlider::MySlider (
 	m_onValueChangedBridge->connect (m_qtSlider, SIGNAL (valueChanged (int)), m_onValueChanged);
 }
 
+MySlider::~MySlider ()
+{
+	if (!m_qtSlider)
+		delete m_qtSlider;
+
+	delete m_onValueChangedBridge;
+}
+
 //..............................................................................

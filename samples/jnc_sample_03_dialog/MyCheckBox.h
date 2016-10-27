@@ -29,12 +29,7 @@ public:
 
 public:
 	MyCheckBox (jnc::DataPtr textPtr);
-
-	~MyCheckBox ()
-	{
-		delete m_qtCheckBox;
-		delete m_onIsCheckedChangedBridge;
-	}
+	~MyCheckBox ();
 
 	void
 	JNC_CDECL

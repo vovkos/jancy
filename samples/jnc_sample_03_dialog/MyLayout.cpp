@@ -40,6 +40,12 @@ MyLayout::MyLayout (QBoxLayout::Direction direction)
 	m_direction = direction;
 }
 
+MyLayout::~MyLayout ()
+{
+	if (!m_qtLayout->parent ())
+		delete m_qtLayout;
+}
+
 void
 MyLayout::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {

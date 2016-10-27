@@ -42,4 +42,13 @@ MyButton::MyButton (jnc::DataPtr textPtr):
 	m_onClickedBridge->connect (m_qtButton, SIGNAL (clicked ()), m_onClicked);
 }
 
+MyButton::~MyButton ()
+{
+	if (!m_qtButton->parent ())
+		delete m_qtButton;
+
+	delete m_onClickedBridge;
+}
+
+
 //..............................................................................

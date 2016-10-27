@@ -29,12 +29,7 @@ public:
 
 public:
 	MyButton (jnc::DataPtr textPtr);
-
-	~MyButton ()
-	{
-		delete m_qtButton;
-		delete m_onClickedBridge;
-	}
+	~MyButton ();
 
 	void
 	JNC_CDECL

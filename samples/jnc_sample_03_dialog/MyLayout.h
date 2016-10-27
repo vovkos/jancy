@@ -33,11 +33,7 @@ protected:
 
 public:
 	MyLayout (QBoxLayout::Direction direction);
-
-	~MyLayout ()
-	{
-		delete m_qtLayout;
-	}
+	~MyLayout ();
 
 	void
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);

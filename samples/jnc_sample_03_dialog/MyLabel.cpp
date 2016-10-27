@@ -45,6 +45,12 @@ MyLabel::MyLabel (jnc::DataPtr textPtr):
 	setText (textPtr);
 }
 
+MyLabel::~MyLabel ()
+{
+	if (!m_qtLabel->parent ())
+		delete m_qtLabel;
+}
+
 void
 MyLabel::updateStyleSheet ()
 {

@@ -37,4 +37,12 @@ MyTextEdit::MyTextEdit ():
 	m_qtLineEdit = (QLineEdit*) m_handle;
 }
 
+MyTextEdit::~MyTextEdit ()
+{
+	if (!m_qtLineEdit->parent ())
+		delete m_qtLineEdit;
+
+	delete m_onTextChangedBridge;
+}
+
 //..............................................................................
