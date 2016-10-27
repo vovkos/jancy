@@ -183,8 +183,10 @@ exit:
 	if (module)
 		jnc_Module_destroy (module);
 
+#if (_JNC_OS_WIN)
 	if (fileName)
 		free ((void*) fileName);
+#endif
 
 	return finalResult;
 }
