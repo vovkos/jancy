@@ -1,0 +1,25 @@
+char const* const property g_testProp;
+
+char const* g_testProp.get ()
+{
+	return strdup ("hui-govno-i-muravei");
+}
+
+char const* foo ()
+{
+	return strdup ("hui-govno-i-muravei");
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	for (int i = 0; i < 10; i++)
+	{
+		printf ($" %1 %2 %3 %4\n" (foo (), foo (), foo (), foo ()));
+		printf ($" %1 %2 %3 %4\n" (g_testProp, g_testProp, g_testProp, g_testProp));
+		printf (" %s %s %s %s\n", g_testProp, g_testProp, g_testProp, g_testProp);
+	}
+
+	return 0;
+}
