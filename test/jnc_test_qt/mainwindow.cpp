@@ -19,6 +19,8 @@
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
+// #define _NO_GC
+
 //..............................................................................
 
 MainWindow* g_mainWindow = NULL;
@@ -434,7 +436,13 @@ MainWindow::run ()
 
 	writeOutput ("Running...\n");
 
-//	m_runtime->m_gcHeap.setSizeTriggers (-1, -1);
+#ifdef _NO_GC
+	jnc::GcSizeTriggers triggers;
+	triggers.m_allocSizeTrigger = -1;
+	triggers.m_periodSizeTrigger = -1;
+	m_runtime->getGcHeap ()->setSizeTriggers (&triggers);
+#endif
+
 	result = m_runtime->startup (m_module);
 	if (!result)
 	{
