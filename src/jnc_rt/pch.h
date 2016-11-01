@@ -21,6 +21,4 @@
 #include "axl_sl_BoyerMooreFind.h"
 */
 
-#include "axl_dbg_Trace.h"
-
 using namespace axl;

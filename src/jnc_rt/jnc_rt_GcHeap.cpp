@@ -15,6 +15,21 @@
 #include "jnc_ct_Module.h"
 #include "jnc_CallSite.h"
 
+#define _JNC_TRACE_GC_COLLECT
+#define _JNC_TRACE_GC_REGION
+
+#ifdef _JNC_TRACE_GC_COLLECT
+#	define JNC_TRACE_GC_COLLECT TRACE
+#else
+#	define JNC_TRACE_GC_COLLECT (void)
+#endif
+
+#ifdef _JNC_TRACE_GC_REGION
+#	define JNC_TRACE_GC_REGION TRACE
+#else
+#	define JNC_TRACE_GC_REGION (void)
+#endif
+
 namespace jnc {
 namespace rt {
 
@@ -630,7 +645,7 @@ GcHeap::enterWaitRegion ()
 	m_waitingMutatorThreadCount++;
 	ASSERT (m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
 
-	dbg::trace ("GcHeap::enterWaitRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
+	JNC_TRACE_GC_REGION ("GcHeap::enterWaitRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
 
 	m_lock.unlock ();
 }
@@ -652,7 +667,7 @@ GcHeap::leaveWaitRegion ()
 	thread->m_waitRegionLevel = 0;
 	m_waitingMutatorThreadCount--;
 
-	dbg::trace ("GcHeap::leaveWaitRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
+	JNC_TRACE_GC_REGION ("GcHeap::leaveWaitRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
 
 	m_lock.unlock ();
 }
@@ -675,7 +690,7 @@ GcHeap::enterNoCollectRegion ()
 	m_noCollectMutatorThreadCount++;
 	ASSERT (m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
 
-	dbg::trace ("GcHeap::enterNoCollectRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
+	JNC_TRACE_GC_REGION ("GcHeap::enterNoCollectRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
 
 	m_lock.unlock ();
 }
@@ -697,7 +712,7 @@ GcHeap::leaveNoCollectRegion (bool canCollectNow)
 	thread->m_noCollectRegionLevel = 0;
 	m_noCollectMutatorThreadCount--;
 
-	dbg::trace ("GcHeap::leaveNoCollectRegion (%d) (tid = %x)\n", canCollectNow, (uint_t) sys::getCurrentThreadId ());
+	JNC_TRACE_GC_REGION ("GcHeap::leaveNoCollectRegion (%d) (tid = %x)\n", canCollectNow, (uint_t) sys::getCurrentThreadId ());
 
 	if (canCollectNow && isCollectionTriggered_l ())
 		collect_l (isMutatorThread);
@@ -957,7 +972,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		handshakeCount--; // minus this thread
 	}
 
-	dbg::trace (
+	JNC_TRACE_GC_COLLECT (
 		"+++ GcHeap::collect_l (tid = %x; isMutator = %d; mutatorCount = %d; waitingMutatorThreadCount = %d, handshakeCount = %d)\n",
 		(uint_t) sys::getCurrentThreadId (),
 		isMutatorThread,
@@ -969,7 +984,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
-		dbg::trace ("   *** mutator (tid = %x; wait = %d)\n",
+		JNC_TRACE_GC_COLLECT ("   *** mutator (tid = %x; wait = %d)\n",
 			(uint_t) threadIt->m_threadId,
 			threadIt->m_waitRegionLevel
 			);
@@ -1019,7 +1034,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	// the world is stopped, mark (no lock is needed)
 
-	dbg::trace ("   ... GcHeap::collect_l () -- the world is stopped\n");
+	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- the world is stopped\n");
 
 	m_currentMarkRootArrayIdx = 0;
 	m_markRootArray [0].clear ();
@@ -1097,7 +1112,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	runMarkCycle ();
 
-	dbg::trace ("   ... GcHeap::collect_l () -- mark complete\n");
+	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- mark complete\n");
 
 	// schedule destruction for unmarked class boxes
 
@@ -1189,7 +1204,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	m_allocBoxArray.setCount (dstIdx);
 
-	dbg::trace ("   ... GcHeap::collect_l () -- sweep complete\n");
+	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- sweep complete\n");
 
 	// resume the world
 
@@ -1234,7 +1249,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		}
 	}
 
-	dbg::trace ("   ... GcHeap::collect_l () -- the world is resumed\n");
+	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- the world is resumed\n");
 
 	// go to idle state
 
@@ -1248,7 +1263,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_idleEvent.signal ();
 	m_lock.unlock ();
 
-	dbg::trace ("--- GcHeap::collect_l ()\n");
+	JNC_TRACE_GC_COLLECT ("--- GcHeap::collect_l ()\n");
 }
 
 void
@@ -1286,7 +1301,7 @@ GcHeap::runDestructCycle_l ()
 		bool result = callVoidFunction (m_runtime, destructor, iface);
 		if (!result)
 		{
-			dbg::trace (
+			TRACE (
 				"runtime error in %s.destruct () : %s\n",
 				classType->m_tag.sz (),
 				err::getLastErrorDescription ().sz ()
