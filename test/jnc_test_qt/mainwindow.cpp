@@ -457,10 +457,16 @@ MainWindow::run ()
 	else
 		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
 
+	if (result && returnValue == -1000) // for testing some async stuff with threads
+	{
+		writeOutput ("Staying resident...\n");
+		return true;
+	}
+
 	writeOutput ("Shutting down...\n");
 	m_runtime->shutdown ();
 	writeOutput ("Done.\n");
-	return false;
+	return true;
 }
 
 MdiChild* MainWindow::createMdiChild ()
