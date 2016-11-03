@@ -132,8 +132,7 @@ opaque class Socket
 		);
 
 	event m_onSocketEvent (SocketEventParams const* params);
-
-	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
+	bool property m_isSocketEventEnabled;
 }
 
 //..............................................................................

@@ -63,7 +63,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Socket)
 	JNC_MAP_FUNCTION ("recv",     &Socket::recv)
 	JNC_MAP_FUNCTION ("sendTo",   &Socket::sendTo)
 	JNC_MAP_FUNCTION ("recvFrom", &Socket::recvFrom)
-	JNC_MAP_FUNCTION ("firePendingEvents", &Socket::firePendingEvents)
+	JNC_MAP_PROPERTY ("m_isSocketEventEnabled", &Socket::isSocketEventEnabled, &Socket::setSocketEventEnabled)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -94,6 +94,30 @@ Socket::fireSocketEvent (
 	const err::ErrorHdr* error
 	)
 {
+	m_ioLock.lock ();
+	if (!(m_ioFlags & IoFlag_SocketEventDisabled))
+	{
+		m_ioLock.unlock ();
+		fireSocketEventImpl (eventCode, flags, error);
+	}
+	else
+	{
+		PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
+		pendingEvent->m_eventCode = eventCode;
+		pendingEvent->m_flags = flags;
+		pendingEvent->m_error = error;
+		m_pendingEventList.insertTail (pendingEvent);
+		m_ioLock.unlock ();
+	}
+}
+
+void
+Socket::fireSocketEventImpl (
+	SocketEventCode eventCode,
+	uint_t flags,
+	const err::ErrorHdr* error
+	)
+{
 	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
 
 	DataPtr paramsPtr = createData <SocketEventParams> (m_runtime);
@@ -112,8 +136,37 @@ Socket::fireSocketEvent (
 
 void
 JNC_CDECL
-Socket::firePendingEvents ()
+Socket::setSocketEventEnabled (bool isEnabled)
 {
+	m_ioLock.lock ();
+	if (!isEnabled)
+	{
+		if (!(m_ioFlags & IoFlag_SocketEventDisabled))
+			m_ioFlags |= IoFlag_SocketEventDisabled;
+
+		m_ioLock.unlock ();
+		return;
+	}
+
+	if (!(m_ioFlags & IoFlag_SocketEventDisabled))
+	{
+		m_ioLock.unlock ();
+		return;
+	}
+
+	while (!m_pendingEventList.isEmpty  ())
+	{
+		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
+		m_ioLock.unlock ();
+
+		fireSocketEventImpl (pendingEvent->m_eventCode, pendingEvent->m_flags, pendingEvent->m_error);
+		AXL_MEM_DELETE (pendingEvent);
+
+		m_ioLock.lock ();
+	}
+
+	m_ioFlags &= ~IoFlag_SocketEventDisabled;
+	m_ioLock.unlock ();
 }
 
 SocketAddress
@@ -429,7 +482,7 @@ Socket::accept (DataPtr addressPtr)
 
 	if (m_ioFlags & IoFlag_Asynchronous)
 	{
-		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected;
+		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected | IoFlag_SocketEventDisabled;
 
 #if (_JNC_OS_POSIX)
 		connectionSocket->m_selfPipe.create ();

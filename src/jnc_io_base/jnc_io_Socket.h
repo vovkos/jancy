@@ -93,6 +93,7 @@ protected:
 		IoFlag_Asynchronous          = 0x0001,
 		IoFlag_Udp                   = 0x0002,
 		IoFlag_Connected             = 0x0004,
+		IoFlag_SocketEventDisabled    = 0x0008,
 		IoFlag_Closing               = 0x0010,
 		IoFlag_Connecting            = 0x0020,
 		IoFlag_Listening             = 0x0040,
@@ -104,10 +105,16 @@ protected:
 #endif
 	};
 
+	struct PendingEvent: sl::ListLink
+	{
+		SocketEventCode m_eventCode;
+		uint_t m_flags;
+		err::Error m_error;
+	};
+
 protected:
 	bool m_isOpen;
 	uint_t m_syncId;
-
 	ClassBox <Multicast> m_onSocketEvent;
 
 protected:
@@ -118,6 +125,7 @@ protected:
 	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
+	sl::StdList <PendingEvent> m_pendingEventList;
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
@@ -246,9 +254,16 @@ public:
 		DataPtr addressPtr
 		);
 
+	bool
+	JNC_CDECL
+	isSocketEventEnabled ()
+	{
+		return !(m_ioFlags & IoFlag_SocketEventDisabled);
+	}
+
 	void
 	JNC_CDECL
-	firePendingEvents ();
+	setSocketEventEnabled (bool isEnabled);
 
 protected:
 	bool
@@ -264,6 +279,13 @@ protected:
 		SocketEventCode eventCode,
 		uint_t flags = 0,
 		const err::ErrorHdr* error = NULL
+		);
+
+	void
+	fireSocketEventImpl (
+		SocketEventCode eventCode,
+		uint_t flags,
+		const err::ErrorHdr* error
 		);
 
 	void
