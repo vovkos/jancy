@@ -15,8 +15,8 @@
 #include "jnc_ct_Module.h"
 #include "jnc_CallSite.h"
 
-#define _JNC_TRACE_GC_COLLECT
-#define _JNC_TRACE_GC_REGION
+// #define _JNC_TRACE_GC_COLLECT
+// #define _JNC_TRACE_GC_REGION
 
 #ifdef _JNC_TRACE_GC_COLLECT
 #	define JNC_TRACE_GC_COLLECT TRACE
@@ -631,13 +631,16 @@ void
 GcHeap::enterWaitRegion ()
 {
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
-	ASSERT (thread && !thread->m_noCollectRegionLevel);
+	ASSERT (thread);
 
 	if (thread->m_waitRegionLevel) // already there
 	{
 		thread->m_waitRegionLevel++;
 		return;
 	}
+
+	if (thread->m_noCollectRegionLevel)
+		TRACE ("-- WARNING: GcHeap::enterWaitRegion () in no-collect-region (no collections until wait completes)\n");
 
 	bool isMutatorThread = waitIdleAndLock ();
 	ASSERT (isMutatorThread);
@@ -654,7 +657,7 @@ void
 GcHeap::leaveWaitRegion ()
 {
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
-	ASSERT (thread && !thread->m_noCollectRegionLevel && thread->m_waitRegionLevel);
+	ASSERT (thread && thread->m_waitRegionLevel);
 
 	if (thread->m_waitRegionLevel > 1) // still there
 	{
