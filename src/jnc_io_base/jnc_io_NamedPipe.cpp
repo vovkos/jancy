@@ -180,7 +180,7 @@ NamedPipe::accept ()
 	fileStream->m_file.m_file.attach (hPipe);
 	fileStream->m_readBuffer.setCount (FileStream::Const_ReadBufferSize);
 	fileStream->m_isOpen = true;
-	fileStream->m_ioFlags |= FileStream::IoFlag_Opened;
+	fileStream->m_ioFlags |= FileStream::IoFlag_Opened | FileStream::IoFlag_FileStreamEventDisabled;
 	fileStream->m_ioThreadEvent.reset ();
 	fileStream->m_ioThread.start ();
 	return fileStream;

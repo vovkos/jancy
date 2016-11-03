@@ -94,8 +94,7 @@ opaque class FileStream
 		);
 
 	event m_onFileStreamEvent (FileStreamEventParams const* params);
-
-	void firePendingEvents (); // to process events happened after accept () and before assiging event handler
+	bool property m_isFileStreamEventEnabled;
 }
 
 //! @}

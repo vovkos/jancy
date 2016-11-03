@@ -76,11 +76,18 @@ protected:
 
 	enum IoFlag
 	{
-		IoFlag_Opened        = 0x0001,
-		IoFlag_Closing       = 0x0002,
-		IoFlag_WriteOnly     = 0x0004,
-		IoFlag_IncomingData  = 0x0010,
-		IoFlag_RemainingData = 0x0020,
+		IoFlag_Opened                  = 0x0001,
+		IoFlag_WriteOnly               = 0x0002,
+		IoFlag_FileStreamEventDisabled = 0x0004,
+		IoFlag_Closing                 = 0x0010,
+		IoFlag_IncomingData            = 0x0020,
+		IoFlag_RemainingData           = 0x0040,
+	};
+
+	struct PendingEvent: sl::ListLink
+	{
+		FileStreamEventCode m_eventCode;
+		err::Error m_error;
 	};
 
 #if (_JNC_OS_WIN)
@@ -98,7 +105,6 @@ protected:
 	bool m_isOpen;
 	uint_t m_syncId;
 	FileStreamKind m_fileStreamKind;
-
 	ClassBox <Multicast> m_onFileStreamEvent;
 
 protected:
@@ -108,6 +114,7 @@ protected:
 	sys::Lock m_ioLock;
 	uint_t m_ioFlags;
 	IoThread m_ioThread;
+	sl::StdList <PendingEvent> m_pendingEventList;
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
@@ -155,9 +162,16 @@ public:
 		size_t size
 		);
 
+	bool
+	JNC_CDECL
+	isFileStreamEventEnabled ()
+	{
+		return !(m_ioFlags & IoFlag_FileStreamEventDisabled);
+	}
+
 	void
 	JNC_CDECL
-	firePendingEvents ();
+	setFileStreamEventEnabled (bool isEnabled);
 
 protected:
 	size_t
@@ -170,6 +184,12 @@ protected:
 	fireFileStreamEvent (
 		FileStreamEventCode eventCode,
 		const err::ErrorHdr* error = NULL
+		);
+
+	void
+	fireFileStreamEventImpl (
+		FileStreamEventCode eventCode,
+		const err::ErrorHdr* error
 		);
 
 	void

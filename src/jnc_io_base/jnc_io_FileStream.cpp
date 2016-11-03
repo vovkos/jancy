@@ -47,8 +47,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
 	JNC_MAP_FUNCTION ("close", &FileStream::close)
 	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
 	JNC_MAP_FUNCTION ("read",  &FileStream::read)
-	JNC_MAP_FUNCTION ("write", &FileStream::write)
-	JNC_MAP_FUNCTION ("firePendingEvents", &FileStream::firePendingEvents)
+	JNC_MAP_FUNCTION ("write", &FileStream::write)	
+	JNC_MAP_PROPERTY ("m_isFileStreamEventEnabled", &FileStream::isFileStreamEventEnabled, &FileStream::setFileStreamEventEnabled)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -185,13 +185,29 @@ FileStream::clear ()
 }
 
 void
-JNC_CDECL
-FileStream::firePendingEvents ()
+FileStream::fireFileStreamEvent (
+	FileStreamEventCode eventCode,
+	const err::ErrorHdr* error
+	)
 {
+	m_ioLock.lock ();
+	if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
+	{
+		m_ioLock.unlock ();
+		fireFileStreamEventImpl (eventCode, error);
+	}
+	else
+	{
+		PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
+		pendingEvent->m_eventCode = eventCode;
+		pendingEvent->m_error = error;
+		m_pendingEventList.insertTail (pendingEvent);
+		m_ioLock.unlock ();
+	}
 }
 
 void
-FileStream::fireFileStreamEvent (
+FileStream::fireFileStreamEventImpl (
 	FileStreamEventCode eventCode,
 	const err::ErrorHdr* error
 	)
@@ -209,6 +225,41 @@ FileStream::fireFileStreamEvent (
 	callMulticast (m_onFileStreamEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
+}
+
+void
+JNC_CDECL
+FileStream::setFileStreamEventEnabled (bool isEnabled)
+{
+	m_ioLock.lock ();
+	if (!isEnabled)
+	{
+		if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
+			m_ioFlags |= IoFlag_FileStreamEventDisabled;
+
+		m_ioLock.unlock ();
+		return;
+	}
+
+	if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
+	{
+		m_ioLock.unlock ();
+		return;
+	}
+
+	while (!m_pendingEventList.isEmpty  ())
+	{
+		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
+		m_ioLock.unlock ();
+
+		fireFileStreamEventImpl (pendingEvent->m_eventCode, pendingEvent->m_error);
+		AXL_MEM_DELETE (pendingEvent);
+
+		m_ioLock.lock ();
+	}
+
+	m_ioFlags &= ~IoFlag_FileStreamEventDisabled;
+	m_ioLock.unlock ();
 }
 
 #if (_JNC_OS_WIN)
