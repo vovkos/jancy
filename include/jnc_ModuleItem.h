@@ -343,7 +343,7 @@ const ModuleItemKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getModuleItemKindString (ModuleItemKind itemKind)
 {
@@ -386,7 +386,7 @@ const StorageKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getStorageKindString (StorageKind storageKind)
 {
@@ -405,7 +405,7 @@ const AccessKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getAccessKindString (AccessKind accessKind)
 {
@@ -414,7 +414,7 @@ getAccessKindString (AccessKind accessKind)
 
 //..............................................................................
 
-JNC_INLINE
+inline
 jnc_DerivableType*
 verifyModuleItemIsDerivableType (
 	ModuleItem* item,
@@ -424,7 +424,7 @@ verifyModuleItemIsDerivableType (
 	return jnc_verifyModuleItemIsDerivableType (item, name);
 }
 
-JNC_INLINE
+inline
 jnc_ClassType*
 verifyModuleItemIsClassType (
 	ModuleItem* item,

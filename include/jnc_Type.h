@@ -533,7 +533,7 @@ const TypeKindFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 uint_t
 getTypeKindFlags (TypeKind typeKind)
 {
@@ -598,7 +598,7 @@ const DataPtrTypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 {
@@ -607,21 +607,21 @@ getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 
 //..............................................................................
 
-JNC_INLINE
+inline
 int
 isCharPtrType (Type* type)
 {
 	return jnc_isCharPtrType (type);
 }
 
-JNC_INLINE
+inline
 int
 isArrayRefType (Type* type)
 {
 	return jnc_isArrayRefType (type);
 }
 
-JNC_INLINE
+inline
 int
 isDataPtrType (
 	Type* type,

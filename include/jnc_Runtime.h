@@ -244,28 +244,28 @@ const RuntimeDef
 
 //..............................................................................
 
-JNC_INLINE
+inline
 Runtime*
 getCurrentThreadRuntime ()
 {
 	return jnc_getCurrentThreadRuntime ();
 }
 
-JNC_INLINE
+inline
 GcHeap*
 getCurrentThreadGcHeap ()
 {
 	return jnc_getCurrentThreadGcHeap ();
 }
 
-JNC_INLINE
+inline
 Tls*
 getCurrentThreadTls ()
 {
 	return jnc_getCurrentThreadTls ();
 }
 
-JNC_INLINE
+inline
 void
 dynamicThrow ()
 {
@@ -274,7 +274,7 @@ dynamicThrow ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 void
 primeClass (
 	Box* box,
@@ -286,7 +286,7 @@ primeClass (
 	jnc_primeClass (box, root, type, vtable);
 }
 
-JNC_INLINE
+inline
 void
 primeClass (
 	Box* box,
@@ -320,7 +320,7 @@ primeClass (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 IfaceHdr*
 strengthenClassPtr (IfaceHdr* iface)
 {
@@ -513,14 +513,14 @@ createData (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 size_t
 strLen (DataPtr ptr)
 {
 	return jnc_strLen (ptr);
 }
 
-JNC_INLINE
+inline
 DataPtr
 strDup (
 	const char* p,
@@ -532,7 +532,7 @@ strDup (
 
 #ifdef _AXL_SL_STRING_H
 
-JNC_INLINE
+inline
 DataPtr
 strDup (const axl::sl::StringRef& string)
 {
@@ -541,7 +541,7 @@ strDup (const axl::sl::StringRef& string)
 
 #endif
 
-JNC_INLINE
+inline
 DataPtr
 memDup (
 	const void* p,

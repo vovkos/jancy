@@ -26,12 +26,14 @@
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
 
-#//..............................................................................
+//..............................................................................
 
 static jnc_ErrorFuncTable g_errorFuncTable =
 {
 	jnc_getLastError,
 	jnc_setError,
+	jnc_setErrno,
+	jnc_setStringError,
 	jnc_getErrorDescription_v,
 };
 
@@ -79,6 +81,10 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 	jnc_Namespace_findFunction,
 	jnc_Namespace_findProperty,
 	jnc_Namespace_findClassType,
+};
+
+static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable =
+{
 };
 
 static jnc_VariableFuncTable g_variableFuncTable =
@@ -324,6 +330,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	&g_attributeFuncTable,
 	&g_attributeBlockFuncTable,
 	&g_namespaceFuncTable,
+	&g_globalNamespaceFuncTable,
 	&g_variableFuncTable,
 	&g_functionFuncTable,
 	&g_propertyFuncTable,

@@ -555,7 +555,7 @@ callFunction (
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 callVoidFunction (
 	Runtime* runtime,
@@ -639,7 +639,7 @@ callVoidFunction (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 void
 callVoidFunction (Function* function)
 {
@@ -870,7 +870,7 @@ callFunctionPtr (
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 callVoidFunctionPtr (
 	Runtime* runtime,
@@ -949,7 +949,7 @@ callVoidFunctionPtr (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 void
 callVoidFunctionPtr (FunctionPtr ptr)
 {
@@ -1016,7 +1016,7 @@ callVoidFunctionPtr (
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 callMulticast (
 	Runtime* runtime,
@@ -1100,7 +1100,7 @@ callMulticast (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 void
 callMulticast (Multicast* multicast)
 {

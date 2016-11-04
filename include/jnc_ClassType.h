@@ -363,7 +363,7 @@ const ClassPtrTypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
 {
@@ -412,7 +412,7 @@ const McSnapshotMethodKind
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 isClassType (
 	Type* type,
@@ -422,28 +422,28 @@ isClassType (
 	return jnc_isClassType (type, classTypeKind) != 0;
 }
 
-JNC_INLINE
+inline
 bool
 isOpaqueClassType (Type* type)
 {
 	return jnc_isOpaqueClassType (type) != 0;
 }
 
-JNC_INLINE
+inline
 bool
 isClosureClassType (Type* type)
 {
 	return jnc_isClosureClassType (type) != 0;
 }
 
-JNC_INLINE
+inline
 bool
 isDestructibleClassType (Type* type)
 {
 	return jnc_isDestructibleClassType (type) != 0;
 }
 
-JNC_INLINE
+inline
 void*
 getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
 {

@@ -39,6 +39,20 @@ jnc_setError (jnc_Error* error)
 }
 
 JNC_EXTERN_C
+void
+jnc_setErrno (int code)
+{
+	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setErrnoFunc (code);
+}
+
+JNC_EXTERN_C
+void
+jnc_setStringError (const char* string)
+{
+	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setStringErrorFunc (string);
+}
+
+JNC_EXTERN_C
 const char*
 jnc_getErrorDescription_v (jnc_Error* error)
 {
@@ -62,11 +76,26 @@ jnc_setError (jnc_Error* error)
 }
 
 JNC_EXTERN_C
+void
+jnc_setErrno (int code)
+{
+	err::setErrno (code);
+}
+
+JNC_EXTERN_C
+void
+jnc_setStringError (const char* string)
+{
+	err::setError (string);
+}
+
+JNC_EXTERN_C
 const char*
 jnc_getErrorDescription_v (jnc_Error* error)
 {
 	return *jnc::getTlsStringBuffer () = error->getDescription ();
 }
+
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 

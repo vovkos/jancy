@@ -143,7 +143,7 @@ const NamespaceKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getNamespaceKindString (NamespaceKind namespaceKind)
 {

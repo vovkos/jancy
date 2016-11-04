@@ -195,7 +195,7 @@ const FunctionKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getFunctionKindString (FunctionKind functionKind)
 {
@@ -213,7 +213,7 @@ const FunctionKindFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 uint_t
 getFunctionKindFlags (FunctionKind functionKind)
 {

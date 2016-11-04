@@ -28,14 +28,13 @@ JNC_EXTERN_C
 void
 jnc_setError (jnc_Error* error);
 
-#ifdef _JNC_DYNAMIC_EXTENSION_LIB
-JNC_INLINE
+JNC_EXTERN_C
 void
-jnc_propagateLastError ()
-{
-	jnc_setError (jnc_getLastError ());
-}
-#endif
+jnc_setErrno (int code);
+
+JNC_EXTERN_C
+void
+jnc_setStringError (const char* string);
 
 JNC_EXTERN_C
 const char*
@@ -48,6 +47,15 @@ jnc_getLastErrorDescription_v ()
 	return jnc_getErrorDescription_v (jnc_getLastError ());
 }
 
+#if (defined _JNC_DYNAMIC_EXTENSION_LIB && defined _AXL_ERR_ERROR_H)
+JNC_INLINE
+void
+jnc_propagateLastError ()
+{
+	jnc_setError ((jnc_Error*) axl::err::getLastError ().cp ());
+}
+#endif
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -56,42 +64,56 @@ namespace jnc {
 
 //..............................................................................
 
-JNC_INLINE
+inline
 jnc_Error*
 getLastError ()
 {
 	return jnc_getLastError ();
 }
 
-JNC_INLINE
+inline
 void
 setError (jnc_Error* error)
 {
 	jnc_setError (error);
 }
 
-#ifdef _JNC_DYNAMIC_EXTENSION_LIB
-JNC_INLINE
+inline
 void
-propagateLastError ()
+setErrno (int code)
 {
-	jnc_propagateLastError ();
+	jnc_setErrno (code);
 }
-#endif
 
-JNC_INLINE
+inline
+void
+setStringError (const char* string)
+{
+	jnc_setStringError (string);
+}
+
+inline
 const char*
 getErrorDescription_v (jnc_Error* error)
 {
 	return jnc_getErrorDescription_v (error);
 }
 
-JNC_INLINE
+inline
 const char*
 getLastErrorDescription_v ()
 {
 	return jnc_getLastErrorDescription_v ();
 }
+
+#if (defined _JNC_DYNAMIC_EXTENSION_LIB && defined _AXL_ERR_ERROR_H)
+inline
+void
+propagateLastError ()
+{
+	jnc_propagateLastError ();
+}
+#endif
 
 //..............................................................................
 

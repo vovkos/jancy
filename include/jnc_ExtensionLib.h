@@ -490,7 +490,7 @@ jnc_pvoid_cast (T x)
 // this overload is to make sure it's ok to pvoid_cast (NULL) on 64-bit systems
 // gcc takes care of it automatically (it will not attempt to use 'int' for NULL)
 
-JNC_INLINE
+inline
 void*
 jnc_pvoid_cast (int x)
 {
@@ -541,14 +541,14 @@ typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 ExtensionLib*
 StdLib_getLib ()
 {
 	return jnc_StdLib_getLib ();
 }
 
-JNC_INLINE
+inline
 ExtensionLib*
 SysLib_getLib ()
 {

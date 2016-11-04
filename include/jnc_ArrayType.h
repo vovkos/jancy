@@ -102,21 +102,21 @@ const ArrayTypeFlag
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 isAutoSizeArrayType (Type* type)
 {
 	return jnc_isAutoSizeArrayType (type) != 0;
 }
 
-JNC_INLINE
+inline
 bool
 isCharArrayType (Type* type)
 {
 	return jnc_isCharArrayType (type) != 0;
 }
 
-JNC_INLINE
+inline
 bool
 isCharArrayRefType (Type* type)
 {

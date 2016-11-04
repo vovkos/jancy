@@ -179,14 +179,14 @@ const BinOpKind
 
 //..............................................................................
 
-JNC_INLINE
+inline
 const char*
 getUnOpKindString (UnOpKind opKind)
 {
 	return jnc_getUnOpKindString (opKind);
 }
 
-JNC_INLINE
+inline
 const char*
 getBinOpKindString (BinOpKind opKind)
 {

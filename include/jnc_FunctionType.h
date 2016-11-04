@@ -210,7 +210,7 @@ const FunctionTypeFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 const char*
 getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 {
@@ -229,9 +229,12 @@ const FunctionPtrTypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_EXTERN_C
+inline
 const char*
-jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
+getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind)
+{
+	return jnc_getFunctionPtrTypeKindString (ptrTypeKind);
+}
 
 //..............................................................................
 
