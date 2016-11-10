@@ -24,7 +24,7 @@ DoxyParser::DoxyParser (Module* module)
 	m_module = module;
 	m_block = NULL;
 	m_isBlockAssigned = false;
-	m_isBriefDescription = false;
+	m_descriptionKind = DescriptionKind_Detailed;
 }
 
 DoxyBlock*
@@ -40,7 +40,7 @@ DoxyParser::popBlock ()
 
 	m_block = NULL;
 	m_isBlockAssigned = false;
-	m_isBriefDescription = false;
+	m_descriptionKind = DescriptionKind_Detailed;
 
 	if (!m_groupStack.isEmpty ())
 	{
@@ -68,10 +68,24 @@ DoxyParser::addComment (
 	if (!m_block || !canAppend)
 	{
 		m_block = m_module->m_doxyMgr.createBlock ();
-		m_isBriefDescription = false;
+		m_descriptionKind = DescriptionKind_Detailed;
 	}
 
-	sl::String* description = m_isBriefDescription ? &m_block->m_briefDescription : &m_block->m_detailedDescription;
+	sl::String* description;
+	switch (m_descriptionKind)
+	{
+	case DescriptionKind_Brief:
+		description = &m_block->m_briefDescription;
+		break;
+
+	case DescriptionKind_SeeAlso:
+		description = &m_block->m_seeAlsoDescription;
+		break;
+
+	case DescriptionKind_Detailed:
+	default:
+		description = &m_block->m_detailedDescription;
+	}
 
 	DoxyLexer lexer;
 	lexer.create ("doxy", comment);
@@ -89,7 +103,7 @@ DoxyParser::addComment (
 		{
 		case DoxyTokenKind_Error:
 			m_block = NULL;
-			m_isBriefDescription = false;
+			m_descriptionKind = DescriptionKind_Detailed;
 			return;
 
 		case DoxyTokenKind_Eof:
@@ -116,8 +130,8 @@ DoxyParser::addComment (
 			if (m_isBlockAssigned) // create a new one
 			{
 				m_block = m_module->m_doxyMgr.createBlock ();
-				m_isBriefDescription = false;
-				description = m_isBriefDescription ? &m_block->m_briefDescription : &m_block->m_detailedDescription;
+				m_descriptionKind = DescriptionKind_Detailed;
+				description = &m_block->m_detailedDescription;
 			}
 
 			m_module->m_doxyMgr.setBlockTarget (m_block, (DoxyTokenKind) token->m_token, nextToken->m_data.m_string.getTrimmedString ());
@@ -145,7 +159,7 @@ DoxyParser::addComment (
 				m_block = group;
 			}
 
-			m_isBriefDescription = false;
+			m_descriptionKind = DescriptionKind_Detailed;
 			lexer.nextToken ();
 			break;
 
@@ -193,11 +207,13 @@ DoxyParser::addComment (
 			break;
 
 		case DoxyTokenKind_Brief:
-			m_isBriefDescription = true;
+			m_descriptionKind = DescriptionKind_Brief;
 			description = &m_block->m_briefDescription;
+			break;
 
-			if (!description->isEmpty ()) // user likely wants multi-paragraphed brief
-				description->append ('\n');
+		case DoxyTokenKind_SeeAlso:
+			m_descriptionKind = DescriptionKind_SeeAlso;
+			description = &m_block->m_seeAlsoDescription;
 			break;
 
 		case DoxyTokenKind_Text:
@@ -226,9 +242,11 @@ DoxyParser::addComment (
 			break;
 
 		case '\n':
-			if (lastTokenLine != token->m_pos.m_line && m_isBriefDescription && !description->isEmpty ()) // empty line ends brief description
+			if (lastTokenLine != token->m_pos.m_line && 
+				m_descriptionKind && 
+				!description->isEmpty ()) // empty line ends \brief or \seealso description
 			{
-				m_isBriefDescription = false;
+				m_descriptionKind = DescriptionKind_Detailed;
 				description = &m_block->m_detailedDescription;
 			}
 			else if (!description->isEmpty ())

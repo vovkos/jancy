@@ -63,6 +63,9 @@ DoxyBlock::getDescriptionString ()
 	sl::String string;
 
 	m_briefDescription.trim ();
+	m_detailedDescription.trim ();
+	m_seeAlsoDescription.trim ();
+
 	if (!m_briefDescription.isEmpty ())
 	{
 		string.append ("<briefdescription><para>");
@@ -70,12 +73,25 @@ DoxyBlock::getDescriptionString ()
 		string.append ("</para></briefdescription>\n");
 	}
 
-	m_detailedDescription.trim ();
-	if (!m_detailedDescription.isEmpty ())
+	if (!m_detailedDescription.isEmpty () || !m_seeAlsoDescription.isEmpty ())
 	{
-		string.append ("<detaileddescription><para>");
-		appendXmlElementContents (&string, m_detailedDescription);
-		string.append ("</para></detaileddescription>\n");
+		string.append ("<detaileddescription>\n");
+
+		if (!m_detailedDescription.isEmpty ())
+		{
+			string.append ("<para>");
+			appendXmlElementContents (&string, m_detailedDescription);
+			string.append ("</para>\n");
+		}
+
+		if (!m_seeAlsoDescription.isEmpty ())
+		{
+			string.append ("<para><simplesect kind='see'><para>");
+			appendXmlElementContents (&string, m_seeAlsoDescription);
+			string.append ("</para></simplesect></para>\n");
+		}
+
+		string.append ("</detaileddescription>\n");
 	}
 
 	return string;

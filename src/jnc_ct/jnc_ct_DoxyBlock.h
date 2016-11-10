@@ -42,6 +42,7 @@ protected:
 	sl::String m_title;
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
+	sl::String m_seeAlsoDescription;
 
 public:
 	DoxyBlock ();
@@ -83,6 +84,12 @@ public:
 	getDetailedDescription ()
 	{
 		return m_detailedDescription;
+	}
+
+	const sl::String&
+	getSeeAlsoDescription ()
+	{
+		return m_seeAlsoDescription;
 	}
 
 	bool

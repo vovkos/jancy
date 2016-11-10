@@ -63,6 +63,9 @@ main := |*
 '\\addtogroup'    { createToken (DoxyTokenKind_AddToGroup); };
 '\\title'         { createToken (DoxyTokenKind_Title); };
 '\\brief'         { createToken (DoxyTokenKind_Brief); };
+'\\see'           { createToken (DoxyTokenKind_SeeAlso); };
+'\\seealso'       { createToken (DoxyTokenKind_SeeAlso); };
+'\\sa'            { createToken (DoxyTokenKind_SeeAlso); };
 '\\footnote'      { createToken (DoxyTokenKind_Footnote); };
 
 '\\' rc*          { createToken (DoxyTokenKind_OtherCommand); };

@@ -30,13 +30,20 @@ protected:
 		DoxyGroup* m_group;
 	};
 
+	enum DescriptionKind
+	{
+		DescriptionKind_Detailed = 0,
+		DescriptionKind_Brief,
+		DescriptionKind_SeeAlso,
+	};
+
 protected:
 	Module* m_module;
 
 	DoxyBlock* m_block;
 	sl::Array <GroupStackEntry> m_groupStack;
 	bool m_isBlockAssigned;
-	bool m_isBriefDescription;
+	DescriptionKind m_descriptionKind;
 	sl::String m_firstIndent;
 	sl::String m_indent;
 

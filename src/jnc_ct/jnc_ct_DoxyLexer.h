@@ -44,6 +44,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_AddToGroup,
 	DoxyTokenKind_Title,
 	DoxyTokenKind_Brief,
+	DoxyTokenKind_SeeAlso,
 	DoxyTokenKind_Footnote,
 };
 
@@ -77,6 +78,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_AddToGroup,    "\\addtogroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Title,         "\\title")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Brief,         "\\brief")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_SeeAlso,       "\\see")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Footnote,      "\\footnote")
 
 AXL_LEX_END_TOKEN_NAME_MAP ();
