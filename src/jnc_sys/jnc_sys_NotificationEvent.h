@@ -9,28 +9,43 @@
 //
 //..............................................................................
 
-///+++
+#pragma once
 
-/// JNC_SELECT_ANY char g_sys_EventSrc [] =
+#include "jnc_ExtensionLib.h"
 
+namespace jnc {
 namespace sys {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (NotificationEvent)
 
 //..............................................................................
 
-opaque class Event
+class NotificationEvent: public IfaceHdr
 {
-	construct ();
-	destruct ();
+public:
+	axl::sys::NotificationEvent m_event;
 
-	signal ();
-	reset ();
-	bool wait (uint_t timeout = -1);
-}
+public:
+	void
+	JNC_CDECL
+	signal ()
+	{
+		m_event.signal ();
+	}
+
+	void
+	JNC_CDECL
+	reset ()
+	{
+		m_event.reset ();
+	}
+
+	bool
+	JNC_CDECL
+	wait (uint_t timeout);
+};
 
 //..............................................................................
 
 } // namespace sys
-
-///;
-
-///---
+} // namespace jnc

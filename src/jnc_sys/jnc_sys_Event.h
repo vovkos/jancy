@@ -33,6 +33,13 @@ public:
 		m_event.signal ();
 	}
 
+	void
+	JNC_CDECL
+	reset ()
+	{
+		m_event.reset ();
+	}
+
 	bool
 	JNC_CDECL
 	wait (uint_t timeout);

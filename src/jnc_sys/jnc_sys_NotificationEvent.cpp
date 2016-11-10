@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_sys_Event.h"
+#include "jnc_sys_NotificationEvent.h"
 #include "jnc_sys_SysLib.h"
 #include "jnc_Runtime.h"
 
@@ -20,27 +20,27 @@ namespace sys {
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	Event,
-	"sys.Event",
+	NotificationEvent,
+	"sys.NotificationEvent",
 	g_sysLibGuid,
-	SysLibCacheSlot_Event,
-	Event,
+	SysLibCacheSlot_NotificationEvent,
+	NotificationEvent,
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Event)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <Event>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <Event>)
-	JNC_MAP_FUNCTION ("signal", &Event::signal)
-	JNC_MAP_FUNCTION ("reset", &Event::reset)
-	JNC_MAP_FUNCTION ("wait", &Event::wait)
+JNC_BEGIN_TYPE_FUNCTION_MAP (NotificationEvent)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <NotificationEvent>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <NotificationEvent>)
+	JNC_MAP_FUNCTION ("signal", &NotificationEvent::signal)
+	JNC_MAP_FUNCTION ("reset", &NotificationEvent::reset)
+	JNC_MAP_FUNCTION ("wait", &NotificationEvent::wait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
 bool
 JNC_CDECL
-Event::wait (uint_t timeout)
+NotificationEvent::wait (uint_t timeout)
 {
 	bool result;
 

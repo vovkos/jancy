@@ -15,8 +15,9 @@
 
 set (
 	LIB_H_LIST
-	jnc_sys_Event.h
 	jnc_sys_Lock.h
+	jnc_sys_Event.h
+	jnc_sys_NotificationEvent.h
 	jnc_sys_Thread.h
 	jnc_sys_Timer.h
 	jnc_sys_SysLib.h
@@ -24,8 +25,9 @@ set (
 
 set (
 	LIB_CPP_LIST
-	jnc_sys_Event.cpp
 	jnc_sys_Lock.cpp
+	jnc_sys_Event.cpp
+	jnc_sys_NotificationEvent.cpp
 	jnc_sys_Thread.cpp
 	jnc_sys_Timer.cpp
 	jnc_sys_SysLib.cpp
@@ -46,8 +48,9 @@ source_group (
 set (
 	JNC_LIST
 	jnc/sys_globals.jnc
-	jnc/sys_Event.jnc
 	jnc/sys_Lock.jnc
+	jnc/sys_Event.jnc
+	jnc/sys_NotificationEvent.jnc
 	jnc/sys_Thread.jnc
 	jnc/sys_Timer.jnc
 	)
@@ -75,14 +78,20 @@ add_perl_step (
 	)
 
 add_perl_step (
+	sys_Lock.jnc.cpp
+	jnc/sys_Lock.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
 	sys_Event.jnc.cpp
 	jnc/sys_Event.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
-	sys_Lock.jnc.cpp
-	jnc/sys_Lock.jnc
+	sys_NotificationEvent.jnc.cpp
+	jnc/sys_NotificationEvent.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -104,6 +113,7 @@ set (
 	GEN_JNC_CPP_LIST
 	${GEN_DIR}/sys_globals.jnc.cpp
 	${GEN_DIR}/sys_Event.jnc.cpp
+	${GEN_DIR}/sys_NotificationEvent.jnc.cpp
 	${GEN_DIR}/sys_Lock.jnc.cpp
 	${GEN_DIR}/sys_Thread.jnc.cpp
 	${GEN_DIR}/sys_Timer.jnc.cpp

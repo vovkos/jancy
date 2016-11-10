@@ -28,6 +28,7 @@ enum SysLibCacheSlot
 {
 	SysLibCacheSlot_Lock,
 	SysLibCacheSlot_Event,
+	SysLibCacheSlot_NotificationEvent,
 	SysLibCacheSlot_Thread,
 	SysLibCacheSlot_Timer,
 };
