@@ -18,7 +18,7 @@ Jancy provides syntactic sugar over good old C-style error code check model. It 
 
 This model allows the developer to choose between using error code checks or exception semantics when calling the very same function depending on what is more appropriate or convenient in each particular case!
 
-A function marked by the ``errorcode`` modifier will have its return value interpreted as an error code. Intuitive error conditions are assumed: ``false`` for bools, ``null`` for pointers and ``-1`` for integers. Other types will be cast to 'bool' for error condition checking.
+A function marked by the ``errorcode`` modifier will have its return value interpreted as an error code. Intuitive error conditions are assumed: ``false`` for booleans, ``null`` for pointers and ``-1`` for integers. Other types will be cast to ``bool`` for error condition checking.
 
 .. ref-code-block:: jnc
 

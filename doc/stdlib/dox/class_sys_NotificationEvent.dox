@@ -1,0 +1,74 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+/*!
+
+\class sys.NotificationEvent
+
+	\brief This class provides standard means of synchronization between threads.
+
+	Any object of this class can be in one of the following two states: *idle* or *signalled*. One or more threads can wait until the event becomes signalled by invoking ``wait`` method. When some other thread signals the event by invoking ``signal`` method, *all* the waiging threads wake up, and the event remains in *signalled* state.
+
+	To return event to *idle* state, use ``reset`` method.
+
+	Code sample::
+
+		import "sys_NotificationEvent.jnc"
+
+		sys.NotificationEvent g_event;
+
+		thread1 ()
+		{
+			// ...
+
+			g_event.wait (); // thread sleeps here until event is signalled
+
+			// continue...
+		}
+
+		thread2 ()
+		{
+			// ...
+
+			g_event.wait (); // thread sleeps here until event is signalled
+
+			// continue...
+		}
+
+		thread3 ()
+		{
+			// ...
+
+			g_event.signal (); // thread1 and thread2 wake up and continue, g_event is still signalled
+
+			// ...
+			// if any other thread issues g_event.wait (), it will be satisfied immediatly
+
+			g_event.reset (); // not signalled anymore
+		}
+
+	\sa `sys.Event`, `sys.Lock`, `sys.Thread`
+
+	\fn signal
+
+		Sets event to *signalled* state. All the waiting threads wake up, the event remains in *signalled* state.
+
+	\fn reset
+
+		Returns event to *idle* state.
+
+	\fn wait
+
+		Waits until event goes to *signalled* state. When it happens, ``wait`` returns ``true`` but the event remains in *signalled* state.
+
+		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the event does not get signalled until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+
+*/

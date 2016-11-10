@@ -64,6 +64,7 @@ Thread::start (FunctionPtr ptr)
 		return false;
 	}
 
+	m_threadId = m_thread.getThreadId ();
 	return true;
 }
 
@@ -95,6 +96,7 @@ Thread::waitAndClose (uint_t timeout)
 	gcHeap->leaveWaitRegion ();
 
 	m_threadFuncPtr = g_nullFunctionPtr;
+	m_threadId = 0;
 }
 
 //..............................................................................

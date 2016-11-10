@@ -18,4 +18,5 @@ Contents:
 	:titlesonly:
 	:maxdepth: 1
 
+	intro.rst
 	global.rst

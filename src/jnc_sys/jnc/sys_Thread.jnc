@@ -29,8 +29,6 @@ opaque class Thread
 	bool wait (uint_t timeout = -1);
 	void waitAndClose (uint_t timeout = -1);
 	bool terminate ();
-
-	alias dispose = waitAndClose;
 }
 
 //..............................................................................
