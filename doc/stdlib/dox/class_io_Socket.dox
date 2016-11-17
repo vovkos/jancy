@@ -13,9 +13,13 @@
 
 \class io.Socket
 
-	\brief Brief description for class ``io.Socket``
+	\brief This class provides high-level asynchronous interface for accessing all kinds of sockets.
 
-	Detailed description for class ``io.Socket``
+	Sockets represent endpoints of network communications. Sockets are subdivided into two large subclassess: **datagram-oriented** and **connection-oriented**. Furthermore, connection-oriented sockets can operate in one of the two modes: **client** and **server**. And even though these three interfaces don't share *that* much of commonalities between each other, it so historically happened that they are usually blended into a single *socket API*.
+
+	Jancy follows this traditional approach.
+
+	\sa `io.SocketEventParams`, `io.SocketEventCode`
 
 	\field m_isOpen
 

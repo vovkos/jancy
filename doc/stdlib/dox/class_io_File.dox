@@ -40,6 +40,8 @@
 		} // file will be closed no matter how we leave the function
 
 
+	\sa `io.FileStream`, `io.MappedFile`
+
 	\field m_isOpen
 
 		Holds the open status for the file, i.e. ``true`` if opened; ``false`` otherwise.

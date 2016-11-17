@@ -29,7 +29,9 @@
 	* Resume writing on ``TransmitBufferReady`` event;
 	* Close the file stream when no longer needed with ``close`` method.
 
-	Sample code::
+	Sample code:
+
+	.. ref-code-block::
 
 		class MyDialog
 		{
@@ -38,8 +40,9 @@
 			io.FileStream m_fileStream;
 
 			construct ();
+			open (char const* fileName);
 			onWriteButtonClicked ();
-			onFileStreamEvent (io.FileStreamEventParams const* params);
+			onFileStreamEvent (`io.FileStreamEventParams` const* params);
 		}
 
 		MyDialog.construct ()
@@ -48,27 +51,37 @@
 			m_fileStream.m_onFileStreamEvent += onFileStreamEvent @ g_mainThreadScheduler;
 		}
 
+		MyDialog.open (char const* fileName)
+		{
+			bool result = try m_fileStream.open (fileName);
+			if (!result)
+			{
+				// handle the error...
+			}
+		}
+
 		MyDialog.onWriteButtonClicked ()
 		{
 			static char data [] = "a quick brown fox jumps over the lazy dog";
 			m_fileStream.write (data, sizeof (data));
 		}
 
-		MyDialog.onFileStreamEvent (io.FileStreamEventParams const* params)
+		MyDialog.onFileStreamEvent (`io.FileStreamEventParams` const* params)
 		{
-			if (params.m_syncId != m_fileStream.m_syncId) // late events
+			if (params.m_syncId != m_fileStream.m_syncId) // late event
 				return;
 
 			switch (params.m_code)
 			{
-			case io.FileStreamEventCode.IncomingData:
+			case `io.FileStreamEventCode.IncomingData`:
 				char buffer [256];
-				m_fileStream.read (buffer, sizeof (buffer));
+				size_t size = m_fileStream.read (buffer, sizeof (buffer));
 				// ...
 				break;
 			}
 		}
 
+	\sa `io.FileStreamEventParams`, `io.FileStreamEventCode`, `io.File`, `io.NamedPipe`, `io.Mailslot`
 
 	\field m_isOpen
 
@@ -90,7 +103,13 @@
 
 		For the list of possible events, refer to `io.FileStreamEventCode` enumeration.
 
-		Event handler receives a single argument of type `io.FileStreamEventParams` which holds parameters of the particular event. ``m_syncId`` field of parameter strucutre should be used to discard events originating from the previous file stream session.
+		Event handler receives a single argument of type `io.FileStreamEventParams` which holds parameters of the particular event [#f3]_.
+
+	\property m_isFileStreamEventEnabled
+
+		When ``FileStream`` object is created as a result of `io.NamedPipe.accept` method, events of the new file stream are initially disabled -- otherwise, how could you handle the events occurred right after ``accept`` but before you have a chance to assign a new event handler?
+
+		Once you have assigned an event handler for the new file stream, you can re-enable its events by setting ``m_isFileStreamEventEnabled`` to ``true``. All the pending events will be replayed so your new handler has a chance to process them in the same order they originally occurred.
 
 	\fn open
 
@@ -129,6 +148,7 @@
 		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
 
 	\alias dispose
+
 		Effectively makes ``io.FileStream`` a *disposable* class [#f2]_.
 
 	\footnote f1

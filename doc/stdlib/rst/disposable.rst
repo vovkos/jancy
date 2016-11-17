@@ -28,12 +28,12 @@ Example:
 
 	foo ()
 	{
-		// ...
+	    // ...
 
-		disposable `io.File` file;
-		file.open ();
+	    disposable `io.File` file;
+	    file.open ();
 
-		// work with file...
+	    // work with file...
 	} // <-- file.close () is guaranteed to be called upon exiting the scope
 
 When program runs out of scope where a variable of disposable class was declared in, Jancy compiler will insert a call to ``dispose`` method (which is usually *aliased* to an actual release methods such as ``close``). This method will be called no matter how the program runs out of scope, be it a normal control flow, ``return``,  ``break``, ``continue`` or an exception.
@@ -44,19 +44,19 @@ Note that you can easily write disposable classes yourself. All you have to do i
 
 	class MyDisposableClass
 	{
-		dispose ()
-		{
-			printf ("Releasing resources...");
-		}
+	    dispose ()
+	    {
+	        printf ("Releasing resources...");
+	    }
 	}
 
 	foo ()
 	{
-		// ...
+	    // ...
 
-		disposable MyDisposableClass c;
+	    disposable MyDisposableClass c;
 
-		// work with c...
+	    // work with c...
 
-		throw; // <-- c.dispose () will get called
+	    throw; // <-- c.dispose () will get called
 	}

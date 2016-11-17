@@ -26,7 +26,9 @@
 	* When ``IncomingData`` event is fired, read from the mailslot using ``read`` method;
 	* Close the mailslot when no longer needed with ``close`` method.
 
-	Sample code::
+	Sample code:
+
+	.. ref-code-block::
 
 		class MyDialog
 		{
@@ -35,7 +37,7 @@
 			io.Mailslot m_mailslot;
 
 			construct ();
-			onMailslotEvent (io.MailslotEventParams const* params);
+			onMailslotEvent (`io.MailslotEventParams` const* params);
 		}
 
 		MyDialog.construct ()
@@ -44,20 +46,22 @@
 			m_mailslot.m_onMailslotEvent += onMailslotEvent @ g_mainThreadScheduler;
 		}
 
-		MyDialog.onMailslotEvent (io.MailslotEventParams const* params)
+		MyDialog.onMailslotEvent (`io.MailslotEventParams` const* params)
 		{
-			if (params.m_syncId != m_mailslot.m_syncId) // late events
+			if (params.m_syncId != m_mailslot.m_syncId) // late event
 				return;
 
 			switch (params.m_code)
 			{
-			case io.mailslotEventCode.IncomingData:
+			case `io.mailslotEventCode.IncomingData`:
 				char buffer [256];
-				m_mailslot.read (buffer, sizeof (buffer));
+				size_t size = m_mailslot.read (buffer, sizeof (buffer));
 				// ...
 				break;
 			}
 		}
+
+	\sa `io.MailslotEventParams`, `io.MailslotEventCode`, `io.File`, `io.FileStream`
 
 	\field m_isOpen
 
@@ -73,7 +77,7 @@
 
 		For the list of possible events, refer to `io.MailslotEventCode` enumeration.
 
-		Event handler receives a single argument of type `io.MailslotEventParams` which holds parameters of the particular event. ``m_syncId`` field of parameter strucutre should be used to discard events originating from the previous mailslot session.
+		Event handler receives a single argument of type `io.MailslotEventParams` which holds parameters of the particular event [#f3]_.
 
 	\fn open
 
@@ -98,6 +102,7 @@
 		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the mailslot is closed.
 
 	\alias dispose
+
 		Effectively makes ``io.Mailslot`` a *disposable* class [#f2]_.
 
 	\footnote f1

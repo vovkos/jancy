@@ -19,7 +19,9 @@
 
 	Views provided by ``io.MappedFile`` can be *permanent* or *dynamic*. A pointer to a permanent view, as the name suggests, remains valid *all the time* while the file is open. Pointers to *dynamic* views, on the other hand, do expire. You can only access ``m_dynamicViewLimit`` views at the same time. Expiration queue is organized in FIFO (first-in-first-out) manner, but it is readjusted each time user requests access to the region with ``view`` method (last accessed view is moved to the tail of the expiration queue).
 
-	Sample code::
+	Sample code:
+
+	.. ref-code-block::
 
 		struct Hdr
 		{
@@ -38,7 +40,7 @@
 		foo (char const* fileName)
 		{
 			disposable io.MappedFile file;
-			file.open (fileName, io.FileOpenFlags.ReadOnly);
+			file.open (fileName, `io.FileOpenFlags.ReadOnly`);
 			Hdr const* hdr = file.view (0, sizeof (Hdr), true); // permanent view of header
 
 			size_t offset = sizeof (Hdr);
@@ -52,6 +54,8 @@
 		catch:
 			// handle error
 		}
+
+	\sa `io.File`
 
 	\field m_isOpen
 

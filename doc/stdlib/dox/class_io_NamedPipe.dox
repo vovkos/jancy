@@ -25,7 +25,9 @@
 	* Communicate with the client via `io.FileStream` returned by ``accept``;
 	* Close named pipe server and accepted client file streams when no longer needed with ``close`` method.
 
-	Sample code::
+	Sample code:
+
+	.. ref-code-block::
 
 		class MyDialog
 		{
@@ -35,7 +37,7 @@
 
 			construct ();
 			onIncomingConnection (uint_t syncId);
-			onFileStreamEvent (io.FileStreamEventParams const* params);
+			onFileStreamEvent (`io.FileStreamEventParams` const* params);
 		}
 
 		MyDialog.construct ()
@@ -46,31 +48,33 @@
 
 		MyDialog.onIncomingConnection (uint_t syncId)
 		{
-			if (syncId != m_namedPipe.m_syncId) // late events
+			if (syncId != m_namedPipe.m_syncId) // late event
 				return;
 
-			io.FileStream* fileStream = m_namedPipe.accept (); // file stream events are disabled on accept
+			`io.FileStream`* fileStream = m_namedPipe.accept (); // file stream events are disabled on accept
 			fileStream.m_onFileStreamEvent += onFileStreamEvent ~(fileStream) @ g_mainThreadScheduler;
 			fileStream.m_isFileStreamEventEnabled = true; // enable events
 		}
 
 		MyDialog.onFileStreamEvent (
-			io.FileStream* fileStream,
-			io.FileStreamEventParams const* params
+			`io.FileStream`* fileStream,
+			`io.FileStreamEventParams` const* params
 			);
 		{
-			if (syncId != fileStream.m_syncId) // late events
+			if (syncId != fileStream.m_syncId) // late event
 				return;
 
 			switch (params.m_code)
 			{
-			case io.FileStreamEventCode.IncomingData:
+			case `io.FileStreamEventCode.IncomingData`:
 				char buffer [256];
-				fileStream.read (buffer, sizeof (buffer));s
+				size_t size = fileStream.read (buffer, sizeof (buffer));
 				// ...
 				break;
 			}
 		}
+
+	\sa `io.File`, `io.FileStream`
 
 	\field m_isOpen
 
@@ -82,7 +86,11 @@
 
 	\event m_onIncomingConnection
 
-		This event is fired whenever there is a client trying to connect to the named pipe server. Call ``accept`` method to accept incoming connection and start communication with this particular client.
+		This event is fired whenever there is a client trying to connect to the named pipe server.
+
+		The event handler receives a single ``syncId`` parameter [#f3]_.
+
+		Call ``accept`` method to accept incoming connection and start communication with this particular client.
 
 	\fn open
 
@@ -105,6 +113,7 @@
 		If method fails, ``null`` value is returned [#f1]_.
 
 	\alias dispose
+
 		Effectively makes ``io.NamedPipe`` a *disposable* class [#f2]_.
 
 	\footnote f1
