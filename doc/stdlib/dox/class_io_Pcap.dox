@@ -41,7 +41,7 @@
 
 	\field m_syncId
 
-		Holds the synchronization ID for the Pcap object. For details, please refer to :ref:`sync-id`.
+		Holds the synchronization ID for the Pcap object [#f3]_.
 
 	\event m_onPcapEvent
 
@@ -61,7 +61,7 @@
 
 		The third and final parameter specifies whether to put interface in promiscuous mode.
 
-		Returns ``true`` on success. If live capture on specified device could not be opened, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns ``true`` on success. If live capture on specified device could not be opened, function sets the error reported by Pcap and returns ``false`` [#f1]_.
 
 	\fn openFile
 
@@ -69,27 +69,25 @@
 
 		The second argument, ``filter``, has the same meaning as in ``openDevice`` method.
 
-		Returns ``true`` on success. If capture file could not be opened, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns ``true`` on success. If capture file could not be opened, function sets the error reported by Pcap and returns ``false`` [#f1]_.
 
 	\fn close
 
 		Closes a previously opened live capture or a capture file, does nothing if Pcap is not opened. This function always succeeds.
 
-		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn setFilter
 
 		Allows you to change current capture filter without restarting the capture.
 
-		Returns ``true`` on success. If capture filter could not be changed, function sets the error reported by Pcap and returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns ``true`` on success. If capture filter could not be changed, function sets the error reported by Pcap and returns ``false`` [#f1]_.
 
 	\fn write
 
 		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as a packet on a currently opened device.
 
-		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1``.
-
-		Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
 
 	\fn read
 
@@ -97,11 +95,23 @@
 
 		Returns the actual amount of bytes read or ``-1`` if error occurs.
 
-		If read operation is unsuccessful, function sets the error reported by Pcap and returns ``-1``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		If read operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
 
 		Normally you would call this function from within your event handler for ``ReadyRead`` event. If this function is called when there are no incoming pacets, it blocks until either a packet arrives, or Pcap is closed.
 
 	\alias dispose
-		Ensures ``io.Pcap`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Effectively makes ``io.Pcap`` a *disposable* class [#f2]_.
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
 
 */

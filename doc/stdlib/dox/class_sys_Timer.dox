@@ -87,10 +87,10 @@
 
 	\footnote f1
 
-		You can ensure timely invokation of ``stop`` method with *disposable* pattern. For more details refer to :ref:`disposable`.
+		|footnote-disposable|
 
 	\footnote f2
 
-		You can use exception semantics to handle the errors return values of ``errorcode`` functions. For more details refer to :ref:`errorcode`.
+		|footnote-errorcode|
 
 */

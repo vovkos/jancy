@@ -13,11 +13,45 @@
 
 \class io.MappedFile
 
-	\brief This class provides high level mapped access to the contents of a regular disk files.
+	\brief This class provides high level mapped access to the contents of regular disk files.
 
-	From the client point of view, ``io.MappedFile`` exposes the most natural interface imaginable: you just tell, I want to access a region of the file at *this* offset, and of *this* length. And you get a pointer to this region (or ``null`` if this could not be done). That's it! Actual mapping operations, aligning offsets and maintaining a database of previously mapped views is happening behind the stage.
+	From the client point of view, ``io.MappedFile`` exposes the most natural interface imaginable. You just tell: I want to access a region of the file at *this* offset, and of *this* length. And you get a pointer to this region (or ``null`` if this could not be done). That's it! Actual mapping operations, aligning offsets and maintaining a database of previously mapped views is happening behind the stage.
 
 	Views provided by ``io.MappedFile`` can be *permanent* or *dynamic*. A pointer to a permanent view, as the name suggests, remains valid *all the time* while the file is open. Pointers to *dynamic* views, on the other hand, do expire. You can only access ``m_dynamicViewLimit`` views at the same time. Expiration queue is organized in FIFO (first-in-first-out) manner, but it is readjusted each time user requests access to the region with ``view`` method (last accessed view is moved to the tail of the expiration queue).
+
+	Sample code::
+
+		struct Hdr
+		{
+			uint32_t m_signature;
+			uint32_t m_version;
+			uint32_t m_sectionCount;
+			// ...
+		}
+
+		struct SectionDesc
+		{
+			uint64_t m_offset;
+			uint64_t m_size;
+		}
+
+		foo (char const* fileName)
+		{
+			disposable io.MappedFile file;
+			file.open (fileName, io.FileOpenFlags.ReadOnly);
+			Hdr const* hdr = file.view (0, sizeof (Hdr), true); // permanent view of header
+
+			size_t offset = sizeof (Hdr);
+			for (size_t i = 0; i < hdr.m_sectionCount; i++, offset += sizeof (SectionDesc))
+			{
+				SectionDesc const* sectionDesc = file.view (offset, sizeof (SectionDesc));
+				void const* section = file.view (sectionDesc.m_offset, sectionDesc.m_size);
+				// ...
+			}
+
+		catch:
+			// handle error
+		}
 
 	\field m_isOpen
 
@@ -41,21 +75,28 @@
 
 		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
 
-		If file could not be opened, IO error supplied by operating system is set and then the function returns ``false``. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		If file could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 
 	\fn close
 
 		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
-		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn view
 
 		Provides access to the region of the file at ``offset`` and ``size`` bytes long. The final, third argument is used to specify whether the requested view should be *permanent* or *dynamic*.
 
-		Returns a pointer to the requested region, or ``null`` if mapping operation failed. Since this is an ``errorcode`` function, you can use exception semantics to handle the error. For more details refer to :ref:`errorcode`.
+		Returns a pointer to the requested region, or ``null`` if mapping operation failed [#f1]_.
 
 	\alias dispose
-		Ensures ``io.MappedFile`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Effectively makes ``io.MappedFile`` a *disposable* class [#f2]_.
 
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
 */

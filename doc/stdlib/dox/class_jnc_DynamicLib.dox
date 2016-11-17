@@ -38,6 +38,14 @@
 		Detailed description for function ``getFunction``
 
 	\alias dispose
-		Ensures ``io.DynamicLib`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Effectively makes ``jnc.DynamicLib`` a *disposable* class [#f2]_.
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
 
 */

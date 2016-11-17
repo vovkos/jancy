@@ -17,12 +17,28 @@
 
 	\brief This class provides a standard synchronous interface for reading from and writing to files or devices.
 
-	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of steps when working with a file looks something like this:
+	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of steps when working with a file usually looks like this:
 
 	* Open a file with ``open`` method;
 	* Read from the file using ``read`` method;
 	* Write to the file using ``write`` method;
 	* Close the file with ``close`` method.
+
+	It's recommended to use disposable pattern when working with local file variables. Whether or not to use exception semantics or a traditional error code depends on what deems to be more convenient in each particular case.
+
+	Sample code::
+
+		foo (void const* data)
+		{
+			disposable io.File file;
+			file.open ("data.txt");
+			file.write (data, dynamic sizeof (data));
+			// ...
+
+		catch:
+			// handle the error
+		} // file will be closed no matter how we leave the function
+
 
 	\field m_isOpen
 
@@ -50,12 +66,11 @@
 
 		Returns ``true`` on success. If file or device could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 
-
 	\fn close
 
 		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
 
-		Use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn read
 
@@ -77,16 +92,16 @@
 
 		Effectively makes ``io.File`` a *disposable* class [#f2]_.
 
+	\footnote f3
+
+		|footnote-set-property-fail|
+
 	\footnote f1
 
-		You can use exception semantics to handle the errors return values of ``errorcode`` functions. For more details refer to :ref:`errorcode`.
+		|footnote-errorcode|
 
 	\footnote f2
 
-		You can ensure timely invokation of ``close`` method with *disposable* pattern. For more details refer to :ref:`disposable`.
-
-	\footnote f3
-
-		If setting this property fails, IO error supplied by operating system is set; then exception is thrown.
+		|footnote-disposable|
 
 */

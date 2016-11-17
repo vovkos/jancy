@@ -23,7 +23,7 @@
 
 	\field m_syncId
 
-		Holds the synchronization ID for the socket. For details, please refer to :ref:`sync-id`.
+		Holds the synchronization ID for the socket [#f3]_.
 
 	\property m_address
 
@@ -61,7 +61,7 @@
 
 		Detailed description for function ``close``
 
-		Use *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn connect
 
@@ -96,6 +96,18 @@
 		Detailed description for function ``firePendingEvents``
 
 	\alias dispose
-		Ensures ``io.Socket`` can be used with *disposable* pattern to ensure timely invokation of ``close``. For more details refer to :ref:`disposable`.
+		Effectively makes ``io.Socket`` a *disposable* class [#f2]_.
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
 
 */
