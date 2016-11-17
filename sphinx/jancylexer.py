@@ -41,7 +41,7 @@ class JancyLexer(RegexLexer):
             (r'0[nNdD]\d+', Number.Integer),
             (r'\d+', Number.Integer),
             (r'\*/', Error),
-            (r'[~!%^&*+=|?:<>/-@]', Operator),
+            (r'[~!%^&*+=|?:<>/@-]', Operator),
             (r'[{}()\[\],.;]', Punctuation),
             (words((
                 'import',
