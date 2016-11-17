@@ -465,11 +465,14 @@ protected:
 		int param = 0
 		);
 
-	Token*
-	createFmtSimpleIdentifierToken ();
+	void
+	createFmtSimpleIdentifierTokens ();
 
-	Token*
-	createFmtIndexToken ();
+	void
+	createFmtLastErrorDescriptionTokens ();
+
+	void
+	createFmtIndexTokens ();
 
 	Token*
 	createFmtSpecifierToken ();

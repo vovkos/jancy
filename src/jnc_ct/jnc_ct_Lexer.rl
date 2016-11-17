@@ -77,8 +77,9 @@ any       ;
 lit_fmt := |*
 
 esc       ;
-'$' id    { createFmtSimpleIdentifierToken (); };
-'%' dec+  { createFmtIndexToken (); };
+'$!'      { createFmtLastErrorDescriptionTokens (); };
+'$' id    { createFmtSimpleIdentifierTokens (); };
+'%' dec+  { createFmtIndexTokens (); };
 [$%] '('  { createFmtLiteralToken (TokenKind_FmtLiteral, *ts == '%'); m_parenthesesLevelStack.append (1); fcall main; };
 '"' | nl  { createFmtLiteralToken (TokenKind_Literal); fret; };
 any       ;

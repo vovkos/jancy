@@ -106,7 +106,7 @@ opaque class Serial
 
 	size_t errorcode write (
 		void const* p,
-		size_t Size
+		size_t size
 		);
 
 	event m_onSerialEvent (SerialEventParams const* params);

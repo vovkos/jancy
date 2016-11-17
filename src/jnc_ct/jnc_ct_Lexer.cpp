@@ -339,8 +339,8 @@ Lexer::createFmtLiteralToken (
 	return token;
 }
 
-Token*
-Lexer::createFmtSimpleIdentifierToken ()
+void
+Lexer::createFmtSimpleIdentifierTokens ()
 {
 	createFmtLiteralToken (TokenKind_FmtLiteral, false);
 
@@ -349,16 +349,41 @@ Lexer::createFmtSimpleIdentifierToken ()
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	Token* token = createStringToken (TokenKind_Identifier, 1, 0);
+	createStringToken (TokenKind_Identifier, 1, 0);
 
 	m_tokenizeLimit = prevTokenizeLimit;
 
 	preCreateFmtLiteralToken ();
-	return token;
 }
 
-Token*
-Lexer::createFmtIndexToken ()
+void
+Lexer::createFmtLastErrorDescriptionTokens ()
+{
+	createFmtLiteralToken (TokenKind_FmtLiteral, false);
+
+	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
+
+	size_t prevTokenizeLimit = m_tokenizeLimit;
+	m_tokenizeLimit = -1;
+
+	Token* token = createToken (TokenKind_Identifier);
+	token->m_data.m_string = "std";
+	createToken ('.');
+	token = createToken (TokenKind_Identifier);
+	token->m_data.m_string = "getLastError";
+	createToken ('(');
+	createToken (')');
+	createToken ('.');
+	token = createToken (TokenKind_Identifier);
+	token->m_data.m_string = "m_description";
+
+	m_tokenizeLimit = prevTokenizeLimit;
+
+	preCreateFmtLiteralToken ();
+}
+
+void
+Lexer::createFmtIndexTokens ()
 {
 	createFmtLiteralToken (TokenKind_FmtLiteral, true);
 
@@ -367,12 +392,11 @@ Lexer::createFmtIndexToken ()
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	Token* token = createIntegerToken (10, 1);
+	createIntegerToken (10, 1);
 
 	m_tokenizeLimit = prevTokenizeLimit;
 
 	preCreateFmtLiteralToken ();
-	return token;
 }
 
 Token*
@@ -402,7 +426,7 @@ Lexer::createDoxyCommentToken (TokenKind tokenKind)
 
 	Token* token = createStringToken (tokenKind, 3, right);
 	token->m_channelMask = TokenChannelMask_DoxyComment;
-	return NULL;
+	return token;
 }
 
 void

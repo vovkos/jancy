@@ -39,6 +39,12 @@ struct Error
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Error const* getLastError ();
+
+char const* getLastErrorDescription ()
+{
+	return getLastError ().m_description;
+}
+
 setErrno (int errno);
 setError (char const* string);
 
