@@ -47,6 +47,7 @@ set (
 	-o ${RST_DIR}/global.rst
 	-F ${DOXYREST_FRAME_DIR}
 	-D g_language=jancy
+	-D g_globalDefFile=def.rst
 	-f c_global.rst.in
 	)
 
