@@ -12,7 +12,7 @@
 Jancy Standard Library Reference
 ================================
 
-Let me be honest with you from the very beginning. At the moment Jancy standard library is *not exactly mature*. Should you try to use Jancy as a scripting engine in your own project, most likely you will soon need to write auxillary classes and functions to make up for missing functionality. Should this scare you and stop you from embedding Jancy? Absolutely not!
+Let me be honest with you from the very beginning. At the moment Jancy standard library is *not exactly mature*. If you try to use Jancy as a scripting engine in your own project, most likely you will soon need to write auxillary classes and functions to make up for missing functionality. Should this scare you and stop you from embedding Jancy? *Absolutely NOT*!
 
 First of all, Jancy is the most **easy-to-extend-with-c-or-c-plus-plus** scripting language in the world. Being **ABI compatible** with C calling conventions was of paramount importance during the language' design stage and now we reap the benefits of it. With Jancy you can simply write a C/C++ function, a data structure or a set of member methods in C/C++ and then **directly access** it from your script. Browse the sources of Jancy standard library and see for yourself.
 
@@ -25,6 +25,5 @@ Now let's see what is *already* available...
 .. toctree::
 	:titlesonly:
 
-	intro.rst
 	global.rst
 	appendices.rst
