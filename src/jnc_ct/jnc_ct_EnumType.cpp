@@ -99,6 +99,7 @@ EnumType::createConst (
 	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;
 	enumConst->m_name = name;
+	enumConst->m_tag = m_tag.isEmpty () ? name : m_tag + "." + name;
 
 	if (initializer)
 		enumConst->m_initializer.takeOver (initializer);
