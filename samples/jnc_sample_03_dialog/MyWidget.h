@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "MyLibGlobals.h"
 #include "QtSignalBridge.h"
 
 JNC_DECLARE_CLASS_TYPE (MyWidget)
