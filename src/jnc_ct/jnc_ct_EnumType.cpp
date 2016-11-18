@@ -216,11 +216,15 @@ EnumType::generateDocumentation (
 		return false;
 
 	itemXml->format (
-		"<memberdef kind='enum' id='%s'>\n"
-		"<name>%s</name>\n",
+		"<memberdef kind='enum' id='%s'"
+		">\n<name>%s</name>\n",
 		getDoxyBlock ()->getRefId ().sz (),
 		m_name.sz ()
 		);
+
+	sl::String modifierString = getEnumTypeFlagString (m_flags);
+	if (!modifierString.isEmpty ())
+		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.sz ());
 
 	itemXml->append (memberXml);
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());

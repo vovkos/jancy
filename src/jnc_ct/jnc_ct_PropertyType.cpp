@@ -156,7 +156,11 @@ PropertyType::getTypeModifierString ()
 	if (m_flags & PropertyTypeFlag_Bindable)
 		string += "bindable ";
 
-	if (isIndexed ())
+	// to make output cleaner: don't append 'indexed' to simple member properties
+	// -- even though they ARE indexed
+
+	size_t argCount = m_getterType->getArgArray ().getCount ();
+	if (argCount > 2 || argCount == 1 && !m_getterType->isMemberMethodType ())
 		string += "indexed ";
 
 	if (!string.isEmpty ())

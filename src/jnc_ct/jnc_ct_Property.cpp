@@ -746,6 +746,13 @@ Property::generateDocumentation (
 	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedTextPrefix ().sz ());
 
 	sl::String modifierString = m_type->getTypeModifierString ();
+
+	if (m_flags & PropertyFlag_AutoGet)
+		modifierString.append (" autoget");
+
+	if (m_flags & PropertyFlag_AutoSet)
+		modifierString.append (" autoset");
+
 	if (!modifierString.isEmpty ())
 		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
 
