@@ -18,7 +18,7 @@ namespace io {
 
 //..............................................................................
 
-enum SshEvent
+enum SshEventCode
 {
 	TcpConnectCompleted,
 	SshHandshakeCompleted,
@@ -41,7 +41,7 @@ enum SshEvent
 
 struct SshEventParams
 {
-	SshEvent m_eventCode;
+	SshEventCode m_eventCode;
 	uint_t m_syncId;
 	std.Error const* m_error;
 }

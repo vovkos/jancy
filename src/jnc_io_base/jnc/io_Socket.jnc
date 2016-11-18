@@ -106,7 +106,7 @@ opaque class Socket
 
 	bool errorcode connect (SocketAddress const* address);
 
-	bool errorcode listen (size_t backLog = 0); // 0 -- default
+	bool errorcode listen (size_t backlog = 0); // 0 -- default
 	Socket* errorcode accept (SocketAddress* address = null);
 
 	size_t errorcode send (
