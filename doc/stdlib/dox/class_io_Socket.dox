@@ -15,11 +15,78 @@
 
 	\brief This class provides high-level asynchronous interface for accessing all kinds of sockets.
 
-	Sockets represent endpoints of network communications. Sockets are subdivided into two large subclassess: **datagram-oriented** and **connection-oriented**. Furthermore, connection-oriented sockets can operate in one of the two modes: **client** and **server**. And even though these three interfaces don't share *that* much of commonalities between each other, it so historically happened that they are usually blended into a single *socket API*.
+	Sockets represent endpoints of network communications. Sockets are subdivided into two large subclassess: **datagram-oriented** and **connection-oriented**. Furthermore, connection-oriented sockets can operate in one of the two modes: **client** and **server**. And even though these interfaces don't share that many commonalities, it so historically happened that they are usually blended into a single *socket API*.
 
 	Jancy follows this traditional approach.
 
-	\sa `io.SocketEventParams`, `io.SocketEventCode`
+	Sample code (client connection-oriented TCP socket):
+
+	.. ref-code-block::
+
+		class MyDialog
+		{
+			// ...
+
+			io.Socket m_socket;
+
+			construct ();
+
+			open (
+				char const* portName,
+				uint_t baudRate
+				);
+
+			onWriteButtonClicked ();
+			onSocketEvent (`io.SocketEventParams` const* params);
+		}
+
+		MyDialog.construct ()
+		{
+			// ...
+			m_socket.m_onSocketEvent += onSocketEvent @ g_mainThreadScheduler;
+		}
+
+		MyDialog.connect (char const* addrString)
+		{
+			`io.SocketAddress` sockAddr;
+			sockAddr.parse (addrString);
+			m_socket.open (`io.Protocol.Tcp`, `io.SocketOpenFlags.Asynchronous`);
+			m_socket.connect (sockAddr);
+
+		catch:
+			// handle the error...
+		}
+
+		MyDialog.onSendButtonClicked ()
+		{
+			static char data [] = "a quick brown fox jumps over the lazy dog";
+			m_socket.send (data, sizeof (data));
+		}
+
+		MyDialog.onSocketEvent (`io.SocketEventParams` const* params)
+		{
+			if (params.m_syncId != m_socket.m_syncId) // late event
+				return;
+
+			switch (params.m_code)
+			{
+			case `io.SocketEventCode.ConnectError`:
+				// handle error (extended info is at: params.m_error)...
+				break;
+
+			case `io.SocketEventCode.ConnectCompleted`:
+				// handle successfull connection...
+				break;
+
+			case `io.SocketEventCode.IncomingData`:
+				char buffer [256];
+				size_t size = m_socket.recv (buffer, sizeof (buffer));
+				// ...
+				break;
+			}
+		}
+
+	\sa `io.SocketOpenFlags`, `io.SocketEventParams`, `io.SocketEventCode`, `io.SocketAddress`
 
 	\field m_isOpen
 
@@ -31,73 +98,131 @@
 
 	\property m_address
 
-		Detailed description for property ``m_address``
+		This property is used for getting the local address assigned to this socket. If the address has not been assigned yet, returns empty address.
 
 	\property m_peerAddress
 
-		Detailed description for property ``m_peerAddress``
+		This property is used for getting the remote address of the peer this socket is connected to. If the connection has not been established yet, returns empty address.
 
 	\property m_isBroadcastEnabled
 
-		Detailed description for property ``m_isBroadcastEnabled``
+		This property is used for getting and setting [#f4]_ the *broadcast* flag for datagram-oriented protocols (such as ``UDP``). When this property is set to ``true``, the socket is allowed to send broadcast packets into the network.
 
 	\property m_isNagleEnabled
 
-		Detailed description for property ``m_isNagleEnabled``
+		This property is used for getting and setting [#f4]_ the Nagle algorithm flag for ``TCP`` sockets. When this property is set to ``true``, the socket attempts to delay the transmission of TCP data segments in order to reduce the overall number of transmitted packets.
+
+		For detailed description of Nagle algorithm refer to: http://en.wikipedia.org/wiki/Nagle's_algorithm
 
 	\property m_isRawHdrIncluded
 
-		Detailed description for property ``m_isRawHdrIncluded``
+		This property is used for getting and setting [#f4]_ the ``IP_HDRINCL`` flag for ``RAW`` sockets. When this property is set to ``true``, the application must provide ``IP`` header together with the rest of the packet (however, the kernel may still overwrite certain fields, such as ``checksum``).
+
+		For detailed description of raw sockets refer to: http://man7.org/linux/man-pages/man7/raw.7.html
 
 	\property m_closeKind
 
-		Detailed description for property ``m_closeKind``
+		This property is used for getting and setting [#f4]_ the disconnect type for ``TCP`` sockets -- whether it should be **graceful** (via ``FIN`` sequence) or **reset** (via ``RST`` packet).
 
 	\event m_onSocketEvent
 
-		Detailed description for event ``m_onSocketEvent``
+		This event is fired whenever an event occurs on the socket.
+
+		For the list of possible events, refer to `io.SocketEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.SocketEventParams` which holds parameters of the particular event [#f3]_.
+
+	\property m_isSocketEventEnabled
+
+		When ``Socket`` object is created as a result of ``accept`` method, events of the new socket are initially disabled -- otherwise, how could you handle the events occurred right after ``accept`` but before you have a chance to assign a new event handler?
+
+		Once you have assigned an event handler for the new file stream, you can re-enable its events by setting ``m_isSocketEventEnabled`` to ``true``. All the pending events will be replayed so your new handler has a chance to process them in the same order they originally occurred.
 
 	\fn open
 
-		Detailed description for function ``open``
+		Opens a new unbound socket.
+
+		The function accepts three arguments. The first one, ``family``, specifies the address family of the new socket (``IP4`` vs ``IP6``). The second argument, ``protocol``, specifies the protocol of the new socket (datagram-oriented ``UDP`` vs connection-oriented ``TCP``). The third and final argument, ``flags`` can be used to specify additional open options. Check `io.SocketOpenFlags` for the complete list of options.
+
+		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+
+	\overload open
+
+		Opens a new socket and binds it to the specified local address.
+
+		The function accepts three arguments. The first one, ``protocol``, specifies the protocol of the new socket (datagram-oriented ``UDP`` vs connection-oriented ``TCP``). The second argument, ``address``, specifies the local address to bind the new socket to. The third and final argument, ``flags`` can be used to specify additional open options. Check `io.SocketOpenFlags` for the complete list of options.
+
+		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+
+	\overload open
+
+		Opens a new unbound socket.
+
+		The function is equivalent to the very first overload of ``open`` method with ``family`` argument set to `io.AddressFamily.Ip4`.
 
 	\fn close
 
-		Detailed description for function ``close``
+		Closes a previously opened socket, does nothing if the file is not opened. This function always succeeds.
 
 		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
 
 	\fn connect
 
-		Detailed description for function ``connect``
+		Initiates a connection request to ``address``. This function is only valid for ``TCP`` sockets.
+
+		If this socket was opened with `io.SocketOpenFlags.Asynchronous` flag, this method merely initiates a connection request and returns immediatly. After connection request completes, an event `io.SocketEventCode.ConnectCompleted` (on success) or `io.SocketEventCode.ConnectError` (on failure) gets fired.
+
+		If, however, this socket was opened without `io.SocketOpenFlags.Asynchronous` flag, this method waits until connection request completes (successfully or unsuccessfully) and only then returns.
+
+		Returns ``true`` on success. If a connection could not be established, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 
 	\fn listen
 
-		Detailed description for function ``listen``
+		Places a server socket into ``listen`` state. This function is only valid for ``TCP`` sockets.
+
+		The only argument of the method, ``backlog``, specifies the maximum length of the queue of *pending* client-side connections, i.e. connections which has not been accepted via ``accept`` method yet.
+
+		Returns ``true`` on success. If the socket could not be placed into ``listen`` state, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 
 	\fn accept
 
-		Detailed description for function ``accept``
+		Accepts a client connection and returns a resulting ``io.Socket`` object to communicate with this particular client. To terminate a client connection, issue ``close`` method on the client file stream object.
+
+		The new ``io.Socket`` is created with events disabled. Turn events back on after assigning an event handler using ``m_isSocketEventEnabled`` property.
+
+		If method fails, ``null`` value is returned [#f1]_.
 
 	\fn send
 
-		Detailed description for function ``send``
+		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over the connected socket.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
 
 	\fn recv
 
-		Detailed description for function ``recv``
+		Attempts to receive up to ``size`` bytes from the socket into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the socket is closed.
 
 	\fn sendTo
 
-		Detailed description for function ``sendTo``
+		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` to the remote node pointed to by ``address``.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
 
 	\fn recvFrom
 
-		Detailed description for function ``recvFrom``
+		Attempts to read up to ``size`` bytes from the socket into the buffer pointed to by ``p``; stores the address of the sender into the ``address``.
 
-	\fn firePendingEvents
+		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
-		Detailed description for function ``firePendingEvents``
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the serial port is closed.
 
 	\alias dispose
 		Effectively makes ``io.Socket`` a *disposable* class [#f2]_.
@@ -114,4 +239,9 @@
 
 		|footnote-sync-id|
 
+	\footnote f4
+
+		|footnote-set-property-fail|
+
 */
+

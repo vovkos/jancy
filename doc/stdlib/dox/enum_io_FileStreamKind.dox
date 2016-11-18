@@ -13,24 +13,24 @@
 
 \enum io.FileStreamKind
 
-	\brief Brief description for enum ``io.FileStreamKind``
+	\brief This enumeration contains all possible values for the underlying type of of `io.FileStream` object.
 
-	Detailed description for enum ``io.FileStreamKind``
+	Currently, this functionality is only available on Windows (via Win32 function ``GetFileType``).
 
 	\enumvalue Unknown
 
-		Detailed description for enum value ``Unknown``
+		Denotes undefined (or generic) type of file stream.
 
 	\enumvalue Disk
 
-		Detailed description for enum value ``Disk``
+		The file stream represents a disk file.
 
 	\enumvalue Serial
 
-		Detailed description for enum value ``Serial``
+		The file stream represents a serial port.
 
 	\enumvalue Pipe
 
-		Detailed description for enum value ``Pipe``
+		The file stream represents a named pipe.
 
 */

@@ -54,9 +54,7 @@
 
 	\property m_position
 
-		This property is used for getting and setting current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
-
-		Reading from this property returns current read/write position in the file; writing to it sets the new position [#f3]_.
+		This property is used for getting and setting [#f3]_ current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
 
 		Accessing this property for sequential devices (which do not support access at random-offset) likely results in exception being thrown (unless the underlying OS silently ignores position read/write and does not return any IO error).
 

@@ -103,41 +103,31 @@
 
 	\property m_baudRate
 
-		This property is used for getting and setting baud rate, i.e. the number of signal changes per second, which directly affects the speed of data transmission.
-
-		Reading from this property returns current baud rate; writing to it sets new baud rate [#f4]_.
+		This property is used for getting and setting [#f4]_ baud rate, i.e. the number of signal changes per second, which directly affects the speed of data transmission.
 
 		Different hardware serial ports may or may not support some particular baud rates. Unfortunately, there is no reliable cross-platform method of building a list of supported baud rates, so the only way is to probe.
 
 	\property m_flowControl
 
-		This property is used for getting and setting flow control, i.e. the protocol of attempted prevention of data loss during serial transmission which may happen when transmission side sends data faster than the receiving side is able to process it.
-
-		Reading from this property returns current flow control; writing to it sets new flow control rate [#f4]_.
+		This property is used for getting and setting [#f4]_ flow control, i.e. the protocol of attempted prevention of data loss during serial transmission which may happen when transmission side sends data faster than the receiving side is able to process it.
 
 		See `io.SerialFlowControl` enumeration for the list of valid values.
 
 	\property m_dataBits
 
-		This property is used for getting and setting byte size, i.e. the number of bits in each character transmitted over the serial line. Valid values range from ``5`` to ``8``; normally ``8`` data bits are used.
-
-		Reading from this property returns current byte size; writing to it sets new byte size [#f4]_.
+		This property is used for getting and setting [#f4]_ byte size, i.e. the number of bits in each character transmitted over the serial line. Valid values range from ``5`` to ``8``; normally ``8`` data bits are used.
 
 	\property m_stopBits
 
-		This property is used for getting and setting the number of serial stop bits, i.e. auxillary (non-data) bits sent at the end of each character to re-synchronize the receiver; normally 1 stop bit is used (designated by `io.SerialStopBits._1`)
-
-		Reading from this property returns current stop bits count; writing to it sets new stop bits count [#f4]_.
+		This property is used for getting and setting [#f4]_ the number of serial stop bits, i.e. auxillary (non-data) bits sent at the end of each character to re-synchronize the receiver; normally 1 stop bit is used (designated by `io.SerialStopBits._1`)
 
 		See `io.SerialStopBits` enumeration for the list of valid values.
 
 	\property m_parity
 
-		This property is used for getting and setting serial parity control, i.e. the protocol of attempted error detection during serial transmission. The idea is to send an extra *parity* bit so that the total number of one's including data bits *and* this parity bit is always *odd* or always *even*.
+		This property is used for getting and setting [#f4]_ serial parity control, i.e. the protocol of attempted error detection during serial transmission. The idea is to send an extra *parity* bit so that the total number of one's including data bits *and* this parity bit is always *odd* or always *even*.
 
 		This, however, is a rather weak error detection method; usually it's much better to employ other checksums/hash checks after the data has been transmitted.
-
-		Reading from this property returns current parity control; writing to it sets new parity control rate [#f4]_.
 
 		See `io.SerialParity` for the list of valid values.
 
@@ -149,15 +139,11 @@
 
 	\property m_dtr
 
-		This property is used for getting and setting ``DTR`` (data-terminal-ready) serial control line.
-
-		Reading from this property returns current ``DTR`` status; writing to it sets new ``DTR`` status [#f4]_.
+		This property is used for getting and setting [#f4]_ ``DTR`` (data-terminal-ready) serial control line.
 
 	\property m_rts
 
-		This property is used for getting and setting ``RTS`` (ready-to-send) serial control line.
-
-		Reading from this property returns current ``RTS`` status; writing to it sets new ``RTS`` status [#f4]_.
+		This property is used for getting and setting [#f4]_ ``RTS`` (ready-to-send) serial control line.
 
 	\event m_onSerialEvent
 

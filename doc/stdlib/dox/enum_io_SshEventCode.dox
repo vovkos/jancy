@@ -11,11 +11,11 @@
 
 /*!
 
-\enum io.SshEvent
+\enum io.SshEventCode
 
-	\brief Brief description for enum ``io.SshEvent``
+	\brief Brief description for enum ``io.SshEventCode``
 
-	Detailed description for enum ``io.SshEvent``
+	Detailed description for enum ``io.SshEventCode``
 
 	\enumvalue TcpConnectCompleted
 

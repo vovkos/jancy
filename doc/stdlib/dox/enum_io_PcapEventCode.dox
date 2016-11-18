@@ -13,16 +13,18 @@
 
 \enum io.PcapEventCode
 
-	\brief Brief description for enum ``io.PcapEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.Pcap` object.
 
-	Detailed description for enum ``io.PcapEventCode``
+	When `io.Pcap` object is about to fire an event, it allocates an `io.PcapEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onPcapEvent``.
+
+	\sa `io.Pcap`, `io.PcapEventParams`
 
 	\enumvalue ReadyRead
 
-		Detailed description for enum value ``ReadyRead``
+		New packet(s) are available on the Pcap device or file; the next packet could be fetched with ``read`` method.
 
 	\enumvalue Eof
 
-		Detailed description for enum value ``Eof``
+		End-of-file was reached on the Pcap file.
 
 */

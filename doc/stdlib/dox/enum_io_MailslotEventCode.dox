@@ -13,16 +13,18 @@
 
 \enum io.MailslotEventCode
 
-	\brief Brief description for enum ``io.MailslotEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.Mailslot` object.
 
-	Detailed description for enum ``io.MailslotEventCode``
+	When `io.Mailslot` object is about to fire an event, it allocates an `io.MailslotEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onMailslotEvent``.
+
+	\sa `io.Mailslot`, `io.MailslotEventParams`
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value ``IncomingData``
+		More data is available on the mailslot; this data could be fetched with ``read`` method.
 
 	\enumvalue IoError
 
-		Detailed description for enum value ``IoError``
+		An IO error occured on the mailslot; detailed information about the error is available at `io.MailslotEventParams.m_error`.
 
 */

@@ -17,6 +17,8 @@
 
 	When opening files or devices with ``open`` method, the second argument ``flags`` can be used to adjust options.
 
+	\sa `io.File`, `io.FileStream`, `io.MappedFile`
+
 	\enumvalue ReadOnly
 
 		File or device should be opened in read-only mode. When file is opened in read-only mode, trying to perform modifying operations such as calling ``write`` method or changing the file size via ``m_size`` property will fail with ``access violation`` system error.

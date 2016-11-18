@@ -13,24 +13,26 @@
 
 \enum io.FileStreamEventCode
 
-	\brief Brief description for enum ``io.FileStreamEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.FileStream` object.
 
-	Detailed description for enum ``io.FileStreamEventCode``
+	When `io.FileStream` object is about to fire an event, it allocates an `io.FileStreamEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onFileStreamEvent``.
+
+	\sa `io.FileStream`, `io.FileStreamEventParams`
 
 	\enumvalue Eof
 
-		Detailed description for enum value ``Eof``
+		End-of-file was reached on the file stream.
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value ``IncomingData``
+		More data is available on the file stream; this data could be fetched with ``read`` method.
 
 	\enumvalue IoError
 
-		Detailed description for enum value ``IoError``
+		An IO error occured on the file stream; detailed information about the error is available at `io.FileStreamEventParams.m_error`.
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value ``TransmitBufferReady``
+		File stream transmit buffer is ready to accept more data; it's OK to issue more ``write`` requests.
 
 */

@@ -13,20 +13,22 @@
 
 \enum io.AddressFamily
 
-	\brief Brief description for enum ``io.AddressFamily``
+	\brief This enumeration contains possible values for socket address types (families).
 
-	Detailed description for enum ``io.AddressFamily``
+	``io.AddressFamily`` values map to ``AF_XXX`` platform constants. At the moment, only ``IP4`` and ``IP6`` address families are supported.
+
+	\sa `io.SocketAddress`
 
 	\enumvalue Undefined
 
-		Detailed description for enum value ``Undefined``
+		Used to designate an uninitialized value.
 
 	\enumvalue Ip4
 
-		Detailed description for enum value ``Ip4``
+		Specifies ``IP4``-address; maps to ``AF_INET`` platform constant.
 
 	\enumvalue Ip6
 
-		Detailed description for enum value ``Ip6``
+		Specifies ``IP6``-address; maps to ``AF_INET6`` platform constant.
 
 */
