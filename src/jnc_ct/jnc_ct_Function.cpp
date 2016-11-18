@@ -321,6 +321,17 @@ Function::generateDocumentation (
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 
+	sl::String overloadXml;
+
+	size_t overloadCount = m_overloadArray.getCount ();
+	for (size_t i = 0; i < overloadCount; i++)
+	{
+		Function* overload = m_overloadArray [i];
+		overload->generateDocumentation (outputDir, &overloadXml, indexXml);
+		itemXml->append ('\n');
+		itemXml->append (overloadXml);
+	}
+
 	return true;
 }
 

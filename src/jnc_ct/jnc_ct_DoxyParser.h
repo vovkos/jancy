@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_Def.h"
+#include "jnc_ct_DoxyLexer.h"
 
 namespace jnc {
 namespace ct {
@@ -46,6 +47,8 @@ protected:
 	DescriptionKind m_descriptionKind;
 	sl::String m_firstIndent;
 	sl::String m_indent;
+	sl::String m_overloadName;
+	size_t m_overloadIdx;
 
 public:
 	DoxyParser (Module* module);
@@ -58,6 +61,13 @@ public:
 		const sl::StringRef& comment,
 		const lex::LineCol& lineCol,
 		bool canAppend
+		);
+
+protected:
+	void
+	setBlockTarget (
+		DoxyTokenKind token,
+		const sl::StringRef& name
 		);
 };
 

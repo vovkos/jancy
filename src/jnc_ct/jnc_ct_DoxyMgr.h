@@ -30,6 +30,7 @@ protected:
 		DoxyBlock* m_block;
 		DoxyTokenKind m_tokenKind;
 		sl::StringRef m_itemName;
+		size_t m_overloadIdx;
 	};
 
 protected:
@@ -78,7 +79,8 @@ public:
 	setBlockTarget (
 		DoxyBlock* block,
 		DoxyTokenKind tokenKind,
-		const sl::StringRef& itemName
+		const sl::StringRef& itemName,
+		size_t overloadIdx
 		);
 
 	bool

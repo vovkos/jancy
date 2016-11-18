@@ -83,13 +83,15 @@ void
 DoxyMgr::setBlockTarget (
 	DoxyBlock* block,
 	DoxyTokenKind tokenKind,
-	const sl::StringRef& itemName
+	const sl::StringRef& itemName,
+	size_t overloadIdx
 	)
 {
 	Target* target = AXL_MEM_NEW (Target);
 	target->m_block = block;
 	target->m_tokenKind = tokenKind;
 	target->m_itemName = itemName;
+	target->m_overloadIdx = overloadIdx;
 	m_targetList.insertTail (target);
 }
 
@@ -132,6 +134,13 @@ DoxyMgr::resolveBlockTargets ()
 				result = false;
 				continue;
 			}
+		}
+
+		if (target->m_overloadIdx && item->getItemKind () == ModuleItemKind_Function)
+		{
+			Function* overload = ((Function*) item)->getOverload (target->m_overloadIdx);
+			if (overload)
+				item = overload;
 		}
 
 		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)

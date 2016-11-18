@@ -34,6 +34,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_Variable,
 	DoxyTokenKind_Field,
 	DoxyTokenKind_Function,
+	DoxyTokenKind_Overload,
 	DoxyTokenKind_Property,
 	DoxyTokenKind_Event,
 	DoxyTokenKind_Typedef,
@@ -68,6 +69,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Variable,      "\\variable")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Field,         "\\field")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Function,      "\\function")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Overload,      "\\overload")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Property,      "\\property")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Event,         "\\event")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Typedef,       "\\typedef")

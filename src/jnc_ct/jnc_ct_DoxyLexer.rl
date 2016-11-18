@@ -52,6 +52,7 @@ main := |*
 '\\fn'            { createToken (DoxyTokenKind_Function); };
 '\\function'      { createToken (DoxyTokenKind_Function); };
 '\\method'        { createToken (DoxyTokenKind_Function); };
+'\\overload'      { createToken (DoxyTokenKind_Overload); };
 '\\prop'          { createToken (DoxyTokenKind_Property); };
 '\\property'      { createToken (DoxyTokenKind_Property); };
 '\\event'         { createToken (DoxyTokenKind_Event); };

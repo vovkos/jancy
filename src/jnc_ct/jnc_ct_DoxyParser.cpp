@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_ct_DoxyParser.h"
-#include "jnc_ct_DoxyLexer.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -25,6 +24,7 @@ DoxyParser::DoxyParser (Module* module)
 	m_block = NULL;
 	m_isBlockAssigned = false;
 	m_descriptionKind = DescriptionKind_Detailed;
+	m_overloadIdx = 0;
 }
 
 DoxyBlock*
@@ -56,6 +56,37 @@ DoxyParser::popBlock ()
 	}
 
 	return doxyBlock;
+}
+
+void
+DoxyParser::setBlockTarget (
+	DoxyTokenKind token,
+	const sl::StringRef& name
+	)
+{
+	switch (token)
+	{
+	case DoxyTokenKind_Overload:
+		if (m_overloadName == name)
+		{
+			m_overloadIdx++;
+			break;
+		}
+
+		// else fall through
+
+	case DoxyTokenKind_Function:
+		m_overloadName = name;
+		m_overloadIdx = 0;
+		break;
+
+	default:
+		m_overloadName.clear ();
+		m_overloadIdx = 0;
+	}
+
+	m_module->m_doxyMgr.setBlockTarget (m_block, token, name, m_overloadIdx);
+	m_isBlockAssigned = true;
 }
 
 void
@@ -118,6 +149,7 @@ DoxyParser::addComment (
 		case DoxyTokenKind_Variable:
 		case DoxyTokenKind_Field:
 		case DoxyTokenKind_Function:
+		case DoxyTokenKind_Overload:
 		case DoxyTokenKind_Property:
 		case DoxyTokenKind_Event:
 		case DoxyTokenKind_Typedef:
@@ -134,8 +166,7 @@ DoxyParser::addComment (
 				description = &m_block->m_detailedDescription;
 			}
 
-			m_module->m_doxyMgr.setBlockTarget (m_block, (DoxyTokenKind) token->m_token, nextToken->m_data.m_string.getTrimmedString ());
-			m_isBlockAssigned = true;
+			setBlockTarget ((DoxyTokenKind) token->m_token, nextToken->m_data.m_string.getTrimmedString ());
 			lexer.nextToken ();
 			break;
 
@@ -242,8 +273,8 @@ DoxyParser::addComment (
 			break;
 
 		case '\n':
-			if (lastTokenLine != token->m_pos.m_line && 
-				m_descriptionKind && 
+			if (lastTokenLine != token->m_pos.m_line &&
+				m_descriptionKind &&
 				!description->isEmpty ()) // empty line ends \brief or \seealso description
 			{
 				m_descriptionKind = DescriptionKind_Detailed;
