@@ -95,7 +95,7 @@
 
 		Specifies the type of the file stream (regular disk file, serial port etc). For the full list of supported file stream types, refer to `io.FileStreamKind`.
 
-		This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses Win32 function ``GetFileType``.
+		This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses WinAPI function ``GetFileType``.
 
 	\event m_onFileStreamEvent
 

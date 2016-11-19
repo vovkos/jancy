@@ -15,11 +15,11 @@
 
 	\brief This enumeration contains all possible values for the underlying type of of `io.FileStream` object.
 
-	Currently, this functionality is only available on Windows (via Win32 function ``GetFileType``).
+	Currently, this functionality is only available on Windows (via WinAPI function ``GetFileType``).
 
 	\enumvalue Unknown
 
-		Denotes undefined (or generic) type of file stream.
+		Denotes undefined (or generic) file stream.
 
 	\enumvalue Disk
 
