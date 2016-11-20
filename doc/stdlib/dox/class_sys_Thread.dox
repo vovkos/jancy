@@ -62,7 +62,7 @@
 
 		Waits until thread finishes. When it happens, ``wait`` returns ``true``, but the thread remains open, so its TID is not released and can still be accessed using ``m_threadId`` field.
 
-		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the thread does not terminate signalled until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the thread does not terminate until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
 
 	\fn waitAndClose
 
