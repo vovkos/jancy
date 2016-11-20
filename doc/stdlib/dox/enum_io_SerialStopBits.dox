@@ -13,20 +13,20 @@
 
 \enum io.SerialStopBits
 
-	\brief Brief description for enum ``io.SerialStopBits``
+	\brief This enumeration lists all possible values for stop bits setting of the serial port.
 
-	Detailed description for enum ``io.SerialStopBits``
+	Stop bits are auxillary (non-data) bits sent at the end of each character to re-synchronize the receiver; normally 1 stop bit is used.
 
 	\enumvalue _1
 
-		Detailed description for enum value ``_1``
+		One stop bit.
 
 	\enumvalue _15
 
-		Detailed description for enum value ``_15``
+		One and a half stop bit (1.5 bit duration).
 
 	\enumvalue _2
 
-		Detailed description for enum value ``_2``
+		Two stop bits.
 
 */

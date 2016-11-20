@@ -25,7 +25,7 @@
 
 	\enumvalue IncomingData
 
-		More data is available on the file stream; this data could be fetched with ``read`` method.
+		More data is available on the file stream; this data could be fetched with `io.FileStream.read` method.
 
 	\enumvalue IoError
 
@@ -33,6 +33,6 @@
 
 	\enumvalue TransmitBufferReady
 
-		File stream transmit buffer is ready to accept more data; it's OK to issue more ``write`` requests.
+		File stream transmit buffer is ready to accept more data; it's OK to issue more `io.FileStream.write` requests.
 
 */

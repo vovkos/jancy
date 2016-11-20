@@ -13,24 +13,26 @@
 
 \enum io.SerialStatusLines
 
-	\brief Brief description for enum ``io.SerialStatusLines``
+	\brief This enumeration lists all possible status lines on the serial port.
 
-	Detailed description for enum ``io.SerialStatusLines``
+	You can read values of all the status lines at once by accessing `io.Serial.m_statusLines` property. You also get all the values of *changed* status lines in `io.SerialEventParams.m_lines`.
+
+	\sa `io.Serial`
 
 	\enumvalue Cts
 
-		Detailed description for enum value ``Cts``
+		``CTS`` status line (clear-to-send).
 
 	\enumvalue Dsr
 
-		Detailed description for enum value ``Dsr``
+		``DSR`` status line (data-source-ready)
 
 	\enumvalue Ring
 
-		Detailed description for enum value ``Ring``
+		``RING`` status line (ring-indicator)
 
 	\enumvalue Dcd
 
-		Detailed description for enum value ``Dcd``
+		``DCD`` status line (device-carrier-detect)
 
 */

@@ -58,16 +58,16 @@
 
 		bar (int a, int b, int c)
 		{
-			printf ($"bar ($a, $b, $c) -- MUST be called under g_lock\n");
+			printf ($"bar ($a, $b, $c) -- MUST be called under g_lock");
 		}
 
 		foo ()
 		{
-			LockScheduler lockScheduler;
-			lockScheduler.m_lock = g_lock; // initialize scheduler
+			LockScheduler scheduler;
+			scheduler.m_lock = g_lock; // initialize scheduler
 
-			(bar @ lockScheduler) (1, 2, 3); // schedule immediatly
-			work (bar ~(10, 20) @ lockScheduler); // pass as completion routine
+			(bar @ scheduler) (1, 2, 3); // schedule immediatly
+			work (bar ~(10, 20) @ scheduler); // pass as completion routine
 		}
 
 	\fn schedule

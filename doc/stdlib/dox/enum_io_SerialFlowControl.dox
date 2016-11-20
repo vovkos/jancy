@@ -13,20 +13,26 @@
 
 \enum io.SerialFlowControl
 
-	\brief Brief description for enum ``io.SerialFlowControl``
+	\brief This enumeration specifies all possible values for the serial flow control setting.
 
-	Detailed description for enum ``io.SerialFlowControl``
+	Flow control is the protocol of attempted prevention of data loss during serial transmission which may happen when transmission side sends data faster than the receiving side is able to process it.
+
+	To adjust the flow control protocol, modify `io.Serial.m_flowControl` property at any time (both pre-open and post-open modifications are supported).
+
+	\sa `io.Serial`
 
 	\enumvalue None
 
-		Detailed description for enum value ``None``
+		No flow control protocol is employed. If the receiving end is not capable of handling arriving data fast enough, the data is unconditionally lost.
 
 	\enumvalue RtsCts
 
-		Detailed description for enum value ``RtsCts``
+		``RTS/CTS`` flow control (sometimes called **hardware** flow control). Remote side is only allowed to send the data if the ``RTS`` control line is ``high``; likewise, the local side should only send data when ``CTS`` status line is ``high``.
 
 	\enumvalue XOnXOff
 
-		Detailed description for enum value ``XOnXOff``
+		``XON/XOFF`` flow control (sometimes called **software** flow control). In this protocol, two special charaters are selected as ``XON`` (``0x11``) and ``XOFF`` (``0x13``). Note that current implementation of ``io.Serial`` class does not allow overriding these values.
+
+		If a side of transmission detects ``XOFF`` character in input stream, this side should suspend the transmission until it sees ``XON`` character; at which moment the transmission may be resumed.
 
 */

@@ -13,44 +13,56 @@
 
 \enum io.NetworkAdapterType
 
-	\brief Brief description for enum ``io.NetworkAdapterType``
+	\brief This enumeration specifies available types of the network adapter.
 
-	Detailed description for enum ``io.NetworkAdapterType``
+	When enumerating available network adapter you first call `io.createNetworkAdapterDescList`, then iterate through the resulting list of `io.NetworkAdapterDesc` structures, each contains its type information `io.NetworkAdapterDesc.m_type` field.
 
 	\enumvalue Unknown
 
-		Detailed description for enum value ``Unknown``
+		Denotes uninitialized value (or undetected type of the network adapter)
 
 	\enumvalue Loopback
 
-		Detailed description for enum value ``Loopback``
+		Software loopback network interface.
 
 	\enumvalue Ethernet
 
-		Detailed description for enum value ``Ethernet``
+		Ethernet network interface.
 
 	\enumvalue Wireless
 
-		Detailed description for enum value ``Wireless``
+		``IEEE 802.11`` wireless network interface.
 
 	\enumvalue Ppp
 
-		Detailed description for enum value ``Ppp``
+		``PPP`` (point-to-point) network interface.
 
 	\enumvalue TokenRing
 
-		Detailed description for enum value ``TokenRing``
+		Token ring network interface.
 
 	\enumvalue Slip
 
-		Detailed description for enum value ``Slip``
+		``SLIP`` (serial-line-internet-protocol) network interface.
 
 	\enumvalue Tunnel
 
-		Detailed description for enum value ``Tunnel``
+		Tunnel type encapsulation network interface.
 
 	\enumvalue _Count
 
-		Detailed description for enum value ``_Count``
+		Not really a type of interface; rather, this is a convenience constant denoting the total count  of adapter types. Should you need a table indexed by adapter type, you could write something like::
+
+			char const* getNetworkAdapterTypeString (io.NetworkAdapterType type)
+			{
+				static char const stringTable [io.NetworkAdapterType._Count] =
+				{
+					"<unknown>",
+					"loopback",
+					// ...
+				}
+
+				return stringTable [type];
+			}
 
 */

@@ -13,24 +13,26 @@
 
 \enum io.SerialEventCode
 
-	\brief Brief description for enum ``io.SerialEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.Serial` object.
 
-	Detailed description for enum ``io.SerialEventCode``
+	When `io.Serial` object is about to fire an event, it allocates an `io.SerialEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onSerialEvent``.
+
+	\sa `io.Serial`, `io.SerialEventParams`
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value ``IncomingData``
+		More data is available on the serial port; this data could be fetched with `io.Serial.read` method.
 
 	\enumvalue IoError
 
-		Detailed description for enum value ``IoError``
+		An IO error occured on the serial port; detailed information about the error is available at `io.SerialEventParams.m_error`.
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value ``TransmitBufferReady``
+		Serial port transmit buffer is ready to accept more data; it's OK to issue more `io.Serial.write` requests.
 
 	\enumvalue StatusLineChanged
 
-		Detailed description for enum value ``StatusLineChanged``
+		One or more serial status lines has changed. All the information about the change is contained in event params structure. `io.SerialEventParams.m_mask` holds the mask of all serial lines that has changed; `io.SerialEventParams.m_lines` holds new values of those lines.
 
 */
