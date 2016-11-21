@@ -1,0 +1,22 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+/*!
+
+\defgroup automaton
+
+	\title Automatons & Recognizers
+
+	\brief Jancy automatons allow for convenient creation of lexers/scanners.
+
+	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc. First, you define a list of recognized lexemes in the form of regular expressions. Then you specify which actions to execute when these lexemes are found in the input stream. Jancy compiler will then automatically build a DFA to recognize your language.
+
+*/

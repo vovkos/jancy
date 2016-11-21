@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup automaton
+//! @{
+
 ///+++
 
 //..............................................................................
@@ -92,4 +95,12 @@ public:
 
 ///---
 
+//! @}
+
 } // namespace jnc
+
+/*!
+
+\defgroup automaton Automatons & Recognizers
+
+*/
