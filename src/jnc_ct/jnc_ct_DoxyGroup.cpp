@@ -34,11 +34,13 @@ DoxyGroup::generateDocumentation (
 	itemXml->format (
 		"<compounddef kind='group' id='%s'>\n"
 		"<compoundname>%s</compoundname>\n"
-		"<title>%s</title>\n",
+		"<title>",
 		m_refId.sz (),
-		m_name.sz (),
-		m_title.sz ()
+		m_name.sz ()
 		);
+
+	appendXmlElementContents (itemXml, m_title);
+	itemXml->append ("</title>\n");
 
 	sl::String sectionDef;
 

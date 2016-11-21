@@ -38,25 +38,6 @@ DoxyBlock::getRefId ()
 	return m_refId;
 }
 
-inline
-void
-appendXmlElementContents (
-	sl::String* string,
-	const sl::StringRef& contents
-	)
-{
-	if (contents.findOneOf ("<>") == -1)
-	{
-		string->append (contents);
-	}
-	else
-	{
-		string->append ("<![CDATA[");
-		string->append (contents);
-		string->append ("]]>");
-	}
-}
-
 sl::String
 DoxyBlock::getDescriptionString ()
 {
@@ -95,6 +76,26 @@ DoxyBlock::getDescriptionString ()
 	}
 
 	return string;
+}
+
+//..............................................................................
+
+void
+appendXmlElementContents (
+	sl::String* string,
+	const sl::StringRef& contents
+	)
+{
+	if (contents.findOneOf ("<>&") == -1)
+	{
+		string->append (contents);
+	}
+	else
+	{
+		string->append ("<![CDATA[");
+		string->append (contents);
+		string->append ("]]>");
+	}
 }
 
 //..............................................................................

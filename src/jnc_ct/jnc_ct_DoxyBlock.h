@@ -104,5 +104,13 @@ public:
 
 //..............................................................................
 
+void
+appendXmlElementContents (
+	sl::String* string,
+	const sl::StringRef& contents
+	);
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc
