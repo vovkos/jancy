@@ -15,7 +15,7 @@
 
 	\brief This enumeration contains codes of all possible events that might happen on `io.FileStream` object.
 
-	When `io.FileStream` object is about to fire an event, it allocates an `io.FileStreamEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onFileStreamEvent``.
+	When `io.FileStream` object is about to fire an event, it allocates an `io.FileStreamEventParams` structure, sets `io.FileStreamEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.FileStream.m_onFileStreamEvent`.
 
 	\sa `io.FileStream`, `io.FileStreamEventParams`
 

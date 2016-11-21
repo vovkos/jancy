@@ -13,20 +13,22 @@
 
 \enum io.SocketAddressResolverEventCode
 
-	\brief Brief description for enum ``io.SocketAddressResolverEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.SocketAddressResolver` object.
 
-	Detailed description for enum ``io.SocketAddressResolverEventCode``
+	When `io.SocketAddressResolver` object is about to fire an event, it allocates an `io.SocketAddressResolverEventParams` structure, sets `io.SocketAddressResolverEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.SocketAddressResolver.m_onResolverEvent`.
+
+	\sa `io.SocketAddressResolver`, `io.SocketAddressResolverEventParams`
 
 	\enumvalue ResolveCompleted
 
-		Detailed description for enum value ``ResolveCompleted``
+		Hostname successfully resolved. Result address table is located at: `io.SocketAddressResolverEventParams.m_addressTable` (contains `io.SocketAddressResolverEventParams.m_addressCount` elements).
 
 	\enumvalue ResolveCancelled
 
-		Detailed description for enum value ``ResolveCancelled``
+		Hostname resolve request was cancelled (by `io.SocketAddressResolver.cancel` or `io.SocketAddressResolver.cancelAll` methods).
 
 	\enumvalue ResolveError
 
-		Detailed description for enum value ``ResolveError``
+		Hostname could not be resolved. Detailed error information could be found at: `io.SocketAddressResolverEventParams.m_error`.
 
 */

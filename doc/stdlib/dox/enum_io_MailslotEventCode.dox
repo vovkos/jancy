@@ -15,13 +15,13 @@
 
 	\brief This enumeration contains codes of all possible events that might happen on `io.Mailslot` object.
 
-	When `io.Mailslot` object is about to fire an event, it allocates an `io.MailslotEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onMailslotEvent``.
+	When `io.Mailslot` object is about to fire an event, it allocates an `io.MailslotEventParams` structure, sets `io.MailslotEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Mailslot.m_onMailslotEvent`.
 
 	\sa `io.Mailslot`, `io.MailslotEventParams`
 
 	\enumvalue IncomingData
 
-		More data is available on the mailslot; this data could be fetched with ``read`` method.
+		More data is available on the mailslot; this data could be fetched with `io.Mailslot.read` method.
 
 	\enumvalue IoError
 

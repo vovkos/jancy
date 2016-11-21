@@ -13,16 +13,16 @@
 
 \enum io.SocketCloseKind
 
-	\brief Brief description for enum ``io.SocketCloseKind``
+	\brief This enumeration lists options for ``TCP`` socket disconnect type.
 
-	Detailed description for enum ``io.SocketCloseKind``
+	``TCP`` socket could be closed using either of the below ways.
 
 	\enumvalue Reset
 
-		Detailed description for enum value ``Reset``
+		Send ``RST`` packet and drop the connection abruptly.
 
 	\enumvalue Graceful
 
-		Detailed description for enum value ``Graceful``
+		Follow the controlled disconnect sequence which starts with disconnect initiator issuing a ``FIN`` packet (``FIN-ACK-FIN-ACK``).
 
 */

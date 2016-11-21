@@ -13,12 +13,14 @@
 
 \enum io.SocketDisconnectEventFlags
 
-	\brief Brief description for enum ``io.SocketDisconnectEventFlags``
+	\brief This enumeration lists all possible values for `io.SocketEventParams.m_flags` when `io.SocketEventParams.m_eventCode` equals `io.SocketEventCode.Disconnected`.
 
-	Detailed description for enum ``io.SocketDisconnectEventFlags``
+	Currently only one flag ``Reset`` is supported -- it is used to distinguish between different disconnect types.
+
+	\sa `io.SocketEventParams`, `io.SocketEventCode`
 
 	\enumvalue Reset
 
-		Detailed description for enum value ``Reset``
+		Connection was terminated abruptly (by a ``RST`` packet) rather than gracefully (with a ``FIN-ACK-FIN-ACK`` sequence)
 
 */

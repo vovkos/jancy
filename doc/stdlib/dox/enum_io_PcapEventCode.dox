@@ -15,13 +15,13 @@
 
 	\brief This enumeration contains codes of all possible events that might happen on `io.Pcap` object.
 
-	When `io.Pcap` object is about to fire an event, it allocates an `io.PcapEventParams` structure, sets ``m_code`` field to one of the values below, fills other relevant fields of and then calls all subscribers of ``m_onPcapEvent``.
+	When `io.Pcap` object is about to fire an event, it allocates an `io.PcapEventParams` structure, sets `io.PcapEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Pcap.m_onPcapEvent`.
 
 	\sa `io.Pcap`, `io.PcapEventParams`
 
 	\enumvalue ReadyRead
 
-		New packet(s) are available on the Pcap device or file; the next packet could be fetched with ``read`` method.
+		New packet(s) are available on the Pcap device or file; the next packet could be fetched with `io.Pcap.read` method.
 
 	\enumvalue Eof
 

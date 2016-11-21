@@ -13,36 +13,38 @@
 
 \enum io.SocketEventCode
 
-	\brief Brief description for enum ``io.SocketEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.Socket` object.
 
-	Detailed description for enum ``io.SocketEventCode``
+	When `io.Socket` object is about to fire an event, it allocates an `io.SocketEventParams` structure, sets `io.SocketEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Socket.m_onSocketEvent`.
+
+	\sa `io.Socket`, `io.SocketEventParams`
 
 	\enumvalue ConnectCompleted
 
-		Detailed description for enum value ``ConnectCompleted``
+		Connection request completed successfully.
 
 	\enumvalue ConnectCancelled
 
-		Detailed description for enum value ``ConnectCancelled``
+		Connection request cancelled by `io.Socket.close` call.
 
 	\enumvalue ConnectError
 
-		Detailed description for enum value ``ConnectError``
+		Connection request failed; detailed information about the error is available at: `io.SocketEventParams.m_error`.
 
 	\enumvalue Disconnected
 
-		Detailed description for enum value ``Disconnected``
+		Connection has been terminated by the remote node. `io.SocketEventParams.m_flags` contains additional information about disconnect type. Note that if connection was terminated by the local node (using `io.Socket.close`), ``Disconnect`` event is **not** fired.
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value ``IncomingData``
+		More data is available on the socket; this data could be fetched with `io.Socket.recv` or `io.Socket.recvFrom` methods.
 
 	\enumvalue IncomingConnection
 
-		Detailed description for enum value ``IncomingConnection``
+		New incoming client connection is pending on the listening server socket. The new client can be accepted using `io.Socket.accept` method (to reject the connection you still have to accept it first, and then close it)
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value ``TransmitBufferReady``
+		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.Socket.send` requests. Note that this event is not supposed to be used with datagram sockets.
 
 */
