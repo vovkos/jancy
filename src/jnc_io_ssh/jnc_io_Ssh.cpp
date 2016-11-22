@@ -234,9 +234,6 @@ SshChannel::connect (
 	m_connectParams->m_ptyType     = ptyTypePtr.m_p ? (const char*) ptyTypePtr.m_p : "ansi";
 	m_connectParams->m_ptyWidth    = ptyWidth;
 	m_connectParams->m_ptyHeight   = ptyHeight;
-
-	m_ioFlags |= IoFlag_Connecting;
-	wakeIoThread ();
 	m_ioLock.unlock ();
 
 	if (!isSync)
@@ -252,9 +249,17 @@ SshChannel::connect (
 	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
 	result = m_socket.connect (m_remoteAddress.getSockAddr ());
 	if (!result)
+	{
 		propagateLastError ();
+		return false;
+	}
 
-	return result;
+	m_ioLock.lock ();
+	m_ioFlags |= IoFlag_Connecting;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+
+	return true;
 }
 
 bool

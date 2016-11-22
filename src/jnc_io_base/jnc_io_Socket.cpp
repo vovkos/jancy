@@ -398,8 +398,13 @@ JNC_CDECL
 Socket::connect (DataPtr addressPtr)
 {
 	bool result;
+	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
 
-	if (m_ioFlags & IoFlag_Asynchronous)
+	if (!(m_ioFlags & IoFlag_Asynchronous))
+	{
+		result = m_socket.connect (address->getSockAddr ());
+	}
+	else
 	{
 		m_ioLock.lock ();
 		if (m_ioFlags & ~IoFlag_Asynchronous)
@@ -409,13 +414,18 @@ Socket::connect (DataPtr addressPtr)
 			return false;
 		}
 
-		m_ioFlags |= IoFlag_Connecting;
-		wakeIoThread ();
 		m_ioLock.unlock ();
+
+		result = m_socket.connect (address->getSockAddr ());
+		if (result)
+		{
+			m_ioLock.lock ();
+			m_ioFlags |= IoFlag_Connecting;
+			wakeIoThread ();
+			m_ioLock.unlock ();
+		}
 	}
 
-	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
-	result = m_socket.connect (address->getSockAddr ());
 	if (!result)
 		propagateLastError ();
 
