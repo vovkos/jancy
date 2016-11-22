@@ -76,9 +76,16 @@ Runtime::shutdown ()
 
 	m_gcHeap.beginShutdown ();
 
-	bool result = m_noThreadEvent.wait (3000); // wait for other threads
-	ASSERT (result && m_tlsList.isEmpty ());
+	for (size_t i = 0; i < Shutdown_IterationCount; i++)
+	{
+		m_gcHeap.collect ();
 
+		bool result = m_noThreadEvent.wait (Shutdown_WaitThreadTimeout); // wait for other threads
+		if (result)
+			break;
+	}
+
+	ASSERT (m_tlsList.isEmpty ());
 	m_gcHeap.finalizeShutdown ();
 
 	m_state = State_Idle;

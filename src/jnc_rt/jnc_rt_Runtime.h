@@ -30,6 +30,12 @@ protected:
 		State_ShuttingDown,
 	};
 
+	enum Shutdown
+	{
+		Shutdown_IterationCount    = 6,
+		Shutdown_WaitThreadTimeout = 500, // 3 sec total
+	};
+
 protected:
 	sys::Lock m_lock;
 	ct::Module* m_module;

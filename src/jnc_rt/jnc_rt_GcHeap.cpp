@@ -200,9 +200,11 @@ GcHeap::incrementAllocSize_l (size_t size)
 void
 GcHeap::incrementAllocSizeAndLock (size_t size)
 {
+	// allocations should only be done in registered mutator threads
+	// otherwise there is risk of loosing new object
+
 	bool isMutatorThread = waitIdleAndLock ();
-	ASSERT (isMutatorThread);  // allocations should only be done in registered mutator threads
-	                           // otherwise there is risk of loosing new object
+	ASSERT (isMutatorThread);
 
 	incrementAllocSize_l (size);
 
@@ -464,10 +466,8 @@ GcHeap::beginShutdown ()
 
 	m_flags |= GcHeapFlag_ShuttingDown;  // this will prevent boxes from being actually freed
 
-	// initial collect
-
-	m_staticRootArray.clear (); // drop roots
-	collect_l (false);
+	m_staticRootArray.clear (); // drop static roots
+	m_lock.unlock ();
 }
 
 void
@@ -487,7 +487,7 @@ GcHeap::finalizeShutdown ()
 	// final collect
 
 	waitIdleAndLock ();
-	m_staticRootArray.clear (); // drop roots
+	m_staticRootArray.clear (); // drop static roots one more time
 	collect_l (false);
 
 	waitIdleAndLock ();
