@@ -29,6 +29,7 @@ class JancyLexer(RegexLexer):
             (r'/(\\\n)?[*](.|\n)*?[*](\\\n)?/', Comment.Multiline),
         ],
         'statements': [
+            (r'%%((\n|$)|(.|\n)*?[^\\](\n|$))', String),
             (r'(0[xXoObBnNdD]|\$)?"', String, 'string'),
             (r'(0[xXoObBnNdD])?"""(.|\n)*?"""', String),
             (r"'(\\.|\\[0-7]{1,3}|\\x[a-fA-F0-9]{1,2}|[^\\\'\n])'", String.Char),
