@@ -28,10 +28,17 @@ write data;
 # definitions
 #
 
+# whitespace
+
+ws = [ \t\r]+;
+
+# non-whitespace
+
+nws = [^ \t\r\n]+;
+
 # regular char (non-whitespace and non-escape)
 
 rc = [^ \t\r\n\\];
-ws = [ \t\r]+;
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -69,12 +76,12 @@ main := |*
 '\\sa'            { createToken (DoxyTokenKind_SeeAlso); };
 '\\footnote'      { createToken (DoxyTokenKind_Footnote); };
 
-'\\' rc*          { createToken (DoxyTokenKind_OtherCommand); };
+'\\' rc*          { createTextToken (DoxyTokenKind_OtherCommand); };
 
 '@{'              { createToken (DoxyTokenKind_OpeningBrace); };
 '@}'              { createToken (DoxyTokenKind_ClosingBrace); };
 
-rc ([^\n\\]* rc)? { createTextToken (); };
+rc ([^\n]* nws)?  { createTextToken (DoxyTokenKind_Text); };
 
 '\n' ws?          { createNewLineToken (), newLine (ts + 1); };
 ws                ;

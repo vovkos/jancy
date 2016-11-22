@@ -247,6 +247,11 @@ DoxyParser::addComment (
 			description = &m_block->m_seeAlsoDescription;
 			break;
 
+		case DoxyTokenKind_OtherCommand:
+			// maybe, treat is as normal text?
+
+			break;
+
 		case DoxyTokenKind_Text:
 			if (description->isEmpty ())
 			{
@@ -255,17 +260,22 @@ DoxyParser::addComment (
 			}
 			else
 			{
-				size_t indentLength = m_indent.getLength ();
-				size_t firstIndentLength = m_firstIndent.getLength ();
-				size_t commonIndentLength = AXL_MIN (indentLength, firstIndentLength);
+				if (!m_indent.isEmpty ())
+				{
+					size_t indentLength = m_indent.getLength ();
+					size_t firstIndentLength = m_firstIndent.getLength ();
+					size_t commonIndentLength = AXL_MIN (indentLength, firstIndentLength);
 
-				size_t i = 0;
-				for (; i < commonIndentLength; i++)
-					if (m_indent [i] != m_firstIndent [i])
-						break;
+					size_t i = 0;
+					for (; i < commonIndentLength; i++)
+						if (m_indent [i] != m_firstIndent [i])
+							break;
 
-				if (i < indentLength)
-					description->append (m_indent.sz () + i, indentLength - i);
+					if (i < indentLength)
+						description->append (m_indent.sz () + i, indentLength - i);
+
+					m_indent.clear (); // do this once per line
+				}
 
 				description->append (token->m_data.m_string);
 			}

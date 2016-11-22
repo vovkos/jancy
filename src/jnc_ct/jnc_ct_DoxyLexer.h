@@ -97,7 +97,7 @@ class DoxyLexer: public lex::RagelLexer <DoxyLexer, DoxyToken>
 
 protected:
 	DoxyToken*
-	createTextToken ();
+	createTextToken (DoxyTokenKind tokenKind);
 
 	DoxyToken*
 	createNewLineToken ();

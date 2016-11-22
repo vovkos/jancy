@@ -19,9 +19,9 @@ namespace ct {
 //..............................................................................
 
 DoxyToken*
-DoxyLexer::createTextToken ()
+DoxyLexer::createTextToken (DoxyTokenKind tokenKind)
 {
-	Token* token = createToken (DoxyTokenKind_Text);
+	Token* token = createToken (tokenKind);
 	token->m_data.m_string = sl::StringRef (ts, te - ts);
 	return token;
 }
