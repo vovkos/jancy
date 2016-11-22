@@ -13,52 +13,117 @@
 
 \class jnc.Recognizer
 
-	\brief Brief description for class ``jnc.Recognizer``
+	\brief This class holds the state of DFA and the buffer to store bytes of matched lexeme.
 
-	Detailed description for class ``jnc.Recognizer``
+	To use Jancy lexer/scanner framework, you have to define an automaton function first. Automaton function contains a list of recognized lexemes in form of regular expressions *and* defines actions to undertake when these lexemes are found in the input stream:
+
+	.. ref-code-block::
+
+		`jnc.AutomatonResult` automaton fooBar (`jnc.Recognizer`* recognizer)
+		{
+		    %% "foo"
+		        // lexeme found: foo;
+
+		    %% "bar"
+		        // lexeme found: bar;
+
+		    %% [0-9]+
+		        // lexeme found: decimal-number
+
+		        char const* numberString = recognizer.m_lexeme;
+
+		    %% [ \r\n\t]+
+		        // ignore whitespace
+		}
+
+	Then create an instance of ``jnc.Recognizer`` class and assign your ``automaton`` function to it::
+
+		jnc.Recognizer recognizer (fooBar);
+
+	Then you keep feeding chunks of data to the recognizer; when recognizer matches the whole lexeme as defined in ``automaton`` function, it executes the corresponding action:
+
+	.. ref-code-block::
+
+		try
+		{
+		    recognizer.write (" ba");
+		    recognizer.write ("r f");
+		    recognizer.write ("oo ");
+		    recognizer.write ("100");
+		    recognizer.write ("000");
+
+		    // notify recognizer about eof (this can trigger actions or errors)
+
+		    recognizer.eof ();
+
+		catch:
+		    // handle recognition error
+		}
 
 	\typedef AutomatonFunc
 
-		Detailed description for typedef ``AutomatonFunc``
-
-	\field m_lexeme
-
-		Detailed description for field ``m_lexeme``
+		All ``automaton`` functions in Jancy must return `jnc.AutomatonResult` and accept one argument of type ``jnc.Recognizer*``. If more arguments are needed (e.g. ``this`` argument of ``automaton`` member methods), they can be stored in the function closure.
 
 	\field m_lexemeOffset
 
-		Detailed description for field ``m_lexemeOffset``
+		Holds pointer to matched lexeme (guaranteed to be null-terminated). This field should only be accessed from within **action** inside ``automaton`` function.
+
+	\field m_lexemeOffset
+
+		Holds offset of the matched lexeme relative the beginning of input stream. This field should only be accessed from within **action** inside ``automaton`` function.
 
 	\field m_lexemeLength
 
-		Detailed description for field ``m_lexemeLength``
+		Holds length of the matched lexeme. This field should only be accessed from within **action** inside ``automaton`` function.
 
 	\property m_automatonFunc
 
-		Detailed description for property ``m_automatonFunc``
+		Holds pointer to the current ``automaton`` function. Can be adjusted on-the-fly, for example, in actions of ``automaton`` function.
 
 	\property m_lexemeLengthLimit
 
-		Detailed description for property ``m_lexemeLengthLimit``
+		Holds the maximum buffer size for lexemes. Set before starting recognition.
+
+		What happends when lexeme in the input stream does not fit inside the buffer, depends on the whether the captured part of lexeme *already* matches some rule. If yes, recognizer will execute corresponding action and then reset its state to initial value.
+
+		If captured part of lexeme does not match any rules, ``write`` or ``recognize`` will return error.
 
 	\property m_currentOffset
 
-		Detailed description for property ``m_currentOffset``
+		Holds the current offset of recognizer.
+
+		Could be adjusted manually. For example, you can adjust ``m_currentOffset`` before starting recognition; when a lexeme is found, ``m_lexemeOffset`` will account for the initial offset (offset relative the beginning of the stream plus initial offset set before starting recognition).
 
 	\fn reset
 
-		Detailed description for function ``reset``
+		Resets state of recognizer including all offsets and captured lexeme bytes.
 
 	\fn write
 
-		Detailed description for function ``write``
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` to the recognizer, executing actions corresponding to matched lexemes in the process. Keeps state in tact, so a couple of continuous``write`` calls yield the same result as if a single ``write`` with concatenated buffer.
+
+		Returns ``true`` on success. If the new bytes place DFA into *error* state, ``write`` sets ``unrecognized lexeme`` error and returns ``false`` [#f1]_.
 
 	\fn eof
 
-		Detailed description for function ``eof``
+		Notifies recognizer about the end of stream. Trigger actions if DFA is in *matched* state.
+
+		Returns ``true`` on success. If DFA is not in *matched* state, ``eof`` sets ``unrecognized lexeme`` error and returns ``false`` [#f1]_.
 
 	\fn recognize
 
-		Detailed description for function ``recognize``
+		Performs recognition of a complete data stream in one go.
+
+		Equivalent to the sequence of calls: ``reset``, ``write``, ``eof``.
+
+	\fn recognize
+
+		Performs recognition of a complete data stream in one go.
+
+		Equivalent to setting ``m_autatonFunc`` and then calling ``recognize`` method.
+
+	\footnote f1
+
+		|footnote-errorcode|
 
 */
