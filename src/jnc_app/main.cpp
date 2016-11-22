@@ -51,8 +51,6 @@ printUsage ()
 	printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.sz ());
 }
 
-//..............................................................................
-
 #if (_JNC_OS_WIN)
 int
 wmain (
@@ -67,6 +65,10 @@ main (
 	)
 #endif
 {
+#if _AXL_OS_POSIX
+	setvbuf (stdout, NULL, _IOLBF, 1024);
+#endif
+
 	bool result;
 
 	jnc::initialize ();
