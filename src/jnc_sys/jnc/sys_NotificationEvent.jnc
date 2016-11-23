@@ -15,6 +15,9 @@
 
 namespace sys {
 
+//! \addtogroup sync
+//! @{
+
 //..............................................................................
 
 opaque class NotificationEvent
@@ -28,6 +31,8 @@ opaque class NotificationEvent
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace sys
 

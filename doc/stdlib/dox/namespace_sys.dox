@@ -13,28 +13,8 @@
 
 \namespace sys
 
-	\brief Brief description for namespace ``sys``
+	\brief This namespaces contains all IO-related classes and auxiliary types and functions.
 
-	Detailed description for namespace ``sys``
-
-*/
-
-/*!
-
-\fn sys.getCurrentThreadId
-
-	Detailed description for function ``sys.getCurrentThreadId``
-
-\fn sys.createThread
-
-	Detailed description for function ``sys.createThread``
-
-\fn sys.sleep
-
-	Detailed description for function ``sys.sleep``
-
-\fn sys.getTimestamp
-
-	Detailed description for function ``sys.getTimestamp``
+	\brief For your convenience, documentation for all the members of ``namespace io`` is divided into the following categories:
 
 */

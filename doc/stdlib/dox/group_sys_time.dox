@@ -11,18 +11,22 @@
 
 /*!
 
-\defgroup file
+\defgroup time
 
-	\title Generic File IO
+	\title Time Facilities
 
-	\brief This group contains types and facilities for working with files and generic IO devices.
+	\brief This group contains types and facilities for date, time and timer management.
 
 */
 
 /*!
 
-\fn io.getFileStreamKindString
+\fn sys.sleep
 
-	Returns string representation of the ``kind`` argument. In case ``kind`` does not correspond to any known file stream kind (e.g. you have casted a random integer number to `io.FileStreamKind` enumeration type), string ``unknown device`` is returned.
+	Detailed description for function ``sys.sleep``
+
+\fn sys.getTimestamp
+
+	Detailed description for function ``sys.getTimestamp``
 
 */

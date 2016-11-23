@@ -15,9 +15,7 @@
 
 	\title Pcap (Packet Capturing Library)
 
-	\brief Brief description for group ``pcap`` (Pcap (Packet Capturing Library))
-
-	Detailed description for group ``pcap`` (Pcap (Packet Capturing Library))
+	\brief This group contains types and facilities used when programming Pcap (Packet Capturing Library)
 
 */
 
@@ -25,6 +23,18 @@
 
 \fn io.createPcapDeviceDescList
 
-	Detailed description for function ``io.createPcapDeviceDescList``
+	Enumerates all available devices Pcap can start a live capture session on.
+
+	``count`` argument can be used to obtain the total number of devices in the resulting list.
+
+	Returns a pointer to the very first `io.PcapDeviceDesc` in the resulting list. You can walk through the list by inspecting `io.PcapDeviceDesc.m_next` field:
+
+	.. ref-code-block::
+
+		`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList ();
+		for (; deviceDesc; deviceDesc = deviceDesc.m_next)
+		{
+			// add device to the combo box...
+		}
 
 */

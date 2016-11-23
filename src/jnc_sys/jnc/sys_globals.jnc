@@ -17,13 +17,23 @@ namespace sys {
 
 //..............................................................................
 
+//! \addtogroup thread
+//! @{
+
 uintptr_t getCurrentThreadId ();
 
 bool createThread (function* threadFunc ());
 
+//! @}
+
+//! \addtogroup time
+//! @{
+
 void sleep (uint32_t msec);
 
 uint64_t getTimestamp ();
+
+//! @}
 
 //..............................................................................
 

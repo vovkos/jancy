@@ -13,20 +13,24 @@
 
 \enum jnc.AutomatonResult
 
-	\brief Brief description for enum ``jnc.AutomatonResult``
+	\brief This enumeration lists all possible values that can be returned by ``automaton`` function.
 
-	Detailed description for enum ``jnc.AutomatonResult``
+	Automaton function consists of a list of lexeme-describing regular expressions followed by actions, which need to be performed when those lexemes are discovered in the input stream. What to do *after* the action is determined by the return code of ``automaton`` function.
+
+	\sa `jnc.Recognizer`
 
 	\enumvalue Error
 
-		Detailed description for enum value ``Error``
+		Even when lexeme matches the regular expression, something may be wrong with it. If the lexeme-following action does some extra checks and disoveres an error in the lexeme, it can return ``jnc.AutomatonResult.Error``. This will force `jnc.Recognizer` to fail the original `jnc.Recognizer.write` or `jnc.Recognizer.eof` function.
 
 	\enumvalue Continue
 
-		Detailed description for enum value ``Continue``
+		Continue scanning/lexing past the discovered lexeme. This is the default return value, i.e. if you action does not return anything, Jancy compiler will treat this action as it has ended with::
+
+			return jnc.AutomatonResult.Continue;
 
 	\enumvalue Stop
 
-		Detailed description for enum value ``Stop``
+		Sometimes it may be desirable to **stop** right away after a certain lexeme. When this is needed, lexeme-following action can return ``jnc.AutomatonResult.Stop``. This will force `jnc.Recognizer` will act just as the input stream has ended right after the current lexeme (the following bytes of the input will be ignored).
 
 */

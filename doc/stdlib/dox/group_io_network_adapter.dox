@@ -15,9 +15,7 @@
 
 	\title Network Adapter Management
 
-	\brief Brief description for group ``network-adapter`` (Network Adapter Management)
-
-	Detailed description for group ``network-adapter`` (Network Adapter Management)
+	\brief This group contains types and facilities for enumerating and getting information about installed network adapters.
 
 */
 
@@ -25,6 +23,18 @@
 
 \fn io.createNetworkAdapterDescList
 
-	Detailed description for function ``io.createNetworkAdapterDescList``
+	Enumerates all available network adapters on the system.
+
+	``count`` argument can be used to obtain the total number of devices in the resulting list.
+
+	Returns a pointer to the very first `io.NetworkAdapterDesc` in the resulting list. You can walk through the list by inspecting `io.NetworkAdapterDesc.m_next` field:
+
+	.. ref-code-block::
+
+		`io.NetworkAdapterDesc` const* adapterDesc = io.createNetworkAdapterDescList ();
+		for (; adapterDesc; adapterDesc = adapterDesc.m_next)
+		{
+			// add adapter to the combo box...
+		}
 
 */

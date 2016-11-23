@@ -102,9 +102,3 @@ opaque class FileStream
 //..............................................................................
 
 } // namespace io
-
-/*!
-
-\defgroup file Generic File IO
-
-*/

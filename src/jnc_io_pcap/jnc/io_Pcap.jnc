@@ -104,9 +104,3 @@ PcapDeviceDesc const* createPcapDeviceDescList (size_t* count = null);
 //! @}
 
 } // namespace io
-
-/*!
-
-\defgroup pcap Pcap (Packet Capturing Library)
-
-*/

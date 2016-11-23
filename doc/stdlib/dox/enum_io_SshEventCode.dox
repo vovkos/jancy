@@ -13,68 +13,70 @@
 
 \enum io.SshEventCode
 
-	\brief Brief description for enum ``io.SshEventCode``
+	\brief This enumeration contains codes of all possible events that might happen on `io.SshChannel` object.
 
-	Detailed description for enum ``io.SshEventCode``
+	When `io.SshChannel` object is about to fire an event, it allocates an `io.SshEventParams` structure, sets `io.SshEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.SshChannel.m_onSshEvent`.
+
+	\sa `io.SshChannel`, `io.SshEventParams`
 
 	\enumvalue TcpConnectCompleted
 
-		Detailed description for enum value ``TcpConnectCompleted``
+		Underlying transport ``TCP`` has been established.
 
 	\enumvalue SshHandshakeCompleted
 
-		Detailed description for enum value ``SshHandshakeCompleted``
+		``SSH`` handshake and protocol information exchange has been completed successfully.
 
 	\enumvalue SshAuthCompleted
 
-		Detailed description for enum value ``SshAuthCompleted``
+		``SSH`` authentication has been completed successfully.
 
 	\enumvalue SshAuthError
 
-		Detailed description for enum value ``SshAuthError``
+		``SSH`` authentication has failed. You have a chance to re-authenticate: ask user for new credentials and then call `io.SshChannel.authenticate`.
 
 	\enumvalue SshChannelOpened
 
-		Detailed description for enum value ``SshChannelOpened``
+		``SSH`` channel to the server has been opened successfully.
 
 	\enumvalue SshPtyRequested
 
-		Detailed description for enum value ``SshPtyRequested``
+		Request has been sent to the ``SSH`` server for a specific pseudo-terminal (such as ``xterm``).
 
 	\enumvalue SshProcessStarted
 
-		Detailed description for enum value ``SshProcessStarted``
+		Remote process (such as ``shell``) has been started by the ``SSH`` server.
 
 	\enumvalue ConnectCompleted
 
-		Detailed description for enum value ``ConnectCompleted``
+		The full ``SSH`` connect sequence has been completed successfully. ``SSH`` channel is ready to use.
 
 	\enumvalue ConnectCancelled
 
-		Detailed description for enum value ``ConnectCancelled``
+		``SSH`` connect sequence has been interrupted by `io.SshChannel.close` method.
 
 	\enumvalue ConnectError
 
-		Detailed description for enum value ``ConnectError``
+		Failure happened during ``SSH`` connect sequence. Detailed error information is available at: `io.SshEventParams.m_error`.
 
 	\enumvalue Disconnected
 
-		Detailed description for enum value ``Disconnected``
+		``SSH`` channel has been closed by the remote server. Note that if connection was terminated by the local node (using `io.SshChannel.close`), ``Disconnect`` event is **not** fired.
 
 	\enumvalue ReauthenticateInitiated
 
-		Detailed description for enum value ``ReauthenticateInitiated``
+		User has issued `io.SshChannel.authenticate` using the same user name; no re-connect is needed for ``SSH`` re-authentication.
 
 	\enumvalue ReconnectInitiated
 
-		Detailed description for enum value ``ReconnectInitiated``
+		User has issued `io.SshChannel.authenticate` using a different user name; a full cycle of re-connect (starting at the transport ``TCP`` level) is required.
 
 	\enumvalue IncomingData
 
-		Detailed description for enum value ``IncomingData``
+		More data is available on the socket; this data could be fetched with `io.SshChannel.read` method.
 
 	\enumvalue TransmitBufferReady
 
-		Detailed description for enum value ``TransmitBufferReady``
+		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.SshChannel.write` requests.
 
 */

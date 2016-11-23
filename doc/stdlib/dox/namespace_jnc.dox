@@ -13,12 +13,6 @@
 
 \namespace jnc
 
-	\brief Brief description for namespace ``jnc``
-
-	Detailed description for namespace ``jnc``
-
-*/
-
-/*!
+	\brief This namespace contains built-in types that are integral part of the language and are directly used by the Jancy compiler.
 
 */

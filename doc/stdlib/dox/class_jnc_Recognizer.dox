@@ -13,7 +13,23 @@
 
 \class jnc.Recognizer
 
-	\brief This class holds the state of DFA and the buffer to store bytes of matched lexeme.
+	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``automaton`` function.
+
+	Jancy ``automaton`` functions allow for convenient creation of lexers/scanners.
+
+	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
+
+	1. Define a list of recognized lexemes in the form of regular expressions.
+	2. Specify which actions to execute when these lexemes are found in the input stream.
+	3. Jancy compiler automatically builds a DFA to recognize your language and perform correspondig actions.
+
+	However, you cannot call ``automaton`` function directly. To *execute* the resulting DFA you need a `jnc.Recognizer` object -- it will hold the state of DFA and buffer matched lexemes.
+
+	For better understanding of the relations between automatons and recognizers, think about the follow analogy. You have an XBox console and a game disc. First you have to load the disc into console, and then you play it -- you can even interrupt the process of playing (e.g. to continue it the next day).
+
+	In this analogy a game disc corresponds to some ``automaton`` function and a console is a `jnc.Recognizer` instance. Recognizer holds the DFA state and performs recognition driven by the ``automaton`` function. And just like with XBox example above, you can recognize a part of data first, then wait (for example, until the next portion arrives over the network), then continue where you left, and so on.
+
+	.. rubric:: Using Automatons and Recognizers
 
 	To use Jancy lexer/scanner framework, you have to define an automaton function first. Automaton function contains a list of recognized lexemes in form of regular expressions *and* defines actions to undertake when these lexemes are found in the input stream:
 
@@ -30,7 +46,7 @@
 		    %% [0-9]+
 		        // lexeme found: decimal-number
 
-		        char const* numberString = recognizer.m_lexeme;
+		        int value = atoi (recognizer.m_lexeme);
 
 		    %% [ \r\n\t]+
 		        // ignore whitespace
@@ -59,6 +75,8 @@
 		catch:
 		    // handle recognition error
 		}
+
+	\sa `jnc.AutomatonResult`
 
 	\typedef AutomatonFunc
 

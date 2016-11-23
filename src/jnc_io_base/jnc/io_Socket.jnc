@@ -140,9 +140,3 @@ opaque class Socket
 //! @}
 
 } // namespace io
-
-/*!
-
-\defgroup socket Socket Communications
-
-*/

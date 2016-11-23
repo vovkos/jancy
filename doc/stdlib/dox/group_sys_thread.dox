@@ -11,18 +11,22 @@
 
 /*!
 
-\defgroup file
+\defgroup thread
 
-	\title Generic File IO
+	\title Threading Management
 
-	\brief This group contains types and facilities for working with files and generic IO devices.
+	\brief This group contains types and facilities for thread creation and management.
 
 */
 
 /*!
 
-\fn io.getFileStreamKindString
+\fn sys.getCurrentThreadId
 
-	Returns string representation of the ``kind`` argument. In case ``kind`` does not correspond to any known file stream kind (e.g. you have casted a random integer number to `io.FileStreamKind` enumeration type), string ``unknown device`` is returned.
+	Detailed description for function ``sys.getCurrentThreadId``
+
+\fn sys.createThread
+
+	Detailed description for function ``sys.createThread``
 
 */

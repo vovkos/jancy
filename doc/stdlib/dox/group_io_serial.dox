@@ -15,9 +15,7 @@
 
 	\title Serial Communications
 
-	\brief Brief description for group ``serial`` (Serial Communications)
-
-	Detailed description for group ``serial`` (Serial Communications)
+	\brief This group contains types and facilities used when programming serial communicatins.
 
 */
 
@@ -25,6 +23,18 @@
 
 \fn io.createSerialPortDescList
 
-	Detailed description for function ``io.createSerialPortDescList``
+	Enumerates all available serial ports.
+
+	``count`` argument can be used to obtain the total number of devices in the resulting list.
+
+	Returns a pointer to the very first `io.SerialPortDesc` in the resulting list. You can walk through the list by inspecting `io.SerialPortDesc.m_next` field:
+
+	.. ref-code-block::
+
+		`io.SerialPortDesc` const* portDesc = io.createSerialPortDescList ();
+		for (; portDesc; portDesc = portDesc.m_next)
+		{
+			// add port to the combo box...
+		}
 
 */

@@ -11,18 +11,10 @@
 
 /*!
 
-\defgroup file
+\defgroup sync
 
-	\title Generic File IO
+	\title Synchronization Facilities
 
-	\brief This group contains types and facilities for working with files and generic IO devices.
-
-*/
-
-/*!
-
-\fn io.getFileStreamKindString
-
-	Returns string representation of the ``kind`` argument. In case ``kind`` does not correspond to any known file stream kind (e.g. you have casted a random integer number to `io.FileStreamKind` enumeration type), string ``unknown device`` is returned.
+	\brief This group contains types and facilities used for inter-thread and inter-process synchronization.
 
 */
