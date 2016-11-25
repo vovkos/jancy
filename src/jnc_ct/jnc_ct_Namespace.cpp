@@ -416,7 +416,7 @@ GlobalNamespace::generateDocumentation (
 		);
 
 	itemXml->format (
-		"<compounddef kind='%s' id='%s'>\n"
+		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n",
 		kind,
 		getDoxyBlock ()->getRefId ().sz (),

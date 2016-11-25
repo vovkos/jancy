@@ -615,6 +615,8 @@ DerivableType::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	bool result;
+
 	const char* kind =
 		m_typeKind == TypeKind_Struct ? "struct" :
 		m_typeKind == TypeKind_Union ? "union" : "class";
@@ -626,18 +628,42 @@ DerivableType::generateDocumentation (
 		getQualifiedName ().sz ()
 		);
 
+	sl::String constructorXml;
+	sl::String destructorXml;
+	if (m_constructor)
+	{
+		result = m_constructor->generateDocumentation (outputDir, &constructorXml, indexXml);
+		if (!result)
+			return false;
+	}
+
+	if (m_destructor)
+	{
+		result = m_destructor->generateDocumentation (outputDir, &destructorXml, indexXml);
+		if (!result)
+			return false;
+	}
+
 	sl::String memberXml;
-	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
+	result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	if (!result)
 		return false;
 
 	itemXml->format (
-		"<compounddef kind='%s' id='%s'>\n"
-		"<compoundname>%s</compoundname>\n",
+		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
+		"<compoundname>%s</compoundname>\n\n",
 		kind,
 		getDoxyBlock ()->getRefId ().sz (),
 		m_name.sz ()
 		);
+
+	if (!constructorXml.isEmpty () || !destructorXml.isEmpty ())
+	{
+		itemXml->append ("<sectiondef>\n");
+		itemXml->append (constructorXml);
+		itemXml->append (destructorXml);
+		itemXml->append ("</sectiondef>\n\n");
+	}
 
 	itemXml->append (memberXml);
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());

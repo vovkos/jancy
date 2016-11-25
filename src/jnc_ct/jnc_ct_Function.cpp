@@ -315,7 +315,8 @@ Function::generateDocumentation (
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat (">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
-	itemXml->appendFormat ("<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat ("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz () : getFunctionKindString (m_functionKind));
+
 	itemXml->append (m_type->getDoxyTypeString ());
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());

@@ -32,7 +32,7 @@ DoxyGroup::generateDocumentation (
 		);
 
 	itemXml->format (
-		"<compounddef kind='group' id='%s'>\n"
+		"<compounddef kind='group' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n"
 		"<title>",
 		m_refId.sz (),

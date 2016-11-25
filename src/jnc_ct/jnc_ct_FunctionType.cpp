@@ -259,7 +259,7 @@ FunctionType::prepareTypeString ()
 
 		for (size_t i = 1; i < count; i++)
 		{
-			tuple->m_doxyLinkedTextSuffix += ", ";
+			tuple->m_typeStringSuffix += ", ";
 			tuple->m_typeStringSuffix += m_argArray [i]->getArgString ();
 		}
 
