@@ -107,6 +107,8 @@ DoxyMgr::resolveBlockTargets ()
 	for (; it; it++)
 	{
 		Target* target = *it;
+		ModuleItem* item = NULL;
+
 		if (target->m_tokenKind == DoxyTokenKind_Footnote)
 		{
 			if (!prevNspace)
@@ -121,10 +123,38 @@ DoxyMgr::resolveBlockTargets ()
 
 			continue; // not a item
 		}
+		
+		if (prevNspace && target->m_itemName.find ('.') == -1)
+		{
+			if (target->m_tokenKind == DoxyTokenKind_Function &&
+				prevNspace->getNamespaceKind () == NamespaceKind_Type &&
+				((NamedType*) prevNspace)->getTypeKindFlags () & TypeKindFlag_Derivable)
+			{	
+				DerivableType* type = (DerivableType*) prevNspace;
 
-		ModuleItem* item = prevNspace && target->m_itemName.find ('.') == -1 ?
-			prevNspace->findItem (target->m_itemName) :
-			NULL;
+				if (target->m_itemName == "construct")
+				{
+					item = type->getConstructor ();
+					if (!item)
+					{
+						result = false;
+						continue;
+					}
+				}
+				else if (target->m_itemName == "destruct")
+				{
+					item = type->getDestructor ();
+					if (!item)
+					{
+						result = false;
+						continue;
+					}
+				}
+			}
+
+			if (!item)
+				item = prevNspace->findItem (target->m_itemName);
+		}
 
 		if (!item)
 		{

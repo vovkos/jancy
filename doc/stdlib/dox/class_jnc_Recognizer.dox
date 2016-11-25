@@ -112,6 +112,10 @@
 
 		Could be adjusted manually. For example, you can adjust ``m_currentOffset`` before starting recognition; when a lexeme is found, ``m_lexemeOffset`` will account for the initial offset (offset relative the beginning of the stream plus initial offset set before starting recognition).
 
+	\fn construct
+
+		Constructor of ``jnc.Recognizer`` class. Accepts a single optional argument ``automatonFunc`` which, if supplied, will be written to ``m_automatonFunc`` and used for subsequent scanning.
+
 	\fn reset
 
 		Resets state of recognizer including all offsets and captured lexeme bytes.
