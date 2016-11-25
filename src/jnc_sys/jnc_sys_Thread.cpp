@@ -64,7 +64,7 @@ Thread::start (FunctionPtr ptr)
 		return false;
 	}
 
-	m_threadId = m_thread.getThreadId ();
+	m_threadId = (uintptr_t) m_thread.getThreadId ();
 	return true;
 }
 
