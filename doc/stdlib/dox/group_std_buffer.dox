@@ -11,10 +11,10 @@
 
 /*!
 
-\defgroup sync
+\defgroup buffer
 
-	\title Synchronization Facilities
+	\title Binary Buffer Management
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains types and facilities for managing binary buffers.
 
 */

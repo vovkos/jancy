@@ -11,10 +11,18 @@
 
 /*!
 
-\defgroup sync
+\defgroup std
 
-	\title Synchronization Facilities
+	\title Miscellaneous Facilities
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains miscellaneous types and facilities of ``namespace std``.
+
+*/
+
+/*!
+
+\fn std.collectGarbage
+
+	Detailed description for function ``std.collectGarbage``
 
 */

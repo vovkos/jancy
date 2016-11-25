@@ -13,40 +13,42 @@
 
 \struct io.NetworkAdapterDesc
 
-	\brief Brief description for struct ``io.NetworkAdapterDesc``
+	\brief This struct holds information about the network adapter.
 
-	Detailed description for struct ``io.NetworkAdapterDesc``
+	A list of network adapter descriptions is returned by `io.createNetworkAdapterDescList`.
+
+	\sa `io.createNetworkAdapterDescList`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next nextwork adapter description or ``null`` if this is the last adapter.
 
 	\field m_name
 
-		Detailed description for field ``m_name``
+		Holds the permanent device name of the network adapter.
 
 	\field m_description
 
-		Detailed description for field ``m_description``
+		Holds a human-readable description of the network adapter.
 
 	\field m_type
 
-		Detailed description for field ``m_type``
+		Holds the type the network adapter. For a complete list of types refer to `io.NetworkAdapterType` enumeration.
 
 	\field m_flags
 
-		Detailed description for field ``m_flags``
+		Holds the flag optins of the network adapter. For a complete list of flag options refer to `io.NetworkAdapterFlags` enumeration.
 
 	\field m_mac
 
-		Detailed description for field ``m_mac``
+		Holds the hardware Media Access Control (MAC) address of the network adapter.
 
 	\field m_address
 
-		Detailed description for field ``m_address``
+		Holds a pointer to the head of the list of addresses assigned to this network adapter. Iterate through the list by instpecting `io.NetworkAdapterAddress.m_next` field.
 
 	\field m_addressCount
 
-		Detailed description for field ``m_addressCount``
+		Holds the total number of addresses on the list pointed to by ``m_addresses`` field.
 
 */

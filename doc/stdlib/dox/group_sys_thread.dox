@@ -13,7 +13,7 @@
 
 \defgroup thread
 
-	\title Threading Management
+	\title Thread Management
 
 	\brief This group contains types and facilities for thread creation and management.
 

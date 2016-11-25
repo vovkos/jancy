@@ -11,10 +11,10 @@
 
 /*!
 
-\defgroup sync
+\defgroup container
 
-	\title Synchronization Facilities
+	\title Containers & Collections
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains types for holding structured collections of other objects.
 
 */

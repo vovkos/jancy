@@ -13,20 +13,22 @@
 
 \struct io.NetworkAdapterAddress
 
-	\brief Brief description for struct ``io.NetworkAdapterAddress``
+	\brief This struct holds information about single address of the network adapter.
 
-	Detailed description for struct ``io.NetworkAdapterAddress``
+	A list of network adapter addresses is part of network adapter description stored in `io.NetworkAdapterDesc`.
+
+	\sa `io.NetworkAdapterDesc`, `io.createNetworkAdapterDescList`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next newtwork adatper address or ``null`` if this is the last address.
 
 	\field m_address
 
-		Detailed description for field ``m_address``
+		Holds address of the network adapter as `io.SocketAddress`. ``m_port`` field of the address should obviously be ignored.
 
 	\field m_netMaskBitCount
 
-		Detailed description for field ``m_netMaskBitCount``
+		The length, in bits, of the prefix or network part of the IP address. For a unicast IPv4 address, any value greater than 32 is an illegal value. For a unicast IPv6 address, any value greater than 128 is an illegal value.
 
 */

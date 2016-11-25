@@ -11,10 +11,18 @@
 
 /*!
 
-\defgroup sync
+\defgroup string
 
-	\title Synchronization Facilities
+	\title String Management
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains types and facilities used for working with strings.
+
+*/
+
+/*!
+
+\fn std.format
+
+	Detailed description for function ``std.format``
 
 */

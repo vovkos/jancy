@@ -13,7 +13,7 @@
 
 \defgroup time
 
-	\title Time Facilities
+	\title Time & Timers
 
 	\brief This group contains types and facilities for date, time and timer management.
 
@@ -23,10 +23,12 @@
 
 \fn sys.sleep
 
-	Detailed description for function ``sys.sleep``
+	Suspends the execution of the calling thread until ``timeout`` interval elapses. ``timeout`` is expressed in milliseconds.
 
 \fn sys.getTimestamp
 
-	Detailed description for function ``sys.getTimestamp``
+	Returns current system timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+
+	This format is the same as used in Windows ``FILETIME`` struct.
 
 */

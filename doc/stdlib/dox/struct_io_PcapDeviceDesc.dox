@@ -13,28 +13,30 @@
 
 \struct io.PcapDeviceDesc
 
-	\brief Brief description for struct ``io.PcapDeviceDesc``
+	\brief This struct holds information about the device available for Pcap live capture.
 
-	Detailed description for struct ``io.PcapDeviceDesc``
+	A list of Pcap device descriptions is returned by `io.createPcapDeviceDescList`.
+
+	\sa `io.createPcapDeviceDescList`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next Pcap device description or ``null`` if this is the last adapter.
 
 	\field m_name
 
-		Detailed description for field ``m_name``
+		Holds the Pcap device name; use this name as ``deviceName`` argument in `io.Pcap.openDevice` method.
 
 	\field m_description
 
-		Detailed description for field ``m_description``
+		Holds a human-readable description of Pcap device.
 
 	\field m_address
 
-		Detailed description for field ``m_address``
+		Holds the head of the list of addresses of this Pcap device. Iterate through the list by instpecting `io.PcapAddress.m_next` field.
 
 	\field m_flags
 
-		Detailed description for field ``m_flags``
+		Holds flag options of the Pcap device; currently unused.
 
 */

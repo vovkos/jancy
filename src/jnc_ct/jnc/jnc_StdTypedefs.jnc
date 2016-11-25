@@ -9,6 +9,9 @@
 //
 //..............................................................................
 
+//! \addtogroup typedef
+//! @{
+
 typedef unsigned int uint_t;
 typedef intptr intptr_t;
 typedef unsigned intptr uintptr_t;
@@ -27,5 +30,7 @@ typedef unsigned int dword_t;
 typedef long int64_t;
 typedef unsigned long uint64_t;
 typedef unsigned long qword_t;
+
+//! @}
 
 //..............................................................................

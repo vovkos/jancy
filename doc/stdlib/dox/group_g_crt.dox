@@ -11,10 +11,14 @@
 
 /*!
 
-\defgroup sync
+\defgroup crt
 
-	\title Synchronization Facilities
+	\title C Runtime Functions
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains C runtime functions available from Jancy.
+
+*/
+
+/*!
 
 */

@@ -13,40 +13,54 @@
 
 \struct io.SocketAddress_ip4
 
-	\brief Brief description for struct ``io.SocketAddress_ip4``
+	\brief This struct holds information about ``IP4`` address in the form suitable for socket communications.
 
-	Detailed description for struct ``io.SocketAddress_ip4``
+	On the binary level this structure directly maps to ``sockaddr_in``.
+
+	\sa `io.Address_ip4`, `io.Socket`, `io.SocketAddressResolver`
 
 	\field m_family
 
-		Detailed description for field ``m_family``
+		Holds the address family of the socket address; should be set to `io.AddressFamily.Ip4`.
 
 	\field m_port
 
-		Detailed description for field ``m_port``
+		Holds the number of ``TCP`` or ``UDP`` port. There is no need to change the byte order of the port before assignment -- this field is already declared as ``bigendian`` so all the necessary conversions will happen automatically.
 
 	\field m_address
 
-		Detailed description for field ``m_address``
+		Holds ``IP4`` address as `io.Address_ip4`.
 
 	\field m_padding
 
-		Detailed description for field ``m_padding``
+		Extra padding to ensure binary compatibility wiht ``sockaddr_in``.
 
 	\fn isEqual
 
-		Detailed description for function ``isEqual``
+		Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if addresses are equal and ``false`` otherwise.
 
 	\fn isMatch
 
-		Detailed description for function ``isMatch``
+		Checks two ``IP4`` socket addresses for *matching*. The term matching requires some explanation.
+
+		Matching could be described as a non-strict equality check. We may decide to only check *port* for equality and ignore the address. To do so, set ``m_address`` field of ``filter`` argument to ``0``.
+
+		Or the other way around -- only check *address* and ignore port -- set ``m_port`` field of ``filter`` argument to ``0``.
+
+		Returns ``true`` if addresses *match* and ``false`` otherwise.
 
 	\fn parse
 
-		Detailed description for function ``parse``
+		Constructs the address from a string representation in ``string`` argument.
+
+		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
 
 	\fn getString
 
-		Detailed description for function ``getString``
+		Creates and returns a string representation of the address.
+
+	\footnote f1
+
+		|footnote-errorcode|
 
 */

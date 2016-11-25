@@ -11,10 +11,25 @@
 
 /*!
 
-\defgroup sync
+\defgroup error
 
-	\title Synchronization Facilities
+	\title Error Facilities
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains types and facilities for setting and retrieving error information
+*/
+
+/*!
+
+\fn std.getLastError
+
+	Detailed description for function ``std.getLastError``
+
+\fn std.setPosixError
+
+	Detailed description for function ``std.setPosixError``
+
+\fn std.setStringError
+
+	Detailed description for function ``std.setStringError``
 
 */

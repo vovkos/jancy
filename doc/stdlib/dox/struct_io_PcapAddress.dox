@@ -13,24 +13,26 @@
 
 \struct io.PcapAddress
 
-	\brief Brief description for struct ``io.PcapAddress``
+	\brief This struct holds information about single address of the Pcap device.
 
-	Detailed description for struct ``io.PcapAddress``
+	A list of network adapter addresses is part of Pcap device description stored in `io.PcapDeviceDesc`.
+
+	\sa `io.PcapDeviceDesc`, `io.createPcapDeviceDescList`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next Pcap device or ``null`` if this is the last address.
 
 	\field m_address
 
-		Detailed description for field ``m_address``
+		Holds ``IP4`` address of the Pcap device as `io.Address_ip4`.
 
 	\field m_mask
 
-		Detailed description for field ``m_mask``
+		Holds ``IP4`` mask of the Pcap device as `io.Address_ip4`.
 
 	\field m_broadcast
 
-		Detailed description for field ``m_broadcast``
+		Holds ``IP4`` subnet broadcast address of the Pcap device as `io.Address_ip4`.
 
 */

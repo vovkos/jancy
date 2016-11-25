@@ -13,28 +13,34 @@
 
 \struct io.SerialEventParams
 
-	\brief Brief description for struct ``io.SerialEventParams``
+	\brief This struct contains detailed information about the event occured on `io.Serial` object.
 
-	Detailed description for struct ``io.SerialEventParams``
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Serial.m_onSerialEvent`.
+
+	\sa `io.Serial`, `io.SerialEventCode`
 
 	\field m_eventCode
 
-		Detailed description for field ``m_eventCode``
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.SerialEventCode`.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
 
 	\field m_lines
 
-		Detailed description for field ``m_lines``
+		This field is used by `io.SerialEventCode.StatusLineChanged` event; it holds the status of serial status lines which have changed and is represented by a combination of values from `io.SerialStatusLines` enumeration.
 
 	\field m_mask
 
-		Detailed description for field ``m_mask``
+		This field is used by `io.SerialEventCode.StatusLineChanged` event; it holds the mask of all the serial status lines which have changed and is represented by a combination of values from `io.SerialStatusLines` enumeration.
 
 	\field m_error
 
-		Detailed description for field ``m_error``
+		Holds extended error information for error events. Currently this field is only used by `io.SerialEventCode.IoError`.
+
+	\footnote f1
+
+		|footnote-sync-id|
 
 */

@@ -13,28 +13,34 @@
 
 \struct io.SocketAddressResolverEventParams
 
-	\brief Brief description for struct ``io.SocketAddressResolverEventParams``
+	\brief This struct contains detailed information about the event occured on `io.SocketAddressResolver` object.
 
-	Detailed description for struct ``io.SocketAddressResolverEventParams``
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.SocketAddressResolver.m_onResolverEvent`.
+
+	\sa `io.SocketAddressResolver`, `io.SocketAddressResolverEventCode`
 
 	\field m_eventCode
 
-		Detailed description for field ``m_eventCode``
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.SocketAddressResolverEventCode`.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
 
 	\field m_addressTable
 
-		Detailed description for field ``m_addressTable``
+		Holds the pointer to the table of addresses the host name has been resolved to; this field is filled on `io.SocketAddressResolverEventCode.ResolveCompleted` event.
 
 	\field m_addressCount
 
-		Detailed description for field ``m_addressCount``
+		Holds the number of addresses in the table pointer to by ``m_addressTable`` field.
 
 	\field m_error
 
-		Detailed description for field ``m_error``
+		Holds extended error information for error events. Currently this field is only used by `io.SocketAddressResolverEventCode.ResolveError`.
+
+	\footnote f1
+
+		|footnote-sync-id|
 
 */

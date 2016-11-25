@@ -13,20 +13,22 @@
 
 \struct io.SerialPortDesc
 
-	\brief Brief description for struct ``io.SerialPortDesc``
+	\brief This struct holds information about the serial port device.
 
-	Detailed description for struct ``io.SerialPortDesc``
+	A list of serial port descriptions is returned by `io.createSerialPortDescList`.
+
+	\sa `io.createSerialPortDescList`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next serial port description or ``null`` if this is the last adapter.
 
 	\field m_deviceName
 
-		Detailed description for field ``m_deviceName``
+		Holds the serial port device name; use this name as ``name`` argument in `io.Serial.open` method.
 
 	\field m_description
 
-		Detailed description for field ``m_description``
+		Holds a human-readable description of the serial port.
 
 */

@@ -11,10 +11,14 @@
 
 /*!
 
-\defgroup sync
+\defgroup typedef
 
-	\title Synchronization Facilities
+	\title Standard Typedefs
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This group contains standard typedefs available in Jancy.
+
+*/
+
+/*!
 
 */

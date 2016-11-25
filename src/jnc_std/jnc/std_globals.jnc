@@ -15,6 +15,9 @@
 
 //..............................................................................
 
+//! \addtogroup crt
+//! @{
+
 size_t strlen (char const* p);
 
 int strcmp (
@@ -104,16 +107,28 @@ intptr_t cdecl printf (
 	...
 	);
 
+//! @}
+
 namespace std {
 
 //..............................................................................
+
+//! \addtogroup string
+//! @{
 
 char const* cdecl format (
 	char const* fmtSpecifier,
 	...
 	);
 
+//! @}
+
+//! \addtogroup std
+//! @{
+
 void collectGarbage ();
+
+//! @}
 
 //..............................................................................
 

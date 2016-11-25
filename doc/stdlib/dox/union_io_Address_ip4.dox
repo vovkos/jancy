@@ -13,24 +13,32 @@
 
 \union io.Address_ip4
 
-	\brief Brief description for union ``io.Address_ip4``
+	\brief This union holds information about ``IP4`` address
 
-	Detailed description for union ``io.Address_ip4``
+	On the binary level this union directly maps to ``in_addr``.
+
+	\sa `io.SocketAddress_ip4`
 
 	\field m_i32
 
-		Detailed description for field ``m_i32``
+		Holds 32-bit representation of ``IP4`` address. There is no need to change the byte order of the address before assignment -- this field is already declared as ``bigendian`` so all the necessary conversions will happen automatically.
 
 	\field m_i8
 
-		Detailed description for field ``m_i8``
+		Holds four 8-bit bytes of ``IP4`` address.
 
 	\fn parse
 
-		Detailed description for function ``parse``
+		Constructs the address from a string representation in ``string`` argument.
+
+		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
 
 	\fn getString
 
-		Detailed description for function ``getString``
+		Creates and returns a string representation of the address.
+
+	\footnote f1
+
+		|footnote-errorcode|
 
 */

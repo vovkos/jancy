@@ -13,24 +13,30 @@
 
 \struct io.SocketEventParams
 
-	\brief Brief description for struct ``io.SocketEventParams``
+	\brief This struct contains detailed information about the event occured on `io.Socket` object.
 
-	Detailed description for struct ``io.SocketEventParams``
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Socket.m_onSocketEvent`.
+
+	\sa `io.Socket`, `io.SocketEventCode`
 
 	\field m_eventCode
 
-		Detailed description for field ``m_eventCode``
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.SocketEventCode`.
 
 	\field m_syncId
 
-		Detailed description for field ``m_syncId``
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
 
 	\field m_flags
 
-		Detailed description for field ``m_flags``
+		Holds additional flags options of the event. Currently this field is only used by `io.SocketEventCode.Disconnected` where it holds a combination of flags from `io.SocketDisconnectEventFlags` enumeration.
 
 	\field m_error
 
-		Detailed description for field ``m_error``
+		Holds extended error information for error events. Currently this field is only used by `io.SocketEventCode.ConnectError`.
+
+	\footnote f1
+
+		|footnote-sync-id|
 
 */

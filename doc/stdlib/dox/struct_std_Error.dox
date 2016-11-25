@@ -13,24 +13,36 @@
 
 \struct std.Error
 
-	\brief Brief description for struct ``std.Error``
+	\brief This struct is used as a header to an error-describing buffer.
 
-	Detailed description for struct ``std.Error``
+	Often times error is completely described by ``std.Error`` struct -- for example, ``errno``, ``NTSTATUS`` or ``WinError``. However, you can store as much information as necessary to fully describe your error. If extra bytes of information are required, they should follow the ``std.Error`` header.
 
 	\field m_size
 
-		Detailed description for field ``m_size``
+		The full size of error-describing buffer. Should always be ``>= sizeof (std.Error)``.
 
 	\field m_guid
 
-		Detailed description for field ``m_guid``
+		The ``GUID`` of the error. It tells Jancy runtime how to interpret ``m_code`` and the extra bytes of data following ``std.Error`` header.
 
 	\field m_code
 
-		Detailed description for field ``m_code``
+		The numerical code of the error. The actual meaning of this code depends on ``m_guid`` field. It may be ``errno``, or ``NTSTATUS``, or some user-defined code.
 
 	\property m_description
 
-		Detailed description for property ``m_description``
+		Creates and returns human-readable description of the error.
 
+		Jancy also supports a special formatter ``$!`` which if used inside formatting literal expands into description of the last error:
+
+		.. ref-code-block::
+
+			printf ($"cannot open file: $!\n");
+
+		The code above is equivalent to:
+
+		.. ref-code-block::
+
+			char const* s = `std.getLastError` ().m_description;
+			printf ($"cannot open file: $s\n");
 */

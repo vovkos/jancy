@@ -13,24 +13,32 @@
 
 \union io.Address_ip6
 
-	\brief Brief description for union ``io.Address_ip6``
+	\brief This union holds information about ``IP6`` address
 
-	Detailed description for union ``io.Address_ip6``
+	On the binary level this union directly maps to ``in6_addr``.
+
+	\sa `io.SocketAddress_ip6`
 
 	\field m_i16
 
-		Detailed description for field ``m_i16``
+		Holds eight 16-bit words of ``IP6`` address.
 
 	\field m_i8
 
-		Detailed description for field ``m_i8``
+		Holds sixteen 8-bit bytes of ``IP6`` address.
 
 	\fn parse
 
-		Detailed description for function ``parse``
+		Constructs the address from a string representation in ``string`` argument.
+
+		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
 
 	\fn getString
 
-		Detailed description for function ``getString``
+		Creates and returns a string representation of the address.
+
+	\footnote f1
+
+		|footnote-errorcode|
 
 */

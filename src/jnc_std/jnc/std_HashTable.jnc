@@ -15,6 +15,9 @@
 
 namespace std {
 
+//! \addtogroup container
+//! @{
+
 //..............................................................................
 
 opaque class StringHashTable
@@ -110,6 +113,8 @@ opaque class VariantHashTable
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace std
 

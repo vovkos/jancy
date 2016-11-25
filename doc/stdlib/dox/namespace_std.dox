@@ -13,32 +13,8 @@
 
 \namespace std
 
-	\brief Brief description for namespace ``std``
+	\brief This namespaces contains standard general-purpose classes and functions.
 
-	Detailed description for namespace ``std``
-
-*/
-
-/*!
-
-\fn std.getLastError
-
-	Detailed description for function ``std.getLastError``
-
-\fn std.setPosixError
-
-	Detailed description for function ``std.setPosixError``
-
-\fn std.setStringError
-
-	Detailed description for function ``std.setStringError``
-
-\fn std.format
-
-	Detailed description for function ``std.format``
-
-\fn std.collectGarbage
-
-	Detailed description for function ``std.collectGarbage``
+	\brief For your convenience, documentation for all the members of ``namespace std`` is divided into the following categories:
 
 */

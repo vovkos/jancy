@@ -21,14 +21,14 @@
 
 	\enumvalue Icmp
 
-		``ICMP`` protocol
+		``ICMP`` protocol; maps to ``IPPROTO_ICMP`` platform constant.
 
 	\enumvalue Tcp
 
-		``TCP`` protocol
+		``TCP`` protocol; maps to ``IPPROTO_TCP`` platform constant.
 
 	\enumvalue Udp
 
-		``UDP`` protocol
+		``UDP`` protocol; maps to ``IPPROTO_UDP`` platform constant.
 
 */

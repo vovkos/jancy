@@ -29,7 +29,7 @@ bool createThread (function* threadFunc ());
 //! \addtogroup time
 //! @{
 
-void sleep (uint32_t msec);
+void sleep (uint32_t timeout);
 
 uint64_t getTimestamp ();
 
