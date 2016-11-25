@@ -47,6 +47,7 @@ MyLayout::~MyLayout ()
 }
 
 void
+JNC_CDECL
 MyLayout::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	int count = m_childWidgetList.count ();

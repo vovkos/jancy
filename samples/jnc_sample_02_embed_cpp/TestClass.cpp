@@ -50,6 +50,7 @@ TestClass::~TestClass ()
 }
 
 void
+JNC_CDECL
 TestClass::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	// mark opaque roots (no need to mark roots visible to jancy)

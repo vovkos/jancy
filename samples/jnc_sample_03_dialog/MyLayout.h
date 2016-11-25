@@ -36,6 +36,7 @@ public:
 	~MyLayout ();
 
 	void
+	JNC_CDECL
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	void
