@@ -145,12 +145,13 @@ TypeModifiers::setTypeModifier (TypeModifier modifier)
 
 	// check anti-modifiers
 
-	if (m_typeModifiers & antiModifierTable [i])
+	uint_t antiModifiers = m_typeModifiers & antiModifierTable [i];
+	if (antiModifiers)
 	{
-		TypeModifier modifier2 = getFirstTypeModifier (m_typeModifiers);
+		TypeModifier antiModifier = getFirstTypeModifier (antiModifiers);
 		err::setFormatStringError (
 			"type modifiers '%s' and '%s' cannot be used together",
-			getTypeModifierString (modifier2),
+			getTypeModifierString (antiModifier),
 			getTypeModifierString (modifier)
 			);
 
