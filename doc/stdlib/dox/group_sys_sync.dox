@@ -15,6 +15,6 @@
 
 	\title Synchronization Facilities
 
-	\brief This group contains types and facilities used for inter-thread synchronization.
+	\brief This section describes types and facilities used for inter-thread synchronization.
 
 */

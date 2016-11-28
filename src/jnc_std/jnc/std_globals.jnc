@@ -113,18 +113,13 @@ namespace std {
 
 //..............................................................................
 
-//! \addtogroup string
+//! \addtogroup std
 //! @{
 
 char const* cdecl format (
 	char const* fmtSpecifier,
 	...
 	);
-
-//! @}
-
-//! \addtogroup std
-//! @{
 
 void collectGarbage ();
 

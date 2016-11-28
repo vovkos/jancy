@@ -15,6 +15,6 @@
 
 	\title SSH Communications
 
-	\brief This group contains types and facilities used when programming SSH (secure-shell) socket communicatins.
+	\brief This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
 
 */

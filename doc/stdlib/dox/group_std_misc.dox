@@ -15,7 +15,7 @@
 
 	\title Miscellaneous Facilities
 
-	\brief This group contains miscellaneous types and facilities of ``namespace std``.
+	\brief This section describes miscellaneous types and facilities of ``namespace std``.
 
 */
 
@@ -24,5 +24,9 @@
 \fn std.collectGarbage
 
 	Detailed description for function ``std.collectGarbage``
+
+\fn std.format
+
+	Detailed description for function ``std.format``
 
 */

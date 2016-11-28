@@ -32,7 +32,10 @@ set (
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_DynamicLib.jnc
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Recognizer.jnc
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Scheduler.jnc
-	-S ${JANCY_SRC_DIR}/jnc_std/jnc
+	${JANCY_SRC_DIR}/jnc_std/jnc/std_globals.jnc
+	${JANCY_SRC_DIR}/jnc_std/jnc/std_Error.jnc
+	${JANCY_SRC_DIR}/jnc_std/jnc/std_List.jnc
+	${JANCY_SRC_DIR}/jnc_std/jnc/std_HashTable.jnc
 	-S ${JANCY_SRC_DIR}/jnc_sys/jnc
 	-I ${JANCY_SRC_DIR}/jnc_io_base/jnc
 	-S ${JANCY_SRC_DIR}/jnc_io_base/jnc

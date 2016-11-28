@@ -15,7 +15,7 @@
 
 	\title Network Adapter Management
 
-	\brief This group contains types and facilities for enumerating and getting information about installed network adapters.
+	\brief This section describes types and facilities for enumerating and getting information about installed network adapters.
 
 */
 

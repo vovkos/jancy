@@ -15,10 +15,152 @@
 
 	\title C Runtime Functions
 
-	\brief This group contains C runtime functions available from Jancy.
+	\brief This section contains C runtime functions available from Jancy.
+
+	The purpose of these functions is to create a familiar environment for C/C++ programmers and make it easier to switch between Jancy and C/C++.
 
 */
 
 /*!
+
+\fn strlen
+
+	Calculates and returns the length of the string pointed to by ``p`` argument. The length of the string is defined as the number of bytes between the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
+
+	Returns ``0`` if ``p == null``.
+
+\fn strcmp
+
+	Performs a case-sensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+
+\fn stricmp
+
+	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+
+\fn strchr
+
+	Finds the first occurance of char ``c`` within null-terminated string pointed to by ``p`` [#f1]_.
+
+	Returns a pointer to the first occurrence of ``c`` in ``p``.
+
+	Returns ``null`` if ``c`` is not found.
+
+\fn strstr
+
+	Finds the first occurance of null-terminated substring ''p2'' within null-terminated string pointed to by ``p1`` [#f1]_.
+
+	Returns a pointer to the first occurrence of substring ``p2`` in ``p1``.
+
+	Returns ``null`` if substring ``p2`` is not found.
+
+	Uses Boyer-Moore algorithm for substring search.
+
+\fn strcat
+
+	Creates a new string as a concatenation of two null-terminated string2 pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns a pointer to the result string.
+
+	Returns ``null`` if the buffer for the new string could not be allocated.
+
+\fn strdup
+
+	Creates a duplicate of null-terminated string pointed to by ``p`` [#f1]_.
+
+	Returns a pointer to the result string.
+
+	Returns ``null`` if the buffer for the new string could not be allocated.
+
+\fn memcmp
+
+	Performs a case-sensitive lexicographic comparison of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1:size1`` appears before ``p2:size2`` in lexographical order.
+
+	Returns ``1`` if ``p1:size1`` appears after ``p2:size2`` in lexographical order.
+
+\fn memchr
+
+	Finds the first occurance of char ``c`` within memory block ``p:size`` [#f2]_.
+
+	Returns a pointer to the first occurrence of ``c`` in ``p:size``.
+
+	Returns ``null`` if ``c`` is not found.
+
+\fn memmem
+
+	Finds the first occurance of memory block ``p2:size2`` within memory block ``p1:size1`` [#f2]_.
+
+	Returns a pointer to the first occurrence of block ``p2:size2`` in ``p1:size1``.
+
+	Returns ``null`` if block ``p2:size2`` is not found.
+
+	Uses Boyer-Moore algorithm for memory block search.
+
+\fn memcpy
+
+	Copies memory block ``src:size`` [#f2]_ to the buffer pointed to by ``dst``.
+
+\fn memset
+
+	Copies character ``c`` to each of the first ``size`` bytes of memory block pointed to by ``p``.
+
+\fn memcat
+
+	Creates a new memory block as a concatenation of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+
+	Returns a pointer to the result memory block.
+
+	Returns ``null`` if the buffer for the new memory block could not be allocated.
+
+\fn memdup
+
+	Creates a duplicate of memory block ``p:size`` [#f2]_.
+
+	Returns a pointer to the result memory block.
+
+	Returns ``null`` if the buffer for the new memory block could not be allocated.
+
+\fn rand
+
+	Detailed description for function ``rand``
+
+\fn toupper
+
+	Detailed description for function ``toupper``
+
+\fn tolower
+
+	Detailed description for function ``tolower``
+
+\fn atoi
+
+	Detailed description for function ``atoi``
+
+\fn printf
+
+	Detailed description for function ``printf``
+
+\footnote f1
+
+	If null-terminating ``0`` byte is not discovered withing the allowed range of string pointer, Jancy string functions behave just like if ``0`` was found at the very next byte after the end of allowed range. In other words, it is always assumed that ``0`` could be found at the location ``p + dynamic sizeof (p)`` -- even if the actual byte at this location isn't really ``0``.
+
+\footnote f2
+
+	The notation ``p:size`` here means: memory block pointed to by ``p`` and of ``size`` bytes long.
 
 */

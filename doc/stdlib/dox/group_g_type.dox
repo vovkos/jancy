@@ -15,10 +15,84 @@
 
 	\title Standard Typedefs
 
-	\brief This group contains standard typedefs available in Jancy.
+	\brief This section describes standard typedefs available in Jancy.
+
+	The purpose of these typedefs is to create a familiar environment for C/C++ programmers and make it easier to switch between Jancy and C/C++.
 
 */
 
 /*!
+
+\typedef uint_t
+
+	Unsigned integer type with width of 32 bits.
+
+\typedef intptr_t
+
+	Signed integer type with size equal to the size of a pointer on the given platform. On 32-bit platform ``intptr_t`` is identical to ``int32_t``; on 64-bit platforns ``intptr_t`` is identical to ``int64_t``.
+
+\typedef uintptr_t
+
+	Unsigned integer type with size equal to the size of a pointer on the given platform. On 32-bit platform ``uintptr_t`` is identical to ``uint32_t``; on 64-bit platforns ``uintptr_t`` is identical to ``uint64_t``.
+
+\typedef size_t
+
+	Unsigned integer type with size equal to the size of a pointer on the given platform. On 32-bit platform ``uintptr_t`` is identical to ``uint32_t``; on 64-bit platforns ``uintptr_t`` is identical to ``uint64_t``.
+
+\typedef int8_t
+
+	Signed integer type with width of 8 bits.
+
+\typedef uint8_t
+
+	Unsigned integer type with width of 8 bits.
+
+\typedef uchar_t
+
+	Unsigned integer type with width of 8 bits.
+
+\typedef byte_t
+
+	Unsigned integer type with width of 8 bits.
+
+\typedef int16_t
+
+	Signed integer type with width of 16 bits.
+
+\typedef uint16_t
+
+	Unsigned integer type with width of 16 bits.
+
+\typedef ushort_t
+
+	Unsigned integer type with width of 16 bits.
+
+\typedef word_t
+
+	Unsigned integer type with width of 16 bits.
+
+\typedef int32_t
+
+	Signed integer type with width of 32 bits.
+
+\typedef uint32_t
+
+	Unsigned integer type with width of 32 bits.
+
+\typedef dword_t
+
+	Unsigned integer type with width of 32 bits.
+
+\typedef int64_t
+
+	Signed integer type with width of 64 bits.
+
+\typedef uint64_t
+
+	Unsigned integer type with width of 64 bits.
+
+\typedef qword_t
+
+	Unsigned integer type with width of 64 bits.
 
 */
