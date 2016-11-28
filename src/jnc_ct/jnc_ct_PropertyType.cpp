@@ -160,7 +160,7 @@ PropertyType::getTypeModifierString ()
 	// -- even though they ARE indexed
 
 	size_t argCount = m_getterType->getArgArray ().getCount ();
-	if (argCount > 2 || argCount == 1 && !m_getterType->isMemberMethodType ())
+	if (argCount >= 2 || argCount == 1 && !m_getterType->isMemberMethodType ())
 		string += "indexed ";
 
 	if (!string.isEmpty ())
@@ -199,9 +199,15 @@ PropertyType::prepareDoxyLinkedText ()
 	Type* returnType = getReturnType ();
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
-	tuple->m_doxyLinkedTextPrefix += ' ';
-	tuple->m_doxyLinkedTextPrefix += getTypeModifierString ();
-	tuple->m_doxyLinkedTextPrefix += "property";
+
+	sl::String modifierString = getTypeModifierString ();
+	if (!modifierString.isEmpty ())
+	{
+		tuple->m_doxyLinkedTextPrefix += ' ';
+		tuple->m_doxyLinkedTextPrefix += modifierString;
+	}
+
+	tuple->m_doxyLinkedTextPrefix += " property";
 
 	if (isIndexed ())
 		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix ();

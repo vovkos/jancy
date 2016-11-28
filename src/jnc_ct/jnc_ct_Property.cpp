@@ -743,9 +743,9 @@ Property::generateDocumentation (
 		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.sz ());
-	itemXml->appendFormat ("<type>%s</type>\n", m_type->getReturnType ()->getDoxyLinkedTextPrefix ().sz ());
+	itemXml->append (m_type->getDoxyTypeString ());
 
-	sl::String modifierString = m_type->getTypeModifierString ();
+	sl::String modifierString; // type modifiers are already encoded in <type>
 
 	if (m_flags & PropertyFlag_AutoGet)
 		modifierString.append (" autoget");
