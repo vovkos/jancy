@@ -24,7 +24,7 @@
 	* Wait until ``ResolveCompleted`` or ``ResolveError`` event;
 	* Cancel all pending resolve requests with ``cancelAll`` method.
 
-	Sample code:
+	.. rubric:: Sample code:
 
 	.. ref-code-block::
 

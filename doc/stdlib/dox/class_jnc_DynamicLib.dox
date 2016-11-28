@@ -17,7 +17,7 @@
 
 	You can use ``jnc.DynamicLib`` in one of the two ways.
 
-	Method number one is to explicitly load a dynamic library by file name, resolve function names to pointers, (unsafely) cast these pointers to appropriate function pointer types, and then call these function pointers:
+	One way is to explicitly load a dynamic library by file name, resolve function names to pointers, (unsafely) cast these pointers to appropriate function pointer types, and then call these function pointers:
 
 	.. ref-code-block::
 

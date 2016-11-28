@@ -26,7 +26,7 @@
 	* When ``IncomingData`` event is fired, read from the mailslot using ``read`` method;
 	* Close the mailslot when no longer needed with ``close`` method.
 
-	Sample code:
+	.. rubric:: Sample code:
 
 	.. ref-code-block::
 

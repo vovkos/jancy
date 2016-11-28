@@ -26,7 +26,9 @@
 
 	It's recommended to use disposable pattern when working with local file variables. Whether or not to use exception semantics or a traditional error code depends on what deems to be more convenient in each particular case.
 
-	Sample code::
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
 
 		foo (void const* data)
 		{

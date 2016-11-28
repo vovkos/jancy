@@ -69,7 +69,7 @@
 
 \fn strcat
 
-	Creates a new string as a concatenation of two null-terminated string2 pointed to by ``p1`` and ``p2`` [#f1]_.
+	Creates a new string as a concatenation of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
 	Returns a pointer to the result string.
 
@@ -137,23 +137,39 @@
 
 \fn rand
 
-	Detailed description for function ``rand``
+	Returns a pseudo-random integral value between ``0`` and implementation-defined ``RAND_MAX`` (typically, ``32767``)
+
+	Maps directly to standard C function ``rand``.
 
 \fn toupper
 
-	Detailed description for function ``toupper``
+	Converts Unicode codepoint ``c`` to upper case.
+
+	Returns the resulting Unicode codepoint.
 
 \fn tolower
 
-	Detailed description for function ``tolower``
+	Converts Unicode codepoint ``c`` to lower case.
+
+	Returns the resulting Unicode codepoint.
 
 \fn atoi
 
-	Detailed description for function ``atoi``
+	Parses a string representation of an integer.
+
+	Discards any whitespace characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid integer number representation and converts them to an integer value.
+
+	Returns result integer value or ``0`` if string does not contain a valid representation of an integer.
+
+	Returns ``0`` if ``p == null``.
 
 \fn printf
 
-	Detailed description for function ``printf``
+	Prints formatted output to the standard output stream.
+
+	Returns the number of characters printed, or a ``-1`` if an error occurs.
+
+	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
 
 \footnote f1
 

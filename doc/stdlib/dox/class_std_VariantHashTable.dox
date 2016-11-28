@@ -13,32 +13,78 @@
 
 \class std.VariantHashTable
 
-	\brief Brief description for class ``std.VariantHashTable``
+	\brief This class provides a hash-table-based mapping from ``variant``-s to ``variant``-s.
 
-	Detailed description for class ``std.VariantHashTable``
+	``std.VariantHashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.
+
+	A typical sequence of steps when working with a hash table usually looks like this:
+
+	* Add ``(key; value)`` pairs using ``insert`` method (or by writing to ``m_map`` property);
+	* Remove ``(key; value)`` pairs using ``remove`` method;
+	* Find ``value`` associated with a ``key`` using ``find`` method (or by reading from ``m_map`` property).
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		enum State
+		{
+			Idle,
+			Running,
+			Stopping,
+			_Count
+		}
+
+		std.VariantHashTable hashTable;
+
+		hashTable.m_map [State.Idle] = "idle";
+		hashTable.m_map [State.Running] = "running";
+		hashTable.m_map [State.Stopping] = "stopping";
+
+		State state = (State) (rand () % State._Count);
+
+		printf ($"state: $(hashTable.m_map [state])\n");
 
 	\property m_isEmpty
 
-		Detailed description for property ``m_isEmpty``
+		Returns ``true`` if hash table is empty; ``false`` otherwise.
 
 	\property m_map
 
-		Detailed description for property ``m_map``
+		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
 
 	\fn clear
 
-		Detailed description for function ``clear``
+		Remove all entries from the hash table.
 
 	\fn find
 
-		Detailed description for function ``find``
+		Looks up a value associated with the key ``key``.
+
+		If the value is found, it is copied to the buffer pointed to by ``value``; then ``find`` method returns ``true``.
+
+		Returns ``false`` if key ``key`` is not found.
+
+	\overload find
+
+		Looks up a value associated with the key ``key``.
+
+		Returns the found value or ``null`` if the value is not found.
+
+		The limitation of this overload is that it's impossible to distinguish between ``null`` being stored as a value associated with ``key`` and ``null`` returned as an indication of *key-not-found*.
 
 	\fn insert
 
-		Detailed description for function ``insert``
+		Inserts a new ``(key; value)`` pair into the hash.
+
+		If ``key`` is already in the hash, ``insert`` re-writes the value of existing association with the new value specified by the ``value`` argument.
 
 	\fn remove
 
-		Detailed description for function ``remove``
+		Finds and deletes ``key`` from the hash.
+
+		Returns ``true`` if ``key`` was found and ``(key; value)`` pair successfully deleted.
+
+		Returns ``false`` if ``key`` was not found.
 
 */

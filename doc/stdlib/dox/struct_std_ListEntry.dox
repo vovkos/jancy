@@ -13,24 +13,24 @@
 
 \struct std.ListEntry
 
-	\brief Brief description for struct ``std.ListEntry``
+	This struct holds information about a single entry of a doubly linked list.
 
-	Detailed description for struct ``std.ListEntry``
+	\sa `std.List`
 
 	\field m_next
 
-		Detailed description for field ``m_next``
+		Holds a pointer to the next list entry on the list or ``null`` if this is the last entry.
 
 	\field m_prev
 
-		Detailed description for field ``m_prev``
+		Holds a pointer to the previous list entry on the list or ``null`` if this is the last entry.
 
 	\field m_validator
 
-		Detailed description for field ``m_validator``
+		Opaque field used for internal validation of the list entry. Must be ignored in user code.
 
 	\field m_data
 
-		Detailed description for field ``m_data``
+		Holds the actual ``variant`` data value of the list entry.
 
 */

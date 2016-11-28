@@ -23,10 +23,14 @@
 
 \fn std.collectGarbage
 
-	Detailed description for function ``std.collectGarbage``
+	Forces a full cycle of garbage collection.
 
 \fn std.format
 
-	Detailed description for function ``std.format``
+	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffered.
+
+	Returns a pointer to null-terminated string containing the newly formatted text.
+
+	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
 
 */

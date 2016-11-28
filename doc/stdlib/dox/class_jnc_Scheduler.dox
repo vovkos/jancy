@@ -29,7 +29,7 @@
 
 	Of course, Jancy compiler has *no idea* which environment is required for this particular function. But the programmer surely knows. So, the programmer can write a *scheduler* which will execute *abstract* function pointer in the proper execution environment. Then you take this scheduler and use it to create scheduled function pointers of *any* type.
 
-	Sample code:
+	.. rubric:: Sample code:
 
 	.. ref-code-block::
 

@@ -13,24 +13,32 @@
 
 \struct std.Guid
 
-	\brief Brief description for struct ``std.Guid``
+	\brief This struct describes a globally unique identifier (GUID).
 
-	Detailed description for struct ``std.Guid``
+	GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.
+
+	In practice any two generated GUIDs could be assumed to be distinct -- even though neither of GUID generation algorithms could strictly guarantee uniqueness of generated identifiers. The probability of collision is too low and can be neglected in most practical applications.
+
+	In Jancy standard library GUIDs are used to identify the type of an error (``NTSTATUS``, ``WinError``, ``errno``, ``string-error`` etc).
+
+	This struct directly maps to ``struct UUID`` as defined in ``WinAPI``.
+
+	For more details about globally unique identifiers refer to: https://en.wikipedia.org/wiki/Globally_unique_identifier
 
 	\field m_data1
 
-		Detailed description for field ``m_data1``
+		Specifies the first 8 hexadecimal digits of the GUID.
 
 	\field m_data2
 
-		Detailed description for field ``m_data2``
+		Specifies the first group of 4 hexadecimal digits of the GUID.
 
 	\field m_data3
 
-		Detailed description for field ``m_data3``
+		Specifies the second group of 4 hexadecimal digits of the GUID.
 
 	\field m_data4
 
-		Detailed description for field ``m_data4``
+		Array of eight elements. The first two elements contain the third group of 4 hexadecimal digits of the GUID. The remaining six elements contain the final 12 hexadecimal digits of the GUID.
 
 */

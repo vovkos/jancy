@@ -22,14 +22,28 @@
 
 \fn std.getLastError
 
-	Detailed description for function ``std.getLastError``
+	Returns a pointer to the last error set in the context of the current thread.
 
-\fn std.setPosixError
+	Currently this function allocates a new error buffer on every call. In the future caching will be implemented (if ``AXL`` error has not changed since last invokation of ``getLastError`` then previously allocated error buffer could be re-used).
 
-	Detailed description for function ``std.setPosixError``
+\fn std.getLastErrorDescription
 
-\fn std.setStringError
+	Returns a human readable description of the the last error set in the context of the current thread.
 
-	Detailed description for function ``std.setStringError``
+	Equivalent to:
+
+	.. ref-code-block::
+
+		std.getLastError ().:ref:`m_description<cid-std.error.m_description>`
+
+\fn std.setError
+
+	Sets string error described by a null-terminated string pointed to by ``string`` as the last error of the current thread.
+
+	Calling `std.Error.m_description` on a string error will yield a null-terminated string identical to ``string``.
+
+\fn std.setErrno
+
+	Sets ``errno`` error as the last error of the current thread.
 
 */

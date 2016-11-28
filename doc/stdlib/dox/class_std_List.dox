@@ -13,76 +13,141 @@
 
 \class std.List
 
-	\brief Brief description for class ``std.List``
+	\brief This class provides a doubly linked list container for ``variant`` values.
 
-	Detailed description for class ``std.List``
+	A typical sequence of steps when working with a doubly linked list usually looks like this:
+
+	* Add items using *insert* methods: ``insertHead``, ``insertTail``, ``insertBefore``, ``insertAfter``;
+	* Remove items using *remove* methods: ``removeHead``, ``removeTail``, ``removeBefore``, ``removeAfter``, ``remove``;
+	* Iterate over items by starting with ``m_head`` or ``m_tail`` and then move to the next element by inspecting `std.ListEntry.m_next` or `std.ListEntry.m_prev`.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		std.List list;
+
+		// add items...
+
+		int a [] = { 10, 20, 30, 40, 50, };
+
+		for (size_t i = 0; i < countof (a); i++)
+			list.insertTail (a [i]);
+
+		// iterate over list...
+
+		std.ListEntry* e = list.m_head;
+		for (; e; e = e.m_next)
+		{
+			// access e.m_data...
+		}
+
+	\sa `std.ListEntry`
 
 	\field m_head
 
-		Detailed description for field ``m_head``
+		Holds a pointer to the *list head* (the first element of the list) or ``null`` if the list is empty.
 
 	\field m_tail
 
-		Detailed description for field ``m_tail``
+		Holds a pointer to the *list tail* (the last element of the list) or ``null`` if the list is empty.
 
 	\field m_count
 
-		Detailed description for field ``m_count``
+		Holds number of elements on the list.
 
 	\fn clear
 
-		Detailed description for function ``clear``
+		Removes all elements from the lists.
 
 	\fn takeOver
 
-		Detailed description for function ``takeOver``
+		Moves all the elements from the source list ``list`` to this list.
+
+		After the take-over, ``list`` will be empty and this list will contain the same elements as ``list`` originally did.
+
+		This operation is performed in constant time no matter the size of the source list -- so it's always more efficient than clearing the list first and then adding all the items from the source list in a loop.
 
 	\fn add
 
-		Detailed description for function ``add``
+		Adds item ``data``  to the list.
+
+		Returns a pointer to the new `std.ListEntry`.
+
+		Equivalent to ``insertTail``.
 
 	\fn insertHead
 
-		Detailed description for function ``insertHead``
+		Inserts item ``data`` to the head of the list.
+
+		Returns a pointer to the new `std.ListEntry`.
 
 	\fn insertTail
 
-		Detailed description for function ``insertTail``
+		Inserts item ``data`` to the tail of the list.
+
+		Returns a pointer to the new `std.ListEntry`.
 
 	\fn insertBefore
 
-		Detailed description for function ``insertBefore``
+		Inserts item ``data`` before the item entry pointed to by ``entry`` argument.
+
+		If ``entry == null`` then this method is equivalent to ``insertTail``.
+
+		Returns a pointer to the new `std.ListEntry`.
 
 	\fn insertAfter
 
-		Detailed description for function ``insertAfter``
+		Inserts item ``data`` after the item entry pointed to by ``entry`` argument.
+
+		If ``entry == null`` then this method is equivalent to ``insertHead``.
+
+		Returns a pointer to the new `std.ListEntry`.
 
 	\fn moveToHead
 
-		Detailed description for function ``moveToHead``
+		Moves item entry pointed to by ``entry`` to the head of the list.
+
+		After this call ``m_head`` will be pointing to ``entry``.
 
 	\fn moveToTail
 
-		Detailed description for function ``moveToTail``
+		Moves item entry pointed to by  ``entry`` to the tail of the list.
+
+		After this call ``m_tail`` will be pointing to ``entry``.
 
 	\fn moveBefore
 
-		Detailed description for function ``moveBefore``
+		Moves item entry pointed to by ``entry`` before item entry pointed to by  ``before``.
+
+		If ``entry == null`` then this method is equivalent to ``moveToTail``.
 
 	\fn moveAfter
 
-		Detailed description for function ``moveAfter``
+		Moves item entry pointed to by  ``entry`` after item entry pointed to by ``after``.
+
+		If ``after == null`` then this method is equivalent to ``moveToHead``.
 
 	\fn removeHead
 
-		Detailed description for function ``removeHead``
+		Removes head item entry.
+
+		Returns the value of `std.ListEntry.m_data` field of the removed list head.
+
+		If list is empty at the moment of removal does nothing and returns ``null``.
 
 	\fn removeTail
 
-		Detailed description for function ``removeTail``
+		Removes tail item entry.
+
+		Returns the value of `std.ListEntry.m_data` field of the removed list tail.
+
+		If list is empty at the moment of removal does nothing and returns ``null``.
 
 	\fn remove
 
-		Detailed description for function ``remove``
+		Removes item entry pointed to by ``entry``.
+
+		Returns the value of ``entry.m_data`` field.
 
 */

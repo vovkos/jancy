@@ -29,7 +29,7 @@
 	* Resume writing on ``TransmitBufferReady`` event;
 	* Close the file stream when no longer needed with ``close`` method.
 
-	Sample code:
+	.. rubric:: Sample code:
 
 	.. ref-code-block::
 
