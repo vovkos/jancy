@@ -42,6 +42,7 @@ protected:
 	Module* m_module;
 
 	DoxyBlock* m_block;
+	DoxyBlock* m_parentBlock;
 	sl::Array <GroupStackEntry> m_groupStack;
 	bool m_isBlockAssigned;
 	DescriptionKind m_descriptionKind;

@@ -666,6 +666,16 @@ DerivableType::generateDocumentation (
 	}
 
 	itemXml->append (memberXml);
+
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+	sl::String footnoteXml = doxyBlock->getFootnoteString ();
+	if (!footnoteXml.isEmpty ())
+	{
+		itemXml->append ("<sectiondef>\n");
+		itemXml->append (footnoteXml);
+		itemXml->append ("</sectiondef>\n");
+	}
+
 	itemXml->append (getDoxyBlock ()->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");

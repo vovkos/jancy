@@ -341,17 +341,6 @@ Namespace::generateMemberDocumentation (
 		}
 	}
 
-	count = m_footnoteArray.getCount ();
-	for (size_t i = 0; i < count; i++)
-	{
-		DoxyBlock* footnote = m_footnoteArray [i];
-
-		sectionDef.append ("<memberdef kind='footnote'>\n");
-		sectionDef.appendFormat ("<name>%s</name>\n", footnote->getRefId ().sz ());
-		sectionDef.append (footnote->getDescriptionString ());
-		sectionDef.append ("</memberdef>\n");
-	}
-
 	if (!sectionDef.isEmpty ())
 		if (!useSectionDef)
 		{
@@ -426,7 +415,17 @@ GlobalNamespace::generateDocumentation (
 	sl::String memberXml;
 	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+	sl::String footnoteXml = doxyBlock->getFootnoteString ();
+	if (!footnoteXml.isEmpty ())
+	{
+		itemXml->append ("<sectiondef>\n");
+		itemXml->append (footnoteXml);
+		itemXml->append ("</sectiondef>\n");
+	}
+
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 

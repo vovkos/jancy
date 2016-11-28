@@ -44,6 +44,8 @@ protected:
 	sl::String m_detailedDescription;
 	sl::String m_seeAlsoDescription;
 
+	sl::Array <DoxyBlock*> m_footnoteArray;
+
 public:
 	DoxyBlock ();
 
@@ -100,6 +102,15 @@ public:
 
 	sl::String
 	getDescriptionString ();
+
+	sl::String
+	getFootnoteString ();
+
+	void
+	addFootnote (DoxyBlock* footnote)
+	{
+		m_footnoteArray.append (footnote);
+	}
 };
 
 //..............................................................................

@@ -74,6 +74,8 @@ DoxyGroup::generateDocumentation (
 		}
 	}
 
+	sectionDef += getFootnoteString ();
+
 	if (!sectionDef.isEmpty ())
 	{
 		itemXml->append ("<sectiondef>\n");

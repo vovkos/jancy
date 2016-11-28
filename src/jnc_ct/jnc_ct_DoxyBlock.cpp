@@ -78,6 +78,25 @@ DoxyBlock::getDescriptionString ()
 	return string;
 }
 
+sl::String
+DoxyBlock::getFootnoteString ()
+{
+	sl::String string;
+
+	size_t count = m_footnoteArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		DoxyBlock* footnote = m_footnoteArray [i];
+
+		string.append ("<memberdef kind='footnote'>\n");
+		string.appendFormat ("<name>%s</name>\n", footnote->getRefId ().sz ());
+		string.append (footnote->getDescriptionString ());
+		string.append ("</memberdef>\n");
+	}
+
+	return string;
+}
+
 //..............................................................................
 
 void

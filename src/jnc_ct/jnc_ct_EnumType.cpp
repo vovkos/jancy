@@ -227,7 +227,13 @@ EnumType::generateDocumentation (
 		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.sz ());
 
 	itemXml->append (memberXml);
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+	sl::String footnoteXml = doxyBlock->getFootnoteString ();
+	if (!footnoteXml.isEmpty ())
+		itemXml->append (footnoteXml);
+
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

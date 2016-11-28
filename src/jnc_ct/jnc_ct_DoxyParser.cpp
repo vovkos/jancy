@@ -22,6 +22,7 @@ DoxyParser::DoxyParser (Module* module)
 {
 	m_module = module;
 	m_block = NULL;
+	m_parentBlock = NULL;
 	m_isBlockAssigned = false;
 	m_descriptionKind = DescriptionKind_Detailed;
 	m_overloadIdx = 0;
@@ -130,6 +131,9 @@ DoxyParser::addComment (
 		const DoxyToken* nextToken;
 		size_t i;
 
+		sl::StringRef name;
+		bool isParentBlock = false;
+
 		switch (token->m_token)
 		{
 		case DoxyTokenKind_Error:
@@ -141,10 +145,14 @@ DoxyParser::addComment (
 			return;
 
 		case DoxyTokenKind_Enum:
-		case DoxyTokenKind_EnumValue:
 		case DoxyTokenKind_Struct:
 		case DoxyTokenKind_Union:
 		case DoxyTokenKind_Class:
+		case DoxyTokenKind_Namespace:
+			isParentBlock = true;
+			// fall through
+
+		case DoxyTokenKind_EnumValue:
 		case DoxyTokenKind_Alias:
 		case DoxyTokenKind_Variable:
 		case DoxyTokenKind_Field:
@@ -153,7 +161,6 @@ DoxyParser::addComment (
 		case DoxyTokenKind_Property:
 		case DoxyTokenKind_Event:
 		case DoxyTokenKind_Typedef:
-		case DoxyTokenKind_Namespace:
 		case DoxyTokenKind_Footnote:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
@@ -166,7 +173,24 @@ DoxyParser::addComment (
 				description = &m_block->m_detailedDescription;
 			}
 
-			setBlockTarget ((DoxyTokenKind) token->m_token, nextToken->m_data.m_string.getTrimmedString ());
+			if (isParentBlock)
+				m_parentBlock = m_block;
+			
+			name = nextToken->m_data.m_string.getTrimmedString ();
+			if (token->m_token != DoxyTokenKind_Footnote)
+			{
+				setBlockTarget ((DoxyTokenKind) token->m_token, name);
+			}
+			else if (m_parentBlock)
+			{
+				m_block->m_refId = name;
+				m_parentBlock->addFootnote (m_block); 			
+			}
+			else			
+			{
+				TRACE ("orphan footnote: %s\n", nextToken->m_data.m_string.sz ());
+			}
+
 			lexer.nextToken ();
 			break;
 
@@ -190,7 +214,9 @@ DoxyParser::addComment (
 				m_block = group;
 			}
 
+			m_parentBlock = m_block;
 			m_descriptionKind = DescriptionKind_Detailed;
+			m_isBlockAssigned = true;
 			lexer.nextToken ();
 			break;
 

@@ -109,21 +109,6 @@ DoxyMgr::resolveBlockTargets ()
 		Target* target = *it;
 		ModuleItem* item = NULL;
 
-		if (target->m_tokenKind == DoxyTokenKind_Footnote)
-		{
-			if (!prevNspace)
-			{
-				result = false;
-			}
-			else
-			{
-				target->m_block->m_refId = target->m_itemName;
-				prevNspace->addFootnote (target->m_block);
-			}
-
-			continue; // not a item
-		}
-		
 		if (prevNspace && target->m_itemName.find ('.') == -1)
 		{
 			if (target->m_tokenKind == DoxyTokenKind_Function &&

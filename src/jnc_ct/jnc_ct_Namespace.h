@@ -54,7 +54,6 @@ protected:
 	NamespaceKind m_namespaceKind;
 
 	sl::Array <ModuleItem*> m_itemArray;
-	sl::Array <DoxyBlock*> m_footnoteArray;
 	sl::StringHashTableMap <ModuleItem*> m_itemMap;
 	sl::StringHashTable m_friendSet;
 	sl::StringHashTableMap <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
@@ -201,12 +200,6 @@ public:
 
 	size_t
 	addFunction (Function* function); // returns overload idx or -1 on error
-
-	void
-	addFootnote (DoxyBlock* footnote)
-	{
-		m_footnoteArray.append (footnote);
-	}
 
 	Const*
 	createConst (
