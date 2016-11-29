@@ -10,8 +10,8 @@
 #...............................................................................
 
 set (DOC_NAME      "Jancy Language Manual")
-set (TEX_FILE_NAME jancy_language.tex)
-set (PDF_FILE_NAME jancy_language.pdf)
+set (TEX_FILE_NAME jancy-language.tex)
+set (PDF_FILE_NAME jancy-language-${JANCY_VERSION_FILE_SUFFIX}.pdf)
 
 set (RST_DIR  ${CMAKE_CURRENT_LIST_DIR}/rst)
 set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)

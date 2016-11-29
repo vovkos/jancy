@@ -10,8 +10,8 @@
 #...............................................................................
 
 set (DOC_NAME      "Jancy API Reference")
-set (TEX_FILE_NAME jancy_api.tex)
-set (PDF_FILE_NAME jancy_api.pdf)
+set (TEX_FILE_NAME jancy-api.tex)
+set (PDF_FILE_NAME jancy-api-${JANCY_VERSION_FILE_SUFFIX}.pdf)
 
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)

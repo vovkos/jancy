@@ -10,8 +10,8 @@
 #...............................................................................
 
 set (DOC_NAME      "Jancy Standard Library Reference")
-set (TEX_FILE_NAME jancy_stdlib.tex)
-set (PDF_FILE_NAME jancy_stdlib.pdf)
+set (TEX_FILE_NAME jancy-stdlib.tex)
+set (PDF_FILE_NAME jancy-stdlib-${JANCY_VERSION_FILE_SUFFIX}.pdf)
 
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
