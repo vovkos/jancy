@@ -1,3 +1,4 @@
+#!/bin/bash
 #...............................................................................
 #
 #  This file is part of the Jancy toolkit.
@@ -9,17 +10,24 @@
 #
 #...............................................................................
 
-if (SPHINX_FOUND)
-	add_subdirectory (build-guide)
-	add_subdirectory (language)
+set -e
 
-	if (DOXYREST_FOUND)
-		add_subdirectory (stdlib)
+mkdir -p ${PDF_DIR}
 
-		if (DOXYGEN_FOUND)
-			add_subdirectory (api)
-		endif ()
-	endif ()
-endif ()
+echo Building ${DOC_NAME} Latex files at ${TEX_DIR}...
 
-#...............................................................................
+"${SPHINX_BUILD_EXE}" ${SPHINX_TEX_CMD_LINE}
+
+echo Building ${DOC_NAME} PDF at ${PDF_DIR}...
+
+PREV_DIR=`pwd`
+cd ${TEX_DIR}
+
+cp ${DOXYREST_SPHINX_DIR}/doxyrest.sty .
+
+"${PDFLATEX_EXE}" ${PDFLATEX_TEXLIVE_CMD_LINE}
+"${PDFLATEX_EXE}" ${PDFLATEX_TEXLIVE_CMD_LINE}
+
+cp ${TMP_DIR}/${PDF_FILE_NAME} ${PDF_DIR}
+
+cd $PREV_DIR
