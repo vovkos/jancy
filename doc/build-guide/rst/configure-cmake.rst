@@ -21,7 +21,75 @@ Create a build folder. I usually create two-level build paths: ``./build/<build-
 	cd build
 	cmake ..
 
-If all the required paths have been configured properly, you should see something like::
+If all the required paths have been configured properly, you should see something like this.
+
+.. rubric:: Sample Linux output:
+
+::
+
+	AXL CMake:
+	    Invoked from:        /home/vladimir/Projects/ioninja/jancy/CMakeLists.txt
+	    dependencies.cmake:  /home/vladimir/Projects/ioninja/jancy/dependencies.cmake
+	    settings.cmake:      /home/vladimir/Projects/ioninja/jancy/settings.cmake
+	    paths.cmake:         /home/vladimir/Projects/ioninja/paths.cmake
+	    Target CPU:          amd64
+	    Build configuration: Debug
+	C/C++:
+	    C Compiler:          /usr/bin/cc
+	    C flags (Debug):     -m64 -mcx16 -fPIC -fvisibility=hidden -Wno-multichar -g
+	    C flags (Release):   -m64 -mcx16 -fPIC -fvisibility=hidden -Wno-multichar -O3 -DNDEBUG
+	    C++ Compiler:        /usr/bin/c++
+	    C++ flags (Debug):   -m64 -mcx16 -fno-rtti -fPIC -fvisibility=hidden -Wno-multichar -g
+	    C++ flags (Release): -m64 -mcx16 -fno-rtti -fPIC -fvisibility=hidden -Wno-multichar -O3 -DNDEBUG
+	Dependency path definitions:
+	    AXL_CMAKE_DIR:       /home/vladimir/Projects/ioninja/axl/cmake;/home/vladimir/Projects/ioninja/axl/build/make-amd64/cmake
+	    DOXYREST_CMAKE_DIR:  /home/vladimir/Projects/ioninja/doxyrest/cmake;/home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/cmake
+	    GRACO_CMAKE_DIR:     /home/vladimir/Projects/ioninja/graco/cmake;/home/vladimir/Projects/ioninja/graco/build/make-amd64/cmake
+	    LLVM_CMAKE_DIR:      /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/share/llvm/cmake
+	    LLVM_INC_DIR:        /home/vladimir/Develop/llvm/llvm-3.4.2/include;/home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/include
+	    LLVM_LIB_DIR:        /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/lib
+	Perl found at:           /usr/bin/perl
+	Ragel found at:          /usr/bin/ragel
+	LLVM paths:
+	    CMake files:         /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/share/llvm/cmake
+	    Includes:            /home/vladimir/Develop/llvm/llvm-3.4.2/include;/home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/include
+	    Libraries:           /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/lib
+	AXL paths:
+	    CMake files:         /home/vladimir/Projects/ioninja/axl/cmake;/home/vladimir/Projects/ioninja/axl/build/make-amd64/cmake
+	    Includes:            /home/vladimir/Projects/ioninja/axl/include
+	    Libraries:           /home/vladimir/Projects/ioninja/axl/build/make-amd64/lib/Debug
+	Graco paths:
+	    CMake files:         /home/vladimir/Projects/ioninja/graco/cmake;/home/vladimir/Projects/ioninja/graco/build/make-amd64/cmake
+	    Includes:            /home/vladimir/Projects/ioninja/graco/include
+	    Frames:              /home/vladimir/Projects/ioninja/graco/frame
+	    Executable:          /home/vladimir/Projects/ioninja/graco/build/make-amd64/bin/Debug/graco
+	7-Zip found at:          /usr/bin/7z
+	QT paths:
+	    Core CMake files:    /usr/lib64/cmake/Qt5Core
+	    Gui CMake files:     /usr/lib64/cmake/Qt5Gui
+	    Widgets CMake files: /usr/lib64/cmake/Qt5Widgets
+	    Network CMake files: /usr/lib64/cmake/Qt5Network
+	LibSSH2 paths:
+	    Includes:            /usr/include
+	    Libraries:           /usr/lib64
+	OpenSSL paths:
+	    Includes:            /usr/include
+	    Libraries:           /usr/lib64
+	Pcap paths:
+	    Includes:            /usr/include
+	    Libraries:           /usr/lib64
+	Doxygen found at:        /usr/bin/doxygen
+	Doxyrest paths:
+	    CMake files:         /home/vladimir/Projects/ioninja/doxyrest/cmake;/home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/cmake
+	    Frames:              /home/vladimir/Projects/ioninja/doxyrest/frame
+	    Sphinx exts:         /home/vladimir/Projects/ioninja/doxyrest/sphinx
+	    Executable:          /home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/bin/Debug/doxyrest
+	Sphinx found at:         /usr/bin/sphinx-build
+	Pdflatex found at:       /usr/bin/pdflatex
+
+.. rubric:: Sample Windows output:
+
+::
 
 	AXL CMake:
 	    Invoked from:        C:/Projects/repos/jancy_b/CMakeLists.txt

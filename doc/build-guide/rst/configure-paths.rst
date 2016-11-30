@@ -22,32 +22,60 @@ Being machine-specific ``paths.cmake`` files are added to ``.gitignore`` and are
 
 To answer this question, you need to check ``dependencies.cmake`` file. Inside this file, a variable called ``AXL_PATH_LIST`` contains all the paths that will be used during the build. For ``jancy_b`` package this list looks like this:
 
-::
+.. code-block:: bash
 
-	LUA_INC_DIR
-	LUA_LIB_DIR
-	LUA_LIB_NAME
-	LLVM_INC_DIR
-	LLVM_LIB_DIR
-	LLVM_CMAKE_DIR
-	PCAP_INC_DIR
-	PCAP_LIB_DIR
-	LIBSSH2_INC_DIR
-	LIBSSH2_LIB_DIR
-	OPENSSL_INC_DIR
-	OPENSSL_LIB_DIR
-	QT_CMAKE_DIR
-	QT_DLL_DIR
-	RAGEL_EXE
-	7Z_EXE
-	DOXYGEN_EXE
-	DOXYREST_CMAKE_DIR
-	SPHINX_BUILD_EXE
-	PDFLATEX_EXE
+	LUA_INC_DIR         # path to Lua C include directory
+	LUA_LIB_DIR         # path to Lua library directory
+	LUA_LIB_NAME        # name of lua library (lua51/lua52/lua53)
+	LLVM_INC_DIR        # path to LLVM include directory (list is OK)
+	LLVM_LIB_DIR        # path to LLVM library directory
+	LLVM_CMAKE_DIR      # path to LLVM CMake module directory
+	PCAP_INC_DIR        # (optional) path to Pcap include directory
+	PCAP_LIB_DIR        # (optional) path to Pcap library directory
+	LIBSSH2_INC_DIR     # (optional) path to LibSSH2 include directory
+	LIBSSH2_LIB_DIR     # (optional) path to LibSSH2 library directory
+	OPENSSL_INC_DIR     # (optional) path to OpenSSL include directory
+	OPENSSL_LIB_DIR     # (optional) path to OpenSSL library directory
+	QT_CMAKE_DIR        # (optional) path to QT CMake module directory
+	QT_DLL_DIR          # (optional) path to QT dynamic library directory (Windows only)
+	RAGEL_EXE           # path to Ragel executable
+	7Z_EXE              # path to 7-Zip executable
+	DOXYGEN_EXE         # (optional) path to Doxygen executable
+	DOXYREST_CMAKE_DIR  # (optional) path to Doxyrest CMake module directory
+	SPHINX_BUILD_EXE    # (optional) path to Sphinx compiler executable sphinx-build
+	PDFLATEX_EXE        # (optional) path to Latex-to-PDF compiler
 
-Note that it you don't have to necessarily specify each and every one of them. First of all, if this is an *optional* dependency and you don't need it -- you can safely omit it. But even with *required* dependencies you should only add an entry to ``paths.cmake`` when you need to *fine-tune* the location for a specific tool/library. If the path to a tool/library is auto-detected correctly -- you don't have to touch it.
+Note that it you don't necessarily have to specify each and every variable above.
 
-On Windows, however, you *DO NEED* to specify the paths to the required libraries -- they are unlikely to be found automatically. It's easier with tools, though -- if an executable is available via ``PATH``, it will be found (Jancy build system uses ``where`` command as a fallback when path to executable is not specified). Still, I prefer to always specify paths explicitly.
+First of all, it's OK to completely omit *optional* dependencies -- if you don't need those.
+
+Secondly, required dependencies may be auto-detected -- on Unix systems installed libraries and tools will likely be found automatically. On Windows Jancy build system will automatically find executables if they are added to ``PATH`` (via ``where`` command as a fallback when a path to the executable is not specified).
+
+You do need to specify LLVM paths (unless you build and install LLVM 3.4.2 and not the newer versions available in repositories).
+
+On Windows, you will also need to specify paths to the required libraries -- they are unlikely to be found automatically.
+
+And of course, you can always use ``paths.cmake`` to *fine-tune* the location of a specific tool/library.
+
+I personally prefer to always specify all the paths explicitly.
+
+.. rubric:: Sample paths.cmake on Linux:
+
+.. code-block:: cmake
+
+	set (LLVM_VERSION 3.4.2)
+
+	set (LLVM_INC_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/include)
+
+	if ("${AXL_CPU}" STREQUAL "amd64")
+		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} "/home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/include)
+		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/lib)
+	else ()
+		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} "/home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/include)
+		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/lib)
+	endif ()
 
 .. rubric:: Sample paths.cmake on Windows:
 
