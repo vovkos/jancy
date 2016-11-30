@@ -10,8 +10,12 @@
 #...............................................................................
 
 set (DOC_NAME      "Jancy Language Manual")
-set (TEX_FILE_NAME jancy-language.tex)
-set (PDF_FILE_NAME jancy-language-${JANCY_VERSION_FILE_SUFFIX}.pdf)
+set (TEX_BASE_NAME jancy-language-${JANCY_VERSION_FILE_SUFFIX})
+set (TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
+set (PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
+
+set (SHARED_DIR     ${CMAKE_CURRENT_LIST_DIR}/../shared)
+set (STATIC_RST_DIR ${CMAKE_CURRENT_LIST_DIR}/rst)
 
 set (RST_DIR  ${CMAKE_CURRENT_LIST_DIR}/rst)
 set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
@@ -83,17 +87,17 @@ configure_file (
 
 if (WIN32)
 	configure_file (
-		build-html.bat.in
+		${SHARED_DIR}/sh/build-html.bat.in
 		build-html.bat
 		)
 
 	configure_file (
-		build-pdf.bat.in
+		${SHARED_DIR}/sh/build-pdf.bat.in
 		build-pdf.bat
 		)
 else ()
 	axl_configure_file_w_permissions (
-		build-html.sh.in
+		${SHARED_DIR}/sh/build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -101,7 +105,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-pdf.sh.in
+		${SHARED_DIR}/sh/build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE

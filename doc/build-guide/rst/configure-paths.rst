@@ -26,7 +26,7 @@ To answer this question, you need to check ``dependencies.cmake`` file. Inside t
 
 	LUA_INC_DIR         # path to Lua C include directory
 	LUA_LIB_DIR         # path to Lua library directory
-	LUA_LIB_NAME        # name of lua library (lua51/lua52/lua53)
+	LUA_LIB_NAME        # name of Lua library (lua/lua51/lua52/lua53)
 	LLVM_INC_DIR        # path to LLVM include directory (list is OK)
 	LLVM_LIB_DIR        # path to LLVM library directory
 	LLVM_CMAKE_DIR      # path to LLVM CMake module directory
@@ -45,11 +45,11 @@ To answer this question, you need to check ``dependencies.cmake`` file. Inside t
 	SPHINX_BUILD_EXE    # (optional) path to Sphinx compiler executable sphinx-build
 	PDFLATEX_EXE        # (optional) path to Latex-to-PDF compiler
 
-Note that it you don't necessarily have to specify each and every variable above.
+Note that you don't necessarily have to specify each and every variable above.
 
 First of all, it's OK to completely omit *optional* dependencies -- if you don't need those.
 
-Secondly, required dependencies may be auto-detected -- on Unix systems installed libraries and tools will likely be found automatically. On Windows Jancy build system will automatically find executables if they are added to ``PATH`` (via ``where`` command as a fallback when a path to the executable is not specified).
+Secondly, required dependencies may be auto-detected -- on Unix systems installed libraries and tools will likely be found automatically. On Windows Jancy build system will automatically find executables if they are added to ``PATH`` (via ``where`` command).
 
 You do need to specify LLVM paths (unless you build and install LLVM 3.4.2 and not the newer versions available in repositories).
 

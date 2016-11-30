@@ -28,10 +28,10 @@ If all the required paths have been configured properly, you should see somethin
 ::
 
 	AXL CMake:
-	    Invoked from:        /home/vladimir/Projects/ioninja/jancy/CMakeLists.txt
-	    dependencies.cmake:  /home/vladimir/Projects/ioninja/jancy/dependencies.cmake
-	    settings.cmake:      /home/vladimir/Projects/ioninja/jancy/settings.cmake
-	    paths.cmake:         /home/vladimir/Projects/ioninja/paths.cmake
+	    Invoked from:        /home/vladimir/Projects/jancy_b/CMakeLists.txt
+	    dependencies.cmake:  /home/vladimir/Projects/jancy_b/dependencies.cmake
+	    settings.cmake:      /home/vladimir/Projects/jancy_b/settings.cmake
+	    paths.cmake:         /home/vladimir/Projects/paths.cmake
 	    Target CPU:          amd64
 	    Build configuration: Debug
 	C/C++:
@@ -42,50 +42,48 @@ If all the required paths have been configured properly, you should see somethin
 	    C++ flags (Debug):   -m64 -mcx16 -fno-rtti -fPIC -fvisibility=hidden -Wno-multichar -g
 	    C++ flags (Release): -m64 -mcx16 -fno-rtti -fPIC -fvisibility=hidden -Wno-multichar -O3 -DNDEBUG
 	Dependency path definitions:
-	    AXL_CMAKE_DIR:       /home/vladimir/Projects/ioninja/axl/cmake;/home/vladimir/Projects/ioninja/axl/build/make-amd64/cmake
-	    DOXYREST_CMAKE_DIR:  /home/vladimir/Projects/ioninja/doxyrest/cmake;/home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/cmake
-	    GRACO_CMAKE_DIR:     /home/vladimir/Projects/ioninja/graco/cmake;/home/vladimir/Projects/ioninja/graco/build/make-amd64/cmake
 	    LLVM_CMAKE_DIR:      /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/share/llvm/cmake
 	    LLVM_INC_DIR:        /home/vladimir/Develop/llvm/llvm-3.4.2/include;/home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/include
 	    LLVM_LIB_DIR:        /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/lib
-	Perl found at:           /usr/bin/perl
-	Ragel found at:          /usr/bin/ragel
+	Lua paths:
+	    Includes:            /usr/include
+	    Library dir:         /usr/lib64
+	    Library name:        lua
 	LLVM paths:
 	    CMake files:         /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/share/llvm/cmake
 	    Includes:            /home/vladimir/Develop/llvm/llvm-3.4.2/include;/home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/include
 	    Libraries:           /home/vladimir/Develop/llvm/llvm-3.4.2/build/make-amd64/Debug/lib
-	AXL paths:
-	    CMake files:         /home/vladimir/Projects/ioninja/axl/cmake;/home/vladimir/Projects/ioninja/axl/build/make-amd64/cmake
-	    Includes:            /home/vladimir/Projects/ioninja/axl/include
-	    Libraries:           /home/vladimir/Projects/ioninja/axl/build/make-amd64/lib/Debug
-	Graco paths:
-	    CMake files:         /home/vladimir/Projects/ioninja/graco/cmake;/home/vladimir/Projects/ioninja/graco/build/make-amd64/cmake
-	    Includes:            /home/vladimir/Projects/ioninja/graco/include
-	    Frames:              /home/vladimir/Projects/ioninja/graco/frame
-	    Executable:          /home/vladimir/Projects/ioninja/graco/build/make-amd64/bin/Debug/graco
+	Ragel found at:          /usr/bin/ragel
+	Perl found at:           /usr/bin/perl
 	7-Zip found at:          /usr/bin/7z
-	QT paths:
-	    Core CMake files:    /usr/lib64/cmake/Qt5Core
-	    Gui CMake files:     /usr/lib64/cmake/Qt5Gui
-	    Widgets CMake files: /usr/lib64/cmake/Qt5Widgets
-	    Network CMake files: /usr/lib64/cmake/Qt5Network
+	Pcap paths:
+	    Includes:            /usr/include
+	    Libraries:           /usr/lib64
 	LibSSH2 paths:
 	    Includes:            /usr/include
 	    Libraries:           /usr/lib64
 	OpenSSL paths:
 	    Includes:            /usr/include
 	    Libraries:           /usr/lib64
-	Pcap paths:
-	    Includes:            /usr/include
-	    Libraries:           /usr/lib64
 	Doxygen found at:        /usr/bin/doxygen
-	Doxyrest paths:
-	    CMake files:         /home/vladimir/Projects/ioninja/doxyrest/cmake;/home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/cmake
-	    Frames:              /home/vladimir/Projects/ioninja/doxyrest/frame
-	    Sphinx exts:         /home/vladimir/Projects/ioninja/doxyrest/sphinx
-	    Executable:          /home/vladimir/Projects/ioninja/doxyrest/build/make-amd64/bin/Debug/doxyrest
+	doxyrest:                NOT FOUND, adjust AXL_IMPORT_DIR_LIST in dependencies.cmake (optional)
 	Sphinx found at:         /usr/bin/sphinx-build
 	Pdflatex found at:       /usr/bin/pdflatex
+	QT paths:
+	    Core CMake files:    /usr/lib64/cmake/Qt5Core
+	    Gui CMake files:     /usr/lib64/cmake/Qt5Gui
+	    Widgets CMake files: /usr/lib64/cmake/Qt5Widgets
+	    Network CMake files: /usr/lib64/cmake/Qt5Network
+	AXL paths:
+	    CMake files:         /home/vladimir/Projects/jancy_b/axl/cmake;/home/vladimir/Projects/jancy_b/.build/axl/cmake
+	    Includes:            /home/vladimir/Projects/jancy_b/axl/include
+	    Libraries:           /home/vladimir/Projects/jancy_b/.build/axl/lib/Debug
+	Graco paths:
+	    CMake files:         /home/vladimir/Projects/jancy_b/graco/cmake;/home/vladimir/Projects/jancy_b/.build/graco/cmake
+	    Includes:            /home/vladimir/Projects/jancy_b/graco/include
+	    Frames:              /home/vladimir/Projects/jancy_b/graco/frame
+	    Executable:          /home/vladimir/Projects/jancy_b/.build/graco/bin/Debug/graco
+	Configuring done
 
 .. rubric:: Sample Windows output:
 
@@ -157,6 +155,7 @@ If all the required paths have been configured properly, you should see somethin
 	    Includes:            C:/Projects/repos/jancy_b/graco/include
 	    Frames:              C:/Projects/repos/jancy_b/graco/frame
 	    Executable:          C:/Projects/repos/jancy_b/build/graco/bin/$(Configuration)/graco
+	Configuring done
 
 After that you can optionally run::
 

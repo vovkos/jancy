@@ -26,7 +26,6 @@ Please refer to ``msbuild`` documentation for more details on command-line param
 
 After Jancy build is complete you will have Jancy static library files in ``./build/lib/$(Configuration)`` directory; command line compiler, dynamic extension libraries and sample executable binaries can be found in ``./build/bin/$(Configuration)``.
 
-
 Testing
 -------
 

@@ -10,8 +10,12 @@
 #...............................................................................
 
 set (DOC_NAME      "Jancy API Reference")
-set (TEX_FILE_NAME jancy-api.tex)
-set (PDF_FILE_NAME jancy-api-${JANCY_VERSION_FILE_SUFFIX}.pdf)
+set (TEX_BASE_NAME jancy-api-${JANCY_VERSION_FILE_SUFFIX})
+set (TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
+set (PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
+
+set (SHARED_DIR     ${CMAKE_CURRENT_LIST_DIR}/../shared)
+set (STATIC_RST_DIR ${CMAKE_CURRENT_LIST_DIR}/rst)
 
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
@@ -26,6 +30,9 @@ set (
 	DOXYGEN_CMD_LINE
 	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 	)
+
+set (XMLGEN_EXE ${DOXYGEN_EXE})
+set (XMLGEN_CMD_LINE ${DOXYGEN_CMD_LINE})
 
 set (
 	DOXYREST_CMD_LINE
@@ -75,7 +82,7 @@ set (
 set (
 	CMD_LINE_VAR_LIST
 
-	DOXYGEN_CMD_LINE
+	XMLGEN_CMD_LINE
 	DOXYREST_CMD_LINE
 	SPHINX_HTML_CMD_LINE
 	SPHINX_TEX_CMD_LINE
@@ -108,22 +115,35 @@ if (WIN32)
 	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE ${DOXYREST_EXE})
 
 	configure_file (
-		build-rst.bat.in
+		${SHARED_DIR}/sh/build-xml.bat.in
+		build-xml.bat
+		)
+
+	configure_file (
+		${SHARED_DIR}/sh/build-rst.bat.in
 		build-rst.bat
 		)
 
 	configure_file (
-		build-html.bat.in
+		${SHARED_DIR}/sh/build-html.bat.in
 		build-html.bat
 		)
 
 	configure_file (
-		build-pdf.bat.in
+		${SHARED_DIR}/sh/build-pdf.bat.in
 		build-pdf.bat
 		)
 else ()
 	axl_configure_file_w_permissions (
-		build-rst.sh.in
+		${SHARED_DIR}/sh/build-xml.sh.in
+		build-xml.sh
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_WRITE GROUP_EXECUTE
+		WORLD_READ WORLD_WRITE WORLD_EXECUTE
+		)
+
+	axl_configure_file_w_permissions (
+		${SHARED_DIR}/sh/build-rst.sh.in
 		build-rst.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -131,7 +151,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-html.sh.in
+		${SHARED_DIR}/sh/build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -139,7 +159,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		build-pdf.sh.in
+		${SHARED_DIR}/sh/build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE

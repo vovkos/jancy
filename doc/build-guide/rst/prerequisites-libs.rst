@@ -32,7 +32,7 @@ These libraries are **required** for building the Jancy compiler.
 
 	Lua executables, header files and both static and dynamic libraries are available in official repositories of most Linux distributions.
 
-	Lua sources as well as the links to pre-compiled binaries of both executables and libraries could be found at the official Lua website: http://www.lua.org
+	Lua sources as well as the links to pre-compiled binaries (of both executables and libraries) could be found at the official Lua website: http://www.lua.org
 
 	Both 5.2.x and 5.3.x branches should be fine.
 
@@ -58,15 +58,15 @@ These libraries are **optional** and are only required in order to build the ful
 
 	If this functionality is not required, Pcap library is not necessary.
 
-	Pcap is part of Mac OS X SDK and is usually available out-of-the-box in many Linux distributions as well. On Windows, both sources and pre-compiled libraries and drivers could be downloaded from the offical WinPcap website: http://www.winpcap.org
+	Pcap is part of Mac OS X SDK and is usually available out-of-the-box in many Linux distributions as well. On Windows systems sources, pre-compiled libraries and drivers could be downloaded from the offical WinPcap website: http://www.winpcap.org
 
 * QT 5.x
 
-	QT is a comprehensive cross-platform C++ framework. Jancy relies on QT to build user interface of its GUI-based tests and samples:
+	QT is a comprehensive cross-platform C++ framework. Jancy relies on QT to provide user interface of its GUI-based tests and samples:
 
 	- ``test_qt`` is a simple Jancy editor capable of compiling and running user code;
 	- ``jnc_sample_03_dialog`` is a GUI sample demonstrating application of Jancy reactive programming concepts to QT widgets.
 
-	Any QT version 5.x should be fine. However, newer versions of QT may not be used with Visual Studio 2010. Here in Tibbo we use QT 5.3.2 to build official `IO Ninja <http://tibbo.com/ninja>`_.
+	Any QT version 5.x should be fine. However, newer versions of QT may not be compatible with Visual Studio 2010. Here in Tibbo we use QT 5.3.2 to build official `IO Ninja <http://tibbo.com/ninja>`_.
 
 	QT official download archive is available at: http://download.qt.io/archive/qt
