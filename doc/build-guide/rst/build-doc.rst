@@ -64,7 +64,7 @@ A reference on Jancy standard library.
 
 Located at: ``./doc/stdlib``
 
-Before building stdlib documentation you need to build Jancy first -- ``jancy`` compiler is requred to analyze stdlib sources and extract documentation comments.
+Before building stdlib documentation you need to build Jancy first -- ``jancy`` compiler is required to analyze stdlib sources and extract documentation comments.
 
 ``doxyrest`` is also needed to convert Doxygen XML database to Re-Structured Text (which will be further passed to ``sphinx-build``).
 

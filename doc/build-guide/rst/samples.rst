@@ -52,4 +52,4 @@ After Jancy is successfully built and tested, you should probably check out the 
 
 You can also check out ``./test/test_qt`` -- a Jancy editor capable of compiling and running user code.
 
-This QT application is constantly used by us for troubleshooting and bug-fixing of Jancy compiler, Jancy runtime and Jancy standard library. What makes this application really convenient for the said purpose is the blend of *editor*, *compiler* and *runtime* -- all in confines of the single process, which makes everything as *debugger-friendly* as possible.
+This QT application is constantly used by us for troubleshooting and bug-fixing of Jancy compiler, Jancy runtime, and Jancy standard library. What makes this application really convenient for the said purpose is the blend of *editor*, *compiler* and *runtime* -- all in confines of the single process, which makes everything as *debugger-friendly* as possible.
