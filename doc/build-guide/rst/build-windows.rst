@@ -24,7 +24,7 @@ You can pass extra command-line arguments to ``msbuild.exe`` using ``--`` switch
 
 Please refer to ``msbuild`` documentation for more details on command-line parameters: https://msdn.microsoft.com/en-us/library/ms164311.aspx
 
-After Jancy build is complete you will have Jancy static library files in ``./build/lib/$(Configuration)`` directory; command line compiler, dynamic extension libraries and sample executable binaries can be found in ``./build/bin/$(Configuration)``.
+After Jancy build is complete you will have Jancy static library files in ``./build/jancy/lib/$(Configuration)`` directory; command line compiler, dynamic extension libraries and sample executable binaries can be found in ``./build/jancy/bin/$(Configuration)``.
 
 Testing
 -------
