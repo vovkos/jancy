@@ -124,7 +124,7 @@ configure_file (
 	)
 
 if (WIN32)
-	string (REPLACE "$(Configuration)" "%1" JANCY_EXE ${JANCY_EXE})
+	string (REPLACE "$(Configuration)" "%1" XMLGEN_EXE ${XMLGEN_EXE})
 	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE ${DOXYREST_EXE})
 
 	configure_file (
