@@ -12,7 +12,9 @@
 Autoget Properties
 ==================
 
-In most cases a property getter is supposed to return a variable value or field, and all of the property logic is contained in the property setter. Jancy takes care of this common case by providing autoget properties. Such properties do not require a getter implementation: the compiler will access the data variable/field directly if possible, or otherwise generate a getter to access it.
+In most cases a property getter is supposed to return a variable or field value, while all of the property logic is contained in the setter. Jancy takes care of this common case by providing autoget properties.
+
+Such properties do not require a getter implementation: the compiler will access the data variable/field directly if possible, or automatically generate a getter to access it otherwise.
 
 Simple syntax for declaring autoget property:
 

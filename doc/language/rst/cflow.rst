@@ -12,12 +12,12 @@
 Control Flow
 ============
 
+Jancy control flow statements should look familiar to any C-family language programmer. There are minor improvements (or, rather, *fixes*) of both syntax/semantics in some statements, but overall Jancy flow control should be pretty intuitive.
+
 .. toctree::
 	:titlesonly:
 
-	cflow_if.rst
-	cflow_while.rst
-	cflow_for.rst
+	cflow_if_while_for.rst
 	cflow_break.rst
 	cflow_switch.rst
 	cflow_once.rst

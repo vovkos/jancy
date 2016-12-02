@@ -35,4 +35,4 @@ A full property declaration looks a lot like a declaration for a class. It impli
 	    update (); // helper method
 	}
 
-A body of a method can be placed on the right (Java-style) or outside (C++-style).
+A body of a method can be placed right away (Java-style *inline* body definition) or outside -- maybe even in another file (C++-style *out-of-line* body definition).

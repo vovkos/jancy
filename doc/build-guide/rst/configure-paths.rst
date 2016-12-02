@@ -69,11 +69,11 @@ I personally prefer to always specify all the paths explicitly.
 
 	if ("${AXL_CPU}" STREQUAL "amd64")
 		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
-		set (LLVM_INC_DIR    ${LLVM_INC_DIR} "/home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/include)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/include)
 		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/lib)
 	else ()
 		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
-		set (LLVM_INC_DIR    ${LLVM_INC_DIR} "/home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/include)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/include)
 		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/lib)
 	endif ()
 

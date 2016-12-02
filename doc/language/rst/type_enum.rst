@@ -12,9 +12,9 @@
 Enums
 =====
 
-Jancy brings a couple of enhancements to the enumeration types as well.
+Jancy brings a couple of enhancements to the enumeration types as we know them in C/C++/Java.
 
-In Jancy, traditional enums conceal member identifiers within their enum namespaces to prevent namespace pollution. Plus, Jancy enums can be derived from an integer type. This comes handy when declaring fields of protocol headers.
+In Jancy, traditional enums conceal member identifiers within their enum namespaces to prevent namespace pollution. Plus, Jancy enums can be derived from an integer type. This comes in handy when declaring fields of protocol headers.
 
 .. code-block:: jnc
 

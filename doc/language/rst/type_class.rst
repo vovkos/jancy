@@ -9,15 +9,17 @@
 ..
 .. .............................................................................
 
+.. _classes:
+
 Classes
 =======
 
-Classes are special types of data with ancillary header holding the type information, virtual table pointer, etc.
+Classes in Jancy are special types of data with ancillary header holding the type information, virtual table pointer, etc. Jancy Classes are what would have been called *reference-types* in C# or Java -- they can *only* be accessed by reference.You **cannot assign** varibles or fields of class types. If you need to clone or copy an instance of a class -- this class should provide a corresponding ``clone`` or ``copy`` method.
 
 Member Access Control
 ---------------------
 
-There are only 2 access specifiers in Jancy: public and protected (read more about Jancy access control model here).
+There are only 2 access specifiers in Jancy: ``public`` and ``protected`` (read more about Jancy :ref:`dual modifiers <dual-modifiers>`).
 
 Both Java and C++ styles of declaring member access are supported. Contrary to most modern languages, the default access mode is public.
 

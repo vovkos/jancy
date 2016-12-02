@@ -12,7 +12,7 @@
 break/continue
 ==============
 
-Jancy features multi-level loop jumps. These are achieved with **break-n** and **continue-n**:
+Besides tradition ``break`` and ``continue`` with the same syntax and symantics as in C/C++/C#/Java/D, Jancy features multi-level loop jumps. These are achieved with ``break<n>`` and ``continue<n>`` and are used to control *outer* loops:
 
 .. code-block:: jnc
 

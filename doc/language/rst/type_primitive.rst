@@ -9,6 +9,8 @@
 ..
 .. .............................................................................
 
+.. _primitive-types:
+
 Primitive Types
 ===============
 
@@ -38,3 +40,9 @@ Below is a list of all primitive types in Jancy.
 * ``unsigned intptr`` (aliases to ``uint32_t`` or ``uint64_t`` depending on platform)
 * ``float``
 * ``double``
+
+.. rubric:: POD- vs non-POD-types
+
+In Jancy **POD**-type (plain-old-data) is a type of data which contains **only user data** bytes. Virtual method tables, safe data pointer validators, GC-box headers etc -- all that is classified as **meta-data**. Any type containing meta-data -- is a **non-POD**-type.
+
+Primitive types and all their aggregations via arrays, structs or unions -- are POD's. Anything else -- non-POD. You can ``memcpy`` POD-types or modify them byte-by-byte -- and that wouldn't cause problems other than logical one (but not a crash!)

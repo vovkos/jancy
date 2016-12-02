@@ -16,11 +16,11 @@ After Jancy is successfully built and tested, you should probably check out the 
 
 * ``jnc``
 
-	This sub-folder contains multiple Jancy source files demonstrating most prominent language features.
+	This sub-folder contains multiple Jancy source files demonstrating most prominent **language features**.
 
 * ``jnc_sample_01_embed_c``
 
-	This sample demonstrates how to embed Jancy as a scripting language into a pure C program. The sample also shows how to implement Jancy classes in C and how to export them into the namespace of the script, thus providing two-way interaction between the script and the host application.
+	This sample demonstrates how to embed Jancy as a **scripting engine** into a pure C program. The sample also shows how to implement **Jancy classes in C** and how to export them into the namespace of the script, thus providing two-way interaction between the script and the host application.
 
 	Run it as::
 
@@ -30,7 +30,7 @@ After Jancy is successfully built and tested, you should probably check out the 
 
 * ``jnc_sample_02_embed_cpp``
 
-	This sample is a C++ counterpart of the previous sample. It demonstrates how to embed Jancy as a scripting language into C++ program and how to implement Jancy classes in C++.
+	This sample is a C++ counterpart of the previous sample. It demonstrates how to embed Jancy as a **scripting engine** into C++ program and how to implement **Jancy classes in C++**.
 
 	Run it as::
 
@@ -40,7 +40,7 @@ After Jancy is successfully built and tested, you should probably check out the 
 
 * ``jnc_sample_03_dialog``
 
-	This sample demonstrates how to create a Jancy binding to QT widget classes and how to apply Jancy reactive programming concepts to UI programming.
+	This sample demonstrates how to create a Jancy **binding to QT** widget classes and how to apply Jancy **reactive programming** concepts to UI programming.
 
 	Obviously, this sample requires QT to be built and run.
 

@@ -12,6 +12,8 @@
 Namespaces
 ==========
 
+This chapter describes support for namespaces in Jancy.
+
 .. toctree::
 	:titlesonly:
 

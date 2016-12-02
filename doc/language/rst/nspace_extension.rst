@@ -59,7 +59,7 @@ Jancy offers a way to extend the functionality of existing classes with extensio
 
 	int main ()
 	{
-	    C1 c construct (100);
+	    C1 c (100);
 	    c.foo ();
 	    c.bar ();  // bar () is extension method
 	    C1.baz (); // baz () is static extension method

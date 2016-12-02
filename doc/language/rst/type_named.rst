@@ -12,9 +12,11 @@
 Named Types
 ===========
 
+This chapter describes named types in Jancy: *enums*, *structs*, *unions* and *classes*.
+
 .. toctree::
 	:titlesonly:
 
+	type_enum.rst
 	type_struct.rst
 	type_class.rst
-	type_enum.rst

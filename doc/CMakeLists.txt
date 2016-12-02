@@ -12,6 +12,7 @@
 if (SPHINX_FOUND)
 	add_subdirectory (build-guide)
 	add_subdirectory (language)
+	add_subdirectory (extensions)
 
 	if (DOXYREST_FOUND)
 		add_subdirectory (stdlib)

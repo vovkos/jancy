@@ -9,7 +9,13 @@
 ..
 .. .............................................................................
 
-if/else
-=======
+Jancy Extensions
+================
 
-Bla-bla-bla
+.. toctree::
+	:titlesonly:
+
+	abi.rst
+	opaque.rst
+	static.rst
+	dynamic.rst
