@@ -22,6 +22,7 @@
 #include "axl_sys_Event.h"
 #include "axl_sys_Time.h"
 #include "axl_sl_Construct.h"
+#include "axl_g_Module.h"
 
 #if (_AXL_OS_POSIX)
 #	include "axl_io_psx_Pipe.h"

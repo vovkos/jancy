@@ -50,6 +50,7 @@ JNC_EXPORT
 jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
+	g::getModule ()->setTag ("jnc_io_pcap");
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::PcapLib_getLib ();
 }

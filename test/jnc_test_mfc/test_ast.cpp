@@ -70,6 +70,8 @@ CAstApp theApp;
 
 BOOL CAstApp::InitInstance()
 {
+	g::getModule ()->setTag ("jnc_test_mfc");
+
 //	_crtBreakAlloc = 401;
 
 	llvm::InitializeNativeTarget ();

@@ -50,6 +50,7 @@ JNC_EXPORT
 jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
+	g::getModule ()->setTag ("jnc_io_ssh");
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::SshLib_getLib ();
 }

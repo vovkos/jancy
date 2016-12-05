@@ -443,7 +443,7 @@ struct jnc_Module
 
 JNC_EXTERN_C
 void
-jnc_initialize ();
+jnc_initialize (const char* tag);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -526,9 +526,9 @@ public:
 
 inline
 void
-initialize ()
+initialize (const char* tag = NULL)
 {
-	jnc_initialize ();
+	jnc_initialize (tag);
 }
 
 //..............................................................................

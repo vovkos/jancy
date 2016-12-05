@@ -71,7 +71,7 @@ main (
 
 	bool result;
 
-	jnc::initialize ();
+	jnc::initialize ("jnc_app");
 
 	srand ((int) sys::getTimestamp ());
 

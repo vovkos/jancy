@@ -21,7 +21,7 @@ int main (int argc, char* argv [])
 	WSAStartup (0x0202, &WsaData);
 #endif
 
-	jnc::initialize ();
+	jnc::initialize ("jnc_test_qt");
 
 	srand ((int) sys::getTimestamp ());
 

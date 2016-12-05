@@ -396,7 +396,7 @@ jnc_Module_generateDocumentation (
 
 JNC_EXTERN_C
 void
-jnc_initialize ()
+jnc_initialize (const char* tag)
 {
 #if 0
 	// orginally there was no llvm_shutdown in ioninja-server
@@ -411,6 +411,9 @@ jnc_initialize ()
 	llvm::InitializeNativeTargetDisassembler ();
 
 	LLVMLinkInJIT();
+
+	if (tag)
+		g::getModule ()->setTag (tag);
 
 	lex::registerParseErrorProvider ();
 }

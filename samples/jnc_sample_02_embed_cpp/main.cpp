@@ -68,11 +68,11 @@ main (
 
 	if (argc < 2)
 	{
-		printf ("usage: 01_export <script.jnc>\n");
+		printf ("usage: jnc_sample_02_embed_cpp <script.jnc>\n");
 		return Error_CmdLine;
 	}
 
-	jnc::initialize ();
+	jnc::initialize ("jnc_sample_02_embed_cpp");
 
 #if (_JNC_OS_WIN)
 	std::auto_ptr <char> fileName_utf8 = convertToUtf8 (argv [1]);

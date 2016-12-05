@@ -86,12 +86,12 @@ main (
 
 	if (argc < 2)
 	{
-		printf ("usage: 01_export <script.jnc>\n");
+		printf ("usage: jnc_sample_01_embed_c <script.jnc>\n");
 		finalResult = Error_CmdLine;
 		goto exit;
 	}
 
-	jnc_initialize ();
+	jnc_initialize ("jnc_sample_01_embed_c");
 
 #if (_JNC_OS_WIN)
 	fileName = convertToUtf8 (argv [1], -1);
