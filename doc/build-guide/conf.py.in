@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'${DOC_NAME}'
-copyright = u'${JANCY_YEARS}, ${JANCY_VERSION_COMPANY}'
+copyright = u'${JANCY_VERSION_YEARS}, ${JANCY_VERSION_COMPANY}'
 author = u'Vladimir Gladkov'
 
 # The version info for the project you're documenting, acts as replacement for
