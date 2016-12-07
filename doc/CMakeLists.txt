@@ -10,9 +10,10 @@
 #...............................................................................
 
 if (SPHINX_FOUND)
-	add_subdirectory (build-guide)
+	add_subdirectory (index)
 	add_subdirectory (language)
 	add_subdirectory (extensions)
+	add_subdirectory (build-guide)
 
 	if (DOXYREST_FOUND)
 		add_subdirectory (stdlib)
