@@ -39,7 +39,7 @@ Key Features
 * Built-in Reactive Programming support
 * Built-in regexp-based generator of incremental lexers/scanners
 * Deterministic resource release
-* Error handling model which allows both throw-catch semantics and error code checks (with the same function!)
+* Error handling model which allows both throw-catch semantics and error code checks -- with the same function!
 
 Other Notable Features
 ----------------------
