@@ -12,9 +12,9 @@
 Function Pointers
 =================
 
-Remember nested C language declarators of death needed to describe a pointer to a function, which returns a pointer to a function, which returns yet another pointer, and so on?
+Remember nested C language **declarators of death** needed to describe a pointer to a function, which returns a pointer to a function, which returns yet another pointer, and so on?
 
-Nested declarators are evil! Fortunately, there are other ways to achieve the same result. Jancy uses a different approach, which is much easier to read while allowing to declare function pointers of arbitrary complexity.
+Nested declarators are **evil**! Fortunately, there are **other ways** to achieve the same result. Jancy uses a different approach, which is much easier to read while allowing to declare function pointers of arbitrary complexity.
 
 .. code-block:: jnc
 
@@ -44,7 +44,7 @@ Nested declarators are evil! Fortunately, there are other ways to achieve the sa
 	    (*f5 [0]) () (100); // bar (100)
 	}
 
-Function pointers can be **fat** or **thin**. Thin pointers are just like C/C++ function pointers: they simply hold the address of the code.
+Function pointers can be normal (fat) or ``thin``. ``thin`` pointers are just like C/C++ function pointers: they simply hold the address of the code.
 
 .. code-block:: jnc
 
@@ -78,7 +78,7 @@ Unlike C/C++, the argument conversion is automated (Jancy compiler generates thu
 	    f (3.14);
 	}
 
-The true power comes with **fat** function pointers. Besides the code address, fat pointers also hold the address to the closure object, which stores the context captured at the moment of creating the function pointer.
+The true power comes with *fat* function pointers. Besides the code address, fat pointers also hold the address to the closure object, which stores the context captured at the moment of creating the function pointer.
 
 .. code-block:: jnc
 
@@ -98,7 +98,7 @@ The true power comes with **fat** function pointers. Besides the code address, f
 	    f ();
 	}
 
-Jancy also allows to capture arbitrary arguments in the closure through the use of partial application operator **~()**
+Jancy also allows to capture arbitrary arguments in the closure through the use of partial application operator ``~()``
 
 .. code-block:: jnc
 
@@ -140,7 +140,7 @@ You are free to skip arguments during the partial application. For example, you 
 	    f (100, 200); // => c.foo (100, 200, 300);
 	}
 
-Fat function pointers can be **weak**, meaning they do not retain some of the objects in the closure.
+Fat function pointers can be ``weak``, meaning they do not retain some of the objects in the closure.
 
 .. code-block:: jnc
 
@@ -165,7 +165,7 @@ Fat function pointers can be **weak**, meaning they do not retain some of the ob
 	    // uncomment the next line and C1 will get collected next gc run
 	    // c = null;
 
-	    jnc.runGc ();
+	    std.collectGarbage ();
 
 	    function* f (int, int) = w;
 	    if (f)

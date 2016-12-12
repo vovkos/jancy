@@ -18,7 +18,7 @@ Properties are found in many modern languages. What commonly lacks is a develope
 
 Property pointers resemble and are closely related to function pointers. Dealing with property pointers requires a more careful application of address **\&** and indirection **\*** operators. This is due to the possibility of implicit invocation of property accessors and the ambiguity induced by such invocation, which can be automatically resolved with function pointers and not with property pointers.
 
-Like the function pointers, property pointers can be **thin** or **fat**. Thin property pointers hold a pointer to a property accessor table.
+Like the function pointers, property pointers can be normal (fat) or ``thin``. ``thin`` property pointers hold a single pointer to the property accessor table.
 
 .. code-block:: jnc
 
@@ -107,7 +107,7 @@ It is also possible to capture index arguments in the closure, thus reducing dim
 	    *p [10] = 100; // => g_prop [10] [20] = 100;
 	}
 
-Like function pointers, property pointers can be **weak**, meaning that they do not retain selected objects in the closure from being collected by the garbage collector.
+Like function pointers, property pointers can be ``weak``, meaning that they do not retain selected objects in the closure from being collected by the garbage collector.
 
 .. code-block:: jnc
 
@@ -132,7 +132,7 @@ Like function pointers, property pointers can be **weak**, meaning that they do 
 	    // uncomment the next line and C1 will get collected next gc run
 	    // c = null;
 
-	    jnc.runGc ();
+	    std.collectGarbage ();
 
 	    int property* p = w;
 	    if (p)

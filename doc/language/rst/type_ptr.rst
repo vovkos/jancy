@@ -12,15 +12,13 @@
 Pointer Types
 =============
 
-Unsafe as they are, pointers are not something we can live without. Even languages without pointers (like Basic or Java) have pointers to classes and interfaces.
+Unsafe as they are, pointers are not something we can live without. Even languages without pointers (like **Basic or Java**) **have pointers** -- to classes and interfaces!
 
-Pointers has always been considered an unsafe tool that could easily cause a program to crash or (worse!) silently corrupt user data.
+Pointers has always been considered an **unsafe tool** which could easily cause a program to **crash** or (worse!) silently **corrupt user data**. The worst thing is, it's **impossible** to perform the complete **analysis** of pointer-related correctness **at compile time** without imposing crippling limitations on the whole ecosystem of pointer operations available to developers. Bottom line is, **invalid pointer** accesses can and **will happen at runtime**.
 
-Even if we limit the number of pointer kinds and pointer operations available to developers, we still won't be able to perform the complete analysis of pointer-related correctness at compile time.
+So what is **safety**, then?
 
-For the purpose of the discussion that follows let's define **pointer safety**.
-
-We will call a pointer **safe** if it's impossible to either crash a program or corrupt user data by accessing this pointer. This means that any invalid pointer access will be caught and handled by the language runtime.
+We will call a pointer **"safe"** if it's impossible to either crash a process or corrupt user data by accessing this pointer. This means that any **invalid pointer** access **must be caught** and handled by the language runtime.
 
 .. toctree::
 	:titlesonly:

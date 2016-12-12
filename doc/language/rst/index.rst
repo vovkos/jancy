@@ -22,3 +22,4 @@ Jancy is a **scripting programming language** with **LLVM** back-end. Jancy offe
 
 	intro.rst
 	language.rst
+	c_compatibility.rst
