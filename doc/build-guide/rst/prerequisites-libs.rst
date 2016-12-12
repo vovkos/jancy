@@ -18,7 +18,7 @@ These libraries are **required** for building the Jancy compiler.
 
 	Jancy uses LLVM as a back-end. LLVM is a collection of compiler libraries which quickly became a de-facto standard framework for compiler back-end implementation.
 
-	Since Jancy and `IO Ninja <http://tibbo.com/ninja>`_ are still officially built on Visual Studio 2010, and newer versions of LLVM unfortunately **CANNOT** be built on Visual Studio 2010 (because of the lack of C++11 support) -- you will need to download and build LLVM 3.4.2 which is the latest LLVM version which still supports Visual Studio 2010.
+	Since Jancy and `IO Ninja <http://tibbo.com/ninja>`_ are still officially built on Visual Studio 2010, and newer versions of LLVM unfortunately **CANNOT** be built on Visual Studio 2010 (because of the lack of C++11 support) -- you will need to download and build LLVM 3.4.2 which is the latest LLVM version to still support Visual Studio 2010.
 
 	Sources of LLVM 3.4.2 are available at: http://llvm.org/releases/download.html#3.4.2
 
