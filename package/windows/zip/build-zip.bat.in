@@ -34,17 +34,23 @@ if exist %ZIP_DIR% (rd /S /Q %ZIP_DIR% || exit)
 if exist %OUT_FILE_PATH% (del %OUT_FILE_PATH%  || exit)
 
 mkdir %CONTENTS_DIR%\cmake || exit
+mkdir %CONTENTS_DIR%\doc || exit
+mkdir %CONTENTS_DIR%\license || exit
 mkdir %CONTENTS_DIR%\include || exit
 mkdir %CONTENTS_DIR%\src || exit
 mkdir %CONTENTS_DIR%\samples || exit
-mkdir %CONTENTS_DIR%\tests || exit
+mkdir %CONTENTS_DIR%\test || exit
+mkdir %CONTENTS_DIR%\package || exit
 if not exist "%OUT_DIR%" (mkdir "%OUT_DIR%" || exit)
 
 copy /Y %ROOT_DIR%\cmake\*.* %CONTENTS_DIR%\cmake || exit
+xcopy /Y /Q /E %ROOT_DIR%\doc\*.* %CONTENTS_DIR%\doc || exit
+xcopy /Y /Q /E %ROOT_DIR%\license\*.* %CONTENTS_DIR%\license || exit
 copy /Y %ROOT_DIR%\include\*.* %CONTENTS_DIR%\include || exit
 xcopy /Y /Q /E %ROOT_DIR%\src\*.* %CONTENTS_DIR%\src || exit
 xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples || exit
-xcopy /Y /Q /E %ROOT_DIR%\test\*.* %CONTENTS_DIR%\tests || exit
+xcopy /Y /Q /E %ROOT_DIR%\test\*.* %CONTENTS_DIR%\test || exit
+xcopy /Y /Q /E %ROOT_DIR%\package\*.* %CONTENTS_DIR%\package || exit
 copy /Y %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR% || exit
 copy /Y %ROOT_DIR%\version.cmake %CONTENTS_DIR% || exit
 
