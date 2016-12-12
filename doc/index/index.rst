@@ -19,4 +19,6 @@ Follow the links below for additional information.
 * `Jancy Language Manual <http://docs.tibbo.com/jancy/language>`_
 * `Jancy Standard Library Reference <http://docs.tibbo.com/jancy/stdlib>`_
 * `Jancy C API Reference <http://docs.tibbo.com/jancy/api>`_
+* `Jancy Compiler Overivew <http://docs.tibbo.com/jancy/compiler>`_
+* `Jancy Grammar Reference <http://docs.tibbo.com/jancy/grammar>`_
 * `Jancy Build Guide <http://docs.tibbo.com/jancy/build-guide>`_
