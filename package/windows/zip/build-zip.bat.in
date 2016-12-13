@@ -52,6 +52,8 @@ xcopy /Y /Q /E %ROOT_DIR%\samples\*.* %CONTENTS_DIR%\samples || exit
 xcopy /Y /Q /E %ROOT_DIR%\test\*.* %CONTENTS_DIR%\test || exit
 xcopy /Y /Q /E %ROOT_DIR%\package\*.* %CONTENTS_DIR%\package || exit
 copy /Y %ROOT_DIR%\CMakeLists.txt %CONTENTS_DIR% || exit
+copy /Y %ROOT_DIR%\dependencies.cmake %CONTENTS_DIR% || exit
+copy /Y %ROOT_DIR%\settings.cmake %CONTENTS_DIR% || exit
 copy /Y %ROOT_DIR%\version.cmake %CONTENTS_DIR% || exit
 
 del %CONTENTS_DIR%\cmake\std\paths.cmake

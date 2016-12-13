@@ -45,6 +45,7 @@ cp -rf $ROOT_DIR/test $CONTENTS_DIR
 cp -rf $ROOT_DIR/package $CONTENTS_DIR
 cp -f $ROOT_DIR/CMakeLists.txt $CONTENTS_DIR
 cp -f $ROOT_DIR/dependencies.cmake $CONTENTS_DIR
+cp -f $ROOT_DIR/settings.cmake $CONTENTS_DIR
 cp -f $ROOT_DIR/version.cmake $CONTENTS_DIR
 
 chown -R root:$(id -gn root) $TAR_DIR
