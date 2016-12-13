@@ -26,16 +26,25 @@ rm -rf $TAR_DIR
 rm -f $OUT_FILE_PATH
 
 mkdir -p $CONTENTS_DIR/cmake
+mkdir -p $CONTENTS_DIR/doc
+mkdir -p $CONTENTS_DIR/license
 mkdir -p $CONTENTS_DIR/include
 mkdir -p $CONTENTS_DIR/src
+mkdir -p $CONTENTS_DIR/samples
+mkdir -p $CONTENTS_DIR/test
+mkdir -p $CONTENTS_DIR/package
 mkdir -p $OUT_DIR
 
 cp -f $ROOT_DIR/cmake/*.* $CONTENTS_DIR/cmake
+cp -rf $ROOT_DIR/doc $CONTENTS_DIR
+cp -rf $ROOT_DIR/license $CONTENTS_DIR
 cp -f $ROOT_DIR/include/*.* $CONTENTS_DIR/include
 cp -rf $ROOT_DIR/src $CONTENTS_DIR
 cp -rf $ROOT_DIR/samples $CONTENTS_DIR
 cp -rf $ROOT_DIR/test $CONTENTS_DIR
+cp -rf $ROOT_DIR/package $CONTENTS_DIR
 cp -f $ROOT_DIR/CMakeLists.txt $CONTENTS_DIR
+cp -f $ROOT_DIR/dependencies.cmake $CONTENTS_DIR
 cp -f $ROOT_DIR/version.cmake $CONTENTS_DIR
 
 chown -R root:$(id -gn root) $TAR_DIR
