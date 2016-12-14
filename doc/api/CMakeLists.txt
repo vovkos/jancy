@@ -9,7 +9,7 @@
 #
 #...............................................................................
 
-set (DOC_NAME      "Jancy API Reference")
+set (DOC_NAME      "Jancy C API Reference")
 set (TEX_BASE_NAME jancy-api-${JANCY_VERSION_FILE_SUFFIX})
 set (TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
 set (PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
