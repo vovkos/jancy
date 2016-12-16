@@ -233,7 +233,7 @@ NamedPipe::listenLoop ()
 		waitArray [j] = eventArray [i].m_event;
 		waitMapArray [i] = i;
 
-		result = m_pipeArray [i].connect (&overlappedArray [i]);
+		result = m_pipeArray [i].overlappedConnect (&overlappedArray [i]);
 		ASSERT (result); // ignore result
 	}
 
@@ -272,7 +272,7 @@ NamedPipe::listenLoop ()
 					Const_Timeout,
 					NULL
 					) &&
-					m_pipeArray [pipeIdx].connect (&overlappedArray [pipeIdx]);
+					m_pipeArray [pipeIdx].overlappedConnect (&overlappedArray [pipeIdx]);
 
 				if (result)
 				{

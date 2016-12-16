@@ -319,7 +319,7 @@ Mailslot::readLoop ()
 			overlapped.Offset = (DWORD) offset;
 			overlapped.OffsetHigh = (DWORD) (offset >> 32);
 
-			bool_t result = m_file.m_file.read (readBuffer, readSize, NULL, &overlapped);
+			bool result = m_file.m_file.overlappedRead (readBuffer, readSize, &overlapped);
 			if (!result)
 			{
 				if (read)
