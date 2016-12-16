@@ -112,6 +112,8 @@ Serial::open (DataPtr namePtr)
 		m_parity
 		);
 
+	serialSettings.m_readInterval = 0; // complete Serial.Read immediatly!
+
 	bool result =
 		m_serial.open ((const char*) namePtr.m_p) &&
 		m_serial.setSettings (&serialSettings);
@@ -379,10 +381,10 @@ Serial::ioThreadFunc ()
 		if (m_ioFlags & IoFlag_Closing)
 		{
 			m_ioLock.unlock ();
-			break;
+			return;
 		}
 
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
+		if (!(m_ioFlags & IoFlag_IncomingData)) // don't add EV_RXCHAR if previous is not handled yet
 			mask |= EV_RXCHAR;
 
 		m_ioLock.unlock ();
@@ -393,7 +395,7 @@ Serial::ioThreadFunc ()
 		dword_t event = 0;
 		bool result =
 			m_serial.m_serial.setWaitMask (mask) &&
-			m_serial.m_serial.wait (&event, &overlapped);
+			m_serial.m_serial.overlappedWait (&event, &overlapped);
 
 		if (!result)
 		{
@@ -401,26 +403,57 @@ Serial::ioThreadFunc ()
 			break;
 		}
 
-		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
-			err::Error error (err::getLastSystemErrorCode ());
-			fireSerialEvent (SerialEventCode_IoError, error);
-			return;
-		}
+		// wait for comm event
 
-		if (waitResult != WAIT_OBJECT_0 + 1)
-			continue;
-
-		if (event & EV_RXCHAR)
+		for (;;)
 		{
+			DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
+			if (waitResult == WAIT_FAILED)
+			{
+				err::Error error (err::getLastSystemErrorCode ());
+				fireSerialEvent (SerialEventCode_IoError, error);
+				return;
+			}
+
+			COMSTAT stat;
+			result = m_serial.m_serial.clearError (NULL, &stat);
+			if (!result)
+			{
+				fireSerialEvent (SerialEventCode_IoError, err::getLastError ());
+				break;
+			}
+
 			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-			m_ioFlags |= IoFlag_IncomingData;
-			m_ioLock.unlock ();
+			if (m_ioFlags & IoFlag_Closing)
+			{
+				m_ioLock.unlock ();
+				return;
+			}
 
-			fireSerialEvent (SerialEventCode_IncomingData);
+			if (!stat.cbInQue)
+			{
+				m_ioLock.unlock ();
+				
+				if (!(mask & EV_RXCHAR) && !(m_ioFlags & IoFlag_IncomingData)) // need to change wait mask
+					break;
+			}
+			else if (m_ioFlags & IoFlag_IncomingData) // don't re-fire event if previous is not handled yet
+			{
+				m_ioLock.unlock ();
+			}
+			else
+			{
+				m_ioFlags |= IoFlag_IncomingData;
+				m_ioLock.unlock ();
+
+				fireSerialEvent (SerialEventCode_IncomingData);
+			}
+
+			if (waitResult == WAIT_OBJECT_0 + 1)
+				break;
 		}
+
+		// EV_RXCHAR is already handled above
 
 		if (event & (EV_CTS | EV_DSR | EV_RING | EV_RLSD))
 		{
