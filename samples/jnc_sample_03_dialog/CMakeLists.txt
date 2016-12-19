@@ -185,12 +185,20 @@ set_target_properties (
 	FOLDER samples
 	)
 
-add_test (
-	NAME jnc_sample_03_dialog
-	COMMAND
-		$<TARGET_FILE:jnc_sample_03_dialog>
-		${CMAKE_CURRENT_LIST_DIR}/script.jnc
-		--test
-	)
+# only add this test on Windows and Linux native build --
+# it's a pain in the ass to install QT5 multilib on many Linux distros and
+# on Mac it will not link to QT unless QT is properly placed in Frameworks folder
+
+axl_detect_cpu (_CPU)
+
+if (WIN32 OR (LINUX AND "${AXL_CPU}" STREQUAL "${_CPU}"))
+	add_test (
+		NAME jnc_sample_03_dialog
+		COMMAND
+			$<TARGET_FILE:jnc_sample_03_dialog>
+			${CMAKE_CURRENT_LIST_DIR}/script.jnc
+			--test
+		)
+endif ()
 
 #...............................................................................
