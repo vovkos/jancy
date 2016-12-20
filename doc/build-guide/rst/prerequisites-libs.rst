@@ -24,7 +24,17 @@ These libraries are **required** for building the Jancy compiler.
 
 	After downloading and extracting LLVM sources please follow the LLVM CMake build guide at: http://llvm.org/docs/CMake.html
 
-	Note that you don't have to *install* LLVM; merely building the libraries is enough.
+	.. note::
+
+		When building static LLVM libraries on Linux systems, it is **highly recommended** to add ``-fvisibility=hidden`` to C/C++ flags [#f1]_.
+
+	.. note::
+
+		On Linux systems it is also recommended to set ``LLVM_ENABLE_TERMINFO`` to ``OFF`` as to avoid unnecessary dependency on ``libncurses``.
+
+	.. note::
+
+		You don't have to *install* LLVM; merely building the static libraries is enough.
 
 * Lua
 
@@ -70,3 +80,7 @@ These libraries are **optional** and are only required in order to build the ful
 	Any QT version 5.x should be fine. However, newer versions of QT may not be compatible with Visual Studio 2010. Here in Tibbo, we use QT 5.3.2 to build official `IO Ninja <http://tibbo.com/ninja>`_.
 
 	QT official download archive is available at: http://download.qt.io/archive/qt
+
+.. rubric:: Footnotes:
+
+.. [#f1] Otherwise, the linker may add a subset of LLVM symbols to the ``.dynsym`` table of the resulting ``ELF`` executable. This may cause crashes due to conflicts with the system-installed LLVM. It may happen, for example, with QT applications on systems with **mesa OpenGL** library (QT creates a window and uses mesa for rendering; mesa uses shared LLVM for shader compilation)
