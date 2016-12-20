@@ -10,8 +10,8 @@
 #...............................................................................
 
 set (JANCY_VERSION_MAJOR     1)
-set (JANCY_VERSION_MINOR     8)
-set (JANCY_VERSION_REVISION  0)
+set (JANCY_VERSION_MINOR     7)
+set (JANCY_VERSION_REVISION  9)
 set (JANCY_VERSION_TAG)
 
 set (JANCY_VERSION_FILE_SUFFIX "${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.${JANCY_VERSION_REVISION}")
