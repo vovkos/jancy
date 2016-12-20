@@ -189,7 +189,7 @@ set_target_properties (
 # it's a pain in the ass to install QT5 multilib on many Linux distros and
 # on Mac it will not link to QT unless QT is properly placed in Frameworks folder
 
-axl_detect_cpu (_CPU)
+axl_detect_host_cpu (_CPU)
 
 if (WIN32 OR (LINUX AND "${AXL_CPU}" STREQUAL "${_CPU}"))
 	add_test (
