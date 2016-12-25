@@ -9,13 +9,12 @@
 #
 #...............................................................................
 
-set (DOC_NAME      "Jancy C API Reference")
+set (DOC_NAME "Jancy C API Reference")
+
 set (TEX_BASE_NAME jancy-api-${JANCY_VERSION_FILE_SUFFIX})
 set (TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
 set (PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
-set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
-set (SHARED_DIR     ${AXL_DOC_DIR}/share)
 set (STATIC_RST_DIR ${CMAKE_CURRENT_LIST_DIR}/rst)
 
 set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
@@ -24,6 +23,8 @@ set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
 set (TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
 set (PDF_DIR  ${CMAKE_CURRENT_BINARY_DIR}/pdf)
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
+
+set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -116,27 +117,27 @@ if (WIN32)
 	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE ${DOXYREST_EXE})
 
 	configure_file (
-		${SHARED_DIR}/sh/build-xml.bat.in
+		${AXL_DOC_SHARE_DIR}/sh/build-xml.bat.in
 		build-xml.bat
 		)
 
 	configure_file (
-		${SHARED_DIR}/sh/build-rst.bat.in
+		${AXL_DOC_SHARE_DIR}/sh/build-rst.bat.in
 		build-rst.bat
 		)
 
 	configure_file (
-		${SHARED_DIR}/sh/build-html.bat.in
+		${AXL_DOC_SHARE_DIR}/sh/build-html.bat.in
 		build-html.bat
 		)
 
 	configure_file (
-		${SHARED_DIR}/sh/build-pdf.bat.in
+		${AXL_DOC_SHARE_DIR}/sh/build-pdf.bat.in
 		build-pdf.bat
 		)
 else ()
 	axl_configure_file_w_permissions (
-		${SHARED_DIR}/sh/build-xml.sh.in
+		${AXL_DOC_SHARE_DIR}/sh/build-xml.sh.in
 		build-xml.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -144,7 +145,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		${SHARED_DIR}/sh/build-rst.sh.in
+		${AXL_DOC_SHARE_DIR}/sh/build-rst.sh.in
 		build-rst.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -152,7 +153,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		${SHARED_DIR}/sh/build-html.sh.in
+		${AXL_DOC_SHARE_DIR}/sh/build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
@@ -160,7 +161,7 @@ else ()
 		)
 
 	axl_configure_file_w_permissions (
-		${SHARED_DIR}/sh/build-pdf.sh.in
+		${AXL_DOC_SHARE_DIR}/sh/build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
