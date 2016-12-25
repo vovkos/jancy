@@ -20,16 +20,7 @@ However, if you use the standalone ``jancy`` package, you will need to download 
 
 	Jancy and Graco use AXL as a general purpose C++ support library.
 
-	AXL is a lightweight C++ library featuring:
-
-	- Java naming convention;
-	- Non-zero-terminated UTF-8 string slices as the default string-passing model;
-	- TLS-based error-handling system;
-	- Unified reference-counting model;
-	- Wrappers for many popular libraries;
-	- And more...
-
-	Sources of AXL are available at: http://tibbo.com/downloads/archive/axl
+	.. expand-macro:: axl-common-info
 
 * Graco
 

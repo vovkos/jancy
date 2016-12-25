@@ -12,17 +12,7 @@
 Building on Windows
 ===================
 
-To build Jancy on Windows you can start Visual Studio by double-clicking the newly generated solution file ``jancy_b.sln`` and build it from the IDE.
-
-If you prefer building from the command line, run in ``./build`` folder::
-
-	cmake --build .
-
-You can pass extra command-line arguments to ``msbuild.exe`` using ``--`` switch. For example, if you want to have a multi-core build of ``Release`` configuration, run::
-
-	cmake --build . -- /maxcpucount /property:configuration=Release
-
-Please refer to ``msbuild`` documentation for more details on command-line parameters: https://msdn.microsoft.com/en-us/library/ms164311.aspx
+.. expand-macro:: build-windows Jancy jancy_b.sln
 
 After Jancy build is complete you will have Jancy static library files in ``./build/jancy/lib/$(Configuration)`` directory; command line compiler, dynamic extension libraries, and sample executable binaries can be found in ``./build/jancy/bin/$(Configuration)``.
 

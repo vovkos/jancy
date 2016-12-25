@@ -12,16 +12,7 @@
 CMake Configuration Step
 ========================
 
-Once ``paths.cmake`` is created, it's time for CMake configuration step.
-
-Create a build folder. I usually create two-level build paths: ``./build/<build-specific-folder>``, e.g. ``./build/msvc10-amd64``, ``./build/make-x86``, ``./build/netbeans`` etc. But to keep things shorter, I will use ``./build`` in the snippets below::
-
-	cd jancy_b
-	mkdir build
-	cd build
-	cmake ..
-
-If all the required paths have been configured properly, you should see something like this.
+.. expand-macro:: cmake-configure jancy_b
 
 .. rubric:: Sample Linux output:
 
@@ -157,10 +148,4 @@ If all the required paths have been configured properly, you should see somethin
 	    Executable:          C:/Projects/repos/jancy_b/build/graco/bin/$(Configuration)/graco
 	Configuring done
 
-After that you can optionally run::
-
-	cmake-gui .
-
-This will launch a GUI client for CMake and allow you to **fine-tune** CMake configuration variables. For example, you may want to turn **precompiled headers** ON or OFF, change C++ **RTTI** settings, for *make*-based builds change **configuration** from ``Debug`` to ``Release`` or vice versa and so on.
-
-You can also use ``cmake-gui`` all along for the whole CMake configuration process, without doing command line ``cmake`` step.
+.. expand-macro:: cmake-post-configure

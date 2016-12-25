@@ -12,15 +12,7 @@
 paths.cmake
 ===========
 
-Jancy build system uses ``paths.cmake`` file as the main reference when it needs to find a certain tool or library. When a path is not specified, a fallback attempt to find it using ``find_package`` will be made.
-
-This allows for out-of-the-box *default* build and at the same time provides a *fine-grained* control over locations of dependencies. Here in Tibbo, we have multiple versions of tools and libraries installed on the single build machine and at the same time, we are always in full control over which tool or library is going to be used when building a particular project.
-
-``paths.cmake`` files are **cascading**. It means, you can place one *anywhere* above the current directory and it will be found and used. From there you can chain-include the next ``paths.cmake`` and so on. This way you can specify some default locations for *all* your projects but still be able to override the paths for sub-projects.
-
-Being machine-specific ``paths.cmake`` files are added to ``.gitignore`` and are never tracked in Git. Therefore, you need to write ``paths.cmake`` file as the very first step of the configuration process. So, what should be inside?
-
-To answer this question, you need to check ``dependencies.cmake`` file. Inside this file, a variable called ``AXL_PATH_LIST`` contains all the paths that will be used during the build. For ``jancy_b`` package this list looks like this:
+.. expand-macro:: paths-cmake Jancy
 
 .. code-block:: bash
 
@@ -45,19 +37,11 @@ To answer this question, you need to check ``dependencies.cmake`` file. Inside t
 	SPHINX_BUILD_EXE    # (optional) path to Sphinx compiler executable sphinx-build
 	PDFLATEX_EXE        # (optional) path to Latex-to-PDF compiler
 
-Note that you don't necessarily have to specify each and every variable above.
+.. expand-macro:: dependencies-cmake Jancy
 
-First of all, it's OK to completely omit *optional* dependencies -- if you don't need those.
-
-Secondly, required dependencies may be auto-detected -- on Unix systems installed libraries and tools will likely be found automatically. On Windows Jancy build system will automatically find executables if they are added to ``PATH`` (via ``where`` command).
-
-You do need to specify LLVM paths (unless you build and install LLVM 3.4.2 and not the newer versions available in repositories).
+You *do* need to specify LLVM paths (unless you build and install LLVM 3.4.2 and not the newer versions available in repositories).
 
 On Windows, you will also need to specify paths to the required libraries -- they are unlikely to be found automatically.
-
-And of course, you can always use ``paths.cmake`` to *fine-tune* the location of a specific tool/library.
-
-I personally prefer to always specify all the paths explicitly.
 
 .. rubric:: Sample paths.cmake on Linux:
 

@@ -40,11 +40,7 @@ These libraries are **required** for building the Jancy compiler.
 
 	Grammar compiler Graco uses Lua string templates for generating C++ code from LL(k) grammar. Therefore, Lua headers and libraries are required for building Graco.
 
-	Lua executables, header files and both static and dynamic libraries are available in official repositories of most Linux distributions.
-
-	Lua sources, as well as the links to pre-compiled binaries (of both executables and libraries), could be found at the official Lua website: http://www.lua.org
-
-	Both 5.2.x and 5.3.x branches should be fine.
+	.. expand-macro:: lua-common-info
 
 These libraries are **optional** and are only required in order to build the full Jancy source package.
 
@@ -57,7 +53,6 @@ These libraries are **optional** and are only required in order to build the ful
 	Both OpenSSL and LibSSH2 are available in official repositories of most Linux distributions. Alternatively, they can be built from sources available at official websites.
 
 	Official OpenSSL website: http://www.openssl.org
-
 	Official LibSSH2 website: http://www.libssh2.org
 
 	There are also a number of unofficial projects on the web offering pre-compiled libraries for both OpenSSL and LibSSH2.
@@ -68,7 +63,7 @@ These libraries are **optional** and are only required in order to build the ful
 
 	If this functionality is not required, Pcap library is not necessary.
 
-	Pcap is part of Mac OS X SDK and is usually available out-of-the-box in many Linux distributions as well. On Windows systems sources, pre-compiled libraries and drivers could be downloaded from the official WinPcap website: http://www.winpcap.org
+	.. expand-macro:: pcap-common-info
 
 * QT 5.x
 
@@ -77,9 +72,7 @@ These libraries are **optional** and are only required in order to build the ful
 	- ``test_qt`` is a simple Jancy editor capable of compiling and running user code;
 	- ``jnc_sample_03_dialog`` is a GUI sample demonstrating the application of Jancy reactive programming concepts to QT widgets.
 
-	Any QT version 5.x should be fine. However, newer versions of QT may not be compatible with Visual Studio 2010. Here in Tibbo, we use QT 5.3.2 to build official `IO Ninja <http://tibbo.com/ninja>`_.
-
-	QT official download archive is available at: http://download.qt.io/archive/qt
+	.. expand-macro:: qt-common-info
 
 .. rubric:: Footnotes:
 

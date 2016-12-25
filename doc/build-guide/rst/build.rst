@@ -12,7 +12,7 @@
 Building
 ========
 
-Once CMake configuration step completes, makefiles/project files are generated. You are now ready to build Jancy.
+.. expand-macro:: build-intro Jancy
 
 .. toctree::
 	:titlesonly:
