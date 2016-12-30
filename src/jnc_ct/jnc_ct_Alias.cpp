@@ -25,9 +25,11 @@ Alias::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	bool isMulticast = isClassType (m_type, ClassTypeKind_Multicast);
 
-	itemXml->format ("<memberdef kind='alias' id='%s'", getDoxyBlock ()->getRefId ().sz ());
+	itemXml->format ("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -41,7 +43,8 @@ Alias::generateDocumentation (
 		getInitializerString ().sz ()
 		);
 
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getImportString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

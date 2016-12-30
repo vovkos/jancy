@@ -685,15 +685,18 @@ Typedef::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	itemXml->format (
 		"<memberdef kind='typedef' id='%s'>\n"
 		"<name>%s</name>\n",
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		m_name.sz ()
 		);
 
 	itemXml->append (m_type->getDoxyTypeString ());
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getImportString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

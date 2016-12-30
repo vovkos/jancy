@@ -43,8 +43,8 @@ protected:
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
 	sl::String m_seeAlsoDescription;
-
 	sl::Array <DoxyBlock*> m_footnoteArray;
+	sl::BoxList <sl::String> m_importList;
 
 public:
 	DoxyBlock ();
@@ -105,6 +105,9 @@ public:
 
 	sl::String
 	getFootnoteString ();
+
+	sl::String
+	getImportString ();
 
 	void
 	addFootnote (DoxyBlock* footnote)

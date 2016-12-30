@@ -383,6 +383,8 @@ GlobalNamespace::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	const char* kind;
 	const char* name;
 
@@ -400,7 +402,7 @@ GlobalNamespace::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		name
 		);
 
@@ -408,7 +410,7 @@ GlobalNamespace::generateDocumentation (
 		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		name
 		);
 
@@ -416,7 +418,6 @@ GlobalNamespace::generateDocumentation (
 	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
 	itemXml->append (memberXml);
 
-	DoxyBlock* doxyBlock = getDoxyBlock ();
 	sl::String footnoteXml = doxyBlock->getFootnoteString ();
 	if (!footnoteXml.isEmpty ())
 	{

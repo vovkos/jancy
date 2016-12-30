@@ -617,6 +617,8 @@ DerivableType::generateDocumentation (
 {
 	bool result;
 
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	const char* kind =
 		m_typeKind == TypeKind_Struct ? "struct" :
 		m_typeKind == TypeKind_Union ? "union" : "class";
@@ -624,7 +626,7 @@ DerivableType::generateDocumentation (
 	indexXml->appendFormat (
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		getQualifiedName ().sz ()
 		);
 
@@ -653,7 +655,7 @@ DerivableType::generateDocumentation (
 		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n\n",
 		kind,
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		m_name.sz ()
 		);
 
@@ -667,7 +669,6 @@ DerivableType::generateDocumentation (
 
 	itemXml->append (memberXml);
 
-	DoxyBlock* doxyBlock = getDoxyBlock ();
 	sl::String footnoteXml = doxyBlock->getFootnoteString ();
 	if (!footnoteXml.isEmpty ())
 	{
@@ -676,7 +677,8 @@ DerivableType::generateDocumentation (
 		itemXml->append ("</sectiondef>\n");
 	}
 
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getImportString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</compounddef>\n");
 

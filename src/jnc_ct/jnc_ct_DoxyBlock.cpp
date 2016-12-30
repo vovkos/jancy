@@ -97,6 +97,19 @@ DoxyBlock::getFootnoteString ()
 	return string;
 }
 
+sl::String
+DoxyBlock::getImportString ()
+{
+	sl::String string;
+
+	sl::BoxIterator <sl::String> it = m_importList.getHead ();
+	for (; it; it++)
+		string.appendFormat ("<includes>%s</includes>\n", it->sz ());
+
+	return string;
+}
+
+
 //..............................................................................
 
 void

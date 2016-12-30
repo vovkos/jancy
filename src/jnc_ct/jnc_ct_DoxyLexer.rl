@@ -47,6 +47,9 @@ rc = [^ \t\r\n\\];
 
 main := |*
 
+'\\headerfile'    { createToken (DoxyTokenKind_Import); };
+'\\importfile'    { createToken (DoxyTokenKind_Import); };
+'\\import'        { createToken (DoxyTokenKind_Import); };
 '\\enum'          { createToken (DoxyTokenKind_Enum); };
 '\\enumvalue'     { createToken (DoxyTokenKind_EnumValue); };
 '\\struct'        { createToken (DoxyTokenKind_Struct); };

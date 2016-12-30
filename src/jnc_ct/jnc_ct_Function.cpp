@@ -300,7 +300,9 @@ Function::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='function' id='%s'", getDoxyBlock ()->getRefId ().sz ());
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
+	itemXml->format ("<memberdef kind='function' id='%s'", doxyBlock->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -318,7 +320,8 @@ Function::generateDocumentation (
 	itemXml->appendFormat ("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz () : getFunctionKindString (m_functionKind));
 
 	itemXml->append (m_type->getDoxyTypeString ());
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getImportString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

@@ -25,6 +25,7 @@ enum DoxyTokenKind
 	DoxyTokenKind_OpeningBrace,
 	DoxyTokenKind_ClosingBrace,
 
+	DoxyTokenKind_Import,
 	DoxyTokenKind_Enum,
 	DoxyTokenKind_EnumValue,
 	DoxyTokenKind_Struct,
@@ -60,6 +61,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_OpeningBrace,  "@{")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_ClosingBrace,  "@}")
 
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Import,        "\\import")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Enum,          "\\enum")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_EnumValue,     "\\enumvalue")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Struct,        "\\struct")

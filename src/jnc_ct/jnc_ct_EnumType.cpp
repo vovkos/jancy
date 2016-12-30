@@ -60,10 +60,12 @@ EnumConst::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	itemXml->format (
 		"<enumvalue id='%s'>\n"
 		"<name>%s</name>\n",
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		m_name.sz ()
 		);
 
@@ -73,7 +75,7 @@ EnumConst::generateDocumentation (
 			getInitializerString ().sz ()
 			);
 
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append ("</enumvalue>\n");
 
 	return true;
@@ -210,6 +212,8 @@ EnumType::generateDocumentation (
 	sl::String* indexXml
 	)
 {
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
 	sl::String memberXml;
 	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, false);
 	if (!result)
@@ -218,7 +222,7 @@ EnumType::generateDocumentation (
 	itemXml->format (
 		"<memberdef kind='enum' id='%s'"
 		">\n<name>%s</name>\n",
-		getDoxyBlock ()->getRefId ().sz (),
+		doxyBlock->getRefId ().sz (),
 		m_name.sz ()
 		);
 
@@ -228,11 +232,11 @@ EnumType::generateDocumentation (
 
 	itemXml->append (memberXml);
 
-	DoxyBlock* doxyBlock = getDoxyBlock ();
 	sl::String footnoteXml = doxyBlock->getFootnoteString ();
 	if (!footnoteXml.isEmpty ())
 		itemXml->append (footnoteXml);
 
+	itemXml->append (doxyBlock->getImportString ());
 	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");

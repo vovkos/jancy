@@ -731,7 +731,9 @@ Property::generateDocumentation (
 	sl::String* indexXml
 	)
 {
-	itemXml->format ("<memberdef kind='property' id='%s'", getDoxyBlock ()->getRefId ().sz ());
+	DoxyBlock* doxyBlock = getDoxyBlock ();
+
+	itemXml->format ("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
@@ -756,7 +758,8 @@ Property::generateDocumentation (
 	if (!modifierString.isEmpty ())
 		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
 
-	itemXml->append (getDoxyBlock ()->getDescriptionString ());
+	itemXml->append (doxyBlock->getImportString ());
+	itemXml->append (doxyBlock->getDescriptionString ());
 	itemXml->append (getDoxyLocationString ());
 	itemXml->append ("</memberdef>\n");
 

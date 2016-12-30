@@ -175,7 +175,7 @@ DoxyParser::addComment (
 
 			if (isParentBlock)
 				m_parentBlock = m_block;
-			
+
 			name = nextToken->m_data.m_string.getTrimmedString ();
 			if (token->m_token != DoxyTokenKind_Footnote)
 			{
@@ -184,9 +184,9 @@ DoxyParser::addComment (
 			else if (m_parentBlock)
 			{
 				m_block->m_refId = name;
-				m_parentBlock->addFootnote (m_block); 			
+				m_parentBlock->addFootnote (m_block);
 			}
-			else			
+			else
 			{
 				TRACE ("orphan footnote: %s\n", nextToken->m_data.m_string.sz ());
 			}
@@ -260,6 +260,15 @@ DoxyParser::addComment (
 				break; // ignore
 
 			m_block->m_title = nextToken->m_data.m_string;
+			lexer.nextToken ();
+			break;
+
+		case DoxyTokenKind_Import:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			m_block->m_importList.insertTail (nextToken->m_data.m_string);
 			lexer.nextToken ();
 			break;
 
