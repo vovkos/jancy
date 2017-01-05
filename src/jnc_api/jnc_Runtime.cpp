@@ -89,22 +89,22 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime)
 
 JNC_EXTERN_C
 void
-jnc_Runtime_initializeThread (
+jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_initializeThreadFunc (runtime, ers);
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_initializeCallSiteFunc (runtime, callSite);
 }
 
 JNC_EXTERN_C
 void
-jnc_Runtime_uninitializeThread (
+jnc_Runtime_uninitializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_uninitializeThreadFunc (runtime, ers);
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_uninitializeCallSiteFunc (runtime, callSite);
 }
 
 JNC_EXTERN_C
@@ -236,22 +236,22 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime)
 
 JNC_EXTERN_C
 void
-jnc_Runtime_initializeThread (
+jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	)
 {
-	runtime->initializeThread (ers);
+	runtime->initializeCallSite (callSite);
 }
 
 JNC_EXTERN_C
 void
-jnc_Runtime_uninitializeThread (
+jnc_Runtime_uninitializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	)
 {
-	runtime->uninitializeThread (ers);
+	runtime->uninitializeCallSite (callSite);
 }
 
 JNC_EXTERN_C

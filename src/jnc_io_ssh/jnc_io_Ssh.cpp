@@ -92,7 +92,7 @@ SshChannel::fireSshEvent (
 	const err::ErrorHdr* error
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <SshEventParams> (m_runtime);
 	SshEventParams* params = (SshEventParams*) paramsPtr.m_p;

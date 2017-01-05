@@ -22,15 +22,17 @@ GcShadowStackMgr::GcShadowStackMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
+
+	m_frameVariable = NULL;
+	m_gcRootCount = 0;
 }
 
 void
 GcShadowStackMgr::clear ()
 {
-	m_gcRootTypeArray.clear ();
 	m_frameMapList.clear ();
-	m_gcRootArrayValue.clear ();
 	m_frameVariable = NULL;
+	m_gcRootCount = 0;
 }
 
 void
@@ -42,8 +44,8 @@ GcShadowStackMgr::finalizeFunction ()
 	finalizeFrame ();
 
 	m_gcRootArrayValue.clear ();
-	m_gcRootTypeArray.clear ();
 	m_frameVariable = NULL;
+	m_gcRootCount = 0;
 }
 
 void
@@ -86,7 +88,7 @@ GcShadowStackMgr::markGcRoot (
 
 	GcShadowStackFrameMap* frameMap = openFrameMap (scope);
 
-	size_t index = m_gcRootTypeArray.getCount ();
+	size_t index = m_gcRootCount++;
 
 	Value bytePtrValue;
 	Value gcRootValue;
@@ -96,8 +98,8 @@ GcShadowStackMgr::markGcRoot (
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, bytePtrType, &bytePtrValue);
 	m_module->m_llvmIrBuilder.createStore (bytePtrValue, gcRootValue);
 
-	frameMap->m_gcRootIndexArray.append (index);
-	m_gcRootTypeArray.append (type);
+	frameMap->m_gcRootArray.append (index);
+	frameMap->m_gcRootTypeArray.append (type);
 }
 
 GcShadowStackFrameMap*
@@ -200,20 +202,9 @@ GcShadowStackMgr::finalizeFrame ()
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 	m_module->m_llvmIrBuilder.setInsertPoint (entryBlock->getLlvmBlock ()->begin ());
 
-	size_t count = m_gcRootTypeArray.getCount ();
-
-	// create gc root type array static variable
-
-	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u)->getArrayType (count);
-
-	Variable* gcRootTypeArrayVariable = m_module->m_variableMgr.createSimpleStaticVariable (
-		"gcShadowStackTypeArray",
-		function->m_tag + ".gcShadowStackTypeArray",
-		type,
-		Value (m_gcRootTypeArray.cp (), type)
-		);
-
 	// create gc root array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
+
+	Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u)->getArrayType (m_gcRootCount);
 
 	Value gcRootArrayValue;
 	m_module->m_llvmIrBuilder.createAlloca (type, "gcRootArray", type->getDataPtrType_c (), &gcRootArrayValue);
@@ -234,7 +225,7 @@ GcShadowStackMgr::finalizeFrame ()
 	Variable* stackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
 	m_module->m_llvmIrBuilder.createLoad (stackTopVariable , NULL, &prevStackTopValue);
 
-	// initialize frame and set it as the new stack top
+	// initialize frame
 
 	Value srcValue;
 	Value dstValue;
@@ -256,19 +247,14 @@ GcShadowStackMgr::finalizeFrame ()
 	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 2, NULL, &dstValue);
 	m_module->m_llvmIrBuilder.createStore (gcRootArrayValue, dstValue);
 
-	// GcShadowStackFrame.m_gcRootTypeArray
-
-	type = m_module->m_typeMgr.getStdType (StdType_BytePtr);
-	m_module->m_llvmIrBuilder.createBitCast (gcRootTypeArrayVariable, type, &srcValue);
-	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 3, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (srcValue, dstValue);
+	// set new frame as the new stack top
 
 	m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
 	// restore previous stack top before every ret
 
 	sl::Array <BasicBlock*> returnBlockArray = m_module->m_controlFlowMgr.getReturnBlockArray ();
-	count = returnBlockArray.getCount ();
+	size_t count = returnBlockArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		BasicBlock* block = returnBlockArray [i];
@@ -296,10 +282,12 @@ GcShadowStackMgr::finalizeFrame ()
 		if (block->getLandingPadKind () == LandingPadKind_Exception)
 			m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
-//		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
-//		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
-
-		setFrameMap (scope->m_gcShadowStackFrameMap, false); // easier to see in llvm ir
+#if 0
+		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
+		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
+#else
+		setFrameMap (scope->m_gcShadowStackFrameMap, false); // easier to see in LLVM IR
+#endif
 	}
 
 	// done

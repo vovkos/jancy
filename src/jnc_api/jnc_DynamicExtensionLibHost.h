@@ -1036,16 +1036,16 @@ jnc_Runtime_ShutdownFunc (jnc_Runtime* runtime);
 
 typedef
 void
-jnc_Runtime_InitializeThreadFunc (
+jnc_Runtime_InitializeCallSiteFunc (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	);
 
 typedef
 void
-jnc_Runtime_UninitializeThreadFunc (
+jnc_Runtime_UninitializeCallSiteFunc (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	);
 
 typedef
@@ -1102,8 +1102,8 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_SetStackSizeLimitFunc* m_setStackSizeLimitFunc;
 	jnc_Runtime_StartupFunc* m_startupFunc;
 	jnc_Runtime_ShutdownFunc* m_shutdownFunc;
-	jnc_Runtime_InitializeThreadFunc* m_initializeThreadFunc;
-	jnc_Runtime_UninitializeThreadFunc* m_uninitializeThreadFunc;
+	jnc_Runtime_InitializeCallSiteFunc* m_initializeCallSiteFunc;
+	jnc_Runtime_UninitializeCallSiteFunc* m_uninitializeCallSiteFunc;
 	jnc_Runtime_SetSjljFrameFunc* m_setSjljFrameFunc;
 	jnc_Runtime_CheckStackOverflowFunc* m_checkStackOverflowFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;

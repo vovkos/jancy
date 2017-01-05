@@ -118,7 +118,7 @@ Socket::fireSocketEventImpl (
 	const err::ErrorHdr* error
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <SocketEventParams> (m_runtime);
 	SocketEventParams* params = (SocketEventParams*) paramsPtr.m_p;

@@ -78,16 +78,16 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
 void
-jnc_Runtime_initializeThread (
+jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	);
 
 JNC_EXTERN_C
 void
-jnc_Runtime_uninitializeThread (
+jnc_Runtime_uninitializeCallSite (
 	jnc_Runtime* runtime,
-	jnc_ExceptionRecoverySnapshot* ers
+	jnc_CallSite* callSite
 	);
 
 JNC_EXTERN_C
@@ -156,15 +156,15 @@ struct jnc_Runtime
 	}
 
 	void
-	initializeThread (jnc_ExceptionRecoverySnapshot* ers)
+	initializeCallSite (jnc_CallSite* callSite)
 	{
-		jnc_Runtime_initializeThread (this, ers);
+		jnc_Runtime_initializeCallSite (this, callSite);
 	}
 
 	void
-	uninitializeThread (jnc_ExceptionRecoverySnapshot* ers)
+	uninitializeCallSite (jnc_CallSite* callSite)
 	{
-		jnc_Runtime_uninitializeThread (this, ers);
+		jnc_Runtime_uninitializeCallSite (this, callSite);
 	}
 
 	void

@@ -204,6 +204,36 @@ qtWait (uint_t msTime)
 	}
 }
 
+void
+testAlloc ()
+{
+	jnc::Runtime* runtime = jnc::getCurrentThreadRuntime ();
+	ASSERT (runtime);
+
+	jnc::GcHeap* gcHeap = runtime->getGcHeap ();
+
+	jnc::DataPtr ptr1;
+	jnc::DataPtr ptr2;
+	jnc::DataPtr ptr3;
+
+	JNC_BEGIN_CALL_SITE (runtime)
+
+	ptr1 = gcHeap->allocateBuffer (100);
+	memset (ptr1.m_p, 0xaa, 100);
+
+	ptr2 = gcHeap->allocateBuffer (100);
+	memset (ptr2.m_p, 0xbb, 100);
+
+	ptr3 = gcHeap->allocateBuffer (100);
+	memset (ptr3.m_p, 0xcc, 100);
+
+	JNC_END_CALL_SITE ()
+
+	gcHeap->collect ();
+
+	printf ("done\n");
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB (
@@ -223,12 +253,13 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
 	JNC_MAP_FUNCTION ("printf", printfToOutput)
 
-//		JNC_MAP_TYPE (TestClassA)
-//		JNC_MAP_TYPE (TestClassB)
-//		JNC_MAP_TYPE (TestStruct)
-//		JNC_MAP_FUNCTION ("testPtr",     &testPtr)
-//		JNC_MAP_FUNCTION ("testVariant", &testVariant)
-//		JNC_MAP_FUNCTION ("qtWait", &qtWait)
+//	JNC_MAP_TYPE (TestClassA)
+//	JNC_MAP_TYPE (TestClassB)
+//	JNC_MAP_TYPE (TestStruct)
+//	JNC_MAP_FUNCTION ("testPtr",     &testPtr)
+//	JNC_MAP_FUNCTION ("testVariant", &testVariant)
+//	JNC_MAP_FUNCTION ("qtWait", &qtWait)
+//	JNC_MAP_FUNCTION ("testAlloc", testAlloc)
 JNC_END_LIB_FUNCTION_MAP ()
 
 //..............................................................................

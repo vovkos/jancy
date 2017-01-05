@@ -89,7 +89,7 @@ SocketAddressResolver::fireSocketAddressResolverEvent (
 	const err::ErrorHdr* error
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <SocketAddressResolverEventParams> (m_runtime);
 	SocketAddressResolverEventParams* params = (SocketAddressResolverEventParams*) paramsPtr.m_p;

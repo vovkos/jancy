@@ -32,12 +32,13 @@ typedef struct jnc_McSnapshot jnc_McSnapshot;
 typedef struct jnc_ReactorBindSite jnc_ReactorBindSite;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
+typedef struct jnc_GcShadowStackFrameMapBuffer jnc_GcShadowStackFrameMapBuffer;
 typedef struct jnc_GcMutatorThread jnc_GcMutatorThread;
 typedef struct jnc_OpaqueClassTypeInfo jnc_OpaqueClassTypeInfo;
 typedef struct jnc_SjljFrame jnc_SjljFrame;
 typedef struct jnc_Tls jnc_Tls;
 typedef struct jnc_TlsVariableTable jnc_TlsVariableTable;
-typedef struct jnc_ExceptionRecoverySnapshot jnc_ExceptionRecoverySnapshot;
+typedef struct jnc_CallSite jnc_CallSite;
 
 //..............................................................................
 
@@ -216,8 +217,18 @@ struct jnc_GcShadowStackFrame
 {
 	jnc_GcShadowStackFrame* m_prev;
 	jnc_GcShadowStackFrameMap* m_map;
-	void** m_gcRootArray;         // stack array
-	jnc_Type** m_gcRootTypeArray; // global array
+	void** m_gcRootArray; // stack array
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_GcShadowStackFrameMapBuffer
+{
+	jnc_ListLink m_link;
+	jnc_GcShadowStackFrameMap* m_prev;	
+	intptr_t m_mapKind;
+	intptr_t m_gcRootArray [3];
+	intptr_t m_gcRootTypeArray [3];
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -284,12 +295,13 @@ struct jnc_TlsVariableTable
 
 //..............................................................................
 
-struct jnc_ExceptionRecoverySnapshot
+struct jnc_CallSite
 {
 	size_t m_initializeLevel;
 	size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
-	jnc_GcShadowStackFrame* m_gcShadowStackTop;
+	jnc_GcShadowStackFrame m_gcShadowStackDynamicFrame;
+	jnc_GcShadowStackFrameMapBuffer m_gcShadowStackDynamicFrameMap;
 	intptr_t m_result;
 };
 
@@ -350,13 +362,14 @@ typedef jnc_McSnapshot McSnapshot;
 typedef jnc_ReactorBindSite ReactorBindSite;
 typedef jnc_FmtLiteral FmtLiteral;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;
+typedef jnc_GcShadowStackFrameMapBuffer GcShadowStackFrameMapBuffer;
 typedef jnc_GcMutatorThread GcMutatorThread;
 typedef jnc_MarkOpaqueGcRootsFunc MarkOpaqueGcRootsFunc;
 typedef jnc_OpaqueClassTypeInfo OpaqueClassTypeInfo;
 typedef jnc_SjljFrame SjljFrame;
 typedef jnc_Tls Tls;
 typedef jnc_TlsVariableTable TlsVariableTable;
-typedef jnc_ExceptionRecoverySnapshot ExceptionRecoverySnapshot;
+typedef jnc_CallSite CallSite;
 typedef jnc_StaticConstructFunc StaticConstructFunc;
 typedef jnc_StaticDestructFunc StaticDestructFunc;
 typedef jnc_DestructFunc DestructFunc;

@@ -215,6 +215,20 @@ GcHeap::incrementAllocSizeAndLock (size_t size)
 	}
 }
 
+void
+GcHeap::addBoxIfDynamicFrame (Box* box)
+{
+	Tls* tls = rt::getCurrentThreadTls ();
+	ASSERT (tls);
+
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
+	ASSERT (tlsVariableTable->m_gcShadowStackTop);
+
+	GcShadowStackFrameMap* map = tlsVariableTable->m_gcShadowStackTop->m_map;
+	if (map && map->getMapKind () == ct::GcShadowStackFrameMapKind_Dynamic)
+		map->addBox (box);
+}
+
 // allocation methods
 
 IfaceHdr*
@@ -229,6 +243,7 @@ GcHeap::tryAllocateClass (ct::ClassType* type)
 	}
 
 	primeClass (box, type);
+	addBoxIfDynamicFrame (box);
 
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append (box);
@@ -298,6 +313,8 @@ GcHeap::tryAllocateData (ct::Type* type)
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
 
+	addBoxIfDynamicFrame (&box->m_box);
+
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append ((Box*) box);
 	m_lock.unlock ();
@@ -343,6 +360,8 @@ GcHeap::tryAllocateArray (
 	box->m_validator.m_targetBox = (Box*) box;
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*) box->m_validator.m_rangeBegin + size;
+
+	addBoxIfDynamicFrame (&box->m_box);
 
 	incrementAllocSizeAndLock (size);
 	m_allocBoxArray.append ((Box*) box);
@@ -1084,15 +1103,36 @@ GcHeap::collect_l (bool isMutatorThread)
 			GcShadowStackFrameMap* frameMap = frame->m_map;
 			for (; frameMap; frameMap = frameMap->getPrev ())
 			{
-				const size_t* indexArray = frameMap->getGcRootIndexArray ();
-				size_t count = frameMap->getGcRootCount ();
+				size_t gcRootCount = frameMap->getGcRootCount ();
+				if (!gcRootCount)
+					continue;
 
-				for (size_t i = 0; i < count; i++)
+				ct::GcShadowStackFrameMapKind mapKind = frameMap->getMapKind ();
+				if (mapKind == ct::GcShadowStackFrameMapKind_Dynamic)
 				{
-					size_t j = indexArray [i];
-					void* p = frame->m_gcRootArray [j];
-					if (p)
-						addRoot (p, frame->m_gcRootTypeArray [j]);
+					Box* const* boxArray = frameMap->getBoxArray ();
+					for (size_t i = 0; i < gcRootCount; i++)
+					{
+						Box* box = boxArray [i];
+						if (box->m_type->getTypeKind () == TypeKind_Class)
+							markClass (box);
+						else
+							markData (box);
+					}
+				}
+				else
+				{
+					ASSERT (mapKind == ct::GcShadowStackFrameMapKind_Static);
+					Type* const* typeArray = frameMap->getGcRootTypeArray ();
+
+					const size_t* indexArray = frameMap->getGcRootIndexArray ();
+					for (size_t i = 0; i < gcRootCount; i++)
+					{
+						size_t j = indexArray [i];
+						void* p = frame->m_gcRootArray [j];
+						if (p)
+							addRoot (p, typeArray [i]);
+					}
 				}
 			}
 		}

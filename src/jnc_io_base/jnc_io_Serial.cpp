@@ -171,7 +171,7 @@ Serial::fireSerialEvent (
 	uint_t mask
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
@@ -192,7 +192,7 @@ Serial::fireSerialEvent (
 	const err::ErrorRef& error
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
 	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;

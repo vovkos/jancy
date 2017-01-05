@@ -118,7 +118,7 @@ Mailslot::fireMailslotEvent (
 	const err::ErrorHdr* error
 	)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <MailslotEventParams> (m_runtime);
 	MailslotEventParams* params = (MailslotEventParams*) paramsPtr.m_p;

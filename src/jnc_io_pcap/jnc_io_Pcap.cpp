@@ -90,7 +90,7 @@ Pcap::Pcap ()
 void
 Pcap::firePcapEvent (PcapEventCode eventCode)
 {
-	JNC_BEGIN_CALL_SITE_NO_COLLECT (m_runtime, true);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
 	DataPtr paramsPtr = createData <PcapEventParams> (m_runtime);
 	PcapEventParams* params = (PcapEventParams*) paramsPtr.m_p;

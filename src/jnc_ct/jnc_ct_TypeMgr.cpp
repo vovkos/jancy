@@ -2638,7 +2638,6 @@ TypeMgr::createGcShadowStackFrameType ()
 	type->createField ("!m_prev", type->getDataPtrType_c ());
 	type->createField ("!m_map", getStdType (StdType_BytePtr));
 	type->createField ("!m_gcRootArray", getStdType (StdType_BytePtr)->getDataPtrType_c ());
-	type->createField ("!m_gcRootTypeArray", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }

@@ -42,24 +42,16 @@
 { \
 	jnc_Runtime* __jncRuntime = (runtime); \
 	jnc_GcHeap* __jncGcHeap = jnc_Runtime_getGcHeap (runtime); \
-	jnc_ExceptionRecoverySnapshot __jncErs; \
+	jnc_CallSite __jncCallSite; \
 	jnc_SjljFrame __jncSjljFrame; \
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
-	int __jncIsNoCollectRegion = 0; \
-	int __jncCanCollectAtEnd = 0; \
 	JNC_BEGIN_GC_SITE() \
-	jnc_Runtime_initializeThread (__jncRuntime, &__jncErs); \
+	jnc_Runtime_initializeCallSite (__jncRuntime, &__jncCallSite); \
 	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame (__jncRuntime, &__jncSjljFrame); \
 	__jncSjljBranch = setjmp (__jncSjljFrame.m_jmpBuf); \
 	if (!__jncSjljBranch) \
 	{
-
-#define JNC_BEGIN_CALL_SITE_NO_COLLECT(runtime, canCollectAtEnd) \
-	JNC_BEGIN_CALL_SITE (runtime) \
-	__jncIsNoCollectRegion = 1; \
-	__jncCanCollectAtEnd = canCollectAtEnd; \
-	jnc_GcHeap_enterNoCollectRegion (__jncGcHeap);
 
 #define JNC_CALL_SITE_CATCH() \
 	} \
@@ -84,10 +76,8 @@
 		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
 		JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 	} \
-	__jncErs.m_result = __jncSjljBranch == 0; \
-	if (__jncIsNoCollectRegion && __jncErs.m_result) \
-		jnc_GcHeap_leaveNoCollectRegion (__jncGcHeap, __jncCanCollectAtEnd); \
-	jnc_Runtime_uninitializeThread (__jncRuntime, &__jncErs); \
+	__jncCallSite.m_result = __jncSjljBranch == 0; \
+	jnc_Runtime_uninitializeCallSite (__jncRuntime, &__jncCallSite); \
 	JNC_END_GC_SITE () \
 
 #define JNC_END_CALL_SITE() \
@@ -96,7 +86,7 @@
 
 #define JNC_END_CALL_SITE_EX(result) \
 	JNC_END_CALL_SITE_IMPL() \
-	*(result) = __jncErs.m_result != 0; \
+	*(result) = __jncCallSite.m_result != 0; \
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

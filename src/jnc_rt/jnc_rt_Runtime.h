@@ -84,10 +84,10 @@ public:
 	shutdown ();
 
 	void
-	initializeThread (ExceptionRecoverySnapshot* ers);
+	initializeCallSite (jnc_CallSite* callSite);
 
 	void
-	uninitializeThread (ExceptionRecoverySnapshot* ers);
+	uninitializeCallSite (jnc_CallSite* callSite);
 
 	void
 	checkStackOverflow ();
