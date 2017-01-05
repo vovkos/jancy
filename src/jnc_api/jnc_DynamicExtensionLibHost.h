@@ -1228,7 +1228,6 @@ jnc_GcHeap_MarkClassFunc (
 typedef
 int
 jnc_GcHeap_HandleGcSehExceptionFunc (
-	jnc_GcHeap* gcHeap,
 	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	);

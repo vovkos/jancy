@@ -297,6 +297,7 @@ public:
 		);
 
 #if (_JNC_OS_WIN)
+	static
 	int
 	handleSehException (
 		uint_t code,

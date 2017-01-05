@@ -1434,11 +1434,14 @@ GcHeap::handleSehException (
 	EXCEPTION_POINTERS* exceptionPointers
 	)
 {
-	if (code != EXCEPTION_ACCESS_VIOLATION ||
-		exceptionPointers->ExceptionRecord->ExceptionInformation [1] != (uintptr_t) m_guardPage.p ())
+	GcHeap* self = getCurrentThreadGcHeap ();
+
+	if (!self ||
+		code != EXCEPTION_ACCESS_VIOLATION ||
+		exceptionPointers->ExceptionRecord->ExceptionInformation [1] != (uintptr_t) self->m_guardPage.p ())
 		return EXCEPTION_CONTINUE_SEARCH;
 
-	parkAtSafePoint ();
+	self->parkAtSafePoint ();
 
 	return EXCEPTION_CONTINUE_EXECUTION;
 }

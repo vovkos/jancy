@@ -28,7 +28,6 @@
 
 #define JNC_END_GC_SITE() \
 	} __except (jnc_GcHeap_handleGcSehException ( \
-		__jncGcHeap, \
 		GetExceptionCode (), \
 		GetExceptionInformation () \
 		)) { }
@@ -38,15 +37,15 @@
 #	define JNC_END_GC_SITE()
 #endif
 
-#define JNC_BEGIN_CALL_SITE(runtime) \
-{ \
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_CALL_SITE_IMPL(runtime) \
 	jnc_Runtime* __jncRuntime = (runtime); \
-	jnc_GcHeap* __jncGcHeap = jnc_Runtime_getGcHeap (runtime); \
 	jnc_CallSite __jncCallSite; \
 	jnc_SjljFrame __jncSjljFrame; \
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
-	JNC_BEGIN_GC_SITE() \
+	JNC_ASSERT (runtime); \
 	jnc_Runtime_initializeCallSite (__jncRuntime, &__jncCallSite); \
 	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame (__jncRuntime, &__jncSjljFrame); \
 	__jncSjljBranch = setjmp (__jncSjljFrame.m_jmpBuf); \
@@ -77,17 +76,39 @@
 		JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 	} \
 	__jncCallSite.m_result = __jncSjljBranch == 0; \
-	jnc_Runtime_uninitializeCallSite (__jncRuntime, &__jncCallSite); \
-	JNC_END_GC_SITE () \
+	jnc_Runtime_uninitializeCallSite (__jncRuntime, &__jncCallSite);
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_CALL_SITE(runtime) \
+	JNC_BEGIN_GC_SITE () \
+	JNC_BEGIN_CALL_SITE_IMPL (runtime)
 
 #define JNC_END_CALL_SITE() \
-	JNC_END_CALL_SITE_IMPL() \
-}
+	JNC_END_CALL_SITE_IMPL () \
+	JNC_END_GC_SITE ()
 
 #define JNC_END_CALL_SITE_EX(result) \
 	JNC_END_CALL_SITE_IMPL() \
 	*(result) = __jncCallSite.m_result != 0; \
-}
+	JNC_END_GC_SITE ()
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// when we are nested inside jancy call stack, no need to create GC site
+
+#define JNC_BEGIN_NESTED_CALL_SITE(runtime) \
+	{ \
+	JNC_BEGIN_CALL_SITE_IMPL (runtime)
+
+#define JNC_END_NESTED_CALL_SITE() \
+	JNC_END_CALL_SITE_IMPL () \
+	}
+
+#define JNC_END_NESTED_CALL_SITE_EX(result) \
+	JNC_END_CALL_SITE_IMPL() \
+	*(result) = __jncCallSite.m_result != 0; \
+	}
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

@@ -258,7 +258,6 @@ jnc_GcHeap_addRoot (
 JNC_EXTERN_C
 int
 jnc_GcHeap_handleGcSehException (
-	jnc_GcHeap* gcHeap,
 	uint_t code,
 	EXCEPTION_POINTERS* exceptionPointers
 	);
@@ -453,13 +452,14 @@ struct jnc_GcHeap
 	}
 
 #	if (_JNC_OS_WIN)
+	static
 	int
 	handleGcSehException (
 		uint_t code,
 		EXCEPTION_POINTERS* exceptionPointers
 		)
 	{
-		return jnc_GcHeap_handleGcSehException (this, code, exceptionPointers);
+		return jnc_GcHeap_handleGcSehException (code, exceptionPointers);
 	}
 #	endif // _JNC_OS_WIN
 };
