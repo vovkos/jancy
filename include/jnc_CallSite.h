@@ -33,8 +33,8 @@
 		)) { }
 
 #else
-#	define JNC_BEGIN_GC_SITE()
-#	define JNC_END_GC_SITE()
+#	define JNC_BEGIN_GC_SITE() {
+#	define JNC_END_GC_SITE()   }
 #endif
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
