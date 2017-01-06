@@ -13,6 +13,9 @@
 
 \enum io.SerialEventCode
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This enumeration contains codes of all possible events that might happen on `io.Serial` object.
 
 	When `io.Serial` object is about to fire an event, it allocates an `io.SerialEventParams` structure, sets `io.SerialEventParams.m_eventCode` field to once of the values below, fills other relevant fields of and then calls all subscribers of `io.Serial.m_onSerialEvent`.

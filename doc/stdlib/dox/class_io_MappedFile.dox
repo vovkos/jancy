@@ -13,6 +13,9 @@
 
 \class io.MappedFile
 
+	\import io_base.jncx
+	\import io_MappedFile.jnc
+
 	\brief This class provides high level mapped access to the contents of regular disk files.
 
 	From the client point of view, ``io.MappedFile`` exposes the most natural interface imaginable. You just tell: I want to access a region of the file at *this* offset, and of *this* length. And you get a pointer to this region (or ``null`` if this could not be done). That's it! Actual mapping operations, aligning offsets and maintaining a database of previously mapped views is happening behind the stage.

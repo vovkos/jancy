@@ -15,6 +15,9 @@
 
 	\title Containers & Collections
 
+	\import std_List.jnc
+	\import std_HashTable.jnc
+
 	\brief This section describes types for holding structured collections of other objects.
 
 */

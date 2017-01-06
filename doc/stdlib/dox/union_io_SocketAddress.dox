@@ -13,6 +13,9 @@
 
 \union io.SocketAddress
 
+	\import io_base.jncx
+	\import io_SocketAddress.jnc
+
 	\brief Brief description for union ``io.SocketAddress``
 
 	Detailed description for union ``io.SocketAddress``

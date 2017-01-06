@@ -13,6 +13,8 @@
 
 \class std.List
 
+	\import std_List.jnc
+
 	\brief This class provides a doubly linked list container for ``variant`` values.
 
 	A typical sequence of steps when working with a doubly linked list usually looks like this:

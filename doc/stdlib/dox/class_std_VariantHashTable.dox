@@ -13,6 +13,8 @@
 
 \class std.VariantHashTable
 
+	\import std_HashTable.jnc
+
 	\brief This class provides a hash-table-based mapping from ``variant``-s to ``variant``-s.
 
 	``std.VariantHashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.

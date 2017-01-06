@@ -13,6 +13,9 @@
 
 \struct io.SocketAddress_ip6
 
+	\import io_base.jncx
+	\import io_SocketAddress.jnc
+
 	\brief This struct holds information about ``IP6`` address in the form suitable for socket communications.
 
 	On the binary level this structure directly maps to ``sockaddr_in6``.

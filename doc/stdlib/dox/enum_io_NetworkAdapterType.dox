@@ -13,6 +13,9 @@
 
 \enum io.NetworkAdapterType
 
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
 	\brief This enumeration specifies available types of the network adapter.
 
 	When enumerating available network adapter you first call `io.createNetworkAdapterDescList`, then iterate through the resulting list of `io.NetworkAdapterDesc` structures, each contains its type information `io.NetworkAdapterDesc.m_type` field.

@@ -13,6 +13,9 @@
 
 \class io.Serial
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This class provides high-level asynchronous interface for accessing hardware or virtual serial ports.
 
 	Serial ports are represented as *files* in most operating systems, so working with serial port looks pretty much the same as working with any other file stream. However, besides ``read`` and ``write`` operations serial port files also expose a set of serial-specific properties such as baud rate, status and control lines and so on.

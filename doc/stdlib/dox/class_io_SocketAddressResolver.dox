@@ -13,6 +13,9 @@
 
 \class io.SocketAddressResolver
 
+	\import io_base.jncx
+	\import io_SocketAddressResolver.jncx
+
 	\brief This class provides an asynchrounous interface for resolving host names into socket addresses.
 
 	In the most general case conversion of a host name such as ``tibbo.com`` into an ``IP`` requires sending and receiving network packets and, therefore, may take substantial time. Doing this operation synchronoulsy, while acceptable in many cases, is not really optimal for interactive GUI applications where we do not want to have moments of *non-responsiveness*. For such cases using ``io.SocketAddressResolver`` may be a better approach.

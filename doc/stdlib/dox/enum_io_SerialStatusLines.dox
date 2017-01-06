@@ -13,6 +13,9 @@
 
 \enum io.SerialStatusLines
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This enumeration lists all possible status lines on the serial port.
 
 	You can read values of all the status lines at once by accessing `io.Serial.m_statusLines` property. You also get all the values of *changed* status lines in `io.SerialEventParams.m_lines`.

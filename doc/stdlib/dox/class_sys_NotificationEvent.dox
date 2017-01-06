@@ -13,6 +13,8 @@
 
 \class sys.NotificationEvent
 
+	\import sys_NotificationEvent.jnc
+
 	\brief This class provides standard means of synchronization between threads.
 
 	Any object of this class can be in one of the following two states: *idle* or *signalled*. One or more threads can wait until the event becomes signalled by invoking ``wait`` method. When some other thread signals the event by invoking ``signal`` method, *all* the waiging threads wake up, and the event remains in *signalled* state.

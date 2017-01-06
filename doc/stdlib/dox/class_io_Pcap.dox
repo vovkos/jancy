@@ -13,6 +13,8 @@
 
 \class io.Pcap
 
+	\import io_pcap.jncx
+
 	\brief This class provides high-level asynchronous interface for the Pcap (Packet Capture) library.
 
 	Pcap library (called WinPcap on Windows) is de-facto the standard tool for capturing and injecting low-level network traffic.

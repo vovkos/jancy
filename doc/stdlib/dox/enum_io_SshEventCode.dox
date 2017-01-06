@@ -13,6 +13,8 @@
 
 \enum io.SshEventCode
 
+	\import io_ssh.jncx
+
 	\brief This enumeration contains codes of all possible events that might happen on `io.SshChannel` object.
 
 	When `io.SshChannel` object is about to fire an event, it allocates an `io.SshEventParams` structure, sets `io.SshEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.SshChannel.m_onSshEvent`.

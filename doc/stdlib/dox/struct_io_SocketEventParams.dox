@@ -13,6 +13,9 @@
 
 \struct io.SocketEventParams
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+
 	\brief This struct contains detailed information about the event occured on `io.Socket` object.
 
 	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Socket.m_onSocketEvent`.

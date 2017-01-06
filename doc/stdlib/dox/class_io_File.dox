@@ -15,6 +15,9 @@
 
 	\ingroup file
 
+	\import io_base.jncx
+	\import io_File.jnc
+
 	\brief This class provides a standard synchronous interface for reading from and writing to files or devices.
 
 	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of steps when working with a file usually looks like this:

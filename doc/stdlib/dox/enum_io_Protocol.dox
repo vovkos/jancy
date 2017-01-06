@@ -13,6 +13,9 @@
 
 \enum io.Protocol
 
+	\import io_base.jncx
+	\import io_SocketAddress.jnc
+
 	\brief This enumeration contains all possible values for network protocols that can be used with sockets.
 
 	When opening a socket using `io.Socket.open` method you have to specify the protocol to use (all overloads of `io.Socket.open` methods require a ``protocol`` argument).

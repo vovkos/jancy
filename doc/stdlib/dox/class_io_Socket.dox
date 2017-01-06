@@ -13,6 +13,9 @@
 
 \class io.Socket
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+
 	\brief This class provides high-level asynchronous interface for accessing all kinds of sockets.
 
 	Sockets represent endpoints of network communications. Sockets are subdivided into two large subclassess: **datagram-oriented** and **connection-oriented**. Furthermore, connection-oriented sockets can operate in one of the two modes: **client** and **server**. And even though these interfaces don't share that many commonalities, it so historically happened that they are usually blended into a single *socket API*.

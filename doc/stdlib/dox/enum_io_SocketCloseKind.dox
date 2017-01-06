@@ -13,6 +13,9 @@
 
 \enum io.SocketCloseKind
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+
 	\brief This enumeration lists options for ``TCP`` socket disconnect type.
 
 	``TCP`` socket could be closed using either of the below ways.

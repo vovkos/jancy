@@ -15,6 +15,8 @@
 
 	\title Pcap (Packet Capturing Library)
 
+	\import io_pcap.jncx
+
 	\brief This section describes types and facilities used when programming Pcap (Packet Capturing Library)
 
 */

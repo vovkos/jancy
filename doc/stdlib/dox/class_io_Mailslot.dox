@@ -15,6 +15,9 @@
 
 	\ingroup file
 
+	\import io_base.jncx
+	\import io_Mailslot.jnc
+
 	\brief This class provides high-level asynchronous streaming interface for the *server* side of Windows mailslots which are used, for example, in SMB (Server Message Blocks) protocol and Windows Computer Browser service.
 
 	For working from the *client* side of a mailslot, please use `io.File` or `io.FileStream`.

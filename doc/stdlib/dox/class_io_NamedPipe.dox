@@ -13,6 +13,9 @@
 
 \class io.NamedPipe
 
+	\import io_base.jncx
+	\import io_NamedPipe.jnc
+
 	\brief This class provides high-level asynchronous interface for the *server* side of Windows named pipes. Windows named pipes are widely used for IPC (Inter-Process Communications) between applications, services and drivers on Windows platform.
 
 	For working from the *client* side of a named pipe, please use `io.File` class.

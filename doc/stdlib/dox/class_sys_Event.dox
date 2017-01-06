@@ -13,6 +13,8 @@
 
 \class sys.Event
 
+	\import sys_Event.jnc
+
 	\brief This class provides standard means of synchronization between threads.
 
 	``sys.Event`` can be in one of the following two states: *idle* or *signalled*. One or more threads can wait until the event becomes signalled by invoking ``wait`` method. When some other thread signals the event by invoking ``signal`` method, the first thread in the queue of waiting threads wakes up, ``wait`` call finishes, and the event goes back to *idle* state.

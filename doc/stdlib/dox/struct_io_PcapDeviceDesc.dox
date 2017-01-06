@@ -13,6 +13,8 @@
 
 \struct io.PcapDeviceDesc
 
+	\import io_pcap.jncx
+
 	\brief This struct holds information about the device available for Pcap live capture.
 
 	A list of Pcap device descriptions is returned by `io.createPcapDeviceDescList`.

@@ -13,6 +13,8 @@
 
 \class sys.Lock
 
+	\import sys_Lock.jnc
+
 	\brief This class is used to ensure exclusive access to some shared resource.
 
 	Only one thread at a time can *acquire* the ``sys.Lock`` object and hence, get exclusive access to some resource this ``sys.Lock`` object is being a guardian of. To do that, a thread calls ``lock`` method. Once it returns, the ``sys.Lock`` object is in *locked* state and this thread can exclusively access the associated resource.

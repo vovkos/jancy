@@ -13,6 +13,9 @@
 
 \struct io.NetworkAdapterAddress
 
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
 	\brief This struct holds information about single address of the network adapter.
 
 	A list of network adapter addresses is part of network adapter description stored in `io.NetworkAdapterDesc`.

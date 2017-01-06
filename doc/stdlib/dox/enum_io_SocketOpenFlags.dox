@@ -13,6 +13,9 @@
 
 \enum io.SocketOpenFlags
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+
 	\brief This enumeration lists all possible flag options for `io.Socket.open` method.
 
 	\sa `io.Socket`

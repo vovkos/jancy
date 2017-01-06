@@ -13,6 +13,9 @@
 
 \struct io.FileStreamEventParams
 
+	\import io_base.jncx
+	\import io_FileStream.jnc
+
 	\brief This struct contains detailed information about the event occured on `io.FileStream` object.
 
 	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.FileStream.m_onFileStreamEvent`.

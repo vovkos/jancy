@@ -15,6 +15,9 @@
 
 	\ingroup file
 
+	\import io_base.jncx
+	\import io_FileStream.jnc
+
 	\brief This class provides high-level asynchronous streaming interface for reading from and writing to files or devices.
 
 	Besides all the standard methods of ``io.File`` (like ``open``, ``read``, ``write`` etc) ``io.FileStream`` also notifies its clients of events occured on this file stream such as when data has arrived and could be read or when IO error occured. This allows for clean and convenient asynchronous event-driven IO programming.

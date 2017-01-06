@@ -13,6 +13,8 @@
 
 \class sys.Timer
 
+	\import sys_Timer.jnc
+
 	\brief This class provides facilities to manage both peridodic (repetitive) and non-periodic (single-shot) timers.
 
 	Each instance of ``sys.Timer`` manages a single timer (either periodic, or single-shot). You start the timer with ``start``, ``startDueTimer``, ``startSingleShotTimer``, ``startPeriodicTimer`` methods. When the timer is due, it will call the function you have supplied as an argument to one of aforementioned methods.

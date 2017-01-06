@@ -13,6 +13,8 @@
 
 \struct io.PcapEventParams
 
+	\import io_pcap.jncx
+
 	\brief This struct contains detailed information about the event occured on `io.Pcap` object.
 
 	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Pcap.m_onPcapEvent`.

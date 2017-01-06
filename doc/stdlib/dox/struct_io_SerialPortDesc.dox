@@ -13,6 +13,9 @@
 
 \struct io.SerialPortDesc
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This struct holds information about the serial port device.
 
 	A list of serial port descriptions is returned by `io.createSerialPortDescList`.

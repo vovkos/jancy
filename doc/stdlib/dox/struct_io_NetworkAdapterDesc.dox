@@ -13,6 +13,9 @@
 
 \struct io.NetworkAdapterDesc
 
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
 	\brief This struct holds information about the network adapter.
 
 	A list of network adapter descriptions is returned by `io.createNetworkAdapterDescList`.

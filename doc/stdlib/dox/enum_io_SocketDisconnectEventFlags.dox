@@ -13,6 +13,9 @@
 
 \enum io.SocketDisconnectEventFlags
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+
 	\brief This enumeration lists all possible values for `io.SocketEventParams.m_flags` when `io.SocketEventParams.m_eventCode` equals `io.SocketEventCode.Disconnected`.
 
 	Currently only one flag ``Reset`` is supported -- it is used to distinguish between different disconnect types.

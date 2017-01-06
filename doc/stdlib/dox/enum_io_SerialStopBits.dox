@@ -13,6 +13,9 @@
 
 \enum io.SerialStopBits
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This enumeration lists all possible values for stop bits setting of the serial port.
 
 	Stop bits are auxillary (non-data) bits sent at the end of each character to re-synchronize the receiver; normally 1 stop bit is used.

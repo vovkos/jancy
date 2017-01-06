@@ -13,6 +13,9 @@
 
 \enum io.AddressFamily
 
+	\import io_base.jncx
+	\import io_SocketAddress.jnc
+
 	\brief This enumeration contains possible values for socket address types (families).
 
 	``io.AddressFamily`` values map to ``AF_XXX`` platform constants. At the moment, only ``IP4`` and ``IP6`` address families are supported.

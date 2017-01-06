@@ -13,6 +13,8 @@
 
 \struct std.ListEntry
 
+	\import std_List.jnc
+
 	This struct holds information about a single entry of a doubly linked list.
 
 	\sa `std.List`

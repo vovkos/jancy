@@ -13,6 +13,8 @@
 
 \class io.SshChannel
 
+	\import io_ssh.jncx
+
 	\brief This class provides high-level asynchronous interface for client-side SSH connections.
 
 	Under the hood ``io.SshChannel`` uses libssh2 library.

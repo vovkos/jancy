@@ -13,6 +13,9 @@
 
 \enum io.SerialParity
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This enumeration specifies all possible values for the serial parity bit setting.
 
 	Serial parity bit is an extra bit transmitted alongside the data so that the total number of one's including data bits *and* this parity bit is always *odd* or always *even*.

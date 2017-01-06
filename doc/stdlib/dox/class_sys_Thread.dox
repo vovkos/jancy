@@ -13,6 +13,8 @@
 
 \class sys.Thread
 
+	\import sys_Thread.jnc
+
 	\brief This class provides standard facilities for creating and managing threads.
 
 	Each instance of ``sys.Thread`` class manages a single thread within the program. Unlike the usual approach taken in most implementations of threading frameworks, in Jancy you don't need to subclass ``sys.Thread`` and then override some kind of ``run`` method.

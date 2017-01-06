@@ -15,6 +15,9 @@
 
 	\title Network Adapter Management
 
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
 	\brief This section describes types and facilities for enumerating and getting information about installed network adapters.
 
 */

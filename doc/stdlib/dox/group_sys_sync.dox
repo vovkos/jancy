@@ -15,6 +15,10 @@
 
 	\title Synchronization Facilities
 
+	\import sys_Lock.jnc
+	\import sys_Event.jnc
+	\import sys_NotificationEvent.jnc
+
 	\brief This section describes types and facilities used for inter-thread synchronization.
 
 */

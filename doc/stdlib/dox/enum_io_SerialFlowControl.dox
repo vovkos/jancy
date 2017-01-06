@@ -13,6 +13,9 @@
 
 \enum io.SerialFlowControl
 
+	\import io_base.jncx
+	\import io_Serial.jnc
+
 	\brief This enumeration specifies all possible values for the serial flow control setting.
 
 	Flow control is the protocol of attempted prevention of data loss during serial transmission which may happen when transmission side sends data faster than the receiving side is able to process it.

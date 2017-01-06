@@ -13,6 +13,9 @@
 
 \enum io.NetworkAdapterFlags
 
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
 	\brief This enumeration specifies flag properties of the network adapter.
 
 	When enumerating available network adapter you first call `io.createNetworkAdapterDescList`, then iterate through the resulting list of `io.NetworkAdapterDesc` structures, each contains a set of flag properties in `io.NetworkAdapterDesc.m_flags` field.

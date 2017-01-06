@@ -13,6 +13,8 @@
 
 \struct io.PcapAddress
 
+	\import io_pcap.jncx
+
 	\brief This struct holds information about single address of the Pcap device.
 
 	A list of network adapter addresses is part of Pcap device description stored in `io.PcapDeviceDesc`.

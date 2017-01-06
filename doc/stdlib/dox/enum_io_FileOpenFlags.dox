@@ -13,6 +13,9 @@
 
 \enum io.FileOpenFlags
 
+	\import io_base.jncx
+	\import io_File.jnc
+
 	\brief This enumeration specifies available options for opening `io.File`, `io.FileStream` or `io.MappedFile`.
 
 	When opening files or devices with ``open`` method, the second argument ``flags`` can be used to adjust options.

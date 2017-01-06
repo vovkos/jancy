@@ -15,6 +15,11 @@
 
 	\title Socket Communications
 
+	\import io_base.jncx
+	\import io_Socket.jnc
+	\import io_SocketAddress.jnc
+	\import io_SocketAddressResolver.jnc
+
 	\brief This section describes types and facilities used when programming socket communicatins.
 
 */
