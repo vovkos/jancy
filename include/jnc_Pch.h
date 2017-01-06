@@ -275,10 +275,6 @@ typedef wchar_t           utf32_t;
 #	define JNC_ASSERT assert   // from assert.h
 #endif
 
-#ifndef ASSERT
-#	define ASSERT JNC_ASSERT
-#endif
-
 //..............................................................................
 
 // warning suppression
