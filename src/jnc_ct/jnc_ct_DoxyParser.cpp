@@ -275,6 +275,10 @@ DoxyParser::addComment (
 		case DoxyTokenKind_Brief:
 			m_descriptionKind = DescriptionKind_Brief;
 			description = &m_block->m_briefDescription;
+
+			if (!description->isEmpty ())
+				description->append ('\n');
+
 			break;
 
 		case DoxyTokenKind_SeeAlso:
