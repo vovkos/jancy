@@ -91,6 +91,7 @@ DoxyGroup::generateDocumentation (
 		itemXml->append ('\n');
 	}
 
+	itemXml->append (getImportString ());
 	itemXml->append (getDescriptionString ());
 	itemXml->append ("</compounddef>\n");
 
