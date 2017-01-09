@@ -12,9 +12,7 @@
 Jancy C API Reference
 =====================
 
-Contents:
-
-Jancy API is the public interface for C++ and pure C languages aimed at those developers who plan to embed Jancy into applications (to use it as an application-customizing scripting language) or  write extension libraries for Jancy in C or C++ language.
+Jancy API is the public interface for C++ and pure C languages aimed at those developers who plan to **embed Jancy** into applications (to use it as an application-customizing scripting language) or write **extension libraries** for Jancy in C or C++ language.
 
 .. toctree::
 	:titlesonly:

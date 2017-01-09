@@ -220,6 +220,8 @@ struct jnc_Guid
 	};
 };
 
+/// \cond EXCLUDED
+
 #		ifdef __cplusplus
 #			define JNC_GUID_SPECIFIER extern JNC_SELECT_ANY const
 #		else
@@ -228,6 +230,8 @@ struct jnc_Guid
 
 #		define JNC_GUID_INITIALIZER(l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
 			{ { { l, s1, s2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } } }
+
+/// \endcond
 
 #		define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
 			JNC_GUID_SPECIFIER jnc_Guid n = \

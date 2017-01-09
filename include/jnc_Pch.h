@@ -13,6 +13,9 @@
 
 #define _JNC_PCH_H
 
+/// \addtogroup base-def
+/// @{
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // 1) detect build/target environment section
@@ -187,6 +190,8 @@ typedef ulong_t           dword_t;
 typedef uint32_t          dword_t;
 #endif
 
+/// \cond EXTRA_TYPEDEFS
+
 #if (JNC_PTR_BITS == 64)
 #	if (_JNC_CPP_GCC)
 typedef __int128          int128_t;
@@ -213,6 +218,8 @@ typedef int16_t           utf16_t;
 typedef wchar_t           utf32_t;
 #endif
 
+/// \endcond
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // 4) non-confliciting macro definitions
@@ -225,7 +232,6 @@ typedef wchar_t           utf32_t;
 #	define JNC_CDECL       __cdecl
 #	define JNC_STDCALL     __stdcall
 #	define JNC_SELECT_ANY  __declspec (selectany)
-#	define JNC_NO_VTABLE   __declspec (novtable)
 #	define JNC_EXPORT      __declspec (dllexport)
 #
 #	define JNC_GCC_ALIGN(n)
@@ -240,7 +246,6 @@ typedef wchar_t           utf32_t;
 #		define JNC_STDCALL
 #	endif
 #	define JNC_SELECT_ANY  __attribute__ ((weak))
-#	define JNC_NO_VTABLE
 #	define JNC_EXPORT      __attribute__ ((visibility ("default")))
 #
 #	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
@@ -314,3 +319,5 @@ typedef wchar_t           utf32_t;
 #endif
 
 //..............................................................................
+
+/// @}
