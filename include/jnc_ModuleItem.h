@@ -15,8 +15,40 @@
 
 #include "jnc_Def.h"
 
-/// \addtogroup module-item
-/// @{
+/*!
+
+\defgroup module-item Module Item
+	\ingroup module-subsystem
+	\import{jnc_ModuleItem.h}
+
+\defgroup module-item-decl Module Item Declaration
+	\ingroup module-subsystem
+	\import{jnc_ModuleItem.h}
+
+\struct jnc_ModuleItem
+	\ingroup module-item
+	\verbatim
+
+	Opaque structure used as a handle to Jancy module item.
+
+	Use functions from the `Module Item` to access and manage the contents of this structure.
+
+	\endverbatim
+
+\struct jnc_ModuleItemDecl
+	\ingroup module-item-decl
+	\verbatim
+
+	Opaque structure used as a handle to Jancy module item declaration.
+
+	Use functions from the :ref:`Module Item Declaration <cid-module-item-decl>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+\addtogroup module-item
+@{
+
+*/
 
 //..............................................................................
 
@@ -64,6 +96,10 @@ enum jnc_ModuleItemFlag
 };
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
+
+/// @}
+/// \addtogroup module-item-decl
+/// @{
 
 //..............................................................................
 
@@ -223,6 +259,10 @@ struct jnc_ModuleItemDecl
 };
 
 #endif // _JNC_CORE
+
+/// @}
+/// \addtogroup module-item
+/// @{
 
 //..............................................................................
 

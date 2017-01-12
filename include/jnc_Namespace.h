@@ -15,8 +15,25 @@
 
 #include "jnc_ModuleItem.h"
 
-/// \addtogroup namespace
-/// @{
+/*!
+
+\defgroup namespace Namespace
+	\ingroup module-subsystem
+	\import{jnc_Namespace.h}
+
+\addtogroup namespace
+@{
+
+\struct jnc_Namespace
+	\verbatim
+
+	Opaque structure used as a handle to Jancy namespace.
+
+	Use functions from the :ref:`Namespace <cid-namespace>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

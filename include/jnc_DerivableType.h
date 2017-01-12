@@ -16,8 +16,27 @@
 #include "jnc_Type.h"
 #include "jnc_OpKind.h"
 
-/// \addtogroup derivable-type
-/// @{
+/*!
+
+\defgroup derivable-type Derivable Type
+	\ingroup type-subsystem
+	\import{jnc_DerivableType.h}
+
+	Derivable type is the base type for structs, unions and classes.
+
+\addtogroup derivable-type
+@{
+
+\struct jnc_DerivableType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy derivable type.
+
+	Use functions from the `Derivable Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

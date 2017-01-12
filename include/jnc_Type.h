@@ -15,8 +15,34 @@
 
 #include "jnc_ModuleItem.h"
 
-/// \addtogroup type
-/// @{
+//..............................................................................
+
+/*!
+
+\defgroup type-subsystem Type Subsystem
+	\ingroup module-subsystem
+
+	This section describes facilities used for accessing the Jancy type system.
+
+\defgroup type Type
+	\ingroup type-subsystem
+	\import{jnc_Type.h}
+
+	This type is the root of type hierarchy in Jancy. All the other types are *inherited* from it.
+
+\addtogroup type
+@{
+
+\struct jnc_Type
+	\verbatim
+
+	Opaque structure used as a handle to Jancy root type.
+
+	Use functions from the :ref:`Type <cid-type>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

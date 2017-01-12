@@ -15,8 +15,15 @@
 
 #include "jnc_Def.h"
 
-/// \addtogroup unit
-/// @{
+/*!
+
+\defgroup unit Unit
+	\ingroup module-subsystem
+	\import{jnc_Unit.h}
+
+\addtogroup unit
+@{
+*/
 
 //..............................................................................
 

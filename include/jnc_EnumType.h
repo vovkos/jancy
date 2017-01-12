@@ -16,8 +16,26 @@
 #include "jnc_Type.h"
 #include "jnc_RuntimeStructs.h"
 
-/// \addtogroup enum-type
-/// @{
+/*!
+
+\defgroup enum-type Enum Type
+	\ingroup type-subsystem
+
+	\brief Enum type defines a mnemonic identification for a set of integer values.
+
+\addtogroup enum-type
+@{
+
+\struct jnc_EnumType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy enum type.
+
+	Use functions from the `Array Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

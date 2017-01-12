@@ -15,8 +15,25 @@
 
 #include "jnc_PropertyType.h"
 
-/// \addtogroup property
-/// @{
+/*!
+
+\defgroup property Property
+	\ingroup module-subsystem
+	\import{jnc_Property.h}
+
+\addtogroup property
+@{
+
+\struct jnc_Property
+	\verbatim
+
+	Opaque structure used as a handle to Jancy property.
+
+	Use functions from the :ref:`Property <cid-property>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

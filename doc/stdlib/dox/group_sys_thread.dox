@@ -17,7 +17,7 @@
 
 	\import sys_Thread.jnc
 
-	\brief This section describes types and facilities for thread creation and management.
+	This section describes types and facilities for thread creation and management.
 
 */
 

@@ -15,8 +15,15 @@
 
 #include "jnc_ModuleItem.h"
 
-/// \addtogroup attribute-block
-/// @{
+/*!
+
+\defgroup attribute-block Attribute Block
+	\ingroup module-subsystem
+
+\addtogroup attribute-block
+@{
+
+*/
 
 //..............................................................................
 

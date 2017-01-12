@@ -13,8 +13,8 @@
 
 \namespace sys
 
-	\brief This namespaces contains all IO-related classes and auxiliary types and functions.
+	This namespaces contains all IO-related classes and auxiliary types and functions.
 
-	\brief For your convenience, documentation for all the members of ``namespace sys`` is divided into the following categories:
+	For your convenience, documentation for all the members of ``namespace sys`` is divided into the following categories:
 
 */

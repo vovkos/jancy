@@ -15,8 +15,25 @@
 
 #include "jnc_FunctionType.h"
 
-/// \addtogroup function
-/// @{
+/*!
+
+\defgroup function Function
+	\ingroup module-subsystem
+	\import{jnc_Function.h}
+
+\addtogroup function
+@{
+
+\struct jnc_Function
+	\verbatim
+
+	Opaque structure used as a handle to Jancy function.
+
+	Use functions from the :ref:`Function <cid-function>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

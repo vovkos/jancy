@@ -15,8 +15,18 @@
 
 #include "jnc_RuntimeStructs.h"
 
-/// \addtogroup gc-heap
-/// @{
+/*!
+
+\defgroup gc-heap Garbage-Collected Heap
+	\ingroup runtime-subsystem
+	\import{jnc_GcHeap.h}
+
+	\brief This set of functions is used to allocate objects on GC Heap
+
+\addtogroup gc-heap
+@{
+
+*/
 
 //..............................................................................
 

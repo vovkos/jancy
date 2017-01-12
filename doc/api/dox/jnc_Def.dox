@@ -9,55 +9,6 @@
 //
 //..............................................................................
 
-/*!
-
-\defgroup base-def Base Definitions
-
- */
-
-/*!
-
-\typedef bool_t
-
-	Alias to ``int`` used to denote boolean values.
-
-\typedef uint_t
-
-	Unsigned integer type with width of 32 bits.
-
-\typedef uchar_t
-
-	Unsigned integer type with width of 8 bits.
-
-\typedef byte_t
-
-	Unsigned integer type with width of 8 bits.
-
-\typedef ushort_t
-
-	Unsigned integer type with width of 16 bits.
-
-\typedef word_t
-
-	Unsigned integer type with width of 16 bits.
-
-\typedef ulong_t
-
-	Unsigned integer type with width of 32 bits.
-
-\typedef dword_t
-
-	Unsigned integer type with width of 32 bits.
-
-\typedef qword_t
-
-	Unsigned integer type with width of 64 bits.
-
-*/
-
-// these macros are conditionally included in actual C sources
-// so we better force-include and document them here
-
 /// \addtogroup base-def
 /// @{
 
@@ -75,10 +26,8 @@
 #define _JNC_OS_BSD     1
 #define _JNC_OS_DARWIN  1
 
-#define JNC_EXTERN_C    1
-#define JNC_SELECT_ANY  1
-
-#define JNC_PTR_SIZE    1
+#define JNC_SELECT_ANY  __declspec (selectany)
+#define JNC_PTR_SIZE    8
 
 /// @}
 
@@ -154,43 +103,14 @@
 
 \def JNC_PTR_SIZE
 
-	A size in **bytes** of data/code pointer on the current processor architecture.
+	Size in **bytes** of data/code pointer on the current processor architecture.
 
 	Equals ``4`` on ``JNC_CPU_X86``; equals ``8`` on ``JNC_CPU_AMD64``.
 
 \def JNC_PTR_BITS
 
-	A size in **bits** of data/code pointer on the current processor architecture.
+	Size in **bits** of data/code pointer on the current processor architecture.
 
 	Equals ``32`` on ``JNC_CPU_X86``; equals ``64`` on ``JNC_CPU_AMD64``.
 
-\def JNC_ASSERT
-
-	On ``Debug`` builds, this macro causes an **assertion check**: it calculates the value of its argument, and if it is ``false``, then a corresponding message is displayed and a program is terminated.
-
-	The exact way of displaying an assertion message and its format is platform dependent, but it always includes the location of failing ``JNC_ASSERT`` macro and the actual expression which caused it to fail.
-
-	On ``Release`` builds, this macro does nothing (expands to an empty sequence).
-
-\def JNC_DEFINE_GUID
-	\verbatim
-
-	A cross-platform equivalent of the Win32 ``DEFINE_GUID`` macro.
-
-	This macro is used to define a constant holding the **GUID** (Globally Unique Identifier).
-
-	To generate a new GUID use any online GUID-creation tool and select the ``DEFINE_GUID`` format; then replace ``DEFINE_GUID`` with ``JNC_DEFINE_GUID``.
-
-	.. rubric:: Sample:
-
-	.. code-block:: cpp
-
-		// {384498AC-90AF-4634-B083-2A9B02D62680}
-
-		JNC_DEFINE_GUID (
-			g_testLibGuid,
-			0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
-			);
-
-	\endverbatim
 */

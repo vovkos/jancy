@@ -11,7 +11,14 @@
 
 /*!
 
-\defgroup call-site Call Site
-\ingroup runtime-subsystem
+\def JNC_BEGIN_GC_SITE
 
- */
+	Marks the beginning of a Jancy GC region.
+
+	Any GC allocation should happen within the bounds of such a region; otherwise, an attempt to GC-allocate leads to undefined behavior.
+
+\def JNC_END_GC_SITE
+
+	Marks the endning of a Jancy GC region.
+
+*/

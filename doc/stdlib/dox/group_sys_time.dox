@@ -17,7 +17,7 @@
 
 	\import sys_Timer.jnc
 
-	\brief This section describes types and facilities for date, time and timer management.
+	This section describes types and facilities for date, time and timer management.
 
 */
 

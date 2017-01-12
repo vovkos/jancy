@@ -15,8 +15,27 @@
 
 #include "jnc_Type.h"
 
-/// \addtogroup bitfield-type
-/// @{
+/*!
+
+\defgroup bitfield-type Bitfield Type
+	\ingroup type-subsystem
+	\import{jnc_BitFieldType.h}
+
+	Bitfield type is used to describe a range of bits inside a struct or union.
+
+\addtogroup bitfield-type
+@{
+
+\struct jnc_BitFieldType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy bitfield type.
+
+	Use functions from the `Bitfield Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

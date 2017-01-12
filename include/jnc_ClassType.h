@@ -17,8 +17,29 @@
 #include "jnc_FunctionType.h"
 #include "jnc_Function.h"
 
-/// \addtogroup class-type
-/// @{
+/*!
+
+\defgroup class-type Class Type
+	\ingroup type-subsystem
+	\import{jnc_ClassType.h}
+
+	\brief Class type is used to describe a class in Jancy.
+
+	Unlike structs and unions, classes can contain destructors and virtual functions.
+
+\addtogroup class-type
+@{
+
+\struct jnc_ClassType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy class type.
+
+	Use functions from the `Class Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

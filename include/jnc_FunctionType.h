@@ -16,8 +16,27 @@
 #include "jnc_Type.h"
 #include "jnc_RuntimeStructs.h"
 
-/// \addtogroup function-type
-/// @{
+/*!
+
+\defgroup function-type Function Type
+	\ingroup type-subsystem
+	\import{jnc_FunctionType.h}
+
+	\brief Function type defines a signature of a function -- what it the calling convention, which type is the return value of, how many and which type of arguments a function accepts and so on.
+
+\addtogroup function-type
+@{
+
+\struct jnc_FunctionType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy function type.
+
+	Use functions from the `Function Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

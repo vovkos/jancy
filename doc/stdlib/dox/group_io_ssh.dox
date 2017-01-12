@@ -17,6 +17,6 @@
 
 	\import io_ssh.jncx
 
-	\brief This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
+	This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
 
 */

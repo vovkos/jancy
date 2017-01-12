@@ -28,8 +28,28 @@
 #include "jnc_ClassType.h"
 #include "jnc_Unit.h"
 
-/// \addtogroup module
-/// @{
+/*!
+
+\defgroup module-subsystem Module Components
+
+\defgroup module Module
+	\ingroup module-subsystem
+	\import{jnc_Module.h}
+
+\addtogroup module
+@{
+
+\struct jnc_Module
+	\ingroup module-subsystem
+	\verbatim
+
+	Opaque structure used as a handle to Jancy module.
+
+	Use functions from the :ref:`Module <cid-module>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

@@ -15,8 +15,16 @@
 
 #include "jnc_Def.h"
 
-/// \addtogroup runtime-structs
-/// @{
+/*!
+
+\defgroup runtime-structs Runtime Structures
+	\ingroup runtime-subsystem
+	\import{jnc_RuntimeStructs.h}
+
+\addtogroup runtime-structs
+@{
+
+*/
 
 typedef struct jnc_Box jnc_Box;
 typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
@@ -225,7 +233,7 @@ struct jnc_GcShadowStackFrame
 struct jnc_GcShadowStackFrameMapBuffer
 {
 	jnc_ListLink m_link;
-	jnc_GcShadowStackFrameMap* m_prev;	
+	jnc_GcShadowStackFrameMap* m_prev;
 	intptr_t m_mapKind;
 	intptr_t m_gcRootArray [3];
 	intptr_t m_gcRootTypeArray [3];

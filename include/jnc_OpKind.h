@@ -15,8 +15,15 @@
 
 #include "jnc_Def.h"
 
-/// \addtogroup operators
-/// @{
+/*!
+
+\defgroup operators Operators
+	\ingroup module-subsystem
+	\import{jnc_OpKind.h}
+
+\addtogroup operators
+@{
+*/
 
 //..............................................................................
 

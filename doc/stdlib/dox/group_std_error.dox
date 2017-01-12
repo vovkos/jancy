@@ -15,7 +15,7 @@
 
 	\title Error Facilities
 
-	\brief This section describes types and facilities for setting and retrieving error information
+	This section describes types and facilities for setting and retrieving error information.
 */
 
 /*!
@@ -24,7 +24,7 @@
 
 	Returns a pointer to the last error set in the context of the current thread.
 
-	Currently this function allocates a new error buffer on every call. In the future caching will be implemented (if ``AXL`` error has not changed since last invokation of ``getLastError`` then previously allocated error buffer could be re-used).
+	Currently this function allocates a new error buffer on every call. In the future caching will be implemented (if ``AXL`` error has not changed since the last invokation of ``getLastError`` then previously allocated error buffer could be re-used).
 
 \fn std.getLastErrorDescription
 

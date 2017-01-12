@@ -19,6 +19,6 @@
 	\import sys_Event.jnc
 	\import sys_NotificationEvent.jnc
 
-	\brief This section describes types and facilities used for inter-thread synchronization.
+	This section describes types and facilities used for inter-thread synchronization.
 
 */

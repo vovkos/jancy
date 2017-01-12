@@ -174,20 +174,20 @@
 //   intptr_t
 //   uintptr_t
 
-typedef int               bool_t;
-typedef unsigned int      uint_t;
-typedef unsigned char     uchar_t;
-typedef unsigned short    ushort_t;
-typedef unsigned long     ulong_t;
+typedef int               bool_t;   ///< Alias to ``int`` used to denote boolean values.
+typedef unsigned int      uint_t;   ///< Unsigned integer type with width of 32 bits.
+typedef unsigned char     uchar_t;  ///< Unsigned integer type with width of 8 bits.
+typedef unsigned short    ushort_t; ///< Unsigned integer type with width of 16 bits.
+typedef unsigned long     ulong_t;  ///< Unsigned integer type with width of 32 bits.
 
-typedef uint8_t           byte_t;
-typedef uint16_t          word_t;
-typedef uint64_t          qword_t;
+typedef uint8_t           byte_t;  ///< Unsigned integer type with width of 8 bits.
+typedef uint16_t          word_t;  ///< Unsigned integer type with width of 16 bits.
+typedef uint64_t          qword_t; ///< Unsigned integer type with width of 64 bits.
 
 #if (_JNC_CPP_MSC)
-typedef ulong_t           dword_t;
+typedef ulong_t           dword_t; ///< Unsigned integer type with width of 32 bits.
 #else
-typedef uint32_t          dword_t;
+typedef uint32_t          dword_t; ///< Unsigned integer type with width of 32 bits.
 #endif
 
 /// \cond EXTRA_TYPEDEFS
@@ -272,7 +272,23 @@ typedef wchar_t           utf32_t;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// ASSERT macro
+/*!
+	\verbatim
+
+	On ``Debug`` builds, this macro causes an **assertion check**: it calculates the value of its argument, and if it is ``false``, then a corresponding message is displayed and a program is terminated.
+
+	The exact way of displaying an assertion message and its format is platform dependent, but it always includes the location of failing ``JNC_ASSERT`` macro and the actual expression which caused it to fail.
+
+	.. rubric:: Sample:
+
+	.. code-block:: none
+
+		test_cpp: /home/user/test_cpp/main.cpp:100: int main(int, char**): Assertion `line < lineCount' failed.
+
+	On ``Release`` builds, this macro does nothing (expands to an empty sequence).
+
+	\endverbatim
+*/
 
 #if (_JNC_OS_WIN)
 #	define JNC_ASSERT _ASSERTE // from crtdbg.h
@@ -299,7 +315,10 @@ typedef wchar_t           utf32_t;
 #	endif
 //#	pragma GCC diagnostic ignored "-Wmissing-braces"
 #	pragma GCC diagnostic ignored "-Wmultichar"
-#	pragma GCC diagnostic ignored "-Wnarrowing"
+#	pragma GCC diagnostic ignored "-Wformat"
+#	if (__cplusplus >= 201103L)
+#		pragma GCC diagnostic ignored "-Wnarrowing"
+#	endif
 //#	pragma GCC diagnostic ignored "-Wparentheses"
 //#	pragma GCC diagnostic ignored "-Wsign-compare"
 //#	pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -311,7 +330,6 @@ typedef wchar_t           utf32_t;
 #if (_JNC_CPP_CLANG)
 
 #	pragma GCC diagnostic ignored "-Wdangling-else"
-#	pragma GCC diagnostic ignored "-Wformat"
 #	pragma GCC diagnostic ignored "-Wincompatible-ms-struct"
 #	pragma GCC diagnostic ignored "-Wlogical-op-parentheses"
 #	pragma GCC diagnostic ignored "-Wswitch"

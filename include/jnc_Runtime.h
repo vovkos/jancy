@@ -18,8 +18,27 @@
 #include "jnc_GcHeap.h"
 #include "jnc_Construct.h"
 
-/// \addtogroup runtime
-/// @{
+/*!
+
+\defgroup runtime-subsystem Runtime Subsystem
+
+\defgroup runtime Runtime
+	\ingroup runtime-subsystem
+	\import{jnc_Runtime.h}
+
+\addtogroup runtime
+@{
+
+\struct jnc_Runtime
+	\verbatim
+
+	Opaque structure used as a handle to Jancy runtime.
+
+	Use functions from the :ref:`Runtime <cid-runtime>` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 

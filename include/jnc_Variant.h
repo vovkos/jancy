@@ -16,8 +16,15 @@
 #include "jnc_RuntimeStructs.h"
 #include "jnc_OpKind.h"
 
-/// \addtogroup variant
-/// @{
+/*!
+
+\defgroup variant Variant
+	\ingroup runtime-structs
+	\import{jnc_Variant.h}
+
+\addtogroup variant
+@{
+*/
 
 typedef struct jnc_Variant jnc_Variant;
 

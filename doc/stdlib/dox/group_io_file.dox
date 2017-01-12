@@ -22,7 +22,7 @@
 	\import io_Mailslot.jnc
 	\import io_NamedPipe.jnc
 
-	\brief This section describes types and facilities for working with files and generic IO devices.
+	This section describes types and facilities for working with files and generic IO devices.
 
 */
 

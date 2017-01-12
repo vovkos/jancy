@@ -15,8 +15,19 @@
 
 #include "jnc_Pch.h"
 
-/// \addtogroup base-def
-/// @{
+//..............................................................................
+
+/*!
+
+\defgroup base-def Base Definitions
+	\import{jnc_Def.h}
+
+	This section describes base global definitions of Jancy C API.
+
+\addtogroup base-def
+@{
+
+*/
 
 //..............................................................................
 
@@ -177,10 +188,12 @@ typedef axl::sl::ListLink jnc_ListLink;
 
 typedef struct jnc_ListLink jnc_ListLink;
 
+/// This struct holds information about a single entry of a doubly linked list.
+
 struct jnc_ListLink
 {
-	jnc_ListLink* m_next;
-	jnc_ListLink* m_prev;
+	jnc_ListLink* m_next; ///< Holds a pointer to the next list entry on the list or ``NULL`` if this is the last entry.
+	jnc_ListLink* m_prev; ///< Holds a pointer to the previous list entry on the list or ``NULL`` if this is the last entry.
 };
 
 #	endif // _AXL_SL_LISTBASE_H
@@ -196,6 +209,23 @@ typedef axl::sl::Guid jnc_Guid;
 
 typedef struct jnc_Guid jnc_Guid;
 
+/*!
+	\brief This struct describes a globally unique identifier (GUID).
+	\verbatim
+
+	GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.
+
+	In practice any two generated GUIDs could be assumed to be distinct -- even though neither of GUID generation algorithms could strictly guarantee uniqueness of generated identifiers. The probability of collision is too low and can be neglected in most practical applications.
+
+	In Jancy API GUIDs are used to identify extension libraries -- each extension library has its own unique ID.
+
+	This struct directly maps to ``struct UUID`` as defined in ``WinAPI``.
+
+	For more details about globally unique identifiers refer to: https://en.wikipedia.org/wiki/Globally_unique_identifier
+
+	\endverbatim
+*/
+
 struct jnc_Guid
 {
 	union
@@ -203,24 +233,24 @@ struct jnc_Guid
 		struct
 		{
 			//! \unnamed{union/struct:4}
-			uint32_t m_data1;
-			uint16_t m_data2;
-			uint16_t m_data3;
-			uint8_t m_data4 [8];
+			uint32_t m_data1;    ///< Specifies the first 8 hexadecimal digits of the GUID.
+			uint16_t m_data2;    ///< Specifies the first group of 4 hexadecimal digits of the GUID.
+			uint16_t m_data3;    ///< Specifies the second group of 4 hexadecimal digits of the GUID.
+			uint8_t m_data4 [8]; ///< Array of eight elements. The first two elements contain the third group of 4 hexadecimal digits of the GUID. The remaining six elements contain the final 12 hexadecimal digits of the GUID.
 		};
 
 		struct
 		{
 			//! \unnamed{struct:4}
-			uint32_t m_long1;
-			uint32_t m_long2;
-			uint32_t m_long3;
-			uint32_t m_long4;
+			uint32_t m_long1; ///< Specifies the first group of 8 hexadecimal digits of the GUID.
+			uint32_t m_long2; ///< Specifies the second group of 8 hexadecimal digits of the GUID.
+			uint32_t m_long3; ///< Specifies the third group of 8 hexadecimal digits of the GUID.
+			uint32_t m_long4; ///< Specifies the fourth and the last group of 8 hexadecimal digits of the GUID.
 		};
 	};
 };
 
-/// \cond EXCLUDED
+/// \cond _EXCLUDED
 
 #		ifdef __cplusplus
 #			define JNC_GUID_SPECIFIER extern JNC_SELECT_ANY const
@@ -232,6 +262,29 @@ struct jnc_Guid
 			{ { { l, s1, s2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } } }
 
 /// \endcond
+
+/*!
+	\verbatim
+
+	A cross-platform equivalent of the Win32 ``DEFINE_GUID`` macro.
+
+	This macro is used to define a constant holding the **GUID** (Globally Unique Identifier).
+
+	To generate a new GUID use any online GUID-creation tool and select the ``DEFINE_GUID`` format; then replace ``DEFINE_GUID`` with ``JNC_DEFINE_GUID``.
+
+	.. rubric:: Sample:
+
+	.. code-block:: cpp
+
+		// {384498AC-90AF-4634-B083-2A9B02D62680}
+
+		JNC_DEFINE_GUID (
+			g_testLibGuid,
+			0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
+			);
+
+	\endverbatim
+*/
 
 #		define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
 			JNC_GUID_SPECIFIER jnc_Guid n = \

@@ -15,8 +15,23 @@
 
 #include "jnc_Module.h"
 
-/// \addtogroup extension-lib-subsystem
-/// @{
+/*!
+
+\defgroup extension-lib-subsystem Extension Libraries Subsystem
+
+\addtogroup extension-lib-subsystem
+@{
+
+\struct jnc_DynamicExtensionLibHost
+	\verbatim
+
+	Opaque structure passed to the dynamic extension library main function.
+
+	Indirectly provides access to runtime and module of the Jancy host (on behalf of which this dynamic extension library is being loaded).
+
+	\endverbatim
+
+*/
 
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;

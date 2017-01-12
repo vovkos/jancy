@@ -15,30 +15,89 @@
 
 #define _JNC_ERROR_H
 
-/// \addtogroup error-subsystem
-/// @{
+/*!
+
+\defgroup error-subsystem Error Subsystem
+	\import{jnc_Error.h}
+
+	This section describes types and facilities for setting and retrieving error information.
+
+\addtogroup error-subsystem
+@{
+
+\struct jnc_Error
+	\verbatim
+
+	Opaque structure used as a handle to Jancy error-describing buffer.
+
+	Use functions from the `Error Subsystem` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
+
+/// Returns a pointer to the last error set in the context of the current thread.
 
 JNC_EXTERN_C
 jnc_Error*
 jnc_getLastError ();
 
+/// Sets ``error`` as the last error of the current thread.
+
 JNC_EXTERN_C
 void
 jnc_setError (jnc_Error* error);
+
+/// Sets POSIX ``errno`` error as the last error of the current thread.
 
 JNC_EXTERN_C
 void
 jnc_setErrno (int code);
 
+/// Sets string error described by a null-terminated string pointed to by ``string`` as the last error of the current thread.
+
 JNC_EXTERN_C
 void
 jnc_setStringError (const char* string);
 
+/*!
+	\verbatim
+
+	Creates and returns a human-readable description of the error.
+
+	Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
+
+	.. rubric:: Sample:
+
+	.. code-block:: cpp
+
+		jnc_Error* error = jnc_getLastError ();
+		printf ("error: %s\n", jnc_getErrorDescription_v ());
+
+	\endverbatim
+*/
+
 JNC_EXTERN_C
 const char*
 jnc_getErrorDescription_v (jnc_Error* error);
+
+/*!
+	\verbatim
+
+	Returns a human readable description of the the last error set in the context of the current thread.
+
+	Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
+
+	.. rubric:: Equivalent to:
+
+	.. code-block:: cpp
+
+		jnc_getErrorDescription_v (jnc_getLastError ())
+
+	\endverbatim
+*/
 
 JNC_INLINE
 const char*

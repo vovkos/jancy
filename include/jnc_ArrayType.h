@@ -15,8 +15,29 @@
 
 #include "jnc_Type.h"
 
-/// \addtogroup array-type
-/// @{
+/*!
+
+\defgroup array-type Array Type
+	\ingroup type-subsystem
+	\import{jnc_ArrayType.h}
+
+	\brief Array type is used to represents a one-dimensional sequence of elements of the same type.
+
+	Just like in C, Jancy arrays are not dynamic. Compiler has to know the number of elements in array during compile-time.
+
+\addtogroup array-type
+@{
+
+\struct jnc_ArrayType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy array type.
+
+	Use functions from the `Array Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 
@@ -59,6 +80,10 @@ struct jnc_ArrayType: jnc_Type
 #endif // _JNC_CORE
 
 //..............................................................................
+
+/// @}
+/// \addtogroup type
+/// @{
 
 JNC_INLINE
 int

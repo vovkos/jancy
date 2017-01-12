@@ -15,8 +15,27 @@
 
 #include "jnc_DerivableType.h"
 
-/// \addtogroup struct-type
-/// @{
+/*!
+
+\defgroup struct-type Struct Type
+	\ingroup type-subsystem
+	\import{jnc_StructType.h}
+
+	Struct type represents a sequence of zero or more fields.
+
+\addtogroup struct-type
+@{
+
+\struct jnc_StructType
+	\verbatim
+
+	Opaque structure used as a handle to Jancy struct type.
+
+	Use functions from the `Struct Type` to access and manage the contents of this structure.
+
+	\endverbatim
+
+*/
 
 //..............................................................................
 
