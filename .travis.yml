@@ -45,13 +45,14 @@ before_install:
     - sudo apt-get install -y p7zip-full
 
     - git clone http://github.com/vovkos/axl
+    - git clone http://github.com/vovkos/graco
 
 script:
     - THIS_DIR=`pwd`
 
     - mkdir llvm/build
     - cd llvm/build
-    - cmake ..
+    - cmake .. -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF
     - make
 
     - mkdir axl/build
@@ -79,3 +80,4 @@ script:
     - cd build
     - cmake ..
     - make
+    - make test
