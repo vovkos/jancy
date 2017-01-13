@@ -72,7 +72,7 @@ script:
     - cd $THIS_DIR
     - echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR//graco/build/cmake)" >> paths.cmake
 
-    - echo "set (LLVM_INC_DIR $THIS_DIR/llvm/include llvm/build/include)" >> paths.cmake
+    - echo "set (LLVM_INC_DIR $THIS_DIR/llvm/include $THIS_DIR/llvm/build/include)" >> paths.cmake
     - echo "set (LLVM_LIB_DIR $THIS_DIR/llvm/build/lib)" >> paths.cmake
     - echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/build/share/llvm/cmake)" >> paths.cmake
 
