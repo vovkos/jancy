@@ -13,36 +13,37 @@ dist:     trusty
 sudo:     required
 language: cpp
 
+os:
+    - linux
+    - osx
+
 compiler:
     - gcc
     - clang
 
+env:
+    - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+    - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+
+matrix:
+    exclude:
+        - os: osx
+          env: TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+        - os: osx
+          env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+
 before_install:
-    - LUA_VERSION=5.2
+    - source travis/install-$TRAVIS_OS_NAME.sh
 
     - LLVM_VERSION=3.4.2
     - LLVM_TAR=llvm-$LLVM_VERSION.src.tar.gz
     - LLVM_URL=http://releases.llvm.org/$LLVM_VERSION/$LLVM_TAR
 
-    - CMAKE_VERSION=3.3.2
-    - CMAKE_VERSION_DIR=v3.3
-    - CMAKE_OS=Linux-x86_64
-    - CMAKE_TAR=cmake-$CMAKE_VERSION-$CMAKE_OS.tar.gz
-    - CMAKE_URL=http://www.cmake.org/files/$CMAKE_VERSION_DIR/$CMAKE_TAR
-    - CMAKE_DIR=$(pwd)/cmake-$CMAKE_VERSION
-
-    - wget --quiet $CMAKE_URL
-    - mkdir -p $CMAKE_DIR
-    - tar --strip-components=1 -xzf $CMAKE_TAR -C $CMAKE_DIR
-    - export PATH=$CMAKE_DIR/bin:$PATH
-
     - wget --quiet $LLVM_URL
     - mkdir -p llvm
     - tar --strip-components=1 -xzf $LLVM_TAR -C llvm
-
-    - sudo apt-get -qq update
-    - sudo apt-get install -y liblua${LUA_VERSION}-dev
-    - sudo apt-get install -y p7zip-full
 
     - git clone http://github.com/vovkos/axl
     - git clone http://github.com/vovkos/graco
@@ -52,21 +53,21 @@ script:
 
     - mkdir llvm/build
     - cd llvm/build
-    - cmake .. -DHAVE_SANITIZER_MSAN_INTERFACE_H=0 -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF
+    - cmake .. $LLVM_BUILD_32_BITS -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DHAVE_SANITIZER_MSAN_INTERFACE_H=0 -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF
     - make
 
     - cd $THIS_DIR
     - mkdir axl/build
     - cd axl/build
-    - cmake ..
+    - cmake .. -DAXL_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
     - make
 
     - cd $THIS_DIR
-    - echo "set (AXL_CMAKE_DIR $THIS_DIR/axl/cmake $THIS_DIR/axl/build/cmake)" > paths.cmake
+    - echo "set (AXL_CMAKE_DIR $THIS_DIR/axl/cmake $THIS_DIR/axl/build/cmake)" >> paths.cmake
 
     - mkdir graco/build
     - cd graco/build
-    - cmake ..
+    - cmake .. -DAXL_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
     - make
 
     - cd $THIS_DIR
@@ -78,6 +79,6 @@ script:
 
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake .. -DAXL_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
     - make
     - make test
