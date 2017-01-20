@@ -19,6 +19,8 @@ set (
 	PCAP_LIB_DIR
 	LIBSSH2_INC_DIR
 	LIBSSH2_LIB_DIR
+	LIBUSB_INC_DIR
+	LIBUSB_LIB_DIR
 	OPENSSL_INC_DIR
 	OPENSSL_LIB_DIR
 	QT_CMAKE_DIR
@@ -49,6 +51,7 @@ set (
 		libssh2
 		openssl
 		pcap
+		libusb
 		doxygen
 		doxyrest
 		sphinx

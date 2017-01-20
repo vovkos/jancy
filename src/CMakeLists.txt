@@ -51,6 +51,18 @@ if (${PCAP_FOUND})
 	endif ()
 endif ()
 
+if (${LIBUSB_FOUND})
+	option (
+		BUILD_JNC_IO_USB
+		"Build jancy USB IO extension library"
+		ON
+		)
+
+	if (BUILD_JNC_IO_USB)
+		add_subdirectory (jnc_io_usb)
+	endif ()
+endif ()
+
 option (
 	BUILD_JNC_APP
 	"Build jancy command line application"

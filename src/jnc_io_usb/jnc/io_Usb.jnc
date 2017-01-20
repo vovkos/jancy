@@ -1,0 +1,229 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup usb
+//! @{
+
+//..............................................................................
+
+enum UsbTransferType: uint8_t
+{
+	Control     = 0,
+	Isochronous = 1,
+	Bulk        = 2,
+	Interrupt   = 3,
+	BulkStream  = 4,
+};
+
+enum UsbIsoSyncType: uint8_t
+{
+	None     = 0,
+	Async    = 1,
+	Adaptive = 2,
+	Sync     = 3,
+}
+
+enum UsbIsoUsage: uint8_t
+{
+	Data     = 0,
+	Feedback = 1,
+	Implicit = 2,
+}
+
+enum UsbClass: uint8_t
+{
+	PerInterface       = 0,
+	Audio              = 1,
+	Comm               = 2,
+	Hid                = 3,
+	Physical           = 5,
+	Ptp                = 6,
+	Printer            = 7,
+	MassStorage        = 8,
+	Hub                = 9,
+	Data               = 10,
+	SmartCard          = 0x0b,
+	ContentSecurity    = 0x0d,
+	Video              = 0x0e,
+	PersonalHealthcare = 0x0f,
+	DiagnosticDevice   = 0xdc,
+	Wireless           = 0xe0,
+	Application        = 0xfe,
+	VendorSpec         = 0xff
+};
+
+//..............................................................................
+
+struct UsbEndpointDesc
+{
+	uint8_t m_endpointId;
+	UsbTransferType m_transferType;
+	UsbIsoSyncType m_isoSyncType;
+	UsbIsoUsage m_isoUsage;
+	uint16_t m_maxPacketSize;
+	uint8_t m_interval;
+	uint8_t m_refresh;
+	uint8_t m_synchAddress;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbInterfaceDesc
+{
+	UsbInterfaceDesc const* m_nextAlternate;
+	UsbEndpointDesc const* m_endpointTable;
+	size_t m_endpointCount;
+
+	uint8_t m_interfaceId,
+	uint8_t m_altSettingId,
+	uint8_t m_descriptionStringId;
+	UsbClass m_class;
+	uint8_t m_subClass;
+	uint8_t m_protocol;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbConfigurationDesc
+{
+	UsbInterfaceDesc const* m_interfaceTable;
+	size_t m_interfaceCount;
+
+	uint8_t m_configurationId;
+	uint8_t m_descriptionStringId;
+	uint8_t m_attributes;
+	uint8_t  m_maxPower;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbDeviceDesc
+{
+	UsbConfigurationDesc const* m_configurationTable;
+	size_t m_configurationCount;
+
+	uint16_t m_usbVersion;
+	uint16_t m_deviceVersion;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint8_t m_vendorStringId;
+	uint8_t m_productStringId;
+	uint8_t m_serialStringId;
+	UsbClass m_class;
+	uint8_t m_subClass;
+	uint8_t m_protocol;
+}
+
+//..............................................................................
+
+enum UsbEndpointEventCode
+{
+	ReadyRead,
+	IoError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbEndpointEventParams
+{
+	UsbEndpointEventCode m_eventCode;
+	uint_t m_syncId;
+	std.Error const* m_error;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class UsbEndpoint
+{
+	UsbInterface* const m_parentInterface;
+	UsbEndpointDesc const* const m_endpointDesc;
+
+	construct ();
+	destruct ();
+
+	void close ();
+	alias dispose = close;
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	size_t errorcode write (
+		void const* p,
+		size_t size
+		);
+
+	event m_onEndpointEvent (UsbEndpointEventParams const* params);
+	bool property m_isEndpointEventEnabled;
+}
+
+//..............................................................................
+
+opaque class UsbInterface
+{
+	UsbDevice* const m_parentDevice;
+	UsbInterfaceDesc const* const m_interfaceDesc;
+
+	bool readonly m_isClaimed;
+	uint_t m_syncId;
+
+	construct ();
+	destruct ();
+
+	void release ();
+	alias dispose = release;
+
+	UsbEndpoint* errorcode openEndpoint (uint8_t endpointId);
+}
+
+//..............................................................................
+
+opaque class UsbDevice
+{
+	UsbDeviceDesc const* const property m_deviceDesc;
+	UsbConfigurationDesc const* const property m_activeConfigurationDesc;
+	uint8_t property m_configurationId;
+
+	bool readonly m_isOpen;
+
+	construct ();
+	destruct ();
+
+	void close ();
+	alias dispose = close;
+
+	bool errorcode open ();
+
+	UsbInterface* errorcode claimInterface (
+		uint8_t interfaceId,
+		uint8_t altSettingId = 0
+		);
+
+	char const* const property m_stringDesc (uint8_t stringId);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbDevice* const* errorcode createUsbDeviceList (size_t* count = null);
+
+UsbDevice* errorcode openUsbDevice (
+	uint_t vendorId,
+	uint_t productId
+	);
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
