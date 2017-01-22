@@ -79,6 +79,9 @@ getUsbClassString (UsbClass cls);
 char const*
 getUsbSpeedString (UsbSpeed speed);
 
+char const*
+getUsbTransferTypeString (UsbTransferType type);
+
 //..............................................................................
 
 struct UsbEndpointDesc
@@ -97,7 +100,7 @@ struct UsbEndpointDesc
 
 struct UsbInterfaceDesc
 {
-	UsbInterfaceDesc const* m_nextAlternate;
+    UsbInterfaceDesc const* m_nextAltSettingInterface;
 	UsbEndpointDesc const* m_endpointTable;
 	size_t m_endpointCount;
 

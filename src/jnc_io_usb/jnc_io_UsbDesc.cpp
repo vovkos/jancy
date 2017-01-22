@@ -91,6 +91,26 @@ getUsbSpeedString (libusb_speed speed)
 	return jnc::strDup (string);
 }
 
+DataPtr
+getUsbTransferTypeString (libusb_transfer_type type)
+{
+	const char* stringTable [] =
+	{
+		"control",     // LIBUSB_TRANSFER_TYPE_CONTROL     = 0,
+		"isochronous", // LIBUSB_TRANSFER_TYPE_ISOCHRONOUS = 1,
+		"bulk",        // LIBUSB_TRANSFER_TYPE_BULK        = 2,
+		"interrupt",   // LIBUSB_TRANSFER_TYPE_INTERRUPT   = 3,
+		"bulk-stream", // LIBUSB_TRANSFER_TYPE_BULK_STREAM = 4,
+	};
+
+	const char* string = (uint_t) type < countof (stringTable) ?
+		stringTable [(uint_t) type] :
+		"<unknown>";
+
+	return jnc::strDup (string);
+}
+
+
 //..............................................................................
 
 void
@@ -136,7 +156,7 @@ initUsbInterfaceDesc (
 {
 	Type* endpointDescType = UsbEndpointDesc::getType (runtime->getModule ());
 
-	dstDesc->m_nextAlternatePtr = g_nullPtr;
+	dstDesc->m_nextAltSettingInterfacePtr = g_nullPtr;
 	dstDesc->m_endpointTable = runtime->getGcHeap ()->allocateArray (endpointDescType, srcDesc->bNumEndpoints);
 	dstDesc->m_endpointCount = srcDesc->bNumEndpoints;
 
@@ -173,7 +193,7 @@ initUsbInterfaceDesc (
 		dstDesc = (UsbInterfaceDesc*) descPtr.m_p;
 		initUsbInterfaceDesc (runtime, dstDesc, &srcDesc->altsetting [i]);
 
-		prevDesc->m_nextAlternatePtr = descPtr;
+		prevDesc->m_nextAltSettingInterfacePtr = descPtr;
 		prevDesc = dstDesc;
 	}
 
@@ -195,10 +215,10 @@ UsbConfigurationDesc::findInterfaceDesc (
 	UsbInterfaceDesc* ifaceDesc = (UsbInterfaceDesc*) ifaceDescPtr.m_p;
 	for (size_t i = 0; i < altSettingId; i++)
 	{
-		if (!ifaceDesc->m_nextAlternatePtr.m_p)
+		if (!ifaceDesc->m_nextAltSettingInterfacePtr.m_p)
 			return NULL;
 
-		ifaceDesc = (UsbInterfaceDesc*) ifaceDesc->m_nextAlternatePtr.m_p;
+		ifaceDesc = (UsbInterfaceDesc*) ifaceDesc->m_nextAltSettingInterfacePtr.m_p;
 	}
 
 	return ifaceDesc;

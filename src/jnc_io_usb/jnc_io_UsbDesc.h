@@ -27,6 +27,9 @@ getUsbClassString (uint8_t cls);
 DataPtr
 getUsbSpeedString (libusb_speed speed);
 
+DataPtr
+getUsbTransferTypeString (libusb_transfer_type type);
+
 //..............................................................................
 
 struct UsbEndpointDesc
@@ -57,7 +60,7 @@ struct UsbInterfaceDesc
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (UsbInterfaceDesc)
 
-	DataPtr m_nextAlternatePtr;
+	DataPtr m_nextAltSettingInterfacePtr;
 	DataPtr m_endpointTable;
 	size_t m_endpointCount;
 

@@ -24,7 +24,7 @@ printUsbIfaceDesc (io.UsbInterfaceDesc const* ifaceDesc)
 
 printUsbConfigurationDesc (io.UsbConfigurationDesc const* configDesc)
 {
-/*	printf ("  Configuration: %d\n", configDesc->bConfigurationValue);
+	printf ("  Configuration: %d\n", configDesc.m_configurationValue);
 	printf ("  Max power:     %d mA\n", configDesc->MaxPower * 2);
 	printf ("  Interfaces:    %d\n", configDesc->bNumInterfaces);
 
@@ -41,7 +41,7 @@ printUsbConfigurationDesc (io.UsbConfigurationDesc const* configDesc)
 			printf ("\n");
 			printUsbIfaceDesc (&iface->altsetting [j]);
 		}
-	} */
+	}
 }
 
 printUsbDevice (io.UsbDevice* device)
