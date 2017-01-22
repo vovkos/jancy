@@ -433,7 +433,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP (function, p)
 
 #define JNC_MAP_FUNCTION(name, p) \
-	function = jnc_Namespace_findFunction (nspace, name); \
+	function = jnc_Namespace_findFunction (nspace, name, 1); \
 	if (function) \
 	{ \
 		overloadIdx = 0; \
@@ -454,20 +454,20 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP (function, p);
 
 #define JNC_MAP_PROPERTY(name, getter, setter) \
-	prop = jnc_Namespace_findProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name, 1); \
 	if (!prop) \
 		return 0; \
 	JNC_MAP_PROPERTY_GETTER (prop, getter); \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);
 
 #define JNC_MAP_CONST_PROPERTY(name, getter) \
-	prop = jnc_Namespace_findProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name, 1); \
 	if (!prop) \
 		return 0; \
 	JNC_MAP_PROPERTY_GETTER (prop, getter);
 
 #define JNC_MAP_AUTOGET_PROPERTY(name, setter) \
-	prop = jnc_Namespace_findProperty (nspace, name); \
+	prop = jnc_Namespace_findProperty (nspace, name, 1); \
 	if (!prop) \
 		return 0; \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);

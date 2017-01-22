@@ -66,30 +66,33 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findFunctionFunc (nspace, name);
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findFunctionFunc (nspace, name, isRequired);
 }
 
 JNC_EXTERN_C
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findPropertyFunc (nspace, name);
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findPropertyFunc (nspace, name, isRequired);
 }
 
 JNC_EXTERN_C
 jnc_ClassType*
 jnc_Namespace_findClassType (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findClassTypeFunc (nspace, name);
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findClassTypeFunc (nspace, name, isRequired);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -115,30 +118,39 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return nspace->findFunctionByName (name);
+	return isRequired ?
+		nspace->getFunctionByName (name) :
+		nspace->findFunctionByName (name);
 }
 
 JNC_EXTERN_C
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return nspace->findPropertyByName (name);
+	return isRequired ?
+		nspace->getPropertyByName (name) :
+		nspace->findPropertyByName (name);
 }
 
 JNC_EXTERN_C
 jnc_ClassType*
 jnc_Namespace_findClassType (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	)
 {
-	return nspace->findClassTypeByName (name);
+	return isRequired ?
+		nspace->getClassTypeByName (name) :
+		nspace->findClassTypeByName (name);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -75,21 +75,24 @@ JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	);
 
 JNC_EXTERN_C
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	);
 
 JNC_EXTERN_C
 jnc_ClassType*
 jnc_Namespace_findClassType (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequire
 	);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,21 +113,30 @@ struct jnc_Namespace
 	}
 
 	jnc_Function*
-	findFunction (const char* name)
+	findFunction (
+		const char* name,
+		bool isRequired = false
+		)
 	{
-		return jnc_Namespace_findFunction (this, name);
+		return jnc_Namespace_findFunction (this, name, isRequired);
 	}
 
 	jnc_Property*
-	findProperty (const char* name)
+	findProperty (
+		const char* name,
+		bool isRequired = false
+		)
 	{
-		return jnc_Namespace_findProperty (this, name);
+		return jnc_Namespace_findProperty (this, name, isRequired);
 	}
 
 	jnc_ClassType*
-	findClassType (const char* name)
+	findClassType (
+		const char* name,
+		bool isRequired = false
+		)
 	{
-		return jnc_Namespace_findClassType (this, name);
+		return jnc_Namespace_findClassType (this, name, isRequired);
 	}
 };
 #endif // _JNC_CORE

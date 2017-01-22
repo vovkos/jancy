@@ -229,21 +229,24 @@ typedef
 jnc_Function*
 jnc_Namespace_FindFunctionFunc (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	);
 
 typedef
 jnc_Property*
 jnc_Namespace_FindPropertyFunc (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	);
 
 typedef
 jnc_ClassType*
 jnc_Namespace_FindClassTypeFunc (
 	jnc_Namespace* nspace,
-	const char* name
+	const char* name,
+	bool_t isRequired
 	);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
