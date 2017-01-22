@@ -32,6 +32,7 @@ GcShadowStackMgr::clear ()
 {
 	m_frameMapList.clear ();
 	m_frameVariable = NULL;
+	m_gcRootArrayValue.clear ();
 	m_gcRootCount = 0;
 }
 
