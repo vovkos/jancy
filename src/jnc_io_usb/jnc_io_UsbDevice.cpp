@@ -65,7 +65,7 @@ UsbDevice::getDeviceDesc (UsbDevice* self)
 	if (!result)
 		return g_nullPtr;
 
-	return createUsbDeviceDesc (getCurrentThreadRuntime (), &desc);
+	return createUsbDeviceDesc (getCurrentThreadRuntime (), &desc, &self->m_device);
 }
 
 DataPtr

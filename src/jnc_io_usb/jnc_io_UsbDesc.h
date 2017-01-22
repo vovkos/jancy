@@ -37,10 +37,10 @@ struct UsbEndpointDesc
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-createUsbEndpointDesc (
-	Runtime* runtime,
-	libusb_endpoint_descriptor* srcDesc
+void
+initUsbEndpointDesc (
+	UsbEndpointDesc* dstDesc,
+	const libusb_endpoint_descriptor* srcDesc
 	);
 
 //..............................................................................
@@ -66,10 +66,18 @@ struct UsbInterfaceDesc
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-createUsbInterfaceDesc (
+void
+initUsbInterfaceDesc (
 	Runtime* runtime,
-	libusb_interface_descriptor* srcDesc
+	UsbInterfaceDesc* dstDesc,
+	const libusb_interface_descriptor* srcDesc
+	);
+
+void
+initUsbInterfaceDesc (
+	Runtime* runtime,
+	UsbInterfaceDesc* dstDesc,
+	const libusb_interface* srcDesc
 	);
 
 //..............................................................................
@@ -95,10 +103,17 @@ struct UsbConfigurationDesc
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void
+initUsbConfigurationDesc (
+	Runtime* runtime,
+	UsbConfigurationDesc* dstDesc,
+	const libusb_config_descriptor* srcDesc
+	);
+
 DataPtr
 createUsbConfigurationDesc (
 	Runtime* runtime,
-	libusb_config_descriptor* srcDesc
+	const libusb_config_descriptor* srcDesc
 	);
 
 //..............................................................................
@@ -127,7 +142,8 @@ struct UsbDeviceDesc
 DataPtr
 createUsbDeviceDesc (
 	Runtime* runtime,
-	libusb_device_descriptor* srcDesc
+	const libusb_device_descriptor* srcDesc,
+	axl::io::UsbDevice* srcDevice
 	);
 
 //..............................................................................

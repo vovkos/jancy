@@ -396,7 +396,6 @@ FileStream::ioThreadFunc ()
 	}
 }
 
-
 void
 FileStream::readLoop ()
 {

@@ -44,6 +44,12 @@ public:
 		close ();
 	}
 
+	axl::io::UsbDevice*
+	getDevice ()
+	{
+		return &m_device;
+	}
+
 	void
 	setDevice (libusb_device* srcDevice)
 	{

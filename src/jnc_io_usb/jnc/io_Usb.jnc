@@ -147,6 +147,9 @@ opaque class UsbEndpoint
 {
 	UsbInterface* const m_parentInterface;
 	UsbEndpointDesc const* const m_endpointDesc;
+	size_t m_incomingQueueLimit;
+	bool readonly m_isOpen;
+	uint_t m_syncId;
 
 	construct ();
 	destruct ();

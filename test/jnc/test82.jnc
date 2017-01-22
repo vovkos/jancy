@@ -1,0 +1,7 @@
+import "io_usb.jncx"
+
+int main ()
+{
+	printf ("main ()\n");
+	return 0;
+}

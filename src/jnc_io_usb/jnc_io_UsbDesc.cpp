@@ -66,31 +66,20 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
-DataPtr
-createUsbEndpointDesc (
-	Runtime* runtime,
-	libusb_endpoint_descriptor* srcDesc
+void
+initUsbEndpointDesc (
+	UsbEndpointDesc* dstDesc,
+	const libusb_endpoint_descriptor* srcDesc
 	)
 {
-	DataPtr resultPtr = g_nullPtr;
-
-	JNC_BEGIN_CALL_SITE (runtime)
-
-	resultPtr = createData <UsbEndpointDesc> (runtime);
-	UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*) resultPtr.m_p;
-
-	endpointDesc->m_endpointId = srcDesc->bEndpointAddress;
-	endpointDesc->m_transferType = (srcDesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
-	endpointDesc->m_isoSyncType = (srcDesc->bmAttributes & LIBUSB_ISO_SYNC_TYPE_MASK);
-	endpointDesc->m_isoUsage = (srcDesc->bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK);
-	endpointDesc->m_maxPacketSize = srcDesc->wMaxPacketSize;
-	endpointDesc->m_interval = srcDesc->bInterval;
-	endpointDesc->m_refresh = srcDesc->bRefresh;
-	endpointDesc->m_synchAddress = srcDesc->bSynchAddress;
-
-	JNC_END_CALL_SITE ()
-
-	return resultPtr;
+	dstDesc->m_endpointId = srcDesc->bEndpointAddress;
+	dstDesc->m_transferType = (srcDesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
+	dstDesc->m_isoSyncType = (srcDesc->bmAttributes & LIBUSB_ISO_SYNC_TYPE_MASK);
+	dstDesc->m_isoUsage = (srcDesc->bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK);
+	dstDesc->m_maxPacketSize = srcDesc->wMaxPacketSize;
+	dstDesc->m_interval = srcDesc->bInterval;
+	dstDesc->m_refresh = srcDesc->bRefresh;
+	dstDesc->m_synchAddress = srcDesc->bSynchAddress;
 }
 
 //..............................................................................
@@ -111,32 +100,57 @@ UsbInterfaceDesc::findEndpointDesc (uint8_t endpointId)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-createUsbInterfaceDesc (
+void
+initUsbInterfaceDesc (
 	Runtime* runtime,
+	UsbInterfaceDesc* dstDesc,
 	libusb_interface_descriptor* srcDesc
 	)
 {
-	DataPtr resultPtr = g_nullPtr;
+	Type* endpointDescType = UsbEndpointDesc::getType (runtime->getModule ());
+
+	dstDesc->m_nextAlternatePtr = g_nullPtr;
+	dstDesc->m_endpointTable = runtime->getGcHeap ()->allocateArray (endpointDescType, srcDesc->bNumEndpoints);
+	dstDesc->m_endpointCount = srcDesc->bNumEndpoints;
+
+	UsbEndpointDesc* dstEndpointDescTable = (UsbEndpointDesc*) dstDesc->m_endpointTable.m_p;
+	for (size_t i = 0; i < srcDesc->bNumEndpoints; i++)
+		initUsbEndpointDesc (&dstEndpointDescTable [i], &srcDesc->endpoint [i]);
+
+	dstDesc->m_interfaceId = srcDesc->bInterfaceNumber;
+	dstDesc->m_altSettingId = srcDesc->bAlternateSetting;
+	dstDesc->m_descriptionStringId = srcDesc->iInterface;
+	dstDesc->m_class = srcDesc->bInterfaceClass;
+	dstDesc->m_subClass = srcDesc->bInterfaceSubClass;
+	dstDesc->m_protocol = srcDesc->bInterfaceProtocol;
+}
+
+void
+initUsbInterfaceDesc (
+	Runtime* runtime,
+	UsbInterfaceDesc* dstDesc,
+	libusb_interface* srcDesc
+	)
+{
+	if (!srcDesc->num_altsetting)
+		return;
 
 	JNC_BEGIN_CALL_SITE (runtime)
 
-	resultPtr = createData <UsbInterfaceDesc> (runtime);
-	UsbInterfaceDesc* ifaceDesc = (UsbInterfaceDesc*) resultPtr.m_p;
+	initUsbInterfaceDesc (runtime, dstDesc, &srcDesc->altsetting [0]);
 
-	ifaceDesc->m_nextAlternatePtr;
-	ifaceDesc->m_endpointTable;
-	ifaceDesc->m_endpointCount;
-	ifaceDesc->m_interfaceId;
-	ifaceDesc->m_altSettingId;
-	ifaceDesc->m_descriptionStringId;
-	ifaceDesc->m_class;
-	ifaceDesc->m_subClass;
-	ifaceDesc->m_protocol;
+	UsbInterfaceDesc* prevDesc = dstDesc;
+	for (size_t i = 1; i < srcDesc->num_altsetting; i++)
+	{
+		DataPtr descPtr = createData <UsbInterfaceDesc> (runtime);
+		dstDesc = (UsbInterfaceDesc*) descPtr.m_p;
+		initUsbInterfaceDesc (runtime, dstDesc, &srcDesc->altsetting [i]);
+
+		prevDesc->m_nextAlternatePtr = descPtr;
+		prevDesc = dstDesc;
+	}
 
 	JNC_END_CALL_SITE ()
-
-	return resultPtr;
 }
 
 //..............................................................................
@@ -165,10 +179,35 @@ UsbConfigurationDesc::findInterfaceDesc (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void
+initUsbConfigurationDesc (
+	Runtime* runtime,
+	UsbConfigurationDesc* dstDesc,
+	libusb_config_descriptor* srcDesc
+	)
+{
+	JNC_BEGIN_CALL_SITE (runtime)
+
+	Type* ifaceDescType = UsbInterfaceDesc::getType (runtime->getModule ());
+	dstDesc->m_interfaceTable = runtime->getGcHeap ()->allocateArray (ifaceDescType, srcDesc->bNumInterfaces);
+	dstDesc->m_interfaceCount = srcDesc->bNumInterfaces;
+
+	UsbInterfaceDesc* dstInterfaceDescTable = (UsbInterfaceDesc*) dstDesc->m_interfaceTable.m_p;
+	for (size_t i = 0; i < srcDesc->bNumInterfaces; i++)
+		initUsbInterfaceDesc (runtime, &dstInterfaceDescTable [i], &srcDesc->interface [i]);
+
+	dstDesc->m_configurationId = srcDesc->bConfigurationValue;
+	dstDesc->m_descriptionStringId = srcDesc->iConfiguration;
+	dstDesc->m_attributes = srcDesc->bmAttributes;
+	dstDesc->m_maxPower = srcDesc->MaxPower;
+
+	JNC_END_CALL_SITE ()
+}
+
 DataPtr
 createUsbConfigurationDesc (
 	Runtime* runtime,
-	libusb_config_descriptor* srcDesc
+	const libusb_config_descriptor* srcDesc
 	)
 {
 	DataPtr resultPtr = g_nullPtr;
@@ -176,14 +215,8 @@ createUsbConfigurationDesc (
 	JNC_BEGIN_CALL_SITE (runtime)
 
 	resultPtr = createData <UsbConfigurationDesc> (runtime);
-	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*) resultPtr.m_p;
-
-	configDesc->m_interfaceTable;
-	configDesc->m_interfaceCount;
-	configDesc->m_configurationId;
-	configDesc->m_descriptionStringId;
-	configDesc->m_attributes;
-	configDesc->m_maxPower;
+	UsbConfigurationDesc* dstDesc = (UsbConfigurationDesc*) resultPtr.m_p;
+	initUsbConfigurationDesc (runtime, dstDesc, srcDesc);
 
 	JNC_END_CALL_SITE ()
 
@@ -195,7 +228,8 @@ createUsbConfigurationDesc (
 DataPtr
 createUsbDeviceDesc (
 	Runtime* runtime,
-	libusb_device_descriptor* srcDesc
+	libusb_device_descriptor* srcDesc,
+	axl::io::UsbDevice* srcDevice
 	)
 {
 	DataPtr resultPtr = g_nullPtr;
@@ -205,19 +239,28 @@ createUsbDeviceDesc (
 	resultPtr = createData <UsbDeviceDesc> (runtime);
 	UsbDeviceDesc* deviceDesc = (UsbDeviceDesc*) resultPtr.m_p;
 
-	deviceDesc->m_configurationTable;
-	deviceDesc->m_configurationCount;
+	Type* configDescType = UsbConfigurationDesc::getType (runtime->getModule ());
+	deviceDesc->m_configurationTable = runtime->getGcHeap ()->allocateArray (configDescType, srcDesc->bNumConfigurations);
+	deviceDesc->m_configurationCount = srcDesc->bNumConfigurations;
 
-	deviceDesc->m_usbVersion;
-	deviceDesc->m_deviceVersion;
-	deviceDesc->m_vendorId;
-	deviceDesc->m_productId;
-	deviceDesc->m_vendorStringId;
-	deviceDesc->m_productStringId;
-	deviceDesc->m_serialStringId;
-	deviceDesc->m_class;
-	deviceDesc->m_subClass;
-	deviceDesc->m_protocol;
+	UsbConfigurationDesc* dstConfigDescTable = (UsbConfigurationDesc*) deviceDesc->m_configurationTable.m_p;
+	for (size_t i = 0; i < srcDesc->bNumConfigurations; i++)
+	{
+		axl::io::UsbConfigDescriptor srcConfigDesc;
+		srcDevice->getConfigDescriptor (i, &srcConfigDesc);
+		initUsbConfigurationDesc (runtime, &dstConfigDescTable [i], srcConfigDesc);
+	}
+
+	deviceDesc->m_usbVersion = srcDesc->bcdUSB;
+	deviceDesc->m_deviceVersion = srcDesc->bcdDevice;
+	deviceDesc->m_vendorId = srcDesc->idVendor;
+	deviceDesc->m_productId = srcDesc->idProduct;
+	deviceDesc->m_vendorStringId = srcDesc->iManufacturer;
+	deviceDesc->m_productStringId = srcDesc->iProduct;
+	deviceDesc->m_serialStringId = srcDesc->iSerialNumber;
+	deviceDesc->m_class = srcDesc->bDeviceClass;
+	deviceDesc->m_subClass = srcDesc->bDeviceSubClass;
+	deviceDesc->m_protocol = srcDesc->bDeviceProtocol;
 
 	JNC_END_CALL_SITE ()
 

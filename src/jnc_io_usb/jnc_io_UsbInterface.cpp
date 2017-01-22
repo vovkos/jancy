@@ -86,6 +86,9 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 
 	JNC_END_CALL_SITE ()
 
+	if (endpointId & LIBUSB_ENDPOINT_IN)
+		endpoint->startRead ();
+
 	return endpoint;
 }
 
