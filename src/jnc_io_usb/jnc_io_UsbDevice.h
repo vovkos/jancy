@@ -86,16 +86,37 @@ public:
 
 	uint8_t
 	JNC_CDECL
-	getConfiguration ()
+	getConfigurationId ()
 	{
 		return m_isOpen ? m_device.getConfiguration () : 0;
 	}
 
 	bool
 	JNC_CDECL
-	setConfiguration (uint8_t configurationId)
+	setConfigurationId (uint8_t configurationId)
 	{
 		return m_isOpen ? m_device.setConfiguration (configurationId) : false;
+	}
+
+	uint8_t
+	JNC_CDECL
+	getBus ()
+	{
+		return m_device.getBusNumber ();
+	}
+
+	uint8_t
+	JNC_CDECL
+	getAddress ()
+	{
+		return m_device.getDeviceAddress ();
+	}
+
+	uint8_t
+	JNC_CDECL
+	getSpeed ()
+	{
+		return m_device.getDeviceSpeed ();
 	}
 
 	UsbInterface*
@@ -117,7 +138,7 @@ public:
 //..............................................................................
 
 DataPtr
-createUsbDeviceList (DataPtr countPtr);
+createUsbDeviceArray (DataPtr countPtr);
 
 UsbDevice*
 openUsbDevice (

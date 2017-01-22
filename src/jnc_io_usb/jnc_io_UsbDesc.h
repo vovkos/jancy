@@ -21,6 +21,14 @@ JNC_DECLARE_TYPE (UsbDeviceDesc)
 
 //..............................................................................
 
+DataPtr
+getUsbClassString (uint8_t cls);
+
+DataPtr
+getUsbSpeedString (libusb_speed speed);
+
+//..............................................................................
+
 struct UsbEndpointDesc
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (UsbEndpointDesc)

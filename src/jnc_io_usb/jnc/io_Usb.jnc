@@ -62,6 +62,23 @@ enum UsbClass: uint8_t
 	VendorSpec         = 0xff
 };
 
+enum UsbSpeed: uint8_t
+{
+	Unknown = 0,
+	Low     = 1,
+	Full    = 2,
+	High    = 3,
+	Super   = 4,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const*
+getUsbClassString (UsbClass cls);
+
+char const*
+getUsbSpeedString (UsbSpeed speed);
+
 //..............................................................................
 
 struct UsbEndpointDesc
@@ -84,11 +101,11 @@ struct UsbInterfaceDesc
 	UsbEndpointDesc const* m_endpointTable;
 	size_t m_endpointCount;
 
-	uint8_t m_interfaceId,
-	uint8_t m_altSettingId,
+	uint8_t m_interfaceId;
+	uint8_t m_altSettingId;
 	uint8_t m_descriptionStringId;
 	UsbClass m_class;
-	uint8_t m_subClass;
+	UsbSpeed m_subClass;
 	uint8_t m_protocol;
 }
 
@@ -197,6 +214,9 @@ opaque class UsbDevice
 	UsbDeviceDesc const* const property m_deviceDesc;
 	UsbConfigurationDesc const* const property m_activeConfigurationDesc;
 	uint8_t property m_configurationId;
+	uint8_t const property m_bus;
+	uint8_t const property m_address;
+	UsbSpeed const property m_speed;
 
 	bool readonly m_isOpen;
 
@@ -213,12 +233,12 @@ opaque class UsbDevice
 		uint8_t altSettingId = 0
 		);
 
-	char const* const property m_stringDesc (uint8_t stringId);
+	char const* errorcode getStringDesc (uint8_t stringId);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbDevice* const* errorcode createUsbDeviceList (size_t* count = null);
+UsbDevice* const* errorcode createUsbDeviceArray (size_t* count = null);
 
 UsbDevice* errorcode openUsbDevice (
 	uint_t vendorId,

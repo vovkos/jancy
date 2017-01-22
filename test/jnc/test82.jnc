@@ -1,7 +1,85 @@
 import "io_usb.jncx"
 
+printUsbIfaceDesc (io.UsbInterfaceDesc const* ifaceDesc)
+{
+/*	printf ("    Interface:   %d\n", ifaceDesc->bInterfaceNumber);
+	printf ("    Alt setting: %d\n", ifaceDesc->bAlternateSetting);
+	printf ("    Class:       %s\n", io::getUsbClassCodeString ((libusb_class_code) ifaceDesc->bInterfaceClass));
+	printf ("    Subclass:    %d\n", ifaceDesc->bInterfaceSubClass);
+	printf ("    Protocol:    %d\n", ifaceDesc->bInterfaceProtocol);
+	printf ("    Endpoints:   %d\n", ifaceDesc->bNumEndpoints);
+
+	for (size_t i = 0; i < ifaceDesc->bNumEndpoints; i++)
+	{
+		const libusb_endpoint_descriptor* endpointDesc = &ifaceDesc->endpoint [i];
+
+		printf ("\n");
+
+		printf ("      Endpoint:        0x%02x\n", endpointDesc->bEndpointAddress);
+		printf ("      Direction:       %s\n", (endpointDesc->bEndpointAddress & LIBUSB_ENDPOINT_IN) ? "In" : "Out");
+		printf ("      Type:            %s\n", io::getUsbTransferTypeString ((libusb_transfer_type) (endpointDesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK)));
+		printf ("      Max packet size: %d\n", endpointDesc->wMaxPacketSize);
+	} */
+}
+
+printUsbConfigurationDesc (io.UsbConfigurationDesc const* configDesc)
+{
+/*	printf ("  Configuration: %d\n", configDesc->bConfigurationValue);
+	printf ("  Max power:     %d mA\n", configDesc->MaxPower * 2);
+	printf ("  Interfaces:    %d\n", configDesc->bNumInterfaces);
+
+	for (size_t i = 0; i < configDesc->bNumInterfaces; i++)
+	{
+		const libusb_interface* iface = &configDesc->interface [i];
+
+		if (!iface->num_altsetting)
+		{
+			printf ("\n    Interface #%d is not configured\n", i);
+		}
+		else for (size_t j = 0; j < (size_t) iface->num_altsetting; j++)
+		{
+			printf ("\n");
+			printUsbIfaceDesc (&iface->altsetting [j]);
+		}
+	} */
+}
+
+printUsbDevice (io.UsbDevice* device)
+{
+	bool result;
+
+	io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+
+	printf ("Vendor:  %04x %s\n", deviceDesc.m_vendorId, try device.getStringDesc (deviceDesc.m_vendorStringId));
+	printf ("Product: %04x %s\n", deviceDesc.m_productId, try device.getStringDesc (deviceDesc.m_productStringId));
+	printf ("Class:   %02x/%02x (%s)\n", deviceDesc.m_class, deviceDesc.m_subClass, io.getUsbClassString (deviceDesc.m_class));
+	printf ("Serial:  %s\n", try device.getStringDesc (deviceDesc.m_serialStringId));
+	printf ("Bus:     %d\n", device.m_bus);
+	printf ("Address: %d\n", device.m_address);
+	printf ("Speed:   %s\n", io.getUsbSpeedString (device.m_speed));
+
+	printf ("Configs: %d\n", deviceDesc.m_configurationCount);
+
+	for (size_t i = 0; i < deviceDesc.m_configurationCount; i++)
+	{
+		printf ("\n");
+		printUsbConfigurationDesc (&deviceDesc.m_configurationTable [i]);
+	}
+}
+
 int main ()
 {
-	printf ("main ()\n");
+	printf ("Enumerating USB devices...\n");
+
+	size_t count;
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray (&count);
+	for (size_t i = 0; i < count; i++)
+	{
+		io.UsbDevice* device = deviceArray [i];
+		try device.open ();
+		printUsbDevice (device);
+		printf ("\n");
+	}
+
 	return 0;
 }

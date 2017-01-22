@@ -33,12 +33,16 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <UsbDevice>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbDevice>)
-	JNC_MAP_FUNCTION ("open",            &UsbDevice::open)
-	JNC_MAP_FUNCTION ("close",           &UsbDevice::close)
-	JNC_MAP_FUNCTION ("claimInteface",   &UsbDevice::claimInterface)
-	JNC_MAP_PROPERTY ("m_configuration", &UsbDevice::getConfiguration, &UsbDevice::setConfiguration)
+	JNC_MAP_FUNCTION ("open",              &UsbDevice::open)
+	JNC_MAP_FUNCTION ("close",             &UsbDevice::close)
+	JNC_MAP_FUNCTION ("claimInteface",     &UsbDevice::claimInterface)
+	JNC_MAP_FUNCTION ("getStringDesc",     &UsbDevice::getStringDesc)
+	JNC_MAP_CONST_PROPERTY ("m_deviceDesc",      &UsbDevice::getDeviceDesc)
 	JNC_MAP_CONST_PROPERTY ("m_activeConfigurationDesc", &UsbDevice::getActiveConfigurationDesc)
-	JNC_MAP_CONST_PROPERTY ("m_stringDesc", &UsbDevice::getStringDesc)
+	JNC_MAP_CONST_PROPERTY ("m_bus",       &UsbDevice::getBus)
+	JNC_MAP_CONST_PROPERTY ("m_address",   &UsbDevice::getAddress)
+	JNC_MAP_CONST_PROPERTY ("m_speed",     &UsbDevice::getSpeed)
+	JNC_MAP_PROPERTY ("m_configurationId", &UsbDevice::getConfigurationId, &UsbDevice::setConfigurationId)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -142,7 +146,7 @@ UsbDevice::getStringDesc (
 //..............................................................................
 
 DataPtr
-createUsbDeviceList (DataPtr countPtr)
+createUsbDeviceArray (DataPtr countPtr)
 {
 	axl::io::UsbDeviceList deviceList;
 	size_t count = deviceList.enumerateDevices ();

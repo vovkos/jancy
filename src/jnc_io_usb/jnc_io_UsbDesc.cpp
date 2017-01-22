@@ -66,6 +66,33 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
+DataPtr
+getUsbClassString (uint8_t cls)
+{
+	return jnc::strDup (axl::io::getUsbClassCodeString ((libusb_class_code) cls));
+}
+
+DataPtr
+getUsbSpeedString (libusb_speed speed)
+{
+	const char* stringTable [] =
+	{
+		"<unknown>",   // LIBUSB_SPEED_UNKNOWN = 0,
+		"low-speed",   // LIBUSB_SPEED_LOW     = 1,
+		"full-speed",  // LIBUSB_SPEED_FULL    = 2,
+		"full-speed",  // LIBUSB_SPEED_HIGH    = 3,
+		"super-speed", // LIBUSB_SPEED_SUPER   = 4,
+	};
+
+	const char* string = (uint_t) speed < countof (stringTable) ?
+		stringTable [(uint_t) speed] :
+		stringTable [0];
+
+	return jnc::strDup (string);
+}
+
+//..............................................................................
+
 void
 initUsbEndpointDesc (
 	UsbEndpointDesc* dstDesc,
@@ -104,7 +131,7 @@ void
 initUsbInterfaceDesc (
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
-	libusb_interface_descriptor* srcDesc
+	const libusb_interface_descriptor* srcDesc
 	)
 {
 	Type* endpointDescType = UsbEndpointDesc::getType (runtime->getModule ());
@@ -129,7 +156,7 @@ void
 initUsbInterfaceDesc (
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
-	libusb_interface* srcDesc
+	const libusb_interface* srcDesc
 	)
 {
 	if (!srcDesc->num_altsetting)
@@ -183,7 +210,7 @@ void
 initUsbConfigurationDesc (
 	Runtime* runtime,
 	UsbConfigurationDesc* dstDesc,
-	libusb_config_descriptor* srcDesc
+	const libusb_config_descriptor* srcDesc
 	)
 {
 	JNC_BEGIN_CALL_SITE (runtime)
@@ -228,7 +255,7 @@ createUsbConfigurationDesc (
 DataPtr
 createUsbDeviceDesc (
 	Runtime* runtime,
-	libusb_device_descriptor* srcDesc,
+	const libusb_device_descriptor* srcDesc,
 	axl::io::UsbDevice* srcDevice
 	)
 {

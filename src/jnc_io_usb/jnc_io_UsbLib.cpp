@@ -42,7 +42,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (UsbLib)
 	JNC_MAP_TYPE (UsbEndpoint)
 	JNC_MAP_TYPE (UsbInterface)
 	JNC_MAP_TYPE (UsbDevice)
-	JNC_MAP_FUNCTION ("io.createUsbDeviceList", &createUsbDeviceList)
+	JNC_MAP_FUNCTION ("io.getUsbClassString", &getUsbClassString)
+	JNC_MAP_FUNCTION ("io.getUsbSpeedString", &getUsbSpeedString)
+	JNC_MAP_FUNCTION ("io.createUsbDeviceArray", &createUsbDeviceArray)
 	JNC_MAP_FUNCTION ("io.openUsbDevice", &openUsbDevice)
 JNC_END_LIB_FUNCTION_MAP ()
 
@@ -58,7 +60,7 @@ JNC_EXPORT
 jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
-	g::getModule ()->setTag ("jnc_io_pcap");
+	g::getModule ()->setTag ("jnc_io_usb");
 	jnc_g_dynamicExtensionLibHost = host;
 
 	axl::io::createUsbDefaultContext ();
