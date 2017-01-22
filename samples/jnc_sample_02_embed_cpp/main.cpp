@@ -118,7 +118,7 @@ main (
 	}
 
 	jnc::Namespace* nspace = module->getGlobalNamespace ()->getNamespace ();
-	jnc::Function* mainFunction = nspace->findFunction ("main");
+	jnc::Function* mainFunction = nspace->findFunction ("main", true);
 	if (!mainFunction)
 	{
 		printf ("%s\n", jnc::getLastErrorDescription_v ());

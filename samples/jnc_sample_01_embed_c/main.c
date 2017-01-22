@@ -138,7 +138,7 @@ main (
 	}
 
 	nspace = jnc_ModuleItem_getNamespace ((jnc_ModuleItem*) jnc_Module_getGlobalNamespace (module));
-	function = jnc_Namespace_findFunction (nspace, "main");
+	function = jnc_Namespace_findFunction (nspace, "main", 1);
 	if (!function)
 	{
 		printf ("%s\n", jnc_getLastErrorDescription_v ());
