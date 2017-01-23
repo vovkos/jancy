@@ -29,6 +29,7 @@ public:
 
 protected:
 	bool m_isOpen;
+	bool m_isAutoDetachKernelDriverEnabled;
 
 protected:
 	axl::io::UsbDevice m_device;
@@ -37,6 +38,7 @@ public:
 	UsbDevice ()
 	{
 		m_isOpen = false;
+		m_isAutoDetachKernelDriverEnabled = false;
 	}
 
 	~UsbDevice ()
@@ -59,6 +61,7 @@ public:
 	void
 	takeOver (axl::io::UsbDevice* srcDevice)
 	{
+		m_isOpen = srcDevice->isOpen ();
 		m_device.takeOver (srcDevice);
 	}
 
@@ -118,6 +121,25 @@ public:
 	{
 		return m_device.getDeviceSpeed ();
 	}
+
+	bool
+	JNC_CDECL
+	setAutoDetachKernelDriverEnabled (bool isEnabled);
+
+	bool
+	JNC_CDECL
+	isKernelDriverActive (uint_t interfaceId)
+	{
+		return m_device.isKernelDriverActive (interfaceId);
+	}
+
+	bool
+	JNC_CDECL
+	attachKernelDriver (uint_t interfaceId);
+
+	bool
+	JNC_CDECL
+	detachKernelDriver (uint_t interfaceId);
 
 	UsbInterface*
 	JNC_CDECL

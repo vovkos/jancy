@@ -176,6 +176,13 @@ include_directories (
 	${GEN_DIR}
 	)
 
+if (LIBUSB_FOUND)
+	include_directories (${LIBUSB_INC_DIR})
+	link_directories (${LIBUSB_LIB_DIR})
+
+	add_definitions (-D_JNC_IO_USB=1)
+endif ()
+
 link_directories (
 	${AXL_LIB_DIR}
 	${LLVM_LIB_DIR}
@@ -232,6 +239,20 @@ elseif (UNIX AND NOT APPLE)
 		jnc_test_qt
 		rt
 		)
+endif ()
+
+if (LIBUSB_FOUND)
+	if (WIN32)
+		target_link_libraries (
+			jnc_test_qt
+			libusb-1.0
+			)
+	else ()
+		target_link_libraries (
+			jnc_test_qt
+			usb-1.0
+			)
+	endif ()
 endif ()
 
 qt5_use_modules (jnc_test_qt Widgets)

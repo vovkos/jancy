@@ -33,16 +33,20 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <UsbDevice>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbDevice>)
-	JNC_MAP_FUNCTION ("open",              &UsbDevice::open)
-	JNC_MAP_FUNCTION ("close",             &UsbDevice::close)
-	JNC_MAP_FUNCTION ("claimInteface",     &UsbDevice::claimInterface)
-	JNC_MAP_FUNCTION ("getStringDesc",     &UsbDevice::getStringDesc)
-	JNC_MAP_CONST_PROPERTY ("m_deviceDesc",      &UsbDevice::getDeviceDesc)
+	JNC_MAP_FUNCTION ("open",               &UsbDevice::open)
+	JNC_MAP_FUNCTION ("close",              &UsbDevice::close)
+	JNC_MAP_FUNCTION ("attachKernelDriver", &UsbDevice::attachKernelDriver)
+	JNC_MAP_FUNCTION ("detachKernelDriver", &UsbDevice::detachKernelDriver)
+	JNC_MAP_FUNCTION ("claimInterface",     &UsbDevice::claimInterface)
+	JNC_MAP_FUNCTION ("getStringDesc",      &UsbDevice::getStringDesc)
+	JNC_MAP_AUTOGET_PROPERTY ("m_isAutoDetachKernelDriverEnabled", &UsbDevice::setAutoDetachKernelDriverEnabled)
+	JNC_MAP_CONST_PROPERTY ("m_isKernelDriverActive", &UsbDevice::isKernelDriverActive)
+	JNC_MAP_CONST_PROPERTY ("m_deviceDesc", &UsbDevice::getDeviceDesc)
 	JNC_MAP_CONST_PROPERTY ("m_activeConfigurationDesc", &UsbDevice::getActiveConfigurationDesc)
-	JNC_MAP_CONST_PROPERTY ("m_bus",       &UsbDevice::getBus)
-	JNC_MAP_CONST_PROPERTY ("m_address",   &UsbDevice::getAddress)
-	JNC_MAP_CONST_PROPERTY ("m_speed",     &UsbDevice::getSpeed)
-	JNC_MAP_PROPERTY ("m_configurationId", &UsbDevice::getConfigurationId, &UsbDevice::setConfigurationId)
+	JNC_MAP_CONST_PROPERTY ("m_bus",        &UsbDevice::getBus)
+	JNC_MAP_CONST_PROPERTY ("m_address",    &UsbDevice::getAddress)
+	JNC_MAP_CONST_PROPERTY ("m_speed",      &UsbDevice::getSpeed)
+	JNC_MAP_PROPERTY ("m_configurationId",  &UsbDevice::getConfigurationId, &UsbDevice::setConfigurationId)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -53,7 +57,10 @@ UsbDevice::open ()
 {
 	bool result = m_device.open ();
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return false;
+	}
 
 	m_isOpen = true;
 	return true;
@@ -67,7 +74,10 @@ UsbDevice::getDeviceDesc (UsbDevice* self)
 
 	bool result = self->m_device.getDeviceDescriptor (&desc);
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return g_nullPtr;
+	}
 
 	return createUsbDeviceDesc (getCurrentThreadRuntime (), &desc, &self->m_device);
 }
@@ -80,9 +90,45 @@ UsbDevice::getActiveConfigurationDesc (UsbDevice* self)
 
 	bool result = self->m_device.getActiveConfigDescriptor (&desc);
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return g_nullPtr;
+	}
 
 	return createUsbConfigurationDesc (getCurrentThreadRuntime (), desc);
+}
+
+bool
+JNC_CDECL
+UsbDevice::setAutoDetachKernelDriverEnabled (bool isEnabled)
+{
+	bool result = m_device.setAutoDetachKernelDriver (isEnabled);
+	if (!result)
+		jnc::propagateLastError ();
+
+	return result;
+}
+
+bool
+JNC_CDECL
+UsbDevice::attachKernelDriver (uint_t interfaceId)
+{
+	bool result = m_device.attachKernelDriver (interfaceId);
+	if (!result)
+		jnc::propagateLastError ();
+
+	return result;
+}
+
+bool
+JNC_CDECL
+UsbDevice::detachKernelDriver (uint_t interfaceId)
+{
+	bool result = m_device.detachKernelDriver (interfaceId);
+	if (!result)
+		jnc::propagateLastError ();
+
+	return result;
 }
 
 UsbInterface*
@@ -93,11 +139,17 @@ UsbDevice::claimInterface (
 	)
 {
 	if (!m_isOpen)
+	{
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
 		return NULL;
+	}
 
 	bool result = m_device.claimInterface (interfaceId);
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return NULL;
+	}
 
 	Runtime* runtime = getCurrentThreadRuntime ();
 	UsbInterface* iface = NULL;
@@ -108,7 +160,11 @@ UsbDevice::claimInterface (
 	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*) configDescPtr.m_p;
 	UsbInterfaceDesc* ifaceDesc = configDesc->findInterfaceDesc (interfaceId, altSettingId);
 
-	if (ifaceDesc)
+	if (!ifaceDesc)
+	{
+		err::setError (err::SystemErrorCode_ObjectNameNotFound);
+	}
+	else
 	{
 		iface = createClass <UsbInterface> (runtime);
 		iface->m_parentDevice = this;
@@ -126,6 +182,9 @@ UsbDevice::claimInterface (
 
 	JNC_END_CALL_SITE ()
 
+	if (!iface)
+		jnc::propagateLastError ();
+
 	return iface;
 }
 
@@ -137,7 +196,11 @@ UsbDevice::getStringDesc (
 	)
 {
 	if (!self->m_isOpen)
+	{
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		jnc::propagateLastError ();
 		return g_nullPtr;
+	}
 
 	sl::String string = self->m_device.getStringDesrciptor (stringId);
 	return strDup (string, string.getLength ());
@@ -186,7 +249,10 @@ openUsbDevice (
 	axl::io::UsbDevice srcDevice;
 	bool result = srcDevice.open (vendorId, productId);
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return NULL;
+	}
 
 	UsbDevice* device = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();

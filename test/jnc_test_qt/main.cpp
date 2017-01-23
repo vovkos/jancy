@@ -21,11 +21,15 @@ int main (int argc, char* argv [])
 	WSAStartup (0x0202, &WsaData);
 #endif
 
-#if _AXL_OS_POSIX
+#if (_AXL_OS_POSIX)
 	setvbuf (stdout, NULL, _IOLBF, 1024);
 #endif
 
 	jnc::initialize ("jnc_test_qt");
+
+#if (_JNC_IO_USB)
+	io::registerUsbErrorProvider ();
+#endif
 
 	srand ((int) sys::getTimestamp ());
 

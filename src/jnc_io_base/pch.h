@@ -11,9 +11,6 @@
 
 #pragma once
 
-#include "jnc_ExtensionLib.h"
-#include "jnc_CallSite.h"
-
 #include "axl_io_Serial.h"
 #include "axl_io_Socket.h"
 #include "axl_io_NetworkAdapter.h"
@@ -35,6 +32,9 @@
 #endif
 
 using namespace axl;
+
+#include "jnc_ExtensionLib.h"
+#include "jnc_CallSite.h"
 
 #if (_AXL_OS_WIN)
 #	pragma comment (lib, "setupapi.lib")

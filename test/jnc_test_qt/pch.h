@@ -46,6 +46,10 @@
 #include "axl_io_SockAddr.h"
 #include "axl_sys_Time.h"
 
+#if (_JNC_IO_USB)
+#	include "axl_io_UsbError.h"
+#endif
+
 using namespace axl;
 
 // Jancy

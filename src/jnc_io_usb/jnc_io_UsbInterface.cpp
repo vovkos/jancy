@@ -68,17 +68,21 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*) m_interfaceDescPtr.m_p;
 	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc (endpointId);
 	if (!endpointDesc)
+	{
+		err::setError (err::SystemErrorCode_ObjectNameNotFound);
+		jnc::propagateLastError ();
 		return NULL;
+	}
 
 	UsbEndpoint* endpoint = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();
 
 	JNC_BEGIN_CALL_SITE (runtime)
-	UsbEndpoint* endpoint = createClass <UsbEndpoint> (runtime);
+	endpoint = createClass <UsbEndpoint> (runtime);
 	endpoint->m_parentInterface = this;
 	endpoint->m_endpointDescPtr.m_p = endpointDesc;
 
-	endpoint->m_endpointDescPtr.m_p = runtime->getGcHeap ()->createDataPtrValidator (
+	endpoint->m_endpointDescPtr.m_validator = runtime->getGcHeap ()->createDataPtrValidator (
 		m_interfaceDescPtr.m_validator->m_targetBox,
 		endpointDesc,
 		sizeof (UsbEndpointDesc)
@@ -86,7 +90,9 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 
 	JNC_END_CALL_SITE ()
 
-	if (endpointId & LIBUSB_ENDPOINT_IN)
+	if (!endpoint)
+		jnc::propagateLastError ();
+	else if (endpointId & LIBUSB_ENDPOINT_IN)
 		endpoint->startRead ();
 
 	return endpoint;

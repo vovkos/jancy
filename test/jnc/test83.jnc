@@ -1,0 +1,41 @@
+import "io_usb.jncx"
+
+onUsbEndpointEvent (
+	io.UsbEndpoint* endpoint,
+	io.UsbEndpointEventParams const* params
+	)
+{
+	switch (params.m_eventCode)
+	{
+	case io.UsbEndpointEventCode.ReadyRead:
+		static char buffer [1024];
+		size_t size = endpoint.read (buffer, sizeof (buffer));
+		printf ("  %d bytes read from the endpoint\n", size);
+		break;
+
+	default:
+		printf ("onUsbEndpointEvent: %d\n", params.m_eventCode);
+	}
+}
+
+int main ()
+{
+	printf ("Opening USB mouse...\n");
+	io.UsbDevice* device = io.openUsbDevice (0x046d, 0xc246);
+	device.m_isAutoDetachKernelDriverEnabled = true;
+
+	printf ("Claiming interface #0...\n");
+	io.UsbInterface* iface = device.claimInterface (0);
+
+	printf ("Opening IN endpoint #81...\n");
+	io.UsbEndpoint* endpoint = iface.openEndpoint (0x81);
+	endpoint.m_onEndpointEvent += onUsbEndpointEvent ~(endpoint);
+	endpoint.m_isEndpointEventEnabled = true;
+
+	printf ("Staying resident...\n");
+	return -1000;
+
+catch:
+	printf ($"Error: $!\n");
+	return -1;
+}

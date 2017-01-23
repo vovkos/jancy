@@ -23,13 +23,13 @@ namespace io {
 //..............................................................................
 
 JNC_DEFINE_TYPE (
-	UsbEventParams,
-	"io.UsbEventParams",
+	UsbEndpointEventParams,
+	"io.UsbEndpointEventParams",
 	g_usbLibGuid,
-	UsbLibCacheSlot_UsbEventParams
+	UsbLibCacheSlot_UsbEndpointEventParams
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (UsbEventParams)
+JNC_BEGIN_TYPE_FUNCTION_MAP (UsbEndpointEventParams)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,6 +56,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 UsbEndpoint::UsbEndpoint ()
 {
+	m_runtime = getCurrentThreadRuntime ();
 	m_isOpen = true;
 	m_syncId = 0;
 	m_ioFlags = IoFlag_EndpointEventDisabled;
@@ -65,7 +66,7 @@ UsbEndpoint::UsbEndpoint ()
 
 void
 UsbEndpoint::fireEndpointEvent (
-	UsbEventCode eventCode,
+	UsbEndpointEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
@@ -87,22 +88,21 @@ UsbEndpoint::fireEndpointEvent (
 
 void
 UsbEndpoint::fireEndpointEventImpl (
-	UsbEventCode eventCode,
+	UsbEndpointEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	JNC_BEGIN_CALL_SITE (runtime);
+	JNC_BEGIN_CALL_SITE (m_runtime);
 
-	DataPtr paramsPtr = createData <UsbEventParams> (runtime);
-	UsbEventParams* params = (UsbEventParams*) paramsPtr.m_p;
+	DataPtr paramsPtr = createData <UsbEndpointEventParams> (m_runtime);
+	UsbEndpointEventParams* params = (UsbEndpointEventParams*) paramsPtr.m_p;
 	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
 
 	if (error)
 		params->m_errorPtr = memDup (error, error->m_size);
 
-	callMulticast (runtime, m_onEndpointEvent, paramsPtr);
+	callMulticast (m_runtime, m_onEndpointEvent, paramsPtr);
 
 	JNC_END_CALL_SITE ();
 }
@@ -171,7 +171,10 @@ UsbEndpoint::startRead ()
 		m_readBuffer.setCount (desc->m_maxPacketSize);
 
 	if (!result)
+	{
+		jnc::propagateLastError ();
 		return false;
+	}
 
 	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice ();
 	switch (desc->m_transferType)
@@ -205,11 +208,16 @@ UsbEndpoint::startRead ()
 
 	default:
 		err::setError (err::SystemErrorCode_NotImplemented);
+		jnc::propagateLastError ();
 		return false;
 	}
 
 	m_ioLock.lock ();
-	return nextReadTransfer_l ();
+	result = nextReadTransfer_l ();
+	if (!result)
+		jnc::propagateLastError ();
+
+	return result;
 }
 
 size_t
@@ -223,6 +231,7 @@ UsbEndpoint::read (
 	if (!(desc->m_endpointId & LIBUSB_ENDPOINT_IN))
 	{
 		err::setError ("Cannot read from a USB OUT-endpoint");
+		jnc::propagateLastError ();
 		return -1;
 	}
 
@@ -258,7 +267,10 @@ UsbEndpoint::read (
 	gcHeap->leaveWaitRegion ();
 
 	if (read.m_result == -1)
+	{
 		setError (read.m_error);
+		jnc::propagateLastError ();
+	}
 
 	return read.m_result;
 }
@@ -274,6 +286,7 @@ UsbEndpoint::write (
 	if (desc->m_endpointId & LIBUSB_ENDPOINT_IN)
 	{
 		err::setError ("Cannot write to a USB IN-endpoint");
+		jnc::propagateLastError ();
 		return -1;
 	}
 
@@ -285,14 +298,20 @@ UsbEndpoint::write (
 	{
 		size_t result = writePacket (p, desc->m_maxPacketSize);
 		if (result == -1)
+		{
+			jnc::propagateLastError ();
 			return -1;
+		}
 	}
 
 	if (lastPacketSize)
 	{
 		size_t result = writePacket (p, lastPacketSize);
 		if (result == -1)
+		{
+			jnc::propagateLastError ();
 			return -1;
+		}
 	}
 
 	return size;\
@@ -374,7 +393,7 @@ UsbEndpoint::onReadTransferCompleted (libusb_transfer* transfer)
 	}
 
 	if (result)
-		self->fireEndpointEvent (UsbEventCode_ReadyRead);
+		self->fireEndpointEvent (UsbEndpointEventCode_ReadyRead);
 }
 
 //..............................................................................

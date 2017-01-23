@@ -16,24 +16,24 @@ namespace io {
 
 class UsbInterface;
 
-JNC_DECLARE_TYPE (UsbEventParams)
+JNC_DECLARE_TYPE (UsbEndpointEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbEndpoint)
 
 //..............................................................................
 
-enum UsbEventCode
+enum UsbEndpointEventCode
 {
-	UsbEventCode_ReadyRead = 0,
-	UsbEventCode_IoError,
+	UsbEndpointEventCode_ReadyRead = 0,
+	UsbEndpointEventCode_IoError,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UsbEventParams
+struct UsbEndpointEventParams
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (UsbEventParams)
+	JNC_DECLARE_TYPE_STATIC_METHODS (UsbEndpointEventParams)
 
-	UsbEventCode m_eventCode;
+	UsbEndpointEventCode m_eventCode;
 	uint_t m_syncId;
 	DataPtr m_errorPtr;
 };
@@ -73,7 +73,7 @@ protected:
 
 	struct PendingEvent: sl::ListLink
 	{
-		UsbEventCode m_eventCode;
+		UsbEndpointEventCode m_eventCode;
 		err::Error m_error;
 	};
 
@@ -86,6 +86,8 @@ public:
 	ClassBox <Multicast> m_onEndpointEvent;
 
 protected:
+	Runtime* m_runtime;
+
 	sys::Lock m_ioLock;
 	uint_t m_ioFlags;
 	sl::AuxList <Read> m_readList;
@@ -139,13 +141,13 @@ public:
 protected:
 	void
 	fireEndpointEvent (
-		UsbEventCode eventCode,
+		UsbEndpointEventCode eventCode,
 		const err::ErrorHdr* error = NULL
 		);
 
 	void
 	fireEndpointEventImpl (
-		UsbEventCode eventCode,
+		UsbEndpointEventCode eventCode,
 		const err::ErrorHdr* error
 		);
 

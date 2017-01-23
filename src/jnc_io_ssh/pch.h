@@ -11,9 +11,6 @@
 
 #pragma once
 
-#include "jnc_ExtensionLib.h"
-#include "jnc_CallSite.h"
-
 #include "axl_sys_Thread.h"
 #include "axl_sys_Event.h"
 #include "axl_sys_Time.h"
@@ -26,6 +23,9 @@
 #endif
 
 using namespace axl;
+
+#include "jnc_ExtensionLib.h"
+#include "jnc_CallSite.h"
 
 #ifndef ssize_t
 #	define ssize_t intptr_t

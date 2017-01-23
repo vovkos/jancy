@@ -75,7 +75,7 @@ source_group (
 #
 
 include_directories (
-	${USB_INC_DIR}
+	${LIBUSB_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	)

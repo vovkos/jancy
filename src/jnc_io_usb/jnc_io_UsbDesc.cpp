@@ -134,10 +134,9 @@ initUsbEndpointDesc (
 UsbEndpointDesc*
 UsbInterfaceDesc::findEndpointDesc (uint8_t endpointId)
 {
-	DataPtr* ptrArray = (DataPtr*) m_endpointTable.m_p;
 	for (size_t i = 0; i < m_endpointCount; i++)
 	{
-		UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*) ptrArray [i].m_p;
+		UsbEndpointDesc* endpointDesc = &((UsbEndpointDesc*) m_endpointTable.m_p) [i];
 		if (endpointDesc->m_endpointId == endpointId)
 			return endpointDesc;
 	}
@@ -211,8 +210,7 @@ UsbConfigurationDesc::findInterfaceDesc (
 	if (interfaceId >= m_interfaceCount)
 		return NULL;
 
-	DataPtr ifaceDescPtr = ((DataPtr*) m_interfaceTable.m_p) [interfaceId];
-	UsbInterfaceDesc* ifaceDesc = (UsbInterfaceDesc*) ifaceDescPtr.m_p;
+	UsbInterfaceDesc* ifaceDesc = &((UsbInterfaceDesc*) m_interfaceTable.m_p) [interfaceId];
 	for (size_t i = 0; i < altSettingId; i++)
 	{
 		if (!ifaceDesc->m_nextAltSettingInterfacePtr.m_p)
