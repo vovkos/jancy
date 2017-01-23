@@ -132,6 +132,20 @@ jnc_getCurrentThreadRuntime ()
 }
 
 JNC_EXTERN_C
+jnc_Tls*
+jnc_getCurrentThreadTls ()
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getCurrentThreadTlsFunc ();
+}
+
+JNC_EXTERN_C
+void
+jnc_dynamicThrow ()
+{
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_dynamicThrowFunc ();
+}
+
+JNC_EXTERN_C
 void
 jnc_primeClass (
 	jnc_Box* box,

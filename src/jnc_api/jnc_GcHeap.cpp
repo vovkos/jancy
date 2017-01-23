@@ -223,6 +223,12 @@ jnc_GcHeap_markClass (
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_markClassFunc (gcHeap, box);
 }
 
+void
+jnc_GcHeap_addBoxToCallSite (jnc_Box* box)
+{
+	jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_addBoxToCallSiteFunc (box);
+}
+
 #	if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int
@@ -234,6 +240,7 @@ jnc_GcHeap_handleGcSehException (
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_handleGcSehExceptionFunc (code, exceptionPointers);
 }
 #	endif // _JNC_OS_WIN
+
 #else     // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
@@ -497,6 +504,13 @@ jnc_GcHeap_addRoot (
 	gcHeap->addRoot (p, type);
 }
 
+void
+jnc_GcHeap_addBoxToCallSite (jnc_Box* box)
+{
+	bool result = jnc::rt::GcHeap::addBoxIfDynamicFrame (box);
+	ASSERT (result);
+}
+
 #if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int
@@ -508,6 +522,7 @@ jnc_GcHeap_handleGcSehException (
 	return jnc::rt::GcHeap::handleSehException (code, exceptionPointers);
 }
 #	endif // _JNC_OS_WIN
+
 #endif    // _JNC_DYNAMIC_EXTENSION_LIB
 
 //..............................................................................

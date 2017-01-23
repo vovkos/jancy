@@ -25,7 +25,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_Error*
+const jnc_Error*
 jnc_getLastError ()
 {
 	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getLastErrorFunc ();
@@ -33,7 +33,7 @@ jnc_getLastError ()
 
 JNC_EXTERN_C
 void
-jnc_setError (jnc_Error* error)
+jnc_setError (const jnc_Error* error)
 {
 	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setErrorFunc (error);
 }
@@ -54,7 +54,7 @@ jnc_setStringError (const char* string)
 
 JNC_EXTERN_C
 const char*
-jnc_getErrorDescription_v (jnc_Error* error)
+jnc_getErrorDescription_v (const jnc_Error* error)
 {
 	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getErrorDescriptionFunc (error);
 }
@@ -62,7 +62,7 @@ jnc_getErrorDescription_v (jnc_Error* error)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-jnc_Error*
+const jnc_Error*
 jnc_getLastError ()
 {
 	return err::getLastError ();
@@ -70,7 +70,7 @@ jnc_getLastError ()
 
 JNC_EXTERN_C
 void
-jnc_setError (jnc_Error* error)
+jnc_setError (const jnc_Error* error)
 {
 	err::setError (error);
 }
@@ -91,7 +91,7 @@ jnc_setStringError (const char* string)
 
 JNC_EXTERN_C
 const char*
-jnc_getErrorDescription_v (jnc_Error* error)
+jnc_getErrorDescription_v (const jnc_Error* error)
 {
 	return *jnc::getTlsStringBuffer () = error->getDescription ();
 }

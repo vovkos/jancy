@@ -87,7 +87,7 @@ class GcHeap;
 
 typedef axl::sl::ListLink jnc_ListLink;
 typedef axl::sl::Guid jnc_Guid;
-typedef const axl::err::ErrorHdr jnc_Error;
+typedef axl::err::ErrorHdr jnc_Error;
 typedef jnc::ct::ModuleItemDecl jnc_ModuleItemDecl;
 typedef jnc::ct::ModuleItem jnc_ModuleItem;
 typedef jnc::ct::Attribute jnc_Attribute;
@@ -139,7 +139,6 @@ getTlsStringBuffer ();
 
 #else // _JNC_CORE
 
-typedef struct jnc_Error jnc_Error;
 typedef struct jnc_ModuleItemDecl jnc_ModuleItemDecl;
 typedef struct jnc_ModuleItem jnc_ModuleItem;
 typedef struct jnc_Attribute jnc_Attribute;
@@ -180,10 +179,14 @@ typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+#	ifdef _AXL_ERR_ERROR_H
+typedef axl::err::ErrorHdr jnc_Error;
+#else
+typedef struct jnc_Error jnc_Error;
+#endif
+
 #	ifdef _AXL_SL_LISTBASE_H
-
 typedef axl::sl::ListLink jnc_ListLink;
-
 #	else // _AXL_SL_LISTBASE_H
 
 typedef struct jnc_ListLink jnc_ListLink;

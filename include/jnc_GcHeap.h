@@ -264,6 +264,10 @@ jnc_GcHeap_addRoot (
 	jnc_Type* type
 	);
 
+JNC_EXTERN_C
+void
+jnc_GcHeap_addBoxToCallSite (jnc_Box* box);
+
 #if (_JNC_OS_WIN)
 JNC_EXTERN_C
 int
@@ -459,6 +463,13 @@ struct jnc_GcHeap
 		)
 	{
 		jnc_GcHeap_addRoot (this, p, type);
+	}
+
+	static
+	void
+	addBoxToCallSite (jnc_Box* box)
+	{
+		jnc_GcHeap_addBoxToCallSite (box);
 	}
 
 #	if (_JNC_OS_WIN)

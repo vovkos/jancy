@@ -24,12 +24,12 @@
 // Error
 
 typedef
-jnc_Error*
+const jnc_Error*
 jnc_GetLastErrorFunc ();
 
 typedef
 void
-jnc_SetErrorFunc (jnc_Error* error);
+jnc_SetErrorFunc (const jnc_Error* error);
 
 typedef
 void
@@ -41,7 +41,7 @@ jnc_SetStringErrorFunc (const char* string);
 
 typedef
 const char*
-jnc_GetErrorDescriptionFunc (jnc_Error* error);
+jnc_GetErrorDescriptionFunc (const jnc_Error* error);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -1067,6 +1067,14 @@ jnc_Runtime*
 jnc_GetCurrentThreadRuntimeFunc ();
 
 typedef
+jnc_Tls*
+jnc_GetCurrentThreadTlsFunc ();
+
+typedef
+void
+jnc_DynamicThrowFunc ();
+
+typedef
 void
 jnc_PrimeClassFunc (
 	jnc_Box* box,
@@ -1110,6 +1118,8 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_SetSjljFrameFunc* m_setSjljFrameFunc;
 	jnc_Runtime_CheckStackOverflowFunc* m_checkStackOverflowFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
+	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
+	jnc_DynamicThrowFunc* m_dynamicThrowFunc;
 	jnc_PrimeClassFunc* m_primeClassFunc;
 	jnc_StrLenFunc* m_strLenFunc;
 	jnc_StrDupFunc* m_strDupFunc;
@@ -1227,6 +1237,10 @@ jnc_GcHeap_MarkClassFunc (
 	jnc_Box* box
 	);
 
+typedef
+void
+jnc_GcHeap_AddBoxToCallSiteFunc (jnc_Box* box);
+
 #if (_JNC_OS_WIN)
 typedef
 int
@@ -1261,6 +1275,7 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;
+	jnc_GcHeap_AddBoxToCallSiteFunc* m_addBoxToCallSiteFunc;
 #if (_JNC_OS_WIN)
 	jnc_GcHeap_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
 #endif // _JNC_OS_WIN

@@ -286,6 +286,8 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_Runtime_setSjljFrame,
 	jnc_Runtime_checkStackOverflow,
 	jnc_getCurrentThreadRuntime,
+	jnc_getCurrentThreadTls,
+	jnc_dynamicThrow,
 	jnc_primeClass,
 	jnc_strLen,
 	jnc_strDup,
@@ -315,6 +317,7 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 	jnc_GcHeap_weakMark,
 	jnc_GcHeap_markData,
 	jnc_GcHeap_markClass,
+	jnc_GcHeap_addBoxToCallSite,
 #if (_JNC_OS_WIN)
 	jnc_GcHeap_handleGcSehException,
 #endif // _JNC_OS_WIN

@@ -215,7 +215,7 @@ GcHeap::incrementAllocSizeAndLock (size_t size)
 	}
 }
 
-void
+bool
 GcHeap::addBoxIfDynamicFrame (Box* box)
 {
 	Tls* tls = rt::getCurrentThreadTls ();
@@ -225,8 +225,11 @@ GcHeap::addBoxIfDynamicFrame (Box* box)
 	ASSERT (tlsVariableTable->m_gcShadowStackTop);
 
 	GcShadowStackFrameMap* map = tlsVariableTable->m_gcShadowStackTop->m_map;
-	if (map && map->getMapKind () == ct::GcShadowStackFrameMapKind_Dynamic)
-		map->addBox (box);
+	if (!map || map->getMapKind () != ct::GcShadowStackFrameMapKind_Dynamic)
+		return false;
+
+	map->addBox (box);
+	return false;
 }
 
 // allocation methods
@@ -1334,7 +1337,8 @@ GcHeap::runDestructCycle_l ()
 {
 	while (!m_dynamicDestructArray.isEmpty ())
 	{
-		IfaceHdr* iface = m_dynamicDestructArray [0];
+		size_t i = m_dynamicDestructArray.getCount () - 1;
+		IfaceHdr* iface = m_dynamicDestructArray [i];
 		m_lock.unlock ();
 
 		ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
@@ -1345,14 +1349,14 @@ GcHeap::runDestructCycle_l ()
 		if (!result)
 		{
 			TRACE (
-				"runtime error in %s.destruct () : %s\n",
+				"-- WARNING: runtime error in %s.destruct (): %s\n",
 				classType->m_tag.sz (),
 				err::getLastErrorDescription ().sz ()
 				);
 		}
 
 		waitIdleAndLock ();
-		m_dynamicDestructArray.remove (0);
+		m_dynamicDestructArray.remove (i);
 	}
 }
 

@@ -41,14 +41,14 @@
 /// Returns a pointer to the last error set in the context of the current thread.
 
 JNC_EXTERN_C
-jnc_Error*
+const jnc_Error*
 jnc_getLastError ();
 
 /// Sets ``error`` as the last error of the current thread.
 
 JNC_EXTERN_C
 void
-jnc_setError (jnc_Error* error);
+jnc_setError (const jnc_Error* error);
 
 /// Sets POSIX ``errno`` error as the last error of the current thread.
 
@@ -73,7 +73,7 @@ jnc_setStringError (const char* string);
 
 	.. code-block:: cpp
 
-		jnc_Error* error = jnc_getLastError ();
+		const jnc_Error* error = jnc_getLastError ();
 		printf ("error: %s\n", jnc_getErrorDescription_v ());
 
 	\endverbatim
@@ -81,7 +81,7 @@ jnc_setStringError (const char* string);
 
 JNC_EXTERN_C
 const char*
-jnc_getErrorDescription_v (jnc_Error* error);
+jnc_getErrorDescription_v (const jnc_Error* error);
 
 /*!
 	\verbatim
@@ -111,7 +111,7 @@ JNC_INLINE
 void
 jnc_propagateLastError ()
 {
-	jnc_setError ((jnc_Error*) axl::err::getLastError ().cp ());
+	jnc_setError (axl::err::getLastError ());
 }
 #endif
 
@@ -124,7 +124,7 @@ namespace jnc {
 //..............................................................................
 
 inline
-jnc_Error*
+const jnc_Error*
 getLastError ()
 {
 	return jnc_getLastError ();
@@ -132,7 +132,7 @@ getLastError ()
 
 inline
 void
-setError (jnc_Error* error)
+setError (const jnc_Error* error)
 {
 	jnc_setError (error);
 }
@@ -153,7 +153,7 @@ setStringError (const char* string)
 
 inline
 const char*
-getErrorDescription_v (jnc_Error* error)
+getErrorDescription_v (const jnc_Error* error)
 {
 	return jnc_getErrorDescription_v (error);
 }

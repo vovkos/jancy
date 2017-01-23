@@ -305,6 +305,10 @@ public:
 		);
 #endif
 
+	static
+	bool
+	addBoxIfDynamicFrame (Box* box);
+
 protected:
 	void
 	destructThreadFunc ();
@@ -323,10 +327,7 @@ protected:
 
 	void
 	incrementAllocSize_l (size_t size);
-	
-	void
-	addBoxIfDynamicFrame (Box* box);
-	
+
 	void
 	collect_l (bool isMutatorThread);
 

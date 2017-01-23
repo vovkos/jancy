@@ -104,7 +104,7 @@ Runtime::initializeCallSite (jnc_CallSite* callSite)
 	callSite->m_gcShadowStackDynamicFrame.m_map = (GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap;
 
 	Tls* prevTls = sys::getTlsPtrSlotValue <Tls> ();
-	
+
 	// try to find TLS of *this* runtime
 
 	for (Tls* tls = prevTls; tls; tls = tls->m_prevTls)
@@ -112,7 +112,7 @@ Runtime::initializeCallSite (jnc_CallSite* callSite)
 		{
 			TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
 			ASSERT (tlsVariableTable->m_gcShadowStackTop > &callSite->m_gcShadowStackDynamicFrame);
-		
+
 			// save exception recovery snapshot
 
 			callSite->m_initializeLevel = tls->m_initializeLevel;
@@ -120,7 +120,11 @@ Runtime::initializeCallSite (jnc_CallSite* callSite)
 			callSite->m_waitRegionLevel = tls->m_gcMutatorThread.m_waitRegionLevel;
 			callSite->m_gcShadowStackDynamicFrame.m_prev = tlsVariableTable->m_gcShadowStackTop;
 
-			tlsVariableTable->m_gcShadowStackTop = &callSite->m_gcShadowStackDynamicFrame;
+			// don't nest dynamic frames (unnecessary) -- but prev pointer must be saved anyway
+			// also, without nesting it's often OK to skip explicit GcHeap::addBoxToDynamicFrame
+
+			if (tlsVariableTable->m_gcShadowStackTop->m_map->getMapKind () != ct::GcShadowStackFrameMapKind_Dynamic)
+				tlsVariableTable->m_gcShadowStackTop = &callSite->m_gcShadowStackDynamicFrame;
 
 			tls->m_initializeLevel++;
 			return;
@@ -172,7 +176,10 @@ Runtime::uninitializeCallSite (jnc_CallSite* callSite)
 
 	ASSERT (
 		tlsVariableTable->m_gcShadowStackTop == &callSite->m_gcShadowStackDynamicFrame ||
-		!callSite->m_result && tlsVariableTable->m_gcShadowStackTop < &callSite->m_gcShadowStackDynamicFrame
+		tlsVariableTable->m_gcShadowStackTop == prevGcShadowStackTop &&
+		prevGcShadowStackTop->m_map->getMapKind () == ct::GcShadowStackFrameMapKind_Dynamic ||
+		!callSite->m_result &&
+		tlsVariableTable->m_gcShadowStackTop < &callSite->m_gcShadowStackDynamicFrame
 		);
 
 	// restore exception recovery snapshot
@@ -181,7 +188,7 @@ Runtime::uninitializeCallSite (jnc_CallSite* callSite)
 	tls->m_gcMutatorThread.m_noCollectRegionLevel = callSite->m_noCollectRegionLevel;
 	tls->m_gcMutatorThread.m_waitRegionLevel = callSite->m_waitRegionLevel;
 	tlsVariableTable->m_gcShadowStackTop = prevGcShadowStackTop;
-	
+
 	((GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap)->~GcShadowStackFrameMap ();
 
 	if (tls->m_initializeLevel) // this thread was nested-initialized
@@ -233,7 +240,19 @@ Runtime::checkStackOverflow ()
 SjljFrame*
 Runtime::setSjljFrame (SjljFrame* frame)
 {
-	return sys::setTlsPtrSlotValue <SjljFrame> (frame);
+	Tls* tls = rt::getCurrentThreadTls ();
+	if (!tls)
+	{
+		TRACE ("-- WARNING: set external SJLJ frame: %p\n", frame);
+		return sys::setTlsPtrSlotValue <SjljFrame> (frame);
+	}
+
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
+	ASSERT (tls);
+
+	SjljFrame* prevFrame = tlsVariableTable->m_sjljFrame;
+	tlsVariableTable->m_sjljFrame = frame;
+	return prevFrame;
 }
 
 void
@@ -249,9 +268,11 @@ Runtime::dynamicThrow ()
 	}
 	else
 	{
-		SjljFrame* sjljFrame = sys::getTlsPtrSlotValue <SjljFrame> ();
-		ASSERT (sjljFrame);
-		longjmp (sjljFrame->m_jmpBuf, -1);
+		SjljFrame* frame = sys::getTlsPtrSlotValue <SjljFrame> ();
+		TRACE ("-- WARNING: jump to external SJLJ frame: %p\n", frame);
+
+		ASSERT (frame);
+		longjmp (frame->m_jmpBuf, -1);
 	}
 
 	ASSERT (false);
