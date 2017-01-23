@@ -1,45 +1,41 @@
 import "io_usb.jncx"
 
+printUsbEndpointDesc (io.UsbEndpointDesc const* endpointDesc)
+{
+	printf ("      Endpoint:   0x%02x\n", endpointDesc.m_endpointId);
+	printf ("      Direction:  %s\n", (endpointDesc.m_endpointId & 0x80) ? "IN" : "OUT");
+	printf ("      Type:       %s\n", io.getUsbTransferTypeString (endpointDesc.m_transferType));
+	printf ("      Max packet: %d\n", endpointDesc.m_maxPacketSize);
+}
+
 printUsbIfaceDesc (io.UsbInterfaceDesc const* ifaceDesc)
 {
-/*	printf ("    Interface:   %d\n", ifaceDesc->bInterfaceNumber);
-	printf ("    Alt setting: %d\n", ifaceDesc->bAlternateSetting);
-	printf ("    Class:       %s\n", io::getUsbClassCodeString ((libusb_class_code) ifaceDesc->bInterfaceClass));
-	printf ("    Subclass:    %d\n", ifaceDesc->bInterfaceSubClass);
-	printf ("    Protocol:    %d\n", ifaceDesc->bInterfaceProtocol);
-	printf ("    Endpoints:   %d\n", ifaceDesc->bNumEndpoints);
+	printf ("    Interface:   %d\n", ifaceDesc.m_interfaceId);
+	printf ("    Alt setting: %d\n", ifaceDesc.m_altSettingId);
+	printf ("    Class:       %02x/%02x (%s)\n", ifaceDesc.m_class, ifaceDesc.m_subClass, io.getUsbClassString (ifaceDesc.m_class));
+	printf ("    Protocol:    %d\n", ifaceDesc->m_protocol);
+	printf ("    Endpoints:   %d\n", ifaceDesc->m_endpointCount);
 
-	for (size_t i = 0; i < ifaceDesc->bNumEndpoints; i++)
+	for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++)
 	{
-		const libusb_endpoint_descriptor* endpointDesc = &ifaceDesc->endpoint [i];
-
 		printf ("\n");
-
-		printf ("      Endpoint:        0x%02x\n", endpointDesc->bEndpointAddress);
-		printf ("      Direction:       %s\n", (endpointDesc->bEndpointAddress & LIBUSB_ENDPOINT_IN) ? "In" : "Out");
-		printf ("      Type:            %s\n", io::getUsbTransferTypeString ((libusb_transfer_type) (endpointDesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK)));
-		printf ("      Max packet size: %d\n", endpointDesc->wMaxPacketSize);
-	} */
+		printUsbEndpointDesc (&ifaceDesc->m_endpointTable [i]);
+	}
 }
 
 printUsbConfigurationDesc (io.UsbConfigurationDesc const* configDesc)
 {
-	printf ("  Configuration: %d\n", configDesc.m_configurationValue);
-	printf ("  Max power:     %d mA\n", configDesc->MaxPower * 2);
-	printf ("  Interfaces:    %d\n", configDesc->bNumInterfaces);
+	printf ("  Configuration: %d\n", configDesc.m_configurationId);
+	printf ("  Max power:     %d x(2|8) mA\n", configDesc.m_maxPower);
+	printf ("  Interfaces:    %d\n", configDesc.m_interfaceCount);
 
-	for (size_t i = 0; i < configDesc->bNumInterfaces; i++)
+	for (size_t i = 0; i < configDesc.m_interfaceCount; i++)
 	{
-		const libusb_interface* iface = &configDesc->interface [i];
-
-		if (!iface->num_altsetting)
-		{
-			printf ("\n    Interface #%d is not configured\n", i);
-		}
-		else for (size_t j = 0; j < (size_t) iface->num_altsetting; j++)
+		io.UsbInterfaceDesc const* ifaceDesc = &configDesc.m_interfaceTable [i];
+		for (; ifaceDesc; ifaceDesc = ifaceDesc.m_nextAltSettingInterface)
 		{
 			printf ("\n");
-			printUsbIfaceDesc (&iface->altsetting [j]);
+			printUsbIfaceDesc (ifaceDesc);
 		}
 	}
 }
