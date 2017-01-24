@@ -175,7 +175,7 @@ opaque class UsbEndpoint
 	destruct ();
 
 	void close ();
-	alias dispose = close;
+	alias void dispose = close;
 
 	size_t errorcode read (
 		void* p,
@@ -189,7 +189,7 @@ opaque class UsbEndpoint
 
 	event m_onEndpointEvent (UsbEndpointEventParams const* params);
 	bool property m_isEndpointEventEnabled;
-}
+};
 
 //..............................................................................
 
@@ -205,10 +205,10 @@ opaque class UsbInterface
 	destruct ();
 
 	void release ();
-	alias dispose = release;
+	alias void dispose = release;
 
 	UsbEndpoint* errorcode openEndpoint (uint8_t endpointId);
-}
+};
 
 //..............................................................................
 
@@ -227,7 +227,7 @@ opaque class UsbDevice
 	destruct ();
 
 	void close ();
-	alias dispose = close;
+	alias void dispose = close;
 
 	bool errorcode open ();
 

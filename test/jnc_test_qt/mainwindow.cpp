@@ -314,7 +314,7 @@ void MainWindow::writeSettings()
 		if(MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget()))
 			files.append(child->file());
 
-	s.setValue("filesOpened", files);
+	s.setValue ("filesOpened", files);
 	s.setValue ("lastDir", m_lastDir);
 }
 

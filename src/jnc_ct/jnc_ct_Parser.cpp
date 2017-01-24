@@ -1521,7 +1521,7 @@ Parser::declareData (
 	if (namespaceKind == NamespaceKind_Property)
 	{
 		Property* prop = (Property*) nspace;
-	 	ModuleItem* dataItem = NULL;
+		ModuleItem* dataItem = NULL;
 
 		if (storageKind == StorageKind_Member)
 		{
@@ -2043,6 +2043,8 @@ Parser::finalizeReactor ()
 	m_reactionList.clear ();
 	return true;
 }
+
+AXL_TODO ("add support for declarations inside a reactor (each must produce a hidden bindable variable)")
 
 void
 Parser::reactorOnEventDeclaration (

@@ -1,0 +1,69 @@
+//..............................................................................
+//
+// TCP sequencer ensures handling of TCP segments in correct order
+//
+
+import "io_base.jncx"
+import "io_MappedFile.jnc"
+import "std_HashTable.jnc"
+
+namespace io {
+
+//..............................................................................
+
+class UsbVendor
+{
+protected:
+	std.VariantHashTable m_productNameMap;
+
+public:
+	char const* const m_name;
+
+	char const* findProductName (uint_t productId)
+	{
+		return m_productNameMap.find (productId);
+	}
+}
+
+//..............................................................................
+
+class UsbDb
+{
+protected:
+	std.VariantHashTable m_vendorMap;
+
+public:
+	bool errorcode parseUsbIds (char const* fileName);
+
+	UsbVendor* findVendor (uint_t vendorId)
+	{
+		return m_vendorMap.find (vendorId);
+	}
+
+protected:
+	jnc.AutomatonResult automaton usbIdsScanner (jnc.Recognizer* recognizer);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode UsbDb.parseUsbIds (char const* fileName)
+{
+	io.MappedFile file;
+	file.open (fileName, io.FileOpenFlags.ReadOnly);
+
+	size_t size = file.m_size;
+	char const* p = file.view (0, size, false);
+
+	jnc.Recognizer recognizer (usbIdsScanner);
+	return recognizer.recognize (p, size);
+}
+
+jnc.AutomatonResult automaton UsbDb.usbIdsScanner (jnc.Recognizer* recognizer)
+{
+	%% (\h+) \s+ ([^\n]) \n
+		printf ("vendor");
+}
+
+//..............................................................................
+
+} // namespace io {

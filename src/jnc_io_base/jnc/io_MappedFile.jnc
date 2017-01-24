@@ -34,7 +34,7 @@ opaque class MappedFile
 		);
 
 	void close ();
-	alias dispose = close;
+	alias void dispose = close;
 
 	void* errorcode view (
 		uint64_t offset,
