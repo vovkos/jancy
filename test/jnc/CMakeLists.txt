@@ -16,6 +16,15 @@ file (
 	test*.jnc
 	)
 
+if (NOT LIBUSB_FOUND)
+	list (
+		REMOVE_ITEM
+		TEST_JNC_LIST
+		test82.jnc
+		test83.jnc
+		)
+endif ()
+
 source_group (
 	jnc
 	FILES
