@@ -38,15 +38,16 @@ set (
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_DynamicLib.jnc
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Recognizer.jnc
 	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Scheduler.jnc
-	${JANCY_SRC_DIR}/jnc_std/jnc/std_globals.jnc
-	${JANCY_SRC_DIR}/jnc_std/jnc/std_Error.jnc
-	${JANCY_SRC_DIR}/jnc_std/jnc/std_List.jnc
-	${JANCY_SRC_DIR}/jnc_std/jnc/std_HashTable.jnc
-	-S ${JANCY_SRC_DIR}/jnc_sys/jnc
-	-I ${JANCY_SRC_DIR}/jnc_io_base/jnc
-	-S ${JANCY_SRC_DIR}/jnc_io_base/jnc
-	-S ${JANCY_SRC_DIR}/jnc_io_ssh/jnc
-	-S ${JANCY_SRC_DIR}/jnc_io_pcap/jnc
+	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_globals.jnc
+	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_Error.jnc
+	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_List.jnc
+	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_HashTable.jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_sys/jnc
+	-I ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_ssh/jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_pcap/jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_usb/jnc
 	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 	)
 

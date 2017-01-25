@@ -56,7 +56,7 @@ include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_SRC_DIR}/jnc_ct
+	${JANCY_SRC_DIR}/jnc_ct/include
 	${GEN_DIR}
 	)
 

@@ -21,7 +21,7 @@ set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
 set (
 	GRACO_CMD_LINE
-	${JANCY_SRC_DIR}/jnc_ct/jnc_ct_Parser.llk
+	${JANCY_SRC_DIR}/jnc_ct/jnc_ct_Parser/jnc_ct_Parser.llk
 	-b ${CMAKE_CURRENT_BINARY_DIR}/jancy.llk
 	)
 
