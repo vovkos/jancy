@@ -71,7 +71,7 @@ source_group (
 
 #...............................................................................
 #
-# jnc_io library
+# jnc_io_usb library
 #
 
 include_directories (
@@ -143,6 +143,12 @@ else ()
 		)
 endif ()
 
+set_target_properties (
+	jnc_io_usb
+	PROPERTIES
+	FOLDER extensions
+	)
+
 #...............................................................................
 #
 # io_usb.jncx archive
@@ -157,6 +163,12 @@ add_custom_target (
 	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_usb-${AXL_CPU}.bin
 	DEPENDS
 	jnc_io_usb
+	)
+
+set_target_properties (
+	jnc_io_usb_jncx
+	PROPERTIES
+	FOLDER extensions
 	)
 
 #...............................................................................

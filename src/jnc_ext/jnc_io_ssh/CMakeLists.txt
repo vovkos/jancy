@@ -65,7 +65,7 @@ source_group (
 
 #...............................................................................
 #
-# jnc_io library
+# jnc_io_ssh library
 #
 
 include_directories (
@@ -147,6 +147,12 @@ elseif (UNIX)
 	endif ()
 endif ()
 
+set_target_properties (
+	jnc_io_ssh
+	PROPERTIES
+	FOLDER extensions
+	)
+
 #...............................................................................
 #
 # io_ssh.jncx archive
@@ -161,6 +167,12 @@ add_custom_target (
 	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_ssh.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_ssh-${AXL_CPU}.bin
 	DEPENDS
 	jnc_io_ssh
+	)
+
+set_target_properties (
+	jnc_io_ssh_jncx
+	PROPERTIES
+	FOLDER extensions
 	)
 
 #...............................................................................

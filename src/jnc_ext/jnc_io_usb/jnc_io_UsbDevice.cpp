@@ -154,7 +154,7 @@ UsbDevice::claimInterface (
 	Runtime* runtime = getCurrentThreadRuntime ();
 	UsbInterface* iface = NULL;
 
-	JNC_BEGIN_CALL_SITE (runtime)
+	JNC_BEGIN_NESTED_CALL_SITE (runtime)
 
 	DataPtr configDescPtr = getActiveConfigurationDesc (this);
 	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*) configDescPtr.m_p;
@@ -180,7 +180,7 @@ UsbDevice::claimInterface (
 		iface->m_syncId = 0;
 	}
 
-	JNC_END_CALL_SITE ()
+	JNC_END_NESTED_CALL_SITE ()
 
 	if (!iface)
 		jnc::propagateLastError ();
@@ -219,7 +219,7 @@ createUsbDeviceArray (DataPtr countPtr)
 	GcHeap* gcHeap = runtime->getGcHeap ();
 	Type* classPtrType = (Type*) UsbDevice::getType (runtime->getModule ())->getClassPtrType ();
 
-	JNC_BEGIN_CALL_SITE (runtime)
+	JNC_BEGIN_NESTED_CALL_SITE (runtime)
 
 	arrayPtr = gcHeap->allocateArray (classPtrType, count);
 	UsbDevice** dstDeviceArray = (UsbDevice**) arrayPtr.m_p;
@@ -232,7 +232,7 @@ createUsbDeviceArray (DataPtr countPtr)
 		dstDeviceArray [i] = device;
 	}
 
-	JNC_END_CALL_SITE ()
+	JNC_END_NESTED_CALL_SITE ()
 
 	if (countPtr.m_p)
 		*(size_t*) countPtr.m_p = count;
@@ -256,10 +256,10 @@ openUsbDevice (
 
 	UsbDevice* device = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();
-	JNC_BEGIN_CALL_SITE (runtime)
+	JNC_BEGIN_NESTED_CALL_SITE (runtime)
 	device = createClass <UsbDevice> (runtime);
 	device->takeOver (&srcDevice);
-	JNC_END_CALL_SITE ()
+	JNC_END_NESTED_CALL_SITE ()
 
 	return device;
 }

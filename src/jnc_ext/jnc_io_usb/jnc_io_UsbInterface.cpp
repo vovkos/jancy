@@ -77,7 +77,7 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 	UsbEndpoint* endpoint = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();
 
-	JNC_BEGIN_CALL_SITE (runtime)
+	JNC_BEGIN_NESTED_CALL_SITE (runtime)
 	endpoint = createClass <UsbEndpoint> (runtime);
 	endpoint->m_parentInterface = this;
 	endpoint->m_endpointDescPtr.m_p = endpointDesc;
@@ -88,7 +88,7 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 		sizeof (UsbEndpointDesc)
 		);
 
-	JNC_END_CALL_SITE ()
+	JNC_END_NESTED_CALL_SITE ()
 
 	if (!endpoint)
 		jnc::propagateLastError ();

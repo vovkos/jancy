@@ -69,4 +69,10 @@ axl_set_pch (
 	${PCH_CPP}
 	)
 
+set_target_properties (
+	jnc_io_cmn
+	PROPERTIES
+	FOLDER extensions
+	)
+
 #...............................................................................

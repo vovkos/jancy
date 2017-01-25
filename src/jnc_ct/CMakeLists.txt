@@ -29,7 +29,7 @@ source_group (
 
 #...............................................................................
 #
-# CallConv folder
+# jnc_ct_CallConv folder
 #
 
 file (
@@ -47,7 +47,7 @@ file (
 	)
 
 source_group (
-	CallConv
+	jnc_ct_CallConv
 	FILES
 	${CALLCONV_H_LIST}
 	${CALLCONV_CPP_LIST}
@@ -55,7 +55,7 @@ source_group (
 
 #...............................................................................
 #
-# ControlFlowMgr folder
+# jnc_ct_ControlFlowMgr folder
 #
 
 file (
@@ -73,7 +73,7 @@ file (
 	)
 
 source_group (
-	ControlFlowMgr
+	jnc_ct_ControlFlowMgr
 	FILES
 	${CONTROLFLOWMGR_H_LIST}
 	${CONTROLFLOWMGR_CPP_LIST}
@@ -81,7 +81,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# DoxyMgr folder
+# jnc_ct_DoxyMgr folder
 #
 
 file (
@@ -106,7 +106,7 @@ file (
 	)
 
 source_group (
-	doxydoc
+	jnc_ct_DoxyMgr
 	FILES
 	${DOXYMGR_H_LIST}
 	${DOXYMGR_CPP_LIST}
@@ -115,7 +115,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# FunctionMgr folder
+# jnc_ct_FunctionMgr folder
 #
 
 file (
@@ -133,7 +133,7 @@ file (
 	)
 
 source_group (
-	FunctionMgr
+	jnc_ct_FunctionMgr
 	FILES
 	${FUNCTIONMGR_H_LIST}
 	${FUNCTIONMGR_CPP_LIST}
@@ -141,7 +141,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# NamespaceMgr folder
+# jnc_ct_NamespaceMgr folder
 #
 
 file (
@@ -159,7 +159,7 @@ file (
 	)
 
 source_group (
-	NamespaceMgr
+	jnc_ct_NamespaceMgr
 	FILES
 	${NAMESPACEMGR_H_LIST}
 	${NAMESPACEMGR_CPP_LIST}
@@ -167,7 +167,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# OperatorMgr folder
+# jnc_ct_OperatorMgr folder
 #
 
 file (
@@ -185,7 +185,7 @@ file (
 	)
 
 source_group (
-	OperatorMgr
+	jnc_ct_OperatorMgr
 	FILES
 	${OPERATORMGR_H_LIST}
 	${OPERATORMGR_CPP_LIST}
@@ -193,7 +193,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# TypeMgr folder
+# jnc_ct_TypeMgr folder
 #
 
 file (
@@ -211,7 +211,7 @@ file (
 	)
 
 source_group (
-	type
+	jnc_ct_TypeMgr
 	FILES
 	${TYPEMGR_H_LIST}
 	${TYPEMGR_CPP_LIST}
@@ -219,7 +219,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# VariableMgr folder
+# jnc_ct_VariableMgr folder
 #
 
 file (
@@ -237,7 +237,7 @@ file (
 	)
 
 source_group (
-	VariableMgr
+	jnc_ct_VariableMgr
 	FILES
 	${VARIABLEMGR_H_LIST}
 	${VARIABLEMGR_CPP_LIST}
@@ -245,7 +245,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# Value folder
+# jnc_ct_Value folder
 #
 
 file (
@@ -263,7 +263,7 @@ file (
 	)
 
 source_group (
-	Value
+	jnc_ct_Value
 	FILES
 	${VALUE_H_LIST}
 	${VALUE_CPP_LIST}
@@ -271,7 +271,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# module folder
+# jnc_ct_Module folder
 #
 
 file (
@@ -289,7 +289,7 @@ file (
 	)
 
 source_group (
-	Module
+	jnc_ct_Module
 	FILES
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
@@ -297,7 +297,7 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# parser folder
+# jnc_ct_Parser folder
 #
 
 file (
@@ -329,7 +329,7 @@ file (
 	)
 
 source_group (
-	Parser
+	jnc_ct_Parser
 	FILES
 	${PARSER_H_LIST}
 	${PARSER_CPP_LIST}

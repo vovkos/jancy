@@ -109,7 +109,7 @@ source_group (
 
 #...............................................................................
 #
-# jnc_io library
+# jnc_io_base library
 #
 
 include_directories (
@@ -199,6 +199,12 @@ elseif (UNIX)
 	endif ()
 endif ()
 
+set_target_properties (
+	jnc_io_base
+	PROPERTIES
+	FOLDER extensions
+	)
+
 #...............................................................................
 #
 # io_base.jncx archive
@@ -213,6 +219,12 @@ add_custom_target (
 	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_base-${AXL_CPU}.bin
 	DEPENDS
 	jnc_io_base
+	)
+
+set_target_properties (
+	jnc_io_base_jncx
+	PROPERTIES
+	FOLDER extensions
 	)
 
 #...............................................................................

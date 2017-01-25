@@ -65,7 +65,7 @@ source_group (
 
 #...............................................................................
 #
-# jnc_io library
+# jnc_io_pcap library
 #
 
 include_directories (
@@ -138,6 +138,12 @@ elseif (UNIX)
 	endif ()
 endif ()
 
+set_target_properties (
+	jnc_io_pcap
+	PROPERTIES
+	FOLDER extensions
+	)
+
 #...............................................................................
 #
 # io_pcap.jncx archive
@@ -152,6 +158,12 @@ add_custom_target (
 	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_pcap.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_pcap-${AXL_CPU}.bin
 	DEPENDS
 	jnc_io_pcap
+	)
+
+set_target_properties (
+	jnc_io_pcap_jncx
+	PROPERTIES
+	FOLDER extensions
 	)
 
 #...............................................................................
