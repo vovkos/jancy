@@ -33,10 +33,7 @@ class Recognizer
 	typedef AutomatonResult automaton AutomatonFunc (Recognizer* recognizer);
 
 protected:
-	uintptr_t m_internalState;
-	size_t m_stateCount;
-	uint_t thin* m_stateFlagTable;
-	uintptr_t thin* m_transitionTable; // m_stateCount x 256
+	void thin* m_dfa; // opaque implementation
 	uintptr_t m_stateId;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
@@ -49,6 +46,11 @@ public:
 	char const* readonly m_lexeme;
 	size_t readonly m_lexemeOffset;
 	size_t readonly m_lexemeLength;
+	
+	size_t readonly m_groupCount;
+	char const* const* readonly m_groupTextArray;
+	size_t const* readonly m_groupOffsetArray;
+	size_t const* readonly m_groupLengthArray;
 
 public:
 	construct (AutomatonFunc* automatonFunc = null);
@@ -84,6 +86,9 @@ public:
 		m_automatonFunc = automatonFunc;
 		return try recognize (p, length);
 	}
+
+protected:
+	setDfa (void thin* dfa);
 }
 
 ///;
@@ -93,3 +98,6 @@ public:
 ///---
 
 } // namespace jnc
+
+
+recognizer.m_groupOffset 

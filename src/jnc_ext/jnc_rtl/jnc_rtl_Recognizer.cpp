@@ -11,12 +11,10 @@
 
 #include "pch.h"
 #include "jnc_rtl_Recognizer.h"
-
-#ifdef _JNC_CORE
-#	include "jnc_rt_Runtime.h"
-#endif
-
+#include "jnc_ct_Module.h"
+#include "jnc_rt_Runtime.h"
 #include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
@@ -38,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Recognizer)
 	JNC_MAP_FUNCTION ("reset", &Recognizer::reset)
 	JNC_MAP_FUNCTION ("write", &Recognizer::write)
 	JNC_MAP_FUNCTION ("eof", &Recognizer::eof)
+	JNC_MAP_FUNCTION ("setDfa", &Recognizer::setDfa)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -46,7 +45,6 @@ void
 JNC_CDECL
 Recognizer::construct (FunctionPtr automatonFuncPtr)
 {
-	m_internalState = InternalState_Idle;
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
 	m_lexemeLengthLimit = 128;
@@ -93,26 +91,70 @@ void
 JNC_CDECL
 Recognizer::setCurrentOffset (size_t offset)
 {
-	intptr_t delta = offset - m_currentOffset;
+	if (offset == m_currentOffset)
+		return;
 
-	if (delta)
-	{
-		m_currentOffset = offset;
-		m_lexemeOffset += delta;
-	}
+	intptr_t delta = offset - m_currentOffset;
+	m_currentOffset = offset;
+	m_lexemeOffset += delta;
+}
+
+void
+JNC_CDECL
+Recognizer::setDfa (ct::Dfa* dfa)
+{
+	if (m_dfa == dfa)
+		return;
+
+	m_dfa = dfa;
+	m_groupCount = dfa->getGroupCount ();
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	Module* module = gcHeap->getRuntime ()->getModule ();
+	Type* charPtrType = module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType ();
+	Type* sizeType = module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+
+	m_groupTextArrayPtr = gcHeap->allocateArray (charPtrType, m_groupCount);
+	m_groupOffsetArrayPtr = gcHeap->allocateArray (sizeType, m_groupCount);
+	m_groupLengthArrayPtr = gcHeap->allocateArray (sizeType, m_groupCount);
+
+	softReset ();
 }
 
 void
 JNC_CDECL
 Recognizer::reset ()
 {
-	m_internalState = InternalState_Idle;
+	softReset ();
+	m_currentOffset = 0;
+}
+
+void
+Recognizer::softReset ()
+{
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
 	m_lastAcceptLexemeLength = 0;
 	m_lexemeOffset = 0;
 	m_lexemeLength = 0;
-	m_currentOffset = 0;
+
+	if (!m_dfa)
+		return;
+
+	m_groupCount = m_dfa->getGroupCount ();
+	if (!m_groupCount)
+		return;
+
+	size_t size = m_groupCount * sizeof (void*);
+	memset (m_groupTextArrayPtr.m_p, 0, size);
+	memset (m_groupOffsetArrayPtr.m_p, -1, size);
+	memset (m_groupLengthArrayPtr.m_p, 0, size);
+
+	ct::DfaStateInfo* state = m_dfa->getStateInfo (0);
+	if (state->m_groupSet)
+		processGroupSet (state->m_groupSet);
 }
 
 bool
@@ -133,9 +175,6 @@ Recognizer::write (
 
 	if (!length)
 		return true;
-
-	if (m_internalState == InternalState_Idle)
-		m_internalState = InternalState_Started;
 
 	AutomatonResult result = writeData ((uchar_t*) ptr.m_p, length);
 	return result != AutomatonResult_Error;
@@ -178,7 +217,11 @@ Recognizer::writeData (
 	while (p < end)
 	{
 		uchar_t c = *p++;
-		m_currentOffset++;
+		
+		// while it might seem counter-intuitive to increment offset first,
+		// it leads to cleaner logic in automaton actions (offset points PAST lexeme)
+		
+		m_currentOffset++; 
 
 		result = writeChar (c);
 		if (result != AutomatonResult_Continue)
@@ -203,10 +246,10 @@ Recognizer::writeChar (uint_t c)
 		}
 	}
 
-	size_t newStateId = m_transitionTable [m_stateId * 256 + c];
-	if (newStateId != -1)
+	uintptr_t targetStateId = m_dfa->getTransition (m_stateId, c);
+	if (targetStateId != -1)
 	{
-		result = gotoState (newStateId);
+		result = gotoState (targetStateId);
 	}
 	else if (m_lastAcceptStateId != -1)
 	{
@@ -226,16 +269,47 @@ Recognizer::gotoState (size_t stateId)
 {
 	m_stateId = stateId;
 
-	uint_t flags = m_stateFlagTable [stateId];
-	if (!(flags & RecognizerStateFlag_Accept))
+	ct::DfaStateInfo* state = m_dfa->getStateInfo (stateId);
+	if (state->m_groupSet)
+		processGroupSet (state->m_groupSet);
+
+	if (!(state->m_flags & RecognizerStateFlag_Accept))
 		return AutomatonResult_Continue;
 
-	if (flags & RecognizerStateFlag_Final)
+	if (state->m_flags & RecognizerStateFlag_Final)
 		return match (stateId);
 
 	m_lastAcceptStateId = stateId;
 	m_lastAcceptLexemeLength = m_lexemeLength;
 	return AutomatonResult_Continue;
+}
+
+void
+Recognizer::processGroupSet (ct::DfaGroupSet* groupSet)
+{
+	size_t* offsetArray = (size_t*) m_groupOffsetArrayPtr.m_p;
+	size_t* lengthArray = (size_t*) m_groupLengthArrayPtr.m_p;
+
+	size_t count = groupSet->m_openArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		size_t group = groupSet->m_openArray [i];
+		ASSERT (group < m_groupCount);
+
+		offsetArray [group] = m_currentOffset - m_lexemeOffset;
+		lengthArray [group] = 0;
+	}
+
+	count = groupSet->m_closeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		size_t group = groupSet->m_closeArray [i];
+		ASSERT (group < m_groupCount);
+
+		size_t startOffset = offsetArray [group];
+		size_t endOffset = m_currentOffset - m_lexemeOffset;
+		lengthArray [group] = endOffset - startOffset;
+	}
 }
 
 AutomatonResult
@@ -249,6 +323,27 @@ Recognizer::rollback ()
 	m_currentOffset = m_lexemeOffset + m_lastAcceptLexemeLength;
 	m_lexemeLength = m_lastAcceptLexemeLength;
 
+	// rollback groups
+
+	size_t* offsetArray = (size_t*) m_groupOffsetArrayPtr.m_p;
+	size_t* lengthArray = (size_t*) m_groupLengthArrayPtr.m_p;
+	for (size_t i = 0; i < m_groupCount; i++)
+	{
+		size_t offset = offsetArray [i];
+		if (offset == -1)
+			continue;
+
+		if (offset >= m_currentOffset)
+		{
+			offsetArray [i] = -1;
+			lengthArray [i] = 0;
+		}
+		else if (offset + lengthArray [i] >= m_currentOffset)
+		{
+			lengthArray [i] = 0; // will be updated later on a successful re-match
+		}
+	}
+
 	AutomatonResult result = match (m_lastAcceptStateId);
 	return
 		result != AutomatonResult_Continue ? result :
@@ -261,18 +356,41 @@ Recognizer::match (size_t stateId)
 {
 	ASSERT (m_automatonFuncPtr.m_p);
 
+	// save last char and ensure null-termination for the whole lexeme
+
 	uchar_t savedChar = ((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength];
+
 	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = 0;
 
+	// create null-terminated group texts
+
+	DataPtr* textArray = (DataPtr*) m_groupTextArrayPtr.m_p;
+	size_t* offsetArray = (size_t*) m_groupOffsetArrayPtr.m_p;
+	size_t* lengthArray = (size_t*) m_groupLengthArrayPtr.m_p;
+	for (size_t i = 0; i < m_groupCount; i++)
+	{
+		size_t offset = offsetArray [i];
+		size_t length = lengthArray [i];
+		if (offset != -1 && length != 0)
+		{
+			textArray [i] = jnc::strDup ((char*) m_lexemePtr.m_p + offset, length);
+		}
+		else // enforce empty group
+		{			
+			offsetArray [i] = -1;
+			lengthArray [i] = 0;
+			textArray [i] = g_nullPtr;
+		}
+	}
+			
 	AutomatonResult result = ((AutomatonFunc*) m_automatonFuncPtr.m_p) (m_automatonFuncPtr.m_closure, this, stateId);
 
+	// that's not a mistake below! even we immediatly reset after that, we DO need to 
+	// restore the lexeme buffer -- in case `match` is called from `rollback`
+	
 	((uchar_t*) m_lexemePtr.m_p) [m_lexemeLength] = savedChar;
 
-	m_stateId = 0;
-	m_lastAcceptStateId = -1;
-	m_lastAcceptLexemeLength = 0;
-	m_lexemeOffset = m_currentOffset;
-	m_lexemeLength = 0;
+	softReset ();
 
 	if (result != AutomatonResult_Continue)
 		m_currentOffset = 0;

@@ -2122,6 +2122,8 @@ Parser::beginAutomatonFunction ()
 bool
 Parser::finalizeAutomatonFunction ()
 {
+	bool result;
+
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function->m_type->getFlags () & FunctionTypeFlag_Automaton);
 
@@ -2151,61 +2153,22 @@ Parser::finalizeAutomatonFunction ()
 
 	// build dfa tables
 
+	Dfa* dfa = m_module->m_automatonMgr.createDfa ();
+	result = dfa->build (&m_automatonRegExp);
+	if (!result)
+		return false;
+
+	// build case map
+
 	sl::Array <fsm::DfaState*> stateArray = m_automatonRegExp.getDfaStateArray ();
 	size_t stateCount = stateArray.getCount ();
-
-	Type* stateFlagTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Int_u), stateCount);
-	Type* transitionTableType = m_module->m_typeMgr.getArrayType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT), stateCount * 256);
-
-	Value stateFlagTableValue ((void*) NULL, stateFlagTableType);
-	Value transitionTableValue ((void*) NULL, transitionTableType);
-
-	uint_t* stateFlags = (uint_t*) stateFlagTableValue.getConstData ();
-	size_t* transitionRow = (size_t*) transitionTableValue.getConstData ();
-
 	sl::HashTableMap <intptr_t, BasicBlock*, axl::sl::HashId <intptr_t> > caseMap;
 	for (size_t i = 0; i < stateCount; i++)
 	{
 		fsm::DfaState* state = stateArray [i];
 
-		*stateFlags = 0;
 		if (state->m_isAccept)
-		{
-			*stateFlags |= rtl::RecognizerStateFlag_Accept;
 			caseMap [state->m_id] = (BasicBlock*) state->m_acceptContext;
-
-			if (state->m_transitionList.isEmpty ())
-				*stateFlags |= rtl::RecognizerStateFlag_Final;
-		}
-
-		memset (transitionRow, -1, sizeof (size_t) * 256);
-
-		sl::Iterator <fsm::DfaTransition> transitionIt = state->m_transitionList.getHead ();
-		for (; transitionIt; transitionIt++)
-		{
-			fsm::DfaTransition* transition = *transitionIt;
-			switch (transition->m_matchCondition.m_conditionKind)
-			{
-			case fsm::MatchConditionKind_Char:
-				ASSERT (transition->m_matchCondition.m_char < 256);
-				transitionRow [transition->m_matchCondition.m_char] = transition->m_outState->m_id;
-				break;
-
-			case fsm::MatchConditionKind_CharSet:
-				for (size_t j = 0; j < 256; j++)
-					if (transition->m_matchCondition.m_charSet.getBit (j))
-						transitionRow [j] = transition->m_outState->m_id;
-				break;
-
-			case fsm::MatchConditionKind_Any:
-				for (size_t j = 0; j < 256; j++)
-					transitionRow [j] = transition->m_outState->m_id;
-				break;
-			}
-		}
-
-		stateFlags++;
-		transitionRow += 256;
 	}
 
 	// generate switch
@@ -2224,18 +2187,11 @@ Parser::finalizeAutomatonFunction ()
 	m_module->m_controlFlowMgr.setCurrentBlock (automatonSetupBlock);
 	automatonSetupBlock->markReachable ();
 
-	sl::Array <StructField*> fieldArray = recognizerType->getMemberFieldArray ();
+	Function* setDfaFunc = recognizerType->findFunctionByName ("setDfa");
+	ASSERT (setDfaFunc);
 
-	Value fieldValue;
-
-	bool result =
-		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [rtl::RecognizerField_StateCount], NULL, &fieldValue) &&
-		m_module->m_operatorMgr.storeDataRef (fieldValue, Value (stateCount, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))) &&
-		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [rtl::RecognizerField_StateFlagTable], NULL, &fieldValue) &&
-		m_module->m_operatorMgr.storeDataRef (fieldValue, stateFlagTableValue) &&
-		m_module->m_operatorMgr.getClassField (recognizerValue, fieldArray [rtl::RecognizerField_TransitionTable], NULL, &fieldValue) &&
-		m_module->m_operatorMgr.storeDataRef (fieldValue, transitionTableValue);
-
+	Value dfaValue (&dfa, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	result = m_module->m_operatorMgr.callOperator (setDfaFunc, recognizerValue, dfaValue);
 	if (!result)
 		return false;
 

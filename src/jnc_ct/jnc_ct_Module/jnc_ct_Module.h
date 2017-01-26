@@ -20,6 +20,7 @@
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_GcShadowStackMgr.h"
+#include "jnc_ct_AutomatonMgr.h"
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
@@ -92,6 +93,7 @@ public:
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
 	GcShadowStackMgr m_gcShadowStackMgr;
+	AutomatonMgr m_automatonMgr;
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;

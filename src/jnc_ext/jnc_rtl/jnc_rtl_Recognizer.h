@@ -14,6 +14,14 @@
 #include "jnc_ExtensionLib.h"
 
 namespace jnc {
+namespace ct {
+
+struct DfaTransition;
+struct DfaGroupSet;
+class Dfa;
+
+}  // namespace ct
+
 namespace rtl {
 
 class Recognizer;
@@ -41,17 +49,6 @@ AutomatonFunc (
 
 //..............................................................................
 
-enum RecognizerField
-{
-	RecognizerField_InternalState,
-	RecognizerField_StateCount,
-	RecognizerField_StateFlagTable,
-	RecognizerField_TransitionTable,
-	RecognizerField__Count,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum RecognizerStateFlag
 {
 	RecognizerStateFlag_Accept = 0x01,
@@ -62,18 +59,8 @@ enum RecognizerStateFlag
 
 class Recognizer: public IfaceHdr
 {
-public:
-	enum InternalState
-	{
-		InternalState_Idle = 0,
-		InternalState_Started,
-	};
-
 protected:
-	uintptr_t m_internalState;
-	size_t m_stateCount;
-	uint_t* m_stateFlagTable;
-	uintptr_t* m_transitionTable;
+	ct::Dfa* m_dfa;
 	uintptr_t m_stateId;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
@@ -86,6 +73,11 @@ public:
 	DataPtr m_lexemePtr;
 	size_t m_lexemeOffset;
 	size_t m_lexemeLength;
+
+	size_t m_groupCount;
+	DataPtr m_groupTextArrayPtr;
+	DataPtr m_groupOffsetArrayPtr;
+	DataPtr m_groupLengthArrayPtr;
 
 public:
 	void
@@ -119,6 +111,10 @@ public:
 	JNC_CDECL
 	eof ();
 
+	void
+	JNC_CDECL
+	setDfa (ct::Dfa* dfa);
+
 protected:
 	AutomatonResult
 	writeData (
@@ -131,6 +127,12 @@ protected:
 
 	AutomatonResult
 	gotoState (size_t stateId);
+
+	void
+	processGroupSet (ct::DfaGroupSet* groupSet);
+
+	void
+	softReset ();
 
 	AutomatonResult
 	rollback ();

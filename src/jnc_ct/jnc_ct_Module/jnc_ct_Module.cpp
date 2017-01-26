@@ -66,6 +66,7 @@ Module::clear ()
 	m_controlFlowMgr.clear ();
 	m_operatorMgr.clear ();
 	m_gcShadowStackMgr.clear ();
+	m_automatonMgr.clear ();
 	m_unitMgr.clear ();
 	m_importMgr.clear ();
 	m_extensionLibMgr.clear ();
