@@ -158,7 +158,6 @@ enum TokenKind
 	// keyword operators
 
 	TokenKind_New,
-	TokenKind_Delete,
 	TokenKind_SizeOf,
 	TokenKind_CountOf,
 	TokenKind_OffsetOf,
@@ -350,7 +349,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// keyword operators
 
 	AXL_LEX_TOKEN_NAME (TokenKind_New,          "new")
-	AXL_LEX_TOKEN_NAME (TokenKind_Delete,       "delete")
 	AXL_LEX_TOKEN_NAME (TokenKind_SizeOf,       "sizeof")
 	AXL_LEX_TOKEN_NAME (TokenKind_CountOf,      "countof")
 	AXL_LEX_TOKEN_NAME (TokenKind_OffsetOf,     "offsetof")

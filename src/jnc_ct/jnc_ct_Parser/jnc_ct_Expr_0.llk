@@ -314,10 +314,6 @@ unary_operator_expr_0 <Value* $value>
 			{
 				return newOperator_0 ($t.m_type, $value);
 			}
-	|	TokenKind_Delete unary_expr_0 <$value>
-			{
-				$value->setVoid (m_module);
-			}
 	;
 
 class

@@ -663,11 +663,6 @@ unary_operator_expr <Value* $value>
 					);
 			}
 		new_operator_curly_initializer <$value>?
-	|	TokenKind_Delete unary_expr <$value>
-			{
-				err::setFormatStringError ("manual memory management is not supported yet");
-				return false;
-			}
 	;
 
 try_operator_expr <Value* $value>

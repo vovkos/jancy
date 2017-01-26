@@ -204,7 +204,6 @@ main := |*
 # operators
 
 'new'            { createToken (TokenKind_New); };
-'delete'         { createToken (TokenKind_Delete); };
 'sizeof'         { createToken (TokenKind_SizeOf); };
 'countof'        { createToken (TokenKind_CountOf); };
 'offsetof'       { createToken (TokenKind_OffsetOf); };
