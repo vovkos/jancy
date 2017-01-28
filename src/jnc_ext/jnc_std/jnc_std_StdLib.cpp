@@ -37,6 +37,29 @@ atoi (DataPtr ptr)
 	return ptr.m_p ? ::atoi ((char*) ptr.m_p) : 0;
 }
 
+long
+strtol (
+	DataPtr ptr,
+	DataPtr endPtr,
+	int radix
+	)
+{
+	long result;
+	char* end;
+	if (ptr.m_p)
+	{
+		result = ::strtol ((char*) ptr.m_p, &end, radix);
+	}
+
+	if (endPtr.m_p)
+	{
+		((DataPtr*) endPtr.m_p)->m_p = end;
+		((DataPtr*) endPtr.m_p)->m_validator = ptr.m_validator;
+	}
+
+	return result;
+}
+
 uint32_t
 toUpper (uint32_t c)
 {
@@ -376,6 +399,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("memdup",  memDup)
 	JNC_MAP_FUNCTION ("rand",    ::rand)
 	JNC_MAP_FUNCTION ("atoi",    jnc::std::atoi)
+	JNC_MAP_FUNCTION ("strtol",  jnc::std::strtol)
 	JNC_MAP_FUNCTION ("toupper", toUpper)
 	JNC_MAP_FUNCTION ("tolower", toLower)
 

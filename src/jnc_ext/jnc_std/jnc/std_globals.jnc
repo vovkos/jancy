@@ -102,6 +102,12 @@ uint32_t tolower (uint32_t c);
 
 int atoi (char const* p);
 
+long strtol (
+    char const* p,
+	char const** end = null,
+	int radix = 10
+	);
+
 intptr_t cdecl printf (
 	char const thin* fmtSpecifier,
 	...
