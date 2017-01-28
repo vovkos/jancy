@@ -1,28 +1,58 @@
 //..............................................................................
 //
-// TCP sequencer ensures handling of TCP segments in correct order
+// USB ID database (vendor IDs & product IDs)
 //
 
 import "io_base.jncx"
 import "io_MappedFile.jnc"
 import "std_HashTable.jnc"
 
-namespace io {
+//..............................................................................
+
+struct UsbProduct
+{
+	uint_t m_id;
+	char const* m_name;
+	UsbVendor* m_vendor;
+}
 
 //..............................................................................
 
 class UsbVendor
 {
 protected:
-	std.VariantHashTable m_productNameMap;
+	std.VariantHashTable m_productMap;
 
 public:
-	char const* const m_name;
+	uint_t m_id;
+	char const* m_name;
 
-	char const* findProductName (uint_t productId)
+public:
+	UsbProduct* addProduct (
+		uint_t id,
+		char const* name
+		);
+
+	UsbProduct const* findProduct (uint_t productId) const
 	{
-		return m_productNameMap.find (productId);
+		return m_productMap.find (productId);
 	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbProduct* UsbVendor.addProduct (
+	uint_t id,
+	char const* name
+	)
+{
+	UsbProduct* product = new UsbProduct;
+	product.m_id = id;
+	product.m_name = name;
+	product.m_vendor = this;
+	m_productMap.insert (id, product);
+
+	return product;
 }
 
 //..............................................................................
@@ -30,23 +60,65 @@ public:
 class UsbDb
 {
 protected:
+	class Parser
+	{
+	protected:
+		UsbDb* m_db;
+		UsbVendor* m_vendor;
+
+	public:
+		bool errorcode parse (
+			UsbDb* db,
+			void const* p,
+			size_t size
+			);
+
+	protected:
+		jnc.AutomatonResult automaton scanner (jnc.Recognizer* recognizer);
+	}
+
+protected:
 	std.VariantHashTable m_vendorMap;
 
 public:
-	bool errorcode parseUsbIds (char const* fileName);
+	bool errorcode load (char const* fileName);
 
-	UsbVendor* findVendor (uint_t vendorId)
+	UsbVendor* addVendor (
+		uint_t id,
+		char const* name
+		);
+
+	UsbVendor const* findVendor (uint_t vendorId) const
 	{
 		return m_vendorMap.find (vendorId);
 	}
 
-protected:
-	jnc.AutomatonResult automaton usbIdsScanner (jnc.Recognizer* recognizer);
+	UsbProduct const* findProduct (
+		uint_t vendorId,
+		uint_t productId
+		)
+	{
+		UsbVendor* vendor =  m_vendorMap.find (vendorId);
+		return vendor ? vendor.findProduct (productId) : null;
+	}
+}
+
+UsbVendor* UsbDb.addVendor (
+	uint_t id,
+	char const* name
+	)
+{
+	UsbVendor* vendor = new UsbVendor;
+	vendor.m_id = id;
+	vendor.m_name = name;
+	m_vendorMap.insert (id, vendor);
+
+	return vendor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UsbDb.parseUsbIds (char const* fileName)
+bool errorcode UsbDb.load (char const* fileName)
 {
 	io.MappedFile file;
 	file.open (fileName, io.FileOpenFlags.ReadOnly);
@@ -54,16 +126,70 @@ bool errorcode UsbDb.parseUsbIds (char const* fileName)
 	size_t size = file.m_size;
 	char const* p = file.view (0, size, false);
 
-	jnc.Recognizer recognizer (usbIdsScanner);
+	Parser parser;
+	return parser.parse (this, p, size);
+}
+
+bool errorcode UsbDb.Parser.parse (
+	UsbDb* db,
+	void const* p,
+	size_t size
+	)
+{
+	m_db = db;
+	m_vendor = null;
+
+	jnc.Recognizer recognizer (scanner);
 	return recognizer.recognize (p, size);
 }
 
-jnc.AutomatonResult automaton UsbDb.usbIdsScanner (jnc.Recognizer* recognizer)
+jnc.AutomatonResult automaton UsbDb.Parser.scanner (jnc.Recognizer* recognizer)
 {
-	%% (\h+) \s+ ([^\n]) \n
-		printf ("vendor");
+	%% (\h{4}) \s+ ([^\n]+) \n
+		m_vendor = m_db.addVendor (
+			strtol (recognizer.m_subLexemeArray [0].m_text,, 16),
+			recognizer.m_subLexemeArray [1].m_text
+			);
+
+		printf ("Vendor: ID: %04x %s\n", m_vendor.m_id, m_vendor.m_name);
+
+	%% \t (\h{4}) \s+ ([^\n]+) \n
+		if (m_vendor)
+		{
+			UsbProduct* product = m_vendor.addProduct (
+				strtol (recognizer.m_subLexemeArray [0].m_text,, 16),
+				recognizer.m_subLexemeArray [1].m_text
+				);
+
+			printf ("\tProduct: ID: %04x %s\n", product.m_id, product.m_name);
+		}
+
+	%% '#' [^\n]* \n
+		// ignore comment lines
+
+	%% [ \t\r]* \n
+		// ignore empty lines
+
+	%% [^\n]+ \n
+		// any other line stops
+		printf ("non-VID/PID: %s\n", recognizer.m_lexeme.m_text);
+		return jnc.AutomatonResult.Stop;
+
 }
 
 //..............................................................................
 
-} // namespace io {
+int main ()
+{
+	printf ("parsing usb.ids...\n");
+
+	UsbDb usbDb;
+	usbDb.load ("/home/vladimir/Projects/ioninja/jancy/test/tmp-usbdb/usb.ids");
+
+	printf ("done.\n");
+	return 0;
+
+catch:
+	printf ($"error: $!\n");
+	return -1;
+}
