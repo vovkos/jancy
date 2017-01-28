@@ -243,6 +243,12 @@ TypeMgr::getStdType (StdType stdType)
 			type = parseStdType (stdType);
 		break;
 
+	case StdType_AutomatonLexeme:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("AutomatonLexeme");
+		if (!type)
+			type = parseStdType (stdType);
+		break;
+
 	case StdType_Recognizer:
 		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("Recognizer");
 		if (!type)

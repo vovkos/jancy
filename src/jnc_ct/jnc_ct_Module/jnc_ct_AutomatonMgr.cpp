@@ -19,28 +19,48 @@ namespace ct {
 
 //.............................................................................
 
+Dfa::Dfa ()
+{
+	m_stateCount = 0;
+	m_groupCount = 0;
+	m_maxSubLexemeCount = 0;
+}
+
 bool
 Dfa::build (fsm::RegExp* regExp)
 {
 	sl::Array <fsm::DfaState*> stateArray = regExp->getDfaStateArray ();
-	size_t stateCount = stateArray.getCount ();
+	m_stateCount = stateArray.getCount ();
+	m_groupCount = regExp->getGroupCount ();
+	m_maxSubLexemeCount = 0;
 
-	m_stateInfoTable.setCount (stateCount);
-	m_transitionTable.setCount (stateCount * 256);
-	memset (m_stateInfoTable, 0, stateCount * sizeof (DfaStateInfo));
-	memset (m_transitionTable, -1, stateCount * 256 * sizeof (uintptr_t));
-
-	m_stateCount = stateCount;
+	m_stateInfoTable.setCount (m_stateCount);
+	m_transitionTable.setCount (m_stateCount * 256);
+	memset (m_stateInfoTable, 0, m_stateCount * sizeof (DfaStateInfo));
+	memset (m_transitionTable, -1, m_stateCount * 256 * sizeof (uintptr_t));
 
 	DfaStateInfo* stateInfo = m_stateInfoTable;
 	uintptr_t* transitionRow = m_transitionTable;
 
-	for (size_t i = 0; i < stateCount; i++)
+	for (size_t i = 0; i < m_stateCount; i++)
 	{
 		fsm::DfaState* state = stateArray [i];
 		if (state->m_isAccept)
 		{
+			AutomatonAcceptContext* context = (AutomatonAcceptContext*) state->m_acceptContext;
+			ASSERT (context->m_firstGroupId + context->m_groupCount <= m_groupCount);
+
+			DfaAcceptInfo* acceptInfo = AXL_MEM_NEW (DfaAcceptInfo);
+			acceptInfo->m_firstGroupId = context->m_firstGroupId;
+			acceptInfo->m_groupCount = context->m_groupCount;
+			m_acceptInfoList.insertTail (acceptInfo);
+
+			if (context->m_groupCount > m_maxSubLexemeCount)
+				m_maxSubLexemeCount = context->m_groupCount;
+
+			stateInfo->m_acceptInfo = acceptInfo;
 			stateInfo->m_flags |= rtl::RecognizerStateFlag_Accept;
+
 			if (state->m_transitionList.isEmpty ())
 				stateInfo->m_flags |= rtl::RecognizerStateFlag_Final;
 		}
@@ -54,15 +74,14 @@ Dfa::build (fsm::RegExp* regExp)
 
 			while (j != -1)
 			{
-				if (j >= m_groupCount)
-					m_groupCount = j + 1;
-
+				ASSERT (j < m_groupCount);
 				groupSet->m_openArray.append (j);
 				j = state->m_openCaptureIdSet.findBit (j + 1);
 			}
 
 			while (k != -1)
 			{
+				ASSERT (k < m_groupCount);
 				groupSet->m_closeArray.append (k);
 				k = state->m_closeCaptureIdSet.findBit (k + 1);
 			}

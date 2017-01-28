@@ -15,6 +15,16 @@ namespace jnc {
 namespace ct {
 
 class Module;
+class BasicBlock;
+
+//..............................................................................
+
+struct AutomatonAcceptContext: sl::ListLink
+{
+	BasicBlock* m_actionBlock;
+	size_t m_firstGroupId;
+	size_t m_groupCount;
+};
 
 //..............................................................................
 
@@ -26,9 +36,18 @@ struct DfaGroupSet: sl::ListLink
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct DfaAcceptInfo: sl::ListLink
+{
+	size_t m_firstGroupId;
+	size_t m_groupCount;
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct DfaStateInfo
 {
 	uintptr_t m_flags;
+	DfaAcceptInfo* m_acceptInfo;
 	DfaGroupSet* m_groupSet;
 };
 
@@ -39,16 +58,14 @@ class Dfa: public sl::ListLink
 protected:
 	size_t m_stateCount;
 	size_t m_groupCount;
+	size_t m_maxSubLexemeCount;
 	sl::Array <uintptr_t> m_transitionTable;
 	sl::Array <DfaStateInfo> m_stateInfoTable;
+	sl::StdList <DfaAcceptInfo> m_acceptInfoList;
 	sl::StdList <DfaGroupSet> m_groupSetList;
 
 public:
-	Dfa ()
-	{
-		m_stateCount = 0;
-		m_groupCount = 0;
-	}
+	Dfa ();
 
 	size_t
 	getStateCount ()
@@ -62,17 +79,23 @@ public:
 		return m_groupCount;
 	}
 
+	size_t
+	getMaxSubLexemeCount ()
+	{
+		return m_maxSubLexemeCount;
+	}
+
 	bool
 	build (fsm::RegExp* regExp);
 
 	uintptr_t
 	getTransition (
-		uintptr_t stateId, 
-		char c
+		uintptr_t stateId,
+		uchar_t c
 		)
 	{
 		ASSERT (stateId < m_stateCount);
-		return m_transitionTable [stateId * 256 + (uint_t) c];
+		return m_transitionTable [stateId * 256 + c];
 	}
 
 	DfaStateInfo*

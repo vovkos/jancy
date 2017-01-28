@@ -2116,6 +2116,7 @@ Parser::beginAutomatonFunction ()
 	m_automatonReturnBlock = m_module->m_controlFlowMgr.createBlock ("automaton_return_block");
 	m_automatonRegExpNameMgr.clear ();
 	m_automatonRegExp.clear ();
+	m_automatonAcceptContextList.clear ();
 	return true;
 }
 
@@ -2146,10 +2147,19 @@ Parser::finalizeAutomatonFunction ()
 
 	// finalize regexp
 
-	BasicBlock* automatonSetupBlock = m_module->m_controlFlowMgr.createBlock ("automaton_setup_block");
-
 	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp);
 	regExpCompiler.finalize ();
+
+	sl::Iterator <AutomatonAcceptContext> prev = m_automatonAcceptContextList.getHead ();
+	sl::Iterator <AutomatonAcceptContext> next = prev.getNext ();
+	while (next)
+	{
+		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
+		prev = next++;
+	}
+
+	ASSERT (prev); // otherwise, it was an empty automaton, which should have been handled earlier
+	prev->m_groupCount = m_automatonRegExp.getGroupCount () - prev->m_firstGroupId;
 
 	// build dfa tables
 
@@ -2168,10 +2178,15 @@ Parser::finalizeAutomatonFunction ()
 		fsm::DfaState* state = stateArray [i];
 
 		if (state->m_isAccept)
-			caseMap [state->m_id] = (BasicBlock*) state->m_acceptContext;
+		{
+			AutomatonAcceptContext* context = (AutomatonAcceptContext*) state->m_acceptContext;
+			caseMap [state->m_id] = context->m_actionBlock;
+		}
 	}
 
 	// generate switch
+
+	BasicBlock* automatonSetupBlock = m_module->m_controlFlowMgr.createBlock ("automaton_setup_block");
 
 	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonSwitchBlock);
 
@@ -2261,11 +2276,16 @@ Parser::automatonRegExp (
 		return true;
 	}
 
+	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_action_block");
+
+	AutomatonAcceptContext* context = AXL_MEM_NEW (AutomatonAcceptContext);
+	context->m_firstGroupId = m_automatonRegExp.getGroupCount ();
+	context->m_groupCount = 0;
+	context->m_actionBlock = block;
+	m_automatonAcceptContextList.insertTail (context);
+
 	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp, &m_automatonRegExpNameMgr);
-
-	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_regexp_block");
-
-	bool result = regExpCompiler.incrementalCompile (source, block);
+	bool result = regExpCompiler.incrementalCompile (source, context);
 	if (!result)
 		return false;
 

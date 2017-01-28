@@ -98,6 +98,7 @@ NamespaceMgr::addStdItems ()
 		global->addItem (jnc) &&
 		jnc->addItem ("Scheduler", m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem ("AutomatonResult", m_module->m_typeMgr.getLazyStdType (StdType_AutomatonResult)) &&
+		jnc->addItem ("AutomatonLexeme", m_module->m_typeMgr.getLazyStdType (StdType_AutomatonLexeme)) &&
 		jnc->addItem ("AutomatonFunc", m_module->m_typeMgr.getLazyStdType (StdType_AutomatonFunc)) &&
 		jnc->addItem ("Recognizer", m_module->m_typeMgr.getLazyStdType (StdType_Recognizer)) &&
 		jnc->addItem ("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));

@@ -144,6 +144,7 @@ Members
 	fsm::RegExp m_automatonRegExp;
 	BasicBlock* m_automatonSwitchBlock;
 	BasicBlock* m_automatonReturnBlock;
+	sl::StdList <AutomatonAcceptContext> m_automatonAcceptContextList;
 
 	size_t m_dynamicLibFunctionCount;
 

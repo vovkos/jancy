@@ -39,6 +39,15 @@ enum AutomatonResult
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct AutomatonLexeme
+{
+	DataPtr m_textPtr;
+	size_t m_offset;
+	size_t m_length;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 typedef
 AutomatonResult
 AutomatonFunc (
@@ -61,23 +70,23 @@ class Recognizer: public IfaceHdr
 {
 protected:
 	ct::Dfa* m_dfa;
+
 	uintptr_t m_stateId;
 	uintptr_t m_lastAcceptStateId;
 	size_t m_lastAcceptLexemeLength;
+
+	DataPtr m_groupOffsetArrayPtr;
+	size_t m_groupCount;
+	size_t m_maxSubLexemeCount;
 
 public:
 	FunctionPtr m_automatonFuncPtr;
 	size_t m_lexemeLengthLimit;
 	size_t m_currentOffset;
 
-	DataPtr m_lexemePtr;
-	size_t m_lexemeOffset;
-	size_t m_lexemeLength;
-
-	size_t m_groupCount;
-	DataPtr m_groupTextArrayPtr;
-	DataPtr m_groupOffsetArrayPtr;
-	DataPtr m_groupLengthArrayPtr;
+	AutomatonLexeme m_lexeme;
+	DataPtr m_subLexemeArrayPtr;
+	size_t m_subLexemeCount;
 
 public:
 	void
