@@ -15,7 +15,7 @@ jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 		printf ("echo\n");
 
 	%% "_[" (\d+ '.')* \d+ ']'
-		printf ("MAC: %s\n", recognizer.m_lexeme);
+		printf ("MAC: %s\n", recognizer.m_lexeme.m_text);
 		recognizer.m_automatonFunc = scanCommand;
 		return jnc.AutomatonResult.Stop;
 }

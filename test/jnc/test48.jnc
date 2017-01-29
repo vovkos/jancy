@@ -20,7 +20,7 @@ jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
 		char const* chunk = strdup (g_data, length);
 
 		printf ("%s\n", chunk);
-		printf ("inband '%s'\n", recognizer.m_lexeme);
+		printf ("inband '%s'\n", recognizer.m_lexeme.m_text);
 
 		g_data += length;
 		g_dataOffset += length;

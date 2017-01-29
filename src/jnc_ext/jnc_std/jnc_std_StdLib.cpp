@@ -353,15 +353,6 @@ format (
 	return resultPtr;
 }
 
-void
-collectGarbage ()
-{
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
-
-	gcHeap->collect ();
-}
-
 //..............................................................................
 
 } // namespace std
@@ -381,7 +372,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.setErrno",       setErrno)
 	JNC_MAP_FUNCTION ("std.setError",       setError)
 	JNC_MAP_FUNCTION ("std.format",         format)
-	JNC_MAP_FUNCTION ("std.collectGarbage", collectGarbage)
 
 	JNC_MAP_FUNCTION ("strlen",  jnc::strLen)
 	JNC_MAP_FUNCTION ("strcmp",  strCmp)

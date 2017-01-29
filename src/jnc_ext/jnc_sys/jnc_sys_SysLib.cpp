@@ -52,6 +52,46 @@ sleep (uint32_t msCount)
 	gcHeap->leaveWaitRegion ();
 }
 
+void
+collectGarbage ()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	gcHeap->collect ();
+}
+
+GcStats
+getGcStats ()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	GcStats stats;
+	gcHeap->getStats (&stats);
+	return stats;
+}
+
+GcSizeTriggers
+getGcTriggers ()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	GcSizeTriggers triggers;
+	gcHeap->getSizeTriggers (&triggers);
+	return triggers;
+}
+
+void
+setGcTriggers (GcSizeTriggers triggers)
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	gcHeap->setSizeTriggers (&triggers);
+}
+
 //..............................................................................
 
 } // namespace sys
@@ -87,6 +127,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.getCurrentThreadId", getCurrentThreadId)
 	JNC_MAP_FUNCTION ("sys.getTimestamp",       getTimestamp)
 	JNC_MAP_FUNCTION ("sys.sleep",              jnc::sys::sleep)
+	JNC_MAP_FUNCTION ("sys.collectGarbage",     collectGarbage)
+	JNC_MAP_FUNCTION ("sys.getGcStats",         getGcStats)
+	JNC_MAP_PROPERTY ("sys.g_gcTriggers",       getGcTriggers, setGcTriggers)
 
 	JNC_MAP_TYPE (Lock)
 	JNC_MAP_TYPE (Event)

@@ -19,7 +19,7 @@
 #include "moc_mainwindow.cpp"
 #include "qrc_jancyedit.cpp"
 
-#define _NO_GC 1
+// #define _NO_GC 1
 
 //..............................................................................
 

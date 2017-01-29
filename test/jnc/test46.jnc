@@ -48,7 +48,7 @@ int main ()
 	C2* c = new C2;
 
 	printf ("running GC...\n");
-	std.collectGarbage ();
+	sys.collectGarbage ();
 
 	printf ("done.\n");
 	return 0;

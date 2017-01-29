@@ -9,6 +9,16 @@
 //
 //..............................................................................
 
+construct ()
+{
+	printf ("utils.jnc.construct ()\n");
+}
+
+destruct ()
+{
+	printf ("utils.jnc.destruct ()\n");
+}
+
 utilsFoo ()
 {
 	printf ("utilsFoo ()\n");

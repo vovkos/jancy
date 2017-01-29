@@ -12,13 +12,13 @@
 jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
 {
 	%% "open" [ \t]* [0-9]* [\r\n]
-		printf ("command = open\n%s\n", recognizer.m_lexeme);
+		printf ("command = open\n%s\n", recognizer.m_lexeme.m_text);
 
 	%% "close" [ \t]* [0-9]* [\r\n]
-		printf ("command = close\n%s\n", recognizer.m_lexeme);
+		printf ("command = close\n%s\n", recognizer.m_lexeme.m_text);
 
 	%% "connect" [ \t]* [0-9]* [\r\n]
-		printf ("command = connect\n%s\n", recognizer.m_lexeme);
+		printf ("command = connect\n%s\n", recognizer.m_lexeme.m_text);
 
 	%% .
 }

@@ -27,7 +27,7 @@ int main ()
 		printf ("x -- case 0\n");
 
 		printf ("collect garbage #1\n");
-		std.collectGarbage ();
+		sys.collectGarbage ();
 		break;
 
 	case 1:
@@ -41,7 +41,7 @@ int main ()
 	}
 
 	printf ("collect garbage #2\n");
-	std.collectGarbage ();
+	sys.collectGarbage ();
 	return 0;
 }
 

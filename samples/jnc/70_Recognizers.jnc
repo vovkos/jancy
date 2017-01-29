@@ -31,7 +31,7 @@ jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
 
 	%% \d+
 		// you can access matched lexeme via recognizer.m_lexeme field
-		printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme);
+		printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme.m_text);
 
 	%% \s+
 		// ignore whitespace

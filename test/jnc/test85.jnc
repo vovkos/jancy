@@ -1,0 +1,23 @@
+import "utils.jnc"
+
+construct ()
+{
+	printf ("module.construct ()\n");
+}
+
+destruct ()
+{
+	printf ("module.destruct ()\n");
+}
+
+int main ()
+{
+	printf ("main ()\n");
+	
+	sys.GcTriggers triggers = sys.g_gcTriggers;
+	printf ("triggers: %d, %d\n", triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
+
+	sys.collectGarbage ();
+	
+	return 0;
+}

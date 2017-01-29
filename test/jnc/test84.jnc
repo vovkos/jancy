@@ -1,9 +1,9 @@
 jnc.AutomatonResult automaton myScanner (jnc.Recognizer* recognizer)
 {
 	%% \s* ("foo" \d*) \s+ ("bar" \d*)? \s*
-		printf ("detected foobar: '%s'\n", recognizer.m_lexeme);
-		printf ("foo: '%s'\n", recognizer.m_groupTextArray [0]);
-		printf ("bar: '%s'\n", recognizer.m_groupTextArray [1]);
+		printf ("detected foobar: '%s'\n", recognizer.m_lexeme.m_text);
+		printf ("foo: '%s'\n", recognizer.m_subLexemeArray [0].m_text);
+		printf ("bar: '%s'\n", recognizer.m_subLexemeArray [1].m_text);
 		printf ("offset: %d\n", recognizer.m_currentOffset);
 }
 
