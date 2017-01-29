@@ -37,8 +37,6 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 		"destruct",                 // jnc_FunctionKind_Destructor,
 		"static construct",         // jnc_FunctionKind_StaticConstructor,
 		"static destruct",          // jnc_FunctionKind_StaticDestructor,
-		"module construct",         // jnc_FunctionKind_ModuleConstructor,
-		"module destruct",          // jnc_FunctionKind_ModuleDestructor,
 		"call-operator",            // jnc_FunctionKind_CallOperator,
 		"cast-operator",            // jnc_FunctionKind_CastOperator,
 		"unary-operator",           // jnc_FunctionKind_UnaryOperator,
@@ -79,12 +77,6 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 		jnc_FunctionKindFlag_NoOverloads |
 		jnc_FunctionKindFlag_NoArgs,
 		jnc_FunctionKindFlag_NoStorage   |  // jnc_FunctionKind_StaticDestructor,
-		jnc_FunctionKindFlag_NoOverloads |
-		jnc_FunctionKindFlag_NoArgs,
-		jnc_FunctionKindFlag_NoStorage   |  // jnc_FunctionKind_ModuleConstructor,
-		jnc_FunctionKindFlag_NoOverloads |
-		jnc_FunctionKindFlag_NoArgs,
-		jnc_FunctionKindFlag_NoStorage   |  // jnc_FunctionKind_ModuleDestructor,
 		jnc_FunctionKindFlag_NoOverloads |
 		jnc_FunctionKindFlag_NoArgs,
 		0,                                  // jnc_FunctionKind_CallOperator,

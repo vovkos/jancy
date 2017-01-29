@@ -252,15 +252,6 @@ FunctionMgr::prologue (
 	if (compileFlags & ModuleCompileFlag_GcSafePointInPrologue)
 		m_module->m_operatorMgr.gcSafePoint ();
 
-	if (function->m_functionKind == FunctionKind_ModuleConstructor)
-	{
-		result = m_module->m_variableMgr.allocateInitializeGlobalVariables ();
-		if (!result)
-			return false;
-
-		callStaticConstructors ();
-	}
-
 	// 'this' arg
 
 	if (function->isMember ())

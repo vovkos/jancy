@@ -285,44 +285,6 @@ Module::findFunctionMapping (const sl::StringRef& name)
 }
 
 bool
-Module::setConstructor (Function* function)
-{
-	if (!function->getType ()->getArgArray ().isEmpty ())
-	{
-		err::setFormatStringError ("module 'construct' cannot have arguments");
-		return false;
-	}
-
-	if (m_constructor)
-	{
-		err::setFormatStringError ("module already has 'construct' method");
-		return false;
-	}
-
-	function->m_functionKind = FunctionKind_ModuleConstructor;
-	function->m_storageKind = StorageKind_Static;
-	function->m_tag = "module.construct";
-	m_constructor = function;
-	return true;
-}
-
-bool
-Module::setDestructor (Function* function)
-{
-	if (m_destructor)
-	{
-		err::setFormatStringError ("module already has 'destruct' method");
-		return false;
-	}
-
-	function->m_functionKind = FunctionKind_ModuleDestructor;
-	function->m_storageKind = StorageKind_Static;
-	function->m_tag = "module.destruct";
-	m_destructor = function;
-	return true;
-}
-
-bool
 Module::setFunctionPointer (
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const sl::StringRef& name,
@@ -400,8 +362,6 @@ Module::parse (
 	if (m_compileFlags & ModuleCompileFlag_Documentation)
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
 
-
-
 	Parser parser (this);
 	parser.create (Parser::StartSymbol, true);
 
@@ -439,6 +399,7 @@ Module::parse (
 	}
 
 	m_namespaceMgr.getGlobalNamespace ()->getUsingSet ()->clear ();
+
 	return true;
 }
 
@@ -541,26 +502,9 @@ Module::compile ()
 			return false;
 	}
 
-	// ensure module constructor (unconditionally! static variable might appear during compilation)
-
-	if (m_constructor)
-	{
-		if (!m_constructor->hasBody ())
-		{
-			err::setFormatStringError ("unresolved module constructor");
-			return false;
-		}
-
-		result = m_constructor->compile ();
-		if (!result)
-			return false;
-	}
-	else
-	{
-		result = createDefaultConstructor ();
-		if (!result)
-			return false;
-	}
+	result = createConstructorDestructor ();
+	if (!result)
+		return false;
 
 	// compile the rest
 
@@ -687,14 +631,19 @@ Module::postParseStdItem ()
 	return true;
 }
 bool
-Module::createDefaultConstructor ()
+Module::createConstructorDestructor ()
 {
+	ASSERT (!m_constructor && !m_destructor);
+
 	bool result;
 
-	ASSERT (!m_constructor);
+	bool hasDestructors = false;
+	sl::ConstList <Unit> unitList = m_unitMgr.getUnitList ();
+
+	// create constructor unconditionally -- static variable might appear during compilation
 
 	FunctionType* type = (FunctionType*) m_typeMgr.getStdType (StdType_SimpleFunction);
-	Function* function = m_functionMgr.createFunction (FunctionKind_ModuleConstructor, type);
+	Function* function = m_functionMgr.createFunction (FunctionKind_StaticConstructor, type);
 	function->m_storageKind = StorageKind_Static;
 	function->m_tag = "module.construct";
 
@@ -707,6 +656,41 @@ Module::createDefaultConstructor ()
 		return false;
 
 	m_functionMgr.callStaticConstructors ();
+
+	sl::Iterator <Unit> it = unitList.getHead ();
+	for (; it; it++)
+	{
+		Function* constructor = it->getConstructor ();
+		Function* destructor = it->getDestructor ();
+
+		if (destructor)
+			hasDestructors = true;
+
+		if (constructor)
+			m_llvmIrBuilder.createCall (constructor, constructor->getType (), NULL);
+	}
+
+	m_functionMgr.internalEpilogue ();
+
+	if (!hasDestructors)
+		return true;
+
+	function = m_functionMgr.createFunction (FunctionKind_StaticDestructor, type);
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.destruct";
+
+	m_destructor = function;
+
+	m_functionMgr.internalPrologue (function);
+
+	it = unitList.getTail ();
+	for (; it; it--)
+	{
+		Function* destructor = it->getDestructor ();
+		if (destructor)
+			m_llvmIrBuilder.createCall (destructor, destructor->getType (), NULL);
+	}
+
 	m_functionMgr.internalEpilogue ();
 
 	return true;

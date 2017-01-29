@@ -18,6 +18,48 @@ namespace ct {
 
 //..............................................................................
 
+bool
+Unit::setConstructor (Function* function)
+{
+	if (!function->getType ()->getArgArray ().isEmpty ())
+	{
+		err::setFormatStringError ("unit 'construct' cannot have arguments");
+		return false;
+	}
+
+	if (m_constructor)
+	{
+		err::setFormatStringError ("unit already has 'construct' method");
+		return false;
+	}
+
+	function->m_functionKind = FunctionKind_StaticConstructor;
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.construct";
+	m_constructor = function;
+	return true;
+}
+
+bool
+Unit::setDestructor (Function* function)
+{
+	ASSERT (function->getType ()->getArgArray ().isEmpty ());
+
+	if (m_destructor)
+	{
+		err::setFormatStringError ("unit already has 'destruct' method");
+		return false;
+	}
+
+	function->m_functionKind = FunctionKind_StaticDestructor;
+	function->m_storageKind = StorageKind_Static;
+	function->m_tag = "module.destruct";
+	m_destructor = function;
+	return true;
+}
+
+//..............................................................................
+
 UnitMgr::UnitMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();

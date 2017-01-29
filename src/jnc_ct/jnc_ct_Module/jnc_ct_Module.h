@@ -154,17 +154,11 @@ public:
 		return m_constructor;
 	}
 
-	bool
-	setConstructor (Function* function);
-
 	Function*
 	getDestructor ()
 	{
 		return m_destructor;
 	}
-
-	bool
-	setDestructor (Function* function);
 
 	void
 	setFunctionPointer (
@@ -263,7 +257,7 @@ protected:
 	createLlvmExecutionEngine ();
 
 	bool
-	createDefaultConstructor ();
+	createConstructorDestructor ();
 
 	bool
 	processCalcLayoutArray ();

@@ -107,6 +107,7 @@ class Function:
 	public FunctionName
 {
 	friend class Module;
+	friend class Unit;
 	friend class FunctionMgr;
 	friend class TypeMgr;
 	friend class NamedTypeBlock;
@@ -115,8 +116,6 @@ class Function:
 	friend class Property;
 	friend class Orphan;
 	friend class Parser;
-	friend class Cast_FunctionPtr;
-	friend class JitEventListener;
 
 protected:
 	FunctionType* m_type;

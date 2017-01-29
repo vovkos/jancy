@@ -997,10 +997,12 @@ Parser::declareFunction (
 		switch (functionKind)
 		{
 		case FunctionKind_Constructor:
-			return function->getModule ()->setConstructor (function);
+		case FunctionKind_StaticConstructor:
+			return function->getParentUnit ()->setConstructor (function);
 
 		case FunctionKind_Destructor:
-			return function->getModule ()->setDestructor (function);
+		case FunctionKind_StaticDestructor:
+			return function->getParentUnit ()->setDestructor (function);
 		}
 
 	if (functionKind != FunctionKind_Named)

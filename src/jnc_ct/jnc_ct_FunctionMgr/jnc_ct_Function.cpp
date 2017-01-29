@@ -132,12 +132,9 @@ bool
 Function::compile ()
 {
 	ASSERT (!m_body.isEmpty ()); // otherwise what are we doing here?
-	ASSERT (!m_entryBlock || m_functionKind == FunctionKind_ModuleConstructor);
+	ASSERT (!m_entryBlock);
 
 	bool result;
-
-	if (m_entryBlock) // already compiled
-		return true;
 
 	Unit* unit = getParentUnit ();
 	if (unit)

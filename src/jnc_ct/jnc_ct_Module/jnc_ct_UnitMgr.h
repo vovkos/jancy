@@ -34,6 +34,9 @@ protected:
 
 	llvm::DIFile m_llvmDiFile;
 
+	Function* m_constructor;
+	Function* m_destructor;
+
 public:
 	Module*
 	getModule ()
@@ -70,6 +73,24 @@ public:
 	{
 		return m_llvmDiFile;
 	}
+
+	Function*
+	getConstructor ()
+	{
+		return m_constructor;
+	}
+
+	bool
+	setConstructor (Function* function);
+
+	Function*
+	getDestructor ()
+	{
+		return m_destructor;
+	}
+
+	bool
+	setDestructor (Function* function);
 };
 
 //..............................................................................
@@ -92,6 +113,12 @@ public:
 
 	void
 	clear ();
+
+	sl::ConstList <Unit>
+	getUnitList ()
+	{
+		return m_unitList;
+	}
 
 	Unit*
 	getCurrentUnit ()
