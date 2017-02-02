@@ -145,10 +145,7 @@ Function::compile ()
 	Token::Pos beginPos = m_body.getHead ()->m_pos;
 	Token::Pos endPos = m_body.getTail ()->m_pos;
 
-	result = m_module->m_functionMgr.prologue (this, beginPos);
-	if (!result)
-		return false;
-
+	m_module->m_functionMgr.prologue (this, beginPos);
 	m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
 
 	// body
@@ -172,7 +169,7 @@ bool
 Function::compileConstructorBody ()
 {
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 
 	NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind ();
 	ASSERT (namespaceKind == NamespaceKind_Type || namespaceKind == NamespaceKind_Property);
@@ -225,7 +222,7 @@ Function::compileAutomatonBody ()
 	ASSERT (argArray [recognizerArgIdx + 1]->getType ()->getTypeKind () == TypeKind_Int);
 
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 	return parser.parseTokenList (SymbolKind_automaton_compound_stmt, m_body, true);
 }
 
@@ -251,6 +248,8 @@ Function::compileReactionBody ()
 	Value stateValue;
 	Value stateCmpValue;
 
+	ASSERT (m_reactionIndex != -1);
+
 	result =
 		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
 		m_module->m_operatorMgr.binaryOperator (
@@ -264,11 +263,14 @@ Function::compileReactionBody ()
 			Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
 			);
 
+	if (!result)
+		return false;
+
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 
 	result =
-		parser.parseTokenList (SymbolKind_expression, m_body) &&
+		parser.parseTokenList (SymbolKind_expression_stmt, m_body) &&
 		m_module->m_operatorMgr.storeDataRef (
 			stateValue,
 			Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
@@ -285,7 +287,7 @@ bool
 Function::compileNormalBody ()
 {
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 
 	return parser.parseTokenList (SymbolKind_compound_stmt, m_body, true);
 }

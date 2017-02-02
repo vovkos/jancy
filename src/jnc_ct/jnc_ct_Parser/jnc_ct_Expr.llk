@@ -264,7 +264,7 @@ logical_or_expr <Value* $value>
 		(
 			TokenKind_LogOr
 				{
-					if (m_stage != StageKind_ReactorStarter)
+					if (m_stage != Stage_ReactorStarter)
 					{
 						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
@@ -275,7 +275,7 @@ logical_or_expr <Value* $value>
 				}
 			logical_and_expr <&$opValue2>
 				{
-					if (m_stage != StageKind_ReactorStarter)
+					if (m_stage != Stage_ReactorStarter)
 						return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
 					else
 						return
@@ -297,7 +297,7 @@ logical_and_expr <Value* $value>
 		(
 			TokenKind_LogAnd
 				{
-					if (m_stage != StageKind_ReactorStarter)
+					if (m_stage != Stage_ReactorStarter)
 					{
 						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
 						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
@@ -308,7 +308,7 @@ logical_and_expr <Value* $value>
 				}
 			inclusive_or_expr <&$opValue2>
 				{
-					if (m_stage != StageKind_ReactorStarter)
+					if (m_stage != Stage_ReactorStarter)
 						return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
 					else
 						return
@@ -534,8 +534,8 @@ assignment_operator_expr <Value* $value>
 	}
 	enter
 	{
-		if (m_stage == StageKind_ReactorStarter)  // reset on assignment
-			m_reactionBindSiteList.clear ();
+		if (m_stage == Stage_ReactorStarter)  // reset on assignment
+			resetReactorBindSites ();
 	}
 	:	assignment_operator $o conditional_expr <&$opValue2>
 			{
@@ -611,7 +611,7 @@ unary_expr <Value* $value>
 unary_operator_expr <Value* $value>
 	leave
 	{
-		if (m_stage == StageKind_ReactorStarter && isBindableType ($value->getType ()))
+		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
 			return addReactorBindSite (*$value);
 	}
 	:	'+' unary_expr <$value>
@@ -727,7 +727,7 @@ postfix_expr <Value* $value>
 postfix_operator <Value* $value>
 	leave
 	{
-		if (m_stage == StageKind_ReactorStarter && isBindableType ($value->getType ()))
+		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
 			addReactorBindSite (*$value);
 	}
 	:	'(' expression_or_empty_list ')'
@@ -779,7 +779,7 @@ member_operator <Value* $value>
 primary_expr <Value* $value>
 	leave
 	{
-		if (m_stage == StageKind_ReactorStarter && isBindableType ($value->getType ()))
+		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
 			return addReactorBindSite (*$value);
 	}
 	:	'(' conditional_expr <$value> ')'

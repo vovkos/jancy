@@ -152,5 +152,17 @@ protected:
 
 //..............................................................................
 
+inline 
+bool 
+isReactorClassTypeMember (ModuleItemDecl* itemDecl)
+{
+	Namespace* nspace = itemDecl->getParentNamespace ();
+	return 
+		nspace->getNamespaceKind () == NamespaceKind_Type &&
+		isClassType ((ClassType*) nspace, ClassTypeKind_Reactor);
+}
+
+//.............................................................................
+
 } // namespace ct
 } // namespace jnc

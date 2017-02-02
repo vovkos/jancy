@@ -209,7 +209,7 @@ public:
 	PropertyTemplate*
 	createPropertyTemplate ();
 
-	bool
+	void
 	prologue (
 		Function* function,
 		const Token::Pos& pos

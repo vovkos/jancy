@@ -18,7 +18,7 @@ class
 named_type_specifier
 	leave
 	{
-		if (m_stage == StageKind_Pass2)
+		if (m_stage == Stage_Pass2)
 			return $.m_type->ensureLayout ();
 	}
 	:	enum_specifier

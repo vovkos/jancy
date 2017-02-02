@@ -72,7 +72,7 @@ ReactorClassType::calcLayout ()
 	// scan
 
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_ReactorScan;
+	parser.m_stage = Parser::Stage_ReactorScan;
 	parser.m_reactorType = this;
 
 	Function* start = m_methodArray [ReactorMethodKind_Start];
@@ -87,9 +87,25 @@ ReactorClassType::calcLayout ()
 	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.setCurrentFunction (prevFunction);
 
-	ASSERT (parser.m_reactorTotalBindSiteCount && parser.m_reactionIndex);
+	if (!parser.m_reactionCount)
+	{
+		err::setFormatStringError ("reactor '%s' has no reactions", m_tag.sz ());
+		return false;
+	}
+
+	if (!parser.m_reactorTotalBindSiteCount)
+	{
+		err::setFormatStringError ("reactor '%s' has no bindings", m_tag.sz ());
+		return false;
+	}
+
+	m_reactionCount = parser.m_reactionCount;
 	m_bindSiteCount = parser.m_reactorTotalBindSiteCount;
-	m_reactionCount = parser.m_reactionIndex;
+
+	printf ("ReactorClassType::calcLayout (): m_bindSiteCount: %d; m_reactionCount: %d\n",
+		m_bindSiteCount,
+		m_reactionCount
+		);
 
 	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
 	ArrayType* arrayType = bindSiteType->getArrayType (m_bindSiteCount);
@@ -131,13 +147,15 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 		return false;
 
 	sl::Iterator <Reaction> reaction = reactionList.getHead ();
-	size_t i = 0;
-	for (; reaction; reaction++)
+	size_t reactionIdx = 0;
+	size_t bindSiteIdx = 0;
+	for (; reaction; reaction++, reactionIdx++)
 	{
 		Function* function = reaction->m_function;
+		function->m_reactionIndex = reactionIdx;
 
 		sl::BoxIterator <Value> value = reaction->m_bindSiteList.getHead ();
-		for (; value; value++, i++)
+		for (; value; value++, bindSiteIdx++)
 		{
 			Value eventValue = *value;
 			Value handlerValue = function;
@@ -158,7 +176,7 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 				ASSERT (result);
 			}
 
-			Value idxValue (i, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+			Value idxValue (bindSiteIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 			Value addMethodValue;
 			Value cookieValue;
 			Value bindSiteValue;
@@ -183,7 +201,8 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 		}
 	}
 
-	ASSERT (i == m_bindSiteCount);
+	ASSERT (reactionIdx == m_reactionCount);
+	ASSERT (bindSiteIdx <= m_bindSiteCount);
 	return true;
 }
 
@@ -256,9 +275,7 @@ ReactorClassType::compileStartMethod ()
 	Function* startMethod = m_methodArray [ReactorMethodKind_Start];
 	Function* stopMethod = m_methodArray [ReactorMethodKind_Stop];
 
-	result = m_module->m_functionMgr.prologue (startMethod, m_body.getHead ()->m_pos);
-	if (!result)
-		return false;
+	m_module->m_functionMgr.prologue (startMethod, m_body.getHead ()->m_pos);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	ASSERT (thisValue);
@@ -301,7 +318,7 @@ ReactorClassType::compileStartMethod ()
 	// compile start
 
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_ReactorStarter;
 	parser.m_reactorType = this;
 
 	result = parser.parseTokenList (SymbolKind_reactor_body, m_body, true);

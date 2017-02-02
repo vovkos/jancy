@@ -163,7 +163,7 @@ OperatorMgr::parseInitializer (
 	if (!constructorTokenList.isEmpty ())
 	{
 		Parser parser (m_module);
-		parser.m_stage = Parser::StageKind_Pass2;
+		parser.m_stage = Parser::Stage_Pass2;
 
 		result = parser.parseTokenList (SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
 		if (!result)
@@ -179,7 +179,7 @@ OperatorMgr::parseInitializer (
 	if (!initializerTokenList.isEmpty ())
 	{
 		Parser parser (m_module);
-		parser.m_stage = Parser::StageKind_Pass2;
+		parser.m_stage = Parser::Stage_Pass2;
 
 		if (initializerTokenList.getHead ()->m_token == '{')
 		{
@@ -214,7 +214,7 @@ OperatorMgr::parseExpression (
 		m_module->m_unitMgr.setCurrentUnit (unit);
 
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 	parser.m_flags |= flags;
 
 	bool result = parser.parseTokenList (SymbolKind_expression_save_value, expressionTokenList);
@@ -390,7 +390,7 @@ OperatorMgr::evaluateAlias (
 	)
 {
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass2;
+	parser.m_stage = Parser::Stage_Pass2;
 
 	m_module->m_namespaceMgr.openNamespace (decl->getParentNamespace ());
 	m_module->m_namespaceMgr.lockSourcePos ();

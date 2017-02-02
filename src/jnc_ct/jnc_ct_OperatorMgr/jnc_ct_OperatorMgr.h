@@ -847,13 +847,22 @@ public:
 	// member operators
 
 	bool
-	createMemberClosure (Value* value);
+	createMemberClosure (
+		Value* value,
+		ModuleItemDecl* itemDecl = NULL
+		);
 
 	bool
-	getThisValue (Value* value);
+	getThisValue (
+		Value* value,
+		ModuleItemDecl* itemDecl = NULL
+		);
 
 	bool
-	getThisValueType (Value* value);
+	getThisValueType (
+		Value* value,
+		ModuleItemDecl* itemDecl = NULL
+		);
 
 	bool
 	memberOperator (

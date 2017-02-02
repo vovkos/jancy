@@ -16,6 +16,8 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_rtl_Recognizer.h"
 
+// #define _NO_BINDLESS_REACTIONS 1
+
 namespace jnc {
 namespace ct {
 
@@ -25,7 +27,7 @@ Parser::Parser (Module* module):
 	m_doxyParser (module)
 {
 	m_module = module;
-	m_stage = StageKind_Pass1;
+	m_stage = Stage_Pass1;
 	m_flags = 0;
 	m_fieldAlignment = 8;
 	m_defaultFieldAlignment = 8;
@@ -37,7 +39,7 @@ Parser::Parser (Module* module):
 	m_reactorType = NULL;
 	m_reactionBindSiteCount = 0;
 	m_reactorTotalBindSiteCount = 0;
-	m_reactionIndex = 0;
+	m_reactionCount = 0;
 	m_automatonState = AutomatonState_Idle;
 	m_automatonSwitchBlock = NULL;
 	m_automatonReturnBlock = NULL;
@@ -142,7 +144,7 @@ Parser::findType (
 
 	ModuleItem* item;
 
-	if (m_stage == StageKind_Pass1)
+	if (m_stage == Stage_Pass1)
 	{
 		if (baseTypeIdx != -1)
 			return NULL;
@@ -249,6 +251,9 @@ Parser::preDeclaration ()
 bool
 Parser::emptyDeclarationTerminator (TypeSpecifier* typeSpecifier)
 {
+	if (m_stage == Stage_ReactorStarter)
+		return true; // declarations are processed at Stage_ReactorScan
+
 	if (!m_lastDeclaredItem)
 	{
 		ASSERT (typeSpecifier);
@@ -565,8 +570,79 @@ Parser::popAttributeBlock ()
 }
 
 bool
+Parser::declareInReactorScan (Declarator* declarator)
+{
+	ASSERT (m_reactorType);
+
+	if (declarator->m_initializer.isEmpty ())
+		return true;
+
+	Parser parser (m_module);
+	parser.m_stage = Stage_ReactorScan;
+	parser.m_reactorType = m_reactorType;
+
+	bool result = parser.parseTokenList (SymbolKind_expression_0, declarator->m_initializer);
+	if (!result)
+		return false;
+
+	m_reactorTotalBindSiteCount += parser.m_reactionBindSiteCount;
+	m_reactionCount++;
+	return true;
+}
+
+bool
+Parser::declareInReactorStarter (Declarator* declarator)
+{
+	ASSERT (m_reactorType);
+
+	if (!declarator->isSimple ())
+	{
+		err::setFormatStringError ("invalid declarator in reactor");
+		return false;
+	}
+
+	sl::String name = declarator->getName ()->getShortName ();
+	m_lastDeclaredItem = m_reactorType->findItem (name);
+	if (!m_lastDeclaredItem)
+	{
+		err::setFormatStringError ("member '%s' not found in reactor '%s'", name.sz (), m_reactorType->m_tag.sz ());
+		return false;
+	}
+
+	if (declarator->m_initializer.isEmpty ())
+		return true;
+
+	Token token;	
+	token.m_pos = declarator->m_initializer.getTail ()->m_pos;
+	token.m_tokenKind = (TokenKind) ';';
+	declarator->m_initializer.insertTail (token);
+
+	token.m_pos = declarator->m_initializer.getHead ()->m_pos;
+	token.m_tokenKind = (TokenKind) '=';
+	declarator->m_initializer.insertHead (token);
+
+	token.m_tokenKind = TokenKind_Identifier;
+	token.m_data.m_string = name;
+	declarator->m_initializer.insertHead (token);
+
+	return reactorDeclarationOrExpressionStmt (&declarator->m_initializer);
+}
+
+bool
 Parser::declare (Declarator* declarator)
 {
+	bool result;
+
+	if (m_stage == Stage_ReactorStarter)
+		return declareInReactorStarter (declarator);
+
+	if (m_stage == Stage_ReactorScan)
+	{
+		result = declareInReactorScan (declarator);
+		if (!result)
+			return false;
+	}
+
 	m_lastDeclaredItem = NULL;
 
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace ()->getNamespaceKind () == NamespaceKind_DynamicLib;
@@ -1192,7 +1268,7 @@ Parser::parseLastPropertyBody (const sl::ConstBoxList <Token>& body)
 	Property* prop = (Property*) m_lastDeclaredItem;
 
 	Parser parser (m_module);
-	parser.m_stage = Parser::StageKind_Pass1;
+	parser.m_stage = Parser::Stage_Pass1;
 
 	m_module->m_namespaceMgr.openNamespace (prop);
 
@@ -1420,7 +1496,7 @@ Parser::declareData (
 		if (!result)
 			return false;
 
-		if (m_stage == StageKind_Pass2)
+		if (m_stage == Stage_Pass2)
 		{
 			result = arrayType->ensureLayout ();
 			if (!result)
@@ -1991,22 +2067,26 @@ Parser::finalizeDynamicLibType ()
 bool
 Parser::countReactionBindSites ()
 {
+	ASSERT (m_stage == Stage_ReactorScan && m_reactorType);
+
+#if (_NO_BINDLESS_REACTIONS)
 	if (!m_reactionBindSiteCount)
 	{
 		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
+#endif
 
 	m_reactorTotalBindSiteCount += m_reactionBindSiteCount;
 	m_reactionBindSiteCount = 0;
-	m_reactionIndex++;
+	m_reactionCount++;
 	return true;
 }
 
 bool
 Parser::addReactorBindSite (const Value& value)
 {
-	ASSERT (m_stage == StageKind_ReactorStarter);
+	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
 
 	bool result;
 
@@ -2015,15 +2095,19 @@ Parser::addReactorBindSite (const Value& value)
 	if (!result)
 		return false;
 
-	// create bind site variable in entry block
+	// prevent redundant subscriptions
 
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	llvm::Value* llvmValue = onChangedValue.getLlvmValue ();
+	ASSERT (llvmValue);
+
+	sl::HashTableMapIterator <llvm::Value*, bool> it = m_reactionBindSiteMap.visit (llvmValue);
+	if (it->m_value)
+		return true;
+
+	it->m_value = true;
+
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
 	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable ("onChanged", type);
-	m_module->m_controlFlowMgr.setCurrentBlock (prevBlock);
-
 	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
 	if (!result)
 		return false;
@@ -2046,16 +2130,14 @@ Parser::finalizeReactor ()
 	return true;
 }
 
-AXL_TODO ("add support for declarations inside a reactor (each must produce a hidden bindable variable)")
-
 void
-Parser::reactorOnEventDeclaration (
+Parser::reactorOnEventStmt (
 	sl::BoxList <Value>* valueList,
 	Declarator* declarator,
 	sl::BoxList <Token>* tokenList
 	)
 {
-	ASSERT (m_reactorType);
+	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
 
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix ();
 	ASSERT (suffix);
@@ -2074,9 +2156,9 @@ Parser::reactorOnEventDeclaration (
 }
 
 bool
-Parser::reactorExpressionStmt (sl::BoxList <Token>* tokenList)
+Parser::reactorDeclarationOrExpressionStmt (sl::BoxList <Token>* tokenList)
 {
-	ASSERT (m_reactorType);
+	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
 	ASSERT (!tokenList->isEmpty ());
 
 	bool result;
@@ -2084,29 +2166,34 @@ Parser::reactorExpressionStmt (sl::BoxList <Token>* tokenList)
 	ASSERT (m_reactorType);
 
 	Parser parser (m_module);
-	parser.m_stage = StageKind_ReactorStarter;
+	parser.m_stage = Stage_ReactorStarter;
 	parser.m_reactorType = m_reactorType;
 
-	result = parser.parseTokenList (SymbolKind_expression, *tokenList);
+	result = parser.parseTokenList (SymbolKind_reactor_declaration_or_expression_stmt, *tokenList);
 	if (!result)
 		return false;
 
+	if (parser.m_lastDeclaredItem)
+	{
+		m_reactionList.insertListTail (&parser.m_reactionList);
+		return true;
+	}
+
+#if (_NO_BINDLESS_REACTIONS)
 	if (parser.m_reactionBindSiteList.isEmpty ())
 	{
 		err::setFormatStringError ("no bindable properties found");
 		return false;
 	}
+#endif
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType ();
 
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
 	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
 	reaction->m_function->setBody (tokenList);
-	reaction->m_function->m_reactionIndex = m_reactionIndex;
 	reaction->m_bindSiteList.takeOver (&parser.m_reactionBindSiteList);
 	m_reactionList.insertTail (reaction);
-
-	m_reactionIndex++;
 	return true;
 }
 
@@ -2650,7 +2737,7 @@ Parser::lookupIdentifier (
 
 		if (((Function*) item)->isMember ())
 		{
-			result = m_module->m_operatorMgr.createMemberClosure (value);
+			result = m_module->m_operatorMgr.createMemberClosure (value, (Function*) item);
 			if (!result)
 				return false;
 		}
@@ -2668,7 +2755,7 @@ Parser::lookupIdentifier (
 
 		if (((Property*) item)->isMember ())
 		{
-			result = m_module->m_operatorMgr.createMemberClosure (value);
+			result = m_module->m_operatorMgr.createMemberClosure (value, (Property*) item);
 			if (!result)
 				return false;
 		}
@@ -2696,8 +2783,8 @@ Parser::lookupIdentifier (
 			return false;
 		}
 
-		result =
-			m_module->m_operatorMgr.getThisValue (&thisValue) &&
+		result = 
+			m_module->m_operatorMgr.getThisValue (&thisValue, (StructField*) item) &&
 			m_module->m_operatorMgr.getField (thisValue, (StructField*) item, &coord, value);
 
 		if (!result)
@@ -2773,7 +2860,7 @@ Parser::lookupIdentifierType (
 
 		if (((Function*) item)->isMember ())
 		{
-			result = m_module->m_operatorMgr.createMemberClosure (value);
+			result = m_module->m_operatorMgr.createMemberClosure (value, (Function*) item);
 			if (!result)
 				return false;
 		}
@@ -2785,7 +2872,7 @@ Parser::lookupIdentifierType (
 
 		if (((Property*) item)->isMember ())
 		{
-			result = m_module->m_operatorMgr.createMemberClosure (value);
+			result = m_module->m_operatorMgr.createMemberClosure (value, (Property*) item);
 			if (!result)
 				return false;
 		}

@@ -206,14 +206,12 @@ FunctionMgr::setCurrentFunction (Function* function)
 	return prevFunction;
 }
 
-bool
+void
 FunctionMgr::prologue (
 	Function* function,
 	const Token::Pos& pos
 	)
 {
-	bool result;
-
 	m_currentFunction = function;
 
 	// create entry block
@@ -266,8 +264,6 @@ FunctionMgr::prologue (
 		else if (function->getParentType ())
 			function->getParentType ()->initializeStaticFields ();
 	}
-
-	return true;
 }
 
 void
@@ -1023,7 +1019,7 @@ FunctionMgr::parseStdFunction (
 
 	Parser parser (m_module);
 	parser.create (SymbolKind_normal_item_declaration);
-	parser.m_stage = Parser::StageKind_Pass2; // no imports
+	parser.m_stage = Parser::Stage_Pass2; // no imports
 
 	for (;;)
 	{

@@ -19,13 +19,16 @@ namespace ct {
 //..............................................................................
 
 bool
-OperatorMgr::createMemberClosure (Value* value)
+OperatorMgr::createMemberClosure (
+	Value* value,
+	ModuleItemDecl* itemDecl
+	)
 {
 	Value thisValue;
 
 	bool result = value->getValueKind () == ValueKind_Type ?
-		getThisValueType (&thisValue) :
-		getThisValue (&thisValue);
+		getThisValueType (&thisValue, itemDecl) :
+		getThisValue (&thisValue, itemDecl);
 
 	if (!result)
 		return false;
@@ -36,7 +39,10 @@ OperatorMgr::createMemberClosure (Value* value)
 }
 
 bool
-OperatorMgr::getThisValue (Value* value)
+OperatorMgr::getThisValue (
+	Value* value,
+	ModuleItemDecl* itemDecl
+	)
 {
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	if (!thisValue)
@@ -45,7 +51,8 @@ OperatorMgr::getThisValue (Value* value)
 		return false;
 	}
 
-	if (isClassPtrType (thisValue.getType (), ClassTypeKind_Reactor))
+	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) && 
+		isClassPtrType (thisValue.getType (), ClassTypeKind_Reactor))
 	{
 		ClassType* classType = ((ClassPtrType*) thisValue.getType ())->getTargetType ();
 		ReactorClassType* reactorType = (ReactorClassType*) classType;
@@ -66,7 +73,10 @@ OperatorMgr::getThisValue (Value* value)
 }
 
 bool
-OperatorMgr::getThisValueType (Value* value)
+OperatorMgr::getThisValueType (
+	Value* value,
+	ModuleItemDecl* itemDecl
+	)
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	if (!function->isMember ())
@@ -76,7 +86,8 @@ OperatorMgr::getThisValueType (Value* value)
 	}
 
 	Type* thisType = function->getThisType ();
-	if (isClassPtrType (thisType, ClassTypeKind_Reactor))
+	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) && 
+		isClassPtrType (thisType, ClassTypeKind_Reactor))
 	{
 		ClassType* classType = ((ClassPtrType*) thisType)->getTargetType ();
 		ReactorClassType* reactorType = (ReactorClassType*) classType;

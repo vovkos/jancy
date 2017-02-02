@@ -1,0 +1,37 @@
+bindable int g_red;
+bindable int g_green;
+bindable int g_blue;
+
+int g_all;
+
+class C
+{
+	reactor m_testReactor (int a)
+	{
+		int x = a; // bindless 
+
+		bindable int z = g_red * 2;
+
+		g_all = g_green + g_blue + a + z + x;
+	}
+}
+
+int main ()
+{
+	printf ("main ()\n");
+	
+	C c;
+	c.m_testReactor.start (2000);
+	
+	g_red = 1;
+	g_green = 10;
+	g_blue = 100;
+
+	printf ("g_out = %d\n", g_all);
+
+	g_red = 2;
+	
+	printf ("g_out = %d\n", g_all);
+
+	return 0;
+}
