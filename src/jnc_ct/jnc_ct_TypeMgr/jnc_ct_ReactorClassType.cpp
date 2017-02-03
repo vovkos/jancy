@@ -102,11 +102,6 @@ ReactorClassType::calcLayout ()
 	m_reactionCount = parser.m_reactionCount;
 	m_bindSiteCount = parser.m_reactorTotalBindSiteCount;
 
-	printf ("ReactorClassType::calcLayout (): m_bindSiteCount: %d; m_reactionCount: %d\n",
-		m_bindSiteCount,
-		m_reactionCount
-		);
-
 	Type* bindSiteType = m_module->m_typeMgr.getStdType (StdType_ReactorBindSite);
 	ArrayType* arrayType = bindSiteType->getArrayType (m_bindSiteCount);
 	m_fieldArray [ReactorFieldKind_BindSiteArray] = createField ("!m_bindSiteArray", arrayType);
