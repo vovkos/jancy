@@ -64,10 +64,20 @@ jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 	g::getModule ()->setTag ("jnc_io_usb");
 	jnc_g_dynamicExtensionLibHost = host;
 
+	axl::io::registerUsbErrorProvider ();
 	axl::io::createUsbDefaultContext ();
-	axl::io::startUsbDefaultContextEventThread ();
+	axl::io::getUsbDefaultContextEventThread ()->start ();
 
 	return jnc::io::UsbLib_getLib ();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT
+bool_t
+jncDynamicExtensionLibUnload ()
+{
+	axl::io::getUsbDefaultContextEventThread ()->stop ();
+	return true;
 }
 
 //..............................................................................
