@@ -91,9 +91,17 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 	JNC_END_NESTED_CALL_SITE ()
 
 	if (!endpoint)
+	{
 		jnc::propagateLastError ();
-	else if (endpointId & LIBUSB_ENDPOINT_IN)
-		endpoint->startRead ();
+		return NULL;
+	}
+
+	if (endpointId & LIBUSB_ENDPOINT_IN)
+	{
+		bool result = endpoint->startRead ();
+		if (!result)
+			return NULL;
+	}
 
 	return endpoint;
 }

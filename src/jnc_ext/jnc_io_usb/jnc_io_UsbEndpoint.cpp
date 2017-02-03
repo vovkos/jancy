@@ -61,7 +61,6 @@ UsbEndpoint::UsbEndpoint ()
 	m_syncId = 0;
 	m_ioFlags = IoFlag_EndpointEventDisabled;
 	m_incomingQueueLimit = 16 * 1024;
-	m_readTransferCompleted.signal ();
 }
 
 void
@@ -314,7 +313,7 @@ UsbEndpoint::write (
 		}
 	}
 
-	return size;\
+	return size;
 }
 
 size_t
@@ -359,7 +358,16 @@ UsbEndpoint::nextReadTransfer_l ()
 	m_ioFlags |= IoFlag_Reading;
 	m_ioLock.unlock ();
 
-	return m_readTransfer.submit ();
+	bool result = m_readTransfer.submit ();
+	if (!result)
+	{
+		m_ioLock.lock ();
+		m_ioFlags &= ~IoFlag_Reading;
+		m_ioLock.unlock ();
+		return false;
+	}
+
+	return true;
 }
 
 void

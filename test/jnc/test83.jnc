@@ -32,8 +32,11 @@ int main ()
 	endpoint.m_onEndpointEvent += onUsbEndpointEvent ~(endpoint);
 	endpoint.m_isEndpointEventEnabled = true;
 
-	printf ("Staying resident...\n");
-	return -1000;
+	printf ("Closing endpoint...\n");
+	endpoint.close ();
+
+	printf ("Done.\n");
+	return 0;
 
 catch:
 	printf ($"Error: $!\n");
