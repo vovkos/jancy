@@ -69,9 +69,17 @@ typedef
 jnc_ExtensionLib*
 jnc_DynamicExtensionLibMainFunc (jnc_DynamicExtensionLibHost* host);
 
+typedef
+bool_t
+jnc_DynamicExtensionLibUnloadFunc ();
+
 JNC_SELECT_ANY
 char
 jnc_g_dynamicExtensionLibMainFuncName [] = "jncDynamicExtensionLibMain";
+
+JNC_SELECT_ANY
+char
+jnc_g_dynamicExtensionLibUnloadFuncName [] = "jncDynamicExtensionLibUnload";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -553,6 +561,7 @@ typedef jnc_ExtensionLib_MapFunctionsFunc ExtensionLib_MapFunctionsFunc;
 typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;
 typedef jnc_DynamicExtensionLibMainFunc DynamicExtensionLibMainFunc;
+typedef jnc_DynamicExtensionLibUnloadFunc DynamicExtensionLibUnloadFunc;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

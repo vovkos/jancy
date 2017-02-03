@@ -33,7 +33,13 @@ ExtensionLibMgr::clear ()
 	while (!m_dynamicLibList.isEmpty ())
 	{
 		DynamicLibEntry* entry = m_dynamicLibList.removeHead ();
-		entry->m_dynamicLib.close ();
+
+		DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*) entry->m_dynamicLib.getFunction (jnc_g_dynamicExtensionLibUnloadFuncName);
+		if (!unloadFunc || unloadFunc ())
+			entry->m_dynamicLib.close ();
+		else
+			entry->m_dynamicLib.detach (); // don't unload
+		
 		io::deleteFile (entry->m_dynamicLibFilePath);
 		AXL_MEM_DELETE (entry);
 	}
