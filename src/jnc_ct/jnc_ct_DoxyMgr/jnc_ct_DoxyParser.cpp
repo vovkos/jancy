@@ -23,7 +23,7 @@ DoxyParser::DoxyParser (Module* module)
 	m_module = module;
 	m_block = NULL;
 	m_parentBlock = NULL;
-	m_isBlockAssigned = false;
+	m_blockTargetKind = BlockTargetKind_None;
 	m_descriptionKind = DescriptionKind_Detailed;
 	m_overloadIdx = 0;
 }
@@ -33,14 +33,19 @@ DoxyParser::popBlock ()
 {
 	// only pick up unassigned non-group blocks
 
-	DoxyBlock* doxyBlock =
-		!m_isBlockAssigned &&
-		m_block &&
-		m_block->getBlockKind () != DoxyBlockKind_Group ?
-		m_block : NULL;
+	DoxyBlock* doxyBlock = NULL;
+	
+	if (m_block && !m_blockTargetKind)
+	{
+		if (m_block->getBlockKind () == DoxyBlockKind_Footnote)
+			m_block = ((DoxyFootnote*) m_block)->getParent ();
+
+		if (m_block->getBlockKind () != DoxyBlockKind_Group)
+			doxyBlock = m_block;
+	}
 
 	m_block = NULL;
-	m_isBlockAssigned = false;
+	m_blockTargetKind = BlockTargetKind_None;
 	m_descriptionKind = DescriptionKind_Detailed;
 
 	if (!m_groupStack.isEmpty ())
@@ -61,11 +66,11 @@ DoxyParser::popBlock ()
 
 void
 DoxyParser::setBlockTarget (
-	DoxyTokenKind token,
+	DoxyTokenKind tokenKind,
 	const sl::StringRef& name
 	)
 {
-	switch (token)
+	switch (tokenKind)
 	{
 	case DoxyTokenKind_Overload:
 		if (m_overloadName == name)
@@ -86,21 +91,31 @@ DoxyParser::setBlockTarget (
 		m_overloadIdx = 0;
 	}
 
-	m_module->m_doxyMgr.setBlockTarget (m_block, token, name, m_overloadIdx);
-	m_isBlockAssigned = true;
+	m_module->m_doxyMgr.setBlockTarget (m_block, tokenKind, name, m_overloadIdx);
+	m_blockTargetKind = m_block == m_parentBlock ? 
+		BlockTargetKind_Compound :
+		BlockTargetKind_Member;
 }
 
 void
 DoxyParser::addComment (
 	const sl::StringRef& comment,
 	const lex::LineCol& pos,
-	bool canAppend
+	bool canAppend,
+	ModuleItem* lastDeclaredItem
 	)
 {
 	if (!m_block || !canAppend)
 	{
 		m_block = m_module->m_doxyMgr.createBlock ();
+		m_blockTargetKind = BlockTargetKind_None;
 		m_descriptionKind = DescriptionKind_Detailed;
+	}
+
+	if (lastDeclaredItem)
+	{
+		lastDeclaredItem->setDoxyBlock (m_block);
+		m_blockTargetKind = BlockTargetKind_Member;
 	}
 
 	sl::String* description;
@@ -129,6 +144,7 @@ DoxyParser::addComment (
 	{
 		const DoxyToken* token = lexer.getToken ();
 		const DoxyToken* nextToken;
+		DoxyFootnote* footnote;
 		size_t i;
 
 		sl::StringRef name;
@@ -138,17 +154,18 @@ DoxyParser::addComment (
 		{
 		case DoxyTokenKind_Error:
 			m_block = NULL;
+			m_blockTargetKind = BlockTargetKind_None;
 			m_descriptionKind = DescriptionKind_Detailed;
 			return;
 
 		case DoxyTokenKind_Eof:
 			return;
 
+		case DoxyTokenKind_Namespace:
 		case DoxyTokenKind_Enum:
 		case DoxyTokenKind_Struct:
 		case DoxyTokenKind_Union:
 		case DoxyTokenKind_Class:
-		case DoxyTokenKind_Namespace:
 			isParentBlock = true;
 			// fall through
 
@@ -161,12 +178,11 @@ DoxyParser::addComment (
 		case DoxyTokenKind_Property:
 		case DoxyTokenKind_Event:
 		case DoxyTokenKind_Typedef:
-		case DoxyTokenKind_Footnote:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
 				break; // ignore
 
-			if (m_isBlockAssigned) // create a new one
+			if (m_blockTargetKind || m_block->getBlockKind () == DoxyBlockKind_Footnote) // create a new one
 			{
 				m_block = m_module->m_doxyMgr.createBlock ();
 				m_descriptionKind = DescriptionKind_Detailed;
@@ -177,26 +193,11 @@ DoxyParser::addComment (
 				m_parentBlock = m_block;
 
 			name = nextToken->m_data.m_string.getTrimmedString ();
-			if (token->m_token != DoxyTokenKind_Footnote)
-			{
-				setBlockTarget ((DoxyTokenKind) token->m_token, name);
-			}
-			else if (m_parentBlock)
-			{
-				m_block->m_refId = name;
-				m_parentBlock->addFootnote (m_block);
-			}
-			else
-			{
-				TRACE ("orphan footnote: %s\n", nextToken->m_data.m_string.sz ());
-			}
-
+			setBlockTarget ((DoxyTokenKind) token->m_token, name);
 			lexer.nextToken ();
 			break;
 
 		case DoxyTokenKind_Group:
-		case DoxyTokenKind_DefGroup:
-		case DoxyTokenKind_AddToGroup:
 			nextToken = lexer.getToken (1);
 			if (nextToken->m_token != DoxyTokenKind_Text)
 				break; // ignore
@@ -215,8 +216,9 @@ DoxyParser::addComment (
 			}
 
 			m_parentBlock = m_block;
+			m_blockTargetKind = BlockTargetKind_Compound;
 			m_descriptionKind = DescriptionKind_Detailed;
-			m_isBlockAssigned = true;
+			description = &m_block->m_detailedDescription;
 			lexer.nextToken ();
 			break;
 
@@ -272,6 +274,38 @@ DoxyParser::addComment (
 			lexer.nextToken ();
 			break;
 
+		case DoxyTokenKind_SubGroup:
+			m_block->m_internalDescription += ":subgroup:";
+			break;
+
+		case DoxyTokenKind_Footnote:
+			nextToken = lexer.getToken (1);
+			if (nextToken->m_token != DoxyTokenKind_Text)
+				break; // ignore
+
+			if (m_block->getBlockKind () == DoxyBlockKind_Footnote)
+			{
+				m_block = ((DoxyFootnote*) m_block)->getParent ();
+				ASSERT (m_block->getBlockKind () != DoxyBlockKind_Footnote);
+			}
+			else if (m_blockTargetKind == BlockTargetKind_Member && m_parentBlock)
+			{
+				// use parent block for non-compounds (if exists)
+				m_block = m_parentBlock;
+			}
+
+			name = nextToken->m_data.m_string.getTrimmedString ();
+			footnote = m_module->m_doxyMgr.createFootnote ();
+			footnote->m_refId = name;
+			footnote->m_parent = m_block;
+			footnote->m_parent->m_footnoteArray.append (footnote);
+
+			m_block = footnote;
+			m_descriptionKind = DescriptionKind_Detailed;
+			description = &m_block->m_detailedDescription;
+			lexer.nextToken ();
+			break;
+
 		case DoxyTokenKind_Brief:
 			m_descriptionKind = DescriptionKind_Brief;
 			description = &m_block->m_briefDescription;
@@ -287,7 +321,7 @@ DoxyParser::addComment (
 			break;
 
 		case DoxyTokenKind_OtherCommand:
-			// maybe, treat is as normal text?
+			// maybe, treat it as normal text?
 
 			break;
 

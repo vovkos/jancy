@@ -69,9 +69,10 @@ main := |*
 '\\typedef'       { createToken (DoxyTokenKind_Typedef); };
 '\\namespace'     { createToken (DoxyTokenKind_Namespace); };
 '\\group'         { createToken (DoxyTokenKind_Group); };
-'\\defgroup'      { createToken (DoxyTokenKind_DefGroup); };
+'\\defgroup'      { createToken (DoxyTokenKind_Group); };
+'\\addtogroup'    { createToken (DoxyTokenKind_Group); };
 '\\ingroup'       { createToken (DoxyTokenKind_InGroup); };
-'\\addtogroup'    { createToken (DoxyTokenKind_AddToGroup); };
+'\\subgroup'      { createToken (DoxyTokenKind_SubGroup); };
 '\\title'         { createToken (DoxyTokenKind_Title); };
 '\\brief'         { createToken (DoxyTokenKind_Brief); };
 '\\see'           { createToken (DoxyTokenKind_SeeAlso); };

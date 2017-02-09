@@ -38,13 +38,20 @@ protected:
 		DescriptionKind_SeeAlso,
 	};
 
+	enum BlockTargetKind
+	{
+		BlockTargetKind_None = 0,
+		BlockTargetKind_Member,
+		BlockTargetKind_Compound,
+	};
+
 protected:
 	Module* m_module;
 
 	DoxyBlock* m_block;
 	DoxyBlock* m_parentBlock;
 	sl::Array <GroupStackEntry> m_groupStack;
-	bool m_isBlockAssigned;
+	BlockTargetKind m_blockTargetKind;
 	DescriptionKind m_descriptionKind;
 	sl::String m_firstIndent;
 	sl::String m_indent;
@@ -61,7 +68,8 @@ public:
 	addComment (
 		const sl::StringRef& comment,
 		const lex::LineCol& lineCol,
-		bool canAppend
+		bool canAppend,
+		ModuleItem* lastDeclaredItem
 		);
 
 protected:

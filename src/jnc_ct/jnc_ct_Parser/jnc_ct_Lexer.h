@@ -215,10 +215,10 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
 	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
 
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment1, "doxy-comment-1")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment2, "doxy-comment-2")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "doxy-comment-3")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "doxy-comment-4")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment1, "///")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment2, "//!")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "/**")
+	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "/*!")
 
 
 	// literal tokens

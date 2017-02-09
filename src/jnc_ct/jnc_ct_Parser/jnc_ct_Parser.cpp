@@ -1107,13 +1107,11 @@ Parser::declareProperty (
 		return false;
 	}
 
-	Property* prop = createProperty (
-		declarator->getName ()->getShortName (),
-		declarator->getPos ()
-		);
-
+	Property* prop = createProperty (declarator);
 	if (!prop)
 		return false;
+
+	assignDeclarationAttributes (prop, prop, declarator);
 
 	if (type)
 	{
@@ -1155,10 +1153,7 @@ Parser::createPropertyTemplate ()
 }
 
 Property*
-Parser::createProperty (
-	const sl::StringRef& name,
-	const Token::Pos& pos
-	)
+Parser::createProperty (Declarator* declarator)
 {
 	bool result;
 
@@ -1173,10 +1168,11 @@ Parser::createProperty (
 		return NULL;
 	}
 
+	const sl::String& name = declarator->getName ()->getShortName ();
 	sl::String qualifiedName = nspace->createQualifiedName (name);
 	Property* prop = m_module->m_functionMgr.createProperty (name, qualifiedName);
 
-	assignDeclarationAttributes (prop, prop, pos);
+	assignDeclarationAttributes (prop, prop, declarator);
 
 	ExtensionNamespace* extensionNamespace;
 	DerivableType* extensionType;
@@ -1887,6 +1883,22 @@ Parser::createEnumType (
 
 	assignDeclarationAttributes (enumType, enumType, m_lastMatchedToken.m_pos);
 	return enumType;
+}
+
+EnumConst*
+Parser::createEnumConst (
+	EnumType* type,
+	const sl::StringRef& name,
+	const Token::Pos& pos,
+	sl::BoxList <Token>* initializer
+	)
+{
+	EnumConst* enumConst = type->createConst (name, initializer);
+	if (!enumConst)
+		return false;
+
+	assignDeclarationAttributes (enumConst, enumConst, pos);
+	return enumConst;
 }
 
 StructType*

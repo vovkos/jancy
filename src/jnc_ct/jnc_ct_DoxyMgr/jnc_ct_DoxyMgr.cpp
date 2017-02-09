@@ -62,6 +62,14 @@ DoxyMgr::createBlock ()
 	return  block;
 }
 
+DoxyFootnote*
+DoxyMgr::createFootnote ()
+{
+	DoxyFootnote* footnote = AXL_MEM_NEW (DoxyFootnote);
+	m_blockList.insertTail (footnote);
+	return footnote;
+}
+
 sl::String
 DoxyMgr::adjustRefId (const sl::StringRef& refId)
 {

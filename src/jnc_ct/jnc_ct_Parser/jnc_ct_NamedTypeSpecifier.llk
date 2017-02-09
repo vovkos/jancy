@@ -114,15 +114,7 @@ nullable
 enum_member <EnumType* $type>
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				EnumConst* member = $type->createConst (
-					$1.m_data.m_string,
-					&$i ? &$i.m_tokenList : NULL
-					);
-
-				if (!member)
-					return false;
-
-				member->m_pos = $1.m_pos;
+				return createEnumConst ($type, $1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
 	;

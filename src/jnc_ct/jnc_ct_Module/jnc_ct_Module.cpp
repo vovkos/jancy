@@ -380,7 +380,24 @@ Module::parse (
 		case TokenKind_DoxyComment3:
 		case TokenKind_DoxyComment4:
 			if (!(m_compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token->m_token - TokenKind_DoxyComment1))))
-				parser.m_doxyParser.addComment (token->m_data.m_string, token->m_pos, token->m_token <= TokenKind_DoxyComment2);
+			{
+				sl::StringRef comment = token->m_data.m_string;
+				bool isSingleLine = token->m_token <= TokenKind_DoxyComment2;
+				ModuleItem* lastDeclaredItem = NULL;
+
+				if (isSingleLine && !comment.isEmpty () && comment [0] == '<')
+				{
+					lastDeclaredItem = parser.m_lastDeclaredItem;
+					comment = comment.getSubString (1);
+				}
+
+				parser.m_doxyParser.addComment (
+					comment, 
+					token->m_pos, 
+					isSingleLine,
+					lastDeclaredItem
+					);
+			}
 			break;
 
 		default:

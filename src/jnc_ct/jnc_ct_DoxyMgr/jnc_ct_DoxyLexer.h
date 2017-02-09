@@ -41,9 +41,8 @@ enum DoxyTokenKind
 	DoxyTokenKind_Typedef,
 	DoxyTokenKind_Namespace,
 	DoxyTokenKind_Group,
-	DoxyTokenKind_DefGroup,
 	DoxyTokenKind_InGroup,
-	DoxyTokenKind_AddToGroup,
+	DoxyTokenKind_SubGroup,
 	DoxyTokenKind_Title,
 	DoxyTokenKind_Brief,
 	DoxyTokenKind_SeeAlso,
@@ -77,9 +76,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (DoxyTokenName)
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Typedef,       "\\typedef")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Namespace,     "\\namespace")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Group,         "\\group")
-	AXL_LEX_TOKEN_NAME (DoxyTokenKind_DefGroup,      "\\defgroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_InGroup,       "\\ingroup")
-	AXL_LEX_TOKEN_NAME (DoxyTokenKind_AddToGroup,    "\\addtogroup")
+	AXL_LEX_TOKEN_NAME (DoxyTokenKind_SubGroup,      "\\subgroup")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Title,         "\\title")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_Brief,         "\\brief")
 	AXL_LEX_TOKEN_NAME (DoxyTokenKind_SeeAlso,       "\\see")

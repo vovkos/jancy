@@ -23,6 +23,7 @@ enum DoxyBlockKind
 {
 	DoxyBlockKind_Normal,
 	DoxyBlockKind_Group,
+	DoxyBlockKind_Footnote,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -43,8 +44,9 @@ protected:
 	sl::String m_briefDescription;
 	sl::String m_detailedDescription;
 	sl::String m_seeAlsoDescription;
-	sl::Array <DoxyBlock*> m_footnoteArray;
+	sl::String m_internalDescription;
 	sl::BoxList <sl::String> m_importList;
+	sl::Array <DoxyBlock*> m_footnoteArray;
 
 public:
 	DoxyBlock ();
@@ -108,11 +110,28 @@ public:
 
 	sl::String
 	getImportString ();
+};
 
-	void
-	addFootnote (DoxyBlock* footnote)
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class DoxyFootnote: public DoxyBlock
+{
+	friend class DoxyParser;
+
+protected:
+	DoxyBlock* m_parent;
+
+public:
+	DoxyFootnote ()
 	{
-		m_footnoteArray.append (footnote);
+		m_blockKind = DoxyBlockKind_Footnote;
+		m_parent = NULL;
+	}
+
+	DoxyBlock* 
+	getParent ()
+	{
+		return m_parent;
 	}
 };
 

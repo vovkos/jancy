@@ -370,6 +370,14 @@ Members2
 		uint_t flags
 		);
 
+	EnumConst*
+	createEnumConst (
+		EnumType* type,
+		const sl::StringRef& name,
+		const Token::Pos& pos,
+		sl::BoxList <Token>* initializer
+		);
+
 	StructType*
 	createStructType (
 		const sl::StringRef& name,
@@ -398,10 +406,7 @@ Members2
 	finalizeDynamicLibType ();
 
 	Property*
-	createProperty (
-		const sl::StringRef& name,
-		const Token::Pos& pos
-		);
+	createProperty (Declarator* decl);
 
 	PropertyTemplate*
 	createPropertyTemplate ();
