@@ -1111,8 +1111,6 @@ Parser::declareProperty (
 	if (!prop)
 		return false;
 
-	assignDeclarationAttributes (prop, prop, declarator);
-
 	if (type)
 	{
 		prop->m_flags |= flags;
