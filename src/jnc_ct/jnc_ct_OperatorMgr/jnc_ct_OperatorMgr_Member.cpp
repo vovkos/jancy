@@ -105,10 +105,11 @@ OperatorMgr::getThisValueType (
 bool
 OperatorMgr::checkAccess (ModuleItemDecl* decl)
 {
+	Namespace* nspace = decl->getParentNamespace ();
 	if (decl->getAccessKind () != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind (decl->getParentNamespace ()) == AccessKind_Public)
+		m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public)
 	{
-		err::setFormatStringError ("'%s' is protected", decl->getQualifiedName ().sz ());
+		err::setFormatStringError ("'%s.%s' is protected", nspace->getQualifiedName ().sz (), decl->getName ().sz ());
 		return false;
 	}
 
