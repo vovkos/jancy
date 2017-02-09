@@ -1895,7 +1895,7 @@ Parser::createEnumConst (
 {
 	EnumConst* enumConst = type->createConst (name, initializer);
 	if (!enumConst)
-		return false;
+		return NULL;
 
 	assignDeclarationAttributes (enumConst, enumConst, pos);
 	return enumConst;
