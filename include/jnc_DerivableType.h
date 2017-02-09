@@ -16,7 +16,7 @@
 #include "jnc_Type.h"
 #include "jnc_OpKind.h"
 
-/*!
+/**
 
 \defgroup derivable-type Derivable Type
 	\ingroup type-subsystem

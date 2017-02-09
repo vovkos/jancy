@@ -15,7 +15,7 @@
 
 #include "jnc_Module.h"
 
-/*!
+/**
 
 \defgroup extension-lib-subsystem Extension Libraries Subsystem
 

@@ -15,7 +15,7 @@
 
 #include "jnc_RuntimeStructs.h"
 
-/*!
+/**
 
 \defgroup gc-heap Garbage-Collected Heap
 	\ingroup runtime-subsystem
@@ -25,6 +25,15 @@
 
 \addtogroup gc-heap
 @{
+
+\struct jnc_GcHeap
+	\verbatim
+
+	Opaque structure used as a handle to Jancy garbage-collected heap.
+
+	Use functions from the :ref:`Garbage-Collected Heap <cid-gc-heap>` group to access and manage the contents of this structure.
+
+	\endverbatim
 
 */
 

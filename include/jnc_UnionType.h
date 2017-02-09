@@ -15,7 +15,7 @@
 
 #include "jnc_DerivableType.h"
 
-/*!
+/**
 
 \defgroup union-type Union Type
 	\ingroup type-subsystem

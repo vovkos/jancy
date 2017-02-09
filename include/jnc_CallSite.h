@@ -17,7 +17,7 @@
 #include "jnc_Function.h"
 #include "jnc_ClassType.h"
 
-/*!
+/**
 
 \defgroup call-site Call Site
 	\ingroup runtime-subsystem

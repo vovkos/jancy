@@ -15,7 +15,7 @@
 
 #define _JNC_ERROR_H
 
-/*!
+/**
 
 \defgroup error-subsystem Error Subsystem
 	\import{jnc_Error.h}
@@ -44,37 +44,52 @@ JNC_EXTERN_C
 const jnc_Error*
 jnc_getLastError ();
 
-/// Sets ``error`` as the last error of the current thread.
+/**
+	\subgroup
+	\verbatim
+
+	These functions set the last error to the TLS buffer of the current thread.
+
+	* ``jnc_setError`` sets Jancy `jnc_Error` pointed to by ``error``;
+	* ``jnc_setErrno`` sets POSIX *errno* identifed by ``code``;
+	* ``jnc_setStringError`` sets string error described by a null-terminated string pointed to by ``string``.
+
+	\endverbatim
+*/
 
 JNC_EXTERN_C
 void
 jnc_setError (const jnc_Error* error);
 
-/// Sets POSIX ``errno`` error as the last error of the current thread.
-
 JNC_EXTERN_C
 void
 jnc_setErrno (int code);
-
-/// Sets string error described by a null-terminated string pointed to by ``string`` as the last error of the current thread.
 
 JNC_EXTERN_C
 void
 jnc_setStringError (const char* string);
 
-/*!
+/**
+	\subgroup
 	\verbatim
 
 	Creates and returns a human-readable description of the error.
 
-	Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
+	Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function invoked in the same thread. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
+
+	``jnc_getLastErrorDescription_v`` is equivalent to:
+
+	.. code-block:: c
+
+		jnc_getErrorDescription_v (jnc_getLastError ())
 
 	.. rubric:: Sample:
 
-	.. code-block:: cpp
+	.. code-block:: c
 
-		const jnc_Error* error = jnc_getLastError ();
-		printf ("error: %s\n", jnc_getErrorDescription_v ());
+		// try to compile some Jancy code, and it fails...
+
+		printf ("error: %s\n", jnc_getLastErrorDescription_v ());
 
 	\endverbatim
 */
@@ -82,22 +97,6 @@ jnc_setStringError (const char* string);
 JNC_EXTERN_C
 const char*
 jnc_getErrorDescription_v (const jnc_Error* error);
-
-/*!
-	\verbatim
-
-	Returns a human readable description of the the last error set in the context of the current thread.
-
-	Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
-
-	.. rubric:: Equivalent to:
-
-	.. code-block:: cpp
-
-		jnc_getErrorDescription_v (jnc_getLastError ())
-
-	\endverbatim
-*/
 
 JNC_INLINE
 const char*

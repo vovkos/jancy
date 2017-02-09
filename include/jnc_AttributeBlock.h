@@ -15,7 +15,7 @@
 
 #include "jnc_ModuleItem.h"
 
-/*!
+/**
 
 \defgroup attribute-block Attribute Block
 	\ingroup module-subsystem

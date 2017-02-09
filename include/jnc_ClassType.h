@@ -17,7 +17,7 @@
 #include "jnc_FunctionType.h"
 #include "jnc_Function.h"
 
-/*!
+/**
 
 \defgroup class-type Class Type
 	\ingroup type-subsystem

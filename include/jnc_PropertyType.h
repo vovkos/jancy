@@ -15,7 +15,7 @@
 
 #include "jnc_FunctionType.h"
 
-/*!
+/**
 
 \defgroup property-type Property Type
 	\ingroup type-subsystem

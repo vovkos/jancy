@@ -15,7 +15,7 @@
 
 #include "jnc_ModuleItem.h"
 
-/*!
+/**
 
 \defgroup namespace Namespace
 	\ingroup module-subsystem

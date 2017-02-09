@@ -17,7 +17,7 @@
 
 //..............................................................................
 
-/*!
+/**
 
 \defgroup type-subsystem Type Subsystem
 	\ingroup module-subsystem

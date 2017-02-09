@@ -15,7 +15,7 @@
 
 #include "jnc_Def.h"
 
-/*!
+/**
 
 \defgroup runtime-structs Runtime Structures
 	\ingroup runtime-subsystem
@@ -152,7 +152,7 @@ struct jnc_DynamicArrayBox
 
 	union
 	{
-		//! \unnamed{union}
+		/// \unnamed{union}
 		size_t m_count;
 		uint64_t m_padding; // ensure 8-byte alignment
 	};
@@ -475,7 +475,7 @@ protected:
 #else
 	union
 	{
-		//! \unnamed{union}
+		/// \unnamed{union}
 		char m_buffer [sizeof (T)];
 		int64_t m_align8; // otherwise, we need an 8-byte field
 	} JNC_GCC_MSC_STRUCT;

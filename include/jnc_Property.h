@@ -15,7 +15,7 @@
 
 #include "jnc_PropertyType.h"
 
-/*!
+/**
 
 \defgroup property Property
 	\ingroup module-subsystem

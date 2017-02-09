@@ -15,7 +15,7 @@
 
 #include "jnc_DerivableType.h"
 
-/*!
+/**
 
 \defgroup struct-type Struct Type
 	\ingroup type-subsystem

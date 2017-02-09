@@ -17,7 +17,7 @@
 
 //..............................................................................
 
-/*!
+/**
 
 \defgroup base-def Base Definitions
 	\import{jnc_Def.h}
@@ -191,12 +191,42 @@ typedef axl::sl::ListLink jnc_ListLink;
 
 typedef struct jnc_ListLink jnc_ListLink;
 
-/// This struct holds information about a single entry of a doubly linked list.
+/**
+	\brief This struct holds information about a single entry of a doubly linked list.
+	\verbatim
+
+	Whenever something needs to be put on a Jancy list, it must be represented as a struct with ``jnc_ListLink`` memeber field in it. If a list contains entries of non-aggregate type (such as ``int``, or ``void*``), then we have to *box* entry in a struct as such:
+
+	.. code-block:: c
+
+		struct IntEntry
+		{
+			jnc_ListLink m_link; // <-- list link
+			int m_value;
+		};
+
+	However, often times what you want to put on a list -- is already an aggregate. In this case just embed a ``jnc_ListLink`` member field into the struct as such:
+
+	.. code-block:: c
+
+		struct MyItem
+		{
+			jnc_ListLink m_link; // <-- list link
+
+			const char* m_name;
+			const char* m_description;
+			int m_state;
+
+			// ... more fields
+		};
+
+	\endverbatim
+*/
 
 struct jnc_ListLink
 {
-	jnc_ListLink* m_next; ///< Holds a pointer to the next list entry on the list or ``NULL`` if this is the last entry.
-	jnc_ListLink* m_prev; ///< Holds a pointer to the previous list entry on the list or ``NULL`` if this is the last entry.
+	jnc_ListLink* m_next; ///< Holds a pointer to the *next* list entry on the list or ``NULL`` if this is the *last* entry.
+	jnc_ListLink* m_prev; ///< Holds a pointer to the *previous* list entry on the list or ``NULL`` if this is the *first* entry.
 };
 
 #	endif // _AXL_SL_LISTBASE_H
@@ -212,7 +242,7 @@ typedef axl::sl::Guid jnc_Guid;
 
 typedef struct jnc_Guid jnc_Guid;
 
-/*!
+/**
 	\brief This struct describes a globally unique identifier (GUID).
 	\verbatim
 
@@ -222,7 +252,7 @@ typedef struct jnc_Guid jnc_Guid;
 
 	In Jancy API GUIDs are used to identify extension libraries -- each extension library has its own unique ID.
 
-	This struct directly maps to ``struct UUID`` as defined in ``WinAPI``.
+	This struct directly maps to ``struct UUID`` as defined in WinAPI.
 
 	For more details about globally unique identifiers refer to: https://en.wikipedia.org/wiki/Globally_unique_identifier
 
@@ -235,20 +265,32 @@ struct jnc_Guid
 	{
 		struct
 		{
-			//! \unnamed{union/struct:4}
-			uint32_t m_data1;    ///< Specifies the first 8 hexadecimal digits of the GUID.
-			uint16_t m_data2;    ///< Specifies the first group of 4 hexadecimal digits of the GUID.
-			uint16_t m_data3;    ///< Specifies the second group of 4 hexadecimal digits of the GUID.
-			uint8_t m_data4 [8]; ///< Array of eight elements. The first two elements contain the third group of 4 hexadecimal digits of the GUID. The remaining six elements contain the final 12 hexadecimal digits of the GUID.
+			/**
+				\unnamed{union/struct:4}
+				\subgroup
+
+				The *classic* representation of a ``GUID`` mirroring the definition in WinAPI.
+			*/
+
+			uint32_t m_data1;
+			uint16_t m_data2;
+			uint16_t m_data3;
+			uint8_t m_data4 [8];
 		};
 
 		struct
 		{
-			//! \unnamed{struct:4}
-			uint32_t m_long1; ///< Specifies the first group of 8 hexadecimal digits of the GUID.
-			uint32_t m_long2; ///< Specifies the second group of 8 hexadecimal digits of the GUID.
-			uint32_t m_long3; ///< Specifies the third group of 8 hexadecimal digits of the GUID.
-			uint32_t m_long4; ///< Specifies the fourth and the last group of 8 hexadecimal digits of the GUID.
+			/**
+				\unnamed{struct:4}
+				\subgroup
+
+				An *alternative* representation of a ``GUID`` as four 32-bit integers.
+			*/
+
+			uint32_t m_long1;
+			uint32_t m_long2;
+			uint32_t m_long3;
+			uint32_t m_long4;
 		};
 	};
 };
@@ -266,7 +308,7 @@ struct jnc_Guid
 
 /// \endcond
 
-/*!
+/**
 	\verbatim
 
 	A cross-platform equivalent of the Win32 ``DEFINE_GUID`` macro.

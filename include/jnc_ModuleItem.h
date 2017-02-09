@@ -15,7 +15,7 @@
 
 #include "jnc_Def.h"
 
-/*!
+/**
 
 \defgroup module-item Module Item
 	\ingroup module-subsystem

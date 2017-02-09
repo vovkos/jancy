@@ -28,7 +28,7 @@
 #include "jnc_ClassType.h"
 #include "jnc_Unit.h"
 
-/*!
+/**
 
 \defgroup module-subsystem Module Components
 
@@ -45,7 +45,7 @@
 
 	Opaque structure used as a handle to Jancy module.
 
-	Use functions from the :ref:`Module <cid-module>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Module <cid-module>` group to access and manage the contents of this structure.
 
 	\endverbatim
 

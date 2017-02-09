@@ -15,7 +15,7 @@
 
 #include "jnc_Type.h"
 
-/*!
+/**
 
 \defgroup array-type Array Type
 	\ingroup type-subsystem

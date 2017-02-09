@@ -16,7 +16,7 @@
 #include "jnc_Type.h"
 #include "jnc_RuntimeStructs.h"
 
-/*!
+/**
 
 \defgroup enum-type Enum Type
 	\ingroup type-subsystem

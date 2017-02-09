@@ -15,7 +15,7 @@
 
 #include "jnc_Type.h"
 
-/*!
+/**
 
 \defgroup variable Variable
 	\ingroup module-subsystem

@@ -15,7 +15,7 @@
 
 #include "jnc_Def.h"
 
-/*!
+/**
 
 \defgroup operators Operators
 	\ingroup module-subsystem

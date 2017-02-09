@@ -15,7 +15,7 @@
 
 #include "jnc_Type.h"
 
-/*!
+/**
 
 \defgroup bitfield-type Bitfield Type
 	\ingroup type-subsystem

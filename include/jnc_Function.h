@@ -15,7 +15,7 @@
 
 #include "jnc_FunctionType.h"
 
-/*!
+/**
 
 \defgroup function Function
 	\ingroup module-subsystem

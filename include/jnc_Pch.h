@@ -57,13 +57,13 @@
 
 #if (_JNC_CPU_X86)
 #	define JNC_PTR_SIZE 4
+#	define JNC_PTR_BITS 32 // often times it's more natural to use bit size
 #elif (_JNC_CPU_AMD64)
 #	define JNC_PTR_SIZE 8
+#	define JNC_PTR_BITS 64 // often times it's more natural to use bit size
 #else
 #	error unsupported CPU architecture
 #endif
-
-#define JNC_PTR_BITS (JNC_PTR_SIZE * 8) // often times it's more natural to use bit size
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -160,35 +160,40 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// common type aliases
+/**
 
-// stdint.h already defines:
-//   int8_t
-//   uint8_t
-//   int16_t
-//   uint16_t
-//   int32_t
-//   uint32_t
-//   int64_t
-//   uint64_t
-//   intptr_t
-//   uintptr_t
+\subgroup
 
-typedef int               bool_t;   ///< Alias to ``int`` used to denote boolean values.
-typedef unsigned int      uint_t;   ///< Unsigned integer type with width of 32 bits.
-typedef unsigned char     uchar_t;  ///< Unsigned integer type with width of 8 bits.
-typedef unsigned short    ushort_t; ///< Unsigned integer type with width of 16 bits.
-typedef unsigned long     ulong_t;  ///< Unsigned integer type with width of 32 bits.
+	Common integer type aliases in addition to the ones defined in ``<stdint.h>``, i.e. ``int8_t``, ``uint8_t``, ``int16_t``, ``uint16_t``, ``int32_t``, ``uint32_t``, ``int64_t``, ``uint64_t``, ``intptr_t``, ``uintptr_t``.
 
-typedef uint8_t           byte_t;  ///< Unsigned integer type with width of 8 bits.
-typedef uint16_t          word_t;  ///< Unsigned integer type with width of 16 bits.
-typedef uint64_t          qword_t; ///< Unsigned integer type with width of 64 bits.
+	``bool_t`` aliases to ``int`` and is used to denote boolean values.
+
+	``uchar_t`` and ``byte_t`` alias to unsigned integer type with width of 8 bits.
+
+	``ushort_t`` and ``word_t`` alias to unsigned integer type with width of 16 bits.
+
+	``uint_t``, ``ulong_t`` and ``dword_t`` alias to unsigned integer type with width of 32 bits.
+
+	``qword_t`` aliases to unsigned integer type with width of 64 bits.
+
+*/
+
+typedef int               bool_t;
+typedef unsigned int      uint_t;
+typedef unsigned char     uchar_t;
+typedef unsigned short    ushort_t;
+typedef unsigned long     ulong_t;
+
+typedef uint8_t           byte_t;
+typedef uint16_t          word_t;
 
 #if (_JNC_CPP_MSC)
-typedef ulong_t           dword_t; ///< Unsigned integer type with width of 32 bits.
+typedef ulong_t           dword_t;
 #else
-typedef uint32_t          dword_t; ///< Unsigned integer type with width of 32 bits.
+typedef uint32_t          dword_t;
 #endif
+
+typedef uint64_t          qword_t;
 
 /// \cond EXTRA_TYPEDEFS
 
@@ -272,7 +277,7 @@ typedef wchar_t           utf32_t;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-/*!
+/**
 	\verbatim
 
 	On ``Debug`` builds, this macro causes an **assertion check**: it calculates the value of its argument, and if it is ``false``, then a corresponding message is displayed and a program is terminated.
