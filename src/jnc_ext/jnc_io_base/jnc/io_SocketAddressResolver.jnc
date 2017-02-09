@@ -18,41 +18,218 @@ namespace io {
 
 //..............................................................................
 
+/**
+	\import io_base.jncx
+	\import io_SocketAddressResolver.jncx
+
+	\brief This enumeration contains codes of all possible events that might happen on `io.SocketAddressResolver` object.
+
+	When `io.SocketAddressResolver` object is about to fire an event, it allocates an `io.SocketAddressResolverEventParams` structure, sets `io.SocketAddressResolverEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.SocketAddressResolver.m_onResolverEvent`.
+
+	\sa `io.SocketAddressResolver`, `io.SocketAddressResolverEventParams`
+*/
+
 enum SocketAddressResolverEventCode
 {
+	/**
+		Hostname successfully resolved. Result address table is located at: `io.SocketAddressResolverEventParams.m_addressTable` (contains `io.SocketAddressResolverEventParams.m_addressCount` elements).
+	*/
+
 	ResolveCompleted,
+
+	/**
+		Hostname resolve request was cancelled (by `io.SocketAddressResolver.cancel` or `io.SocketAddressResolver.cancelAll` methods).
+	*/
+
 	ResolveCancelled,
+
+	/**
+		Hostname could not be resolved. Detailed error information could be found at: `io.SocketAddressResolverEventParams.m_error`.
+	*/
+
 	ResolveError,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_SocketAddressResolver.jnc
+
+	\brief This struct contains detailed information about the event occured on `io.SocketAddressResolver` object.
+
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.SocketAddressResolver.m_onResolverEvent`.
+
+	\sa `io.SocketAddressResolver`, `io.SocketAddressResolverEventCode`
+
+	\footnote f1
+
+		|footnote-sync-id|
+*/
+
 struct SocketAddressResolverEventParams
 {
+	/**
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.SocketAddressResolverEventCode`.
+	*/
+
 	SocketAddressResolverEventCode m_eventCode;
+
+	/**
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
+	*/
+
 	uint_t m_syncId;
+
+	/**
+		Holds the pointer to the table of addresses the host name has been resolved to; this field is filled on `io.SocketAddressResolverEventCode.ResolveCompleted` event.
+	*/
+
 	SocketAddress const* m_addressTable;
+
+	/**
+		Holds the number of addresses in the table pointer to by ``m_addressTable`` field.
+	*/
+
 	size_t m_addressCount;
+
+	/**
+		Holds extended error information for error events. Currently this field is only used by `io.SocketAddressResolverEventCode.ResolveError`.
+	*/
+
 	std.Error const* m_error;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_SocketAddressResolver.jncx
+
+	\brief This class provides an asynchrounous interface for resolving host names into socket addresses.
+
+	In the most general case conversion of a host name such as ``tibbo.com`` into an ``IP`` requires sending and receiving network packets and, therefore, may take substantial time. Doing this operation synchronoulsy, while acceptable in many cases, is not really optimal for interactive GUI applications where we do not want to have moments of *non-responsiveness*. For such cases using ``io.SocketAddressResolver`` may be a better approach.
+
+	A typical sequence of steps when resolving a host address looks like this:
+
+	* Assign your event handler using ``m_onResolverEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Start one or more resolve requests with ``resolve`` method;
+	* Wait until ``ResolveCompleted`` or ``ResolveError`` event;
+	* Cancel all pending resolve requests with ``cancelAll`` method.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		class MyDialog
+		{
+			// ...
+
+			io.SocketAddressResolver m_resolver;
+
+			construct ();
+
+			resolve (char const* hostName);
+			onResolverEvent (`io.SocketAddressResolverEventParams` const* params);
+		}
+
+		MyDialog.construct ()
+		{
+			// ...
+			m_socket.m_onSocketEvent += onSocketEvent @ g_mainThreadScheduler;
+		}
+
+		MyDialog.resolve (char const* hostName)
+		{
+			bool result = try m_resolver.resolve (hostName);
+
+			if (!result)
+			{
+				// handle the error...
+			}
+		}
+
+		MyDialog.onResolverEvent (`io.SocketAddressResolverEventParams` const* params)
+		{
+			if (params.m_syncId != m_resolver.m_syncId) // late event
+				return;
+
+			switch (params.m_code)
+			{
+			case `io.SocketAddressResolverEventCode.ResolveError`:
+				// handle error (extended info is at: params.m_error)...
+				break;
+
+			case `io.SocketAddressResolverEventCode.ResolveCompleted`:
+				// hostname successfully resolved (result is at: params.m_addressTable)...
+				break;
+			}
+		}
+
+	\sa `io.SocketAddressResolverEventParams`, `io.SocketAddressResolverEventCode`, `io.SocketAddress`
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
+*/
+
 opaque class SocketAddressResolver
 {
+	/**
+		Holds the synchronization ID for the socket address resolver [#f3]_.
+	*/
+
 	uint_t m_syncId;
 
 	construct ();
 	destruct ();
+
+	/**
+		Starts a new resolve request, bumps ``m_syncId`` and assigns it to the new request.
+
+		Returns ``true`` on success. If a resolve request could not be started, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode resolve (
 		char const* name,
 		AddressFamily family = AddressFamily.Undefined
 		);
 
+	/**
+		Cancels an on-going resolve requests identified by ``syncId``, does nothing is ``syncId`` request is not found.
+	*/
+
 	bool cancel (uint_t syncId);
+
+	/**
+		Cancels all on-going resolve requests.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``cancelAll`` [#f2]_.
+	*/
+
 	void cancelAll ();
+
+	/**
+		Effectively makes ``io.SocketAddressResolver`` a *disposable* class [#f2]_.
+	*/
+
 	alias dispose = cancelAll;
+
+	/**
+		This event is fired whenever an event occurs on the socket address resolver.
+
+		For the list of possible events, refer to `io.SocketAddressResolverEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.SocketAddressResolverEventParams` which holds parameters of the particular event [#f3]_.
+	*/
 
 	event m_onResolverEvent (SocketAddressResolverEventParams const* params);
 }

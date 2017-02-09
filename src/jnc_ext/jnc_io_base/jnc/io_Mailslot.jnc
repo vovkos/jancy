@@ -16,40 +16,198 @@ namespace io {
 
 //..............................................................................
 
+/**
+	\import io_base.jncx
+	\import io_Mailslot.jnc
+
+	\brief This enumeration contains codes of all possible events that might happen on `io.Mailslot` object.
+
+	When `io.Mailslot` object is about to fire an event, it allocates an `io.MailslotEventParams` structure, sets `io.MailslotEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Mailslot.m_onMailslotEvent`.
+
+	\sa `io.Mailslot`, `io.MailslotEventParams`
+*/
+
 enum MailslotEventCode
 {
+	/**
+		More data is available on the mailslot; this data could be fetched with `io.Mailslot.read` method.
+	*/
+
 	IncomingData,
+
+	/**
+		An IO error occured on the mailslot; detailed information about the error is available at `io.MailslotEventParams.m_error`.
+	*/
+
 	IoError,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Mailslot.jnc
+
+	\brief This struct contains detailed information about the event occured on `io.Mailslot` object.
+
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Mailslot.m_onMailslotEvent`.
+
+	\sa `io.Mailslot`, `io.MailslotEventCode`
+
+	\footnote f1
+
+		|footnote-sync-id|
+*/
+
 struct MailslotEventParams
 {
+	/**
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.MailslotEventCode`.
+	*/
+
 	MailslotEventCode m_eventCode;
+
+	/**
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
+	*/
+
 	uint_t m_syncId;
+
+	/**
+		Holds extended error information for error events. Currently this field is only used by `io.MailslotEventCode.IoError`.
+	*/
+
 	std.Error* m_error;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Mailslot.jnc
+
+	\brief This class provides high-level asynchronous streaming interface for the *server* side of Windows mailslots which are used, for example, in SMB (Server Message Blocks) protocol and Windows Computer Browser service.
+
+	For working from the *client* side of a mailslot, please use `io.File` or `io.FileStream`.
+
+	A typical sequence of steps when working with a mailslot looks something like this:
+
+	* Assign your event handler using ``m_onMailslotEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Open a mailslot with ``open`` method;
+	* When ``IncomingData`` event is fired, read from the mailslot using ``read`` method;
+	* Close the mailslot when no longer needed with ``close`` method.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		class MyDialog
+		{
+			// ...
+
+			io.Mailslot m_mailslot;
+
+			construct ();
+			onMailslotEvent (`io.MailslotEventParams` const* params);
+		}
+
+		MyDialog.construct ()
+		{
+			// ...
+			m_mailslot.m_onMailslotEvent += onMailslotEvent @ g_mainThreadScheduler;
+		}
+
+		MyDialog.onMailslotEvent (`io.MailslotEventParams` const* params)
+		{
+			if (params.m_syncId != m_mailslot.m_syncId) // late event
+				return;
+
+			switch (params.m_code)
+			{
+			case `io.mailslotEventCode.IncomingData`:
+				char buffer [256];
+				size_t size = m_mailslot.read (buffer, sizeof (buffer));
+				// ...
+				break;
+			}
+		}
+
+	\sa `io.MailslotEventParams`, `io.MailslotEventCode`, `io.File`, `io.FileStream`
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
+*/
+
 opaque class Mailslot
 {
+	/**
+		Holds the open status for the mailslot, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
 	bool readonly m_isOpen;
+
+	/**
+		Holds the synchronization ID for the mailslot [#f3]_.
+	*/
+
 	uint_t m_syncId;
 
 	construct ();
 	destruct ();
 
+	/**
+		Opens or creates a mailslot.
+
+		The function accepts a single argument, ``name``, which is used to specify the name of the mailslot.
+
+		Returns ``true`` on success. If the mailslot could not be opened, IO error supplied by operating system is set and then the function returns ``false``  [#f1]_.
+	*/
+
 	bool errorcode open (char const* name);
 
+	/**
+		Closes a previously opened mailslot, does nothing if the mailslot is not opened. This function always succeeds.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+	*/
+
 	void close ();
+
+	/**
+		Effectively makes ``io.Mailslot`` a *disposable* class [#f2]_.
+	*/
+
 	alias dispose = close;
+
+	/**
+		Attempts to read up to ``size`` bytes from the mailslot into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs  [#f1]_.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the mailslot is closed.
+	*/
 
 	size_t errorcode read (
 		void* p,
 		size_t size
 		);
+
+	/**
+		This event is fired whenever an event occurs on the file stream.
+
+		For the list of possible events, refer to `io.MailslotEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.MailslotEventParams` which holds parameters of the particular event [#f3]_.
+	*/
 
 	event m_onMailslotEvent (MailslotEventParams const* params);
 }

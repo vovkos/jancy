@@ -18,31 +18,191 @@ namespace io {
 
 //..............................................................................
 
+/**
+	\import io_pcap.jncx
+
+	\brief This enumeration contains codes of all possible events that might happen on `io.Pcap` object.
+
+	When `io.Pcap` object is about to fire an event, it allocates an `io.PcapEventParams` structure, sets `io.PcapEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Pcap.m_onPcapEvent`.
+
+	\sa `io.Pcap`, `io.PcapEventParams`
+*/
+
 enum PcapEventCode
 {
+	/**
+		New packet(s) are available on the Pcap device or file; the next packet could be fetched with `io.Pcap.read` method.
+	*/
+
 	ReadyRead,
+
+	/**
+		End-of-file was reached on the Pcap file.
+	*/
+
 	Eof,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_pcap.jncx
+
+	\brief This struct contains detailed information about the event occured on `io.Pcap` object.
+
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Pcap.m_onPcapEvent`.
+
+	\sa `io.Pcap`, `io.PcapEventCode`
+
+	\footnote f1
+
+		|footnote-sync-id|
+*/
+
 struct PcapEventParams
 {
+	/**
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.PcapEventCode`.
+	*/
+
 	PcapEventCode m_eventCode;
+
+	/**
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
+	*/
+
 	uint_t m_syncId;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_pcap.jncx
+
+	\brief This class provides high-level asynchronous interface for the Pcap (Packet Capture) library.
+
+	Pcap library (called WinPcap on Windows) is de-facto the standard tool for capturing and injecting low-level network traffic.
+
+	A typical sequence of steps when working with ``io.Pcap`` looks something like this:
+
+	* Assign your event handler using ``m_onPcapEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Open a live capture using ``openDevice`` or a capture file (\*.pcap) using ``openFile`` method;
+	* When ``ReadyRead`` event is fired, read packet using ``read`` method;
+	* If you opened a live capture, you can also inject packets with ``write`` method;
+	* Close Pcap object when no longer needed with ``close`` method.
+
+	Code sample:
+
+	.. ref-code-block::
+
+		class MyDialog
+		{
+			// ...
+
+			io.Pcap m_pcap;
+
+			construct ();
+
+			startCapture (
+				char const* device,
+				char const* filter = null
+				);
+
+			onPcapEvent (`io.PcapEventParams` const* params);
+		}
+
+		MyDialog.construct ()
+		{
+			// ...
+			m_pcap.m_onPcapEvent += onPcapEvent @ g_mainThreadScheduler;
+		}
+
+		MyDialog.startCapture (
+			char const* device,
+			char const* filter = null
+			)
+		{
+			bool result = try m_pcap.openDevice (device, filter);
+			if (!result)
+			{
+				// handle the error...
+			}
+		}
+
+		MyDialog.onPcapEvent (`io.PcapEventParams` const* params);
+		{
+			if (syncId != m_pcap.m_syncId) // late event
+				return;
+
+			switch (params.m_code)
+			{
+			case `io.PcapEventCode.ReadyRead`:
+				char buffer [256];
+				size_t size = m_pcap.read (buffer, sizeof (buffer));
+				// ...
+				break;
+			}
+		}
+
+	\sa `io.PcapEventParams`, `io.PcapEventCode`
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
+
+	\footnote f4
+
+		For detailed description of the syntax used in Pcap capture filter expressions refer to: http://www.tcpdump.org/manpages/pcap-filter.7.html
+*/
+
 opaque class Pcap
 {
+	/**
+		Holds currently specified capture filter [#f4]_.
+	*/
+
 	char const* readonly m_filter;
+
+	/**
+		Holds ``true`` if network interface has been opened in promiscuos mode; ``false`` otherwise.
+	*/
+
 	bool readonly m_isPromiscious;
+
+	/**
+		Holds the open status for the Pcap object, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
 	bool readonly m_isOpen;
+
+	/**
+		Holds the synchronization ID for the Pcap object [#f3]_.
+	*/
+
 	uint_t m_syncId;
 
 	construct ();
 	destruct ();
+
+	/**
+		Opens a network interface for Pcap capture.
+
+		The function accepts 3 arguments. The first one, ``deviceName``, is used to specify the device to start capture on. To obtain a list of available devices, use `io.createPcapDeviceDescList` function.
+
+		The second one, ``filter``, allows you to specify a capture filter [#f4]_ which will be applied to incoming packets -- packets which do not pass the filter, will never be signalled via `io.PCapEventCode.ReadyRead` event and could not be read by ``read`` method.
+
+		The third and final parameter specifies whether to put interface in promiscuous mode.
+
+		Returns ``true`` on success. If live capture on specified device could not be opened, function sets the error reported by Pcap and returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode openDevice (
 		char const* deviceName,
@@ -50,52 +210,171 @@ opaque class Pcap
 		bool isPromiscious = false
 		);
 
+	/**
+		Opens a previously captured \*.pcap file specified by ``fileName`` argument.
+
+		The second argument, ``filter``, has the same meaning as in ``openDevice`` method [#f4]_.
+
+		Returns ``true`` on success. If capture file could not be opened, function sets the error reported by Pcap and returns ``false`` [#f1]_.
+	*/
+
 	bool errorcode openFile (
 		char const* fileName,
 		char const* filter = null
 		);
 
+	/**
+		Closes a previously opened live capture or a capture file, does nothing if Pcap is not opened. This function always succeeds.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+	*/
+
 	void close ();
 
+	/**
+		Effectively makes ``io.Pcap`` a *disposable* class [#f2]_.
+	*/
+
+	alias dispose = close;
+
+	/**
+		Allows you to change current capture filter without restarting the capture.
+
+		Returns ``true`` on success. If capture filter could not be changed, function sets the error reported by Pcap and returns ``false`` [#f1]_.
+	*/
+
 	bool errorcode setFilter (char const* filter);
+
+	/**
+		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as a packet on a currently opened device.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
+	*/
 
 	size_t errorcode write (
 		void const* p,
 		size_t size
 		);
 
+	/**
+		Reads the next packet into the buffer pointed to by ``p`` and ``size`` bytes long.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
+
+		Normally you would call this function from within your event handler for ``ReadyRead`` event. If this function is called when there are no incoming pacets, it blocks until either a packet arrives, or Pcap is closed.
+	*/
+
 	size_t errorcode read (
 		void* p,
 		size_t size
 		);
+
+	/**
+		This event is fired whenever an event occurs on the Pcap capture object.
+
+		For the list of possible events, refer to `io.PcapEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.PcapEventParams` which holds parameters of the particular event [#f3]_.
+	*/
 
 	event m_onPcapEvent (PcapEventParams const* params);
 }
 
 //..............................................................................
 
-// pcap device enumeration
+/**
+	\import io_pcap.jncx
+
+	\brief This struct holds information about single address of the Pcap device.
+
+	A list of network adapter addresses is part of Pcap device description stored in `io.PcapDeviceDesc`.
+
+	\sa `io.PcapDeviceDesc`, `io.createPcapDeviceDescList`
+*/
 
 struct PcapAddress
 {
+	//! Holds a pointer to the next Pcap device or ``null`` if this is the last address.
+
 	PcapAddress const* m_next;
+
+	//! Holds ``IP4`` address of the Pcap device as `io.Address_ip4`.
+
 	Address_ip4 m_address;
+
+	//! Holds ``IP4`` mask of the Pcap device as `io.Address_ip4`.
+
 	Address_ip4 m_mask;
+
+	//! Holds ``IP4`` subnet broadcast address of the Pcap device as `io.Address_ip4`.
+
 	Address_ip4 m_broadcast;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_pcap.jncx
+
+	\brief This struct holds information about the device available for Pcap live capture.
+
+	A list of Pcap device descriptions is returned by `io.createPcapDeviceDescList`.
+
+	\sa `io.createPcapDeviceDescList`
+*/
+
 struct PcapDeviceDesc
 {
+	/**
+		Holds a pointer to the next Pcap device description or ``null`` if this is the last adapter.
+	*/
+
 	PcapDeviceDesc const* m_next;
+
+	/**
+		Holds the Pcap device name; use this name as ``deviceName`` argument in `io.Pcap.openDevice` method.
+	*/
+
 	char const* m_name;
+
+	/**
+		Holds a human-readable description of Pcap device.
+	*/
+
 	char const* m_description;
+
+	/**
+		Holds the head of the list of addresses of this Pcap device. Iterate through the list by instpecting `io.PcapAddress.m_next` field.
+	*/
+
 	PcapAddress m_address;
+
+	/**
+		Holds flag options of the Pcap device; currently unused.
+	*/
+
 	uint_t m_flags;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	Enumerates all available devices Pcap can start a live capture session on.
+
+	``count`` argument can be used to obtain the total number of devices in the resulting list.
+
+	Returns a pointer to the very first `io.PcapDeviceDesc` in the resulting list. You can walk through the list by inspecting `io.PcapDeviceDesc.m_next` field:
+
+	.. ref-code-block::
+
+		`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList ();
+		for (; deviceDesc; deviceDesc = deviceDesc.m_next)
+		{
+			// add device to the combo box...
+		}
+*/
 
 PcapDeviceDesc const* createPcapDeviceDescList (size_t* count = null);
 

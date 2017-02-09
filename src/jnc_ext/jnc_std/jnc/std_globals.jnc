@@ -15,40 +15,128 @@
 
 //..............................................................................
 
+/**
+\defgroup g2_crt
+
+	\title C Runtime Functions
+
+	\brief This section contains C runtime functions available from Jancy.
+
+	The purpose of these functions is to create a familiar environment for C/C++ programmers and make it easier to switch between Jancy and C/C++.
+
+	\footnote f1
+
+		If null-terminating ``0`` byte is not discovered withing the allowed range of string pointer, Jancy string functions behave just like if ``0`` was found at the very next byte after the end of allowed range. In other words, it is always assumed that ``0`` could be found at the location ``p + dynamic sizeof (p)`` -- even if the actual byte at this location isn't really ``0``.
+
+	\footnote f2
+
+		The notation ``p:size`` here means: memory block pointed to by ``p`` and of ``size`` bytes long.
+*/
+
 //! \addtogroup g2_crt
 //! @{
 
+/**
+	Calculates and returns the length of the string pointed to by ``p`` argument. The length of the string is defined as the number of bytes between the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
+
+	Returns ``0`` if ``p == null``.
+*/
+
 size_t strlen (char const* p);
+
+/**
+	Performs a case-sensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+*/
 
 int strcmp (
 	char const* p1,
 	char const* p2
 	);
 
+/**
+	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+*/
+
 int stricmp (
 	char const* p1,
 	char const* p2
 	);
+
+/**
+	Finds the first occurance of char ``c`` within null-terminated string pointed to by ``p`` [#f1]_.
+
+	Returns a pointer to the first occurrence of ``c`` in ``p``.
+
+	Returns ``null`` if ``c`` is not found.
+*/
 
 char const* strchr (
 	char const* p,
 	int c
 	);
 
+/**
+	Finds the first occurance of null-terminated substring ''p2'' within null-terminated string pointed to by ``p1`` [#f1]_.
+
+	Returns a pointer to the first occurrence of substring ``p2`` in ``p1``.
+
+	Returns ``null`` if substring ``p2`` is not found.
+
+	Uses Boyer-Moore algorithm for substring search.
+*/
+
 char const* strstr (
 	char const* p1,
 	char const* p2
 	);
+
+/**
+	Creates a new string as a concatenation of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns a pointer to the result string.
+
+	Returns ``null`` if the buffer for the new string could not be allocated.
+*/
 
 char const* strcat (
 	char const* p1,
 	char const* p2
 	);
 
+/**
+	Creates a duplicate of null-terminated string pointed to by ``p`` [#f1]_.
+
+	Returns a pointer to the result string.
+
+	Returns ``null`` if the buffer for the new string could not be allocated.
+*/
+
 char const* strdup (
 	char const* p,
 	size_t length = -1
 	);
+
+/**
+	Performs a case-sensitive lexicographic comparison of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+
+	Returns ``-1`` if ``p1:size1`` appears before ``p2:size2`` in lexographical order.
+
+	Returns ``1`` if ``p1:size1`` appears after ``p2:size2`` in lexographical order.
+*/
 
 int memcmp (
 	void const* p1,
@@ -56,11 +144,29 @@ int memcmp (
 	size_t size
 	);
 
+/**
+	Finds the first occurance of char ``c`` within memory block ``p:size`` [#f2]_.
+
+	Returns a pointer to the first occurrence of ``c`` in ``p:size``.
+
+	Returns ``null`` if ``c`` is not found.
+*/
+
 void const* memchr (
 	void const* p,
 	int c,
 	size_t size
 	);
+
+/**
+	Finds the first occurance of memory block ``p2:size2`` within memory block ``p1:size1`` [#f2]_.
+
+	Returns a pointer to the first occurrence of block ``p2:size2`` in ``p1:size1``.
+
+	Returns ``null`` if block ``p2:size2`` is not found.
+
+	Uses Boyer-Moore algorithm for memory block search.
+*/
 
 void const* memmem (
 	void const* p1,
@@ -69,17 +175,33 @@ void const* memmem (
 	size_t size2
 	);
 
+/**
+	Copies memory block ``src:size`` [#f2]_ to the buffer pointed to by ``dst``.
+*/
+
 void memcpy (
 	void* dst,
 	void const* src,
 	size_t size
 	);
 
+/**
+	Copies character ``c`` to each of the first ``size`` bytes of memory block pointed to by ``p``.
+*/
+
 void memset (
 	void* p,
 	int c,
 	size_t size
 	);
+
+/**
+	Creates a new memory block as a concatenation of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+
+	Returns a pointer to the result memory block.
+
+	Returns ``null`` if the buffer for the new memory block could not be allocated.
+*/
 
 void* memcat (
 	void const* p1,
@@ -88,25 +210,80 @@ void* memcat (
 	size_t size2
 	);
 
+/**
+	Creates a duplicate of memory block ``p:size`` [#f2]_.
+
+	Returns a pointer to the result memory block.
+
+	Returns ``null`` if the buffer for the new memory block could not be allocated.
+*/
+
 void* memdup (
 	void const* p,
 	size_t size
 	);
 
+/**
+	Returns a pseudo-random integral value between ``0`` and implementation-defined ``RAND_MAX`` (typically, ``32767``)
+
+	Maps directly to standard C function ``rand``.
+*/
+
 int rand ();
 
-// UTF-32
+/**
+	Converts Unicode codepoint ``c`` to upper case.
+
+	Returns the resulting Unicode codepoint.
+*/
 
 uint32_t toupper (uint32_t c);
+
+/**
+	Converts Unicode codepoint ``c`` to lower case.
+
+	Returns the resulting Unicode codepoint.
+*/
+
 uint32_t tolower (uint32_t c);
 
+/**
+	Parses a string representation of an integer.
+
+	Discards any whitespace characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid integer number representation and converts them to an integer value.
+
+	Returns result integer value or ``0`` if string does not contain a valid representation of an integer.
+
+	Returns ``0`` if ``p == null``.
+*/
+
 int atoi (char const* p);
+
+/**
+	Parses a string representation of an integer.
+
+	Discards any whitespace characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid integer number representation and converts them to an integer value.
+
+	Returns result integer value or ``0`` if string does not contain a valid representation of an integer.
+
+	The functions sets the pointer pointed to by ``end`` to point to the character past the last character interpreted. If ``end`` is ``null``, it is ignored.
+
+	Returns ``0`` if ``p == null``.
+*/
 
 long strtol (
     char const* p,
 	char const** end = null,
 	int radix = 10
 	);
+
+/**
+	Prints formatted output to the standard output stream.
+
+	Returns the number of characters printed, or a ``-1`` if an error occurs.
+
+	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+*/
 
 intptr_t cdecl printf (
 	char const thin* fmtSpecifier,
@@ -121,6 +298,14 @@ namespace std {
 
 //! \addtogroup std
 //! @{
+
+/**
+	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffered.
+
+	Returns a pointer to null-terminated string containing the newly formatted text.
+
+	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+*/
 
 char const* cdecl format (
 	char const* fmtSpecifier,

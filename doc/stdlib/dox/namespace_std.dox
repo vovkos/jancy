@@ -17,4 +17,26 @@
 
 	For your convenience, documentation for all the members of ``namespace std`` is divided into the following categories:
 
+\defgroup container
+
+	\title Containers & Collections
+
+	\import std_List.jnc
+	\import std_HashTable.jnc
+
+	\This section describes types for holding structured collections of other objects.
+
+\defgroup error
+
+	\title Error Facilities
+
+	This section describes types and facilities for setting and retrieving error information.
+
+\defgroup std
+
+	\title Miscellaneous Facilities
+
+	This section describes miscellaneous types and facilities of ``namespace std``.
+
+
 */

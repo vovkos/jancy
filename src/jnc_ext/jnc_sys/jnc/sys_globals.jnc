@@ -20,7 +20,34 @@ namespace sys {
 //! \addtogroup thread
 //! @{
 
+/*!
+
+/**
+	Returns the thread identifier (TID) of the current thread.
+
+	Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on POSIX.
+*/
+
 uintptr_t getCurrentThreadId ();
+
+/**
+	Creates a new thead and executes ``threadFunc`` in the context of the newly created thread.
+
+	If you need to pass extra context parameters to the ``threadFunc``, use partial application as such::
+
+		myThreadFunc (
+			int intContext,
+			char const* stringContext
+			)
+		{
+
+		}
+
+		// ...
+
+		sys.createThread (myThreadFunc ~(100, "string-context"));
+
+*/
 
 bool createThread (function* threadFunc ());
 
@@ -29,7 +56,17 @@ bool createThread (function* threadFunc ());
 //! \addtogroup time
 //! @{
 
+/**
+	Suspends the execution of the calling thread until ``timeout`` interval elapses. ``timeout`` is expressed in milliseconds.
+*/
+
 void sleep (uint32_t timeout);
+
+/**
+	Returns current system timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+
+	This format is the same as used in Windows ``FILETIME`` struct.
+*/
 
 uint64_t getTimestamp ();
 
@@ -60,6 +97,10 @@ struct GcTriggers
 }
 
 GcTriggers property g_gcTriggers;
+
+/**
+	Forces a full cycle of garbage collection.
+*/
 
 void collectGarbage ();
 

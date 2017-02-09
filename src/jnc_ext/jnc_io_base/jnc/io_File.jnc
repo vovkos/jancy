@@ -16,39 +16,183 @@ namespace io {
 
 //..............................................................................
 
+/**
+	\import io_base.jncx
+	\import io_File.jnc
+
+	\brief This enumeration specifies available options for opening `io.File`, `io.FileStream` or `io.MappedFile`.
+
+	When opening files or devices with ``open`` method, the second argument ``flags`` can be used to adjust options.
+
+	\sa `io.File`, `io.FileStream`, `io.MappedFile`
+*/
+
 bitflag enum FileOpenFlags
 {
+	/**
+		File or device should be opened in read-only mode. When file is opened in read-only mode, trying to perform modifying operations such as calling ``write`` method or changing the file size via ``m_size`` property will fail with ``access violation`` system error.
+	*/
+
 	ReadOnly,
+
+	/**
+		File or device should be opened in write-only mode. When file is opened in read-only mode, calling ``read`` method fail with ``access violation`` system error.
+
+		Note that certain files and devices could *only* be opened in write-only mode (e.g., client mailslot files on Windows)
+	*/
+
 	WriteOnly,
+
+	/**
+		Do not try to create a file if it does not exist.
+
+		If file specified by ``name`` argument to ``open`` method does not exist, ``open`` method should fail rather than try to create a new empty file with such a name (which would be the default option).
+	*/
+
 	OpenExisting,
+
+	/**
+		Open a file or device in exclusive mode. If another thread or process simultaneously tries to open the same file -- no matter if it specifies read-write, read-only or write-only modes -- it will fail with ``access violation`` system error.
+	*/
+
 	Exclusive,
+
+	/**
+		Allow multiple threads or processes to open the same file for writing. This overrides the default behaviour -- normally, only one write-access handle to the file is allowed at the same time (subsequent attempts to open the file for writing will fail with ``access violation`` system error)
+	*/
+
 	ShareWrite,
+
+	/**
+		File should be deleted as soon as the last handle to it is being closed.
+
+		Currently it only works nicely on Windows which natively provides support for this functionality via ``FILE_FLAG_DELETE_ON_CLOSE``. Current implementation for POSIX platforms simply calls ``unlink`` immediatly after open.
+	*/
+
 	DeleteOnClose,
 }
 
 //..............................................................................
 
+/**
+	\import io_base.jncx
+	\import io_File.jnc
+
+	\brief This class provides a standard synchronous interface for reading from and writing to files or devices.
+
+	All the methods of this class are mapped directly to underlying Operating System API (not to the C-runtime library). A typical sequence of steps when working with a file usually looks like this:
+
+	* Open a file with ``open`` method;
+	* Read from the file using ``read`` method;
+	* Write to the file using ``write`` method;
+	* Close the file with ``close`` method.
+
+	It's recommended to use disposable pattern when working with local file variables. Whether or not to use exception semantics or a traditional error code depends on what deems to be more convenient in each particular case.
+
+	\sa `io.FileStream`, `io.MappedFile`
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		foo (void const* data)
+		{
+			disposable io.File file;
+			file.open ("data.txt");
+			file.write (data, dynamic sizeof (data));
+			// ...
+
+		catch:
+			// handle the error
+		} // file will be closed no matter how we leave the function
+
+	\footnote f3
+
+		|footnote-set-property-fail|
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+*/
+
 opaque class File
 {
+	/**
+		Holds the open status for the file, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
 	bool readonly m_isOpen;
+
+	/**
+		This property is used for getting and setting file size.
+
+		Reading from this property returns current size of the file; writing to it sets new size [#f3]_.
+	*/
+
 	uint64_t property m_size;
+
+	/**
+		This property is used for getting and setting [#f3]_ current file position, i.e. the offset at which file contents will be accessed by ``read`` and ``write`` methods.
+
+		Accessing this property for sequential devices (which do not support access at random-offset) likely results in exception being thrown (unless the underlying OS silently ignores position read/write and does not return any IO error).
+	*/
+
 	uint64_t property m_position;
 
 	construct ();
 	destruct ();
+
+	/**
+		Opens or creates a file or device.
+
+		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
+
+		Returns ``true`` on success. If file or device could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode open (
 		char const* name,
 		FileOpenFlags flags = 0
 		);
 
+	/**
+		Closes a previously opened file, does nothing if the file is not opened. This function always succeeds.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+	*/
+
 	void close ();
+
+	/**
+		Effectively makes ``io.File`` a *disposable* class [#f2]_.
+	*/
+
 	alias dispose = close;
+
+	/**
+		Attempts to read up to ``size`` bytes from file into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+		If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		If this function is called when there is no incoming data on the opened device, it blocks until either the data arrives, or the file is closed.
+	*/
 
 	size_t errorcode read (
 		void* p,
 		size_t size
 		);
+
+	/**
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` into the file.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+	*/
 
 	size_t errorcode write (
 		void const* p,

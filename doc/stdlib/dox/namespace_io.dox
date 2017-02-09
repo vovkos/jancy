@@ -17,4 +17,62 @@
 
 	For your convenience, documentation for all the members of ``namespace io`` is divided into the following categories:
 
+\defgroup file
+
+	\title Generic File IO
+
+	\import io_base.jncx
+	\import io_File.jnc
+	\import io_FileStream.jnc
+	\import io_MappedFile.jnc
+	\import io_Mailslot.jnc
+	\import io_NamedPipe.jnc
+
+	This section describes types and facilities for working with files and generic IO devices.
+
+\defgroup socket
+
+	\title Socket Communications
+
+	\import io_base.jncx
+	\import io_Socket.jnc
+	\import io_SocketAddress.jnc
+	\import io_SocketAddressResolver.jnc
+
+	This section describes types and facilities used when programming socket communicatins.
+
+\defgroup serial
+
+	\title Serial Communications
+
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	This section describes types and facilities used when programming serial communicatins.
+
+\defgroup network-adapter
+
+	\title Network Adapter Management
+
+	\import io_base.jncx
+	\import io_NetworkAdapter.jnc
+
+	This section describes types and facilities for enumerating and getting information about installed network adapters.
+
+\defgroup ssh
+
+	\title SSH Communications
+
+	\import io_ssh.jncx
+
+	This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
+
+\defgroup pcap
+
+	\title Pcap (Packet Capturing Library)
+
+	\import io_pcap.jncx
+
+	This section describes types and facilities used when programming Pcap (Packet Capturing Library)
+
 */

@@ -17,10 +17,34 @@ namespace jnc {
 
 ///; static char automatonResultTypeSrc [] =
 
+/**
+	\brief This enumeration lists all possible values that can be returned by ``automaton`` function.
+
+	Automaton function consists of a list of lexeme-describing regular expressions followed by actions, which need to be performed when those lexemes are discovered in the input stream. What to do *after* the action is determined by the return code of ``automaton`` function.
+
+	\sa `jnc.Recognizer`
+*/
+
 enum AutomatonResult
 {
+	/**
+		Even when lexeme matches the regular expression, something may be wrong with it. If the lexeme-following action does some extra checks and disoveres an error in the lexeme, it can return ``jnc.AutomatonResult.Error``. This will force `jnc.Recognizer` to fail the original `jnc.Recognizer.write` or `jnc.Recognizer.eof` function.
+	*/
+
 	Error    = -1,
+
+	/**
+		Continue scanning/lexing past the discovered lexeme. This is the default return value, i.e. if you action does not return anything, Jancy compiler will treat this action as it has ended with::
+
+			return jnc.AutomatonResult.Continue;
+	*/
+
 	Continue = 0,
+
+	/**
+		Sometimes it may be desirable to **stop** right away after a certain lexeme. When this is needed, lexeme-following action can return ``jnc.AutomatonResult.Stop``. This will force `jnc.Recognizer` will act just as the input stream has ended right after the current lexeme (the following bytes of the input will be ignored).
+	*/
+
 	Stop     = 1,
 }
 
@@ -30,8 +54,16 @@ enum AutomatonResult
 
 struct AutomatonLexeme
 {
+	//! Holds a pointer to the matched lexeme (guaranteed to be null-terminated).
+
 	char const* m_text;
+
+	//! Holds offset of the matched lexeme relative the beginning of input stream.
+
 	size_t m_offset;
+
+	//! Holds length of the matched lexeme or sub-lexeme.
+
 	size_t m_length;
 }
 
@@ -39,8 +71,83 @@ struct AutomatonLexeme
 
 ///; static char recognizerTypeSrc [] =
 
+/**
+	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``automaton`` function.
+
+	Jancy ``automaton`` functions allow for convenient creation of lexers/scanners.
+
+	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
+
+	1. Define a list of recognized lexemes in the form of regular expressions.
+	2. Specify which actions to execute when these lexemes are found in the input stream.
+	3. Jancy compiler automatically builds a DFA to recognize your language and perform correspondig actions.
+
+	However, you cannot call ``automaton`` function directly. To *execute* the resulting DFA you need a `jnc.Recognizer` object -- it will hold the state of DFA and buffer matched lexemes.
+
+	For better understanding of the relations between automatons and recognizers, think about the follow analogy. You have an XBox console and a game disc. First you have to load the disc into console, and then you play it -- you can even interrupt the process of playing (e.g. to continue it the next day).
+
+	In this analogy a game disc corresponds to some ``automaton`` function and a console is a `jnc.Recognizer` instance. Recognizer holds the DFA state and performs recognition driven by the ``automaton`` function. And just like with XBox example above, you can recognize a part of data first, then wait (for example, until the next portion arrives over the network), then continue where you left, and so on.
+
+	.. rubric:: Using Automatons and Recognizers
+
+	To use Jancy lexer/scanner framework, you have to define an automaton function first. Automaton function contains a list of recognized lexemes in form of regular expressions *and* defines actions to undertake when these lexemes are found in the input stream:
+
+	.. ref-code-block::
+
+		`jnc.AutomatonResult` automaton fooBar (`jnc.Recognizer`* recognizer)
+		{
+		    %% "foo"
+		        // lexeme found: foo;
+
+		    %% "bar"
+		        // lexeme found: bar;
+
+		    %% [0-9]+
+		        // lexeme found: decimal-number
+
+		        int value = atoi (recognizer.m_lexeme);
+
+		    %% [ \r\n\t]+
+		        // ignore whitespace
+		}
+
+	Then create an instance of ``jnc.Recognizer`` class and assign your ``automaton`` function to it::
+
+		jnc.Recognizer recognizer (fooBar);
+
+	Then you keep feeding chunks of data to the recognizer; when recognizer matches the whole lexeme as defined in ``automaton`` function, it executes the corresponding action:
+
+	.. ref-code-block::
+
+		try
+		{
+		    recognizer.write (" ba");
+		    recognizer.write ("r f");
+		    recognizer.write ("oo ");
+		    recognizer.write ("100");
+		    recognizer.write ("000");
+
+		    // notify recognizer about eof (this can trigger actions or errors)
+
+		    recognizer.eof ();
+
+		catch:
+		    // handle recognition error
+		}
+
+	\sa `jnc.AutomatonLexeme`, `jnc.AutomatonResult`
+
+	\footnote f1
+
+		|footnote-errorcode|
+*/
+
 class Recognizer
 {
+	/**
+		All ``automaton`` functions in Jancy must return `jnc.AutomatonResult` and accept one argument of type ``jnc.Recognizer*``. If more arguments are needed (e.g. ``this`` argument of ``automaton`` member methods), they can be stored in the function closure.
+	*/
+
 	typedef AutomatonResult automaton AutomatonFunc (Recognizer* recognizer);
 
 protected:
@@ -55,29 +162,79 @@ protected:
 	size_t m_maxSubLexemeCount;
 
 public:
+	/**
+		Holds pointer to the current ``automaton`` function. Can be adjusted on-the-fly, for example, in actions of ``automaton`` function.
+	*/
+
 	AutomatonFunc* autoget property m_automatonFunc;
+
+	/**
+		Holds the maximum buffer size for lexemes. Set before starting recognition.
+
+		What happends when lexeme in the input stream does not fit inside the buffer, depends on the whether the captured part of lexeme *already* matches some rule. If yes, recognizer will execute corresponding action and then reset its state to initial value.
+
+		If captured part of lexeme does not match any rules, ``write`` or ``recognize`` will return error.
+	*/
+
 	size_t autoget property m_lexemeLengthLimit;
+
+	/**
+		Holds the current offset of recognizer.
+
+		Could be adjusted manually. For example, you can adjust ``m_currentOffset`` before starting recognition; when a lexeme is found, ``m_lexemeOffset`` will account for the initial offset (offset relative the beginning of the stream plus initial offset set before starting recognition).
+	*/
+
 	size_t autoget property m_currentOffset;
+
+	/**
+		\subgroup
+
+		These fields hold information about the matched lexeme and, possibly, sub-lexemes (if capturing regular expressions groups were used).
+
+ 		These fields should only be accessed from within **action** inside ``automaton`` function.
+ 	*/
 
 	AutomatonLexeme readonly m_lexeme;
 	AutomatonLexeme const* readonly m_subLexemeArray;
 	size_t readonly m_subLexemeCount;
 
 public:
+	/**
+		Constructor of ``jnc.Recognizer`` class. Accepts a single optional argument ``automatonFunc`` which, if supplied, will be written to ``m_automatonFunc`` and used for subsequent scanning.
+	*/
+
 	construct (AutomatonFunc* automatonFunc = null);
 
-	// incremental recognition
+	/**
+		Resets state of recognizer including all offsets and captured lexeme bytes.
+	*/
 
 	reset ();
+
+	/**
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` to the recognizer, executing actions corresponding to matched lexemes in the process. Keeps state in tact, so a couple of continuous``write`` calls yield the same result as if a single ``write`` with concatenated buffer.
+
+		Returns ``true`` on success. If the new bytes place DFA into *error* state, ``write`` sets ``unrecognized lexeme`` error and returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode write (
 		char const* p,
 		size_t length = -1
 		);
 
+	/**
+		Notifies recognizer about the end of stream. Trigger actions if DFA is in *matched* state.
+
+		Returns ``true`` on success. If DFA is not in *matched* state, ``eof`` sets ``unrecognized lexeme`` error and returns ``false`` [#f1]_.
+	*/
+
 	bool errorcode eof ();
 
-	// recognition in one-go
+	/**
+		Performs recognition of a complete data stream in one go.
+
+		Equivalent to the sequence of calls: ``reset``, ``write``, ``eof``.
+	*/
 
 	bool errorcode recognize (
 		char const* p,
@@ -87,6 +244,12 @@ public:
 		reset ();
 		return try write (p, length) && try eof ();
 	}
+
+	/**
+		Performs recognition of a complete data stream in one go.
+
+		Equivalent to setting ``m_autatonFunc`` and then calling ``recognize`` method.
+	*/
 
 	bool errorcode recognize (
 		AutomatonFunc* automatonFunc,
@@ -109,6 +272,3 @@ protected:
 ///---
 
 } // namespace jnc
-
-
-recognizer.m_groupOffset

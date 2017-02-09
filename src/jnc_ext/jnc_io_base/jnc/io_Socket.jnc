@@ -18,68 +18,351 @@ namespace io {
 
 //..............................................................................
 
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This enumeration contains codes of all possible events that might happen on `io.Socket` object.
+
+	When `io.Socket` object is about to fire an event, it allocates an `io.SocketEventParams` structure, sets `io.SocketEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.Socket.m_onSocketEvent`.
+
+	\sa `io.Socket`, `io.SocketEventParams`
+*/
+
 enum SocketEventCode
 {
+	/**
+		Connection request completed successfully.
+	*/
+
 	ConnectCompleted,
+
+	/**
+		Connection request cancelled by `io.Socket.close` call.
+	*/
+
 	ConnectCancelled,
+
+	/**
+		Connection request failed; detailed information about the error is available at: `io.SocketEventParams.m_error`.
+	*/
+
 	ConnectError,
+
+	/**
+		Connection has been terminated by the remote node. `io.SocketEventParams.m_flags` contains additional information about disconnect type. Note that if connection was terminated by the local node (using `io.Socket.close`), ``Disconnect`` event is **not** fired.
+	*/
+
 	Disconnected,
+
+	/**
+		More data is available on the socket; this data could be fetched with `io.Socket.recv` or `io.Socket.recvFrom` methods.
+	*/
+
 	IncomingData,
+
+	/**
+		New incoming client connection is pending on the listening server socket. The new client can be accepted using `io.Socket.accept` method (to reject the connection you still have to accept it first, and then close it)
+	*/
+
 	IncomingConnection,
+
+	/**
+		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.Socket.send` requests. Note that this event is not supposed to be used with datagram sockets.
+	*/
+
 	TransmitBufferReady,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This enumeration lists all possible values for `io.SocketEventParams.m_flags` when `io.SocketEventParams.m_eventCode` equals `io.SocketEventCode.Disconnected`.
+
+	Currently only one flag ``Reset`` is supported -- it is used to distinguish between different disconnect types.
+
+	\sa `io.SocketEventParams`, `io.SocketEventCode`
+*/
+
 bitflag enum SocketDisconnectEventFlags
 {
+	/**
+		Connection was terminated abruptly (by a ``RST`` packet) rather than gracefully (with a ``FIN-ACK-FIN-ACK`` sequence)
+	*/
+
 	Reset,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This struct contains detailed information about the event occured on `io.Socket` object.
+
+	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Socket.m_onSocketEvent`.
+
+	\sa `io.Socket`, `io.SocketEventCode`
+
+	\footnote f1
+
+		|footnote-sync-id|
+*/
+
 struct SocketEventParams
 {
+	/**
+		Holds the numerical code of the event. For a list of all possible codes refer to `io.SocketEventCode`.
+	*/
+
 	SocketEventCode m_eventCode;
+
+	/**
+		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
+	*/
+
 	uint_t m_syncId;
+
+	/**
+		Holds additional flags options of the event. Currently this field is only used by `io.SocketEventCode.Disconnected` where it holds a combination of flags from `io.SocketDisconnectEventFlags` enumeration.
+	*/
+
 	uint_t m_flags;
+
+	/**
+		Holds extended error information for error events. Currently this field is only used by `io.SocketEventCode.ConnectError`.
+	*/
+
 	std.Error const* m_error;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This enumeration lists options for ``TCP`` socket disconnect type.
+
+	``TCP`` socket could be closed using either of the below ways.
+*/
+
 enum SocketCloseKind
 {
+	/**
+		Send ``RST`` packet and drop the connection abruptly.
+	*/
+
 	Reset = 0,
+
+	/**
+		Follow the controlled disconnect sequence which starts with disconnect initiator issuing a ``FIN`` packet (``FIN-ACK-FIN-ACK``).
+	*/
+
 	Graceful,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	This enumeration lists all possible flag options for `io.Socket.open` method.
+
+	\sa `io.Socket`
+*/
+
 bitflag enum SocketOpenFlags
 {
+	/**
+		Opens a ``RAW`` socket (i.e a socket which allows direct access to transport- and network- layer headers of ``IP``-packets). Internally maps to ``IPPROTO_RAW`` protocol.
+	*/
+
 	Raw,
+
+	/**
+		Opens an asynchronous socket. Asynchronous sockets notify subscribers about asynhronous events (such as completions of pending operations) via `io.Socket.m_onSocketEvent`, while methods of synchronous sockets wait until pending operations complete and only then return. Also, asynchronous sockets create a dedicated IO thread upon socket open while synchronous sockets do not use any dedicated IO threads.
+
+		By default sockets are opened in synchronous mode.
+	*/
+
 	Asynchronous,
+
+	/**
+		Allow binding multiple sockets to the same local address (unless a socket is already bound to the same address and this socket did *not* use ``ReuseAddress``). Internally maps to ``SO_REUSEADDR`` socket option.
+	*/
+
 	ReuseAddress,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This class provides high-level asynchronous interface for accessing all kinds of sockets.
+
+	Sockets represent endpoints of network communications. Sockets are subdivided into two large subclassess: **datagram-oriented** and **connection-oriented**. Furthermore, connection-oriented sockets can operate in one of the two modes: **client** and **server**. And even though these interfaces don't share that many commonalities, it so historically happened that they are usually blended into a single *socket API*.
+
+	Jancy follows this traditional approach.
+
+	Sample code (client connection-oriented TCP socket):
+
+	.. ref-code-block::
+
+		class MyDialog
+		{
+			// ...
+
+			io.Socket m_socket;
+
+			construct ();
+
+			open (
+				char const* portName,
+				uint_t baudRate
+				);
+
+			onWriteButtonClicked ();
+			onSocketEvent (`io.SocketEventParams` const* params);
+		}
+
+		MyDialog.construct ()
+		{
+			// ...
+			m_socket.m_onSocketEvent += onSocketEvent @ g_mainThreadScheduler;
+		}
+
+		MyDialog.connect (char const* addrString)
+		{
+			`io.SocketAddress` sockAddr;
+			sockAddr.parse (addrString);
+			m_socket.open (`io.Protocol.Tcp`, `io.SocketOpenFlags.Asynchronous`);
+			m_socket.connect (sockAddr);
+
+		catch:
+			// handle the error...
+		}
+
+		MyDialog.onSendButtonClicked ()
+		{
+			static char data [] = "a quick brown fox jumps over the lazy dog";
+			m_socket.send (data, sizeof (data));
+		}
+
+		MyDialog.onSocketEvent (`io.SocketEventParams` const* params)
+		{
+			if (params.m_syncId != m_socket.m_syncId) // late event
+				return;
+
+			switch (params.m_code)
+			{
+			case `io.SocketEventCode.ConnectError`:
+				// handle error (extended info is at: params.m_error)...
+				break;
+
+			case `io.SocketEventCode.ConnectCompleted`:
+				// handle successfull connection...
+				break;
+
+			case `io.SocketEventCode.IncomingData`:
+				char buffer [256];
+				size_t size = m_socket.recv (buffer, sizeof (buffer));
+				// ...
+				break;
+			}
+		}
+
+	\sa `io.SocketOpenFlags`, `io.SocketEventParams`, `io.SocketEventCode`, `io.SocketAddress`
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+
+	\footnote f3
+
+		|footnote-sync-id|
+
+	\footnote f4
+
+		|footnote-set-property-fail|
+*/
+
 opaque class Socket
 {
+	/**
+		This property is used for getting the local address assigned to this socket. If the address has not been assigned yet, returns empty address.
+	*/
+
 	SocketAddress const property m_address;
+
+	/**
+		This property is used for getting the remote address of the peer this socket is connected to. If the connection has not been established yet, returns empty address.
+	*/
+
 	SocketAddress const property m_peerAddress;
 
+	/**
+		This property is used for getting and setting [#f4]_ the *broadcast* flag for datagram-oriented protocols (such as ``UDP``). When this property is set to ``true``, the socket is allowed to send broadcast packets into the network.
+	*/
+
 	bool property m_isBroadcastEnabled;
+
+	/**
+		This property is used for getting and setting [#f4]_ the Nagle algorithm flag for ``TCP`` sockets. When this property is set to ``true``, the socket attempts to delay the transmission of TCP data segments in order to reduce the overall number of transmitted packets.
+
+		For detailed description of Nagle algorithm refer to: http://en.wikipedia.org/wiki/Nagle's_algorithm
+	*/
+
 	bool property m_isNagleEnabled;
+
+	/**
+		This property is used for getting and setting [#f4]_ the ``IP_HDRINCL`` flag for ``RAW`` sockets. When this property is set to ``true``, the application must provide ``IP`` header together with the rest of the packet (however, the kernel may still overwrite certain fields, such as ``checksum``).
+
+		For detailed description of raw sockets refer to: http://man7.org/linux/man-pages/man7/raw.7.html
+	*/
+
 	bool property m_isRawHdrIncluded;
+
+	/**
+		This property is used for getting and setting [#f4]_ the disconnect type for ``TCP`` sockets -- whether it should be **graceful** (via ``FIN`` sequence) or **reset** (via ``RST`` packet).
+	*/
+
 	SocketCloseKind property m_closeKind;
 
+	/**
+		Holds the open status for the socket, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
 	bool readonly m_isOpen;
+
+	/**
+		Holds the synchronization ID for the socket [#f3]_.
+	*/
+
 	uint_t m_syncId;
 
 	construct ();
 	destruct ();
+
+	/**
+		Opens a new unbound socket.
+
+		The function accepts three arguments. The first one, ``family``, specifies the address family of the new socket (``IP4`` vs ``IP6``). The second argument, ``protocol``, specifies the protocol of the new socket (datagram-oriented ``UDP`` vs connection-oriented ``TCP``). The third and final argument, ``flags`` can be used to specify additional open options. Check `io.SocketOpenFlags` for the complete list of options.
+
+		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode open (
 		AddressFamily family,
@@ -87,11 +370,25 @@ opaque class Socket
 		SocketOpenFlags flags = 0
 		);
 
+	/**
+		Opens a new socket and binds it to the specified local address.
+
+		The function accepts three arguments. The first one, ``protocol``, specifies the protocol of the new socket (datagram-oriented ``UDP`` vs connection-oriented ``TCP``). The second argument, ``address``, specifies the local address to bind the new socket to. The third and final argument, ``flags`` can be used to specify additional open options. Check `io.SocketOpenFlags` for the complete list of options.
+
+		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
+
 	bool errorcode open (
 		Protocol protocol,
 		SocketAddress const* address,
 		SocketOpenFlags flags = 0
 		);
+
+	/**
+		Opens a new unbound socket.
+
+		The function is equivalent to the very first overload of ``open`` method with ``family`` argument set to `io.AddressFamily.Ip4`.
+	*/
 
 	bool errorcode open (
 		Protocol protocol,
@@ -101,23 +398,85 @@ opaque class Socket
 		return open (AddressFamily.Ip4, protocol, flags);
 	}
 
+	/**
+		Closes a previously opened socket, does nothing if the file is not opened. This function always succeeds.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+	*/
+
 	void close ();
+
+	/**
+		Effectively makes ``io.Socket`` a *disposable* class [#f2]_.
+	*/
+
 	alias dispose = close;
+
+	/**
+		Initiates a connection request to ``address``. This function is only valid for ``TCP`` sockets.
+
+		If this socket was opened with `io.SocketOpenFlags.Asynchronous` flag, this method merely initiates a connection request and returns immediatly. After connection request completes, an event `io.SocketEventCode.ConnectCompleted` (on success) or `io.SocketEventCode.ConnectError` (on failure) gets fired.
+
+		If, however, this socket was opened without `io.SocketOpenFlags.Asynchronous` flag, this method waits until connection request completes (successfully or unsuccessfully) and only then returns.
+
+		Returns ``true`` on success. If a connection could not be established, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
 
 	bool errorcode connect (SocketAddress const* address);
 
+	/**
+		Places a server socket into ``listen`` state. This function is only valid for ``TCP`` sockets.
+
+		The only argument of the method, ``backlog``, specifies the maximum length of the queue of *pending* client-side connections, i.e. connections which has not been accepted via ``accept`` method yet.
+
+		Returns ``true`` on success. If the socket could not be placed into ``listen`` state, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
+
 	bool errorcode listen (size_t backlog = 0); // 0 -- default
+
+	/**
+		Accepts a client connection and returns a resulting ``io.Socket`` object to communicate with this particular client. To terminate a client connection, issue ``close`` method on the client file stream object.
+
+		The new ``io.Socket`` is created with events disabled. Turn events back on after assigning an event handler using ``m_isSocketEventEnabled`` property.
+
+		If method fails, ``null`` value is returned [#f1]_.
+	*/
+
 	Socket* errorcode accept (SocketAddress* address = null);
+
+	/**
+		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over the connected socket.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
+	*/
 
 	size_t errorcode send (
 		void const* p,
 		size_t size
 		);
 
+	/**
+		Attempts to receive up to ``size`` bytes from the socket into the buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the socket is closed.
+	*/
+
 	size_t errorcode recv (
 		void* p,
 		size_t size
 		);
+
+	/**
+		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` to the remote node pointed to by ``address``.
+
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
+	*/
 
 	size_t errorcode sendTo (
 		void const* p,
@@ -125,13 +484,36 @@ opaque class Socket
 		SocketAddress const* address
 		);
 
+	/**
+		Attempts to read up to ``size`` bytes from the socket into the buffer pointed to by ``p``; stores the address of the sender into the ``address``.
+
+		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the serial port is closed.
+	*/
+
 	size_t errorcode recvFrom (
 		void* p,
 		size_t size,
 		SocketAddress* address
 		);
 
+	/**
+		This event is fired whenever an event occurs on the socket.
+
+		For the list of possible events, refer to `io.SocketEventCode` enumeration.
+
+		Event handler receives a single argument of type `io.SocketEventParams` which holds parameters of the particular event [#f3]_.
+	*/
+
 	event m_onSocketEvent (SocketEventParams const* params);
+
+	/**
+		When ``Socket`` object is created as a result of ``accept`` method, events of the new socket are initially disabled -- otherwise, how could you handle the events occurred right after ``accept`` but before you have a chance to assign a new event handler?
+
+		Once you have assigned an event handler for the new file stream, you can re-enable its events by setting ``m_isSocketEventEnabled`` to ``true``. All the pending events will be replayed so your new handler has a chance to process them in the same order they originally occurred.
+	*/
+
 	bool property m_isSocketEventEnabled;
 }
 
