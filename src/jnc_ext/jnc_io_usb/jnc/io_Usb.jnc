@@ -184,7 +184,8 @@ opaque class UsbEndpoint
 
 	size_t errorcode write (
 		void const* p,
-		size_t size
+		size_t size,
+		uint_t timeout = -1
 		);
 
 	event m_onEndpointEvent (UsbEndpointEventParams const* params);

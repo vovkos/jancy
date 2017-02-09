@@ -124,7 +124,8 @@ public:
 	JNC_CDECL
 	write (
 		DataPtr ptr,
-		size_t size
+		size_t size,
+		uint_t timeout
 		);
 
 	bool
@@ -154,7 +155,8 @@ protected:
 	size_t
 	writePacket (
 		const void* p,
-		size_t size // must be <= m_endpointDesc->m_maxPacketSize
+		size_t size, // must be <= m_endpointDesc->m_maxPacketSize
+		uint_t timeout
 		);
 
 	bool

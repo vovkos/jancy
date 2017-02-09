@@ -278,7 +278,8 @@ size_t
 JNC_CDECL
 UsbEndpoint::write (
 	DataPtr ptr,
-	size_t size
+	size_t size,
+	uint_t timeout
 	)
 {
 	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
@@ -295,7 +296,7 @@ UsbEndpoint::write (
 	const char* end = p + packetCount * desc->m_maxPacketSize;
 	for (; p < end; p += desc->m_maxPacketSize)
 	{
-		size_t result = writePacket (p, desc->m_maxPacketSize);
+		size_t result = writePacket (p, desc->m_maxPacketSize, timeout);
 		if (result == -1)
 		{
 			jnc::propagateLastError ();
@@ -305,7 +306,7 @@ UsbEndpoint::write (
 
 	if (lastPacketSize)
 	{
-		size_t result = writePacket (p, lastPacketSize);
+		size_t result = writePacket (p, lastPacketSize, timeout);
 		if (result == -1)
 		{
 			jnc::propagateLastError ();
@@ -319,7 +320,8 @@ UsbEndpoint::write (
 size_t
 UsbEndpoint::writePacket (
 	const void* p,
-	size_t size
+	size_t size,
+	uint_t timeout
 	)
 {
 	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
@@ -330,10 +332,10 @@ UsbEndpoint::writePacket (
 	switch (desc->m_transferType)
 	{
 	case LIBUSB_TRANSFER_TYPE_BULK:
-		return device->bulkTransfer (desc->m_endpointId, (void*) p, size);
+		return device->bulkTransfer (desc->m_endpointId, (void*) p, size, timeout);
 
 	case LIBUSB_TRANSFER_TYPE_INTERRUPT:
-		return device->interruptTransfer (desc->m_endpointId, (void*) p, size);
+		return device->interruptTransfer (desc->m_endpointId, (void*) p, size, timeout);
 
 	case LIBUSB_TRANSFER_TYPE_CONTROL:
 	case LIBUSB_TRANSFER_TYPE_ISOCHRONOUS:
@@ -402,6 +404,8 @@ UsbEndpoint::onReadTransferCompleted (libusb_transfer* transfer)
 
 	if (result)
 		self->fireEndpointEvent (UsbEndpointEventCode_ReadyRead);
+	else
+		self->fireEndpointEvent (UsbEndpointEventCode_IoError, axl::io::UsbError (LIBUSB_ERROR_IO));
 }
 
 //..............................................................................
