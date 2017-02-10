@@ -65,7 +65,7 @@ jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 	jnc_g_dynamicExtensionLibHost = host;
 
 	axl::io::registerUsbErrorProvider ();
-	axl::io::createUsbDefaultContext ();
+	axl::io::getUsbDefaultContext ()->createDefault ();
 	axl::io::getUsbDefaultContextEventThread ()->start ();
 
 	return jnc::io::UsbLib_getLib ();
@@ -77,6 +77,7 @@ bool_t
 jncDynamicExtensionLibUnload ()
 {
 	axl::io::getUsbDefaultContextEventThread ()->stop ();
+	axl::io::getUsbDefaultContext ()->close ();
 	return true;
 }
 
