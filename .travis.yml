@@ -81,4 +81,4 @@ script:
     - cd build
     - cmake .. -DAXL_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
     - make
-    - make test
+    - ctest --output-on-failure
