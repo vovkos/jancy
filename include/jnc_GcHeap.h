@@ -326,7 +326,7 @@ struct jnc_GcHeap
 	}
 
 	void
-	leaveNoCollectRegion (bool canCollectNow)
+	leaveNoCollectRegion (bool canCollectNow = true)
 	{
 		jnc_GcHeap_leaveNoCollectRegion (this, canCollectNow);
 	}
