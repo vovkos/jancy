@@ -200,7 +200,6 @@ opaque class UsbInterface
 	UsbInterfaceDesc const* const m_interfaceDesc;
 
 	bool readonly m_isClaimed;
-	uint_t m_syncId;
 
 	construct ();
 	destruct ();

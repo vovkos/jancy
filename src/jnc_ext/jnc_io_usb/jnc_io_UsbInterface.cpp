@@ -45,7 +45,6 @@ UsbInterface::UsbInterface ()
 	m_parentDevice = NULL;
 	m_interfaceDescPtr = g_nullPtr;
 	m_isClaimed = false;
-	m_syncId = 0;
 }
 
 void
@@ -65,6 +64,8 @@ UsbEndpoint*
 JNC_CDECL
 UsbInterface::openEndpoint (uint8_t endpointId)
 {
+	bool result;
+
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*) m_interfaceDescPtr.m_p;
 	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc (endpointId);
 	if (!endpointDesc)
@@ -90,15 +91,13 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 
 	JNC_END_NESTED_CALL_SITE ()
 
-	if (!endpoint)
-	{
-		jnc::propagateLastError ();
+	result = endpoint->startIoThread ();
+	if (!result)
 		return NULL;
-	}
 
 	if (endpointId & LIBUSB_ENDPOINT_IN)
 	{
-		bool result = endpoint->startRead ();
+		result = endpoint->startRead ();
 		if (!result)
 			return NULL;
 	}

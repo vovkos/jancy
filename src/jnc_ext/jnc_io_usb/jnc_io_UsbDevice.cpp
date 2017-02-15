@@ -177,7 +177,6 @@ UsbDevice::claimInterface (
 			);
 
 		iface->m_isClaimed = true;
-		iface->m_syncId = 0;
 	}
 
 	JNC_END_NESTED_CALL_SITE ()

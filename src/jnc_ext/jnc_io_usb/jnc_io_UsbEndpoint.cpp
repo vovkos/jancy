@@ -64,46 +64,49 @@ UsbEndpoint::UsbEndpoint ()
 }
 
 void
-UsbEndpoint::fireEndpointEvent (
+UsbEndpoint::postEndpointEvent_l (
 	UsbEndpointEventCode eventCode,
 	const err::ErrorHdr* error
 	)
 {
-	m_ioLock.lock ();
+	PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
+	pendingEvent->m_eventCode = eventCode;
+	pendingEvent->m_syncId = m_syncId;
+	pendingEvent->m_error = error;
+	m_pendingEventList.insertTail (pendingEvent);
+
 	if (!(m_ioFlags & IoFlag_EndpointEventDisabled))
-	{
-		m_ioLock.unlock ();
-		fireEndpointEventImpl (eventCode, error);
-	}
-	else
-	{
-		PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
-		pendingEvent->m_eventCode = eventCode;
-		pendingEvent->m_error = error;
-		m_pendingEventList.insertTail (pendingEvent);
-		m_ioLock.unlock ();
-	}
+		m_ioThreadEvent.signal ();
 }
 
 void
-UsbEndpoint::fireEndpointEventImpl (
-	UsbEndpointEventCode eventCode,
-	const err::ErrorHdr* error
-	)
+UsbEndpoint::firePendingEvents_l ()
 {
-	JNC_BEGIN_CALL_SITE (m_runtime);
+	ASSERT (!(m_ioFlags & IoFlag_EndpointEventDisabled));
 
-	DataPtr paramsPtr = createData <UsbEndpointEventParams> (m_runtime);
-	UsbEndpointEventParams* params = (UsbEndpointEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
+	while (!m_pendingEventList.isEmpty  ())
+	{
+		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
+		m_ioLock.unlock ();
 
-	if (error)
-		params->m_errorPtr = memDup (error, error->m_size);
+		JNC_BEGIN_CALL_SITE (m_runtime);
 
-	callMulticast (m_runtime, m_onEndpointEvent, paramsPtr);
+		DataPtr paramsPtr = createData <UsbEndpointEventParams> (m_runtime);
+		UsbEndpointEventParams* params = (UsbEndpointEventParams*) paramsPtr.m_p;
+		params->m_eventCode = pendingEvent->m_eventCode;
+		params->m_syncId = pendingEvent->m_syncId;
 
-	JNC_END_CALL_SITE ();
+		if (pendingEvent->m_error)
+			params->m_errorPtr = memDup (pendingEvent->m_error, pendingEvent->m_error->m_size);
+
+		callMulticast (m_runtime, m_onEndpointEvent, paramsPtr);
+
+		JNC_END_CALL_SITE ();
+
+		AXL_MEM_DELETE (pendingEvent);
+
+		m_ioLock.lock ();
+	}
 }
 
 void
@@ -111,33 +114,17 @@ JNC_CDECL
 UsbEndpoint::setEndpointEventEnabled (bool isEnabled)
 {
 	m_ioLock.lock ();
+
 	if (!isEnabled)
 	{
-		if (!(m_ioFlags & IoFlag_EndpointEventDisabled))
-			m_ioFlags |= IoFlag_EndpointEventDisabled;
-
-		m_ioLock.unlock ();
-		return;
+		m_ioFlags |= IoFlag_EndpointEventDisabled;
 	}
-
-	if (!(m_ioFlags & IoFlag_EndpointEventDisabled))
+	else if (m_ioFlags & IoFlag_EndpointEventDisabled)
 	{
-		m_ioLock.unlock ();
-		return;
+		m_ioFlags &= ~IoFlag_EndpointEventDisabled;
+		firePendingEvents_l ();
 	}
 
-	while (!m_pendingEventList.isEmpty  ())
-	{
-		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
-		m_ioLock.unlock ();
-
-		fireEndpointEventImpl (pendingEvent->m_eventCode, pendingEvent->m_error);
-		AXL_MEM_DELETE (pendingEvent);
-
-		m_ioLock.lock ();
-	}
-
-	m_ioFlags &= ~IoFlag_EndpointEventDisabled;
 	m_ioLock.unlock ();
 }
 
@@ -145,14 +132,30 @@ void
 JNC_CDECL
 UsbEndpoint::close ()
 {
-	m_ioLock.lock ();
-	m_ioFlags |= IoFlag_Closing;
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 
-	if (m_ioFlags & IoFlag_Reading)
+	m_ioLock.lock ();
+	m_pendingEventList.clear ();
+	m_ioFlags |= IoFlag_Closing;
+	m_ioThreadEvent.signal ();
+
+	if (!(m_ioFlags & IoFlag_Reading))
 	{
 		m_ioLock.unlock ();
+
+		gcHeap->enterWaitRegion ();
+		m_ioThread.waitAndClose ();
+		gcHeap->leaveWaitRegion ();
+	}
+	else
+	{
 		m_readTransfer.cancel ();
+		m_ioLock.unlock ();
+
+		gcHeap->enterWaitRegion ();
 		m_readTransferCompleted.wait ();
+		m_ioThread.waitAndClose ();
+		gcHeap->leaveWaitRegion ();
 	}
 
 	m_isOpen = false;
@@ -212,9 +215,12 @@ UsbEndpoint::startRead ()
 	}
 
 	m_ioLock.lock ();
+
 	result = nextReadTransfer_l ();
 	if (!result)
 		jnc::propagateLastError ();
+
+	m_ioLock.unlock ();
 
 	return result;
 }
@@ -248,9 +254,8 @@ UsbEndpoint::read (
 		if (m_totalIncomingPacketSize <= m_incomingQueueLimit &&
 			!(m_ioFlags & (IoFlag_Reading | IoFlag_Closing | IoFlag_Error)))
 			nextReadTransfer_l ();
-		else
-			m_ioLock.unlock ();
 
+		m_ioLock.unlock ();
 		return copySize;
 	}
 
@@ -351,25 +356,18 @@ UsbEndpoint::writePacket (
 bool
 UsbEndpoint::nextReadTransfer_l ()
 {
-	ASSERT (!(m_ioFlags & IoFlag_Reading));
+	ASSERT (!(m_ioFlags & (IoFlag_Reading | IoFlag_Closing | IoFlag_Error)));
 	ASSERT (m_totalIncomingPacketSize <= m_incomingQueueLimit);
 
 	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
 	ASSERT (desc->m_endpointId & LIBUSB_ENDPOINT_IN);
 	m_readTransferCompleted.reset ();
-	m_ioFlags |= IoFlag_Reading;
-	m_ioLock.unlock ();
 
 	bool result = m_readTransfer.submit ();
-	if (!result)
-	{
-		m_ioLock.lock ();
-		m_ioFlags &= ~IoFlag_Reading;
-		m_ioLock.unlock ();
-		return false;
-	}
+	if (result)
+		m_ioFlags |= IoFlag_Reading;
 
-	return true;
+	return result;
 }
 
 void
@@ -380,8 +378,7 @@ UsbEndpoint::onReadTransferCompleted (libusb_transfer* transfer)
 	self->m_ioLock.lock ();
 	self->m_ioFlags &= ~IoFlag_Reading;
 
-	bool result = transfer->status == LIBUSB_TRANSFER_COMPLETED;
-	if (result)
+	if (transfer->status == LIBUSB_TRANSFER_COMPLETED)
 	{
 		Packet* packet = AXL_MEM_NEW_EXTRA (Packet, transfer->actual_length);
 		packet->m_size = transfer->actual_length;
@@ -389,23 +386,42 @@ UsbEndpoint::onReadTransferCompleted (libusb_transfer* transfer)
 
 		self->m_incomingPacketList.insertTail (packet);
 		self->m_totalIncomingPacketSize += transfer->actual_length;
+		self->postEndpointEvent_l (UsbEndpointEventCode_ReadyRead);
+	}
+	else if (transfer->status != LIBUSB_TRANSFER_CANCELLED)
+	{
+		self->m_ioFlags |= IoFlag_Error;
+		self->postEndpointEvent_l (UsbEndpointEventCode_IoError, axl::io::UsbError (LIBUSB_ERROR_IO));
 	}
 
 	if (self->m_totalIncomingPacketSize <= self->m_incomingQueueLimit &&
-		!(self->m_ioFlags & (IoFlag_Reading | IoFlag_Closing | IoFlag_Error)))
-	{
+		!(self->m_ioFlags & (IoFlag_Closing | IoFlag_Error)))
 		self->nextReadTransfer_l ();
-	}
 	else
-	{
 		self->m_readTransferCompleted.signal ();
-		self->m_ioLock.unlock ();
-	}
 
-	if (result)
-		self->fireEndpointEvent (UsbEndpointEventCode_ReadyRead);
-	else
-		self->fireEndpointEvent (UsbEndpointEventCode_IoError, axl::io::UsbError (LIBUSB_ERROR_IO));
+	self->m_ioLock.unlock ();
+}
+
+void
+UsbEndpoint::ioThreadFunc ()
+{
+	for (;;)
+	{
+		m_ioThreadEvent.wait ();
+
+		m_ioLock.lock ();
+		if (m_ioFlags & IoFlag_Closing)
+		{
+			m_ioLock.unlock ();
+			break;
+		}
+
+		if (!(m_ioFlags & IoFlag_EndpointEventDisabled))
+			firePendingEvents_l ();
+
+		m_ioLock.unlock ();
+	}
 }
 
 //..............................................................................

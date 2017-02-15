@@ -74,7 +74,18 @@ protected:
 	struct PendingEvent: sl::ListLink
 	{
 		UsbEndpointEventCode m_eventCode;
+		uint_t m_syncId;
 		err::Error m_error;
+	};
+
+	class IoThread: public sys::ThreadImpl <IoThread>
+	{
+	public:
+		void
+		threadFunc ()
+		{
+			containerof (this, UsbEndpoint, m_ioThread)->ioThreadFunc ();
+		}
 	};
 
 public:
@@ -89,6 +100,8 @@ protected:
 	Runtime* m_runtime;
 
 	sys::Lock m_ioLock;
+	IoThread m_ioThread;
+	axl::sys::Event m_ioThreadEvent;
 	uint_t m_ioFlags;
 	sl::AuxList <Read> m_readList;
 	sl::StdList <Packet> m_incomingPacketList;
@@ -104,6 +117,12 @@ public:
 	~UsbEndpoint ()
 	{
 		close ();
+	}
+
+	bool
+	startIoThread ()
+	{
+		return m_ioThread.start ();
 	}
 
 	void
@@ -141,16 +160,16 @@ public:
 
 protected:
 	void
-	fireEndpointEvent (
+	postEndpointEvent_l (
 		UsbEndpointEventCode eventCode,
 		const err::ErrorHdr* error = NULL
 		);
 
 	void
-	fireEndpointEventImpl (
-		UsbEndpointEventCode eventCode,
-		const err::ErrorHdr* error
-		);
+	firePendingEvents_l ();
+
+	void
+	ioThreadFunc ();
 
 	size_t
 	writePacket (

@@ -31,7 +31,6 @@ public:
 	DataPtr m_interfaceDescPtr;
 
 	bool m_isClaimed;
-	uint_t m_syncId;
 
 public:
 	UsbInterface ();
