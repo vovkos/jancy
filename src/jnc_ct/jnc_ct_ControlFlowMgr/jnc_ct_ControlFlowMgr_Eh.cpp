@@ -456,7 +456,53 @@ void ControlFlowMgr::finalizeFinallyScope (Scope* scope)
 	}
 }
 
-void ControlFlowMgr::finalizeDisposableScope (Scope* scope)
+bool 
+ControlFlowMgr::disposeVariable (Variable* variable)
+{
+	bool result;
+
+	Value disposableValue = variable;
+	result = m_module->m_operatorMgr.loadDataRef (variable, &disposableValue);
+	if (!result)
+		return false;
+
+	BasicBlock* disposeBlock = NULL;
+	BasicBlock* followBlock = NULL;
+
+	Type* type = variable->getType ();
+	ASSERT (type->getTypeKind () == TypeKind_ClassPtr || type->getTypeKind () == TypeKind_DataPtr);
+
+	if (type->getTypeKind () == TypeKind_DataPtr &&
+		(((DataPtrType*) type)->getTargetType ()->getTypeKindFlags () & TypeKindFlag_Ptr))
+	{
+		disposeBlock = createBlock ("dispose_ptr_block");
+		followBlock = createBlock ("dispose_ptr_follow_block");
+		
+		result = 
+			m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &disposableValue) &&
+			m_module->m_operatorMgr.loadDataRef (&disposableValue) &&
+			conditionalJump (disposableValue, disposeBlock, followBlock, disposeBlock);
+
+		if (!result)
+			return false;
+	}
+	
+	Value disposeValue;
+	result = 
+		m_module->m_operatorMgr.memberOperator (disposableValue, "dispose", &disposeValue) &&
+		m_module->m_operatorMgr.callOperator (disposeValue);
+
+	if (!result)
+		return false;
+
+	if (followBlock)
+		follow (followBlock);
+
+	return true;
+}
+
+void 
+ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 {
 	size_t count = scope->m_disposableVariableArray.getCount ();
 	ASSERT (scope && count && scope->m_disposeLevelVariable);
@@ -489,13 +535,8 @@ void ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 		setCurrentBlock (blockArray [j]);
 
 		Variable* variable = scope->m_disposableVariableArray [i];
-		Value disposeValue;
-
-		result =
-			m_module->m_operatorMgr.memberOperator (variable, "dispose", &disposeValue) &&
-			m_module->m_operatorMgr.callOperator (disposeValue);
-
-		ASSERT (result); // should be checked when adding variable to disposable array
+		result = disposeVariable (variable);
+		ASSERT (result);
 
 		follow (blockArray [j + 1]);
 	}

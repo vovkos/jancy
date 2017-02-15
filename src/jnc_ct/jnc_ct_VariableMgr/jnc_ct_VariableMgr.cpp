@@ -258,22 +258,26 @@ VariableMgr::finalizeDisposableVariable (Variable* variable)
 
 	bool result;
 
-	// we have to save pointer in entry block
+	// we have to save the pointer in entry block -- otherwise, variable's 
+	// llvmValue definition may not be seen from the dispose block
 
-	Type* refType = variable->m_type->getTypeKind () == TypeKind_Class ?
+	Type* ptrType = variable->m_type->getTypeKind () == TypeKind_Class ?
 		(Type*) ((ClassType*) variable->m_type)->getClassPtrType () :
-		variable->m_type->getDataPtrType ();
+		(variable->m_type->getTypeKindFlags () & TypeKindFlag_Ptr) ?
+			variable->m_type->getDataPtrType_c () :
+			variable->m_type->getDataPtrType ();
 
-	Variable* refVariable = createSimpleStackVariable ("disposable_variable_ref", refType);
-	Value refValue;
+	Variable* ptrVariable = createSimpleStackVariable ("disposable_variable_ptr", ptrType);
+	
+	Value ptrValue;
 	result =
-		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, variable, &refValue) &&
-		m_module->m_operatorMgr.storeDataRef (refVariable, refValue);
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, variable, &ptrValue) &&
+		m_module->m_operatorMgr.storeDataRef (ptrVariable, ptrValue);
 
 	if (!result)
 		return false;
 
-	size_t count = variable->m_scope->addDisposableVariable (refVariable);
+	size_t count = variable->m_scope->addDisposableVariable (ptrVariable);
 
 	Variable* disposeLevelVariable = variable->m_scope->getDisposeLevelVariable ();
 	m_module->m_llvmIrBuilder.createStore (

@@ -1,0 +1,48 @@
+struct Foo
+{
+	alias dispose = close;
+
+	construct ()
+	{
+		printf ("Foo.construct (%p)\n", this);
+	}
+
+	close ()
+	{
+		printf ("Foo.close (%p)\n", this);
+	}
+}
+
+class Bar
+{
+	alias dispose = close;
+
+	construct ()
+	{
+		printf ("Bar.construct (%p)\n", this);
+	}
+
+	close ()
+	{
+		printf ("Bar.close (%p)\n", this);
+	}
+}
+
+int main ()
+{
+	printf ("before\n");
+	
+	{
+		disposable Foo* foo = new Foo;
+		disposable Foo* bar;
+		disposable Foo baz;
+
+		disposable Bar* foo2 = new Bar;
+		disposable Bar* bar2;
+		disposable Bar baz2;
+	}
+
+	printf ("after\n");
+	
+	return 0;
+}

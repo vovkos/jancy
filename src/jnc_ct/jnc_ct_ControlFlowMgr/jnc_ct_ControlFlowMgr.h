@@ -251,6 +251,9 @@ public:
 	void
 	finalizeDisposableScope (Scope* scope);
 
+	bool
+	disposeVariable (Variable* variable);
+
 	// if stmt
 
 	void

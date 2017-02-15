@@ -814,6 +814,11 @@ getDirectRefType (
 bool
 isDisposableType (Type* type)
 {
+	if (type->getTypeKindFlags () & TypeKindFlag_ClassPtr)
+		type = ((ClassPtrType*) type)->getTargetType ();
+	else if (type->getTypeKindFlags () & TypeKindFlag_DataPtr)
+		type = ((DataPtrType*) type)->getTargetType ();
+
 	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
 		return false;
 
