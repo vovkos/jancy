@@ -30,15 +30,41 @@ dataPtrIncrementOperator (
 
 	DataPtrType* opType = (DataPtrType*) opValue1.getType ();
 	DataPtrType* resultType = opType->getUnCheckedPtrType ();
+	Type* targetType = opType->getTargetType ();
 
-	if (opType->getTargetType ()->getStdType () == StdType_AbstractData)
+	if (targetType->getStdType () == StdType_AbstractData)
 	{
 		err::setError ("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
 	}
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
-	if (ptrTypeKind == DataPtrTypeKind_Thin)
+
+	if (opValue1.getValueKind () == ValueKind_Const &&
+		opValue2.getValueKind () == ValueKind_Const)
+	{
+		Value deltaValue;
+		bool result = module->m_operatorMgr.castOperator (opValue2, TypeKind_IntPtr, &deltaValue);
+		if (!result)
+			return false;
+
+		intptr_t delta = deltaValue.getIntPtr () * targetType->getSize ();
+
+		if (ptrTypeKind == DataPtrTypeKind_Thin)
+		{
+			char* p = *(char**) opValue1.getConstData () + delta;
+			resultValue->createConst (&p, opValue1.getType ());
+		}
+		else
+		{
+			ASSERT (ptrTypeKind == DataPtrTypeKind_Normal); // lean is compile-time-only
+
+			DataPtr ptr = *(DataPtr*) opValue1.getConstData ();
+			ptr.m_p = (char*) ptr.m_p + delta;
+			resultValue->createConst (&ptr, opValue1.getType ());
+		}		
+	}
+	else if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
 		module->m_llvmIrBuilder.createGep (opValue1, opValue2, resultType, resultValue);
 	}
@@ -49,7 +75,7 @@ dataPtrIncrementOperator (
 	}
 	else // EDataPtrType_Normal
 	{
-		size_t size = opType->getTargetType()->getSize ();
+		size_t size = targetType->getSize ();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 
 		Value incValue;
@@ -101,18 +127,33 @@ dataPtrDifferenceOperator (
 	if (!result)
 		return false;
 
+	size_t size = targetType1->getSize ();
+	if (!size)
+		size = 1;
+
 	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
-	Value diffValue;
-	Value sizeValue;
+	if (opValue1.getValueKind () == ValueKind_Const && 
+		opValue2.getValueKind () == ValueKind_Const)
+	{
+		char* p1 = *(char**) opValue1.getConstData ();
+		char* p2 = *(char**) opValue2.getConstData ();		
+		intptr_t diff = (p1 - p2) / size;
 
-	size_t size = targetType1->getSize ();
-	sizeValue.setConstSizeT (size ? size : 1, module);
+		resultValue->setConstSizeT (diff, type);
+	}
+	else
+	{
+		Value diffValue;
+		Value sizeValue;
+		sizeValue.setConstSizeT (size, module);
 
-	module->m_llvmIrBuilder.createPtrToInt (opValue1, type, &opValue1);
-	module->m_llvmIrBuilder.createPtrToInt (opValue2, type, &opValue2);
-	module->m_llvmIrBuilder.createSub_i (opValue1, opValue2, type, &diffValue);
-	module->m_llvmIrBuilder.createDiv_i (diffValue, sizeValue, type, resultValue);
+		module->m_llvmIrBuilder.createPtrToInt (opValue1, type, &opValue1);
+		module->m_llvmIrBuilder.createPtrToInt (opValue2, type, &opValue2);
+		module->m_llvmIrBuilder.createSub_i (opValue1, opValue2, type, &diffValue);
+		module->m_llvmIrBuilder.createDiv_i (diffValue, sizeValue, type, resultValue);
+	}
+
 	return true;
 }
 //..............................................................................

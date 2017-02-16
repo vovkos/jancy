@@ -13,10 +13,6 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 
-// variant operators not fully implemented yet
-
-#define _JNC_NO_VARIANT_OPERATORS
-
 namespace jnc {
 namespace ct {
 
@@ -206,13 +202,9 @@ OperatorMgr::getUnaryOperatorResultType (
 	Value opValue;
 	prepareOperandType (rawOpValue, &opValue, op->getOpFlags ());
 
-#ifndef _JNC_NO_VARIANT_OPERATORS
-	return opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot ?
+	return opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_Indir ?
 		m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant) :
 		op->getResultType (opValue);
-#endif
-
-	return op->getResultType (opValue);
 }
 
 bool
@@ -260,14 +252,12 @@ OperatorMgr::unaryOperator (
 	if (!result)
 		return false;
 
-#ifndef _JNC_NO_VARIANT_OPERATORS
-	if (opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_BwNot)
+	if (opValue.getType ()->getTypeKind () == TypeKind_Variant && opKind <= UnOpKind_Indir)
 	{
 		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_VariantUnaryOperator);
 		Value opKindValue (opKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 		return callOperator (function, opKindValue, opValue, resultValue);
 	}
-#endif
 
 	return op->op (opValue, resultValue);
 }
@@ -298,14 +288,12 @@ OperatorMgr::getBinaryOperatorResultType (
 	prepareOperandType (rawOpValue1, &opValue1, op->getOpFlags1 ());
 	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
 
-#ifndef _JNC_NO_VARIANT_OPERATORS
 	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 
 	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
 		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind <= BinOpKind_Ge)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
-#endif
 
 	return op->getResultType (opValue1, opValue2);
 }
@@ -396,7 +384,6 @@ OperatorMgr::binaryOperator (
 	if (!result)
 		return false;
 
-#ifndef _JNC_NO_VARIANT_OPERATORS
 	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
 		opValue2.getType ()->getTypeKind () == TypeKind_Variant)
 		&& opKind <= BinOpKind_Ge)
@@ -409,7 +396,6 @@ OperatorMgr::binaryOperator (
 		Value opKindValue (opKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 		return callOperator (function, opKindValue, opValue1, opValue2, resultValue);
 	}
-#endif
 
 	return op->op (opValue1, opValue2, resultValue);
 }

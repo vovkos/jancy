@@ -307,7 +307,7 @@ dec+             { createIntegerToken (10); };
 '0' [bB] lit_dq  { createBinLiteralToken (2); };
 '0' [nNdD] lit_dq
 				 { createBinLiteralToken (10); };
-dec+ ('.' dec+) | ([eE] [+\-]? dec+)
+dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
 
 '///' [^\n]*     { createDoxyCommentToken (TokenKind_DoxyComment1); };

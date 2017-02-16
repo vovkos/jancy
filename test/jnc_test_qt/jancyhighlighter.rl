@@ -168,6 +168,8 @@ dec+                { colorize (ts, te, Qt::darkRed); };
 '0' [nNdD] dec+     { colorize (ts, te, Qt::darkRed); };
 '0' [xXoObBnNdD] lit_dq
 					{ colorize (ts, te, Qt::darkRed); };
+dec+ ('.' dec*) | ([eE] [+\-]? dec+)
+					{ colorize (ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
 '%%'                { colorize (ts, te, Qt::darkRed); fgoto regexp; };

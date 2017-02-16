@@ -15,6 +15,17 @@
 #include "jnc_ct_Module.h"
 
 namespace jnc {
+namespace rtl {
+
+bool
+tryCheckDataPtrRangeIndirect (
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+	);
+	
+} // namespace rtl
+
 namespace ct {
 
 //..............................................................................
@@ -43,8 +54,16 @@ OperatorMgr::prepareDataPtr (
 		break;
 
 	case DataPtrTypeKind_Normal:
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, resultValue);
-		m_module->m_llvmIrBuilder.createBitCast (*resultValue, resultType, resultValue);
+		if (value.getValueKind () == ValueKind_Const)
+		{
+			void* p = ((DataPtr*) value.getConstData ())->m_p;
+			resultValue->createConst (&p, resultType);
+		}
+		else
+		{
+			m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, resultValue);
+			m_module->m_llvmIrBuilder.createBitCast (*resultValue, resultType, resultValue);
+		}
 		break;
 
 	default:
@@ -67,17 +86,41 @@ OperatorMgr::loadDataRef (
 	DataPtrType* type = (DataPtrType*) opValue.getType ();
 	Type* targetType = type->getTargetType ();
 
-	Value ptrValue;
-	result = prepareDataPtr (opValue, &ptrValue);
-	if (!result)
-		return false;
+	if (opValue.getValueKind () != ValueKind_Const)
+	{
+		Value ptrValue;
+		result = prepareDataPtr (opValue, &ptrValue);
+		if (!result)
+			return false;
 
-	m_module->m_llvmIrBuilder.createLoad (
-		ptrValue,
-		targetType,
-		resultValue,
-		(type->getFlags () & PtrTypeFlag_Volatile) != 0
-		);
+		m_module->m_llvmIrBuilder.createLoad (
+			ptrValue,
+			targetType,
+			resultValue,
+			(type->getFlags () & PtrTypeFlag_Volatile) != 0
+			);
+	}
+	else
+	{
+		const void* p;
+
+		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
+		if (ptrTypeKind != DataPtrTypeKind_Normal)
+		{
+			p = *(void**) opValue.getConstData ();
+		}
+		else
+		{
+			DataPtr* ptr = (DataPtr*) opValue.getConstData ();
+			result = rtl::tryCheckDataPtrRangeIndirect (ptr->m_p, targetType->getSize (), ptr->m_validator);
+			if (!result)
+				return false;
+
+			p = ptr->m_p;
+		}
+
+		resultValue->createConst (p, targetType);
+	}
 
 	if (targetType->getTypeKind () == TypeKind_BitField)
 	{
@@ -118,43 +161,85 @@ OperatorMgr::storeDataRef (
 		((BitFieldType*) targetType)->getBaseType () :
 		targetType;
 
-	Value ptrValue;
 	Value srcValue;
 	Value bfShadowValue;
 
 	result =
 		checkCastKind (rawSrcValue, castType) &&
-		castOperator (rawSrcValue, castType, &srcValue) &&
-		prepareDataPtr (dstValue, &ptrValue);
+		castOperator (rawSrcValue, castType, &srcValue);
 
 	if (!result)
 		return false;
 
-	if (targetTypeKind == TypeKind_BitField)
+	if (srcValue.getValueKind () != ValueKind_Const ||
+		dstValue.getValueKind () != ValueKind_Const)
 	{
-		m_module->m_llvmIrBuilder.createLoad (
-			ptrValue,
-			castType,
-			&bfShadowValue,
-			(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
-			);
-
-		result = mergeBitField (
-			srcValue,
-			bfShadowValue,
-			(BitFieldType*) targetType,
-			&srcValue
-			);
-
+		Value ptrValue;
+		result = prepareDataPtr (dstValue, &ptrValue);
 		if (!result)
 			return false;
-	}
 
-	m_module->m_llvmIrBuilder.createStore (
-		srcValue,
-		ptrValue,
-		(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
-		);
+		if (targetTypeKind == TypeKind_BitField)
+		{
+			m_module->m_llvmIrBuilder.createLoad (
+				ptrValue,
+				castType,
+				&bfShadowValue,
+				(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
+				);
+
+			result = mergeBitField (
+				srcValue,
+				bfShadowValue,
+				(BitFieldType*) targetType,
+				&srcValue
+				);
+
+			if (!result)
+				return false;
+		}
+
+		m_module->m_llvmIrBuilder.createStore (
+			srcValue,
+			ptrValue,
+			(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
+			);
+	}
+	else
+	{
+		void* p;
+
+		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind ();
+		if (ptrTypeKind != DataPtrTypeKind_Normal)
+		{
+			p = *(void**) dstValue.getConstData ();
+		}
+		else
+		{
+			DataPtr* ptr = (DataPtr*) dstValue.getConstData ();
+			result = rtl::tryCheckDataPtrRangeIndirect (ptr->m_p, targetType->getSize (), ptr->m_validator);
+			if (!result)
+				return false;
+
+			p = ptr->m_p;
+		}
+
+		if (targetTypeKind == TypeKind_BitField)
+		{
+			bfShadowValue.createConst (p, castType);
+			result = mergeBitField (
+				srcValue,
+				bfShadowValue,
+				(BitFieldType*) targetType,
+				&srcValue
+				);
+
+			if (!result)
+				return false;
+		}
+
+		memcpy (p, srcValue.getConstData (), targetType->getSize ());
+	}
 
 	return true;
 }

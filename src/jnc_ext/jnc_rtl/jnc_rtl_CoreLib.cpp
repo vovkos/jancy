@@ -632,7 +632,34 @@ prepareFormatString (
 		formatString->append (defaultType);
 }
 
-static
+inline
+size_t
+appendFmtLiteralImpl_va (
+	FmtLiteral* fmtLiteral,
+	const char* formatString,
+	axl_va_list va
+	)
+{
+	char buffer2 [256];
+	sl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
+	string.format_va (formatString, va);
+
+	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+}
+
+inline
+size_t
+appendFmtLiteralImpl (
+	FmtLiteral* fmtLiteral,
+	const char* formatString,
+	...
+	)
+{
+	AXL_VA_DECL (va, formatString);
+	return appendFmtLiteralImpl_va (fmtLiteral, formatString, va);
+}
+
+inline
 size_t
 appendFmtLiteralImpl (
 	FmtLiteral* fmtLiteral,
@@ -647,11 +674,7 @@ appendFmtLiteralImpl (
 	sl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
 	prepareFormatString (&formatString, fmtSpecifier, defaultType);
 
-	char buffer2 [256];
-	sl::String string (ref::BufKind_Stack, buffer2, sizeof (buffer2));
-	string.format_va (formatString, va);
-
-	return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+	return appendFmtLiteralImpl_va (fmtLiteral, formatString, va);
 }
 
 static
@@ -832,25 +855,29 @@ appendFmtLiteral_v (
 
 		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, count);
 	}
-	else if (isCharPtrType (type))
+	else if (type->getTypeKindFlags () & TypeKindFlag_Ptr)
 	{
-		DataPtrType* ptrType = (DataPtrType*) type;
-		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+		if (isCharPtrType (type))
+		{
+			DataPtrType* ptrType = (DataPtrType*) type;
+			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
 
-		if (ptrTypeKind == DataPtrTypeKind_Normal)
-			return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
+			if (ptrTypeKind == DataPtrTypeKind_Normal)
+				return appendFmtLiteral_p (fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
 
-		const char* c = *(char**) p;
-		size_t length = strlen_s (c);
+			const char* c = *(char**) p;
+			size_t length = strlen_s (c);
 
-		return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
+			return appendFmtLiteralStringImpl (fmtLiteral, fmtSpecifier, c, length);
+		}
+		else // generic pointer
+		{
+			return appendFmtLiteralImpl (fmtLiteral, "%p", variant.m_p);
+		}
 	}
-	else
+	else // don't know how to format
 	{
-		sl::String string;
-		string.format ("(variant:%s)", type->getTypeString ().sz ());
-
-		return appendFmtLiteral_a (fmtLiteral, string, string.getLength ());
+		return appendFmtLiteralImpl (fmtLiteral, "(variant:%s)", type->getTypeString ().sz ());
 	}
 }
 

@@ -1,0 +1,21 @@
+struct Point
+{
+	int m_x;
+	int m_y;
+}
+
+int main ()
+{
+	int a [] = { 10, 20, 30 };
+	int* p = &a [0];
+	int* p2 = &a [2];
+
+	variant v1 = p;
+	variant v2 = v1;
+	variant v3 = *v1;
+	variant v4 = v2 - v1;
+
+	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
+
+	return 0;
+}

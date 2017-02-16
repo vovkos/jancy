@@ -132,6 +132,7 @@ UnOp_Indir::op (
 	if (!resultType)
 		return false;
 
+	ASSERT (resultType->getTypeKindFlags () & TypeKindFlag_Ref);
 	resultValue->overrideType (opValue, resultType);
 	return true;
 }
