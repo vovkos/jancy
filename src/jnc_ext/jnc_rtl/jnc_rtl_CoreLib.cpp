@@ -702,7 +702,7 @@ prepareFormatString (
 
 inline
 size_t
-appendFmtLiteralImpl_va (
+appendFmtLiteralDirect_va (
 	FmtLiteral* fmtLiteral,
 	const char* formatString,
 	axl_va_list va
@@ -717,14 +717,14 @@ appendFmtLiteralImpl_va (
 
 inline
 size_t
-appendFmtLiteralImpl (
+appendFmtLiteralDirect (
 	FmtLiteral* fmtLiteral,
 	const char* formatString,
 	...
 	)
 {
 	AXL_VA_DECL (va, formatString);
-	return appendFmtLiteralImpl_va (fmtLiteral, formatString, va);
+	return appendFmtLiteralDirect_va (fmtLiteral, formatString, va);
 }
 
 inline
@@ -742,7 +742,7 @@ appendFmtLiteralImpl (
 	sl::String formatString (ref::BufKind_Stack, buffer1, sizeof (buffer1));
 	prepareFormatString (&formatString, fmtSpecifier, defaultType);
 
-	return appendFmtLiteralImpl_va (fmtLiteral, formatString, va);
+	return appendFmtLiteralDirect_va (fmtLiteral, formatString, va);
 }
 
 static
@@ -940,12 +940,12 @@ appendFmtLiteral_v (
 		}
 		else // generic pointer
 		{
-			return appendFmtLiteralImpl (fmtLiteral, "%p", variant.m_p);
+			return appendFmtLiteralDirect (fmtLiteral, "%p", variant.m_p);
 		}
 	}
 	else // don't know how to format
 	{
-		return appendFmtLiteralImpl (fmtLiteral, "(variant:%s)", type->getTypeString ().sz ());
+		return appendFmtLiteralDirect (fmtLiteral, "(variant:%s)", type->getTypeString ().sz ());
 	}
 }
 
