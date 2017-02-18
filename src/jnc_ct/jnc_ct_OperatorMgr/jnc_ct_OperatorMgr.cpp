@@ -288,11 +288,11 @@ OperatorMgr::getBinaryOperatorResultType (
 	prepareOperandType (rawOpValue1, &opValue1, op->getOpFlags1 ());
 	prepareOperandType (rawOpValue2, &opValue2, op->getOpFlags2 ());
 
-	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_LogOr)
+	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
 
 	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
-		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind <= BinOpKind_Ge)
+		opValue2.getType ()->getTypeKind () == TypeKind_Variant) && opKind < BinOpKind_Eq)
 		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
 
 	return op->getResultType (opValue1, opValue2);
