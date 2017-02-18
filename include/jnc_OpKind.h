@@ -70,11 +70,7 @@ enum jnc_BinOpKind
 	jnc_BinOpKind_BwAnd,
 	jnc_BinOpKind_BwXor,
 	jnc_BinOpKind_BwOr,
-
-	// special ops
-
 	jnc_BinOpKind_At,
-	jnc_BinOpKind_Idx,
 
 	// comparison
 
@@ -84,6 +80,10 @@ enum jnc_BinOpKind
 	jnc_BinOpKind_Le,
 	jnc_BinOpKind_Gt,
 	jnc_BinOpKind_Ge,
+
+	// indexing
+
+	jnc_BinOpKind_Idx,
 
 	// logic
 
@@ -159,13 +159,13 @@ const BinOpKind
 	BinOpKind_BwXor     = jnc_BinOpKind_BwXor,
 	BinOpKind_BwOr      = jnc_BinOpKind_BwOr,
 	BinOpKind_At        = jnc_BinOpKind_At,
-	BinOpKind_Idx       = jnc_BinOpKind_Idx,
 	BinOpKind_Eq        = jnc_BinOpKind_Eq,
 	BinOpKind_Ne        = jnc_BinOpKind_Ne,
 	BinOpKind_Lt        = jnc_BinOpKind_Lt,
 	BinOpKind_Le        = jnc_BinOpKind_Le,
 	BinOpKind_Gt        = jnc_BinOpKind_Gt,
 	BinOpKind_Ge        = jnc_BinOpKind_Ge,
+	BinOpKind_Idx       = jnc_BinOpKind_Idx,
 	BinOpKind_LogAnd    = jnc_BinOpKind_LogAnd,
 	BinOpKind_LogOr     = jnc_BinOpKind_LogOr,
 	BinOpKind_Assign    = jnc_BinOpKind_Assign,

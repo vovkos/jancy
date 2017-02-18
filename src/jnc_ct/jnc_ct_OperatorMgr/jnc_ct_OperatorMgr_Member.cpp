@@ -51,7 +51,7 @@ OperatorMgr::getThisValue (
 		return false;
 	}
 
-	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) && 
+	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) &&
 		isClassPtrType (thisValue.getType (), ClassTypeKind_Reactor))
 	{
 		ClassType* classType = ((ClassPtrType*) thisValue.getType ())->getTargetType ();
@@ -86,7 +86,7 @@ OperatorMgr::getThisValueType (
 	}
 
 	Type* thisType = function->getThisType ();
-	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) && 
+	if (!(itemDecl && isReactorClassTypeMember (itemDecl)) &&
 		isClassPtrType (thisType, ClassTypeKind_Reactor))
 	{
 		ClassType* classType = ((ClassPtrType*) thisType)->getTargetType ();
@@ -529,6 +529,52 @@ OperatorMgr::getEnumTypeMember (
 }
 
 bool
+OperatorMgr::getVariantMember (
+	const Value& opValue,
+	size_t index,
+	Value* resultValue
+	)
+{
+	Property* prop = m_module->m_functionMgr.getStdProperty (StdProp_VariantIndex);
+	resultValue->setProperty (prop);
+
+	Value variantValue;
+	Value indexValue (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+
+	bool result = unaryOperator (UnOpKind_Addr, opValue, &variantValue);
+	if (!result)
+		return false;
+
+	Closure* closure = resultValue->createClosure ();
+	closure->append (variantValue);
+	closure->append (indexValue);
+	return true;
+}
+
+bool
+OperatorMgr::getVariantMember (
+	const Value& opValue,
+	const sl::StringRef& name,
+	Value* resultValue
+	)
+{
+	Property* prop = m_module->m_functionMgr.getStdProperty (StdProp_VariantMember);
+	resultValue->setProperty (prop);
+
+	Value variantValue;
+	Value nameValue = m_module->m_constMgr.saveLiteral (name);
+
+	bool result = unaryOperator (UnOpKind_Addr, opValue, &variantValue);
+	if (!result)
+		return false;
+
+	Closure* closure = resultValue->createClosure ();
+	closure->append (variantValue);
+	closure->append (nameValue);
+	return true;
+}
+
+bool
 OperatorMgr::getMemberOperatorResultType (
 	const Value& rawOpValue,
 	const sl::StringRef& name,
@@ -569,6 +615,10 @@ OperatorMgr::getMemberOperatorResultType (
 		prepareOperandType (&opValue);
 		return getEnumTypeMemberType (opValue, (EnumType*) type, name, resultValue);
 
+	case TypeKind_Variant:
+		resultValue->setType (m_module->m_typeMgr.getSimplePropertyType (type)); // variant property
+		return true;
+
 	default:
 		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 		return false;
@@ -594,6 +644,7 @@ OperatorMgr::memberOperator (
 
 	switch (typeKind)
 	{
+	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
 		type = ((DataPtrType*) type)->getTargetType ();
 		typeKind = type->getTypeKind ();
@@ -615,11 +666,15 @@ OperatorMgr::memberOperator (
 			field = ((UnionType*) type)->getFieldByIndex (index);
 			return field && getUnionField (opValue, field, resultValue);
 
+		case TypeKind_Variant:
+			return getVariantMember (opValue, index, resultValue);
+
 		default:
 			err::setFormatStringError ("indexed member operator cannot be applied to '%s'", type->getTypeString ().sz ());
 			return false;
 		}
 
+	case TypeKind_ClassPtr:
 	case TypeKind_ClassRef:
 		type = ((ClassPtrType*) type)->getTargetType ();
 		field = ((ClassType*) type)->getFieldByIndex (index);
@@ -654,7 +709,7 @@ OperatorMgr::getLibraryMember (
 	{
 		closure->getThisArgValue (),
 		Value (index, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
-		Value (&namePtr, m_module->m_typeMgr.getStdType (StdType_ByteConstPtr)),
+		Value (&namePtr, m_module->m_typeMgr.getStdType (StdType_CharConstPtr)),
 	};
 
 	m_module->m_llvmIrBuilder.createBitCast (
@@ -737,6 +792,9 @@ OperatorMgr::memberOperator (
 		return
 			prepareOperand (&opValue) &&
 			getEnumTypeMember (opValue, (EnumType*) type, name, resultValue);
+
+	case TypeKind_Variant:
+		return getVariantMember (opValue, name, resultValue);
 
 	default:
 		err::setFormatStringError ("member operator cannot be applied to '%s'", type->getTypeString ().sz ());

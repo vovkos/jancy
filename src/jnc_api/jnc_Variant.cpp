@@ -71,6 +71,50 @@ jnc_Variant_relationalOperator (
 }
 
 JNC_EXTERN_C
+int
+jnc_Variant_getMember (
+	const jnc_Variant* variant,
+	const char* name,
+	jnc_Variant* result
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_getMemberFunc (variant, name, result);
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_setMember (
+	jnc_Variant* variant,
+	const char* name,
+	jnc_Variant value
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_setMemberFunc (variant, name, value);
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_getElement (
+	const jnc_Variant* variant,
+	size_t index,
+	jnc_Variant* result
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_getElementFunc (variant, index, result);
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_setElement (
+	jnc_Variant* variant,
+	size_t index,
+	jnc_Variant value
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_setElementFunc (variant, index, value);
+}
+
+JNC_EXTERN_C
 size_t
 jnc_Variant_hash (const jnc_Variant* variant)
 {
@@ -185,10 +229,10 @@ jnc_Variant_binaryOperator (
 		module->m_operatorMgr.castOperator (&resultValue, TypeKind_Variant);
 
 	if (!result)
-		return 0;
+		return false;
 
 	*resultVariant = *(Variant*) resultValue.getConstData ();
-	return 1;
+	return true;
 }
 
 JNC_EXTERN_C
@@ -246,7 +290,155 @@ jnc_Variant_relationalOperator (
 		return false;
 
 	*resultBool = *(bool*) resultValue.getConstData ();
-	return 1;
+	return true;
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_getMember (
+	const jnc_Variant* variant,
+	const char* name,
+	jnc_Variant* resultVariant
+	)
+{
+	using namespace jnc;
+
+	if (!variant->m_type)
+	{
+		err::setError ("cannot apply member operator to 'null'");
+		return true;
+	}
+
+	ct::Module* module = variant->m_type->getModule ();
+
+	ct::Value opValue (variant, variant->m_type);
+	ct::Value memberValue;
+	bool result =
+		module->m_operatorMgr.memberOperator (opValue, name, &memberValue) &&
+		module->m_operatorMgr.castOperator (&memberValue, TypeKind_Variant);
+
+	if (!result)
+		return false;
+
+	*resultVariant = *(Variant*) memberValue.getConstData ();
+	return true;
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_setMember (
+	jnc_Variant* variant,
+	const char* name,
+	jnc_Variant valueVariant
+	)
+{
+	using namespace jnc;
+
+	if (!variant->m_type)
+	{
+		err::setError ("cannot apply member operator to 'null'");
+		return true;
+	}
+
+	ct::Module* module = variant->m_type->getModule ();
+
+	ct::Value opValue;
+	if (variant->m_type->getTypeKindFlags () & TypeKindFlag_Ptr)
+	{
+		opValue.createConst (variant, variant->m_type);
+	}
+	else
+	{
+		ASSERT (variant->m_type->getSize () <= sizeof (DataPtr));
+		opValue.createConst (&variant, variant->m_type->getDataPtrType_c (TypeKind_DataRef));
+	}
+
+	ct::Value opValue2 (&valueVariant, module->m_typeMgr.getPrimitiveType (TypeKind_Variant));
+	ct::Value memberValue;
+
+	return
+		module->m_operatorMgr.memberOperator (opValue, name, &memberValue) &&
+		module->m_operatorMgr.binaryOperator (BinOpKind_Assign, memberValue, opValue2);
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_getElement (
+	const jnc_Variant* variant,
+	size_t index,
+	jnc_Variant* resultVariant
+	)
+{
+	using namespace jnc;
+
+	if (!variant->m_type)
+	{
+		err::setError ("cannot apply index operator to 'null'");
+		return true;
+	}
+
+	ct::Module* module = variant->m_type->getModule ();
+
+	// turning it into ref is only necessary because of current implementation of OperatorMgr::memberOperator (size_t)
+
+	ct::Value opValue;
+	if (variant->m_type->getTypeKindFlags () & TypeKindFlag_Ptr)
+	{
+		opValue.createConst (variant, variant->m_type);
+	}
+	else
+	{
+		ASSERT (variant->m_type->getSize () <= sizeof (DataPtr));
+		opValue.createConst (&variant, variant->m_type->getDataPtrType_c (TypeKind_DataRef));
+	}
+
+	ct::Value memberValue;
+	bool result =
+		module->m_operatorMgr.memberOperator (opValue, index, &memberValue) &&
+		module->m_operatorMgr.castOperator (&memberValue, TypeKind_Variant);
+
+	if (!result)
+		return false;
+
+	*resultVariant = *(Variant*) memberValue.getConstData ();
+	return true;
+}
+
+JNC_EXTERN_C
+int
+jnc_Variant_setElement (
+	jnc_Variant* variant,
+	size_t index,
+	jnc_Variant valueVariant
+	)
+{
+	using namespace jnc;
+
+	if (!variant->m_type)
+	{
+		err::setError ("cannot apply index operator to 'null'");
+		return true;
+	}
+
+	ct::Module* module = variant->m_type->getModule ();
+
+	ct::Value opValue;
+	if (variant->m_type->getTypeKindFlags () & TypeKindFlag_Ptr)
+	{
+		opValue.createConst (variant, variant->m_type);
+	}
+	else
+	{
+		ASSERT (variant->m_type->getSize () <= sizeof (DataPtr));
+		opValue.createConst (&variant, variant->m_type->getDataPtrType_c (TypeKind_DataRef));
+	}
+
+	ct::Value opValue2 (&valueVariant, module->m_typeMgr.getPrimitiveType (TypeKind_Variant));
+	ct::Value memberValue;
+
+	return
+		module->m_operatorMgr.memberOperator (opValue, index, &memberValue) &&
+		module->m_operatorMgr.binaryOperator (BinOpKind_Assign, memberValue, opValue2);
 }
 
 JNC_EXTERN_C

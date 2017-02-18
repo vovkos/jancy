@@ -46,6 +46,13 @@ enum StdFunc
 	StdFunc_VariantUnaryOperator,
 	StdFunc_VariantBinaryOperator,
 	StdFunc_VariantRelationalOperator,
+	StdFunc_VariantMemberOperator,
+	StdFunc_VariantIndexOperator,
+
+	StdFunc_VariantMemberProperty_get,
+	StdFunc_VariantMemberProperty_set,
+	StdFunc_VariantIndexProperty_get,
+	StdFunc_VariantIndexProperty_set,
 
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,
@@ -80,6 +87,7 @@ enum StdFunc
 	StdFunc_LlvmMemcpy,
 	StdFunc_LlvmMemmove,
 	StdFunc_LlvmMemset,
+
 	StdFunc__Count
 };
 
@@ -106,6 +114,16 @@ public:
 	virtual
 	ModuleItem*
 	getActualItem ();
+};
+
+//..............................................................................
+
+enum StdProp
+{
+	StdProp_VariantMember,
+	StdProp_VariantIndex,
+
+	StdProp__Count,
 };
 
 //..............................................................................

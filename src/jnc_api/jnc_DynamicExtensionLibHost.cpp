@@ -240,6 +240,15 @@ static jnc_PropertyPtrTypeFuncTable g_propertyPtrTypeFuncTable =
 
 static jnc_VariantFuncTable g_variantFuncTable =
 {
+	jnc_Variant_cast,
+	jnc_Variant_unaryOperator,
+	jnc_Variant_binaryOperator,
+	jnc_Variant_relationalOperator,
+	jnc_Variant_getMember,
+	jnc_Variant_setMember,
+	jnc_Variant_getElement,
+	jnc_Variant_setElement,
+	jnc_Variant_hash,
 };
 
 static jnc_UnitFuncTable g_unitFuncTable =

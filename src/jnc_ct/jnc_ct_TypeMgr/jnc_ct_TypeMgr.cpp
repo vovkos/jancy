@@ -121,8 +121,8 @@ TypeMgr::getStdType (StdType stdType)
 		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c ();
 		break;
 
-	case StdType_ByteConstPtr:
-		type = getPrimitiveType (TypeKind_Int8_u)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
+	case StdType_CharConstPtr:
+		type = getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
 		break;
 
 	case StdType_SimpleIfaceHdr:

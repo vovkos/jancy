@@ -152,10 +152,35 @@ OperatorMgr::getStructField (
 	ValueKind opValueKind = opValue.getValueKind ();
 	if (opValueKind == ValueKind_Const)
 	{
-		resultValue->createConst (
-			(char*) opValue.getConstData () + coord->m_offset,
-			field->getType ()
-			);
+		Type* type = opValue.getType ();
+		if (!(type->getTypeKindFlags () & TypeKindFlag_Ptr))
+		{
+			resultValue->createConst (
+				(char*) opValue.getConstData () + coord->m_offset,
+				field->getType ()
+				);
+		}
+		else
+		{
+			ASSERT (type->getTypeKindFlags () & TypeKindFlag_DataPtr);
+
+			DataPtrType* ptrType = (DataPtrType*) type;
+			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+
+			if (ptrTypeKind == DataPtrTypeKind_Normal)
+			{
+				DataPtr ptr = *(DataPtr*) opValue.getConstData ();
+				ptr.m_p = (char*) ptr.m_p + field->getOffset ();
+				resultValue->createConst (&ptr, field->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags ()));
+			}
+			else
+			{
+				ASSERT (ptrTypeKind == DataPtrTypeKind_Thin);
+				char* p = *(char**) opValue.getConstData ();
+				p += field->getOffset ();
+				resultValue->createConst (&p, field->getType ()->getDataPtrType_c (TypeKind_DataRef, type->getFlags ()));
+			}
+		}
 
 		return true;
 	}

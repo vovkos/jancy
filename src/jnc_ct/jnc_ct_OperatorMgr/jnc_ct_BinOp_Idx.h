@@ -24,7 +24,7 @@ public:
 	BinOp_Idx ()
 	{
 		m_opKind = BinOpKind_Idx;
-		m_opFlags1 = OpFlag_KeepPropertyRef;
+		m_opFlags1 = OpFlag_KeepPropertyRef | OpFlag_KeepVariantRef;
 	}
 
 	virtual
@@ -47,6 +47,13 @@ protected:
 	arrayIndexOperator (
 		const Value& rawOpValue1,
 		ArrayType* arrayType,
+		const Value& rawOpValue2,
+		Value* resultValue
+		);
+
+	bool
+	variantIndexOperator (
+		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
 		);

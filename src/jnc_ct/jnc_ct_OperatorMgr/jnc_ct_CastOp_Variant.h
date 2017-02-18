@@ -21,6 +21,11 @@ namespace ct {
 class Cast_Variant: public CastOperator
 {
 public:
+	Cast_Variant ()
+	{
+		m_opFlags = OpFlag_LoadArrayRef;
+	}
+
 	virtual
 	CastKind
 	getCastKind (

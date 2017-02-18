@@ -55,6 +55,21 @@ Closure::insertThisArgValue (const Value& value)
 }
 
 size_t
+Closure::append (const Value& argValue)
+{
+	sl::BoxIterator <Value> internalArg = m_argValueList.getHead ();
+	while (internalArg && !internalArg->isEmpty ())
+		internalArg++;
+
+	if (internalArg)
+		*internalArg = argValue;
+	else
+		m_argValueList.insertTail (argValue);
+
+	return m_argValueList.getCount ();
+}
+
+size_t
 Closure::append (const sl::ConstBoxList <Value>& argValueList)
 {
 	ASSERT (!argValueList.isEmpty ());

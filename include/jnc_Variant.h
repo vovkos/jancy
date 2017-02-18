@@ -64,6 +64,38 @@ jnc_Variant_relationalOperator (
 	int* result
 	);
 
+JNC_EXTERN_C
+int
+jnc_Variant_getMember (
+	const jnc_Variant* variant,
+	const char* name,
+	jnc_Variant* result
+	);
+
+JNC_EXTERN_C
+int
+jnc_Variant_setMember (
+	jnc_Variant* variant,
+	const char* name,
+	jnc_Variant value
+	);
+
+JNC_EXTERN_C
+int
+jnc_Variant_getElement (
+	const jnc_Variant* variant,
+	size_t index,
+	jnc_Variant* result
+	);
+
+JNC_EXTERN_C
+int
+jnc_Variant_setElement (
+	jnc_Variant* variant,
+	size_t index,
+	jnc_Variant value
+	);
+
 JNC_INLINE
 int
 jnc_Variant_isEqual (
@@ -163,6 +195,42 @@ struct jnc_Variant
 		jnc_BinOpKind opKind,
 		bool* result
 		) const;
+
+	bool
+	getMember (
+		const char* name,
+		jnc_Variant* result
+		) const
+	{
+		return jnc_Variant_getMember (this, name, result) != 0;
+	}
+
+	bool
+	setMember (
+		const char* name,
+		jnc_Variant value
+		)
+	{
+		return jnc_Variant_setMember (this, name, value) != 0;
+	}
+
+	bool
+	getElement (
+		size_t index,
+		jnc_Variant* result
+		) const
+	{
+		return jnc_Variant_getElement (this, index, result) != 0;
+	}
+
+	bool
+	setElement (
+		size_t index,
+		jnc_Variant value
+		)
+	{
+		return jnc_Variant_setElement (this, index, value) != 0;
+	}
 
 	bool
 	isEqual (const jnc_Variant* variant2) const

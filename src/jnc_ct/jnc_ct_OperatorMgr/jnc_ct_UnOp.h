@@ -21,15 +21,16 @@ namespace ct {
 
 enum OpFlag
 {
-	OpFlag_KeepDataRef      = 0x01,
-	OpFlag_KeepClassRef	    = 0x02,
-	OpFlag_KeepFunctionRef  = 0x04,
-	OpFlag_KeepPropertyRef  = 0x08,
-	OpFlag_KeepDerivableRef = 0x10,
-	OpFlag_KeepBool         = 0x20,
-	OpFlag_KeepEnum         = 0x40,
-	OpFlag_ArrayRefToPtr    = 0x80,
-	OpFlag_LoadArrayRef     = 0x100,
+	OpFlag_KeepDataRef      = 0x0001,
+	OpFlag_KeepClassRef	    = 0x0002,
+	OpFlag_KeepFunctionRef  = 0x0004,
+	OpFlag_KeepPropertyRef  = 0x0008,
+	OpFlag_KeepDerivableRef = 0x0010,
+	OpFlag_KeepVariantRef   = 0x0020,
+	OpFlag_KeepBool         = 0x0040,
+	OpFlag_KeepEnum         = 0x0080,
+	OpFlag_ArrayRefToPtr    = 0x0100,
+	OpFlag_LoadArrayRef     = 0x0200,
 
 	OpFlag_KeepRef          =
 		OpFlag_KeepDataRef |

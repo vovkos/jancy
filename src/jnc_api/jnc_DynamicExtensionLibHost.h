@@ -818,8 +818,40 @@ jnc_Variant_RelationalOperatorFunc (
 	);
 
 typedef
+int
+jnc_Variant_GetMemberFunc (
+	const jnc_Variant* variant,
+	const char* name,
+	jnc_Variant* result
+	);
+
+typedef
+int
+jnc_Variant_SetMemberFunc (
+	jnc_Variant* variant,
+	const char* name,
+	jnc_Variant value
+	);
+
+typedef
+int
+jnc_Variant_GetElementFunc (
+	const jnc_Variant* variant,
+	size_t index,
+	jnc_Variant* result
+	);
+
+typedef
+int
+jnc_Variant_SetElementFunc (
+	jnc_Variant* variant,
+	size_t index,
+	jnc_Variant value
+	);
+
+typedef
 size_t
-jnc_Variant_GetHashFunc (const jnc_Variant* variant);
+jnc_Variant_HashFunc (const jnc_Variant* variant);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -829,7 +861,11 @@ struct jnc_VariantFuncTable
 	jnc_Variant_UnaryOperatorFunc* m_unaryOperatorFunc;
 	jnc_Variant_BinaryOperatorFunc* m_binaryOperatorFunc;
 	jnc_Variant_RelationalOperatorFunc* m_relationalOperatorFunc;
-	jnc_Variant_GetHashFunc* m_hashFunc;
+	jnc_Variant_GetMemberFunc* m_getMemberFunc;
+	jnc_Variant_SetMemberFunc* m_setMemberFunc;
+	jnc_Variant_GetElementFunc* m_getElementFunc;
+	jnc_Variant_SetElementFunc* m_setElementFunc;
+	jnc_Variant_HashFunc* m_hashFunc;
 };
 
 //..............................................................................

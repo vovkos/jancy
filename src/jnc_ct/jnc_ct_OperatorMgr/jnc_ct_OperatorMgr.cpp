@@ -66,11 +66,7 @@ OperatorMgr::OperatorMgr ()
 	m_binaryOperatorTable [BinOpKind_BwAnd]  = &m_binOp_BwAnd;
 	m_binaryOperatorTable [BinOpKind_BwXor]  = &m_binOp_BwXor;
 	m_binaryOperatorTable [BinOpKind_BwOr]   = &m_binOp_BwOr;
-
-	// special operators
-
 	m_binaryOperatorTable [BinOpKind_At]     = &m_binOp_At;
-	m_binaryOperatorTable [BinOpKind_Idx]    = &m_binOp_Idx;
 
 	// binary logic operators
 
@@ -85,6 +81,10 @@ OperatorMgr::OperatorMgr ()
 	m_binaryOperatorTable [BinOpKind_Le]     = &m_binOp_Le;
 	m_binaryOperatorTable [BinOpKind_Gt]     = &m_binOp_Gt;
 	m_binaryOperatorTable [BinOpKind_Ge]     = &m_binOp_Ge;
+
+	// indexing operator
+
+	m_binaryOperatorTable [BinOpKind_Idx]    = &m_binOp_Idx;
 
 	// assignment operators
 
@@ -384,9 +384,9 @@ OperatorMgr::binaryOperator (
 	if (!result)
 		return false;
 
-	if ((opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
-		opValue2.getType ()->getTypeKind () == TypeKind_Variant)
-		&& opKind <= BinOpKind_Ge)
+	if (opKind <= BinOpKind_Ge &&
+		(opValue1.getType ()->getTypeKind () == TypeKind_Variant ||
+		opValue2.getType ()->getTypeKind () == TypeKind_Variant))
 	{
 		StdFunc stdFunc = opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge ?
 			StdFunc_VariantRelationalOperator :
@@ -1073,8 +1073,10 @@ OperatorMgr::prepareOperandType (
 				}
 				else if (targetTypeKind != TypeKind_Array)
 				{
-					if (!(targetType->getTypeKindFlags () & TypeKindFlag_Derivable) ||
-						!(opFlags & OpFlag_KeepDerivableRef))
+					bool b1 = (targetType->getTypeKindFlags () & TypeKindFlag_Derivable) && (opFlags & OpFlag_KeepDerivableRef);
+					bool b2 = targetTypeKind == TypeKind_Variant && (opFlags & OpFlag_KeepVariantRef);
+
+					if (!b1 && !b2)
 					{
 						value = ((DataPtrType*) type)->getTargetType ();
 					}
@@ -1200,10 +1202,14 @@ OperatorMgr::prepareOperand (
 			{
 				DataPtrType* ptrType = (DataPtrType*) type;
 				Type* targetType = ptrType->getTargetType ();
-				if (targetType->getTypeKind () != TypeKind_Array)
+				TypeKind targetTypeKind = targetType->getTypeKind ();
+
+				if (targetTypeKind != TypeKind_Array)
 				{
-					if (!(targetType->getTypeKindFlags () & TypeKindFlag_Derivable) ||
-						!(opFlags & OpFlag_KeepDerivableRef))
+					bool b1 = (targetType->getTypeKindFlags () & TypeKindFlag_Derivable) && (opFlags & OpFlag_KeepDerivableRef);
+					bool b2 = targetTypeKind == TypeKind_Variant && (opFlags & OpFlag_KeepVariantRef);
+
+					if (!b1 && !b2)
 					{
 						result = loadDataRef (&value);
 						if (!result)

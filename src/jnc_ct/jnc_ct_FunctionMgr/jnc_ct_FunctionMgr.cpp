@@ -29,6 +29,8 @@ FunctionMgr::FunctionMgr ()
 
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
 	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
+	memset (m_stdPropertyArray, 0, sizeof (m_stdPropertyArray));
+
 	m_currentFunction = NULL;
 }
 
@@ -48,6 +50,7 @@ FunctionMgr::clear ()
 	m_staticConstructArray.clear ();
 	memset (m_stdFunctionArray, 0, sizeof (m_stdFunctionArray));
 	memset (m_lazyStdFunctionArray, 0, sizeof (m_lazyStdFunctionArray));
+	memset (m_stdPropertyArray, 0, sizeof (m_stdPropertyArray));
 
 	m_thisValue.clear ();
 	m_currentFunction = NULL;
@@ -938,6 +941,56 @@ FunctionMgr::getStdFunction (StdFunc func)
 		function = createFunction (FunctionKind_Internal, "jnc.variantRelationalOperator", functionType);
 		break;
 
+	case StdFunc_VariantMemberOperator:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (jnc_StdType_CharConstPtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.variantMemberOperator", functionType);
+		break;
+
+	case StdFunc_VariantIndexOperator:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.variantIndexOperator", functionType);
+		break;
+
+	case StdFunc_VariantMemberProperty_get:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (jnc_StdType_CharConstPtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.variantMemberProperty.get", functionType);
+		break;
+
+	case StdFunc_VariantMemberProperty_set:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant)->getDataPtrType ();
+		argTypeArray [1] = m_module->m_typeMgr.getStdType (jnc_StdType_CharConstPtr);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.variantMemberProperty.set", functionType);
+		break;
+
+	case StdFunc_VariantIndexProperty_get:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.variantIndexProperty.get", functionType);
+		break;
+
+	case StdFunc_VariantIndexProperty_set:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant)->getDataPtrType ();
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+		argTypeArray [2] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 3);
+		function = createFunction (FunctionKind_Internal, "jnc.variantIndexProperty.set", functionType);
+		break;
+
 	case StdFunc_GcSafePoint:
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
@@ -1064,6 +1117,42 @@ FunctionMgr::getLazyStdFunction (StdFunc func)
 	m_lazyStdFunctionList.insertTail (function);
 	m_lazyStdFunctionArray [func] = function;
 	return function;
+}
+
+Property*
+FunctionMgr::getStdProperty (StdProp stdProp)
+{
+	ASSERT ((size_t) stdProp < StdProp__Count);
+
+	if (m_stdPropertyArray [stdProp])
+		return m_stdPropertyArray [stdProp];
+
+	Property* prop;
+	switch (stdProp)
+	{
+	case StdProp_VariantMember:
+		prop = createProperty (PropertyKind_Internal, "g_variantMember", "jnc.g_variantMember", "jnc.g_variantMember");
+		prop->m_storageKind = StorageKind_Static;
+		prop->m_getter = getStdFunction (StdFunc_VariantMemberProperty_get);
+		prop->m_setter = getStdFunction (StdFunc_VariantMemberProperty_set);
+		prop->m_type = m_module->m_typeMgr.getPropertyType (prop->m_getter->getType (), prop->m_setter->getType ());
+		break;
+
+	case StdProp_VariantIndex:
+		prop = createProperty (PropertyKind_Internal, "g_variantIndex", "jnc.g_variantIndex", "jnc.g_variantIndex");
+		prop->m_storageKind = StorageKind_Static;
+		prop->m_getter = getStdFunction (StdFunc_VariantIndexProperty_get);
+		prop->m_setter = getStdFunction (StdFunc_VariantIndexProperty_set);
+		prop->m_type = m_module->m_typeMgr.getPropertyType (prop->m_getter->getType (), prop->m_setter->getType ());
+		break;
+
+	default:
+		ASSERT (false);
+		prop = NULL;
+	}
+
+	m_stdPropertyArray [stdProp] = prop;
+	return prop;
 }
 
 //..............................................................................

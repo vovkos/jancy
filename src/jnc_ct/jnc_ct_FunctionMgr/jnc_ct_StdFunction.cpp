@@ -75,6 +75,13 @@ getStdFunctionSource (StdFunc stdFunc)
 		{ NULL },                                // StdFunc_VariantUnaryOperator,
 		{ NULL },                                // StdFunc_VariantBinaryOperator,
 		{ NULL },                                // StdFunc_VariantRelationalOperator,
+		{ NULL },                                // StdFunc_VariantMemberOperator,
+		{ NULL },                                // StdFunc_VariantIndexOperator,
+
+		{ NULL },                                // StdFunc_VariantMemberProperty_get,
+		{ NULL },                                // StdFunc_VariantMemberProperty_set,
+		{ NULL },                                // StdFunc_VariantIndexProperty_get,
+		{ NULL },                                // StdFunc_VariantIndexProperty_set,
 
 		{                                        // StdFunc_AppendFmtLiteral_a,
 			appendFmtLiteralSrc_a,

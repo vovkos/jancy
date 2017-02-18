@@ -71,6 +71,9 @@ public:
 	}
 
 	size_t
+	append (const Value& argValue);
+
+	size_t
 	append (const sl::ConstBoxList <Value>& argValueList);
 
 	bool

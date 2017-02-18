@@ -1573,6 +1573,20 @@ protected:
 		);
 
 	bool
+	getVariantMember (
+		const Value& opValue,
+		size_t index,
+		Value* resultValue
+		);
+
+	bool
+	getVariantMember (
+		const Value& opValue,
+		const sl::StringRef& name,
+		Value* resultValue
+		);
+
+	bool
 	getClassVTable (
 		const Value& opValue,
 		ClassType* classType,

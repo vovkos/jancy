@@ -326,6 +326,74 @@ variantRelationalOperator (
 	return result;
 }
 
+Variant
+variantMemberOperator (
+	jnc_Variant variant,
+	const char* name
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	variant.getMember (name, &result);
+	return result;
+}
+
+Variant
+variantIndexOperator (
+	jnc_Variant variant,
+	size_t index
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	variant.getElement (index, &result);
+	return result;
+}
+
+Variant
+variantMemberProperty_get (
+	DataPtr variantPtr,
+	const char* name
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	Variant* variant = (Variant*) variantPtr.m_p;
+	variant->getMember (name, &result);
+	return result;
+}
+
+void
+variantMemberProperty_set (
+	DataPtr variantPtr,
+	const char* name,
+	Variant value
+	)
+{
+	Variant* variant = (Variant*) variantPtr.m_p;
+	variant->setMember (name, value);
+}
+
+Variant
+variantIndexProperty_get (
+	DataPtr variantPtr,
+	size_t index
+	)
+{
+	jnc_Variant result = jnc::g_nullVariant;
+	Variant* variant = (Variant*) variantPtr.m_p;
+	variant->getElement (index, &result);
+	return result;
+}
+
+void
+variantIndexProperty_set (
+	DataPtr variantPtr,
+	size_t index,
+	Variant value
+	)
+{
+	Variant* variant = (Variant*) variantPtr.m_p;
+	variant->setElement (index, value);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1065,6 +1133,13 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantUnaryOperator,      variantUnaryOperator)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantBinaryOperator,     variantBinaryOperator)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantRelationalOperator, variantRelationalOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantMemberOperator,     variantMemberOperator)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantIndexOperator,      variantIndexOperator)
+
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantMemberProperty_get, variantMemberProperty_get)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantMemberProperty_set, variantMemberProperty_set)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantIndexProperty_get,  variantIndexProperty_get)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_VariantIndexProperty_set,  variantIndexProperty_set)
 
 	// exceptions
 

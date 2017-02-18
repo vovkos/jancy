@@ -194,7 +194,7 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind);
 enum jnc_StdType
 {
 	jnc_StdType_BytePtr,
-	jnc_StdType_ByteConstPtr,
+	jnc_StdType_CharConstPtr,
 	jnc_StdType_SimpleIfaceHdr,
 	jnc_StdType_SimpleIfaceHdrPtr,
 	jnc_StdType_Box,
@@ -573,7 +573,7 @@ typedef jnc_StdType StdType;
 
 const StdType
 	StdType_BytePtr             = jnc_StdType_BytePtr,
-	StdType_ByteConstPtr        = jnc_StdType_ByteConstPtr,
+	StdType_CharConstPtr        = jnc_StdType_CharConstPtr,
 	StdType_SimpleIfaceHdr      = jnc_StdType_SimpleIfaceHdr,
 	StdType_SimpleIfaceHdrPtr   = jnc_StdType_SimpleIfaceHdrPtr,
 	StdType_Box                 = jnc_StdType_Box,

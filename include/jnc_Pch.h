@@ -110,12 +110,22 @@
 
 // C/C++ headers
 
-#define __STDC_LIMIT_MACROS
-#define __STDC_CONSTANT_MACROS
+#ifndef __STDC_LIMIT_MACROS
+#	define __STDC_LIMIT_MACROS 1
+#endif
+
+#ifndef __STDC_CONSTANT_MACROS
+#	define __STDC_CONSTANT_MACROS 1
+#endif
 
 #if (_JNC_OS_WIN)
-#	define _CRT_SECURE_NO_WARNINGS  // useless warnings about "unsafe" string functions
-#	define _SCL_SECURE_NO_WARNINGS  // useless warnings about "unsafe" iterator operations
+#	ifndef _CRT_SECURE_NO_WARNINGS
+#		define _CRT_SECURE_NO_WARNINGS 1 // useless warnings about "unsafe" string functions
+#	endif
+#
+#	ifndef _CRT_SECURE_NO_WARNINGS
+#		define _SCL_SECURE_NO_WARNINGS 1 // useless warnings about "unsafe" iterator operations
+#	endif
 #endif
 
 #include <stddef.h>

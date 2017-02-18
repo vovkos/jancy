@@ -28,16 +28,22 @@ BinOp_Idx::getResultType (
 	if (opType1->getTypeKind () == TypeKind_DataRef)
 	{
 		DataPtrType* ptrType = (DataPtrType*) opType1;
-		Type* baseType = ptrType->getTargetType ();
-
-		if (baseType->getTypeKind () == TypeKind_Array)
-			return ((ArrayType*) baseType)->getElementType ()->getDataPtrType (
+		Type* targetType = ptrType->getTargetType ();
+		TypeKind targetTypeKind = targetType->getTypeKind ();
+		switch (targetTypeKind)
+		{
+		case TypeKind_Array:
+			return ((ArrayType*) targetType)->getElementType ()->getDataPtrType (
 				TypeKind_DataRef,
 				ptrType->getPtrTypeKind (),
 				ptrType->getFlags ()
 				);
 
-		opType1 = baseType;
+		case TypeKind_Variant:
+			return m_module->m_typeMgr.getSimplePropertyType (targetType); // variant property
+		}
+
+		opType1 = targetType;
 	}
 
 	DataPtrType* ptrType;
@@ -55,6 +61,9 @@ BinOp_Idx::getResultType (
 
 	case TypeKind_Array:
 		return ((ArrayType*) opType1)->getElementType ();
+
+	case TypeKind_Variant:
+		return opType1; // variant property
 
 	case TypeKind_PropertyRef:
 	case TypeKind_PropertyPtr:
@@ -81,12 +90,18 @@ BinOp_Idx::op (
 	Type* opType1 = rawOpValue1.getType ();
 	if (opType1->getTypeKind () == TypeKind_DataRef)
 	{
-		Type* baseType = ((DataPtrType*) opType1)->getTargetType ();
-
-		if (baseType->getTypeKind () == TypeKind_Array)
+		Type* targetType = ((DataPtrType*) opType1)->getTargetType ();
+		TypeKind targetTypeKind = targetType->getTypeKind ();
+		switch (targetTypeKind)
+		{
+		case TypeKind_Array:
 			return
 				m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
-				arrayIndexOperator (rawOpValue1, (ArrayType*) baseType, opValue2, resultValue);
+				arrayIndexOperator (rawOpValue1, (ArrayType*) targetType, opValue2, resultValue);
+
+		case TypeKind_Variant:
+			return variantIndexOperator (rawOpValue1, opValue2, resultValue);
+		}
 
 		result = m_module->m_operatorMgr.loadDataRef (rawOpValue1, &opValue1);
 		if (!result)
@@ -109,6 +124,10 @@ BinOp_Idx::op (
 			m_module->m_operatorMgr.castOperator (&opValue2, TypeKind_IntPtr) &&
 			arrayIndexOperator (opValue1, (ArrayType*) opType1, opValue2, resultValue);
 
+	case TypeKind_Variant:
+		err::setFormatStringError ("r-value variant index is not implemented yet");
+		return false;
+
 	case TypeKind_PropertyRef:
 	case TypeKind_PropertyPtr:
 		return propertyIndexOperator (opValue1, opValue2, resultValue);
@@ -129,10 +148,37 @@ BinOp_Idx::arrayIndexOperator (
 {
 	Type* elementType = arrayType->getElementType ();
 
-	if (opValue1.getValueKind () == ValueKind_Const && opValue2.getValueKind ())
+	if (opValue1.getValueKind () == ValueKind_Const &&
+		opValue2.getValueKind () == ValueKind_Const)
 	{
-		void* p = (char*) opValue1.getConstData () + opValue2.getSizeT () * elementType->getSize ();
-		resultValue->createConst (p, elementType);
+		size_t elementOffset = opValue2.getSizeT () * elementType->getSize ();
+		Type* type = opValue1.getType ();
+		if (!(type->getTypeKindFlags () & TypeKindFlag_Ptr))
+		{
+			resultValue->createConst ((char*) opValue1.getConstData () + elementOffset, elementType);
+		}
+		else
+		{
+			ASSERT (type->getTypeKindFlags () & TypeKindFlag_DataPtr);
+
+			DataPtrType* ptrType = (DataPtrType*) type;
+			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+
+			if (ptrTypeKind == DataPtrTypeKind_Normal)
+			{
+				DataPtr ptr = *(DataPtr*) opValue1.getConstData ();
+				ptr.m_p = (char*) ptr.m_p + elementOffset;
+				resultValue->createConst (&ptr, elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags ()));
+			}
+			else
+			{
+				ASSERT (ptrTypeKind == DataPtrTypeKind_Thin);
+				char* p = *(char**) opValue1.getConstData ();
+				p += elementOffset;
+				resultValue->createConst (&p, elementType->getDataPtrType_c (TypeKind_DataRef, type->getFlags ()));
+			}
+		}
+
 		return true;
 	}
 
@@ -204,6 +250,27 @@ BinOp_Idx::arrayIndexOperator (
 			);
 	}
 
+	return true;
+}
+
+bool
+BinOp_Idx::variantIndexOperator (
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+	)
+{
+	Property* prop = m_module->m_functionMgr.getStdProperty (StdProp_VariantIndex);
+	resultValue->setProperty (prop);
+
+	Value variantValue;
+	bool result = m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, opValue1, &variantValue);
+	if (!result)
+		return false;
+
+	Closure* closure = resultValue->createClosure ();
+	closure->append (variantValue);
+	closure->append (opValue2);
 	return true;
 }
 

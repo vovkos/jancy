@@ -51,6 +51,7 @@ protected:
 
 	Function* m_stdFunctionArray [StdFunc__Count];
 	LazyStdFunction* m_lazyStdFunctionArray [StdFunc__Count];
+	Property* m_stdPropertyArray [StdProp__Count];
 
 	Function* m_currentFunction;
 	Value m_thisValue;
@@ -251,6 +252,9 @@ public:
 
 	LazyStdFunction*
 	getLazyStdFunction (StdFunc func);
+
+	Property*
+	getStdProperty (StdProp prop);
 
 	Function*
 	getDirectThunkFunction (

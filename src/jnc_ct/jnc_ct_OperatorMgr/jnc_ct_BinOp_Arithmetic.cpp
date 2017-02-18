@@ -62,7 +62,7 @@ dataPtrIncrementOperator (
 			DataPtr ptr = *(DataPtr*) opValue1.getConstData ();
 			ptr.m_p = (char*) ptr.m_p + delta;
 			resultValue->createConst (&ptr, opValue1.getType ());
-		}		
+		}
 	}
 	else if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
@@ -115,7 +115,7 @@ dataPtrDifferenceOperator (
 		return false;
 	}
 
-	Type* bytePtrType = module->m_typeMgr.getStdType (StdType_ByteConstPtr);
+	Type* bytePtrType = module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
 
 	Value opValue1;
 	Value opValue2;
@@ -133,11 +133,11 @@ dataPtrDifferenceOperator (
 
 	Type* type = module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
 
-	if (opValue1.getValueKind () == ValueKind_Const && 
+	if (opValue1.getValueKind () == ValueKind_Const &&
 		opValue2.getValueKind () == ValueKind_Const)
 	{
 		char* p1 = *(char**) opValue1.getConstData ();
-		char* p2 = *(char**) opValue2.getConstData ();		
+		char* p2 = *(char**) opValue2.getConstData ();
 		intptr_t diff = (p1 - p2) / size;
 
 		resultValue->setConstSizeT (diff, type);

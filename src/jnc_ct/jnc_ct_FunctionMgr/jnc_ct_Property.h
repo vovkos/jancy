@@ -27,6 +27,7 @@ enum PropertyKind
 	PropertyKind_Normal,
 	PropertyKind_Thunk,
 	PropertyKind_DataThunk,
+	PropertyKind_Internal,
 	PropertyKind__Count
 };
 

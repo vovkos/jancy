@@ -29,7 +29,7 @@ getStdTypeSource (StdType stdType)
 	static StdItemSource sourceTable [StdType__Count] =
 	{
 		{ NULL },                            // StdType_BytePtr,
-		{ NULL },                            // StdType_ByteConstPtr,
+		{ NULL },                            // StdType_CharConstPtr,
 		{ NULL },                            // StdType_SimpleIfaceHdr,
 		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
 		{ NULL },                            // StdType_Box,
