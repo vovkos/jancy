@@ -1773,7 +1773,7 @@ TypeMgr::getDataPtrType (
 	ASSERT (dataType->getTypeKind () != TypeKind_NamedImport); // for imports, GetImportPtrType () should be called
 	ASSERT (typeKind != TypeKind_DataRef || dataType->m_typeKind != TypeKind_DataRef); // dbl reference
 
-	if (typeKind == TypeKind_DataPtr && ptrTypeKind == DataPtrTypeKind_Normal)
+	if (ptrTypeKind == DataPtrTypeKind_Normal)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	DataPtrTypeTuple* tuple;
