@@ -95,25 +95,29 @@ declarator_qualifier <Declarator* $declarator>
 	;
 
 declarator_operator_qualifier <Declarator* $declarator>
-	:	'(' ')'
+	:	operator_name
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_CallOperator);
+				return $declarator->addUnaryBinaryOperator ($1.m_unOpKind, $1.m_binOpKind);
 			}
 	|	type_name
 			{
 				return $declarator->addCastOperator ($1.m_type);
 			}
-	|	operator_name
+	|	'(' ')'
 			{
-				return $declarator->addUnaryBinaryOperator ($1.m_unOpKind, $1.m_binOpKind);
+				return $declarator->addUnnamedMethod (FunctionKind_CallOperator);
 			}
 	|	TokenKind_Ellipsis
 			{
-				return $declarator->addOperatorVararg ();
+				return $declarator->addUnnamedMethod (FunctionKind_OperatorVararg);
 			}
 	|	TokenKind_Cdecl TokenKind_Ellipsis
 			{
-				return $declarator->addOperatorCdeclVararg ();
+				return $declarator->addUnnamedMethod (FunctionKind_OperatorCdeclVararg);
+			}
+	|	TokenKind_BindingOf
+			{
+				return $declarator->addUnnamedMethod (FunctionKind_Binder);
 			}
 	;
 
@@ -308,7 +312,7 @@ declarator_prefix <Declarator* $declarator>
 			}
 		(type_modifier $m
 			{
-				return $declarator->setTypeModifier ($m.m_typeModifier);
+				return $declarator->addTypeModifier ($m.m_typeModifier);
 			}
 		)*
 	;

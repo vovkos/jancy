@@ -11,27 +11,27 @@
 
 // root declaration productions
 
-global_declaration
-	:	import_declaration
-	|	namespace_declaration
-	|	extension_declaration
-	|	using_declaration
-	|	friend_declaration
-	|	access_declaration
+common_declaration
+	:	using_declaration
 	|   alignment_declaration
-	|	normal_item_declaration
 	|	named_type_specifier
 	|	';'
 	;
 
-named_type_block_declaration
-	:	friend_declaration
-	|	access_declaration
-	|   alignment_declaration
-	|   setas_declaration
+global_declaration
+	:	common_declaration
+	|	import_declaration
+	|	namespace_declaration
+	|	extension_declaration
 	|	normal_item_declaration
-	|	named_type_specifier
-	|	';'
+	;
+
+named_type_block_declaration
+	:	common_declaration
+	|	friend_declaration
+	|	access_declaration
+	|	normal_item_declaration
+	|   setas_declaration
 	;
 
 local_declaration
@@ -39,11 +39,9 @@ local_declaration
 	{
 		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
 	}
-	:	statement
-	|	using_declaration
-	|   alignment_declaration
+	:	common_declaration
+	|	statement
 	|	local_item_declaration
-	|	named_type_specifier
 	|	catch_label
 	|	finally_label
 	|	nested_scope_label
@@ -189,6 +187,14 @@ qualified_name_list
 		)*
 	;
 
+start
+qualified_name_save_name
+	:	qualified_name
+			{
+				m_qualifiedName = $1.m_name;
+			}
+	;
+
 //..............................................................................
 
 // item declarations
@@ -221,21 +227,7 @@ item_declaration_w_specifier
 	;
 
 item_declaration_wo_specifier
-	local
-	{
-		Declarator $declarator;
-	}
-	enter
-	{
-		$declarator.setTypeSpecifier (NULL, m_module);
-	}
-	:	declarator_prefix <&$declarator>*
-		declarator_name <&$declarator>
-		function_suffix <&$declarator>
-		declarator_suffix <&$declarator>*
-			{
-				return declare (&$declarator);
-			}
+	:	declarator_list <NULL>
 		declaration_terminator <NULL>
 	;
 

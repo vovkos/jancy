@@ -198,6 +198,15 @@ public:
 		return addItem (item->m_name, item);
 	}
 
+	void
+	replaceItem (
+		const sl::StringRef& name,
+		ModuleItem* item
+		)
+	{
+		m_itemMap.visit (name)->m_value = item;
+	}
+
 	size_t
 	addFunction (Function* function); // returns overload idx or -1 on error
 

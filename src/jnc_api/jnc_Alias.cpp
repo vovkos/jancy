@@ -27,10 +27,10 @@
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-const char*
-jnc_Alias_getInitializerString_v (jnc_Alias* alias)
+jnc_ModuleItem*
+jnc_Alias_getTargetItem (jnc_Alias* alias)
 {
-	return *jnc::getTlsStringBuffer () = alias->getInitializerString ();
+	return alias->getTargetItem ();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

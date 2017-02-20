@@ -49,12 +49,12 @@ enum TokenKind
 	TokenKind_Public,
 	TokenKind_Protected,
 	TokenKind_Alignment,
+	TokenKind_Alias,
 	TokenKind_SetAs,
 
 	// storage specifiers
 
 	TokenKind_Typedef,
-	TokenKind_Alias,
 	TokenKind_Static,
 	TokenKind_ThreadLocal,
 	TokenKind_Abstract,
@@ -240,12 +240,12 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
 	AXL_LEX_TOKEN_NAME (TokenKind_Alignment,    "alignment")
+	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")
 
 	// storage specifiers
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Typedef,      "typedef")
-	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (TokenKind_Static,       "static")
 	AXL_LEX_TOKEN_NAME (TokenKind_ThreadLocal,  "threadlocal")
 	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")

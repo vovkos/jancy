@@ -418,14 +418,6 @@ OperatorMgr::getPropertyField (
 		resultValue->setVariable ((Variable*) member);
 		return true;
 
-	case ModuleItemKind_Alias:
-		return evaluateAlias (
-			(Alias*) member,
-			opValue.getClosure (),
-			((Alias*) member)->getInitializer (),
-			resultValue
-			);
-
 	default:
 		ASSERT (false);
 	}

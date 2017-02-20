@@ -712,6 +712,34 @@ public:
 		);
 
 	bool
+	parseFunctionArgDefaultValue (
+		ModuleItemDecl* decl,
+		const sl::ConstBoxList <Token> tokenList,
+		Value* resultValue
+		);
+
+	bool
+	parseFunctionArgDefaultValue (
+		ModuleItemDecl* decl,
+		const Value& thisValue,
+		const sl::ConstBoxList <Token> tokenList,
+		Value* resultValue
+		);
+
+	bool
+	parseFunctionArgDefaultValue (
+		ModuleItemDecl* decl,
+		Closure* closure,
+		const sl::ConstBoxList <Token> tokenList,
+		Value* resultValue
+		)
+	{
+		return closure && closure->isMemberClosure () ?
+			parseFunctionArgDefaultValue (decl, closure->getThisArgValue (), tokenList, resultValue) :
+			parseFunctionArgDefaultValue (decl, Value (), tokenList, resultValue);
+	}
+
+	bool
 	parseExpression (
 		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
@@ -814,34 +842,6 @@ public:
 		)
 	{
 		return newOperator (type, Value (), argValueList, resultValue);
-	}
-
-	bool
-	evaluateAlias (
-		ModuleItemDecl* decl,
-		const sl::ConstBoxList <Token> tokenList,
-		Value* resultValue
-		);
-
-	bool
-	evaluateAlias (
-		ModuleItemDecl* decl,
-		const Value& thisValue,
-		const sl::ConstBoxList <Token> tokenList,
-		Value* resultValue
-		);
-
-	bool
-	evaluateAlias (
-		ModuleItemDecl* decl,
-		Closure* closure,
-		const sl::ConstBoxList <Token> tokenList,
-		Value* resultValue
-		)
-	{
-		return closure && closure->isMemberClosure () ?
-			evaluateAlias (decl, closure->getThisArgValue (), tokenList, resultValue) :
-			evaluateAlias (decl, Value (), tokenList, resultValue);
 	}
 
 	// member operators

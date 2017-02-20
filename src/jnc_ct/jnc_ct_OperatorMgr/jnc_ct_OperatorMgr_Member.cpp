@@ -225,6 +225,13 @@ OperatorMgr::getNamespaceMember (
 	Function* function;
 
 	ModuleItemKind itemKind = item->getItemKind ();
+	if (itemKind == ModuleItemKind_Alias)
+	{
+		item = ((Alias*) item)->getTargetItem ();
+		itemKind = item->getItemKind ();
+		ASSERT (itemKind != ModuleItemKind_Alias); // should have been resolved at calclayout stage
+	}
+	
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -246,15 +253,6 @@ OperatorMgr::getNamespaceMember (
 
 		resultValue->setNamespace ((NamedType*) item);
 		decl = (NamedType*) item;
-		break;
-
-	case ModuleItemKind_Alias:
-		result = evaluateAlias (
-			(Alias*) item,
-			((Alias*) item)->getInitializer (),
-			resultValue
-			);
-		decl = (Alias*) item;
 		break;
 
 	case ModuleItemKind_Variable:
@@ -432,16 +430,6 @@ OperatorMgr::getNamedTypeMember (
 		resultValue->setProperty ((Property*) member);
 		decl = (Property*) member;
 		break;
-
-	case ModuleItemKind_Alias:
-		return
-			checkAccess ((Alias*) member) &&
-			evaluateAlias (
-				(Alias*) member,
-				opValue,
-				((Alias*) member)->getInitializer (),
-				resultValue
-				);
 
 	default:
 		err::setFormatStringError ("invalid member kind");

@@ -23,22 +23,21 @@ class Alias:
 	public ModuleItemDecl,
 	public ModuleItemInitializer
 {
-	friend class VariableMgr;
+	friend class NamespaceMgr;
 
 protected:
+	ModuleItem* m_targetItem;
 	Type* m_type;
+	uint_t m_ptrTypeFlags;
 
 public:
-	Alias ()
-	{
-		m_itemKind = ModuleItemKind_Alias;
-		m_type = NULL;
-	}
+	Alias ();
 
-	Type*
-	getType ()
+	ModuleItem*
+	getTargetItem ()
 	{
-		return m_type;
+		ASSERT (m_targetItem);
+		return m_targetItem;
 	}
 
 	virtual
@@ -48,6 +47,11 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
+
+protected:
+	virtual
+	bool
+	calcLayout ();
 };
 
 //..............................................................................

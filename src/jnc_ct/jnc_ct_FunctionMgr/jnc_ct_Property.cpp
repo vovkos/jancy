@@ -139,13 +139,22 @@ Property::create (PropertyType* type)
 }
 
 bool
-Property::setOnChanged (ModuleItem* item)
+Property::setOnChanged (
+	ModuleItem* item,
+	bool isForced
+	)
 {
-	if (m_onChanged)
+	if (m_onChanged && !isForced)
 	{
 		err::setFormatStringError ("'%s' already has 'bindable %s'", m_tag.sz (), m_onChanged->m_tag.sz ());
 		return false;
 	}
+
+	m_onChanged = item;
+	m_flags |= PropertyFlag_Bindable;
+
+	if (item->getItemKind () == ModuleItemKind_Alias)
+		return true; // will be fixed up later
 
 	Type* type = getModuleItemType (item);
 	if (!type)
@@ -153,9 +162,6 @@ Property::setOnChanged (ModuleItem* item)
 		err::setFormatStringError ("invalid bindable item");
 		return false;
 	}
-
-	m_onChanged = item;
-	m_flags |= PropertyFlag_Bindable;
 
 	FunctionType* binderType = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_Binder);
 	Function* binder = m_module->m_functionMgr.createFunction (FunctionKind_Binder, binderType);
@@ -200,13 +206,22 @@ Property::createOnChanged ()
 }
 
 bool
-Property::setAutoGetValue (ModuleItem* item)
+Property::setAutoGetValue (
+	ModuleItem* item,
+	bool isForced
+	)
 {
-	if (m_autoGetValue)
+	if (m_autoGetValue && !isForced)
 	{
 		err::setFormatStringError ("'%s' already has 'autoget %s'", m_tag.sz (), m_autoGetValue->m_tag.sz ());
 		return false;
 	}
+
+	m_autoGetValue = item;
+	m_flags |= PropertyFlag_AutoGet;
+
+	if (item->getItemKind () == ModuleItemKind_Alias)
+		return true; // will be fixed up later
 
 	Type* type = getModuleItemType (item);
 	if (!type)
@@ -214,9 +229,6 @@ Property::setAutoGetValue (ModuleItem* item)
 		err::setFormatStringError ("invalid autoget item");
 		return false;
 	}
-
-	m_autoGetValue = item;
-	m_flags |= PropertyFlag_AutoGet;
 
 	FunctionType* getterType = m_module->m_typeMgr.getFunctionType (type, NULL, 0, 0);
 
@@ -560,6 +572,29 @@ Property::calcLayout ()
 
 	ASSERT (m_storageKind && m_vtable.isEmpty ());
 
+	if (m_autoGetValue && m_autoGetValue->getItemKind () == ModuleItemKind_Alias)
+	{
+		Alias* alias = (Alias*) m_autoGetValue;
+		result = alias->ensureLayout () && setAutoGetValue (alias->getTargetItem (), true);
+		if (!result)
+			return false;
+
+		ASSERT (m_autoGetValue->getItemKind () != ModuleItemKind_Alias);
+	}
+
+	if (m_onChanged && m_onChanged->getItemKind () == ModuleItemKind_Alias)
+	{
+		Alias* alias = (Alias*) m_onChanged;
+		result = alias->ensureLayout () && setOnChanged (alias->getTargetItem (), true);
+		if (!result)
+			return false;
+
+		ASSERT (m_onChanged->getItemKind () != ModuleItemKind_Alias);
+	}
+	
+	if (!m_type)
+		createType ();
+
 	size_t setterCount = m_setter ? m_setter->getOverloadCount () : 0;
 
 	m_vtable.reserve (2 + setterCount);
@@ -591,6 +626,30 @@ Property::calcLayout ()
 
 	createVTableVariable ();
 	return true;
+}
+
+PropertyType*
+Property::createType ()
+{
+	ASSERT (!m_type);
+
+	uint_t typeFlags = 0;
+	if (m_onChanged)
+		typeFlags |= PropertyTypeFlag_Bindable;
+
+	m_type = m_setter ?
+		m_module->m_typeMgr.getPropertyType (
+			m_getter->getType (),
+			*m_setter->getTypeOverload (),
+			typeFlags
+			) :
+		m_module->m_typeMgr.getPropertyType (
+			m_getter->getType (),
+			NULL,
+			typeFlags
+			);
+
+	return m_type;
 }
 
 void

@@ -1,1 +1,1 @@
-#include "../jnc_ct_VariableMgr/jnc_ct_Alias.h"
+#include "../jnc_ct_NamespaceMgr/jnc_ct_Alias.h"

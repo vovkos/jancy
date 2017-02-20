@@ -13,13 +13,13 @@ printUsbIfaceDesc (io.UsbInterfaceDesc const* ifaceDesc)
 	printf ("    Interface:   %d\n", ifaceDesc.m_interfaceId);
 	printf ("    Alt setting: %d\n", ifaceDesc.m_altSettingId);
 	printf ("    Class:       %02x/%02x (%s)\n", ifaceDesc.m_class, ifaceDesc.m_subClass, io.getUsbClassString (ifaceDesc.m_class));
-	printf ("    Protocol:    %d\n", ifaceDesc->m_protocol);
-	printf ("    Endpoints:   %d\n", ifaceDesc->m_endpointCount);
+	printf ("    Protocol:    %d\n", ifaceDesc.m_protocol);
+	printf ("    Endpoints:   %d\n", ifaceDesc.m_endpointCount);
 
 	for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++)
 	{
 		printf ("\n");
-		printUsbEndpointDesc (&ifaceDesc->m_endpointTable [i]);
+		printUsbEndpointDesc (&ifaceDesc.m_endpointTable [i]);
 	}
 }
 

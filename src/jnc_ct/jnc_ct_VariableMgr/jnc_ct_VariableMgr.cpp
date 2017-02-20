@@ -33,7 +33,6 @@ void
 VariableMgr::clear ()
 {
 	m_variableList.clear ();
-	m_aliasList.clear ();
 	m_staticVariableArray.clear ();
 	m_staticGcRootArray.clear ();
 	m_globalStaticVariableArray.clear ();
@@ -569,32 +568,6 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type);
 
 	return variable;
-}
-
-Alias*
-VariableMgr::createAlias (
-	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
-	Type* type,
-	sl::BoxList <Token>* initializer
-	)
-{
-	ASSERT (initializer);
-
-	Alias* alias = AXL_MEM_NEW (Alias);
-	alias->m_module = m_module;
-	alias->m_name = name;
-	alias->m_qualifiedName = qualifiedName;
-	alias->m_tag = qualifiedName;
-	alias->m_type = type;
-	alias->m_initializer.takeOver (initializer);
-
-	m_aliasList.insertTail (alias);
-
-	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-		((ImportType*) type)->addFixup (&alias->m_type);
-
-	return alias;
 }
 
 bool

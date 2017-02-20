@@ -41,7 +41,7 @@ declaration_specifier <TypeSpecifier* $typeSpecifier>
 			}
 	|	type_modifier
 			{
-				return $typeSpecifier->setTypeModifier ($1.m_typeModifier);
+				return $typeSpecifier->addTypeModifier ($1.m_typeModifier);
 			}
 	;
 
@@ -70,7 +70,7 @@ type_specifier_modifier <TypeSpecifier* $typeSpecifier>
 			}
 	|	type_modifier
 			{
-				return $typeSpecifier->setTypeModifier ($1.m_typeModifier);
+				return $typeSpecifier->addTypeModifier ($1.m_typeModifier);
 			}
 	;
 

@@ -164,9 +164,6 @@ ModuleItem::getType ()
 	case ModuleItemKind_Typedef:
 		return ((ct::Typedef*) this)->getType ();
 
-	case ModuleItemKind_Alias:
-		return ((ct::Alias*) this)->getType ();
-
 	case ModuleItemKind_Const:
 		return ((ct::Const*) this)->getValue ().getType ();
 

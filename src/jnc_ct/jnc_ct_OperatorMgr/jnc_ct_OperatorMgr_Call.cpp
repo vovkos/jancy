@@ -447,7 +447,7 @@ OperatorMgr::castArgValueList (
 				return false;
 			}
 
-			result = evaluateAlias (arg, closure, initializer, &argValue);
+			result = parseFunctionArgDefaultValue (arg, closure, initializer, &argValue);
 			if (!result)
 				return false;
 		}
@@ -480,7 +480,7 @@ OperatorMgr::castArgValueList (
 			return false;
 		}
 
-		result = evaluateAlias (arg, closure, initializer, &argValue);
+		result = parseFunctionArgDefaultValue (arg, closure, initializer, &argValue);
 		if (!result)
 			return false;
 

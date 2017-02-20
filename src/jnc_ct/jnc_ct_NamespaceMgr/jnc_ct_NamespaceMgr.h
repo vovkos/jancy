@@ -14,6 +14,7 @@
 #include "jnc_ct_Namespace.h"
 #include "jnc_ct_Scope.h"
 #include "jnc_ct_Orphan.h"
+#include "jnc_ct_Alias.h"
 
 namespace jnc {
 namespace ct {
@@ -46,6 +47,7 @@ protected:
 	sl::StdList <DynamicLibNamespace> m_dynamicLibNamespaceList;
 	sl::StdList <Scope> m_scopeList;
 	sl::StdList <Orphan> m_orphanList;
+	sl::StdList <Alias> m_aliasList;
 
 	sl::Array <NamespaceStackEntry> m_namespaceStack;
 
@@ -85,6 +87,15 @@ public:
 
 	bool
 	resolveOrphans ();
+
+	Alias*
+	createAlias (
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		Type* type,
+		uint_t ptrTypeFlags,
+		sl::BoxList <Token>* initializer
+		);
 
 	void
 	lockSourcePos ()

@@ -31,7 +31,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 		"named-function",           // jnc_FunctionKind_Named,
 		"get",                      // jnc_FunctionKind_Getter,
 		"set",                      // jnc_FunctionKind_Setter,
-		"bind",                     // jnc_FunctionKind_Binder,
+		"bindingof",                // jnc_FunctionKind_Binder,
 		"preconstruct",             // jnc_FunctionKind_PreConstructor,
 		"construct",                // jnc_FunctionKind_Constructor,
 		"destruct",                 // jnc_FunctionKind_Destructor,
@@ -65,7 +65,8 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 		0,                                  // jnc_FunctionKind_Named,
 		jnc_FunctionKindFlag_NoOverloads,   // jnc_FunctionKind_Getter,
 		0,                                  // jnc_FunctionKind_Setter,
-		0,                                  // jnc_FunctionKind_Binder,
+		jnc_FunctionKindFlag_NoOverloads |  // jnc_FunctionKind_Binder,
+		jnc_FunctionKindFlag_NoArgs,
 		jnc_FunctionKindFlag_NoStorage   |  // jnc_FunctionKind_PreConstructor,
 		jnc_FunctionKindFlag_NoOverloads |
 		jnc_FunctionKindFlag_NoArgs,

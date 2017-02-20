@@ -9,55 +9,22 @@
 //
 //..............................................................................
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class C1
-{
-	enum Def
-	{
-		X = 10,
-		Y = 20
-	}
-
-	int m_member = 500;
-
-	foo (
-		int x = Def.X,
-		int y = bar ()
-		)
-	{
-		printf ("C1.foo (%d, %d)\n", x, y);
-	}
-
-	int bar ()
-	{
-		return m_member;
-	}
-}
-
 class C2
 {
-	int m_classValue;
-	event m_classOnChanged ();
-
 	property m_prop
 	{
-		int get ()
-		{
-			return m_classValue;
-		}
+		autoget alias m_value = m_classValue;
+		bindable alias m_onChanged = m_classOnChanged;
 		
 		set (int x)
 		{
-			m_classValue = x;
-			m_classOnChanged ();
-		}
-
-		event* getbinding () ()
-		{
-			return &m_classOnChanged;
+			m_value = x;
+			m_onChanged ();
 		}
 	}
+
+	int m_classValue;
+	event m_classOnChanged ();
 }
 
 foo ()
@@ -65,13 +32,20 @@ foo ()
 	printf ("foo ()\n");
 }
 
+foo (int x)
+{
+	printf ("foo (%d)\n", x);
+}
+
+alias bar = foo;
+
 int main ()
 {
-	C1 c1;
-	c1.foo (1);
+	bar ();
+	bar (100);
 
 	C2 c2;
-	c2.m_classOnChanged += foo;
+	bindingof (c2.m_prop) += foo;
 	c2.m_prop = 555;
 
 	printf ("m_classValue = %d\n", c2.m_classValue);

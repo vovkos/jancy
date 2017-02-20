@@ -125,7 +125,6 @@ statement
 	|	throw_stmt
 	|	unsafe_stmt
 	|	assert_stmt
-	|	';'
 	;
 
 start

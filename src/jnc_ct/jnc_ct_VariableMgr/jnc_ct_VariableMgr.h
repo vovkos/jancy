@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_Variable.h"
-#include "jnc_ct_Alias.h"
 
 namespace jnc {
 namespace ct {
@@ -31,7 +30,6 @@ protected:
 	Module* m_module;
 
 	sl::StdList <Variable> m_variableList;
-	sl::StdList <Alias> m_aliasList;
 	sl::Array <Variable*> m_staticVariableArray;
 	sl::Array <Variable*> m_staticGcRootArray;
 	sl::Array <Variable*> m_globalStaticVariableArray;
@@ -131,14 +129,6 @@ public:
 
 	Variable*
 	createArgVariable (FunctionArg* arg);
-
-	Alias*
-	createAlias (
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
-		Type* type,
-		sl::BoxList <Token>* initializer
-		);
 
 	bool
 	createTlsStructType ();

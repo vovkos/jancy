@@ -85,7 +85,7 @@ int main ()
 		printf ("not supposed to get here\n");
 
 	catch:
-		printf ("error (%s)\n", std.getLastError ()->m_description);
+		printf ("error (%s)\n", std.getLastError ().m_description);
 
 	finally:
 		printf ("try-block finalization\n");

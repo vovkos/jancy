@@ -203,6 +203,47 @@ OperatorMgr::parseInitializer (
 }
 
 bool
+OperatorMgr::parseFunctionArgDefaultValue (
+	ModuleItemDecl* decl,
+	const Value& thisValue,
+	const sl::ConstBoxList <Token> tokenList,
+	Value* resultValue
+	)
+{
+	Value prevThisValue = m_module->m_functionMgr.overrideThisValue (thisValue);
+	bool result = parseFunctionArgDefaultValue (decl, tokenList, resultValue);
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.overrideThisValue (prevThisValue);
+	return true;
+}
+
+bool
+OperatorMgr::parseFunctionArgDefaultValue (
+	ModuleItemDecl* decl,
+	const sl::ConstBoxList <Token> tokenList,
+	Value* resultValue
+	)
+{
+	Parser parser (m_module);
+	parser.m_stage = Parser::Stage_Pass2;
+
+	m_module->m_namespaceMgr.openNamespace (decl->getParentNamespace ());
+	m_module->m_namespaceMgr.lockSourcePos ();
+
+	bool result = parser.parseTokenList (SymbolKind_expression_save_value, tokenList);
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.unlockSourcePos ();
+	m_module->m_namespaceMgr.closeNamespace ();
+
+	*resultValue = parser.m_expressionValue;
+	return true;
+}
+
+bool
 OperatorMgr::parseExpression (
 	Unit* unit,
 	const sl::ConstBoxList <Token>& expressionTokenList,
@@ -363,47 +404,6 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer (const sl::ConstBoxList <Token>&
 	}
 
 	return elementCount;
-}
-
-bool
-OperatorMgr::evaluateAlias (
-	ModuleItemDecl* decl,
-	const Value& thisValue,
-	const sl::ConstBoxList <Token> tokenList,
-	Value* resultValue
-	)
-{
-	Value prevThisValue = m_module->m_functionMgr.overrideThisValue (thisValue);
-	bool result = evaluateAlias (decl, tokenList, resultValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.overrideThisValue (prevThisValue);
-	return true;
-}
-
-bool
-OperatorMgr::evaluateAlias (
-	ModuleItemDecl* decl,
-	const sl::ConstBoxList <Token> tokenList,
-	Value* resultValue
-	)
-{
-	Parser parser (m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-
-	m_module->m_namespaceMgr.openNamespace (decl->getParentNamespace ());
-	m_module->m_namespaceMgr.lockSourcePos ();
-
-	bool result = parser.parseTokenList (SymbolKind_expression_save_value, tokenList);
-	if (!result)
-		return false;
-
-	m_module->m_namespaceMgr.unlockSourcePos ();
-	m_module->m_namespaceMgr.closeNamespace ();
-
-	*resultValue = parser.m_expressionValue;
-	return true;
 }
 
 bool

@@ -95,7 +95,7 @@ TypeModifiers::takeOver (TypeModifiers* src)
 }
 
 bool
-TypeModifiers::setTypeModifier (TypeModifier modifier)
+TypeModifiers::addTypeModifier (TypeModifier modifier)
 {
 	static
 	uint_t
@@ -341,7 +341,7 @@ Declarator::addUnnamedMethod (FunctionKind functionKind)
 bool
 Declarator::addCastOperator (Type* type)
 {
-	m_declaratorKind = DeclaratorKind_CastOperator;
+	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = FunctionKind_CastOperator;
 	m_castOpType = type;
 	return false;
@@ -369,34 +369,6 @@ Declarator::addUnaryBinaryOperator (
 	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
 	m_unOpKind = unOpKind;
 	m_binOpKind = binOpKind;
-	return true;
-}
-
-bool
-Declarator::addOperatorVararg ()
-{
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
-	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
-		return false;
-	}
-
-	m_declaratorKind = DeclaratorKind_OperatorVararg;
-	m_functionKind = FunctionKind_OperatorVararg;
-	return true;
-}
-
-bool
-Declarator::addOperatorCdeclVararg ()
-{
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
-	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
-		return false;
-	}
-
-	m_declaratorKind = DeclaratorKind_OperatorCdeclVararg;
-	m_functionKind = FunctionKind_OperatorCdeclVararg;
 	return true;
 }
 

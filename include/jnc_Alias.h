@@ -15,14 +15,14 @@
 
 #include "jnc_Type.h"
 
-/// \addtogroup variable
+/// \addtogroup namespace
 /// @{
 
 //..............................................................................
 
 JNC_EXTERN_C
-const char*
-jnc_Alias_getInitializerString_v (jnc_Alias* alias);
+jnc_ModuleItem*
+jnc_Alias_getTargetItem (jnc_Alias* alias);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -30,10 +30,10 @@ jnc_Alias_getInitializerString_v (jnc_Alias* alias);
 
 struct jnc_Alias: jnc_ModuleItem
 {
-	const char*
-	getInitializerString_v ()
-	{
-		return jnc_Alias_getInitializerString_v (this);
+	jnc_ModuleItem*
+	getTargetItem ()
+	{	
+		return jnc_Alias_getTargetItem (this);
 	}
 };
 

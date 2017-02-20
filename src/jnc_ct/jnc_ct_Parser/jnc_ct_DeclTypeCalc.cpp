@@ -170,7 +170,9 @@ DeclTypeCalc::calcType (
 		if (!type)
 			return NULL;
 	}
-	else if (m_typeModifiers & TypeModifier_Bindable)
+	else if (
+		(m_typeModifiers & TypeModifier_Bindable) && 
+		type->getTypeKind () != TypeKind_Void) // bindable aliases
 	{
 		type = getBindableDataType (type);
 		if (!type)
@@ -366,15 +368,7 @@ DeclTypeCalc::getPtrTypeFlags (
 	}
 
 	if (m_typeModifiers & TypeModifier_Bindable)
-	{
-		if (!isClassType (type, ClassTypeKind_Multicast))
-		{
-			err::setFormatStringError ("'bindable' cannot be applied to '%s'", type->getTypeString ().sz ());
-			return false;
-		}
-
 		flags |= PtrTypeFlag_Bindable;
-	}
 
 	if (m_typeModifiers & TypeModifier_AutoGet)
 		flags |= PtrTypeFlag_AutoGet;

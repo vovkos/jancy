@@ -120,7 +120,10 @@ public:
 	}
 
 	bool
-	setOnChanged (ModuleItem* item);
+	setOnChanged (
+		ModuleItem* item,
+		bool isForced = false
+		);
 
 	bool
 	createOnChanged ();
@@ -132,7 +135,10 @@ public:
 	}
 
 	bool
-	setAutoGetValue (ModuleItem* item); // struct-field or variable
+	setAutoGetValue (
+		ModuleItem* item,
+		bool isForced = false
+		); // struct-field or variable
 
 	bool
 	createAutoGetValue (Type* type);
@@ -163,6 +169,9 @@ public:
 
 	bool
 	create (PropertyType* type);
+
+	PropertyType*
+	createType ();
 
 	virtual
 	bool

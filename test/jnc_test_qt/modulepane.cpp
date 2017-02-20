@@ -366,7 +366,11 @@ void ModulePane::addProperty (QTreeWidgetItem *parent, jnc::Property* prop)
 void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias)
 {
 	QString name;
-	name.sprintf ("alias %s = %s", alias->getDecl ()->getName (), alias->getInitializerString_v ());
+	name.sprintf (
+		"alias %s = %s", 
+		alias->getDecl ()->getName (), 
+		alias->getTargetItem ()->getDecl ()->getQualifiedName ()
+		);
 
 	QTreeWidgetItem *item = insertItem (name, parent);
 	item->setData (0, Qt::UserRole, qVariantFromValue((void*) alias->getDecl ()));

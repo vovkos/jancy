@@ -612,7 +612,7 @@ Parser::declareInReactorStarter (Declarator* declarator)
 	if (declarator->m_initializer.isEmpty ())
 		return true;
 
-	Token token;	
+	Token token;
 	token.m_pos = declarator->m_initializer.getTail ()->m_pos;
 	token.m_tokenKind = (TokenKind) ';';
 	declarator->m_initializer.insertTail (token);
@@ -749,8 +749,6 @@ Parser::declareTypedef (
 {
 	ASSERT (m_storageKind == StorageKind_Typedef);
 
-	bool result;
-
 	if (!declarator->isSimple ())
 	{
 		err::setFormatStringError ("invalid typedef declarator");
@@ -802,11 +800,7 @@ Parser::declareTypedef (
 
 	assignDeclarationAttributes (item, decl, declarator);
 
-	result = nspace->addItem (name, item);
-	if (!result)
-		return false;
-
-	return true;
+	return nspace->addItem (name, item);
 }
 
 bool
@@ -837,17 +831,19 @@ Parser::declareAlias (
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
-
 	sl::String name = declarator->getName ()->getShortName ();
 	sl::String qualifiedName = nspace->createQualifiedName (name);
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
-	Alias* alias = m_module->m_variableMgr.createAlias (name, qualifiedName, type, initializer);
-	assignDeclarationAttributes (alias, alias, declarator);
+	Alias* alias = m_module->m_namespaceMgr.createAlias (
+		name, 
+		qualifiedName, 
+		type, 
+		ptrTypeFlags, 
+		initializer
+		);
 
-	result = nspace->addItem (alias);
-	if (!result)
-		return false;
+	assignDeclarationAttributes (alias, alias, declarator);
 
 	if (nspace->getNamespaceKind () == NamespaceKind_Property)
 	{
@@ -867,7 +863,7 @@ Parser::declareAlias (
 		}
 	}
 
-	return true;
+	return nspace->addItem (alias);
 }
 
 bool
@@ -1288,11 +1284,23 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize getter
 
-	if (!prop->m_getter)
+	if (prop->m_getter)
+	{
+		if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp (prop->m_getter->getType ()) != 0)
+		{
+			err::setFormatStringError ("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString ().sz ());
+			return false;
+		}
+	}
+	else if (prop->m_autoGetValue)
+	{
+		ASSERT (prop->m_autoGetValue->getItemKind () == ModuleItemKind_Alias); // otherwise, getter would have been created
+	}
+	else
 	{
 		if (!m_lastPropertyGetterType)
 		{
-			err::setFormatStringError ("incomplete property: no 'get' method or autoget field");
+			err::setFormatStringError ("incomplete property: no 'get' method or 'autoget' field");
 			return false;
 		}
 
@@ -1302,11 +1310,6 @@ Parser::finalizeLastProperty (bool hasBody)
 		result = prop->addMethod (getter);
 		if (!result)
 			return false;
-	}
-	else if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp (prop->m_getter->getType ()) != 0)
-	{
-		err::setFormatStringError ("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString ().sz ());
-		return false;
 	}
 
 	// finalize setter
@@ -1360,21 +1363,8 @@ Parser::finalizeLastProperty (bool hasBody)
 		}
 	}
 
-	uint_t typeFlags = 0;
-	if (prop->m_onChanged)
-		typeFlags |= PropertyTypeFlag_Bindable;
-
-	prop->m_type = prop->m_setter ?
-		m_module->m_typeMgr.getPropertyType (
-			prop->m_getter->getType (),
-			*prop->m_setter->getTypeOverload (),
-			typeFlags
-			) :
-		m_module->m_typeMgr.getPropertyType (
-			prop->m_getter->getType (),
-			NULL,
-			typeFlags
-			);
+	if (prop->m_getter)
+		prop->createType ();
 
 	if (prop->m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
 		m_module->markForCompile (prop);
@@ -2715,13 +2705,6 @@ Parser::lookupIdentifier (
 		value->setNamespace ((NamedType*) item);
 		break;
 
-	case ModuleItemKind_Alias:
-		return m_module->m_operatorMgr.evaluateAlias (
-			(Alias*) item,
-			((Alias*) item)->getInitializer (),
-			value
-			);
-
 	case ModuleItemKind_Const:
 		*value = ((Const*) item)->getValue ();
 		break;
@@ -2793,7 +2776,7 @@ Parser::lookupIdentifier (
 			return false;
 		}
 
-		result = 
+		result =
 			m_module->m_operatorMgr.getThisValue (&thisValue, (StructField*) item) &&
 			m_module->m_operatorMgr.getField (thisValue, (StructField*) item, &coord, value);
 

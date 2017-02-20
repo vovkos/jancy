@@ -189,7 +189,7 @@ public:
 	}
 
 	bool
-	setTypeModifier (TypeModifier modifier);
+	addTypeModifier (TypeModifier modifier);
 
 	int
 	clearTypeModifiers (int modifierMask);
@@ -377,9 +377,6 @@ enum DeclaratorKind
 	DeclaratorKind_Name,
 	DeclaratorKind_UnnamedMethod,
 	DeclaratorKind_UnaryBinaryOperator,
-	DeclaratorKind_CastOperator,
-	DeclaratorKind_OperatorVararg,
-	DeclaratorKind_OperatorCdeclVararg,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -555,12 +552,6 @@ public:
 		UnOpKind unOpKind,
 		BinOpKind binOpKind
 		);
-
-	bool
-	addOperatorVararg ();
-
-	bool
-	addOperatorCdeclVararg ();
 
 	void
 	addPointerPrefix ();

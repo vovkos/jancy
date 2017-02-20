@@ -63,6 +63,7 @@ NamespaceMgr::clear ()
 	m_dynamicLibNamespaceList.clear ();
 	m_scopeList.clear ();
 	m_orphanList.clear ();
+	m_aliasList.clear ();
 	m_namespaceStack.clear ();
 	m_currentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
 	m_currentScope = NULL;
@@ -133,6 +134,30 @@ NamespaceMgr::resolveOrphans ()
 	}
 
 	return true;
+}
+
+Alias*
+NamespaceMgr::createAlias (
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	Type* type,
+	uint_t ptrTypeFlags,
+	sl::BoxList <Token>* initializer
+	)
+{
+	Alias* alias = AXL_MEM_NEW (Alias);
+	alias->m_module = m_module;
+	alias->m_name = name;
+	alias->m_qualifiedName = qualifiedName;
+	alias->m_tag = qualifiedName;
+	alias->m_type = type;
+	alias->m_ptrTypeFlags = ptrTypeFlags;
+	alias->m_initializer.takeOver (initializer);
+	m_aliasList.insertTail (alias);
+
+	m_module->markForLayout (alias);
+
+	return alias;
 }
 
 void

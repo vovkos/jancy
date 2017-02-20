@@ -104,6 +104,7 @@ public:
 class Function:
 	public ModuleItem,
 	public ModuleItemDecl,
+	public ModuleItemInitializer,
 	public FunctionName
 {
 	friend class Module;

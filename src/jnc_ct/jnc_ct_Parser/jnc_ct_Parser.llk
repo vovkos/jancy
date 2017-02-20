@@ -154,6 +154,7 @@ Members
 	Value m_expressionValue;
 	sl::BoxList <Value> m_expressionValueList;
 	NamedType* m_namedType;
+	QualifiedName m_qualifiedName;
 }
 
 Members2
