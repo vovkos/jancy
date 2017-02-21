@@ -1,0 +1,41 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+class C2
+{
+	int get (int i)
+	{
+		printf ("C2.get (%d)\n", i);
+		return i * 10;
+	}
+
+	set (
+		int i, 
+		int value
+		)
+	{
+		printf ("C2.get (%d, %d)\n", i, value);
+	}
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	C2 c;
+	c [10] = 100;
+	int x = c [20];
+	printf ("x = %d\n", x);
+
+	return 0;
+}
+
+//..............................................................................

@@ -72,7 +72,7 @@ PropertyTemplate::calcType ()
 {
 	if (!m_getterType)
 	{
-		err::setFormatStringError ("incomplete property template: no 'get' method");
+		err::setFormatStringError ("incomplete property: no 'get' method or 'autoget' field");
 		return NULL;
 	}
 

@@ -69,7 +69,13 @@ BinOp_Idx::getResultType (
 	case TypeKind_PropertyPtr:
 		return getPropertyIndexResultType (opValue1, opValue2);
 
+	case TypeKind_ClassPtr:
+		return getDerivableTypeIndexResultType (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2);		
+
 	default:
+		if (opType1->getTypeKindFlags () & TypeKindFlag_Derivable)
+			return getDerivableTypeIndexResultType ((DerivableType*) opType1, opValue1, opValue2);		
+
 		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ());
 		return NULL;
 	}
@@ -132,7 +138,13 @@ BinOp_Idx::op (
 	case TypeKind_PropertyPtr:
 		return propertyIndexOperator (opValue1, opValue2, resultValue);
 
+	case TypeKind_ClassPtr:
+		return derivableTypeIndexOperator (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2, resultValue);		
+
 	default:
+		if (opType1->getTypeKindFlags () & TypeKindFlag_Derivable)
+			return derivableTypeIndexOperator ((DerivableType*) opType1, opValue1, opValue2, resultValue);
+
 		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ());
 		return false;
 	}
@@ -300,6 +312,60 @@ BinOp_Idx::getPropertyIndexResultType (
 	Value resultValue;
 	propertyIndexOperator (rawOpValue1, rawOpValue2, &resultValue);
 	return resultValue.getClosure ()->getClosureType (rawOpValue1.getType ());
+}
+
+Type*
+BinOp_Idx::getDerivableTypeIndexResultType (
+	DerivableType* derivableType, 
+	const Value& opValue1,
+	const Value& opValue2
+	)
+{
+	Property* prop = getDerivableTypeIndexerProperty (derivableType, opValue2);
+	if (!prop)
+		return NULL;
+
+	Value resultValue = prop;
+	Closure* closure = resultValue.createClosure ();
+	closure->getArgValueList ()->insertTail (opValue1);
+	closure->getArgValueList ()->insertTail (opValue2);
+
+	return closure->getClosureType (prop->getType ());
+}
+
+bool
+BinOp_Idx::derivableTypeIndexOperator (
+	DerivableType* derivableType, 
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+	)
+{
+	Property* prop = getDerivableTypeIndexerProperty (derivableType, opValue2);
+	if (!prop)
+		return false;
+
+	resultValue->setProperty (prop);
+	Closure* closure = resultValue->createClosure ();
+	closure->getArgValueList ()->insertTail (opValue1);
+	closure->getArgValueList ()->insertTail (opValue2);
+
+	return true;
+}
+
+Property*
+BinOp_Idx::getDerivableTypeIndexerProperty (
+	DerivableType* derivableType,
+	const Value& opValue2
+	)
+{
+	if (!derivableType->hasIndexerProperties ())
+	{
+		err::setFormatStringError ("'%s' has no indexer properties", derivableType->getTypeString ().sz ());
+		return NULL;
+	}
+
+	return derivableType->chooseIndexerProperty (opValue2);
 }
 
 //..............................................................................

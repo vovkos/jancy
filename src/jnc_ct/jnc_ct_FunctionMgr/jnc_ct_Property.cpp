@@ -591,6 +591,12 @@ Property::calcLayout ()
 
 		ASSERT (m_onChanged->getItemKind () != ModuleItemKind_Alias);
 	}
+
+	if (!m_getter)
+	{
+		err::setFormatStringError ("incomplete property: no 'get' method or 'autoget' field");
+		return false;
+	}
 	
 	if (!m_type)
 		createType ();

@@ -152,6 +152,7 @@ protected:
 	Function* m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
+	sl::StringHashTableMap <Property*> m_indexerPropertyMap;
 
 public:
 	DerivableType ();
@@ -273,6 +274,15 @@ public:
 		return m_operatorCdeclVararg;
 	}
 
+	bool
+	hasIndexerProperties ()
+	{
+		return !m_indexerPropertyMap.isEmpty ();
+	}
+
+	Property*
+	chooseIndexerProperty (const Value& opValue);
+
 	StructField*
 	getFieldByIndex (size_t index);
 
@@ -299,6 +309,9 @@ public:
 		);
 
 protected:
+	Property*
+	getIndexerProperty (Type* argType);
+
 	ModuleItem*
 	findItemInExtensionNamespaces (const sl::StringRef& name);
 

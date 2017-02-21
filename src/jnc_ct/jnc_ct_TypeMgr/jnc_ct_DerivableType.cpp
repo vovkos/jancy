@@ -126,6 +126,59 @@ DerivableType::getDefaultConstructor ()
 	return m_defaultConstructor;
 }
 
+Property*
+DerivableType::getIndexerProperty (Type* argType)
+{
+	ASSERT (!(m_flags & ModuleItemFlag_LayoutReady));
+
+	sl::StringHashTableMapIterator <Property*> it = m_indexerPropertyMap.visit (argType->getSignature ());
+	if (it->m_value)
+		return it->m_value;
+
+	Property* prop = m_module->m_functionMgr.createProperty (PropertyKind_Internal, m_tag + ".m_indexer");
+	prop->m_storageKind = StorageKind_Member;
+	it->m_value = prop;
+	return prop;
+}
+
+Property*
+DerivableType::chooseIndexerProperty (const Value& opValue)
+{
+	CastKind bestCastKind = CastKind_None;
+	Property* bestProperty = NULL;
+
+	sl::StringHashTableMapIterator <Property*> it = m_indexerPropertyMap.getHead ();
+	for (; it; it++)
+	{
+		Property* prop = it->m_value;
+
+		FunctionArg* indexArg = prop->m_getter->getType ()->getArgArray () [1];
+		CastKind castKind = m_module->m_operatorMgr.getCastKind (opValue, indexArg->getType ());
+		if (!castKind)
+			continue;
+
+		if (castKind == bestCastKind)
+		{
+			err::setFormatStringError ("ambiguous call to overloaded function");
+			return NULL;
+		}
+
+		if (castKind > bestCastKind)
+		{
+			bestProperty = prop;
+			bestCastKind = castKind;
+		}
+	}
+
+	if (!bestProperty)
+	{
+		err::setFormatStringError ("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount ());
+		return NULL;
+	}
+
+	return bestProperty;
+}
+
 BaseTypeSlot*
 DerivableType::getBaseTypeByIndex (size_t index)
 {
@@ -196,6 +249,8 @@ DerivableType::addMethod (Function* function)
 		return false;
 	}
 
+	Property* indexerProperty;
+	sl::Array <FunctionArg*> argArray;
 	Function** target = NULL;
 	size_t overloadIdx;
 
@@ -252,6 +307,30 @@ DerivableType::addMethod (Function* function)
 
 	case FunctionKind_OperatorCdeclVararg:
 		target = &m_operatorCdeclVararg;
+		break;
+
+	case FunctionKind_Getter:
+		argArray = function->getType ()->getArgArray ();
+		if (argArray.getCount () < 2)
+		{
+			err::setFormatStringError ("indexer property getter should take at least one index argument");
+			return false;
+		}
+
+		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		target = &indexerProperty->m_getter;
+		break;
+
+	case FunctionKind_Setter:
+		argArray = function->getType ()->getArgArray ();
+		if (argArray.getCount () < 3)
+		{
+			err::setFormatStringError ("indexer property setter should take at least one index argument");
+			return false;
+		}
+
+		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		target = &indexerProperty->m_setter;
 		break;
 
 	default:

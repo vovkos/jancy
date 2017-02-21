@@ -42,6 +42,13 @@ public:
 		Value* resultValue
 		);
 
+	static
+	Type*
+	getPropertyIndexResultType (
+		const Value& rawOpValue1,
+		const Value& rawOpValue2
+		);
+
 protected:
 	bool
 	arrayIndexOperator (
@@ -58,6 +65,7 @@ protected:
 		Value* resultValue
 		);
 
+	static
 	bool
 	propertyIndexOperator (
 		const Value& rawOpValue1,
@@ -66,9 +74,24 @@ protected:
 		);
 
 	Type*
-	getPropertyIndexResultType (
-		const Value& rawOpValue1,
-		const Value& rawOpValue2
+	getDerivableTypeIndexResultType (
+		DerivableType* derivableType, 
+		const Value& opValue1,
+		const Value& opValue2
+		);
+
+	bool
+	derivableTypeIndexOperator (
+		DerivableType* derivableType, 
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
+		);
+
+	Property*
+	getDerivableTypeIndexerProperty (
+		DerivableType* derivableType,
+		const Value& opValue2
 		);
 };
 

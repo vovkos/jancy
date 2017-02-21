@@ -132,6 +132,8 @@ ClassType::addMethod (Function* function)
 		return false;
 	}
 
+	Property* indexerProperty;
+	sl::Array <FunctionArg*> argArray;
 	Function** target = NULL;
 	size_t overloadIdx;
 
@@ -187,6 +189,30 @@ ClassType::addMethod (Function* function)
 
 	case FunctionKind_CallOperator:
 		target = &m_callOperator;
+		break;
+
+	case FunctionKind_Getter:
+		argArray = function->getType ()->getArgArray ();
+		if (argArray.getCount () < 2)
+		{
+			err::setFormatStringError ("indexer property getter should take at least one index argument");
+			return false;
+		}
+
+		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		target = &indexerProperty->m_getter;
+		break;
+
+	case FunctionKind_Setter:
+		argArray = function->getType ()->getArgArray ();
+		if (argArray.getCount () < 3)
+		{
+			err::setFormatStringError ("indexer property setter should take at least one index argument");
+			return false;
+		}
+
+		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		target = &indexerProperty->m_setter;
 		break;
 
 	case FunctionKind_Reaction:
