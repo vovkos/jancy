@@ -32,12 +32,20 @@ foo ()
 	printf ("foo ()\n");
 }
 
-foo (int x)
+int foo (int x)
 {
 	printf ("foo (%d)\n", x);
+	return 2 * x;
 }
 
 alias bar = foo;
+	
+int baz (int) = foo;
+
+baz ()
+{
+	printf ("baz ()\n");
+}
 
 int main ()
 {
@@ -49,6 +57,9 @@ int main ()
 	c2.m_prop = 555;
 
 	printf ("m_classValue = %d\n", c2.m_classValue);
+
+	baz ();
+	baz (255);
 
 	return 0;
 }

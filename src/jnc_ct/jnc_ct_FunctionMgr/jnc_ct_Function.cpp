@@ -131,38 +131,104 @@ Function::addTlsVariable (Variable* variable)
 bool
 Function::compile ()
 {
-	ASSERT (!m_body.isEmpty ()); // otherwise what are we doing here?
-	ASSERT (!m_entryBlock);
-
 	bool result;
+
+	ASSERT (!m_body.isEmpty () || !m_initializer.isEmpty ()); // otherwise what are we doing here?
+	ASSERT (!m_entryBlock);
 
 	Unit* unit = getParentUnit ();
 	if (unit)
 		m_module->m_unitMgr.setCurrentUnit (unit);
 
-	// prologue
+	if (!m_body.isEmpty ())
+	{
+		// a function with a body
 
-	Token::Pos beginPos = m_body.getHead ()->m_pos;
-	Token::Pos endPos = m_body.getTail ()->m_pos;
+		Token::Pos beginPos = m_body.getHead ()->m_pos;
+		Token::Pos endPos = m_body.getTail ()->m_pos;
 
-	m_module->m_functionMgr.prologue (this, beginPos);
-	m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
+		m_module->m_functionMgr.prologue (this, beginPos);
+		m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
 
-	// body
+		result =
+			m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
+			m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
+			(m_type->getFlags () & FunctionTypeFlag_Automaton) ? compileAutomatonBody () :
+			compileNormalBody ();
 
-	result =
-		m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
-		m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
-		(m_type->getFlags () & FunctionTypeFlag_Automaton) ? compileAutomatonBody () :
-		compileNormalBody ();
+		if (!result)
+			return false;
 
+		m_module->m_namespaceMgr.setSourcePos (endPos);
+		return m_module->m_functionMgr.epilogue ();
+	}
+
+	// redirected function
+
+	Parser parser (m_module);
+	result = parser.parseTokenList (SymbolKind_qualified_name_save_name, m_initializer);
+	if (!result)	
+		return false;
+
+	ModuleItem* item = m_parentNamespace->findItemTraverse (parser.m_qualifiedName);
+	if (!item)
+	{
+		err::setFormatStringError ("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz ());
+		return false;
+	}
+
+	if (item->getItemKind () != ModuleItemKind_Function)
+	{
+		err::setFormatStringError ("'%s' is not function", parser.m_qualifiedName.getFullName ().sz ());
+		return false;
+	}
+
+	Function* targetFunction = (Function*) item;
+
+	if (m_functionKind < FunctionKind_PreConstructor || m_functionKind > FunctionKind_StaticDestructor)
+	{
+		Function* targetOverload = targetFunction->findOverload (m_type);
+		if (targetOverload)
+		{
+			// can re-use the same function directly
+	
+			result = targetOverload->m_llvmFunction != NULL || targetOverload->compile ();
+			if (!result)
+				return false;
+
+			m_llvmFunction = targetOverload->m_llvmFunction;
+			return true;
+		}
+	}
+
+	// have to make a call because of either conversion or extra prologue/epilogue actions (such as in constructor)
+
+	size_t argCount = m_type->getArgArray ().getCount ();
+
+	char buffer [256];
+	sl::Array <Value> argValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	argValueArray.setCount (argCount);
+
+	m_module->m_functionMgr.internalPrologue (this, argValueArray, argCount);
+
+	sl::BoxList <Value> argValueList;
+	for (size_t i = 0; i < argCount; i++)		
+		argValueList.insertTail (argValueArray [i]);
+
+	Value resultValue;
+	result = m_module->m_operatorMgr.callOperator (targetFunction, &argValueList, &resultValue);
 	if (!result)
 		return false;
 
-	// epilogue
+	if (m_type->getTypeKind () != TypeKind_Void)
+	{
+		result = m_module->m_controlFlowMgr.ret (resultValue);
+		if (!result)
+			return false;
+	}
 
-	m_module->m_namespaceMgr.setSourcePos (endPos);
-	return m_module->m_functionMgr.epilogue ();
+	m_module->m_functionMgr.internalEpilogue ();
+	return true;
 }
 
 bool

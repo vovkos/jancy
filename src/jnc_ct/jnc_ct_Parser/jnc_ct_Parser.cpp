@@ -836,10 +836,10 @@ Parser::declareAlias (
 	sl::BoxList <Token>* initializer = &declarator->m_initializer;
 
 	Alias* alias = m_module->m_namespaceMgr.createAlias (
-		name, 
-		qualifiedName, 
-		type, 
-		ptrTypeFlags, 
+		name,
+		qualifiedName,
+		type,
+		ptrTypeFlags,
 		initializer
 		);
 
@@ -947,6 +947,12 @@ Parser::declareFunction (
 		functionItem = function;
 		functionItemDecl = function;
 		functionName = function;
+
+		if (!declarator->m_initializer.isEmpty ())
+		{
+			function->m_initializer.takeOver (&declarator->m_initializer);
+			m_module->markForCompile (function);
+		}
 	}
 
 	functionName->m_declaratorName = *declarator->getName ();
