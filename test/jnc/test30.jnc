@@ -45,7 +45,7 @@ class OpaqueTest
 	{
 		printf ("C1.bar (%d, %d) { m_x = %d, m_y = %d }\n", x, y, m_x, m_y);
 
-		Point point = { 100, 200, 300, 400 };
+		Point point = { 100, 200, 300, 400 }
 		return point;
 	}
 }

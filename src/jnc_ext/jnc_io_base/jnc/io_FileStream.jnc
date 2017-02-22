@@ -61,7 +61,7 @@ char const* getFileStreamKindString (FileStreamKind kind)
 		"disk file",      // FileStreamKind.Disk,
 		"serial device",  // FileStreamKind.Serial,
 		"pipe",           // FileStreamKind.Pipe,
-	};
+	}
 
 	return kind < countof (stringTable) ?
 		stringTable [kind] :

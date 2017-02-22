@@ -43,7 +43,7 @@ foo ()
 	}}}
 }
 
-io.Address_ip4 g_address = { 0x7f000001 };
+io.Address_ip4 g_address = { 0x7f000001 }
 
 bar ()
 {

@@ -33,7 +33,7 @@ int main ()
 
 	// classic C-style curly-initializers
 
-	int a [] = { 1, 2, 3 };
+	int a [] = { 1, 2, 3 }
 
 	printf ("a = { ");
 
@@ -44,7 +44,7 @@ int main ()
 
 	// it's OK to skip elements leaving them zero-initialized
 
-	int b [10] = { ,, 3, 4,,, 7 };
+	int b [10] = { ,, 3, 4,,, 7 }
 
 	printf ("b = { ");
 
@@ -55,7 +55,7 @@ int main ()
 
 	// both index- and name-based addressing modes are supported
 
-	Point point = { 10, m_z = 30 };
+	Point point = { 10, m_z = 30 }
 	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
 	// OK to use curly-initializers in assignment operators

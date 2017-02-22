@@ -76,7 +76,7 @@ struct ListEntry
 
 		// add items...
 
-		int a [] = { 10, 20, 30, 40, 50, };
+		int a [] = { 10, 20, 30, 40, 50, }
 
 		for (size_t i = 0; i < countof (a); i++)
 			list.insertTail (a [i]);

@@ -91,7 +91,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	Point srcPoint = { 10, 20 };
+	Point srcPoint = { 10, 20 }
 	Point dstPoint;
 
 	// we can be sure 'srcPoint' is not going to change

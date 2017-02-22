@@ -6,7 +6,7 @@ struct Point
 
 int main ()
 {
-	int a [4] = { 10, 20, 30, 40 };
+	int a [4] = { 10, 20, 30, 40 }
 
 	variant v1 = &a [0];
 	variant v2 = &a [2];
@@ -15,7 +15,7 @@ int main ()
 
 	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 
-	Point point = { 10, 20 };
+	Point point = { 10, 20 }
 
 	variant v = point;
 	// variant v = &point;

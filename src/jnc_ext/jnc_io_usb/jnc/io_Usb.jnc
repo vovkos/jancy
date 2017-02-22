@@ -23,7 +23,7 @@ enum UsbTransferType: uint8_t
 	Bulk        = 2,
 	Interrupt   = 3,
 	BulkStream  = 4,
-};
+}
 
 enum UsbIsoSyncType: uint8_t
 {
@@ -60,7 +60,7 @@ enum UsbClass: uint8_t
 	Wireless           = 0xe0,
 	Application        = 0xfe,
 	VendorSpec         = 0xff
-};
+}
 
 enum UsbSpeed: uint8_t
 {
@@ -69,7 +69,7 @@ enum UsbSpeed: uint8_t
 	Full    = 2,
 	High    = 3,
 	Super   = 4,
-};
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -190,7 +190,7 @@ opaque class UsbEndpoint
 
 	event m_onEndpointEvent (UsbEndpointEventParams const* params);
 	bool property m_isEndpointEventEnabled;
-};
+}
 
 //..............................................................................
 
@@ -208,7 +208,7 @@ opaque class UsbInterface
 	alias void dispose = release;
 
 	UsbEndpoint* errorcode openEndpoint (uint8_t endpointId);
-};
+}
 
 //..............................................................................
 

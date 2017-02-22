@@ -22,7 +22,7 @@ int main ()
 	{
 		char const* m_name;
 		uint_t m_value;
-	};
+	}
 
 	static Color colorTable [] =
 	{
@@ -34,7 +34,7 @@ int main ()
 		{ "magenta", 0x800080 },
 		{ "cyan",    0x008080 },
 		{ "white",   0xc0c0c0 },
-	};
+	}
 
 	for (size_t i = 0; i < countof (colorTable); i++)
 	{

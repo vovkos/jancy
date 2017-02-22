@@ -16,7 +16,7 @@ class C1
 		10,
 		20,
 		30,
-	};
+	}
 
 	static construct ()
 	{
