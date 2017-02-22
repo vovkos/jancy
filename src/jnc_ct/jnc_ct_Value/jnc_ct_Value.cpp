@@ -38,7 +38,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class LlvmPodStruct: public llvm::ConstantStruct
+class LlvmPodStruct
 {
 public:
 	static

@@ -148,9 +148,9 @@ Module::createLlvmExecutionEngine ()
 {
 	ASSERT (!m_llvmExecutionEngine);
 
-	llvm::EngineBuilder engineBuilder (m_llvmModule);
+	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
 
-	::std::string errorString;
+	std::string errorString;
 	engineBuilder.setErrorStr (&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
 
@@ -162,14 +162,17 @@ Module::createLlvmExecutionEngine ()
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
-		engineBuilder.setUseMCJIT (true);
 #if (LLVM_VERSION < 0x0304) // they distinguish between JIT & MCJIT memory managers in 3.4
+		engineBuilder.setUseMCJIT (true);
 		engineBuilder.setJITMemoryManager (jitMemoryMgr);
-#else
-		engineBuilder.setMCJITMemoryManager (jitMemoryMgr);
-#endif
-
 		targetOptions.JITEmitDebugInfo = true;
+#elif (LLVM_VERSION < 0x0309)
+		engineBuilder.setUseMCJIT (true);
+		engineBuilder.setMCJITMemoryManager (jitMemoryMgr);
+		targetOptions.JITEmitDebugInfo = true;
+#else
+		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
+#endif
 
 #if (_JNC_OS_POSIX)
 		m_functionMap ["memset"] = (void*) memset;
@@ -224,7 +227,9 @@ Module::createLlvmExecutionEngine ()
 		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
 #endif
 
+#if (LLVM_VERSION < 0x0309)
 		engineBuilder.setUseMCJIT (false);
+#endif
 	}
 
 	engineBuilder.setTargetOptions (targetOptions);
@@ -274,7 +279,7 @@ Module::findFunctionMapping (const sl::StringRef& name)
 	sl::StringHashTableMapIterator <void*> it;
 
 #if (_JNC_OS_DARWIN)
-	it = *(const uint16_t*) name.cp () == '._' ?
+	it = *(const uint16_t*) name.cp () == '?_' ?
 		m_functionMap.find (name.getSubString (1)) :
 		m_functionMap.find (name);
 #else
@@ -392,8 +397,8 @@ Module::parse (
 				}
 
 				parser.m_doxyParser.addComment (
-					comment, 
-					token->m_pos, 
+					comment,
+					token->m_pos,
 					isSingleLine,
 					lastDeclaredItem
 					);

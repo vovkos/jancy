@@ -115,7 +115,7 @@ CallConv_gcc32::ret (
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
 
 	Value returnPtrValue;
-	returnPtrValue.setLlvmValue (llvmArg, returnType->getDataPtrType_c ());
+	returnPtrValue.setLlvmValue ((llvm::Argument*) llvmArg, returnType->getDataPtrType_c ());
 	m_module->m_llvmIrBuilder.createStore (value, returnPtrValue);
 	m_module->m_llvmIrBuilder.createRet ();
 }
@@ -131,7 +131,7 @@ CallConv_gcc32::getThisArgValue (Function* function)
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin();
 	llvmArg++;
-	return Value (llvmArg, function->getThisArgType ());
+	return Value ((llvm::Argument*) llvmArg, function->getThisArgType ());
 }
 
 void

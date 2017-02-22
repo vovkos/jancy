@@ -421,10 +421,12 @@ ControlFlowMgr::onceStmt_PreBody (
 			stmt->m_flagVariable,
 			Value ((int64_t) 0, type),
 			Value (1, type),
-			llvm::Acquire,
+			llvm::AtomicOrdering::Acquire,
 			llvm::CrossThread,
 			&value
 			);
+
+		m_module->m_llvmIrBuilder.createExtractValue (value, 0, type, &value);
 
 		result =
 			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, value, Value ((int64_t) 0, type), &value) &&
@@ -466,7 +468,7 @@ ControlFlowMgr::onceStmt_PostBody (
 			llvm::AtomicRMWInst::Xchg,
 			stmt->m_flagVariable,
 			Value ((int64_t) 2, type),
-			llvm::Release,
+			llvm::AtomicOrdering::Release,
 			llvm::CrossThread,
 			&tmpValue
 			);

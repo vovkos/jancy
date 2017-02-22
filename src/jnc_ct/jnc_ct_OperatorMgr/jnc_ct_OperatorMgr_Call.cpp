@@ -633,7 +633,7 @@ OperatorMgr::gcSafePoint ()
 			llvm::AtomicRMWInst::Xchg,
 			ptrValue,
 			value,
-			llvm::AcquireRelease,
+			llvm::AtomicOrdering::AcquireRelease,
 			llvm::CrossThread,
 			&value
 			);

@@ -86,7 +86,7 @@ public:
 	llvm::DebugLoc
 	getEmptyDebugLoc ();
 
-	llvm::DIFile
+	llvm::DIFile*
 	createFile (
 		const sl::StringRef& fileName,
 		const sl::StringRef& dir
@@ -95,7 +95,7 @@ public:
 		return m_llvmDiBuilder->createFile (fileName >> toLlvm, dir >> toLlvm);
 	}
 
-	llvm::DIType
+	llvm::DIType*
 	createBasicType (
 		const sl::StringRef& name,
 		size_t size,
@@ -106,40 +106,40 @@ public:
 		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, alignment * 8, code);
 	}
 
-	llvm::DIType
+	llvm::DIType*
 	createSubroutineType (FunctionType* functionType);
 
-	llvm::DIType
+	llvm::DIType*
 	createEmptyStructType (StructType* structType);
 
 	void
 	setStructTypeBody (StructType* structType);
 
-	llvm::DIType
+	llvm::DIType*
 	createEmptyUnionType (UnionType* unionType);
 
 	void
 	setUnionTypeBody (UnionType* unionType);
 
-	llvm::DIType
+	llvm::DIType*
 	createArrayType (ArrayType* arrayType);
 
-	llvm::DIType
+	llvm::DIType*
 	createPointerType (Type* type);
 
-	llvm::DIGlobalVariable
+	llvm::DIGlobalVariable*
 	createGlobalVariable (Variable* variable);
 
-	llvm::DIVariable
-	createLocalVariable (
+	llvm::DIVariable*
+	createParameterVariable (
 		Variable* variable,
-		uint_t tag = llvm::dwarf::DW_TAG_auto_variable
+		size_t argIdx
 		);
 
-	llvm::DISubprogram
+	llvm::DISubprogram*
 	createFunction (Function* function);
 
-	llvm::DILexicalBlock
+	llvm::DILexicalBlock*
 	createLexicalBlock (
 		Scope* parentScope,
 		const Token::Pos& pos

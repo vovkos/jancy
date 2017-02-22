@@ -309,14 +309,14 @@ Type::getLlvmType ()
 	return m_llvmType;
 }
 
-llvm::DIType
+llvm::DIType*
 Type::getLlvmDiType ()
 {
 	if (m_llvmDiType)
 		return m_llvmDiType;
 
 	if (m_typeKind == TypeKind_Void)
-		return llvm::DIType ();
+		return NULL;
 
 	prepareLlvmDiType ();
 

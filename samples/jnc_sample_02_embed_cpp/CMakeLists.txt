@@ -85,13 +85,22 @@ set_target_properties (
 	FOLDER samples
 	)
 
-llvm_map_components_to_libraries (
-	LLVM_LIB_LIST
-	jit
-	native
-	MCJIT
-	MCDisassembler
-	)
+if (FALSE)
+	llvm_map_components_to_libraries (
+		LLVM_LIB_LIST
+		jit
+		native
+		MCJIT
+		MCDisassembler
+		)
+else ()
+	llvm_map_components_to_libnames (
+		LLVM_LIB_LIST
+		native
+		MCJIT
+		MCDisassembler
+		)
+endif ()
 
 target_link_libraries (
 	jnc_sample_02_embed_cpp

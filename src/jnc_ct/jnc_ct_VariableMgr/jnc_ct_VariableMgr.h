@@ -128,7 +128,10 @@ public:
 	createStaticDataPtrValidatorVariable (Variable* variable);
 
 	Variable*
-	createArgVariable (FunctionArg* arg);
+	createArgVariable (
+		FunctionArg* arg,
+		size_t argIdx
+		);
 
 	bool
 	createTlsStructType ();

@@ -70,7 +70,7 @@ Function::getLlvmFunction ()
 		return m_llvmFunction;
 
 #if (_JNC_OS_POSIX)
-	sl::String llvmName = "."; // as to avoid linking conflicts
+	sl::String llvmName = "?"; // as to avoid linking conflicts
 	llvmName += m_tag;
 #else
 	sl::String llvmName = m_tag;
@@ -80,7 +80,7 @@ Function::getLlvmFunction ()
 	return m_llvmFunction;
 }
 
-llvm::DISubprogram
+llvm::DISubprogram*
 Function::getLlvmDiSubprogram ()
 {
 	if (m_llvmDiSubprogram)
@@ -167,7 +167,7 @@ Function::compile ()
 
 	Parser parser (m_module);
 	result = parser.parseTokenList (SymbolKind_qualified_name_save_name, m_initializer);
-	if (!result)	
+	if (!result)
 		return false;
 
 	ModuleItem* item = m_parentNamespace->findItemTraverse (parser.m_qualifiedName);
@@ -191,7 +191,7 @@ Function::compile ()
 		if (targetOverload)
 		{
 			// can re-use the same function directly
-	
+
 			result = targetOverload->m_llvmFunction != NULL || targetOverload->compile ();
 			if (!result)
 				return false;
@@ -212,7 +212,7 @@ Function::compile ()
 	m_module->m_functionMgr.internalPrologue (this, argValueArray, argCount);
 
 	sl::BoxList <Value> argValueList;
-	for (size_t i = 0; i < argCount; i++)		
+	for (size_t i = 0; i < argCount; i++)
 		argValueList.insertTail (argValueArray [i]);
 
 	Value resultValue;

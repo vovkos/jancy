@@ -2220,8 +2220,8 @@ Parser::finalizeAutomatonFunction ()
 	if (function->isMember ())
 		llvmArg++;
 
-	Value recognizerValue (llvmArg++, recognizerPtrType);
-	Value requestValue (llvmArg++, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+	Value recognizerValue ((llvm::Argument*) llvmArg++, recognizerPtrType);
+	Value requestValue ((llvm::Argument*) llvmArg++, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
 
 	// finalize regexp
 

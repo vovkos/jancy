@@ -258,7 +258,7 @@ CdeclCallConv_gcc64::ret (
 
 	if (returnType->getSize () > sizeof (uint64_t) * 2) // return in memory
 	{
-		Value returnPtrValue (function->getLlvmFunction ()->arg_begin());
+		Value returnPtrValue ((llvm::Argument*) function->getLlvmFunction ()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore (value, returnPtrValue);
 		m_module->m_llvmIrBuilder.createRet ();
@@ -286,7 +286,7 @@ CdeclCallConv_gcc64::getThisArgValue (Function* function)
 		returnType->getSize () > sizeof (uint64_t) * 2)
 		llvmArg++;
 
-	return getArgValue (llvmArg, functionType, 0);
+	return getArgValue ((llvm::Argument*) llvmArg, functionType, 0);
 }
 
 Value
@@ -344,10 +344,10 @@ CdeclCallConv_gcc64::createArgVariables (Function* function)
 		if (!arg->isNamed ())
 			continue;
 
-		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, i);
 		function->getScope ()->addItem (argVariable);
 
-		Value argValue = getArgValue (llvmArg, functionType, i);
+		Value argValue = getArgValue ((llvm::Argument*) llvmArg, functionType, i);
 		m_module->m_llvmIrBuilder.createStore (argValue, argVariable);
 	}
 }

@@ -66,7 +66,7 @@ LlvmDiBuilder::getEmptyDebugLoc ()
 		llvm::DebugLoc ();
 }
 
-llvm::DIType
+llvm::DIType*
 LlvmDiBuilder::createSubroutineType (FunctionType* functionType)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
@@ -76,21 +76,21 @@ LlvmDiBuilder::createSubroutineType (FunctionType* functionType)
 	size_t count = argArray.getCount ();
 
 	char buffer [256];
-	sl::Array <llvm::Value*> argTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	sl::Array <llvm::Metadata*> argTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	argTypeArray.setCount (count + 1);
 
-	llvm::Value** dst = argTypeArray;
+	llvm::Metadata** dst = argTypeArray;
 	*dst = functionType->getReturnType ()->getLlvmDiType ();
 	dst++;
 
 	for (size_t i = 0; i < count; i++, dst++)
 		*dst = argArray [i]->getType ()->getLlvmDiType ();
 
-	llvm::DIArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Value*> (argTypeArray, count + 1));
-	return m_llvmDiBuilder->createSubroutineType (unit->getLlvmDiFile (), llvmDiArray);
+	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray (llvm::ArrayRef <llvm::Metadata*> (argTypeArray, count + 1));
+	return m_llvmDiBuilder->createSubroutineType (llvmDiTypeArray);
 }
 
-llvm::DIType
+llvm::DIType*
 LlvmDiBuilder::createEmptyStructType (StructType* structType)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
@@ -104,8 +104,8 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 		structType->getSize () * 8,
 		structType->getAlignment () * 8,
 		0,
-		llvm::DIType (), // derived from
-		llvm::DIArray () // elements -- set body later
+		NULL, // derived from
+		llvm::DINodeArray () // elements -- set body later
 		);
 }
 
@@ -123,7 +123,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 	size_t count = baseTypeCount + fieldCount;
 
 	char buffer [256];
-	sl::Array <llvm::Value*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	sl::Array <llvm::Metadata*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	fieldTypeArray.setCount (count);
 
 	size_t i = 0;
@@ -165,15 +165,15 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			);
 	}
 
-	llvm::DIArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Value*> (fieldTypeArray, count));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (fieldTypeArray, count));
 
-	llvm::DICompositeType llvmDiType (structType->getLlvmDiType ());
-	ASSERT (llvmDiType);
+	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*) structType->getLlvmDiType ();
+	ASSERT (llvm::isa <llvm::DICompositeType> (llvmDiType));
 
-	llvmDiType.setTypeArray (llvmDiArray);
+	llvmDiType->replaceElements (llvmDiArray);
 }
 
-llvm::DIType
+llvm::DIType*
 LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
@@ -187,7 +187,7 @@ LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 		unionType->getSize () * 8,
 		unionType->getAlignment () * 8,
 		0,
-		llvm::DIArray () // elements -- set body later
+		llvm::DINodeArray () // elements -- set body later
 		);
 }
 
@@ -201,7 +201,7 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 	size_t count = fieldArray.getCount ();
 
 	char buffer [256];
-	sl::Array <llvm::Value*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	sl::Array <llvm::Metadata*> fieldTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	fieldTypeArray.setCount (count);
 
 	for (size_t i = 0; i < count; i++)
@@ -222,19 +222,19 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 			);
 	}
 
-	llvm::DIArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Value*> (fieldTypeArray, count));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (fieldTypeArray, count));
 
-	llvm::DICompositeType llvmDiType (unionType->getLlvmDiType ());
-	ASSERT (llvmDiType);
+	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*) unionType->getLlvmDiType ();
+	ASSERT (llvm::isa <llvm::DICompositeType> (llvmDiType));
 
-	llvmDiType.setTypeArray (llvmDiArray);
+	llvmDiType->replaceElements (llvmDiArray);
 }
 
-llvm::DIType
+llvm::DIType*
 LlvmDiBuilder::createArrayType (ArrayType* arrayType)
 {
 	char buffer [256];
-	sl::Array <llvm::Value*> dimArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	sl::Array <llvm::Metadata*> dimArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
 	ArrayType* p = arrayType;
 	for (;;)
@@ -252,7 +252,7 @@ LlvmDiBuilder::createArrayType (ArrayType* arrayType)
 		p = (ArrayType*) elementType;
 	}
 
-	llvm::DIArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Value*> (dimArray, dimArray.getCount ()));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (dimArray, dimArray.getCount ()));
 
 	return m_llvmDiBuilder->createArrayType (
 		arrayType->getSize () * 8,
@@ -262,7 +262,7 @@ LlvmDiBuilder::createArrayType (ArrayType* arrayType)
 		);
 }
 
-llvm::DIType
+llvm::DIType*
 LlvmDiBuilder::createPointerType (Type* type)
 {
 	return m_llvmDiBuilder->createPointerType (
@@ -273,41 +273,46 @@ LlvmDiBuilder::createPointerType (Type* type)
 		);
 }
 
-llvm::DIGlobalVariable
+llvm::DIGlobalVariable*
 LlvmDiBuilder::createGlobalVariable (Variable* variable)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
 	ASSERT (unit);
 
+	llvm::GlobalVariable* llvmGlobalVariable = (llvm::GlobalVariable*) variable->getLlvmValue ();
+	ASSERT (llvm::isa <llvm::GlobalVariable> (llvmGlobalVariable));
+
 	return m_llvmDiBuilder->createGlobalVariable (
+		NULL,
+		variable->getQualifiedName ().sz (),
 		variable->getQualifiedName ().sz (),
 		unit->getLlvmDiFile (),
 		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
 		true,
-		variable->getLlvmValue ()
+		llvmGlobalVariable
 		);
 }
 
-llvm::DIVariable
-LlvmDiBuilder::createLocalVariable (
+llvm::DIVariable*
+LlvmDiBuilder::createParameterVariable (
 	Variable* variable,
-	uint_t tag
+	size_t argumentIdx
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (unit && scope);
 
-	return m_llvmDiBuilder->createLocalVariable (
-		tag,
+	return m_llvmDiBuilder->createParameterVariable (
 		scope->getLlvmDiScope (),
 		variable->getName ().sz (),
+		argumentIdx + 1,
 		unit->getLlvmDiFile (),
 		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
 		true,
-		0, 0
+		0
 		);
 }
 
@@ -319,9 +324,16 @@ LlvmDiBuilder::createDeclare (Variable* variable)
 
 	ASSERT (block && scope);
 
+	llvm::DILocalVariable* llvmDiLocalVariable = (llvm::DILocalVariable*) variable->getLlvmDiDescriptor ();
+	ASSERT (llvm::isa <llvm::DILocalVariable> (llvmDiLocalVariable));
+
+	const Token::Pos* pos = variable->getPos ();
+
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare (
 		variable->getLlvmValue (),
-		(llvm::DIVariable) variable->getLlvmDiDescriptor (),
+		llvmDiLocalVariable,
+		m_llvmDiBuilder->createExpression (),
+		llvm::DebugLoc::get (pos->m_line, pos->m_col, scope->getLlvmDiScope()),
 		block->getLlvmBlock ()
 		);
 
@@ -334,7 +346,7 @@ LlvmDiBuilder::createDeclare (Variable* variable)
 	return llvmInstruction;
 }
 
-llvm::DISubprogram
+llvm::DISubprogram*
 LlvmDiBuilder::createFunction (Function* function)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
@@ -343,23 +355,27 @@ LlvmDiBuilder::createFunction (Function* function)
 	Token::Pos declPos = *function->getPos ();
 	Token::Pos scopePos = function->hasBody () ? function->getBody ().getHead ()->m_pos : declPos;
 
+	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*) function->getType ()->getLlvmDiType ();
+	ASSERT (llvm::isa <llvm::DISubroutineType> (llvmDiSubroutineType));
+
 	return m_llvmDiBuilder->createFunction (
-		unit->getLlvmDiFile (),
+		NULL,
 		function->m_tag.sz (),
 		function->m_tag.sz (), // linkage name
 		unit->getLlvmDiFile (),
 		declPos.m_line + 1,
-		llvm::DICompositeType (function->getType ()->getLlvmDiType ()),
+		llvmDiSubroutineType,
 		false,
 		true,
 		scopePos.m_line + 1,
 		0, // llvm::DIDescriptor::FlagPrototyped,
 		false,
-		function->getLlvmFunction ()
+		NULL, // DITemplateParameterArray TParams
+		NULL // DISubprogram *Decl
 		);
 }
 
-llvm::DILexicalBlock
+llvm::DILexicalBlock*
 LlvmDiBuilder::createLexicalBlock (
 	Scope* parentScope,
 	const Token::Pos& pos
@@ -368,7 +384,7 @@ LlvmDiBuilder::createLexicalBlock (
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
 	ASSERT (unit);
 
-	llvm::DIDescriptor llvmParentBlock;
+	llvm::DIScope* llvmParentBlock;
 	if (parentScope)
 	{
 		llvmParentBlock = parentScope->getLlvmDiScope ();

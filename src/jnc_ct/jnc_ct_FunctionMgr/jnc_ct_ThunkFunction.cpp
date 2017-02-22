@@ -56,7 +56,7 @@ ThunkFunction::compile ()
 
 	for (size_t i = 0; i < targetArgCount; i++, llvmArg++)
 	{
-		Value argValue (llvmArg, thunkArgArray [i]->getType ());
+		Value argValue ((llvm::Argument*) llvmArg, thunkArgArray [i]->getType ());
 		result = m_module->m_operatorMgr.castOperator (&argValue, targetArgArray [i]->getType ());
 		if (!result)
 			return false;

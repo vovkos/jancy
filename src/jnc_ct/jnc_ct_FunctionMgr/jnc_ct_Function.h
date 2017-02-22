@@ -159,7 +159,7 @@ protected:
 	UsingSet m_usingSet;
 
 	llvm::Function* m_llvmFunction;
-	llvm::DISubprogram m_llvmDiSubprogram;
+	llvm::DISubprogram* m_llvmDiSubprogram;
 
 	sl::Array <TlsVariable> m_tlsVariableArray;
 
@@ -298,7 +298,7 @@ public:
 	llvm::Function*
 	getLlvmFunction ();
 
-	llvm::DISubprogram
+	llvm::DISubprogram*
 	getLlvmDiSubprogram ();
 
 	void*

@@ -2410,7 +2410,7 @@ TypeMgr::setupPrimitiveType (
 	type->m_alignment = size;
 	type->m_signature = signature;
 	type->m_llvmType = NULL;
-	type->m_llvmDiType = llvm::DIType ();
+	type->m_llvmDiType = NULL;
 	type->m_simplePropertyTypeTuple = NULL;
 	type->m_functionArgTuple = NULL;
 	type->m_dataPtrTypeTuple = NULL;

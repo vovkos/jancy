@@ -77,46 +77,57 @@ using namespace axl;
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/IRBuilder.h"
 
+#if (0)
+#	include "llvm/Support/CallSite.h"
+#	include "llvm/PassManager.h"
+#	include "llvm/DIBuilder.h"
+#	include "llvm/DebugInfo.h"
+#	include "llvm/Analysis/Verifier.h"
+#	include "llvm/ExecutionEngine/ObjectImage.h"
+#	ifndef _JNC_LLVM_NO_JIT
+#		include "llvm/ExecutionEngine/JIT.h"
+#		include "llvm/ExecutionEngine/JITMemoryManager.h"
+#	endif
+#	include "llvm/MC/MCDisassembler.h"
+#	include "llvm/CodeGen/MachineCodeInfo.h"
+#else
+#	include "llvm/IR/CallSite.h"
+#	include "llvm/IR/PassManager.h"
+#	include "llvm/IR/DIBuilder.h"
+#	include "llvm/IR/DebugInfo.h"
+#	include "llvm/IR/Verifier.h"
+#	include "llvm/MC/MCDisassembler/MCDisassembler.h"
+#endif
+
 #include "llvm/Support/Dwarf.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/CallSite.h"
 #include "llvm/Support/DynamicLibrary.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "llvm/PassManager.h"
-#include "llvm/DIBuilder.h"
-#include "llvm/DebugInfo.h"
 #include "llvm/ADT/StringExtras.h"
-#include "llvm/Analysis/Verifier.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Transforms/Scalar.h"
 
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
-#include "llvm/ExecutionEngine/ObjectImage.h"
 
 // LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
 // we want to be able avoid that (i.e. if a libraries defines LLVM-dependent classes, but
 // application does not use those classes -- then why link to LLVM?)
 
 #ifndef _JNC_LLVM_NO_JIT
-#	include "llvm/ExecutionEngine/JIT.h"
-#	include "llvm/ExecutionEngine/JITEventListener.h"
-#	include "llvm/ExecutionEngine/JITMemoryManager.h"
 #	include "llvm/ExecutionEngine/JITEventListener.h"
 #	include "llvm/ExecutionEngine/MCJIT.h"
 #endif
 
 #include "llvm/MC/MCAsmInfo.h"
-#include "llvm/MC/MCDisassembler.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstPrinter.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 
-#include "llvm/CodeGen/MachineCodeInfo.h"
 #include "llvm/CodeGen/GCStrategy.h"
 #include "llvm/CodeGen/GCs.h"
 

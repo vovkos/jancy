@@ -363,7 +363,7 @@ FunctionMgr::epilogue ()
 #if (defined (_AXL_DEBUG) && !defined (_JNC_NO_VERIFY))
 	try
 	{
-		llvm::verifyFunction (*function->getLlvmFunction (), llvm::ReturnStatusAction);
+		llvm::verifyFunction (*function->getLlvmFunction ());
 	}
 	catch (err::Error error)
 	{
@@ -436,7 +436,7 @@ FunctionMgr::internalPrologue (
 
 		for (size_t i = 0; i < argCount; i++, llvmArg++)
 		{
-			Value argValue = callConv->getArgValue (llvmArg, functionType, i);
+			Value argValue = callConv->getArgValue ((llvm::Argument*) llvmArg, functionType, i);
 			argValueArray [i] = argValue;
 		}
 	}
@@ -662,7 +662,7 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	ASSERT (block);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
-	m_module->m_llvmIrBuilder.setInsertPoint (block->getLlvmBlock ()->begin ());
+	m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) block->getLlvmBlock ()->begin ());
 
 	Function* getTls = getStdFunction (StdFunc_GetTls);
 

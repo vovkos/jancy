@@ -32,7 +32,7 @@ protected:
 	sl::String m_fileName;
 	sl::String m_dir;
 
-	llvm::DIFile m_llvmDiFile;
+	llvm::DIFile* m_llvmDiFile;
 
 	Function* m_constructor;
 	Function* m_destructor;
@@ -68,7 +68,7 @@ public:
 		return m_dir;
 	}
 
-	llvm::DIFile
+	llvm::DIFile*
 	getLlvmDiFile ()
 	{
 		return m_llvmDiFile;

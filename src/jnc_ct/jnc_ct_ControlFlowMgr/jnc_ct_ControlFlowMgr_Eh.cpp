@@ -456,7 +456,7 @@ void ControlFlowMgr::finalizeFinallyScope (Scope* scope)
 	}
 }
 
-bool 
+bool
 ControlFlowMgr::disposeVariable (Variable* variable)
 {
 	bool result;
@@ -477,8 +477,8 @@ ControlFlowMgr::disposeVariable (Variable* variable)
 	{
 		disposeBlock = createBlock ("dispose_ptr_block");
 		followBlock = createBlock ("dispose_ptr_follow_block");
-		
-		result = 
+
+		result =
 			m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, &disposableValue) &&
 			m_module->m_operatorMgr.loadDataRef (&disposableValue) &&
 			conditionalJump (disposableValue, disposeBlock, followBlock, disposeBlock);
@@ -486,9 +486,9 @@ ControlFlowMgr::disposeVariable (Variable* variable)
 		if (!result)
 			return false;
 	}
-	
+
 	Value disposeValue;
-	result = 
+	result =
 		m_module->m_operatorMgr.memberOperator (disposableValue, "dispose", &disposeValue) &&
 		m_module->m_operatorMgr.callOperator (disposeValue);
 
@@ -501,7 +501,7 @@ ControlFlowMgr::disposeVariable (Variable* variable)
 	return true;
 }
 
-void 
+void
 ControlFlowMgr::finalizeDisposableScope (Scope* scope)
 {
 	size_t count = scope->m_disposableVariableArray.getCount ();
@@ -639,7 +639,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_llvmIrBuilder.setInsertPoint (entryBlock->getLlvmBlock ()->begin ());
+	m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) entryBlock->getLlvmBlock ()->begin ());
 
 	// create sjlj frame array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
 
@@ -681,7 +681,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 		BasicBlock* block = m_landingPadBlockArray [i];
 		ASSERT (block->m_landingPadScope && !block->m_llvmBlock->empty ());
 
-		m_module->m_llvmIrBuilder.setInsertPoint (block->m_llvmBlock->begin ());
+		m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) block->m_llvmBlock->begin ());
 		setSjljFrame (block->m_landingPadScope->m_sjljFrameIdx);
 
 		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr will not do it for us

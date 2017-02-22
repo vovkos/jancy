@@ -109,12 +109,22 @@ link_directories (
 	${AXL_LIB_DIR}
 	)
 
-llvm_map_components_to_libraries (
-	LLVM_LIB_LIST
-	jit
-	native
-	MCJIT
-	)
+if (FALSE)
+	llvm_map_components_to_libraries (
+		LLVM_LIB_LIST
+		jit
+		native
+		MCJIT
+		MCDisassembler
+		)
+else ()
+	llvm_map_components_to_libnames (
+		LLVM_LIB_LIST
+		native
+		MCJIT
+		MCDisassembler
+		)
+endif ()
 
 add_executable (
 	jnc_app

@@ -410,7 +410,10 @@ jnc_initialize (const char* tag)
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
+#if LLVM_VERSION < 0x0309
 	LLVMLinkInJIT();
+#endif
+	LLVMLinkInMCJIT();
 
 	if (tag)
 		g::getModule ()->setTag (tag);

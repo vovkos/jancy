@@ -88,7 +88,7 @@ public:
 	llvm::Instruction*
 	getInsertPoint ()
 	{
-		return m_llvmIrBuilder->GetInsertPoint ();
+		return (llvm::Instruction*) m_llvmIrBuilder->GetInsertPoint ();
 	}
 
 	void
@@ -861,6 +861,7 @@ public:
 			ptrValue.getLlvmValue (),
 			cmpValue.getLlvmValue (),
 			newValue.getLlvmValue (),
+			orderingKind,
 			orderingKind,
 			syncKind
 			);

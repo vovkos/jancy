@@ -257,7 +257,7 @@ VariableMgr::finalizeDisposableVariable (Variable* variable)
 
 	bool result;
 
-	// we have to save the pointer in entry block -- otherwise, variable's 
+	// we have to save the pointer in entry block -- otherwise, variable's
 	// llvmValue definition may not be seen from the dispose block
 
 	Type* ptrType = variable->m_type->getTypeKind () == TypeKind_Class ?
@@ -267,7 +267,7 @@ VariableMgr::finalizeDisposableVariable (Variable* variable)
 			variable->m_type->getDataPtrType ();
 
 	Variable* ptrVariable = createSimpleStackVariable ("disposable_variable_ptr", ptrType);
-	
+
 	Value ptrValue;
 	result =
 		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, variable, &ptrValue) &&
@@ -539,7 +539,10 @@ VariableMgr::finalizeLiftedStackVariables ()
 }
 
 Variable*
-VariableMgr::createArgVariable (FunctionArg* arg)
+VariableMgr::createArgVariable (
+	FunctionArg* arg,
+	size_t argIdx
+	)
 {
 	Variable* variable = createSimpleStackVariable (
 		arg->getName (),
@@ -554,11 +557,7 @@ VariableMgr::createArgVariable (FunctionArg* arg)
 	if ((m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo) &&
 		(variable->getFlags () & ModuleItemFlag_User))
 	{
-		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createLocalVariable (
-			variable,
-			llvm::dwarf::DW_TAG_arg_variable
-			);
-
+		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createParameterVariable (variable, argIdx);
 		m_module->m_llvmDiBuilder.createDeclare (variable);
 	}
 

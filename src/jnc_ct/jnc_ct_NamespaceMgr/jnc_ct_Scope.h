@@ -56,7 +56,7 @@ protected:
 	Function* m_function;
 	Variable* m_disposeLevelVariable;
 	sl::Array <Variable*> m_disposableVariableArray;
-	llvm::DIScope m_llvmDiScope;
+	llvm::DIScope* m_llvmDiScope;
 
 public:
 	BasicBlock* m_breakBlock;
@@ -105,7 +105,7 @@ public:
 		return m_disposableVariableArray.getCount ();
 	}
 
-	llvm::DIScope
+	llvm::DIScope*
 	getLlvmDiScope ()
 	{
 		return m_llvmDiScope;

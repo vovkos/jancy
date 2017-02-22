@@ -250,7 +250,7 @@ CallConv::getThisArgValue (Function* function)
 	ASSERT (function->isMember ());
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
-	return Value (llvmArg, function->getThisArgType ());
+	return Value ((llvm::Argument*) llvmArg, function->getThisArgType ());
 }
 
 Value
@@ -289,9 +289,9 @@ CallConv::createArgVariablesImpl (
 		if (!arg->isNamed ())
 			continue;
 
-		llvm::Value* llvmArgValue = llvmArg;
+		llvm::Value* llvmArgValue = (llvm::Argument*) llvmArg;
 
-		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg);
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable (arg, i);
 		function->getScope ()->addItem (argVariable);
 
 		Value argValue (llvmArgValue, arg->getType ());
