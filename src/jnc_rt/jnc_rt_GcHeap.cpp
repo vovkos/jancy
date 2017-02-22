@@ -1410,13 +1410,15 @@ GcHeap::destructThreadFunc ()
 void
 GcHeap::parkAtSafePoint ()
 {
+	ASSERT (m_state == State_StopTheWorld); // shouldn't be here otherwise
+
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
 	ASSERT (thread && !thread->m_waitRegionLevel);
 
 	thread->m_isSafePoint = true;
 
 	int32_t count = sys::atomicDec (&m_handshakeCount);
-	ASSERT (m_state == State_StopTheWorld && count >= 0);
+	ASSERT (count >= 0);
 	if (!count)
 		m_handshakeEvent.signal ();
 
