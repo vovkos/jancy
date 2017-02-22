@@ -240,7 +240,7 @@ Members2
 	preDeclaration ();
 
 	bool
-	emptyDeclarationTerminator (TypeSpecifier* typeSpecifier);
+	bodylessDeclaration ();
 
 	bool
 	setDeclarationBody (sl::BoxList <Token>* tokenList);

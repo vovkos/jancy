@@ -14,16 +14,15 @@ class
 	sl::BoxList <Token> m_tokenList;
 }
 expression_pass1
-	:	primary_expr_pass1 <&$.m_tokenList>+
+	:	expression_pass1_item <&$.m_tokenList>+
 	;
 
-noast
-primary_expr_pass1 <sl::BoxList <Token>* $tokenList>
+expression_pass1_item <sl::BoxList <Token>* $tokenList>
 	:	'{'
 			{
 				$tokenList->insertTail ($1);
 			}
-		primary_expr_pass1 <$tokenList>*
+		expression_pass1_item <$tokenList>*
 		'}'
 			{
 				$tokenList->insertTail ($3);
@@ -32,7 +31,7 @@ primary_expr_pass1 <sl::BoxList <Token>* $tokenList>
 			{
 				$tokenList->insertTail ($1);
 			}
-		primary_expr_pass1 <$tokenList>*
+		expression_pass1_item <$tokenList>*
 		']'
 			{
 				$tokenList->insertTail ($3);
@@ -41,7 +40,7 @@ primary_expr_pass1 <sl::BoxList <Token>* $tokenList>
 			{
 				$tokenList->insertTail ($1);
 			}
-		primary_expr_pass1 <$tokenList>*
+		expression_pass1_item <$tokenList>*
 		')'
 			{
 				$tokenList->insertTail ($3);
@@ -52,29 +51,54 @@ primary_expr_pass1 <sl::BoxList <Token>* $tokenList>
 			}
 	;
 
-//..............................................................................
-
-// arg list is simplier cause we only need to count parentheses
+// arg_list & curly_initializer are simplier cause we only need to count one kind of braces
 
 class
 {
 	sl::BoxList <Token> m_tokenList;
 }
 arg_list_pass1
-	:	'(' arg_pass1 <&$.m_tokenList>* ')'
+	:	'(' arg_list_pass1_item <&$.m_tokenList>* ')'
 	;
 
-noast
-arg_pass1 <sl::BoxList <Token>* $tokenList>
+arg_list_pass1_item <sl::BoxList <Token>* $tokenList>
 	:	'('
 			{
 				$tokenList->insertTail ($1);
 			}
-		arg_pass1 <$tokenList>*
+		arg_list_pass1_item <$tokenList>*
 		')'
 			{
 				$tokenList->insertTail ($3);
 			}
+	|	any
+			{
+				$tokenList->insertTail ($1);
+			}
+	;
+
+class
+{
+	sl::BoxList <Token> m_tokenList;
+}
+curly_initializer_pass1
+	:	curly_initializer_pass1_impl <&$.m_tokenList>
+	;
+
+curly_initializer_pass1_impl <sl::BoxList <Token>* $tokenList>
+	:	'{'
+			{
+				$tokenList->insertTail ($1);
+			}
+		curly_initializer_pass1_item <$tokenList>*
+		'}'
+			{
+				$tokenList->insertTail ($3);
+			}
+	;
+
+curly_initializer_pass1_item <sl::BoxList <Token>* $tokenList>
+	:	curly_initializer_pass1_impl <$tokenList>
 	|	any
 			{
 				$tokenList->insertTail ($1);

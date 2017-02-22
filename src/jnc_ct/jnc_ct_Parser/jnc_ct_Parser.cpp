@@ -249,29 +249,12 @@ Parser::preDeclaration ()
 }
 
 bool
-Parser::emptyDeclarationTerminator (TypeSpecifier* typeSpecifier)
+Parser::bodylessDeclaration ()
 {
 	if (m_stage == Stage_ReactorStarter)
 		return true; // declarations are processed at Stage_ReactorScan
 
-	if (!m_lastDeclaredItem)
-	{
-		ASSERT (typeSpecifier);
-		Type* type = typeSpecifier->getType ();
-		if (!type || !(type->getFlags () & TypeFlag_Named))
-		{
-			err::setFormatStringError ("invalid declaration (no declarator, no named type)");
-			return false;
-		}
-
-		if (typeSpecifier->getTypeModifiers ())
-		{
-			err::setFormatStringError ("unused modifier '%s'", getTypeModifierString (typeSpecifier->getTypeModifiers ()).sz ());
-			return false;
-		}
-
-		return true;
-	}
+	ASSERT (m_lastDeclaredItem);
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind ();
 	switch (itemKind)

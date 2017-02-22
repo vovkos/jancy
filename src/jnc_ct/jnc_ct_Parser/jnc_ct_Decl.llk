@@ -221,14 +221,20 @@ local_item_declaration
 	;
 
 item_declaration_w_specifier
+	leave
+	{
+		if (m_attributeBlock)
+		{
+			err::setFormatStringError ("unused attribute block in declaration");
+			return false;
+		}
+	}
 	:	declaration_specifier_list $s
-		declarator_list <&$s.m_typeSpecifier>?
-		declaration_terminator <&$s.m_typeSpecifier>
+		declarator_list <&$s.m_typeSpecifier>
 	;
 
 item_declaration_wo_specifier
 	:	declarator_list <NULL>
-		declaration_terminator <NULL>
 	;
 
 // conflict at TokenKind_Identifier in global scope and in named type block
@@ -246,25 +252,6 @@ item_declaration_wo_specifier_rslv
 	;
 
 //..............................................................................
-
-declaration_terminator <TypeSpecifier* $typeSpecifier>
-	leave
-	{
-		if (m_attributeBlock)
-		{
-			err::setFormatStringError ("unused attribute block in declaration");
-			return false;
-		}
-	}
-	:	';'
-			{
-				return emptyDeclarationTerminator ($typeSpecifier);
-			}
-	|	declaration_body_pass1
-			{
-				return setDeclarationBody (&$1.m_tokenList);
-			}
-	;
 
 class
 {
@@ -291,7 +278,6 @@ compound_stmt_pass1 <sl::BoxList <Token>* $tokenList>
 			}
 	;
 
-noast
 statement_pass1 <StmtPass1* $stmt>
 	:	compound_stmt_pass1 <&(*$stmt).m_tokenList>
 	|	TokenKind_Catch
@@ -326,7 +312,10 @@ statement_pass1 <StmtPass1* $stmt>
 
 // type names
 
-type_name_impl <Type** $type, Value* $countValue>
+type_name_impl <
+	Type** $type, 
+	Value* $countValue
+	>
 	local
 	{
 		Declarator $declarator;

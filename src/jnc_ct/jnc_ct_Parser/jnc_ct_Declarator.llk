@@ -10,27 +10,9 @@
 //..............................................................................
 
 declarator_list <TypeSpecifier* $typeSpecifier>
-	:	full_declarator <$typeSpecifier> (',' full_declarator <$typeSpecifier>)*
+	:	declarator <$typeSpecifier> 
+		declarator_list_terminator <$typeSpecifier, &$1.m_declarator>
 	;
-
-full_declarator <TypeSpecifier* $typeSpecifier>
-	:	declarator $d <$typeSpecifier>
-		(TokenKind_Construct? arg_list_pass1 $c
-			{
-				$d.m_declarator.m_constructor.takeOver (&$c.m_tokenList);
-			}
-		)?
-		('=' expression_pass1 $e
-			{
-				$d.m_declarator.m_initializer.takeOver (&$e.m_tokenList);
-			}
-		)?
-			{
-				return declare (&$d.m_declarator);
-			}
-	;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
 {
@@ -44,6 +26,55 @@ declarator <TypeSpecifier* $typeSpecifier>
 	:	declarator_prefix <&$.m_declarator>*
 		declarator_name <&$.m_declarator>
 		declarator_suffix <&$.m_declarator>*
+		declarator_constructor <&$.m_declarator>?
+	;
+
+declarator_list_terminator <
+	TypeSpecifier* $typeSpecifier, 
+	Declarator* $declarator
+	>
+	:	resolver ('=' '{')
+		declarator_w_curly_initializer <$typeSpecifier, $declarator>
+			{
+				return bodylessDeclaration ();
+			}
+	|	declarator_wo_curly_initializer <$typeSpecifier, $declarator>
+			{
+				return bodylessDeclaration ();
+			}
+	|	declaration_body_pass1
+			{
+				return declare ($declarator) && setDeclarationBody (&$1.m_tokenList);
+			}
+	;
+
+declarator_w_curly_initializer <
+	TypeSpecifier* $typeSpecifier, 
+	Declarator* $declarator
+	>
+	:	'=' curly_initializer_pass1
+			{
+				$declarator->m_initializer.takeOver (&$2.m_tokenList);
+				return declare ($declarator);
+			}
+		(',' declarator_list <$typeSpecifier>)?
+	;
+
+declarator_wo_curly_initializer <
+	TypeSpecifier* $typeSpecifier, 
+	Declarator* $declarator
+	>
+	:	('=' expression_pass1
+			{
+				$declarator->m_initializer.takeOver (&$2.m_tokenList);
+			}
+		)?
+			{
+				return declare ($declarator);
+			}
+		(	',' declarator_list <$typeSpecifier>
+		|	';'
+		)
 	;
 
 //..............................................................................
@@ -304,7 +335,6 @@ operator_name
 
 // prefix & suffix
 
-noast
 declarator_prefix <Declarator* $declarator>
 	:	'*'
 			{
@@ -319,7 +349,6 @@ declarator_prefix <Declarator* $declarator>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-noast
 declarator_suffix <Declarator* $declarator>
 	:	array_suffix <$declarator>
 	|	resolver (function_suffix_rslv)
@@ -415,6 +444,15 @@ bitfield_suffix <Declarator* $declarator>
 	:	':' TokenKind_Integer
 			{
 				return $declarator->addBitFieldSuffix ($2.m_data.m_integer);
+			}
+	;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+declarator_constructor <Declarator* $declarator>
+	:	TokenKind_Construct? arg_list_pass1
+			{
+				$declarator->m_constructor.takeOver (&$2.m_tokenList);
 			}
 	;
 
