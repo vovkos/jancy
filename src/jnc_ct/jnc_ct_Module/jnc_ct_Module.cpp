@@ -148,7 +148,11 @@ Module::createLlvmExecutionEngine ()
 {
 	ASSERT (!m_llvmExecutionEngine);
 
+#if (LLVM_VERSION < 0x0309)
+	llvm::EngineBuilder engineBuilder (m_llvmModule);
+#else
 	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
+#endif
 
 	std::string errorString;
 	engineBuilder.setErrorStr (&errorString);

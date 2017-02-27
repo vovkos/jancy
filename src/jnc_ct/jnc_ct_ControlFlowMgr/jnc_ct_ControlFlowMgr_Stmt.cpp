@@ -426,11 +426,14 @@ ControlFlowMgr::onceStmt_PreBody (
 			&value
 			);
 
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, type, &value);
-
+#if (LLVM_VERSION < 0x0309)
 		result =
 			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, value, Value ((int64_t) 0, type), &value) &&
 			conditionalJump (value, bodyBlock, loopBlock);
+#else
+		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &value);
+		result = conditionalJump (value, bodyBlock, loopBlock);
+#endif
 
 		if (!result)
 			return false;

@@ -254,7 +254,7 @@ NamespaceMgr::openScope (
 		scope->m_flags |= ScopeFlag_Function;
 
 	if (m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo)
-		scope->m_llvmDiScope = (llvm::DIScope*) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);
+		scope->m_llvmDiScope = (llvm::DIScope_vn) m_module->m_llvmDiBuilder.createLexicalBlock (parentScope, pos);
 
 	setSourcePos (pos);
 

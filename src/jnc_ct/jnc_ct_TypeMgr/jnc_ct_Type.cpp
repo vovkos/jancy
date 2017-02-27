@@ -309,14 +309,20 @@ Type::getLlvmType ()
 	return m_llvmType;
 }
 
-llvm::DIType*
+llvm::DIType_vn
 Type::getLlvmDiType ()
 {
 	if (m_llvmDiType)
 		return m_llvmDiType;
 
 	if (m_typeKind == TypeKind_Void)
+	{
+#if (LLVM_VERSION < 0x0309)
+		return llvm::DIType_vn ();
+#else
 		return NULL;
+#endif
+	}
 
 	prepareLlvmDiType ();
 

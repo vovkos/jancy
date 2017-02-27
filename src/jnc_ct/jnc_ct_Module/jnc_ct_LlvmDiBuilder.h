@@ -86,7 +86,7 @@ public:
 	llvm::DebugLoc
 	getEmptyDebugLoc ();
 
-	llvm::DIFile*
+	llvm::DIFile_vn
 	createFile (
 		const sl::StringRef& fileName,
 		const sl::StringRef& dir
@@ -95,7 +95,7 @@ public:
 		return m_llvmDiBuilder->createFile (fileName >> toLlvm, dir >> toLlvm);
 	}
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createBasicType (
 		const sl::StringRef& name,
 		size_t size,
@@ -106,40 +106,40 @@ public:
 		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, alignment * 8, code);
 	}
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createSubroutineType (FunctionType* functionType);
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createEmptyStructType (StructType* structType);
 
 	void
 	setStructTypeBody (StructType* structType);
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createEmptyUnionType (UnionType* unionType);
 
 	void
 	setUnionTypeBody (UnionType* unionType);
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createArrayType (ArrayType* arrayType);
 
-	llvm::DIType*
+	llvm::DIType_vn
 	createPointerType (Type* type);
 
-	llvm::DIGlobalVariable*
+	llvm::DIGlobalVariable_vn
 	createGlobalVariable (Variable* variable);
 
-	llvm::DIVariable*
+	llvm::DIVariable_vn
 	createParameterVariable (
 		Variable* variable,
 		size_t argIdx
 		);
 
-	llvm::DISubprogram*
+	llvm::DISubprogram_vn
 	createFunction (Function* function);
 
-	llvm::DILexicalBlock*
+	llvm::DILexicalBlock_vn
 	createLexicalBlock (
 		Scope* parentScope,
 		const Token::Pos& pos

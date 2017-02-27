@@ -69,6 +69,12 @@ using namespace axl;
 #undef min
 #undef max
 
+#include "llvm/Config/llvm-config.h"
+
+// make an easily comparable version like 0x0304
+
+#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 8) | LLVM_VERSION_MINOR)
+
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -77,7 +83,7 @@ using namespace axl;
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/IRBuilder.h"
 
-#if (0)
+#if (LLVM_VERSION < 0x0309)
 #	include "llvm/Support/CallSite.h"
 #	include "llvm/PassManager.h"
 #	include "llvm/DIBuilder.h"
@@ -131,13 +137,49 @@ using namespace axl;
 #include "llvm/CodeGen/GCStrategy.h"
 #include "llvm/CodeGen/GCs.h"
 
-// make an easily comparable version like 0x0304
-
-#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 8) | LLVM_VERSION_MINOR)
-
 #pragma warning (default: 4244)
 #pragma warning (default: 4624)
 #pragma warning (default: 4800)
+
+//..............................................................................
+
+// they changed the type model of llvm::DIBuilder in LLVM 3.9
+// therefore, we define and use version-neutral typedefs
+
+namespace llvm {
+
+#if (LLVM_VERSION < 0x0309)
+
+typedef DIType DIType_vn;
+typedef DICompositeType DICompositeType_vn;
+typedef DIGlobalVariable DIGlobalVariable_vn;
+typedef DIVariable DIVariable_vn;
+typedef DISubprogram DISubprogram_vn;
+typedef DILexicalBlock DILexicalBlock_vn;
+typedef DIScope DIScope_vn;
+typedef DIFile DIFile_vn;
+
+// missing derived types
+
+typedef DIArray DINodeArray;
+typedef Value Metadata;
+
+#else
+
+typedef DIType* DIType_vn;
+typedef DICompositeType* DICompositeType_vn;
+typedef DISubroutineType* DISubroutineType_vn;
+typedef DIGlobalVariable* DIGlobalVariable_vn;
+typedef DILocalVariable* DILocalVariable_vn;
+typedef DIVariable* DIVariable_vn;
+typedef DISubprogram* DISubprogram_vn;
+typedef DILexicalBlock* DILexicalBlock_vn;
+typedef DIScope* DIScope_vn;
+typedef DIFile* DIFile_vn;
+
+#endif
+
+} // namespace llvm
 
 //..............................................................................
 

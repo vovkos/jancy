@@ -14,8 +14,8 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Parser.llk.h"
 
-// #define _JNC_NO_JIT
-// #define _JNC_NO_VERIFY
+// #define _JNC_NO_JIT    1
+#define _JNC_NO_VERIFY 1
 
 namespace jnc {
 namespace ct {
@@ -360,17 +360,18 @@ FunctionMgr::epilogue ()
 
 	finalizeFunction (function, true);
 
-#if (defined (_AXL_DEBUG) && !defined (_JNC_NO_VERIFY))
-	try
-	{
-		llvm::verifyFunction (*function->getLlvmFunction ());
-	}
-	catch (err::Error error)
+#if (defined (_JNC_DEBUG) && !defined (_JNC_NO_VERIFY))
+#	if (LLVM_VERSION < 0x0309)
+	bool isBroken = llvm::verifyFunction (*function->getLlvmFunction (), llvm::ReturnStatusAction);
+#	else
+	bool isBroken = llvm::verifyFunction (*function->getLlvmFunction ());
+#	endif
+
+	if (isBroken)
 	{
 		err::setFormatStringError (
-			"LLVM verification fail for '%s': %s",
-			function->m_tag.sz (),
-			error->getDescription ().sz ()
+			"LLVM verification fail for '%s'",
+			function->m_tag.sz ()
 			);
 
 		return false;

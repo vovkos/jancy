@@ -79,13 +79,19 @@ add_executable (
 	${APP_JNC_LIST}
 	)
 
+axl_set_pch (
+	jnc_sample_01_embed_c
+	${PCH_H}
+	${PCH_C}
+	)
+
 set_target_properties (
 	jnc_sample_01_embed_c
 	PROPERTIES
 	FOLDER samples
 	)
 
-if (FALSE)
+if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
 	llvm_map_components_to_libraries (
 		LLVM_LIB_LIST
 		jit
@@ -124,12 +130,6 @@ if (UNIX AND NOT APPLE)
 		rt
 		)
 endif ()
-
-axl_set_pch (
-	jnc_sample_01_embed_c
-	${PCH_H}
-	${PCH_C}
-	)
 
 add_test (
 	NAME jnc_sample_01_embed_c

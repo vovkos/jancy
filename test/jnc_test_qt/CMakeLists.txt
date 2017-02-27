@@ -204,7 +204,22 @@ add_executable (
 	${GEN_RL_CPP_LIST}
 	)
 
-if (FALSE)
+qt5_use_modules (jnc_test_qt Widgets)
+
+axl_set_pch (
+	jnc_test_qt
+	${PCH_H}
+	${PCH_CPP}
+	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
+	)
+
+set_target_properties (
+	jnc_test_qt
+	PROPERTIES
+	FOLDER test
+	)
+
+if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
 	llvm_map_components_to_libraries (
 		LLVM_LIB_LIST
 		jit
@@ -264,25 +279,10 @@ if (LIBUSB_FOUND)
 	endif ()
 endif ()
 
-qt5_use_modules (jnc_test_qt Widgets)
-
 if (WIN32)
 	copy_qt_dll_files (jnc_test_qt Core Gui Widgets)
 elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
-
-axl_set_pch (
-	jnc_test_qt
-	${PCH_H}
-	${PCH_CPP}
-	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
-	)
-
-set_target_properties (
-	jnc_test_qt
-	PROPERTIES
-	FOLDER test
-	)
 
 #...............................................................................

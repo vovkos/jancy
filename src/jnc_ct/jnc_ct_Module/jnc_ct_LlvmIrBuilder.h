@@ -862,13 +862,41 @@ public:
 			cmpValue.getLlvmValue (),
 			newValue.getLlvmValue (),
 			orderingKind,
+#if (LLVM_VERSION >= 0x0309)
 			orderingKind,
+#endif
 			syncKind
 			);
 
 		resultValue->setLlvmValue (inst, newValue.getType ());
 		return inst;
 	}
+
+#if (LLVM_VERSION >= 0x0309)
+	llvm::AtomicCmpXchgInst*
+	createCmpXchg (
+		const Value& ptrValue,
+		const Value& cmpValue,
+		const Value& newValue,
+		llvm::AtomicOrdering successOrderingKind,
+		llvm::AtomicOrdering failureOrderingKind,
+		llvm::SynchronizationScope syncKind,
+		Value* resultValue
+		)
+	{
+		llvm::AtomicCmpXchgInst* inst = m_llvmIrBuilder->CreateAtomicCmpXchg (
+			ptrValue.getLlvmValue (),
+			cmpValue.getLlvmValue (),
+			newValue.getLlvmValue (),
+			successOrderingKind,
+			failureOrderingKind,
+			syncKind
+			);
+
+		resultValue->setLlvmValue (inst, newValue.getType ());
+		return inst;
+	}
+#endif
 
 	llvm::AtomicRMWInst*
 	createRmw (

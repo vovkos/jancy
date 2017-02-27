@@ -133,7 +133,22 @@ add_executable (
 	${GEN_MOC_CPP_LIST}
 	)
 
-if (FALSE)
+qt5_use_modules (jnc_sample_03_dialog Widgets)
+
+axl_set_pch (
+	jnc_sample_03_dialog
+	${PCH_H}
+	${PCH_CPP}
+	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
+	)
+
+set_target_properties (
+	jnc_sample_03_dialog
+	PROPERTIES
+	FOLDER samples
+	)
+
+if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
 	llvm_map_components_to_libraries (
 		LLVM_LIB_LIST
 		jit
@@ -173,26 +188,12 @@ if (UNIX AND NOT APPLE)
 		)
 endif ()
 
-qt5_use_modules (jnc_sample_03_dialog Widgets)
 
 if (WIN32)
 	copy_qt_dll_files (jnc_sample_03_dialog Core Gui Widgets)
 elseif (UNIX AND NOT APPLE)
 	add_qt_rpath_link ()
 endif ()
-
-axl_set_pch (
-	jnc_sample_03_dialog
-	${PCH_H}
-	${PCH_CPP}
-	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
-	)
-
-set_target_properties (
-	jnc_sample_03_dialog
-	PROPERTIES
-	FOLDER samples
-	)
 
 # only add this test on Windows and Linux native build --
 # it's a pain in the ass to install QT5 multilib on many Linux distros and

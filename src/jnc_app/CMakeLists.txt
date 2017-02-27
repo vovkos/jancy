@@ -109,23 +109,6 @@ link_directories (
 	${AXL_LIB_DIR}
 	)
 
-if (FALSE)
-	llvm_map_components_to_libraries (
-		LLVM_LIB_LIST
-		jit
-		native
-		MCJIT
-		MCDisassembler
-		)
-else ()
-	llvm_map_components_to_libnames (
-		LLVM_LIB_LIST
-		native
-		MCJIT
-		MCDisassembler
-		)
-endif ()
-
 add_executable (
 	jnc_app
 	${PCH_H}
@@ -147,6 +130,23 @@ set_target_properties (
 	PROPERTIES
 	OUTPUT_NAME jancy
 	)
+
+if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
+	llvm_map_components_to_libraries (
+		LLVM_LIB_LIST
+		jit
+		native
+		MCJIT
+		MCDisassembler
+		)
+else ()
+	llvm_map_components_to_libnames (
+		LLVM_LIB_LIST
+		native
+		MCJIT
+		MCDisassembler
+		)
+endif ()
 
 target_link_libraries (
 	jnc_app

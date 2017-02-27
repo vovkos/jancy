@@ -212,7 +212,7 @@ protected:
 	sl::String m_signature;
 
 	llvm::Type* m_llvmType;
-	llvm::DIType* m_llvmDiType;
+	llvm::DIType_vn m_llvmDiType;
 
 	TypeStringTuple* m_typeStringTuple;
 	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
@@ -288,7 +288,7 @@ public:
 	llvm::Type*
 	getLlvmType ();
 
-	llvm::DIType*
+	llvm::DIType_vn
 	getLlvmDiType ();
 
 	Value

@@ -748,7 +748,7 @@ GcHeap::leaveNoCollectRegion (bool canCollectNow)
 void
 GcHeap::safePoint ()
 {
-#ifdef _AXL_DEBUG
+#ifdef _JNC_DEBUG
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
 	ASSERT (thread && thread->m_waitRegionLevel == 0); // otherwise we may finish handshake prematurely
 #endif

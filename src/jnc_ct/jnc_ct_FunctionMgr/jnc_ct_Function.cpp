@@ -80,7 +80,7 @@ Function::getLlvmFunction ()
 	return m_llvmFunction;
 }
 
-llvm::DISubprogram*
+llvm::DISubprogram_vn
 Function::getLlvmDiSubprogram ()
 {
 	if (m_llvmDiSubprogram)
