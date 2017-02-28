@@ -66,7 +66,7 @@ LlvmDiBuilder::getEmptyDebugLoc ()
 		llvm::DebugLoc ();
 }
 
-llvm::DIType_vn
+llvm::DISubroutineType_vn
 LlvmDiBuilder::createSubroutineType (FunctionType* functionType)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
@@ -86,8 +86,14 @@ LlvmDiBuilder::createSubroutineType (FunctionType* functionType)
 	for (size_t i = 0; i < count; i++, dst++)
 		*dst = argArray [i]->getType ()->getLlvmDiType ();
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 	llvm::DIArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (argTypeArray, count + 1));
+	return m_llvmDiBuilder->createSubroutineType (unit->getLlvmDiFile (), llvmDiTypeArray);
+#elif (LLVM_VERSION < 0x0307)
+	llvm::DITypeArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray (llvm::ArrayRef <llvm::Metadata*> (argTypeArray, count + 1));
+	return m_llvmDiBuilder->createSubroutineType (unit->getLlvmDiFile (), llvmDiTypeArray);
+#elif (LLVM_VERSION < 0x0308)
+	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray (llvm::ArrayRef <llvm::Metadata*> (argTypeArray, count + 1));
 	return m_llvmDiBuilder->createSubroutineType (unit->getLlvmDiFile (), llvmDiTypeArray);
 #else
 	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray (llvm::ArrayRef <llvm::Metadata*> (argTypeArray, count + 1));
@@ -109,13 +115,12 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 		structType->getSize () * 8,
 		structType->getAlignment () * 8,
 		0,
-#if (LLVM_VERSION < 0x0309)
-		llvm::DIType (), // derived from
-		llvm::DIArray () // elements -- set body later
+#if (LLVM_VERSION < 0x0307)
+		llvm::DIType (),     // derived from
 #else
 		NULL,                // derived from
-		llvm::DINodeArray () // elements -- set body later
 #endif
+		llvm::DINodeArray () // elements -- set body later
 		);
 }
 
@@ -175,12 +180,16 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			);
 	}
 
-	llvm::DIArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (fieldTypeArray, count));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (fieldTypeArray, count));
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 	llvm::DICompositeType llvmDiType (structType->getLlvmDiType ());
 	ASSERT (llvmDiType);
 	llvmDiType.setTypeArray (llvmDiArray);
+#elif (LLVM_VERSION < 0x0307)
+	llvm::DICompositeType llvmDiType (structType->getLlvmDiType ());
+	ASSERT (llvmDiType);
+	llvmDiType->replaceOperandWith (4, llvmDiArray);
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*) structType->getLlvmDiType ();
 	ASSERT (llvm::isa <llvm::DICompositeType> (llvmDiType));
@@ -239,10 +248,14 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 
 	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray (llvm::ArrayRef <llvm::Metadata*> (fieldTypeArray, count));
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 	llvm::DICompositeType llvmDiType (unionType->getLlvmDiType ());
 	ASSERT (llvmDiType);
 	llvmDiType.setTypeArray (llvmDiArray);
+#elif (LLVM_VERSION < 0x0307)
+	llvm::DICompositeType llvmDiType (unionType->getLlvmDiType ());
+	ASSERT (llvmDiType);
+	llvmDiType->replaceOperandWith (4, llvmDiArray);
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*) unionType->getLlvmDiType ();
 	ASSERT (llvm::isa <llvm::DICompositeType> (llvmDiType));
@@ -303,7 +316,11 @@ LlvmDiBuilder::createGlobalVariable (Variable* variable)
 	ASSERT (llvm::isa <llvm::GlobalVariable> (llvmGlobalVariable));
 
 	return m_llvmDiBuilder->createGlobalVariable (
-#if (LLVM_VERSION >= 0x0309)
+#if (LLVM_VERSION < 0x0306)
+		// no context argument
+#elif (LLVM_VERSION < 0x0307)
+		llvm::DIDescriptor (), // DIDescriptor Context
+#else
 		NULL, // DIScope* Context
 #endif
 		variable->getQualifiedName ().sz (), // StringRef Name
@@ -326,7 +343,7 @@ LlvmDiBuilder::createParameterVariable (
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 	ASSERT (unit && scope);
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0308)
 	return m_llvmDiBuilder->createLocalVariable (
 		llvm::dwarf::DW_TAG_arg_variable,
 		scope->getLlvmDiScope (),
@@ -359,10 +376,13 @@ LlvmDiBuilder::createDeclare (Variable* variable)
 
 	ASSERT (block && scope);
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0307)
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare (
 		variable->getLlvmValue (),
 		variable->getLlvmDiDescriptor (),
+#	if (LLVM_VERSION == 0x0306)
+		m_llvmDiBuilder->createExpression (),
+#	endif
 		block->getLlvmBlock ()
 		);
 
@@ -399,7 +419,7 @@ LlvmDiBuilder::createFunction (Function* function)
 	Token::Pos declPos = *function->getPos ();
 	Token::Pos scopePos = function->hasBody () ? function->getBody ().getHead ()->m_pos : declPos;
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0307)
 	llvm::DICompositeType llvmDiSubroutineType (function->getType ()->getLlvmDiType ());
 	ASSERT (llvmDiSubroutineType);
 
@@ -467,6 +487,9 @@ LlvmDiBuilder::createLexicalBlock (
 		llvmParentBlock,
 		unit->getLlvmDiFile (),
 		pos.m_line + 1, 0
+#if (LLVM_VERSION == 0x0305)
+		,0 // unsigned Discriminator
+#endif
 		);
 }
 

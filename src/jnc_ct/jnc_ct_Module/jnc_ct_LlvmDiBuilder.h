@@ -106,7 +106,7 @@ public:
 		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, alignment * 8, code);
 	}
 
-	llvm::DIType_vn
+	llvm::DISubroutineType_vn
 	createSubroutineType (FunctionType* functionType);
 
 	llvm::DIType_vn

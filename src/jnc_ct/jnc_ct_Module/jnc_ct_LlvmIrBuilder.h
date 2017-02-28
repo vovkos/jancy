@@ -862,7 +862,7 @@ public:
 			cmpValue.getLlvmValue (),
 			newValue.getLlvmValue (),
 			orderingKind,
-#if (LLVM_VERSION >= 0x0309)
+#if (LLVM_VERSION >= 0x0305)
 			orderingKind,
 #endif
 			syncKind
@@ -872,7 +872,7 @@ public:
 		return inst;
 	}
 
-#if (LLVM_VERSION >= 0x0309)
+#if (LLVM_VERSION >= 0x0305)
 	llvm::AtomicCmpXchgInst*
 	createCmpXchg (
 		const Value& ptrValue,

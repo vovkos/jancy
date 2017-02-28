@@ -112,7 +112,7 @@ ControlFlowMgr::setCurrentBlock (BasicBlock* block)
 
 	m_module->m_llvmIrBuilder.setInsertPoint (block);
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0307)
 	bool hasDebugLoc = !block->m_llvmDebugLoc.isUnknown ();
 #else
 	bool hasDebugLoc = block->m_llvmDebugLoc;

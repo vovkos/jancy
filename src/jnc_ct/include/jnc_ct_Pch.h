@@ -77,32 +77,22 @@ using namespace axl;
 
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/Attributes.h"
+#include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Intrinsics.h"
 #include "llvm/IR/IntrinsicInst.h"
-#include "llvm/IR/IRBuilder.h"
 
-#if (LLVM_VERSION < 0x0309)
-#	include "llvm/Support/CallSite.h"
+// they moved things around in LLVM 3.5
+
+#if (LLVM_VERSION < 0x0305)
 #	include "llvm/PassManager.h"
 #	include "llvm/DIBuilder.h"
 #	include "llvm/DebugInfo.h"
 #	include "llvm/Analysis/Verifier.h"
-#	include "llvm/ExecutionEngine/ObjectImage.h"
-#	ifndef _JNC_LLVM_NO_JIT
-#		include "llvm/ExecutionEngine/JIT.h"
-#		include "llvm/ExecutionEngine/JITMemoryManager.h"
-#	endif
-#	include "llvm/MC/MCDisassembler.h"
-#	include "llvm/CodeGen/MachineCodeInfo.h"
 #else
-#	include "llvm/IR/CallSite.h"
 #	include "llvm/IR/PassManager.h"
 #	include "llvm/IR/DIBuilder.h"
 #	include "llvm/IR/DebugInfo.h"
 #	include "llvm/IR/Verifier.h"
-#	include "llvm/MC/MCDisassembler/MCDisassembler.h"
 #endif
 
 #include "llvm/Support/Dwarf.h"
@@ -115,27 +105,21 @@ using namespace axl;
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Transforms/Scalar.h"
-
-#include "llvm/ExecutionEngine/ExecutionEngine.h"
-#include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
 
 // LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
-// we want to be able avoid that (i.e. if a libraries defines LLVM-dependent classes, but
+// we want to be able to avoid that (i.e. if a libraries defines LLVM-dependent classes, but
 // application does not use those classes -- then why link to LLVM?)
 
 #ifndef _JNC_LLVM_NO_JIT
+#	if (LLVM_VERSION < 0x0306) // legacy JIT is gone in LLVM 3.6
+#		include "llvm/ExecutionEngine/JIT.h"
+#		include "llvm/ExecutionEngine/JITMemoryManager.h"
+#	endif
+#
 #	include "llvm/ExecutionEngine/JITEventListener.h"
 #	include "llvm/ExecutionEngine/MCJIT.h"
 #endif
-
-#include "llvm/MC/MCAsmInfo.h"
-#include "llvm/MC/MCInst.h"
-#include "llvm/MC/MCInstPrinter.h"
-#include "llvm/MC/MCSubtargetInfo.h"
-
-#include "llvm/CodeGen/GCStrategy.h"
-#include "llvm/CodeGen/GCs.h"
 
 #pragma warning (default: 4244)
 #pragma warning (default: 4624)
@@ -143,12 +127,24 @@ using namespace axl;
 
 //..............................................................................
 
-// they changed the type model of llvm::DIBuilder in LLVM 3.9
+// they changed the type model of llvm::DIBuilder in LLVM 3.7
 // therefore, we define and use version-neutral typedefs
 
 namespace llvm {
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0307)
+#	if (LLVM_VERSION < 0x0306)
+
+typedef DICompositeType DISubroutineType_vn;
+typedef Value Metadata;
+
+#	else
+
+typedef DISubroutineType DISubroutineType_vn;
+
+#	endif
+
+typedef DIArray DINodeArray;
 
 typedef DIType DIType_vn;
 typedef DICompositeType DICompositeType_vn;
@@ -158,11 +154,6 @@ typedef DISubprogram DISubprogram_vn;
 typedef DILexicalBlock DILexicalBlock_vn;
 typedef DIScope DIScope_vn;
 typedef DIFile DIFile_vn;
-
-// missing derived types
-
-typedef DIArray DINodeArray;
-typedef Value Metadata;
 
 #else
 

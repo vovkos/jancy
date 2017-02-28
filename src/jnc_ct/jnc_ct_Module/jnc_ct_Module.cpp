@@ -148,7 +148,7 @@ Module::createLlvmExecutionEngine ()
 {
 	ASSERT (!m_llvmExecutionEngine);
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 	llvm::EngineBuilder engineBuilder (m_llvmModule);
 #else
 	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
@@ -159,20 +159,16 @@ Module::createLlvmExecutionEngine ()
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
 
 	llvm::TargetOptions targetOptions;
-#if (LLVM_VERSION < 0x0304) // they removed JITExceptionHandling in 3.4
-	targetOptions.JITExceptionHandling = true;
-#endif
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
-#if (LLVM_VERSION < 0x0304) // they distinguish between JIT & MCJIT memory managers in 3.4
-		engineBuilder.setUseMCJIT (true);
-		engineBuilder.setJITMemoryManager (jitMemoryMgr);
-		targetOptions.JITEmitDebugInfo = true;
-#elif (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 		engineBuilder.setUseMCJIT (true);
 		engineBuilder.setMCJITMemoryManager (jitMemoryMgr);
+		targetOptions.JITEmitDebugInfo = true;
+#elif (LLVM_VERSION < 0x0307)
+		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
 		targetOptions.JITEmitDebugInfo = true;
 #else
 		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
@@ -231,7 +227,7 @@ Module::createLlvmExecutionEngine ()
 		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
 #endif
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0306)
 		engineBuilder.setUseMCJIT (false);
 #endif
 	}

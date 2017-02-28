@@ -633,7 +633,11 @@ OperatorMgr::gcSafePoint ()
 			llvm::AtomicRMWInst::Xchg,
 			ptrValue,
 			value,
+#if (LLVM_VERSION < 0x0309)
+			llvm::AcquireRelease,
+#else
 			llvm::AtomicOrdering::AcquireRelease,
+#endif
 			llvm::CrossThread,
 			&value
 			);

@@ -421,17 +421,21 @@ ControlFlowMgr::onceStmt_PreBody (
 			stmt->m_flagVariable,
 			Value ((int64_t) 0, type),
 			Value (1, type),
+#if (LLVM_VERSION < 0x0309)
+			llvm::Acquire,
+#else
 			llvm::AtomicOrdering::Acquire,
+#endif
 			llvm::CrossThread,
 			&value
 			);
 
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x0305)
 		result =
 			m_module->m_operatorMgr.binaryOperator (BinOpKind_Eq, value, Value ((int64_t) 0, type), &value) &&
 			conditionalJump (value, bodyBlock, loopBlock);
 #else
-		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &value);
+		m_module->m_llvmIrBuilder.createExtractValue (value, 1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool), &value);
 		result = conditionalJump (value, bodyBlock, loopBlock);
 #endif
 
@@ -471,7 +475,11 @@ ControlFlowMgr::onceStmt_PostBody (
 			llvm::AtomicRMWInst::Xchg,
 			stmt->m_flagVariable,
 			Value ((int64_t) 2, type),
+#if (LLVM_VERSION < 0x0309)
+			llvm::Release,
+#else
 			llvm::AtomicOrdering::Release,
+#endif
 			llvm::CrossThread,
 			&tmpValue
 			);
