@@ -148,23 +148,6 @@ set_target_properties (
 	FOLDER samples
 	)
 
-if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
-	llvm_map_components_to_libraries (
-		LLVM_LIB_LIST
-		jit
-		native
-		MCJIT
-		MCDisassembler
-		)
-else ()
-	llvm_map_components_to_libnames (
-		LLVM_LIB_LIST
-		native
-		MCJIT
-		MCDisassembler
-		)
-endif ()
-
 target_link_libraries (
 	jnc_sample_03_dialog
 	jnc_api_static
@@ -178,8 +161,9 @@ target_link_libraries (
 	axl_io
 	axl_lex
 	axl_core
-	${LLVM_LIB_LIST}
 	)
+
+target_link_llvm_jit_libraries (jnc_sample_03_dialog)
 
 if (UNIX AND NOT APPLE)
 	target_link_libraries (
@@ -187,7 +171,6 @@ if (UNIX AND NOT APPLE)
 		rt
 		)
 endif ()
-
 
 if (WIN32)
 	copy_qt_dll_files (jnc_sample_03_dialog Core Gui Widgets)

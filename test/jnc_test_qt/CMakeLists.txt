@@ -219,23 +219,6 @@ set_target_properties (
 	FOLDER test
 	)
 
-if ("${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}" VERSION_LESS "3.9")
-	llvm_map_components_to_libraries (
-		LLVM_LIB_LIST
-		jit
-		native
-		MCJIT
-		MCDisassembler
-		)
-else ()
-	llvm_map_components_to_libnames (
-		LLVM_LIB_LIST
-		native
-		MCJIT
-		MCDisassembler
-		)
-endif ()
-
 target_link_libraries (
 	jnc_test_qt
 	jnc_api_static
@@ -250,8 +233,9 @@ target_link_libraries (
 	axl_io
 	axl_lex
 	axl_core
-	${LLVM_LIB_LIST}
 	)
+
+target_link_llvm_jit_libraries (jnc_test_qt)
 
 if (WIN32)
 	target_link_libraries (
