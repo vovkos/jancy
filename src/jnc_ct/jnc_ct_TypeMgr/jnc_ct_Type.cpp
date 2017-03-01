@@ -129,7 +129,7 @@ getPtrTypeFlagString (uint_t flags)
 		string += "autoget ";
 
 	if (!string.isEmpty ())
-		string.reduceLength (1);
+		string.chop (1);
 
 	return string;
 }

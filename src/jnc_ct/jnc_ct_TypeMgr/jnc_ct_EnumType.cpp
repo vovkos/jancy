@@ -46,7 +46,7 @@ getEnumTypeFlagString (uint_t flags)
 		string += "bitflag ";
 
 	if (!string.isEmpty ())
-		string.reduceLength (1);
+		string.chop (1);
 
 	return string;
 }

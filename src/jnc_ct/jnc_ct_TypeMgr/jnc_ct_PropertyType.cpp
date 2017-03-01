@@ -164,7 +164,7 @@ PropertyType::getTypeModifierString ()
 		string += "indexed ";
 
 	if (!string.isEmpty ())
-		string.reduceLength (1);
+		string.chop (1);
 
 	return string;
 }
