@@ -2249,8 +2249,9 @@ Parser::finalizeAutomatonFunction ()
 	// build case map
 
 	sl::Array <fsm::DfaState*> stateArray = m_automatonRegExp.getDfaStateArray ();
+	sl::SimpleHashTableMap <intptr_t, BasicBlock*> caseMap;
+
 	size_t stateCount = stateArray.getCount ();
-	sl::HashTableMap <intptr_t, BasicBlock*, axl::sl::HashId <intptr_t> > caseMap;
 	for (size_t i = 0; i < stateCount; i++)
 	{
 		fsm::DfaState* state = stateArray [i];

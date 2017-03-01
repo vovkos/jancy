@@ -36,7 +36,7 @@ struct SwitchStmt
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::HashTableMap <intptr_t, BasicBlock*, axl::sl::HashId <intptr_t> > m_caseMap;
+	sl::SimpleHashTableMap <intptr_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
