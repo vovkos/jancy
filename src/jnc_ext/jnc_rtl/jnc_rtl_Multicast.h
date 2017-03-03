@@ -128,7 +128,7 @@ protected:
 		for (listIt++; listIt; listIt++)
 			listIt->m_value--;
 
-		handleTable->remove (mapIt);
+		handleTable->erase (mapIt);
 		return ptr;
 	}
 };

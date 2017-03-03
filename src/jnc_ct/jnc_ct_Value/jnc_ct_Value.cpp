@@ -115,8 +115,8 @@ Value::clear ()
 	m_type = NULL;
 	m_item = NULL;
 	m_llvmValue = NULL;
-	m_closure = ref::PtrKind_Null;
-	m_leanDataPtrValidator = ref::PtrKind_Null;
+	m_closure = ref::g_nullPtr;
+	m_leanDataPtrValidator = ref::g_nullPtr;
 }
 
 llvm::Value*

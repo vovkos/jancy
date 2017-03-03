@@ -336,7 +336,7 @@ public:
 	void
 	clearClosure ()
 	{
-		m_closure = ref::PtrKind_Null;
+		m_closure = ref::g_nullPtr;
 	}
 
 	Type*
