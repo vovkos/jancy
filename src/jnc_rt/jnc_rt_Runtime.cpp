@@ -264,6 +264,11 @@ Runtime::dynamicThrow ()
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
 	if (tlsVariableTable->m_sjljFrame)
 	{
+#if (_JNC_OS_WIN && _JNC_CPU_AMD64)
+		_JUMP_BUFFER* pBuffer = (_JUMP_BUFFER*) tlsVariableTable->m_sjljFrame->m_jmpBuf;
+		pBuffer->Frame = 0; // prevent unwinding -- it doesn't work with the LLVM MCJIT-generated code
+#endif
+
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 	}
 	else
