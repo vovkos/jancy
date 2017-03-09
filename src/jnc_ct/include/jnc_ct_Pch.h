@@ -62,10 +62,11 @@ using namespace axl;
 
 // LLVM
 
+#pragma warning (disable: 4141) // warning C4141: 'inline' : used more than once
+#pragma warning (disable: 4291) // warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
 #pragma warning (disable: 4244) // warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
 #pragma warning (disable: 4624) // warning C4624: destructor could not be generated because a base class destructor is inaccessible
 #pragma warning (disable: 4800) // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
-
 #undef min
 #undef max
 
@@ -121,6 +122,8 @@ using namespace axl;
 #	include "llvm/ExecutionEngine/MCJIT.h"
 #endif
 
+#pragma warning (default: 4141)
+#pragma warning (default: 4291)
 #pragma warning (default: 4244)
 #pragma warning (default: 4624)
 #pragma warning (default: 4800)

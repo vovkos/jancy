@@ -18,3 +18,5 @@
 #include "jnc_Error.h"
 
 #include <memory>
+
+#pragma warning (disable: 4477) // warning C4477: 'printf' : format string '...' requires an argument of type '...', but variadic argument ... has type '...'
