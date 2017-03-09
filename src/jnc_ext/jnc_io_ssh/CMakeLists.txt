@@ -120,23 +120,19 @@ target_link_libraries (
 	jnc_api_dynamic
 	axl_io
 	axl_core
-	${LLVM_LIB_LIST}
+	${OPENSSL_CRYPTO_LIB_NAME}
+	${OPENSSL_SSL_LIB_NAME}
 	)
 
 if (WIN32)
 	target_link_libraries (
 		jnc_io_ssh
-		ws2_32
 		libssh2
-		libeay32MT
-		ssleay32MT
 		)
 elseif (UNIX)
 	target_link_libraries (
 		jnc_io_ssh
 		ssh2
-		ssl
-		crypto
 		)
 
 	if (NOT APPLE)
