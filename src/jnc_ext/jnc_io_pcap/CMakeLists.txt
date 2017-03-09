@@ -115,7 +115,6 @@ target_link_libraries (
 	jnc_api_dynamic
 	axl_io
 	axl_core
-	${LLVM_LIB_LIST}
 	)
 
 if (WIN32)
