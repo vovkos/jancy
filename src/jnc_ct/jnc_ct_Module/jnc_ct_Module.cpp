@@ -104,6 +104,10 @@ Module::initialize (
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif
 
+#if (LLVM_VERSION >= 0x0306)
+	compileFlags |= ModuleCompileFlag_McJit;
+#endif
+
 	m_name = name;
 	m_compileFlags = compileFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -190,7 +194,10 @@ Module::createLlvmExecutionEngine ()
 	}
 	else
 	{
-#if (_JNC_OS_WIN && _JNC_CPU_AMD64)
+#if (LLVM_VERSION >= 0x0306) // legacy JIT is gone in LLVM 3.6
+		ASSERT (false); // should have been checked earlier
+#else
+#	if (_JNC_OS_WIN && _JNC_CPU_AMD64)
 		// legacy JIT uses relative call to __chkstk
 		// it worked just fine before windows 10 which loads ntdll.dll too far away
 
@@ -225,9 +232,8 @@ Module::createLlvmExecutionEngine ()
 		p [12] = 0xe3;
 
 		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
-#endif
+#	endif
 
-#if (LLVM_VERSION < 0x0306)
 		engineBuilder.setUseMCJIT (false);
 #endif
 	}
@@ -243,7 +249,7 @@ Module::createLlvmExecutionEngine ()
 	m_llvmExecutionEngine = engineBuilder.create ();
 	if (!m_llvmExecutionEngine)
 	{
-		err::setFormatStringError ("cannot create execution engine: %s\n", errorString.c_str());
+		err::setFormatStringError ("cannot create execution engine: %s", errorString.c_str());
 		return false;
 	}
 
