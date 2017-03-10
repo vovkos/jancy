@@ -184,25 +184,32 @@ add_jancy_tests
 	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
 
 	set (_FILE_NAME_LIST ${ARGN})
-	set (_IS_DIR FALSE)
 	set (_DIR)
+	set (_PREFIX)
+	set (_IS_DIR FALSE)
+	set (_IS_PREFIX FALSE)
 
 	foreach (_FILE_NAME ${_FILE_NAME_LIST})
 		if (${_IS_DIR})
 			set (_DIR ${_FILE_NAME})
 			set (_IS_DIR FALSE)
+		elseif (${_IS_PREFIX})
+			set (_PREFIX ${_FILE_NAME})
+			set (_IS_PREFIX FALSE)
 		elseif ("${_FILE_NAME}" STREQUAL "WORKING_DIRECTORY")
 			set (_IS_DIR TRUE)
+		elseif ("${_FILE_NAME}" STREQUAL "NAME_PREFIX")
+			set (_IS_PREFIX TRUE)
 		elseif ("${_DIR}" STREQUAL "")
 			add_test (
-				NAME ${_FILE_NAME}
-				COMMAND $<TARGET_FILE:jnc_app> ${_FLAG_LIST} ${_FILE_NAME}
+				NAME ${_PREFIX}${_FILE_NAME}
+				COMMAND jnc_app ${_FLAG_LIST} ${_FILE_NAME}
 				)
 		else ()
 			add_test (
-				NAME ${_FILE_NAME}
+				NAME ${_PREFIX}${_FILE_NAME}
 				WORKING_DIRECTORY ${_DIR}
-				COMMAND $<TARGET_FILE:jnc_app> ${_FLAG_LIST} ${_FILE_NAME}
+				COMMAND jnc_app ${_FLAG_LIST} ${_FILE_NAME}
 				)
 		endif ()
 	endforeach ()
