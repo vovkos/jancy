@@ -115,7 +115,7 @@ ControlFlowMgr::setCurrentBlock (BasicBlock* block)
 #if (LLVM_VERSION < 0x0307)
 	bool hasDebugLoc = !block->m_llvmDebugLoc.isUnknown ();
 #else
-	bool hasDebugLoc = block->m_llvmDebugLoc;
+	bool hasDebugLoc = (bool) block->m_llvmDebugLoc;
 #endif
 
 	if (hasDebugLoc)
