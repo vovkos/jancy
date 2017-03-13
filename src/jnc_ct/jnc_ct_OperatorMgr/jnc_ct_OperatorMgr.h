@@ -1010,6 +1010,24 @@ public:
 		return callOperator (opValue, &argValueList, resultValue);
 	}
 
+	bool
+	callOperator (
+		const Value& opValue,
+		const Value& argValue1,
+		const Value& argValue2,
+		const Value& argValue3,
+		const Value& argValue4,
+		Value* resultValue = NULL
+		)
+	{
+		sl::BoxList <Value> argValueList;
+		argValueList.insertTail (argValue1);
+		argValueList.insertTail (argValue2);
+		argValueList.insertTail (argValue3);
+		argValueList.insertTail (argValue4);
+		return callOperator (opValue, &argValueList, resultValue);
+	}
+
 	void
 	gcSafePoint ();
 

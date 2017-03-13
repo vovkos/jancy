@@ -153,7 +153,6 @@ Function::compile ()
 		result =
 			m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
 			m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
-			(m_type->getFlags () & FunctionTypeFlag_Automaton) ? compileAutomatonBody () :
 			compileNormalBody ();
 
 		if (!result)
@@ -246,50 +245,6 @@ Function::compileConstructorBody ()
 		parser.m_constructorProperty = (Property*) m_parentNamespace;
 
 	return parser.parseTokenList (SymbolKind_constructor_compound_stmt, m_body, true);
-}
-
-bool
-Function::compileAutomatonBody ()
-{
-	Unit* unit = getParentUnit ();
-	ASSERT (unit);
-
-	if (m_type->getReturnType ()->getStdType () != StdType_AutomatonResult)
-	{
-		err::setFormatStringError ("automaton function must return 'jnc.AutomatonResult'");
-		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *getPos ()));
-		return false;
-	}
-
-	sl::Array <FunctionArg*> argArray = m_type->getArgArray ();
-	size_t explicitArgCount = argArray.getCount ();
-	size_t recognizerArgIdx = 0;
-
-	if (m_type->isMemberMethodType ())
-	{
-		explicitArgCount--;
-		recognizerArgIdx = 1;
-	}
-
-	ASSERT (recognizerArgIdx < explicitArgCount); // automaton at least has 'int state'
-	Type* recognizerArgType = argArray [recognizerArgIdx]->getType ();
-
-	if (explicitArgCount != 2 ||
-		(m_type->getFlags () & FunctionTypeFlag_VarArg) ||
-		(recognizerArgType->getTypeKind () != TypeKind_ClassPtr) ||
-		((ClassPtrType*) recognizerArgType)->getTargetType ()->getStdType () != StdType_Recognizer)
-	{
-		err::setFormatStringError ("automaton function must take one argument of type 'jnc.Recognizer*'");
-		lex::pushSrcPosError (lex::SrcPos (unit->getFilePath (), *getPos ()));
-		return false;
-	}
-
-	ASSERT (recognizerArgIdx + 1 < argArray.getCount ());
-	ASSERT (argArray [recognizerArgIdx + 1]->getType ()->getTypeKind () == TypeKind_Int);
-
-	Parser parser (m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-	return parser.parseTokenList (SymbolKind_automaton_compound_stmt, m_body, true);
 }
 
 bool

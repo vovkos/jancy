@@ -19,15 +19,6 @@ class BasicBlock;
 
 //..............................................................................
 
-struct AutomatonAcceptContext: sl::ListLink
-{
-	BasicBlock* m_actionBlock;
-	size_t m_firstGroupId;
-	size_t m_groupCount;
-};
-
-//..............................................................................
-
 struct DfaGroupSet: sl::ListLink
 {
 	sl::Array <size_t> m_openArray;
@@ -58,7 +49,7 @@ class Dfa: public sl::ListLink
 protected:
 	size_t m_stateCount;
 	size_t m_groupCount;
-	size_t m_maxSubLexemeCount;
+	size_t m_maxSubMatchCount;
 	sl::Array <uintptr_t> m_transitionTable;
 	sl::Array <DfaStateInfo> m_stateInfoTable;
 	sl::StdList <DfaAcceptInfo> m_acceptInfoList;
@@ -80,13 +71,13 @@ public:
 	}
 
 	size_t
-	getMaxSubLexemeCount ()
+	getMaxSubMatchCount ()
 	{
-		return m_maxSubLexemeCount;
+		return m_maxSubMatchCount;
 	}
 
 	bool
-	build (fsm::RegExp* regExp);
+	build (fsm::RegEx* regEx);
 
 	uintptr_t
 	getTransition (
@@ -107,7 +98,7 @@ public:
 
 //.............................................................................
 
-class AutomatonMgr
+class RegExMgr
 {
 	friend class Module;
 
@@ -116,7 +107,7 @@ protected:
 	sl::StdList <Dfa> m_dfaList;
 
 public:
-	AutomatonMgr ();
+	RegExMgr ();
 
 	Module*
 	getModule ()

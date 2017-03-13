@@ -10,9 +10,9 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_AutomatonMgr.h"
+#include "jnc_ct_RegExMgr.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rtl_Recognizer.h"
+#include "jnc_rtl_RegEx.h"
 
 namespace jnc {
 namespace ct {
@@ -23,16 +23,16 @@ Dfa::Dfa ()
 {
 	m_stateCount = 0;
 	m_groupCount = 0;
-	m_maxSubLexemeCount = 0;
+	m_maxSubMatchCount = 0;
 }
 
 bool
-Dfa::build (fsm::RegExp* regExp)
+Dfa::build (fsm::RegEx* regEx)
 {
-	sl::Array <fsm::DfaState*> stateArray = regExp->getDfaStateArray ();
+	sl::Array <fsm::DfaState*> stateArray = regEx->getDfaStateArray ();
 	m_stateCount = stateArray.getCount ();
-	m_groupCount = regExp->getGroupCount ();
-	m_maxSubLexemeCount = 0;
+	m_groupCount = regEx->getGroupCount ();
+	m_maxSubMatchCount = 0;
 
 	m_stateInfoTable.setCount (m_stateCount);
 	m_transitionTable.setCount (m_stateCount * 256);
@@ -47,7 +47,7 @@ Dfa::build (fsm::RegExp* regExp)
 		fsm::DfaState* state = stateArray [i];
 		if (state->m_isAccept)
 		{
-			AutomatonAcceptContext* context = (AutomatonAcceptContext*) state->m_acceptContext;
+			RegExSwitchAcceptContext* context = (RegExSwitchAcceptContext*) state->m_acceptContext;
 			ASSERT (context->m_firstGroupId + context->m_groupCount <= m_groupCount);
 
 			DfaAcceptInfo* acceptInfo = AXL_MEM_NEW (DfaAcceptInfo);
@@ -55,14 +55,14 @@ Dfa::build (fsm::RegExp* regExp)
 			acceptInfo->m_groupCount = context->m_groupCount;
 			m_acceptInfoList.insertTail (acceptInfo);
 
-			if (context->m_groupCount > m_maxSubLexemeCount)
-				m_maxSubLexemeCount = context->m_groupCount;
+			if (context->m_groupCount > m_maxSubMatchCount)
+				m_maxSubMatchCount = context->m_groupCount;
 
 			stateInfo->m_acceptInfo = acceptInfo;
-			stateInfo->m_flags |= rtl::RecognizerStateFlag_Accept;
+			stateInfo->m_flags |= rtl::RegExState::StateFlag_Accept;
 
 			if (state->m_transitionList.isEmpty ())
-				stateInfo->m_flags |= rtl::RecognizerStateFlag_Final;
+				stateInfo->m_flags |= rtl::RegExState::StateFlag_Final;
 		}
 
 		size_t j = state->m_openCaptureIdSet.findBit (0);
@@ -123,14 +123,14 @@ Dfa::build (fsm::RegExp* regExp)
 
 //..............................................................................
 
-AutomatonMgr::AutomatonMgr ()
+RegExMgr::RegExMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 }
 
 Dfa*
-AutomatonMgr::createDfa ()
+RegExMgr::createDfa ()
 {
 	Dfa* attributeBlock = AXL_MEM_NEW (Dfa);
 	m_dfaList.insertTail (attributeBlock);

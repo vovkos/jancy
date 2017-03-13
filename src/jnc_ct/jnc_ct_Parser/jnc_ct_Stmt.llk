@@ -23,34 +23,6 @@ compound_stmt
 	;
 
 start
-automaton_compound_stmt
-	:	'{'
-			{
-				return beginAutomatonFunction ();
-			}
-		automaton_declaration*
-		'}'
-			{
-				return finalizeAutomatonFunction ();
-			}
-	;
-
-automaton_declaration
-	:	TokenKind_RegExpLiteral
-			{
-				return automatonRegExp ($1.m_data.m_string, $1.m_pos);
-			}
-	|		{
-				if (m_automatonState != AutomatonState_RegExpCase)
-				{
-					err::setError ("missing regexp condition");
-					return false;
-				}
-			}
-		local_declaration+
-	;
-
-start
 constructor_compound_stmt
 	:	'{'
 			{
@@ -114,6 +86,7 @@ statement
 	|	expression_stmt
 	|	if_stmt
 	|	switch_stmt
+	|	regex_switch_stmt
 	|	while_stmt
 	|	do_stmt
 	|	for_stmt
@@ -167,24 +140,66 @@ switch_stmt
 	{
 		m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
 	}
-	:	TokenKind_Switch '(' expression $e ')' '{' $l
+	:	TokenKind_Switch '(' expression $e ')' 
+		'{' $l
 			{
 				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, $e.m_value, $l.m_pos);
 			}
-		switch_block_stmt <&$stmt>* '}'
+		switch_block_stmt <&$stmt>*
 			{
 				m_module->m_controlFlowMgr.switchStmt_Follow (&$stmt);
 			}
+		'}'
 	;
 
 switch_block_stmt <SwitchStmt* $stmt>
-	:	TokenKind_Case constant_integer_expr $e ':'
+	:	TokenKind_Case constant_integer_expr ':'
 			{
-				return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, $e.m_value, $1.m_pos, $1.m_data.m_integer);
+				return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, $2.m_value, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	TokenKind_Default ':'
 			{
 				return m_module->m_controlFlowMgr.switchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
+			}
+	|	local_declaration
+	;
+
+
+regex_switch_stmt
+	local
+	{
+		RegExSwitchStmt $stmt;
+	}
+	enter
+	{
+		m_module->m_controlFlowMgr.regExSwitchStmt_Create (&$stmt);
+	}
+	:	TokenKind_RegEx TokenKind_Switch '(' expression $r ',' expression $e (',' expression $s)? ')' 
+		'{' $l
+			{
+				return m_module->m_controlFlowMgr.regExSwitchStmt_Condition (
+					&$stmt, 
+					$r.m_value, 
+					$e.m_value, 
+					&$s ? $s.m_value : Value (),
+					$l.m_pos
+					);
+			}
+		regex_switch_block_stmt <&$stmt>* 
+			{
+				return m_module->m_controlFlowMgr.regExSwitchStmt_Finalize (&$stmt);
+			}
+		'}'
+	;
+
+regex_switch_block_stmt <RegExSwitchStmt* $stmt>
+	:	TokenKind_Case constant_literal_expr ':'
+			{
+				return m_module->m_controlFlowMgr.regExSwitchStmt_Case ($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
+			}
+	|	TokenKind_Default ':'
+			{
+				return m_module->m_controlFlowMgr.regExSwitchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	local_declaration
 	;

@@ -161,9 +161,6 @@ FunctionType::createFlagSignature (uint_t flags)
 {
 	sl::String string;
 
-	if (flags & FunctionTypeFlag_Automaton)
-		string += 'A';
-
 	if (flags & FunctionTypeFlag_Unsafe)
 		string += 'U';
 
@@ -221,9 +218,6 @@ FunctionType::getTypeModifierString ()
 	if (m_flags & FunctionTypeFlag_Unsafe)
 		string += "unsafe ";
 
-	if (m_flags & FunctionTypeFlag_Automaton)
-		string += "automaton ";
-
 	if (!string.isEmpty ())
 		string.chop (1);
 
@@ -251,12 +245,6 @@ FunctionType::prepareTypeString ()
 		tuple->m_typeStringSuffix += m_argArray [0]->getArgString ();
 
 		size_t count = m_argArray.getCount ();
-		if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
-		{
-			ASSERT (count >= 2);
-			count--;
-		}
-
 		for (size_t i = 1; i < count; i++)
 		{
 			tuple->m_typeStringSuffix += ", ";
@@ -298,12 +286,6 @@ FunctionType::prepareDoxyLinkedText ()
 		tuple->m_doxyLinkedTextSuffix += m_argArray [0]->getArgDoxyLinkedText ();
 
 		size_t count = m_argArray.getCount ();
-		if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
-		{
-			ASSERT (count >= 2);
-			count--;
-		}
-
 		for (size_t i = 1; i < count; i++)
 		{
 			tuple->m_doxyLinkedTextSuffix += ", ";
@@ -386,12 +368,6 @@ FunctionType::getDoxyArgString ()
 	sl::String string;
 
 	size_t count = m_argArray.getCount ();
-	if (m_flags & FunctionTypeFlag_Automaton) // get rid of the last state argument
-	{
-		ASSERT (count >= 2);
-		count--;
-	}
-
 	for (size_t i = 0; i < count; i++)
 	{
 		FunctionArg* arg = m_argArray [i];

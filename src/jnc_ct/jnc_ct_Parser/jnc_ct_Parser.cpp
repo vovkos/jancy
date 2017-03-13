@@ -14,7 +14,7 @@
 #include "jnc_ct_Parser.llk.cpp"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
-#include "jnc_rtl_Recognizer.h"
+#include "jnc_rtl_RegEx.h"
 
 // #define _NO_BINDLESS_REACTIONS 1
 
@@ -40,9 +40,6 @@ Parser::Parser (Module* module):
 	m_reactionBindSiteCount = 0;
 	m_reactorTotalBindSiteCount = 0;
 	m_reactionCount = 0;
-	m_automatonState = AutomatonState_Idle;
-	m_automatonSwitchBlock = NULL;
-	m_automatonReturnBlock = NULL;
 	m_dynamicLibFunctionCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
@@ -2183,195 +2180,6 @@ Parser::reactorDeclarationOrExpressionStmt (sl::BoxList <Token>* tokenList)
 	reaction->m_function->setBody (tokenList);
 	reaction->m_bindSiteList.takeOver (&parser.m_reactionBindSiteList);
 	m_reactionList.insertTail (reaction);
-	return true;
-}
-
-bool
-Parser::beginAutomatonFunction ()
-{
-	m_automatonState = AutomatonState_Idle;
-	m_automatonSwitchBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
-	m_automatonReturnBlock = m_module->m_controlFlowMgr.createBlock ("automaton_return_block");
-	m_automatonRegExpNameMgr.clear ();
-	m_automatonRegExp.clear ();
-	m_automatonAcceptContextList.clear ();
-	return true;
-}
-
-bool
-Parser::finalizeAutomatonFunction ()
-{
-	bool result;
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	ASSERT (function->m_type->getFlags () & FunctionTypeFlag_Automaton);
-
-	ClassType* recognizerType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Recognizer);
-	Type* recognizerPtrType = recognizerType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-
-	if (m_automatonState == AutomatonState_RegExpCase)
-	{
-		m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
-		m_module->m_namespaceMgr.closeScope ();
-	}
-
-	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction ()->arg_begin ();
-
-	if (function->isMember ())
-		llvmArg++;
-
-	Value recognizerValue ((llvm::Argument*) llvmArg++, recognizerPtrType);
-	Value requestValue ((llvm::Argument*) llvmArg++, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
-
-	// finalize regexp
-
-	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp);
-	regExpCompiler.finalize ();
-
-	sl::Iterator <AutomatonAcceptContext> prev = m_automatonAcceptContextList.getHead ();
-	sl::Iterator <AutomatonAcceptContext> next = prev.getNext ();
-	while (next)
-	{
-		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
-		prev = next++;
-	}
-
-	ASSERT (prev); // otherwise, it was an empty automaton, which should have been handled earlier
-	prev->m_groupCount = m_automatonRegExp.getGroupCount () - prev->m_firstGroupId;
-
-	// build dfa tables
-
-	Dfa* dfa = m_module->m_automatonMgr.createDfa ();
-	result = dfa->build (&m_automatonRegExp);
-	if (!result)
-		return false;
-
-	// build case map
-
-	sl::Array <fsm::DfaState*> stateArray = m_automatonRegExp.getDfaStateArray ();
-	sl::SimpleHashTableMap <intptr_t, BasicBlock*> caseMap;
-
-	size_t stateCount = stateArray.getCount ();
-	for (size_t i = 0; i < stateCount; i++)
-	{
-		fsm::DfaState* state = stateArray [i];
-
-		if (state->m_isAccept)
-		{
-			AutomatonAcceptContext* context = (AutomatonAcceptContext*) state->m_acceptContext;
-			caseMap [state->m_id] = context->m_actionBlock;
-		}
-	}
-
-	// generate switch
-
-	BasicBlock* automatonSetupBlock = m_module->m_controlFlowMgr.createBlock ("automaton_setup_block");
-
-	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonSwitchBlock);
-
-	m_module->m_llvmIrBuilder.createSwitch (
-		requestValue,
-		automatonSetupBlock,
-		caseMap.getHead (),
-		caseMap.getCount ()
-		);
-
-	// generate setup
-
-	m_module->m_controlFlowMgr.setCurrentBlock (automatonSetupBlock);
-	automatonSetupBlock->markReachable ();
-
-	Function* setDfaFunc = recognizerType->findFunctionByName ("setDfa");
-	ASSERT (setDfaFunc);
-
-	Value dfaValue (&dfa, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-	result = m_module->m_operatorMgr.callOperator (setDfaFunc, recognizerValue, dfaValue);
-	if (!result)
-		return false;
-
-	m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
-
-	m_module->m_controlFlowMgr.setCurrentBlock (m_automatonReturnBlock);
-
-	Value retValue (
-		rtl::AutomatonResult_Continue,
-		m_module->m_typeMgr.getStdType (StdType_AutomatonResult)
-		);
-
-	m_module->m_controlFlowMgr.ret (retValue);
-	return true;
-}
-
-bool
-isNameValue (
-	const sl::StringRef& source,
-	sl::String* name,
-	sl::String* value
-	)
-{
-	const char* p = source.sz ();
-	while (isspace ((uchar_t) *p))
-		p++;
-
-	if (!isalpha ((uchar_t) *p) && *p != '_')
-		return false;
-
-	const char* nameBegin = p;
-	while (isalnum ((uchar_t) *p) || *p == '_')
-		p++;
-
-	const char* nameEnd = p;
-
-	while (isspace ((uchar_t) *p))
-		p++;
-
-	if (*p != '=')
-		return false;
-
-	name->copy (nameBegin, nameEnd - nameBegin);
-	value->copy (p + 1);
-	return true;
-}
-
-bool
-Parser::automatonRegExp (
-	const sl::StringRef& source,
-	const Token::Pos& pos
-	)
-{
-	if (m_automatonState == AutomatonState_RegExpCase)
-	{
-		m_module->m_controlFlowMgr.jump (m_automatonReturnBlock);
-		m_module->m_namespaceMgr.closeScope ();
-	}
-
-	sl::String name;
-	sl::String value;
-	bool isRegExpNameDef = isNameValue (source, &name, &value);
-	if (isRegExpNameDef)
-	{
-		m_automatonRegExpNameMgr.addName (name, value);
-		m_automatonState = AutomatonState_Idle;
-		return true;
-	}
-
-	BasicBlock* block = m_module->m_controlFlowMgr.createBlock ("automaton_action_block");
-
-	AutomatonAcceptContext* context = AXL_MEM_NEW (AutomatonAcceptContext);
-	context->m_firstGroupId = m_automatonRegExp.getGroupCount ();
-	context->m_groupCount = 0;
-	context->m_actionBlock = block;
-	m_automatonAcceptContextList.insertTail (context);
-
-	fsm::RegExpCompiler regExpCompiler (&m_automatonRegExp, &m_automatonRegExpNameMgr);
-	bool result = regExpCompiler.incrementalCompile (source, context);
-	if (!result)
-		return false;
-
-	m_module->m_controlFlowMgr.setCurrentBlock (block);
-	m_module->m_namespaceMgr.openScope (pos);
-	block->markReachable ();
-	m_automatonState = AutomatonState_RegExpCase;
 	return true;
 }
 

@@ -46,8 +46,7 @@ enum jnc_FunctionTypeFlag
 	jnc_FunctionTypeFlag_ErrorCode   = 0x020000,
 	jnc_FunctionTypeFlag_ByValArgs   = 0x040000,
 	jnc_FunctionTypeFlag_CoercedArgs = 0x080000,
-	jnc_FunctionTypeFlag_Automaton   = 0x100000,
-	jnc_FunctionTypeFlag_Unsafe      = 0x200000,
+	jnc_FunctionTypeFlag_Unsafe      = 0x100000,
 };
 
 typedef enum jnc_FunctionTypeFlag jnc_FunctionTypeFlag;
@@ -224,7 +223,6 @@ const FunctionTypeFlag
 	FunctionTypeFlag_ErrorCode   = jnc_FunctionTypeFlag_ErrorCode,
 	FunctionTypeFlag_ByValArgs   = jnc_FunctionTypeFlag_ByValArgs,
 	FunctionTypeFlag_CoercedArgs = jnc_FunctionTypeFlag_CoercedArgs,
-	FunctionTypeFlag_Automaton   = jnc_FunctionTypeFlag_Automaton,
 	FunctionTypeFlag_Unsafe      = jnc_FunctionTypeFlag_Unsafe;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

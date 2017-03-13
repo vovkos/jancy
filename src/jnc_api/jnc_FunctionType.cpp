@@ -30,8 +30,8 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 	{
 		"vararg",     // jnc_FunctionTypeFlag_VarArg      = 0x010000,
 		"errorcode",  // jnc_FunctionTypeFlag_ErrorCode   = 0x020000,
+		"byval",      // jnc_FunctionTypeFlag_ByValArgs   = 0x040000,
 		"coerced",    // jnc_FunctionTypeFlag_CoercedArgs = 0x040000,
-		"automaton",  // jnc_FunctionTypeFlag_Automaton   = 0x080000,
 		"unsafe",     // jnc_FunctionTypeFlag_Unsafe      = 0x100000,
 	};
 

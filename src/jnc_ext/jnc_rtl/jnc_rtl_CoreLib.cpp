@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "jnc_rtl_DynamicLib.h"
 #include "jnc_rtl_Multicast.h"
-#include "jnc_rtl_Recognizer.h"
+#include "jnc_rtl_RegEx.h"
 
 #ifdef _JNC_CORE
 #	include "jnc_rt_Runtime.h"
@@ -1185,7 +1185,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// std types
 
-	JNC_MAP_STD_TYPE (StdType_Recognizer, Recognizer)
+	JNC_MAP_STD_TYPE (StdType_RegExState, RegExState)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)
 
 JNC_END_LIB_FUNCTION_MAP ()

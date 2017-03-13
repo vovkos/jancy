@@ -67,12 +67,6 @@ Members
 		AssignKind_BinOp,
 	};
 
-	enum AutomatonState
-	{
-		AutomatonState_Idle,
-		AutomatonState_RegExpCase,
-	};
-
 	struct CurlyInitializer
 	{
 		Value m_targetValue;
@@ -139,13 +133,6 @@ Members
 	Property* m_constructorProperty;
 
 	Value m_curlyInitializerTargetValue;
-
-	AutomatonState m_automatonState;
-	fsm::StdRegExpNameMgr m_automatonRegExpNameMgr;
-	fsm::RegExp m_automatonRegExp;
-	BasicBlock* m_automatonSwitchBlock;
-	BasicBlock* m_automatonReturnBlock;
-	sl::StdList <AutomatonAcceptContext> m_automatonAcceptContextList;
 
 	size_t m_dynamicLibFunctionCount;
 
@@ -449,18 +436,6 @@ Members2
 
 	bool
 	countReactionBindSites ();
-
-	bool
-	beginAutomatonFunction ();
-
-	bool
-	finalizeAutomatonFunction ();
-
-	bool
-	automatonRegExp (
-		const sl::StringRef& source,
-		const Token::Pos& pos
-		);
 
 	bool
 	callBaseTypeMemberConstructor (

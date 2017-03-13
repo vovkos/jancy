@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_rtl_RegEx.h"
 
 namespace jnc {
 namespace ct {
@@ -105,7 +106,7 @@ ControlFlowMgr::switchStmt_Case (
 	sl::HashTableMapIterator <intptr_t, BasicBlock*> it = stmt->m_caseMap.visit (value);
 	if (it->m_value)
 	{
-		err::setFormatStringError ("redefinition of label (%d) of switch statement", value);
+		err::setFormatStringError ("redefinition of label (%d) of 'switch' statement", value);
 		return false;
 	}
 
@@ -129,7 +130,7 @@ ControlFlowMgr::switchStmt_Default (
 {
 	if (stmt->m_defaultBlock)
 	{
-		err::setFormatStringError ("redefinition of 'default' label of switch statement");
+		err::setFormatStringError ("redefinition of 'default' label of 'switch' statement");
 		return false;
 	}
 
@@ -164,6 +165,204 @@ ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 		);
 
 	setCurrentBlock (stmt->m_followBlock);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
+ControlFlowMgr::regExSwitchStmt_Create (RegExSwitchStmt* stmt)
+{
+	stmt->m_switchBlock = NULL;
+	stmt->m_defaultBlock = NULL;
+	stmt->m_followBlock = createBlock ("regex_switch_follow");
+}
+
+bool
+ControlFlowMgr::regExSwitchStmt_Condition (
+	RegExSwitchStmt* stmt,
+	const Value& regExStateValue,
+	const Value& dataValue,
+	const Value& sizeValue,
+	const Token::Pos& pos
+	)
+{
+	ClassType* regExStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegExState);
+	ClassPtrType* regExStatePtrType = regExStateType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+
+	bool result = 
+		m_module->m_operatorMgr.castOperator (regExStateValue, regExStatePtrType, &stmt->m_regExStateValue) &&
+		m_module->m_operatorMgr.castOperator (dataValue, charPtrType, &stmt->m_dataValue);
+	
+	if (!result)
+		return false;
+
+	if (!sizeValue)
+	{
+		stmt->m_sizeValue.setConstSizeT (-1, m_module);
+	}
+	else
+	{
+		result = m_module->m_operatorMgr.castOperator (sizeValue, TypeKind_SizeT, &stmt->m_sizeValue);
+		if (!result)
+			return false;
+	}
+
+	stmt->m_switchBlock = getCurrentBlock ();
+
+	BasicBlock* bodyBlock = createBlock ("regex_switch_body");
+	setCurrentBlock (bodyBlock);
+	markUnreachable (bodyBlock);
+
+	Scope* scope = m_module->m_namespaceMgr.openScope (pos);
+	scope->m_breakBlock = stmt->m_followBlock;
+
+	m_module->m_namespaceMgr.openScope (pos);
+	return true;
+}
+
+bool
+ControlFlowMgr::regExSwitchStmt_Case (
+	RegExSwitchStmt* stmt,
+	const sl::StringRef& regExSource,
+	const Token::Pos& pos,
+	uint_t scopeFlags
+	)
+{
+	m_module->m_namespaceMgr.closeScope ();
+
+	BasicBlock* block = createBlock ("regex_switch_case");
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
+	follow (block);
+	m_module->m_namespaceMgr.openScope (pos);
+
+	RegExSwitchAcceptContext* context = AXL_MEM_NEW (RegExSwitchAcceptContext);
+	context->m_firstGroupId = stmt->m_regEx.getGroupCount ();
+	context->m_groupCount = 0;
+	context->m_actionBlock = block;
+	stmt->m_acceptContextList.insertTail (context);
+
+	fsm::RegExCompiler regExCompiler (&stmt->m_regEx);
+	return regExCompiler.incrementalCompile (regExSource, context);
+}
+
+bool
+ControlFlowMgr::regExSwitchStmt_Default (
+	RegExSwitchStmt* stmt,
+	const Token::Pos& pos,
+	uint_t scopeFlags
+	)
+{
+	if (stmt->m_defaultBlock)
+	{
+		err::setFormatStringError ("redefinition of 'default' label of 'regex switch' statement");
+		return false;
+	}
+
+	m_module->m_namespaceMgr.closeScope ();
+
+	BasicBlock* block = createBlock ("regex_switch_default");
+	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
+	follow (block);
+	stmt->m_defaultBlock = block;
+
+	m_module->m_namespaceMgr.openScope (pos);
+	return true;
+}
+
+bool
+ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
+{
+	bool result;
+
+	m_module->m_namespaceMgr.closeScope ();
+	m_module->m_namespaceMgr.closeScope ();
+	follow (stmt->m_followBlock);
+
+	setCurrentBlock (stmt->m_switchBlock);
+
+	BasicBlock* defaultBlock = stmt->m_defaultBlock ? stmt->m_defaultBlock : stmt->m_followBlock;
+	defaultBlock->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
+
+	// finalize regexp
+
+	fsm::RegExCompiler regExCompiler (&stmt->m_regEx);
+	regExCompiler.finalize ();
+
+	sl::Iterator <RegExSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead ();
+	sl::Iterator <RegExSwitchAcceptContext> next = prev.getNext ();
+	while (next)
+	{
+		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
+		prev = next++;
+	}
+
+	if (!prev)
+	{
+		err::setError ("empty regex switch");
+		return false;
+	}
+
+	prev->m_groupCount = stmt->m_regEx.getGroupCount () - prev->m_firstGroupId;
+
+	// build dfa tables
+
+	Dfa* dfa = m_module->m_regExMgr.createDfa ();
+	result = dfa->build (&stmt->m_regEx);
+	if (!result)
+		return false;
+
+	// build case map
+
+	sl::Array <fsm::DfaState*> stateArray = stmt->m_regEx.getDfaStateArray ();
+	sl::SimpleHashTableMap <intptr_t, BasicBlock*> caseMap;
+
+	size_t stateCount = stateArray.getCount ();
+	for (size_t i = 0; i < stateCount; i++)
+	{
+		fsm::DfaState* state = stateArray [i];
+
+		if (state->m_isAccept)
+		{
+			RegExSwitchAcceptContext* context = (RegExSwitchAcceptContext*) state->m_acceptContext;
+			caseMap [state->m_id] = context->m_actionBlock;
+		}
+	}
+			
+	caseMap [rtl::RegExResult_Continue] = stmt->m_followBlock;
+
+	// execute dfa and generate switch
+
+	m_module->m_controlFlowMgr.setCurrentBlock (stmt->m_switchBlock);
+
+	ClassType* regExStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegExState);
+	Function* execFunc = regExStateType->findFunctionByName ("exec");
+	ASSERT (execFunc);
+
+	Value dfaValue (&dfa, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Value resultValue;
+
+	result = m_module->m_operatorMgr.callOperator (
+		execFunc,
+		stmt->m_regExStateValue,
+		dfaValue,
+		stmt->m_dataValue,
+		stmt->m_sizeValue,
+		&resultValue
+		);
+
+	if (!result)
+		return false;
+
+	m_module->m_llvmIrBuilder.createSwitch (
+		resultValue,
+		defaultBlock,
+		caseMap.getHead (),
+		caseMap.getCount ()
+		);
+
+	setCurrentBlock (stmt->m_followBlock);
+	return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

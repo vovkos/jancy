@@ -1,0 +1,183 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char regExMatchTypeSrc [] =
+
+struct RegExMatch
+{
+	//! Holds a pointer to the match (guaranteed to be null-terminated).
+
+	char const* m_text;
+
+	//! Holds offset of the match relative the beginning of input stream.
+
+	size_t m_offset;
+
+	//! Holds length of the match.
+
+	size_t m_length;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char regExStateTypeSrc [] =
+
+/**
+	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``automaton`` function.
+
+	Jancy ``automaton`` functions allow for convenient creation of lexers/scanners.
+
+	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
+
+	1. Define a list of recognized lexemes in the form of regular expressions.
+	2. Specify which actions to execute when these lexemes are found in the input stream.
+	3. Jancy compiler automatically builds a DFA to recognize your language and perform correspondig actions.
+
+	However, you cannot call ``automaton`` function directly. To *execute* the resulting DFA you need a `jnc.Recognizer` object -- it will hold the state of DFA and buffer matched lexemes.
+
+	For better understanding of the relations between automatons and recognizers, think about the follow analogy. You have an XBox console and a game disc. First you have to load the disc into console, and then you play it -- you can even interrupt the process of playing (e.g. to continue it the next day).
+
+	In this analogy a game disc corresponds to some ``automaton`` function and a console is a `jnc.Recognizer` instance. Recognizer holds the DFA state and performs recognition driven by the ``automaton`` function. And just like with XBox example above, you can recognize a part of data first, then wait (for example, until the next portion arrives over the network), then continue where you left, and so on.
+
+	.. rubric:: Using Automatons and Recognizers
+
+	To use Jancy lexer/scanner framework, you have to define an automaton function first. Automaton function contains a list of recognized lexemes in form of regular expressions *and* defines actions to undertake when these lexemes are found in the input stream:
+
+	.. ref-code-block::
+
+		`jnc.AutomatonResult` automaton fooBar (`jnc.Recognizer`* recognizer)
+		{
+			%% "foo"
+				// lexeme found: foo;
+
+			%% "bar"
+				// lexeme found: bar;
+
+			%% [0-9]+
+				// lexeme found: decimal-number
+
+				int value = atoi (recognizer.m_lexeme);
+
+			%% [ \r\n\t]+
+				// ignore whitespace
+		}
+
+	Then create an instance of ``jnc.Recognizer`` class and assign your ``automaton`` function to it::
+
+		jnc.Recognizer recognizer (fooBar);
+
+	Then you keep feeding chunks of data to the recognizer; when recognizer matches the whole lexeme as defined in ``automaton`` function, it executes the corresponding action:
+
+	.. ref-code-block::
+
+		try
+		{
+			recognizer.write (" ba");
+			recognizer.write ("r f");
+			recognizer.write ("oo ");
+			recognizer.write ("100");
+			recognizer.write ("000");
+
+			// notify recognizer about eof (this can trigger actions or errors)
+
+			recognizer.eof ();
+
+		catch:
+			// handle recognition error
+		}
+
+	\sa `jnc.AutomatonLexeme`, `jnc.AutomatonResult`
+
+	\footnote f1
+
+		|footnote-errorcode|
+*/
+
+class RegExState
+{
+protected:
+	void thin* m_dfa; // opaque implementation
+
+	uintptr_t m_stateId;
+	uintptr_t m_lastAcceptStateId;
+	size_t m_lastAcceptMatchLength;
+
+	size_t* m_groupOffsetArray; // [m_groupCount * 2] -- begin, end
+	size_t m_groupCount;
+	size_t m_maxSubMatchCount;
+
+public:
+	bool m_isIncremental;
+
+	/**
+		Holds the maximum buffer size for lexemes. Set before starting recognition.
+
+		What happends when lexeme in the input stream does not fit inside the buffer, depends on the whether the captured part of lexeme *already* matches some rule. If yes, recognizer will execute corresponding action and then reset its state to initial value.
+
+		If captured part of lexeme does not match any rules, ``write`` or ``recognize`` will return error.
+	*/
+
+	size_t autoget property m_matchLengthLimit;
+
+	/**
+		Holds the current offset of recognizer.
+
+		Could be adjusted manually. For example, you can adjust ``m_currentOffset`` before starting recognition; when a lexeme is found, ``m_lexemeOffset`` will account for the initial offset (offset relative the beginning of the stream plus initial offset set before starting recognition).
+	*/
+
+	size_t autoget property m_currentOffset;
+
+	/**
+		\subgroup
+
+		These fields hold information about the matched lexeme and, possibly, sub-lexemes (if capturing regular expressions groups were used).
+
+		These fields should only be accessed from within **action** inside ``automaton`` function.
+	*/
+
+	RegExMatch readonly m_match;
+	RegExMatch const* readonly m_subMatchArray;
+	size_t readonly m_subMatchCount;
+
+public:
+	/**
+		Constructor of ``jnc.Recognizer`` class. Accepts a single optional argument ``automatonFunc`` which, if supplied, will be written to ``m_automatonFunc`` and used for subsequent scanning.
+	*/
+
+	construct (bool isIncremental = false);
+
+	/**
+		Resets state of recognizer including all offsets and captured lexeme bytes.
+	*/
+
+	reset ();
+
+protected:
+	size_t exec (
+		void thin* dfa,
+		char const* p,
+		size_t length
+		);
+}
+
+///;
+
+//..............................................................................
+
+///---
+
+} // namespace jnc

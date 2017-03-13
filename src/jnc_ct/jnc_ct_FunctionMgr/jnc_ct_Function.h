@@ -432,9 +432,6 @@ protected:
 	compileConstructorBody ();
 
 	bool
-	compileAutomatonBody ();
-
-	bool
 	compileReactionBody ();
 
 	bool

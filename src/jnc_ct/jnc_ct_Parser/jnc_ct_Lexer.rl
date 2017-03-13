@@ -156,7 +156,6 @@ main := |*
 'multicast'      { createToken (TokenKind_Multicast); };
 'event'          { createToken (TokenKind_Event); };
 'reactor'        { createToken (TokenKind_Reactor); };
-'automaton'      { createToken (TokenKind_Automaton); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -236,6 +235,7 @@ main := |*
 'finally'        { createToken (TokenKind_Finally); };
 'nestedscope'    { createToken (TokenKind_NestedScope); };
 'assert'         { createToken (TokenKind_Assert); };
+'regex'          { createToken (TokenKind_RegEx); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -286,9 +286,6 @@ main := |*
 '0' [oO] '"""'   { preCreateMlLiteralToken (8); fgoto lit_ml; };
 '0' [bB] '"""'   { preCreateMlLiteralToken (2); fgoto lit_ml; };
 '0' [nNdD] '"""' { preCreateMlLiteralToken (10); fgoto lit_ml; };
-
-'%%' ([^\n] | lc_nl)*
-				 { createStringToken (TokenKind_RegExpLiteral, 2); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

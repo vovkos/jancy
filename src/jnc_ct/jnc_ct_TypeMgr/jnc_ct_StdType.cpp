@@ -23,8 +23,8 @@ getStdTypeSource (StdType stdType)
 {
 	#include "jnc_StdTypes.jnc.cpp"
 	#include "jnc_Scheduler.jnc.cpp"
-	#include "jnc_Recognizer.jnc.cpp"
 	#include "jnc_DynamicLib.jnc.cpp"
+	#include "jnc_RegEx.jnc.cpp"
 
 	static StdItemSource sourceTable [StdType__Count] =
 	{
@@ -58,22 +58,16 @@ getStdTypeSource (StdType stdType)
 			lengthof (schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_Recognizer,
-			recognizerTypeSrc,
-			lengthof (recognizerTypeSrc),
+		{                                    // StdType_RegExMatch,
+			regExMatchTypeSrc,
+			lengthof (regExMatchTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_AutomatonResult,
-			automatonResultTypeSrc,
-			lengthof (automatonResultTypeSrc),
+		{                                    // StdType_RegExState,
+			regExStateTypeSrc,
+			lengthof (regExStateTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_AutomatonLexeme,
-			automatonLexemeTypeSrc,
-			lengthof (automatonLexemeTypeSrc),
-			StdNamespace_Jnc,
-		},
-		{ NULL },                            // StdType_AutomatonFunc,
 		{                                    // StdType_DynamicLib,
 			dynamicLibTypeSrc,
 			lengthof (dynamicLibTypeSrc),

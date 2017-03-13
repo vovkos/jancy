@@ -36,7 +36,6 @@ enum TokenKind
 	TokenKind_HexLiteral,
 	TokenKind_FmtLiteral,
 	TokenKind_FmtSpecifier,
-	TokenKind_RegExpLiteral,
 
 	// special declarations
 
@@ -49,12 +48,12 @@ enum TokenKind
 	TokenKind_Public,
 	TokenKind_Protected,
 	TokenKind_Alignment,
-	TokenKind_Alias,
 	TokenKind_SetAs,
 
 	// storage specifiers
 
 	TokenKind_Typedef,
+	TokenKind_Alias,
 	TokenKind_Static,
 	TokenKind_ThreadLocal,
 	TokenKind_Abstract,
@@ -88,7 +87,6 @@ enum TokenKind
 	TokenKind_Multicast,
 	TokenKind_Event,
 	TokenKind_Reactor,
-	TokenKind_Automaton,
 
 	// type specifiers
 
@@ -146,6 +144,7 @@ enum TokenKind
 	TokenKind_Finally,
 	TokenKind_NestedScope,
 	TokenKind_Assert,
+	TokenKind_RegEx,
 
 	// pre-defined values
 
@@ -220,14 +219,12 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "/**")
 	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "/*!")
 
-
 	// literal tokens
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_HexLiteral,   "hex-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
-	AXL_LEX_TOKEN_NAME (TokenKind_RegExpLiteral, "regexp-literal")
 
 	// special declarations
 
@@ -240,12 +237,12 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
 	AXL_LEX_TOKEN_NAME (TokenKind_Alignment,    "alignment")
-	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")
 
 	// storage specifiers
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Typedef,      "typedef")
+	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
 	AXL_LEX_TOKEN_NAME (TokenKind_Static,       "static")
 	AXL_LEX_TOKEN_NAME (TokenKind_ThreadLocal,  "threadlocal")
 	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")
@@ -279,7 +276,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
 	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
 	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
-	AXL_LEX_TOKEN_NAME (TokenKind_Automaton,    "automaton")
 
 	// type specifiers
 
@@ -337,6 +333,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
 	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")
 	AXL_LEX_TOKEN_NAME (TokenKind_Assert,       "assert")
+	AXL_LEX_TOKEN_NAME (TokenKind_RegEx,        "regex")
 
 	// pre-defined values
 

@@ -233,6 +233,29 @@ constant_integer_expr
 			}
 	;
 
+class
+{
+	sl::StringRef m_data;
+}
+start
+constant_literal_expr
+	:	expression
+			{
+				if ($1.m_value.getValueKind () != ValueKind_Const ||
+					!isCharArrayType ($1.m_value.getType ()))
+				{
+					err::setFormatStringError ("not a constant literal expression");
+					return false;
+				}
+
+				$.m_data = sl::StringRef (
+					$1.m_value.m_constData.getHdr (),
+					$1.m_value.m_constData.cp (),
+					$1.m_value.m_constData.getCount ()
+					);
+			}
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class

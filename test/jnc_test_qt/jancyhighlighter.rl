@@ -88,7 +88,6 @@ main := |*
 'multicast'       |
 'event'           |
 'reactor'         |
-'automaton'       |
 
 'auto'            |
 'anydata'         |
@@ -138,6 +137,7 @@ main := |*
 'finally'         |
 'nestedscope'     |
 'assert'          |
+'regex'           |
 
 'basetype' [1-9]? |
 'this'            |

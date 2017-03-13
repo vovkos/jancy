@@ -13,6 +13,7 @@
 
 #include "jnc_ct_BasicBlock.h"
 #include "jnc_ct_Value.h"
+#include "jnc_ct_RegExMgr.h"
 
 namespace jnc {
 namespace ct {
@@ -37,6 +38,28 @@ struct SwitchStmt
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
 	sl::SimpleHashTableMap <intptr_t, BasicBlock*> m_caseMap;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RegExSwitchAcceptContext: sl::ListLink
+{
+	BasicBlock* m_actionBlock;
+	size_t m_firstGroupId;
+	size_t m_groupCount;
+};
+
+struct RegExSwitchStmt
+{
+	Value m_regExStateValue;
+	Value m_dataValue;
+	Value m_sizeValue;
+
+	fsm::RegEx m_regEx;
+	BasicBlock* m_switchBlock;
+	BasicBlock* m_defaultBlock;
+	BasicBlock* m_followBlock;
+	sl::StdList <RegExSwitchAcceptContext> m_acceptContextList;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -304,6 +327,38 @@ public:
 
 	void
 	switchStmt_Follow (SwitchStmt* stmt);
+
+	// regex switch stmt
+
+	void
+	regExSwitchStmt_Create (RegExSwitchStmt* stmt);
+
+	bool
+	regExSwitchStmt_Condition (
+		RegExSwitchStmt* stmt,
+		const Value& regExStateValue,
+		const Value& dataValue,
+		const Value& sizeValue,
+		const Token::Pos& pos
+		);
+
+	bool
+	regExSwitchStmt_Case (
+		RegExSwitchStmt* stmt,
+		const sl::StringRef& regExSource,
+		const Token::Pos& pos,
+		uint_t scopeFlags
+		);
+
+	bool
+	regExSwitchStmt_Default (
+		RegExSwitchStmt* stmt,
+		const Token::Pos& pos,
+		uint_t scopeFlags
+		);
+
+	bool
+	regExSwitchStmt_Finalize (RegExSwitchStmt* stmt);
 
 	// while stmt
 

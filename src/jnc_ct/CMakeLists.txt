@@ -400,8 +400,8 @@ add_perl_step (
 	)
 
 add_perl_step (
-	jnc_Recognizer.jnc.cpp
-	jnc/jnc_Recognizer.jnc
+	jnc_RegEx.jnc.cpp
+	jnc/jnc_RegEx.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -544,7 +544,7 @@ add_library (
 	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
-	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
+	${GEN_LLK_CPP_LIST}
 	)
 
 axl_set_pch (

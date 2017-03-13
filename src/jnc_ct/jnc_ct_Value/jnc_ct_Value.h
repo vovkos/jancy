@@ -57,6 +57,8 @@ getValueKindString (ValueKind valueKind);
 
 class Value
 {
+	friend class Parser;
+
 protected:
 	ValueKind m_valueKind;
 	Type* m_type;
@@ -219,6 +221,12 @@ public:
 	{
 		ASSERT (m_valueKind == ValueKind_Field);
 		return m_field;
+	}
+
+	sl::Array <char>
+	getConstDataArray () const
+	{
+		return m_constData;
 	}
 
 	const void*

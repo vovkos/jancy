@@ -1,0 +1,24 @@
+//..............................................................................
+
+int main ()
+{
+	printf ("main ()\n");
+
+	char const* p = "grrrr";
+
+	jnc.RegExState state;
+	regex switch (state, p)
+	{
+	case "gr+":
+		printf ("gr+ matched!");
+		break;
+
+	default:
+		printf ("nothing matched!");
+		break;		
+	}
+
+	return 0;
+}
+
+//..............................................................................

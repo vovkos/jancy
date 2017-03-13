@@ -113,8 +113,6 @@ TypeMgr::getStdType (StdType stdType)
 		return m_stdTypeArray [stdType];
 
 	Type* type;
-	Type* argTypeArray [8];
-
 	switch (stdType)
 	{
 	case StdType_BytePtr:
@@ -225,32 +223,14 @@ TypeMgr::getStdType (StdType stdType)
 		type = getFunctionType (getStdType (StdType_SimpleEventPtr), NULL, 0);
 		break;
 
-	case StdType_AutomatonFunc:
-		argTypeArray [0] = ((ClassType*) getStdType (StdType_Recognizer))->getClassPtrType ();
-		argTypeArray [1] = getPrimitiveType (TypeKind_Int);
-
-		type = getFunctionType (
-			getStdType (StdType_AutomatonResult),
-			argTypeArray,
-			2,
-			FunctionTypeFlag_Automaton
-			);
-		break;
-
-	case StdType_AutomatonResult:
-		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("AutomatonResult");
+	case StdType_RegExMatch:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegExMatch");
 		if (!type)
 			type = parseStdType (stdType);
 		break;
 
-	case StdType_AutomatonLexeme:
-		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("AutomatonLexeme");
-		if (!type)
-			type = parseStdType (stdType);
-		break;
-
-	case StdType_Recognizer:
-		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("Recognizer");
+	case StdType_RegExState:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegExState");
 		if (!type)
 			type = parseStdType (stdType);
 		break;
@@ -999,7 +979,7 @@ TypeMgr::getFunctionType (
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		((ImportType*) returnType)->addFixup (&type->m_returnType);
 
-	if (!m_module->m_namespaceMgr.getCurrentScope ())
+	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope ())
 	{
 		m_module->markForLayout (type, true);
 	}
@@ -1066,7 +1046,7 @@ TypeMgr::getFunctionType (
 	if (returnType->getTypeKindFlags () & TypeKindFlag_Import)
 		((ImportType*) returnType)->addFixup (&type->m_returnType);
 
-	if (!m_module->m_namespaceMgr.getCurrentScope ())
+	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope ())
 	{
 		m_module->markForLayout (type, true);
 	}

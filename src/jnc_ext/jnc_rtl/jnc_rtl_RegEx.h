@@ -24,82 +24,66 @@ class Dfa;
 
 namespace rtl {
 
-class Recognizer;
+class RegExState;
 
-JNC_DECLARE_CLASS_TYPE (Recognizer)
+JNC_DECLARE_CLASS_TYPE (RegExState)
 
 //..............................................................................
 
-enum AutomatonResult
-{
-	AutomatonResult_Error    = -1,
-	AutomatonResult_Continue = 0,
-	AutomatonResult_Stop     = 1,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct AutomatonLexeme
+struct RegExMatch
 {
 	DataPtr m_textPtr;
 	size_t m_offset;
 	size_t m_length;
 };
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef
-AutomatonResult
-AutomatonFunc (
-	IfaceHdr* closure,
-	Recognizer* recognizer,
-	uint_t request
-	);
-
-//..............................................................................
-
-enum RecognizerStateFlag
+enum RegExResult
 {
-	RecognizerStateFlag_Accept = 0x01,
-	RecognizerStateFlag_Final  = 0x02,
+	RegExResult_Error    = -1, 
+	RegExResult_Continue = -2, // incremental regex result depends on upcoming data
 };
 
 //..............................................................................
 
-class Recognizer: public IfaceHdr
+class RegExState: public IfaceHdr
 {
+public:
+	enum StateFlag
+	{
+		StateFlag_Accept = 0x01,
+		StateFlag_Final  = 0x02,
+	};
+
 protected:
 	ct::Dfa* m_dfa;
 
 	uintptr_t m_stateId;
 	uintptr_t m_lastAcceptStateId;
-	size_t m_lastAcceptLexemeLength;
+	size_t m_lastAcceptMatchLength;
 
 	DataPtr m_groupOffsetArrayPtr;
 	size_t m_groupCount;
-	size_t m_maxSubLexemeCount;
+	size_t m_maxSubMatchCount;
+
+	char m_matchSavedChar;
 
 public:
-	FunctionPtr m_automatonFuncPtr;
-	size_t m_lexemeLengthLimit;
+	bool m_isIncremental;
+	size_t m_matchLengthLimit;
 	size_t m_currentOffset;
 
-	AutomatonLexeme m_lexeme;
-	DataPtr m_subLexemeArrayPtr;
-	size_t m_subLexemeCount;
+	RegExMatch m_match;
+	DataPtr m_subMatchArrayPtr;
+	size_t m_subMatchCount;
 
 public:
 	void
 	JNC_CDECL
-	construct (FunctionPtr automatonFuncPtr);
+	construct (bool isIncremental);
 
 	void
 	JNC_CDECL
-	setAutomatonFunc (FunctionPtr automatonFuncPtr);
-
-	void
-	JNC_CDECL
-	setLexemeLengthLimit (size_t length);
+	setMatchLengthLimit (size_t length);
 
 	void
 	JNC_CDECL
@@ -109,44 +93,47 @@ public:
 	JNC_CDECL
 	reset ();
 
-	bool
+	size_t
 	JNC_CDECL
-	write (
+	exec (
+		ct::Dfa* dfa,
 		DataPtr ptr,
 		size_t length
 		);
 
-	bool
-	JNC_CDECL
-	eof ();
-
 	void
 	JNC_CDECL
-	setDfa (ct::Dfa* dfa);
+	postMatch ();
 
 protected:
-	AutomatonResult
+	void
+	processGroupSet (ct::DfaGroupSet* groupSet);
+
+	void
+	setDfa (ct::Dfa* dfa);
+
+	void
+	softReset ();
+
+	size_t
+	eof ();
+
+	size_t
 	writeData (
 		uchar_t* p,
 		size_t length
 		);
 
-	AutomatonResult
+	size_t
 	writeChar (uint_t c);
 
-	AutomatonResult
+	size_t
 	gotoState (size_t stateId);
 
-	void
-	processGroupSet (ct::DfaGroupSet* groupSet);
-
-	void
-	softReset ();
-
-	AutomatonResult
+	size_t
 	rollback ();
 
-	AutomatonResult
+	size_t
 	match (size_t stateId);
 };
 

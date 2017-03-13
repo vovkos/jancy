@@ -83,7 +83,7 @@ DeclTypeCalc::calcType (
 
 			type = getDataPtrType (arrayType);
 		}
-		else if (m_typeModifiers & (TypeModifier_Function | TypeModifier_Automaton))
+		else if (m_typeModifiers & TypeModifier_Function)
 		{
 			FunctionType* functionType = getFunctionType (type);
 			if (!functionType)
@@ -556,13 +556,6 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 
 	if (m_typeModifiers & TypeModifier_Unsafe)
 		typeFlags |= FunctionTypeFlag_Unsafe;
-
-	if (m_typeModifiers & TypeModifier_Automaton) // automatons takes an implicit state argument
-	{
-		typeFlags |= FunctionTypeFlag_Automaton;
-		FunctionArg* stateArg = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)->getSimpleFunctionArg ();
-		suffix->m_argArray.append (stateArg);
-	}
 
 	if (typeFlags & FunctionTypeFlag_VarArg)
 	{
