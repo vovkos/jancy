@@ -172,7 +172,6 @@ dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 					{ colorize (ts, te, Qt::darkRed); };
 '$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
-'%%'                { colorize (ts, te, Qt::darkRed); fgoto regexp; };
 '"""'               { colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
 '0' [xXoObBnNdD] '"""'
 					{ colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
@@ -199,18 +198,6 @@ any                 { colorize (ts, te, Qt::darkGray); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# regexp machine
-#
-
-regexp := |*
-
-any* '\\'           { colorize (ts, te, Qt::darkRed); };
-any*                { colorize (ts, te, Qt::darkRed); fgoto main; };
-
-*|;
-
-#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
 # multi-line literal machine
 #
 
@@ -227,8 +214,7 @@ any                 { colorize (ts, te, Qt::darkRed); };
 
 #define BLOCK_STATE_NONE	0
 #define BLOCK_STATE_COMMENT 1
-#define BLOCK_STATE_REGEXP  2
-#define BLOCK_STATE_LIT_ML  3
+#define BLOCK_STATE_LIT_ML  2
 
 void JancyHighlighter::ragelInit ()
 {
@@ -251,10 +237,6 @@ void JancyHighlighter::ragelExecPreEvent (int &ragelState)
 		ragelState = jancy_lexer_en_comment;
 		break;
 
-	case BLOCK_STATE_REGEXP:
-		ragelState = jancy_lexer_en_regexp;
-		break;
-
 	case BLOCK_STATE_LIT_ML:
 		ragelState = jancy_lexer_en_lit_ml;
 		break;
@@ -267,10 +249,6 @@ void JancyHighlighter::ragelExecPostEvent (int ragelState)
 	{
 	case jancy_lexer_en_comment:
 		setCurrentBlockState (BLOCK_STATE_COMMENT);
-		break;
-
-	case jancy_lexer_en_regexp:
-		setCurrentBlockState (BLOCK_STATE_REGEXP);
 		break;
 
 	case jancy_lexer_en_lit_ml:
