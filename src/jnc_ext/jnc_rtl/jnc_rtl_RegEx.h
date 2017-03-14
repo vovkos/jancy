@@ -26,7 +26,7 @@ namespace rtl {
 
 class RegExState;
 
-JNC_DECLARE_CLASS_TYPE (RegExState)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (RegExState)
 
 //..............................................................................
 
@@ -54,21 +54,9 @@ public:
 		StateFlag_Final  = 0x02,
 	};
 
-protected:
-	ct::Dfa* m_dfa;
-
-	uintptr_t m_stateId;
-	uintptr_t m_lastAcceptStateId;
-	size_t m_lastAcceptMatchLength;
-
-	DataPtr m_groupOffsetArrayPtr;
-	size_t m_groupCount;
-	size_t m_maxSubMatchCount;
-
-	char m_matchSavedChar;
-
 public:
 	bool m_isIncremental;
+	bool m_isError;
 	size_t m_matchLengthLimit;
 	size_t m_currentOffset;
 
@@ -76,10 +64,29 @@ public:
 	DataPtr m_subMatchArrayPtr;
 	size_t m_subMatchCount;
 
+protected:
+	ct::Dfa* m_dfa;
+
+	uintptr_t m_stateId;
+	uintptr_t m_lastAcceptStateId;
+	size_t m_lastAcceptMatchLength;
+
+	DataPtr m_matchBufferPtr;
+	size_t m_matchOffset;
+	size_t m_matchLength;
+
+	DataPtr m_groupOffsetArrayPtr;
+	size_t m_groupCount;
+	size_t m_maxSubMatchCount;
+
 public:
 	void
 	JNC_CDECL
 	construct (bool isIncremental);
+
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	void
 	JNC_CDECL
@@ -100,10 +107,6 @@ public:
 		DataPtr ptr,
 		size_t length
 		);
-
-	void
-	JNC_CDECL
-	postMatch ();
 
 protected:
 	void

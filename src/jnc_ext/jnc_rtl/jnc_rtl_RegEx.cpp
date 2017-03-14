@@ -21,11 +21,13 @@ namespace rtl {
 
 //..............................................................................
 
-JNC_DEFINE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	RegExState,
 	"jnc.RegExState",
 	sl::g_nullGuid,
-	-1
+	-1,
+	RegExState,
+	&RegExState::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (RegExState)
@@ -42,18 +44,31 @@ void
 JNC_CDECL
 RegExState::construct (bool isIncremental)
 {
-	m_isIncremental = isIncremental;
-	m_matchSavedChar = 0;
-
-	m_stateId = 0;
 	m_lastAcceptStateId = -1;
+	m_isIncremental = isIncremental;
 	m_matchLengthLimit = 256;
-	m_currentOffset = 0;
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
-	m_match.m_textPtr = gcHeap->allocateBuffer (m_matchLengthLimit);
+	m_matchBufferPtr = gcHeap->allocateBuffer (m_matchLengthLimit);
+}
+
+void
+JNC_CDECL
+RegExState::markOpaqueGcRoots (GcHeap* gcHeap)
+{
+	if (m_matchBufferPtr.m_validator)
+	{
+		gcHeap->weakMark (m_matchBufferPtr.m_validator->m_validatorBox);
+		gcHeap->markData (m_matchBufferPtr.m_validator->m_targetBox);
+	}
+
+	if (m_subMatchArrayPtr.m_validator)
+	{
+		gcHeap->weakMark (m_subMatchArrayPtr.m_validator->m_validatorBox);
+		gcHeap->markData (m_subMatchArrayPtr.m_validator->m_targetBox);
+	}
 }
 
 void
@@ -67,10 +82,10 @@ RegExState::setMatchLengthLimit (size_t length)
 	ASSERT (gcHeap);
 
 	DataPtr ptr = gcHeap->allocateBuffer (m_matchLengthLimit);
-	if (m_match.m_length)
-		memcpy (ptr.m_p, m_match.m_textPtr.m_p, m_match.m_length);
+	if (m_matchLength)
+		memcpy (ptr.m_p, m_matchBufferPtr.m_p, m_matchLength);
 
-	m_match.m_textPtr = ptr;
+	m_matchBufferPtr = ptr;
 	m_matchLengthLimit = length;
 }
 
@@ -83,7 +98,7 @@ RegExState::setCurrentOffset (size_t offset)
 
 	intptr_t delta = offset - m_currentOffset;
 	m_currentOffset = offset;
-	m_match.m_offset += delta;
+	m_matchOffset += delta;
 }
 
 void
@@ -92,8 +107,13 @@ RegExState::reset ()
 {
 	softReset ();
 
+	m_isError = false;
 	m_currentOffset = 0;
-	m_match.m_offset = 0;
+	m_matchOffset = 0;
+	m_subMatchCount = 0;
+
+	memset (&m_match, 0, sizeof (RegExMatch));
+	memset (m_subMatchArrayPtr.m_p, 0, m_maxSubMatchCount * sizeof (RegExMatch));
 }
 
 size_t
@@ -123,9 +143,14 @@ RegExState::exec (
 			result = eof ();
 	}
 
-	if (result == RegExResult_Error)
+	if (result != RegExResult_Error)
 	{
-		m_currentOffset = m_match.m_offset; // rollback offset
+		m_isError = false;
+	}
+	else
+	{
+		m_isError = true;
+		m_currentOffset = m_matchOffset; // rollback offset
 		softReset ();
 	}
 
@@ -163,7 +188,7 @@ RegExState::processGroupSet (ct::DfaGroupSet* groupSet)
 		size_t groupId = groupSet->m_openArray [i];
 		ASSERT (groupId < m_groupCount);
 
-		size_t offset = m_currentOffset - m_match.m_offset;
+		size_t offset = m_currentOffset - m_matchOffset;
 		offsetArray [groupId * 2] = offset;
 		offsetArray [groupId * 2 + 1] = offset;
 	}
@@ -174,7 +199,7 @@ RegExState::processGroupSet (ct::DfaGroupSet* groupSet)
 		size_t groupId = groupSet->m_closeArray [i];
 		ASSERT (groupId < m_groupCount);
 
-		offsetArray [groupId * 2 + 1] = m_currentOffset - m_match.m_offset;
+		offsetArray [groupId * 2 + 1] = m_currentOffset - m_matchOffset;
 	}
 }
 
@@ -184,12 +209,10 @@ RegExState::softReset ()
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
 	m_lastAcceptMatchLength = 0;
-	m_match.m_offset = m_currentOffset;
-	m_match.m_length = 0;
-	m_subMatchCount = 0;
+	m_matchOffset = m_currentOffset;
+	m_matchLength = 0;
 
 	memset (m_groupOffsetArrayPtr.m_p, -1, m_groupCount * sizeof (size_t) * 2);
-	memset (m_subMatchArrayPtr.m_p, 0, m_maxSubMatchCount * sizeof (RegExMatch));
 
 	if (m_dfa)
 	{
@@ -204,13 +227,13 @@ RegExState::eof ()
 {
 	for (;;)
 	{
-		if (!m_match.m_length) // just matched
+		if (!m_matchLength) // just matched
 			return RegExResult_Continue;
 
 		if (m_lastAcceptStateId == -1)
 			return RegExResult_Error;
 
-		if (m_lastAcceptMatchLength >= m_match.m_length)
+		if (m_lastAcceptMatchLength >= m_matchLength)
 			return match (m_lastAcceptStateId);
 
 		size_t result = rollback ();
@@ -249,8 +272,8 @@ RegExState::writeChar (uint_t c)
 {
 	if (c < 256) // not a pseudo-char
 	{
-		((uchar_t*) m_match.m_textPtr.m_p) [m_match.m_length++] = c;
-		if (m_match.m_length >= m_matchLengthLimit)
+		((uchar_t*) m_matchBufferPtr.m_p) [m_matchLength++] = c;
+		if (m_matchLength >= m_matchLengthLimit)
 			return RegExResult_Error;
 	}
 
@@ -277,7 +300,7 @@ RegExState::gotoState (size_t stateId)
 		return match (stateId);
 
 	m_lastAcceptStateId = stateId;
-	m_lastAcceptMatchLength = m_match.m_length;
+	m_lastAcceptMatchLength = m_matchLength;
 	return RegExResult_Continue;
 }
 
@@ -286,11 +309,11 @@ RegExState::rollback ()
 {
 	ASSERT (m_lastAcceptStateId != -1 && m_lastAcceptMatchLength);
 
-	uchar_t* chunk = (uchar_t*) m_match.m_textPtr.m_p + m_lastAcceptMatchLength;
-	size_t chunkLength = m_match.m_length - m_lastAcceptMatchLength;
+	uchar_t* chunk = (uchar_t*) m_matchBufferPtr.m_p + m_lastAcceptMatchLength;
+	size_t chunkLength = m_matchLength - m_lastAcceptMatchLength;
 
-	m_currentOffset = m_match.m_offset + m_lastAcceptMatchLength;
-	m_match.m_length = m_lastAcceptMatchLength;
+	m_currentOffset = m_matchOffset + m_lastAcceptMatchLength;
+	m_matchLength = m_lastAcceptMatchLength;
 
 	// rollback groups
 
@@ -301,15 +324,15 @@ RegExState::rollback ()
 		if (offsetArray [j] == -1)
 			continue;
 
-		if (offsetArray [j] >= m_match.m_length)
+		if (offsetArray [j] >= m_matchLength)
 		{
 			offsetArray [j] = -1;
 			offsetArray [j + 1] = -1;
 		}
-		else if (offsetArray [j + 1] > m_match.m_length)
+		else if (offsetArray [j + 1] > m_matchLength)
 		{
-			ASSERT (offsetArray [j] < m_match.m_length);
-			offsetArray [j + 1] = m_match.m_length;
+			ASSERT (offsetArray [j] < m_matchLength);
+			offsetArray [j + 1] = m_matchLength;
 		}
 	}
 
@@ -323,13 +346,14 @@ RegExState::rollback ()
 size_t
 RegExState::match (size_t stateId)
 {
+	ASSERT ((intptr_t) stateId >= 0);
+
+	// create null-terminated match and sub-matches
 	// save last char and ensure null-termination for the whole lexeme
 
-	m_matchSavedChar = ((uchar_t*) m_match.m_textPtr.m_p) [m_match.m_length];
-
-	((uchar_t*) m_match.m_textPtr.m_p) [m_match.m_length] = 0;
-
-	// create null-terminated sub-lexemes
+	m_match.m_textPtr = jnc::strDup ((char*) m_matchBufferPtr.m_p, m_matchLength);
+	m_match.m_offset = m_matchOffset;
+	m_match.m_length = m_matchLength;
 
 	ct::DfaStateInfo* state = m_dfa->getStateInfo (stateId);
 	ASSERT (state->m_acceptInfo);
@@ -350,8 +374,8 @@ RegExState::match (size_t stateId)
 		size_t length = offsetArray [j++] - offset;
 		if (offset != -1 && length != 0)
 		{
-			ASSERT (offset + length <= m_match.m_length);
-			subLexeme->m_textPtr = jnc::strDup ((char*) m_match.m_textPtr.m_p + offset, length);
+			ASSERT (offset + length <= m_matchLength);
+			subLexeme->m_textPtr = jnc::strDup ((char*) m_matchBufferPtr.m_p + offset, length);
 			subLexeme->m_offset = offset;
 			subLexeme->m_length = length;
 		}
@@ -363,19 +387,8 @@ RegExState::match (size_t stateId)
 		}
 	}
 
-	ASSERT ((intptr_t) stateId >= 0);
-	return stateId;
-}
-
-void
-JNC_CDECL
-RegExState::postMatch ()
-{
-	// that's not a mistake below! even though we immediatly reset after that, we DO need to
-	// restore the lexeme buffer -- in case `match` is called from `rollback`
-
-	((uchar_t*) m_match.m_textPtr.m_p) [m_match.m_length] = m_matchSavedChar;
 	softReset ();
+	return stateId;
 }
 
 //..............................................................................

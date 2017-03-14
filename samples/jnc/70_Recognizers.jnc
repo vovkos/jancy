@@ -21,20 +21,59 @@
 
 //..............................................................................
 
-jnc.AutomatonResult automaton fooBar (jnc.Recognizer* recognizer)
+bool errorcode fooBar (
+	jnc.RegExState* regExState, 
+	const char* p,
+	size_t length = -1
+	)
 {
-	%% "foo"
-		printf ("lexeme found: foo\n");
+	if (length == -1)
+		length = strlen (p);
 
-	%% "bar"
-		printf ("lexeme found: bar\n");
+	const char* end = p + length;
+	
+	// post-condition loop allows passing 'null' as eof
+	do
+	{
+		size_t prevOffset = regExState.m_currentOffset;
 
-	%% \d+
-		// you can access matched lexeme via recognizer.m_lexeme field
-		printf ("lexeme found: dec '%s'\n", recognizer.m_lexeme.m_text);
+		regex switch (regExState, p, end - p)
+		{
+		case "foo":
+			printf ("lexeme found: foo\n");
+			break;
 
-	%% \s+
-		// ignore whitespace
+		case "bar":
+			printf ("lexeme found: bar\n");
+			break;
+
+		case "\\d+":
+			// you can access matched lexeme via jnc.RegExState.m_match field
+			printf ("lexeme found: dec '%s'\n", regExState.m_match.m_text);
+			break;
+
+		case "\\s+":
+			// ignore whitespace
+			break;
+
+		default:
+			if (!regExState.m_isError)
+			{
+				assert (regExState.m_isIncremental);
+				return true;
+			}
+
+			std.setError ("unrecognized lexeme");
+			return false;
+		}
+
+		// Advance to the next lexeme. Note that adding regExState.m_match.m_length 
+		// will only work in case of non-incremental recgnition.
+
+		p += regExState.m_currentOffset - prevOffset;
+	} while (p < end) 
+
+	return true;
 }
 
 //..............................................................................
@@ -45,35 +84,34 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// automaton functions cannot be directly called -- you need a recognizer
-	// object to store the state of DFA
+	// you need a jnc.RegExState object to store the state of DFA
 
-	jnc.Recognizer recognizer (fooBar);
+	jnc.RegExState regExState;
 
-	// recognize () method is the simplest way to do recognition in one go
-
-	bool result = try recognizer.recognize ("foo bar 100 baz");
+	bool result = try fooBar (regExState, " foo bar 100 baz");
 	if (!result)
 		printf ("recognition error: %s\n", std.getLastError ().m_description);
 
-	// It's also OK to perform recognition incrementally, chunk by chunk.
+	// It's OK to perform recognition incrementally, chunk by chunk.
 	// This is cructial when analyzing protocols operating over stream
 	// transports like TCP or Serial, where it is not guaranteed that a message
 	// will be delivered as a whole and not as multiple segments.
 
-	recognizer.reset ();
+	regExState.reset ();
+	regExState.m_isIncremental = true; // turn on incremental matching
 
 	try
 	{
-		recognizer.write (" ba");
-		recognizer.write ("r f");
-		recognizer.write ("oo ");
-		recognizer.write ("100");
-		recognizer.write ("000");
+		fooBar (regExState, " ba");
+		fooBar (regExState, "r f");
+		fooBar (regExState, "oo ");
+		fooBar (regExState, "100");
+		fooBar (regExState, "000");
 
-		// notify recognizer about eof (this can trigger actions or errors)
+		// Incremental recognizer must be notified about eof -- this 
+		// can trigger actions or errors.
 
-		recognizer.eof ();
+		fooBar (regExState, null);
 
 	catch:
 		printf ("recognition error: %s\n", std.getLastError ().m_description);

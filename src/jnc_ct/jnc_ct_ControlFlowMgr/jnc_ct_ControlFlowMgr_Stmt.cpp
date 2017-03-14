@@ -329,7 +329,7 @@ ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
 		}
 	}
 			
-	caseMap [rtl::RegExResult_Continue] = stmt->m_followBlock;
+	caseMap [rtl::RegExResult_Continue] = defaultBlock;
 
 	// execute dfa and generate switch
 

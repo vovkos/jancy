@@ -445,8 +445,8 @@ set (
 	${GEN_DIR}/jnc_StdTypes.jnc.cpp
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
 	${GEN_DIR}/jnc_DynamicLib.jnc.cpp
-	${GEN_DIR}/jnc_Recognizer.jnc.cpp
 	${GEN_DIR}/jnc_Scheduler.jnc.cpp
+	${GEN_DIR}/jnc_RegEx.jnc.cpp
 	)
 
 set (
@@ -544,7 +544,7 @@ add_library (
 	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
-	${GEN_LLK_CPP_LIST}
+	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
 	)
 
 axl_set_pch (

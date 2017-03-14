@@ -107,21 +107,10 @@ struct RegExMatch
 		|footnote-errorcode|
 */
 
-class RegExState
+opaque class RegExState
 {
-protected:
-	void thin* m_dfa; // opaque implementation
-
-	uintptr_t m_stateId;
-	uintptr_t m_lastAcceptStateId;
-	size_t m_lastAcceptMatchLength;
-
-	size_t* m_groupOffsetArray; // [m_groupCount * 2] -- begin, end
-	size_t m_groupCount;
-	size_t m_maxSubMatchCount;
-
-public:
 	bool m_isIncremental;
+	bool m_isError;
 
 	/**
 		Holds the maximum buffer size for lexemes. Set before starting recognition.
