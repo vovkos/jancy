@@ -19,7 +19,17 @@
 
 // simple indexed property declaration syntax
 
-int indexed property g_simpleProp (size_t i);
+int property g_simpleProp (size_t i);
+
+// the above declaration yields the same results as:
+//
+//    int indexed property g_simpleProp (size_t i);
+//
+// here you don't need 'indexed' modifier as there is no ambiguity; 
+// when declaring pointers to indexed properties on the other hand, 'indexed' 
+// modifier is a must:
+//
+//    int indexed property* indexedPropPtr (size_t i);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

@@ -40,7 +40,7 @@ g_foo.set (int x)
 
 // simple indexed property
 
-int indexed property g_baz (
+int property g_baz (
 	size_t i,
 	size_t j
 	);
