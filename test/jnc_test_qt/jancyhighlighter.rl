@@ -28,8 +28,11 @@ ws     = [ \t\r]+;
 nl     = '\n';
 lc_nl  = '\\' '\r'? nl;
 esc    = '\\' [^\n];
-lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
-lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
+
+lit_dq     = '"' ([^"\n\\] | esc)* (["\\] | nl);
+lit_sq     = "'" ([^'\n\\] | esc)* (['\\] | nl);
+raw_lit_dq = '"' [^"\n]* ('"' | nl);
+raw_lit_sq = "'" [^'\n]* ("'" | nl);
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -159,21 +162,24 @@ main := |*
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 id                  ;
-(lit_sq | lit_dq)   { colorize (ts, te, Qt::darkRed); };
-dec+                { colorize (ts, te, Qt::darkRed); };
-'0' oct+            { colorize (ts, te, Qt::darkRed); };
-'0' [xX] hex+       { colorize (ts, te, Qt::darkRed); };
-'0' [oO] oct+       { colorize (ts, te, Qt::darkRed); };
-'0' [bB] bin+       { colorize (ts, te, Qt::darkRed); };
-'0' [nNdD] dec+     { colorize (ts, te, Qt::darkRed); };
-'0' [xXoObBnNdD] lit_dq
-					{ colorize (ts, te, Qt::darkRed); };
-dec+ ('.' dec*) | ([eE] [+\-]? dec+)
-					{ colorize (ts, te, Qt::darkRed); };
-'$' lit_dq          { colorize (ts, te, Qt::darkRed); };
 
-'"""'               { colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
-'0' [xXoObBnNdD] '"""'
+(
+lit_sq              |
+lit_dq              |
+[rR] raw_lit_sq     |
+[rR] raw_lit_dq     |
+dec+                |
+'0' oct+            |
+'0' [xX] hex+       |
+'0' [oO] oct+       |
+'0' [bB] bin+       |
+'0' [nNdD] dec+     |
+'0' [xXoObBnNdD] raw_lit_dq |
+dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
+'$' lit_dq
+)					{ colorize (ts, te, Qt::darkRed); };
+
+('0' [xXoObBnNdD])? '"""'
 					{ colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
 
 '//' any*           { colorize (ts, te, Qt::darkGray); };

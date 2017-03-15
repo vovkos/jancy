@@ -146,16 +146,45 @@ Lexer::createBinLiteralToken (int radix)
 }
 
 Token*
-Lexer::createCharToken (int tokenKind)
+Lexer::createCharToken (
+	int tokenKind,
+	size_t left,
+	size_t right,
+	bool useEscapeEncoding
+	)
 {
 	Token* token = createToken (tokenKind);
 	ASSERT (token->m_pos.m_length >= 2);
 
+	size_t length = token->m_pos.m_length - (left + right);
+
 	char buffer [256];
 	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
-	enc::EscapeEncoding::decode (&string, sl::StringRef (ts + 1, token->m_pos.m_length - 2));
 
-	token->m_data.m_integer = string [0];
+	const char* p;
+
+	if (!useEscapeEncoding)
+	{
+		p = ts + left;
+	}
+	else
+	{
+		enc::EscapeEncoding::decode (&string, sl::StringRef (ts + left, length));
+		p = string;
+		length = string.getLength ();
+	}
+
+	if (length > sizeof (int))
+		length = sizeof (int);
+
+	int result = 0;
+	int shift = 8 * (length - 1);
+
+	const char* end = p + length;
+	for (; p < end; p++, shift -= 8)
+		result |= *p << shift;
+
+	token->m_data.m_integer = result;
 	return token;
 }
 

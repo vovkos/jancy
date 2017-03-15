@@ -427,7 +427,12 @@ protected:
 	createBinLiteralToken (int radix);
 
 	Token*
-	createCharToken (int tokenKind);
+	createCharToken (
+		int tokenKind,
+		size_t left,
+		size_t right,
+		bool useEscapeEncoding = false
+		);
 
 	Token*
 	createIntegerToken (

@@ -52,8 +52,11 @@ ws     = [ \t\r]+;
 nl     = '\n' @{ newLine (p + 1); };
 lc_nl  = '\\' '\r'? nl;
 esc    = '\\' [^\n];
-lit_dq = '"' ([^"\n\\] | esc)* (["\\] | nl);
-lit_sq = "'" ([^'\n\\] | esc)* (['\\] | nl);
+
+lit_dq     = '"' ([^"\n\\] | esc)* (["\\] | nl);
+lit_sq     = "'" ([^'\n\\] | esc)* (['\\] | nl);
+raw_lit_dq = '"' [^"\n]* ('"' | nl);
+raw_lit_sq = "'" [^'\n]* ("'" | nl);
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -292,17 +295,23 @@ main := |*
 # common tokens
 
 id               { createStringToken (TokenKind_Identifier); };
-lit_sq           { createCharToken (TokenKind_Integer); };
+lit_sq           { createCharToken (TokenKind_Integer, 1, 1, true); };
 lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
+[rR] raw_lit_sq  { createCharToken (TokenKind_Integer, 2, 1, false); };
+[rR] raw_lit_dq  { createStringToken (TokenKind_Literal, 2, 1, false); };
 dec+             { createIntegerToken (10); };
 '0' oct+         { createIntegerToken (8); };
 '0' [xX] hex+    { createIntegerToken (16, 2); };
 '0' [oO] oct+    { createIntegerToken (8, 2); };
 '0' [bB] bin+    { createIntegerToken (2, 2); };
-'0' [xX] lit_dq  { createBinLiteralToken (16); };
-'0' [oO] lit_dq  { createBinLiteralToken (8); };
-'0' [bB] lit_dq  { createBinLiteralToken (2); };
-'0' [nNdD] lit_dq
+
+'0' [xX] raw_lit_dq  
+				 { createBinLiteralToken (16); };
+'0' [oO] raw_lit_dq  
+				 { createBinLiteralToken (8); };
+'0' [bB] raw_lit_dq  
+				 { createBinLiteralToken (2); };
+'0' [nNdD] raw_lit_dq
 				 { createBinLiteralToken (10); };
 dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 				 { createFpToken (); };
