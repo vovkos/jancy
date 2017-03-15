@@ -18,20 +18,20 @@ int main ()
 	jnc.RegExState state;
 	regex switch (state, packet)
 	{
-	case "_\\?":
+	case r"_\?":
 		printf ("echo\n");
 		break;
 
-	case "_\\[(\\d+\\.)*\\d+\\]":
+	case r"_\[(\d+\.)*\d+\]":
 		printf ("MAC: %s\n", state.m_match.m_text);
 
 		regex switch (state, packet + state.m_consumedLength)
 		{
-		case "X(\\|.*)?":
+		case r"X(\|.*)?":
 			printf ("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
 			break;
 
-		case "PC(\\|.*)?":
+		case r"PC(\|.*)?":
 			printf ("A*R*/00/&h A:0000,B:0000,PC:00000000,SP:00,FL:Z**/65535\n");
 			break;
 

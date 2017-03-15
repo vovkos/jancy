@@ -5,7 +5,7 @@ int main ()
 	jnc.RegExState state;
 	regex switch (state, packet)
 	{
-	case "\\s*(foo\\d*)\\s+(bar\\d*)?\\s*":
+	case r"\s*(foo\d*)\s+(bar\d*)?\s*":
 		printf ("detected foobar: '%s'\n", state.m_match.m_text);
 		printf ("foo: '%s'\n", state.m_subMatchArray [0].m_text);
 		printf ("bar: '%s'\n", state.m_subMatchArray [1].m_text);

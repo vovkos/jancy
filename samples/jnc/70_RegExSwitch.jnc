@@ -45,12 +45,12 @@ bool errorcode fooBar (
 			printf ("lexeme found: bar\n");
 			break;
 
-		case "\\d+":
+		case r"\d+":
 			// you can access matched lexeme via jnc.RegExState.m_match field
 			printf ("lexeme found: dec '%s'\n", state.m_match.m_text);
 			break;
 
-		case "\\s+":
+		case r"\s+":
 			// ignore whitespace
 			break;
 

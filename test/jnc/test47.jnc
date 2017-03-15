@@ -24,19 +24,19 @@ bool errorcode scanPacket (
 	{
 		regex switch (state, p, end - p)
 		{
-		case "open[ \t]*[0-9]*[\r\n]":
+		case r"open[ \t]*\d*[\r\n]":
 			printf ("command = open\n%s\n", state.m_match.m_text);
 			break;
 
-		case "close[ \t]*[0-9]*[\r\n]":
+		case r"close[ \t]*\d*[\r\n]":
 			printf ("command = close\n%s\n", state.m_match.m_text);
 			break;
 
-		case "connect[ \t]*[0-9]*[\r\n]":
+		case r"connect[ \t]*\d*[\r\n]":
 			printf ("command = connect\n%s\n", state.m_match.m_text);
 			break;
 
-		case "\\s+":
+		case r"\s+":
 			break;
 
 		default:
