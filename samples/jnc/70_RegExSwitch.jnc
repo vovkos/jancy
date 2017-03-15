@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-// Jancy features automaton functions as a built-in support for creating
+// Jancy features 'regex switch' statement as a built-in support for creating
 // protocol analyzers, programming language lexers and other recognizers.
 
 // If you ever used tools like Lex, Flex, Ragel etc then you are already
@@ -22,7 +22,7 @@
 //..............................................................................
 
 bool errorcode fooBar (
-	jnc.RegExState* regExState, 
+	jnc.RegExState* state,
 	const char* p,
 	size_t length = -1
 	)
@@ -31,13 +31,11 @@ bool errorcode fooBar (
 		length = strlen (p);
 
 	const char* end = p + length;
-	
+
 	// post-condition loop allows passing 'null' as eof
 	do
 	{
-		size_t prevOffset = regExState.m_currentOffset;
-
-		regex switch (regExState, p, end - p)
+		regex switch (state, p, end - p)
 		{
 		case "foo":
 			printf ("lexeme found: foo\n");
@@ -49,7 +47,7 @@ bool errorcode fooBar (
 
 		case "\\d+":
 			// you can access matched lexeme via jnc.RegExState.m_match field
-			printf ("lexeme found: dec '%s'\n", regExState.m_match.m_text);
+			printf ("lexeme found: dec '%s'\n", state.m_match.m_text);
 			break;
 
 		case "\\s+":
@@ -57,21 +55,18 @@ bool errorcode fooBar (
 			break;
 
 		default:
-			if (!regExState.m_isError)
-			{
-				assert (regExState.m_isIncremental);
-				return true;
-			}
+			// we can get here for two reasons only:
+			//   1) mismatch
+			//   2) incremental recognition
 
-			std.setError ("unrecognized lexeme");
-			return false;
+			if (!state.m_consumedLength)
+				return false;
+
+			assert (state.m_isIncremental && state.m_consumedLength == end - p);
 		}
 
-		// Advance to the next lexeme. Note that adding regExState.m_match.m_length 
-		// will only work in case of non-incremental recgnition.
-
-		p += regExState.m_currentOffset - prevOffset;
-	} while (p < end) 
+		p += state.m_consumedLength; // advance to the next lexeme
+	} while (p < end)
 
 	return true;
 }
@@ -86,35 +81,36 @@ int main ()
 
 	// you need a jnc.RegExState object to store the state of DFA
 
-	jnc.RegExState regExState;
+	jnc.RegExState state;
 
-	bool result = try fooBar (regExState, " foo bar 100 baz");
+	char const* p = " foo bar 100 baz";
+	bool result = try fooBar (state, p);
 	if (!result)
-		printf ("recognition error: %s\n", std.getLastError ().m_description);
+		printf ("recognition error at: %s\n", p + state.m_currentOffset);
 
 	// It's OK to perform recognition incrementally, chunk by chunk.
 	// This is cructial when analyzing protocols operating over stream
 	// transports like TCP or Serial, where it is not guaranteed that a message
 	// will be delivered as a whole and not as multiple segments.
 
-	regExState.reset ();
-	regExState.m_isIncremental = true; // turn on incremental matching
+	state.reset ();
+	state.m_isIncremental = true; // turn on incremental matching
 
 	try
 	{
-		fooBar (regExState, " ba");
-		fooBar (regExState, "r f");
-		fooBar (regExState, "oo ");
-		fooBar (regExState, "100");
-		fooBar (regExState, "000");
+		fooBar (state, " ba");
+		fooBar (state, "r f");
+		fooBar (state, "oo ");
+		fooBar (state, "100");
+		fooBar (state, "000");
 
-		// Incremental recognizer must be notified about eof -- this 
+		// Incremental recognizer must be notified about eof -- this
 		// can trigger actions or errors.
 
-		fooBar (regExState, null);
+		fooBar (state, null);
 
 	catch:
-		printf ("recognition error: %s\n", std.getLastError ().m_description);
+		printf ("recognition error\n");
 	}
 
 	return 0;

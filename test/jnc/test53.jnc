@@ -9,36 +9,46 @@
 //
 //..............................................................................
 
-jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
-{
-	%% "_?"
-		printf ("echo\n");
-
-	%% "_[" (\d+ '.')* \d+ ']'
-		printf ("MAC: %s\n", recognizer.m_lexeme.m_text);
-		recognizer.m_automatonFunc = scanCommand;
-		return jnc.AutomatonResult.Stop;
-}
-
-jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
-{
-	%% 'X' ('|'.*)?
-		printf ("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
-
-	%% "PC" ('|'.*)?
-		printf ("A*R*/00/&h A:0000,B:0000,PC:00000000,SP:00,FL:Z**/65535\n");
-}
-
 int main ()
 {
 	printf ("main ()\n");
 
-	jnc.Recognizer recognizer (scanPacket);
-	recognizer.recognize ("_[0.36.119.81.150.141]PC");
+	char const* packet = "_[0.36.119.81.150.141]PC|12345";
+
+	jnc.RegExState state;
+	regex switch (state, packet)
+	{
+	case "_\\?":
+		printf ("echo\n");
+		break;
+
+	case "_\\[(\\d+\\.)*\\d+\\]":
+		printf ("MAC: %s\n", state.m_match.m_text);
+
+		regex switch (state, packet + state.m_consumedLength)
+		{
+		case "X(\\|.*)?":
+			printf ("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
+			break;
+
+		case "PC(\\|.*)?":
+			printf ("A*R*/00/&h A:0000,B:0000,PC:00000000,SP:00,FL:Z**/65535\n");
+			break;
+
+		default:
+			throw;
+		}
+
+		break;
+
+	default:
+		throw;
+	}
+
 	return 0;
 
 catch:
-	printf ("error: %s\n", std.getLastError ().m_description);
+	printf ("recognition error\n");
 	return -1;
 }
 

@@ -9,45 +9,69 @@
 //
 //..............................................................................
 
-jnc.AutomatonResult automaton scanPacket (jnc.Recognizer* recognizer)
+bool errorcode scanPacket (
+	jnc.RegExState* state,
+	char const* p,
+	size_t length = -1
+	)
 {
-	%% "open" [ \t]* [0-9]* [\r\n]
-		printf ("command = open\n%s\n", recognizer.m_lexeme.m_text);
+	if (length == -1)
+		length = strlen (p);
 
-	%% "close" [ \t]* [0-9]* [\r\n]
-		printf ("command = close\n%s\n", recognizer.m_lexeme.m_text);
+	char const* end = p + length;
 
-	%% "connect" [ \t]* [0-9]* [\r\n]
-		printf ("command = connect\n%s\n", recognizer.m_lexeme.m_text);
+	do
+	{
+		regex switch (state, p, end - p)
+		{
+		case "open[ \t]*[0-9]*[\r\n]":
+			printf ("command = open\n%s\n", state.m_match.m_text);
+			break;
 
-	%% .
+		case "close[ \t]*[0-9]*[\r\n]":
+			printf ("command = close\n%s\n", state.m_match.m_text);
+			break;
+
+		case "connect[ \t]*[0-9]*[\r\n]":
+			printf ("command = connect\n%s\n", state.m_match.m_text);
+			break;
+
+		case "\\s+":
+			break;
+
+		default:
+			if (!state.m_consumedLength)
+				return false;
+
+			assert (state.m_consumedLength == end - p);
+		}
+
+		p += state.m_consumedLength;
+	} while (p < end);
+
+	return true;
 }
 
 int main ()
 {
 	printf ("main ()\n");
 
-	jnc.RegExState regExState ();
-	regExState.m_isIncremental = true;
-	regex switch (regExState, p, size)
-	{
-	case "":
-		break;
+	jnc.RegExState state (true); // incremental recognizer
 
-	case ".":
-		break;
-		
-	default:
-		
-	}
-	
 	try
 	{
-		recognizer.write ("op");
-		recognizer.write ("en 12\ncon");
-		recognizer.write ("nect5\r i cl");
-		recognizer.write ("ose\t777\r ");
-		recognizer.eof ();
+		scanPacket (state, "op");
+		scanPacket (state, "en 12\ncon");
+		scanPacket (state, "nect5\r cl");
+		scanPacket (state, "ose\t7777");
+
+		printf ("the following will fail ('close' has no [\\r\\n]\n");
+
+		scanPacket (state, null);
+
+	catch:
+		printf ("recognition error\n");
+		return -1;
 	}
 
 	return 0;

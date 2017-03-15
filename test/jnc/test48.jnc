@@ -12,65 +12,87 @@
 char const* g_data;
 size_t g_dataOffset;
 
-jnc.AutomatonResult automaton scanCommand (jnc.Recognizer* recognizer)
+bool errorcode scanCommand (
+	jnc.RegExState* state,
+	char const* p,
+	size_t length = -1
+	)
 {
-	%% '<' [^>]+ '>'
-		size_t length = recognizer.m_currentOffset - g_dataOffset;
+	if (length == -1)
+		length = strlen (p);
 
-		char const* chunk = strdup (g_data, length);
+	char const* end = p + length;
 
-		printf ("%s\n", chunk);
-		printf ("inband '%s'\n", recognizer.m_lexeme.m_text);
+	do
+	{
+		regex switch (state, p, end - p)
+		{
+		case "<[^>]+>":
+			size_t length = state.m_currentOffset - g_dataOffset;
 
-		g_data += length;
-		g_dataOffset += length;
+			char const* chunk = strdup (g_data, length);
 
-	%% .
-		// ignore
+			printf ("%s\n", chunk);
+			printf ("inband '%s'\n", state.m_match.m_text);
+
+			g_data += length;
+			g_dataOffset += length;
+			break;
+
+		case ".":
+			// ignore
+			break;
+		}
+
+		p += state.m_consumedLength;
+	} while (p < end)
+
+	return true;
 }
 
 int main ()
 {
 	printf ("main ()\n");
 
-	jnc.Recognizer recognizer (scanCommand);
+	jnc.RegExState state (true);
 
 	try
 	{
 		g_data = "abc <ab";
 		g_dataOffset = 0;
-		recognizer.write (g_data, strlen (g_data));
+		scanCommand (state, g_data, strlen (g_data));
 
-		size_t length = recognizer.m_currentOffset - g_dataOffset;
+		size_t length = state.m_currentOffset - g_dataOffset;
 		char const* chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "out> <gr> rr";
-		recognizer.write (g_data, strlen (g_data));
+		scanCommand (state, g_data, strlen (g_data));
 
-		length = recognizer.m_currentOffset - g_dataOffset;
+		length = state.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "ab <versi";
-		recognizer.write (g_data, strlen (g_data));
+		scanCommand (state, g_data, strlen (g_data));
 
-		length = recognizer.m_currentOffset - g_dataOffset;
+		length = state.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "on> aboutb";
-		recognizer.write (g_data, strlen (g_data));
+		scanCommand (state, g_data, strlen (g_data));
 
-		length = recognizer.m_currentOffset - g_dataOffset;
+		length = state.m_currentOffset - g_dataOffset;
 		chunk = strdup (g_data, length);
 		printf ("%s", chunk);
 		g_dataOffset += length;
 
-		recognizer.eof ();
+	catch:
+		printf ("recognition error\n");
 	}
 
 	printf ("\n");

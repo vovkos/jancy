@@ -1,20 +1,21 @@
-jnc.AutomatonResult automaton myScanner (jnc.Recognizer* recognizer)
-{
-	%% \s* ("foo" \d*) \s+ ("bar" \d*)? \s*
-		printf ("detected foobar: '%s'\n", recognizer.m_lexeme.m_text);
-		printf ("foo: '%s'\n", recognizer.m_subLexemeArray [0].m_text);
-		printf ("bar: '%s'\n", recognizer.m_subLexemeArray [1].m_text);
-		printf ("offset: %d\n", recognizer.m_currentOffset);
-}
-
 int main ()
 {
-	jnc.Recognizer recognizer (myScanner);
+	char const* packet = " foo123 bar567 ";
 
-	recognizer.recognize (" foo123 bar567 ");
+	jnc.RegExState state;
+	regex switch (state, packet)
+	{
+	case "\\s*(foo\\d*)\\s+(bar\\d*)?\\s*":
+		printf ("detected foobar: '%s'\n", state.m_match.m_text);
+		printf ("foo: '%s'\n", state.m_subMatchArray [0].m_text);
+		printf ("bar: '%s'\n", state.m_subMatchArray [1].m_text);
+		printf ("offset: %d\n", state.m_currentOffset);
+		break;
+
+	default:
+		printf ("recognition error\n");
+		return -1;
+	}
+
 	return 0;
-
-catch:
-	printf ($"Error: $!\n");
-	return -1;
 }
