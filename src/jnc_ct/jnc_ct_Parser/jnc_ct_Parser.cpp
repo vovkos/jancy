@@ -36,6 +36,7 @@ Parser::Parser (Module* module):
 	m_attributeBlock = NULL;
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
+	m_lastPropertyTypeModifiers = 0;
 	m_reactorType = NULL;
 	m_reactionBindSiteCount = 0;
 	m_reactorTotalBindSiteCount = 0;
@@ -1099,6 +1100,10 @@ Parser::declareProperty (
 		return prop->create (type);
 	}
 
+	m_lastPropertyTypeModifiers = declarator->getTypeModifiers ();
+	if (m_lastPropertyTypeModifiers & TypeModifier_Const)
+		prop->m_flags |= PropertyFlag_Const;
+
 	if (declarator->getBaseType ()->getTypeKind () != TypeKind_Void ||
 		!declarator->getPointerPrefixList ().isEmpty () ||
 		!declarator->getSuffixList ().isEmpty ())
@@ -1113,10 +1118,6 @@ Parser::declareProperty (
 		m_lastPropertyGetterType = NULL;
 	}
 
-	if (declarator->getTypeModifiers () & TypeModifier_Const)
-		prop->m_flags |= PropertyFlag_Const;
-
-	m_lastPropertyTypeModifiers.takeOver (declarator);
 	return true;
 }
 
@@ -1300,7 +1301,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize setter
 
-	if (!(m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_Const) && !hasBody)
+	if (!(m_lastPropertyTypeModifiers & TypeModifier_Const) && !hasBody)
 	{
 		FunctionType* getterType = prop->m_getter->getType ()->getShortType ();
 		sl::Array <FunctionArg*> argArray = getterType->getArgArray ();
@@ -1326,7 +1327,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize binder
 
-	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_Bindable)
+	if (m_lastPropertyTypeModifiers & TypeModifier_Bindable)
 	{
 		if (!prop->m_onChanged)
 		{
@@ -1338,7 +1339,7 @@ Parser::finalizeLastProperty (bool hasBody)
 
 	// finalize auto-get value
 
-	if (m_lastPropertyTypeModifiers.getTypeModifiers () & TypeModifier_AutoGet)
+	if (m_lastPropertyTypeModifiers & TypeModifier_AutoGet)
 	{
 		if (!prop->m_autoGetValue)
 		{

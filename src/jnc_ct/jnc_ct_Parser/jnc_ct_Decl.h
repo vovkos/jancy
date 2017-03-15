@@ -236,6 +236,7 @@ enum DeclSuffixKind
 	DeclSuffixKind_Undefined = 0,
 	DeclSuffixKind_Array,
 	DeclSuffixKind_Function,
+	DeclSuffixKind_Getter,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -243,6 +244,7 @@ enum DeclSuffixKind
 class DeclSuffix: public sl::ListLink
 {
 	friend class Declarator;
+	friend class DeclTypeCalc;
 
 protected:
 	DeclSuffixKind m_suffixKind;
@@ -562,6 +564,9 @@ public:
 
 	DeclFunctionSuffix*
 	addFunctionSuffix ();
+
+	DeclFunctionSuffix*
+	addGetterSuffix ();
 
 	bool
 	addBitFieldSuffix (size_t bitCount);

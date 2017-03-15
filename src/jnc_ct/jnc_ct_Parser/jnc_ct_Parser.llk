@@ -117,7 +117,7 @@ Members
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
 
 	FunctionType* m_lastPropertyGetterType;
-	TypeModifiers m_lastPropertyTypeModifiers;
+	uint_t m_lastPropertyTypeModifiers;
 
 	DoxyParser m_doxyParser;
 

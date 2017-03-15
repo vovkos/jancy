@@ -421,6 +421,16 @@ Declarator::addFunctionSuffix ()
 	return suffix;
 }
 
+DeclFunctionSuffix*
+Declarator::addGetterSuffix ()
+{
+	DeclFunctionSuffix* suffix = AXL_MEM_NEW (DeclFunctionSuffix);
+	suffix->m_suffixKind = DeclSuffixKind_Getter;
+	suffix->m_declarator = this;
+	m_suffixList.insertHead (suffix);
+	return suffix;
+}
+
 bool
 Declarator::addBitFieldSuffix (size_t bitCount)
 {

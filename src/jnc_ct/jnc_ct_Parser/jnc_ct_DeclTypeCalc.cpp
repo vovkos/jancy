@@ -202,6 +202,17 @@ DeclTypeCalc::calcType (
 
 			break;
 
+		case DeclSuffixKind_Getter:
+			if (type->getTypeKind () == TypeKind_Function)
+			{
+				m_suffix--;
+				ASSERT (!m_suffix);
+				break;
+			}
+
+			suffix->m_suffixKind = DeclSuffixKind_Function;
+			// fall through
+
 		case DeclSuffixKind_Function:
 			if (m_typeModifiers & TypeModifier_Reactor)
 				type = getReactorType (type);
@@ -291,9 +302,7 @@ DeclTypeCalc::calcPropertyGetterType (Declarator* declarator)
 	uint_t typeModifiers = declarator->getTypeModifiers ();
 	ASSERT (typeModifiers & TypeModifier_Property);
 
-	DeclFunctionSuffix* functionSuffix = NULL;
-	if (!(typeModifiers & TypeModifier_Indexed))
-		functionSuffix = declarator->addFunctionSuffix ();
+	declarator->addGetterSuffix ();
 
 	declarator->m_typeModifiers &= ~(
 		TypeModifier_Const |
@@ -311,11 +320,6 @@ DeclTypeCalc::calcPropertyGetterType (Declarator* declarator)
 		NULL,
 		NULL
 		);
-
-	declarator->m_typeModifiers = typeModifiers;
-
-	if (functionSuffix)
-		declarator->deleteSuffix (functionSuffix);
 
 	if (!type)
 		return NULL;
