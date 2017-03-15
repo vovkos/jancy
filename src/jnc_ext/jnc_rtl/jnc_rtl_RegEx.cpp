@@ -64,10 +64,10 @@ RegExState::markOpaqueGcRoots (GcHeap* gcHeap)
 		gcHeap->markData (m_matchBufferPtr.m_validator->m_targetBox);
 	}
 
-	if (m_subMatchArrayPtr.m_validator)
+	if (m_groupOffsetArrayPtr.m_validator)
 	{
-		gcHeap->weakMark (m_subMatchArrayPtr.m_validator->m_validatorBox);
-		gcHeap->markData (m_subMatchArrayPtr.m_validator->m_targetBox);
+		gcHeap->weakMark (m_groupOffsetArrayPtr.m_validator->m_validatorBox);
+		gcHeap->markData (m_groupOffsetArrayPtr.m_validator->m_targetBox);
 	}
 }
 
@@ -107,9 +107,9 @@ RegExState::reset ()
 {
 	softReset ();
 
-	m_isError = false;
 	m_currentOffset = 0;
 	m_matchOffset = 0;
+	m_consumedLength = 0;
 	m_subMatchCount = 0;
 
 	memset (&m_match, 0, sizeof (RegExMatch));
@@ -132,6 +132,8 @@ RegExState::exec (
 
 	size_t result;
 
+	size_t prevOffset = m_currentOffset;
+
 	if (!length)
 	{
 		result = eof ();
@@ -143,17 +145,13 @@ RegExState::exec (
 			result = eof ();
 	}
 
-	if (result != RegExResult_Error)
+	if (result == RegExResult_Error)
 	{
-		m_isError = false;
-	}
-	else
-	{
-		m_isError = true;
-		m_currentOffset = m_matchOffset; // rollback offset
+		m_currentOffset = m_matchOffset; // rollback offset to the very beginning (not prevOffset!)
 		softReset ();
 	}
 
+	m_consumedLength = m_currentOffset - prevOffset;
 	return result; 
 }
 

@@ -110,7 +110,6 @@ struct RegExMatch
 opaque class RegExState
 {
 	bool m_isIncremental;
-	bool m_isError;
 
 	/**
 		Holds the maximum buffer size for lexemes. Set before starting recognition.
@@ -129,6 +128,12 @@ opaque class RegExState
 	*/
 
 	size_t autoget property m_currentOffset;
+
+	/** 
+		Holds the actual length of data consumed during the last invokation of the DFA. When non-incremental recognizer discovers a match, ``m_consumedLength`` will always be the same as ``m_match.m_length``. In case of a incremental recognizer, ``m_consumedLength`` may be smaller than ``m_match.m_length`` (the match may be spread across multiple blocks of input data).
+	*/
+
+	size_t readonly m_consumedLength;
 
 	/**
 		\subgroup

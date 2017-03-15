@@ -39,7 +39,7 @@ struct RegExMatch
 
 enum RegExResult
 {
-	RegExResult_Error    = -1, 
+	RegExResult_Error    = -1,
 	RegExResult_Continue = -2, // incremental regex result depends on upcoming data
 };
 
@@ -56,9 +56,10 @@ public:
 
 public:
 	bool m_isIncremental;
-	bool m_isError;
+
 	size_t m_matchLengthLimit;
 	size_t m_currentOffset;
+	size_t m_consumedLength;
 
 	RegExMatch m_match;
 	DataPtr m_subMatchArrayPtr;
