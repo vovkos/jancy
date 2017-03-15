@@ -232,7 +232,7 @@ opaque class UsbDevice
 	bool errorcode open ();
 
 	bool autoget property m_isAutoDetachKernelDriverEnabled;
-	bool const indexed property m_isKernelDriverActive (uint_t interfaceId);
+	bool const property m_isKernelDriverActive (uint_t interfaceId);
 	bool errorcode attachKernelDriver (uint_t interfaceId);
 	bool errorcode detachKernelDriver (uint_t interfaceId);
 
