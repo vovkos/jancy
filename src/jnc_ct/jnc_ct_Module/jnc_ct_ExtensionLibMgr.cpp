@@ -83,14 +83,15 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	for (size_t i = 0; i < count; i++)
 	{
 		sl::String fileName = entry->m_zipReader.getFileName (i);
-		size_t length = fileName.getLength ();
+		if (fileName.isEmpty ()) // wat?
+			continue;
 
 		if (fileName.isSuffix (binExt))
 		{
 			dynamicLibFileName = fileName;
 			dynamicLibFileIdx = i;
 		}
-		else if (fileName.isSuffix (jncExt))
+		else if (fileName [0] != '.' && fileName.isSuffix (jncExt))
 		{
 			SourceFile* sourceFile = AXL_MEM_NEW (SourceFile);
 			sourceFile->m_fileName = fileName;

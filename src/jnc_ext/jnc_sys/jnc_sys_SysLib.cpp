@@ -107,12 +107,14 @@ JNC_DEFINE_LIB (
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_SysLib)
-	JNC_LIB_FORCED_SOURCE_FILE ("sys_globals.jnc", g_sys_globalsSrc)
+	JNC_LIB_SOURCE_FILE ("sys_globals.jnc", g_sys_globalsSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Lock.jnc",    g_sys_LockSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Event.jnc",   g_sys_EventSrc)
 	JNC_LIB_SOURCE_FILE ("sys_NotificationEvent.jnc", g_sys_NotificationEventSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Thread.jnc",  g_sys_ThreadSrc)
 	JNC_LIB_SOURCE_FILE ("sys_Timer.jnc",   g_sys_TimerSrc)
+
+	JNC_LIB_IMPORT ("sys_globals.jnc")
 JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_SysLib)

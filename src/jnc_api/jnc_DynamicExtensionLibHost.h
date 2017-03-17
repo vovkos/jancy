@@ -932,7 +932,6 @@ typedef
 void
 jnc_Module_AddSourceFunc (
 	jnc_Module* module,
-	int isForced,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,

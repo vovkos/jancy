@@ -132,12 +132,9 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_ExtensionLib* lib = LibPrefix##_getLib ();
 
 #define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
-		jnc_Module_addSource (module, 0, lib, fileName, sourceVar, sizeof (sourceVar) - 1);
+		jnc_Module_addSource (module, lib, fileName, sourceVar, sizeof (sourceVar) - 1);
 
-#define JNC_LIB_FORCED_SOURCE_FILE(fileName, sourceVar) \
-		jnc_Module_addSource (module, 1, lib, fileName, sourceVar, sizeof (sourceVar) - 1);
-
-#define JNC_LIB_FORCED_IMPORT(fileName) \
+#define JNC_LIB_IMPORT(fileName) \
 		jnc_Module_addImport (module, fileName);
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
