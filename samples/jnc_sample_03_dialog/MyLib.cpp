@@ -22,19 +22,6 @@
 
 //..............................................................................
 
-int
-stdPrintf (
-	const char* format,
-	...
-	)
-{
-	va_list va;
-	va_start (va, format);
-	return getMainWindow ()->output_va (format, va);
-}
-
-//..............................................................................
-
 JNC_DEFINE_LIB (
 	MyLib,
 	g_myLibGuid,
@@ -55,7 +42,6 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (MyLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (MyLib)
-	JNC_MAP_FUNCTION ("printf",  &stdPrintf)
 	JNC_MAP_TYPE (MyWidget)
 	JNC_MAP_TYPE (MyLayout)
 	JNC_MAP_TYPE (MyLabel)

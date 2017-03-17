@@ -36,14 +36,9 @@ public:
 
 	bool runScript (const QString& fileName);
 
+	int outputDirect (const QString& string);
 	int output_va (const char* format, va_list va);
-
-	int output (const char* format, ...)
-	{
-		va_list va;
-		va_start (va, format);
-		return output_va (format, va);
-	}
+	int output (const char* format, ...);
 
 	QString readOutput ()
 	{

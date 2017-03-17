@@ -159,16 +159,6 @@ TestStruct::foo_2 (jnc::DataPtr selfPtr, double y)
 
 //..............................................................................
 
-int
-printfToOutput (
-	const char* format,
-	...
-	)
-{
-	AXL_VA_DECL (va, format);
-	return (int) getMainWindow ()->writeOutput_va (format, va);
-}
-
 void
 testPtr (
 	jnc::DataPtr ptr,
@@ -251,8 +241,6 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (TestLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
-	JNC_MAP_FUNCTION ("printf", printfToOutput)
-
 //	JNC_MAP_TYPE (TestClassA)
 //	JNC_MAP_TYPE (TestClassB)
 //	JNC_MAP_TYPE (TestStruct)

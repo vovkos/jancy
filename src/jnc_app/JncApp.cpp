@@ -35,7 +35,6 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (JncLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (JncLib)
-	JNC_MAP_FUNCTION ("printf",  &printf)
 JNC_END_LIB_FUNCTION_MAP ()
 
 //..............................................................................

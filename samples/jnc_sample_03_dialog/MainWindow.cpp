@@ -23,6 +23,11 @@ MainWindow* getMainWindow ()
 	return g_mainWindow;
 }
 
+size_t printToMainWindow (const void* p, size_t size)
+{
+	return getMainWindow ()->outputDirect (QString::fromUtf8 ((const char*) p, size));
+}
+
 //..............................................................................
 
 MainWindow::MainWindow (
@@ -51,15 +56,29 @@ MainWindow::MainWindow (
 	QDockWidget* dockWidget = new QDockWidget ("Output", this);
 	dockWidget->setWidget (m_output);
 	addDockWidget (Qt::BottomDockWidgetArea, dockWidget);
+
+	jnc::StdLib_setStdIo (NULL, printToMainWindow, printToMainWindow);
+}
+
+int MainWindow::outputDirect (const QString& string)
+{
+	m_output->moveCursor (QTextCursor::End);
+	m_output->insertPlainText (string);
+	return string.length ();
 }
 
 int MainWindow::output_va (const char* format, va_list va)
 {
 	QString string;
 	string.vsprintf (format, va);
-	m_output->moveCursor (QTextCursor::End);
-	m_output->insertPlainText (string);
-	return string.length ();
+	return outputDirect (string);
+}
+
+int MainWindow::output (const char* format, ...)
+{
+	va_list va;
+	va_start (va, format);
+	return output_va (format, va);
 }
 
 bool MainWindow::runScript (const QString& fileName)

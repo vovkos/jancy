@@ -23,9 +23,18 @@
 
 //..............................................................................
 
-MainWindow* g_mainWindow = NULL;
+size_t
+printToOutput (
+	const void* p,
+	size_t length
+	)
+{
+	return (int) getMainWindow ()->writeOutputDirect (QString::fromUtf8 ((const char*) p, length));
+}
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
+
+MainWindow* g_mainWindow = NULL;
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
@@ -49,6 +58,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 		this, SLOT (outputSlot ()),
 		Qt::QueuedConnection
 		);
+
+	jnc::StdLib_setStdIo (NULL, printToOutput, printToOutput);
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
@@ -346,13 +357,10 @@ bool MainWindow::compile ()
 
 	// DebugInfo only works with MCJIT, MCJIT only works on Linux
 
-#if (_JNC_OS_POSIX)
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags | jnc::ModuleCompileFlag_DebugInfo;
-#else
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
-#endif
-
-//	compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+	uint_t compileFlags = 
+		jnc::ModuleCompileFlag_StdFlags | 
+		jnc::ModuleCompileFlag_DebugInfo;
+		// | jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();

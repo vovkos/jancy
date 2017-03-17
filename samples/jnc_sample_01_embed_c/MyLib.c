@@ -20,17 +20,6 @@
 
 jnc_DataPtr g_propValue = { 0 };
 
-int
-stdPrintf (
-	const char* format,
-	...
-	)
-{
-	va_list va;
-	va_start (va, format);
-	return vprintf (format, va);
-}
-
 void
 foo_0 (int x)
 {
@@ -120,7 +109,6 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (MyLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (MyLib)
-	JNC_MAP_FUNCTION ("printf", &stdPrintf)
 	JNC_MAP_FUNCTION ("foo",    &foo_0)
 	JNC_MAP_OVERLOAD (&foo_1)
 	JNC_MAP_OVERLOAD (&foo_2)
