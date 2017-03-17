@@ -31,6 +31,43 @@ namespace std {
 
 //..............................................................................
 
+size_t
+stdGets (
+	void* buffer,
+	size_t size
+	)
+{
+	char* p = (char*) buffer;
+	fgets (p, size, stdin);
+	return strnlen (p, size);
+}
+
+size_t
+stdPrintOut (
+	const void* p, 
+	size_t size
+	)
+{
+	return fwrite (p, size, 1, stdout);
+}
+
+size_t
+stdPrintErr (
+	const void* p, 
+	size_t size
+	)
+{
+	return fwrite (p, size, 1, stderr);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+jnc_StdLib_StdInputFunc* g_getsFunc = stdGets;
+jnc_StdLib_StdOutputFunc* g_printOutFunc = stdPrintOut;
+jnc_StdLib_StdOutputFunc* g_printErrFunc = stdPrintErr;
+
+//..............................................................................
+
 int
 atoi (DataPtr ptr)
 {
@@ -353,10 +390,47 @@ format (
 	return resultPtr;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+DataPtr 
+gets ()
+{
+	char buffer [1024];
+	size_t length = g_getsFunc (buffer, sizeof (buffer));
+	return jnc::strDup (buffer, length);
+}
+
+size_t
+print (DataPtr ptr)
+{
+	size_t length = strLen (ptr);
+	return g_printOutFunc (ptr.m_p, length);
+}
+
+size_t
+perror (DataPtr ptr)
+{
+	size_t length = strLen (ptr);
+	return g_printErrFunc (ptr.m_p, length);
+}
+
+int
+printf (
+	const char* formatString,
+	...
+	)
+{
+	AXL_VA_DECL (va, formatString);
+
+	sl::String string = sl::formatString_va (formatString, va);
+	return g_printOutFunc (string.cp (), string.getLength ());
+}
+
 //..............................................................................
 
 } // namespace std
 } // namespace jnc
+
 
 using namespace jnc::std;
 
@@ -392,6 +466,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("strtol",  jnc::std::strtol)
 	JNC_MAP_FUNCTION ("toupper", toUpper)
 	JNC_MAP_FUNCTION ("tolower", toLower)
+	JNC_MAP_FUNCTION ("gets",    jnc::std::gets)
+	JNC_MAP_FUNCTION ("print",   jnc::std::print)
+	JNC_MAP_FUNCTION ("perror",  jnc::std::perror)
+	JNC_MAP_FUNCTION ("printf",  jnc::std::printf)
 
 	JNC_MAP_TYPE (Error)
 	JNC_MAP_TYPE (ConstBuffer)
@@ -420,5 +498,20 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_StdLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (StringHashTable)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (VariantHashTable)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+
+//..............................................................................
+
+JNC_EXTERN_C
+void
+jnc_StdLib_setStdIo (
+	jnc_StdLib_StdInputFunc* getsFunc,
+	jnc_StdLib_StdOutputFunc* printOutFunc,
+	jnc_StdLib_StdOutputFunc* printErrFunc
+	)
+{
+	g_getsFunc = getsFunc ? getsFunc : stdGets;
+	g_printOutFunc = printOutFunc ? printOutFunc : stdPrintOut;
+	g_printErrFunc = printErrFunc ? printErrFunc : stdPrintErr;
+}
 
 //..............................................................................

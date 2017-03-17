@@ -31,6 +31,9 @@
 	\footnote f2
 
 		The notation ``p:size`` here means: memory block pointed to by ``p`` and of ``size`` bytes long.
+
+	\footnote f3
+		Note that this function uses ``C`` vararg calling convention (and actually maps directly to libc ``snprintf``). As such, it is **not safe**. It is recommended to use formatting literals instead.
 */
 
 //! \addtogroup g2_crt
@@ -272,17 +275,49 @@ int atoi (char const* p);
 */
 
 long strtol (
-    char const* p,
+	char const* p,
 	char const** end = null,
 	int radix = 10
 	);
 
 /**
-	Prints formatted output to the standard output stream.
+	Reads a line from the standard input stream.
+
+	Returns the resulting string, or a ``null`` if an error occurs.
+
+	Length of the string can be discovered using `strlen` or, better, with ``dynamic sizeof``::
+		
+		char* s = gets ();
+		size_t length = dynamic sizeof (s) - 1;
+*/
+
+char* gets ();
+
+/**
+	Prints text to the standard output stream.
+
+	Returns the number of characters printed, or a ``-1`` if an error occurs.
+*/
+
+size_t print (char const* text);
+
+/**
+	Prints error message to the standard eror stream. 
+
+	Unlike its standard C library counterpart, does not follow the message with ``: <errno decription>``. If you need the last error description, inject it using formatting literals and the ``$!`` placeholder.
+
+	Returns the number of characters printed, or a ``-1`` if an error occurs.
+*/
+
+size_t perror (char const* text);
+
+/**
+	Prints formatted output to the standard output stream [#f3]_.
 
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 
 	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+
 */
 
 intptr_t cdecl printf (
@@ -300,11 +335,12 @@ namespace std {
 //! @{
 
 /**
-	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffered.
+	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffered [#f3]_.
 
 	Returns a pointer to null-terminated string containing the newly formatted text.
 
 	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+
 */
 
 char const* cdecl format (

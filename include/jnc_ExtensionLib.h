@@ -488,6 +488,34 @@ JNC_DECLARE_LIB (jnc_CoreLib)
 JNC_DECLARE_LIB (jnc_StdLib)
 JNC_DECLARE_LIB (jnc_SysLib)
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// overriding stdin/stdout/stderr of jancy scripts
+
+typedef
+size_t
+jnc_StdLib_StdInputFunc (
+	void* p,
+	size_t size
+	);
+
+typedef 
+size_t
+jnc_StdLib_StdOutputFunc (
+	const void* p, 
+	size_t size
+	);
+
+// NULL pointer means default (stdin/stdout/stderr)
+
+JNC_EXTERN_C
+void
+jnc_StdLib_setStdIo (
+	jnc_StdLib_StdInputFunc* getsFunc,
+	jnc_StdLib_StdOutputFunc* printOutFunc,
+	jnc_StdLib_StdOutputFunc* printErrFunc
+	);
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifndef __cplusplus
@@ -565,6 +593,11 @@ typedef jnc_DynamicExtensionLibUnloadFunc DynamicExtensionLibUnloadFunc;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+typedef jnc_StdLib_StdInputFunc StdLib_StdInputFunc;
+typedef jnc_StdLib_StdOutputFunc StdLib_StdOutputFunc;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 inline
 ExtensionLib*
 StdLib_getLib ()
@@ -577,6 +610,17 @@ ExtensionLib*
 SysLib_getLib ()
 {
 	return jnc_SysLib_getLib ();
+}
+
+inline
+void
+StdLib_setStdIo (
+	StdLib_StdInputFunc* getsFunc,
+	StdLib_StdOutputFunc* printOutFunc,
+	StdLib_StdOutputFunc* printErrFunc
+	)
+{
+	jnc_StdLib_setStdIo (getsFunc, printOutFunc, printErrFunc);
 }
 
 //..............................................................................
