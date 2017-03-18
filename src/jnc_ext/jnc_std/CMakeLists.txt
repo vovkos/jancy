@@ -15,6 +15,7 @@
 
 set (
 	LIB_H_LIST
+	jnc_std_Array.h
 	jnc_std_Error.h
 	jnc_std_Buffer.h
 	jnc_std_String.h
@@ -25,6 +26,7 @@ set (
 
 set (
 	LIB_CPP_LIST
+	jnc_std_Array.cpp
 	jnc_std_Error.cpp
 	jnc_std_Buffer.cpp
 	jnc_std_String.cpp
@@ -47,7 +49,9 @@ source_group (
 
 set (
 	JNC_LIST
+	jnc/.forced.jnc
 	jnc/std_globals.jnc
+	jnc/std_Array.jnc
 	jnc/std_Error.jnc
 	jnc/std_Buffer.jnc
 	jnc/std_String.jnc
@@ -74,6 +78,12 @@ axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 add_perl_step (
 	std_globals.jnc.cpp
 	jnc/std_globals.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
+	std_Array.jnc.cpp
+	jnc/std_Array.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -112,6 +122,7 @@ axl_pop (CMAKE_CURRENT_BINARY_DIR)
 set (
 	GEN_JNC_CPP_LIST
 	${GEN_DIR}/std_globals.jnc.cpp
+	${GEN_DIR}/std_Array.jnc.cpp
 	${GEN_DIR}/std_Error.jnc.cpp
 	${GEN_DIR}/std_Buffer.jnc.cpp
 	${GEN_DIR}/std_String.jnc.cpp

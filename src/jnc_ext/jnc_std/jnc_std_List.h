@@ -40,8 +40,6 @@ struct ListEntry
 class List: public IfaceHdr
 {
 public:
-
-public:
 	DataPtr m_headPtr;
 	DataPtr m_tailPtr;
 	size_t m_count;

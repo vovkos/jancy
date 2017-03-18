@@ -13,6 +13,7 @@
 #include "jnc_std_StdLib.h"
 #include "jnc_CallSite.h"
 
+#include "jnc_std_Array.h"
 #include "jnc_std_Error.h"
 #include "jnc_std_Buffer.h"
 #include "jnc_std_String.h"
@@ -20,6 +21,7 @@
 #include "jnc_std_HashTable.h"
 
 #include "std_globals.jnc.cpp"
+#include "std_Array.jnc.cpp"
 #include "std_Error.jnc.cpp"
 #include "std_Buffer.jnc.cpp"
 #include "std_String.jnc.cpp"
@@ -44,7 +46,7 @@ stdGets (
 
 size_t
 stdPrintOut (
-	const void* p, 
+	const void* p,
 	size_t size
 	)
 {
@@ -53,7 +55,7 @@ stdPrintOut (
 
 size_t
 stdPrintErr (
-	const void* p, 
+	const void* p,
 	size_t size
 	)
 {
@@ -392,7 +394,7 @@ format (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr 
+DataPtr
 gets ()
 {
 	char buffer [1024];
@@ -471,6 +473,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("perror",  jnc::std::perror)
 	JNC_MAP_FUNCTION ("printf",  jnc::std::printf)
 
+	JNC_MAP_TYPE (Array)
 	JNC_MAP_TYPE (Error)
 	JNC_MAP_TYPE (ConstBuffer)
 	JNC_MAP_TYPE (ConstBufferRef)
@@ -487,6 +490,7 @@ JNC_END_LIB_FUNCTION_MAP ()
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_StdLib)
 	JNC_LIB_SOURCE_FILE ("std_globals.jnc",   g_std_globalsSrc)
+	JNC_LIB_SOURCE_FILE ("std_Array.jnc",     g_std_ArraySrc)
 	JNC_LIB_SOURCE_FILE ("std_Error.jnc",     g_std_ErrorSrc)
 	JNC_LIB_SOURCE_FILE ("std_Buffer.jnc",    g_std_BufferSrc)
 	JNC_LIB_SOURCE_FILE ("std_String.jnc",    g_std_StringSrc)

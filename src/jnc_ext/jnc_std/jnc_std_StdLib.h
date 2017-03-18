@@ -34,6 +34,7 @@ enum StdLibCacheSlot
 	StdLibCacheSlot_VariantHashTable,
 	StdLibCacheSlot_ListEntry,
 	StdLibCacheSlot_List,
+	StdLibCacheSlot_Array,
 	StdLibCacheSlot_ConstBuffer,
 	StdLibCacheSlot_ConstBufferRef,
 	StdLibCacheSlot_BufferRef,

@@ -1,0 +1,21 @@
+import "std_Array.jnc"
+
+int main ()
+{
+	printf ("main ()\n");
+
+	std.Array a;
+	a.setCount (100);
+
+	print ("filling array\n");
+	for (int i = 0; i < a.m_count; i++)
+		a [i] = i * 10;
+
+	print ("printing array\n");
+	for (int i = 0; i < a.m_count + 1; i++)
+		print ($"a [$i] = $(a [i])\n");
+
+	return 0;
+}
+
+//..............................................................................
