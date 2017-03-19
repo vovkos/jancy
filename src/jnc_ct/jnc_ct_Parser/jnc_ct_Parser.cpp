@@ -14,7 +14,7 @@
 #include "jnc_ct_Parser.llk.cpp"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
-#include "jnc_rtl_RegEx.h"
+#include "jnc_rtl_Regex.h"
 
 // #define _NO_BINDLESS_REACTIONS 1
 
@@ -2087,7 +2087,7 @@ Parser::addReactorBindSite (const Value& value)
 	llvm::Value* llvmValue = onChangedValue.getLlvmValue ();
 	ASSERT (llvmValue);
 
-	sl::HashTableMapIterator <llvm::Value*, bool> it = m_reactionBindSiteMap.visit (llvmValue);
+	sl::HashTableIterator <llvm::Value*, bool> it = m_reactionBindSiteMap.visit (llvmValue);
 	if (it->m_value)
 		return true;
 

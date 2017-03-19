@@ -20,6 +20,26 @@ namespace std {
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	HashTable,
+	"std.HashTable",
+	g_stdLibGuid,
+	StdLibCacheSlot_HashTable,
+	HashTable,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (HashTable)
+	JNC_MAP_CONSTRUCTOR (&(jnc::construct <HashTable, HashFunc*, IsEqualFunc*>))
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <HashTable>)
+	JNC_MAP_FUNCTION ("clear",  &HashTable::clear)
+	JNC_MAP_FUNCTION ("find", &HashTable::find)
+	JNC_MAP_FUNCTION ("visit", &HashTable::visit)
+	JNC_MAP_FUNCTION ("remove", &HashTable::remove)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	StringHashTable,
 	"std.StringHashTable",
 	g_stdLibGuid,
@@ -61,6 +81,41 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
+HashTable::HashTable (
+	HashFunc* hashFunc,
+	IsEqualFunc* isEqualFunc
+	)
+{
+}
+
+HashTable::~HashTable ()
+{
+}
+
+void
+HashTable::clear ()
+{
+}
+
+DataPtr
+HashTable::visit (Variant key) const
+{
+	return g_nullPtr;
+}
+
+DataPtr
+HashTable::find (Variant key) const
+{
+	return g_nullPtr;
+}
+
+void
+HashTable::remove (DataPtr entryPtr)
+{
+}
+
+//..............................................................................
+
 void
 JNC_CDECL
 StringHashTable::markOpaqueGcRoots (GcHeap* gcHeap)
@@ -84,7 +139,7 @@ StringHashTable::find (
 	DataPtr valuePtr
 	)
 {
-	StringHashTableMap::Iterator it = m_map.find ((const char*) keyPtr.m_p);
+	Map::Iterator it = m_map.find ((const char*) keyPtr.m_p);
 	if (!it)
 		return false;
 
@@ -99,7 +154,7 @@ StringHashTable::insert (
 	Variant value
 	)
 {
-	StringHashTableMap::Iterator it = m_map.visit ((const char*) keyPtr.m_p);
+	Map::Iterator it = m_map.visit ((const char*) keyPtr.m_p);
 	if (it->m_value)
 	{
 		it->m_value->m_value = value;
@@ -117,7 +172,7 @@ bool
 JNC_CDECL
 StringHashTable::remove (DataPtr keyPtr)
 {
-	StringHashTableMap::Iterator it = m_map.find ((const char*) keyPtr.m_p);
+	Map::Iterator it = m_map.find ((const char*) keyPtr.m_p);
 	if (!it)
 		return false;
 
@@ -150,7 +205,7 @@ VariantHashTable::find (
 	DataPtr valuePtr
 	)
 {
-	VariantHashTableMap::Iterator it = m_map.find (key);
+	Map::Iterator it = m_map.find (key);
 	if (!it)
 		return false;
 
@@ -165,7 +220,7 @@ VariantHashTable::insert (
 	Variant value
 	)
 {
-	VariantHashTableMap::Iterator it = m_map.visit (key);
+	Map::Iterator it = m_map.visit (key);
 	if (it->m_value)
 	{
 		it->m_value->m_value = value;
@@ -183,7 +238,7 @@ bool
 JNC_CDECL
 VariantHashTable::remove (Variant key)
 {
-	VariantHashTableMap::Iterator it = m_map.find (key);
+	Map::Iterator it = m_map.find (key);
 	if (!it)
 		return false;
 

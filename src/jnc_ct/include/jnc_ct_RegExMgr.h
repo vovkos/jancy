@@ -1,1 +1,1 @@
-#include "../jnc_ct_Module/jnc_ct_RegExMgr.h"
+#include "../jnc_ct_Module/jnc_ct_RegexMgr.h"

@@ -132,7 +132,7 @@ class DerivableType:
 protected:
 	// base types
 
-	sl::StringHashTableMap <BaseTypeSlot*> m_baseTypeMap;
+	sl::StringHashTable <BaseTypeSlot*> m_baseTypeMap;
 	sl::StdList <BaseTypeSlot> m_baseTypeList;
 	sl::Array <BaseTypeSlot*> m_baseTypeArray;
 	sl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
@@ -148,11 +148,11 @@ protected:
 	sl::Array <Function*> m_unaryOperatorTable;
 	sl::Array <Function*> m_binaryOperatorTable;
 	sl::Array <Function*> m_castOperatorTable;
-	sl::StringHashTableMap <Function*> m_castOperatorMap;
+	sl::StringHashTable <Function*> m_castOperatorMap;
 	Function* m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
-	sl::StringHashTableMap <Property*> m_indexerPropertyMap;
+	sl::StringHashTable <Property*> m_indexerPropertyMap;
 
 public:
 	DerivableType ();
@@ -194,7 +194,7 @@ public:
 	BaseTypeSlot*
 	findBaseType (Type* type)
 	{
-		sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+		sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
 		return it ? it->m_value : NULL;
 	}
 
@@ -252,7 +252,7 @@ public:
 	Function*
 	getCastOperator (Type* type)
 	{
-		sl::StringHashTableMapIterator <Function*> it = m_castOperatorMap.find (type->getSignature ());
+		sl::StringHashTableIterator <Function*> it = m_castOperatorMap.find (type->getSignature ());
 		return it ? it->m_value : NULL;
 	}
 

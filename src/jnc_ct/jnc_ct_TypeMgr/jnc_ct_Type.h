@@ -64,9 +64,9 @@ enum TypeFlag
 enum PtrTypeFlag
 {
 	PtrTypeFlag_Safe      = 0x0010000, // all ptr
-	PtrTypeFlag_Unused    = 0x0020000, // all ptr
-	PtrTypeFlag_Const     = 0x0040000, // class & data ptr
-	PtrTypeFlag_ReadOnly  = 0x0080000, // class & data ptr
+	PtrTypeFlag_Const     = 0x0020000, // class & data ptr
+	PtrTypeFlag_ReadOnly  = 0x0040000, // class & data ptr
+	PtrTypeFlag_Unused    = 0x0080000, // class & data ptr
 	PtrTypeFlag_Volatile  = 0x0100000, // class & data ptr
 	PtrTypeFlag_Event     = 0x0200000, // multicast-class only
 	PtrTypeFlag_DualEvent = 0x0400000, // multicast-class only
@@ -208,7 +208,7 @@ protected:
 	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignment;
-	sl::StringHashTableMapIterator <Type*> m_typeMapIt;
+	sl::StringHashTableIterator <Type*> m_typeMapIt;
 	sl::String m_signature;
 
 	llvm::Type* m_llvmType;

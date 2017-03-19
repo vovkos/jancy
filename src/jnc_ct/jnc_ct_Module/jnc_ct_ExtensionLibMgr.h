@@ -45,15 +45,15 @@ protected:
 		sl::Array <ct::ModuleItem*> m_itemArray;
 	};
 
-	typedef sl::DuckTypeHashTableMap <sl::Guid, ItemCacheEntry*> ItemCacheMap;
+	typedef sl::DuckTypeHashTable <sl::Guid, ItemCacheEntry*> ItemCacheMap;
 
 protected:
 	ct::Module* m_module;
 	sl::Array <ExtensionLib*> m_libArray;
 	sl::StdList <DynamicLibEntry> m_dynamicLibList;
 	sl::StdList <SourceFile> m_sourceFileList;
-	sl::StringHashTableMap <SourceFile*> m_sourceFileMap;
-	sl::StringHashTableMap <const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
+	sl::StringHashTable <SourceFile*> m_sourceFileMap;
+	sl::StringHashTable <const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
 	sl::StdList <ItemCacheEntry> m_itemCache;
 	ItemCacheMap m_itemCacheMap;
 
@@ -96,7 +96,7 @@ public:
 	const OpaqueClassTypeInfo*
 	findOpaqueClassTypeInfo (const sl::StringRef& qualifiedName)
 	{
-		sl::StringHashTableMapIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
+		sl::StringHashTableIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
 		return it ? it->m_value : NULL;
 	}
 

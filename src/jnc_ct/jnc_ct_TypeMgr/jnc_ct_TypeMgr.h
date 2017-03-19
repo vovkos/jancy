@@ -46,12 +46,12 @@ struct DualPtrTypeTuple: sl::ListLink
 {
 	union
 	{
-		DataPtrTypeTuple* m_constDDataPtrTypeTuple;
-		ClassPtrTypeTuple* m_constDClassPtrTypeTuple;
-		PropertyPtrTypeTuple* m_constDPropertyPtrTypeTuple;
+		DataPtrTypeTuple* m_readOnlyDataPtrTypeTuple;
+		ClassPtrTypeTuple* m_readOnlyClassPtrTypeTuple;
+		PropertyPtrTypeTuple* m_readOnlyPropertyPtrTypeTuple;
 	};
 
-	ClassPtrTypeTuple* m_eventDClassPtrTypeTuple;
+	ClassPtrTypeTuple* m_dualEventClassPtrTypeTuple;
 };
 
 //..............................................................................
@@ -117,7 +117,7 @@ protected:
 	sl::StdList <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
 	sl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
 
-	sl::StringHashTableMap <Type*> m_typeMap;
+	sl::StringHashTable <Type*> m_typeMap;
 
 	sl::Array <NamedImportType*> m_unresolvedNamedImportTypeArray;
 	sl::Array <ImportPtrType*> m_unresolvedImportPtrTypeArray;
@@ -938,7 +938,7 @@ protected:
 	getPropertyPtrTypeTuple (PropertyType* propertyType);
 
 	PropertyPtrTypeTuple*
-	getConstDPropertyPtrTypeTuple (
+	getReadOnlyPropertyPtrTypeTuple (
 		Namespace* anchorNamespace,
 		PropertyType* propertyType
 		);

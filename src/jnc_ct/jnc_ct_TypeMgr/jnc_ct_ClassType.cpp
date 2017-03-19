@@ -323,7 +323,7 @@ ClassType::calcLayout ()
 			return false;
 		}
 
-		sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (slot->m_type->getSignature ());
+		sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (slot->m_type->getSignature ());
 		if (it->m_value)
 		{
 			err::setFormatStringError (

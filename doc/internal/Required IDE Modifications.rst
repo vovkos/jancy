@@ -18,9 +18,9 @@ Tokens have changed. Refer to ``jnc_ct_Lexer.rl`` for reference. Some notes:
 
 * ``anydata`` type modifier. This change in Jancy language was done long time ago, but since it's not used in IO Ninja scripts, I never have really noticed the lack of support for it in the IDE. ``anydata`` type specifier was added to create versatile (both POD and non-POD) data pointers (``void*`` is an abstact POD-pointer and can't be used to store pointers to non-POD-data. With ``anydata`` pointers you can store both -- at the cost of required ``dynamic`` casts). IDE-wise -- just add ``anydata`` type specifier and make it behave the same as ``void``.
 
-* ``automaton`` removed, ``regex`` added (more on that later).
+* ``automaton`` removed, ``reswitch`` added (more on that later).
 
-* ``%% ...`` regex literals are gone, raw literals ``[rR]"..."`` are added. Raw literals are similar to Python raw literals (without escape decoding) are primarily dedicated for declaring regular expressions in ``regex switch`` statements. They may also come handly for declaring Windows paths -- no need to escape all ``\``-s or replace  them with ``/``-s.
+* ``%% ...`` regex literals are gone, raw literals ``[rR]"..."`` are added. Raw literals are similar to Python raw literals (without escape decoding) are primarily dedicated for declaring regular expressions in ``reswitch`` statements. They may also come handly for declaring Windows paths -- no need to escape all ``\``-s or replace  them with ``/``-s.
 
 * Binary literals with decimal radix ``0x[nNdD]"..."`` are in Jancy for quite a while already, but apparently are not supported in the IDE. It's pretty convenient to declare IP address constants with decimal binary literals: ``0n"127 0 0 1"``, ``0n"192 168 1 32", etc. Binary literals with octal and binary radix ``0x[oO]"..."``, ``0x[bB]"..."`` added just for consistency (don't see the point in octal radix tbh, but octals are part of the C/C++ standard)
 
@@ -65,8 +65,8 @@ Regex Switches
 
 Big change in lexer generator. I kept thinking on how to improve automaton functions without compromising the functionality they provide. I feel the concept of automaton functions -- a built-in Ragel/Lex/Flex -- is great, but it's a bit hard to wrap your head around it -- how to invoke automatons, return values from automatons, relations between automatons and recognizers etc. The solution I finally settled on kicks major ass::
 
-		jnc.RegExState state; // may be re-used in a loop, upon receiving the next chunk over IO stream, etc
-		regex switch (state, string)
+		jnc.RegexState state; // may be re-used in a loop, upon receiving the next chunk over IO stream, etc
+		reswitch (state, string)
 		{
 		case r"foo\s+\d+": // raw literal to prevent escape expansion as regex-es use different rules
 			// OK to fall-through to next case, just like in a regular switch
@@ -81,7 +81,7 @@ Big change in lexer generator. I kept thinking on how to improve automaton funct
 
 It's OK to pass the string length as the third parameter, it's OK to re-enter the switch in a loop to process the whole string (adjusting the string pointer), and it's OK to continue process the stream chunk-by-chunk like before with automatons (``state.m_isIncremental = true``).
 
-I believe ``regex switch`` a huge step forward in terms of *being easy to understand*. And just like automatons it remains a unique feature -- no other language provides regex-based switches. To be 100% correct I have to add that it's possible to do something similar to regex switch in recent versions of ECMA script, but it can't work chunk-by-chunk and more importantly, it will essentially result in a sequence of regex matches, i.e. complexity will be O(input-length * number-of-cases), while in Jancy it's a single DFA i.e. O(input-length).
+I believe ``reswitch`` a huge step forward in terms of *being easy to understand*. And just like automatons it remains a unique feature -- no other language provides regex-based switches. To be 100% correct I have to add that it's possible to do something similar to regex switch in recent versions of ECMA script, but it can't work chunk-by-chunk and more importantly, it will essentially result in a sequence of regex matches, i.e. complexity will be O(input-length * number-of-cases), while in Jancy it's a single DFA i.e. O(input-length).
 
 For syntactic details check ``jnc_ct_Stmt.llk``, for sample code check ``70_RegExSwitch.jnc`` in Jancy sample folder or ``io_UsbDb.jnc`` in IO Ninja common script folder.
 

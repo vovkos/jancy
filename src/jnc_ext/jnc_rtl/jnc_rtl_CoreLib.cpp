@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "jnc_rtl_DynamicLib.h"
 #include "jnc_rtl_Multicast.h"
-#include "jnc_rtl_RegEx.h"
+#include "jnc_rtl_Regex.h"
 
 #ifdef _JNC_CORE
 #	include "jnc_rt_Runtime.h"
@@ -1100,7 +1100,7 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_CoreLib)
 JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegExState)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexState)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
@@ -1186,7 +1186,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// std types
 
-	JNC_MAP_STD_TYPE (StdType_RegExState, RegExState)
+	JNC_MAP_STD_TYPE (StdType_RegexState, RegexState)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)
 
 JNC_END_LIB_FUNCTION_MAP ()

@@ -52,7 +52,7 @@ protected:
 	Module* m_module;
 
 	sl::StdList <Import> m_importList;
-	sl::StringHashTableMap <bool> m_importFilePathMap;
+	sl::StringHashTable <bool> m_importFilePathMap;
 	sl::BoxList <sl::String> m_extensionLibFilePathCache;
 
 public:

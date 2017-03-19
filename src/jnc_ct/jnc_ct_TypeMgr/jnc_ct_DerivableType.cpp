@@ -131,7 +131,7 @@ DerivableType::getIndexerProperty (Type* argType)
 {
 	ASSERT (!(m_flags & ModuleItemFlag_LayoutReady));
 
-	sl::StringHashTableMapIterator <Property*> it = m_indexerPropertyMap.visit (argType->getSignature ());
+	sl::StringHashTableIterator <Property*> it = m_indexerPropertyMap.visit (argType->getSignature ());
 	if (it->m_value)
 		return it->m_value;
 
@@ -147,7 +147,7 @@ DerivableType::chooseIndexerProperty (const Value& opValue)
 	CastKind bestCastKind = CastKind_None;
 	Property* bestProperty = NULL;
 
-	sl::StringHashTableMapIterator <Property*> it = m_indexerPropertyMap.getHead ();
+	sl::StringHashTableIterator <Property*> it = m_indexerPropertyMap.getHead ();
 	for (; it; it++)
 	{
 		Property* prop = it->m_value;
@@ -539,7 +539,7 @@ DerivableType::findBaseTypeTraverseImpl (
 	size_t level
 	)
 {
-	sl::StringHashTableMapIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+	sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
 	if (it)
 	{
 		if (!coord)

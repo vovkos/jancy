@@ -84,9 +84,9 @@ getPtrTypeFlagString (PtrTypeFlag flag)
 	static const char* stringTable [] =
 	{
 		"safe",      // PtrTypeFlag_Safe      = 0x0010000
-		"unused",    // PtrTypeFlag_Unused    = 0x0020000
-		"const",     // PtrTypeFlag_Const     = 0x0040000
-		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0080000
+		"const",     // PtrTypeFlag_Const     = 0x0020000
+		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0040000
+		"unused",    // PtrTypeFlag_Unused    = 0x0080000
 		"volatile",  // PtrTypeFlag_Volatile  = 0x0100000
 		"event",     // PtrTypeFlag_Event     = 0x0200000
 		"dualevent", // PtrTypeFlag_DualEvent = 0x0400000
@@ -145,7 +145,7 @@ getPtrTypeFlagSignature (uint_t flags)
 	if (flags & PtrTypeFlag_Const)
 		signature += 'c';
 	else if (flags & PtrTypeFlag_ReadOnly)
-		signature += "pc";
+		signature += "ro";
 
 	if (flags & PtrTypeFlag_Volatile)
 		signature += 'v';

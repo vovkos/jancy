@@ -140,6 +140,7 @@ main := |*
 'bigendian'      { createToken (TokenKind_BigEndian); };
 'const'          { createToken (TokenKind_Const); };
 'readonly'       { createToken (TokenKind_ReadOnly); };
+'cmut'           { createToken (TokenKind_CMut); };
 'volatile'       { createToken (TokenKind_Volatile); };
 'weak'           { createToken (TokenKind_Weak); };
 'thin'           { createToken (TokenKind_Thin); };
@@ -228,6 +229,7 @@ main := |*
 'continue' [1-9] { createKeywordTokenEx (TokenKind_Continue, te [-1] - '0'); };
 'return'         { createToken (TokenKind_Return); };
 'switch'         { createToken (TokenKind_Switch); };
+'reswitch'       { createToken (TokenKind_ReSwitch); };
 'case'           { createToken (TokenKind_Case); };
 'default'        { createToken (TokenKind_Default); };
 'once'           { createToken (TokenKind_Once); };
@@ -238,7 +240,6 @@ main := |*
 'finally'        { createToken (TokenKind_Finally); };
 'nestedscope'    { createToken (TokenKind_NestedScope); };
 'assert'         { createToken (TokenKind_Assert); };
-'regex'          { createToken (TokenKind_RegEx); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -305,11 +306,11 @@ dec+             { createIntegerToken (10); };
 '0' [oO] oct+    { createIntegerToken (8, 2); };
 '0' [bB] bin+    { createIntegerToken (2, 2); };
 
-'0' [xX] raw_lit_dq  
+'0' [xX] raw_lit_dq
 				 { createBinLiteralToken (16); };
-'0' [oO] raw_lit_dq  
+'0' [oO] raw_lit_dq
 				 { createBinLiteralToken (8); };
-'0' [bB] raw_lit_dq  
+'0' [bB] raw_lit_dq
 				 { createBinLiteralToken (2); };
 '0' [nNdD] raw_lit_dq
 				 { createBinLiteralToken (10); };

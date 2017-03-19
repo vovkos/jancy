@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rtl_RegEx.h"
+#include "jnc_rtl_Regex.h"
 
 namespace jnc {
 namespace ct {
@@ -103,7 +103,7 @@ ControlFlowMgr::switchStmt_Case (
 	uint_t scopeFlags
 	)
 {
-	sl::HashTableMapIterator <intptr_t, BasicBlock*> it = stmt->m_caseMap.visit (value);
+	sl::HashTableIterator <intptr_t, BasicBlock*> it = stmt->m_caseMap.visit (value);
 	if (it->m_value)
 	{
 		err::setFormatStringError ("redefinition of label (%d) of 'switch' statement", value);
@@ -170,30 +170,30 @@ ControlFlowMgr::switchStmt_Follow (SwitchStmt* stmt)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::regExSwitchStmt_Create (RegExSwitchStmt* stmt)
+ControlFlowMgr::reSwitchStmt_Create (ReSwitchStmt* stmt)
 {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
-	stmt->m_followBlock = createBlock ("regex_switch_follow");
+	stmt->m_followBlock = createBlock ("reswitch_follow");
 }
 
 bool
-ControlFlowMgr::regExSwitchStmt_Condition (
-	RegExSwitchStmt* stmt,
-	const Value& regExStateValue,
+ControlFlowMgr::reSwitchStmt_Condition (
+	ReSwitchStmt* stmt,
+	const Value& regexStateValue,
 	const Value& dataValue,
 	const Value& sizeValue,
 	const Token::Pos& pos
 	)
 {
-	ClassType* regExStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegExState);
-	ClassPtrType* regExStatePtrType = regExStateType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+	ClassType* regexStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegexState);
+	ClassPtrType* regexStatePtrType = regexStateType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)->getDataPtrType (DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 
-	bool result = 
-		m_module->m_operatorMgr.castOperator (regExStateValue, regExStatePtrType, &stmt->m_regExStateValue) &&
+	bool result =
+		m_module->m_operatorMgr.castOperator (regexStateValue, regexStatePtrType, &stmt->m_regexStateValue) &&
 		m_module->m_operatorMgr.castOperator (dataValue, charPtrType, &stmt->m_dataValue);
-	
+
 	if (!result)
 		return false;
 
@@ -210,7 +210,7 @@ ControlFlowMgr::regExSwitchStmt_Condition (
 
 	stmt->m_switchBlock = getCurrentBlock ();
 
-	BasicBlock* bodyBlock = createBlock ("regex_switch_body");
+	BasicBlock* bodyBlock = createBlock ("reswitch_body");
 	setCurrentBlock (bodyBlock);
 	markUnreachable (bodyBlock);
 
@@ -222,33 +222,33 @@ ControlFlowMgr::regExSwitchStmt_Condition (
 }
 
 bool
-ControlFlowMgr::regExSwitchStmt_Case (
-	RegExSwitchStmt* stmt,
-	const sl::StringRef& regExSource,
+ControlFlowMgr::reSwitchStmt_Case (
+	ReSwitchStmt* stmt,
+	const sl::StringRef& regexSource,
 	const Token::Pos& pos,
 	uint_t scopeFlags
 	)
 {
 	m_module->m_namespaceMgr.closeScope ();
 
-	BasicBlock* block = createBlock ("regex_switch_case");
+	BasicBlock* block = createBlock ("reswitch_case");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow (block);
 	m_module->m_namespaceMgr.openScope (pos);
 
-	RegExSwitchAcceptContext* context = AXL_MEM_NEW (RegExSwitchAcceptContext);
-	context->m_firstGroupId = stmt->m_regEx.getGroupCount ();
+	ReSwitchAcceptContext* context = AXL_MEM_NEW (ReSwitchAcceptContext);
+	context->m_firstGroupId = stmt->m_regex.getGroupCount ();
 	context->m_groupCount = 0;
 	context->m_actionBlock = block;
 	stmt->m_acceptContextList.insertTail (context);
 
-	fsm::RegExCompiler regExCompiler (&stmt->m_regEx);
-	return regExCompiler.incrementalCompile (regExSource, context);
+	fsm::RegexCompiler regexCompiler (&stmt->m_regex);
+	return regexCompiler.incrementalCompile (regexSource, context);
 }
 
 bool
-ControlFlowMgr::regExSwitchStmt_Default (
-	RegExSwitchStmt* stmt,
+ControlFlowMgr::reSwitchStmt_Default (
+	ReSwitchStmt* stmt,
 	const Token::Pos& pos,
 	uint_t scopeFlags
 	)
@@ -261,7 +261,7 @@ ControlFlowMgr::regExSwitchStmt_Default (
 
 	m_module->m_namespaceMgr.closeScope ();
 
-	BasicBlock* block = createBlock ("regex_switch_default");
+	BasicBlock* block = createBlock ("reswitch_default");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow (block);
 	stmt->m_defaultBlock = block;
@@ -271,7 +271,7 @@ ControlFlowMgr::regExSwitchStmt_Default (
 }
 
 bool
-ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
+ControlFlowMgr::reSwitchStmt_Finalize (ReSwitchStmt* stmt)
 {
 	bool result;
 
@@ -286,11 +286,11 @@ ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
 
 	// finalize regexp
 
-	fsm::RegExCompiler regExCompiler (&stmt->m_regEx);
-	regExCompiler.finalize ();
+	fsm::RegexCompiler regexCompiler (&stmt->m_regex);
+	regexCompiler.finalize ();
 
-	sl::Iterator <RegExSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead ();
-	sl::Iterator <RegExSwitchAcceptContext> next = prev.getNext ();
+	sl::Iterator <ReSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead ();
+	sl::Iterator <ReSwitchAcceptContext> next = prev.getNext ();
 	while (next)
 	{
 		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
@@ -303,19 +303,19 @@ ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
 		return false;
 	}
 
-	prev->m_groupCount = stmt->m_regEx.getGroupCount () - prev->m_firstGroupId;
+	prev->m_groupCount = stmt->m_regex.getGroupCount () - prev->m_firstGroupId;
 
 	// build dfa tables
 
-	Dfa* dfa = m_module->m_regExMgr.createDfa ();
-	result = dfa->build (&stmt->m_regEx);
+	Dfa* dfa = m_module->m_regexMgr.createDfa ();
+	result = dfa->build (&stmt->m_regex);
 	if (!result)
 		return false;
 
 	// build case map
 
-	sl::Array <fsm::DfaState*> stateArray = stmt->m_regEx.getDfaStateArray ();
-	sl::SimpleHashTableMap <intptr_t, BasicBlock*> caseMap;
+	sl::Array <fsm::DfaState*> stateArray = stmt->m_regex.getDfaStateArray ();
+	sl::SimpleHashTable <intptr_t, BasicBlock*> caseMap;
 
 	size_t stateCount = stateArray.getCount ();
 	for (size_t i = 0; i < stateCount; i++)
@@ -324,19 +324,19 @@ ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
 
 		if (state->m_isAccept)
 		{
-			RegExSwitchAcceptContext* context = (RegExSwitchAcceptContext*) state->m_acceptContext;
+			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*) state->m_acceptContext;
 			caseMap [state->m_id] = context->m_actionBlock;
 		}
 	}
-			
-	caseMap [rtl::RegExResult_Continue] = defaultBlock;
+
+	caseMap [rtl::RegexResult_Continue] = defaultBlock;
 
 	// execute dfa and generate switch
 
 	m_module->m_controlFlowMgr.setCurrentBlock (stmt->m_switchBlock);
 
-	ClassType* regExStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegExState);
-	Function* execFunc = regExStateType->findFunctionByName ("exec");
+	ClassType* regexStateType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_RegexState);
+	Function* execFunc = regexStateType->findFunctionByName ("exec");
 	ASSERT (execFunc);
 
 	Value dfaValue (&dfa, m_module->m_typeMgr.getStdType (StdType_BytePtr));
@@ -344,7 +344,7 @@ ControlFlowMgr::regExSwitchStmt_Finalize (RegExSwitchStmt* stmt)
 
 	result = m_module->m_operatorMgr.callOperator (
 		execFunc,
-		stmt->m_regExStateValue,
+		stmt->m_regexStateValue,
 		dfaValue,
 		stmt->m_dataValue,
 		stmt->m_sizeValue,

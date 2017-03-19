@@ -1,0 +1,12 @@
+import "std_HashTable.jnc"
+
+int main ()
+{
+	printf ("main ()\n");
+
+	std.HashTable a;
+
+	return 0;
+}
+
+//..............................................................................

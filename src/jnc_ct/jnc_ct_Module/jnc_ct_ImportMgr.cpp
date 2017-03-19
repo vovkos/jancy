@@ -84,7 +84,7 @@ ImportMgr::addImport (
 	const sl::StringRef& source
 	)
 {
-	sl::StringHashTableMapIterator <bool> it = m_importFilePathMap.visit (filePath);
+	sl::StringHashTableIterator <bool> it = m_importFilePathMap.visit (filePath);
 	if (it->m_value)
 		return; // already added
 
@@ -119,7 +119,7 @@ ImportMgr::findImportFile (
 		return FindResult_NotFound;
 	}
 
-	sl::StringHashTableMapIterator <bool> it = m_importFilePathMap.visit (filePath);
+	sl::StringHashTableIterator <bool> it = m_importFilePathMap.visit (filePath);
 	if (it->m_value) // already
 		return FindResult_AlreadyImported;
 

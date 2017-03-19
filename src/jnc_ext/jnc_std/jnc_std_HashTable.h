@@ -17,8 +17,71 @@
 namespace jnc {
 namespace std {
 
+class HashTable;
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE (HashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (StringHashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
+
+//..............................................................................
+
+struct MapEntry
+{
+	DataPtr m_nextPtr;
+	DataPtr m_prevPtr;
+
+	HashTable* m_hashTable;
+
+	Variant m_key;
+	Variant m_value;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef 
+size_t 
+HashFunc (Variant key);
+
+typedef 
+bool 
+IsEqualFunc (
+	Variant key1,
+	Variant key2
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HashTable: public IfaceHdr
+{
+public:
+	DataPtr m_head;
+	DataPtr m_tail;
+	size_t m_count;
+
+protected:
+	HashFunc* m_hashFunc;
+	IsEqualFunc* m_eqFunc;
+		
+public:
+	HashTable (
+		HashFunc* hashFunc,
+		IsEqualFunc* isEqualFunc
+		);
+
+	~HashTable ();
+
+	void
+	clear ();
+
+	DataPtr
+	visit (Variant key) const;
+
+	DataPtr
+	find (Variant key) const;
+
+	void
+	remove (DataPtr entryPtr);
+};
 
 //..............................................................................
 
@@ -31,11 +94,11 @@ protected:
 		Variant m_value;
 	};
 
-	typedef sl::StringHashTableMap <Entry*> StringHashTableMap;
+	typedef sl::StringHashTable <Entry*> Map;
 
 protected:
 	sl::StdList <Entry> m_list;
-	StringHashTableMap m_map;
+	Map m_map;
 
 public:
 	void
@@ -87,11 +150,11 @@ protected:
 		Variant m_value;
 	};
 
-	typedef sl::DuckTypeHashTableMap <Variant, Entry*> VariantHashTableMap;
+	typedef sl::DuckTypeHashTable <Variant, Entry*> Map;
 
 protected:
 	sl::StdList <Entry> m_list;
-	VariantHashTableMap m_map;
+	Map m_map;
 
 public:
 	void

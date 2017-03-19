@@ -61,14 +61,14 @@ bool Output::parseLine(
 {
 	QString text = cursor.block().text();
 
-	QRegExp regExp("\\(([0-9]+),([0-9]+)\\):");
-	int pos = regExp.indexIn(text);
+	QRegExp regexp("\\(([0-9]+),([0-9]+)\\):");
+	int pos = regexp.indexIn(text);
 	if(pos == -1)
 		return false;
 
 	filePath = text.left(pos);
-	QString lineNumber = regExp.capturedTexts ().at (1);
-	QString colNumber = regExp.capturedTexts ().at (2);
+	QString lineNumber = regexp.capturedTexts ().at (1);
+	QString colNumber = regexp.capturedTexts ().at (2);
 
 	documentLine = lineNumber.toInt() - 1;
 	documentCol = colNumber.toInt() - 1;

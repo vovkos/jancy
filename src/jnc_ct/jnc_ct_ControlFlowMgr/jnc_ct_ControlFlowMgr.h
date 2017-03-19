@@ -13,7 +13,7 @@
 
 #include "jnc_ct_BasicBlock.h"
 #include "jnc_ct_Value.h"
-#include "jnc_ct_RegExMgr.h"
+#include "jnc_ct_RegexMgr.h"
 
 namespace jnc {
 namespace ct {
@@ -37,29 +37,29 @@ struct SwitchStmt
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::SimpleHashTableMap <intptr_t, BasicBlock*> m_caseMap;
+	sl::SimpleHashTable <intptr_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct RegExSwitchAcceptContext: sl::ListLink
+struct ReSwitchAcceptContext: sl::ListLink
 {
 	BasicBlock* m_actionBlock;
 	size_t m_firstGroupId;
 	size_t m_groupCount;
 };
 
-struct RegExSwitchStmt
+struct ReSwitchStmt
 {
-	Value m_regExStateValue;
+	Value m_regexStateValue;
 	Value m_dataValue;
 	Value m_sizeValue;
 
-	fsm::RegEx m_regEx;
+	fsm::Regex m_regex;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::StdList <RegExSwitchAcceptContext> m_acceptContextList;
+	sl::StdList <ReSwitchAcceptContext> m_acceptContextList;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -331,34 +331,34 @@ public:
 	// regex switch stmt
 
 	void
-	regExSwitchStmt_Create (RegExSwitchStmt* stmt);
+	reSwitchStmt_Create (ReSwitchStmt* stmt);
 
 	bool
-	regExSwitchStmt_Condition (
-		RegExSwitchStmt* stmt,
-		const Value& regExStateValue,
+	reSwitchStmt_Condition (
+		ReSwitchStmt* stmt,
+		const Value& regexStateValue,
 		const Value& dataValue,
 		const Value& sizeValue,
 		const Token::Pos& pos
 		);
 
 	bool
-	regExSwitchStmt_Case (
-		RegExSwitchStmt* stmt,
-		const sl::StringRef& regExSource,
+	reSwitchStmt_Case (
+		ReSwitchStmt* stmt,
+		const sl::StringRef& regexSource,
 		const Token::Pos& pos,
 		uint_t scopeFlags
 		);
 
 	bool
-	regExSwitchStmt_Default (
-		RegExSwitchStmt* stmt,
+	reSwitchStmt_Default (
+		ReSwitchStmt* stmt,
 		const Token::Pos& pos,
 		uint_t scopeFlags
 		);
 
 	bool
-	regExSwitchStmt_Finalize (RegExSwitchStmt* stmt);
+	reSwitchStmt_Finalize (ReSwitchStmt* stmt);
 
 	// while stmt
 

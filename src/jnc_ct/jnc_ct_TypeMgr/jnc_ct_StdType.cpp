@@ -24,7 +24,7 @@ getStdTypeSource (StdType stdType)
 	#include "jnc_StdTypes.jnc.cpp"
 	#include "jnc_Scheduler.jnc.cpp"
 	#include "jnc_DynamicLib.jnc.cpp"
-	#include "jnc_RegEx.jnc.cpp"
+	#include "jnc_Regex.jnc.cpp"
 
 	static StdItemSource sourceTable [StdType__Count] =
 	{
@@ -58,14 +58,14 @@ getStdTypeSource (StdType stdType)
 			lengthof (schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_RegExMatch,
-			regExMatchTypeSrc,
-			lengthof (regExMatchTypeSrc),
+		{                                    // StdType_RegexMatch,
+			regexMatchTypeSrc,
+			lengthof (regexMatchTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_RegExState,
-			regExStateTypeSrc,
-			lengthof (regExStateTypeSrc),
+		{                                    // StdType_RegexState,
+			regexStateTypeSrc,
+			lengthof (regexStateTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_DynamicLib,

@@ -10,9 +10,9 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_RegExMgr.h"
+#include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rtl_RegEx.h"
+#include "jnc_rtl_Regex.h"
 
 namespace jnc {
 namespace ct {
@@ -27,11 +27,11 @@ Dfa::Dfa ()
 }
 
 bool
-Dfa::build (fsm::RegEx* regEx)
+Dfa::build (fsm::Regex* regex)
 {
-	sl::Array <fsm::DfaState*> stateArray = regEx->getDfaStateArray ();
+	sl::Array <fsm::DfaState*> stateArray = regex->getDfaStateArray ();
 	m_stateCount = stateArray.getCount ();
-	m_groupCount = regEx->getGroupCount ();
+	m_groupCount = regex->getGroupCount ();
 	m_maxSubMatchCount = 0;
 
 	m_stateInfoTable.setCount (m_stateCount);
@@ -47,7 +47,7 @@ Dfa::build (fsm::RegEx* regEx)
 		fsm::DfaState* state = stateArray [i];
 		if (state->m_isAccept)
 		{
-			RegExSwitchAcceptContext* context = (RegExSwitchAcceptContext*) state->m_acceptContext;
+			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*) state->m_acceptContext;
 			ASSERT (context->m_firstGroupId + context->m_groupCount <= m_groupCount);
 
 			DfaAcceptInfo* acceptInfo = AXL_MEM_NEW (DfaAcceptInfo);
@@ -59,10 +59,10 @@ Dfa::build (fsm::RegEx* regEx)
 				m_maxSubMatchCount = context->m_groupCount;
 
 			stateInfo->m_acceptInfo = acceptInfo;
-			stateInfo->m_flags |= rtl::RegExState::StateFlag_Accept;
+			stateInfo->m_flags |= rtl::RegexState::StateFlag_Accept;
 
 			if (state->m_transitionList.isEmpty ())
-				stateInfo->m_flags |= rtl::RegExState::StateFlag_Final;
+				stateInfo->m_flags |= rtl::RegexState::StateFlag_Final;
 		}
 
 		size_t j = state->m_openCaptureIdSet.findBit (0);
@@ -123,14 +123,14 @@ Dfa::build (fsm::RegEx* regEx)
 
 //..............................................................................
 
-RegExMgr::RegExMgr ()
+RegexMgr::RegexMgr ()
 {
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 }
 
 Dfa*
-RegExMgr::createDfa ()
+RegexMgr::createDfa ()
 {
 	Dfa* attributeBlock = AXL_MEM_NEW (Dfa);
 	m_dfaList.insertTail (attributeBlock);

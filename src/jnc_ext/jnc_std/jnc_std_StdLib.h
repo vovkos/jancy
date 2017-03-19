@@ -30,6 +30,7 @@ enum StdLibCacheSlot
 	StdLibCacheSlot_String,
 	StdLibCacheSlot_StringRef,
 	StdLibCacheSlot_StringBuilder,
+	StdLibCacheSlot_HashTable,
 	StdLibCacheSlot_StringHashTable,
 	StdLibCacheSlot_VariantHashTable,
 	StdLibCacheSlot_ListEntry,

@@ -19,12 +19,12 @@ int main ()
 
 	std.StringHashTable hashTable;
 	hashTable.insert ("first-name", "Vladimir");
-	hashTable.m_map ["last-name"] = "Gladkov";
+	hashTable ["last-name"] = "Gladkov";
 
 	printf (
 		$"first-name = %1\nlast-name = %2\nmiddle-name found = %3\n" (
 			hashTable.find ("first-name"),
-			hashTable.m_map ["last-name"],
+			hashTable ["last-name"],
 			(bool) hashTable.find ("middle-name")
 			)
 		);
@@ -36,7 +36,7 @@ int main ()
 	printf (
 		$"[1] -> %1\n[2] -> %2\n[3] found = %3\n" (
 			hashTable2.find (1),
-			hashTable2.m_map [2],
+			hashTable2 [2],
 			(bool) hashTable2.find (3)
 			)
 		);

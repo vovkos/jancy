@@ -77,7 +77,7 @@ public:
 	}
 
 	bool
-	build (fsm::RegEx* regEx);
+	build (fsm::Regex* regex);
 
 	uintptr_t
 	getTransition (
@@ -98,7 +98,7 @@ public:
 
 //.............................................................................
 
-class RegExMgr
+class RegexMgr
 {
 	friend class Module;
 
@@ -107,7 +107,7 @@ protected:
 	sl::StdList <Dfa> m_dfaList;
 
 public:
-	RegExMgr ();
+	RegexMgr ();
 
 	Module*
 	getModule ()

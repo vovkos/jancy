@@ -39,8 +39,8 @@ protected:
 	sl::StdList <DoxyBlock> m_blockList;
 	sl::StdList <DoxyGroup> m_groupList;
 	sl::StdList <DoxyFootnote> m_footnoteList;
-	sl::StringHashTableMap <size_t> m_refIdMap;
-	sl::StringHashTableMap <DoxyGroup*> m_groupMap;
+	sl::StringHashTable <size_t> m_refIdMap;
+	sl::StringHashTable <DoxyGroup*> m_groupMap;
 	sl::StdList <Target> m_targetList;
 
 public:

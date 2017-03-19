@@ -24,28 +24,28 @@ class Dfa;
 
 namespace rtl {
 
-class RegExState;
+class RegexState;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (RegExState)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (RegexState)
 
 //..............................................................................
 
-struct RegExMatch
+struct RegexMatch
 {
 	DataPtr m_textPtr;
 	size_t m_offset;
 	size_t m_length;
 };
 
-enum RegExResult
+enum RegexResult
 {
-	RegExResult_Error    = -1,
-	RegExResult_Continue = -2, // incremental regex result depends on upcoming data
+	RegexResult_Error    = -1,
+	RegexResult_Continue = -2, // incremental regex result depends on upcoming data
 };
 
 //..............................................................................
 
-class RegExState: public IfaceHdr
+class RegexState: public IfaceHdr
 {
 public:
 	enum StateFlag
@@ -61,7 +61,7 @@ public:
 	size_t m_currentOffset;
 	size_t m_consumedLength;
 
-	RegExMatch m_match;
+	RegexMatch m_match;
 	DataPtr m_subMatchArrayPtr;
 	size_t m_subMatchCount;
 

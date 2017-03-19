@@ -124,7 +124,7 @@ Members
 	ReactorClassType* m_reactorType;
 	sl::StdList <Reaction> m_reactionList;
 	sl::BoxList <Value> m_reactionBindSiteList;
-	sl::SimpleHashTableMap <llvm::Value*, bool> m_reactionBindSiteMap;
+	sl::SimpleHashTable <llvm::Value*, bool> m_reactionBindSiteMap;
 	size_t m_reactionBindSiteCount;
 	size_t m_reactorTotalBindSiteCount;
 	size_t m_reactionCount;

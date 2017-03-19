@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-// Jancy features 'regex switch' statement as a built-in support for creating
+// Jancy features 'reswitch' statement as a built-in support for creating
 // protocol analyzers, programming language lexers and other recognizers.
 
 // If you ever used tools like Lex, Flex, Ragel etc then you are already
@@ -35,7 +35,7 @@ bool errorcode fooBar (
 	// post-condition loop allows passing 'null' as eof
 	do
 	{
-		regex switch (state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case "foo":
 			printf ("lexeme found: foo\n");

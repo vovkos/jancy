@@ -20,7 +20,7 @@
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_GcShadowStackMgr.h"
-#include "jnc_ct_RegExMgr.h"
+#include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
@@ -77,8 +77,8 @@ protected:
 	sl::Array <ModuleItem*> m_compileArray;
 	sl::BoxList <sl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	sl::BoxList <sl::String> m_filePathList;
-	sl::StringHashTable m_filePathMap;
-	sl::StringHashTableMap <void*> m_functionMap;
+	sl::StringHashTable <bool> m_filePathMap;
+	sl::StringHashTable <void*> m_functionMap;
 
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
@@ -93,7 +93,7 @@ public:
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
 	GcShadowStackMgr m_gcShadowStackMgr;
-	RegExMgr m_regExMgr;
+	RegexMgr m_regexMgr;
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;

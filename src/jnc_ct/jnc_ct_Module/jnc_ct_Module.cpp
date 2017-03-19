@@ -66,7 +66,7 @@ Module::clear ()
 	m_controlFlowMgr.clear ();
 	m_operatorMgr.clear ();
 	m_gcShadowStackMgr.clear ();
-	m_regExMgr.clear ();
+	m_regexMgr.clear ();
 	m_unitMgr.clear ();
 	m_importMgr.clear ();
 	m_extensionLibMgr.clear ();
@@ -266,7 +266,7 @@ Module::mapFunction (
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		sl::StringHashTableMapIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
+		sl::StringHashTableIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
 		ASSERT (!it->m_value); // mapped twice?
 		it->m_value = p;
 	}
@@ -282,7 +282,7 @@ Module::mapFunction (
 void*
 Module::findFunctionMapping (const sl::StringRef& name)
 {
-	sl::StringHashTableMapIterator <void*> it;
+	sl::StringHashTableIterator <void*> it;
 
 #if (_JNC_OS_DARWIN)
 	it = *(const uint16_t*) name.cp () == '?_' ?
@@ -436,7 +436,7 @@ Module::parseFile (const sl::StringRef& fileName)
 {
 	sl::String filePath = io::getFullFilePath (fileName);
 
-	sl::StringHashTableIterator it = m_filePathMap.find (filePath);
+	sl::StringHashTableIterator <bool> it = m_filePathMap.find (filePath);
 	if (it)
 		return true; // already parsed
 

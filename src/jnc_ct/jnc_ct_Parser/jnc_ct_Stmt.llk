@@ -86,7 +86,7 @@ statement
 	|	expression_stmt
 	|	if_stmt
 	|	switch_stmt
-	|	regex_switch_stmt
+	|	reswitch_stmt
 	|	while_stmt
 	|	do_stmt
 	|	for_stmt
@@ -165,19 +165,19 @@ switch_block_stmt <SwitchStmt* $stmt>
 	;
 
 
-regex_switch_stmt
+reswitch_stmt
 	local
 	{
-		RegExSwitchStmt $stmt;
+		ReSwitchStmt $stmt;
 	}
 	enter
 	{
-		m_module->m_controlFlowMgr.regExSwitchStmt_Create (&$stmt);
+		m_module->m_controlFlowMgr.reSwitchStmt_Create (&$stmt);
 	}
-	:	TokenKind_RegEx TokenKind_Switch '(' expression $r ',' expression $e (',' expression $s)? ')' 
+	:	TokenKind_ReSwitch '(' expression $r ',' expression $e (',' expression $s)? ')' 
 		'{' $l
 			{
-				return m_module->m_controlFlowMgr.regExSwitchStmt_Condition (
+				return m_module->m_controlFlowMgr.reSwitchStmt_Condition (
 					&$stmt, 
 					$r.m_value, 
 					$e.m_value, 
@@ -185,21 +185,21 @@ regex_switch_stmt
 					$l.m_pos
 					);
 			}
-		regex_switch_block_stmt <&$stmt>* 
+		reswitch_block_stmt <&$stmt>* 
 			{
-				return m_module->m_controlFlowMgr.regExSwitchStmt_Finalize (&$stmt);
+				return m_module->m_controlFlowMgr.reSwitchStmt_Finalize (&$stmt);
 			}
 		'}'
 	;
 
-regex_switch_block_stmt <RegExSwitchStmt* $stmt>
+reswitch_block_stmt <ReSwitchStmt* $stmt>
 	:	TokenKind_Case constant_literal_expr ':'
 			{
-				return m_module->m_controlFlowMgr.regExSwitchStmt_Case ($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
+				return m_module->m_controlFlowMgr.reSwitchStmt_Case ($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	TokenKind_Default ':'
 			{
-				return m_module->m_controlFlowMgr.regExSwitchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
+				return m_module->m_controlFlowMgr.reSwitchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	local_declaration
 	;

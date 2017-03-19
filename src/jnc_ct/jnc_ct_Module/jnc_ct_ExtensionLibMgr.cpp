@@ -39,7 +39,7 @@ ExtensionLibMgr::clear ()
 			entry->m_dynamicLib.close ();
 		else
 			entry->m_dynamicLib.detach (); // don't unload
-		
+
 		io::deleteFile (entry->m_dynamicLibFilePath);
 		AXL_MEM_DELETE (entry);
 	}
@@ -161,7 +161,7 @@ ExtensionLibMgr::findSourceFileContents (
 	sl::StringRef* contents
 	)
 {
-	sl::StringHashTableMapIterator <SourceFile*> it = m_sourceFileMap.find (fileName);
+	sl::StringHashTableIterator <SourceFile*> it = m_sourceFileMap.find (fileName);
 	if (!it)
 		return false;
 

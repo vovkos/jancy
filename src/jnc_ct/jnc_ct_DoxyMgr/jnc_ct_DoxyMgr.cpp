@@ -37,7 +37,7 @@ DoxyMgr::clear ()
 DoxyGroup*
 DoxyMgr::getGroup (const sl::StringRef& name)
 {
-	sl::StringHashTableMapIterator <DoxyGroup*> it = m_groupMap.visit (name);
+	sl::StringHashTableIterator <DoxyGroup*> it = m_groupMap.visit (name);
 	if (it->m_value)
 		return it->m_value;
 
@@ -73,7 +73,7 @@ DoxyMgr::createFootnote ()
 sl::String
 DoxyMgr::adjustRefId (const sl::StringRef& refId)
 {
-	sl::StringHashTableMapIterator <size_t> it = m_refIdMap.visit (refId);
+	sl::StringHashTableIterator <size_t> it = m_refIdMap.visit (refId);
 	if (!it->m_value) // no collisions
 	{
 		it->m_value = 2; // start with index 2
@@ -122,7 +122,7 @@ DoxyMgr::resolveBlockTargets ()
 			if (target->m_tokenKind == DoxyTokenKind_Function &&
 				prevNspace->getNamespaceKind () == NamespaceKind_Type &&
 				((NamedType*) prevNspace)->getTypeKindFlags () & TypeKindFlag_Derivable)
-			{	
+			{
 				DerivableType* type = (DerivableType*) prevNspace;
 
 				if (target->m_itemName == "construct")

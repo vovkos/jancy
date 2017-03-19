@@ -11,7 +11,7 @@
 
 // Like Ragel, Jancy-generated recognizers can be used for processing
 // mixed-language documents. Developer can switch languages at will and just
-// feed the data to the appropriate 'regex switch'.
+// feed the data to the appropriate 'reswitch'.
 
 //..............................................................................
 
@@ -41,7 +41,7 @@ int main ()
 		switch (language)
 		{
 		case Language.Foo:
-			regex switch (state, p, end - p)
+			reswitch (state, p, end - p)
 			{
 			case "foo":
 				printf ("lexeme found: foo\n");
@@ -58,7 +58,7 @@ int main ()
 			break;
 
 		case Language.Bar:
-			regex switch (state, p, end - p)
+			reswitch (state, p, end - p)
 			{
 			case "bar":
 				printf ("lexeme found: bar\n");

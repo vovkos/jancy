@@ -98,8 +98,8 @@ NamespaceMgr::addStdItems ()
 		global->addItem (m_module->m_typeMgr.getStdTypedef (StdTypedef_qword_t)) &&
 		global->addItem (jnc) &&
 		jnc->addItem ("Scheduler", m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
-		jnc->addItem ("RegExMatch", m_module->m_typeMgr.getLazyStdType (StdType_RegExMatch)) &&
-		jnc->addItem ("RegExState", m_module->m_typeMgr.getLazyStdType (StdType_RegExState)) &&
+		jnc->addItem ("RegexMatch", m_module->m_typeMgr.getLazyStdType (StdType_RegexMatch)) &&
+		jnc->addItem ("RegexState", m_module->m_typeMgr.getLazyStdType (StdType_RegexState)) &&
 		jnc->addItem ("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
 
 	ASSERT (result);

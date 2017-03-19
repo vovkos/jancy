@@ -54,9 +54,9 @@ protected:
 	NamespaceKind m_namespaceKind;
 
 	sl::Array <ModuleItem*> m_itemArray;
-	sl::StringHashTableMap <ModuleItem*> m_itemMap;
-	sl::StringHashTable m_friendSet;
-	sl::StringHashTableMap <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
+	sl::StringHashTable <ModuleItem*> m_itemMap;
+	sl::StringHashTable <bool> m_friendSet;
+	sl::StringHashTable <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 	UsingSet m_usingSet;
 
 public:

@@ -20,6 +20,92 @@ namespace std {
 
 //..............................................................................
 
+struct MapEntry
+{
+	MapEntry* readonly m_next;
+	MapEntry* readonly m_prev;
+
+	intptr_t readonly m_validator;
+
+	variant readonly m_key;
+	variant m_value;
+}
+
+typedef size_t HashFunc (variant key);
+
+typedef bool IsEqualFunc (
+	variant key1,
+	variant key2
+	);
+
+opaque class HashTable
+{
+	MapEntry* readonly m_head;
+	MapEntry* readonly m_tail;
+	size_t readonly m_count;
+
+	construct (
+		HashFunc thin* hashFunc = null,
+		IsEqualFunc thin* isEqualFunc = null
+		);
+
+	destruct ();
+
+	bool const property m_isEmpty;
+
+	bool m_isEmpty.get ()
+	{
+		return m_count == 0;
+	}
+
+	variant get (char const* key)
+	{
+		return findValue (key, null);
+	}
+
+	set (
+		char const* key,
+		variant value
+		)
+	{
+		add (key, value);
+	}
+
+	clear ();
+
+	MapEntry* visit (variant key);
+	MapEntry* find (variant key) const;
+
+	variant findValue (
+		variant key,
+		variant undefindedValue
+		) const;
+
+	MapEntry* add (
+		variant key,
+		variant value
+		)
+	{
+		MapEntry* entry = visit (key);
+		entry.m_value = value;
+		return entry;
+	}
+
+	void remove (MapEntry* entry);
+	
+	bool removeKey (variant key)
+	{
+		MapEntry* entry = find (key);
+		if (!entry)
+			return false;
+
+		remove (entry);
+		return true;
+	}
+}
+
+//..............................................................................
+
 /**
 	\import std_HashTable.jnc
 
@@ -39,8 +125,8 @@ namespace std {
 
 		std.StringHashTable hashTable;
 
-		hashTable.m_map ["name"] = "John";
-		hashTable.m_map ["surname"] = "Smith";
+		hashTable ["name"] = "John";
+		hashTable ["surname"] = "Smith";
 
 		printf (
 			$"name: %1 surname: %2\n" (
@@ -53,6 +139,23 @@ opaque class StringHashTable
 {
 	construct ();
 	destruct ();
+
+	/**
+		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
+	*/
+
+	variant get (char const* key)
+	{
+		return find (key);
+	}
+
+	set (
+		char const* key,
+		variant value
+		)
+	{
+		insert (key, value);
+	}
 
 	/**
 		Returns ``true`` if hash table is empty; ``false`` otherwise.
@@ -114,26 +217,6 @@ opaque class StringHashTable
 	*/
 
 	bool remove (char const* key);
-
-	/**
-		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
-	*/
-
-	property m_map
-	{
-		variant get (char const* key)
-		{
-			return find (key);
-		}
-
-		set (
-			char const* key,
-			variant value
-			)
-		{
-			insert (key, value);
-		}
-	}
 }
 
 //..............................................................................
@@ -178,6 +261,23 @@ opaque class VariantHashTable
 {
 	construct ();
 	destruct ();
+
+	/**
+		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
+	*/
+
+	variant get (variant key)
+	{
+		return find (key);
+	}
+
+	set (
+		variant key,
+		variant value
+		)
+	{
+		insert (key, value);
+	}
 
 	/**
 		Returns ``true`` if hash table is empty; ``false`` otherwise.
@@ -239,26 +339,6 @@ opaque class VariantHashTable
 	*/
 
 	bool remove (variant key);
-
-	/**
-		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
-	*/
-
-	property m_map
-	{
-		variant get (variant key)
-		{
-			return find (key);
-		}
-
-		set (
-			variant key,
-			variant value
-			)
-		{
-			insert (key, value);
-		}
-	}
 }
 
 //..............................................................................

@@ -53,7 +53,7 @@ protected:
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::DebugLoc m_llvmDebugLoc;
 
-	sl::SimpleHashTableMap <size_t, BasicBlock*> m_finallyRouteMap;
+	sl::SimpleHashTable <size_t, BasicBlock*> m_finallyRouteMap;
 
 	LandingPadKind m_landingPadKind;
 	Scope* m_landingPadScope;

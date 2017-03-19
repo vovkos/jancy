@@ -43,7 +43,7 @@ enum TypeModifier
 	TypeModifier_Indexed     = 0x00008000,
 	TypeModifier_Multicast   = 0x00010000,
 	TypeModifier_Event       = 0x00020000,
-	TypeModifier_Unused      = 0x00040000,
+	TypeModifier_DualEvent   = 0x00040000,
 	TypeModifier_Reactor     = 0x00080000,
 	TypeModifier_Thiscall    = 0x00100000,
 	TypeModifier_Jnccall     = 0x00200000,
@@ -75,6 +75,7 @@ enum TypeModifierMaskKind
 		TypeModifier_Property |
 		TypeModifierMaskKind_CallConv |
 		TypeModifier_Const |
+		TypeModifier_ReadOnly |
 		TypeModifier_Bindable |
 		TypeModifier_Indexed,
 
@@ -91,6 +92,7 @@ enum TypeModifierMaskKind
 		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
+		TypeModifier_DualEvent |
 		TypeModifier_Weak,
 
 	TypeModifierMaskKind_FunctionPtr =
@@ -114,6 +116,7 @@ enum TypeModifierMaskKind
 		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
+		TypeModifier_DualEvent |
 		TypeModifier_Bindable |
 		TypeModifier_AutoGet,
 
@@ -130,12 +133,11 @@ enum TypeModifierMaskKind
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
-		TypeModifier_Event,
+		TypeModifier_Event |
+		TypeModifier_DualEvent,
 
 	TypeModifierMaskKind_Event =
-		TypeModifier_Event |
-		TypeModifier_Const |
-		TypeModifier_ReadOnly |
+		TypeModifierMaskKind_Const |
 		TypeModifierMaskKind_TypeKind,
 };
 

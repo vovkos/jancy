@@ -365,9 +365,6 @@ OperatorMgr::getClassField (
 	if (field->getStorageKind () == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	// TODO: handle dual types
-	// (PtrTypeFlags & PtrTypeFlag_ReadOnly) && m_pModule->m_NamespaceMgr.GetAccessKind (pCoord->m_pType) == EAccess_Public)
-
 	if (field->getType ()->getTypeKind () == TypeKind_Class)
 	{
 		ClassPtrType* ptrType = ((ClassType*) field->getType ())->getClassPtrType (

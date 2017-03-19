@@ -71,6 +71,7 @@ main := |*
 'unsigned'        |
 'bigendian'       |
 'const'           |
+'cmut'            |
 'readonly'        |
 'volatile'        |
 'safe'            |
@@ -130,6 +131,7 @@ main := |*
 'continue' [1-9]? |
 'return'          |
 'switch'          |
+'reswitch'        |
 'case'            |
 'default'         |
 'once'            |
@@ -140,7 +142,6 @@ main := |*
 'finally'         |
 'nestedscope'     |
 'assert'          |
-'regex'           |
 
 'basetype' [1-9]? |
 'this'            |

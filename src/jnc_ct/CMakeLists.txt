@@ -400,8 +400,8 @@ add_perl_step (
 	)
 
 add_perl_step (
-	jnc_RegEx.jnc.cpp
-	jnc/jnc_RegEx.jnc
+	jnc_Regex.jnc.cpp
+	jnc/jnc_Regex.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -446,7 +446,7 @@ set (
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
 	${GEN_DIR}/jnc_DynamicLib.jnc.cpp
 	${GEN_DIR}/jnc_Scheduler.jnc.cpp
-	${GEN_DIR}/jnc_RegEx.jnc.cpp
+	${GEN_DIR}/jnc_Regex.jnc.cpp
 	)
 
 set (

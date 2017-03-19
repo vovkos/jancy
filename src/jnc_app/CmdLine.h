@@ -201,16 +201,16 @@ AXL_SL_END_CMD_LINE_SWITCH_TABLE ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_SL_BEGIN_STRING_HASH_TABLE_MAP (DoxyCommentMap, uint_t)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("///", jnc::ModuleCompileFlag_DisableDoxyComment1)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("//!", jnc::ModuleCompileFlag_DisableDoxyComment2)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("/**", jnc::ModuleCompileFlag_DisableDoxyComment3)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("/*!", jnc::ModuleCompileFlag_DisableDoxyComment4)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("1",   jnc::ModuleCompileFlag_DisableDoxyComment1)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("2",   jnc::ModuleCompileFlag_DisableDoxyComment2)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("3",   jnc::ModuleCompileFlag_DisableDoxyComment3)
-	AXL_SL_HASH_TABLE_MAP_ENTRY ("4",   jnc::ModuleCompileFlag_DisableDoxyComment4)
-AXL_SL_END_STRING_HASH_TABLE_MAP ()
+AXL_SL_BEGIN_STRING_HASH_TABLE (DoxyCommentMap, uint_t)
+	AXL_SL_HASH_TABLE_ENTRY ("///", jnc::ModuleCompileFlag_DisableDoxyComment1)
+	AXL_SL_HASH_TABLE_ENTRY ("//!", jnc::ModuleCompileFlag_DisableDoxyComment2)
+	AXL_SL_HASH_TABLE_ENTRY ("/**", jnc::ModuleCompileFlag_DisableDoxyComment3)
+	AXL_SL_HASH_TABLE_ENTRY ("/*!", jnc::ModuleCompileFlag_DisableDoxyComment4)
+	AXL_SL_HASH_TABLE_ENTRY ("1",   jnc::ModuleCompileFlag_DisableDoxyComment1)
+	AXL_SL_HASH_TABLE_ENTRY ("2",   jnc::ModuleCompileFlag_DisableDoxyComment2)
+	AXL_SL_HASH_TABLE_ENTRY ("3",   jnc::ModuleCompileFlag_DisableDoxyComment3)
+	AXL_SL_HASH_TABLE_ENTRY ("4",   jnc::ModuleCompileFlag_DisableDoxyComment4)
+AXL_SL_END_STRING_HASH_TABLE ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

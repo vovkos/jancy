@@ -38,7 +38,7 @@ AttributeBlock::createAttribute (
 	sl::BoxList <Token>* initializer
 	)
 {
-	sl::StringHashTableMapIterator <Attribute*> it = m_attributeMap.visit (name);
+	sl::StringHashTableIterator <Attribute*> it = m_attributeMap.visit (name);
 	if (it->m_value)
 	{
 		err::setFormatStringError ("redefinition of attribute '%s'", name.sz ());

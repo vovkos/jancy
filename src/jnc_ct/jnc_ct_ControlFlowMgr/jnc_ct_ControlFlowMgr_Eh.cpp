@@ -427,7 +427,7 @@ void ControlFlowMgr::finalizeFinallyScope (Scope* scope)
 	sl::Array <BasicBlock*> blockArray (ref::BufKind_Stack, buffer2, sizeof (buffer2));
 	blockArray.setCount (count);
 
-	sl::HashTableMapIterator <size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead ();
+	sl::HashTableIterator <size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead ();
 	for (size_t i = 0; it; it++, i++)
 	{
 		ASSERT (i < count);

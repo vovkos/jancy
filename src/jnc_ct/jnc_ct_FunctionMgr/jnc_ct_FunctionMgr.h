@@ -44,9 +44,9 @@ protected:
 	sl::StdList <ThunkProperty> m_thunkPropertyList;
 	sl::StdList <DataThunkProperty> m_dataThunkPropertyList;
 	sl::StdList <LazyStdFunction> m_lazyStdFunctionList;
-	sl::StringHashTableMap <Function*> m_thunkFunctionMap;
-	sl::StringHashTableMap <Property*> m_thunkPropertyMap;
-	sl::StringHashTableMap <Function*> m_scheduleLauncherFunctionMap;
+	sl::StringHashTable <Function*> m_thunkFunctionMap;
+	sl::StringHashTable <Property*> m_thunkPropertyMap;
+	sl::StringHashTable <Function*> m_scheduleLauncherFunctionMap;
 	sl::Array <NamedTypeBlock*> m_staticConstructArray;
 
 	Function* m_stdFunctionArray [StdFunc__Count];

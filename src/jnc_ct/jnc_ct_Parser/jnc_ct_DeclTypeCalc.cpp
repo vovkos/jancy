@@ -171,7 +171,7 @@ DeclTypeCalc::calcType (
 			return NULL;
 	}
 	else if (
-		(m_typeModifiers & TypeModifier_Bindable) && 
+		(m_typeModifiers & TypeModifier_Bindable) &&
 		type->getTypeKind () != TypeKind_Void) // bindable aliases
 	{
 		type = getBindableDataType (type);

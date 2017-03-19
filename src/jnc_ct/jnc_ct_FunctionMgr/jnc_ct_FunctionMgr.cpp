@@ -500,7 +500,7 @@ FunctionMgr::getDirectThunkFunction (
 		thunkFunctionType->getSignature ().sz ()
 		);
 
-	sl::StringHashTableMapIterator <Function*> thunk = m_thunkFunctionMap.visit (signature);
+	sl::StringHashTableIterator <Function*> thunk = m_thunkFunctionMap.visit (signature);
 	if (thunk->m_value)
 		return thunk->m_value;
 
@@ -534,7 +534,7 @@ FunctionMgr::getDirectThunkProperty (
 		thunkPropertyType->getSignature ().sz ()
 		);
 
-	sl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
+	sl::StringHashTableIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
 	if (thunk->m_value)
 		return thunk->m_value;
 
@@ -570,7 +570,7 @@ FunctionMgr::getDirectDataThunkProperty (
 		thunkPropertyType->getSignature ().sz ()
 		);
 
-	sl::StringHashTableMapIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
+	sl::StringHashTableIterator <Property*> thunk = m_thunkPropertyMap.visit (signature);
 	if (thunk->m_value)
 		return thunk->m_value;
 
@@ -604,7 +604,7 @@ FunctionMgr::getScheduleLauncherFunction (
 	if (schedulerPtrTypeKind == ClassPtrTypeKind_Weak)
 		signature += ".w";
 
-	sl::StringHashTableMapIterator <Function*> thunk = m_scheduleLauncherFunctionMap.visit (signature);
+	sl::StringHashTableIterator <Function*> thunk = m_scheduleLauncherFunctionMap.visit (signature);
 	if (thunk->m_value)
 		return thunk->m_value;
 

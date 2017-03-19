@@ -75,7 +75,7 @@ Namespace::getItemByName (const sl::StringRef& name)
 ModuleItem*
 Namespace::findItem (const sl::StringRef& name)
 {
-	sl::StringHashTableMapIterator <ModuleItem*> it = m_itemMap.find (name);
+	sl::StringHashTableIterator <ModuleItem*> it = m_itemMap.find (name);
 	if (!it)
 		return NULL;
 
@@ -190,7 +190,7 @@ Namespace::addItem (
 	ModuleItem* item
 	)
 {
-	sl::StringHashTableMapIterator <ModuleItem*> it = m_itemMap.visit (name);
+	sl::StringHashTableIterator <ModuleItem*> it = m_itemMap.visit (name);
 	if (it->m_value)
 	{
 		setRedefinitionError (name);

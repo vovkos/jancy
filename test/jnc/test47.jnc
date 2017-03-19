@@ -22,7 +22,7 @@ bool errorcode scanPacket (
 
 	do
 	{
-		regex switch (state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case r"open[ \t]*\d*[\r\n]":
 			printf ("command = open\n%s\n", state.m_match.m_text);

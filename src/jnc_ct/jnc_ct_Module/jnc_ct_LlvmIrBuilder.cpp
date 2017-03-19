@@ -63,7 +63,7 @@ llvm::SwitchInst*
 LlvmIrBuilder::createSwitch (
 	const Value& value,
 	BasicBlock* defaultBlock,
-	sl::HashTableMapIterator <intptr_t, BasicBlock*> firstCase,
+	sl::HashTableIterator <intptr_t, BasicBlock*> firstCase,
 	size_t caseCount
 	)
 {
@@ -76,7 +76,7 @@ LlvmIrBuilder::createSwitch (
 		caseCount
 		);
 
-	sl::HashTableMapIterator <intptr_t, BasicBlock*> caseIt = firstCase;
+	sl::HashTableIterator <intptr_t, BasicBlock*> caseIt = firstCase;
 	for (; caseIt; caseIt++)
 	{
 		Value constValue (caseIt->m_key, type);

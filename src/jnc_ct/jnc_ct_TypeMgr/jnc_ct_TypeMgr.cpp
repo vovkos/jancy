@@ -223,14 +223,14 @@ TypeMgr::getStdType (StdType stdType)
 		type = getFunctionType (getStdType (StdType_SimpleEventPtr), NULL, 0);
 		break;
 
-	case StdType_RegExMatch:
-		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegExMatch");
+	case StdType_RegexMatch:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegexMatch");
 		if (!type)
 			type = parseStdType (stdType);
 		break;
 
-	case StdType_RegExState:
-		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegExState");
+	case StdType_RegexState:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegexState");
 		if (!type)
 			type = parseStdType (stdType);
 		break;
@@ -462,7 +462,7 @@ TypeMgr::getBitFieldType (
 {
 	sl::String signature = BitFieldType::createSignature (baseType, bitOffset, bitCount);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		BitFieldType* type = (BitFieldType*) it->m_value;
@@ -553,7 +553,7 @@ TypeMgr::getArrayType (
 {
 	sl::String signature = ArrayType::createSignature (elementType, elementCount);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		ArrayType* type = (ArrayType*) it->m_value;
@@ -957,7 +957,7 @@ TypeMgr::getFunctionType (
 		flags
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		FunctionType* type = (FunctionType*) it->m_value;
@@ -1024,7 +1024,7 @@ TypeMgr::getFunctionType (
 		flags
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		FunctionType* type = (FunctionType*) it->m_value;
@@ -1170,7 +1170,7 @@ TypeMgr::getPropertyType (
 {
 	sl::String signature = PropertyType::createSignature (getterType, setterType, flags);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		PropertyType* type = (PropertyType*) it->m_value;
@@ -1612,7 +1612,7 @@ TypeMgr::getFunctionClosureClassType (
 		thisArgIdx
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		FunctionClosureClassType* type = (FunctionClosureClassType*) it->m_value;
@@ -1667,7 +1667,7 @@ TypeMgr::getPropertyClosureClassType (
 		thisArgIdx
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		PropertyClosureClassType* type = (PropertyClosureClassType*) it->m_value;
@@ -1713,7 +1713,7 @@ TypeMgr::getDataClosureClassType (
 {
 	sl::String signature = DataClosureClassType::createSignature (targetType, thunkType);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		DataClosureClassType* type = (DataClosureClassType*) it->m_value;
@@ -1936,7 +1936,7 @@ TypeMgr::getPropertyPtrType (
 	if (flags & PtrTypeFlag_ReadOnly)
 	{
 		ASSERT (anchorNamespace != NULL);
-		tuple = getConstDPropertyPtrTypeTuple (anchorNamespace, propertyType);
+		tuple = getReadOnlyPropertyPtrTypeTuple (anchorNamespace, propertyType);
 	}
 	else
 	{
@@ -2011,7 +2011,7 @@ TypeMgr::getNamedImportType (
 
 	sl::String signature = NamedImportType::createSignature (name, anchorNamespace);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		NamedImportType* type = (NamedImportType*) it->m_value;
@@ -2048,7 +2048,7 @@ TypeMgr::getImportPtrType (
 		flags
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		ImportPtrType* type = (ImportPtrType*) it->m_value;
@@ -2084,7 +2084,7 @@ TypeMgr::getImportIntModType (
 		flags
 		);
 
-	sl::StringHashTableMapIterator <Type*> it = m_typeMap.visit (signature);
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
 	{
 		ImportIntModType* type = (ImportIntModType*) it->m_value;
@@ -2143,7 +2143,7 @@ TypeMgr::getDualPtrTypeTuple (
 	)
 {
 	sl::String signature = type->getSignature ();
-	sl::StringHashTableMapIterator <DualPtrTypeTuple*> it = anchorNamespace->m_dualPtrTypeTupleMap.visit (signature);
+	sl::StringHashTableIterator <DualPtrTypeTuple*> it = anchorNamespace->m_dualPtrTypeTupleMap.visit (signature);
 	if (it->m_value)
 		return it->m_value;
 
@@ -2196,11 +2196,11 @@ TypeMgr::getReadOnlyDataPtrTypeTuple (
 	)
 {
 	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, type);
-	if (dualPtrTypeTuple->m_constDDataPtrTypeTuple)
-		return dualPtrTypeTuple->m_constDDataPtrTypeTuple;
+	if (dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple)
+		return dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple;
 
 	DataPtrTypeTuple* tuple = AXL_MEM_NEW (DataPtrTypeTuple);
-	dualPtrTypeTuple->m_constDDataPtrTypeTuple = tuple;
+	dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple = tuple;
 	m_dataPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }
@@ -2224,11 +2224,11 @@ TypeMgr::getReadOnlyClassPtrTypeTuple (
 	)
 {
 	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
-	if (dualPtrTypeTuple->m_constDClassPtrTypeTuple)
-		return dualPtrTypeTuple->m_constDClassPtrTypeTuple;
+	if (dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple)
+		return dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple;
 
 	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
-	dualPtrTypeTuple->m_constDClassPtrTypeTuple = tuple;
+	dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }
@@ -2252,11 +2252,11 @@ TypeMgr::getDualEventClassPtrTypeTuple (
 	)
 {
 	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
-	if (dualPtrTypeTuple->m_eventDClassPtrTypeTuple)
-		return dualPtrTypeTuple->m_eventDClassPtrTypeTuple;
+	if (dualPtrTypeTuple->m_dualEventClassPtrTypeTuple)
+		return dualPtrTypeTuple->m_dualEventClassPtrTypeTuple;
 
 	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
-	dualPtrTypeTuple->m_eventDClassPtrTypeTuple = tuple;
+	dualPtrTypeTuple->m_dualEventClassPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }
@@ -2286,17 +2286,17 @@ TypeMgr::getPropertyPtrTypeTuple (PropertyType* propertyType)
 }
 
 PropertyPtrTypeTuple*
-TypeMgr::getConstDPropertyPtrTypeTuple (
+TypeMgr::getReadOnlyPropertyPtrTypeTuple (
 	Namespace* anchorNamespace,
 	PropertyType* propertyType
 	)
 {
 	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, propertyType);
-	if (dualPtrTypeTuple->m_constDPropertyPtrTypeTuple)
-		return dualPtrTypeTuple->m_constDPropertyPtrTypeTuple;
+	if (dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple)
+		return dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple;
 
 	PropertyPtrTypeTuple* tuple = AXL_MEM_NEW (PropertyPtrTypeTuple);
-	dualPtrTypeTuple->m_constDPropertyPtrTypeTuple = tuple;
+	dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple = tuple;
 	m_propertyPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }

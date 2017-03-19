@@ -15,9 +15,9 @@ namespace jnc {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char regExMatchTypeSrc [] =
+///; static char regexMatchTypeSrc [] =
 
-struct RegExMatch
+struct RegexMatch
 {
 	//! Holds a pointer to the match (guaranteed to be null-terminated).
 
@@ -34,7 +34,7 @@ struct RegExMatch
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char regExStateTypeSrc [] =
+///; static char regexStateTypeSrc [] =
 
 /**
 	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``automaton`` function.
@@ -107,7 +107,7 @@ struct RegExMatch
 		|footnote-errorcode|
 */
 
-opaque class RegExState
+opaque class RegexState
 {
 	bool m_isIncremental;
 
@@ -129,7 +129,7 @@ opaque class RegExState
 
 	size_t autoget property m_currentOffset;
 
-	/** 
+	/**
 		Holds the actual length of data consumed during the last invokation of the DFA. When non-incremental recognizer discovers a match, ``m_consumedLength`` will always be the same as ``m_match.m_length``. In case of a incremental recognizer, ``m_consumedLength`` may be smaller than ``m_match.m_length`` (the match may be spread across multiple blocks of input data).
 	*/
 
@@ -143,8 +143,8 @@ opaque class RegExState
 		These fields should only be accessed from within **action** inside ``automaton`` function.
 	*/
 
-	RegExMatch readonly m_match;
-	RegExMatch const* readonly m_subMatchArray;
+	RegexMatch readonly m_match;
+	RegexMatch const* readonly m_subMatchArray;
 	size_t readonly m_subMatchCount;
 
 public:

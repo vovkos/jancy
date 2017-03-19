@@ -68,6 +68,7 @@ enum TokenKind
 	TokenKind_BigEndian,
 	TokenKind_Const,
 	TokenKind_ReadOnly,
+	TokenKind_CMut,
 	TokenKind_Volatile,
 	TokenKind_Weak,
 	TokenKind_Thin,
@@ -134,6 +135,7 @@ enum TokenKind
 	TokenKind_Continue,
 	TokenKind_Return,
 	TokenKind_Switch,
+	TokenKind_ReSwitch,
 	TokenKind_Case,
 	TokenKind_Default,
 	TokenKind_Once,
@@ -144,7 +146,6 @@ enum TokenKind
 	TokenKind_Finally,
 	TokenKind_NestedScope,
 	TokenKind_Assert,
-	TokenKind_RegEx,
 
 	// pre-defined values
 
@@ -257,6 +258,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_BigEndian,    "bigendian")
 	AXL_LEX_TOKEN_NAME (TokenKind_Const,        "const")
 	AXL_LEX_TOKEN_NAME (TokenKind_ReadOnly,     "readonly")
+	AXL_LEX_TOKEN_NAME (TokenKind_CMut,         "cmut")
 	AXL_LEX_TOKEN_NAME (TokenKind_Volatile,     "volatile")
 	AXL_LEX_TOKEN_NAME (TokenKind_Weak,         "weak")
 	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
@@ -323,6 +325,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Continue,     "continue")
 	AXL_LEX_TOKEN_NAME (TokenKind_Return,       "return")
 	AXL_LEX_TOKEN_NAME (TokenKind_Switch,       "switch")
+	AXL_LEX_TOKEN_NAME (TokenKind_ReSwitch,     "reswitch")
 	AXL_LEX_TOKEN_NAME (TokenKind_Case,         "case")
 	AXL_LEX_TOKEN_NAME (TokenKind_Default,      "default")
 	AXL_LEX_TOKEN_NAME (TokenKind_Once,         "once")
@@ -333,7 +336,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
 	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")
 	AXL_LEX_TOKEN_NAME (TokenKind_Assert,       "assert")
-	AXL_LEX_TOKEN_NAME (TokenKind_RegEx,        "regex")
 
 	// pre-defined values
 
