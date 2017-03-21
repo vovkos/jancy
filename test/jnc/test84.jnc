@@ -2,7 +2,7 @@ int main ()
 {
 	char const* packet = " foo123 bar567 ";
 
-	jnc.RegExState state;
+	jnc.RegexState state;
 	reswitch (state, packet)
 	{
 	case r"\s*(foo\d*)\s+(bar\d*)?\s*":

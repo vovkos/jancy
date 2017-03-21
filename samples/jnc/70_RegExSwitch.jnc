@@ -22,7 +22,7 @@
 //..............................................................................
 
 bool errorcode fooBar (
-	jnc.RegExState* state,
+	jnc.RegexState* state,
 	const char* p,
 	size_t length = -1
 	)
@@ -46,7 +46,7 @@ bool errorcode fooBar (
 			break;
 
 		case r"\d+":
-			// you can access matched lexeme via jnc.RegExState.m_match field
+			// you can access matched lexeme via jnc.RegexState.m_match field
 			printf ("lexeme found: dec '%s'\n", state.m_match.m_text);
 			break;
 
@@ -79,9 +79,9 @@ int main ()
 {
 	printf ("main ()\n");
 
-	// you need a jnc.RegExState object to store the state of DFA
+	// you need a jnc.RegexState object to store the state of DFA
 
-	jnc.RegExState state;
+	jnc.RegexState state;
 
 	char const* p = " foo bar 100 baz";
 	bool result = try fooBar (state, p);

@@ -10,7 +10,7 @@
 //..............................................................................
 
 bool errorcode scanPacket (
-	jnc.RegExState* state,
+	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
 	)
@@ -56,7 +56,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	jnc.RegExState state (true); // incremental recognizer
+	jnc.RegexState state (true); // incremental recognizer
 
 	try
 	{

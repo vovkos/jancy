@@ -13,7 +13,7 @@ char const* g_data;
 size_t g_dataOffset;
 
 bool errorcode scanCommand (
-	jnc.RegExState* state,
+	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
 	)
@@ -54,7 +54,7 @@ int main ()
 {
 	printf ("main ()\n");
 
-	jnc.RegExState state (true);
+	jnc.RegexState state (true);
 
 	try
 	{
