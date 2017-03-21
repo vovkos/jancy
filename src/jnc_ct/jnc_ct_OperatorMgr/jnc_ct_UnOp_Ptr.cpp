@@ -27,7 +27,6 @@ UnOp_Addr::getResultType (const Value& opValue)
 	{
 	case TypeKind_DataRef:
 		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
-			((DataPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_DataPtr,
 			((DataPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
@@ -35,7 +34,6 @@ UnOp_Addr::getResultType (const Value& opValue)
 
 	case TypeKind_ClassRef:
 		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
-			((ClassPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_ClassPtr,
 			((ClassPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
@@ -50,7 +48,6 @@ UnOp_Addr::getResultType (const Value& opValue)
 
 	case TypeKind_PropertyRef:
 		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
-			((PropertyPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_PropertyPtr,
 			((PropertyPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
@@ -87,7 +84,6 @@ UnOp_Indir::getResultType (const Value& opValue)
 	{
 	case TypeKind_DataPtr:
 		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
-			((DataPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_DataRef,
 			((DataPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
@@ -95,7 +91,6 @@ UnOp_Indir::getResultType (const Value& opValue)
 
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
-			((ClassPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_ClassRef,
 			((ClassPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()
@@ -110,7 +105,6 @@ UnOp_Indir::getResultType (const Value& opValue)
 
 	case TypeKind_PropertyPtr:
 		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
-			((PropertyPtrType*) opType)->getAnchorNamespace (),
 			TypeKind_PropertyRef,
 			((PropertyPtrType*) opType)->getPtrTypeKind (),
 			opType->getFlags ()

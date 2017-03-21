@@ -48,6 +48,7 @@ getTypeModifierString (TypeModifier modifier)
 		"jnccall",      // TypeModifier_Jnccall     = 0x00200000,
 		"unsafe",       // TypeModifier_Unsafe      = 0x00400000,
 		"errorcode",    // TypeModifier_ErrorCode   = 0x00800000,
+		"cmut",         // TypeModifier_CMut        = 0x01000000,
 	};
 
 	size_t i = sl::getLoBitIdx32 (modifier);
@@ -126,6 +127,7 @@ TypeModifiers::addTypeModifier (TypeModifier modifier)
 		TypeModifierMaskKind_CallConv,  // TypeModifier_Jnccall    = 0x00200000,
 		TypeModifier_Safe,              // TypeModifier_Unsafe     = 0x00400000,
 		0,                              // TypeModifier_ErrorCode  = 0x00800000,
+		TypeModifierMaskKind_Const,     // TypeModifier_CMut       = 0x01000000,
 	};
 
 	// check duplicates

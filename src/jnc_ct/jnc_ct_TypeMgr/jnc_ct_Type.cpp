@@ -86,7 +86,7 @@ getPtrTypeFlagString (PtrTypeFlag flag)
 		"safe",      // PtrTypeFlag_Safe      = 0x0010000
 		"const",     // PtrTypeFlag_Const     = 0x0020000
 		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0040000
-		"unused",    // PtrTypeFlag_Unused    = 0x0080000
+		"cmut",      // PtrTypeFlag_CMut      = 0x0080000
 		"volatile",  // PtrTypeFlag_Volatile  = 0x0100000
 		"event",     // PtrTypeFlag_Event     = 0x0200000
 		"dualevent", // PtrTypeFlag_DualEvent = 0x0400000
@@ -113,6 +113,8 @@ getPtrTypeFlagString (uint_t flags)
 		string += "const ";
 	else if (flags & PtrTypeFlag_ReadOnly)
 		string += "readonly ";
+	else if (flags & PtrTypeFlag_CMut)
+		string += "cmut ";
 
 	if (flags & PtrTypeFlag_Volatile)
 		string += "volatile ";
@@ -143,9 +145,11 @@ getPtrTypeFlagSignature (uint_t flags)
 		signature += 's';
 
 	if (flags & PtrTypeFlag_Const)
-		signature += 'c';
+		signature += 'cn';
 	else if (flags & PtrTypeFlag_ReadOnly)
 		signature += "ro";
+	else if (flags & PtrTypeFlag_CMut)
+		signature += "cm";
 
 	if (flags & PtrTypeFlag_Volatile)
 		signature += 'v';
@@ -173,6 +177,8 @@ getPtrTypeFlagsFromModifiers (uint_t modifiers)
 		flags |= PtrTypeFlag_Const;
 	else if (modifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
+	else if (modifiers & TypeModifier_CMut)
+		flags |= PtrTypeFlag_CMut;
 
 	if (modifiers & TypeModifier_Event)
 		flags |= PtrTypeFlag_Event;
@@ -194,7 +200,7 @@ Type::Type ()
 	m_simplePropertyTypeTuple = NULL;
 	m_functionArgTuple = NULL;
 	m_dataPtrTypeTuple = NULL;
-	m_boxClassType = NULL;
+	m_dualTypeTuple = NULL;
 }
 
 Type::~Type ()
@@ -354,13 +360,12 @@ Type::getArrayType (size_t elementCount)
 
 DataPtrType*
 Type::getDataPtrType (
-	Namespace* anchorNamespace,
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getDataPtrType (anchorNamespace, this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getDataPtrType (this, typeKind, ptrTypeKind, flags);
 }
 
 FunctionArg*
@@ -795,20 +800,17 @@ getModuleItemType (ModuleItem* item)
 
 Type*
 getDirectRefType (
-	Namespace* anchorNamespace,
 	Type* type,
 	uint_t ptrTypeFlags
 	)
 {
 	return type->getTypeKind () == TypeKind_Class ?
 		(Type*) ((ClassType*) type)->getClassPtrType (
-			anchorNamespace,
 			TypeKind_ClassRef,
 			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
 			) :
 		(Type*) type->getDataPtrType (
-			anchorNamespace,
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags

@@ -269,8 +269,8 @@ Cast_DataPtr_Base::getCastKind (
 	DataPtrType* srcType = (DataPtrType*) opValue.getType ();
 	DataPtrType* dstType = (DataPtrType*) type;
 
-	bool isSrcConst = srcType->isConstPtrType ();
-	bool isDstConst = dstType->isConstPtrType ();
+	bool isSrcConst = (srcType->getFlags () & PtrTypeFlag_Const) != 0;
+	bool isDstConst = (dstType->getFlags () & PtrTypeFlag_Const) != 0;
 
 	if (isSrcConst && !isDstConst)
 		return CastKind_None; // const vs non-const mismatch
@@ -316,8 +316,8 @@ Cast_DataPtr_Base::getOffset (
 	BaseTypeCoord* coord
 	)
 {
-	bool isSrcConst = srcType->isConstPtrType ();
-	bool isDstConst = dstType->isConstPtrType ();
+	bool isSrcConst = (srcType->getFlags () & PtrTypeFlag_Const) != 0;
+	bool isDstConst = (dstType->getFlags () & PtrTypeFlag_Const) != 0;
 
 	if (isSrcConst && !isDstConst)
 	{
@@ -661,7 +661,9 @@ Cast_DataPtr::getCastOperator (
 	DataPtrType* srcPtrType = (DataPtrType*) srcType;
 	DataPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind ();
 
-	if (dstPtrTypeKind == DataPtrTypeKind_Normal && srcPtrType->isConstPtrType () && !dstPtrType->isConstPtrType ())
+	if (dstPtrTypeKind == DataPtrTypeKind_Normal && 
+		(srcPtrType->getFlags () & PtrTypeFlag_Const) && 
+		!(dstPtrType->getFlags () & PtrTypeFlag_Const))
 		return NULL;
 
 	ASSERT ((size_t) srcPtrTypeKind < DataPtrTypeKind__Count);

@@ -224,7 +224,7 @@ OperatorMgr::getPropertySetterType (
 		err::setFormatStringError ("read-only '%s' has no 'set'", propertyType->getTypeString ().sz ());
 		return NULL;
 	}
-	else if (ptrType->isConstPtrType ())
+	else if (ptrType->getFlags () & PtrTypeFlag_Const)
 	{
 		err::setFormatStringError ("'set' is inaccessible via 'const' property pointer");
 		return NULL;
@@ -283,7 +283,7 @@ OperatorMgr::getPropertySetter (
 		err::setFormatStringError ("read-only '%s' has no setter", propertyType->getTypeString ().sz ());
 		return false;
 	}
-	else if (ptrType->isConstPtrType ())
+	else if (ptrType->getFlags () & PtrTypeFlag_Const)
 	{
 		err::setFormatStringError ("'set' is inaccessible via 'const' property pointer");
 		return false;

@@ -42,17 +42,6 @@ PropertyPtrType::PropertyPtrType ()
 	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
 	m_size = sizeof (PropertyPtr);
 	m_targetType = NULL;
-	m_anchorNamespace = NULL;
-}
-
-bool
-PropertyPtrType::isConstPtrType ()
-{
-	return
-		m_targetType->isReadOnly () ||
-		(m_flags & PtrTypeFlag_Const) != 0 ||
-		(m_flags & PtrTypeFlag_ReadOnly) != 0 &&
-		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
 sl::String

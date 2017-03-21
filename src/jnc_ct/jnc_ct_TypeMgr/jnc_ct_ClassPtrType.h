@@ -25,7 +25,6 @@ class ClassPtrType: public Type
 protected:
 	ClassPtrTypeKind m_ptrTypeKind;
 	ClassType* m_targetType;
-	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
 	ClassPtrType ();
@@ -41,18 +40,6 @@ public:
 	{
 		return m_targetType;
 	}
-
-	Namespace*
-	getAnchorNamespace ()
-	{
-		return m_anchorNamespace;
-	}
-
-	bool
-	isConstPtrType ();
-
-	bool
-	isEventPtrType ();
 
 	ClassPtrType*
 	getCheckedPtrType ()
@@ -140,6 +127,13 @@ protected:
 	virtual
 	void
 	prepareLlvmDiType ();
+
+	virtual
+	Type*
+	calcFoldedDualType (
+		bool isAlien,
+		bool isContainerConst
+		);
 
 	sl::String
 	getPointerStringSuffix ();

@@ -34,13 +34,12 @@ ClassType::ClassType ()
 
 ClassPtrType*
 ClassType::getClassPtrType (
-	Namespace* anchorNamespace,
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getClassPtrType (anchorNamespace, this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getClassPtrType (this, typeKind, ptrTypeKind, flags);
 }
 
 StructField*

@@ -339,7 +339,6 @@ Value::setVariable (Variable* variable)
 	m_llvmValue = variable->getLlvmValue ();
 	m_variable = variable;
 	m_type = getDirectRefType (
-		variable->getParentNamespace (),
 		variable->getType (),
 		variable->getPtrTypeFlags () | PtrTypeFlag_Safe
 		);
@@ -380,7 +379,6 @@ Value::setProperty (Property* prop)
 	m_valueKind = ValueKind_Property;
 	m_property = prop;
 	m_type = prop->getType ()->getPropertyPtrType (
-		prop->getParentNamespace (),
 		TypeKind_PropertyRef,
 		PropertyPtrTypeKind_Thin,
 		PtrTypeFlag_Safe

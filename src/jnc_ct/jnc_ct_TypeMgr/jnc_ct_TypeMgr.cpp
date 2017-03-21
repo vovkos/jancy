@@ -79,7 +79,7 @@ TypeMgr::clear ()
 	m_classPtrTypeTupleList.clear ();
 	m_functionPtrTypeTupleList.clear ();
 	m_propertyPtrTypeTupleList.clear ();
-	m_dualPtrTypeTupleList.clear ();
+	m_dualTypeTupleList.clear ();
 
 	m_typedefList.clear ();
 	m_lazyStdTypeList.clear ();
@@ -1742,31 +1742,23 @@ TypeMgr::getDataClosureClassType (
 
 DataPtrType*
 TypeMgr::getDataPtrType (
-	Namespace* anchorNamespace,
-	Type* dataType,
+	Type* targetType,
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
 	ASSERT ((size_t) ptrTypeKind < DataPtrTypeKind__Count);
-	ASSERT (dataType->getTypeKind () != TypeKind_NamedImport); // for imports, GetImportPtrType () should be called
-	ASSERT (typeKind != TypeKind_DataRef || dataType->m_typeKind != TypeKind_DataRef); // dbl reference
+	ASSERT (targetType->getTypeKind () != TypeKind_NamedImport); // for imports, GetImportPtrType () should be called
+	ASSERT (typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
 
 	if (ptrTypeKind == DataPtrTypeKind_Normal)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
-	DataPtrTypeTuple* tuple;
+	if (isDualType (targetType))
+		flags |= TypeFlag_DerivedDual;
 
-	if (flags & PtrTypeFlag_ReadOnly)
-	{
-		ASSERT (anchorNamespace != NULL);
-		tuple = getReadOnlyDataPtrTypeTuple (anchorNamespace, dataType);
-	}
-	else
-	{
-		tuple = getDataPtrTypeTuple (dataType);
-	}
+	DataPtrTypeTuple* tuple = getDataPtrTypeTuple (targetType);
 
 	// ref x ptrkind x const x volatile x checked/markup
 
@@ -1783,13 +1775,12 @@ TypeMgr::getDataPtrType (
 
 	DataPtrType* type = AXL_MEM_NEW (DataPtrType);
 	type->m_module = m_module;
-	type->m_signature = DataPtrType::createSignature (dataType, typeKind, ptrTypeKind, flags);
+	type->m_signature = DataPtrType::createSignature (targetType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
 	type->m_alignment = sizeof (void*);
-	type->m_targetType = dataType;
-	type->m_anchorNamespace = (flags & PtrTypeFlag_ReadOnly) ? anchorNamespace : NULL;
+	type->m_targetType = targetType;
 	type->m_flags = flags;
 
 	m_dataPtrTypeList.insertTail (type);
@@ -1799,39 +1790,27 @@ TypeMgr::getDataPtrType (
 
 ClassPtrType*
 TypeMgr::getClassPtrType (
-	Namespace* anchorNamespace,
-	ClassType* classType,
+	ClassType* targetType,
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
 	ASSERT ((size_t) ptrTypeKind < ClassPtrTypeKind__Count);
-	ASSERT (!(flags & (PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent)) || anchorNamespace != NULL);
 
 	if (typeKind == TypeKind_ClassPtr)
 		flags |= TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & PtrTypeFlag_ReadOnly)
+	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_DualEvent))
 	{
-		ASSERT (anchorNamespace != NULL);
-		tuple = getReadOnlyClassPtrTypeTuple (anchorNamespace, classType);
-	}
-	else if (flags & PtrTypeFlag_DualEvent)
-	{
-		ASSERT (anchorNamespace != NULL && classType->getClassTypeKind () == ClassTypeKind_Multicast);
-		tuple = getDualEventClassPtrTypeTuple (anchorNamespace, (MulticastClassType*) classType);
-	}
-	else if (flags & PtrTypeFlag_Event)
-	{
-		ASSERT (classType->getClassTypeKind () == ClassTypeKind_Multicast);
-		tuple = getEventClassPtrTypeTuple ((MulticastClassType*) classType);
+		ASSERT (targetType->getClassTypeKind () == ClassTypeKind_Multicast);
+		tuple = getEventClassPtrTypeTuple ((MulticastClassType*) targetType);
 	}
 	else
 	{
-		tuple = getClassPtrTypeTuple (classType);
+		tuple = getClassPtrTypeTuple (targetType);
 	}
 
 	// ref x ptrkind x const x volatile x checked
@@ -1847,11 +1826,10 @@ TypeMgr::getClassPtrType (
 
 	ClassPtrType* type = AXL_MEM_NEW (ClassPtrType);
 	type->m_module = m_module;
-	type->m_signature = ClassPtrType::createSignature (classType, typeKind, ptrTypeKind, flags);
+	type->m_signature = ClassPtrType::createSignature (targetType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_targetType = classType;
-	type->m_anchorNamespace = (flags & (PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent)) ? anchorNamespace : NULL;
+	type->m_targetType = targetType;
 	type->m_flags = flags;
 
 	m_classPtrTypeList.insertTail (type);
@@ -1918,7 +1896,6 @@ TypeMgr::getFunctionPtrType (
 
 PropertyPtrType*
 TypeMgr::getPropertyPtrType (
-	Namespace* anchorNamespace,
 	PropertyType* propertyType,
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
@@ -1931,17 +1908,7 @@ TypeMgr::getPropertyPtrType (
 	if (typeKind == TypeKind_PropertyPtr && ptrTypeKind != PropertyPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
-	PropertyPtrTypeTuple* tuple;
-
-	if (flags & PtrTypeFlag_ReadOnly)
-	{
-		ASSERT (anchorNamespace != NULL);
-		tuple = getReadOnlyPropertyPtrTypeTuple (anchorNamespace, propertyType);
-	}
-	else
-	{
-		tuple = getPropertyPtrTypeTuple (propertyType);
-	}
+	PropertyPtrTypeTuple* tuple = getPropertyPtrTypeTuple (propertyType);
 
 	// ref x kind x checked
 
@@ -1962,7 +1929,6 @@ TypeMgr::getPropertyPtrType (
 	type->m_size = size;
 	type->m_alignment = sizeof (void*);
 	type->m_targetType = propertyType;
-	type->m_anchorNamespace = (flags & PtrTypeFlag_ReadOnly) ? anchorNamespace : NULL;
 	type->m_flags = flags;
 
 	m_propertyPtrTypeList.insertTail (type);
@@ -2134,23 +2100,38 @@ TypeMgr::getCheckedPtrType (Type* type)
 	}
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-DualPtrTypeTuple*
-TypeMgr::getDualPtrTypeTuple (
-	Namespace* anchorNamespace,
-	Type* type
+Type*
+TypeMgr::foldDualType (
+	Type* type,
+	bool isAlien,
+	bool isContainerConst
 	)
 {
-	sl::String signature = type->getSignature ();
-	sl::StringHashTableIterator <DualPtrTypeTuple*> it = anchorNamespace->m_dualPtrTypeTupleMap.visit (signature);
-	if (it->m_value)
-		return it->m_value;
+	ASSERT (isDualType (type));
 
-	DualPtrTypeTuple* dualPtrTypeTuple = AXL_MEM_NEW (DualPtrTypeTuple);
-	m_dualPtrTypeTupleList.insertTail (dualPtrTypeTuple);
-	it->m_value = dualPtrTypeTuple;
-	return dualPtrTypeTuple;
+	DualTypeTuple* tuple = getDualTypeTuple (type);
+	Type* foldedType = tuple->m_typeArray [isAlien] [isContainerConst];
+	if (!foldedType)
+	{
+		foldedType = type->calcFoldedDualType (isAlien, isContainerConst);
+		tuple->m_typeArray [isAlien] [isContainerConst] = foldedType;
+	}
+	
+	return foldedType;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+DualTypeTuple*
+TypeMgr::getDualTypeTuple (Type* type)
+{
+	if (type->m_dualTypeTuple)
+		return type->m_dualTypeTuple;
+
+	DualTypeTuple* tuple = AXL_MEM_NEW (DualTypeTuple);
+	type->m_dualTypeTuple = tuple;
+	m_dualTypeTupleList.insertTail (tuple);
+	return tuple;
 }
 
 SimplePropertyTypeTuple*
@@ -2189,22 +2170,6 @@ TypeMgr::getDataPtrTypeTuple (Type* type)
 	return tuple;
 }
 
-DataPtrTypeTuple*
-TypeMgr::getReadOnlyDataPtrTypeTuple (
-	Namespace* anchorNamespace,
-	Type* type
-	)
-{
-	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, type);
-	if (dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple)
-		return dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple;
-
-	DataPtrTypeTuple* tuple = AXL_MEM_NEW (DataPtrTypeTuple);
-	dualPtrTypeTuple->m_readOnlyDataPtrTypeTuple = tuple;
-	m_dataPtrTypeTupleList.insertTail (tuple);
-	return tuple;
-}
-
 ClassPtrTypeTuple*
 TypeMgr::getClassPtrTypeTuple (ClassType* classType)
 {
@@ -2218,22 +2183,6 @@ TypeMgr::getClassPtrTypeTuple (ClassType* classType)
 }
 
 ClassPtrTypeTuple*
-TypeMgr::getReadOnlyClassPtrTypeTuple (
-	Namespace* anchorNamespace,
-	ClassType* classType
-	)
-{
-	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
-	if (dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple)
-		return dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple;
-
-	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
-	dualPtrTypeTuple->m_readOnlyClassPtrTypeTuple = tuple;
-	m_classPtrTypeTupleList.insertTail (tuple);
-	return tuple;
-}
-
-ClassPtrTypeTuple*
 TypeMgr::getEventClassPtrTypeTuple (MulticastClassType* classType)
 {
 	if (classType->m_eventClassPtrTypeTuple)
@@ -2241,22 +2190,6 @@ TypeMgr::getEventClassPtrTypeTuple (MulticastClassType* classType)
 
 	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
 	classType->m_eventClassPtrTypeTuple = tuple;
-	m_classPtrTypeTupleList.insertTail (tuple);
-	return tuple;
-}
-
-ClassPtrTypeTuple*
-TypeMgr::getDualEventClassPtrTypeTuple (
-	Namespace* anchorNamespace,
-	MulticastClassType* classType
-	)
-{
-	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, classType);
-	if (dualPtrTypeTuple->m_dualEventClassPtrTypeTuple)
-		return dualPtrTypeTuple->m_dualEventClassPtrTypeTuple;
-
-	ClassPtrTypeTuple* tuple = AXL_MEM_NEW (ClassPtrTypeTuple);
-	dualPtrTypeTuple->m_dualEventClassPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }
@@ -2281,22 +2214,6 @@ TypeMgr::getPropertyPtrTypeTuple (PropertyType* propertyType)
 
 	PropertyPtrTypeTuple* tuple = AXL_MEM_NEW (PropertyPtrTypeTuple);
 	propertyType->m_propertyPtrTypeTuple = tuple;
-	m_propertyPtrTypeTupleList.insertTail (tuple);
-	return tuple;
-}
-
-PropertyPtrTypeTuple*
-TypeMgr::getReadOnlyPropertyPtrTypeTuple (
-	Namespace* anchorNamespace,
-	PropertyType* propertyType
-	)
-{
-	DualPtrTypeTuple* dualPtrTypeTuple = getDualPtrTypeTuple (anchorNamespace, propertyType);
-	if (dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple)
-		return dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple;
-
-	PropertyPtrTypeTuple* tuple = AXL_MEM_NEW (PropertyPtrTypeTuple);
-	dualPtrTypeTuple->m_readOnlyPropertyPtrTypeTuple = tuple;
 	m_propertyPtrTypeTupleList.insertTail (tuple);
 	return tuple;
 }
@@ -2398,7 +2315,7 @@ TypeMgr::setupPrimitiveType (
 	type->m_simplePropertyTypeTuple = NULL;
 	type->m_functionArgTuple = NULL;
 	type->m_dataPtrTypeTuple = NULL;
-	type->m_boxClassType = NULL;
+	type->m_dualTypeTuple = NULL;
 }
 
 void

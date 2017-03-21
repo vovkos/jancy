@@ -96,21 +96,10 @@ public:
 
 	ClassPtrType*
 	getClassPtrType (
-		Namespace* anchorNamespace,
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
-
-	ClassPtrType*
-	getClassPtrType (
-		TypeKind typeKind,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
-		uint_t flags = 0
-		)
-	{
-		return getClassPtrType (NULL, typeKind, ptrTypeKind, flags);
-	}
 
 	ClassPtrType*
 	getClassPtrType (

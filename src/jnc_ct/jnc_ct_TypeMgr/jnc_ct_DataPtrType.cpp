@@ -24,17 +24,7 @@ DataPtrType::DataPtrType ()
 	m_typeKind = TypeKind_DataPtr;
 	m_ptrTypeKind = DataPtrTypeKind_Normal;
 	m_targetType = NULL;
-	m_anchorNamespace = NULL;
 	m_size = sizeof (DataPtr);
-}
-
-bool
-DataPtrType::isConstPtrType ()
-{
-	return
-		(m_flags & PtrTypeFlag_Const) != 0 ||
-		(m_flags & PtrTypeFlag_ReadOnly) != 0 &&
-		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
 sl::String
@@ -136,6 +126,29 @@ DataPtrType::markGcRoots (
 
 	gcHeap->weakMark (ptr->m_validator->m_validatorBox);
 	gcHeap->markData (ptr->m_validator->m_targetBox);
+}
+
+Type*
+DataPtrType::calcFoldedDualType (
+	bool isAlien,
+	bool isContainerConst
+	)
+{
+	ASSERT (isDualType (this));
+
+	Type* targetType = (m_flags & TypeFlag_DerivedDual) ? 
+		m_module->m_typeMgr.foldDualType (m_targetType, isAlien, isContainerConst) :
+		m_targetType;
+
+	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut);
+
+	if ((m_flags & PtrTypeFlag_ReadOnly) && isAlien)
+		flags |= PtrTypeFlag_Const;
+
+	if ((m_flags & PtrTypeFlag_CMut) && isContainerConst)
+		flags |= PtrTypeFlag_Const;
+
+	return m_module->m_typeMgr.getDataPtrType (targetType, m_typeKind, m_ptrTypeKind, flags);
 }
 
 //..............................................................................

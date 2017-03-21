@@ -24,27 +24,8 @@ ClassPtrType::ClassPtrType ()
 	m_typeKind = TypeKind_ClassPtr;
 	m_ptrTypeKind = ClassPtrTypeKind_Normal;
 	m_targetType = NULL;
-	m_anchorNamespace = NULL;
 	m_size = sizeof (void*);
 	m_alignment = sizeof (void*);
-}
-
-bool
-ClassPtrType::isConstPtrType ()
-{
-	return
-		(m_flags & PtrTypeFlag_Const) != 0 ||
-		(m_flags & PtrTypeFlag_ReadOnly) != 0 &&
-		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
-}
-
-bool
-ClassPtrType::isEventPtrType ()
-{
-	return
-		(m_flags & PtrTypeFlag_Event) != 0 ||
-		(m_flags & PtrTypeFlag_DualEvent) != 0 &&
-		m_module->m_namespaceMgr.getAccessKind (m_anchorNamespace) == AccessKind_Public;
 }
 
 sl::String
@@ -112,6 +93,31 @@ ClassPtrType::markGcRoots (
 		gcHeap->weakMark (iface->m_box);
 	else
 		gcHeap->markClass (iface->m_box);
+}
+
+Type*
+ClassPtrType::calcFoldedDualType (
+	bool isAlien,
+	bool isContainerConst
+	)
+{
+	ASSERT (isDualType (this));
+
+	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent);
+
+	if (isAlien)
+	{
+		if (m_flags & PtrTypeFlag_ReadOnly)
+			flags |= PtrTypeFlag_Const;
+
+		if (m_flags & PtrTypeFlag_DualEvent)
+			flags |= PtrTypeFlag_Event;
+	}
+
+	if ((m_flags & PtrTypeFlag_CMut) && isContainerConst)
+		flags |= PtrTypeFlag_Const;
+
+	return m_module->m_typeMgr.getClassPtrType (m_targetType, m_typeKind, m_ptrTypeKind, flags);
 }
 
 //..............................................................................

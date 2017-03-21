@@ -314,6 +314,10 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_ReadOnly;
 			}
+	|	TokenKind_CMut
+			{
+				$.m_typeModifier = TypeModifier_CMut;
+			}
 	|	TokenKind_Volatile
 			{
 				$.m_typeModifier = TypeModifier_Volatile;

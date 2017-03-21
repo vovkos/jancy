@@ -148,7 +148,7 @@ OperatorMgr::storeDataRef (
 	bool result;
 
 	DataPtrType* dstType = (DataPtrType*) dstValue.getType ();
-	if (dstType->isConstPtrType ())
+	if (dstType->getFlags () & PtrTypeFlag_Const)
 	{
 		err::setError ("cannot store into const location");
 		return false;

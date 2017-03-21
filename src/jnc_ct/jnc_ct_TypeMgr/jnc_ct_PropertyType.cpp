@@ -88,13 +88,12 @@ PropertyType::PropertyType ()
 
 PropertyPtrType*
 PropertyType::getPropertyPtrType (
-	Namespace* nspace,
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getPropertyPtrType (nspace, this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getPropertyPtrType (this, typeKind, ptrTypeKind, flags);
 }
 
 PropertyType*

@@ -49,6 +49,7 @@ enum TypeModifier
 	TypeModifier_Jnccall     = 0x00200000,
 	TypeModifier_Unsafe      = 0x00400000,
 	TypeModifier_ErrorCode   = 0x00800000,
+	TypeModifier_CMut        = 0x01000000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -76,6 +77,7 @@ enum TypeModifierMaskKind
 		TypeModifierMaskKind_CallConv |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_Bindable |
 		TypeModifier_Indexed,
 
@@ -83,6 +85,7 @@ enum TypeModifierMaskKind
 		TypeModifier_Safe |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_Volatile |
 		TypeModifier_Thin,
 
@@ -90,6 +93,7 @@ enum TypeModifierMaskKind
 		TypeModifier_Safe |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
 		TypeModifier_DualEvent |
@@ -114,6 +118,7 @@ enum TypeModifierMaskKind
 	TypeModifierMaskKind_DeclPtr =
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
 		TypeModifier_DualEvent |
@@ -133,6 +138,7 @@ enum TypeModifierMaskKind
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_Event |
 		TypeModifier_DualEvent,
 

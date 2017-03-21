@@ -55,7 +55,8 @@ Cast_ClassPtr::getCastKind (
 	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
 	ClassPtrType* dstType = (ClassPtrType*) type;
 
-	if (srcType->isConstPtrType () && !dstType->isConstPtrType ())
+	if ((srcType->getFlags () & PtrTypeFlag_Const) && 
+		!(dstType->getFlags () & PtrTypeFlag_Const))
 		return CastKind_None; // const vs non-const mismatch
 
 	ClassType* srcClassType = srcType->getTargetType ();

@@ -234,6 +234,12 @@ DeclTypeCalc::calcType (
 
 	if (!(type->getTypeKindFlags () & TypeKindFlag_Code) && flags != NULL)
 	{
+		if (m_typeModifiers & TypeModifier_CMut)
+		{
+			err::setError ("redundant 'cmut'"); // must be applied to explicit pointers only
+			return NULL;
+		}
+
 		result = getPtrTypeFlags (type, flags);
 		if (!result)
 			return NULL;
@@ -353,6 +359,9 @@ DeclTypeCalc::getPtrTypeFlags (
 
 	if (m_typeModifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
+
+	if (m_typeModifiers & TypeModifier_CMut)
+		flags |= PtrTypeFlag_CMut;
 
 	if (m_typeModifiers & TypeModifier_Volatile)
 	{
@@ -726,7 +735,6 @@ DeclTypeCalc::getDataPtrType (Type* dataType)
 
 	m_typeModifiers &= ~TypeModifierMaskKind_DataPtr;
 	return dataType->getDataPtrType (
-		m_module->m_namespaceMgr.getCurrentNamespace (),
 		TypeKind_DataPtr,
 		ptrTypeKind,
 		typeFlags
@@ -741,7 +749,6 @@ DeclTypeCalc::getClassPtrType (ClassType* classType)
 
 	m_typeModifiers &= ~TypeModifierMaskKind_ClassPtr;
 	return classType->getClassPtrType (
-		m_module->m_namespaceMgr.getCurrentNamespace (),
 		TypeKind_ClassPtr,
 		ptrTypeKind,
 		typeFlags

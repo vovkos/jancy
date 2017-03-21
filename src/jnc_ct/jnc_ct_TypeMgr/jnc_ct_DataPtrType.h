@@ -25,7 +25,6 @@ class DataPtrType: public Type
 protected:
 	DataPtrTypeKind m_ptrTypeKind;
 	Type* m_targetType;
-	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
 	DataPtrType ();
@@ -41,15 +40,6 @@ public:
 	{
 		return m_targetType;
 	}
-
-	Namespace*
-	getAnchorNamespace ()
-	{
-		return m_anchorNamespace;
-	}
-
-	bool
-	isConstPtrType ();
 
 	DataPtrType*
 	getCheckedPtrType ()
@@ -107,6 +97,13 @@ protected:
 	virtual
 	void
 	prepareLlvmDiType ();
+
+	virtual
+	Type*
+	calcFoldedDualType (
+		bool isAlien,
+		bool isContainerConst
+		);
 
 	sl::String
 	getPointerStringSuffix ();

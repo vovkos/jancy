@@ -152,21 +152,10 @@ public:
 
 	PropertyPtrType*
 	getPropertyPtrType (
-		Namespace* nspace,
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
-
-	PropertyPtrType*
-	getPropertyPtrType (
-		TypeKind typeKind,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
-		uint_t flags = 0
-		)
-	{
-		return getPropertyPtrType (NULL, typeKind, ptrTypeKind, flags);
-	}
 
 	PropertyPtrType*
 	getPropertyPtrType (

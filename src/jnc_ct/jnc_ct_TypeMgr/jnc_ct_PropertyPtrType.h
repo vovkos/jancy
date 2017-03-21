@@ -26,7 +26,6 @@ class PropertyPtrType: public Type
 protected:
 	PropertyPtrTypeKind m_ptrTypeKind;
 	PropertyType* m_targetType;
-	Namespace* m_anchorNamespace; // for dual pointers
 
 public:
 	PropertyPtrType ();
@@ -42,15 +41,6 @@ public:
 	{
 		return m_targetType;
 	}
-
-	Namespace*
-	getAnchorNamespace ()
-	{
-		return m_anchorNamespace;
-	}
-
-	bool
-	isConstPtrType ();
 
 	bool
 	hasClosure ()

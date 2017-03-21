@@ -131,7 +131,8 @@ Cast_PropertyPtr_Base::getCastKind (
 	if (!srcPtrType)
 		return CastKind_None;
 
-	if (srcPtrType->isConstPtrType () && !dstPtrType->isConstPtrType ())
+	if ((srcPtrType->getFlags () & PtrTypeFlag_Const) && 
+		!(dstPtrType->getFlags () & PtrTypeFlag_Const))
 		return CastKind_None;
 
 	return m_module->m_operatorMgr.getPropertyCastKind (

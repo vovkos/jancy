@@ -117,6 +117,31 @@ OperatorMgr::checkAccess (ModuleItemDecl* decl)
 }
 
 bool
+OperatorMgr::finalizeMemberOperator (
+	const Value& opValue,
+	ModuleItemDecl* decl,
+	Value* resultValue
+	)
+{
+	bool result = checkAccess (decl);
+	if (!result)
+		return false;
+
+	Type* type = resultValue->getType ();
+	if (type && isDualType (type))
+	{
+		Namespace* nspace = decl->getParentNamespace ();
+		bool isAlien = m_module->m_namespaceMgr.getAccessKind (nspace) == AccessKind_Public;
+		bool isConst = (opValue.getType ()->getFlags () & PtrTypeFlag_Const) != 0;
+
+		type = m_module->m_typeMgr.foldDualType (type, isAlien, isConst);
+		resultValue->overrideType (type);
+	}
+
+	return true;
+}
+
+bool
 OperatorMgr::getNamespaceMemberType (
 	Namespace* nspace,
 	const sl::StringRef& name,
@@ -202,8 +227,7 @@ OperatorMgr::getNamespaceMemberType (
 	if (!result)
 		return false;
 
-	ASSERT (decl);
-	return checkAccess (decl);
+	return finalizeMemberOperator (Value (), decl, resultValue);
 }
 
 bool
@@ -231,7 +255,7 @@ OperatorMgr::getNamespaceMember (
 		itemKind = item->getItemKind ();
 		ASSERT (itemKind != ModuleItemKind_Alias); // should have been resolved at calclayout stage
 	}
-	
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -316,8 +340,7 @@ OperatorMgr::getNamespaceMember (
 		return false;
 	};
 
-	ASSERT (decl);
-	return checkAccess (decl);
+	return finalizeMemberOperator (Value (), decl, resultValue);
 }
 
 bool
@@ -336,16 +359,21 @@ OperatorMgr::getNamedTypeMemberType (
 		return false;
 	}
 
+	ModuleItemDecl* decl = NULL;
+
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace ((GlobalNamespace*) member);
+		decl = (GlobalNamespace*) member;
 		break;
 
 	case ModuleItemKind_StructField:
 		{
 		StructField* field = (StructField*) member;
+		decl = field;
+
 		size_t baseOffset = 0;
 		if (opValue.getValueKind () == ValueKind_Field)
 			baseOffset = opValue.getFieldOffset ();
@@ -374,6 +402,7 @@ OperatorMgr::getNamedTypeMemberType (
 			TypeKind_FunctionRef,
 			FunctionPtrTypeKind_Thin
 			));
+		decl = (Function*) member;
 		break;
 
 	case ModuleItemKind_Property:
@@ -381,6 +410,7 @@ OperatorMgr::getNamedTypeMemberType (
 			TypeKind_PropertyRef,
 			PropertyPtrTypeKind_Thin
 			));
+		decl = (Property*) member;
 		break;
 
 	default:
@@ -388,7 +418,7 @@ OperatorMgr::getNamedTypeMemberType (
 		return false;
 	}
 
-	return true;
+	return finalizeMemberOperator (opValue, decl, resultValue);
 }
 
 bool
@@ -399,6 +429,8 @@ OperatorMgr::getNamedTypeMember (
 	Value* resultValue
 	)
 {
+	bool result;
+
 	MemberCoord coord;
 	ModuleItem* member = namedType->findItemTraverse (name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
@@ -408,6 +440,7 @@ OperatorMgr::getNamedTypeMember (
 	}
 
 	ModuleItemDecl* decl = NULL;
+
 	ModuleItemKind memberKind = member->getItemKind ();
 	switch (memberKind)
 	{
@@ -418,8 +451,8 @@ OperatorMgr::getNamedTypeMember (
 
 	case ModuleItemKind_StructField:
 		return
-			checkAccess ((StructField*) member) &&
-			getField (opValue, (StructField*) member, &coord, resultValue);
+			getField (opValue, (StructField*) member, &coord, resultValue) &&
+			finalizeMemberOperator (opValue, (StructField*) member, resultValue);
 
 	case ModuleItemKind_Function:
 		resultValue->setFunction ((Function*) member);
@@ -436,7 +469,11 @@ OperatorMgr::getNamedTypeMember (
 		return false;
 	}
 
-	if (decl->getStorageKind () == StorageKind_Static)
+	result = finalizeMemberOperator (opValue, decl, resultValue);
+	if (!result)
+		return false;
+
+	if (memberKind == ModuleItemKind_StructField || decl->getStorageKind () == StorageKind_Static)
 		return true;
 
 	AXL_TODO ("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
@@ -444,7 +481,7 @@ OperatorMgr::getNamedTypeMember (
 	Value thisArgValue = opValue;
 	if (namedType->getTypeKind () != TypeKind_Class)
 	{
-		bool result = unaryOperator (UnOpKind_Addr, &thisArgValue);
+		result = unaryOperator (UnOpKind_Addr, &thisArgValue);
 		if (!result)
 			return false;
 	}
@@ -453,7 +490,7 @@ OperatorMgr::getNamedTypeMember (
 	{
 		ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
 		if ((member->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) &&
-			((ClassPtrType*) opValue.getType ())->isEventPtrType ())
+			(opValue.getType ()->getFlags () & PtrTypeFlag_Event))
 		{
 			err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", name.sz ());
 			return false;

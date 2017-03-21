@@ -215,7 +215,6 @@ OperatorMgr::getStructField (
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
 		DataPtrType* resultType = field->getType ()->getDataPtrType (
-			field->getParentNamespace (),
 			TypeKind_DataRef,
 			DataPtrTypeKind_Thin,
 			ptrTypeFlags
@@ -238,7 +237,6 @@ OperatorMgr::getStructField (
 	}
 
 	DataPtrType* resultType = field->getType ()->getDataPtrType (
-		field->getParentNamespace (),
 		TypeKind_DataRef,
 		DataPtrTypeKind_Lean,
 		ptrTypeFlags
@@ -287,7 +285,6 @@ OperatorMgr::getUnionField (
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 
 	DataPtrType* ptrType = field->getType ()->getDataPtrType (
-		field->getParentNamespace (),
 		TypeKind_DataRef,
 		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 		ptrTypeFlags
@@ -368,7 +365,6 @@ OperatorMgr::getClassField (
 	if (field->getType ()->getTypeKind () == TypeKind_Class)
 	{
 		ClassPtrType* ptrType = ((ClassType*) field->getType ())->getClassPtrType (
-			field->getParentNamespace (),
 			TypeKind_ClassRef,
 			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
@@ -379,7 +375,6 @@ OperatorMgr::getClassField (
 	else
 	{
 		DataPtrType* ptrType = field->getType ()->getDataPtrType (
-			field->getParentNamespace (),
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags

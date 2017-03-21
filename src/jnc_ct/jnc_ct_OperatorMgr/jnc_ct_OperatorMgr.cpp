@@ -354,7 +354,7 @@ OperatorMgr::binaryOperator (
 			prepareOperandType (rawOpValue1, &opValue1);
 
 			if (opValue1.getType ()->getTypeKind () == TypeKind_ClassPtr &&
-				((ClassPtrType*) opValue1.getType ())->isEventPtrType ())
+				(opValue1.getType ()->getFlags () & PtrTypeFlag_Event))
 			{
 				err::setFormatStringError ("'%s' is inaccessible via 'event' pointer", getBinOpKindString (function->getBinOpKind ()));
 				return false;
@@ -671,7 +671,8 @@ OperatorMgr::dynamicCastDataPtr (
 		return false;
 	}
 
-	if (((DataPtrType*) opValue.getType ())->isConstPtrType () && !type->isConstPtrType ())
+	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) && 
+		!(type->getFlags () & PtrTypeFlag_Const))
 	{
 		setCastError (opValue, type);
 		return false;
@@ -717,7 +718,8 @@ OperatorMgr::dynamicCastClassPtr (
 		return false;
 	}
 
-	if (((ClassPtrType*) opValue.getType ())->isConstPtrType () && !type->isConstPtrType ())
+	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) && 
+		!(type->getFlags () & PtrTypeFlag_Const))
 	{
 		setCastError (opValue, type);
 		return false;
@@ -1091,7 +1093,6 @@ OperatorMgr::prepareOperandType (
 
 					ArrayType* arrayType = (ArrayType*) targetType;
 					value = arrayType->getElementType ()->getDataPtrType (
-						ptrType->getAnchorNamespace (),
 						TypeKind_DataPtr,
 						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 						ptrType->getFlags ()
@@ -1107,7 +1108,6 @@ OperatorMgr::prepareOperandType (
 				ClassPtrType* ptrType = (ClassPtrType*) type;
 				ClassType* targetType = ptrType->getTargetType ();
 				value = targetType->getClassPtrType (
-					ptrType->getAnchorNamespace (),
 					TypeKind_ClassPtr,
 					ptrType->getPtrTypeKind (),
 					ptrType->getFlags ()
@@ -1228,7 +1228,6 @@ OperatorMgr::prepareOperand (
 
 					ArrayType* arrayType = (ArrayType*) ptrType->getTargetType ();
 					type = arrayType->getElementType ()->getDataPtrType (
-						ptrType->getAnchorNamespace (),
 						TypeKind_DataPtr,
 						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 						ptrType->getFlags ()
@@ -1257,7 +1256,6 @@ OperatorMgr::prepareOperand (
 				ClassPtrType* ptrType = (ClassPtrType*) type;
 				ClassType* targetType = ptrType->getTargetType ();
 				value.overrideType (targetType->getClassPtrType (
-					ptrType->getAnchorNamespace (),
 					TypeKind_ClassPtr,
 					ptrType->getPtrTypeKind (),
 					ptrType->getFlags ())

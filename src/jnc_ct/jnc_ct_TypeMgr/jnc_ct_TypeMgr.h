@@ -115,7 +115,7 @@ protected:
 	sl::StdList <ClassPtrTypeTuple> m_classPtrTypeTupleList;
 	sl::StdList <FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
 	sl::StdList <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
-	sl::StdList <DualPtrTypeTuple> m_dualPtrTypeTupleList;
+	sl::StdList <DualTypeTuple> m_dualTypeTupleList;
 
 	sl::StringHashTable <Type*> m_typeMap;
 
@@ -758,8 +758,7 @@ public:
 
 	DataPtrType*
 	getDataPtrType (
-		Namespace* anchorNamespace,
-		Type* dataType,
+		Type* targetType,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -767,30 +766,17 @@ public:
 
 	DataPtrType*
 	getDataPtrType (
-		Type* dataType,
-		TypeKind typeKind,
+		Type* targetType,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getDataPtrType (NULL, dataType, typeKind, ptrTypeKind, flags);
-
-	}
-
-	DataPtrType*
-	getDataPtrType (
-		Type* dataType,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
-		uint_t flags = 0
-		)
-	{
-		return getDataPtrType (dataType, TypeKind_DataPtr, ptrTypeKind, flags);
+		return getDataPtrType (targetType, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	ClassPtrType*
 	getClassPtrType (
-		Namespace* anchorNamespace,
-		ClassType* classType,
+		ClassType* targetType,
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -798,28 +784,17 @@ public:
 
 	ClassPtrType*
 	getClassPtrType (
-		ClassType* classType,
-		TypeKind typeKind,
+		ClassType* targetType,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getClassPtrType (NULL, classType, typeKind, ptrTypeKind, flags);
-	}
-
-	ClassPtrType*
-	getClassPtrType (
-		ClassType* classType,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
-		uint_t flags = 0
-		)
-	{
-		return getClassPtrType (classType, TypeKind_ClassPtr, ptrTypeKind, flags);
+		return getClassPtrType (targetType, TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
 	FunctionPtrType*
 	getFunctionPtrType (
-		FunctionType* functionType,
+		FunctionType* targetType,
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -827,18 +802,17 @@ public:
 
 	FunctionPtrType*
 	getFunctionPtrType (
-		FunctionType* functionType,
+		FunctionType* targetType,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionPtrType (functionType, TypeKind_FunctionPtr, ptrTypeKind, flags);
+		return getFunctionPtrType (targetType, TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
 	PropertyPtrType*
 	getPropertyPtrType (
-		Namespace* anchorNamespace,
-		PropertyType* propertyType,
+		PropertyType* targetType,
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -846,23 +820,12 @@ public:
 
 	PropertyPtrType*
 	getPropertyPtrType (
-		PropertyType* propertyType,
-		TypeKind typeKind,
+		PropertyType* targetType,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getPropertyPtrType (NULL, propertyType, typeKind, ptrTypeKind, flags);
-	}
-
-	PropertyPtrType*
-	getPropertyPtrType (
-		PropertyType* propertyType,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
-		uint_t flags = 0
-		)
-	{
-		return getPropertyPtrType (propertyType, TypeKind_PropertyPtr, ptrTypeKind, flags);
+		return getPropertyPtrType (targetType, TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
 	StructType*
@@ -891,12 +854,16 @@ public:
 	Type*
 	getCheckedPtrType (Type* type);
 
-protected:
-	DualPtrTypeTuple*
-	getDualPtrTypeTuple (
-		Namespace* anchorNamespace,
-		Type* type
+	Type*
+	foldDualType (
+		Type* type,
+		bool isAlien,
+		bool isContainerConst
 		);
+
+protected:
+	DualTypeTuple*
+	getDualTypeTuple (Type* type);
 
 	SimplePropertyTypeTuple*
 	getSimplePropertyTypeTuple (Type* type);
@@ -907,41 +874,17 @@ protected:
 	DataPtrTypeTuple*
 	getDataPtrTypeTuple (Type* type);
 
-	DataPtrTypeTuple*
-	getReadOnlyDataPtrTypeTuple (
-		Namespace* anchorNamespace,
-		Type* type
-		);
-
 	ClassPtrTypeTuple*
 	getClassPtrTypeTuple (ClassType* classType);
 
 	ClassPtrTypeTuple*
-	getReadOnlyClassPtrTypeTuple (
-		Namespace* anchorNamespace,
-		ClassType* classType
-		);
-
-	ClassPtrTypeTuple*
 	getEventClassPtrTypeTuple (MulticastClassType* classType);
-
-	ClassPtrTypeTuple*
-	getDualEventClassPtrTypeTuple (
-		Namespace* anchorNamespace,
-		MulticastClassType* classType
-		);
 
 	FunctionPtrTypeTuple*
 	getFunctionPtrTypeTuple (FunctionType* functionType);
 
 	PropertyPtrTypeTuple*
 	getPropertyPtrTypeTuple (PropertyType* propertyType);
-
-	PropertyPtrTypeTuple*
-	getReadOnlyPropertyPtrTypeTuple (
-		Namespace* anchorNamespace,
-		PropertyType* propertyType
-		);
 
 	void
 	setupAllPrimitiveTypes ();

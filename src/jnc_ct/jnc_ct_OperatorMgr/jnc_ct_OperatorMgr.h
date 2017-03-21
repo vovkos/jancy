@@ -1544,14 +1544,6 @@ protected:
 		);
 
 	bool
-	getLibraryMember (
-		DynamicLibNamespace* library,
-		Closure* closure,
-		const sl::StringRef& name,
-		Value* resultValue
-		);
-
-	bool
 	getNamespaceMember (
 		Namespace* nspace,
 		const sl::StringRef& name,
@@ -1601,6 +1593,21 @@ protected:
 	getVariantMember (
 		const Value& opValue,
 		const sl::StringRef& name,
+		Value* resultValue
+		);
+
+	bool
+	getLibraryMember (
+		DynamicLibNamespace* library,
+		Closure* closure,
+		const sl::StringRef& name,
+		Value* resultValue
+		);
+
+	bool 
+	finalizeMemberOperator (
+		const Value& opValue,
+		ModuleItemDecl* decl,
 		Value* resultValue
 		);
 
