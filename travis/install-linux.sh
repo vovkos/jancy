@@ -1,9 +1,19 @@
 #!/bin/bash
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
 
 # manually install CMake -- we need at least CMake 3.3
 
-CMAKE_VERSION=3.3.2
-CMAKE_VERSION_DIR=v3.3
+CMAKE_VERSION=3.4.3
+CMAKE_VERSION_DIR=v3.4
 CMAKE_OS=Linux-x86_64
 CMAKE_TAR=cmake-$CMAKE_VERSION-$CMAKE_OS.tar.gz
 CMAKE_URL=http://www.cmake.org/files/$CMAKE_VERSION_DIR/$CMAKE_TAR
@@ -45,8 +55,6 @@ else
 	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (PCAP_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (EXPAT_INC_DIR DISABLED)" >> paths.cmake
-
-	export LLVM_BUILD_32_BITS="-DLLVM_BUILD_32_BITS=TRUE"
 fi
 
 sudo apt-get install -y p7zip-full
