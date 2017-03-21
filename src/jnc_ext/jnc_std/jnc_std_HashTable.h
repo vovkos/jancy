@@ -60,7 +60,7 @@ public:
 
 protected:
 	HashFunc* m_hashFunc;
-	IsEqualFunc* m_eqFunc;
+	IsEqualFunc* m_isEqualFunc;
 		
 public:
 	HashTable (
@@ -71,15 +71,25 @@ public:
 	~HashTable ();
 
 	void
+	JNC_CDECL
 	clear ();
 
+	static
 	DataPtr
-	visit (Variant key) const;
+	visit (
+		HashTable* self,
+		Variant key
+		);
 
+	static
 	DataPtr
-	find (Variant key) const;
+	find (
+		HashTable* self,
+		Variant key
+		);
 
 	void
+	JNC_CDECL
 	remove (DataPtr entryPtr);
 };
 

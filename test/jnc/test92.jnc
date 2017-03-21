@@ -1,11 +1,34 @@
 import "std_HashTable.jnc"
 
+size_t hashString_i (variant e)
+{
+	char const* p = e;
+	char const* end = p + strlen (p);
+
+	size_t hash = 5381;
+
+	for (; p < end; p++)
+		hash = ((hash << 5) + hash) + tolower (*p); // hash * 33 + c
+
+	return hash;
+}
+
+int cmpString_i (
+	variant a1,
+	variant a2
+	)
+{
+	return stricmp ((char const*) a1, (char const*) a2);
+}
+
 int main ()
 {
-	printf ("main ()\n");
+	std.HashTable hashTable (hashString_i, cmpString_i);
 
-	std.HashTable a;
+	hashTable ["user"] = "John Doe";
+	hashTable ["pass"] = "qwerty";
 
+	print ($"user: %1 password: %2\n" (hashTable ["USER"], hashTable ["PASS"]));
 	return 0;
 }
 

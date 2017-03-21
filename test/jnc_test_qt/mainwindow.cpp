@@ -355,12 +355,15 @@ bool MainWindow::compile ()
 	if(!child->save())
 		return false;
 
-	// DebugInfo only works with MCJIT, MCJIT only works on Linux
+	// DebugInfo does not work on Windows
 
 	uint_t compileFlags = 
-		jnc::ModuleCompileFlag_StdFlags | 
-		jnc::ModuleCompileFlag_DebugInfo;
-		// | jnc::ModuleCompileFlag_SimpleGcSafePoint;
+		jnc::ModuleCompileFlag_StdFlags
+#if (!_JNC_OS_WIN)
+		| jnc::ModuleCompileFlag_DebugInfo
+#endif
+		// | jnc::ModuleCompileFlag_SimpleGcSafePoint
+		;
 
 	QByteArray sourceFilePath = child->file().toUtf8 ();
 	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();

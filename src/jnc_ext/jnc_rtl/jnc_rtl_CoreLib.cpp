@@ -471,7 +471,6 @@ tryCheckDataPtrRangeIndirect (
 	return true;
 }
 
-
 void
 checkDataPtrRangeIndirect (
 	const void* p,

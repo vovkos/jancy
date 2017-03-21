@@ -86,6 +86,8 @@ HashTable::HashTable (
 	IsEqualFunc* isEqualFunc
 	)
 {
+	m_hashFunc = hashFunc;
+	m_isEqualFunc = isEqualFunc;
 }
 
 HashTable::~HashTable ()
@@ -93,23 +95,31 @@ HashTable::~HashTable ()
 }
 
 void
+JNC_CDECL
 HashTable::clear ()
 {
 }
 
 DataPtr
-HashTable::visit (Variant key) const
+HashTable::visit (
+	HashTable* self,
+	Variant key
+	)
 {
 	return g_nullPtr;
 }
 
 DataPtr
-HashTable::find (Variant key) const
+HashTable::find (
+	HashTable* self,
+	Variant key
+	)
 {
 	return g_nullPtr;
 }
 
 void
+JNC_CDECL
 HashTable::remove (DataPtr entryPtr)
 {
 }

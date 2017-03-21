@@ -22,8 +22,8 @@ namespace std {
 
 struct MapEntry
 {
-	MapEntry* readonly m_next;
-	MapEntry* readonly m_prev;
+	MapEntry cmut* readonly m_next;
+	MapEntry cmut* readonly m_prev;
 
 	intptr_t readonly m_validator;
 
@@ -40,8 +40,8 @@ typedef bool IsEqualFunc (
 
 opaque class HashTable
 {
-	MapEntry* readonly m_head;
-	MapEntry* readonly m_tail;
+	MapEntry cmut* readonly m_head;
+	MapEntry cmut* readonly m_tail;
 	size_t readonly m_count;
 
 	construct (
@@ -58,13 +58,13 @@ opaque class HashTable
 		return m_count == 0;
 	}
 
-	variant get (char const* key)
+	variant get (variant key)
 	{
 		return findValue (key, null);
 	}
 
 	set (
-		char const* key,
+		variant key,
 		variant value
 		)
 	{
@@ -74,12 +74,16 @@ opaque class HashTable
 	clear ();
 
 	MapEntry* visit (variant key);
-	MapEntry* find (variant key) const;
+	MapEntry cmut* find (variant key) const;
 
 	variant findValue (
 		variant key,
-		variant undefindedValue
-		) const;
+		variant undefinedValue
+		) const
+	{
+		MapEntry* entry = find (key);
+		return entry ? entry.m_value : undefinedValue;
+	}
 
 	MapEntry* add (
 		variant key,
