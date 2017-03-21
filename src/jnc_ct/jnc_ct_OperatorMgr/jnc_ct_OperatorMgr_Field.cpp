@@ -236,15 +236,29 @@ OperatorMgr::getStructField (
 		getFieldPtrImpl (ptrValue, coord, NULL, &ptrValue);
 	}
 
-	DataPtrType* resultType = field->getType ()->getDataPtrType (
-		TypeKind_DataRef,
-		DataPtrTypeKind_Lean,
-		ptrTypeFlags
-		);
-
 	if (opType->getTargetType ()->getFlags () & TypeFlag_Pod)
+	{
+		DataPtrType* resultType = field->getType ()->getDataPtrType (
+			TypeKind_DataRef,
+			DataPtrTypeKind_Lean,
+			ptrTypeFlags
+			);
+
 		resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
+	}
 	else
+	{
+		bool result = checkDataPtrRange (opValue);
+		if (!result)
+			return false;
+
+		ptrTypeFlags |= PtrTypeFlag_Safe;
+		DataPtrType* resultType = field->getType ()->getDataPtrType (
+			TypeKind_DataRef,
+			DataPtrTypeKind_Lean,
+			ptrTypeFlags
+			);
+
 		resultValue->setLeanDataPtr (
 			ptrValue.getLlvmValue (),
 			resultType,
@@ -252,6 +266,7 @@ OperatorMgr::getStructField (
 			ptrValue,
 			field->getType ()->getSize ()
 			);
+	}
 
 	return true;
 }
