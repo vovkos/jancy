@@ -19,13 +19,20 @@ namespace std {
 
 //..............................................................................
 
+JNC_DEFINE_TYPE (
+	MapEntry,
+	"std.MapEntry",
+	g_stdLibGuid,
+	StdLibCacheSlot_MapEntry
+	)
+
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	HashTable,
 	"std.HashTable",
 	g_stdLibGuid,
 	StdLibCacheSlot_HashTable,
 	HashTable,
-	NULL
+	&HashTable::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (HashTable)
@@ -84,44 +91,103 @@ JNC_END_TYPE_FUNCTION_MAP ()
 HashTable::HashTable (
 	HashFunc* hashFunc,
 	IsEqualFunc* isEqualFunc
-	)
+	):
+	m_hashTable (HashIndirect (hashFunc), IsEqualIndirect (isEqualFunc))
 {
-	m_hashFunc = hashFunc;
-	m_isEqualFunc = isEqualFunc;
 }
 
-HashTable::~HashTable ()
+void
+JNC_CDECL
+HashTable::markOpaqueGcRoots (GcHeap* gcHeap)
 {
+	Module* module = gcHeap->getRuntime ()->getModule ();
+	Type* ptrType = module->getStdType (StdType_AbstractDataPtr);
+	Type* variantType = module->getPrimitiveType (TypeKind_Variant);
+
+	sl::MapIterator <Variant, DataPtr> it = m_hashTable.getHead ();
+	for (; it; it++)
+	{
+		variantType->markGcRoots (&it->m_key, gcHeap);
+		ptrType->markGcRoots (&it->m_value, gcHeap);
+	}
 }
 
 void
 JNC_CDECL
 HashTable::clear ()
 {
+	m_headPtr = g_nullPtr;
+	m_tailPtr = g_nullPtr;
+	m_count = 0;
+	m_hashTable.clear ();
 }
 
 DataPtr
-HashTable::visit (
-	HashTable* self,
-	Variant key
-	)
+HashTable::visitImpl (Variant key)
 {
-	return g_nullPtr;
-}
+	sl::MapIterator <Variant, DataPtr> it = m_hashTable.visit (key);
+	if (it->m_value.m_p)
+		return it->m_value;
 
-DataPtr
-HashTable::find (
-	HashTable* self,
-	Variant key
-	)
-{
-	return g_nullPtr;
+	Runtime* runtime = getCurrentThreadRuntime ();
+	Type* entryType = MapEntry::getType (runtime->getModule ());
+	DataPtr entryPtr = runtime->getGcHeap ()->allocateData (entryType);
+
+	MapEntry* entry = (MapEntry*) entryPtr.m_p;
+	entry->m_prevPtr = m_tailPtr;
+	entry->m_nextPtr = g_nullPtr;
+	entry->m_map = this;
+	entry->m_mapEntry = it.getEntry ();
+
+	if (!m_count)
+		m_headPtr = entryPtr;
+
+	m_tailPtr = entryPtr;
+
+	m_count++;
+	ASSERT (m_count == m_hashTable.getCount ());
+
+	it->m_value = entryPtr;
+	return entryPtr;
 }
 
 void
 JNC_CDECL
 HashTable::remove (DataPtr entryPtr)
 {
+	MapEntry* entry = (MapEntry*) entryPtr.m_p;
+	if (!entry || entry->m_map != this)
+	{
+		err::setError ("attempt to remove an invalid map entry from the hash table");
+		dynamicThrow ();
+	}
+
+	m_hashTable.erase ((sl::HashTableEntry <Variant, DataPtr>*) entry->m_mapEntry);
+
+	if (entry->m_prevPtr.m_p)
+	{
+		MapEntry* prev = (MapEntry*) entry->m_prevPtr.m_p;
+		prev->m_nextPtr = entry->m_nextPtr;
+	}
+	else
+	{
+		ASSERT (m_headPtr.m_p == entry);
+		m_headPtr = entry->m_nextPtr;
+	}
+
+	if (entry->m_nextPtr.m_p)
+	{
+		MapEntry* next = (MapEntry*) entry->m_nextPtr.m_p;
+		next->m_prevPtr = entry->m_prevPtr;
+	}
+	else
+	{
+		ASSERT (m_tailPtr.m_p == entry);
+		m_tailPtr = entry->m_prevPtr;
+	}
+
+	m_count--;
+	ASSERT (m_count == m_hashTable.getCount ());
 }
 
 //..............................................................................

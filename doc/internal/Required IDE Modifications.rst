@@ -18,6 +18,8 @@ Tokens have changed. Refer to ``jnc_ct_Lexer.rl`` for reference. Some notes:
 
 * ``anydata`` type modifier. This change in Jancy language was done long time ago, but since it's not used in IO Ninja scripts, I never have really noticed the lack of support for it in the IDE. ``anydata`` type specifier was added to create versatile (both POD and non-POD) data pointers (``void*`` is an abstact POD-pointer and can't be used to store pointers to non-POD-data. With ``anydata`` pointers you can store both -- at the cost of required ``dynamic`` casts). IDE-wise -- just add ``anydata`` type specifier and make it behave the same as ``void``.
 
+* ``cmut`` dual type modifier. This is the latest addition to dual modifiers in Jancy (it was planned for quite a while). The idea is to propagate container mutability to the types of fields and method return values. Think of a doubly-linked list -- if the entry pointer is const, next and prev pointers should also be const. In C++ it's requires to create a dedicated getter with two overloads for achieving the same (most other languages do not even have const semantics). IDE-wise -- just add ``cmut`` type modifier and make it behave the same as ``readonly``.
+
 * ``automaton`` removed, ``reswitch`` added (more on that later).
 
 * ``%% ...`` regex literals are gone, raw literals ``[rR]"..."`` are added. Raw literals are similar to Python raw literals (without escape decoding) are primarily dedicated for declaring regular expressions in ``reswitch`` statements. They may also come handly for declaring Windows paths -- no need to escape all ``\``-s or replace  them with ``/``-s.

@@ -1,8 +1,8 @@
 import "std_HashTable.jnc"
 
-size_t hashString_i (variant e)
+size_t hashString_i (variant v)
 {
-	char const* p = e;
+	char const* p = v;
 	char const* end = p + strlen (p);
 
 	size_t hash = 5381;
@@ -13,20 +13,23 @@ size_t hashString_i (variant e)
 	return hash;
 }
 
-int cmpString_i (
-	variant a1,
-	variant a2
+bool isEqualString_i (
+	variant v1, 
+	variant v2
 	)
 {
-	return stricmp ((char const*) a1, (char const*) a2);
+	return stricmp (v1, v2) == 0;
 }
 
 int main ()
 {
-	std.HashTable hashTable (hashString_i, cmpString_i);
+	std.HashTable hashTable (hashString_i, isEqualString_i);
 
+	printf ("pos 1\n");
 	hashTable ["user"] = "John Doe";
+	printf ("pos 2\n");
 	hashTable ["pass"] = "qwerty";
+	printf ("pos 3\n");
 
 	print ($"user: %1 password: %2\n" (hashTable ["USER"], hashTable ["PASS"]));
 	return 0;

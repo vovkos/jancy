@@ -19,6 +19,7 @@ namespace std {
 
 class HashTable;
 
+JNC_DECLARE_TYPE (MapEntry)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (HashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (StringHashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
@@ -27,13 +28,16 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
 
 struct MapEntry
 {
+	JNC_DECLARE_TYPE_STATIC_METHODS (MapEntry)
+
 	DataPtr m_nextPtr;
 	DataPtr m_prevPtr;
 
-	HashTable* m_hashTable;
-
 	Variant m_key;
 	Variant m_value;
+
+	void* m_map;
+	sl::MapEntry <Variant, DataPtr>* m_mapEntry;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,24 +55,70 @@ IsEqualFunc (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+class HashIndirect
+{
+protected:
+	HashFunc* m_func;
+
+public:
+	HashIndirect (HashFunc* func = NULL)
+	{
+		m_func = func;
+	}
+
+	size_t
+	operator () (const Variant& key) const
+	{
+		ASSERT (m_func);
+		return m_func (key);
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class IsEqualIndirect
+{
+protected:
+	IsEqualFunc* m_func;
+
+public:
+	IsEqualIndirect (IsEqualFunc* func = NULL)
+	{
+		m_func = func;
+	}
+
+	bool
+	operator () (
+		const Variant& key1,
+		const Variant& key2
+		) const
+	{
+		ASSERT (m_func);
+		return m_func (key1, key2);
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class HashTable: public IfaceHdr
 {
 public:
-	DataPtr m_head;
-	DataPtr m_tail;
+	DataPtr m_headPtr;
+	DataPtr m_tailPtr;
 	size_t m_count;
 
 protected:
-	HashFunc* m_hashFunc;
-	IsEqualFunc* m_isEqualFunc;
-		
+	sl::HashTable <Variant, DataPtr, HashIndirect, IsEqualIndirect> m_hashTable;
+
 public:
 	HashTable (
 		HashFunc* hashFunc,
 		IsEqualFunc* isEqualFunc
 		);
 
-	~HashTable ();
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (GcHeap* gcHeap);
 
 	void
 	JNC_CDECL
@@ -79,18 +129,28 @@ public:
 	visit (
 		HashTable* self,
 		Variant key
-		);
+		)
+	{
+		return self->visitImpl (key);
+	}
 
 	static
 	DataPtr
 	find (
 		HashTable* self,
 		Variant key
-		);
+		)
+	{
+		return self->m_hashTable.findValue (key, g_nullPtr);
+	}
 
 	void
 	JNC_CDECL
 	remove (DataPtr entryPtr);
+
+protected:
+	DataPtr
+	visitImpl (Variant key);
 };
 
 //..............................................................................

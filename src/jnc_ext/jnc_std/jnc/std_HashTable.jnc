@@ -22,10 +22,13 @@ namespace std {
 
 struct MapEntry
 {
+protected:
+	intptr_t readonly m_map;
+	intptr_t readonly m_it;
+
+public:
 	MapEntry cmut* readonly m_next;
 	MapEntry cmut* readonly m_prev;
-
-	intptr_t readonly m_validator;
 
 	variant readonly m_key;
 	variant m_value;
