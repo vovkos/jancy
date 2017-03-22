@@ -11,51 +11,13 @@
 
 #pragma once
 
-//..............................................................................
-
-// AXL
-
-#include "axl_mem_Block.h"
-#include "axl_err_Errno.h"
-#include "axl_sl_List.h"
-#include "axl_sl_ArrayList.h"
-#include "axl_sl_AutoPtrArray.h"
-#include "axl_sl_BitMap.h"
-#include "axl_sl_StringHashTable.h"
-#include "axl_sl_CmdLineParser.h"
-#include "axl_sl_BoxList.h"
-#include "axl_sl_ByteOrder.h"
-#include "axl_sl_HandleTable.h"
-#include "axl_sl_Singleton.h"
-#include "axl_sl_Construct.h"
-#include "axl_fsm_Regex.h"
-#include "axl_enc_HexEncoding.h"
-#include "axl_enc_EscapeEncoding.h"
-#include "axl_io_FilePathUtils.h"
-#include "axl_io_MappedFile.h"
-#include "axl_io_FilePathUtils.h"
-#include "axl_lex_RagelLexer.h"
-#include "axl_sys_Time.h"
-#include "axl_sys_Event.h"
-#include "axl_sys_Thread.h"
-#include "axl_sys_TlsMgr.h"
-#include "axl_sys_TlsSlot.h"
-#include "axl_sys_SjljTry.h"
-#include "axl_sys_DynamicLibrary.h"
-#include "axl_zip_ZipReader.h"
-
-#if (_AXL_OS_WIN)
-#	include "axl_sys_win_VirtualMemory.h"
-#elif (_AXL_OS_POSIX)
-#	include "axl_io_psx_Mapping.h"
-#	if (_AXL_OS_DARWIN)
-#		include "axl_sys_drw_Semaphore.h"
-#	else
-#		include "axl_sys_psx_Sem.h"
-#	endif
+#ifndef __STDC_LIMIT_MACROS
+#	define __STDC_LIMIT_MACROS 1
 #endif
 
-using namespace axl;
+#ifndef __STDC_CONSTANT_MACROS
+#	define __STDC_CONSTANT_MACROS 1
+#endif
 
 //..............................................................................
 
@@ -173,6 +135,52 @@ typedef DIFile* DIFile_vn;
 #endif
 
 } // namespace llvm
+
+//..............................................................................
+
+// AXL
+
+#include "axl_mem_Block.h"
+#include "axl_err_Errno.h"
+#include "axl_sl_List.h"
+#include "axl_sl_ArrayList.h"
+#include "axl_sl_AutoPtrArray.h"
+#include "axl_sl_BitMap.h"
+#include "axl_sl_StringHashTable.h"
+#include "axl_sl_CmdLineParser.h"
+#include "axl_sl_BoxList.h"
+#include "axl_sl_ByteOrder.h"
+#include "axl_sl_HandleTable.h"
+#include "axl_sl_Singleton.h"
+#include "axl_sl_Construct.h"
+#include "axl_fsm_Regex.h"
+#include "axl_enc_HexEncoding.h"
+#include "axl_enc_EscapeEncoding.h"
+#include "axl_io_FilePathUtils.h"
+#include "axl_io_MappedFile.h"
+#include "axl_io_FilePathUtils.h"
+#include "axl_lex_RagelLexer.h"
+#include "axl_sys_Time.h"
+#include "axl_sys_Event.h"
+#include "axl_sys_Thread.h"
+#include "axl_sys_TlsMgr.h"
+#include "axl_sys_TlsSlot.h"
+#include "axl_sys_SjljTry.h"
+#include "axl_sys_DynamicLibrary.h"
+#include "axl_zip_ZipReader.h"
+
+#if (_AXL_OS_WIN)
+#	include "axl_sys_win_VirtualMemory.h"
+#elif (_AXL_OS_POSIX)
+#	include "axl_io_psx_Mapping.h"
+#	if (_AXL_OS_DARWIN)
+#		include "axl_sys_drw_Semaphore.h"
+#	else
+#		include "axl_sys_psx_Sem.h"
+#	endif
+#endif
+
+using namespace axl;
 
 //..............................................................................
 
