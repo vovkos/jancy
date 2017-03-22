@@ -31,45 +31,47 @@ ThunkFunction::compile ()
 
 	bool result;
 
-	sl::Array <FunctionArg*> targetArgArray = m_targetFunction->getType ()->getArgArray ();
 	sl::Array <FunctionArg*> thunkArgArray = m_type->getArgArray ();
-
-	size_t targetArgCount = targetArgArray.getCount ();
 	size_t thunkArgCount = thunkArgArray.getCount ();
 
-	char buffer [256];
-	sl::Array <Value> argArray (ref::BufKind_Stack, buffer, sizeof (buffer));
-	argArray.setCount (targetArgCount);
+	char buffer1 [256];
+	sl::Array <Value> thunkArgValueArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	thunkArgValueArray.setCount (thunkArgCount);
 
-	m_module->m_functionMgr.internalPrologue (this);
+	m_module->m_functionMgr.internalPrologue (this, thunkArgValueArray, thunkArgCount);
 
-	llvm::Function::arg_iterator llvmArg = getLlvmFunction ()->arg_begin();
+	sl::Array <FunctionArg*> targetArgArray = m_targetFunction->getType ()->getArgArray ();
+	size_t targetArgCount = targetArgArray.getCount ();
 
-	// skip the first thunk argument (if needed)
+	// skip the first thunk argument if needed
 
+	size_t j = 0;
 	if (thunkArgCount != targetArgCount)
 	{
 		ASSERT (thunkArgCount == targetArgCount + 1);
-		thunkArgArray.remove (0);
-		llvmArg++;
+		AXL_TODO ("make sure we are skipping fat pointer closure in fat->thin thunk")
+		j = 1;
 	}
 
-	for (size_t i = 0; i < targetArgCount; i++, llvmArg++)
+	sl::BoxList <Value> targetArgValueList;
+	for (size_t i = 0; i < targetArgCount; i++, j++)
 	{
-		Value argValue ((llvm::Argument*) llvmArg, thunkArgArray [i]->getType ());
-		result = m_module->m_operatorMgr.castOperator (&argValue, targetArgArray [i]->getType ());
+		Value* argValue = targetArgValueList.insertTail ().p ();
+
+		result = m_module->m_operatorMgr.castOperator (
+			thunkArgValueArray [j], 
+			targetArgArray [i]->getType (),
+			argValue
+			);
+
 		if (!result)
 			return false;
-
-		argArray [i] = argValue;
 	}
 
 	Value returnValue;
-	m_module->m_llvmIrBuilder.createCall (
+	result = m_module->m_operatorMgr.callOperator (
 		m_targetFunction,
-		m_targetFunction->getType (),
-		argArray,
-		argArray.getCount (),
+		&targetArgValueList,
 		&returnValue
 		);
 
