@@ -11,6 +11,7 @@
 #...............................................................................
 
 brew update
+brew install coreutils
 brew install lua
 brew install ragel
 brew install p7zip

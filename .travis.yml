@@ -60,7 +60,7 @@ script:
     - cd $THIS_DIR
 
     - echo "if (NOT \"$CPP_STD\" STREQUAL \"\")" >> settings.cmake
-    - echo "    axl_override_setting (GCC_FLAG_CPP_STANDARD $CPP_STD)" >> settings.cmake
+    - echo "    axl_override_setting (GCC_FLAG_CPP_STANDARD -std=$CPP_STD)" >> settings.cmake
     - echo "endif ()" >> settings.cmake
 
     - mkdir axl/build

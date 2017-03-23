@@ -10,9 +10,15 @@
 #
 #...............................................................................
 
+if [ $TRAVIS_OS_NAME == "osx" ]; then
+	GNUSORT=gsort
+else
+	GNUSORT=sort
+fi
+
 isVersionGe ()
 {
-    [  $1 == `echo -e "$1\n$2" | sort -V -r | head -n1` ]
+    [  $1 == `echo -e "$1\n$2" | $GNUSORT -V -r | head -n1` ]
 }
 
 if isVersionGe $LLVM_VERSION 3.5; then
