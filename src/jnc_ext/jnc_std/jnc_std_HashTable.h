@@ -11,43 +11,23 @@
 
 #pragma once
 
-#include "jnc_ExtensionLib.h"
-#include "jnc_Variant.h"
+#include "jnc_std_Map.h"
 
 namespace jnc {
 namespace std {
 
-class HashTable;
-
-JNC_DECLARE_TYPE (MapEntry)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (HashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (StringHashTable)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (VariantHashTable)
 
 //..............................................................................
 
-struct MapEntry
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (MapEntry)
-
-	DataPtr m_nextPtr;
-	DataPtr m_prevPtr;
-
-	Variant m_key;
-	Variant m_value;
-
-	void* m_map;
-	sl::MapEntry <Variant, DataPtr>* m_mapEntry;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef 
-size_t 
+typedef
+size_t
 HashFunc (Variant key);
 
-typedef 
-bool 
+typedef
+bool
 IsEqualFunc (
 	Variant key1,
 	Variant key2
@@ -103,9 +83,7 @@ public:
 class HashTable: public IfaceHdr
 {
 public:
-	DataPtr m_headPtr;
-	DataPtr m_tailPtr;
-	size_t m_count;
+	Map m_map;
 
 protected:
 	sl::HashTable <Variant, DataPtr, HashIndirect, IsEqualIndirect> m_hashTable;
@@ -114,15 +92,18 @@ public:
 	HashTable (
 		HashFunc* hashFunc,
 		IsEqualFunc* isEqualFunc
-		);
+		):
+		m_hashTable (HashIndirect (hashFunc), IsEqualIndirect (isEqualFunc))
+	{
+	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (GcHeap* gcHeap);
-
-	void
-	JNC_CDECL
-	clear ();
+	clear ()
+	{
+		m_map.clear ();
+		m_hashTable.clear ();
+	}
 
 	static
 	DataPtr

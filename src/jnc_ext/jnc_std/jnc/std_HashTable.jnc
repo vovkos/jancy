@@ -13,6 +13,8 @@
 
 /// JNC_SELECT_ANY char g_std_HashTableSrc [] =
 
+import "std_MapEntry.jnc"
+
 namespace std {
 
 //! \addtogroup container
@@ -20,26 +22,14 @@ namespace std {
 
 //..............................................................................
 
-struct MapEntry
-{
-protected:
-	intptr_t readonly m_map;
-	intptr_t readonly m_it;
-
-public:
-	MapEntry cmut* readonly m_next;
-	MapEntry cmut* readonly m_prev;
-
-	variant readonly m_key;
-	variant m_value;
-}
-
 typedef size_t HashFunc (variant key);
 
 typedef bool IsEqualFunc (
 	variant key1,
 	variant key2
 	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HashTable
 {
@@ -99,7 +89,7 @@ opaque class HashTable
 	}
 
 	void remove (MapEntry* entry);
-	
+
 	bool removeKey (variant key)
 	{
 		MapEntry* entry = find (key);

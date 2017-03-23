@@ -1,0 +1,44 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+///+++
+
+/// JNC_SELECT_ANY char g_std_MapEntrySrc [] =
+
+namespace std {
+
+//! \addtogroup container
+//! @{
+
+//..............................................................................
+
+struct MapEntry
+{
+	MapEntry cmut* readonly m_next;
+	MapEntry cmut* readonly m_prev;
+
+	variant const m_key;
+	variant m_value;
+
+protected:
+	intptr_t const m_map;
+	intptr_t const m_it;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace std
+
+///;
+
+///---

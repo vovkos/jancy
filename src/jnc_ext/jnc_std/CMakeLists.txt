@@ -15,23 +15,27 @@
 
 set (
 	LIB_H_LIST
-	jnc_std_Array.h
 	jnc_std_Error.h
 	jnc_std_Buffer.h
 	jnc_std_String.h
-	jnc_std_HashTable.h
+	jnc_std_Array.h
 	jnc_std_List.h
+	jnc_std_Map.h
+	jnc_std_HashTable.h
+	jnc_std_RbTree.h
 	jnc_std_StdLib.h
 	)
 
 set (
 	LIB_CPP_LIST
-	jnc_std_Array.cpp
 	jnc_std_Error.cpp
 	jnc_std_Buffer.cpp
 	jnc_std_String.cpp
-	jnc_std_HashTable.cpp
+	jnc_std_Array.cpp
 	jnc_std_List.cpp
+	jnc_std_Map.cpp
+	jnc_std_HashTable.cpp
+	jnc_std_RbTree.cpp
 	jnc_std_StdLib.cpp
 	)
 
@@ -51,12 +55,14 @@ set (
 	JNC_LIST
 	jnc/.forced.jnc
 	jnc/std_globals.jnc
-	jnc/std_Array.jnc
 	jnc/std_Error.jnc
 	jnc/std_Buffer.jnc
 	jnc/std_String.jnc
-	jnc/std_HashTable.jnc
+	jnc/std_Array.jnc
 	jnc/std_List.jnc
+	jnc/std_MapEntry.jnc
+	jnc/std_HashTable.jnc
+	jnc/std_RbTree.jnc
 	)
 
 source_group (
@@ -82,12 +88,6 @@ add_perl_step (
 	)
 
 add_perl_step (
-	std_Array.jnc.cpp
-	jnc/std_Array.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step (
 	std_Error.jnc.cpp
 	jnc/std_Error.jnc
 	${JNC2CPP_PL}
@@ -106,8 +106,8 @@ add_perl_step (
 	)
 
 add_perl_step (
-	std_HashTable.jnc.cpp
-	jnc/std_HashTable.jnc
+	std_Array.jnc.cpp
+	jnc/std_Array.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -117,17 +117,37 @@ add_perl_step (
 	${JNC2CPP_PL}
 	)
 
+add_perl_step (
+	std_MapEntry.jnc.cpp
+	jnc/std_MapEntry.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
+	std_HashTable.jnc.cpp
+	jnc/std_HashTable.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step (
+	std_RbTree.jnc.cpp
+	jnc/std_RbTree.jnc
+	${JNC2CPP_PL}
+	)
+
 axl_pop (CMAKE_CURRENT_BINARY_DIR)
 
 set (
 	GEN_JNC_CPP_LIST
 	${GEN_DIR}/std_globals.jnc.cpp
-	${GEN_DIR}/std_Array.jnc.cpp
 	${GEN_DIR}/std_Error.jnc.cpp
 	${GEN_DIR}/std_Buffer.jnc.cpp
 	${GEN_DIR}/std_String.jnc.cpp
-	${GEN_DIR}/std_HashTable.jnc.cpp
+	${GEN_DIR}/std_Array.jnc.cpp
 	${GEN_DIR}/std_List.jnc.cpp
+	${GEN_DIR}/std_MapEntry.jnc.cpp
+	${GEN_DIR}/std_HashTable.jnc.cpp
+	${GEN_DIR}/std_RbTree.jnc.cpp
 	)
 
 axl_exclude_from_build (${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually

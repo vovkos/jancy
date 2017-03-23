@@ -11,37 +11,48 @@
 
 #pragma once
 
-#include "jnc_Def.h"
+#include "jnc_ExtensionLib.h"
+#include "jnc_Variant.h"
 
 namespace jnc {
 namespace std {
 
+struct Map;
+
+JNC_DECLARE_TYPE (MapEntry)
+
 //..............................................................................
 
-// {CBC2E0EE-A7D5-4DE4-96E5-2A403C6B14B5}
-JNC_DEFINE_GUID (
-	g_stdLibGuid,
-	0xcbc2e0ee, 0xa7d5, 0x4de4, 0x96, 0xe5, 0x2a, 0x40, 0x3c, 0x6b, 0x14, 0xb5
-	);
-
-enum StdLibCacheSlot
+struct MapEntry
 {
-	StdLibCacheSlot_Error,
-	StdLibCacheSlot_ConstBuffer,
-	StdLibCacheSlot_ConstBufferRef,
-	StdLibCacheSlot_BufferRef,
-	StdLibCacheSlot_Buffer,
-	StdLibCacheSlot_String,
-	StdLibCacheSlot_StringRef,
-	StdLibCacheSlot_StringBuilder,
-	StdLibCacheSlot_Array,
-	StdLibCacheSlot_ListEntry,
-	StdLibCacheSlot_List,
-	StdLibCacheSlot_MapEntry,
-	StdLibCacheSlot_HashTable,
-	StdLibCacheSlot_StringHashTable,
-	StdLibCacheSlot_VariantHashTable,
-	StdLibCacheSlot_RbTree,
+	JNC_DECLARE_TYPE_STATIC_METHODS (MapEntry)
+
+	DataPtr m_nextPtr;
+	DataPtr m_prevPtr;
+
+	Variant m_key;
+	Variant m_value;
+
+	Map* m_map;
+	sl::MapEntry <Variant, DataPtr>* m_mapEntry;
+};
+
+//..............................................................................
+
+struct Map
+{
+	DataPtr m_headPtr;
+	DataPtr m_tailPtr;
+	size_t m_count;
+
+	void
+	clear ();
+
+	DataPtr
+	add (const sl::MapIterator <Variant, DataPtr>& it);
+
+	void
+	remove (MapEntry* entry);
 };
 
 //..............................................................................
