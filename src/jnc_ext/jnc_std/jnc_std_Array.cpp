@@ -43,6 +43,7 @@ Array::clear ()
 {
 	Variant* p = (Variant*) m_ptr.m_p;
 	memset (p, 0, m_count * sizeof (Variant));
+	m_count = 0;
 }
 
 bool
@@ -122,7 +123,10 @@ Array::insert (
 		index = m_count;
 
 	Variant* p = (Variant*) m_ptr.m_p;
-	memmove (p + index + count, p + index, count * sizeof (Variant));
+
+	if (index < m_count)
+		memmove (p + index + count, p + index, (m_count - index) * sizeof (Variant));
+
 	memcpy (p, ptr.m_p, count * sizeof (Variant));
 	m_count = newCount;
 	return newCount;

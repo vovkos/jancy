@@ -13,18 +13,20 @@
 #include "jnc_std_StdLib.h"
 #include "jnc_CallSite.h"
 
+#include "jnc_std_Guid.h"
 #include "jnc_std_Error.h"
-#include "jnc_std_Buffer.h"
 #include "jnc_std_String.h"
+#include "jnc_std_Buffer.h"
 #include "jnc_std_Array.h"
 #include "jnc_std_List.h"
 #include "jnc_std_HashTable.h"
 #include "jnc_std_RbTree.h"
 
 #include "std_globals.jnc.cpp"
+#include "std_Guid.jnc.cpp"
 #include "std_Error.jnc.cpp"
-#include "std_Buffer.jnc.cpp"
 #include "std_String.jnc.cpp"
+#include "std_Buffer.jnc.cpp"
 #include "std_Array.jnc.cpp"
 #include "std_List.jnc.cpp"
 #include "std_MapEntry.jnc.cpp"
@@ -476,29 +478,24 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("perror",  jnc::std::perror)
 	JNC_MAP_FUNCTION ("printf",  jnc::std::printf)
 
+	JNC_MAP_TYPE (Guid)
 	JNC_MAP_TYPE (Error)
-	JNC_MAP_TYPE (ConstBuffer)
-	JNC_MAP_TYPE (ConstBufferRef)
-	JNC_MAP_TYPE (BufferRef)
-	JNC_MAP_TYPE (Buffer)
-	JNC_MAP_TYPE (String)
-	JNC_MAP_TYPE (StringRef)
 	JNC_MAP_TYPE (StringBuilder)
+	JNC_MAP_TYPE (Buffer)
 	JNC_MAP_TYPE (Array)
 	JNC_MAP_TYPE (ListEntry)
 	JNC_MAP_TYPE (List)
 	JNC_MAP_TYPE (MapEntry)
 	JNC_MAP_TYPE (HashTable)
-	JNC_MAP_TYPE (StringHashTable)
-	JNC_MAP_TYPE (VariantHashTable)
 	JNC_MAP_TYPE (RbTree)
 JNC_END_LIB_FUNCTION_MAP ()
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_StdLib)
 	JNC_LIB_SOURCE_FILE ("std_globals.jnc",   g_std_globalsSrc)
+	JNC_LIB_SOURCE_FILE ("std_Guid.jnc",      g_std_GuidSrc)
 	JNC_LIB_SOURCE_FILE ("std_Error.jnc",     g_std_ErrorSrc)
-	JNC_LIB_SOURCE_FILE ("std_Buffer.jnc",    g_std_BufferSrc)
 	JNC_LIB_SOURCE_FILE ("std_String.jnc",    g_std_StringSrc)
+	JNC_LIB_SOURCE_FILE ("std_Buffer.jnc",    g_std_BufferSrc)
 	JNC_LIB_SOURCE_FILE ("std_Array.jnc",     g_std_ArraySrc)
 	JNC_LIB_SOURCE_FILE ("std_List.jnc",      g_std_ListSrc)
 	JNC_LIB_SOURCE_FILE ("std_MapEntry.jnc",  g_std_MapEntrySrc)
@@ -511,8 +508,6 @@ JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_StdLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (HashTable)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (StringHashTable)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (VariantHashTable)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RbTree)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 

@@ -136,7 +136,7 @@ class List
 		Equivalent to ``insertTail``.
 	*/
 
-	ListEntry* add (variant data)
+	ListEntry* errorcode add (variant data)
 	{
 		return insertTail (data);
 	}
@@ -147,7 +147,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* insertHead (variant data);
+	ListEntry* errorcode insertHead (variant data);
 
 	/**
 		Inserts item ``data`` to the tail of the list.
@@ -155,7 +155,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* insertTail (variant data);
+	ListEntry* errorcode insertTail (variant data);
 
 	/**
 		Inserts item ``data`` before the item entry pointed to by ``entry`` argument.
@@ -165,7 +165,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* insertBefore (
+	ListEntry* errorcode insertBefore (
 		variant item,
 		ListEntry* before
 		);
@@ -178,7 +178,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* insertAfter (
+	ListEntry* errorcode insertAfter (
 		variant item,
 		ListEntry* before
 		);

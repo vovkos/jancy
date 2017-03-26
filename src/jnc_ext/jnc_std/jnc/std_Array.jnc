@@ -22,7 +22,7 @@ namespace std {
 
 class Array
 {
-	variant* readonly m_p;
+	variant cmut* readonly m_p;
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 
@@ -46,22 +46,22 @@ class Array
 	bool errorcode setCount (size_t count);
 	bool errorcode reserve (size_t count);
 
-	size_t copy (
+	size_t errorcode copy (
 		variant const* p,
 		size_t count
 		);
 
-	size_t copy (variant e)
+	size_t errorcode copy (variant e)
 	{
 		return copy (&e, 1);
 	}
 
-	size_t append (variant e)
+	size_t errorcode append (variant e)
 	{
 		return insert (-1, &e, 1);
 	}
 
-	size_t append (
+	size_t errorcode append (
 		variant const* p,
 		size_t count
 		)
@@ -69,13 +69,13 @@ class Array
 		return insert (-1, p, count);
 	}
 
-	size_t insert (
+	size_t errorcode insert (
 		size_t index,
 		variant const* p,
 		size_t count
 		);
 
-	size_t insert (
+	size_t errorcode insert (
 		size_t index,
 		variant e
 		)
@@ -85,7 +85,7 @@ class Array
 
 	size_t remove (
 		size_t index,
-		size_t count
+		size_t count = 1
 		);
 
 protected:

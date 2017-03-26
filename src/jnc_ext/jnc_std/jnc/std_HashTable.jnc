@@ -31,193 +31,6 @@ typedef bool IsEqualFunc (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class HashTable
-{
-	MapEntry cmut* readonly m_head;
-	MapEntry cmut* readonly m_tail;
-	size_t readonly m_count;
-
-	construct (
-		HashFunc thin* hashFunc = null,
-		IsEqualFunc thin* isEqualFunc = null
-		);
-
-	destruct ();
-
-	bool const property m_isEmpty;
-
-	bool m_isEmpty.get ()
-	{
-		return m_count == 0;
-	}
-
-	variant get (variant key)
-	{
-		return findValue (key, null);
-	}
-
-	set (
-		variant key,
-		variant value
-		)
-	{
-		add (key, value);
-	}
-
-	clear ();
-
-	MapEntry* visit (variant key);
-	MapEntry cmut* find (variant key) const;
-
-	variant findValue (
-		variant key,
-		variant undefinedValue
-		) const
-	{
-		MapEntry* entry = find (key);
-		return entry ? entry.m_value : undefinedValue;
-	}
-
-	MapEntry* add (
-		variant key,
-		variant value
-		)
-	{
-		MapEntry* entry = visit (key);
-		entry.m_value = value;
-		return entry;
-	}
-
-	void remove (MapEntry* entry);
-
-	bool removeKey (variant key)
-	{
-		MapEntry* entry = find (key);
-		if (!entry)
-			return false;
-
-		remove (entry);
-		return true;
-	}
-}
-
-//..............................................................................
-
-/**
-	\import std_HashTable.jnc
-
-	\brief This class provides a hash-table-based mapping from null-terminated strings to ``variant``-s.
-
-	``std.StringHashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.
-
-	A typical sequence of steps when working with a hash table usually looks like this:
-
-	* Add ``(key; value)`` pairs using ``insert`` method (or by writing to ``m_map`` property);
-	* Remove ``(key; value)`` pairs using ``remove`` method;
-	* Find ``value`` associated with a ``key`` using ``find`` method (or by reading from ``m_map`` property).
-
-	.. rubric:: Sample code:
-
-	.. ref-code-block::
-
-		std.StringHashTable hashTable;
-
-		hashTable ["name"] = "John";
-		hashTable ["surname"] = "Smith";
-
-		printf (
-			$"name: %1 surname: %2\n" (
-			hashTable.find ("name"),
-			hashTable.find ("surname")
-			));
-*/
-
-opaque class StringHashTable
-{
-	construct ();
-	destruct ();
-
-	/**
-		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
-	*/
-
-	variant get (char const* key)
-	{
-		return find (key);
-	}
-
-	set (
-		char const* key,
-		variant value
-		)
-	{
-		insert (key, value);
-	}
-
-	/**
-		Returns ``true`` if hash table is empty; ``false`` otherwise.
-	*/
-
-	bool const property m_isEmpty;
-
-	/**
-		Remove all entries from the hash table.
-	*/
-
-	clear ();
-
-	/**
-		Looks up a value associated with the key ``key``.
-
-		If the value is found, it is copied to the buffer pointed to by ``value``; then ``find`` method returns ``true``.
-
-		Returns ``false`` if key ``key`` is not found.
-	*/
-
-	bool find (
-		char const* key,
-		variant* value
-		) const;
-
-	/**
-		Looks up a value associated with the key ``key``.
-
-		Returns the found value or ``null`` if the value is not found.
-
-		The limitation of this overload is that it's impossible to distinguish between ``null`` being stored as a value associated with ``key`` and ``null`` returned as an indication of *key-not-found*.
-	*/
-
-	variant find (char const* key) const
-	{
-		variant value;
-		find (key, &value);
-		return value;
-	}
-
-	/**
-		Inserts a new ``(key; value)`` pair into the hash.
-
-		If ``key`` is already in the hash, ``insert`` re-writes the value of existing association with the new value specified by the ``value`` argument.
-	*/
-
-	insert (
-		char const* key,
-		variant value
-		);
-
-	/**
-		Finds and deletes ``key`` from the hash.
-
-		Returns ``true`` if ``key`` was found and ``(key; value)`` pair successfully deleted.
-
-		Returns ``false`` if ``key`` was not found.
-	*/
-
-	bool remove (char const* key);
-}
-
-//..............................................................................
-
 /**
 	\import std_HashTable.jnc
 
@@ -254,27 +67,18 @@ opaque class StringHashTable
 		printf ($"state: $(hashTable.m_map [state])\n");
 */
 
-opaque class VariantHashTable
+opaque class HashTable
 {
-	construct ();
+	MapEntry cmut* readonly m_head;
+	MapEntry cmut* readonly m_tail;
+	size_t readonly m_count;
+
+	construct (
+		HashFunc thin* hashFunc = null,
+		IsEqualFunc thin* isEqualFunc = null
+		);
+
 	destruct ();
-
-	/**
-		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
-	*/
-
-	variant get (variant key)
-	{
-		return find (key);
-	}
-
-	set (
-		variant key,
-		variant value
-		)
-	{
-		insert (key, value);
-	}
 
 	/**
 		Returns ``true`` if hash table is empty; ``false`` otherwise.
@@ -282,11 +86,35 @@ opaque class VariantHashTable
 
 	bool const property m_isEmpty;
 
+	bool m_isEmpty.get ()
+	{
+		return m_count == 0;
+	}
+
+	/**
+		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
+	*/
+
+	variant get (variant key)
+	{
+		return findValue (key, null);
+	}
+
+	set (
+		variant key,
+		variant value
+		)
+	{
+		add (key, value);
+	}
+
 	/**
 		Remove all entries from the hash table.
 	*/
 
 	clear ();
+
+	MapEntry* errorcode visit (variant key);
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -296,10 +124,7 @@ opaque class VariantHashTable
 		Returns ``false`` if key ``key`` is not found.
 	*/
 
-	bool find (
-		variant key,
-		variant* value
-		) const;
+	MapEntry cmut* find (variant key) const;
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -309,33 +134,50 @@ opaque class VariantHashTable
 		The limitation of this overload is that it's impossible to distinguish between ``null`` being stored as a value associated with ``key`` and ``null`` returned as an indication of *key-not-found*.
 	*/
 
-	variant find (variant key) const
+	variant findValue (
+		variant key,
+		variant undefinedValue
+		) const
 	{
-		variant value;
-		find (key, &value);
-		return value;
+		MapEntry* entry = find (key);
+		return entry ? entry.m_value : undefinedValue;
 	}
 
 	/**
-		Inserts a new ``(key; value)`` pair into the hash.
+		Adds a new ``(key; value)`` pair into the hash table.
 
 		If ``key`` is already in the hash, ``insert`` re-writes the value of existing association with the new value specified by the ``value`` argument.
 	*/
 
-	insert (
+	MapEntry* errorcode add (
 		variant key,
 		variant value
-		);
+		)
+	{
+		MapEntry* entry = visit (key);
+		entry.m_value = value;
+		return entry;
+	}
+
+	void remove (MapEntry* entry);
 
 	/**
-		Finds and deletes ``key`` from the hash.
+		Finds and deletes ``key`` from the hash table.
 
 		Returns ``true`` if ``key`` was found and ``(key; value)`` pair successfully deleted.
 
 		Returns ``false`` if ``key`` was not found.
 	*/
 
-	bool remove (variant key);
+	bool removeKey (variant key)
+	{
+		MapEntry* entry = find (key);
+		if (!entry)
+			return false;
+
+		remove (entry);
+		return true;
+	}
 }
 
 //..............................................................................

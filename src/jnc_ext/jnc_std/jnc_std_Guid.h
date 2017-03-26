@@ -16,56 +16,13 @@
 namespace jnc {
 namespace std {
 
-class Buffer;
-
-JNC_DECLARE_CLASS_TYPE (Buffer)
+JNC_DECLARE_TYPE (Guid)
 
 //..............................................................................
 
-class Buffer: public IfaceHdr
+struct Guid: sl::Guid
 {
-public:
-	DataPtr m_ptr;
-	size_t m_size;
-	size_t m_maxSize;
-
-public:
-	void
-	JNC_CDECL
-	clear ()
-	{
-		m_size = 0;
-	}
-
-	bool
-	JNC_CDECL
-	setSize (size_t size);
-
-	bool
-	JNC_CDECL
-	reserve (size_t size);
-
-	size_t
-	JNC_CDECL
-	copy (
-		DataPtr ptr,
-		size_t size
-		);
-
-	size_t
-	JNC_CDECL
-	insert (
-		size_t offset,
-			DataPtr ptr,
-		size_t size
-		);
-
-	size_t
-	JNC_CDECL
-	remove (
-		size_t offset,
-		size_t size
-		);
+	JNC_DECLARE_TYPE_STATIC_METHODS (Guid)
 };
 
 //..............................................................................

@@ -19,34 +19,6 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	StringRef,
-	"std.StringRef",
-	g_stdLibGuid,
-	StdLibCacheSlot_StringRef
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (StringRef)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DEFINE_TYPE (
-	String,
-	"std.String",
-	g_stdLibGuid,
-	StdLibCacheSlot_String
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (String)
-	JNC_MAP_FUNCTION ("ensureZeroTerminated", &String::ensureZeroTerminated_s)
-	JNC_MAP_FUNCTION ("getZeroTerminatedString", &String::getZeroTerminatedString_s)
-	JNC_MAP_FUNCTION ("copy", &String::copy_s1)
-	JNC_MAP_OVERLOAD (&String::copy_s2)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 JNC_DEFINE_CLASS_TYPE (
 	StringBuilder,
 	"std.StringBuilder",
@@ -55,64 +27,39 @@ JNC_DEFINE_CLASS_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (StringBuilder)
+	JNC_MAP_FUNCTION ("clear", &StringBuilder::clear)
+	JNC_MAP_FUNCTION ("reserve", &StringBuilder::reserve)
 	JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
-	JNC_MAP_FUNCTION ("append", &StringBuilder::append)
+	JNC_MAP_FUNCTION ("insert", &StringBuilder::insert)
+	JNC_MAP_FUNCTION ("remove", &StringBuilder::remove)
+	JNC_MAP_FUNCTION ("detachString", &StringBuilder::detachString)
+	JNC_MAP_FUNCTION ("cloneString", &StringBuilder::cloneString)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
-String
-String::getZeroTerminatedString ()
-{
-	String resultString = *this;
-	resultString.ensureZeroTerminated ();
-	return resultString;
-}
-
 bool
-String::copy (StringRef ref)
+JNC_CDECL
+StringBuilder::reserve (size_t length)
 {
-	if (!ref.m_isFinal)
-		return copy (ref.m_ptr, ref.m_length);
-
-	m_ptr = ref.m_ptr;
-	m_length = ref.m_length;
-	return true;
-}
-
-bool
-String::copy (
-	DataPtr ptr,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = strLen (ptr);
-
-	if (!length)
-	{
-		m_ptr.m_p = (void*) "";
-		m_length = 0;
+	if (length <= m_maxLength)
 		return true;
-	}
+
+	size_t size = sl::getMinPower2Gt (length); // reserve space for null
+	ASSERT (size > length);
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
-
-	DataPtr newPtr = gcHeap->tryAllocateBuffer (length + 1);
-	if (!newPtr.m_p)
+	DataPtr ptr = gcHeap->tryAllocateBuffer (size);
+	if (!ptr.m_p)
 		return false;
 
-	memcpy (newPtr.m_p, ptr.m_p, length);
-
-	m_ptr = newPtr;
-	m_length = length;
+	memcpy (ptr.m_p, m_ptr.m_p, m_length);
+	m_ptr = ptr;
+	m_maxLength = size - 1;
 	return true;
 }
 
-//..............................................................................
-
-bool
+size_t
 JNC_CDECL
 StringBuilder::copy (
 	DataPtr ptr,
@@ -122,17 +69,19 @@ StringBuilder::copy (
 	if (length == -1)
 		length = strLen (ptr);
 
-	bool result = setLength (length, false);
+	bool result = reserve (length);
 	if (!result)
-		return false;
+		return -1;
 
 	memcpy (m_ptr.m_p, ptr.m_p, length);
-	return true;
+	m_length = length;
+	return length;
 }
 
-bool
+size_t
 JNC_CDECL
-StringBuilder::append (
+StringBuilder::insert (
+	size_t offset,
 	DataPtr ptr,
 	size_t length
 	)
@@ -140,44 +89,81 @@ StringBuilder::append (
 	if (length == -1)
 		length = strLen (ptr);
 
-	size_t prevLength = m_length;
-
-	bool result = setLength (prevLength + length, true);
+	size_t newLength = m_length + length;
+	bool result = reserve (newLength);
 	if (!result)
-		return false;
+		return -1;
 
-	memcpy ((char*) m_ptr.m_p + prevLength, ptr.m_p, length);
-	return true;
+	if (offset > m_length)
+		offset = m_length;
+
+	char* p = (char*) m_ptr.m_p;
+
+	if (offset < m_length)
+		memmove (p + offset + length, p + offset, m_length - offset);
+
+	memcpy (p, ptr.m_p, length);
+	m_length = newLength;
+	return newLength;
 }
 
-bool
-StringBuilder::setLength (
-	size_t length,
-	bool saveContents
+size_t
+JNC_CDECL
+StringBuilder::remove (
+	size_t offset,
+	size_t length
 	)
 {
-	if (length <= m_maxLength)
+	if (offset > m_length)
+		offset = m_length;
+
+	size_t maxRemoveSize = m_length - offset;
+	if (length > maxRemoveSize)
+		length = maxRemoveSize;
+
+	if (!length)
+		return m_length;
+
+	size_t newLength = m_length - length;
+	size_t tailIdx = offset + length;
+	char* p = (char*) m_ptr.m_p;
+	memmove (p + offset, p + tailIdx, m_length - tailIdx);
+	m_length = newLength;
+	return newLength;
+}
+
+DataPtr
+StringBuilder::detachString (StringBuilder* self)
+{
+	if (!self->m_maxLength)
 	{
-		((char*) m_ptr.m_p) [length] = 0;
-		m_length = length;
-		return true;
+		GcHeap* gcHeap = getCurrentThreadGcHeap ();
+		return gcHeap->tryAllocateBuffer (1); // empty string + null
 	}
 
+	((char*) self->m_ptr.m_p) [self->m_length] = 0;
+
+	DataPtr ptr = self->m_ptr;
+	self->m_ptr = g_nullPtr;
+	self->m_length = 0;
+	self->m_maxLength = 0;
+
+	return ptr;
+}
+
+DataPtr
+StringBuilder::cloneString (StringBuilder* self)
+{
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	if (!self->m_maxLength)
+		return gcHeap->tryAllocateBuffer (1); // empty string + null
 
-	size_t maxLength = sl::getMinPower2Gt (length);
-	DataPtr newPtr = gcHeap->tryAllocateBuffer (maxLength + 1);
-	if (!newPtr.m_p)
-		return false;
+	DataPtr ptr = gcHeap->tryAllocateBuffer (self->m_length + 1);
+	if (!ptr.m_p)
+		return g_nullPtr;
 
-	if (saveContents)
-		memcpy (newPtr.m_p, m_ptr.m_p, m_length);
-
-	m_ptr = newPtr;
-	m_length = length;
-	m_maxLength = maxLength;
-	return true;
+	memcpy (ptr.m_p, self->m_ptr.m_p, self->m_length);
+	return ptr;
 }
 
 //..............................................................................

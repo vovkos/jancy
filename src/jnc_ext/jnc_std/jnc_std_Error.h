@@ -22,6 +22,8 @@ JNC_DECLARE_TYPE (Error)
 
 struct Error: err::ErrorHdr
 {
+	JNC_DECLARE_TYPE_STATIC_METHODS (Error)
+
 	DataPtr
 	getDescription ();
 

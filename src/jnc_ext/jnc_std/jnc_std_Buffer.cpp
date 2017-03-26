@@ -19,45 +19,7 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	ConstBufferRef,
-	"std.ConstBufferRef",
-	g_stdLibGuid,
-	StdLibCacheSlot_ConstBufferRef
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBufferRef)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DEFINE_TYPE (
-	ConstBuffer,
-	"std.ConstBuffer",
-	g_stdLibGuid,
-	StdLibCacheSlot_ConstBuffer
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (ConstBuffer)
-	JNC_MAP_FUNCTION ("copy", &ConstBuffer::copy_s1)
-	JNC_MAP_OVERLOAD (&ConstBuffer::copy_s2)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DEFINE_TYPE (
-	BufferRef,
-	"std.BufferRef",
-	g_stdLibGuid,
-	StdLibCacheSlot_BufferRef
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (BufferRef)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DEFINE_TYPE (
+JNC_DEFINE_CLASS_TYPE (
 	Buffer,
 	"std.Buffer",
 	g_stdLibGuid,
@@ -65,109 +27,123 @@ JNC_DEFINE_TYPE (
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Buffer)
+	JNC_MAP_FUNCTION ("clear", &Buffer::clear)
+	JNC_MAP_FUNCTION ("setSize", &Buffer::setSize)
+	JNC_MAP_FUNCTION ("reserve", &Buffer::reserve)
 	JNC_MAP_FUNCTION ("copy", &Buffer::copy)
-	JNC_MAP_FUNCTION ("append", &Buffer::append)
+	JNC_MAP_FUNCTION ("insert", &Buffer::insert)
+	JNC_MAP_FUNCTION ("remove", &Buffer::remove)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
 bool
-ConstBuffer::copy (ConstBufferRef ref)
+JNC_CDECL
+Buffer::setSize (size_t size)
 {
-	if (!ref.m_isFinal)
-		return copy (ref.m_ptr, ref.m_size);
-
-	m_ptr = ref.m_ptr;
-	m_size = ref.m_size;
-	return true;
-}
-
-bool
-ConstBuffer::copy (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	if (!size)
-	{
-		m_ptr = g_nullPtr;
-		m_size = 0;
+	if (size == m_size)
 		return true;
+
+	if (size > m_maxSize)
+	{
+		bool result = reserve (size);
+		if (!result)
+			return false;
+	}
+	else if (size > m_size)
+	{
+		memset ((char*) m_ptr.m_p + m_size, 0, size - m_size);
 	}
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
-
-	m_ptr = gcHeap->tryAllocateBuffer (size + 1);
-	if (!m_ptr.m_p)
-		return false;
-
-	memcpy (m_ptr.m_p, ptr.m_p, size);
+	m_size = size;
 	return true;
 }
 
-//..............................................................................
-
 bool
+JNC_CDECL
+Buffer::reserve (size_t size)
+{
+	if (size <= m_maxSize)
+		return true;
+
+	size_t maxSize = sl::getMinPower2Ge (size);
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	DataPtr ptr = gcHeap->tryAllocateBuffer (maxSize);
+	if (!ptr.m_p)
+		return false;
+
+	memcpy (ptr.m_p, m_ptr.m_p, m_size);
+	m_ptr = ptr;
+	m_maxSize = maxSize;
+	return true;
+}
+
+size_t
 JNC_CDECL
 Buffer::copy (
 	DataPtr ptr,
 	size_t size
 	)
 {
-	bool result = setSize (size, false);
+	bool result = reserve (size);
 	if (!result)
-		return false;
+		return -1;
 
 	memcpy (m_ptr.m_p, ptr.m_p, size);
-	return true;
+	m_size = size;
+	return size;
 }
 
-bool
+size_t
 JNC_CDECL
-Buffer::append (
+Buffer::insert (
+	size_t offset,
 	DataPtr ptr,
 	size_t size
 	)
 {
-	size_t prevSize = m_size;
-
-	bool result = setSize (prevSize + size, true);
+	size_t newSize = m_size + size;
+	bool result = reserve (newSize);
 	if (!result)
-		return false;
+		return -1;
 
-	memcpy ((char*) m_ptr.m_p + prevSize, ptr.m_p, size);
-	return true;
+	if (offset > m_size)
+		offset = m_size;
+
+	char* p = (char*) m_ptr.m_p;
+
+	if (offset < m_size)
+		memmove (p + offset + size, p + offset, m_size - offset);
+
+	memcpy (p, ptr.m_p, size);
+	m_size = newSize;
+	return newSize;
 }
 
-bool
-Buffer::setSize (
-	size_t size,
-	bool saveContents
+size_t
+JNC_CDECL
+Buffer::remove (
+	size_t offset,
+	size_t size
 	)
 {
-	if (size <= m_maxSize)
-	{
-		((char*) m_ptr.m_p) [size] = 0;
-		m_size = size;
-		return true;
-	}
+	if (offset > m_size)
+		offset = m_size;
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	size_t maxRemoveSize = m_size - offset;
+	if (size > maxRemoveSize)
+		size = maxRemoveSize;
 
-	size_t maxSize = sl::getMinPower2Gt (size);
-	DataPtr newPtr = gcHeap->tryAllocateBuffer (maxSize + 1);
-	if (!newPtr.m_p)
-		return false;
+	if (!size)
+		return m_size;
 
-	if (saveContents)
-		memcpy (newPtr.m_p, m_ptr.m_p, m_size);
-
-	m_ptr = newPtr;
-	m_size = size;
-	m_maxSize = maxSize;
-	return true;
+	size_t newSize = m_size - size;
+	size_t tailIdx = offset + size;
+	char* p = (char*) m_ptr.m_p;
+	memmove (p + offset, p + tailIdx, m_size - tailIdx);
+	m_size = newSize;
+	return newSize;
 }
 
 //..............................................................................

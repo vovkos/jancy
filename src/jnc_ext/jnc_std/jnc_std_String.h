@@ -16,81 +16,9 @@
 namespace jnc {
 namespace std {
 
-JNC_DECLARE_TYPE (StringRef)
-JNC_DECLARE_TYPE (String)
+class StringBuilder;
+
 JNC_DECLARE_CLASS_TYPE (StringBuilder)
-
-//..............................................................................
-
-struct StringRef
-{
-	DataPtr m_ptr;
-	size_t m_length;
-	bool m_isFinal;
-};
-
-//..............................................................................
-
-struct String
-{
-	DataPtr m_ptr;
-	size_t m_length;
-
-	bool
-	ensureZeroTerminated ()
-	{
-		return !m_ptr.m_p || ((char*) m_ptr.m_p) [m_length] != 0 ?
-			copy (m_ptr, m_length) :
-			true;
-	}
-
-	String
-	getZeroTerminatedString ();
-
-	bool
-	copy (StringRef ref);
-
-	bool
-	copy (
-		DataPtr ptr,
-		size_t length
-		);
-
-	static
-	bool
-	ensureZeroTerminated_s (DataPtr selfPtr)
-	{
-		return ((String*) selfPtr.m_p)->ensureZeroTerminated ();
-	}
-
-	static
-	String
-	getZeroTerminatedString_s (DataPtr selfPtr)
-	{
-		return ((String*) selfPtr.m_p)->getZeroTerminatedString ();
-	}
-
-	static
-	bool
-	copy_s1 (
-		DataPtr selfPtr,
-		StringRef ref
-		)
-	{
-		return ((String*) selfPtr.m_p)->copy (ref);
-	}
-
-	static
-	bool
-	copy_s2 (
-		DataPtr selfPtr,
-		DataPtr ptr,
-		size_t length
-		)
-	{
-		return ((String*) selfPtr.m_p)->copy (ptr, length);
-	}
-};
 
 //..............................................................................
 
@@ -102,26 +30,46 @@ public:
 	size_t m_maxLength;
 
 public:
+	void
+	JNC_CDECL
+	clear ()
+	{
+		m_length = 0;
+	}
+
 	bool
+	JNC_CDECL
+	reserve (size_t size);
+
+	size_t
 	JNC_CDECL
 	copy (
 		DataPtr ptr,
 		size_t length
 		);
 
-	bool
+	size_t
 	JNC_CDECL
-	append (
+	insert (
+		size_t offset,
 		DataPtr ptr,
 		size_t length
 		);
 
-protected:
-	bool
-	setLength (
-		size_t length,
-		bool saveContents
+	size_t
+	JNC_CDECL
+	remove (
+		size_t offset,
+		size_t length
 		);
+
+	static
+	DataPtr
+	detachString (StringBuilder* self);
+
+	static
+	DataPtr
+	cloneString (StringBuilder* self);
 };
 
 //..............................................................................

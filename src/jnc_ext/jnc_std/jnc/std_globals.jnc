@@ -113,7 +113,7 @@ char const* strstr (
 	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* strcat (
+char const* errorcode strcat (
 	char const* p1,
 	char const* p2
 	);
@@ -126,7 +126,7 @@ char const* strcat (
 	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* strdup (
+char const* errorcode strdup (
 	char const* p,
 	size_t length = -1
 	);
@@ -206,7 +206,7 @@ void memset (
 	Returns ``null`` if the buffer for the new memory block could not be allocated.
 */
 
-void* memcat (
+void* errorcode memcat (
 	void const* p1,
 	size_t size1,
 	void const* p2,
@@ -221,7 +221,7 @@ void* memcat (
 	Returns ``null`` if the buffer for the new memory block could not be allocated.
 */
 
-void* memdup (
+void* errorcode memdup (
 	void const* p,
 	size_t size
 	);
@@ -286,7 +286,7 @@ long strtol (
 	Returns the resulting string, or a ``null`` if an error occurs.
 
 	Length of the string can be discovered using `strlen` or, better, with ``dynamic sizeof``::
-		
+
 		char* s = gets ();
 		size_t length = dynamic sizeof (s) - 1;
 */
@@ -302,7 +302,7 @@ char* gets ();
 size_t print (char const* text);
 
 /**
-	Prints error message to the standard eror stream. 
+	Prints error message to the standard eror stream.
 
 	Unlike its standard C library counterpart, does not follow the message with ``: <errno decription>``. If you need the last error description, inject it using formatting literals and the ``$!`` placeholder.
 
@@ -343,7 +343,7 @@ namespace std {
 
 */
 
-char const* cdecl format (
+char const* cdecl errorcode format (
 	char const* fmtSpecifier,
 	...
 	);

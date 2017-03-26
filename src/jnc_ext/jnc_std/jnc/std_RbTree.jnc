@@ -70,7 +70,7 @@ opaque class RbTree
 
 	clear ();
 
-	MapEntry* visit (variant key);
+	MapEntry* errorcode visit (variant key);
 	MapEntry cmut* find (variant key) const;
 
 	MapEntry cmut* find (
@@ -97,7 +97,7 @@ opaque class RbTree
 		return entry ? entry.m_value : undefinedValue;
 	}
 
-	MapEntry* add (
+	MapEntry* errorcode add (
 		variant key,
 		variant value
 		)

@@ -23,9 +23,9 @@ int main ()
 	stringBuilder += "i ";
 	stringBuilder += "muravei!";
 
-	std.String string = stringBuilder;
+	char const* string = stringBuilder.detachString ();
 
-	printf ("string = '%s'\n", string.m_p);
+	printf ("string = '%s'\n", string);
 
 	return 0;
 }

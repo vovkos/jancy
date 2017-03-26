@@ -9,20 +9,26 @@
 //
 //..............................................................................
 
-import "std_String.jnc"
+#include "pch.h"
+#include "jnc_std_Guid.h"
+#include "jnc_std_StdLib.h"
+
+namespace jnc {
+namespace std {
 
 //..............................................................................
 
-int main ()
-{
-	printf ("main\n");
+JNC_DEFINE_TYPE (
+	Guid,
+	"std.Guid",
+	g_stdLibGuid,
+	StdLibCacheSlot_Guid
+	)
 
-	std.String s1 = "abc";
-	std.String s2 = "def";
-
-	printf ("s1 = %s s2 = %s\n", s1, s2);
-
-	return 0;
-}
+JNC_BEGIN_TYPE_FUNCTION_MAP (Guid)
+JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
+
+} // namespace std
+} // namespace jnc

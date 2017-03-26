@@ -26,6 +26,7 @@ JNC_DEFINE_GUID (
 
 enum StdLibCacheSlot
 {
+	StdLibCacheSlot_Guid,
 	StdLibCacheSlot_Error,
 	StdLibCacheSlot_ConstBuffer,
 	StdLibCacheSlot_ConstBufferRef,
