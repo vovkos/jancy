@@ -149,7 +149,7 @@ target_compile_definitions (
 set_target_properties (
 	jnc_io_base
 	PROPERTIES
-	OUTPUT_NAME io_base-${AXL_CPU}
+	OUTPUT_NAME io_base-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
@@ -216,7 +216,7 @@ add_custom_target (
 	jnc_io_base_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_base.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_base-${AXL_CPU}.bin
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_base-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_base
 	)
@@ -225,6 +225,13 @@ set_target_properties (
 	jnc_io_base_jncx
 	PROPERTIES
 	FOLDER extensions
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	FILES ${BIN_DIR}/io_base.jncx
+	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 
 #...............................................................................

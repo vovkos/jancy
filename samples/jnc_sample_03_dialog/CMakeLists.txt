@@ -184,7 +184,7 @@ endif ()
 
 axl_detect_host_cpu (_CPU)
 
-if (WIN32 OR (LINUX AND "${AXL_CPU}" STREQUAL "${_CPU}"))
+if (WIN32 OR (LINUX AND "${TARGET_CPU}" STREQUAL "${_CPU}"))
 	add_test (
 		NAME jnc_sample_03_dialog
 		COMMAND

@@ -216,4 +216,11 @@ set_target_properties (
 	FOLDER extensions
 	)
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	TARGETS jnc_std
+	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
+	)
+
 #...............................................................................

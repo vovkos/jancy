@@ -112,7 +112,7 @@ target_compile_definitions (
 set_target_properties (
 	jnc_io_usb
 	PROPERTIES
-	OUTPUT_NAME io_usb-${AXL_CPU}
+	OUTPUT_NAME io_usb-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
@@ -159,7 +159,7 @@ add_custom_target (
 	jnc_io_usb_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_usb.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_usb-${AXL_CPU}.bin
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_usb-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_usb
 	)
@@ -168,6 +168,13 @@ set_target_properties (
 	jnc_io_usb_jncx
 	PROPERTIES
 	FOLDER extensions
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	FILES ${BIN_DIR}/io_usb.jncx
+	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 
 #...............................................................................

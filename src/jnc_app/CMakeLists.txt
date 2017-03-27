@@ -168,6 +168,13 @@ elseif (UNIX)
 	endif ()
 endif ()
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	TARGETS jnc_app
+	DESTINATION ${JANCY_INSTALL_BIN_SUBDIR}
+	)
+
 #...............................................................................
 
 macro (

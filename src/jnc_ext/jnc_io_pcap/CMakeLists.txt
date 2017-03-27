@@ -106,7 +106,7 @@ target_compile_definitions (
 set_target_properties (
 	jnc_io_pcap
 	PROPERTIES
-	OUTPUT_NAME io_pcap-${AXL_CPU}
+	OUTPUT_NAME io_pcap-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
@@ -154,7 +154,7 @@ add_custom_target (
 	jnc_io_pcap_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_pcap.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_pcap.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_pcap-${AXL_CPU}.bin
+	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_pcap.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_pcap-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_pcap
 	)
@@ -163,6 +163,13 @@ set_target_properties (
 	jnc_io_pcap_jncx
 	PROPERTIES
 	FOLDER extensions
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	FILES ${BIN_DIR}/io_pcap.jncx
+	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 
 #...............................................................................

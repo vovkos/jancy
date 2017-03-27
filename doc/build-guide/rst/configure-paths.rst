@@ -51,7 +51,7 @@ On Windows, you will also need to specify paths to the required libraries -- the
 
 	set (LLVM_INC_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/include)
 
-	if ("${AXL_CPU}" STREQUAL "amd64")
+	if ("${TARGET_CPU}" STREQUAL "amd64")
 		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
 		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/include)
 		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/lib)
@@ -76,7 +76,7 @@ On Windows, you will also need to specify paths to the required libraries -- the
 	set (LUA_INC_DIR  c:/Develop/lua/lua-${LUA_VERSION}/include)
 	set (LLVM_INC_DIR c:/Develop/llvm/llvm-${LLVM_VERSION}/include)
 
-	if ("${AXL_CPU}" STREQUAL "amd64")
+	if ("${TARGET_CPU}" STREQUAL "amd64")
 		set (LUA_LIB_DIR    c:/Develop/lua/lua-${LUA_VERSION}/lib/amd64/${CONFIGURATION_SUFFIX})
 		set (LLVM_INC_DIR   ${LLVM_INC_DIR} c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/include)
 		set (LLVM_LIB_DIR   c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/lib/${CONFIGURATION_SUFFIX})

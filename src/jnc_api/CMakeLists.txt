@@ -159,4 +159,16 @@ axl_set_pch (
 	${PCH_DYNAMIC_CPP}
 	)
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install (
+	TARGETS jnc_api_static
+	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
+	)
+
+install (
+	TARGETS jnc_api_dynamic
+	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
+	)
+
 #...............................................................................
