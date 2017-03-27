@@ -31,6 +31,8 @@ enum BinTreeFindRelOp
 	Ge,
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 typedef int CmpFunc (
 	variant key1,
 	variant key2
@@ -80,7 +82,7 @@ opaque class RbTree
 
 	variant findValue (
 		variant key,
-		variant undefinedValue
+		variant undefinedValue = null
 		) const
 	{
 		MapEntry* entry = find (key);
@@ -90,7 +92,7 @@ opaque class RbTree
 	variant findValue (
 		variant key,
 		BinTreeFindRelOp relOp,
-		variant undefinedValue
+		variant undefinedValue = null
 		) const
 	{
 		MapEntry* entry = find (key, relOp);

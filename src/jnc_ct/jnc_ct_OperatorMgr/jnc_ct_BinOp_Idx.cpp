@@ -70,11 +70,11 @@ BinOp_Idx::getResultType (
 		return getPropertyIndexResultType (opValue1, opValue2);
 
 	case TypeKind_ClassPtr:
-		return getDerivableTypeIndexResultType (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2);		
+		return getDerivableTypeIndexResultType (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2);
 
 	default:
 		if (opType1->getTypeKindFlags () & TypeKindFlag_Derivable)
-			return getDerivableTypeIndexResultType ((DerivableType*) opType1, opValue1, opValue2);		
+			return getDerivableTypeIndexResultType ((DerivableType*) opType1, opValue1, opValue2);
 
 		err::setFormatStringError ("cannot index '%s'", opType1->getTypeString ().sz ());
 		return NULL;
@@ -139,7 +139,7 @@ BinOp_Idx::op (
 		return propertyIndexOperator (opValue1, opValue2, resultValue);
 
 	case TypeKind_ClassPtr:
-		return derivableTypeIndexOperator (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2, resultValue);		
+		return derivableTypeIndexOperator (((ClassPtrType*) opType1)->getTargetType (), opValue1, opValue2, resultValue);
 
 	default:
 		if (opType1->getTypeKindFlags () & TypeKindFlag_Derivable)
@@ -316,7 +316,7 @@ BinOp_Idx::getPropertyIndexResultType (
 
 Type*
 BinOp_Idx::getDerivableTypeIndexResultType (
-	DerivableType* derivableType, 
+	DerivableType* derivableType,
 	const Value& opValue1,
 	const Value& opValue2
 	)
@@ -335,7 +335,7 @@ BinOp_Idx::getDerivableTypeIndexResultType (
 
 bool
 BinOp_Idx::derivableTypeIndexOperator (
-	DerivableType* derivableType, 
+	DerivableType* derivableType,
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
@@ -359,13 +359,20 @@ BinOp_Idx::getDerivableTypeIndexerProperty (
 	const Value& opValue2
 	)
 {
-	if (!derivableType->hasIndexerProperties ())
+	if (derivableType->hasIndexerProperties ())
+		return derivableType->chooseIndexerProperty (opValue2);
+
+	sl::Array <BaseTypeSlot*> baseTypeArray = derivableType->getBaseTypeArray ();
+	size_t count = baseTypeArray.getCount ();
+	for (size_t i = 0; i < count; i ++)
 	{
-		err::setFormatStringError ("'%s' has no indexer properties", derivableType->getTypeString ().sz ());
-		return NULL;
+		DerivableType* baseType = baseTypeArray [i]->getType ();
+		if (baseType->hasIndexerProperties ())
+			return baseType->chooseIndexerProperty (opValue2);
 	}
 
-	return derivableType->chooseIndexerProperty (opValue2);
+	err::setFormatStringError ("'%s' has no indexer properties", derivableType->getTypeString ().sz ());
+	return NULL;
 }
 
 //..............................................................................

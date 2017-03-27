@@ -102,7 +102,7 @@ StringBuilder::insert (
 	if (offset < m_length)
 		memmove (p + offset + length, p + offset, m_length - offset);
 
-	memcpy (p, ptr.m_p, length);
+	memcpy (p + offset, ptr.m_p, length);
 	m_length = newLength;
 	return newLength;
 }

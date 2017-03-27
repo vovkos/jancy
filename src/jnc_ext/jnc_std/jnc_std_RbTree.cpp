@@ -40,6 +40,20 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
+int
+cmpVariant (
+	Variant key1,
+	Variant key2
+	)
+{
+	bool result = 0;
+	return
+		key1.relationalOperator (&key2, BinOpKind_Eq, &result) && result ? 0 :
+		key1.relationalOperator (&key2, BinOpKind_Lt, &result) && result ? -1 : 1;
+}
+
+//..............................................................................
+
 DataPtr
 RbTree::visitImpl (Variant key)
 {

@@ -29,6 +29,14 @@ CmpFunc (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+int
+cmpVariant (
+	Variant key1,
+	Variant key2
+	);
+
+//..............................................................................
+
 class CmpIndirect
 {
 protected:
@@ -37,7 +45,7 @@ protected:
 public:
 	CmpIndirect (CmpFunc* func = NULL)
 	{
-		m_func = func;
+		m_func = func ? func : cmpVariant;
 	}
 
 	int

@@ -36,7 +36,7 @@ typedef bool IsEqualFunc (
 
 	\brief This class provides a hash-table-based mapping from ``variant``-s to ``variant``-s.
 
-	``std.VariantHashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.
+	``std.HashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.
 
 	A typical sequence of steps when working with a hash table usually looks like this:
 
@@ -56,15 +56,15 @@ typedef bool IsEqualFunc (
 			_Count
 		}
 
-		std.VariantHashTable hashTable;
+		std.HashTable hashTable;
 
-		hashTable.m_map [State.Idle] = "idle";
-		hashTable.m_map [State.Running] = "running";
-		hashTable.m_map [State.Stopping] = "stopping";
+		hashTable [State.Idle] = "idle";
+		hashTable [State.Running] = "running";
+		hashTable [State.Stopping] = "stopping";
 
 		State state = (State) (rand () % State._Count);
 
-		printf ($"state: $(hashTable.m_map [state])\n");
+		printf ($"state: $(hashTable [state])\n");
 */
 
 opaque class HashTable
@@ -136,7 +136,7 @@ opaque class HashTable
 
 	variant findValue (
 		variant key,
-		variant undefinedValue
+		variant undefinedValue = null
 		) const
 	{
 		MapEntry* entry = find (key);
@@ -177,6 +177,24 @@ opaque class HashTable
 
 		remove (entry);
 		return true;
+	}
+}
+
+//..............................................................................
+
+class StringHashTable: HashTable
+{
+	construct ()
+	{
+		basetype.construct (strdjb2, streq);
+	}
+}
+
+class StringHashTableIgnoreCase: HashTable
+{
+	construct ()
+	{
+		basetype.construct (stridjb2, strieq);
 	}
 }
 

@@ -85,6 +85,34 @@ int stricmp (
 	Returns ``null`` if ``c`` is not found.
 */
 
+/**
+	Performs a case-sensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal and ``false`` otherwise.
+*/
+
+bool streq (
+	char const* p1,
+	char const* p2
+	)
+{
+	return strcmp (p1, p2) == 0;
+}
+
+/**
+	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal and ``false`` otherwise.
+*/
+
+bool strieq (
+	char const* p1,
+	char const* p2
+	)
+{
+	return stricmp (p1, p2) == 0;
+}
+
 char const* strchr (
 	char const* p,
 	int c
@@ -130,6 +158,23 @@ char const* errorcode strdup (
 	char const* p,
 	size_t length = -1
 	);
+
+/**
+	Calculates a DJB2 hash of null-terminated string ``p``.
+*/
+
+size_t strdjb2 (char const* p)
+{
+	return memdjb2 (p, strlen (p));
+}
+
+/**
+	Calculates a case-insensitive DJB2 hash of null-terminated string ``p``.
+
+	Equivalent of calling `djb2` on a string, each character of which was converted to lower-case via `tolower`.
+*/
+
+size_t stridjb2 (char const* p);
 
 /**
 	Performs a case-sensitive lexicographic comparison of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
@@ -222,6 +267,15 @@ void* errorcode memcat (
 */
 
 void* errorcode memdup (
+	void const* p,
+	size_t size
+	);
+
+/**
+	Calculates a DJB2 hash of memory block ``p:size`` [#f2]_.
+*/
+
+size_t memdjb2 (
 	void const* p,
 	size_t size
 	);

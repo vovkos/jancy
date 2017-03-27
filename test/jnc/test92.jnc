@@ -24,11 +24,16 @@ bool isEqualString_i (
 
 int main ()
 {
-	std.HashTable hashTable (hashString_i, isEqualString_i);
+	std.HashTable hashTable;
+	hashTable [1] = 100;
+	hashTable [2] = 200;
+	print ($"1 => %1 2 => %2\n" (hashTable [1], hashTable [2]));
 
-	hashTable ["user"] = "John Doe";
-	hashTable ["pass"] = "qwerty";
+	std.HashTable hashTable2 (hashString_i, isEqualString_i);
+	hashTable2 ["user"] = "John Doe";
+	hashTable2 ["pass"] = "qwerty";
 
-	print ($"user: %1 password: %2\n" (hashTable ["USER"], hashTable ["PASS"]));
+	print ($"user: %1 password: %2\n" (hashTable2 ["USER"], hashTable2 ["PASS"]));
+
 	return 0;
 }

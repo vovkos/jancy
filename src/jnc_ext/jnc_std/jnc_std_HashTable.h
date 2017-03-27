@@ -24,6 +24,15 @@ typedef
 size_t
 HashFunc (Variant key);
 
+inline
+size_t
+hashVariant (Variant key)
+{
+	return key.hash ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 typedef
 bool
 IsEqualFunc (
@@ -31,7 +40,17 @@ IsEqualFunc (
 	Variant key2
 	);
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+inline
+bool
+isEqualVariant (
+	Variant key1,
+	Variant key2
+	)
+{
+	return key1.isEqual (key2);
+}
+
+//..............................................................................
 
 class HashIndirect
 {
@@ -41,7 +60,7 @@ protected:
 public:
 	HashIndirect (HashFunc* func = NULL)
 	{
-		m_func = func;
+		m_func = func ? func : hashVariant;
 	}
 
 	size_t
@@ -62,7 +81,7 @@ protected:
 public:
 	IsEqualIndirect (IsEqualFunc* func = NULL)
 	{
-		m_func = func;
+		m_func = func ? func : isEqualVariant;
 	}
 
 	bool

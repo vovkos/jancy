@@ -26,6 +26,7 @@ int main ()
 	char const* string = stringBuilder.detachString ();
 
 	printf ("string = '%s'\n", string);
+	assert (streq (string, "hui govno i muravei!"));
 
 	return 0;
 }

@@ -278,6 +278,15 @@ memDup (
 	return resultPtr;
 }
 
+size_t
+memDjb2 (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	return sl::djb2 (ptr.m_p, size);
+}
+
 int
 strCmp (
 	DataPtr ptr1,
@@ -373,6 +382,20 @@ strDup (
 	return jnc::strDup ((const char*) ptr.m_p, length);
 }
 
+size_t
+strDjb2 (DataPtr ptr)
+{
+	size_t length = strLen (ptr);
+	return sl::djb2 (ptr.m_p, length);
+}
+
+size_t
+striDjb2 (DataPtr ptr)
+{
+	size_t length = strLen (ptr);
+	return sl::djb2_op (::tolower, (char*) ptr.m_p, length);
+}
+
 DataPtr
 format (
 	DataPtr formatStringPtr,
@@ -454,29 +477,32 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.setError",     setError)
 	JNC_MAP_FUNCTION ("std.format",       format)
 
-	JNC_MAP_FUNCTION ("strlen",  jnc::strLen)
-	JNC_MAP_FUNCTION ("strcmp",  strCmp)
-	JNC_MAP_FUNCTION ("stricmp", striCmp)
-	JNC_MAP_FUNCTION ("strchr",  strChr)
-	JNC_MAP_FUNCTION ("strstr",  strStr)
-	JNC_MAP_FUNCTION ("strcat",  strCat)
-	JNC_MAP_FUNCTION ("strdup",  strDup)
-	JNC_MAP_FUNCTION ("memcmp",  memCmp)
-	JNC_MAP_FUNCTION ("memchr",  memChr)
-	JNC_MAP_FUNCTION ("memmem",  memMem)
-	JNC_MAP_FUNCTION ("memcpy",  memCpy)
-	JNC_MAP_FUNCTION ("memset",  memSet)
-	JNC_MAP_FUNCTION ("memcat",  memCat)
-	JNC_MAP_FUNCTION ("memdup",  memDup)
-	JNC_MAP_FUNCTION ("rand",    ::rand)
-	JNC_MAP_FUNCTION ("atoi",    jnc::std::atoi)
-	JNC_MAP_FUNCTION ("strtol",  jnc::std::strtol)
-	JNC_MAP_FUNCTION ("toupper", toUpper)
-	JNC_MAP_FUNCTION ("tolower", toLower)
-	JNC_MAP_FUNCTION ("gets",    jnc::std::gets)
-	JNC_MAP_FUNCTION ("print",   jnc::std::print)
-	JNC_MAP_FUNCTION ("perror",  jnc::std::perror)
-	JNC_MAP_FUNCTION ("printf",  jnc::std::printf)
+	JNC_MAP_FUNCTION ("strlen",   jnc::strLen)
+	JNC_MAP_FUNCTION ("strcmp",   strCmp)
+	JNC_MAP_FUNCTION ("stricmp",  striCmp)
+	JNC_MAP_FUNCTION ("strchr",   strChr)
+	JNC_MAP_FUNCTION ("strstr",   strStr)
+	JNC_MAP_FUNCTION ("strcat",   strCat)
+	JNC_MAP_FUNCTION ("strdup",   strDup)
+	JNC_MAP_FUNCTION ("strdjb2",  strDjb2)
+	JNC_MAP_FUNCTION ("stridjb2", striDjb2)
+	JNC_MAP_FUNCTION ("memcmp",   memCmp)
+	JNC_MAP_FUNCTION ("memchr",   memChr)
+	JNC_MAP_FUNCTION ("memmem",   memMem)
+	JNC_MAP_FUNCTION ("memcpy",   memCpy)
+	JNC_MAP_FUNCTION ("memset",   memSet)
+	JNC_MAP_FUNCTION ("memcat",   memCat)
+	JNC_MAP_FUNCTION ("memdup",   memDup)
+	JNC_MAP_FUNCTION ("memdjb2",  memDjb2)
+	JNC_MAP_FUNCTION ("rand",     ::rand)
+	JNC_MAP_FUNCTION ("atoi",     jnc::std::atoi)
+	JNC_MAP_FUNCTION ("strtol",   jnc::std::strtol)
+	JNC_MAP_FUNCTION ("toupper",  toUpper)
+	JNC_MAP_FUNCTION ("tolower",  toLower)
+	JNC_MAP_FUNCTION ("gets",     jnc::std::gets)
+	JNC_MAP_FUNCTION ("print",    jnc::std::print)
+	JNC_MAP_FUNCTION ("perror",   jnc::std::perror)
+	JNC_MAP_FUNCTION ("printf",   jnc::std::printf)
 
 	JNC_MAP_TYPE (Guid)
 	JNC_MAP_TYPE (Error)
