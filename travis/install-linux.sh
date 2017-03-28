@@ -10,7 +10,7 @@
 #
 #...............................................................................
 
-# manually install CMake -- we need at least CMake 3.3
+# manually install CMake -- we need at least CMake 3.4.3 (for LLVM 3.9.x)
 
 CMAKE_VERSION=3.4.3
 CMAKE_VERSION_DIR=v3.4

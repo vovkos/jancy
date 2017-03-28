@@ -52,13 +52,6 @@ before_install:
 script:
     - THIS_DIR=`pwd`
 
-    - mkdir llvm/build
-    - cd llvm/build
-    - cmake .. $LLVM_BUILD_32_BITS -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DHAVE_SANITIZER_MSAN_INTERFACE_H=0 -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF -DLLVM_INCLUDE_UTILS=OFF
-    - make
-
-    - cd $THIS_DIR
-
     - echo "if (NOT \"$CPP_STD\" STREQUAL \"\")" >> settings.cmake
     - echo "    axl_override_setting (GCC_FLAG_CPP_STANDARD -std=$CPP_STD)" >> settings.cmake
     - echo "endif ()" >> settings.cmake
@@ -78,10 +71,7 @@ script:
 
     - cd $THIS_DIR
     - echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR//graco/build/cmake)" >> paths.cmake
-
-    - echo "set (LLVM_INC_DIR $THIS_DIR/llvm/include $THIS_DIR/llvm/build/include)" >> paths.cmake
-    - echo "set (LLVM_LIB_DIR $THIS_DIR/llvm/build/lib)" >> paths.cmake
-    - echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/build/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
+    - echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
 
     - mkdir build
     - cd build

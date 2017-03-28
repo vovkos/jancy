@@ -12,8 +12,10 @@
 
 if [ $TRAVIS_OS_NAME == "osx" ]; then
 	GNUSORT=gsort
+	CPU_SUFFIX=
 else
 	GNUSORT=sort
+	CPU_SUFFIX=-$TARGET_CPU
 fi
 
 isVersionGe ()
@@ -21,10 +23,17 @@ isVersionGe ()
     [  $1 == `echo -e "$1\n$2" | $GNUSORT -V -r | head -n1` ]
 }
 
-if isVersionGe $LLVM_VERSION 3.5; then
-	LLVM_TAR=llvm-$LLVM_VERSION.src.tar.xz
+if [ $BUILD_CONFIGURATION != "Debug" ]; then
+	DEBUG_SUFFIX=
+	TAR_FILE_EXT=.xz
 else
-	LLVM_TAR=llvm-$LLVM_VERSION.src.tar.gz
+	DEBUG_SUFFIX=-dbg
+
+	if isVersionGe $LLVM_VERSION 3.8; then
+		TAR_FILE_EXT=.gz
+	else
+		TAR_FILE_EXT=.xz
+	fi
 fi
 
 if isVersionGe $LLVM_VERSION 3.9; then
@@ -33,12 +42,13 @@ else
     export LLVM_CMAKE_SUBDIR=share/llvm/cmake
 fi
 
-LLVM_URL=http://releases.llvm.org/$LLVM_VERSION/$LLVM_TAR
+if [ $TARGET_CPU == "x86" ]; then
+	export LLVM_BUILD_32_BITS="-DLLVM_BUILD_32_BITS=TRUE"
+fi
+
+LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX-$CC$DEBUG_SUFFIX.tar$TAR_FILE_EXT
+LLVM_URL=https://github.com/vovkos/llvm-package/releases/llvm-$LLVM_VERSION/$LLVM_TAR
 
 wget --quiet $LLVM_URL
 mkdir -p llvm
 tar --strip-components=1 -xf $LLVM_TAR -C llvm
-
-if [ "$TARGET_CPU" == "x86" ]; then
-	export LLVM_BUILD_32_BITS="-DLLVM_BUILD_32_BITS=TRUE"
-fi
