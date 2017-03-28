@@ -247,19 +247,11 @@ BinOp_Idx::arrayIndexOperator (
 	}
 	else // EDataPtrType_Normal
 	{
-		m_module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
-
-		ptrType = elementType->getDataPtrType_c ();
-
-		m_module->m_llvmIrBuilder.createGep2 (ptrValue, opValue2, NULL, &ptrValue);
-
 		ptrType = elementType->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
-
-		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (),
-			ptrType,
-			opValue1
-			);
+		m_module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast (ptrValue, ptrType, &ptrValue);
+		m_module->m_llvmIrBuilder.createGep (ptrValue, opValue2, ptrType, resultValue);
+		resultValue->setLeanDataPtrValidator (opValue1);
 	}
 
 	return true;

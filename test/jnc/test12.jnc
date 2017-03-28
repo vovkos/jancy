@@ -9,10 +9,19 @@
 //
 //..............................................................................
 
+typedef char EthernetAddress [6];
+
 int main ()
 {
-	char const* p = "suka";
-	char const* p2 = $"bzzzz $p";
+	printf ("main ()\n");
+
+	EthernetAddress a = { 1, 2, 3, 4, 5, 6 };
+	EthernetAddress* p = &a;
+	char* c = *p;
+
+	size_t i = 5;
+	char x = (*p) [i];
+	assert (x == 6);
 
 	return 0;
 }

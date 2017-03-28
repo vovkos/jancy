@@ -671,7 +671,7 @@ OperatorMgr::dynamicCastDataPtr (
 		return false;
 	}
 
-	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) && 
+	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) &&
 		!(type->getFlags () & PtrTypeFlag_Const))
 	{
 		setCastError (opValue, type);
@@ -718,7 +718,7 @@ OperatorMgr::dynamicCastClassPtr (
 		return false;
 	}
 
-	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) && 
+	if ((opValue.getType ()->getFlags () & PtrTypeFlag_Const) &&
 		!(type->getFlags () & PtrTypeFlag_Const))
 	{
 		setCastError (opValue, type);
@@ -1089,12 +1089,10 @@ OperatorMgr::prepareOperandType (
 				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{
-					DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-
 					ArrayType* arrayType = (ArrayType*) targetType;
 					value = arrayType->getElementType ()->getDataPtrType (
 						TypeKind_DataPtr,
-						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
+						ptrType->getPtrTypeKind (),
 						ptrType->getFlags ()
 						);
 				}
@@ -1174,6 +1172,41 @@ OperatorMgr::prepareOperandType (
 	return resultValue.getType ();
 }
 
+void
+OperatorMgr::prepareArrayRef (
+	const Value& value,
+	Value* resultValue
+	)
+{
+	ASSERT (isArrayRefType (value.getType ()));
+	DataPtrType* ptrType = (DataPtrType*) value.getType ();
+	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+
+	ArrayType* arrayType = (ArrayType*) ptrType->getTargetType ();
+	Type* elementType = arrayType->getElementType ();
+	DataPtrType* resultType = elementType->getDataPtrType (
+		TypeKind_DataPtr,
+		ptrTypeKind,
+		ptrType->getFlags ()
+		);
+
+	if (value.getValueKind () == ValueKind_Const || ptrTypeKind == DataPtrTypeKind_Normal)
+	{
+		resultValue->overrideType (value, resultType);
+	}
+	else if (ptrTypeKind != DataPtrTypeKind_Lean)
+	{
+		m_module->m_llvmIrBuilder.createGep2 (value, 0, resultType, resultValue);
+	}
+	else
+	{
+		// get validator first (resultValue can point to value)
+		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
+		m_module->m_llvmIrBuilder.createGep2 (value, 0, resultType, resultValue);
+		resultValue->setLeanDataPtrValidator (validator);
+	}
+}
+
 bool
 OperatorMgr::prepareOperand (
 	const Value& opValue,
@@ -1224,27 +1257,7 @@ OperatorMgr::prepareOperand (
 				}
 				else if (opFlags & OpFlag_ArrayRefToPtr)
 				{
-					DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
-
-					ArrayType* arrayType = (ArrayType*) ptrType->getTargetType ();
-					type = arrayType->getElementType ()->getDataPtrType (
-						TypeKind_DataPtr,
-						ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
-						ptrType->getFlags ()
-						);
-
-					Value prevValue = value;
-					m_module->m_llvmIrBuilder.createGep2 (value, 0, type, &value);
-
-					if (ptrTypeKind != DataPtrTypeKind_Thin)
-					{
-						if (ptrTypeKind == DataPtrTypeKind_Normal)
-							value.setLeanDataPtrValidator (prevValue);
-						else if (prevValue.getValueKind () == ValueKind_Variable) // EDataPtrType_Lean
-							value.setLeanDataPtrValidator (prevValue);
-						else
-							value.setLeanDataPtrValidator (prevValue.getLeanDataPtrValidator ());
-					}
+					prepareArrayRef (&value);
 				}
 			}
 

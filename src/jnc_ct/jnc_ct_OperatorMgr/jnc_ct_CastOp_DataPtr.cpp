@@ -53,6 +53,25 @@ Cast_DataPtr_FromArray::constCast (
 	void* dst
 	)
 {
+	if (isArrayRefType (opValue.getType ()))
+	{
+		Value ptrValue;
+		bool result =
+			m_module->m_operatorMgr.prepareOperand (opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
+			m_module->m_operatorMgr.castOperator (&ptrValue, type);
+
+		if (!result)
+			return false;
+
+		const void* p = ptrValue.getConstData ();
+		if (((DataPtrType*) type)->getPtrTypeKind () == DataPtrTypeKind_Normal)
+			*(DataPtr*) dst = *(DataPtr*) p;
+		else // thin or lean
+			*(void**) dst = *(void**) p;
+
+		return true;
+	}
+
 	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Array);
 	ASSERT (type->getTypeKind () == TypeKind_DataPtr);
 
@@ -661,8 +680,8 @@ Cast_DataPtr::getCastOperator (
 	DataPtrType* srcPtrType = (DataPtrType*) srcType;
 	DataPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind ();
 
-	if (dstPtrTypeKind == DataPtrTypeKind_Normal && 
-		(srcPtrType->getFlags () & PtrTypeFlag_Const) && 
+	if (dstPtrTypeKind == DataPtrTypeKind_Normal &&
+		(srcPtrType->getFlags () & PtrTypeFlag_Const) &&
 		!(dstPtrType->getFlags () & PtrTypeFlag_Const))
 		return NULL;
 

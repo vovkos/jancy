@@ -272,6 +272,18 @@ public:
 		return prepareDataPtr (*value, value);
 	}
 
+	void
+	prepareArrayRef (
+		const Value& value,
+		Value* resultValue
+		);
+
+	void
+	prepareArrayRef (Value* value)
+	{
+		prepareArrayRef (*value, value);
+	}
+
 	// unary operators
 
 	Type*
@@ -1604,7 +1616,7 @@ protected:
 		Value* resultValue
 		);
 
-	bool 
+	bool
 	finalizeMemberOperator (
 		const Value& opValue,
 		ModuleItemDecl* decl,
