@@ -1,0 +1,86 @@
+#...............................................................................
+#
+#  This file is part of the Graco toolkit.
+#
+#  Graco is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/graco/license.txt
+#
+#...............................................................................
+
+branches:
+    only:
+        - master
+
+image: Visual Studio 2015
+
+init:
+    - git config --global core.autocrlf input
+
+clone_folder: c:\projects\graco
+shallow_clone: true
+
+matrix:
+    fast_finish: false
+
+platform:
+    - x64
+    - x86
+
+configuration:
+    - Debug
+    - Release
+
+environment:
+    matrix:
+        -   LLVM_VERSION: 3.4.2
+            TOOLCHAIN: msvc10
+
+        -   LLVM_VERSION: 3.4.2
+            TOOLCHAIN: msvc12
+
+        -   LLVM_VERSION: 3.4.2
+            TOOLCHAIN: msvc14
+
+        -   LLVM_VERSION: 3.9.1
+            TOOLCHAIN: msvc12
+
+        -   LLVM_VERSION: 3.9.1
+            TOOLCHAIN: msvc14
+
+install:
+    - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
+    - call ci\appveyor\install.bat
+    - call ci\appveyor\build-llvm.bat
+
+    - git clone https://github.com/vovkos/axl
+    - git clone https://github.com/vovkos/graco
+
+build_script:
+    - set THIS_DIR=%CD%
+    - set THIS_DIR_CMAKE=%THIS_DIR:\=/%
+
+    - mkdir axl\build
+    - cd axl\build
+    - cmake .. %CMAKE_FLAGS%
+    - cmake --build . -- %MSBUILD_FLAGS%
+
+    - cd %THIS_DIR%
+    - echo set (AXL_CMAKE_DIR %THIS_DIR_CMAKE%/axl/cmake %THIS_DIR_CMAKE%/axl/build/cmake) >> paths.cmake
+
+    - mkdir graco\build
+    - cd graco\build
+    - cmake .. %CMAKE_FLAGS%
+    - cmake --build . -- %MSBUILD_FLAGS%
+
+    - cd %THIS_DIR%
+    - echo set (GRACO_CMAKE_DIR %THIS_DIR_CMAKE%/graco/cmake %THIS_DIR_CMAKE%/graco/build/cmake) >> paths.cmake
+
+    - mkdir build
+    - cd build
+    - cmake .. %CMAKE_FLAGS%
+    - cmake --build . -- %MSBUILD_FLAGS%
+
+test_script:
+    - ctest -C %CONFIGURATION%
