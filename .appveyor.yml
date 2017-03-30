@@ -18,7 +18,7 @@ image: Visual Studio 2015
 init:
     - git config --global core.autocrlf input
 
-clone_folder: c:\projects\graco
+clone_folder: c:\projects\jancy
 shallow_clone: true
 
 matrix:

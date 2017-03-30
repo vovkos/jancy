@@ -13,6 +13,8 @@ Jancy
 =====
 .. image:: https://travis-ci.org/vovkos/jancy.svg?branch=master
 	:target: https://travis-ci.org/vovkos/jancy
+.. image:: https://ci.appveyor.com/api/projects/status/01gq23xd13twr8l5?svg=true
+	:target: https://ci.appveyor.com/project/vovkos/jancy
 
 Abstract
 --------

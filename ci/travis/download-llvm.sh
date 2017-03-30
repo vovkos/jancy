@@ -47,7 +47,7 @@ if [ $TARGET_CPU == "x86" ]; then
 fi
 
 LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX-$CC$DEBUG_SUFFIX.tar$TAR_FILE_EXT
-LLVM_URL=https://github.com/vovkos/llvm-travis-package/releases/llvm-$LLVM_VERSION/$LLVM_TAR
+LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/llvm-$LLVM_VERSION/$LLVM_TAR
 
 echo getting LLVM from: $LLVM_URL
 
