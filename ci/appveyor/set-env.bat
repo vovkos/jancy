@@ -14,17 +14,37 @@
 :loop
 
 if "%1" == "" goto :finalize
-if /i "%1" == "msvc10" goto :msvc10
-if /i "%1" == "msvc12" goto :msvc12
-if /i "%1" == "msvc14" goto :msvc14
 if /i "%1" == "x86" goto :x86
 if /i "%1" == "i386" goto :x86
 if /i "%1" == "amd64" goto :amd64
 if /i "%1" == "x86_64" goto :amd64
 if /i "%1" == "x64" goto :amd64
+if /i "%1" == "msvc10" goto :msvc10
+if /i "%1" == "msvc12" goto :msvc12
+if /i "%1" == "msvc14" goto :msvc14
 
 echo Invalid argument: '%1'
 exit -1
+
+:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+:: Platform
+
+:x86
+set TARGET_CPU=x86
+set CMAKE_GENERATOR_SUFFIX=
+set LUA_PLATFORM=Win32
+set LLVM_BUILD_32_BITS=ON
+shift
+goto :loop
+
+:amd64
+set TARGET_CPU=amd64
+set CMAKE_GENERATOR_SUFFIX= Win64
+set LUA_PLATFORM=Win64
+set LLVM_BUILD_32_BITS=OFF
+shift
+goto :loop
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -53,39 +73,20 @@ goto :loop
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-:: Platform
-
-:x86
-set TARGET_CPU=x86
-set CMAKE_GENERATOR_SUFFIX=
-set LUA_PLATFORM=Win32
-set LLVM_BUILD_32_BITS=ON
-shift
-goto :loop
-
-:amd64
-set TARGET_CPU=amd64
-set CMAKE_GENERATOR_SUFFIX= Win64
-set LUA_PLATFORM=Win64
-set LLVM_BUILD_32_BITS=OFF
-shift
-goto :loop
-
-:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 :finalize
 
 if "%TOOLCHAIN%" == "" goto :msvc14
 if "%TARGET_CPU%" == "" goto :amd64
 if "%CONFIGURATION%" == "" (set CONFIGURATION=Release)
 
-set LLVM_VERSION_VALUE=%LLVM_VERSION:.=%
-set LLVM_TAR_EXT=.gz
+set LLVM_DEBUG_SUFFIX=
 set LLVM_CMAKE_SUBDIR=share/llvm/cmake
-if %LLVM_VERSION_VALUE% geq 350 (set LLVM_TAR_EXT=.xz)
+set LLVM_VERSION_VALUE=%LLVM_VERSION:.=%
 if %LLVM_VERSION_VALUE% geq 390 (set LLVM_CMAKE_SUBDIR=lib/cmake/llvm)
-set LLVM_DOWNLOAD_FILE=llvm-%LLVM_VERSION%.src.tar%LLVM_TAR_EXT%
-set LLVM_DOWNLOAD_URL=http://releases.llvm.org/%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
+if %CONFIGURATION% == "Debug" (set LLVM_DEBUG_SUFFIX=-dbg)
+set LLVM_RELEASE_NAME=llvm-%LLVM_VERSION%-windows-%TOOLCHAIN%-libcmt%LLVM_DEBUG_SUFFIX%.7z
+set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
+set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/llvm-%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
 
 set LUA_VERSION=5.3.3
 set LUA_LIB_NAME=lua53
@@ -95,9 +96,14 @@ set LUA_DOWNLOAD_URL=https://sourceforge.net/projects/luabinaries/files/%LUA_VER
 set RAGEL_DOWNLOAD_FILE=ragel-68-visualstudio2012.7z
 set RAGEL_DOWNLOAD_URL=http://downloads.yorickpeterse.com/files/%RAGEL_DOWNLOAD_FILE%
 
-set CMAKE_FLAGS=-G "%CMAKE_GENERATOR%%CMAKE_GENERATOR_SUFFIX%" -DTARGET_CPU=%TARGET_CPU%
+set CMAKE_CONFIGURE_FLAGS=-G "%CMAKE_GENERATOR%%CMAKE_GENERATOR_SUFFIX%"
 
-set MSBUILD_FLAGS=/nologo /verbosity:minimal /consoleloggerparameters:Summary /maxcpucount /property:configuration=%CONFIGURATION%
+set CMAKE_BUILD_FLAGS= ^
+	--config %CONFIGURATION% ^
+	-- ^
+	/nologo ^
+	/verbosity:minimal ^
+	/consoleloggerparameters:Summary
 
 echo ---------------------------------------------------------------------------
 echo LLVM_DOWNLOAD_URL:  %LLVM_DOWNLOAD_URL%
@@ -105,6 +111,4 @@ echo LLVM_CMAKE_SUBDIR:  %LLVM_CMAKE_SUBDIR%
 echo LUA_LIB_NAME:       %LUA_LIB_NAME%
 echo LUA_DOWNLOAD_URL:   %LUA_DOWNLOAD_URL%
 echo RAGEL_DOWNLOAD_URL: %RAGEL_DOWNLOAD_URL%
-echo CMAKE_FLAGS:        %CMAKE_FLAGS%
-echo MSBUILD_FLAGS:      %MSBUILD_FLAGS%
 echo ---------------------------------------------------------------------------

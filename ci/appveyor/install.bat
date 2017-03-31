@@ -42,11 +42,13 @@ echo set (LUA_LIB_NAME %LUA_LIB_NAME%) >> paths.cmake
 
 appveyor DownloadFile %LLVM_DOWNLOAD_URL% -FileName %DOWNLOAD_DIR%\%LLVM_DOWNLOAD_FILE%
 7z x -y %DOWNLOAD_DIR%\%LLVM_DOWNLOAD_FILE% -o%DOWNLOAD_DIR%
-7z x -y %DOWNLOAD_DIR%\llvm-%LLVM_VERSION%.src.tar -o%DOWNLOAD_DIR%
-ren %DOWNLOAD_DIR%\llvm-%LLVM_VERSION%.src llvm
+ren %DOWNLOAD_DIR%\%LLVM_RELEASE_NAME% llvm
+
+echo set (LLVM_CMAKE_DIR %DOWNLOAD_DIR_CMAKE%/llvm/%LLVM_CMAKE_SUBDIR) >> paths.cmake
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 :: Get rid of Xamarin annoying build warnings
 
 del "c:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
+del "c:\Program Files (x86)\MSBuild\4.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"

@@ -18,7 +18,7 @@ image: Visual Studio 2015
 init:
     - git config --global core.autocrlf input
 
-clone_folder: c:\projects\jancy
+clone_folder:  c:\projects\jancy
 shallow_clone: true
 
 matrix:
@@ -35,19 +35,19 @@ configuration:
 environment:
     matrix:
         -   LLVM_VERSION: 3.4.2
-            TOOLCHAIN: msvc10
+            TOOLCHAIN:    msvc10
 
         -   LLVM_VERSION: 3.4.2
-            TOOLCHAIN: msvc12
+            TOOLCHAIN:    msvc12
 
         -   LLVM_VERSION: 3.4.2
-            TOOLCHAIN: msvc14
+            TOOLCHAIN:    msvc14
 
         -   LLVM_VERSION: 3.9.1
-            TOOLCHAIN: msvc12
+            TOOLCHAIN:    msvc12
 
         -   LLVM_VERSION: 3.9.1
-            TOOLCHAIN: msvc14
+            TOOLCHAIN:    msvc14
 
 install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
