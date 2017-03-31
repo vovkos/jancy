@@ -54,5 +54,3 @@ echo getting LLVM from: $LLVM_URL
 wget --quiet $LLVM_URL
 mkdir -p llvm
 tar --strip-components=1 -xf $LLVM_TAR -C llvm
-
-ls llvm
