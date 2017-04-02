@@ -44,7 +44,7 @@ appveyor DownloadFile %LLVM_DOWNLOAD_URL% -FileName %DOWNLOAD_DIR%\%LLVM_DOWNLOA
 7z x -y %DOWNLOAD_DIR%\%LLVM_DOWNLOAD_FILE% -o%DOWNLOAD_DIR%
 ren %DOWNLOAD_DIR%\%LLVM_RELEASE_NAME% llvm
 
-echo set (LLVM_CMAKE_DIR %DOWNLOAD_DIR_CMAKE%/llvm/%LLVM_CMAKE_SUBDIR) >> paths.cmake
+echo set (LLVM_CMAKE_DIR %DOWNLOAD_DIR_CMAKE%/llvm/%LLVM_CMAKE_SUBDIR%) >> paths.cmake
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
