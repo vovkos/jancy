@@ -9,21 +9,13 @@
 #
 #...............................................................................
 
-if (SPHINX_FOUND)
-	add_subdirectory (index)
-	add_subdirectory (language)
-	add_subdirectory (extensions)
-	add_subdirectory (compiler)
-	add_subdirectory (grammar)
-	add_subdirectory (build-guide)
-
-	if (DOXYREST_FOUND)
-		add_subdirectory (stdlib)
-
-		if (DOXYGEN_FOUND)
-			add_subdirectory (api)
-		endif ()
-	endif ()
-endif ()
+add_subdirectory (index)
+add_subdirectory (language)
+add_subdirectory (extensions)
+add_subdirectory (compiler)
+add_subdirectory (grammar)
+add_subdirectory (build-guide)
+add_subdirectory (stdlib)
+add_subdirectory (api)
 
 #...............................................................................
