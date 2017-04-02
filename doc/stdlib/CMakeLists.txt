@@ -121,8 +121,8 @@ configure_file (
 	)
 
 if (WIN32)
-	string (REPLACE "$(Configuration)" "%1" XMLGEN_EXE ${XMLGEN_EXE})
-	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE ${DOXYREST_EXE})
+	string (REPLACE "$(Configuration)" "%1" XMLGEN_EXE "${XMLGEN_EXE}")
+	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE "${DOXYREST_EXE}")
 
 	configure_file (
 		${AXL_DOC_SHARE_DIR}/sh/build-xml.bat.in
