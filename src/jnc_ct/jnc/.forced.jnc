@@ -1,3 +1,4 @@
+import "jnc_DynamicLib.jnc"
 import "jnc_Regex.jnc"
 import "jnc_Scheduler.jnc"
 import "jnc_StdTypedefs.jnc"
