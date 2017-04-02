@@ -84,7 +84,7 @@ set LLVM_CMAKE_SUBDIR=share/llvm/cmake
 set LLVM_VERSION_VALUE=%LLVM_VERSION:.=%
 if %LLVM_VERSION_VALUE% geq 390 (set LLVM_CMAKE_SUBDIR=lib/cmake/llvm)
 if %CONFIGURATION% == "Debug" (set LLVM_DEBUG_SUFFIX=-dbg)
-set LLVM_RELEASE_NAME=llvm-%LLVM_VERSION%-windows-%TOOLCHAIN%-libcmt%LLVM_DEBUG_SUFFIX%.7z
+set LLVM_RELEASE_NAME=llvm-%LLVM_VERSION%-windows-%TOOLCHAIN%-libcmt%LLVM_DEBUG_SUFFIX%
 set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
 set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/llvm-%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
 

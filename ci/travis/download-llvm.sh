@@ -13,9 +13,11 @@
 if [ $TRAVIS_OS_NAME == "osx" ]; then
 	GNUSORT=gsort
 	CPU_SUFFIX=
+	CC_SUFFIX=
 else
 	GNUSORT=sort
 	CPU_SUFFIX=-$TARGET_CPU
+	CC_SUFFIX=-$CC
 fi
 
 isVersionGe ()
@@ -46,7 +48,7 @@ if [ $TARGET_CPU == "x86" ]; then
 	export LLVM_BUILD_32_BITS="-DLLVM_BUILD_32_BITS=TRUE"
 fi
 
-LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX-$CC$DEBUG_SUFFIX.tar$TAR_FILE_EXT
+LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX$CC_SUFFIX$DEBUG_SUFFIX.tar$TAR_FILE_EXT
 LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/download/llvm-$LLVM_VERSION/$LLVM_TAR
 
 echo getting LLVM from: $LLVM_URL
