@@ -34,14 +34,8 @@ set (
 	--std-lib-doc
 	--no-doxy-comment ///
 	-O ${XML_DIR}
-	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_StdTypedefs.jnc
-	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_DynamicLib.jnc
-	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Recognizer.jnc
-	${JANCY_SRC_DIR}/jnc_ct/jnc/jnc_Scheduler.jnc
-	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_globals.jnc
-	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_Error.jnc
-	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_List.jnc
-	${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc/std_HashTable.jnc
+	${JANCY_SRC_DIR}/jnc_ct/jnc/.forced.jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_sys/jnc
 	-I ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
