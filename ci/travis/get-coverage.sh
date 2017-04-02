@@ -9,16 +9,12 @@
 #
 #...............................................................................
 
-brew update
-brew install coreutils
-brew install lua
-brew install ragel
-brew install p7zip
-brew install lcov
+if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$CC" == "clang" ]; then
+	return # lcov doesn't work with clang on ubuntu out-of-the-box
+fi
 
-echo "axl_override_setting (GCC_FLAG_COVERAGE -coverage)" >> settings.cmake
+lcov --capture --directory . --no-external --output-file coverage.info
+lcov --remove coverage.info '*/axl/*' '*/graco/*' --output-file coverage.info
+lcov --list coverage.info
 
-# openssl is already installed, but not linked
-
-echo "set (OPENSSL_INC_DIR /usr/local/opt/openssl/include)" >> paths.cmake
-echo "set (OPENSSL_LIB_DIR /usr/local/opt/openssl/lib)" >> paths.cmake
+curl -s https://codecov.io/bash | bash

@@ -1,4 +1,3 @@
-#!/bin/bash
 #...............................................................................
 #
 #  This file is part of the Jancy toolkit.
@@ -58,3 +57,10 @@ else
 fi
 
 sudo apt-get install -y p7zip-full
+
+# lcov doesn't work with clang on ubuntu out-of-the-box
+
+if [ "$CC" != "clang" ]; then
+	sudo apt-get install -y lcov
+	echo "axl_override_setting (GCC_FLAG_COVERAGE -coverage)" >> settings.cmake
+fi
