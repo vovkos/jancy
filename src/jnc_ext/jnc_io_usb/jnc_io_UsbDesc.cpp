@@ -186,7 +186,7 @@ initUsbInterfaceDesc (
 	initUsbInterfaceDesc (runtime, dstDesc, &srcDesc->altsetting [0]);
 
 	UsbInterfaceDesc* prevDesc = dstDesc;
-	for (size_t i = 1; i < srcDesc->num_altsetting; i++)
+	for (size_t i = 1; i < (size_t) srcDesc->num_altsetting; i++)
 	{
 		DataPtr descPtr = createData <UsbInterfaceDesc> (runtime);
 		dstDesc = (UsbInterfaceDesc*) descPtr.m_p;
