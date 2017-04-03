@@ -13,10 +13,18 @@ int main ()
 {
 	printf ("main\n");
 
+	{
 	int64_t x = 25, y = 10;
 	int64_t z = x / y;
 	int64_t w = x % y;
-
+	}
+	
+	{
+	uint64_t x = 25, y = 10;
+	uint64_t z = x / y;
+	uint64_t w = x % y;
+	}
+	
 	return 10;
 }
 

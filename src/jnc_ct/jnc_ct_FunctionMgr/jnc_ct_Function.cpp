@@ -69,12 +69,16 @@ Function::getLlvmFunction ()
 	if (m_llvmFunction)
 		return m_llvmFunction;
 
-#if (_JNC_OS_POSIX)
-	sl::String llvmName = "?"; // as to avoid linking conflicts
-	llvmName += m_tag;
-#else
-	sl::String llvmName = m_tag;
-#endif
+	sl::String llvmName;
+	if (m_module->getCompileFlags () & ModuleCompileFlag_McJit)
+	{
+		llvmName = "?"; // as to avoid linking conflicts
+		llvmName += m_tag;
+	}
+	else
+	{
+		llvmName = m_tag;
+	}
 
 	m_llvmFunction = m_type->getCallConv ()->createLlvmFunction (m_type, llvmName);
 	return m_llvmFunction;

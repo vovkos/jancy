@@ -147,6 +147,13 @@ extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
 
 #endif
 
+#if (_JNC_OS_WIN && JNC_PTR_BITS == 32)
+extern "C" int64_t _alldiv (int64_t, int64_t);
+extern "C" int64_t _allrem (int64_t, int64_t);
+extern "C" int64_t _aulldiv (int64_t, int64_t);
+extern "C" int64_t _aullrem (int64_t, int64_t);
+#endif
+
 bool
 Module::createLlvmExecutionEngine ()
 {
@@ -178,10 +185,11 @@ Module::createLlvmExecutionEngine ()
 		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
 #endif
 
-#if (_JNC_OS_POSIX)
 		m_functionMap ["memset"] = (void*) memset;
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
+
+#if (_JNC_OS_POSIX)
 #	if (JNC_PTR_BITS == 64)
 //		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
 #	else
@@ -191,6 +199,14 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
 #	endif
 #endif
+
+#if (_JNC_OS_WIN && JNC_PTR_BITS == 32)
+		m_functionMap ["_alldiv"] = (void*) _alldiv;
+		m_functionMap ["_allrem"] = (void*) _allrem;
+		m_functionMap ["_aulldiv"] = (void*) _aulldiv;
+		m_functionMap ["_aullrem"] = (void*) _aullrem;
+#endif
+
 	}
 	else
 	{
@@ -285,7 +301,11 @@ Module::findFunctionMapping (const sl::StringRef& name)
 	sl::StringHashTableIterator <void*> it;
 
 #if (_JNC_OS_DARWIN)
-	it = *(const uint16_t*) name.cp () == '?_' ?
+	it = name.isPrefix (sl::StringRef ("?_", 2, true)) ?
+		m_functionMap.find (name.getSubString (1)) :
+		m_functionMap.find (name);
+#elif (_JNC_OS_WIN && _JNC_CPU_X86)
+	it = name.isPrefix (sl::StringRef ("_", 1, true)) ?
 		m_functionMap.find (name.getSubString (1)) :
 		m_functionMap.find (name);
 #else
