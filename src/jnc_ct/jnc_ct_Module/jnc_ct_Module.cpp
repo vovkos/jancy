@@ -128,30 +128,18 @@ Module::initialize (
 	}
 }
 
-#if (_JNC_OS_POSIX)
-#	if (JNC_PTR_BITS == 64)
-/*int128_t
-lockTestAndSet (
-	volatile int128_t* dst,
-	int128_t src
-	)
-{
-	return __sync_lock_test_and_set_16 (dst, src);
-}*/
-#	else
+#if (JNC_PTR_BITS == 32)
+#	if (_JNC_OS_POSIX)
 extern "C" int64_t __divdi3 (int64_t, int64_t);
 extern "C" int64_t __moddi3 (int64_t, int64_t);
 extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
-#	endif
-
-#endif
-
-#if (_JNC_OS_WIN && JNC_PTR_BITS == 32)
+#	elif (_JNC_OS_WIN)
 extern "C" int64_t _alldiv (int64_t, int64_t);
 extern "C" int64_t _allrem (int64_t, int64_t);
 extern "C" int64_t _aulldiv (int64_t, int64_t);
 extern "C" int64_t _aullrem (int64_t, int64_t);
+#	endif
 #endif
 
 bool
@@ -189,24 +177,19 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["memcpy"] = (void*) memcpy;
 		m_functionMap ["memmove"] = (void*) memmove;
 
-#if (_JNC_OS_POSIX)
-#	if (JNC_PTR_BITS == 64)
-//		m_functionMap ["__sync_lock_test_and_set_16"] = (void*) lockTestAndSet;
-#	else
+#if (JNC_PTR_BITS == 32)
+#	if (_JNC_OS_POSIX)
 		m_functionMap ["__divdi3"]  = (void*) __divdi3;
 		m_functionMap ["__moddi3"]  = (void*) __moddi3;
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
-#	endif
-#endif
-
-#if (_JNC_OS_WIN && JNC_PTR_BITS == 32)
+#	elif (_JNC_OS_WIN)
 		m_functionMap ["_alldiv"] = (void*) _alldiv;
 		m_functionMap ["_allrem"] = (void*) _allrem;
 		m_functionMap ["_aulldiv"] = (void*) _aulldiv;
 		m_functionMap ["_aullrem"] = (void*) _aullrem;
+#	endif
 #endif
-
 	}
 	else
 	{
@@ -300,17 +283,15 @@ Module::findFunctionMapping (const sl::StringRef& name)
 {
 	sl::StringHashTableIterator <void*> it;
 
-#if (_JNC_OS_DARWIN)
-	it = name.isPrefix (sl::StringRef ("?_", 2, true)) ?
-		m_functionMap.find (name.getSubString (1)) :
-		m_functionMap.find (name);
-#elif (_JNC_OS_WIN && _JNC_CPU_X86)
-	it = name.isPrefix (sl::StringRef ("_", 1, true)) ?
-		m_functionMap.find (name.getSubString (1)) :
-		m_functionMap.find (name);
+#if (_JNC_OS_WIN && _JNC_CPU_X86)
+	bool isUnderscorePrefix = name.isPrefix (sl::StringRef ("_", 1, true));
 #else
-	it = m_functionMap.find (name);
+	bool isUnderscorePrefix = name.isPrefix (sl::StringRef ("_?", 2, true));
 #endif
+
+	it = isUnderscorePrefix ?
+		m_functionMap.find (name.getSubString (1)) :
+		m_functionMap.find (name);
 
 	return it ? it->m_value : NULL;
 }
