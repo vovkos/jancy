@@ -13,8 +13,6 @@
 
 /// JNC_SELECT_ANY char g_std_GuidSrc [] =
 
-import "std_Guid.jnc"
-
 namespace std {
 
 //! \addtogroup std

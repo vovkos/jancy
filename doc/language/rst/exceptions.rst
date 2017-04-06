@@ -14,7 +14,7 @@ Exception Handling
 
 Jancy exceptions handling model applies a layer of syntactic sugar over good old C-style error code checking. As a result, it is extremely transparent and easy to support from the host C/C++ application.
 
-A function marked by the ``errorcode`` modifier will have its return value interpreted as an error code. Intuitive defaults are assumed: ``false`` for bools, ``-1`` for integers integers and ``null`` for pointers.
+A function marked by the ``errorcode`` modifier will have its return value interpreted as an error code. Intuitive defaults are assumed: ``false`` for bools, ``-1`` for integers and ``null`` for pointers.
 
 .. code-block:: jnc
 
