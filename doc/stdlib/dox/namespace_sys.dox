@@ -13,7 +13,7 @@
 
 \namespace sys
 
-	This namespaces contains all IO-related classes and auxiliary types and functions.
+	This namespaces contains all classes, auxiliary types and functions providing access to system services.
 
 	For your convenience, documentation for all the members of ``namespace sys`` is divided into the following categories:
 
@@ -43,4 +43,10 @@
 
 	This section describes types and facilities used for inter-thread synchronization.
 
+\defgroup gc
+
+	\title Garbage-Collected Heap
+
+	This section describes types and facilities used for the GC (garbage-collected heap) management.
+	
 */

@@ -40,9 +40,9 @@ typedef bool IsEqualFunc (
 
 	A typical sequence of steps when working with a hash table usually looks like this:
 
-	* Add ``(key; value)`` pairs using ``insert`` method (or by writing to ``m_map`` property);
-	* Remove ``(key; value)`` pairs using ``remove`` method;
-	* Find ``value`` associated with a ``key`` using ``find`` method (or by reading from ``m_map`` property).
+	* Add ``(key; value)`` pairs using ``add`` method (or by accessing the *indexer* property);
+	* Remove ``(key; value)`` pairs using ``remove`` or ``removeKey`` methods;
+	* Find ``value`` associated with a ``key`` using ``find``, ``findValue`` method (or by accessing the *indexer* property).
 
 	.. rubric:: Sample code:
 

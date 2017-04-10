@@ -75,4 +75,12 @@
 
 	This section describes types and facilities used when programming Pcap (Packet Capturing Library)
 
+\defgroup usb
+
+	\title USB Communications
+
+	\import io_usb.jncx
+
+	This section describes types and facilities used for accessing USB devices with ``libusb``.
+
 */

@@ -37,9 +37,9 @@ struct RegexMatch
 ///; static char regexStateTypeSrc [] =
 
 /**
-	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``automaton`` function.
+	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``reswitch`` statement.
 
-	Jancy ``automaton`` functions allow for convenient creation of lexers/scanners.
+	Jancy ``reswitch`` statements allow for convenient creation of lexers/scanners.
 
 	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
 
@@ -47,64 +47,99 @@ struct RegexMatch
 	2. Specify which actions to execute when these lexemes are found in the input stream.
 	3. Jancy compiler automatically builds a DFA to recognize your language and perform correspondig actions.
 
-	However, you cannot call ``automaton`` function directly. To *execute* the resulting DFA you need a `jnc.Recognizer` object -- it will hold the state of DFA and buffer matched lexemes.
-
-	For better understanding of the relations between automatons and recognizers, think about the follow analogy. You have an XBox console and a game disc. First you have to load the disc into console, and then you play it -- you can even interrupt the process of playing (e.g. to continue it the next day).
-
-	In this analogy a game disc corresponds to some ``automaton`` function and a console is a `jnc.Recognizer` instance. Recognizer holds the DFA state and performs recognition driven by the ``automaton`` function. And just like with XBox example above, you can recognize a part of data first, then wait (for example, until the next portion arrives over the network), then continue where you left, and so on.
-
-	.. rubric:: Using Automatons and Recognizers
-
-	To use Jancy lexer/scanner framework, you have to define an automaton function first. Automaton function contains a list of recognized lexemes in form of regular expressions *and* defines actions to undertake when these lexemes are found in the input stream:
+	To *execute* the resulting DFA you need a ``jnc.RegexState`` object -- it will hold the state of DFA and buffer matched lexemes. In its simplest form recognizer looks like this:
 
 	.. ref-code-block::
 
-		`jnc.AutomatonResult` automaton fooBar (`jnc.Recognizer`* recognizer)
+		jnc.RegexState state;
+		reswitch (state, p, length)
 		{
-			%% "foo"
-				// lexeme found: foo;
+		case "foo":
+			// ...
+			break;
 
-			%% "bar"
-				// lexeme found: bar;
+		case r"bar\(d+)":
+			print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+			break;
 
-			%% [0-9]+
-				// lexeme found: decimal-number
+		case r"\s+":
+			// ignore whitespace
+			break;
 
-				int value = atoi (recognizer.m_lexeme);
-
-			%% [ \r\n\t]+
-				// ignore whitespace
+		// ...
 		}
 
-	Then create an instance of ``jnc.Recognizer`` class and assign your ``automaton`` function to it::
-
-		jnc.Recognizer recognizer (fooBar);
-
-	Then you keep feeding chunks of data to the recognizer; when recognizer matches the whole lexeme as defined in ``automaton`` function, it executes the corresponding action:
+	To employ incremental recognition, you would want to create some kind of a *match* function and call it each time the next chunk of data becomes available:
 
 	.. ref-code-block::
 
-		try
+		bool errorcode match (
+			jnc.RegexState* state,
+			const char* p,
+			size_t length
+			)
 		{
-			recognizer.write (" ba");
-			recognizer.write ("r f");
-			recognizer.write ("oo ");
-			recognizer.write ("100");
-			recognizer.write ("000");
+			const char* end = p + length;
 
-			// notify recognizer about eof (this can trigger actions or errors)
+			// post-condition loop allows passing 'null' as eof
+			do
+			{
+				reswitch (state, p, end - p)
+				{
+				case "foo":
+					// ...
+					break;
 
-			recognizer.eof ();
+				case r"bar\(d+)":
+					print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+					break;
 
-		catch:
-			// handle recognition error
+				case r"\s+":
+					// ignore whitespace
+					break;
+
+				// ...
+
+				default:
+					// we can get here for two reasons only:
+					//   1) mismatch
+					//   2) incremental recognition
+
+					if (!state.m_consumedLength)
+						return false;
+
+					assert (state.m_isIncremental && state.m_consumedLength == end - p);
+				}
+
+				p += state.m_consumedLength; // advance to the next lexeme
+			} while (p < end)
+
+			return true;
 		}
 
-	\sa `jnc.AutomatonLexeme`, `jnc.AutomatonResult`
+	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk (and not as the whole). You do so by setting ``m_isIncremental`` field to ``true``:
 
-	\footnote f1
+	.. ref-code-block::
 
-		|footnote-errorcode|
+		jnc.RegexState state (true);  // turn on incremental matching
+
+		// alternatively, assign:
+		// state.m_isIncremental = true;
+
+	Now, whenever the next portion of data becomes available, simply call:
+
+	.. ref-code-block::
+
+		size_t length = getNextPortionOfData (buffer);
+
+		match (state, buffer, length);
+
+	Pass zero-sized buffer to trigger ``eof`` processing:
+
+	.. ref-code-block::
+
+		match (state, null, 0);
+
 */
 
 opaque class RegexState

@@ -24,7 +24,7 @@
 	\import std_List.jnc
 	\import std_HashTable.jnc
 
-	\This section describes types for holding structured collections of other objects.
+	This section describes types for holding structured collections of other objects.
 
 \defgroup error
 
@@ -38,5 +38,7 @@
 
 	This section describes miscellaneous types and facilities of ``namespace std``.
 
+	\footnote f3
+		Note that this function uses ``C`` vararg calling convention (and actually maps directly to libc ``snprintf``). As such, it is **not safe**. It is recommended to use formatting literals instead.
 
 */

@@ -171,7 +171,7 @@ size_t strdjb2 (char const* p)
 /**
 	Calculates a case-insensitive DJB2 hash of null-terminated string ``p``.
 
-	Equivalent of calling `djb2` on a string, each character of which was converted to lower-case via `tolower`.
+	Equivalent of calling `strdjb2` on a string, each character of which was converted to lower-case via `tolower`.
 */
 
 size_t stridjb2 (char const* p);
@@ -356,7 +356,7 @@ char* gets ();
 size_t print (char const* text);
 
 /**
-	Prints error message to the standard eror stream.
+	Prints error message to the standard error stream.
 
 	Unlike its standard C library counterpart, does not follow the message with ``: <errno decription>``. If you need the last error description, inject it using formatting literals and the ``$!`` placeholder.
 

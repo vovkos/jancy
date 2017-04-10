@@ -34,13 +34,13 @@ struct ListEntry
 		Holds a pointer to the next list entry on the list or ``null`` if this is the last entry.
 	*/
 
-	ListEntry* readonly m_next;
+	ListEntry cmut* readonly m_next;
 
 	/**
-		Holds a pointer to the previous list entry on the list or ``null`` if this is the last entry.
+		Holds a pointer to the previous list entry on the list or ``null`` if this is the first entry.
 	*/
 
-	ListEntry* readonly m_prev;
+	ListEntry cmut* readonly m_prev;
 
 	/**
 		Opaque field used for internal validation of the list entry. Must be ignored in user code.

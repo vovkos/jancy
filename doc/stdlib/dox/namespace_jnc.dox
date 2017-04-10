@@ -13,6 +13,6 @@
 
 \namespace jnc
 
-	This namespace contains built-in types that are integral part of the language and are directly used by the Jancy compiler.
+	This namespace contains built-in types that are integral part of the language and constitute the RTL (runtime-library) of the Jancy compiler.
 
 */
