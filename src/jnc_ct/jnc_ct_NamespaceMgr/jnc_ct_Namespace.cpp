@@ -282,6 +282,8 @@ Namespace::generateMemberDocumentation (
 	sl::String sectionDef;
 	sl::String memberXml;
 
+	sl::Array <EnumType*> unnamedEnumTypeArray;
+
 	size_t count = m_itemArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -297,6 +299,31 @@ Namespace::generateMemberDocumentation (
 		Namespace* itemNamespace = item->getNamespace ();
 		if (itemNamespace == this)
 			continue;
+
+		if (item->getItemKind () == ModuleItemKind_EnumConst)
+		{
+			EnumType* enumType = ((EnumConst*) item)->getParentEnumType ();
+			if (enumType != this) // otherwise, we are being called on behalf of EnumType
+			{
+				if (!enumType->getName ().isEmpty ()) // exposed enum, not unnamed
+					continue;
+
+				unnamedEnumTypeArray.append (enumType);
+
+				// skip all other enum consts of this unnamed enum
+
+				for (i++; i < count; i++)
+				{
+					item = m_itemArray [i];				
+					if (item->getItemKind () != ModuleItemKind_EnumConst ||
+						((EnumConst*) item)->getParentEnumType () != enumType)
+						break;
+				}
+
+				i--; // undo last increment
+				continue;
+			}
+		}
 
 		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
 		if (!result)
@@ -339,6 +366,19 @@ Namespace::generateMemberDocumentation (
 			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.sz ());
 			itemXml->append ('\n');
 		}
+	}
+
+	count = unnamedEnumTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		ModuleItem* item = unnamedEnumTypeArray [i];
+		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
+		if (!result)
+			return false;
+
+		ASSERT (!memberXml.isEmpty ());
+		sectionDef.append (memberXml);
+		sectionDef.append ('\n');
 	}
 
 	if (!sectionDef.isEmpty ())

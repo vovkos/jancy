@@ -67,7 +67,7 @@ enum_specifier
 	}
 	leave
 	{
-		if ($.m_type->getName ().isEmpty () || ($.m_type->getFlags () & EnumTypeFlag_Exposed))
+		if ($.m_type->getFlags () & EnumTypeFlag_Exposed)
 			return m_module->m_namespaceMgr.getCurrentNamespace ()->exposeEnumConsts ($.m_type);
 	}
 	:	enum_modifier <&$.m_flags>*

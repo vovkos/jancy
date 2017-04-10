@@ -226,7 +226,11 @@ EnumType::generateDocumentation (
 		m_name.sz ()
 		);
 
-	sl::String modifierString = getEnumTypeFlagString (m_flags);
+	uint_t flags = m_flags;
+	if (m_name.isEmpty ())
+		flags &= ~EnumTypeFlag_Exposed; // unnamed enums imply 'exposed' anyway
+
+	sl::String modifierString = getEnumTypeFlagString (flags);
 	if (!modifierString.isEmpty ())
 		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.sz ());
 
