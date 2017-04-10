@@ -177,7 +177,7 @@ dec+                |
 '0' [nNdD] dec+     |
 '0' [xXoObBnNdD] raw_lit_dq |
 dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
-'$' lit_dq
+[$fF] lit_dq
 )					{ colorize (ts, te, Qt::darkRed); };
 
 ('0' [xXoObBnNdD])? '"""'

@@ -282,7 +282,7 @@ main := |*
 '@='             { createToken (TokenKind_AtAssign); };
 '...'            { createToken (TokenKind_Ellipsis); };
 
-'$"'             { preCreateFmtLiteralToken (); fcall lit_fmt; };
+[$fF] '"'        { preCreateFmtLiteralToken (); fcall lit_fmt; };
 '"""' (ws? '\r'? nl)?
 				 { preCreateMlLiteralToken (); fgoto lit_ml; };
 
