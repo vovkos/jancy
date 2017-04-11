@@ -14,25 +14,34 @@ sudo:     required
 language: cpp
 
 os:
-    - linux
+#    - linux
     - osx
 
 compiler:
-    - gcc
+#    - gcc
     - clang
 
 env:
-    - LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
-    - LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
-    - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
-    - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-    - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
-    - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
-    - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
-    - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+    global:
+        - secure: yrLSFSMFrKzVB/g8l/sHJgViJ1l1h4v7VOKd54TGWl1u2Mt/OpFA5r3xdDM1HOLSNEygn0txT0OkuJiaQR8jQbxvGFJRS8tH8QDHTXK6ouShAqKsVxZN71RV2eOvUCKFHIggZcGMD1FVITdE0J04mq18aSY9jSB0033BwrR1geT+IWvEasxDN91jgnPseUHj/ClCzeC5Odq9KIzYRZVNYJXgcLY0TKLWTDVvv+RkClArt9uvqJHzBMBEA+3vDHc655d6GP1QlIj4eD1gLgebSV8duKF0xKGVY+gkS/zmyDP+NSRzc6T0slJtpPSKiadPGwmi69oJQIDq7tk2n+glNbnO5o88IeKGqpTXnYpkbnjQG9+1j1g4pgnjE61NGIbM3G00rSlkTpJQlxQPlOCm+FcNE/eCaf1BB6RxnxkNpdjN4VP3DdhT5293avL6DCeWYyKcMEHsI28dXtcKWepbTRTwNgwgYtLacEDPtbYQdi13XFc+IKDIZHOoHljAHbtvoYRS0Cz6cD8Zdstzu1aJoU0RqWnQZUxtvyj58HLt0ngxbv6f1cuydj4gywO9tnetH7kp5ESGJFmG8Owrj0AgzHHoLxG7lQojnLCGrFBT6z6uqPcVxjT2MUqLrnEEL6WdcqUGU1r6xuZ+ik1ELiznDBWk9fZCbbBrI9j87l/Utjc=
+
+    matrix:
+#        - LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+#        - LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+#        - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+#        - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+#        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+#        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+#        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+#        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+
+        - BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
 
 matrix:
     exclude:
+        - os:  linux
+          env: BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+
         - os:       osx
           compiler: gcc
 
@@ -56,35 +65,14 @@ before_install:
     - git clone http://github.com/vovkos/graco
 
 script:
-    - THIS_DIR=`pwd`
+    - source ci/travis/build.sh
 
-    - echo "if (NOT \"$CPP_STD\" STREQUAL \"\")" >> settings.cmake
-    - echo "    axl_override_setting (GCC_FLAG_CPP_STANDARD -std=$CPP_STD)" >> settings.cmake
-    - echo "endif ()" >> settings.cmake
+deploy:
+    provider:      pages
+    skip_cleanup:  true
+    local_dir:     doc/html
+    github_token:  $GITHUB_TOKEN
 
-    - mkdir axl/build
-    - cd axl/build
-    - cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
-    - make
-
-    - cd $THIS_DIR
-    - echo "set (AXL_CMAKE_DIR $THIS_DIR/axl/cmake $THIS_DIR/axl/build/cmake)" >> paths.cmake
-
-    - mkdir graco/build
-    - cd graco/build
-    - cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
-    - make
-
-    - cd $THIS_DIR
-    - echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR//graco/build/cmake)" >> paths.cmake
-    - echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
-
-    - mkdir build
-    - cd build
-    - cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
-    - make
-    - ctest --output-on-failure
-    - doc/stdlib/build-xml.sh
-
-    - cd $THIS_DIR
-    - source ci/travis/get-coverage.sh
+    on:
+        branch:    master
+        condition: $BUILD_DOC == ON

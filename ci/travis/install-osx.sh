@@ -26,3 +26,9 @@ fi
 
 echo "set (OPENSSL_INC_DIR /usr/local/opt/openssl/include)" >> paths.cmake
 echo "set (OPENSSL_LIB_DIR /usr/local/opt/openssl/lib)" >> paths.cmake
+
+if [ "$BUILD_DOC" != "" ]; then
+	brew install doxygen
+	pip install sphinx sphinx_rtd_theme
+	rvm get stable
+fi
