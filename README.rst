@@ -106,7 +106,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 		// ...
 		break;
 
-	case r"bar\(d+)":
+	case r"bar(\d+)":
 		print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
 		break;
 
@@ -117,7 +117,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 	// ...
 	}
 
-This statement will compile into a table-driven DFA which will parse the input string in *O(length)* -- you don't get any faster than that.
+This statement will compile into a table-driven DFA which can parse the input string in *O(length)* -- you don't get any faster than that.
 
 But there's more -- the resulting DFA recognizer is *incremental*, which means you can feed it the data chunk-by-chunk when it becomes available (e.g. once received over the network).
 
