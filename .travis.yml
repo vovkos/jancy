@@ -61,8 +61,9 @@ before_install:
     - source ci/travis/install-$TRAVIS_OS_NAME.sh
     - source ci/travis/download-llvm.sh
 
-    - git clone http://github.com/vovkos/axl
-    - git clone http://github.com/vovkos/graco
+    - git clone --depth 1 http://github.com/vovkos/axl
+    - git clone --depth 1 http://github.com/vovkos/graco
+    - git clone --depth 1 http://github.com/vovkos/doxyrest
 
 script:
     - source ci/travis/build.sh

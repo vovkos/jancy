@@ -30,6 +30,17 @@ make
 
 cd $THIS_DIR
 echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR//graco/build/cmake)" >> paths.cmake
+
+if [ "$BUILD_DOC" != "" ]; then
+	mkdir doxyrest/build
+	cd doxyrest/build
+	cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
+	make
+
+	cd $THIS_DIR
+	echo "set (DOXYREST_CMAKE_DIR $THIS_DIR/doxyrest/cmake $THIS_DIR//doxyrest/build/cmake)" >> paths.cmake
+fi
+
 echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
 
 mkdir build
