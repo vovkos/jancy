@@ -34,7 +34,6 @@ exit -1
 set TARGET_CPU=x86
 set CMAKE_GENERATOR_SUFFIX=
 set LUA_PLATFORM=Win32
-set LLVM_BUILD_32_BITS=ON
 shift
 goto :loop
 
@@ -42,7 +41,6 @@ goto :loop
 set TARGET_CPU=amd64
 set CMAKE_GENERATOR_SUFFIX= Win64
 set LUA_PLATFORM=Win64
-set LLVM_BUILD_32_BITS=OFF
 shift
 goto :loop
 
