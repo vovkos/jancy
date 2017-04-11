@@ -13,7 +13,7 @@ set (DOC_NAME "Jancy Grammar Reference")
 
 set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR})
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
-set (HTML_DIR ${JANCY_DOC_DIR}/html)
+set (HTML_DIR ${JANCY_DOC_DIR}/html/grammar)
 
 set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
