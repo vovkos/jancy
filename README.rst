@@ -308,9 +308,9 @@ Other Notable Features
 Documentation
 -------------
 
-* `Jancy Language Manual <http://docs.tibbo.com/jancy/language>`_
-* `Jancy Standard Library Reference <http://docs.tibbo.com/jancy/stdlib>`_
-* `Jancy C API Reference <http://docs.tibbo.com/jancy/api>`_
-* `Jancy Compiler Overview <http://docs.tibbo.com/jancy/compiler>`_
-* `Jancy Grammar Reference <http://docs.tibbo.com/jancy/grammar>`_
-* `Jancy Build Guide <http://docs.tibbo.com/jancy/build-guide>`_
+* `Jancy Language Manual <https://vovkos.github.io/jancy/language>`_
+* `Jancy Standard Library Reference <https://vovkos.github.io/jancy/stdlib>`_
+* `Jancy C API Reference <https://vovkos.github.io/jancy/api>`_
+* `Jancy Compiler Overview <https://vovkos.github.io/jancy/compiler>`_
+* `Jancy Grammar Reference <https://vovkos.github.io/jancy/grammar>`_
+* `Jancy Build Guide <https://vovkos.github.io/jancy/build-guide>`_

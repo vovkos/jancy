@@ -12,8 +12,8 @@
 set (DOC_NAME "Jancy Documentation Index")
 
 set (RST_DIR  ${CMAKE_CURRENT_LIST_DIR})
-set (HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
 set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
+set (HTML_DIR ${JANCY_DOC_DIR}/html)
 
 set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
