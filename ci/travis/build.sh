@@ -41,8 +41,6 @@ if [ "$BUILD_DOC" != "" ]; then
 	echo "set (DOXYREST_CMAKE_DIR $THIS_DIR/doxyrest/cmake $THIS_DIR//doxyrest/build/cmake)" >> paths.cmake
 fi
 
-echo "set (LLVM_CMAKE_DIR $THIS_DIR/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
-
 mkdir build
 cd build
 cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
@@ -59,6 +57,7 @@ else
 	source doc/build-guide/build-html.sh
 	source doc/language/build-html.sh
 	source doc/compiler/build-html.sh
+	source doc/grammar/build-llk.sh
 	source doc/grammar/build-html.sh
 	source doc/stdlib/build-xml.sh
 	source doc/stdlib/build-rst.sh
