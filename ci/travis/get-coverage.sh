@@ -18,7 +18,7 @@ if [ "$BUILD_CONFIGURATION" != "Debug" ]; then
 fi
 
 lcov --capture --directory . --no-external --output-file coverage.info
-lcov --remove coverage.info '*/axl/*' '*/graco/*' --output-file coverage.info
+lcov --remove coverage.info '*/llvm/*' '*/axl/*' '*/graco/*' --output-file coverage.info
 lcov --list coverage.info
 
 curl -s https://codecov.io/bash | bash
